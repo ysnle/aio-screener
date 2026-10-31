@@ -272,7 +272,7 @@ if (!marketPageSource.includes('renderMacroBoard') || !marketPageSource.includes
   const shell = read('index.html');
   // P1426: regime, impact axes, transmission chain and oil/gold charts on 거시 경제; impact axes on 금리 · 환율.
   // P1427: visual layer — threshold gauges on the deciding variable, the regime map and the traffic-light tiles.
-  for (const marker of ['export function gaugeBar', 'function bandOf', 'function quadrantChart', 'function overviewTiles', 'macro-gauge-note']) {
+  for (const marker of ['export function gaugeBar', 'function bandOf', 'function quadrantChart', 'macro-gauge-note']) {
     if (!macroBoardSource.includes(marker)) fail(`P1427 거시 visual marker missing: ${marker}`);
   }
   if (!read('src/domain/macro/macro-read.js').includes('function sharedGauges({ macro, rateFx, regime })')) fail('P1427 shared gauges must follow the deciding variable');
@@ -333,10 +333,13 @@ const closeThemeDetailSource = pagesSource.slice(pagesSource.indexOf('function c
 if (showThemeDetailSource.includes("container.style.display = 'block'") || showThemeDetailSource.includes("container.dataset.currentTheme = themeId") || closeThemeDetailSource.includes("p.style.display = 'none'")) fail('legacy theme detail panel writer returned after P818 cutover');
 if (!showThemeDetailSource.includes('themesPageActive') || !showThemeDetailSource.includes("window.showPage('theme-detail')")) fail('ticker-to-theme detail bridge does not route when the owning themes page is inactive');
 if (!coreSource.includes('nativeThemeDetailMounted') || !themesPageSource.includes('pendingThemeId') || !themesPageSource.includes('queueMicrotask(() => requestThemeDetail(pendingThemeId))')) fail('theme-detail lazy-mount pending handoff contract missing');
-for (const marker of ['THEME_MEMBERSHIP_POLICY', 'membershipPolicy', '구성 기준일 미검증']) {
+for (const marker of ['THEME_MEMBERSHIP_POLICY', 'membershipPolicy']) {
   // P1133/R620: the theme-membership provenance markers moved with block D into js/aio-pages.js.
   if (!(indexHtmlSource.includes(marker) || themesPageSource.includes(marker) || pagesSource.includes(marker))) fail(`theme membership provenance marker missing: ${marker}`);
 }
+// v59.51 (content audit): the visible provenance line ('구성 기준일 미검증' beside the number) left the theme detail face (sources
+// off screen); the membership policy still normalizes as REFERENCE with an as-of-unverified default, so the provenance stays in data.
+if (!/sourceKind \|\| 'REFERENCE'/.test(read('src/data/normalize/themes.js')) || !/status \|\| 'as-of-unverified'/.test(read('src/data/normalize/themes.js'))) fail('v59.51 (content audit): theme membership provenance must normalize as REFERENCE with an as-of-unverified default');
 // P803: market.js owns the bounded breadth signal label from the normalized advance ratio.
 // The legacy updateBreadthUI writer (breadth-advance-ratio / RSP-SPY breadth-signal-val / breadth-source)
 // was retired with its sinks; it must not come back to write over the native breadth route.
@@ -442,6 +445,10 @@ if (legacyRuntimeSource.includes('function loadTechCandleChart')) fail('retired 
   const indirectCreators = [
     { ids: ['ai-panel-loading', 'ai-panel-streaming'], file: 'js/aio-chat.js', proof: /function _appendAIMsg\(role, html, id\)[\s\S]{0,300}?if \(id\) msg\.id = id;/, reason: '_appendAIMsg(role, html, id) assigns msg.id from its third argument' },
     { ids: ['scr-listing-market', 'scr-order'], file: 'src/ui/pages/screener.js', proof: /\['scr-listing-market', [\s\S]{0,200}?\['scr-order', [\s\S]{0,600}?select\.id = id;/, reason: 'the market-scope controls loop creates one <select> per [id, label, entries] tuple' },
+    // v59.51 (content audit): the theme detail face/fold slots are built by a local make(tag, className, id) helper.
+    { ids: ['theme-detail-reading', 'theme-detail-native-why', 'theme-detail-native-criteria', 'theme-detail-native-criteria-table'], file: 'src/ui/pages/themes.js', proof: /const make = \(tag, className, id = null\) => \{[\s\S]{0,200}?node\.id = id;[\s\S]*?make\('ul', 'thp-reading', 'theme-detail-reading'\)/, reason: 'renderThemeDetailSummary make(tag, className, id) assigns node.id from its third argument' },
+    // v59.51 (content audit): 시장 상태 places the scenario box with renderCrossroadsCompact({ id }), which assigns box.id = id.
+    { ids: ['signal-crossroads'], file: 'src/ui/components/market-regime.js', proof: /renderCrossroadsCompact\(\{[^}]*id: 'signal-crossroads'/, reason: 'renderCrossroadsCompact (macro-crossroads.js) creates its box with box.id = id' },
   ];
   // Dead writers found in page files this change does not own (v57.79 parallel page work). Each entry fails once its
   // lookup is gone, so the list can only shrink.
@@ -541,7 +548,8 @@ for (const marker of ['valuationState', 'cash-only', 'data-valuation-state']) {
   if (!portfolioPageSource.includes(marker)) fail(`W02/P1143 native portfolio valuation marker missing: ${marker}`);
 }
 if (!read('src/domain/portfolio/surface.js').includes('PORTFOLIO_VALUATION_STATES')) fail('W02/P1143 portfolio valuation states missing');
-for (const marker of ['derivePortfolioSurface', 'renderPortfolioSurface', 'pf-holding-count', 'pf-sector-breakdown', 'aioPortfolioSurfaceRenderer']) {
+// v59.51 (content audit): the sector allocation card (#pf-sector-breakdown) left the page; the surface markers that remain are pinned.
+for (const marker of ['derivePortfolioSurface', 'renderPortfolioSurface', 'pf-holding-count', 'aioPortfolioSurfaceRenderer']) {
   if (!portfolioPageSource.includes(marker)) fail(`native portfolio surface marker missing: ${marker}`);
 }
 if (!read('src/domain/portfolio/surface.js').includes('PORTFOLIO_SURFACE_MODEL_VERSION')) fail('portfolio surface model missing');
@@ -554,9 +562,10 @@ if ((indexHtmlSource + workspaceSource).includes("document.getElementById('pf-ho
 // fence is now consulted there. The marker's owner must move with it — an assertion pinned to the old
 // file would either fail loudly (as this one did) or, worse, keep passing against a stale copy.
 if (!dataSource.includes('function _aioIsNativeMacroElement') || dataSource.includes('#page-options') || coreSource.includes('#page-options') || uiSource.includes('#page-options')) fail('P1321 retired options fence must not return; macro native-element fence must remain');
-// P835: portfolio position allocation chart lifecycle is native from normalized holding
-// values and drawPositionDonut remains a compatibility fallback behind the route marker.
-if (routeOwners.routes?.portfolio?.chartOwner !== 'native' || !portfolioPageSource.includes('renderPortfolioChart') || !portfolioPageSource.includes('aioPortfolioChartRenderer') || !pagesSource.includes("c.dataset.aioPortfolioChartRenderer === 'native'")) fail('native portfolio chart ownership/fence missing (P1592: the legacy donut must yield on the canvas marker the native renderer writes)');
+// P835: portfolio position allocation chart lifecycle was native from normalized holding values.
+// v59.51 (content audit): the position donut was retired from 포트폴리오 — no native donut renderer, no canvas, and the
+// legacy drawPositionDonut (js/aio-pages.js) was deleted; pin that none comes back.
+if (portfolioPageSource.includes('renderPortfolioChart') || /id="pf-position-donut"/.test(indexHtmlSource) || /function\s+drawPositionDonut\s*\(/.test(pagesSource) || (routeOwners.domWriterIntersectionAllowlist || []).includes('pf-position-donut')) fail('v59.51 (content audit): the retired portfolio position donut (renderPortfolioChart / #pf-position-donut / drawPositionDonut) must not return');
 // P785 → legacy unification (audit 2026-10-17 follow-up): the 0-100 market-health grade (A+~F) is retired end to end.
 // No model, no facade entry, no legacy wrapper; the ticker decision gate reads the 시장 상태 regime's sufficiency.
 if (fs.existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired market-health model returned (src/domain/market/health.js)');
@@ -564,7 +573,7 @@ if (/computeMarketHealth/.test(legacyRuntimeSource + bootstrapSource + read('src
 if (!/_aioMarketRegimeSummary\(\)[\s\S]{0,600}_tickerGateRegime\.sufficient !== true/.test(read('js/aio-core.js')) || !/sufficient: regime\.sufficient === true/.test(bootstrapSource)) fail('ticker decision gate must read the 시장 상태 regime sufficiency');
 // P1420: the technical page shows the 시장 상태 six-axis summary instead of the 0-100 health score;
 // the score surface must not return to the page. v57.55 review: the reader takes a rerender callback for late credit history.
-for (const marker of ['renderTechnicalHealth', "page.dataset.aioTechnicalRenderer = 'native'", 'readMarketRegime(root, ', 'tech-regime-chips']) {
+for (const marker of ['renderTechnicalHealth', "page.dataset.aioTechnicalRenderer = 'native'", 'readMarketRegime(root, ']) {
   if (!analysisPageSource.includes(marker)) fail(`native technical regime summary marker missing: ${marker}`);
 }
 if (read('index.html').includes('id="health-score-display"') || analysisPageSource.includes('health.score')) fail('P1420 retired technical health score returned to the page');
@@ -627,17 +636,12 @@ if (/function (drawRRG|setRRGView)\b/.test(pagesSource)) fail('v58.97 the legacy
 // P800: the themes slice must be fed by the native provider/orchestrator rather than
 // the legacy facade projection; legacy theme events remain compatibility notifications.
 if (routeOwners.routes?.themes?.dataOwner === 'native' && (!bootstrapSource.includes('readLiveData: () => root?._liveData || {}') || bootstrapSource.includes('createThemesProvider({ read: legacy.readThemes })')) ) fail('native themes data provider boundary missing');
-for (const marker of ['renderThemeCyclePill', 'theme-cycle-pill', 'aioThemeCycleRenderer']) {
-  if (!themesPageSource.includes(marker)) fail(`native theme cycle marker missing: ${marker}`);
-}
-// P1267: the obsolete legacy cycle pill writer is retired; only native themes owns it.
-if (pagesSource.includes('P801: the RRG-derived cycle pill is native; legacy sector prose must not overwrite it.')
-  || pagesSource.includes("pill.dataset.aioThemeCycleRenderer !== 'native'")
-  || !themesPageSource.includes("pill.dataset.aioThemeCycleRenderer = 'native'")) fail('retired theme cycle writer returned or native owner missing');
+// v59.51 (content audit): the page-head cycle pill repeated the counts on the line above the scatter; the pill, its native
+// writer (P801) and the legacy writer (P1267) are all retired.
 // v57.76: the 섹터 흐름 분석 box (#sector-perf-analysis) repeated the 섹터 회전 판정 sentence and the 1일·1주 bars;
 // the box and its native writer are retired and must not return.
 if (indexHtmlSource.includes('id="sector-perf-analysis"') || themesPageSource.includes('renderThemePerformanceNarrative')
-  || themesPageSource.includes('aioThemePerformanceRenderer =')) fail('v57.76 retired sector-perf-analysis narrative returned'); // text-pin-ok: retirement absence
+  || themesPageSource.includes('aioThemePerformanceRenderer =') || /["'#]theme-cycle-pill|renderThemeCyclePill\(|aioThemeCycleRenderer/.test(indexHtmlSource + themesPageSource + pagesSource)) fail('v57.76 retired sector-perf-analysis narrative, or the v59.51 (content audit) retired theme cycle pill (code references only), returned'); // text-pin-ok: retirement absence
 // v57.76: the fenced legacy writer (generateSectorAnalysis in js/aio-pages.js) left with the box.
 if (/function generateSectorAnalysis\s*\(|sector-perf-analysis/.test(pagesSource)) fail('v57.76 retired legacy sector-perf-analysis writer returned'); // text-pin-ok: retirement absence
 // v57.76: the RRG scatter is the visible visual of 섹터 회전 판정 (not a developer-mode fold), the quadrant chips

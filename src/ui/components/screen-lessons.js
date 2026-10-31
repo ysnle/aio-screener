@@ -26,21 +26,6 @@ function rankEvidenceForRoot(root) {
   try { return root?._aioCandidateArchive?.entries ? summarizeCandidateArchive(root._aioCandidateArchive).independent || null : null; } catch (_) { return null; }
 }
 
-// v58.75 (persona review): the same lesson text closed three market screens ("하루 반등·하루 급락" on 시장 상태, 시장 폭 and
-// 투자 심리). On the market screens each lesson now closes only the screen whose subject it is: the flow lesson where the flow
-// is (시장 상태), participation on 시장 폭, fear and chasing on 투자 심리, the curve and rate cuts on 금리·환율, releases and
-// scenario conditions on 거시. Other screens keep the registry list (domain/guide/lessons.js SCREEN_LESSON_IDS) as is.
-const SCREEN_TOPIC_LESSONS = Object.freeze({
-  signal: new Set(['one-day-move', 'trust-credit', 'earnings-revisions']),
-  breadth: new Set(['watch-participation', 'index-high', 'trust-closes']),
-  sentiment: new Set(['fear-is-not-a-signal', 'no-chasing']),
-  fxbond: new Set(['read-the-curve', 'rate-cut-good']),
-  macro: new Set(['level-vs-expectation', 'confirm-after-release', 'conditions-not-forecasts', 'count-not-probability', 'past-repeats', 'trust-base-rate'])
-});
-
-// v58.56 (re-audit #16): 거시 · 시장 상태 · 시장 폭 · 투자 심리 run 2,000-6,000px; their closing lessons fold.
-const FOLDED_ROUTES = new Set(['macro', 'signal', 'breadth', 'sentiment']);
-
 export function renderScreenLessons({ documentRef: doc, root, routeId, ctx = null } = {}) {
   const page = doc?.getElementById?.(`page-${routeId}`);
   if (!page || !SCREEN_LESSON_IDS[routeId]) return null;
@@ -48,8 +33,8 @@ export function renderScreenLessons({ documentRef: doc, root, routeId, ctx = nul
   if (!ctx && root && !root[CONSENSUS_KEY] && SCREEN_LESSON_IDS[routeId].includes('earnings-revisions')) {
     requestConsensusEstimates(root, () => renderScreenLessons({ documentRef: doc, root, routeId }));
   }
-  const topic = SCREEN_TOPIC_LESSONS[routeId];
-  const lessons = selectScreenLessons(routeId, ctx || lessonContext(root), { limit: 99 }).filter((lesson) => !topic || topic.has(lesson.id)).slice(0, 3);
+  // Each lesson lives on one screen (SCREEN_LESSON_IDS); at most three, those today's data touches first.
+  const lessons = selectScreenLessons(routeId, ctx || lessonContext(root), { limit: 3 });
   if (!lessons.length) return null;
   const id = `screen-lessons-${routeId}`;
   let box = page.querySelector(`[data-aio-screen-lessons="${routeId}"]`);
@@ -66,18 +51,15 @@ export function renderScreenLessons({ documentRef: doc, root, routeId, ctx = nul
   title.id = `${id}-title`;
   const list = el(doc, 'ul', null, 'mg-lessons');
   lessons.forEach((lesson) => list.append(lessonItem(doc, root, lesson)));
-  if (FOLDED_ROUTES.has(routeId)) {
-    // v58.56 (re-audit #16): on the long market screens the lessons are one line that opens (titles in the summary).
-    const wasOpen = box.querySelector(':scope > details')?.open || false;
-    const fold = el(doc, 'details', null, 'sx-disclosure mg-screen-lessons-fold');
-    fold.open = wasOpen;
-    const summary = el(doc, 'summary', null, 'mg-screen-lessons-summary');
-    summary.append(title, el(doc, 'span', lessons.map((lesson) => lesson.title).filter(Boolean).join(', '), 'mg-screen-lessons-names'));
-    fold.append(summary, list);
-    box.replaceChildren(fold);
-    return lessons;
-  }
-  box.replaceChildren(title, list);
+  // v58.56 (re-audit #16) on the market screens, every screen since first-users run-6 (owner 2026-10-31): the lessons are
+  // one closed line (titles in the summary) that opens; a reader's open fold stays open across re-renders.
+  const wasOpen = box.querySelector(':scope > details')?.open || false;
+  const fold = el(doc, 'details', null, 'sx-disclosure mg-screen-lessons-fold');
+  fold.open = wasOpen;
+  const summary = el(doc, 'summary', null, 'mg-screen-lessons-summary');
+  summary.append(title, el(doc, 'span', lessons.map((lesson) => lesson.title).filter(Boolean).join(', '), 'mg-screen-lessons-names'));
+  fold.append(summary, list);
+  box.replaceChildren(fold);
   return lessons;
 }
 

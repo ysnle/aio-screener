@@ -130,12 +130,13 @@ export function sentimentFlow({ model = null, regime = null } = {}) {
   const byId = Object.fromEntries((regime?.axes || []).map((row) => [row.id, row]));
   const cards = Object.fromEntries((model?.cards || []).map((card) => [card.id, card]));
   const links = [];
-  if (cards.hy?.value && cards.hy.value !== '—' && byId.credit) links.push(`하이일드 스프레드 ${cards.hy.value}는 시장 상태 '신용과 위험선호' 지표(${byId.credit.stateLabel})의 근거`);
+  // v59.51: credit is read once, on the 시장 상태 credit axis (the sentiment page's HY card was a second copy).
+  const hy = (byId.credit?.evidence || []).find(([label]) => label === '하이일드 스프레드')?.[1];
+  if (hy && byId.credit) links.push(`하이일드 스프레드 ${hy}는 시장 상태 '신용과 위험선호' 지표(${byId.credit.stateLabel})의 근거`);
   if (cards.term?.value && cards.term.value !== '—' && byId.volatility) links.push(`VIX 단기 불안 비율 ${cards.term.value}는 '변동성' 지표(${byId.volatility.stateLabel})의 근거`);
   const bridge = links.length ? `${links.join(', ')}입니다. 공포·탐욕과 AAII는 6개 지표에 넣지 않는 참고 지표라, 가격에서 나온 심리가 자금 시장까지 번졌는지를 신용·변동성 두 지표로 확인합니다.` : '';
   const next = [];
-  const hyState = cards.hy?.state?.tone;
-  if (hyState === 'burden') next.push({ route: 'fxbond', label: '금리와 환율', why: '하이일드 스프레드 확대가 실질금리·달러와 같은 방향인지' });
+  if (byId.credit?.state === 'burden') next.push({ route: 'fxbond', label: '금리와 환율', why: '하이일드 스프레드 확대가 실질금리·달러와 같은 방향인지' });
   if (byId.breadth?.state === 'burden') next.push({ route: 'breadth', label: '시장 폭', why: `심리와 별개로 참여 종목이 줄고 있는지(시장 폭 ${byId.breadth.stateLabel})` });
   next.push({ route: 'signal', label: '시장 상태', why: '공포·탐욕과 AAII를 넣지 않은 6개 지표(변동성·신용 포함)의 전체 판정' });
   // Audit 2026-10-14: mood is a reading of today; where it leads is decided by the next releases.

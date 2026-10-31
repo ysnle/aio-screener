@@ -6,7 +6,39 @@ const segment = { above5: 50, above20: 50, above50: 50, above200: 50, advanceRat
 const rotation = (daily, session = '2026-10-22') => ({ schemaVersion: 'rotation-history.v1', modelVersion: 'rrg.v3', benchmark: 'SPY', timeframe: '1d', priceBasis: 'adjusted-close', decisionUse: false, allowedUseCeiling: 'reference', latestCompletedSession: session,
   items: Object.fromEntries(Object.entries(daily).map(([symbol, pct]) => [symbol, { status: 'CURRENT', sessionDate: session, rsRatio: 101, rsMomentum: 101, quadrant: 'Leading', dailyPct: pct, weeklyPct: pct, alignedSessionCount: 60, observedAt: `${session}T20:00:00.000Z`, fetchedAt: `${session}T20:20:00.000Z` }])) });
 
+// Eleven sector closes for one session (the money-flow line needs eight or more).
+const ELEVEN = { XLP: 3.3, XLU: 2.1, XLV: 1.3, XLF: 1.1, XLRE: 1.1, XLB: 0.7, XLY: -0.5, XLE: -0.9, XLI: -1, XLC: -1.4, XLK: -3.3 };
+
 export const cases = [
+  { id: 'RUN6-SMH-01', name: 'the money-flow SMH move is the completed history close the 주도 영역 line prints, not a later rotation bar', run: async ({ load }) => {
+    const { buildMarketFlow } = await load('src/domain/market/market-flow.js');
+    const { sessionMove } = await load('src/domain/market/leadership-verdict.js');
+    const history = [{ date: '2026-10-21', smh: 100, tnx: 4.17 }, { date: '2026-10-22', smh: 93, tnx: 4.11 }];
+    const flow = buildMarketFlow({ rotationHistory: rotation({ ...ELEVEN, SMH: -8.4 }), history, nowMs: Date.parse('2026-10-23T01:00:00Z') });
+    const semis = sessionMove(history, 'smh', '2026-10-22');
+    assert.equal(Math.round(semis.change * 10) / 10, -7);
+    assert.doesNotMatch(flow.line, /-8\.4%/);
+  } },
+  { id: 'RUN6-10Y-01', name: 'the money-flow 10-year change is tenYearClose of the same history (one source for the figure)', run: async ({ load }) => {
+    const { buildMarketFlow } = await load('src/domain/market/market-flow.js');
+    const { tenYearClose } = await load('src/domain/macro/rates-fx.js');
+    const history = [{ date: '2026-10-20', spx: 1, tnx: 4.20 }, { date: '2026-10-21', spx: 1, tnx: 4.17 }, { date: '2026-10-22', spx: 1, tnx: 4.11 }];
+    const flow = buildMarketFlow({ rotationHistory: rotation(ELEVEN), history, nowMs: Date.parse('2026-10-23T01:00:00Z') });
+    assert.equal(flow.tenYearBp, tenYearClose(history).d1Bp);
+    assert.equal(flow.tenYearBp, -6);
+  } },
+  { id: 'RUN6-TIE-02', name: 'a tie in the scenario model reads as a tie everywhere: no single lead, every tied branch named, no alternative', run: async ({ load }) => {
+    const { scenarioLead } = await load('src/domain/market/scenario-lead.js');
+    const { liveBranches } = await load('src/domain/briefing/event-guide.js');
+    const items = [{ id: 'aibust', title: 'AI 투자 꺾임 — x', fit: '조건 충족 2/4' }, { id: 'oilshock', title: '유가 충격 — y', fit: '조건 충족 2/4' }, { id: 'reflation', title: '재가속 — z', fit: '조건 충족 1/4' }];
+    const tie = { available: true, leadId: 'oilshock', altId: 'reflation', tiedIds: ['aibust', 'oilshock'], items };
+    const read = scenarioLead(tie);
+    assert.equal(read.state, 'tie');
+    assert.deepEqual(read.ids.sort(), ['aibust', 'oilshock']);
+    assert.deepEqual(liveBranches(tie).map((row) => row.role), ['동률', '동률']);
+    assert.equal(scenarioLead({ ...tie, tiedIds: [] }).state, 'lead');
+    assert.equal(scenarioLead({ ...tie, held: true }).state, 'held');
+  } },
   { id: 'P16-TIME-01', name: '특별 개장(10:00) 날 09:30은 정규장이 아니라 개장 전이다', run: async ({ load }) => {
     const { marketClock } = await load('src/domain/market/session-bridge.js');
     assert.equal(marketClock(Date.parse('2026-11-19T09:30:00+09:00')).kr.phase, 'before');
@@ -96,7 +128,7 @@ export const cases = [
     const { buildMarketFlow } = await load('src/domain/market/market-flow.js');
     const day = { XLP: 3.3, XLU: 2.1, XLV: 1.3, XLF: 1.1, XLRE: 1.1, XLB: 0.7, XLY: -0.5, XLE: -0.9, XLI: -1, XLC: -1.4, XLK: -3.3, SMH: -6 };
     const nowMs = Date.parse('2026-10-23T01:00:00Z');
-    const flow = buildMarketFlow({ rotationHistory: rotation(day), macro: { dgs10Delta: -0.17, _asOf_dgs10: '2026-10-22' }, nowMs });
+    const flow = buildMarketFlow({ rotationHistory: rotation(day), nowMs });
     assert.equal(flow.kind, 'defensive');
     assert.doesNotMatch(flow.read, /돈/);
     const { XLB, XLRE, ...nine } = day;
@@ -248,5 +280,50 @@ export const cases = [
     const { krIndexTrendFacts } = await load('src/ui/components/kr-index-trend.js');
     const facts = krIndexTrendFacts([{ date: '2026-10-28', kospi: 3000 }, { date: '2026-10-29', kospi: 2999.1 }], 'kospi');
     assert.equal(facts.d1Direction, null);
+  } },
+  { id: 'P2164-AXIS-01', name: '불안정은 안정이 아니고, 신용융자는 신용 축이 아니며, 완화는 그 상태의 주장이 아니다', run: async ({ load }) => {
+    const { axisStateClaimIssues } = await load('scripts/lib/market-analysis-validate.mjs');
+    assert.deepEqual(axisStateClaimIssues('신용 시장은 불안정합니다.', { context: 'credit: favorable — 스프레드 낮음' }), ['axis-state-contradiction:credit']);
+    assert.deepEqual(axisStateClaimIssues('신용융자 잔고는 부담입니다.', { context: 'credit: favorable — 스프레드 낮음' }), []);
+    assert.deepEqual(axisStateClaimIssues('하이일드 스트레스가 완화됐습니다.', { context: 'credit: favorable — 스프레드 낮음' }), []);
+    assert.deepEqual(axisStateClaimIssues('하이일드 스프레드와 달리 변동성은 안정입니다.', { context: 'credit: burden — 스프레드 확대' }), []);
+  } },
+  { id: 'P2164-DATES-01', name: '지수 이름의 숫자(S&P 500)는 수치가 아니고, 0을 붙인 날짜(10/30)도 날짜다', run: async ({ load }) => {
+    const { crossMarketDateIssues } = await load('scripts/lib/market-analysis-validate.mjs');
+    const dates = { krDate: '2026-10-30', usDate: '2026-10-29' };
+    assert.deepEqual(crossMarketDateIssues('코스피와 S&P 500이 함께 약했습니다.', dates), []);
+    assert.deepEqual(crossMarketDateIssues('코스피(10/30)는 1.2% 올랐고 S&P 500(10/29)은 0.4% 내렸습니다.', dates), []);
+    assert.deepEqual(crossMarketDateIssues('코스피는 1.2% 올랐고 S&P 500은 0.4% 내렸습니다.', dates), ['cross-market-session-dates-missing']);
+  } },
+  { id: 'P2166-SPREAD-01', name: '다른 날짜의 공식 2s10s 스프레드는 같은 날짜 스프레드로 표시하지 않는다', run: async ({ load }) => {
+    const { buildTreasuryCurveSpread } = await load('src/domain/macro/treasury-curve.js');
+    const legs = { twoY: { observedAt: '2026-10-30T20:00:00Z', cutId: 'ust-2026-10-30' }, tenY: { observedAt: '2026-10-30T20:00:00Z', cutId: 'ust-2026-10-30' } };
+    const stale = buildTreasuryCurveSpread({ twoY: 3.6, tenY: 3.98, officialSpread: 0.30, officialSpreadMeta: { observedAt: '2026-10-29', source: 'FRED' }, legs });
+    assert.equal(stale.comparable, false);
+    assert.equal(stale.spread, null);
+    const same = buildTreasuryCurveSpread({ twoY: 3.6, tenY: 3.98, officialSpread: 0.38, officialSpreadMeta: { observedAt: '2026-10-30', source: 'FRED' }, legs });
+    assert.equal(same.spread, 0.38);
+  } },
+  { id: 'P2166-LONG-01', name: '실업률·근원 CPI의 월 값은 월평균이라 부르지 않는다(일간 평균인 금리는 그대로)', run: async ({ load }) => {
+    const { longHistoryRows } = await load('src/domain/macro/long-history.js');
+    const months = Array.from({ length: 150 }, (_, i) => [`${2010 + Math.floor(i / 12)}-${String((i % 12) + 1).padStart(2, '0')}`, 4 + (i % 7) / 10]);
+    const rows = longHistoryRows({ generatedAt: '2026-10-31T00:00:00Z', series: { unemployment: { unit: 'percent', observations: months }, dgs10: { unit: 'percent', observations: months } } });
+    const text = Object.fromEntries(rows.map((row) => [row.field || row.id, row.monthText]));
+    const unemployment = rows.find((row) => /실업|unemployment/i.test(`${row.field || ''}${row.id || ''}${row.label || ''}`));
+    const dgs10 = rows.find((row) => /10|dgs10/i.test(`${row.field || ''}${row.id || ''}`));
+    assert.ok(unemployment && dgs10, `rows found: ${JSON.stringify(text)}`);
+    assert.doesNotMatch(unemployment.monthText, /월평균/);
+    assert.match(dgs10.monthText, /월평균/);
+  } },
+  { id: 'P2165-COMPARE-01', name: '비교표 기간 수익률은 이 종목의 날짜로 맞추고, 며칠 전에 끝난 시계열은 비워 둔다', run: async ({ load }) => {
+    const { alignedPeriodReturns, periodReturns } = await load('src/domain/technical/chart-compare.js');
+    const bars = Array.from({ length: 300 }, (_, i) => ({ time: new Date(Date.UTC(2025, 0, 1) + i * 86400000).toISOString().slice(0, 10), close: 100 + i }));
+    assert.deepEqual(alignedPeriodReturns(bars, bars), periodReturns(bars));
+    // The other series is missing a 5-day holiday block: its own session count would start on a different date.
+    const holiday = bars.filter((_, i) => i < 285 || i > 289);
+    assert.equal(alignedPeriodReturns(bars, holiday)['1개월'], periodReturns(bars)['1개월']);
+    assert.notEqual(periodReturns(holiday)['1개월'], periodReturns(bars)['1개월']);
+    // A cached series that ended five days ago is not compared as if current.
+    assert.equal(alignedPeriodReturns(bars, bars.slice(0, -5))['1개월'], null);
   } },
 ];

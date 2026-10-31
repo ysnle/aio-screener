@@ -71,22 +71,24 @@ export function moveNewsList(doc, root, rows, { showMissing = false, max = 8, li
 
 // v58.53 개편 v2: the slot styles moved from an injected <style> into src/ui/styles/v2-today.css (12px floor, soft cards).
 
+// v59.51 (content audit): 브리핑 says what the close means and 뉴스 what was said, so the six-hour slots live on 뉴스 as one
+// closed fold before 전체 뉴스. The in-progress slot's headlines were the same items as 뉴스's '08:00 이후 속보' list and are
+// not drawn twice; the sealed slots keep their summary, index moves and headlines.
 function ensureSection(doc) {
-  let section = doc.getElementById('briefing-timeline');
+  let section = doc.getElementById('news-timeline');
   if (section) return section;
-  const pair = doc.getElementById('briefing-pair');
-  const anchor = doc.getElementById('briefing-read');
-  if (!pair && !anchor) return null;
-  section = el(doc, 'section', null, 'aio-section briefing-block');
-  section.id = 'briefing-timeline';
-  section.setAttribute('aria-labelledby', 'briefing-timeline-title');
-  const heading = el(doc, 'h2', '시간대별 시황 ', 'briefing-h2');
-  heading.id = 'briefing-timeline-title';
+  const page = doc.getElementById('page-market-news');
+  const anchor = doc.getElementById('news-feed-card');
+  if (!page || !anchor) return null;
+  section = el(doc, 'details', null, 'aio-section briefing-block sx-card news-card news-timeline');
+  section.id = 'news-timeline';
+  const heading = el(doc, 'summary', '시간대별 시황 ', 'briefing-h2');
+  heading.id = 'news-timeline-title';
   heading.append(asOfChip(doc, '하루 4회차', '한국 시간 06·12·18·24시 회차, 지난 회차 보관'));
   const rows = el(doc, 'div');
-  rows.id = 'briefing-timeline-rows';
+  rows.id = 'news-timeline-rows';
   section.append(heading, rows);
-  if (pair) pair.append(section); else anchor.after(section);
+  anchor.before(section);
   return section;
 }
 
@@ -144,26 +146,18 @@ export function renderMarketTimeline({ documentRef: doc, root, nowMs = Date.now(
   if (!doc?.getElementById) return null;
   const view = buildMarketTimelineView(root?._serverMarketTimeline, nowMs);
   if (!view.available) {
-    const existing = doc.getElementById('briefing-timeline');
+    const existing = doc.getElementById('news-timeline');
     if (existing) existing.hidden = true;
     return view;
   }
   const section = ensureSection(doc);
-  const host = doc.getElementById('briefing-timeline-rows');
+  const host = doc.getElementById('news-timeline-rows');
   if (!section || !host) return null;
   section.hidden = false;
   // v58.53: a re-render keeps the slots the reader opened or closed; only a first paint opens the newest one.
   const opened = new Set([...host.querySelectorAll('details.market-slot')].filter((node) => node.open).map((node) => node.dataset.slotId));
   const painted = host.querySelector('details.market-slot') != null;
   const nodes = [];
-  if (view.current) {
-    const current = el(doc, 'div', null, 'market-slot is-current');
-    const head = el(doc, 'div', null, 'market-slot-head');
-    head.append(el(doc, 'span', '진행 중', 'market-slot-state'), el(doc, 'span', view.current.label, 'market-slot-label'),
-      el(doc, 'span', `${view.current.endLabel} 회차로 정리 예정${view.current.updatedAt ? `, ${view.current.updatedAt} 기준` : ''}`, 'market-slot-meta'));
-    current.append(head, view.current.headlines.length ? headlineList(doc, view.current.headlines) : el(doc, 'p', '아직 이 시간대의 주요 헤드라인이 없습니다.', 'briefing-empty'));
-    nodes.push(current);
-  }
   if (view.overdue) nodes.push(el(doc, 'p', `${view.expectedEndLabel} 회차 집계가 늦어지고 있습니다. 아래는 직전까지 정리된 회차입니다.`, 'market-slot-overdue'));
   let first = true;
   for (const group of view.groups) {

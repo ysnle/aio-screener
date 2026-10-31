@@ -989,7 +989,7 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
     installAIProfile(root, doc, { storage });
     const button = head.querySelector('ai-profile-btn');
     check('v58.77 profile: the header button shows the stored profile and every request context carries it',
-      button?.textContent === '맞춤 켜짐' && /경험: 숙련/.test(root.AIO.aiProfileContext()) && /거시·금리·환율/.test(root.AIO.aiProfileContext()));
+      button?.textContent === '답변 맞춤 켜짐' && /경험: 숙련/.test(root.AIO.aiProfileContext()) && /거시·금리·환율/.test(root.AIO.aiProfileContext()));
   }
   {
     // The legacy context builder delegates to the installed profile and falls back to the do-not-assume line.

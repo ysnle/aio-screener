@@ -8,6 +8,7 @@ import { pastEvidence } from '../scenarios/analogs.js';
 import { hasFinalConsonant } from '../content/korean-particle.js';
 import { shortDate } from '../content/date-labels.js';
 import { hasLeadingIsoDay } from '../shared/session-date.js';
+import { scenarioLead } from '../market/scenario-lead.js';
 
 export const LESSON_KINDS = Object.freeze({
   attitude: '태도',
@@ -18,7 +19,8 @@ export const LESSON_KINDS = Object.freeze({
 
 const axisState = (ctx, id) => ctx?.regime?.axes?.find((axis) => axis.id === id)?.state || 'unknown';
 const branch = (ctx, id) => ctx?.crossroads?.items?.find((item) => item.id === id) || null;
-const lead = (ctx) => (ctx?.crossroads?.leadId ? branch(ctx, ctx.crossroads.leadId) : null);
+// A tied or held crossroads has no centre scenario for a lesson to quote.
+const lead = (ctx) => { const read = scenarioLead(ctx?.crossroads); return read.state === 'lead' ? read.items[0] : null; };
 const short = (title) => String(title || '').split(' — ')[0];
 // v58.74 (text audit): a lesson quoting the six-axis read names the close it came from — '오늘' on a Saturday was Friday's.
 const closeLead = (ctx) => { const at = String(ctx?.regime?.asOf || ''); return hasLeadingIsoDay(at) ? `${Number(at.slice(5, 7))}/${Number(at.slice(8, 10))} 미국 종가 기준` : '오늘'; };
@@ -300,21 +302,22 @@ export function selectLessons(ctx, { perKind = 2, limit = 7, scope = 'market' } 
 
 // Which principles each screen raises (the 오늘 card uses selectLessons over the whole market scope). Order is the
 // screen's own priority; a lesson today's data touches moves ahead of the rest.
+// First-users run-6 (owner 2026-10-31): each lesson closes exactly one screen — the one whose subject it is. The same
+// lesson on two routes read as filler on the second; this registry is the one place that decides where a lesson lives
+// (the per-route topic filter in screen-lessons.js that patched the overlap on the market screens is gone).
 export const SCREEN_LESSON_IDS = Object.freeze({
-  signal: ['watch-participation', 'earnings-revisions', 'index-high', 'one-day-move', 'fear-is-not-a-signal', 'trust-credit', 'no-chasing'],
-  breadth: ['watch-participation', 'index-high', 'one-day-move', 'trust-closes'],
-  sentiment: ['fear-is-not-a-signal', 'no-chasing', 'one-day-move', 'trust-credit'],
-  macro: ['rate-cut-good', 'read-the-curve', 'level-vs-expectation', 'confirm-after-release', 'conditions-not-forecasts', 'count-not-probability', 'past-repeats', 'trust-base-rate'],
-  fxbond: ['read-the-curve', 'level-vs-expectation', 'rate-cut-good', 'trust-credit', 'confirm-after-release'],
-  themes: ['watch-participation', 'no-chasing', 'cheap-after-fall', 'past-repeats'],
-  'theme-detail': ['no-chasing', 'cheap-after-fall', 'headline-rumor', 'past-repeats'],
-  technical: ['breakout-without-volume', 'extended-entry', 'weekly-filters-daily', 'news-gap', 'know-when-wrong', 'cheap-after-fall'],
-  ticker: ['cheap-after-fall', 'news-gap', 'headline-rumor', 'know-when-wrong'],
-  fundamental: ['cheap-after-fall', 'earnings-revisions', 'level-vs-expectation', 'headline-rumor'],
-  screener: ['rank-is-not-edge', 'extended-entry', 'past-repeats', 'no-chasing'],
-  portfolio: ['survive-first', 'size-by-loss', 'staged-entry', 'know-when-wrong', 'waiting-is-a-choice'],
-  briefing: ['headline-rumor', 'confirm-after-release', 'one-day-move', 'level-vs-expectation'],
-  'market-news': ['headline-rumor', 'news-gap', 'one-day-move']
+  signal: ['one-day-move', 'trust-credit', 'earnings-revisions'],
+  breadth: ['watch-participation', 'index-high', 'trust-closes'],
+  sentiment: ['fear-is-not-a-signal', 'no-chasing'],
+  macro: ['conditions-not-forecasts', 'confirm-after-release', 'count-not-probability', 'trust-base-rate'],
+  fxbond: ['read-the-curve', 'rate-cut-good'],
+  themes: ['past-repeats'],
+  technical: ['breakout-without-volume', 'extended-entry', 'weekly-filters-daily'],
+  ticker: ['news-gap', 'cheap-after-fall'],
+  fundamental: ['level-vs-expectation'],
+  screener: ['rank-is-not-edge'],
+  portfolio: ['survive-first', 'size-by-loss', 'know-when-wrong', 'staged-entry', 'waiting-is-a-choice'],
+  'market-news': ['headline-rumor']
 });
 
 /** The lessons a screen raises, those today's data touches first (with their reason), at most `limit`. */

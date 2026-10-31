@@ -51,7 +51,18 @@ export function installChatLoader(root = globalThis, doc = root.document, { onLo
   }));
   for (const name of ENTRY_POINTS) {
     if (typeof root[name] === 'function') continue;
-    stubs[name] = function (...args) { queue.push([name, this, args, doc.getElementById('ai-panel-inp')?.value || '']); load().catch(() => {}); };
+    stubs[name] = function (...args) {
+      const input = doc.getElementById('ai-panel-inp');
+      const draft = input?.value || '';
+      // First-users run-6 (breaker #8): a queued send takes its draft out of the box, as the loaded send does, so a second
+      // Enter before the chat script arrives finds nothing to send instead of queuing the same question twice.
+      if (name === 'chatSendUnified') {
+        if (!draft.trim()) { load().catch(() => {}); return; }
+        input.value = '';
+      }
+      queue.push([name, this, args, draft]);
+      load().catch(() => {});
+    };
     root[name] = stubs[name];
   }
   root.AIO.loadChat = load;

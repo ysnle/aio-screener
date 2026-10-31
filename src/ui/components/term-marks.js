@@ -20,7 +20,9 @@ export const placeTermPopover = placePopover;
 export const TERM_MARKS = Object.freeze([
   ['Forward PER', 'Forward PER'],
   ['하이일드 스프레드', '하이일드 스프레드'],
-  ['근원 물가', '근원 물가 (근원 CPI, 근원 PCE)'],
+  // First-users run-6 (#5): four targets named a glossary term that had been renamed ('·' for ','), so 근원 물가, PCE and
+  // 50·200일선 were never marked. markTerms skips a target with no entry, silently; these now match the entry names.
+  ['근원 물가', '근원 물가 (근원 CPI · 근원 PCE)'],
   ['공포·탐욕', '공포·탐욕 지수 (F&G)'],
   ['달러 지수', 'DXY (달러 인덱스)'],
   ['Sahm', 'Sahm Rule'],
@@ -33,7 +35,7 @@ export const TERM_MARKS = Object.freeze([
   ['풋/콜', 'Put/Call 비율'],
   ['TGA', 'TGA (재무부 일반계정)'],
   ['JOLTS', 'JOLTS (구인·이직 조사)'],
-  ['PCE', 'PCE (개인소비지출, PCE 물가지수)'],
+  ['PCE', 'PCE (개인소비지출 · PCE 물가지수)'],
   ['PER', 'PER (P/E Ratio)'],
   ['ROE', 'ROE (자기자본이익률)'],
   ['RSI', 'RSI'],
@@ -45,8 +47,8 @@ export const TERM_MARKS = Object.freeze([
   ['정배열', '정배열 / 역배열'],
   ['3개월물', '3개월물 (국채)'],
   ['단기채', '단기채'],
-  ['50일선', '이동평균 (50일선, 200일선)'],
-  ['200일선', '이동평균 (50일선, 200일선)'],
+  ['50일선', '이동평균 (50일선 · 200일선)'],
+  ['200일선', '이동평균 (50일선 · 200일선)'],
   // 2026-10-19 market guide: the choice words 오늘 · 시나리오 가이드 use are glossary terms.
   ['기회비용', '기회비용'],
   ['분할 접근', '분할 접근'],
@@ -63,6 +65,16 @@ export const TERM_MARKS = Object.freeze([
   ['CPI', 'CPI (소비자물가지수)'],
   ['FOMC', 'FOMC'],
   ['ATR', 'ATR'],
+  // First-users run-6 (#5): words 오늘 · 시장 상태 · 종목 · 포트폴리오 printed with no entry (src/domain/knowledge/deferred-screen-terms.js).
+  ['희석 EPS', '희석 EPS'],
+  ['혼조', '혼조'],
+  ['GAAP', 'GAAP / 비GAAP'],
+  ['EMA', 'EMA (지수이동평균)'],
+  ['FY', 'FY (회계연도)'],
+  ['SPY', 'SPY (S&P 500 ETF)'],
+  ['XLK', 'XLK (기술 업종 ETF)'],
+  ['BTC', '비트코인/암호화폐'],
+  ['Markowitz', '평균-분산 분산투자 (Markowitz)'],
   ['EPS', 'EPS'],
   ['ETF', 'ETF'],
   // v58.80 first-users run-5 (newcomer): words met unmarked on 오늘 · 시장 상태 · 종목 · 포트폴리오.

@@ -142,10 +142,10 @@ if (!/termPremium10:\s+\{ id: 'THREEFYTP10'/.test(readProducerSource()) || !/Kim
   const krBook = buildPortfolioRead({ surface: { rows: [{ symbol: '005930.KS', value: 40 }, { symbol: '000660.KS', value: 30 }, { symbol: 'QQQ', value: 30 }] }, rows: krRows, regime, krRecord });
   const market = krBook.points.find((point) => point.id === 'market');
   if (!market || /극단적이지 않아/.test(market.text) || !/한국 보유\(평가액의 70%\)/.test(market.text) || !/코스피 10\/15 하루 -7\.6%, 5거래일 -18\.4%로 최근 252거래일 기록에서/.test(market.text) || market.tone !== 'burden' || !/^미국 시장 상태\(6개 지표\)는/.test(market.text)) fail(`v57.81 a 70%-KR book on 10/15 gets the KR line, the US-labelled tally and no "극단적이지 않아": ${market?.text}`);
-  if (!/한국 보유가 평가액의 70%/.test(krBook.headline) || !/미국 시장 상태는 '혼조'/.test(krBook.headline)) fail(`v57.81 the headline names the US state and the Korean part: ${krBook.headline}`);
+  if (!/한국 보유가 평가액의 70%/.test(krBook.headline) || !/미국 시장은 '혼조'/.test(krBook.headline)) fail(`v57.81/v59.51 (content audit, plain face line) the headline names the US state and the Korean part: ${krBook.headline}`);
   const trend = krBook.points.find((point) => point.id === 'trend');
   if (krBook.trendMix.find((row) => row.state === 'near').pct !== 30 || krBook.trendMix.find((row) => row.state === 'up').pct !== 0) fail(`v57.81 QQQ at +0.38% vs its 50-day line reads 선 근처, not 오르는 흐름: ${JSON.stringify(krBook.trendMix)}`);
-  if (/미국 보유 중 하락 추세/.test(trend.text) || !/선 근처라 판정 보류/.test(krBook.headline)) fail(`v57.81 the US breadth clause covers only US holdings (KRX names in a downtrend are not "시장 폭" exposure): ${trend.text}`);
+  if (/미국 보유 중 하락 추세/.test(trend.text) || !/30%는 아직 방향이 뚜렷하지 않습니다/.test(krBook.headline)) fail(`v57.81/v59.51 (content audit: the face says 선 근처 as '아직 방향이 뚜렷하지 않습니다') the US breadth clause covers only US holdings (KRX names in a downtrend are not "시장 폭" exposure): ${trend.text}`);
   // v57.83 codex audit F08: "미국 보유 중 X%" is measured on the US holdings with a trend read — US 50 all down beside
   // KR 50 all up is 100%, not 50%.
   const mixed = buildPortfolioRead({ surface: { rows: [{ symbol: 'AAPL', value: 50 }, { symbol: '005930.KS', value: 50 }] }, rows: [{ sym: 'AAPL', pctSma50: -10, pctSma200: -10 }, { sym: '005930.KS', pctSma50: 10, pctSma200: 10 }], regime });

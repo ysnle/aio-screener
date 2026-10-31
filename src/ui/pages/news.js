@@ -15,7 +15,7 @@ import { krIndexCloseNote } from '../../domain/news/kr-close-note.js';
 import { pickImportantNews } from '../../domain/briefing/news-picks.js'; // v58.75: shared with 오늘's 밤사이 핵심
 import { newsImpactChain } from '../../domain/briefing/event-guide.js';
 import { fixKoreanTerms } from '../../domain/briefing/headline-terms.js';
-import { symbolNames } from '../components/market-timeline.js';
+import { renderMarketTimeline, symbolNames } from '../components/market-timeline.js';
 import { macroReleasesFor } from '../../domain/briefing/macro-releases.js';
 
 function text(documentRef, value, fallback = '—') {
@@ -213,7 +213,6 @@ const TOPIC_LABELS = Object.freeze({ macro: '거시', semi: '반도체·AI', geo
 // The topic only keeps a scenario off unrelated feeds, so the broad macro feed may reach the oil, rates and policy branches.
 const TOPIC_AXES = Object.freeze({ macro: ['inflation', 'growth', 'commodities', 'rates', 'policy'], fxbond: ['rates', 'policy'], bond: ['rates', 'policy'], fx: ['rates', 'policy'], energy: ['commodities'], geo: ['commodities'], credit: ['credit'], semi: ['growth', 'credit'] });
 let scenarioMemo = { at: 0, xr: null };
-let chainsShown = new Set();
 function liveScenarioFor(root, item, shownTitle = '') {
   const axes = TOPIC_AXES[item?.topic || item?.feedTopic];
   if (!axes) return null;
@@ -358,23 +357,16 @@ function createNewsCard(documentRef, root, item, index) {
   meta.textContent = [source, verificationLabel, timeAgo]
     .filter(Boolean)
     .join(', ');
+  // v59.51 (content audit, two layers): the scenario chain is a tag on the face (which live scenario the headline feeds);
+  // the whole chain — axis → branch and its fit → burdened/helped exposures → what to check — opens in the card's fold.
   const chain = liveScenarioFor(root, item, title);
-  if (chain) {
-    const chainNode = documentRef.createElement('div');
-    chainNode.className = 'news-item-chain';
-    // The full chain once per branch per render; later cards on the same branch carry its head only.
-    chainNode.textContent = chainsShown.has(chain.branchId) ? chain.head : chain.text;
-    chainsShown.add(chain.branchId);
-    chainNode.title = '헤드라인의 주제가 지금 선두·대안 시나리오가 보는 축과 맞을 때만 표시합니다. 영향은 시나리오의 노출 분류이며 예측이 아닙니다.';
-    body.appendChild(chainNode);
-  }
   body.appendChild(meta);
   const evidence = documentRef.createElement('details');
   evidence.className = 'news-evidence';
   evidence.addEventListener('click', (event) => event.stopPropagation());
   const facts = newsEvidence(item);
   const evidenceTitle = documentRef.createElement('summary');
-  evidenceTitle.textContent = [facts.kind, facts.revision, item?.storyArticles?.length > 1 ? `변경 이력 ${item.storyArticles.length}건` : '출처·시각'].filter(Boolean).join(', ');
+  evidenceTitle.textContent = [facts.kind, facts.revision, item?.storyArticles?.length > 1 ? `변경 이력 ${item.storyArticles.length}건` : '출처·시각', chain ? '시나리오 연결' : null].filter(Boolean).join(', ');
   // v57.54 audit (11): seventeen identical "기사 · 출처·시각" folds were indistinguishable to a screen reader; each names its headline.
   evidenceTitle.setAttribute('aria-label', `${evidenceTitle.textContent} — ${String(title || '').slice(0, 80)}`);
   evidence.appendChild(evidenceTitle);
@@ -385,6 +377,12 @@ function createNewsCard(documentRef, root, item, index) {
     // LC-31 (v57.77): the 카테고리별 view that named this boundary left; a feed-query topic says so in the card's fold.
     isNewsTopicReviewRequired(item) && topicLabel ? `주제 표시(${topicLabel})는 출처 기준 분류, 기사 본문으로 확인 전` : ''].filter(Boolean).join(', ');
   evidence.appendChild(detail);
+  if (chain) {
+    const chainNode = documentRef.createElement('div');
+    chainNode.className = 'news-item-chain';
+    chainNode.textContent = `시나리오 연결, ${chain.text}. 헤드라인의 주제가 지금 선두·대안 시나리오가 보는 축과 맞을 때만 잇고, 영향은 시나리오의 노출 분류이며 예측이 아닙니다.`;
+    evidence.appendChild(chainNode);
+  }
   if (item?.storyArticles?.length > 1) {
     evidence.appendChild(text(documentRef, item.storySelection));
     const timeline = documentRef.createElement('ol');
@@ -421,6 +419,13 @@ function createNewsCard(documentRef, root, item, index) {
     chip.className = 'sx-chip sx-chip--sm news-topic-chip';
     chip.textContent = topicLabel;
     side.append(chip);
+  }
+  if (chain) {
+    const tag = documentRef.createElement('span');
+    tag.className = 'sx-chip sx-chip--sm news-scenario-chip';
+    tag.textContent = chain.branch;
+    tag.title = `시나리오 '${chain.branch}'(${chain.role})와 연결된 헤드라인 — 연결 내용은 카드의 출처·시각 접힘에`;
+    side.append(tag);
   }
   side.append(stance);
   card.append(timeColumn, body, side);
@@ -558,7 +563,7 @@ function renderIntradayNews(documentRef, root, canonicalItems, nowMs = Date.now(
   const picked = selectIntradayNews(root?._serverNewsIntraday, { cycleEndMs, canonical: canonicalItems, nowMs });
   if (!picked.length || !anchor) {
     if (section) section.hidden = true;
-    return 0;
+    return [];
   }
   if (!section) {
     section = documentRef.createElement('section');
@@ -589,7 +594,8 @@ function renderIntradayNews(documentRef, root, canonicalItems, nowMs = Date.now(
     time.textContent = stampParts ? (stampParts.date === today ? stampParts.time : `${stampParts.date} ${stampParts.time}`) : '';
     const href = safeUrl(item.link || item.url);
     const titleNode = documentRef.createElement(href ? 'a' : 'span');
-    titleNode.textContent = `${item.verification === 'unconfirmed' ? '[미확인] ' : ''}${String(item.title || '')}`;
+    // v59.51 (content audit): the intraday headlines read in Korean like the cards (same display/translation path).
+    titleNode.textContent = `${item.verification === 'unconfirmed' ? '[미확인] ' : ''}${fixKoreanTerms(item.title, displayValue(root, 'getDisplayTitle', item, '') || realTitle(root, item)) || String(item.title || '')}`;
     if (href) { titleNode.href = href; titleNode.target = '_blank'; titleNode.rel = 'noopener noreferrer'; }
     // P1739: a 12px/1.5 link was an 18-21px target; padding keeps every headline link at least 24px tall.
     // v57.77 (a11y 1.4.3): the browser-default link blue measured 1.94:1 in dark; the text colour token passes in both themes.
@@ -601,7 +607,7 @@ function renderIntradayNews(documentRef, root, canonicalItems, nowMs = Date.now(
   });
   section.replaceChildren(heading, list);
   section.hidden = false;
-  return picked.length;
+  return picked;
 }
 
 function appendMarketNews(documentRef, root, container, model, status, visibleLimit, controls, exclude = new Set()) {
@@ -639,7 +645,7 @@ function appendMarketNews(documentRef, root, container, model, status, visibleLi
   }
 
   const count = documentRef.getElementById('market-news-count');
-  if (count) { count.setAttribute('role', 'status'); count.setAttribute('aria-live', 'polite'); count.textContent = `조건에 맞는 기사 ${model?.eligibleCount || 0}건, 같은 사건 묶은 뒤 ${eligible.length}건 중 ${displayed.length}건 표시, 중요 사건 ${exclude.size}건, ${describeNewsScope(controls).articles}`; }
+  if (count) { count.setAttribute('role', 'status'); count.setAttribute('aria-live', 'polite'); count.textContent = `중요 사건 ${exclude.size}건, 그 밖의 사건 ${eligible.length}건${describeNewsScope(controls).articles === '필터 적용' ? ', 필터 적용' : ''}`; count.title = `조건에 맞는 기사 ${model?.eligibleCount || 0}건을 같은 사건끼리 묶은 수`; } // v59.51: one status line; the shown/total split stays beside 더 보기
   const summary = documentRef.getElementById('news-visible-summary');
   if (summary) summary.textContent = `기사 ${model?.eligibleCount || 0}건, 아래 사건 ${eligible.length}건 중 ${displayed.length}건 표시`;
   const more = documentRef.getElementById('news-load-more-wrap');
@@ -691,30 +697,6 @@ function requestShownTranslations(root, items) {
   try { Promise.resolve(root.autoTranslateNews(pending)).catch(() => {}); } catch (_) {}
 }
 
-// v58.75 ('고르는 법' E5): how to weigh a headline, folded under the important list. Static, short, written once.
-function ensureReadingGuide(documentRef) {
-  const host = documentRef?.getElementById('news-important');
-  if (!host || documentRef.getElementById('news-reading-guide')) return;
-  const fold = documentRef.createElement('details');
-  fold.id = 'news-reading-guide';
-  fold.className = 'sx-disclosure news-reading-guide';
-  const summary = documentRef.createElement('summary');
-  summary.textContent = '뉴스 읽는 기준';
-  const list = documentRef.createElement('ul');
-  for (const line of [
-    '1차 출처를 먼저: 공시·정부 발표·회사 보도자료가 사실이고, 기사는 그 해석입니다. 해석 기사는 같은 사실을 다른 방향으로 읽기도 합니다.',
-    '출처 신뢰도: 통신사·주요 경제지는 사실 확인을 거치지만, 익명 소식통·루머는 카드에 "미확인 보도"로 표시합니다. 채널 글은 앱이 확인한 사실이 아닙니다.',
-    '같은 사건의 반복: 여러 매체가 같은 일을 쓰면 한 건으로 묶어 "관련 기사 N건"으로 보입니다. 기사 수가 많다고 새 사실이 늘어난 것은 아닙니다.',
-    '가격과 함께: 헤드라인과 가격 반응이 엇갈리면 이미 예상에 반영됐거나 다른 재료가 더 컸을 수 있습니다. 브리핑의 "결과 해석 가이드"에 최근 사례가 있습니다.'
-  ]) {
-    const li = documentRef.createElement('li');
-    li.textContent = line;
-    list.append(li);
-  }
-  fold.append(summary, list);
-  host.append(fold);
-}
-
 function render({ documentRef, root, store, route }) {
   const state = store?.getState?.() || {};
   const items = selectNewsItems(state);
@@ -734,7 +716,6 @@ function render({ documentRef, root, store, route }) {
     return;
   }
   if (route !== 'market-news') return;
-  chainsShown = new Set();
 
   const controls = root?.AIO?.getNewsSurfaceControls?.() || { countryFilter: 'all', topicFilter: 'all', typeTab: 'all', sortMode: 'time' };
   const tickerFocus = newsTickerFocus(root);
@@ -749,14 +730,14 @@ function render({ documentRef, root, store, route }) {
   renderNewsSummary(documentRef, root, model, selectNewsStatus(state));
   // P1730: after the Korean close (15:30 KST) until the next 08:00 bundle, the header says where the session's articles are.
   const nowMs = Date.now();
-  const intradayCount = renderIntradayNews(documentRef, root, items, nowMs);
+  const intraday = renderIntradayNews(documentRef, root, items, nowMs);
+  const intradayCount = intraday.length;
   const kstMinutes = ((new Date(nowMs).getUTCHours() + 9) % 24) * 60 + new Date(nowMs).getUTCMinutes();
   const windowLabel = documentRef?.getElementById('news-window-label');
   if (intradayCount && windowLabel && (kstMinutes >= 15 * 60 + 30 || kstMinutes < 8 * 60)) {
     windowLabel.title = '한국장 시간대 기사는 속보 칸에, 정식 묶음은 다음 08:00 수집본'; // v58.79: the window stays, the routing rule is its hover
   }
   syncNewsControlState(documentRef, controls);
-  ensureReadingGuide(documentRef);
   // v59.44 (owner 2026-10-30, "each screen too"): the release summaries in the same tiers as 오늘 (a lazy chunk), with the
   // monthly releases of the last week, ahead of 중요 뉴스 — what came out and why the price moved, then the coverage.
   import('../components/event-briefs.js').then(({ paintNewsBriefs }) => {
@@ -788,7 +769,8 @@ function render({ documentRef, root, store, route }) {
     }).catch(() => {});
   }
   appendMarketNews(documentRef, root, container, model, selectNewsStatus(state), visibleLimit, controls, new Set(important.map(newsKey)));
-  requestShownTranslations(root, [...important, ...(model?.items || []).slice(0, visibleLimit)]);
+  requestShownTranslations(root, [...intraday, ...important, ...(model?.items || []).slice(0, visibleLimit)]);
+  renderMarketTimeline({ documentRef, root, nowMs }); // v59.51: the six-hour slots moved here from 브리핑 (a closed fold)
   renderNextSteps(documentRef, documentRef.getElementById('news-next'), newsFlow({ countryFilter: controls.countryFilter }).next); // v57.77
   container.dataset.aioNewsRenderer = 'native';
 }

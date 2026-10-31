@@ -4,6 +4,24 @@ last_verified: 2026-10-31
 confidence: medium
 ---
 
+## v59.51 휴대폰 첫 동작 (2026-10-31)
+
+- [x] QA-BOOT-TAP-01: v59.51 휴대폰 느린 망에서 첫 로딩 중 하단 탭을 누르면 주소가 바로 바뀌고 '여는 중' 안내가 보이며, 코어 실행 뒤 그 화면이 열리는지 확인. verify_by: browser
+- [x] QA-SCENARIO-TIE-01: v59.51 시나리오 동률이면 시장 상태·종목·포트폴리오·AI 답변이 모두 같은 동률 시나리오를 '(동률)'로 보여 주고 한쪽을 선두로 고르지 않는지 확인. verify_by: node scripts/ci-pipeline-semantics-check.mjs --only market
+- [x] QA-ONE-SOURCE-01: v59.51 홈·시장 상태·거시의 SMH 등락과 미 10년물 변화가 같은 종가 기준 한 값으로 나오는지 확인. verify_by: node scripts/ci-pipeline-semantics-check.mjs --only market
+- [x] QA-AI-DOUBLE-SEND-01: v59.51 AI 질문창에서 Enter를 빠르게 두 번 눌러도 질문이 한 번만 가고, 태그 모양 입력이 말풍선에 그대로 보이며, 1,000자에서 입력이 멈추는지 확인. verify_by: node scripts/ci-ai-chat-reliability-contract-check.mjs
+- [x] QA-SIGNAL-ENTRY-01: v59.51 느린 망 휴대폰에서 시장 상태 첫 화면이 홈과 같은 판정으로 시작하고, 홈의 '지수 차트와 6개 지표 보기'가 차트를 화면 위에 두는지 확인. verify_by: browser
+- [x] QA-TERM-MARKS-01: v59.51 혼조·PCE·50/200일선·GAAP·SPY·XLK 등 run-6에서 빠진 용어에 설명 표시가 붙고, 휴대폰에서 44px 이상 눌리는지 확인. verify_by: browser
+- [x] QA-STOCK-HASH-01: v59.51 종목의 차트·재무 공시 탭에서 새로고침해도 같은 종목이 열리고, 차트 제목에 다른 종목 이름이 없는지 확인. verify_by: browser
+- [x] QA-WEEKEND-FUTURES-01: v59.51 주말 홈에 선물 칩과 장 연결 선물 줄이 모두 없고, 평일 CME 개장 중에는 실시간 값이 있을 때만 선물 칩이 보이는지 확인. verify_by: live
+- [x] QA-FISCAL-LABELS-01: v59.51 재무 공시 매출·순이익 막대 이름표가 390px에서 겹치거나 잘리지 않고, 공시 나이가 일수 대신 뜻으로 적히는지 확인. verify_by: browser
+- [x] QA-PANEL-TOUCH-01: v59.51 1440px에서 AI 패널을 열어도 페이지 표가 잘리지 않고, 휴대폰 포트폴리오 저장 버튼이 하단 탭에 가리지 않는지 확인. verify_by: browser
+- [x] QA-TWO-LAYER-01: v59.51 각 화면 첫 면이 결론 먼저·짧은 쉬운 문장·시각 자료 하나로 읽히고, 접힘을 열면 숫자·방법·기준선·주의점이 있는지 홈·시장 상태·거시·테마·종목·포트폴리오에서 확인. verify_by: node scripts/ci-secondary-text-budget-check.mjs
+
+## v59.50 매매 지시 (2026-10-31)
+
+- [x] QA-R724-CHOICES-01: v59.50 시장 상태 '네 가지 선택지의 득실'과 테마 반등 설명에 '뒤가 맞습니다'·'편이 맞습니다' 같은 시점 지시 문장이 없고, node scripts/ci-instruction-text-ratchet-check.mjs가 통과하는지 확인. verify_by: node scripts/ci-instruction-text-ratchet-check.mjs
+
 ## v59.49 시세 세션 (2026-10-31)
 
 - [x] QA-SESSION-SWEEP-LIVE-01: v59.49 push 뒤 첫 일요일 22:00~24:00 UTC(서머타임 종료 뒤)와 월요일 09:30~09:50 ET 시장 데이터 갱신이 history-time·market-snapshot 게이트에서 실패하지 않는지 Actions에서 확인. verify_by: live

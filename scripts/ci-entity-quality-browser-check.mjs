@@ -143,17 +143,18 @@ try {
       check(summary.signed.some(bar=>bar.down && bar.width>0) && summary.signed.every(bar=>bar.down ? Math.abs(bar.left+bar.width-50)<.05 : Math.abs(bar.left-50)<.05),`${label}: signed returns cross common zero incorrectly (P1624)`,summary.signed);
       await captureLayout(page,`${label}/summary`);
       await snap(page, `browser-${label}-summary.png`);
-      // P1640 supersedes P1624's collapsed default: the stock+company summary opens on first render and leads to
-      // the technical and fundamental analyses.
-      check(await page.locator('#ticker-company-analysis').isVisible() && await page.locator('.company-analysis-expanded').evaluate(el=>el.open)
-        && await page.locator('#ticker-company-analysis .company-analysis-routes button').count()===2,`${label}: stock+company summary absent, collapsed or missing analysis routes (P1640)`);
+      // v59.51 (content audit) supersedes P1640: the second company summary left 요약; the valuation line sits under the
+      // price, and what stays in #ticker-company-analysis is the AI primer hand-off and closed expert folds.
+      check(await page.locator('#ticker-company-analysis').isVisible() && await page.locator('#ticker-hero-valuation').count()===1
+        && !await page.locator('.company-analysis-expanded, .company-analysis-routes').count(),`${label}: company block missing or the retired second summary returned (v59.51)`);
       const rerender = await page.evaluate(()=>{
-        const expanded=document.querySelector('.company-analysis-expanded'); expanded.open=true; expanded.querySelector('summary').focus();
+        const fold=document.querySelector('#ticker-company-analysis details'); if (!fold) return { skipped:true, open:true, focus:true };
+        fold.open=true; fold.querySelector('summary').focus();
         document.dispatchEvent(new CustomEvent('aio:liveQuotes'));
-        const after=document.querySelector('.company-analysis-expanded');
-        return { same:after===expanded, open:after.open, focus:document.activeElement===after.querySelector('summary') };
+        const after=document.querySelector(`#ticker-company-analysis details.${fold.className.split(' ')[0]}`);
+        return { open:!!after?.open, focus:document.activeElement===after?.querySelector('summary') };
       });
-      check(rerender.open && rerender.focus,`${label}: quote re-render collapsed the opened company evidence or dropped focus (P1630)`,rerender);
+      check(rerender.open && rerender.focus,`${label}: quote re-render collapsed the opened company fold or dropped focus (P1630)`,rerender);
       await page.getByRole('button',{name:'AI로 기업 분석',exact:true}).click();
       check(await page.locator('#ai-panel-inp').inputValue().then(value=>value.startsWith('AEHR 기업') && value.includes('웹검색')),`${label}: company evidence does not hand off to AI research (P1624)`);
       await page.locator('.ai-ph-close').click();
@@ -217,7 +218,8 @@ try {
 
       await page.locator('#aio-hub-tabs [data-arg="technical"]').click();
       await page.waitForFunction(()=>document.querySelector('.page.active')?.id==='page-technical');
-      await page.waitForSelector('.chart-scenario', {timeout:20000});
+      // v59.51: the three paths live in the chart's closed expert fold; the content is checked attached, not on the face.
+      await page.waitForSelector('.chart-scenario', {state:'attached',timeout:20000});
       const technical = await page.locator('#stock-chart-evidence').evaluate(host=>({
         scenarios:[...host.querySelectorAll('.chart-scenario')].map(el=>({id:el.dataset.scenario,text:el.textContent})),
         volume:host.querySelector('.chart-volume-profile')?.textContent,

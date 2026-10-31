@@ -137,17 +137,22 @@ export function renderCompanyStory(doc, host, { profile, earnings = [], peers = 
   const ai = profile.aiChain || {};
   const e = profile.earnings || {};
   const freshness = storyFreshness(profile, earnings);
+  // v59.51 (content audit + owner two layers 2026-10-31): the face is the one-line summary and the money-flow visual; the
+  // four numbers (the same fiscal figures 이 종목의 지금 and 재무 공시 carry), the pricing note and every later step of the
+  // story move into one closed '자세히' fold, unchanged.
   nodes.push(el(doc, 'p', profile.oneLine, 'company-story-one'));
-  const meta = [ai.layer && layerLabel(ai.layer) ? `AI 밸류체인: ${layerLabel(ai.layer)}` : null,
-    freshness.researchedAt ? `${mdOf(freshness.researchedAt)} 조사` : null, e.period ? `${e.period} 실적 기준` : null].filter(Boolean).join(', ');
-  if (meta) nodes.push(el(doc, 'p', meta, 'company-story-meta'));
   if (freshness.state === 'stale') nodes.push(el(doc, 'p', `${mdOf(freshness.newReport)} 새 실적이 나왔습니다. 사업 구조·경쟁 설명은 그대로 쓰되, 실적·가이던스 숫자는 그 전 보고서 기준이니 새 숫자는 '최근 실적 발표 요약'에서 보세요.`, 'company-story-stale'));
 
   const flow = moneyFlow(doc, profile);
   if (flow) nodes.push(el(doc, 'h3', '돈이 들어오는 길', 'company-story-h3'), flow);
-  if (has(profile.moneyFlow?.pricing)) nodes.push(el(doc, 'p', `과금 방식: ${profile.moneyFlow.pricing}`, 'company-story-small'));
+  const more = fold(doc, '회사 이야기 자세히 — 숫자, 사업 구조, 실적, AI 위치, 경쟁, 전략, 확인법', 'company-story-more');
+  const meta = [ai.layer && layerLabel(ai.layer) ? `AI 밸류체인: ${layerLabel(ai.layer)}` : null,
+    freshness.researchedAt ? `${mdOf(freshness.researchedAt)} 조사` : null, e.period ? `${e.period} 실적 기준` : null].filter(Boolean).join(', ');
+  if (meta) more.append(el(doc, 'p', meta, 'company-story-meta'));
+  if (has(profile.moneyFlow?.pricing)) more.append(el(doc, 'p', `과금 방식: ${profile.moneyFlow.pricing}`, 'company-story-small'));
   const numbers = kpis(doc, e);
-  if (numbers) nodes.push(numbers);
+  if (numbers) more.append(numbers);
+  const face = nodes.splice(0); // everything pushed below goes into the fold
 
   // 1. technology → design → make → sell
   const how = fold(doc, '무엇으로 이기고, 누가 만들어, 누구에게 파나');
@@ -257,7 +262,8 @@ export function renderCompanyStory(doc, host, { profile, earnings = [], peers = 
   if (has(profile.unverified)) sources.append(pair(doc, '확인하지 못한 값', list(doc, profile.unverified)));
   nodes.push(sources);
 
-  host.append(...nodes);
+  more.append(...nodes);
+  host.append(...face, more);
   host.dataset.companyStory = profile.symbol;
   return { freshness, layer: ai.layer || null };
 }

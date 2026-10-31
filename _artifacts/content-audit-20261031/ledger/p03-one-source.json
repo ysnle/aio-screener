@@ -1,0 +1,25 @@
+{
+  "version": "v59.51",
+  "date": "2026-10-31",
+  "p": {
+    "title": "같은 날 반도체(SMH)·미 10년물 변화가 한 화면 안에서 두 값으로 나옴",
+    "symptom": "run-6 회의적 사용자: 한 카드에서 SMH 10/30 등락이 주도 영역 -7.0%, 자금 흐름 -8.4%였고 지수 카드는 -6.98%였다. 미 10년물은 -6.0bp와 -4bp로 갈렸다(심각도 3·2).",
+    "root_cause": "자금 흐름 줄이 SMH를 종가 21분 뒤에 받은 회전 막대(rotation-history)에서, 10년물을 FRED 공식 일간값(dgs10Delta)에서 읽었다. 주도 영역과 시장 상태는 같은 수치를 시장 종가 이력(history의 smh·tnx)에서 읽었다. 한 수치의 원천을 정하는 곳이 없었다.",
+    "fix": "rates-fx.js에 tenYearClose(history,{through})와 TEN_YEAR_SOURCE를 두고, 자금 흐름(market-flow.js)은 SMH를 sessionMove(history,'smh') 종가에서, 10년물을 tenYearClose에서 읽는다. buildMarketFlow의 macro 인자는 없앴다. 다음 발표 일정도 거시 화면 머리글 하나(crossroads.nextEvent)로 모았다.",
+    "violated_rule": "R734: 같은 수치는 하나의 공용 함수에서 읽는다.",
+    "prevention": "scripts/fixtures/pipeline-semantics/market.mjs RUN6-SMH-01(회전 막대 -8.4%가 아니라 종가 이력의 -7.0%), RUN6-10Y-01(자금 흐름 10년물 변화 = tenYearClose(history).d1Bp). 둘 다 수정 전 HEAD에서 실패하고 지금 통과한다.",
+    "verification": "node scripts/ci-pipeline-semantics-check.mjs --only market 38건 통과, HEAD 워크트리에서는 두 사례 실패. ci-esm-core-unit-check의 v58.68 자금 흐름 사례를 종가 이력 입력으로 바꿔 통과."
+  },
+  "qa": [
+    {
+      "id": "QA-ONE-SOURCE-01",
+      "text": "v59.51 홈·시장 상태·거시의 SMH 등락과 미 10년물 변화가 같은 종가 기준 한 값으로 나오는지 확인",
+      "verify_by": "node scripts/ci-pipeline-semantics-check.mjs --only market"
+    }
+  ],
+  "qa_section": "판정 일관성",
+  "changelog": [
+    "**한 수치 한 원천 ({P}):** 자금 흐름 줄의 반도체와 미 10년물 변화가 다른 화면과 다른 원천(늦게 받은 회전 막대, FRED 일간값)을 읽어 같은 날 두 값이 나왔다. 이제 모두 같은 종가 이력에서 읽는다."
+  ],
+  "note": "v59.51: run-6 전체 반영 — 화면별 내용 재구성(쉬운 첫 면 + 전문가 접힘)과 결함 수정"
+}

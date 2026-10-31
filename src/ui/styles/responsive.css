@@ -38,7 +38,6 @@
    first section that draws its own top rule doubled the header rule. */
 .page-head { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-bottom: 0.5px solid var(--border-strong); padding-bottom: 18px; margin: 0 0 20px; }
 .page-head--stack { display: block; }
-.page-head .macro-next-release { margin: 4px 0 0; }
 .page-head + .briefing-block,
 .aio-section:has(> .page-head:last-child) + .briefing-block { border-top: 0; padding-top: 4px; }
 .page-head ~ #home-score-hero { border-top: 0 !important; padding-top: 28px !important; } /* run-5 prep: the hero became a card (sx-card--hero); 4px left its title on the card's top edge */
@@ -60,7 +59,6 @@
 .page :is(.news-sort-btn, .sector-map-tab, .stock-chart-intervals button, .regime-chart-selectors button):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 #rrg-view-tabs, #sector-perf-view-tabs, #sector-perf-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
 /* The quadrant count beside those toggles is a reading, not a control: plain text, so it is not mistaken for a fourth button. */
-.page-head #theme-cycle-pill { background: none; border: 0; padding: 0; font-size: 12px; font-weight: 500; color: var(--text-muted); }
 .regime-kr-participation { margin:24px 0; padding:24px; border:0.5px solid var(--border); border-radius:8px; font-size:14px; line-height:1.7; background:var(--bg-surface); color:var(--text-primary); }
 /* v57.55 cleanup: one type scale — page 27 · section 18 (.briefing-h2) · card 16 · sub 14. This block used browser h2/h3 sizes (21px). */
 .regime-kr-participation > h2 { font-family: var(--font-display); font-size: 18px; font-weight: 600; margin: 0 0 12px; }
@@ -168,7 +166,6 @@
   .ai-ph-close, #topbar-ai-btn, #topbar-help-btn { min-height: 44px; }
   .page .aio-table-scroll { scrollbar-width: thin; }
   /* v57.55 cleanup: macro tiles cut their value line ("2년물이 기준금리보다 0.92%p…") on a phone; it wraps instead. */
-  .page .macro-tile-value { white-space: normal; text-overflow: clip; }
   .page .aio-table-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 }
 @media (max-width: 700px) {
@@ -217,8 +214,7 @@
   .page :is(.home-participation-grid, .briefing-move-chart, .breadth-drill-body, .scr-why-grid,
       .principles-reference-body, .masters-principles-list, .aio-vis-panel,
       .principles-chapter-grid, .atlas-node-grid) { grid-template-columns: minmax(0, 1fr); }
-  .page :is(.rates-yields, .rates-other, .macro-tiles, .kr-index-grid, .scr-funnel, .principles-reference-loop,
-      .integrated-framework-flow, .page .daily-moves, .chart-stage-steps) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .page :is(.rates-yields, .rates-other, .kr-index-grid, .scr-funnel, .principles-reference-loop, .integrated-framework-flow, .page .daily-moves, .chart-stage-steps) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .page .aio-responsive-card-grid { grid-template-columns: minmax(0, 1fr) !important; }
   .page :is(.briefing-event, .daily-event, .macro-chain-branch, .theme-detail-flow .stock-read-bar-row) { grid-template-columns: minmax(0, 1fr); }
   .page .regime-chips { min-width: 0; width: 100%; }
@@ -231,8 +227,7 @@
   /* v58.80 run-5 (phone #15): wrapped, the × fell to a row of its own at the left; it keeps the top-right corner. */
   #ai-panel .ai-ph { position: relative; padding-right: 60px !important; } /* soft-ui.css sets padding with !important */
   #ai-panel .ai-ph-close { position: absolute; top: 6px; right: 8px; margin: 0; }
-  #ai-panel .ai-ph-route { order: 5; flex: 1 1 100%; margin: 0; white-space: normal; }
-  .ai-ph-badge { font-size: 12px; } /* v57.81: 11px text floor (was 10px) */
+  #ai-panel .ai-ph-route { order: 5; flex: 1 1 100%; margin: 0; white-space: normal; } /* v57.81: 11px text floor (was 10px) */
   #ai-panel-policy { flex-shrink: 0; }
   .ai-chips { max-height: 110px; overflow-y: auto; }
   .ai-chip { min-height: 36px; }
@@ -308,7 +303,7 @@ body { word-break: keep-all; overflow-wrap: break-word; }
    (trend and curve charts are 520 units wide: 11 x 520 / width; the sector bubbles 430). Wide desktop pointers keep the
    drawn sizes. */
 @media (pointer: coarse), (max-width: 1100px) {
-  .trend-chart-wrap, .rates-curve-wrap, #vis-portfolio-sectors { container-type: inline-size; }
+  .trend-chart-wrap, .rates-curve-wrap { container-type: inline-size; }
   @container (max-width: 439.98px) { .page :is(.trend-chart, .rates-curve) text { font-size: 15px !important; } }
   @container (max-width: 380.98px) { .page :is(.trend-chart, .rates-curve) text { font-size: 17px !important; } }
   @container (max-width: 335.98px) { .page :is(.trend-chart, .rates-curve) text { font-size: 19px !important; } }
@@ -316,11 +311,11 @@ body { word-break: keep-all; overflow-wrap: break-word; }
   @container (max-width: 271.98px) { .page :is(.trend-chart, .rates-curve) text { font-size: 23.5px !important; } }
   @container (max-width: 242.98px) { .page :is(.trend-chart, .rates-curve) text { font-size: 26px !important; } }
   @container (max-width: 439.98px) { .page .rates-curve .rates-curve-tenor.is-penult { text-anchor: end; } .page .rates-curve .rates-curve-tenor.is-last { text-anchor: end; transform: translateX(20px); } }
-  @container (max-width: 429.98px) { #vis-portfolio-sectors svg text { font-size: 12px; } }
-  @container (max-width: 393.98px) { #vis-portfolio-sectors svg text { font-size: 13px; } }
-  @container (max-width: 363.98px) { #vis-portfolio-sectors svg text { font-size: 14px; } }
-  @container (max-width: 337.98px) { #vis-portfolio-sectors svg text { font-size: 15px; } }
-  @container (max-width: 314.98px) { #vis-portfolio-sectors svg text { font-size: 16px; } }
+  @container (max-width: 429.98px) { }
+  @container (max-width: 393.98px) { }
+  @container (max-width: 363.98px) { }
+  @container (max-width: 337.98px) { }
+  @container (max-width: 314.98px) { }
 }
 /* v57.81: a table wider than its box fades the edge that has more columns (scroll-cue.js sets has-more-left/right on
    every .page .aio-table-scroll; the theme rank table keeps its own shaded frame). A mask, not an overlay, so cell
@@ -369,6 +364,11 @@ body.dark-theme .scr-star.active { color: var(--text-secondary) !important; }
 /* Live review 2026-10-14: vertical padding on an inline box widens the tap area to about 26px without moving the line box (1.2em content + 2 x (13px - 0.6em)). */
 .aio-term { font: inherit; color: inherit; background: none; border: 0; padding: max(2px, calc(13px - 0.6em)) 0; margin: 0; cursor: help; text-decoration: underline dotted; text-decoration-color: var(--text-muted); text-underline-offset: 3px; display: inline; min-height: 0 !important; }
 .aio-term:hover, .aio-term:focus-visible { text-decoration-color: var(--text-primary); }
+/* First-users run-6 (#20): ROE measured 35x25 and KST 27x25 on a phone. On touch the inline padding reaches 44px both ways
+   (1.2em + 2 x (22px - 0.6em) tall; 16px each side, cancelled by the negative margin so the line does not move). */
+@media (pointer: coarse) {
+  .aio-term { padding: max(2px, calc(22px - 0.6em)) 16px; margin: 0 -16px; }
+}
 .aio-term-pop { position: fixed; z-index: 300; max-width: calc(100vw - 16px); box-sizing: border-box; padding: 12px 14px; border: 0.5px solid var(--border-strong, var(--border)); border-radius: 8px; background: var(--bg-elevated, var(--bg-card)); color: var(--text-primary); box-shadow:none; font-size: 12px; line-height: 1.6; }
 .aio-term-pop strong { display: block; margin-bottom: 4px; font-size: 14px; }
 .aio-term-pop p { margin: 0 0 8px; color: var(--text-secondary); }
@@ -391,8 +391,6 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
 .pf-cash-total:empty { display: none; }
 @media (max-width: 640px) { .pf-allocation-grid { grid-template-columns: minmax(0, 1fr); } }
 @media (pointer: coarse) { .pf-cash-row > input { min-height: 44px; font-size: 14px; } }
-/* v57.81: an empty portfolio keeps 비중·섹터 for the cash boxes; the blank donut and its legend stay hidden until a holding exists. */
-#pf-main.is-empty .pf-donut-box, #pf-main.is-empty #pf-donut-legend { display: none; }
 /* v57.91 (phone/iPad readability audit): sentence-length text set at 11px — the folded-section titles (한국 시장 — 한국
    거시 …, 관심종목 리스트 · 위험 계산 …), the theme-strength footnote and the sector status pill — read at 12px. Short
    labels and chips keep 11px. The theme compare button (26px tall in a table cell) gets a touch-sized target. */
@@ -437,14 +435,12 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
    down by up to 390px (CLS 0.98 on an iPad, 0.38 on a phone). Each keeps roughly its usual height while it is still
    empty; a block that never fills gives the space back after 8 seconds. */
 @keyframes aio-release-reserve { to { min-height: 0; } }
-#home-daily-changes:empty, #home-daily-loop:not(:has(> .daily-block:not(:empty))) { animation: aio-release-reserve 0s linear 8s forwards; }
-#home-daily-changes:empty { min-height: 340px; }
+#home-daily-loop:not(:has(> .daily-block:not(:empty))) { animation: aio-release-reserve 0s linear 8s forwards; }
 #home-daily-loop:not(:has(> .daily-block:not(:empty))) { min-height: 160px; }
 @media (max-width: 1099px) {
   #home-daily-loop:not(:has(> .daily-block:not(:empty))) { min-height: 270px; }
 }
 @media (max-width: 599px) {
-  #home-daily-changes:empty { min-height: 600px; }
   #home-daily-loop:not(:has(> .daily-block:not(:empty))) { min-height: 310px; }
 }
 /* v57.91 (visual readability audit): the big-move tiles on home carried an unexplained accent border; it now reads as a

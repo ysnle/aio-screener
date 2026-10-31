@@ -80,13 +80,15 @@ for (const form of ['10-K', '20-F', '40-F', '20-F/A']) {
 assert.equal(sandbox.fiscal({ revenue: [{ form: '10-Q', periodStart: '2025-01-01', periodEnd: '2025-03-31', fiscalPeriod: 'Q1', filedAt: '2025-05-01', value: 20e6 }] }), '', 'P1627 quarterly facts must not be inserted into annual history');
 
 class Element {
-  constructor(tag) { this.tagName = tag; this.children = []; this.dataset = {}; this.attributes = {}; this.className = ''; this._text = ''; this.style = { setProperty: (key, value) => { this.style[key] = value; } }; this.classList = { add: (...names) => { this.className += ` ${names.join(' ')}`; } }; }
+  constructor(tag) { this.tagName = tag; this.children = []; this.dataset = {}; this.attributes = {}; this.className = ''; this._text = ''; this.style = { setProperty: (key, value) => { this.style[key] = value; } }; this.classList = { add: (...names) => { this.className += ` ${names.join(' ')}`; }, toggle: (name, on) => { const has = this.className.split(' ').includes(name); if (on ?? !has) { if (!has) this.className += ` ${name}`; } else this.className = this.className.split(' ').filter((item) => item !== name).join(' '); } }; }
   set textContent(text) { this._text = String(text); this.children = []; }
   get textContent() { return this._text + this.children.map((child) => child.textContent).join(' '); }
   append(...nodes) { this.children.push(...nodes); }
   replaceChildren(...nodes) { this.children = nodes; this._text = ''; }
   setAttribute(key, value) { this.attributes[key] = value; }
   querySelector(tag) { return descendants(this).find((child) => child.tagName === tag) || null; }
+  // Enough for the fold-state restore: the last simple tag of the selector, [open] honoured.
+  querySelectorAll(selector) { const tag = selector.split(/[\s>]+/).pop(); const open = /\[open\]/.test(selector); return descendants(this).filter((child) => child.tagName === tag.replace(/\[.*\]/, '') && (!open || child.open)); }
   addEventListener() {}
 }
 function descendants(node) { return node.children.flatMap((child) => [child, ...descendants(child)]); }
@@ -355,12 +357,15 @@ assert.ok(!host.textContent.includes('AEHR —'), 'P1627 the earlier pending iss
   // v58.80 (first-users bundle 1): one peer group has one median, the peers' own (growth 10..30 → 20, not 22.5 with SELF).
   assert.equal(sw.facts.find((fact) => fact.id === 'growth').median, 20, 'v58.80 the peer median excludes the company itself');
 
-  const scenario = { status: 'current', crossroads: { leadId: 'aibust', items: [{ id: 'aibust', fit: '조건 충족 3/4' }] } };
-  const situation = lens.buildSituationRead({ themes: [{ id: 'semiconductor', label: '반도체' }], scenario });
+  // v59.51: the lens reads the shared crossroads (marketInterpretation) through scenarioLead; a held model names no lead.
+  const crossroads = { available: true, leadId: 'aibust', tiedIds: [], items: [{ id: 'aibust', title: 'AI 투자 꺾임 — 설비투자 둔화', fit: '조건 충족 3/4' }, { id: 'oilshock', title: '유가 충격 — 원유 급등', fit: '조건 충족 3/4' }] };
+  const situation = lens.buildSituationRead({ themes: [{ id: 'semiconductor', label: '반도체' }], crossroads });
   assert.ok(situation.favour.length && situation.burden.length && situation.now.includes('부담'), 'v58.75 AI capex exposure is burdened by the AI-bust branch');
   assert.equal(lens.buildSituationRead({ themes: [{ id: 'no-such-theme', label: 'x' }] }), null, 'v58.75 a theme without exposure tags shows no situation read');
-  const stale = lens.buildSituationRead({ themes: [{ id: 'semiconductor', label: '반도체' }], scenario: { ...scenario, status: 'stale' } });
-  assert.equal(stale.now, null, 'v58.75 a stale scenario artifact does not name a lead branch');
+  const stale = lens.buildSituationRead({ themes: [{ id: 'semiconductor', label: '반도체' }], crossroads: { ...crossroads, held: true } });
+  assert.equal(stale.now, null, 'v58.75 a held scenario model does not name a lead branch');
+  const tied = lens.buildSituationRead({ themes: [{ id: 'semiconductor', label: '반도체' }], crossroads: { ...crossroads, tiedIds: ['aibust', 'oilshock'] } });
+  assert.ok(tied.lead === null && tied.tied.length === 2 && !/가장 맞는 시나리오/.test(tied.now || ''), 'v59.51 a tie names no single lead');
 
   const bench = [], bars = [];
   for (let i = 0; i < 200; i += 1) {
@@ -387,7 +392,7 @@ assert.ok(!host.textContent.includes('AEHR —'), 'P1627 the earlier pending iss
   assert.deepEqual(watch.map((item) => item.id), ['earnings', 'revisions', 'margin', 'relative', 'levels', 'theme'], 'v58.75 the watch list keeps six named checks');
   assert.deepEqual(lens.buildWatchList({}), [], 'v58.75 an empty watch list stays empty');
 
-  const link = lens.buildMarketLink({ regime: { available: true, overall: '다소 부담' }, scenario, themeLabel: '반도체', tags: ['aicapex', 'cyclical', 'growth'], stage: { stateLabel: '동행' } });
+  const link = lens.buildMarketLink({ regime: { available: true, overall: '다소 부담' }, crossroads, themeLabel: '반도체', tags: ['aicapex', 'cyclical', 'growth'], stage: { stateLabel: '동행' } });
   assert.ok(link.text.includes("'다소 부담'") && link.text.includes('AI') && link.text.includes('부담 쪽'), 'v58.75 the market line joins the regime, lead branch and theme wind');
   assert.equal(lens.buildMarketLink({}), null, 'v58.75 no regime or scenario gives no market line');
 }

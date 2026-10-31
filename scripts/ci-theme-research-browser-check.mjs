@@ -91,10 +91,16 @@ try {
   const krDetailTop = await page.evaluate(() => document.getElementById('kr-theme-detail-panel').getBoundingClientRect().top);
   assert.ok(krDetailTop >= -4 && krDetailTop < 400, `v58.52 the Korean theme detail is in view after the jump (top ${krDetailTop})`);
   await page.evaluate(() => window.showPage('themes'));
-  // v57.54: the sector-performance section (home of the only role=button tooltip) hides when no sector has a 1-day or
-  // 1-week value — always the case in this offline fixture. The tooltip mechanics are what is under test, so show it.
-  await page.addStyleTag({ content: '#page-themes .aio-section[hidden]:has([aria-label="섹터 RS 설명"]) { display: block !important; }' });
-  const tooltip = page.getByRole('button', { name: '섹터 RS 설명', exact: true });
+  // v59.51: the 섹터 RS tooltip left 테마 with the sector bars' own section. The tooltip mechanics are what is under test,
+  // so a fixture tooltip with the shared markup goes on the page.
+  await page.evaluate(() => {
+    const tip = document.createElement('span');
+    Object.assign(tip, { className: 'aio-tooltip', tabIndex: 0, textContent: '?' });
+    for (const [key, value] of Object.entries({ 'data-action': '_aioTooltipToggle', 'data-pass-el': '1', 'data-pass-event': '1', 'aria-expanded': 'false', role: 'button', 'aria-label': '고정 도움말 설명' })) tip.setAttribute(key, value);
+    const body = document.createElement('span'); body.className = 'aio-tooltip-body'; body.textContent = 'fixture'; tip.append(body);
+    document.querySelector('#page-themes .page-head')?.append(tip);
+  });
+  const tooltip = page.getByRole('button', { name: '고정 도움말 설명', exact: true });
   await tooltip.click(); assert.equal(await tooltip.getAttribute('aria-expanded'), 'true', 'P1604: click opens the tooltip');
   await tooltip.press('Escape'); assert.equal(await tooltip.getAttribute('aria-expanded'), 'false', 'P1604: Escape closes the tooltip');
   await tooltip.press('Enter'); assert.equal(await tooltip.getAttribute('aria-expanded'), 'true', 'P1604: Enter opens exactly once');
@@ -125,6 +131,9 @@ try {
   await page.evaluate(()=>window.showPage('principles'));
   for(const lesson of PACKET_20261011_LESSONS) {
     const navigation=page.getByRole('navigation',{name:'개념·분석 목차',exact:true});
+    // v59.51: the open group's titles sit in one closed list; a reader opens it once and it stays open across re-renders.
+    const list=navigation.locator('details.rl-nav-list');
+    if(await list.count() && !(await list.evaluate(node=>node.open))) await list.locator('summary').click();
     const button=navigation.getByRole('button',{name:lesson.issue,exact:true}).or(navigation.getByRole('checkbox',{name:lesson.issue,exact:true}));
     await button.click();
     await page.getByText(lesson.answer,{exact:true}).waitFor({state:'visible'});

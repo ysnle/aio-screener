@@ -6,6 +6,15 @@
 .page .thp-strength-bar { position: absolute; top: 0; }
 .page .thp-strength-zero { position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--border); }
 
+/* v59.51 (content audit): an open theme is a view of its own — the list sections step aside while the panel shows a theme. */
+#page-themes[data-theme-detail="open"] > :not(#theme-detail-panel) { display: none !important; }
+/* v59.51: the verdict card shows the scatter or the sector period bars (#themes-verdict-tabs). */
+#themes-verdict-tabs { display: flex; gap: 4px; margin-left: auto; }
+.v2-themes-rrg[data-view="rrg"] #sector-perf-panel,
+.v2-themes-rrg[data-view="bars"] #rrg-chart-block,
+.v2-themes-rrg[data-view="bars"] #rrg-quadrant-fold { display: none; }
+#sector-perf-panel .sh-themes-row-wrap { margin: 4px 0 10px; }
+
 /* Sector performance bars (#sector-perf-bars) */
 .page .thp-perf-empty { padding: 12px; text-align: center; color: var(--text-muted); font-size: var(--fs-base); }
 .page .thp-perf-basis { font-size: var(--fs-sm); color: var(--text-muted); padding: 0 2px 4px; }
@@ -36,8 +45,11 @@
 .page .thp-summary-meta { font-size: var(--fs-sm); font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); }
 .page .thp-summary-pct { font-size: 12px; font-family: var(--font-mono); font-weight: 900; }
 .page .thp-summary-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 6px; }
-.page .thp-summary-leaders { font-size: var(--fs-sm); line-height: 1.6; color: var(--text-secondary); }
-.page .thp-summary-provenance { font-size: var(--fs-base); line-height: 1.5; color: var(--text-muted); }
+/* v59.51: the one reading under the header (one idea per line) and the expert fold that holds the analysis behind it. */
+.page .thp-reading { list-style: none; margin: 6px 0 10px; padding: 0; display: grid; gap: 4px; font-size: var(--fs-base); line-height: 1.6; color: var(--text-primary); }
+.page .thp-expert-fold { margin: 10px 0; }
+.page .thp-expert-fold > summary { cursor: pointer; font-size: var(--fs-base); font-weight: 700; color: var(--text-secondary); padding: 4px 0; }
+.page .thp-expert-fold > :not(summary) { margin-top: 8px; }
 
 /* Theme detail: section headings, bodies and empty states */
 .page .thp-detail-heading { font-size: var(--fs-base); font-weight: 800; color: var(--text-secondary); margin: 8px 0 4px; }
@@ -47,8 +59,7 @@
 .page .thp-detail-empty { font-size: var(--fs-sm); color: var(--text-muted); }
 .page .thp-spread-leaders { color: var(--text-muted); margin-top: 2px; }
 
-/* Theme detail: composition and sub-theme cards */
-.page .thp-breadth-line { font-size: var(--fs-sm); color: var(--text-muted); line-height: 1.6; margin-bottom: 8px; }
+/* Theme detail: sub-theme day cards (inside the 당일 상세 fold's 세부 테마 panel) */
 .page .thp-subtheme-list { display: grid; gap: 6px; }
 .page .thp-subtheme-card { background: var(--surface-1); border: 0.5px solid var(--surface-4); border-radius: 4px; padding: 8px; }
 .page .thp-subtheme-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 5px; }
@@ -146,8 +157,8 @@
 .page .thp-member-flag.is-top { color: var(--data-green); font-weight: 600; }
 .page .thp-member-flag.is-bottom { color: var(--data-amber); font-weight: 600; }
 .page .thp-catalysts { margin: 10px 0 4px; }
-.page .thp-subtheme-fold, .page .theme-detail-day-fold, .page .kr-theme-live-detail-fold { margin: 8px 0; }
-.page .thp-subtheme-fold > summary, .page .theme-detail-day-fold > summary, .page .kr-theme-live-detail-fold > summary { cursor: pointer; font-size: var(--fs-base); font-weight: 700; color: var(--text-secondary); padding: 4px 0; }
+.page .theme-detail-day-fold, .page .kr-theme-live-detail-fold { margin: 8px 0; }
+.page .theme-detail-day-fold > summary, .page .kr-theme-live-detail-fold > summary { cursor: pointer; font-size: var(--fs-base); font-weight: 700; color: var(--text-secondary); padding: 4px 0; }
 .page .theme-detail-day-fold[hidden] { display: none; }
 .page .kr-theme-close-detail { margin-bottom: 10px; }
 /* The shared `.page button` 36px floor doubled each member row; 26px keeps the AA 24px target (0,3,1 outranks it). */
@@ -191,8 +202,8 @@
 .page .thp-why, .page .thp-criteria { margin: 12px 0 4px; }
 .page .thp-why-list { margin: 4px 0; padding-left: 18px; font-size: var(--fs-base); line-height: 1.6; color: var(--text-secondary); }
 .page .thp-why-list li + li { margin-top: 2px; }
-.page .thp-criteria-fold, .page .thp-roles-fold { margin: 6px 0; }
-.page .thp-criteria-fold > summary, .page .thp-roles-fold > summary { cursor: pointer; font-size: var(--fs-base); font-weight: 700; color: var(--text-secondary); padding: 4px 0; }
+.page .thp-roles-fold { margin: 6px 0; }
+.page .thp-roles-fold > summary { cursor: pointer; font-size: var(--fs-base); font-weight: 700; color: var(--text-secondary); padding: 4px 0; }
 .page .thp-criteria-table { width: 100%; border-collapse: collapse; font-size: 12px; }
 .page .thp-criteria-table th { text-align: left; font-weight: 700; color: var(--text-muted); border-bottom: 0.5px solid var(--border-subtle); padding: 4px 6px; }
 .page .thp-criteria-table td { padding: 5px 6px; border-bottom: 0.5px solid var(--border-subtle); vertical-align: top; }
@@ -258,7 +269,7 @@
 .page .tp-dot.is-clipped { fill-opacity: 0; stroke-width: 2; }
 .page .tp-swatch.is-clipped { background: transparent; box-shadow: inset 0 0 0 1.5px var(--text-secondary); } /* v58.79: the hollow circle as a legend key */
 .page .tp-legend[title], .page .tp-legend-item[title] { cursor: help; }
-.page .tp-rrg-fold { margin-top: 10px; }
+.page .tp-table-fold { margin-top: 10px; }
 .page .tp-dot.is-clipped.is-tail { stroke: var(--data-green); }
 .page .tp-dot.is-clipped.is-head { stroke: var(--data-amber); }
 .page .tp-dot.is-clipped.is-mixed { stroke: var(--text-primary); }

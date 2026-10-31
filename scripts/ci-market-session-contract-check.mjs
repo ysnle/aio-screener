@@ -167,6 +167,26 @@ check('temporal evidence separates event/observed/collected/published', temporal
     && !scheduledEventProblems({ nowMs: Date.parse('2026-10-29T00:00:00Z') }).some((problem) => problem.level === 'error')
     && scheduledEventProblems({ nowMs: Date.parse('2026-11-11T00:00:00Z') }).some((problem) => problem.id === 'us-midterm-2026' && problem.level === 'warn'), { homeWindow, expired });
   for (const problem of scheduledEventProblems()) if (problem.level === 'warn') console.warn(`[scheduled-events] ${problem.id}: ${problem.reason}`);
+  // v59.50 (recurrence audit): the shared clock functions against an Intl-based schedule oracle every 10 minutes from
+  // 10/24 to 11/30 (US DST end 11/1, KRX exam-day 10:00-16:30 on 11/19, Thanksgiving and its 13:00 close). Two broken
+  // copies — a fixed EDT offset and a KR close without the 30-minute grace — must be caught, or the oracle proves nothing.
+  {
+    const { sweepMarketClocks } = await import('./lib/market-clock-sweep.mjs');
+    const calendar = await import('../src/domain/market/market-calendar.js');
+    const clock = await import('../src/domain/market/session-bridge.js');
+    const sweep = sweepMarketClocks({ calendar, clock });
+    check('v59.50 shared market clocks match the schedule oracle (10/24-11/30, 10-minute steps)', sweep.checked > 40000 && sweep.mismatches.length === 0, { checked: sweep.checked, first: sweep.mismatches.slice(0, 4) });
+    const fixedEdt = { ...calendar, latestCompletedUsSession: (now, options) => {
+      const got = calendar.latestCompletedUsSession(now, options);
+      return got && { ...got, closeMs: Date.parse(`${got.date}T16:00:00-04:00`) };
+    } };
+    const noGrace = { ...calendar, latestCompletedKrSession: (now) => {
+      const got = calendar.latestCompletedKrSession(now);
+      return got && { ...got, eodConfirmed: true };
+    } };
+    const caught = (broken) => sweepMarketClocks({ calendar: broken, clock, stepMinutes: 30 }).mismatches.length > 0;
+    check('v59.50 the clock sweep catches a fixed-offset US close and a KR close without its grace', caught(fixedEdt) && caught(noGrace));
+  }
   check('P1735 2027 KRX holidays come from the registry (Chuseok 9/14-16)', JSON.stringify(chuseok2027) === JSON.stringify(['krx-holiday-2027-09-14', 'krx-holiday-2027-09-15', 'krx-holiday-2027-09-16']), chuseok2027);
 }
 

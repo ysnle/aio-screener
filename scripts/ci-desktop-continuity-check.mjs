@@ -141,13 +141,14 @@ const nodes = documentRef.nodes;
 const { renderHomeRegime } = await import(new URL('../src/ui/components/market-regime.js', import.meta.url));
 renderHomeRegime({ documentRef, root: { _aioHistory: [], DATA_SNAPSHOT: {} } });
 // P1619: an unavailable Nasdaq-100 cannot borrow the Nasdaq Composite close.
-renderHomeRegime({ documentRef, root: { _aioHistory: [{ date: '2026-10-09', spx: 7800, nasdaq: 27366 }], DATA_SNAPSHOT: {}, _liveData: {} } });
-assert.equal(nodes.get('home-kpi-nq-fallback').hidden, true, 'P1619 no NDX history means no Composite fallback');
-renderHomeRegime({ documentRef, root: { _aioHistory: [{ date: '2026-10-09', spx: 7800, nasdaq: 27366, ndx: 31000 }], DATA_SNAPSHOT: {}, _liveData: {} } });
-assert.match(nodes.get('home-kpi-nq-fallback').textContent, /31,000/, 'P1619 NDX close is the matching cash fallback');
-assert.doesNotMatch(nodes.get('home-kpi-nq-fallback').textContent, /27,366/, 'P1619 Composite value never enters the NQ card');
-renderHomeRegime({ documentRef, root: { _aioHistory: [{ date: '2026-10-09', spx: 7800, ndx: 31000 }], DATA_SNAPSHOT: {}, _liveData: { 'NQ=F': { price: 31108.75 } } } });
-assert.equal(nodes.get('home-kpi-nq-fallback').hidden, true, 'P1619 arriving NQ hides the cash fallback');
+// v59.51 (content audit): the KPI strip's NQ fallback cell (home-kpi-nq-fallback) is retired; the 나스닥 100 close fallback
+// now lives in the index strip card (closeFallback(history, INDEX_STRIP[1])), which reads only the ndx series.
+const { closeFallback, INDEX_STRIP } = await import(new URL('../src/ui/components/home-index-strip.js', import.meta.url));
+assert.equal(INDEX_STRIP[1].close, 'ndx', 'v59.51 (content audit): P1619 the 나스닥 100 card falls back to the ndx close');
+assert.equal(closeFallback([{ date: '2026-10-09', spx: 7800, nasdaq: 27366 }], INDEX_STRIP[1]), null, 'v59.51 (content audit): P1619 no NDX history means no Composite fallback');
+const ndxFallback = closeFallback([{ date: '2026-10-08', spx: 7790, nasdaq: 27300, ndx: 30800 }, { date: '2026-10-09', spx: 7800, nasdaq: 27366, ndx: 31000 }], INDEX_STRIP[1]);
+assert.equal(ndxFallback?.value, 31000, 'v59.51 (content audit): P1619 NDX close is the matching cash fallback');
+assert.notEqual(ndxFallback?.value, 27366, 'v59.51 (content audit): P1619 Composite value never enters the 나스닥 100 card');
 renderHomeRegime({ documentRef, root: { _aioHistory: [], DATA_SNAPSHOT: {} } });
 assert.equal(nodes.get('home-hero-total').textContent, '판정 대기');
 assert(!/양호|부담/.test(nodes.get('home-hero-components').textContent), 'missing history cannot display axis states');

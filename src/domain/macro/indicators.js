@@ -8,6 +8,9 @@
 import { seriesOf, yoySeries } from './macro-read.js';
 import { signedText, readNumber as finite } from '../shared/number.js';
 import { isIsoDay } from '../shared/session-date.js';
+// MERGED #13 (run-6): '다음 FOMC 결정 12/9' (the ET calendar day) sat beside the timeline's 12/10(목) — every release date
+// is the one KST release clock with the zone named (eventWhenText).
+import { eventWhenText } from '../market/macro-crossroads.js';
 
 export const FED_PCE_TARGET = 2; // FOMC Statement on Longer-Run Goals: 2% on the PCE price index
 
@@ -117,7 +120,7 @@ function buildHistoryItem(releases, schedules, item, macroHistory) {
   if (!last) return { ...base, status: 'missing', valueText: '—', deltaText: null, meta: '수집된 값이 없습니다.' };
   const prior = monthsBack(series, last.date, 1);
   const digits = item.digits ?? 1;
-  const meta = [`${Number(asOf.slice(5, 7))}월분`, release.last ? `${monthDay(release.last)} 발표` : null, release.next ? `다음 ${monthDay(release.next)}` : null, 'FRED'].filter(Boolean).join(', ');
+  const meta = [`${Number(asOf.slice(5, 7))}월분`, release.last ? `${monthDay(release.last)} 발표` : null, release.next ? `다음 ${eventWhenText({ id: item.release, date: release.next })}` : null, 'FRED'].filter(Boolean).join(', ');
   return {
     ...base,
     status: macroHistory?.series?.[item.history.field]?.stale ? 'stale' : 'observed',
@@ -153,7 +156,7 @@ function buildItem(macro, releases, schedules, item, macroHistory = null) {
   else if (item.deltaUnit && delta != null && !item.range) deltaText = `전월 대비 ${signed(delta, item.digits)}${item.deltaUnit}`;
   const targetGap = item.target != null ? value - item.target : null;
   const period = !asOf ? null : item.daily ? `${monthDay(asOf)} 기준` : `${Number(asOf.slice(5, 7))}월분`;
-  const meta = [period, release.last && !item.daily ? `${monthDay(release.last)} 발표` : null, release.next ? `다음 ${monthDay(release.next)}` : null, sourceLabel(macro, keys[0]) || (blsSeries ? 'BLS' : null)].filter(Boolean).join(', ');
+  const meta = [period, release.last && !item.daily ? `${monthDay(release.last)} 발표` : null, release.next ? `다음 ${eventWhenText({ id: item.release, date: release.next })}` : null, sourceLabel(macro, keys[0]) || (blsSeries ? 'BLS' : null)].filter(Boolean).join(', ');
   return {
     ...base,
     status: stale ? 'stale' : 'observed',
@@ -172,7 +175,7 @@ function groupFact(group, items) {
   const ok = (id) => by[id]?.status !== 'missing' && by[id]?.value != null;
   if (group.id === 'policy') {
     if (!ok('fedTarget')) return '목표 범위 자료를 기다리는 중입니다.';
-    return `목표 범위 ${by.fedTarget.valueText}${by.fedTarget.release.next ? `, 다음 FOMC 결정 ${monthDay(by.fedTarget.release.next)}` : ''}`;
+    return `목표 범위 ${by.fedTarget.valueText}${by.fedTarget.release.next ? `, 다음 FOMC 결정 ${eventWhenText({ id: 'us-fomc', date: by.fedTarget.release.next })}` : ''}`;
   }
   if (group.id === 'inflation') {
     if (!ok('pce') || !ok('corePce')) return ok('cpi') ? `CPI ${by.cpi.valueText}, PCE 물가 자료 대기` : '물가 자료를 기다리는 중입니다.';

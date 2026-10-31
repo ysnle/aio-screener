@@ -11,7 +11,7 @@ import { crossroadsForRoot, themeLinkRow } from './macro-crossroads.js';
 import { el } from './dom.js';
 import { directionOf } from '../../domain/shared/number.js';
 import { asOfChip } from './section-frame.js';
-import { moveNewsList, moveNewsRows, renderMarketTimeline, symbolNames } from './market-timeline.js';
+import { moveNewsList, moveNewsRows, symbolNames } from './market-timeline.js';
 import { renderSectorMoves } from './sector-moves.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 // v57.60: the market-input reader moved to the data layer (the AI context imported it from this ui file);
@@ -43,37 +43,25 @@ function statementNode(doc, tag, { text, reading }, className) {
 
 // v58.75 (persona review): "왜 움직였나" — after the sector bars, the session's named movers (the stocks and themes 오늘
 // shows) with the headline that named each the same day, or '같은 날 관련 보도 없음'. No movers, no section.
+// v59.51 (content audit): the movers' headlines are a fold under the sector bars (one visual, one section) instead of a
+// section of their own — the bars say what moved, the fold says which names moved and what was reported the same day.
 function renderMoveNews(doc, root, store, flow) {
-  let section = doc.getElementById('briefing-move-news');
+  doc.getElementById('briefing-move-news')?.remove();
+  const sector = doc.getElementById('briefing-sector-moves');
   const rows = moveNewsRows(root, store, flow);
-  if (!rows.length) { if (section) section.hidden = true; return; }
-  // The matched rows are on the face; the movers without a same-day headline sit in one fold.
-  const list = moveNewsList(doc, root, rows);
-  const missing = rows.filter((row) => !row.headline);
-  if (!section) {
-    const pair = doc.getElementById('briefing-pair');
-    if (!pair) return;
-    section = el(doc, 'section', null, 'aio-section briefing-block');
-    section.id = 'briefing-move-news';
-    section.setAttribute('aria-labelledby', 'briefing-move-news-title');
-    pair.after(section);
-  }
-  const heading = el(doc, 'h2', '왜 움직였나 ', 'briefing-h2');
-  heading.id = 'briefing-move-news-title';
-  // v58.79: date chip; what the list compares is its hover.
-  heading.append(asOfChip(doc, `${shortDate(flow.session)} 종가`, '미국 종가, 같은 업종·테마 안에서 갈린 종목과 테마'));
+  if (!rows.length || !sector) return;
   const matched = rows.filter((row) => row.headline).length;
+  const fold = el(doc, 'details', null, 'sx-disclosure briefing-move-news');
+  fold.id = 'briefing-move-news';
+  const summary = el(doc, 'summary', `왜 움직였나, 종목·테마 ${rows.length}곳 `);
+  // v58.79: date chip; what the list compares is its hover.
+  summary.append(asOfChip(doc, `${shortDate(flow.session)} 종가`, '미국 종가, 같은 업종·테마 안에서 갈린 종목과 테마'));
   const lead = el(doc, 'p', matched
     ? `${rows.length}곳 중 ${matched}곳은 같은 날 이름이 나온 보도나 채널 글이 있습니다. 보도는 같은 날 나왔다는 사실이며 원인을 확정하지는 않습니다.`
     : `${rows.length}곳 모두 같은 날 이름이 나온 보도를 찾지 못했습니다.`, 'briefing-read-reading');
-  const nodes = [heading, lead, ...(list ? [list] : [])];
-  if (missing.length) {
-    const fold = el(doc, 'details', null, 'sx-disclosure');
-    fold.append(el(doc, 'summary', `같은 날 보도를 찾지 못한 ${missing.length}곳`), moveNewsList(doc, root, missing, { showMissing: true }));
-    nodes.push(fold);
-  }
-  section.replaceChildren(...nodes);
-  section.hidden = false;
+  // The matched rows first, then the movers without a same-day headline.
+  fold.append(summary, lead, ...[moveNewsList(doc, root, rows), moveNewsList(doc, root, rows.filter((row) => !row.headline), { showMissing: true })].filter(Boolean));
+  sector.append(fold);
 }
 
 const kstMd = (iso) => { const [, m, d] = String(iso || '').split('-').map(Number); return m && d ? `${m}/${d}` : ''; };
@@ -137,8 +125,11 @@ function renderEarningsWeek(doc, root, store, snapshot) {
 
 // v58.75 ('고르는 법' E2·E3): the next market events — what is priced (where collected), what each live scenario needs from
 // the result — and, folded, how to read a result against the price, with the latest recorded reactions.
+// v59.51 (content audit): merged into 다음 확인 포인트 — the next release was named there, here and in the schedule. The
+// face keeps the one check line (xr.nextEvent and what each scenario needs from it); the previews, the result guide and
+// the recent cases are this closed fold under it.
 function renderEventPreview(doc, root, store, { xr, schedule, flow, nowMs }) {
-  const anchor = doc.getElementById('briefing-schedule');
+  const anchor = doc.getElementById('briefing-checks');
   if (!anchor) return;
   let section = doc.getElementById('briefing-events');
   const previews = eventPreviews({ xr, schedule, earnings: root._aioEarningsSnapshot?.earnings || [], names: universeNames(root), themeMap: root.THEME_MAP, nowMs });
@@ -146,13 +137,12 @@ function renderEventPreview(doc, root, store, { xr, schedule, flow, nowMs }) {
   const cases = flow?.session ? earningsReactionCases({ signals: root.AIO_TELEGRAM_SIGNALS || [], posts, rows: screenerRowsForRoot(root, store), session: flow.session }) : [];
   if (!previews.length) { if (section) section.hidden = true; return; }
   if (!section) {
-    section = el(doc, 'section', null, 'aio-section briefing-block');
+    section = el(doc, 'details', null, 'sx-disclosure briefing-events');
     section.id = 'briefing-events';
-    section.setAttribute('aria-labelledby', 'briefing-events-title');
-    anchor.before(section);
+    anchor.append(section);
   }
   const wasOpen = !!section.querySelector('details.briefing-result-guide')?.open;
-  const heading = el(doc, 'h2', '다음 이벤트 미리보기 ', 'briefing-h2');
+  const heading = el(doc, 'summary', `다음 이벤트 ${previews.length}건, 예상과 결과 갈래 · 결과 해석 가이드`);
   heading.id = 'briefing-events-title';
   heading.title = '시장이 예상하는 것, 결과 갈래, 지금 시나리오와의 연결';
   const first = previews[0];
@@ -268,9 +258,7 @@ export function renderBriefingRead({ documentRef: doc, root, store = null, nowMs
 
   // 2b. 2026-10-19 cadence: six-hour market slots beside the 24h read; v58.53 (5a) the day's sector bars sit beside them.
   renderSectorMoves({ documentRef: doc, root, host: doc.getElementById('briefing-sector-moves'), nowMs });
-  renderMarketTimeline({ documentRef: doc, root, nowMs });
   renderMoveNews(doc, root, store, interpretation?.flow);
-  renderEventPreview(doc, root, store, { xr: interpretation?.crossroads, schedule, flow: interpretation?.flow, nowMs });
 
   // 3. Drivers
   const drivers = doc.getElementById('briefing-driver-rows');
@@ -303,32 +291,32 @@ export function renderBriefingRead({ documentRef: doc, root, store = null, nowMs
   if (checks) {
     // P1599 (H06): dated releases live in the schedule right below (with their 'why'); repeating them here read
     // the same CPI line twice. Checks are what the tape itself asks to confirm, plus one pointer to the next release.
-    // v57.88 (screen audit): US first — a Korean release (한국은행) is the pointer only when no US release is ahead.
-    const upcomingMacro = schedule.filter((row) => !row.passed && row.kind === 'macro');
-    const nextRelease = upcomingMacro.find((row) => /^macro:us-/.test(String(row.id || ''))) || upcomingMacro[0];
+    // v59.51 (area H): the next release has one selector, the scenario model's nextEvent (the screen's own pick from the
+    // schedule could name another release). It is named with what each of the two leading branches needs from it.
     const items = [...(read.checks || [])];
-    // Audit 2026-10-14: the next release is named with what each of the two leading branches needs from it, so the
-    // check is a threshold to compare against, not only a date.
     let split = null;
     let xr = null;
     try {
-      xr = crossroadsForRoot(root, { nowMs });
+      xr = interpretation?.crossroads || crossroadsForRoot(root, { nowMs });
       const event = xr?.nextEvent;
       const sides = event ? (xr.items || []).filter((item) => item.id === xr.leadId || item.id === xr.altId)
         .map((item) => { const trigger = item.triggers.find((row) => row.id === event.id); return trigger ? `'${item.title.split(' — ')[0]}' 쪽이면 ${trigger.text}` : null; }).filter(Boolean) : [];
-      if (event && sides.length) { const [, m, d] = String(event.date || '').split('-').map(Number); split = `다음 발표: ${event.when || (m && d ? `${m}/${d}` : '')} ${event.name} — ${sides.join(', ')}`; }
+      const [, m, d] = String(event?.date || '').split('-').map(Number);
+      if (event) split = `다음 발표: ${event.when || (m && d ? `${m}/${d}` : '')} ${event.name}${sides.length ? ` — ${sides.join(', ')}` : ''}`;
     } catch (_) { split = null; }
     if (split) items.push(split);
-    else if (nextRelease) items.push(`다음 주요 발표: ${nextRelease.when} ${nextRelease.label} (아래 일정에서 무엇을 볼지 확인)`);
     checks.replaceChildren(...(items.length ? items.map((text) => el(doc, 'li', text)) : [el(doc, 'li', '특별히 확인할 변화가 없습니다.')]));
+    renderEventPreview(doc, root, store, { xr: interpretation?.crossroads, schedule, flow: interpretation?.flow, nowMs });
     // v57.54 audit (13): the two paths the next release splits link to the themes each one favours.
+    // v59.51 (two layers): the theme links sit at the end of the event fold, not on the face.
     doc.getElementById('briefing-xr-themes')?.remove();
     const rows = split && xr ? (xr.items || []).filter((item) => item.id === xr.leadId || item.id === xr.altId).map((item) => themeLinkRow(doc, root, item)).filter(Boolean) : [];
     if (rows.length) {
       const box = el(doc, 'div', null, 'briefing-xr-themes');
       box.id = 'briefing-xr-themes';
       box.append(...rows);
-      checks.insertAdjacentElement('afterend', box);
+      const fold = doc.getElementById('briefing-events');
+      if (fold && !fold.hidden) fold.append(box); else checks.insertAdjacentElement('afterend', box);
     }
   }
   // I21: the checks and asset groups continue to the screens that explain them (#briefing-next, hidden while empty).

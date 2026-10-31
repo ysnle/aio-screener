@@ -12,6 +12,7 @@ import { selectProducedRotation } from '../../domain/themes/produced-rotation.js
 import { RRG_QUADRANT_WORDS, RRG_RATIO_SESSIONS, RRG_MOMENTUM_LAG } from '../../domain/themes/rrg.js';
 import { WIND_LABELS } from '../../domain/scenarios/exposures.js';
 import { CHOICES } from '../../domain/market/macro-crossroads.js';
+import { scenarioLead } from '../../domain/market/scenario-lead.js';
 import { CHOICE_WORDS } from '../../domain/content/choice-words.js';
 import { stageChoiceText, LEAD_CONFIRM_MET, ABOVE50_FLOOR } from '../../domain/scenarios/theme-playbook.js';
 
@@ -45,6 +46,7 @@ import { openThemeDetail } from '../navigation/theme-detail.js';
 import { NOTE_TITLES, researchForTheme } from '../../domain/knowledge/theme-research-links.js';
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { signedText } from '../../domain/shared/number.js';
+import { withDirectionParticle } from '../../domain/content/korean-particle.js';
 import { themeCriteria, memberRoles, roleExamples, themeScenarioSplit } from '../../domain/scenarios/theme-criteria.js';
 import { CONSENSUS_KEY, requestConsensusEstimates } from '../../data/consensus-estimates.js';
 
@@ -204,10 +206,12 @@ export function themeTeachFor({ root, store, market = 'US', themeId, playbook = 
   const benchmark = playbook?.benchmarks?.[market] || null;
   const consensus = root?.[CONSENSUS_KEY] || null, calendar = market === 'US' ? root?.[EARNINGS_CALENDAR.key] || null : null;
   const after = benchmark?.asOf || null;
-  const lead = crossroads?.items?.find((item) => item.id === crossroads.leadId) || null;
+  // v59.51 (one lead source): scenarioLead — with tied branches there is no single lead for the scenario-fit criterion.
+  const scenario = scenarioLead(crossroads);
+  const lead = scenario.state === 'lead' ? scenario.items[0] : null;
   const criteria = themeCriteria({ row, members: measured, benchmark, consensus, calendar, regime: mi?.regime || null, lead, after });
   const roles = memberRoles(measured, { consensus, calendar, after });
-  return { row, members, measured, criteria, roles, examples: roleExamples(measured, roles.roles), split: themeScenarioSplit(row.tags || [], crossroads), crossroads, regime: mi?.regime || null, lead, consensus, calendar, after };
+  return { row, members, measured, criteria, roles, examples: roleExamples(measured, roles.roles), split: themeScenarioSplit(row.tags || [], crossroads), crossroads, regime: mi?.regime || null, lead, scenario, consensus, calendar, after };
 }
 /** 조건부 시나리오: the crossroads branches under which this theme's exposure turns favourable or burdensome. */
 export function scenarioSplitText(split) {
@@ -402,7 +406,6 @@ function themeCardTail(doc, root, row, card, screenerSector) {
 // changing (the stage over 6개월·1개월, with 1개월 and the 50-day share as participation), then the market state and the
 // lead scenario the stages sit under. Facts only; the stage rule is the one this section states. It is painted with the
 // playbook so the scenario-state arrival (stage history) repaints both.
-const shortTitle = (title) => String(title || '').split(' — ')[0];
 function renderThemeStrengthMap(doc, root, playbook, interpretation) {
   const hero = doc.getElementById('themes-verdict')?.querySelector?.('.v2-themes-hero');
   if (!hero) return;
@@ -445,15 +448,18 @@ function renderThemeStrengthMap(doc, root, playbook, interpretation) {
     column('바뀌는 중', changing.map(({ row, change }) => [name(row), `${stageName(change.from)} → ${stageName(change.to)}`, '', `${shortMd(change.date)}에 바뀜`]), '최근 3거래일 단계 변화 없음', true));
   const parts = [cols];
   const regime = interpretation?.regime, crossroads = interpretation?.crossroads;
-  const lead = crossroads?.items?.find((item) => item.id === crossroads.leadId) || null;
-  if (regime?.overall || lead) {
-    const counts = regime?.counts;
+  // v59.51 (one lead source; content audit): scenarioLead names every tied branch. The line is short — the market-state
+  // counts and the "big themes, not the sub-theme ranking" caveat are the box's hover.
+  const scenario = scenarioLead(crossroads);
+  const counts = regime?.counts;
+  if (regime?.overall || scenario.items.length) {
     const tail = rows.filter((row) => row.wind?.lead === 'tail').length, head = rows.filter((row) => row.wind?.lead === 'head').length;
-    parts.push(el(doc, 'p', `전체 시황: ${regime?.overall ? `시장 상태 '${regime.overall}'${counts ? `(양호 ${counts.favorable}·중립 ${counts.neutral}·부담 ${counts.burden})` : ''}` : '시장 상태 미확인'}${lead ? `, 선두 시나리오 '${shortTitle(lead.title)}' — 이 시나리오에서 큰 테마 ${rows.length}개(세부 테마를 묶은 단위라 전체 순위의 수와 다름) 중 ${WIND_LABELS.tail} ${tail}개, ${WIND_LABELS.head} ${head}개` : ''}.`, 'thp-strength-line'));
+    const scenarioText = scenario.state === 'tie' ? `중심 시나리오가 ${withDirectionParticle(scenario.names.join('·'))} 동률` : scenario.items.length ? `중심 시나리오 ${scenario.names[0]}` : '';
+    parts.push(el(doc, 'p', `${regime?.overall ? `시장 상태 '${regime.overall}'` : '시장 상태 미확인'}${scenarioText ? `, ${scenarioText} — 테마 ${rows.length}개 중 ${WIND_LABELS.tail} ${tail}개, ${WIND_LABELS.head} ${head}개` : ''}.`, 'thp-strength-line'));
   }
   // v58.79 (layout over captions): the basis sentence became the box's hover; the 테마 시나리오 section's 기준과 판정 규칙 fold
   // spells the same stage rule for a reader without a pointer.
-  box.title = `${playbook.asOfText || '확정 종가'}, 단계 = 구성 종목 수익률 중앙값의 6개월(한국 3개월)·1개월을 ${playbook.benchmarks?.US?.name || 'S&P 500 동일가중'}(한국 코스피)와 비교, 50일선 위 = 참여 폭. 강한 쪽·약한 쪽은 미국 테마, 바뀌는 중은 최근 3거래일 기록.`;
+  box.title = `${playbook.asOfText || '확정 종가'}, 단계 = 구성 종목 수익률 중앙값의 6개월(한국 3개월)·1개월을 ${playbook.benchmarks?.US?.name || 'S&P 500 동일가중'}(한국 코스피)와 비교, 50일선 위 = 참여 폭. 강한 쪽·약한 쪽은 미국 테마, 바뀌는 중은 최근 3거래일 기록.${counts ? ` 시장 상태 축: 양호 ${counts.favorable}·중립 ${counts.neutral}·부담 ${counts.burden}.` : ''} 수혜·부담 수는 세부 테마를 묶은 큰 테마 단위라 세부 테마 순위의 수와 다릅니다.${scenario.state === 'tie' ? ` 동률일 때 수혜·부담은 동률인 시나리오 모두에서 같은 테마만 셉니다.` : ''}`;
   box.replaceChildren(...parts);
 }
 
@@ -484,7 +490,7 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   root.__aioThemePlaybook = playbook;
   if (!playbook.available) { renderThemeStrengthMap(doc, root, playbook, null); host.replaceChildren(el(doc, 'p', '테마 수익률(스크리너)을 받으면 모든 테마를 같은 규칙으로 읽습니다.', 'xr-basis')); return playbook; }
   const openStages = new Set([...host.querySelectorAll('.tp-stage-choices-fold[open]')].map((node) => node.dataset.stage));
-  const lead = crossroads?.items?.find((item) => item.id === crossroads.leadId);
+  const scenario = scenarioLead(crossroads); // v59.51: one lead source; a tie names every tied branch
   const [headline, ...restOfRotation] = playbook.rotation.text.split(/(?<=니다\.)\s+/);
   const reading = [headline, ...(restOfRotation.length ? [restOfRotation.join(' ')] : [])];
   const h = playbook.highlights;
@@ -496,7 +502,7 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   const creditEntry = playbook.themes.flatMap((row) => row.basisText || []).find((text) => text.startsWith(CREDIT_CONDITION));
   const benchText = ['US', 'KR'].map((market) => playbook.benchmarks?.[market]).filter((b) => b && (b.ret1m != null || b.ret3m != null || b.ret6m != null))
     .map((b) => `${b.name} ${[b.field === 'kospi' || b.name === '코스피' ? (b.ret3m != null ? `3개월 ${pct(b.ret3m)}` : null) : (b.ret6m != null ? `6개월 ${pct(b.ret6m)}` : null), b.ret1m != null ? `1개월 ${pct(b.ret1m)}` : null].filter(Boolean).join(', ')}`).join(', ');
-  const basis = el(doc, 'p', `${playbook.asOfText || `${playbook.asOf ? `${playbook.asOf} ` : ''}확정 종가`}, 테마 ${playbook.themes.length}개${playbook.rotation?.market === '한국' ? ' (미국 테마 수익률을 받기 전이라 한국만)' : ''}, ${lead ? `중심 시나리오 '${lead.title.split(' — ')[0]}' 기준` : '중심 시나리오 미정'}. 단계는 긴 추세(미국 6개월, 한국 3개월)와 1개월을 같은 기간 지수와 비교해 정합니다${benchText ? `(같은 기간 ${benchText})` : ''}.${creditEntry ? ` 신용 조건은 시장 전체에 하나라 모든 테마에 같게 적용됩니다: ${creditEntry}.` : ''}`, 'xr-basis');
+  const basis = el(doc, 'p', `${playbook.asOfText || `${playbook.asOf ? `${playbook.asOf} ` : ''}확정 종가`}, 테마 ${playbook.themes.length}개${playbook.rotation?.market === '한국' ? ' (미국 테마 수익률을 받기 전이라 한국만)' : ''}, ${scenario.state === 'tie' ? `중심 시나리오 ${scenario.names.join('·')} 동률 기준(동률이면 수혜·부담은 동률인 시나리오 모두에서 같을 때만 정하고, 다르면 혼재)` : scenario.items.length ? `중심 시나리오 ${scenario.names[0]} 기준` : '중심 시나리오 미정'}. 단계는 긴 추세(미국 6개월, 한국 3개월)와 1개월을 같은 기간 지수와 비교해 정합니다${benchText ? `(같은 기간 ${benchText})` : ''}.${creditEntry ? ` 신용 조건은 시장 전체에 하나라 모든 테마에 같게 적용됩니다: ${creditEntry}.` : ''}`, 'xr-basis');
   setAsOf(doc, host.parentElement?.querySelector(':scope > .aio-frame-head'), closeChipText(playbook.asOfText || (playbook.asOf ? `${playbook.asOf} 확정 종가` : '')), basis.textContent);
   const rulesFold = el(doc, 'details', null, 'tp-rules');
   rulesFold.append(el(doc, 'summary', '기준과 판정 규칙'), basis, el(doc, 'p', `단계는 6개월(한국 3개월)·1개월 수익률을 같은 기간 지수(미국 S&P 500 동일가중 — 기록이 없으면 S&P 500, 한국 코스피)와 비교해 정하고(1개월 ±${relativeBand('ret1m')}%p, 6개월 ±${relativeBand('ret6m')}%p 안의 차이는 앞선 것으로 보지 않음), 최근 5거래일이 평소 1주 움직임의 2배를 넘게 반대로 움직이면 1개월 판정을 보류합니다. 수혜·부담은 테마 성격이 중심 시나리오에 유리한지 불리한지로 정합니다. 확률 숫자·가격·종목 지시는 쓰지 않습니다. 레버리지·포지션 쏠림을 직접 재는 자료는 없어 가격 단서(1개월 낙폭·50일선 위 비율)로만 봅니다.`, 'xr-basis'),
@@ -528,14 +534,18 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   // last three recorded sessions or whose cheaper choice differs from the rest of the stage open by default.
   const history = root?.[SCENARIO_STATE.key]?.themeHistory || [];
   const toggled = root._aioTpToggled instanceof Map ? root._aioTpToggled : (root._aioTpToggled = new Map());
-  const table = el(doc, 'table', null, 'tp-table');
   // v58.75 (persona review, A-4): '기준 충족' — how many of the six expert criteria the theme meets (a count, not a
   // probability); the header button sorts each stage's rows by it.
   let interpretation = null;
   try { interpretation = marketInterpretation(root, { store }); } catch (_) { interpretation = null; }
   const teachOf = new Map(playbook.themes.map((row) => [`${row.market}:${row.id}`, themeTeachFor({ root, store, market: row.market, themeId: row.id, playbook, interpretation })]));
   const criteriaSort = root._aioTpCriteriaSort === 'asc' || root._aioTpCriteriaSort === 'desc' ? root._aioTpCriteriaSort : null;
-  const cols = ['테마', '단계 흐름', '1개월 수익률 추이', '1주', '1개월', '긴 추세', '50일선 위', '시나리오 영향', '기준 충족'];
+  const krHost = doc.getElementById('kr-theme-stage-host');
+  for (const node of krHost ? krHost.querySelectorAll('.tp-stage-choices-fold[open]') : []) openStages.add(node.dataset.stage);
+  // v59.51 (content audit): one table per market — the US table folds under the map, the Korean one sits in the 한국 fold.
+  const stageTable = (market, themes) => {
+  const table = el(doc, 'table', null, 'tp-table');
+  const cols =['테마', '단계 흐름', '1개월 수익률 추이', '1주', '1개월', '긴 추세', '50일선 위', '시나리오 영향', '기준 충족'];
   const head = el(doc, 'thead'), headRow = el(doc, 'tr');
   cols.slice(0, -1).forEach((label) => headRow.append(el(doc, 'th', label)));
   const criteriaHead = el(doc, 'th');
@@ -548,9 +558,9 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   headRow.append(criteriaHead);
   head.append(headRow);
   table.append(head);
-  const groups = [...Object.keys(THEME_STATES).map((stage) => [stage, playbook.themes.filter((row) => row.state === stage).sort((a, b) => b.ret1m - a.ret1m)]),
+  const groups = [...Object.keys(THEME_STATES).map((stage) => [stage, themes.filter((row) => row.state === stage).sort((a, b) => b.ret1m - a.ret1m)]),
     // v57.88 (screen audit): a held theme (state null — e.g. 한국 원전·건설) keeps its own group with the hold reason.
-    ['held', playbook.themes.filter((row) => !THEME_STATES[row.state]).sort((a, b) => (b.ret1m ?? -Infinity) - (a.ret1m ?? -Infinity))]].filter(([, list]) => list.length);
+    ['held', themes.filter((row) => !THEME_STATES[row.state]).sort((a, b) => (b.ret1m ?? -Infinity) - (a.ret1m ?? -Infinity))]].filter(([, list]) => list.length);
   const metOf = (row) => teachOf.get(`${row.market}:${row.id}`)?.criteria?.met ?? -1;
   if (criteriaSort) for (const [, list] of groups) list.sort((a, b) => (metOf(b) - metOf(a)) * (criteriaSort === 'desc' ? 1 : -1));
   const favoredKey = (row) => row.favored.join('+');
@@ -570,8 +580,8 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
       el(doc, 'span', `${definition ? `${definition}.` : '단계 판정의 조건이 맞지 않아 보류한 테마입니다(이유는 행을 눌러 확인).'}${choiceLine ? ` 조건별 득실로 ${CHOICE_WORDS.favored}: ${choiceLine}.` : ''}`, 'tp-stage-note'));
     if (stage !== 'held') {
       const fold = el(doc, 'details', null, 'tp-stage-choices-fold');
-      fold.dataset.stage = stage;
-      fold.open = openStages.has(stage);
+      fold.dataset.stage = `${market}:${stage}`;
+      fold.open = openStages.has(`${market}:${stage}`);
       fold.append(el(doc, 'summary', '이 단계의 대응별 득실'), stageChoiceTable(doc, stage, list));
       fold.querySelector('h4')?.remove(); // the summary names it
       stageCell.append(fold);
@@ -637,30 +647,39 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   }
   const tableScroll = el(doc, 'div', null, 'aio-table-scroll tp-table-scroll');
   tableScroll.setAttribute('role', 'region');
-  tableScroll.setAttribute('aria-label', '테마 단계 표, 가로 스크롤');
+  tableScroll.setAttribute('aria-label', `${mkt({ market })} 테마 단계 표, 가로 스크롤`);
   tableScroll.tabIndex = 0;
   tableScroll.append(table);
-  const tableHelp = (`테마 이름을 누르면 근거·핵심 논리·자기만의 득실이 펼쳐집니다. 단계 흐름은 지금 단계가 이어진 거래일 수와 그 전 단계(최근 10거래일 기록 안), '바뀜'은 최근 3거래일 안에 단계가 달라진 테마입니다. 추이 선은 같은 기간 1개월 수익률의 흐름입니다. 마지막 거래일에 바뀐 테마와 '다른 선택'(같은 단계 다수와 ${CHOICE_WORDS.favored}이 다름)은 처음부터 펼쳐 둡니다(최대 4개).`);
-  // v58.75 (persona review): where the sector rotation chart and the stage point opposite ways, one fact line says why.
-  const conflicts = playbook.themes.map((row) => ({ row, conflict: rrgStageConflict(root, row) })).filter((item) => item.conflict);
-  // v58.79: the list sits in one fold under the table; the fold's summary carries the count.
-  let conflictLine = null;
-  if (conflicts.length) {
-    conflictLine = el(doc, 'details', null, 'tp-rules tp-rrg-fold');
-    conflictLine.append(el(doc, 'summary', `RRG와 단계가 엇갈리는 테마 ${conflicts.length}개`),
-      el(doc, 'p', `${conflicts.map(({ row, conflict }) => `${row.label}(${conflict.etf} ${conflict.word}, 단계 ${conflict.stage})`).join(', ')}. ${rrgBasisText(conflicts[0].row.relative?.name)}.`, 'xr-reading'));
-  }
-  // Layout review 2026-10-18: the map (capped at 760px) and its reading share one row on a wide screen, so the
-  // reading no longer leaves the right half of the section empty; a narrow screen stacks them in the same order.
+  // v59.51 (content audit): the 46-row table (~14,000 px on a phone) is an expert fold, one per market; the how-to sentence
+  // is the summary's hover (the 테마 buttons and the column names carry it).
+  const fold = el(doc, 'details', null, 'tp-rules tp-table-fold');
+  fold.dataset.market = market;
+  const opened = root._aioTpTableOpen || (root._aioTpTableOpen = {});
+  fold.open = !!opened[market];
+  fold.addEventListener('toggle', () => { opened[market] = fold.open; });
+  const summary = el(doc, 'summary', `${mkt({ market })} 테마 ${themes.length}개 — 단계, 근거, 대응별 득실 표`);
+  summary.title = `테마 이름을 누르면 근거·핵심 논리·자기만의 득실이 펼쳐집니다. 단계 흐름은 지금 단계가 이어진 거래일 수와 그 전 단계(최근 10거래일 기록 안), '바뀜'은 최근 3거래일 안에 단계가 달라진 테마입니다. 추이 선은 같은 기간 1개월 수익률의 흐름입니다. 마지막 거래일에 바뀐 테마와 '다른 선택'(같은 단계 다수와 ${CHOICE_WORDS.favored}이 다름)은 처음부터 펼쳐 둡니다(최대 4개).`;
+  fold.append(summary, tableScroll);
+  return fold;
+  };
+  // v59.51 (content audit, two layers): the map's side keeps the legend and at most two highlight lines (the themes whose
+  // stage and macro wind disagree). The rest of the rotation read (sample caveat, Korea's ends, the scenario count) and any
+  // further highlight open the US table fold, so no line of the analysis is lost. The RRG-vs-stage conflict list left: each
+  // theme's card already carries its own conflict fact (tp-rrg-fact).
+  const highlightLines = reading.slice(restOfRotation.length ? 2 : 1);
+  const sideLines = [...highlightLines, ...(restOfRotation.length ? [reading[1]] : [])];
+  // Layout review 2026-10-18: the map (capped at 760px) and its reading share one row on a wide screen; a narrow screen
+  // stacks them in the same order.
   const mapRow = el(doc, 'div', null, 'tp-map-row');
   const mapSide = el(doc, 'div', null, 'tp-map-side');
-  mapSide.append(legend(doc), ...reading.slice(1).map((text) => el(doc, 'p', text, 'xr-reading')));
+  const shown = Math.min(2, highlightLines.length);
+  mapSide.append(legend(doc), ...sideLines.slice(0, shown).map((text) => el(doc, 'p', text, 'xr-reading')));
   mapRow.append(mapWrap, mapSide);
-  // v58.79 (layout over captions): the table's how-to sentence became the heading's hover (the 테마 buttons and the
-  // column names carry it), and the closing "세부 종목 선택은 …" caveat left — the section names no stock to pick.
-  const tableHead = el(doc, 'h3', `단계 × 테마, ${playbook.themes.length}개`, 'xr-h3');
-  tableHead.title = tableHelp;
-  host.replaceChildren(el(doc, 'p', reading[0], 'xr-lead'), rulesFold, mapRow, tableHead, tableScroll, ...(conflictLine ? [conflictLine] : []));
+  const usThemes = playbook.themes.filter((row) => row.market !== 'KR'), krThemes = playbook.themes.filter((row) => row.market === 'KR');
+  const usFold = usThemes.length ? stageTable('US', usThemes) : null;
+  if (usFold && sideLines.length > shown) usFold.querySelector('summary').after(...sideLines.slice(shown).map((text) => el(doc, 'p', text, 'xr-reading')));
+  host.replaceChildren(el(doc, 'p', reading[0], 'xr-lead'), rulesFold, mapRow, ...(usFold ? [usFold] : []));
+  if (krHost) krHost.replaceChildren(...(krThemes.length ? [stageTable('KR', krThemes)] : []));
   host.dataset.aioThemePlaybook = 'native';
   renderThemeStrengthMap(doc, root, playbook, interpretation);
   return playbook;
@@ -683,7 +702,8 @@ export function renderThemeDetailPlaybook({ documentRef: doc, root } = {}) {
   if (!row) { host.replaceChildren(); return null; }
   const link = (label, onClick) => { const b = el(doc, 'button', `${label} →`, 'flow-next-link'); b.type = 'button'; b.addEventListener('click', onClick); return b; };
   const links = el(doc, 'div', null, 'xr-explore');
-  links.append(link('모든 테마 시나리오와 비교', () => doc.getElementById('theme-playbook-title')?.scrollIntoView?.({ block: 'start', behavior: 'smooth' })),
+  // v59.51: the detail is a view of its own, so the comparison link closes it before scrolling to the section.
+  links.append(link('모든 테마 시나리오와 비교', () => { root?.closeThemeDetail?.(); doc.getElementById('theme-playbook-title')?.scrollIntoView?.({ block: 'start', behavior: 'smooth' }); }),
     link('거시 시나리오의 근거', () => { root?.showPage?.('macro'); setTimeout(() => doc.getElementById('macro-crossroads-title')?.scrollIntoView?.({ block: 'start' }), 60); }));
   // v58.79 (owner 2026-10-25): how this theme's businesses earn — the research library's notes and 산업 지도 domain.
   const research = researchForTheme(row.id);
@@ -701,10 +721,14 @@ export function renderThemeDetailPlaybook({ documentRef: doc, root } = {}) {
   host.replaceChildren(el(doc, 'h4', '이 테마의 시나리오', 'xr-h4'), stripLine,
     // v58.79: the stage is already in the line above; the returns stay and the stage's comparison basis is the hover.
     Object.assign(el(doc, 'p', [row.ret5d != null ? `5거래일 ${pct(row.ret5d)}` : null, `1개월 ${pct(row.ret1m)}`, row.ret6m != null ? `6개월 ${pct(row.ret6m)}` : null, row.fit].filter(Boolean).join(', '), 'xr-basis'), { title: row.stateLabel }),
-    ...(conflict ? [Object.assign(el(doc, 'p', `RRG ${conflict.etf} '${conflict.word}', 단계 '${conflict.stage}'`, 'xr-reading tp-rrg-fact'), { title: rrgBasisText(row.relative?.name) })] : []),
+    // v59.51 (two layers): this read sits in the expert fold, so the RRG-vs-stage basis is printed, not a hover.
+    ...(conflict ? [el(doc, 'p', `RRG ${conflict.etf} '${conflict.word}', 단계 '${conflict.stage}' — ${rrgBasisText(row.relative?.name)}.`, 'xr-reading tp-rrg-fact')] : []),
     el(doc, 'p', `거시 영향: ${row.windText}. ${CHOICE_WORDS.favored}: ${row.favored.map((key) => CHOICES[key]).join(', ') || '판단 보류'} — ${row.favoredWhy}`, 'xr-reading'),
     ...(row.thesis ? [el(doc, 'p', `핵심 논리: ${row.thesis}. 점검 신호: ${row.breaks.join(', ')}.`, 'xr-reading')] : []),
-    el(doc, 'p', row.above50 === 0 ? '구성 종목 중 50일선 위 종목이 없어, 아래 목록은 추세가 되살아나는지 확인하는 용도로 봅니다.' : row.above50 != null ? `아래 구성 종목에서 50일선 위 종목(${row.above50}%)부터 차트·재무로 확인합니다.` : '아래 구성 종목·대표 종목은 차트·재무로 직접 확인합니다.', 'xr-caveat'), links);
+    // v59.51 (R724): the participation share as a criterion — what a high or low share means — not which members to check first.
+    ...(row.above50 != null ? [el(doc, 'p', row.above50 === 0
+      ? '구성 종목 중 50일선 위 종목이 없습니다 — 추세가 되살아나는지는 이 비율이 다시 오르는지로 갈립니다.'
+      : `구성 종목의 ${row.above50}%가 50일선 위에 있습니다 — 이 비율이 ${ABOVE50_FLOOR}% 이상이면 테마 흐름이 여러 종목에 퍼져 있다는 뜻이고, 낮으면 소수 종목이 끌고 있다는 뜻입니다.`, 'xr-caveat')] : []), links);
   return row;
 }
 

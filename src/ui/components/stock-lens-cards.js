@@ -7,6 +7,7 @@ import { el } from './dom.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { parseFiscalHistory } from './fiscal-read.js';
 import { readMarketRegime } from './market-regime.js';
+import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { reconcileFiscalHistory, isLendingFinancial } from '../../domain/fundamental/fiscal-read.js';
 import { parseQuarterHistory, buildQuarterRead } from '../../domain/fundamental/quarter-read.js';
 import { buildTrailingYearRead, buildEarningsSchedule, buildMarginCashRead, buildThemePeers, buildRdRead, buildSurpriseRead, reverseDcfInputs, impliedGrowth, REVERSE_DCF_DEFAULTS } from '../../domain/fundamental/analysis-read.js';
@@ -47,7 +48,9 @@ export function stockLensContext(root, symbol, { fundamentals = null, bars = nul
   const themeList = themeIds.map((id) => ({ id, label: themes.find((theme) => theme.id === id)?.nameKr || id }));
   const stages = themeStagesFor(root, { symbol: sym, themeIds });
   const stage = stages.find((item) => item.id === themeIds[0]) || stages[0] || null;
-  const scenario = root?._aioScenarioState || null;
+  // MERGED #2 (run-6): the page's one crossroads model (a tie stays a tie in the readings built from it).
+  let crossroads = null;
+  try { crossroads = marketInterpretation(root).crossroads; } catch (_) { crossroads = null; }
   let regime = null;
   try { regime = readMarketRegime(root); } catch (_) { regime = null; }
   const spx = buildCloseSeries(root?._aioHistory || [], 'spx');
@@ -71,14 +74,14 @@ export function stockLensContext(root, symbol, { fundamentals = null, bars = nul
   const implied = inputs?.state === 'ready' ? impliedGrowth({ fcf: inputs.fcf, marketValue: inputs.marketValue, discountRate: REVERSE_DCF_DEFAULTS.discountRate, terminalGrowth: REVERSE_DCF_DEFAULTS.terminalGrowth }) : inputs ? { state: inputs.state } : null;
   const strengths = peers ? buildPeerStrengths(peers.rows) : null;
   const pe = strengths?.facts?.find((fact) => fact.id === 'fwdPe');
-  const situation = buildSituationRead({ themes: themeList, market, scenario, beta });
+  const situation = buildSituationRead({ themes: themeList, market, crossroads, beta });
   const tags = themeIds.flatMap((id) => themeProfile(market, id)?.tags || []);
   return {
     sym, market, row, history, peers, strengths, stage, themeList, situation, schedule, levels, consensus, trailing,
     lensRead: history.length ? buildLensRead({ lens, history, trailing, quarterRead, marginCash, rd: buildRdRead(history), consensus, surprise: buildSurpriseRead(consensus) }) : null,
     thesis: history.length ? buildThesisFrame({ implied, trailing, marginCash, consensus, schedule, levels, peerPe: pe ? { value: pe.value, median: pe.median } : null, situation }) : null,
     watch: buildWatchList({ schedule, consensus, trailing, row, stage, levels, benchmarkRet3m: benchmark.pct, benchmarkLabel: benchmark.label }),
-    link: buildMarketLink({ regime, scenario, stage, themeLabel: themeList[0]?.label || null, tags })
+    link: buildMarketLink({ regime, crossroads, stage, themeLabel: themeList[0]?.label || null, tags })
   };
 }
 

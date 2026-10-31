@@ -6,6 +6,105 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P2177 - v59.51 - AI 패널을 열면 페이지가 눌려 표가 잘리고, 휴대폰 포트폴리오 저장 버튼이 하단 탭 아래에 깔림 (2026-10-31)
+
+- symptom/reproduction: run-6: AI 패널을 열면 포트폴리오 비중 열이 '10('로 잘리고 총 손익이 줄바꿈되며 VIX 카드가 네 줄이 됐다(심각도 2). 휴대폰에서 포트폴리오 저장 버튼이 고정 하단 탭 아래(y=825)에 있었고, '답변 범위'(51×24)·용어 표시가 44px보다 작았다(심각도 2).
+- root_cause: toggleAIPanel이 페이지 폭을 인라인 maxWidth로 줄였다. 포트폴리오 입력 폼은 선택 입력(목표가·통화·메모)이 저장 버튼 위에 펼쳐져 버튼을 화면 아래로 밀었다.
+- fix: 인라인 maxWidth를 없애고, 1600px 이상에서만 CSS 한 규칙으로 페이지를 좁힌다(그 아래는 패널이 페이지 위에 겹친다). 포트폴리오 선택 입력은 접힘으로 옮겨 저장 버튼이 필수 입력 세 개 바로 뒤에 온다. '답변 범위' 요약은 110×44, '답변 맞춤' 버튼은 44px로 키웠다.
+- violated_rule: AGENTS 데스크톱·모바일 반응형 지원(44px 터치 대상).
+- prevention: 자동 게이트 없음: 1440·1700px와 390px 화면으로 확인했다.
+- verification/residual: 1440px에서 패널을 열어도 페이지 폭 1440 유지, 1700px에서 1300. 390px에서 저장 버튼이 하단 탭 위에 보임.
+
+## P2176 - v59.51 - 재무 공시 매출·순이익 막대의 값 이름표가 겹치고 마지막 것이 잘리며, 날짜 축이 중간에서 끊김 (2026-10-31)
+
+- symptom/reproduction: run-6 초보·성급한 사용자: 재무 공시 매출·순이익 막대 이름표가 겹치고 마지막이 잘렸으며 가로축 날짜가 중간에서 줄바꿈됐다(심각도 2·1).
+- root_cause: fiscal-read.js의 amountNode/fiscalChart가 막대마다 금액과 기간 전체를 한 이름표에 넣어, 막대 폭보다 긴 글이 겹쳤다.
+- fix: 막대 이름표는 금액만, 가로축은 FY2025 / 2026-06처럼 짧게 쓰고, 전체 값은 마우스를 올리면 보인다. '회계연도 말로부터 399일'은 '다음 연간 공시가 나올 시기라, 최근 4개 분기 숫자가 더 새 숫자입니다'로 바꾸고 일수와 10-K 기한은 마우스 설명으로 옮겼다(annualAgeText).
+- violated_rule: AGENTS 데스크톱·모바일 반응형 지원.
+- prevention: 자동 게이트 없음: 390px·1280px 화면으로 확인했다.
+- verification/residual: 영역 E가 390px와 1280px에서 이름표가 겹치지 않고 축 날짜가 한 줄임을 확인. node scripts/ci-fiscal-quality-fixture.mjs 통과.
+
+## P2175 - v59.51 - 주말 홈에서 선물 칩과 장 연결 문장이 서로 다른 선물 값을 보여 줌 (2026-10-31)
+
+- symptom/reproduction: 콘텐츠 점검 2026-10-31(토): 홈의 장 연결 문장은 '선물 -1.81%, 14시간 전', 선물 타일은 다른 값을 보여 줘 서로 맞지 않았다.
+- root_cause: 선물 타일은 CME가 닫힌 주말에도 마지막 값을 보였고, 장 연결 문장은 별도 규칙으로 선물 줄을 넣었다. 주말 휴장을 판단하는 규칙이 두 곳에 따로 있었다.
+- fix: 선물 칩과 장 연결 문장의 선물 줄이 모두 usWeekendClosed 하나로 판단해, 주말에는 둘 다 보이지 않는다. 선물 칩은 CME가 열려 있고 실시간 값이 있을 때만 보인다(syncHomeQuoteRow). 대체 셀과 그 MutationObserver는 지웠다.
+- violated_rule: AGENTS 종가 기준 점수 — 한 화면 안에서 같은 시장 값이 둘이면 안 된다.
+- prevention: ci-esm-core-unit-check의 usWeekendClosed 사례와 ci-runtime-contract-check의 EF-17 선물 칩 고정(v59.51).
+- verification/residual: 토요일 로컬 화면에서 선물 칩과 선물 줄이 모두 보이지 않음을 확인.
+
+## P2174 - v59.51 - 종목의 차트·재무 공시 탭 주소에서 종목(sym)이 빠져 새로고침하면 '종목 선택 전'이 됨, 차트 제목은 'SPY 일봉' (2026-10-31)
+
+- symptom/reproduction: run-6: 차트·재무 공시 탭에서 새로고침하면 '종목 선택 전'으로 돌아갔다(심각도 2). NVDA 차트 탭의 제목이 'SPY 일봉 · 판정 대기'였다(심각도 3).
+- root_cause: 라우터가 #ticker에만 ?sym=을 붙이고 #technical·#fundamental에는 붙이지 않았고, 허브 탭이 종목을 다시 지정하지 않았다. 차트 제목은 빈 차트의 기본값 'SPY 일봉'이 정적으로 남아 있었다.
+- fix: src/app/router.js ENTITY_ROUTES(ticker·technical·fundamental)가 모두 sym을 주소에 싣고, route-hubs.js가 탭 전환 때 setStockSubject로 종목을 복원하며 role=tablist/tab을 단다. 차트 제목은 '일봉'으로 바꿔 종목 머리글과 다른 종목명을 쓰지 않는다.
+- violated_rule: AGENTS 티커 추정 금지 — 화면이 다른 종목을 이름으로 보여 주면 안 된다.
+- prevention: 자동 게이트 없음: 브라우저에서 새로고침으로 확인했다.
+- verification/residual: 로컬 브라우저에서 이전 종목이 AAPL인 상태로 #technical?sym=NVDA와 #fundamental?sym=MSFT를 새로고침해 각각 NVDA·MSFT가 열리고 주소가 유지됨을 확인. 차트 제목은 종목을 받기 전 '일봉', 받은 뒤 'NVDA 일봉'.
+
+## P2173 - v59.51 - 용어 표시 대상 네 개가 이름이 바뀐 사전 항목을 가리켜 근원 물가·PCE·50/200일선에 용어 설명이 붙지 않음 (2026-10-31)
+
+- symptom/reproduction: run-6 초보 사용자: 혼조, PCE, 50/200일선, GAAP/비GAAP, 희석 EPS, SPY, XLK 등 20여 개 용어에 설명 표시가 없었다(심각도 2).
+- root_cause: term-marks.js의 TERM_MARKS 대상 네 개가 사전에서 이름이 바뀐 항목(구분자 ','→'·')을 가리켜, 찾지 못하면 조용히 건너뛰었다. 일부 용어는 사전 항목 자체가 없었다. 나머지는 표시가 있었지만 문장 밖(표·칩)에 있어 붙지 않았다.
+- fix: 네 대상을 지금 사전 이름으로 고쳤다. 혼조, GAAP/비GAAP, 희석 EPS, EMA, FY, SPY, XLK, Markowitz 사전 항목을 쉬운 첫 문장 + 공식·주의 순서로 추가했고(deferred-screen-terms.js), BTC는 비트코인 항목에 연결했다. 휴대폰에서 용어 표시를 44px 이상 누를 수 있게 했다.
+- violated_rule: AGENTS 초보 사용자 이해 — 전문 용어는 사전 표시를 단다.
+- prevention: 후속: 모든 TERM_MARKS 대상이 런타임 사전에 있는지 검사하는 게이트(영역 G가 스크립트로 확인, 게이트 승격은 다음 배치).
+- verification/residual: 영역 G가 모든 TERM_MARKS 대상이 사전에서 풀리는 것을 스크립트로 확인, 390px에서 ROE·KST 표시가 44×46px 이상.
+
+## P2172 - v59.51 - 시장 상태 첫 화면이 홈의 '혼조'와 달리 '판정 대기'로 오래 남고, '지수 차트 보기' 링크가 차트 두 화면 위에 떨어짐 (2026-10-31)
+
+- symptom/reproduction: run-6: 휴대폰에서 시장 상태가 홈이 '혼조'를 보여 준 뒤에도 '판정 대기'를 보였고(느린 3G에서 약 48초), 홈의 '판정 근거와 지수 차트 보기 →'는 국면 판정 맨 위에 떨어져 차트는 두 화면 아래였다(심각도 3·2).
+- root_cause: 첫 그림 스크립트(F01)가 홈 히어로 옆에 있어, 시장 상태의 #regime-overall이 파싱되기 전에 실행되고 끝났다. 링크는 화면만 열고 축을 펼치거나 스크롤하지 않았고, 렌더가 끝나기 전 스크롤은 효과가 없었다.
+- fix: 첫 그림 스크립트를 시장 상태 히어로 바로 뒤로 옮겼다. market-regime.js의 openSignalAxis가 렌더 전에 __aioOpenAxis를 정하고 스크롤할 수 있을 때까지 다시 시도한다. 홈의 차트 링크와 축 칩이 이 함수를 쓴다.
+- violated_rule: AGENTS 판정은 종가 기준 하나 — 두 화면이 같은 판정을 보여야 한다.
+- prevention: 자동 게이트 없음: 느린 3G 브라우저 실측으로 확인했다. 첫 그림 시점은 ci-secondary-text-budget·first-paint 측정이 다음 실행에서 함께 본다.
+- verification/residual: 영역 B: 느린 3G에서 시장 상태가 '판정 대기' 없이 '혼조'로 시작, 차트 링크가 차트를 뷰포트 맨 위(0px)에 둔다.
+
+## P2171 - v59.51 - AI 질문창: Enter 두 번이면 같은 질문이 두 번 전송되고, HTML 모양 입력의 일부가 말풍선에서 사라짐 (2026-10-31)
+
+- symptom/reproduction: run-6 엉뚱한 입력 사용자: Enter를 빠르게 두 번 누르면 질문이 두 번 갔고(배포본에서는 유료 호출 두 번), 5,000자도 그대로 받았으며, `<img src=x onerror=…>`를 넣으면 말풍선에서 글자 일부가 조용히 빠졌다(심각도 2).
+- root_cause: chatSendUnified가 사용량 확인(await) 뒤에야 입력창을 비우고 잠금을 걸어, 그 사이 두 번째 Enter가 같은 글을 다시 읽었다. 사용자 말풍선은 innerHTML 경로로 그려져 태그 모양 글자가 마크업으로 해석됐다. 입력 길이 상한이 없었다.
+- fix: js/aio-chat.js: 첫 진입이 await 전에 잠금(_aioBeginChatRequest)을 잡고 입력창을 비운 뒤 말풍선을 그린다. 같은 턴의 재진입은 _aioTurn을 넘겨받아 입력창을 다시 읽지 않는다. 실패한 턴은 잠금을 풀고 글을 입력창에 돌려준다. 사용자 말풍선과 기록 재생은 textContent로 그린다. 칩 클릭은 chatFromChip을 거쳐 실행 중 답변의 초안을 덮어쓰지 않는다. 입력창에 maxlength 1000과 80%부터 보이는 글자 수 표시를 붙였다. src/app/chat-loader.js의 대기열은 글을 꺼내 가고 빈 글은 넣지 않는다.
+- violated_rule: R724의 비용 원칙(AI는 월 $20 목표) — 같은 질문이 두 번 과금되면 안 된다.
+- prevention: scripts/ci-ai-chat-reliability-contract-check.mjs가 잠금·입력창 비우기가 orchestrator.execute await보다 앞서는 순서와, 사용량 거부가 질문을 기록에 넣기 전에 일어나는 순서를 고정한다(v59.51).
+- verification/residual: localhost 밖 요청을 모두 막은 상태에서 Enter 두 번 → 말풍선·안내 1개, 경로를 열린 것으로 두면 제공자 호출 1회·말풍선 1개, 동기 chatSendUnified() 두 번 → 말풍선 1개. `<img src=x onerror=alert(1)> …`는 그대로 보이고 img 요소는 생기지 않았다. 배포 서비스에는 질문을 보내지 않았다.
+
+## P2170 - v59.51 - 같은 날 반도체(SMH)·미 10년물 변화가 한 화면 안에서 두 값으로 나옴 (2026-10-31)
+
+- symptom/reproduction: run-6 회의적 사용자: 한 카드에서 SMH 10/30 등락이 주도 영역 -7.0%, 자금 흐름 -8.4%였고 지수 카드는 -6.98%였다. 미 10년물은 -6.0bp와 -4bp로 갈렸다(심각도 3·2).
+- root_cause: 자금 흐름 줄이 SMH를 종가 21분 뒤에 받은 회전 막대(rotation-history)에서, 10년물을 FRED 공식 일간값(dgs10Delta)에서 읽었다. 주도 영역과 시장 상태는 같은 수치를 시장 종가 이력(history의 smh·tnx)에서 읽었다. 한 수치의 원천을 정하는 곳이 없었다.
+- fix: rates-fx.js에 tenYearClose(history,{through})와 TEN_YEAR_SOURCE를 두고, 자금 흐름(market-flow.js)은 SMH를 sessionMove(history,'smh') 종가에서, 10년물을 tenYearClose에서 읽는다. buildMarketFlow의 macro 인자는 없앴다. 다음 발표 일정도 거시 화면 머리글 하나(crossroads.nextEvent)로 모았다.
+- violated_rule: R734: 같은 수치는 하나의 공용 함수에서 읽는다.
+- prevention: scripts/fixtures/pipeline-semantics/market.mjs RUN6-SMH-01(회전 막대 -8.4%가 아니라 종가 이력의 -7.0%), RUN6-10Y-01(자금 흐름 10년물 변화 = tenYearClose(history).d1Bp). 둘 다 수정 전 HEAD에서 실패하고 지금 통과한다.
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs --only market 38건 통과, HEAD 워크트리에서는 두 사례 실패. ci-esm-core-unit-check의 v58.68 자금 흐름 사례를 종가 이력 입력으로 바꿔 통과.
+
+## P2169 - v59.51 - 조건 충족 수가 같은 두 시나리오를 화면마다 다르게 '선두'로 표시함 (2026-10-31)
+
+- symptom/reproduction: run-6 회의적 사용자: 시장 상태는 '유가 충격'(2/4, 다음 확인 CPI 11/10), 종목·재무·포트폴리오는 'AI 투자 꺾임'(2/4, 고용 11/6)을 선두로 보여 줬다. 둘은 동률이었고 어느 화면도 동률이라고 말하지 않았다(심각도 3).
+- root_cause: 거시 시나리오 모델은 동률을 정렬 순서로만 깨 leadId 하나를 냈고, 화면과 생산자가 각자 leadId·altId를 읽거나 자기 순서로 다시 정렬했다. 동률이라는 상태를 담는 필드도, 그것을 읽는 공용 함수도 없었다. 생산자는 동률 안에서 순서만 바뀐 것을 '가장 맞는 시나리오가 바뀌었습니다'로 기록했다.
+- fix: macro-crossroads.js가 tiedIds를 내고, scenarioLead(model)가 lead·tie·held 세 상태와 이름·적합도·쉬운 문장(face)·전문가 근거(detail)를 한 곳에서 낸다. 시장 상태·종목 렌즈·차트 코치·테마·포트폴리오·AI 답변 표·뉴스 영향 사슬(event-guide)·테마 근거(theme-criteria)·교훈(lessons)이 모두 이 함수를 읽는다. 동률이면 모든 동률 시나리오를 '(동률)'로 함께 보여 주고 대안은 내지 않는다. build-scenario-state.mjs는 tiedIds를 저장하고, 동률 안의 순서 바뀜은 변화 기록에 남기지 않는다.
+- violated_rule: R734: 반복 클래스는 공용 함수로 닫는다(같은 판정을 화면마다 따로 계산하지 않는다).
+- prevention: scripts/fixtures/pipeline-semantics/market.mjs RUN6-TIE-02(동률이면 state 'tie', 동률 시나리오 모두, 역할 '동률', 대안 없음)와 producers.mjs RUN6-TIE-01(동률 안 순서 바뀜은 기록하지 않고 동률이 풀리면 기록), ci-fiscal-quality-fixture의 종목 렌즈 동률 사례. 두 재현은 수정 전 HEAD에서 실패하고 지금 통과한다.
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs --only market, --only producers 통과(HEAD 워크트리에서는 RUN6-TIE-01·02 실패). 차트 코치가 동률을 '맞는 조건 수가 같은 시나리오 'AI 투자 꺾임'·'유가 충격''으로 읽는 것을 브라우저에서 확인.
+
+## P2168 - v59.51 - 느린 휴대폰에서 첫 로딩 중 하단 탭을 누르면 아무 반응 없이 사라짐 (2026-10-31)
+
+- symptom/reproduction: 첫 사용자 점검 run-6의 휴대폰 사용자(390px, 느린 3G, CPU 4배)가 첫 화면에서 '시장'을 눌렀지만 주소가 120초 동안 #home에 머물렀고, 누른 표시도 없었다(심각도 4, 첫 성공 불가).
+- root_cause: 하단 탭·메뉴의 data-action 클릭은 고전 스크립트 aio-core의 dispatch가 처리한다. 이 스크립트는 약 300개 ESM 모듈과 함께 내려받아 느린 망에서 165초쯤 뒤에 실행되고, 그 전의 탭은 받을 처리기가 없어 버려졌다. 실행된 뒤에도 처리기가 아직 등록되지 않은 동작은 조용히 무시됐다.
+- fix: index.html의 부팅 인라인 스크립트가 코어가 실행되기 전에 누른 경로를 받아 주소를 그 경로로 바꾸고(pushState), '시장 화면을 여는 중입니다 / 연결이 느려 조금 걸립니다. 다시 누르지 않아도 됩니다.' 안내를 띄운다. 코어가 뜨면 라우터가 그 주소를 연다. js/aio-core.js dispatch는 처리기가 없는 동작을 버리지 않고 _aioHoldTap으로 보관했다가 처리기가 생기면 실행한다.
+- violated_rule: AGENTS 데스크톱·모바일 반응형 지원(2026-10-11 재승인) — 휴대폰에서 첫 동작이 반응해야 한다.
+- prevention: 자동 게이트 없음: 느린 3G 브라우저 실측으로 확인했다. 느린 망에서 고전 코어가 모듈 그래프에 밀려 늦게 실행되는 근본 원인(다운로드 우선순위)은 배포본 측정 뒤 별도 작업으로 남긴다.
+- verification/residual: 영역 A가 390px·느린 3G·CPU 4배에서 로드 전에 '시장'을 눌러 주소가 바로 #signal로 바뀌고 안내가 보이며, 코어 실행 뒤 시장 상태가 열리는 것을 확인했다. CSP 해시는 node scripts/ci-csp-meta-check.mjs --write로 다시 고정했다.
+
+## P2167 - v59.50 - 시장 상태의 선택지 득실과 테마 반등 문장이 '분할 접근은 … 확인된 뒤가 맞습니다'처럼 시점을 지시함 (2026-10-31)
+
+- symptom/reproduction: 첫 사용자 점검 run-6에서 회의적 사용자가 시장 상태의 '이 국면에서 네 가지 선택지의 득실'을 읽고, '분할 접근은 … 확인된 뒤가 맞습니다', '에너지 비용을 가격에 넘길 수 있는 영역에 한정하는 편이 맞습니다'가 면책 문구가 있어도 시점·선택 조언으로 읽힌다고 기록했다(심각도 3). 같은 형태가 시나리오 7개와 테마 반등 문장 1개에 있었다.
+- root_cause: R724(시점·종목을 고르지 않는다)의 게이트는 정확한 문구 목록(ci-control-char-check INSTRUCTION_PHRASES)이라, 문구를 고친 표면만 막고 새 표면에서 쓰인 다른 문장은 지나갔다. 같은 클래스가 P2151(차트 렌즈), P2165(차트 코치)에 이어 세 번째로 나왔다.
+- fix: src/domain/market/macro-crossroads.js의 분할 접근 문장 7개와 src/domain/scenarios/theme-playbook.js의 반등 문장 1개를 비용이 무엇에 달렸는지 말하는 문장으로 바꿨다('분할 접근의 비용은 … 확인되기 전에 큽니다', '득실은 … 전후로 갈립니다'). 문구 목록 대신 문법으로 읽는 scripts/lib/instruction-text-scan.mjs를 만들었다. 같은 문장 안의 독자 행동(분할 접근·나눠 들어가기·매수·매도·손절·비중 조절)과 처방 어미(편이 맞습니다·뒤가 맞습니다·하세요·권합니다)의 동시 출현, 손절가·목표가 라벨 뒤 보간 값, 산술을 감싼 가격 포맷터(`${price(close - atr)}`)를 찾는다.
+- violated_rule: R724(앱은 시점을 고르지 않는다), R734(신규): 반복 클래스는 전 표면 스캔으로 닫는다.
+- prevention: ci-instruction-text-ratchet-check가 src/ 전체 문자열 리터럴을 읽고 파일별 개수를 줄어들기만 하게 고정한다(허용 11건: AI 프롬프트가 금지 문구를 이름으로 드는 곳, 사용자가 입력한 계획 검토, 읽는 법 안내). 수정 전 macro-crossroads 7건·theme-playbook 1건·v59.49 이전 차트 코치 3건을 모두 잡는다.
+- verification/residual: 수정 전 HEAD 파일에서 스캐너가 지시 문장 8건과 차트 코치 계산 가격 2건을 찾았고, 수정 후 해당 파일은 0건(차트 코치는 사용자 입력 계획 검토 1건만 남음). 자체 검사 7건 통과.
+
 ## P2166 - v59.49 - 국채 2s10s가 다른 날짜의 FRED 스프레드를 같은 날짜 스프레드로 표시할 수 있고, 장기 거시 카드가 월간 값을 '월평균'이라 부름 (2026-10-31)
 
 - symptom/reproduction: 재현 조건: 미 재무부 자료가 10/30 2년·10년물을 같은 cut으로 주고 t10y2y를 빠뜨린 날. 이때 FRED 10/29 스프레드 0.30이 '동일자 스프레드'로 표시됐다(두 금리로 계산하면 0.38). 장기 거시 카드는 실업률·근원 CPI 전년비 같은 월간 조사값에도 '월평균'을 붙였다.

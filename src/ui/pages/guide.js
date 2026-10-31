@@ -1,8 +1,5 @@
 import { createResourceBag } from '../../app/lifecycle.js';
 import { organizeGuideChapters } from '../components/guide-chapters.js';
-import { GUIDE_SCREEN_TEXT } from '../../domain/content/guide-screens.js';
-import { ROUTE_HUBS } from '../navigation/route-hubs.js';
-import { SCREEN_SHORTCUTS } from '../navigation/screen-shortcuts.js';
 import { RULES } from '../../domain/rules/thresholds.js';
 import { MACRO_SIGNAL_RULES } from '../../domain/macro/macro-signals.js';
 import { CAPABILITY_MANIFEST_VERSION, auditCapabilityClaims } from '../../domain/content/capability-manifest.js';
@@ -82,55 +79,6 @@ function searchGuide(documentRef, guidePage, result, keyword, onJump) {
   result.style.display = 'block';
 }
 
-// P1428: the 화면 안내 is drawn from ROUTE_HUBS (the menu's own table) so it cannot describe retired screens.
-function renderScreenCards(documentRef) {
-  const host = documentRef?.getElementById('guide-screen-cards');
-  if (!host) return;
-  // v58.75 (persona review): each card names its number key, and one line under the grid opens the full key list.
-  const keyOf = new Map(SCREEN_SHORTCUTS.map((entry) => [entry.label, entry.key]));
-  host.replaceChildren(...ROUTE_HUBS.map((hub) => {
-    const text = GUIDE_SCREEN_TEXT[hub.id] || {};
-    const card = documentRef.createElement('article');
-    card.className = 'guide-screen';
-    card.dataset.hub = hub.id;
-    const title = documentRef.createElement('h3');
-    title.className = 'guide-screen-title';
-    title.textContent = hub.label;
-    if (keyOf.has(hub.label)) { const key = documentRef.createElement('span'); key.className = 'briefing-h2-note'; key.textContent = ` 단축키 ${keyOf.get(hub.label)}`; title.append(key); }
-    const question = documentRef.createElement('p');
-    question.className = 'guide-screen-question';
-    question.textContent = text.question || '';
-    const tabs = documentRef.createElement('div');
-    tabs.className = 'guide-screen-tabs';
-    hub.routes.filter((route) => route.tab !== false).forEach((route) => {
-      const button = documentRef.createElement('button');
-      button.type = 'button';
-      button.className = 'aio-btn-table';
-      button.dataset.action = 'showPage';
-      button.dataset.arg = route.id;
-      button.textContent = route.label;
-      tabs.append(button);
-    });
-    card.append(title, question, tabs);
-    return card;
-  }));
-  let keys = documentRef.getElementById('guide-shortcut-line');
-  if (!keys) {
-    keys = documentRef.createElement('p');
-    keys.id = 'guide-shortcut-line';
-    keys.className = 'theme-strength-basis';
-    host.after(keys);
-  }
-  const open = documentRef.createElement('button');
-  open.type = 'button';
-  open.className = 'aio-btn-table';
-  open.dataset.action = 'openKbdHelp';
-  open.textContent = '단축키 전체 보기 (?)';
-  // v58.79: the button is the line; the key summary is its hover.
-  open.title = '숫자 1~8은 위 순서대로 화면 이동, R은 데이터 새로고침, Ctrl+K는 검색, ?는 단축키 목록';
-  keys.replaceChildren(open);
-}
-
 // P1428 + owner 2026-10-04: the guide's judgement section is the rule table itself, generated from the
 // registry every verdict uses — numbers a user can check against the screen, not prose about them.
 // Codex review 2026-10-05: every 부담 rule fires on any one condition, so those cells join with 또는;
@@ -188,7 +136,6 @@ export function createGuidePage({ documentRef } = {}) {
       result?.setAttribute('aria-live', 'polite');
       if (!guidePage) return () => bag.dispose();
       organizeGuideChapters(documentRef, guidePage);
-      renderScreenCards(documentRef);
       renderRulesTable(documentRef);
       guidePage.dataset.aioArchitectureRoute = 'guide';
       guidePage.dataset.aioArchitectureRenderer = 'native';

@@ -52,7 +52,9 @@ export const BREADTH_GROUPS = Object.freeze([
   // v58.53 개편 v2 (5c): the participation group shows its three horizons side by side (lead stays the 50-day ratio).
   { id: 'participation', title: '참여도 — 이동평균 위 종목 비율', lead: 'b50', face: ['b20', 'b50', 'b200'] },
   { id: 'leadership', title: '강한 종목 수 — 신고가·신저가, 급등락', lead: 'hl' },
-  { id: 'index', title: '지수 확인 — 분배일과 S&P 500', lead: 'spx' }
+  // v59.51 (content audit): the group's S&P 500 chart left (the index line is the 시장 상태 trend axis chart); its 20-day
+  // move against participation stays as the group's lead sentence (breadthFlow reads the spx series below).
+  { id: 'index', title: '지수 확인 — 분배일', lead: 'dd', face: [], more: '분배일 6개월 추이 보기' }
 ]);
 
 export function buildBreadthCards(history = []) {
@@ -79,7 +81,8 @@ export function buildBreadthCards(history = []) {
     { id: 'mv', group: 'leadership', title: '4% 이상 상승 − 하락 종목 수 (5일 합계)', note: '거래량이 늘며 하루 4% 넘게 움직인 종목 — 5일 합계에서 상승·하락 중 어느 쪽이 우세한지 봄', series: rolling(difference(up4, down4), 5, { sum: true }).slice(-WINDOW), refLines: [0], format: signedCount, changeUnit: '', changeDigits: 0,
       latest: lastOf(up4) && lastOf(down4) ? `${lastOf(up4).date.slice(5).replace('-', '/')} 상승 ${count(lastOf(up4).value)}, 하락 ${count(lastOf(down4).value)}` : null, drill: ['up4', 'down4'] },
     { id: 'dd', group: 'index', title: 'S&P 500 매도 우위일(분배일, 최근 25거래일)', note: `지수가 0.2% 이상 내리면서 거래량이 늘어난 날의 수 — 흔히 25거래일 중 5~6회 이상이면 추세 약화 경고로 보고, 시장 상태는 ${RULES.leadership.distributionDaysAt}회 이상을 주도 영역 확인 신호로 셈`, series: pctSeries('distributionDays'), refLines: [RULES.leadership.distributionDaysAt] /* v58.75 (persona review): same line as 시장 상태 */, format: count, changeUnit: '', changeDigits: 0, domain: [0, 12] },
-    { id: 'spx', group: 'index', title: 'S&P 500 (같은 기간 비교)', series: spx, refLines: [], format: count, changeUnit: '%', percentChange: true }
+    // Not drawn (no group): the S&P 500 window sets the shared date range and feeds the index group's sentence.
+    { id: 'spx', group: null, title: 'S&P 500', series: spx }
   ];
 }
 
@@ -215,15 +218,7 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
       const last = points[points.length - 1];
       const head = el(doc, 'div', null, 'trend-card-head');
       head.append(el(doc, 'h3', card.title, 'trend-card-title'), el(doc, 'span', last ? card.format(last.value) : '—', 'trend-card-value'));
-      const change = (n) => {
-        if (card.percentChange) {
-          const pts = points.filter((point) => Number.isFinite(point.value));
-          if (pts.length <= n) return null;
-          const delta = (pts[pts.length - 1].value / pts[pts.length - 1 - n].value - 1) * 100;
-          return signedText(delta, 1, '%');
-        }
-        return seriesChange(points, n, card.changeUnit ?? '%p', card.changeDigits ?? 1);
-      };
+      const change = (n) => seriesChange(points, n, card.changeUnit ?? '%p', card.changeDigits ?? 1);
       const changes = [[5, '5일'], [20, '20일']].map(([n, label]) => { const value = change(n); return value ? `${label} ${value}` : null; }).filter(Boolean).join(', ');
       const lateStart = range && points.length && points[0].date > range[0] ? `, 기록 시작 ${shortDate(points[0].date)}` : '';
       const highLowBasis = card.id === 'hl' && eligible?.highLow ? `, 신고·신저 판정 대상 ${eligible.highLow}개` : '';
@@ -255,14 +250,14 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
       section.dataset.group = group.id;
       const faceGrid = el(doc, 'div', null, 'bb-face');
       faceGrid.append(...face.map((card) => { const box = renderCard(card); if (card.id === group.lead) box.classList.add('breadth-lead'); return box; }));
-      section.append(el(doc, 'h2', group.title, 'breadth-group-title'), sectionLead(doc, `${flow.leads[group.id] || ''}${group.id === 'participation' ? sp500Read : ''}`.trim()), faceGrid);
+      section.append(el(doc, 'h2', group.title, 'breadth-group-title'), sectionLead(doc, `${flow.leads[group.id] || ''}${group.id === 'participation' ? sp500Read : ''}`.trim()), ...(face.length ? [faceGrid] : []));
       if (rest.length) {
         const more = el(doc, 'details', null, 'breadth-more');
         more.dataset.group = group.id;
         more.open = openedGroups.has(group.id);
         const body = el(doc, 'div', null, 'trend-grid breadth-more-grid');
         body.append(...rest.map(renderCard));
-        more.append(el(doc, 'summary', '나머지 지표 보기', 'breadth-more-summary'), body);
+        more.append(el(doc, 'summary', group.more || '나머지 지표 보기', 'breadth-more-summary'), body);
         section.append(more);
       }
       return section;

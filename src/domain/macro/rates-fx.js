@@ -11,6 +11,20 @@ import { MARKET_WINDOWS } from '../market/market-windows.js';
 import { signedText, readNumber as finite } from '../shared/number.js';
 import { isIsoDay } from '../shared/session-date.js';
 
+// MERGED #13 (run-6): the 10-year yield read 4.93 / 4.94 / 4.98 / 5.00 on one day — ^TNX close, Treasury par curve, FRED
+// DGS10 on the Fisher-split day, DGS10 on the term-premium model day. The headline figure "미 10년물" has one reader: the
+// completed ^TNX close (history `tnx`), the series 시장 상태, this tab, the crossroads rate hub and the money-flow line use.
+// It carries its as-of session and series so a fold can name them; a decomposition that needs the official series on
+// its own day (curve, Fisher split, term premium) is that decomposition's input, not this figure.
+export const TEN_YEAR_SOURCE = Object.freeze({ field: 'tnx', series: '^TNX', label: '미 10년물 국채 금리(시장 종가)' });
+export function tenYearClose(history, { through = null } = {}) {
+  const series = buildCloseSeries(history, TEN_YEAR_SOURCE.field, { through });
+  const last = series[series.length - 1] || null;
+  if (!last) return null;
+  const bp = (n) => { const back = closeSessionPointBack(series, n); return back ? Math.round((last.value - back.value) * 10000) / 100 : null; };
+  return { value: last.value, date: last.date, source: TEN_YEAR_SOURCE, d1Bp: bp(1), d5Bp: bp(5), d20Bp: bp(20), series };
+}
+
 export const YEN_RALLY_RULE = RULES.fx.yenRally20dPct; // % in 20 sessions — the 시장 상태 FX-axis rule (P1428 registry)
 const CHART_SESSIONS = 126; // about six months of completed sessions
 
@@ -355,18 +369,11 @@ export function buildRatesFx({ macro = null, history = [], macroHistory = null }
       // for USD/JPY but +25% for the yen), so the sentence names the rate it measures.
       text: `엔/달러 20거래일 ${signed(-yenStrength, 1, '%')}(${yenStrength > 0 ? '엔 강세' : yenStrength < 0 ? '엔 약세' : '변화 없음'}). 엔/달러가 20거래일에 ${YEN_RALLY_RULE}% 이상 내리면(엔 급강세) 시장 상태의 환율 참고 지표가 '부담'으로 바뀝니다(6개 지표 합계에는 넣지 않음).`
     };
-  const tnxAll = buildCloseSeries(history, 'tnx', { through: basis });
-  const tnx = tnxAll.slice(-CHART_SESSIONS);
   // v57.50 C10: the 10-year "5일/20일" change on this tab is the ^TNX completed-close series — the same series and session
-  // count as the 시장 상태 rates axis — so the two screens print the same number for the same day.
-  const tnxLast = tnxAll[tnxAll.length - 1] || null;
-  const tnxBack5 = closeSessionPointBack(tnxAll, 5);
-  const tnxBack20 = closeSessionPointBack(tnxAll, 20);
-  const tnxChange = {
-    date: tnxLast?.date || null,
-    d5Bp: tnxLast && tnxBack5 ? Math.round((tnxLast.value - tnxBack5.value) * 10000) / 100 : null,
-    d20Bp: tnxLast && tnxBack20 ? Math.round((tnxLast.value - tnxBack20.value) * 10000) / 100 : null
-  };
+  // count as the 시장 상태 rates axis — so the two screens print the same number for the same day (tenYearClose).
+  const ten = tenYearClose(history, { through: basis });
+  const tnx = (ten?.series || []).slice(-CHART_SESSIONS);
+  const tnxChange = { date: ten?.date || null, d5Bp: ten?.d5Bp ?? null, d20Bp: ten?.d20Bp ?? null };
   // Codex browser audit H17: TIPS read 10/5 while the breakeven and nominal yields read 10/6, and the cards sat
   // side by side as if "명목 = 실질 + 기대물가" held on one date. A date mismatch is stated on both cards.
   const real = [

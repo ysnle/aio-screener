@@ -14,6 +14,7 @@ import { signedText } from '../../domain/shared/number.js';
 import { lookThrough, lookThroughSentence, SP500_TRACKERS } from '../../domain/portfolio/look-through.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { BRANCHES } from '../../domain/market/macro-crossroads.js';
+import { scenarioLead } from '../../domain/market/scenario-lead.js';
 import { US_THEME_PROFILES, windFor } from '../../domain/scenarios/exposures.js';
 
 // P1466: the 3-month gap to the blended index split into sector, stock selection, FX and cash —
@@ -33,7 +34,7 @@ function attributionBox(doc, attribution) {
     box.append(line);
   }
   const sign = (value) => `${signedText(value, 1)}`;
-  box.append(el(doc, 'p', `합계 ${sign(attribution.excessPct)}%p = 내 수익률 ${sign(attribution.totalPct)}% − ${attribution.blendedLabel} ${sign(attribution.blendedPct)}%`, 'theme-strength-basis'));
+  box.append(el(doc, 'p', `합계 ${sign(attribution.excessPct)}%p = 지금 구성의 3개월 수익률 ${sign(attribution.totalPct)}% − ${attribution.blendedLabel} ${sign(attribution.blendedPct)}%`, 'theme-strength-basis'));
   const notes = [];
   if (attribution.sectorMappedPct < 100) notes.push(`섹터 효과는 미국 섹터 ETF가 대응되는 보유액 ${attribution.sectorMappedPct.toFixed(0)}%에서만 분리(나머지는 종목 선택에 포함)`);
   // v59.45 (P3-PF-01): a sector ETF whose close date differs from the stock's is not compared over another window.
@@ -76,19 +77,23 @@ export function scenarioExposure({ rows = [], branch = null, themeMap = [] } = {
   return { available: true, holdings: valued.length, share };
 }
 
-// The exposure against the branch whose conditions fit best now (shared by the read box and the 점검 기준 list).
-export function leadScenarioExposure(root, surface) {
+// v59.51 (area H, one scenario source): the exposure against the branch whose conditions fit best now — or, in a tie, one
+// exposure per tied branch — read through scenarioLead (shared by the read fold and the 점검 기준 list). A tie is never
+// shown as one lead. Returns null while the scenario model is held.
+export function leadScenarioExposures(root, surface) {
   let crossroads = null;
   try { crossroads = marketInterpretation(root).crossroads || null; } catch (_) { crossroads = null; }
-  const lead = crossroads?.leadId ? crossroads.items?.find((item) => item.id === crossroads.leadId) : null;
-  const branch = lead ? BRANCHES.find((item) => item.id === lead.id) : null;
-  const model = scenarioExposure({ rows: surface?.rows || [], branch, themeMap: Array.isArray(root?.THEME_MAP) ? root.THEME_MAP : [] });
-  return model.available ? { ...model, name: String(lead.title || '').split(' — ')[0], fit: lead.fit } : null;
+  const lead = scenarioLead(crossroads);
+  if (lead.state !== 'lead' && lead.state !== 'tie') return null;
+  const themeMap = Array.isArray(root?.THEME_MAP) ? root.THEME_MAP : [];
+  const items = lead.items.map((item) => {
+    const model = scenarioExposure({ rows: surface?.rows || [], branch: BRANCHES.find((branch) => branch.id === item.id) || null, themeMap });
+    return model.available ? { ...model, name: String(item.title || '').split(' — ')[0], fit: item.fit } : null;
+  }).filter(Boolean);
+  return items.length ? { state: lead.state, face: lead.face, items } : null;
 }
 
-function scenarioExposureBox(doc, root, surface) {
-  const model = leadScenarioExposure(root, surface);
-  if (!model) return null;
+function scenarioExposureBox(doc, model) {
   const box = el(doc, 'div', null, 'pf-trend-mix pf-scenario-exposure');
   box.append(el(doc, 'span', `가설 태그로 본 시나리오 노출, '${model.name}'(${model.fit})`, 'stock-read-vis-title'));
   const bar = el(doc, 'div', null, 'pf-trend-bar');
@@ -106,8 +111,15 @@ function scenarioExposureBox(doc, root, surface) {
     }
     legend.append(el(doc, 'span', `${label} ${pct.toFixed(0)}%`, WIND_TONE[wind] ? `is-${WIND_TONE[wind]}` : null));
   }
-  box.append(bar, legend, el(doc, 'p', `지금 조건이 가장 많이 맞는 시나리오에서 업종·테마의 가설 태그로 보면 평가액의 ${model.share.head.toFixed(0)}%가 부담 쪽, ${model.share.tail.toFixed(0)}%가 수혜 쪽 영역입니다. 태그는 사람이 정한 민감도 가설이라 측정값이 아니며, 조건 충족 수는 시나리오가 일어날 확률이 아닙니다. 채권·광범위 ETF와 분류되지 않은 종목은 태그 없음으로 둡니다.`, 'theme-strength-basis'));
+  box.append(bar, legend, el(doc, 'p', `업종·테마의 가설 태그로 보면 평가액의 ${model.share.head.toFixed(0)}%가 부담 쪽, ${model.share.tail.toFixed(0)}%가 수혜 쪽 영역입니다.`, 'theme-strength-basis'));
   return box;
+}
+
+function scenarioExposureBoxes(doc, root, surface) {
+  const lead = leadScenarioExposures(root, surface);
+  if (!lead) return [];
+  const note = el(doc, 'p', `${lead.face} 태그는 사람이 정한 민감도 가설이라 측정값이 아니며, 조건 충족 수는 시나리오가 일어날 확률이 아닙니다. 채권·광범위 ETF와 분류되지 않은 종목은 태그 없음으로 둡니다.`, 'theme-strength-basis');
+  return [...lead.items.map((model) => scenarioExposureBox(doc, model)), note];
 }
 
 export function renderPortfolioRead({ documentRef: doc, root, surface }) {
@@ -148,7 +160,10 @@ export function renderPortfolioRead({ documentRef: doc, root, surface }) {
   host.replaceChildren(el(doc, 'h2', '내 포트폴리오와 시장', 'briefing-h2'));
   if (read.excluded) host.querySelector('h2').append(el(doc, 'span', `스크리너 기록이 없는 ${read.excluded}종목 제외${read.total > 0 && read.excludedValue != null ? ` — 제외 보유액은 평가액의 ${(read.excludedValue / read.total * 100).toFixed(0)}%` : ''}`, 'briefing-h2-note'));
   if (read.headline) host.append(el(doc, 'p', read.headline, 'briefing-read-headline'));
+  // v59.51 (two layers): the face is the lead and one visual (value share by trend state). The sector/rotation bars, the
+  // 3-month attribution, the scenario exposure and the four analysis points move into one closed expert fold.
   const visuals = el(doc, 'div', null, 'stock-read-visuals');
+  const detail = el(doc, 'div', null, 'stock-read-visuals');
   if (read.trendMix.length) {
     const box = el(doc, 'div', null, 'pf-trend-mix');
     box.append(el(doc, 'span', '평가액 기준 추세 상태', 'stock-read-vis-title'));
@@ -178,11 +193,10 @@ export function renderPortfolioRead({ documentRef: doc, root, surface }) {
       line.append(item);
       box.append(line);
     }
-    visuals.append(box);
+    detail.append(box);
   }
-  if (read.attribution?.available) visuals.append(attributionBox(doc, read.attribution));
-  const exposureBox = scenarioExposureBox(doc, root, surface);
-  if (exposureBox) visuals.append(exposureBox);
+  if (read.attribution?.available) detail.append(attributionBox(doc, read.attribution));
+  detail.append(...scenarioExposureBoxes(doc, root, surface));
   if (visuals.childNodes.length) host.append(visuals);
   const list = el(doc, 'ul', null, 'stock-read-points');
   for (const point of read.points) {
@@ -190,7 +204,12 @@ export function renderPortfolioRead({ documentRef: doc, root, surface }) {
     li.append(el(doc, 'span', point.title, 'stock-read-point-title'), el(doc, 'span', point.text, 'stock-read-point-text'));
     list.append(li);
   }
-  host.append(list);
+  if (detail.childNodes.length || read.points.length) {
+    const fold = el(doc, 'details', null, 'pf-read-detail');
+    fold.dataset.userFold = '';
+    fold.append(el(doc, 'summary', '자세히, 추세 기준 · 섹터 회전 · 지수 대비 원인 · 시나리오 노출'), list, detail);
+    host.append(fold);
+  }
   renderNextSteps(doc, next, read.next);
   return read;
 }
@@ -329,22 +348,16 @@ export function bondCushionCard(bonds) {
   return { title: '채권 완충', value: corr.available ? `${bonds.bondPct.toFixed(0)}%, 상관 ${corr.r.toFixed(2)}` : `${bonds.bondPct.toFixed(0)}%`, tone, text: parts.join(' ') };
 }
 
+// v59.51 (content audit, two layers): the 읽는 법 cards left the face. Their sector and single-holding cards were the same
+// facts as 점검's criteria and were dropped; the parts nothing else says — the effective number of holdings, ETF
+// look-through, the index overlap with β, and the bond cushion — render into 점검's expert fold (.pf-checks-fold).
 export function renderPortfolioLens({ documentRef: doc, root, surface, checks = null, sectorLabel = (name) => name }) {
-  const aside = doc?.getElementById('pf-reading');
-  const set = (id, text) => { const node = doc?.getElementById(id); if (node) node.textContent = text; return node; };
+  const fold = doc?.querySelector?.('#pf-checks .pf-checks-fold');
+  fold?.querySelector(':scope > .pf-reading')?.remove();
   requestSp500Weights(root, () => renderPortfolioLens({ documentRef: doc, root, surface: root?._aioPortfolioSurface || surface, checks, sectorLabel }));
   const lens = portfolioLens({ surface, stressInput: root?._aioPortfolioStressInput || null, history: root?._aioHistory || [], sp500: sp500Weights, sectorLabel });
-  if (!lens.available) {
-    set('pf-effective-n', '—'); set('pf-beta', '—');
-    if (aside) { aside.hidden = true; aside.replaceChildren(); }
-    return lens;
-  }
+  if (!lens.available || !fold) return lens;
   const look = lens.lookThrough;
-  set('pf-effective-n', `${(look ? look.effectiveN : lens.effectiveN).toFixed(1)}개`);
-  set('pf-effective-n-note', look ? `ETF 속까지 펼친 값, 보유 ${lens.holdings}종목 그대로는 ${lens.effectiveN.toFixed(1)}개` : `평가액 있는 ${lens.holdings}종목을 비중이 고른 종목 수로 환산`);
-  set('pf-beta', lens.beta == null ? '계산 전' : lens.beta.toFixed(2));
-  set('pf-beta-note', lens.beta == null ? lens.betaNote : `보유 종목 부분(현금 제외): 시장 1% 움직일 때 평균 ${lens.beta.toFixed(2)}%${lens.accountBeta != null ? `, 현금 포함 계좌 약 ${lens.accountBeta.toFixed(2)}%` : ''}, ${lens.betaNote}`);
-  if (!aside) return lens;
   const card = (title, value, tone, text) => {
     const node = el(doc, 'section', null, 'pf-reading-card');
     const head = el(doc, 'div', null, 'pf-reading-head');
@@ -375,15 +388,15 @@ export function renderPortfolioLens({ documentRef: doc, root, surface, checks = 
     else parts.push(`시장 민감도(베타)는 아직 계산 전입니다 — ${lens.betaNote}.`);
     cards.push(card('지수와의 관계', lens.beta != null ? `β ${lens.beta.toFixed(2)}` : indexLine ? `상위 10 ${lens.index.top10Share.toFixed(0)}%` : '없음', null, parts.join(' ')));
   }
-  const single = checks?.checks?.find?.((check) => check.id === 'single-holding');
-  if (single) cards.push(card('한 종목 쏠림', single.value, single.status === 'attention' ? 'burden' : null, single.detail));
+  // The single-holding card repeated 점검's own single-holding card in the same fold; it is not drawn twice.
   const cushion = bondCushionCard(lens.bonds);
   if (cushion) { const node = card(cushion.title, cushion.value, cushion.tone, cushion.text); node.dataset.pfReading = 'bond-cushion'; cards.push(node); }
-  aside.replaceChildren(el(doc, 'h2', '이 포트폴리오를 읽는 법', 'sx-card__title'), ...cards);
+  if (!cards.length) return lens;
+  const block = el(doc, 'div', null, 'pf-reading');
+  block.append(el(doc, 'h3', '분산·지수·채권으로 본 구성', 'pf-reading-title'), ...cards);
   const evidence = el(doc, 'div', null, 'sx-evidence pf-reading-evidence');
   evidence.append(el(doc, 'span', '근거, Markowitz(1952) 분산, 허핀달 지수(실질 종목 수), CAPM 베타'), el(doc, 'span', `S&P 500 지수 비중 ${lens.index?.asOf || '없음'}`), el(doc, 'span', '채권·현금 ETF 분류, 앱이 정한 목록'), el(doc, 'span', '투자 권유 아님'));
-  aside.append(evidence);
-  aside.querySelector('h2').id = 'pf-reading-title';
-  aside.hidden = cards.length === 0;
+  block.append(evidence);
+  fold.append(block);
   return lens;
 }

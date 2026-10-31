@@ -1,6 +1,7 @@
 // v58.80 first-users run-5 (newcomer): words 시장 상태 · 종목 · 포트폴리오 print that neither glossary defined. Loaded after
 // boot by src/ui/knowledge/glossary-bridge.js (the boot module budget stays put; the term marks pick them up on their next pass).
-// Plain definitions only, like screen-term-additions.js.
+// Plain definitions only, like screen-term-additions.js. Owner 2026-10-31 (two layers): after the plain first sentence an
+// entry may carry definitional formulas and naming conventions; never thresholds, probabilities or market figures.
 export const DEFERRED_SCREEN_TERMS = Object.freeze([
   { term: '주도 영역 (AI·반도체)', alias: '주도 영역 주도 영역 이탈 이탈 리더십 leadership', cat: '기초', def: '지수 상승을 앞에서 끌어 온 종목 묶음입니다. 이 앱에서는 AI·반도체(나스닥 100과 반도체 ETF SMH)를 보며, 이 묶음이 기준선 아래로 밀리고 시장 전반의 확인 신호까지 붙으면 "이탈"이라고 부릅니다.' },
   { term: '매도 소진', alias: '매도 소진 투매 capitulation 셀링 클라이맥스 바닥 확인', cat: '기술적분석', def: '팔 사람이 대부분 팔고 난 흔적입니다. 극단적 공포, 높은 변동성, 줄어드는 신저가 종목 수, 짧은 기간 선 위로 돌아오는 종목 증가 같은 신호를 함께 봅니다. 바닥을 확정하는 신호는 아니며 회복 확인과 같이 읽습니다.' },
@@ -15,5 +16,15 @@ export const DEFERRED_SCREEN_TERMS = Object.freeze([
   { term: '컨센서스 (실적 전망치)', alias: '컨센서스 consensus 추정치 전망치 애널리스트 평균 상향 하향', cat: '재무', def: '그 회사를 분석하는 애널리스트들의 실적 전망을 모은 평균입니다. 최근 몇 주 동안 전망을 올린 수와 내린 수는 기대가 어느 쪽으로 움직이는지를 보여 줍니다. 전망이지 확정 실적이 아닙니다.' },
   { term: '허핀달 지수 (HHI)', alias: '허핀달 허핀달 지수 HHI Herfindahl 집중도', cat: '포트폴리오', def: '각 비중의 제곱을 모두 더한 집중도 지표입니다. 한 종목에 모두 몰리면 1이고, 여러 종목에 고르게 나눌수록 작아집니다. 그 역수가 "실질 종목 수"입니다.' },
   { term: '실질 종목 수', alias: '실질 종목 수 유효 종목 수 effective number', cat: '포트폴리오', def: '비중까지 따졌을 때 포트폴리오가 사실상 몇 종목에 고르게 나눈 것과 같은지를 나타낸 수입니다(허핀달 지수의 역수). 10종목을 들어도 한 종목 비중이 크면 실질 종목 수는 작아집니다.' },
+  // First-users run-6 (newcomer #5): words printed with no entry. The first sentence is the plain reading the term popover
+  // shows; the rest is the expert layer the glossary shows in full (formula, conventions, the common misreading).
+  { term: '혼조', alias: '혼조 혼조세 엇갈림 mixed 섞임', cat: '기초', def: '오르는 쪽 신호와 내리는 쪽 신호가 섞여 한 방향으로 정리되지 않은 상태입니다. 시장 판정에서는 유리한 신호와 부담 신호가 맞서 어느 쪽으로도 결론을 내리지 않는다는 뜻이고, 이동평균에서는 짧은 선과 긴 선의 순서가 정배열도 역배열도 아닌 상태를 가리킵니다. 흔한 오해: 혼조는 약세 예고도 강세 예고도 아니며, 다음에 확인할 것은 어느 쪽 신호가 먼저 늘어나는지입니다.' },
+  { term: 'GAAP / 비GAAP', alias: 'GAAP 비GAAP non-GAAP 조정 이익 조정 EPS 회계기준', cat: '재무', def: 'GAAP은 미국 회계기준대로 계산한 공식 실적이고, 비GAAP은 회사가 일부 비용을 빼고 따로 계산해 발표하는 조정 실적입니다. 비GAAP 이익 = GAAP 이익 + 회사가 제외한 항목의 세후 금액. 흔히 빼는 항목은 주식 보상 비용, 인수로 생긴 무형자산 상각, 구조조정·소송 같은 일회성 비용입니다. 미국 상장사는 비GAAP 수치를 낼 때 가장 가까운 GAAP 수치와 둘의 차이를 맞춘 조정표를 함께 공개해야 합니다. 흔한 오해: 비GAAP이 더 정확한 실적은 아니며, 빼는 항목이 회사마다 달라 회사끼리 비교할 때는 조정표에서 무엇을 뺐는지 먼저 봅니다.' },
+  { term: '희석 EPS', alias: '희석 EPS 희석 주당순이익 diluted EPS 기본 EPS', cat: '재무', def: '주식으로 바뀔 수 있는 권리까지 모두 주식이 됐다고 치고 계산한 주당순이익입니다. 희석 EPS = (순이익 − 우선주 배당) ÷ (가중평균 보통주 수 + 스톡옵션·RSU·전환사채가 주식이 될 때 늘어나는 수). 주당 이익을 줄이는 권리만 넣으므로 기본 EPS보다 같거나 작고, 전환사채는 주식으로 바뀌면 이자가 사라지므로 그 이자(세후)를 순이익에 더해 계산합니다. 흔한 오해: 실적 발표와 전망치의 EPS는 대개 희석 기준이라, 기본 EPS와 섞어 비교하면 차이가 생깁니다.' },
+  { term: 'EMA (지수이동평균)', alias: 'EMA 지수이동평균 exponential moving average SMA 단순이동평균', cat: '기술적분석', def: '최근 가격에 더 큰 무게를 두고 계산한 이동평균입니다. EMA(오늘) = α × 오늘 종가 + (1 − α) × EMA(어제), α = 2 ÷ (기간 + 1). 같은 기간의 단순이동평균(SMA)보다 방향 전환에 빨리 반응하지만 그만큼 잡음에도 흔들리며, 단기 12·26일(MACD 계산)과 추세 확인용 20·50일이 흔히 쓰입니다. 흔한 오해: 빨리 반응한다고 더 잘 맞히는 것은 아니며, 시작 값에 따라 초반 값이 달라 자료가 짧으면 계산마다 차이가 납니다.' },
+  { term: 'FY (회계연도)', alias: 'FY 회계연도 fiscal year 결산 연도 회계 분기', cat: '재무', def: '회사가 실적을 묶어 계산하는 1년으로, 달력의 1~12월과 다를 수 있습니다. 보통 회계연도가 끝나는 해를 붙여 부르므로, 2025년 1월에 끝나는 1년도 9월에 끝나는 1년도 FY2025입니다. 분기도 같은 기준이라 FY2025 1분기가 달력으로는 2024년에 있을 수 있습니다. 흔한 오해: 회사가 다르면 같은 FY 숫자라도 기간이 몇 달씩 어긋나므로, 비교할 때는 회계연도 말일을 함께 봅니다.' },
+  { term: 'SPY (S&P 500 ETF)', alias: 'SPY S&P 500 ETF 지수 ETF 지수 추종', cat: '기초', def: 'S&P 500 지수를 그대로 따라가도록 만든 미국 상장 펀드(ETF)의 이름입니다. 지수 자체는 사고팔 수 없어서, 차트와 수익률 비교의 기준으로 이 펀드 가격을 자주 씁니다. 받은 배당을 모아 분기마다 나눠 주고 운용 보수가 빠지므로, 지수 가격 수익률이나 배당을 다시 넣은 총수익률과는 조금씩 다릅니다. 흔한 오해: SPY 일봉은 미국 대형주 500개 묶음의 하루 움직임이지 특정 회사의 주가가 아닙니다.' },
+  { term: 'XLK (기술 업종 ETF)', alias: 'XLK 기술 업종 ETF 정보기술 섹터 ETF', cat: '기초', def: '미국 대형 기술주를 한 번에 담은 상장 펀드(ETF)의 이름입니다. S&P 500에 든 정보기술 업종 종목만 모아 시가총액 비중으로 담되, 한두 종목 비중이 지나치게 커지지 않도록 상한을 두는 지수를 따릅니다. 반도체만 담는 SMH와 달리 소프트웨어·하드웨어·반도체를 함께 담습니다. 흔한 오해: 흔히 기술 기업으로 부르는 알파벳·메타는 커뮤니케이션 서비스, 아마존은 임의소비재 업종으로 분류돼 들어 있지 않습니다.' },
+  { term: '평균-분산 분산투자 (Markowitz)', alias: 'Markowitz 마코위츠 평균-분산 현대 포트폴리오 이론 효율적 투자선 분산 효과 상관관계', cat: '포트폴리오', def: '서로 다르게 움직이는 자산을 섞으면 기대수익은 그대로 두고 전체 흔들림을 줄일 수 있다는 원리입니다. 1952년 해리 마코위츠가 정리한 평균-분산 이론으로, 두 자산이면 분산 = w₁²σ₁² + w₂²σ₂² + 2w₁w₂ρσ₁σ₂입니다. 상관계수(ρ)가 1보다 작을수록 섞은 쪽의 변동이 각 자산 변동의 가중평균보다 작아지고, 같은 위험에서 기대수익이 가장 큰 조합들을 이은 선을 효율적 투자선이라 부릅니다. 흔한 오해: 분산 효과는 종목 수가 아니라 종목끼리 함께 움직이는 정도가 정하며, 위기에는 상관이 함께 높아져 효과가 줄어드는 일이 잦습니다.' },
   { term: 'CAPM (자본자산가격결정모형)', alias: 'CAPM 자본자산가격결정모형 기대수익률 시장 위험 프리미엄', cat: '포트폴리오', def: '자산의 기대수익률을 "무위험 금리 + 베타 × 시장 초과수익률"로 설명하는 모형입니다. 시장에 얼마나 민감한지(베타)만큼의 수익을 기준선으로 삼고, 그보다 더 번 부분을 따로 봅니다.' }
 ]);

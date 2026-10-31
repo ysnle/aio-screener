@@ -1,6 +1,7 @@
 import { ROUTE_IDS, isRouteId } from './routes.js';
 import { createResourceBag } from './lifecycle.js';
 import { getVerticalSliceContract } from './vertical-slices.js';
+import { setStockSubject } from '../ui/navigation/route-hubs.js';
 
 function defaultPage(route) {
   return {
@@ -104,7 +105,8 @@ export function createLazyPage({ route, loader, factory, errorMessage, retryDela
   });
 }
 
-const ENTITY_ROUTES = new Set(['ticker', 'fundamental']);
+// The three 종목 tabs (요약 · 차트 · 재무 공시) are about one company, and each keeps it in the address as ?sym= (run-6 #12).
+const ENTITY_ROUTES = new Set(['ticker', 'technical', 'fundamental']);
 
 function normalizeEntityId(candidate) {
   if (candidate == null) return null;
@@ -171,19 +173,19 @@ function installRouteDeepLinks({ runtimeRoot, documentRef, activeRoute }) {
   const applyAddress = () => {
     const link = parseRouteDeepLink(location.hash);
     if (!link) return;
-    if (link.entityId && /^#ticker\//.test(location.hash)) writeHash('ticker', 'sym', link.entityId); // canonical address
-    if (link.entityId && link.routeId === 'fundamental') {
-      // The fundamentals page selects without leaving its route (its own card click does the same); showTicker would
-      // move to the ticker screen.
-      if (/^#fundamental\//.test(location.hash)) writeHash('fundamental', 'sym', link.entityId);
-      if (String(runtimeRoot._currentTickerId || '').toUpperCase() !== link.entityId) {
+    if (link.entityId && /^#[a-z]+\//.test(location.hash)) writeHash(link.routeId, 'sym', link.entityId); // canonical address
+    if (link.entityId && link.routeId === 'ticker') {
+      const current = String(runtimeRoot.AIO?.state?._currentTickerSym || runtimeRoot._currentTickerSym || '').toUpperCase();
+      if (current !== link.entityId && typeof runtimeRoot.showTicker === 'function') runtimeRoot.showTicker(link.entityId);
+    } else if (link.entityId) {
+      // 차트 and 재무 공시 select without leaving their route; showTicker would move to the 요약 screen.
+      setStockSubject({ root: runtimeRoot, documentRef, symbol: link.entityId });
+      // Only 재무 공시 is an AI-context entity route (js/aio-core.js PAGES contextScope); 차트 shows the subject alone.
+      if (link.routeId === 'fundamental' && String(runtimeRoot._currentTickerId || '').toUpperCase() !== link.entityId) {
         runtimeRoot._currentTickerId = link.entityId;
         const EventConstructor = runtimeRoot.CustomEvent || globalThis.CustomEvent;
         if (typeof EventConstructor === 'function') events?.dispatchEvent?.(new EventConstructor('aio:entityChanged', { detail: { symbol: link.entityId, source: 'address' } }));
       }
-    } else if (link.entityId) {
-      const current = String(runtimeRoot.AIO?.state?._currentTickerSym || runtimeRoot._currentTickerSym || '').toUpperCase();
-      if (current !== link.entityId && typeof runtimeRoot.showTicker === 'function') runtimeRoot.showTicker(link.entityId);
     }
     if (link.themeId) {
       const page = documentRef?.getElementById?.('page-themes');
@@ -193,15 +195,24 @@ function installRouteDeepLinks({ runtimeRoot, documentRef, activeRoute }) {
       else if (!ready) runtimeRoot._aioOpenThemeDetailOnThemes = link.themeId;
     }
   };
-  // Selection → address (replace, not push: the route change already made the history step).
-  const onTicker = (event) => { if (currentRoute() === 'ticker') writeHash('ticker', 'sym', normalizeEntityId(event?.detail?.id)); };
+  // Selection → address (replace, not push: the route change already made the history step). One rule for the three
+  // 종목 tabs: the address carries the subject (route-hubs.js setStockSubject). A selection overwrites it; a commit only
+  // fills a missing sym — a hub tab or menu opens the bare route — so a link or Back that names a company still wins.
+  const writeSubject = () => {
+    const routeId = currentRoute();
+    const symbol = normalizeEntityId(runtimeRoot._aioLastOpenedSymbol);
+    if (ENTITY_ROUTES.has(routeId) && symbol) writeHash(routeId, 'sym', symbol);
+  };
+  const onCommit = () => { if (!parseRouteDeepLink(location.hash)?.entityId) writeSubject(); };
   const onThemeShown = (event) => {
     const themeId = String(event?.detail?.themeId || '').trim();
     if (currentRoute() === 'themes' && THEME_ID_PATTERN.test(themeId)) writeHash('themes', 'theme', themeId);
   };
   const onThemeClosed = () => { if (currentRoute() === 'themes') writeHash('themes', 'theme', null); };
   runtimeRoot.addEventListener('popstate', applyAddress);
-  events.addEventListener?.('aio:tickerViewReset', onTicker);
+  events.addEventListener?.('aio:subjectChanged', writeSubject);
+  events.addEventListener?.('aio:tickerViewReset', writeSubject);
+  events.addEventListener?.('aio:navigationCommitted', onCommit);
   events.addEventListener?.('aio:themeDetailShown', onThemeShown);
   events.addEventListener?.('aio:themeDetailClosed', onThemeClosed);
   let bootTimer = null;
@@ -209,7 +220,9 @@ function installRouteDeepLinks({ runtimeRoot, documentRef, activeRoute }) {
   return () => {
     if (bootTimer != null) clearTimeout(bootTimer);
     runtimeRoot.removeEventListener('popstate', applyAddress);
-    events.removeEventListener?.('aio:tickerViewReset', onTicker);
+    events.removeEventListener?.('aio:subjectChanged', writeSubject);
+    events.removeEventListener?.('aio:tickerViewReset', writeSubject);
+    events.removeEventListener?.('aio:navigationCommitted', onCommit);
     events.removeEventListener?.('aio:themeDetailShown', onThemeShown);
     events.removeEventListener?.('aio:themeDetailClosed', onThemeClosed);
   };

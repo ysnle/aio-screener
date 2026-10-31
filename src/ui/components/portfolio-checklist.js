@@ -5,7 +5,7 @@
 // F5 '보유 종목 논지 점검' — per holding: is a thesis memo written, and which break signals are on now (below the 50-day
 // line, theme stage weak, estimate revisions turned down over 4 weeks, earnings within two weeks). No instruction.
 import { el } from './dom.js';
-import { portfolioLens, leadScenarioExposure } from './portfolio-read.js';
+import { portfolioLens, leadScenarioExposures } from './portfolio-read.js';
 import { readJournal } from '../panels/portfolio-trade-journal.js';
 import { normalizeRules } from '../../domain/portfolio/trade-journal.js';
 import { consensusRowFor, requestConsensusEstimates } from '../../data/consensus-estimates.js';
@@ -41,23 +41,23 @@ export function portfolioCriteria({ surface, root, checks = null, rules = {}, se
   const top = rows.reduce((best, row) => (!best || row.value > best.value ? row : best), null);
   const topPct = top && total > 0 ? top.value / total * 100 : null;
   const single = checks?.checks?.find?.((check) => check.id === 'single-holding');
-  const exposure = leadScenarioExposure(root, surface);
+  const exposure = leadScenarioExposures(root, surface); // v59.51: a tie carries one exposure per tied branch
   const corr = lens.bonds?.correlation;
   const cashPct = Number.isFinite(Number(surface?.cashPct)) && surface?.cashPct != null ? Number(surface.cashPct) : null;
   const items = [
     { id: 'single', label: '한 종목 쏠림', principle: '한 종목이 크면 그 종목 하나의 일이 계좌 전체의 일이 됩니다.',
       value: topPct == null ? '미확인' : `가장 큰 ${top.symbol} ${topPct.toFixed(1)}%(보유 종목 중)`,
-      basis: r.maxPositionPct != null ? `내 원칙 ${r.maxPositionPct}% 이하` : `앱 내부 구간 ${SINGLE_BAND}% 이하`,
+      basis: r.maxPositionPct != null ? `내 원칙 ${r.maxPositionPct}% 이하` : `앱 점검선 ${SINGLE_BAND}% 이하`,
       ok: topPct == null ? null : r.maxPositionPct != null ? topPct <= r.maxPositionPct : single ? single.status !== 'attention' : topPct <= SINGLE_BAND },
     { id: 'sector', label: '업종 쏠림', principle: '같은 업종은 같은 뉴스에 함께 움직여, 종목 수가 많아도 한 번에 흔들립니다.',
       value: lens.topSector ? `가장 큰 ${lens.topSector.name} ${lens.topSector.pct.toFixed(0)}%(주식 부분 중)` : '미확인',
-      basis: `앱 내부 구간 ${SECTOR_BAND}% 이하`, ok: lens.topSector ? lens.topSector.pct <= SECTOR_BAND : null },
+      basis: `앱 점검선 ${SECTOR_BAND}% 이하`, ok: lens.topSector ? lens.topSector.pct <= SECTOR_BAND : null },
     { id: 'cushion', label: '실질 분산', principle: '주식이 내리는 주에 함께 내리지 않는 부분이 있어야 분산이 실제로 작동합니다.',
       value: `실질 종목 수 ${lens.effectiveN.toFixed(1)}개${corr?.available ? `, 채권 부분과 주식 부분의 주간 상관 ${corr.r.toFixed(2)}` : lens.bonds?.bondPct > 0 ? ', 상관은 가격 기록이 쌓이면 계산' : ', 채권 ETF 없음'}`,
       basis: '채권 부분과 주식 부분의 상관이 0보다 작음', ok: corr?.available ? corr.r < 0 : lens.bonds?.available && !(lens.bonds.bondPct > 0) ? false : null },
     { id: 'scenario', label: '시나리오 노출', principle: '한 시나리오가 틀어졌을 때 계좌의 절반 이상이 같은 쪽으로 맞지 않게 둡니다.',
-      value: exposure ? `'${exposure.name}'에서 가설 태그상 부담 쪽 ${exposure.share.head.toFixed(0)}%` : '미확인',
-      basis: '부담 쪽 영역이 평가액의 절반 미만', ok: exposure ? exposure.share.head < 50 : null },
+      value: exposure ? `${exposure.items.map((item) => `'${item.name}'에서 부담 쪽 ${item.share.head.toFixed(0)}%`).join(', ')}${exposure.state === 'tie' ? '(시나리오 동률)' : ''}` : '미확인',
+      basis: `부담 쪽 영역이 평가액의 절반 미만${exposure?.state === 'tie' ? ', 동률인 시나리오 모두' : ''}`, ok: exposure ? exposure.items.every((item) => item.share.head < 50) : null },
     { id: 'cash', label: '현금 비중', principle: '현금은 수익 0이 아니라 다음 기회를 고를 수 있는 선택권입니다.',
       value: cashPct == null ? '현금 미입력' : `현금 ${cashPct.toFixed(1)}%`,
       basis: r.minCashPct != null ? `내 원칙 ${r.minCashPct}% 이상` : '내 원칙 미설정',
@@ -77,16 +77,28 @@ export function renderPortfolioCriteria({ documentRef: doc, root, surface, check
   host.id = 'pf-criteria';
   const lead = el(doc, 'p', null, 'pf-criteria-lead');
   lead.append(el(doc, 'strong', `점검 기준 ${model.items.length}개 중 ${model.met}개 충족`), doc.createTextNode(`${model.unknown ? `, ${model.unknown}개 판정 보류` : ''} — 충족 개수이며 점수가 아닙니다.`));
+  // v59.51 (two layers): the face row is the verdict, the criterion and the reader's value; each threshold and its reason,
+  // the drawdown reference and the 내 원칙 note go to the top of 점검's expert fold.
   const list = el(doc, 'ul', null, 'pf-trade-mirror');
+  const reasons = el(doc, 'div', null, 'pf-criteria-reasons');
+  reasons.id = 'pf-criteria-reasons';
+  const reasonList = el(doc, 'ul', null, 'stock-read-points');
   for (const item of model.items) {
     const li = el(doc, 'li', null, `pf-trade-mirror-row is-${item.ok == null ? 'unknown' : item.ok ? 'favorable' : 'burden'}`);
     li.append(el(doc, 'span', item.ok == null ? item.held || '확인 불가' : item.ok ? '충족' : '미충족', 'pf-trade-mirror-state'), el(doc, 'strong', item.label),
-      el(doc, 'span', ` — ${item.value} (기준: ${item.basis}). ${item.principle}`));
+      el(doc, 'span', ` — ${item.value}`));
     list.append(li);
+    const reason = el(doc, 'li', null, 'stock-read-point is-neutral');
+    reason.append(el(doc, 'span', item.label, 'stock-read-point-title'), el(doc, 'span', `기준: ${item.basis}. ${item.principle}`, 'stock-read-point-text'));
+    reasonList.append(reason);
   }
   const drawdown = el(doc, 'p', model.beta == null ? `낙폭 감내(참고): 시장 민감도는 아직 계산되지 않았습니다 — ${model.betaNote || '주간 가격 기록이 더 필요합니다'}.` : `낙폭 감내(참고, 판정 없음): 과거 주간 기준으로 시장 지수가 10% 내릴 때 보유 종목 부분은 평균 약 ${(model.beta * 10).toFixed(1)}% 움직였습니다. 내가 견딜 수 있는 낙폭과 비교해 보는 값이며 앞으로의 낙폭을 뜻하지 않습니다.`, 'theme-strength-basis');
-  host.append(lead, list, drawdown, el(doc, 'p', '한 종목 최대 비중과 현금 최소 비중을 아래 매매일지의 ‘내 원칙’에 적으면 기준이 그 값으로 바뀝니다.', 'theme-strength-basis'));
+  reasons.append(reasonList, drawdown, el(doc, 'p', '앱 점검선은 쏠림을 세는 선이며 권장 비중이 아닙니다. 한 종목 최대 비중과 현금 최소 비중을 매매일지의 ‘내 원칙’에 적으면 기준이 그 값으로 바뀝니다.', 'theme-strength-basis'));
+  host.append(lead, list);
   section.querySelector(':scope > h2')?.after(host);
+  doc.getElementById('pf-criteria-reasons')?.remove();
+  const fold = section.querySelector(':scope > .pf-checks-fold');
+  if (fold) fold.querySelector(':scope > summary')?.after(reasons); else host.append(reasons);
   return model;
 }
 
@@ -159,9 +171,9 @@ export function renderThesisCheck({ documentRef: doc, root, surface, holdings = 
     // v59.45 (P10-PF-02): 'no signal' only for checks that had data; with none, the row says it could not be checked.
     const state = row.signals.length ? `신호 ${row.signals.length}` : row.checked === 0 ? '확인 불가' : row.unknown?.length ? `신호 없음(${row.checked}/${THESIS_CHECKS} 확인)` : '신호 없음';
     li.append(el(doc, 'span', state, 'pf-trade-mirror-state'), el(doc, 'strong', row.symbol),
-      el(doc, 'span', ` — ${row.memo ? `메모: ${row.memo.length > 60 ? `${row.memo.slice(0, 60)}…` : row.memo}` : '메모 없음(매수 이유를 적어 두면 깨짐 신호와 비교할 수 있습니다)'}${row.signals.length ? `. 켜진 신호: ${row.signals.join(', ')}` : ''}${row.unknown?.length ? `. 자료 없음: ${row.unknown.join(', ')}` : ''}`));
+      el(doc, 'span', ` — ${row.memo ? `메모: ${row.memo.length > 60 ? `${row.memo.slice(0, 60)}…` : row.memo}` : '메모 없음'}${row.signals.length ? `. 켜진 신호: ${row.signals.join(', ')}` : ''}${row.unknown?.length ? `. 자료 없음: ${row.unknown.join(', ')}` : ''}`));
     list.append(li);
   }
-  host.replaceChildren(head, list, el(doc, 'p', '신호는 논지가 틀렸을 수 있다는 사실 확인용입니다: 50일선 아래, 속한 테마의 단계 약함, 최근 4주 이익 전망 하향 건수가 상향보다 많음, 2주 안의 실적 발표. 무엇을 할지는 내 논지와 원칙으로 정합니다.', 'theme-strength-basis'));
+  host.replaceChildren(head, list, el(doc, 'p', `신호는 논지가 틀렸을 수 있다는 사실 확인용입니다: 50일선 아래, 속한 테마의 단계 약함, 최근 4주 이익 전망 하향 건수가 상향보다 많음, 2주 안의 실적 발표.${noMemo ? ' 매수 이유를 메모로 적어 두면 이 신호와 나란히 비교됩니다.' : ''} 무엇을 할지는 내 논지와 원칙으로 정합니다.`, 'theme-strength-basis'));
   return rows;
 }

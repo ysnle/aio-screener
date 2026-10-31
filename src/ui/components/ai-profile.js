@@ -57,14 +57,14 @@ export function installAIProfile(root = globalThis, doc = root.document, { stora
     };
   }
 
-  const button = el(doc, 'button', '맞춤', 'ai-session-head-btn ai-profile-btn'); button.type = 'button';
+  const button = el(doc, 'button', '답변 맞춤', 'ai-session-head-btn ai-profile-btn'); button.type = 'button';
   button.setAttribute('aria-expanded', 'false');
   button.setAttribute('aria-controls', 'ai-profile-sheet');
   const controls = head.querySelector('.ai-session-controls');
   if (controls) controls.prepend(button); else head.insertBefore(button, head.querySelector('.ai-ph-close'));
   const refreshButton = () => {
     const set = isProfileSet(profile) || learningEnabled(storage);
-    button.textContent = set ? '맞춤 켜짐' : '맞춤';
+    button.textContent = set ? '답변 맞춤 켜짐' : '답변 맞춤'; // first-users run-6 (#17): '맞춤' alone did not say what it fits
     button.classList.toggle('is-on', set);
     button.title = set ? `답변 맞춤: ${profileSummary(profile) || '설정됨'}` : '답변을 내 경험과 관점에 맞추기';
   };

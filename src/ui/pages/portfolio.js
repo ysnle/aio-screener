@@ -1,17 +1,14 @@
-import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
+import { createResourceBag } from '../../app/lifecycle.js';
 import { screenerRowsState } from '../../data/shared-artifacts.js';
 import { selectPortfolioState } from '../../state/selectors/portfolio.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { derivePortfolioSurface } from '../../domain/portfolio/surface.js';
 import { appUsdKrwClose } from '../../domain/portfolio/cash.js';
-import { vixBand } from '../../domain/sentiment/narrative.js';
-import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
 import { derivePortfolioChecks } from '../../domain/portfolio/checks.js';
 import { renderPortfolioRead, renderPortfolioLens } from '../components/portfolio-read.js';
 import { renderPortfolioCriteria, renderThesisCheck } from '../components/portfolio-checklist.js';
 import { portfolioRowsForAI, portfolioSectorLabel } from '../../domain/portfolio/portfolio-read.js';
 import { clearKnowledgeArrival, renderKnowledgeArrival } from '../components/knowledge-arrival.js';
-import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { renderTradeJournal, installTradeJournal } from '../panels/portfolio-trade-journal.js';
 import { signedText, readNumber as finite } from '../../domain/shared/number.js';
@@ -132,9 +129,6 @@ function setSurfaceText(documentRef, id, text, value, surface, color = null) {
   if (color) element.style.color = color;
   markSurfaceElement(element, value, surface.sourceKind, surface.sourceLabel, surface.observedAt);
 }
-
-// v57.50 I11: the bars and the 포트폴리오 해석 use one sector vocabulary (the screener's labels via portfolioSectorLabel).
-const sectorLabel = portfolioSectorLabel;
 
 // v57.50 C24: the sector of a holding comes from the same screener row the 포트폴리오 해석 reads.
 // v57.54 review: the latest completed close per symbol (canonical screener row), so holdings without a live quote
@@ -358,88 +352,6 @@ function renderPortfolioSurface(documentRef, page, surface) {
     + (surface.conversion?.costApplied ? ', 원가는 현재 환율로 환산 — 매수 이후 환율 효과 제외' : '');
   const currencyHeldActive = (surface.currencyState === 'mixed-without-conversion' || surface.costCurrencyState === 'cost-price-mismatch-held') && surface.readState === 'ready' && !!surface.holdingCount;
   setSurfaceText(documentRef, 'pf-currency-note', currencyNoteBase === '—' ? '—' : currencyNoteBase + currencyHeld, surface.holdingCount || null, surface, currencyHeldActive ? 'var(--data-amber)' : 'var(--text-dim)');
-  // Codex browser audit H50: "VIX 확인 중" stayed while every market screen showed VIX — the live quote did not
-  // qualify here. The completed close (the market screens' basis) is used then, labelled with its date; and an
-  // empty portfolio says what needs input instead of looking like a pending calculation.
-  const vixHistory = buildCloseSeries(documentRef?.defaultView?._aioHistory || globalThis._aioHistory || [], 'vix', { through: closeBasis(documentRef?.defaultView?._aioHistory || globalThis._aioHistory || []) });
-  const vixClose = vixHistory[vixHistory.length - 1] || null;
-  // P1574: the VIX-to-max-exposure ladder (100/80/50/30/15 on 15/20/25/30) was a sizing instruction on
-  // retired bands. The card states the volatility band (shared 18/25/32 edges) and the user's own exposure.
-  const liveVix = surface.vix != null && Number.isFinite(surface.vix) ? surface.vix : null;
-  const vixValue = liveVix ?? vixClose?.value ?? null;
-  const band = vixBand(vixValue);
-  const rule = band.blocked ? 'VIX 자료 없음'
-    : liveVix != null ? `VIX ${liveVix.toFixed(2)}, ${band.label}`
-      : `VIX ${vixClose.value.toFixed(2)}(${Number(vixClose.date.slice(5, 7))}/${Number(vixClose.date.slice(8, 10))} 종가), ${band.label}`;
-  // v57.70 (2026-10-15 audit): "VIX 16.9 · 저변동 구간" stood while KOSPI was down 13% in five sessions. VIX is the US
-  // option market's gauge; a Korean move of 5% or more over five completed sessions is named beside it.
-  const historyRows = documentRef?.defaultView?._aioHistory || globalThis._aioHistory || [];
-  const kospi = buildCloseSeries(historyRows, 'kospi');
-  const kospiLast = kospi[kospi.length - 1] || null;
-  const kospiBack = kospi.length >= 6 ? kospi[kospi.length - 6] : null;
-  const kospi5 = kospiLast && kospiBack?.value > 0 ? (kospiLast.value / kospiBack.value - 1) * 100 : null;
-  const krNote = kospi5 != null && Math.abs(kospi5) >= 5
-    ? `, 한국은 코스피 5거래일 ${signedText(kospi5, 1)}%(${Number(kospiLast.date.slice(5, 7))}/${Number(kospiLast.date.slice(8, 10))} 종가) — VIX는 미국 시장 기준입니다` : '';
-  setSurfaceText(documentRef, 'pf-exposure-rule', rule + (band.blocked ? '' : krNote), band.blocked ? null : band.value, surface);
-  const current = surface.exposurePct == null ? (surface.holdingCount ? '현재 노출 —' : '보유 내역을 입력하면 계산됩니다') : `현재 노출 ${surface.exposurePct.toFixed(1)}%`;
-  setSurfaceText(documentRef, 'pf-exposure-current', current, surface.exposurePct, surface, 'var(--text-dim)');
-  // v57.71 (2026-10-15 audit): the volatility card led nowhere on a crash morning; the sizing and survival lessons are one
-  // step away (principles J3·J4), the same research-library links the market screens use.
-  const currentNode = documentRef?.getElementById('pf-exposure-current');
-  if (currentNode && !documentRef.getElementById('pf-learn-links')) {
-    const links = documentRef.createElement('div');
-    links.id = 'pf-learn-links';
-    for (const [lesson, label] of [['J3', '한 종목에 얼마나 넣을까(원리)'], ['J4', '손실을 견디는 법(원리)']]) {
-      const button = documentRef.createElement('button');
-      button.type = 'button';
-      button.className = 'flow-next-link';
-      button.textContent = `${label} →`;
-      button.addEventListener('click', () => navigateKnowledgeRoute({ root: documentRef.defaultView || globalThis, page: 'principles', params: { lesson } }));
-      links.append(button);
-    }
-    currentNode.after(links);
-  }
-
-  const sectorElement = documentRef?.getElementById('pf-sector-breakdown');
-  if (sectorElement) {
-    sectorElement.replaceChildren();
-    sectorElement.dataset.aioPortfolioSurfaceRenderer = 'native';
-    sectorElement.dataset.sourceKind = surface.sectorBreakdown.length ? surface.sourceKind : 'unavailable';
-    sectorElement.dataset.sourceLabel = surface.sectorBreakdown.length ? surface.sourceLabel : 'portfolio-sector-unavailable';
-    sectorElement.dataset.operationalUse = 'reference-only';
-    if (surface.sectorBreakdown.length) {
-      // v57.48 expert review #24: the denominator is stated once above the bars, not on every label.
-      const basisHead = documentRef.createElement('div');
-      basisHead.textContent = surface.sectorBreakdown[0]?.basis === 'positions-only' ? '현금 미입력, 주식 평가액 대비 비중' : '현금 포함 총자산 대비 비중';
-      basisHead.className = 'pfp-basis';
-      sectorElement.appendChild(basisHead);
-      for (const sector of surface.sectorBreakdown) {
-        const row = documentRef.createElement('div');
-        row.className = 'pfp-sector-row';
-        const label = documentRef.createElement('span');
-        label.textContent = sectorLabel(sector.name);
-        label.title = `${sectorLabel(sector.name)}, 현금 포함 총자산 대비`;
-        label.dataset.basis = sector.basis || 'total-assets-including-cash';
-        label.className = 'pfp-sector-label';
-        const track = documentRef.createElement('div');
-        track.className = 'pfp-sector-track';
-        const bar = documentRef.createElement('div');
-        bar.className = 'pfp-sector-fill';
-        bar.style.width = `${Math.max(0, Math.min(100, sector.pct))}%`;
-        track.appendChild(bar);
-        const pct = documentRef.createElement('span');
-        pct.textContent = `${sector.pct.toFixed(0)}%`;
-        pct.className = 'pfp-sector-pct';
-        row.append(label, track, pct);
-        sectorElement.appendChild(row);
-      }
-    } else {
-      const empty = documentRef.createElement('div');
-      empty.textContent = surface.cashHeld ? '현금 합계가 보류돼 총자산 대비 섹터 비중을 계산하지 않았습니다' : surface.holdingCount ? '평가액이 확인되면 섹터 비중이 표시됩니다' : '종목을 추가하면 섹터 비중이 표시됩니다'; // v57.81
-      empty.className = 'pfp-sector-empty';
-      sectorElement.appendChild(empty);
-    }
-  }
 }
 
 function tableCell(documentRef, headerId, value, className = 'pfp-cell') {
@@ -629,16 +541,18 @@ function renderPortfolioTable(documentRef, page, state, surface, { preview = fal
     priceCellNode.title = price == null ? '시세와 종가를 받지 못했습니다, 총자산과 손익 합계에서 뺐습니다' : `시세 통화 ${priceCurrency}${closeDated}`;
     if (price == null) priceCellNode.dataset.priceState = 'missing';
     row.appendChild(priceCellNode);
-    const pnlCell = tableCell(documentRef, 'pf-th-pnl', pnl == null ? '—' : `${pnl >= 0 ? '+' : '-'}${money(Math.abs(pnl), baseCurrency)}`, 'pfp-cell is-bold');
+    // v59.51 (first-users run-6 #9): a bare '—' read as a missing calculation; an empty cell names why it is empty.
+    const heldText = avgCost == null ? '매수가 없음' : price == null ? '가격 없음' : '보류';
+    const pnlCell = tableCell(documentRef, 'pf-th-pnl', pnl == null ? heldText : `${pnl >= 0 ? '+' : '-'}${money(Math.abs(pnl), baseCurrency)}`, 'pfp-cell is-bold');
     if (pnl == null) pnlCell.title = '손익 보류, 원가/시세 통화 불일치 또는 시세 미수신';
     pnlCell.style.color = pnl == null ? 'var(--text-muted)' : pnl >= 0 ? 'var(--dir-up)' : 'var(--dir-down)';
     row.appendChild(pnlCell);
-    const pctCell = tableCell(documentRef, 'pf-th-pct', pnlPct == null ? '—' : `${signedText(pnlPct, 1)}%`, 'pfp-cell is-bold');
+    const pctCell = tableCell(documentRef, 'pf-th-pct', pnlPct == null ? heldText : `${signedText(pnlPct, 1)}%`, 'pfp-cell is-bold');
     pctCell.style.color = pnlPct == null ? 'var(--text-muted)' : pnlPct >= 0 ? 'var(--dir-up)' : 'var(--dir-down)';
     row.appendChild(pctCell);
     // v58.56: today's move of the holding — only from a live quote with a stated basis (the hero's 오늘 uses the same rule).
     const dayPct = rowData.dailyPctEligible && Number.isFinite(rowData.dailyPct) ? rowData.dailyPct : null;
-    const dayCell = tableCell(documentRef, 'pf-th-day', dayPct == null ? '—' : `${signedText(dayPct, 2)}%`, 'pfp-cell');
+    const dayCell = tableCell(documentRef, 'pf-th-day', dayPct == null ? (rowData.sourceKind === 'completed-close' ? '종가 기준' : '시세 대기') : `${signedText(dayPct, 2)}%`, 'pfp-cell');
     dayCell.style.color = dayPct == null ? 'var(--text-muted)' : dayPct >= 0 ? 'var(--dir-up)' : 'var(--dir-down)';
     if (dayPct == null) dayCell.title = rowData.sourceKind === 'completed-close' ? `${rowData.closeDate || ''} 종가로 평가 중 — 오늘 변화는 실시간 시세를 받으면 표시합니다`.trim() : '실시간 시세를 받으면 표시합니다';
     row.appendChild(dayCell);
@@ -663,7 +577,8 @@ function renderPortfolioTable(documentRef, page, state, surface, { preview = fal
     // 개편 v2 (3g): the weight reads as a bar beside its number (same share of the stock part).
     const weightPct = totalValue > 0 && value != null ? value / totalValue * 100 : null;
     const weightCell = tableCell(documentRef, 'pf-th-weight', '', 'pfp-cell is-bold is-sans');
-    if (weightPct == null) weightCell.textContent = '—';
+    // v59.51: a priced holding's weight waits on the others' prices (the total); only an unpriced row is 가격 없음 itself.
+    if (weightPct == null) weightCell.textContent = value == null ? '가격 없음' : '합계 대기';
     else {
       const wrap = documentRef.createElement('span');
       wrap.className = 'pf-weight-cell';
@@ -716,68 +631,7 @@ function renderPortfolioTable(documentRef, page, state, surface, { preview = fal
   }
 }
 
-function renderPortfolioChart({ root, page, surface, charts }) {
-  const canvas = page?.querySelector?.('#pf-position-donut');
-  if (!canvas) return;
-  const holdings = surface.positionValue == null ? [] : surface.rows.filter((item) => item.value > 0);
-  const total = holdings.reduce((sum, item) => sum + item.value, 0);
-  const ChartConstructor = root?.Chart;
-  const unavailable = !holdings.length || !(total > 0) || typeof ChartConstructor !== 'function';
-  const signature = holdings.map((item) => `${item.symbol}:${item.value}`).join('|');
-  canvas.dataset.aioPortfolioChartRenderer = 'native';
-  canvas.dataset.sourceKind = unavailable ? 'unavailable' : 'portfolio-state';
-  canvas.dataset.sourceLabel = unavailable ? 'portfolio-chart-input-unavailable' : 'native:portfolio-state';
-  canvas.dataset.operationalUse = 'reference-only';
-  const loading = page.querySelector('#pf-donut-legend');
-  if (unavailable) {
-    charts.destroy('pf-position-donut');
-    // P1592 (F16): a held chart shows no slices or totals — clear anything drawn before this renderer owned the canvas.
-    try { canvas.getContext?.('2d')?.clearRect(0, 0, canvas.width, canvas.height); } catch (_) {}
-    if (loading) loading.textContent = !surface.rows?.length ? '종목을 추가하면 비중이 표시됩니다'
-      : !holdings.length ? '시세를 받으면 평가액 기준 비중을 그립니다 — 매수 원가로 대신 그리지 않습니다'
-        : '차트 모듈 대기, 차트 보류';
-    return;
-  }
-  if (charts.get('pf-position-donut')?.signature === signature) return;
-  charts.destroy('pf-position-donut');
-  try {
-    const colors = ['#1b1a17', '#544f46', '#978365', '#696256', '#a39073', '#3b352b', '#b9a88d'];
-    const chart = new ChartConstructor(canvas, {
-      type: 'doughnut',
-      data: { labels: holdings.map((item) => item.symbol), datasets: [{ data: holdings.map((item) => item.value), backgroundColor: holdings.map((_, index) => colors[index % colors.length]), borderColor: '#faf9f2', borderWidth: 1 }] },
-      options: { responsive: false, maintainAspectRatio: false, cutout: '55%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: (context) => ` ${context.label}: ${(context.parsed / total * 100).toFixed(1)}%` } } } }
-    });
-    charts.set('pf-position-donut', { chart, signature });
-    // P1599 (F108): weights as a sorted bar list (bars compare lengths better than donut slices); the donut stays as the overview.
-    if (loading) {
-      const doc = loading.ownerDocument;
-      const sorted = [...holdings].sort((a, b) => b.value - a.value);
-      loading.replaceChildren(...sorted.slice(0, 8).map((item) => {
-        const share = item.value / total * 100;
-        const row = doc.createElement('div');
-        row.className = 'pf-weight-row';
-        const name = doc.createElement('span');
-        name.textContent = item.symbol;
-        const track = doc.createElement('span');
-        track.className = 'pf-weight-track';
-        const bar = doc.createElement('span');
-        bar.className = 'pf-weight-bar';
-        bar.style.width = `${Math.max(1, share).toFixed(1)}%`;
-        track.append(bar);
-        const value = doc.createElement('span');
-        value.textContent = `${share.toFixed(1)}%`;
-        row.append(name, track, value);
-        return row;
-      }));
-      if (sorted.length > 8) loading.append(Object.assign(doc.createElement('div'), { className: 'pf-weight-more', textContent: `외 ${sorted.length - 8}종목` }));
-    }
-  } catch (_) {
-    charts.destroy('pf-position-donut');
-    if (loading) loading.textContent = '포트폴리오 차트 런타임 실패, 차트 보류';
-  }
-}
-
-function render({ root, documentRef, store, charts }) {
+function render({ root, documentRef, store }) {
   const state = selectPortfolioState(store.getState());
   const page = documentRef?.getElementById('page-portfolio');
   if (page) {
@@ -806,7 +660,6 @@ function render({ root, documentRef, store, charts }) {
     renderPortfolioHero(documentRef, shown);
     renderPortfolioStatus(documentRef, shownState, shown, { pricesLoading: screenerRowsState(root) === 'loading' });
     renderPortfolioTable(documentRef, page, shownState, shown, { preview: true, root });
-    renderPortfolioChart({ root, page, surface: shown, charts });
     const shownChecks = renderPortfolioChecks(documentRef, root, shown);
     renderPortfolioLens({ documentRef, root, surface: shown, checks: shownChecks, sectorLabel: portfolioSectorLabel });
     renderPortfolioRead({ documentRef, root, surface: shown });
@@ -824,7 +677,6 @@ function render({ root, documentRef, store, charts }) {
   renderPortfolioHero(documentRef, surface);
   renderPortfolioStatus(documentRef, state, surface, { pricesLoading: screenerRowsState(root) === 'loading' });
   renderPortfolioTable(documentRef, page, state, surface, { root });
-  renderPortfolioChart({ root, page, surface, charts });
   const checks = renderPortfolioChecks(documentRef, root, surface);
   renderPortfolioLens({ documentRef, root, surface, checks, sectorLabel: portfolioSectorLabel }); // 개편 v2 (3g)
   renderPortfolioRead({ documentRef, root, surface }); // P1438
@@ -844,10 +696,9 @@ function previewPortfolioState() {
 }
 
 // Sections that need holdings: hidden while the portfolio is empty (a journal or note that already holds entries stays).
-const EMPTY_HIDDEN_IDS = Object.freeze(['pf-freshness-strip', 'pf-ai-notes-fold', 'pf-trades', 'pf-backtest-fold', 'pf-rr-fold', 'pf-watchlist-risk-fold', 'pf-ledger-section', 'pf-fx-section']);
+const EMPTY_HIDDEN_IDS = Object.freeze(['pf-freshness-strip', 'pf-records-fold', 'pf-backtest-fold', 'pf-rr-fold', 'pf-watchlist-risk-fold', 'pf-ledger-section', 'pf-fx-section']);
 const EMPTY_KEEP = Object.freeze({
-  'pf-trades': (node) => Boolean(node.querySelector('[data-trade-id]')),
-  'pf-ai-notes-fold': (node) => Boolean(node.querySelector('#pf-journal-note')?.value?.trim())
+  'pf-records-fold': (node) => Boolean(node.querySelector('[data-trade-id]'))
 });
 function syncEmptyState(documentRef, root, page, { empty, preview }) {
   if (!page || !documentRef) return;
@@ -904,8 +755,10 @@ function renderPortfolioChecks(documentRef, root, surface) {
   // v58.75 (persona review, spec F4): the criteria list (portfolio-checklist.js) leads; the share cards fold under it.
   const fold = el('details', null, 'pf-checks-fold');
   fold.dataset.userFold = '';
-  fold.append(el('summary', '비중 세부 (종목·통화·지역·유형·섹터·현금)'));
-  fold.append(el('p', `투자금 ${result.currency ? `${result.currency} ` : ''}기준 비중${result.excluded ? `, 평가액이 없는 ${result.excluded}종목 제외` : ''}, 한 종목은 내부 구간(10~25% 참고, 25% 초과 주의), 한 통화는 공개 기본값으로 판정하고 나머지는 참고 비중으로 표시`, 'theme-strength-basis'));
+  // v59.51 (two layers): one expert fold under the criteria — the criteria's thresholds and reasons (portfolio-checklist.js),
+  // the share cards below, then the effective-N / index / bond cards (portfolio-read.js renderPortfolioLens).
+  fold.append(el('summary', '자세히, 점검 기준 · 비중 세부 · 지수와의 관계 · 채권 완충'));
+  fold.append(el('p', `투자금 ${result.currency ? `${result.currency} ` : ''}기준 비중${result.excluded ? `, 평가액이 없는 ${result.excluded}종목 제외` : ''}, 한 종목은 앱 점검선(10~25% 참고, 25% 초과 주의), 한 통화는 공개 기본값으로 판정하고 나머지는 참고 비중으로 표시. 점검선은 쏠림을 세는 선이며 권장 비중이 아닙니다`, 'theme-strength-basis'));
   const list = el('div', null, 'pf-checks-list');
   for (const check of result.checks) {
     const card = el('section', null, 'pf-check');
@@ -929,9 +782,7 @@ export function createPortfolioPage({ root = globalThis, documentRef, store } = 
       const bag = createResourceBag();
       portfolioMounted = true;
       bag.add(() => { portfolioMounted = false; });
-      const charts = createChartRegistry({ maxCanvasHeight: 260 });
-      bag.add(charts.dispose);
-      const renderNow = () => render({ root, documentRef, store, charts });
+      const renderNow = () => render({ root, documentRef, store });
       rerenderPortfolio = renderNow;
       bag.add(() => { if (rerenderPortfolio === renderNow) rerenderPortfolio = null; if (root) root.__aioPortfolioPreview = false; });
       renderNow();
@@ -967,7 +818,6 @@ export function createPortfolioPage({ root = globalThis, documentRef, store } = 
       }
       const table = page?.querySelector?.('#pf-positions-tbody');
       if (page) page.dataset.aioPortfolioSurface = 'native';
-      if (page) page.dataset.aioPortfolioChartRenderer = 'native';
       if (table) table.dataset.aioPortfolioTableRenderer = 'native';
       ['pf-total-value', 'pf-total-pnl'].forEach((id) => {
         const element = documentRef?.getElementById(id);
@@ -975,13 +825,6 @@ export function createPortfolioPage({ root = globalThis, documentRef, store } = 
       });
       bag.add(() => {
         if (table?.dataset.aioPortfolioTableRenderer === 'native') delete table.dataset.aioPortfolioTableRenderer;
-        const chartCanvas = documentRef?.getElementById('pf-position-donut');
-        if (chartCanvas?.dataset.aioPortfolioChartRenderer === 'native') {
-          delete chartCanvas.dataset.aioPortfolioChartRenderer;
-          delete chartCanvas.dataset.sourceKind;
-          delete chartCanvas.dataset.sourceLabel;
-          delete chartCanvas.dataset.operationalUse;
-        }
         ['pf-total-value', 'pf-total-pnl'].forEach((id) => {
           const element = documentRef?.getElementById(id);
           if (element?.dataset.aioPortfolioHeroRenderer === 'native') delete element.dataset.aioPortfolioHeroRenderer;
@@ -989,7 +832,6 @@ export function createPortfolioPage({ root = globalThis, documentRef, store } = 
         if (page?.dataset.aioArchitectureRenderer === 'native') delete page.dataset.aioArchitectureRenderer;
         if (page?.dataset.aioArchitectureSlice === 'portfolio') delete page.dataset.aioArchitectureSlice;
         if (page?.dataset.aioPortfolioSurface === 'native') delete page.dataset.aioPortfolioSurface;
-        if (page?.dataset.aioPortfolioChartRenderer === 'native') delete page.dataset.aioPortfolioChartRenderer;
         if (page?.dataset.aioPortfolioSurfaceModel) delete page.dataset.aioPortfolioSurfaceModel;
         if (page?.dataset.aioPortfolioSurfaceUse) delete page.dataset.aioPortfolioSurfaceUse;
         if (page?.dataset.aioPortfolioPromotion) delete page.dataset.aioPortfolioPromotion;

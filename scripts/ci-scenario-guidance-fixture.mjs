@@ -306,7 +306,8 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.equal(themeStateOf(20, -5), 'pullback'); assert.equal(themeStateOf(-10, 4), 'rebound'); assert.equal(themeStateOf(null, 3), null);
   assert.equal(windFor(['growth', 'aicapex'], { firmer: ['growth'], weaker: [] }), 'tail');
   assert.equal(windFor(['energy'], { firmer: ['growth'], weaker: ['energy'] }), 'head');
-  const fakeCross = { leadId: 'softland', altId: 'reheat', items: [{ id: 'softland', title: '물가 둔화 — x', firmer: ['growth', 'aicapex'], weaker: ['energy'] }, { id: 'reheat', title: '물가 재가속 — x', firmer: ['energy'], weaker: ['growth'] }] };
+  // v59.51 (content audit): the playbook reads scenarioLead(crossroads), which holds unless the model is available — match the real model shape.
+  const fakeCross = { available: true, tiedIds: [], leadId: 'softland', altId: 'reheat', items: [{ id: 'softland', title: '물가 둔화 — x', firmer: ['growth', 'aicapex'], weaker: ['energy'] }, { id: 'reheat', title: '물가 재가속 — x', firmer: ['energy'], weaker: ['growth'] }] };
   const groups = [
     { themeId: 'semiconductor', themeName: '반도체', name: 'A', ret1m: -8, ret3m: 5, ret6m: 30, above50Pct: 40, basis: '2026-10-12', current: true },
     { themeId: 'semiconductor', themeName: '반도체', name: 'B', ret1m: -6, ret3m: 4, ret6m: 25, above50Pct: 45, basis: '2026-10-12', current: true },
@@ -825,7 +826,8 @@ console.log('scenario guidance fixture (basis card): PASS');
     g('software', 'W1', { ret1m: 6.0, ret3m: 9.0, ret6m: 24.0, ret5d: 1.0, above50Pct: 65 })
   ];
   const krThemes = [{ id: 'semi', label: '반도체', covered: 12, ret1m: 3.0, ret3m: 20.0, ret5d: -23.9, vol: 60, above50Pct: 13, basis: '2026-10-15' }];
-  const cross = { leadId: 'reheat', altId: 'softland', items: [{ id: 'reheat', title: '물가 재가속 — x', firmer: ['energy'], weaker: ['growth', 'aicapex'] }, { id: 'softland', title: '물가 둔화 — x', firmer: ['growth', 'aicapex'], weaker: ['energy'] }] };
+  // v59.51 (content audit): available/tiedIds as the real crossroads model carries them (scenarioLead holds otherwise).
+  const cross = { available: true, tiedIds: [], leadId: 'reheat', altId: 'softland', items: [{ id: 'reheat', title: '물가 재가속 — x', firmer: ['energy'], weaker: ['growth', 'aicapex'] }, { id: 'softland', title: '물가 둔화 — x', firmer: ['growth', 'aicapex'], weaker: ['energy'] }] };
   const pb = buildThemePlaybook({ usGroups, krThemes, crossroads: cross, credit: 'neutral', benchmarks: { US: spx, KR: kospi }, labels: { semiconductor: '반도체', ai_infra: 'AI 인프라/데이터센터', industrials: '산업재/물류', staples: '필수소비재', software: '소프트웨어/클라우드' } });
   const row = (id, market = 'US') => pb.themes.find((item) => item.id === id && item.market === market);
   for (const id of ['semiconductor', 'ai_infra']) {
@@ -1139,7 +1141,13 @@ const curveLesson = LESSON_BY_ID['read-the-curve'];
 assert.match(curveLesson.live(curveCtx), /^9\/19→10\/17 20거래일: 2년 -30bp\. 불 스티프닝: 인하 기대가 앞섭니다\.$/, `${label}: the curve lesson quotes the measured move and its reading`);
 assert.equal(curveLesson.live({ curve: { kind: null, uninverted: true, uninversionReading: 'U' } }), 'U', `${label}: no direction but a recent un-inversion speaks to the un-inversion`);
 assert.equal(curveLesson.live({ curve: { kind: null, uninverted: false } }), null, `${label}: a flat move without un-inversion stays silent`);
-assert.equal(selectScreenLessons('macro', curveCtx)[0]?.id, 'read-the-curve', `${label}: the macro screen leads with the live curve lesson`);
+assert.equal(selectScreenLessons('fxbond', curveCtx)[0]?.id, 'read-the-curve', `${label}: v59.51 (content audit) the rates screen leads with the live curve lesson`);
+{
+  const owners = new Map();
+  for (const [route, ids] of Object.entries(SCREEN_LESSON_IDS)) for (const id of ids) owners.set(id, [...(owners.get(id) || []), route]);
+  const repeated = [...owners].filter(([, routes]) => routes.length > 1);
+  assert.equal(repeated.length, 0, `${label}: v59.51 each lesson belongs to one screen, never repeated across routes: ${JSON.stringify(repeated)}`);
+}
 const earningsLesson = LESSON_BY_ID['earnings-revisions'];
 assert.match(earningsLesson.live({ indexEarnings: { available: true, breadth: 0.5, up: 300, down: 100 } }), /상향 300건, 하향 100건 — 올리는 쪽이 우세합니다/, `${label}: the earnings lesson counts revisions with the card's ±0.1 tilt`);
 assert.equal(earningsLesson.live({ indexEarnings: { available: true, breadth: null, up: 3, down: 1 } }), null, `${label}: under-covered index breadth stays silent`);

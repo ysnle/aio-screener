@@ -414,17 +414,13 @@ check(
     && /T845 v5179_portfolio_backtest_lab/.test(tests)
 );
 check(
-  'portfolio page exposes direct AI workflow for analysis, journal review, and learning',
-  /id="pf-ai-workbench"/.test(html)
-    && /id="pf-ai-ticker-select"/.test(html)
-    && /id="pf-journal-note"/.test(html)
-    && /data-action="_aioPortfolioAsk"/.test(html + workspace)
-    && /data-arg="overview"/.test(html + workspace)
-    && /data-arg="ticker"/.test(html + workspace)
-    && /data-arg="journal"/.test(html + workspace)
-    && /function\s+_aioBuildPortfolioActionPrompt/.test(html + workspace)
-    && /window\._aioPortfolioAsk/.test(html + workspace)
-    && /window\._aioSavePortfolioJournal/.test(html + workspace)
+  // v59.51 (content audit): the in-page AI workbench (pf-ai-workbench, ticker select, journal note) is retired — the one
+  // AI panel is the way to ask about the portfolio. Pin its absence and that the portfolio still routes into that panel.
+  'v59.51 portfolio has no in-page AI workbench and routes questions into the unified AI panel',
+  !/id="pf-ai-workbench"/.test(html)
+    && !/id="pf-ai-ticker-select"/.test(html)
+    && !/id="pf-journal-note"/.test(html)
+    && !/data-action="_aioPortfolioAsk"/.test(html)
     // P1131/R619: updateAIPanelContext is now DEFINED in js/aio-chat.js (inline block G) while its
     // portfolio call site stayed in index.html block A. Assert the definition and the call, each in
     // its real home, so the invariant "portfolio workflow routes into the unified panel" is kept.
@@ -727,24 +723,23 @@ check('v57.77 portfolio writerless 리스크 분석 shell and duplicate 자동 �
 check('screener comp default exposes 1M/3M/6M/RSI/vs50MA/trend confidence/VCP fields', /data-scr-sort="ret1m"/.test(html) && /data-scr-sort="ret3m"/.test(html) && /data-scr-sort="ret6m"/.test(html) && /data-scr-sort="pctSma50"/.test(html) && /ret1m/.test(screenerPage) && /ret6m/.test(screenerPage) && /vcpScore/.test(screenerPage));
 check('runtime-injected decision headers stay out of the default surface; the related-news strip is retired (v58.76)', /body:not\(\.aio-dev-mode\) \.page > \.aio-decision-header[\s\S]{0,160}display:none !important/.test(html) && !/aio-page-news-strip/.test(html + core));
 check('home operational details stay collapsed while completed-24h Telegram feeds remain user-visible', /#page-home > details\.aio-card[\s\S]{0,1200}display:none !important/.test(html) && !/body:not\(\.aio-dev-mode\) #tg-feed-signal[\s\S]{0,1600}display:none !important/.test(html) && /body:not\(\.aio-dev-mode\) \.tg-live-feed/.test(html));
-// v58.85: the 거시 · 금리 header and 한국 거시 badges render from src/ui/components/macro-next-release.js (moved from aio-core.js).
+// v58.85: the 한국 거시 badges render from src/ui/components/macro-next-release.js (moved from aio-core.js); v59.51: the header's
+// separate next-release line left — the board header names crossroads.nextEvent (one next-release answer).
 const macroReleaseProbe = await (async () => {
-  const { renderMacroNextRelease, renderKrMacroFreshnessBadges } = await import('../src/ui/components/macro-next-release.js');
+  const { renderKrMacroFreshnessBadges } = await import('../src/ui/components/macro-next-release.js');
   const nodes = {};
   const node = () => { const attrs = {}; return { textContent: '', style: {}, setAttribute: (k, v) => { attrs[k] = String(v); }, getAttribute: (k) => attrs[k] ?? null }; };
   const documentRef = { getElementById: (id) => (nodes[id] ||= node()) };
   const now = Date.parse('2026-10-26T00:00:00Z');
   const root = {
-    AIO_MACRO_CALENDAR: { releases: { 'kr-bok': { name: 'BOK 금통위', nextRelease: '2026-10-27' }, 'us-cpi': { name: 'BLS CPI', nextRelease: '2026-11-10' }, 'us-nfp': { name: 'BLS NFP', nextRelease: '2026-10-02' } } },
     DATA_SNAPSHOT: { _fieldTs: { bok_rate: '2026-10-01' } },
     _aioStaleDays: (date) => Math.floor((now - Date.parse(`${date}T00:00:00Z`)) / 86400000)
   };
-  const next = renderMacroNextRelease({ documentRef, root, now });
   renderKrMacroFreshnessBadges({ documentRef, root });
-  return { next, header: nodes['macro-next-release'], badges: ['kr-macro-bokrate-freshness', 'kr-macro-cpi-freshness', 'kr-macro-pmi-freshness'].map((id) => nodes[id].textContent) };
+  return { badges: ['kr-macro-bokrate-freshness', 'kr-macro-cpi-freshness', 'kr-macro-pmi-freshness'].map((id) => nodes[id].textContent) };
 })();
 check('P1425 macro route has no legacy yield-curve owner and replays the official calendar after the server data lands', !/_lazyInitChartPage\('macro', 'yieldCurveChart'/.test(core) && !/renderOfficialFutureCalendar/.test(core) && !/renderMacroNextRelease|_initMacroPage/.test(core) && /'aio:serverDataLoaded'/.test(read('src/ui/pages/market.js'))); // v58.85: the header renderer left aio-core.js (its document-level aio:sharedMarketCut listener never fired: the event is dispatched on window) // P1672: #official-future-calendar left with P1425 // P1425
-check('official future calendar merges the registry beyond snapshot-only CPI/PCE/NFP/FOMC fields', !/function renderOfficialFutureCalendar/.test(macroTech) && macroReleaseProbe.next?.key === 'us-cpi' && /^다음 주요 발표: .+ 미국 CPI$/.test(macroReleaseProbe.header.textContent) && macroReleaseProbe.header.getAttribute('data-runtime-state') === 'official-reference'); // v58.85: behaviour of src/ui/components/macro-next-release.js (US first, reader label) // P1672: the legacy calendar sink left with P1425; renderMacroNextRelease owns the macro calendar
+check('v59.51 the 거시 next release is the board header crossroads.nextEvent; the separate calendar line and renderer stay retired', !/function renderOfficialFutureCalendar/.test(macroTech) && !/renderMacroNextRelease/.test(read('src/ui/components/macro-next-release.js') + read('src/ui/pages/market.js')) && /crossroads\?\.nextEvent/.test(read('src/ui/components/macro-board.js')));
 check('P1425 the legacy yield-curve renderer stays retired with its canvas', !/function renderYieldCurve/.test(macroTech) && !/id="yieldCurveChart"/.test(html));
 check('news and screener use 12-row progressive reveal instead of unbounded first paint', /_aioNewsVisibleLimit\s*\|\|\s*12/.test(data) && /const visibleLimit = \{ value: 12 \}/.test(read('src/ui/pages/screener.js')) /* v58.20: the screener's reveal limit lives in screener.js; the unread classic _scrVisibleLimit is gone */ && /id="news-load-more-wrap"/.test(html) && /id="scr-load-more-wrap"/.test(html));
 // P770: native news.js owns the briefing list height/reveal; the uncalled legacy adapters were retired.
@@ -794,15 +789,10 @@ const krMoreProbe = await (async () => {
   return first === '테마 더 보기' && added.textContent === '핵심 테마만 보기' && cls.has('aio-theme-progressive') && cls.has('is-expanded');
 })();
 check('v58.99 the 한국 테마 more toggle is added once under the cards and flips between 더 보기 and 핵심만', krMoreProbe);
-const tickerOvProbe = await (async () => {
-  const { renderTickerOverview } = await import('../src/ui/components/ticker-overview.js');
-  const nodes = { 'ticker-ov-provenance': {}, 'ticker-ov-factor-rows': {}, 'ticker-ov-factor-radar': { dataset: {}, parentElement: { style: {} } } };
-  const root = { _liveData: { NVDA: { price: 100 } }, _aioGetCanonicalScreenerRows: () => [{ sym: 'NVDA', factorScores: { momentum: 71, trend: 64 } }] };
-  renderTickerOverview('nvda', { root, documentRef: { getElementById: (id) => nodes[id] || null } });
-  const rows = nodes['ticker-ov-factor-rows'].innerHTML || '';
-  return nodes['ticker-ov-provenance'].textContent === '시세: 실시간 관측, 수익률·팩터: 확정 종가 기준' && rows.includes('<span class="ov-lbl">모멘텀</span><span class="ov-val">71</span>') && nodes['ticker-ov-factor-radar'].parentElement.style.display === 'none';
-})();
-check('v59.01 the 종목 factor fold reads the live quote and canonical screener row and hides the radar without Chart.js', tickerOvProbe);
+// v59.51 (content audit): the 종목 요약 팩터 fold (#ticker-ov-*, v59.01 ticker-overview.js) was retired with its bridge and
+// its showTicker / aio:liveQuotes repaints; pin that none comes back.
+check('v59.51 (content audit): the 종목 factor fold (ticker-overview.js, _aioRenderTickerOverview) is retired',
+  !exists('src/ui/components/ticker-overview.js') && ![read('src/app/legacy-screen-bridges.js'), bootstrap, read('js/aio-core.js'), ui].some((source) => /_aioRenderTickerOverview\s*(?:=|\()|import[^;\n]*ticker-overview\.js/.test(source)));
 const exposureProbe = await (async () => {
   const { renderPortfolioExposure } = await import('../src/ui/components/portfolio-exposure.js');
   const el = { insertAdjacentHTML: (_, html) => { el.note = html; } };
@@ -843,7 +833,8 @@ const watchlistProbe = await (async () => {
 })();
 check('v59.06 the 포트폴리오 watchlist fills its select once, tones quote and signal cells by class, quotes unknown symbols and clears the inputs only while they still show the request', watchlistProbe);
 check('P1753 briefing news wall is capped and the retired legacy cap/toggle adapters stay gone', /#briefing-live-news-list\s*\{\s*max-height:820px/.test(html) && !/_aioCapBriefingNews|_aioToggleBriefingNews/.test(core));
-check('portfolio summary exposes total P&L, cash, and exposure rule as three columns', /id="pf-hero-stats"/.test(html) && /id="pf-cash-hero"/.test(html) && /id="pf-exposure-rule"/.test(html) && /#pf-hero-stats\s*\{\s*grid-template-columns:repeat\(3/.test(html));
+// v59.51 (content audit): the exposure-rule column left the portfolio hero (보유 점검 owns concentration); the stats are 총 손익 and 현금.
+check('v59.51 (content audit) portfolio summary exposes total P&L and cash, and the exposure-rule column is gone', /id="pf-hero-stats"/.test(html) && /id="pf-total-pnl"/.test(html) && /id="pf-cash-hero"/.test(html) && !/id="pf-exposure-rule"/.test(html));
 check('fundamental route entry remains a free bounded SEC surface without automatic ticker/API work',
   /var\s+_initFundamentalPage\s*=\s*function\(\)[\s\S]{0,500}user-triggered/.test(core)
     && !/aioDefaultCompany/.test(core)
@@ -901,8 +892,12 @@ const screenerAt = html.indexOf('id="page-screener"');
 // v58.56 (re-audit #5): 오늘의 한 문장 (#home-operator-note) follows the page head (#home-date-label) and leads the hero.
 // v59.44 (owner 2026-10-30, "직관적인 내용을 먼저 보고 싶어할 것"): the order reverses — the index strip, the labelled
 // live numbers and the daily loop (밤사이 핵심, 주요 발표 요약, 일정) open the page; the text verdict and close changes follow.
-const homeOrder = ['home-date-label', 'home-index-strip', 'home-quote-basis', 'home-kpi-strip', 'home-cross-assets', 'home-daily-loop', 'home-schedule', 'home-my-names', 'home-operator-note', 'home-score-hero', 'home-daily-changes'].map((id) => html.indexOf(`id="${id}"`));
-check('v59.44 home opens with quotes and the daily loop (schedule before 내 종목), then the close verdict and close changes, in static order with no runtime reorder (P1322/P1494)', homeOrder.every((at, i) => at > 0 && (i === 0 || at > homeOrder[i - 1])) && html.indexOf('id="home-market-summary-banner"') < 0 &&!/crossAssets\.insertAdjacentElement\('afterend', anchorH\)/.test(core) && /hero\.dataset\.state = regime\.available/.test(read('src/ui/components/market-regime.js')));
+// v59.51 (content audit): the verdict hero leads again under the date line, then the index strip, the cross-asset row, the AI
+// supply chain, the participation pair, the daily loop with 내 종목, and the next-screen links. 시세 기준 line, KPI strip, 일정 and
+// 지난 마감 이후 변화 left 오늘 (each repeated 시장 상태 or 브리핑).
+const homeOrder = ['home-date-label', 'home-score-hero', 'home-index-strip', 'home-cross-assets', 'home-ai-chain', 'home-participation', 'home-daily-loop', 'home-my-names', 'home-next'].map((id) => html.indexOf(`id="${id}"`));
+const homeRetired = ['home-quote-basis', 'home-kpi-strip', 'home-schedule', 'home-daily-changes'].every((id) => html.indexOf(`id="${id}"`) < 0);
+check('v59.51 (content audit) home static order: date, verdict hero, index strip, cross assets, AI chain, participation, daily loop, 내 종목, next links; retired quote-basis/KPI/schedule/close-change ids absent; no runtime reorder (P1322/P1494)', homeOrder.every((at, i) => at > 0 && (i === 0 || at > homeOrder[i - 1])) && homeRetired && html.indexOf('id="home-market-summary-banner"') < 0 &&!/crossAssets\.insertAdjacentElement\('afterend', anchorH\)/.test(core) && /hero\.dataset\.state = regime\.available/.test(read('src/ui/components/market-regime.js')));
 // v57.77: the screener reads, then filters, then shows the table; the ranking validation lives once inside the
 // 과거 검증 tab, and the weight-profile and data-status folds sit below the tab panels.
 const screenerOrder = ['screener-read', 'screener-workbench', 'scr-tab-ranking', 'screener-results-table', 'scr-tab-backtest', 'screener-validation', 'scr-tab-evidence', 'scr-weight-profiles', 'scr-data-status', 'screener-next'].map((id) => html.indexOf(`id="${id}"`));
@@ -910,7 +905,8 @@ check('v57.77 screener static order: read, filter controls, table; one validatio
 check('news progressive reveal belongs to the market-news page rather than screener', newsMoreAt > marketNewsAt && newsMoreAt < screenerAt && /id="live-news-feed"[\s\S]{0,800}id="news-load-more-wrap"/.test(html));
 // v59.12: the 재무 공시 search moved from js/aio-chat.js to src/ui/components/fundamental-search.js.
 const fundSearch = read('src/ui/components/fundamental-search.js');
-check('fundamental search has one bounded total deadline and parallel bounded primary providers', /const deadline = Date\.now\(\) \+ 8000/.test(fundSearch) && /Promise\.all\(\[[\s\S]{0,500}dynamicTickerLookup[\s\S]{0,500}fetchSECFilings[\s\S]{0,500}fetchSECFinancials/.test(fundSearch) && /remaining\(5200\)/.test(fundSearch) && /remaining\(1400\)/.test(fundSearch));
+// v59.51 (content audit): the second search box and its legacy report left; what stays is the selection hand-off.
+check('v59.51 fundamental search is a selection hand-off with no provider calls of its own', !/fetch|dynamicTickerLookup|fetchSEC|Promise\.all/.test(fundSearch) && /aio:entityChanged/.test(fundSearch));
 check('all news acquisition paths converge on one visible summary state updater', /function _aioUpdateNewsSummaryFromItems\(items, meta\)/.test(data) && (data.match(/_aioUpdateNewsSummaryFromItems\(/g) || []).length >= 4 && /kind: 'server-cache'/.test(data) && /kind: 'idb-cache'/.test(data) && /kind: 'direct'/.test(data));
 check('closed AI panel is inert and its trigger owns expanded state and focus return', /id="topbar-ai-btn"[\s\S]{0,300}aria-expanded="false"[\s\S]{0,300}aria-controls="ai-panel"/.test(html) && /id="ai-panel"[\s\S]{0,220}aria-hidden="true" inert/.test(html) && /p\.setAttribute\('inert', ''\)/.test(chat) && /p\.removeAttribute\('inert'\)/.test(chat) && /btn\.focus\(\)/.test(chat));
 check('KR theme cards preserve progressive density after live updates', /stockIdx < 5/.test(krData) && /kr-theme-card-more/.test(html + krData) && /catalyst\.length > 260/.test(krData) && /catFullEl\.textContent = catalyst/.test(krData) && /closest\('\.kr-ticker-pill, details, summary, \[data-stop\]'\)/.test(krData));
@@ -968,11 +964,13 @@ check('EF-03/P713: US FOMC calendar entry has valid ISO lastRelease < nextReleas
 })());
 // v57.76: the folded GMO table is retired; the EF-17 futures answer ("오늘 미장 분위기" outside regular hours) is the
 // home KPI strip, which leads with the S&P 500 and Nasdaq-100 futures.
+// v59.51 (content audit): the KPI strip left; the futures chips moved into the cross-asset row (syncHomeQuoteRow shows them
+// only with a live quote on an open CME week).
 {
-  const kpiAt = html.indexOf('id="home-kpi-strip"');
-  const kpiEnd = html.indexOf('id="home-cross-assets"', kpiAt);
-  const kpi = kpiAt >= 0 && kpiEnd > kpiAt ? html.slice(kpiAt, kpiEnd) : '';
-  check('EF-17 v57.76: the home KPI strip carries the ES=F/NQ=F futures and the GMO table is gone', kpi.indexOf('data-live-price="ES=F"') >= 0 && kpi.indexOf('data-live-price="NQ=F"') >= 0 && html.indexOf('id="gmo-tbody"') < 0 && ui.indexOf('const GMO_MARKETS') < 0 && ui.indexOf('function renderGmoTable') < 0);
+  const crossAt = html.indexOf('id="home-cross-assets"');
+  const crossEnd = html.indexOf('id="home-ai-chain"', crossAt);
+  const cross = crossAt >= 0 && crossEnd > crossAt ? html.slice(crossAt, crossEnd) : '';
+  check('EF-17 v59.51 (content audit): the home cross-asset row carries the ES=F/NQ=F futures chips and the GMO table is gone', ['ES=F', 'NQ=F'].every((sym) => cross.indexOf(`data-futures="${sym}"`) >= 0 && cross.indexOf(`data-live-price="${sym}"`) >= 0) && /getElementById\?\.\('home-cross-assets'\)/.test(read('src/ui/components/home-kpi-trend.js')) && html.indexOf('id="gmo-tbody"') < 0 && ui.indexOf('const GMO_MARKETS') < 0 && ui.indexOf('function renderGmoTable') < 0);
 }
 check('headless tests cover Batch 4 efficacy fixes (EF-03/17/18)', /_testV5243Batch4Efficacy/.test(tests) && /T884/.test(tests) && /T885/.test(tests) && /T886/.test(tests));
 
@@ -1060,7 +1058,7 @@ check('WO-4: zeroCanvases detection actually queries and filters real <canvas> e
 check('WO-4: a small-text policy is adopted and enforced (8px-and-below fails the gate; 9px stays observation-only pending a dedicated remediation pass, per the static scan showing ~34 pre-existing 9px instances vs ~0-1 at 7-8px)', /tinyTextCriticalCount/.test(viewportScript) && /html text at\/below 8px/.test(viewportScript));
 check('WO-4 (v59.42): the sinkless price-position diagram whose label baselines F-01 spaced is deleted', !/function _pricePosition\(/.test(ui));
 check('H2-02: FULL_INIT route matrix has route-specific settle predicates, semantic theme-detail proof, and unhandled rejection capture', /async function settleRoute/.test(viewportScript) && /routeSemanticReady/.test(viewportScript) && /__AIO_UNHANDLED_REJECTIONS__/.test(viewportScript) && /unhandledRejectionCount/.test(viewportScript));
-check('H2-03 (v59.42): the price-position diagram is deleted and the browser suite pins that only the factor radar remains', !/function _pricePosition\(/.test(ui) && /T921 v59\.42 the diagram engine keeps only the factor radar/.test(tests));
+check('H2-03 (v59.42): the price-position diagram is deleted; v59.51 (content audit): the whole _aioDiagram engine is retired and the browser suite pins its absence', !/function _pricePosition\(/.test(ui) && !/window\._aioDiagram\s*=/.test(ui) && /T921 v59\.51 \(content audit\) the legacy SVG diagram engine \(_aioDiagram\) is retired/.test(tests));
 
 // v52.5x (P669/WO-8): documentation currency check — CODE-MAP.md's file-size table/target_version
 // drifting silently against actual code was exactly the kind of "operational fact vs. doc drift"
@@ -1331,7 +1329,7 @@ check('P1315 KR theme detail reads the optional KR_THEME_INSIGHTS global behind 
 check('P1315 KR index cards carry no hardcoded direction class/colour; direction follows the live previous-close delta', !/kr-idx-card (?:up|down)"/.test(html) && !/id="kr-(?:kospi|kosdaq|krw)-price" style="color:var\(--(?:green|red)\)"/.test(html) && /_krIdxCard\.classList\.toggle\('up', atomicDelta > 0\)/.test(data));
 check('P1315 a11y direction classes carry colour, not only a glyph (v58.80: direction tokens, up red / down blue)', /\.a11y-up \{ color: var\(--dir-up\); \}/.test(html) && /\.a11y-dn \{ color: var\(--dir-down\); \}/.test(html));
 check('P1315 signal weight legend uses the canonical 심리 component (F&G + put/call), not 모멘텀/추세추종', !/모멘텀\(F&G·추세추종\)/.test(html + ui) && !/심리\(공포·탐욕·풋콜\) 25%/.test(html)); // P1392: the weighted legend left with the score
-check('P1315 Ctrl+K targets real page search inputs (the .search-bar selector never existed)', !/querySelector\('\.search-bar input'\)/.test(ui) && /#scr-text-search, #fund-search-input, #ticker-direct-search, #guide-search-input/.test(ui) && !/<span class="kbd-desc">한국장<\/span>/.test(html));
+check('P1315 Ctrl+K targets real page search inputs (the .search-bar selector never existed)', !/querySelector\('\.search-bar input'\)/.test(ui) && /#scr-text-search, #ticker-direct-search, #guide-search-input/.test(ui) /* v59.51 (content audit): #fund-search-input retired */ && !/<span class="kbd-desc">한국장<\/span>/.test(html));
 check('P1315 KOSPI sell tax states securities-transaction tax plus rural special tax; Piotroski is dated 2000 with 8-9/0-2 original bins', /농어촌특별세 0\.15%가 더해져 합계 0\.20%/.test(glossary) && /Piotroski\(2000\)/.test(glossary) && !/Piotroski\(1998\)/.test(glossary) && /8~9점을 강한 그룹/.test(glossary));
 check('QA-GLOSSARY-SWEEP/P1261 unattributed aphorism and sourced superlative stay unasserted', !/— 아인슈타인\./.test(glossary) && !/역사상 가장 강력한 주가 부양 수단/.test(glossary) && /출처가 확정된 문헌이 없어/.test(glossary));
 check('LIVE3-09: quote producers preserve exchange observation time separately from file freshness', /regularMarketTime/.test(fetchData) && /marketState/.test(fetchData) && /exchangeTimezoneName/.test(fetchData) && /window\._liveData\[q\.symbol\]\.observedAt/.test(data));
@@ -1651,8 +1649,10 @@ check('P1301/R650/QA-DATA-44 macro schedule dates never become lastRelease witho
   try { const re = new Function(`return ${roleRe}`)(); roleGate = ['COO', 'CEO', 'CFO', 'SEC', 'FDA'].every((t) => re.test(t)) && !['NVDA', 'COST', 'CAT'].some((t) => re.test(t)); } catch (_) {}
   check('P1592/F26 officer titles and agency acronyms are not news tickers unless written as $TICKER/(TICKER), in local and cached paths',
     roleGate && /_TICKER_WORD_OVERLAP\.has\(ticker\) \|\| _TICKER_ROLE_ACRONYM\.test\(ticker\)/.test(data) && /_TICKER_ROLE_ACRONYM\.test\(bare\)/.test(data));
-  check('P1592/F16 the legacy cost-basis donut and sector mix yield to the native valued renderer',
-    /c\.dataset\.aioPortfolioChartRenderer === 'native'/.test(pagesSource) && !/closest\('#page-portfolio\[data-aio-portfolio-chart-renderer/.test(pagesSource)
+  // v59.51 (content audit): the position donut and sector card left 포트폴리오 (the holdings table's 주식 중 비중 and 보유 점검
+  // carry the mix), so the native renderer no longer marks a canvas; pin that the legacy donut has no canvas to draw on.
+  check('P1592/F16 v59.51 (content audit) the legacy cost-basis donut has no canvas left and the legacy sector mix stays retired',
+    !/id="pf-position-donut"/.test(html) && !/closest\('#page-portfolio\[data-aio-portfolio-chart-renderer/.test(pagesSource)
       // v58.80 first-users F19: the legacy sector bubble is retired outright; the native portfolio sector card owns the mix.
       && !/_buildSectors/.test(ui) && !/: \(entry\.cost \|\| 0\)/.test(ui));
   check('P1592/F31 the skip link focuses the main region without writing a route hash',

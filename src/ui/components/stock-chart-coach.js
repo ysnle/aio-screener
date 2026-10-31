@@ -8,6 +8,7 @@ import { buildEarningsSchedule } from '../../domain/fundamental/analysis-read.js
 import { EARNINGS_CALENDAR } from './fiscal-read.js';
 import { refreshSharedArtifact, sharedArtifactState } from '../../data/shared-artifacts.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
+import { scenarioLead } from '../../domain/market/scenario-lead.js';
 import { formatScreenerPrice } from '../../domain/screener/market-scope.js';
 import { el } from './dom.js';
 import { myLineFacts } from './stock-chart-drawings.js';
@@ -38,16 +39,12 @@ function lifecycleBand(doc, life) {
 const SETUP_STAGE_LABELS = Object.freeze([['base', '베이스'], ['approach', '피벗 접근'], ['breakout', '돌파'], ['follow', '후속 확인'], ['extended', '확장']]);
 
 function marketContextLine(root, regime) {
+  // MERGED #2 (run-6): one reading of the leading scenario for every screen (scenario-lead.js scenarioLead over the
+  // page's one interpretation); a tie reads as a tie, never as one lead.
   let lead = null;
-  try {
-    // The live interpretation's crossroads (the 거시 screen's own model); the per-refresh scenario state when it is absent.
-    const live = marketInterpretation(root)?.crossroads;
-    const crossroads = live?.leadId ? live : root?._aioScenarioState?.crossroads;
-    const item = crossroads?.items?.find((row) => row.id === crossroads.leadId);
-    if (item) lead = `${String(item.title || '').split(' — ')[0]}(${item.fit || `조건 충족 ${item.met}/${item.total}`})`;
-  } catch (_) {}
-  const state = regime?.available ? `지금 시장 상태 '${regime.overall}'` : '시장 상태 판정 대기';
-  return `${state}${lead ? `, 조건이 가장 많이 맞는 시나리오 '${lead}'` : ''}.`;
+  try { lead = scenarioLead(marketInterpretation(root)?.crossroads); } catch (_) { lead = null; }
+  const state = regime?.available ? `지금 시장 상태는 '${regime.overall}'입니다.` : '시장 상태는 판정 대기입니다.';
+  return `${state}${lead?.face ? ` ${lead.face}` : ''}`;
 }
 
 function checklistBlock(doc, root, sym, analysis, regime, tools) {
@@ -88,6 +85,10 @@ export function setupCoachSection(doc, root, sym, analysis, regime, tools, hasLe
   section.id = 'chart-setup-coach';
   section.append(el(doc, 'h3', '셋업 읽기', 'briefing-h2'));
   section.append(el(doc, 'p', `${analysis.asOf} 완료 일봉 기준. ${marketContextLine(root, regime)}`, 'theme-strength-basis'));
+  // This section sits in the chart's expert fold: each leading (or tied) branch with the conditions it met and missed.
+  let leadDetail = [];
+  try { leadDetail = scenarioLead(marketInterpretation(root)?.crossroads).detail || []; } catch (_) { leadDetail = []; }
+  if (leadDetail.length) { const list = el(doc, 'ul', null, 'chart-lead-detail theme-strength-basis'); leadDetail.forEach((line) => list.append(el(doc, 'li', line))); section.append(list); }
   const life = tools.setupLifecycle(analysis);
   // The AI panel reads the same life-cycle stage, checklist and timeframe reading the screen shows (null for another symbol).
   root.__aioSetupCoach = { symbol: sym, asOf: analysis.asOf, lifecycle: life, checklist: null, alignment: tools.timeframeAlignment(analysis), pastBreakouts: tools.pastBreakoutsText(tools.pastBreakouts(analysis)), market: marketContextLine(root, regime) };

@@ -7,11 +7,11 @@ import { renderNextSteps } from './page-flow.js';
 import { currentRotationItems } from '../../domain/themes/produced-rotation.js';
 import { el } from './dom.js';
 
-function mixVisual(doc, read) {
+function mixVisual(doc, read, limit = 6) {
   const box = el(doc, 'div', null, 'screener-mix');
   box.append(el(doc, 'span', `${read.topName || '상위 20%'}와 전체의 업종 비중`, 'stock-read-vis-title'));
-  const max = Math.max(...read.mix.slice(0, 6).map((row) => Math.max(row.top, row.all)), 1);
-  for (const row of read.mix.slice(0, 6)) {
+  const max = Math.max(...read.mix.slice(0, limit).map((row) => Math.max(row.top, row.all)), 1);
+  for (const row of read.mix.slice(0, limit)) {
     const line = el(doc, 'div', null, 'stock-read-bars');
     line.append(el(doc, 'span', row.label, 'stock-read-bar-label'));
     const pair = el(doc, 'div', null, 'stock-read-bar-pair');
@@ -71,12 +71,12 @@ export function renderScreenerRead({ documentRef: doc, root, rows = [] }) {
   host.replaceChildren(el(doc, 'h2', '지금 순위가 말하는 것', 'briefing-h2'));
   if (!read.available) { const rankRead = doc.getElementById('screener-rank-read'); if (rankRead) rankRead.hidden = true; host.append(el(doc, 'p', read.reason, 'daily-empty')); renderNextSteps(doc, doc.getElementById('screener-next'), []); return read; }
   host.append(el(doc, 'p', read.headline, 'briefing-read-headline'));
-  // v58.74 (text audit 스크리너 C5): the 순위 view opened straight on the table; it now carries the reading's headline, the
-  // sector-rotation point and the theme stage of the top names, with the full reasoning one click away in 사후 검증.
+  // v59.51 (content audit): the 순위 view's head is one line — where the top fifth leans — over the three largest sector
+  // bars. The validation verdict is the banner chip below; rotation, theme stage and the reasoning live in 사후 검증.
   const rankRead = doc.getElementById('screener-rank-read');
   if (rankRead) {
-    const extra = ['rotation', 'theme-stage'].map((id) => read.points.find((point) => point.id === id)?.text).filter(Boolean);
-    rankRead.textContent = [read.headline, ...extra].join(' ');
+    const mixLine = String(read.points.find((point) => point.id === 'mix')?.text || read.headline).split(' — ')[0];
+    rankRead.replaceChildren(el(doc, 'p', mixLine, 'scr-rank-read-line'), mixVisual(doc, read, 3));
     rankRead.hidden = false;
   }
   // P1599 (F106/C01): the reasoning comes first, but the table is one click away instead of two screens down.

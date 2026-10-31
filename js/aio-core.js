@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v59.49';
+const APP_VERSION = 'v59.51';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -1542,9 +1542,7 @@ window._aioTimerRegistry = window._aioTimerRegistry || {};
       'fred-cpi-chart': { type:'message', label:'FRED CPI 시계열 미수신', status:'fred-chart-status' },
       'fred-fedfunds-chart': { type:'message', label:'FRED 기준금리 시계열 미수신', status:'fred-chart-status' },
       'rrg-canvas': { type:'message', label:'RRG 시계열 미수신', status:'rrg-chart-status' },
-      'fund-var-chart': { type:'message', label:'티커 선택 후 표시' },
       'pf-benchmark-chart': { type:'message', label:'포트폴리오 구성 후 표시' },
-      'pf-position-donut': { type:'message', label:'포트폴리오 구성 후 표시' },
       'ticker-price-chart': { type:'message', label:'티커 가격 시계열 미수신' }
     };
     function isBlank(canvas) {
@@ -1758,6 +1756,9 @@ window._aioLRU = function(name, cap) {
     if (!action) return;
     var fn = window[action];
     if (typeof fn !== 'function') {
+      // run-6 #0: a handler the module graph installs is not there before DOMContentLoaded; the static shell
+      // (index.html boot script) holds the tap, says so, and replays it once the modules have run.
+      if (typeof window._aioHoldTap === 'function' && window._aioHoldTap(el)) { e.preventDefault(); return; }
       if (window._aioLog) window._aioLog('warn', 'delegate', 'missing: ' + action);
       return;
     }
@@ -1782,7 +1783,7 @@ window._aioLRU = function(name, cap) {
       }
     }
   }
-  document.addEventListener('click', dispatch); window._aioCoreDispatch = true; // run-5 F01: the static shell stops holding taps
+  document.addEventListener('click', dispatch); window._aioCoreDispatch = true; // run-5 F01: the static shell stops holding data-action taps (missing handlers: _aioHoldTap above)
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() { normalizeDataActionA11y(document); }, { once: true });
   } else {
@@ -2015,11 +2016,6 @@ function _aioOpenTechnicalAnalysis(ticker) {
 window._aioChartAnalyze = function(ticker) {
   _aioOpenTechnicalAnalysis(ticker);
 };
-window._aioFundSearchFill = function(preset) {
-  var inp = document.getElementById('fund-search-input');
-  if (inp) inp.value = preset;
-  if (typeof window.fundamentalSearch === 'function') window.fundamentalSearch();
-};
 // v49.79 P426/R163: 멀티탭 localStorage storage 이벤트 리스너 — 다른 탭 변경 자동 감지
 // 사용자 정직 요구 — 멀티탭 race condition 시정 (API 키 / 프로필 / 알람 / 채팅 기록)
 (function() {
@@ -2076,32 +2072,13 @@ window._aioTrackApiUsage = function(opts) {
 
 // v58.19: _aioRefreshAllData(v49.77)는 v57.62 채팅 액션 버튼 퇴역 뒤 호출자가 0건이라 제거했다 — AIO.forceRefreshAllData가 정본.
 
-// v49.72 R139: 채팅 답변에 표시되는 "[종목] 재무 차트 보기" 버튼 핸들러
-// — fundamental 페이지로 이동 + 자동 검색 + 7 차트 자동 렌더 (P386 inline chart 대체)
-window._aioShowFundamentalChart = function(ticker) {
-  if (!ticker) return;
-  if (typeof window.showPage === 'function') window.showPage('fundamental');
-  setTimeout(function() {
-    var inp = document.getElementById('fund-search-input');
-    if (inp) inp.value = String(ticker).toUpperCase();
-    if (typeof window.fundamentalSearch === 'function') {
-      try { window.fundamentalSearch(); } catch(_) {}
-    }
-    // 7 차트 카드로 부드러운 스크롤
-    setTimeout(function() {
-      var card = document.getElementById('fund-rpt-fincharts');
-      if (card) try { card.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch(_){}
-    }, 800);
-  }, 80);
-};
+// v59.51 (content audit): _aioFundSearchFill and the chat 재무 차트 handler (_aioShowFundamentalChart) left with the
+// 재무 공시 search box and the 7-chart card; the 종목 search and entity.js own the selection.
 // v58.20: the chat "차트 자세히 보기" card handler (_aioShowTechnicalChart, P1669) is gone — the card itself was retired in
 // v57.62 (T812) and nothing called the handler. Chart navigation goes through _aioOpenTechnicalAnalysis.
 // v59.42: window._aioFetchLiveQuotes (a button handler whose button no markup has) is deleted.
-// v49.40 P294 — home Action Item ↻ 갱신 버튼 핸들러 신설 (R96 위반 시정)
-// v49.39까지 index.html L4063 data-action="_aioRefreshActionPlan" 버튼은 핸들러 미정의 → click 무동작.
-// v49.39 R96 audit이 knownAliases로 false-positive 통과시켰으나 실제로는 silent no-op.
-// 해결: ACTION_RULES 재계산 + home Action Item 3개 sink (home-action-position/sentiment/breadth) 동기 갱신.
-// v58.94: window._aioRefreshActionPlan (home 행동 계획 lines) moved to src/ui/components/home-action-plan.js.
+// v59.51 (content audit): the home 행동 계획 lines (#home-action-*) are gone; _aioRefreshActionPlan and
+// src/ui/components/home-action-plan.js were deleted with them.
 window._aioAiFeedback = function(fbId, score, el) {
   if (el) el.style.color = score > 0 ? 'var(--green-11)' : 'var(--orange-11)';
   if (typeof window._aiFeedback === 'function') window._aiFeedback(fbId, score);
@@ -2954,7 +2931,6 @@ if (typeof document !== 'undefined') {
     window.addEventListener('aio:marketStateUpdated', function(){
       try {
         if (window._aioApplyRegimeDriftMarkers) window._aioApplyRegimeDriftMarkers();
-        if (window._aioRefreshActionPlan) window._aioRefreshActionPlan();
         if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); // v50.47 자동 텍스트 합성 전파
       } catch(_){}
     });
@@ -7565,88 +7541,8 @@ window.AIO.fetchPlatformEcosystem = async function(ticker) {
     note: '부문 매출 비중 공개 자료 미수신. 점수나 등급은 만들지 않고, 플랫폼 규모·사용자 수 추정 금지 (R117).' };
 };
 
-// ─────────────────────────────────────────────────────────────────
-// v49.72 신규: fetchFMP5YQuarterly + fetchKRQuarterly — fundamental 페이지 7 차트 데이터 소스
-// US 경로는 v57.76부터 미제공 표시만 반환 (개인 FMP 키 퇴역)
-// KR (.KS/.KQ) ticker는 Naver 분기 재무 fallback
-// R138 신규 (fundamental 종목 검색 시 7 차트 자동 렌더 의무) / P384 (FMP 분기 미구현 갭)
-// ─────────────────────────────────────────────────────────────────
-window._fmpQuarterlyCache = window._fmpQuarterlyCache || {};
-window._fmpQuarterlyCacheStats = window._fmpQuarterlyCacheStats || { hits: 0, misses: 0, evictions: 0 };
-
-window.AIO.fetchFMP5YQuarterly = async function(ticker) {
-  if (!ticker) return null;
-  ticker = ticker.toUpperCase().trim();
-  // v57.76: the personal-key FMP quarterly fetch (income/balance/cash-flow/ratios, period=quarter) was removed with
-  // the retired personal keys. No public artifact carries a US quarterly series, so the card says so plainly.
-  return { ticker: ticker, available: false, dataSource: '공개 데이터', reason: '미국 종목 분기 재무 시계열은 아직 제공하지 않습니다', asOf: new Date().toISOString() };
-};
-
-// KR 종목 분기 재무 fallback — Naver 스크래핑 (.KS/.KQ)
-window.AIO.fetchKRQuarterly = async function(ticker) {
-  if (!ticker) return null;
-  ticker = ticker.toUpperCase().trim();
-  if (!/\.(KS|KQ)$/.test(ticker)) return { ticker: ticker, available: false, dataSource: 'KR-only', reason: '.KS/.KQ 종목만 지원' };
-  // 캐시 5분 TTL (FMP과 동일 스토어 공유)
-  var _TTL = 5 * 60 * 1000;
-  var cached = window._fmpQuarterlyCache[ticker];
-  if (cached && (Date.now() - cached._ts < _TTL)) {
-    window._fmpQuarterlyCacheStats.hits++;
-    return cached.data;
-  }
-  window._fmpQuarterlyCacheStats.misses++;
-  if (typeof window.fetchNaverUSData !== 'function') {
-    return { ticker: ticker, available: false, dataSource: 'naver-missing', reason: 'fetchNaverUSData 함수 부재', asOf: new Date().toISOString() };
-  }
-  try {
-    var nv = await window.fetchNaverUSData(ticker, true);
-    var fin = nv && nv.financials;
-    if (!fin) return { ticker: ticker, available: false, dataSource: 'naver-no-financials', reason: 'Naver financials 미수신 (KR 재무 DART 직접 확인 권장)', asOf: new Date().toISOString() };
-    // Naver financials 표준화 — 분기 배열로 변환 (현재 분기 1개만 가용 시에도 차트 placeholder 가능)
-    var quarters = [];
-    if (Array.isArray(fin.quarterlyHistory) && fin.quarterlyHistory.length > 0) {
-      // {date, revenue, opIncome, netIncome, eps} 형태 가정
-      quarters = fin.quarterlyHistory.slice(0, 20);
-    } else {
-      // single snapshot — 최소 1분기 placeholder
-      quarters = [{
-        date: (fin.reportDate || new Date().toISOString().slice(0,10)),
-        revenue: fin.revenue || null,
-        opIncome: fin.opIncome || null,
-        netIncome: fin.netIncome || null,
-        eps: fin.eps || null
-      }];
-    }
-    var data = {
-      ticker: ticker,
-      available: quarters.length > 0,
-      dataSource: 'Naver',
-      period: 'quarter',
-      latestQuarter: quarters[0] && quarters[0].date,
-      asOf: new Date().toISOString(),
-      income: quarters,  // 표준화: income 배열에 분기 시리즈 채워 fundamental render 호환
-      balance: [],
-      cashflow: [],
-      ratios: [],
-      naverRaw: fin,
-      note: 'Naver 분기 재무 (KR 폴백). 정밀 데이터는 DART 직접 확인 권장.'
-    };
-    window._fmpQuarterlyCache[ticker] = { data: data, _ts: Date.now() };
-    return data;
-  } catch(e) {
-    return { ticker: ticker, available: false, dataSource: 'naver-error', reason: 'Naver KR 분기 fetch 오류: ' + (e && e.message || e), asOf: new Date().toISOString() };
-  }
-};
-
-// 통합 진입점 — US/KR 자동 분기
-window.AIO.fetchQuarterlyFinancials = async function(ticker) {
-  if (!ticker) return null;
-  ticker = ticker.toUpperCase().trim();
-  if (/\.(KS|KQ)$/.test(ticker)) {
-    return await window.AIO.fetchKRQuarterly(ticker);
-  }
-  return await window.AIO.fetchFMP5YQuarterly(ticker);
-};
+// v59.51 (content audit): the quarterly financial fetchers (fetchFMP5YQuarterly / fetchKRQuarterly /
+// fetchQuarterlyFinancials and _fmpQuarterlyCache) fed only the retired 재무 공시 7-chart card and its audit.
 
 // ─────────────────────────────────────────────────────────────────
 // v49.35 핵심: FUNDAMENTAL_PAGE_CRITERIA — fundamental 페이지 L8175~8189 15 기준
@@ -7811,55 +7707,8 @@ window.AIO.getAnalysisFrameworkCoverageAudit = function() {
 };
 
 
-// ─────────────────────────────────────────────────────────────────
-// v49.72 P387 R138~R139: assertFinancialChartsAudit — fundamental 7 차트 + 채팅 버튼 자동 진단
-// 검증: (1) FMP/Naver 분기 fetcher 함수 정의 (2) 7 canvas DOM 존재 (3) render 함수 정의
-//       (4) fundamentalSearch 통합 (5) cache 동작 (v57.62: per-page chatSend 차트 버튼 퇴역)
-// ─────────────────────────────────────────────────────────────────
-window.AIO.assertFinancialChartsAudit = function() {
-  var fnChecks = {
-    fetchFMP5YQuarterly: typeof (window.AIO && window.AIO.fetchFMP5YQuarterly) === 'function',
-    fetchKRQuarterly:    typeof (window.AIO && window.AIO.fetchKRQuarterly) === 'function',
-    fetchQuarterlyEntry: typeof (window.AIO && window.AIO.fetchQuarterlyFinancials) === 'function',
-    renderFunction:      typeof window._renderFundamentalFinancialsCharts === 'function',
-    showHandler:         typeof window._aioShowFundamentalChart === 'function'
-  };
-  var canvasIds = ['fund-growth-chart','fund-profitability-chart','fund-balance-chart','fund-cashflow-chart','fund-liquidity-chart','fund-curratio-donut','fund-workingcap-chart'];
-  var canvasFound = canvasIds.filter(function(id){ return !!document.getElementById(id); });
-  var gridFound = !!document.getElementById('fundamental-financials-grid');
-  var valuationCards = !!document.getElementById('fund-valuation-cards');
-  var fundSrc = (typeof window.fundamentalSearch === 'function') ? window.fundamentalSearch.toString() : '';
-  var integrations = {
-    fundamentalSearchIntegrated: fundSrc.indexOf('fetchQuarterlyFinancials') >= 0 && fundSrc.indexOf('_renderFundamentalFinancialsCharts') >= 0,
-    cacheObject:                 typeof window._fmpQuarterlyCache === 'object' && window._fmpQuarterlyCache !== null,
-    cacheStatsObject:            typeof window._fmpQuarterlyCacheStats === 'object'
-  };
-  var cacheStats = window._fmpQuarterlyCacheStats || { hits: 0, misses: 0, evictions: 0 };
-  var cacheSize = window._fmpQuarterlyCache ? Object.keys(window._fmpQuarterlyCache).length : 0;
-  var fnAllOk = Object.keys(fnChecks).every(function(k){ return fnChecks[k]; });
-  var intAllOk = Object.keys(integrations).every(function(k){ return integrations[k]; });
-  var domAllOk = gridFound && canvasFound.length === 7 && valuationCards;
-  var coveragePct = Math.round(((Object.keys(fnChecks).filter(function(k){return fnChecks[k];}).length / Object.keys(fnChecks).length) * 0.5 + (canvasFound.length / 7) * 0.3 + (Object.keys(integrations).filter(function(k){return integrations[k];}).length / Object.keys(integrations).length) * 0.2) * 100);
-  return {
-    status: fnAllOk && intAllOk && domAllOk ? 'ok' : (coveragePct >= 60 ? 'warn' : 'fail'),
-    coveragePct: coveragePct,
-    fnChecks: fnChecks,
-    fnAllOk: fnAllOk,
-    fnCount: Object.keys(fnChecks).filter(function(k){return fnChecks[k];}).length,
-    fnTotal: Object.keys(fnChecks).length,
-    domCanvasFound: canvasFound.length,
-    domCanvasTotal: 7,
-    domCanvasMissing: canvasIds.filter(function(id){ return !document.getElementById(id); }),
-    gridFound: gridFound,
-    valuationCards: valuationCards,
-    integrations: integrations,
-    intAllOk: intAllOk,
-    cacheSize: cacheSize,
-    cacheStats: cacheStats,
-    note: 'v49.72 R138~R139: fundamental 7 차트 자동 진단. fn ' + Object.keys(fnChecks).filter(function(k){return fnChecks[k];}).length + '/' + Object.keys(fnChecks).length + ', canvas ' + canvasFound.length + '/7, integrations ' + Object.keys(integrations).filter(function(k){return integrations[k];}).length + '/' + Object.keys(integrations).length,
-    generatedAt: new Date().toISOString()
-  };
-};
+// v59.51 (content audit): assertFinancialChartsAudit (the 7-chart card, its canvases and the chat chart button) is
+// retired with the surface it audited.
 
 // ─────────────────────────────────────────────────────────────────
 // v49.73 P392 R140~R142: assertChatAnswerQualityAudit — 답변 품질 3축 자동 진단
@@ -8171,9 +8020,6 @@ window.AIO.assertChatFunctionCoverage = function() {
     'fetchFMPMetrics': true,          // 내부 helper
     'fetchNaverUSData': true,                // 이미 _fetchTickerDataForChat에 직접 호출
     'fetchPolygonOptions': true,             // options 페이지 전용
-    'fetchFMP5YQuarterly': true,             // fundamentals 페이지 장기 재무 차트 전용
-    'fetchKRQuarterly': true,                // KR fundamentals 페이지 전용
-    'fetchQuarterlyFinancials': true,        // fundamentals 페이지 차트 파이프라인 전용
     'computeMarketState': true              // 전역 시장 두뇌: 채팅 시장 헤더가 캐시된 marketState를 소비
   };
   var deadCode = chatRelevantFns.filter(function(fn) {
@@ -9961,13 +9807,6 @@ function _aioPushThemeSymbols(out, theme) {
   Object.keys(theme.weights || {}).forEach(function(sym) { _aioPushSymbol(out, sym); });
 }
 
-function _aioPushInputSymbol(out, id) {
-  try {
-    var el = document.getElementById(id);
-    if (el && el.value) _aioPushSymbol(out, el.value);
-  } catch(_) {}
-}
-
 function _aioCollectDynamicPageSymbols(pageId, scope) {
   var id = String(pageId || '').replace(/^page-/, '') || 'home';
   var out = [];
@@ -9979,9 +9818,6 @@ function _aioCollectDynamicPageSymbols(pageId, scope) {
   if (id === 'technical') {
     // v57.76: the brief/TradingView ticker inputs were deleted; the 차트 tab shows the 종목 subject.
     _aioPushSymbol(out, window._aioLastOpenedSymbol);
-  }
-  if (id === 'fundamental' || id === 'ticker') {
-    ['fund-search-input', 'ticker-analysis-input'].forEach(function(inputId) { _aioPushInputSymbol(out, inputId); });
   }
   if (id === 'themes' || id === 'theme-detail') {
     (window.RRG_SECTORS || []).forEach(function(sec) { _aioPushSymbol(out, sec && sec.sym); });
@@ -10172,7 +10008,7 @@ window.AIO.PAGE_DEEP_AUDIT_SYSTEMS = {
   technical: ['getFullSurfaceAudit', 'getCellLevelDataAudit', 'getThresholdLabelAudit', 'getCriticalKrPageFreshnessAudit'],
   macro: ['getMacroReleaseStaleAudit', 'getSnapshotDateSourceAudit', 'getDataFreshnessAudit', 'getKrMacroReleaseAudit'],
   fxbond: ['getMacroReleaseStaleAudit', 'getSnapshotConsistencyAudit', 'getDataFreshnessAudit'],
-  fundamental: ['getFundamentalPageCriteriaAudit', 'assertFinancialChartsAudit', 'getAnalysisFrameworkCoverageAudit'],
+  fundamental: ['getFundamentalPageCriteriaAudit', 'getAnalysisFrameworkCoverageAudit'],
   themes: ['getThemeTrendDeepAudit', 'getThemeFetchCoverageAudit', 'getLiveSymbolsCoverageAudit', 'getCriticalKrPageFreshnessAudit'],
   'theme-detail': ['getThemeTrendDeepAudit', 'getThemeFetchCoverageAudit', 'getLiveSymbolsCoverageAudit'],
   portfolio: ['getFullSurfaceAudit', 'getCellLevelDataAudit', 'getDataQualityIssueAudit'],
@@ -17200,7 +17036,7 @@ function showTicker(tkr) {
   // P1449 (검토판 9): the three 종목-screen search boxes must move with the selection. A previous
   // typed query ("ZZZZ") that failed to resolve survived the entity switch, so the next visit of
   // the same screen silently reported the old subject. Sync: the selected symbol rules the box.
-  ['#ticker-direct-search', '#fund-search-input'].forEach(function(selector) { // v57.76: the 차트 tab's own ticker form was retired
+  ['#ticker-direct-search'].forEach(function(selector) { // v57.76: the 차트 tab's own ticker form was retired
     try {
       var input = document.querySelector(selector);
       if (input && input.value !== tkr) input.value = tkr;
@@ -17208,8 +17044,7 @@ function showTicker(tkr) {
   });
   // v57.76: the 요약 tab's text-only 최근 3봉 형태 section (symbol label + _aioDetectTickerPattern) was deleted.
   // v59.02: the fenced hero P&L fallback (#ticker-hero-pnl/-value) was deleted; entity.js renders it on every mount.
-  // v53.6: 종목 개요(밸리AI 참조) — TV 대형 차트 + 가격/테마/팩터 좌측 레일 (index.html 정의)
-  try { if (typeof window._aioRenderTickerOverview === 'function') window._aioRenderTickerOverview(tkr); } catch(_ovErr) {}
+  // v59.51 (content audit): the 요약 팩터 fold (#ticker-ov-*, src/ui/components/ticker-overview.js) was retired.
   // P1010: unconnected financial slots retired; native entity navigation opens the shared SEC report.
   // v57.77: the ticker-entry-check observation card writer left with its absent #ticker-entry-check DOM.
   // v59.01: the hidden SR·RSI·3M·MOM metric strip (P1434) and its writer were deleted.

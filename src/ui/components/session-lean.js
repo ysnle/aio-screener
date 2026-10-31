@@ -8,6 +8,7 @@ import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.
 import { MARKET_TEMPERATURE, STRESS_OUTCOMES, refreshSharedArtifact, sharedArtifactIsStale } from '../../data/shared-artifacts.js';
 import { KR_INDEX_WEIGHTS, EVENT_BRIEFS } from '../../data/event-artifacts.js';
 import { selectNewsItems } from '../../state/selectors/news.js';
+import { usWeekendClosed } from '../../domain/market/market-calendar.js';
 
 const VERDICT_WORDS = Object.freeze({ supports: '근거 맞음', partial: '일부 맞음', against: '근거 약함', unknown: '판단 보류' });
 
@@ -56,7 +57,8 @@ export function paintSessionBridge(doc, root, store, anchor, rerender = null) {
   const model = buildSessionBridge({ nowMs: Date.now(), snapshot: snapshotOf(root, store), attribution: attributionOf(root, store) });
   let box = doc.getElementById('home-session-bridge');
   if (!model.available) { if (box) box.hidden = true; return model; }
-  if (!box) { box = el(doc, 'div', null, 'session-bridge'); box.id = 'home-session-bridge'; anchor.insertAdjacentElement('afterend', box); }
+  // v59.51 (two layers): the bridge is the expert layer of the one Korea line — it opens inside that line's fold.
+  if (!box) { box = el(doc, 'div', null, 'session-bridge'); box.id = 'home-session-bridge'; anchor.append(box); }
   const nodes = [el(doc, 'p', model.clockLine, 'session-bridge__clock')];
   // The line above (home-kr-line) is the last completed Korean close; during the session these checks read today's
   // intraday move, so the head names the session it explains (date, 진행 중 with the observation time, or 마감).
@@ -78,7 +80,11 @@ export function paintSessionBridge(doc, root, store, anchor, rerender = null) {
     more.append(el(doc, 'summary', `원인 후보 ${model.links.length}가지 점검`), list);
     nodes.push(more);
   }
-  for (const [text, className] of [[model.usLeaders?.line || null, 'session-bridge__line'], [model.futuresLine ? `미국 선물: ${model.futuresLine}` : null, model.futuresStale ? 'session-bridge__line is-stale' : 'session-bridge__line'], [model.next, 'session-bridge__line'], [model.oil, 'session-bridge__line']]) {
+  // v59.51 (first-users run-6, home audit): one rule for weekend futures — while CME is shut for the weekend
+  // (usWeekendClosed, the rule the quote row uses) there is no futures line; Friday's settle-relative move printed
+  // "-1.81%, 14시간 전" beside a row that said 선물 주말 휴장.
+  const futures = model.futuresLine && !usWeekendClosed() ? `미국 선물: ${model.futuresLine}` : null;
+  for (const [text, className] of [[model.usLeaders?.line || null, 'session-bridge__line'], [futures, model.futuresStale ? 'session-bridge__line is-stale' : 'session-bridge__line'], [model.next, 'session-bridge__line'], [model.oil, 'session-bridge__line']]) {
     if (text) nodes.push(el(doc, 'p', text, className));
   }
   box.replaceChildren(...nodes);
@@ -95,41 +101,41 @@ export function paintMarketLean(doc, root, regime, anchor, rerender = null) {
   const model = leanModel(root, regime);
   let box = doc.getElementById('home-lean');
   if (!model.us.available) { if (box) box.hidden = true; return model; }
-  if (!box) { box = el(doc, 'div', null, 'market-lean'); box.id = 'home-lean'; anchor.insertAdjacentElement('afterend', box); }
-  const head = el(doc, 'div', null, 'market-lean__head');
+  // v59.51 (two layers; owner 2026-10-26 element, renamed): "매수·매도 우위" read as a timing call, so the face is one line —
+  // the month-ahead tilt of the whole US market — and the base rate, the votes, what would change it and the Korea
+  // reference open under it. The "덜 불리한 선택" line is not shown (R724: no choice or timing beside a market call).
+  if (!box) { box = el(doc, 'details', null, 'market-lean'); box.id = 'home-lean'; anchor.insertAdjacentElement('afterend', box); }
+  const head = el(doc, 'summary', null, 'market-lean__head');
   const chip = el(doc, 'span', model.us.label, 'market-lean__state');
   chip.dataset.score = model.us.key;
-  head.append(el(doc, 'span', '매수·매도 우위 (미국 시장 전체, 약 1개월)', 'market-lean__title'), chip);
+  head.append(el(doc, 'span', '앞으로 한 달, 미국 시장 기울기', 'market-lean__title'), chip);
   const items = el(doc, 'ul', null, 'market-lean__items');
   for (const item of model.us.items) {
     const li = el(doc, 'li', item.text, 'market-lean__item');
     li.dataset.vote = String(item.vote);
     items.append(li);
   }
-  const more = el(doc, 'details', null, 'market-lean__more');
-  more.append(el(doc, 'summary', '근거와 바뀌는 조건'), items);
-  if (model.us.flip) more.append(el(doc, 'p', `바뀌는 조건: ${model.us.flip}`, 'market-lean__note'));
-  more.append(el(doc, 'p', `이 기울기에서 일반적으로 덜 불리한 선택: ${model.us.choices.join(', ')}.`, 'market-lean__note'));
-  // The disclaimer sits in the fold and on the chip's hover, not as an open line (v58.79 secondary text budget).
   const disclaimer = '시장 전체의 조건부 설명이며 개별 종목의 매수·매도 지시나 가격 예측이 아닙니다.';
   chip.title = disclaimer;
-  more.append(el(doc, 'p', disclaimer, 'market-lean__note'));
-  const nodes = [head, el(doc, 'p', model.us.read, 'market-lean__read'), more];
+  const nodes = [head, el(doc, 'p', model.us.read, 'market-lean__read'), el(doc, 'h4', '근거', 'market-lean__sub'), items];
+  if (model.us.flip) nodes.push(el(doc, 'p', `바뀌는 조건: ${model.us.flip}`, 'market-lean__note'));
   if (model.kr.available) {
-    const kr = el(doc, 'details', null, 'market-lean__kr');
     const list = el(doc, 'ul', null, 'market-lean__items');
     for (const item of model.kr.items) list.append(el(doc, 'li', item.text, 'market-lean__item'));
-    kr.append(el(doc, 'summary', `한국 참고: ${model.kr.label}`), el(doc, 'p', model.kr.read, 'market-lean__read'), list);
-    nodes.push(kr);
+    nodes.push(el(doc, 'h4', `한국 참고: ${model.kr.label}`, 'market-lean__sub'), el(doc, 'p', model.kr.read, 'market-lean__read'), list);
   }
+  nodes.push(el(doc, 'p', disclaimer, 'market-lean__note'));
+  const open = box.open;
   box.replaceChildren(...nodes);
+  box.open = open;
   box.hidden = false;
   return model;
 }
 
-// The 오늘 hero call (src/ui/components/market-regime.js renderHomeRegime): clock and links under the Korea line, lean under the leaders.
+// The 오늘 hero call (src/ui/components/market-regime.js renderHomeRegime): clock and links inside the Korea line's fold,
+// the month tilt under the leaders.
 export function paintHome(doc, root, store, regime, rerender, currentRegime) {
   exposeContextReaders(root, store, currentRegime);
-  paintSessionBridge(doc, root, store, doc.getElementById('home-kr-line') || doc.getElementById('home-hero-headline'), rerender);
+  paintSessionBridge(doc, root, store, doc.getElementById('home-kr-line'), rerender);
   paintMarketLean(doc, root, regime?.available ? regime : null, doc.getElementById('home-hero-leaders'), rerender);
 }

@@ -24,17 +24,25 @@
 #ai-panel .ai-session-delete:hover, #ai-panel .ai-session-delete[data-confirm="1"] { color: var(--data-red); }
 #ai-panel .ai-session-empty { padding: 18px 10px; font-size: 12px; color: var(--text-muted); }
 #ai-panel .ai-session-foot { border-top: 0.5px solid var(--border-subtle); padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-/* The header holds the title, the two conversation controls and close on one line: the badge repeats the policy line
-   below it, so it gives way; the title shortens before a button wraps. */
-#ai-panel .ai-ph { gap: 6px; }
-#ai-panel .ai-ph-title { min-width: 0; flex: 1 1 auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#ai-panel .ai-ph-ctx { display: block; font-size: 12px; font-weight: 500; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; }
-#ai-panel .ai-ph-badge { display: none; }
+/* First-users run-6: the header was 101 px on a phone (title, screen name and route state on three lines beside the
+   buttons). It is two short rows at every width: 'AI 도우미 + screen' then the route state, with the conversation
+   controls and close beside both; the title shortens before a button wraps. */
+#ai-panel .ai-ph { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; grid-template-areas: "title profile controls close" "route profile controls close"; column-gap: 6px; row-gap: 2px; align-items: center; }
+#ai-panel .ai-ph > .ai-profile-btn { grid-area: profile; }
+#ai-panel .ai-ph-title { grid-area: title; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#ai-panel .ai-ph-ctx { margin-left: 6px; font-size: 12px; font-weight: 500; color: var(--text-secondary); }
 /* First-users run 4: the shared AI route state, shown when the panel opens. */
-#ai-panel .ai-ph-route { margin-left: auto; margin-right: 8px; font-size: 12px; color: var(--text-muted); }
+#ai-panel .ai-ph-route { grid-area: route; min-width: 0; margin: 0; font-size: 12px; line-height: 1.4; color: var(--text-muted); }
+#ai-panel .ai-ph-route:empty { display: none; }
+#ai-panel .ai-ph-close { grid-area: close; }
+@media (max-width: 700px) {
+  /* The close button keeps its own grid column (responsive.css placed it absolutely over a padded header). */
+  body #ai-panel .ai-ph { padding: 8px 8px 8px 12px !important; }
+  body #ai-panel .ai-ph-close { position: static; }
+}
 #ai-panel .ai-ph-route[data-state="ok"] { color: var(--data-green); }
 #ai-panel .ai-ph-route[data-state="down"] { color: var(--data-amber); }
-#ai-panel .ai-session-controls { flex: 0 0 auto; margin-left: 0; }
+#ai-panel .ai-session-controls { grid-area: controls; margin-left: 0; }
 #ai-panel .ai-session-head-btn { white-space: nowrap; }
 /* Owner 2026-10-25: 답변 맞춤 sheet (src/ui/components/ai-profile.js). */
 #ai-panel .ai-profile-btn.is-on { color: var(--text-primary); border-color: var(--text-secondary); }
@@ -65,7 +73,11 @@
   #ai-panel[data-convo="1"][data-chips-open="1"] .ai-chip { white-space: normal; max-width: 100%; }
 }
 @media (pointer: coarse) {
-  #ai-panel:has(#ai-panel-inp:focus) :is(.ai-chips, .ai-chips-toggle) { display: none !important; }
+  /* First-users run-6: the panel focuses the box when it opens, and this rule then hid the example questions before the
+     first question (0 px at 390 px). They hide while typing only once a conversation has started. */
+  #ai-panel[data-convo="1"]:has(#ai-panel-inp:focus) :is(.ai-chips, .ai-chips-toggle) { display: none !important; }
+  /* First-users run-6 (#20): the 답변 범위와 기준 시각 fold measured 51x24 on a phone. */
+  #ai-panel .sh-shell-ai-policy-toggle { min-height: 44px; padding: 0 4px; }
   #ai-panel .ai-profile-text input { font-size: 16px; } /* iOS zooms into a focused input under 16px */
   #ai-panel[data-convo="1"] .ai-chips-toggle:not([hidden]) { min-height: 44px; } /* v58.80 run-5 (phone #13): was 32px on touch */
 }

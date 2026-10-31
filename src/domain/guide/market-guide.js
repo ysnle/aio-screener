@@ -13,6 +13,7 @@
 //   lessons   — the concept layer (lessons.js) entries today's data touches, each linked to the principles library
 import { pastEvidence } from '../scenarios/analogs.js';
 import { CHOICES } from '../market/macro-crossroads.js';
+import { scenarioLead } from '../market/scenario-lead.js';
 import { CHOICE_WORDS } from '../content/choice-words.js';
 import { selectLessons, LESSON_KINDS } from './lessons.js';
 import { hasFinalConsonant, withObjectParticle } from '../content/korean-particle.js';
@@ -133,7 +134,11 @@ export function buildMarketGuide({ regime = null, outlook = null, crossroads = n
   const items = crossroads?.available ? crossroads.items || [] : [];
   const live = items.filter(isLive).sort((a, b) => ratio(b) - ratio(a)).map(pathOf);
   const watch = items.filter(isWatch).sort((a, b) => ratio(b) - ratio(a)).map(pathOf);
-  const leadPath = live.find((path) => path.id === crossroads?.leadId) || live[0] || null;
+  // MERGED #2 (run-6): a tie names every tied branch and gives no single-lead stance or decider (scenarioLead).
+  const reading = scenarioLead(crossroads);
+  const leadPath = reading.state === 'lead' ? live.find((path) => path.id === reading.ids[0]) || null : null;
+  const tiedPaths = reading.state === 'tie' ? live.filter((path) => reading.ids.includes(path.id)) : [];
+  const tiedNames = tiedPaths.map((path) => `'${path.short}'`).join('·');
   const direction = buildDirection(live, watch);
   const flow = outlook?.available ? outlook.items?.find((item) => item.id === outlook.leadId) || null : null;
   const nextEvent = crossroads?.nextEvent || null;
@@ -142,7 +147,8 @@ export function buildMarketGuide({ regime = null, outlook = null, crossroads = n
   const situation = [
     { id: 'health', label: '시장 체력', text: `미국 6개 지표 ${regime.overall} (양호 ${counts.favorable ?? 0}, 중립 ${counts.neutral ?? 0}, 부담 ${counts.burden ?? 0}) — ${OVERALL_MEANING[regime.overall] || ''}`.trim() },
     { id: 'flow', label: '지금 흐름', text: flow ? `'${flow.title}' (${flow.fit}) — ${String(flow.posture || '').split(/(?<=니다\.)\s+/)[0]}` : outlook?.headline || '시장 흐름을 판단할 관측이 부족합니다.' },
-    { id: 'driver', label: '움직이는 힘', text: leadPath ? `'${leadPath.short}' 쪽 조건이 가장 많이 맞습니다(${leadPath.fit})${leadPath.title.includes(' — ') ? ` — ${leadPath.title.split(' — ')[1]}입니다` : ''}.` : crossroads?.headline || '거시 시나리오 판단을 보류합니다.' },
+    { id: 'driver', label: '움직이는 힘', text: leadPath ? `'${leadPath.short}' 쪽 조건이 가장 많이 맞습니다(${leadPath.fit})${leadPath.title.includes(' — ') ? ` — ${leadPath.title.split(' — ')[1]}입니다` : ''}.`
+      : tiedPaths.length ? `${tiedNames} 쪽 조건이 같은 수로 맞아(${tiedPaths[0].fit}) 어느 한쪽으로 정하지 않습니다.` : crossroads?.headline || '거시 시나리오 판단을 보류합니다.' },
     { id: 'next', label: '다음 갈림길', text: nextEvent ? `${nextEvent.when || md(nextEvent.date)} ${nextEvent.name}${decides.length ? ` — '${decides.slice(0, 3).join("', '")}' 쪽을 가릅니다` : ''}.` : crossroads?.available && Array.isArray(crossroads.events) ? '45일 안에 예정된 주요 발표가 없습니다.' : '발표 일정을 확인하지 못했습니다.' }
   ];
   // v58.63 (architecture audit I01): a live scenario whose past sample ran against its own conclusion (pastConflict) lost
@@ -159,10 +165,13 @@ export function buildMarketGuide({ regime = null, outlook = null, crossroads = n
   // 꺾임' turns on the jobs report, not the FOMC); when they differ, the central scenario's own decider is named.
   const leadTrigger = leadPath?.triggers?.[0] || null;
   const leadDecider = leadTrigger && leadTrigger.id !== nextEvent?.id ? ` 중심 시나리오 ${withObjectParticle(`'${leadPath.short}'`)} 가를 확인은 ${leadTrigger.when} — ${leadTrigger.text}입니다.` : '';
+  const tally = direction.robust ? `핵심 조건을 갖춘 시나리오들에 유리하다고 가장 많이 적힌 선택은 '${choiceName(direction.robust)}'입니다` : '시나리오마다 유리한 선택지가 갈립니다';
+  const nextText = nextEvent ? ` — 다음 갈림길 ${nextEvent.when || md(nextEvent.date)} ${nextEvent.name}` : '';
   const headline = leadPath
-    ? `${regime.overall} 환경에서 '${leadPath.short}' 쪽 조건이 가장 많이 맞고, ${direction.robust ? `핵심 조건을 갖춘 시나리오들에 유리하다고 가장 많이 적힌 선택은 '${choiceName(direction.robust)}'입니다` : '시나리오마다 유리한 선택지가 갈립니다'}${nextEvent ? ` — 다음 갈림길 ${nextEvent.when || md(nextEvent.date)} ${nextEvent.name}` : ''}.${leadDecider}`
+    ? `${regime.overall} 환경에서 '${leadPath.short}' 쪽 조건이 가장 많이 맞고, ${tally}${nextText}.${leadDecider}`
+    : tiedPaths.length ? `${regime.overall} 환경에서 ${tiedNames} 쪽 조건이 같은 수로 맞고, ${tally}${nextText}.`
     : `${regime.overall} 환경이지만 핵심 조건을 갖춘 거시 시나리오가 없어, 한 방향에 걸지 않고 다음 확인 신호를 기다리는 쪽을 기본으로 둡니다${nextEvent ? ` — 다음 갈림길 ${nextEvent.when || md(nextEvent.date)} ${nextEvent.name}` : ''}.`;
-  return { available: true, version: MARKET_GUIDE_VERSION, asOf: regime.asOf, macroAsOf: crossroads?.asOf || null, headline, situation, leadId: leadPath?.id || null, direction, stance, lessons, nextEvent, pastConflicts,
+  return { available: true, version: MARKET_GUIDE_VERSION, asOf: regime.asOf, macroAsOf: crossroads?.asOf || null, headline, situation, leadId: leadPath?.id || null, tiedIds: tiedPaths.map((path) => path.id), direction, stance, lessons, nextEvent, pastConflicts,
     note: `'${CHOICE_WORDS.favored}'은 각 시나리오에 적힌 비용 비교를 센 것이며, 확률이나 따라 하라는 지시가 아닙니다.` };
 }
 

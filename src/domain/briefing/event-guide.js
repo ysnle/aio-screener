@@ -6,6 +6,7 @@ import { EXPOSURE_TAGS, US_THEME_PROFILES, windFor, WIND_LABELS } from '../scena
 import { formatUsdRevenue, earningsFilterMs, usWallClockMs, reportedNumber, dedupeEarningsRows } from './schedule.js';
 import { resolveMarketCalendarSession } from '../market/market-calendar.js';
 import { isIsoDay } from '../shared/session-date.js';
+import { scenarioLead } from '../market/scenario-lead.js';
 
 // A scenario is named only when the headline's own words are about what that branch tracks
 // (src/domain/market/macro-crossroads.js branch ids); a branch without a term list is never named.
@@ -24,9 +25,12 @@ export const SCENARIO_TITLE_TERMS = Object.freeze({
 const AXIS_WORDS = Object.freeze({ reheat: '물가', softland: '물가·고용', slowdown: '고용', oilshock: '유가', creditstress: '신용', dollarsurge: '달러', reflation: '성장', aibust: 'AI 투자', fiscalsteep: '장기 금리', volshock: '변동성' });
 const short = (item) => String(item?.title || '').split(' — ')[0];
 
-/** The lead and alternative branches of the shared model, in that order. */
+/** The lead and alternative branches of the shared model, in that order; tied branches are each '동률', with no alternative. */
 export function liveBranches(xr) {
-  return [[xr?.leadId, '선두'], [xr?.altId, '대안']].map(([id, role]) => ({ item: id ? (xr.items || []).find((branch) => branch.id === id) : null, role })).filter((row) => row.item);
+  const lead = scenarioLead(xr);
+  if (lead.state === 'tie') return lead.items.map((item) => ({ item, role: '동률' }));
+  const alt = lead.items.length && xr.altId ? (xr.items || []).find((branch) => branch.id === xr.altId) : null;
+  return [[lead.items[0], '선두'], [alt, '대안']].filter(([item]) => item).map(([item, role]) => ({ item, role }));
 }
 
 /**

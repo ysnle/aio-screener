@@ -660,6 +660,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
         if (action === 'group') {
           const opening = state.openGroup !== value;
           state.openGroup = opening ? value : null;
+          state.navListOpen = opening; // v59.51: picking a kind asks for its titles, so its closed 목차 opens
           // Codex browser audit H53: switching the kind tab kept the previous document in the body, so a
           // reader under "개념 사전" was still reading a lesson. Opening a kind now opens that kind's
           // last-read document (or its first one); closing the open tab only folds the contents.

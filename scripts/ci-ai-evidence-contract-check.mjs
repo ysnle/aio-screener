@@ -459,7 +459,8 @@ assert.ok(/_uniAnalysisSlice\.questionPlan/.test(chat) && /sysPrompt \+= _uniAna
 assert.ok(/premise-['"] \+ premiseStatus\.toLowerCase\(\)/.test(chat) && /CONTRADICTED/.test(chat), 'pipeline adds premise limitations without a blanket block');
 assert.ok(/_aioAIClaimEvidenceTuple/.test(chat) && /status: 'conflict'/.test(chat), 'claim registry marks conflicting tuples explicitly');
 assert.ok((chat.match(/<button type="button" class="ai-chip"/g) || []).length >= 2 && !/<div class="ai-chip"/.test(chat), 'unified chat chips are keyboard-activatable buttons');
-assert.ok(/function aiChipClick\(el\)[\s\S]{0,220}chatSendUnified\(\)/.test(chat), 'keyboard chip activation retains the unified send path');
+// v59.51 (content audit): aiChipClick delegates to the one chip path, chatFromChip, which ends in the unified send.
+assert.ok(/function chatFromChip\(ctxId, q\)[\s\S]{0,1200}return chatSendUnified\(\);[\s\S]*function aiChipClick\(el\)[\s\S]{0,120}chatFromChip\x28/.test(chat), 'v59.51 (content audit): keyboard chip activation retains the unified send path through chatFromChip');
 assert.ok(boundaryKinds.filter(kind => kind === 'DOMAIN_ANALYSIS').length >= 4, 'all analysis contexts use the untrusted boundary');
 
 console.log('PASS ai-chat-analysis-integration: production helper, orchestrator premise states, period safety, the unified chat surface and limitation pipeline');

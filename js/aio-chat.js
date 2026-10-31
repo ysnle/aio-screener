@@ -3738,7 +3738,6 @@ function toggleAIPanel() {
   var p = document.getElementById('ai-panel');
   if (!p) return;
   var btn = document.getElementById('topbar-ai-btn');
-  var app = document.querySelector('.app');
   var isOpen = p.classList.contains('open');
   if (isOpen) {
     p.style.transform = 'translateX(100%)';
@@ -3746,7 +3745,6 @@ function toggleAIPanel() {
     p.classList.remove('open');
     p.inert = true;
     p.setAttribute('inert', '');
-    if (app) { app.style.maxWidth = ''; app.style.width = ''; }
     p.setAttribute('aria-hidden', 'true');
     if (btn) { btn.classList.remove('active'); btn.textContent = 'AI 도우미'; btn.setAttribute('aria-expanded', 'false'); }
     if (btn && typeof btn.focus === 'function') btn.focus();
@@ -3756,7 +3754,6 @@ function toggleAIPanel() {
     p.style.transform = 'translateX(0)';
     p.style.boxShadow = '-8px 0 32px var(--black-a6)';
     p.classList.add('open');
-    if (app) { app.style.maxWidth = 'calc(100vw - 400px)'; app.style.width = 'calc(100vw - 400px)'; }
     p.setAttribute('aria-hidden', 'false');
     if (btn) { btn.classList.add('active'); btn.textContent = 'AI 닫기'; btn.setAttribute('aria-expanded', 'true'); }
     // 현재 페이지에 맞는 맥락 설정
@@ -3819,7 +3816,8 @@ function _aioAiPanelBasisText(nowMs) {
 }
 function _aioRenderAiPanelBasis() {
   try {
-    var policy = document.getElementById('ai-panel-policy');
+    // First-users run-6: the clocks are expert detail; they sit inside the folded 답변 범위와 기준 시각, not on the face.
+    var policy = document.getElementById('ai-panel-scope');
     if (!policy) return;
     var node = document.getElementById('ai-panel-basis');
     var textValue = _aioAiPanelBasisText(Date.now());
@@ -3857,7 +3855,7 @@ function updateAIPanelContext(pageId) {
   if (!ctxId || !chatContexts[ctxId]) {
     // AI 미지원 페이지 전환 시
     _aiCurrentCtx = null;
-    if (aiInp) { aiInp.disabled = true; if (_ctxChanged) aiInp.value = ''; }
+    if (aiInp) { aiInp.disabled = true; if (_ctxChanged) { aiInp.value = ''; _aioSyncQuestionCount(); } }
     if (aiBtn) aiBtn.disabled = true;
     var msgsEl = document.getElementById('ai-panel-msgs');
     if (msgsEl) {
@@ -3869,14 +3867,12 @@ function updateAIPanelContext(pageId) {
     if (chipsEl) chipsEl.innerHTML = '';
     return;
   }
-  if (aiInp) { aiInp.disabled = false; if (_ctxChanged) aiInp.value = ''; }
+  if (aiInp) { aiInp.disabled = false; if (_ctxChanged) { aiInp.value = ''; _aioSyncQuestionCount(); } }
   if (aiBtn) aiBtn.disabled = false;
   _aiCurrentCtx = ctxId;
   var titleEl = document.getElementById('ai-panel-title');
-  var badgeEl = document.getElementById('ai-panel-badge');
   var _ctxPublicTitle = String(chatContexts[ctxId].title || '리서치').replace(/^AI\s*/i, '').replace(/분석가/g, '리서치');
   if (titleEl) { titleEl.textContent = 'AI 도우미'; titleEl.title = 'AI 도우미, ' + _ctxPublicTitle; var ctxLine = document.createElement('span'); ctxLine.className = 'ai-ph-ctx'; ctxLine.textContent = _ctxPublicTitle; titleEl.appendChild(ctxLine); } // v58.80 run-5: the screen name is its own small line, never 'AI 도우미, ...'
-  if (badgeEl) badgeEl.textContent = '학습·리서치용';
   _aioRenderAiPanelBasis(); // P1729
   // 메시지 이력 복원
   var msgsEl = document.getElementById('ai-panel-msgs');
@@ -3884,7 +3880,9 @@ function updateAIPanelContext(pageId) {
     msgsEl.innerHTML = '';
     var state = getChatState(ctxId);
     state.messages.forEach(function(m) {
-      _appendAIMsg(m.role === 'user' ? 'user' : 'ai', renderMarkdownLight(typeof m.content === 'string' ? stripChips(m.content) : ''));
+      var text = typeof m.content === 'string' ? m.content : '';
+      if (m.role === 'user') _appendAIMsg('user', text);
+      else _appendAIMsg('ai', renderMarkdownLight(stripChips(text)));
     });
     msgsEl.scrollTop = msgsEl.scrollHeight;
   }
@@ -3898,6 +3896,17 @@ function updateAIPanelContext(pageId) {
   }
 }
 
+// First-users run-6 (breaker #8): a 5,000-character paste was accepted silently. The box's maxlength (index.html) is the
+// one limit; the count appears once a question passes 80% of it, so a paste cut at the limit is never cut unseen.
+function _aioSyncQuestionCount() {
+  var inp = document.getElementById('ai-panel-inp'), out = document.getElementById('ai-panel-count');
+  if (!inp || !out) return;
+  var max = inp.maxLength > 0 ? inp.maxLength : 0, used = inp.value.length;
+  out.hidden = !max || used < max * 0.8;
+  out.textContent = used.toLocaleString('ko-KR') + '/' + max.toLocaleString('ko-KR') + '자';
+  out.classList.toggle('is-full', !!max && used >= max);
+}
+
 function _appendAIMsg(role, html, id) {
   var msgsEl = document.getElementById('ai-panel-msgs');
   if (!msgsEl) return null;
@@ -3908,6 +3917,10 @@ function _appendAIMsg(role, html, id) {
   content.className = 'ai-msg-content';
   var bubble = document.createElement('div');
   bubble.className = 'ai-bubble';
+  // First-users run-6 (breaker #8): a reader's question is plain text, never markup. It used to be escaped, then passed
+  // through the HTML sanitiser, whose on-handler filter deleted " onerror=alert(1)&gt;" from the escaped text, so the
+  // echo silently dropped part of the question. User bubbles take the raw question as textContent (newlines kept by
+  // the .ai-msg.user rule); only answers are rendered markup.
   // P567/R258: this set innerHTML directly with no DOMPurify pass, unlike the per-page
   // embedded chat (_aioSafeMD, aio-core.js) which deliberately double-gates AI-rendered
   // markdown through DOMPurify. No concrete bypass was found (renderMarkdownLight already
@@ -3915,7 +3928,8 @@ function _appendAIMsg(role, html, id) {
   // injection payload surfaced through a web-search result or news article is exactly the
   // kind of untrusted content this second gate exists to catch — hardening for defense in
   // depth so both chat surfaces meet the same standard. 2026-10-19: tables kept; without DOMPurify, text via an inert template.
-  if (typeof DOMPurify !== 'undefined' && DOMPurify.sanitize && typeof window.safeHtml === 'function') bubble.innerHTML = window.safeHtml(html, window.AIO_SAFE_MD_TAGS);
+  if (role === 'user') bubble.textContent = String(html == null ? '' : html);
+  else if (typeof DOMPurify !== 'undefined' && DOMPurify.sanitize && typeof window.safeHtml === 'function') bubble.innerHTML = window.safeHtml(html, window.AIO_SAFE_MD_TAGS);
   else { var inert = document.createElement('template'); inert.innerHTML = String(html || '').replace(/<br\s*\/?>/gi, '\n'); bubble.innerText = inert.content.textContent; }
   content.appendChild(bubble);
   msg.appendChild(content);
@@ -3925,15 +3939,23 @@ function _appendAIMsg(role, html, id) {
 }
 
 async function chatSendUnified(_aioDispatchOptions) {
-  console.log('[AIO] chatSendUnified 시작, ctx:', _aiCurrentCtx);
-  if (!_aiCurrentCtx) { _aioLog('warn', 'debug', '_aiCurrentCtx null'); return; }
-  var ctx = (window.CHAT_CONTEXTS || {})[_aiCurrentCtx];
-  if (!ctx) { _aioLog('warn', 'debug', 'CHAT_CONTEXTS에 없음: ' + _aiCurrentCtx); return; }
-  var state = getChatState(_aiCurrentCtx);
+  // First-users run-6 (breaker #8): one draft is one turn. The first entry takes the request lock, empties the box and
+  // shows the question before anything awaits (the orchestrator waits up to 4 s for reference material, then the route
+  // check), so a second Enter in that window meets the lock instead of starting a second paid call. The orchestrated
+  // re-entry carries that turn (question, screen, run) and never reads the box again.
+  var _uniTurn = (_aioDispatchOptions && _aioDispatchOptions._aioTurn) || null;
+  var ctxId = _uniTurn ? _uniTurn.ctxId : _aiCurrentCtx;
+  if (!ctxId) { _aioLog('warn', 'debug', '_aiCurrentCtx null'); return; }
+  var ctx = (window.CHAT_CONTEXTS || {})[ctxId];
+  if (!ctx) { _aioLog('warn', 'debug', 'CHAT_CONTEXTS에 없음: ' + ctxId); return; }
+  var state = getChatState(ctxId);
+  var inp = document.getElementById('ai-panel-inp');
+  var btn = document.getElementById('ai-panel-btn');
+  if (!inp) { _aioLog('warn', 'debug', 'ai-panel-inp 없음'); return; }
   // v54.95/P1070: unified and per-page turns share one request lifecycle. A
   // preparation-phase turn is already busy; only a genuinely stale owned run
   // may be cancelled, never silently detached from its AbortController/epoch.
-  if (state._activeRequest || state.streaming) {
+  if (!_uniTurn && (state._activeRequest || state.streaming)) {
     var _activeUnified = state._activeRequest;
     var _activeIsUnified = _activeUnified && _activeUnified.entrypoint === 'unified-chat';
     if (_activeIsUnified && _activeUnified.startedAt && Date.now() - _activeUnified.startedAt > 60000) {
@@ -3948,11 +3970,33 @@ async function chatSendUnified(_aioDispatchOptions) {
       return;
     }
   }
-  var inp = document.getElementById('ai-panel-inp');
-  var btn = document.getElementById('ai-panel-btn');
-  if (!inp) { _aioLog('warn', 'debug', 'ai-panel-inp 없음'); return; }
-  var q = inp.value.trim();
-  if (!q) return;
+  if (!_uniTurn) {
+    var _draft = inp.value.trim();
+    if (!_draft) return;
+    // The box stops typing at its maxlength (with a visible count); prompts the app builds itself stay under this bound.
+    if (_draft.length > 10000) _draft = _draft.slice(0, 10000);
+    _uniTurn = { q: _draft, ctxId: ctxId, run: typeof window._aioBeginChatRequest === 'function'
+      ? window._aioBeginChatRequest(ctxId, _draft, {
+        entrypoint: 'unified-chat',
+        routeId: ctxId,
+        buttonId: 'ai-panel-btn',
+        idleLabel: '전송',
+        loadingId: 'ai-panel-loading',
+        streamingId: 'ai-panel-streaming',
+        stopButtonId: 'ai-panel-stop',
+        appendCancelNotice: function(reason) {
+          if (String(_aiCurrentCtx || '') !== String(ctxId)) return;
+          _appendAIMsg('ai', '<span role="status">답변 생성이 중지되었습니다.</span>');
+        }
+      }) : null };
+    inp.value = '';
+    _aioSyncQuestionCount();
+    var msgsBox = document.getElementById('ai-panel-msgs');
+    if (msgsBox) msgsBox.querySelectorAll('[data-aio-unsent]').forEach(function(node) { node.remove(); });
+    _uniTurn.bubble = _appendAIMsg('user', _draft);
+  }
+  var q = _uniTurn.q;
+  var _uniRun = _uniTurn.run;
   var _uniQuestionPlan = (_aioDispatchOptions && _aioDispatchOptions.questionPlan) || null;
   // AIQ-0/AIQ-1: unified chat uses the same ESM QuestionPlan/Orchestrator as
   // per-page chat. The guarded callback retains only the legacy UI/provider adapter.
@@ -3962,14 +4006,18 @@ async function chatSendUnified(_aioDispatchOptions) {
     if (_aioUnifiedOrchestrator && typeof _aioUnifiedOrchestrator.execute === 'function') {
       return _aioUnifiedOrchestrator.execute({
         query: q,
-        route: _aiCurrentCtx,
+        route: ctxId,
         surface: 'unified-chat',
         // P1120: the pre-provider action-permission refusal was retired. The orchestrator now
         // dispatches with an actionLimitations disclosure; hard refusals live in the conduct,
         // tool, and claim boundaries downstream.
         legacyRunner: function(questionPlan) {
-          return chatSendUnified({ _aioOrchestrated: true, questionPlan: questionPlan });
+          return chatSendUnified({ _aioOrchestrated: true, questionPlan: questionPlan, _aioTurn: _uniTurn });
         }
+      }).then(function(result) {
+        // The lock is this turn's; a runner that never started or threw must not leave it held for the 60 s stale timer.
+        if (!result || result.ok !== true) _releaseUnifiedRun();
+        return result;
       });
     }
   }
@@ -3977,35 +4025,24 @@ async function chatSendUnified(_aioDispatchOptions) {
   // quota, retrieval, or provider work even when the ESM adapter is unavailable.
   var _uniPreProviderPermission = (window.AIO && typeof window.AIO.evaluateAIActionPermission === 'function')
     ? window.AIO.evaluateAIActionPermission({
-      ctxId: _aiCurrentCtx,
+      ctxId: ctxId,
       query: q,
       text: q,
       suitabilityProfile: _uniQuestionPlan && _uniQuestionPlan.suitabilityProfile || null,
       evidence: _uniQuestionPlan && Array.isArray(_uniQuestionPlan.decisionEvidence) ? _uniQuestionPlan.decisionEvidence : []
     }) : { blocked: true, reasons: ['action-permission-unavailable'], safeText: 'AI 안전 모드\n\n공통 행동 권한 검증을 사용할 수 없어 요청을 전송하지 않습니다.' };
   if (_uniPreProviderPermission.blocked === true) {
-    inp.value = '';
-    _appendAIMsg('user', escHtml(q).replace(/\n/g, '<br>'));
+    _releaseUnifiedRun();
     _appendAIMsg('ai', renderMarkdownLight(_uniPreProviderPermission.safeText || 'AI 안전 모드\n\n현재 요청은 행동 권한 경계를 통과하지 못했습니다.'));
     return;
   }
-  // v46.4: 입력 길이 제한 (10000자) — API 비용 + 메모리 보호
-  if (q.length > 10000) { q = q.slice(0, 10000); inp.value = q; }
-  var ctxId = _aiCurrentCtx;
-  var _uniRun = typeof window._aioBeginChatRequest === 'function'
-    ? window._aioBeginChatRequest(ctxId, q, {
-      entrypoint: 'unified-chat',
-      routeId: ctxId,
-      buttonId: 'ai-panel-btn',
-      idleLabel: '전송',
-      loadingId: 'ai-panel-loading',
-      streamingId: 'ai-panel-streaming',
-      stopButtonId: 'ai-panel-stop',
-      appendCancelNotice: function(reason) {
-        if (String(_aiCurrentCtx || '') !== String(ctxId)) return;
-        _appendAIMsg('ai', '<span role="status">답변 생성이 중지되었습니다.</span>');
-      }
-    }) : null;
+  // A turn that failed before it reached the model gives the question back to the box for a retry. Its bubble and notice
+  // stay until the next send replaces them, so a retry, or the second Enter of a double press, never stacks copies.
+  function _unsentTurn(notice) {
+    var noticeBubble = notice ? _appendAIMsg('ai', notice) : null;
+    [_uniTurn.bubble, noticeBubble].forEach(function(bubble) { var row = bubble && bubble.closest('.ai-msg'); if (row) row.setAttribute('data-aio-unsent', ''); });
+    if (!inp.value && !inp.disabled) { inp.value = q; _aioSyncQuestionCount(); }
+  }
   var _uniSignal = _uniRun && _uniRun.controller ? _uniRun.controller.signal : null;
   function _isCurrentUnifiedRun() {
     return _uniRun && typeof window._aioIsCurrentChatRequest === 'function'
@@ -4034,14 +4071,14 @@ async function chatSendUnified(_aioDispatchOptions) {
       // with 'completed', so checking afterwards always looked cancelled and a timeout ended with no notice at all.
       var _uniUserCancelled = !!(_uniSignal && _uniSignal.aborted);
       _releaseUnifiedRun();
-      if (!_uniUserCancelled) { _appendAIMsg('user', escHtml(q).replace(/\n/g, '<br>')); _appendAIMsg('ai', typeof _aioRouteNotice === 'function' ? _aioRouteNotice('WORKER_NOT_READY') : 'AI 라우트를 확인하지 못했습니다. 잠시 후 다시 시도하세요.'); } // v58.80 (first-users F24): the question is shown above its failure notice (the box keeps it for a retry)
+      if (!_uniUserCancelled) _unsentTurn(typeof _aioRouteNotice === 'function' ? _aioRouteNotice('WORKER_NOT_READY') : 'AI 라우트를 확인하지 못했습니다. 잠시 후 다시 시도하세요.'); // v58.80 (first-users F24): the question stays above its failure notice and goes back to the box for a retry
     }
     return;
   }
   if (!_isCurrentUnifiedRun()) { _releaseUnifiedRun(); return; }
   if (!_uniRoute.ok) {
     _releaseUnifiedRun();
-    _appendAIMsg('user', escHtml(q).replace(/\n/g, '<br>')); _appendAIMsg('ai', typeof _aioRouteNotice === 'function' ? _aioRouteNotice(_uniRoute.reason) : 'AI 공용 연결을 확인하지 못했습니다. 잠시 후 다시 시도하세요.');
+    _unsentTurn(typeof _aioRouteNotice === 'function' ? _aioRouteNotice(_uniRoute.reason) : 'AI 공용 연결을 확인하지 못했습니다. 잠시 후 다시 시도하세요.');
     return;
   }
   // v47.8: consumeLLMQuery가 Promise 반환 가능(쿼터 초과 모달) → await 필수
@@ -4051,9 +4088,8 @@ async function chatSendUnified(_aioDispatchOptions) {
     try { _qOk = await consumeLLMQuery(); }
     finally { if (_uniRun) _uniRun.quotaPending = false; }
     if (!_isCurrentUnifiedRun()) { _releaseUnifiedRun(); return; }
-    if (!_qOk) { _releaseUnifiedRun(); return; }
+    if (!_qOk) { _releaseUnifiedRun(); _unsentTurn(null); return; }
   }
-  inp.value = '';
   // v47.8: streaming 잠금은 callSharedAi 직전으로 이동 — 데이터 주입 hang 시 영구 잠김 방지
   if (btn) { btn.disabled = true; btn.textContent = '...'; }
   // v46.6: messages trim
@@ -4065,7 +4101,6 @@ async function chatSendUnified(_aioDispatchOptions) {
   var _uniUserMessage = { role: 'user', content: q };
   state.messages.push(_uniUserMessage);
   if (_uniRun) _uniRun.userMessage = _uniUserMessage;
-  _appendAIMsg('user', escHtml(q).replace(/\n/g, '<br>'));
   // 로딩 표시
   var loadBubble = _appendAIMsg('ai', '<span class="lch-muted">분석 중...</span>', 'ai-panel-loading');
   var aiBubble = null;
@@ -4673,9 +4708,9 @@ async function chatSendUnified(_aioDispatchOptions) {
   }
 }
 
+// One chip path: chatFromChip keeps a running answer's draft instead of overwriting the box with a chip that cannot send.
 function aiChipClick(el) {
-  var inp = document.getElementById('ai-panel-inp');
-  if (inp) { inp.value = el.textContent.trim(); chatSendUnified(); }
+  return chatFromChip(_aiCurrentCtx, el && el.textContent);
 }
 
 // showPage 연결: 페이지 전환 시 AI 맥락 자동 업데이트
@@ -4685,4 +4720,6 @@ _aioWhenDomReady(function() {
 _aioPageBus.register('html-ai-panel-shown', 'aio:pageShown', function(e) {
   if (e && e.detail) updateAIPanelContext(e.detail);
 });
+var questionBox = document.getElementById('ai-panel-inp');
+if (questionBox) { questionBox.addEventListener('input', _aioSyncQuestionCount); _aioSyncQuestionCount(); }
 });

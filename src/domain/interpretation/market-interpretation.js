@@ -95,6 +95,6 @@ export function buildMarketInterpretation({ market = {}, macro = null, calendar 
   })) : null;
   const guide = regime ? stage('guide', () => buildMarketGuide({ regime, outlook, crossroads, curve, indexEarnings, nowMs })) : null;
   // v58.68 (owner 2026-10-23): where the session's money went — sectors, sub-themes, the 10-year yield and fear.
-  const flow = rotationHistory ? stage('flow', () => buildMarketFlow({ rotationHistory, macro, history: inputs.history, themes: themeMaps?.usThemes || null, rows, nowMs })) : null;
+  const flow = rotationHistory ? stage('flow', () => buildMarketFlow({ rotationHistory, history: inputs.history, themes: themeMaps?.usThemes || null, rows, nowMs })) : null;
   return { version: INTERPRETATION_VERSION, asOf: regime?.asOf || null, nowMs, inputs, regime, marketRead, macroRead, curve, indexEarnings, events, crossroads, scenarios, groups, outlook, playbook, guide, flow, errors };
 }

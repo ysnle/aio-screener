@@ -587,8 +587,8 @@
       _assert('T76 waterfall_redraw_no_leak: _aioChartRegistry 미존재 (missing)', false);
     }
 
-    // T77: fund_tab_resize_width — _aioFundTabSwitch 함수 존재
-    _assert('T77 fund_tab_resize_width: _aioFundTabSwitch 존재', typeof window._aioFundTabSwitch === 'function');
+    // T77 (v59.51 content audit): the 기업 분석 tab switcher (_aioFundTabSwitch) is retired with its [data-fund-tab] sections.
+    _assert('T77 v59.51 (content audit) fund_tab_switch_retired: _aioFundTabSwitch 퇴역', typeof window._aioFundTabSwitch === 'undefined');
 
     // T78: dpr_canvas_size — _aioSetupCanvas DPR 적용 검증
     if (typeof window._aioSetupCanvas === 'function') {
@@ -1328,19 +1328,20 @@
       ops && ops.crossPageIndicator && ops.dataActionHandler && typeof ops.crossPageIndicator.issueCount === 'number',
       ops ? ('has crossPage=' + !!ops.crossPageIndicator + ' has dataAction=' + !!ops.dataActionHandler) : 'missing');
 
-    // T320 (v49.41 보강): home 8+ → v57.77 3+ / signal 4+ → v57.78 array / breadth 3+ → v57.78 1+ (findings of pruned sections left with them)
+    // T320 (v49.41 보강): home 8+ → v57.77 3+ → v59.51 1+ / signal 4+ → v57.78 array / breadth 3+ → v57.78 1+ (findings of pruned sections left with them)
     var homeFindings = pageReg && pageReg.pages && pageReg.pages.home && pageReg.pages.home.findings;
     var sigFindings = pageReg && pageReg.pages && pageReg.pages.signal && pageReg.pages.signal.findings;
     var brFindings = pageReg && pageReg.pages && pageReg.pages.breadth && pageReg.pages.breadth.findings;
-    _assert('T320 v57.78 findings_state: home 3+ / signal array (pruned) / breadth 1+',
-      Array.isArray(homeFindings) && homeFindings.length >= 3 &&
+    _assert('T320 v59.51 findings_state: home 1+ / signal array (pruned) / breadth 1+',
+      Array.isArray(homeFindings) && homeFindings.length >= 1 &&
       Array.isArray(sigFindings) &&
       Array.isArray(brFindings) && brFindings.length >= 1,
       'home=' + (homeFindings ? homeFindings.length : '?') + ' sig=' + (sigFindings ? sigFindings.length : '?') + ' br=' + (brFindings ? brFindings.length : '?'));
 
-    // T321 (v49.40 P294): _aioRefreshActionPlan 실 등록 검증 (knownAliases false-positive 해소)
-    _assert('T321 aioRefreshActionPlan_defined: window._aioRefreshActionPlan === function',
-      typeof window._aioRefreshActionPlan === 'function',
+    // T321 (v59.51 content audit): the home 행동 계획 lines (#home-action-*) are gone, so their writer
+    // (_aioRefreshActionPlan, src/ui/components/home-action-plan.js) is retired.
+    _assert('T321 v59.51 (content audit) aioRefreshActionPlan_retired: window._aioRefreshActionPlan 퇴역',
+      typeof window._aioRefreshActionPlan === 'undefined',
       'typeof=' + typeof window._aioRefreshActionPlan);
   }
 
@@ -1486,9 +1487,9 @@
       pages && pages.fxbond && Array.isArray(pages.fxbond.subSections) && pages.fxbond.subSections.length === 5,
       'count=' + (pages && pages.fxbond && pages.fxbond.subSections ? pages.fxbond.subSections.length : '?'));
 
-    // T343: fundamental subSections 5 → v57.78 3 (coverage badge and Buffett/Graham/Lynch guide pruned)
-    _assert('T343 v57.78 fundamental_subsections_3: enumerate, retired sections pruned',
-      pages && pages.fundamental && Array.isArray(pages.fundamental.subSections) && pages.fundamental.subSections.length === 3,
+    // T343: fundamental subSections 5 → v57.78 3 → v59.51 2 (#fund-search-input left)
+    _assert('T343 v59.51 fundamental_subsections_2: enumerate, retired sections pruned',
+      pages && pages.fundamental && Array.isArray(pages.fundamental.subSections) && pages.fundamental.subSections.length === 2,
       'count=' + (pages && pages.fundamental && pages.fundamental.subSections ? pages.fundamental.subSections.length : '?'));
 
     // T344: themes subSections 8 → v57.76 7 (the cycle-dynamic readout is retired) → v57.77 4 (rotation table, ETF table, guide fold pruned)
@@ -2681,50 +2682,33 @@
   // v49.72 P387 R138~R139: fundamental 7 차트 + 채팅 차트 보기 버튼 회귀 방지
   // ─────────────────────────────────────────────────────────────────
   function _testV4972FinancialCharts() {
-    // T853: AIO.fetchFMP5YQuarterly 함수 정의
-    _assert('T853 fetch_fmp_5y_quarterly_v4972: AIO.fetchFMP5YQuarterly 함수 정의',
-      typeof (window.AIO && window.AIO.fetchFMP5YQuarterly) === 'function',
-      'typeof=' + typeof (window.AIO && window.AIO.fetchFMP5YQuarterly));
-    // T854: AIO.fetchKRQuarterly 함수 정의 (KR Naver fallback)
-    _assert('T854 fetch_kr_quarterly_v4972: AIO.fetchKRQuarterly 함수 정의 (Naver fallback)',
-      typeof (window.AIO && window.AIO.fetchKRQuarterly) === 'function',
-      'typeof=' + typeof (window.AIO && window.AIO.fetchKRQuarterly));
-    // T855: _renderFundamentalFinancialsCharts 함수 정의 (7 chart render)
-    _assert('T855 render_fund_fin_charts_v4972: _renderFundamentalFinancialsCharts 함수 정의',
-      typeof window._renderFundamentalFinancialsCharts === 'function',
-      'typeof=' + typeof window._renderFundamentalFinancialsCharts);
-    // T856: #fundamental-financials-grid DOM 존재
-    var grid = document.getElementById('fundamental-financials-grid');
-    _assert('T856 financials_grid_dom_v4972: #fundamental-financials-grid DOM 존재',
-      !!grid, 'grid=' + !!grid);
-    // T857: 7 canvas (Growth/Profitability/Balance/CashFlow/Liquidity/CurRatio/WorkingCap) DOM 존재
-    var canvasIds = ['fund-growth-chart','fund-profitability-chart','fund-balance-chart','fund-cashflow-chart','fund-liquidity-chart','fund-curratio-donut','fund-workingcap-chart'];
+    // v59.51 (content audit): the 재무 공시 7-chart card (#fundamental-financials-grid, seven canvases), its quarterly
+    // fetchers, its renderer, assertFinancialChartsAudit and the chat 재무 차트 handler are retired together (T853-T857,
+    // T566, T568, T569 pinned their presence).
+    var retired853 = {
+      fetchFMP5YQuarterly: typeof (window.AIO && window.AIO.fetchFMP5YQuarterly),
+      fetchKRQuarterly: typeof (window.AIO && window.AIO.fetchKRQuarterly),
+      fetchQuarterlyFinancials: typeof (window.AIO && window.AIO.fetchQuarterlyFinancials),
+      renderCharts: typeof window._renderFundamentalFinancialsCharts,
+      audit: typeof (window.AIO && window.AIO.assertFinancialChartsAudit),
+      showHandler: typeof window._aioShowFundamentalChart,
+      fillHandler: typeof window._aioFundSearchFill
+    };
+    _assert('T853 v59.51 (content audit) financial_charts_retired: 7 차트 fetch/render/audit/채팅 핸들러 퇴역',
+      Object.keys(retired853).every(function(k) { return retired853[k] === 'undefined'; }), JSON.stringify(retired853));
+    var canvasIds = ['fundamental-financials-grid','fund-growth-chart','fund-profitability-chart','fund-balance-chart','fund-cashflow-chart','fund-liquidity-chart','fund-curratio-donut','fund-workingcap-chart'];
     var found = canvasIds.filter(function(id){ return !!document.getElementById(id); });
-    _assert('T857 seven_canvas_dom_v4972: 7 canvas DOM 모두 존재',
-      found.length === 7, 'found=' + found.length + '/7');
+    _assert('T857 v59.51 (content audit) seven_canvas_dom_retired: 재무 7 차트 DOM 없음',
+      found.length === 0, 'found=' + found.join(','));
     // T858: the maker-checker verdict helper had no caller after the per-page chatSend retired (v57.62); the screener
     // query engine moved to src/ai/context/screener-query.js (2026-10-17) without it.
     _assert('T858 maker_checker_retired: _aioMakerCheckerVerify 퇴역 (호출처 없음)', typeof window._aioMakerCheckerVerify === 'undefined' && typeof window.chatSend === 'undefined', 'fn=' + typeof window._aioMakerCheckerVerify);
-    // T566: fundamentalSearch가 fetchQuarterlyFinancials + _renderFundamentalFinancialsCharts 호출
-    var fundSrc = typeof window.fundamentalSearch === 'function' ? window.fundamentalSearch.toString() : '';
-    _assert('T566 fundamental_search_integrated_v4972: fundamentalSearch fetch + render 통합',
-      fundSrc.indexOf('fetchQuarterlyFinancials') >= 0 && fundSrc.indexOf('_renderFundamentalFinancialsCharts') >= 0,
-      'fetch=' + (fundSrc.indexOf('fetchQuarterlyFinancials') >= 0) + ' render=' + (fundSrc.indexOf('_renderFundamentalFinancialsCharts') >= 0));
-    // T567 (v57.62): the "차트 보기" chat button lived only in the dead per-page chatSend (retired). The handler stays
-    // for the fundamentals screen; the unified panel draws app-owned answer visuals instead.
+    // T567 (v57.62): the "차트 보기" chat button lived only in the dead per-page chatSend (retired); the unified panel draws
+    // app-owned answer visuals instead. v59.51: its fundamentals-screen handler is retired too (T853).
     var unifiedSrc567 = typeof window.chatSendUnified === 'function' ? window.chatSendUnified.toString() : '';
     _assert('T567 v57.62 chat_chart_button_retired: per-page chatSend absent + unified panel attaches answer visuals',
-      typeof window.chatSend === 'undefined' && unifiedSrc567.indexOf('attachAnswerVisuals') >= 0 && typeof window._aioShowFundamentalChart === 'function',
+      typeof window.chatSend === 'undefined' && unifiedSrc567.indexOf('attachAnswerVisuals') >= 0,
       'chatSend=' + typeof window.chatSend + ' visuals=' + (unifiedSrc567.indexOf('attachAnswerVisuals') >= 0));
-    // T568: assertFinancialChartsAudit + coveragePct >= 80
-    var fc = window.AIO && typeof window.AIO.assertFinancialChartsAudit === 'function' && window.AIO.assertFinancialChartsAudit();
-    _assert('T568 financial_charts_audit_v4972: assertFinancialChartsAudit + coveragePct ≥ 80',
-      fc && fc.coveragePct >= 80,
-      fc ? 'coverage=' + fc.coveragePct + '% canvas=' + fc.domCanvasFound + '/7' : 'audit missing');
-    // T569: 사이드바 audit row 12 (financialCharts) DOM 존재
-    var fcEl = document.querySelector('[data-audit-key="financialCharts"]');
-    _assert('T569 sidebar_financial_charts_row_v4972: 사이드바 audit row [data-audit-key="financialCharts"] DOM 존재',
-      !!fcEl, 'fcEl=' + (!!fcEl));
     // T570: APP_VERSION === 'v49.72' (v49.73 갱신 — 하위 호환 PASS 유지)
     _assert('T570 app_version_v4972_final: APP_VERSION === "v49.72" or 신규',
       typeof APP_VERSION === 'string' && _versionAtLeast(APP_VERSION, 'v49.70'),
@@ -2995,9 +2979,9 @@
     _assert('T625 v57.62 unified_missing_bubble_fallback: chatSendUnified onDone appends the answer when no streaming bubble exists',
       chatSendSrc.indexOf("} else if (!aiBubble) { _appendAIMsg('ai', _uniSafeRender(visible)); }") >= 0,
       'fallback=' + (chatSendSrc.indexOf("else if (!aiBubble)") >= 0));
-    // T626 (v57.62): a second send while a request owns the lifecycle is refused (shared _activeRequest/streaming lock)
+    // T626 (v57.62): a second send while a request owns the lifecycle is refused (v59.51: a dispatched turn owns its run)
     _assert('T626 v57.62 unified_duplicate_request_lock: chatSendUnified refuses a send while _activeRequest/streaming is held',
-      chatSendSrc.indexOf('if (state._activeRequest || state.streaming)') >= 0 && chatSendSrc.indexOf('chat 요청 중복 방지') >= 0,
+      chatSendSrc.indexOf('if (!_uniTurn && (state._activeRequest || state.streaming))') >= 0 && chatSendSrc.indexOf('chat 요청 중복 방지') >= 0,
       'lock=' + (chatSendSrc.indexOf('chat 요청 중복 방지') >= 0));
     // T627 C4: chunk timeout 방어적 fallback
     var callSharedAiSrc = typeof callSharedAi === 'function' ? callSharedAi.toString() : '';
@@ -3960,17 +3944,17 @@
       audit && typeof audit.issueCount === 'number',
       audit ? ('issueCount=' + audit.issueCount + ' tables=' + audit.inlineTables.length) : 'api missing');
 
-    // T310: home subSections (v49.37 8 → v49.38 15 → v57.76 12 → v57.77 5: entries whose section left index.html are pruned)
+    // T310: home subSections (v49.37 8 → v49.38 15 → v57.76 12 → v57.77 5 → v59.51 7)
     var pageReg = window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY;
     var subCount = pageReg && pageReg.pages && pageReg.pages.home && pageReg.pages.home.subSections.length;
     var homeRetired310 = pageReg && pageReg.pages && pageReg.pages.home ? pageReg.pages.home.subSections.filter(function(s) { return ['home-conclusion-bar', 'home-market-summary', 'home-gmo-bloomberg', 'home-api-onboarding', 'home-score-legend', 'home-quick-nav', 'home-3-cards-decision', 'home-explain-decision', 'home-explain-top', 'home-explain-gmo'].indexOf(s.id) >= 0; }).length : -1;
-    _assert('T310 v57.77 home_subsections_5: subSections 5개, 퇴역 섹션(결론바·배너·GMO·온보딩·범례·빠른 이동·3카드·해설) 미등재',
-      subCount === 5 && homeRetired310 === 0, 'count=' + subCount + ' retiredListed=' + homeRetired310);
+    _assert('T310 v59.51 home_subsections_7: subSections 7개, 퇴역 섹션(결론바·배너·GMO·온보딩·범례·빠른 이동·3카드·해설) 미등재',
+      subCount === 7 && homeRetired310 === 0, 'count=' + subCount + ' retiredListed=' + homeRetired310);
 
-    // T311: home findings 배열 (점검 결과 누적; v57.77 5+ → 3+ after pruning the retired sections' findings)
+    // T311: home findings 배열 (v57.77 5+ → 3+ → v59.51 1+)
     var findings = pageReg && pageReg.pages && pageReg.pages.home && pageReg.pages.home.findings;
-    _assert('T311 v57.77 home_findings: findings 배열 + 3+ entries',
-      Array.isArray(findings) && findings.length >= 3,
+    _assert('T311 v59.51 home_findings: findings 배열 + 1+ entries',
+      Array.isArray(findings) && findings.length >= 1,
       findings ? 'count=' + findings.length : 'missing');
 
     // T312: getAutoOpsReadiness 22→23축 (inlineThresholdTable 통합)
@@ -4341,12 +4325,11 @@
       !bond2y && !!document.getElementById('rates-yields') && !document.querySelector('#page-fxbond [data-snap="tnx-2y"]'),
       bond2y ? 'retired row returned' : 'ok');
 
-    // T255: 매크로 헤더 다음 공식 발표 표시
-    if (window.AIO && window.AIO.renderMacroNextRelease) window.AIO.renderMacroNextRelease();
-    var macroNextEl = document.getElementById('macro-next-release');
-    var hasNextRelease = macroNextEl ? /다음 주요 발표:.*(?:\d{4}-\d{2}-\d{2}|\d{1,2}\/\d{1,2}\([일월화수목금토]\))/.test(macroNextEl.textContent || '') : false;
+    // T255 (v59.51): the 거시 board header carries the one next-release answer (crossroads.nextEvent)
+    var macroNextEl = document.getElementById('macro-board-basis'), macroRendered255 = !!document.querySelector('#macro-board .macro-group'), macroNextText = macroNextEl ? (macroNextEl.textContent || '') : ''; // unrendered = placeholder (T239)
     _assert('T255 fred_chart_next_release: 다음 갱신 NFP 표기',
-      hasNextRelease, macroNextEl ? macroNextEl.textContent : 'not found');
+      !!macroNextEl && (macroRendered255 ? /다음 주요 발표는 /.test(macroNextText) : /불러오는 중/.test(macroNextText)),
+      (macroRendered255 ? 'rendered: ' : 'not rendered: ') + macroNextText.slice(0, 80));
 
     // T256 (v57.76 retired): the textbook sector-cycle map left the themes page for the concept dictionary
     // (sector-rotation-cycle), so its static Late-cycle cell must not return.
@@ -4475,11 +4458,13 @@
       !ohlc, ohlc ? 'returned' : 'retired');
 
     // T238 (P1436): the how-to search guide was retired; the page leads with the native fiscal reading.
+    // v59.51 (content audit): the 재무 공시 search box (#fund-search-input) is retired too; 종목 search is the one search.
     var fundGuide = document.getElementById('fund-pre-search-guide');
     var fundFlow = document.getElementById('fund-flow');
-    _assert('T238 fund_pre_search: 검색 가이드 퇴역 + 재무 흐름 블록 존재',
-      !fundGuide && !!fundFlow && !!document.getElementById('fund-search-input'),
-      'guide=' + !!fundGuide + ' flow=' + !!fundFlow);
+    var fundSearch = document.getElementById('fund-search-input');
+    _assert('T238 v59.51 (content audit) fund_pre_search: 검색 가이드·재무 공시 검색창 퇴역 + 재무 흐름 블록 존재',
+      !fundGuide && !!fundFlow && !fundSearch,
+      'guide=' + !!fundGuide + ' flow=' + !!fundFlow + ' search=' + !!fundSearch);
 
     // T239: macro storyline placeholder is explicit about evidence/unavailable state
     var macroStory = document.getElementById('macro-board-basis');
@@ -4508,13 +4493,11 @@
       !primaryCard && secondaryCards.length === 0,
       'primary=' + !!primaryCard + ' secondary=' + secondaryCards.length);
 
-    // T226: home Action Item 카드 — v57.50 I16: 퇴역 홈 그리드와 함께 DOM이 빠질 수 있다. 있으면 그대로, 없으면
-    // 갱신 경로(_aioRefreshActionPlan)가 DOM 부재에서 예외 없이 끝나야 한다.
+    // T226: home Action Item 카드 — v57.50 I16: 퇴역 홈 그리드와 함께 DOM이 빠졌다. v59.51 (content audit): its writer
+    // (_aioRefreshActionPlan) is retired too, so a card without a writer cannot come back silently.
     var actionCard = document.getElementById('home-action-item-card');
-    var actionNoThrow = true;
-    if (!actionCard) { try { if (typeof window._aioRefreshActionPlan === 'function') window._aioRefreshActionPlan(); } catch(_) { actionNoThrow = false; } }
-    _assert('T226 home_action_card: #home-action-item-card 존재 또는 퇴역 후 갱신 경로 no-op',
-      !!actionCard || actionNoThrow, actionCard ? 'found' : 'retired; refresh no-throw=' + actionNoThrow);
+    _assert('T226 v59.51 (content audit) home_action_card: #home-action-item-card 퇴역 + 갱신 경로 퇴역',
+      !actionCard && typeof window._aioRefreshActionPlan === 'undefined', 'card=' + !!actionCard + ' refresh=' + typeof window._aioRefreshActionPlan);
 
     // T227: v57.76 — the market-level SPY RSI card left the 차트 tab (시장 상태 요약 carries the market judgement).
     _assert('T227 technical_rsi_threshold: SPY RSI 카드 퇴역 유지 (v57.76)',
@@ -5697,13 +5680,13 @@
       var ph804 = document.getElementById('page-home');
       var k804 = ph804 ? Array.from(ph804.children) : [];
       var hi = function(id){ var e=document.getElementById(id); return e?k804.indexOf(e):-1; };
-      var ci = hi('home-conclusion-bar'), gi = hi('home-trading-grid'), hero = hi('home-score-hero'), dc = hi('home-daily-changes');
-      // v57.76: the hidden 0-100 conclusion bar and the retired grid are gone; the close verdict hero leads and the
-      // close comparison follows it directly.
-      t804ok = ci < 0 && gi < 0 && hero >= 0 && dc === hero + 1;
-      t804detail = 'conc=' + ci + ' grid=' + gi + ' hero=' + hero + ' changes=' + dc + ' ok=' + t804ok;
+      var ci = hi('home-conclusion-bar'), gi = hi('home-trading-grid'), hero = hi('home-score-hero'), dc = hi('home-daily-changes'), strip = hi('home-index-strip');
+      // v57.76: the hidden 0-100 conclusion bar and the retired grid are gone. v59.51 (content audit): the close-change
+      // block (home-daily-changes) left 오늘 too; the verdict hero leads and the index strip follows it.
+      t804ok = ci < 0 && gi < 0 && dc < 0 && hero >= 0 && strip > hero;
+      t804detail = 'conc=' + ci + ' grid=' + gi + ' hero=' + hero + ' changes=' + dc + ' strip=' + strip + ' ok=' + t804ok;
     } catch(e) { t804detail = 'ERR:' + e.message; }
-    _assert('T804 v57.76 home_close_verdict_then_changes: 결론바·그리드 퇴역, 판정 히어로 바로 아래 직전 종가 대비 변화', t804ok, t804detail);
+    _assert('T804 v59.51 home_verdict_then_index_strip: 결론바·그리드·직전 종가 대비 변화 퇴역(v59.51 content audit), 판정 히어로 다음에 지수 흐름', t804ok, t804detail);
 
     // ─── v50.35 피드백·게시판·옵션 제거 (사용자 요청) ───
     var t805ok = false, t805detail = '';
@@ -5888,27 +5871,19 @@
     _assert('T815 v5042_market_state_core: 단일 두뇌 합성+캐시+버스+coherence audit+AutoOps 통합', t815ok, t815detail);
 
     // ─── v50.43 marketState 소비자 구독 이전 (선순환 전파) ───
-    // T816: home Action Item이 marketState.actionPlan 단일 출처를 읽는지(_aioRefreshActionPlan) + dedup(중복 ACTION_RULES 블록 제거)
+    // T816: marketState.actionPlan 단일 출처 + P1164/B03 결측 입력은 포지션 밴드를 만들지 않는다.
+    // v59.51 (content audit): the home 행동 계획 lines that read it are gone, and their writer (_aioRefreshActionPlan) with them.
     var t816ok = false, t816detail = '';
     try {
-      var hasRefreshAction = typeof window._aioRefreshActionPlan === 'function';
+      var refreshRetired816 = typeof window._aioRefreshActionPlan === 'undefined';
       var ms816 = (window.AIO && typeof window.AIO.computeMarketState === 'function') ? window.AIO.computeMarketState() : null;
-      var ranOk = false;
-      try { if (hasRefreshAction) { window._aioRefreshActionPlan(); ranOk = true; } } catch(_r) { ranOk = false; }
-      // marketState.actionPlan이 존재하면 단일 두뇌 경로가 활성(action-item이 같은 plan 구독)
       var brainPlanEmitted = !!(ms816 && ms816.actionPlan && typeof ms816.actionPlan === 'object');
-      // P1164/B03: 미수신 VIX/F&G를 0으로 강제해 포지션 밴드를 만들어내지 않는다(position은
-      // 입력이 있을 때만). 이전 단언(planFromBrain=position 존재)은 그 오표시 덕분에 통과했다 —
-      // 데이터가 없는 이 하네스에서 결측 시 position=null을 요구하는 것이 정확한 계약이다.
+      // P1164/B03: 미수신 VIX/F&G를 0으로 강제해 포지션 밴드를 만들어내지 않는다(position은 입력이 있을 때만).
       var noBandFromMissing = !(ms816 && ms816.vix == null && ms816.actionPlan && ms816.actionPlan.position);
-      // v58.94: a fresh marketState.actionPlan wins over recomputation (src/ui/components/home-action-plan.js), run on a stub node.
-      var pos816 = { textContent: '', setAttribute: function() {} }, saved816 = window.AIO.marketState; window.AIO.marketState = { ts: Date.now(), vix: 21.5, fg: 40, actionPlan: { position: { label: 'L816', note: 'n' } } };
-      try { if (hasRefreshAction) window._aioRefreshActionPlan({ getElementById: function(id) { return id === 'home-action-position' ? pos816 : null; } }); } finally { window.AIO.marketState = saved816; }
-      var srcHasBrainPref = pos816.textContent === '변동성 구간(L816): n (VIX 21.50)';
-      t816ok = hasRefreshAction && ranOk && brainPlanEmitted && noBandFromMissing && srcHasBrainPref;
-      t816detail = 'fn=' + hasRefreshAction + ' ran=' + ranOk + ' brainPlan=' + brainPlanEmitted + ' noBandFromMissing=' + noBandFromMissing + ' brainPref=' + srcHasBrainPref;
+      t816ok = refreshRetired816 && brainPlanEmitted && noBandFromMissing;
+      t816detail = 'refreshRetired=' + refreshRetired816 + ' brainPlan=' + brainPlanEmitted + ' noBandFromMissing=' + noBandFromMissing;
     } catch(e) { t816detail = 'ERR:' + e.message; }
-    _assert('T816 v5043_marketstate_consumer: home Action Item이 marketState.actionPlan 단일 출처 구독(+소스 분기)', t816ok, t816detail);
+    _assert('T816 v59.51 (content audit) v5043_marketstate_consumer: marketState.actionPlan 단일 출처 + home 행동 계획 writer 퇴역', t816ok, t816detail);
 
     // ─── v50.44 단일 두뇌 소비자 전환 완성 (선순환 구조) ───
     // T817: computeMarketState 정본 full 객체(breadthConsensusFull/cycleFull) + 페이지 렌더러 4종 marketState 소비 + audit 이중정의 해소
@@ -6899,7 +6874,7 @@
       Array.prototype.forEach.call(page.querySelectorAll('.aio-page-advanced-toggle'), function(el) { var uf869 = el.hasAttribute('data-user-fold'); // P1327/R672 -> v57.81: data-user-fold folds are shown to everyone, the rest stay developer-only
         if (uf869 ? (getComputedStyle(el).display === 'none' && !el.dataset.pfEmptyHidden) : getComputedStyle(el).display !== 'none') failures869.push(id + ':' + (el.id || 'fold') + (uf869 ? ':user-fold-hidden' : ':advanced-visible'));
       });
-    }); ['kr-integrated-technical','kr-integrated-macro','kr-integrated-themes','pf-ai-notes-fold','pf-watchlist-risk-fold'].forEach(function(f) { var n = document.getElementById(f); if (!n || !n.hasAttribute('data-user-fold') || (getComputedStyle(n).display === 'none' && !n.dataset.pfEmptyHidden)) failures869.push(f + ':user-fold-missing'); }); // v57.81 user folds; v58.75: a portfolio fold hidden by the empty state (data-pf-empty-hidden) is not dev-hidden
+    }); ['kr-integrated-technical','kr-integrated-macro','kr-integrated-themes','pf-watchlist-risk-fold'].forEach(function(f) { var n = document.getElementById(f); if (!n || !n.hasAttribute('data-user-fold') || (getComputedStyle(n).display === 'none' && !n.dataset.pfEmptyHidden)) failures869.push(f + ':user-fold-missing'); }); // v57.81 user folds; v58.75: a portfolio fold hidden by the empty state (data-pf-empty-hidden) is not dev-hidden; v59.51 (content audit): pf-ai-notes-fold retired with the in-page AI workbench
     try {
       if (typeof window._aioOrganizeGuideChapters === 'function') window._aioOrganizeGuideChapters(); // v59.07: src/ui/components/guide-chapters.js
       if (typeof window._aioRenderPageFundamentals === 'function') failures869.push('retired-fund-renderer-present');
@@ -6929,15 +6904,18 @@
       if (briefList && briefList.scrollHeight > 1020 && parseInt(getComputedStyle(briefList).maxHeight, 10) > 820) failures869.push('briefing-uncapped');
       var pfForm = document.getElementById('pf-entry-section');
       if (!pfForm || getComputedStyle(pfForm).display !== 'none') failures869.push('portfolio-form-default');
-      ['pf-cash-hero','pf-exposure-rule','pf-exposure-current'].forEach(function(id) {
+      ['pf-cash-hero','pf-total-pnl'].forEach(function(id) {
         if (!document.getElementById(id)) failures869.push(id + ':missing');
+      });
+      ['pf-exposure-rule','pf-exposure-current'].forEach(function(id) { // v59.51 (content audit): the exposure-rule column is retired
+        if (document.getElementById(id)) failures869.push(id + ':retired-returned');
       });
       var pfHero = document.getElementById('pf-hero-stats');
       var pfHeroEmpty = !!document.querySelector('#pf-hero.is-empty'); if (!pfHero || (pfHeroEmpty ? (document.getElementById('pf-hero-empty') || {}).hidden !== false : getComputedStyle(pfHero).gridTemplateColumns.split(' ').length !== 3)) failures869.push('portfolio-hero-columns'); // v57.79: an empty portfolio collapses the hero to one empty line; three columns once it shows
       var ia = window.AIO_ROUTE_REGISTRY && window.AIO_ROUTE_REGISTRY.classes;
       if (!ia || ia.NAV_ROUTE.length !== 17 || ia.DERIVED_VIEW.length !== 2 || ia.REFERENCE.length !== 0 || ia.OVERLAY.length !== 1 || (ia.REMOVED || []).length !== 6) failures869.push('surface-count-contract');
       var guideChapters = document.querySelectorAll('#page-guide > .aio-guide-chapter');
-      if (guideChapters.length < 4 || !document.getElementById('guide-screen-cards') || !document.getElementById('guide-rules-table')) failures869.push('guide-chapters=' + guideChapters.length); // P1428: compact reference — map + rule table open, the rest folded
+      if (guideChapters.length !== 3 || document.getElementById('guide-screen-cards') || !document.getElementById('guide-rules-table')) failures869.push('guide-chapters=' + guideChapters.length); // v59.51 (content audit): three folded chapters (rules, reading, data); the screen cards are retired (the menu names the screens)
       if (Array.prototype.filter.call(guideChapters, function(el){ return el.open; }).length) failures869.push('guide-chapter-default-open');
       var krThemeCards = document.querySelectorAll('#kr-theme-container .kr-theme-card');
       var krThemeVisible = Array.prototype.filter.call(krThemeCards, function(el){ return getComputedStyle(el).display !== 'none'; }).length;
@@ -6946,11 +6924,14 @@
       if (document.querySelectorAll('.aio-comp-secondary-feed:not(.aio-dev-mode)').length < 2) failures869.push('kr-duplicate-feeds-not-marked'); /* v53.7 P725: 잔여 KR 피드 2개(macro/technical) */
       if (typeof renderGlossaryItems === 'function') renderGlossaryItems('');
       if (document.querySelectorAll('#glossary-body .aio-glossary-item').length < 200) failures869.push('glossary-items');
-      var pfOrderIds = ['pf-holdings-table-section','pf-allocation-section','pf-benchmark-section','pf-holdings-analysis-section']; // v57.77: pf-risk-section retired
+      // v59.51 (content audit): the allocation and holdings-analysis sections left; the order is entry form, holdings table,
+      // the reading (#pf-read), then 포트폴리오 점검 — the visual (CSS order) and DOM (keyboard/reader) orders must agree.
+      var pfOrderIds = ['pf-entry-section','pf-holdings-table-section','pf-read','pf-checks'];
       var pfOrders = pfOrderIds.map(function(id){ var el = document.getElementById(id); return el ? parseInt(getComputedStyle(el).order, 10) : NaN; });
-      if (pfOrders.some(function(v, i){ return !(v > (i ? pfOrders[i - 1] : -Infinity)); })) failures869.push('portfolio-order=' + pfOrders.join('/'));
-      var pfEntry869 = (document.getElementById('pf-read') || {}).nextElementSibling; // v57.77: DOM (keyboard/reader) order — entry form, then holdings, right under #pf-read
-      if (!pfEntry869 || pfEntry869.id !== 'pf-entry-section' || (pfEntry869.nextElementSibling || {}).id !== 'pf-holdings-table-section') failures869.push('portfolio-dom-order');
+      if (pfOrders.some(function(v, i){ return !(i ? v >= pfOrders[i - 1] : Number.isFinite(v)); })) failures869.push('portfolio-order=' + pfOrders.join('/'));
+      var pfDom869 = pfOrderIds.map(function(id){ return document.getElementById(id); });
+      if (pfDom869.some(function(el, i){ return !el || (i && !(pfDom869[i - 1].compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING)); })) failures869.push('portfolio-dom-order');
+      if (document.getElementById('pf-allocation-section') || document.getElementById('pf-holdings-analysis-section')) failures869.push('portfolio-retired-section-returned');
       if (typeof window._aioTogglePortfolioEntry === 'function') window._aioTogglePortfolioEntry(true);
       if (!pfForm || !pfForm.classList.contains('is-open')) failures869.push('portfolio-form-toggle');
       if (typeof window._aioTogglePortfolioEntry === 'function') window._aioTogglePortfolioEntry(false);
@@ -7008,7 +6989,9 @@
       'cards=' + cards1018.length);
 
     var pfMain1019 = document.getElementById('pf-main');
-    var pfRisk1019 = document.getElementById('pf-allocation-section'); // v57.77: pf-risk-section retired; allocation is the first calculation section
+    // v59.51 (content audit): pf-allocation-section is retired. The holdings table cannot stand in (the empty-state CTA lives
+    // in its tbody); the first calculation-only section is the benchmark comparison, which renderPortfolio hides when empty.
+    var pfRisk1019 = document.getElementById('pf-benchmark-section');
     var pfEmpty1019 = document.querySelector('#pf-positions-tbody .pf-empty-state');
     var empty1019 = !pfMain1019 || !pfMain1019.classList.contains('is-empty') || (!!pfEmpty1019 && pfRisk1019 && getComputedStyle(pfRisk1019).display === 'none');
     _assert('T1019 portfolio_empty_state_hierarchy: 빈 포트폴리오는 추가 CTA만 우선하고 계산 불가능한 리스크 카드를 숨긴다', empty1019,
@@ -7036,7 +7019,7 @@
       var vals870 = Array.prototype.map.call(document.querySelectorAll('[data-live-price="^GSPC"]'), function(el) {
         return parseFloat(String(el.textContent).replace(/[^0-9.\-]/g, ''));
       }).filter(function(n) { return isFinite(n); });
-      var allMatch870 = vals870.length >= 1 && /* P1392: the signal-page sink left; home spot line remains */ vals870.every(function(v) { return Math.abs(v - _t870Price) / _t870Price < 0.001; });
+      var allMatch870 = /* P1392 + v59.51: no sink is required (S&P 500 is #home-index-strip's SPY card) */ vals870.every(function(v) { return Math.abs(v - _t870Price) / _t870Price < 0.001; });
       _assert('T870 gspc_data_live_price_single_source_v5240 (EF-01): every [data-live-price="^GSPC"] sink (home/signal/technical header) reflects the same live value within 0.1%',
         allMatch870, 'values=' + vals870.join(',') + ' expected=' + _t870Price);
     } catch (e870) { _assert('T870 gspc_data_live_price_single_source_v5240 (EF-01)', false, 'threw: ' + (e870 && e870.message)); }
@@ -7221,9 +7204,10 @@
         'bokNext=' + bokNext884 + ' calNext=' + (cal884 && cal884.nextRelease));
     } catch (e884) { _assert('T884 bok_next_meeting_date_valid (EF-03/P713)', false, 'threw: ' + (e884 && e884.message)); }
 
-    // T885 (EF-17) → v57.76: the GMO table and its futures rows are retired; ES=F/NQ=F stay in the home KPI strip.
-    _assert('T885 v57.76 home_futures_in_kpi_strip: GMO 표 퇴역, S&P·나스닥 선물은 홈 시세 줄에 유지',
-      typeof GMO_MARKETS === 'undefined' && !!document.querySelector('#home-kpi-strip [data-live-price="ES=F"]') && !!document.querySelector('#home-kpi-strip [data-live-price="NQ=F"]'),
+    // T885 (EF-17) → v57.76: the GMO table and its futures rows are retired. v59.51 (content audit): the KPI strip left 오늘;
+    // the ES=F/NQ=F chips moved into the cross-asset row (#home-cross-assets [data-futures]).
+    _assert('T885 v59.51 home_futures_in_cross_assets: GMO 표 퇴역, S&P·나스닥 선물은 홈 교차 자산 줄에 유지',
+      typeof GMO_MARKETS === 'undefined' && !!document.querySelector('#home-cross-assets [data-futures="ES=F"] [data-live-price="ES=F"]') && !!document.querySelector('#home-cross-assets [data-futures="NQ=F"] [data-live-price="NQ=F"]'),
       'gmo=' + typeof GMO_MARKETS);
 
     // T886 (EF-18 -> P1671): the KR supply trend fetch and its response adapter were retired.
@@ -7529,9 +7513,9 @@
     _assert('T918 breadth_chart_runtime_only_contract v57.60: no legacy breadth chart writer (initBreadthPage / _aioBreadthCanvasRender) remains',
       typeof window.initBreadthPage !== 'function' && typeof window._aioBreadthCanvasRender !== 'function',
       'init=' + typeof window.initBreadthPage + ' canvas=' + typeof window._aioBreadthCanvasRender);
-    var diagramTypes921 = window._aioDiagram && typeof window._aioDiagram.types === 'function' ? window._aioDiagram.types() : null;
-    _assert('T921 v59.42 the diagram engine keeps only the factor radar (the price-position fixture left with its sinkless diagram)',
-      !!diagramTypes921 && diagramTypes921.join(',') === 'factor-radar', JSON.stringify(diagramTypes921));
+    // v59.51 (content audit): the factor radar's sink (#vis-fundamental-radar) left 재무 공시, so the _aioDiagram engine is retired.
+    _assert('T921 v59.51 (content audit) the legacy SVG diagram engine (_aioDiagram) is retired with its last sink',
+      typeof window._aioDiagram === 'undefined', 'typeof=' + typeof window._aioDiagram);
   }
 
   // Group92: v52.59/H2-04 AI failure contract — every AI surface must classify
@@ -8612,12 +8596,11 @@
     _assert('P1551 T_p1551_1 SPY 변동률 결측으로 저변동성 압축 신호를 만들 경로가 없다 (v57.76: writer 퇴역)',
       typeof window.updatePatternSignals !== 'function', 'updatePatternSignals=' + typeof window.updatePatternSignals);
 
-    // P1551: the chat diagram path applies the same unavailable guard as the page renderer.
-    var svgGuard = window._aioDiagram && typeof window._aioDiagram.getSvg === 'function'
-      ? [window._aioDiagram.getSvg('factor-radar', { available: false })] // v59.42: the other diagram types were deleted
-      : null;
-    _assert('P1551 T_p1551_2 채팅 다이어그램은 입력이 없으면 기본값(0/100, MID, 0.0)을 그리지 않는다',
-      !!svgGuard && svgGuard.every(function(svg) { return svg === ''; }), JSON.stringify(svgGuard && svgGuard.map(function(svg) { return svg.length; })));
+    // P1551: the chat diagram path applied the same unavailable guard as the page renderer. v59.51 (content audit): the
+    // _aioDiagram engine is retired, so no legacy diagram path is left to draw defaults (answer visuals are
+    // src/ui/components/ai-answer-visuals.js).
+    _assert('P1551 T_p1551_2 v59.51 (content audit) 채팅 다이어그램 기본값 경로 없음 — _aioDiagram 퇴역',
+      typeof window._aioDiagram === 'undefined', 'typeof=' + typeof window._aioDiagram);
   }
 
   window.AIO = window.AIO || {};

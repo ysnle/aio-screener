@@ -4094,19 +4094,18 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     // v57.77: 시장 폭 / 투자 심리 providers live in the page's 데이터 출처 fold (phones cannot hover), the card notes are one
     // line with the edges in the fold (rules), the always-null aaiiNote is gone, and each breadth group names a lead chart.
     const { PAGE_SOURCES } = await load('src/ui/components/page-sources.js');
-    const { RULES } = await load('src/domain/rules/thresholds.js');
     const { BREADTH_GROUPS, buildBreadthCards } = await load('src/ui/components/breadth-board.js');
     if (!PAGE_SOURCES.breadth?.length || !PAGE_SOURCES.sentiment?.length) fail('v57.77 breadth and sentiment need a 데이터 출처 entry');
     const model = buildSentimentModel({});
     if ('aaiiNote' in model) fail('v57.77 the always-null sentiment aaiiNote must stay retired');
     if (model.cards.some((card) => card.source)) fail('v57.77 sentiment cards must not carry hover-only providers');
-    for (const id of ['hy', 'composite']) {
+    for (const id of ['composite']) {
       const card = model.cards.find((row) => row.id === id);
       if (!card || !card.rules || card.note.length > 90 || /\d{3}bp/.test(card.note)) fail(`v57.77 ${id} note must be one short line with the thresholds in rules: ${card?.note}`);
     }
-    if (!model.cards.find((row) => row.id === 'hy').rules.includes(`${RULES.credit.stressAtBp}bp`)) fail('v57.77 HY rules must state the shared stress edge');
+    if (model.cards.some((row) => row.id === 'hy')) fail('v59.51 credit is read once, on the market-state credit axis; the sentiment page must not repeat an HY card');
     const breadthIds = new Set(buildBreadthCards([]).map((card) => card.id));
-    if (BREADTH_GROUPS.map((group) => group.lead).join(',') !== 'b50,hl,spx' || BREADTH_GROUPS.some((group) => !breadthIds.has(group.lead))) fail('v57.77 breadth group leads must be b50, hl, spx');
+    if (BREADTH_GROUPS.map((group) => group.lead).join(',') !== 'b50,hl,dd' || BREADTH_GROUPS.some((group) => !breadthIds.has(group.lead))) fail('v59.51 breadth group leads must be b50, hl, dd');
     if (buildBreadthCards([]).some((card) => card.source)) fail('v57.77 breadth cards must not carry hover-only conventions');
   }
   const intraday = [...rows, { date: day(260), breadth50: 80, fieldMeta: { breadth50: { observedAt: `${day(260)}T13:30:00.000Z` } } }];
@@ -4175,7 +4174,8 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const { fixKoreanTerms } = await load('src/domain/briefing/headline-terms.js');
   const lead = { id: 'aibust', axes: ['growth', 'credit'], title: 'AI 투자 꺾임 — x', fit: '조건 충족 3/4', weaker: ['aicapex', 'growth', 'liquidity'], firmer: ['defensive'],
     conditions: [['a', true], ['일자리 둔화', false]], triggers: [{ id: 'us-nfp', when: '11/6 고용보고서', text: '일자리 5만~7.5만 명' }], checks: [] };
-  const xr = { leadId: 'aibust', altId: null, items: [lead], events: [{ id: 'us-nfp', when: '11/6 고용보고서', name: '고용보고서', atMs: Date.parse('2026-11-06T13:30:00Z') }], rateHub: {} };
+  // v59.51 (content audit): event-guide reads scenarioLead(xr), which holds unless the model is available — match the real model shape.
+  const xr = { available: true, tiedIds: [], leadId: 'aibust', altId: null, items: [lead], events: [{ id: 'us-nfp', when: '11/6 고용보고서', name: '고용보고서', atMs: Date.parse('2026-11-06T13:30:00Z') }], rateHub: {} };
   const chain = newsImpactChain('Meta falls as AI spending fears rattle markets', xr);
   const none = newsImpactChain('OpenAI trains models offline after cyber incidents', xr);
   const checks = todayChecks({ flip: { text: 'WTI 조건', sub: '지금 -1.9%p' }, schedule: [{ kind: 'macro', when: '10/25 21:30 KST', label: 'CPI', atMs: Date.parse('2026-10-25T12:30:00Z'), passed: false }], xr, nowMs: Date.parse('2026-10-24T12:00:00Z') });
@@ -4270,9 +4270,8 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const rotation = (daily) => ({ schemaVersion: 'rotation-history.v1', modelVersion: 'rrg.v3', benchmark: 'SPY', timeframe: '1d', priceBasis: 'adjusted-close', decisionUse: false, allowedUseCeiling: 'reference', latestCompletedSession: session,
     items: Object.fromEntries(Object.entries(daily).map(([symbol, pct]) => [symbol, { status: 'CURRENT', sessionDate: session, rsRatio: 101, rsMomentum: 101, quadrant: 'Leading', dailyPct: pct, weeklyPct: pct, alignedSessionCount: 60, observedAt: '2026-10-22T20:00:00.000Z', fetchedAt: '2026-10-22T20:20:00.000Z' }])) });
   const day = { XLP: 3.3, XLU: 2.1, XLV: 1.3, XLF: 1.1, XLRE: 1.1, XLB: 0.7, XLY: -0.5, XLE: -0.9, XLI: -1, XLC: -1.4, XLK: -3.3, SMH: -6 };
-  const macro = { dgs10Delta: -0.17, _asOf_dgs10: '2026-10-22' };
-  const flow = buildMarketFlow({ rotationHistory: rotation(day), macro, history: [{ date: session, fg: 19.8 }], nowMs });
-  const broad = buildMarketFlow({ rotationHistory: rotation(Object.fromEntries(Object.keys(day).map((symbol) => [symbol, -1.5]))), macro: { dgs10Delta: -0.17, _asOf_dgs10: '2026-10-21' }, nowMs });
+  const flow = buildMarketFlow({ rotationHistory: rotation(day), history: [{ date: '2026-10-21', tnx: 4.17, smh: 100 }, { date: session, fg: 19.8, tnx: 4.00, smh: 94 }], nowMs });
+  const broad = buildMarketFlow({ rotationHistory: rotation(Object.fromEntries(Object.keys(day).map((symbol) => [symbol, -1.5]))), history: [{ date: '2026-10-20', tnx: 4.17 }, { date: '2026-10-21', tnx: 4.00 }], nowMs });
   const themes = [{ id: 'utilities', nameKr: '유틸리티', subThemes: [{ name: '규제 유틸리티', tickers: ['A1', 'A2', 'A3'] }, { name: '원전/독립발전', tickers: ['B1', 'B2', 'B3'] }] },
     ...Array.from({ length: 8 }, (_, i) => ({ id: `t${i}`, nameKr: `테마${i}`, subThemes: [{ name: `세부${i}`, tickers: [`C${i}a`, `C${i}b`, `C${i}c`] }] }))];
   const rows = [['A1', 2.6], ['A2', 3], ['A3', 2], ['B1', -9.8], ['B2', -5.4], ['B3', -5.7], ...Array.from({ length: 8 }, (_, i) => [[`C${i}a`, 0.1 * i], [`C${i}b`, 0.1 * i], [`C${i}c`, 0.1 * i]]).flat()]
@@ -4800,8 +4799,11 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
 // P1527: the home KPI trend and 시장 상태 draw the same "20거래일" series; both stop at the S&P 500's last completed close.
 // Observed 2026-10-08: the home included a pre-market 10-year-yield row dated after the basis (+45bp, 09/09 to 10/08) while
 // 시장 상태 read +47bp (09/08 to 10/07).
+// v59.51 (content audit): the home KPI trend tiles (trendPoints) are retired; the home now draws the participation pair
+// (homeParticipationSeries: S&P 500 + breadth50). The same intent holds — one close-basis series shared with 시장 상태, and
+// no row dated after the S&P 500's last completed close.
 {
-  const { trendPoints } = await load('src/ui/components/home-kpi-trend.js');
+  const { homeParticipationSeries } = await load('src/ui/components/home-kpi-trend.js');
   const { buildCloseSeries, closeBasis } = await load('src/domain/briefing/market-read.js');
   const history = [];
   const cursor = new Date(Date.UTC(2026, 8, 8));
@@ -4810,18 +4812,18 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
     if (weekday !== 0 && weekday !== 6) {
       const date = cursor.toISOString().slice(0, 10);
       const meta = { observedAt: `${date}T20:00:00Z` };
-      history.push({ date, spx: 5000 + history.length, tnx: 4 + history.length * 0.01, fieldMeta: { spx: meta, tnx: meta } });
+      history.push({ date, spx: 5000 + history.length, tnx: 4 + history.length * 0.01, breadth50: 40 + history.length, fieldMeta: { spx: meta, tnx: meta, breadth50: meta } });
     }
     cursor.setUTCDate(cursor.getUTCDate() + 1);
   }
   const basis = history[history.length - 1].date;
-  history.push({ date: '2026-10-08', tnx: 5.5, fieldMeta: { tnx: { observedAt: '2026-10-08T13:16:05Z' } } });
+  history.push({ date: '2026-10-08', tnx: 5.5, breadth50: 90, fieldMeta: { tnx: { observedAt: '2026-10-08T13:16:05Z' }, breadth50: { observedAt: '2026-10-08T13:16:05Z' } } });
   if (closeBasis(history) !== basis) fail('P1527 fixture: the close basis must be the last S&P 500 close');
-  const home = trendPoints(history, 'tnx');
-  const market = buildCloseSeries(history, 'tnx', { through: basis }).slice(-21);
-  if (home.length !== 21 || JSON.stringify(home) !== JSON.stringify(market)) fail('P1527 the home trend must be the same 20-session series 시장 상태 uses');
-  if (home.some((point) => point.date > basis)) fail('P1527 the home trend must not include a row dated after the common close basis');
-  if (JSON.stringify(trendPoints(history, 'spx')) !== JSON.stringify(buildCloseSeries(history, 'spx', { through: basis }).slice(-21))) fail('P1527 the home S&P 500 trend must match the shared series');
+  const home = homeParticipationSeries(history);
+  const market = buildCloseSeries(history, 'spx', { through: basis });
+  if (home.spx.length !== market.length || JSON.stringify(home.spx) !== JSON.stringify(market)) fail('v59.51 (content audit): P1527 the home participation S&P 500 line must be the same close-basis series 시장 상태 uses');
+  if (home.spx.some((point) => point.date > basis) || home.b50.some((point) => point.date > basis)) fail('v59.51 (content audit): P1527 the home participation pair must not include a row dated after the common close basis');
+  if (JSON.stringify(home.b50) !== JSON.stringify(buildCloseSeries(history, 'breadth50', { through: basis }))) fail('v59.51 (content audit): P1527 the home participation breadth line must match the shared series');
 }
 
 // P1528 (audit H17): a real yield (TIPS) and a breakeven observed on different days must not be compared. The briefing holds
@@ -5167,13 +5169,15 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
 // v57.79 (UI review): the home 코스피 chip names its basis and never shows an unlabeled number that conflicts with the
 // last KRX close; the close tiles carry a "지금" line only when a quote is newer than the compared US close.
 {
-  const { koreaQuoteChip, liveSinceClose } = await load('src/ui/components/daily-loop.js');
+  const dailyLoop = await load('src/ui/components/daily-loop.js');
+  const { koreaQuoteChip } = dailyLoop;
   {
     // v57.83 codex audit F25/F26: more than eight names says the count and the way to the rest; an empty schedule says
     // "없습니다" only when the calendars were read.
     const dailySrc = readFileSync(path.join(root, 'src/ui/components/daily-loop.js'), 'utf8');
     if (!/전체 \$\{model\.names\.length\}개 중 8개 표시/.test(dailySrc) || !/scr-watchlist-only/.test(dailySrc)) fail('v57.83 the home name list names its total and links to the watchlist'); // text-pin-ok: renderDailyLoop needs a full document and store; the browser check exercises the button
-    if (!/발표 일정 자료를 아직 받지 못했습니다/.test(dailySrc) || !/실적 발표 일정은 아직 받는 중입니다/.test(dailySrc)) fail('v57.83 the home schedule keeps not-received apart from none'); // text-pin-ok: renderer copy without a test document; browser check covers the empty states
+    // v59.51 (content audit): 다가오는 일정 and 지난 마감 이후 변화 left 오늘 (they repeated 브리핑); the not-received copy moved with them.
+    if (/home-schedule|home-daily-changes|renderSchedule\(/.test(dailySrc)) fail('v59.51 (content audit): the retired home schedule / close-change blocks must not come back to 오늘 (브리핑 owns the 7-day schedule)'); // text-pin-ok: retirement absence check on renderer source
   }
   const closes = [{ date: '2026-10-13', value: 6035 }, { date: '2026-10-14', value: 6008.81 }];
   const session = { price: 5498.42, pct: -8.494, observedAt: '2026-10-15T05:35:00.000Z', regularMarketPreviousClose: 6008.81, marketState: 'DELAYED_IN_SESSION' };
@@ -5184,11 +5188,8 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   const disagree = koreaQuoteChip({ live: { ...session, regularMarketPreviousClose: 5500 }, closes });
   if (disagree?.basis !== 'close' || disagree.reason !== 'live-disagrees') fail(`v57.79 a quote whose previous close is >5% off the close series shows the close: ${JSON.stringify(disagree)}`);
   if (koreaQuoteChip({ live: null, closes: [] }) !== null) fail('v57.79 with neither a quote nor a close the 코스피 chip hides');
-  if (liveSinceClose('wti', { price: 94.38, pct: -0.75, observedAt: '2026-10-15T05:35:00Z' }, '2026-10-14')?.text !== '지금 94.38 -0.75%') fail('v57.79 a WTI quote after the 10/14 US close adds a 지금 line');
-  if (liveSinceClose('vix', { price: 16.87, pct: 10.48, observedAt: '2026-10-14T20:15:00Z' }, '2026-10-14') !== null) fail('v57.79 a quote taken at the compared close adds no 지금 line');
-  if (liveSinceClose('tnx', { price: 5.19, pct: -0.5, observedAt: '2026-10-15T14:00:00Z' }, '2026-10-14')?.text !== '지금 5.19% -3bp') fail('v57.79 the 10-year 지금 line moves in basis points');
-  if (liveSinceClose('wti', { price: 94.38, pct: -0.75, observedAt: '2026-10-15T05:35:00Z' }, '2026-10-14', 92.5)?.text !== '지금 94.38 +2.03%') fail('v57.86 the 지금 change is measured from the tile close, not the provider previous close');
-  if (liveSinceClose('tnx', { price: 5.19, pct: -0.5, observedAt: '2026-10-15T14:00:00Z' }, '2026-10-14', 5.15)?.text !== '지금 5.19% +4bp') fail('v57.86 the 10-year 지금 line moves from the tile close in basis points');
+  // v59.51 (content audit): the close-change tiles and their 지금 line (liveSinceClose) are retired with 지난 마감 이후 변화.
+  if ('liveSinceClose' in dailyLoop) fail('v59.51 (content audit): liveSinceClose belonged to the retired home close tiles and must not be exported again');
 }
 
 // v57.81: history.json held one session under two row dates. Rows before v57.70 stamp a previous close with a bar
@@ -5944,8 +5945,16 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (section.dataset.frame !== 'home.test' || section.attrs['aria-labelledby'] !== 't' || section.children[1]?.className !== 'aio-frame-reading') fail('v58.79 frameSection: data-frame name, labelled by its title, reading after the head');
   const { headroom } = await import(pathToFileURL(path.join(root, 'scripts/ci-secondary-text-budget-check.mjs')).href);
   if (headroom(0) !== 40 || headroom(1000) !== 1140) fail('v58.79 budget headroom is 10% + 40 characters');
-  const { HOME_QUOTE_HEADINGS } = await load('src/ui/components/home-kpi-trend.js');
-  if (HOME_QUOTE_HEADINGS.weekend.chip !== '주말 휴장' || HOME_QUOTE_HEADINGS.open.chip !== '실시간·지연') fail('v58.79 the quote heading carries the quote state as its chip');
+  // v59.51 (content audit): the quote heading and its state chip (HOME_QUOTE_HEADINGS) are retired with the KPI strip; the
+  // quote state now lives in the cross-asset row, where a futures chip shows only with a live quote on an open CME week.
+  const { syncHomeQuoteRow } = await load('src/ui/components/home-kpi-trend.js');
+  const futuresChips = ['ES=F', 'NQ=F'].map((sym) => ({ dataset: { futures: sym }, hidden: false }));
+  const quoteDoc = { getElementById: (id) => (id === 'home-cross-assets' ? { querySelectorAll: () => futuresChips } : null) };
+  const quoteRoot = { _liveData: { 'ES=F': { price: 6800 }, 'NQ=F': { price: 0 } } };
+  const openShown = syncHomeQuoteRow({ documentRef: quoteDoc, root: quoteRoot, nowMs: Date.parse('2026-10-28T15:00:00Z') });
+  if (openShown !== 1 || futuresChips[0].hidden || !futuresChips[1].hidden) fail('v59.51 (content audit): on an open CME week only a futures chip with a live price shows');
+  const weekendShown = syncHomeQuoteRow({ documentRef: quoteDoc, root: quoteRoot, nowMs: Date.parse('2026-10-31T15:00:00Z') });
+  if (weekendShown !== 0 || futuresChips.some((chip) => !chip.hidden)) fail('v59.51 (content audit): on a CME weekend every futures chip hides');
 }
 
 {

@@ -27,7 +27,7 @@ try {
   await page.waitForFunction(() => window.AIO_ARCH?.getScreenerState?.()?.rows?.length >= 800, { timeout: 30000 });
   await page.evaluate(() => window.showPage('screener'));
   await page.waitForFunction(() => document.querySelectorAll('#screener-results-body [data-aio-screener-ticker]').length === 12, { timeout: 30000 });
-  await page.locator('#scr-tab-button-evidence').click();
+  await page.locator('#scr-tab-button-backtest').click(); // v59.51: the 사후 검증 view carries the evidence panel
   await page.waitForFunction(() => document.getElementById('scr-tab-evidence')?.hidden === false, { timeout: 5000 });
   const conditionalEvidencePanel = await page.locator('#screener-conditional-evidence-panel').evaluate((node) => ({ status: node.dataset.statusCode, text: node.textContent }));
   if (conditionalEvidencePanel.status !== 'NO_CONDITIONAL_EVIDENCE' || /keygen|password|download/i.test(conditionalEvidencePanel.text)) throw new Error(`conditional evidence fail-closed contract invalid: ${JSON.stringify(conditionalEvidencePanel)}`);

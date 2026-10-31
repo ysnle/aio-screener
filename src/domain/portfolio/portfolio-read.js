@@ -197,9 +197,15 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
   // v57.84 review: the mix names the remainder (조정·반등) so the shares add up, and the 3-month line says it is the
   // current holdings looked back on, not the account's own track record.
   const otherPct = trendMix.length ? Math.max(0, 100 - (upPct || 0) - (downPct || 0) - (nearPct || 0)) : 0;
-  const headline = [trendMix.length ? `${plainBasis} ${(upPct || 0).toFixed(0)}%는 오르는 흐름(50·200일선 위), ${(downPct || 0).toFixed(0)}%는 내리는 흐름입니다${otherPct >= 1 ? `, 조정·반등 ${otherPct.toFixed(0)}%` : ''}${nearPct > 0 ? `(${nearPct.toFixed(0)}%는 선 근처라 판정 보류)` : ''}.` : null,
-    book3 != null && bench3 != null ? `지금 구성으로 계산하면 최근 3개월은 지수보다 ${Math.abs(book3 - bench3).toFixed(1)}%p ${book3 >= bench3 ? '앞섰습니다' : '뒤처졌습니다'}${relativeBasisNote}.` : null,
-    regime?.available ? `미국 시장 상태는 '${regime.overall}'입니다.` : null, krLine?.headline || null].filter(Boolean).join(' ');
+  // v59.51 (first-users run-6 #9, two layers): the face line is for a beginner. "0%는 내리는 흐름" read as not calculated,
+  // so a zero share is said as "없습니다"; the 3-month line carries its own assumption (it once sat two paragraphs away
+  // and "내 수익률" read as the account's). The 50·200일선 definitions and buffers stay in the folded points.
+  const share = (pct) => `${(pct || 0).toFixed(0)}%`;
+  const trendLine = !trendMix.length ? null
+    : `${trendContainedPct >= 99.5 ? (unpriced ? `가격을 확인한 보유 금액${unpricedNote} 중` : '보유 금액 중') : `${plainBasis.replace(/ 기준으로$/, '')} 중`} ${(upPct || 0) >= 0.5 ? `${share(upPct)}는 오르는 흐름에 있고` : '오르는 흐름에 있는 종목은 없고'}, ${(downPct || 0) >= 0.5 ? `${share(downPct)}는 내리는 흐름입니다` : '내리는 흐름인 종목은 없습니다'}.${nearPct >= 0.5 ? ` ${share(nearPct)}는 아직 방향이 뚜렷하지 않습니다.` : ''}${otherPct >= 1 ? ` ${share(otherPct)}는 큰 흐름 속 조정이나 반등 중입니다.` : ''}`;
+  const headline = [trendLine,
+    book3 != null && bench3 != null ? `지금 구성을 3개월 전부터 들고 있었다면 ${attribution.blendedLabel.replace(/\([^)]*\)/g, '')}보다 ${Math.abs(book3 - bench3).toFixed(1)}%p ${book3 >= bench3 ? '앞섰습니다' : '뒤처졌습니다'}${relativeBasisNote}.` : null,
+    regime?.available ? `미국 시장은 '${regime.overall}'입니다.` : null, krLine?.headline || null].filter(Boolean).join(' ');
   const next = [];
   if (weakest[0]) next.push({ action: 'showTicker', arg: weakest[0].symbol, route: 'ticker', label: weakest[0].symbol, why: '하락 추세 중 비중이 가장 큰 종목의 요약·차트' });
   next.push({ route: 'themes', label: '테마와 섹터', why: '보유 섹터가 회전의 어느 단계에 있는지' });

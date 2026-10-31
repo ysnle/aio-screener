@@ -168,7 +168,7 @@ try {
     cards: document.querySelectorAll('#page-sentiment .trend-card').length,
     badge: !!document.getElementById('sent-overall-badge')
   }));
-  if (sentimentRoute.active !== 'sentiment' || sentimentRoute.storeRoute !== 'sentiment' || !['blocked', 'observed'].includes(sentimentRoute.state) || sentimentRoute.renderer !== 'native' || sentimentRoute.boardRenderer !== 'native' || sentimentRoute.cards !== 6 || sentimentRoute.badge) throw new Error(`sentiment lifecycle failed (P1586: five published-source cards + the self-computed composite): ${JSON.stringify(sentimentRoute)}`);
+  if (sentimentRoute.active !== 'sentiment' || sentimentRoute.storeRoute !== 'sentiment' || !['blocked', 'observed'].includes(sentimentRoute.state) || sentimentRoute.renderer !== 'native' || sentimentRoute.boardRenderer !== 'native' || sentimentRoute.cards !== 5 || sentimentRoute.badge) throw new Error(`sentiment lifecycle failed (P1586 + v59.51: four published-source cards + the self-computed composite; high yield lives on the credit board): ${JSON.stringify(sentimentRoute)}`);
 
   // P1425: the shell no longer prints snapshot-date rows (the fxbond 기준일 row left with the rebuild);
   // the binding is exercised on its own fixture sinks.
@@ -193,7 +193,8 @@ try {
   await page.waitForFunction(() => document.getElementById('page-guide')?.dataset.aioArchitectureRoute === 'guide');
   const guideRoute = await page.evaluate(() => {
     const input = document.getElementById('guide-search-input');
-    input.value = 'VCP';
+    // v59.51: 'VCP' lived only in the retired screen map; VIX is in the rule table generated from RULES.
+    input.value = 'VIX';
     document.querySelector('[data-action="_aioGuideSearchTrigger"]')?.click();
     const result = document.getElementById('guide-search-result');
     return {
@@ -284,13 +285,12 @@ try {
     chainNodes: document.querySelectorAll('#macro-chain .macro-chain-row .macro-chain-node').length,
     regimeLabel: document.querySelector('#macro-regime .macro-regime-label')?.textContent || '',
     gauges: document.querySelectorAll('#macro-axes .macro-gauge').length,
-    tiles: document.querySelectorAll('#macro-regime .macro-tile').length,
     quadrant: !!document.querySelector('#macro-regime svg.macro-quadrant'),
     rawLiveSinkCount: document.querySelectorAll('#page-macro [data-live-price], #page-macro [data-live-chg]').length,
     nativeLiveSinkCount: document.querySelectorAll('#page-macro[data-aio-architecture-renderer="native"] [data-live-price], #page-macro[data-aio-architecture-renderer="native"] [data-live-chg]').length,
     retired: ['macro-storyline', 'macro-regime-pill', 'yieldCurveChart', 'macro-2y-value', 'macro-spread-value', 'thermometer-fill', 'macro-scenario-sum'].filter((id) => document.getElementById(id))
   }));
-  if (macroRoute.boardRenderer !== 'native' || macroRoute.groups.slice(0, 4).join(',') !== 'policy,inflation,labor,activity' || macroRoute.groups.slice(4).some((id) => !['liquidity', 'growth', 'commodities-fx', 'long-history'].includes(id)) /* P1682: P1654 data-gated groups follow the four core groups once their series arrive */ || !/3\.1%/.test(macroRoute.cpiCard) || !/8월분/.test(macroRoute.cpiCard) || !/연준 목표 2% 대비 \+0\.9%p, \+0\.8%p/.test(macroRoute.inflationFact) || macroRoute.impactAxes.join(',') !== 'growth,inflation,policy,rates,commodities,credit' || macroRoute.chainNodes !== 5 || !macroRoute.regimeLabel.trim() || macroRoute.gauges < 5 || macroRoute.tiles !== 6 || !macroRoute.quadrant || macroRoute.retired.length || macroRoute.rawLiveSinkCount !== macroRoute.nativeLiveSinkCount) throw new Error(`P1425/P1426 거시 경제 board failed: ${JSON.stringify(macroRoute)}`);
+  if (macroRoute.boardRenderer !== 'native' || macroRoute.groups.slice(0, 4).join(',') !== 'policy,inflation,labor,activity' || macroRoute.groups.slice(4).some((id) => !['liquidity', 'growth', 'commodities-fx', 'long-history'].includes(id)) /* P1682: P1654 data-gated groups follow the four core groups once their series arrive */ || !/3\.1%/.test(macroRoute.cpiCard) || !/8월분/.test(macroRoute.cpiCard) || !/연준 목표 2% 대비 \+0\.9%p, \+0\.8%p/.test(macroRoute.inflationFact) || macroRoute.impactAxes.join(',') !== 'growth,inflation,policy,rates,commodities,credit' || macroRoute.chainNodes !== 5 || !macroRoute.regimeLabel.trim() || macroRoute.gauges < 5 || !macroRoute.quadrant || macroRoute.retired.length || macroRoute.rawLiveSinkCount !== macroRoute.nativeLiveSinkCount) throw new Error(`P1425/P1426 거시 경제 board failed: ${JSON.stringify(macroRoute)}`);
 
   // QA-CRED-05/P1264: 공유 Worker만 있는 환경에서 (a) 매크로의 FRED 계열 값은 출처 라벨과 함께
   // 표시되고, (b) 개인 키를 실은 URL은 공유 Worker로 중계되지 않으며 PRIVATE_ROUTE_REQUIRED
@@ -350,7 +350,7 @@ try {
     return RULES.credit.stressAtBp === 450 && RULES.credit.widen5dBp === 25;
   });
   if (!rulesShared) throw new Error('P1428 shared rule table missing or changed without updating the guide');
-  if (fxbondRoute.boardRenderer !== 'native' || !['4.85%', '4.99%', '5.11%', '5.45%', '5.40%'].every(((at) => (v) => (at = fxbondRoute.yields.indexOf(v, at) + 1) > 0)(0)) || fxbondRoute.yields.length > 12 /* P1685 key tenors in order; v58.56 curve carries up to 11 maturities */ || fxbondRoute.curveDots !== fxbondRoute.yields.length || !/\+0\.26%p/.test(fxbondRoute.spreads) || !/\+0\.41%p/.test(fxbondRoute.spreads) || !/0\.26%p 높습니다/.test(fxbondRoute.curveFact) ||fxbondRoute.levels !== 2 + (fxbondRoute.premiumCard ? 1 : 0) /* v58.75: the high-yield card became a line pointing to 시장 상태 */ || fxbondRoute.impactAxes.join(',') !== 'korea' /* P1505: duplicated macro axes removed */ || fxbondRoute.fxCards.join(',') !== 'dxy,usdkrw,usdjpy,tnx' || fxbondRoute.retired.length || fxbondRoute.rawLiveSinkCount !== fxbondRoute.nativeLiveSinkCount) throw new Error(`P1425 금리와 환율 board failed: ${JSON.stringify(fxbondRoute)}`);
+  if (fxbondRoute.boardRenderer !== 'native' || !['4.85%', '4.99%', '5.11%', '5.45%', '5.40%'].every(((at) => (v) => (at = fxbondRoute.yields.indexOf(v, at) + 1) > 0)(0)) || fxbondRoute.yields.length > 12 /* P1685 key tenors in order; v58.56 curve carries up to 11 maturities */ || fxbondRoute.curveDots !== fxbondRoute.yields.length || !/\+0\.26%p/.test(fxbondRoute.spreads) || !/\+0\.41%p/.test(fxbondRoute.spreads) || !/0\.26%p 높습니다/.test(fxbondRoute.curveFact) ||fxbondRoute.levels !== 2 + (fxbondRoute.premiumCard ? 1 : 0) /* v58.75: the high-yield card became a line pointing to 시장 상태 */ || fxbondRoute.impactAxes.join(',') !== 'korea' /* P1505: duplicated macro axes removed */ || fxbondRoute.fxCards.join(',') !== 'dxy,usdkrw,usdjpy' /* v59.51: the 10-year close card left; the curve carries today's level */ || fxbondRoute.retired.length || fxbondRoute.rawLiveSinkCount !== fxbondRoute.nativeLiveSinkCount) throw new Error(`P1425 금리와 환율 board failed: ${JSON.stringify(fxbondRoute)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('breadth'));
   await page.waitForFunction(() => document.getElementById('page-breadth')?.dataset.aioArchitectureRoute === 'breadth');
   // P1395: the breadth page is the native trend-card board (P1416: ten dated series in three groups + one judgement).
@@ -374,8 +374,6 @@ try {
     rrgStatusText: document.getElementById('rrg-chart-status')?.textContent || '',
     rrgChartRenderer: document.getElementById('rrg-canvas')?.dataset.aioRrgChartRenderer || null,
     rrgCanvasSize: [document.getElementById('rrg-canvas')?.width || 0, document.getElementById('rrg-canvas')?.height || 0],
-    cycleRenderer: document.getElementById('theme-cycle-pill')?.dataset.aioThemeCycleRenderer || null,
-    cycleText: document.getElementById('theme-cycle-pill')?.textContent || '',
     performanceNarrativeRetired: !document.getElementById('sector-perf-analysis'), // v57.76: 섹터 흐름 분석 box retired
     rrgCanvasCssWidth: document.getElementById('rrg-canvas')?.getBoundingClientRect().width || 0,
     rrgFrameWidth: document.getElementById('rrg-canvas-frame')?.clientWidth || 0,
@@ -397,7 +395,7 @@ try {
     stateSelectedId: window.AIO_ARCH?.getState?.()?.themes?.selectedId || null,
     stateDetail: window.AIO_ARCH?.getState?.()?.themes?.selectedDetail || null
   }));
-  if (themesRoute.renderer !== 'native' || themesRoute.themesRenderer !== 'native' || themesRoute.rrgStatusRenderer !== 'native' || !themesRoute.rrgStatusText.trim() || themesRoute.rrgChartRenderer !== 'native' || themesRoute.rrgCanvasSize[0] < 300 || themesRoute.rrgCanvasSize[1] < 180 || themesRoute.cycleRenderer !== 'native' || !themesRoute.cycleText.trim() || !themesRoute.performanceNarrativeRetired || themesRoute.rrgCanvasInAdvancedFold || (themesRoute.rrgFrameWidth > 0 && themesRoute.rrgCanvasCssWidth > themesRoute.rrgFrameWidth + 1) || themesRoute.performanceBarsRenderer !== 'native' || !themesRoute.performanceBarsText.trim() || themesRoute.nativePrimarySinkCount !== themesRoute.rawPrimarySinkCount) throw new Error(`themes native primary/chart/status/cycle/narrative/bars boundary failed: ${JSON.stringify(themesRoute)}`);
+  if (themesRoute.renderer !== 'native' || themesRoute.themesRenderer !== 'native' || themesRoute.rrgStatusRenderer !== 'native' || !themesRoute.rrgStatusText.trim() || themesRoute.rrgChartRenderer !== 'native' || themesRoute.rrgCanvasSize[0] < 300 || themesRoute.rrgCanvasSize[1] < 180 || !themesRoute.performanceNarrativeRetired || themesRoute.rrgCanvasInAdvancedFold || (themesRoute.rrgFrameWidth > 0 && themesRoute.rrgCanvasCssWidth > themesRoute.rrgFrameWidth + 1) || themesRoute.performanceBarsRenderer !== 'native' || !themesRoute.performanceBarsText.trim() || themesRoute.nativePrimarySinkCount !== themesRoute.rawPrimarySinkCount) throw new Error(`themes native primary/chart/status/cycle/narrative/bars boundary failed: ${JSON.stringify(themesRoute)}`);
   if (themeDetailInvocation.showThemeDetailType !== 'function') throw new Error(`theme-detail invocation unavailable: ${JSON.stringify(themeDetailInvocation)}`);
   if (themeDetailInvocation.panelDisplay !== 'block' || themeDetailInvocation.panelRenderer !== 'native') throw new Error(`theme-detail native panel state did not open: ${JSON.stringify(themeDetailInvocation)}`);
   if (themeDetailInvocation.hostHidden !== false) throw new Error(`theme-detail native summary did not open: ${JSON.stringify(themeDetailInvocation)}`);
@@ -463,7 +461,6 @@ try {
     retiredCandleSection: !!document.getElementById('ticker-candle-symbol') || !!document.getElementById('realtime-pattern-indicator'),
     subject: String(window._aioLastOpenedSymbol || '').toUpperCase(),
     searchBeforeRead: (() => { const search = document.getElementById('ticker-direct-search'); const read = document.getElementById('ticker-read'); return !!(search && read && (search.compareDocumentPosition(read) & Node.DOCUMENT_POSITION_FOLLOWING)); })(),
-    factorFolded: document.getElementById('ticker-ov-factor-radar')?.closest('details')?.id === 'ticker-ov-factor-fold'
   }));
   if (tickerRoute.chartRenderer !== 'native' || !['unavailable', 'native-runtime'].includes(tickerRoute.chartSourceKind)) throw new Error(`ticker native chart surface failed: ${JSON.stringify(tickerRoute)}`);
   // P1430: the ticker page's inner tabs (재무 공시 · 가격 이력) were retired — the 종목 hub tabs own that
@@ -542,7 +539,7 @@ try {
     summaryText: document.getElementById('theme-detail-native-summary')?.textContent || '',
     pendingThemeId: window._aioOpenThemeDetailOnThemes || null
   }), relatedThemeId);
-  if (tickerThemeBridge.activePage !== 'page-themes' || tickerThemeBridge.panelThemeId !== relatedThemeId || tickerThemeBridge.pendingThemeId !== null || !tickerThemeBridge.summaryText.includes('AIO 참고 테마 분류')) throw new Error(`ticker-to-theme lazy route handoff failed: ${JSON.stringify(tickerThemeBridge)}`);
+  if (tickerThemeBridge.activePage !== 'page-themes' || tickerThemeBridge.panelThemeId !== relatedThemeId || tickerThemeBridge.pendingThemeId !== null || !tickerThemeBridge.summaryText.includes('지금 단계는')) throw new Error(`ticker-to-theme lazy route handoff failed: ${JSON.stringify(tickerThemeBridge)}`);
   // P1321: the options route is retired; its old hash must alias to sentiment instead of a stub page.
   // QA-ROUTE-19 / R666
   const optionsRetired = await page.evaluate(() => ({ pageGone: !document.getElementById('page-options'), routeGone: !(window.AIO_ALL_ROUTE_PAGE_IDS || []).includes('options'), alias: window.AIO_ROUTE_REGISTRY?.canonical?.options || null }));
@@ -578,10 +575,8 @@ try {
     surfaceRenderer: document.getElementById('page-portfolio')?.dataset.aioPortfolioSurface || null,
     surfaceModel: document.getElementById('page-portfolio')?.dataset.aioPortfolioSurfaceModel || null,
     holdingCountRenderer: document.getElementById('pf-holding-count')?.dataset.aioPortfolioSurfaceRenderer || null,
-    sectorRenderer: document.getElementById('pf-sector-breakdown')?.dataset.aioPortfolioSurfaceRenderer || null,
-    exposureRenderer: document.getElementById('pf-exposure-current')?.dataset.aioPortfolioSurfaceRenderer || null,
-    chartRenderer: document.getElementById('pf-position-donut')?.dataset.aioPortfolioChartRenderer || null,
-    chartSourceKind: document.getElementById('pf-position-donut')?.dataset.sourceKind || null,
+    // v59.51 (content audit): the sector card, exposure column and position donut are retired; pin their absence.
+    retiredSurfaces: ['pf-sector-breakdown', 'pf-exposure-current', 'pf-exposure-rule', 'pf-position-donut'].filter((id) => document.getElementById(id)),
     tableRowCount: document.querySelectorAll('#pf-positions-tbody tr').length,
     rawPrimarySinkCount: document.querySelectorAll('#page-portfolio #pf-analysis-status').length,
     nativePrimarySinkCount: document.querySelectorAll('#page-portfolio[data-aio-architecture-renderer="native"] #pf-analysis-status').length,
@@ -589,7 +584,7 @@ try {
     sourceKind: document.getElementById('pf-analysis-status')?.getAttribute('data-source-kind') || null,
     surfaceUse: document.getElementById('page-portfolio')?.dataset.aioPortfolioSurfaceUse || null
   }));
-  if (portfolioRoute.renderer !== 'native' || portfolioRoute.heroRenderer !== 'native' || !portfolioRoute.heroValue.trim() || !portfolioRoute.heroPnl.trim() || portfolioRoute.tableRenderer !== 'native' || portfolioRoute.surfaceRenderer !== 'native' || portfolioRoute.surfaceModel !== PORTFOLIO_SURFACE_MODEL_VERSION || portfolioRoute.surfaceUse !== 'reference-only' || portfolioRoute.holdingCountRenderer !== 'native' || portfolioRoute.sectorRenderer !== 'native' || portfolioRoute.exposureRenderer !== 'native' || portfolioRoute.chartRenderer !== 'native' || !['unavailable', 'portfolio-state'].includes(portfolioRoute.chartSourceKind)) throw new Error(`portfolio hero/table/summary/chart native surface failed: ${JSON.stringify(portfolioRoute)}`);
+  if (portfolioRoute.renderer !== 'native' || portfolioRoute.heroRenderer !== 'native' || !portfolioRoute.heroValue.trim() || !portfolioRoute.heroPnl.trim() || portfolioRoute.tableRenderer !== 'native' || portfolioRoute.surfaceRenderer !== 'native' || portfolioRoute.surfaceModel !== PORTFOLIO_SURFACE_MODEL_VERSION || portfolioRoute.surfaceUse !== 'reference-only' || portfolioRoute.holdingCountRenderer !== 'native' || portfolioRoute.retiredSurfaces.length) throw new Error(`portfolio hero/table/summary native surface failed (v59.51: sector/exposure/donut retired): ${JSON.stringify(portfolioRoute)}`);
   const portfolioMath = await page.evaluate(async () => {
     const { createPortfolioPage } = await import('/src/ui/pages/portfolio.js');
     function project(portfolio, liveData = {}) {
@@ -607,7 +602,7 @@ try {
       live: project({ holdings: [{ symbol: 'ABC', shares: 10, avgCost: 80, price: 100 }], cash: 100, totals: { totalValue: 1000, totalAssets: 1100 } }, { ABC: { price: 200, pct: 0, dailyPct: 0, changeBasis: 'previous-close', observedAt: new Date(Date.now() - 1000).toISOString(), source: 'runtime-test-provider', sourceKind: 'LIVE', sourceTier: 'T2_LICENSED', rightsId: 'runtime-test-rights', revisionId: 'runtime-test-r1', allowedUse: 'decision', allowedUseCeiling: 'decision', quality: { status: 'live', freshness: 'live', timestampValid: true, ageMs: 1000, freshnessMs: 15 * 60 * 1000 } } })
     };
   });
-  if (portfolioMath.missing.pnl !== '—' || portfolioMath.missing.cells[5] !== '—' || portfolioMath.daily.daily !== '—' || portfolioMath.daily.pct !== '—' || portfolioMath.live.value !== '$2,100' || portfolioMath.live.pnl !== '+$1,200' || portfolioMath.live.daily !== '$0' || !portfolioMath.live.cells.includes('$200.00')) throw new Error('portfolio valuation regression: ' + JSON.stringify(portfolioMath));
+  if (portfolioMath.missing.pnl !== '—' || portfolioMath.missing.cells[5] !== '매수가 없음' /* v59.51: empty cells name why */ || portfolioMath.daily.daily !== '—' || portfolioMath.daily.pct !== '—' || portfolioMath.live.value !== '$2,100' || portfolioMath.live.pnl !== '+$1,200' || portfolioMath.live.daily !== '$0' || !portfolioMath.live.cells.includes('$200.00')) throw new Error('portfolio valuation regression: ' + JSON.stringify(portfolioMath));
   await page.evaluate(() => window.AIO_ARCH.navigate('technical'));
   await page.waitForFunction(() => document.getElementById('page-technical')?.dataset.aioArchitectureRoute === 'technical');
   // P1420: the 0-100 health score was retired; the page shows the 시장 상태 six-axis summary and
@@ -622,8 +617,6 @@ try {
       technicalRenderer: pageNode?.dataset.aioTechnicalRenderer || null,
       summaryRenderer: document.getElementById('tech-regime-summary')?.dataset.aioTechRegimeRenderer || null,
       overall: document.getElementById('tech-regime-overall')?.textContent || '',
-      chips: document.querySelectorAll('#tech-regime-chips .regime-chip').length,
-      fxReference: document.querySelectorAll('#tech-regime-chips .regime-chip-reference').length, // 2026-10-14 audit #4: six US chips + one muted FX reference line
       retiredScore: !!document.getElementById('health-score-display') || !!document.getElementById('health-components'),
       chartFirst: order.indexOf('stock-chart-section') >= 0 && order.indexOf('tech-regime-summary') > order.indexOf('stock-chart-section'), // 2026-10-18 owner decision: the stock chart leads, the market summary follows
       stockChartForm: document.getElementById('stock-chart-section')?.dataset.aioStockChart || null, // v57.76: install state moved off the retired form
@@ -632,7 +625,7 @@ try {
       retiredCandle: !!document.getElementById('tech-candle-chart')
     };
   });
-  if (technicalRoute.renderer !== 'native' || technicalRoute.technicalRenderer !== 'native' || technicalRoute.summaryRenderer !== 'native' || !technicalRoute.overall.trim() || technicalRoute.chips !== 6 || technicalRoute.fxReference !== 1 || technicalRoute.retiredScore || !technicalRoute.chartFirst || technicalRoute.stockChartForm !== 'installed' || technicalRoute.retiredTechnicalBlocks.length || !technicalRoute.candleTitle.trim() || technicalRoute.retiredCandle) throw new Error(`P1420 technical regime summary / stock chart surface failed: ${JSON.stringify(technicalRoute)}`);
+  if (technicalRoute.renderer !== 'native' || technicalRoute.technicalRenderer !== 'native' || technicalRoute.summaryRenderer !== 'native' || !technicalRoute.overall.trim() || technicalRoute.retiredScore || !technicalRoute.chartFirst || technicalRoute.stockChartForm !== 'installed' || technicalRoute.retiredTechnicalBlocks.length || !technicalRoute.candleTitle.trim() || technicalRoute.retiredCandle) throw new Error(`P1420 technical regime summary / stock chart surface failed: ${JSON.stringify(technicalRoute)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('signal'));
   await page.waitForFunction(() => document.getElementById('page-signal')?.dataset.aioArchitectureRoute === 'signal');
   // P1392: the 시장 상태 screen is the native six-axis regime board; the legacy signal dashboard
@@ -751,9 +744,9 @@ try {
     ,homeRenderer: home.renderer
     ,homeSummaryRenderer: home.homeRenderer
   }), { market: marketRoute, macro: macroRoute, fxbond: fxbondRoute, breadth: breadthRoute, themes: themesRoute, themeDetail: themeDetailRoute, ticker: tickerRoute, fundamental: fundamentalRoute, portfolio: portfolioRoute, technical: technicalRoute, signal: signalRoute, home: homeRoute });
-  if (contentRoutes.active !== 'briefing' || contentRoutes.marketRenderer !== 'native' || contentRoutes.marketFeedRenderer !== 'native' || contentRoutes.briefingRenderer !== 'native' || contentRoutes.briefingSlice !== 'news' || contentRoutes.briefingFeedRenderer !== 'native-read' || contentRoutes.macroRenderer !== 'native' || contentRoutes.macroPrimaryRenderer !== 'native' || contentRoutes.fxbondRenderer !== 'native' || contentRoutes.fxbondPrimaryRenderer !== 'native' || contentRoutes.breadthRenderer !== 'native' || contentRoutes.technicalRenderer !== 'native' || contentRoutes.technicalPrimaryRenderer !== 'native' || contentRoutes.signalRenderer !== 'native' || contentRoutes.signalHeroRenderer !== 'native' || contentRoutes.homeRenderer !== 'native' || contentRoutes.homeSummaryRenderer !== 'native' || contentRoutes.themesRenderer !== 'native' || contentRoutes.themesPrimaryRenderer !== 'native' || !contentRoutes.themeDetailNativeSummary || contentRoutes.tickerRenderer !== 'native' || contentRoutes.fundamentalRenderer !== 'native' || contentRoutes.portfolioRenderer !== 'native' /* v58.76: the macro live-price sinks were the retired developer-only KR index cards */ || fxbondRoute.nativeLiveSinkCount < 1 || themesRoute.rawPrimarySinkCount !== 2 || themesRoute.nativePrimarySinkCount !== 2 || tickerRoute.rawPrimarySinkCount !== 4 || tickerRoute.nativePrimarySinkCount !== 4 || tickerRoute.retiredCandleSection || tickerRoute.subject !== 'NVDA' || !tickerRoute.searchBeforeRead || !tickerRoute.factorFolded || tickerRoute.pnlRenderer !== 'native' || tickerRoute.pnlParentRenderer !== 'native' || tickerRoute.extensionRenderer !== 'native' || fundamentalRoute.rawPrimarySinkCount !== 1 || fundamentalRoute.nativePrimarySinkCount !== 1 || fundamentalRoute.reportRenderer !== 'native' || fundamentalRoute.reportModel !== 'sec-report.v3' || !fundamentalRoute.reportTitle.trim() || !fundamentalRoute.reportMeta.trim() || !`${fundamentalRoute.reportMeta} ${fundamentalRoute.reportMetaTitle}`.includes('PIT') || !fundamentalRoute.reportCoverage.trim() || fundamentalRoute.reportGridRenderer !== 'native' || portfolioRoute.rawPrimarySinkCount !== 1 || portfolioRoute.nativePrimarySinkCount !== 1 || portfolioRoute.tableRenderer !== 'native') throw new Error(`content route lifecycle failed: ${JSON.stringify({ contentRoutes, macroRoute, fxbondRoute, breadthRoute, technicalRoute, signalRoute, homeRoute, themesRoute, themeDetailRoute, tickerRoute, optionsRetired, fundamentalRoute, portfolioRoute })}`);
+  if (contentRoutes.active !== 'briefing' || contentRoutes.marketRenderer !== 'native' || contentRoutes.marketFeedRenderer !== 'native' || contentRoutes.briefingRenderer !== 'native' || contentRoutes.briefingSlice !== 'news' || contentRoutes.briefingFeedRenderer !== 'native-read' || contentRoutes.macroRenderer !== 'native' || contentRoutes.macroPrimaryRenderer !== 'native' || contentRoutes.fxbondRenderer !== 'native' || contentRoutes.fxbondPrimaryRenderer !== 'native' || contentRoutes.breadthRenderer !== 'native' || contentRoutes.technicalRenderer !== 'native' || contentRoutes.technicalPrimaryRenderer !== 'native' || contentRoutes.signalRenderer !== 'native' || contentRoutes.signalHeroRenderer !== 'native' || contentRoutes.homeRenderer !== 'native' || contentRoutes.homeSummaryRenderer !== 'native' || contentRoutes.themesRenderer !== 'native' || contentRoutes.themesPrimaryRenderer !== 'native' || !contentRoutes.themeDetailNativeSummary || contentRoutes.tickerRenderer !== 'native' || contentRoutes.fundamentalRenderer !== 'native' || contentRoutes.portfolioRenderer !== 'native' /* v58.76: the macro live-price sinks were the retired developer-only KR index cards */ || fxbondRoute.nativeLiveSinkCount < 1 || themesRoute.rawPrimarySinkCount !== 2 || themesRoute.nativePrimarySinkCount !== 2 || tickerRoute.rawPrimarySinkCount !== 4 || tickerRoute.nativePrimarySinkCount !== 4 || tickerRoute.retiredCandleSection || tickerRoute.subject !== 'NVDA' || !tickerRoute.searchBeforeRead || tickerRoute.pnlRenderer !== 'native' || tickerRoute.pnlParentRenderer !== 'native' || tickerRoute.extensionRenderer !== 'native' || fundamentalRoute.rawPrimarySinkCount !== 1 || fundamentalRoute.nativePrimarySinkCount !== 1 || fundamentalRoute.reportRenderer !== 'native' || fundamentalRoute.reportModel !== 'sec-report.v3' || !fundamentalRoute.reportTitle.trim() || !fundamentalRoute.reportMeta.trim() || !`${fundamentalRoute.reportMeta} ${fundamentalRoute.reportMetaTitle}`.includes('PIT') || !fundamentalRoute.reportCoverage.trim() || fundamentalRoute.reportGridRenderer !== 'native' || portfolioRoute.rawPrimarySinkCount !== 1 || portfolioRoute.nativePrimarySinkCount !== 1 || portfolioRoute.tableRenderer !== 'native') throw new Error(`content route lifecycle failed: ${JSON.stringify({ contentRoutes, macroRoute, fxbondRoute, breadthRoute, technicalRoute, signalRoute, homeRoute, themesRoute, themeDetailRoute, tickerRoute, optionsRetired, fundamentalRoute, portfolioRoute })}`);
 
-  if (breadthRoute.boardRenderer !== 'native' || breadthRoute.cards !== 10 || breadthRoute.charts !== 10 || !breadthRoute.state.trim() || breadthRoute.retired.length) throw new Error(`P1395 breadth board failed: ${JSON.stringify(breadthRoute)}`);
+  if (breadthRoute.boardRenderer !== 'native' || breadthRoute.cards !== 9 || breadthRoute.charts !== 9 /* v59.51: the S&P 500 card left the board */ || !breadthRoute.state.trim() || breadthRoute.retired.length) throw new Error(`P1395 breadth board failed: ${JSON.stringify(breadthRoute)}`);
 
   // RM-05 item 2: two full 17-route A→B→...→A laps, asserting no resource accumulation between
   // lap 1 and lap 2. Two laps (not one before/after snapshot) because window._aioTimerRegistry

@@ -9,6 +9,7 @@ import { ABOVE50_FLOOR } from './theme-playbook.js';
 import { withDirectionParticle } from '../content/korean-particle.js';
 import { isIsoDay, hasLeadingIsoDay } from '../shared/session-date.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
+import { scenarioLead } from '../market/scenario-lead.js';
 
 // v59.46 boundary contract: member numbers are read through the screener readiness contract, not row[key].
 const value = (row, key) => readRowNumber(row, key, 'calculation');
@@ -195,7 +196,9 @@ export function themeReasons({ row = null, tags = [], moves = [], crossroads = n
   if (linked.length) lines.push({ id: 'macro', text: `최근 ${R.macroSessions}거래일 거시 축: ${linked.join(', ')}. 성격(${tags.map((tag) => EXPOSURE_TAGS[tag]).filter(Boolean).join(', ')})과 시나리오를 잇는 사전 기준이며, 인과를 측정한 값은 아닙니다.` });
   if (revisions) lines.push({ id: 'revisions', text: `이익 전망: 최근 4주 구성 종목 상향 ${revisions.up}건, 하향 ${revisions.down}건(${revisions.covered}/${revisions.total}종목)${revisions.up > revisions.down ? ' — 가격 움직임에 전망 상향이 같이 있습니다' : revisions.down > revisions.up ? ' — 전망은 하향이 더 많습니다' : ''}.` });
   if (rrgMove) lines.push({ id: 'rrg', text: rrgMove.from === rrgMove.to ? `섹터 회전: 대표 ETF ${rrgMove.etf}가 ${rrgMove.sessions}거래일 전과 같은 '${rrgMove.toWord}' 자리(SPY 대비).` : `섹터 회전: 대표 ETF ${rrgMove.etf}가 ${rrgMove.sessions}거래일 전 '${rrgMove.fromWord}'에서 지금 ${withDirectionParticle(`'${rrgMove.toWord}'`)} 옮겼습니다(SPY 대비).` });
-  const lead = items.find((item) => item.id === crossroads?.leadId) || null;
+  // A tie has no single lead to read this theme against.
+  const leadRead = scenarioLead(crossroads);
+  const lead = leadRead.state === 'lead' ? leadRead.items[0] : null;
   if (lead && row?.wind?.lead) lines.push({ id: 'scenario', text: `선두 시나리오 '${shortTitle(lead.title)}'(${lead.fit || `조건 ${lead.met}/${lead.total}`})에서 이 테마는 ${WIND_LABELS[row.wind.lead] || row.wind.lead}입니다.` });
   if (headlines.length) lines.push({ id: 'news', text: `같은 날 보도: ${headlines.map((item) => `${item.sym} ${signedText(item.ret1d, 1)}% — ${item.title}`).join(' / ')}` });
   return lines;

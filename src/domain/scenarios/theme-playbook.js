@@ -16,6 +16,7 @@ import { withSubjectParticle, withDirectionParticle } from '../content/korean-pa
 import { EXPOSURE_TAGS, WIND_LABELS, themeProfile, windFor } from './exposures.js';
 import { THEME_STATES, THEME_STAGE_RULE, themeStateOf, frequencyText, inlineDrift, INLINE_DRIFT_LABELS } from './analogs.js';
 import { CHOICES } from '../market/macro-crossroads.js';
+import { scenarioLead } from '../market/scenario-lead.js';
 import { marketWindowReturns, recentMove, recentMoveText, relativeBand, weeklyNoiseFromVol, WINDOW_LABELS } from '../themes/recent-check.js';
 import { signedText, finiteNumber as finite } from '../shared/number.js';
 
@@ -52,20 +53,20 @@ const FAVOURED = {
 };
 const WHY = {
   leading: { tail: '추세와 거시 수혜가 같은 방향이라 보유를 이어 가는 쪽의 기회비용이 작습니다.',
-    head: '추세는 강하지만 거시 부담이 있어, 보유는 유지하되 부담이 실제 실적으로 번지는지 확인하는 쪽이 맞습니다.',
+    head: '추세는 강하지만 거시 부담이 있어, 보유를 이어 가는 비용은 그 부담이 실제 실적으로 번지는지에 달려 있습니다.',
     other: '추세가 살아 있는 동안에는 보유를 이어 가는 쪽의 기회비용이 작습니다.' },
   fading: { other: '긴 추세는 지수보다 앞서 있지만 50일선 위 종목 비율·조건·최근 5거래일 흐름이 받쳐 주지 않아, 이것들이 회복되는지 확인하기 전까지 기다리는 쪽의 비용이 작습니다.' },
   pullback: { tail: '긴 추세가 살아 있고 거시상 수혜인 조정은, 나눠 들어가는 쪽이 바닥 시점을 맞히지 않고도 다음 상승을 놓치지 않는 조합입니다. 구조 가설이 깨지는 신호가 나오면 멈춥니다.',
     head: '긴 추세가 살아 있어도 거시 부담 속 조정은 더 깊어질 수 있어, 부담이 약해지는 것을 기다리는 쪽의 비용이 작습니다.',
-    other: '조정이 추세 붕괴인지 쉬어 가기인지 50일선 위 종목 비율로 가늠하며, 확인되면 나눠 들어가는 쪽이 맞습니다.' },
-  rebound: { tail: '하락 추세 속 반등이지만 거시 수혜가 있어, 반등이 추세 전환으로 이어지는지 확인하며 나눠 보는 편이 맞습니다.',
+    other: '조정이 쉬어 가기로 끝나면 비켜 서 있는 쪽이, 추세 붕괴로 이어지면 새로 들어간 쪽이 비용을 치릅니다. 둘을 가르는 기준은 50일선 위 종목 비율입니다.' },
+  rebound: { tail: '하락 추세 속 반등이지만 거시 수혜가 있어, 반등이 추세 전환으로 이어지는지가 나눠 들어가는 득실을 가릅니다.',
     head: '부담 속 반등은 짧게 끝나는 경우가 많아, 추세 전환이 확인될 때까지 기다리는 쪽의 비용이 작습니다.',
     other: '하락 추세 속 반등은 전환인지 확인하기 전까지 기다리는 쪽의 비용이 작습니다.' },
-  weak: { tail: '거시 수혜에도 약세가 이어진다면 업종 고유의 문제가 있을 수 있어, 원인이 확인될 때까지 기다리는 쪽이 맞습니다.',
+  weak: { tail: '거시 수혜에도 약세가 이어지면 업종 고유의 문제가 있을 수 있습니다. 새로 들어가는 비용은 그 원인(실적·업황)이 일시적인지 구조적인지에 달려 있습니다.',
     head: '약세와 거시 부담이 겹쳐 기다림의 비용이 가장 작은 조합입니다.',
     other: '긴 추세와 1개월이 모두 지수보다 뒤처져, 50일선 위 종목 비율이 되살아나기 전까지는 기다리는 쪽의 비용이 작습니다.' },
   defensive: { other: '지수보다 덜 빠졌을 뿐 긴 추세 수익률이 0 이하라 주도로 읽지 않습니다. 지수 하락이 멈추고 이 테마의 긴 추세가 플러스로 돌아서는지 확인하기 전까지 기다리는 쪽의 비용이 작습니다.' },
-  inline: { tail: '거시 수혜 성격이지만 가격은 아직 지수와 비슷하게 움직여, 보유는 이어 가되 지수보다 앞서기 시작하는지 확인하는 쪽이 맞습니다.',
+  inline: { tail: '거시 수혜 성격이지만 가격은 아직 지수와 비슷하게 움직여, 보유의 득실은 지수 보유와 비슷합니다. 이 테마만의 우위는 긴 추세가 지수보다 앞서기 시작하는지로 갈립니다.',
     other: '지수와 비슷한 폭으로 움직여 이 테마만의 우위가 확인되지 않습니다. 새로 들어가는 판단은 긴 추세가 지수보다 앞서기 시작한 뒤가 비용이 작습니다.' }
 };
 // v58.74 (text audit): the stage fold prints these once; a card repeats a line only when its own text differs.
@@ -141,14 +142,20 @@ function themeRow({ market, id, label, ret1m, ret3m, ret6m, ret5d = null, vol = 
   if (heavyHeld) state = null;
   const weeklyNoise = weeklyNoiseFromVol(vol, { members: memberCount });
   const recent = recentMove({ ret5d, benchRet5d: bench ? finite(bench.ret5d) : null, noise: weeklyNoise });
-  const lead = crossroads?.items?.find((item) => item.id === crossroads.leadId) || null;
-  const alt = crossroads?.items?.find((item) => item.id === crossroads.altId) || null;
-  const wind = { lead: windFor(tags, lead), alt: windFor(tags, alt) };
+  // v59.51 (one lead source): the leading branch is scenarioLead's — a tie is every tied branch, never one of them. Under
+  // a tie the theme's wind is the tied branches' common wind, or 혼재 when they differ, and there is no separate alternative.
+  const scenario = scenarioLead(crossroads);
+  const leads = scenario.items;
+  const lead = leads.length ? leads[0] : null;
+  const alt = scenario.state === 'lead' ? crossroads?.items?.find((item) => item.id === crossroads.altId) || null : null;
+  const leadWinds = leads.map((item) => windFor(tags, item));
+  const wind = { lead: leadWinds.length ? (leadWinds.every((w) => w === leadWinds[0]) ? leadWinds[0] : 'mixed') : windFor(tags, null), alt: windFor(tags, alt) };
+  const leadNames = scenario.names.join('·');
   const above50Ok = above50 == null ? null : above50 >= ABOVE50_FLOOR;
   const conditions = state ? [
     [bench ? `긴 추세 앞섬 (${WINDOW_LABELS[trendKey]} 중앙값이 ${benchName}보다 ${band}%p 넘게 높음)` : `긴 추세 유지 (${WINDOW_LABELS[trendKey]} 중앙값 플러스)`, trendX == null ? null : trendX > band],
     [`조정이 무너지지 않음 (50일선 위 종목 ${ABOVE50_FLOOR}% 이상)`, above50Ok],
-    [`중심 시나리오에서 수혜 또는 중립${lead ? ` ('${lead.title.split(' — ')[0]}')` : ''}`, lead ? wind.lead !== 'head' : null],
+    [`중심 시나리오에서 수혜 또는 중립${lead ? ` (${leadNames}${scenario.state === 'tie' ? ', 동률이라 모두에서' : ''})` : ''}`, lead ? leadWinds.every((w) => w !== 'head') : null],
     // v57.81: one credit rule with 시장 상태 — neutral or widening credit is not "stable".
     ['신용 안정 (신용 지표 양호)', creditStable(credit)],
     // A drop that has taken back more than half of the gain before it is no longer a pause inside the trend.
@@ -196,7 +203,8 @@ function themeRow({ market, id, label, ret1m, ret3m, ret6m, ret5d = null, vol = 
     market, id, label, tags, tagLabels: tags.map((tag) => EXPOSURE_TAGS[tag]), thesis: profile?.thesis || null, breaks: profile?.breaks || [],
     ret1m, ret3m, ret6m, ret5d, above50, basis, members, state, stateLabel, recent, contradicted, weeklyNoise,
     relative: bench ? { name: benchName, field: bench.field || null, trendKey, trend: trendX, recent: recentX, band, recentBand, reference } : null,
-    wind, windText: lead ? `중심 시나리오 '${lead.title.split(' — ')[0]}'에서 ${WIND_LABELS[wind.lead]}${alt ? `, 대안 시나리오 '${alt.title.split(' — ')[0]}'에서 ${WIND_LABELS[wind.alt]}` : ''}` : '거시 시나리오 판단 보류',
+    wind, windText: scenario.state === 'tie' ? `중심 시나리오가 ${withDirectionParticle(leadNames)} 갈려(맞는 조건 수 같음) ${leads.map((item, index) => `${scenario.names[index]}에서 ${WIND_LABELS[leadWinds[index]]}`).join(', ')}`
+      : lead ? `중심 시나리오 ${scenario.names[0]}에서 ${WIND_LABELS[wind.lead]}${alt ? `, 대안 시나리오 '${alt.title.split(' — ')[0]}'에서 ${WIND_LABELS[wind.alt]}` : ''}` : '거시 시나리오 판단 보류',
     favored, favoredWhy: why, choices,
     fit: known.length < 2 ? '판단 보류' : `조건 충족 ${met}/${conditions.length}`, met, total: conditions.length, known: known.length,
     basisText: conditions.map(([text, ok]) => `${text} ${ok == null ? '확인 불가' : ok ? '충족' : '미충족'}`),
@@ -266,15 +274,17 @@ export function buildThemePlaybook({ usGroups = [], krThemes = [], crossroads = 
   const rotation = rotationOf(rows, { period: usBench?.from?.ret1m ? { from: usBench.from.ret1m, to: usBasis } : null, benchRet5d: usBench?.ret5d ?? null });
   // v58.74 (text audit 오늘 C3): the month's ends read against the central scenario — whether price and scenario point the
   // same way. Only the US ends are counted (the scenario exposures are US-led); with no lead branch nothing is said.
-  const leadItem = crossroads?.items?.find((item) => item.id === crossroads.leadId) || null;
+  // v59.51 (one lead source): with tied branches (scenarioLead) the count reads the tied branches' common wind (row.wind.lead)
+  // and names them all.
+  const scenario = scenarioLead(crossroads);
   const usUp = rotation.gainers.filter((row) => row.market !== 'KR'), usDown = rotation.losers.filter((row) => row.market !== 'KR');
-  if (leadItem && usUp.length && usDown.length) {
+  if (scenario.items.length && usUp.length && usDown.length) {
     const upTail = usUp.filter((row) => row.wind.lead === 'tail').length, downHead = usDown.filter((row) => row.wind.lead === 'head').length;
     const upHead = usUp.filter((row) => row.wind.lead === 'head').length, downTail = usDown.filter((row) => row.wind.lead === 'tail').length;
-    const name = leadItem.title.split(' — ')[0];
+    const name = scenario.names.join('·');
     const tie = upTail + downHead > upHead + downTail ? '시나리오와 가격이 같은 방향입니다'
       : upHead + downTail > upTail + downHead ? '가격이 시나리오와 반대로 움직였습니다' : '시나리오와 가격의 방향이 뚜렷하게 겹치지 않습니다';
-    rotation.scenarioTie = `중심 시나리오 ${withDirectionParticle(`'${name}'`)} 보면 상위 ${usUp.length}개 중 ${upTail}개가 수혜 쪽, 하위 ${usDown.length}개 중 ${downHead}개가 부담 쪽이라 ${tie}.`;
+    rotation.scenarioTie = `중심 시나리오 ${withDirectionParticle(name)} 보면${scenario.state === 'tie' ? '(동률인 시나리오들에서 영향이 같은 테마만 셈)' : ''} 상위 ${usUp.length}개 중 ${upTail}개가 수혜 쪽, 하위 ${usDown.length}개 중 ${downHead}개가 부담 쪽이라 ${tie}.`;
     rotation.text = `${rotation.text} ${rotation.scenarioTie}`;
   }
   const highlights = {

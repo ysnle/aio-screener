@@ -178,9 +178,7 @@ h2, .section-title, .widget-title, .aio-card-title, .section-header {
 #home-operator-note .aio-operator-note-kicker { color: var(--text-secondary) !important; }
 .aio-decision-verdict { font-size: 28px !important; font-weight: 700 !important; letter-spacing: -0.02em !important; }
 
-.trend-card, .regime-axis, .macro-stat, .macro-tile, .temp-tile, .thp-quadrant-card, .tp-card, .capex-flow-card,
-.masters-metric, .pf-allocation-card, .regime-scenario-card, .xr-path-card, .scr-funnel-step,
-.sh-base-panel, .sh-base-panel-s1, .empty-state, .stock-chart-evidence, .masters-detail-card, .rates-guide {
+.trend-card, .regime-axis, .macro-stat, .temp-tile, .thp-quadrant-card, .tp-card, .capex-flow-card, .masters-metric, .pf-allocation-card, .regime-scenario-card, .xr-path-card, .scr-funnel-step, .sh-base-panel, .sh-base-panel-s1, .empty-state, .stock-chart-evidence, .masters-detail-card, .rates-guide {
   border: 0 !important; border-radius: 12px !important; background: var(--sx-ink-a03) !important; box-shadow: none !important;
 }
 /* Owner 2026-10-25: .sector-map-tile left the soft-card list above — its !important ink background and 12px corners hid
@@ -225,9 +223,8 @@ details > summary { cursor: pointer; }
 
 /* Verdict colours (README): 부담 is amber, never red — red is reserved for a falling price. Legacy is-burden rules
    in index.html and screen stylesheets drew it red; one override keeps every surface on the same meaning. */
-.regime-state.is-burden, .macro-regime-label.is-burden, .macro-tally-chip.is-burden, .macro-tile.is-burden .macro-tile-state,
-.guide-rules td.is-burden, #pf-trades .pf-trade-mirror-row.is-burden .pf-trade-mirror-state { color: var(--data-amber) !important; }
-.macro-chain-node.is-burden, .macro-tile.is-burden, .page .stock-read-point.is-burden, #pf-trades .pf-trade-notes li.is-burden { border-color: var(--data-amber) !important; }
+.regime-state.is-burden, .macro-regime-label.is-burden, .macro-tally-chip.is-burden, .guide-rules td.is-burden, #pf-trades .pf-trade-mirror-row.is-burden .pf-trade-mirror-state { color: var(--data-amber) !important; }
+.macro-chain-node.is-burden, .page .stock-read-point.is-burden, #pf-trades .pf-trade-notes li.is-burden { border-color: var(--data-amber) !important; }
 .page .pf-sector-bar.is-burden, .page .stock-read-bar.is-burden { background: var(--data-amber) !important; }
 .macro-quadrant-cell.is-current.is-burden { fill: var(--data-amber) !important; stroke: var(--data-amber) !important; }
 .macro-gauge-band.is-burden { fill: var(--data-amber) !important; }
@@ -425,7 +422,6 @@ body #update-banner { padding: 12px 64px 12px 20px; }
 #ai-panel.open { box-shadow:none !important; }
 #ai-panel .ai-ph { border-bottom: 0.5px solid rgba(var(--ink-rgb), 0.06) !important; padding: 18px 20px !important; }
 #ai-panel .ai-ph-title { font-size: 14px !important; }
-#ai-panel .ai-ph-badge { border-radius: 999px !important; background: var(--sx-ink-a06) !important; color: var(--text-secondary) !important; font-family: var(--font-sans) !important; }
 #ai-panel .ai-bubble { border-radius: 12px !important; border: 0 !important; }
 #ai-panel .ai-msg.user .ai-bubble { background: var(--text-primary) !important; color: var(--bg-base) !important; border-bottom-right-radius: 8px !important; }
 #ai-panel .ai-msg.ai .ai-bubble { background: var(--sx-ink-a03) !important; color: var(--text-primary) !important; border-bottom-left-radius: 8px !important; }

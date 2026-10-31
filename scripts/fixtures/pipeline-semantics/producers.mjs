@@ -8,6 +8,13 @@ const yieldsFor = async (load, quarters) => {
 };
 
 export const cases = [
+  { id: 'RUN6-TIE-01', name: 'a lead swap between two tied branches is not logged as a scenario change; leaving the tie is', run: async ({ load }) => {
+      const { diffSnapshots } = await load('scripts/build-scenario-state.mjs');
+      const items = [{ id: 'aibust', title: 'AI 투자 꺾임 — x', met: 3, total: 4 }, { id: 'oilshock', title: '유가 충격 — y', met: 3, total: 4 }];
+      const snap = (leadId, tiedIds) => ({ crossroads: { leadId, altId: null, tiedIds, items } });
+      assert.ok(!diffSnapshots(snap('aibust', ['aibust', 'oilshock']), snap('oilshock', ['aibust', 'oilshock']), 'T').some((row) => row.kind === 'lead'));
+      assert.ok(diffSnapshots(snap('aibust', ['aibust', 'oilshock']), snap('oilshock', []), 'T').some((row) => row.kind === 'lead'));
+  } },
   { id: 'P4-DATA-09', name: 'an empty quarterly net income leaves the TTM earnings yield missing, not 0', run: async ({ load }) => {
       const out = await yieldsFor(load, [['2025-12-31', -1], ['2026-03-31', -1], ['2026-06-30', -1], ['2026-09-30', '']]);
       assert.equal(out.earningsYieldTtm, null);

@@ -357,7 +357,11 @@ assert(consumeUi.includes('saveQuota(quota)') && !consumeUi.includes('showConfir
 assert(/function _aioWorkerClientQuota\(\)[\s\S]{0,400}health\.ai\.client/.test(ui) && quotaUi.includes('_aioWorkerClientQuota()'), 'v59.42 the quota badge shows the Worker-reported ai.client allowance');
 // v57.62: quota and freshness preflight contracts read the unified panel (the per-page chatSend copy was retired).
 const quotaAwait=unifiedChat.indexOf('_qOk = await consumeLLMQuery();');
-assert(quotaAwait>=0 && unifiedChat.indexOf('if (!_isCurrentUnifiedRun())', quotaAwait) > quotaAwait && unifiedChat.indexOf('if (!_isCurrentUnifiedRun())', quotaAwait) < unifiedChat.indexOf("inp.value = '';", quotaAwait), 'v57.62 unified quota await rejects a cancelled epoch before clearing the input');
+// v59.51 (run-6 double send): the first entry takes the lock and clears the box before execute awaits anything, so a second
+// Enter finds an empty box; the quota await still rejects a cancelled epoch before the question joins the history.
+const beginAt=unifiedChat.indexOf('window._aioBeginChatRequest('), clearAt=unifiedChat.indexOf("inp.value = '';"), executeAt=unifiedChat.indexOf('_aioUnifiedOrchestrator.execute(');
+assert(beginAt>=0 && clearAt>beginAt && executeAt>clearAt, 'v59.51 the send takes the lock and clears the input before the orchestrator awaits');
+assert(quotaAwait>=0 && unifiedChat.indexOf('if (!_isCurrentUnifiedRun())', quotaAwait) > quotaAwait && unifiedChat.indexOf('if (!_isCurrentUnifiedRun())', quotaAwait) < unifiedChat.indexOf('state.messages.push(_uniUserMessage)', quotaAwait), 'v57.62 unified quota await rejects a cancelled epoch before the question joins the history');
 assert(!/Promise\.race\(\[[\s\S]{0,500}ensureFreshChatAnswerData/.test(unifiedChat));
 assert(/_withTimeout\(window\.AIO\.ensureFreshChatAnswerData\([\s\S]{0,260}\), 6500, 'chatFresh'/.test(unifiedChat) && /_withTimeout\(window\.AIO\.ensureFreshDataForUse\([\s\S]{0,260}\), 4500, 'freshness'/.test(unifiedChat), 'v57.62 unified freshness preflight is bounded (6.5s / 4.5s)');
 const tickerChat=section('async function _fetchTickerDataForChat(', 'function _detectDeepCompareIntent(');

@@ -76,7 +76,12 @@ export function diffSnapshots(previous, current, at) {
   const push = (kind, text) => out.push({ at, kind, text });
   const titleOf = (id, snap) => short(snap.crossroads?.items?.find((item) => item.id === id)?.title) || id;
   const p = previous.crossroads || {}, c = current.crossroads || {};
-  if (p.leadId !== c.leadId) push('lead', c.leadId ? `가장 맞는 시나리오가 '${p.leadId ? titleOf(p.leadId, previous) : '판단 보류'}'에서 ${withDirectionParticle(`'${titleOf(c.leadId, current)}'`)} 바뀌었습니다.` : '조건을 확인할 관측이 부족해 중심 시나리오 판단을 보류합니다.');
+  // v59.51 (run-6): inside a tie the lead id is only a sort order; a swap between two tied branches is not a change, and
+  // a tie has no alternative to record.
+  const tied = new Set(c.tiedIds || []);
+  const insideTie = tied.size >= 2 && tied.has(p.leadId) && tied.has(c.leadId);
+  if (insideTie) { /* the tie is the state; nothing moved */ }
+  else if (p.leadId !== c.leadId) push('lead', c.leadId ? `가장 맞는 시나리오가 '${p.leadId ? titleOf(p.leadId, previous) : '판단 보류'}'에서 ${withDirectionParticle(`'${titleOf(c.leadId, current)}'`)} 바뀌었습니다.` : '조건을 확인할 관측이 부족해 중심 시나리오 판단을 보류합니다.');
   else if (p.altId !== c.altId && c.altId) push('alt', `대안 시나리오가 ${withDirectionParticle(`'${titleOf(c.altId, current)}'`)} 바뀌었습니다.`);
   const before = new Map((p.items || []).map((item) => [item.id, item]));
   for (const item of c.items || []) {
@@ -140,12 +145,12 @@ export function buildScenarioState({ data = null, history = [], macroHistory = n
   if (!crossroads) throw new Error(`[scenario-state] crossroads stage failed: ${interpretation.errors.crossroads || 'no model'}`);
   const playbook = interpretation.playbook || { themes: [], rotation: null, highlights: {} };
   const snapshot = {
-    crossroads: { asOf: crossroads.asOf, headline: crossroads.headline, leadId: crossroads.leadId, altId: crossroads.altId, tension: crossroads.rateHub?.tension || null,
+    crossroads: { asOf: crossroads.asOf, headline: crossroads.headline, leadId: crossroads.leadId, altId: crossroads.altId, tiedIds: crossroads.tiedIds || [], tension: crossroads.rateHub?.tension || null,
       nextEvent: crossroads.nextEvent, pathsDown: (crossroads.rateHub?.pathsDown || []).map((row) => ({ id: row.id, label: row.label, ok: row.ok })),
       items: (crossroads.items || []).map((item) => ({ id: item.id, title: item.title, met: item.met, total: item.total, known: item.known, fit: item.fit, conditions: item.conditions, pricingTone: item.pricing?.tone || 'unknown', favored: item.favored, pastN: item.past?.n ?? 0, pastSource: item.past?.source || null })) },
     themes: (playbook.themes || []).map((row) => ({ market: row.market, id: row.id, label: row.label, state: row.state, stateLabel: row.stateLabel, ret5d: row.ret5d ?? null, ret1m: row.ret1m, ret3m: row.ret3m, ret6m: row.ret6m, above50: row.above50, basis: row.basis || null, windLead: row.wind.lead, windAlt: row.wind.alt, favored: row.favored, fit: row.fit })),
     rotation: { text: playbook.rotation?.text || '', top: playbook.rotation?.tags?.length >= 2 ? { strong: playbook.rotation.tags[0].label, weak: playbook.rotation.tags.at(-1).label, scope: playbook.rotation.market || null } : null, tags: playbook.rotation?.tags || [] },
-    guide: guide?.available ? { asOf: guide.asOf, headline: guide.headline, leadId: guide.leadId, robust: guide.direction.robust, split: guide.direction.split,
+    guide: guide?.available ? { asOf: guide.asOf, headline: guide.headline, leadId: guide.leadId, tiedIds: guide.tiedIds || [], robust: guide.direction.robust, split: guide.direction.split,
       tally: guide.direction.tally.map((row) => ({ key: row.key, favoredIn: row.favoredIn, costlyIn: row.costlyIn })), situation: guide.situation, stance: guide.stance,
       lessonIds: guide.lessons.map((row) => row.id), reasons: Object.fromEntries(guide.lessons.filter((row) => row.reason).map((row) => [row.id, row.reason])) } : null,
     highlights: Object.fromEntries(Object.entries(playbook.highlights || {}).map(([key, list]) => [key, list.map(themeKey)]))

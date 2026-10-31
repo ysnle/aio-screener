@@ -17,10 +17,10 @@ const EVENT_TOPICS = Object.freeze([
   [/고용|nfp|jobs|실업/i, ['고용', '실업', '경기']],
   [/ism|gdp|소매|retail/i, ['경기', '성장', '매출']]
 ]);
-export function readingPicks(entries, scenario) {
+export function readingPicks(entries, crossroads) {
   const docs = (entries || []).filter((entry) => entry?.route?.page && entry.title);
   const first = docs.filter((entry) => entry.surface === 'column').slice(0, 5);
-  const event = scenario?.crossroads?.nextEvent;
+  const event = crossroads?.nextEvent; // v59.51 (area H): the one next-release selector
   const topics = event ? (EVENT_TOPICS.find(([pattern]) => pattern.test(`${event.id} ${event.name}`))?.[1] || []) : [];
   const today = topics.length ? docs.filter((entry) => topics.some((word) => String(entry.title).includes(word))).slice(0, 4) : [];
   return { first, today, eventLabel: event?.name || null };
@@ -341,7 +341,7 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
   related.hidden = true;
   loadIndex(root).then((index) => {
     const entries = index?.entries || [];
-    renderShelf(doc, root, { shelfTitle, shelfBody, prefs, entries, currentPage: route, onLocal });
+    if (route === 'principles') renderShelf(doc, root, { shelfTitle, shelfBody, prefs, entries, currentPage: route, onLocal });
     const items = relatedEntries(entries, route, root?.location?.search);
     if (!items.length) return;
     const row = el(doc, 'div', 'rl-picks-row');
@@ -354,7 +354,9 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
     related.replaceChildren(row);
     related.hidden = false;
   });
-  shell.append(head, related, shelf, grid);
+  // v59.51 (content audit): the whole-library shelf is one place, 개념·분석; 산업 지도 and 대가 보유 종목 open on their own
+  // content (the hub tabs and the search still reach every document).
+  shell.append(head, related, ...(route === 'principles' ? [shelf] : []), grid);
   attachSelectionAsk(doc, root, main, route);
   revealActiveNav(nav); // runs after this task, once the view has filled the TOC
   return { shell, nav, main, aside, input };
@@ -576,7 +578,9 @@ function renderShelf(doc, root, { shelfTitle, shelfBody, prefs, entries, current
   book.setAttribute('aria-live', 'polite');
   const picks = el(doc, 'div', 'rl-picks');
   const drawPicks = () => {
-    const chosen = readingPicks(docs, root?.[SCENARIO_STATE.key]);
+    // The scenario-state artifact carries the producer's crossroads.nextEvent (the same selector the screens read); the
+    // library does not load the market interpretation pipeline for one label.
+    const chosen = readingPicks(docs, root?.[SCENARIO_STATE.key]?.crossroads);
     const rows = [['처음이라면', chosen.first], [chosen.eventLabel ? `다음 발표(${chosen.eventLabel.replace(/\s*\(.*\)\s*$/, '')})와 이어지는 글` : null, chosen.today]].filter(([label, items]) => label && items.length);
     picks.replaceChildren(...rows.map(([label, items]) => {
       const row = el(doc, 'div', 'rl-picks-row');

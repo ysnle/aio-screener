@@ -1,11 +1,13 @@
 // v58.75 (owner 2026-10-24, '고르는 법' layer B): how an expert reads one company — the lens for its kind of business, where
 // it stands against its named theme peers, the situations that favour or burden it, a thesis template with its checks and
 // break signals, and the market link. Pure: everything comes in as arguments (parsed SEC history, screener rows, consensus,
-// scenario state, regime). The app never picks: these are facts, conditions and counts — no price, weight, grade or odds.
+// the interpretation's crossroads, regime). The app never picks: these are facts, conditions and counts — no price, weight, grade or odds.
 import { finiteFact as finite, fiscalYearLabel, isPriorAnnualPeriod } from './period.js';
 import { themeProfile, windFor, WIND_LABELS, EXPOSURE_TAGS } from '../scenarios/exposures.js';
 import { BRANCHES } from '../market/macro-crossroads.js';
+import { scenarioLead } from '../market/scenario-lead.js';
 import { signedText, usdKoreanText } from '../shared/number.js';
+import { withTopicParticle } from '../content/korean-particle.js';
 import { RETURNED_LABEL } from './analysis-read.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 
@@ -222,20 +224,31 @@ export function buildPeerStrengths(rows = [], { max = 3 } = {}) {
 }
 
 // ── 3. Situations that favour or burden the company (theme exposure tags × macro branches) ─────────────────────────────
-export function buildSituationRead({ themes = [], market = 'US', scenario = null, beta = null } = {}) {
+// MERGED #2 (run-6): `crossroads` is the page's one interpretation (marketInterpretation(root).crossroads), the model
+// 시장 상태 and 거시 draw — not the producer's scenario-state copy, which carries no tie and can lag the screens.
+// Each branch in play (the lead, or every tied branch) with this company's wind under it.
+function branchWinds(crossroads, tags) {
+  const reading = scenarioLead(crossroads);
+  const rows = reading.items.map((item) => {
+    const branch = BRANCHES.find((row) => row.id === item.id);
+    return branch ? { title: branchTitle(branch), wind: tags.length ? WIND_LABELS[windFor(tags, branch)] || null : null, fit: item.fit || null } : null;
+  }).filter(Boolean);
+  return { state: rows.length ? reading.state : 'held', rows };
+}
+
+export function buildSituationRead({ themes = [], market = 'US', crossroads = null, beta = null } = {}) {
   const profiles = themes.map((theme) => ({ theme, profile: themeProfile(market, theme.id) })).filter((item) => item.profile);
   if (!profiles.length) return null;
   const tags = [...new Set(profiles.flatMap((item) => item.profile.tags))];
   const favour = BRANCHES.filter((branch) => windFor(tags, branch) === 'tail').map(branchTitle);
   const burden = BRANCHES.filter((branch) => windFor(tags, branch) === 'head').map(branchTitle);
-  const leadId = scenario?.status === 'current' ? scenario?.crossroads?.leadId : null;
-  const lead = leadId ? BRANCHES.find((branch) => branch.id === leadId) : null;
-  const leadWind = lead ? windFor(tags, lead) : null;
-  const leadItem = leadId ? scenario.crossroads.items?.find((item) => item.id === leadId) : null;
+  const { state, rows } = branchWinds(crossroads, tags);
+  const lead = state === 'lead' ? rows[0] : null;
   return {
     tags: tags.map((tag) => EXPOSURE_TAGS[tag] || tag), favour, burden, themes: profiles.map((item) => ({ id: item.theme.id, label: item.theme.label, thesis: item.profile.thesis, breaks: item.profile.breaks })),
-    lead: lead ? { title: branchTitle(lead), wind: WIND_LABELS[leadWind] || null, fit: leadItem?.fit || null } : null, beta,
-    now: lead ? `지금 가장 맞는 시나리오 '${branchTitle(lead)}'${leadItem?.fit ? `(${leadItem.fit})` : ''}는 이 종목의 노출로 보면 ${WIND_LABELS[leadWind] || '판단 보류'} 쪽입니다.` : null
+    lead, tied: state === 'tie' ? rows : [], beta,
+    now: lead ? `지금 가장 맞는 시나리오 ${withTopicParticle(`'${lead.title}'${lead.fit ? `(${lead.fit})` : ''}`)} 이 종목의 노출로 보면 ${lead.wind || '판단 보류'} 쪽입니다.`
+      : state === 'tie' ? `맞는 조건 수가 같은 시나리오가 ${rows.length}개라 한쪽으로 정하지 않습니다 — 이 종목 노출로 보면 ${rows.map((row) => `${withTopicParticle(`'${row.title}'`)} ${row.wind || '판단 보류'} 쪽`).join(', ')}입니다.` : null
   };
 }
 
@@ -319,16 +332,16 @@ export function buildWatchList({ schedule = null, consensus = null, trailing = n
 }
 
 // ── 6. The market link line ────────────────────────────────────────────────────────────────────────────────────────
-export function buildMarketLink({ regime = null, scenario = null, stage = null, themeLabel = null, tags = [] } = {}) {
+export function buildMarketLink({ regime = null, crossroads = null, stage = null, themeLabel = null, tags = [] } = {}) {
   const parts = [];
   if (regime?.available && regime.overall) parts.push(`지금 시장 상태는 '${regime.overall}'`);
-  const leadId = scenario?.status === 'current' ? scenario?.crossroads?.leadId : null;
-  const lead = leadId ? BRANCHES.find((branch) => branch.id === leadId) : null;
-  const item = leadId ? scenario.crossroads.items?.find((row) => row.id === leadId) : null;
-  const wind = stage?.wind || (lead && tags.length ? WIND_LABELS[windFor(tags, lead)] : null);
-  if (lead) parts.push(`가장 맞는 시나리오 '${branchTitle(lead)}'${item?.fit ? `(${item.fit})` : ''}`);
+  const { state, rows } = branchWinds(crossroads, tags);
+  const lead = state === 'lead' ? rows[0] : null;
+  const wind = stage?.wind || lead?.wind || null;
+  if (lead) parts.push(`가장 맞는 시나리오 '${lead.title}'${lead.fit ? `(${lead.fit})` : ''}`);
+  else if (state === 'tie') parts.push(`맞는 조건 수가 같은 시나리오 ${rows.map((row) => `'${row.title}'`).join('·')}${rows[0].fit ? `(${rows[0].fit})` : ''}`);
   if (!parts.length) return null;
   const theme = themeLabel ? `이 종목의 테마 '${themeLabel}'` : null;
   const tail = lead && theme && wind ? `에서 ${theme}는 ${wind === '영향 작음' ? '영향이 작은' : `${wind}`} 쪽입니다${stage?.stateLabel ? `(테마 단계: ${stage.stateLabel})` : ''}.` : '입니다.';
-  return { text: `${parts.join(', ')}${tail}`, wind: wind || null, lead: lead ? branchTitle(lead) : null };
+  return { text: `${parts.join(', ')}${tail}`, wind: wind || null, lead: lead ? lead.title : null, tied: state === 'tie' ? rows.map((row) => row.title) : [] };
 }

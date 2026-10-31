@@ -207,7 +207,6 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 /* Owner 2026-10-25: the quadrant card stays in view beside the factor rows instead of ending early above an empty column. */
 .mk-macro-top > .sx-card:first-child { position: sticky; top: 16px; }
 #page-macro .page-head > div:has(> .page-title) { flex-direction: column; flex: 1 1 0; min-width: 0; }
-#page-macro .page-head .macro-next-release { order: -1; margin: 0; }
 #page-macro .page-head #macro-board-basis { max-width: 72ch; font-size: 13px !important; line-height: 1.6; color: var(--text-secondary) !important; }
 .mk-macro-top > .sx-card { margin: 0 !important; padding: 22px !important; }
 .mk-factor-card { padding: 16px 8px 8px !important; }
@@ -224,15 +223,6 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 #page-macro .macro-tally-chip { border: 0; padding: 0 9px; height: 22px; display: inline-flex; align-items: center; background: var(--sx-ink-a07); }
 #page-macro .macro-tally-chip.is-favorable { background: var(--sx-good-bg); }
 #page-macro .macro-tally-chip.is-burden { background: var(--sx-warn-bg); color: var(--amber-12); }
-#page-macro .macro-tiles { display: flex; flex-wrap: wrap; gap: 6px; }
-#page-macro .macro-tile { flex-direction: row; align-items: center; gap: 6px; min-height: 28px; padding: 0 12px; border: 0 !important; border-radius: 999px !important; background: var(--sx-ink-a07) !important; cursor: pointer;  }
-#page-macro .macro-tile:hover { background: var(--sx-ink-a08) !important; }
-#page-macro .macro-tile.is-favorable { background: var(--sx-good-bg) !important; }
-#page-macro .macro-tile.is-burden { background: var(--sx-warn-bg) !important; }
-#page-macro .macro-tile.is-burden .macro-tile-state { color: var(--data-amber); }
-#page-macro .macro-tile-title { font-size: 12px; color: var(--text-secondary); }
-#page-macro .macro-tile-state { font-size: 12px; }
-#page-macro .macro-tile-value { display: none; }
 #page-macro #macro-axes.regime-board { display: flex !important; flex-direction: column; gap: 0; margin: 6px 0 0; }
 #page-macro .mk-maxis { padding: 0 !important; border-radius: 12px !important; background: transparent !important; box-shadow: none !important; }
 #page-macro .mk-maxis:hover, #page-macro .mk-maxis[open] { background: var(--sx-ink-a03) !important; }
@@ -280,10 +270,7 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 #page-macro #macro-commodities .trend-card { background: var(--sx-ink-a03) !important; }
 #page-macro #kr-integrated-macro { background: var(--bg-card); border-radius: 12px; box-shadow:none; padding: 16px 22px; margin: 0 0 16px !important; border: 0; }
 
-/* ═══ 5. 금리 · 환율 (5e) ═══════════════════════════════════════════════ */
-.mk-rates-top { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 14px; align-items: start; margin: 0 0 16px; }
-.mk-rates-top > .mk-curve-card { margin: 0 !important; padding: 22px 24px !important; }
-#page-fxbond .mk-curve-card .rates-curve-row { display: flex; flex-direction: column; align-items: stretch; gap: 12px; }
+/* ═══ 5. 금리 · 환율 (5e) ═══════════════════════════════════════════════ */#page-fxbond .mk-curve-card .rates-curve-row { display: flex; flex-direction: column; align-items: stretch; gap: 12px; }
 #page-fxbond .mk-curve-card .rates-yields { border: 0; margin: 0; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); }
 #page-fxbond .mk-curve-card .rates-yield { border: 0; padding: 4px 6px; align-items: center; text-align: center; }
 #page-fxbond .mk-curve-card .rates-yield-value { font-size: 14px; }
@@ -299,13 +286,6 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 /* v58.55: under 600px curveSvg draws a taller 360×200 frame, but the shared 520/150 aspect squeezed it to ~90px tall with
    overlapping tenor labels; the box now follows the frame the renderer chose (same 600px threshold as macro-board.js). */
 @media (max-width: 599.98px) { .page .rates-curve { aspect-ratio: 360 / 200; } }
-.mk-rsum-col { display: flex; flex-direction: column; gap: 14px; }
-.mk-rsum { background: var(--bg-card); border-radius: 12px; box-shadow:none; padding: 18px 22px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
-.mk-rsum__head { display: flex; justify-content: space-between; gap: 12px; width: 100%; font-size: 12px; }
-.mk-rsum__label { color: var(--text-secondary); }
-.mk-rsum__change { font-weight: 600; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
-.mk-rsum__value { color: var(--text-primary); font-size: 28px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
-.mk-rsum__note { font-size: 12px; line-height: 1.55; color: var(--text-secondary); }
 #page-fxbond #rates-fx-grid .trend-card, #page-fxbond .macro-stat-grid .macro-stat { background: var(--sx-ink-a03) !important; }
 #page-fxbond .rates-other { border: 0; gap: 8px; }
 #page-fxbond .rates-other-cell { border: 0; border-radius: 12px; background: var(--sx-ink-a03); }
@@ -318,9 +298,8 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 }
 @media (max-width: 1023px) {
   .mk-hero { grid-template-columns: minmax(0, 1fr); gap: 18px; }
-  .bb-pair, .mk-macro-top, .mk-rates-top { grid-template-columns: minmax(0, 1fr); }
+  .bb-pair, .mk-macro-top { grid-template-columns: minmax(0, 1fr); }
   .mk-macro-top > .sx-card:first-child { position: static; }
-  .mk-rsum-col { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .mk-senti-hero { grid-template-columns: minmax(0, 1fr); }
   #sentiment-card-grid, #sentiment-mini-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
   .mk-axes__head, .mk-axis__row { grid-template-columns: 120px 64px minmax(0, 1fr) 96px 66px 52px; }
@@ -337,7 +316,7 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
   .mk-sub-hero__lede { font-size: 14px; }
   .bb-group--trio > .bb-face, #sentiment-card-grid, #sentiment-mini-grid { grid-template-columns: minmax(0, 1fr) !important; }
   #page-breadth .trend-card, #page-sentiment .trend-card, .bb-pair > .bb-group { padding: 18px !important; }
-  .mk-rsum-col, .mk-rate-strip__grid { grid-template-columns: minmax(0, 1fr); }
+  .mk-rate-strip__grid { grid-template-columns: minmax(0, 1fr); }
   .mk-maxis__row { grid-template-columns: minmax(0, 1fr) auto 18px; grid-template-areas: 'title state chev' 'value value value'; gap: 4px 10px; }
   .mk-maxis__row::after { grid-area: chev; }
   .mk-maxis__title { grid-area: title; }
@@ -441,5 +420,5 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 /* v58.80 (first-users F05): same rule as 오늘 — the page column, not the window, decides when the hero stacks. */
 @container aio-main (max-width: 840px) {
   .mk-hero { grid-template-columns: minmax(0, 1fr); gap: 18px; }
-  .bb-pair, .mk-macro-top, .mk-rates-top { grid-template-columns: minmax(0, 1fr); }
+  .bb-pair, .mk-macro-top { grid-template-columns: minmax(0, 1fr); }
 }

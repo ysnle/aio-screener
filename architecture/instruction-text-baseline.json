@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "aio-instruction-text-baseline.v1",
+  "generatedBy": "scripts/ci-instruction-text-ratchet-check.mjs",
+  "note": "R724: per-file count of src/ string literals that read as a trading directive or a computed price level. The listed cases are allowed (AI prompt naming forbidden phrases, the user's own plan check, reading advice). Shrink only.",
+  "total": 11,
+  "counts": {
+    "src/ai/response/request-pipeline.js": 5,
+    "src/domain/content/capability-manifest.js": 2,
+    "src/domain/guide/lessons.js": 1,
+    "src/domain/screener/screener-read.js": 1,
+    "src/ui/components/market-temperature.js": 1,
+    "src/ui/components/stock-chart-coach.js": 1
+  }
+}

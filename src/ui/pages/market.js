@@ -7,7 +7,7 @@ import { deriveQuotePresentation, quoteDisplayKind } from '../../domain/market/q
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { clearKnowledgeArrival, renderKnowledgeArrival } from '../components/knowledge-arrival.js';
 import { signedText, readNumber as finite } from '../../domain/shared/number.js';
-import { renderMacroNextRelease, renderKrMacroFreshnessBadges } from '../components/macro-next-release.js';
+import { renderKrMacroFreshnessBadges } from '../components/macro-next-release.js';
 import { macroReleasesFor } from '../../domain/briefing/macro-releases.js';
 
 
@@ -294,7 +294,6 @@ function renderMacro(documentRef, root, page) {
   renderLiveQuotes(root, page);
   renderSnapshotMetrics(root, page);
   renderMacroBoard({ documentRef, root });
-  renderMacroNextRelease({ documentRef, root });
   renderKrMacroFreshnessBadges({ documentRef, root }); // v53.7 (P725): the 한국 거시 fold's 기준일 badges
   // v59.44 (owner 2026-10-30, "each screen too"): the latest PCE·CPI·jobs·retail release as cards above the board (a lazy
   // chunk shared with 오늘's release summaries), so 거시 opens with what came out and when the next one is.

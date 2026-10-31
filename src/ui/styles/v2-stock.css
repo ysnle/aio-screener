@@ -164,9 +164,6 @@
 .v2-fiscal-principle .sx-disclosure__body { grid-template-columns: minmax(0, 1fr); }
 .v2-fiscal-quality > .sx-evidence { padding: 10px 0 0; }
 /* Search and status: one soft row under the header. */
-#page-fundamental .sh-fund-row { flex: 1; }
-#page-fundamental #fund-search-input { height: 36px; width: 100%; padding: 0 14px !important; }
-#page-fundamental .sh-fund-btn { height: 36px; padding: 0 16px; border: 0 !important; border-radius: 999px !important; background: var(--text-primary) !important; color: var(--bg-base) !important; font-weight: 600; }
 #page-fundamental #fund-native-sec-report, #page-fundamental #fund-legacy-fold { border: 0 !important; border-radius: 12px !important; background: var(--sx-ink-a03) !important; padding: 12px 16px !important; margin-top: 12px; }
 
 /* ═══ 3b. 분석 카드 — 듀폰 · 역 DCF · R&D · 발생액 (v58.55) ════════════════ */
@@ -255,8 +252,7 @@
 .v2-themes-top__value.is-down { color: var(--dir-down); }
 .v2-themes-top > .sx-row { padding: 13px 16px; font-size: 12px; }
 /* The sections under the verdict: soft cards instead of hairline panels. */
-#page-themes > .aio-section > .sh-themes-panel, #page-themes > .aio-section.sector-map, #page-themes > .aio-section.theme-strength, #page-themes > .aio-section.capex-flow:not(:empty),
-#page-themes > .aio-section.index-earnings, #page-themes > .aio-section.tp-section {
+#page-themes > .aio-section.sector-map, #page-themes > .aio-section.theme-strength, #page-themes > .aio-section.capex-flow:not(:empty), #page-themes > .aio-section.index-earnings, #page-themes > .aio-section.tp-section {
   border: 0 !important; border-radius: 12px; background: var(--bg-card) !important; box-shadow:none; padding: 20px 22px;
 }
 #page-themes > .aio-section:is(.sector-map, .theme-strength, .capex-flow:not(:empty), .index-earnings, .tp-section) { margin: 0 0 18px; }
@@ -443,7 +439,6 @@
   .v2-themes-top__row > .sx-chip { display: none; }
   #page-themes .thp-perf-badge { width: 62px; padding-left: 2px; }
   #page-themes .thp-perf-label { width: 54px; }
-  #page-themes > .aio-section > .sh-themes-panel { padding: 16px 12px; }
   :is(#page-ticker, #page-technical, #page-fundamental, #page-themes) .flow-next-list li { padding: 12px 40px 12px 18px; min-height: 44px; }
   :is(#page-ticker, #page-technical, #page-fundamental, #page-themes) .flow-next-title { padding: 0 18px 6px; }
 }

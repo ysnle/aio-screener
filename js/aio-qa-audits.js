@@ -3385,21 +3385,7 @@ window._aioRenderAuditWidget = function() {
         }
       } catch(e) { mcEl.textContent = 'memoCoverage error'; }
     }
-    // v49.72 P387 R138~R139: fundamental 7 차트 + 채팅 차트 보기 버튼 자동 진단
-    var fcEl = container.querySelector('[data-audit-key="financialCharts"]');
-    if (fcEl) {
-      try {
-        var fc = window.AIO && window.AIO.assertFinancialChartsAudit && window.AIO.assertFinancialChartsAudit();
-        if (fc) {
-          var iconD = fc.status === 'ok' ? '✓' : fc.status === 'warn' ? '!' : '✗';
-          var colorD = fc.status === 'ok' ? 'var(--data-green)' : fc.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
-          var cacheStr = fc.cacheSize > 0 ? ' · 캐시 ' + fc.cacheSize : '';
-          fcEl.innerHTML = '<span style="color:' + colorD + ';">' + iconD + '</span> 차트 <b>' + fc.coveragePct + '%</b> · ' + fc.domCanvasFound + '/7 canvas' + cacheStr;
-        } else {
-          fcEl.innerHTML = '<span style="color:var(--text-muted);">— financialCharts audit 미가용</span>';
-        }
-      } catch(e) { fcEl.textContent = 'financialCharts error'; }
-    }
+    // v59.51 (content audit): the financialCharts row writer left with assertFinancialChartsAudit and the 7-chart card.
     // v49.73 P392 R140~R142: 답변 품질 3축 자동 진단 (현재성·정확성·직관성)
     var aqEl = container.querySelector('[data-audit-key="answerQuality"]');
     if (aqEl) {
@@ -4100,9 +4086,11 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
         // v57.76: home-conclusion-bar (order 5), home-market-summary banner (order 6) and the GMO table (order 14) are retired.
         // v57.77: entries whose section left index.html are pruned — API onboarding (2), score legend (4), quick-nav chips (7),
         // the three decision cards (8, v57.50 I16), the decision explainer (10), the top-indicator fold (13) and the GMO explainer (15).
-        { id: 'home-action-item-card',  order:  9, topic: 'Action Item 카드 (v49.28, 숨김 유지)', lines: 'index.html #home-action-item-card' },
-        { id: 'home-kpi-4cards',        order: 11, topic: 'KPI 4 셀 (S&P 500 선물/나스닥 100 선물/미 10년물/WTI, v57.77 갱신)', lines: 'index.html #home-kpi-strip' },
-        { id: 'home-sub-indicators',    order: 12, topic: '서브 지표 6개 (VIX/공포·탐욕/달러/금/코스피/BTC, v57.77 갱신)', lines: 'index.html #home-cross-assets' }
+        { id: 'home-score-hero',        order:  5, topic: '판정 히어로 + 오늘의 질문 + 판단이 바뀌는 조건 (v59.51)', lines: 'index.html #home-score-hero' },
+        { id: 'home-index-strip',       order:  7, topic: '지수 하루 흐름 4카드 (v59.51)', lines: 'index.html #home-index-strip' },
+        { id: 'home-sub-indicators',    order: 12, topic: '교차 자산 줄 (선물 칩/VIX/공포·탐욕/코스피 등, v59.51 갱신)', lines: 'index.html #home-cross-assets' },
+        { id: 'home-ai-chain',          order: 13, topic: 'AI 공급망 (v59.51)', lines: 'index.html #home-ai-chain' },
+        { id: 'home-participation',     order: 14, topic: '지수와 참여 종목, 같은 기간 (v59.51)', lines: 'index.html #home-participation' }
       ],
       // v49.40 home 3차 점검 완료 후 audit status
       auditStatus: {
@@ -4114,12 +4102,9 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
         '핵심성':'mostly-ok'
       },
       // v49.38 R94 + v49.40 home 3차: 점검 결과 누적 (findings)
-      // v57.77: findings about the pruned sub-sections (top-indicator fold, GMO explainer, three decision cards) are removed with them.
+      // v57.77/v59.51 (content audit): findings about pruned sub-sections (top-indicator fold, GMO explainer, decision cards, Action Item card, KPI strip) are removed with them.
       findings: [
         { sub: 'home-header',      axis: '정확성', severity: 'minor',    note: 'live-quote-ts-topbar JS hook 부재', fixedIn: 'v49.37 P283' },
-        // v49.40 home 3차 — 인터랙션 + 페이지 간 정합 + 라이브 데이터 sink 실 검증
-        { sub: 'home-action-item-card', axis: '로직성', severity: 'critical', note: '↻ 갱신 버튼 data-action="_aioRefreshActionPlan" 핸들러 미정의 — click 무동작 (silent no-op). R96 audit이 knownAliases로 false-positive 통과', fixedIn: 'v49.40 P294 (window._aioRefreshActionPlan 신설 + knownAliases에서 제거)' },
-        { sub: 'home-kpi-4cards',  axis: '정합성', severity: 'ok',       note: 'home 9 ticker (^GSPC/^IXIC/^VIX/^TNX/GC=F/CL=F/DX-Y.NYB/^KS11/BTC-USD) 모두 LIVE_SYMBOLS 등록 + 다른 페이지(signal/sentiment/options/technical/macro/fxbond/kr-home/kr-technical) 분포 검증 OK. fetchLiveQuotes bulk update가 모든 [data-live-price="T"] 동시 갱신', verifiedIn: 'v49.40 home 3차 (R95)' }
       ]
     },
     // v49.39 P292: signal 1차 enumerate (14 sub-section)
@@ -4237,7 +4222,7 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
         // v57.78: P1425 retired the storyline (2), interconnection map (3), cycle timeline (4), the duplicate rate/FX cards (6, 8, 9),
         // the extra-indicator cards (7, folded into the one indicator board), the thermometer (10) and the scenario tree (12).
         // Those entries and their findings are pruned.
-        { id: 'macro-explain-header',     order:  1, topic: '헤더 + 다음 발표 일정 (#macro-next-release, Dalio 해설 퇴역, v57.78 갱신)', lines: 'index.html #page-macro' },
+        { id: 'macro-explain-header',     order:  1, topic: '헤더 + 다음 발표 일정 (#macro-board-basis, Dalio 해설 퇴역, v59.51 갱신)', lines: 'index.html #page-macro' },
         { id: 'macro-fred-charts',        order:  5, topic: '경제 지표판 — 24개월 추이 + 발표일·다음 발표 (#macro-board, v57.78 갱신)', lines: 'src/ui/components/macro-board.js' },
         { id: 'macro-oil-monitor',        order: 11, topic: '유가 · 금 — 최근 1년 (#macro-commodities, 위기 모니터 퇴역 P1426, v57.78 갱신)', lines: 'src/ui/components/macro-board.js' }
       ],
@@ -4278,13 +4263,12 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
         // v57.78: the 15-criteria availability badge (3) and the Buffett/Graham/Lynch guide (5) left index.html; those entries and
         // their finding are pruned.
         { id: 'fundamental-explain-header', order: 1, topic: '헤더 (15 분야 심층 해설 퇴역, v57.78 갱신)', lines: 'index.html #page-fundamental' },
-        { id: 'fundamental-search-input',   order: 2, topic: '종목 검색 input + 예시 4 종목 (#fund-search-input, v49.29 I5)', lines: 'index.html #fund-search-input' },
         { id: 'fundamental-result-cards',   order: 4, topic: '재무 흐름 (#fund-flow, SEC 10-K, P1436 · v57.78 갱신)', lines: 'src/ui/components/fiscal-read.js' }
       ],
       auditStatus: { '최신성':'ok', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
       findings: [
-        // v57.78: the coverage-badge finding left with its pruned sub-section.
-        { sub: 'fundamental-search-input', axis: '직관성', severity: 'ok', note: '예시 4 종목 (NVDA/AAPL/TSLA/MSFT) + 가이드 박스 (v49.29 I5 시정)', verifiedIn: 'v49.47' }
+        // v57.78: the coverage-badge finding left with its pruned sub-section. v59.51 (content audit): the search-input
+        // sub-section and its finding left with #fund-search-input.
       ],
       note: 'v49.47 1차+2차 통합 — v49.34~36에서 인프라 완성. 페이지 자체는 검색 동적이라 라이브 데이터 적음. v57.78: 퇴역 섹션 항목 정리'
     },
@@ -4387,12 +4371,12 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
         // v57.78: P1428 made the guide a reference, not a tutorial — the Quick Start (2) left index.html; that entry is pruned.
         { id: 'gd-header',           order: 1, topic: '사용 설명서 헤더',                          lines: 'index.html #page-guide' },
         { id: 'gd-api-setup',        order: 3, topic: '데이터 연결 설정 (#guide-api — 공용 연결, 개인 키 불필요, v57.78 갱신)', lines: 'index.html #guide-api' },
-        { id: 'gd-page-overview',    order: 4, topic: '메뉴 지도 (#guide-screens, v57.78 갱신)',   lines: 'src/ui/pages/guide.js' },
+        { id: 'gd-rules',            order: 4, topic: '판정 기준표 (#guide-rules, v59.51)',          lines: 'index.html #guide-rules' },
         { id: 'gd-faq',              order: 5, topic: 'FAQ',                                     lines: 'index.html #guide-faq' }
       ],
       auditStatus: { '최신성':'na', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
       findings: [
-        { sub: 'gd-page-overview', axis: '핵심성', severity: 'ok', note: '교육 자료 — 데이터 갱신 N/A. 정적 내용 OK. 사용자 새로 진입 시 안내 역할', verifiedIn: 'v49.49' }
+        { sub: 'gd-rules', axis: '핵심성', severity: 'ok', note: '교육 자료 — 데이터 갱신 N/A. 정적 내용 OK. v59.51: 메뉴 지도 퇴역 후 판정 기준표가 안내 역할', verifiedIn: 'v59.51' }
       ],
       note: 'v49.49 1차+2차 — 정적 교육 페이지, 데이터 갱신 N/A. v57.78: 퇴역 섹션 항목 정리'
     },

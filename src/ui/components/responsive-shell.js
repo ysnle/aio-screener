@@ -1,6 +1,6 @@
 // P1618: UI-only responsive lifecycle; preferences stay in the app boundary.
 import { attachScrollCue } from './scroll-cue.js';
-const CARD_GRIDS = '#home-kpi-strip,#fund-rpt-fin-grid,#pf-hero-stats,#fund-valuation-cards';
+const CARD_GRIDS = '#fund-rpt-fin-grid,#pf-hero-stats,#fund-valuation-cards'; // v59.51: #home-kpi-strip left with the home quote row merge
 const LAYOUTS = '#fund-qual-grid,#fund-qual-charts,#rrg-quadrant-cards';
 const SCROLL_CUE_BOXES = '.page .aio-table-scroll,#screener-results-table .scr-registry-header';
 // v58.53 개편 v2 (4a/4b): the iPad-portrait/iPhone tab bar marks the screen a route belongs to; the rest is under 더보기.

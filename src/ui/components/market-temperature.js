@@ -106,6 +106,7 @@ export function renderMarketTemperature({ documentRef: doc, root, anchor }) {
     anchor.insertAdjacentElement('afterend', section);
   }
   let selected = null;
+  let detailOpen = false;
   const paint = (payload) => {
     // Display order and region come from the domain list (US first), whatever order the artifact was written in.
     const markets = TEMPERATURE_MARKETS.map((def) => (payload?.markets?.[def.id] ? { ...payload.markets[def.id], id: def.id, label: def.label, region: def.region } : null))
@@ -118,7 +119,8 @@ export function renderMarketTemperature({ documentRef: doc, root, anchor }) {
     // The tiles already carry each market's state; the lead names only the markets in an extreme spell (US first).
     const stale = staleMarketIds(payload, markets);
     const extreme = markets.filter((item) => item.state !== 'none' && !stale.has(item.id)).map((item) => `${item.label}(${STATE_LABEL[item.state]} ${item.streak}거래일째)`);
-    const lead = `각 지수의 가격이 최근 3년 안에서 얼마나 차갑거나 뜨거운지입니다 — 위 카드가 미국 투자자의 설문·옵션·신용을 본다면 이 표는 가격 자체를 봅니다. ${extreme.length ? `지금 과열·냉각 구간: ${extreme.join(', ')}.` : '지금 과열·냉각 구간에 있는 지수는 없습니다.'}`;
+    // v59.51 (content audit): the face is the state line and the tiles; what the table measures opens with the detail fold.
+    const lead = extreme.length ? `지금 과열·냉각 구간: ${extreme.join(', ')}.` : '지금 과열·냉각 구간에 있는 지수는 없습니다.';
 
     // The first thing a reader sees: one tile per market (state, streak, the five component ranks as a tiny bar
     // fingerprint). A tile is the selector for the detail below.
@@ -151,7 +153,7 @@ export function renderMarketTemperature({ documentRef: doc, root, anchor }) {
         el(doc, 'span', `${md(item.asOf)} 종가 ${pct(item.change1d, 1)}`, 'temp-tile-meta'));
       button.setAttribute('aria-label', `${item.label}: ${temperatureStateText(item, rules)}`);
       // Repainting replaces the buttons, so keyboard focus moves to the new tile for the same market.
-      button.addEventListener('click', () => { selected = item.id; paint(payload); section.querySelector(`.temp-tile[data-market="${item.id}"]`)?.focus(); });
+      button.addEventListener('click', () => { selected = item.id; detailOpen = true; paint(payload); section.querySelector(`.temp-tile[data-market="${item.id}"]`)?.focus(); });
       groups[region].append(button);
     }
 
@@ -191,7 +193,15 @@ export function renderMarketTemperature({ documentRef: doc, root, anchor }) {
     legend.append(el(doc, 'span', `${market.label} 2년 종가`), el(doc, 'span', '강한 냉각', 'temp-swatch is-cold'), el(doc, 'span', '강한 과열', 'temp-swatch is-hot'));
     plot.append(legend, chart);
     body.append(componentBars(doc, market, rules), plot);
-    section.replaceChildren(el(doc, 'h2', '지수별 가격 온도 (참고)', 'briefing-h2'), el(doc, 'p', lead, 'regime-read'), tabs, head, body, el(doc, 'p', reading, 'regime-read'), deep);
+    // v59.51 (content audit): the selected index's five ranks, two-year chart, reading and method are one closed fold under
+    // the tiles; choosing a tile opens it, and a repaint keeps the reader's choice.
+    const detail = el(doc, 'details', null, 'regime-axis-details temp-detail');
+    detail.open = detailOpen;
+    detail.addEventListener('toggle', () => { detailOpen = detail.open; });
+    detail.append(el(doc, 'summary', `${market.label} — 다섯 요소 순위와 2년 종가`),
+      el(doc, 'p', '각 지수의 가격이 최근 3년 안에서 얼마나 차갑거나 뜨거운지입니다. 위 카드가 미국 투자자의 설문·옵션을 본다면 이 표는 가격 자체를 봅니다.', 'regime-read'),
+      head, body, el(doc, 'p', reading, 'regime-read'), deep);
+    section.replaceChildren(el(doc, 'h2', '지수별 가격 온도 (참고)', 'briefing-h2'), el(doc, 'p', lead, 'regime-read'), tabs, detail);
     section.title = `출처: ${payload.source || 'Yahoo Finance'}`; // T22: provider names in the hover
     section.hidden = false;
   };

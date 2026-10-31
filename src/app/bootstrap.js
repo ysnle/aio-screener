@@ -118,7 +118,7 @@ import { CAPABILITY_MANIFEST_VERSION, getCapability, getCapabilityManifest, audi
 import { classifyAIConduct, buildScopedConductFallback, getAIConductPolicy } from '../ai/policy/conduct.js';
 import { coalesceMicrotask, createDeferredTaskQueue } from './lifecycle.js';
 import { renderPageSources } from '../ui/components/page-sources.js';
-import { renderHomeKpiTrends, renderHomeQuoteHeading } from '../ui/components/home-kpi-trend.js';
+import { renderHomeParticipation, syncHomeQuoteRow } from '../ui/components/home-kpi-trend.js';
 import { krIndexStressRows } from '../domain/portfolio/kr-stress.js';
 import { portfolioStressHtml } from '../ui/panels/portfolio-stress.js';
 import { SUPPLIED_MATERIAL_CLAIM_IDS } from '../domain/research/reference-index.js';
@@ -126,7 +126,6 @@ import { loadResearchCorpus } from '../domain/research/corpus-loader.js';
 import { createCriticalDataGate, ROWS_FIRST_ROUTES } from './critical-data-gate.js';
 import { NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS } from '../domain/research/nathan-frameworks.js';
 import { NATHAN_FRAMEWORK_PACK, NATHAN_ANALYSIS_PROTOCOL, NATHAN_KNOWLEDGE_ALIASES } from '../domain/knowledge/nathan-framework-pack.js';
-import { hasLeadingIsoDay } from '../domain/shared/session-date.js';
 
 export const ARCHITECTURE_VERSION = 'AR-01~16.v1';
 
@@ -267,16 +266,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     return `${count ? text.slice(0, -count.length) : text} · 한국 ${label} 마감${count}`;
   };
   root._aioRegimePulse = () => regimePulse(root._aioMarketRegimeSummary()); // v58.52: the top pulse bar's verdict
-  // v58.80 (first-users F08, decision delegated by the owner 2026-10-26): the producer's sentence is the day's question
-  // (owner 2026-10-15); four first users read "오늘의 한 문장" as a conclusion. The card is now 오늘의 질문 and leads
-  // with the verdict it questions.
-  root._aioSentenceVerdict = () => {
-    const summary = root._aioMarketRegimeSummary();
-    if (!summary?.available || !summary.sufficient || !summary.overall) return '';
-    const day = hasLeadingIsoDay(summary.asOf || '') ? `${Number(summary.asOf.slice(5, 7))}/${Number(summary.asOf.slice(8, 10))} 종가 기준 ` : '';
-    return `${day}'${summary.overall}'`;
-  };
-  root.addEventListener?.('aio:historyLoaded', () => { try { root._aioRenderOperatorNote?.(); } catch (_) {} });
+  // v58.80 (first-users F08): the producer's sentence is the day's question (owner 2026-10-15), shown as 오늘의 질문.
+  // v59.51: it sits inside the home verdict card, which carries the verdict it questions, so it repeats no verdict.
   // The Korean close label needs the daily record, which loads after the first top-bar render.
   root.addEventListener?.('aio:historyLoaded', () => { try { root.document?.dispatchEvent(new root.CustomEvent('aio:quoteTopbar', { detail: {} })); } catch (_) {} });
   root._aioLatestCompletedSessionDate = (market = 'US') => (market === 'KR' ? latestCompletedKrSession(clock.now()) : latestCompletedUsSession(clock.now()))?.date || null;
@@ -800,7 +791,6 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       const id = String(root?._currentTickerId || '').trim().toUpperCase();
       if (!id || root?._liveData?.[id]?.price == null) return;
       syncEntity.sync();
-      if (typeof root?._aioRenderTickerOverview === 'function') { try { root._aioRenderTickerOverview(id); } catch (_) {} }
     });
     const normalizeShownRoute = (event) => {
       const detail = event?.detail;
@@ -867,10 +857,10 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     // P1505: one folded 데이터 출처 note per screen.
     // Owner 2026-10-25: the index strip on 오늘 loads with the route (lazy chunk; the boot module set stays unchanged).
     const renderIndexStrip = () => import('../ui/components/home-index-strip.js').then(({ renderHomeIndexStrip }) => renderHomeIndexStrip({ documentRef, root })).catch(() => {});
-    const stopSourcesShown = legacy.on('aio:pageShown', (event) => { const route = normalizeShownRoute(event); queueMicrotask(() => { if (disposed) return; renderPageSources(documentRef, route); if (route === 'home') { renderHomeKpiTrends({ documentRef, root }); renderIndexStrip(); } }); });
-    const stopKpiTrendHistory = compatibilityEvents.on('aio:historyLoaded', () => { if (!disposed) renderHomeKpiTrends({ documentRef, root }); });
-    const stopQuoteHeading = legacy.on('aio:liveQuotes', () => { if (!disposed) renderHomeQuoteHeading({ documentRef, root }); }); // v58.80 run-5: the live chip's observation time
-    queueMicrotask(() => { if (disposed) return; const initial = String(router.active() || '').replace(/^page-/, ''); renderPageSources(documentRef, initial); if (initial === 'home') { renderHomeKpiTrends({ documentRef, root }); renderIndexStrip(); } });
+    const stopSourcesShown = legacy.on('aio:pageShown', (event) => { const route = normalizeShownRoute(event); queueMicrotask(() => { if (disposed) return; renderPageSources(documentRef, route); if (route === 'home') { renderHomeParticipation({ documentRef, root }); renderIndexStrip(); } }); });
+    const stopKpiTrendHistory = compatibilityEvents.on('aio:historyLoaded', () => { if (!disposed) renderHomeParticipation({ documentRef, root }); });
+    const stopQuoteHeading = legacy.on('aio:liveQuotes', () => { if (!disposed) syncHomeQuoteRow({ documentRef, root }); }); // v58.80 run-5: the live chip's observation time
+    queueMicrotask(() => { if (disposed) return; const initial = String(router.active() || '').replace(/^page-/, ''); renderPageSources(documentRef, initial); if (initial === 'home') { renderHomeParticipation({ documentRef, root }); renderIndexStrip(); } });
     // E2/LC-26: a mode change is a score input change, so re-derive the analysis slice instead of
     // leaving the hero on the previous mode until the next refresh cycle. Deliberately its own
     // event (not `aio:refresh:done`) so toggling the pill does not re-run every route provider.

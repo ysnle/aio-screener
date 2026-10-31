@@ -17,9 +17,6 @@ import { summarizeValidation } from './screener-validation.js';
 import { el } from './dom.js';
 import { openThemeDetail } from '../navigation/theme-detail.js';
 import { buildOutOfUniverseRead } from '../../domain/entity/out-of-universe-read.js';
-import { requestFiscalHistory, parseFiscalHistory } from './fiscal-read.js';
-import { loadFundamentalAnalysis } from './fundamental-analysis-lazy.js';
-import { isLendingFinancial, reconcileFiscalHistory } from '../../domain/fundamental/fiscal-read.js';
 import { fiscalYearLabel } from '../../domain/fundamental/period.js';
 import { signedText as sharedSignedText, usdKoreanText } from '../../domain/shared/number.js';
 
@@ -127,19 +124,6 @@ function themeIdsFor(root, symbol, rows) {
     return koreanThemeGroups(root?.KR_THEME_MAP || {}, rows).filter((group) => group.subThemes.some((sub) => sub.tickers.includes(symbol))).map((group) => group.id);
   }
   return themesFor(root, symbol).map((theme) => theme.id);
-}
-
-function rangeVisual(doc, read) {
-  const box = el(doc, 'div', null, 'stock-read-range');
-  box.append(el(doc, 'span', '52주 위치', 'stock-read-vis-title'));
-  const track = el(doc, 'div', null, 'stock-read-track');
-  const marker = el(doc, 'span', null, 'stock-read-marker');
-  marker.style.left = `${(read.position * 100).toFixed(1)}%`;
-  track.append(marker);
-  const scale = el(doc, 'div', null, 'stock-read-scale');
-  scale.append(el(doc, 'span', '52주 저점'), el(doc, 'span', `현재 ${Math.round(read.position * 100)}%`), el(doc, 'span', '52주 고점'));
-  box.append(scale, track);
-  return box;
 }
 
 // v58.53 개편 v2 (3d): four check tiles — 추세 · 위치 · 재무 · 위험. Each prints a short value from the same row (or the
@@ -302,6 +286,12 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   host.replaceChildren(el(doc, 'h2', '이 종목의 지금', 'briefing-h2 sr-only'));
   if (!read.available) {
     // v57.81: an out-of-universe listing says what is happening (reading, not listed, chart unavailable), not "기록 없음".
+    // First-users run-6 #11: a retired or unknown symbol (FB, AAP) opened a half-empty stock page; it is one "no match" state.
+    if (onDemand?.status === 'not-listed') {
+      host.append(emptyState(doc, { title: `${sym}와 맞는 종목이 없습니다`, reason: '미국 상장 목록과 AIO 등록 종목 어디에도 없는 기호입니다. 상장 폐지됐거나 기호가 바뀐 종목일 수 있습니다.', next: '회사 이름으로 다시 검색해 보세요.', compact: true }));
+      renderNextSteps(doc, next, []);
+      return read;
+    }
     if (onDemand) host.append(outOfUniverseBlock(doc, root, onDemand));
     else host.append(emptyState(doc, { title: '추세·상대강도 기록 없음', reason: read.reason, compact: true }));
     renderNextSteps(doc, next, [{ route: 'technical', label: '차트', why: '일봉과 이동평균 위치' }, { route: 'fundamental', label: '재무 공시', why: '매출·이익·현금흐름' }]);
@@ -316,16 +306,22 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   // can be '—'). Name that basis once, beside the figures it governs — by its date, not by its collection.
   const basisDate = String(row?.factorSessionDate || row?.priceDate || '').slice(0, 10);
   const basisShort = basisDate ? `${Number(basisDate.slice(5, 7))}/${Number(basisDate.slice(8, 10))}` : '';
-  hero.append(el(doc, 'p', `아래 위치·수익률은 ${basisShort ? `${basisShort} ` : '완료 '}종가 기준입니다 — 위 현재가와 시점이 다를 수 있습니다.${onDemand?.status === 'ready' ? ' 이 종목은 스크리너 랭킹 대상 밖이라 같은 공식으로 요청 시 계산했습니다.' : ''}`, 'briefing-footnote sx-meta'));
+  // v59.51: the basis is one short dated line; why it can differ from the live price is its hover.
+  const basisLine = el(doc, 'p', `${basisShort ? `${basisShort} ` : '완료 '}종가 기준${onDemand?.status === 'ready' ? ', 스크리너 랭킹 밖이라 같은 공식으로 따로 계산' : ''}`, 'briefing-footnote sx-meta');
+  basisLine.title = '위치·수익률은 완료된 거래일 종가로 계산합니다. 맨 위 현재가와 시점이 다를 수 있습니다.';
+  hero.append(basisLine);
   const checks = stockChecks(doc, read, sym, fundamentals, fundamentalsState);
   if (checks) hero.append(checks);
-  if (read.position != null) hero.append(rangeVisual(doc, read));
+  // v59.51 (content audit): the 52-week position is the '위치' tile (the separate bar repeated it); the market line and the
+  // memo/watch actions (entity.js renderStockLens) close this card.
+  const contextNode = host._aioLensNodes?.['ticker-context'];
+  if (contextNode) hero.append(contextNode);
   host.append(hero);
   // P1599 (F107): rows that restate a chart drawn just above (52-week position, index comparison) fold under
   // it; the rest — theme, market, filings, holding, rank — stay as the reading. v58.53: the trend, distance and heat
   // sentences are the check tiles' long form and fold with them.
-  const tiled = new Set(['trend', 'extension', 'rsi']);
-  const charted = new Set([read.position != null ? 'range' : null, read.spans.some((span) => span.stock != null) ? 'relative' : null].filter(Boolean));
+  const tiled = new Set(['trend', 'extension', 'rsi', read.position != null ? 'range' : null].filter(Boolean));
+  const charted = new Set([read.spans.some((span) => span.stock != null) ? 'relative' : null].filter(Boolean));
   const item = (point) => {
     const li = el(doc, 'li', null, `stock-read-point is-${point.tone}`);
     const text = el(doc, 'span', Array.isArray(point.lines) ? null : point.text, 'stock-read-point-text');
@@ -365,66 +361,21 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
     card.append(head, relativeVisual(doc, read));
     pair.append(card);
   }
-  const reading = read.points.filter((point) => !charted.has(point.id) && !tiled.has(point.id));
-  if (reading.length) {
-    const card = el(doc, 'div', null, 'sx-card v2-stock-card');
-    const head = el(doc, 'div', null, 'sx-card__head');
-    head.append(el(doc, 'h3', '함께 읽을 것', 'sx-card__title'), el(doc, 'span', '테마, 시장, 공시', 'sx-card__meta'));
-    const points = el(doc, 'ul', null, 'stock-read-points');
-    reading.forEach((point) => points.append(item(point)));
-    card.append(head, points);
-    pair.append(card);
-  }
   if (pair.childNodes.length) host.append(pair);
+  // v59.51 (two layers): the face is the card above and the index comparison; the expert reading folds below — theme,
+  // sector rotation, market, filings and rank first, then the long form of each tile and chart, then the method line.
+  const reading = read.points.filter((point) => !charted.has(point.id) && !tiled.has(point.id));
   const restated = read.points.filter((point) => charted.has(point.id) || tiled.has(point.id));
-  if (restated.length) {
+  if (reading.length || restated.length) {
     const fold = el(doc, 'details', null, 'stock-read-fold sx-disclosure v2-stock-fold');
-    fold.append(el(doc, 'summary', '네 가지 확인과 그림의 수치를 문장으로 읽기'));
+    fold.append(el(doc, 'summary', '자세히 — 섹터·테마, 시장, 공시와 각 수치의 근거'));
     const list = el(doc, 'ul', null, 'stock-read-points');
-    restated.forEach((point) => list.append(item(point)));
-    fold.append(list);
+    [...reading, ...restated].forEach((point) => list.append(item(point)));
+    fold.append(list, el(doc, 'p', `근거, 이동평균 추세(50·200일선), RSI(Wilder 1978), 일평균 변동폭 대비 거리, 데이터, ${basisShort ? `${basisShort} ` : ''}완료 종가, ${read.benchmarkLabel} 같은 기간${fundamentals?.form ? `, SEC ${fundamentals.form}` : ''}`, 'sx-evidence v2-stock-evidence'));
     host.append(fold);
   }
-  host.append(el(doc, 'p', `근거, 이동평균 추세(50·200일선), RSI(Wilder 1978), 일평균 변동폭 대비 거리, 데이터, ${basisShort ? `${basisShort} ` : ''}완료 종가, ${read.benchmarkLabel} 같은 기간${fundamentals?.form ? `, SEC ${fundamentals.form}` : ''}`, 'sx-evidence v2-stock-evidence'));
   if (onDemand) host.append(outOfUniverseBlock(doc, root, onDemand));
-  renderNextSteps(doc, next, read.next);
+  // The 요약 · 차트 · 재무 tabs sit above the page; the next links name only other screens.
+  renderNextSteps(doc, next, read.next.filter((step) => !['technical', 'fundamental'].includes(step.route)));
   return read;
-}
-
-// v58.55 (개편 v2 3d): 종목 요약's analysis pair (3d): 듀폰 분해 beside 역 DCF, in its own host so a quote tick (which rebuilds the reading
-// card) never resets a slider the reader is moving. Rebuilt only when its inputs change.
-export function renderStockAnalysis({ documentRef: doc, root, symbol, fundamentals = null, close = null, sector = null }) {
-  const host = doc?.getElementById('ticker-analysis');
-  if (!host) return null;
-  host._aioAnalysisArgs = { fundamentals, close, sector }; // late repaints use the latest state (see renderStockRead)
-  const sym = String(symbol || '').trim().toUpperCase();
-  const own = fundamentals && String(fundamentals.symbol || sym).toUpperCase() === sym ? fundamentals : null;
-  if (!sym || /\.K[SQ]$/i.test(sym) || !own) { host.hidden = true; host.replaceChildren(); delete host.dataset.signature; return null; }
-  requestFiscalHistory(root, () => {
-    if (String(root?._currentTickerId || '').toUpperCase() === sym) renderStockAnalysis({ documentRef: doc, root, symbol: sym, ...host._aioAnalysisArgs });
-  }, 'stock-analysis');
-  const text = root?._aioSecFiscalHistory?.[sym];
-  // v58.55 (review): the same precise latest year as 재무 공시 (reconcileFiscalHistory swaps the rounded USD-million row
-  // for the issuer's exact annual receipt), so ROE and FCF agree across the two tabs.
-  const history = typeof text === 'string' ? reconcileFiscalHistory(parseFiscalHistory(text), own, sym) : [];
-  const financial = isLendingFinancial(sym, sector);
-  const signature = JSON.stringify([sym, text || '', own.sharesOutstanding ?? null, own.observedAt ?? null, own.sharesObservedAt ?? null, own.quality?.stale ?? null, history.at(-1) ?? null, close?.value ?? null, close?.date ?? null, financial]);
-  if (host.dataset.signature === signature && host.childElementCount) return host;
-  // A history request still in flight: nothing to draw yet (the callback repaints), unless it already failed.
-  if (!history.length && root?._aioSecFiscalHistory === undefined) { host.hidden = true; return null; }
-  const analysis = loadFundamentalAnalysis(() => {
-    if (String(root?._currentTickerId || '').toUpperCase() === sym) renderStockAnalysis({ documentRef: doc, root, symbol: sym, ...host._aioAnalysisArgs });
-  });
-  if (!analysis) return null; // first use: the cards module is loading (outside the boot bundle); the callback draws them
-  const { dupontCard, reverseDcfCard, assetChainState } = analysis;
-  host.dataset.signature = signature;
-  host.hidden = false;
-  host.replaceChildren(el(doc, 'h2', '수익성 구조와 가격이 말하는 기대', 'sr-only'));
-  const pair = el(doc, 'div', null, 'v2-stock-pair v2-analysis-pair');
-  const dupont = history.length ? dupontCard(doc, history, { financial, fundamentals: own }) : null;
-  const dcf = reverseDcfCard(doc, root, { history, fundamentals: own, close, financial, symbol: sym });
-  pair.append(...[dupont, dcf].filter(Boolean));
-  host.append(pair);
-  host.dataset.assetChain = assetChainState(history);
-  return host;
 }

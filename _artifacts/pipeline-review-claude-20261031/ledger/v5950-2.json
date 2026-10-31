@@ -1,0 +1,13 @@
+{
+  "version": "v59.50",
+  "date": "2026-10-31",
+  "changelog": [
+    "**반복 결함 재발 점검:** v57 이후 결함 기록 751건을 클래스별로 다시 셌다. 매매 지시 20건, 부분 문자열 18건, 결측→0 8건, 시간 경계, 텍스트 예산은 재발 방지가 그 표면의 사례 하나뿐이라 다른 표면에서 다시 나왔다. v59.49의 P2164~P2166 재현은 임시 폴더에만 있었다. 이번 배치는 클래스마다 전체를 읽는 장치를 하나씩 둔다.",
+    "**재현 테스트:** P2164(신용 '불안정'·신용융자·완화 동사, 지수 이름 숫자·0 붙은 날짜), P2165(비교표 날짜 맞춤, 며칠 전에 끝난 캐시), P2166(다른 날짜 공식 스프레드, 월 값 라벨) 재현을 scripts/fixtures/pipeline-semantics/market.mjs에 넣었다. 수정 전 파일로 돌리면 5건 모두 실패하고 지금은 통과한다.",
+    "**결측→0 래칫 확장:** ci-shared-primitive-ratchet이 src/만 읽어 scripts/lib의 Number(null)=0(P2164)을 못 봤다. 이제 scripts/의 생산자와 라이브러리도 읽고(CI 게이트·픽스처 제외), `Number.isFinite(Number(x))` 개수를 새 지표 nullAsZero로 센다(src 69, scripts 55, 늘면 실패). 시황 검증기의 4곳은 readNumber로 옮겼다.",
+    "**부분 문자열 래칫:** scripts/lib/regex-term-scan.mjs가 키워드 정규식에서 더 긴 단어 안에서 맞을 수 있는 항목을 찾는다(경계 없는 짧은 영문 2~5자, 경계 없는 '안정'·'이란'·'유가'). ci-regex-term-ratchet-check가 파일별 개수(현재 416건, 70개 파일)를 줄어들기만 하게 고정한다. 새 키워드 목록은 \\b(?:CPI|PCE)\\b나 (?<![가-힣])이란처럼 써야 통과한다.",
+    "**텍스트 예산 고정 측정:** 홈 보조 문구가 데이터 날마다 343→417자로 움직여 문구를 더하지 않아도 배포를 두 번 막았다. ci-secondary-text-budget-check가 이제 architecture/secondary-text-budget.json의 dataPin 커밋에서 public-data를 읽고 페이지 시계를 그 시각에 고정한다. 두 번 실행한 19개 화면 수치가 같았고, 상한은 그 측정값으로 낮췄다(홈 418 유지). 데이터 형식이 바뀌면 --pin <커밋> <시각>으로 의도적으로 다시 고정한다.",
+    "**시계 함수 전수 검사:** scripts/lib/market-clock-sweep.mjs가 latestCompletedUsSession·latestCompletedKrSession·marketClock 국면·isSessionCurrent를 10/24~11/30 10분 간격으로 Intl 기반 시간표 기대값과 비교한다(42,624건, 불일치 0). 11/1 서머타임 종료, 11/19 수능일 10:00~16:30, 추수감사절과 13:00 조기 폐장을 포함한다. 고정 EDT 오프셋과 한국장 30분 대기 누락 두 고장 사본을 잡는지도 함께 검사한다."
+  ],
+  "note": "v59.50: 반복 클래스 공용 장치와 R724 선택지 문장"
+}

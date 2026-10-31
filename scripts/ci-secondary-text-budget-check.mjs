@@ -13,6 +13,14 @@
 //   node scripts/ci-secondary-text-budget-check.mjs             verify
 //   node scripts/ci-secondary-text-budget-check.mjs --tighten   lower ceilings to what is measured now (shrink only)
 //   node scripts/ci-secondary-text-budget-check.mjs --write     record every route's ceiling (deliberate; owner-approved growth)
+//
+// v59.50 (recurrence audit 2026-10-31): the measured home text moved 343 → 417 between two data days (a calendar event's
+// note, the day's question, the weekend fallback chips) and blocked two deploys at 417/418, though no caption was added.
+// The budget measures the layout, so it now reads one pinned data commit at one pinned clock (`dataPin` in
+// architecture/secondary-text-budget.json): public-data/* is served from `git show <commit>:public-data/…` and the page
+// clock starts at `clock`. A pinned run is deterministic, so the ceiling keeps only a small layout margin. When a data
+// shape change makes the pinned files unreadable to the current code, re-pin deliberately with --pin <commit> <iso>.
+import { spawnSync } from 'node:child_process';
 import { chromium } from 'playwright';
 import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
 import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
@@ -31,7 +39,31 @@ const tighten = process.argv.includes('--tighten');
 // Dates, counts and headlines in secondary lines move with each refresh; a ceiling keeps this much room over the
 // measured value so a data day does not fail the gate, and still catches a new caption line.
 export const headroom = (chars) => Math.ceil(chars * 1.1) + 40;
+// With pinned data and clock only layout timing moves a count, so the margin is small.
+export const pinnedHeadroom = (chars) => Math.ceil(chars * 1.02) + 5;
 const failures = [];
+const pinAt = process.argv.indexOf('--pin');
+const budgetDoc = existsSync(BUDGET) ? JSON.parse(readFileSync(BUDGET, 'utf8')) : { routes: {} };
+const dataPin = pinAt > -1 ? { commit: process.argv[pinAt + 1], clock: process.argv[pinAt + 2] } : budgetDoc.dataPin || null;
+if (dataPin && (!/^[0-9a-f]{40}$/.test(dataPin.commit || '') || !Number.isFinite(Date.parse(dataPin.clock || '')))) {
+  console.error(`v59.50 secondary text budget: dataPin needs a full 40-hex commit sha (git rev-parse) and an ISO clock, got ${JSON.stringify(dataPin)}`);
+  process.exit(1);
+}
+const git = (args, options = {}) => spawnSync('git', args, { cwd: root, maxBuffer: 1 << 28, ...options });
+// A shallow CI checkout may lack the pinned commit; fetch only that commit (blobs arrive on demand).
+if (dataPin && git(['cat-file', '-e', `${dataPin.commit}^{commit}`]).status !== 0) {
+  const fetched = git(['fetch', '--quiet', '--depth=1', '--filter=blob:none', 'origin', dataPin.commit], { encoding: 'utf8' });
+  if (fetched.status !== 0) { console.error(`v59.50 secondary text budget: pinned data commit ${dataPin.commit} unavailable: ${fetched.stderr}`); process.exit(1); }
+}
+const pinnedFiles = new Map();
+function pinnedFile(path) {
+  if (!pinnedFiles.has(path)) {
+    const shown = git(['show', `${dataPin.commit}:${path}`]);
+    pinnedFiles.set(path, shown.status === 0 ? shown.stdout : null);
+  }
+  return pinnedFiles.get(path);
+}
+const CONTENT_TYPES = { json: 'application/json', csv: 'text/csv', txt: 'text/plain', js: 'text/javascript', html: 'text/html' };
 mkdirSync(out, { recursive: true });
 
 // Runs in the page: secondary characters and frame contract for the active route.
@@ -81,7 +113,31 @@ if (isMain) {
     browser = await chromium.launch({ headless: true });
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
     page.on('pageerror', (error) => failures.push({ message: 'runtime error', detail: error.message }));
-    await page.route('**/*', (route) => route.request().url().startsWith(base) || route.request().url().startsWith('data:') ? route.continue() : route.abort());
+    // v59.51: a route measures after its own loads settle. A fixed 900 ms caught the atlas domain guide either before its
+    // data file arrived (13 chars) or after (431), so two runs on the same pinned data disagreed.
+    let pending = 0;
+    page.on('request', () => { pending += 1; });
+    page.on('requestfinished', () => { pending -= 1; });
+    page.on('requestfailed', () => { pending -= 1; });
+    const settle = async () => {
+      const deadline = Date.now() + 10000;
+      let quietSince = null;
+      while (Date.now() < deadline) {
+        if (pending <= 0) { quietSince ??= Date.now(); if (Date.now() - quietSince >= 600) return; } else quietSince = null;
+        await page.waitForTimeout(100);
+      }
+    };
+    if (dataPin) await page.clock.install({ time: new Date(dataPin.clock) });
+    await page.route('**/*', (route) => {
+      const url = route.request().url();
+      if (url.startsWith('data:')) return route.continue();
+      if (!url.startsWith(base)) return route.abort();
+      const path = decodeURIComponent(new URL(url).pathname).replace(/^\/+/, '');
+      if (!dataPin || !path.startsWith('public-data/')) return route.continue();
+      const body = pinnedFile(path);
+      if (body == null) return route.fulfill({ status: 404, body: '' });
+      return route.fulfill({ status: 200, body, contentType: CONTENT_TYPES[path.split('.').pop()] || 'application/octet-stream' });
+    });
     await page.goto(`${base}/index.html#home`, { waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => typeof window.showPage === 'function' && document.querySelector('.page.active'), { timeout: 30000 });
     await page.waitForTimeout(1500);
@@ -89,6 +145,7 @@ if (isMain) {
     for (const route of ROUTE_IDS) {
       await page.evaluate((id) => window.showPage(id, null), route);
       await page.waitForTimeout(900);
+      await settle();
       results[route] = await page.evaluate(measure, args);
     }
     // Canary: an injected frame with a stray caption, a long chip and two long readings must trip every frame rule,
@@ -111,8 +168,7 @@ if (isMain) {
   } catch (error) { failures.push({ message: error.message, stack: error.stack }); }
   finally { await closeAll({ browser, server }); }
 
-  const doc = existsSync(BUDGET) ? JSON.parse(readFileSync(BUDGET, 'utf8')) : { routes: {} };
-  const ceilings = doc.routes || {};
+  const ceilings = budgetDoc.routes || {};
   const over = [];
   const frameProblems = [];
   for (const route of ROUTE_IDS) {
@@ -122,20 +178,29 @@ if (isMain) {
     if (!Number.isFinite(ceilings[route]) && !write) over.push({ route, secondary: result.secondary, ceiling: null, lines: [] });
     for (const frame of result.frames) if (frame.problems.length) frameProblems.push({ route, ...frame });
   }
-  if ((write || tighten) && !failures.length) {
+  const repin = pinAt > -1;
+  if ((write || tighten || repin) && !failures.length) {
     const next = {};
+    const raised = [];
     for (const route of ROUTE_IDS) {
-      const measured = headroom(results[route].secondary);
+      const measured = (dataPin ? pinnedHeadroom : headroom)(results[route].secondary);
+      // A re-pin re-measures every route on the new data and may only lower a ceiling; a route whose pinned text is
+      // already over its ceiling still needs --write and an owner reason.
       next[route] = write || !Number.isFinite(ceilings[route]) ? measured : Math.min(ceilings[route], measured);
+      if (repin && !write && Number.isFinite(ceilings[route]) && results[route].secondary > ceilings[route]) raised.push(`${route} ${results[route].secondary} (ceiling ${ceilings[route]})`);
     }
-    writeFileSync(BUDGET, JSON.stringify({ note: 'v58.79 secondary-text ceilings per route (visible characters under secondary class words, folds closed; scripts/ci-secondary-text-budget-check.mjs). Shrink with --tighten; growth needs --write and an owner reason.', routes: next }, null, 2) + '\n');
+    if (raised.length) {
+      console.error(`v59.50 secondary text budget: the pinned data measures over the ceiling on ${raised.join(', ')} — cut text, or --write with an owner reason`);
+      process.exit(1);
+    }
+    writeFileSync(BUDGET, JSON.stringify({ note: 'v58.79 secondary-text ceilings per route (visible characters under secondary class words, folds closed; scripts/ci-secondary-text-budget-check.mjs). v59.50: measured on dataPin (public-data from that commit, page clock at that time); re-pin with --pin <commit> <iso>. Shrink with --tighten; growth needs --write and an owner reason.', ...(dataPin ? { dataPin } : {}), routes: next }, null, 2) + '\n');
     console.log(`secondary text budget ${write ? 'written' : 'tightened'}: ${ROUTE_IDS.map((route) => `${route} ${next[route]}`).join(', ')}`);
   }
-  const status = failures.length || (!write && !tighten && (over.length || frameProblems.length)) ? 'FAIL' : 'PASS';
+  const status = failures.length || (!write && !tighten && !repin && (over.length || frameProblems.length)) ? 'FAIL' : 'PASS';
   writeFileSync(resolve(out, 'report.json'), JSON.stringify({ gate: 'v58.79 secondary-text-budget', status, ceilings, over, frameProblems, failures, routes: results }, null, 2) + '\n');
   const summary = ROUTE_IDS.filter((route) => results[route]).map((route) => `${route} ${results[route].secondary}/${ceilings[route] ?? '?'}`).join(', ');
   if (failures.length) { console.error(`v58.79 secondary text budget FAIL (${failures.length} check failure(s))`); failures.forEach((failure) => console.error(JSON.stringify(failure).slice(0, 600))); process.exit(1); }
-  if (write || tighten) process.exit(0);
+  if (write || tighten || repin) process.exit(0);
   if (over.length || frameProblems.length) {
     console.error(`v58.79 secondary text budget FAIL: ${over.length} route(s) over ceiling, ${frameProblems.length} frame contract problem(s)`);
     over.forEach((row) => console.error(`- ${row.route}: ${row.secondary} > ${row.ceiling ?? 'no ceiling'}; longest: ${row.lines.map((line) => `[${line.chars}] ${line.text.slice(0, 60)}`).join(' | ')}`));

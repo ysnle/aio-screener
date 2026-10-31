@@ -70,14 +70,16 @@ check(/function _aioOpenTechnicalAnalysis\(ticker\)[\s\S]{0,700}window\._aioChar
 const invalid = context({ _currentTickerId: 'NVDA', _currentTickerName: 'NVIDIA', _fundAnalysisData: { ticker: 'NVDA' }, AIO: { state: {} } });
 // v59.12: the 재무 공시 search moved from js/aio-chat.js to src/ui/components/fundamental-search.js.
 const { createFundamentalSearch } = await import('../src/ui/components/fundamental-search.js');
-invalid.root.document.getElementById('fund-search-input').value = '<invalid>';
-await createFundamentalSearch({ documentRef: invalid.root.document, root: invalid.root })();
-check(invalid.root._currentTickerId === '' && invalid.root._fundAnalysisData === null, 'invalid fundamental search clears previous identity and report data');
-check(invalid.nodes.get('vis-fundamental').style.display === 'none' && invalid.nodes.get('vis-fundamental-radar').textContent === '', 'invalid fundamental search also clears the secondary factor visualization');
+// v59.51: the 재무 search box left; a non-ticker request is never stored, selected or announced (P566/R257).
+let invalidDispatches = 0;
+invalid.root.document.dispatchEvent = () => { invalidDispatches += 1; };
+createFundamentalSearch({ documentRef: invalid.root.document, root: invalid.root })('<invalid>');
+check(invalid.root._currentTickerId === 'NVDA' && invalidDispatches === 0, 'v59.51 invalid fundamental search neither selects nor dispatches');
 
 // P1672: #sr-levels-container left the technical page; the stock-chart component draws price levels now.
 check(!macroTech.includes('function updateSRLevels'), 'retired legacy price reference-line writer stays retired');
-check(!section(ui, 'function _factorRadar(d)', '  var _fns = {').includes('|| 50') && ui.includes('Object.assign({}, row.factorScores || {}, { rsi: row.rsi })'), 'factor visualizations preserve zero/missing values and canonical scores');
+// v59.51 (content audit): the legacy factor radar (_aioDiagram _factorRadar / _aioRenderFundamentalRadar) left with #vis-fundamental-radar.
+check(!/function _factorRadar\(|_aioRenderFundamentalRadar\s*=/.test(ui), 'v59.51 (content audit): the retired legacy factor radar (_factorRadar, _aioRenderFundamentalRadar) stays retired');
 const themes = read('src/ui/pages/themes.js');
 check(themes.includes("catalog.setAttribute('aria-label', '회전 지표 미수신 테마 목록')") && themes.includes('appendUnclassified();'), 'missing RRG observations do not remove the independent theme exploration path');
 
@@ -87,7 +89,8 @@ check(!core.includes('window._aioFillEntryFromTicker =') && !core.includes('p * 
 // matters for the absence check too — pinned to index.html it would now pass vacuously.
 check(!ui.includes('모멘텀 강세(비중 확대)') && !ui.includes('Leading</strong>: 초강세'), 'relative strength labels do not prescribe trades');
 check(!ui.includes('function _daKeyLevels(') && !ui.includes('function _daDestroyCharts('), 'P1753 retired deep-analysis multi-timeframe level panel stays gone');
-check(read('src/ui/components/fundamental-search.js').includes('const period = `CY${year}Q${quarter}`;') && !read('src/ui/components/fundamental-search.js').includes('Q${quarter}I'), 'SEC revenue/net-income frames use duration periods, not instant periods');
+// v59.51: the legacy quarterly SEC-frames report left with the 재무 search box; the native entity slice is the one report.
+check(!/xbrl\/frames|CY\$\{year\}Q/.test(read('src/ui/components/fundamental-search.js')), 'v59.51 the retired SEC-frames quarterly fetch stays out of the 재무 hand-off');
 check(read('src/app/bootstrap.js').includes("legacy.on('aio:entityChanged', syncAnalysis.sync)"), 'native analysis refreshes when entity selection changes');
 const suppliedMaterials = read('src/domain/research/supplied-materials.js');
 const suppliedBridge = read('src/ui/knowledge/supplied-material-bridge.js');

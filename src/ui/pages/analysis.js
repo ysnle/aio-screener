@@ -71,32 +71,7 @@ function renderTechnicalHealth({ documentRef, root }) {
     const counts = regime.counts || {};
     basis.textContent = regime.available ? `${month}/${day} 미국 종가 기준, 양호 ${counts.favorable ?? 0}, 중립 ${counts.neutral ?? 0}, 부담 ${counts.burden ?? 0}${counts.unknown ? `, 확인 불가 ${counts.unknown}` : ''}` : '종가 기록을 불러오는 중입니다.';
   }
-  const chips = documentRef?.getElementById('tech-regime-chips');
-  if (chips) {
-    // 2026-10-14 audit #4: the sentence above counts the six US axes, so the Korea FX reference (원·엔) is not a
-    // seventh chip — it follows them as one muted reference line, outside the tally.
-    const axes = regime.axes || [];
-    const reference = axes.find((row) => row.id === 'korea');
-    const referenceNode = reference ? documentRef.createElement('div') : null;
-    if (referenceNode) {
-      referenceNode.className = 'regime-chip-reference';
-      referenceNode.title = '한국 참고 — 위 양호·중립·부담 합계에 넣지 않습니다';
-      referenceNode.textContent = `참고, 환율(원·엔) ${reference.stateLabel || '확인 불가'}`;
-    }
-    chips.replaceChildren(...axes.filter((row) => row.id !== 'korea').map((row) => {
-      const chip = documentRef.createElement('div');
-      chip.className = 'regime-chip';
-      chip.dataset.state = row.state;
-      const label = documentRef.createElement('span');
-      label.className = 'regime-chip-label';
-      label.textContent = row.title;
-      const state = documentRef.createElement('span');
-      state.className = `regime-state is-${row.state}`;
-      state.textContent = row.stateLabel;
-      chip.append(label, state);
-      return chip;
-    }), ...(referenceNode ? [referenceNode] : []));
-  }
+  // v59.51 (content audit): the six-axis chips left this page — the one-line verdict links to 시장 상태, which owns them.
   documentRef?.getElementById('tech-regime-summary')?.setAttribute('data-aio-tech-regime-renderer', 'native');
 }
 

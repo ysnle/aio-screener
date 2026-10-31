@@ -1,0 +1,25 @@
+{
+  "version": "v59.51",
+  "date": "2026-10-31",
+  "p": {
+    "title": "종목의 차트·재무 공시 탭 주소에서 종목(sym)이 빠져 새로고침하면 '종목 선택 전'이 됨, 차트 제목은 'SPY 일봉'",
+    "symptom": "run-6: 차트·재무 공시 탭에서 새로고침하면 '종목 선택 전'으로 돌아갔다(심각도 2). NVDA 차트 탭의 제목이 'SPY 일봉 · 판정 대기'였다(심각도 3).",
+    "root_cause": "라우터가 #ticker에만 ?sym=을 붙이고 #technical·#fundamental에는 붙이지 않았고, 허브 탭이 종목을 다시 지정하지 않았다. 차트 제목은 빈 차트의 기본값 'SPY 일봉'이 정적으로 남아 있었다.",
+    "fix": "src/app/router.js ENTITY_ROUTES(ticker·technical·fundamental)가 모두 sym을 주소에 싣고, route-hubs.js가 탭 전환 때 setStockSubject로 종목을 복원하며 role=tablist/tab을 단다. 차트 제목은 '일봉'으로 바꿔 종목 머리글과 다른 종목명을 쓰지 않는다.",
+    "violated_rule": "AGENTS 티커 추정 금지 — 화면이 다른 종목을 이름으로 보여 주면 안 된다.",
+    "prevention": "자동 게이트 없음: 브라우저에서 새로고침으로 확인했다.",
+    "verification": "로컬 브라우저에서 이전 종목이 AAPL인 상태로 #technical?sym=NVDA와 #fundamental?sym=MSFT를 새로고침해 각각 NVDA·MSFT가 열리고 주소가 유지됨을 확인. 차트 제목은 종목을 받기 전 '일봉', 받은 뒤 'NVDA 일봉'."
+  },
+  "qa": [
+    {
+      "id": "QA-STOCK-HASH-01",
+      "text": "v59.51 종목의 차트·재무 공시 탭에서 새로고침해도 같은 종목이 열리고, 차트 제목에 다른 종목 이름이 없는지 확인",
+      "verify_by": "browser"
+    }
+  ],
+  "qa_section": "종목 화면",
+  "changelog": [
+    "**종목 탭 주소 ({P}):** 차트·재무 공시 탭에서 새로고침하면 종목이 사라지던 문제와 NVDA 차트에 'SPY 일봉'이 붙던 제목을 고쳤다."
+  ],
+  "note": "v59.51: run-6 전체 반영 — 화면별 내용 재구성(쉬운 첫 면 + 전문가 접힘)과 결함 수정"
+}

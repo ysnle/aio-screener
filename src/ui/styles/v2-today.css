@@ -1,8 +1,8 @@
 /* v58.53 개편 v2 — today screens (오늘 · 브리핑 · 뉴스). Owned by the today screen pass (imported from responsive.css,
    after soft-ui.css); shared components live in soft-ui.css. Design ids: 2b (오늘 · 요약), 5a (브리핑), 5b (뉴스),
    5k (빈 화면 · 미수신), 5m (다크), 5o (iPad 세로).
-   Sections: 1 오늘 hero · 2 close-change fold · 3 KPI tiles + quote row · 4 my names / schedule cards ·
-   5 participation card + depth fold · 6 empty states (5k) · 7 브리핑 · 8 뉴스 · 9 breakpoints.
+   Sections: 1 오늘 hero · 3 quote row · 4 my names · 5 AI chain, participation card, link row ·
+   6 empty states (5k) · 7 브리핑 · 8 뉴스 · 9 breakpoints. (v59.51: 2 close-change fold, KPI tiles, schedule and depth fold left.)
    Selectors are scoped by the page id so they win over the legacy `.page .x` rules without !important; the few
    !important ones answer a legacy !important rule (named beside it). Colours are tokens, so dark mode follows. */
 
@@ -79,57 +79,33 @@
 #page-home .home-hero-why-list { margin: 0; padding: 0 8px 8px 26px; display: flex; flex-direction: column; gap: 8px; font-size: 12px; line-height: 1.65; color: var(--text-secondary); }
 #page-home .home-hero-why-list li { overflow-wrap: anywhere; text-wrap: pretty; }
 
-/* The hub tabs float right at the top (soft-ui §2); the note card keeps its own box beside them instead of running under them. */
-#page-home > #home-operator-note { contain: layout; }
-#page-home #home-operator-note .aio-operator-note-verdict { margin: 6px 0 6px; font-size: var(--fs-sm, 13px); font-weight: 600; color: var(--text-primary); line-height: 1.5; } /* run-5: the verdict leads the question */
-/* The page head keeps the 34px title; the operator's one dated sentence above it reads as a quiet note card. */
-#page-home #home-operator-note .aio-operator-note-card { border-radius: 12px !important; box-shadow:none !important; padding: 18px 22px !important; } /* soft-ui §3 sets the hero shadow with !important */
+/* v59.51: the day's question (#home-operator-note, filled by js/aio-data.js) is the hero's second line — no card of its own,
+   and its "m/d 종가 기준 '판정'" line is not repeated under the verdict word it sits beside. */
+#page-home #home-score-hero #home-operator-note .aio-operator-note-card { margin: 0; padding: 0 !important; border: 0 !important; border-radius: 0 !important; background: none !important; box-shadow: none !important; } /* soft-ui §3 sets the card shadow with !important */
+#page-home #home-score-hero #home-operator-note .aio-operator-note-meta { display: flex; gap: 8px; align-items: baseline; margin: 0 0 2px; font-size: 12px; color: var(--text-muted); }
+#page-home #home-score-hero #home-operator-note .aio-operator-note-title { margin: 0; font-size: 14px !important; font-weight: 500; line-height: 1.6 !important; color: var(--text-primary); } /* index.html sets the stand-alone card's 18px/1.34 with !important */
+#page-home #home-score-hero #home-operator-note { margin: 0; }
+/* The Korea line and the month tilt: one line each, their readings open in place (expert layer). */
+#page-home .home-kr-line[hidden] { display: none; }
+#page-home .home-kr-line > summary, #page-home .market-lean > summary, #page-home .leaders-line__more > summary { cursor: pointer; min-height: 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+#page-home .home-kr-line > summary::-webkit-details-marker, #page-home .market-lean > summary::-webkit-details-marker { display: none; }
+#page-home .home-kr-line > summary, #page-home .market-lean > summary { list-style: none; }
+#page-home .home-kr-line > summary::after, #page-home .market-lean > summary::after { content: '⌄'; color: var(--text-muted); font-size: 14px; } /* the sx-disclosure marker */
+#page-home .home-kr-line[open] > summary::after, #page-home .market-lean[open] > summary::after { content: '⌃'; }
+#page-home .home-kr-detail { margin: 4px 0 6px; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
+#page-home .regime-chip-delta { font-size: 12px; font-weight: 700; }
+#page-home .regime-chip-delta.is-down { color: var(--amber-12); }
+#page-home .regime-chip-delta.is-up { color: var(--green-12); }
+#page-home .home-flips-next { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+#page-home .home-flips-event { display: grid; grid-template-columns: minmax(0, auto) minmax(0, 1fr); gap: 2px 10px; font-size: 12px; line-height: 1.5; }
+#page-home .home-flips-event-when { color: var(--text-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+#page-home .home-flips-event-label { color: var(--text-primary); font-weight: 600; overflow-wrap: anywhere; }
+#page-home .home-flips-event.is-today .home-flips-event-when { color: var(--data-amber); font-weight: 600; }
+#page-home .home-hero-flips .flow-next-link { align-self: flex-start; font-size: 12px; }
 
-/* ═══ 2. "지난 마감 이후 변화" — one disclosure row under the verdict ══════════ */
-#page-home > #home-daily-changes { margin: 0 0 16px; padding: 0; border: 0; }
-#page-home > #home-daily-changes:empty { min-height: 56px; } /* responsive.css reserves 340px for the old open grid */
-#page-home .home-changes { background: var(--bg-card); border-radius: 12px; box-shadow:none; }
-#page-home .home-changes[open] { background: var(--bg-card); }
-#page-home .home-changes > summary { grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 6px 14px; padding: 14px 20px; min-height: 44px; box-sizing: border-box; }
-#page-home .home-changes > summary:hover { background: var(--sx-ink-a03); }
-#page-home .home-changes-title { margin: 0; font-size: 14px; font-weight: 700; font-family: var(--font-sans); white-space: nowrap; }
-#page-home .home-changes-lead { margin: 0; font-size: 12px; line-height: 1.5; color: var(--text-secondary); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-#page-home .home-changes[open] .home-changes-lead { white-space: normal; }
-#page-home .home-changes-asof { justify-self: end; } /* v58.79: the compared closes as the row's as-of chip */
-#page-home .home-changes-body { padding: 0 20px 18px; display: flex; flex-direction: column; gap: 10px; }
-#page-home .home-changes-body .daily-moves { gap: 10px; }
-#page-home .home-changes-body .daily-move { border: 0; border-radius: 12px; background: var(--sx-ink-a03); padding: 12px 14px; }
-#page-home .home-changes-body .daily-move.is-big { box-shadow: inset 0 0 0 1px rgba(var(--ink-rgb), 0.12); }
-#page-home .daily-move-label, #page-home .daily-move-level, #page-home .daily-move-live { font-size: 12px; }
-#page-home .daily-move-value { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
-
-/* ═══ 3. KPI tiles (value 26 · change 13/600 · line · 20거래일 foot) + quote row ═══════════ */
-#page-home .home-quote-title { display: flex; align-items: center; gap: 8px; margin: 4px 0 10px; font-family: var(--font-sans); font-size: 14px; font-weight: 700; color: var(--text-primary); } /* v58.79: title + quote-state chip */
-#page-home #home-kpi-strip.home-kpi-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 0 0 14px; border: 0; }
-#page-home #home-kpi-strip > [role="button"] {
-  display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 18px 20px; border: 0; border-radius: 12px;
-  background: var(--bg-card); box-shadow:none; cursor: pointer;
-  
-}
-#page-home #home-kpi-strip > [role="button"]:hover { box-shadow:none; }
-#page-home #home-kpi-strip > [role="button"]:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; }
-#page-home #home-kpi-strip .kpi-label, #page-home #home-kpi-strip > [role="button"] > div:first-child { margin: 0; font-size: 12px; color: var(--text-secondary); }
-#page-home #home-kpi-strip .kpi-value { margin-top: 6px; font-size: 28px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; font-variant-numeric: tabular-nums; color: var(--text-primary); font-family: var(--font-sans); }
-#page-home #home-kpi-strip [data-live-chg].sh-figure { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
-#page-home #home-kpi-strip .kpi-spot, #page-home #home-kpi-strip .sh-muted-text-mt6 { margin-top: 4px; font-size: 12px; line-height: 1.5; color: var(--text-muted); }
-#page-home #home-kpi-strip .kpi-fallback:not([hidden]) { display: flex; flex-direction: column; gap: 2px; margin-top: 6px; }
-#page-home #home-kpi-strip .kpi-fallback-value { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
-#page-home #home-kpi-strip .kpi-fallback-note { display: inline-flex; align-self: flex-start; align-items: center; min-height: 22px; padding: 0 9px; border-radius: 999px; background: var(--sx-warn-bg); color: var(--amber-12); font-size: 12px; font-weight: 600; }
-#page-home .kpi-trend { display: flex; flex-direction: column; align-items: stretch; gap: 4px; margin-top: auto; padding-top: 10px; }
-#page-home .kpi-trend .kpi-trend-line { width: 100%; height: 36px; }
-#page-home .kpi-trend-line path.is-up { stroke: var(--dir-up); }
-#page-home .kpi-trend-line path.is-down { stroke: var(--dir-down); }
-#page-home .kpi-trend-line path.is-neutral { stroke: var(--text-secondary); }
-#page-home .kpi-trend-caption { font-size: 12px; color: var(--text-muted); }
-#page-home .kpi-trend:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; border-radius: 8px; }
-
-/* The quieter quotes (VIX · 공포·탐욕 · 달러 · 금 · 코스피 · BTC) as one row of capsules. */
-#page-home #home-cross-assets.home-cross-assets { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 20px; }
+/* ═══ 3. One quote row (v59.51: the KPI tiles, the "지금 시세" heading, gold and BTC left) ═══════════ */
+#page-home #home-cross-assets.home-cross-assets { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 16px; }
+#page-home #home-cross-assets > span[hidden] { display: none; }
 #page-home #home-cross-assets > span:not([hidden]) {
   display: inline-flex; align-items: baseline; gap: 6px; min-height: 30px; padding: 5px 12px; box-sizing: border-box;
   border-radius: 999px; background: var(--sx-ink-a05); font-size: 12px; 
@@ -173,29 +149,20 @@
 #page-home #home-daily-loop .daily-name-day.is-up { background: var(--dir-up-bg); color: var(--dir-up-strong); }
 #page-home #home-daily-loop .daily-name-day.is-down { background: var(--dir-down-bg); color: var(--dir-down-strong); }
 #page-home #home-daily-loop .daily-name-notes { grid-column: 1 / 3; grid-row: 2; font-size: 12px; color: var(--text-secondary); }
-#page-home #home-daily-loop .daily-schedule { gap: 0; }
-#page-home #home-daily-loop .daily-event {
-  grid-template-columns: 52px minmax(0, 1fr); grid-auto-flow: row; gap: 2px 14px; align-items: center; padding: 10px 16px;
-}
-#page-home #home-daily-loop .daily-event-date {
-  grid-row: 1 / span 3; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  height: 48px; border-radius: 12px; background: var(--sx-ink-a05);
-}
-#page-home #home-daily-loop .daily-event.is-today .daily-event-date { background: var(--sx-warn-bg); }
-#page-home #home-daily-loop .daily-event-dow { font-size: 12px; color: var(--text-muted); }
-#page-home #home-daily-loop .daily-event-day { font-size: 18px; line-height: 1.1; font-variant-numeric: tabular-nums; }
-#page-home #home-daily-loop .daily-event-label { grid-column: 2; font-size: 14px; font-weight: 600; color: var(--text-primary); }
-#page-home #home-daily-loop .daily-event-when, #page-home #home-daily-loop .daily-event-why { grid-column: 2; font-size: 12px; color: var(--text-secondary); }
-#page-home #home-daily-loop .daily-event.is-today .daily-event-when { color: var(--data-amber); font-weight: 600; }
-#page-home #home-daily-loop .daily-block > .daily-event-why, #page-home #home-daily-loop .daily-empty { margin: 4px 16px 8px; font-size: 12px; color: var(--text-muted); }
+#page-home #home-daily-loop .daily-empty { margin: 4px 16px 8px; font-size: 12px; color: var(--text-muted); }
 #page-home #home-daily-loop .flow-next-link { align-self: flex-start; margin: auto 16px 8px; padding-top: 8px; font-size: 12px; }
 #page-home #home-daily-loop .daily-news { gap: 4px; }
 #page-home #home-daily-loop .daily-news-item { display: flex; gap: 10px; align-items: baseline; font-size: 12px; }
 #page-home #home-daily-loop .daily-news-symbol { font-weight: 700; flex: none; }
 
-/* ═══ 5. Participation card (2b) + depth fold ══════════════════════════════ */
-#page-home #home-depth { display: flex; flex-direction: column; gap: 16px; margin: 0 0 16px; }
-#page-home #home-participation.home-participation { padding: 20px 0 0; margin: 0; border: 0; overflow: hidden; }
+/* ═══ 5. AI supply chain + participation card (2b) + the link row ══════════════════════════════ */
+#page-home > #home-ai-chain { margin: 0 0 16px; padding: 20px 24px 12px; border-radius: 12px; background: var(--bg-card); }
+#page-home > #home-ai-chain[hidden], #page-home > #home-participation[hidden], #page-home > #home-next[hidden] { display: none; }
+#page-home > #home-ai-chain .daily-card-head { padding: 0 0 8px; }
+#page-home > #home-ai-chain .flow-next-link { font-size: 12px; }
+#page-home #home-participation.home-participation { padding: 20px 0 12px; margin: 0 0 16px; border: 0; overflow: hidden; }
+#page-home .home-participation .home-breadth-link { margin: 0 24px; font-size: 12px; }
+#page-home > #home-next { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 0 0 16px; font-size: 12px; }
 #page-home .home-participation-head { padding: 0 24px 4px; margin: 0; font-size: 12px; }
 #page-home .home-participation-head .sx-card__title { font-size: 14px; }
 #page-home .home-participation-head span { color: var(--text-secondary); }
@@ -206,20 +173,6 @@
 #page-home .home-participation-basis { margin: 0 24px 12px; font-size: 12px; color: var(--text-muted); }
 #page-home .home-participation-basis > summary { display: inline-flex; align-items: center; min-height: 24px; cursor: pointer; }
 #page-home .home-participation-basis > p { margin: 4px 0 0; line-height: 1.6; }
-#page-home .home-participation-rows .sx-row { min-height: 48px; }
-#page-home .home-participation-rows .sx-row:focus-visible { outline: 2px solid var(--text-primary); outline-offset: -2px; }
-
-#page-home .home-depth-fold { background: var(--bg-card); border-radius: 12px; box-shadow:none; }
-#page-home .home-depth-fold[hidden] { display: none; }
-#page-home .home-depth-fold > summary { grid-template-columns: minmax(0, 1fr) auto auto; padding: 16px 24px; min-height: 52px; box-sizing: border-box; }
-#page-home .home-depth-fold > summary:hover { background: var(--sx-ink-a03); border-radius: 12px; }
-#page-home .home-depth-fold[open] { background: var(--bg-card); }
-#page-home .home-depth-fold-title { font-size: 14px; font-weight: 700; }
-#page-home .home-depth-fold-meta::after { content: none; }
-#page-home .home-depth-body { padding: 0 24px 20px; }
-#page-home .home-depth-body > :first-child { margin-top: 0; }
-#page-home .home-depth-body .xr-compact, #page-home .home-depth-body #home-guide { margin: 0 0 20px; }
-#page-home .home-depth-body #home-guide { padding-top: 20px; border-top: 0.5px solid rgba(var(--ink-rgb), 0.06); }
 #page-home .home-ask-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 16px; }
 
 /* ═══ 6. Empty / not-received states (5k) ══════════════════════════════════ */
@@ -375,9 +328,7 @@
 @media (max-width: 1023px) {
   /* 5o: the hero is one column; KPI tiles 2×2; the two daily cards stay side by side. */
   #page-home > #home-score-hero.home-hero { grid-template-columns: minmax(0, 1fr); gap: 20px; padding: 22px 24px !important; } /* responsive.css ≤700 sets 16px 0 !important */
-  #page-home #home-kpi-strip.home-kpi-strip { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } /* responsive-shell's card-grid rule */
   #page-home #home-daily-loop.daily-loop { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  #page-home .home-changes > summary { grid-template-columns: auto minmax(0, 1fr) auto; }
   #page-briefing .briefing-event { grid-template-columns: minmax(0, 1fr); gap: 2px; }
 }
 @media (max-width: 743px) {
@@ -386,21 +337,15 @@
   #page-home .home-hero-verdict { font-size: 28px; }
   #page-home .home-hero-lede { font-size: 14px; }
   #page-home .home-hero-flips { padding: 16px 18px; }
-  #page-home #home-kpi-strip > [role="button"] { padding: 16px; }
-  #page-home #home-kpi-strip .kpi-value, #page-home #home-kpi-strip .kpi-fallback-value { font-size: 18px; }
   #page-home #home-daily-loop.daily-loop { grid-template-columns: minmax(0, 1fr); }
   #page-home #home-daily-loop .daily-name { grid-template-columns: auto minmax(0, 1fr) auto; }
   #page-home #home-daily-loop .daily-name-price { display: none; }
   #page-home #home-daily-loop .daily-name-symbol, #page-home .home-flips-full > summary, #page-home #home-daily-loop .flow-next-link { min-height: 44px; }
-  #page-home .home-changes > summary { grid-template-columns: minmax(0, 1fr) auto; }
-  #page-home .home-changes-lead { grid-column: 1 / -1; grid-row: 2; white-space: normal; }
   #page-home .home-participation-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; padding: 8px 20px 12px; }
   #page-home .home-participation-head, #page-home .home-participation-read, #page-home .home-participation-basis { margin-left: 20px; margin-right: 20px; padding-left: 0; padding-right: 0; }
-  #page-home .home-participation-rows .sx-row { padding: 14px 20px; }
-  #page-home .home-participation-rows .sx-row__meta { text-align: right; }
-  #page-home .home-depth-fold > summary { grid-template-columns: minmax(0, 1fr) auto; padding: 14px 20px; }
-  #page-home .home-depth-fold-meta { display: none; }
-  #page-home .home-depth-body { padding: 0 16px 16px; }
+  #page-home .home-participation .home-breadth-link { margin: 0 20px; min-height: 44px; }
+  #page-home > #home-ai-chain { padding: 18px 16px 10px; }
+  #page-home > #home-next .flow-next-link, #page-home .home-hero-flips .flow-next-link { min-height: 44px; }
   #page-home #home-cross-assets > span:not([hidden]) { min-height: 36px; }
   #page-briefing > .briefing-block, #page-briefing .briefing-pair > .briefing-block { padding: 18px 16px; border-radius: 12px; }
   #page-briefing > #briefing-read.sx-card--hero { padding: 20px 18px; border-radius: 12px; }
@@ -414,17 +359,7 @@
 }
 
 /* ═══ v58.75 (persona review, '고르는 법' E): 밤사이 핵심 · 오늘 확인할 3가지 · 판단 거리 · 실적 주간 · 이벤트 미리보기 · 사건 사슬 ═══ */
-#page-home #home-daily-loop > #home-overnight, #page-home #home-daily-loop > #home-checks { padding: 20px 8px 8px; }
-#page-home #home-daily-loop .daily-news-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-#page-home #home-daily-loop .daily-news-chain { font-size: 12px; line-height: 1.5; color: var(--text-muted); overflow-wrap: anywhere; }
-#page-home .home-checks { list-style: none; margin: 0; padding: 0 16px 8px; display: flex; flex-direction: column; gap: 12px; counter-reset: home-check; }
-#page-home .home-check { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 2px 10px; counter-increment: home-check; }
-#page-home .home-check::before { content: counter(home-check); grid-row: 1 / span 3; display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 999px; background: var(--sx-ink-a07); font-size: 12px; font-weight: 700; color: var(--text-secondary); }
-#page-home .home-check-label { grid-column: 2; font-size: 12px; color: var(--text-muted); }
-#page-home .home-check-text { grid-column: 2; font-size: 14px; line-height: 1.5; color: var(--text-primary); overflow-wrap: anywhere; }
-#page-home .home-check-sub { grid-column: 2; font-size: 12px; line-height: 1.5; color: var(--text-secondary); }
 #page-home .home-flip-dist { justify-self: end; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
-#page-home .home-flip-sessions { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
 #page-briefing .briefing-earnings-week { margin-top: 12px; }
 #page-briefing .briefing-earnings-lead { margin: 0 0 6px; font-size: 14px; font-weight: 600; color: var(--text-primary); }
 #page-briefing .briefing-earnings-fold > summary { min-height: 24px; font-size: 12px; color: var(--text-secondary); }
@@ -448,10 +383,6 @@
 #page-briefing .briefing-result-sub { font-size: 12px; font-weight: 600; color: var(--text-primary); margin-top: 6px; }
 #page-market-news .news-item-tickers { margin: 0 0 2px; }
 #page-market-news .news-item-chain { margin: 2px 0 0; font-size: 12px; line-height: 1.5; color: var(--text-muted); overflow-wrap: anywhere; }
-#page-market-news .news-reading-guide { margin: 8px 10px 0; }
-#page-market-news .news-reading-guide > summary { grid-template-columns: minmax(0, 1fr) auto; gap: 8px; padding: 10px 12px; min-height: 44px; box-sizing: border-box; font-size: 12px; color: var(--text-secondary); }
-#page-market-news .news-reading-guide ul { margin: 6px 12px 8px; padding-left: 18px; font-size: 12px; line-height: 1.7; color: var(--text-secondary); }
-
 /* Owner 2026-10-25: the four index ETFs' last regular session opens 오늘 (src/ui/components/home-index-strip.js). */
 #page-home .home-index-strip { margin: 0 0 16px; }
 /* First-users run-5 (phone, CLS): the strip is filled when the modules run (~35 s on slow 3G) and pushed the verdict the

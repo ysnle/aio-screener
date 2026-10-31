@@ -141,7 +141,8 @@ function syncRsLegend(doc, shown, benchmarkLabel) {
   const glyph = el(doc, 'span', '━');
   glyph.style.color = RS_LINE_COLOR;
   glyph.setAttribute('aria-hidden', 'true');
-  item.append(glyph, doc.createTextNode(` 상대강도선(종목 ÷ ${benchmarkLabel}, 아래 칸, 점은 1년 신고가)`));
+  item.append(glyph, doc.createTextNode(' 상대강도선'));
+  item.title = `종목 ÷ ${benchmarkLabel}, 가격 아래 칸, 점은 1년 신고가`;
   legend.append(item);
 }
 function drawChart(root, host, analysis, previous, kr = false) {
@@ -368,7 +369,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   {
     const legend = doc.querySelector?.('#stock-chart-section .stock-chart-legend');
     legend?.querySelector('.lg-levels')?.remove();
-    if (legend && root.__aioStockChartInstance && levels.available) legend.append(el(doc, 'span', '┈ 가격 레벨(아래 \'가격 레벨과 내 계획\', 기본은 가까운 위·아래 2개씩)', 'lg-levels'));
+    if (legend && root.__aioStockChartInstance && levels.available) { const item = el(doc, 'span', '┈ 가격 레벨', 'lg-levels'); item.title = '자세히의 \'가격 레벨과 내 계획\', 기본은 가까운 위·아래 2개씩'; legend.append(item); }
   }
   const regime = readMarketRegime(root); // v57.55 review (E1-02): the same regime reader (and credit history) as 시장 상태
   // P1435: reading first (state → why → market → flip), two pictures (Weinstein stage, trend template),
@@ -377,9 +378,16 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   const read = el(doc, 'div', null, 'chart-read');
   read.append(el(doc, 'p', reading.headline, 'chart-read-headline'));
   if (reading.why) read.append(el(doc, 'p', `근거: ${reading.why}.`, 'chart-read-why'));
-  if (reading.market) read.append(el(doc, 'p', `${reading.market}.`, 'chart-read-market'));
   if (reading.flip) read.append(el(doc, 'p', `전환 조건: ${reading.flip}`, 'regime-flip'));
+  // v59.51 (content audit + owner two layers): the face is this reading and the trend-template dots; the market line, the
+  // Weinstein stage, the reading cards, the evidence list and every section below fold into one expert disclosure.
+  const expert = el(doc, 'details', null, 'chart-expert-fold');
+  expert.open = root.__aioChartExpertOpenFor === sym || root.__aioChartScrollTo === 'chart-levels';
+  expert.addEventListener('toggle', () => { root.__aioChartExpertOpenFor = expert.open ? sym : null; });
+  expert.append(el(doc, 'summary', '자세히 — 지표 값, 단계, 셋업 점검, 가격 레벨, 시나리오, 거래 집중 가격대'));
+  if (reading.market) expert.append(el(doc, 'p', `${reading.market}.`, 'chart-read-market'));
   const visuals = el(doc, 'div', null, 'chart-read-visuals');
+  const stageVisual = el(doc, 'div', null, 'chart-read-visuals');
   if (analysis.weinstein) {
     const stage = el(doc, 'div', null, 'chart-stage');
     stage.append(el(doc, 'span', 'Weinstein 단계 (30주선)', 'chart-vis-title'));
@@ -390,7 +398,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
       steps.append(li);
     });
     stage.append(steps);
-    visuals.append(stage);
+    stageVisual.append(stage);
   }
   const template = el(doc, 'div', null, 'chart-template');
   template.append(el(doc, 'span', `${TEMPLATE_LABEL} ${analysis.templatePass}/8`, 'chart-vis-title'));
@@ -420,9 +428,12 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
     button.addEventListener('click', () => navigateKnowledgeRoute({ root, page: 'principles', params: { mode: 'frames', node: note.id } }));
     return button;
   }));
-  body.append(read, visuals, more, learn);
-  panel.replaceChildren(...(readCards ? [readCards] : []), body);
-  if (tools) panel.append(coach.setupCoachSection(doc, root, sym, analysis, regime, tools, levels.available));
+  body.append(read, visuals, learn);
+  panel.replaceChildren(body, expert);
+  if (readCards) expert.append(readCards);
+  if (stageVisual.childElementCount) expert.append(stageVisual);
+  expert.append(more);
+  if (tools) expert.append(coach.setupCoachSection(doc, root, sym, analysis, regime, tools, levels.available));
   const forward = buildChartScenarios(analysis, { currency: kr ? 'KRW' : payload?.meta?.currency || null });
   if (forward.available) {
     const section = el(doc, 'section', null, 'chart-scenarios');
@@ -433,14 +444,14 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
       const card = el(doc, 'div', null, 'chart-scenario'); card.dataset.scenario = scenario.id;
       card.append(el(doc, 'h4', scenario.title), el(doc, 'p', scenario.text)); section.append(card);
     }
-    panel.append(section);
+    expert.append(section);
   }
   const styles = strategySection(doc, analysis, levels, wilderRsi(analysis.bars.map((bar) => bar.close)));
-  if (styles) panel.append(styles);
+  if (styles) expert.append(styles);
   if (levels.available) {
     const currency = kr ? 'KRW' : payload?.meta?.currency || null;
     root.__aioStockChartInstance?.setLevels?.(coach.nearestLevels(levels));
-    panel.append(coach.priceLevelSection(doc, root, sym, levels, currency, root.__aioStockChartInstance, tools.checkPricePlan));
+    expert.append(coach.priceLevelSection(doc, root, sym, levels, currency, root.__aioStockChartInstance, tools.checkPricePlan));
     // v58.75 (D6): the screener's '차트·가격 레벨' link lands here once.
     if (root.__aioChartScrollTo === 'chart-levels') { root.__aioChartScrollTo = null; doc.getElementById('chart-levels')?.scrollIntoView?.({ block: 'start' }); }
   }
@@ -457,22 +468,21 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
       row.append(track, el(doc, 'span', `${zone.share.toFixed(1)}%`)); section.append(row);
     }
     section.append(el(doc, 'p', '일별 거래량을 그날 저가~고가 범위에 균등 배분한 참고 분포입니다. 실제 가격별 체결량·보유자의 매입단가·매수/매도 우위를 보여주지는 않습니다. 구간은 관찰할 가격대이며 지지·저항을 보장하지 않습니다.', 'theme-strength-basis'));
-    panel.append(section);
+    expert.append(section);
   }
   const logic = el(doc, 'details', null, 'chart-analysis-logic');
   logic.append(el(doc, 'summary', '차트를 읽는 순서와 계산 기준'));
   logic.append(el(doc, 'p', '① 완료된 일봉과 30주선으로 큰 추세를 확인합니다. ② 8·21·50·200일선과 수축 고점/저점으로 현재 가격 구조를 읽습니다. ③ 상승·하락일 거래량과 평균 거래량 대비로 참여를 확인합니다. ④ 같은 시장 지수의 동일 기간 수익률과 비교합니다. ⑤ 가격이 관찰 구간 위·안·아래로 움직일 때 해석을 갱신합니다. 지표 하나만으로 미래 방향을 확정하지 않습니다.'));
   // v58.75 (persona review): how the RS line under the price is computed.
   if (rsLineSeries(analysis)) logic.append(el(doc, 'p', `상대강도선: 각 거래일 종가를 같은 날(없으면 3일 이내 직전) ${analysis.benchmarkLabel} 종가로 나눈 값을 첫 비교일 100으로 맞춰 가격 아래 칸에 그립니다. 선이 오르면 지수보다 강했다는 뜻이고, 점은 직전 1년(252거래일, 비교값 240개 이상) 중 가장 높은 값을 새로 쓴 날입니다. 가격이 고점 아래인데 선이 먼저 신고가를 쓰면 지수 대비 강세가 가격보다 앞선 것으로 읽습니다. 지수 기록이 1년에 못 미치면 점은 찍지 않습니다.`));
-  panel.append(logic);
+  expert.append(logic);
   // P1435: where the chart's question continues.
   const isIndex = /^(SPY|QQQ|DIA|IWM)$/.test(sym);
   renderNextSteps(doc, doc.getElementById('technical-next'), isIndex ? [
     { route: 'signal', label: '시장 상태', why: `${sym}의 추세가 시장 폭·금리·신용과 같은 방향인지` },
     { route: 'breadth', label: '시장 폭', why: '지수 움직임을 얼마나 많은 종목이 따라가는지' }
   ] : [
-    { action: 'showTicker', arg: sym, route: 'ticker', label: '요약', why: '이 셋업이 섹터 회전·지수 대비 강도와 같은 방향인지' },
-    { route: 'fundamental', label: '재무 공시', why: '가격 추세를 매출·이익이 뒷받침하는지' },
+    // The 요약 · 재무 tabs sit above the page; the next link names the other screen.
     { route: 'signal', label: '시장 상태', why: `셋업이 놓인 환경 — 지금은 ${regime.available ? regime.overall : '판정 대기'}` }
   ]);
   doc.getElementById('stock-chart-section')?.setAttribute('data-symbol', sym);

@@ -730,9 +730,6 @@ function clearAllPositions() {
 
 // Render Portfolio
 function renderPortfolio() {
-  // Codex review 2026-10-05: after deleting the last holding the table emptied but the sector concentration
-  // bubble kept "Technology 100%" until a reload — it was drawn only on page entry. It follows every render.
-  try { if (document.getElementById('page-portfolio')?.classList.contains('active') && typeof window._aioRenderPageDiagram === 'function') window._aioRenderPageDiagram('portfolio'); } catch (_) {}
   // v52.46 WO-1A: 실제 잠금 게이트 — 이전엔 이 자리를 지키던 checkPortfolioPin()이
   // 어디서도 호출되지 않는 고아 함수라 PIN이 설정돼도 진입 시 잠금화면이 뜬 적이 없었다(R294).
   if (typeof isPortfolioLocked === 'function' && isPortfolioLocked()) {
@@ -743,7 +740,6 @@ function renderPortfolio() {
     return;
   }
   const positions = getPortfolioData(); try { window._pfPortfolioBackup.renderReminder(positions.length); } catch (_) {} // v58.84 backup reminder
-  let ld = window._liveData || {};
   const tbody = document.getElementById('pf-positions-tbody');
   if (!tbody) return;
   var _nativePortfolioTable = tbody.dataset.aioPortfolioTableRenderer === 'native';
@@ -756,14 +752,10 @@ function renderPortfolio() {
   });
   // v48.47: R:R 계산기 포지션 드롭다운 동기화
   try { if (typeof window._aioRRPopulateSelect === 'function') window._aioRRPopulateSelect(); } catch(_){}
-  try { if (typeof window._aioSyncPortfolioAiWorkbench === 'function') window._aioSyncPortfolioAiWorkbench(); } catch(_){}
 
   if (positions.length === 0) {
     // v59.42: the empty-state row is the native page's (src/ui/pages/portfolio.js renderPortfolioTable); this one was
     // replaced within ~1.4 s of every portfolio entry.
-    // v48.3: 빈 상태에서도 도넛 리셋(이전 데이터 잔존 방지)
-    if (typeof drawPositionDonut === 'function') drawPositionDonut();
-    try { if (typeof window._aioSyncPortfolioAiWorkbench === 'function') window._aioSyncPortfolioAiWorkbench(); } catch(_){}
     return;
   }
 
@@ -772,8 +764,6 @@ function renderPortfolio() {
   // price, P&L or weight for ~0.7-1.4 s until native replaced it, so before native mounts a neutral row stands in.
   if (!_nativePortfolioTable) tbody.innerHTML = '<tr><td colspan="10" class="pfp-empty">보유 ' + positions.length + '종목을 불러오는 중입니다</td></tr>';
 
-  // v40.4: 포지션 도넛 + 섹터 브레이크다운 갱신
-  drawPositionDonut();
   // v57.81: the per-currency cash boxes are restored by the native portfolio page from the same balances it totals.
   // E3/E4/P1188: 선언 필드 복원 — 저장된 원문(코드/퍼센트)을 그대로 되돌린다.
   var _pfApi = _pfAssumptionApi();
@@ -797,92 +787,9 @@ function renderPortfolio() {
   try { renderPortfolioLedger(); } catch(e) {}
   // E3/P1194: FX leg 목록도 같은 주기에 수화한다(사용 가능/창 초과 표시 포함).
   try { renderPortfolioFxLegs(); } catch(e) {}
-  try { if (typeof window._aioSyncPortfolioAiWorkbench === 'function') window._aioSyncPortfolioAiWorkbench(); } catch(_){}
-  try { if (typeof _aioRenderPortfolioHoldingCharts === 'function') _aioRenderPortfolioHoldingCharts(positions, ld); } catch(_){}
 }
 
-// v52.65 아이보리 리디자인 4a: 보유 종목 AI 차트 분석 — 시안의 "보유 종목별 미니차트+MA+지지저항" 카드.
-// 기존 window._fetchYahooChartData(범용 OHLCV 유틸, v50.38 복구분)를 재사용해 신규 데이터 경로 없이 구현.
-function _aioRenderPortfolioHoldingCharts(positions, ld) {
-  var container = document.getElementById('pf-holdings-charts');
-  if (!container) return;
-  positions = positions || (typeof getPortfolioData === 'function' ? getPortfolioData() : []);
-  ld = ld || window._liveData || {};
-  if (!positions.length) {
-    container.innerHTML = '<div class="wsl-hc-empty">포지션을 추가하면 종목별 차트 분석이 표시됩니다</div>';
-    return;
-  }
-  if (typeof window._fetchYahooChartData !== 'function') {
-    container.innerHTML = '<div class="wsl-hc-empty">차트 데이터 유틸 미로드 — 잠시 후 다시 시도하세요</div>';
-    return;
-  }
-  // 종목당 외부 fetch 1회씩 발생 — 카드 밀도/요청 수를 함께 고려해 최대 6종목으로 제한
-  var tickers = positions.map(function(p) { return p.ticker; }).slice(0, 6);
-  container.innerHTML = tickers.map(function(t) {
-    var tEsc = escHtml(t);
-    return '<div class="aio-widget wsl-hc" id="pf-hc-' + tEsc + '" data-action="_aioTechnicalTicker" data-arg="' + tEsc +
-      '" role="button" tabindex="0" aria-label="' + tEsc + ' 종목, 차트로 이동">' +
-      '<div class="wsl-hc-wait">' + tEsc + ' 차트 로딩 중…</div></div>';
-  }).join('');
-
-  tickers.forEach(function(ticker) {
-    var live = ld[ticker] || {};
-    window._fetchYahooChartData(/^\d{6}$/.test(ticker) && typeof krTickerToYahoo === 'function' ? krTickerToYahoo(ticker) : ticker, '3mo', '1d').then(function(data) { // v57.55 B4-F5: 105560 -> 105560.KS
-      var card = document.getElementById('pf-hc-' + ticker);
-      if (!card) return;
-      var closes = data && data.closes ? data.closes.filter(function(v) { return v != null && isFinite(v); }) : [];
-      if (closes.length < 10) {
-        card.innerHTML = '<div class="wsl-hc-wait">' + escHtml(ticker) + ' — 차트 데이터 수신 실패</div>';
-        return;
-      }
-      function sma(period) {
-        if (closes.length < period) return null;
-        var s = 0; for (var j = closes.length - period; j < closes.length; j++) s += closes[j];
-        return s / period;
-      }
-      var price = (live.price != null && isFinite(live.price)) ? live.price : closes[closes.length - 1];
-      var chg = (live.pct != null && isFinite(live.pct)) ? live.pct : null;
-      var ma5 = sma(5), ma20 = sma(20), ma50 = sma(50);
-      var recent = closes.slice(-20);
-      var resistance = Math.max.apply(null, recent);
-      var support = Math.min.apply(null, recent);
-      var aligned = ma5 != null && ma20 != null && ma50 != null && ma5 > ma20 && ma20 > ma50;
-      var bearish = ma5 != null && ma20 != null && ma50 != null && ma5 < ma20 && ma20 < ma50;
-      var verdict = aligned ? '정배열' : bearish ? '역배열' : '혼조';
-      var verdictColor = aligned ? 'var(--data-green)' : bearish ? 'var(--data-red)' : 'var(--text-secondary)';
-      var w = 240, h = 60;
-      var lo = Math.min.apply(null, closes), hi = Math.max.apply(null, closes);
-      var span = (hi - lo) || 1;
-      var pathPts = closes.map(function(c, idx) {
-        return (idx / (closes.length - 1) * w).toFixed(1) + ',' + (h - ((c - lo) / span * h)).toFixed(1);
-      }).join(' ');
-      var chgColor = chg != null ? (chg >= 0 ? 'var(--dir-up)' : 'var(--dir-down)') : 'var(--text-muted)';
-      card.innerHTML =
-        '<div class="wsl-hc-head">' +
-          '<span class="wsl-hc-ticker">' + escHtml(ticker) + '</span>' +
-          '<span class="wsl-hc-verdict" style="color:' + verdictColor + ';">' + verdict + '</span>' +
-        '</div>' +
-        '<div class="wsl-hc-quote">' +
-          '<span class="wsl-hc-last">' + price.toFixed(2) + '</span>' +
-          (chg != null ? '<span class="wsl-hc-move" style="color:' + chgColor + ';">' + (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%</span>' : '') +
-        '</div>' +
-        '<svg width="100%" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" class="wsl-hc-spark" role="img" aria-label="' + escHtml(ticker) + ' 최근 3개월 가격 추이">' +
-          '<polyline points="' + pathPts + '" fill="none" stroke="#1b1a17" class="wsl-hc-line" stroke-width="1.6"></polyline>' +
-        '</svg>' +
-        '<div class="wsl-hc-levels">' +
-          '<div class="wsl-hc-level"><span class="wsl-note">MA5 / MA20 / MA50</span><span class="wsl-hc-level-v">' +
-            (ma5 != null ? ma5.toFixed(1) : '—') + ' / ' + (ma20 != null ? ma20.toFixed(1) : '—') + ' / ' + (ma50 != null ? ma50.toFixed(1) : '—') + '</span></div>' +
-          '<div class="wsl-hc-level"><span class="wsl-note">20일 저항 / 지지</span><span class="wsl-hc-level-v">' +
-            resistance.toFixed(1) + ' / ' + support.toFixed(1) + '</span></div>' +
-        '</div>' +
-        '<div class="wsl-hc-more">종목, 차트에서 상세 보기 →</div>';
-    }).catch(function() {
-      var card = document.getElementById('pf-hc-' + ticker);
-      if (card) card.innerHTML = '<div class="wsl-hc-wait">' + escHtml(ticker) + ' — 차트 데이터 수신 실패</div>';
-    });
-  });
-}
-window._aioRenderPortfolioHoldingCharts = _aioRenderPortfolioHoldingCharts;
+// v59.51 (content audit): the per-holding mini charts (_aioRenderPortfolioHoldingCharts, #pf-holdings-charts) were retired.
 
 // v59.42: _pfLegacyMoney / _pfLegacyCurrencyOf (P1449) left with the legacy row builder; native rows format money per currency.
 // v57.77: updatePortfolioSummary() only fed the retired 포트폴리오 자동 진단 (#pf-analysis-text) and left with it.
@@ -1249,92 +1156,31 @@ function _aioPortfolioJournalEntries() {
   } catch(_) { return []; }
 }
 
-window._aioSavePortfolioJournal = function() {
-  var noteEl = document.getElementById('pf-journal-note');
-  var statusEl = document.getElementById('pf-journal-status');
-  var note = noteEl ? String(noteEl.value || '').trim() : '';
-  if (!note) {
-    if (statusEl) statusEl.textContent = '저장할 노트가 없습니다.';
-    if (typeof showToast === 'function') showToast('매매 복기 노트를 입력하세요.');
-    return null;
-  }
-  var positions = (typeof getPortfolioData === 'function') ? getPortfolioData() : [];
-  var entries = _aioPortfolioJournalEntries();
-  var entry = {
-    ts: Date.now(),
-    date: new Date().toISOString(),
-    note: note.slice(0, 2000),
-    tickers: positions.map(function(p) { return p.ticker; }).filter(Boolean)
-  };
-  entries.unshift(entry);
-  entries = entries.slice(0, 80);
-  // P1350: a failed durable write is never reported as a saved journal.
-  try { var json = JSON.stringify(entries); localStorage.setItem(PF_JOURNAL_KEY, json); if (localStorage.getItem(PF_JOURNAL_KEY) !== json) throw new Error('write-readback-failed'); }
-  catch (_) { if (statusEl) statusEl.textContent = '노트를 저장하지 못했습니다. 작성 내용은 입력란에 남아 있습니다.'; if (typeof showToast === 'function') showToast('매매 복기 노트 저장 실패'); return { ok: false, entry: entry }; }
-  if (statusEl) statusEl.textContent = '최근 노트 저장: ' + new Date(entry.ts).toLocaleString('ko-KR', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
-  if (typeof showToast === 'function') showToast('매매 복기 노트 저장 완료');
-  return { ok: true, entry: entry };
-};
-
-window._aioSyncPortfolioAiWorkbench = function() {
-  var positions = (typeof getPortfolioData === 'function') ? getPortfolioData() : [];
-  var sel = document.getElementById('pf-ai-ticker-select');
-  if (sel) {
-    var current = sel.value;
-    var opts = ['<option value="">전체 포트폴리오</option>'].concat(positions.map(function(p) {
-      var tk = escHtml(String(p.ticker || '').toUpperCase());
-      return '<option value="' + tk + '">' + tk + '</option>';
-    }));
-    sel.innerHTML = opts.join('');
-    if (current && positions.some(function(p) { return p.ticker === current; })) sel.value = current;
-  }
-  var entries = _aioPortfolioJournalEntries();
-  var status = document.getElementById('pf-ai-status');
-  if (status) {
-    if (!positions.length) status.textContent = '포지션 등록 후 AI 분석을 실행할 수 있습니다.';
-    else {
-      var top = positions.slice(0, 4).map(function(p) { return p.ticker; }).join(', ');
-      status.textContent = positions.length + '종목 분석 준비, ' + top + (positions.length > 4 ? ' 외' : '') + (entries.length ? ', 복기 노트 ' + entries.length + '건' : '');
-    }
-  }
-  var journalStatus = document.getElementById('pf-journal-status');
-  if (journalStatus && entries.length) {
-    journalStatus.textContent = '최근 노트: ' + new Date(entries[0].ts).toLocaleString('ko-KR', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
-  }
-};
-
-function _aioSelectedPortfolioTicker() {
-  var sel = document.getElementById('pf-ai-ticker-select');
-  return sel ? String(sel.value || '').trim().toUpperCase() : '';
-}
-
+// v59.51 (content audit): the in-page journal note (_aioSavePortfolioJournal) and the AI workbench (ticker select,
+// status; _aioSyncPortfolioAiWorkbench) were retired. Stored notes stay in PF_JOURNAL_KEY (backup, AI journal prompt);
+// the AI panel's portfolio chips (src/ui/components/chat-sessions.js) call _aioPortfolioAsk.
 function _aioBuildPortfolioActionPrompt(kind) {
-  var ticker = _aioSelectedPortfolioTicker();
-  var noteEl = document.getElementById('pf-journal-note');
   var consent = kind === 'journal' && window.AIO && typeof window.AIO.hasPortfolioJournalAIConsent === 'function' && window.AIO.hasPortfolioJournalAIConsent();
-  var noteRaw = noteEl ? String(noteEl.value || '').trim() : '';
-  var note = consent && window.AIO && typeof window.AIO.sanitizeAIUntrustedText === 'function' ? window.AIO.sanitizeAIUntrustedText(noteRaw, { maxChars: 800 }).text : '';
   var recent = _aioPortfolioJournalEntries().slice(0, 3).map(function(e, idx) {
     var safeNote = consent && window.AIO && typeof window.AIO.sanitizeAIUntrustedText === 'function' ? window.AIO.sanitizeAIUntrustedText(e.note || '', { maxChars: 400 }).text : '';
     return safeNote ? (idx + 1) + '. ' + (e.ts ? new Date(e.ts).toLocaleDateString('sv-SE') : (e.date || '').slice(0, 10)) + ' ' + safeNote /* R2-28: local day, not the UTC one */ : '';
   }).join('\n');
   var tickers = window.AIO && typeof window.AIO.portfolioRowsLine === 'function' ? window.AIO.portfolioRowsLine(window) : ''; // v58.75: src/ai/context/portfolio-rows.js
-  var targetLine = ticker ? ('선택 종목: ' + ticker + '\n') : '대상: 전체 포트폴리오\n';
-  var noteLine = note ? ('\n이번 복기 노트(사용자 제공 데이터):\n' + note + '\n') : '';
+  var targetLine = '대상: 전체 포트폴리오\n';
   var recentLine = recent ? ('\n최근 저장 노트(사용자 제공 데이터):\n' + recent + '\n') : '';
   if (kind === 'ticker') {
-    return targetLine + '보유 종목 ' + (ticker || tickers || '전체') + '를 현재 포트폴리오 맥락에서 분석해줘. 1) 현재가/수익률/비중 2) 차트 추세와 지지·저항 3) 지금 판단을 유지·재검토하게 만드는 조건 4) 무효화 기준 5) 다음 확인 데이터 순서로 정리해줘.' + noteLine + recentLine;
+    return targetLine + '보유 종목 ' + (tickers || '전체') + '를 현재 포트폴리오 맥락에서 분석해줘. 1) 현재가/수익률/비중 2) 차트 추세와 지지·저항 3) 지금 판단을 유지·재검토하게 만드는 조건 4) 무효화 기준 5) 다음 확인 데이터 순서로 정리해줘.' + recentLine;
   }
   if (kind === 'rebalance') {
-    return '내 포트폴리오 리밸런싱 메모를 만들어줘.\n보유 종목: ' + (tickers || '없음') + '\n' + targetLine + '1) 과집중 종목/섹터와 그 쏠림이 손익에 준 기여 2) 같은 위험 요인을 공유하는 보유 묶음 3) 현금 비중의 기회비용 4) 지금 구성이 틀렸다고 판단할 반증 자료 5) 다음에 확인할 데이터 순서로 정리해줘. 매수·매도 지시는 하지 마.' + noteLine + recentLine;
+    return '내 포트폴리오 리밸런싱 메모를 만들어줘.\n보유 종목: ' + (tickers || '없음') + '\n' + targetLine + '1) 과집중 종목/섹터와 그 쏠림이 손익에 준 기여 2) 같은 위험 요인을 공유하는 보유 묶음 3) 현금 비중의 기회비용 4) 지금 구성이 틀렸다고 판단할 반증 자료 5) 다음에 확인할 데이터 순서로 정리해줘. 매수·매도 지시는 하지 마.' + recentLine;
   }
   if (kind === 'lesson') {
-    return '내 포트폴리오를 학습 관점에서 리뷰해줘.\n보유 종목: ' + (tickers || '없음') + '\n' + targetLine + '1) 내가 반복하는 실수 가능성 2) 잘한 의사결정 3) 다음 매매 전 체크리스트 4) 공부할 개념 5) 기록해야 할 지표를 초보자도 이해하게 정리해줘.' + noteLine + recentLine;
+    return '내 포트폴리오를 학습 관점에서 리뷰해줘.\n보유 종목: ' + (tickers || '없음') + '\n' + targetLine + '1) 내가 반복하는 실수 가능성 2) 잘한 의사결정 3) 다음 매매 전 체크리스트 4) 공부할 개념 5) 기록해야 할 지표를 초보자도 이해하게 정리해줘.' + recentLine;
   }
   if (kind === 'journal') {
-    return '아래 매매 복기 노트를 기준으로 내 의사결정을 리뷰해줘.\n보유 종목: ' + (tickers || '없음') + '\n' + targetLine + noteLine + recentLine + '\n1) 사실/감정/추정 분리 2) 처음 근거가 유지되는지 3) 판단을 다시 볼 조건 4) 다음에 반복할 규칙 5) 한 줄 교훈으로 정리해줘.';
+    return '아래 매매 복기 노트를 기준으로 내 의사결정을 리뷰해줘.\n보유 종목: ' + (tickers || '없음') + '\n' + targetLine + recentLine + '\n1) 사실/감정/추정 분리 2) 처음 근거가 유지되는지 3) 판단을 다시 볼 조건 4) 다음에 반복할 규칙 5) 한 줄 교훈으로 정리해줘.';
   }
-  return '내 포트폴리오 전체를 현재 보유 데이터 기준으로 종합 분석해줘.\n보유 종목: ' + (tickers || '없음') + '\n' + targetLine + '1) 핵심 결론 2) 수익/손실 기여 3) 비중·섹터·상관 리스크 4) 지금 판단을 바꾸게 할 반증 조건 5) 이번 주 체크할 뉴스·차트·거시 6) 공부할 포인트를 정리해줘.' + noteLine + recentLine;
+  return '내 포트폴리오 전체를 현재 보유 데이터 기준으로 종합 분석해줘.\n보유 종목: ' + (tickers || '없음') + '\n' + targetLine + '1) 핵심 결론 2) 수익/손실 기여 3) 비중·섹터·상관 리스크 4) 지금 판단을 바꾸게 할 반증 조건 5) 이번 주 체크할 뉴스·차트·거시 6) 공부할 포인트를 정리해줘.' + recentLine;
 }
 
 window._aioPortfolioAsk = function(kind) {
@@ -1353,7 +1199,7 @@ window._aioPortfolioAsk = function(kind) {
       return;
     }
     showConfirmModal('포트폴리오 AI 전송 미리보기',
-      'AI에는 종목명·섹터·검증 가능한 비중·수익률만 전송합니다. 계좌ID·사용자ID·이메일·수량·매수가·목표가·메모는 제외됩니다.' + (kind === 'journal' ? ' 이번 복기 요청에는 현재 작성 노트와 최근 저장 노트 최대 3개도 전송합니다. 노트의 개인정보는 직접 확인하세요.' : '') + ' 이 기기에서 한 번만 동의하면 다음부터 묻지 않습니다(공용 PC 모드에서는 이번 세션만). 동의할까요?',
+      'AI에는 종목명·섹터·검증 가능한 비중·수익률만 전송합니다. 계좌ID·사용자ID·이메일·수량·매수가·목표가·메모는 제외됩니다.' + (kind === 'journal' ? ' 이번 복기 요청에는 최근 저장 노트 최대 3개도 전송합니다. 노트의 개인정보는 직접 확인하세요.' : '') + ' 이 기기에서 한 번만 동의하면 다음부터 묻지 않습니다(공용 PC 모드에서는 이번 세션만). 동의할까요?',
       function() {
         if (window.AIO && typeof window.AIO.setPortfolioAIConsent === 'function') window.AIO.setPortfolioAIConsent(true);
         if (kind === 'journal' && window.AIO && typeof window.AIO.setPortfolioJournalAIConsent === 'function') window.AIO.setPortfolioJournalAIConsent(true);
@@ -1362,12 +1208,9 @@ window._aioPortfolioAsk = function(kind) {
     return;
   }
   if (kind === 'journal') {
-    var noteEl = document.getElementById('pf-journal-note');
-    var note = noteEl ? String(noteEl.value || '').trim() : '';
     var savedNotes = _aioPortfolioJournalEntries();
-    if (!note && !savedNotes.length) {
-      if (typeof showToast === 'function') showToast('복기 노트를 먼저 입력하세요.');
-      if (noteEl) noteEl.focus();
+    if (!savedNotes.length) {
+      if (typeof showToast === 'function') showToast('저장된 복기 노트가 없습니다. 내 기록에서 먼저 남겨 주세요.');
       return;
     }
     // P1350: send the explicitly previewed notes; saving now would duplicate the current

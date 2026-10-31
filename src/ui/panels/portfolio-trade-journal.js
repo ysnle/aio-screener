@@ -47,7 +47,7 @@ function buildSkeleton(doc, host, root) {
   host.replaceChildren();
   host.dataset.aioTradeJournal = 'built';
   host.append(el(doc, 'h2', '매매일지, 복기', 'briefing-h2'),
-    el(doc, 'p', '사고판 기록을 이유와 함께 남기면, 끝난 거래의 손익과 내 매매 습관을 내 기록으로 보여 줍니다. 무엇을 사고팔지 권하지 않고, 내가 정한 원칙과 지금 상태의 차이만 보여 줍니다.', 'theme-strength-basis'));
+    el(doc, 'p', '끝난 거래의 손익과 내 매매 습관을, 내가 적은 기록과 원칙으로만 보여 줍니다.', 'theme-strength-basis'));
   const form = el(doc, 'details', null, 'pf-trade-form');
   form.id = 'pf-trade-form';
   form.append(el(doc, 'summary', '거래 기록하기'));

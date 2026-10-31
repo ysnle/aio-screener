@@ -150,12 +150,6 @@ export function installCompatibilityGlobals(root = globalThis) {
   window.AIO.formatSecResearchEvidence = formatSecResearchEvidence;
   // v58.71: research-channel numbers in the chat context; loaded after boot (the chat checks that it exists).
   import('../ai/context/channel-signals.js').then((module) => { window.AIO.formatChannelSignalEvidence = module.formatChannelSignalEvidence; }).catch(() => {});
-  // 2026-10-17 D8: replaces js/aio-chat.js _parseSECFinancials. v59.48 (boot budget): the parser (sec-statements.js with
-  // sec-normalize.js) is a lazy chunk; the 재무 search awaits AIO.loadSecStatements() before it reads AIO.parseSecStatements.
-  window.AIO.loadSecStatements = () => import('../domain/fundamental/sec-statements.js').then(({ parseSecStatements }) => {
-    window.AIO.parseSecStatements = parseSecStatements;
-    return parseSecStatements;
-  });
   // v59.48 (boot budget): buildMarketContentContext, buildQuestionDomainContext and the answer mode/principle helpers
   // install with the chat (src/app/chat-globals.js, loaded by src/app/chat-loader.js); only js/aio-chat.js reads them.
   // P1741: data-drawn figures under an AI answer. v58.80 (bundle 4): the builders load with the first answer (both are async).

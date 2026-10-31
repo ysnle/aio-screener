@@ -17,6 +17,12 @@
 // local reader and only parsers (patterns that capture or strip a date inside text) plus the import-free exchange
 // calendar (P1533) keep a date pattern; they are the baseline, and every other file is held at zero.
 //
+// v59.50 (recurrence audit 2026-10-31): P2164 found Number(null)=0 in scripts/lib after src/ reached zero copies, so the
+// count also covers scripts/ (producers and their libs; CI gates and fixtures are not product code), and a fourth metric
+// counts the P715 trap itself:
+//   nullAsZero  — `Number.isFinite(Number(x))`, which is true for null, '' and false; use isFiniteNumber/readNumber.
+// A scope the prior baseline did not scan is recorded as measured once, like a new metric.
+//
 // Usage:
 //   node scripts/ci-shared-primitive-ratchet-check.mjs           # verify
 //   node scripts/ci-shared-primitive-ratchet-check.mjs --write   # record shrinks (growth is refused)
@@ -31,7 +37,10 @@ const DEFINITION_FILES = new Set(['src/domain/shared/number.js', 'src/domain/sha
 
 const FINITE_RE = /^\s*(?:export\s+)?(?:function\s+finite\s*\(|const\s+finite\s*=\s*(?:\(|[A-Za-z_]\w*\s*=>))/gm;
 const DATE_RE = /\\d\{4\}-\\d\{2\}-\\d\{2\}/g;
-const METRICS = ['localFinite', 'dateRegex', 'rawRowRead'];
+const NULL_AS_ZERO_RE = /Number\.isFinite\(Number\(/g;
+const METRICS = ['localFinite', 'dateRegex', 'rawRowRead', 'nullAsZero'];
+const SCOPES = ['src', 'scripts'];
+const scopeOf = (file) => file.split('/')[0];
 const ROW_READ_SCOPES = ['src/domain/', 'src/ui/', 'src/ai/'];
 const { SCREENER_FIELD_REGISTRY } = await import(pathToFileURL(join(root, 'src/data/contracts/screener.js')).href);
 const ROW_KEYS = [...new Set(SCREENER_FIELD_REGISTRY.fields.filter((field) => field.type === 'number' && field.rowKey).map((field) => field.rowKey))];
@@ -39,16 +48,17 @@ const ROW_READ_RE = new RegExp(String.raw`\b(?:row|r|member|stock|item|entry)\??
 
 export function countCopies(source, { rowReads = true } = {}) {
   const text = String(source);
-  return { localFinite: (text.match(FINITE_RE) || []).length, dateRegex: (text.match(DATE_RE) || []).length, rawRowRead: rowReads ? (text.match(ROW_READ_RE) || []).length : 0 };
+  return { localFinite: (text.match(FINITE_RE) || []).length, dateRegex: (text.match(DATE_RE) || []).length, rawRowRead: rowReads ? (text.match(ROW_READ_RE) || []).length : 0, nullAsZero: (text.match(NULL_AS_ZERO_RE) || []).length };
 }
 
 function productFiles() {
   const walk = (dir) => readdirSync(join(root, dir), { withFileTypes: true }).flatMap((entry) => {
     const path = `${dir}/${entry.name}`;
     if (entry.isDirectory()) return walk(path);
-    return entry.name.endsWith('.js') ? [path] : [];
+    return /\.m?js$/.test(entry.name) ? [path] : [];
   });
-  return walk('src').filter((file) => !DEFINITION_FILES.has(file)).sort();
+  const scripts = walk('scripts').filter((file) => !file.startsWith('scripts/fixtures/') && !/^scripts\/ci-[^/]+$/.test(file));
+  return [...walk('src'), ...scripts].filter((file) => !DEFINITION_FILES.has(file)).sort();
 }
 
 function measure() {
@@ -63,7 +73,8 @@ function measure() {
 export function compareToBaseline(counts, baseline) {
   const failures = [];
   for (const [file, now] of Object.entries(counts)) {
-    const allowed = { localFinite: 0, dateRegex: 0, rawRowRead: 0, ...(baseline[file] || {}) };
+    const allowed = { localFinite: 0, dateRegex: 0, rawRowRead: 0, nullAsZero: 0, ...(baseline[file] || {}) };
+    if ((now.nullAsZero || 0) > allowed.nullAsZero) failures.push(`${file}: Number.isFinite(Number(x)) grew ${allowed.nullAsZero} → ${now.nullAsZero} — it reads null and '' as 0; use isFiniteNumber/readNumber from src/domain/shared/number.js`);
     if (now.rawRowRead > allowed.rawRowRead) failures.push(`${file}: raw screener row reads grew ${allowed.rawRowRead} → ${now.rawRowRead} — call readRowNumber(row, key, purpose) from src/data/contracts/screener.js`);
     if (now.localFinite > allowed.localFinite) failures.push(`${file}: local finite copies grew ${allowed.localFinite} → ${now.localFinite} — import finiteNumber/readNumber from src/domain/shared/number.js`);
     if (now.dateRegex > allowed.dateRegex) failures.push(`${file}: date regex copies grew ${allowed.dateRegex} → ${now.dateRegex} — use isoDay/stampDay/latestSessionRows from src/domain/shared/session-date.js`);
@@ -82,9 +93,11 @@ if (isMain) {
     'const finite = finiteFact;',
     String.raw`if (/^\d{4}-\d{2}-\d{2}$/.test(x)) return x;`,
     'const a = row.ret1m + row?.pctSma50 + quote.price + readRowNumber(row, "ret3m");',
+    'if (Number.isFinite(Number(value.changePct))) keep(value);',
   ].join('\n'));
   const selfTest = [
-    probe.localFinite === 3 && probe.dateRegex === 1 && probe.rawRowRead === 2,
+    probe.localFinite === 3 && probe.dateRegex === 1 && probe.rawRowRead === 2 && probe.nullAsZero === 1,
+    compareToBaseline({ 'scripts/lib/a.mjs': { localFinite: 0, dateRegex: 0, rawRowRead: 0, nullAsZero: 1 } }, {}).length === 1,
     compareToBaseline({ 'src/ui/a.js': { localFinite: 0, dateRegex: 0, rawRowRead: 3 } }, { 'src/ui/a.js': { localFinite: 0, dateRegex: 0, rawRowRead: 2 } }).length === 1,
     compareToBaseline({ 'src/a.js': { localFinite: 2, dateRegex: 0 } }, { 'src/a.js': { localFinite: 1, dateRegex: 0 } }).length === 1,
     compareToBaseline({ 'src/a.js': { localFinite: 1, dateRegex: 1 } }, { 'src/a.js': { localFinite: 1, dateRegex: 2 } }).length === 0,
@@ -100,7 +113,10 @@ if (isMain) {
   if (process.argv.includes('--write')) {
     // A metric the prior baseline never recorded (rawRowRead before v59.46) is recorded as measured, once.
     const unrecorded = METRICS.filter((metric) => prior && prior.totals?.[metric] === undefined);
-    const priorCounts = Object.fromEntries(Object.keys({ ...(prior?.counts || {}), ...counts }).map((file) => [file, { ...(prior?.counts?.[file] || {}), ...Object.fromEntries(unrecorded.map((metric) => [metric, counts[file]?.[metric] || 0])) }]));
+    const priorScopes = prior?.scopes || ['src'];
+    const priorCounts = Object.fromEntries(Object.keys({ ...(prior?.counts || {}), ...counts }).map((file) => [file, priorScopes.includes(scopeOf(file))
+      ? { ...(prior?.counts?.[file] || {}), ...Object.fromEntries(unrecorded.map((metric) => [metric, counts[file]?.[metric] || 0])) }
+      : { ...(counts[file] || {}) }]));
     const growth = prior ? compareToBaseline(counts, priorCounts) : compareToBaseline(counts, counts);
     if (growth.length) {
       for (const line of growth) console.error(`REFUSED ${line}`);
@@ -110,11 +126,12 @@ if (isMain) {
     writeFileSync(join(root, BASELINE_PATH), `${JSON.stringify({
       schemaVersion: 'aio-shared-primitive-baseline.v1',
       generatedBy: relative(root, fileURLToPath(import.meta.url)).split('\\').join('/'),
-      note: 'Per-file counts in src/ of local finite readers, YYYY-MM-DD regex copies and (domain/ui/ai) raw screener row field reads. Shrink only; never raise a count or add a file.',
+      note: 'Per-file counts in src/ and scripts/ (not ci-* gates or fixtures) of local finite readers, YYYY-MM-DD regex copies, Number.isFinite(Number(x)) null-as-zero checks and (src domain/ui/ai) raw screener row field reads. Shrink only; never raise a count or add a file.',
+      scopes: SCOPES,
       totals: total,
       counts,
     }, null, 2)}\n`);
-    console.log(`Shared-primitive baseline written: ${Object.keys(counts).length} files, ${total.localFinite} local finite, ${total.dateRegex} date regex, ${total.rawRowRead} raw row reads.`);
+    console.log(`Shared-primitive baseline written: ${Object.keys(counts).length} files, ${total.localFinite} local finite, ${total.dateRegex} date regex, ${total.rawRowRead} raw row reads, ${total.nullAsZero} null-as-zero.`);
   } else {
     if (!prior) {
       console.error(`FAIL ${BASELINE_PATH} missing — run with --write once.`);
@@ -125,8 +142,8 @@ if (isMain) {
       for (const failure of failures) console.error(`FAIL ${failure}`);
       process.exit(1);
     }
-    const before = { localFinite: 0, dateRegex: 0, rawRowRead: 0, ...(prior.totals || {}) };
+    const before = { localFinite: 0, dateRegex: 0, rawRowRead: 0, nullAsZero: 0, ...(prior.totals || {}) };
     const shrank = METRICS.some((metric) => total[metric] < before[metric]);
-    console.log(`Shared-primitive ratchet OK: ${total.localFinite} local finite, ${total.dateRegex} date regex, ${total.rawRowRead} raw row reads${shrank ? ` (shrank from ${METRICS.map((metric) => before[metric]).join('/')} — run --write to lock in)` : ''}.`);
+    console.log(`Shared-primitive ratchet OK: ${total.localFinite} local finite, ${total.dateRegex} date regex, ${total.rawRowRead} raw row reads, ${total.nullAsZero} null-as-zero${shrank ? ` (shrank from ${METRICS.map((metric) => before[metric]).join('/')} — run --write to lock in)` : ''}.`);
   }
 }

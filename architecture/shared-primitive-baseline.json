@@ -1,152 +1,683 @@
 {
   "schemaVersion": "aio-shared-primitive-baseline.v1",
   "generatedBy": "scripts/ci-shared-primitive-ratchet-check.mjs",
-  "note": "Per-file counts in src/ of local finite readers, YYYY-MM-DD regex copies and (domain/ui/ai) raw screener row field reads. Shrink only; never raise a count or add a file.",
+  "note": "Per-file counts in src/ and scripts/ (not ci-* gates or fixtures) of local finite readers, YYYY-MM-DD regex copies, Number.isFinite(Number(x)) null-as-zero checks and (src domain/ui/ai) raw screener row field reads. Shrink only; never raise a count or add a file.",
+  "scopes": [
+    "src",
+    "scripts"
+  ],
   "totals": {
-    "localFinite": 0,
-    "dateRegex": 5,
-    "rawRowRead": 92
+    "localFinite": 2,
+    "dateRegex": 44,
+    "rawRowRead": 92,
+    "nullAsZero": 123
   },
   "counts": {
+    "scripts/build-macro-calendar-review.mjs": {
+      "localFinite": 0,
+      "dateRegex": 2,
+      "rawRowRead": 0,
+      "nullAsZero": 0
+    },
+    "scripts/build-market-snapshot.mjs": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 2
+    },
+    "scripts/build-operations-status.mjs": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 3
+    },
+    "scripts/build-reconciliation-status.mjs": {
+      "localFinite": 1,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 4
+    },
+    "scripts/build-universe-review.mjs": {
+      "localFinite": 0,
+      "dateRegex": 2,
+      "rawRowRead": 0,
+      "nullAsZero": 0
+    },
+    "scripts/fetch-consensus-estimates.mjs": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
+    },
+    "scripts/fetch-earnings-calendar.mjs": {
+      "localFinite": 0,
+      "dateRegex": 1,
+      "rawRowRead": 0,
+      "nullAsZero": 2
+    },
+    "scripts/fetch-event-briefs.mjs": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 3
+    },
+    "scripts/fetch-fred-calendar-candidates.mjs": {
+      "localFinite": 0,
+      "dateRegex": 2,
+      "rawRowRead": 0,
+      "nullAsZero": 0
+    },
+    "scripts/fetch-sec-fundamentals.mjs": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
+    },
+    "scripts/lib/13f-semantic-hash.mjs": {
+      "localFinite": 0,
+      "dateRegex": 1,
+      "rawRowRead": 0,
+      "nullAsZero": 0
+    },
+    "scripts/lib/ai-shared-analysis.mjs": {
+      "localFinite": 0,
+      "dateRegex": 1,
+      "rawRowRead": 0,
+      "nullAsZero": 0
+    },
+    "scripts/lib/candidate-archive.mjs": {
+      "localFinite": 0,
+      "dateRegex": 2,
+      "rawRowRead": 0,
+      "nullAsZero": 1
+    },
+    "scripts/lib/factors.mjs": {
+      "localFinite": 0,
+      "dateRegex": 1,
+      "rawRowRead": 0,
+      "nullAsZero": 0
+    },
+    "scripts/lib/macro-sources.mjs": {
+      "localFinite": 0,
+      "dateRegex": 6,
+      "rawRowRead": 0,
+      "nullAsZero": 1
+    },
+    "scripts/lib/market-interpretation-inputs.mjs": {
+      "localFinite": 0,
+      "dateRegex": 1,
+      "rawRowRead": 0,
+      "nullAsZero": 0
+    },
+    "scripts/lib/market-timeline.mjs": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 3
+    },
+    "scripts/lib/official-calendars.mjs": {
+      "localFinite": 0,
+      "dateRegex": 1,
+      "rawRowRead": 0,
+      "nullAsZero": 1
+    },
+    "scripts/lib/operations-weekly-review.mjs": {
+      "localFinite": 0,
+      "dateRegex": 1,
+      "rawRowRead": 0,
+      "nullAsZero": 0
+    },
+    "scripts/lib/rank-statistics.mjs": {
+      "localFinite": 1,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 0
+    },
+    "scripts/lib/refresh-continuity.mjs": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
+    },
+    "scripts/lib/rotation-history.mjs": {
+      "localFinite": 0,
+      "dateRegex": 1,
+      "rawRowRead": 0,
+      "nullAsZero": 0
+    },
+    "scripts/lib/screener-extended-validate.mjs": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 3
+    },
+    "scripts/lib/sec-edgar.mjs": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
+    },
+    "scripts/lib/sec-results-filings.mjs": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
+    },
+    "scripts/lib/web-reference-verify.mjs": {
+      "localFinite": 0,
+      "dateRegex": 1,
+      "rawRowRead": 0,
+      "nullAsZero": 0
+    },
+    "scripts/preview-macro-calendar.mjs": {
+      "localFinite": 0,
+      "dateRegex": 1,
+      "rawRowRead": 0,
+      "nullAsZero": 0
+    },
+    "scripts/producer/after-hours.mjs": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
+    },
+    "scripts/producer/fred.mjs": {
+      "localFinite": 0,
+      "dateRegex": 1,
+      "rawRowRead": 0,
+      "nullAsZero": 0
+    },
+    "scripts/producer/history.mjs": {
+      "localFinite": 0,
+      "dateRegex": 6,
+      "rawRowRead": 0,
+      "nullAsZero": 6
+    },
+    "scripts/producer/kr-exchange.mjs": {
+      "localFinite": 0,
+      "dateRegex": 1,
+      "rawRowRead": 0,
+      "nullAsZero": 0
+    },
+    "scripts/producer/macro-history.mjs": {
+      "localFinite": 0,
+      "dateRegex": 2,
+      "rawRowRead": 0,
+      "nullAsZero": 0
+    },
+    "scripts/producer/macro-merge.mjs": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 4
+    },
+    "scripts/producer/market-narrative.mjs": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 5
+    },
+    "scripts/producer/receipts.mjs": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
+    },
+    "scripts/producer/screener-breadth.mjs": {
+      "localFinite": 0,
+      "dateRegex": 1,
+      "rawRowRead": 0,
+      "nullAsZero": 0
+    },
+    "scripts/producer/screener.mjs": {
+      "localFinite": 0,
+      "dateRegex": 1,
+      "rawRowRead": 0,
+      "nullAsZero": 0
+    },
+    "scripts/producer/source-planes.mjs": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
+    },
+    "scripts/producer/theme-stage-backfill.mjs": {
+      "localFinite": 0,
+      "dateRegex": 1,
+      "rawRowRead": 0,
+      "nullAsZero": 0
+    },
+    "scripts/record-fix.mjs": {
+      "localFinite": 0,
+      "dateRegex": 2,
+      "rawRowRead": 0,
+      "nullAsZero": 0
+    },
+    "scripts/sync-screener-universe.mjs": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
+    },
+    "scripts/validate-screener-artifact.mjs": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 8
+    },
     "src/ai/context/choosing-blocks.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 6
+      "rawRowRead": 6,
+      "nullAsZero": 0
     },
     "src/ai/context/market-content.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 1
+      "rawRowRead": 1,
+      "nullAsZero": 0
+    },
+    "src/ai/context/screener-query.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
+    },
+    "src/ai/session/user-profile.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
+    },
+    "src/app/bootstrap.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
+    },
+    "src/data/artifact-cache.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 2
+    },
+    "src/data/contracts/market-snapshot.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 2
+    },
+    "src/data/orchestrators/screener.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
+    },
+    "src/data/page-completeness.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 2
+    },
+    "src/data/portfolio-backup.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 2
+    },
+    "src/data/providers/themes.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
+    },
+    "src/data/quality/api-health.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 2
+    },
+    "src/data/runtime-readers.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 3
+    },
+    "src/data/server-market-analysis.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
     },
     "src/domain/briefing/event-briefs.js": {
       "localFinite": 0,
       "dateRegex": 2,
-      "rawRowRead": 0
+      "rawRowRead": 0,
+      "nullAsZero": 0
+    },
+    "src/domain/briefing/event-guide.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 2
     },
     "src/domain/briefing/evidence-text.js": {
       "localFinite": 0,
       "dateRegex": 1,
-      "rawRowRead": 0
+      "rawRowRead": 0,
+      "nullAsZero": 0
+    },
+    "src/domain/briefing/market-read.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
+    },
+    "src/domain/briefing/regime-pulse.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
+    },
+    "src/domain/briefing/schedule.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 3
+    },
+    "src/domain/fundamental/analysis-read.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
+    },
+    "src/domain/fundamental/sec-row-fields.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
+    },
+    "src/domain/macro/liquidity-growth.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 2
     },
     "src/domain/macro/macro-read.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 2
+      "rawRowRead": 2,
+      "nullAsZero": 1
     },
     "src/domain/macro/treasury-curve.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 1
+      "rawRowRead": 1,
+      "nullAsZero": 0
+    },
+    "src/domain/market/index-earnings.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
     },
     "src/domain/market/market-calendar.js": {
       "localFinite": 0,
       "dateRegex": 1,
-      "rawRowRead": 0
+      "rawRowRead": 0,
+      "nullAsZero": 0
+    },
+    "src/domain/market/market-flow.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
+    },
+    "src/domain/market/moving-average.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
+    },
+    "src/domain/market/screener-breadth.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
+    },
+    "src/domain/masters/holdings-format.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
     },
     "src/domain/masters/value-scale.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 1
+      "rawRowRead": 1,
+      "nullAsZero": 0
+    },
+    "src/domain/news/scoring.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
     },
     "src/domain/portfolio/backtest.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 5
+      "rawRowRead": 5,
+      "nullAsZero": 2
+    },
+    "src/domain/portfolio/cash.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
+    },
+    "src/domain/portfolio/return-stats.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 2
     },
     "src/domain/portfolio/risk.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 6
+      "rawRowRead": 6,
+      "nullAsZero": 0
+    },
+    "src/domain/portfolio/surface.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
     },
     "src/domain/scenarios/theme-playbook.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 11
+      "rawRowRead": 11,
+      "nullAsZero": 0
+    },
+    "src/domain/screener/conditional-evidence.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
+    },
+    "src/domain/screener/evidence-lineage.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
     },
     "src/domain/screener/factor-ranks.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 2
+      "rawRowRead": 2,
+      "nullAsZero": 0
+    },
+    "src/domain/screener/row-presentation.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
     },
     "src/domain/screener/screen-engine.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 1
+      "rawRowRead": 1,
+      "nullAsZero": 0
     },
     "src/domain/signal/close-basis.js": {
       "localFinite": 0,
       "dateRegex": 1,
-      "rawRowRead": 0
+      "rawRowRead": 0,
+      "nullAsZero": 1
+    },
+    "src/domain/signal/trading-score.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
     },
     "src/domain/technical/chart-drawings.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 1
+      "rawRowRead": 1,
+      "nullAsZero": 0
     },
     "src/domain/technical/price-levels.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 2
+      "rawRowRead": 2,
+      "nullAsZero": 0
     },
     "src/domain/themes/group-strength.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 2
+      "rawRowRead": 2,
+      "nullAsZero": 1
+    },
+    "src/legacy/compatibility-facade.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
     },
     "src/ui/components/ai-answer-visuals.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 1
+      "rawRowRead": 1,
+      "nullAsZero": 0
     },
     "src/ui/components/ai-chain-flow.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 1
+      "rawRowRead": 1,
+      "nullAsZero": 0
+    },
+    "src/ui/components/company-story.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
+    },
+    "src/ui/components/fiscal-read.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 2
     },
     "src/ui/components/fundamental-analysis-cards.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 6
+      "rawRowRead": 6,
+      "nullAsZero": 0
+    },
+    "src/ui/components/home-index-strip.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
     },
     "src/ui/components/macro-board.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 1
+      "rawRowRead": 1,
+      "nullAsZero": 1
     },
     "src/ui/components/macro-crossroads.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 1
+      "rawRowRead": 1,
+      "nullAsZero": 0
+    },
+    "src/ui/components/portfolio-checklist.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1
+    },
+    "src/ui/components/portfolio-read.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 2
+    },
+    "src/ui/components/screener-validation.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 2
     },
     "src/ui/components/stock-chart.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 2
+      "rawRowRead": 2,
+      "nullAsZero": 0
+    },
+    "src/ui/components/stock-read.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 2
     },
     "src/ui/components/theme-playbook-view.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 23
+      "rawRowRead": 23,
+      "nullAsZero": 0
     },
     "src/ui/components/theme-strength.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 1
+      "rawRowRead": 1,
+      "nullAsZero": 0
     },
     "src/ui/knowledge/theme-stage-links.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 2
+      "rawRowRead": 2,
+      "nullAsZero": 0
+    },
+    "src/ui/pages/masters.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 3
     },
     "src/ui/pages/screener.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 11
+      "rawRowRead": 11,
+      "nullAsZero": 1
     },
     "src/ui/panels/portfolio-trade-journal.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 2
+      "rawRowRead": 2,
+      "nullAsZero": 2
     }
   }
 }

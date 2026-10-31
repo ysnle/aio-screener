@@ -182,7 +182,7 @@ async function runUsListingHoldingFixture(browser, check) {
     }
     check('v57.81 every holding joins the quote request set (in or out of the universe)', state.requested.includes('HWKN') && state.requested.includes('GHC'), JSON.stringify(state));
     check('v57.81 listed out-of-universe holding values at the live quote (3 x (52.10 - 40))', /\$52\.10/.test(state.hwknPrice) && state.hwknPnl === '+$36.30' && Math.abs((state.live?.pct ?? 0) - 2.157) < 0.01, JSON.stringify(state));
-    check('v57.81 listed holding with no quote shows 가격 없음 and keeps quantity and cost', state.ghcPrice === '가격 없음' && state.ghcQty === '3' && /^\$40\.00$/.test(state.ghcCost) && state.ghcPnl === '—', JSON.stringify(state));
+    check('v57.81 listed holding with no quote shows 가격 없음 and keeps quantity and cost', state.ghcPrice === '가격 없음' && state.ghcQty === '3' && /^\$40\.00$/.test(state.ghcCost) && state.ghcPnl === '가격 없음' && state.hwknWeight === '합계 대기', JSON.stringify(state)); // v59.51 (content audit): empty cells name why
     check('v57.86 totals say they wait for the 가격 없음 holding', /가격 없음 1종목이 있어 총자산과 손익은 모든 종목 가격을 받은 뒤 표시합니다/.test(state.status), JSON.stringify(state));
     // With the unpriced holding removed every holding is valued: the hero total, weight and day change come from the quote.
     const solo = await page.evaluate(async () => {
@@ -1039,24 +1039,20 @@ async function main() {
       const invalidCalendar = window.AIO.redactPortfolioForAI(rows,{now:Date.parse('2026-03-02T12:00:00Z'),liveData:{AAPL:{price:150,currency:'USD',observedAt:'2026-02-30T12:00:00Z'},MSFT:{price:300,currency:'USD',observedAt:'2026-02-30T12:00:00Z'}}});
       localStorage.setItem('aio_portfolio_data',JSON.stringify(rows));
       localStorage.setItem('aio_portfolio_journal_v1',JSON.stringify([{ts:Date.now(),date:now,note:'RECENT_EXPLICIT_NOTE'}]));
-      const note = document.getElementById('pf-journal-note'); note.value='CURRENT_EXPLICIT_NOTE';
+      // v59.51 (content audit): the in-page journal note field (#pf-journal-note) is retired with the AI workbench; the stored
+      // journal entries are what the AI panel's journal prompt can attach, under its own consent.
+      const journalFieldRetired = !document.getElementById('pf-journal-note');
       window.AIO.setPortfolioAIConsent(true); window.AIO.setPortfolioJournalAIConsent(false);
       const deniedJournal = !_aioBuildPortfolioActionPrompt('journal').includes('EXPLICIT_NOTE');
       window.AIO.setPortfolioJournalAIConsent(true);
       const normal = _aioBuildPortfolioActionPrompt('overview') + _aioBuildPortfolioActionPrompt('rebalance');
       const journal = _aioBuildPortfolioActionPrompt('journal');
-      const noUnexpectedNotes = !normal.includes('EXPLICIT_NOTE') && deniedJournal && journal.includes('CURRENT_EXPLICIT_NOTE') && journal.includes('RECENT_EXPLICIT_NOTE');
+      const noUnexpectedNotes = !normal.includes('EXPLICIT_NOTE') && deniedJournal && journal.includes('RECENT_EXPLICIT_NOTE');
       const preview = window.AIO.getPortfolioAIPrivacyPreview(rows,{includeJournal:true});
       const rememberedOnDevice = localStorage.getItem('aio_portfolio_ai_consent_v1')==='1' && localStorage.getItem('aio_portfolio_journal_ai_consent_v1')==='1';
       window.AIO.setPortfolioAIConsent(false);
       const revoked = !window.AIO.hasPortfolioJournalAIConsent() && localStorage.getItem('aio_portfolio_ai_consent_v1')===null && localStorage.getItem('aio_portfolio_journal_ai_consent_v1')===null;
-      const originalSet = Storage.prototype.setItem, originalToast = window.showToast, toasts=[];
-      window.showToast=(value)=>toasts.push(String(value));
-      Storage.prototype.setItem=function(key,value){ if(key==='aio_portfolio_journal_v1') throw new DOMException('quota','QuotaExceededError'); return originalSet.call(this,key,value); };
-      let ack;
-      try { ack=window._aioSavePortfolioJournal(); } finally { Storage.prototype.setItem=originalSet; window.showToast=originalToast; }
-      const journalSuccess=window._aioSavePortfolioJournal()?.ok===true;
-      return {partial,full,mixed,stale,invalidCalendar,noUnexpectedNotes,preview,rememberedOnDevice,revoked,journalFailure:ack?.ok===false && !toasts.some((value)=>value.includes('저장 완료')),journalSuccess};
+      return {partial,full,mixed,stale,invalidCalendar,noUnexpectedNotes,preview,rememberedOnDevice,revoked,journalFieldRetired};
     });
     check('v59.27 AI_consent_is_remembered_on_this_device_until_revoked',aiPrivacy.rememberedOnDevice===true && aiPrivacy.revoked===true,JSON.stringify({remembered:aiPrivacy.rememberedOnDevice,revoked:aiPrivacy.revoked}));
     check('P1350 AI_missing_price_keeps_unknown',aiPrivacy.partial.every((row)=>row.allocationPct===null) && aiPrivacy.partial[1].returnPct===null,JSON.stringify(aiPrivacy.partial));
@@ -1065,8 +1061,8 @@ async function main() {
     check('P1350 AI_identical_stale_dates_hold_valuation',aiPrivacy.stale.every((row)=>row.allocationPct===null && row.returnPct===null),JSON.stringify(aiPrivacy.stale));
     check('P1350 AI_calendar_rollover_is_not_an_observation',aiPrivacy.invalidCalendar.every((row)=>row.allocationPct===null && row.returnPct===null),JSON.stringify(aiPrivacy.invalidCalendar));
     check('P1350 journal_separate_consent_and_preview',aiPrivacy.noUnexpectedNotes && aiPrivacy.preview.noteIncluded && aiPrivacy.preview.fields.includes('currentJournal') && aiPrivacy.revoked,JSON.stringify(aiPrivacy));
-    check('P1350 journal_storage_failure_is_not_success',aiPrivacy.journalFailure,JSON.stringify(aiPrivacy));
-    check('P1350 journal_storage_success_positive_control',aiPrivacy.journalSuccess,JSON.stringify(aiPrivacy));
+    // v59.51 (content audit): the P1350 journal-save checks drove #pf-journal-note, which is retired; pin the retirement.
+    check('v59.51 (content audit) in-page journal note field is retired',aiPrivacy.journalFieldRetired===true,JSON.stringify({journalFieldRetired:aiPrivacy.journalFieldRetired}));
     // v57.81: cash is one balance per currency. A legacy single value reads as one balance without a write; the per-currency
     // boxes save through the bridge (legacy copy dropped only after the new key reads back); a PIN lock/unlock and the
     // backup bundle (old single-cash bundles included) round-trip the balances.

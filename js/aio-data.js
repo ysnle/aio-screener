@@ -3283,7 +3283,7 @@ function _aioRenderOperatorNote() {
         '<span class="aio-operator-note-kicker">오늘의 질문</span>' +
         '<span class="aio-operator-note-date">' + escHtml(md) + ' 작성' + (line.by ? ', ' + escHtml(line.by) : '') + '</span>' + // v58.80 (first-users run-4): the writing day, not the close it reads
       '</div>' +
-      (function(v) { return v ? '<div class="aio-operator-note-verdict">' + escHtml(v) + '</div>' : ''; })(typeof window._aioSentenceVerdict === 'function' ? window._aioSentenceVerdict() : '') + '<div class="aio-operator-note-title">' + escHtml(line.text) + '</div>' + // run-5 (owner decision delegated 2026-10-26): the verdict leads, the day's question follows under its own name
+      '<div class="aio-operator-note-title">' + escHtml(line.text) + '</div>' + // v59.51: the note sits inside the home verdict card, which already leads with the verdict it questions
     '</div>';
   el.style.display = 'block';
 }
@@ -7772,9 +7772,8 @@ function refreshHomeDashboard() {
   try { if (typeof window._aioRenderPageDecisionHeader === 'function') window._aioRenderPageDecisionHeader('home'); } catch(_) {}
   // v57.50 I16 / v57.77: the retired home trading grid and the S&P 500 distance-from-high risk badge
   // left index.html, and v57.77 deleted their writers. The remaining home sinks are
-  // the action items and the VIX card (v57.76: the heatmap and the home news list are retired).
-  // v49.28 E1 → v50.43: home Action Item 갱신은 단일 경로(_aioRefreshActionPlan). 실패해도 home 렌더 차단 X.
-  try { if (typeof window._aioRefreshActionPlan === 'function') window._aioRefreshActionPlan(); } catch(actErr) {}
+  // the VIX card (v57.76: the heatmap and the home news list are retired; v59.51 (content audit): the action items and
+  // their writer _aioRefreshActionPlan too).
 
   // VIX status
   if (typeof window._aioRenderHomeVix === 'function') window._aioRenderHomeVix((window._liveData || {})['^VIX'] || {});

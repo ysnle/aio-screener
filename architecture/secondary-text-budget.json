@@ -1,24 +1,28 @@
 {
-  "note": "v58.79 secondary-text ceilings per route (visible characters under secondary class words, folds closed; scripts/ci-secondary-text-budget-check.mjs). Shrink with --tighten; growth needs --write and an owner reason.",
+  "note": "v58.79 secondary-text ceilings per route (visible characters under secondary class words, folds closed; scripts/ci-secondary-text-budget-check.mjs). v59.50: measured on dataPin (public-data from that commit, page clock at that time); re-pin with --pin <commit> <iso>. Shrink with --tighten; growth needs --write and an owner reason.",
+  "dataPin": {
+    "commit": "a71e48ed17c3d31c4ecbfc58bdfdac4c85e8fbaf",
+    "clock": "2026-10-31T10:30:00Z"
+  },
   "routes": {
-    "home": 418,
-    "signal": 301,
-    "breadth": 92,
-    "sentiment": 290,
-    "briefing": 923,
-    "technical": 136,
-    "macro": 664,
-    "fxbond": 325,
-    "fundamental": 96,
-    "themes": 901,
-    "theme-detail": 1429,
-    "portfolio": 51,
-    "ticker": 77,
-    "market-news": 463,
-    "principles": 193,
-    "masters": 251,
-    "atlas": 73,
-    "guide": 833,
-    "screener": 1224
+    "home": 186,
+    "signal": 305,
+    "breadth": 55,
+    "sentiment": 182,
+    "briefing": 137,
+    "technical": 43,
+    "macro": 305,
+    "fxbond": 219,
+    "fundamental": 34,
+    "themes": 49,
+    "theme-detail": 33,
+    "portfolio": 29,
+    "ticker": 15,
+    "market-news": 299,
+    "principles": 22,
+    "masters": 227,
+    "atlas": 36,
+    "guide": 162,
+    "screener": 1017
   }
 }

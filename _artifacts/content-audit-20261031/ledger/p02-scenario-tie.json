@@ -1,0 +1,25 @@
+{
+  "version": "v59.51",
+  "date": "2026-10-31",
+  "p": {
+    "title": "조건 충족 수가 같은 두 시나리오를 화면마다 다르게 '선두'로 표시함",
+    "symptom": "run-6 회의적 사용자: 시장 상태는 '유가 충격'(2/4, 다음 확인 CPI 11/10), 종목·재무·포트폴리오는 'AI 투자 꺾임'(2/4, 고용 11/6)을 선두로 보여 줬다. 둘은 동률이었고 어느 화면도 동률이라고 말하지 않았다(심각도 3).",
+    "root_cause": "거시 시나리오 모델은 동률을 정렬 순서로만 깨 leadId 하나를 냈고, 화면과 생산자가 각자 leadId·altId를 읽거나 자기 순서로 다시 정렬했다. 동률이라는 상태를 담는 필드도, 그것을 읽는 공용 함수도 없었다. 생산자는 동률 안에서 순서만 바뀐 것을 '가장 맞는 시나리오가 바뀌었습니다'로 기록했다.",
+    "fix": "macro-crossroads.js가 tiedIds를 내고, scenarioLead(model)가 lead·tie·held 세 상태와 이름·적합도·쉬운 문장(face)·전문가 근거(detail)를 한 곳에서 낸다. 시장 상태·종목 렌즈·차트 코치·테마·포트폴리오·AI 답변 표·뉴스 영향 사슬(event-guide)·테마 근거(theme-criteria)·교훈(lessons)이 모두 이 함수를 읽는다. 동률이면 모든 동률 시나리오를 '(동률)'로 함께 보여 주고 대안은 내지 않는다. build-scenario-state.mjs는 tiedIds를 저장하고, 동률 안의 순서 바뀜은 변화 기록에 남기지 않는다.",
+    "violated_rule": "R734: 반복 클래스는 공용 함수로 닫는다(같은 판정을 화면마다 따로 계산하지 않는다).",
+    "prevention": "scripts/fixtures/pipeline-semantics/market.mjs RUN6-TIE-02(동률이면 state 'tie', 동률 시나리오 모두, 역할 '동률', 대안 없음)와 producers.mjs RUN6-TIE-01(동률 안 순서 바뀜은 기록하지 않고 동률이 풀리면 기록), ci-fiscal-quality-fixture의 종목 렌즈 동률 사례. 두 재현은 수정 전 HEAD에서 실패하고 지금 통과한다.",
+    "verification": "node scripts/ci-pipeline-semantics-check.mjs --only market, --only producers 통과(HEAD 워크트리에서는 RUN6-TIE-01·02 실패). 차트 코치가 동률을 '맞는 조건 수가 같은 시나리오 'AI 투자 꺾임'·'유가 충격''으로 읽는 것을 브라우저에서 확인."
+  },
+  "qa": [
+    {
+      "id": "QA-SCENARIO-TIE-01",
+      "text": "v59.51 시나리오 동률이면 시장 상태·종목·포트폴리오·AI 답변이 모두 같은 동률 시나리오를 '(동률)'로 보여 주고 한쪽을 선두로 고르지 않는지 확인",
+      "verify_by": "node scripts/ci-pipeline-semantics-check.mjs --only market"
+    }
+  ],
+  "qa_section": "판정 일관성",
+  "changelog": [
+    "**시나리오 동률 ({P}):** 조건 충족 수가 같은 시나리오를 화면마다 다르게 '선두'로 고르던 문제를, 동률을 읽는 공용 함수 scenarioLead 하나로 모았다. 이제 모든 화면이 동률을 동률로 보여 준다."
+  ],
+  "note": "v59.51: run-6 전체 반영 — 화면별 내용 재구성(쉬운 첫 면 + 전문가 접힘)과 결함 수정"
+}

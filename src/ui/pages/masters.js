@@ -522,8 +522,12 @@ function createPagination(documentRef, page, pageCount, total, action = 'detail-
 }
 
 function createChangeLedger(documentRef, comparisonRows, state) {
-  const section = element(documentRef, 'section', 'masters-holdings-section masters-change-ledger');
-  section.appendChild(element(documentRef, 'h3', 'masters-holdings-title', '분기별 변화 표, 증권·주식 유형·옵션별 집계'));
+  // v59.51 (content audit): the row ledger is the expert layer of the change counts above (the same quarter's share deltas);
+  // it starts closed and keeps its open state across the filter and page re-renders.
+  const section = element(documentRef, 'details', 'masters-holdings-section masters-change-ledger');
+  section.open = state.changeLedgerOpen === true;
+  section.addEventListener('toggle', () => { state.changeLedgerOpen = section.open; });
+  section.appendChild(element(documentRef, 'summary', 'masters-holdings-title', `분기별 변화 표, 행 ${comparisonRows.length}개 (증권·주식 유형·옵션별 집계)`));
   // v58.79: the classification method is one fold down, not an open paragraph above the ledger.
   const method = element(documentRef, 'details', 'aio-note-fold masters-method-fold');
   method.append(element(documentRef, 'summary', '', '분류 방법'), element(documentRef, 'p', 'aio-note-fold__text', '두 보고분기의 신고 주식 수 차이로 나눈 분류입니다. 주식 분할·병합은 보정하지 않아, 주식 수는 크게 바뀌었는데 신고 가치가 비슷한 행은 분할 의심으로 따로 둡니다. 변화가 있는 행을 먼저 신고 가치 순으로 놓았고(왼쪽 번호는 표시 순서), 현재 가격·실제 매매·매매 신호·목표가를 뜻하지 않습니다.'));
@@ -1513,7 +1517,7 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
         // a specific surfacing, not this accumulation design.
         if (action === 'style-overview') state.styleOverview = true;
         if (action === 'select-manager') { state.styleOverview = false; state.selectedId = value; state.view = 'changes'; state.actionFilter = 'ALL'; state.holdingsQuery = ''; state.page = 1; }
-        if (action === 'view') { state.view = value; state.page = 1; }
+        if (action === 'view') { state.view = value; state.page = 1; if (value === 'changes') state.changeLedgerOpen = true; } // v59.51: choosing the 변화 tab asks for the table, so it opens
         if (action === 'toggle-compare') {
           state.compareIds = state.compareIds.includes(value) ? state.compareIds.filter((id) => id !== value) : [...state.compareIds, value].slice(0, 4);
         }

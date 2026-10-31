@@ -2,22 +2,8 @@
    Fundamental-loader rows sit in .page (old 10/11px rendered 12/13px → --fs-xs/--fs-sm); AI panel sizes are literal. */
 
 /* Fundamental report loader (#fund-rpt-loading in #page-fundamental) */
-#fund-rpt-loading .lch-fp-msg { font-size: var(--fs-sm); color: var(--text-secondary); line-height: 1.6; }
-#fund-rpt-loading .lch-fp-err { color: var(--orange-11); }
-#fund-rpt-loading .lch-fp-ok { color: var(--green-11); }
-#fund-rpt-loading .lch-fp-cache { font-size: var(--fs-sm); font-weight: 700; color: var(--green-11); margin-bottom: 6px; }
-#fund-rpt-loading .lch-fp-src { font-size: var(--fs-sm); color: var(--text-muted); }
-#fund-rpt-loading .lch-fp-sum { font-size: var(--fs-sm); color: var(--text-secondary); margin-bottom: 6px; }
-#fund-rpt-loading .lch-fp-log { margin-top: 8px; }
-#fund-rpt-loading .lch-fp-log-sum { font-size: var(--fs-xs); color: var(--text-muted); cursor: pointer; }
-#fund-rpt-loading .lch-fp-log-src { font-size: var(--fs-xs); color: var(--text-muted); margin-top: 5px; }
-#fund-rpt-loading .lch-fp-log-lines { font-size: var(--fs-xs); color: var(--text-secondary); line-height: 1.8; margin-top: 5px; }
-#fund-rpt-loading .lch-fp-fail { font-size: var(--fs-sm); font-weight: 700; color: var(--data-amber); margin-bottom: 6px; }
-#fund-rpt-loading .lch-fp-fail-txt { font-size: var(--fs-sm); color: var(--text-secondary); line-height: 1.65; margin-bottom: 6px; }
-#fund-rpt-loading .lch-fp-lines { font-size: var(--fs-xs); color: var(--text-secondary); line-height: 1.8; }
 
 /* recent-search chips (#fund-recent-searches, inside #page-fundamental) — background/border/hover stay in index.html */
-#fund-recent-searches .aio-hover-fund-ticker { font-size: var(--fs-sm); color: var(--accent); border-radius: 4px; padding: 2px 7px; cursor: pointer; font-family: var(--font-mono); font-weight: 600; }
 
 /* AI panel (#ai-panel, a direct child of <body>, outside .page/.sidebar/.topbar): no inline font-size substring rule
    applied, so sizes stay literal. Sub-12px items (disclosure box, model/source badges, retry notes) stay inline. */

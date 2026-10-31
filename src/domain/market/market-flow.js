@@ -2,14 +2,16 @@
 // rose: the loss sat in the largest AI and technology names, and staples (+3.3%, every member up), utilities and health
 // care rose with Treasuries (10-year -17bp) as fear reached 20. The money-flow line names where the session's money went —
 // the sector ETFs that rose and fell most, the 10-year yield and fear on the same session — and which of four shapes it
-// had. Sector rows are the produced rotation artifact (current session only); the 10-year change is used only when the
-// macro snapshot is dated the same session. Growth here is XLK·XLC·SMH, defensive is concepts.js DEFENSIVE_SECTORS.
+// had. Sector rows are the produced rotation artifact (current session only); SMH and the 10-year change are the
+// completed history closes of that same session (MERGED #3/#13). Growth here is XLK·XLC·SMH, defensive is concepts.js DEFENSIVE_SECTORS.
 import { RULES } from '../rules/thresholds.js';
 import { selectProducedRotation } from '../themes/produced-rotation.js';
 import { DEFENSIVE_SECTORS, SECTOR_ETF_LABELS } from '../interpretation/concepts.js';
 import { fearGreedBand } from '../sentiment/metrics.js';
 import { MIN_GROUP_MEMBERS } from '../themes/group-strength.js';
 import { directionOf, signedText } from '../shared/number.js';
+import { sessionMove } from './leadership-verdict.js';
+import { tenYearClose } from '../macro/rates-fx.js';
 
 // The AI chain the 주도 영역 line reads (chips, power, network, cooling): the AI capex layers' themes and named groups
 // (themes/ai-capex-flow.js) without the broad industrials theme. Kept here so the boot set does not load that reference
@@ -22,14 +24,19 @@ const GROWTH_FLOW = Object.freeze(['XLK', 'XLC', 'SMH']);
 const FLOW_LABELS = Object.freeze({ ...SECTOR_ETF_LABELS, SMH: '반도체' });
 export const MARKET_FLOW_KINDS = Object.freeze({ defensive: '방어 업종 강세', growth: '성장 업종 강세', broadDown: '업종 전반 하락', broadUp: '업종 전반 상승', mixed: '업종별로 엇갈림' });
 
-export function buildMarketFlow({ rotationHistory = null, macro = null, history = [], themes = null, rows: screenerRows = null, nowMs = Date.now() } = {}) {
-  const rows = Object.keys(FLOW_LABELS).map((symbol) => {
+export function buildMarketFlow({ rotationHistory = null, history = [], themes = null, rows: screenerRows = null, nowMs = Date.now() } = {}) {
+  const sectors = Object.keys(SECTOR_ETF_LABELS).map((symbol) => {
     const row = selectProducedRotation(rotationHistory, symbol, nowMs);
     return row && typeof row.dailyPct === 'number' && Number.isFinite(row.dailyPct) ? { symbol, label: FLOW_LABELS[symbol], daily: row.dailyPct, session: row.sessionDate } : null;
   }).filter(Boolean);
-  const sectors = rows.filter((row) => SECTOR_ETF_LABELS[row.symbol]);
   if (sectors.length < 8) return { available: false };
   const session = sectors[0].session;
+  // MERGED #3 (run-6): SMH read -8.4% here (a rotation bar fetched 21 minutes after the close) beside -7.0% on the 주도 영역
+  // line. One move has one number: the semiconductor row and the 10-year change are the completed history closes the
+  // 주도 영역 line (sessionMove) and 시장 상태 (tenYearClose) print, on this session only.
+  const semis = sessionMove(history, 'smh', session);
+  const smhRow = semis?.date === session && semis.change != null ? { symbol: 'SMH', label: FLOW_LABELS.SMH, daily: semis.change, session } : null;
+  const rows = smhRow ? [...sectors, smhRow] : sectors;
   const rule = RULES.leadership;
   const mean = (list) => list.length ? list.reduce((sum, row) => sum + row.daily, 0) / list.length : null;
   const defensive = mean(rows.filter((row) => DEFENSIVE_SECTORS.has(row.symbol)));
@@ -41,10 +48,10 @@ export function buildMarketFlow({ rotationHistory = null, macro = null, history 
       : gap != null && -gap >= rule.rotationGapPp && growth > 0 ? 'growth' : 'mixed';
   // v58.74 (text audit): the lists rank the 11 sectors only; 반도체(SMH) is named on its own after the count.
   const sorted = [...sectors].sort((a, b) => b.daily - a.daily);
-  const smhRow = rows.find((row) => row.symbol === 'SMH');
   const item = (row) => `${row.label} ${signed(row.daily)}`;
   const rose = sorted.filter((row) => row.daily > 0).slice(0, 3), fell = sorted.filter((row) => row.daily < 0).reverse().slice(0, 3);
-  const tenYearBp = String(macro?._asOf_dgs10 || '').slice(0, 10) === session && Number.isFinite(Number(macro?.dgs10Delta)) ? Math.round(Number(macro.dgs10Delta) * 100) : null;
+  const ten = tenYearClose(history, { through: session });
+  const tenYearBp = ten?.date === session && ten.d1Bp != null ? Math.round(ten.d1Bp) : null;
   const fgRow = (Array.isArray(history) ? history : []).find((row) => row?.date === session);
   const fear = fgRow && fgRow.fg != null ? fearGreedBand(fgRow.fg) : null;
   const evidence = [

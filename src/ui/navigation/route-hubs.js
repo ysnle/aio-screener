@@ -97,8 +97,12 @@ export function renderHubTabs({ documentRef, routeId, root = globalThis }) {
   if (title) { if (current && current.label !== hub.label && !String(title.textContent || '').trim().startsWith(hub.label)) title.dataset.hubLabel = hub.label; else delete title.dataset.hubLabel; }
   const subject = hub.id === 'stock' ? readStockSubject(root) : null;
   // v58.53 개편 v2: the tabs sit in one segmented control (soft-ui.css .aio-hub-seg).
+  // First-users run-6 #20: a screen reader heard three loose buttons; the segment is the screen's tab list (the arrow-key
+  // model comes from bootstrap's role=tablist handler).
   const seg = documentRef.createElement('span');
   seg.className = 'aio-hub-seg';
+  seg.setAttribute('role', 'tablist');
+  seg.setAttribute('aria-label', hub.label);
   nav.appendChild(seg);
   for (const tab of tabs) {
     const button = documentRef.createElement('button');
@@ -113,7 +117,10 @@ export function renderHubTabs({ documentRef, routeId, root = globalThis }) {
       button.dataset.hubRoute = 'ticker';
     }
     button.textContent = tab.label;
-    if (tab.id === routeId || (tab.also || []).includes(routeId)) button.setAttribute('aria-current', 'page');
+    button.setAttribute('role', 'tab');
+    const selected = tab.id === routeId || (tab.also || []).includes(routeId);
+    button.setAttribute('aria-selected', String(selected));
+    if (selected) button.setAttribute('aria-current', 'page');
     seg.appendChild(button);
   }
   if (hub.id === 'stock') renderSubject(documentRef, nav, subject, root, routeId);
@@ -122,10 +129,11 @@ export function renderHubTabs({ documentRef, routeId, root = globalThis }) {
 
 // First-users F15 (runs 1-3): a reload or Back on 차트 lost the company (subject "종목 고르기" over an SPY chart). The subject
 // is kept for the tab's session (src/data/stock-subject-store.js) and restored before the first render; a ?sym= deep link
-// still wins (it sets the subject).
+// still wins (it sets the subject). Run-6 #18: the restore goes through setStockSubject, the one place that sets the subject,
+// so every listener (the 차트 tab, the address) hears it.
 export function installRouteHubTabs({ root = globalThis, documentRef = root.document, activeRoute = () => null } = {}) {
   const saved = root._aioLastOpenedSymbol ? null : readSavedStockSubject(root);
-  if (saved) { root._aioLastOpenedSymbol = saved.symbol; if (saved.name) root._aioLastOpenedName = { symbol: saved.symbol, name: saved.name }; }
+  if (saved) setStockSubject({ root, documentRef, symbol: saved.symbol, name: saved.name });
   const render = (event) => renderHubTabs({ documentRef, root, routeId: event?.detail?.routeId || activeRoute() });
   const renderActive = () => renderHubTabs({ documentRef, root, routeId: activeRoute() });
   // The router commits on the document (bootstrap legacy.on listens there too).

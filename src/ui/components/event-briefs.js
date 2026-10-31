@@ -73,10 +73,13 @@ export function briefNode(doc, brief, { showName = true } = {}) {
     line.title = brief.reaction.basis === 'latest-trade' ? '발표 직전 정규장 종가 대비 가장 최근 체결가(시간외 또는 마감 전 정규장)' : `발표 직전 종가(${brief.reaction.baseDate}) 대비 종가`;
     box.append(line);
   }
+  // v59.51 (owner 2026-10-31, two layers): the face is what happened and how the price took it — the headline, the reaction
+  // and the first reported reason in one line. The figures with their estimate comparison, all the reasons and the
+  // segments, guidance, call points and next checks open in the one fold below.
   const reasons = brief.reasons?.points || [];
-  if (reasons.length) {
-    box.append(el(doc, 'p', '왜 움직였나(보도 기준)', 'event-brief__sub'), list(doc, reasons.slice(0, 3).map((point) => point.text), 'event-brief__reasons'));
-  }
+  if (reasons.length) box.append(el(doc, 'p', `이유: ${reasons[0].text}`, 'event-brief__reason'));
+  const more = el(doc, 'details', null, 'event-brief__more');
+  more.append(el(doc, 'summary', brief.kind === 'fomc' ? '수치·바뀐 문구·기자회견·다음에 볼 것' : '수치·이유·부문·가이던스·콜 핵심'));
   // v59.44: three headline figures, then capex and cash flow when the release gave them (the market priced cash).
   const cashFigure = (figure) => ['capex', 'free_cash_flow', 'operating_cash_flow'].includes(figure?.metric);
   const figures = [...(brief.figures || []).filter((figure) => !cashFigure(figure)).slice(0, 3), ...(brief.figures || []).filter(cashFigure).slice(0, 2)];
@@ -84,10 +87,9 @@ export function briefNode(doc, brief, { showName = true } = {}) {
     const ul = list(doc, figures.map((figure) => figureText(figure, brief.figures || [], brief.status === 'provisional')), 'event-brief__figures');
     // Sources stay off the face (owner 2026-10-06): the estimate's provider is on the row's hover.
     figures.forEach((figure, i) => { if (figure.estimate) ul.children[i].title = `예상치: ${figure.estimate.source || '제공처'} 컨센서스(참고)`; else if (figure.derived) ul.children[i].title = `공시 원문 ${figure.derived}`; });
-    box.append(ul);
+    more.append(el(doc, 'p', '발표 수치', 'event-brief__sub'), ul);
   }
-  const more = el(doc, 'details', null, 'event-brief__more');
-  more.append(el(doc, 'summary', brief.kind === 'fomc' ? '바뀐 문구·기자회견·다음에 볼 것' : '부문·가이던스·콜 핵심·다음에 볼 것'));
+  if (reasons.length) more.append(el(doc, 'p', '왜 움직였나(보도 기준)', 'event-brief__sub'), list(doc, reasons.slice(0, 3).map((point) => point.text), 'event-brief__reasons'));
   const section = (title, items) => { if (items.length) more.append(el(doc, 'p', title, 'event-brief__sub'), list(doc, items)); };
   section(brief.detailTitle || '세부', (brief.details || []).map(releaseLine));
   section('반대 의견', (brief.dissents || []).map((item) => item.text || item.label));
@@ -196,17 +198,6 @@ function rowList(doc, root, briefs) {
   return ul;
 }
 
-/** 오늘: macro releases and core briefs in full, other reports one line each, the rest folded. */
-export function paintHomeBriefs(doc, root, loop, rerender, macro = []) {
-  if (!doc || !loop) return [];
-  return paintBriefs(doc, root, { rerender, macro, id: 'home-event-briefs', frame: 'home.event-briefs', className: 'daily-block event-briefs', place: (host) => {
-    host.id = 'home-event-briefs';
-    // v59.44 (owner 2026-10-30): straight after 밤사이 핵심, ahead of the schedule and the AI-chain block.
-    const overnight = doc.getElementById('home-overnight');
-    if (overnight?.parentElement === loop) overnight.insertAdjacentElement('afterend', host); else loop.prepend(host);
-  } });
-}
-
 /** 뉴스: the same tiers open the page, above 중요 뉴스, with a longer line list (owner 2026-10-30, each screen carries it). */
 export function paintNewsBriefs(doc, root, rerender, macro = []) {
   const anchor = doc?.getElementById('news-important');
@@ -233,7 +224,12 @@ function paintBriefs(doc, root, { rerender, macro, id, frame, className, limits 
   head.title = '시장 전체를 움직이는 발표(물가·고용 지표, FOMC, 대형주 실적)는 크게, 그 밖의 실적은 한 줄로 보여 줍니다. 원문 공시 기준, 시각은 한국 시간';
   markFrame(host, frame);
   const parts = [head, ...macro.map((release) => macroNode(doc, release)), ...tiers.core.map((brief) => briefNode(doc, brief))];
-  if (tiers.notable.length) parts.push(el(doc, 'h3', '그 밖의 실적', 'event-briefs__tier2'), rowList(doc, root, tiers.notable));
+  // v59.51 (content audit): the second tier is one closed line; its rows (move, headline, reason, full summary) open in place.
+  if (tiers.notable.length) {
+    const fold = el(doc, 'details', null, 'event-briefs__all');
+    fold.append(el(doc, 'summary', `그 밖의 실적 ${tiers.notable.length}건`), rowList(doc, root, tiers.notable));
+    parts.push(fold);
+  }
   if (tiers.restTotal) {
     const fold = el(doc, 'details', null, 'event-briefs__all');
     fold.append(el(doc, 'summary', `지난 30일 발표 요약 ${tiers.restTotal}건 더 보기`), rowList(doc, root, tiers.rest));

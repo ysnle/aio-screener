@@ -1,15 +1,13 @@
 // Roadmap item 11 (legacy decomposition): screen code moved from js/aio-*.js to src/ keeps the window names that the
 // legacy callers and js/aio-tests.js use. src/app/compatibility-globals.js loads this module lazily (outside the boot
 // set) and installs them here; each renderer paints once on install for the calls that ran before it loaded.
-import { renderMacroNextRelease, renderKrMacroFreshnessBadges } from '../ui/components/macro-next-release.js';
+import { renderKrMacroFreshnessBadges } from '../ui/components/macro-next-release.js';
 import { renderHomeVix } from '../ui/components/home-vix.js';
-import { renderHomeActionPlan } from '../ui/components/home-action-plan.js';
 import { renderNewsProgress } from '../ui/components/news-progress.js';
 import * as newsControls from '../ui/components/news-controls.js';
 import { setSectorPerfView } from '../ui/components/sector-perf-view.js';
 import { setRRGView } from '../ui/components/rrg-view.js';
 import { ensureKrThemeProgressive } from '../ui/components/kr-theme-progressive.js';
-import { renderTickerOverview } from '../ui/components/ticker-overview.js';
 import { renderPortfolioExposure, renderPortfolioStress } from '../ui/components/portfolio-exposure.js';
 import { renderPortfolioRiskMetrics, renderPortfolioRiskStatus } from '../ui/components/portfolio-risk-metrics.js';
 import { renderScreenerFmpStatus } from '../ui/components/screener-fmp-status.js';
@@ -19,16 +17,12 @@ import { createFundamentalSearch, fundSearchQuick, renderFundRecentSearches, res
 import { renderPortfolioBacktestLab, renderPortfolioBacktestStatus, varCertLabel } from '../ui/components/portfolio-backtest-lab.js';
 
 export function installLegacyScreenBridges(root, documentRef) {
-  // v58.85 거시 · 금리: header next-release line and 한국 거시 badges.
+  // v58.85 거시 · 금리: 한국 거시 badges (v59.51: the header next-release line left for the board header).
   const at = { documentRef, root };
-  if (root.AIO) root.AIO.renderMacroNextRelease = () => renderMacroNextRelease(at);
   root._aioRenderKrMacroFreshnessBadges = () => renderKrMacroFreshnessBadges(at);
   // v58.91 오늘: home VIX card (legacy snapshot apply and home refresh call this name).
   root._aioRenderHomeVix = (quote) => renderHomeVix({ documentRef, root, quote });
   root._aioRenderHomeVix();
-  // v58.94 오늘: home 행동 계획 lines; a stub document can be passed (T816).
-  root._aioRefreshActionPlan = (d) => renderHomeActionPlan({ documentRef: d?.getElementById ? d : documentRef, root });
-  root._aioRefreshActionPlan();
   // v58.93 뉴스: collection progress; the last step fetchAllNews reported is painted now.
   root._aioRenderNewsProgress = (state, d) => renderNewsProgress({ documentRef: d || documentRef, state });
   root._aioRenderNewsProgress(root._aioNewsProgressState);
@@ -46,10 +40,6 @@ export function installLegacyScreenBridges(root, documentRef) {
   // v58.99 테마 · 섹터: the 한국 테마 '테마 더 보기' toggle (initKoreaThemes calls it; idempotent).
   root._aioEnsureKrThemeProgressive = () => ensureKrThemeProgressive(at);
   root._aioEnsureKrThemeProgressive();
-  // v59.01 종목: the 요약 팩터 fold (showTicker and the bootstrap aio:liveQuotes listener call it); a ticker page opened
-  // before this module loaded is painted now.
-  root._aioRenderTickerOverview = (tkr) => renderTickerOverview(tkr, at);
-  if (root._currentTickerSym && documentRef.getElementById('page-ticker')?.classList.contains('active')) root._aioRenderTickerOverview(root._currentTickerSym);
   // v59.03 포트폴리오: the 백테스트 랩 status line and result (runPortfolioBacktestLab reports after a click), VaR label.
   root._aioRenderPortfolioBacktestLab = (model) => renderPortfolioBacktestLab(model, at);
   root._aioRenderPortfolioBacktestStatus = (text, warn) => renderPortfolioBacktestStatus(text, warn, at);

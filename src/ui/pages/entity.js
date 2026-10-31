@@ -10,7 +10,7 @@ import { deriveSecReport, fundamentalValueFlags } from '../../domain/fundamental
 import { canonicalEpochMs } from '../../domain/chart/contract.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { setStockSubject } from '../navigation/route-hubs.js';
-import { renderStockRead, renderStockAnalysis } from '../components/stock-read.js';
+import { renderStockRead } from '../components/stock-read.js';
 import { EARNINGS_CALENDAR, renderFiscalRead, requestFiscalHistory } from '../components/fiscal-read.js';
 import { requestConsensusEstimates } from '../../data/consensus-estimates.js';
 import { refreshSharedArtifact, SCENARIO_STATE } from '../../data/shared-artifacts.js';
@@ -30,8 +30,6 @@ import { requestCompanyStory, companyStoryFor, COMPANY_PROFILE_INDEX } from '../
 import { entityFundamentalsState } from '../../domain/content/data-state.js';
 import { finiteNumber as finite, signedText, usdKoreanText } from '../../domain/shared/number.js';
 import { latestCompletedKrSession } from '../../domain/market/market-calendar.js';
-import { detectContractions } from '../../domain/technical/definitions.js';
-import { vcpStageLabel } from '../../domain/screener/row-presentation.js';
 import { stockLensContext, renderStockContext, renderStockStrengths, installStockLensGlobal } from '../components/stock-lens-cards.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
 
@@ -235,62 +233,8 @@ function renderSummaryIdentity(documentRef, root, state) {
   // The heading no longer repeats the name; the section still names its issuer for assistive tech and checks.
   profileNode.dataset.issuerName = profile.name;
   profileNode.setAttribute('aria-label', `${profile.name} — ${title.textContent}`);
-  // P1624: summary owns its first-load price chart; opening the technical tab is not a prerequisite.
-  // P1640: the stock-and-company summary comes before the price detail. v58.53 개편 v2 (3d): both follow the reading card.
   const company = documentRef.getElementById('ticker-company-analysis');
   if (company && profileNode.nextElementSibling !== company) profileNode.after(company);
-  const panel = documentRef.getElementById('ticker-price-panel');
-  if (panel && company && company.nextElementSibling !== panel) company.after(panel);
-}
-
-// v58.75 (persona review): the trader's setup right under '이 종목의 지금' — the screener's stage (the same words as its VCP
-// column), the completed close against the pivot, and against the last contraction's low when the chart's own detector on
-// this page's daily bars finds the same pivot (within 1%). Facts with their date; no instruction.
-function renderTickerSetup(documentRef, root, state) {
-  const readHost = documentRef?.getElementById('ticker-read');
-  if (!readHost) return;
-  let host = documentRef.getElementById('ticker-setup');
-  if (!host) { host = documentRef.createElement('section'); host.id = 'ticker-setup'; host.className = 'sx-card v2-stock-setup'; host.setAttribute('aria-label', '셋업 위치'); }
-  // v58.75 (persona review): the market line (renderStockLens) sits between the reading and the setup
-  const contextNode = readHost.nextElementSibling?.classList?.contains('v2-stock-context') ? readHost.nextElementSibling : null;
-  const setupAnchor = contextNode || readHost;
-  if (setupAnchor.nextElementSibling !== host) setupAnchor.after(host);
-  const id = String(state?.id || root?._currentTickerId || '').trim().toUpperCase();
-  let row = null;
-  try { row = (root?._aioGetCanonicalScreenerRows?.() || []).find((item) => item?.sym === id) || null; } catch (_) { row = null; }
-  const close = finite(row?._valuationPrice ?? row?.valuationPrice ?? row?._valuationPePrice);
-  const date = String(row?.factorSessionDate || '').slice(0, 10);
-  if (!id || !row?.vcpStage || readHost.hidden) { host.hidden = true; host.replaceChildren(); delete host.dataset.signature; return; }
-  const pivot = finite(row.vcpPivot);
-  const bars = (state?.id === id && Array.isArray(state?.history) ? state.history : []).filter((bar) => finite(bar?.high) > 0 && finite(bar?.low) > 0 && finite(bar?.close) > 0)
-    .map((bar) => ({ high: bar.high, low: bar.low, close: bar.close }));
-  const detected = pivot && bars.length >= 30 ? detectContractions(bars) : null;
-  const last = detected?.valid && Math.abs(detected.pivot / pivot - 1) <= 0.01 ? detected.contractions.at(-1) : null;
-  const signature = JSON.stringify([id, row.vcpStage, pivot, close, date, row.vcpContractions ?? null, last?.low ?? null]);
-  if (host.dataset.signature === signature && host.childElementCount) { host.hidden = false; return; }
-  host.dataset.signature = signature;
-  const el = (tag, text, className) => { const node = documentRef.createElement(tag); if (text != null) node.textContent = text; if (className) node.className = className; return node; };
-  const tile = (name, value, detail) => {
-    const box = el('div', null, 'v2-stock-check');
-    box.setAttribute('role', 'listitem');
-    const head = el('div', null, 'v2-stock-check__head');
-    head.append(el('span', name, 'v2-stock-check__name'), el('span', date ? `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))} 종가` : '완료 종가', 'sx-chip sx-chip--sm sx-chip--neutral'));
-    box.append(head, el('b', value, 'v2-stock-check__value'));
-    if (detail) box.append(el('span', detail, 'v2-stock-check__detail'));
-    return box;
-  };
-  const tiles = el('div', null, 'v2-stock-checks');
-  tiles.setAttribute('role', 'list');
-  tiles.setAttribute('aria-label', '셋업 위치');
-  const contractions = finite(row.vcpContractions);
-  const currency = String(row.instrumentRef?.currency || row.currency || '').trim().toUpperCase() || (isKrSymbol(id) ? 'KRW' : /\.[A-Z]{1,3}$/.test(id) ? null : 'USD');
-  tiles.append(tile('차트 모양 단계', vcpStageLabel(row.vcpStage), [contractions > 0 ? `출렁임이 줄어든 구간 ${contractions}번` : null, row.vcpShrinking === true ? '출렁임 폭이 차례로 줄어듦' : null].filter(Boolean).join(', ') || '스크리너와 같은 판정'));
-  if (pivot && close) tiles.append(tile('피벗 대비', `${signedText((close / pivot - 1) * 100, 1)}%`, `피벗 ${formatMoney(pivot, currency)}, 마지막 수축의 고점`));
-  if (last && close) tiles.append(tile('마지막 수축 저점 대비', `${signedText((close / last.low - 1) * 100, 1)}%`, `저점 ${formatMoney(last.low, currency)}, 이 아래로 내려가면 수축 패턴이 깨진 것으로 읽습니다`));
-  const head = el('div', null, 'sx-card__head');
-  head.append(el('h3', '셋업 위치', 'sx-card__title'), el('span', '차트 판정 기준, 매매 권유 아님', 'sx-card__meta'));
-  host.replaceChildren(head, tiles);
-  host.hidden = false;
 }
 
 // v58.75 ('고르는 법' B5/B2/B6): the market link with the memo/watchlist entry right under '이 종목의 지금', and strengths/weaknesses
@@ -299,19 +243,18 @@ function renderStockLens(documentRef, root, state) {
   const readHost = documentRef?.getElementById('ticker-read');
   if (!readHost) return;
   installStockLensGlobal(root);
-  const make = (id, className, label) => { let node = documentRef.getElementById(id); if (!node) { node = documentRef.createElement('section'); node.id = id; node.className = className; node.setAttribute('aria-label', label); } return node; };
+  // The nodes are kept on the reading host: '이 종목의 지금' rebuilds its children on every quote tick.
+  const make = (id, className, label) => { let node = readHost._aioLensNodes?.[id] || documentRef.getElementById(id); if (!node) { node = documentRef.createElement('section'); node.id = id; node.className = className; node.setAttribute('aria-label', label); } (readHost._aioLensNodes ||= {})[id] = node; return node; };
   const context = make('ticker-context', 'v2-stock-context', '시장과 이 종목의 연결');
   const strength = make('ticker-strength', 'v2-stock-strength', '강한 점과 약한 점, 계속 볼 것');
   // First-users run 4: a symbol the listing check refused gets no market link or watch actions.
   const notListed = root?._aioOnDemandSymbol?.(String(state?.id || root?._currentTickerId || '').toUpperCase())?.status === 'not-listed';
   if (notListed) { context.hidden = true; strength.hidden = true; delete context.dataset.signature; return; }
-  // v58.75 (persona review): price header and '이 종목의 지금' stay first; the market line follows the reading, then the setup
-  // tiles, then strengths/watch — so the new blocks never push the price and the reading below the first screen.
-  if (readHost.nextElementSibling !== context) readHost.after(context);
-  const setup = documentRef.getElementById('ticker-setup');
-  if (setup && context.nextElementSibling !== setup) context.after(setup);
-  const anchor = setup || context;
-  if (anchor.nextElementSibling !== strength) anchor.after(strength);
+  // v59.51 (content audit): the market line and the memo/watch actions close the '이 종목의 지금' card (one block, not a
+  // second one under it); strengths/watch follow the reading.
+  const contextParent = readHost.querySelector('.v2-stock-hero') || readHost;
+  if (contextParent.lastElementChild !== context) contextParent.append(context);
+  if (readHost.nextElementSibling !== strength) readHost.after(strength);
   const id = String(state?.id || root?._currentTickerId || '').trim().toUpperCase();
   const again = () => { if (String(root?._currentTickerId || '').toUpperCase() === id && documentRef.getElementById('page-ticker')?.classList.contains('active')) renderStockLens(documentRef, root, state); };
   if (id) {
@@ -389,6 +332,8 @@ function renderTickerActivity(documentRef, root, state, portfolioState) {
     valueNode.setAttribute('data-operational-use', 'reference-only');
   }
   if (pnlNode) {
+    // v59.51 (content audit): a stock the reader does not hold shows no P&L line.
+    pnlNode.hidden = !hasPosition;
     // v59.49: the direction class follows the sign (a loss carried the gain colour, 'pos', for any non-null P&L).
     pnlNode.className = `pnl${pnl == null ? '' : pnl > 0 ? ' pos' : pnl < 0 ? ' neg' : ' neutral'}`;
     pnlNode.dataset.aioTickerPnlRenderer = 'native';
@@ -537,7 +482,9 @@ function renderTickerChart({ root, page, state, charts, requestedRange = '1m' })
   canvas.setAttribute('aria-label', periodMeta);
   canvas.setAttribute('title', periodMeta);
   const meta = page.querySelector?.('#ticker-chart-meta');
-  if (meta) meta.textContent = periodMeta;
+  // v59.51: the face names the window; the observation count and the price basis stay in the hover.
+  const md = (ms) => { const day = formatTickerChartDate(ms); return isIsoDay(day) ? `${Number(day.slice(5, 7))}/${Number(day.slice(8, 10))}` : day; };
+  if (meta) { meta.textContent = unavailable ? periodMeta : `${md(view.startEpochMs)}~${md(view.endEpochMs)} 종가`; meta.title = periodMeta; }
   const loading = page.querySelector('#ticker-chart-loading');
   // v57.61 WCAG 4.1.3: the chart loading line becomes a failure line in place; announce it as a status.
   if (loading && loading.getAttribute('role') !== 'status') loading.setAttribute('role', 'status');
@@ -545,7 +492,10 @@ function renderTickerChart({ root, page, state, charts, requestedRange = '1m' })
   // sentence; the box collapses to one line and the buttons hide until rows arrive.
   const box = canvas.parentElement;
   const tabs = page.querySelector?.('#ticker-chart-period-tabs');
-  if (box) box.style.height = unavailable ? '44px' : '380px';
+  // v59.51 (content audit): the price flow is the header's small chart; with no symbol chosen it is not shown.
+  const panel = page.querySelector?.('#ticker-price-panel');
+  if (panel) panel.hidden = !symbol || root?._aioOnDemandSymbol?.(symbol)?.status === 'not-listed'; // run-6 #11: no chart for no match
+  if (box) box.style.height = unavailable ? '44px' : '200px';
   if (tabs) tabs.hidden = unavailable;
   // v57.79 review: one state at a time — the empty canvas (and any fallback paint on it) hides behind the status line.
   canvas.style.display = unavailable ? 'none' : '';
@@ -598,13 +548,14 @@ function renderFundamentalStatus(documentRef, state, onDemand = null) {
     && Array.isArray(fundamentals.coverage) && fundamentals.coverage.length > 0;
   const observedAt = fundamentals?.observedAt || fundamentals?.filedAt || null;
   const unselected = !String(state?.id || '').trim(); // P1365: no selection ≠ SEC 미수신.
-  element.textContent = available ? `● SEC 연간 공시, ${observedAt ? `회계연도 말 ${String(observedAt).slice(0, 10)}` : '회계연도 말 미수신'}` : unselected ? '○ 종목 선택 전' : isKrSymbol(state?.id) ? '○ 한국 공시(DART) 기준, SEC 대상 아님' : ON_DEMAND_SEC_STATUS[onDemand?.secStatus] || '○ SEC 데이터 미수신';
+  // v59.51 (content audit): one filing date per page — it is on the 재무 흐름 basis line; the badge names the source only.
+  element.textContent = available ? '● SEC 연간 공시' : unselected ? '○ 종목 선택 전' : isKrSymbol(state?.id) ? '○ 한국 공시(DART) 기준, SEC 대상 아님' : ON_DEMAND_SEC_STATUS[onDemand?.secStatus] || '○ SEC 데이터 미수신';
   element.className = 'freshness-badge fb-static';
   element.setAttribute('data-source-kind', available ? (fundamentals.sourceTier || 'official-regulator') : 'unavailable');
   element.setAttribute('data-source-label', available ? (fundamentals.source || 'SEC EDGAR companyfacts') : 'sec-fundamentals.json');
   element.setAttribute('data-operational-use', 'reference-only');
-  if (observedAt) element.setAttribute('data-observed-at', observedAt);
-  else element.removeAttribute('data-observed-at');
+  if (observedAt) { element.setAttribute('data-observed-at', observedAt); element.title = `회계연도 말 ${String(observedAt).slice(0, 10)}`; }
+  else { element.removeAttribute('data-observed-at'); element.removeAttribute('title'); }
   element.setAttribute('data-cadence', 'annual'); // codex audit F16: a fiscal-year-end date is judged by the filing cadence, not two sessions
 }
 
@@ -771,18 +722,8 @@ function render({ root, documentRef, store, route, charts, activeTickerTab = 'ov
     const requestedId = String(root?._currentTickerId || '').trim().toUpperCase();
     const fundamentalsState = entityFundamentalsState(state, { requestedId, onDemandStatus: state?.id ? root?._aioOnDemandSymbol?.(state.id)?.status : null });
     renderStockRead({ documentRef, root, symbol: state?.id || root?._currentTickerId || '', fundamentals: state?.fundamentals, fundamentalsState }); // P1434; v57.51 N20 recent filings
-    renderTickerSetup(documentRef, root, state); // v58.75 (persona review)
     renderStockLens(documentRef, root, state); // v58.75 ('고르는 법' layer B)
     renderCompanyAnalysis({ documentRef, root, state, fundamentalsState });
-    // v58.55 (3d): 듀폰 분해 + 역 DCF. The price is the screener's completed-session valuation close (the same close its
-    // P/E uses), else the latest dated close; never the live quote, so the calculator does not move with every tick.
-    const analysisId = String(state?.id || '').toUpperCase();
-    let analysisRow = null;
-    try { analysisRow = (root?._aioGetCanonicalScreenerRows?.() || []).find((item) => item?.sym === analysisId) || null; } catch (_) { analysisRow = null; }
-    const valuationClose = finite(analysisRow?._valuationPrice ?? analysisRow?._valuationPePrice ?? analysisRow?.valuationPrice);
-    const valuationDate = String(analysisRow?.factorSessionDate || '').slice(0, 10);
-    const analysisClose = valuationClose > 0 && isIsoDay(valuationDate) ? { value: valuationClose, date: valuationDate } : analysisId ? lastPublishedClose(analysisId, state, root) : null;
-    renderStockAnalysis({ documentRef, root, symbol: analysisId, fundamentals: state?.id === analysisId ? state?.fundamentals : null, close: analysisClose, sector: analysisRow?.sector || null });
   }
   if (route === 'fundamental') {
     // P1430: 재무 공시 is the same company as 요약 · 차트.
@@ -810,7 +751,16 @@ function render({ root, documentRef, store, route, charts, activeTickerTab = 'ov
     if (onDemandId && !isKrSymbol(onDemandId) && !state?.fundamentals && !onDemand) root?._aioRequestOnDemandSymbol?.(onDemandId)?.catch?.(() => {});
     renderFundamentalStatus(documentRef, state, onDemand);
     renderFundamentalReport(documentRef, routeNode, state);
-    renderFiscalRead({ documentRef, root, state }); // P1436
+    // v58.55 (3d) → v59.51: 듀폰 분해 + 역 DCF live in 재무 공시's 투자 논지 틀 fold. The price is the screener's completed-session
+    // valuation close (the same close its P/E uses), else the latest dated close; never the live quote, so the calculator
+    // does not move with every tick.
+    const analysisId = String(state?.id || '').toUpperCase();
+    let analysisRow = null;
+    try { analysisRow = (root?._aioGetCanonicalScreenerRows?.() || []).find((item) => item?.sym === analysisId) || null; } catch (_) { analysisRow = null; }
+    const valuationClose = finite(analysisRow?._valuationPrice ?? analysisRow?._valuationPePrice ?? analysisRow?.valuationPrice);
+    const valuationDate = String(analysisRow?.factorSessionDate || '').slice(0, 10);
+    const close = valuationClose > 0 && isIsoDay(valuationDate) ? { value: valuationClose, date: valuationDate } : analysisId ? lastPublishedClose(analysisId, state, root) : null;
+    renderFiscalRead({ documentRef, root, state, close }); // P1436
   }
 }
 
@@ -876,9 +826,9 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
         // P1593 (F107/E04): compare against the company actually loaded, not the last one ever requested — leaving
         // the entity routes clears the selection, and the old guard then left '종목 선택 전' beside the same ticker.
         const loaded = String(selectEntityState(store.getState())?.id || '').trim().toUpperCase();
-        if (subject && loaded !== subject && typeof root?._aioFundSearchFill === 'function') {
+        if (subject && loaded !== subject && typeof root?.fundamentalSearch === 'function') {
           root._aioFundRequestedSymbol = subject;
-          const timer = setTimeout(() => root._aioFundSearchFill(subject), 0);
+          const timer = setTimeout(() => root.fundamentalSearch(subject), 0);
           bag.add(() => clearTimeout(timer));
         }
       }

@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-10-31T09:52:08.321Z",
-  "appRevision": "v59.49",
-  "gitHead": "97a31c1c252385cf31a0b675cfc7c2f68ac7dbd9",
+  "observedAt": "2026-10-31T14:08:23.879Z",
+  "appRevision": "v59.51",
+  "gitHead": "a71e48ed17c3d31c4ecbfc58bdfdac4c85e8fbaf",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -50,7 +50,7 @@
       "routeId": "breadth",
       "active": true,
       "nameless": [],
-      "selectCount": 2,
+      "selectCount": 0,
       "selectsWithoutName": [],
       "positiveTabindex": [],
       "canvasCount": 0,
@@ -59,8 +59,16 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 1,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "ETF",
+          "width": 18,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
@@ -77,16 +85,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 1,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "지수별 가격 온도 (참고) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -103,29 +103,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 4,
+      "smallTargetExceptionCount": 1,
       "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "VIX",
-          "width": 21,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "KST",
-          "width": 23,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "EPS",
-          "width": 19,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
         {
           "id": "",
           "text": "OAS",
@@ -186,16 +165,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 1,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "10년 기간 프리미엄 (Kim-Wright) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -212,23 +183,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 2,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "SEC",
-          "width": 20,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "EPS",
-          "width": 19,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -257,14 +213,36 @@
       "selectCount": 0,
       "selectsWithoutName": [],
       "positiveTabindex": [],
-      "canvasCount": 1,
+      "canvasCount": 0,
       "unnamedCanvas": [],
       "fontUnder10Count": 0,
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 3,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "SPY",
+          "width": 23,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "%p",
+          "width": 20,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "ETF",
+          "width": 21,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
@@ -272,7 +250,7 @@
       "routeId": "portfolio",
       "active": true,
       "nameless": [],
-      "selectCount": 4,
+      "selectCount": 6,
       "selectsWithoutName": [],
       "positiveTabindex": [],
       "canvasCount": 0,
@@ -293,29 +271,14 @@
       "selectCount": 0,
       "selectsWithoutName": [],
       "positiveTabindex": [],
-      "canvasCount": 1,
+      "canvasCount": 0,
       "unnamedCanvas": [],
       "fontUnder10Count": 0,
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 2,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "SEC",
-          "width": 20,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "EPS",
-          "width": 19,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -332,8 +295,345 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 48,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "셰브론, 주목할 에너지주 3종목 선도",
+          "width": 190,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "칩 부족 심화 속 OpenAI의 Altman, 삼성 경영진과 회동",
+          "width": 287,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "삼성·오픈AI 수장, AI가 미래 사업 전략에 미칠 영향 논의",
+          "width": 293,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "호르무즈 공격에 이란 평화 노력 위협…유가 6개월 최고치",
+          "width": 302,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "삼성 경영진, AI 전략 논의 위해 OpenAI의 올트먼과 회동",
+          "width": 296,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "트럼프가 빅오일의 수익을 비판했다…정유 부문 실적은 이후 얼마나 급증했나",
+          "width": 407,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "키옥시아, AI발 낸드 수요 폭발에 역대 최대 실적…순이익 37배",
+          "width": 326,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "[마켓노트] 금리 안정이 주식시장 반등 조건",
+          "width": 228,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "OpenAI, 기술 우려가 고조함에 따라 자금 조달 목표를 100억 달러 줄이다",
+          "width": 383,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "크래머의 주간 전망: 기술 실적과 중간 선거 앞두고 변동성 더 기대",
+          "width": 347,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "실망스러운 기술 실적, 주가 하락, 비트코인도 바이너스 해킹으로 하락",
+          "width": 368,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "아마존·인텔 실적에 AI 매도세 심화되며 미국 주가 하락",
+          "width": 289,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "뉴욕증시 기술주 매도 확대…나스닥 2.9%↓·인텔 29%↓",
+          "width": 279,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "이란 확전 우려에 국제유가 2%대 급등…브렌트유 6개월만에 최고",
+          "width": 343,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "중간 선거, 애플 실적, 고용 보고서. 월 스트리트는 기술을 처분하는 투자자들에게 앞으로 큰 한 주를 맞이한",
+          "width": 573,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "엑손, 체번의 실적이 예상치를 상회하며 정제 마진이 전쟁 기간 동안 급등",
+          "width": 383,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "브로드컴 주식 전망은 AI 칩 성장과 앤트로픽 파트너십에 달려 있다",
+          "width": 353,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "아마존이 AI 지출에 대한 우려를 더해 기술주 하락 예상",
+          "width": 289,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "아마존, 인텔이 AI 투자에 대한 우려를 더해 나스닥, 거의 3개월래 최저치 기록",
+          "width": 407,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "뉴욕증시, 아마존·인텔 실적 부진에 하락 출발",
+          "width": 238,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "아마존이 AI 지출에 대한 우려를 더해 기술주 하락 예상",
+          "width": 289,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "메모리 부족으로 CXMT가 중국의 칩 챔피언으로 자리 잡다",
+          "width": 307,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "강력한 실적은 인플레이션과 유가 상승으로 인한 어려움을 가린다",
+          "width": 347,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "[표] 주간 코스닥 외국인 순매수도 상위종목",
+          "width": 228,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "코스피 급락에도 원·달러 환율 하락…월말 네고에 1334.3원 마감 [김혜란의 FX]",
+          "width": 408,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "코스피·코스닥, 美 빅테크 실적 부진에 3%대 급락 마감(종합)",
+          "width": 316,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "메모리반도체 투자 등 ETF 2종, 내달 3일 신규 상장",
+          "width": 264,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "금값, 상승한 유가 및 미국 물가 상승률 데이터로 연준 금리 인상 전망 강화로 하락",
+          "width": 429,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "Microsoft (MSFT) 주가, AI 지출이 다가오는 가운데 1분기 실적에도 꿈쩍 않아",
+          "width": 404,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "일본은행, 금리 유지 및 2027년 인플레이션 전망 상향 조정",
+          "width": 307,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "코스피, 장중 낙폭 커져 5%대 급락…코스닥 4%대↓",
+          "width": 261,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "한미반도체, 3분기 영업익 34%↑…\"3년째 매출 신기록 전망\"",
+          "width": 310,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "금리 결정을 앞두고 도쿄 물가 상승률, BOJ의 2% 목표치 웃돌아",
+          "width": 333,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "아마존, AI 지출이 5년 만에 가장 빠른 클라우드 성장률을 초과하면서 하락",
+          "width": 389,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "Alphabet 매출 예상치 하회에 AI 자본 지출 우려 되살아나며 뉴욕증시 하락 마감",
+          "width": 419,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "짐 크레이머는 마이크로소프트가 AI 지출 전쟁에서 승리하고 있으며, 알파벳은 대가를 치루고 있다고 말한다",
+          "width": 569,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "아마존 AWS, 클라우드 경쟁사도 가세하며 매출 39% 증가",
+          "width": 301,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "아마존, 3분기 매출 12% 늘어난 270조원…시장 전망치 밑돌아",
+          "width": 323,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "구글 부채 위험 지표 상승, 실적으로 인해 AI 부채 우려 재점화",
+          "width": 322,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "인텔 전망, 개인용 컴퓨터 칩 시장 약세로 손상",
+          "width": 242,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "아마존, 실적 미달성 및 자본지출 유지, AI 지출 우려 가중",
+          "width": 298,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "미 연준 이어 ECB도 금리 동결…\"인플레·경기둔화 위험 여전\"(종합)",
+          "width": 347,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "알파벳 실적으로 인해 AI 지출 우려가 재현되며 나스닥 1% 이상 하락",
+          "width": 360,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "뉴욕증시, 알파벳 실적 소화하며 하락 출발",
+          "width": 223,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "[2보] ECB 금리 동결…예금금리 연 2.50％",
+          "width": 213,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "HSBC, 데이터 센터 부채에 대한 신용 위험 보험으로 헤지 추구",
+          "width": 325,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "목요일의 가장 큰 분석가 호출: Nvidia, Anthropic, Apple, Tesla, Chevron, ",
+          "width": 499,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "Sinopec, 3분기 실적 57% 증가... 오일 가격 상승과 정제 마진 확대",
+          "width": 342,
+          "height": 16,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
@@ -430,16 +730,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 1,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "SEC",
-          "width": 20,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     }

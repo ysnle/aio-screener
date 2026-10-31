@@ -12,12 +12,12 @@ import { THEME_STATES } from '../../domain/scenarios/analogs.js';
 import { headlineForCompany, sessionNewsWindow } from '../../domain/briefing/news-picks.js';
 import { selectNewsItems } from '../../state/selectors/news.js';
 import { renderSectorMap } from '../components/sector-map.js';
-import { renderIndexEarnings } from '../components/index-earnings.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { rotationFlow, themeDetailFlow } from '../../domain/market/page-flow.js';
 import { krThemeArtifactRead, krThemeLabel } from '../../domain/themes/kr-themes.js';
 import { buildGroupStrength, directionLabel } from '../../domain/themes/group-strength.js';
 import { buildCloseSeries } from '../../domain/market/close-series.js';
+import { buildThemeFlow } from '../../domain/market/market-flow.js';
 import { selectProducedRotation } from '../../domain/themes/produced-rotation.js';
 import { rrgAxisDomain, RRG_DEFINITION, RRG_QUADRANT_READS, RRG_QUADRANT_WORDS } from '../../domain/themes/rrg.js';
 import { rrgRecentReading, RRG_NEUTRAL_BAND } from '../../domain/themes/recent-check.js';
@@ -388,36 +388,45 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
   }
 }
 
-function renderThemeCyclePill({ documentRef, root, store, route }) {
-  if (route !== 'themes') return;
-  const pill = documentRef?.getElementById('theme-cycle-pill');
-  if (!pill) return;
-  pill.dataset.aioThemeCycleRenderer = 'native';
-  // P1449/R631: the denominator must be the RENDERED view's population, not a hard-coded
-  // sector set. The cards switch between sectors / sub-themes / all items; a pill still
-  // reporting the 11-sector denominator while dozens of sub-theme chips render above is the
-  // same "summary on another scope" defect P1149 fixed elsewhere.
-  const view = activeView(root);
-  const viewLabel = { sectors: '섹터', subsectors: '세부 업종', all: '전체' }[view] || '섹터';
-  const items = viewItems(selectThemesItems(store?.getState?.() || {}), view);
-  const counts = { Leading: 0, Improving: 0, Weakening: 0, Lagging: 0, Border: 0 };
-  items.forEach((item) => {
-    const quadrant = String(item?.quadrant || '');
-    if (Object.prototype.hasOwnProperty.call(counts, quadrant) && quadrant !== 'Border'
-      && finite(item?.rsRatio) != null && finite(item?.rsMomentum) != null) counts[zoneKey(root, item)] += 1;
+// v59.51 (content audit): the quadrant-count pill in the page head (renderThemeCyclePill) is retired — the status line
+// above the scatter (renderRRGStatus) prints the same counts for the same view.
+
+// v59.51: the verdict card shows the scatter or the sector period bars; the choice is kept for the session.
+function syncVerdictView(documentRef, root) {
+  const card = documentRef?.querySelector?.('#themes-verdict .v2-themes-rrg');
+  if (!card) return;
+  const view = root?._aioThemesVerdictView === 'bars' ? 'bars' : 'rrg';
+  card.dataset.view = view;
+  documentRef.querySelectorAll('#themes-verdict-tabs [data-view]').forEach((button) => {
+    const on = button.dataset.view === view;
+    button.classList.toggle('active', on);
+    button.setAttribute('aria-pressed', String(on));
   });
-  const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
-  // v57.54 audit (2): with nothing judged the verdict line below is the one status line; the pill would repeat it.
-  pill.hidden = total === 0;
-  if (total < 6) {
-    pill.className = 'status-pill sp-neutral';
-    pill.textContent = `섹터 회전 대기, ${viewLabel} ${items.length}개 중 ${total}개 판정`; // P1591 (T01)
-    return;
-  }
-  // Expert review M08: the split is a count, not a risk-on/off grade — one neutral pill colour.
-  pill.className = 'status-pill sp-neutral';
-  // P1352: quadrant counts describe relative strength, not sector identity or the business cycle.
-  pill.textContent = `${viewLabel} 상대강도, 선도·개선 ${counts.Leading + counts.Improving}/${total}, 약화·후행 ${counts.Weakening + counts.Lagging}/${total}${counts.Border ? `, 기준선 부근 ${counts.Border}/${total}` : ''}`;
+}
+
+// v59.51 (content audit): 시장 상태's 자금 흐름 named, for the last session, the sub-themes that split inside one theme, the
+// members that split inside one sub-theme, and the strongest and weakest sub-themes (market-flow.js buildThemeFlow). They
+// are a theme reading, so they live here, in the 지난 거래일 fold beside the S&P 500 map.
+function renderThemeDaySplits({ documentRef, root, store }) {
+  const host = documentRef?.getElementById('themes-day-splits');
+  if (!host) return;
+  const session = usCloseSession(root);
+  const flow = session ? buildThemeFlow({ themes: root?.THEME_MAP || [], rows: store?.getState?.()?.screener?.rows || [], session }) : { available: false };
+  const lines = flow.available ? [
+    ...flow.splitLines.map((text) => `같은 테마 안에서 갈린 세부 테마 — ${text}`),
+    ...flow.memberSplitLines.slice(0, 4).map((text) => `같은 세부 테마 안에서 갈린 종목 — ${text}`),
+    flow.strongLine, flow.weakLine
+  ].filter(Boolean) : [];
+  host.hidden = !lines.length;
+  if (!lines.length) { host.replaceChildren(); return; }
+  const heading = documentRef.createElement('h3');
+  heading.className = 'briefing-h2';
+  heading.textContent = '테마 안에서 갈린 곳 ';
+  heading.append(asOfChip(documentRef, `${shortSession(session)} 종가`, `${shortSession(session)} 미국 종가, 세부 테마 ${flow.groups}개의 하루 등락 중앙값. 한쪽이 오르고 다른 쪽이 내린 폭이 기준을 넘을 때만 갈렸다고 봅니다.`));
+  const list = documentRef.createElement('ul');
+  list.className = 'thp-why-list';
+  for (const text of lines) { const li = documentRef.createElement('li'); li.textContent = text; list.append(li); }
+  host.replaceChildren(heading, list);
 }
 
 // v57.76: the 섹터 흐름 분석 box (sector-perf-analysis) and its writer are retired — it repeated the 섹터 회전 판정
@@ -545,8 +554,8 @@ function renderKrCloseDetail({ documentRef, root, store, themeId }) {
   if (covered) {
     const teach = themeTeachFor({ root, store, market: 'KR', themeId });
     const table = memberTable(documentRef, root, list, { onSort: () => renderKrCloseDetail({ documentRef, root, store, themeId }), ariaLabel: `한국 ${KR_THEME_LABEL_OF(themeId)} 구성 종목 표`, basisDate: krClose ? `${shortSession(krClose)} 한국 종가 기준` : null, roles: teach?.roles || null });
-    const roleParts = memberRoleParts(documentRef, teach);
-    host.append(...(roleParts ? [roleParts.line] : []), table.lead, table.region, table.basis, ...(roleParts ? [roleParts.fold] : []));
+    const roleFold = memberRoleParts(documentRef, teach, list);
+    host.append(table.lead, table.region, table.basis, ...(roleFold ? [roleFold] : []));
   } else {
     const empty = documentRef.createElement('p');
     empty.className = 'thp-detail-empty';
@@ -604,12 +613,8 @@ function renderThemePerformanceBars({ documentRef, root, store, route }) {
       return b.pct - a.pct;
     });
   host.replaceChildren();
-  // v57.54 audit (2): eleven "— 대기" rows are not a reading; with no completed-close return at all the section hides.
-  const section = host.closest('.aio-section');
-  if (section) section.hidden = !allItems.some((item) => finite(item?.pct) != null || finite(item?.weeklyPct) != null) && !hasLong; // any period, so a tab never hides its own way back
-  const sectionLabel = section?.querySelector?.('.aio-section-label');
-  if (sectionLabel) sectionLabel.textContent = '섹터 기간별 등락, SPY 대비';
-  if (!rows.length) {
+  // v59.51: the bars are the verdict card's second tab, so with no return yet the tab says so instead of hiding a section.
+  if (!rows.length || !rows.some((row) => row.pct != null)) {
     const empty = documentRef.createElement('div');
     empty.textContent = '섹터 성과 데이터 수신 대기';
     empty.className = 'thp-perf-empty';
@@ -617,9 +622,9 @@ function renderThemePerformanceBars({ documentRef, root, store, route }) {
     return;
   }
   const maxAbs = Math.max(0.5, ...rows.map((row) => Math.abs(row.pct ?? 0)));
-  // v58.79 (layout over captions): the section label already says "SPY 대비"; the close is the label's chip and the
-  // column rule (right %p = SPY over the same period, — = no value) is the chip's hover.
-  setAsOf(documentRef, section?.querySelector?.('.aio-section-hd'), close ? `${shortSession(close)} 종가` : '', `${period[1]} 수익률${close ? `, ${shortSession(close)} 미국 종가 기준` : ''}${spy != null ? `, 오른쪽 %p = 같은 기간 SPY(${signedText(spy, 2)}%) 대비` : ', SPY 같은 기간 값 대기'}, 값이 없는 섹터는 —`);
+  // v58.79 (layout over captions): the close date is the card head's chip; the column rule (right %p = SPY over the same
+  // period, — = no value) is the bars' hover.
+  host.title = `${period[1]} 수익률${close ? `, ${shortSession(close)} 미국 종가 기준` : ''}${spy != null ? `, 오른쪽 %p = 같은 기간 SPY(${signedText(spy, 2)}%) 대비` : ', SPY 같은 기간 값 대기'}, 값이 없는 섹터는 —, 오른쪽 끝 = 약 50거래일 회전 단계`;
   const colors = { Leading: 'var(--data-green)', Improving: 'var(--text-secondary)', Weakening: 'var(--text-secondary)', Lagging: 'var(--data-amber)' }; // v58.53: the scatter's quadrant colours
   rows.forEach((row) => {
     const line = documentRef.createElement('div');
@@ -905,17 +910,40 @@ function themeCriteriaSummary(root, store, themeId) {
     scenarios: { favorable: teach.split.favorable, unfavorable: teach.split.unfavorable, breaks: row.breaks || [] } };
 }
 
-// v58.75 (persona review, teach-and-check A-3·4·6): '이 흐름의 이유' at the top of the theme detail and '전문가는 이렇게
-// 고른다 — 테마' before its scenario read. Both fill slots renderThemeDetailSummary leaves; the criteria table is folded.
+// v59.51 (content audit, owner's two layers): the face of the theme detail is one short reading for a beginner — the
+// stage, the move against the market, the strongest and weakest part inside, and what the lead scenario means for it —
+// and the criteria headline. The analysis behind it (reasons, the sub-theme flow, the stage read and the criteria table
+// with the conditional scenarios) sits in one expert fold. This fills the slots renderThemeDetailSummary leaves.
+const WIND_PLAIN = Object.freeze({ tail: '유리한 쪽', head: '불리한 쪽', mixed: '유리·불리가 섞인 쪽', none: '영향이 크지 않은 쪽' });
 function renderThemeDetailTeach({ documentRef, root, store }) {
+  const readingHost = documentRef?.getElementById('theme-detail-reading');
   const why = documentRef?.getElementById('theme-detail-native-why');
   const criteriaHost = documentRef?.getElementById('theme-detail-native-criteria');
-  if (!why && !criteriaHost) return;
+  const tableHost = documentRef?.getElementById('theme-detail-native-criteria-table');
+  if (!readingHost && !why && !criteriaHost && !tableHost) return;
   const themeId = String(root?._currentThemeId || '');
   const teach = themeId ? themeTeachFor({ root, store, market: 'US', themeId }) : null;
   const make = (tag, text, className) => { const node = documentRef.createElement(tag); if (text != null) node.textContent = text; if (className) node.className = className; return node; };
-  if (!teach?.criteria) { for (const node of [why, criteriaHost]) if (node) { node.hidden = true; node.replaceChildren(); } return; }
+  if (!teach?.criteria) { for (const node of [readingHost, why, criteriaHost, tableHost]) if (node) { node.hidden = true; node.replaceChildren(); } return; }
   const { row, criteria } = teach;
+  if (readingHost) {
+    const lines = [];
+    const definition = THEME_STATES[row.state]?.match(/\((.*)\)$/)?.[1];
+    lines.push(THEME_STATES[row.state] ? `지금 단계는 '${stageWord(row.state)}'입니다${definition ? ` — ${definition}` : ''}.` : '지금 단계는 판정 보류입니다 — 단계를 정하는 조건이 서로 엇갈립니다.');
+    const etf = (root?.THEME_MAP || []).find((theme) => theme?.id === themeId)?.etf || null;
+    const rel = relativeSeriesOf(root, etf);
+    const word = (value, last) => `${Math.abs(value).toFixed(1)}% ${value >= 0 ? (last ? '강했습니다' : '강했고') : (last ? '약했습니다' : '약했고')}`;
+    if (rel) lines.push(`최근 ${rel.series.length}거래일은 시장(SPY)보다 ${word(rel.total, false)}, 최근 20거래일은 ${word(rel.recent, true)}.`);
+    const ranked = themeFlowOf(root, store, themeId, etf).flow.rows.filter((group) => !group.smallSample && group.ret3m != null);
+    if (ranked.length >= 2) lines.push(`테마 안에서는 ${ranked[0].name} 쪽이 가장 강하고, ${ranked.at(-1).name} 쪽이 가장 약합니다(3개월).`);
+    // v59.51 (one lead source): scenarioLead — a tie names every tied branch and reads their common wind (혼재 if they differ).
+    const scenario = teach.scenario;
+    if (scenario?.items?.length && WIND_PLAIN[row.wind?.lead]) lines.push(scenario.state === 'tie'
+      ? `${String(scenario.face || '').replace(/\.$/, '')} — 이 테마에는 ${WIND_PLAIN[row.wind.lead]}입니다.`
+      : `지금 조건이 가장 많이 맞는 시나리오 ${scenario.names[0]}에서는 이 테마에 ${WIND_PLAIN[row.wind.lead]}입니다.`);
+    readingHost.replaceChildren(...lines.map((text) => make('li', text)));
+    readingHost.hidden = !lines.length;
+  }
   if (why) {
     const reasons = themeReasons({ row, tags: row.tags || [], moves: macroMoves(root?._aioHistory || [], teach.regime), crossroads: teach.crossroads,
       revisions: revisionCounts(teach.consensus, teach.measured.map((member) => member.sym)), rrgMove: rrgMoveOf(root, themeId), headlines: themeHeadlines(root, store, teach.measured, teach.after) });
@@ -926,9 +954,10 @@ function renderThemeDetailTeach({ documentRef, root, store }) {
     why.hidden = false;
   }
   if (criteriaHost) {
-    const fold = make('details', null, 'thp-criteria-fold');
-    fold.open = !!root._aioCriteriaOpen;
-    fold.addEventListener('toggle', () => { root._aioCriteriaOpen = fold.open; });
+    criteriaHost.replaceChildren(make('div', '전문가 기준', 'thp-detail-heading'), make('p', `${criteria.headline}.`, 'thp-detail-body'));
+    criteriaHost.hidden = false;
+  }
+  if (tableHost) {
     const table = make('table', null, 'thp-criteria-table');
     const head = make('thead'), hr = make('tr');
     ['기준과 원리', '이 테마 지금', '충족'].forEach((label) => hr.append(make('th', label)));
@@ -943,20 +972,42 @@ function renderThemeDetailTeach({ documentRef, root, store }) {
       body.append(tr);
     }
     table.append(head, body);
-    fold.append(make('summary', '기준 6개, 원리와 이 테마의 현재 값'), table);
     const confirm = criteria.items.filter((item) => item.met === false).map((item) => item.label);
     const split = scenarioSplitText(teach.split);
-    criteriaHost.replaceChildren(make('div', '전문가는 이렇게 고른다 — 테마', 'thp-detail-heading'), make('p', `${row.label}: ${criteria.headline}.`, 'thp-detail-body'), fold,
-      ...(split ? [make('p', `${split} 확인할 신호: ${confirm.length ? `미충족 기준(${confirm.join(', ')})이 충족으로 바뀌는지` : '충족한 기준이 유지되는지'}. 논리가 깨지는 신호는 아래 '이 테마의 시나리오'의 점검 신호입니다.`, 'thp-detail-body')] : []));
-    criteriaHost.hidden = false;
+    tableHost.replaceChildren(make('div', '전문가 기준 6개 — 원리와 이 테마의 지금 값', 'thp-detail-heading'), table,
+      ...(split ? [make('p', `${split} 확인할 신호: ${confirm.length ? `미충족 기준(${confirm.join(', ')})이 충족으로 바뀌는지` : '충족한 기준이 유지되는지'}. 논리가 깨지는 신호는 위 '이 테마의 시나리오'의 점검 신호입니다.`, 'thp-detail-body')] : []));
+    tableHost.hidden = false;
   }
+}
+
+// The representative ETF ÷ SPY over the produced sessions (rotationHistory relativeStrength): the series, its total move
+// and its last 20 sessions — read by the chart and the detail reading.
+function relativeSeriesOf(root, etf) {
+  const produced = etf ? selectProducedRotation(root?._serverDataMeta?.rotationHistory, etf, Date.now()) : null;
+  const series = (produced?.relativeStrength || []).filter((point) => point?.sessionDate && finite(point.value) != null);
+  if (series.length < 20) return null;
+  const last = series.at(-1), back20 = series.at(-21) || series[0];
+  return { series, total: last.value / series[0].value * 100 - 100, recent: last.value / back20.value * 100 - 100 };
+}
+
+// P1440: the theme's own flow from the published screener medians (sub-theme groups), read by the expert fold and the reading.
+function themeFlowOf(root, store, themeId, etf, label = null) {
+  const rows = store?.getState?.()?.screener?.rows || [];
+  const model = buildGroupStrength({ themes: root?.THEME_MAP || [], rows, sortKey: 'ret3m', benchmark: benchmarkReturns(root?._aioHistory || []) });
+  // P1591 (T03): the ETF's rotation state is read only through the session-checked selector.
+  const etfRotation = etf ? selectProducedRotation(root?._serverDataMeta?.rotationHistory, etf, Date.now()) : null;
+  const stageRow = root?.__aioThemePlaybook?.themes?.find((row) => row.market === 'US' && row.id === themeId && row.state);
+  const themeName = (root?.THEME_MAP || []).find((theme) => theme?.id === themeId)?.nameKr || label || null;
+  const flow = themeDetailFlow({ themeId, themeName, groups: model.groups, etf: etf || null, rotation: etfRotation ? { [etf]: etfRotation } : {},
+    stage: stageRow ? { state: stageRow.state, label: String(stageRow.stateLabel || '').split(' (')[0], window: '6개월' } : null });
+  return { flow, rows, themeName };
 }
 
 function relativeStrengthChart(documentRef, root, detail) {
   const etf = detail?.etf || null;
-  const produced = etf ? selectProducedRotation(root?._serverDataMeta?.rotationHistory, etf, Date.now()) : null;
-  const series = (produced?.relativeStrength || []).filter((point) => point?.sessionDate && finite(point.value) != null);
-  if (series.length < 20) return null;
+  const rel = relativeSeriesOf(root, etf);
+  if (!rel) return null;
+  const { series } = rel;
   const SVGNS = 'http://www.w3.org/2000/svg';
   const node = (tag, attrs = {}, text = null) => { const n = documentRef.createElementNS(SVGNS, tag); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, String(v)); if (text != null) n.textContent = text; return n; };
   const W = 640, H = 170, padL = 40, padR = 56, padT = 12, padB = 24;
@@ -964,9 +1015,8 @@ function relativeStrengthChart(documentRef, root, detail) {
   const lo = Math.min(100, ...values), hi = Math.max(100, ...values), span = Math.max(1, hi - lo);
   const x = (i) => padL + i / (series.length - 1) * (W - padL - padR);
   const y = (v) => padT + (hi + span * 0.05 - v) / (span * 1.1) * (H - padT - padB);
-  const last = series.at(-1), back20 = series.at(-21) || series[0];
-  const total = last.value / series[0].value * 100 - 100, recent = last.value / back20.value * 100 - 100;
-  const svg = node('svg', { viewBox: `0 0 ${W} ${H}`, class: 'thp-rel-chart', role: 'img', 'aria-label': `${etf}의 SPY 대비 상대가격 ${series.length}거래일, ${shortSession(series[0].sessionDate)} 100에서 ${shortSession(last.sessionDate)} ${last.value.toFixed(1)}` });
+  const last = series.at(-1);
+  const svg = node('svg', { viewBox: `0 0 ${W} ${H}`, class: 'thp-rel-chart', role: 'img', 'aria-label': `${etf}의 SPY 대비 상대가격 ${series.length}거래일, ${shortSession(series[0].sessionDate)} 100에서 ${shortSession(last.sessionDate)} ${last.value.toFixed(1)}, 기간 ${signedText(rel.total, 1)}%, 최근 20거래일 ${signedText(rel.recent, 1)}%` });
   svg.append(node('line', { x1: padL, x2: W - padR, y1: y(100), y2: y(100), class: 'thp-rel-base' }), node('text', { x: padL - 4, y: y(100) + 4, 'text-anchor': 'end', class: 'thp-rel-tick' }, '100'));
   for (const v of [hi, lo]) if (Math.abs(v - 100) > span * 0.12) svg.append(node('text', { x: padL - 4, y: y(v) + 4, 'text-anchor': 'end', class: 'thp-rel-tick' }, v.toFixed(0)));
   svg.append(node('polyline', { points: series.map((point, i) => `${x(i).toFixed(1)},${y(point.value).toFixed(1)}`).join(' '), class: `thp-rel-line ${last.value >= 100 ? 'is-up' : 'is-down'}` }));
@@ -976,11 +1026,11 @@ function relativeStrengthChart(documentRef, root, detail) {
   box.className = 'thp-rel';
   const head = documentRef.createElement('div');
   head.className = 'thp-detail-heading';
-  head.textContent = `대표 ETF ${etf}, SPY 대비 상대가격 ${series.length}거래일`;
-  const read = documentRef.createElement('p');
-  read.className = 'thp-detail-body';
-  read.textContent = `${shortSession(series[0].sessionDate)}을 100으로 놓으면 ${shortSession(last.sessionDate)} ${last.value.toFixed(1)} — ${series.length}거래일 동안 SPY보다 ${signedText(total, 1)}%, 최근 20거래일 ${signedText(recent, 1)}%. 선이 오르면 SPY보다 강했다는 뜻이며, 섹터 회전 그래프의 점은 이 선을 50거래일 평균과 견준 값입니다.`;
-  box.append(head, svg, read);
+  // v59.51 (content audit): the reading above the chart says what the line did; the how-to caption left and the method
+  // (rebased to 100 on the first session; the scatter compares this line with its 50-session average) is the head's hover.
+  head.textContent = `시장(SPY)과 견준 대표 ETF ${etf}, 최근 ${series.length}거래일`;
+  head.title = `${shortSession(series[0].sessionDate)}을 100으로 놓은 ${etf} ÷ SPY 상대가격(${shortSession(last.sessionDate)} ${last.value.toFixed(1)}). 섹터 회전 그래프의 점은 이 선을 50거래일 평균과 견준 값입니다.`;
+  box.append(head, svg);
   return box;
 }
 
@@ -990,8 +1040,7 @@ function renderThemeDetailSummary({ documentRef, root, store, themeId = null }) 
   const detail = selectSelectedThemeDetail(store?.getState?.() || {});
   const requestedId = String(themeId || root?._currentThemeId || detail?.id || '');
   if (!detail || !requestedId || String(detail.id) !== requestedId) {
-    host.replaceChildren();
-    host.hidden = true;
+    for (const node of [host, documentRef.getElementById('theme-detail-native-next')]) if (node) { node.replaceChildren(); node.hidden = true; }
     return;
   }
   const title = documentRef.createElement('div');
@@ -1012,49 +1061,44 @@ function renderThemeDetailSummary({ documentRef, root, store, themeId = null }) 
   header.className = 'thp-summary-header';
   header.append(title, performance);
 
-  const leaders = documentRef.createElement('div');
-  leaders.textContent = `대표 종목: ${(detail.leaderHighlight.length ? detail.leaderHighlight : detail.leaders.slice(0, 4)).join(', ') || '구성 데이터 대기'}`;
-  leaders.className = 'thp-summary-leaders';
-
-  const provenance = documentRef.createElement('div');
-  const membership = detail.membershipPolicy || {};
-  const membershipAsOf = membership.observedAt ? `구성 기준 ${String(membership.observedAt).slice(0, 10)}(분류 검토일, 가격 기준일 아님)` : '구성 기준일 미검증';
+  // v59.51 (content audit): the provenance line (provider and taxonomy text beside the number) and the leaders line (the
+  // member table lists them) left the face; the quote basis is the day move's hover.
   const themeItem = selectThemesItems(store?.getState?.() || {}).find((item) => String(item?.id || '') === String(detail.id));
   const closeOf = usCloseSession(root);
-  const quoteState = detail.source === 'quote-missing' || pct == null
-    ? '시세 근거 미확보'
-    : themeItem?.sourceKind === 'runtime-quote' ? '실시간·지연 시세'
-      : `확정 종가 기준${closeOf ? `(${shortSession(closeOf)})` : ''}`;
-  provenance.textContent = `${quoteState}, AIO 참고 테마 분류, ${membershipAsOf}`;
+  performance.title = detail.source === 'quote-missing' || pct == null ? '시세 근거 미확보'
+    : themeItem?.sourceKind === 'runtime-quote' ? '당일 등락, 실시간·지연 시세' : `당일 등락, ${closeOf ? `${shortSession(closeOf)} ` : ''}확정 종가 기준`;
+
+  const make = (tag, className, id = null) => { const node = documentRef.createElement(tag); if (className) node.className = className; if (id) { node.id = id; node.hidden = true; } return node; };
+  // Face: the reading (renderThemeDetailTeach fills it), the chart and the criteria headline.
+  const reading = make('ul', 'thp-reading', 'theme-detail-reading');
+  const criteriaSlot = make('div', 'theme-detail-native-section thp-criteria', 'theme-detail-native-criteria');
+  // Fold: the analysis behind the reading, for an expert.
+  const expert = make('details', 'thp-expert-fold');
+  expert.id = 'theme-detail-expert';
+  expert.open = !!root._aioThemeExpertOpen;
+  expert.addEventListener('toggle', () => { root._aioThemeExpertOpen = expert.open; });
+  const summary = documentRef.createElement('summary');
+  summary.textContent = '전문가용 분석 — 원인, 세부 테마 흐름, 시나리오, 기준 6개';
+  // P1588: the membership review date stays with the theme; it opens the expert fold rather than sitting on the face.
+  const membership = detail.membershipPolicy || {};
+  const provenance = documentRef.createElement('p');
+  provenance.className = 'theme-strength-basis thp-summary-provenance';
+  provenance.textContent = `AIO 참고 테마 분류, ${membership.observedAt ? `구성 기준 ${String(membership.observedAt).slice(0, 10)}(분류 검토일, 가격 기준일 아님)` : '구성 기준일 미검증'}`;
   provenance.title = `시세 출처: ${detail.source}, 구성 출처: ${membership.source || 'AIO curated taxonomy'}`;
-  provenance.className = 'thp-summary-provenance';
   provenance.setAttribute('data-source-kind', membership.sourceKind || 'REFERENCE');
   provenance.setAttribute('data-operational-use', membership.allowedUse === 'decision' ? 'decision' : 'reference-only');
   if (membership.observedAt) provenance.setAttribute('data-observed-at', membership.observedAt);
-
-  host.replaceChildren(header, leaders, provenance);
-  // v58.75 (persona review, A-3): '이 흐름의 이유' sits right under the title (renderThemeDetailTeach fills it).
-  const whySlot = documentRef.createElement('div');
-  whySlot.id = 'theme-detail-native-why';
-  whySlot.className = 'theme-detail-native-section thp-why';
-  whySlot.hidden = true;
-  host.append(whySlot);
+  expert.append(summary, provenance, make('div', 'theme-detail-native-section thp-why', 'theme-detail-native-why'));
   const relative = relativeStrengthChart(documentRef, root, detail);
-  if (relative) host.append(relative);
-  // P1440: the theme's own flow from the published screener medians — readable even when live quotes
-  // for the constituents have not arrived (the legacy panel below then reads 시세 대기).
-  const rows = store?.getState?.()?.screener?.rows || [];
-  const model = buildGroupStrength({ themes: root?.THEME_MAP || [], rows, sortKey: 'ret3m', benchmark: benchmarkReturns(root?._aioHistory || []) });
-  // P1591 (T03): the ETF's rotation state is read only through the session-checked selector, so a stale
-  // quadrant never sits under a 'waiting' status; the sentence carries its close date.
-  const etfRotation = detail.etf ? selectProducedRotation(root?._serverDataMeta?.rotationHistory, detail.etf, Date.now()) : null;
-  const stageRow = root?.__aioThemePlaybook?.themes?.find((row) => row.market === 'US' && row.id === detail.id && row.state);
-  const themeName = (root?.THEME_MAP || []).find((theme) => theme?.id === detail.id)?.nameKr || detail.label || null;
-  const flow = themeDetailFlow({ themeId: detail.id, themeName, groups: model.groups, etf: detail.etf || null, rotation: etfRotation ? { [detail.etf]: etfRotation } : {},
-    stage: stageRow ? { state: stageRow.state, label: String(stageRow.stateLabel || '').split(' (')[0], window: '6개월' } : null });
+  host.replaceChildren(header, reading, ...(relative ? [relative] : []), criteriaSlot, expert);
+  const { flow, rows, themeName } = themeFlowOf(root, store, detail.id, detail.etf || null, detail.label);
   if (flow.rows.length) {
     const box = documentRef.createElement('div');
     box.className = 'theme-detail-flow';
+    const flowHead = documentRef.createElement('div');
+    flowHead.className = 'thp-detail-heading';
+    flowHead.textContent = '세부 테마 흐름 — 구성 종목 중앙값';
+    box.append(flowHead);
     // P1681 (X03): the same stale admission as the theme table — the read is a dated reference, not today's leaders.
     const basis = basisOf(rows, store?.getState?.()?.screener?.metadata || null, root?._aioHistory || []);
     if (flow.read) { const p = documentRef.createElement('p'); p.className = 'flow-lead'; p.textContent = basis?.stale ? `${basis.label}. ${flow.read}` : flow.read; box.append(p); }
@@ -1078,40 +1122,37 @@ function renderThemeDetailSummary({ documentRef, root, store, themeId = null }) 
       line.append(name, item);
       box.append(line);
     }
-    host.append(box);
+    expert.append(box);
   }
-  // v57.50 (W1 request): the theme detail continues where its reading points — W1's themeDetailFlow().next
-  // (screener items carry ctx.sector, consumed by the screener handoff like I01).
-  // P1743 (audit 18): the theme's 시나리오 read (renderThemeDetailPlaybook fills this) sits before "이어서 볼 곳"; a stale
-  // copy outside the summary (older placement) is dropped so the id stays unique.
+  // P1743 (audit 18): the theme's 시나리오 read (renderThemeDetailPlaybook fills this); a stale copy (older placement) is
+  // dropped so the id stays unique. Then the criteria table with the conditional scenarios (renderThemeDetailTeach).
   documentRef.getElementById('theme-detail-native-playbook')?.remove();
-  const playbookSlot = documentRef.createElement('div');
-  playbookSlot.id = 'theme-detail-native-playbook';
-  playbookSlot.className = 'theme-detail-native-section tp-detail';
-  playbookSlot.hidden = true;
-  // v58.75 (persona review, A-4·6): the six expert criteria and the conditional scenarios, before the theme's stage read.
-  const criteriaSlot = documentRef.createElement('div');
-  criteriaSlot.id = 'theme-detail-native-criteria';
-  criteriaSlot.className = 'theme-detail-native-section thp-criteria';
-  criteriaSlot.hidden = true;
-  host.append(criteriaSlot, playbookSlot);
-  if (Array.isArray(flow.next) && flow.next.length) {
+  expert.append(make('div', 'theme-detail-native-section tp-detail', 'theme-detail-native-playbook'), make('div', 'theme-detail-native-section thp-criteria', 'theme-detail-native-criteria-table'));
+  host.hidden = false;
+  renderThemeDetailNext(documentRef, flow.next, themeName || detail.label);
+}
+
+// v57.50 (W1 request): the theme detail continues where its reading points — themeDetailFlow().next (the screener search
+// and 시장 폭). v59.51 (content audit): with the 'AI에게 묻기' chips (the legacy #page-theme-detail block's three, on the
+// shared _aioAskInPanel handler) they close the panel, after the members, instead of sitting mid-panel.
+function renderThemeDetailNext(documentRef, next, askName) {
+  const host = documentRef?.getElementById('theme-detail-native-next');
+  if (!host) return;
+  host.replaceChildren();
+  if (Array.isArray(next) && next.length) {
     const nav = documentRef.createElement('nav');
     nav.className = 'flow-next';
     nav.id = 'theme-detail-next';
     nav.setAttribute('aria-label', '이어서 볼 곳');
     host.append(nav);
-    renderNextSteps(documentRef, nav, flow.next);
+    renderNextSteps(documentRef, nav, next);
   }
-  // v58.75 (persona review): the three 'AI에게 묻기' chips of the legacy #page-theme-detail block (unreachable since the
-  // router sends theme-detail to themes) live here, on the shared _aioAskInPanel handler, with the theme named.
   const ask = documentRef.createElement('div');
   ask.className = 'aio-ask-row thp-ask-row';
   const askLabel = documentRef.createElement('span');
   askLabel.className = 'sh-muted-text';
   askLabel.textContent = 'AI에게 묻기';
   ask.append(askLabel);
-  const askName = themeName || detail.label;
   for (const [label, question] of [['성장 동력', `${askName} 테마의 성장 동력과 지금 흐름을 설명해줘`], ['경쟁 구도', `${askName} 테마의 경쟁 구도를 정리해줘`], ['위험 요소', `${askName} 테마의 위험 요소와 확인할 지표를 정리해줘`]]) {
     const chip = documentRef.createElement('button');
     chip.type = 'button';
@@ -1179,15 +1220,28 @@ function renderThemeDetailComposition({ documentRef, root, store, themeId = null
   const heading = documentRef.createElement('div');
   heading.textContent = '구성 종목, 기간 수익률과 추세 위치';
   heading.className = 'thp-detail-heading thp-detail-heading--loose';
+  // v59.51 (content audit): the 세부 테마별 당일 등락 fold left the face — its sub-theme day cards are the 당일 상세 fold's
+  // 서브테마 panel (renderThemeDetailSubthemeGap) and its 상승 종목 비율 line repeated the 참여 폭 panel there.
+  const screenerRows = screenerRowMap(store);
+  const seen = new Set();
+  const members = (detail.subThemes || []).flatMap((subTheme) => (subTheme.tickers || []).map((symbol) => ({ sym: String(symbol).toUpperCase(), group: subTheme.name || '' })))
+    .filter((member) => (seen.has(member.sym) ? false : seen.add(member.sym))).map((member) => ({ ...member, label: member.sym, row: screenerRows.get(member.sym) || null }));
+  const rerender = () => { if (String(root?._currentThemeId || '') === String(detail.id)) { renderThemeDetailComposition({ documentRef, root, store }); renderThemeDetailTeach({ documentRef, root, store }); } };
+  const parts = [heading];
+  const teach = themeTeachFor({ root, store, market: 'US', themeId: detail.id });
+  // v58.75 (persona review): a Finviz-style member table (1주·1개월·3개월·6개월, 50일선·52주 고점 거리, 20일 평균 대비
+  // 거래량, sortable) separates leaders from laggards.
+  const table = members.some((member) => member.row) ? memberTable(documentRef, root, members, { onSort: rerender, showGroup: (detail.subThemes || []).length > 1, ariaLabel: `${detail.label} 구성 종목 표`, roles: teach?.roles || null }) : null;
+  const roleFold = table ? memberRoleParts(documentRef, teach, members) : null;
+  if (table) parts.push(table.lead, table.region, table.basis, ...(roleFold ? [roleFold] : []));
+  else parts.push(Object.assign(documentRef.createElement('p'), { className: 'thp-detail-empty', textContent: '구성 종목의 기간 수익률 기록을 아직 받지 못했습니다.' }));
+  const catalysts = themeCatalysts(documentRef, root, members.map((member) => member.sym), rerender);
+  if (catalysts) parts.push(catalysts);
+  host.replaceChildren(...parts);
+  host.hidden = false;
+}
 
-  const breadth = documentRef.createElement('div');
-  const breadthValue = finite(detail.breadth);
-  const closeSession = detail.quoteBasis?.kind === 'completed-close' ? detail.quoteBasis.session : null;
-  breadth.textContent = breadthValue == null
-    ? '상승 종목 비율: 구성 종목 가격을 아직 충분히 받지 못해 계산 전입니다.'
-    : `상승 종목 비율(${closeSession ? `${shortSession(closeSession)} 종가 기준` : '전일 대비'}): ${breadthValue}%, ${detail.leaders.length}종목 기준`;
-  breadth.className = 'thp-breadth-line';
-
+function subthemeDayCards(documentRef, detail) {
   const subThemes = documentRef.createElement('div');
   subThemes.className = 'thp-subtheme-list';
   (detail.subThemes || []).forEach((subTheme) => {
@@ -1240,41 +1294,21 @@ function renderThemeDetailComposition({ documentRef, root, store, themeId = null
     empty.className = 'thp-detail-empty';
     subThemes.appendChild(empty);
   }
-  // v58.75 (persona review): a Finviz-style member table (1주·1개월·3개월·6개월, 50일선·52주 고점 거리, 20일 평균 대비
-  // 거래량, sortable) separates leaders from laggards; the day chips per sub-theme stay folded below it as the day view.
-  const screenerRows = screenerRowMap(store);
-  const seen = new Set();
-  const members = (detail.subThemes || []).flatMap((subTheme) => (subTheme.tickers || []).map((symbol) => ({ sym: String(symbol).toUpperCase(), group: subTheme.name || '' })))
-    .filter((member) => (seen.has(member.sym) ? false : seen.add(member.sym))).map((member) => ({ ...member, label: member.sym, row: screenerRows.get(member.sym) || null }));
-  const rerender = () => { if (String(root?._currentThemeId || '') === String(detail.id)) { renderThemeDetailComposition({ documentRef, root, store }); renderThemeDetailTeach({ documentRef, root, store }); } };
-  const parts = [heading];
-  const teach = themeTeachFor({ root, store, market: 'US', themeId: detail.id });
-  const table = members.some((member) => member.row) ? memberTable(documentRef, root, members, { onSort: rerender, showGroup: (detail.subThemes || []).length > 1, ariaLabel: `${detail.label} 구성 종목 표`, roles: teach?.roles || null }) : null;
-  const roleParts = table ? memberRoleParts(documentRef, teach) : null;
-  if (table) parts.push(...(roleParts ? [roleParts.line] : []), table.lead, table.region, table.basis, ...(roleParts ? [roleParts.fold] : []));
-  const catalysts = themeCatalysts(documentRef, root, members.map((member) => member.sym), rerender);
-  if (catalysts) parts.push(catalysts);
-  const dayFold = documentRef.createElement('details');
-  dayFold.className = 'thp-subtheme-fold';
-  dayFold.open = !table; // without the period table the day view is the only member view
-  const daySummary = documentRef.createElement('summary');
-  daySummary.textContent = '세부 테마별 당일 등락';
-  dayFold.append(daySummary, breadth, subThemes);
-  parts.push(dayFold);
-  host.replaceChildren(...parts);
-  host.hidden = false;
+  return subThemes;
 }
 
-// v58.75 (persona review, A-2·5): the one-line role count above the member table and, folded, how an expert picks inside a
-// theme — each role's definition, its pro and con, the members that fit it now (values), and the liquidity / earnings flags.
-function memberRoleParts(documentRef, teach) {
+// v58.75 (persona review, A-2·5): folded, how an expert picks inside a theme — the role counts against the members' median,
+// each role's definition, its pro and con, the members that fit it now, and the liquidity / earnings flags. v59.51: the
+// role count and the 50-day share left the face (one line over the table) for this fold.
+function memberRoleParts(documentRef, teach, members = []) {
   const roles = teach?.roles;
   if (!roles?.measured) return null;
   const make = (tag, text, className) => { const node = documentRef.createElement(tag); if (text != null) node.textContent = text; if (className) node.className = className; return node; };
   const count = (key) => [...roles.roles.values()].filter((info) => info.role === key).length;
-  const line = make('p', `역할: ${Object.entries(MEMBER_ROLES).map(([key, role]) => `${role.label} ${count(key)}`).join('·')}종목(구성 종목 중앙값 1개월 ${pctText(roles.stats.ret1m)}, 3개월 ${pctText(roles.stats.ret3m)} 기준, 나머지는 중간).`, 'thp-detail-body thp-roles-line');
+  const sma = members.map((member) => readRowNumber(member.row, 'pctSma50', 'display')).filter((value) => value != null);
   const fold = make('details', null, 'thp-roles-fold');
-  fold.append(make('summary', '테마 안에서 종목 고르는 법 — 주도·후발·이탈'));
+  fold.append(make('summary', '테마 안에서 종목 고르는 법 — 주도·후발·이탈'),
+    make('p', `역할 분포: ${Object.entries(MEMBER_ROLES).map(([key, role]) => `${role.label} ${count(key)}`).join('·')}종목, 나머지는 중간(구성 종목 중앙값 1개월 ${pctText(roles.stats.ret1m)}, 3개월 ${pctText(roles.stats.ret3m)} 기준).${sma.length ? ` 50일선 위 ${sma.filter((value) => value > 0).length}/${sma.length}종목.` : ''}`, 'thp-detail-body'));
   for (const [key, role] of Object.entries(MEMBER_ROLES)) {
     const examples = teach.examples?.[key] || [];
     const p = make('p', null, 'thp-detail-body');
@@ -1285,7 +1319,7 @@ function memberRoleParts(documentRef, teach) {
   const thin = infos.filter(([, info]) => info.thin).map(([sym]) => sym);
   const due = infos.filter(([, info]) => info.earnings).map(([sym, info]) => `${sym} ${info.earnings}`);
   fold.append(make('p', `유동성: 30일 평균 거래대금 2,000만 달러 미만 ${thin.length ? `${thin.length}종목(${thin.slice(0, 6).join(', ')}${thin.length > 6 ? ' 외' : ''}) — 사고팔 때 호가 차이로 비용이 커질 수 있습니다` : '종목 없음'}. 실적 일정: ${teach.calendar ? (due.length ? `${due.join(', ')} — 발표 전후 하루 변동이 평소보다 커질 수 있습니다` : '달력 주간에 없음') : teach.row?.market === 'KR' ? '실적 달력은 미국 종목만 있어 미확인' : '달력 미확인'}. 바닥 다지기(베이스) 구조는 종목 차트에서 확인합니다.`, 'thp-detail-body'));
-  return { line, fold };
+  return fold;
 }
 
 const MEMBER_COLUMNS = Object.freeze([['ret5d', '1주'], ['ret1m', '1개월'], ['ret3m', '3개월'], ['ret6m', '6개월'], ['pctSma50', '50일선 대비'], ['pctFrom52wHigh', '52주 고점 대비'], ['rvol20', '거래량 배수']]);
@@ -1362,8 +1396,10 @@ function memberTable(documentRef, root, members, { onSort, showGroup = false, ar
   region.tabIndex = 0;
   region.append(table);
   const name = (member) => member.label;
+  // v59.51 (content audit): one line over the table, names only (the numbers are in the table; the 50-day share is in the
+  // roles fold).
   const lead = make('p', ranked.length >= 4
-    ? `3개월 기준 앞선 종목 ${ranked.slice(0, 3).map((m) => `${name(m)}(${signedText(memberValue(m, 'ret3m'), 1)}%)`).join(', ')}, 뒤처진 종목 ${ranked.slice(-2).reverse().map((m) => `${name(m)}(${signedText(memberValue(m, 'ret3m'), 1)}%)`).join(', ')}. 50일선 위 ${members.filter((m) => memberValue(m, 'pctSma50') > 0).length}/${members.filter((m) => memberValue(m, 'pctSma50') != null).length}종목.`
+    ? `3개월 기준 앞선 종목은 ${ranked.slice(0, 3).map(name).join('·')}, 뒤처진 종목은 ${ranked.slice(-2).reverse().map(name).join('·')}입니다.`
     : '구성 종목의 기간 수익률 기록이 적어 앞선·뒤처진 종목을 나누지 않습니다.', 'thp-detail-body');
   const latestMemberSession = latestSessionRows(members, (member) => stampDay(member.row?.factorSessionDate)).basis;
   // v58.79: the close date stays; how to read the columns is its hover.
@@ -1385,7 +1421,6 @@ function themeCatalysts(documentRef, root, symbols, rerender) {
   if (!root[CONSENSUS_KEY]) requestConsensusEstimates(root, rerender);
   const wanted = new Set(symbols.map((symbol) => String(symbol).toUpperCase()));
   const calendar = root[EARNINGS_CALENDAR.key];
-  const consensus = root[CONSENSUS_KEY];
   const lines = [];
   if (Array.isArray(calendar?.earnings)) {
     const hour = { bmo: '장전', amc: '장후', dmh: '장중' };
@@ -1394,20 +1429,14 @@ function themeCatalysts(documentRef, root, symbols, rerender) {
     const span = calendar.weekStart && calendar.weekEnd ? `${shortSession(calendar.weekStart)}~${shortSession(calendar.weekEnd)}` : '이번 달력 주간';
     lines.push(due.length ? `실적 발표 예정(${span}, 구성 종목): ${due.map((row) => `${row.symbol} ${shortSession(row.date)}${hour[row.hour] ? ` ${hour[row.hour]}` : ''}`).join(', ')}.` : `${span} 실적 발표 예정인 구성 종목은 달력에 없습니다.`);
   }
-  if (consensus?.rows && typeof consensus.rows === 'object') {
-    const rows = [...wanted].map((symbol) => consensus.rows[symbol]?.fwd).filter((fwd) => fwd && finiteOrNull(fwd.up4w) != null && finiteOrNull(fwd.down4w) != null);
-    if (rows.length) {
-      const up = rows.reduce((sum, fwd) => sum + fwd.up4w, 0), down = rows.reduce((sum, fwd) => sum + fwd.down4w, 0);
-      const asOf = [...wanted].map((symbol) => String(consensus.rows[symbol]?.asOf || '').slice(0, 10)).filter(Boolean).sort().at(-1);
-      lines.push(`최근 4주 구성 종목 이익 전망 수정: 상향 ${up}건, 하향 ${down}건(상향이 많은 종목 ${rows.filter((fwd) => fwd.up4w > fwd.down4w).length}, 하향이 많은 종목 ${rows.filter((fwd) => fwd.down4w > fwd.up4w).length}, 컨센서스가 있는 종목 ${rows.length}/${wanted.size}${asOf ? `, ${shortSession(asOf)} 기준` : ''}).`);
-    }
-  }
+  // v59.51 (content audit): the four-week estimate-revision count left this box — the expert fold's '이 흐름의 이유' prints
+  // the same count (theme-criteria.js revisionCounts); the consensus still loads here for that reason and the criteria.
   if (!lines.length) return null;
   const box = documentRef.createElement('div');
   box.className = 'thp-catalysts';
   const head = documentRef.createElement('div');
   head.className = 'thp-detail-heading';
-  head.textContent = '다가오는 일정과 이익 전망';
+  head.textContent = '다가오는 실적 발표';
   box.append(head, ...lines.map((text) => { const p = documentRef.createElement('p'); p.className = 'thp-detail-body'; p.textContent = text; return p; }));
   return box;
 }
@@ -1570,7 +1599,7 @@ function renderThemeDetailSubthemeGap({ documentRef, root, store, themeId = null
     return;
   }
   const heading = documentRef.createElement('div');
-  heading.textContent = '서브테마 간 퍼포먼스 격차';
+  heading.textContent = '세부 테마별 당일 등락';
   heading.className = 'thp-detail-heading';
   const body = documentRef.createElement('div');
   body.className = 'thp-detail-body';
@@ -1588,7 +1617,7 @@ function renderThemeDetailSubthemeGap({ documentRef, root, store, themeId = null
       : '세부 테마 간 당일 반응은 비슷했습니다.';
     body.textContent = `세부 테마 격차 ${spread.toFixed(1)}%p, 최강 ${rows[0].name} ${signedText(rows[0].pct, 2, '%')}, 최약 ${rows[rows.length - 1].name} ${signedText(rows[rows.length - 1].pct, 2, '%')} — ${read}`;
   }
-  host.replaceChildren(heading, body);
+  host.replaceChildren(heading, body, subthemeDayCards(documentRef, detail)); // v59.51: each sub-theme's day move and its members
   host.hidden = false;
 }
 
@@ -1662,7 +1691,7 @@ function syncThemeDetailDayFold(documentRef, store) {
   const shown = DAY_HOSTS.some((id) => documentRef.getElementById(id)?.hidden === false);
   fold.hidden = !shown;
   const summary = fold.querySelector('summary');
-  if (summary) summary.textContent = shown ? `${themeDayLine(selectSelectedThemeDetail(store?.getState?.() || {}))} (당일 상세)` : '당일 상세';
+  if (summary) summary.textContent = shown ? `당일 상세 — ${themeDayLine(selectSelectedThemeDetail(store?.getState?.() || {}))}` : '당일 상세';
 }
 
 function renderThemeDetailInsights({ documentRef, root, store, themeId = null }) {
@@ -1675,9 +1704,13 @@ function renderThemeDetailInsights({ documentRef, root, store, themeId = null })
     host.hidden = true;
     return;
   }
-  const heading = documentRef.createElement('div');
-  heading.textContent = '테마 맞춤 인사이트';
-  heading.className = 'thp-detail-heading';
+  // v59.51 (content audit, two layers): the authored insight is expert reading, so it opens on request.
+  const heading = documentRef.createElement('summary');
+  heading.textContent = '테마 맞춤 인사이트 — 거시 조건, 역설, 연쇄 효과, 깨지는 신호';
+  const fold = documentRef.createElement('details');
+  fold.className = 'thp-expert-fold';
+  fold.open = !!root._aioThemeInsightOpen;
+  fold.addEventListener('toggle', () => { root._aioThemeInsightOpen = fold.open; });
   const body = documentRef.createElement('div');
   body.className = 'thp-detail-body thp-detail-body--grid';
   const insight = detail.insight || {};
@@ -1703,7 +1736,8 @@ function renderThemeDetailInsights({ documentRef, root, store, themeId = null })
       body.appendChild(row);
     });
   }
-  host.replaceChildren(heading, body);
+  fold.append(heading, body);
+  host.replaceChildren(fold);
   host.hidden = false;
 }
 
@@ -1729,18 +1763,13 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         const container = documentRef.getElementById('rrg-quadrant-cards');
         const rrgStatusHost = documentRef.getElementById('rrg-chart-status');
         const rrgCanvasHost = documentRef.getElementById('rrg-canvas');
-        const cyclePillHost = documentRef.getElementById('theme-cycle-pill');
          const performanceBarsHost = documentRef.getElementById('sector-perf-bars');
          const detailPanel = documentRef.getElementById('theme-detail-panel');
-         const detailHost = documentRef.getElementById('theme-detail-native-summary');
-        const compositionHost = documentRef.getElementById('theme-detail-native-composition');
-        const leaderHost = documentRef.getElementById('theme-detail-native-leaders');
-        const temperatureHost = documentRef.getElementById('theme-detail-native-temperature');
-        const spreadHost = documentRef.getElementById('theme-detail-native-spread');
-        const breadthHealthHost = documentRef.getElementById('theme-detail-native-breadth-health');
-        const subthemeGapHost = documentRef.getElementById('theme-detail-native-subtheme-gap');
-        const benchmarkHost = documentRef.getElementById('theme-detail-native-benchmark');
-        const insightsHost = documentRef.getElementById('theme-detail-native-insights');
+        // Every native host in the panel (the summary, composition, the day hosts, insights and the closing links) empties
+        // and hides on close and on unmount.
+        const clearDetailHosts = () => {
+          for (const node of detailPanel?.querySelectorAll?.('[data-aio-theme-detail-surface], #theme-detail-native-next') || []) { node.replaceChildren(); node.hidden = true; }
+        };
          const requestThemeDetail = (themeId) => {
            const id = String(themeId || '').trim();
            if (!id) return;
@@ -1754,7 +1783,6 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         if (container) container.dataset.aioThemesRenderer = 'native';
         if (rrgStatusHost) rrgStatusHost.dataset.aioRrgStatusRenderer = 'native';
         if (rrgCanvasHost) rrgCanvasHost.dataset.aioRrgChartRenderer = 'native';
-        if (cyclePillHost) cyclePillHost.dataset.aioThemeCycleRenderer = 'native';
          if (performanceBarsHost) performanceBarsHost.dataset.aioThemePerformanceBarsRenderer = 'native';
          if (detailPanel) detailPanel.dataset.aioThemeDetailPanelRenderer = 'native';
         // v57.54 (CI flake, 1 in ~12 under 4x CPU): a refresh/store re-render right after the detail panel closes can
@@ -1762,6 +1790,23 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         let restoreDetailFocus = null;
         let stopCloseFollow = null; // one at a time; ends when focus moves on, on reopen, after 60s, or on unmount
         bag.add(() => stopCloseFollow?.());
+        // v59.51 (content audit): an open theme is a view of its own. The page carries data-theme-detail="open" while the
+        // panel shows a theme, and themes-page.css steps the list sections aside (the list stayed rendered around the panel:
+        // ~25,600 px on a phone).
+        const syncStandalone = () => {
+          const open = !!detailPanel && detailPanel.style.display === 'block' && !!detailPanel.dataset.currentTheme;
+          if (open) page.dataset.themeDetail = 'open'; else delete page.dataset.themeDetail;
+        };
+        bag.add(() => { delete page.dataset.themeDetail; });
+        const verdictTabs = documentRef.getElementById('themes-verdict-tabs');
+        const onVerdictTab = (event) => {
+          const view = event.target?.closest?.('button[data-view]')?.dataset.view;
+          if (!view) return;
+          root._aioThemesVerdictView = view;
+          syncVerdictView(documentRef, root);
+        };
+        verdictTabs?.addEventListener('click', onVerdictTab);
+        bag.add(() => verdictTabs?.removeEventListener('click', onVerdictTab));
         // v57.61 (perf): the nine detail renderers only fill hosts inside #theme-detail-panel. While the panel is
         // closed the close handler has emptied them, so they are skipped; opening the panel renders them once.
         const renderDetail = () => {
@@ -1794,16 +1839,18 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
            renderThemes({ documentRef, root, store, route });
           renderRRGStatus({ documentRef, root, store, route });
           renderRRGCanvas({ documentRef, root, store, route });
-          renderThemeCyclePill({ documentRef, root, store, route });
            renderThemePerformanceBars({ documentRef, root, store, route });
            renderKrThemeArtifact({ documentRef, root, store });
           renderDetail();
            renderThemeStrength({ documentRef, root, store }); // P1417
-          // v59.44 (owner 2026-10-30): the AI supply chain by group opens 테마 as it does 오늘 (a lazy chunk).
+          // v59.44 (owner 2026-10-30): the AI supply chain by group (a lazy chunk). v59.51: it paints into its static slot
+          // after #themes-verdict; creating the host here raced aio-core's 2.3 s verdict-after-header reorder.
           if (route === 'themes') import('../components/ai-chain-flow.js').then(({ paintThemesAiChain }) => paintThemesAiChain(documentRef, root)).catch(() => {});
            try { renderThemePlaybook({ documentRef, root, store }); renderThemeDetailPlaybook({ documentRef, root }); if (detailPanel?.style.display === 'block') renderThemeDetailTeach({ documentRef, root, store }); } catch (_) { /* the forward read never takes the themes route down */ } // P1743; v58.75 the teach block reads the playbook just built
-           try { renderSectorMap({ documentRef, root, store }); } catch (_) { /* the map never takes the themes route down */ } // 2026-10-13 S&P 500 map
-           try { renderIndexEarnings({ documentRef, root, store }); } catch (_) { /* the index earnings read never takes the themes route down */ } // 2026-10-19 expertise review
+           try { renderSectorMap({ documentRef, root, store }); renderThemeDaySplits({ documentRef, root, store }); } catch (_) { /* the map never takes the themes route down */ } // 2026-10-13 S&P 500 map; v59.51 day splits
+           // v59.51 (content audit): S&P 500 이익 전망 (index-earnings.js) moved to 거시 — it says nothing about themes.
+           syncVerdictView(documentRef, root);
+           syncStandalone();
            restoreDetailFocus?.();
          };
         const scheduleRender = () => {
@@ -1867,6 +1914,7 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
             detailPanel.style.display = 'block';
             if (event?.detail?.themeId) detailPanel.dataset.currentTheme = String(event.detail.themeId);
           }
+          syncStandalone();
           renderDetail(); // v57.61: detail renderers skip while closed, so the opening render happens here
           try { renderThemeDetailPlaybook({ documentRef, root }); renderThemeDetailTeach({ documentRef, root, store }); } catch (_) {} // P1743: needs the theme id set above
           // The architecture listener synchronously refreshes the store before this
@@ -1877,9 +1925,11 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         // focus opens the fold first, since a node inside a closed <details> cannot take focus.
         const revealTrigger = (node) => { const fold = node?.closest?.('details'); if (fold && !fold.open) fold.open = true; };
         const onThemeDetailClosed = () => {
+          delete page.dataset.themeDetail; // the list comes back first, so the trigger can take focus and be scrolled to
           const trigger = currentDetailTrigger();
           revealTrigger(trigger);
           trigger?.setAttribute?.('aria-expanded', 'false');
+          trigger?.scrollIntoView?.({ block: 'center' });
           trigger?.focus?.({ preventScroll: true });
           const closedAt = Date.now();
           // v57.59: CI still lost focus when the replacing render came from a host outside renderNow (or after 3s under
@@ -1927,40 +1977,12 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
             detailPanel.style.display = 'none';
             delete detailPanel.dataset.currentTheme;
           }
-          if (detailHost) {
-            detailHost.replaceChildren();
-            detailHost.hidden = true;
-          }
-          if (compositionHost) {
-            compositionHost.replaceChildren();
-            compositionHost.hidden = true;
-          }
-          if (leaderHost) {
-            leaderHost.replaceChildren();
-            leaderHost.hidden = true;
-          }
-          if (temperatureHost) {
-            temperatureHost.replaceChildren();
-            temperatureHost.hidden = true;
-          }
-          if (spreadHost) {
-            spreadHost.replaceChildren();
-            spreadHost.hidden = true;
-          }
-          if (breadthHealthHost) {
-            breadthHealthHost.replaceChildren();
-            breadthHealthHost.hidden = true;
-          }
-          subthemeGapHost?.replaceChildren();
-          if (subthemeGapHost) subthemeGapHost.hidden = true;
-          benchmarkHost?.replaceChildren();
-          if (benchmarkHost) benchmarkHost.hidden = true;
-          insightsHost?.replaceChildren();
-          if (insightsHost) insightsHost.hidden = true;
+          clearDetailHosts();
           syncThemeDetailDayFold(documentRef, store);
         };
-        // P1599 (T04): the detail opens right under the section the reader clicked (sector cards, sub-theme
-        // ranking, CAPEX flow) instead of at the page bottom, and offers a way back to that row.
+        // P1599 (T04): the trigger the reader clicked (sector cards, sub-theme ranking, CAPEX flow, stage table) is kept so
+        // closing the detail returns to that row. v59.51: the detail is a view of its own, so the panel no longer moves
+        // under the clicked section.
         let detailTrigger = null;
         let detailTriggerKey = null;
         let detailTriggerId = '';
@@ -1979,10 +2001,6 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           detailTriggerId = trigger.dataset.arg || trigger.dataset.themeId || '';
           trigger.setAttribute('aria-controls', 'theme-detail-panel');
           trigger.setAttribute('aria-expanded', 'true');
-          // Only page-level blocks are anchors: a block inside a re-rendered host would take the panel with it.
-          let anchor = trigger;
-          while (anchor && anchor.parentElement !== page) anchor = anchor.parentElement;
-          if (anchor && detailPanel && anchor !== detailPanel && detailPanel.parentElement === page) anchor.insertAdjacentElement('afterend', detailPanel);
         };
         documentRef?.addEventListener?.('click', onThemeTriggerClick, true);
         bag.add(() => documentRef?.removeEventListener?.('click', onThemeTriggerClick, true));
@@ -1991,14 +2009,11 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           const back = documentRef.createElement('button');
           back.type = 'button';
           back.className = 'flow-next-link theme-detail-return';
-          back.textContent = '← 선택한 목록으로';
+          back.textContent = '← 테마 목록으로';
+          // v59.51: the way back closes the detail; the close handler reopens the trigger's fold, scrolls to it and focuses it.
           back.addEventListener('click', () => {
-            const target = currentDetailTrigger() || page;
-            // v57.76: a quadrant chip sits in the 사분면별 섹터 fold; the way back reopens it so the row is visible.
-            const fold = target?.closest?.('details');
-            if (fold && !fold.open) fold.open = true;
-            target?.scrollIntoView?.({ block: 'center' });
-            target?.focus?.({ preventScroll: true });
+            if (typeof root.closeThemeDetail === 'function') root.closeThemeDetail();
+            else eventTarget?.dispatchEvent?.(new CustomEvent('aio:themeDetailClosed'));
           });
           detailPanel.prepend(back);
         };
@@ -2066,37 +2081,13 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           if (container?.dataset.aioThemesRenderer === 'native') delete container.dataset.aioThemesRenderer;
           if (rrgStatusHost?.dataset.aioRrgStatusRenderer === 'native') delete rrgStatusHost.dataset.aioRrgStatusRenderer;
           if (rrgCanvasHost?.dataset.aioRrgChartRenderer === 'native') delete rrgCanvasHost.dataset.aioRrgChartRenderer;
-          if (cyclePillHost?.dataset.aioThemeCycleRenderer === 'native') delete cyclePillHost.dataset.aioThemeCycleRenderer;
             if (performanceBarsHost?.dataset.aioThemePerformanceBarsRenderer === 'native') delete performanceBarsHost.dataset.aioThemePerformanceBarsRenderer;
            if (detailPanel?.dataset.aioThemeDetailPanelRenderer === 'native') {
              detailPanel.style.display = 'none';
              delete detailPanel.dataset.aioThemeDetailPanelRenderer;
              delete detailPanel.dataset.currentTheme;
            }
-          if (detailHost) {
-            detailHost.replaceChildren();
-            detailHost.hidden = true;
-          }
-          if (compositionHost) {
-            compositionHost.replaceChildren();
-            compositionHost.hidden = true;
-          }
-          if (leaderHost) {
-            leaderHost.replaceChildren();
-            leaderHost.hidden = true;
-          }
-          if (temperatureHost) {
-            temperatureHost.replaceChildren();
-            temperatureHost.hidden = true;
-          }
-          if (spreadHost) {
-            spreadHost.replaceChildren();
-            spreadHost.hidden = true;
-          }
-          if (breadthHealthHost) {
-            breadthHealthHost.replaceChildren();
-            breadthHealthHost.hidden = true;
-          }
+          clearDetailHosts();
         });
       }
       bag.add(() => {

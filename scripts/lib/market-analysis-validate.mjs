@@ -8,6 +8,7 @@ import { sessionDateInMarket } from '../../src/domain/market/session-time.js';
 import { buildCloseSeries } from '../../src/domain/briefing/market-read.js';
 import { isConditionalNumericSentence } from '../../src/ai/response/publication.js';
 import { RULES } from '../../src/domain/rules/thresholds.js';
+import { readNumber } from '../../src/domain/shared/number.js';
 
 const MARKET_ANALYSIS_QUOTE_DEFS = [
   { symbol: '^GSPC', metricId: 'market.spx', label: 'SPX', unit: 'index', aliases: ['S&P 500'] },
@@ -99,7 +100,7 @@ export function buildMarketAnalysisEvidence(data, options = {}) {
     // a legacy SA CUSR payload from masquerading as the NSA release headline.
     const expectedAdjustment = def.key === 'cpi' || def.key === 'coreCpi' ? 'NSA' : null;
     const blsDefinitionMatches = !expectedAdjustment || String(bls?.seasonalAdjustment || '').toUpperCase() === expectedAdjustment;
-    const blsMatchesValue = bls?.status === 'ok' && blsDefinitionMatches && Number.isFinite(Number(bls.value)) && Number(bls.value) === value;
+    const blsMatchesValue = bls?.status === 'ok' && blsDefinitionMatches && readNumber(bls.value) === value;
     const asOf = _validIsoDate(blsMatchesValue ? bls.observedAt : macro[`_asOf_${def.key}`]);
     // v58.71 (pipeline audit): the label follows the field's own source. Every non-BLS value was called 'FRED' (a Treasury,
     // BEA or carried value included), and when the FRED plane itself failed the FedRate/FedTarget rows vanished.
@@ -575,7 +576,7 @@ export function validateMarketAnalysisText(text, data, snapshot = null, { contex
   if (!body) issues.push('empty');
   if (PROMPT_SECTION_LABEL.test(body)) issues.push('prompt-label-leak');
   if (metricEvidence.length < 2) issues.push('metric-evidence-insufficient');
-  const changes = new Map(snapshotEvidenceRows(snapshot).filter(row => row?.evidenceId && row.changePct != null && row.changePct !== '' && Number.isFinite(Number(row.changePct))) /* v59.49: null is missing, not 0 */.map(row => [row.evidenceId, Number(row.changePct)]));
+  const changes = new Map(snapshotEvidenceRows(snapshot).filter(row => row?.evidenceId && readNumber(row.changePct) != null) /* v59.49: null is missing, not 0 */.map(row => [row.evidenceId, Number(row.changePct)]));
   const closedBasis = buildCompletedCloseBasis(metricEvidence, history);
   const levelTolerance = (unit, value) => Math.max(unit === 'percent' ? 0.15 : 0.5, Math.abs(Number(value)) * 0.02);
   issues.push(...validateAnalysisAdmission(body, { changes, context }));
@@ -680,7 +681,7 @@ export function validateMarketAnalysisText(text, data, snapshot = null, { contex
     issues.push('inflation-direction-contradicts-evidence');
   }
   // Live 2026-10-21: core CPI is no longer read as headline CPI (analysisLevelsAfterLabels); it is checked against its own value.
-  if (Number.isFinite(Number(macroNow.coreCpi))) {
+  if (readNumber(macroNow.coreCpi) != null) {
     // v58.71 (pipeline audit; live 10/23 block): REGIME_CONTEXT also carries the 3-month annualised pace ("근원 CPI 3개월
     // 속도 3.4%"), so a level written with that pace label beside it is not the year-over-year value.
     const prose = body.replace(/\[[^\]]*\]/g, ' ');
@@ -1051,7 +1052,7 @@ const _partsIn = (iso, zone) => {
 export function plainMarketObservation(row) {
   const name = MARKET_ANALYSIS_PLAIN_NAMES[row?.metricId] || null;
   const ms = Date.parse(row?.observedAt || '');
-  if (!name || !Number.isFinite(Number(row?.value)) || !Number.isFinite(ms)) return null;
+  if (!name || readNumber(row?.value) == null || !Number.isFinite(ms)) return null;
   const value = _plainNumber(row.value, row.unit);
   if (/^macro\./.test(row.metricId)) {
     const month = new Date(ms).getUTCMonth() + 1;

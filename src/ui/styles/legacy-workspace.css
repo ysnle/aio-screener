@@ -32,23 +32,6 @@
 #page-portfolio .wsl-msg.is-warn, #page-portfolio .wsl-aside.is-warn { color: var(--data-amber); }
 #page-portfolio .wsl-pf-privacy { font-size: var(--fs-sm); color: var(--text-muted); margin-top: 6px; }
 
-/* Holdings chart cards (#pf-holdings-charts). `.aio-widget` keeps its !important padding. */
-#page-portfolio .wsl-hc-empty { font-size: var(--fs-base); color: var(--text-muted); padding: 12px; }
-#page-portfolio .wsl-hc { padding: 16px 18px; cursor: pointer; display: flex; flex-direction: column; }
-#page-portfolio .wsl-hc-wait { font-size: var(--fs-base); color: var(--text-muted); }
-#page-portfolio .wsl-hc-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
-#page-portfolio .wsl-hc-ticker { font-size: 14px; font-weight: 700; color: var(--text-primary); }
-#page-portfolio .wsl-hc-verdict { font-size: var(--fs-sm); font-weight: 600; border: 0.5px solid var(--border); border-radius: 999px; padding: 2px 9px; }
-#page-portfolio .wsl-hc-quote { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; }
-#page-portfolio .wsl-hc-last { font-family: var(--font-display); font-size: 18px; font-weight: 600; color: var(--text-primary); font-variant-numeric: tabular-nums; }
-#page-portfolio .wsl-hc-move { font-size: var(--fs-base); font-weight: 600; font-variant-numeric: tabular-nums; }
-#page-portfolio .wsl-hc-spark { display: block; overflow: visible; }
-#page-portfolio .wsl-hc-line { stroke: var(--text-primary); }
-#page-portfolio .wsl-hc-levels { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; border-top: 0.5px solid var(--border-subtle); padding-top: 8px; }
-#page-portfolio .wsl-hc-level { display: flex; justify-content: space-between; }
-#page-portfolio .wsl-hc-level-v { font-size: var(--fs-sm); font-weight: 600; color: var(--text-primary); font-variant-numeric: tabular-nums; }
-#page-portfolio .wsl-hc-more { font-size: var(--fs-sm); font-weight: 600; color: var(--text-primary); margin-top: 10px; }
-
 /* Exposure / concentration (#pf-exposure-panel) */
 #page-portfolio .wsl-xp-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 16px; }
 #page-portfolio .wsl-xp-kv { display: flex; justify-content: space-between; padding: 1px 0; }

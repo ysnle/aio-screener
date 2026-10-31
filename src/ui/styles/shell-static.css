@@ -151,24 +151,6 @@
 .sh-home-score-hero-grow { flex: 1; min-width: 240px; max-width: 760px; }
 .sh-home-hero-headline-body { font-size: 12px; color: var(--text-muted); margin-bottom: 7px; }
 .sh-home-hero-desc-lead { font-size: 14px; color: var(--text-secondary); line-height: 1.75; }
-.sh-home-daily-changes-box { margin: 18px 0 22px; }
-.sh-home-kpi-strip-box { padding: 18px 20px 18px 0; border-right: 0.5px solid var(--border-subtle); cursor: pointer; }
-.sh-home-kpi-strip-box-clickable { padding: 18px 20px; border-right: 0.5px solid var(--border-subtle); cursor: pointer; }
-.sh-home-kpi-strip-box-pad18 { padding: 18px 0 18px 20px; cursor: pointer; }
-/* Screen audit 2026-10-20: stacked on a phone, the second card kept its 20px left padding and sat 20px right of the first. */
-@media (max-width: 600px) { .sh-home-kpi-strip-box, .sh-home-kpi-strip-box-clickable, .sh-home-kpi-strip-box-pad18 { padding-left: 0; padding-right: 0; border-right: 0; } }
-.sh-home-cross-assets-row { display: flex; align-items: baseline; gap: 7px; }
-.sh-home-action-item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-.sh-home-action-item-text { font-size: 12px; font-weight: 800; color: var(--accent); }
-.page .sh-home-action-item-text { font-size: var(--fs-base) !important; }
-.sh-home-action-item-btn { padding: 3px 8px; background: var(--surface-3); border: 0.5px solid var(--border); border-radius: 4px; color: var(--text-secondary); cursor: pointer; }
-.page .sh-home-action-item-btn { font-size: var(--fs-xs) !important; }
-.sh-home-action-position-text { font-size: 12px; color: var(--text-primary); margin-bottom: 6px; font-weight: 600; }
-.page .sh-home-action-position-text { font-size: var(--fs-base) !important; }
-.sh-home-action-sentiment-note { color: var(--text-secondary); margin-bottom: 6px; line-height: 1.5; }
-.page .sh-home-action-sentiment-note { font-size: var(--fs-sm) !important; }
-.sh-home-action-item-fine { color: var(--text-muted); margin-top: 8px; padding-top: 6px; border-top: 0.5px solid var(--border); }
-.page .sh-home-action-item-fine { font-size: var(--fs-xs) !important; }
 
 /* #page-briefing */
 .sh-briefing-row { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; }
@@ -247,10 +229,6 @@
 .sh-macro-integrated-cols-one { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 12px; }
 
 /* #page-fundamental */
-.sh-fund-row { flex: 1; display: flex; align-items: center; gap: 10px; background: var(--bg-elevated); border: 0.5px solid var(--border); border-radius: 8px; padding: 7px 14px; }
-.sh-fund-search-input-field { flex: 1; background: transparent; border: none; color: var(--text-primary); font-size: 14px; font-weight: 600; }
-.sh-fund-btn { font-size: 12px; font-weight: 600; color: var(--bg-base); background: var(--text-primary); border: none; border-radius: 8px; padding: 9px 18px; cursor: pointer; flex-shrink: 0; }
-.sh-fund-recent-searches-row { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
 .sh-fund-arrival-question-text { font-size: 12px; color: var(--accent); line-height: 1.6; margin-bottom: 8px; }
 .page .sh-fund-arrival-question-text { font-size: var(--fs-base) !important; }
 .sh-fund-native-sec-fold { background: var(--surface-1); border: 0.5px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-bottom: 14px; }
@@ -260,52 +238,6 @@
 .sh-fund-native-sec-text-soft { font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; }
 .page .sh-fund-native-sec-text-soft { font-size: var(--fs-base) !important; }
 .sh-fund-native-sec-cols { display: grid; grid-template-columns: repeat(auto-fit,minmax(145px,1fr)); gap: 7px; }
-.sh-fund-header-panel { background: var(--surface-1); border: 0.5px solid var(--border); border-radius: 4px; padding: 16px; margin-bottom: 12px; }
-.sh-fund-loading-panel { background: var(--surface-1); border: 0.5px solid rgba(var(--ink-rgb),0.3); border-radius: 4px; padding: 14px 16px; margin-bottom: 12px; }
-.sh-fund-loading-label { font-weight: 700; color: var(--accent); margin-bottom: 8px; }
-.page .sh-fund-loading-label { font-size: var(--fs-sm) !important; }
-.sh-fund-progress-fine { color: var(--text-secondary); line-height: 1.8; }
-.page .sh-fund-progress-fine { font-size: var(--fs-xs) !important; }
-.sh-fund-qual-matrix-cols { display: grid; grid-template-columns: 1.3fr 1fr; gap: 28px; margin-bottom: 24px; }
-.sh-fund-qual-matrix-figure { font-family: var(--font-display); font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 10px; }
-.page .sh-fund-qual-matrix-figure { font-size: 18px !important; }
-.sh-fund-qual-desc-body { font-size: 12px; color: var(--text-secondary); line-height: 1.85; }
-.sh-fund-qual-rows-stack { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; border-top: 0.5px solid var(--border); padding-top: 14px; }
-.sh-fund-qual-matrix-body { font-size: 12px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px; }
-.sh-fund-qual-bars-stack { display: flex; flex-direction: column; gap: 14px; }
-.sh-fund-qual-plots-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.sh-fund-qual-plots-panel { background: var(--surface-1); border: 0.5px solid var(--border); border-radius: 4px; padding: 10px; }
-.sh-fund-qual-plots-label { font-weight: 700; color: var(--data-cyan); margin-bottom: 2px; }
-.page .sh-fund-qual-plots-label { font-size: var(--fs-sm) !important; }
-.sh-fund-qual-plots-label-green { font-weight: 700; color: var(--data-green); margin-bottom: 2px; }
-.page .sh-fund-qual-plots-label-green { font-size: var(--fs-sm) !important; }
-.sh-fund-fin-matrix-cols { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
-.sh-fund-finxs-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 6px; }
-.sh-fund-financials-matrix-cols { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 14px; }
-.sh-fund-financials-matrix-panel { background: rgba(var(--ink-rgb),0.04); border: 0.5px solid var(--border); border-radius: 4px; padding: 10px; }
-.sh-fund-financials-matrix-label { font-weight: 700; color: var(--data-amber); margin-bottom: 2px; }
-.page .sh-fund-financials-matrix-label { font-size: var(--fs-sm) !important; }
-.sh-fund-financials-matrix-label-purple { font-weight: 700; color: var(--data-purple); margin-bottom: 2px; }
-.page .sh-fund-financials-matrix-label-purple { font-size: var(--fs-sm) !important; }
-.sh-fund-financials-matrix-panel-red { background: var(--gold-3); border: 0.5px solid var(--border); border-radius: 4px; padding: 10px; grid-column: span 2; }
-.sh-fund-financials-matrix-label-red { font-weight: 700; color: var(--data-red); margin-bottom: 2px; }
-.page .sh-fund-financials-matrix-label-red { font-size: var(--fs-sm) !important; }
-.sh-fund-financials-matrix-cols-two { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; align-items: start; }
-.sh-fund-financials-matrix-panel-pad10 { background: var(--gold-2); border: 0.5px solid var(--border); border-radius: 4px; padding: 10px; }
-.sh-fund-financials-matrix-label-ink { font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
-.page .sh-fund-financials-matrix-label-ink { font-size: var(--fs-sm) !important; }
-.sh-fund-financials-matrix-panel-ink03 { background: rgba(var(--ink-rgb),0.03); border: 0.5px solid var(--border); border-radius: 4px; padding: 10px; }
-.sh-fund-valuation-tiles-cols { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; margin-bottom: 6px; }
-.sh-fund-calc-basis-note { color: var(--text-muted); line-height: 1.4; }
-.page .sh-fund-calc-basis-note { font-size: var(--fs-sm) !important; }
-.sh-fund-sources-label { font-weight: 700; color: var(--text-muted); margin-bottom: 4px; }
-.page .sh-fund-sources-label { font-size: var(--fs-xs) !important; }
-.sh-fund-sources-body-fine { color: var(--text-secondary); line-height: 1.6; }
-.page .sh-fund-sources-body-fine { font-size: var(--fs-xs) !important; }
-.sh-fund-tiles-matrix-cols { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 14px; }
-.sh-fund-tiles-matrix-span-all { grid-column: 1/-1; text-align: center; padding: 30px; color: var(--text-muted); }
-.page .sh-fund-tiles-matrix-span-all { font-size: var(--fs-xs) !important; }
-.sh-fund-tiles-matrix-big { font-size: 28px; margin-bottom: 8px; }
 .sh-fund-earnings-calendar-panel { background: var(--surface-1); border: 0.5px solid var(--border); border-radius: 4px; padding: 14px 16px; margin-bottom: 14px; }
 .sh-fund-earnings-calendar-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 6px; }
 .sh-fund-earnings-calendar-note { color: var(--text-muted); margin-left: 6px; }
@@ -328,7 +260,6 @@
 .sh-themes-rrg-quadrant-toggle { cursor: pointer; font-size: 12px; font-weight: 600; color: var(--text-secondary); }
 .sh-themes-rrg-method-box { margin: 8px 0 10px; }
 .sh-themes-rrg-quadrant-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.sh-themes-panel { background: var(--surface-1); border: 0.5px solid var(--border); border-radius: 4px; padding: 16px 18px; margin-bottom: 14px; }
 .sh-themes-row-between { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 6px; }
 .sh-themes-lead { font-size: 14px; font-weight: 700; color: var(--text-secondary); }
 .sh-themes-row-wrap { display: flex; gap: 12px; flex-wrap: wrap; }
@@ -577,12 +508,6 @@
 .sh-ticker-plot-loading-row { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 12px; }
 .page .sh-ticker-plot-loading-row { font-size: var(--fs-base) !important; }
 .sh-ticker-plot-loading-box { margin-right: 8px; }
-.sh-ticker-ov-factor-box { padding: 12px 14px; max-width: 440px; }
-.sh-ticker-ov-factor-mb6 { margin-bottom: 6px; }
-.sh-ticker-ov-factor-box-h180 { position: relative; height: 180px; }
-.sh-ticker-ov-factor-mt6 { margin-top: 6px; }
-.sh-ticker-ov-factor-note { color: var(--text-muted); line-height: 1.5; margin-top: 6px; }
-.page .sh-ticker-ov-factor-note { font-size: var(--fs-sm) !important; }
 
 /* #page-market-news */
 .sh-news-refresh-btn { font-size: 12px; font-weight: 600; color: var(--bg-base); background: var(--text-primary); border: none; border-radius: 8px; padding: 9px 20px; cursor: pointer; }
@@ -667,23 +592,6 @@
 .sh-guide-label-purple { font-weight: 800; color: var(--data-purple); margin-bottom: 6px; }
 .page .sh-guide-label-purple { font-size: var(--fs-sm) !important; }
 .sh-guide-panel-ink05 { background: rgba(var(--ink-rgb),0.05); border: 0.5px solid rgba(var(--ink-rgb),0.15); border-radius: 4px; padding: 12px; }
-.page .sh-guide-strategies-box {  }
-.sh-guide-strategies-fine { color: var(--text-muted); margin-bottom: 10px; line-height: 1.6; }
-.page .sh-guide-strategies-fine { font-size: var(--fs-xs) !important; }
-.sh-guide-strategies-cols { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,280px),1fr)); gap: 8px; margin-bottom: 14px; }
-.sh-guide-strategies-panel { background: var(--surface-2); border: 0.5px solid var(--gold-6); border-radius: 4px; padding: 10px; }
-.sh-guide-strategies-label { font-weight: 800; color: var(--data-green); margin-bottom: 5px; }
-.page .sh-guide-strategies-label { font-size: var(--fs-sm) !important; }
-.sh-guide-strategies-panel-raised { background: var(--surface-2); border: 0.5px solid rgba(var(--ink-rgb),0.25); border-radius: 4px; padding: 10px; }
-.sh-guide-strategies-label-amber { font-weight: 800; color: var(--data-amber); margin-bottom: 5px; }
-.page .sh-guide-strategies-label-amber { font-size: var(--fs-sm) !important; }
-.sh-guide-strategies-panel-s2 { background: var(--surface-2); border: 0.5px solid var(--gold-6); border-radius: 4px; padding: 10px; }
-.sh-guide-strategies-label-red { font-weight: 800; color: var(--data-red); margin-bottom: 5px; }
-.page .sh-guide-strategies-label-red { font-size: var(--fs-sm) !important; }
-.sh-guide-strategies-tone { color: var(--data-red); font-weight: 700; }
-.sh-guide-strategies-cols-fluid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,260px),1fr)); gap: 8px; margin-bottom: 14px; }
-.sh-guide-strategies-cols-min220 { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,220px),1fr)); gap: 6px; }
-
 /* #page-screener */
 .sh-screener-stack { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
 .sh-screener-workbench-panel { background: var(--surface-1); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 12px; margin-bottom: 18px; }

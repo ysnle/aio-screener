@@ -116,7 +116,7 @@ assert.ok(blockedLineage.reasons.includes('missing_rights_id'));
 assert.ok(CONDITIONAL_EVIDENCE_REGISTRY.gapFill.requiredInputs.includes('exchange-calendar'));
 assert.match(screenerUi, /renderConditionalEvidence\(documentRef, state\?\.metadata\)/);
 assert.match(screenerUi, /\['ranking', 'factors', 'backtest', 'evidence'\]/);
-assert.match(screenerShell, /id="scr-tab-button-evidence"/);
+assert.match(screenerShell, /id="scr-tab-button-backtest"/); // v59.51: the 사후 검증 view shows the conditional-evidence panel; its own row button left
 assert.match(screenerShell, /id="screener-conditional-evidence-panel"/);
 assert.ok(!screenerUi.includes('innerHTML'));
 

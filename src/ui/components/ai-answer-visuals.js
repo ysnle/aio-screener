@@ -9,6 +9,7 @@ import { crossroadsForRoot } from './macro-crossroads.js';
 import { themePlaybookForRoot } from './theme-playbook.js';
 import { readMarketRegime } from './market-regime.js';
 import { CHOICES } from '../../domain/market/macro-crossroads.js';
+import { scenarioLead } from '../../domain/market/scenario-lead.js';
 import { CHOICE_WORDS } from '../../domain/content/choice-words.js';
 import { THEME_STATES } from '../../domain/scenarios/analogs.js';
 import { WIND_LABELS } from '../../domain/scenarios/exposures.js';
@@ -179,11 +180,17 @@ async function buildCrossroadsVisual({ documentRef: doc, root }) {
   const model = crossroadsForRoot(root, { regime: readMarketRegime(root) });
   if (!model?.available || model.held) return null;
   const tone = { same: '이 시나리오 쪽', against: '반대쪽', neutral: '중립', unknown: '보류' };
-  const rows = [...model.items].sort((a, b) => (b.id === model.leadId) - (a.id === model.leadId) || (b.id === model.altId) - (a.id === model.altId) || b.met / b.total - a.met / a.total).slice(0, 6);
+  // First-users run-6 (MERGED #2): a tie is every tied branch, labelled (동률), never one of them as (중심) — the one
+  // reading of "which branch leads" is scenarioLead (domain/market/scenario-lead.js).
+  const lead = scenarioLead(model);
+  const top = new Set(lead.ids || []);
+  const tie = lead.state === 'tie';
+  const label = (item) => (top.has(item.id) ? (tie ? ' (동률)' : ' (중심)') : !tie && item.id === model.altId ? ' (대안)' : '');
+  const rows = [...model.items].sort((a, b) => top.has(b.id) - top.has(a.id) || (!tie && (b.id === model.altId) - (a.id === model.altId)) || b.met / b.total - a.met / a.total).slice(0, 6);
   const dots = (item) => Array.from({ length: item.total }, (_, i) => `<span class="aav-dot${i < item.met ? ' is-met' : ''}"></span>`).join('');
   const { figure, body } = frame(doc, `향후 시나리오 — 조건 충족, 시장 가격, 그 시나리오에서 ${CHOICE_WORDS.favored}`,
     `${model.asOf || ''} 관측 기준, 확률이 아니라 맞는 조건 수와 시장 가격 방향입니다.${model.nextEvent ? ` 다음 발표 ${esc(model.nextEvent.when || model.nextEvent.date)} ${esc(model.nextEvent.name)}.` : ''}`);
-  body.innerHTML = `<table class="aav-table">${rows.map((item) => `<tr${item.id === model.leadId ? ' class="aav-lead"' : ''}><td class="aav-title">${esc(item.title.split(' — ')[0])}${item.id === model.leadId ? ' (중심)' : item.id === model.altId ? ' (대안)' : ''}</td><td class="aav-dots" aria-label="조건 ${item.met}/${item.total}">${dots(item)}<span class="aav-count">${item.met}/${item.total}</span></td><td class="aav-tone">${esc(tone[item.pricing.tone] || '보류')}</td><td class="aav-favored">${esc(item.favored.map((key) => CHOICES[key].split(' (')[0]).join(', '))}</td></tr>`).join('')}</table>`;
+  body.innerHTML = `<table class="aav-table">${rows.map((item) => `<tr${top.has(item.id) ? ' class="aav-lead"' : ''}><td class="aav-title">${esc(item.title.split(' — ')[0])}${label(item)}</td><td class="aav-dots" aria-label="조건 ${item.met}/${item.total}">${dots(item)}<span class="aav-count">${item.met}/${item.total}</span></td><td class="aav-tone">${esc(tone[item.pricing.tone] || '보류')}</td><td class="aav-favored">${esc(item.favored.map((key) => CHOICES[key].split(' (')[0]).join(', '))}</td></tr>`).join('')}</table>`;
   return figure;
 }
 

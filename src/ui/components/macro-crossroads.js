@@ -5,7 +5,8 @@
 // row (one list, not the map plus a second accordion of the same branches): the
 // cause→effect chain, the dated triggers, the three likelihood lines and the reader's choices with their
 // opportunity cost. Reads only published artifacts already loaded for the 거시 and 시장 상태 screens.
-import { CHOICES, SHAPES, COUNT_WORDS, EVENT_NAMES, fomcDecisionDate } from '../../domain/market/macro-crossroads.js';
+import { CHOICES, SHAPES, COUNT_WORDS, EVENT_NAMES, fomcDecisionDate, macroTransitions } from '../../domain/market/macro-crossroads.js';
+import { scenarioLead } from '../../domain/market/scenario-lead.js';
 import { CHOICE_WORDS } from '../../domain/content/choice-words.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { frameHead, markFrame, noteFold, setAsOf } from './section-frame.js';
@@ -112,7 +113,7 @@ function timeline(doc, model) {
   for (const event of model.events.slice(0, 6)) {
     const item = el(doc, 'li', null, 'xr-event');
     if (model.nextEvent && event.id === model.nextEvent.id) item.dataset.next = 'true';
-    item.append(el(doc, 'span', (event.when || md(event.date)).replace(/ \d{2}:\d{2} KST$/, ''), 'xr-event-date'), el(doc, 'span', event.name, 'xr-event-name'));
+    item.append(el(doc, 'span', (event.when || md(event.date)).replace(/ \d{2}:\d{2} KST$/, ' KST'), 'xr-event-date'), el(doc, 'span', event.name, 'xr-event-name'));
     strip.append(item);
   }
   return strip;
@@ -120,19 +121,25 @@ function timeline(doc, model) {
 
 // The map is the only list of branches: each row is a <details class="xr-branch"> whose summary is the map row (keyboard
 // operable, expanded state announced) and whose body is that branch's detail, opened in place.
-// Expert review 2026-10-14: the branches the current state points to (lead, tied, alternative) come first and the lead
-// opens on first paint; the rest sit in one fold so the page reads the current branch before the others.
-function branchMap(doc, root, model, openIds, { firstPaint = false, restOpen = false } = {}) {
+// Expert review 2026-10-14: the branches the current state points to (lead, tied, alternative) come first; the rest sit
+// in one fold so the page reads the current branch before the others. v59.51 (content audit): every branch row starts
+// closed — the row itself (name, met-condition dots, price direction, smaller cost) is the face; only a row the reader
+// opened stays open across repaints.
+function branchMap(doc, root, model, openIds, { restOpen = false } = {}) {
   const map = el(doc, 'div', null, 'xr-map');
   map.append(el(doc, 'div', '지금', 'xr-map-now'));
   const list = el(doc, 'ul', null, 'xr-map-branches');
-  const current = new Set([model.leadId, model.altId, ...(model.tiedIds || [])].filter(Boolean));
-  const rank = (item) => (item.id === model.leadId ? 0 : (model.tiedIds || []).includes(item.id) ? 1 : item.id === model.altId ? 2 : 3);
+  // v59.51 (area H): the marked rows are scenarioLead's ids — one lead, or every tied branch (each marked, none 중심).
+  const lead = scenarioLead(model);
+  const leadIds = new Set(lead.ids);
+  const current = new Set([...lead.ids, model.altId].filter(Boolean));
+  const rank = (item) => (leadIds.has(item.id) ? 0 : item.id === model.altId ? 2 : 3);
   const row = (item) => {
     const li = el(doc, 'li', null, 'xr-map-branch');
     li.dataset.branch = item.id;
-    if (item.id === model.leadId) li.dataset.lead = 'true';
-    li.append(branchCard(doc, root, item, item.id === model.leadId, openIds.has(item.id) || (firstPaint && item.id === model.leadId)));
+    // Every marked row carries the same mark; a tie also says so (data-tied), so no single row reads as the one 중심.
+    if (leadIds.has(item.id)) { li.dataset.lead = 'true'; if (lead.state === 'tie') li.dataset.tied = 'true'; }
+    li.append(branchCard(doc, root, item, leadIds.has(item.id), openIds.has(item.id)));
     return li;
   };
   // v57.79: within the same rank the branches run by share of conditions met, so the heading's "조건 충족 순" holds.
@@ -182,15 +189,22 @@ export function openCrossroadsBranch(doc, root, branchId) {
   retry([80, 300, 900]);
 }
 
-function rateHub(doc, model) {
+function rateHub(doc, model, pathsOpen = false) {
   const hub = el(doc, 'div', null, 'xr-hub');
   hub.append(el(doc, 'h3', '왜 금리가 중심인가', 'xr-h3'));
   if (model.rateHub.policy) hub.append(el(doc, 'p', model.rateHub.policy, 'xr-hub-now')); // v57.55 review (E2-03): policy path first
   if (model.rateHub.now) hub.append(el(doc, 'p', model.rateHub.now, 'xr-hub-now'));
-  if (model.rateHub.pricingNote) hub.append(noteFold(doc, model.rateHub.pricingNote)); // v58.79: the proxy caveat one fold down
-  hub.append(el(doc, 'p', model.rateHub.whyHigherHurts, 'xr-reading'));
+  // v59.51 (two layers): the face keeps today's numbers and the tension line; how higher rates reach stocks (the textbook
+  // channels) and the proxy caveat are the expert layer, one fold down.
+  const why = [model.rateHub.whyHigherHurts, model.rateHub.pricingNote].filter(Boolean).join(' ');
+  if (why) hub.append(noteFold(doc, why, '금리가 주가에 닿는 경로와 이 수치의 한계'));
   if (model.rateHub.tension) hub.append(el(doc, 'p', model.rateHub.tension, 'xr-tension'));
-  hub.append(el(doc, 'h4', '금리가 내려가려면 — 무엇이 필요하고 어디서 확인하나', 'xr-h4'));
+  // v59.51 (content audit): the three conditions for lower rates are the expert layer — one closed line on the face, the
+  // state, evidence and next release of each inside.
+  const paths = el(doc, 'details', null, 'xr-paths-fold sx-disclosure');
+  paths.open = pathsOpen;
+  const moving = model.rateHub.pathsDown.filter((path) => path.ok === true).length;
+  paths.append(el(doc, 'summary', `금리가 내려가려면 — 조건 ${model.rateHub.pathsDown.length}가지 중 ${moving}가지 진행 중`, 'xr-h4'));
   const grid = el(doc, 'div', null, 'xr-paths');
   for (const path of model.rateHub.pathsDown) {
     const card = el(doc, 'div', null, `xr-path is-${path.stateText ? 'mixed' : path.ok == null ? 'unknown' : path.ok ? 'met' : 'unmet'}`);
@@ -198,7 +212,8 @@ function rateHub(doc, model) {
       el(doc, 'p', path.evidence, 'xr-path-evidence'), el(doc, 'p', path.next ? `확인: ${path.next}` : '', 'xr-path-next'));
     grid.append(card);
   }
-  hub.append(grid, noteFold(doc, model.rateHub.caveat, '금리 하락이 늘 좋은가')); // v58.79
+  paths.append(grid);
+  hub.append(paths, noteFold(doc, model.rateHub.caveat, '금리 하락이 늘 좋은가')); // v58.79
   return hub;
 }
 
@@ -266,12 +281,14 @@ const periodLabel = (period) => { const text = String(period || ''); const m = /
 // read with today's particle and sign rule instead of being rewritten in the stored history.
 const recordText = (text) => String(text ?? '').replace(/('[^']+'|[가-힣A-Za-z0-9]+)\(으\)로/g, (match, word) => withDirectionParticle(word)).replace(/−(?=\d)/g, '-');
 /** P1743: what the automated record saw change — branch lead/alt shifts, condition flips, and scored releases. */
-function changeLog(doc, state) {
-  const transitions = (state?.transitions || []).slice(-6).reverse();
+// v59.51 (content audit): the record is reference for a returning reader — one closed line on the face.
+function changeLog(doc, state, open = false) {
+  const transitions = macroTransitions(state).slice(-6).reverse(); // v59.51 (area H): macro events only
   const scored = (state?.eventOutcomes || []).slice(-6).reverse();
   if (!transitions.length && !scored.length) return null;
-  const box = el(doc, 'div', null, 'xr-changes');
-  box.append(el(doc, 'h3', '자동 기록 — 무엇이 바뀌었나', 'xr-h3'));
+  const box = el(doc, 'details', null, 'xr-changes sx-disclosure');
+  box.open = open;
+  box.append(el(doc, 'summary', `자동 기록 — 무엇이 바뀌었나 (발표 판정 ${scored.length}건, 변화 ${transitions.length}건)`, 'xr-h3'));
   if (scored.length) {
     box.append(el(doc, 'h4', '지난 발표 판정', 'xr-h4'));
     const list = el(doc, 'ul', null, 'xr-scored');
@@ -314,9 +331,10 @@ export function renderMacroCrossroads({ documentRef: doc, root, regime = null, h
   root.__aioMacroCrossroads = model;
   if (!target.dataset.aioScenarioLoad) { target.dataset.aioScenarioLoad = 'on'; refreshScenarioArtifacts(root, () => renderMacroCrossroads({ documentRef: doc, root, regime, host: target })); }
   const openIds = new Set([...target.querySelectorAll('.xr-branch[open]')].map((node) => node.dataset.branch));
-  const firstPaint = !target.querySelector('.xr-branch');
   const restOpen = !!target.querySelector('.xr-map-rest[open]');
   const focused = target.contains?.(doc.activeElement) ? doc.activeElement?.closest?.('.xr-branch')?.dataset.branch : null;
+  const pathsOpen = !!target.querySelector('details.xr-paths-fold')?.open;
+  const changesOpen = !!target.querySelector('details.xr-changes')?.open;
   if (!model.available) { target.replaceChildren(el(doc, 'p', model.headline, 'xr-lead')); return model; }
   setAsOf(doc, target.parentElement?.querySelector(':scope > .aio-frame-head'), model.asOf ? `${shortDate(model.asOf)} 관측` : '기준일 미확인',
     '갈래마다 조건 충족 수, 시장 가격 방향, 과거 빈도를 나란히 놓고 다음 발표에서 무엇이 갈래를 가르는지 적었습니다. 과거 빈도는 시나리오 조건이 아니라 비슷한 시장 움직임으로 고른 비교입니다.');
@@ -324,7 +342,7 @@ export function renderMacroCrossroads({ documentRef: doc, root, regime = null, h
   // v57.79 (UI review): the heading says what the list is (ordered by conditions met), not how to use it.
   const mapHead = el(doc, 'h3', `시나리오 ${model.items.length}개 — 조건 충족 순`, 'xr-h3');
   // v58.79: the closing "세부 종목 선택은 …" caption left; the screen names no price, size or timing by construction (R724).
-  target.replaceChildren(el(doc, 'p', model.headline, 'xr-lead'), timeline(doc, model), rateHub(doc, model), mapHead, branchMap(doc, root, model, openIds, { firstPaint, restOpen }), ...[changeLog(doc, root?.[SCENARIO_STATE.key])].filter(Boolean));
+  target.replaceChildren(el(doc, 'p', model.headline, 'xr-lead'), timeline(doc, model), rateHub(doc, model, pathsOpen), mapHead, branchMap(doc, root, model, openIds, { restOpen }), ...[changeLog(doc, root?.[SCENARIO_STATE.key], changesOpen)].filter(Boolean));
   target.dataset.aioCrossroads = 'native';
   if (focused) target.querySelector(`.xr-branch[data-branch="${focused}"] > summary`)?.focus?.({ preventScroll: true }); // a repaint keeps keyboard focus
   return model;

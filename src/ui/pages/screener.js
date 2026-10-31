@@ -549,9 +549,10 @@ function renderPresetLesson(documentRef, root, presetsHost, screenId, screenName
   const open = block.open;
   const name = screenName || '이 조건';
   const summary = documentRef.createElement('summary');
-  summary.textContent = `${name}: 이 조건을 왜 보나 — ${lesson.principle}`;
+  summary.textContent = `${name}: 이 조건을 왜 보나`;
   const columnLabels = lesson.columns.map((key) => SCREENER_COLUMN_REGISTRY.find((column) => column.key === key)?.label).filter(Boolean);
   const rows = [
+    ['원리', lesson.principle],
     ['잘 통하는 환경', lesson.works],
     ['잘 안 통하는 환경', lesson.fails],
     ['흔한 실패', lesson.failure],
@@ -1258,9 +1259,8 @@ function renderValidationState(documentRef, root, metadata, listingMarket) {
       chip.textContent = label;
       chips.append(chip);
     }
-    const textNode = documentRef.createElement('span');
-    textNode.className = 'scr-banner-text';
-    textNode.textContent = read.sentence;
+    // v59.51 (content audit): the 순위 view carries the state chips and the link; the sentence is the 사후 검증 hero's.
+    banner.title = read.sentence;
     const link = documentRef.createElement('button');
     link.type = 'button';
     link.className = 'sx-link scr-banner-link';
@@ -1275,11 +1275,9 @@ function renderValidationState(documentRef, root, metadata, listingMarket) {
     short.dataset.aioScreenerArg = 'backtest';
     short.textContent = `${read.chips.length ? `${read.chips.join(', ')} — ` : ''}순위는 확인할 후보 목록 ›`;
     short.title = read.sentence;
-    banner.replaceChildren(chips, textNode, link, short);
+    banner.replaceChildren(chips, link, short);
   }
   renderValidationHero({ documentRef, read });
-  const compact = documentRef.getElementById('scr-backtest-summary-compact');
-  if (compact) compact.textContent = read.chips.join(', ') || '사후 검증 보기';
 }
 
 // 개편 v2 (5i): what is left after each chosen condition, in order (판정 가능 = rows that carry the condition's data).

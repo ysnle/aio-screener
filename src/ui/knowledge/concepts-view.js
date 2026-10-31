@@ -94,6 +94,16 @@ function buildNav(doc, state, data) {
     if (open && group.id === 'map') {
       box.appendChild(navButton(doc, '관계 지도 — 원리 사이의 연결', { active: state.view === 'map', action: 'mode', value: 'graph', sub: true }));
     }
+    // v59.51 (content audit): the open group's contents (up to ~110 titles) are one closed line; the group switcher above
+    // and the search stay on the face, and the open document sits in the middle column.
+    if (open && box.children.length > 2) {
+      const list = el(doc, 'details', 'rl-nav-list');
+      list.append(el(doc, 'summary', 'rl-nav-title', `${group.title} 목차${count != null ? `, ${count}편` : ''}`), ...[...box.children].slice(1));
+      // Once a reader opens the list it stays open across the re-render each title click causes.
+      list.open = Boolean(state.navListOpen);
+      list.addEventListener('toggle', () => { state.navListOpen = list.open; });
+      box.appendChild(list);
+    }
     nav.appendChild(box);
   }
   const switcher = doc.createElement('div');
