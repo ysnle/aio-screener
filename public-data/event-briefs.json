@@ -1,6 +1,6 @@
 {
   "schemaVersion": "event-briefs.v1",
-  "generatedAt": "2026-10-31T00:43:25.369Z",
+  "generatedAt": "2026-10-31T06:21:09.650Z",
   "producer": "scripts/fetch-event-briefs.mjs",
   "cadence": "every 20 minutes (.github/workflows/event-briefs.yml); AI runs only for a new source document or a pending call summary",
   "sourceKind": "T1_OFFICIAL",
@@ -1092,13 +1092,7 @@
           "value": "$1,902,418",
           "text": "3분기 총 영업수익은 $1,902,418천.",
           "metric": "revenue",
-          "quote": "Total Operating Revenues ​ ​ $1,902,418",
-          "estimate": {
-            "value": 1766888333,
-            "surprisePct": -99.9,
-            "source": "Finnhub calendar/earnings + calendar/ipo",
-            "basis": "provider-consensus-reference"
-          }
+          "quote": "Total Operating Revenues ​ ​ $1,902,418"
         },
         {
           "label": "희석 EPS",
@@ -2009,13 +2003,7 @@
           "value": "$1.89 per diluted share",
           "text": "전년 동기 $1.95에서 감소.",
           "metric": "eps_diluted",
-          "quote": "Net income decreased to $20.7 billion in the third quarter, or $1.89 per diluted share, compared with $21.2 billion, or $1.95 per diluted share, in third quarter 2025.",
-          "estimate": {
-            "value": 2.001,
-            "surprisePct": -5.5,
-            "source": "Finnhub calendar/earnings + calendar/ipo",
-            "basis": "provider-consensus-reference"
-          }
+          "quote": "Net income decreased to $20.7 billion in the third quarter, or $1.89 per diluted share, compared with $21.2 billion, or $1.95 per diluted share, in third quarter 2025."
         },
         {
           "label": "영업이익",
@@ -2657,26 +2645,14 @@
           "value": "$9.04 per diluted share",
           "text": "순이익은 $399.9 million.",
           "metric": "eps_diluted",
-          "quote": "Net income for the third quarter of 2026 was $399.9 million, or $9.04 per diluted share, compared to net income of $295.4 million, or $6.57 per diluted share, for the third quarter of 2025.",
-          "estimate": {
-            "value": 8.4401,
-            "surprisePct": 7.1,
-            "source": "Finnhub calendar/earnings + calendar/ipo",
-            "basis": "provider-consensus-reference"
-          }
+          "quote": "Net income for the third quarter of 2026 was $399.9 million, or $9.04 per diluted share, compared to net income of $295.4 million, or $6.57 per diluted share, for the third quarter of 2025."
         },
         {
           "label": "3분기 비GAAP 희석 EPS",
           "value": "$9.60 per diluted share",
           "text": "무형자산 손상차손 제외 기준.",
           "metric": "eps_diluted",
-          "quote": "Excluding such impairment, non-GAAP net income for the third quarter of 2026 was $424.7 million, or $9.60 per diluted share.",
-          "estimate": {
-            "value": 8.4401,
-            "surprisePct": 13.7,
-            "source": "Finnhub calendar/earnings + calendar/ipo",
-            "basis": "provider-consensus-reference"
-          }
+          "quote": "Excluding such impairment, non-GAAP net income for the third quarter of 2026 was $424.7 million, or $9.60 per diluted share."
         }
       ],
       "details": [
@@ -2781,11 +2757,11 @@
         "baseClose": 678.5499877929688,
         "firstDate": "2026-10-29",
         "firstPct": 1.6,
-        "latestDate": "2026-10-29",
-        "latestPct": 1.6,
-        "sessions": 1,
+        "latestDate": "2026-10-30",
+        "latestPct": 0.1,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -2951,11 +2927,11 @@
         "baseClose": 610.3099975585938,
         "firstDate": "2026-10-29",
         "firstPct": 4.2,
-        "latestDate": "2026-10-29",
-        "latestPct": 4.2,
-        "sessions": 1,
+        "latestDate": "2026-10-30",
+        "latestPct": 4.5,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -3156,11 +3132,11 @@
         "baseClose": 56.27000045776367,
         "firstDate": "2026-10-29",
         "firstPct": -1.3,
-        "latestDate": "2026-10-29",
-        "latestPct": -1.3,
-        "sessions": 1,
+        "latestDate": "2026-10-30",
+        "latestPct": -4.7,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -3366,11 +3342,11 @@
         "baseClose": 1288.300048828125,
         "firstDate": "2026-10-29",
         "firstPct": 6.6,
-        "latestDate": "2026-10-29",
-        "latestPct": 6.6,
-        "sessions": 1,
+        "latestDate": "2026-10-30",
+        "latestPct": 10,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -3449,13 +3425,7 @@
           "value": "$1,005.7",
           "text": "3분기 순매출은 $1,005.7 million.",
           "metric": "revenue",
-          "quote": "Net sales $1,005.7 $807.1 $883.2",
-          "estimate": {
-            "value": 941770508,
-            "surprisePct": -100,
-            "source": "Finnhub calendar/earnings + calendar/ipo",
-            "basis": "provider-consensus-reference"
-          }
+          "quote": "Net sales $1,005.7 $807.1 $883.2"
         },
         {
           "label": "희석 EPS (GAAP)",
@@ -3564,11 +3534,11 @@
         "baseClose": 159.32000732421875,
         "firstDate": "2026-10-29",
         "firstPct": 0.4,
-        "latestDate": "2026-10-29",
-        "latestPct": 0.4,
-        "sessions": 1,
+        "latestDate": "2026-10-30",
+        "latestPct": -3.1,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -3776,11 +3746,11 @@
         "baseClose": 606.8900146484375,
         "firstDate": "2026-10-29",
         "firstPct": 4.7,
-        "latestDate": "2026-10-29",
-        "latestPct": 4.7,
-        "sessions": 1,
+        "latestDate": "2026-10-30",
+        "latestPct": 2.3,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -3994,11 +3964,11 @@
         "baseClose": 140.92999267578125,
         "firstDate": "2026-10-29",
         "firstPct": 3.8,
-        "latestDate": "2026-10-29",
-        "latestPct": 3.8,
-        "sessions": 1,
+        "latestDate": "2026-10-30",
+        "latestPct": 6.1,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -4190,11 +4160,11 @@
         "baseClose": 448.4700012207031,
         "firstDate": "2026-10-29",
         "firstPct": -3.9,
-        "latestDate": "2026-10-29",
-        "latestPct": -3.9,
-        "sessions": 1,
+        "latestDate": "2026-10-30",
+        "latestPct": -8.6,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -4359,11 +4329,11 @@
         "baseClose": 713.3800048828125,
         "firstDate": "2026-10-29",
         "firstPct": -9.3,
-        "latestDate": "2026-10-29",
-        "latestPct": -9.3,
-        "sessions": 1,
+        "latestDate": "2026-10-30",
+        "latestPct": -12.7,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -4559,11 +4529,11 @@
         "baseClose": 219.61000061035156,
         "firstDate": "2026-10-29",
         "firstPct": 3.7,
-        "latestDate": "2026-10-29",
-        "latestPct": 3.7,
-        "sessions": 1,
+        "latestDate": "2026-10-30",
+        "latestPct": -5,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -4648,13 +4618,7 @@
           "value": "$6.92 per diluted share",
           "text": "전년 동기 대비 133% 증가.",
           "metric": "eps_diluted",
-          "quote": "Net income of $214.9 million, or $6.92 per diluted share, both increases of 133%.",
-          "estimate": {
-            "value": 5.7137,
-            "surprisePct": 21.1,
-            "source": "Finnhub calendar/earnings + calendar/ipo",
-            "basis": "provider-consensus-reference"
-          }
+          "quote": "Net income of $214.9 million, or $6.92 per diluted share, both increases of 133%."
         },
         {
           "label": "3분기 영업이익",
@@ -4779,11 +4743,11 @@
         "baseClose": 388.8699951171875,
         "firstDate": "2026-10-29",
         "firstPct": -3.9,
-        "latestDate": "2026-10-29",
-        "latestPct": -3.9,
-        "sessions": 1,
+        "latestDate": "2026-10-30",
+        "latestPct": -11,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -5003,11 +4967,11 @@
         "baseClose": 150.1300048828125,
         "firstDate": "2026-10-29",
         "firstPct": -26.9,
-        "latestDate": "2026-10-29",
-        "latestPct": -26.9,
-        "sessions": 1,
+        "latestDate": "2026-10-30",
+        "latestPct": -30,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -5112,13 +5076,7 @@
           "value": "$4.93 per share",
           "text": "전년 동기 대비 29% 증가.",
           "metric": "eps_diluted",
-          "quote": "$4.93 per share, a 29% increase over the same quarter of the previous year",
-          "estimate": {
-            "value": 4.188,
-            "surprisePct": 17.7,
-            "source": "Finnhub calendar/earnings + calendar/ipo",
-            "basis": "provider-consensus-reference"
-          }
+          "quote": "$4.93 per share, a 29% increase over the same quarter of the previous year"
         },
         {
           "label": "조정 EBITDA",
@@ -5223,11 +5181,11 @@
         "baseClose": 1007.6599731445312,
         "firstDate": "2026-10-29",
         "firstPct": 2.9,
-        "latestDate": "2026-10-29",
-        "latestPct": 2.9,
-        "sessions": 1,
+        "latestDate": "2026-10-30",
+        "latestPct": 0.6,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -5438,11 +5396,11 @@
         "baseClose": 174.0800018310547,
         "firstDate": "2026-10-29",
         "firstPct": -20.1,
-        "latestDate": "2026-10-29",
-        "latestPct": -20.1,
-        "sessions": 1,
+        "latestDate": "2026-10-30",
+        "latestPct": -21.8,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -5524,13 +5482,7 @@
           "value": "$ 173.0",
           "text": "매출은 전년 동기 대비 증가했다.",
           "metric": "revenue",
-          "quote": "Third quarter net sales increased 37% year-over-year to $173.0 million",
-          "estimate": {
-            "value": 167851332,
-            "surprisePct": -100,
-            "source": "Finnhub calendar/earnings + calendar/ipo",
-            "basis": "provider-consensus-reference"
-          }
+          "quote": "Third quarter net sales increased 37% year-over-year to $173.0 million"
         },
         {
           "label": "3분기 GAAP 희석 EPS",
@@ -5597,11 +5549,11 @@
         "baseClose": 53.13999938964844,
         "firstDate": "2026-10-29",
         "firstPct": 0.5,
-        "latestDate": "2026-10-29",
-        "latestPct": 0.5,
-        "sessions": 1,
+        "latestDate": "2026-10-30",
+        "latestPct": -4.4,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -5795,11 +5747,11 @@
         "baseClose": 158.77000427246094,
         "firstDate": "2026-10-29",
         "firstPct": 5.5,
-        "latestDate": "2026-10-29",
-        "latestPct": 5.5,
-        "sessions": 1,
+        "latestDate": "2026-10-30",
+        "latestPct": -0.5,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -5980,11 +5932,11 @@
         "baseClose": 531.010009765625,
         "firstDate": "2026-10-29",
         "firstPct": -0.2,
-        "latestDate": "2026-10-29",
-        "latestPct": -0.2,
-        "sessions": 1,
+        "latestDate": "2026-10-30",
+        "latestPct": -1.7,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -6146,11 +6098,11 @@
         "baseClose": 110.30999755859375,
         "firstDate": "2026-10-29",
         "firstPct": -11.6,
-        "latestDate": "2026-10-29",
-        "latestPct": -11.6,
-        "sessions": 1,
+        "latestDate": "2026-10-30",
+        "latestPct": -20.7,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -6338,11 +6290,11 @@
         "baseClose": 324.8900146484375,
         "firstDate": "2026-10-29",
         "firstPct": -12.6,
-        "latestDate": "2026-10-29",
-        "latestPct": -12.6,
-        "sessions": 1,
+        "latestDate": "2026-10-30",
+        "latestPct": -13.9,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -6802,11 +6754,11 @@
         "baseClose": 78.20999908447266,
         "firstDate": "2026-10-28",
         "firstPct": 3.5,
-        "latestDate": "2026-10-29",
-        "latestPct": 4.9,
-        "sessions": 2,
+        "latestDate": "2026-10-30",
+        "latestPct": 1.4,
+        "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -7015,11 +6967,11 @@
         "baseClose": 83.3499984741211,
         "firstDate": "2026-10-28",
         "firstPct": 11.6,
-        "latestDate": "2026-10-29",
-        "latestPct": 11.7,
-        "sessions": 2,
+        "latestDate": "2026-10-30",
+        "latestPct": 3.8,
+        "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -7097,13 +7049,7 @@
           "value": "$12,642",
           "text": "3분기 매출은 전년 동기보다 증가했다.",
           "metric": "revenue",
-          "quote": "Total revenues $12,642 $9,969 27 %",
-          "estimate": {
-            "value": 12111261298,
-            "surprisePct": -100,
-            "source": "Finnhub calendar/earnings + calendar/ipo",
-            "basis": "provider-consensus-reference"
-          }
+          "quote": "Total revenues $12,642 $9,969 27 %"
         },
         {
           "label": "희석 EPS",
@@ -7207,11 +7153,11 @@
         "baseClose": 895.0800170898438,
         "firstDate": "2026-10-28",
         "firstPct": -1.9,
-        "latestDate": "2026-10-29",
-        "latestPct": -0.8,
-        "sessions": 2,
+        "latestDate": "2026-10-30",
+        "latestPct": -4.2,
+        "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -7453,11 +7399,11 @@
         "baseClose": 208.55999755859375,
         "firstDate": "2026-10-28",
         "firstPct": 16.5,
-        "latestDate": "2026-10-29",
-        "latestPct": 17.9,
-        "sessions": 2,
+        "latestDate": "2026-10-30",
+        "latestPct": 11.5,
+        "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -7646,11 +7592,11 @@
         "baseClose": 323.67999267578125,
         "firstDate": "2026-10-28",
         "firstPct": -3.2,
-        "latestDate": "2026-10-29",
-        "latestPct": -8.5,
-        "sessions": 2,
+        "latestDate": "2026-10-30",
+        "latestPct": -15.2,
+        "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -7858,11 +7804,11 @@
         "baseClose": 253.5,
         "firstDate": "2026-10-28",
         "firstPct": -0.7,
-        "latestDate": "2026-10-29",
-        "latestPct": 4.9,
-        "sessions": 2,
+        "latestDate": "2026-10-30",
+        "latestPct": 2.4,
+        "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -7936,26 +7882,14 @@
           "value": "$ 4,233",
           "text": "GAAP 및 비GAAP 매출은 $ 4,233 million.",
           "metric": "revenue",
-          "quote": "Revenue ($M) $ 4,233 $ 2,629 $ 4,233 $ 2,629",
-          "estimate": {
-            "value": 4179066263,
-            "surprisePct": -100,
-            "source": "Finnhub calendar/earnings + calendar/ipo",
-            "basis": "provider-consensus-reference"
-          }
+          "quote": "Revenue ($M) $ 4,233 $ 2,629 $ 4,233 $ 2,629"
         },
         {
           "label": "희석 EPS",
           "value": "$ 7.59; $ 7.68",
           "text": "GAAP 희석 EPS는 $ 7.59, 비GAAP 희석 EPS는 $ 7.68.",
           "metric": "eps_diluted",
-          "quote": "GAAP diluted earnings per share (EPS) of $7.59; non-GAAP diluted EPS of $7.68",
-          "estimate": {
-            "value": 7.4926,
-            "surprisePct": 1.3,
-            "source": "Finnhub calendar/earnings + calendar/ipo",
-            "basis": "provider-consensus-reference"
-          }
+          "quote": "GAAP diluted earnings per share (EPS) of $7.59; non-GAAP diluted EPS of $7.68"
         },
         {
           "label": "영업이익",
@@ -8023,11 +7957,11 @@
         "baseClose": 667.8499755859375,
         "firstDate": "2026-10-28",
         "firstPct": 4.5,
-        "latestDate": "2026-10-29",
-        "latestPct": 4.9,
-        "sessions": 2,
+        "latestDate": "2026-10-30",
+        "latestPct": -3.5,
+        "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -8189,11 +8123,11 @@
         "baseClose": 51.47999954223633,
         "firstDate": "2026-10-28",
         "firstPct": 8.5,
-        "latestDate": "2026-10-29",
-        "latestPct": 6.3,
-        "sessions": 2,
+        "latestDate": "2026-10-30",
+        "latestPct": -3.4,
+        "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -8364,11 +8298,11 @@
         "baseClose": 94.55999755859375,
         "firstDate": "2026-10-28",
         "firstPct": -3.3,
-        "latestDate": "2026-10-29",
-        "latestPct": -3.1,
-        "sessions": 2,
+        "latestDate": "2026-10-30",
+        "latestPct": -10.1,
+        "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -8449,7 +8383,7 @@
           "quote": "Net revenue of $12.1B, an increase of 13% on a nominal and constant-dollar basis",
           "estimate": {
             "value": 12325777573,
-            "surprisePct": -100,
+            "surprisePct": -1.8,
             "source": "Finnhub calendar/earnings + calendar/ipo",
             "basis": "provider-consensus-reference"
           }
@@ -8466,13 +8400,7 @@
           "value": "$3.48 per share",
           "text": "전년 대비 17% 증가.",
           "metric": "eps_diluted",
-          "quote": "Excluding these items and related tax impacts, non-GAAP net income for the quarter was $6.6 billion or $3.48 per share, an increase of 13% and 17%, respectively, over prior year's results (refer to Non-GAAP Financial Measures for further details).",
-          "estimate": {
-            "value": 3.5044,
-            "surprisePct": -0.7,
-            "source": "Finnhub calendar/earnings + calendar/ipo",
-            "basis": "provider-consensus-reference"
-          }
+          "quote": "Excluding these items and related tax impacts, non-GAAP net income for the quarter was $6.6 billion or $3.48 per share, an increase of 13% and 17%, respectively, over prior year's results (refer to Non-GAAP Financial Measures for further details)."
         },
         {
           "label": "4분기 GAAP 영업이익",
@@ -8489,7 +8417,7 @@
           "quote": "Net revenue in the fiscal full-year 2026 was $45.9 billion, an increase of 15%, driven by the year-over-year growth in payments volume, cross-border volume and processed transactions. Net revenue increased 14% on a constant-dollar basis.",
           "estimate": {
             "value": 12325777573,
-            "surprisePct": -100,
+            "surprisePct": 272.4,
             "source": "Finnhub calendar/earnings + calendar/ipo",
             "basis": "provider-consensus-reference"
           }
@@ -8563,11 +8491,11 @@
         "baseClose": 401.8599853515625,
         "firstDate": "2026-10-28",
         "firstPct": -0.3,
-        "latestDate": "2026-10-29",
-        "latestPct": 2.2,
-        "sessions": 2,
+        "latestDate": "2026-10-30",
+        "latestPct": 2.9,
+        "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -8898,11 +8826,11 @@
         "baseClose": 459.3999938964844,
         "firstDate": "2026-10-27",
         "firstPct": -5.5,
-        "latestDate": "2026-10-29",
-        "latestPct": -4.6,
-        "sessions": 3,
+        "latestDate": "2026-10-30",
+        "latestPct": -8,
+        "sessions": 4,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -9058,11 +8986,11 @@
         "baseClose": 188.30999755859375,
         "firstDate": "2026-10-27",
         "firstPct": -10.7,
-        "latestDate": "2026-10-29",
-        "latestPct": -8.3,
-        "sessions": 3,
+        "latestDate": "2026-10-30",
+        "latestPct": -8.9,
+        "sessions": 4,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -9246,11 +9174,11 @@
         "baseClose": 15.680000305175781,
         "firstDate": "2026-10-27",
         "firstPct": 9.6,
-        "latestDate": "2026-10-29",
-        "latestPct": 15.6,
-        "sessions": 3,
+        "latestDate": "2026-10-30",
+        "latestPct": 2,
+        "sessions": 4,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -9448,11 +9376,11 @@
         "baseClose": 127.73999786376953,
         "firstDate": "2026-10-27",
         "firstPct": -1.1,
-        "latestDate": "2026-10-29",
-        "latestPct": 0.9,
-        "sessions": 3,
+        "latestDate": "2026-10-30",
+        "latestPct": -3.5,
+        "sessions": 4,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -9697,11 +9625,11 @@
         "baseClose": 92.69999694824219,
         "firstDate": "2026-10-27",
         "firstPct": -1.6,
-        "latestDate": "2026-10-29",
-        "latestPct": 0.1,
-        "sessions": 3,
+        "latestDate": "2026-10-30",
+        "latestPct": 1.5,
+        "sessions": 4,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -9932,11 +9860,11 @@
         "baseClose": 147.5,
         "firstDate": "2026-10-27",
         "firstPct": 5.7,
-        "latestDate": "2026-10-29",
-        "latestPct": 7.3,
-        "sessions": 3,
+        "latestDate": "2026-10-30",
+        "latestPct": 1,
+        "sessions": 4,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -10095,11 +10023,11 @@
         "baseClose": 71.08000183105469,
         "firstDate": "2026-10-27",
         "firstPct": -5,
-        "latestDate": "2026-10-29",
-        "latestPct": -4.6,
-        "sessions": 3,
+        "latestDate": "2026-10-30",
+        "latestPct": -1.9,
+        "sessions": 4,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -10337,11 +10265,11 @@
         "baseClose": 90.31999969482422,
         "firstDate": "2026-10-27",
         "firstPct": -1.6,
-        "latestDate": "2026-10-29",
-        "latestPct": 0.7,
-        "sessions": 3,
+        "latestDate": "2026-10-30",
+        "latestPct": -6.3,
+        "sessions": 4,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -10533,11 +10461,11 @@
         "baseClose": 36.810001373291016,
         "firstDate": "2026-10-27",
         "firstPct": 8.5,
-        "latestDate": "2026-10-29",
-        "latestPct": 12,
-        "sessions": 3,
+        "latestDate": "2026-10-30",
+        "latestPct": 7.3,
+        "sessions": 4,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -10777,11 +10705,11 @@
         "baseClose": 322.1700134277344,
         "firstDate": "2026-10-27",
         "firstPct": 6.5,
-        "latestDate": "2026-10-29",
-        "latestPct": 6.4,
-        "sessions": 3,
+        "latestDate": "2026-10-30",
+        "latestPct": 1.8,
+        "sessions": 4,
         "settled": false,
-        "checkedAt": "2026-10-31T00:43:25.369Z"
+        "checkedAt": "2026-10-31T06:21:09.650Z"
       },
       "reasons": {
         "basis": "news-report",
