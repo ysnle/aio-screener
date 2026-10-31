@@ -8,6 +8,11 @@ import { windFor, WIND_LABELS, EXPOSURE_TAGS } from './exposures.js';
 import { ABOVE50_FLOOR } from './theme-playbook.js';
 import { withDirectionParticle } from '../content/korean-particle.js';
 import { isIsoDay, hasLeadingIsoDay } from '../shared/session-date.js';
+import { readRowNumber } from '../../data/contracts/screener.js';
+
+// v59.46 boundary contract: member numbers are read through the screener readiness contract, not row[key].
+const value = (row, key) => readRowNumber(row, key, 'calculation');
+const shown = (row, key) => readRowNumber(row, key, 'display');
 
 export const THEME_CRITERIA_RULES = Object.freeze({
   extensionAtr: 5, // 50일선 거리 ÷ 하루 평균 변동폭(중앙값) — 이 배수 이상이면 과열
@@ -33,12 +38,12 @@ const shortTitle = (title) => String(title || '').split(' — ')[0];
 /** Members: [{ sym, label?, row }] with published screener rows. Medians the criteria and roles share. */
 export function themeMemberStats(members = []) {
   const rows = members.map((member) => member?.row).filter(Boolean);
-  const ext = rows.map((row) => (finite(row.pctSma50) != null && finite(row.adrPct) > 0 ? row.pctSma50 / row.adrPct : null));
+  const ext = rows.map((row) => { const p50 = value(row, 'pctSma50'); return p50 != null && finite(row.adrPct) > 0 ? p50 / row.adrPct : null; });
   return {
     count: rows.length,
-    ret1m: median(rows.map((row) => row.ret1m)), ret3m: median(rows.map((row) => row.ret3m)), ret5d: median(rows.map((row) => row.ret5d)),
+    ret1m: median(rows.map((row) => value(row, 'ret1m'))), ret3m: median(rows.map((row) => value(row, 'ret3m'))), ret5d: median(rows.map((row) => row.ret5d)),
     // v59.45 (P8-THEME-01): how many members each median actually stands on (a row without the return is not a sample).
-    ret1mCount: rows.filter((row) => finite(row.ret1m) != null).length, ret3mCount: rows.filter((row) => finite(row.ret3m) != null).length,
+    ret1mCount: rows.filter((row) => value(row, 'ret1m') != null).length, ret3mCount: rows.filter((row) => value(row, 'ret3m') != null).length,
     ret5dCount: rows.filter((row) => finite(row.ret5d) != null).length,
     extension: median(ext), extensionCount: ext.filter((value) => value != null).length
   };
@@ -126,7 +131,7 @@ export function memberRoles(members = [], { consensus = null, calendar = null, a
   const measured = stats.ret1mCount >= R.minMembers && stats.ret3mCount >= R.minMembers && stats.ret1m != null && stats.ret3m != null;
   for (const member of members) {
     const row = member.row;
-    const r1 = finite(row?.ret1m), r3 = finite(row?.ret3m), p50 = finite(row?.pctSma50), high = finite(row?.pctFrom52wHigh);
+    const r1 = value(row, 'ret1m'), r3 = value(row, 'ret3m'), p50 = value(row, 'pctSma50'), high = finite(row?.pctFrom52wHigh);
     let role = null;
     if (measured && r1 != null && r3 != null && p50 != null) {
       if (r1 >= stats.ret1m && r3 >= stats.ret3m && p50 > 0 && high != null && high >= R.nearHighPct) role = 'leader';
@@ -134,7 +139,7 @@ export function memberRoles(members = [], { consensus = null, calendar = null, a
       else if (p50 >= 0 && r3 < stats.ret3m) role = 'laggard';
     }
     const fwd = consensus?.rows?.[member.sym]?.fwd;
-    const dollar = finite(row?.dollarVolume30d);
+    const dollar = value(row, 'dollarVolume30d');
     const earning = dueOf.get(member.sym) || null;
     out.set(member.sym, { role, upRevision: fwd && finite(fwd.up4w) != null && finite(fwd.down4w) != null ? fwd.up4w > fwd.down4w : null,
       thin: dollar != null && dollar < R.thinUsd, dollar, earnings: earning ? `${md(earning.date)}${HOUR[earning.hour] ? ` ${HOUR[earning.hour]}` : ''}` : null });
@@ -146,11 +151,11 @@ export function memberRoles(members = [], { consensus = null, calendar = null, a
 export function roleExamples(members = [], roles) {
   const lines = {};
   for (const key of Object.keys(MEMBER_ROLES)) {
-    const picked = members.filter((member) => roles.get(member.sym)?.role === key).sort((a, b) => (key === 'dropout' ? a.row.ret3m - b.row.ret3m : b.row.ret3m - a.row.ret3m)).slice(0, 3);
+    const picked = members.filter((member) => roles.get(member.sym)?.role === key).sort((a, b) => (key === 'dropout' ? value(a.row, 'ret3m') - value(b.row, 'ret3m') : value(b.row, 'ret3m') - value(a.row, 'ret3m'))).slice(0, 3);
     lines[key] = picked.map((member) => {
       const info = roles.get(member.sym);
       const flags = [info.upRevision ? '전망 상향 우위' : null, info.thin ? '거래대금 적음' : null, info.earnings ? `실적 ${info.earnings}` : null].filter(Boolean);
-      return `${member.label || member.sym}(3개월 ${pct(member.row.ret3m)}, 50일선 ${pct(member.row.pctSma50)}${flags.length ? `, ${flags.join(', ')}` : ''})`;
+      return `${member.label || member.sym}(3개월 ${pct(shown(member.row, 'ret3m'))}, 50일선 ${pct(shown(member.row, 'pctSma50'))}${flags.length ? `, ${flags.join(', ')}` : ''})`;
     });
   }
   return lines;

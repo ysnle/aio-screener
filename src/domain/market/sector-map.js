@@ -4,6 +4,10 @@
 // (no raw current price is republished — P715). A member without shares or a return is counted, not drawn.
 import { sectorLabel } from '../screener/screener-read.js';
 import { signedText, readNumber as finite } from '../shared/number.js';
+import { readRowNumber } from '../../data/contracts/screener.js';
+
+// v59.46 boundary contract: screener row numbers are read through the readiness contract, not row[key].
+const read = (row, key) => readRowNumber(row, key, 'calculation');
 
 export const SECTOR_MAP_VERSION = 'sector-map.v1';
 
@@ -109,7 +113,7 @@ export function buildSectorMap({ rows = [], weights = null, period = 'ret1d', ex
     for (const item of weightRows) {
       const sym = String(item.sym || '').toUpperCase();
       const row = bySym.get(sym) || null;
-      const ret = finite(row?.[key]);
+      const ret = read(row, key);
       if (ret == null) noReturn += 1;
       priced.push({ sym, name: row?.name || item.name || '', sector: item.sector, label: GICS_KO[item.sector] || item.sector, value: Number(item.weight), ret, basis: row?.factorSessionDate || null, collected: !!row });
     }
@@ -130,11 +134,11 @@ export function buildSectorMap({ rows = [], weights = null, period = 'ret1d', ex
       // A share count in the wrong unit or class (one stock at 20조 달러) shows up as a turnover no listed stock has.
       // v59.45 (P17-MAP-01): an unrecorded turnover is unchecked, not 0 (null / value read as zero turnover and dropped
       // a valid market cap).
-      const volume = finite(row.dollarVolume30d);
+      const volume = read(row, 'dollarVolume30d');
       const turnover = value && volume != null ? volume / value : null;
       if (value != null && turnover != null && (turnover < 0.0002 || turnover > 0.2)) value = null;
       if (value == null) { noValue += 1; missing.push(row); continue; }
-      const ret = finite(row[key]);
+      const ret = read(row, key);
       if (ret == null) noReturn += 1;
       priced.push({ sym: String(row.sym || row.symbol).toUpperCase(), name: row.name || '', sector: row.sector, label: sectorLabel(row.sector), value, ret, basis: row.factorSessionDate || null, collected: true });
     }

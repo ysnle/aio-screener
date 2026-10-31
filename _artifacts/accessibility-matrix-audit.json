@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-10-31T05:39:49.344Z",
-  "appRevision": "v59.46",
-  "gitHead": "bf2db0642e3bcf2cae981ba288d0caf7d6850df7",
+  "observedAt": "2026-10-31T06:16:43.287Z",
+  "appRevision": "v59.47",
+  "gitHead": "dd6045e0586cd43ecba5fea48d365878aedb7d53",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -77,35 +77,14 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 4,
+      "smallTargetExceptionCount": 1,
       "smallTargetExceptions": [
         {
           "id": "",
-          "text": "bp",
-          "width": 21,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "%p",
-          "width": 20,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "VIX",
-          "width": 18,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "RSI",
-          "width": 20,
-          "height": 28,
-          "exception": "wcag-inline-text"
+          "text": "지수별 가격 온도 (참고) 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
         }
       ],
       "skipLink": true,
@@ -124,8 +103,37 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 4,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "VIX",
+          "width": 21,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "KST",
+          "width": 23,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "EPS",
+          "width": 19,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "OAS",
+          "width": 23,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
@@ -178,8 +186,16 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 1,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "10년 기간 프리미엄 (Kim-Wright) 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
@@ -248,7 +264,7 @@
       "selectCount": 0,
       "selectsWithoutName": [],
       "positiveTabindex": [],
-      "canvasCount": 0,
+      "canvasCount": 1,
       "unnamedCanvas": [],
       "fontUnder10Count": 0,
       "fontUnder10": [],
@@ -312,8 +328,23 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 2,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "SEC",
+          "width": 20,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "EPS",
+          "width": 19,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
@@ -402,15 +433,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 2,
+      "smallTargetExceptionCount": 1,
       "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "13F",
-          "width": 19,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
         {
           "id": "",
           "text": "GitHub Issues",

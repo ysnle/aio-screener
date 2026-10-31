@@ -6,6 +6,7 @@ import { withObjectParticle } from '../content/korean-particle.js';
 import { finiteFact, isPriorAnnualPeriod, annualFilingStatus, fiscalYearLabel } from './period.js';
 import { signedText, usdKoreanText } from '../shared/number.js';
 import { isIsoDay, hasLeadingIsoDay } from '../shared/session-date.js';
+import { readRowNumber } from '../../data/contracts/screener.js';
 // v57.81: a change inside this many %p (margin) or % (revenue) reads as flat in the text, so its tone is neutral too.
 export const FISCAL_FLAT_BAND = 2;
 const NON_LENDING_FINANCIALS = new Set(['V', 'MA', 'PYPL', 'FI', 'FIS', 'GPN', 'CPAY', 'JKHY', 'CME', 'ICE', 'NDAQ', 'CBOE', 'SPGI', 'MCO', 'MSCI', 'FDS', 'BLK', 'BX', 'KKR', 'APO', 'ARES', 'TROW', 'BEN', 'IVZ', 'AMP', 'BR']);
@@ -105,7 +106,8 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
     const niPrev = history[history.length - 2].netIncome;
     if (annualPair && niNow != null && niPrev != null && niPrev > 0) {
       const niGrowth = (niNow / niPrev - 1) * 100;
-      const pe = finite(row?.pe);
+      // v59.46 boundary contract: the PEG divides a calculable PER (screener readiness contract).
+      const pe = readRowNumber(row, 'pe', 'calculation');
       // v58.20 review C1: a PER priced on earnings available to common (preferred dividends deducted) is not market cap
       // over net income, so it is neither rebuilt from net income nor divided by net-income growth, and it says so.
       const commonBasis = row?._valuationPeEarningsConcept === 'common';
@@ -226,7 +228,8 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
   // Codex review 2026-10-05: a 6-month price move set against a fiscal-year revenue change compares
   // different periods (the fiscal year may have ended a year ago). Both are stated with their periods
   // and no conclusion ("실적이 뒷받침") is drawn from the pair.
-  const ret6 = finite(row?.ret6m);
+  // v59.46 boundary contract: stated beside the fiscal year for reading, not compared.
+  const ret6 = readRowNumber(row, 'ret6m', 'display');
   if (ret6 != null && lastGrowth != null) {
     const fy = String(latest.periodEnd || '').slice(0, 7);
     points.push({ id: 'agree', tone: 'neutral', title: '주가와 실적의 기간',

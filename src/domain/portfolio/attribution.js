@@ -11,6 +11,7 @@
 import { SECTOR_ETF } from '../entity/stock-read.js';
 import { readNumber as finite } from '../shared/number.js';
 import { hasLeadingIsoDay } from '../shared/session-date.js';
+import { readRowNumber } from '../../data/contracts/screener.js';
 
 const isKr = (symbol) => /\.(KS|KQ)$/i.test(String(symbol || ''));
 const dateOf = (value) => (hasLeadingIsoDay(String(value || '')) ? String(value).slice(0, 10) : null);
@@ -40,7 +41,8 @@ export function buildAttribution({ holdings = [], cash = null, baseCurrency = nu
     const value = finite(holding?.value);
     if (!(value > 0)) continue;
     const row = rowFor(holding.symbol);
-    const r = finite(row?.ret3m);
+    // v59.46 boundary contract: the holding's return enters the attribution sum through the screener readiness contract.
+    const r = readRowNumber(row, 'ret3m', 'calculation');
     const market = marketReturnFor(holding.symbol);
     const m = finite(market?.ret3m);
     const from = holding.convertedFrom || null;

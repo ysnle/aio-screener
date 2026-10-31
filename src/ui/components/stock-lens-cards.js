@@ -4,6 +4,7 @@
 // Loaded with the entity route and the lazy analysis cards (never the boot set). Readings come from
 // src/domain/fundamental/stock-lens.js; this file gathers the page's existing inputs and draws them.
 import { el } from './dom.js';
+import { readRowNumber } from '../../data/contracts/screener.js';
 import { parseFiscalHistory } from './fiscal-read.js';
 import { readMarketRegime } from './market-regime.js';
 import { reconcileFiscalHistory, isLendingFinancial } from '../../domain/fundamental/fiscal-read.js';
@@ -55,8 +56,8 @@ export function stockLensContext(root, symbol, { fundamentals = null, bars = nul
   // v58.80 run-5 (skeptic #11): the stock's 3-month return is an adjusted close (dividends in), so its benchmark is SPY's
   // adjusted return from the same factor session — the basis the 지수 대비 card above already uses (F10). Without that row
   // the S&P 500 index window (MARKET_WINDOWS.quarter) stands in and is named as the index.
-  const spyRow = market === 'US' && sym !== 'SPY' ? rows.find((item) => item?.sym === 'SPY' && item.factorSessionDate && item.factorSessionDate === row?.factorSessionDate && Number.isFinite(Number(item.ret3m))) : null;
-  const benchmark = spyRow ? { pct: Number(spyRow.ret3m), label: 'S&P 500(SPY, 배당 포함)' } : { pct: closeChange(root?._aioHistory || [], 'spx', MARKET_WINDOWS.quarter)?.pct ?? null, label: 'S&P 500 지수' };
+  const spyRow = market === 'US' && sym !== 'SPY' ? rows.find((item) => item?.sym === 'SPY' && item.factorSessionDate && item.factorSessionDate === row?.factorSessionDate && readRowNumber(item, 'ret3m', 'display') != null) : null;
+  const benchmark = spyRow ? { pct: readRowNumber(spyRow, 'ret3m', 'display'), label: 'S&P 500(SPY, 배당 포함)' } : { pct: closeChange(root?._aioHistory || [], 'spx', MARKET_WINDOWS.quarter)?.pct ?? null, label: 'S&P 500 지수' };
   const sicCode = String(root?._aioSecIssuerSic?.[sym] || '').split('|')[0] || null;
   const lens = lensIdFor({ sic: sicCode, themeIds, sector: row?.sector || null });
   const trailing = buildTrailingYearRead(quarters);

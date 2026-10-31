@@ -1,5 +1,6 @@
 import { finiteFact as finite, sameFiscalPeriod, isPriorAnnualPeriod, FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from './period.js';
 import { reconcileSecEarningsBasis } from './sec-earnings.js';
+import { readRowNumber } from '../../data/contracts/screener.js';
 
 export const SEC_REPORT_MODEL_VERSION = 'sec-report.v3';
 // 2026-10-17 (logic audit): 'current' follows the project's one fiscal-year-end age rule (456 days = the next 10-K's latest
@@ -344,10 +345,12 @@ export function secSharesTrust(record, { price = null, dollarVolume30d = null } 
 // growth (-30..60) — so a flagged value cannot dominate a rank.
 export function fundamentalValueFlags(row = {}) {
   const flags = [];
-  const pe = finite(row?.pe);
-  const roe = finite(row?.roe);
-  const growth = finite(row?.revGrowth);
-  const margin = finite(row?.margin);
+  // v59.46 boundary contract: the flags label displayed values, so they read what the readiness contract lets the screen show.
+  const value = (key) => readRowNumber(row, key, 'display');
+  const pe = value('pe');
+  const roe = value('roe');
+  const growth = value('revGrowth');
+  const margin = value('margin');
   if (pe != null && pe > 1000) flags.push({ field: 'pe', code: 'low-meaning', label: '의미 낮음 — 이익이 시가총액에 비해 매우 작음' });
   if (roe != null && Math.abs(roe) > 200) flags.push({ field: 'roe', code: 'low-meaning', label: '의미 낮음 — 자기자본이 매우 작거나 음수에 가까움' });
   if (growth != null && growth > 1000) flags.push({ field: 'revGrowth', code: 'one-off-possible', label: '일회성 가능 — 전년 매출이 매우 작은 기저 효과' });

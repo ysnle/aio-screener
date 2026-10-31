@@ -262,5 +262,28 @@ export const cases = [
       assert.equal(out.rows.length, 2);
       assert.equal(out.older, 1);
       assert.deepEqual(latestSessionRows([]), { basis: null, rows: [], older: 0 });
+  } },
+  { id: 'SEC-PROJ-DEFAULTS-01', name: 'SEC 투영의 공통 값 헤더 인코딩은 무손실이고, 옛 형식은 그대로 읽히며, 1 MiB 상한에 여유를 만든다', run: async ({ load }) => {
+    const { readFileSync } = await import('node:fs');
+    const { compactSecRecords, expandSecRecords } = await load('src/data/contracts/sec-projection.js');
+    const artifact = JSON.parse(readFileSync(new URL('../../../public-data/sec-fundamentals-summary.json', import.meta.url), 'utf8'));
+    const original = expandSecRecords(artifact);
+    const { recordDefaults, data } = compactSecRecords(original);
+    const expanded = expandSecRecords({ recordDefaults, data });
+    const canon = (record) => JSON.stringify(Object.fromEntries(Object.entries(record).sort(([a], [b]) => a.localeCompare(b))));
+    assert.deepEqual(Object.keys(expanded).sort(), Object.keys(original).sort());
+    for (const symbol of Object.keys(original)) assert.equal(canon(expanded[symbol]), canon(original[symbol]), symbol);
+    // Dates stay on every record; a record whose value differs from the default keeps its own.
+    assert.equal(Object.hasOwn(recordDefaults, 'fiscalPeriodEnd'), false);
+    const nonUsd = Object.keys(original).find((symbol) => original[symbol].reportingCurrency && original[symbol].reportingCurrency !== recordDefaults.reportingCurrency);
+    if (nonUsd) assert.equal(data[nonUsd].reportingCurrency, original[nonUsd].reportingCurrency);
+    // A file without recordDefaults (before v59.47) expands to itself.
+    assert.equal(expandSecRecords({ data: { A: { x: 1 } } }).A.x, 1);
+    // Expanded records do not share default objects (a consumer mutating one record cannot change another).
+    const shared = Object.keys(recordDefaults).find((field) => recordDefaults[field] && typeof recordDefaults[field] === 'object');
+    if (shared) { const [a, b] = Object.keys(expanded).filter((s) => !Object.hasOwn(data[s], shared)); if (a && b) assert.notEqual(expanded[a][shared], expanded[b][shared]); }
+    const before = Buffer.byteLength(JSON.stringify({ ...artifact, data: original }));
+    const after = Buffer.byteLength(JSON.stringify({ ...artifact, recordDefaults, data }));
+    assert.ok(after < before * 0.75 && after < 1024 * 1024 * 0.75, `projection ${before} → ${after} bytes`);
   } }
 ];

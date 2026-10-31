@@ -7,6 +7,10 @@ import { NATHAN_ANALYSIS_PROTOCOL } from '../knowledge/nathan-framework-pack.js'
 import { RULES } from '../rules/thresholds.js';
 import { finiteNumber as finite } from '../shared/number.js';
 import { extensionMultiple as extensionMultipleOf, extensionStateFor } from '../technical/definitions.js';
+import { readRowNumber } from '../../data/contracts/screener.js';
+
+// v59.46 boundary contract: screener row numbers are read through the readiness contract, not row[key].
+const value = (row, key) => readRowNumber(row, key, 'calculation');
 
 export const SCREENER_SETUP_MODEL_VERSION = 'screener-setup.v3';
 
@@ -22,22 +26,22 @@ export { extensionStateFor };
  */
 export function deriveScreenerSetupProfile(row = {}) {
   const rank = finite(row.rank);
-  const ret1m = finite(row.ret1m);
-  const ret3m = finite(row.ret3m);
-  const ret6m = finite(row.ret6m);
-  const pctSma50 = finite(row.pctSma50);
-  const pctSma200 = finite(row.pctSma200);
-  const rsi = finite(row.rsi);
-  const rvol20 = finite(row.rvol20 ?? row.rvol);
-  const price = finite(row.price);
+  const ret1m = value(row, 'ret1m');
+  const ret3m = value(row, 'ret3m');
+  const ret6m = value(row, 'ret6m');
+  const pctSma50 = value(row, 'pctSma50');
+  const pctSma200 = value(row, 'pctSma200');
+  const rsi = value(row, 'rsi');
+  const rvol20 = value(row, 'rvol20') ?? finite(row.rvol);
+  const price = value(row, 'price');
   const dollarPrice = row.instrumentRef?.currency === 'USD' ? price : null;
   const adrPct = finite(row.adrPct);
   const pctFrom52wLow = finite(row.pctFrom52wLow);
-  const dollarVolume30d = finite(row.dollarVolume30d);
+  const dollarVolume30d = value(row, 'dollarVolume30d');
   const dollarVolume = finite(row.dollarVolume);
-  const ema8 = finite(row.ema8);
-  const ema21 = finite(row.ema21);
-  const ema60 = finite(row.ema60);
+  const ema8 = value(row, 'ema8');
+  const ema21 = value(row, 'ema21');
+  const ema60 = value(row, 'ema60');
   const explicitRelativeStrength = finite(row.benchmarkRelativeStrength);
   const benchmarkReturn = finite(row.benchmarkRet);
   const benchmarkRelativeStrength = explicitRelativeStrength != null
@@ -73,7 +77,7 @@ export function deriveScreenerSetupProfile(row = {}) {
   // reference-only: the published screener artifact has no earnings-event
   // timestamp, wedge geometry, or post-event acceptance series, so the model
   // must expose the gap instead of inferring a Wedge Pop or post-earnings break.
-  const baseBreakoutEvidence = row.vcpStage === 'breakout' && finite(row.vcpScore) != null
+  const baseBreakoutEvidence = row.vcpStage === 'breakout' && value(row, 'vcpScore') != null
     ? (rvol20 == null ? 'partial' : 'observed-technical-breakout') : 'unavailable';
   const structureEvidence = Object.freeze({
     baseBreakout: baseBreakoutEvidence,

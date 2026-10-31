@@ -2,6 +2,7 @@ import { buildFieldReadiness, createInstrumentRef, LIVE_QUOTE_DERIVED_ROW_KEYS, 
 import { INSTRUMENT_REGISTRY, analysisEligibilityFor, resolveInstrument } from '../../domain/market/instrument-registry.js';
 import { canonicalSourceTier, isDecisionEligibleSourceKind } from '../contracts/source-kind.js';
 import { FRESHNESS_POLICY } from '../../domain/shared/freshness-policy.js';
+import { isSessionCurrent } from '../../domain/market/market-calendar.js';
 import { isDecisionEligibleRightsId } from '../contracts/evidence.js';
 import { createPublicationPolicy, evaluatePublicationSet } from './publication-set.js';
 import { evaluateQuoteContract } from './quote-contract.js';
@@ -93,6 +94,14 @@ function isoTimestamp(value) {
 function asOfIsFresh(asOf, now, maxAgeDays) {
   const timestamp = asOf ? new Date(asOf).getTime() : 0;
   return timestamp > 0 && now >= timestamp && (now - timestamp) / 86400000 <= maxAgeDays;
+}
+
+// v59.47: the factor set is current by the US session rule; the day budget only where the calendar has no year.
+function factorSetIsFresh(asOf, now, maxAgeDays) {
+  const timestamp = asOf ? new Date(asOf).getTime() : 0;
+  if (!(timestamp > 0 && now >= timestamp)) return false;
+  const current = isSessionCurrent({ market: 'US', observedAt: asOf, now }, FRESHNESS_POLICY.factorSession);
+  return current != null ? current : asOfIsFresh(asOf, now, maxAgeDays);
 }
 
 const RIGHTS_VALUES = new Set(['VERIFIED', 'REVIEW_REQUIRED', 'UNKNOWN', 'BLOCKED', 'DENIED']);
@@ -349,7 +358,7 @@ export function createScreenerProvider({
       // refreshes. Per-field readiness, not a file timestamp, gates calculations.
       const artifact = artifactValid ? receivedArtifact : { data: {} };
       const artifactFresh = artifactValid && asOfIsFresh(artifact.asOf, now, ARTIFACT_STALE_AFTER_DAYS);
-      const factorsFresh = artifactValid && asOfIsFresh(artifact.factorObservedAt, now, FACTOR_STALE_AFTER_DAYS);
+      const factorsFresh = artifactValid && factorSetIsFresh(artifact.factorObservedAt, now, FACTOR_STALE_AFTER_DAYS);
       const warnings = [
         ...(!artifactValid ? ['SCREENER_ARTIFACT_INVALID'] : []),
         ...(artifactValid && !artifactFresh ? ['SCREENER_ARTIFACT_STALE'] : []),

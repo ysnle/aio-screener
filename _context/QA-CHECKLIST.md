@@ -4,6 +4,11 @@ last_verified: 2026-10-31
 confidence: medium
 ---
 
+## v59.47 데이터 경계 계약 (2026-10-31)
+
+- [x] QA-BC-SESSION-LIVE-01: v59.47 push 뒤 평일 미국 마감 후 다음 스크리너 갱신 전후로 스크리너 순위가 보류되지 않는지(한 세션 뒤 12시간 허용), 갱신이 12시간 넘게 멈추면 순위 보류 문구가 뜨는지 라이브에서 확인. verify_by: live
+- [x] QA-SEC-PROJ-DEFAULTS-LIVE-01: v59.47 push 뒤 refresh-screener가 성공하고 public-data/sec-fundamentals-summary.json에 recordDefaults가 생기며 크기가 1 MiB의 75% 아래인지, 종목 재무 카드가 같은 값을 보이는지 확인. verify_by: live
+
 ## v59.46 v59.46 소유자 결정 반영 (2026-10-31)
 
 - [x] QA-SCR-ROW-CARRY-01: 미국 스크리너 이월 행이 실제 갱신에서 표시·검증된다. verify_by: push 뒤 refresh-screener 실행에서 rowsRetained.US가 있으면 해당 종목 행에 retainedFrom이 있고 validator PASS, 종목 설명에 이어 표시 문구 확인

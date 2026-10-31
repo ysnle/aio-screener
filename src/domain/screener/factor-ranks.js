@@ -18,9 +18,10 @@ import { normalizeAllowedUse } from '../../data/contracts/evidence.js';
 import { canonicalSourceTier } from '../../data/contracts/source-kind.js';
 import { MODEL_DEFAULT_WEIGHTS } from './factor-weights.js';
 import { screenerMarket, MARKET_POPULATION_POLICY } from './market-scope.js';
-import { latestCompletedUsSession, latestCompletedKrSession, resolveMarketCalendarSession } from '../market/market-calendar.js';
+import { isSessionCurrent, latestCompletedUsSession, latestCompletedKrSession } from '../market/market-calendar.js';
 import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, fundamentalPeriodTooOld } from '../fundamental/period.js';
 import { finiteNumber as finite } from '../shared/number.js';
+import { readRowNumber } from '../../data/contracts/screener.js';
 
 // v7 (2026-10-16): funds, SPACs and sub-$1M 확장 names leave the ranked population (rankingPopulationExclusion).
 // v8 (2026-10-17 audit, owner-approved): factor activation is judged on the core tier when 확장 rows are present, a
@@ -34,6 +35,8 @@ const DAY_MS = 86_400_000;
 // budgets let a row read CURRENT at fetch and stale at render, or vice versa.
 export const FACTOR_FRESHNESS_MS = FRESHNESS_POLICY.factorSessionMs;
 const MIN_RANKED_ROWS = 5;
+// v59.47: factor inputs go through the readiness contract (calculation), so a STALE or blocked value is not ranked.
+const value = (row, key) => readRowNumber(row, key, 'calculation');
 // 2026-10-13 review S01: value/quality use the provider's period rule (fiscal period end within 456 days of
 // the price session). The former 180-day filing-date budget left 79 of 810 US rows current.
 const FUNDAMENTAL_FRESHNESS_MS = FUNDAMENTAL_MAX_PERIOD_AGE_DAYS * DAY_MS;
@@ -74,9 +77,9 @@ function median(values) {
 
 function momRaw(row) {
   const parts = [];
-  if (finite(row?.ret1m) != null) parts.push({ v: row.ret1m, w: 0.4 });
-  if (finite(row?.ret3m) != null) parts.push({ v: row.ret3m, w: 0.4 });
-  if (finite(row?.ret6m) != null) parts.push({ v: row.ret6m, w: 0.2 });
+  if (value(row, 'ret1m') != null) parts.push({ v: value(row, 'ret1m'), w: 0.4 });
+  if (value(row, 'ret3m') != null) parts.push({ v: value(row, 'ret3m'), w: 0.4 });
+  if (value(row, 'ret6m') != null) parts.push({ v: value(row, 'ret6m'), w: 0.2 });
   const denom = parts.reduce((sum, p) => sum + p.w, 0);
   return denom > 0 ? parts.reduce((sum, p) => sum + p.v * p.w, 0) / denom : null;
 }
@@ -86,8 +89,8 @@ function momRaw(row) {
 // Signed yields (TTM earnings and book over market value, supplied by the caller) give a loss-maker a low value; with
 // positive multiples only, a loss-maker's value is missing and renormalization reads it as average.
 function momSixMinusOneRaw(row) {
-  const r6 = finite(row?.ret6m);
-  const r1 = finite(row?.ret1m);
+  const r6 = value(row, 'ret6m');
+  const r1 = value(row, 'ret1m');
   return r6 != null && r1 != null && r1 > -100 ? ((1 + r6 / 100) / (1 + r1 / 100) - 1) * 100 : null;
 }
 
@@ -95,8 +98,8 @@ function momSixMinusOneRaw(row) {
 // from the same close series as ret12m and ret1m: (1+r12)/(1+r1)-1 = close[t-21]/close[t-252]-1. Missing when the
 // listing has less than a year of closes; no shorter window stands in for it.
 function momTwelveMinusOneRaw(row) {
-  const r12 = finite(row?.ret12m);
-  const r1 = finite(row?.ret1m);
+  const r12 = value(row, 'ret12m');
+  const r1 = value(row, 'ret1m');
   return r12 != null && r1 != null && r1 > -100 ? ((1 + r12 / 100) / (1 + r1 / 100) - 1) * 100 : null;
 }
 
@@ -111,30 +114,30 @@ function signedYieldValueRaw(row) {
 
 function trendRaw(row) {
   const parts = [];
-  if (finite(row?.pctSma50) != null) parts.push({ v: row.pctSma50, w: 0.6 });
-  if (finite(row?.pctSma200) != null) parts.push({ v: row.pctSma200, w: 0.4 });
+  if (value(row, 'pctSma50') != null) parts.push({ v: value(row, 'pctSma50'), w: 0.6 });
+  if (value(row, 'pctSma200') != null) parts.push({ v: value(row, 'pctSma200'), w: 0.4 });
   const denom = parts.reduce((sum, p) => sum + p.w, 0);
   return denom > 0 ? parts.reduce((sum, p) => sum + p.v * p.w, 0) / denom : null;
 }
 
 function lowvolRaw(row) {
-  const volatility = finite(row?.vol);
+  const volatility = value(row, 'vol');
   return volatility != null && volatility >= 0 ? -volatility : null;
 }
 
 function sizeRaw(row) {
-  const marketCap = finite(row?.mcap);
+  const marketCap = value(row, 'mcap');
   return marketCap != null && marketCap > 0 ? -Math.log(marketCap) : null;
 }
 
 function valueRaw(row) {
   const parts = [];
-  const addInverse = (value, upper, maxInverse) => {
-    const numeric = finite(value);
+  const addInverse = (input, upper, maxInverse) => {
+    const numeric = finite(input);
     if (numeric != null && numeric > 0 && numeric < upper) parts.push(Math.max(0, Math.min(maxInverse, 1 / numeric)) / maxInverse);
   };
-  addInverse(row?.pe, 200, 0.20);
-  addInverse(row?.pb, 50, 2.0);
+  addInverse(value(row, 'pe'), 200, 0.20);
+  addInverse(value(row, 'pb'), 50, 2.0);
   // 2026-10-13 F11: EV/EBITDA is retired at the provider (no automated producer; 0 of 873 rows), so this term is
   // inert on live rows. The line stays only because the legacy-derived factor-ranks golden fixture
   // (architecture/fixtures/factor-ranks-golden.json) feeds evEbitda inputs; removing it needs a golden refresh.
@@ -144,13 +147,13 @@ function valueRaw(row) {
 
 function qualityRaw(row) {
   const parts = [];
-  const addClamped = (value, lo, hi, denominator) => {
-    const numeric = finite(value);
+  const addClamped = (input, lo, hi, denominator) => {
+    const numeric = finite(input);
     if (numeric != null) parts.push(Math.max(lo, Math.min(hi, numeric)) / denominator);
   };
-  addClamped(row?.roe, -30, 60, 60);
-  addClamped(row?.margin, -20, 40, 40);
-  addClamped(row?.revGrowth, -30, 60, 60);
+  addClamped(value(row, 'roe'), -30, 60, 60);
+  addClamped(value(row, 'margin'), -20, 40, 40);
+  addClamped(value(row, 'revGrowth'), -30, 60, 60);
   return parts.length ? avg(parts) : null;
 }
 
@@ -158,16 +161,16 @@ function qualityRaw(row) {
 // profitability alone (ROE, margin) so its forward record can test the definition the default keeps.
 function profitabilityRaw(row) {
   const parts = [];
-  const roe = finite(row?.roe);
-  const margin = finite(row?.margin);
+  const roe = value(row, 'roe');
+  const margin = value(row, 'margin');
   if (roe != null) parts.push(Math.max(-30, Math.min(60, roe)) / 60);
   if (margin != null) parts.push(Math.max(-20, Math.min(40, margin)) / 40);
   return parts.length ? avg(parts) : null;
 }
 
 function kalmanRaw(row) {
-  const confidence = finite(row?.kalmanVelConf);
-  return confidence != null ? confidence : finite(row?.kalmanVel);
+  const confidence = value(row, 'kalmanVelConf');
+  return confidence != null ? confidence : value(row, 'kalmanVel');
 }
 
 function stats(values) {
@@ -230,15 +233,20 @@ function isFreshPast(value, now, budgetMs) {
 
 const PRICE_FACTOR_KEYS = new Set(['momentum', 'trend', 'lowvol', 'kalman']);
 const sessionCache = new Map();
-function isLatestCompletedPriceSession(row, lineage, now) {
-  if (lineage.timeBasis !== 'bar-start' || !lineage.sessionDate || row?.factorBarCompleteness !== 'completed-sessions-only') return false;
-  const observed=isoMs(lineage.observedAt), market=screenerMarket(row), key=`${market}:${Math.floor(now/60000)}`;
-  if(!Number.isFinite(observed)||observed>now)return false;
-  if(!sessionCache.has(key)) { sessionCache.set(key,market==='KR'?latestCompletedKrSession(now):latestCompletedUsSession(now,{requirePrevious:false})); if(sessionCache.size>8)sessionCache.delete(sessionCache.keys().next().value); }
-  const latest=sessionCache.get(key);
-  const zone=market==='KR'?'Asia/Seoul':'America/New_York';
-  const ownDate=new Date(observed).toLocaleDateString('en-CA',{timeZone:zone});
-  return latest?.date===lineage.sessionDate && ownDate===lineage.sessionDate && resolveMarketCalendarSession({market,date:ownDate}).status==='open';
+// v59.47: price and size factors are current by the session rule (FRESHNESS_POLICY.factorSession), replacing P1625's
+// "4 days or the latest close"; the 4-day age stands in where the calendar has no year (pre-2026 backtests).
+function factorSessionFresh(row, lineage, now) {
+  const observed = isoMs(lineage.observedAt);
+  if (!Number.isFinite(observed) || !Number.isFinite(now) || observed > now) return false;
+  const market = screenerMarket(row);
+  if (market !== 'US' && market !== 'KR') return now - observed <= FACTOR_FRESHNESS_MS;
+  const key = `${market}:${Math.floor(now / 60000)}`;
+  if (!sessionCache.has(key)) {
+    sessionCache.set(key, market === 'KR' ? latestCompletedKrSession(now) : latestCompletedUsSession(now, { requirePrevious: false }));
+    if (sessionCache.size > 8) sessionCache.delete(sessionCache.keys().next().value);
+  }
+  const current = isSessionCurrent({ market, sessionDate: lineage.sessionDate, observedAt: lineage.observedAt, now, latest: sessionCache.get(key) }, FRESHNESS_POLICY.factorSession);
+  return current != null ? current : now - observed <= FACTOR_FRESHNESS_MS;
 }
 
 function factorLineage(row, key) {
@@ -272,7 +280,6 @@ function fundamentalFresh(row, observedAt, now) {
 
 function factorEvidenceUsable(row, key, now) {
   const lineage = factorLineage(row, key);
-  const budget = FACTOR_FRESHNESS_MS;
   const fundamentalFactor = key === 'value' || key === 'quality';
   const reasons = [];
   if (!lineage.observedAt) reasons.push('observedAt_missing');
@@ -281,8 +288,8 @@ function factorEvidenceUsable(row, key, now) {
   if (normalizeAllowedUse(lineage.allowedUse, 'none') === 'none') reasons.push('allowedUse_blocked');
   if (!lineage.quality || typeof lineage.quality !== 'object') reasons.push('quality_missing');
   else if (lineage.quality.stale === true || lineage.quality.blocked === true || lineage.quality.status === 'STALE' || lineage.quality.status === 'MISSING') reasons.push('quality_stale_or_blocked');
-  // P1625: a latest completed KRX close remains current through a holiday + weekend.
-  if (fundamentalFactor ? !fundamentalFresh(row, lineage.observedAt, now) : (!isFreshPast(lineage.observedAt, now, budget) && !(PRICE_FACTOR_KEYS.has(key) && isLatestCompletedPriceSession(row,lineage,now)))) reasons.push('observedAt_stale_or_future');
+  // P1625 → v59.46: the session lag, not a calendar-day age, decides (a KRX close stays current through a holiday + weekend).
+  if (fundamentalFactor ? !fundamentalFresh(row, lineage.observedAt, now) : !factorSessionFresh(row, lineage, now)) reasons.push('observedAt_stale_or_future');
   return { ok: reasons.length === 0, lineage, reasons };
 }
 
@@ -457,12 +464,12 @@ function computeFactorRanksForPopulation({
     // 막는다. 가격 기준 선언이 아예 없는 합성/구형 행은 기존 동작을 유지하고, 선언된
     // raw/partial 행만 비교 집합에서 분리해 inputAudit에 남긴다.
     if (row.adjustedCloseStatus != null && row.adjustedCloseStatus !== 'complete') { rawBasisRows += 1; return false; }
-    if (finite(row.ret3m) == null && finite(row.ret1m) == null) { invalidCoreRows += 1; return false; }
+    if (value(row, 'ret3m') == null && value(row, 'ret1m') == null) { invalidCoreRows += 1; return false; }
     if (symbol && seenSymbols.has(symbol)) { duplicateRows += 1; return false; }
     if (symbol) seenSymbols.add(symbol);
     return true;
   });
-  const validCoreRows = items.filter((row) => finite(row.ret3m) != null || finite(row.ret1m) != null).length;
+  const validCoreRows = items.filter((row) => value(row, 'ret3m') != null || value(row, 'ret1m') != null).length;
   if (items.length < 5 || validCoreRows < 5) {
     return emptyResult({
       inputVersion,
@@ -863,7 +870,7 @@ const SPAC_NAME = /acquisitions?\s*(?:\d+|I{1,3}|IV|VI{0,3})?\s*(?:corp(?:oratio
 export function rankingPopulationExclusion(row) {
   if (row?.index === 'ETF' || row?.assetType === 'ETF' || row?.instrumentRef?.assetType === 'ETF') return 'fund';
   if (String(row?.sic ?? '').trim() === SPAC_SIC || SPAC_NAME.test(String(row?.name || ''))) return 'spac';
-  const dollarVolume = finite(row?.dollarVolume30d);
+  const dollarVolume = value(row, 'dollarVolume30d');
   if (row?.universeTier === 'extended' && dollarVolume != null && dollarVolume < EXTENDED_MIN_DOLLAR_VOLUME_30D) return 'illiquid';
   return null;
 }

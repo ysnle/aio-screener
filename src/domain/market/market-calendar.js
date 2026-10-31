@@ -343,3 +343,27 @@ export function countOpenSessionsBetween(fromDate, toDate, market = 'US') {
   if (new Date(capMs).getUTCFullYear() > 2200) return openSessionDatesBetween(fromDate, toDate, { market, includeEnd: true, unknownYear: 'weekday' }).length;
   return sessionOrdinal(calendarKey, capMs) - from.ordinal;
 }
+
+// v59.47: an observation's session against the latest completed one (lag 0 = latest; in progress = 0), replacing the
+// 4-day age. null for an unknown calendar year or a future observation (callers fall back to their day budget).
+export function observationSessionState({ market = 'US', sessionDate = null, observedAt = null, now = Date.now(), latest = null } = {}) {
+  const nowMs = Number(now);
+  if (!Number.isFinite(nowMs)) return null;
+  const observedMs = observedAt == null || observedAt === '' ? NaN : Date.parse(observedAt);
+  if (Number.isFinite(observedMs) && observedMs > nowMs) return null;
+  const kr = ['KR', 'KRX'].includes(String(market).toUpperCase());
+  const own = dateOnly(sessionDate) || (Number.isFinite(observedMs) ? dateInTimezone(observedMs, kr ? 'Asia/Seoul' : 'America/New_York') : null);
+  const last = latest || (kr ? latestCompletedKrSession(nowMs) : latestCompletedUsSession(nowMs, { requirePrevious: false }));
+  if (!own || !last?.date) return null;
+  const lag = own >= last.date ? 0 : countOpenSessionsBetween(own, last.date, kr ? 'KR' : 'US');
+  const closeMs = Number.isFinite(last.closeMs) ? last.closeMs : null;
+  return { lag, latestDate: last.date, latestCloseMs: closeMs, sinceLatestCloseMs: closeMs == null ? null : nowMs - closeMs };
+}
+
+// Current = lag 0, or up to maxLag behind while the latest close is under graceMs old (its producer has not landed).
+export function isSessionCurrent(args = {}, { maxLag = 1, graceMs = 12 * 3600000 } = {}) {
+  const state = observationSessionState(args);
+  if (!state) return null;
+  if (state.lag === 0) return true;
+  return state.lag <= maxLag && state.sinceLatestCloseMs != null && state.sinceLatestCloseMs <= graceMs;
+}

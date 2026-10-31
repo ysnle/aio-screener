@@ -5,9 +5,13 @@
 
 import { selectProducedRotation } from '../themes/produced-rotation.js';
 import { readNumber as finite } from '../shared/number.js';
+import { readRowNumber } from '../../data/contracts/screener.js';
 
 export const AI_CHAIN_THEMES = Object.freeze(['semiconductor', 'ai_infra', 'photonics']);
 export const AI_CHAIN_MIN_MEMBERS = 3;
+
+// v59.46 boundary contract: the medians take the 1-month return the screener readiness contract allows in a calculation.
+const ret1m = (row) => readRowNumber(row, 'ret1m', 'calculation');
 
 function median(values) {
   const list = values.map(finite).filter((value) => value != null).sort((a, b) => a - b);
@@ -28,10 +32,10 @@ export function aiChainFlow({ themes = [], rows = [], session = null } = {}) {
     if (!AI_CHAIN_THEMES.includes(theme?.id)) continue;
     for (const sub of theme.subThemes || []) {
       const listed = [...new Set((sub?.tickers || []).map((sym) => String(sym).toUpperCase()))].map((sym) => bySymbol.get(sym)).filter((row) => row && !/\.K[SQ]$/.test(row.sym));
-      const members = listed.filter((row) => (!session || row.factorSessionDate === session) && finite(row.ret1d) != null && finite(row.ret1m) != null);
+      const members = listed.filter((row) => (!session || row.factorSessionDate === session) && finite(row.ret1d) != null && ret1m(row) != null);
       if (members.length < AI_CHAIN_MIN_MEMBERS) continue;
-      groups.push({ id: `${theme.id}:${sub.name}`, name: sub.name, measured: members.length, listed: listed.length, ret1d: median(members.map((row) => row.ret1d)), ret5d: median(members.map((row) => row.ret5d)), ret1m: median(members.map((row) => row.ret1m)),
-        members: members.map((row) => ({ sym: row.sym, name: row.name || row.sym, ret1d: finite(row.ret1d), ret1m: finite(row.ret1m) })).sort((a, b) => a.ret1m - b.ret1m) });
+      groups.push({ id: `${theme.id}:${sub.name}`, name: sub.name, measured: members.length, listed: listed.length, ret1d: median(members.map((row) => row.ret1d)), ret5d: median(members.map((row) => row.ret5d)), ret1m: median(members.map(ret1m)),
+        members: members.map((row) => ({ sym: row.sym, name: row.name || row.sym, ret1d: finite(row.ret1d), ret1m: ret1m(row) })).sort((a, b) => a.ret1m - b.ret1m) });
     }
   }
   groups.sort((a, b) => a.ret1m - b.ret1m);

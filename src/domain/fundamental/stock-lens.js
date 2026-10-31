@@ -7,6 +7,7 @@ import { themeProfile, windFor, WIND_LABELS, EXPOSURE_TAGS } from '../scenarios/
 import { BRANCHES } from '../market/macro-crossroads.js';
 import { signedText, usdKoreanText } from '../shared/number.js';
 import { RETURNED_LABEL } from './analysis-read.js';
+import { readRowNumber } from '../../data/contracts/screener.js';
 
 const pct = (value, digits = 1) => (value == null ? null : `${value.toFixed(digits)}%`);
 const usdShort = (value) => usdKoreanText(value); // first-users F33: one money format
@@ -306,7 +307,8 @@ export function buildWatchList({ schedule = null, consensus = null, trailing = n
   const fwd = consensus?.fwd;
   if (fwd) items.push({ id: 'revisions', label: '이익 전망 방향', now: `최근 4주 상향 ${finite(fwd.up4w) || 0}, 하향 ${finite(fwd.down4w) || 0}`, why: '가격보다 먼저 방향이 바뀌는 경우가 많습니다.' });
   if (trailing?.margin != null) items.push({ id: 'margin', label: '이익률 추세', now: `최근 4개 분기 순이익률 ${trailing.margin.toFixed(1)}%${trailing.priorMargin != null ? `(1년 전 ${trailing.priorMargin.toFixed(1)}%)` : ''}`, why: '성장보다 이익률이 먼저 꺾이는 일이 흔합니다.' });
-  const r3 = finite(row?.ret3m);
+  // v59.46 boundary contract: the watch item prints the 3-month return the readiness contract lets the screen show.
+  const r3 = readRowNumber(row, 'ret3m', 'display');
   if (r3 != null) items.push({ id: 'relative', label: '상대강도', now: `3개월 ${signedText(r3, 1, '%')}${benchmarkRet3m != null ? `, 같은 기간 ${benchmarkLabel} ${signedText(benchmarkRet3m, 1, '%')}` : ''}`, why: '지수보다 강한지 약한지가 수급의 방향입니다.' });
   const support = levels?.supportCandidates?.[0];
   const resistance = levels?.resistanceCandidates?.[0];

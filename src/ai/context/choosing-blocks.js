@@ -3,6 +3,7 @@
 // answer order. Loaded on the first AI question (market-content.js loadChoosingBlocks), so none of it is in the boot set.
 // The app never picks a price, weight or time; every block is facts, conditions and met counts.
 import { signedText } from '../../domain/shared/number.js';
+import { readRowNumber } from '../../data/contracts/screener.js';
 
 export function questionBlocks({ ctxId = '', text = '', root = {}, subjects = [] } = {}) {
   const out = [];
@@ -137,12 +138,14 @@ export function focusedThemeContext({ root = {}, ctxId = '', query = '', playboo
   const row = playbook?.available ? playbook.themes.find((item) => item.market === 'US' && item.id === theme.id) : null;
   const pctText = (value) => (value == null ? '—' : `${signedText(value, 1)}%`);
   const leaders = new Set((theme.leaders || []).map((sym) => String(sym).toUpperCase()));
-  const priced = rows.filter((item) => leaders.has(String(item?.sym || '').toUpperCase()) && Number.isFinite(item?.ret1m));
+  // v59.46 boundary contract: the members' 1-month moves are read through the screener readiness contract.
+  const ret1m = (item) => readRowNumber(item, 'ret1m', 'display');
+  const priced = rows.filter((item) => leaders.has(String(item?.sym || '').toUpperCase()) && ret1m(item) != null);
   const dates = [...new Set(priced.map((item) => item.factorSessionDate).filter(Boolean))].sort();
   // v59.45 (pipeline review PASS13 후보): members measured at different closes were ranked together under the newest date;
   // only the members at that date are compared (the count below says how many of the theme that is).
-  const members = (dates.length ? priced.filter((item) => item.factorSessionDate === dates.at(-1)) : priced).sort((a, b) => b.ret1m - a.ret1m);
-  const name = (item) => `${String(item.sym).toUpperCase()}${item.name ? `(${String(item.name).slice(0, 18)})` : ''} ${pctText(item.ret1m)}`;
+  const members = (dates.length ? priced.filter((item) => item.factorSessionDate === dates.at(-1)) : priced).sort((a, b) => ret1m(b) - ret1m(a));
+  const name = (item) => `${String(item.sym).toUpperCase()}${item.name ? `(${String(item.name).slice(0, 18)})` : ''} ${pctText(ret1m(item))}`;
   const top = members.slice(0, 4).map(name), bottom = members.length > 6 ? members.slice(-2).map(name) : [];
   const criteria = themeCriteriaBlock(root, theme.id);
   return [`【지금 보는 테마】 ${theme.nameKr || theme.id}${theme.etf ? ` (대표 ETF ${theme.etf})` : ''}${openId === theme.id ? ', 화면에서 상세를 연 테마' : ', 질문이 이름을 부른 테마'}`,

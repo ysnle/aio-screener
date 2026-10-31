@@ -10,6 +10,10 @@ import { EXTENSION_BANDS } from '../screener/setup-profile.js';
 import { RULES } from '../rules/thresholds.js';
 import { extensionMultiple, extensionStateFor } from './definitions.js';
 import { signedText, readNumber as finite } from '../shared/number.js';
+import { readRowNumber } from '../../data/contracts/screener.js';
+
+// v59.46 boundary contract: screener row numbers are read through the readiness contract, not row[key].
+const value = (row, key) => readRowNumber(row, key, 'calculation');
 
 /** |distance to the 50-day line| below this many average daily ranges = 부근 (neither side). v57.84: RULES constant. */
 export const NEAR_LINE_ADR = RULES.technical.nearLineAdr;
@@ -46,8 +50,8 @@ export const recentDropText = (drop) => (drop ? `최근 5거래일 ${signed(drop
  * unconfirmed (above both lines but the ADR or five-session input is missing, so the buffers cannot be tested).
  */
 export function bufferedTrend(row) {
-  const s50 = finite(row?.pctSma50);
-  const s200 = finite(row?.pctSma200);
+  const s50 = value(row, 'pctSma50');
+  const s200 = value(row, 'pctSma200');
   if (s50 == null || s200 == null) return null;
   const adr = finite(row?.adrPct);
   const drop = recentDrop(row);
@@ -73,8 +77,8 @@ export function bufferedTrend(row) {
 /** Entry-ready trend part: above the 50-day line by ENTRY_MIN_ADR_OVER_50 ranges, above the 200-day line, no break. */
 export function trendHeldWithMargin(row) {
   const trend = bufferedTrend(row);
-  const margin = adrMultiple(row?.pctSma50, row?.adrPct);
-  return trend?.id === 'up' && margin != null && margin >= ENTRY_MIN_ADR_OVER_50 && finite(row?.pctSma200) > 0;
+  const margin = adrMultiple(value(row, 'pctSma50'), row?.adrPct);
+  return trend?.id === 'up' && margin != null && margin >= ENTRY_MIN_ADR_OVER_50 && value(row, 'pctSma200') > 0;
 }
 
 /**
@@ -88,11 +92,11 @@ export function modelContraryEvidence(row) {
   if (drop == null) unchecked.push('5거래일 낙폭');
   else if (drop.broken) hits.push(recentDropText(drop));
   for (const [key, label] of [['pctSma20', '20일선'], ['pctSma50', '50일선'], ['pctSma200', '200일선']]) {
-    const value = finite(row?.[key]);
-    if (value == null) unchecked.push(label);
-    else if (value < 0) hits.push(`${label} 아래(${signed(value)})`);
+    const reading = value(row, key);
+    if (reading == null) unchecked.push(label);
+    else if (reading < 0) hits.push(`${label} 아래(${signed(reading)})`);
   }
-  const rsi = finite(row?.rsi);
+  const rsi = value(row, 'rsi');
   const { overbought, oversold } = RULES.technical.rsi;
   if (rsi == null) unchecked.push('RSI');
   else if (rsi >= overbought) hits.push(`RSI ${rsi.toFixed(1)} 과열권(${overbought} 이상)`);

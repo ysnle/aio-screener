@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P2156 - v59.47 - SEC 런타임 투영이 1 MiB 상한을 다시 넘어 스크리너·SEC 갱신이 하루 넘게 멈춤 (2026-10-31)
+
+- symptom/reproduction: 10/30 22:25Z 이후 스크리너 갱신 3회가 연속 실패했다(ci-sec-runtime-projection-check: runtime projection exceeds 1 MiB: 1,052,459). 미국 스크리너 자료가 10/29 종가에 멈췄는데, 4일 기준이라 화면은 현재로 표시했다.
+- root_cause: 투영 파일이 모든 레코드에 같은 값(출처 등급·권리·허용 용도·회계 기준·통화·품질 등)을 832번 반복해 싣는다. 자연 증가로 상한에 닿을 때마다 필드 하나를 손으로 빼는 방식(P1470, P1632, 2026-10-21)이라 여유가 매번 수 KB에 그쳤다.
+- fix: src/data/contracts/sec-projection.js에 하나의 인코딩을 두었다. 모든 레코드에 있고 절반 이상이 같은 값인 필드는 헤더 recordDefaults에 한 번 적고, 그 값을 가진 레코드에서 뺀다. 다른 값을 가진 레코드는 자기 값을 그대로 둔다. 읽는 쪽(entity provider, 투영 게이트)은 {...recordDefaults, ...record}로 펼치므로 손실이 없고, recordDefaults가 없는 옛 파일은 그대로 읽힌다. 날짜 필드는 모든 레코드에 남긴다. 실제 자료로 약 37%(1,034 KB → 647 KB)가 준다.
+- violated_rule: 없음(규칙 위반이 아닌 용량 설계 결함): 상한에 닿을 때마다 필드를 손으로 빼는 대응이 반복됐다.
+- prevention: pipeline-semantics fundamentals 케이스 SEC-PROJ-DEFAULTS-01: 실제 투영 파일로 압축 → 펼침이 레코드마다 같고, 옛 형식이 그대로 읽히며, 결과가 상한의 75% 아래다. 세션 기준 현재성(v59.47)은 같은 장애를 12시간 안에 순위 보류로 드러낸다.
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs PASS(183); ci-sec-runtime-projection-check, ci-fundamental-watchlist-timeline-check, ci-professional-data-gap-check, ci-architecture-audit-regression-fixture PASS. 생산자 경로의 첫 실증은 push 뒤 refresh-screener 실행.
+
 ## P2155 - v59.46 - 현금 조건이 빈 설비투자를 설비투자 0%로 읽음 (2026-10-31)
 
 - symptom/reproduction: cash-metrics의 지역 숫자 읽기가 ''와 false를 0으로 읽어, 설비투자 칸이 빈 해는 설비투자 0%·영업현금흐름 전체를 잉여현금흐름으로 계산할 수 있었다(잠재, 구조 시범 중 발견).

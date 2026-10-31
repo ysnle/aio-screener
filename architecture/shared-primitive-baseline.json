@@ -5,33 +5,18 @@
   "totals": {
     "localFinite": 0,
     "dateRegex": 5,
-    "rawRowRead": 225
+    "rawRowRead": 92
   },
   "counts": {
     "src/ai/context/choosing-blocks.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 8
+      "rawRowRead": 6
     },
     "src/ai/context/market-content.js": {
       "localFinite": 0,
       "dateRegex": 0,
       "rawRowRead": 1
-    },
-    "src/ai/context/screener-query.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 7
-    },
-    "src/domain/briefing/ai-chain-flow.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 3
-    },
-    "src/domain/briefing/daily-diff.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 3
     },
     "src/domain/briefing/event-briefs.js": {
       "localFinite": 0,
@@ -42,36 +27,6 @@
       "localFinite": 0,
       "dateRegex": 1,
       "rawRowRead": 0
-    },
-    "src/domain/entity/stock-read.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 5
-    },
-    "src/domain/fundamental/analysis-read.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 2
-    },
-    "src/domain/fundamental/consensus-read.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 2
-    },
-    "src/domain/fundamental/fiscal-read.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 2
-    },
-    "src/domain/fundamental/sec-report.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 4
-    },
-    "src/domain/fundamental/stock-lens.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 1
     },
     "src/domain/macro/macro-read.js": {
       "localFinite": 0,
@@ -88,17 +43,7 @@
       "dateRegex": 1,
       "rawRowRead": 0
     },
-    "src/domain/market/sector-map.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 1
-    },
     "src/domain/masters/value-scale.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 1
-    },
-    "src/domain/portfolio/attribution.js": {
       "localFinite": 0,
       "dateRegex": 0,
       "rawRowRead": 1
@@ -108,20 +53,10 @@
       "dateRegex": 0,
       "rawRowRead": 5
     },
-    "src/domain/portfolio/portfolio-read.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 2
-    },
     "src/domain/portfolio/risk.js": {
       "localFinite": 0,
       "dateRegex": 0,
       "rawRowRead": 6
-    },
-    "src/domain/scenarios/theme-criteria.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 16
     },
     "src/domain/scenarios/theme-playbook.js": {
       "localFinite": 0,
@@ -131,37 +66,17 @@
     "src/domain/screener/factor-ranks.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 32
-    },
-    "src/domain/screener/row-presentation.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 3
+      "rawRowRead": 2
     },
     "src/domain/screener/screen-engine.js": {
       "localFinite": 0,
       "dateRegex": 0,
       "rawRowRead": 1
     },
-    "src/domain/screener/screener-read.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 2
-    },
-    "src/domain/screener/setup-profile.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 13
-    },
     "src/domain/signal/close-basis.js": {
       "localFinite": 0,
       "dateRegex": 1,
       "rawRowRead": 0
-    },
-    "src/domain/technical/bands.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 5
     },
     "src/domain/technical/chart-drawings.js": {
       "localFinite": 0,
@@ -188,11 +103,6 @@
       "dateRegex": 0,
       "rawRowRead": 1
     },
-    "src/ui/components/company-analysis.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 6
-    },
     "src/ui/components/fundamental-analysis-cards.js": {
       "localFinite": 0,
       "dateRegex": 0,
@@ -213,11 +123,6 @@
       "dateRegex": 0,
       "rawRowRead": 2
     },
-    "src/ui/components/stock-lens-cards.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 1
-    },
     "src/ui/components/theme-playbook-view.js": {
       "localFinite": 0,
       "dateRegex": 0,
@@ -236,12 +141,7 @@
     "src/ui/pages/screener.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 25
-    },
-    "src/ui/pages/themes.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 8
+      "rawRowRead": 11
     },
     "src/ui/panels/portfolio-trade-journal.js": {
       "localFinite": 0,

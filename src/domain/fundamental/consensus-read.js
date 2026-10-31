@@ -4,6 +4,7 @@
 // The price is the screener artifact's close (valuationPrice). Nothing here enters a score.
 
 import { signedText, readNumber as finite } from '../shared/number.js';
+import { readRowNumber } from '../../data/contracts/screener.js';
 
 export const CONSENSUS_MAX_AGE_DAYS = 21;
 export const CONSENSUS_THIN_ESTIMATES = 3;
@@ -87,12 +88,13 @@ export function buildConsensusPoint(row, estimate, options = {}) {
   // stock 20% under its high and up 20% this month read "반대 방향" beside upward revisions. The price direction is the
   // last month's move (the revisions' four weeks); the high stays as context.
   const fromHigh = finite(row?.pctFrom52wHigh);
-  const month = finite(row?.ret1m);
+  // v59.46 boundary contract: the price direction and the PER gap are judged on calculable screener values.
+  const month = readRowNumber(row, 'ret1m', 'calculation');
   const netRev = view.up4w - view.down4w;
   const revDir = Math.abs(netRev) >= CONSENSUS_NET_REVISION_FLOOR ? (netRev > 0 ? 'up' : 'down') : null;
   const priceDir = month == null ? null : month >= CONSENSUS_PRICE_MOVE_PCT ? 'up' : month <= -CONSENSUS_PRICE_MOVE_PCT ? 'down' : null;
   const versus = revDir && priceDir ? `주가는 최근 1개월 ${signed(month)}${fromHigh != null ? `(52주 고점 대비 ${signed(fromHigh)})` : ''}이고 최근 4주 추정치는 ${revDir === 'up' ? '상향' : '하향'}이 많습니다 — 가격과 이익 전망이 ${revDir === priceDir ? '같은' : '반대'} 방향입니다` : null;
-  const reportedPe = finite(row?.pe);
+  const reportedPe = readRowNumber(row, 'pe', 'calculation');
   const gaapGap = reportedPe != null && view.trailingPe != null && reportedPe > 0 && reportedPe < view.trailingPe * 0.9
     ? `공시 기준 PER(${peMultipleText(reportedPe)})이 조정 기준보다 낮아, 공시 이익에 일회성 이익이 섞였는지 10-Q에서 확인합니다` : null;
   const text = `${lead} — ` + [basis, `애널리스트 최소 ${view.minEstimates ?? '?'}명, ${revisions}`, versus, gaapGap, ...cautions].filter(Boolean).join('. ')

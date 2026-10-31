@@ -18,6 +18,7 @@ import { rrgRecentReading } from '../themes/recent-check.js';
 import { koreaRecordText, KR_SHOCK_TAIL_PCT } from '../briefing/market-read.js';
 import { signedText, readNumber as finite } from '../shared/number.js';
 import { hasLeadingIsoDay } from '../shared/session-date.js';
+import { readRowNumber } from '../../data/contracts/screener.js';
 
 const signed = (value, digits = 1, unit = '%') => signedText(value, digits, unit);
 const QUADRANT = Object.freeze({ Leading: { label: '선도', tone: 'favorable' }, Improving: { label: '개선', tone: 'neutral' }, Weakening: { label: '약화', tone: 'neutral' }, Lagging: { label: '후행', tone: 'burden' } });
@@ -43,8 +44,9 @@ export const TREND_BUFFER_MIN_PCT = 1;
 // v57.81: the Korean part of a book is read beside the US verdict once it is at least this share of the holdings.
 export const KR_BOOK_SHARE_PCT = 30;
 function trendState(row) {
-  const s50 = finite(row?.pctSma50);
-  const s200 = finite(row?.pctSma200);
+  // v59.46 boundary contract: the trend state is judged on values the screener readiness contract allows in a calculation.
+  const s50 = readRowNumber(row, 'pctSma50', 'calculation');
+  const s200 = readRowNumber(row, 'pctSma200', 'calculation');
   if (s50 == null || s200 == null) return null;
   const band = Math.max(TREND_BUFFER_MIN_PCT, finite(row?.adrPct) ?? 0);
   if (Math.abs(s50) < band || Math.abs(s200) < band) return 'near';

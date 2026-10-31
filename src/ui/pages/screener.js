@@ -39,7 +39,7 @@ import { selectScreenerState } from '../../state/selectors/screener.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { createSavedScreen, exportSavedScreen, importSavedScreen } from '../../domain/screener/saved-screens.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
-import { SCREENER_FIELD_REGISTRY, createScreenDefinition, fieldValueForPurpose } from '../../data/contracts/screener.js';
+import { SCREENER_FIELD_REGISTRY, createScreenDefinition, fieldValueForPurpose, readRowNumber } from '../../data/contracts/screener.js';
 import { FACTOR_LABELS, capFilterValue, numberText, visibleRank, rankGrade, vcpStageLabel, describeStaleDates, profileComputability, factorSessionLag, describeRankingHold, followThroughSummary } from '../../domain/screener/row-presentation.js';
 export { capFilterValue, visibleRank, rankGrade, vcpStageLabel, describeStaleDates, profileComputability, factorSessionLag, describeRankingHold };
 import { CONDITIONAL_EVIDENCE_DISCLAIMER, CONDITIONAL_EVIDENCE_VERSION } from '../../domain/screener/conditional-evidence.js';
@@ -253,8 +253,9 @@ export function factorScoreColor(key, value, row, neutral = 'var(--text-primary)
 }
 export function entryTiming(row) {
   const rank = finite(row.rank);
-  const rsi = finite(row.rsi);
-  const momentum = finite(row.ret1m) ?? (finite(row.ret3m) == null ? null : row.ret3m / 3);
+  const rsi = readRowNumber(row, 'rsi', 'display');
+  const ret3m = readRowNumber(row, 'ret3m', 'display');
+  const momentum = readRowNumber(row, 'ret1m', 'display') ?? (ret3m == null ? null : ret3m / 3);
   const setup = row.setupProfile || {};
   if (rank == null) return ['—', 'entry-wait'];
   if (setup.climaxRisk === 'watch') return [setup.label || '과열 정점 주의', 'entry-wait'];
@@ -389,8 +390,8 @@ export function filterRows(rows, documentRef, { readWatchlist, readAliases } = {
     if (cap === 'MID' && !(capValue >= 2 && capValue < 10)) return false;
     if (cap === 'SMALL' && !(capValue < 2)) return false;
     if (minRank > 0 && !(row.screenStatus === 'passed' && finite(row.rank) != null && row.rank >= minRank)) return false;
-    const rsi = row.fieldReadiness ? fieldValueForPurpose(row, 'price.rsi14', 'calculation') : finite(row.rsi);
-    const momentum = row.fieldReadiness ? fieldValueForPurpose(row, 'price.ret3m', 'calculation') : finite(row.ret3m);
+    const rsi = readRowNumber(row, 'rsi', 'calculation');
+    const momentum = readRowNumber(row, 'ret3m', 'calculation');
     if (Number.isFinite(rsiMin) && !(rsi != null && rsi >= rsiMin)) return false;
     if (Number.isFinite(rsiMax) && !(rsi != null && rsi <= rsiMax)) return false;
     if (Number.isFinite(minMomentum) && !(momentum != null && momentum >= minMomentum)) return false;
@@ -441,7 +442,7 @@ export function syncRankFilterLabels(documentRef) {
 
 // P1507: 50-day distance ÷ average daily range (ADR stands in for ATR). Null when either input is missing.
 export function extensionMultiple(row) {
-  const pct = finite(row?.pctSma50);
+  const pct = readRowNumber(row, 'pctSma50', 'display');
   const adr = finite(row?.adrPct);
   return pct != null && adr != null && adr > 0 ? pct / adr : null;
 }
@@ -2830,11 +2831,15 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          const inspectPrice = finite(inspectLive.price);
          setText('scr-why-price', inspectPrice == null ? '—' : formatScreenerPrice(inspectPrice, String(row.instrumentRef?.currency || row.currency || '').trim().toUpperCase() || null));
          const moveNode = documentRef.getElementById('scr-why-move');
-         if (moveNode) moveNode.textContent = finite(row.ret1m) == null ? '' : `1개월 ${returnText(row.ret1m)}`;
-         if (moveNode) moveNode.className = `scr-why-move ${finite(row.ret1m) == null ? '' : row.ret1m >= 0 ? 'sx-up' : 'sx-down'}`;
+         const whyRet1m = readRowNumber(row, 'ret1m', 'display');
+         if (moveNode) moveNode.textContent = whyRet1m == null ? '' : `1개월 ${returnText(whyRet1m)}`;
+         if (moveNode) moveNode.className = `scr-why-move ${whyRet1m == null ? '' : whyRet1m >= 0 ? 'sx-up' : 'sx-down'}`;
          const benchmark = rowMarket === 'US' ? (inspectState.rows || []).find((item) => item?.sym === 'SPY') || null : null;
          const sameSession = !!benchmark && !!row.factorSessionDate && String(benchmark.factorSessionDate || '').slice(0, 10) === String(row.factorSessionDate).slice(0, 10);
-         const excessOf = (key) => sameSession && finite(row[key]) != null && finite(benchmark[key]) != null ? row[key] - benchmark[key] : null;
+         const excessOf = (key) => {
+           const own = sameSession ? readRowNumber(row, key, 'display') : null, base = sameSession ? readRowNumber(benchmark, key, 'display') : null;
+           return own != null && base != null ? own - base : null;
+         };
           const factorConfidence = finite(row.confidence);
            // LC-40: 두 rank를 이름으로 분리한다 — 표시 순위는 통과 행의 서수, 팩터 원값은 순위
            // 입력(0~100)이다. 둘 다 'rank'라 부르면 서로 다른 숫자를 같은 값으로 오해한다.
@@ -2887,15 +2892,15 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          setText('scr-why-provenance', row.factorSessionDate ? `가격 기준 ${String(row.factorSessionDate).slice(0, 10)} 종가${row.retainedFrom ? ' — 이번 갱신에서 받지 못해 직전 자료를 이어 표시' : ''}` : '가격 기준일 확인 필요');
          // 개편 v2 (3c): one plain reading from the row's own closes — trend position, then the 3-month gap to the S&P 500
          // (SPY on the same close), then the completeness line that used to stand alone.
-         const above50 = finite(row.pctSma50);
-         const above200 = finite(row.pctSma200);
+         const above50 = readRowNumber(row, 'pctSma50', 'display');
+         const above200 = readRowNumber(row, 'pctSma200', 'display');
          const trendWords = above50 == null || above200 == null ? null
            : above50 >= 0 && above200 >= 0 ? '50일선과 200일선 위' : above50 < 0 && above200 < 0 ? '50일선과 200일선 아래'
              : above50 >= 0 ? '50일선 위, 200일선 아래' : '50일선 아래, 200일선 위';
          const excess3m = excessOf('ret3m');
          setText('scr-why-preview', [
            trendWords ? `종가가 ${trendWords}에 있습니다.` : null,
-           excess3m == null ? null : `3개월 수익률(${returnText(row.ret3m)})은 S&P 500보다 ${Math.abs(excess3m).toFixed(1)}%p ${excess3m >= 0 ? '높습니다' : '낮습니다'}.`,
+           excess3m == null ? null : `3개월 수익률(${returnText(readRowNumber(row, 'ret3m', 'display'))})은 S&P 500보다 ${Math.abs(excess3m).toFixed(1)}%p ${excess3m >= 0 ? '높습니다' : '낮습니다'}.`,
            `${missing.length ? `빠진 필수값 ${missing.length}개` : '빠진 필수값 없음'}, ${contrary.length ? `걸린 반대 조건 ${contrary.length}개` : row.screenStatus === 'unavailable' ? '판정 보류' : '걸린 반대 조건 없음'}.`
          ].filter(Boolean).join(' '));
          renderExcessBars(documentRef, row, benchmark);

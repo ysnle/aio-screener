@@ -4,6 +4,8 @@
 // ordinary page browsing — this fetch is a strict improvement, not a behavior change, for the
 // entity route's fundamentals field. id/quote/options still come from the injected `read`
 // callback (legacy projection) — those are out of scope for this slice (see session card).
+import { expandSecRecords } from '../contracts/sec-projection.js';
+
 const DEFAULT_FUNDAMENTAL_WATCHLIST = Object.freeze(['NVDA', 'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'META', 'TSLA', 'AVGO']);
 
 function latestObservedAt(values = []) {
@@ -34,12 +36,14 @@ export function createEntityProvider({ read = () => ({}), httpClient, fundamenta
     fundamentalsTablePromise = Promise.resolve().then(() => httpClient.requestJson(fundamentalsUrl, { cache: 'no-store' })).then((response) => {
       if (response.ok && response.data && response.data.data && typeof response.data.data === 'object' && !Array.isArray(response.data.data)) {
         fundamentalsLoadedAt = now();
-        // The projection drops availableAt where it equals acceptedAt (1 MiB bound); restore it for every consumer.
-        for (const record of Object.values(response.data.data)) {
+        // v59.47: uniform values ship once in recordDefaults; expand them. availableAt is dropped where it equals
+        // acceptedAt (1 MiB bound); restore it for every consumer.
+        const table = expandSecRecords(response.data);
+        for (const record of Object.values(table)) {
           if (record && typeof record === 'object' && record.availableAt == null && record.acceptedAt) record.availableAt = record.acceptedAt;
         }
         fundamentalsProjection = {
-          table: response.data.data,
+          table,
           meta: Object.freeze({
             generatedAt: response.data.generatedAt || null,
             source: response.data.source || 'SEC EDGAR companyfacts',

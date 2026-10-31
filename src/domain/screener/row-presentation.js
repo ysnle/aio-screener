@@ -1,7 +1,7 @@
 // v57.62 structure: pure row-presentation helpers for the screener table (labels, visible rank, size bucket,
 // staleness and held-ranking copy). No DOM, network or storage — src/ui/pages/screener.js re-exports these names
 // for the gates that import them from the page.
-import { fieldValueForPurpose } from '../../data/contracts/screener.js';
+import { readRowNumber } from '../../data/contracts/screener.js';
 import { latestCompletedUsSession, latestCompletedKrSession } from '../market/market-calendar.js';
 import { finiteNumber as finite } from '../shared/number.js';
 
@@ -21,7 +21,9 @@ export const FACTOR_LABELS = Object.freeze({
 // P1318/R664: size-bucket value in USD billions — decision-grade live cap first, else the
 // plausibility-checked SEC reference cap; null means "size unknown" (never a zero).
 export function capFilterValue(row = {}) {
-  const live = finite(row.mcap) != null && row.mcap > 0 && (!row.fieldReadiness || fieldValueForPurpose(row, 'valuation.marketCap', 'calculation') != null) ? row.mcap : null;
+  // v59.46 boundary contract: the live cap is read through the readiness contract (calculation purpose).
+  const mcap = readRowNumber(row, 'mcap', 'calculation');
+  const live = mcap != null && mcap > 0 ? mcap : null;
   if (live != null) return live;
   const reference = finite(row.referenceMarketCap?.billions);
   return reference != null && reference > 0 ? reference : null;

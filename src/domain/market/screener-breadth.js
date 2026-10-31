@@ -3,6 +3,7 @@
 // _aioScreenerBreadthState / _breadthLiveData / _krBreadthLiveData; readers now ask this function with the native
 // screener metadata. It is an AIO screener-universe measurement, not official exchange breadth.
 import { FRESHNESS_POLICY } from '../shared/freshness-policy.js';
+import { isSessionCurrent } from './market-calendar.js';
 
 const VALUE_KEYS = ['above5', 'above20', 'above50', 'above200', 'advanceRatio'];
 const MAX_AGE_HOURS = FRESHNESS_POLICY.factorSessionMs / 3600000;
@@ -17,12 +18,14 @@ function observedMsOf(segment) {
 
 // v59.45 (P17-BREADTH-01/02): one check for every population — a finite observation time inside the age window is
 // required (a missing or invalid time is not current), and a candidate is chosen only after it passes all checks.
-function segmentCheck(segment, now, minEligible) {
+// v59.47: the age window is the session rule on the segment's exchange; 96 hours only where the calendar has no year.
+function segmentCheck(segment, now, minEligible, market = 'US') {
   const observedMs = observedMsOf(segment);
   const ageHours = Number.isFinite(observedMs) && observedMs > 0 ? (now - observedMs) / 3600000 : null;
+  const current = ageHours == null ? null : isSessionCurrent({ market, observedAt: segment.observedAt, sessionDate: segment.sessionDate || null, now }, FRESHNESS_POLICY.factorSession);
   const checks = {
     coverage: !!(segment && segment.coveragePct >= 85 && segment.eligible >= minEligible),
-    observed: ageHours != null && ageHours >= -1 && ageHours <= MAX_AGE_HOURS,
+    observed: ageHours != null && ageHours >= -1 && (current != null ? current : ageHours <= MAX_AGE_HOURS),
     values: valuesOk(segment)
   };
   return { observedMs: ageHours == null ? 0 : observedMs, ageHours, checks, passed: Object.values(checks).every(Boolean) };
@@ -54,7 +57,7 @@ export function readScreenerBreadth(breadth, now = Date.now()) {
   const { observedMs, ageHours } = usRead;
   const checks = { schema: !!(root && root.schemaVersion === '1.0'), ...usRead.checks };
   const passed = Object.values(checks).every(Boolean);
-  const krRead = segmentCheck(kr, now, 100);
+  const krRead = segmentCheck(kr, now, 100, 'KR');
   const krPassed = checks.schema && krRead.passed;
   const krState = { status: krPassed ? 'verified_current' : 'blocked', observedAt: kr?.observedAt || null, ageHours: krRead.ageHours, checks: krRead.checks };
   const state = {

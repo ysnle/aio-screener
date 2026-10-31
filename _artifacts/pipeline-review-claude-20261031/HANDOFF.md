@@ -153,6 +153,15 @@
   1. 단계 2: factor-ranks·screener 페이지·theme-playbook-view·theme-criteria·setup-profile 이전. 계산 용도 전환은 화면별로 소유자 확인.
   2. 단계 3: 달력일 예산을 세션 수로 교체. 동작이 바뀌므로 승인 필요.
 
+## 5-5. v59.47 경계 계약 2·3단계 + SEC 투영 장애 (소유자 "계획 전부 승인")
+
+- 2단계: 소비자 30여 파일 이전. rawRowRead 225→92(남은 대부분 오탐). readRowNumber는 준비도 없는 행을 두 용도 모두 원값으로 읽는다(백테스트·골든 행).
+- 3단계: 가격 팩터·시장 폭·팩터 세트의 4일 기준 → market-calendar `isSessionCurrent`(최신 완료 세션, 또는 한 세션 뒤는 마감 후 12시간 안). 연도 없는 달력(2026 이전)만 4일.
+- 4·5단계 닫음: 상태 어휘는 서로 다른 것을 말함, js/ 직접 읽기 3건은 값 전달.
+- P2156: refresh-screener가 10/30 22:25Z부터 SEC 투영 1 MiB 초과(1,052,459)로 실패 → `src/data/contracts/sec-projection.js` 공통 값 헤더(recordDefaults) 무손실 인코딩, 1,034→647 KB. 생산자 실증은 push 뒤 첫 refresh-screener(QA-SEC-PROJ-DEFAULTS-LIVE-01).
+- 부팅 gzip 상한 636,000→636,500(+194 B, 사유 boot-budget.json note).
+- 전체 QA 158 통과(브라우저 포함).
+
 ## 6. 검증 경계
 
 - **실행해서 통과:**

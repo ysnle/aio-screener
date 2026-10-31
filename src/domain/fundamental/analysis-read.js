@@ -10,6 +10,7 @@ import { fiscalMetrics as fiscalMetricsOf } from './peer-read.js';
 import { countOpenSessionsBetween, dateInTimezone } from '../market/market-calendar.js';
 import { consensusView, CONSENSUS_PRICE_MAX_AGE_DAYS } from './consensus-read.js';
 import { isIsoDay } from '../shared/session-date.js';
+import { readRowNumber } from '../../data/contracts/screener.js';
 
 const subject = (word) => `${word}${hasFinalConsonant(word) ? '이' : '가'}`;
 // v58.74 (text audit): the DuPont sentence names the driver; one clause says what that driver's change means.
@@ -355,11 +356,12 @@ export function buildThemePeers({ symbol, themes = [], rows = [], seriesFor = ()
     const metrics = fiscalMetricsOf(seriesFor(ticker));
     if (!metrics) return null;
     const row = byRow.get(ticker) || null;
-    const pe = finite(row?.pe);
+    // v59.46 boundary contract: the peer comparison reads PER and the 3-month return through the screener readiness contract.
+    const pe = readRowNumber(row, 'pe', 'calculation');
     // v58.75 ('고르는 법' B2): FCF margin, the consensus forward PER and the 3-month return feed the strengths/weaknesses facts.
     const fwdPe = consensusView(row, consensusFor(ticker))?.fwdPe ?? null;
     return { sym: ticker, name: row?.name || ticker, self, periodEnd: metrics.periodEnd, growth: metrics.growth, margin: metrics.margin, roe: metrics.roe, pe: pe != null && pe > 0 ? pe : null,
-      fcfMargin: metrics.fcfMargin, fwdPe: fwdPe != null && fwdPe > 0 ? fwdPe : null, ret3m: finite(row?.ret3m) };
+      fcfMargin: metrics.fcfMargin, fwdPe: fwdPe != null && fwdPe > 0 ? fwdPe : null, ret3m: readRowNumber(row, 'ret3m', 'calculation') };
   };
   const own = line(sym, true);
   if (!own) return null;

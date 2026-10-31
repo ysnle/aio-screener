@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFile, rename, writeFile } from 'node:fs/promises';
 import { reconcileSecRecord, bestRevenueRowsByPeriod } from '../src/domain/fundamental/sec-report.js';
 import { anchorConcept, anchorConceptRows, discreteQuarterSeries, SEC_FIELD_CONCEPT_PREFERENCE } from '../src/domain/fundamental/sec-earnings.js';
+import { compactSecRecords, SEC_RECORD_DEFAULTS_POLICY } from '../src/data/contracts/sec-projection.js';
 
 const SOURCE = new URL('../public-data/sec-fundamentals.json', import.meta.url);
 const OUTPUT = new URL('../public-data/sec-fundamentals-summary.json', import.meta.url);
@@ -188,6 +189,8 @@ const data = Object.fromEntries(Object.entries(source.data || {}).map(([symbol, 
     : null;
   return [symbol, { ...reconciled, ...(pit ? { pit } : {}) }];
 }));
+// v59.47: uniform per-record values are stated once (src/data/contracts/sec-projection.js); readers expand them.
+const { recordDefaults, data: compactData } = compactSecRecords(data);
 const projection = {
   schemaVersion: 'sec-fundamentals-runtime-summary.v1',
   sourceSchemaVersion: source.schemaVersion,
@@ -205,7 +208,9 @@ const projection = {
   // consumer can tell "this batch updated rows" from "the file was rewritten", so it is forwarded
   // instead of being dropped with the failure ledger.
   domainReceipt: source.domainReceipt || null,
-  data
+  recordDefaultsPolicy: SEC_RECORD_DEFAULTS_POLICY,
+  recordDefaults,
+  data: compactData
 };
 const projectionText = await writeAtomic(OUTPUT, projection);
 const fiscal = {

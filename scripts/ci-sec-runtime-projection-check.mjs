@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { buildDomainReceipt } from './fetch-sec-fundamentals.mjs';
 import { reconcileSecEquity, reconcileSecRevenueShares } from '../src/domain/fundamental/sec-report.js';
 import { readSecLedger, secLedgerSkipNote } from './lib/sec-ledger.mjs';
+import { expandSecRecords } from '../src/data/contracts/sec-projection.js';
 
 const read = (file) => readFileSync(new URL(`../${file}`, import.meta.url), 'utf8');
 // P1757: the canonical ledger is producer-only (data-store branch). The producer runs this gate with the ledger it
@@ -13,7 +14,9 @@ const ledger = readSecLedger();
 const sourceText = ledger.present ? ledger.text : null;
 const runtimeText = read('public-data/sec-fundamentals-summary.json');
 const source = ledger.present ? ledger.data : null;
-const runtime = JSON.parse(runtimeText);
+const runtimeArtifact = JSON.parse(runtimeText);
+// v59.47: records are compared after the record-defaults expansion every reader applies.
+const runtime = { ...runtimeArtifact, data: expandSecRecords(runtimeArtifact) };
 const manifest = JSON.parse(read('public-data/sec-fundamentals-summary.manifest.json'));
 const canonicalText = (value) => value.replace(/\r\n?/g, '\n');
 const sha256 = (value) => createHash('sha256').update(canonicalText(value)).digest('hex');

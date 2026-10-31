@@ -30,6 +30,7 @@ import { signedText, directionOf, finiteNumber as finite } from '../../domain/sh
 const dirColor = (value, digits = 1) => { const dir = directionOf(value, digits); return value == null ? 'var(--text-muted)' : dir === 'up' ? 'var(--dir-up)' : dir === 'down' ? 'var(--dir-down)' : 'var(--text-primary)'; };
 import { withTopicParticle } from '../../domain/content/korean-particle.js';
 import { refreshSharedArtifact, screenerRowsState } from '../../data/shared-artifacts.js';
+import { readRowNumber } from '../../data/contracts/screener.js';
 import { DATA_STATE_CHIPS } from '../../domain/content/data-state.js';
 import { requestConsensusEstimates, CONSENSUS_KEY } from '../../data/consensus-estimates.js';
 import { asOfChip, setAsOf } from '../components/section-frame.js';
@@ -1297,11 +1298,13 @@ function memberTable(documentRef, root, members, { onSort, showGroup = false, ar
   // liquidity / earnings flags instead of the 3개월 third.
   const roleMap = roles?.measured ? roles.roles : null;
   const sort = root._aioMemberSort && MEMBER_COLUMNS.some(([key]) => key === root._aioMemberSort.key) ? root._aioMemberSort : { key: 'ret3m', dir: -1 };
-  const ranked = members.filter((member) => finiteOrNull(member.row?.ret3m) != null).sort((a, b) => b.row.ret3m - a.row.ret3m);
+  // v59.46 boundary contract (stage 2): a member's published numbers are read through the readiness contract.
+  const memberValue = (member, key) => readRowNumber(member.row, key, 'display');
+  const ranked = members.filter((member) => memberValue(member, 'ret3m') != null).sort((a, b) => memberValue(b, 'ret3m') - memberValue(a, 'ret3m'));
   const third = ranked.length >= 6 ? Math.floor(ranked.length / 3) : 0;
   const top = new Set(ranked.slice(0, third).map((member) => member.sym)), bottom = new Set(third ? ranked.slice(-third).map((member) => member.sym) : []);
   const sorted = [...members].sort((a, b) => {
-    const va = finiteOrNull(a.row?.[sort.key]), vb = finiteOrNull(b.row?.[sort.key]);
+    const va = memberValue(a, sort.key), vb = memberValue(b, sort.key);
     if (va == null && vb == null) return a.sym.localeCompare(b.sym);
     if (va == null) return 1;
     if (vb == null) return -1;
@@ -1341,7 +1344,7 @@ function memberTable(documentRef, root, members, { onSort, showGroup = false, ar
     tr.append(cell);
     if (showGroup) tr.append(make('td', member.group || '—', 'thp-member-group'));
     for (const [key] of MEMBER_COLUMNS) {
-      const value = finiteOrNull(member.row?.[key]);
+      const value = memberValue(member, key);
       tr.append(make('td', fmt(key, value), `is-num${value == null || key === 'rvol20' || !directionOf(value) ? '' : directionOf(value) === 'up' ? ' is-up' : ' is-down'}${sort.key === key ? ' is-sorted' : ''}`));
     }
     if (roleMap) {
@@ -1360,7 +1363,7 @@ function memberTable(documentRef, root, members, { onSort, showGroup = false, ar
   region.append(table);
   const name = (member) => member.label;
   const lead = make('p', ranked.length >= 4
-    ? `3개월 기준 앞선 종목 ${ranked.slice(0, 3).map((m) => `${name(m)}(${signedText(m.row.ret3m, 1)}%)`).join(', ')}, 뒤처진 종목 ${ranked.slice(-2).reverse().map((m) => `${name(m)}(${signedText(m.row.ret3m, 1)}%)`).join(', ')}. 50일선 위 ${members.filter((m) => finiteOrNull(m.row?.pctSma50) != null && m.row.pctSma50 > 0).length}/${members.filter((m) => finiteOrNull(m.row?.pctSma50) != null).length}종목.`
+    ? `3개월 기준 앞선 종목 ${ranked.slice(0, 3).map((m) => `${name(m)}(${signedText(memberValue(m, 'ret3m'), 1)}%)`).join(', ')}, 뒤처진 종목 ${ranked.slice(-2).reverse().map((m) => `${name(m)}(${signedText(memberValue(m, 'ret3m'), 1)}%)`).join(', ')}. 50일선 위 ${members.filter((m) => memberValue(m, 'pctSma50') > 0).length}/${members.filter((m) => memberValue(m, 'pctSma50') != null).length}종목.`
     : '구성 종목의 기간 수익률 기록이 적어 앞선·뒤처진 종목을 나누지 않습니다.', 'thp-detail-body');
   const latestMemberSession = latestSessionRows(members, (member) => stampDay(member.row?.factorSessionDate)).basis;
   // v58.79: the close date stays; how to read the columns is its hover.

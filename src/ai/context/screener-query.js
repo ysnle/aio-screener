@@ -7,6 +7,7 @@
 
 import { listingCurrency } from '../../domain/portfolio/fx.js';
 import { formatScreenerPrice } from '../../domain/screener/market-scope.js';
+import { readRowNumber } from '../../data/contracts/screener.js';
 
 // v59.45 (pipeline review P13-SCREEN-01): a row copied quote.price and dropped its currency, and the prompt put "$" on every
 // price, so Samsung read "가격 $70000.00". A quote keeps its own currency (the listing's when the quote declares none; an
@@ -311,13 +312,16 @@ export function formatScreenerResultPrompt(result, { rankAsOf = null } = {}) {
     lines.push('이 목록은 앱 내부 종목 DB를 실제 필터링·랭킹한 결과다. 학습 데이터로 종목을 추가하거나 임의 변경하지 말고 아래 목록만 사용하라.');
   }
   lines.push('═══════════════════════════════════════════════════');
+  // v59.46 boundary contract: the result rows' numbers are read through the screener readiness contract.
+  const value = (row, key) => readRowNumber(row, key, 'display');
   result.rows.forEach((r, i) => {
+    const mcap = value(r, 'mcap'), price = value(r, 'price');
     const rankStr = (r.rank != null) ? ('퀀트 백분위 ' + r.rank + '(' + (r.quantSignal || '') + ')') : '퀀트 N/A';
     const fsStr = r.factorScores ? (' [모멘텀' + r.factorScores.momentum + '·추세' + r.factorScores.trend + '·저변동' + r.factorScores.lowvol + ']') : '';
     const divStr = isDiversified ? (' · ' + (r.market || 'US') + '/' + (r.capBucket || 'unknown') + ' · 분산점수 ' + (r.diversityScore != null ? r.diversityScore : 'N/A')) : '';
     lines.push((i + 1) + '. ' + r.sym + ' (' + r.name + ') · ' + r.sector + divStr + ' · ' + rankStr + fsStr +
-      ' · 시그널(editorial) ' + r.signal + ' · 시총 ' + (r.mcap ? '$' + r.mcap + 'B' : 'N/A') + ' · RSI ' + fmt(r.rsi, 0) +
-      ' · 3M ' + signedPct(r.ret3m) + ' · 가격 ' + (r.price != null && Number.isFinite(Number(r.price)) ? formatScreenerPrice(Number(r.price), r.currency || null) + (r.priceObservedAt ? ' (관측 ' + r.priceObservedAt + ')' : '') : 'N/A') + ' (' + signedPct(r.pct) + ')');
+      ' · 시그널(editorial) ' + r.signal + ' · 시총 ' + (mcap ? '$' + mcap + 'B' : 'N/A') + ' · RSI ' + fmt(value(r, 'rsi'), 0) +
+      ' · 3M ' + signedPct(value(r, 'ret3m')) + ' · 가격 ' + (price != null ? formatScreenerPrice(price, r.currency || null) + (r.priceObservedAt ? ' (관측 ' + r.priceObservedAt + ')' : '') : 'N/A') + ' (' + signedPct(r.pct) + ')');
     if (r.memo) lines.push('   메모: ' + r.memo);
     if (r.newsMemo) lines.push('   최신뉴스(제목만, 발행 주체 확인됨): ' + r.newsMemo);
   });

@@ -9,6 +9,7 @@ import { RULES } from '../rules/thresholds.js';
 import { countOpenSessionsBetween, openSessionDatesBetween } from '../market/market-calendar.js';
 import { signedText, readNumber as finite } from '../shared/number.js';
 import { isIsoDay } from '../shared/session-date.js';
+import { readRowNumber } from '../../data/contracts/screener.js';
 
 const shortDay = (date) => { const [, month, day] = String(date || '').split('-').map(Number); return month && day ? `${month}/${day}` : ''; };
 
@@ -139,9 +140,10 @@ export function buildMyNames({ symbols = [], rows = [], live = {}, holdings = []
     // P1579: a stale or basis-unknown change is shown but neither coloured nor used to rank attention.
     const presentation = quote ? deriveQuotePresentation(quote, { symbol }) : null;
     const daySignalled = dayPct != null && ['current', 'delayed'].includes(presentation?.displayState) && presentation?.changeCoherent === true;
-    const sma50 = finite(row?.pctSma50);
+    // v59.46 boundary contract: line and RSI states are judged on calculable screener values; the 1-month move is shown.
+    const sma50 = readRowNumber(row, 'pctSma50', 'calculation');
     const high = finite(row?.pctFrom52wHigh);
-    const rsi = finite(row?.rsi);
+    const rsi = readRowNumber(row, 'rsi', 'calculation');
     const notes = [];
     // v59.45 (pipeline review P26-NAMES-01): a name exactly on the line is neither above nor below it.
     const ma50 = sma50 == null ? 'unknown' : sma50 < 0 ? 'below' : sma50 > 0 ? 'above' : 'on';
@@ -153,7 +155,7 @@ export function buildMyNames({ symbols = [], rows = [], live = {}, holdings = []
     const attention = (daySignalled && Math.abs(dayPct) >= RULES.largeMove.watchDayPct ? 2 : 0) + (rsi != null && (rsi >= RULES.technical.rsi.overbought || rsi <= RULES.technical.rsi.oversold) ? 1 : 0) + (sma50 != null && sma50 < 0 ? 1 : 0);
     return {
       symbol, name: row?.name || '', held: held.has(symbol), dayPct, daySignalled, ma50,
-      ret1m: finite(row?.ret1m), notes, attention, known: !!row || dayPct != null
+      ret1m: readRowNumber(row, 'ret1m', 'display'), notes, attention, known: !!row || dayPct != null
     };
   });
   // P26-NAMES-02: an unsignalled (stale or basis-unknown) change does not break ties either.

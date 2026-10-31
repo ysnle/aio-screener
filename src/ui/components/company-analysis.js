@@ -13,6 +13,7 @@ import { sectorLabel } from '../../domain/screener/screener-read.js';
 import { consensusView, peMultipleText } from '../../domain/fundamental/consensus-read.js';
 import { requestConsensusEstimates, consensusRowFor } from '../../data/consensus-estimates.js';
 import { openThemeDetail } from '../navigation/theme-detail.js';
+import { readRowNumber } from '../../data/contracts/screener.js';
 const mdOf = (date) => { const m = String(date || '').match(/^\d{4}-(\d{2})-(\d{2})/); return m ? `${Number(m[1])}/${Number(m[2])}` : ''; };
 // v57.55 review (8m, semi-expert panel): the numbers a reader looks for first, on one line, each with its own date. US
 // listings only (Korean listings have their own OpenDART block); a value that is not there is left out, never estimated.
@@ -20,12 +21,13 @@ export function keyMetricsLine(row, consensus, earnings = [], today = new Date()
   if (!row) return null;
   const parts = [];
   const close = mdOf(row.factorSessionDate);
-  const cap = Number.isFinite(row.mcap) && row.mcap > 0 ? row.mcap : Number(row.referenceMarketCap?.billions) > 0 ? Number(row.referenceMarketCap.billions) : null;
+  const mcap = readRowNumber(row, 'mcap', 'display'), pe = readRowNumber(row, 'pe', 'display');
+  const cap = mcap != null && mcap > 0 ? mcap : Number(row.referenceMarketCap?.billions) > 0 ? Number(row.referenceMarketCap.billions) : null;
   // v58.80 (first-users F33): $4.61T / $95B read as English units to a Korean reader; the same 조/억 달러 as the calendar.
   if (cap) parts.push(`시총 약 ${cap >= 1000 ? `${Number((cap / 1000).toFixed(2))}조 달러` : `${Math.round(cap * 10).toLocaleString('en-US')}억 달러`}${close ? `(${close} 종가)` : ''}`);
   const view = consensusView(row, consensus);
   if (view?.trailingPe != null) parts.push(`직전 4개 분기 PER ${peMultipleText(view.trailingPe)}(조정 EPS)`);
-  else if (Number(row.pe) > 0) parts.push(row._valuationPeEarningsBasis === 'ttm' && row._valuationPeEarningsThrough ? `최근 4개 분기 PER ${peMultipleText(Number(row.pe))}(공시 순이익, ${String(row._valuationPeEarningsThrough).slice(0, 7)} 분기까지)` : `최근 회계연도 PER ${peMultipleText(Number(row.pe))}`);
+  else if (pe != null && pe > 0) parts.push(row._valuationPeEarningsBasis === 'ttm' && row._valuationPeEarningsThrough ? `최근 4개 분기 PER ${peMultipleText(pe)}(공시 순이익, ${String(row._valuationPeEarningsThrough).slice(0, 7)} 분기까지)` : `최근 회계연도 PER ${peMultipleText(pe)}`);
   if (view?.fwdPe != null) parts.push(`Forward PER ${peMultipleText(view.fwdPe)}(예상치 ${mdOf(view.asOf)})`);
   const symbol = String(row.sym || row.symbol || '').toUpperCase();
   const next = (Array.isArray(earnings) ? earnings : []).filter((item) => String(item?.symbol || '').toUpperCase() === symbol && String(item?.date || '') >= today).sort((a, b) => String(a.date).localeCompare(String(b.date)))[0];

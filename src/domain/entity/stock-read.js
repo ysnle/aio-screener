@@ -14,6 +14,10 @@ import { secFilingUrl } from '../fundamental/sec-report.js';
 import { SECTOR_KEY_ALIAS, normalizeSectorKey } from '../screener/sector-label.js';
 import { signedText, readNumber as finite } from '../shared/number.js';
 import { isIsoDay } from '../shared/session-date.js';
+import { readRowNumber } from '../../data/contracts/screener.js';
+
+// v59.46 boundary contract: screener row numbers are read through the readiness contract, not row[key].
+const value = (row, key) => readRowNumber(row, key, 'calculation');
 
 // N20 (2026-10-13): the issuer's own recent filings, from the annual-facts record's submissions snapshot (8-K with
 // Item numbers, 10-Q, 10-K). Labels name what the filing is; nothing is read from the filing text.
@@ -168,7 +172,7 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   }
 
   const spans = [['ret1m', '1개월'], ['ret3m', '3개월'], ['ret6m', '6개월']].map(([key, label]) => {
-    const stock = finite(row[key]);
+    const stock = value(row, key);
     const bench = finite(benchmark?.[key]);
     return { key, label, stock, bench, gap: stock != null && bench != null ? stock - bench : null };
   });
@@ -199,7 +203,7 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
 
   // P1507: distance from the 50-day line in units of the stock's own average daily range — how late an entry
   // here would be. Volatile names run further, so the raw % alone overstates or understates the stretch.
-  const pct50 = finite(row.pctSma50);
+  const pct50 = value(row, 'pctSma50');
   const adr = finite(row.adrPct);
   // 2026-10-13 review S09: the bands are the screener's (setup-profile EXTENSION_BANDS) — 3.8x is not "near".
   if (pct50 != null && adr != null && adr > 0) {
@@ -226,7 +230,8 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
 
   // 2026-10-13 review S02: 69.9 printed as "RSI 70" next to "not overheated". The value is shown to one decimal
   // (the screener's digits) and judged on that same number.
-  const rsi = finite(row.rsi) == null ? null : Math.round(finite(row.rsi) * 10) / 10;
+  const rsiValue = value(row, 'rsi');
+  const rsi = rsiValue == null ? null : Math.round(rsiValue * 10) / 10;
   if (rsi != null) {
     const shown = rsi.toFixed(1);
     // v57.50 C16: one RSI table (RULES.technical.rsi) for this summary, the screener state label and the climax watch.
@@ -339,6 +344,6 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
     next.push({ route: 'masters', label: '대가 보유 종목', why: `이 종목을 신고한 운용사 — 13F 역조회 원장 ${finite(thirteenF.tickerCount) ?? '—'}개 종목 범위, 분기 지연 신고`, ctx: { ticker: symbol } });
   }
   // v58.53 (개편 v2 3d): the raw figures behind the points, so the summary's check tiles print short values from the same row.
-  const facts = { trendLabel: trend?.label || null, pct50, pct200: finite(row.pctSma200), adr, rsi, ret1m: finite(row.ret1m), basisDate: String(row.factorSessionDate || row.priceDate || '').slice(0, 10) || null };
+  const facts = { trendLabel: trend?.label || null, pct50, pct200: readRowNumber(row, 'pctSma200', 'display'), adr, rsi, ret1m: readRowNumber(row, 'ret1m', 'display'), basisDate: String(row.factorSessionDate || row.priceDate || '').slice(0, 10) || null };
   return { available: true, symbol, name, headline, points, position, high, spans, sector, themes: themed, ranking, next, facts, benchmarkLabel: benchmark?.label || 'S&P 500', sessionLag: lagSessions != null && lagSessions > 0 ? lagSessions : null };
 }

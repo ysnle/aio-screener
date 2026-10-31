@@ -10,6 +10,10 @@ import { NEAR_LINE_ADR, RECENT_DROP_ADR, adrMultiple, recentDrop } from '../tech
 import { withTopicParticle } from '../content/korean-particle.js';
 import { sectorLabel } from './sector-label.js';
 import { readNumber as finite } from '../shared/number.js';
+import { readRowNumber } from '../../data/contracts/screener.js';
+
+// v59.46 boundary contract: screener row numbers are read through the readiness contract, not row[key].
+const value = (row, key) => readRowNumber(row, key, 'calculation');
 
 const QUADRANT_KO = RRG_QUADRANT_WORDS; // R714: one set of quadrant words (themes/rrg.js)
 
@@ -57,7 +61,7 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
   // v57.81: the ranking carries a trend factor (about a quarter of the weight), so "the top names sit over their 50-day
   // line" holds by construction — the point is neutral, says so, counts only rows clear of the line by one daily range
   // (bands.js), and adds the share that broke down in the last five sessions.
-  const measured = top.filter((row) => adrMultiple(row.pctSma50, row.adrPct) != null);
+  const measured = top.filter((row) => adrMultiple(value(row, 'pctSma50'), row.adrPct) != null);
   // v59.45 P8-UI-02: each share is of the rows that carry the value, so a partial count names its basis (as the 52-week
   // share already did); when fewer than half the top rows are measured, one row's 100% is not read as the top group's.
   const basisOf = (n) => (n < top.length ? `(자료 있는 ${n}종목 기준)` : '');
@@ -65,7 +69,7 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
     points.push({ id: 'health', tone: 'neutral', title: '상위권 추세',
       text: `${topName} ${top.length}종목 중 50일선 거리와 하루 평균 변동폭 자료가 있는 종목이 ${measured.length}개뿐이라 상위권 추세를 요약하지 않습니다.` });
   } else if (measured.length) {
-    const above = measured.filter((row) => adrMultiple(row.pctSma50, row.adrPct) >= NEAR_LINE_ADR).length / measured.length * 100;
+    const above = measured.filter((row) => adrMultiple(value(row, 'pctSma50'), row.adrPct) >= NEAR_LINE_ADR).length / measured.length * 100;
     // v57.86 (live review): the share is of rows with a 52-week value — every null row counted as "not near" read 0%.
     const highKnown = top.filter((row) => finite(row.pctFrom52wHigh) != null);
     const nearHigh = highKnown.length ? highKnown.filter((row) => row.pctFrom52wHigh > -5).length / highKnown.length * 100 : null;

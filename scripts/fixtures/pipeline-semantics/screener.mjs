@@ -184,6 +184,7 @@ export const cases = [
     const readiness = (status) => ({ fields: { 'price.ret1m': { status } } });
     // A row without readiness (older artifacts, fixtures) reads its plain number for display, as row[key] did.
     assert.equal(readRowNumber({ ret1m: 4.2 }, 'ret1m'), 4.2);
+    assert.equal(readRowNumber({ ret1m: 4.2 }, 'ret1m', 'calculation'), 4.2, 'a backtest or fixture row without readiness is still ranked');
     assert.equal(readRowNumber({ ret1m: 0 }, 'ret1m'), 0, 'a zero return is a reading');
     for (const empty of [null, '', '  ', false, [], {}]) assert.equal(readRowNumber({ ret1m: empty }, 'ret1m'), null, JSON.stringify(empty));
     assert.equal(readRowNumber({ ret1m: 4.2, fieldReadiness: readiness('CURRENT') }, 'ret1m', 'calculation'), 4.2);
@@ -192,5 +193,25 @@ export const cases = [
     assert.equal(readRowNumber({ ret1m: 4.2, fieldReadiness: readiness('BLOCKED') }, 'ret1m', 'display'), null, 'a blocked value is not shown');
     // A key the registry does not define reads as the plain number it is.
     assert.equal(readRowNumber({ ret5d: -1.5, fieldReadiness: readiness('BLOCKED') }, 'ret5d'), -1.5);
+  } },
+  { id: 'BC-SESSION-01', name: '가격 팩터의 현재성은 달력일이 아니라 거래소 세션으로 판정한다', run: async ({ load }) => {
+    const { isSessionCurrent } = await load('src/domain/market/market-calendar.js');
+    const { FRESHNESS_POLICY } = await load('src/domain/shared/freshness-policy.js');
+    const current = (args) => isSessionCurrent(args, FRESHNESS_POLICY.factorSession);
+    const at = (iso) => Date.parse(iso);
+    // Friday's close on Saturday is the latest completed session.
+    assert.equal(current({ sessionDate: '2026-10-30', now: at('2026-10-31T12:00:00Z') }), true);
+    // Thursday's close read current on Monday night under the 4-day age; Friday and Monday have closed since.
+    assert.equal(current({ sessionDate: '2026-10-29', now: at('2026-11-03T02:00:00Z') }), false);
+    // One session behind is tolerated only while the newer close is under 12 hours old (the producer has not landed).
+    assert.equal(current({ sessionDate: '2026-10-29', now: at('2026-10-30T22:00:00Z') }), true);
+    assert.equal(current({ sessionDate: '2026-10-29', now: at('2026-10-31T12:00:00Z') }), false);
+    // KRX: Thursday 10/08, Hangul Day 10/09 closed — current through the weekend, stale on Tuesday after Monday closed.
+    assert.equal(current({ market: 'KR', sessionDate: '2026-10-08', now: at('2026-10-12T01:00:00Z') }), true);
+    assert.equal(current({ market: 'KR', sessionDate: '2026-10-08', now: at('2026-10-13T01:00:00Z') }), false);
+    // A year the calendar does not hold cannot be judged; callers fall back to their calendar-day budget.
+    assert.equal(current({ sessionDate: '2019-05-01', now: at('2019-05-03T22:00:00Z') }), null);
+    // A future observation is not current.
+    assert.equal(current({ observedAt: '2026-10-31T13:00:00Z', now: at('2026-10-31T12:00:00Z') }), null);
   } }
 ];
