@@ -1,3 +1,4 @@
+import { readNumber as finite } from '../shared/number.js';
 // P1416 (owner request 2026-10-03, open-source comparison): participation signals beyond the
 // moving-average ratios. Definitions follow their public sources, checked against the
 // xang1234/stock-screener breadth formulas (revision 3, Apache-2.0) — reimplemented here, not copied:
@@ -25,7 +26,6 @@ export const DISTRIBUTION_WINDOW = 25;
 // Audit 2026-10-17 (owner D8): IBD retires a distribution day once the index closes this share above that day's close.
 export const DISTRIBUTION_RALLY_EXPIRY = 0.05;
 
-const finite = (value) => (value == null || value === '' ? null : Number.isFinite(Number(value)) ? Number(value) : null);
 
 /**
  * Per-session signals for one symbol.

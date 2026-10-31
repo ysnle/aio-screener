@@ -184,9 +184,15 @@ if (profile === 'candidate') {
   const candidateDigest = (file) => {
     try { return createHash('sha256').update(readFileSync(join(candidateRepo, file))).digest('hex'); } catch { return null; }
   };
+  // v59.45 (P3-QA-02): spawnSync's default maxBuffer is 1 MiB, so a larger staged blob (js/aio-core.js sits just
+  // under it) came back as ENOBUFS → null and read as "not verified". Size the buffer from the blob itself, as
+  // verify-refresh-candidate.mjs digestGitTree does, and report a read failure separately from a content mismatch.
   const stagedDigest = (file) => {
-    const result = spawnSync('git', ['show', `:${file}`], { cwd: candidateRepo, encoding: 'buffer' });
-    return result.status === 0 ? createHash('sha256').update(result.stdout).digest('hex') : null;
+    const size = spawnSync('git', ['cat-file', '-s', `:${file}`], { cwd: candidateRepo, encoding: 'utf8', maxBuffer: 4096 });
+    const bytes = Number(String(size.stdout || '').trim());
+    if (size.status !== 0 || !Number.isSafeInteger(bytes) || bytes < 0) return null;
+    const result = spawnSync('git', ['show', `:${file}`], { cwd: candidateRepo, encoding: 'buffer', maxBuffer: bytes + 1 });
+    return result.status === 0 && Buffer.isBuffer(result.stdout) && result.stdout.length === bytes ? createHash('sha256').update(result.stdout).digest('hex') : null;
   };
   const verified = readJsonLogged(join(process.env.AIO_QA_CACHE_DIR ? resolve(process.env.AIO_QA_CACHE_DIR) : join(candidateRepo, '.cache', 'aio-qa'), 'verified-tree.json'), null, 'verified-tree', { strict: true });
   if (!verified || !verified.files) {
@@ -241,7 +247,10 @@ if (profile === 'candidate') {
   const indexFiles = new Set(candidateGit(['ls-files', '--cached']));
   for (const file of indexFiles) {
     if (staged.has(file)) continue;
-    if (verified.files[file] !== stagedDigest(file)) {
+    const indexDigest = stagedDigest(file);
+    if (indexDigest === null) {
+      mismatches.push({ file, reason: 'index-read-failed', detail: 'git에서 이 파일의 staged 내용을 읽지 못했습니다(내용 불일치가 아님)' });
+    } else if (verified.files[file] !== indexDigest) {
       mismatches.push({ file, reason: 'index-dependency-not-verified', detail: '커밋의 의존 파일이 전체 QA가 읽은 내용과 다릅니다' });
     }
   }

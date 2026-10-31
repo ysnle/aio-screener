@@ -10,14 +10,9 @@ import { signalHistory, signalHistoryText } from './signal-history.js';
 // v57.84: moving averages, ATR, ADR, the 52-week range, the 50-day extension and the Weinstein stage come from the one
 // definitions module the screener producer and the summary also use.
 import { smaSeries, emaSeries, atrWilder, adrPctOf, rangeExtremesOf, extensionMultiple, extensionStateFor, weeklyCloses, weinsteinStage, detectContractions, isBreakoutDay } from './definitions.js';
-import { signedText } from '../shared/number.js';
+import { signedText, readNumber as finite } from '../shared/number.js';
 const TECH = RULES.technical;
 
-function finite(value) {
-  if (value == null || value === '' || typeof value === 'boolean') return null;
-  const number = Number(value);
-  return Number.isFinite(number) ? number : null;
-}
 
 function coveredAverage(values, period, minShare = 0.8) {
   return values.map((_, index) => {

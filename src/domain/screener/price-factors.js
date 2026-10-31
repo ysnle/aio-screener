@@ -7,6 +7,7 @@ import { RULES } from '../rules/thresholds.js';
 import { smaLast, emaLast, adrPctOf, rangeExtremesOf, detectContractions, isBreakoutDay, priorVolumeAverage } from '../technical/definitions.js';
 import { followThroughFields } from '../technical/follow-through.js';
 import { listingMarketOfSymbol, sessionDateInMarket, timeZoneForMarket, timeZoneForSymbol } from '../market/session-time.js';
+import { isoDay } from '../shared/session-date.js';
 export const round = (v, d) => (typeof v === 'number' && isFinite(v)) ? Number(v.toFixed(d)) : null;
 const BACKTEST_MIN_LIQUIDITY_OBSERVATIONS = 10;
 export const _mean = (a) => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
@@ -113,7 +114,7 @@ export function closesToFactors(closes) {
     // 2026-10-14 (owner: custom screener conditions): short averages and the 1-year closing high as distances on the
     // same series, so "5/10/20 정배열" and "52주 신고가" are read without publishing a raw price (P715).
     ...Object.fromEntries([5, 10, 20].map((n) => { const sma = _mean(closes.slice(-n)); return [`pctSma${n}`, sma > 0 ? round((price / sma - 1) * 100, 2) : null]; })),
-    // v57.84: a 52-week closing high needs the full 252 sessions (it required 250 while reading a 252 window).
+    // v57.84: a 52-week closing high reads the 252-session window and needs RULES fullYearSessions (240) closes.
     pctFromCloseHigh52w: closes.length >= RULES.technical.fullYearSessions ? (() => { const high = Math.max(...closes.slice(-RULES.technical.rangeSessions)); return high > 0 ? round((price / high - 1) * 100, 2) : null; })() : null,
     kalmanVel:    kalman ? kalman.vel     : null,
     kalmanPt:     kalman ? kalman.pt      : null,
@@ -132,7 +133,7 @@ export function _calcVCPServer(closes, highs, lows, volumes) {
   function avg(arr) { return arr.length ? arr.reduce((s, v) => s + v, 0) / arr.length : 0; }
   const price = closes[n - 1];
   const s50 = smaLast(closes, 50), s150 = smaLast(closes, 150), s200 = smaLast(closes, 200);
-  // v57.84: the 52-week high is definitions.rangeExtremesOf — below 252 sessions it is not a 52-week figure, so the gate's
+  // v57.84: the 52-week high is definitions.rangeExtremesOf — below RULES fullYearSessions (240) it is not a 52-week figure, so the gate's
   // "52주 고점 대비" check is unknown and the gate fails closed (it used to read 200 sessions of highs as a year).
   const range = rangeExtremesOf(highs, lows);
   const pct52 = range?.fullYear && range.high > 0 ? (price - range.high) / range.high * 100 : null;
@@ -211,7 +212,7 @@ export function dailyNotionalAverage(closes, volumes, { window = 30, divisors = 
 
 // FX close on or before a session date (at most `maxLagDays` earlier). `series` is date-sorted [{date, close}].
 export function fxRateOnOrBefore(series, date, maxLagDays = 4) {
-  if (!Array.isArray(series) || !/^\d{4}-\d{2}-\d{2}$/.test(String(date || ''))) return null;
+  if (!Array.isArray(series) || !isoDay(date)) return null;
   let found = null;
   for (const point of series) { if (point.date <= date) found = point; else break; }
   if (!found || !(found.close > 0)) return null;
@@ -229,7 +230,7 @@ export function _calcSetupScreenFields(closes, adjCloses, highs, lows, volumes) 
   };
   const ema = emaLast;
   const price = closes[n - 1];
-  // v57.84: definitions.rangeExtremesOf / adrPctOf — the chart's own range and ADR. Below 252 sessions the range is not
+  // v57.84: definitions.rangeExtremesOf / adrPctOf — the chart's own range and ADR. Below RULES fullYearSessions (240) the range is not
   // 52 weeks, so pctFrom52wLow/High stay null instead of naming a shorter record "52주" (P1428).
   const range = rangeExtremesOf(highs.slice(0, n), lows.slice(0, n));
   const low52 = range?.fullYear ? range.low : null;
@@ -439,7 +440,7 @@ export function priceFactorRow(r, { computedAt = new Date().toISOString(), fxSer
     // v57.87: follow-through evidence (pocket pivot, heavy down days, base number, climax signs, down-day resilience) on
     // the factor price series with raw volume — technical/follow-through.js.
     // v57.88: a KOSDAQ listing is compared with KOSDAQ only — no silent fallback to KOSPI when ^KQ11 is missing.
-    if (r.volumes && r.dates) Object.assign(f, followThroughFields({ dates: r.dates, closes: factorPriceSeries, volumes: r.volumes },
+    if (r.volumes && r.dates) Object.assign(f, followThroughFields({ dates: r.dates, closes: factorPriceSeries, volumes: r.volumes, gapDates: gaps },
       indexReturns instanceof Map ? indexReturns.get(/\.KQ$/i.test(String(r.sym || '')) ? 'kq' : sessionSegmentOfSymbol(r.sym)) || null : null));
     // Yahoo's KR suffix is part of the upstream instrument identifier. Persist
     // the quote currency with the derived price/liquidity fields so consumers

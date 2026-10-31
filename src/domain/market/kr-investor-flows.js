@@ -1,3 +1,4 @@
+import { isoDay } from '../shared/session-date.js';
 // v58.55 개편 v2 (5n) 투자자별 순매수: the read model of public-data/kr-investor-flows.json (scripts/fetch-kr-investor-flows.mjs,
 // Bank of Korea ECOS 802Y001). Each market reads the latest session's net purchase per investor type that the source
 // publishes, plus the last 20 sessions of each series with 5- and 20-session sums. An investor type the source does not
@@ -28,7 +29,7 @@ export function buildKrInvestorFlowView(artifact, { nowMs = Date.now(), loadStat
     const date = market.latestDate || null;
     const rows = []; const trends = [];
     for (const [investor, investorLabel] of INVESTOR_ORDER) {
-      const series = (market.investors[investor]?.series || []).filter((p) => p && /^\d{4}-\d{2}-\d{2}$/.test(p.date) && Number.isFinite(p.value) && p.date <= today);
+      const series = (market.investors[investor]?.series || []).filter((p) => p && isoDay(p.date) && Number.isFinite(p.value) && p.date <= today);
       if (!series.length) continue;
       const last = series.at(-1);
       rows.push({ id: investor, label: investorLabel, value: last.date === date ? last.value : null, date: last.date });

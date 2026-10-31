@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v59.44';
+const APP_VERSION = 'v59.46';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -3201,7 +3201,9 @@ window._aioRRPopulateSelect = function() {
   sel.innerHTML = '<option value="">포지션에서 자동 입력...</option>' +
     positions.map(function(p){
       var tk = escHtml(p.ticker); // v59.42: a stored ticker is escaped (it was raw HTML in the option)
-      return '<option value="' + tk + '">' + tk + ', ' + escHtml(p.qty) + '주 @ $' + Number(p.cost).toFixed(2) + '</option>';
+      // v59.45 (P27-IMPORT-01): an imported position without a readable cost shows '원가 미확인', not '$NaN'.
+      var costNum = Number(p.cost);
+      return '<option value="' + tk + '">' + tk + ', ' + escHtml(p.qty) + '주 @ ' + (p.cost != null && p.cost !== '' && isFinite(costNum) ? '$' + costNum.toFixed(2) : '원가 미확인') + '</option>';
     }).join('');
   if (current && positions.some(function(p){return p.ticker===current;})) sel.value = current;
 };

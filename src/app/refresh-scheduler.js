@@ -160,6 +160,22 @@ export function installRefreshScheduler(window = globalThis) {
           result: resolved
         };
       }
+      // v59.45 (R2-01): an explicit null means the task is unavailable or retired (the wrappers below and the retired
+      // fetchAllFredData return it), so it does not stamp a success time. A Promise.allSettled batch whose every job
+      // rejected (or that ran no job) is a failure, not 'partial' at 100% coverage with a fresh success time.
+      if (resolved === null) {
+        cfg._lastErr = 'scheduler task unavailable';
+        cfg._status = 'missing';
+        cfg._failureReason = cfg._lastErr;
+        return { key: key, ok: false, skipped: true, updated: false, error: cfg._lastErr, result: null };
+      }
+      var settledRows = Array.isArray(resolved) && resolved.every(function(row) { return row && (row.status === 'fulfilled' || row.status === 'rejected'); });
+      if (settledRows && !resolved.some(function(row) { return row.status === 'fulfilled'; })) {
+        cfg._lastErr = resolved.length ? 'every scheduled job failed' : 'no scheduled job ran';
+        cfg._status = resolved.length ? 'failed' : 'missing';
+        cfg._failureReason = cfg._lastErr;
+        return { key: key, ok: false, skipped: !resolved.length, updated: false, error: cfg._lastErr, result: resolved };
+      }
       if (resolved && typeof resolved === 'object' && resolved.updated === false && resolved.skipped) {
         cfg._lastErr = resolved.error || resolved.reason || 'scheduler task skipped without update';
         cfg._status = resolved.status || 'missing';
@@ -180,7 +196,8 @@ export function installRefreshScheduler(window = globalThis) {
       cfg.retryCount = 0;
       var settledFailure = Array.isArray(resolved) && resolved.some(function(row) { return row && row.status === 'rejected'; });
       cfg._status = (resolved && resolved.status) || (settledFailure ? 'partial' : 'loaded');
-      cfg._coverage = resolved && typeof resolved.coverage === 'number' ? resolved.coverage : (resolved && typeof resolved.coveragePct === 'number' ? resolved.coveragePct : (cfg._coverage != null ? cfg._coverage : 100));
+      var settledCoverage = settledRows && resolved.length ? Math.round(100 * resolved.filter(function(row) { return row && row.status === 'fulfilled'; }).length / resolved.length) : null;
+      cfg._coverage = resolved && typeof resolved.coverage === 'number' ? resolved.coverage : (resolved && typeof resolved.coveragePct === 'number' ? resolved.coveragePct : (settledCoverage != null ? settledCoverage : (cfg._coverage != null ? cfg._coverage : 100)));
       cfg._evidenceIds = resolved && Array.isArray(resolved.evidenceIds) ? resolved.evidenceIds.slice() : (cfg._evidenceIds || []);
       cfg._sourceKind = resolved && resolved.sourceKind || cfg._sourceKind || null;
       cfg._allowedUse = resolved && resolved.allowedUse || cfg._allowedUse || null;

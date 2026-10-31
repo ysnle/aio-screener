@@ -1,0 +1,309 @@
+[qa] RUN syntax
+[qa] RUN workflow-yaml
+[qa] RUN version
+[qa] RUN product-charter
+[qa] PASS syntax (2365ms)
+[qa] RUN architecture
+[qa] PASS version (169ms)
+[qa] RUN native-decision
+[qa] PASS product-charter (164ms)
+[qa] RUN capability-claims
+[qa] PASS capability-claims (95ms)
+[qa] RUN operations-contract
+[qa] PASS native-decision (169ms)
+[qa] RUN route-registry
+[qa] PASS operations-contract (129ms)
+[qa] RUN generated-state
+[qa] PASS route-registry (177ms)
+[qa] RUN workspace-contract
+[qa] PASS generated-state (311ms)
+[qa] RUN qa-runner-behavior
+[qa] PASS architecture (987ms)
+[qa] PASS workspace-contract (2159ms)
+[qa] PASS workflow-yaml (4140ms)
+[qa] PASS qa-runner-behavior (27544ms)
+[qa] RUN market-session
+[qa] RUN event-briefs
+[qa] RUN boot-budget
+[qa] RUN csp-meta
+[qa] PASS csp-meta (99ms)
+[qa] RUN inline-style-ratchet
+[qa] PASS market-session (225ms)
+[qa] RUN research-reference-index
+[qa] PASS research-reference-index (160ms)
+[qa] RUN decomposition
+[qa] PASS inline-style-ratchet (326ms)
+[qa] RUN esm-core
+[qa] PASS event-briefs (518ms)
+[qa] RUN expect-output
+[qa] PASS decomposition (243ms)
+[qa] RUN pipeline-semantics
+[qa] PASS boot-budget (966ms)
+[qa] RUN page-decision-reference
+[qa] PASS page-decision-reference (112ms)
+[qa] RUN rotation-history
+[qa] PASS expect-output (570ms)
+[qa] RUN fundamental-watchlist-timeline
+[qa] PASS fundamental-watchlist-timeline (150ms)
+[qa] RUN artifact-cache
+[qa] PASS rotation-history (262ms)
+[qa] RUN service-worker-cache-policy
+[qa] PASS service-worker-cache-policy (309ms)
+[qa] RUN ai-intelligence
+[qa] PASS ai-intelligence (506ms)
+[qa] RUN ai-evidence
+[qa] PASS pipeline-semantics (1819ms)
+[qa] RUN domain-parity
+[qa] PASS ai-evidence (235ms)
+[qa] RUN research-model
+[qa] PASS research-model (151ms)
+[qa] RUN research-validation
+[qa] PASS domain-parity (275ms)
+[qa] RUN research-flow
+[qa] PASS research-flow (185ms)
+[qa] RUN proxy-continuity
+[qa] PASS artifact-cache (1786ms)
+[qa] RUN data-continuity
+[qa] PASS research-validation (588ms)
+[qa] RUN desktop-continuity
+[qa] PASS proxy-continuity (360ms)
+[qa] RUN storage-migration
+[qa] PASS storage-migration (96ms)
+[qa] RUN deployment-convergence
+[qa] PASS deployment-convergence (108ms)
+[qa] RUN retirement
+[qa] PASS desktop-continuity (429ms)
+[qa] RUN csp
+[qa] PASS retirement (169ms)
+[qa] RUN structural
+[qa] PASS csp (320ms)
+[qa] RUN default-ux
+[qa] PASS structural (235ms)
+[qa] RUN desktop-scope
+[qa] PASS esm-core (3821ms)
+[qa] RUN runtime
+[qa] PASS default-ux (312ms)
+[qa] RUN ai-chat-reliability
+[qa] PASS desktop-scope (238ms)
+[qa] RUN data-pipeline
+[qa] PASS data-continuity (1347ms)
+[qa] RUN page-timeline
+[qa] PASS ai-chat-reliability (256ms)
+[qa] RUN reference-adoption-contract
+[qa] PASS page-timeline (121ms)
+[qa] RUN semantic-review
+[qa] PASS semantic-review (118ms)
+[qa] RUN conditional-native-search
+[qa] PASS reference-adoption-contract (200ms)
+[qa] RUN entity-summary-fixture
+[qa] PASS runtime (790ms)
+[qa] RUN screener-market-fixture
+[qa] PASS conditional-native-search (334ms)
+[qa] RUN chart-scenarios-fixture
+[qa] PASS entity-summary-fixture (294ms)
+[qa] RUN scenario-guidance-fixture
+[qa] PASS chart-scenarios-fixture (243ms)
+[qa] RUN interpretation-boundary-check
+[qa] PASS screener-market-fixture (328ms)
+[qa] RUN crash-replay-check
+[qa] PASS interpretation-boundary-check (869ms)
+[qa] RUN lookahead-check
+[qa] PASS scenario-guidance-fixture (2095ms)
+[qa] RUN codex-structure-regression-fixture
+[qa] PASS codex-structure-regression-fixture (2415ms)
+[qa] RUN architecture-audit-regression-fixture
+[qa] PASS architecture-audit-regression-fixture (242ms)
+[qa] RUN fiscal-quality-fixture
+[qa] PASS data-pipeline (5812ms)
+[qa] RUN korea-participation-fixture
+[qa] PASS fiscal-quality-fixture (391ms)
+[qa] RUN 13f-figi-ticker-fixture
+[qa] PASS korea-participation-fixture (200ms)
+[qa] RUN regime-scenarios-fixture
+[qa] PASS 13f-figi-ticker-fixture (158ms)
+[qa] RUN ui-vocabulary
+[qa] PASS ui-vocabulary (446ms)
+[qa] RUN macro-calendar-review
+[qa] PASS lookahead-check (5001ms)
+[qa] RUN official-references
+[qa] PASS macro-calendar-review (198ms)
+[qa] RUN screener-workbench
+[qa] PASS official-references (168ms)
+[qa] RUN screener-extended
+[qa] PASS crash-replay-check (6330ms)
+[qa] RUN conditional-evidence
+[qa] PASS conditional-evidence (122ms)
+[qa] RUN market-snapshot
+[qa] PASS screener-workbench (622ms)
+[qa] RUN history-time
+[qa] PASS market-snapshot (170ms)
+[qa] RUN history-session-model
+[qa] PASS regime-scenarios-fixture (1743ms)
+[qa] RUN narrative-lifecycle-model
+[qa] PASS history-time (348ms)
+[qa] RUN data-plane
+[qa] PASS history-session-model (471ms)
+[qa] RUN operations-status
+[qa] PASS data-plane (243ms)
+[qa] CACHED operations-alert-policy (152ms prior)
+[qa] CACHED operations-weekly-review (181ms prior)
+[qa] RUN fast-plane-consumer
+[qa] PASS operations-status (199ms)
+[qa] RUN operations-slo
+[qa] PASS fast-plane-consumer (122ms)
+[qa] RUN reconciliation
+[qa] PASS operations-slo (202ms)
+[qa] RUN source-registry
+[qa] PASS reconciliation (170ms)
+[qa] RUN professional-gap
+[qa] PASS source-registry (138ms)
+[qa] RUN data-lineage
+[qa] PASS professional-gap (583ms)
+[qa] RUN sec-runtime-projection
+[qa] PASS sec-runtime-projection (576ms)
+[qa] CACHED sec-ledger-store (6071ms prior)
+[qa] RUN candidate-archive
+[qa] PASS candidate-archive (1839ms)
+[qa] RUN us-listings
+[qa] PASS us-listings (139ms)
+[qa] RUN review-integrity
+[qa] PASS review-integrity (372ms)
+[qa] RUN static-data
+[qa] PASS static-data (431ms)
+[qa] RUN artifact-semantics
+[qa] PASS artifact-semantics (815ms)
+[qa] RUN static-db-expiry
+[qa] PASS static-db-expiry (128ms)
+[qa] RUN manual-reference-expiry
+[qa] PASS manual-reference-expiry (172ms)
+[qa] RUN data-refresh
+[qa] FAIL data-refresh (243ms)
+| # | Category | Observed | Age(d) | Cadence | Status | Detail |
+|---|---|---|---:|---|---|---|
+| A1 | DATA_SNAPSHOT / durable market artifact | 2026-10-30T13:51:03.423Z | 0.60 | daily | STALE | revision=market-snapshot:2026-10-30T13:51:03.423Z:36d0268c attemptedRevision=market-snapshot:2026-10-30T13:51:03.423Z:36d0268c attempt=published; SLA=12h |
+| A2 | Fear & Greed | 2026-10-30T13:46:47+00:00 | 0.60 | daily | OK | score=28 source=cnn |
+| A3 | VIX + HY OAS shared evidence | 2026-10-30T13:35:31.000Z | 0.61 | daily | STALE | vix=19.17 hyOAS=3.14 hyAsOf=2026-10-28; session=DELAYED_IN_SESSION |
+| B1 | AAII sentiment | 2026-10-28 | 3.18 | weekly | OK | bull=37.8% neutral=20.7% bear=41.4% source=AAII Sentiment Survey; public current observation, reference-only |
+| B2 | NAAIM exposure | — | — | weekly | BLOCKED | BLOCKED_CURRENT: latest/API access is subscription-based; retained public reference=— observed=— and must not be relabeled current |
+| B3 | Investor Intelligence bull/bear | — | — | weekly | BLOCKED | BLOCKED: current publisher numeric values require subscriber access; no extrapolated value promoted |
+| B4 | Put/Call ratio | 2026-10-22 | 9.18 | daily | CRITICAL | total=0.94 equity=0.69 source=Cboe Daily Market Statistics |
+| C1 | US breadth / labels | 2026-10-29T13:30:00.000Z | 1.61 | daily | OK | coverage=100% |
+| C2 | NDX breadth | 2026-10-29T13:30:00.000Z | 1.61 | daily | OK | uses AIO universe contract; official exchange breadth remains separate |
+| C3 | AIO breadth history / official McClellan boundary | 2026-10-29T13:30:00.000Z | 1.61 | daily | OK | AIO-universe history=251 rows; official exchange A/D and McClellan remain unavailable |
+| C4 | Weinstein stage | 2026-10-29T13:30:00.000Z | 1.61 | daily | DYNAMIC | DYNAMIC: computed from selected runtime OHLCV/30-week evidence; not an external refresh category |
+| D1 | HY OAS | 2026-10-28 | 3.18 | daily | STALE | value=3.14 observed=2026-10-28; FRED/ICE publication-lag budget=3d; stale points remain reference-only |
+| D2 | Treasury yield fallback | 2026-10-30T13:35:34.000Z | 0.61 | daily | OK | 10Y=4.917 session=DELAYED_IN_SESSION |
+| D3 | 10Y-2Y spread | 2026-10-29 | 2.18 | daily | STALE | value=0.37%p source=us-treasury-official-primary; official observation date retained |
+| E1 | CPI / PCE | 2026-10-29T12:30:00.000Z | 1.65 | monthly | OK | CPI=3.7 (obs 2026-09-01) PCE=3.6 (obs 2026-09-01) corePCE=3.1 BEA=ok source=bea-official-primary |
+| E2 | Employment / wages / retail / housing | 2026-10-30T02:51:29.824Z | 1.06 | monthly | OK | unemployment=4.2 wage=3; observation period is retained separately from fetch freshness |
+| E3 | FOMC calendar | 2026-10-28 | 3.18 | event-driven | OK | official result=https://www.federalreserve.gov/newsevents/pressreleases/monetary20261028a.htm; next meeting=2026-12-09 |
+| E4 | Fed + BOK policy rates | 2026-10-22 | 9.18 | event-driven | OK | Fed=3.75-4.00% (asOf=2026-10-28, official-source metadata aligned; page body not fetched); BOK=3% (asOf=2026-10-22, official-source metadata/currentness contract passed; page body not fetched) |
+| F1 | 24h news / HOME_WEEKLY_NEWS | 2026-10-30T13:51:03.423Z | 0.60 | daily | OK | count=40 cycle=kst-0800-completed-24h |
+| G1 | Commodities / FX | 2026-10-30T13:40:41.000Z | 0.61 | daily | OK | WTI=103.88 DXY=101.915 |
+| G2 | Global indices | 2026-10-30T13:51:01.000Z | 0.60 | daily | OK | SPX=7627.43; global non-tier history remains reference-only |
+| G3 | Crypto | 2026-10-30T13:50:55.000Z | 0.60 | daily | OK | BTC=76595.45 ETH=2213.08 |
+H-dynamic | PASS | {"fetchKrNaverQuotes":true,"renderKrThemePerfBars":true,"themeCatalystRetired":true}
+D1-structural | no | rows=22 unknownSessions=0 tier0=16/16 snapshotFreshness=STALE attempt=published snapshotErrors={"total":0,"totalCapped":false,"tier0QualityCount":0,"blockedInstruments":[],"blockedInstrumentsTruncated":false,"tier0CoverageCount":0,"coverageFailures":[],"unclassifiedCount":0,"truncated":false} policyStates={"A1":"STALE","B1":"OK","B2":"BLOCKED","B3":"BLOCKED","C4":"DYNAMIC","E3":"OK","E4":"OK"}
+F1-timeline | PASS | slots=8 failures=[] warnings=["market-timeline-summary-fallback:validator-blocked"]
+
+[qa] FAILURE-OUTPUT C:\Projects\AIO\.cache\aio-qa\runs\2026-10-31T04-11-14-355Z-29328-qnadwk\failure-output\data-refresh-c903d86946.stdout.txt C:\Projects\AIO\.cache\aio-qa\runs\2026-10-31T04-11-14-355Z-29328-qnadwk\failure-output\data-refresh-c903d86946.stderr.txt
+[qa] NEXT data-refresh: Freshness SLA is wall-clock (R634 strict). If only data age failed: git pull (bot refreshes hourly) or run the data-refresh skill — not a code defect.
+[qa] RUN refresh-integrity
+[qa] PASS refresh-integrity (207ms)
+[qa] RUN producer-dry-run
+[qa] FAIL data-lineage (9859ms)
+[qa] CAUSE data-lineage: Data lineage audit: 47 artifacts | mode=strict PASS=40 WARN=6 FAIL=1 | FAIL data.json                        policy=live-core                      timestamp=2026-10-30T13:51:03.423Z age=14.35h commit=87b959f5 | FAIL: artifact exceeded freshness SLA (14.35h > 12h)
+WARN structural-data-research.json    policy=research-reference             timestamp=2026-08-21T15:00:00.000Z age=1693.2h commit=c99d3594
+     WARN: artifact is older than its reference freshness window (1693.2h > 336h)
+WARN telegram-digest.json             policy=reference-digest               timestamp=2026-10-30T13:51:48.140Z age=14.34h commit=87b959f5
+     WARN: artifact is older than its reference freshness window (14.34h > 12h)
+PASS telegram-observed.json           policy=producer-state                 timestamp=2026-10-30T13:51:48.140Z age=14.34h commit=87b959f5
+PASS telegram-reference-window.json   policy=research-reference             timestamp=2026-08-02T10:42:00.000Z age=2153.5h commit=6a09ffed
+PASS theme-stage-history.json         policy=research-drilldown             timestamp=2026-10-30T13:45:50.994Z age=14.44h commit=e2e656c0
+PASS today-verdict.json               policy=derived-state                  timestamp=2026-10-30T13:51:49.959Z age=14.34h commit=87b959f5
+PASS us-listings.json                 policy=exchange-listing-reference     timestamp=2026-10-30T06:35:52.565Z age=21.6h commit=5beba0a9
+PASS user-research-digest.json        policy=research-reference             timestamp=2026-10-12T06:00:00.000Z age=454.2h commit=9a71f4f5
+Nested reference families (WARN-only): 51 artifacts measured, 17 outside window, 0 unreadable
+     NESTED-WARN knowledge/relationship-guides.json           nested artifact declares no freshness timestamp (generatedAt, reviewedAt, researchedAt, searchedAt, reviewedAt)
+     NESTED-WARN knowledge/search-index.json                  nested artifact declares no freshness timestamp (generatedAt, reviewedAt, researchedAt, searchedAt, reviewedAt)
+     NESTED-WARN atlas/domain-claim-ledger.json               nested artifact declares no freshness timestamp (reviewedAt, generatedAt)
+     NESTED-WARN atlas/domain-guides.json                     nested artifact declares no freshness timestamp (reviewedAt, generatedAt)
+     NESTED-WARN atlas/domain-source-packets.json             nested artifact declares no freshness timestamp (reviewedAt, generatedAt)
+     NESTED-WARN atlas/foundation-lessons.json                nested artifact declares no freshness timestamp (reviewedAt, generatedAt)
+     NESTED-WARN atlas/foundations.json                       nested artifact declares no freshness timestamp (reviewedAt, generatedAt)
+     NESTED-WARN atlas/player-product-registry.json           nested artifact declares no freshness timestamp (reviewedAt, generatedAt)
+     NESTED-WARN atlas/source-packets.json                    nested artifact declares no freshness timestamp (reviewedAt, generatedAt)
+     NESTED-WARN atlas/taxonomy-node-coverage.json            nested artifact declares no freshness timestamp (reviewedAt, generatedAt)
+     NESTED-WARN principles/chapters.json                     nested artifact declares no freshness timestamp (reviewedAt, generatedAt)
+     NESTED-WARN principles/lesson-library.json               nested artifact declares no freshness timestamp (reviewedAt, generatedAt)
+     NESTED-WARN principles/reference-curriculum.json         nested artifact declares no freshness timestamp (reviewedAt, generatedAt)
+     NESTED-WARN masters/manager-principles.json              nested artifact is older than its reference window (1684.2h > 1080h)
+     NESTED-WARN masters/manager-row-previews.json            nested artifact is older than its reference window (1828.2h > 1080h)
+     NESTED-WARN masters/security-master-reference.json       nested artifact is older than its reference window (2164.2h > 1080h)
+     NESTED-WARN masters/security-master.json                 nested artifact is older than its reference window (1780.2h > 1080h)
+As of 2026-10-31T04:11:59.036Z. This audit does not certify provider rights, factual truth, or human/legal approval.
+
+[qa] FAILURE-OUTPUT C:\Projects\AIO\.cache\aio-qa\runs\2026-10-31T04-11-14-355Z-29328-qnadwk\failure-output\data-lineage-e04d85e05a.stdout.txt C:\Projects\AIO\.cache\aio-qa\runs\2026-10-31T04-11-14-355Z-29328-qnadwk\failure-output\data-lineage-e04d85e05a.stderr.txt
+[qa] NEXT data-lineage: Freshness SLA is wall-clock (R634 strict). If only data age failed: git pull (bot refreshes hourly) or run the data-refresh skill — not a code defect.
+[qa] RUN release-revision
+[qa] PASS release-revision (298ms)
+[qa] RUN 13f-currentness
+[qa] PASS 13f-currentness (124ms)
+[qa] CACHED 13f-semantic-noop (184ms prior)
+[qa] RUN artifact-headroom
+[qa] PASS screener-extended (12360ms)
+[qa] CACHED company-profile-contract (199ms prior)
+[qa] RUN knowledge-generated-parity
+[qa] PASS artifact-headroom (224ms)
+[qa] RUN knowledge-corpus
+[qa] PASS knowledge-corpus (659ms)
+[qa] RUN six-doc-coverage
+[qa] PASS six-doc-coverage (221ms)
+[qa] RUN atlas-contract
+[qa] PASS atlas-contract (255ms)
+[qa] RUN principles-contract
+[qa] PASS principles-contract (189ms)
+[qa] RUN masters-contract
+[qa] PASS masters-contract (2068ms)
+[qa] RUN knowledge-lint
+[qa] PASS knowledge-lint (938ms)
+[qa] RUN workflow-compaction
+[qa] PASS workflow-compaction (212ms)
+[qa] RUN skill-contract
+[qa] PASS skill-contract (201ms)
+[qa] RUN agent-profiles
+[qa] PASS agent-profiles (118ms)
+[qa] RUN agent-skills
+[qa] PASS agent-skills (158ms)
+[qa] RUN operator-provisioning
+[qa] PASS operator-provisioning (126ms)
+[qa] RUN ledger-integrity
+[qa] PASS ledger-integrity (120ms)
+[qa] RUN record-fix
+[qa] PASS record-fix (6228ms)
+[qa] CACHED generated-conflict-fixture (5729ms prior)
+[qa] RUN assertion-trace
+[qa] PASS assertion-trace (798ms)
+[qa] RUN text-pin-ratchet
+[qa] PASS text-pin-ratchet (499ms)
+[qa] RUN qa-pipeline-contract
+[qa] PASS qa-pipeline-contract (526ms)
+[qa] RUN worker-anthropic
+[qa] PASS producer-dry-run (18885ms)
+[qa] RUN extension-api-runtime
+[qa] PASS extension-api-runtime (172ms)
+[qa] RUN ai-budget-scope
+[qa] PASS worker-anthropic (480ms)
+[qa] RUN worker-relay
+[qa] PASS ai-budget-scope (300ms)
+[qa] CACHED operations-alert-source (382ms prior)
+[qa] RUN cloudflare-deployment
+[qa] PASS worker-relay (391ms)
+[qa] PASS cloudflare-deployment (590ms)
+[qa] PASS narrative-lifecycle-model (34662ms)
+[qa] PASS knowledge-generated-parity (30632ms)
+[qa] FAILED-BATCH preserved (2): data-refresh, data-lineage
+[qa] SUMMARY profile=affected run=2026-10-31T04-11-14-355Z-29328-qnadwk groups=preflight,core,data,knowledge,workspace,cloudflare,browser-unit,browser-runtime,browser-knowledge,browser-resilience,browser-viewport,browser-surface,watchdog-local pass=115 cached=7 fail=2 skip=43 duration=85.9s
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\runs\2026-10-31T04-11-14-355Z-29328-qnadwk.json
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\last-run.json
+exit=1

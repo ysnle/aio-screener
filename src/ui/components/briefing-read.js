@@ -9,6 +9,7 @@ import { briefingFlow } from '../../domain/market/page-flow.js';
 import { renderNextSteps } from './page-flow.js';
 import { crossroadsForRoot, themeLinkRow } from './macro-crossroads.js';
 import { el } from './dom.js';
+import { directionOf } from '../../domain/shared/number.js';
 import { asOfChip } from './section-frame.js';
 import { moveNewsList, moveNewsRows, renderMarketTimeline, symbolNames } from './market-timeline.js';
 import { renderSectorMoves } from './sector-moves.js';
@@ -366,7 +367,9 @@ function renderMoveChart(doc, anchor, moves) {
       for (const [key, cls] of [['d5', 'is-5d'], ['d1', 'is-1d']]) {
         const value = row[key];
         if (!Number.isFinite(value)) continue;
-        const bar = el(doc, 'span', null, `briefing-move-bar ${cls} ${row.unit === 'bp' || row.neutral ? 'is-rate' : value >= 0 ? 'is-up' : 'is-down'}`);
+        // v59.45 (R1-05): the colour follows the printed one-decimal sign; a move printed 0.0% is grey, not falling.
+        const dir = directionOf(value, 1);
+        const bar = el(doc, 'span', null, `briefing-move-bar ${cls} ${row.unit === 'bp' || row.neutral || !dir ? 'is-rate' : dir === 'up' ? 'is-up' : 'is-down'}`);
         const width = Math.abs(value) / max * 50;
         bar.style.width = `${Math.max(0.6, width).toFixed(1)}%`;
         bar.style.left = value >= 0 ? '50%' : `${(50 - width).toFixed(1)}%`;

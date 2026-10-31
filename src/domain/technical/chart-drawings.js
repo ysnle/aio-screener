@@ -5,6 +5,8 @@
 // completed daily bars — no DOM, no network; nothing here is an entry, stop or target (R724).
 import { swingPoints } from './price-levels.js';
 import { adrPctOf } from './definitions.js';
+import { RULES } from '../rules/thresholds.js';
+import { finiteNumber as finite } from '../shared/number.js';
 
 export const DRAWING_RULES = Object.freeze({
   swingSpan: 5, // a swing point is the extreme of 5 bars on each side, as on the price-level map
@@ -16,7 +18,6 @@ export const DRAWING_RULES = Object.freeze({
   confirmTouches: 3 // two pivots define a line; a third touch confirms it
 });
 
-const finite = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
 
 function bestLine(bars, pivots, side, rules, adrPrice) {
   const last = bars.length - 1;
@@ -70,6 +71,9 @@ export function anchoredVwap(bars, anchorIndex) {
   const values = list.map((bar, k) => {
     if (k < anchorIndex) return null;
     const volume = finite(bar?.volume);
+    // v59.45 P24-VWAP-01: a bar without a volume figure repeated the last VWAP as if nothing traded. It is a gap in the
+    // line (null) and leaves the sum; a reported 0 (a halted session) still carries the value.
+    if (k > anchorIndex && volume == null) return null;
     if (volume > 0 && finite(bar.high) != null && finite(bar.low) != null && finite(bar.close) != null) { pv += (bar.high + bar.low + bar.close) / 3 * volume; vol += volume; }
     return vol > 0 ? pv / vol : null;
   });
@@ -83,10 +87,13 @@ export function vwapAnchors(bars) {
   if (last < 20 || !list.some((bar) => finite(bar?.volume) > 0)) return [];
   const pick = (from, better) => { let best = -1; for (let k = Math.max(0, from); k <= last; k++) if (best < 0 || better(list[k], list[best])) best = k; return best; };
   const out = [];
+  // v59.45 P24-VWAP-01: the anchor names the span actually loaded — 60 bars read "52주 고점" while the chart's own range
+  // said "최근 60거래일". A year needs RULES fullYearSessions bars, six months 126.
+  const span = last + 1;
   const high = pick(last - 251, (a, b) => a.high > b.high);
-  if (high >= 0 && high < last - 1) out.push({ id: 'high52', label: '52주 고점', short: '고점', index: high });
+  if (high >= 0 && high < last - 1) out.push({ id: 'high52', label: span >= RULES.technical.fullYearSessions ? '52주 고점' : `최근 ${Math.min(span, 252)}거래일 고점`, short: '고점', index: high });
   const low = pick(last - 125, (a, b) => a.low < b.low);
-  if (low >= 0 && low < last - 1) out.push({ id: 'low6m', label: '6개월 저점', short: '저점', index: low });
+  if (low >= 0 && low < last - 1) out.push({ id: 'low6m', label: span >= 126 ? '6개월 저점' : `최근 ${span}거래일 저점`, short: '저점', index: low });
   let gap = -1, gapPct = 0;
   for (let k = Math.max(1, last - 62); k <= last; k++) {
     const pct = list[k - 1].close > 0 ? Math.abs(list[k].open / list[k - 1].close - 1) * 100 : 0;

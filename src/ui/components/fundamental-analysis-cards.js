@@ -1,7 +1,7 @@
 // v58.55 (개편 v2 3d/5g): the analysis cards v58.53 left out — 듀폰 분해 and 역 DCF on 종목 요약, R&D 비율 on 재무 공시.
 // Readings come from src/domain/fundamental/analysis-read.js; this file only draws them. A card whose inputs are not yet
 // collected says "수집 대기 · 다음 SEC 갱신 후 표시"; a filer that does not tag an item says so — never a zero.
-import { buildDupontRead, buildRdRead, impliedGrowth, dcfValue, reverseDcfInputs, REVERSE_DCF_DEFAULTS, buildTrailingYearRead, buildEarningsSchedule, buildSurpriseRead, buildMarginCashRead, buildThemePeers } from '../../domain/fundamental/analysis-read.js';
+import { buildDupontRead, buildRdRead, impliedGrowth, dcfValue, reverseDcfInputs, REVERSE_DCF_DEFAULTS, buildTrailingYearRead, buildEarningsSchedule, buildSurpriseRead, buildMarginCashRead, buildThemePeers, RETURNED_LABEL } from '../../domain/fundamental/analysis-read.js';
 import { formatUsdShort, reconcileFiscalHistory } from '../../domain/fundamental/fiscal-read.js';
 import { fiscalYearShortLabel } from '../../domain/fundamental/period.js';
 import { el } from './dom.js';
@@ -9,6 +9,7 @@ import { fiscalBarGeometry, parseFiscalHistory } from './fiscal-read.js';
 import { peMultipleText } from '../../domain/fundamental/consensus-read.js';
 import { stockLensContext, lensCard, thesisCard, situationCard } from './stock-lens-cards.js';
 import { signedText } from '../../domain/shared/number.js';
+import { hasLeadingIsoDay } from '../../domain/shared/session-date.js';
 
 export const COLLECTION_PENDING_LABEL = '수집 대기, 다음 SEC 갱신 후 표시';
 const pct = (value, digits = 1) => `${(value * 100).toFixed(digits)}%`;
@@ -148,7 +149,7 @@ export function reverseDcfCard(doc, root, { history, fundamentals, close, financ
   // v58.74 (text audit 종목 C1): the implied rate needs an anchor — the company's own revenue pace over the filed years, and
   // whether a thin free-cash-flow margin makes margin gains (not growth) the price's premise.
   const anchor = el(doc, 'p', '', 'v2-rdcf-result__anchor');
-  const filed = (Array.isArray(history) ? history : []).filter((row) => Number(row?.revenue) > 0 && /^\d{4}-\d{2}-\d{2}/.test(String(row?.periodEnd || ''))).sort((a, b) => String(a.periodEnd).localeCompare(String(b.periodEnd)));
+  const filed = (Array.isArray(history) ? history : []).filter((row) => Number(row?.revenue) > 0 && hasLeadingIsoDay(String(row?.periodEnd || ''))).sort((a, b) => String(a.periodEnd).localeCompare(String(b.periodEnd)));
   const spanYears = filed.length >= 3 ? Math.round((Date.parse(filed.at(-1).periodEnd) - Date.parse(filed[0].periodEnd)) / (365.25 * 86400000)) : 0;
   const revenueCagr = spanYears >= 2 ? (filed.at(-1).revenue / filed[0].revenue) ** (1 / spanYears) - 1 : null;
   const fcfMargin = filed.length ? inputs.fcf / filed.at(-1).revenue : null;
@@ -364,7 +365,7 @@ export function marginCashCard(doc, read, { financial = false } = {}) {
   }
   const cap = read.capital;
   const capital = [cap.sbcRatio != null ? `주식보상 매출의 ${cap.sbcRatio.toFixed(1)}%` : null, cap.buybacks != null ? `자사주 매입 ${formatUsdShort(cap.buybacks)}` : null, cap.dividends != null ? `배당 ${formatUsdShort(cap.dividends)}` : null].filter(Boolean);
-  if (capital.length) lines.append(el(doc, 'li', `${capital.join(', ')}${cap.returnedShareOfFcf != null ? ` — 매입과 배당 합이 잉여현금흐름의 ${cap.returnedShareOfFcf.toFixed(0)}%` : ''}.`));
+  if (capital.length) lines.append(el(doc, 'li', `${capital.join(', ')}${cap.returnedShareOfFcf != null ? ` — ${RETURNED_LABEL[cap.returnedBasis] || RETURNED_LABEL.both}이 잉여현금흐름의 ${cap.returnedShareOfFcf.toFixed(0)}%` : ''}.`));
   if (lines.childElementCount) card.append(lines);
   card.append(disclosure(doc, '원리, 이익률 단계와 현금', [
     ['원리', '매출총이익률은 가격 결정력과 원가, 영업이익률은 판매·연구 비용을 쓴 뒤의 본업 수익성, 순이익률은 이자·세금·일회성 항목까지 반영한 결과입니다. 세 단계의 간격이 어디서 벌어지는지가 비용 구조를 보여 줍니다.'],

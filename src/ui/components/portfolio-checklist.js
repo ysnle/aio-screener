@@ -12,10 +12,12 @@ import { consensusRowFor, requestConsensusEstimates } from '../../data/consensus
 import { SCENARIO_STATE, refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { EARNINGS_CALENDAR } from './fiscal-read.js';
 import { shortDate } from '../../domain/content/date-labels.js';
+import { themeStagesFor } from '../../domain/scenarios/theme-stage.js';
 
 const SINGLE_BAND = 25; // the 점검 single-holding internal band (domain/portfolio/checks.js: 25% 초과 주의)
 const SECTOR_BAND = 40; // the exposure panel's internal sector band (portfolio-read.js SECTOR_CONCENTRATION_BAND)
 const EARNINGS_SOON_DAYS = 14;
+const THESIS_CHECKS = 4; // 50일선 · 테마 단계 · 이익 전망 · 실적일
 
 function hostAfter(doc, id, anchorId, label) {
   let host = doc.getElementById(id);
@@ -103,22 +105,35 @@ function nextEarnings(root, symbol, todayIso) {
 export function thesisRows({ surface, root, holdings = [], bySymbol = new Map(), nowMs = Date.now() }) {
   const memoOf = new Map((holdings || []).map((holding) => [String(holding?.symbol || holding?.ticker || '').toUpperCase(), String(holding?.memo || '').trim()]));
   const themeMap = Array.isArray(root?.THEME_MAP) ? root.THEME_MAP : [];
-  const themeStates = new Map((root?.[SCENARIO_STATE.key]?.themes || []).filter((row) => row?.market === 'US').map((row) => [row.id, row]));
   const todayIso = new Date(nowMs).toISOString().slice(0, 10);
   const soonIso = new Date(nowMs + EARNINGS_SOON_DAYS * 86400000).toISOString().slice(0, 10);
+  // v59.45 (PASS10 P10-PF-02): each of the four checks is either looked at or unknown. With no price row, theme states,
+  // estimates or calendar, signals stayed [] and the row read '신호 없음' — the same words as four clean checks. `checked`
+  // counts the checks that had data and `unknown` names the rest, so the row can say what was not looked at.
+  const calendarKnown = !!root?.[EARNINGS_CALENDAR.key];
+  // The theme stage comes from the shared reader (theme-stage.js themeStagesFor), which refuses a pending or out-of-date
+  // scenario state; reading the raw rows kept a stale 'weak' stage on as a live signal.
   return (surface?.rows || []).filter((row) => Number(row?.value) > 0).slice(0, 15).map((row) => {
     const symbol = String(row.symbol || '').toUpperCase();
     const signals = [];
-    const s50 = Number(bySymbol.get(symbol)?.pctSma50);
-    if (Number.isFinite(s50) && s50 < 0) signals.push(`50일선 아래(${s50.toFixed(1)}%)`);
+    const unknown = [];
+    const sma = bySymbol.get(symbol)?.pctSma50;
+    const s50 = sma == null || sma === '' ? NaN : Number(sma);
+    if (!Number.isFinite(s50)) unknown.push('50일선');
+    else if (s50 < 0) signals.push(`50일선 아래(${s50.toFixed(1)}%)`);
     const themes = themeMap.filter((theme) => (theme.leaders || []).includes(symbol) || (theme.subThemes || []).some((sub) => (sub.tickers || []).includes(symbol)));
-    const weak = themes.map((theme) => themeStates.get(theme.id)).filter((state) => state && ['weak', 'fading'].includes(state.state));
+    // Not in any theme is a checked fact (no theme signal can apply); a theme without a published stage is unknown.
+    const stages = themes.length ? themeStagesFor(root, { market: 'US', themeIds: themes.map((theme) => theme.id) }) : [];
+    if (!themeMap.length || (themes.length && !stages.length)) unknown.push('테마 단계');
+    const weak = stages.filter((state) => ['weak', 'fading'].includes(state.state));
     if (weak.length) signals.push(`테마 단계 약함(${weak.map((state) => state.label).join(', ')})`);
     const fwd = consensusRowFor(root, symbol)?.fwd;
-    if (fwd && Number.isFinite(fwd.up4w) && Number.isFinite(fwd.down4w) && fwd.down4w > fwd.up4w) signals.push(`이익 전망 4주 하향 우위(상향 ${fwd.up4w}, 하향 ${fwd.down4w})`);
+    if (!(fwd && Number.isFinite(fwd.up4w) && Number.isFinite(fwd.down4w))) unknown.push('이익 전망');
+    else if (fwd.down4w > fwd.up4w) signals.push(`이익 전망 4주 하향 우위(상향 ${fwd.up4w}, 하향 ${fwd.down4w})`);
+    if (!calendarKnown) unknown.push('실적일');
     const earnings = nextEarnings(root, symbol, todayIso);
     if (earnings && earnings <= soonIso) signals.push(`실적 발표 ${shortDate(earnings)}`);
-    return { symbol, memo: memoOf.get(symbol) || '', signals };
+    return { symbol, memo: memoOf.get(symbol) || '', signals, checked: THESIS_CHECKS - unknown.length, unknown };
   });
 }
 
@@ -141,8 +156,10 @@ export function renderThesisCheck({ documentRef: doc, root, surface, holdings = 
   const list = el(doc, 'ul', null, 'pf-trade-mirror');
   for (const row of rows) {
     const li = el(doc, 'li', null, `pf-trade-mirror-row is-${row.signals.length ? 'burden' : 'unknown'}`);
-    li.append(el(doc, 'span', row.signals.length ? `신호 ${row.signals.length}` : '신호 없음', 'pf-trade-mirror-state'), el(doc, 'strong', row.symbol),
-      el(doc, 'span', ` — ${row.memo ? `메모: ${row.memo.length > 60 ? `${row.memo.slice(0, 60)}…` : row.memo}` : '메모 없음(매수 이유를 적어 두면 깨짐 신호와 비교할 수 있습니다)'}${row.signals.length ? `. 켜진 신호: ${row.signals.join(', ')}` : ''}`));
+    // v59.45 (P10-PF-02): 'no signal' only for checks that had data; with none, the row says it could not be checked.
+    const state = row.signals.length ? `신호 ${row.signals.length}` : row.checked === 0 ? '확인 불가' : row.unknown?.length ? `신호 없음(${row.checked}/${THESIS_CHECKS} 확인)` : '신호 없음';
+    li.append(el(doc, 'span', state, 'pf-trade-mirror-state'), el(doc, 'strong', row.symbol),
+      el(doc, 'span', ` — ${row.memo ? `메모: ${row.memo.length > 60 ? `${row.memo.slice(0, 60)}…` : row.memo}` : '메모 없음(매수 이유를 적어 두면 깨짐 신호와 비교할 수 있습니다)'}${row.signals.length ? `. 켜진 신호: ${row.signals.join(', ')}` : ''}${row.unknown?.length ? `. 자료 없음: ${row.unknown.join(', ')}` : ''}`));
     list.append(li);
   }
   host.replaceChildren(head, list, el(doc, 'p', '신호는 논지가 틀렸을 수 있다는 사실 확인용입니다: 50일선 아래, 속한 테마의 단계 약함, 최근 4주 이익 전망 하향 건수가 상향보다 많음, 2주 안의 실적 발표. 무엇을 할지는 내 논지와 원칙으로 정합니다.', 'theme-strength-basis'));

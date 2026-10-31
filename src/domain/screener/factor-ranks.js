@@ -13,6 +13,7 @@
 //   - sector-relative normalization with unknown-sector -> universe fallback;
 //   - row/ensemble confidence that measures evidence coverage, not return probability;
 //   - optional prior-rank/regime stability diagnostics (never used to auto-promote weights).
+import { FRESHNESS_POLICY } from '../shared/freshness-policy.js';
 import { normalizeAllowedUse } from '../../data/contracts/evidence.js';
 import { canonicalSourceTier } from '../../data/contracts/source-kind.js';
 import { MODEL_DEFAULT_WEIGHTS } from './factor-weights.js';
@@ -31,7 +32,7 @@ const DAY_MS = 86_400_000;
 // Shared with the producer (fetch-data) so the quality label written into the
 // artifact and the freshness gate applied at read time use one budget — two
 // budgets let a row read CURRENT at fetch and stale at render, or vice versa.
-export const FACTOR_FRESHNESS_MS = 4 * DAY_MS;
+export const FACTOR_FRESHNESS_MS = FRESHNESS_POLICY.factorSessionMs;
 const MIN_RANKED_ROWS = 5;
 // 2026-10-13 review S01: value/quality use the provider's period rule (fiscal period end within 456 days of
 // the price session). The former 180-day filing-date budget left 79 of 810 US rows current.
@@ -486,6 +487,10 @@ function computeFactorRanksForPopulation({
     const evidence = Object.fromEntries(candidateFactors.map((factor) => [factor.key, factorEvidenceUsable(row, factor.key, now)]));
     return {
       ...row,
+      // v59.45 P6-RANK-01: a row handed back in with last run's rank/quantSignal kept them when this run could not rank
+      // it (null composite). The ranker's own outputs start empty so a re-run of its output gives the same answer.
+      rank: null,
+      quantSignal: null,
       sym: String(row.sym || row.symbol).trim().toUpperCase(),
       _factorIndex: index,
       _sectorKey: normalizeSector(row.sector),

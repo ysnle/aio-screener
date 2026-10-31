@@ -122,6 +122,9 @@ export function scoreNewReleases(macroHistory, lastScored = {}, at) {
   const scored = [], next = { ...lastScored };
   for (const [id, actual] of Object.entries(actuals)) {
     if (!actual?.period || (lastScored[id] && actual.period <= lastScored[id])) continue;
+    // v59.45 (P17-RELEASE-01): a release whose other half (실업률, 임금, 전체 CPI) is not in yet is not consumed; it is
+    // scored on the refresh that has the whole report.
+    if (actual.missing?.length) continue;
     next[id] = actual.period;
     scored.push({ at, id, name: EVENT_NAMES[id] || id, period: actual.period, actual, actualText: actualText(id, actual), matched: scoreRelease(id, actual) });
   }

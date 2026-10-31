@@ -143,6 +143,8 @@ export function normalizeScreener(raw = {}, { rowCache = null } = {}) {
     // a silent drop here re-derives every session/basis label from the bar start.
     factorBarStart: row?.factorBarStart || null,
     factorSessionDate: row?.factorSessionDate || null,
+    // v59.46 R3-05: a row the producer carried from the last publish (this run did not read it) says so.
+    retainedFrom: row?.retainedFrom || null,
     factorSessionTimezone: row?.factorSessionTimezone || null,
     factorTimeBasis: row?.factorTimeBasis || null,
     factorBarCompleteness: row?.factorBarCompleteness || null,

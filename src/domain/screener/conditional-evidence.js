@@ -1,3 +1,4 @@
+import { readNumber as finite } from '../shared/number.js';
 // Local-first conditional evidence contract inspired by the supplied Edge
 // Stats architecture.  This module is intentionally computation-only: data
 // adapters, licensed providers and session calendars belong to producers.
@@ -39,11 +40,6 @@ function clean(value) {
   return String(value == null ? '' : value).replace(/\s+/g, ' ').trim();
 }
 
-function finite(value) {
-  if (value == null || value === '') return null;
-  const number = Number(value);
-  return Number.isFinite(number) ? number : null;
-}
 
 function timestampMs(value) {
   if (value == null || value === '') return null;
@@ -178,7 +174,10 @@ function aggregatePerYear(rows, successPredicate, options) {
 // times read READY 30/30. The sample unit is one instrument on one session: a repeated unit counts once, a row without
 // both ids cannot be a unit, and a later row of the same instrument that starts before the kept row's outcome window
 // ended overlaps it and is left out. Without an outcome end the overlap cannot be judged, so the sample is not READY.
-function independentSample(rows) {
+// v59.45 P6-STAT-01: an outcome window must be a closed past window, observedAt <= outcomeEndAt <= now. A window that
+// ends after the evaluation time (the result was not known yet) or before its own observation (reversed) read READY
+// 30/30. Like a missing end, such a window cannot back a verified sample: it is counted and the sample is not READY.
+function independentSample(rows, nowMs = null) {
   const seen = new Set();
   const lastEnd = new Map();
   const kept = [];
@@ -186,6 +185,8 @@ function independentSample(rows) {
   let missingUnits = 0;
   let overlappingWindows = 0;
   let unknownWindows = 0;
+  let openWindows = 0;
+  let reversedWindows = 0;
   for (const row of rows) {
     if (!row.instrumentId || !row.sessionId) { missingUnits += 1; continue; }
     const unit = `${row.instrumentId}|${row.sessionId}`;
@@ -194,11 +195,16 @@ function independentSample(rows) {
     const start = row.lineage.observedAtMs;
     const previousEnd = lastEnd.get(row.instrumentId);
     if (previousEnd != null && start != null && start < previousEnd) { overlappingWindows += 1; continue; }
-    if (row.outcomeEndAtMs == null) unknownWindows += 1;
-    lastEnd.set(row.instrumentId, row.outcomeEndAtMs ?? start);
+    const end = row.outcomeEndAtMs;
+    const reversed = end != null && start != null && end < start;
+    if (end == null) unknownWindows += 1;
+    else if (reversed) reversedWindows += 1;
+    else if (nowMs != null && end > nowMs) openWindows += 1;
+    lastEnd.set(row.instrumentId, end == null || reversed ? start : end);
     kept.push(row);
   }
-  return { rows: kept, duplicateUnits, missingUnits, overlappingWindows, unknownWindows, status: unknownWindows ? 'UNVERIFIED' : 'VERIFIED' };
+  const unverified = unknownWindows + openWindows + reversedWindows;
+  return { rows: kept, duplicateUnits, missingUnits, overlappingWindows, unknownWindows, openWindows, reversedWindows, status: unverified ? 'UNVERIFIED' : 'VERIFIED' };
 }
 
 export function evaluateConditionalEvidence({
@@ -234,7 +240,7 @@ export function evaluateConditionalEvidence({
     .filter(({ lineage }) => lineage.status === 'CURRENT_CANDIDATE')
     .sort((a, b) => (a.row.lineage.observedAtMs || 0) - (b.row.lineage.observedAtMs || 0))
     .map(({ row }) => row);
-  const independence = independentSample(usableRows);
+  const independence = independentSample(usableRows, timestampMs(now));
   const eligibleRows = independence.rows.filter((row) => safePredicate(eligible, row, false));
   const successRows = eligibleRows.filter((row) => safePredicate(success, row, false));
   const full = rateSummary(eligibleRows, success, options);
@@ -281,7 +287,7 @@ export function evaluateConditionalEvidence({
     distribution: distribution(values),
     lineage,
     blockedReasons: Object.freeze([...blockedReasons]),
-    independence: Object.freeze({ status: independence.status, duplicateUnits: independence.duplicateUnits, missingUnits: independence.missingUnits, overlappingWindows: independence.overlappingWindows, unknownWindows: independence.unknownWindows }),
+    independence: Object.freeze({ status: independence.status, duplicateUnits: independence.duplicateUnits, missingUnits: independence.missingUnits, overlappingWindows: independence.overlappingWindows, unknownWindows: independence.unknownWindows, openWindows: independence.openWindows, reversedWindows: independence.reversedWindows }),
     excludedObservationCount: Math.max(0, normalizedRows.length - usableRows.length),
     lastObservedAt: usableRows.at(-1)?.observedAt || null,
     disclaimer: CONDITIONAL_EVIDENCE_DISCLAIMER

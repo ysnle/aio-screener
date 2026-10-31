@@ -89,8 +89,13 @@ export function signedYields(sym, valuation, fiscal, now = null) {
   const quarters = String(fiscal.quarters?.[sym] || '').split(';').filter(Boolean).map((part) => part.split(':'));
   const nowMs = Number.isFinite(Number(now)) && now != null ? Number(now) : null;
   const fresh = (end) => nowMs == null || (Date.parse(`${end}T00:00:00Z`) >= nowMs - FUNDAMENTAL_MAX_PERIOD_AGE_DAYS * 86400000);
-  const lastFour = quarters.length && fresh(quarters.at(-1)[0]) ? quarters.slice(-4).map((part) => Number(part[2])) : [];
-  const ttm = lastFour.length === 4 && lastFour.every(Number.isFinite) ? lastFour.reduce((sum, value) => sum + value, 0) : null;
+  // v59.45 (P4-DATA-09): an empty net-income field is missing, not 0 (Number('') is 0), and TTM needs four
+  // consecutive quarters — a gap of more than ~one quarter between period ends is not a trailing year.
+  const tail = quarters.length && fresh(quarters.at(-1)[0]) ? quarters.slice(-4) : [];
+  const lastFour = tail.map((part) => (part[2] == null || String(part[2]).trim() === '' ? NaN : Number(part[2])));
+  const ends = tail.map((part) => Date.parse(`${part[0]}T00:00:00Z`));
+  const consecutive = ends.length === 4 && ends.every((end, i) => i === 0 || (Number.isFinite(end) && Number.isFinite(ends[i - 1]) && (end - ends[i - 1]) / 86400000 >= 80 && (end - ends[i - 1]) / 86400000 <= 100));
+  const ttm = lastFour.length === 4 && consecutive && lastFour.every(Number.isFinite) ? lastFour.reduce((sum, value) => sum + value, 0) : null;
   const annual = String(fiscal.data?.[sym] || '').split(';').filter(Boolean).map((part) => part.split(':')).pop();
   const equity = annual && annual[3] !== '' && fresh(annual[0]) ? Number(annual[3]) : null;
   return {

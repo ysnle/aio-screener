@@ -12,7 +12,7 @@ import { shortDate } from '../../domain/content/date-labels.js';
 import { buildKoreaIndexSeries } from '../../domain/market/regime-scenarios.js';
 import { deriveQuotePresentation } from '../../domain/market/quote-presentation.js';
 import { formatScreenerPrice, screenerMarket } from '../../domain/screener/market-scope.js';
-import { signedText } from '../../domain/shared/number.js';
+import { signedText, directionOf } from '../../domain/shared/number.js';
 import { pickImportantNews } from '../../domain/briefing/news-picks.js';
 import { groupNewsStories } from '../../domain/news/stories.js';
 import { selectNewsItems } from '../../state/selectors/news.js';
@@ -91,7 +91,7 @@ function renderChanges(doc, section, history, root) {
   for (const move of model.moves) {
     const cell = el(doc, 'div', null, `daily-move${model.big.includes(move.key) ? ' is-big' : ''}`);
     cell.dataset.measure = move.key;
-    cell.append(el(doc, 'span', move.label, 'daily-move-label'), el(doc, 'span', move.text, `daily-move-value ${move.value > 0 ? 'is-up' : move.value < 0 ? 'is-down' : ''}`));
+    cell.append(el(doc, 'span', move.label, 'daily-move-label'), el(doc, 'span', move.text, `daily-move-value ${move.text.startsWith('+') ? 'is-up' : move.text.startsWith('-') ? 'is-down' : ''}`)); // v59.45 (R1-05): the printed sign
     if (move.level) cell.append(el(doc, 'span', move.level, 'daily-move-level'));
     // P1724: a Korean index is compared on its own KRX sessions; the cell names that pair.
     if (move.market === 'KR') { cell.dataset.market = 'KR'; cell.append(el(doc, 'span', `한국 ${shortDate(move.from)} → ${shortDate(move.to)}`, 'daily-move-level')); }
@@ -195,7 +195,7 @@ function renderMyNames(doc, host, root, store, regime = null) {
     button.dataset.arg = row.symbol;
     li.append(button, el(doc, 'span', `${row.name || ''}${row.held ? ', 보유' : ''}`, 'daily-name-name'));
     li.append(namePrice(doc, row.symbol, root?._liveData?.[row.symbol], rowBySymbol.get(row.symbol)));
-    li.append(el(doc, 'span', row.dayPct == null ? '' : `${signedText(row.dayPct, 2)}%`, `daily-name-day ${row.daySignalled ? (row.dayPct > 0 ? 'is-up' : row.dayPct < 0 ? 'is-down' : '') : ''}`));
+    li.append(el(doc, 'span', row.dayPct == null ? '' : `${signedText(row.dayPct, 2)}%`, `daily-name-day ${row.daySignalled ? ({ up: 'is-up', down: 'is-down' }[directionOf(row.dayPct, 2)] || '') : ''}`));
     li.append(el(doc, 'span', row.notes.join(', ') || '지표 기록 없음', 'daily-name-notes'));
     list.append(li);
   }

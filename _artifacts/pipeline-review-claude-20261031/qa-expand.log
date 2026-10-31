@@ -1,0 +1,530 @@
+[qa] RUN syntax
+[qa] RUN workflow-yaml
+[qa] RUN version
+[qa] RUN product-charter
+[qa] PASS syntax (2658ms)
+[qa] RUN architecture
+[qa] PASS version (121ms)
+[qa] RUN native-decision
+[qa] PASS product-charter (124ms)
+[qa] CACHED capability-claims (95ms prior)
+[qa] RUN operations-contract
+[qa] PASS operations-contract (114ms)
+[qa] CACHED route-registry (177ms prior)
+[qa] RUN generated-state
+[qa] PASS native-decision (258ms)
+[qa] RUN workspace-contract
+[qa] PASS generated-state (275ms)
+[qa] RUN qa-runner-behavior
+[qa] PASS architecture (922ms)
+[qa] PASS workspace-contract (1887ms)
+[qa] PASS workflow-yaml (3433ms)
+[qa] PASS qa-runner-behavior (26383ms)
+[qa] RUN market-session
+[qa] RUN event-briefs
+[qa] RUN boot-budget
+[qa] RUN csp-meta
+[qa] PASS csp-meta (98ms)
+[qa] RUN inline-style-ratchet
+[qa] PASS market-session (208ms)
+[qa] RUN shared-primitive-ratchet
+[qa] PASS inline-style-ratchet (309ms)
+[qa] RUN research-reference-index
+[qa] PASS shared-primitive-ratchet (306ms)
+[qa] RUN decomposition
+[qa] PASS event-briefs (549ms)
+[qa] RUN esm-core
+[qa] PASS research-reference-index (203ms)
+[qa] RUN expect-output
+[qa] PASS decomposition (253ms)
+[qa] RUN pipeline-semantics
+[qa] PASS boot-budget (862ms)
+[qa] RUN page-decision-reference
+[qa] PASS page-decision-reference (101ms)
+[qa] RUN rotation-history
+[qa] PASS expect-output (426ms)
+[qa] RUN fundamental-watchlist-timeline
+[qa] PASS rotation-history (226ms)
+[qa] RUN artifact-cache
+[qa] PASS fundamental-watchlist-timeline (139ms)
+[qa] RUN service-worker-cache-policy
+[qa] PASS service-worker-cache-policy (257ms)
+[qa] RUN ai-intelligence
+[qa] PASS ai-intelligence (488ms)
+[qa] RUN ai-evidence
+[qa] PASS ai-evidence (206ms)
+[qa] RUN domain-parity
+[qa] PASS pipeline-semantics (1656ms)
+[qa] RUN research-model
+[qa] PASS research-model (144ms)
+[qa] RUN research-validation
+[qa] PASS domain-parity (274ms)
+[qa] RUN research-flow
+[qa] PASS research-flow (149ms)
+[qa] RUN proxy-continuity
+[qa] PASS research-validation (299ms)
+[qa] RUN data-continuity
+[qa] PASS proxy-continuity (362ms)
+[qa] RUN desktop-continuity
+[qa] PASS artifact-cache (2077ms)
+[qa] RUN storage-migration
+[qa] PASS storage-migration (101ms)
+[qa] CACHED deployment-convergence (108ms prior)
+[qa] RUN retirement
+[qa] PASS desktop-continuity (376ms)
+[qa] RUN csp
+[qa] PASS retirement (169ms)
+[qa] RUN structural
+[qa] PASS structural (220ms)
+[qa] RUN default-ux
+[qa] PASS csp (303ms)
+[qa] RUN desktop-scope
+[qa] PASS default-ux (115ms)
+[qa] RUN runtime
+[qa] PASS desktop-scope (206ms)
+[qa] RUN ai-chat-reliability
+[qa] PASS data-continuity (1065ms)
+[qa] RUN data-pipeline
+[qa] PASS esm-core (3862ms)
+[qa] RUN page-timeline
+[qa] PASS ai-chat-reliability (266ms)
+[qa] RUN reference-adoption-contract
+[qa] PASS page-timeline (121ms)
+[qa] RUN semantic-review
+[qa] PASS semantic-review (113ms)
+[qa] RUN conditional-native-search
+[qa] PASS reference-adoption-contract (189ms)
+[qa] RUN entity-summary-fixture
+[qa] PASS runtime (768ms)
+[qa] RUN screener-market-fixture
+[qa] PASS conditional-native-search (299ms)
+[qa] RUN chart-scenarios-fixture
+[qa] PASS entity-summary-fixture (265ms)
+[qa] RUN scenario-guidance-fixture
+[qa] PASS chart-scenarios-fixture (231ms)
+[qa] RUN interpretation-boundary-check
+[qa] PASS screener-market-fixture (320ms)
+[qa] RUN crash-replay-check
+[qa] PASS interpretation-boundary-check (785ms)
+[qa] RUN lookahead-check
+[qa] PASS scenario-guidance-fixture (1871ms)
+[qa] RUN codex-structure-regression-fixture
+[qa] PASS data-pipeline (4854ms)
+[qa] RUN architecture-audit-regression-fixture
+[qa] PASS codex-structure-regression-fixture (2365ms)
+[qa] RUN fiscal-quality-fixture
+[qa] PASS architecture-audit-regression-fixture (185ms)
+[qa] RUN korea-participation-fixture
+[qa] PASS korea-participation-fixture (203ms)
+[qa] RUN 13f-figi-ticker-fixture
+[qa] PASS fiscal-quality-fixture (332ms)
+[qa] RUN regime-scenarios-fixture
+[qa] PASS 13f-figi-ticker-fixture (141ms)
+[qa] RUN ui-vocabulary
+[qa] PASS ui-vocabulary (434ms)
+[qa] RUN macro-calendar-review
+[qa] PASS lookahead-check (4340ms)
+[qa] RUN official-references
+[qa] PASS macro-calendar-review (172ms)
+[qa] RUN screener-workbench
+[qa] PASS official-references (156ms)
+[qa] RUN screener-extended
+[qa] PASS crash-replay-check (5482ms)
+[qa] RUN conditional-evidence
+[qa] PASS conditional-evidence (110ms)
+[qa] RUN market-snapshot
+[qa] PASS market-snapshot (158ms)
+[qa] RUN history-time
+[qa] PASS screener-workbench (635ms)
+[qa] RUN history-session-model
+[qa] PASS history-time (318ms)
+[qa] RUN narrative-lifecycle-model
+[qa] PASS regime-scenarios-fixture (1757ms)
+[qa] RUN data-plane
+[qa] PASS history-session-model (425ms)
+[qa] RUN operations-status
+[qa] PASS operations-status (113ms)
+[qa] CACHED operations-alert-policy (137ms prior)
+[qa] CACHED operations-weekly-review (181ms prior)
+[qa] CACHED fast-plane-consumer (122ms prior)
+[qa] RUN operations-slo
+[qa] PASS data-plane (366ms)
+[qa] RUN reconciliation
+[qa] PASS reconciliation (150ms)
+[qa] RUN source-registry
+[qa] PASS operations-slo (183ms)
+[qa] RUN professional-gap
+[qa] PASS source-registry (131ms)
+[qa] RUN data-lineage
+[qa] PASS professional-gap (540ms)
+[qa] RUN sec-runtime-projection
+[qa] PASS sec-runtime-projection (536ms)
+[qa] CACHED sec-ledger-store (6071ms prior)
+[qa] RUN candidate-archive
+[qa] PASS candidate-archive (1866ms)
+[qa] RUN us-listings
+[qa] PASS us-listings (162ms)
+[qa] RUN review-integrity
+[qa] PASS review-integrity (404ms)
+[qa] RUN static-data
+[qa] PASS static-data (399ms)
+[qa] RUN artifact-semantics
+[qa] PASS artifact-semantics (744ms)
+[qa] RUN static-db-expiry
+[qa] PASS static-db-expiry (140ms)
+[qa] RUN manual-reference-expiry
+[qa] PASS manual-reference-expiry (163ms)
+[qa] RUN data-refresh
+[qa] FAIL data-refresh (242ms)
+| # | Category | Observed | Age(d) | Cadence | Status | Detail |
+|---|---|---|---:|---|---|---|
+| A1 | DATA_SNAPSHOT / durable market artifact | 2026-10-30T13:51:03.423Z | 0.64 | daily | STALE | revision=market-snapshot:2026-10-30T13:51:03.423Z:36d0268c attemptedRevision=market-snapshot:2026-10-30T13:51:03.423Z:36d0268c attempt=published; SLA=12h |
+| A2 | Fear & Greed | 2026-10-30T13:46:47+00:00 | 0.64 | daily | OK | score=28 source=cnn |
+| A3 | VIX + HY OAS shared evidence | 2026-10-30T13:35:31.000Z | 0.65 | daily | STALE | vix=19.17 hyOAS=3.14 hyAsOf=2026-10-28; session=DELAYED_IN_SESSION |
+| B1 | AAII sentiment | 2026-10-28 | 3.21 | weekly | OK | bull=37.8% neutral=20.7% bear=41.4% source=AAII Sentiment Survey; public current observation, reference-only |
+| B2 | NAAIM exposure | — | — | weekly | BLOCKED | BLOCKED_CURRENT: latest/API access is subscription-based; retained public reference=— observed=— and must not be relabeled current |
+| B3 | Investor Intelligence bull/bear | — | — | weekly | BLOCKED | BLOCKED: current publisher numeric values require subscriber access; no extrapolated value promoted |
+| B4 | Put/Call ratio | 2026-10-22 | 9.21 | daily | CRITICAL | total=0.94 equity=0.69 source=Cboe Daily Market Statistics |
+| C1 | US breadth / labels | 2026-10-29T13:30:00.000Z | 1.65 | daily | OK | coverage=100% |
+| C2 | NDX breadth | 2026-10-29T13:30:00.000Z | 1.65 | daily | OK | uses AIO universe contract; official exchange breadth remains separate |
+| C3 | AIO breadth history / official McClellan boundary | 2026-10-29T13:30:00.000Z | 1.65 | daily | OK | AIO-universe history=251 rows; official exchange A/D and McClellan remain unavailable |
+| C4 | Weinstein stage | 2026-10-29T13:30:00.000Z | 1.65 | daily | DYNAMIC | DYNAMIC: computed from selected runtime OHLCV/30-week evidence; not an external refresh category |
+| D1 | HY OAS | 2026-10-28 | 3.21 | daily | STALE | value=3.14 observed=2026-10-28; FRED/ICE publication-lag budget=3d; stale points remain reference-only |
+| D2 | Treasury yield fallback | 2026-10-30T13:35:34.000Z | 0.65 | daily | OK | 10Y=4.917 session=DELAYED_IN_SESSION |
+| D3 | 10Y-2Y spread | 2026-10-29 | 2.21 | daily | STALE | value=0.37%p source=us-treasury-official-primary; official observation date retained |
+| E1 | CPI / PCE | 2026-10-29T12:30:00.000Z | 1.69 | monthly | OK | CPI=3.7 (obs 2026-09-01) PCE=3.6 (obs 2026-09-01) corePCE=3.1 BEA=ok source=bea-official-primary |
+| E2 | Employment / wages / retail / housing | 2026-10-30T02:51:29.824Z | 1.09 | monthly | OK | unemployment=4.2 wage=3; observation period is retained separately from fetch freshness |
+| E3 | FOMC calendar | 2026-10-28 | 3.21 | event-driven | OK | official result=https://www.federalreserve.gov/newsevents/pressreleases/monetary20261028a.htm; next meeting=2026-12-09 |
+| E4 | Fed + BOK policy rates | 2026-10-22 | 9.21 | event-driven | OK | Fed=3.75-4.00% (asOf=2026-10-28, official-source metadata aligned; page body not fetched); BOK=3% (asOf=2026-10-22, official-source metadata/currentness contract passed; page body not fetched) |
+| F1 | 24h news / HOME_WEEKLY_NEWS | 2026-10-30T13:51:03.423Z | 0.64 | daily | OK | count=40 cycle=kst-0800-completed-24h |
+| G1 | Commodities / FX | 2026-10-30T13:40:41.000Z | 0.64 | daily | OK | WTI=103.88 DXY=101.915 |
+| G2 | Global indices | 2026-10-30T13:51:01.000Z | 0.64 | daily | OK | SPX=7627.43; global non-tier history remains reference-only |
+| G3 | Crypto | 2026-10-30T13:50:55.000Z | 0.64 | daily | OK | BTC=76595.45 ETH=2213.08 |
+H-dynamic | PASS | {"fetchKrNaverQuotes":true,"renderKrThemePerfBars":true,"themeCatalystRetired":true}
+D1-structural | no | rows=22 unknownSessions=0 tier0=16/16 snapshotFreshness=STALE attempt=published snapshotErrors={"total":0,"totalCapped":false,"tier0QualityCount":0,"blockedInstruments":[],"blockedInstrumentsTruncated":false,"tier0CoverageCount":0,"coverageFailures":[],"unclassifiedCount":0,"truncated":false} policyStates={"A1":"STALE","B1":"OK","B2":"BLOCKED","B3":"BLOCKED","C4":"DYNAMIC","E3":"OK","E4":"OK"}
+F1-timeline | PASS | slots=8 failures=[] warnings=["market-timeline-summary-fallback:validator-blocked"]
+
+[qa] FAILURE-OUTPUT C:\Projects\AIO\.cache\aio-qa\runs\2026-10-31T05-06-27-471Z-15976-f5t0ix\failure-output\data-refresh-c903d86946.stdout.txt C:\Projects\AIO\.cache\aio-qa\runs\2026-10-31T05-06-27-471Z-15976-f5t0ix\failure-output\data-refresh-c903d86946.stderr.txt
+[qa] NEXT data-refresh: Freshness SLA is wall-clock (R634 strict). If only data age failed: git pull (bot refreshes hourly) or run the data-refresh skill — not a code defect.
+[qa] RUN refresh-integrity
+[qa] PASS refresh-integrity (188ms)
+[qa] RUN producer-dry-run
+[qa] FAIL data-lineage (9364ms)
+[qa] CAUSE data-lineage: Data lineage audit: 47 artifacts | mode=strict PASS=40 WARN=6 FAIL=1 | FAIL data.json                        policy=live-core                      timestamp=2026-10-30T13:51:03.423Z age=15.27h commit=87b959f5 | FAIL: artifact exceeded freshness SLA (15.27h > 12h)
+WARN structural-data-research.json    policy=research-reference             timestamp=2026-08-21T15:00:00.000Z age=1694.12h commit=c99d3594
+     WARN: artifact is older than its reference freshness window (1694.12h > 336h)
+WARN telegram-digest.json             policy=reference-digest               timestamp=2026-10-30T13:51:48.140Z age=15.26h commit=87b959f5
+     WARN: artifact is older than its reference freshness window (15.26h > 12h)
+PASS telegram-observed.json           policy=producer-state                 timestamp=2026-10-30T13:51:48.140Z age=15.26h commit=87b959f5
+PASS telegram-reference-window.json   policy=research-reference             timestamp=2026-08-02T10:42:00.000Z age=2154.42h commit=6a09ffed
+PASS theme-stage-history.json         policy=research-drilldown             timestamp=2026-10-30T13:45:50.994Z age=15.36h commit=e2e656c0
+PASS today-verdict.json               policy=derived-state                  timestamp=2026-10-30T13:51:49.959Z age=15.26h commit=87b959f5
+PASS us-listings.json                 policy=exchange-listing-reference     timestamp=2026-10-30T06:35:52.565Z age=22.52h commit=5beba0a9
+PASS user-research-digest.json        policy=research-reference             timestamp=2026-10-12T06:00:00.000Z age=455.12h commit=9a71f4f5
+Nested reference families (WARN-only): 51 artifacts measured, 17 outside window, 0 unreadable
+     NESTED-WARN knowledge/relationship-guides.json           nested artifact declares no freshness timestamp (generatedAt, reviewedAt, researchedAt, searchedAt, reviewedAt)
+     NESTED-WARN knowledge/search-index.json                  nested artifact declares no freshness timestamp (generatedAt, reviewedAt, researchedAt, searchedAt, reviewedAt)
+     NESTED-WARN atlas/domain-claim-ledger.json               nested artifact declares no freshness timestamp (reviewedAt, generatedAt)
+     NESTED-WARN atlas/domain-guides.json                     nested artifact declares no freshness timestamp (reviewedAt, generatedAt)
+     NESTED-WARN atlas/domain-source-packets.json             nested artifact declares no freshness timestamp (reviewedAt, generatedAt)
+     NESTED-WARN atlas/foundation-lessons.json                nested artifact declares no freshness timestamp (reviewedAt, generatedAt)
+     NESTED-WARN atlas/foundations.json                       nested artifact declares no freshness timestamp (reviewedAt, generatedAt)
+     NESTED-WARN atlas/player-product-registry.json           nested artifact declares no freshness timestamp (reviewedAt, generatedAt)
+     NESTED-WARN atlas/source-packets.json                    nested artifact declares no freshness timestamp (reviewedAt, generatedAt)
+     NESTED-WARN atlas/taxonomy-node-coverage.json            nested artifact declares no freshness timestamp (reviewedAt, generatedAt)
+     NESTED-WARN principles/chapters.json                     nested artifact declares no freshness timestamp (reviewedAt, generatedAt)
+     NESTED-WARN principles/lesson-library.json               nested artifact declares no freshness timestamp (reviewedAt, generatedAt)
+     NESTED-WARN principles/reference-curriculum.json         nested artifact declares no freshness timestamp (reviewedAt, generatedAt)
+     NESTED-WARN masters/manager-principles.json              nested artifact is older than its reference window (1685.12h > 1080h)
+     NESTED-WARN masters/manager-row-previews.json            nested artifact is older than its reference window (1829.12h > 1080h)
+     NESTED-WARN masters/security-master-reference.json       nested artifact is older than its reference window (2165.12h > 1080h)
+     NESTED-WARN masters/security-master.json                 nested artifact is older than its reference window (1781.12h > 1080h)
+As of 2026-10-31T05:07:09.958Z. This audit does not certify provider rights, factual truth, or human/legal approval.
+
+[qa] FAILURE-OUTPUT C:\Projects\AIO\.cache\aio-qa\runs\2026-10-31T05-06-27-471Z-15976-f5t0ix\failure-output\data-lineage-e04d85e05a.stdout.txt C:\Projects\AIO\.cache\aio-qa\runs\2026-10-31T05-06-27-471Z-15976-f5t0ix\failure-output\data-lineage-e04d85e05a.stderr.txt
+[qa] NEXT data-lineage: Freshness SLA is wall-clock (R634 strict). If only data age failed: git pull (bot refreshes hourly) or run the data-refresh skill — not a code defect.
+[qa] RUN release-revision
+[qa] PASS release-revision (249ms)
+[qa] RUN 13f-currentness
+[qa] PASS 13f-currentness (110ms)
+[qa] CACHED 13f-semantic-noop (184ms prior)
+[qa] RUN artifact-headroom
+[qa] PASS screener-extended (11570ms)
+[qa] RUN company-profile-contract
+[qa] PASS artifact-headroom (137ms)
+[qa] RUN knowledge-generated-parity
+[qa] PASS company-profile-contract (196ms)
+[qa] RUN knowledge-corpus
+[qa] PASS knowledge-corpus (569ms)
+[qa] RUN six-doc-coverage
+[qa] PASS six-doc-coverage (183ms)
+[qa] RUN atlas-contract
+[qa] PASS atlas-contract (199ms)
+[qa] RUN principles-contract
+[qa] PASS principles-contract (148ms)
+[qa] RUN masters-contract
+[qa] PASS masters-contract (1700ms)
+[qa] RUN knowledge-lint
+[qa] PASS knowledge-lint (818ms)
+[qa] RUN workflow-compaction
+[qa] PASS workflow-compaction (203ms)
+[qa] RUN skill-contract
+[qa] PASS skill-contract (170ms)
+[qa] RUN agent-profiles
+[qa] PASS agent-profiles (100ms)
+[qa] RUN agent-skills
+[qa] PASS agent-skills (149ms)
+[qa] RUN operator-provisioning
+[qa] PASS operator-provisioning (130ms)
+[qa] RUN ledger-integrity
+[qa] PASS ledger-integrity (120ms)
+[qa] RUN record-fix
+[qa] PASS record-fix (6005ms)
+[qa] CACHED generated-conflict-fixture (5729ms prior)
+[qa] RUN assertion-trace
+[qa] PASS assertion-trace (742ms)
+[qa] RUN text-pin-ratchet
+[qa] PASS text-pin-ratchet (505ms)
+[qa] RUN qa-pipeline-contract
+[qa] FAIL qa-pipeline-contract (456ms)
+QA pipeline contract failed:
+ - v58.77 QA-01 every file in the knowledge builders' import closure selects knowledge-generated-parity (18 builders, 90 files; missing: src/domain/shared/number.js)
+
+[qa] FAILURE-OUTPUT C:\Projects\AIO\.cache\aio-qa\runs\2026-10-31T05-06-27-471Z-15976-f5t0ix\failure-output\qa-pipeline-contract-62c823e6f3.stdout.txt C:\Projects\AIO\.cache\aio-qa\runs\2026-10-31T05-06-27-471Z-15976-f5t0ix\failure-output\qa-pipeline-contract-62c823e6f3.stderr.txt
+[qa] RUN worker-anthropic
+[qa] PASS worker-anthropic (482ms)
+[qa] RUN extension-api-runtime
+[qa] PASS extension-api-runtime (164ms)
+[qa] RUN ai-budget-scope
+[qa] PASS ai-budget-scope (249ms)
+[qa] RUN worker-relay
+[qa] PASS producer-dry-run (18450ms)
+[qa] CACHED operations-alert-source (297ms prior)
+[qa] RUN cloudflare-deployment
+[qa] PASS worker-relay (294ms)
+[qa] PASS cloudflare-deployment (442ms)
+[qa] PASS narrative-lifecycle-model (31300ms)
+[qa] PASS knowledge-generated-parity (29027ms)
+[qa] FAILED-BATCH preserved (3): data-refresh, data-lineage, qa-pipeline-contract
+[qa] SUMMARY profile=affected run=2026-10-31T05-06-27-471Z-15976-f5t0ix groups=preflight,core,data,knowledge,workspace,cloudflare,browser-unit,browser-runtime,browser-knowledge,browser-resilience,browser-viewport,browser-surface,watchdog-local pass=112 cached=10 fail=3 skip=43 duration=81.5s
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\runs\2026-10-31T05-06-27-471Z-15976-f5t0ix.json
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\last-run.json
+exit=1
+[qa] RUN headless
+[qa] [qa-progress] headless shard=1/1 group=G001 1/111
+[qa] [qa-progress] headless shard=1/1 group=G002 2/111
+[qa] [qa-progress] headless shard=1/1 group=G003 3/111
+[qa] [qa-progress] headless shard=1/1 group=G004 4/111
+[qa] [qa-progress] headless shard=1/1 group=G005 5/111
+[qa] [qa-progress] headless shard=1/1 group=G006 6/111
+[qa] [qa-progress] headless shard=1/1 group=G007 7/111
+[qa] [qa-progress] headless shard=1/1 group=G008 8/111
+[qa] [qa-progress] headless shard=1/1 group=G009 9/111
+[qa] [qa-progress] headless shard=1/1 group=G010 10/111
+[qa] [qa-progress] headless shard=1/1 group=G011 11/111
+[qa] [qa-progress] headless shard=1/1 group=G012 12/111
+[qa] [qa-progress] headless shard=1/1 group=G013 13/111
+[qa] [qa-progress] headless shard=1/1 group=G014 14/111
+[qa] [qa-progress] headless shard=1/1 group=G015 15/111
+[qa] [qa-progress] headless shard=1/1 group=G016 16/111
+[qa] [qa-progress] headless shard=1/1 group=G017 17/111
+[qa] [qa-progress] headless shard=1/1 group=G018 18/111
+[qa] [qa-progress] headless shard=1/1 group=G019 19/111
+[qa] [qa-progress] headless shard=1/1 group=G020 20/111
+[qa] [qa-progress] headless shard=1/1 group=G021 21/111
+[qa] [qa-progress] headless shard=1/1 group=G022 22/111
+[qa] [qa-progress] headless shard=1/1 group=G023 23/111
+[qa] [qa-progress] headless shard=1/1 group=G024 24/111
+[qa] [qa-progress] headless group=G024 step=T147-governance-audit-start
+[qa] [qa-progress] headless group=G024 step=T148-full-badges-start
+[qa] [qa-progress] headless group=G024 step=T148-full-badges-done
+[qa] [qa-progress] headless group=G024 step=T149-scheduler-start
+[qa] [qa-progress] headless shard=1/1 group=G025 25/111
+[qa] [qa-progress] headless shard=1/1 group=G026 26/111
+[qa] [qa-progress] headless shard=1/1 group=G027 27/111
+[qa] [qa-progress] headless shard=1/1 group=G028 28/111
+[qa] [qa-progress] headless shard=1/1 group=G029 29/111
+[qa] [qa-progress] headless shard=1/1 group=G030 30/111
+[qa] [qa-progress] headless shard=1/1 group=G031 31/111
+[qa] [qa-progress] headless shard=1/1 group=G032 32/111
+[qa] [qa-progress] headless shard=1/1 group=G033 33/111
+[qa] [qa-progress] headless shard=1/1 group=G034 34/111
+[qa] [qa-progress] headless shard=1/1 group=G035 35/111
+[qa] [qa-progress] headless shard=1/1 group=G036 36/111
+[qa] [qa-progress] headless shard=1/1 group=G037 37/111
+[qa] [qa-progress] headless shard=1/1 group=G038 38/111
+[qa] [qa-progress] headless shard=1/1 group=G039 39/111
+[qa] [qa-progress] headless shard=1/1 group=G040 40/111
+[qa] [qa-progress] headless shard=1/1 group=G041 41/111
+[qa] [qa-progress] headless shard=1/1 group=G042 42/111
+[qa] [qa-progress] headless shard=1/1 group=G043 43/111
+[qa] [qa-progress] headless shard=1/1 group=G044 44/111
+[qa] [qa-progress] headless shard=1/1 group=G045 45/111
+[qa] [qa-progress] headless shard=1/1 group=G046 46/111
+[qa] [qa-progress] headless shard=1/1 group=G047 47/111
+[qa] [qa-progress] headless shard=1/1 group=G048 48/111
+[qa] [qa-progress] headless shard=1/1 group=G049 49/111
+[qa] [qa-progress] headless shard=1/1 group=G050 50/111
+[qa] [qa-progress] headless shard=1/1 group=G051 51/111
+[qa] [qa-progress] headless shard=1/1 group=G052 52/111
+[qa] [qa-progress] headless shard=1/1 group=G053 53/111
+[qa] [qa-progress] headless shard=1/1 group=G054 54/111
+[qa] [qa-progress] headless shard=1/1 group=G055 55/111
+[qa] [qa-progress] headless shard=1/1 group=G056 56/111
+[qa] [qa-progress] headless shard=1/1 group=G057 57/111
+[qa] [qa-progress] headless shard=1/1 group=G058 58/111
+[qa] [qa-progress] headless shard=1/1 group=G059 59/111
+[qa] [qa-progress] headless shard=1/1 group=G060 60/111
+[qa] [qa-progress] headless shard=1/1 group=G061 61/111
+[qa] [qa-progress] headless shard=1/1 group=G062 62/111
+[qa] [qa-progress] headless shard=1/1 group=G063 63/111
+[qa] [qa-progress] headless shard=1/1 group=G064 64/111
+[qa] [qa-progress] headless shard=1/1 group=G065 65/111
+[qa] [qa-progress] headless shard=1/1 group=G066 66/111
+[qa] [qa-progress] headless shard=1/1 group=G067 67/111
+[qa] [qa-progress] headless shard=1/1 group=G068 68/111
+[qa] [qa-progress] headless shard=1/1 group=G069 69/111
+[qa] [qa-progress] headless shard=1/1 group=G070 70/111
+[qa] [qa-progress] headless shard=1/1 group=G071 71/111
+[qa] [qa-progress] headless shard=1/1 group=G072 72/111
+[qa] [qa-progress] headless shard=1/1 group=G073 73/111
+[qa] [qa-progress] headless shard=1/1 group=G074 74/111
+[qa] [qa-progress] headless shard=1/1 group=G075 75/111
+[qa] [qa-progress] headless shard=1/1 group=G076 76/111
+[qa] [qa-progress] headless shard=1/1 group=G077 77/111
+[qa] [qa-progress] headless shard=1/1 group=G078 78/111
+[qa] [qa-progress] headless shard=1/1 group=G079 79/111
+[qa] [qa-progress] headless shard=1/1 group=G080 80/111
+[qa] [qa-progress] headless shard=1/1 group=G081 81/111
+[qa] [qa-progress] headless shard=1/1 group=G082 82/111
+[qa] [qa-progress] headless shard=1/1 group=G083 83/111
+[qa] [qa-progress] headless shard=1/1 group=G084 84/111
+[qa] [qa-progress] headless shard=1/1 group=G085 85/111
+[qa] [qa-progress] headless shard=1/1 group=G086 86/111
+[qa] [qa-progress] headless shard=1/1 group=G087 87/111
+[qa] [qa-progress] headless shard=1/1 group=G088 88/111
+[qa] [qa-progress] headless shard=1/1 group=G089 89/111
+[qa] [qa-progress] headless shard=1/1 group=G090 90/111
+[qa] [qa-progress] headless shard=1/1 group=G091 91/111
+[qa] [qa-progress] headless shard=1/1 group=G092 92/111
+[qa] [qa-progress] headless shard=1/1 group=G093 93/111
+[qa] [qa-progress] headless shard=1/1 group=G094 94/111
+[qa] [qa-progress] headless shard=1/1 group=G095 95/111
+[qa] [qa-progress] headless shard=1/1 group=G096 96/111
+[qa] [qa-progress] headless shard=1/1 group=G097 97/111
+[qa] [qa-progress] headless shard=1/1 group=G098 98/111
+[qa] [qa-progress] headless shard=1/1 group=G099 99/111
+[qa] [qa-progress] headless shard=1/1 group=G100 100/111
+[qa] [qa-progress] headless shard=1/1 group=G101 101/111
+[qa] [qa-progress] headless shard=1/1 group=G102 102/111
+[qa] [qa-progress] headless shard=1/1 group=G103 103/111
+[qa] [qa-progress] headless shard=1/1 group=G104 104/111
+[qa] [qa-progress] headless shard=1/1 group=G105 105/111
+[qa] [qa-progress] headless shard=1/1 group=G106 106/111
+[qa] [qa-progress] headless shard=1/1 group=G107 107/111
+[qa] [qa-progress] headless shard=1/1 group=G108 108/111
+[qa] [qa-progress] headless shard=1/1 group=G109 109/111
+[qa] [qa-progress] headless shard=1/1 group=G110 110/111
+[qa] [qa-progress] headless shard=1/1 group=G111 111/111
+[qa] PASS headless (10840ms)
+[qa] NOTE failed batch 2026-10-31T05-06-27-471Z-15976-f5t0ix preserved: this run did not cover every gate in it
+[qa] SUMMARY profile=group run=2026-10-31T05-07-49-230Z-2144-jkthw3 groups=browser-unit pass=1 cached=0 fail=0 skip=0 duration=11.5s
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\runs\2026-10-31T05-07-49-230Z-2144-jkthw3.json
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\last-run.json
+GROUP browser-unit exit=0
+[qa] RUN browser-ai-public
+[qa] PASS browser-ai-public (13434ms)
+[qa] RUN browser-chat-ui-state
+[qa] PASS browser-chat-ui-state (680ms)
+[qa] RUN browser-chat-response-layout
+[qa] PASS browser-chat-response-layout (1674ms)
+[qa] RUN browser-market-epoch
+[qa] PASS browser-market-epoch (6230ms)
+[qa] RUN browser-screener-refresh
+[qa] PASS browser-screener-refresh (17685ms)
+[qa] RUN browser-screener-extended
+[qa] PASS browser-screener-extended (27538ms)
+[qa] RUN browser-boot
+[qa] PASS browser-boot (11549ms)
+[qa] RUN browser-architecture
+[qa] PASS browser-architecture (24159ms)
+[qa] RUN browser-vertical
+[qa] PASS browser-vertical (8941ms)
+[qa] TARGET_MISS boot performance (reported, not blocking): decoded same-origin JS 4.4MB > 1.5MB
+[qa] NOTE failed batch 2026-10-31T05-06-27-471Z-15976-f5t0ix preserved: this run did not cover every gate in it
+[qa] SUMMARY profile=group run=2026-10-31T05-08-01-383Z-22944-9o83xh groups=browser-runtime pass=9 cached=0 fail=0 skip=0 duration=112.6s
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\runs\2026-10-31T05-08-01-383Z-22944-9o83xh.json
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\last-run.json
+GROUP browser-runtime exit=0
+[qa] RUN artifact-budget
+[qa] PASS artifact-budget (5700ms)
+[qa] RUN browser-atlas
+[qa] PASS browser-atlas (13840ms)
+[qa] RUN browser-principles
+[qa] PASS browser-principles (11135ms)
+[qa] RUN browser-masters
+[qa] PASS browser-masters (7888ms)
+[qa] RUN browser-user-journey
+[qa] PASS browser-user-journey (13198ms)
+[qa] RUN browser-reference-adoption
+[qa] PASS browser-reference-adoption (8399ms)
+[qa] RUN browser-theme-research
+[qa] PASS browser-theme-research (21069ms)
+[qa] RUN browser-learning-flow
+[qa] PASS browser-learning-flow (5409ms)
+[qa] NOTE failed batch 2026-10-31T05-06-27-471Z-15976-f5t0ix preserved: this run did not cover every gate in it
+[qa] SUMMARY profile=group run=2026-10-31T05-09-54-525Z-8744-gq3zbs groups=browser-knowledge pass=8 cached=0 fail=0 skip=0 duration=87.4s
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\runs\2026-10-31T05-09-54-525Z-8744-gq3zbs.json
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\last-run.json
+GROUP browser-knowledge exit=0
+[qa] RUN browser-route-soak
+[qa] PASS browser-route-soak (20743ms)
+[qa] RUN browser-sa02
+[qa] PASS browser-sa02 (13551ms)
+[qa] RUN browser-sa03
+[qa] PASS browser-sa03 (2779ms)
+[qa] RUN browser-sa04
+[qa] PASS browser-sa04 (9243ms)
+[qa] NOTE failed batch 2026-10-31T05-06-27-471Z-15976-f5t0ix preserved: this run did not cover every gate in it
+[qa] SUMMARY profile=group run=2026-10-31T05-11-22-530Z-25736-hj0nvr groups=browser-resilience pass=4 cached=0 fail=0 skip=0 duration=46.9s
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\runs\2026-10-31T05-11-22-530Z-25736-hj0nvr.json
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\last-run.json
+GROUP browser-resilience exit=0
+[qa] RUN browser-viewport
+[qa] PASS browser-viewport (13901ms)
+[qa] RUN browser-responsive
+[qa] PASS browser-responsive (21387ms)
+[qa] RUN browser-entity-quality
+[qa] PASS browser-entity-quality (23561ms)
+[qa] RUN browser-touch-ergonomics
+[qa] PASS browser-touch-ergonomics (15327ms)
+[qa] RUN browser-out-of-universe-ticker
+[qa] PASS browser-out-of-universe-ticker (27585ms)
+[qa] NOTE failed batch 2026-10-31T05-06-27-471Z-15976-f5t0ix preserved: this run did not cover every gate in it
+[qa] SUMMARY profile=group run=2026-10-31T05-12-10-055Z-28540-m8s6lo groups=browser-viewport pass=5 cached=0 fail=0 skip=0 duration=102.4s
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\runs\2026-10-31T05-12-10-055Z-28540-m8s6lo.json
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\last-run.json
+GROUP browser-viewport exit=0
+[qa] RUN browser-critical
+[qa] PASS browser-critical (8749ms)
+[qa] RUN browser-vault
+[qa] PASS browser-vault (21792ms)
+[qa] RUN browser-a11y
+[qa] PASS browser-a11y (9508ms)
+[qa] RUN browser-ui-render-hygiene
+[qa] PASS browser-ui-render-hygiene (17839ms)
+[qa] RUN browser-rendered-copy-lint
+[qa] PASS browser-rendered-copy-lint (18377ms)
+[qa] RUN browser-secondary-text-budget
+[qa] FAIL browser-secondary-text-budget (21599ms)
+[qa] CAUSE browser-secondary-text-budget: v58.79 secondary text budget FAIL: 1 route(s) over ceiling, 0 frame contract problem(s)
+v58.79 secondary text budget FAIL: 1 route(s) over ceiling, 0 frame contract problem(s)
+- themes: 959 > 901; longest: [300] 이 그림은 흔히 RRG(상대 회전 그래프)라 부르는 방식입니다. 가로축 상대강도(시장 대비)는 지금의 상대가 | [66] 긴 추세는 앞서나 50일선 위 비율·조건·최근 5거래일이 받쳐 주지 않음. 조건별 득실로 비용이 작은 쪽:  | [53] 긴 추세가 지수보다 뒤처지고 1개월도 앞서지 못함. 조건별 득실로 비용이 작은 쪽: 관망 5개. | [50] 긴 추세가 지수와 비슷함. 조건별 득실로 비용이 작은 쪽: 관망 14개, 보유 유지 2개. | [49] 긴 추세는 지수보다 뒤처지나 1개월은 앞섬. 조건별 득실로 비용이 작은 쪽: 관망 1개.
+
+[qa] FAILURE-OUTPUT C:\Projects\AIO\.cache\aio-qa\runs\2026-10-31T05-13-53-027Z-21924-xnuru3\failure-output\browser-secondary-text-budget-9c21fc4e2e.stdout.txt C:\Projects\AIO\.cache\aio-qa\runs\2026-10-31T05-13-53-027Z-21924-xnuru3\failure-output\browser-secondary-text-budget-9c21fc4e2e.stderr.txt
+[qa] NEXT browser-secondary-text-budget: v58.79: move the new caption, basis or hint line into the section frame (as-of chip, its hover, or the frame's one fold; src/ui/components/section-frame.js) instead of adding text; after cuts run node scripts/ci-secondary-text-budget-check.mjs --tighten
+[qa] FAILED-BATCH preserved (1): browser-secondary-text-budget
+[qa] SUMMARY profile=group run=2026-10-31T05-13-53-027Z-21924-xnuru3 groups=browser-surface pass=5 cached=0 fail=1 skip=0 duration=98.5s
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\runs\2026-10-31T05-13-53-027Z-21924-xnuru3.json
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\last-run.json
+GROUP browser-surface exit=1

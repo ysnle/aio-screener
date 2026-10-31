@@ -7,6 +7,7 @@
 import { pastEvidence } from '../scenarios/analogs.js';
 import { hasFinalConsonant } from '../content/korean-particle.js';
 import { shortDate } from '../content/date-labels.js';
+import { hasLeadingIsoDay } from '../shared/session-date.js';
 
 export const LESSON_KINDS = Object.freeze({
   attitude: '태도',
@@ -20,7 +21,7 @@ const branch = (ctx, id) => ctx?.crossroads?.items?.find((item) => item.id === i
 const lead = (ctx) => (ctx?.crossroads?.leadId ? branch(ctx, ctx.crossroads.leadId) : null);
 const short = (title) => String(title || '').split(' — ')[0];
 // v58.74 (text audit): a lesson quoting the six-axis read names the close it came from — '오늘' on a Saturday was Friday's.
-const closeLead = (ctx) => { const at = String(ctx?.regime?.asOf || ''); return /^\d{4}-\d{2}-\d{2}/.test(at) ? `${Number(at.slice(5, 7))}/${Number(at.slice(8, 10))} 미국 종가 기준` : '오늘'; };
+const closeLead = (ctx) => { const at = String(ctx?.regime?.asOf || ''); return hasLeadingIsoDay(at) ? `${Number(at.slice(5, 7))}/${Number(at.slice(8, 10))} 미국 종가 기준` : '오늘'; };
 const subject = (word) => `${word}${hasFinalConsonant(word) ? '이' : '가'}`;
 const liveIds = (ctx) => new Set((ctx?.direction?.live || []).map((row) => row.id));
 
@@ -30,7 +31,7 @@ export const LESSONS = Object.freeze([
     id: 'survive-first', kind: 'attitude', concept: 'J4', title: '수익보다 먼저 살아남기',
     principle: '큰 손실은 회복에 더 큰 수익이 필요합니다(-50%를 메우려면 +100%). 부담 신호가 많은 때일수록 얼마를 벌지보다 얼마까지 잃을 수 있는지가 결과를 가릅니다.',
     why: '손실과 회복은 비대칭이라, 시장에 오래 남아 있는 것 자체가 복리의 조건입니다.',
-    live: (ctx) => { const n = ctx?.regime?.counts?.burden; const at = String(ctx?.regime?.asOf || ""); /* v58.74: the count is a close, not today (Saturday) */ return n >= 3 ? `${/^\d{4}-\d{2}-\d{2}/.test(at) ? `${Number(at.slice(5, 7))}/${Number(at.slice(8, 10))} 미국 종가 기준` : "직전 미국 종가 기준"} 6개 지표 중 부담이 ${n}개입니다.` : null; }
+    live: (ctx) => { const n = ctx?.regime?.counts?.burden; const at = String(ctx?.regime?.asOf || ""); /* v58.74: the count is a close, not today (Saturday) */ return n >= 3 ? `${hasLeadingIsoDay(at) ? `${Number(at.slice(5, 7))}/${Number(at.slice(8, 10))} 미국 종가 기준` : "직전 미국 종가 기준"} 6개 지표 중 부담이 ${n}개입니다.` : null; }
   },
   {
     id: 'conditions-not-forecasts', kind: 'attitude', concept: 'J5', title: '맞히기보다 조건으로 생각하기',

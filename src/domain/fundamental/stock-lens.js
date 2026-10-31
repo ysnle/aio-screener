@@ -2,10 +2,11 @@
 // it stands against its named theme peers, the situations that favour or burden it, a thesis template with its checks and
 // break signals, and the market link. Pure: everything comes in as arguments (parsed SEC history, screener rows, consensus,
 // scenario state, regime). The app never picks: these are facts, conditions and counts — no price, weight, grade or odds.
-import { finiteFact as finite, fiscalYearLabel } from './period.js';
+import { finiteFact as finite, fiscalYearLabel, isPriorAnnualPeriod } from './period.js';
 import { themeProfile, windFor, WIND_LABELS, EXPOSURE_TAGS } from '../scenarios/exposures.js';
 import { BRANCHES } from '../market/macro-crossroads.js';
 import { signedText, usdKoreanText } from '../shared/number.js';
+import { RETURNED_LABEL } from './analysis-read.js';
 
 const pct = (value, digits = 1) => (value == null ? null : `${value.toFixed(digits)}%`);
 const usdShort = (value) => usdKoreanText(value); // first-users F33: one money format
@@ -102,7 +103,9 @@ const UNCOLLECTED = Object.freeze({ inventory: '재고 — 10-Q 재무상태표�
 function metricValue(id, ctx) {
   const years = (ctx.history || []).filter((year) => finite(year?.revenue) > 0);
   const latest = years.at(-1) || null;
-  const prior = years.at(-2) || null;
+  // v59.45 (pipeline review P19-PERIOD-01): the year before is the adjacent fiscal year only (the 재무 공시 view's rule);
+  // FY2022 → FY2025 is not "전년", so growth, prior capex, average-equity ROE and "1년 전" margin wait for it.
+  const prior = latest && isPriorAnnualPeriod(latest, years.at(-2)) ? years.at(-2) : null;
   const label = latest ? fiscalYearLabel(latest.periodEnd) || '최근 연도' : null;
   const ladder = ctx.marginCash?.state === 'ready' ? ctx.marginCash : null;
   const step = (sid) => ladder?.ladder?.find((row) => row.id === sid) || null;
@@ -139,9 +142,10 @@ function metricValue(id, ctx) {
     }
     case 'rdRatio': return ctx.rd?.state === 'ready' ? { text: `매출의 ${pct(ctx.rd.latest.ratio * 100)}, ${ctx.rd.latest.label}`, trend: ctx.rd.deltaPp != null ? (ctx.rd.deltaPp > 0.5 ? '늘어남' : ctx.rd.deltaPp < -0.5 ? '줄어듦' : '비슷') : null } : null;
     case 'sbcRatio': return ladder?.capital?.sbcRatio != null ? { text: `매출의 ${pct(ladder.capital.sbcRatio)}, ${ladder.label}`, trend: null } : null;
-    case 'shareholderReturn': return ladder?.capital?.returnedShareOfFcf != null ? { text: `자사주·배당 합이 잉여현금의 ${ladder.capital.returnedShareOfFcf.toFixed(0)}%, ${ladder.label}`, trend: null } : null;
+    case 'shareholderReturn': return ladder?.capital?.returnedShareOfFcf != null ? { text: `${RETURNED_LABEL[ladder.capital.returnedBasis] || RETURNED_LABEL.both}이 잉여현금의 ${ladder.capital.returnedShareOfFcf.toFixed(0)}%, ${ladder.label}`, trend: null } : null;
     case 'dividends': return ladder?.capital?.dividends != null ? { text: `배당 ${usdShort(ladder.capital.dividends)}${ladder.capital.fcf > 0 ? `(잉여현금의 ${(ladder.capital.dividends / ladder.capital.fcf * 100).toFixed(0)}%)` : ''}, ${ladder.label}`, trend: null } : null;
-    case 'netCash': return ladder?.cash?.net != null ? { text: `${ladder.cash.net >= 0 ? '순현금' : '순부채'} ${usdShort(Math.abs(ladder.cash.net))}, ${ladder.label} 말`, trend: null } : null;
+    // v59.45 (P19-CASH-01): the collected debt is long-term only, so the figure names that scope.
+    case 'netCash': return ladder?.cash?.net != null ? { text: `${ladder.cash.net >= 0 ? '순현금' : '순부채'} ${usdShort(Math.abs(ladder.cash.net))}(현금 − 장기부채), ${ladder.label} 말`, trend: null } : null;
     case 'leverage': {
       const value = latest && finite(latest.longTermDebt) != null && finite(latest.equity) > 0 ? latest.longTermDebt / latest.equity * 100 : null;
       return value == null ? null : { text: `장기부채가 자기자본의 ${value.toFixed(0)}%, ${label}`, trend: null };
@@ -153,6 +157,7 @@ function metricValue(id, ctx) {
     case 'revisions': {
       const fwd = ctx.consensus?.fwd;
       if (!fwd) return null;
+      if (finite(fwd.up4w) == null && finite(fwd.down4w) == null) return { text: '최근 4주 수정 자료 없음', trend: null }; // v59.45: not collected ≠ no change
       const up = finite(fwd.up4w) || 0, down = finite(fwd.down4w) || 0;
       return { text: up || down ? `최근 4주 상향 ${up}, 하향 ${down}` : '최근 4주 변경 없음', trend: up > down ? '상향 우세' : down > up ? '하향 우세' : '중립' };
     }
@@ -191,8 +196,11 @@ export function buildPeerStrengths(rows = [], { max = 3 } = {}) {
     const value = finite(self[fact.id]);
     const values = rows.map((row) => finite(row[fact.id])).filter((v) => v != null);
     if (value == null || values.length < 4) continue;
-    const ordered = [...values].sort((a, b) => (fact.better === 'high' ? b - a : a - b));
-    const rank = ordered.indexOf(value) + 1;
+    // v59.45 (pipeline review P19-PEER-01): ties share a rank ("공동") and sit at their mid rank, and a value equal to
+    // the peer median is neither a strength nor a weakness — four equal growth rates read "1위 · 강점" before.
+    const ahead = values.filter((v) => (fact.better === 'high' ? v > value : v < value)).length;
+    const tied = values.filter((v) => v === value).length;
+    const rank = ahead + 1;
     // v58.80 (first-users bundle 1): the median is the peers' own, without this company — the 재무 공시 theme card used
     // peers only (ROE 24.3%) while this read counted the company too (26.2%), so one peer group had two medians.
     const peerValues = rows.filter((row) => !row?.self).map((row) => finite(row[fact.id])).filter((v) => v != null);
@@ -200,14 +208,15 @@ export function buildPeerStrengths(rows = [], { max = 3 } = {}) {
     const sorted = [...peerValues].sort((a, b) => a - b);
     const mid = sorted.length % 2 ? sorted[(sorted.length - 1) / 2] : (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2;
     const show = (v) => (fact.unit === '배' ? `${v.toFixed(1)}배` : `${v.toFixed(1)}%`);
-    const side = (rank - 1) / Math.max(1, values.length - 1); // 0 = best, 1 = worst
+    const side = (ahead + (tied - 1) / 2) / Math.max(1, values.length - 1); // 0 = best, 1 = worst (mid rank for ties)
     const versus = fact.better === 'low' ? (value < mid ? '보다 낮음' : value > mid ? '보다 높음' : '과 같음') : (value > mid ? '보다 높음' : value < mid ? '보다 낮음' : '과 같음');
-    facts.push({ id: fact.id, label: fact.label, value, rank, n: values.length, median: mid, side,
-      text: `${fact.label} ${show(value)}로 이 회사 포함 ${values.length}곳 중 ${rank}위(동종 ${peerValues.length}곳 중앙값 ${show(mid)}${versus})${fact.id === 'fwdPe' ? (value < mid ? ', 이익 대비 가격 부담이 가벼운 편' : value > mid ? ', 이익 대비 가격 부담이 무거운 편' : '') : ''}` });
+    const vsMedian = value === mid ? 0 : (fact.better === 'high' ? value > mid : value < mid) ? 1 : -1;
+    facts.push({ id: fact.id, label: fact.label, value, rank, tied: tied > 1, n: values.length, median: mid, side, vsMedian,
+      text: `${fact.label} ${show(value)}로 이 회사 포함 ${values.length}곳 중 ${tied > 1 ? '공동 ' : ''}${rank}위(동종 ${peerValues.length}곳 중앙값 ${show(mid)}${versus})${fact.id === 'fwdPe' ? (value < mid ? ', 이익 대비 가격 부담이 가벼운 편' : value > mid ? ', 이익 대비 가격 부담이 무거운 편' : '') : ''}` });
   }
   if (!facts.length) return null;
-  const strengths = facts.filter((f) => f.side < 0.5 && f.rank <= Math.ceil(f.n / 2)).sort((a, b) => a.side - b.side).slice(0, max);
-  const weaknesses = facts.filter((f) => f.side > 0.5 && !strengths.includes(f)).sort((a, b) => b.side - a.side).slice(0, max);
+  const strengths = facts.filter((f) => f.side < 0.5 && f.vsMedian > 0 && f.rank <= Math.ceil(f.n / 2)).sort((a, b) => a.side - b.side).slice(0, max);
+  const weaknesses = facts.filter((f) => f.side > 0.5 && f.vsMedian < 0 && !strengths.includes(f)).sort((a, b) => b.side - a.side).slice(0, max);
   return { strengths, weaknesses, facts, peers: rows.length - 1 };
 }
 

@@ -7,6 +7,17 @@
 //    (부분 정정행을 분기 전체처럼 발행하지 않는다).
 // reference(현재·직전 분기) 수집기와 history(장기 이력) 수집기가 이 구현을 함께 사용한다.
 
+// v59.45 (pipeline review P5-SEC-02): each composed row keeps its own filing's accession, filed date and information
+// table URL, so an ORIGINAL row in an ORIGINAL + NEW HOLDINGS quarter does not link to the amendment that only added rows.
+const rowSource = (filing) => ({ accession: filing?.accession || null, filedAt: filing?.filedAt || null, sourceUrl: filing?.informationTableHtml || null });
+
+/** The filing a composed row came from (rowProvenance[index]), the effective filing when provenance is absent. */
+export function composedRowSource(rowProvenance, index, fallbackFiling) {
+  const own = Array.isArray(rowProvenance) ? rowProvenance[index] : null;
+  return { filedAt: own?.filedAt || fallbackFiling?.filedAt || null, sourceUrl: own?.sourceUrl || fallbackFiling?.informationTableHtml || null,
+    accession: own?.accession || fallbackFiling?.accession || null, role: own?.role || null };
+}
+
 export function composeAmendmentChain(bundles) {
   let effective = null;
   let provenance = [];
@@ -16,11 +27,11 @@ export function composeAmendmentChain(bundles) {
     const type = String(bundle.cover.amendmentType || '').trim().toUpperCase();
     if (!amended) {
       effective = { ...bundle, rows: [...bundle.rows] };
-      provenance = bundle.rows.map(() => ({ accession: bundle.filing.accession, role: 'ORIGINAL' }));
+      provenance = bundle.rows.map(() => ({ ...rowSource(bundle.filing), role: 'ORIGINAL' }));
       amendmentChain.push({ accession: bundle.filing.accession, type: 'ORIGINAL', role: 'ORIGINAL', rows: bundle.rows.length });
     } else if (/RESTATEMENT/.test(type)) {
       effective = { ...bundle, rows: [...bundle.rows] };
-      provenance = bundle.rows.map(() => ({ accession: bundle.filing.accession, role: 'RESTATEMENT' }));
+      provenance = bundle.rows.map(() => ({ ...rowSource(bundle.filing), role: 'RESTATEMENT' }));
       amendmentChain.push({ accession: bundle.filing.accession, type: 'RESTATEMENT', role: 'RESTATEMENT', rows: bundle.rows.length });
     } else if (/NEW HOLDINGS/.test(type) && effective) {
       const existingValue = Number(effective.cover.tableValueTotal ?? effective.rows.reduce((sum, row) => sum + row.value, 0));
@@ -37,7 +48,7 @@ export function composeAmendmentChain(bundles) {
       };
       provenance = [
         ...provenance,
-        ...bundle.rows.map(() => ({ accession: bundle.filing.accession, role: 'NEW_HOLDINGS_ADD' }))
+        ...bundle.rows.map(() => ({ ...rowSource(bundle.filing), role: 'NEW_HOLDINGS_ADD' }))
       ];
       amendmentChain.push({ accession: bundle.filing.accession, type: 'NEW HOLDINGS', role: 'NEW_HOLDINGS_ADD', rows: bundle.rows.length });
     } else {

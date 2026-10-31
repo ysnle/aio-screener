@@ -2,9 +2,10 @@
 // 시장 상태, 거시, 테마, 브리핑, the AI chat, the server narrative and scenario-state.json — reads the same stages built
 // once, in one order, from one input object:
 //
-//   inputs → regime (six axes) → marketRead (briefing statements) → macroRead → curve (2s10s move) → indexEarnings
-//          → crossroads (macro branches) → scenarios (structure flows)
-//          → groups (US theme strength) → outlook → playbook (theme stages) → guide (shared market guide)
+//   inputs → regime (six axes) → marketRead (briefing statements) → macroRead → curve (2s10s move) → events
+//          → crossroads (macro branches) → scenarios (structure flows) → rows → indexEarnings
+//          → groups (US theme strength) → outlook → playbook (theme stages) → guide (shared market guide) → flow
+// (P28-CONTRACT-01: the execution order; INTERPRETATION_STAGES below is the older declared list the boundary gate pins.)
 //
 // Before this module each surface assembled the chain itself with different inputs: the browser's crossroads skipped
 // the previous lead (a tie could name a different branch than the narrative), the briefing built it without the regime
@@ -27,11 +28,11 @@ import { buildThemePlaybook } from '../scenarios/theme-playbook.js';
 import { buildMarketGuide } from '../guide/market-guide.js';
 import { fieldValueForPurpose } from '../../data/contracts/screener.js';
 import { buildMarketFlow } from '../market/market-flow.js';
+import { finiteNumber as finite } from '../shared/number.js';
 
 export const INTERPRETATION_VERSION = 'market-interpretation.v1';
 export const INTERPRETATION_STAGES = Object.freeze(['regime', 'marketRead', 'macroRead', 'curve', 'indexEarnings', 'crossroads', 'scenarios', 'groups', 'outlook', 'playbook', 'guide']);
 
-const finite = (value) => typeof value === 'number' && Number.isFinite(value) ? value : null;
 const axisState = (regime, id) => regime?.axes?.find((axis) => axis.id === id)?.state || null;
 
 // Native store rows carry typed fields behind fieldReadiness; producer rows are plain. One reading for both.
@@ -80,7 +81,8 @@ export function buildMarketInterpretation({ market = {}, macro = null, calendar 
   const events = stage('events', () => upcomingMacroEvents({ releases: calendar?.releases || {}, schedules: calendar?.schedules || {}, nowMs })) || [];
   const crossroads = stage('crossroads', () => buildMacroCrossroads({ read: macroRead ? { ...macroRead, breadthState } : macroRead, macroHistory: inputs.macroHistory || null, history: inputs.history, events, outcomes, previousLeadId: previous?.crossroads?.leadId || null }));
   const scenarios = regime ? stage('scenarios', () => buildMarketScenarios(inputs, { regime })) : null;
-  const rows = screenerRows ? typedScreenerRows(screenerRows) : null;
+  // P28-CONTRACT-01: a malformed row (a throwing getter) fails this stage only, like every other stage.
+  const rows = screenerRows ? stage('rows', () => typedScreenerRows(screenerRows)) : null;
   const indexEarnings = earningsInput ? stage('indexEarnings', () => buildIndexEarnings({ rows: rows || [], now: nowMs, ...earningsInput })) : null;
   const groups = rows ? stage('groups', () => buildGroupStrength({ themes: themeMaps?.usThemes || [], rows, sortKey: 'ret3m', now: nowMs }).groups || []) : null;
   // X03 (2026-10-13): "현재 주도" may name only themes measured on the latest completed session.

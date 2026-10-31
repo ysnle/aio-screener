@@ -1,0 +1,13 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import {mergeMacroPlanes} from '../../scripts/producer/macro-merge.mjs';
+import {staleMarketIds} from '../../src/ui/components/market-temperature.js';
+const empty={status:'unavailable',values:{}};
+const base={previousMacro:{},bls:empty,bea:empty,treasury:empty,fredHyOas:empty};
+const a=mergeMacroPlanes({...base,macroRaw:{cpi:3,cpiDelta:0.4,_asOf_cpi:'2026-08-01',corePce:3,corePceDelta:0.3,_asOf_corePce:'2026-07-01'},bls:{status:'ok',values:{blsCpiYoY:2.5},series:{cpi:{status:'ok',observedAt:'2026-09-01'}}},bea:{status:'ok',observedAt:'2026-08-01',values:{corePce:2.4}}});
+assert.equal(a.cpiDelta,0.4);assert.equal(a.corePceDelta,0.3);
+const b=mergeMacroPlanes({...base,previousMacro:{cpi:2.5,_asOf_cpi:'2026-09-01',_source_cpi:'bls-official-primary'},macroRaw:{cpi:3,_asOf_cpi:'2026-08-01',_source:'fred'}});
+assert.equal(b.cpi,3);assert.equal(b._asOf_cpi,'2026-08-01');
+const c=[...staleMarketIds({retained:[]},[{id:'spx',asOf:'2025-01-01'},{id:'nasdaq',asOf:'2025-01-01'}])];assert.equal(c.length,0);
+const result=[{id:'DATA-01',cpi:a.cpi,cpiDelta:a.cpiDelta,cpiAsOf:a._asOf_cpi,corePce:a.corePce,corePceDelta:a.corePceDelta,pceAsOf:a._asOf_corePce},{id:'DATA-02',value:b.cpi,date:b._asOf_cpi,source:b._source_cpi,freshness:b._freshness_cpi},{id:'DATA-03',staleIds:c}];
+fs.writeFileSync('_artifacts/pipeline-review-20261024/data-reproductions.json',JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result,null,2));

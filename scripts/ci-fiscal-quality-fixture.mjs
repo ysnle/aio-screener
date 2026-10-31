@@ -191,11 +191,12 @@ assert.ok(!host.textContent.includes('AEHR —'), 'P1627 the earlier pending iss
   assert.equal(impliedGrowth({ fcf: 1e6, marketValue: 600e12, discountRate: 0.09, terminalGrowth: 0.025 }).state, 'above-range', 'v58.55 an unreachable growth is a range state, not a number');
   const close = { value: 50, date: '2026-10-19' };
   const facts = { sharesOutstanding: 12e9, sharesObservedAt: '2026-02-10' };
-  assert.equal(reverseDcfInputs({ history: parsed, fundamentals: facts, close }).fcf, 17e9, 'v58.55 FCF = latest OCF - capex');
-  assert.equal(reverseDcfInputs({ history: parsed.map((year) => ({ ...year, capex: 30e9 })), fundamentals: facts, close }).state, 'fcf-negative', 'v58.55 FCF <= 0 is not solved');
-  assert.equal(reverseDcfInputs({ history: parsed, fundamentals: {}, close }).state, 'missing', 'v58.55 no verified share count, no market value');
-  assert.equal(reverseDcfInputs({ history: parsed, fundamentals: facts, close: { value: 50 } }).state, 'missing', 'v58.55 an undated price is not used');
-  assert.equal(reverseDcfInputs({ history: parsed, fundamentals: facts, close, financial: true }).state, 'financial', 'v58.55 lending financials are not valued on FCF');
+  const dcfAt = Date.parse('2026-10-21T00:00:00Z'); // v59.45 (P19-DCF-01): the 10/19 close is judged against a fixed day, not the run date
+  assert.equal(reverseDcfInputs({ nowMs: dcfAt, history: parsed, fundamentals: facts, close }).fcf, 17e9, 'v58.55 FCF = latest OCF - capex');
+  assert.equal(reverseDcfInputs({ nowMs: dcfAt, history: parsed.map((year) => ({ ...year, capex: 30e9 })), fundamentals: facts, close }).state, 'fcf-negative', 'v58.55 FCF <= 0 is not solved');
+  assert.equal(reverseDcfInputs({ nowMs: dcfAt, history: parsed, fundamentals: {}, close }).state, 'missing', 'v58.55 no verified share count, no market value');
+  assert.equal(reverseDcfInputs({ nowMs: dcfAt, history: parsed, fundamentals: facts, close: { value: 50 } }).state, 'missing', 'v58.55 an undated price is not used');
+  assert.equal(reverseDcfInputs({ nowMs: dcfAt, history: parsed, fundamentals: facts, close, financial: true }).state, 'financial', 'v58.55 lending financials are not valued on FCF');
   // v58.55 review: an old fiscal year or a far share count is 'stale', never solved against today's close (B: FY2010).
   const at = Date.parse('2026-10-21T00:00:00Z');
   const fy2010 = parsed.map((year, i) => ({ ...year, periodEnd: `${2008 + i}-12-31` }));

@@ -9,8 +9,9 @@
  */
 import { convertWithDeclaredRates } from './fx.js';
 import { buildCloseSeries, closeBasis } from '../market/close-series.js';
+import { isIsoDay } from '../shared/session-date.js';
 
-const md = (date) => (/^\d{4}-\d{2}-\d{2}$/.test(String(date || '')) ? `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}` : '');
+const md = (date) => (isIsoDay(String(date || '')) ? `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}` : '');
 
 // A close older than a week (a long holiday is about four sessions) is no longer today's rate.
 export const APP_FX_MAX_AGE_DAYS = 7;
@@ -22,13 +23,14 @@ export function appUsdKrwClose(history, { now = Date.now() } = {}) {
   const series = buildCloseSeries(rows, 'usdkrw', { through: closeBasis(rows) });
   const last = series[series.length - 1];
   const rate = Number(last?.value);
-  if (!last || !(Number.isFinite(rate) && rate > 0) || !/^\d{4}-\d{2}-\d{2}$/.test(String(last.date || ''))) return null;
+  if (!last || !(Number.isFinite(rate) && rate > 0) || !isIsoDay(String(last.date || ''))) return null;
   const ageDays = (Number(now) - Date.parse(`${last.date}T00:00:00Z`)) / 86400000;
   if (!(ageDays >= -1 && ageDays <= APP_FX_MAX_AGE_DAYS + 1)) return null;
   return Object.freeze({ pair: 'USD/KRW', rate, date: last.date, basis: 'completed-close', label: `USD/KRW ${md(last.date)} 종가 기준` });
 }
 
-function viaAppClose(amount, from, to, appFx) {
+// v59.45 (PASS23 P23-FX-01): exported so the risk input converts holdings with the same app close the surface uses.
+export function viaAppClose(amount, from, to, appFx) {
   if (!appFx || !(appFx.rate > 0)) return null;
   if (from === 'USD' && to === 'KRW') return amount * appFx.rate;
   if (from === 'KRW' && to === 'USD') return amount / appFx.rate;
@@ -41,7 +43,12 @@ function viaAppClose(amount, from, to, appFx) {
  * Returns the total (or null) and how each balance got there.
  */
 export function convertCashBalances({ balances = [], target = null, legs = [], appFx = null, asOfMs = Date.now() } = {}) {
-  const rows = (Array.isArray(balances) ? balances : []).filter((row) => row && Number.isFinite(Number(row.amount)) && Number(row.amount) >= 0);
+  // v59.45 (PASS22 P22-CASH-01): a balance whose amount is missing, unreadable or negative is not a zero and not absent —
+  // dropping it printed USD 100 + KRW 'bad' as a complete USD 100. It holds the total and is counted in `invalid`.
+  const all = (Array.isArray(balances) ? balances : []).filter(Boolean);
+  const validAmount = (row) => row.amount !== null && row.amount !== undefined && String(row.amount).trim() !== '' && Number.isFinite(Number(row.amount)) && Number(row.amount) >= 0;
+  const rows = all.filter(validAmount);
+  const invalid = all.length - rows.length;
   const to = String(target || '').trim().toUpperCase() || null;
   const parts = [];
   const held = [];
@@ -57,9 +64,10 @@ export function convertCashBalances({ balances = [], target = null, legs = [], a
     if (app != null) { parts.push({ currency: from, amount, converted: app, basis: 'app-close' }); bases.add(appFx.label); continue; }
     held.push(from);
   }
-  const ok = rows.length > 0 && held.length === 0;
+  const ok = rows.length > 0 && held.length === 0 && invalid === 0;
   return Object.freeze({
     ok,
+    invalid,
     target: to,
     total: ok ? parts.reduce((sum, part) => sum + part.converted, 0) : null,
     parts: Object.freeze(parts.map((part) => Object.freeze(part))),

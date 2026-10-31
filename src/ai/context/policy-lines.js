@@ -2,8 +2,9 @@
 // in the chat's domain block. Each value carries its own reference date; a held (expired) value is said to be held,
 // never filled. includeKorea adds the BOK rate, Korean CPI and the export flash.
 import { releaseAtMs } from '../../domain/briefing/schedule.js';
+import { hasLeadingIsoDay } from '../../domain/shared/session-date.js';
 
-const day = (iso) => (/^\d{4}-\d{2}-\d{2}/.test(String(iso || '')) ? String(iso).slice(0, 10) : '');
+const day = (iso) => (hasLeadingIsoDay(String(iso || '')) ? String(iso).slice(0, 10) : '');
 
 export function buildChatPolicyLines({ root = globalThis, includeKorea = false, now = Date.now() } = {}) {
   const out = [];

@@ -25,7 +25,9 @@ export function installServerDataLoader(window = globalThis) {
     const fred = window._fredData && typeof window._fredData === 'object' ? window._fredData : {};
     const fields = [];
     AIO_SERVER_TREASURY_FIELDS.forEach(function(definition) {
-      const value = Number(macro[definition.field] ?? (treasury.values && treasury.values[definition.field]));
+      // R2-07 (2026-10-31 review): Number(null) is 0, so a missing maturity became a 0% official yield; missing stays missing.
+      const finiteOrNaN = (raw) => (raw == null || raw === '' ? NaN : Number(raw));
+      const value = finiteOrNaN(macro[definition.field] ?? (treasury.values && treasury.values[definition.field]));
       if (!Number.isFinite(value)) return;
       const observedAt = macro['_asOf_' + definition.field] || treasury.observedAt || null;
       const fetchedAt = treasury.fetchedAt || metadata?.treasuryLastSuccessfulAt || metadata?.generatedAt || null;
@@ -40,7 +42,7 @@ export function installServerDataLoader(window = globalThis) {
       // A client FRED observation from a later date wins.  Equal-date server
       // evidence is preferred because it carries the official Treasury source.
       if (existing && Number.isFinite(existingMs) && (!Number.isFinite(observedMs) || existingMs > observedMs)) return;
-      const delta = Number(macro[definition.field + 'Delta']);
+      const delta = finiteOrNaN(macro[definition.field + 'Delta']);
       const entry = {
         value,
         prevValue: Number.isFinite(delta) ? value - delta : null,

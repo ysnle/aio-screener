@@ -56,13 +56,17 @@ export function resultsExhibit(fullText) {
 export const looksLikeQuarterlyResults = (text) => /\b(?:first|second|third|fourth)\s+quarter\b|\b[1-4]Q\s?\d{2}\b|\bQ[1-4]\s?\d{2,4}\b/i.test(text)
   && /\b(?:net\s+)?revenues?\b/i.test(text) && /\b(?:earnings|results|net income)\b/i.test(text);
 
+const codePointText = (code) => (Number.isInteger(code) && code >= 0 && code <= 0x10FFFF ? String.fromCodePoint(code) : ' ');
+
 export function htmlToText(html) {
   return String(html || '')
     .replace(/<(script|style)[\s\S]*?<\/\1>/gi, ' ')
     .replace(/<br\s*\/?>/gi, '\n').replace(/<\/(p|div|tr|li|h[1-6])>/gi, '\n').replace(/<\/t[dh]>/gi, ' ')
     .replace(/<[^>]+>/g, ' ')
-    .replace(/&nbsp;|&#160;/gi, ' ').replace(/&amp;/gi, '&').replace(/&lt;/gi, '<').replace(/&gt;/gi, '>').replace(/&quot;/gi, '"')
-    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code))).replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCharCode(parseInt(code, 16)))
-    .replace(/&[a-z]+;/gi, ' ')
+    // v59.45 (pipeline review R3-07): '&amp;' is decoded last, so '&amp;#36;5' stays '&#36;5' and '&amp;lt;' stays '&lt;'
+    // (one decode, as the source wrote it); code points above U+FFFF decode whole (fromCodePoint), invalid ones are dropped.
+    .replace(/&nbsp;|&#160;/gi, ' ').replace(/&lt;/gi, '<').replace(/&gt;/gi, '>').replace(/&quot;/gi, '"')
+    .replace(/&#(\d+);/g, (_, code) => codePointText(Number(code))).replace(/&#x([0-9a-f]+);/gi, (_, code) => codePointText(parseInt(code, 16)))
+    .replace(/&(?!amp;)[a-z]+;/gi, ' ').replace(/&amp;/gi, '&')
     .replace(/[ \t]+/g, ' ').replace(/\s*\n\s*/g, '\n').trim();
 }

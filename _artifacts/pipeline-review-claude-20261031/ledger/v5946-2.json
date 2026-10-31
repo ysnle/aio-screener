@@ -1,0 +1,26 @@
+{
+  "version": "v59.46",
+  "date": "2026-10-31",
+  "r": null,
+  "p": {
+    "title": "미국 스크리너가 이번 실행에서 받지 못한 종목의 직전 행을 지움",
+    "symptom": "US 수집률이 80% 이상이면 검증을 통과하므로, 받지 못한 US 종목(최대 20%)은 직전 발행 행이 있어도 screener.json에서 빠져 종목·포트폴리오·AI가 그날 그 종목 자료를 잃었다(Claude R3-05).",
+    "root_cause": "직전 행 유지(retainMarketRows)가 시장 전체가 80% 아래일 때 KR에만 적용됐고, 행 단위 이월이 없었다.",
+    "fix": "retainUnfetchedRows가 받지 못한 US 종목의 직전 행을 7일 이내일 때만 자기 종가 기준일과 retainedFrom을 달고 이월한다. 순위는 원래 최신 확정 종가 행만 점수화하므로 이월 행은 순위에 섞이지 않는다. 검증기는 이월 행을 빼고 수집률 80%를 본다. 종목 설명에 '이번 갱신에서 받지 못해 직전 자료를 이어 표시'가 붙는다.",
+    "violated_rule": "R3: 실패한 수집은 마지막 정상 자료를 지우지 않는다(P2143 클래스).",
+    "prevention": "pipeline-semantics producers 케이스 R3-05(7일 이내만 이월, KR 제외, 인코딩 왕복 시 retainedFrom 보존); validate-screener-artifact의 이월 제외 수집률·미등록 이월 행 검사.",
+    "verification": "node scripts/ci-pipeline-semantics-check.mjs --only producers PASS; node scripts/validate-screener-artifact.mjs PASS(현재 자료)."
+  },
+  "qa": [
+    {
+      "id": "QA-SCR-ROW-CARRY-01",
+      "text": "미국 스크리너 이월 행이 실제 갱신에서 표시·검증된다",
+      "verify_by": "push 뒤 refresh-screener 실행에서 rowsRetained.US가 있으면 해당 종목 행에 retainedFrom이 있고 validator PASS, 종목 설명에 이어 표시 문구 확인"
+    }
+  ],
+  "changelog": [
+    "**미국 스크리너 미수집 종목 ({P}):** 이번 갱신에서 받지 못한 종목은 7일 이내의 직전 행을 원래 종가 기준일과 함께 이어 쓴다. 순위에는 섞이지 않고, 수집률 검사는 이어 쓴 행을 빼고 본다."
+  ],
+  "qa_section": "v59.46 소유자 결정 반영",
+  "note": "v59.46: 소유자 결정 반영 — 설정 가이드 퇴역, 차트 렌즈 R724, 옵션 질문 근거, 미국 스크리너 행 이어쓰기, 상대화 실험 현행 모델 재실행"
+}

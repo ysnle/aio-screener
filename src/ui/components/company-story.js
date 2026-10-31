@@ -2,6 +2,7 @@
 // the one-line summary, the money-flow path and four numbers; each later step of the story folds below it (owner
 // reading standard: one visual, a short reading, details on demand). Sources stay off the face (owner 2026-10-06) and
 // are listed with their dates in the last fold.
+import { hasLeadingIsoDay } from '../../domain/shared/session-date.js';
 import {
   layerLabel, POSITION_LABEL, CASH_USE_LABEL, moneyText, amountScale, pctText, storyFreshness
 } from '../../domain/entity/company-story.js';
@@ -80,8 +81,15 @@ function kpis(doc, earnings) {
 function segmentBars(doc, earnings) {
   const segs = (earnings?.segments || []).map((s) => ({ ...s, scale: amountScale(s.revenue, s.unit) })).filter((s) => s.scale > 0);
   if (!segs.length) return null;
+  // v59.45 (pipeline review P25-STORY-03): bars compare amounts of one currency only, an unknown share (null) prints no
+  // percentage instead of 0%, and a share the file does not give is read against the company's revenue, not against
+  // the listed segments' sum (a partial list read as the whole company).
+  const currencyOf = (unit) => (String(unit || '').match(/^[A-Z]{3}/i)?.[0] || '').toUpperCase();
+  if (new Set(segs.map((s) => currencyOf(s.unit))).size > 1) return null;
   const max = Math.max(...segs.map((s) => s.scale));
-  const total = segs.reduce((sum, s) => sum + s.scale, 0);
+  const revenueScale = currencyOf(earnings?.revenue?.unit) === currencyOf(segs[0].unit) ? amountScale(earnings?.revenue?.value, earnings?.revenue?.unit) : null;
+  const shareOf = (s) => (s.share === null ? null : s.share !== undefined && s.share !== '' && Number.isFinite(Number(s.share)) ? Number(s.share)
+    : revenueScale > 0 ? (s.scale / revenueScale) * 100 : null);
   const box = el(doc, 'div', null, 'company-story-bars');
   box.setAttribute('role', 'img');
   box.setAttribute('aria-label', `사업부별 매출: ${segs.map((s) => `${s.name} ${moneyText(s.revenue, s.unit)}`).join(', ')}`);
@@ -91,8 +99,8 @@ function segmentBars(doc, earnings) {
     const fill = el(doc, 'span', null, 'company-story-fill');
     fill.style.width = `${((s.scale / max) * 100).toFixed(1)}%`;
     track.append(fill);
-    const share = Number.isFinite(Number(s.share)) ? Number(s.share) : (s.scale / total) * 100;
-    row.append(el(doc, 'span', s.name, 'company-story-bar-name'), track, el(doc, 'span', `${moneyText(s.revenue, s.unit)}, ${Math.round(share)}%${s.yoy != null ? `, ${signed(s.yoy)}` : ''}`, 'company-story-bar-value'));
+    const share = shareOf(s);
+    row.append(el(doc, 'span', s.name, 'company-story-bar-name'), track, el(doc, 'span', `${moneyText(s.revenue, s.unit)}${share != null ? `, ${Math.round(share)}%` : ''}${s.yoy != null ? `, ${signed(s.yoy)}` : ''}`, 'company-story-bar-value'));
     box.append(row);
   }
   return box;
@@ -225,7 +233,10 @@ export function renderCompanyStory(doc, host, { profile, earnings = [], peers = 
   if (has(w.breaks)) watchGrid.append(pair(doc, '어긋나고 있다는 신호', list(doc, w.breaks)));
   if (watchGrid.childNodes.length) watch.append(watchGrid);
   if (has(w.keyNumbers)) watch.append(pair(doc, '분기마다 볼 숫자', list(doc, w.keyNumbers.map((m) => `${m.name}: ${m.why}`))));
-  if (has(t.calendar)) watch.append(pair(doc, '다가오는 일정', list(doc, t.calendar.map((x) => `${/^\d{4}-\d{2}-\d{2}/.test(x.date || '') ? mdOf(x.date) : x.date} ${x.event}`))));
+  // v59.45 (pipeline review P25-STORY-03): a dated event already past is not "다가오는"; undated ("2027 상반기") stays.
+  const today = new Date().toISOString().slice(0, 10);
+  const upcoming = (t.calendar || []).filter((x) => !hasLeadingIsoDay(x?.date || '') || String(x.date).slice(0, 10) >= today);
+  if (has(upcoming)) watch.append(pair(doc, '다가오는 일정', list(doc, upcoming.map((x) => `${hasLeadingIsoDay(x.date || '') ? mdOf(x.date) : x.date} ${x.event}`))));
   if (has(t.reaction)) watch.append(pair(doc, '실적 발표 때 주가가 반응하는 것', el(doc, 'p', t.reaction)));
   if (has(t.conditions)) watch.append(pair(doc, '매매할 때 함께 확인하는 조건', list(doc, t.conditions)));
   watch.append(el(doc, 'p', '조건을 확인하는 틀이며, 사고팔 가격이나 시점을 제시하지 않습니다.', 'company-story-small'));

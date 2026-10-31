@@ -1,0 +1,14 @@
+node:fs:441
+    return binding.readFileUtf8(path, stringToFlags(options.flag));
+                   ^
+
+Error: ENOENT: no such file or directory, open 'C:\Projects\AIO\_artifacts\pipeline-review-claude-20261031\FILE-REVIEW-LEDGER.json'
+    at Object.readFileSync (node:fs:441:20)
+    at file:///C:/Projects/AIO/_artifacts/pipeline-review-claude-20261031/reproduce-pass15.mjs:41:27 {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Projects\\AIO\\_artifacts\\pipeline-review-claude-20261031\\FILE-REVIEW-LEDGER.json'
+}
+
+Node.js v24.18.0

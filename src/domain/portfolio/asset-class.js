@@ -5,6 +5,7 @@
 // appear in the app's Korean registry (js/aio-kr-data.js KR_STOCK_DB holds no bond ETF as of this version).
 import { STRESS_MIN_WEEKS } from './stress-sensitivity.js';
 import { buildCloseSeries } from '../market/close-series.js';
+import { listingCurrency as sharedListingCurrency } from './fx.js';
 
 export const ASSET_CLASS_MAP_VERSION = '2026-10-20.v1';
 
@@ -68,7 +69,10 @@ function pearson(xs, ys) {
   return sxx > 0 && syy > 0 ? sxy / Math.sqrt(sxx * syy) : null;
 }
 
-const listingCurrency = (sym) => /\.(KS|KQ)$/i.test(String(sym || '')) ? 'KRW' : 'USD';
+// v59.45 (PASS22): the shared listing rule (fx.js) — this copy read every non-Korean suffix (.T, .L, .HK) as a dollar
+// listing and translated it with the USD/KRW close. Only USD and KRW listings can be translated here; any other
+// listing currency (or an unknown one) holds the correlation below.
+const listingCurrency = sharedListingCurrency;
 const MAX_FX_LAG_DAYS = 4; // the same as-of tolerance as stress-sensitivity.js
 function usdkrwAsOf(history) {
   const points = buildCloseSeries(Array.isArray(history) ? history : [], 'usdkrw').filter((p) => p?.date && p.value > 0);
@@ -89,6 +93,7 @@ export function stockBondCorrelation({ historyMap = {}, commonDates = [], bondWe
   const dates = [...(Array.isArray(commonDates) ? commonDates : [])].sort();
   const base = String(baseCurrency || '').toUpperCase() || null;
   const currencies = new Set([...Object.keys(bondWeights), ...Object.keys(stockWeights)].map(listingCurrency));
+  if ([...currencies].some((c) => c !== 'USD' && c !== 'KRW')) return { available: false, reason: 'currency-unsupported' };
   if (!base && currencies.size > 1) return { available: false, reason: 'currency-mixed' };
   const translate = base && [...currencies].some((c) => c !== base);
   const fxAt = translate ? usdkrwAsOf(history) : null;
@@ -144,7 +149,8 @@ export function bondCushion({ rows = [], stressInput = null, baseCurrency = null
     const symbol = String(row.symbol || '').toUpperCase();
     const info = assetClassOf(symbol);
     const w = Number(row.value) / total;
-    if (info) { bonds.push({ symbol, ...info, pct: w * 100 }); bondWeights[symbol] = w; } else stockWeights[symbol] = w;
+    // v59.45 (PASS22): lots of one ticker add up (the last lot used to overwrite the correlation weight).
+    if (info) { bonds.push({ symbol, ...info, pct: w * 100 }); bondWeights[symbol] = (bondWeights[symbol] || 0) + w; } else stockWeights[symbol] = (stockWeights[symbol] || 0) + w;
   }
   bonds.sort((a, b) => b.pct - a.pct);
   const bondPct = bonds.reduce((s, row) => s + row.pct, 0);

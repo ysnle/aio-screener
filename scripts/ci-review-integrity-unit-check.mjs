@@ -42,7 +42,8 @@ const rankColumn = SCREENER_COLUMN_REGISTRY.find((column) => column.key === 'ran
 if (rankColumn?.label !== '백분위' || /상대 점수/.test(read('src/ui/pages/screener.js'))) fail('P1464 rank column must read 백분위, not 상대 점수');
 
 // P1466: attribution identity R − B = sector + stock + fx + cash, and FX inversion.
-const rows = { AAA: { sym: 'AAA', ret3m: 10, sector: 'Technology', factorSessionDate: '2026-10-12' }, XLK: { sym: 'XLK', ret3m: 6 }, '000001.KS': { sym: '000001.KS', ret3m: -12, sector: 'Technology', factorSessionDate: '2026-10-12' } };
+// v59.45 (P3-PF-01): the sector ETF row carries its session date; a sector return from another date holds the split.
+const rows = { AAA: { sym: 'AAA', ret3m: 10, sector: 'Technology', factorSessionDate: '2026-10-12' }, XLK: { sym: 'XLK', ret3m: 6, factorSessionDate: '2026-10-12' }, '000001.KS': { sym: '000001.KS', ret3m: -12, sector: 'Technology', factorSessionDate: '2026-10-12' } };
 const market = (symbol) => (/\.KS$/.test(symbol) ? { ret3m: -15, label: '코스피', asOf: '2026-10-12' } : { ret3m: 3, label: 'S&P 500(SPY)', asOf: '2026-10-12' });
 const attribution = buildAttribution({ holdings: [{ symbol: 'AAA', value: 600, convertedFrom: 'USD' }, { symbol: '000001.KS', value: 200 }], cash: 200, baseCurrency: 'KRW', rowFor: (s) => rows[s], marketReturnFor: market, usdkrwReturnPct: 2 });
 const excessSum = attribution.excess.reduce((sum, part) => sum + part.pct, 0);

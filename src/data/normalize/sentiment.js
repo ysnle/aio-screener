@@ -1,5 +1,6 @@
 import { finiteNumber as finite } from '../../domain/shared/number.js';
 import { countOpenSessionsBetween, dateInTimezone, dateOnly, latestCompletedUsSession } from '../../domain/market/market-calendar.js';
+import { isIsoDay } from '../../domain/shared/session-date.js';
 const SENTIMENT_FIELDS = Object.freeze([
   { metric: 'fearGreed', unit: 'score', sourceKind: 'legacy-runtime', observedAt: 'fearGreedObservedAt', maxAgeMs: 172_800_000, maxUsSessions: 0 },
   { metric: 'vix9d', unit: 'index', sourceKind: 'legacy-runtime', observedAt: 'vix9dObservedAt', maxAgeMs: 120_000 },
@@ -45,7 +46,7 @@ export function sentimentMaxAgeMs(field, observedAt, nowMs = Date.now()) {
   const base = field?.maxAgeMs || 86_400_000;
   if (field?.maxUsSessions == null || observedAt == null) return base;
   const text = String(observedAt);
-  const dateOnlyText = /^\d{4}-\d{2}-\d{2}$/.test(text);
+  const dateOnlyText = isIsoDay(text);
   const observedMs = dateOnlyText ? Date.parse(`${text}T00:00:00Z`) : Date.parse(text);
   const from = dateOnlyText ? dateOnly(text) : dateInTimezone(observedMs, 'America/New_York');
   const completed = latestCompletedUsSession(nowMs, { requirePrevious: false });

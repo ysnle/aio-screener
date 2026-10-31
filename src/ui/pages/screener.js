@@ -87,7 +87,9 @@ function withThemeStages(root, rows) {
 }
 import { renderKnowledgeArrival } from '../components/knowledge-arrival.js';
 import { renderNextSteps } from '../components/page-flow.js';
-import { signedText, usdKoreanText } from '../../domain/shared/number.js';
+import { signedText, usdKoreanText, finiteNumber as finite } from '../../domain/shared/number.js';
+import { isoDay, stampDay } from '../../domain/shared/session-date.js';
+import { shortDate } from '../../domain/content/date-labels.js';
 
 const FIELD_BY_COLUMN = new Map(SCREENER_FIELD_REGISTRY.fields.map(field => [field.rowKey, field.fieldId]));
 
@@ -226,7 +228,6 @@ const BUILDER_FIELDS = Object.freeze([
 // 표시 필터는 칩 위치·라벨·삭제 동작이 다르고, 표시 전용 값은 상태 줄이 그 사실을 말한다.
 const RUN_CONDITION_FIELDS = Object.freeze(['rank', 'rsi', 'momentum']);
 
-function finite(value) { return typeof value === 'number' && Number.isFinite(value) ? value : null; }
 function text(documentRef, value) {
   const node = documentRef.createElement('span');
   node.textContent = value == null || value === '' ? '—' : String(value);
@@ -830,7 +831,7 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     if (row.priceCloseDate !== undefined && row.priceObservedAt == null) {
       const cell = documentRef.createElement('span');
       const date = String(row.priceCloseDate || '');
-      const md = /^\d{4}-\d{2}-\d{2}$/.test(date) ? `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}` : '';
+      const md = isoDay(date) ? shortDate(date) : '';
       cell.appendChild(text(documentRef, formatScreenerPrice(price, currency)));
       const note = documentRef.createElement('small');
       note.textContent = md ? `${md} 종가` : '종가';
@@ -1195,7 +1196,7 @@ function renderExcessBars(documentRef, row, benchmark) {
   host.replaceChildren();
   if (!windows.length) return;
   // Review fix: a gap is drawn only when the row and SPY close on the same session; otherwise both dates are named.
-  const md = (value) => { const day = String(value || '').slice(0, 10); return /^\d{4}-\d{2}-\d{2}$/.test(day) ? `${Number(day.slice(5, 7))}/${Number(day.slice(8, 10))}` : null; };
+  const md = (value) => { const day = stampDay(value); return day ? shortDate(day) : null; };
   const rowDay = md(row?.factorSessionDate);
   const indexDay = md(benchmark?.factorSessionDate);
   if (!rowDay || !indexDay || rowDay !== indexDay) {
@@ -1558,6 +1559,8 @@ function renderConditionalEvidence(documentRef, metadata) {
     READY: '연구용 표시 가능',
     LOW_SAMPLE: '표본 경고',
     LOW_SAMPLE_BLOCKED: '표본 부족으로 보류',
+    // v59.45 (P6-STAT-01): overlapping, open or reversed outcome windows are not independent trials.
+    INDEPENDENCE_UNVERIFIED: '결과 기간 확인 안 돼 보류',
     BLOCKED: '출처·이용 권리·거래 세션 확인 안 됨',
     NO_DATA: '검증 자료 없음'
   };
@@ -1600,11 +1603,13 @@ function renderConditionalEvidence(documentRef, metadata) {
   const grid = documentRef.createElement('div');
   grid.className = 'scr-evidence-grid';
   const sample = evidence.sample || {};
-  const ci = sample.confidenceInterval;
+  // A rate over windows that are not independent (or not yet closed) is not shown as a hit rate.
+  const withheld = evidence.status === 'INDEPENDENCE_UNVERIFIED';
+  const ci = withheld ? null : sample.confidenceInterval;
   const metricValues = [
     ['나타난 횟수', sample.trials ?? '—'],
-    ['맞은 횟수', sample.successes ?? '—'],
-    ['맞은 비율', sample.estimate == null ? '—' : `${(sample.estimate * 100).toFixed(1)}%`],
+    ['맞은 횟수', withheld ? '—' : (sample.successes ?? '—')],
+    ['맞은 비율', withheld || sample.estimate == null ? '—' : `${(sample.estimate * 100).toFixed(1)}%`],
     ['95% 범위', ci ?`${(ci.low * 100).toFixed(1)}~${(ci.high * 100).toFixed(1)}%` : '—']
   ];
   metricValues.forEach(([label, value]) => {
@@ -2400,7 +2405,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   const marketFactorSession = state?.metadata?.factorSessionDateByMarket?.[listingMarket] || state?.metadata?.factorObservedAt;
   // v57.91 (wording audit): '미국 10/15 종가 기준 · 10/16 계산' instead of '미국 팩터 세션 2026-10-15 · 생성 2026-10-16'.
   const kstDay = (value) => { const at = Date.parse(value || ''); return Number.isFinite(at) && /T/.test(String(value)) ? new Date(at + 9 * 3600000).toISOString().slice(0, 10) : value; }; // v58.74: 계산일 in KST
-  const monthDay = (value) => { const day = String(value || '').slice(0, 10); return /^\d{4}-\d{2}-\d{2}$/.test(day) ? `${Number(day.slice(5, 7))}/${Number(day.slice(8, 10))}` : day || '—'; };
+  const monthDay = (value) => { const day = stampDay(value); return day ? shortDate(day) : String(value || '').slice(0, 10) || '—'; };
   if (asOf) asOf.textContent = marketFactorSession ? `${MARKET_LABELS[listingMarket] || ''} ${monthDay(marketFactorSession)} 종가 기준, ${state?.metadata?.asOf ? `${monthDay(kstDay(state.metadata.asOf))} 계산` : '계산일 미확인'}` : state?.metadata?.asOf ? `${monthDay(kstDay(state.metadata.asOf))} 계산` : '팩터 데이터 대기';
   const provenance = page.querySelector('[data-screener-provenance]');
   if (provenance) {
@@ -2878,7 +2883,8 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
             return `${label}(값 없음)`;
           };
           setText('scr-why-missing', `순위 필수값 — ${missing.length ? missing.map(describeMissing).join(', ') : '모두 있습니다'}. ${structureNote}.`);
-         setText('scr-why-provenance', row.factorSessionDate ? `가격 기준 ${String(row.factorSessionDate).slice(0, 10)} 종가` : '가격 기준일 확인 필요');
+         // v59.46 R3-05: a carried row names that this refresh did not read it.
+         setText('scr-why-provenance', row.factorSessionDate ? `가격 기준 ${String(row.factorSessionDate).slice(0, 10)} 종가${row.retainedFrom ? ' — 이번 갱신에서 받지 못해 직전 자료를 이어 표시' : ''}` : '가격 기준일 확인 필요');
          // 개편 v2 (3c): one plain reading from the row's own closes — trend position, then the 3-month gap to the S&P 500
          // (SPY on the same close), then the completeness line that used to stand alone.
          const above50 = finite(row.pctSma50);

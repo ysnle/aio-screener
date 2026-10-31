@@ -1,0 +1,26 @@
+import assert from 'node:assert/strict';
+import { writeFileSync } from 'node:fs';
+import { verifyQuotedItems, parseUsdAmount, latestBriefFor, EVENT_BRIEFS_SCHEMA, releaseSession } from '../../src/domain/briefing/event-briefs.js';
+import { acceptPoints, assembleEarningsSections, buildEventBriefs } from '../../scripts/fetch-event-briefs.mjs';
+const source='Revenue declined 5 percent to $5 million. GAAP diluted EPS was $2.';
+const quoted=verifyQuotedItems([{label:'매출',value:'$5 billion',text:'매출이 5% 증가',quote:source}],source);
+assert.equal(quoted.kept.length,1);
+const amounts=['$5 bn','$5 million to $6 million'].map(parseUsdAmount);
+assert.deepEqual(amounts,[5,5000000]);
+const now=Date.parse('2026-10-30T00:00:00Z');
+const selected=latestBriefFor({schemaVersion:EVENT_BRIEFS_SCHEMA,briefs:[{symbol:'TEST',status:'pending',publishedAt:'2099-01-01T00:00:00Z'}]},'TEST',{nowMs:now});
+assert.equal(selected.status,'pending');
+const unsupported=acceptPoints({points:[{text:'경영진은 사업 철수를 확정했다고 설명했다.',url:'https://reuters.com/nonexistent-example'}]},{sourceText:'Revenue stable.',domains:['reuters.com']});
+assert.equal(unsupported.points.length,1);
+const eps=assembleEarningsSections({figures:[{metric:'eps_diluted',label:'희석 EPS',value:'$2',text:'',quote:'GAAP diluted EPS was $2.'}]},source,{epsEstimate:4});
+assert.equal(eps.figures[0].estimate.surprisePct,-50);
+// In-memory dependency injection only: no live source, no product artifact write.
+const sources={secReason:'fixture-no-sec',dartList:async()=>[],ai:async()=>{throw Error('Unexpected AI call');}};
+const args={sources,nowMs:now,earningsRows:[{symbol:'NVDA',date:'2026-10-29',hour:'amc',revenueActual:1e9,epsActual:1}],extended:[]};
+const first=await buildEventBriefs(args);
+const second=await buildEventBriefs({...args,previous:first,earningsRows:[{...args.earningsRows[0],revenueActual:2e9,epsActual:2}]});
+assert.equal(second.briefs[0].figures[0].value,'$1.00 billion');
+const dateOnlyUS=releaseSession('2026-10-29T00:00:00Z');
+assert.equal(dateOnlyUS.releaseDate,'2026-10-28');
+writeFileSync(new URL('./pass21-reproductions.json',import.meta.url),JSON.stringify({scope:'Local pure functions and injected no-network sources only',quoted,amounts,selected,unsupported,eps,provisionalBefore:first.briefs,provisionalAfter:second.briefs,dateOnlyUS},null,2)+'\n');
+console.log('PASS21: 7 contract counterexample groups reproduced');

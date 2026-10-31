@@ -5,6 +5,21 @@ export function finiteNumber(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
+// v59.46 (structure pilot): the one reader for values that may arrive as numeric strings (JSON, CSV, form fields).
+// A reading is a finite number or a non-blank numeric string; null, '', '  ', booleans, arrays and objects are missing,
+// not 0 or 1 — Number(null), Number(''), Number(' '), Number(false) and Number([]) are all 0, which is how a missing
+// value became a zero reading in ~35 local copies of this function.
+export function readNumber(value) {
+  if (typeof value === 'number') return Number.isFinite(value) ? value : null;
+  if (typeof value !== 'string' || !value.trim()) return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+export function isFiniteNumber(value) {
+  return typeof value === 'number' && Number.isFinite(value);
+}
+
 // v58.74 (text audit): one sign style for every displayed change. 34 local helpers printed "-0.8%", "−0.0%" (U+2212) and
 // "±0.00%p" side by side on one screen. The sign is chosen after rounding (a value that rounds to zero carries no
 // sign) and the minus is the ASCII hyphen-minus every other number on the site uses.

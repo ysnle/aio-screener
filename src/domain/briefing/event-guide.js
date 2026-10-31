@@ -3,7 +3,9 @@
 // theme map and the channel/screener rows already loaded. Nothing here predicts: each line is a stated condition, a
 // collected expectation or a recorded reaction, and an item without data is left out.
 import { EXPOSURE_TAGS, US_THEME_PROFILES, windFor, WIND_LABELS } from '../scenarios/exposures.js';
-import { formatUsdRevenue } from './schedule.js';
+import { formatUsdRevenue, earningsFilterMs, usWallClockMs, reportedNumber, dedupeEarningsRows } from './schedule.js';
+import { resolveMarketCalendarSession } from '../market/market-calendar.js';
+import { isIsoDay } from '../shared/session-date.js';
 
 // A scenario is named only when the headline's own words are about what that branch tracks
 // (src/domain/market/macro-crossroads.js branch ids); a branch without a term list is never named.
@@ -56,7 +58,8 @@ export function newsImpactChain(words, xr, { axes = null } = {}) {
 export function todayChecks({ flip = null, schedule = [], xr = null, nowMs = Date.now() } = {}) {
   const rows = [];
   if (flip?.text) rows.push({ kind: 'flip', label: '판단이 바뀌는 조건', text: flip.text, sub: flip.sub || null });
-  const upcoming = (Array.isArray(schedule) ? schedule : []).filter((row) => !row.passed && Number.isFinite(row.atMs) && row.atMs >= nowMs - 6 * 3600000);
+  // v59.45 (pipeline review P26 기타): a report whose result is already in is not a check for today.
+  const upcoming = (Array.isArray(schedule) ? schedule : []).filter((row) => !row.passed && row.status !== 'received' && Number.isFinite(row.atMs) && row.atMs >= nowMs - 6 * 3600000);
   const soon = upcoming.filter((row) => row.atMs - nowMs <= 36 * 3600000);
   const pick = soon.find((row) => row.kind === 'macro') || soon.find((row) => row.kind === 'structure') || soon[0];
   if (pick) rows.push({ kind: 'event', label: '오늘·내일 일정', text: `${pick.when} ${pick.label}`, sub: [pick.why && !String(pick.when).includes(pick.why) ? pick.why : null, pick.last].filter(Boolean).join(', ') || null });
@@ -108,9 +111,10 @@ export function eventPreviews({ xr = null, schedule = [], earnings = [], names =
       note: event.id === 'us-fed-rate' && xr.rateHub?.now ? '2년물과 기준금리의 차이는 시장 예상을 어림한 값이며 기간 프리미엄이 섞여 있습니다.' : null });
   }
   const lead = live.find((row) => row.role === '선두')?.item || null;
-  const reports = (Array.isArray(earnings) ? earnings : []).filter((row) => row?.symbol && names[row.symbol] && row.date && Number(row.indexWeight) > 0)
-    .map((row) => ({ row, atMs: Date.parse(`${row.date}T${row.hour === 'bmo' ? '12:00' : '20:05'}:00Z`) }))
-    .filter(({ row, atMs }) => Number.isFinite(atMs) && atMs >= nowMs - 6 * 3600000 && atMs <= horizon && row.epsActual == null)
+  // v59.45 (pipeline review P26-EVENT-01): the schedule's own DST-aware clock (12:00Z/20:05Z were summer-time only).
+  const reports = dedupeEarningsRows(earnings).filter((row) => row?.symbol && names[row.symbol] && row.date && Number(row.indexWeight) > 0)
+    .map((row) => ({ row, atMs: earningsFilterMs(row) }))
+    .filter(({ row, atMs }) => Number.isFinite(atMs) && atMs >= nowMs - 6 * 3600000 && atMs <= horizon && reportedNumber(row.epsActual) == null && reportedNumber(row.revenueActual) == null)
     .sort((a, b) => Number(b.row.indexWeight) - Number(a.row.indexWeight)).slice(0, 3);
   for (const { row } of reports) {
     const eps = Number.isFinite(Number(row.epsEstimate)) && row.epsEstimate !== null && row.epsEstimate !== '' ? `EPS 예상 ${Number(row.epsEstimate).toFixed(2)}` : null;
@@ -133,13 +137,32 @@ const VERDICT = Object.freeze({ beat: '상회', miss: '하회', inline: '부합'
  * between the previous session's open and the measured session's open, joined to that session's one-day return. A quarter
  * that beat but fell (or missed but rose) comes first — the cases where the headline and the price disagreed.
  */
+// v59.45 (pipeline review P26-EVENT-01): the measured session's open and the previous open session's open, from the
+// exchange calendar (DST, holidays and special opening hours); an unregistered year gives no session range.
+function sessionOpenMs(date) {
+  const session = resolveMarketCalendarSession({ market: 'US', date });
+  if (session.status !== 'open') return null;
+  const [h, m] = String(session.open).split(':').map(Number);
+  return usWallClockMs(date, [h, m]);
+}
+function previousOpenMs(date) {
+  let cursor = date;
+  for (let i = 0; i < 10; i += 1) {
+    cursor = new Date(Date.parse(`${cursor}T12:00:00Z`) - 86400000).toISOString().slice(0, 10);
+    const session = resolveMarketCalendarSession({ market: 'US', date: cursor });
+    if (session.status === 'unknown') return null;
+    if (session.status === 'open') return sessionOpenMs(cursor);
+  }
+  return null;
+}
+
 export function earningsReactionCases({ signals = [], posts = [], rows = [], session = null, max = 3 } = {}) {
-  const openMs = Date.parse(`${session}T13:30:00Z`);
-  if (!Number.isFinite(openMs)) return [];
-  const weekday = new Date(openMs).getUTCDay();
-  const fromMs = openMs - (weekday === 1 ? 3 : 1) * 86400000;
+  const openMs = sessionOpenMs(session);
+  const fromMs = openMs == null ? null : previousOpenMs(session);
+  if (!Number.isFinite(openMs) || !Number.isFinite(fromMs)) return [];
   const postAt = new Map((Array.isArray(posts) ? posts : []).filter((post) => post?.id).map((post) => [String(post.id), Date.parse(post.datetime || '')]));
-  const bySym = new Map((Array.isArray(rows) ? rows : []).filter((row) => row?.sym && row.factorSessionDate === session && Number.isFinite(Number(row.ret1d))).map((row) => [String(row.sym).toUpperCase(), row]));
+  // P26-NULL-01: a missing one-day return is not a 0% move (Number(null) is 0).
+  const bySym = new Map((Array.isArray(rows) ? rows : []).filter((row) => row?.sym && row.factorSessionDate === session && reportedNumber(row.ret1d) != null).map((row) => [String(row.sym).toUpperCase(), row]));
   const seen = new Set();
   const cases = [];
   for (const signal of Array.isArray(signals) ? signals : []) {
@@ -167,15 +190,16 @@ const SESSION_LABEL = Object.freeze({ bmo: '장 전', dmh: '장중', amc: '장 �
  */
 export function buildEarningsWeek({ earnings = [], weekStart = null, weekEnd = null, rows = [], names = {}, watched = new Set(), held = new Set(), perSession = 8 } = {}) {
   const bySym = new Map((Array.isArray(rows) ? rows : []).filter((row) => row?.sym).map((row) => [String(row.sym).toUpperCase(), row]));
-  const inside = (date) => /^\d{4}-\d{2}-\d{2}$/.test(String(date || '')) && (!weekStart || date >= weekStart) && (!weekEnd || date <= weekEnd);
-  const list = (Array.isArray(earnings) ? earnings : []).filter((row) => row?.symbol && inside(row.date)).map((row) => {
+  const inside = (date) => isIsoDay(String(date || '')) && (!weekStart || date >= weekStart) && (!weekEnd || date <= weekEnd);
+  // v59.45 (pipeline review P26-WEEK-01): one row per report (the schedule's dedupe), so a repeated row is not two reports.
+  const list = dedupeEarningsRows((Array.isArray(earnings) ? earnings : []).filter((row) => row?.symbol && inside(row.date))).map((row) => {
     const symbol = String(row.symbol).toUpperCase();
     const screener = bySym.get(symbol);
     const mcap = Number(screener?.mcap);
     const eps = row.epsEstimate != null && row.epsEstimate !== '' && Number.isFinite(Number(row.epsEstimate)) ? Number(row.epsEstimate) : null;
     return { symbol, name: names[symbol] || screener?.name || '', date: row.date, session: ['bmo', 'dmh', 'amc'].includes(row.hour) ? row.hour : 'unknown',
       mcap: Number.isFinite(mcap) && mcap > 0 ? mcap : null, weight: Number(row.indexWeight) || 0, revenueEstimate: Number(row.revenueEstimate) || 0,
-      eps, revenue: formatUsdRevenue(row.revenueEstimate), watched: watched.has(symbol), held: held.has(symbol), reported: row.epsActual != null };
+      eps, revenue: formatUsdRevenue(row.revenueEstimate), watched: watched.has(symbol), held: held.has(symbol), reported: reportedNumber(row.epsActual) != null || reportedNumber(row.revenueActual) != null };
   });
   const rank = (a, b) => (b.mcap || 0) - (a.mcap || 0) || b.weight - a.weight || b.revenueEstimate - a.revenueEstimate || a.symbol.localeCompare(b.symbol);
   const dates = [...new Set(list.map((row) => row.date))].sort();

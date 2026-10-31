@@ -103,7 +103,7 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
       // 섹터 (경기소비재 fading). The fading and border leaders are their own parts, and the parts add up to that count.
       opportunityLinks: [{ label: '섹터 회전(약 50일 기준)에서 개선 중', links: sectorLinks(improving) }, { label: '선도', links: sectorLinks(leading) },
         { label: '선도였지만 최근 5거래일 상대강도가 꺾인 업종', links: sectorLinks(fadingRows.map((row) => row.label)) },
-        { label: '선도와 다른 구역의 경계', links: sectorLinks(sectors.filter((row) => quadrantOf(row) === 'Leading' && !leaderFading(row) && rrgBorder(row)).map((row) => row.label)) }].filter((part) => part.links.length),
+        { label: '선도와 다른 구역의 경계', links: sectorLinks(sectors.filter((row) => row?.quadrant === 'Leading' && rrgBorder(row)) /* v59.45 (P17-OUTLOOK-01): a border row has no settled quadrant; the raw one names it */.map((row) => row.label)) }].filter((part) => part.links.length),
       check: [`50일선·200일선 위 종목 비율이 함께 ${RULES.breadth.broadAtLeast}% 이상을 유지하는지`, '52주 신고가 종목이 신저가보다 꾸준히 많은지', '러셀 2000이 S&P 500을 따라오거나 앞서는지'],
       caution: ['20일선 위 비율만 오르고 50일선 비율이 따라오지 않으면 확산이라고 보기 이릅니다.', '하이일드 스프레드가 다시 넓어지면 회복의 근거가 약해집니다.'],
       // P1727: "지수 하루 하락" read as "ignore today's -5.5% KOSPI"; the item names the ordinary US day and excludes rare moves.

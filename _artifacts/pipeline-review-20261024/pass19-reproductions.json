@@ -1,0 +1,243 @@
+{
+  "scope": "Pure local fixtures; no external requests or product writes",
+  "foreignPit": {
+    "symbol": "TEST",
+    "cik": null,
+    "entityName": null,
+    "source": "SEC EDGAR companyfacts",
+    "sourceTier": "official-regulator",
+    "model": "sec-pit-asof-v1",
+    "periodType": "FY",
+    "observedAt": "2025-12-31",
+    "filedAt": "2026-02-01",
+    "acceptedAt": null,
+    "effectiveAt": "2026-02-01",
+    "asOf": "2026-10-28T00:00:00.000Z",
+    "form": "20-F",
+    "accession": null,
+    "revenue": 1000,
+    "netIncome": 100,
+    "equity": 500,
+    "sharesOutstanding": 100,
+    "sharesObservedAt": "2025-12-31",
+    "coverage": [
+      "revenue",
+      "netIncome",
+      "equity",
+      "sharesOutstanding",
+      "margin",
+      "roe",
+      "pe",
+      "pb"
+    ],
+    "pointInTimeStatus": "filed-date-only",
+    "margin": 10,
+    "roeBasis": "year-end-equity",
+    "roe": 20,
+    "pe": 100,
+    "pb": 20
+  },
+  "oldClose": {
+    "state": "ready",
+    "fcf": 90,
+    "periodEnd": "2025-12-31",
+    "label": "FY2025",
+    "ocf": 100,
+    "capex": 10,
+    "shares": 10,
+    "sharesObservedAt": "2026-02-01",
+    "price": 100,
+    "priceDate": "1990-01-01",
+    "marketValue": 1000
+  },
+  "gapLens": {
+    "id": "general",
+    "label": "일반 기업",
+    "why": "성장·수익성·자본 효율·현금·부채의 기본 다섯 가지를 봅니다.",
+    "rows": [
+      {
+        "id": "revenueGrowth",
+        "why": "사업이 커지고 있는지의 기본입니다.",
+        "label": "매출 성장",
+        "value": "FY2025 +100.0%",
+        "trend": null,
+        "check": null
+      },
+      {
+        "id": "netMargin",
+        "why": "매출에서 남는 이익의 비율입니다.",
+        "label": "순이익률",
+        "value": "10.0%(1년 전 10.0%), FY2025",
+        "trend": "유지",
+        "check": null
+      },
+      {
+        "id": "roe",
+        "why": "자기자본으로 얼마를 버는지입니다.",
+        "label": "ROE",
+        "value": "20.0%(평균 자기자본), FY2025",
+        "trend": null,
+        "check": null
+      },
+      {
+        "id": "fcfMargin",
+        "why": "이익이 현금으로 들어오는지입니다.",
+        "label": "잉여현금 마진",
+        "value": null,
+        "trend": null,
+        "check": "이 회사 공시 수집본에 없음"
+      },
+      {
+        "id": "leverage",
+        "why": "부채가 자기자본 대비 얼마나 큰지입니다.",
+        "label": "부채 비중",
+        "value": null,
+        "trend": null,
+        "check": "이 회사 공시 수집본에 없음"
+      }
+    ],
+    "known": 3
+  },
+  "guardedGrowth": null,
+  "ties": {
+    "strengths": [
+      {
+        "id": "growth",
+        "label": "매출 성장",
+        "value": 10,
+        "rank": 1,
+        "n": 4,
+        "median": 10,
+        "side": 0,
+        "text": "매출 성장 10.0%로 이 회사 포함 4곳 중 1위(동종 3곳 중앙값 10.0%과 같음)"
+      }
+    ],
+    "weaknesses": [],
+    "facts": [
+      {
+        "id": "growth",
+        "label": "매출 성장",
+        "value": 10,
+        "rank": 1,
+        "n": 4,
+        "median": 10,
+        "side": 0,
+        "text": "매출 성장 10.0%로 이 회사 포함 4곳 중 1위(동종 3곳 중앙값 10.0%과 같음)"
+      }
+    ],
+    "peers": 3
+  },
+  "flat": [
+    {
+      "id": "growth",
+      "tone": "neutral",
+      "title": "매출 흐름",
+      "text": "최근 회계연도 매출 100달러(0.0%), 약 1년 연평균 0.0%. 직전 해보다 줄었습니다."
+    },
+    {
+      "id": "margin",
+      "tone": "neutral",
+      "title": "수익성",
+      "text": "순이익률 0.0%(2024 회계연도 0.0%) — 수익성이 비슷하게 유지됩니다. 순이익 기준이라 세금·이자·일회성 효과는 나누지 않았습니다."
+    },
+    {
+      "id": "roe",
+      "tone": "burden",
+      "title": "자본 효율",
+      "text": "ROE 0.0%(평균 자기자본 기준) — 자본 대비 이익이 낮은 편입니다."
+    },
+    {
+      "id": "cash",
+      "tone": "neutral",
+      "title": "현금 전환",
+      "text": "영업현금흐름 0달러, 순이익 0달러 — 순손실과 영업현금 유출이 함께 나타났습니다. 현금 잔고와 조달 계획을 확인합니다. 한쪽이 마이너스라 순이익 대비 현금 비율은 쓰지 않습니다."
+    }
+  ],
+  "cash": {
+    "state": "ready",
+    "periodEnd": "2025-12-31",
+    "label": "FY2025",
+    "priorLabel": null,
+    "ladder": [
+      {
+        "id": "gross",
+        "label": "매출총이익률",
+        "value": null,
+        "prior": null
+      },
+      {
+        "id": "operating",
+        "label": "영업이익률",
+        "value": null,
+        "prior": null
+      },
+      {
+        "id": "net",
+        "label": "순이익률",
+        "value": null,
+        "prior": null
+      }
+    ],
+    "cash": {
+      "cash": 50,
+      "shortTermInvestments": null,
+      "liquid": 50,
+      "debt": 10,
+      "net": 40
+    },
+    "capital": {
+      "sbc": null,
+      "sbcRatio": null,
+      "buybacks": 20,
+      "dividends": null,
+      "returned": 20,
+      "fcf": 90,
+      "returnedShareOfFcf": 22.22222222222222
+    }
+  },
+  "consensus": {
+    "id": "consensus",
+    "tone": "favorable",
+    "title": "시장 기대(컨센서스)",
+    "text": "Forward PER 약 10.0배, 직전 4개 분기 조정 기준 10.0배, 예상 이익 0% — 종가 $100.00(2026-10-28) ÷ 아직 실적이 발표되지 않은 4개 분기(2026-12~2027-09) 예상 EPS 합 $10.00, 직전 4개 분기 실적 $10.00과 같은 조정 EPS 기준으로 비교했습니다. 애널리스트 최소 ?명, 최근 4주 추정치 상향 3, 하향 0(향후 4개 분기 건수 합계). 주가는 52주 고점 대비 -20%인데 최근 4주 추정치는 상향이 많습니다 — 가격과 이익 전망이 반대 방향입니다. 예상치는 계속 바뀌는 참고값이라 점수에는 쓰지 않습니다(2026-10-28 수집).",
+    "price": 100,
+    "priceDate": "2026-10-28",
+    "asOf": "2026-10-28",
+    "fwdEps": 10,
+    "trailingEps": 10,
+    "fwdFrom": "2026-12",
+    "fwdTo": "2027-09",
+    "fwdPe": 10,
+    "trailingPe": 10,
+    "growth": 0,
+    "basisGap": false,
+    "minEstimates": null,
+    "up4w": 3,
+    "down4w": 0,
+    "spread": null
+  },
+  "future": {
+    "roe": 20,
+    "valuationHeldReason": "shares-unavailable",
+    "fundamentalSource": "SEC EDGAR companyfacts",
+    "fundamentalModel": "sec-fy-normalized-v2",
+    "fundamentalPeriod": "FY",
+    "fundamentalPeriodEnd": "2099-12-31",
+    "fundamentalObservedAt": "2100-02-01",
+    "fundamentalFiledAt": "2100-02-01",
+    "fundamentalAccession": null,
+    "fundamentalSourceKind": "T1_OFFICIAL",
+    "fundamentalAllowedUse": "research-relative-ranking-only",
+    "fundamentalQuality": {
+      "status": "CURRENT",
+      "stale": false,
+      "basis": "fiscal-year-end-age",
+      "period": "FY",
+      "reportAgeDays": -26727,
+      "maxAgeDays": 456,
+      "decisionUse": false,
+      "allowedUse": "reference"
+    },
+    "fundamentalRightsId": "PUBLIC_REFERENCE"
+  }
+}

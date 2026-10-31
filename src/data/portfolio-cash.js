@@ -97,9 +97,16 @@ export function setCashBalance(balances, currency, value) {
 export function writeCashBalances(storage, balances) {
   const list = normalizeCashBalances(balances);
   const text = JSON.stringify(list.map((row) => ({ currency: row.currency, amount: row.amount })));
+  // v59.45 (PASS27): a write that does not read back restores the value that was there, so the comment above holds
+  // for a readback failure too, not only for a refused write.
+  let before = null;
+  try { before = storage.getItem(PORTFOLIO_CASH_KEY); } catch (_) { before = null; }
   try {
     storage.setItem(PORTFOLIO_CASH_KEY, text);
-    if (storage.getItem(PORTFOLIO_CASH_KEY) !== text) return { ok: false, reason: 'readback-mismatch', balances: list };
+    if (storage.getItem(PORTFOLIO_CASH_KEY) !== text) {
+      try { if (before == null) storage.removeItem(PORTFOLIO_CASH_KEY); else storage.setItem(PORTFOLIO_CASH_KEY, before); } catch (_) {}
+      return { ok: false, reason: 'readback-mismatch', balances: list };
+    }
   } catch (_) {
     return { ok: false, reason: 'write-failed', balances: list };
   }

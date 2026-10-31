@@ -17,9 +17,11 @@
 // for the full parity story and architecture/fixtures/trading-score-golden.json /
 // scripts/ci-domain-parity-check.mjs for the standing parity gate.
 //
-// 중요한 데이터 제약(실측, 2026-07-04): history.json 201일 중 momScore의 유일한 입력인 fg
+// 중요한 데이터 제약(실측, 2026-07-04): history.json 201일 중 당시 momScore의 유일한 입력인 fg
 // (Fear&Greed)는 24일치뿐이고 전부 최근 2026-06-10~07-03 구간 — forward 21일 수익률 확인
-// 가능한 표본은 현재 1~3개뿐이다. 이 스크립트는 그 사실을 감추지 않고 summary에 표본 수를
+// 가능한 표본은 1~3개뿐이었다. v59.45 P9-BT-02: P1388(trading-score v4)부터 fg는 합성 점수의
+// 입력이 아니다(위험선호 = PCR·HY). 그래서 fg 유무로 표본을 고르지 않는다 — 점수에 쓰지 않는 공급자의
+// 결측이 평가 행을 지웠다. 이 스크립트는 그 사실을 감추지 않고 summary에 표본 수를
 // 그대로 노출한다. 재튜닝 근거로 쓰기엔 표본이 턱없이 부족 — 인프라만 구축, 시간이 지나며
 // history.json이 30분마다 계속 쌓이는 대로 표본이 자동으로 커진다. 표본 수 충분성은
 // 통계적 유의성 검정과 별개이며, 이 짧은 하네스는 CI/p-value를 계산하지 않으므로
@@ -62,7 +64,9 @@ const CLAMP = (v, lo, hi) => Math.max(lo, Math.min(hi, Number.isFinite(v) ? v : 
 // 진짜 값으로 재현할 수 있다. hyg(달러)→hyBp(bp) 근사는 그대로 유지(포뮬러가 아니라 이 데이터
 // 소스만의 입력 변환이므로 R352 대상 아님) — 다만 이제 모델의 hyBp 파라미터 하나로만 들어간다.
 export function reconstructScore({ vix, fg, dxy, tnx, wti, vvix, spxPrice, spx50ma, spx200ma, mode, hyg: hygOverride }) {
-  const clampedVix = CLAMP(vix, 5, 150);
+  // v59.45 P9-BT-02: CLAMP maps a missing value to the lower bound, so a session without VIX scored as VIX 5 (the calmest
+  // band). A missing VIX stays missing; the model drops the volatility component and reports the lower coverage.
+  const clampedVix = typeof vix === 'number' && Number.isFinite(vix) ? CLAMP(vix, 5, 150) : null;
   const clampedVvix = CLAMP(vvix ?? 100, 50, 250);
   const clampedDxy = CLAMP(dxy ?? 104, 80, 130);
   const clampedTnx = CLAMP(tnx ?? 4.3, 0, 8);
@@ -142,7 +146,6 @@ export async function runBacktest(historyPath, outPath) {
   const records = [];
   for (let i = 0; i < tradingDays.length; i++) {
     const d = tradingDays[i];
-    if (typeof d.fg !== 'number' || !Number.isFinite(d.fg)) continue; // momScore 재구성 불가 → 스킵
     const spx50ma = trailingMA(tradingDays, i, 50);
     const spx200ma = trailingMA(tradingDays, i, 200);
     const result = reconstructScore({

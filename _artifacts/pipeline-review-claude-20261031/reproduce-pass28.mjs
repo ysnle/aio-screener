@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import {writeFileSync} from 'node:fs';
+import {pageDataCompleteness,producerState,screenerLoadState,auditPageDataCompleteness} from '../../src/data/page-completeness.js';
+import {installPublicReadiness} from '../../src/data/public-readiness.js';
+import {collectInterpretationInputs} from '../../src/data/selectors/interpretation.js';
+const now=Date.parse('2026-10-30T00:00:00Z');
+const contract={requiredProducers:['x'],maxAge:{x:1000},minCoverage:{x:80}};
+const dates=['bad','2099-01-01T00:00:00Z',null].map(lastSuccessfulAt=>pageDataCompleteness('home',contract,()=>({status:'loaded',lastSuccessfulAt,coverage:NaN}),now));
+assert(dates.every(x=>x.status==='loaded'));
+const empty=pageDataCompleteness('home',contract,()=>({status:'empty'}),now); assert.equal(empty.status,'loaded');
+const screener=screenerLoadState({status:'partial',metadata:{backtest:{},universeFreshnessStatus:'current'}}); assert.equal(screener.status,'ready');
+const breadth=producerState('breadth',{meta:{generatedAt:'2026-10-30T00:00:00Z'},screener:{status:'partial',metadata:{backtest:{},universeFreshnessStatus:'current'}}}); assert.equal(breadth.coverage,100);
+const zeroPages=auditPageDataCompleteness([],[]);assert.equal(zeroPages.status,'loaded');
+const fake={AIO:{version:'fixture',getPageEvidenceCurrentnessAudit:()=>({status:'pass',pageCount:1,rows:[]}),getDataPipelineAudit:()=>({status:'ok'}),getShareReadinessAudit:()=>({blockers:[],warnings:[]})},_serverDataMeta:{generatedAt:'2099-01-01T00:00:00Z',marketCyclePublished:true,reconciliation:{status:'ok'}}};
+installPublicReadiness(fake); const readiness=fake.AIO.getPublicShareReadiness(); assert.equal(readiness.status,'ok'); assert.match(readiness.dataLabel,/0분 전/);
+const clock=collectInterpretationInputs({}, {nowMs:now}); assert.equal(clock.nowMs,now); assert.notEqual(clock.market.now,now);
+writeFileSync(new URL('./pass28-reproductions.json',import.meta.url),JSON.stringify({dates,empty,screener,breadth,zeroPages,readiness,clock:{nowMs:clock.nowMs,marketNow:clock.market.now}},null,2)+'\n');
+console.log('PASS28: 6 counterexample groups; completeness/readiness and adapter clock');

@@ -1,0 +1,9 @@
+evalmachine.<anonymous>:13
+  const corpResponse = await fetch(`${API}/corpCode.xml?crtfc_key=${encodeURIComponent(key)}`, { signal: AbortSignal.timeout(60000) });
+                                                                                                         ^
+
+ReferenceError: AbortSignal is not defined
+    at main (evalmachine.<anonymous>:13:106)
+    at async file:///C:/Projects/AIO/_artifacts/pipeline-review-claude-20261031/reproduce-pass3.mjs:34:1
+
+Node.js v24.18.0

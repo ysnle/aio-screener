@@ -1,0 +1,57 @@
+{
+  "at": "2026-10-28T03:03:17.854Z",
+  "requests": 1,
+  "freshCache": {
+    "state": "ready",
+    "reloadNeeded": false,
+    "rotation": {
+      "text": "OLD_ROTATION_SENTINEL",
+      "pullbacks": [],
+      "source": "artifact"
+    },
+    "stages": [
+      {
+        "id": "audit",
+        "label": "Audit theme",
+        "state": "weak",
+        "stateLabel": "약세 지속",
+        "wind": null,
+        "favoured": []
+      }
+    ]
+  },
+  "staleThesis": [
+    {
+      "symbol": "AUDIT",
+      "memo": "",
+      "signals": [
+        "테마 단계 약함(Audit theme)"
+      ]
+    }
+  ],
+  "missingThesis": [
+    {
+      "symbol": "AUDIT",
+      "memo": "",
+      "signals": []
+    }
+  ],
+  "pending": {
+    "canonicalStages": [],
+    "thesis": [
+      {
+        "symbol": "AUDIT",
+        "memo": "",
+        "signals": [
+          "테마 단계 약함(Audit theme)"
+        ]
+      }
+    ],
+    "rotation": {
+      "text": "OLD_ROTATION_SENTINEL",
+      "pullbacks": [],
+      "source": "artifact"
+    }
+  },
+  "boundary": "Actual loader/domain/view-model functions with injected Response; renderer wording read from source, no browser or live failure claim."
+}

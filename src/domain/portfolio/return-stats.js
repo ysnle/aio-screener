@@ -56,8 +56,9 @@ function _btTailRisk(values, quantile) {
 // unverified order withholds the variant and holds certification, so the assumption cannot silently
 // return.
 function _btVarOrderAudit(values, order, observedAt) {
+  // v59.45 (PASS22 P22-STATS-01): Number(null) === 0, so [null, null] read as two equal stamps and 'verified' the order.
   const stamps = Array.isArray(observedAt)
-    ? observedAt.map((value) => (Number.isFinite(Number(value)) ? Number(value) : null))
+    ? observedAt.map((value) => (value == null || value === '' || typeof value === 'boolean' ? null : Number.isFinite(Number(value)) ? Number(value) : null))
     : null;
   if (stamps && stamps.length === values.length && stamps.every((value) => value != null)) {
     for (let i = 1; i < stamps.length; i += 1) if (stamps[i] < stamps[i - 1]) return { state: 'violated', usable: false };
@@ -233,7 +234,8 @@ function _calcDailyReturns(prices, timestamps) {
   let previousTs = null;
   for (let i = 0; i < prices.length; i += 1) {
     const current = prices[i];
-    const valid = current !== null && current !== undefined && !Number.isNaN(Number(current)) && Number(current) > 0;
+    // v59.45 (PASS22 P22-STATS-01): Infinity is not a price — it passed the NaN check and produced non-finite returns.
+    const valid = current !== null && current !== undefined && Number.isFinite(Number(current)) && Number(current) > 0;
     const currentTs = timestamps && timestamps[i] != null ? _returnTimestampMs(timestamps[i]) : null;
     if (!valid) {
       previous = null;

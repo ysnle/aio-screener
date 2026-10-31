@@ -123,7 +123,8 @@ export function installCompatibilityGlobals(root = globalThis) {
   installPageCompleteness(window, {
     readScreener: () => {
       const metadata = {};
-      for (const key of ['universeFreshnessStatus', 'backtest', 'detail']) { const value = screenerState(`metadata.${key}`); if (value != null) metadata[key] = key === 'backtest' ? true : value; }
+      // v59.45 (P28-COMPLETENESS-01): universe + artifactRows let the screener producer report measured coverage.
+      for (const key of ['universeFreshnessStatus', 'backtest', 'detail', 'universe', 'artifactRows']) { const value = screenerState(`metadata.${key}`); if (value != null) metadata[key] = key === 'backtest' ? true : value; }
       return { status: screenerState('status'), revision: screenerState('revision'), updatedAt: screenerState('updatedAt'), metadata };
     }
   });

@@ -14,7 +14,8 @@ import { clearKnowledgeArrival, renderKnowledgeArrival } from '../components/kno
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { renderTradeJournal, installTradeJournal } from '../panels/portfolio-trade-journal.js';
-import { signedText } from '../../domain/shared/number.js';
+import { signedText, readNumber as finite } from '../../domain/shared/number.js';
+import { isIsoDay } from '../../domain/shared/session-date.js';
 
 // RM-01 (2026-07-19): this module used to fully repaint pf-total-value/pf-total-pnl/etc. and
 // replaceChildren() the pf-positions-tbody table with a 5-column row, while legacy
@@ -68,11 +69,6 @@ function renderPortfolioStatus(documentRef, state, surface, { pricesLoading = fa
   else element.removeAttribute('data-observed-at');
 }
 
-function finite(value) {
-  if (value === null || value === undefined || value === '') return null;
-  const number = Number(value);
-  return Number.isFinite(number) ? number : null;
-}
 
 // P1407: the totals are in the surface's base currency (the same rule as the holdings table: an
 // undeclared single basis is shown as USD, and the currency note says it was assumed).
@@ -271,9 +267,13 @@ function requestHoldingQuotes(root, rows, attempt = 0) { // attempt > 0: a retry
 const closeNote = (surface) => {
   const n = surface?.closeValuedCount || 0;
   const date = String(surface?.closeDate || '');
-  const md = /^\d{4}-\d{2}-\d{2}$/.test(date) ? `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))} ` : '';
+  const md = isIsoDay(date) ? `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))} ` : '';
   const delayed = surface?.delayedValuedCount || 0;
-  return `${n ? `, ${n}종목은 실시간 시세 대신 ${md}종가 기준` : ''}${delayed ? `, ${delayed}종목은 지연 시세(참고) 기준` : ''}`;
+  // v59.45 (P23-FRESHNESS-01): the latest close date alone hid holdings valued on a close more than a week old.
+  const stale = surface?.staleCloseCount || 0;
+  const oldest = String(surface?.oldestCloseDate || '');
+  const oldMd = isIsoDay(oldest) ? `${Number(oldest.slice(5, 7))}/${Number(oldest.slice(8, 10))} ` : '';
+  return `${n ? `, ${n}종목은 실시간 시세 대신 ${md}종가 기준` : ''}${stale ? `, 이 중 ${stale}종목은 일주일 넘은 ${oldMd}종가` : ''}${delayed ? `, ${delayed}종목은 지연 시세(참고) 기준` : ''}`;
 };
 
 function screenerSectorOf(bySymbol) {
@@ -301,7 +301,10 @@ function renderCashBalances(documentRef, surface) {
   if (!line) return;
   const rateText = conversion.basisLabel || '';
   let text = '';
-  if (surface.cashHeld) {
+  if (surface.cashInvalidCount > 0) {
+    // v59.45 (P23-CASH-01): an unreadable balance holds the total; it is not a missing exchange rate.
+    text = `읽을 수 없는 현금 잔액 ${surface.cashInvalidCount}건이 있어 합계를 계산하지 않았습니다`;
+  } else if (surface.cashHeld) {
     const names = (conversion.held || []).map((code) => ({ KRW: '원화', USD: '달러' }[code] || code)).join('·');
     text = `환율 자료가 없어 합계를 계산하지 않았습니다, ${names ? `${names} 현금은 ` : ''}통화별 금액만 표시`;
   } else if (surface.cash != null && conversion.converted) {

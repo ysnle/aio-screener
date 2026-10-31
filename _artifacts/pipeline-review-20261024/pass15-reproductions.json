@@ -1,0 +1,418 @@
+{
+  "at": "2026-10-29T01:17:45.639Z",
+  "network": false,
+  "skippedPages": {
+    "workflow": "Deploy GitHub Pages",
+    "observation": "skipped",
+    "closed": false,
+    "writes": []
+  },
+  "unavailablePages": {
+    "workflow": "Deploy GitHub Pages",
+    "observation": "error",
+    "closed": true,
+    "writes": [
+      {
+        "kind": "comment",
+        "owner": "audit",
+        "repo": "repo",
+        "issue_number": 1,
+        "body": "Recovered: [Deploy GitHub Pages run 2](https://example.invalid/run/2) succeeded at 2026-10-28T12:02:00.000Z."
+      },
+      {
+        "kind": "update",
+        "owner": "audit",
+        "repo": "repo",
+        "issue_number": 1,
+        "state": "closed",
+        "state_reason": "completed"
+      }
+    ]
+  },
+  "skippedWorker": {
+    "workflow": "Deploy AI proxy",
+    "observation": "skipped",
+    "closed": true,
+    "writes": [
+      {
+        "kind": "comment",
+        "owner": "audit",
+        "repo": "repo",
+        "issue_number": 1,
+        "body": "Recovered: [Deploy AI proxy run 2](https://example.invalid/run/2) succeeded at 2026-10-28T12:02:00.000Z."
+      },
+      {
+        "kind": "update",
+        "owner": "audit",
+        "repo": "repo",
+        "issue_number": 1,
+        "state": "closed",
+        "state_reason": "completed"
+      }
+    ]
+  },
+  "slo": {
+    "schemaVersion": "operations-slo-window.v3",
+    "status": "NOT_CERTIFIED",
+    "observedAt": "2026-10-29T00:00:00.000Z",
+    "collectionMode": "MEASURED_RUNTIME",
+    "query": {
+      "repository": "ysnle/aio-screener",
+      "cutoff": "2026-10-29T00:00:00.000Z",
+      "workflows": {
+        "market": "refresh-data.yml",
+        "screener": "refresh-screener.yml",
+        "watchdog": "data-watchdog.yml"
+      },
+      "completeness": {}
+    },
+    "targets": {
+      "artifactSuccessRate30d": 0.995,
+      "watchdogSuccessRate30d": 0.995,
+      "exactSourceIdentityCoverage": 1,
+      "scheduledArrivalRate": 0.9,
+      "consecutiveFailureAlertAt": 2
+    },
+    "domains": {
+      "market": {
+        "workflow": "refresh-data.yml",
+        "required": true,
+        "expectedRuns": null,
+        "observedRuns": 0,
+        "scheduledArrivalRate": null,
+        "manualRunsExcluded": 0,
+        "successRate": null,
+        "observedDays": 0,
+        "status": "NOT_OBSERVED"
+      },
+      "screener": {
+        "workflow": "refresh-screener.yml",
+        "required": true,
+        "expectedRuns": null,
+        "observedRuns": 0,
+        "scheduledArrivalRate": null,
+        "manualRunsExcluded": 0,
+        "successRate": null,
+        "observedDays": 0,
+        "status": "NOT_OBSERVED"
+      },
+      "watchdog": {
+        "workflow": "data-watchdog.yml",
+        "required": true,
+        "expectedRuns": null,
+        "observedRuns": 2,
+        "scheduledArrivalRate": null,
+        "manualRunsExcluded": 1,
+        "successRate": 0,
+        "observedDays": 1,
+        "status": "DEGRADED"
+      }
+    },
+    "windows": {
+      "7d": {
+        "requiredDays": 7,
+        "observedDays": 0,
+        "status": "INSUFFICIENT_EVIDENCE",
+        "domains": {
+          "market": {
+            "workflow": "refresh-data.yml",
+            "required": true,
+            "expectedRuns": null,
+            "expectedRunsBasis": "current-cron-backfilled",
+            "measures": "workflow-execution",
+            "observedRuns": 0,
+            "scheduledRuns": 0,
+            "automatedDispatchRuns": 0,
+            "deliveryRate": null,
+            "manualRunsExcluded": 0,
+            "nonScheduledRunsExcluded": 0,
+            "nonScheduledEventBreakdown": {},
+            "cancelledRuns": 0,
+            "scheduledArrivalRate": null,
+            "completed": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "successRate": null,
+            "observedDays": 0,
+            "exactSourceIdentityCoverage": null,
+            "status": "NOT_OBSERVED"
+          },
+          "screener": {
+            "workflow": "refresh-screener.yml",
+            "required": true,
+            "expectedRuns": null,
+            "expectedRunsBasis": "current-cron-backfilled",
+            "measures": "workflow-execution",
+            "observedRuns": 0,
+            "scheduledRuns": 0,
+            "automatedDispatchRuns": 0,
+            "deliveryRate": null,
+            "manualRunsExcluded": 0,
+            "nonScheduledRunsExcluded": 0,
+            "nonScheduledEventBreakdown": {},
+            "cancelledRuns": 0,
+            "scheduledArrivalRate": null,
+            "completed": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "successRate": null,
+            "observedDays": 0,
+            "exactSourceIdentityCoverage": null,
+            "status": "NOT_OBSERVED"
+          },
+          "watchdog": {
+            "workflow": "data-watchdog.yml",
+            "required": true,
+            "expectedRuns": null,
+            "expectedRunsBasis": "current-cron-backfilled",
+            "measures": "workflow-execution",
+            "observedRuns": 2,
+            "scheduledRuns": 2,
+            "automatedDispatchRuns": 0,
+            "deliveryRate": null,
+            "manualRunsExcluded": 1,
+            "nonScheduledRunsExcluded": 0,
+            "nonScheduledEventBreakdown": {},
+            "cancelledRuns": 0,
+            "scheduledArrivalRate": null,
+            "completed": 2,
+            "succeeded": 0,
+            "failed": 2,
+            "successRate": 0,
+            "observedDays": 1,
+            "exactSourceIdentityCoverage": 1,
+            "status": "DEGRADED"
+          }
+        },
+        "coverage": {
+          "requiredDomains": [
+            "market",
+            "screener",
+            "watchdog"
+          ],
+          "missingDomains": [
+            "market",
+            "screener"
+          ],
+          "incompleteSources": [
+            "market",
+            "screener",
+            "watchdog"
+          ],
+          "everyRequiredDomainObserved": false,
+          "everySourcePaginated": false
+        },
+        "artifact": {
+          "completed": 0,
+          "succeeded": 0,
+          "failed": 0,
+          "successRate": null,
+          "observedDays": 0,
+          "exactSourceIdentityCoverage": null
+        },
+        "watchdog": {
+          "workflow": "data-watchdog.yml",
+          "required": true,
+          "expectedRuns": null,
+          "expectedRunsBasis": "current-cron-backfilled",
+          "measures": "workflow-execution",
+          "observedRuns": 2,
+          "scheduledRuns": 2,
+          "automatedDispatchRuns": 0,
+          "deliveryRate": null,
+          "manualRunsExcluded": 1,
+          "nonScheduledRunsExcluded": 0,
+          "nonScheduledEventBreakdown": {},
+          "cancelledRuns": 0,
+          "scheduledArrivalRate": null,
+          "completed": 2,
+          "succeeded": 0,
+          "failed": 2,
+          "successRate": 0,
+          "observedDays": 1,
+          "exactSourceIdentityCoverage": 1,
+          "status": "DEGRADED"
+        },
+        "source": "github-actions-api"
+      },
+      "30d": {
+        "requiredDays": 30,
+        "observedDays": 0,
+        "status": "INSUFFICIENT_EVIDENCE",
+        "domains": {
+          "market": {
+            "workflow": "refresh-data.yml",
+            "required": true,
+            "expectedRuns": null,
+            "expectedRunsBasis": "current-cron-backfilled",
+            "measures": "workflow-execution",
+            "observedRuns": 0,
+            "scheduledRuns": 0,
+            "automatedDispatchRuns": 0,
+            "deliveryRate": null,
+            "manualRunsExcluded": 0,
+            "nonScheduledRunsExcluded": 0,
+            "nonScheduledEventBreakdown": {},
+            "cancelledRuns": 0,
+            "scheduledArrivalRate": null,
+            "completed": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "successRate": null,
+            "observedDays": 0,
+            "exactSourceIdentityCoverage": null,
+            "status": "NOT_OBSERVED"
+          },
+          "screener": {
+            "workflow": "refresh-screener.yml",
+            "required": true,
+            "expectedRuns": null,
+            "expectedRunsBasis": "current-cron-backfilled",
+            "measures": "workflow-execution",
+            "observedRuns": 0,
+            "scheduledRuns": 0,
+            "automatedDispatchRuns": 0,
+            "deliveryRate": null,
+            "manualRunsExcluded": 0,
+            "nonScheduledRunsExcluded": 0,
+            "nonScheduledEventBreakdown": {},
+            "cancelledRuns": 0,
+            "scheduledArrivalRate": null,
+            "completed": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "successRate": null,
+            "observedDays": 0,
+            "exactSourceIdentityCoverage": null,
+            "status": "NOT_OBSERVED"
+          },
+          "watchdog": {
+            "workflow": "data-watchdog.yml",
+            "required": true,
+            "expectedRuns": null,
+            "expectedRunsBasis": "current-cron-backfilled",
+            "measures": "workflow-execution",
+            "observedRuns": 2,
+            "scheduledRuns": 2,
+            "automatedDispatchRuns": 0,
+            "deliveryRate": null,
+            "manualRunsExcluded": 1,
+            "nonScheduledRunsExcluded": 0,
+            "nonScheduledEventBreakdown": {},
+            "cancelledRuns": 0,
+            "scheduledArrivalRate": null,
+            "completed": 2,
+            "succeeded": 0,
+            "failed": 2,
+            "successRate": 0,
+            "observedDays": 1,
+            "exactSourceIdentityCoverage": 1,
+            "status": "DEGRADED"
+          }
+        },
+        "coverage": {
+          "requiredDomains": [
+            "market",
+            "screener",
+            "watchdog"
+          ],
+          "missingDomains": [
+            "market",
+            "screener"
+          ],
+          "incompleteSources": [
+            "market",
+            "screener",
+            "watchdog"
+          ],
+          "everyRequiredDomainObserved": false,
+          "everySourcePaginated": false
+        },
+        "artifact": {
+          "completed": 0,
+          "succeeded": 0,
+          "failed": 0,
+          "successRate": null,
+          "observedDays": 0,
+          "exactSourceIdentityCoverage": null
+        },
+        "watchdog": {
+          "workflow": "data-watchdog.yml",
+          "required": true,
+          "expectedRuns": null,
+          "expectedRunsBasis": "current-cron-backfilled",
+          "measures": "workflow-execution",
+          "observedRuns": 2,
+          "scheduledRuns": 2,
+          "automatedDispatchRuns": 0,
+          "deliveryRate": null,
+          "manualRunsExcluded": 1,
+          "nonScheduledRunsExcluded": 0,
+          "nonScheduledEventBreakdown": {},
+          "cancelledRuns": 0,
+          "scheduledArrivalRate": null,
+          "completed": 2,
+          "succeeded": 0,
+          "failed": 2,
+          "successRate": 0,
+          "observedDays": 1,
+          "exactSourceIdentityCoverage": 1,
+          "status": "DEGRADED"
+        },
+        "source": "github-actions-api"
+      }
+    },
+    "metrics": {
+      "artifact": {
+        "completed": 0,
+        "succeeded": 0,
+        "failed": 0,
+        "successRate": null,
+        "observedDays": 0,
+        "exactSourceIdentityCoverage": null
+      },
+      "watchdog": {
+        "workflow": "data-watchdog.yml",
+        "required": true,
+        "expectedRuns": null,
+        "expectedRunsBasis": "current-cron-backfilled",
+        "measures": "workflow-execution",
+        "observedRuns": 2,
+        "scheduledRuns": 2,
+        "automatedDispatchRuns": 0,
+        "deliveryRate": null,
+        "manualRunsExcluded": 1,
+        "nonScheduledRunsExcluded": 0,
+        "nonScheduledEventBreakdown": {},
+        "cancelledRuns": 0,
+        "scheduledArrivalRate": null,
+        "completed": 2,
+        "succeeded": 0,
+        "failed": 2,
+        "successRate": 0,
+        "observedDays": 1,
+        "exactSourceIdentityCoverage": 1,
+        "status": "DEGRADED"
+      }
+    },
+    "failureRecovery": {
+      "failureCount": 2,
+      "recoveryCount": 1,
+      "consecutiveFailuresMax": 1,
+      "dedupedAlerts": null,
+      "status": "INSUFFICIENT_EVIDENCE"
+    },
+    "revisionLanes": {
+      "liveRevision": null,
+      "dataRevision": null,
+      "localFixturePromotesLive": false,
+      "sourceShaCoverage": 1
+    },
+    "certification": {
+      "thirtyDaySlo": "OPERATOR_REQUIRED",
+      "alertDedupe": "OPERATOR_REQUIRED",
+      "publicPromotionAllowed": false
+    },
+    "reason": "Per-domain lanes measure scheduled arrival and success independently; a required domain with zero observed runs in the window cannot be certified. Actions history measures execution success and recovery; repository issues measure workflow-keyed alert dedupe. Provider rights, live revision, and public promotion remain independent operator evidence."
+  }
+}

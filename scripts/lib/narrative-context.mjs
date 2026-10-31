@@ -18,28 +18,30 @@ export const NARRATIVE_SAMPLES_PER_THEME = 2;
 export const NARRATIVE_MOVER_MIN_ABS_RET5D = 10;
 
 // One row per narrative. `frames` are analysis-note ids in learning-core LESSONS; their steps are the reading order.
+// v59.45 (R3-01): short acronyms and English names need word boundaries ('sPIKe', 'aBUNDant', 'exciting' read as PIK, Bund,
+// Citi); '유가증권시장' is not 유가 and '시즌이란' (a particle) is not Iran.
 export const NARRATIVE_THEMES = Object.freeze([
   { id: 'ai-funding-credit', label: 'AI 인프라 조달·신용 (코어위브·네오클라우드·데이터센터 채권)', frames: ['ai-infra-credit-ladder', 'forced-seller-chain'],
-    re: /코어위브|CoreWeave|CRWV|네비우스|Nebius|NBIS|네오\s?클라우드|neocloud|데이터\s?센터\s*(?:채권|부채|금융|자금)|data cent(?:er|re) (?:bond|debt|financ)|GPU\s*(?:담보|금융)|GPU[- ]backed|AI\s*(?:자금\s*조달|부채|채권)|AI (?:debt|funding|financing)|블루\s?아울|Blue Owl/i },
+    re: /코어위브|CoreWeave|\bCRWV\b|네비우스|Nebius|\bNBIS\b|네오\s?클라우드|neocloud|데이터\s?센터\s*(?:채권|부채|금융|자금)|data cent(?:er|re) (?:bond|debt|financ)|GPU\s*(?:담보|금융)|GPU[- ]backed|AI\s*(?:자금\s*조달|부채|채권)|AI (?:debt|funding|financing)|블루\s?아울|Blue Owl/i },
   { id: 'ai-profitability', label: 'AI 수익성·밸류에이션 의구심 (앤스로픽·오픈AI·버블론)', frames: ['ai-capex-payback', 'narrative-ledger-check'],
     re: /앤트로픽|앤스로픽|Anthropic|오픈\s?AI|OpenAI|AI\s*(?:버블|거품)|AI bubble|AI\s*(?:수익성|투자\s*회수|지출\s*지속)|AI (?:spending|monetiz|profitab|skeptic|doubt)|하이퍼\s?스케일러|hyperscaler/i },
   { id: 'memory-cycle', label: '메모리 사이클 (D램·HBM·중국 증산)', frames: ['memory-cycle-lead', 'tech-claim-stages'],
-    re: /메모리|D램|디램|DRAM|HBM|낸드|NAND|CXMT|창신|YMTC|마이크론|Micron|샌디스크|SanDisk|하이닉스|hynix|키오시아|Kioxia/i },
+    re: /메모리|D램|디램|\bDRAM\b|\bHBM\d?e?\b|낸드|\bNAND\b|\bCXMT\b|창신|\bYMTC\b|마이크론|Micron|샌디스크|SanDisk|하이닉스|hynix|키오시아|Kioxia/i },
   { id: 'deleveraging', label: '디레버리징·강제 매도 (헤지펀드·반대매매·펀드 청산)', frames: ['forced-seller-chain', 'crowding-breadth-extreme'],
-    re: /디레버리징|deleverag|헤지\s?펀드|hedge funds?|강제\s*(?:청산|매도)|반대\s*매매|마진\s*콜|margin calls?|forced (?:selling|liquidation)|펀드\s*(?:청산|파산|환매)|프라임\s*브로커|prime brok|VARA|모멘텀\s*(?:붕괴|청산)|momentum (?:crash|unwind)/i },
+    re: /디레버리징|deleverag|헤지\s?펀드|hedge funds?|강제\s*(?:청산|매도)|반대\s*매매|마진\s*콜|margin calls?|forced (?:selling|liquidation)|펀드\s*(?:청산|파산|환매)|프라임\s*브로커|prime brok|\bVARA\b|모멘텀\s*(?:붕괴|청산)|momentum (?:crash|unwind)/i },
   { id: 'private-credit', label: '사모신용·크레딧 (환매·등급·부도 확률)', frames: ['private-credit-redemption', 'ai-infra-credit-ladder'],
-    re: /사모\s*(?:신용|대출|크레딧)|private credit|BDC|환매\s*(?:중단|제한|요청)|PIK|부도\s*확률|디폴트|신용\s*등급|투기\s*등급|정크|하이일드|high[- ]yield|junk/i },
+    re: /사모\s*(?:신용|대출|크레딧)|private credit|\bBDCs?\b|환매\s*(?:중단|제한|요청)|\bPIK\b|부도\s*확률|디폴트|신용\s*등급|투기\s*등급|정크|하이일드|high[- ]yield|junk/i },
   { id: 'sovereign-debt', label: '선진국 재정·국채 (유럽·영국·일본 장기물)', frames: ['long-bond', 'growth-inflation-balance'],
-    re: /유럽[^.。\n]{0,20}(?:부채|재정|국채|금융\s*리스크)|프랑스\s*(?:국채|재정|신용)|길트|gilts?|분트|Bunds?|JGB|일본\s*(?:국채|장기\s*금리)|sovereign debt|재정\s*적자|fiscal deficit|기간\s*프리미엄|term premium|국채\s*발작/i },
+    re: /유럽[^.。\n]{0,20}(?:부채|재정|국채|금융\s*리스크)|프랑스\s*(?:국채|재정|신용)|길트|\bgilts?\b|분트|\bBunds?\b|\bJGBs?\b|일본\s*(?:국채|장기\s*금리)|sovereign debt|재정\s*적자|fiscal deficit|기간\s*프리미엄|term premium|국채\s*발작/i },
   { id: 'us-politics', label: '미국 정치 일정 (중간선거·셧다운)', frames: ['headline-provenance'],
     re: /중간\s*선거|midterms?|셧다운|government shutdown|부채\s*한도|debt ceiling/i },
   { id: 'oil-geopolitics', label: '유가·지정학 (호르무즈·이란)', frames: ['oil-shock-split', 'geopolitical-shock-paths'],
-    re: /호르무즈|Hormuz|이란|Iran|유가|oil price|원유|crude|브렌트|Brent|OPEC/i }
+    re: /호르무즈|Hormuz|(?<![가-힣])이란|\bIran(?:ian)?\b|유가(?!증권)|oil price|원유|\bcrude\b|브렌트|\bBrent\b|\bOPEC\b/i }
 ]);
 
 // A rumour is named as one ("루머", "설"); an anonymous-source report is "미확인". Both stay labelled in the prompt.
 // 2026-10-19: the rule is shared with the news bundle (src/domain/news/report-verification.js).
-const CITED_RE = /블룸버그|Bloomberg|로이터|Reuters|파이낸셜\s?타임스|\bFT\b|WSJ|월스트리트저널|CNBC|폴리티코|Politico|The Information|닛케이|Nikkei|중국\s?언론|JP\s?모건|JPMorgan|모건\s?스탠리|Morgan Stanley|골드만|Goldman|BofA|노무라|Nomura|번스타인|Bernstein|씨티|Citi|도이체|Deutsche|KeyBanc|키뱅크|가트너|Gartner/gi;
+const CITED_RE = /블룸버그|Bloomberg|로이터|Reuters|파이낸셜\s?타임스|\bFT\b|WSJ|월스트리트저널|CNBC|폴리티코|Politico|The Information|닛케이|Nikkei|중국\s?언론|JP\s?모건|JPMorgan|모건\s?스탠리|Morgan Stanley|골드만|Goldman|BofA|노무라|Nomura|번스타인|Bernstein|씨티|\bCiti(?:group)?\b|도이체|Deutsche|KeyBanc|키뱅크|가트너|Gartner/gi;
 
 export function narrativeVerification(text) {
   return reportVerification(text);

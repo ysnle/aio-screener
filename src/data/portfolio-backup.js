@@ -32,7 +32,11 @@ export function sanitizePositions(raw) {
       if (out.memo) out.memo = String(out.memo).slice(0, 200);
       if (out.note) out.note = String(out.note).slice(0, 200);
       out.qty = Number.isFinite(Number(out.qty)) ? Number(out.qty) : 0;
-      out.cost = Number.isFinite(Number(out.cost)) ? Number(out.cost) : 0;
+      // v59.45 (PASS27 P27-IMPORT-01): an unreadable or empty cost is unknown, not a ₩0 purchase — 'nonsense' became cost 0
+      // and the P&L read +100%. The field is left absent (the readers already treat an absent cost as missing); a number,
+      // 0 included, is kept as written.
+      if (out.cost == null || String(out.cost).trim() === '' || !Number.isFinite(Number(out.cost))) delete out.cost;
+      else out.cost = Number(out.cost);
       // v58.82: a currency is a three-letter code or absent — the legacy table renders it as markup.
       for (const field of ['costCurrency', 'currency']) {
         if (field in out && !(typeof out[field] === 'string' && CURRENCY_RE.test(out[field].trim()))) delete out[field];
@@ -41,12 +45,13 @@ export function sanitizePositions(raw) {
       return out;
     })
     // v58.82: the add form refuses qty <= 0 and a negative cost; an imported file is held to the same rule.
-    .filter((p) => p.qty > 0 && p.cost >= 0);
+    .filter((p) => p.qty > 0 && !(p.cost < 0));
 }
 
 function sanitizeJournal(raw) {
   return (Array.isArray(raw) ? raw : [])
-    .filter((e) => e && typeof e.note === 'string' && e.note.trim() && Number.isFinite(Number(e.ts)))
+    // v59.45 (PASS27): a finite ts outside the Date range (1e20) threw from toISOString and escaped the parser.
+    .filter((e) => e && typeof e.note === 'string' && e.note.trim() && Number.isFinite(new Date(Number(e.ts)).getTime()))
     .slice(0, MAX_JOURNAL)
     .map((e) => ({
       ts: Number(e.ts),
@@ -184,10 +189,25 @@ export function buildPortfolioBackup(snapshot = {}, meta = {}) {
 export function parsePortfolioBackup(text, deps = {}) {
   let data;
   try { data = typeof text === 'string' ? JSON.parse(text) : text; } catch (_) { return { ok: false, reason: 'invalid-json' }; }
+  // v59.45 (PASS27): a well-formed file whose contents a normalizer cannot handle is a refused file, not an exception.
+  try { return parseBackupData(data, deps); } catch (_) { return { ok: false, reason: 'invalid-contents' }; }
+}
+
+// v59.45 (PASS27 P27-IMPORT-01): what the import changed on the way in — rows dropped or a cost left unknown — so the
+// confirmation can name it instead of showing only the counts that survived.
+function positionAdjustments(raw) {
+  const list = Array.isArray(raw) ? raw : [];
+  const kept = sanitizePositions(list);
+  const costUnknown = kept.filter((p) => !('cost' in p)).length;
+  return { positionsDropped: list.length - kept.length, positionsCostUnknown: costUnknown };
+}
+
+// The shell (js/aio-workspace.js importPortfolio) names these in the confirmation.
+function parseBackupData(data, deps) {
   if (Array.isArray(data)) {
     const positions = sanitizePositions(data);
     if (!positions.length) return { ok: false, reason: 'no-valid-positions' };
-    return { ok: true, kind: 'positions', contents: { positions }, counts: countBackupContents({ positions }) };
+    return { ok: true, kind: 'positions', contents: { positions }, counts: countBackupContents({ positions }), adjustments: positionAdjustments(data) };
   }
   if (!data || typeof data !== 'object' || data.format !== BACKUP_FORMAT) return { ok: false, reason: 'unknown-format' };
   if (data.version !== BACKUP_VERSION) return { ok: false, reason: 'unsupported-version' };
@@ -210,5 +230,8 @@ export function parsePortfolioBackup(text, deps = {}) {
   };
   const counts = countBackupContents(contents);
   if (counts.total === 0) return { ok: false, reason: 'empty-bundle' };
-  return { ok: true, kind: 'bundle', contents, counts, exportedAt: typeof data.exportedAt === 'string' ? data.exportedAt : null };
+  const rawLedgerRows = raw.ledger && typeof raw.ledger === 'object'
+    ? (Array.isArray(raw.ledger.transactions) ? raw.ledger.transactions.length : 0) + (Array.isArray(raw.ledger.valuations) ? raw.ledger.valuations.length : 0) : 0;
+  const adjustments = { ...positionAdjustments(raw.positions), ledgerDropped: Math.max(0, rawLedgerRows - counts.ledgerEntries) };
+  return { ok: true, kind: 'bundle', contents, counts, adjustments, exportedAt: typeof data.exportedAt === 'string' ? data.exportedAt : null };
 }

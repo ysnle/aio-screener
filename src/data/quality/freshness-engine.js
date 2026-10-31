@@ -45,10 +45,14 @@ export function installFreshnessEngine(window = globalThis) {
       return 0;
     }
 
+    // R2-06 (2026-10-31 review): a time further ahead than a normal clock difference is not "방금"; like a missing
+    // time it reads as unconfirmed (Infinity → stale, '—'), never as fresh.
+    var FUTURE_SKEW_MS = 5 * MIN;
     function ageMs(v) {
       var t = toTs(v);
       if (!t) return Infinity;
-      return now() - t;
+      var age = now() - t;
+      return age < -FUTURE_SKEW_MS ? Infinity : age;
     }
 
     function isStale(v, category) {

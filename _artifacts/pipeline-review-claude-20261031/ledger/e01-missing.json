@@ -1,0 +1,31 @@
+{
+  "version": "v59.45",
+  "date": "2026-10-31",
+  "p": {
+    "title": "빠진 값이 0·보합·충족으로 읽혀 화면과 판정에 들어감 (파이프라인 의미 검토 결측 클래스)",
+    "symptom": "비어 있는 EPS가 'EPS 0.00 수신', ret1d null이 '움직임 0', null 검증 수익률이 0% 선, 종료 종가 없는 신호가 -100%, VIX 결측이 VIX 5, null 실업률이 '보합'으로 시나리오 충족, null TGA로 순유동성 계산, dgs20=null이 0% 공식 금리, 원가 'nonsense'가 0원, 빈 분기 순이익이 0으로 TTM 이익수익률 계산, 시총 미상이 소형주 조건 충족(Codex PASS4·7·9·17·18·19·22·24·26·27·28, Claude R2-07).",
+    "root_cause": "경계마다 Number(null)===0, `|| 0`, `?? 0`, isFinite(null)===true, CLAMP 하한, Number('')===0 같은 암묵 변환이 결측을 값으로 바꿨고, 판정 함수가 '값 있음'만 보고 '관측됨'을 따로 묻지 않았다.",
+    "fix": "각 도메인 입구에서 결측을 null/NaN으로 남기는 공용 helper(reportedNumber·finiteOrNull·calendarDate 등)를 쓰고, 판정·문장은 관측된 수와 분모를 따로 세거나 보류한다. 생산자(candidate-archive signedYields)는 빈 칸을 결측으로, 연속 4분기만 TTM으로 계산한다.",
+    "violated_rule": "R628: 결측은 조건도 구간도 관측값도 만족시키지 않는다 — 경계에서 Number(null)===0을 먼저 막는다.",
+    "prevention": "scripts/ci-pipeline-semantics-check.mjs의 영역별 케이스(briefing·market·portfolio·screener·fundamentals·knowledge-state·producers)가 결측 입력에서 0·보합·충족이 나오지 않음을 실제 함수로 확인한다.",
+    "verification": "node scripts/ci-pipeline-semantics-check.mjs PASS(전 영역). Codex 재현 스크립트의 결측 단언은 이제 실패한다."
+  },
+  "r": {
+    "title": "의미 검토에서 찾은 결함은 결함 id를 단 실제 함수 케이스로 남긴다",
+    "rule": "파이프라인 의미·정합성 검토(외부 리뷰어 포함)에서 확인된 결함을 고칠 때는 scripts/fixtures/pipeline-semantics/<영역>.mjs에 그 finding id를 단 케이스를 추가한다. 케이스는 실제 도메인·생산자 함수를 작은 고정 입력으로 부르고, 결함 조건이 돌아오면 실패해야 한다. 소스 문자열 고정(regex pin)으로 대신하지 않는다.",
+    "validation": "node scripts/ci-pipeline-semantics-check.mjs (qa-pipeline core 그룹 pipeline-semantics 게이트, 중복 id+name 거부)."
+  },
+  "qa": [
+    {
+      "id": "QA-PIPE-SEM-01",
+      "text": "v59.45 파이프라인 의미 검토 회귀(결측·미래 시각·실패 보존·동률·캐시 키·부분 문자열·통화·AI 경계·병합 손실)가 영역별 실제 함수 케이스로 모두 통과한다.",
+      "verify_by": "node scripts/ci-pipeline-semantics-check.mjs",
+      "done": true
+    }
+  ],
+  "qa_section": "파이프라인 의미 검토 통합",
+  "changelog": [
+    "**빠진 값을 0이나 '보합'으로 읽던 곳 정리 ({P}/{R}):** Codex 파이프라인 검토(PASS4~30)와 추가 검토에서 찾은, 비어 있는 값이 0·보합·조건 충족으로 바뀌던 곳을 브리핑·시장·거시·포트폴리오·스크리너·재무·지식 화면 전체에서 고쳤다. 이제 확인 안 된 값은 '—'나 '확인 안 됨'으로 남고, 문장은 관측된 수만 센다(예: 비어 있는 EPS가 'EPS 0.00 수신'으로, 빈 분기 순이익이 0으로 계산되던 것). 결함마다 실제 함수 회귀 케이스를 새 게이트(ci-pipeline-semantics-check)에 남긴다."
+  ],
+  "note": "v59.45: Codex 파이프라인 의미 검토(PASS4~30)와 Claude 추가 검토의 결함을 영역별로 고치고 실제 함수 회귀 게이트(ci-pipeline-semantics-check)를 추가"
+}

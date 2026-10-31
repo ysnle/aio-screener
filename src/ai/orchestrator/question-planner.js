@@ -29,7 +29,10 @@ const REQUIRED_BY_INTENT = Object.freeze({
   ENTITY_FACT: ['entity-quote'],
   COMPARISON: ['entity-quote', 'fundamentals'],
   TECHNICAL_ANALYSIS: ['technical'],
-  OPTIONS_ANALYSIS: ['options', 'entity-quote'],
+  // v59.46 (owner 2026-10-31): option chains, IV and GEX are not collected — no free daily source is accurate enough, so
+  // the options route retired (P1321). An options question reads the market-level volatility the app does keep (VIX,
+  // put/call on 투자 심리) plus the quote; 'options' named a tool nothing provides.
+  OPTIONS_ANALYSIS: ['market-snapshot', 'entity-quote'],
   MACRO_ANALYSIS: ['macro'],
   FX_ANALYSIS: ['fx-quote', 'rates', 'cross-asset'],
   SCREENING: ['screener'],

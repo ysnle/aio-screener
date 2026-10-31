@@ -4,6 +4,10 @@ const stamp = (row) => value(row?.publishedAt || row?.pubDate || row?.date);
 const source = (row) => value(row?.source || row?.feed).toLowerCase();
 const issuer = (row) => value(row?.issuerId || row?.issuerCik || row?.cik || row?.issuerSymbol).toUpperCase();
 export const isNewsRevision = (row) => !!(row?.correctionOf || row?.retractionOf || row?.supersedes || ['correction', 'retraction'].includes(row?.revisionType));
+// v59.45: a wire headline that says it is a correction ("Correction: …", "CORRECTED-…", "Retraction: …") counts too —
+// RSS rows carry no revision fields.
+const REVISION_TITLE = /^\s*(?:correction|corrected|retraction|retracted)\b|^\s*[[(（]?\s*(?:정정|철회)\s*[\]):：）]/i;
+export const isNewsRevisionRow = (row) => isNewsRevision(row) || REVISION_TITLE.test(value(row?.title || row?.headline));
 
 export function newsArticleKey(row) {
   // A reused feed id/URL with a changed title or timestamp is a version, not a duplicate.
@@ -30,7 +34,9 @@ export function selectIntradayNews(rows = [], { cycleEndMs = null, canonical = [
     const ms = Date.parse(stamp(row));
     const link = linkOf(row), title = titleOf(row);
     if (!title || !Number.isFinite(ms) || ms < cycleEndMs || ms > nowMs + 15 * 60000) continue;
-    if ((link && links.has(link)) || titles.has(title)) continue;
+    // v59.45 (pipeline review P20-REVISION-01): a correction or retraction of a bundle article is a new version, not a
+    // duplicate — it keeps its slot even on the same URL; only the very same corrected title is a repeat.
+    if (isNewsRevisionRow(row) ? titles.has(title) : ((link && links.has(link)) || titles.has(title))) continue;
     if (link) links.add(link);
     titles.add(title);
     picked.push({ ...row, publishedMs: ms });

@@ -9,7 +9,7 @@ import { selectProducedRotation } from '../themes/produced-rotation.js';
 import { DEFENSIVE_SECTORS, SECTOR_ETF_LABELS } from '../interpretation/concepts.js';
 import { fearGreedBand } from '../sentiment/metrics.js';
 import { MIN_GROUP_MEMBERS } from '../themes/group-strength.js';
-import { signedText } from '../shared/number.js';
+import { directionOf, signedText } from '../shared/number.js';
 
 // The AI chain the 주도 영역 line reads (chips, power, network, cooling): the AI capex layers' themes and named groups
 // (themes/ai-capex-flow.js) without the broad industrials theme. Kept here so the boot set does not load that reference
@@ -20,7 +20,7 @@ export const AI_CHAIN_GROUPS = new Set(['industrials:전력장비/그리드']);
 const signed = (value, digits = 1) => value == null || !Number.isFinite(value) ? null : signedText(value, digits, '%');
 const GROWTH_FLOW = Object.freeze(['XLK', 'XLC', 'SMH']);
 const FLOW_LABELS = Object.freeze({ ...SECTOR_ETF_LABELS, SMH: '반도체' });
-export const MARKET_FLOW_KINDS = Object.freeze({ defensive: '방어 업종으로 이동', growth: '성장 업종으로 쏠림', broadDown: '업종 전반 하락', broadUp: '업종 전반 상승', mixed: '업종별로 엇갈림' });
+export const MARKET_FLOW_KINDS = Object.freeze({ defensive: '방어 업종 강세', growth: '성장 업종 강세', broadDown: '업종 전반 하락', broadUp: '업종 전반 상승', mixed: '업종별로 엇갈림' });
 
 export function buildMarketFlow({ rotationHistory = null, macro = null, history = [], themes = null, rows: screenerRows = null, nowMs = Date.now() } = {}) {
   const rows = Object.keys(FLOW_LABELS).map((symbol) => {
@@ -50,15 +50,17 @@ export function buildMarketFlow({ rotationHistory = null, macro = null, history 
   const evidence = [
     rose.length ? `오른 업종 ${rose.map(item).join(', ')}` : null,
     fell.length ? `내린 업종 ${fell.map(item).join(', ')}` : null,
-    `11개 업종 중 ${up}개 상승`,
+    `${sectors.length}개 업종 중 ${up}개 상승`, // v59.45: the denominator is the sectors observed
     smhRow ? `반도체(SMH) ${signed(smhRow.daily)}` : null,
     tenYearBp != null ? `미국 10년물 ${signedText(tenYearBp, 0, 'bp')}` : null,
     fear && !fear.blocked ? `공포·탐욕 ${Math.round(fear.score)}(${fear.label})` : null
   ].filter(Boolean);
   const bonds = tenYearBp != null && tenYearBp <= -5 ? '과 채권' : '';
-  const read = kind === 'defensive' ? (growth < 0 ? `하락은 기술·AI 쪽에 몰렸고, 돈은 방어 업종${bonds}으로 옮겨갔습니다.${up >= 6 ? ' 시장 전체가 무너졌다기보다 주도주에서 빠져나온 날입니다.' : ''}` : `방어 업종${bonds}이 성장 업종보다 강했습니다.`)
-    : kind === 'growth' ? '성장 업종으로 돈이 몰렸고 방어 업종은 뒤처졌습니다.'
-      : kind === 'broadDown' ? `대부분 업종이 함께 내렸습니다. 특정 업종이 아니라 시장 전반에서 돈이 빠졌습니다.`
+  // v59.45 (P17-FLOW-01): these are price moves of sector ETFs, Treasuries and fear — no fund-flow data — so the read says
+  // which side was stronger, not where money went.
+  const read = kind === 'defensive' ? (growth < 0 ? `하락은 기술·AI 쪽에 몰렸고, 방어 업종${bonds}은 상대적으로 강했습니다.${up >= 6 ? ' 시장 전체가 무너졌다기보다 주도주가 약했던 날입니다.' : ''}` : `방어 업종${bonds}이 성장 업종보다 강했습니다.`)
+    : kind === 'growth' ? '성장 업종이 강했고 방어 업종은 뒤처졌습니다.'
+      : kind === 'broadDown' ? `대부분 업종이 함께 내렸습니다. 특정 업종이 아니라 시장 전반이 약했습니다.`
         : kind === 'broadUp' ? '대부분 업종이 함께 올랐습니다.'
           : '업종별 방향이 엇갈려 한쪽으로 쏠린 이동은 보이지 않습니다.';
   // v58.74 (text audit 오늘 C4): when energy leads or trails the session and oil moved 2% or more the same way, the mechanism
@@ -117,7 +119,7 @@ export function buildThemeFlow({ themes = [], rows = [], session = null } = {}) 
     const list = group.rows.map((row) => ({ sym: String(row.sym).toUpperCase(), d1: Number(row.ret1d) }));
     const best = list.reduce((a, b) => (b.d1 > a.d1 ? b : a)), worst = list.reduce((a, b) => (b.d1 < a.d1 ? b : a));
     return best.d1 >= rule.splitSidePct && worst.d1 <= -rule.splitSidePct && best.d1 - worst.d1 >= rule.themeSplitPp
-      ? { name: group.name, up: best, down: worst, upCount: list.filter((row) => row.d1 > 0).length, downCount: list.filter((row) => row.d1 < 0).length, strength: Math.min(best.d1, -worst.d1),
+      ? { name: group.name, up: best, down: worst, upCount: list.filter((row) => directionOf(row.d1, 1) === 'up').length, downCount: list.filter((row) => directionOf(row.d1, 1) === 'down').length, /* v59.45: counts follow the printed one-decimal move */ strength: Math.min(best.d1, -worst.d1),
         aiChain: AI_CHAIN_THEMES.has(group.themeId) || AI_CHAIN_GROUPS.has(`${group.themeId}:${group.name}`) } : null;
   }).filter(Boolean).sort((a, b) => Number(b.aiChain) - Number(a.aiChain) || b.strength - a.strength);
   const memberSplitText = (split) => `${split.name}: ${split.up.sym} ${signed(split.up.d1)}, ${split.down.sym} ${signed(split.down.d1)} (상승 ${split.upCount}, 하락 ${split.downCount})`;

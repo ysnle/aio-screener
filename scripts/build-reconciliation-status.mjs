@@ -151,6 +151,9 @@ export function buildReconciliationStatus({ data = {}, marketSnapshot = {}, scre
   const nowMs = parseMs(now) ?? Date.now();
   const macro = data?.macro || {};
   const bls = macro?._bls || {};
+  // v59.45 (P4-DATA-10): the employment checks read the same release status as CPI; a stale or unavailable BLS
+  // collection keeps its last values but does not pass the current-release check.
+  const blsReleaseCurrent = ['ok', 'cached-fresh'].includes(bls.status);
   const bea = macro?._bea || {};
   const latestHistory = lastHistoryRow(history);
   const tier0Quotes = marketSnapshot?.quotes || [];
@@ -275,9 +278,9 @@ export function buildReconciliationStatus({ data = {}, marketSnapshot = {}, scre
     ], { gate: 'bls-bea-official-release', rights: 'REVIEW_REQUIRED' }),
 
     categoryDefinition('employment-wages', [
-      evidenceCheck('bls-unemployment', finite(bls?.series?.unemployment?.value) && !!bls?.series?.unemployment?.observedAt, 'public-data/data.json', bls?.series?.unemployment?.observedAt),
-      evidenceCheck('bls-nonfarm-payroll', finite(bls?.series?.nonfarmPayroll?.value) && !!bls?.series?.nonfarmPayroll?.observedAt, 'public-data/data.json', bls?.series?.nonfarmPayroll?.observedAt),
-      evidenceCheck('bls-average-hourly-earnings', finite(bls?.series?.averageHourlyEarnings?.value) && !!bls?.series?.averageHourlyEarnings?.observedAt, 'public-data/data.json', bls?.series?.averageHourlyEarnings?.observedAt)
+      evidenceCheck('bls-unemployment', blsReleaseCurrent && finite(bls?.series?.unemployment?.value) && !!bls?.series?.unemployment?.observedAt, 'public-data/data.json', bls?.series?.unemployment?.observedAt),
+      evidenceCheck('bls-nonfarm-payroll', blsReleaseCurrent && finite(bls?.series?.nonfarmPayroll?.value) && !!bls?.series?.nonfarmPayroll?.observedAt, 'public-data/data.json', bls?.series?.nonfarmPayroll?.observedAt),
+      evidenceCheck('bls-average-hourly-earnings', blsReleaseCurrent && finite(bls?.series?.averageHourlyEarnings?.value) && !!bls?.series?.averageHourlyEarnings?.observedAt, 'public-data/data.json', bls?.series?.averageHourlyEarnings?.observedAt)
     ], { gate: 'bls-employment-wages', rights: 'REVIEW_REQUIRED' }),
 
     categoryDefinition('retail-housing-ism', [

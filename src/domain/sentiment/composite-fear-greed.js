@@ -8,13 +8,14 @@
 // advanceRatio, breadthNewHighs/Lows) and public-data/macro-history.json (hyOas, igOas).
 
 import { alignInput, buildCloseSeries, closeBasis, isUsable } from '../market/close-series.js';
+import { readNumber as finite } from '../shared/number.js';
+import { isIsoDay } from '../shared/session-date.js';
 
 export const COMPOSITE_FEAR_GREED_VERSION = 'aio-sentiment-composite.v1';
 const RANK_WINDOW = 252;
 const MIN_RANK_SAMPLE = 60;
 const MIN_COMPONENTS = 4;
 
-const finite = (value) => (value == null || value === '' ? null : Number.isFinite(Number(value)) ? Number(value) : null);
 
 // M03: one value per US trading session (buildCloseSeries) — weekend carry-forward rows are not observations.
 function series(rows, field) {
@@ -74,7 +75,7 @@ function macroSeries(macroHistory, key) {
   const observations = macroHistory?.series?.[key]?.observations;
   return (Array.isArray(observations) ? observations : [])
     .map((row) => (Array.isArray(row) ? { date: String(row[0]), value: finite(row[1]) } : { date: String(row?.date || ''), value: finite(row?.value) }))
-    .filter((row) => /^\d{4}-\d{2}-\d{2}$/.test(row.date) && row.value != null)
+    .filter((row) => isIsoDay(row.date) && row.value != null)
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 

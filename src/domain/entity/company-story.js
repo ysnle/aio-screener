@@ -3,6 +3,8 @@
 // → roadmap → what to watch. Curated static JSON under public-data/company-profiles/ (schema in
 // _artifacts/company-profile-pilot-20261028/SCHEMA-v2.md); this module only reads it. Every number carries a dated
 // source in the file; nothing here estimates a missing value.
+import { readNumber as finite } from '../shared/number.js';
+import { isIsoDay, hasLeadingIsoDay } from '../shared/session-date.js';
 
 export const AI_LAYERS = Object.freeze([
   ['power-energy', '전력·에너지'], ['cooling-electrical', '냉각·전기 설비'], ['data-center-real-estate', '데이터센터 부동산'],
@@ -16,12 +18,14 @@ export const layerLabel = (layer) => LAYER_NAME[layer] || null;
 export const POSITION_LABEL = Object.freeze({ leader: '선두', challenger: '도전자', niche: '틈새', follower: '추격' });
 export const CASH_USE_LABEL = Object.freeze({ 'R&D': '연구개발', capex: '설비 투자', acquisitions: '인수', buybacks: '자사주 매입', dividends: '배당', 'debt repayment': '부채 상환', 'customer financing': '고객 금융·투자', other: '기타' });
 
-const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
 const trimZero = (text) => text.replace(/\.0+$/, '').replace(/(\.\d*?)0+$/, '$1');
 
 // Currencies the stories report in. A code not listed stays as written rather than being read as dollars.
 const CURRENCY_WORD = Object.freeze({ USD: '달러', EUR: '유로', TWD: '대만달러', JPY: '엔', CNY: '위안', GBP: '파운드' });
 export const STORY_UNITS = Object.freeze(['KRW tn', 'KRW bn', ...Object.keys(CURRENCY_WORD).flatMap((code) => [`${code} bn`, `${code} mn`])]);
+
+// 1억 = 10,000만; a figure that rounds to 0만 keeps no minus sign.
+const manText = (sign, eok, word) => { const man = Math.round(eok * 10000); return `${man ? sign : ''}${man.toLocaleString('ko-KR')}만 ${word}`; };
 
 /** A reported amount in the reader's units: USD bn/mn → 억·조 달러 (EUR·TWD… likewise), KRW tn/bn → 조·억 원. Unknown units stay as written. */
 export function moneyText(value, unit) {
@@ -33,12 +37,15 @@ export function moneyText(value, unit) {
   if (/KRW/i.test(u)) {
     const eok = /tn/i.test(u) ? a * 10000 : /bn/i.test(u) ? a * 10 : null; // 1조 = 10,000억, 1 bn KRW = 10억
     if (eok == null) return `${v.toLocaleString('ko-KR')} ${u}`;
+    if (eok > 0 && eok < 1) return manText(sign, eok, '원');
     return eok >= 10000 ? `${sign}${trimZero((eok / 10000).toFixed(2))}조 원` : `${sign}${Math.round(eok).toLocaleString('ko-KR')}억 원`;
   }
   const word = CURRENCY_WORD[(u.match(/^[A-Z]{3}/i)?.[0] || '').toUpperCase()];
   const bn = /bn/i.test(u) ? a : /mn/i.test(u) ? a / 1000 : null;
   if (bn == null || !word) return `${v.toLocaleString('ko-KR')} ${u}`.trim();
   const eok = bn * 10; // 1 bn = 10억 of the same currency
+  // v59.45 (pipeline review P25-STORY-03): under 1억 the 억 figure rounded to "0억 달러" (1 USD mn is 100만 달러).
+  if (eok > 0 && eok < 1) return manText(sign, eok, word);
   return eok >= 10000 ? `${sign}${trimZero((eok / 10000).toFixed(2))}조 ${word}`
     : eok >= 100 ? `${sign}${Math.round(eok).toLocaleString('ko-KR')}억 ${word}` : `${sign}${trimZero(eok.toFixed(1))}억 ${word}`;
 }
@@ -56,13 +63,16 @@ export const pctText = (value) => { const v = finite(value); return v == null ? 
 /**
  * Whether the story still describes the latest report. A profile is researched on one date; once the company has
  * reported again after that date, the story is the older quarter's (cadence-relative freshness, AGENTS Freshness).
- * @returns {{ state: 'current'|'stale', researchedAt: string|null, newReport: string|null }}
+ * v59.45 (pipeline review P25-STORY-01): no report found is not proof of current — without a research date or with no
+ * calendar rows at all (not loaded / failed) the state is 'unknown', so a consumer cannot read it as checked.
+ * @returns {{ state: 'current'|'stale'|'unknown', researchedAt: string|null, newReport: string|null }}
  */
 export function storyFreshness(profile, earnings = [], today = new Date().toISOString().slice(0, 10)) {
-  const researchedAt = /^\d{4}-\d{2}-\d{2}$/.test(profile?.researchedAt || '') ? profile.researchedAt : null;
+  const researchedAt = isIsoDay(profile?.researchedAt || '') ? profile.researchedAt : null;
   const symbol = String(profile?.symbol || '').toUpperCase();
-  const newer = (Array.isArray(earnings) ? earnings : [])
-    .filter((row) => String(row?.symbol || '').toUpperCase() === symbol && /^\d{4}-\d{2}-\d{2}/.test(row?.date || ''))
+  if (!researchedAt || !Array.isArray(earnings) || !earnings.length) return { state: 'unknown', researchedAt, newReport: null };
+  const newer = earnings
+    .filter((row) => String(row?.symbol || '').toUpperCase() === symbol && hasLeadingIsoDay(row?.date || ''))
     // Already reported: the calendar carries the actual figures, or the report day is over. A row dated today with no
     // actuals has not been released yet (AMZN 2026-10-29 after the close).
     .filter((row) => row.epsActual != null || row.revenueActual != null || String(row.date).slice(0, 10) < today)

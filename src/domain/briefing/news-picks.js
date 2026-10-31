@@ -29,8 +29,10 @@ const escape = (text) => String(text).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 export function companyMatcher(symbol, name = '') {
   const sym = String(symbol || '').toUpperCase().trim();
   if (!/^[A-Z][A-Z0-9.]{0,6}$/.test(sym)) return null;
-  const forms = [`\\$${escape(sym)}(?![A-Za-z0-9])`, `\\(${escape(sym)}\\)`, `(?:NASDAQ|NYSE|Nasdaq):\\s?${escape(sym)}(?![A-Za-z0-9])`];
-  if (sym.length >= 3 && !NOT_TICKERS.has(sym)) forms.push(`(?<![A-Za-z0-9$])${escape(sym)}(?![A-Za-z0-9])`);
+  // v59.45 (pipeline review P20-ISSUER-01): a share-class suffix belongs to another line — BRK is not "$BRK.B".
+  const end = '(?![A-Za-z0-9]|\\.[A-Za-z0-9])';
+  const forms = [`\\$${escape(sym)}${end}`, `\\(${escape(sym)}\\)`, `(?:NASDAQ|NYSE|Nasdaq):\\s?${escape(sym)}${end}`];
+  if (sym.length >= 3 && !NOT_TICKERS.has(sym)) forms.push(`(?<![A-Za-z0-9$.])${escape(sym)}${end}`);
   const plain = String(name || '').replace(NAME_SUFFIX, '').replace(/[,.]+$/, '').trim();
   if (plain.length >= 4 && !COMMON_NAMES.has(plain.toLowerCase()) && /^[A-Z]/.test(plain)) forms.push(`(?<![A-Za-z])${escape(plain)}(?![A-Za-z])`);
   return new RegExp(forms.join('|'));

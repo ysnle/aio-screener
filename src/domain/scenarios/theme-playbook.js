@@ -17,12 +17,11 @@ import { EXPOSURE_TAGS, WIND_LABELS, themeProfile, windFor } from './exposures.j
 import { THEME_STATES, THEME_STAGE_RULE, themeStateOf, frequencyText, inlineDrift, INLINE_DRIFT_LABELS } from './analogs.js';
 import { CHOICES } from '../market/macro-crossroads.js';
 import { marketWindowReturns, recentMove, recentMoveText, relativeBand, weeklyNoiseFromVol, WINDOW_LABELS } from '../themes/recent-check.js';
-import { signedText } from '../shared/number.js';
+import { signedText, finiteNumber as finite } from '../shared/number.js';
 
-// v58.75 (persona review): v2 = members pooled once per theme (v58.74). scenario-state.json stamps the version it was built
-// with, so a state written by the older group-median rule (crypto -25.1% there, -44.7% pooled) is never shown beside it.
-export const THEME_PLAYBOOK_VERSION = 'theme-playbook.v2';
-const finite = (value) => typeof value === 'number' && Number.isFinite(value) ? value : null;
+// v58.75: the playbook version lives in theme-stage.js (v59.45), re-exported here for every existing import.
+import { THEME_PLAYBOOK_VERSION, SCENARIO_STATE_CURRENT, scenarioBasisCurrent } from './theme-stage.js';
+export { THEME_PLAYBOOK_VERSION };
 const median = (values) => { const list = values.filter((v) => finite(v) != null).sort((a, b) => a - b); if (!list.length) return null; const m = Math.floor(list.length / 2); return list.length % 2 ? list[m] : (list[m - 1] + list[m]) / 2; };
 const pct = (value) => value == null ? '—' : `${signedText(value, 1)}%`;
 const marketWord = (row) => (row.market === 'KR' ? '한국' : '미국');
@@ -295,13 +294,16 @@ export function buildThemePlaybook({ usGroups = [], krThemes = [], crossroads = 
  * screen draws) wins; the per-refresh artifact stands in only when it was written by the same playbook version.
  * @returns {{ text: string, pullbacks: Array<{market:string,id:string,label:string,ret1m:number|null}>, source: 'live'|'artifact'|null }}
  */
-export function themeRotationRead({ live = null, artifact = null } = {}) {
+export function themeRotationRead({ live = null, artifact = null, nowMs = Date.now() } = {}) {
   if (live?.available && live.rotation?.text) {
     return { text: live.rotation.text, pullbacks: (live.highlights?.structuralPullbacks || []).map(({ market, id, label, ret1m }) => ({ market, id, label, ret1m })), source: 'live' };
   }
-  if (artifact?.playbookVersion === THEME_PLAYBOOK_VERSION && artifact.rotation?.text) {
+  // v59.45 (P10-STATE-01): the stand-in also needs a current publication (a stamped status other than 'current' is not)
+  // and a US basis within the session lag; it carries that basis so the line can date itself.
+  const asOf = artifact?.basis?.themeAsOfByMarket?.US || null;
+  if (artifact?.playbookVersion === THEME_PLAYBOOK_VERSION && artifact.rotation?.text && (artifact.status == null || artifact.status === SCENARIO_STATE_CURRENT) && scenarioBasisCurrent(asOf, 'US', nowMs)) {
     const byKey = new Map((artifact.themes || []).map((row) => [`${row.market}:${row.id}`, row]));
-    return { text: artifact.rotation.text, pullbacks: (artifact.highlights?.structuralPullbacks || []).map((key) => byKey.get(key)).filter(Boolean), source: 'artifact' };
+    return { text: artifact.rotation.text, pullbacks: (artifact.highlights?.structuralPullbacks || []).map((key) => byKey.get(key)).filter(Boolean), source: 'artifact', asOf };
   }
   return { text: '', pullbacks: [], source: null };
 }

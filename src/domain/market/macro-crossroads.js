@@ -16,15 +16,15 @@ import { RULES } from '../rules/thresholds.js';
 import { changeBand, bandDirection, changeOverDays, inflationDirection, oilDivergence, sentimentRank, MACRO_SIGNAL_RULES } from '../macro/macro-signals.js';
 import { BRANCH_ANALOGS, analogOutcome, frequencyText, BASE_RATE_SE } from '../scenarios/analogs.js';
 import { EXPOSURE_TAGS } from '../scenarios/exposures.js';
-import { signedText } from '../shared/number.js';
+import { signedText, finiteNumber as finite } from '../shared/number.js';
 import { buildCrossAssetRelations } from '../macro/cross-asset-relations.js';
+import { isoDay } from '../shared/session-date.js';
 
 export const MACRO_CROSSROADS_VERSION = 'macro-crossroads.v2';
 
 const G = RULES.growth;
 const P = RULES.policy;
 const L = RULES.leadership;
-const finite = (value) => typeof value === 'number' && Number.isFinite(value) ? value : null;
 const last = (series) => series.length ? series[series.length - 1] : null;
 // v57.54 review: "20거래일" counts open sessions like 시장 상태 and 거시 (sessionPointBack), not array slots — a gap
 // in the record made WTI read -7.2% here and -11.4% there on the same day.
@@ -78,12 +78,12 @@ export function upcomingMacroEvents({ releases = {}, schedules = {}, nowMs = Dat
   for (const [rawId, dates] of Object.entries(schedules || {})) {
     const id = alias[rawId] || rawId;
     if (out.has(id)) continue;
-    const next = (Array.isArray(dates) ? dates : []).filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date) && notYet(id, date)).sort()[0];
+    const next = (Array.isArray(dates) ? dates : []).filter((date) => isoDay(date) && notYet(id, date)).sort()[0];
     if (next) out.set(id, next);
   }
   for (const [id, row] of Object.entries(releases || {})) {
     const date = String(row?.nextRelease || '').slice(0, 10);
-    if (!out.has(id) && /^\d{4}-\d{2}-\d{2}$/.test(date) && notYet(id, date)) out.set(id, date);
+    if (!out.has(id) && isoDay(date) && notYet(id, date)) out.set(id, date);
   }
   return [...out].filter(([id, date]) => EVENT_NAMES[id] && date <= horizon).map(([id, date]) => ({ id, name: EVENT_NAMES[id], date })).sort((a, b) => a.date.localeCompare(b.date));
 }
@@ -93,11 +93,14 @@ export function releaseActuals(macroHistory) {
   const mom = (field) => { const s = seriesOf(macroHistory, field); return s.length > 1 && s[s.length - 2].value ? { date: last(s).date, value: (last(s).value / s[s.length - 2].value - 1) * 100 } : null; };
   const out = {};
   const core = mom('coreCpiIndex'), head = mom('cpiIndex');
-  if (core) out['us-cpi'] = { period: core.date, coreMoM: core.value, headMoM: head?.date === core.date ? head.value : null };
+  if (core) { const headMoM = head?.date === core.date ? head.value : null; out['us-cpi'] = { period: core.date, coreMoM: core.value, headMoM, missing: headMoM == null ? ['cpiIndex'] : [] }; }
   const payrolls = seriesOf(macroHistory, 'payrolls'), unemployment = seriesOf(macroHistory, 'unemployment'), wages = mom('hourlyEarnings');
   if (payrolls.length > 1) {
     const u = unemployment.length > 1 && last(unemployment).date === last(payrolls).date ? last(unemployment).value - unemployment[unemployment.length - 2].value : null;
-    out['us-nfp'] = { period: last(payrolls).date, payroll: last(payrolls).value - payrolls[payrolls.length - 2].value, unempDelta: u, wageMoM: wages?.date === last(payrolls).date ? wages.value : null };
+    const wageMoM = wages?.date === last(payrolls).date ? wages.value : null;
+    out['us-nfp'] = { period: last(payrolls).date, payroll: last(payrolls).value - payrolls[payrolls.length - 2].value, unempDelta: u, wageMoM,
+      // v59.45 (P17-RELEASE-01): a part of the same report not yet in the history keeps the release pending (scored when it arrives).
+      missing: [u == null ? 'unemployment' : null, wageMoM == null ? 'hourlyEarnings' : null].filter(Boolean) };
   }
   const pce = mom('corePceIndex');
   if (pce) out['us-pce'] = { period: pce.date, coreMoM: pce.value };
@@ -226,6 +229,14 @@ const V = RULES.volatility;
 // each on its newest release (macro-signals inflationDirection). Signals without the read derive it from the same fields.
 const inflationOf = (s) => s.inflationDir || inflationDirection({ pce: all(s.corePace, s.coreYoy) ? { pace: s.corePace, yoy: s.coreYoy } : null, cpi: all(s.coreCpiPace, s.coreCpiYoy) ? { pace: s.coreCpiPace, yoy: s.coreCpiYoy } : null });
 const inflationIs = (want) => (s) => { const d = inflationOf(s); return d.state === 'unknown' ? null : d.dir === want; };
+// v59.45 (P18-INFLATION-01): v57.69 lets one published measure decide when the other is missing; the condition then says
+// which one it read instead of "PCE·CPI 모두" (one measure was shown as a two-measure cross-check).
+const inflationLabel = (word, pace) => (s) => {
+  const d = inflationOf(s);
+  const only = d.single ? (d.pce ? '근원 PCE' : '근원 CPI') : null;
+  return only ? `근원 물가 ${word} (${only}만 공개 — 3개월 속도가 1년치보다 ${RULES.inflation.reaccelPp}%p 이상 ${pace})`
+    : `근원 물가 ${word} (근원 PCE·CPI 모두 3개월 속도가 1년치보다 ${RULES.inflation.reaccelPp}%p 이상 ${pace})`;
+};
 const disinflating = inflationIs('down');
 
 // v57.91 (owner X-bookmark item pass 2026-10-16): per branch, what to check next and what would show the reading is
@@ -259,20 +270,20 @@ export const BRANCH_NOTES = Object.freeze({
  *           market guide counts favored/costly across live branches (src/domain/guide/market-guide.js). */
 export const BRANCHES = Object.freeze([
   { id: 'reheat', shape: 'concentration', axes: ['inflation', 'policy'], title: '물가 재가속 — 금리가 더 오르는 시나리오',
-    gate: [0], conditions: [[`근원 물가 재가속 (근원 PCE·CPI 모두 3개월 속도가 1년치보다 ${RULES.inflation.reaccelPp}%p 이상 빠름)`, inflationIs('up')], [OIL_SURGE_LABEL, (s) => s.oilSurging], ['임금 상승률 전년 대비 3.5% 이상', (s) => has(s.wageYoy) ? s.wageYoy >= 3.5 : null], [`고용 견조 (Sahm ${G.sahmWatchAt}%p 미만 + 일자리 3개월 평균 ${G.payrollSolidK / 10}만 명 이상)`, (s) => s.growthState === 'unknown' ? null : s.growthState === 'favorable']],
+    gate: [0], conditions: [[inflationLabel('재가속', '빠름'), inflationIs('up')], [OIL_SURGE_LABEL, (s) => s.oilSurging], ['임금 상승률 전년 대비 3.5% 이상', (s) => has(s.wageYoy) ? s.wageYoy >= 3.5 : null], [`고용 견조 (Sahm ${G.sahmWatchAt}%p 미만 + 일자리 3개월 평균 ${G.payrollSolidK / 10}만 명 이상)`, (s) => s.growthState === 'unknown' ? null : s.growthState === 'favorable']],
     chain: ['물가 재가속', '연준 인상·동결 연장 기대', '2년·10년 금리 상승', '할인율 상승 → 고PER 성장주 압박', '달러 강세, 자금 조달 비용 상승'],
     firmer: ['energy', 'financials'], weaker: ['growth', 'yield', 'liquidity', 'consumer'],
-    triggers: [['us-cpi', '근원 CPI 전월 대비 0.4% 이상 (연율 약 5%)', (a) => a.coreMoM >= 0.4], ['us-nfp', '일자리 25만 명 이상 + 시간당 임금 전월 대비 0.4% 이상', (a) => a.payroll >= 250 && (a.wageMoM ?? 0) >= 0.4], ['us-pce', '근원 PCE 전월 대비 0.3% 이상', (a) => a.coreMoM >= 0.3], ['us-fed-rate', '기준금리 인상', (a) => a.upperDelta > 0]],
+    triggers: [['us-cpi', '근원 CPI 전월 대비 0.4% 이상 (연율 약 5%)', (a) => a.coreMoM >= 0.4], ['us-nfp', '일자리 25만 명 이상 + 시간당 임금 전월 대비 0.4% 이상', (a) => (has(a.wageMoM) ? a.payroll >= 250 && a.wageMoM >= 0.4 : null)], ['us-pce', '근원 PCE 전월 대비 0.3% 이상', (a) => a.coreMoM >= 0.3], ['us-fed-rate', '기준금리 인상', (a) => a.upperDelta > 0]],
     pricing: leanPricing('hike'),
     choices: { wait: '현금성 자산의 이자가 기다림의 비용을 줄여 줍니다. 금리가 오르는 동안에는 기다리는 쪽이 놓치는 것이 상대적으로 작습니다.', stage: '분할 접근은 가능하지만 금리가 오르는 동안 밸류에이션이 더 낮아질 수 있어 서두를 이유가 작습니다. 금리 상승이 멈추는 신호를 기준으로 나눠 보는 편이 맞습니다.', hold: '추세가 살아 있는 보유 종목은 유지하되, 이익보다 기대에 기대는 고PER·적자 성장주 비중이 큰지 점검합니다.', defend: '에너지·현금성 비중이 금리 상승 구간의 충격을 덜어 줍니다. 다만 물가가 바로 꺾이면 방어의 기회비용이 커집니다.' },
     favored: ['wait', 'defend'], favoredWhy: '금리 상승이 이어지는 시나리오에서는 기다림의 비용(놓친 상승 − 현금 이자)이 작고, 성급한 매수의 비용(밸류에이션 추가 하락)이 큽니다.',
     costly: ['stage'],
     explore: [['fxbond', '금리와 환율', '10년물·2년물과 달러가 실제로 오르는지'], ['themes', '테마와 섹터', '에너지·금융의 상대강도']] },
   { id: 'softland', shape: 'expansion', axes: ['inflation', 'growth'], title: '물가 둔화 + 고용 완만 — 금리가 내려갈 여지가 생기는 시나리오',
-    gate: [0], conditions: [[`근원 물가 둔화 (근원 PCE·CPI 모두 3개월 속도가 1년치보다 ${RULES.inflation.reaccelPp}%p 이상 느림)`, disinflating], [`고용 완만 (Sahm ${G.sahmWatchAt}%p 미만 + 일자리 3개월 평균 증가)`, (s) => all(s.sahm, s.payroll3) ? s.sahm < G.sahmWatchAt && s.payroll3 > 0 : null] /* v57.84: 0.3–0.5 is 고용 급랭's 주의 band, so 완만 ends at 0.3 */, [`유가 안정 (WTI 20거래일 +${MACRO_SIGNAL_RULES.oilDirectionPct}% 미만, 1년 평균 대비 +10% 미만)`, (s) => { const calm = (v) => v < MACRO_SIGNAL_RULES.oilDirectionPct; if (!has(s.oil20)) return null; /* v57.87: WTI 24% above its year average read 유가 안정 off a 20-session start on a spike */ if (has(s.oilVsYear) && s.oilVsYear >= 10) return false; if (!s.oilHeld) return calm(s.oil20); return has(s.brent20) && calm(s.oil20) === calm(s.brent20) ? calm(s.oil20) : null; }], ['신용 안정 (하이일드 스프레드 양호)', (s) => s.credit === 'unknown' ? null : s.credit === 'favorable']],
+    gate: [0], conditions: [[inflationLabel('둔화', '느림'), disinflating], [`고용 완만 (Sahm ${G.sahmWatchAt}%p 미만 + 일자리 3개월 평균 증가)`, (s) => all(s.sahm, s.payroll3) ? s.sahm < G.sahmWatchAt && s.payroll3 > 0 : null] /* v57.84: 0.3–0.5 is 고용 급랭's 주의 band, so 완만 ends at 0.3 */, [`유가 안정 (WTI 20거래일 +${MACRO_SIGNAL_RULES.oilDirectionPct}% 미만, 1년 평균 대비 +10% 미만)`, (s) => { const calm = (v) => v < MACRO_SIGNAL_RULES.oilDirectionPct; if (!has(s.oil20)) return null; /* v57.87: WTI 24% above its year average read 유가 안정 off a 20-session start on a spike */ if (has(s.oilVsYear) && s.oilVsYear >= 10) return false; if (!s.oilHeld) return calm(s.oil20); return has(s.brent20) && calm(s.oil20) === calm(s.brent20) ? calm(s.oil20) : null; }], ['신용 안정 (하이일드 스프레드 양호)', (s) => s.credit === 'unknown' ? null : s.credit === 'favorable']],
     chain: ['물가 둔화', '금리 인하 기대', '2년·10년 금리 하락', '할인율 하락 → 밸류에이션 지지', '참여 확산 (중소형·후행 업종)'],
     firmer: ['growth', 'yield', 'consumer', 'liquidity', 'cyclical'], weaker: ['energy', 'defensive'],
-    triggers: [['us-cpi', '근원 CPI 전월 대비 0.2% 이하 (연율 약 2.4%, 목표 부근)', (a) => a.coreMoM <= 0.2], ['us-nfp', '일자리 7.5만~20만 명 + 실업률 보합~+0.1%p', (a) => a.payroll >= 75 && a.payroll <= 200 && (a.unempDelta ?? 0) <= 0.1], ['us-pce', '근원 PCE 전월 대비 0.2% 이하', (a) => a.coreMoM <= 0.2], ['us-fed-rate', '기준금리 인하 (신용이 안정된 상태에서)', (a) => a.upperDelta < 0]],
+    triggers: [['us-cpi', '근원 CPI 전월 대비 0.2% 이하 (연율 약 2.4%, 목표 부근)', (a) => a.coreMoM <= 0.2], ['us-nfp', '일자리 7.5만~20만 명 + 실업률 보합~+0.1%p', (a) => (has(a.unempDelta) ? a.payroll >= 75 && a.payroll <= 200 && a.unempDelta >= -1e-9 && a.unempDelta <= 0.1 + 1e-9 : null)] /* v59.45 (P17-RELEASE-01): an unpublished rate is unknown, and 보합~+0.1%p excludes a fall */, ['us-pce', '근원 PCE 전월 대비 0.2% 이하', (a) => a.coreMoM <= 0.2], ['us-fed-rate', '기준금리 인하 (신용이 안정된 상태에서)', (a) => a.upperDelta < 0]],
     pricing: leanPricing('cut'),
     choices: { wait: '금리 하락은 발표 직후 가격에 먼저 반영되는 경향이 있어, 확인을 끝까지 기다리는 동안의 기회비용이 커지는 시나리오입니다.', stage: '발표마다 확인 신호가 나올 때 나눠 들어가면, 한 번에 들어가는 타이밍 위험을 줄이면서 놓치는 상승도 줄일 수 있습니다.', hold: '보유 유지가 자연스러운 시나리오입니다. 시장 폭이 넓어지면 후행 업종으로 기회가 퍼지는지 함께 봅니다.', defend: '방어 전환의 기회비용이 큰 시나리오입니다 — 방어 업종은 금리 하락과 참여 확산 국면에서 상대적으로 뒤처지는 경향이 있습니다.' },
     favored: ['stage', 'hold'], favoredWhy: '금리가 내려갈 여지가 확인되는 시나리오에서는 기다림의 기회비용이 커지고, 나눠 들어가는 쪽이 타이밍 위험과 놓친 상승을 함께 줄입니다.',
@@ -282,7 +293,7 @@ export const BRANCHES = Object.freeze([
     gate: [0, 1], conditions: [[`실업률 상승 주의 (Sahm ${G.sahmWatchAt}%p 이상)`, (s) => has(s.sahm) ? s.sahm >= G.sahmWatchAt : null], [`일자리 3개월 평균 ${G.payrollStallK / 10}만 명 미만`, (s) => has(s.payroll3) ? s.payroll3 < G.payrollStallK : null], [`실업수당 청구 4주 평균이 1년 저점보다 ${G.claimsRiseAbovePct}% 이상 높음`, (s) => has(s.claimsUp) ? s.claimsUp >= G.claimsRiseAbovePct : null], ['신용 부담 (하이일드 스프레드 확대)', (s) => s.credit === 'unknown' ? null : s.credit === 'burden']],
     chain: ['고용 급랭', '소비 둔화', '기업 이익 추정치 하향', '금리는 내려도 주가는 이익을 따라 하락', '신용 스프레드 확대'],
     firmer: ['defensive', 'yield'], weaker: ['cyclical', 'financials', 'consumer', 'liquidity', 'energy'],
-    triggers: [['us-nfp', '일자리 5만 명 미만 + 실업률 0.2%p 이상 상승', (a) => a.payroll < 50 && (a.unempDelta ?? 0) >= 0.2], ['us-retail', '소매판매 두 달 연속 감소', (a) => a.mom < 0 && a.prevMom < 0], ['us-fed-rate', '경기 우려를 이유로 한 인하 (주식에 좋은 신호가 아닐 수 있음)', (a) => a.upperDelta < 0]],
+    triggers: [['us-nfp', '일자리 5만 명 미만 + 실업률 0.2%p 이상 상승', (a) => (has(a.unempDelta) ? a.payroll < 50 && a.unempDelta >= 0.2 - 1e-9 : null)], ['us-retail', '소매판매 두 달 연속 감소', (a) => a.mom < 0 && a.prevMom < 0], ['us-fed-rate', '경기 우려를 이유로 한 인하 (주식에 좋은 신호가 아닐 수 있음)', (a) => a.upperDelta < 0]],
     pricing: leanPricing('cut', ', 경기 악화 때문일 수 있음'),
     choices: { wait: '신용 스프레드 확대가 멈출 때까지 기다리는 비용이 작은 시나리오입니다. 현금성 자산의 이자도 그 사이를 메워 줍니다.', stage: '"금리 하락 = 호재"라는 등식이 깨지는 시나리오입니다. 분할 접근은 신용 스프레드가 안정되는 것을 확인한 뒤가 맞습니다.', hold: '보유는 이익이 꺾이기 쉬운 경기민감·소형주 비중부터 점검합니다.', defend: '방어 업종과 장기 국채가 상대적으로 버티는 시나리오입니다.' },
     favored: ['defend', 'wait'], favoredWhy: '이 시나리오에서는 이익 하향이 금리 하락의 효과를 압도하는 경향이 있어, 확인 후 접근과 방어 쪽이 손실을 줄입니다.',

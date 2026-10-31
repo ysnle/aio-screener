@@ -1,3 +1,4 @@
+import { isoDay } from '../shared/session-date.js';
 // P1170 (15 D04): 관측 시각의 의미 계약.
 //
 // 공급자의 일봉 timestamp는 그 세션 **바의 시작**이며, 종가로 계산한 팩터의 관측시각이 아니다.
@@ -42,7 +43,7 @@ export function timeZoneForMarket(market) {
 
 // 세션 날짜 = 주어진 시각이 속한, 해당 시장의 달력상 날짜. 시각이 없으면 null.
 export function isValidMarketDate(value) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(value || ''))) return false;
+  if (!isoDay(value)) return false;
   const ms = Date.parse(`${value}T12:00:00Z`);
   return Number.isFinite(ms) && new Date(ms).toISOString().slice(0, 10) === value;
 }

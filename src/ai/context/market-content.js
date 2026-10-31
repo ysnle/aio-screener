@@ -14,6 +14,7 @@ import { renderMacroCrossroadsContext } from '../../domain/market/macro-crossroa
 import { renderThemePlaybookContext } from '../../domain/scenarios/theme-playbook.js';
 import { conditionLabel, parseConditionValue } from '../../domain/screener/custom-conditions.js';
 import { signedText } from '../../domain/shared/number.js';
+import { isIsoDay } from '../../domain/shared/session-date.js';
 
 // P1621: share page-independent selection between both legacy chat callers.
 export function buildQuestionDomainContext({ ctxId, query = '', root = {}, readDomain = () => '', tickers = [], blocks = null } = {}) {
@@ -118,7 +119,7 @@ export function buildMarketContentContext({ query = '', history = [], themes = [
     const exact = model.groups.filter((group) => query.includes(group.name) || (group.themeName && query.includes(group.themeName)));
     const groups = exact.length ? exact : model.groups.slice(0, 15);
     // P1681 (X03): the AI reads the same stale admission the theme table prints.
-    const usDates = rows.filter((row) => !/\.(KS|KQ)$/i.test(String(row?.sym || ''))).map((row) => String(row?.factorSessionDate || '')).filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date)).sort();
+    const usDates = rows.filter((row) => !/\.(KS|KQ)$/i.test(String(row?.sym || ''))).map((row) => String(row?.factorSessionDate || '')).filter((date) => isIsoDay(date)).sort();
     const expected = latestCompletedUsSession(Date.now(), { requirePrevious: false })?.date || null;
     const staleNote = usDates.length && expected && usDates[usDates.length - 1] < expected ? ` 미국 종가 기준일 ${usDates[usDates.length - 1]}은 최신 완료 거래일 ${expected} 이전이다 — 이 순위를 지금의 주도·개선으로 단정하지 말고 기준일 참고 값으로만 설명한다.` : '';
     if (groups.length) parts.push(`AIO 하위 테마 · 1/3/6개월 수익률 중앙값. 아래는 자료가 있는 테마이며 전체 시장이 아니다.${staleNote}\n` + groups.slice(0, 30).map((group) => {

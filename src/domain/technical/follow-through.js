@@ -134,9 +134,12 @@ export function climaxSigns(closes, volumes) {
  * On the index's down closes in the last `resilienceWindow` sessions (dates matched exactly): the share of those days
  * the stock closed better than the index, and the mean excess return in %p. null when the index series is missing or
  * fewer than resilienceMinDays down days are matched.
+ * v59.45 P8-DATA-12: `gapDates` are completed sessions with no close. A stock return that spans one of them covers two
+ * sessions, so it is not compared with the index's one-session return on that day — the day leaves the sample.
  */
-export function downDayResilience(dates, closes, indexByDate, window = F.resilienceWindow) {
+export function downDayResilience(dates, closes, indexByDate, window = F.resilienceWindow, gapDates = []) {
   if (!(indexByDate instanceof Map) || !Array.isArray(dates) || !Array.isArray(closes)) return null;
+  const gaps = (Array.isArray(gapDates) ? gapDates : []).map(String);
   const n = Math.min(dates.length, closes.length);
   let days = 0;
   let held = 0;
@@ -144,6 +147,7 @@ export function downDayResilience(dates, closes, indexByDate, window = F.resilie
   for (let i = Math.max(1, n - window); i < n; i += 1) {
     const indexReturn = indexByDate.get(dates[i]);
     if (!(typeof indexReturn === 'number' && Number.isFinite(indexReturn)) || !(indexReturn < 0) || !ok(closes[i]) || !ok(closes[i - 1])) continue;
+    if (gaps.some((date) => date > dates[i - 1] && date < dates[i])) continue;
     const stockReturn = (closes[i] / closes[i - 1] - 1) * 100;
     days += 1;
     if (stockReturn > indexReturn) held += 1;
@@ -165,10 +169,10 @@ export function indexReturnsByDate(series) {
 }
 
 /** All follow-through fields for one symbol's completed-session history; benchmark returns by date are optional. */
-export function followThroughFields({ dates, closes, volumes }, indexByDate = null) {
+export function followThroughFields({ dates, closes, volumes, gapDates = [] }, indexByDate = null) {
   const pocket = pocketPivotAgo(closes, volumes);
   const base = baseCount(closes);
-  const resilience = indexByDate ? downDayResilience(dates, closes, indexByDate) : null;
+  const resilience = indexByDate ? downDayResilience(dates, closes, indexByDate, F.resilienceWindow, gapDates) : null;
   return {
     pocketPivotAgo: pocket.ago,
     pocketPivots10: pocket.count,

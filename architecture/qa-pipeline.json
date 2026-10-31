@@ -423,6 +423,11 @@
           "remedy": "style through a class in src/ui/styles (tokens: index.html :root, layout-primitives.css); after a shrink run --write"
         },
         {
+          "id": "shared-primitive-ratchet",
+          "script": "scripts/ci-shared-primitive-ratchet-check.mjs",
+          "remedy": "import finiteNumber/readNumber/isFiniteNumber from src/domain/shared/number.js and isoDay/stampDay/latestSessionRows from src/domain/shared/session-date.js instead of a local copy; after a shrink run --write"
+        },
+        {
           "id": "research-reference-index",
           "script": "scripts/build-research-reference-index.mjs",
           "remedy": "node scripts/build-research-reference-index.mjs",
@@ -444,6 +449,12 @@
           "script": "scripts/ci-expect-output-check.mjs",
           "remedy": "node scripts/ci-expect-output-check.mjs --update, then review the .expect.md diff",
           "inputs": ["src/domain/**", "scripts/fixtures/expect/**", "scripts/ci-expect-output-check.mjs"]
+        },
+        {
+          "id": "pipeline-semantics",
+          "script": "scripts/ci-pipeline-semantics-check.mjs",
+          "remedy": "node scripts/ci-pipeline-semantics-check.mjs --only <area>; each case names the review finding it guards",
+          "inputs": ["src/**", "js/**", "scripts/*.mjs", "scripts/lib/**", "scripts/producer/**", "scripts/fixtures/pipeline-semantics/**", ".github/workflows/**"]
         },
         {
           "id": "page-decision-reference",
@@ -2672,6 +2683,7 @@
         "scripts/build-13f-issuer-aggregates.mjs",
         "scripts/lib/principles-stories*.mjs",
         "scripts/lib/principles-worked*.mjs",
+        "scripts/lib/knowledge-authoring-contract.mjs",
         "src/app/knowledge-learning-state.js",
         "src/app/knowledge-route-state.js",
         "src/app/lifecycle.js",
@@ -2680,6 +2692,7 @@
         "src/data/knowledge/load-capabilities.js",
         "src/data/shared-artifacts.js",
         "src/domain/content/korean-particle.js",
+        "src/domain/shared/*.js",
         "src/domain/research/*.js",
         "src/platform/http.js",
         "src/platform/storage.js",

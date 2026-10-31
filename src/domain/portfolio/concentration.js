@@ -11,13 +11,9 @@
 // v2 closes a legacy extraction defect: the inferred portfolio total and each holding weight use
 // one position-value formula. The old split formula could produce weights above 100% for valid
 // `{shares,currentPrice}` holdings.
+import { readNumber as finite } from '../shared/number.js';
 export const PORTFOLIO_CONCENTRATION_MODEL_VERSION = 'portfolio-concentration.v2';
 
-function finite(value) {
-  if (value == null || value === '') return null;
-  const n = Number(value);
-  return Number.isFinite(n) ? n : null;
-}
 
 // P1252 (CON-03): 숫자 필드 해석 — 누락(missing)과 음수/비수 입력(invalid)을 구분한다.
 // 종전에는 음수를 0으로 눌러 실제 0 비중과 구분할 수 없었다.

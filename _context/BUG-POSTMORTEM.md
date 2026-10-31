@@ -1,10 +1,145 @@
 ---
-last_verified: 2026-10-30
+last_verified: 2026-10-31
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
 
+
+## P2155 - v59.46 - 현금 조건이 빈 설비투자를 설비투자 0%로 읽음 (2026-10-31)
+
+- symptom/reproduction: cash-metrics의 지역 숫자 읽기가 ''와 false를 0으로 읽어, 설비투자 칸이 빈 해는 설비투자 0%·영업현금흐름 전체를 잉여현금흐름으로 계산할 수 있었다(잠재, 구조 시범 중 발견).
+- root_cause: 숫자 읽기 함수가 70개 파일에 각자 정의돼 있었고, 일부는 Number('')=0을 막지 않았다(v57.60 공용화 이후 다시 퍼짐).
+- fix: 공용 readNumber(빈 값·공백·불리언·배열·객체는 없음)를 쓰고 기간 끝 날짜는 공용 isoDay로 읽는다.
+- violated_rule: R3: 빠진 값은 0이 아니다(P2141 클래스).
+- prevention: pipeline-semantics fundamentals 케이스 PILOT-NUM-01; shared-primitive-ratchet이 지역 사본 수를 줄어들기만 하게 고정.
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs PASS(180); node scripts/ci-shared-primitive-ratchet-check.mjs PASS.
+
+## P2154 - v59.46 - 점수 상대화 실험이 현행 모델과 통제 비교가 아니었음 (2026-10-31)
+
+- symptom/reproduction: relative-v1(2026-07)이 당시 모델의 추세 밴드와 위험선호·시장 폭 중립 상수를 고정해, 현행 v5 기준선과의 차이가 분위 변환 효과인지 모델 차이인지 분리할 수 없었다(Codex P9-BT-01).
+- root_cause: 실험 경로가 기준선이 호출하는 trading-score.js를 거치지 않고 별도 점수식을 복제했다.
+- fix: relative-v2는 각 입력의 과거 분위를 현행 절대 밴드 안의 대표 수준으로 바꿔 기준선과 같은 reconstructScore를 호출한다. 다른 것은 기준선 단위뿐이다. 10년 재실행 결과 21일 rho −0.104, 63일 −0.144, 보류 구간 음수로 통과 기준에 못 미쳐 점수는 환경 설명용으로 유지된다. 이전 결과는 previousExperiment로 남겼다.
+- violated_rule: R3: 비교 실험은 비교 변인 외의 경로를 공유한다.
+- prevention: pipeline-semantics research-scripts 케이스 P9-BT-01: 같은 밴드 수준이면 상대·기준 점수가 같다.
+- verification/residual: node scripts/backtest-trading-score-longrun.mjs (2016-10-31..2026-10-30, 2,514거래일); node scripts/ci-pipeline-semantics-check.mjs --only research-scripts PASS.
+
+## P2153 - v59.46 - 옵션 질문이 아무 도구도 제공하지 않는 'options' 근거를 요구함 (2026-10-31)
+
+- symptom/reproduction: 옵션 화면이 퇴역(P1321)했는데 질문 계획기가 OPTIONS_ANALYSIS에 'options' 근거를 요구해, 그 근거에 매핑된 도구가 없어 옵션 질문이 시장 변동성 자료 없이 시세만으로 답했다(Codex P11 계열).
+- root_cause: 기능 퇴역 때 분류기의 근거 표만 갱신되지 않았다.
+- fix: OPTIONS_ANALYSIS는 시장 스냅샷(VIX·풋콜 비율, 투자 심리)과 종목 시세를 근거로 쓴다. 종목별 옵션 체인·IV·GEX는 매일 정확한 무료 출처가 없어 수집하지 않는다는 결정을 주석에 남겼다.
+- violated_rule: R3: 퇴역한 기능을 가리키는 소비자 경로를 남기지 않는다.
+- prevention: pipeline-semantics ai 케이스 P11-OPTIONS-INTENT.
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs --only ai PASS; node scripts/ci-ai-intelligence-contract-check.mjs PASS.
+
+## P2152 - v59.46 - 미국 스크리너가 이번 실행에서 받지 못한 종목의 직전 행을 지움 (2026-10-31)
+
+- symptom/reproduction: US 수집률이 80% 이상이면 검증을 통과하므로, 받지 못한 US 종목(최대 20%)은 직전 발행 행이 있어도 screener.json에서 빠져 종목·포트폴리오·AI가 그날 그 종목 자료를 잃었다(Claude R3-05).
+- root_cause: 직전 행 유지(retainMarketRows)가 시장 전체가 80% 아래일 때 KR에만 적용됐고, 행 단위 이월이 없었다.
+- fix: retainUnfetchedRows가 받지 못한 US 종목의 직전 행을 7일 이내일 때만 자기 종가 기준일과 retainedFrom을 달고 이월한다. 순위는 원래 최신 확정 종가 행만 점수화하므로 이월 행은 순위에 섞이지 않는다. 검증기는 이월 행을 빼고 수집률 80%를 본다. 종목 설명에 '이번 갱신에서 받지 못해 직전 자료를 이어 표시'가 붙는다.
+- violated_rule: R3: 실패한 수집은 마지막 정상 자료를 지우지 않는다(P2143 클래스).
+- prevention: pipeline-semantics producers 케이스 R3-05(7일 이내만 이월, KR 제외, 인코딩 왕복 시 retainedFrom 보존); validate-screener-artifact의 이월 제외 수집률·미등록 이월 행 검사.
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs --only producers PASS; node scripts/validate-screener-artifact.mjs PASS(현재 자료).
+
+## P2151 - v59.46 - 차트 매매 방식 렌즈가 이 종목 가격을 손절·목표 칸에 넣고 '일부 정리'를 지시함 (2026-10-31)
+
+- symptom/reproduction: 매매 방식별로 보기의 '손절 기준'·'목표 기준' 칸에 이 종목의 피벗·21일 EMA·50/200일선·20거래일 고저 가격이 들어가고, 돌파·장기 추세 방식은 '일부 정리'로 끝나 앱이 이 종목의 매도 가격·시점을 제안하는 것처럼 읽혔다(Codex P24-PRODUCT-01).
+- root_cause: 방식의 규칙(교육)과 이 종목의 현재 가격(관측)을 같은 문장에 결합했다. 가격은 이미 '가격 레벨과 내 계획'에 있는데 렌즈가 한 번 더 손절·목표 칸으로 옮겼다.
+- fix: 손절·목표·무효 칸은 방식의 규칙만 말하고 가격을 넣지 않는다. 칸 이름은 '이 방식의 손절 규칙'·'이 방식의 이익 확정 규칙'이고, '일부 정리'는 '이 방식은 ~에서 이익 일부를 확정하는 규칙'으로 바꿨다. 조건 목록의 관측값(피벗·RSI)은 남긴다.
+- violated_rule: R724: 앱은 종목·가격·비중·시점을 고르지 않고, 고르는 법을 가르친다.
+- prevention: pipeline-semantics screener 케이스 P24-PRODUCT-01: 네 방식의 규칙 칸에 소수 둘째 자리 가격과 '일부 정리'가 없다.
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs --only screener PASS; node scripts/ci-esm-core-unit-check.mjs PASS.
+
+## P2150 - v59.45 - 게이트가 다음 정상 13F 갱신을 막고, 지식 helper 변경에서 선택되지 않으며, 바뀐 동작에 맞춘 고정 단언이 남음 (2026-10-31)
+
+- symptom/reproduction: ci-masters-contract-check가 13F 분기 '2026-06-30'과 Berkshire accession을 고정해 2026-09-30 분기 13F가 처음 발견되는 순간 실패하고 Masters 파일이 복원될 상황(P4-QA-03), scripts/lib/knowledge-authoring-contract.mjs만 바꾸면 knowledge 그룹이 선택되지 않음(QA-01 잔여).
+- root_cause: 검증 시점의 휘발 값(분기·accession)을 계약 대신 고정했고, 영향 규칙 patterns에 knowledge-authoring-contract helper가 빠져 있었다.
+- fix: 13F는 분기 말 형식, 검토한 분기 이상, filedAt>period, accession 형식으로 검사하고, qa-pipeline 영향 규칙에 helper를 추가했다.
+- violated_rule: R603: 생성물은 고빈도 데이터 refresh가 바꾸는 휘발값을 고정하지 않는다.
+- prevention: pipeline-semantics qa 케이스 QA-01(세 helper 모두 knowledge-generated-parity 선택). masters-contract는 형식·방향 검사로 다음 분기에도 통과.
+- verification/residual: node scripts/ci-masters-contract-check.mjs PASS; node scripts/ci-pipeline-semantics-check.mjs --only qa PASS.
+
+## P2149 - v59.45 - 병합·저장·가져오기에서 정보가 조용히 사라지거나 성공으로 보고됨 (2026-10-31)
+
+- symptom/reproduction: 같은 출처 id의 정정·철회가 병합에서 사라짐(P29-EVIDENCE-01), 재정규화하면 추정 흔적이 사라짐(P29-GRAPH-01), 다른 탭 학습 메모가 덮어써짐(P29-LEARNING-01), 관심목록 저장 실패에도 '가져오기 완료'(P27-RESTORE-01), 같은 날 입금 두 건 중 하나만 남음(P27-LEDGER-01), 장중 정정 기사가 중복으로 버려짐(P20-REVISION-01), 같은 날 다른 목표가 글이 하나로 합쳐짐(R3-03), 텔레그램 채널 표시가 정규화에서 false가 됨(R2-02), 노출 관계가 '대체·경쟁'으로 번역(P29-RELATION-01).
+- root_cause: 병합 키가 의미 차이(정정 여부·가격·채널)를 담지 않았고, 쓰기 직전 저장소를 다시 읽지 않았으며, 저장 함수의 false 반환을 버렸다.
+- fix: 필드별 충돌 기록과 선언값 비교, 추정 필드 합집합, 변경 직전 저장소 재읽기, 항목별 저장 결과와 실패 항목 이름 표시, 같은 날 입금 누적, 정정본 판별(revisionType) 우회, broker가 없으면 가격을 키에 포함, 채널 slug 보존.
+- violated_rule: R576: 앱·지식·금융 계산의 경계는 종료·관계 의미·결측·비용 의미를 보존한다.
+- prevention: pipeline-semantics knowledge-state(P29-*), portfolio(P27-*), briefing(P20-REVISION-01, R3-03), data-runtime(R2-02) 케이스.
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs PASS; storage-migration·data-continuity 통과. 실제 사용자 저장소는 건드리지 않음.
+
+## P2148 - v59.45 - AI 공개 경계가 무관한 근거와 인용 뒤 지시를 통과시키고 출처 결속을 일부로 전체를 판정함 (2026-10-31)
+
+- symptom/reproduction: '연준이 금리를 인하했다'가 AAPL 가격 근거로 '확인된 수치'에 표시(P11-AI-01), 인용 뒤 'NVDA를 매수하세요'가 남음(P11-AI-02), Nasdaq 기사가 기업 1차 출처로 세어짐(P12-RESEARCH-01), 결속 없는 Reuters가 2출처 최소치를 채움(P12-RESEARCH-02), MSFT 출처가 AAPL 질문에서 통과(P12-RESEARCH-03), 시총 미상이 소형주, RSI 30이 '30 미만'(P13-SCREEN-02·03).
+- root_cause: text claim은 출처·날짜만 대조됐고, 인용 정규식이 첫 match의 절 전체를 면제했으며, 출처 바닥 규칙이 계획의 primary 도메인 대신 전역 tier를 셌고, planner의 {entities:[]} 형태를 읽지 못해 entity 검사가 꺼져 있었다.
+- fix: 사건 결속 규칙을 claim에도 적용하고 해석 문장은 별도 제목으로, 인용 면제는 인용된 구간만, 출처 바닥은 계획 primary 도메인과 URL 단위 PARTIAL로, 비교 질문은 종목 집합으로 본다. 채팅 스크리너는 시총 결측을 판정 불가로 집계하고 미만/이하를 구분한다.
+- violated_rule: R687: AI 문맥의 현재 수치는 화면과 같은 기준.
+- prevention: pipeline-semantics ai 케이스(P11-AI-01·02, P12-RESEARCH-01~03, P13-SCREEN-01~03).
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs PASS; ci-ai-intelligence·ai-evidence·ai-chat-reliability·native-search 통과.
+
+## P2147 - v59.45 - 통화·단위·금액 의미가 계산 중에 바뀜 (매출 예상 대비 -100% 공개 자료 포함) (2026-10-31)
+
+- symptom/reproduction: public-data/event-briefs.json 실적 요약 8건(DLR·ENTG·COHU·GEV·STX·V 등)이 매출 '예상 대비 -99.9%/-100%'(P21-AMOUNT-01, 첫 숫자만 읽음), 미국 목표주가 '1,105.20'이 1로 읽혀 업사이드 -99.9%(R2-04), 삼성전자 가격이 '$70000.00'(P13-SCREEN-01), 통화 미확인 해외 종목을 기준 통화로 합산(P23-CURRENCY-01), EUR 이익과 USD 가격으로 PER(P19-PIT-01), 오래된 정방향 환율이 최신 역방향을 가림(P22-FX-01), -USDJPY를 '엔화 가치'로 부름(P18-FX-01).
+- root_cause: parseFloat·첫 숫자 추출·고정 '$'가 단위와 통화를 버렸고, 환율 후보를 방향별로만 고르고 기준일을 비교하지 않았다.
+- fix: 금액은 문자열 전체를 하나의 금액(B/M·천 단위 구분 포함)으로 읽고 저장된 비교를 다시 계산한다. 원통화·관측 시각을 보존하고 formatScreenerPrice를 재사용하며, 통화가 섞이면 합계·비율을 보류한다. 환율은 기준일 이전 최신 값을 정·역방향 모두에서 고른다.
+- violated_rule: R584: 사용자 표면은 결측·선택·통화·렌더러 소유권을 producer 계약 그대로 보존한다.
+- prevention: pipeline-semantics briefing(P21-AMOUNT-01), data-runtime(R2-04), ai(P13-SCREEN-01), portfolio(P23-CURRENCY-01, P22-FX-01), fundamentals(P19-PIT-01), market(P18-FX-01) 케이스.
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs PASS. 공개 event-briefs의 -100% 8건은 push 뒤 다음 event-briefs 실행에서 재계산 확인 필요.
+
+## P2146 - v59.45 - 부분 문자열 매칭이 종목·주제·출처·질문 의도를 잘못 붙임 (2026-10-31)
+
+- symptom/reproduction: '유가증권시장'이 유가 테마, '실적 시즌이란'이 이란, 'sPIKe'가 사모신용, 'aBUNDant'가 국채, 'exciting'이 Citi 인용(R3-01), 'Samsung Electronics'가 삼성전기에도 매칭되고 소문자 'micron'·'amazon'이 종목으로(R3-02), 'dividend·drives·positive'가 옵션 질문(IV), '이란 사태'가 용어 질문(R4-01), 출처 'FT' 부분 문자열로 등급 상승(P20-TIER-01), BRK.B가 BRK와 BRK-B로 나뉨(P11-ENTITY-01, P20-ISSUER-01), know→now·corporate→rate·second→SEC 분류 오탐.
+- root_cause: 정규식에 단어 경계가 없고, 대소문자 무시 회사명과 접두 회사명을 구분하지 않았으며, 클래스 티커의 점을 경계로 보았다. P2131이 question-cues에서 고친 같은 클래스가 taxonomy·decision·market-session·narrative-context·telegram-tickers에 남아 있었다.
+- fix: 영문 약어·짧은 단서는 단어 경계로, 회사명은 접두 배제(Samsung Electro(?!nics))와 일반 단어 회사명의 대문자 표기만 인정, '이란'은 정의형 문맥에서만 용어 질문, 출처 등급은 정확한 출처 이름으로, 클래스 티커는 한 기호로 다룬다.
+- violated_rule: R730: 뉴스 키워드 목록은 하나의 규칙(keyword-match.js)으로만 비교한다.
+- prevention: pipeline-semantics briefing(R3-01, R3-02, P20-TIER-01, P20-ISSUER-01), ai(R4-01, P11-ENTITY-01) 케이스.
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs PASS.
+
+## P2145 - v59.45 - 캐시·식별 키가 내용 변경과 검증 실패를 보지 못함 (2026-10-31)
+
+- symptom/reproduction: 같은 행 수·같은 날짜로 구성만 바뀐 유니버스에서 이전 in-universe 판정이 남음(P3-RUNTIME-02, P25-CACHE-01), 기사 점수 캐시가 시간 경과·내용 변경을 반영하지 않음(P20-CACHE-01), 검증 실패한 지식 artifact가 15분간 재사용(P30-LOAD-01)되고 Atlas 기초 글도 실패 사본을 다시 읽음, 같은 날 기업 설명 정정이 반영 안 됨(P25-STORY-02), previousRegime 캐시 키에 기간이 없음, 1MiB 넘는 staged blob의 candidate 해시가 ENOBUFS로 null(P3-QA-02 — js/aio-core.js가 한도보다 169바이트 작아 잠복).
+- root_cause: 키를 행 수·최신 날짜·researchedAt처럼 내용의 일부로 만들고, 검증 실패를 캐시 무효화와 연결하지 않았으며, spawnSync 기본 1MiB 버퍼를 그대로 썼다.
+- fix: on-demand는 종목·세션·순위 입력 지문을 키로 쓰고 읽기 시작 시점 키로 비교, 뉴스 점수 키에 desc·tier·country를 넣고 신선도는 매번 계산, 검증 실패 파일은 1분 쿨다운 뒤 그 파일만 force 재요청, 기업 설명은 기간·파일·contentHash로 대조, qa-runner stagedDigest는 blob 크기로 버퍼를 잡고 읽기 실패를 불일치와 따로 보고한다.
+- violated_rule: R571: 요청·캐시·수집 시도·실제 관측의 수명주기를 분리한다.
+- prevention: pipeline-semantics fundamentals(P3-RUNTIME-02, P25-CACHE-01, P25-STORY-02), briefing(P20-CACHE-01), knowledge-state(P30-LOAD-01), qa(P3-QA-02, 1MiB 초과 실제 blob) 케이스.
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs PASS.
+
+## P2144 - v59.45 - 동률·반올림 0·확인 불가를 1위·방향·'조건 맞지 않음'으로 서술함 (2026-10-31)
+
+- symptom/reproduction: 동종 기업 모두 같은 값인데 '1위·강점'(P19-PEER-01), 지수와 같은 수익률을 '모든 기간 뒤짐'(P25-READ-01), 0점 동률인데 '가장 많이 맞는 방식은 돌파(0/5)', 판정 가능 조건 0/4를 '조건이 맞지 않음'(R4-02), 0.0% 종목을 상승으로 세고 보합 구간이 비대칭(R1-02), +0.00% 섹터를 '올랐다'로 셈(R1-05), 미확인 등락이 정렬 순서를 정함(P26-NAMES-02).
+- root_cause: 순위를 indexOf로 매기고 비교를 부호(>0)만으로 했으며, 표시 자릿수와 방향 판정을 따로 계산했고, 확인 불가 조건을 분모에 넣었다.
+- fix: 공동 순위·중간 순위와 '비슷' 밴드를 쓰고, 방향은 directionOf(value, digits)로 표시 자릿수와 같게 판정한다. 확인 불가 조건은 분모에서 빼고 'known 0'이면 '확인 불가', 단독 1위가 없으면 '가장 많이 맞는 방식' 문장을 생략한다.
+- violated_rule: R586: 결측 팩터는 중립값이 아니며 순위 분모를 희석하지 않는다.
+- prevention: pipeline-semantics fundamentals(P19-PEER-01, P25-READ-01), screener(R4-02, R1-02), market(R1-05), briefing(P26-NAMES-02) 케이스.
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs PASS.
+
+## P2143 - v59.45 - 실패하거나 일부만 된 수집이 성공·전체로 기록되거나 이전 정상 자료를 지움 (2026-10-31)
+
+- symptom/reproduction: 시세 갱신이 전부 실패해도 '시세 확인됨'·커버리지 100%(R2-01), 10개 시도 중 3개만 갱신돼도 '새 수집 성공'(R3-06), jobs API 503이나 배포 없는 Worker 성공 두 번이 장애 이슈를 Recovered로 닫음(P15-OPS-01), 수동 성공이 복구 통계에만 섞임(P15-SLO-01), 빈 KOSDAQ 응답 한 번에 1,762종목 비중이 사라지고 1페이지만 읽어도 비중 과대 발행(R3-04), DART 900/100/014가 '미공시'로 이전 재무 삭제(P3-DATA-08), 감사 0개가 loaded(P28-AUDIT-01).
+- root_cause: 결과 계약이 '예외가 없었다'만 보고 실제로 무엇이 갱신됐는지(fulfilled 수, updated≥attempted, 배포 단계 통과, totalCount 충족)를 묻지 않았고, 실패 시 마지막 성공 자료를 보존하는 경로가 일부 생산자에만 있었다.
+- fix: fetchLiveQuotes가 성공·실패 결과를 돌려주고 스케줄러는 allSettled 전부 실패를 failed, 일부를 실제 비율로, null을 missing으로 기록한다. receipt는 updated≥attempted일 때만 SUCCESS, 운영 알림은 관측 실패를 복구로 치지 않고 Worker는 smoke 단계 통과를 요구한다. KR 지수 비중은 totalCount×0.98 미만이면 그 시장을 실패로 두고 이전 시장을 retained로 유지, DART는 상태별로 이전 행을 보존한다.
+- violated_rule: R545: 관측 생략·실패·유효기간 내 LKG를 서로 다른 운영 상태로 보존한다.
+- prevention: pipeline-semantics data-runtime(R2-01), operations(P15-OPS-01·P15-SLO-01·R3-06), market(R3-04), fundamentals(P3-DATA-08), knowledge-state(P28-AUDIT-01) 케이스.
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs PASS. operations-alert.yml 변경은 Actions 실행 미검증.
+
+## P2142 - v59.45 - 미래·진행 중·다른 세션의 관측이 '현재'로 쓰이고 서로 다른 기간 값을 같은 기간으로 비교함 (2026-10-31)
+
+- symptom/reproduction: 미래 시각 선물 시세가 '0분 전', 2099년 generatedAt이 '0분 전 공유 가능', observedAt +6h인 VIX 99가 정상 17을 막음, 10/26 코스닥으로 10/28 설명, 1월 공식 스프레드가 10월 곡선을 뒤집음, 이월 구멍 때문에 '5일 변화'가 6거래일(달러지수 +0.3% 표시, 맞는 값 +0.4%), 9/1 XLK 수익률로 섹터 분해 +45%p, asOf 이후 월이 백테스트에 포함, 장기 국면 라벨이 리밸런싱 다음 세션을 읽음, 겨울철 장 전 실적이 미리보기에서 빠짐(Codex PASS3·7·16·17·18·20·21·23·26·28, Claude R1-01·R1-04·R2-03·R2-06).
+- root_cause: 나이를 Math.max(0, …)로 잘라 미래를 0분으로 만들고, 최신성 비교가 '더 큰 시각'만 이기게 했으며, 창을 거래일이 아니라 점 개수로 세고, 비교 입력의 기준일·세션·DST를 결속하지 않았다.
+- fix: 허용 오차(5분, 지식 검토일 1일)를 넘는 미래 시각은 '관측 시각 확인 안 됨'으로 비교에서 뺀다. 창은 sessionPointBack·market-calendar 세션으로 세고, 섹터·환율·종목 기간을 같은 기준일로 맞춘 뒤 다르면 분해를 보류한다. 장기 백테스트는 backtest가 채택한 리밸런싱 날짜에 정확히 맞추고 시장 시리즈에 없는 날은 뺀다.
+- violated_rule: R683: 기간·기준일 라벨은 계산에서 파생한다.
+- prevention: pipeline-semantics market·briefing·portfolio·knowledge-state·data-runtime·research-scripts 케이스(P16-TIME-01~03, R1-01, P3-PF-01, P23-CUT-01, P7-BT-01, R2-03, P26-EVENT-01 등).
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs PASS. 화면 문구 변화는 브라우저 미확인.
+
+## P2141 - v59.45 - 빠진 값이 0·보합·충족으로 읽혀 화면과 판정에 들어감 (파이프라인 의미 검토 결측 클래스) (2026-10-31)
+
+- symptom/reproduction: 비어 있는 EPS가 'EPS 0.00 수신', ret1d null이 '움직임 0', null 검증 수익률이 0% 선, 종료 종가 없는 신호가 -100%, VIX 결측이 VIX 5, null 실업률이 '보합'으로 시나리오 충족, null TGA로 순유동성 계산, dgs20=null이 0% 공식 금리, 원가 'nonsense'가 0원, 빈 분기 순이익이 0으로 TTM 이익수익률 계산, 시총 미상이 소형주 조건 충족(Codex PASS4·7·9·17·18·19·22·24·26·27·28, Claude R2-07).
+- root_cause: 경계마다 Number(null)===0, `|| 0`, `?? 0`, isFinite(null)===true, CLAMP 하한, Number('')===0 같은 암묵 변환이 결측을 값으로 바꿨고, 판정 함수가 '값 있음'만 보고 '관측됨'을 따로 묻지 않았다.
+- fix: 각 도메인 입구에서 결측을 null/NaN으로 남기는 공용 helper(reportedNumber·finiteOrNull·calendarDate 등)를 쓰고, 판정·문장은 관측된 수와 분모를 따로 세거나 보류한다. 생산자(candidate-archive signedYields)는 빈 칸을 결측으로, 연속 4분기만 TTM으로 계산한다.
+- violated_rule: R628: 결측은 조건도 구간도 관측값도 만족시키지 않는다 — 경계에서 Number(null)===0을 먼저 막는다.
+- prevention: scripts/ci-pipeline-semantics-check.mjs의 영역별 케이스(briefing·market·portfolio·screener·fundamentals·knowledge-state·producers)가 결측 입력에서 0·보합·충족이 나오지 않음을 실제 함수로 확인한다.
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs PASS(전 영역). Codex 재현 스크립트의 결측 단언은 이제 실패한다.
 
 ## P2140 - v59.44 - 예전 출처의 '왜 움직였나' 문장이 남아 회사 IR·유료 매체 근거와 이유 없는 문장이 보임 (2026-10-30)
 

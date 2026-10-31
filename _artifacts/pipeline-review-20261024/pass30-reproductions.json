@@ -1,0 +1,94 @@
+{
+  "failed": {
+    "test": {
+      "status": "fallback",
+      "value": null,
+      "error": "artifact validation failed: fixture.json"
+    }
+  },
+  "retry": {
+    "test": {
+      "status": "fallback",
+      "value": null,
+      "error": "artifact validation failed: fixture.json"
+    }
+  },
+  "recovered": {
+    "test": {
+      "status": "connected",
+      "value": {
+        "valid": true
+      },
+      "error": null
+    }
+  },
+  "calls": 2,
+  "refresh": false,
+  "batches": 1,
+  "mutated": {
+    "value": 99
+  },
+  "restored": [
+    {
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "savedAt": "2026-10-30T00:00:00Z",
+      "publishedAt": null,
+      "sourceRevision": null,
+      "content": {
+        "kind": "stock",
+        "symbol": "TEST",
+        "name": null,
+        "note": null,
+        "quote": {
+          "value": 999,
+          "currency": null,
+          "observedAt": null,
+          "source": null,
+          "basis": null,
+          "revision": null
+        }
+      }
+    }
+  ],
+  "first": {
+    "id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "savedAt": "2026-10-30T00:00:00Z",
+    "publishedAt": null,
+    "sourceRevision": "r1",
+    "content": {
+      "kind": "stock",
+      "symbol": "TEST",
+      "name": null,
+      "note": null,
+      "quote": {
+        "value": 1,
+        "currency": null,
+        "observedAt": null,
+        "source": null,
+        "basis": null,
+        "revision": null
+      }
+    }
+  },
+  "later": {
+    "id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "savedAt": "2026-10-30T00:00:00Z",
+    "publishedAt": null,
+    "sourceRevision": "r1",
+    "content": {
+      "kind": "stock",
+      "symbol": "TEST",
+      "name": null,
+      "note": null,
+      "quote": {
+        "value": 1,
+        "currency": null,
+        "observedAt": null,
+        "source": null,
+        "basis": null,
+        "revision": null
+      }
+    }
+  },
+  "credential": "https://publisher.example@other.example/path"
+}

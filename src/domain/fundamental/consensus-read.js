@@ -3,7 +3,7 @@
 // the growth and the PER beside it use the last four reported quarters on that same basis, never the SEC net income.
 // The price is the screener artifact's close (valuationPrice). Nothing here enters a score.
 
-import { signedText } from '../shared/number.js';
+import { signedText, readNumber as finite } from '../shared/number.js';
 
 export const CONSENSUS_MAX_AGE_DAYS = 21;
 export const CONSENSUS_THIN_ESTIMATES = 3;
@@ -11,13 +11,14 @@ export const CONSENSUS_THIN_ESTIMATES = 3;
 export const CONSENSUS_PRICE_MAX_AGE_DAYS = 10;
 /** Net 4-week revisions (up − down) needed before the tone leans either way. */
 export const CONSENSUS_NET_REVISION_FLOOR = 2;
+/** A one-month move this large either way is a price direction for the revisions comparison. */
+export const CONSENSUS_PRICE_MOVE_PCT = 5;
 // v57.70 (2026-10-15 audit): GOOGL read "직전 4개 분기 PER 17.8배 · 예상 이익 -35%" — the trailing sum (19.91) carried
 // what the forward consensus (12.94) leaves out, so a "same adjusted basis" comparison was not one. A forward sum 30%
 // or more below the trailing sum is not compared: both sums are shown, the trailing PER and the growth are not.
 export const CONSENSUS_BASIS_GAP = -30;
 const DAY_MS = 86400000;
 
-const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
 const signed = (value) => signedText(value, 0, '%');
 const usd = (value) => `${value < 0 ? '-' : ''}$${Math.abs(value).toFixed(2)}`;
 
@@ -40,7 +41,8 @@ export function consensusView(row, estimate, { now = Date.now() } = {}) {
   // consensus produced a "current" Forward PER. A dated close older than CONSENSUS_PRICE_MAX_AGE_DAYS is not used.
   const priceDate = String(row?.factorSessionDate || '').slice(0, 10) || null;
   const priceMs = priceDate ? Date.parse(`${priceDate}T00:00:00Z`) : NaN;
-  if (!priceDate || !Number.isFinite(priceMs) || now - priceMs > CONSENSUS_PRICE_MAX_AGE_DAYS * DAY_MS) return null; // v57.84: an undated close fails closed
+  // v59.45 (pipeline review P19-CONSENSUS-01): a close dated after now is not current either.
+  if (!priceDate || !Number.isFinite(priceMs) || now - priceMs > CONSENSUS_PRICE_MAX_AGE_DAYS * DAY_MS || priceMs > now) return null; // v57.84: an undated close fails closed
   return {
     price, priceDate, asOf: new Date(asOf).toISOString().slice(0, 10),
     fwdEps, trailingEps, fwdFrom: estimate.fwd.from, fwdTo: estimate.fwd.to,
@@ -51,6 +53,8 @@ export function consensusView(row, estimate, { now = Date.now() } = {}) {
       return { trailingPe: trailingEps > 0 && !basisGap ? price / trailingEps : null, growth: basisGap ? null : growth, basisGap };
     })(),
     minEstimates: finite(estimate.fwd.minEstimates), up4w: finite(estimate.fwd.up4w) || 0, down4w: finite(estimate.fwd.down4w) || 0,
+    // v59.45: both counts absent is "not collected", not "no change".
+    revisionsKnown: finite(estimate.fwd.up4w) != null || finite(estimate.fwd.down4w) != null,
     spread: finite(estimate.fwd.hi) != null && finite(estimate.fwd.lo) != null && fwdEps > 0 ? (estimate.fwd.hi - estimate.fwd.lo) / fwdEps * 100 : null
   };
 }
@@ -71,7 +75,7 @@ export function buildConsensusPoint(row, estimate, options = {}) {
   const basis = `종가 ${usd(view.price)}${view.priceDate ? `(${view.priceDate})` : ''} ÷ 아직 실적이 발표되지 않은 4개 분기(${range}) 예상 EPS 합 ${usd(view.fwdEps)}`
     + (view.growth != null ? `, 직전 4개 분기 실적 ${usd(view.trailingEps)}과 같은 조정 EPS 기준으로 비교했습니다`
       : view.basisGap ? `. 직전 4개 분기 실적 합 ${usd(view.trailingEps)}보다 30% 이상 낮아, 일회성 항목 포함 여부 등 같은 기준인지 확인되지 않으므로 성장률과 직전 PER은 표시하지 않습니다` : '');
-  const revisions = view.up4w || view.down4w ? `최근 4주 추정치 상향 ${view.up4w}, 하향 ${view.down4w}(향후 4개 분기 건수 합계)` /* v58.74: 32 up from 9 analysts read as impossible */ : '최근 4주 추정치 변경 없음';
+  const revisions = !view.revisionsKnown ? '최근 4주 추정치 변경 자료 없음' : view.up4w || view.down4w ? `최근 4주 추정치 상향 ${view.up4w}, 하향 ${view.down4w}(향후 4개 분기 건수 합계)` /* v58.74: 32 up from 9 analysts read as impossible */ : '최근 4주 추정치 변경 없음';
   const cautions = [];
   if (view.minEstimates != null && view.minEstimates < CONSENSUS_THIN_ESTIMATES) cautions.push(`추정 애널리스트가 ${view.minEstimates}명뿐이라 흔들리기 쉽습니다`);
   if (view.spread != null && view.spread >= 30) cautions.push(`최고·최저 추정 차이가 ${Math.round(view.spread)}%로 넓습니다`);
@@ -79,11 +83,15 @@ export function buildConsensusPoint(row, estimate, options = {}) {
   if (view.growth != null && view.growth >= 50) cautions.push('큰 이익 증가가 전제라, 경기에 따라 이익이 크게 오르내리는 업종이면 정점 근처에서 Forward PER이 가장 낮게 보입니다');
   // v58.74 (text audit 종목 C6): price against expectations — where the price sits against its 52-week high beside the net
   // revision direction, and a reported (GAAP) PER below the adjusted one, which points at one-off items.
+  // v59.45 (pipeline review P19-CONSENSUS-01): the distance from the 52-week high is a position, not a direction — a
+  // stock 20% under its high and up 20% this month read "반대 방향" beside upward revisions. The price direction is the
+  // last month's move (the revisions' four weeks); the high stays as context.
   const fromHigh = finite(row?.pctFrom52wHigh);
+  const month = finite(row?.ret1m);
   const netRev = view.up4w - view.down4w;
   const revDir = Math.abs(netRev) >= CONSENSUS_NET_REVISION_FLOOR ? (netRev > 0 ? 'up' : 'down') : null;
-  const priceDir = fromHigh == null ? null : fromHigh <= -10 ? 'down' : fromHigh >= -5 ? 'up' : null;
-  const versus = revDir && priceDir ? `주가는 52주 고점 대비 ${signed(fromHigh)}인데 최근 4주 추정치는 ${revDir === 'up' ? '상향' : '하향'}이 많습니다 — 가격과 이익 전망이 ${revDir === priceDir ? '같은' : '반대'} 방향입니다` : null;
+  const priceDir = month == null ? null : month >= CONSENSUS_PRICE_MOVE_PCT ? 'up' : month <= -CONSENSUS_PRICE_MOVE_PCT ? 'down' : null;
+  const versus = revDir && priceDir ? `주가는 최근 1개월 ${signed(month)}${fromHigh != null ? `(52주 고점 대비 ${signed(fromHigh)})` : ''}이고 최근 4주 추정치는 ${revDir === 'up' ? '상향' : '하향'}이 많습니다 — 가격과 이익 전망이 ${revDir === priceDir ? '같은' : '반대'} 방향입니다` : null;
   const reportedPe = finite(row?.pe);
   const gaapGap = reportedPe != null && view.trailingPe != null && reportedPe > 0 && reportedPe < view.trailingPe * 0.9
     ? `공시 기준 PER(${peMultipleText(reportedPe)})이 조정 기준보다 낮아, 공시 이익에 일회성 이익이 섞였는지 10-Q에서 확인합니다` : null;

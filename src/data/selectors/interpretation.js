@@ -45,7 +45,7 @@ export function indexEarningsInputForRoot(root, store = null) {
 /** Every input the pipeline reads, from the runtime artifacts already loaded on `root`. */
 export function collectInterpretationInputs(root, { store = null, nowMs = Date.now() } = {}) {
   return {
-    market: collectMarketInputs(root),
+    market: collectMarketInputs(root, { now: nowMs }),
     macro: root?._aioServerMacro || null,
     calendar: { releases: root?.AIO_MACRO_CALENDAR?.releases || {}, schedules: root?.AIO_MACRO_OFFICIAL_SCHEDULES || {} },
     outcomes: root?.[SCENARIO_OUTCOMES.key] || null,

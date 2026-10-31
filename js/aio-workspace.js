@@ -1404,21 +1404,30 @@ function exportPortfolio() {
   try { localStorage.setItem('aio_last_backup_at', bundle.exportedAt); window._pfPortfolioBackup.renderReminder(1); } catch(e) {}
   showToast('전체 백업 저장 (' + api.describe(bundle.counts) + ') — 암호화되지 않은 파일이니 안전한 곳에 보관하세요.');
 }
-function _pfRestoreBackupSections(c) { var keys = (_pfAssumptionApi() || {}).keys || {};
-  try { Object.keys(keys).forEach(function(n) { if (c.assumptions[n] != null) localStorage.setItem(keys[n], c.assumptions[n]); else localStorage.removeItem(keys[n]); }); if (c.cashBalances != null && window._pfPortfolioCash) { if (!window._pfPortfolioCash.write(c.cashBalances).ok) throw new Error('cash-write-failed'); } else { localStorage.removeItem('aio_portfolio_cash_balances'); localStorage.removeItem('aio_portfolio_cash'); } localStorage.setItem(PF_JOURNAL_KEY, JSON.stringify(c.journal)); saveWatchlists(c.watchlists); setActiveWatchlistId(c.activeWatchlistId || ''); } catch(e) { return Promise.resolve([{ ok: false, reason: 'local-restore-failed' }]); }
-  return Promise.all([savePortfolioLedger(c.ledger), savePortfolioFxLegs(c.fxLegs)].concat(c.trades ? [_pfDeclarationWrite(PF_TRADES_KEY, c.trades)] : [])).then(function(acks) { try { document.dispatchEvent(new CustomEvent('aio:portfolioChanged')); } catch(e) {} [renderPortfolioLedger, renderPortfolioFxLegs, window.refreshWatchlistUI].forEach(function(fn) { try { if (typeof fn === 'function') fn(); } catch(e) {} }); return acks; });
+// v59.45 (PASS27 P27-RESTORE-01): every ack names its section. saveWatchlists' false was dropped (and the active-list write
+// swallowed its error), so a restore whose watchlists were not kept still ended in '전체 백업 가져오기 완료'. A local step that
+// throws reports the section it was on; the sections before it are already replaced (browser storage has no multi-key
+// transaction), which the failure message says.
+function _pfRestoreBackupSections(c) { var keys = (_pfAssumptionApi() || {}).keys || {}, section = 'assumptions', local = [];
+  try { Object.keys(keys).forEach(function(n) { if (c.assumptions[n] != null) localStorage.setItem(keys[n], c.assumptions[n]); else localStorage.removeItem(keys[n]); }); section = 'cash'; if (c.cashBalances != null && window._pfPortfolioCash) { if (!window._pfPortfolioCash.write(c.cashBalances).ok) throw new Error('cash-write-failed'); } else { localStorage.removeItem('aio_portfolio_cash_balances'); localStorage.removeItem('aio_portfolio_cash'); } section = 'journal'; localStorage.setItem(PF_JOURNAL_KEY, JSON.stringify(c.journal)); section = 'watchlists'; local.push({ ok: saveWatchlists(c.watchlists) === true, section: 'watchlists' }, { ok: setActiveWatchlistId(c.activeWatchlistId || '') !== false, section: 'watchlists' }); } catch(e) { return Promise.resolve([{ ok: false, reason: 'local-restore-failed', section: section }]); }
+  var sections = ['ledger', 'fxLegs'].concat(c.trades ? ['trades'] : []);
+  return Promise.all([savePortfolioLedger(c.ledger), savePortfolioFxLegs(c.fxLegs)].concat(c.trades ? [_pfDeclarationWrite(PF_TRADES_KEY, c.trades)] : [])).then(function(acks) { try { document.dispatchEvent(new CustomEvent('aio:portfolioChanged')); } catch(e) {} [renderPortfolioLedger, renderPortfolioFxLegs, window.refreshWatchlistUI].forEach(function(fn) { try { if (typeof fn === 'function') fn(); } catch(e) {} }); return local.concat(acks.map(function(ack, i) { return Object.assign({ section: sections[i] }, ack || { ok: false }); })); });
 }
+var _PF_SECTION_LABEL = { positions: '포지션', assumptions: '가정', cash: '현금', journal: '일지', watchlists: '관심목록', ledger: '원장', fxLegs: '환율', trades: '매매일지' };
 function importPortfolio(event) {
   const file = event.target.files[0], reader = new FileReader();
   if (!file) return;
   reader.addEventListener('load', function(e) { // 구형 포지션 배열(포지션만 대체)과 aio-backup v1 묶음(모든 섹션 대체)을 모두 받는다.
     var api = window._pfPortfolioBackup, parsed = api ? api.parse(e.target.result) : { ok: false }, c = parsed.contents, bundle = parsed.kind === 'bundle';
     if (!parsed.ok) { showToast('파일 형식이 올바르지 않습니다.'); return; }
-    showConfirmModal('데이터 가져오기', (bundle ? '전체 백업(' + api.describe(parsed.counts) + ')을' : c.positions.length + '개 포지션을') + ' 가져오시겠습니까? 기존 데이터가 대체됩니다.', async function() {
+    // v59.45 (PASS27 P27-IMPORT-01): what the import changed on the way in is named before the reader confirms.
+    var adj = parsed.adjustments || {}, adjText = [adj.positionsDropped > 0 ? '읽을 수 없는 포지션 ' + adj.positionsDropped + '개 제외' : '', adj.positionsCostUnknown > 0 ? '매수 단가 없는 포지션 ' + adj.positionsCostUnknown + '개는 단가 미확인' : '', adj.ledgerDropped > 0 ? '읽을 수 없는 원장 항목 ' + adj.ledgerDropped + '개 제외(포함 범위 선언 해제)' : ''].filter(Boolean).join(', ');
+    showConfirmModal('데이터 가져오기', (bundle ? '전체 백업(' + api.describe(parsed.counts) + ')을' : c.positions.length + '개 포지션을') + ' 가져오시겠습니까? 기존 데이터가 대체됩니다.' + (adjText ? ' 파일에서 바뀐 점: ' + adjText + '.' : ''), async function() {
       // E3/P1187: 가져오기도 durable ack 뒤에만 '완료'를 말한다 — P1316: 묶음은 모든 섹션 ack를 합산한다.
-      var acks = [await savePortfolioData(c.positions, { replace: true })].concat(bundle ? await _pfRestoreBackupSections(c) : []);
+      var acks = [Object.assign({ section: 'positions' }, await savePortfolioData(c.positions, { replace: true }))].concat(bundle ? await _pfRestoreBackupSections(c) : []);
       renderPortfolio();
-      showToast(acks.every(function(r) { return r && r.ok; }) ? (bundle ? '전체 백업 가져오기 완료' : c.positions.length + '개 포지션 가져오기 완료') : '영구 저장 실패 — 가져오기가 확정되지 않았습니다. 새로고침 시 이전 데이터로 되돌아올 수 있습니다.');
+      var failed = acks.filter(function(r) { return !(r && r.ok); }).map(function(r) { return _PF_SECTION_LABEL[r && r.section] || '일부 항목'; }).filter(function(name, i, all) { return all.indexOf(name) === i; });
+      showToast(!failed.length ? (bundle ? '전체 백업 가져오기 완료' : c.positions.length + '개 포지션 가져오기 완료') : '영구 저장 실패 — 가져오기가 확정되지 않았습니다(' + failed.join('·') + ' 저장 안 됨). 다른 항목은 이미 새 데이터로 바뀌었을 수 있고, 새로고침 시 이전 데이터로 되돌아올 수 있습니다.');
     }, '');
   });
   reader.readAsText(file);
@@ -1444,8 +1453,8 @@ function saveWatchlists(lists) {
 function getActiveWatchlistId() {
   return localStorage.getItem(WL_ACTIVE_KEY) || '';
 }
-function setActiveWatchlistId(id) {
-  try { localStorage.setItem(WL_ACTIVE_KEY, id); } catch(e) {}
+function setActiveWatchlistId(id) { // v59.45: false when the write was refused (the restore reports it)
+  try { localStorage.setItem(WL_ACTIVE_KEY, id); return true; } catch(e) { return false; }
 }
 
 function createWatchlist() {

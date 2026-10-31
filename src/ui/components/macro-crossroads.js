@@ -16,6 +16,7 @@ import { krThemeLabel } from '../../domain/themes/kr-themes.js';
 import { el } from './dom.js';
 import { signedText } from '../../domain/shared/number.js';
 import { withDirectionParticle } from '../../domain/content/korean-particle.js';
+import { isIsoDay, hasLeadingIsoDay } from '../../domain/shared/session-date.js';
 
 const md = (date) => { const [, m, d] = String(date || '').split('-').map(Number); return m && d ? `${m}/${d}` : ''; };
 // Korean particles follow the last Hangul syllable of a quoted path name (quotes are skipped).
@@ -274,7 +275,7 @@ function changeLog(doc, state) {
   if (scored.length) {
     box.append(el(doc, 'h4', '지난 발표 판정', 'xr-h4'));
     const list = el(doc, 'ul', null, 'xr-scored');
-    for (const row of scored) list.append(el(doc, 'li', `${row.name} ${periodLabel(row.name === EVENT_NAMES['us-fed-rate'] && /^\d{4}-\d{2}-\d{2}/.test(String(row.period || '')) ? fomcDecisionDate(row.period) : row.period)}: ${recordText(row.actualText)} → ${row.matched.length ? `${row.matched.map((m) => `'${m.title}'`).join(', ')} 시나리오의 기준 충족` : '어느 시나리오의 기준에도 해당하지 않음'} (판정 ${shortDate(row.at)})`));
+    for (const row of scored) list.append(el(doc, 'li', `${row.name} ${periodLabel(row.name === EVENT_NAMES['us-fed-rate'] && hasLeadingIsoDay(String(row.period || '')) ? fomcDecisionDate(row.period) : row.period)}: ${recordText(row.actualText)} → ${row.matched.length ? `${row.matched.map((m) => `'${m.title}'`).join(', ')} 시나리오의 기준 충족` : '어느 시나리오의 기준에도 해당하지 않음'} (판정 ${shortDate(row.at)})`));
     box.append(list);
   }
   if (transitions.length) {
@@ -339,7 +340,9 @@ function themeLines(doc, root) {
   if (!read.source) return [];
   const pullbacks = read.pullbacks.slice(0, 4);
   const lines = [];
-  if (read.text) lines.push(el(doc, 'p', `테마: ${read.text}`, 'xr-reading'));
+  // v59.45 (P10-STATE-01): the per-refresh stand-in names the close it was read on.
+  const basis = read.source === 'artifact' && isIsoDay(String(read.asOf || '')) ? `${Number(read.asOf.slice(5, 7))}/${Number(read.asOf.slice(8, 10))} 종가 기준` : null;
+  if (read.text) lines.push(el(doc, 'p', `테마${basis ? `(${basis})` : ''}: ${read.text}`, 'xr-reading'));
   const ret1m = (value) => (Number.isFinite(value) ? `1개월 ${signedText(value, 1)}%` : '1개월 —');
   // v57.81 (audit): the line names the condition exactly (the lead branch's wind is not a headwind) and carries no action
   // suggestion — "분할 접근의 부담이 비교적 작은 경우" read as one.

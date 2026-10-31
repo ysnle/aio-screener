@@ -64,6 +64,11 @@ export function secFundamentalRowFields(row, { price = null, dollarVolume30d = n
   }
   if (!trust.shares) rec.valuationHeldReason = trust.reason;
   if (!['pe', 'pb', 'roe', 'margin', 'revGrowth', 'valuationSharesOutstanding'].some((key) => rec[key] != null)) return null;
+  // v59.45 (pipeline review P19 future rows): a fiscal year ending after the session, or a filing time after now, is not a
+  // current observation (2099/2100 read CURRENT); the report freshness gate (sec-report) already refuses them.
+  const availableMs = Date.parse(row.availableAt || row.acceptedAt || row.filedAt || '');
+  const future = (reportAgeDays != null && reportAgeDays < 0) || (Number.isFinite(availableMs) && availableMs > nowMs);
+  const current = !future && reportAgeDays != null && reportAgeDays <= FUNDAMENTAL_MAX_PERIOD_AGE_DAYS;
   Object.assign(rec, {
     fundamentalSource: 'SEC EDGAR companyfacts',
     fundamentalModel: row.model || payloadModel || 'sec-fy-normalized-v2',
@@ -80,8 +85,9 @@ export function secFundamentalRowFields(row, { price = null, dollarVolume30d = n
     // F15: CURRENT meant "has a filing date" (624/624 rows). The label now follows the fiscal-year-end age
     // against the factor session (456-day rule); rows past it are not merged at all (above).
     fundamentalQuality: {
-      status: !(row.availableAt || row.acceptedAt || row.filedAt) ? 'MISSING' : reportAgeDays != null && reportAgeDays <= FUNDAMENTAL_MAX_PERIOD_AGE_DAYS ? 'CURRENT' : 'STALE',
-      stale: !(row.availableAt || row.acceptedAt || row.filedAt) || !(reportAgeDays != null && reportAgeDays <= FUNDAMENTAL_MAX_PERIOD_AGE_DAYS),
+      status: !(row.availableAt || row.acceptedAt || row.filedAt) ? 'MISSING' : current ? 'CURRENT' : 'STALE',
+      stale: !(row.availableAt || row.acceptedAt || row.filedAt) || !current,
+      ...(future ? { future: true } : {}),
       basis: 'fiscal-year-end-age',
       period: 'FY',
       reportAgeDays,

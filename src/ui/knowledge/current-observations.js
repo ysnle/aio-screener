@@ -75,7 +75,6 @@ export function liveCurrentObservations(artifact, root) {
   if (!artifact || !Array.isArray(artifact.observations) || !root) return artifact;
   const snapshot = root.DATA_SNAPSHOT || {};
   const ts = snapshot._fieldTs || {};
-  const finite = (value) => typeof value === 'number' && Number.isFinite(value) ? value : null;
   // E13: a replaced value takes its own lineage — the old dated source/URL must not stay beside a new number.
   const SOURCES = {
     MARKET_DATA: { source: '사이트 종가 기록(지수 일봉 확정 종가)', sourceId: 'aio-history-close', sourceUrl: null },
@@ -146,3 +145,4 @@ export function validateCurrentObservationsArtifact(artifact) {
   return Boolean(artifact && Array.isArray(artifact.observations)) && rows.every((row) => row.id && row.label && row.displayValue != null && row.unit && row.observedAt && row.sourceId && row.sourceKind && row.allowedUse && Array.isArray(row.pageTargets) && row.pageTargets.length);
 }
 import { applySafeExternalLink } from './safe-external-link.js';
+import { finiteNumber as finite } from '../../domain/shared/number.js';

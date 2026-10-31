@@ -1,0 +1,134 @@
+{
+  "scope": "Local pure functions and injected no-network sources only",
+  "quoted": {
+    "kept": [
+      {
+        "label": "매출",
+        "value": "$5 billion",
+        "text": "매출이 5% 증가",
+        "quote": "Revenue declined 5 percent to $5 million. GAAP diluted EPS was $2."
+      }
+    ],
+    "dropped": []
+  },
+  "amounts": [
+    5,
+    5000000
+  ],
+  "selected": {
+    "symbol": "TEST",
+    "status": "pending",
+    "publishedAt": "2099-01-01T00:00:00Z"
+  },
+  "unsupported": {
+    "points": [
+      {
+        "text": "경영진은 사업 철수를 확정했다고 설명했다.",
+        "url": "https://reuters.com/nonexistent-example"
+      }
+    ],
+    "dropped": [],
+    "speaker": null
+  },
+  "eps": {
+    "figures": [
+      {
+        "metric": "eps_diluted",
+        "label": "희석 EPS",
+        "value": "$2",
+        "text": "",
+        "quote": "GAAP diluted EPS was $2.",
+        "estimate": {
+          "value": 4,
+          "surprisePct": -50,
+          "source": "Finnhub",
+          "basis": "provider-consensus-reference"
+        }
+      }
+    ],
+    "segments": [],
+    "guidance": [],
+    "watch": [],
+    "dropped": []
+  },
+  "provisionalBefore": [
+    {
+      "id": "calendar-NVDA-2026-10-29",
+      "kind": "earnings",
+      "status": "provisional",
+      "basis": "provider",
+      "symbol": "NVDA",
+      "nameKo": "엔비디아",
+      "tier": 1,
+      "eventDate": "2026-10-29",
+      "publishedAt": "2026-10-29T20:05:00.000Z",
+      "headline": "엔비디아 실적 발표: 원문 요약 정리 중",
+      "figures": [
+        {
+          "metric": "revenue",
+          "label": "매출",
+          "value": "$1.00 billion",
+          "text": ""
+        },
+        {
+          "metric": "eps_diluted",
+          "label": "주당순이익(제공처 기준)",
+          "value": "$1",
+          "text": ""
+        }
+      ],
+      "details": [],
+      "guidance": [],
+      "watch": [],
+      "dropped": [],
+      "ai": [],
+      "source": {
+        "kind": "PROVIDER",
+        "title": "Finnhub 실적 집계",
+        "url": null
+      }
+    }
+  ],
+  "provisionalAfter": [
+    {
+      "id": "calendar-NVDA-2026-10-29",
+      "kind": "earnings",
+      "status": "provisional",
+      "basis": "provider",
+      "symbol": "NVDA",
+      "nameKo": "엔비디아",
+      "tier": 1,
+      "eventDate": "2026-10-29",
+      "publishedAt": "2026-10-29T20:05:00.000Z",
+      "headline": "엔비디아 실적 발표: 원문 요약 정리 중",
+      "figures": [
+        {
+          "metric": "revenue",
+          "label": "매출",
+          "value": "$1.00 billion",
+          "text": ""
+        },
+        {
+          "metric": "eps_diluted",
+          "label": "주당순이익(제공처 기준)",
+          "value": "$1",
+          "text": ""
+        }
+      ],
+      "details": [],
+      "guidance": [],
+      "watch": [],
+      "dropped": [],
+      "ai": [],
+      "source": {
+        "kind": "PROVIDER",
+        "title": "Finnhub 실적 집계",
+        "url": null
+      }
+    }
+  ],
+  "dateOnlyUS": {
+    "releaseDate": "2026-10-28",
+    "afterClose": true
+  }
+}

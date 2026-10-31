@@ -15,6 +15,7 @@ import { loadFundamentalAnalysis } from './fundamental-analysis-lazy.js';
 import { signedText, usdKoreanText } from '../../domain/shared/number.js';
 import { sectorLabel } from '../../domain/screener/sector-label.js';
 import { refreshSharedArtifact, sharedArtifactState } from '../../data/shared-artifacts.js';
+import { isIsoDay } from '../../domain/shared/session-date.js';
 
 // The provider earnings calendar (week rows + the v58.75 six-week `upcoming` map), shared with the company summary.
 export const EARNINGS_CALENDAR = Object.freeze({ key: '_aioEarningsCalendarArtifact', url: './public-data/earnings-calendar.json', schemas: ['earnings-calendar.v1'], maxAgeMs: 6 * 60 * 60 * 1000, maxBytes: 512 * 1024 });
@@ -26,7 +27,7 @@ export function parseFiscalHistory(text) {
   // v58.55: [:totalAssets:researchAndDevelopment] — present once the issuer was read with those concepts (assetChain);
   // a row without them was written before, so its assets/R&D are "not yet collected", not "not reported".
   const num = (value, scale = 1e6) => (value === '' || value == null || !Number.isFinite(Number(value)) ? null : Number(value) * scale);
-  return String(text || '').split(';').map((part) => part.split(':')).filter((cells) => /^\d{4}-\d{2}-\d{2}$/.test(cells[0] || ''))
+  return String(text || '').split(';').map((part) => part.split(':')).filter((cells) => isIsoDay(cells[0] || ''))
     .map(([periodEnd, revenue, netIncome, equity, operatingCashFlow, capex, longTermDebt, shares, ...rest]) => ({
       periodEnd, revenue: num(revenue), netIncome: num(netIncome), equity: num(equity), operatingCashFlow: num(operatingCashFlow),
       capex: num(capex), longTermDebt: num(longTermDebt), shares: num(shares),
@@ -389,7 +390,7 @@ export function renderFiscalRead({ documentRef: doc, root, state }) {
     const hero = el(doc, 'div', null, 'sx-card sx-card--hero v2-fiscal-hero');
     hero.append(el(doc, 'span', `SEC 연간, ${read.history.length}개 회계연도`, 'sx-kicker'));
     // 2026-10-14 audit #9: how old the annual figures are sits on this one basis line (it was on the SEC card).
-    const fyAgeDays = /^\d{4}-\d{2}-\d{2}$/.test(String(read.latest.periodEnd || '')) ? Math.floor((Date.now() - Date.parse(read.latest.periodEnd)) / 86400000) : null;
+    const fyAgeDays = isIsoDay(String(read.latest.periodEnd || '')) ? Math.floor((Date.now() - Date.parse(read.latest.periodEnd)) / 86400000) : null;
     const basis = el(doc, 'p', `연간 공시, 회계연도 말 ${read.latest.periodEnd || '미상'}${fyAgeDays != null && fyAgeDays >= 0 ? `, 회계연도 말로부터 ${fyAgeDays}일` : ''}${fundamentals?.filedAt ? `, 제출 ${fundamentals.filedAt}` : ''}, 금액 USD`, 'fiscal-period-basis sx-meta');
     const annualSource = sourceLink(doc, fundamentals);
     if (annualSource) basis.append(doc.createTextNode(', '), annualSource);

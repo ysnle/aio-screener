@@ -5,6 +5,7 @@
 // company by the shared keyword rule. A contribution is an arithmetic share of the index move, not a cause; the item is
 // what was published around that session, not proof it moved the price.
 import { keywordHit } from '../news/keyword-match.js';
+import { reportIsUnconfirmed } from '../news/report-verification.js';
 import { MOVER_BY_SYMBOL } from '../briefing/market-movers.js';
 import { withObjectParticle } from '../content/korean-particle.js';
 
@@ -75,7 +76,12 @@ export function datedItemFor({ sym, name }, { sessionCloseMs, briefs = [], teleg
   const headline = (news || []).filter((item) => inWindow(Date.parse(item?.pubDate || item?.eventTime || '')) && names.some((value) => keywordHit(String(item.title || '').toLowerCase(), value)))
     .sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0))[0];
   // A headline is preferred over a channel post when both exist (a named publisher over a summarised post).
-  if (headline) return { kind: 'news', text: clip(headline.title), atMs: Date.parse(headline.pubDate || headline.eventTime), url: headline.link || null };
+  // v59.45 (pipeline review P21 move-attribution): a rumour or anonymous-source headline keeps its label here as everywhere
+  // (the shared report rule), so it never reads as a confirmed item beside the move.
+  if (headline) {
+    const unconfirmed = headline.verification === 'unconfirmed' || reportIsUnconfirmed(headline.title);
+    return { kind: 'news', text: `${unconfirmed ? '[미확인] ' : ''}${clip(headline.title)}`, atMs: Date.parse(headline.pubDate || headline.eventTime), url: headline.link || null, unconfirmed };
+  }
   if (post) return { kind: 'telegram', text: clip(post.summary), atMs: Date.parse(post.datetime), url: post.url || null };
   return null;
 }

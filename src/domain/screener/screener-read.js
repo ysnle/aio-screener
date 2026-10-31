@@ -9,8 +9,8 @@ import { rrgSettledQuadrant } from '../themes/recent-check.js';
 import { NEAR_LINE_ADR, RECENT_DROP_ADR, adrMultiple, recentDrop } from '../technical/bands.js';
 import { withTopicParticle } from '../content/korean-particle.js';
 import { sectorLabel } from './sector-label.js';
+import { readNumber as finite } from '../shared/number.js';
 
-const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
 const QUADRANT_KO = RRG_QUADRANT_WORDS; // R714: one set of quadrant words (themes/rrg.js)
 
 export { sectorLabel } from './sector-label.js';
@@ -58,7 +58,13 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
   // line" holds by construction — the point is neutral, says so, counts only rows clear of the line by one daily range
   // (bands.js), and adds the share that broke down in the last five sessions.
   const measured = top.filter((row) => adrMultiple(row.pctSma50, row.adrPct) != null);
-  if (measured.length) {
+  // v59.45 P8-UI-02: each share is of the rows that carry the value, so a partial count names its basis (as the 52-week
+  // share already did); when fewer than half the top rows are measured, one row's 100% is not read as the top group's.
+  const basisOf = (n) => (n < top.length ? `(자료 있는 ${n}종목 기준)` : '');
+  if (measured.length && measured.length * 2 < top.length) {
+    points.push({ id: 'health', tone: 'neutral', title: '상위권 추세',
+      text: `${topName} ${top.length}종목 중 50일선 거리와 하루 평균 변동폭 자료가 있는 종목이 ${measured.length}개뿐이라 상위권 추세를 요약하지 않습니다.` });
+  } else if (measured.length) {
     const above = measured.filter((row) => adrMultiple(row.pctSma50, row.adrPct) >= NEAR_LINE_ADR).length / measured.length * 100;
     // v57.86 (live review): the share is of rows with a 52-week value — every null row counted as "not near" read 0%.
     const highKnown = top.filter((row) => finite(row.pctFrom52wHigh) != null);
@@ -68,7 +74,7 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
     const breadth = regime?.axes?.find((axis) => axis.id === 'breadth');
     const trendInRank = top.some((row) => finite(row.factorScores?.trend) != null);
     points.push({ id: 'health', tone: 'neutral', title: '상위권 추세',
-      text: `${topName} 중 ${above.toFixed(0)}%가 50일선보다 하루 평균 변동폭${NEAR_LINE_ADR === 1 ? '' : `의 ${NEAR_LINE_ADR}배`} 이상 위에 있고, ${nearHigh == null ? '52주 고점 자료 없음' : `${nearHigh.toFixed(0)}%가 52주 고점 5% 이내${highKnown.length < top.length ? `(자료 있는 ${highKnown.length}종목 기준)` : ''}`}${dropped != null ? `, ${dropped.toFixed(0)}%는 최근 5거래일에 하루 평균 변동폭의 ${RECENT_DROP_ADR}배 넘게 하락` : ''}.${trendInRank ? ' 순위 계산에 추세 팩터가 들어 있어 상위권이 50일선 위에 많은 것은 계산 방식상 예상되는 결과입니다' : ''}${breadth?.state === 'burden' ? `${trendInRank ? ' — ' : ' '}시장 전체는 50일선 위 종목이 적습니다(시장 폭 ${breadth.stateLabel})` : ''}${trendInRank || breadth?.state === 'burden' ? '.' : ''}` });
+      text: `${topName} 중 ${above.toFixed(0)}%가 50일선보다 하루 평균 변동폭${NEAR_LINE_ADR === 1 ? '' : `의 ${NEAR_LINE_ADR}배`} 이상 위에 있고${basisOf(measured.length)}, ${nearHigh == null ? '52주 고점 자료 없음' : `${nearHigh.toFixed(0)}%가 52주 고점 5% 이내${basisOf(highKnown.length)}`}${dropped != null ? `, ${dropped.toFixed(0)}%는 최근 5거래일에 하루 평균 변동폭의 ${RECENT_DROP_ADR}배 넘게 하락${basisOf(dropMeasured.length)}` : ''}.${trendInRank ? ' 순위 계산에 추세 팩터가 들어 있어 상위권이 50일선 위에 많은 것은 계산 방식상 예상되는 결과입니다' : ''}${breadth?.state === 'burden' ? `${trendInRank ? ' — ' : ' '}시장 전체는 50일선 위 종목이 적습니다(시장 폭 ${breadth.stateLabel})` : ''}${trendInRank || breadth?.state === 'burden' ? '.' : ''}` });
   }
   if (validation?.available) {
     const spread = finite(validation.spreadNet);

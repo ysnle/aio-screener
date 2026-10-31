@@ -1,8 +1,19 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-10-29
+last_verified: 2026-10-31
 confidence: medium
 ---
+
+## v59.46 v59.46 소유자 결정 반영 (2026-10-31)
+
+- [x] QA-SCR-ROW-CARRY-01: 미국 스크리너 이월 행이 실제 갱신에서 표시·검증된다. verify_by: push 뒤 refresh-screener 실행에서 rowsRetained.US가 있으면 해당 종목 행에 retainedFrom이 있고 validator PASS, 종목 설명에 이어 표시 문구 확인
+
+## v59.45 파이프라인 의미 검토 통합 (2026-10-31)
+
+- [x] QA-PIPE-SEM-01: v59.45 파이프라인 의미 검토 회귀(결측·미래 시각·실패 보존·동률·캐시 키·부분 문자열·통화·AI 경계·병합 손실)가 영역별 실제 함수 케이스로 모두 통과한다. verify_by: node scripts/ci-pipeline-semantics-check.mjs
+- [ ] QA-OPS-ALERT-RECOVERY-01: push 뒤 Worker 배포 workflow가 실패 후 smoke 단계를 통과한 성공 두 번에만 운영 이슈를 닫고, jobs API 실패 실행은 이슈를 닫지 않는다. verify_by: GitHub Actions operations-alert 실행 로그와 열린 operations 이슈 상태 확인
+- [ ] QA-KR-WEIGHTS-RETAIN-01: push 뒤 event-briefs 실행에서 kr-index-weights.json이 KOSPI·KOSDAQ 두 시장을 모두 유지하고, 덜 읽힌 시장은 retained 표시와 함께 이전 값을 유지한다. verify_by: node -e "const j=require('./public-data/kr-index-weights.json');console.log(Object.keys(j.markets||{}))"
+- [ ] QA-EVENT-BRIEF-AMOUNT-01: push 뒤 첫 event-briefs 실행에서 매출 '예상 대비' -99%보다 낮은 비교가 하나도 남지 않는다(10/31 기준 DLR·ENTG·COHU·GEV·STX·V 등 8건). verify_by: node -e "const j=require('./public-data/event-briefs.json');console.log(JSON.stringify(j).match(/-99\.9|-100/g)?.length||0)"
 
 ## v59.42 뉴스 키워드 규칙 단일화 (2026-10-28)
 
@@ -280,7 +291,7 @@ confidence: medium
 - [x] QA-HIST-BACKFILL-01: P1978: 다른 세션 관측으로 남은 history 값은 백필 일봉으로 교체되고, 같은 세션의 확정 기록은 유지된다. verify_by: node scripts/ci-history-field-time-contract-check.mjs
 - [x] QA-MKT-LEAD-01: v58.68: 반도체 하루 −6%는 '이탈 · 급락일'로 표시되고, 직전 세션이 빠지면 하루 변화를 생략하며, 20/63거래일 종가 신저가 수는 창 전체가 있는 종목만 센다. verify_by: node scripts/ci-esm-core-unit-check.mjs
 - [x] QA-MKT-READ-US-01: P1979: 시황 컨텍스트의 직전 세션 큰 움직임은 미국(S&P 500·나스닥 100·SMH)을 먼저 쓰고, 빠진 세션을 하루 변화로 계산하지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-MKT-FLOW-01: v58.68: 방어 +2.2%·성장 −3.6%는 '방어 업종으로 이동', 9개 업종 하락은 '업종 전반 하락'이다. 다른 세션의 10년물 변화는 쓰지 않는다. 같은 업종 세부 테마가 ±1% 이상·4%p 이상 갈리면 갈림으로 표시한다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-MKT-FLOW-01: v58.68: 방어 +2.2%·성장 −3.6%는 '방어 업종 강세'(v59.45 P17-FLOW-01: 가격만으로 자금 이동이라 쓰지 않는다), 9개 업종 하락은 '업종 전반 하락'이다. 다른 세션의 10년물 변화는 쓰지 않는다. 같은 업종 세부 테마가 ±1% 이상·4%p 이상 갈리면 갈림으로 표시한다. verify_by: node scripts/ci-esm-core-unit-check.mjs
 
 ## v58.66 운영 v58.65 (2026-10-23)
 

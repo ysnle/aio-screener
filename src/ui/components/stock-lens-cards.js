@@ -17,6 +17,7 @@ import { buildCloseSeries } from '../../domain/market/close-series.js';
 import { MARKET_WINDOWS, closeChange } from '../../domain/market/market-windows.js';
 import { signedText } from '../../domain/shared/number.js';
 import { sharedArtifactState } from '../../data/shared-artifacts.js';
+import { hasLeadingIsoDay } from '../../domain/shared/session-date.js';
 
 const CALENDAR_KEY = '_aioEarningsCalendarArtifact';
 const consensusOf = (root, sym) => root?._aioConsensusEstimates?.rows?.[String(sym || '').toUpperCase()] || null;
@@ -64,7 +65,7 @@ export function stockLensContext(root, symbol, { fundamentals = null, bars = nul
   const schedule = market === 'US' ? buildEarningsSchedule({ symbol: sym, calendar: root?.[CALENDAR_KEY], consensus, calendarState: sharedArtifactState(root, CALENDAR_KEY) }) : null;
   const levels = typeof root?._aioPriceLevelsFor === 'function' ? root._aioPriceLevelsFor(sym) : null;
   const financial = isLendingFinancial(sym, row?.sector);
-  const close = Number(row?._valuationPrice ?? row?.valuationPrice) > 0 && /^\d{4}-\d{2}-\d{2}/.test(String(row?.factorSessionDate || '')) ? { value: Number(row._valuationPrice ?? row.valuationPrice), date: String(row.factorSessionDate).slice(0, 10) } : null;
+  const close = Number(row?._valuationPrice ?? row?.valuationPrice) > 0 && hasLeadingIsoDay(String(row?.factorSessionDate || '')) ? { value: Number(row._valuationPrice ?? row.valuationPrice), date: String(row.factorSessionDate).slice(0, 10) } : null;
   const inputs = history.length ? reverseDcfInputs({ history, fundamentals: own, close, financial }) : null;
   const implied = inputs?.state === 'ready' ? impliedGrowth({ fcf: inputs.fcf, marketValue: inputs.marketValue, discountRate: REVERSE_DCF_DEFAULTS.discountRate, terminalGrowth: REVERSE_DCF_DEFAULTS.terminalGrowth }) : inputs ? { state: inputs.state } : null;
   const strengths = peers ? buildPeerStrengths(peers.rows) : null;

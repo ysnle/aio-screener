@@ -22,7 +22,9 @@ export function signalHistory({ events = [], closes = [], rsLine = [], horizon =
     const returns = []; const excess = [];
     let nextFree = -1;
     for (const i of indexes) {
-      if (i < nextFree || i + horizon >= closes.length || !(closes[i] > 0)) continue;
+      // v59.45 P24-SIGNAL-01: a missing end close divided to 0 and counted as -100%. Both ends must be prices; an
+      // occurrence without a measurable end leaves the sample (and does not claim the window).
+      if (i < nextFree || i + horizon >= closes.length || !(closes[i] > 0) || !(closes[i + horizon] > 0)) continue;
       nextFree = i + horizon;
       returns.push((closes[i + horizon] / closes[i] - 1) * 100);
       const a = rsLine?.[i]; const b = rsLine?.[i + horizon];

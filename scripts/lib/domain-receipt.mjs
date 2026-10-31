@@ -38,7 +38,9 @@ export function buildDomainReceipt({
       ? (retained > 0
         ? { status: 'NO_REFRESH_RETAINED', reason: 'every attempted target failed; previously stored rows stay published' }
         : { status: 'EMPTY', reason: 'every attempted target failed and no eligible row is stored' })
-      : (batchTransient === 0 && batchTerminal === 0
+      // v59.45 (pipeline review R3-06): a batch whose failures were not recorded with this attemptedAt (or not recorded
+      // at all) showed no batch failure; SUCCESS also needs every attempted target updated.
+      : (batchTransient === 0 && batchTerminal === 0 && updatedCount >= attemptedCount
         ? { status: 'SUCCESS', reason: 'every attempted target was updated' }
         : { status: 'PARTIAL', reason: 'some attempted targets were not updated' });
   return {

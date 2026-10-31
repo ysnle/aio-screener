@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createSecClient, parse13fAmendmentMetadata } from './lib/sec-edgar.mjs';
-import { composeAmendmentChain } from './lib/13f-compose.mjs';
+import { composeAmendmentChain, composedRowSource } from './lib/13f-compose.mjs';
 import { rawHoldingRow } from './lib/masters-raw-rows.mjs';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { writeJsonIfSemanticallyChanged } from './lib/13f-semantic-hash.mjs';
@@ -197,8 +197,11 @@ function amendmentSemanticsOf(bundle) {
 async function composePeriodFilings(fallbackFiling, periodSubmissions = []) {
   // P1449: the composition policy itself lives in scripts/lib/13f-compose.mjs (one policy,
   // one implementation — R619). This wrapper only fetches the bundles in filedAt order.
+  // v59.45 (pipeline review P5 resolve-13f-prior-filings note): only submissions for the fallback filing's own report
+  // period are composed — a priorFiling re-pointed by the manual resolver must not merge another quarter's rows.
   const candidates = (periodSubmissions || [])
-    .filter((filing) => filing?.baseForm === '13F-HR' && filing.informationTableXml)
+    .filter((filing) => filing?.baseForm === '13F-HR' && filing.informationTableXml
+      && (!fallbackFiling?.periodOfReport || !filing.periodOfReport || filing.periodOfReport === fallbackFiling.periodOfReport))
     .sort((left, right) => String(left.filedAt).localeCompare(String(right.filedAt)) || String(left.accession).localeCompare(String(right.accession)));
   if (!candidates.some((filing) => filing.accession === fallbackFiling?.accession) && fallbackFiling?.informationTableXml) candidates.push(fallbackFiling);
   const bundles = [];
@@ -265,11 +268,12 @@ for (const manager of verified) {
     };
   });
   const fullRows = rows.map((row, index) => {
+    const own = composedRowSource(currentBundle.rowProvenance, index, filing);
     return rawHoldingRow({
       managerId: manager.id,
       cik: manager.cik,
       reportPeriod: filing.periodOfReport,
-      filedAt: filing.filedAt,
+      filedAt: own.filedAt,
       rank: index + 1,
       ...row,
       key: comparisonKey(row),
@@ -277,7 +281,7 @@ for (const manager of verified) {
       sourceRowCount: 1,
       priorReportPeriod: manager.priorFiling?.periodOfReport || null,
       evidenceId: `sec.13f.${manager.cik}.${filing.periodOfReport}.${row.cusip}`,
-      sourceUrl: filing.informationTableHtml
+      sourceUrl: own.sourceUrl
     });
   });
   const comparisonRecords = comparisonRows.map((row, index) => ({

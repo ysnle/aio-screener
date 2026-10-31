@@ -3,8 +3,8 @@
 // for the gates that import them from the page.
 import { fieldValueForPurpose } from '../../data/contracts/screener.js';
 import { latestCompletedUsSession, latestCompletedKrSession } from '../market/market-calendar.js';
+import { finiteNumber as finite } from '../shared/number.js';
 
-function finite(value) { return typeof value === 'number' && Number.isFinite(value) ? value : null; }
 
 export const FACTOR_LABELS = Object.freeze({
   momentum: { label: '모멘텀', color: 'var(--data-green)', description: '1개월 40%·3개월 40%·6개월 20% 수익률' },

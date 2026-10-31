@@ -24,6 +24,16 @@ const currentFactorRows = rows.filter(row => {
 if (!Number.isInteger(universe) || universe < 100) errors.push('universe must be an integer >= 100');
 if (!Number.isInteger(ok) || ok !== rows.length) errors.push(`ok must equal data row count (${ok} != ${rows.length})`);
 if (universe > 0 && ok / universe < 0.8) errors.push(`coverage below 80% (${ok}/${universe})`);
+// v59.46 R3-05: rows carried per symbol (rowsRetained) are not this run's reads — fetch coverage counts read rows plus
+// rows of a market kept whole (marketRetained), so a carry cannot lift a failing run over the floor.
+{
+  const keptMarkets = new Set(Object.keys(payload.marketRetained && typeof payload.marketRetained === 'object' ? payload.marketRetained : {}));
+  const keptRowSymbols = new Set(Object.values(payload.rowsRetained && typeof payload.rowsRetained === 'object' ? payload.rowsRetained : {}).flatMap((entry) => Array.isArray(entry?.symbols) ? entry.symbols : []));
+  const carriedRows = Object.entries(payload.data || {}).filter(([sym, row]) => row?.retainedFrom && keptRowSymbols.has(sym) && !keptMarkets.has(/\.(KS|KQ)$/i.test(sym) ? 'KR' : 'US')).length;
+  if (universe > 0 && (ok - carriedRows) / universe < 0.8) errors.push(`fetch coverage below 80% without carried rows (${ok - carriedRows}/${universe})`);
+  const unlisted = Object.entries(payload.data || {}).filter(([sym, row]) => row?.retainedFrom && !keptRowSymbols.has(sym) && !keptMarkets.has(/\.(KS|KQ)$/i.test(sym) ? 'KR' : 'US')).map(([sym]) => sym);
+  if (unlisted.length) errors.push(`carried rows without a rowsRetained/marketRetained entry: ${unlisted.slice(0, 5).join(', ')}`);
+}
 if (universe > 0 && currentFactorRows.length / universe < 0.8) errors.push(`current factor observation coverage below 80% (${currentFactorRows.length}/${universe})`);
 if (!Number.isFinite(observed)) errors.push('factorObservedAt missing or invalid');
 if (!Number.isFinite(generated)) errors.push('asOf missing or invalid');

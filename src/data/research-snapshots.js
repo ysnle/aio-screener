@@ -1,4 +1,5 @@
 // P1602/ST-11/12: explicit local immutable captures. Positions/accounts never cross this allowlist.
+import { isIsoDay } from '../domain/shared/session-date.js';
 export const RESEARCH_SNAPSHOT_KEY = 'aio:research-snapshots:v1';
 const stores = new WeakMap();
 export function researchSnapshotStore(root) {
@@ -13,10 +14,10 @@ const clone = (value) => JSON.parse(JSON.stringify(value));
 const freeze = (value) => { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; };
 const text = (value, max = 4000) => typeof value === 'string' ? value.slice(0, max) : null;
 export function projectResearchSnapshot(raw) {
-  if (raw?.kind === 'briefing' && /^\d{4}-\d{2}-\d{2}$/.test(raw.sessionDate || '')) return {
+  if (raw?.kind === 'briefing' && isIsoDay(raw.sessionDate || '')) return {
     kind: 'briefing', sessionDate: raw.sessionDate, version: text(raw.version, 40),
     headline: text(raw.headline), interpretation: text(raw.interpretation),
-    facts: (Array.isArray(raw.facts) ? raw.facts : []).slice(0, 30).map((row) => ({ label: text(row.label, 100), value: text(row.value), observedAt: text(row.observedAt), source: text(row.source), basis: text(row.basis) })),
+    facts: (Array.isArray(raw.facts) ? raw.facts : []).slice(0, 30).map((row) => ({ label: text(row?.label, 100), value: text(row?.value), observedAt: text(row?.observedAt), source: text(row?.source), basis: text(row?.basis) })), // P30: an empty row is not an exception
     checks: (Array.isArray(raw.checks) ? raw.checks : []).slice(0, 10).map((row) => text(row)),
     source: text(raw.source), note: text(raw.note, 2000)
   };

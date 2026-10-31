@@ -1,0 +1,49 @@
+{
+  "future": {
+    "settings": {
+      "initialAmount": 10000,
+      "startMonth": "2024-01",
+      "endMonth": "2026-01",
+      "months": 24,
+      "rebalanceType": "annual",
+      "benchmarkSymbol": "SPY",
+      "rfAnnual": null,
+      "rfAnnualUnit": "decimal",
+      "rfInputStatus": "not-supplied",
+      "transactionCostBps": null,
+      "slippageBps": null,
+      "turnoverModeled": false,
+      "maxAlignmentGapDays": 3,
+      "observedTargetTurnover": 0,
+      "turnoverBasis": "half-sum-absolute-target-minus-realized-end-weight-at-rebalance",
+      "targetWeightBasis": "start-date-adjusted-close-market-value",
+      "gridGaps": [],
+      "excludedMonths": [],
+      "partialMonthExcluded": null,
+      "monthlyGridBasis": "contiguous"
+    }
+  },
+  "badCash": {
+    "total": 110,
+    "cash": 10
+  },
+  "oldClose": {
+    "status": "current",
+    "date": "1990-01-01"
+  },
+  "unknown": {
+    "value": 100,
+    "currency": "declared-single"
+  },
+  "appFx": {
+    "risk": {
+      "ok": false,
+      "code": "currency-unconverted",
+      "pairs": [
+        "USD/KRW"
+      ],
+      "baseCurrency": "KRW"
+    },
+    "surfaceValue": 140000
+  }
+}

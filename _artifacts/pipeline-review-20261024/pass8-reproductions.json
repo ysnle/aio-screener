@@ -1,0 +1,41 @@
+{
+  "generatedAt": "2026-10-27T11:30:37.153Z",
+  "evidence": "E2 actual pure functions, parent execution",
+  "themeMinimumCoverage": {
+    "suppliedRows": 3,
+    "measuredReturnRows": 1,
+    "measured": true,
+    "role": {
+      "role": "leader",
+      "upRevision": null,
+      "thin": false,
+      "dollar": null,
+      "earnings": null
+    },
+    "heat": {
+      "id": "heat",
+      "label": "과열 아님",
+      "principle": "50일선에서 하루 평균 변동폭의 5배 넘게 멀어지거나 1주 10% 넘게 오르면 되돌림이 잦습니다.",
+      "met": true,
+      "value": "50일선 거리 = 하루 변동폭의 +1.0배, 1주 +1.0%(구성 종목 중앙값)"
+    }
+  },
+  "screenerDenominator": {
+    "topCount": 10,
+    "observedRows": 1,
+    "health": {
+      "id": "health",
+      "tone": "neutral",
+      "title": "상위권 추세",
+      "text": "상위 20% 중 100%가 50일선보다 하루 평균 변동폭 이상 위에 있고, 52주 고점 자료 없음, 100%는 최근 5거래일에 하루 평균 변동폭의 2배 넘게 하락."
+    }
+  },
+  "resilienceGap": {
+    "gapDate": "2026-04-21",
+    "fullHoldPct": 89,
+    "gappedRet1d": null,
+    "gappedHoldPct": 100,
+    "gappedCount": 8
+  },
+  "limits": "Synthetic fixtures; no occurrence-frequency or live-browser claim. Weekday dates are not an exchange calendar."
+}

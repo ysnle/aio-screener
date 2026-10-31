@@ -69,6 +69,16 @@ async function getJson(url) {
 // HTTP 200, and every later call fails the same way, so the run stops there instead of logging hundreds of failures.
 const DART_FATAL_STATUS = new Set(['010', '011', '012', '020', '800', '901']);
 
+// v59.45 (pipeline review P3-DATA-08): only 013 ("조회된 데이터가 없음") or an empty 000 list means the annual report is
+// absent. Any other answer (900 undefined error, 100/101 request errors, 014 …) is a failed read: the next year is not
+// tried and the symbol keeps its previous filing, instead of being recorded as no-annual-report and dropped.
+export function dartReportOutcome(payload) {
+  const status = String(payload?.status ?? '');
+  if (status === '000') return Array.isArray(payload.list) && payload.list.length ? 'found' : 'absent';
+  if (status === '013') return 'absent';
+  return DART_FATAL_STATUS.has(status) ? 'fatal' : 'failed';
+}
+
 // v58.82: a symbol that failed for a transient reason (HTTP error, timeout, fatal status) keeps the previous run's filing,
 // marked with when it was read; a symbol whose report is absent is not resurrected. A result that still holds less than
 // half of the previous companies is not published — the previous artifact stays.
@@ -118,8 +128,10 @@ async function main() {
     for (const year of [latestYear, latestYear - 1]) {
       try {
         const payload = await getJson(`${API}/fnlttSinglAcnt.json?crtfc_key=${encodeURIComponent(key)}&corp_code=${corp.corpCode}&bsns_year=${year}&reprt_code=11011`);
-        if (payload.status === '000' && Array.isArray(payload.list) && payload.list.length) { found = { year, payload }; break; }
-        if (DART_FATAL_STATUS.has(String(payload.status))) { fatal = String(payload.status); failed.push({ sym, reason: `DART status ${fatal}` }); break; }
+        const outcome = dartReportOutcome(payload);
+        if (outcome === 'found') { found = { year, payload }; break; }
+        if (outcome === 'fatal') { fatal = String(payload.status); failed.push({ sym, reason: `DART status ${fatal}` }); break; }
+        if (outcome === 'failed') { failed.push({ sym, reason: `DART status ${String(payload?.status ?? 'missing')}` }); break; }
       } catch (error) { failed.push({ sym, reason: error.message }); break; }
       await new Promise((resolve) => setTimeout(resolve, 120));
     }

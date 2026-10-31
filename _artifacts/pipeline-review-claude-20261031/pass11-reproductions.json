@@ -1,0 +1,93 @@
+{
+  "at": "2026-10-31T03:02:40.703Z",
+  "evidenceSynthetic": true,
+  "tickerSelection": {
+    "query": "BRK.B 실적 분석",
+    "entities": {
+      "resolutionVersion": "ai-entity-resolution.v2",
+      "entities": [
+        {
+          "symbol": "BRK-B",
+          "alias": "BRK.B",
+          "kind": "ticker",
+          "verified": true,
+          "market": "US"
+        }
+      ],
+      "unresolvedTerms": [
+        "BRKB",
+        "실적"
+      ],
+      "ambiguous": false,
+      "route": null
+    },
+    "selected": [
+      "BRK",
+      "BRK-B"
+    ]
+  },
+  "event": {
+    "published": {
+      "plan": {
+        "schemaVersion": "answer-plan.v1",
+        "queryId": null,
+        "intent": null,
+        "summary": "",
+        "claims": {
+          "schemaVersion": "claim-ledger.v1",
+          "claims": [
+            {
+              "claimId": "audit-event",
+              "type": "text",
+              "text": "연준이 금리를 인하했고 신용 스트레스도 해소됐다.",
+              "metric": null,
+              "entity": null,
+              "scale": "raw",
+              "value": null,
+              "unit": null,
+              "asOf": "2026-10-27",
+              "source": "audit-price-provider",
+              "evidenceIds": [
+                "audit-price"
+              ],
+              "allowedUse": "reference",
+              "status": "verified",
+              "calibration": null
+            }
+          ]
+        },
+        "sections": [],
+        "citations": [],
+        "followUps": [],
+        "scenario": null
+      },
+      "droppedClaims": [
+        {
+          "claimId": null,
+          "reasons": [
+            "current-event-unverified"
+          ],
+          "count": 1
+        }
+      ],
+      "unboundEvidenceIds": []
+    },
+    "output": "**확인된 수치**\n- 연준이 금리를 인하했고 신용 스트레스도 해소됐다. [audit-price-provider · 2026-10-27]"
+  },
+  "actionGate": {
+    "direct": {
+      "blocked": false,
+      "text": "[개별 매매 지시는 제공하지 않습니다. 조건과 근거를 확인해 직접 판단하세요.]",
+      "reasons": [
+        "directive-sentence-replaced"
+      ],
+      "replacedSentences": 1
+    },
+    "attribution": {
+      "blocked": false,
+      "text": "오닐은 추세를 따라야 한다고 봤습니다 그래서 NVDA를 매수하세요.",
+      "reasons": []
+    }
+  },
+  "limits": "No model/provider calls, no live UI. Actual publication/renderer and directive gate; not full browser execution."
+}

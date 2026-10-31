@@ -5,6 +5,7 @@
 // years is shown side by side; a market is "과도한 냉각/고온" only when at least three of the five components sit in the
 // bottom/top decile at once, and the evidence line is what the index did after past first days of such spells.
 // Pure function shared by the producer (scripts/build-market-temperature.mjs) and the unit check.
+import { isIsoDay } from '../shared/session-date.js';
 
 export const MARKET_TEMPERATURE_SCHEMA = 'market-temperature.v1';
 // US first (AIO is a US-market screener); Korea and Japan follow as the secondary read.
@@ -101,7 +102,7 @@ function stats(returns) {
  * @returns {object|null} the market body of public-data/market-temperature.json
  */
 export function buildMarketTemperature(rows = [], { rules = TEMPERATURE_RULES } = {}) {
-  const clean = rows.filter((row) => Array.isArray(row) && /^\d{4}-\d{2}-\d{2}$/.test(row[0]) && Number.isFinite(row[1]) && row[1] > 0);
+  const clean = rows.filter((row) => Array.isArray(row) && isIsoDay(row[0]) && Number.isFinite(row[1]) && row[1] > 0);
   if (clean.length < rules.minRankSample + 252) return null;
   const dates = clean.map((row) => row[0]);
   const closes = clean.map((row) => row[1]);

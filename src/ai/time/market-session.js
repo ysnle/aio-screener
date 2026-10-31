@@ -57,7 +57,8 @@ function iso(value) {
 
 export function resolveQuestionTime(query, now = new Date()) {
   const text = String(query == null ? '' : query);
-  const currentSensitive = /(지금|현재|오늘|장중|장전|장후|방금|실시간|최근|now|today|current|live|latest|as.?of)/i.test(text);
+  // v59.45 (R4-01 class): English cues are whole words ('now' is not "know", 'live' not "deliver").
+  const currentSensitive = /(지금|현재|오늘|장중|장전|장후|방금|실시간|최근|\b(?:now|today|current(?:ly)?|live|latest|as.?of)\b)/i.test(text);
   const timeframe = /장중|intraday|분봉/i.test(text) ? 'intraday'
     : /오늘|당일|today/i.test(text) ? 'session'
     : /이번 주|주간|weekly/i.test(text) ? 'week'

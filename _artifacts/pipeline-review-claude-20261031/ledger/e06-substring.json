@@ -1,0 +1,18 @@
+{
+  "version": "v59.45",
+  "date": "2026-10-31",
+  "r": null,
+  "p": {
+    "title": "부분 문자열 매칭이 종목·주제·출처·질문 의도를 잘못 붙임",
+    "symptom": "'유가증권시장'이 유가 테마, '실적 시즌이란'이 이란, 'sPIKe'가 사모신용, 'aBUNDant'가 국채, 'exciting'이 Citi 인용(R3-01), 'Samsung Electronics'가 삼성전기에도 매칭되고 소문자 'micron'·'amazon'이 종목으로(R3-02), 'dividend·drives·positive'가 옵션 질문(IV), '이란 사태'가 용어 질문(R4-01), 출처 'FT' 부분 문자열로 등급 상승(P20-TIER-01), BRK.B가 BRK와 BRK-B로 나뉨(P11-ENTITY-01, P20-ISSUER-01), know→now·corporate→rate·second→SEC 분류 오탐.",
+    "root_cause": "정규식에 단어 경계가 없고, 대소문자 무시 회사명과 접두 회사명을 구분하지 않았으며, 클래스 티커의 점을 경계로 보았다. P2131이 question-cues에서 고친 같은 클래스가 taxonomy·decision·market-session·narrative-context·telegram-tickers에 남아 있었다.",
+    "fix": "영문 약어·짧은 단서는 단어 경계로, 회사명은 접두 배제(Samsung Electro(?!nics))와 일반 단어 회사명의 대문자 표기만 인정, '이란'은 정의형 문맥에서만 용어 질문, 출처 등급은 정확한 출처 이름으로, 클래스 티커는 한 기호로 다룬다.",
+    "violated_rule": "R730: 뉴스 키워드 목록은 하나의 규칙(keyword-match.js)으로만 비교한다.",
+    "prevention": "pipeline-semantics briefing(R3-01, R3-02, P20-TIER-01, P20-ISSUER-01), ai(R4-01, P11-ENTITY-01) 케이스.",
+    "verification": "node scripts/ci-pipeline-semantics-check.mjs PASS."
+  },
+  "changelog": [
+    "**글자 일부만 맞아 엉뚱하게 붙던 곳 정리 ({P}):** '유가증권시장'이 유가 테마로, 'Samsung Electronics'가 삼성전기로, 'dividend'가 옵션 질문으로, '이란 사태'가 용어 질문으로, BRK.B가 두 종목으로 읽히던 것을 단어 단위 비교로 고쳤다."
+  ],
+  "note": "v59.45: Codex 파이프라인 의미 검토(PASS4~30)와 Claude 추가 검토의 결함을 영역별로 고치고 실제 함수 회귀 게이트(ci-pipeline-semantics-check)를 추가"
+}

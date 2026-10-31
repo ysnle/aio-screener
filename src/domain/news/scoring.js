@@ -143,7 +143,8 @@ export function computeNewsSentimentScore({ items = [], now = Date.now(), window
   let bullCount = 0, bearCount = 0;
   const total = recent.length;
   recent.forEach((item) => {
-    const stance = classifyNewsTextStance(`${item.title || ''} ${item.desc || ''}`);
+    // v59.45 (pipeline review P20-TEXT-01): the body that made the item eligible (summary, else desc) is the body read.
+    const stance = classifyNewsTextStance(`${item.title || ''} ${item.summary ?? item.desc ?? item.description ?? ''}`);
     if (stance === 'bull') bullCount++;
     else if (stance === 'bear' || stance === 'warn') bearCount++;
   });
@@ -181,7 +182,11 @@ export function computeNewsRiskSignals({ items = [], now = Date.now(), windowSta
   if (energyBear.length >= 3) riskSignals.push({ type: 'energy', level: 'high', label: `에너지 위기 신호 (${energyBear.length}건)`, impact: -8 });
 
   const creditStress = recent.filter((i) => {
-    const t = String(i.title || '').toLowerCase();
+    // v59.45 (pipeline review P20-TEXT-01): "no credit stress or default risk" denies the event; a negated or easing
+    // clause is cut before the stress words are read.
+    const t = String(i.title || '').toLowerCase()
+      .replace(/\b(?:no|not|without|nor|easing|eased|eases|ease)\b[^.,;:!?]{0,48}/g, ' ')
+      .replace(/(?:부도|파산|연체|경색|스트레스)[^.,]{0,12}(?:없|아니|완화|해소)\S*/g, ' ');
     const financialContext = /\b(?:credit|debt|bond|loan|lender|bank|borrower|corporate)\b|신용|채권|채무|대출|은행/.test(t);
     const stress = /\b(?:defaults?|defaulted|stress|crisis|distress|delinquency|bankrupt(?:cy)?|widen(?:s|ed|ing)?)\b|부도|경색|연체|파산|스프레드.*확대/.test(t);
     return financialContext && stress;

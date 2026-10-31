@@ -174,7 +174,9 @@ export function createThemesProvider({
         const quotes = useClose ? Object.fromEntries([...detailSymbols].map((symbol) => [symbol, closeBasis.quotes[symbol] || missingClose])) : liveQuotes;
         const quotePct = useClose
           ? (symbol) => { const close = closeQuotesFor([symbol], closeRows).quotes[symbol]; return close && close.observedAt === closeBasis.session ? close.pct : null; }
-          : (symbol) => runtimeQuote(live, symbol).pct ?? selectProducedRotation(producedArtifact, symbol, observationNow)?.dailyPct ?? null;
+          // v59.45 (R2-05): live mode reads live moves only. Filling a missing live ETF move with the produced rotation's
+          // completed-close dailyPct put a previous-session move into a hero labelled quoteBasis 'live'.
+          : (symbol) => runtimeQuote(live, symbol).pct ?? null;
         const etfPct = selectedTheme.etf ? quotePct(selectedTheme.etf) : null;
         const basePct = selectedTheme.compositeBase ? quotePct(selectedTheme.compositeBase) : null;
         const leaderPcts = (selectedTheme.leaders || []).map(quotePct).filter((value) => value != null);

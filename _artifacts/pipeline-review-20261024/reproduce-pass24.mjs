@@ -1,0 +1,24 @@
+import assert from 'node:assert/strict';
+import {writeFileSync} from 'node:fs';
+import {signalHistory} from '../../src/domain/technical/signal-history.js';
+import {buildChartScenarios} from '../../src/domain/technical/chart-scenarios.js';
+import {vwapAnchors,anchoredVwap} from '../../src/domain/technical/chart-drawings.js';
+import {breakoutChecklist} from '../../src/domain/technical/setup-coach.js';
+import {classifyMovingAverageStructure,MA_STRUCTURE_LABELS} from '../../src/domain/technical/stage.js';
+const closes=Array(11).fill(100); for(let i=1;i<11;i+=2)closes[i]=null;
+const signals=signalHistory({events:[0,2,4,6,8].map(index=>({index,kind:'power-gap'})),closes,horizon:1});
+assert.equal(signals.kinds['power-gap'].medianPct,-100);
+const bars=Array.from({length:60},(_,i)=>({time:`2026-${String(1+Math.floor(i/28)).padStart(2,'0')}-${String(i%28+1).padStart(2,'0')}`,open:100,high:i===2?120:110,low:i===3?80:90,close:100,volume:100}));
+const anchors=vwapAnchors(bars); assert(anchors.some(a=>a.label==='52주 고점'));
+const vwap=anchoredVwap([{high:10,low:10,close:10,volume:100},{high:100,low:100,close:100,volume:null}],0);
+assert.deepEqual(vwap,[10,10]);
+const analysis={available:true,bars,last:{close:100},templateChecks:Array.from({length:8},(_,i)=>['rule',i===7?null:true]),templatePass:7,asOf:'2026-10-01',state:'none',dryUp:null,adrFrom50:1};
+const checklist=breakoutChecklist(analysis,{earnings:{state:'unconfirmed',windowEnd:'2026-11-01'}});
+assert.equal(checklist.items.find(x=>x.id==='earnings').met,true);
+assert.equal(checklist.items.find(x=>x.id==='template').met,true);
+const structure=classifyMovingAverageStructure({sma50:100,sma200:90,sma20:105,lastClose:110});
+assert.equal(structure.sma50Rising,null); assert.match(MA_STRUCTURE_LABELS[structure.stageEstimate],/50일선 상승/);
+const scenarios=buildChartScenarios({...analysis,pivot:120,vcp:{contractions:[{low:80}]} });
+assert.match(scenarios.nearest,/20.0% 아래/); // 100 is actually 16.67% below 120; 20% is required upside from 100.
+writeFileSync(new URL('./pass24-reproductions.json',import.meta.url),JSON.stringify({signals,anchors,vwap,checklist,structure,label:MA_STRUCTURE_LABELS[structure.stageEstimate],nearest:scenarios.nearest},null,2)+'\n');
+console.log('PASS24: 6 semantic counterexample groups reproduced');

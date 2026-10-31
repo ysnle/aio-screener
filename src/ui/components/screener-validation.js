@@ -8,15 +8,20 @@ import { createTrendChart } from './trend-chart.js';
 import { liveScreenerModelFingerprint } from '../../domain/screener/model-fingerprint.js';
 import { el } from './dom.js';
 import { signedText } from '../../domain/shared/number.js';
+import { isIsoDay } from '../../domain/shared/session-date.js';
 
 export const VALIDATION_MIN_REBALANCES = 12;
 export const VALIDATION_MIN_ABS_T = 2;
+
+// v59.45 P7-UI-01: Number(null) and Number('') are 0, so a missing spread drew a flat 0% point on the curve and a
+// missing rebalance entered the t statistic as a real 0. Missing stays missing: null/blank are dropped before Number().
+const finiteOrNull = (value) => (value == null || value === '' || !Number.isFinite(Number(value)) ? null : Number(value));
 
 // v58.63 (architecture audit A11): the colour and 판단 가능 of the top-minus-bottom spread come from the spread's own
 // per-rebalance series (one-sample t of its mean), never from the composite IC t — a rank correlation can be steady while
 // the return gap is carried by one date (IC t 61408 beside a spread t of 1.1).
 export function meanTStat(values) {
-  const xs = (Array.isArray(values) ? values : []).map(Number).filter(Number.isFinite);
+  const xs = (Array.isArray(values) ? values : []).map(finiteOrNull).filter((x) => x != null);
   const n = xs.length;
   if (n < 2) return null;
   const mean = xs.reduce((sum, x) => sum + x, 0) / n;
@@ -27,26 +32,26 @@ export function meanTStat(values) {
 const pct = (value, digits = 2) => (value == null || !Number.isFinite(Number(value)) ? '—' : `${Number(value) >= 0 ? '+' : ''}${Number(value).toFixed(digits)}%`);
 
 export function summarizeValidation(history = [], status = null, liveWeights = null) {
-  const rows = (Array.isArray(history) ? history : []).filter((row) => /^\d{4}-\d{2}-\d{2}$/.test(String(row?.date || '')));
+  const rows = (Array.isArray(history) ? history : []).filter((row) => isIsoDay(String(row?.date || '')));
   const last = rows[rows.length - 1] || null;
   // X04 (2026-10-13): the curve joined rows of three model fingerprints (and rows with none) into one line. Only rows
   // computed by the same model as the latest record belong on it.
   const lastFingerprint = last?.modelFingerprint != null ? String(last.modelFingerprint) : null;
   const sameModel = rows.filter((row) => String(row.modelFingerprint ?? '') === (lastFingerprint ?? ''));
-  const series = sameModel.filter((row) => Number.isFinite(Number(row.quantileSpreadNet))).map((row) => ({ date: row.date, value: Number(row.quantileSpreadNet) }));
+  const series = sameModel.filter((row) => finiteOrNull(row.quantileSpreadNet) != null).map((row) => ({ date: row.date, value: finiteOrNull(row.quantileSpreadNet) }));
   let pooledMarkets = false;
   try { pooledMarkets = /market-separated/.test(JSON.parse(lastFingerprint || '{}').populationPolicy || ''); } catch (_) { pooledMarkets = false; }
   // v57.81: the one count basis for every "N회 중 M회 앞섬" (screener read, stock read, 과거 검증 tab): net of cost.
-  const wins = last && Number.isFinite(Number(last.netHitRate)) && Number.isFinite(Number(last.dates)) ? Math.round(Number(last.netHitRate) / 100 * Number(last.dates)) : null;
+  const wins = last && finiteOrNull(last.netHitRate) != null && finiteOrNull(last.dates) != null ? Math.round(Number(last.netHitRate) / 100 * Number(last.dates)) : null;
   // v57.50 D11: six rebalances with a composite IC t of about -0.26 were read as "뒤처졌습니다" in a burden colour.
   // A sign is a finding only with |t| >= 2 on at least 12 rebalances; otherwise the record says it cannot tell yet.
   // t is the record's own statistic when it carries one (ic.compositeT / icT); it is never estimated from the pooled n.
-  const icT = Number.isFinite(Number(last?.ic?.compositeT)) ? Number(last.ic.compositeT) : Number.isFinite(Number(last?.icT)) ? Number(last.icT) : null;
-  const spreadSeries = Array.isArray(last?.quantileSpreadNetByDate) ? last.quantileSpreadNetByDate.map(Number).filter(Number.isFinite) : [];
+  const icT = finiteOrNull(last?.ic?.compositeT) ?? finiteOrNull(last?.icT);
+  const spreadSeries = Array.isArray(last?.quantileSpreadNetByDate) ? last.quantileSpreadNetByDate.map(finiteOrNull).filter((x) => x != null) : [];
   const tStat = meanTStat(spreadSeries);
-  const samples = Number.isFinite(Number(last?.dates)) ? Number(last.dates) : null;
+  const samples = finiteOrNull(last?.dates);
   const distinguishable = spreadSeries.length >= VALIDATION_MIN_REBALANCES && tStat != null && Math.abs(tStat) >= VALIDATION_MIN_ABS_T;
-  const tone = !last || !Number.isFinite(Number(last.quantileSpreadNet)) ? 'unknown' : !distinguishable ? 'neutral' : Number(last.quantileSpreadNet) > 0 ? 'favorable' : 'burden';
+  const tone = !last || finiteOrNull(last.quantileSpreadNet) == null ? 'unknown' : !distinguishable ? 'neutral' : Number(last.quantileSpreadNet) > 0 ? 'favorable' : 'burden';
   const undecided = `아직 우연과 구별 안 됨(표본 ${samples ?? '—'}회${tStat != null ? `, t=${tStat.toFixed(2)}` : ''})`;
   // P1449: stored rows must carry the model fingerprint. A mismatch — or no fingerprint at all
   // (rows produced before this identity existed) — means the record was NOT produced by the
@@ -120,7 +125,6 @@ const GATE_BLOCKER_WORDS = Object.freeze({
   liquidityCapacityModeled: '유동성·체결 용량',
   liveBacktestParity: '실제 순위와 검증 정의의 일치'
 });
-const finiteOrNull = (value) => (value == null || value === '' || !Number.isFinite(Number(value)) ? null : Number(value));
 const signedPp = (value, digits = 2) => signedText(value, digits, '%p');
 const CANDIDATE_LINE = '순위는 결론이 아니라 확인할 후보입니다.';
 

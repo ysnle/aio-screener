@@ -17,8 +17,12 @@ export function diagnoseBreadthConsensus(signals, reg) {
   var bandScoreMap = { 'capitulation': 0.5, 'bearish': -1, 'mixed': 0, 'bullish': 1, 'overbought': -0.5 };
 
   ['sma5', 'sma20', 'sma50'].forEach(function(k) {
-    var v = Number(signals[k]);
-    if (isNaN(v)) return;
+    // v59.45 (P17-CONSENSUS-01): a missing reading stays missing — Number(null) is 0, which the registry reads as
+    // capitulation (+0.5) and turned three absent values into '강세 합의'.
+    var raw = signals[k];
+    if (raw == null || raw === '' || typeof raw === 'boolean') return;
+    var v = Number(raw);
+    if (!Number.isFinite(v)) return;
     var label = reg.BREADTH.getLabel(v);
     var score = bandScoreMap[label.signal] != null ? bandScoreMap[label.signal] : 0;
     totalScore += score * weights[k];

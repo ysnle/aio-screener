@@ -7,6 +7,7 @@
 //   so the row is removed;
 // - source and reviewedAt: the official source and the day it was last checked. A moved date is corrected here.
 // Dates are added only from an official source; none is inferred.
+import { isIsoDay } from '../shared/session-date.js';
 export const SCHEDULED_EVENTS = Object.freeze([
   Object.freeze({ id: 'il-knesset-2026', kind: 'election', atKst: '2026-10-28T05:00:00+09:00', label: '이스라엘 총선 (투표 마감, 출구조사)',
     why: '연정 구성에 따라 이란·중동 정책 기대가 바뀌어 유가 위험 프리미엄이 움직일 수 있음',
@@ -31,8 +32,13 @@ export function activeScheduledEvents({ nowMs = Date.now(), days = 7, registry =
 /** Registry problems: missing source/review, an expiry before the event, an entry already past its expiry. */
 export function scheduledEventProblems({ nowMs = Date.now(), registry = SCHEDULED_EVENTS } = {}) {
   const problems = [];
+  const ids = new Set();
   for (const event of registry) {
-    if (!event.source || !/^\d{4}-\d{2}-\d{2}$/.test(event.reviewedAt || '')) problems.push({ id: event.id, level: 'error', reason: 'source and reviewedAt required' });
+    if (!event.source || !isIsoDay(event.reviewedAt || '')) problems.push({ id: event.id, level: 'error', reason: 'source and reviewedAt required' });
+    // v59.45 (pipeline review P26 기타): a review date cannot be later than today, and an id is listed once.
+    else if (Date.parse(`${event.reviewedAt}T00:00:00+09:00`) > nowMs) problems.push({ id: event.id, level: 'error', reason: `reviewedAt ${event.reviewedAt} is in the future` });
+    if (ids.has(event.id)) problems.push({ id: event.id, level: 'error', reason: 'duplicate id' });
+    ids.add(event.id);
     if (!Number.isFinite(Date.parse(event.atKst)) || !(expiryMs(event) >= Date.parse(event.atKst))) problems.push({ id: event.id, level: 'error', reason: 'expiresAt must be on or after the event' });
     if (nowMs > expiryMs(event)) problems.push({ id: event.id, level: 'warn', reason: `expired ${event.expiresAt}; remove the row` });
   }

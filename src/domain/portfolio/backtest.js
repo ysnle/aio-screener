@@ -38,7 +38,9 @@ function _aioBtMonthDiff(a, b) {
   return (Number(bp[0]) - Number(ap[0])) * 12 + (Number(bp[1]) - Number(ap[1]));
 }
 
-function _aioBtMonthEnds(series) {
+// v59.45 (PASS23 P23-CUT-01): `cutMs` drops observations after the as-of instant (a past cut kept every later month), and
+// each month keeps its latest timestamp rather than the last array row, so a reversed series still ends on the month end.
+function _aioBtMonthEnds(series, cutMs) {
   var out = {};
   var ts = series && series.timestamps || [];
   // The portfolio lab is total-return research.  Raw closes and ambiguous
@@ -50,7 +52,10 @@ function _aioBtMonthEnds(series) {
     if (close === null || close <= 0) continue;
     var key = _aioBtMonthKeyFromTs(ts[i]);
     if (!key) continue;
-    out[key] = { value: close, tsMs: _aioBtTimestampMs(ts[i]) };
+    var tsMs = _aioBtTimestampMs(ts[i]);
+    if (cutMs != null && (tsMs == null || tsMs > cutMs)) continue;
+    if (out[key] && out[key].tsMs != null && tsMs != null && out[key].tsMs > tsMs) continue;
+    out[key] = { value: close, tsMs: tsMs };
   }
   return out;
 }
@@ -246,6 +251,14 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
   var rfInvalid = rfProvided && rfAnnual == null;
   var benchmarkSymbol = String(options.benchmarkSymbol || 'SPY').trim().toUpperCase() || 'SPY';
   var rebalanceType = String(options.rebalanceType || 'annual').toLowerCase();
+  // v59.45 (PASS23): an unrecognised policy ran silently as no rebalancing. The form offers exactly these four.
+  if (['annual', 'quarterly', 'monthly', 'none'].indexOf(rebalanceType) === -1) {
+    return {
+      ok: false, status: 'PARTIAL', allowedUse: 'reference-only', decisionUse: false, decisionEligible: false, promotionEligible: false,
+      promotionBlockers: ['rebalance-policy-unrecognized'], reason: 'rebalance type unrecognized', model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
+      warnings: ['리밸런싱 방식(' + rebalanceType + ')을 알 수 없어 백테스트를 계산하지 않습니다.']
+    };
+  }
   var maxAlignmentGapDays = Number.isFinite(Number(options.maxAlignmentGapDays)) && Number(options.maxAlignmentGapDays) >= 0
     ? Number(options.maxAlignmentGapDays) : 3;
   var startYear = Number(options.startYear) || 2017;
@@ -435,7 +448,7 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
   // annual rate in (-1, 1]; values such as 4.3 are rejected as percent units.
 
   var monthEnds = {};
-  tickers.concat([benchmarkSymbol]).forEach(function(t) { monthEnds[t] = _aioBtMonthEnds(priceMap[t]); });
+  tickers.concat([benchmarkSymbol]).forEach(function(t) { monthEnds[t] = _aioBtMonthEnds(priceMap[t], asOfMs); });
   var common = Object.keys(monthEnds[benchmarkSymbol]).filter(function(k) {
     var y = Number(k.slice(0, 4));
     var benchmarkPoint = monthEnds[benchmarkSymbol][k];
@@ -450,7 +463,8 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
   // counted as a full month in CAGR, volatility and VaR. It is left out until the month closes.
   var partialMonth = _aioBtMonthKeyFromTs(asOfMs);
   if (common.length && common[common.length - 1] === partialMonth) common = common.slice(0, -1);
-  else partialMonth = null;
+  // v59.45: with the cut, a month-end observed after asOf is already gone; the running month is still reported as left out.
+  else if (!_aioBtMonthEnds(priceMap[benchmarkSymbol])[partialMonth]) partialMonth = null;
   if (common.length < 14) {
     return {
       ok: false, status: 'PARTIAL', allowedUse: 'reference-only', decisionUse: false,
@@ -734,8 +748,10 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
   var activeMonthly = monthlyReturns.map(function(r, idx) { return r - benchmarkReturns[idx]; });
   var trackingError = _statStdDev(activeMonthly) * Math.sqrt(12);
   var infoRatio = trackingError > 1e-10 ? (_statMean(activeMonthly) / _statStdDev(activeMonthly)) * Math.sqrt(12) : null;
-  var corr = _pearsonCorr(monthlyReturns, benchmarkReturns);
   var benchmarkVariance = Math.pow(_statStdDev(benchmarkReturns), 2);
+  // v59.45 (PASS22 P22-STATS-01): a flat series has no correlation — _pearsonCorr returns 0 for it (its legacy contract,
+  // js/aio-tests.js T34), which read as "uncorrelated". The lab publishes null instead.
+  var corr = benchmarkVariance > 1e-12 && _statStdDev(monthlyReturns) > 1e-6 ? _pearsonCorr(monthlyReturns, benchmarkReturns) : null;
   var beta = benchmarkVariance > 1e-12 ? _aioBtCovariance(monthlyReturns, benchmarkReturns) / benchmarkVariance : null;
   var benchmarkExcessMonthly = rfMonthly == null ? null : benchmarkReturns.map(function(r) { return r - rfMonthly; });
   // Jensen alpha is estimated in the same monthly arithmetic-return space as

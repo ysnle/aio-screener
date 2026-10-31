@@ -1,0 +1,136 @@
+{
+  "reloaded": {
+    "schemaVersion": "knowledge-learning-state.v1",
+    "progress": {},
+    "bookmarks": [],
+    "notes": {
+      "b": {
+        "value": "second",
+        "updatedAt": "2026-10-31T02:54:12.294Z"
+      }
+    },
+    "updatedAt": "2026-10-31T02:54:12.294Z",
+    "persistence": "not-attempted",
+    "retrieval": {}
+  },
+  "evidence": [
+    {
+      "id": "s",
+      "publisher": "출처 확인 필요",
+      "title": "s",
+      "url": "https://example.com",
+      "sourceRole": "REFERENCE",
+      "scope": null,
+      "allowedUse": "ANY",
+      "reviewedAt": "2020-01-01",
+      "publishedAt": null,
+      "verification": "verified",
+      "directness": null,
+      "sourceTier": null
+    }
+  ],
+  "claims": [
+    {
+      "id": "c",
+      "sourceIds": [],
+      "claimId": "c",
+      "missingSourceIds": []
+    }
+  ],
+  "edge": {
+    "id": "edge-a-b",
+    "from": "a",
+    "to": "b",
+    "relation": "참고",
+    "type": "RELATES_TO",
+    "direction": "DIRECTED",
+    "kind": "STRUCTURAL",
+    "strength": "CORE",
+    "polarity": "CONDITIONAL",
+    "conditions": [],
+    "sourceIds": [],
+    "reviewedAt": "2026-10-30",
+    "reviewStatus": null,
+    "sourceStatus": null,
+    "metadataOrigin": "INFERRED",
+    "inferredFields": [
+      "type",
+      "direction",
+      "kind",
+      "strength",
+      "polarity",
+      "conditions",
+      "sourceIds",
+      "reviewedAt"
+    ]
+  },
+  "inspected": {
+    "nodeCount": 2,
+    "edgeCount": 1,
+    "invalidEndpoints": [],
+    "duplicateEdges": [],
+    "metadataErrors": [],
+    "inferredEdges": [],
+    "components": [
+      [
+        "a",
+        "b"
+      ]
+    ],
+    "isolatedNodes": [],
+    "sourceNodes": [
+      "a"
+    ],
+    "sinkNodes": [
+      "b"
+    ]
+  },
+  "duplicateIds": {
+    "nodeCount": 2,
+    "edgeCount": 2,
+    "invalidEndpoints": [],
+    "duplicateEdges": [],
+    "metadataErrors": [],
+    "inferredEdges": [],
+    "components": [
+      [
+        "a",
+        "b"
+      ]
+    ],
+    "isolatedNodes": [],
+    "sourceNodes": [
+      "a"
+    ],
+    "sinkNodes": [
+      "b"
+    ]
+  },
+  "future": false,
+  "relations": [
+    [
+      "a",
+      [
+        {
+          "id": "b",
+          "title": "b",
+          "type": "substitute",
+          "label": "대체·경쟁 관계(특정 용도에서)",
+          "text": ""
+        }
+      ]
+    ],
+    [
+      "b",
+      [
+        {
+          "id": "a",
+          "title": "a",
+          "type": "substitute",
+          "label": "대체·경쟁 관계(특정 용도에서)",
+          "text": ""
+        }
+      ]
+    ]
+  ]
+}

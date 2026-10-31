@@ -1,10 +1,13 @@
 // P1624: the same identity/source contract applies to every issuer; never infer its business from a ticker.
+// v59.45 (pipeline review P25 identity note): one source-link rule with the company analysis (company-analysis.js) — a
+// parsable https URL without credentials — so a profile is not 'sourced' here and 'missing' there.
+export const safeSourceUrl = (value) => { try { const url = new URL(value); return url.protocol === 'https:' && !url.username && !url.password ? url.href : null; } catch (_) { return null; } };
 export function businessProfileFor(symbol, row = {}, metadata = {}) {
   const id = String(symbol || '').trim().toUpperCase();
   const candidates = [metadata.businessProfile, row.businessProfile];
   const profile = candidates.find(item => String(item?.symbol || '').trim().toUpperCase() === id
     && typeof item?.description === 'string' && item.description.trim()
-    && typeof item?.sourceUrl === 'string' && /^https:\/\//.test(item.sourceUrl));
+    && typeof item?.sourceUrl === 'string' && safeSourceUrl(item.sourceUrl) != null);
   const isKr = /\.(KS|KQ)$/.test(id);
   const instrument = String(metadata.instrumentType || row.instrumentType || row.quoteType || row.instrumentRef?.assetType || row.assetType || '').toUpperCase();
   const kind = instrument === 'ETF' ? '상장지수펀드(ETF)' : instrument === 'INDEX' ? '지수'

@@ -1,0 +1,72 @@
+{
+  "scope": "Pure local contract counterexamples; live producer occurrence unverified",
+  "rumor": {
+    "reported": "rumor",
+    "status": "verified-current",
+    "ai": true
+  },
+  "future": {
+    "title": "Federal Reserve policy announcement",
+    "summary": "A speculative acquisition report with no official confirmation or named source for the proposed transaction.",
+    "source": "Reuters",
+    "tier": 1,
+    "score": 99,
+    "topic": "equity",
+    "pubDate": "2026-10-31T01:00:00Z",
+    "_serverBackstop": true,
+    "newsCyclePolicy": "kst-0800-completed-24h",
+    "newsCycleStart": "2026-10-31T00:00:00Z",
+    "newsCycleEnd": "2026-11-01T00:00:00Z",
+    "newsId": "news-1980484068",
+    "ageHours": null,
+    "inNewsCycle": true,
+    "serverCycleTrusted": true,
+    "marketCutStatus": "unknown",
+    "tickers": [],
+    "contentDepth": "summary",
+    "sourceTier": 1,
+    "verificationStatus": "verified-current",
+    "staleStatus": "current-window",
+    "sourcePolicy": "verified-current-only",
+    "inclusionReason": "08:00 KST 24h, Score 99, verified-current",
+    "eligibleForAi": true,
+    "currentEvidence": {
+      "observedAt": null,
+      "fetchedAt": null,
+      "ageHours": null,
+      "inNewsCycle": true,
+      "withinWindow": false,
+      "current": false,
+      "verificationStatus": "verified-current",
+      "eligibleForAi": true,
+      "reason": "publication-time-in-future"
+    }
+  },
+  "cache": {
+    "initial": 104,
+    "agedCached": 104,
+    "agedFresh": 82
+  },
+  "intraday": [],
+  "bodySentiment": {
+    "modelVersion": "news-scoring.v2",
+    "score": 50,
+    "label": "중립",
+    "bullCount": 0,
+    "bearCount": 0,
+    "total": 5,
+    "bullRatio": 0,
+    "bearRatio": 0,
+    "sampleSufficient": true
+  },
+  "negationRisk": [
+    {
+      "type": "credit",
+      "level": "high",
+      "label": "신용 스트레스 신호",
+      "impact": -12
+    }
+  ],
+  "tier": 1,
+  "classMismatch": true
+}

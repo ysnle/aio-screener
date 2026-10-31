@@ -1,0 +1,25 @@
+{
+  "generatedAt": "2026-10-26T13:55:15.026Z",
+  "evidence": "E2 isolated real functions and unchanged source block",
+  "regimeDate": {
+    "rebalanceDate": "2025-11-27",
+    "classifiedDate": "2025-11-28",
+    "sessionDifference": 1,
+    "limit": "classifyRegime stub records the date only; no claim about actual historical regime flips"
+  },
+  "nullValidationSeries": [
+    {
+      "date": "2026-01-01",
+      "value": 0
+    },
+    {
+      "date": "2026-01-02",
+      "value": 0
+    }
+  ],
+  "committedHistory": {
+    "inspectedRows": 92,
+    "nullOrBlankSpreadRows": 0
+  },
+  "limits": "No external calls, producer main, browser or deployed execution. Synthetic weekday calendar is not an exchange calendar."
+}

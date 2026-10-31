@@ -13,6 +13,8 @@
  * only place that binds these functions to the classic shell.
  */
 
+import { calendarDate } from './trade-journal.js';
+
 const EXPOSURE_HISTORY_MODES = ['actual_account_history', 'current_composition_retrospective', 'fixed_target_weight_strategy'];
 
 function _pfStableStringify(value) {
@@ -293,6 +295,14 @@ export function deriveRiskEstimate(input) {
   if (lengthMismatch.length || n < 1) {
     return { status: 'blocked', code: lengthMismatch.length ? 'member-return-series-misaligned' : 'empty-sample', members: lengthMismatch, estimateId: null, publishedScope: null };
   }
+  // v59.45 (PASS22 P22-RISK-01): a price return is a finite number above -100%. [NaN, .1] was published as a ready
+  // estimate with NaN returns; such a series holds the estimate and names its members instead.
+  var invalidSeries = memberSeries.filter(function(entry) {
+    return entry.series.some(function(value) { return typeof value !== 'number' || !isFinite(value) || value <= -1; });
+  }).map(function(entry) { return entry.ticker; });
+  if (invalidSeries.length) {
+    return { status: 'blocked', code: 'member-return-series-invalid', members: invalidSeries, estimateId: null, publishedScope: null };
+  }
 
   // Invested sleeve: retrospective uses the frozen current composition weights;
   // the fixed-target-weight strategy path uses declared target weights that are
@@ -548,9 +558,16 @@ export function assessAccountPerformance(input) {
   });
   if (unknownKinds.length) return blocked('account-ledger-kind-unrecognized', '원장에 인식되지 않는 거래 종류가 있습니다: ' + Array.from(new Set(unknownKinds)).join(', '));
 
-  var flows = transactions
-    .map(function(tx) { return { date: tx && tx.date != null ? String(tx.date) : null, kind: tx && tx.kind != null ? String(tx.kind) : null, amount: tx && tx.amount != null ? Number(tx.amount) : null }; })
-    .filter(function(tx) { return tx.date != null && isFinite(tx.amount) && tx.amount >= 0 && (tx.kind === 'deposit' || tx.kind === 'withdrawal') });
+  // v59.45 (PASS22 P22-LEDGER-01): an external flow that cannot be dated or priced is a missing flow, not a skipped one —
+  // dropping a deposit of 'bad' printed 100→200 as an exact +100% TWR. Any such row holds the performance, and a null
+  // amount no longer passes the global isFinite(null) === true as a 0.
+  var flowRows = transactions.filter(function(tx) { return tx && (tx.kind === 'deposit' || tx.kind === 'withdrawal'); });
+  var invalidFlows = flowRows.filter(function(tx) {
+    var amount = tx.amount == null || String(tx.amount).trim() === '' ? NaN : Number(tx.amount);
+    return !calendarDate(tx.date) || !Number.isFinite(amount) || amount < 0;
+  }).length;
+  if (invalidFlows) return blocked('account-flow-invalid', '입출금 ' + invalidFlows + '건의 날짜나 금액을 읽을 수 없어 계좌 성과를 계산하지 않습니다.');
+  var flows = flowRows.map(function(tx) { return { date: String(tx.date), kind: String(tx.kind), amount: Number(tx.amount) }; });
   var netFlowIn = function(period) {
     var total = 0;
     flows.forEach(function(tx) {
@@ -614,7 +631,9 @@ export function assessAccountPerformance(input) {
   var mwr = _pfIrr(cashflows);
 
   var warnings = [];
-  if (mwr == null) warnings.push('MWR(금액가중수익률)은 구간 내 부호 변화가 없어 계산하지 않았습니다 — TWR만 게시합니다.');
+  // v59.45 (PASS22): _pfIrr holds for several reasons (one-sided flows, no sign change in its search range, an
+  // unbounded value) — the warning no longer names only one of them.
+  if (mwr == null) warnings.push('MWR(금액가중수익률)은 이 원장에서 하나의 값으로 정해지지 않아 계산하지 않았습니다 — TWR만 게시합니다.');
   if (interiorFlows) warnings.push('입출금 ' + interiorFlows + '건의 날짜에 평가액이 없어 TWR은 그 입출금을 기간 ' + (flowTiming === 'start-of-period' ? '시작' : '끝') + '에 둔 근사치입니다 — 입출금일 평가액을 원장에 넣으면 정확한 시간가중 수익률이 됩니다.');
 
   return {

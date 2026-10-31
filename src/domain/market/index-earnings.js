@@ -8,6 +8,7 @@
 
 import { dataStateText } from '../content/data-state.js';
 import { CONSENSUS_MAX_AGE_DAYS, CONSENSUS_PRICE_MAX_AGE_DAYS } from '../fundamental/consensus-read.js';
+import { readNumber as finite } from '../shared/number.js';
 
 // A whole-index figure needs most of the index behind it; below this share of index weight it is withheld.
 const DAY_MS = 86400000;
@@ -17,15 +18,13 @@ export const SECTOR_MIN_MEMBERS = 8;
 // Dual share classes are one issuer: their weights add, their estimate revisions are counted once.
 const SHARE_CLASS_OF = Object.freeze({ GOOG: 'GOOGL', FOX: 'FOXA', NWS: 'NWSA' });
 
-const finite = (value) => {
-  const number = Number(value);
-  return value != null && value !== '' && Number.isFinite(number) ? number : null;
-};
 
 function weightRows(weights) {
   const rows = Array.isArray(weights?.rows) ? weights.rows : [];
+  // v59.45 (P17-EARNINGS-01): the weight is summed as the number it was checked as (a string weight concatenated).
   return rows.map((row) => (Array.isArray(row) ? { sym: row[0], sector: row[1], weight: row[2] } : row))
-    .filter((row) => row?.sym && finite(row.weight) > 0);
+    .filter((row) => row?.sym && finite(row.weight) > 0)
+    .map((row) => ({ ...row, weight: finite(row.weight) }));
 }
 
 const priceOf = (row) => finite(row?._valuationPrice ?? row?.valuationPrice ?? row?._valuationPePrice ?? row?.pePrice);
@@ -41,7 +40,8 @@ function revisionOf(stats) {
 export function buildIndexEarnings({ rows = [], weights = null, consensus = null, realYield10 = null, realYieldAsOf = null, now = Date.now() } = {}) {
   const nowMs = Number.isFinite(Number(now)) ? Number(now) : Date.now();
   const estimateCurrent = (asOf) => { const ms = Date.parse(asOf || ''); return Number.isFinite(ms) && nowMs - ms <= CONSENSUS_MAX_AGE_DAYS * DAY_MS && ms - nowMs <= DAY_MS; };
-  const closeCurrent = (row) => { const day = String(row?.factorSessionDate || '').slice(0, 10); const ms = day ? Date.parse(`${day}T00:00:00Z`) : NaN; return Number.isFinite(ms) && nowMs - ms <= CONSENSUS_PRICE_MAX_AGE_DAYS * DAY_MS; };
+  // v59.45 (P17-EARNINGS-01): a close dated after now is not the latest close.
+  const closeCurrent = (row) => { const day = String(row?.factorSessionDate || '').slice(0, 10); const ms = day ? Date.parse(`${day}T00:00:00Z`) : NaN; return Number.isFinite(ms) && ms <= nowMs && nowMs - ms <= CONSENSUS_PRICE_MAX_AGE_DAYS * DAY_MS; };
   const members = weightRows(weights);
   const estimates = consensus?.rows && typeof consensus.rows === 'object' ? consensus.rows : null;
   // v58.80 (first-users bundle 3): weights not loaded yet (null) is a load in progress, not "없습니다".

@@ -9,10 +9,11 @@
 // The identity holds exactly; every component is from completed closes. It is current-composition
 // arithmetic (what today's weights would have earned), not the account's realized history.
 import { SECTOR_ETF } from '../entity/stock-read.js';
+import { readNumber as finite } from '../shared/number.js';
+import { hasLeadingIsoDay } from '../shared/session-date.js';
 
-const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
 const isKr = (symbol) => /\.(KS|KQ)$/i.test(String(symbol || ''));
-const dateOf = (value) => (/^\d{4}-\d{2}-\d{2}/.test(String(value || '')) ? String(value).slice(0, 10) : null);
+const dateOf = (value) => (hasLeadingIsoDay(String(value || '')) ? String(value).slice(0, 10) : null);
 
 // FX return of converting `from` into `base` over the window, from the USD/KRW close series.
 export function fxReturnInto(from, base, usdkrwReturnPct) {
@@ -34,6 +35,7 @@ export function fxReturnInto(from, base, usdkrwReturnPct) {
 export function buildAttribution({ holdings = [], cash = null, baseCurrency = null, rowFor = () => null, marketReturnFor = () => null, usdkrwReturnPct = null, usdkrwAsOf, holdingsValue: wholeHoldingsValue = null } = {}) {
   const parts = [];
   const skipped = [];
+  const sectorBasisHeld = [];
   for (const holding of holdings) {
     const value = finite(holding?.value);
     if (!(value > 0)) continue;
@@ -52,7 +54,14 @@ export function buildAttribution({ holdings = [], cash = null, baseCurrency = nu
     if (!rBasis || !mBasis || rBasis !== mBasis) { skipped.push({ symbol: holding.symbol, value, reason: 'basis-mismatch', rBasis, mBasis }); continue; }
     if (from && usdkrwAsOf !== undefined && dateOf(usdkrwAsOf) !== rBasis) { skipped.push({ symbol: holding.symbol, value, reason: 'fx-basis-mismatch', rBasis, fxBasis: dateOf(usdkrwAsOf) }); continue; }
     const etf = isKr(holding.symbol) ? null : SECTOR_ETF[row?.sector] || null;
-    const s = etf ? finite(rowFor(etf)?.ret3m) : null;
+    // v59.45 (ALL-PIPELINES P3-PF-01): the sector ETF's 3-month return must end on the stock's close too. An XLK row from
+    // 9/1 beside AAPL and SPY on 10/23 split +45%p into 섹터 and -40%p into 종목 선택 with nothing skipped. An undated or
+    // differently dated sector row leaves that holding's sector effect inside 종목 선택 (sectorMappedPct), named in
+    // sectorBasisHeld.
+    const sectorRow = etf ? rowFor(etf) : null;
+    const sectorAligned = !!sectorRow && dateOf(sectorRow.factorSessionDate || sectorRow.asOf) === rBasis;
+    if (etf && sectorRow && finite(sectorRow.ret3m) != null && !sectorAligned) sectorBasisHeld.push({ symbol: holding.symbol, etf, sBasis: dateOf(sectorRow.factorSessionDate || sectorRow.asOf), rBasis });
+    const s = etf && sectorAligned ? finite(sectorRow.ret3m) : null;
     const local = r / 100;
     const base = (1 + local) * (1 + fx) - 1;
     // Portfolio audit 2026-10-17: the weight is the holding's value at the start of the window (today's value ÷ its 3-month
@@ -108,6 +117,7 @@ export function buildAttribution({ holdings = [], cash = null, baseCurrency = nu
     fxAsOf: usdkrwAsOf ? dateOf(usdkrwAsOf) : null,
     fxHoldingsPct: Math.round(parts.filter((part) => part.converted).reduce((t, part) => t + part.value, 0) / invested * 1000) / 10,
     topStock: contributors.slice(0, 3),
+    sectorBasisHeld,
     skipped
   };
 }

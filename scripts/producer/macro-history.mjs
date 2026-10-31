@@ -35,6 +35,8 @@ export const MACRO_HISTORY_SERIES = Object.freeze({
   fedFunds:       { id: 'FEDFUNDS',      frequency: 'monthly', limit: 40,  unit: 'percent', label: '실효 연방기금금리' },
   initialClaims:  { id: 'ICSA',          frequency: 'weekly',  limit: 110, unit: 'claims', label: '신규 실업수당 청구' },
   fedTargetUpper: { id: 'DFEDTARU',      frequency: 'daily',   limit: 400, unit: 'percent', label: '연준 목표 상단' },
+  // v59.45 (P18-POLICY-01): the lower bound the crossroads policy path reads (it fell back to upper − 0.25 without it).
+  fedTargetLower: { id: 'DFEDTARL',      frequency: 'daily',   limit: 400, unit: 'percent', label: '연준 목표 하단' },
   dgs2:           { id: 'DGS2',          frequency: 'daily',   limit: 280, unit: 'percent', label: '미 국채 2년' },
   dgs10:          { id: 'DGS10',         frequency: 'daily',   limit: 280, unit: 'percent', label: '미 국채 10년' },
   // v58.55 (개편 v2 5e): the remaining tenors of the 금리 · 환율 curve, so its dashed "1개월 전" line can be drawn. The
@@ -118,11 +120,12 @@ export async function collectMacroLongHistory(key, previousLong, { fetchFn = fet
     try {
       const observations = parseFredObservations(await fetchFn(url));
       if (observations.length < 120) throw new Error('too-few-observations');
-      series[field] = { id: spec.id, label: spec.label, unit: spec.unit, transform: spec.units === 'pc1' ? 'percent-change-from-year-ago' : 'monthly-mean', observations: observations.map((row) => [row.date.slice(0, 7), Math.round(row.value * 100) / 100]) };
+      series[field] = { id: spec.id, label: spec.label, unit: spec.unit, transform: spec.units === 'pc1' ? 'percent-change-from-year-ago' : 'monthly-mean', fetchedAt: new Date(nowMs).toISOString(), observations: observations.map((row) => [row.date.slice(0, 7), Math.round(row.value * 100) / 100]) };
     } catch (error) {
       failed.push(field);
       const kept = previousLong?.series?.[field];
-      if (kept?.observations?.length) series[field] = { ...kept, stale: true };
+      // v59.45 (P18-LONG-01): a kept series keeps the date it was fetched, so its mid-month mean stays a partial month.
+      if (kept?.observations?.length) series[field] = { ...kept, stale: true, ...(kept.fetchedAt || previousLong?.generatedAt ? { fetchedAt: kept.fetchedAt || previousLong.generatedAt } : {}) };
       console.warn(`[fetch-data] macro long history ${spec.id} failed: ${error?.message || error}`);
     }
   }

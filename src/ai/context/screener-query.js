@@ -5,6 +5,24 @@
 // Behaviour is unchanged except that no second ranking run happens here: the rows arrive ranked from the screen's own
 // run, so the old "rank on demand" fallback (a duplicate of the native ranking) is gone.
 
+import { listingCurrency } from '../../domain/portfolio/fx.js';
+import { formatScreenerPrice } from '../../domain/screener/market-scope.js';
+
+// v59.45 (pipeline review P13-SCREEN-01): a row copied quote.price and dropped its currency, and the prompt put "$" on every
+// price, so Samsung read "가격 $70000.00". A quote keeps its own currency (the listing's when the quote declares none; an
+// unknown exchange stays unknown) and its observation time.
+function quoteFields(sym, ld) {
+  const declared = String(ld && ld.currency || '').trim().toUpperCase();
+  return {
+    price: ld && ld.price != null ? ld.price : null,
+    currency: /^[A-Z]{3}$/.test(declared) ? declared : listingCurrency(sym),
+    priceObservedAt: (ld && (ld.observedAt || ld.asOf)) || null
+  };
+}
+
+// v59.45 (P13-SCREEN-02): a missing or zero market cap is unknown, not small. Only a finite positive value meets a size bound.
+const knownCap = (mcap) => typeof mcap === 'number' && Number.isFinite(mcap) && mcap > 0;
+
 export const SECTOR_KEYWORDS = Object.freeze({
   'technology':['Technology'], 'tech':['Technology'], '기술':['Technology'], '기술주':['Technology'], 'IT':['Technology'],
   'software':['Technology'], '소프트웨어':['Technology','SW','ERP','IT서비스','IT플랫폼','CNS'],
@@ -122,7 +140,7 @@ export function buildDiversifiedRecommendationRows(rows, live, opts) {
       sym: s.sym, name: s.name, sector: s.sector, signal: s.signal, mcap: s.mcap, rsi: s.rsi,
       rank: (typeof s.rank === 'number' ? s.rank : null), quantSignal: s.quantSignal || null, factorScores: s.factorScores || null,
       ret3m: (typeof s.ret3m === 'number' ? s.ret3m : null), vol: (typeof s.vol === 'number' ? s.vol : null),
-      price: ld.price != null ? ld.price : null, pct, memo: (s.memo || '').slice(0, 90),
+      ...quoteFields(s.sym, ld), pct, memo: (s.memo || '').slice(0, 90),
       market: inferTickerMarket(s.sym, s.index), capBucket: capBucket(s.mcap), diversityScore: Math.round(score), repeatPenalty
     };
   }).sort((a, b) => b.diversityScore - a.diversityScore);
@@ -174,10 +192,16 @@ export function runScreenerQuery(query, { rows = [], live = {}, aliases = {}, re
     else if (/보유|hold\b/.test(q)) crit.signal = 'HOLD';
     if (crit.signal) labels.push('시그널=' + crit.signal);
 
-    const rsiUnder = q.match(/rsi\s*(\d{1,3})\s*(?:이하|미만|under|below|아래|<=?)/) || q.match(/(?:이하|미만|under|below)\s*rsi\s*(\d{1,3})/);
-    const rsiOver  = q.match(/rsi\s*(\d{1,3})\s*(?:이상|초과|over|above|위|>=?)/) || q.match(/(?:이상|초과|over|above)\s*rsi\s*(\d{1,3})/);
-    if (rsiUnder) { crit.rsiMax = +rsiUnder[1]; labels.push('RSI≤' + crit.rsiMax); }
-    if (rsiOver)  { crit.rsiMin = +rsiOver[1];  labels.push('RSI≥' + crit.rsiMin); }
+    // v59.45 (pipeline review P13-SCREEN-03): "미만/below" and "이하" were one inclusive bound (and "초과/over" one with
+    // "이상"), so "rsi 30 미만" kept RSI 30. Each bound keeps whether its end is included; a range "30 이상 70 미만" reads both ends.
+    const bound = (value, op) => ({ value: +value, inclusive: /^(?:이하|이상|<=|>=)$/.test(op) });
+    const range = q.match(/rsi\s*(\d{1,3})\s*(이상|초과)\s*[~,-]?\s*(\d{1,3})\s*(이하|미만)/);
+    const underAfter = q.match(/rsi\s*(\d{1,3})\s*(이하|미만|under|below|아래|<=?)/), underBefore = q.match(/(이하|미만|under|below)\s*rsi\s*(\d{1,3})/);
+    const overAfter = q.match(/rsi\s*(\d{1,3})\s*(이상|초과|over|above|위|>=?)/), overBefore = q.match(/(이상|초과|over|above)\s*rsi\s*(\d{1,3})/);
+    const rsiUnder = range ? bound(range[3], range[4]) : underAfter ? bound(underAfter[1], underAfter[2]) : underBefore ? bound(underBefore[2], underBefore[1]) : null;
+    const rsiOver = range ? bound(range[1], range[2]) : overAfter ? bound(overAfter[1], overAfter[2]) : overBefore ? bound(overBefore[2], overBefore[1]) : null;
+    if (rsiUnder) { crit.rsiMax = rsiUnder.value; crit.rsiMaxInclusive = rsiUnder.inclusive; labels.push((rsiUnder.inclusive ? 'RSI≤' : 'RSI<') + crit.rsiMax); }
+    if (rsiOver)  { crit.rsiMin = rsiOver.value; crit.rsiMinInclusive = rsiOver.inclusive; labels.push((rsiOver.inclusive ? 'RSI≥' : 'RSI>') + crit.rsiMin); }
     if (crit.rsiMax == null && crit.rsiMin == null) {
       if (/과매도|oversold|침체\s*구간/.test(q)) { crit.rsiMax = 35; labels.push('과매도(RSI≤35)'); }
       else if (/과매수|과열|overbought/.test(q)) { crit.rsiMin = 65; labels.push('과매수(RSI≥65)'); }
@@ -221,12 +245,15 @@ export function runScreenerQuery(query, { rows = [], live = {}, aliases = {}, re
     if (labels.length === 0) return null;
 
     const quotes = live || {};
+    let mcapUnknown = 0;
     const matchedRows = db.filter((s) => {
       if (crit.signal && s.signal !== crit.signal) return false;
-      if (crit.rsiMax != null && !(s.rsi != null && s.rsi <= crit.rsiMax)) return false;
-      if (crit.rsiMin != null && !(s.rsi != null && s.rsi >= crit.rsiMin)) return false;
-      if (crit.mcapMin != null && !((s.mcap || 0) >= crit.mcapMin)) return false;
-      if (crit.mcapMax != null && !((s.mcap || 0) < crit.mcapMax)) return false;
+      const rsi = typeof s.rsi === 'number' && Number.isFinite(s.rsi) ? s.rsi : null;
+      if (crit.rsiMax != null && !(rsi != null && (crit.rsiMaxInclusive !== false ? rsi <= crit.rsiMax : rsi < crit.rsiMax))) return false;
+      if (crit.rsiMin != null && !(rsi != null && (crit.rsiMinInclusive !== false ? rsi >= crit.rsiMin : rsi > crit.rsiMin))) return false;
+      if ((crit.mcapMin != null || crit.mcapMax != null) && !knownCap(s.mcap)) { mcapUnknown += 1; return false; }
+      if (crit.mcapMin != null && !(s.mcap >= crit.mcapMin)) return false;
+      if (crit.mcapMax != null && !(s.mcap < crit.mcapMax)) return false;
       if (crit.sectors && !crit.sectors.some((sec) => s.sector === sec)) return false;
       if (crit.index && s.index !== crit.index) return false;
       if (crit.themeSet && !crit.themeSet[s.sym]) return false;
@@ -242,7 +269,7 @@ export function runScreenerQuery(query, { rows = [], live = {}, aliases = {}, re
       return { sym: s.sym, name: s.name, sector: s.sector, signal: s.signal, mcap: s.mcap, rsi: s.rsi,
         rank: (typeof s.rank === 'number' ? s.rank : null), quantSignal: s.quantSignal || null, factorScores: s.factorScores || null,
         ret3m: (typeof s.ret3m === 'number' ? s.ret3m : null), vol: (typeof s.vol === 'number' ? s.vol : null),
-        price: ld.price != null ? ld.price : null, pct: ld.pct != null ? ld.pct : null, memo: (s.memo || '').slice(0, 90),
+        ...quoteFields(s.sym, ld), pct: ld.pct != null ? ld.pct : null, memo: (s.memo || '').slice(0, 90),
         // 2026-10-13 news audit N02: only a memo whose headline names this issuer (producer newsMemoVerified) reaches
         // the AI as this stock's news; an unverified memo was another company's story about 1 time in 5.
         newsMemo: s.newsMemoVerified === true ? (s.newsMemo || '').slice(0, 200) : '' };
@@ -258,7 +285,7 @@ export function runScreenerQuery(query, { rows = [], live = {}, aliases = {}, re
       return (b.mcap || 0) - (a.mcap || 0);
     });
 
-    return { matched: true, criteria: labels, rows: matchedRows.slice(0, 12), totalMatched: matchedRows.length };
+    return { matched: true, criteria: labels, rows: matchedRows.slice(0, 12), totalMatched: matchedRows.length, mcapUnknown };
   } catch (_) { return null; }
 }
 
@@ -272,7 +299,7 @@ export function formatScreenerResultPrompt(result, { rankAsOf = null } = {}) {
   const isDiversified = result.mode === 'diversified-recommendation';
   lines.push('═══════════════════════════════════════════════════');
   lines.push(isDiversified ? '【균형 추천 후보 — AIO 종목 DB 분산 샘플링】' : '【스크리너 결과 — AIO 종목 DB 실시간 필터링】');
-  lines.push('조건: ' + result.criteria.join(' · ') + ' | 매칭 ' + result.totalMatched + '종목 (상위 ' + result.rows.length + ' 표시)');
+  lines.push('조건: ' + result.criteria.join(' · ') + ' | 매칭 ' + result.totalMatched + '종목 (상위 ' + result.rows.length + ' 표시)' + (result.mcapUnknown ? ' · 시총 확인 안 됨 ' + result.mcapUnknown + '종목은 크기 조건을 판정하지 못해 제외' : ''));
   lines.push('출처: AIO SCREENER_DB(기관 메모·시그널) × 멀티팩터 퀀트 랭크 × 실시간 시세(_liveData) · 생산자 관측시각 ' + ts);
   const fAsOf = rankAsOf ? String(rankAsOf).slice(0, 10) : null;
   lines.push('퀀트 백분위(같은 조건 종목 중 위치, 100점 만점이 아님) = 섹터 상대 멀티팩터: 모멘텀(1/3/6M 수익률)·추세(SMA50/200 대비)·저변동(연율 변동성↓)·사이즈. ' + (fAsOf ? '팩터 기준일 ' + fAsOf : '팩터 데이터 대기 — 시그널/메모는 editorial(애널리스트 노트)') + '.');
@@ -290,7 +317,7 @@ export function formatScreenerResultPrompt(result, { rankAsOf = null } = {}) {
     const divStr = isDiversified ? (' · ' + (r.market || 'US') + '/' + (r.capBucket || 'unknown') + ' · 분산점수 ' + (r.diversityScore != null ? r.diversityScore : 'N/A')) : '';
     lines.push((i + 1) + '. ' + r.sym + ' (' + r.name + ') · ' + r.sector + divStr + ' · ' + rankStr + fsStr +
       ' · 시그널(editorial) ' + r.signal + ' · 시총 ' + (r.mcap ? '$' + r.mcap + 'B' : 'N/A') + ' · RSI ' + fmt(r.rsi, 0) +
-      ' · 3M ' + signedPct(r.ret3m) + ' · 가격 ' + (r.price != null ? '$' + fmt(r.price, 2) : 'N/A') + ' (' + signedPct(r.pct) + ')');
+      ' · 3M ' + signedPct(r.ret3m) + ' · 가격 ' + (r.price != null && Number.isFinite(Number(r.price)) ? formatScreenerPrice(Number(r.price), r.currency || null) + (r.priceObservedAt ? ' (관측 ' + r.priceObservedAt + ')' : '') : 'N/A') + ' (' + signedPct(r.pct) + ')');
     if (r.memo) lines.push('   메모: ' + r.memo);
     if (r.newsMemo) lines.push('   최신뉴스(제목만, 발행 주체 확인됨): ' + r.newsMemo);
   });

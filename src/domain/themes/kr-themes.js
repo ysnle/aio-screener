@@ -1,5 +1,10 @@
 import { heavyweightsOf, heavyweightLine } from './group-strength.js';
 import { signedText } from '../shared/number.js';
+import { isoDay, latestSessionRows } from '../shared/session-date.js';
+import { readRowNumber } from '../../data/contracts/screener.js';
+
+// v59.46 boundary contract: member values are read through the screener readiness contract, not row[key].
+const value = (row, key) => readRowNumber(row, key);
 
 // P1327/R672: one owner for Korean theme names and ticker → theme membership.
 // Theme names used to live in three local maps inside js/aio-kr-data.js (card META, rank N,
@@ -62,26 +67,36 @@ export function krThemesForSymbol(symbol, themeMap) {
 export const KR_THEME_MIN_COVERED = 3;
 export function krThemeArtifactRead({ themeMap = {}, rows = [] } = {}) {
   const bySymbol = new Map((rows || []).map((row) => [String(row?.sym || '').toUpperCase(), row]));
-  const median = (values) => { const list = values.filter((v) => Number.isFinite(v)).sort((a, b) => a - b); if (!list.length) return null; const mid = Math.floor(list.length / 2); return list.length % 2 ? list[mid] : (list[mid - 1] + list[mid]) / 2; };
+  // v59.45 P18-KRTHEME-01: found rows were the sample — one stale member with ret1m 50 and two current members without a
+  // return passed the three-member rule, read +50% and took the newest member's date. A member counts only on the latest
+  // KR close among the rows and when not marked stale; each figure needs KR_THEME_MIN_COVERED members that carry it.
+  const sessionOf = (row) => isoDay(row?.factorSessionDate);
+  const latest = latestSessionRows((rows || []).filter((row) => /\.(KS|KQ)$/i.test(String(row?.sym || '')))).basis;
+  const median = (values) => { const list = values.filter((v) => Number.isFinite(v)).sort((a, b) => a - b); if (list.length < KR_THEME_MIN_COVERED) return null; const mid = Math.floor(list.length / 2); return list.length % 2 ? list[mid] : (list[mid - 1] + list[mid]) / 2; };
   const themes = Object.entries(themeMap || {}).map(([id, members]) => {
     const found = (Array.isArray(members) ? members : []).map((member) => bySymbol.get(`${member.code}.KS`) || bySymbol.get(`${member.code}.KQ`)).filter(Boolean);
-    const above = found.filter((row) => Number.isFinite(row.pctSma50));
+    const current = found.filter((row) => latest && sessionOf(row) === latest && row?.factorQuality?.stale !== true);
+    const above = current.filter((row) => value(row, 'pctSma50') != null);
     return {
-      id, label: krThemeLabel(id).split(' / ')[0], members: (members || []).length, covered: found.length,
-      ret1m: median(found.map((row) => row.ret1m)), ret3m: median(found.map((row) => row.ret3m)),
+      id, label: krThemeLabel(id).split(' / ')[0], members: (members || []).length,
+      // covered = members with a 1-month return on the latest close (the figure the bars rank on); found/notCurrent
+      // keep the rows that exist but sit on an older close or are stale.
+      covered: current.filter((row) => value(row, 'ret1m') != null).length, found: found.length, notCurrent: found.length - current.length,
+      ret1m: median(current.map((row) => value(row, 'ret1m'))), ret3m: median(current.map((row) => value(row, 'ret3m'))),
       // v57.81: the week and the members' typical volatility (recent-check.js), and the KR close the values sit on —
       // KR rows close a session after the US ones, so the theme screen prints both dates instead of one.
-      ret5d: median(found.map((row) => row.ret5d)), vol: median(found.map((row) => row.vol)),
-      basis: found.map((row) => String(row.factorSessionDate || '')).filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date)).sort().at(-1) || null,
-      above50Pct: above.length ? Math.round(above.filter((row) => row.pctSma50 > 0).length / above.length * 100) : null,
+      ret5d: median(current.map((row) => value(row, 'ret5d'))), vol: median(current.map((row) => value(row, 'vol'))),
+      basis: current.length ? latest : null,
+      above50Pct: above.length >= KR_THEME_MIN_COVERED ? Math.round(above.filter((row) => value(row, 'pctSma50') > 0).length / above.length * 100) : null,
       // P1723: the same largest-traded check as the group-strength table, so the theme screen cannot read a +12.6%
       // semiconductor median while its two largest names fell 12-18% over the month.
-      heavyweights: heavyweightsOf(found)
+      heavyweights: heavyweightsOf(current)
     };
   });
   themes.forEach((theme) => { theme.heavyweightNote = heavyweightLine(theme); });
   // Codex browser audit H27: US sub-themes need three priced members while KR themes ranked on two (a "median"
-  // of two names is their average). One inclusion rule for both regions.
+  // of two names is their average). KR bars need three members with the figure on the latest close; the US headline
+  // ranking (group-strength.js) keeps its own floor, so the two regions are not one rule.
   const usable = themes.filter((theme) => theme.covered >= KR_THEME_MIN_COVERED && theme.ret1m != null).sort((a, b) => b.ret1m - a.ret1m);
   const pct = (value) => (value == null ? '—' : `${signedText(value, 1)}%`);
   // v57.81 (audit): "강한 테마는 … 광통신(-3.2%)" named a falling theme strong (5 sessions -20.4%). A top theme at or below

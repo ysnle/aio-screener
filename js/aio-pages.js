@@ -46,7 +46,9 @@ function drawPositionDonut() {
   positions.forEach(function(p) {
     var live = ld[p.ticker];
     var price = (live && isFinite(live.price) && live.price > 0) ? live.price : p.cost;
-    var val = price * p.qty;
+    var val = Number(price) * Number(p.qty);
+    // v59.45 (P27-IMPORT-01): a position with neither a quote nor a readable cost has no value; NaN would blank the donut.
+    if (!isFinite(val) || val <= 0) return;
     var sector = 'Unknown';
     if (typeof _aioGetCanonicalScreenerRows === 'function') {
       var found = _aioGetCanonicalScreenerRows().find(function(s) { return s.sym === p.ticker; });

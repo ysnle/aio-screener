@@ -10,12 +10,12 @@
 // and counted, never treated as zero.
 import { listingCurrency, listingRegion } from './fx.js';
 import { concentrationPenaltyForWeight } from './concentration.js';
+import { readNumber as finite } from '../shared/number.js';
 
 export const PORTFOLIO_CHECKS_MODEL_VERSION = 'portfolio-checks.v1';
 export const SINGLE_CURRENCY_MAX = 0.5;
 export const SINGLE_HOLDING_TIERS = Object.freeze([10, 15, 25]);
 
-const finite = (value) => (value == null || value === '' ? null : Number.isFinite(Number(value)) ? Number(value) : null);
 
 function shares(entries, total) {
   const map = new Map();
@@ -89,7 +89,7 @@ export function derivePortfolioChecks({ surface = null, assetTypeOf = () => null
     { id: 'sector', label: '섹터 비중', value: bySector.slice(0, 3).map((row) => `${row.name} ${row.pct.toFixed(0)}%`).join(', '), status: 'info',
       detail: bySector[0].pct >= 50 ? `${bySector[0].name} 섹터가 절반을 넘습니다 — 업종 전체가 함께 움직일 때 영향이 큽니다.` : '한 섹터가 절반을 넘지 않습니다.', basis: '참고(공개 기준값 없음)' },
     { id: 'cash', label: '현금 비중', value: cashHeld ? '환산 보류' : cash == null ? '미입력' : totalKnown ? `${(cash / finite(surface.totalAssets) * 100).toFixed(0)}%` : '비중 보류', status: cash != null && totalKnown ? 'info' : 'unknown',
-      detail: cashHeld ? `${(surface?.cashConversion?.held || []).map((code) => ({ KRW: '원화', USD: '달러' }[code] || code)).join('·')} 현금을 합계 통화로 바꿀 환율이 없어, 합산하거나 비중을 계산하지 않았어요.`.trim() : cash != null && !totalKnown ? '현금은 입력됐지만 가격을 못 가져온 보유 종목이 있어 전체 대비 비중은 아직 계산하지 않았어요.' : cash != null ? '급락 때 추가 매수 여력과 생활 비상금은 별개입니다 — 비상금은 이 계좌 밖에 따로 두는 것이 일반적입니다.' : '현금을 입력하면 투자금 대비 현금 비중이 계산됩니다.', basis: '포트폴리오 설정의 현금' },
+      detail: cashHeld && surface?.cashInvalidCount > 0 ? `읽을 수 없는 현금 잔액 ${surface.cashInvalidCount}건이 있어 현금 합계를 계산하지 않았어요.` : cashHeld ? `${(surface?.cashConversion?.held || []).map((code) => ({ KRW: '원화', USD: '달러' }[code] || code)).join('·')} 현금을 합계 통화로 바꿀 환율이 없어, 합산하거나 비중을 계산하지 않았어요.`.trim() : cash != null && !totalKnown ? '현금은 입력됐지만 가격을 못 가져온 보유 종목이 있어 전체 대비 비중은 아직 계산하지 않았어요.' : cash != null ? '급락 때 추가 매수 여력과 생활 비상금은 별개입니다 — 비상금은 이 계좌 밖에 따로 두는 것이 일반적입니다.' : '현금을 입력하면 투자금 대비 현금 비중이 계산됩니다.', basis: '포트폴리오 설정의 현금' },
     { id: 'fees', label: '수수료 비율', value: '측정 안 함', status: 'unknown', detail: '거래 수수료 원장이 없어 계산하지 않습니다(공개 포트폴리오 도구 기준: 투자액의 1% 초과 시 주의).', basis: '원장 필요', source: 'Ghostfolio 수수료 규칙 기본값, 2026-10-03 확인' }
   ];
   return Object.freeze({

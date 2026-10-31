@@ -2,10 +2,12 @@
 import { marketRows } from '../screener/market-scope.js';
 import { latestCompletedKrSession, resolveMarketCalendarSession } from './market-calendar.js';
 import { buildGroupStrength, median } from '../themes/group-strength.js';
-import { fieldValueForPurpose } from '../../data/contracts/screener.js';
+import { readRowNumber } from '../../data/contracts/screener.js';
 import { KR_THEME_LABELS } from '../themes/kr-themes.js';
-const finite = v => typeof v === 'number' && Number.isFinite(v) ? v : null;
-const read = (row,key) => row.fieldReadiness ? finite(fieldValueForPurpose(row, `price.${key}`, 'display')) : finite(row[key]);
+import { finiteNumber as finite } from '../shared/number.js';
+import { latestSessionRows } from '../shared/session-date.js';
+// v59.46: the local contract read moved into the contract (readRowNumber); same display purpose.
+const read = (row, key) => readRowNumber(row, key);
 export function koreanThemeGroups(map = {}, rows = []) {
   const ids = new Map(marketRows(rows,'KR').map(row => [String(row.sym).replace(/\.K[QS]$/, ''), row.sym]));
   return Object.entries(map).map(([id,members]) => ({ id, nameKr:KR_THEME_LABELS[id]||id, subThemes:[{ name:KR_THEME_LABELS[id]||id,
@@ -46,7 +48,7 @@ function gapReading(indexMove, counts, { lead = '' } = {}) {
   return [spreadText, size].filter(Boolean).join(' — ');
 }
 function sessionRead({ observed, date, index }) {
-  const values = key => observed.map(row => finite(row[key])).filter(v => v!=null);
+  const values = key => observed.map(row => read(row, key)).filter(v => v!=null);
   const day = moveCounts(values('ret1d')), week5 = moveCounts(values('ret5d'));
   const out = { count:day.count, ret1d:day.median, ret5d:week5.median, down3:day.down3, up3:day.up3, falling:day.falling, falling5:week5.falling, down3_5:week5.down3, spread:spreadWord(day)?.dir || null, spread5:spreadWord(week5)?.dir || null, text:null };
   if (out.ret1d==null || out.count<20) return out;
@@ -64,8 +66,7 @@ function sessionRead({ observed, date, index }) {
 export function buildKoreaParticipation({ rows=[], themes={}, nowMs=Date.now(), index=null }={}) {
   const population=marketRows(rows,'KR'), latest=latestCompletedKrSession(nowMs);
   const valid=population.filter(row => row.factorSessionDate <= latest?.date && resolveMarketCalendarSession({market:'KR',date:row.factorSessionDate}).status==='open');
-  const date=valid.map(row=>row.factorSessionDate).sort().at(-1) || null;
-  const observed=valid.filter(row=>row.factorSessionDate===date);
+  const { basis: date, rows: observed } = latestSessionRows(valid);
   const ratio=key => { const values=observed.map(row=>read(row,key)).filter(v=>v!=null); return {count:values.length, above:values.filter(v=>v>0).length, pct:values.length ? values.filter(v=>v>0).length/values.length*100 : null}; };
   const breadth50=ratio('pctSma50'), breadth200=ratio('pctSma200');
   const returns=Object.fromEntries(['ret1m','ret3m'].map(key=>[key,median(observed.map(row=>read(row,key)).filter(v=>v!=null))]));

@@ -1,0 +1,207 @@
+{
+  "schemaVersion": "aio-qa-run.v1",
+  "runId": "2026-10-26T08-21-19-780Z-13628-hlsxp1",
+  "manifestVersion": "aio-qa-pipeline.v1",
+  "profile": "affected",
+  "groups": [
+    "preflight"
+  ],
+  "changeSource": "explicit-files",
+  "changedFiles": [
+    "_artifacts/pipeline-review-20261024/ALL-PIPELINES-HANDOFF.md",
+    "_artifacts/pipeline-review-20261024/FILE-REVIEW-LEDGER.json",
+    "_artifacts/pipeline-review-20261024/HANDOFF.md",
+    "_artifacts/pipeline-review-20261024/PASS5-COVERAGE.md",
+    "_artifacts/pipeline-review-20261024/PASS5-HANDOFF.md",
+    "_artifacts/pipeline-review-20261024/PASS6-HANDOFF.md",
+    "_artifacts/pipeline-review-20261024/build-review-ledger.mjs",
+    "_artifacts/pipeline-review-20261024/pass5-reproductions.json",
+    "_artifacts/pipeline-review-20261024/pass6-reproductions.json",
+    "_artifacts/pipeline-review-20261024/reproduce-pass5.mjs",
+    "_artifacts/pipeline-review-20261024/reproduce-pass6.mjs"
+  ],
+  "startedAt": "2026-10-26T08:21:19.798Z",
+  "completedAt": "2026-10-26T08:21:30.481Z",
+  "durationMs": 10683,
+  "noCache": false,
+  "keepGoing": false,
+  "concurrency": {
+    "static": 4,
+    "browser": 1,
+    "external": 2
+  },
+  "counts": {
+    "CACHED": 8,
+    "FAIL": 1,
+    "PASS": 5
+  },
+  "targets": {},
+  "results": [
+    {
+      "id": "version",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 177,
+      "fingerprint": "30946ee84034f5d6888ae5b02f5f21bafe2168ce254a9405ba973fdcf3a42501"
+    },
+    {
+      "id": "syntax",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "FAIL",
+      "durationMs": 4410,
+      "fingerprint": "0490ccceef65e02458ff2c37cf633134f7d49e3204a78d51e2dfe142288df42f",
+      "exitCode": 1,
+      "signal": null,
+      "timedOut": false,
+      "evidenceLevel": "static",
+      "output": "",
+      "error": "Syntax check failed: 1/828 file(s).\n - src/data/orchestrators/entity.js: C:\\Projects\\AIO\\src\\data\\orchestrators\\entity.js:20     const normalized = normalizeEntity(raw); (globalThis.__dbg ||= []).push(Date.now() + ' ' +, thisGeneration, raw?.id, !!raw?.fundamentals, !!raw?.fundamentalsMeta, normalized.id, !!normalized.fundamentals, !!normalized.fundamentalsMeta);                                                                                               ^",
+      "failureOutput": {
+        "stdout": "C:\\Projects\\AIO\\.cache\\aio-qa\\runs\\2026-10-26T08-21-19-780Z-13628-hlsxp1\\failure-output\\syntax-93b8edb006.stdout.txt",
+        "stderr": "C:\\Projects\\AIO\\.cache\\aio-qa\\runs\\2026-10-26T08-21-19-780Z-13628-hlsxp1\\failure-output\\syntax-93b8edb006.stderr.txt"
+      }
+    },
+    {
+      "id": "product-charter",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "PASS",
+      "durationMs": 217,
+      "fingerprint": "72e1c3372f70561782d5fb61c43ff3dadcde850c7df23b93dd4690592f0a7046",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "evidenceLevel": "static",
+      "output": "Product charter OK: self-directed-investment-research-and-decision-support, 7 trust planes, 14 audited domains, execution=NONE.",
+      "error": ""
+    },
+    {
+      "id": "vertical-slice",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 113,
+      "fingerprint": "cca1f35451793db5369665fe5d195379a0d37b414028fd694c5df240292534f9"
+    },
+    {
+      "id": "capability-claims",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 111,
+      "fingerprint": "fcb838819b17db95ece24742c8928142a916eeb35ce8fea4fb24f244fb788105"
+    },
+    {
+      "id": "native-decision",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "PASS",
+      "durationMs": 269,
+      "fingerprint": "786ec0f75eb2c886f1d6c34d44003d4ee15fd76939eaa1ff86b4d1348f33715a",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "evidenceLevel": "static",
+      "output": "{\"ok\":true,\"snapshotTotal\":null,\"snapshotDecisionBlocked\":true,\"liveTotal\":null,\"undatedNewsTotal\":0,\"evidenceKeys\":[\"vix\",\"vvix\",\"dxy\",\"tnx\",\"oilPrice\",\"fg\",\"spxPrice\",\"breadth200\",\"pcr\",\"hyBp\",\"spx50ma\",\"spx200ma\"],\"atomicFallback\":true}\nScreener observation coverage: freshness/duplicate parity and bounded timestamp parsing OK.\nCanonical observation cache: no rescans, expiry/future/rollback/replacement parity OK.",
+      "error": ""
+    },
+    {
+      "id": "reference-curriculum",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 104,
+      "fingerprint": "c6fd93b3150fd4354fc1f3135003b5ec62bc675adfc10ca00911f988cab6857f"
+    },
+    {
+      "id": "route-registry",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 148,
+      "fingerprint": "052e32ecfeab045b971bbc15205c2692727c3243e4a6ff91a192a32ab338f8dc"
+    },
+    {
+      "id": "generated-state",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 345,
+      "fingerprint": "089b22780229bec040751cdfbb0c76d20804716bacde91b581fefcb2516179c4"
+    },
+    {
+      "id": "workspace-contract",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 1945,
+      "fingerprint": "2908848053bdd18401a04225f32a5548cdcc9b70193d12ce43812c494e401898"
+    },
+    {
+      "id": "qa-runner-behavior",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 26738,
+      "fingerprint": "6e3ff54a75cb74ef2c43e74d6873ad693848d4a969dfb2ece7870542bd81a074"
+    },
+    {
+      "id": "operations-contract",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "PASS",
+      "durationMs": 416,
+      "fingerprint": "9304678600281ae3fa2d28a99adb1ff8c9744a31c0a111b5066243112b6417e4",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "evidenceLevel": "static",
+      "output": "{\n  \"ok\": true,\n  \"version\": \"v58.80\",\n  \"workflowCount\": 13,\n  \"actionCount\": 62,\n  \"routeCount\": 19,\n  \"stateCount\": 5,\n  \"routeSoak\": \"pending\",\n  \"errors\": []\n}",
+      "error": ""
+    },
+    {
+      "id": "architecture",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "PASS",
+      "durationMs": 1509,
+      "fingerprint": "4797618024c9716bb24d1b2c8383412623a787973731e8656c5d324f6b26fefe",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "evidenceLevel": "static",
+      "output": "{\"ok\":true,\"routes\":19,\"firstVerticalSlice\":\"sentiment\",\"baseline\":{\"generatedAt\":\"2026-07-27\",\"version\":\"v53.97\",\"observedRevision\":\"v53.97\",\"observedAt\":\"2026-08-10T00:00:00+09:00\",\"observationSource\":\"local-working-tree\",\"revisionLanes\":{\"local\":{\"revision\":\"v53.97\",\"status\":\"observed\",\"source\":\"version.json\"},\"release\":{\"revision\":\"v53.97\",\"status\":\"observed-local\",\"source\":\"architecture/release-manifest.json\"},\"live\":{\"revision\":null,\"status\":\"unverified\",\"source\":\"external-observation-required\"}},\"routeGraph\":{\"ownerManifest\":\"architecture/route-owners.json\",\"supportedRoutesCount\":19,\"supportedRoutesSource\":\"architecture/route-owners.json.routes\",\"dependencyRule\":\"dependencies must reference route IDs or explicit external gates; local/release/live observations remain separate\"},\"scope\":[\"index.html\",\"js/aio-core.js\",\"js/aio-data.js\",\"js/aio-ui.js\",\"js/aio-chat.js\"],\"explicitWindowWrites\":1097,\"directFetch\":42,\"directStorage\":187,\"htmlSinks\":409,\"burnDown\":{\"explicitWindowWritesMax\":1097,\"retiredDataShowPageMonkeyPatch\":true,\"retiredSentimentLegacyInitHook\":true,\"retiredSentimentLegacyBadgeWriter\":true,\"retiredWeinsteinCompositeDeadCode\":true,\"retiredMtfCompositeDeadCode\":true,\"retiredOrphanedBreadthWsAnalysisWriter\":true,\"retiredBreadthStageSummaryInnerHtmlReset\":true}},\"current\":{\"explicitWindowWrites\":617,\"directFetch\":23,\"directStorage\":101,\"htmlSinks\":91},\"perfScreenerDispatchP95Ms\":0.05}",
+      "error": ""
+    },
+    {
+      "id": "workflow-yaml",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "PASS",
+      "durationMs": 4486,
+      "fingerprint": "17374d5a1bcf0e8a897e93a43afabe69270b4758e377129bdd3461692f10a28f",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "evidenceLevel": "static",
+      "output": "Control character check OK: 13 workflow YAML(s) clean+parseable, 0 file(s) with baseline-tracked pre-existing control chars, 0 regressions.",
+      "error": ""
+    }
+  ]
+}

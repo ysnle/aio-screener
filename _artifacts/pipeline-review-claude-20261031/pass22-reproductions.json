@@ -1,0 +1,145 @@
+{
+  "scope": "Pure boundary counterexamples, consumer reach not certified",
+  "invalid": {
+    "status": "ready",
+    "estimateId": "pfre-d8160f8a5cb7f068",
+    "model": "AIO_PORTFOLIO_RISK_ESTIMATE_V1",
+    "compositionSnapshotId": "pfcomp-1f95bd20f5194fea",
+    "compositionAsOf": null,
+    "valuationCut": null,
+    "exposureHistoryMode": "current_composition_retrospective",
+    "rebalancePolicy": null,
+    "rebalancePolicyDeclared": null,
+    "rebalancePolicyApplied": false,
+    "pathLineage": "legacy-risk-path",
+    "strategy": null,
+    "publishedScope": "whole_account",
+    "wholeAccountReturns": [
+      "NaN",
+      0.1
+    ],
+    "investedSleeveReturns": [
+      "NaN",
+      0.1
+    ],
+    "publishedReturns": [
+      "NaN",
+      0.1
+    ],
+    "cashTreatment": "zero-cash",
+    "wholeAccountHold": null,
+    "scope": {
+      "equityValue": 100,
+      "cashAmount": 0,
+      "equityWeight": 1,
+      "cashWeight": 0
+    },
+    "rf": {
+      "status": "not-supplied",
+      "annualRate": null,
+      "unit": "decimal"
+    },
+    "sample": {
+      "n": 2,
+      "start": null,
+      "end": null
+    },
+    "warnings": [
+      "현재 구성을 과거 시장 경로에 적용한 가상 분석입니다 — 계좌의 실제 과거 성과·위험이 아닙니다."
+    ]
+  },
+  "account": {
+    "status": "ready",
+    "model": "AIO_PORTFOLIO_ACCOUNT_PERFORMANCE_V1",
+    "twr": 1,
+    "mwr": 0.9999999999999998,
+    "irr": 0.9999999999999998,
+    "mwrHold": null,
+    "currency": "USD",
+    "dayCount": "actual-365",
+    "flowTiming": "end-of-period",
+    "periods": [
+      {
+        "start": "2025-01-01",
+        "end": "2026-01-01",
+        "startValue": 100,
+        "endValue": 200,
+        "netFlow": 0,
+        "periodReturn": 1
+      }
+    ],
+    "sample": {
+      "from": "2025-01-01",
+      "to": "2026-01-01",
+      "periods": 1,
+      "years": 1
+    },
+    "units": {
+      "twr": "period-cumulative",
+      "mwr": "annualized-irr"
+    },
+    "conventions": {
+      "returnBasis": "time-weighted-subperiod-chain",
+      "flowTiming": "end-of-period",
+      "annualization": "actual-365",
+      "irrMethod": "bisection"
+    },
+    "twrExact": true,
+    "interiorFlowCount": 0,
+    "requiredInputs": [
+      "trades",
+      "deposits-withdrawals",
+      "dividends-splits",
+      "fees-taxes",
+      "fx",
+      "valuation-cuts"
+    ],
+    "warnings": []
+  },
+  "cash": {
+    "ok": true,
+    "target": "USD",
+    "total": 100,
+    "parts": [
+      {
+        "currency": "USD",
+        "amount": 100,
+        "converted": 100,
+        "basis": "same-unit"
+      }
+    ],
+    "held": [],
+    "converted": false,
+    "basisLabel": null,
+    "appFx": null
+  },
+  "fx": {
+    "ok": false,
+    "reason": "rate-stale",
+    "pair": "USD/KRW",
+    "ageMs": 215481600000
+  },
+  "order": {
+    "state": "verified",
+    "usable": true
+  },
+  "infReturns": [
+    "Infinity",
+    "NaN"
+  ],
+  "undefinedCorrelation": 0,
+  "sectorByOrder": [
+    [
+      {
+        "key": "Unclassified",
+        "pct": 100
+      }
+    ],
+    [
+      {
+        "key": "Technology",
+        "pct": 100
+      }
+    ]
+  ]
+}

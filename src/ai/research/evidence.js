@@ -1,3 +1,5 @@
+import { companyEntitySymbols } from '../orchestrator/question-planner.js';
+
 export const AI_RESEARCH_EVIDENCE_VERSION = 'research-evidence.v1';
 
 const CONTENT_DEPTH = Object.freeze(['FULL_TEXT', 'EXCERPT', 'SNIPPET', 'SUMMARY']);
@@ -233,15 +235,31 @@ function eligibleEvidenceDocuments(documents, citations) {
   );
 }
 
-function evidenceFloor(documents, citations, stop, { requireCurrentClaims = false, currentClaimsAllowed = false } = {}) {
+// v59.45 (pipeline review P12-RESEARCH-01): the research plan says which domains are primary for this question
+// (company-primary: SEC filings and registry-verified issuer IR; Nasdaq and investors.com are secondary aggregation), but the
+// floor counted the document's general tier, so one Nasdaq article met a company-primary floor. When the plan carries a
+// source policy, only its primary domains count as primary; a plan without one keeps the general tier.
+function planPrimaryDomains(questionPlan) {
+  const queries = Array.isArray(questionPlan?.researchPlan?.subQueries) ? questionPlan.researchPlan.subQueries : [];
+  const policies = queries.map((query) => query?.sourcePolicy?.primary).filter((primary) => primary && Array.isArray(primary.domains));
+  if (!policies.length) return null;
+  return [...new Set(policies.flatMap((primary) => [...primary.domains, ...(Array.isArray(primary.verifiedIssuerDomains) ? primary.verifiedIssuerDomains : [])])
+    .map((domain) => String(domain || '').toLowerCase()).filter(Boolean))];
+}
+
+function isPrimaryDocument(document, primaryDomains) {
+  if (Array.isArray(primaryDomains)) return hostMatches(publisherFromUrl(document?.canonicalUrl), primaryDomains);
+  return document?.primaryOrSecondary === 'PRIMARY' || document?.sourceTier === 'PRIMARY_OFFICIAL';
+}
+
+function evidenceFloor(documents, citations, stop, { requireCurrentClaims = false, currentClaimsAllowed = false, primaryDomains = null } = {}) {
   const minimumIndependentSources = stop?.minimumIndependentSources;
   const minimumPrimarySources = stop?.minimumPrimarySources;
   if (!Number.isInteger(minimumIndependentSources) || minimumIndependentSources < 0 || !Number.isInteger(minimumPrimarySources) || minimumPrimarySources < 0) return false;
   const eligible = eligibleEvidenceDocuments(documents, citations);
   const independent = new Set(eligible.map((document) => document.publisher || document.canonicalUrl).filter(Boolean)).size;
-  const primary = new Set(eligible.filter((document) =>
-    document.primaryOrSecondary === 'PRIMARY' || document.sourceTier === 'PRIMARY_OFFICIAL'
-  ).map((document) => document.publisher || document.canonicalUrl).filter(Boolean)).size;
+  const primary = new Set(eligible.filter((document) => isPrimaryDocument(document, primaryDomains))
+    .map((document) => document.publisher || document.canonicalUrl).filter(Boolean)).size;
   const snippetFree = eligible.length > 0 && eligible.every((document) =>
     document.contentDepth !== 'SNIPPET' && document.contentDepth !== 'SUMMARY'
   );
@@ -260,13 +278,30 @@ function evidenceFloor(documents, citations, stop, { requireCurrentClaims = fals
  * (and entity, where the question names one). An unbound set cannot be distinguished from another
  * request's set, so it is reported as unchecked instead of being silently promoted.
  */
-export function verifyEvidenceBinding({ citations = [], documents = [], expectedQueryId = null, expectedQueryIds = null, expectedEntity = null } = {}) {
+export function verifyEvidenceBinding({ citations = [], documents = [], expectedQueryId = null, expectedQueryIds = null, expectedEntity = null, expectedEntities = null } = {}) {
   const rows = [...(Array.isArray(citations) ? citations : []), ...(Array.isArray(documents) ? documents : [])];
-  const declared = rows.map((row) => row?.queryId || row?.requestId || null).filter(Boolean).map(String);
-  const entities = rows.map((row) => row?.entity || row?.instrumentId || null).filter(Boolean).map(String);
+  const declaredOf = (row) => (row && typeof row === 'object' ? row.queryId || row.requestId || null : null);
+  const declared = rows.map(declaredOf).filter(Boolean).map(String);
+  const entities = rows.map((row) => (row && typeof row === 'object' ? row.entity || row.instrumentId || null : null)).filter(Boolean).map(String);
   const expected = [...(Array.isArray(expectedQueryIds) ? expectedQueryIds : []), ...(expectedQueryId == null ? [] : [expectedQueryId])]
     .filter(Boolean).map(String);
-  const entity = expectedEntity == null ? null : String(expectedEntity);
+  // v59.45 (P12-RESEARCH-03): a comparison names several companies; a citation may belong to any of them.
+  const entitySet = [...(Array.isArray(expectedEntities) ? expectedEntities : []), ...(expectedEntity == null ? [] : [expectedEntity])]
+    .filter(Boolean).map((value) => String(value).toUpperCase());
+  const entity = entitySet.length ? entitySet[0] : null;
+  // v59.45 (pipeline review P12-RESEARCH-02): one declared id made the whole set BOUND, so an SEC citation for this request
+  // plus a Reuters citation with no request id met a two-source floor as "verified". Binding is judged per document (a URL is
+  // bound when its citation or its document declares an id); a mix is PARTIAL and only the bound documents may verify.
+  const byUrl = new Map();
+  rows.forEach((row, index) => {
+    const url = canonicalUrl(typeof row === 'string' ? row : row?.canonicalUrl || row?.url);
+    const key = url || `row:${index}`;
+    if (!byUrl.has(key)) byUrl.set(key, { url, ids: [] });
+    const id = declaredOf(row);
+    if (id) byUrl.get(key).ids.push(String(id));
+  });
+  const boundUrls = [...byUrl.values()].filter((item) => item.url && item.ids.length && item.ids.every((id) => expected.includes(id))).map((item) => item.url);
+  const unboundUrls = [...byUrl.values()].filter((item) => item.url && !item.ids.length).map((item) => item.url);
   if (!expected.length) {
     return Object.freeze({
       ok: true, checked: false, status: 'UNVERIFIABLE',
@@ -282,8 +317,14 @@ export function verifyEvidenceBinding({ citations = [], documents = [], expected
   if (declared.some((value) => !expected.includes(value))) {
     return Object.freeze({ ok: false, checked: true, status: 'MISMATCHED_QUERY', reason: 'citation belongs to another request' });
   }
-  if (entity && entities.length && entities.some((value) => value.toUpperCase() !== entity.toUpperCase())) {
+  if (entity && entities.length && entities.some((value) => !entitySet.includes(value.toUpperCase()))) {
     return Object.freeze({ ok: false, checked: true, status: 'MISMATCHED_ENTITY', reason: 'citation belongs to another entity' });
+  }
+  if (unboundUrls.length) {
+    return Object.freeze({
+      ok: true, checked: false, status: 'PARTIAL', boundUrls: Object.freeze(boundUrls), unboundUrls: Object.freeze(unboundUrls),
+      reason: 'some citations declare no request binding'
+    });
   }
   return Object.freeze({ ok: true, checked: true, status: 'BOUND', reason: null });
 }
@@ -301,49 +342,58 @@ export function evaluateResearchEvidenceFloor(input = {}) {
   const externalCitations = external.citations;
   const nativeCitations = uniqueCitations(input.nativeCitations);
   const nativeDocuments = normalizeNativeResearchCitations(nativeCitations);
+  const primaryDomains = planPrimaryDomains(questionPlan);
   const externalReady = evidenceFloor(externalDocuments, externalCitations, stop, {
     requireCurrentClaims: true,
-    currentClaimsAllowed: external.researchEvidence.currentClaimsAllowed
+    currentClaimsAllowed: external.researchEvidence.currentClaimsAllowed,
+    primaryDomains
   });
-  const nativeReady = evidenceFloor(nativeDocuments, nativeCitations, stop);
+  const nativeReady = evidenceFloor(nativeDocuments, nativeCitations, stop, { primaryDomains });
   // P1172 (05 A05): 도메인·개수·깊이가 충족돼도 그 출처가 **이 질문의 것**인지는 별개다. 취소·재시도·
   // 늦은 응답의 citation이 다른 요청의 답을 채우지 못하도록 요청 결속을 함께 판정한다.
   const binding = verifyEvidenceBinding({
     citations: [...externalCitations, ...nativeCitations],
     documents: [...externalDocuments, ...nativeDocuments],
     expectedQueryIds: [questionPlan.queryId, input.queryId, input.requestId].filter(Boolean),
-    expectedEntity: questionPlan.entity || (Array.isArray(questionPlan.entities) ? questionPlan.entities[0] : null) || input.entity || null
+    // v59.45 (pipeline review P12-RESEARCH-03): the question planner hands entities as the resolver object
+    // `{ entities: [...] }`, which this check never read, so an MSFT citation passed an AAPL question.
+    expectedEntity: questionPlan.entity || (Array.isArray(questionPlan.entities) ? questionPlan.entities[0] : null) || input.entity || null,
+    expectedEntities: Array.isArray(questionPlan.entities?.entities) ? companyEntitySymbols(questionPlan) : null
   });
   // E6/A05: P1172 deliberately keeps an unjudgeable binding as `UNVERIFIABLE`/`UNBOUND` rather than a
   // failure, so a legitimate producer that has not stamped a request id is not reported as an error.
   // What was still missing is the distinction between "floor met with a verified binding" and "floor met
   // with an unchecked binding": both published `ready: true` and nothing separated them. `bindingVerified`
   // carries that boundary, so no consumer has to read `ready` as though the binding were confirmed.
-  const bindingVerified = binding.checked === true && binding.ok === true;
   const ready = (externalReady || nativeReady) && binding.ok;
   const documents = externalReady ? externalDocuments : nativeReady ? nativeDocuments :
     (externalDocuments.length ? externalDocuments : nativeDocuments);
   const citations = externalReady ? externalCitations : nativeReady ? nativeCitations :
     (externalCitations.length ? externalCitations : nativeCitations);
   const eligibleDocuments = eligibleEvidenceDocuments(documents, citations);
+  // v59.45 P12-RESEARCH-02: with a PARTIAL binding only the documents bound to this request can verify the answer;
+  // the unbound ones stay as reference (ready) but never count toward the current-claim floor.
+  const boundUrls = new Set(binding.status === 'PARTIAL' ? binding.boundUrls || [] : []);
+  const verifiable = binding.status === 'PARTIAL' ? eligibleDocuments.filter((document) => boundUrls.has(canonicalUrl(document.canonicalUrl))) : eligibleDocuments;
+  const bindingVerified = binding.ok === true && (binding.checked === true
+    || (binding.status === 'PARTIAL' && evidenceFloor(verifiable, citations, stop, { primaryDomains })));
   // P1608: citation availability is not publication/event-time verification.
   // Search collection time and dates guessed from URLs never establish recency.
   const asOf = Date.parse(decision.decidedAt || questionPlan.researchPlan?.eventWindow?.asOf || '');
   const days = questionPlan.researchPlan?.eventWindow?.lookbackDays;
   const validWindow = Number.isFinite(asOf) && Number.isFinite(days) && days > 0;
-  const dated = eligibleDocuments.filter(doc => Number.isFinite(Date.parse(doc.eventTime || doc.publishedAt || '')));
+  const dated = verifiable.filter(doc => Number.isFinite(Date.parse(doc.eventTime || doc.publishedAt || '')));
   const recent = validWindow ? dated.filter(doc => {
     const observed = Date.parse(doc.eventTime || doc.publishedAt);
     return observed <= asOf + 60000 && observed >= asOf - days * 86400000;
   }) : [];
-  const freshnessVerified = ready && bindingVerified && evidenceFloor(recent, citations, stop);
+  const freshnessVerified = ready && bindingVerified && evidenceFloor(recent, citations, stop, { primaryDomains });
   const freshnessStatus = !bindingVerified ? 'UNCHECKED_BINDING' : !validWindow ? 'INVALID_WINDOW'
     : freshnessVerified ? 'VERIFIED' : !dated.length ? 'UNDATED'
       : dated.some(doc => Date.parse(doc.eventTime || doc.publishedAt) > asOf + 60000) ? 'FUTURE' : 'STALE';
   const independentSourceCount = new Set(eligibleDocuments.map((document) => document.publisher || document.canonicalUrl).filter(Boolean)).size;
-  const primarySourceCount = new Set(eligibleDocuments.filter((document) =>
-    document.primaryOrSecondary === 'PRIMARY' || document.sourceTier === 'PRIMARY_OFFICIAL'
-  ).map((document) => document.publisher || document.canonicalUrl).filter(Boolean)).size;
+  const primarySourceCount = new Set(eligibleDocuments.filter((document) => isPrimaryDocument(document, primaryDomains))
+    .map((document) => document.publisher || document.canonicalUrl).filter(Boolean)).size;
 
   return Object.freeze({
     required: true,

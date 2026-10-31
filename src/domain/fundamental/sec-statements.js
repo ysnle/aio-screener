@@ -5,8 +5,8 @@
 // concept per series (anchorConceptRows), the latest filing per period, 300–400 / 80–100 day windows, and the
 // normalized record for the price-based ratios (verified share count, TTM / common-earnings numerator, average-equity
 // ROE). Series keep the legacy shape — arrays of { end, val } oldest first — so the panel code reads them unchanged.
-import { reportingBasis, normalizeSecCompanyFacts } from './sec-normalize.js';
-import { bestRevenueRowsByPeriod, secSharesTrust, SEC_PRIMARY_REVENUE_CONCEPTS, SEC_FALLBACK_REVENUE_CONCEPTS, SEC_IFRS_PRIMARY_REVENUE_CONCEPTS, SEC_IFRS_FALLBACK_REVENUE_CONCEPTS } from './sec-report.js';
+import { reportingBasis, normalizeSecCompanyFacts, revenueFactRows } from './sec-normalize.js';
+import { bestRevenueRowsByPeriod, secSharesTrust } from './sec-report.js';
 import { anchorConceptRows } from './sec-earnings.js';
 import { finiteFact as finite, fiscalYearLabel } from './period.js';
 
@@ -64,8 +64,9 @@ export function parseSecStatements(companyFacts, { symbol = '', price = null } =
     const concepts = FIELD_CONCEPTS[key][ifrs];
     return series(anchorConceptRows(windowed(rowsOf(companyFacts, basis.taxonomy, concepts, unit), quarterly), concepts), count);
   };
-  const revenueConcepts = ifrs ? [...SEC_IFRS_PRIMARY_REVENUE_CONCEPTS, ...SEC_IFRS_FALLBACK_REVENUE_CONCEPTS] : [...SEC_PRIMARY_REVENUE_CONCEPTS, ...SEC_FALLBACK_REVENUE_CONCEPTS];
-  const revenue = (quarterly, count) => series(bestRevenueRowsByPeriod(windowed(rowsOf(companyFacts, basis.taxonomy, revenueConcepts, amountUnit), quarterly)), count);
+  // v59.45 (pipeline review P5-SEC-01): the normalizer's own revenue rows (bank NII + noninterest income per filing, IFRS
+  // bank fee subtotal excluded); a bank's 매출 series was empty here while its normalized revenue was 100.
+  const revenue = (quarterly, count) => series(bestRevenueRowsByPeriod(windowed(revenueFactRows(companyFacts, basis), quarterly)), count);
   const result = { currency: amountUnit, accountingStandard: ifrs ? 'IFRS' : 'US-GAAP', revenue: revenue(false, 5) };
   for (const key of Object.keys(FIELD_CONCEPTS)) result[key] = field(key, false, 5, key === 'eps' ? `${amountUnit}/shares` : amountUnit);
   result.qRevenue = revenue(true, 6);

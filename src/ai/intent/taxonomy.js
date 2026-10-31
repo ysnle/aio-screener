@@ -20,27 +20,27 @@ export const AI_INTENTS = Object.freeze([
 ]);
 
 const PATTERNS = Object.freeze({
-  MARKET_STATUS: [/(시장|증시|코스피|코스닥|나스닥|s&p|spx).*(어때|상황|흐름|상승|하락|조정|반등)|장중|장전|장후/i],
-  MARKET_CAUSAL: [/(왜|원인|이유|때문|무슨\s*일|영향|what.*caused|why|driven\s*by|because|impact)/i],
-  OUTLOOK: [/(전망|앞으로|향후|반등할까|오를까|내릴까|예상|outlook|forecast|prospect|will\s+.*(?:rise|fall|rebound))/i],
-  SECTOR_ANALYSIS: [/(테마|섹터|업종|산업|밸류체인|반도체|소프트웨어|광통신|광테마|전력|원전|방산|바이오|sector|industry|theme|semiconductor|software|SMH|SOXX|IGV)/i],
-  ENTITY_ANALYSIS: [/(기업\s*분석|종목\s*분석|회사\s*분석|사업\s*모델|투자\s*포인트|분석해|어때|company\s*analysis|stock\s*analysis)/i],
-  ENTITY_FACT: [/(주가|시세|가격|시가총액|PER|PBR|PSR|PEG|ROE|EPS|FCF|매출|영업이익|순이익|배당|실적|목표가|밸류에이션|price|market\s*cap|revenue|earnings|dividend|valuation)/i],
-  COMPARISON: [/(비교|대비|차이|어느\s*(?:쪽|것)|vs\.?|versus|compare|comparison|better)/i],
-  TECHNICAL_ANALYSIS: [/(차트|기술적|기술\s*분석|RSI|MACD|이동평균|이평|지지|저항|돌파|추세|OHLCV|technical|chart|support|resistance|breakout)/i],
-  OPTIONS_ANALYSIS: [/(옵션|내재변동성|변동성\s*스큐|감마|델타|세타|IV|GEX|0DTE|콜옵션|풋옵션|options?|implied\s*volatility|gamma|delta|theta)/i],
-  MACRO_ANALYSIS: [/(금리|채권|국채|인플레이션|CPI|PCE|고용|NFP|GDP|연준|FOMC|유동성|VIX|공포.?탐욕|macro|fed|yield|treasury|inflation)/i],
-  FX_ANALYSIS: [/(환율|원달러|달러원|USD.?KRW|달러\s*인덱스|DXY|엔화|위안|외환|fx|exchange\s*rate)/i],
-  SCREENING: [/(스크리닝|스크리너|후보|골라|뽑아|찾아|어느\s*종목|뭐가\s*좋|저평가|고배당|퀀트|랭킹|screen|top\s*pick|best\s*stock)/i],
-  NEWS_SUMMARY: [/(뉴스|헤드라인|속보|기사|공시\s*요약|발표\s*요약|요약|news|headline|what\s*happened|summarize)/i],
-  PORTFOLIO_ACTION: [/(내\s*(?:포트폴리오|계좌)|보유\s*종목|리밸런싱|비중|매수|매도|진입|손절|익절|portfolio|my\s*holdings|rebalance|buy|sell|allocation)/i],
-  EDUCATION: [/(무엇|뭐야|무슨\s*뜻|이란|뜻|개념|설명해|알려줘|배우|초보|원리|일반적(?:인)?\s*방법|어떻게\s*작동|what\s+is|how\s+does|explain|education)/i]
+  MARKET_STATUS: [/(시장|증시|코스피|코스닥|나스닥|s&p|\bspx\b).*(어때|상황|흐름|상승|하락|조정|반등)|장중|장전|장후/i],
+  MARKET_CAUSAL: [/(왜|원인|이유|때문|무슨\s*일|영향|\bwhat\b.*\bcaused|\bwhy\b|\bdriven\s*by|\bbecause|\bimpact)/i],
+  OUTLOOK: [/(전망|앞으로|향후|반등할까|오를까|내릴까|예상|\boutlook|\bforecast|\bprospect|\bwill\s+.*\b(?:rise|fall|rebound))/i],
+  SECTOR_ANALYSIS: [/(테마|섹터|업종|산업|밸류체인|반도체|소프트웨어|광통신|광테마|전력|원전|방산|바이오|\bsector|\bindustr|\btheme|\bsemiconductor|\bsoftware|\b(?:SMH|SOXX|IGV)\b)/i],
+  ENTITY_ANALYSIS: [/(기업\s*분석|종목\s*분석|회사\s*분석|사업\s*모델|투자\s*포인트|분석해|어때|\bcompany\s*analysis|\bstock\s*analysis)/i],
+  ENTITY_FACT: [/(주가|시세|가격|시가총액|\b(?:PER|PBR|PSR|PEG|ROE|EPS|FCF)\b|매출|영업이익|순이익|배당|실적|목표가|밸류에이션|\bprice|\bmarket\s*cap|\brevenue|\bearnings|\bdividend|\bvaluation)/i],
+  COMPARISON: [/(비교|대비|차이|어느\s*(?:쪽|것)|\bvs\b\.?|\bversus|\bcompar|\bbetter)/i],
+  TECHNICAL_ANALYSIS: [/(차트|기술적|기술\s*분석|이동평균|이평|지지|저항|돌파|추세|\b(?:RSI|MACD|OHLCV)\b|\btechnical|\bchart|\bsupport|\bresistance|\bbreakout)/i],
+  OPTIONS_ANALYSIS: [/(옵션|내재변동성|변동성\s*스큐|감마|델타|세타|\b(?:IV|GEX|0DTE)\b|콜옵션|풋옵션|\boptions?\b|\bimplied\s*volatility|\bgamma\b|\bdelta\b|\btheta\b)/i],
+  MACRO_ANALYSIS: [/(금리|채권|국채|인플레이션|\b(?:CPI|PCE|NFP|GDP|FOMC|VIX)\b|고용|연준|유동성|공포.?탐욕|\bmacro|\bfed|\byield|\btreasur|\binflation)/i],
+  FX_ANALYSIS: [/(환율|원달러|달러원|USD.?KRW|달러\s*인덱스|DXY|엔화|위안|외환|\bfx\b|\bexchange\s*rate)/i],
+  SCREENING: [/(스크리닝|스크리너|후보|골라|뽑아|찾아|어느\s*종목|뭐가\s*좋|저평가|고배당|퀀트|랭킹|\bscreen|\btop\s*pick|\bbest\s*stock)/i],
+  NEWS_SUMMARY: [/(뉴스|헤드라인|속보|기사|공시\s*요약|발표\s*요약|요약|\bnews\b|\bheadline|\bwhat\s*happened|\bsummari[sz]e)/i],
+  PORTFOLIO_ACTION: [/(내\s*(?:포트폴리오|계좌)|보유\s*종목|리밸런싱|비중|매수|매도|진입|손절|익절|\bportfolio|\bmy\s*holdings|\brebalanc|\bbuy|\bsell|\ballocation)/i],
+  EDUCATION: [/(무엇|뭐야|무슨\s*뜻|이란(?=\s*(?:무엇|뭐|뭔|무슨|어떤\s*(?:뜻|의미)|[?？]|$))|뜻|개념|설명해|알려줘|배우|초보|원리|일반적(?:인)?\s*방법|어떻게\s*작동|\bwhat\s+is|\bhow\s+does|\bexplain|\beducation)/i]
 });
 
-const CURRENT_PATTERN = /(지금|현재|오늘|장중|장전|장후|방금|최근|실시간|최신|이번\s*주|as\s*of|now|today|current|live|latest|recent)/i;
-const HISTORICAL_PATTERN = /(과거|당시|지난\s*\d+|\b(?:19|20)\d{2}\b|historical|back\s+in)/i;
+const CURRENT_PATTERN = /(지금|현재|오늘|장중|장전|장후|방금|최근|실시간|최신|이번\s*주|\bas\s*of\b|\bnow\b|\btoday\b|\bcurrent(?!c)|\blive\b|\blatest\b|\brecent)/i;
+const HISTORICAL_PATTERN = /(과거|당시|지난\s*\d+|\b(?:19|20)\d{2}\b|\bhistorical|\bback\s+in\b)/i;
 // P1740: colloquial trade questions ("사도 돼?", "살까", "팔까", "담아도", "들어가도") are action questions too.
-const ACTION_PATTERN = /(추천|매수|매도|진입|청산|손절|익절|비중|수량|포지션|리밸런싱|사야|팔아|사도\s*(?:돼|될까|되나|괜찮)|살까|사볼까|팔까|팔아도|담아도|담을까|들어가도|물타기|불타기|recommend|buy|sell|entry|exit|stop.?loss|allocation|position)/i;
+const ACTION_PATTERN = /(추천|매수|매도|진입|청산|손절|익절|비중|수량|포지션|리밸런싱|사야|팔아|사도\s*(?:돼|될까|되나|괜찮)|살까|사볼까|팔까|팔아도|담아도|담을까|들어가도|물타기|불타기|\brecommend|\bbuy|\bsell|\bentry|\bexit|\bstop.?loss|\ballocation|\bposition)/i;
 // Suitability is a pre-provider boundary for personalized or executable
 // actions, not a vocabulary filter. Educational/conditional discussions may
 // contain the same trading words and must still reach the analysis model.

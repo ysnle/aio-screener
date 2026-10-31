@@ -1059,7 +1059,7 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
     const lastPremium = premium[premium.length - 1] || null;
     if (lastPremium) {
       const tenYear = seriesOf(root._aioMacroHistory, 'dgs10').filter((point) => point.date <= lastPremium.date).pop() || null;
-      const back63 = premium.length > 63 ? premium[premium.length - 64] : null;
+      const back63 = sessionPointBack(premium, 63); // v59.45 (R1-01): 63 sessions, not 63 rows
       const year = yearChange(premiumFull);
       const ageDays = (Date.now() - Date.parse(`${lastPremium.date}T00:00:00Z`)) / 86400000;
       const premiumLag = alignInput(lastPremium.date, model.basis).lag;

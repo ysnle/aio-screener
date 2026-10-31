@@ -11,7 +11,12 @@ export function themeStageBlock(doc, root, themeIds, block) {
   const names = new Map((Array.isArray(root?.THEME_MAP) ? root.THEME_MAP : []).map((theme) => [theme.id, theme.nameKr || theme.id]));
   const ids = (themeIds || []).filter((id) => names.has(id));
   if (!ids.length) return null;
-  const rowsNow = () => new Map((root?.[SCENARIO_STATE.key]?.themes || []).filter((row) => row.market === 'US').map((row) => [row.id, row]));
+  // P10-STATE-01: only a record the producer marked current gives stages ('current' = theme-stage.js
+  // SCENARIO_STATE_CURRENT, the rule 테마와 섹터 reads); a pending placeholder reads as not received.
+  const rowsNow = () => {
+    const scenario = root?.[SCENARIO_STATE.key];
+    return new Map((scenario?.status === 'current' && Array.isArray(scenario.themes) ? scenario.themes : []).filter((row) => row?.market === 'US').map((row) => [row.id, row]));
+  };
   const factOf = (row) => (row ? [stageWord(row), Number.isFinite(row.ret1m) ? `1개월 ${pctText(row.ret1m)}` : null].filter(Boolean).join(', ') : '단계 수신 대기');
   const rows = rowsNow();
   const box = block('이 내용이 설명하는 테마');
@@ -33,6 +38,12 @@ export function themeStageBlock(doc, root, themeIds, block) {
     box.appendChild(link);
   }
   // A research page opened first has not loaded the stage record yet; fill the facts in place once it arrives.
-  if (!rows.size) refreshSharedArtifact(root, SCENARIO_STATE).then(() => { const now = rowsNow(); for (const [id, fact] of facts) fact.textContent = factOf(now.get(id)); }).catch(() => {});
+  // P10-STATE-01: a re-entry with rows already loaded asks too, so a long-open tab follows the record's TTL
+  // (refreshSharedArtifact returns the held copy without a request while it is fresh).
+  refreshSharedArtifact(root, SCENARIO_STATE).then(({ changed } = {}) => {
+    if (!changed && rows.size) return;
+    const now = rowsNow();
+    for (const [id, fact] of facts) fact.textContent = factOf(now.get(id));
+  }).catch(() => {});
   return box;
 }

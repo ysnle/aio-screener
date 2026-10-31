@@ -36,23 +36,37 @@ export function marketWeights(stocks, top) {
   return { asOf, count: common.length, rows };
 }
 
-async function fetchMarket(market, fetchImpl) {
+// v59.45 (R3-04): the weight denominator is the whole market — a short page or a missing totalCount ended the walk after
+// page 1 and the top names' shares came out inflated (50.05% → 62.73%). The walk now has to reach the declared total.
+export const KR_WEIGHTS_MIN_COMPLETE = 0.98;
+export async function fetchMarket(market, fetchImpl, { pauseMs = 300 } = {}) {
   const stocks = [];
+  let totalCount = 0;
   for (let page = 1; page <= MAX_PAGES; page += 1) {
     const response = await fetchImpl(`https://m.stock.naver.com/api/stocks/marketValue/${market}?page=${page}&pageSize=${PAGE_SIZE}`, { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; AIO-Screener/1.0)' }, signal: AbortSignal.timeout(20000) });
     if (!response.ok) throw new Error(`${market} page ${page}: HTTP ${response.status}`);
     const payload = await response.json();
     const rows = Array.isArray(payload?.stocks) ? payload.stocks : [];
+    totalCount = Math.max(totalCount, Number(payload?.totalCount) || 0);
     stocks.push(...rows);
-    if (rows.length < PAGE_SIZE || stocks.length >= Number(payload?.totalCount || 0)) break;
-    await new Promise((r) => setTimeout(r, 300));
+    if (!rows.length || (totalCount > 0 && stocks.length >= totalCount)) break;
+    if (pauseMs) await new Promise((r) => setTimeout(r, pauseMs));
   }
+  if (!(totalCount > 0) || stocks.length < totalCount * KR_WEIGHTS_MIN_COMPLETE) throw new Error(`${market}: ${stocks.length} of ${totalCount || 'unknown'} rows read — incomplete market`);
   return stocks;
 }
 
-export function buildKrIndexWeights(byMarket, nowIso) {
+// A market that failed or came back empty keeps its last published weights, marked retained, instead of dropping out of
+// the artifact (one empty KOSDAQ read removed all 1,762 names).
+export function buildKrIndexWeights(byMarket, nowIso, previous = null) {
   const markets = {};
-  for (const [market, stocks] of Object.entries(byMarket)) { const built = marketWeights(stocks, TOP[market]); if (built) markets[market] = built; }
+  for (const market of Object.keys(TOP)) {
+    const stocks = byMarket?.[market];
+    const built = Array.isArray(stocks) ? marketWeights(stocks, TOP[market]) : null;
+    const kept = previous?.markets?.[market];
+    if (built) markets[market] = built;
+    else if (kept?.rows?.length) markets[market] = { ...kept, retained: true, retainedFrom: kept.retainedFrom || previous.generatedAt || null };
+  }
   return {
     schemaVersion: KR_INDEX_WEIGHTS_SCHEMA,
     generatedAt: nowIso,
@@ -75,16 +89,18 @@ async function main() {
     process.exit(2);
   }
   const nowIso = new Date().toISOString();
+  const previous = JSON.parse(await readFile(OUT, 'utf8').catch(() => 'null'));
   // Due once per KRX session: after 16:10 KST, and only when the published copy is from an earlier session.
   if (!fixture) {
     const kst = new Date(Date.now() + 9 * 3600000);
-    const previous = JSON.parse(await readFile(OUT, 'utf8').catch(() => 'null'));
     if (kst.getUTCHours() * 60 + kst.getUTCMinutes() < 16 * 60 + 10 && previous) { console.log('[kr-index-weights] before 16:10 KST; kept'); return; }
     if (previous?.markets?.KOSPI?.asOf === kst.toISOString().slice(0, 10)) { console.log('[kr-index-weights] current session already published'); return; }
   }
+  const readMarket = async (market) => { try { return await fetchMarket(market, fetch); } catch (error) { console.warn(`[kr-index-weights] ${error?.message || error}; last weights kept`); return null; } };
   const byMarket = fixture ? JSON.parse(await readFile(resolve(fixture), 'utf8'))
-    : { KOSPI: await fetchMarket('KOSPI', fetch), KOSDAQ: await fetchMarket('KOSDAQ', fetch) };
-  const artifact = buildKrIndexWeights(byMarket, nowIso);
+    : { KOSPI: await readMarket('KOSPI'), KOSDAQ: await readMarket('KOSDAQ') };
+  const artifact = buildKrIndexWeights(byMarket, nowIso, previous);
+  if (artifact.markets.KOSPI?.retained && (!artifact.markets.KOSDAQ || artifact.markets.KOSDAQ.retained)) throw new Error('no market read; published copy kept');
   if (!artifact.markets.KOSPI) throw new Error('no KOSPI rows');
   await atomicWriteFile(outPath, `${JSON.stringify(artifact, null, 2)}\n`);
   console.log(`[kr-index-weights] KOSPI ${artifact.markets.KOSPI.asOf} ${artifact.markets.KOSPI.count} common stocks; KOSDAQ ${artifact.markets.KOSDAQ?.count ?? 0}`);

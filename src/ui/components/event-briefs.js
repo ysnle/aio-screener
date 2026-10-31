@@ -6,8 +6,9 @@
 // release of the last two days, the FOMC, the core movers — as full cards; other notable reports are one line each
 // (name, the price after the report, headline) under '그 밖의 실적'; everything else of the last 30 days sits in a fold.
 import { el } from './dom.js';
+import { directionOf } from '../../domain/shared/number.js';
 import { frameHead, markFrame } from './section-frame.js';
-import { homeBriefTiers, latestBriefFor, reactionText, BRIEF_BASIS_WORDS } from '../../domain/briefing/event-briefs.js';
+import { homeBriefTiers, latestBriefFor, reactionText, BRIEF_BASIS_WORDS, CALL_SEARCH_MAX_ATTEMPTS } from '../../domain/briefing/event-briefs.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { EVENT_BRIEFS } from '../../data/event-artifacts.js';
 
@@ -51,7 +52,7 @@ export function briefNode(doc, brief, { showName = true } = {}) {
   const reaction = reactionText(brief.reaction);
   if (reaction) {
     const line = el(doc, 'p', reaction, 'event-brief__reaction');
-    line.dataset.direction = (brief.reaction.extendedPct ?? brief.reaction.latestPct ?? 0) < 0 ? 'down' : 'up';
+    line.dataset.direction = directionOf(brief.reaction.extendedPct ?? brief.reaction.latestPct, 1) || 'flat'; // v59.45 (R1-05): 0.0% is flat
     line.title = brief.reaction.basis === 'latest-trade' ? '발표 직전 정규장 종가 대비 가장 최근 체결가(시간외 또는 마감 전 정규장)' : `발표 직전 종가(${brief.reaction.baseDate}) 대비 종가`;
     box.append(line);
   }
@@ -78,6 +79,8 @@ export function briefNode(doc, brief, { showName = true } = {}) {
   if (points?.points?.length) section(`${points.title} (${basisWord(points)}${points.speaker ? `, ${points.speaker}` : ''})`, points.points.map((point) => point.text));
   else if (brief.status === 'provisional') { /* the source line says the figures await the filing */ }
   else if (brief.scope === 'release') more.append(el(doc, 'p', '실적 보도자료 기준 요약입니다. 컨퍼런스콜은 따로 정리하지 않습니다.', 'event-brief__note'));
+  // v59.45 (pipeline review P21-LIFECYCLE-01): after the last search a missing summary is "not found", not "not yet".
+  else if (!points?.done && (points?.attempts || 0) >= CALL_SEARCH_MAX_ATTEMPTS) more.append(el(doc, 'p', `${brief.kind === 'fomc' ? '기자회견' : '컨퍼런스콜'} 요약은 보도에서 찾지 못했습니다.`, 'event-brief__note'));
   else if (brief.kind !== 'fomc' || brief.status !== 'complete') more.append(el(doc, 'p', `${brief.kind === 'fomc' ? '기자회견' : '컨퍼런스콜'} 요약은 아직 정리 전입니다.`, 'event-brief__note'));
   section('다음에 볼 것', brief.watch || []);
   const source = el(doc, 'p', null, 'event-brief__source');
@@ -93,6 +96,14 @@ export function briefNode(doc, brief, { showName = true } = {}) {
     link.href = point.url; link.target = '_blank'; link.rel = 'noopener noreferrer';
     source.append(doc.createTextNode(' · '), link);
   });
+  // v59.45 (pipeline review P21-EVIDENCE-01): a report-based call summary links its articles too, like the reasons.
+  if (points?.basis === 'news-report' && points.points?.length) {
+    [...new Set(points.points.map((point) => point.url).filter((url) => /^https:\/\//.test(url || '')))].forEach((url, i) => {
+      const link = el(doc, 'a', `${brief.kind === 'fomc' ? '기자회견' : '콜'} 보도 기사 ${i + 1}`, null);
+      link.href = url; link.target = '_blank'; link.rel = 'noopener noreferrer';
+      source.append(doc.createTextNode(' · '), link);
+    });
+  }
   if (points?.transcriptUrl && points.basis !== 'transcript') {
     const link = el(doc, 'a', '연준 녹취록', null);
     link.href = points.transcriptUrl; link.target = '_blank'; link.rel = 'noopener noreferrer';
@@ -103,7 +114,8 @@ export function briefNode(doc, brief, { showName = true } = {}) {
   const aiWritten = (brief.ai || []).length > 0 || !!points?.points?.length || reasons.length > 0;
   // A provisional brief's figures are the provider's, never checked against a filing (reviewer, v59.44).
   if (brief.status === 'provisional') source.append(doc.createTextNode(`. 수치는 제공처 집계로 공시 원문과 아직 대조하지 않았고, 원문이 나오면 원문 요약으로 바뀝니다. ${reasons.length ? '주가가 움직인 이유는 공용 AI가 보도에서 찾았고' : '이 내용은'} 매매 판단이 아닙니다.`));
-  else source.append(doc.createTextNode(`. 숫자는 원문에서 확인된 것만 싣습니다${dropped ? `(확인되지 않은 항목 ${dropped}건 제외)` : ''}. ${aiWritten ? '요약은 공용 AI가 썼고' : '표는 공시 원문에서 그대로 읽었고'} 매매 판단이 아닙니다.`));
+  // P21-NUMBER-01: the check is that the same figure (with its unit and direction) stands in the quoted source sentence.
+  else source.append(doc.createTextNode(`. 숫자는 원문 문장에 같은 숫자가 있는 것만 싣습니다${dropped ? `(확인되지 않은 항목 ${dropped}건 제외)` : ''}. ${aiWritten ? '요약은 공용 AI가 썼고' : '표는 공시 원문에서 그대로 읽었고'} 매매 판단이 아닙니다.`));
   more.append(source);
   box.append(more);
   return box;
@@ -146,7 +158,7 @@ function briefRow(doc, root, brief) {
   const reaction = reactionText(brief.reaction);
   if (reaction) {
     const move = el(doc, 'span', reaction, 'event-brief-row__move');
-    move.dataset.direction = (brief.reaction.extendedPct ?? brief.reaction.latestPct ?? 0) < 0 ? 'down' : 'up';
+    move.dataset.direction = directionOf(brief.reaction.extendedPct ?? brief.reaction.latestPct, 1) || 'flat'; // v59.45 (R1-05): 0.0% is flat
     li.append(move);
   }
   if (brief.headline) li.append(el(doc, 'span', brief.headline, 'event-brief-row__headline'));

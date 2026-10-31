@@ -1,6 +1,6 @@
 // P1626: conditional readings from observed bars. No price targets or probabilities.
 import { formatScreenerPrice } from '../screener/market-scope.js';
-const finite = value => typeof value === 'number' && Number.isFinite(value) ? value : null;
+import { finiteNumber as finite } from '../shared/number.js';
 
 export function buildVolumeByPrice(bars = [], { lookback = 130, binCount = 24 } = {}) {
   const recent = bars.slice(-lookback);
@@ -42,10 +42,13 @@ export function buildChartScenarios(analysis, { currency = null } = {}) {
     { id: 'weakness', title: '약화 조건', level: support, text: `${contractionLow === support ? '마지막 수축 저점' : '최근 20거래일 저점'} ${price(support)} 아래 종가가 이어지면 기존 가격 구조가 약해집니다. 이후 같은 가격을 회복하는지에 따라 이탈 지속과 범위 복귀를 구분합니다.` }
   ];
   // v58.74 (text audit): the expert's first question about three paths — which trigger the close is nearer to.
-  const toWeak = last.close > 0 && support > 0 ? (last.close / support - 1) * 100 : null;
+  // v59.45 P24-DISTANCE-01: both distances are the move from today's close (one denominator). The old sentence put
+  // resistance/close - 1 (the rise needed, 20% for 100 -> 120) after "기준보다 아래", where 100 is 16.7% under 120, and
+  // measured support from the support price, so the two sides were compared on different bases.
+  const toWeak = last.close > 0 && support > 0 ? (1 - support / last.close) * 100 : null;
   const toRecover = last.close > 0 && resistance > 0 ? (resistance / last.close - 1) * 100 : null;
   const nearest = toWeak != null && toRecover != null && toWeak >= 0 && toRecover >= 0
-    ? `종가는 약화 기준(${price(support)})보다 ${toWeak.toFixed(1)}% 위, 회복 기준(${price(resistance)})보다 ${toRecover.toFixed(1)}% 아래입니다 — ${Math.abs(toWeak - toRecover) < 0.5 ? '두 기준과의 거리가 비슷합니다' : toWeak < toRecover ? '약화 기준이 더 가깝습니다' : '회복 기준이 더 가깝습니다'}.`
+    ? `종가에서 약화 기준(${price(support)})까지는 ${toWeak.toFixed(1)}% 하락, 회복 기준(${price(resistance)})까지는 ${toRecover.toFixed(1)}% 상승 거리입니다 — ${Math.abs(toWeak - toRecover) < 0.5 ? '두 기준과의 거리가 비슷합니다' : toWeak < toRecover ? '약화 기준이 더 가깝습니다' : '회복 기준이 더 가깝습니다'}.`
     : null;
   return { available: true, scenarios, resistance, support, nearest, asOf: analysis.asOf };
 }

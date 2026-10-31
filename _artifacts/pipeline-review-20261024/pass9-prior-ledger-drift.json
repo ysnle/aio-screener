@@ -1,0 +1,82 @@
+{
+  "at": "2026-10-28T02:53:08.174Z",
+  "changed": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "priorStatus": "FULL_READER_REPORTED_PASS5"
+    },
+    {
+      "path": ".github/workflows/deploy-ai-proxy.yml",
+      "priorStatus": "FULL_READER_REPORTED_PASS5"
+    },
+    {
+      "path": ".github/workflows/deploy-data-plane.yml",
+      "priorStatus": "FULL_READER_REPORTED_PASS5"
+    },
+    {
+      "path": ".github/workflows/knowledge-lint.yml",
+      "priorStatus": "FULL_READER_REPORTED_PASS5"
+    },
+    {
+      "path": ".github/workflows/operations-alert.yml",
+      "priorStatus": "FULL_READER_REPORTED_PASS5"
+    },
+    {
+      "path": ".github/workflows/pages-deploy.yml",
+      "priorStatus": "FULL_READER_REPORTED_PASS5"
+    },
+    {
+      "path": ".github/workflows/refresh-data.yml",
+      "priorStatus": "PARTIAL_PARENT"
+    },
+    {
+      "path": "cloudflare-worker-proxy.js",
+      "priorStatus": "FULL_PARENT_PASS6_CUMULATIVE"
+    },
+    {
+      "path": "scripts/backtest-factors-longrun.mjs",
+      "priorStatus": "FULL_PARENT_PASS7_8_CUMULATIVE"
+    },
+    {
+      "path": "scripts/build-operations-status.mjs",
+      "priorStatus": "FULL_PARENT_PASS6_CUMULATIVE"
+    },
+    {
+      "path": "scripts/ci-13f-currentness-check.mjs",
+      "priorStatus": "FULL_READER_REPORTED_PASS5"
+    },
+    {
+      "path": "scripts/ci-masters-contract-check.mjs",
+      "priorStatus": "PARTIAL"
+    },
+    {
+      "path": "scripts/collect-13f-discovery.mjs",
+      "priorStatus": "FULL_READER_REPORTED_PASS5"
+    },
+    {
+      "path": "scripts/collect-13f-reference.mjs",
+      "priorStatus": "FULL_READER_REPORTED_PASS5"
+    },
+    {
+      "path": "scripts/daily-lane-age.mjs",
+      "priorStatus": "FULL_READER_REPORTED_PASS5"
+    },
+    {
+      "path": "scripts/deployment-provenance.mjs",
+      "priorStatus": "FULL_READER_REPORTED_PASS5"
+    },
+    {
+      "path": "scripts/lib/13f-discovery.mjs",
+      "priorStatus": "FULL_READER_REPORTED_PASS5"
+    },
+    {
+      "path": "scripts/lib/factors.mjs",
+      "priorStatus": "FULL_PARENT_PASS6_CUMULATIVE"
+    },
+    {
+      "path": "scripts/qa-runner.mjs",
+      "priorStatus": "FULL_READER_REPORTED_PASS5"
+    }
+  ],
+  "meaning": "Changed since prior ledger observation; re-review required, not defect proof."
+}

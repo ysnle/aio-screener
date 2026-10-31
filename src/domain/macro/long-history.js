@@ -1,3 +1,4 @@
+import { finiteNumber as finite } from '../shared/number.js';
 /**
  * Decades of context for a few macro gauges (live review 4f, 2026-10-14).
  *
@@ -5,7 +6,6 @@
  * that history: its percentile among all months, and the period's high and low with their months. It describes a
  * level against the past — not a direction, a signal or a forecast.
  */
-const finite = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
 
 // Expert review 2026-10-14: these are monthly means of daily observations, so the artifact's own calendar month is still
 // in progress (a partial mean). That month is left out and the card names the completed month it compares.
@@ -20,13 +20,18 @@ function monthLabel(month) {
 
 export function longHistoryRows(artifact) {
   const series = artifact?.series || {};
-  const openMonth = /^\d{4}-\d{2}/.test(String(artifact?.generatedAt || '')) ? String(artifact.generatedAt).slice(0, 7) : null;
+  const monthOf = (at) => (/^\d{4}-\d{2}/.test(String(at || '')) ? String(at).slice(0, 7) : null);
   return LONG_HISTORY_ORDER.map((field) => {
     const entry = series[field];
     const all = (Array.isArray(entry?.observations) ? entry.observations : [])
       .map(([month, value]) => ({ month: String(month || ''), value: finite(value) }))
       .filter((point) => /^\d{4}-\d{2}$/.test(point.month) && point.value != null);
-    const partial = DAILY_MEANS.has(field) && openMonth && all.length && all[all.length - 1].month >= openMonth ? all[all.length - 1] : null;
+    // v59.45 (P18-LONG-01): the open month is the month this series was fetched, not the artifact's date — a retained
+    // (stale) series keeps its mid-month mean while generatedAt moves on. A stale series without its own fetch date
+    // cannot show its last month was complete, so that month is left out.
+    const openMonth = monthOf(entry?.fetchedAt) || (entry?.stale === true ? null : monthOf(artifact?.generatedAt));
+    const unprovenLast = DAILY_MEANS.has(field) && entry?.stale === true && !monthOf(entry?.fetchedAt);
+    const partial = DAILY_MEANS.has(field) && all.length && (unprovenLast || (openMonth && all[all.length - 1].month >= openMonth)) ? all[all.length - 1] : null;
     const points = partial ? all.slice(0, -1) : all;
     if (points.length < 120) return null;
     const last = points[points.length - 1];

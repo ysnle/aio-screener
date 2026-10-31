@@ -2,8 +2,10 @@
 // (2026-10-17): js/aio-data.js _aioApplyScreenerBreadth used to run these checks and copy the result into
 // _aioScreenerBreadthState / _breadthLiveData / _krBreadthLiveData; readers now ask this function with the native
 // screener metadata. It is an AIO screener-universe measurement, not official exchange breadth.
+import { FRESHNESS_POLICY } from '../shared/freshness-policy.js';
+
 const VALUE_KEYS = ['above5', 'above20', 'above50', 'above200', 'advanceRatio'];
-const MAX_AGE_HOURS = 96;
+const MAX_AGE_HOURS = FRESHNESS_POLICY.factorSessionMs / 3600000;
 
 function valuesOk(segment) {
   return !!segment && VALUE_KEYS.every((key) => typeof segment[key] === 'number' && Number.isFinite(segment[key]) && segment[key] >= 0 && segment[key] <= (key === 'advanceRatio' ? 1 : 100));
@@ -11,6 +13,19 @@ function valuesOk(segment) {
 
 function observedMsOf(segment) {
   return segment && segment.observedAt ? new Date(segment.observedAt).getTime() : 0;
+}
+
+// v59.45 (P17-BREADTH-01/02): one check for every population — a finite observation time inside the age window is
+// required (a missing or invalid time is not current), and a candidate is chosen only after it passes all checks.
+function segmentCheck(segment, now, minEligible) {
+  const observedMs = observedMsOf(segment);
+  const ageHours = Number.isFinite(observedMs) && observedMs > 0 ? (now - observedMs) / 3600000 : null;
+  const checks = {
+    coverage: !!(segment && segment.coveragePct >= 85 && segment.eligible >= minEligible),
+    observed: ageHours != null && ageHours >= -1 && ageHours <= MAX_AGE_HOURS,
+    values: valuesOk(segment)
+  };
+  return { observedMs: ageHours == null ? 0 : observedMs, ageHours, checks, passed: Object.values(checks).every(Boolean) };
 }
 
 // v58.79 (owner 2026-10-25): the headline breadth is S&P 500 members. The history rows say which population each value
@@ -29,19 +44,19 @@ export function breadthScopeOf(history, field = 'breadth50') {
 
 export function readScreenerBreadth(breadth, now = Date.now()) {
   const root = breadth && typeof breadth === 'object' ? breadth : null;
-  // v58.79: S&P 500 members lead when that segment passes the same checks; the AIO US universe is the fallback.
+  // v58.79: S&P 500 members lead when that segment passes the same checks (age included); the AIO US universe is the
+  // fallback. A stale S&P 500 segment no longer blocks a current US universe.
   const sp500 = root?.segments?.sp500 || null;
-  const us = (sp500 && valuesOk(sp500) && sp500.eligible >= 300 && sp500.coveragePct >= 85 ? sp500 : null) || root?.segments?.us || null;
+  const sp500Read = sp500 ? segmentCheck(sp500, now, 300) : null;
+  const us = (sp500Read?.passed ? sp500 : null) || root?.segments?.us || (sp500 || null);
   const kr = root?.segments?.kr || null;
-  const observedMs = observedMsOf(us);
-  const ageHours = observedMs ? (now - observedMs) / 3600000 : null;
-  const checks = {
-    schema: !!(root && root.schemaVersion === '1.0'),
-    coverage: !!(us && us.coveragePct >= 85 && us.eligible >= 300),
-    observed: !!(observedMs && ageHours >= -1 && ageHours <= MAX_AGE_HOURS),
-    values: valuesOk(us)
-  };
+  const usRead = segmentCheck(us, now, 300);
+  const { observedMs, ageHours } = usRead;
+  const checks = { schema: !!(root && root.schemaVersion === '1.0'), ...usRead.checks };
   const passed = Object.values(checks).every(Boolean);
+  const krRead = segmentCheck(kr, now, 100);
+  const krPassed = checks.schema && krRead.passed;
+  const krState = { status: krPassed ? 'verified_current' : 'blocked', observedAt: kr?.observedAt || null, ageHours: krRead.ageHours, checks: krRead.checks };
   const state = {
     status: passed ? 'verified_current' : 'blocked',
     source: root?.source || null,
@@ -53,13 +68,12 @@ export function readScreenerBreadth(breadth, now = Date.now()) {
     checks,
     decisionScope: root?.decisionScope || 'research/reference'
   };
-  if (!passed) return { state, us: null, kr: null };
-  const krObservedMs = observedMsOf(kr);
-  const krAgeHours = krObservedMs ? (now - krObservedMs) / 3600000 : null;
-  const krPassed = !!(valuesOk(kr) && kr.coveragePct >= 85 && kr.eligible >= 100 && krAgeHours >= -1 && krAgeHours <= MAX_AGE_HOURS);
+  // Each market is judged on its own: a blocked US read no longer removes a current Korean one (krState says why).
+  const krObservedMs = krRead.observedMs;
   return {
     state,
-    us: {
+    krState,
+    us: !passed ? null : {
       sma5: us.above5, sma20: us.above20, sma50: us.above50, above200: us.above200,
       advances: us.advances, declines: us.declines, advanceRatio: us.advanceRatio,
       ts: observedMs, generatedAt: us.observedAt,

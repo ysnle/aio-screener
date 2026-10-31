@@ -12,13 +12,13 @@ import { CHOICES } from '../../domain/market/macro-crossroads.js';
 import { CHOICE_WORDS } from '../../domain/content/choice-words.js';
 import { THEME_STATES } from '../../domain/scenarios/analogs.js';
 import { WIND_LABELS } from '../../domain/scenarios/exposures.js';
-import { signedText, usdKoreanText } from '../../domain/shared/number.js';
+import { signedText, usdKoreanText, finiteNumber as finite } from '../../domain/shared/number.js';
 import { chooseAnswerVisuals } from '../../ai/response/answer-visual-choice.js';
+import { isIsoDay } from '../../domain/shared/session-date.js';
 
 export { chooseAnswerVisuals };
 
 const esc = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
-const finite = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
 const isKr = (symbol) => /\.(KS|KQ)$/i.test(String(symbol || ''));
 const signed = (value, digits = 1) => signedText(value, digits, '%');
 const price = (value, kr) => (kr ? Math.round(value).toLocaleString('en-US') : value >= 1000 ? value.toFixed(0) : value.toFixed(2));
@@ -105,7 +105,7 @@ export async function buildFundamentalsVisual({ documentRef: doc, root, symbol }
     // v58.63 (architecture audit C07): Number('') is 0, so a quarter with no reported net income drew "순이익률 0%" exactly
     // like a real break-even quarter. An empty cell is missing, not zero.
     const cell = (value) => (value == null || String(value).trim() === '' ? null : finite(Number(value)));
-    rows = quarterText.split(';').map((part) => part.split(':')).filter((cells) => /^\d{4}-\d{2}-\d{2}$/.test(cells[0] || ''))
+    rows = quarterText.split(';').map((part) => part.split(':')).filter((cells) => isIsoDay(cells[0] || ''))
       .map(([periodEnd, revenue, netIncome]) => ({ periodEnd, revenue: cell(revenue), netIncome: cell(netIncome) }));
   }
   if (rows.filter((row) => row.revenue != null).length < 4) {

@@ -111,8 +111,8 @@ export function deriveScreenerSetupProfile(row = {}) {
   if (relativeStrengthPullback) tags.push('상대강도 눌림 후보');
   if (support200 === 'near') tags.push('200일선 부근');
   if (climaxRisk) tags.push('과열 정점 주의');
-  // S14: an observed band, not a warning about entering. S04: no per-row "거래량 확인 필요" — RVOL is not
-  // published for any row, so the tag carried no information; the gap stays in missingEvidence.
+  // S14: an observed band, not a warning about entering. S04: no per-row "거래량 확인 필요" — when it was written RVOL
+  // was not published for any row (price-factors now computes rvol20); a missing RVOL stays in missingEvidence.
   if (extensionState === 'stretched') tags.push('50일선 확장 7배 이상(참고 구간)');
   if (!relativeStrengthPullback && support200 !== 'near' && !climaxRisk) tags.push('추가 셋업 근거 필요');
 

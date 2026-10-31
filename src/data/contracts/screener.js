@@ -4,7 +4,7 @@
 import { CANONICAL_SOURCE_TIERS, canonicalSourceTier } from './source-kind.js';
 import { latestCompletedUsSession, latestCompletedKrSession, nyParts } from '../../ai/time/market-session.js';
 import { listingMarketOfSymbol, timeZoneForSymbol } from '../../domain/market/session-time.js';
-import { finiteNumber as finite } from '../../domain/shared/number.js';
+import { finiteNumber as finite, readNumber } from '../../domain/shared/number.js';
 import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from '../../domain/fundamental/period.js';
 
 export const SCREENER_CONTRACT_VERSION = 'screener-workbench.v1';
@@ -411,6 +411,15 @@ export function fieldValueForPurpose(row, fieldId, purpose = 'display') {
   if (!field) return purpose === 'display' ? value : null;
   const allowed = purpose === 'calculation' ? CALCULABLE_FIELD_STATUSES.includes(field.status) : DISPLAYABLE_FIELD_STATUSES.has(field.status);
   return allowed ? value : null;
+}
+
+// v59.46 boundary contract: domain code reads a row's number by its row key through the readiness contract instead of
+// row[key], so missing, rights and age are judged once here (korea-participation carried this as a local `read`).
+// A key the registry does not define (ret5d, ret10d) is read as the plain number it is.
+const FIELD_ID_BY_ROW_KEY = new Map(SCREENER_FIELD_REGISTRY.fields.filter((field) => field.type === 'number').map((field) => [field.rowKey, field.fieldId]));
+export function readRowNumber(row, rowKey, purpose = 'display') {
+  const fieldId = FIELD_ID_BY_ROW_KEY.get(rowKey);
+  return readNumber(fieldId ? fieldValueForPurpose(row, fieldId, purpose) : row?.[rowKey]);
 }
 
 export function calculationRow(row) {

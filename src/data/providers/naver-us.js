@@ -48,11 +48,13 @@ export function installNaverUsCollector(window = globalThis) {
       // Integration → 컨센서스 (목표가, 추천등급)
       if (integ && integ.consensusInfo && integ.consensusInfo.priceTargetMean) {
         var ci = integ.consensusInfo;
+        // v59.45 (R2-04): parseFloat('1,105.20') is 1, which read as a −99.9% upside; drop thousands separators first.
+        var num = function(v) { var n = Number(String(v == null ? '' : v).replace(/,/g, '').trim()); return Number.isFinite(n) && n > 0 ? n : null; };
         result.consensus = {
-          recommMean: parseFloat(ci.recommMean) || null,
-          targetMean: parseFloat(ci.priceTargetMean) || null,
-          targetHigh: parseFloat(ci.priceTargetHigh) || null,
-          targetLow: parseFloat(ci.priceTargetLow) || null,
+          recommMean: num(ci.recommMean),
+          targetMean: num(ci.priceTargetMean),
+          targetHigh: num(ci.priceTargetHigh),
+          targetLow: num(ci.priceTargetLow),
           date: ci.createDate || null
         };
       }

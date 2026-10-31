@@ -2,6 +2,7 @@
 // (2026-10-17): moved from js/aio-data.js _aioLoadServerData. It writes the macro fields onto the snapshot, the per-key
 // evidence and the server metadata it is handed; the legacy loader keeps the window globals, the sentiment ingest and
 // the Treasury projection.
+import { isFiniteNumber as finite } from '../domain/shared/number.js';
 
 // v51.97/Phase 2 [B2]: housingStarts/retailSales/usWageGrowth come from server FRED. consConf (Conference Board) stays
 // out: FRED has no such series, and UMCSENT (Michigan) is a different indicator (P593).
@@ -14,7 +15,6 @@ const BLS_CPI_PROMOTIONS = [
   { metricId: 'coreCpi', valueKey: 'blsCoreCpiYoY', snapshotKey: 'coreCpi', saMetricId: 'coreCpiSa', saValueKey: 'blsCoreCpiSaYoY', saSnapshotKey: 'coreCpiSa' }
 ];
 
-const finite = (value) => typeof value === 'number' && Number.isFinite(value);
 
 function projectKey(k, { macro, meta, snapshot, evidence }) {
   const blsCanonicalCpi = macro._bls?.series?.[k];

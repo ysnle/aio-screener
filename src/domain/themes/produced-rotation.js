@@ -1,4 +1,5 @@
 import { latestCompletedUsSession } from '../market/market-calendar.js';
+import { isFiniteNumber as finite } from '../shared/number.js';
 
 // P1358: consume durable derived evidence; do not fabricate price histories.
 export function selectProducedRotation(artifact, symbol, nowMs = Date.now()) {
@@ -8,7 +9,6 @@ export function selectProducedRotation(artifact, symbol, nowMs = Date.now()) {
     || artifact.benchmark !== 'SPY' || artifact.timeframe !== '1d' || artifact.priceBasis !== 'adjusted-close'
     || artifact.decisionUse !== false || artifact.allowedUseCeiling !== 'reference'
     || !basis || artifact.latestCompletedSession !== basis.date || row?.status !== 'CURRENT' || row.sessionDate !== basis.date) return null;
-  const finite = (value) => typeof value === 'number' && Number.isFinite(value);
   // P1366: coordinates are required; a missing 1/5-session return stays null instead of
   // discarding the valid RRG point (the producer emits null when that session is absent).
   if (![row.rsRatio, row.rsMomentum].every(finite) || ![row.dailyPct, row.weeklyPct].every((value) => value === null || finite(value))

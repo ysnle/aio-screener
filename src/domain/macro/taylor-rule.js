@@ -5,6 +5,7 @@
 // observation, so the reader picks 0.5% or 1.0% and the model also returns the rule across both. The result is a reference
 // point the policy rate is compared with — it never says what the Fed should or will do.
 import { seriesOf, yoySeries } from './macro-read.js';
+import { readNumber as finite } from '../shared/number.js';
 
 // v58.56 (re-audit #14): the default r* is no longer a fixed pick but the FOMC's own dated estimate — the Summary of Economic
 // Projections' longer-run federal funds rate median (FRED FEDTARMDLR, one observation per SEP release) minus the 2% inflation
@@ -22,10 +23,6 @@ const NEAR_PP = 0.25; // within one usual 25bp step the policy rate reads as "ne
 export const TAYLOR_MAX_INPUT_SPREAD_MONTHS = 3;
 const monthIndex = (date) => { const [y, m] = String(date).split('-').map(Number); return y * 12 + (m - 1); };
 
-function finite(value) {
-  const number = Number(value);
-  return value != null && value !== '' && Number.isFinite(number) ? number : null;
-}
 
 function ruleRate(rStar, inflation, gap) {
   return rStar + inflation + 0.5 * (inflation - TAYLOR_INFLATION_TARGET) + 0.5 * gap;

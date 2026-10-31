@@ -18,6 +18,8 @@ export const RELATION_TYPES = Object.freeze({
   supplies: { label: '공급', directed: true, forward: '공급받는 쪽', backward: '공급하는 쪽' },
   substitute: { label: '대체·경쟁', directed: false, forward: '대체·경쟁 관계(특정 용도에서)', backward: '대체·경쟁 관계(특정 용도에서)' },
   complement: { label: '보완', directed: false, forward: '함께 필요한 것', backward: '함께 필요한 것' },
+  // P29-RELATION-01: the producer's REQUIRES is one-way (cloud needs accelerators, not the reverse).
+  requires: { label: '필요', directed: true, forward: '필요한 것', backward: '이것을 필요로 하는 곳' },
   constrains: { label: '제약', directed: true, forward: '제약하는 대상', backward: '제약 요인' },
   conditional: { label: '조건부 영향', directed: true, forward: '조건에 따라 영향을 주는 대상', backward: '조건에 따라 영향을 받는 요인' },
   measures: { label: '측정', directed: true, forward: '측정 대상', backward: '측정 지표' },
@@ -51,7 +53,9 @@ const CROSS_TEXT = Object.freeze({
 });
 
 // The producer's cross-domain edge verbs mapped onto the same vocabulary.
-const CROSS_TYPE = Object.freeze({ REQUIRES: 'complement', ENABLES: 'conditional', CAUSES: 'conditional', MEASURES: 'measures', EXPOSES_TO: 'substitute', FUNDS: 'conditional', CONSTRAINS: 'constrains', EVIDENCES: 'measures' });
+// P29-RELATION-01: EXPOSES_TO (one side's change reaches the other) was read as 대체·경쟁 and REQUIRES as a symmetric
+// 보완; exposure is a one-way conditional link and a requirement keeps its direction.
+const CROSS_TYPE = Object.freeze({ REQUIRES: 'requires', ENABLES: 'conditional', CAUSES: 'conditional', MEASURES: 'measures', EXPOSES_TO: 'conditional', FUNDS: 'conditional', CONSTRAINS: 'constrains', EVIDENCES: 'measures' });
 
 // What a node IS, from its kind — one consistent classification instead of mixed layer labels
 // (GPU as '세부 공정', numeric precision as '제품·수익모델').
@@ -73,7 +77,8 @@ const r = (from, to, type, text) => Object.freeze({ from, to, type, text });
 export const DOMAIN_RELATIONS = Object.freeze([
   // Cloud platform
   r('cloud-hyperscaler', 'cloud-ai-service', 'contains', '하이퍼스케일러 사업 안의 관리형 AI 서비스'),
-  r('cloud-ai-service', 'cloud-utilization', 'measures', '서비스 수익성은 장비 가동률·작업 구성에 달림'),
+  // P29-RELATION-01: the dependence runs from utilization to the service (the service is not a metric of utilization).
+  r('cloud-utilization', 'cloud-ai-service', 'conditional', '장비 가동률·작업 구성이 서비스 수익성을 좌우함'),
   r('cloud-commitments', 'cloud-utilization', 'conditional', '장기 약정은 가동률의 하한을 받쳐 줄 수 있음'),
   r('cloud-hyperscaler', 'cloud-depreciation', 'conditional', '설비투자가 크면 이후 감가상각비가 커짐'),
   // Neocloud
@@ -173,14 +178,17 @@ export function typedRelations(taxonomyCoverage, titleOf = (id) => id) {
   const edges = [...DOMAIN_RELATIONS];
   for (const edge of taxonomyCoverage?.relationshipModel?.crossDomainEdges || []) {
     const type = CROSS_TYPE[edge.type] || 'conditional';
-    edges.push({ from: edge.from, to: edge.to, type, text: CROSS_TEXT[edge.id] || '' });
+    // The producer's conditions, sources and review date travel with the edge for a details view.
+    edges.push({ from: edge.from, to: edge.to, type, text: CROSS_TEXT[edge.id] || '', sourceType: edge.type || null,
+      conditions: Array.isArray(edge.conditions) ? edge.conditions : [], sourceIds: Array.isArray(edge.sourceIds) ? edge.sourceIds : [], reviewedAt: edge.reviewedAt || null });
   }
   const byNode = new Map(nodes.map((node) => [node.nodeId, []]));
   for (const edge of edges) {
     if (!ids.has(edge.from) || !ids.has(edge.to)) continue;
     const meta = RELATION_TYPES[edge.type];
-    byNode.get(edge.from).push({ id: edge.to, title: titleOf(edge.to), type: edge.type, label: meta.forward, text: edge.text });
-    byNode.get(edge.to).push({ id: edge.from, title: titleOf(edge.from), type: edge.type, label: meta.backward, text: edge.text });
+    const detail = edge.sourceType ? { sourceType: edge.sourceType, conditions: edge.conditions, sourceIds: edge.sourceIds, reviewedAt: edge.reviewedAt } : {};
+    byNode.get(edge.from).push({ id: edge.to, title: titleOf(edge.to), type: edge.type, label: meta.forward, text: edge.text, ...detail });
+    byNode.get(edge.to).push({ id: edge.from, title: titleOf(edge.from), type: edge.type, label: meta.backward, text: edge.text, ...detail });
   }
   return byNode;
 }

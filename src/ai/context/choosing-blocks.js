@@ -108,7 +108,9 @@ export function priceLevelContext(map, query = '') {
     [map.swingLowBelow ? `직전 스윙 저점 ${num(map.swingLowBelow.price)} (${map.swingLowBelow.time})` : '', Number.isFinite(map.pivot) ? `피벗 ${num(map.pivot)}` : '', Number.isFinite(map.contractionLow) ? `마지막 수축 저점 ${num(map.contractionLow)}` : '', map.base ? `베이스 ${num(map.base.low)}~${num(map.base.high)} (깊이 ${num(map.base.depthPct, 1)}%)` : ''].filter(Boolean).join(', ') || '피벗·베이스 없음',
     `${map.note}.`];
   // Prices the reader typed, within ±60% of the close (so "3개월", "2배" are not read as prices).
-  const typed = [...String(query).matchAll(/\$?(\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?)\s*(?:달러|원|불)?/g)].map((m) => Number(m[1].replace(/,/g, '')))
+  // v59.45 (pipeline review PASS13 후보): on a $3 stock "3개월" sat inside that window and was read as a price; a number
+  // followed by a period, count, multiple or percent unit is not a price.
+  const typed = [...String(query).matchAll(/\$?(\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?)(?![\d.,])(?!\s*(?:개월|달(?!러)|주|일|년|분기|거래일|시간|분|배|%|퍼센트|회|번|bp|days?|weeks?|months?|years?|x\b))\s*(?:달러|원|불)?/g)].map((m) => Number(m[1].replace(/,/g, '')))
     .filter((value) => value > map.close * 0.4 && value < map.close * 1.6);
   const all = [...map.supportCandidates, ...map.resistanceCandidates];
   for (const value of [...new Set(typed)].slice(0, 4)) {
@@ -135,8 +137,11 @@ export function focusedThemeContext({ root = {}, ctxId = '', query = '', playboo
   const row = playbook?.available ? playbook.themes.find((item) => item.market === 'US' && item.id === theme.id) : null;
   const pctText = (value) => (value == null ? '—' : `${signedText(value, 1)}%`);
   const leaders = new Set((theme.leaders || []).map((sym) => String(sym).toUpperCase()));
-  const members = rows.filter((item) => leaders.has(String(item?.sym || '').toUpperCase()) && Number.isFinite(item?.ret1m)).sort((a, b) => b.ret1m - a.ret1m);
-  const dates = [...new Set(members.map((item) => item.factorSessionDate).filter(Boolean))].sort();
+  const priced = rows.filter((item) => leaders.has(String(item?.sym || '').toUpperCase()) && Number.isFinite(item?.ret1m));
+  const dates = [...new Set(priced.map((item) => item.factorSessionDate).filter(Boolean))].sort();
+  // v59.45 (pipeline review PASS13 후보): members measured at different closes were ranked together under the newest date;
+  // only the members at that date are compared (the count below says how many of the theme that is).
+  const members = (dates.length ? priced.filter((item) => item.factorSessionDate === dates.at(-1)) : priced).sort((a, b) => b.ret1m - a.ret1m);
   const name = (item) => `${String(item.sym).toUpperCase()}${item.name ? `(${String(item.name).slice(0, 18)})` : ''} ${pctText(item.ret1m)}`;
   const top = members.slice(0, 4).map(name), bottom = members.length > 6 ? members.slice(-2).map(name) : [];
   const criteria = themeCriteriaBlock(root, theme.id);

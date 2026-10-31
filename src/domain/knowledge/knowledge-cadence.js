@@ -18,7 +18,9 @@ export function isOverdue(kind, asOf, now = Date.now()) {
   const policy = KNOWLEDGE_CADENCE[kind];
   if (!policy?.maxAgeDays) return false;
   const age = ageDays(asOf, now);
-  return age == null || age > policy.maxAgeDays;
+  // P29 (cadence): a review date more than a day ahead (a typo, 2099) is not a review; it needs re-checking like a
+  // missing one. One day of slack covers a date-only asOf read in another time zone.
+  return age == null || age < -1 || age > policy.maxAgeDays;
 }
 
 // Player/product registry rows: roles and product families are company-role facts; a product's

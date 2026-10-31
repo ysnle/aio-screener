@@ -6,14 +6,23 @@ export const WATCHLISTS_KEY = 'aio_watchlists';
 export const ACTIVE_WATCHLIST_KEY = 'aio_watchlist_active';
 export const LEGACY_STAR_KEY = 'aio_watchlist';
 
+// v59.45 (PASS27 P27-WATCHLIST-01): one normalizer for every reader — a list whose tickers is not an array ({} from a
+// hand-edited file) threw in the legacy fold and the toggle before readWatchlists could repair it.
 function readLists(storage) {
   let lists = [];
   try { lists = JSON.parse(storage?.getItem(WATCHLISTS_KEY) || '[]'); } catch (_) { lists = []; }
-  return Array.isArray(lists) ? lists.filter((list) => list && typeof list === 'object') : [];
+  return Array.isArray(lists) ? lists.filter((list) => list && typeof list === 'object' && !Array.isArray(list)).map((list) => (Array.isArray(list.tickers) ? list : { ...list, tickers: [] })) : [];
 }
 
+// A write counts only when a storage took it and reads it back: with no storage (or an adapter that drops the write)
+// the toggle used to report ok while nothing was kept.
 function writeLists(storage, lists) {
-  try { storage?.setItem(WATCHLISTS_KEY, JSON.stringify(lists)); return true; } catch (_) { return false; }
+  if (!storage || typeof storage.setItem !== 'function') return false;
+  const text = JSON.stringify(lists);
+  try {
+    storage.setItem(WATCHLISTS_KEY, text);
+    return typeof storage.getItem !== 'function' || storage.getItem(WATCHLISTS_KEY) === text;
+  } catch (_) { return false; }
 }
 
 function targetList(storage, lists, now) {
@@ -32,11 +41,13 @@ function foldLegacyStars(storage, now) {
   let legacy = null;
   try { legacy = storage?.getItem(LEGACY_STAR_KEY); } catch (_) { return; }
   if (legacy == null) return;
-  let symbols = [];
-  try { symbols = JSON.parse(legacy || '[]'); } catch (_) { symbols = []; }
+  let symbols = null;
+  try { symbols = JSON.parse(legacy || '[]'); } catch (_) { symbols = null; }
+  // v59.45 (PASS27): an old star value that does not parse as a list is left where it is rather than deleted unread.
+  if (!Array.isArray(symbols)) return;
   const lists = readLists(storage);
-  const held = new Set(lists.flatMap((list) => (list.tickers || []).map((t) => t?.sym)));
-  const fresh = (Array.isArray(symbols) ? symbols : []).filter((sym) => typeof sym === 'string' && sym && !held.has(sym));
+  const held = new Set(lists.flatMap((list) => list.tickers.map((t) => t?.sym)));
+  const fresh = symbols.filter((sym) => typeof sym === 'string' && sym && !held.has(sym));
   if (fresh.length) {
     const list = targetList(storage, lists, now);
     fresh.forEach((sym) => list.tickers.push({ sym, note: '', addedAt: now }));
@@ -50,7 +61,7 @@ function foldLegacyStars(storage, now) {
 // the old star array; such a list is kept here with an empty tickers array.
 export function readWatchlists(storage, now = Date.now()) {
   foldLegacyStars(storage, now);
-  return readLists(storage).map((list) => (Array.isArray(list.tickers) ? list : { ...list, tickers: [] }));
+  return readLists(storage);
 }
 
 export function writeWatchlists(storage, lists) {

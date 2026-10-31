@@ -5,7 +5,7 @@
 // 수행해, 보류 사유를 코드로 돌려주고 셸이 사유별 문구를 고른다.
 import { createCompositionSnapshot, deriveRiskEstimate } from '../../domain/portfolio/risk.js';
 import { convertWithDeclaredRates, listingCurrency } from '../../domain/portfolio/fx.js';
-import { convertCashBalances } from '../../domain/portfolio/cash.js';
+import { convertCashBalances, viaAppClose } from '../../domain/portfolio/cash.js';
 import { finiteNumber as finite } from '../../domain/shared/number.js';
 
 // P1407 (Codex review 2026-10-03): quantity × price is in the holding's price currency. The listing
@@ -70,7 +70,12 @@ export function assembleRiskEstimateInput({
     const from = currencyByTicker[ticker];
     if (from === baseCurrency) { baseValueMap[ticker] = value; return; }
     const converted = convertWithDeclaredRates({ value, from, to: baseCurrency, legs: Array.isArray(fxLegs) ? fxLegs : [], asOfMs });
+    // v59.45 (PASS23 P23-FX-01): the valuation screen converts a USD holding in a KRW account with the app's USD/KRW close
+    // when no declared leg covers it (surface.js appLeg); this input refused the same close and held the risk card. A
+    // declared leg still wins; the close converts today's value only — past returns keep their own dated FX series below.
+    const app = converted.ok || !from ? null : viaAppClose(value, from, baseCurrency, cashFx);
     if (converted.ok) baseValueMap[ticker] = converted.value;
+    else if (app != null) baseValueMap[ticker] = app;
     else if (!heldPairs.includes(`${from}/${baseCurrency}`)) heldPairs.push(`${from}/${baseCurrency}`);
   });
   if (heldPairs.length) return { ok: false, code: 'currency-unconverted', pairs: heldPairs, baseCurrency };

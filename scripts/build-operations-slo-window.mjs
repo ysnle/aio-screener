@@ -191,12 +191,14 @@ const summarize = (runs) => {
 // operator's manual run. They carry trigger=scheduler, which the workflow's run-name puts in display_title, so they
 // count toward delivery; operator dispatches stay excluded. scheduledArrivalRate keeps its GitHub-cron meaning.
 export const isAutomatedDispatch = (run) => run.event === 'workflow_dispatch' && /(?:^|[\s·(])scheduler(?:$|[\s)])/.test(String(run.display_title || ''));
+// The runs a lane is measured on: GitHub cron arrivals plus the Worker scheduler's dispatches.
+const isLaneRun = (run) => run.event === 'schedule' || isAutomatedDispatch(run);
 const buildLane = (runs, { workflow, required, expectedRuns, expectedRunsBasis = 'current-cron-backfilled' }) => {
   const automated = runs.filter(isAutomatedDispatch);
   const manual = runs.filter((run) => run.event === 'workflow_dispatch' && !isAutomatedDispatch(run));
   const scheduled = runs.filter((run) => run.event === 'schedule');
   const otherEvents = runs.filter((run) => run.event !== 'schedule' && run.event !== 'workflow_dispatch');
-  const summary = summarize([...scheduled, ...automated]);
+  const summary = summarize(runs.filter(isLaneRun));
   const arrivalRate = expectedRuns ? round(Math.min(1, scheduled.length / expectedRuns)) : null;
   const deliveryRate = expectedRuns ? round(Math.min(1, summary.completed / expectedRuns)) : null;
   const status = summary.completed === 0
@@ -286,7 +288,9 @@ export function buildSloWindow({ observed = {}, cadencePerDay = {}, cadenceHisto
 
   const windows = { '7d': windowSummary(7), '30d': windowSummary(30) };
   const metrics = { artifact: windows['30d'].artifact, watchdog: windows['30d'].watchdog };
-  const orderedWatchdog = observed.watchdog.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+  // v59.45 (pipeline review P15-SLO-01): recovery counts the same runs as the lane's success rate. An operator dispatch
+  // is excluded there, so a manual success between two scheduled failures does not end the streak or count as a recovery.
+  const orderedWatchdog = observed.watchdog.filter(isLaneRun).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
   let recoveryCount = 0;
   let currentFailures = 0;
   let consecutiveFailuresMax = 0;

@@ -10,10 +10,11 @@ import { RULES } from '../rules/thresholds.js';
 import { sessionPointBack } from './rates-fx.js';
 import { BRENT_WTI_SPREAD_HOLD_USD, brentWtiFromSeries, changeOverDays, MACRO_SIGNAL_RULES } from './macro-signals.js';
 import { signedText } from '../shared/number.js';
+import { isIsoDay } from '../shared/session-date.js';
 
 const seriesOf = (macroHistory, field) => (macroHistory?.series?.[field]?.observations || [])
-  .map(([date, value]) => ({ date, value: Number(value) }))
-  .filter((row) => /^\d{4}-\d{2}-\d{2}$/.test(row.date) && Number.isFinite(row.value))
+  .map(([date, value]) => ({ date, value: value == null || value === '' ? NaN : Number(value) })) // v59.45: Number(null) is 0, not a reading
+  .filter((row) => isIsoDay(row.date) && Number.isFinite(row.value))
   .sort((a, b) => a.date.localeCompare(b.date));
 
 const atOrBefore = (series, date) => {

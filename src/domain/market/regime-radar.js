@@ -3,10 +3,11 @@
 // observed series — 100 is the most supportive reading of the past year, 0 the least. There is no
 // composite score: the AGENTS rule against uncalibrated n/100 composites applies, so the radar shows
 // which axes moved, not a total.
-import { alignInput, buildCloseSeries, isUsable } from './close-series.js';
+import { alignInput, buildCloseSeries, isUsable, sessionPointBack } from './close-series.js';
 import { RULES } from '../rules/thresholds.js';
+import { finiteNumber as finite } from '../shared/number.js';
+import { isoDay } from '../shared/session-date.js';
 
-const finite = (value) => typeof value === 'number' && Number.isFinite(value) ? value : null;
 
 export const RADAR_AXES = Object.freeze([
   { id: 'trend', label: '추세', note: 'S&P 500의 200일선 대비 거리' },
@@ -22,7 +23,7 @@ function macroSeries(macroHistory, key, factor = 1) {
   for (const row of macroHistory?.series?.[key]?.observations || []) {
     const stamp = String(Array.isArray(row) ? row[0] : row?.date || '');
     const value = finite(Array.isArray(row) ? row[1] : row?.value);
-    if (/^\d{4}-\d{2}-\d{2}$/.test(stamp) && value != null) byDate.set(stamp, value * factor);
+    if (isoDay(stamp) && value != null) byDate.set(stamp, value * factor);
   }
   return [...byDate].sort(([a], [b]) => a.localeCompare(b)).map(([date, value]) => ({ date, value }));
 }
@@ -98,7 +99,7 @@ export function buildRegimeRadar(input = {}, { macroHistory = null, offsets = [0
   const month = wide ? ` 20거래일 전과 비교하면 ${wide.label} 위치가 ${Math.abs(wide.change20)}포인트 ${wide.change20 > 0 ? '올라 가장 크게 좋아졌습니다' : '내려 가장 크게 나빠졌습니다'}.` : '';
   // v58.74 (text audit 시장 상태 C6): a volatility move names the VIX behind it and where it sits against the 부담 line.
   const vixSeries = buildCloseSeries(history, 'vix');
-  const vixNow = vixSeries.at(-1)?.value, vixThen = vixSeries.length > 20 ? vixSeries[vixSeries.length - 21].value : null;
+  const vixNow = vixSeries.at(-1)?.value, vixThen = sessionPointBack(vixSeries, 20)?.value ?? null; // v59.45 (R1-01): sessions, not rows
   const volNote = wide?.id === 'volatility' && Number.isFinite(vixNow) && Number.isFinite(vixThen)
     ? ` VIX가 20거래일 전 ${vixThen.toFixed(1)}에서 ${vixNow.toFixed(1)}로 ${(vixNow > vixThen) === (vixNow >= RULES.volatility.stressAt) ? (vixNow > vixThen ? '올라' : '내려') : (vixNow > vixThen ? '올랐지만' : '내렸지만')} ${vixNow >= RULES.volatility.stressAt ? `부담 기준(${RULES.volatility.stressAt}) 위입니다` : `부담 기준(${RULES.volatility.stressAt})에는 못 미칩니다`}.` : '';
   const missing = axes.filter((axis) => axis.now == null).map((axis) => axis.label);

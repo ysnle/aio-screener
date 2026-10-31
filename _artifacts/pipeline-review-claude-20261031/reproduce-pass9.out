@@ -1,0 +1,82 @@
+{
+  "at": "2026-10-31T03:02:46.737Z",
+  "modelComparison": {
+    "baseline": {
+      "total": 52,
+      "volScore": 62,
+      "momScore": 70,
+      "trendScore": 15,
+      "breadthScore": null,
+      "macroScore": 55,
+      "componentMissing": [
+        "breadth"
+      ],
+      "componentCoveragePct": 80
+    },
+    "relative": {
+      "total": 65,
+      "volScore": 62,
+      "trendScore": 82,
+      "macroScore": 55
+    },
+    "fgScores": [
+      52,
+      52,
+      52,
+      52
+    ]
+  },
+  "historyFgGate": {
+    "eligibleSessions": 289,
+    "omitted": 1
+  },
+  "themeBase": {
+    "synthetic": true,
+    "calendar": "consecutive synthetic observations, not real exchange sessions",
+    "testableN": 811,
+    "first": {
+      "n": 13,
+      "up": 13,
+      "median": 13.4,
+      "p25": 13.4,
+      "p75": 13.4,
+      "from": "2000-01-01",
+      "to": "2006-11-04",
+      "horizon": 63,
+      "basis": "relative-banded",
+      "baseN": 2311,
+      "baseUpPct": 100
+    },
+    "second": {
+      "n": 13,
+      "up": 13,
+      "median": 13.4,
+      "p25": 13.4,
+      "p75": 13.4,
+      "from": "2000-01-01",
+      "to": "2006-11-04",
+      "horizon": 63,
+      "basis": "relative-banded",
+      "baseN": 2311,
+      "baseUpPct": 41
+    },
+    "firstEvidence": {
+      "n": 13,
+      "up": 13,
+      "sharePct": 100,
+      "baseUpPct": 100,
+      "informative": false,
+      "small": true,
+      "method": "market-move-proxy.v2"
+    },
+    "secondEvidence": {
+      "n": 13,
+      "up": 13,
+      "sharePct": 100,
+      "baseUpPct": 41,
+      "informative": true,
+      "small": true,
+      "method": "market-move-proxy.v2"
+    }
+  }
+}

@@ -3,9 +3,10 @@
 // computed, and which inputs were and were not available. No grade, no estimate: a missing input is named as missing,
 // and a row under the model's evidence floor gets no position at all.
 import { withTopicParticle } from '../content/korean-particle.js';
+import { finiteNumber as finite } from '../shared/number.js';
+import { hasLeadingIsoDay } from '../shared/session-date.js';
 
-const finite = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
-const md = (date) => (/^\d{4}-\d{2}-\d{2}/.test(String(date || '')) ? `${Number(String(date).slice(5, 7))}/${Number(String(date).slice(8, 10))}` : null);
+const md = (date) => (hasLeadingIsoDay(String(date || '')) ? `${Number(String(date).slice(5, 7))}/${Number(String(date).slice(8, 10))}` : null);
 
 export const OUT_OF_UNIVERSE_TITLE = '랭킹 대상 밖 종목 — 현재 유니버스 기준 위치';
 
@@ -22,6 +23,22 @@ const SEC_STATUS_TEXT = Object.freeze({
   'no-annual-facts': 'SEC 공시에 비교 가능한 연간 매출·순이익 항목이 없습니다',
   'no-current-fields': '최근 15개월 안의 연간 공시가 없어 재무 지표를 쓰지 않았습니다',
   'not-applicable': 'ETF는 발행사 재무 지표가 없습니다'
+});
+
+// v59.45 (pipeline review P25-READ-02): an inactive family and a missing rank have different causes — the universe's
+// 80% coverage floor, a weight of 0 in the model in use, or the model not ranking at all. Each is named as such; a
+// placement without a recorded reason does not borrow the coverage explanation.
+function inactiveText(reason) {
+  const text = String(reason || '');
+  if (/가중 0/.test(text)) return '지금 쓰는 모델에서 가중치가 0이라 순위 계산에 넣지 않는 항목입니다';
+  if (/커버리지|80%/.test(text)) return '현재 유니버스 전체에서 이 항목의 유효값이 80%에 못 미쳐 모든 종목에서 빠진 항목입니다';
+  return '지금 쓰는 모델에서 순위 계산에 넣지 않는 항목입니다';
+}
+const UNRANKED_TEXT = Object.freeze({
+  'insufficient-row-factor-coverage': '스크리너 모델은 가중치의 80% 이상에 해당하는 입력이 있어야 위치를 매기는데, 이 종목은 그 기준에 못 미쳐 위치를 매기지 않았습니다.',
+  'model-unavailable': '이번 계산에서 스크리너 모델이 현재 유니버스로 순위를 만들지 못해 위치를 매기지 않았습니다.',
+  'population-excluded': '이 종목은 모델의 비교 대상 조건에서 빠져 위치를 매기지 않았습니다.',
+  other: '이번 계산에서 이 종목의 위치를 매기지 못했습니다.'
 });
 
 export function kstStamp(iso) {
@@ -47,7 +64,7 @@ export function buildOutOfUniverseRead(record) {
   const inputs = (placement?.inputs || []).map((input) => ({
     key: input.key, label: input.label, active: input.active, usable: input.usable,
     status: !input.active ? '모델에서 비활성' : input.usable ? '사용' : '빠짐',
-    detail: !input.active ? '현재 유니버스 전체에서 이 항목의 유효값이 80%에 못 미쳐 모든 종목에서 빠진 항목입니다'
+    detail: !input.active ? inactiveText(input.inactiveReason)
       : input.usable ? `입력: ${labels(input.present)}`
         // A lineage reason explains a value that exists but was refused; an absent value needs no lineage reason.
         : `빠진 입력: ${labels(input.missing.length ? input.missing : input.present)}${input.present.length && input.blockedReasons.length ? ` (${[...new Set(input.blockedReasons.map((reason) => BLOCKED_LABEL[reason] || reason))].join(', ')})` : ''}`
@@ -60,7 +77,7 @@ export function buildOutOfUniverseRead(record) {
     const top = Math.max(1, 100 - rank);
     lines.push(`스크리너와 같은 가격·재무 공식으로 ${session ? `${session} 종가까지` : '완료 종가까지'}의 값을 계산해 현재 공개 유니버스${ranked ? ` ${ranked}종목` : ''}에 넣어 보면 상위 약 ${top}% 자리(백분위 ${rank})입니다.`);
   } else {
-    lines.push(`스크리너 모델은 가중치의 80% 이상에 해당하는 입력이 있어야 위치를 매기는데, 이 종목은 그 기준에 못 미쳐 위치를 매기지 않았습니다.`);
+    lines.push(UNRANKED_TEXT[placement?.unavailableReason] || UNRANKED_TEXT.other);
   }
   lines.push(`계산에 쓴 항목: ${used.length ? used.join(', ') : '없음'}${missing.length ? `, 빠진 항목: ${missing.join(', ')}` : ''}. 빠진 항목은 추정하지 않고 비워 둡니다.`);
   if (record.secStatus && record.secStatus !== 'ready' && SEC_STATUS_TEXT[record.secStatus]) lines.push(`${SEC_STATUS_TEXT[record.secStatus]}.`);

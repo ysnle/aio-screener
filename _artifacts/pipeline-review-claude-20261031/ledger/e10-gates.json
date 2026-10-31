@@ -1,0 +1,18 @@
+{
+  "version": "v59.45",
+  "date": "2026-10-31",
+  "r": null,
+  "p": {
+    "title": "게이트가 다음 정상 13F 갱신을 막고, 지식 helper 변경에서 선택되지 않으며, 바뀐 동작에 맞춘 고정 단언이 남음",
+    "symptom": "ci-masters-contract-check가 13F 분기 '2026-06-30'과 Berkshire accession을 고정해 2026-09-30 분기 13F가 처음 발견되는 순간 실패하고 Masters 파일이 복원될 상황(P4-QA-03), scripts/lib/knowledge-authoring-contract.mjs만 바꾸면 knowledge 그룹이 선택되지 않음(QA-01 잔여).",
+    "root_cause": "검증 시점의 휘발 값(분기·accession)을 계약 대신 고정했고, 영향 규칙 patterns에 knowledge-authoring-contract helper가 빠져 있었다.",
+    "fix": "13F는 분기 말 형식, 검토한 분기 이상, filedAt>period, accession 형식으로 검사하고, qa-pipeline 영향 규칙에 helper를 추가했다.",
+    "violated_rule": "R603: 생성물은 고빈도 데이터 refresh가 바꾸는 휘발값을 고정하지 않는다.",
+    "prevention": "pipeline-semantics qa 케이스 QA-01(세 helper 모두 knowledge-generated-parity 선택). masters-contract는 형식·방향 검사로 다음 분기에도 통과.",
+    "verification": "node scripts/ci-masters-contract-check.mjs PASS; node scripts/ci-pipeline-semantics-check.mjs --only qa PASS."
+  },
+  "changelog": [
+    "**다음 정상 갱신을 막을 게이트 수정 ({P}):** Masters 13F 검사가 분기와 접수번호를 고정해, 11월 중순 9월 분기 공시가 처음 들어오는 날 실패할 상황이었다. 형식과 순서로 검사하게 바꿨다. 지식 helper만 바꿔도 지식 게이트가 선택된다. 부팅 묶음 예산은 이번 수정분(+15 KB)만큼 올렸다."
+  ],
+  "note": "v59.45: Codex 파이프라인 의미 검토(PASS4~30)와 Claude 추가 검토의 결함을 영역별로 고치고 실제 함수 회귀 게이트(ci-pipeline-semantics-check)를 추가"
+}

@@ -8,7 +8,7 @@ import { currentRotationItems } from '../../domain/themes/produced-rotation.js';
 import { buildCloseSeries, koreaMoveRecord } from '../../domain/briefing/market-read.js';
 import { el } from './dom.js';
 import { loadJsonArtifact, stableFetcher } from '../../data/artifact-cache.js';
-import { estimateBookSensitivities, STRESS_MIN_WEEKS } from '../../domain/portfolio/stress-sensitivity.js';
+import { estimateBookSensitivities, bookWeights, STRESS_MIN_WEEKS } from '../../domain/portfolio/stress-sensitivity.js';
 import { bondCushion, assetClassOf, BOND_ETF_MAP, BOND_KIND_LABEL } from '../../domain/portfolio/asset-class.js';
 import { signedText } from '../../domain/shared/number.js';
 import { lookThrough, lookThroughSentence, SP500_TRACKERS } from '../../domain/portfolio/look-through.js';
@@ -36,6 +36,8 @@ function attributionBox(doc, attribution) {
   box.append(el(doc, 'p', `합계 ${sign(attribution.excessPct)}%p = 내 수익률 ${sign(attribution.totalPct)}% − ${attribution.blendedLabel} ${sign(attribution.blendedPct)}%`, 'theme-strength-basis'));
   const notes = [];
   if (attribution.sectorMappedPct < 100) notes.push(`섹터 효과는 미국 섹터 ETF가 대응되는 보유액 ${attribution.sectorMappedPct.toFixed(0)}%에서만 분리(나머지는 종목 선택에 포함)`);
+  // v59.45 (P3-PF-01): a sector ETF whose close date differs from the stock's is not compared over another window.
+  if (attribution.sectorBasisHeld?.length) notes.push(`섹터 ETF 종가 기준일이 종목과 다른 ${attribution.sectorBasisHeld.length}종목은 섹터 효과를 나누지 않음`);
   if (!attribution.cashDeclared) notes.push('현금을 입력하지 않아 주식 부분만 계산(현금 효과 0)');
   else if (attribution.cashSharePct > 0) notes.push(`현금 ${attribution.cashSharePct.toFixed(0)}% — 지수에 투자됐다면 얻었을 수익률만큼이 현금 효과`);
   const mismatched = (attribution.skipped || []).filter((item) => item.reason === 'basis-mismatch');
@@ -214,7 +216,9 @@ export function portfolioLens({ surface, stressInput = null, history = [], sp500
   const rows = (Array.isArray(surface?.rows) ? surface.rows : []).filter((row) => Number(row?.value) > 0);
   const total = rows.reduce((sum, row) => sum + Number(row.value), 0);
   if (!rows.length || !(total > 0) || surface?.currencyState === 'mixed-without-conversion') return { available: false };
-  const weights = rows.map((row) => ({ symbol: String(row.symbol || '').toUpperCase(), w: Number(row.value) / total }));
+  // v59.45 (PASS23): two lots of one ticker are one holding — the effective number of holdings and the stress weights were
+  // computed per lot (and Object.fromEntries kept only the last lot's weight).
+  const weights = bookWeights(rows.map((row) => ({ symbol: row.symbol, value: row.value })));
   const effectiveN = 1 / weights.reduce((sum, item) => sum + item.w * item.w, 0);
   let beta = null;
   let betaNote = '보유 종목 가격 기록을 받으면 계산합니다';
@@ -313,6 +317,8 @@ export function bondCushionCard(bonds) {
     parts.push('보유가 모두 채권이라 주식 부분과의 관계는 계산하지 않습니다.');
   } else if (corr.reason === 'currency-mixed') {
     parts.push('보유 종목의 상장 통화(원화·달러)가 섞여 있고 기준 통화가 정해지지 않아 주식–채권 상관은 계산하지 않습니다.');
+  } else if (corr.reason === 'currency-unsupported') {
+    parts.push('원화·달러 외 통화로 상장된 종목이 있어 주식–채권 상관은 계산하지 않습니다.');
   } else if (corr.reason === 'fx-missing') {
     parts.push('기준 통화로 환산할 원/달러 종가 기록이 없어 주식–채권 상관은 계산하지 않습니다.');
   } else if (corr.reason === 'weeks-insufficient') {

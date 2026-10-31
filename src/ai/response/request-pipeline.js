@@ -564,14 +564,28 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     // v58.63 (A15): a negation exempts a directive only when it binds to that directive — inside the matched words or right
     // after/before them ("매수를 추천하지 않습니다", "not a buy"). A negation elsewhere in the sentence ("매수하세요 그리고 손절하지
     // 마세요") no longer clears the buy instruction beside it.
-    var bound = function(clause, re) {
-      var m = re.exec(clause);
-      if (!m) return false;
+    var bound = function(clause, m) {
       var tail = clause.slice(m.index + m[0].length, m.index + m[0].length + 16);
       var next = tail.search(new RegExp(action)); // the window ends where the next action word starts
       if (next >= 0) tail = tail.slice(0, next);
       var head = clause.slice(Math.max(0, m.index - 12), m.index);
       return negated.test(m[0]) || negated.test(tail) || /^\s*(?:is\s+not|isn't|not)\b/i.test(tail) || /\b(?:not|never|don't|do\s+not)\s+$/i.test(head);
+    };
+    // v59.45 (pipeline review P11-AI-02): an attribution ("…해야 한다고 봤습니다") exempted the whole clause, so "오닐은 추세를
+    // 따라야 한다고 봤습니다 그래서 NVDA를 매수하세요" kept the buy instruction. The exemption now covers only the quoted words:
+    // a Korean quote ends at its attribution ("한다고", "라는 원칙"), an English one starts at "said that you"/"the rule is".
+    var matchesOf = function(clause, re) {
+      var g = new RegExp(re.source, re.flags.indexOf('g') >= 0 ? re.flags : re.flags + 'g');
+      var list = [];
+      var m;
+      while ((m = g.exec(clause))) { list.push(m); if (!m[0]) g.lastIndex += 1; }
+      return list;
+    };
+    var quoted = function(clause, m) {
+      var start = m.index;
+      var end = m.index + m[0].length;
+      return matchesOf(clause, indirect).some(function(q) { return end <= q.index + q[0].length && end >= q.index - 3; }) ||
+        matchesOf(clause, englishIndirect).some(function(q) { return start >= q.index && start <= q.index + q[0].length + 3; });
     };
     // P2114: a decimal point ("177.50달러") does not end a sentence; splitting there let a priced imperative with cents through.
     var sentences = raw.match(/(?:[^.!?。\n]|\.(?=\d))+(?:[.!?。]+|\n|$)\s*/g) || [raw];
@@ -580,7 +594,7 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
       // A negation counts only inside the clause that carries the directive ("지금 매수하세요, 이것은 지시가 아닙니다" is replaced).
       var directive = sentence.trim().split(/[,，;；]+|\s(?:그러나|하지만|다만|그리고|또한|그러면서|그다음|그\s*후)\s|\s(?:and|but|then)\s/i).some(function(clause) {
         clause = clause.trim();
-        return !!clause && !indirect.test(clause) && !englishIndirect.test(clause) && patterns.some(function(re) { return re.test(clause) && !bound(clause, re); });
+        return !!clause && patterns.some(function(re) { return matchesOf(clause, re).some(function(m) { return !bound(clause, m) && !quoted(clause, m); }); });
       });
       if (!directive) return sentence;
       replaced += 1;

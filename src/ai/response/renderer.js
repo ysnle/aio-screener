@@ -21,12 +21,18 @@ export function renderAnswerPlan(plan, { format = 'text' } = {}) {
   const claims = Array.isArray(plan.claims?.claims) ? plan.claims.claims : [];
   // P1740: verified values read as one labelled list and each section title renders as a heading, so a longer
   // analysis keeps a visible structure instead of a run of plain paragraphs.
-  const claimLines = claims.filter((claim) => claim.status !== 'blocked').map((claim) => {
+  // v59.45 (pipeline review P11-AI-01): a text claim is a sourced sentence, not a checked value; it no longer sits under
+  // "확인된 수치" as if its meaning had been verified like a number tuple.
+  const claimLine = (claim) => {
     const value = claim.value == null ? '' : `: ${claim.value}${unitText(claim.unit)}`;
     const trace = claim.asOf && claim.source ? ` [${SOURCE_TEXT[claim.source] || claim.source} · ${claim.asOf}${claim.source === 'close-basis' ? ' 종가' : ''}]` : '';
     return `- ${line(claim.text)}${value}${trace}`;
-  });
+  };
+  const shown = claims.filter((claim) => claim.status !== 'blocked');
+  const claimLines = shown.filter((claim) => claim.value != null).map(claimLine);
+  const textLines = shown.filter((claim) => claim.value == null).map(claimLine);
   if (claimLines.length) parts.push(`**확인된 수치**\n${claimLines.join('\n')}`);
+  if (textLines.length) parts.push(`**출처가 달린 해석**\n${textLines.join('\n')}`);
   (Array.isArray(plan.sections) ? plan.sections : []).forEach((section) => {
     if (typeof section === 'string' && line(section)) parts.push(line(section));
     else if (section?.title && section?.body) parts.push(`### ${line(section.title).replace(/^#+\s*/, '')}\n${line(section.body)}`);

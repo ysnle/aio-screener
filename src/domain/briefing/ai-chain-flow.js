@@ -4,11 +4,11 @@
 // same closes the screener ranks). Observed returns only — no label of what the move means.
 
 import { selectProducedRotation } from '../themes/produced-rotation.js';
+import { readNumber as finite } from '../shared/number.js';
 
 export const AI_CHAIN_THEMES = Object.freeze(['semiconductor', 'ai_infra', 'photonics']);
 export const AI_CHAIN_MIN_MEMBERS = 3;
 
-const finite = (value) => (value == null || value === '' || !Number.isFinite(Number(value)) ? null : Number(value));
 function median(values) {
   const list = values.map(finite).filter((value) => value != null).sort((a, b) => a - b);
   if (!list.length) return null;
@@ -18,16 +18,19 @@ function median(values) {
 const signed = (value) => `${value > 0 ? '+' : ''}${value.toFixed(1)}%`;
 
 /** Groups sorted weakest first over one month, and one sentence of counts. */
-export function aiChainFlow({ themes = [], rows = [] } = {}) {
+// v59.45 (pipeline review P21-CHAIN-01): with `session` (the screener's US factor session, the date the block prints),
+// only rows measured on that session enter a median — a row left on an older session is another period. Each group keeps
+// how many of its US listings were measured (`measured` of `listed`).
+export function aiChainFlow({ themes = [], rows = [], session = null } = {}) {
   const bySymbol = new Map((Array.isArray(rows) ? rows : []).filter((row) => row?.sym).map((row) => [String(row.sym).toUpperCase(), row]));
   const groups = [];
   for (const theme of Array.isArray(themes) ? themes : []) {
     if (!AI_CHAIN_THEMES.includes(theme?.id)) continue;
     for (const sub of theme.subThemes || []) {
-      const members = [...new Set((sub?.tickers || []).map((sym) => String(sym).toUpperCase()))]
-        .map((sym) => bySymbol.get(sym)).filter((row) => row && !/\.K[SQ]$/.test(row.sym) && finite(row.ret1d) != null && finite(row.ret1m) != null);
+      const listed = [...new Set((sub?.tickers || []).map((sym) => String(sym).toUpperCase()))].map((sym) => bySymbol.get(sym)).filter((row) => row && !/\.K[SQ]$/.test(row.sym));
+      const members = listed.filter((row) => (!session || row.factorSessionDate === session) && finite(row.ret1d) != null && finite(row.ret1m) != null);
       if (members.length < AI_CHAIN_MIN_MEMBERS) continue;
-      groups.push({ id: `${theme.id}:${sub.name}`, name: sub.name, ret1d: median(members.map((row) => row.ret1d)), ret5d: median(members.map((row) => row.ret5d)), ret1m: median(members.map((row) => row.ret1m)),
+      groups.push({ id: `${theme.id}:${sub.name}`, name: sub.name, measured: members.length, listed: listed.length, ret1d: median(members.map((row) => row.ret1d)), ret5d: median(members.map((row) => row.ret5d)), ret1m: median(members.map((row) => row.ret1m)),
         members: members.map((row) => ({ sym: row.sym, name: row.name || row.sym, ret1d: finite(row.ret1d), ret1m: finite(row.ret1m) })).sort((a, b) => a.ret1m - b.ret1m) });
     }
   }

@@ -6,7 +6,7 @@
 import { el } from './dom.js';
 import { frameHead, markFrame } from './section-frame.js';
 import { signedText } from '../../domain/shared/number.js';
-import { buildCloseSeries } from '../../domain/briefing/market-read.js';
+import { buildCloseSeries, closeSessionMarket, sessionPointBack } from '../../domain/briefing/market-read.js';
 
 // v58.80 (first-users R2-27): a change that rounds to 0.00% is neither up nor down (it read red when slightly negative).
 const toneOf = (pct) => (pct == null || !Number.isFinite(Number(pct)) || Math.abs(Number(pct)) < 0.005 ? '' : Number(pct) > 0 ? 'is-up' : 'is-down');
@@ -93,7 +93,8 @@ function chartSvg(doc, model) {
 /** The last two published daily closes of a card's fallback series, or null. */
 export function closeFallback(history, spec) {
   const series = Array.isArray(history) && spec?.close ? buildCloseSeries(history, spec.close) : [];
-  const last = series.at(-1), prev = series.at(-2);
+  // v59.45 (R1-01): the previous session itself (a missing close withholds the change instead of spanning two days).
+  const last = series.at(-1), prev = sessionPointBack(series, 1, closeSessionMarket(spec.close) || 'US');
   if (!last) return null;
   const [, m, d] = String(last.date).split('-').map(Number);
   return { date: `${m}/${d}`, closeLabel: spec.closeLabel, value: last.value, changePct: prev?.value ? (last.value / prev.value - 1) * 100 : null };

@@ -5,11 +5,11 @@
 // the same 2/4/7 bands; the producer called 60 sessions of highs a "52주" range that the chart refused below 252.
 // Periods and bands are RULES.technical constants (R713). Pure functions: no DOM, no globals.
 import { RULES } from '../rules/thresholds.js';
+import { finiteNumber as finite } from '../shared/number.js';
 
 export const TECHNICAL_DEFINITIONS_VERSION = 'technical-definitions.v1';
 const T = RULES.technical;
 
-const finite = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
 
 /** Simple moving average per index (null until `period` values exist). */
 export function smaSeries(values, period) {

@@ -16,8 +16,9 @@ export function createKnowledgeCapabilityBatchLoader({
   const loading = new Set();
 
   async function load(definitions = []) {
+    // P30-LOAD-01: a key listed twice loads once (the first definition), instead of a last-wins merge of two results.
     const pending = (Array.isArray(definitions) ? definitions : [])
-      .filter(({ key }) => key && state[key] == null && !loading.has(key))
+      .filter(({ key }, index, list) => key && state[key] == null && !loading.has(key) && list.findIndex((item) => item.key === key) === index)
       .map((definition) => definition.validate || typeof validators[definition.key] !== 'function'
         ? definition
         : { ...definition, validate: validators[definition.key] });

@@ -1,0 +1,145 @@
+{
+  "scope": "Local pure-function counterexamples, not proof of production occurrence",
+  "missingKrDate": {
+    "state": {
+      "status": "verified_current",
+      "source": null,
+      "label": null,
+      "observedAt": "2026-10-28T20:00:00Z",
+      "ageHours": 4,
+      "coveragePct": 95,
+      "eligible": 500,
+      "checks": {
+        "schema": true,
+        "coverage": true,
+        "observed": true,
+        "values": true
+      },
+      "decisionScope": "research/reference"
+    },
+    "us": {
+      "sma5": 50,
+      "sma20": 50,
+      "sma50": 50,
+      "above200": 50,
+      "advanceRatio": 0.5,
+      "ts": 1793217600000,
+      "generatedAt": "2026-10-28T20:00:00Z",
+      "source": "AIO US screener universe",
+      "coveragePct": 95,
+      "eligible": 500
+    },
+    "kr": {
+      "sma5": 50,
+      "sma20": 50,
+      "sma50": 50,
+      "above200": 50,
+      "advanceRatio": 0.5,
+      "ts": 0,
+      "coveragePct": 95,
+      "eligible": 500,
+      "decisionScope": "research/reference"
+    }
+  },
+  "staleSp": {
+    "state": {
+      "status": "blocked",
+      "source": null,
+      "label": null,
+      "observedAt": "2026-10-01T20:00:00Z",
+      "ageHours": 652,
+      "coveragePct": 95,
+      "eligible": 500,
+      "checks": {
+        "schema": true,
+        "coverage": true,
+        "observed": false,
+        "values": true
+      },
+      "decisionScope": "research/reference"
+    },
+    "us": null,
+    "kr": null
+  },
+  "missingTurnover": {
+    "available": false,
+    "version": "sector-map.v1",
+    "period": "ret1d",
+    "periods": {
+      "ret1d": true,
+      "ret5d": false,
+      "ret1m": false,
+      "ret3m": false
+    },
+    "reason": "시가총액을 계산할 수 있는 구성 종목이 0개라 지도를 그리지 않습니다."
+  },
+  "turnoverControl": {
+    "available": true
+  },
+  "nullConsensus": {
+    "verdict": "강세 합의",
+    "consensus": 0.5,
+    "details": [
+      {
+        "key": "sma5",
+        "value": 0,
+        "label": "fixture",
+        "score": 0.5
+      },
+      {
+        "key": "sma20",
+        "value": 0,
+        "label": "fixture",
+        "score": 0.5
+      },
+      {
+        "key": "sma50",
+        "value": 0,
+        "label": "fixture",
+        "score": 0.5
+      }
+    ],
+    "conflict": null
+  },
+  "futureClose": {
+    "available": true,
+    "asOf": "2026-10-28",
+    "oldestAsOf": "2026-10-28",
+    "weightsAsOf": null,
+    "members": 1,
+    "memberTotal": 1,
+    "coveragePct": 100,
+    "up": 1,
+    "down": 0,
+    "netUp": 1,
+    "netDown": 0,
+    "breadth": 1,
+    "earningsYield": 0.05,
+    "forwardPe": 20,
+    "growth": null,
+    "realYield10": null,
+    "realYieldAsOf": null,
+    "erp": null,
+    "sectors": []
+  },
+  "nullMove": {
+    "label": "TEST",
+    "text": "0.00%",
+    "direction": "flat"
+  },
+  "missingUnemployment": [
+    {
+      "branchId": "softland",
+      "title": "물가 둔화 + 고용 완만",
+      "rule": "일자리 7.5만~20만 명 + 실업률 보합~+0.1%p"
+    }
+  ],
+  "belowUnemploymentBand": [
+    {
+      "branchId": "softland",
+      "title": "물가 둔화 + 고용 완만",
+      "rule": "일자리 7.5만~20만 명 + 실업률 보합~+0.1%p"
+    }
+  ],
+  "borderLinks": []
+}

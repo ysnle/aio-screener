@@ -4997,7 +4997,8 @@
 
     _assert('T752 v502_briefing_ai_uses_verified_current_only: secondary/unverified stay out of AI summary set',
       briefingModel && briefingModel.aiItems.every(function(i) { return i.eligibleForAi && i.verificationStatus === 'verified-current'; }) &&
-        briefingModel.reviewItems.some(function(i) { return i.verificationStatus === 'secondary-only'; }) &&
+        // v59.45 (P20-VERIFY-01): the Telegram rumor now reads as 'unverified' through the shared rumor check, not 'secondary-only'.
+        briefingModel.reviewItems.some(function(i) { return (i.verificationStatus === 'secondary-only' || i.verificationStatus === 'unverified') && i.eligibleForAi === false; }) &&
         briefingModel.reviewItems.some(function(i) { return i.verificationStatus === 'headline-only' && i.eligibleForAi === false; }),
       JSON.stringify(briefingModel && { ai: briefingModel.aiItems.map(function(i){return i.verificationStatus;}), review: briefingModel.reviewItems.map(function(i){return i.verificationStatus;}) }));
 

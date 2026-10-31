@@ -7,6 +7,7 @@ import { finiteNumber as finite, signedText } from '../shared/number.js';
 import { windFor, WIND_LABELS, EXPOSURE_TAGS } from './exposures.js';
 import { ABOVE50_FLOOR } from './theme-playbook.js';
 import { withDirectionParticle } from '../content/korean-particle.js';
+import { isIsoDay, hasLeadingIsoDay } from '../shared/session-date.js';
 
 export const THEME_CRITERIA_RULES = Object.freeze({
   extensionAtr: 5, // 50일선 거리 ÷ 하루 평균 변동폭(중앙값) — 이 배수 이상이면 과열
@@ -26,7 +27,7 @@ const median = (values) => {
   return list.length % 2 ? list[mid] : (list[mid - 1] + list[mid]) / 2;
 };
 const pct = (value, digits = 1) => (finite(value) == null ? '—' : `${signedText(value, digits)}%`);
-const md = (iso) => (/^\d{4}-\d{2}-\d{2}/.test(String(iso || '')) ? `${Number(iso.slice(5, 7))}/${Number(iso.slice(8, 10))}` : '');
+const md = (iso) => (hasLeadingIsoDay(String(iso || '')) ? `${Number(iso.slice(5, 7))}/${Number(iso.slice(8, 10))}` : '');
 const shortTitle = (title) => String(title || '').split(' — ')[0];
 
 /** Members: [{ sym, label?, row }] with published screener rows. Medians the criteria and roles share. */
@@ -36,6 +37,9 @@ export function themeMemberStats(members = []) {
   return {
     count: rows.length,
     ret1m: median(rows.map((row) => row.ret1m)), ret3m: median(rows.map((row) => row.ret3m)), ret5d: median(rows.map((row) => row.ret5d)),
+    // v59.45 (P8-THEME-01): how many members each median actually stands on (a row without the return is not a sample).
+    ret1mCount: rows.filter((row) => finite(row.ret1m) != null).length, ret3mCount: rows.filter((row) => finite(row.ret3m) != null).length,
+    ret5dCount: rows.filter((row) => finite(row.ret5d) != null).length,
     extension: median(ext), extensionCount: ext.filter((value) => value != null).length
   };
 }
@@ -44,7 +48,7 @@ export function themeMemberStats(members = []) {
 export function upcomingEarnings(calendar, symbols = [], { after = null } = {}) {
   if (!Array.isArray(calendar?.earnings)) return null;
   const wanted = new Set(symbols.map((symbol) => String(symbol).toUpperCase()));
-  return calendar.earnings.filter((row) => wanted.has(String(row?.symbol || '').toUpperCase()) && /^\d{4}-\d{2}-\d{2}$/.test(String(row?.date || '')) && (!after || row.date > after))
+  return calendar.earnings.filter((row) => wanted.has(String(row?.symbol || '').toUpperCase()) && isIsoDay(String(row?.date || '')) && (!after || row.date > after))
     .sort((a, b) => a.date.localeCompare(b.date) || String(a.symbol).localeCompare(String(b.symbol)));
 }
 
@@ -87,7 +91,7 @@ export function themeCriteria({ row = null, members = [], benchmark = null, cons
   items.push({ id: 'catalyst', label: '촉매(다가오는 실적·일정)', principle: '실적 같은 일정이 가까이 있어야 흐름이 확인되거나 꺾입니다. 결과가 어느 쪽일지는 미리 알 수 없습니다.',
     met: due == null ? null : due.length > 0, value: due == null ? '미확인' : due.length ? `${span} 실적 ${due.length}건(${due.slice(0, 3).map((item) => `${item.symbol} ${md(item.date)}${HOUR[item.hour] ? ` ${HOUR[item.hour]}` : ''}`).join(', ')}${due.length > 3 ? ' 외' : ''})` : `${span} 실적 예정 없음` });
   // 5. 과열 아님
-  const heatKnown = stats.extensionCount >= R.minMembers && stats.ret5d != null;
+  const heatKnown = stats.extensionCount >= R.minMembers && stats.ret5dCount >= R.minMembers && stats.ret5d != null;
   items.push({ id: 'heat', label: '과열 아님', principle: `50일선에서 하루 평균 변동폭의 ${R.extensionAtr}배 넘게 멀어지거나 1주 ${R.weekSurgePct}% 넘게 오르면 되돌림이 잦습니다.`,
     met: heatKnown ? stats.extension < R.extensionAtr && stats.ret5d < R.weekSurgePct : null,
     value: heatKnown ? `50일선 거리 = 하루 변동폭의 ${signedText(stats.extension, 1)}배, 1주 ${pct(stats.ret5d)}(구성 종목 중앙값)` : '미확인' });
@@ -119,7 +123,7 @@ export function memberRoles(members = [], { consensus = null, calendar = null, a
   const due = upcomingEarnings(calendar, members.map((member) => member.sym), { after }) || [];
   const dueOf = new Map(due.map((item) => [String(item.symbol).toUpperCase(), item]));
   const out = new Map();
-  const measured = stats.count >= R.minMembers && stats.ret1m != null && stats.ret3m != null;
+  const measured = stats.ret1mCount >= R.minMembers && stats.ret3mCount >= R.minMembers && stats.ret1m != null && stats.ret3m != null;
   for (const member of members) {
     const row = member.row;
     const r1 = finite(row?.ret1m), r3 = finite(row?.ret3m), p50 = finite(row?.pctSma50), high = finite(row?.pctFrom52wHigh);

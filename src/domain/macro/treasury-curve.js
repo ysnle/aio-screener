@@ -149,9 +149,9 @@ export function deriveTreasuryCurveEvidence({ live = {}, fred = {}, snapshot = {
     ['10Y', treasuryValues.dgs10],
     ['20Y', treasuryValues.dgs20],
     ['30Y', treasuryValues.dgs30]
-  ].filter(([, value]) => Number.isFinite(Number(value))).map(([tenor, value]) => Object.freeze({
+  ].filter(([, value]) => finiteOrNull(value) != null).map(([tenor, value]) => Object.freeze({ // v59.45: Number(null) is 0, not a 0% tenor
     tenor,
-    value: Number(value),
+    value: finiteOrNull(value),
     unit: 'percent',
     observedAt: treasuryMeta.observedAt,
     cutId,

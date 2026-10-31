@@ -34,6 +34,22 @@ function asOfLookup(series) {
   };
 }
 
+/**
+ * v59.45 (PASS23): one weight per symbol — lots of the same ticker are summed before dividing by the book total, so a
+ * second lot neither overwrites the first (Object.fromEntries) nor counts as another holding. Returns [{ symbol, w }].
+ */
+export function bookWeights(rows = []) {
+  const values = new Map();
+  for (const row of Array.isArray(rows) ? rows : []) {
+    const symbol = String(row?.symbol ?? row?.sym ?? '').toUpperCase();
+    const value = Number(row?.value);
+    if (!symbol || !(value > 0)) continue;
+    values.set(symbol, (values.get(symbol) || 0) + value);
+  }
+  const total = [...values.values()].reduce((sum, value) => sum + value, 0);
+  return total > 0 ? [...values].map(([symbol, value]) => ({ symbol, w: value / total })) : [];
+}
+
 /** Ordinary least squares of y on one x: slope, its standard error, R² and n. Null below STRESS_MIN_WEEKS pairs. */
 export function regressOne(xs, ys) {
   const pairs = xs.map((x, i) => [x, ys[i]]).filter(([x, y]) => Number.isFinite(x) && Number.isFinite(y));

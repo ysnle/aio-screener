@@ -27,8 +27,8 @@ import { SEC_TICKERS_URL, submissionsUrl, submissionTextUrl, tickerCikMap, filin
 import { SHARED_AI_MODEL, resolveSharedAiConfig, extractCompletedResponseText, buildSharedWebSearchBody } from './lib/ai-shared-analysis.mjs';
 import {
   EVENT_BRIEFS_SCHEMA, MARKET_MOVERS, NEWS_REPORT_DOMAINS, REACTION_REPORT_DOMAINS, isNoReasonText, onReportDomain, normalizeSourceText, verifyQuotedItems, verifyFreeText, unverifiedNumbers, sourceNumberSet,
-  parseDartPreliminaryResults, formatKrw, parseUsdAmount, surprisePct, estimateAiCostUsd, AI_RATE_CARD,
-  MOVER_BY_SYMBOL, briefHeadline, releaseSession, earningsReaction, reactionPct
+  parseDartPreliminaryResults, formatKrw, parseUsdAmount, parseUsdPerShare, surprisePct, estimateAiCostUsd, AI_RATE_CARD,
+  MOVER_BY_SYMBOL, briefHeadline, releaseSession, earningsReaction, reactionPct, CALL_SEARCH_MAX_ATTEMPTS
 } from '../src/domain/briefing/event-briefs.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -40,7 +40,7 @@ const LOOKBACK_DAYS = 4;
 const SOURCE_CHAR_CAP = 60000;
 const CALL_SEARCH_AFTER_MS = 2 * 3600000; // the call starts ~1.5 h after an after-close release
 const PRESSER_AFTER_MS = 105 * 60000; // 14:30 ET start, about an hour long
-const MAX_SEARCH_ATTEMPTS = 2;
+const MAX_SEARCH_ATTEMPTS = CALL_SEARCH_MAX_ATTEMPTS; // shared with the screen, which says "not found" after the last try
 const FED = 'https://www.federalreserve.gov';
 
 const REACTION_DAYS = 12; // closes are followed until five sessions have traded on the report
@@ -299,14 +299,17 @@ export function reasonsPrompt(brief) {
 export function provisionalBrief(row, mover, { source = null, sourceUrl = null } = {}) {
   const at = row.hour === 'bmo' ? etWallClockMs(row.date, 7, 0) : row.hour === 'amc' ? etWallClockMs(row.date, 16, 5) : etWallClockMs(row.date, 12, 0);
   const figures = [];
-  const vs = (actual, estimate) => (Number.isFinite(actual) && Number.isFinite(estimate) && estimate !== 0 ? { value: estimate, surprisePct: surprisePct(actual, estimate), source: source || 'Finnhub', basis: 'provider-consensus-reference' } : null);
-  if (Number.isFinite(row.revenueActual)) {
-    const estimate = vs(row.revenueActual, row.revenueEstimate);
-    figures.push({ metric: 'revenue', label: '매출', value: `$${(row.revenueActual / 1e9).toFixed(2)} billion`, text: '', ...(estimate ? { estimate } : {}) });
+  // v59.45 (pipeline review P21-PROVISIONAL-01): a numeric string from the provider is a number; '' and null stay missing.
+  const num = (value) => (value == null || value === '' || !Number.isFinite(Number(value)) ? null : Number(value));
+  const revenueActual = num(row.revenueActual), epsActual = num(row.epsActual);
+  const vs = (actual, estimate) => (Number.isFinite(actual) && num(estimate) != null && num(estimate) !== 0 ? { value: num(estimate), surprisePct: surprisePct(actual, num(estimate)), source: source || 'Finnhub', basis: 'provider-consensus-reference' } : null);
+  if (revenueActual != null) {
+    const estimate = vs(revenueActual, row.revenueEstimate);
+    figures.push({ metric: 'revenue', label: '매출', value: `$${(revenueActual / 1e9).toFixed(2)} billion`, text: '', ...(estimate ? { estimate } : {}) });
   }
-  if (Number.isFinite(row.epsActual)) {
-    const estimate = vs(row.epsActual, row.epsEstimate);
-    figures.push({ metric: 'eps_diluted', label: '주당순이익(제공처 기준)', value: `$${row.epsActual}`, text: '', ...(estimate ? { estimate } : {}) });
+  if (epsActual != null) {
+    const estimate = vs(epsActual, row.epsEstimate);
+    figures.push({ metric: 'eps_diluted', label: '주당순이익(제공처 기준)', value: `$${epsActual}`, text: '', ...(estimate ? { estimate } : {}) });
   }
   return { id: `calendar-${mover.sym}-${row.date}`, kind: 'earnings', status: 'provisional', basis: 'provider', symbol: mover.sym, nameKo: mover.nameKo, tier: mover.tier,
     ...(mover.layer ? { layer: mover.layer } : {}), eventDate: row.date, publishedAt: new Date(at).toISOString(),
@@ -346,9 +349,14 @@ function safeHeadline(text, sourceText, fallback) {
 
 // P2138: the provider's EPS consensus is on the adjusted basis, so a figure labelled GAAP is not compared with it
 // (ServiceNow's GAAP $0.27 read "예상 대비 -73.9%").
+// v59.45 (pipeline review P21-EPS-01): when the label and text name no basis, the quote decides — a quote that names
+// GAAP (alone, or beside the non-GAAP figure so the line read is not certain) is not compared with the adjusted consensus.
+const NON_GAAP_RE = /non-?GAAP|비\s*GAAP|조정(?!\s*전)|adjusted/i;
 export function isGaapOnlyFigure(figure) {
   const text = `${figure?.label || ''} ${figure?.text || ''}`;
-  return /GAAP/i.test(text) && !/non-?GAAP|비\s*GAAP|조정(?!\s*전)|adjusted/i.test(text);
+  if (/GAAP/i.test(text) && !NON_GAAP_RE.test(text)) return true;
+  if (NON_GAAP_RE.test(text)) return false;
+  return /\bGAAP\b/i.test(String(figure?.quote || '').replace(/non-?GAAP/gi, ' '));
 }
 
 export const CASH_METRICS = Object.freeze(['capex', 'free_cash_flow', 'operating_cash_flow']);
@@ -367,8 +375,9 @@ export function assembleEarningsSections(json, sourceText, estimate = null) {
       if (pct != null) return { ...figure, estimate: { value: Number(estimate.revenueEstimate), surprisePct: pct, source: estimate.source || 'Finnhub', basis: 'provider-consensus-reference' } };
     }
     if (figure.metric === 'eps_diluted' && Number.isFinite(Number(estimate.epsEstimate)) && !isGaapOnlyFigure(figure)) {
-      const m = String(figure.value).match(/\$?\s*(-?\d+(?:\.\d+)?)/);
-      const pct = m ? surprisePct(Number(m[1]), Number(estimate.epsEstimate)) : null;
+      // v59.45 (P21-AMOUNT-01): one per-share amount, its sign kept ("$(0.12)" is a loss), or no comparison.
+      const actual = parseUsdPerShare(figure.value);
+      const pct = actual != null ? surprisePct(actual, Number(estimate.epsEstimate)) : null;
       if (pct != null) return { ...figure, estimate: { value: Number(estimate.epsEstimate), surprisePct: pct, source: estimate.source || 'Finnhub', basis: 'provider-consensus-reference' } };
     }
     return figure;
@@ -436,7 +445,12 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
           previousSource: prev ? { url: prev.url, date: prevDate } : null };
         if (result.json) {
           const figures = verifyQuotedItems(result.json.figures, statement.text);
-          const changes = verifyQuotedItems(result.json.changes, statement.text);
+          const changesChecked = verifyQuotedItems(result.json.changes, statement.text);
+          // v59.45 (pipeline review P21-LIFECYCLE-01): a "changed" sentence must not stand word for word in the previous statement.
+          const previousText = prev?.text ? normalizeSourceText(prev.text).toLowerCase() : '';
+          const unchanged = previousText ? changesChecked.kept.filter((item) => previousText.includes(normalizeSourceText(item.quote).toLowerCase())) : [];
+          const changes = { kept: changesChecked.kept.filter((item) => !unchanged.includes(item)),
+            dropped: [...changesChecked.dropped, ...unchanged.map((item) => ({ reason: 'quote-also-in-previous-statement', text: String(item.text || item.label || '').slice(0, 120) }))] };
           const dissents = verifyQuotedItems(result.json.dissents, statement.text);
           brief = { ...brief, status: 'partial', basis: 'primary-source',
             headline: safeHeadline(result.json.headline, verifyText, `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))} FOMC 결정`),
@@ -452,19 +466,23 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
       status.fomc = 'statement-ok';
       // The Fed's transcript (preliminary the same day, final later) replaces a report-based summary once it reads as text.
       const stage = brief.callPoints?.basis === 'transcript' ? (brief.callPoints.preliminary ? 'preliminary' : 'final') : null;
-      if (nowMs >= statementAt + PRESSER_AFTER_MS && stage !== 'final' && (brief.callPoints?.transcriptAttempts || 0) < 6) {
+      // v59.45 (pipeline review P21-LIFECYCLE-01): the transcript summary count lives on the brief, so a try before any
+      // call points exist, or a report-based search that rebuilds callPoints, does not reset it (at most six AI tries).
+      const transcriptTries = () => Math.max(brief.transcriptAttempts || 0, brief.callPoints?.transcriptAttempts || 0);
+      if (nowMs >= statementAt + PRESSER_AFTER_MS && stage !== 'final' && transcriptTries() < 6) {
         const transcript = await sources.fedTranscript(date);
         const preliminary = transcript ? /\bPRELIMINARY\b/.test(transcript.text.slice(0, 400)) : null;
         if (transcript && transcript.readable && !(stage === 'preliminary' && preliminary)) {
           const result = await runAi(jsonBody(transcriptPrompt(date, transcript.text), 'fomc_transcript', TRANSCRIPT_SCHEMA), 'fomc-transcript');
           const statementText = (await sources.fedStatement(date))?.text || '';
           const checked = result.json ? verifyFreeText((result.json.points || []).map((point) => ({ text: String(point?.text || '').trim(), url: transcript.url })).filter((point) => point.text), `${transcript.text}\n${statementText}`) : { kept: [], dropped: [] };
-          brief = { ...brief, ai: result.usage ? [...brief.ai, aiLedger('fomc-transcript', result.usage)] : brief.ai };
+          const tries = transcriptTries() + 1;
+          brief = { ...brief, transcriptAttempts: tries, ai: result.usage ? [...brief.ai, aiLedger('fomc-transcript', result.usage)] : brief.ai };
           if (checked.kept.length) {
             brief = { ...brief, callPoints: { title: '의장 기자회견', basis: 'transcript', preliminary: !!preliminary, speaker: String(result.json.speaker || '').trim() || null,
-              points: checked.kept.slice(0, 6), attempts: brief.callPoints?.attempts || 0, transcriptAttempts: (brief.callPoints?.transcriptAttempts || 0) + 1, done: true,
+              points: checked.kept.slice(0, 6), attempts: brief.callPoints?.attempts || 0, transcriptAttempts: tries, done: true,
               searchedAt: nowIso, dropped: checked.dropped, transcriptUrl: transcript.url } };
-          } else if (brief.callPoints) brief = { ...brief, callPoints: { ...brief.callPoints, transcriptAttempts: (brief.callPoints.transcriptAttempts || 0) + 1, transcriptUrl: transcript.url } };
+          } else if (brief.callPoints) brief = { ...brief, callPoints: { ...brief.callPoints, transcriptAttempts: tries, transcriptUrl: transcript.url } };
         } else if (transcript && brief.callPoints && !brief.callPoints.transcriptUrl) brief = { ...brief, callPoints: { ...brief.callPoints, transcriptUrl: transcript.url } };
       }
       if (!brief.callPoints?.done && nowMs >= statementAt + PRESSER_AFTER_MS && (brief.callPoints?.attempts || 0) < MAX_SEARCH_ATTEMPTS) {
@@ -475,7 +493,8 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
         const accepted = result.json ? acceptPoints(result.json, { sourceText: statementText, domains }) : { points: [], dropped: [], speaker: null };
         brief = { ...brief, ai: result.usage ? [...brief.ai, aiLedger('fomc-presser', result.usage)] : brief.ai,
           callPoints: { title: '의장 기자회견', basis: 'news-report', speaker: accepted.speaker, points: accepted.points, attempts: (brief.callPoints?.attempts || 0) + 1,
-            done: accepted.points.length > 0, searchedAt: nowIso, dropped: accepted.dropped, transcriptUrl: brief.callPoints?.transcriptUrl || null } };
+            done: accepted.points.length > 0, searchedAt: nowIso, dropped: accepted.dropped, transcriptUrl: brief.callPoints?.transcriptUrl || null,
+            ...(transcriptTries() ? { transcriptAttempts: transcriptTries() } : {}) } };
       }
       brief.status = brief.callPoints?.done ? 'complete' : 'partial';
     } catch (error) { errors.push(`fomc ${date}: ${String(error.message || error).slice(0, 120)}`); status.fomc = 'error'; }
@@ -519,6 +538,8 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
           const result = await runAi(jsonBody(earningsPrompt(mover, { kind: `SEC ${filing.form} ${exhibit.type}`, text: exhibit.text }), 'earnings_release', EARNINGS_SCHEMA), `earnings-${mover.sym}`);
           const sourceText = capText(exhibit.text);
           const base = { id, kind: 'earnings', symbol: mover.sym, nameKo: mover.nameKo, tier: mover.tier, ...(mover.extended ? { scope: 'release', layer: mover.layer } : {}), eventDate: filing.filingDate, publishedAt: filing.acceptedAt || `${filing.filingDate}T00:00:00Z`,
+            // v59.45 (P21-TIME-01): without EDGAR's acceptance time only the filed date is known (not "00:00 UTC").
+            ...(filing.acceptedAt ? {} : { publishedDateOnly: true }),
             source: { kind: 'T1_OFFICIAL', title: `SEC ${filing.form} ${exhibit.type}`, url: exhibit.url, accession: filing.accession, fetchedAt: nowIso, sha256: sha256(exhibit.text) },
             ai: [...(brief?.ai || []), ...(result.usage ? [aiLedger(`earnings-${mover.sym}`, result.usage)] : [])] };
           if (!result.json) { briefs.set(id, { ...base, status: 'pending', aiReason: result.reason }); continue; }
@@ -558,6 +579,13 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
           figures, details: [], detailTitle: '사업부문', guidance: [], watch: [], dropped: [], firstSeenAt: nowIso,
           checkText: `${doc.text}\n${figures.map((figure) => `${figure.value} ${figure.text}`).join('\n')}`, ai: [] };
       }
+      // v59.45 (pipeline review P21-LIFECYCLE-01): a [기재정정] of the same quarter replaces the earlier filing's brief instead
+      // of standing beside it; the price follow-up (a price fact) carries over, the summary is the new filing's.
+      for (const [otherId, other] of briefs) {
+        if (!brief.period || otherId === id || other.symbol !== mover.sym || !other.source?.rcpNo || other.source.rcpNo >= filing.rcpNo || other.period !== brief.period) continue;
+        briefs.delete(otherId);
+        brief = { ...brief, supersedes: otherId, reaction: brief.reaction || other.reaction };
+      }
       brief = await withCallPoints(brief, { mover, nowMs, nowIso, sourceText: brief.checkText, sources, runAi });
       briefs.set(id, brief);
     } catch (error) { errors.push(`dart ${mover.sym}: ${String(error.message || error).slice(0, 120)}`); status.dart = 'partial-error'; }
@@ -576,16 +604,37 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
   }
   for (const row of earningsRows) {
     const mover = listed.get(row?.symbol);
-    if (!mover || (row.epsActual == null && row.revenueActual == null) || nowMs - Date.parse(row.date) > lookbackMs + DAY || summaryOf(row.symbol, row.date)) continue;
+    // v59.45: a calendar date after today cannot carry a reported result yet (a provider row ahead of time is not a report).
+    if (!mover || (row.epsActual == null && row.revenueActual == null) || nowMs - Date.parse(row.date) > lookbackMs + DAY || Date.parse(row.date) - nowMs > DAY || summaryOf(row.symbol, row.date)) continue;
     const id = `calendar-${mover.sym}-${row.date}`;
-    if (!briefs.has(id)) briefs.set(id, provisionalBrief(row, mover, { source: earningsSource, sourceUrl: earningsSourceUrl }));
+    // v59.45 (pipeline review P21-PROVISIONAL-01): the provider's figures can still change before the filing is summarised;
+    // each run rebuilds them from the latest row and keeps the price follow-up and reasons already gathered.
+    const prior = briefs.get(id);
+    const fresh = provisionalBrief(row, mover, { source: earningsSource, sourceUrl: earningsSourceUrl });
+    if (!prior) briefs.set(id, fresh);
+    else if (prior.status === 'provisional' && JSON.stringify(prior.figures) !== JSON.stringify(fresh.figures)) {
+      briefs.set(id, { ...prior, figures: fresh.figures, headline: fresh.headline, source: fresh.source, providerRevisedAt: nowIso });
+    }
   }
 
   // P2137: a headline copied in English from the release, or the bare "실적 발표", is rebuilt from the checked figures.
+  // v59.45 (pipeline review P21-AMOUNT-01/EPS-01): a stored comparison is re-read with the current parser — a unitless table
+  // figure ("$1,902,418", "$ 173.0") or "$12.1B" printed -99.9% / -100% against the consensus.
+  const recompared = (figure, actual) => {
+    if (actual == null) return (({ estimate, ...rest }) => rest)(figure);
+    const pct = surprisePct(actual, Number(figure.estimate.value));
+    return pct == null ? (({ estimate, ...rest }) => rest)(figure) : pct === figure.estimate.surprisePct ? figure : { ...figure, estimate: { ...figure.estimate, surprisePct: pct } };
+  };
   for (const [id, brief] of briefs) {
-    if (brief.kind !== 'earnings' || !brief.headline || brief.publishedDateOnly) continue;
+    // The DART table is read from the filing (its headline is built from it); a date-only SEC brief is rechecked too.
+    if (brief.kind !== 'earnings' || !brief.headline || brief.source?.rcpNo) continue;
     const headline = briefHeadline(brief.headline, { nameKo: brief.nameKo, figures: brief.figures || [] });
-    const figures = (brief.figures || []).map((figure) => (figure.estimate && figure.metric === 'eps_diluted' && isGaapOnlyFigure(figure) ? (({ estimate, ...rest }) => rest)(figure) : figure));
+    const figures = (brief.figures || []).map((figure) => {
+      if (!figure.estimate || (figure.estimate.basis && figure.estimate.basis !== 'provider-consensus-reference') || brief.status === 'provisional') return figure;
+      if (figure.metric === 'eps_diluted') return isGaapOnlyFigure(figure) ? (({ estimate, ...rest }) => rest)(figure) : recompared(figure, parseUsdPerShare(figure.value));
+      if (figure.metric === 'revenue') return recompared(figure, parseUsdAmount(figure.value));
+      return figure;
+    });
     if (headline !== brief.headline || figures.some((figure, i) => figure !== brief.figures[i])) briefs.set(id, { ...brief, headline, figures });
   }
 
@@ -598,7 +647,11 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
     try {
       const quote = await sources.prices(brief.symbol, { extended: market === 'US' && !(brief.reaction?.sessions > 0) });
       const reaction = quote ? earningsReaction(quote.bars, session, { extended: quote.extended, releaseMs: Date.parse(brief.publishedAt) }) : null;
-      if (reaction) { briefs.set(id, { ...brief, reaction: { ...reaction, checkedAt: nowIso } }); if (status.prices !== 'partial-error') status.prices = 'ok'; }
+      // v59.45 (pipeline review P21-WORKFLOW-01): an unchanged reaction keeps its checkedAt, so a re-check alone is not a
+      // commit (the workflow skips a file whose only change is generatedAt).
+      const same = reaction && brief.reaction && JSON.stringify({ ...brief.reaction, checkedAt: null }) === JSON.stringify({ ...reaction, checkedAt: null });
+      if (reaction && !same) briefs.set(id, { ...brief, reaction: { ...reaction, checkedAt: nowIso } });
+      if (reaction && status.prices !== 'partial-error') status.prices = 'ok';
     } catch (error) { errors.push(`prices ${brief.symbol}: ${String(error.message || error).slice(0, 120)}`); status.prices = 'partial-error'; }
   }
 

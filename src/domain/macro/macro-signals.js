@@ -10,7 +10,7 @@
 // Pure functions over [{ date, value }] series (ascending); imports nothing but the shared thresholds, so any domain module
 // (market-read included) can call them without an import cycle.
 import { RULES } from '../rules/thresholds.js';
-import { signedText } from '../shared/number.js';
+import { signedText, finiteNumber as finite } from '../shared/number.js';
 
 export const MACRO_SIGNAL_RULES = Object.freeze({
   deadZoneSd: 0.5,          // a move counts only past 0.5 sd of the series' own n-period changes
@@ -25,7 +25,6 @@ export const MACRO_SIGNAL_RULES = Object.freeze({
   sentimentMinRecords: 24
 });
 
-const finite = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
 const pct = (now, then) => (then ? (now / then - 1) * 100 : null);
 const median = (values) => {
   const sorted = [...values].sort((a, b) => a - b);

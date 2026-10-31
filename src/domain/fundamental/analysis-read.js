@@ -8,7 +8,8 @@ import { hasFinalConsonant, withTopicParticle } from '../content/korean-particle
 import { trailingQuarters } from './fiscal-read.js';
 import { fiscalMetrics as fiscalMetricsOf } from './peer-read.js';
 import { countOpenSessionsBetween, dateInTimezone } from '../market/market-calendar.js';
-import { consensusView } from './consensus-read.js';
+import { consensusView, CONSENSUS_PRICE_MAX_AGE_DAYS } from './consensus-read.js';
+import { isIsoDay } from '../shared/session-date.js';
 
 const subject = (word) => `${word}${hasFinalConsonant(word) ? '이' : '가'}`;
 // v58.74 (text audit): the DuPont sentence names the driver; one clause says what that driver's change means.
@@ -18,7 +19,7 @@ const DRIVER_MEANING = Object.freeze({
   leverage: '자기자본 대비 자산(부채 포함)의 크기가 변했다는 뜻입니다.'
 });
 
-const sorted = (history) => (Array.isArray(history) ? history : []).filter((year) => /^\d{4}-\d{2}-\d{2}$/.test(String(year?.periodEnd || '')))
+const sorted = (history) => (Array.isArray(history) ? history : []).filter((year) => isIsoDay(String(year?.periodEnd || '')))
   .slice().sort((a, b) => a.periodEnd.localeCompare(b.periodEnd));
 
 // 'collected' once any row carries the v58.55 columns (the producer writes them for a whole issuer at once).
@@ -201,10 +202,15 @@ export function reverseDcfInputs({ history, fundamentals, close, financial = fal
   if (ocf == null || capex == null) return { state: 'missing', reason: `${fyLabel(latest.periodEnd)} 영업현금흐름 또는 설비투자가 공시 수집본에 없어 잉여현금흐름을 만들 수 없습니다.` };
   const fcf = ocf - capex;
   if (!(fcf > 0)) return { state: 'fcf-negative', fcf, periodEnd: latest.periodEnd, reason: `${fyLabel(latest.periodEnd)} 잉여현금흐름이 0 이하라(영업현금흐름 − 설비투자 ≤ 0) 현재 가격이 가정하는 성장률을 풀 수 없습니다.` };
-  const shares = finite(fundamentals?.sharesOutstanding);
+  // v59.45 (pipeline review P19-DCF-01): a share count the normalizer flagged as off-scale is not a verified count, and the
+  // "지금 가격" needs a current close — a dated 1990 close passed the date-shape check. The age rule is the Forward PER's
+  // (CONSENSUS_PRICE_MAX_AGE_DAYS); a close dated after now is not current either.
+  const shares = fundamentals?.sharesCheck === 'scale-mismatch' ? null : finite(fundamentals?.sharesOutstanding);
   if (!(shares > 0)) return { state: 'missing', reason: '검증된 주식 수가 없어(공시 표지 주식 수 미확인) 시가총액을 만들지 않습니다.' };
   const price = finite(close?.value);
-  if (!(price > 0) || !/^\d{4}-\d{2}-\d{2}$/.test(String(close?.date || ''))) return { state: 'missing', reason: '날짜가 확인된 종가가 아직 없어 계산하지 않습니다.' };
+  if (!(price > 0) || !isIsoDay(String(close?.date || ''))) return { state: 'missing', reason: '날짜가 확인된 종가가 아직 없어 계산하지 않습니다.' };
+  const closeMs = Date.parse(`${close.date}T00:00:00Z`);
+  if (!Number.isFinite(closeMs) || closeMs > nowMs || nowMs - closeMs > CONSENSUS_PRICE_MAX_AGE_DAYS * DAY_MS) return { state: 'missing', reason: `종가(${close.date})가 최근 ${CONSENSUS_PRICE_MAX_AGE_DAYS}일 안의 완료 종가가 아니라 지금 가격으로 계산하지 않습니다.` };
   return { state: 'ready', fcf, periodEnd: latest.periodEnd, label: fyLabel(latest.periodEnd), ocf, capex, shares, sharesObservedAt: fundamentals?.sharesObservedAt || null, price, priceDate: close.date, marketValue: price * shares };
 }
 
@@ -249,9 +255,9 @@ export function buildEarningsSchedule({ symbol, calendar = null, consensus = nul
   const candidates = [];
   if (usable) {
     const mapped = String(calendar.upcoming?.[key] || '').split('|');
-    if (/^\d{4}-\d{2}-\d{2}$/.test(mapped[0] || '')) candidates.push({ date: mapped[0], hour: mapped[1] || null });
+    if (isIsoDay(mapped[0] || '')) candidates.push({ date: mapped[0], hour: mapped[1] || null });
     for (const row of Array.isArray(calendar.earnings) ? calendar.earnings : []) {
-      if (String(row?.symbol || '').toUpperCase().replace(/[./]/g, '-') === key && /^\d{4}-\d{2}-\d{2}$/.test(String(row?.date || ''))) candidates.push({ date: row.date, hour: row.hour || null });
+      if (String(row?.symbol || '').toUpperCase().replace(/[./]/g, '-') === key && isIsoDay(String(row?.date || ''))) candidates.push({ date: row.date, hour: row.hour || null });
     }
   }
   const next = candidates.filter((item) => today && item.date >= today).sort((a, b) => a.date.localeCompare(b.date))[0] || null;
@@ -290,6 +296,9 @@ export function buildSurpriseRead(consensus = null) {
   return { rows, beats, misses, average, latest: rows.at(-1), asOf: String(consensus?.asOf || '').slice(0, 10) || null };
 }
 
+/** What a capital-return sum covers (buildMarginCashRead returnedBasis), for the cards that print it. */
+export const RETURNED_LABEL = Object.freeze({ both: '자사주 매입과 배당 합', 'buybacks-only': '확인된 자사주 매입(배당 자료 없음)', 'dividends-only': '확인된 배당(자사주 매입 자료 없음)' });
+
 // Gross → operating → net margin, net cash and the capital-return line from the latest year that carries the v58.75 columns.
 // 'pending' = the issuer's record predates them; a column the filer does not tag is null (never zero).
 export function buildMarginCashRead(history = []) {
@@ -299,7 +308,9 @@ export function buildMarginCashRead(history = []) {
   if (!latest) return { state: 'pending' };
   const revenue = finite(latest.revenue);
   const ratio = (value) => (revenue > 0 && finite(value) != null ? finite(value) / revenue * 100 : null);
-  const prior = rows.filter((year) => year.capitalChain && year.periodEnd < latest.periodEnd).at(-1) || null;
+  // v59.45 (pipeline review P19-PERIOD-01 class): the prior column is the adjacent fiscal year only, not any earlier one.
+  const before = rows.filter((year) => year.capitalChain && year.periodEnd < latest.periodEnd).at(-1) || null;
+  const prior = before && isPriorAnnualPeriod(latest, before) ? before : null;
   const priorRevenue = finite(prior?.revenue);
   const priorRatio = (field) => (prior && priorRevenue > 0 && finite(prior[field]) != null ? finite(prior[field]) / priorRevenue * 100 : null);
   const ladder = [
@@ -314,11 +325,14 @@ export function buildMarginCashRead(history = []) {
   const ocf = finite(latest.operatingCashFlow), capex = finite(latest.capex);
   const fcf = ocf != null && capex != null ? ocf - capex : null;
   const buybacks = finite(latest.buybacks), dividends = finite(latest.dividends), sbc = finite(latest.shareBasedCompensation);
+  // v59.45 (pipeline review P19-CASH-01): a column the filer does not tag is not a reported 0, so a sum with one side missing
+  // is the sum of the confirmed items and says which (returnedBasis); net cash is liquid − long-term debt (debtBasis).
   const returned = buybacks != null || dividends != null ? (buybacks ?? 0) + (dividends ?? 0) : null;
+  const returnedBasis = returned == null ? null : buybacks != null && dividends != null ? 'both' : buybacks != null ? 'buybacks-only' : 'dividends-only';
   return {
     state: 'ready', periodEnd: latest.periodEnd, label: fyLabel(latest.periodEnd), priorLabel: prior ? fyLabel(prior.periodEnd) : null, ladder,
-    cash: liquid == null ? null : { cash, shortTermInvestments: sti, liquid, debt, net: debt != null ? liquid - debt : null },
-    capital: { sbc, sbcRatio: ratio(sbc), buybacks, dividends, returned, fcf, returnedShareOfFcf: returned != null && fcf > 0 ? returned / fcf * 100 : null }
+    cash: liquid == null ? null : { cash, shortTermInvestments: sti, liquid, debt, net: debt != null ? liquid - debt : null, debtBasis: 'long-term' },
+    capital: { sbc, sbcRatio: ratio(sbc), buybacks, dividends, returned, returnedBasis, fcf, returnedShareOfFcf: returned != null && fcf > 0 ? returned / fcf * 100 : null }
   };
 }
 

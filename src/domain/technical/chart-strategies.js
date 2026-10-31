@@ -2,11 +2,12 @@
 // whether it is turning, how the same chart reads under different trading styles (so a reader picks the logic that fits
 // them), and what a reward-to-risk ratio means in win-rate terms. Every input is a completed daily bar or a field the chart
 // analysis and the price-level map already computed; met counts are counts, not probabilities, and no price here is a
-// proposed entry, stop or target (R724) — each style names its own published rule and this stock's numbers for it.
+// proposed entry, stop or target (R724) — each style names its own published rule; this stock's prices stay in the level
+// map (v59.46 P24-PRODUCT-01).
 import { swingPoints } from './price-levels.js';
 import { RULES } from '../rules/thresholds.js';
+import { finiteNumber as finite } from '../shared/number.js';
 
-const finite = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
 const at = (series, back = 0) => (Array.isArray(series) ? finite(series[series.length - 1 - back]) : null);
 const pct = (a, b) => (a > 0 && b > 0 ? (a / b - 1) * 100 : null);
 
@@ -60,9 +61,6 @@ export function strategyLenses(analysis, levels = null, { rsi = null } = {}) {
   const ema21 = at(analysis.lines?.ema21), sma50 = at(analysis.lines?.sma50), sma200 = at(analysis.lines?.sma200), sma200Then = at(analysis.lines?.sma200, 20);
   const adr = analysis.adrPct > 0 ? close * analysis.adrPct / 100 : null;
   const near = (price, multiple = 1.5) => (price > 0 && adr ? Math.abs(close - price) <= adr * multiple : null);
-  const swingLow = levels?.swingLowBelow?.price ?? null;
-  const high20 = Math.max(...bars.slice(-20).map((bar) => bar.high));
-  const low20 = Math.min(...bars.slice(-20).map((bar) => bar.low));
   const templateMet = (analysis.templateChecks || []).filter(([, ok]) => ok === true).length;
   const stage = analysis.weinstein?.stage ?? null;
   const vol5 = bars.slice(-5).reduce((sum, bar) => sum + (bar.volume || 0), 0) / 5;
@@ -72,7 +70,7 @@ export function strategyLenses(analysis, levels = null, { rsi = null } = {}) {
   const fmt = (value) => (value > 0 ? value.toFixed(value >= 1000 ? 0 : 2) : '—');
   const pack = (style, conditions, rules) => {
     const known = conditions.filter(([, ok]) => ok != null);
-    return { ...style, conditions, met: known.filter(([, ok]) => ok).length, total: conditions.length, ...rules };
+    return { ...style, conditions, met: known.filter(([, ok]) => ok).length, known: known.length, total: conditions.length, ...rules };
   };
   const pivot = analysis.pivot;
   return [
@@ -82,9 +80,12 @@ export function strategyLenses(analysis, levels = null, { rsi = null } = {}) {
       [`피벗까지 5% 이내 또는 막 돌파${pivot > 0 ? ` (피벗 ${fmt(pivot)})` : ''}`, pivot > 0 ? close >= pivot * 0.95 && close <= pivot * 1.05 : null],
       ['최근 10일 거래량이 50일 평균의 80% 미만(마름)', analysis.dryUp == null ? null : analysis.dryUp < 0.8],
       ['상대강도선이 1년 고점 근처(-5% 이내)', analysis.rsFromHigh == null ? null : analysis.rsFromHigh >= -5]
+    // v59.46 P24-PRODUCT-01 (R724): stop/target/invalidation are the style's published rule only. This stock's prices
+    // (pivot, EMA, 50/200-day, swing points, volume zones) sit in the level map; the lens no longer writes them into a
+    // stop or target slot, and no rule tells the reader to sell — it says what the style's practitioners do.
     ], {
-      stop: pivot > 0 ? `피벗 ${fmt(pivot)} 아래로 다시 들어오거나 마지막 수축 저점 아래 — 보통 진입가의 5~8% 안` : '피벗이 없어 이 방식의 손절 기준점이 아직 없습니다',
-      target: '베이스 깊이만큼의 측정 이동폭, 또는 위험 폭의 2~3배(2R·3R)에서 일부 정리',
+      stop: '피벗 아래로 다시 들어오거나 마지막 수축 저점 아래 종가 — 이 방식은 보통 진입가의 5~8% 안에 둡니다',
+      target: '베이스 깊이만큼의 측정 이동폭, 또는 감수한 위험 폭의 2~3배 구간에서 이익 일부를 확정하는 것이 이 방식의 규칙입니다',
       invalidation: '돌파한 날의 거래량이 평소의 1.5배에 못 미치거나, 며칠 안에 피벗 아래 종가'
     }),
     pack(STRATEGY_STYLES[1], [
@@ -93,8 +94,8 @@ export function strategyLenses(analysis, levels = null, { rsi = null } = {}) {
       [`RSI 40~60 (쉬는 구간)${rsi != null ? `, 지금 ${rsi.toFixed(0)}` : ''}`, rsi == null ? null : rsi >= 40 && rsi <= 60],
       ['되돌림 동안 거래량 감소 (5일 평균 < 50일 평균)', quietPullback]
     ], {
-      stop: swingLow ? `직전 스윙 저점 ${fmt(swingLow)} 아래, 또는 50일선(${fmt(sma50)}) 아래 종가` : `50일선(${fmt(sma50)}) 아래 종가`,
-      target: `직전 고점(최근 20거래일 고가 ${fmt(high20)}) 재시험, 넘으면 추세가 이어지는 동안 보유`,
+      stop: '직전 스윙 저점 아래, 또는 50일선 아래 종가',
+      target: '직전 고점(최근 20거래일 고가) 재시험이 첫 기준, 넘으면 추세가 이어지는 동안 보유하는 것이 이 방식의 규칙입니다',
       invalidation: '50일선 아래 종가가 이틀 이어지거나 되돌림 거래량이 오히려 늘어남'
     }),
     pack(STRATEGY_STYLES[2], [
@@ -103,8 +104,8 @@ export function strategyLenses(analysis, levels = null, { rsi = null } = {}) {
       ['200일선이 20거래일 전보다 높음(오름)', sma200 && sma200Then ? sma200 > sma200Then : null],
       [`6개월 수익률이 ${analysis.benchmarkLabel || '지수'}보다 높음`, analysis.rs == null ? null : analysis.rs > 0]
     ], {
-      stop: `주봉 종가가 30주선 아래로 내려가면 재점검 (일봉으로는 200일선 ${fmt(sma200)} 부근)`,
-      target: '정해진 목표 없이 2단계가 이어지는 동안 보유, 3단계(30주선 평평) 신호에서 일부 정리',
+      stop: '주봉 종가가 30주선(일봉으로는 200일선 부근) 아래로 내려가면 재점검',
+      target: '정해진 목표 없이 2단계가 이어지는 동안 보유하고, 3단계(30주선 평평)로 상승 동력이 약해지면 이익 일부를 확정하는 것이 이 방식의 규칙입니다',
       invalidation: '30주선이 평평해지며 가격이 그 아래·위를 오가는 3단계, 또는 4단계 진입'
     }),
     pack(STRATEGY_STYLES[3], [
@@ -113,11 +114,14 @@ export function strategyLenses(analysis, levels = null, { rsi = null } = {}) {
       ['장기 추세는 살아 있음 (종가 > 200일선)', sma200 ? close > sma200 : null],
       ['반전 봉 (오늘 종가가 전일 고가 위)', bars[n - 1] ? close > bars[n - 1].high : null]
     ], {
-      stop: `최근 저점(20거래일 저가 ${fmt(low20)}) 아래 — 실패가 잦은 방식이라 손절은 짧게`,
-      target: `21일 EMA(${fmt(ema21)}) 또는 50일선(${fmt(sma50)})까지의 되돌림 — 추세 전환으로 보지 않음`,
+      stop: '최근 저점(20거래일 저가) 아래 — 실패가 잦은 방식이라 손절 폭을 짧게 둡니다',
+      target: '21일 EMA 또는 50일선까지의 되돌림 — 이 방식은 반등을 추세 전환으로 보지 않습니다',
       invalidation: '새 저점 종가, 또는 반등이 21일 EMA 앞에서 거래량 없이 꺾임'
     })
-  ].map((lens) => ({ ...lens, note: lens.met === lens.total ? '조건이 모두 맞는 방식' : lens.met === 0 ? '지금은 이 방식의 조건이 맞지 않음' : null, rsiHot: hot }));
+  // v59.45 R4-02: a condition without data is unknown, not unmet — a lens with 0 of 4 checkable read "조건이 맞지 않음".
+  ].map((lens) => ({ ...lens, note: lens.known === 0 ? '조건을 확인할 자료가 없음'
+    : lens.met === lens.total ? '조건이 모두 맞는 방식'
+      : lens.met === 0 ? (lens.known < lens.total ? `확인된 ${lens.known}개 조건 중 맞는 것 없음` : '지금은 이 방식의 조건이 맞지 않음') : null, rsiHot: hot }));
 }
 
 /** Reward-to-risk in plain terms: the ratio, and the win rate at which the plan breaks even (before costs). */

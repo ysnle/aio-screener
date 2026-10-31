@@ -13,6 +13,7 @@ import { shortDate } from '../../domain/content/date-labels.js';
 import { signedText, directionOf } from '../../domain/shared/number.js';
 import { screenerRowsState } from '../../data/shared-artifacts.js';
 import { dataStateText } from '../../domain/content/data-state.js';
+import { isIsoDay } from '../../domain/shared/session-date.js';
 
 const SESSIONS = Object.freeze({ ret5d: 5, ret10d: 10, ret1m: 21, ret3m: 63, ret6m: 126 });
 // Audit 19: rank movement words, kept apart from the playbook's stage words (주도·조정·반등·약세).
@@ -38,7 +39,7 @@ export function benchmarkReturns(history = []) {
 export function basisOf(rows, metadata = null, history = []) {
   const sessions = metadata?.factorSessionDateByMarket;
   if (sessions && typeof sessions === 'object') {
-    const us = /^\d{4}-\d{2}-\d{2}$/.test(sessions.US || '') ? sessions.US : null;
+    const us = isIsoDay(sessions.US || '') ? sessions.US : null;
 
     if (us) {
       // X03 (2026-10-13): the date alone does not say whether the ranking may be read as today's leaders.
@@ -52,7 +53,7 @@ export function basisOf(rows, metadata = null, history = []) {
   // S&P 500 comparison in this line uses); the bar start is the last resort.
   const usClose = closeBasis(history);
   if (usClose) return { label: `${shortDate(usClose)} 미국 종가 기준` };
-  const dates = rows.map((row) => String(row?.factorObservedAt || '').slice(0, 10)).filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date)).sort();
+  const dates = rows.map((row) => String(row?.factorObservedAt || '').slice(0, 10)).filter((date) => isIsoDay(date)).sort();
   return dates.length ? { label: `${shortDate(dates[dates.length - 1])} 종가 기준` } : null;
 }
 

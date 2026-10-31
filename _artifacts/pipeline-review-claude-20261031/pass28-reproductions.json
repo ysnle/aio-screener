@@ -1,0 +1,166 @@
+{
+  "dates": [
+    {
+      "version": "wp10.page-completeness.v1",
+      "pageId": "home",
+      "status": "loaded",
+      "requiredProducers": [
+        "x"
+      ],
+      "optionalProducers": [],
+      "minCoverage": {
+        "x": 80
+      },
+      "maxAge": {
+        "x": 1000
+      },
+      "failureState": "partial",
+      "forbiddenClaims": [],
+      "producers": {
+        "x": {
+          "status": "loaded",
+          "lastSuccessfulAt": "bad",
+          "coverage": null,
+          "ageMs": null,
+          "maxAgeMs": 1000,
+          "minCoverage": 80
+        }
+      },
+      "issues": [],
+      "checkedAt": "2026-10-30T00:00:00.000Z"
+    },
+    {
+      "version": "wp10.page-completeness.v1",
+      "pageId": "home",
+      "status": "loaded",
+      "requiredProducers": [
+        "x"
+      ],
+      "optionalProducers": [],
+      "minCoverage": {
+        "x": 80
+      },
+      "maxAge": {
+        "x": 1000
+      },
+      "failureState": "partial",
+      "forbiddenClaims": [],
+      "producers": {
+        "x": {
+          "status": "loaded",
+          "lastSuccessfulAt": "2099-01-01T00:00:00Z",
+          "coverage": null,
+          "ageMs": -2277590400000,
+          "maxAgeMs": 1000,
+          "minCoverage": 80
+        }
+      },
+      "issues": [],
+      "checkedAt": "2026-10-30T00:00:00.000Z"
+    },
+    {
+      "version": "wp10.page-completeness.v1",
+      "pageId": "home",
+      "status": "loaded",
+      "requiredProducers": [
+        "x"
+      ],
+      "optionalProducers": [],
+      "minCoverage": {
+        "x": 80
+      },
+      "maxAge": {
+        "x": 1000
+      },
+      "failureState": "partial",
+      "forbiddenClaims": [],
+      "producers": {
+        "x": {
+          "status": "loaded",
+          "lastSuccessfulAt": null,
+          "coverage": null,
+          "ageMs": null,
+          "maxAgeMs": 1000,
+          "minCoverage": 80
+        }
+      },
+      "issues": [],
+      "checkedAt": "2026-10-30T00:00:00.000Z"
+    }
+  ],
+  "empty": {
+    "version": "wp10.page-completeness.v1",
+    "pageId": "home",
+    "status": "loaded",
+    "requiredProducers": [
+      "x"
+    ],
+    "optionalProducers": [],
+    "minCoverage": {
+      "x": 80
+    },
+    "maxAge": {
+      "x": 1000
+    },
+    "failureState": "partial",
+    "forbiddenClaims": [],
+    "producers": {
+      "x": {
+        "status": "empty",
+        "ageMs": null,
+        "maxAgeMs": 1000,
+        "minCoverage": 80
+      }
+    },
+    "issues": [],
+    "checkedAt": "2026-10-30T00:00:00.000Z"
+  },
+  "screener": {
+    "status": "ready",
+    "detail": null
+  },
+  "breadth": {
+    "producer": "breadth",
+    "status": "loaded",
+    "coverage": 100,
+    "attemptedAt": null,
+    "lastSuccessfulAt": "2026-10-30T00:00:00Z",
+    "evidenceIds": [
+      "screener.json:breadth"
+    ],
+    "failureReason": null,
+    "sourceKind": "delayed-eod",
+    "allowedUse": null
+  },
+  "zeroPages": {
+    "version": "wp10.page-completeness.v1",
+    "status": "loaded",
+    "routeCount": 0,
+    "loadedCount": 0,
+    "partialCount": 0,
+    "blockedCount": 0,
+    "emptyCount": 0,
+    "staleReferenceCount": 0,
+    "pages": [],
+    "checkedAt": "2026-10-31T03:02:44.593Z"
+  },
+  "readiness": {
+    "status": "ok",
+    "label": "베타 공유 가능",
+    "version": "fixture",
+    "dataLabel": "01-01 09:00 KST, 0분 전",
+    "dataStatus": "수신 상태 확인 중",
+    "pageStatus": "1개 페이지 현재성 통과",
+    "pipelineStatus": "파이프라인 OK",
+    "pageEvidenceRows": [],
+    "weakPages": [],
+    "blockers": [],
+    "warnings": [],
+    "generatedAt": "2026-10-31T03:02:44.593Z",
+    "auditMode": "detailed"
+  },
+  "clock": {
+    "nowMs": 1793318400000,
+    "marketNow": 1793415764593
+  }
+}

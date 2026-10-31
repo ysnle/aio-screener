@@ -126,6 +126,7 @@ import { loadResearchCorpus } from '../domain/research/corpus-loader.js';
 import { createCriticalDataGate, ROWS_FIRST_ROUTES } from './critical-data-gate.js';
 import { NATHAN_PREVIOUS_THREADS_REFERENCE, NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS } from '../domain/research/nathan-previous-threads.js';
 import { NATHAN_FRAMEWORK_PACK, NATHAN_ANALYSIS_PROTOCOL, NATHAN_KNOWLEDGE_ALIASES } from '../domain/knowledge/nathan-framework-pack.js';
+import { hasLeadingIsoDay } from '../domain/shared/session-date.js';
 
 export const ARCHITECTURE_VERSION = 'AR-01~16.v1';
 
@@ -272,7 +273,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   root._aioSentenceVerdict = () => {
     const summary = root._aioMarketRegimeSummary();
     if (!summary?.available || !summary.sufficient || !summary.overall) return '';
-    const day = /^\d{4}-\d{2}-\d{2}/.test(summary.asOf || '') ? `${Number(summary.asOf.slice(5, 7))}/${Number(summary.asOf.slice(8, 10))} 종가 기준 ` : '';
+    const day = hasLeadingIsoDay(summary.asOf || '') ? `${Number(summary.asOf.slice(5, 7))}/${Number(summary.asOf.slice(8, 10))} 종가 기준 ` : '';
     return `${day}'${summary.overall}'`;
   };
   root.addEventListener?.('aio:historyLoaded', () => { try { root._aioRenderOperatorNote?.(); } catch (_) {} });

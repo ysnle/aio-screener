@@ -544,6 +544,27 @@ export function retainMarketRows({ data, syms, previous, market = 'KR', floor = 
   return { market, from: previous?.asOf || null, fetched, universe: universe.length, carried: carried.length, reason: `fetched ${fetched}/${universe.length} below ${Math.round(floor * 100)}%` };
 }
 
+// v59.46 R3-05 (owner 2026-10-31): a US run above the 80% floor dropped the up-to-20% of names it failed to read, so a
+// stock's row vanished for a day although last night's row existed. A missing symbol keeps its last published row with
+// its own factorSessionDate and retainedFrom (the first run that carried it); the ranking already scores only rows on
+// the latest completed session, so a carried row is shown with its date and never ranked as current. A row older than
+// maxAgeDays is not carried again and the symbol stays in unfetchedSymbols.
+export const ROW_RETAIN_MAX_AGE_DAYS = 7;
+export function retainUnfetchedRows({ data, syms, previous, market = 'US', sessionDate = null, maxAgeDays = ROW_RETAIN_MAX_AGE_DAYS } = {}) {
+  const day = (value) => (/^\d{4}-\d{2}-\d{2}$/.test(String(value || '')) ? Date.parse(`${value}T00:00:00Z`) : null);
+  const current = day(sessionDate);
+  if (current == null) return null;
+  const prevRows = previous?.data || {};
+  const carried = (syms || []).filter((sym) => {
+    if (listingMarketOfSymbol(sym) !== market || data?.[sym] || !prevRows[sym]) return false;
+    const rowDay = day(prevRows[sym].factorSessionDate);
+    return rowDay != null && rowDay <= current && current - rowDay <= maxAgeDays * 86400000;
+  });
+  if (!carried.length) return null;
+  for (const sym of carried) data[sym] = { ...prevRows[sym], retainedFrom: prevRows[sym].retainedFrom || previous?.asOf || null };
+  return { market, from: previous?.asOf || null, carried: carried.length, maxAgeDays, symbols: carried.sort() };
+}
+
 export async function enrichScreener() {
   // 자가 스로틀: screener.json이 20시간 내면 스킵(일 1회). BACKFILL/SCREENER_ENRICH=1로 강제.
   if (process.env.SCREENER_ENRICH !== '1' && process.env.BACKFILL !== '1') {
@@ -585,6 +606,9 @@ export async function enrichScreener() {
   let krRetained = null;
   try { krRetained = previousArtifact ? retainMarketRows({ data, syms, previous: expandScreenerArtifact(previousArtifact), market: 'KR' }) : null; } catch (e) { console.warn('[fetch-data] KR retention unavailable:', e && e.message || e); }
   if (krRetained) console.warn(`[fetch-data] KR rows kept from the last publish (${krRetained.reason}; ${krRetained.carried} rows from ${krRetained.from})`);
+  let usRowsRetained = null;
+  try { usRowsRetained = previousArtifact ? retainUnfetchedRows({ data, syms, previous: expandScreenerArtifact(previousArtifact), market: 'US', sessionDate: factorScopesByMarket(data).US?.sessionDate || null }) : null; } catch (e) { console.warn('[fetch-data] US row retention unavailable:', e && e.message || e); }
+  if (usRowsRetained) console.warn(`[fetch-data] US rows kept from the last publish: ${usRowsRetained.carried} unfetched symbols (${usRowsRetained.symbols.slice(0, 12).join(', ')}${usRowsRetained.carried > 12 ? ', …' : ''})`);
   { const kr = summarizeKrCloseReconciliation(results); console.log(`[fetch-data] KR exchange close: ${JSON.stringify(kr.byStatus)} rows ${kr.rows} · closes differing from the portal ${kr.divergentCloses} · sessions filled ${kr.filledSessions}`); }
 
   // 2단계: FMP 밸류/퀄리티/어닝 병합(키 있을 때만 — 없으면 4팩터 폴백)
@@ -690,6 +714,8 @@ export async function enrichScreener() {
     // v58.71: rows carried for a retained market count as published rows; marketRetained names them.
     ok: Object.keys(data).length,
     ...(krRetained ? { marketRetained: { KR: krRetained } } : {}),
+    // v59.46 R3-05: per-row carry of unfetched US names; fetch coverage (validator) counts only rows read this run.
+    ...(usRowsRetained ? { rowsRetained: { US: usRowsRetained } } : {}),
     // P1589: a universe symbol whose history failed this run is listed, not silently absent
     // (WBD/ET appeared in some runs and vanished in others with no trace).
     unfetchedSymbols: syms.filter((sym) => !data[sym] || data[sym].retainedFrom).sort(),

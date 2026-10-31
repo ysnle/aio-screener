@@ -1,0 +1,185 @@
+{
+  "scope": "Pure local counterexamples; live occurrence and upstream contracts separately assessed",
+  "inflationDir": {
+    "dir": "down",
+    "state": "down",
+    "label": "둔화",
+    "single": true,
+    "anyUp": false,
+    "pce": {
+      "name": "근원 PCE",
+      "pace": 1,
+      "yoy": 3,
+      "margin": -2,
+      "dir": "down",
+      "date": "2026-09-01",
+      "month": "9월",
+      "text": "근원 PCE(9월) 둔화(3개월 연율 1.0%, 전년 대비 3.0%)"
+    },
+    "cpi": null,
+    "reaccelerating": [],
+    "text": "근원 PCE(9월) 둔화(3개월 연율 1.0%, 전년 대비 3.0%)"
+  },
+  "softlandCondition": true,
+  "nullTenor": {
+    "fiveY": null,
+    "points": [
+      {
+        "tenor": "2Y",
+        "value": 4,
+        "unit": "percent",
+        "observedAt": "2026-10-28",
+        "cutId": "us-treasury-daily:2026-10-28",
+        "source": null,
+        "sourceKind": null,
+        "session": "official-daily-close"
+      },
+      {
+        "tenor": "5Y",
+        "value": 0,
+        "unit": "percent",
+        "observedAt": "2026-10-28",
+        "cutId": "us-treasury-daily:2026-10-28",
+        "source": null,
+        "sourceKind": null,
+        "session": "official-daily-close"
+      },
+      {
+        "tenor": "10Y",
+        "value": 4.2,
+        "unit": "percent",
+        "observedAt": "2026-10-28",
+        "cutId": "us-treasury-daily:2026-10-28",
+        "source": null,
+        "sourceKind": null,
+        "session": "official-daily-close"
+      },
+      {
+        "tenor": "20Y",
+        "value": 0,
+        "unit": "percent",
+        "observedAt": "2026-10-28",
+        "cutId": "us-treasury-daily:2026-10-28",
+        "source": null,
+        "sourceKind": null,
+        "session": "official-daily-close"
+      },
+      {
+        "tenor": "30Y",
+        "value": 4.5,
+        "unit": "percent",
+        "observedAt": "2026-10-28",
+        "cutId": "us-treasury-daily:2026-10-28",
+        "source": null,
+        "sourceKind": null,
+        "session": "official-daily-close"
+      }
+    ]
+  },
+  "mixedCurve": {
+    "fact": "2년물이 10년물보다 1.00%p 높습니다 (역전).",
+    "asOf": "2026-10-28",
+    "sameCut": true,
+    "curve": [
+      {
+        "id": "2s10s",
+        "label": "2년–10년",
+        "value": -1,
+        "legs": "10년 − 2년"
+      },
+      {
+        "id": "5s30s",
+        "label": "5년–30년",
+        "value": 1.1000000000000005,
+        "legs": "30년 − 5년"
+      }
+    ]
+  },
+  "missingRelations": {
+    "available": true,
+    "asOf": "2026-09-11",
+    "window": 20,
+    "moves": {
+      "window": 20,
+      "spx": {
+        "value": 0,
+        "from": "2026-08-13",
+        "to": "2026-09-11"
+      },
+      "smh": null,
+      "tnx": {
+        "value": 0,
+        "from": "2026-08-13",
+        "to": "2026-09-11"
+      },
+      "tlt": null,
+      "wti": null,
+      "gold": {
+        "value": 0,
+        "from": "2026-07-10",
+        "to": "2026-08-07"
+      },
+      "dxy": null,
+      "vix": null
+    },
+    "driver": null,
+    "flow": null,
+    "breaks": [],
+    "reading": "최근 20거래일 유가·금리·주식·장기채·금·달러는 평소 관계에서 크게 벗어나지 않았습니다."
+  },
+  "missingTga": [
+    {
+      "date": "2026-10-28",
+      "value": 6900
+    }
+  ],
+  "krRead": {
+    "themes": [
+      {
+        "id": "semi",
+        "label": "반도체",
+        "members": 3,
+        "covered": 3,
+        "ret1m": 50,
+        "ret3m": null,
+        "ret5d": null,
+        "vol": null,
+        "basis": "2026-10-28",
+        "above50Pct": null,
+        "heavyweights": null,
+        "heavyweightNote": ""
+      }
+    ],
+    "usable": [
+      {
+        "id": "semi",
+        "label": "반도체",
+        "members": 3,
+        "covered": 3,
+        "ret1m": 50,
+        "ret3m": null,
+        "ret5d": null,
+        "vol": null,
+        "basis": "2026-10-28",
+        "above50Pct": null,
+        "heavyweights": null,
+        "heavyweightNote": ""
+      }
+    ],
+    "read": "구성 종목 기록이 3개 이상인 테마가 적어 순위를 매기지 않습니다.",
+    "coveredThemes": 1,
+    "totalThemes": 1
+  },
+  "retainedPartialMonth": {
+    "before": {
+      "month": "2026-08",
+      "value": 127
+    },
+    "after": {
+      "month": "2026-09",
+      "value": 128
+    },
+    "afterLabel": "2026년 9월 월평균",
+    "stale": true
+  }
+}

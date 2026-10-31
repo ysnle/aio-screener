@@ -7,7 +7,8 @@ import { buildMarketRegime, krSessionThrough } from './market-read.js';
 import { buildCloseSeries, closeBasis } from '../market/close-series.js';
 import { RULES } from '../rules/thresholds.js';
 import { countOpenSessionsBetween, openSessionDatesBetween } from '../market/market-calendar.js';
-import { signedText } from '../shared/number.js';
+import { signedText, readNumber as finite } from '../shared/number.js';
+import { isIsoDay } from '../shared/session-date.js';
 
 const shortDay = (date) => { const [, month, day] = String(date || '').split('-').map(Number); return month && day ? `${month}/${day}` : ''; };
 
@@ -19,11 +20,10 @@ export function missingSessionsBetween(fromDate, toDate) {
   return openSessionDatesBetween(fromDate, toDate, { market: 'US', includeEnd: false, unknownYear: 'closed', maxDays: 15 });
 }
 
-const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
 const signed = (value, digits = 1, unit = '') => signedText(value, digits, unit);
 
 function completedRows(history = []) {
-  return (Array.isArray(history) ? history : []).filter((row) => row && /^\d{4}-\d{2}-\d{2}$/.test(String(row.date || '')) && finite(row.spx) != null);
+  return (Array.isArray(history) ? history : []).filter((row) => row && isIsoDay(String(row.date || '')) && finite(row.spx) != null);
 }
 
 const MEASURES = Object.freeze([
@@ -85,7 +85,7 @@ export function buildDailyChanges(history = [], { now = Date.now() } = {}) {
   const prevDate = sessions[sessions.length - 2].date;
   const krThrough = krSessionThrough(now);
   // A KRX session on a US holiday has no S&P 500 close; Korean measures read every dated row, not only US-session rows.
-  const krRows = (Array.isArray(history) ? history : []).filter((row) => row && /^\d{4}-\d{2}-\d{2}$/.test(String(row.date || '')));
+  const krRows = (Array.isArray(history) ? history : []).filter((row) => row && isIsoDay(String(row.date || '')));
   const rowsFor = (measure) => measure.market === 'KR' ? krRows : rows;
   const measured = MEASURES.map((measure) => ({ measure, move: measureChange(measure, rowsFor(measure), basis, prevDate, krThrough) }));
   const moves = measured.map((item) => item.move).filter(Boolean);
@@ -109,6 +109,9 @@ export function buildDailyChanges(history = [], { now = Date.now() } = {}) {
   const flips = (regimeNow.axes || [])
     .filter((axis) => axis.id !== 'korea' && axis.state !== 'unknown' && before[axis.id] && before[axis.id].state !== 'unknown' && before[axis.id].state !== axis.state)
     .map((axis) => ({ id: axis.id, title: axis.title, from: before[axis.id].stateLabel, to: axis.stateLabel, toState: axis.state }));
+  // v59.45 (pipeline review P26 기타): "판정이 그대로" needs at least one axis read on both sessions.
+  const comparableAxes = (regimeNow.axes || []).filter((axis) => axis.id !== 'korea' && axis.state !== 'unknown' && before[axis.id] && before[axis.id].state !== 'unknown').length;
+  const verdictWords = comparableAxes ? '지표 판정은 그대로이고' : '두 거래일 모두 읽힌 지표 판정이 없어 판정 변화는 비교하지 못했고';
   const L = RULES.largeMove;
   const big = moves.filter((move) => ['spx', 'nasdaq', 'kospi', 'kosdaq'].includes(move.key) ? Math.abs(move.value) >= L.dailyDiffIndexPct
     : move.key === 'vix' ? Math.abs(move.value) >= L.dailyDiffVixPt : move.key === 'tnx' ? Math.abs(move.value) >= L.dailyDiffTnxBp
@@ -118,9 +121,10 @@ export function buildDailyChanges(history = [], { now = Date.now() } = {}) {
     // v58.79 (layout over captions): the row's title (지난 마감 이후 변화) already says what changed; the flip reads alone.
     ? flips.map((flip) => `${flip.title} ${flip.from} → ${flip.to}`).join(', ')
     // v57.84: this comparison rebuilds the regime from closes only, so the credit axis never enters it — the headline says so.
-    : big.length ? `지표 판정은 그대로이고(신용 지표는 이 비교에 넣지 않음), 크게 움직인 것은 ${big.map((move) => `${move.label}${move.market === 'KR' ? `(한국 ${shortDay(move.to)})` : ''} ${move.text}`).join(', ')}입니다.`
-      : '지표 판정이 그대로이고(신용 지표는 이 비교에 넣지 않음) 크게 움직인 지표도 없습니다.';
-  return { available: true, date: basis, prevDate, missing: missingSessionsBetween(prevDate, basis), notCompared, notComparedNotes, moves, flips, big: big.map((move) => move.key), headline };
+    : big.length ? `${verdictWords}(신용 지표는 이 비교에 넣지 않음), 크게 움직인 것은 ${big.map((move) => `${move.label}${move.market === 'KR' ? `(한국 ${shortDay(move.to)})` : ''} ${move.text}`).join(', ')}입니다.`
+      : comparableAxes ? '지표 판정이 그대로이고(신용 지표는 이 비교에 넣지 않음) 크게 움직인 지표도 없습니다.'
+        : `${verdictWords}(신용 지표는 이 비교에 넣지 않음) 크게 움직인 지표도 없습니다.`;
+  return { available: true, date: basis, prevDate, missing: missingSessionsBetween(prevDate, basis), notCompared, notComparedNotes, moves, flips, comparableAxes, big: big.map((move) => move.key), headline };
 }
 
 // "내 종목": watchlist and holdings, with what moved and what crossed a level worth knowing.
@@ -139,23 +143,30 @@ export function buildMyNames({ symbols = [], rows = [], live = {}, holdings = []
     const high = finite(row?.pctFrom52wHigh);
     const rsi = finite(row?.rsi);
     const notes = [];
-    if (sma50 != null) notes.push(sma50 < 0 ? `50일선 아래(${signed(sma50, 1, '%')})` : `50일선 위(${signed(sma50, 1, '%')})`);
+    // v59.45 (pipeline review P26-NAMES-01): a name exactly on the line is neither above nor below it.
+    const ma50 = sma50 == null ? 'unknown' : sma50 < 0 ? 'below' : sma50 > 0 ? 'above' : 'on';
+    if (sma50 != null) notes.push(ma50 === 'below' ? `50일선 아래(${signed(sma50, 1, '%')})` : ma50 === 'above' ? `50일선 위(${signed(sma50, 1, '%')})` : '50일선 위치(0.0%)');
     if (high != null && high > -RULES.technical.nearHighPct) notes.push(`52주 고점 근처(${signed(high, 1, '%')})`);
     else if (high != null && high <= -RULES.technical.template.nearHighPct) notes.push(`52주 고점 대비 ${signed(high, 0, '%')}`);
     if (rsi != null && rsi >= RULES.technical.rsi.overbought) notes.push(`RSI ${rsi.toFixed(0)} 과열권`);
     else if (rsi != null && rsi <= RULES.technical.rsi.oversold) notes.push(`RSI ${rsi.toFixed(0)} 과매도권`);
     const attention = (daySignalled && Math.abs(dayPct) >= RULES.largeMove.watchDayPct ? 2 : 0) + (rsi != null && (rsi >= RULES.technical.rsi.overbought || rsi <= RULES.technical.rsi.oversold) ? 1 : 0) + (sma50 != null && sma50 < 0 ? 1 : 0);
     return {
-      symbol, name: row?.name || '', held: held.has(symbol), dayPct, daySignalled,
+      symbol, name: row?.name || '', held: held.has(symbol), dayPct, daySignalled, ma50,
       ret1m: finite(row?.ret1m), notes, attention, known: !!row || dayPct != null
     };
   });
-  names.sort((a, b) => b.attention - a.attention || Math.abs(b.dayPct ?? 0) - Math.abs(a.dayPct ?? 0) || a.symbol.localeCompare(b.symbol));
-  const below = names.filter((row) => row.notes.some((note) => note.startsWith('50일선 아래'))).length;
-  const measured = names.filter((row) => row.notes.length).length;
+  // P26-NAMES-02: an unsignalled (stale or basis-unknown) change does not break ties either.
+  const rankMove = (row) => (row.daySignalled ? Math.abs(row.dayPct ?? 0) : 0);
+  names.sort((a, b) => b.attention - a.attention || rankMove(b) - rankMove(a) || a.symbol.localeCompare(b.symbol));
+  // P26-NAMES-01: the 50-day position is counted over the names whose 50-day line is known; an RSI-only row is not one.
+  const below = names.filter((row) => row.ma50 === 'below').length;
+  const above = names.filter((row) => row.ma50 === 'above').length;
+  const measured = names.filter((row) => row.ma50 !== 'unknown').length;
+  const unknown = names.length - measured;
   const summary = !names.length ? null
-    : measured ? `내 종목 ${names.length}개 중 ${below}개가 50일선 아래${below && below * 2 >= measured && breadthState === 'burden' ? ' — 시장 폭이 좁아진 흐름이 내 종목에도 와 있습니다' : below * 2 < measured && breadthState === 'burden' ? ' — 시장 폭은 좁아졌지만 내 종목 대부분은 아직 50일선 위입니다' : ''}.`
-      : `내 종목 ${names.length}개 — 아직 지표 기록이 없어 위치를 읽지 못했습니다.`;
+    : measured ? `내 종목 ${names.length}개 중 ${below}개가 50일선 아래${unknown ? `(${unknown}개는 50일선 미확인)` : ''}${below && below * 2 >= measured && breadthState === 'burden' ? ' — 시장 폭이 좁아진 흐름이 내 종목에도 와 있습니다' : above * 2 > measured && breadthState === 'burden' ? ' — 시장 폭은 좁아졌지만 내 종목 대부분은 아직 50일선 위입니다' : ''}.`
+      : `내 종목 ${names.length}개 — 아직 50일선 기록이 없어 위치를 읽지 못했습니다.`;
   return { names, summary };
 }
 
@@ -171,7 +182,8 @@ export function previousRegime(inputs, regime, sessions = 5) {
   const macroHistory = inputs?.macroHistory;
   if (!regime?.available || !Array.isArray(history) || !history.length || !macroHistory?.series?.hyOas) return null;
   const cached = previousCache.get(history);
-  if (cached && cached.macroHistory === macroHistory && cached.asOf === regime.asOf) return cached.value;
+  // v59.45 (pipeline review P26 기타): the look-back is part of the key; a 1-session read is not reused for 5.
+  if (cached && cached.macroHistory === macroHistory && cached.asOf === regime.asOf && cached.sessions === sessions) return cached.value;
   const target = buildCloseSeries(history, 'spx', { through: regime.asOf }).at(-1 - sessions)?.date;
   let value = null;
   if (target) {
@@ -194,6 +206,6 @@ export function previousRegime(inputs, regime, sessions = 5) {
       }
     } catch (_) { value = null; }
   }
-  previousCache.set(history, { macroHistory, asOf: regime.asOf, value });
+  previousCache.set(history, { macroHistory, asOf: regime.asOf, sessions, value });
   return value;
 }

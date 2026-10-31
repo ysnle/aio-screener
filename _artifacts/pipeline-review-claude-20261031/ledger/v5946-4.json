@@ -1,0 +1,18 @@
+{
+  "version": "v59.46",
+  "date": "2026-10-31",
+  "r": null,
+  "p": {
+    "title": "점수 상대화 실험이 현행 모델과 통제 비교가 아니었음",
+    "symptom": "relative-v1(2026-07)이 당시 모델의 추세 밴드와 위험선호·시장 폭 중립 상수를 고정해, 현행 v5 기준선과의 차이가 분위 변환 효과인지 모델 차이인지 분리할 수 없었다(Codex P9-BT-01).",
+    "root_cause": "실험 경로가 기준선이 호출하는 trading-score.js를 거치지 않고 별도 점수식을 복제했다.",
+    "fix": "relative-v2는 각 입력의 과거 분위를 현행 절대 밴드 안의 대표 수준으로 바꿔 기준선과 같은 reconstructScore를 호출한다. 다른 것은 기준선 단위뿐이다. 10년 재실행 결과 21일 rho −0.104, 63일 −0.144, 보류 구간 음수로 통과 기준에 못 미쳐 점수는 환경 설명용으로 유지된다. 이전 결과는 previousExperiment로 남겼다.",
+    "violated_rule": "R3: 비교 실험은 비교 변인 외의 경로를 공유한다.",
+    "prevention": "pipeline-semantics research-scripts 케이스 P9-BT-01: 같은 밴드 수준이면 상대·기준 점수가 같다.",
+    "verification": "node scripts/backtest-trading-score-longrun.mjs (2016-10-31..2026-10-30, 2,514거래일); node scripts/ci-pipeline-semantics-check.mjs --only research-scripts PASS."
+  },
+  "changelog": [
+    "**점수 상대화 실험 재실행 ({P}):** 현행 모델 위에서 기준선 단위만 바꿔 10년을 다시 돌렸다. 21일·63일 모두 음의 상관이라 점수는 계속 '환경 설명'으로만 쓴다."
+  ],
+  "note": "v59.46: 소유자 결정 반영 — 설정 가이드 퇴역, 차트 렌즈 R724, 옵션 질문 근거, 미국 스크리너 행 이어쓰기, 상대화 실험 현행 모델 재실행"
+}

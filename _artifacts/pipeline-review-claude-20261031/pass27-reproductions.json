@@ -1,0 +1,71 @@
+{
+  "positions": [
+    {
+      "ticker": "TEST",
+      "qty": 1,
+      "cost": 0
+    }
+  ],
+  "twice": {
+    "currency": null,
+    "dayCount": "actual-365",
+    "flowTiming": "end-of-period",
+    "coverage": {},
+    "valuations": [],
+    "transactions": [
+      {
+        "date": "2026-10-30",
+        "kind": "deposit",
+        "amount": 200
+      }
+    ]
+  },
+  "invalid": {
+    "currency": null,
+    "dayCount": "actual-365",
+    "flowTiming": "end-of-period",
+    "coverage": {
+      "trades": true,
+      "deposits-withdrawals": true,
+      "dividends-splits": true,
+      "fees-taxes": true,
+      "fx": true,
+      "valuation-cuts": true
+    },
+    "valuations": [],
+    "transactions": [
+      {
+        "date": "2026-02-30",
+        "kind": "deposit",
+        "amount": 100
+      }
+    ]
+  },
+  "missingStorage": {
+    "ok": true,
+    "added": true,
+    "listName": "관심 종목",
+    "watchlist": []
+  },
+  "malformed": "(list.tickers || []).map is not a function",
+  "cash": [
+    {
+      "currency": "USD",
+      "amount": 200
+    }
+  ],
+  "malformedCash": {
+    "balances": [],
+    "known": true,
+    "source": "balances"
+  },
+  "oversizedJournal": "Invalid time value",
+  "restore": [
+    {
+      "ok": true
+    },
+    {
+      "ok": true
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "version": "v59.46",
+  "date": "2026-10-31",
+  "changelog": [
+    "**공용 관측 부품 시범 (v59.46, 소유자 승인):** 시장·스크리너·테마 영역에서 지역 숫자 읽기 사본 21개와 날짜 형식 검사 사본 20곳을 지우고, src/domain/shared의 finiteNumber·readNumber·isFiniteNumber와 isoDay·stampDay·latestSessionRows로 모았다. 테마·한국 참여·한국 테마의 '가장 최근 종가 행만 남기기'도 한 함수가 맡는다. 새 게이트 shared-primitive-ratchet이 src/ 전체의 사본 수(지역 숫자 읽기 42, 날짜 검사 78)를 줄어들기만 하게 고정하고, 옮긴 영역은 0으로 묶는다. 소스 문자열 위치로 잘라 실행하던 desktop-continuity 검사는 공용 함수를 주입하도록 바꿨다. 순 코드 줄 수는 거의 변하지 않았다(한 줄 사본을 한 줄 import로 바꿈)."
+  ],
+  "note": "v59.46: 소유자 결정 반영 — 설정 가이드 퇴역, 차트 렌즈 R724, 옵션 질문 근거, 미국 스크리너 행 이어쓰기, 상대화 실험 현행 모델 재실행, 공용 관측 부품 시범"
+}

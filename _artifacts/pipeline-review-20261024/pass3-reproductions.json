@@ -1,0 +1,248 @@
+{
+  "evidence": "actual pure-domain function and extracted actual stagedDigest; no full QA or live/browser assertion",
+  "attribution": {
+    "aligned": {
+      "available": true,
+      "window": "3개월(63거래일, 10/23 종가까지)",
+      "totalPct": 10,
+      "blendedPct": 5,
+      "blendedLabel": "SPY",
+      "excessPct": 5,
+      "components": [
+        {
+          "id": "market",
+          "label": "지수",
+          "pct": 5
+        },
+        {
+          "id": "sector",
+          "label": "섹터",
+          "pct": 3
+        },
+        {
+          "id": "stock",
+          "label": "종목 선택",
+          "pct": 2
+        },
+        {
+          "id": "fx",
+          "label": "환율",
+          "pct": 0
+        }
+      ],
+      "excess": [
+        {
+          "id": "sector",
+          "label": "섹터",
+          "pct": 3
+        },
+        {
+          "id": "stock",
+          "label": "종목 선택",
+          "pct": 2
+        },
+        {
+          "id": "fx",
+          "label": "환율",
+          "pct": 0
+        },
+        {
+          "id": "cash",
+          "label": "현금",
+          "pct": 0
+        }
+      ],
+      "cashSharePct": 0,
+      "cashDeclared": true,
+      "coveredPct": 100,
+      "sectorMappedPct": 100,
+      "fxAsOf": null,
+      "fxHoldingsPct": 0,
+      "topStock": [
+        {
+          "symbol": "AAPL",
+          "stockPct": 2
+        }
+      ],
+      "skipped": []
+    },
+    "stale": {
+      "available": true,
+      "window": "3개월(63거래일, 10/23 종가까지)",
+      "totalPct": 10,
+      "blendedPct": 5,
+      "blendedLabel": "SPY",
+      "excessPct": 5,
+      "components": [
+        {
+          "id": "market",
+          "label": "지수",
+          "pct": 5
+        },
+        {
+          "id": "sector",
+          "label": "섹터",
+          "pct": 3
+        },
+        {
+          "id": "stock",
+          "label": "종목 선택",
+          "pct": 2
+        },
+        {
+          "id": "fx",
+          "label": "환율",
+          "pct": 0
+        }
+      ],
+      "excess": [
+        {
+          "id": "sector",
+          "label": "섹터",
+          "pct": 3
+        },
+        {
+          "id": "stock",
+          "label": "종목 선택",
+          "pct": 2
+        },
+        {
+          "id": "fx",
+          "label": "환율",
+          "pct": 0
+        },
+        {
+          "id": "cash",
+          "label": "현금",
+          "pct": 0
+        }
+      ],
+      "cashSharePct": 0,
+      "cashDeclared": true,
+      "coveredPct": 100,
+      "sectorMappedPct": 100,
+      "fxAsOf": null,
+      "fxHoldingsPct": 0,
+      "topStock": [
+        {
+          "symbol": "AAPL",
+          "stockPct": 2
+        }
+      ],
+      "skipped": []
+    },
+    "otherWindow": {
+      "available": true,
+      "window": "3개월(63거래일, 10/23 종가까지)",
+      "totalPct": 10,
+      "blendedPct": 5,
+      "blendedLabel": "SPY",
+      "excessPct": 5,
+      "components": [
+        {
+          "id": "market",
+          "label": "지수",
+          "pct": 5
+        },
+        {
+          "id": "sector",
+          "label": "섹터",
+          "pct": 45
+        },
+        {
+          "id": "stock",
+          "label": "종목 선택",
+          "pct": -40
+        },
+        {
+          "id": "fx",
+          "label": "환율",
+          "pct": 0
+        }
+      ],
+      "excess": [
+        {
+          "id": "sector",
+          "label": "섹터",
+          "pct": 45
+        },
+        {
+          "id": "stock",
+          "label": "종목 선택",
+          "pct": -40
+        },
+        {
+          "id": "fx",
+          "label": "환율",
+          "pct": 0
+        },
+        {
+          "id": "cash",
+          "label": "현금",
+          "pct": 0
+        }
+      ],
+      "cashSharePct": 0,
+      "cashDeclared": true,
+      "coveredPct": 100,
+      "sectorMappedPct": 100,
+      "fxAsOf": null,
+      "fxHoldingsPct": 0,
+      "topStock": [
+        {
+          "symbol": "AAPL",
+          "stockPct": -40
+        }
+      ],
+      "skipped": []
+    },
+    "dateOnlyChangeIgnored": true
+  },
+  "onDemand": {
+    "beforeRemoval": {
+      "symbol": "AAPL",
+      "model": "out-of-universe-read.v1",
+      "status": "in-universe"
+    },
+    "afterRemoval": {
+      "symbol": "AAPL",
+      "model": "out-of-universe-read.v1",
+      "status": "in-universe"
+    },
+    "listingChecks": 0,
+    "currentPeerSymbols": [
+      "MSFT"
+    ],
+    "trigger": "same row count and max session date, different universe membership"
+  },
+  "dart": {
+    "previousCount": 1,
+    "replacement": {
+      "schemaVersion": "kr-fundamentals.v1",
+      "generatedAt": "2026-10-25T06:49:41.180Z",
+      "source": "OpenDART (금융감독원 전자공시) 단일회사 주요계정",
+      "sourceKind": "T1_OFFICIAL",
+      "unit": "KRW",
+      "reportType": "사업보고서",
+      "count": 0,
+      "requested": 1,
+      "failed": [
+        {
+          "sym": "005930.KS",
+          "reason": "no-annual-report"
+        }
+      ],
+      "companies": {}
+    },
+    "evidence": "actual main in VM; every IO mocked; no public-data write or network request"
+  },
+  "candidate": {
+    "file": "js/aio-core.js",
+    "indexBytes": 1117322,
+    "stagedDigest": null,
+    "status": null,
+    "error": "ENOBUFS",
+    "capturedBytes": 1064960,
+    "limit": "candidate full-profile preconditions not run; verified helper failure and consequent comparison path only"
+  }
+}

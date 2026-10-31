@@ -1,0 +1,18 @@
+{
+  "version": "v59.46",
+  "date": "2026-10-31",
+  "r": null,
+  "p": {
+    "title": "옵션 질문이 아무 도구도 제공하지 않는 'options' 근거를 요구함",
+    "symptom": "옵션 화면이 퇴역(P1321)했는데 질문 계획기가 OPTIONS_ANALYSIS에 'options' 근거를 요구해, 그 근거에 매핑된 도구가 없어 옵션 질문이 시장 변동성 자료 없이 시세만으로 답했다(Codex P11 계열).",
+    "root_cause": "기능 퇴역 때 분류기의 근거 표만 갱신되지 않았다.",
+    "fix": "OPTIONS_ANALYSIS는 시장 스냅샷(VIX·풋콜 비율, 투자 심리)과 종목 시세를 근거로 쓴다. 종목별 옵션 체인·IV·GEX는 매일 정확한 무료 출처가 없어 수집하지 않는다는 결정을 주석에 남겼다.",
+    "violated_rule": "R3: 퇴역한 기능을 가리키는 소비자 경로를 남기지 않는다.",
+    "prevention": "pipeline-semantics ai 케이스 P11-OPTIONS-INTENT.",
+    "verification": "node scripts/ci-pipeline-semantics-check.mjs --only ai PASS; node scripts/ci-ai-intelligence-contract-check.mjs PASS."
+  },
+  "changelog": [
+    "**옵션 질문 근거 ({P}):** 옵션 질문은 VIX·풋콜 비율과 종목 시세로 답한다. 종목별 옵션 체인은 수집하지 않는다."
+  ],
+  "note": "v59.46: 소유자 결정 반영 — 설정 가이드 퇴역, 차트 렌즈 R724, 옵션 질문 근거, 미국 스크리너 행 이어쓰기, 상대화 실험 현행 모델 재실행"
+}

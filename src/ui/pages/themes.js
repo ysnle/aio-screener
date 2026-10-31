@@ -25,7 +25,7 @@ import { benchmarkReturns, basisOf } from '../components/theme-strength.js';
 import { readMarketRegime } from '../components/market-regime.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { renderNextSteps } from '../components/page-flow.js';
-import { signedText, directionOf } from '../../domain/shared/number.js';
+import { signedText, directionOf, finiteNumber as finite } from '../../domain/shared/number.js';
 // v58.80: a change that rounds to zero is drawn in the text colour, not rising red or falling blue.
 const dirColor = (value, digits = 1) => { const dir = directionOf(value, digits); return value == null ? 'var(--text-muted)' : dir === 'up' ? 'var(--dir-up)' : dir === 'down' ? 'var(--dir-down)' : 'var(--text-primary)'; };
 import { withTopicParticle } from '../../domain/content/korean-particle.js';
@@ -33,6 +33,7 @@ import { refreshSharedArtifact, screenerRowsState } from '../../data/shared-arti
 import { DATA_STATE_CHIPS } from '../../domain/content/data-state.js';
 import { requestConsensusEstimates, CONSENSUS_KEY } from '../../data/consensus-estimates.js';
 import { asOfChip, setAsOf } from '../components/section-frame.js';
+import { isoDay, stampDay, latestSessionRows } from '../../domain/shared/session-date.js';
 
 const finiteOrNull = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
 // Published screener rows by symbol (the store's rows; ETFs included), for the period bars and the member tables.
@@ -63,10 +64,6 @@ function zoneKey(root, item) {
   return reading?.border ? 'Border' : String(reading?.quadrant || item?.quadrant || '');
 }
 
-function finite(value) {
-  if (value == null || value === '' || typeof value === 'boolean') return null;
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
-}
 
 function activeView(root) {
   const value = String(root?._rrgViewMode || 'sectors');
@@ -85,14 +82,14 @@ function shortSession(date) {
 
 function usCloseSession(root) {
   const basis = String(root?._serverDataMeta?.rotationHistory?.latestCompletedSession || '');
-  return /^\d{4}-\d{2}-\d{2}$/.test(basis) ? basis : '';
+  return isoDay(basis) || '';
 }
 
 function krCloseSession(rows = []) {
   const dates = (rows || [])
     .filter((row) => /^\d{6}\.(KS|KQ)$/i.test(String(row?.sym || row?.symbol || '')))
-    .map((row) => String(row?.observedAt || '').slice(0, 10))
-    .filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date))
+    .map((row) => stampDay(row?.observedAt))
+    .filter(Boolean)
     .sort();
   return dates.length ? dates[dates.length - 1] : '';
 }
@@ -1365,9 +1362,9 @@ function memberTable(documentRef, root, members, { onSort, showGroup = false, ar
   const lead = make('p', ranked.length >= 4
     ? `3개월 기준 앞선 종목 ${ranked.slice(0, 3).map((m) => `${name(m)}(${signedText(m.row.ret3m, 1)}%)`).join(', ')}, 뒤처진 종목 ${ranked.slice(-2).reverse().map((m) => `${name(m)}(${signedText(m.row.ret3m, 1)}%)`).join(', ')}. 50일선 위 ${members.filter((m) => finiteOrNull(m.row?.pctSma50) != null && m.row.pctSma50 > 0).length}/${members.filter((m) => finiteOrNull(m.row?.pctSma50) != null).length}종목.`
     : '구성 종목의 기간 수익률 기록이 적어 앞선·뒤처진 종목을 나누지 않습니다.', 'thp-detail-body');
-  const sessions = members.map((member) => String(member.row?.factorSessionDate || '').slice(0, 10)).filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date)).sort();
+  const latestMemberSession = latestSessionRows(members, (member) => stampDay(member.row?.factorSessionDate)).basis;
   // v58.79: the close date stays; how to read the columns is its hover.
-  const basis = make('p', basisDate || (sessions.length ? `${shortSession(sessions.at(-1))} 종가 기준` : '종가 기준일 미확인'), 'thp-perf-basis');
+  const basis = make('p', basisDate || (latestMemberSession ? `${shortSession(latestMemberSession)} 종가 기준` : '종가 기준일 미확인'), 'thp-perf-basis');
   basis.title = `열 제목을 누르면 정렬, 거래량 배수 = 최근 거래량 ÷ 20일 평균, ${roleMap ? "역할은 아래 '테마 안에서 종목 고르는 법'의 정의" : `3개월 순위는 이 표 안에서의 위치(기록 ${ranked.length}종목)`}`;
   if (sorted.length > 18) {
     const more = make('button', root._aioMemberAll ? '정렬 순 상위 15종목만 보기' : `전체 ${sorted.length}종목 보기`, 'theme-strength-more thp-member-more');
@@ -1389,7 +1386,7 @@ function themeCatalysts(documentRef, root, symbols, rerender) {
   const lines = [];
   if (Array.isArray(calendar?.earnings)) {
     const hour = { bmo: '장전', amc: '장후', dmh: '장중' };
-    const due = calendar.earnings.filter((row) => wanted.has(String(row?.symbol || '').toUpperCase()) && /^\d{4}-\d{2}-\d{2}$/.test(String(row?.date || '')))
+    const due = calendar.earnings.filter((row) => wanted.has(String(row?.symbol || '').toUpperCase()) && isoDay(row?.date))
       .sort((a, b) => a.date.localeCompare(b.date) || a.symbol.localeCompare(b.symbol));
     const span = calendar.weekStart && calendar.weekEnd ? `${shortSession(calendar.weekStart)}~${shortSession(calendar.weekEnd)}` : '이번 달력 주간';
     lines.push(due.length ? `실적 발표 예정(${span}, 구성 종목): ${due.map((row) => `${row.symbol} ${shortSession(row.date)}${hour[row.hour] ? ` ${hour[row.hour]}` : ''}`).join(', ')}.` : `${span} 실적 발표 예정인 구성 종목은 달력에 없습니다.`);
@@ -1481,11 +1478,12 @@ function renderThemeDetailTemperature({ documentRef, root, store, themeId = null
   if (pct == null) body.textContent = '시세 대기 — 구성종목 가격이 확인되면 당일 등락을 표시합니다.';
   else if (pct >= 3) body.textContent = '당일 +3% 이상 — 관측된 당일 등락 구간입니다. 과열·추세 지속은 별도 기간 근거가 필요합니다.';
   else if (pct >= 1) body.textContent = '당일 +1% 이상 — 관측된 당일 등락 구간입니다. 시계열 모멘텀·자금 유입은 별도 근거가 필요합니다.';
-  else if (pct >= 0) body.textContent = '당일 보합 — 관측된 당일 등락 구간입니다. 방향은 추가 가격·거래량으로 확인합니다.';
-  else if (pct >= -2) body.textContent = '당일 하락 — 관측된 당일 등락 구간입니다. 원인(수급·로테이션)은 별도 근거가 필요합니다.';
+  // v59.45 R1-02: the flat band is symmetric (-1% < pct < +1%); +0.9% read 보합 while -0.05% read 하락.
+  else if (pct > -1) body.textContent = '당일 보합 — 관측된 당일 등락 구간입니다. 방향은 추가 가격·거래량으로 확인합니다.';
+  else if (pct > -2) body.textContent = '당일 -1% 이하 — 관측된 당일 등락 구간입니다. 원인(수급·로테이션)은 별도 근거가 필요합니다.';
   else body.textContent = '당일 -2% 이하 — 관측된 당일 등락 구간입니다. 시계열 하락·구조 훼손은 별도 기간 근거가 필요합니다.';
   body.className = 'thp-detail-body';
-  body.style.color = pct == null ? 'var(--text-muted)' : pct >= 0 ? 'var(--text-secondary)' : 'var(--data-amber)';
+  body.style.color = pct == null ? 'var(--text-muted)' : pct > -1 ? 'var(--text-secondary)' : 'var(--data-amber)';
   host.replaceChildren(heading, body);
   host.hidden = false;
 }
@@ -1640,7 +1638,8 @@ export function themeDayLine(detail) {
   const pct = finite(detail?.pct);
   if (pct == null) return '당일 등락: 시세 대기';
   const priced = (detail.leaders || []).map((symbol) => ({ symbol, pct: detailQuote(detail, symbol)?.pct })).filter((row) => finite(row.pct) != null).sort((a, b) => b.pct - a.pct);
-  const up = priced.filter((row) => row.pct > 0).length;
+  // v59.45 R1-02: a member printed as 0.0% is not counted as rising — the count follows the printed sign (directionOf).
+  const up = priced.filter((row) => directionOf(row.pct, 1) === 'up').length;
   const ends = priced.length >= 2 ? `, 최강 ${priced[0].symbol} ${signedText(priced[0].pct, 1)}%·최약 ${priced.at(-1).symbol} ${signedText(priced.at(-1).pct, 1)}%` : '';
   return `당일 ${signedText(pct, 1)}%${priced.length ? `, ${priced.length}종목 중 ${up}종목 상승(${Math.round(up / priced.length * 100)}%)` : ''}${ends}`;
 }

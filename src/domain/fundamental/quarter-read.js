@@ -3,11 +3,11 @@
 // public-data/sec-fiscal-history.json (`quarters`, USD millions) and compares each quarter with the same
 // quarter a year earlier — the comparison that removes seasonality. A derived fourth quarter (FY − Q1..Q3)
 // is labelled; no quarter is estimated beyond that.
-import { signedText } from '../shared/number.js';
-const finite = (value) => (value === '' || value == null || !Number.isFinite(Number(value)) ? null : Number(value));
+import { signedText, readNumber as finite } from '../shared/number.js';
+import { isIsoDay } from '../shared/session-date.js';
 
 export function parseQuarterHistory(text) {
-  return String(text || '').split(';').map((part) => part.split(':')).filter((cells) => /^\d{4}-\d{2}-\d{2}$/.test(cells[0] || ''))
+  return String(text || '').split(';').map((part) => part.split(':')).filter((cells) => isIsoDay(cells[0] || ''))
     .map(([periodEnd, revenue, netIncome, basis]) => ({
       periodEnd,
       revenue: finite(revenue) == null ? null : finite(revenue) * 1e6,
@@ -32,10 +32,14 @@ export function buildQuarterRead(quarters = []) {
     return { ...q, revenueYoy, margin };
   });
   const latest = withYoy[withYoy.length - 1];
-  const yoys = withYoy.map((q) => q.revenueYoy).filter((value) => value != null);
+  // v59.45 (pipeline review P19 quarter-read): the trend reads the latest three quarters themselves — consecutive (about
+  // a quarter apart) and each with a year-ago value. Dropping the gaps first read non-adjacent quarters as a run.
+  const last3 = withYoy.slice(-3);
+  const consecutive = last3.length === 3 && last3.every((q, i) => i === 0 || ((Date.parse(q.periodEnd) - Date.parse(last3[i - 1].periodEnd)) / 86400000 >= 60 && (Date.parse(q.periodEnd) - Date.parse(last3[i - 1].periodEnd)) / 86400000 <= 120));
+  const yoys = consecutive && last3.every((q) => q.revenueYoy != null) ? last3.map((q) => q.revenueYoy) : [];
   // v57.55 review (E1-03): comparing only the last and the third-last value called MRNA's +260% → +2.1% "빨라졌다".
   // A direction is named only when both of the last two steps agree; otherwise the series is uneven.
-  const [a, b, c] = yoys.slice(-3);
+  const [a, b, c] = yoys;
   const trend = yoys.length >= 3
     ? (b > a + 3 && c > b + 3 ? '전년 대비 성장률이 최근 분기로 갈수록 빨라졌습니다'
       : b < a - 3 && c < b - 3 ? '전년 대비 성장률이 최근 분기로 갈수록 느려졌습니다'

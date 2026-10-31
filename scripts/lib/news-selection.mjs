@@ -5,7 +5,7 @@
 import { reportIsUnconfirmed } from '../../src/domain/news/report-verification.js';
 import { round } from './producer-math.mjs';
 import { _fetchRss, _fetchRssWithRetry } from './producer-http.mjs';
-import { newsArticleKey, issuerNameMentioned, NEWS_INTRADAY_MAX } from '../../src/domain/news/stories.js';
+import { newsArticleKey, issuerNameMentioned, isNewsRevisionRow, NEWS_INTRADAY_MAX } from '../../src/domain/news/stories.js';
 
 // ── WO-6 (ops): 서버측 뉴스 백스톱 (브라우저 CORS 프록시 전멸 대비) ──
 // 왜: 클라이언트 뉴스는 제3자 프록시(allorigins 등, 자주 죽음)에 의존. 서버(Actions)는 CORS가
@@ -501,6 +501,9 @@ export function selectNewsBundle(items, krItems) {
   // the same headline) used two of the slots; the higher-scored one is kept because candidates arrive score-ordered.
   const pickedGrams = [];
   const sameEvent = (it) => {
+    // v59.45 (pipeline review P20-REVISION-01): a correction of a picked story is its newer version, not a second
+    // outlet of it — "Correction: … fell 50%" is not dropped as the same event as "… rose 50%".
+    if (isNewsRevisionRow(it)) return false;
     const mine = newsHeadlineSignature(it.title);
     return pickedGrams.some((other) => newsSameEvent(mine, other));
   };
@@ -524,6 +527,8 @@ export function selectNewsBundle(items, krItems) {
       tier: it.tier, score: it.score, selectionReason: it.selectionReason,
       feedSource: it.feedSource,
       ...(it.verification ? { verification: it.verification } : {}),
+      ...(it.correctionOf ? { correctionOf: it.correctionOf } : {}), ...(it.retractionOf ? { retractionOf: it.retractionOf } : {}),
+      ...(it.revisionType ? { revisionType: it.revisionType } : isNewsRevisionRow(it) ? { revisionType: /retract/i.test(it.title) || /철회/.test(it.title) ? 'retraction' : 'correction' } : {}),
       sourceTierLabel: serverNewsSourceTierLabel(it.tier),
       contentDepth: 'headline-only',
       eventTime: isFinite(it.ts) && it.ts > 0 ? new Date(it.ts).toISOString() : null,
@@ -536,7 +541,7 @@ export function selectNewsBundle(items, krItems) {
     });
     if (it.carried) carriedRows.add(out[out.length - 1]);
   }
-  // 한국 뉴스 최대 3슬롯 먼저 예약
+  // 한국 뉴스 최대 KR_SLOTS(5)슬롯 먼저 예약
   // Live audit 2026-10-21: three of forty slots for the Korean session (22 in-window Korean items, 0 placed from the Korea
   // feed on a +3.3% sidecar day). US leads; Korea keeps five reserved seats.
   const KR_SLOTS = 5;
@@ -673,7 +678,7 @@ export async function fetchNews(nowMs = Date.now(), { carry = null } = {}) {
   // look productive because its earlier articles are carried until the cycle rolls over.
   for (const row of out) { if (carriedRows.has(row)) continue; const health = feedHealth.find((h) => h.source === row.feedSource); if (health) health.selected += 1; }
   Object.defineProperty(out, 'feedHealth', { value: feedHealth, enumerable: false });
-  Object.defineProperty(out, 'intraday', { value: selectNewsIntraday(intradayCandidates, { cycleEndMs: cycle.endMs, canonical: out }), enumerable: false });
+  Object.defineProperty(out, 'intraday', { value: selectNewsIntraday(intradayCandidates, { cycleEndMs: cycle.endMs, nowMs, canonical: out }), enumerable: false }); // v59.45: the run's clock, as the cycle
   Object.defineProperty(out, 'slotPool', { value: slotPool, enumerable: false }); // scripts/lib/market-timeline.mjs
   return out;
 }
@@ -748,7 +753,9 @@ export function tickerNewsHeadlineNamesIssuer(title, sym, name) {
   const S = String(sym || '').trim().toUpperCase();
   if (!text || !S) return null;
   const esc = _escTickerRe(S);
-  if (new RegExp(`\\$${esc}(?![A-Za-z0-9])|\\(\\s*(?:(?:NYSE|NASDAQ|Nasdaq|NYSEARCA|AMEX|OTC)\\s*:\\s*)?${esc}\\s*(?::\\s*(?:NYSE|NASDAQ|Nasdaq|NYSEARCA|AMEX|OTC)\\s*)?\\)|(?:NYSE|NASDAQ|Nasdaq|NYSEARCA|AMEX)\\s*:\\s*${esc}(?![A-Za-z0-9])`).test(text)) return 'symbol';
+  // v59.45 (pipeline review P20-ISSUER-01): "$BRK.B" names the class-B line, not BRK; a sentence-final "$NVDA." still counts.
+  const end = '(?![A-Za-z0-9]|\\.[A-Za-z0-9])';
+  if (new RegExp(`\\$${esc}${end}|\\(\\s*(?:(?:NYSE|NASDAQ|Nasdaq|NYSEARCA|AMEX|OTC)\\s*:\\s*)?${esc}\\s*(?::\\s*(?:NYSE|NASDAQ|Nasdaq|NYSEARCA|AMEX|OTC)\\s*)?\\)|(?:NYSE|NASDAQ|Nasdaq|NYSEARCA|AMEX)\\s*:\\s*${esc}${end}`).test(text)) return 'symbol';
   // A ticker that is also a word or common abbreviation ("This AI Stock", "AI's power demand", "KEY stocks") does not
   // name its issuer by "SYM stock" / "SYM's"; those tickers need $SYM, (SYM) or an exchange prefix.
   if (S.length >= 2 && !TICKER_NEWS_WORD_SYMBOLS.has(S) && new RegExp(`(?:^|[^A-Za-z0-9$])${esc}(?=\\s+(?:Stock|stock|Shares|shares|Earnings|earnings)\\b|'s\\b)`).test(text)) return 'symbol';
@@ -842,13 +849,15 @@ function _tickerNewsTimestampMs(value) {
 // supplies `ts` derived from pubDate, but accepting either field keeps this boundary fail-closed
 // when an upstream parser omits one representation or returns an invalid date.
 export function deriveTickerNewsLineage(items, fetchedAt = new Date().toISOString()) {
+  const fetchedTimestamp = _tickerNewsTimestampMs(fetchedAt);
+  // v59.45 (pipeline review P20 기타): a publication stamp after the fetch (beyond the memo's one-hour allowance) is not
+  // an observation; it cannot move the observed date forward.
   const timestamps = (Array.isArray(items) ? items : []).flatMap((item) => [
     _tickerNewsTimestampMs(item?.ts),
     _tickerNewsTimestampMs(item?.pubDate)
-  ]).filter((timestamp) => timestamp != null);
+  ]).filter((timestamp) => timestamp != null && (fetchedTimestamp == null || timestamp <= fetchedTimestamp + 3600000));
   const latest = timestamps.length ? Math.max(...timestamps) : null;
   const newsObservedAt = latest == null ? null : new Date(latest).toISOString();
-  const fetchedTimestamp = _tickerNewsTimestampMs(fetchedAt);
   const newsFetchedAt = fetchedTimestamp == null ? null : new Date(fetchedTimestamp).toISOString();
   return { newsObservedAt, newsTs: newsObservedAt, newsFetchedAt };
 }

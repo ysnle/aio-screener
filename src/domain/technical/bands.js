@@ -9,7 +9,7 @@
 import { EXTENSION_BANDS } from '../screener/setup-profile.js';
 import { RULES } from '../rules/thresholds.js';
 import { extensionMultiple, extensionStateFor } from './definitions.js';
-import { signedText } from '../shared/number.js';
+import { signedText, readNumber as finite } from '../shared/number.js';
 
 /** |distance to the 50-day line| below this many average daily ranges = 부근 (neither side). v57.84: RULES constant. */
 export const NEAR_LINE_ADR = RULES.technical.nearLineAdr;
@@ -18,7 +18,6 @@ export const RECENT_DROP_ADR = RULES.technical.recentDropAdr;
 /** Entry-ready needs the price at least this many daily ranges over its 50-day line (just past the 부근 band). */
 export const ENTRY_MIN_ADR_OVER_50 = NEAR_LINE_ADR;
 
-const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
 const signed = (value, digits = 1, unit = '%') => signedText(value, digits, unit);
 
 /** pct ÷ ADR to one decimal, or null when either is missing or ADR is not positive (technical/definitions.js). */
@@ -53,11 +52,14 @@ export function bufferedTrend(row) {
   const adr = finite(row?.adrPct);
   const drop = recentDrop(row);
   const line200 = s200 >= 0 ? `200일선 위(${signed(s200)})` : `200일선 아래(${signed(s200)})`;
+  // v59.45 R4-03: the 50-day band needs only the ADR. With the five-session return missing the row skipped it and a close
+  // 0.05% over the line read "50일선은 회복(+0.1%)" — the 0.01% call v57.81 removed. The band is tested first.
+  if (adr != null && adr > 0 && Math.abs(s50) < NEAR_LINE_ADR * adr) {
+    return { id: 'near50', tone: 'neutral', label: '50일선 부근', drop,
+      text: `50일선과 ${signed(s50)} 차이로 일평균 변동폭(${adr.toFixed(1)}%)의 ${NEAR_LINE_ADR}배 안 — 50일선 위인지 아래인지 아직 가를 수 없는 자리이고, ${line200}입니다${drop?.broken ? `. ${recentDropText(drop)}` : ''}` };
+  }
   if (adr == null || !(adr > 0) || drop == null) {
     if (s50 >= 0 && s200 >= 0) return { id: 'unconfirmed', tone: 'neutral', label: '50·200일선 위', drop, text: `50일선(${signed(s50)})과 200일선(${signed(s200)}) 위 — 일평균 변동폭 또는 최근 5거래일 자료가 없어 50일선과의 여유와 단기 낙폭은 판단하지 않습니다` };
-  } else if (Math.abs(s50) < NEAR_LINE_ADR * adr) {
-    return { id: 'near50', tone: 'neutral', label: '50일선 부근', drop,
-      text: `50일선과 ${signed(s50)} 차이로 일평균 변동폭(${adr.toFixed(1)}%)의 ${NEAR_LINE_ADR}배 안 — 50일선 위인지 아래인지 아직 가를 수 없는 자리이고, ${line200}입니다${drop.broken ? `. ${recentDropText(drop)}` : ''}` };
   } else if (s50 >= 0 && s200 >= 0 && drop.broken) {
     return { id: 'up-shaken', tone: 'neutral', label: '상승 추세 속 단기 급락', drop,
       text: `50일선(${signed(s50)})과 200일선(${signed(s200)}) 위지만 ${recentDropText(drop)} — 이동평균 위치는 위쪽이어도 최근 한 주의 낙폭이 이 종목의 보통 움직임보다 큽니다` };

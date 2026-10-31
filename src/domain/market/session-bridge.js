@@ -50,11 +50,12 @@ export function marketClock(nowMs = Date.now()) {
     const next = nextOpenDate('US', ny.date);
     us = { phase: 'closed', label: usDay.reason === 'holiday' ? '미국 휴장일' : '미국 주말 휴장', futuresOpen: !usWeekendClosed(nowMs), nextOpen: next };
   } else {
-    const close = minuteOf(usDay.close);
-    const openMs = nowMs + (570 - ny.minute) * MINUTE;
+    // v59.45 (P16-TIME-01): open and close both come from the calendar day (a special session moves both).
+    const open = minuteOf(usDay.open), close = minuteOf(usDay.close);
+    const openMs = nowMs + (open - ny.minute) * MINUTE;
     const closeMs = nowMs + (close - ny.minute) * MINUTE;
-    if (ny.minute < 240) us = { phase: 'overnight', label: '미국 장 시작 전(선물만 거래)', openMs, opensIn: 570 - ny.minute };
-    else if (ny.minute < 570) us = { phase: 'pre', label: '미국 프리마켓', openMs, opensIn: 570 - ny.minute };
+    if (ny.minute < 240) us = { phase: 'overnight', label: '미국 장 시작 전(선물만 거래)', openMs, opensIn: open - ny.minute };
+    else if (ny.minute < open) us = { phase: 'pre', label: '미국 프리마켓', openMs, opensIn: open - ny.minute };
     else if (ny.minute < close) us = { phase: 'regular', label: usDay.halfDay ? '미국 정규장(조기 폐장일)' : '미국 정규장', closeMs, closesIn: close - ny.minute };
     else if (ny.minute < 1200) us = { phase: 'post', label: '미국 애프터마켓', closeMs };
     // CME stops from 17:00 ET Friday to the 18:00 ET Sunday reopen (v58.74 usWeekendClosed).
@@ -66,8 +67,8 @@ export function marketClock(nowMs = Date.now()) {
   if (krDay.status === 'unknown') kr = { phase: 'unknown', label: '한국 거래 일정 미확인' };
   else if (krDay.status === 'closed') kr = { phase: 'closed', label: krDay.reason === 'holiday' ? '한국 휴장일' : '한국 주말 휴장', nextOpen: nextOpenDate('KR', kst.date) };
   else {
-    const close = minuteOf(krDay.close);
-    if (kst.minute < 540) kr = { phase: 'before', label: '한국장 개장 전', opensIn: 540 - kst.minute };
+    const open = minuteOf(krDay.open), close = minuteOf(krDay.close);
+    if (kst.minute < open) kr = { phase: 'before', label: '한국장 개장 전', opensIn: open - kst.minute };
     else if (kst.minute < close) kr = { phase: 'regular', label: '한국 정규장', closesIn: close - kst.minute };
     // P1533: the close is final 30 minutes after 15:30 (closing auction and publication).
     else if (kst.minute < close + 30) kr = { phase: 'closing', label: '한국장 마감 직후(종가 확정 대기)' };
@@ -93,25 +94,43 @@ function quoteMap(snapshot) {
 function reading(quotes, id, nowMs) {
   const row = quotes.get(id);
   if (!row) return null;
-  const observedMs = Date.parse(row.observedAt || '');
   const change = Number.isFinite(row.changePct) ? row.changePct : null;
-  return { id, value: row.value, change, observedAt: row.observedAt || null, ageMin: Number.isFinite(observedMs) ? Math.max(0, Math.round((nowMs - observedMs) / MINUTE)) : null };
+  return { id, value: row.value, change, observedAt: row.observedAt || null, ageMin: ageMinutes(row.observedAt, nowMs) };
+}
+
+// v59.45 (P16-TIME-03): minutes since an observation; a missing, invalid or future time (beyond a 5-minute clock skew)
+// is unknown (null), not '0분 전'.
+const CLOCK_SKEW_MIN = 5;
+function ageMinutes(at, nowMs) {
+  const ms = Date.parse(at || '');
+  if (!Number.isFinite(ms)) return null;
+  const age = Math.round((nowMs - ms) / MINUTE);
+  return age < -CLOCK_SKEW_MIN ? null : Math.max(0, age);
 }
 
 const sideOf = (value, threshold = BRIDGE_RULES.movePct) => value == null ? null : value >= threshold ? 1 : value <= -threshold ? -1 : 0;
 
 /** Candidate drivers of the latest Korean session, each checked against the same day's numbers. */
-export function koreaLinks({ kospi, kosdaq, nasdaq: nasdaqRow, semis, nikkei: nikkeiRow, hangseng: hangsengRow, usdkrw: usdkrwRow }, { krLeaders = null } = {}) {
+// A reading of the same KST date as the KOSPI observation (null when either time is missing or invalid).
+const sameKstDate = (row, krDate) => {
+  const ms = Date.parse(row?.observedAt || '');
+  return krDate && Number.isFinite(ms) && kstParts(ms).date === krDate ? row : null;
+};
+
+export function koreaLinks({ kospi, kosdaq: kosdaqRow, nasdaq: nasdaqRow, semis: semisRow, nikkei: nikkeiRow, hangseng: hangsengRow, usdkrw: usdkrwRow }, { krLeaders = null } = {}) {
   if (kospi?.change == null) return [];
   // Only cues the Korean session could have traded on: the US session completed before the KOSPI observation, and Asia
   // rows of the same KST date. A US session that ran after the Korean close (06:00 KST next morning) is not a cause.
   const kospiMs = Date.parse(kospi.observedAt || '');
   const usBefore = Number.isFinite(kospiMs) ? latestCompletedUsSession(kospiMs, { requirePrevious: false })?.date : null;
-  const nasdaq = nasdaqRow?.observedAt && usBefore && nyParts(Date.parse(nasdaqRow.observedAt)).date === usBefore ? nasdaqRow : null;
+  // v59.45 (P16-TIME-02): the semiconductor ETF is held to the same completed US session as the Nasdaq, and the KOSDAQ
+  // to the KOSPI's own KST date — a reading from another session is left out instead of explaining this one.
+  const usSame = (row) => { const ms = Date.parse(row?.observedAt || ''); return usBefore && Number.isFinite(ms) && nyParts(ms).date === usBefore ? row : null; };
+  const nasdaq = usSame(nasdaqRow), semis = usSame(semisRow);
   const krDate = Number.isFinite(kospiMs) ? kstParts(kospiMs).date : null;
-  const sameDay = (row) => (row?.observedAt && kstParts(Date.parse(row.observedAt)).date === krDate ? row : null);
+  const sameDay = (row) => sameKstDate(row, krDate);
   // The won trades around the clock: only a reading of the same KST date as the Korean session is a candidate.
-  const nikkei = sameDay(nikkeiRow), hangseng = sameDay(hangsengRow), usdkrw = sameDay(usdkrwRow);
+  const kosdaq = sameDay(kosdaqRow), nikkei = sameDay(nikkeiRow), hangseng = sameDay(hangsengRow), usdkrw = sameDay(usdkrwRow);
   const kr = kospi.change;
   const krSide = sideOf(kr);
   const links = [];
@@ -170,7 +189,8 @@ export function buildSessionBridge({ nowMs = Date.now(), snapshot = null, attrib
   const r = { es: read('ES=F'), nq: read('NQ=F'), kospi: read('^KS11'), kosdaq: read('^KQ11'), nasdaq: read('^IXIC'), semis: read('SMH'), nikkei: read('^N225'), hangseng: read('^HSI'), usdkrw: read('KRW=X'), wti: read('CL=F'), vix: read('^VIX'), spx: read('^GSPC') };
   const lines = [];
   // Korea's latest session (date in KST) with its candidate drivers.
-  const krDate = r.kospi?.observedAt ? kstParts(Date.parse(r.kospi.observedAt)).date : null;
+  const kospiMs = Date.parse(r.kospi?.observedAt || '');
+  const krDate = Number.isFinite(kospiMs) ? kstParts(kospiMs).date : null;
   // v59.42: the contributors of the latest Korean session (completed sessions only: a live session's screener rows
   // are still the previous close) and of the last completed US session.
   const krLive = clock.kr.phase === 'regular' && krDate === clock.kstDate;
@@ -182,7 +202,8 @@ export function buildSessionBridge({ nowMs = Date.now(), snapshot = null, attrib
     indexName: 'S&P 500', sessionCloseMs: lastUsSession.closeMs }) : null;
   const links = koreaLinks(r, { krLeaders });
   const supported = links.filter((link) => link.verdict === 'supports').map((link) => link.label);
-  const koreaHead = r.kospi?.change != null ? `한국장 ${md(krDate)} ${krLive ? `진행 중(${kstClock(Date.parse(r.kospi.observedAt))} 관측)` : '마감'} 코스피 ${pct(r.kospi.change)}${r.kosdaq?.change != null ? `, 코스닥 ${pct(r.kosdaq.change)}` : ''}` : null;
+  const kosdaqSame = sameKstDate(r.kosdaq, krDate);
+  const koreaHead = r.kospi?.change != null ? `한국장 ${md(krDate)} ${krLive ? `진행 중(${kstClock(Date.parse(r.kospi.observedAt))} 관측)` : '마감'} 코스피 ${pct(r.kospi.change)}${kosdaqSame?.change != null ? `, 코스닥 ${pct(kosdaqSame.change)}` : ''}` : null;
   // The face names the leaders and their dated item in words; the numbers sit in the folded '한국 고유 요인' line.
   const leaderNames = krLeaders ? ` 지수를 끈 종목: ${krLeaders.pieces.map((piece) => `${piece.name}${piece.dated?.kind === 'brief' ? `(${piece.dated.text})` : ''}`).join(', ')}.` : '';
   const koreaRead = !links.length ? (leaderNames.trim() || null) : (supported.length ? `맞아떨어지는 근거: ${supported.join(' · ')}${supported.length > 1 ? ' — 한 가지 원인이 아니라 여러 요인이 겹친 날입니다' : ''}.`
@@ -194,7 +215,8 @@ export function buildSessionBridge({ nowMs = Date.now(), snapshot = null, attrib
   const futuresLive = !usWeekendClosed(nowMs);
   // A row without an observation time is not presented as fresh.
   const futuresStale = futuresLive && futures.length > 0 && (futuresAge == null || futuresAge > BRIDGE_RULES.staleMin);
-  const futuresLine = futures.length ? `${futures.map(([name, row]) => `${name} ${signedText(row.change, 2, '%')}`).join(', ')} (직전 정산 대비${futuresAge != null ? `, ${ageText(futuresAge)} 관측` : ', 관측 시각 없음'}${futuresStale ? ' — 갱신 지연, 지금 값과 다를 수 있음' : ''})` : null;
+  // An unknown observation time is not called a delay: it is said to be unconfirmed.
+  const futuresLine = futures.length ? `${futures.map(([name, row]) => `${name} ${signedText(row.change, 2, '%')}`).join(', ')} (직전 정산 대비${futuresAge != null ? `, ${ageText(futuresAge)} 관측` : ', 관측 시각 확인 안 됨'}${futuresStale ? (futuresAge != null ? ' — 갱신 지연, 지금 값과 다를 수 있음' : ' — 지금 값과 다를 수 있음') : ''})` : null;
   if (futuresLine) lines.push(futuresLine);
   // How the Korean close and the US futures relate, and what decides the next Korean session.
   const krSide = sideOf(r.kospi?.change, 1);
@@ -214,7 +236,7 @@ export function buildSessionBridge({ nowMs = Date.now(), snapshot = null, attrib
   // Oil → inflation/rates chain when oil moved enough to matter for the rates read.
   const oil = r.wti?.change != null && Math.abs(r.wti.change) >= BRIDGE_RULES.oilPct
     ? `유가(WTI) ${pct(r.wti.change)} — ${r.wti.change < 0 ? '물가·금리 부담을 덜어 주는 쪽' : '물가·금리 부담을 키우는 쪽'}이라 금리와 성장주 흐름을 같이 봅니다.` : null;
-  const snapshotAgeMin = Number.isFinite(Date.parse(snapshot?.generatedAt || '')) ? Math.max(0, Math.round((nowMs - Date.parse(snapshot.generatedAt)) / MINUTE)) : null;
+  const snapshotAgeMin = ageMinutes(snapshot?.generatedAt, nowMs);
   return {
     schemaVersion: SESSION_BRIDGE_VERSION,
     available: !!(koreaHead || futuresLine || usLeaders),

@@ -242,11 +242,13 @@ function faceValue(row) {
 }
 
 // The five-session change of each axis's headline series, from the same completed closes the axis reads.
-function fiveDayChange(id, inputs, asOf) {
+export function fiveDayChange(id, inputs, asOf) {
   const series = (field) => buildCloseSeries(inputs?.history || [], field, { through: asOf });
   const delta = (field, kind) => {
     const points = series(field);
-    const last = points.at(-1), base = points.at(-6);
+    // v59.45 (R1-01): five sessions back on the exchange calendar, not five rows — a missing close (dxy 10/27) made
+    // the '5일' change span six sessions (10/21→10/29).
+    const last = points.at(-1), base = sessionPointBack(points, 5);
     if (!last || !base || !(base.value > 0 || kind !== 'pct')) return null;
     const value = kind === 'pct' ? (last.value / base.value - 1) * 100 : kind === 'bp' ? (last.value - base.value) * 100 : last.value - base.value;
     const unit = kind === 'pct' ? '%' : kind === 'bp' ? 'bp' : '%p';
@@ -549,7 +551,8 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
 function koreaIndexParts(history) {
   const part = (field, title) => {
     const series = buildKoreaIndexSeries(history, field);
-    const last = series.at(-1), prev = series.at(-2), prior5 = series.at(-6);
+    // v59.45 (R1-01): one and five KRX sessions back, counted on the calendar (a missing close no longer stretches them).
+    const last = series.at(-1), prev = sessionPointBack(series, 1, 'KR'), prior5 = sessionPointBack(series, 5, 'KR');
     if (!last) return null;
     const pctOf = (base) => base?.value > 0 ? (last.value / base.value - 1) * 100 : null;
     const signed = (v) => v == null ? null : `${signedText(v, 1)}%`;

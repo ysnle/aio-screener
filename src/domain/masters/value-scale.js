@@ -5,8 +5,8 @@
 // this. The check here compares each filing's implied price per share with the other filers of the same CUSIP
 // and period. A filing whose comparable rows sit ~1,000× apart is put under review: its dollar amounts and
 // weights are withheld rather than multiplied by a guessed factor. Pure; no DOM.
+import { readNumber as finite } from '../shared/number.js';
 
-const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
 const median = (values) => {
   const sorted = [...values].sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);

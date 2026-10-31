@@ -1,7 +1,12 @@
 import { screenerMarket } from '../screener/market-scope.js';
 import { latestCompletedKrSession, latestCompletedUsSession } from '../market/market-calendar.js';
 import { recentMove, weeklyNoiseFromVol } from './recent-check.js';
-import { signedText } from '../shared/number.js';
+import { signedText, readNumber as finite } from '../shared/number.js';
+import { latestSessionRows } from '../shared/session-date.js';
+import { readRowNumber } from '../../data/contracts/screener.js';
+
+// v59.46 boundary contract: member values are read through the screener readiness contract, not row[key].
+const value = (row, key) => readRowNumber(row, key);
 // P1417 (owner request 2026-10-03, open-source comparison): sub-theme relative strength. The
 // reference (xang1234/stock-screener group rankings) averages per-stock 1-99 RS ratings built from
 // fixed horizon weights (0.2/0.3/0.2/0.15/0.15). Those weights are a composite rating, which this
@@ -20,7 +25,6 @@ export const MIN_GROUP_MEMBERS = 3;
 // not take a rank, so it never heads the order (1위) or closes it (최하위) in the lead sentence.
 export const HEADLINE_MIN_MEMBERS = 4;
 
-const finite = (value) => (value == null || value === '' ? null : Number.isFinite(Number(value)) ? Number(value) : null);
 
 export function median(values) {
   const list = values.filter((value) => value != null).sort((a, b) => a - b);
@@ -35,11 +39,11 @@ export function median(values) {
 // traded value, so an unmeasured large name is never silently left out.
 export const HEAVYWEIGHT_COUNT = 3;
 export function heavyweightsOf(members) {
-  const sized = members.filter((row) => finite(row.dollarVolume30d) != null && finite(row.ret1m) != null);
+  const sized = members.filter((row) => value(row, 'dollarVolume30d') != null && value(row, 'ret1m') != null);
   // Six or more members: with fewer, three names are most of the group and say nothing apart from its median.
   if (members.length < HEAVYWEIGHT_COUNT * 2 || sized.length !== members.length) return null;
   return [...sized].sort((a, b) => finite(b.dollarVolume30d) - finite(a.dollarVolume30d)).slice(0, HEAVYWEIGHT_COUNT)
-    .map((row) => ({ sym: String(row.sym).toUpperCase(), name: row.name || '', ret1m: finite(row.ret1m) }));
+    .map((row) => ({ sym: String(row.sym).toUpperCase(), name: row.name || '', ret1m: value(row, 'ret1m') }));
 }
 
 /** One line when the largest-traded members moved apart from the group median (5%p or more over 1 month); else ''. */
@@ -84,10 +88,10 @@ export function buildGroupStrength({ themes = [], rows = [], sortKey = 'ret3m', 
       const tickers = [...new Set((sub?.tickers || []).map((sym) => String(sym).toUpperCase()))].filter(sym => screenerMarket(bySymbol.get(sym) || { sym }) === market);
       if (!tickers.length) continue;
       const stale = (row) => row?.factorQuality?.stale === true || String(row?.factorQuality?.status || '').toUpperCase() === 'STALE';
-      const members = tickers.map((sym) => bySymbol.get(sym)).filter((row) => row && !stale(row) && finite(row[key]) != null);
+      const members = tickers.map((sym) => bySymbol.get(sym)).filter((row) => row && !stale(row) && value(row, key) != null);
       const id = `${theme.id}:${sub.name}`;
       if (members.length < MIN_GROUP_MEMBERS) { excluded.push({ id, themeName: theme.nameKr, name: sub.name, members: members.length, listed: tickers.length, constituents: tickers }); continue; }
-      const above = members.filter((row) => finite(row.pctSma50) != null);
+      const above = members.filter((row) => value(row, 'pctSma50') != null);
       const leader = [...members].sort((a, b) => finite(b[key]) - finite(a[key]))[0];
       // P1623: period comparisons require one known completed-session basis.
       const dates = [...new Set(members.map((row) => row.factorSessionDate).filter(Boolean))];
@@ -97,7 +101,7 @@ export function buildGroupStrength({ themes = [], rows = [], sortKey = 'ret3m', 
       const memberSet = new Set(members.map((row) => String(row.sym).toUpperCase()));
       const rankedMembers = tickers.map((sym) => {
         const row = bySymbol.get(sym);
-        return { sym, name: row?.name || '', ret5d: finite(row?.ret5d), ret10d: finite(row?.ret10d), ret1m: finite(row?.ret1m), ret3m: finite(row?.ret3m), ret6m: finite(row?.ret6m), pctSma50: finite(row?.pctSma50), basis: row?.factorSessionDate || null, included: memberSet.has(sym) };
+        return { sym, name: row?.name || '', ret5d: value(row, 'ret5d'), ret10d: value(row, 'ret10d'), ret1m: value(row, 'ret1m'), ret3m: value(row, 'ret3m'), ret6m: value(row, 'ret6m'), pctSma50: value(row, 'pctSma50'), basis: row?.factorSessionDate || null, included: memberSet.has(sym) };
       }).sort((a, b) => (a.included !== b.included ? (a.included ? -1 : 1) : a[key] == null ? (b[key] == null ? 0 : 1) : b[key] == null ? -1 : b[key] - a[key]));
       let rank = null, previousValue = null;
       rankedMembers.forEach((member, index) => {
@@ -110,20 +114,20 @@ export function buildGroupStrength({ themes = [], rows = [], sortKey = 'ret3m', 
         members: members.length, listed: tickers.length, smallSample: members.length < HEADLINE_MIN_MEMBERS,
         constituents: tickers.map((sym) => ({ sym, name: bySymbol.get(sym)?.name || '', included: members.some((row) => String(row.sym).toUpperCase() === sym) })),
         rankedMembers, comparisonAligned, basis: comparisonAligned ? dates[0] : null,
-        ret1m: comparisonAligned ? median(members.map((row) => finite(row.ret1m))) : null,
-        ret3m: comparisonAligned ? median(members.map((row) => finite(row.ret3m))) : null,
-        ret6m: comparisonAligned ? median(members.map((row) => finite(row.ret6m))) : null,
+        ret1m: comparisonAligned ? median(members.map((row) => value(row, 'ret1m'))) : null,
+        ret3m: comparisonAligned ? median(members.map((row) => value(row, 'ret3m'))) : null,
+        ret6m: comparisonAligned ? median(members.map((row) => value(row, 'ret6m'))) : null,
         // v57.81: the last five sessions and the members' typical volatility, so a 1-month verdict can be checked against
         // the week (src/domain/themes/recent-check.js). Same aligned-session rule as the windows above.
-        ret5d: comparisonAligned ? median(members.map((row) => finite(row.ret5d))) : null,
-        ret10d: comparisonAligned ? median(members.map((row) => finite(row.ret10d))) : null,
-        vol: comparisonAligned ? median(members.map((row) => finite(row.vol))) : null,
-        above50Pct: above.length ? Math.round(above.filter((row) => finite(row.pctSma50) > 0).length / above.length * 100) : null,
+        ret5d: comparisonAligned ? median(members.map((row) => value(row, 'ret5d'))) : null,
+        ret10d: comparisonAligned ? median(members.map((row) => value(row, 'ret10d'))) : null,
+        vol: comparisonAligned ? median(members.map((row) => value(row, 'vol'))) : null,
+        above50Pct: above.length ? Math.round(above.filter((row) => value(row, 'pctSma50') > 0).length / above.length * 100) : null,
         leader: comparisonAligned && leader ? { sym: String(leader.sym).toUpperCase(), name: leader.name || '', value: finite(leader[key]) } : null,
         heavyweights: comparisonAligned ? heavyweightsOf(members) : null,
         // v58.74 (audit): a theme row pools its members instead of taking the median of group medians — a 6-name
         // nuclear group set the whole 39-name utilities theme to 3m -21.4% / 50일선 위 17% (members: -10.6% / 44%).
-        memberStats: comparisonAligned ? members.map((row) => ({ sym: String(row.sym).toUpperCase(), ret1m: finite(row.ret1m), ret3m: finite(row.ret3m), ret6m: finite(row.ret6m), ret5d: finite(row.ret5d), vol: finite(row.vol), pctSma50: finite(row.pctSma50) })) : null
+        memberStats: comparisonAligned ? members.map((row) => ({ sym: String(row.sym).toUpperCase(), ret1m: value(row, 'ret1m'), ret3m: value(row, 'ret3m'), ret6m: value(row, 'ret6m'), ret5d: value(row, 'ret5d'), vol: value(row, 'vol'), pctSma50: value(row, 'pctSma50') })) : null
       });
     }
   }
@@ -159,11 +163,9 @@ export function buildGroupStrength({ themes = [], rows = [], sortKey = 'ret3m', 
   const staleRow = (row) => row?.factorQuality?.stale === true || String(row?.factorQuality?.status || '').toUpperCase() === 'STALE';
   for (const theme of Array.isArray(themes) ? themes : []) {
     const tickers = [...new Set((theme?.subThemes || []).flatMap((sub) => sub?.tickers || []).map((sym) => String(sym).toUpperCase()))].filter(sym => screenerMarket(bySymbol.get(sym) || { sym }) === market);
-    const measured = tickers.map((sym) => bySymbol.get(sym)).filter((row) => row && finite(row[key]) != null);
-    const fresh = measured.filter((row) => !staleRow(row) && /^\d{4}-\d{2}-\d{2}$/.test(String(row.factorSessionDate || '')));
-    const basis = fresh.map((row) => row.factorSessionDate).sort().at(-1) || null;
-    const members = fresh.filter((row) => row.factorSessionDate === basis);
-    themeSummary[theme.id] = { id: theme.id, name: theme.nameKr, members: members.length, excluded: measured.length - members.length, basis, value: members.length >= MIN_GROUP_MEMBERS ? median(members.map((row) => finite(row[key]))) : null };
+    const measured = tickers.map((sym) => bySymbol.get(sym)).filter((row) => row && value(row, key) != null);
+    const { basis, rows: members } = latestSessionRows(measured.filter((row) => !staleRow(row)));
+    themeSummary[theme.id] = { id: theme.id, name: theme.nameKr, members: members.length, excluded: measured.length - members.length, basis, value: members.length >= MIN_GROUP_MEMBERS ? median(members.map((row) => value(row, key))) : null };
   }
   return { model: GROUP_STRENGTH_MODEL_VERSION, market, sortKey: key, windowLabel: GROUP_WINDOWS[key], total, benchmark: bench, groups: out, excluded, themes: themeSummary, latestBasis, expectedSession, sessionCurrent: expectedSession ? latestBasis === expectedSession : null };
 }

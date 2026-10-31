@@ -50,7 +50,9 @@ export function normalizeNews(raw = {}) {
     topicReviewRequired: !item?.articleTopic,
     score: finite(item?.score),
     tier: finite(item?.tier),
-    _tgChannel: item?._tgChannel === true
+    // v59.45 (R2-02): producers mark a Telegram item with its channel slug (telegram-direct, aio-data); `=== true`
+    // turned the slug into false, so channel posts passed the briefing TG exclusion and tier-4 demotion as articles.
+    _tgChannel: typeof item?._tgChannel === 'string' && item._tgChannel.trim() ? item._tgChannel.trim() : item?._tgChannel === true
   })) : [];
   return Object.freeze({
     items: Object.freeze(items),

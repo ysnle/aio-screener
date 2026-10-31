@@ -1,4 +1,4 @@
-import { finiteFact, sameFiscalPeriod, isPriorAnnualPeriod, FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from './period.js';
+import { finiteFact as finite, sameFiscalPeriod, isPriorAnnualPeriod, FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from './period.js';
 import { reconcileSecEarningsBasis } from './sec-earnings.js';
 
 export const SEC_REPORT_MODEL_VERSION = 'sec-report.v3';
@@ -10,9 +10,6 @@ export const SEC_FRESHNESS_POLICY = Object.freeze({
   futureSkewDays: 2
 });
 
-function finite(value) {
-  return finiteFact(value);
-}
 
 const METRIC_DEFINITIONS = Object.freeze([
   // P1591: Korean labels; ROE is shown once, in the fiscal reading (average equity, the standard basis) —
@@ -122,8 +119,17 @@ export function selectSecFundamentalsAsOf(record = {}, asOf, { priceAsOf = null 
     result.roeBasis = priorEquity > 0 ? 'average-equity' : 'year-end-equity';
     result.roe = Math.round(result.netIncome / (priorEquity > 0 ? (result.equity + priorEquity) / 2 : result.equity) * 1000) / 10;
   }
+  // v59.45 (pipeline review P19-PIT-01): the as-of read kept native-currency amounts but dropped the currency and priced
+  // them with a USD close (EUR earnings × USD price → PE 100). The currency and form travel with the result, and a price
+  // ratio is formed only where the current read forms one: USD amounts, a domestic share basis, a share count not
+  // flagged off-scale.
+  const reportingCurrency = String(record?.pit?.currency || record?.reportingCurrency || 'USD').toUpperCase();
+  result.reportingCurrency = reportingCurrency;
+  const foreignShareBasis = /^(20-F|40-F)/.test(String(record?.form || revenue.form || ''));
+  const priceable = reportingCurrency === 'USD' && !foreignShareBasis && record?.sharesCheck !== 'scale-mismatch';
+  if (!priceable) result.priceRatioHeld = reportingCurrency !== 'USD' ? 'reporting-currency-differs' : foreignShareBasis ? 'foreign-share-basis-unverified' : 'scale-mismatch';
   const price = finite(priceAsOf);
-  const marketCap = price > 0 && result.sharesOutstanding > 0 ? price * result.sharesOutstanding : null;
+  const marketCap = priceable && price > 0 && result.sharesOutstanding > 0 ? price * result.sharesOutstanding : null;
   if (marketCap && result.netIncome > 0) result.pe = Math.round(marketCap / result.netIncome * 100) / 100;
   if (marketCap && result.equity > 0) result.pb = Math.round(marketCap / result.equity * 100) / 100;
   ['equity', 'sharesOutstanding', 'revGrowth', 'margin', 'roe', 'pe', 'pb'].forEach((key) => {

@@ -7,7 +7,7 @@
 // excluded from the state and the synthesis, and a missing input never reads as calm or stress.
 import { deepDiveFold } from './deep-dive.js';
 import { SENTIMENT_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
-import { alignInput, alignMarketInputs, alignmentLabel, buildCloseSeries, creditState, isUsable } from '../../domain/briefing/market-read.js';
+import { alignInput, alignMarketInputs, alignmentLabel, buildCloseSeries, creditState, isUsable, sessionPointBack } from '../../domain/briefing/market-read.js';
 import { createTrendChart, seriesChange } from './trend-chart.js';
 import { RULES } from '../../domain/rules/thresholds.js';
 import { fearGreedBand as publishedFearGreedBand } from '../../domain/sentiment/metrics.js';
@@ -18,17 +18,14 @@ import { computeCompositeFearGreed } from '../../domain/sentiment/composite-fear
 import { el } from './dom.js';
 import { noteFold } from './section-frame.js';
 import { splitReading } from './market-regime.js';
-import { signedText } from '../../domain/shared/number.js';
+import { signedText, readNumber as finite } from '../../domain/shared/number.js';
 import { shortDate } from '../../domain/content/date-labels.js';
+import { isIsoDay } from '../../domain/shared/session-date.js';
 
 // AAII published long-run averages (since 1987; https://www.aaii.com/sentimentsurvey): bullish 37.5%, neutral 31.5%, bearish 31.0%.
 const AAII_AVERAGE = Object.freeze({ bull: 37.5, bear: 31.0 });
 const EXCLUDED = Object.freeze({ label: '판정 제외', tone: 'unknown' });
 
-function finite(value) {
-  const number = Number(value);
-  return value != null && value !== '' && Number.isFinite(number) ? number : null;
-}
 
 // P1534: the band comes from the one domain function (CNN integer edges).
 // v57.50 D19 (coordinator decision): a sentiment level (F&G, put/call, AAII) is shown as a level in the neutral tone —
@@ -50,7 +47,7 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   const fgSeries = fgAll.slice(-126);
   // Audit 2026-10-14: the HY card gets the same six-month trend as the other charted cards (official OAS, percent -> bp).
   const hySeries = (macroHistory?.series?.hyOas?.observations || []).map((row) => ({ date: String(Array.isArray(row) ? row[0] : row?.date || '').slice(0, 10), value: finite(Array.isArray(row) ? row[1] : row?.value) }))
-    .filter((point) => point.value != null && /^\d{4}-\d{2}-\d{2}$/.test(point.date) && (!basis || point.date <= basis)).map((point) => ({ date: point.date, value: point.value * 100 })).slice(-126);
+    .filter((point) => point.value != null && isIsoDay(point.date) && (!basis || point.date <= basis)).map((point) => ({ date: point.date, value: point.value * 100 })).slice(-126);
   const vix = buildCloseSeries(history, 'vix', { through: basis });
   const vix3m = new Map(buildCloseSeries(history, 'vix3m', { through: basis }).map((point) => [point.date, point.value]));
   const ratioSeries = vix.filter((point) => vix3m.get(point.date)).map((point) => ({ date: point.date, value: point.value / vix3m.get(point.date) })).slice(-126);
@@ -143,7 +140,7 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   else synthesis = 'F&G가 기준일에 없어 가격 쪽 심리는 판단하지 않고, 개인 설문만 아래에 적습니다.';
   // Audit 2026-10-14: the summary carries the direction of the mood (F&G over 20 sessions), and the AAII reading joins the
   // same paragraph instead of a separate footnote — one reading, level then direction then the survey.
-  const fgThen = fgSeries.length > 20 ? fgSeries[fgSeries.length - 21].value : null;
+  const fgThen = sessionPointBack(fgSeries, 20)?.value ?? null; // v59.45 (R1-01): sessions, not rows
   const fg20 = fg != null && fgThen != null ? Math.round(fg) - Math.round(fgThen) : null;
   const direction = fg20 == null ? '' : Math.abs(fg20) < 5 ? ` F&G는 20거래일 전과 비슷한 수준(${fg20 >= 0 ? '+' : ''}${fg20})입니다.`
     : ` F&G는 20거래일 전보다 ${Math.abs(fg20)} ${fg20 < 0 ? '낮아져 비관' : '높아져 낙관'} 쪽으로 움직였습니다.`;
@@ -153,7 +150,7 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   const fg1 = fg != null && fgPrev != null ? Math.round(fg) - Math.round(fgPrev) : null;
   // v57.81 (audit 2026-10-15): F&G 44 -> 30 on 10/14 (1일 -14, 5일 -12) read "20거래일 전과 비슷한 수준(+3)". A one- or
   // five-session move of RULES.sentiment.namedMovePt or more is always named.
-  const fgBack5 = fgSeries.length >= 6 ? fgSeries[fgSeries.length - 6].value : null;
+  const fgBack5 = sessionPointBack(fgSeries, 5)?.value ?? null;
   const fg5 = fg != null && fgBack5 != null ? Math.round(fg) - Math.round(fgBack5) : null;
   const named = RULES.sentiment.namedMovePt;
   const bigMove = fg1 != null && Math.abs(fg1) >= named ? ['직전 기록', fg1] : fg5 != null && Math.abs(fg5) >= named ? ['5거래일 전', fg5] : null;

@@ -7,6 +7,11 @@
 export const EVENT_BRIEFS_SCHEMA = 'event-briefs.v1';
 
 import { MARKET_MOVERS, MOVER_BY_SYMBOL } from './market-movers.js';
+import { resolveMarketCalendarSession } from '../market/market-calendar.js';
+import { isIsoDay, hasLeadingIsoDay } from '../shared/session-date.js';
+
+/** How many times a call or press-conference summary is searched for before it is left as not found. */
+export const CALL_SEARCH_MAX_ATTEMPTS = 2;
 
 export { MARKET_MOVERS, MOVER_BY_SYMBOL };
 
@@ -87,6 +92,30 @@ export function unverifiedNumbers(text, numbers) {
 
 const squash = (text) => normalizeSourceText(text).toLowerCase();
 
+// v59.45 (pipeline review P21-NUMBER-01): the digits alone let "$5 million … declined 5 percent" stand behind "$5 billion,
+// 매출이 5% 증가". An amount's scale word and a change's direction must also agree with the quote. Still a check that the
+// item says what its quote says — not a parse of the accounts (period, GAAP basis and line item stay the model's reading).
+const SCALE_OF = Object.freeze({ trillion: 't', tn: 't', 조: 't', billion: 'b', bn: 'b', b: 'b', 십억: 'b', million: 'm', mn: 'm', m: 'm', 백만: 'm', 억: 'e', thousand: 'k', k: 'k', 천: 'k', 만: 'w' });
+const SCALED_RE = /(\d[\d,]*(?:\.\d+)?)\s*(trillion|billion|million|thousand|tn|bn|mn|조|십억|억|백만|천|만|[bmk](?![a-z]))/gi;
+function scaledAmounts(text) {
+  return [...String(text || '').matchAll(SCALED_RE)].map((m) => `${Number(m[1].replace(/,/g, ''))}${SCALE_OF[m[2].toLowerCase()] || m[2].toLowerCase()}`);
+}
+const UP_RE = /\b(?:increase[sd]?|increasing|rose|rise[sn]?|grew|grow(?:th|s)?|up|gain(?:ed|s)?|higher|jump(?:ed|s)?|surge[sd]?)\b|증가|상승|늘(?=[어었])|성장|개선|확대/i;
+const DOWN_RE = /\b(?:decrease[sd]?|decreasing|declin(?:e|ed|es|ing)|fell|fall(?:s|en)?|down|drop(?:ped|s)?|lower|loss(?:es)?|shr[ai]nk|contract(?:ed|ion)?)\b|감소|하락|줄(?=[어었])|축소|악화|적자/i;
+function directionOf(text) {
+  const up = UP_RE.test(text), down = DOWN_RE.test(text);
+  return up && !down ? 'up' : down && !up ? 'down' : null;
+}
+/** Why `body` says something its quote does not (a scale or a direction), or null. */
+export function quoteMeaningMismatch(body, quote) {
+  const quoteScaled = new Set(scaledAmounts(quote));
+  const wrongScale = scaledAmounts(body).filter((amount) => !quoteScaled.has(amount));
+  if (wrongScale.length) return { reason: 'unit-not-in-quote', numbers: wrongScale.slice(0, 6) };
+  const said = directionOf(body), quoted = directionOf(quote);
+  if (said && quoted && said !== quoted) return { reason: 'direction-not-in-quote' };
+  return null;
+}
+
 /**
  * Keeps an AI item only when its quote is found in the source and every figure in its text appears in that quote and in
  * the source. Returns { kept, dropped } with the drop reason for the ledger.
@@ -103,6 +132,8 @@ export function verifyQuotedItems(items, sourceText, { textKeys = ['label', 'val
     const quoteNumbers = sourceNumberSet(quote);
     const missing = unverifiedNumbers(body, numbers).concat(numberTokens(body).filter((token) => !quoteNumbers.has(token) && !quoteNumbers.has(token.replace(/\.0+$/, ''))));
     if (missing.length) { dropped.push({ reason: 'number-not-in-source', numbers: [...new Set(missing)].slice(0, 6), text: body.slice(0, 120) }); continue; }
+    const mismatch = quoteMeaningMismatch(body, quote);
+    if (mismatch) { dropped.push({ ...mismatch, text: body.slice(0, 120) }); continue; }
     kept.push(item);
   }
   return { kept, dropped };
@@ -163,11 +194,25 @@ export function formatKrw(value, unit = 1) {
 
 // ---- vs expectations -------------------------------------------------------------------------------------------------
 // A reported figure is compared with the provider estimate only when its text parses to one amount.
+// v59.45 (pipeline review P21-AMOUNT-01): the whole text must be one amount — "$5 million to $6 million", a negative or
+// a bracketed loss, or an unknown unit is not compared (null). "bn"/"B", "mn"/"M", "tn"/"T", "K" are the usual short units.
+const USD_SCALE = Object.freeze({ trillion: 1e12, tn: 1e12, t: 1e12, billion: 1e9, bn: 1e9, b: 1e9, million: 1e6, mn: 1e6, mm: 1e6, m: 1e6, thousand: 1e3, k: 1e3, '': 1 });
 export function parseUsdAmount(value) {
-  const m = String(value ?? '').replace(/,/g, '').match(/\$\s*(\d+(?:\.\d+)?)\s*(trillion|billion|million|thousand)?/i);
+  const m = String(value ?? '').replace(/,/g, '').trim().match(/^(?:US)?\$\s*(\d+(?:\.\d+)?)\s*([A-Za-z]*)\.?$/);
   if (!m) return null;
-  const scale = { trillion: 1e12, billion: 1e9, million: 1e6, thousand: 1e3 }[String(m[2] || '').toLowerCase()] || 1;
-  return Number(m[1]) * scale;
+  const scale = USD_SCALE[m[2].toLowerCase()];
+  // A table figure without its unit ("$1,902,418" from a thousands column, "$ 173.0" from a millions column) is not
+  // one amount either: the published -99.9% / -100% "예상 대비" lines came from those.
+  return scale && m[2] !== '' ? Number(m[1]) * scale : null;
+}
+
+/** "$1.23" / "-$0.12" / "$(0.12)" → a per-share amount; anything else (a range, text, a unit) → null. */
+export function parseUsdPerShare(value) {
+  const text = String(value ?? '').replace(/,/g, '').trim();
+  const bracket = text.match(/^\$?\s*\(\s*\$?\s*(\d+(?:\.\d+)?)\s*\)$/);
+  if (bracket) return -Number(bracket[1]);
+  const m = text.match(/^(-)?\s*\$?\s*(-)?\s*(\d+(?:\.\d+)?)$/);
+  return m ? (m[1] || m[2] ? -1 : 1) * Number(m[3]) : null;
 }
 
 export function surprisePct(actual, estimate) {
@@ -197,7 +242,9 @@ export function recentBriefs(artifact, { nowMs = Date.now(), days = 3, limit = 4
 /** The latest brief for one symbol (종목 page), within ~one quarter. */
 export function latestBriefFor(artifact, symbol, { nowMs = Date.now(), days = 100 } = {}) {
   const key = String(symbol || '').toUpperCase();
-  return briefsOf(artifact).filter((brief) => String(brief.symbol || '').toUpperCase() === key && nowMs - publishedMs(brief) <= days * DAY)
+  // v59.45 (pipeline review P21-TIME-01): the same gate as 오늘 — no pending brief, nothing published in the future.
+  return briefsOf(artifact).filter((brief) => String(brief.symbol || '').toUpperCase() === key && brief.status !== 'pending'
+    && publishedMs(brief) <= nowMs + 3600000 && nowMs - publishedMs(brief) <= days * DAY)
     .sort((a, b) => publishedMs(b) - publishedMs(a))[0] || null;
 }
 
@@ -226,15 +273,24 @@ export function homeBriefTiers(artifact, { nowMs = Date.now(), coreLimit = 4, no
 // ---- the price after the report ----------------------------------------------------------------------------------
 const EXCHANGE_ZONE = Object.freeze({ US: ['America/New_York', 16], KR: ['Asia/Seoul', 15.5] });
 
-/** The exchange date of a release and whether it came after that day's close (a date-only filing counts as before). */
+/**
+ * The exchange date of a release and whether it came after that day's close (a date-only filing counts as before).
+ * v59.45 (pipeline review P21-TIME-01): a date-only stamp is the filed date as written (EDGAR and DART dates are exchange
+ * dates; "2026-10-29T00:00:00Z" read in New York was 10/28), and the close is that day's registered close (13:00 on a
+ * half day), not always 16:00.
+ */
 export function releaseSession(publishedAt, { market = 'US', dateOnly = false } = {}) {
   const ms = Date.parse(publishedAt || '');
   if (!Number.isFinite(ms)) return null;
-  const [zone, closeHour] = EXCHANGE_ZONE[market] || EXCHANGE_ZONE.US;
+  if (dateOnly && hasLeadingIsoDay(String(publishedAt))) return { releaseDate: String(publishedAt).slice(0, 10), afterClose: false };
+  const [zone, defaultClose] = EXCHANGE_ZONE[market] || EXCHANGE_ZONE.US;
   const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
     .formatToParts(new Date(ms)).map((part) => [part.type, part.value]));
   const hour = Number(parts.hour) + Number(parts.minute) / 60;
-  return { releaseDate: `${parts.year}-${parts.month}-${parts.day}`, afterClose: !dateOnly && hour >= closeHour };
+  const releaseDate = `${parts.year}-${parts.month}-${parts.day}`;
+  const day = resolveMarketCalendarSession({ market: market === 'KR' ? 'KR' : 'US', date: releaseDate });
+  const closeHour = day.status === 'open' && /^\d{2}:\d{2}$/.test(day.close || '') ? Number(day.close.slice(0, 2)) + Number(day.close.slice(3)) / 60 : defaultClose;
+  return { releaseDate, afterClose: !dateOnly && hour >= closeHour };
 }
 
 const pctOf = (close, base) => Math.round((close / base - 1) * 1000) / 10;
@@ -245,7 +301,7 @@ const pctOf = (close, base) => Math.round((close / base - 1) * 1000) / 10;
  */
 export function earningsReaction(bars, session, { settleSessions = 5, extended = null, releaseMs = null } = {}) {
   if (!session?.releaseDate) return null;
-  const rows = (Array.isArray(bars) ? bars : []).filter((row) => /^\d{4}-\d{2}-\d{2}$/.test(row?.date || '') && Number(row.close) > 0)
+  const rows = (Array.isArray(bars) ? bars : []).filter((row) => isIsoDay(row?.date || '') && Number(row.close) > 0)
     .sort((a, b) => a.date.localeCompare(b.date));
   const beforeOrOn = (row) => (session.afterClose ? row.date <= session.releaseDate : row.date < session.releaseDate);
   const base = rows.filter(beforeOrOn).at(-1);

@@ -72,6 +72,8 @@ export function isNasdaqCommonStock(row) {
   return true;
 }
 
+const financialStatusOf = (current, listed, prior) => (current ? listed.financialStatus || null : listed.financialStatus || listed.nasdaqFinancialStatus || prior.nasdaqFinancialStatus || null);
+
 export function parseNasdaqListed(text) {
   const { header, rows, fileCreatedAt } = parsePipeDirectory(text);
   for (const column of ['Symbol', 'Security Name', 'Test Issue', 'ETF']) {
@@ -221,7 +223,9 @@ export function buildExtendedUniverse({ iwm = null, iwmError = null, nasdaq = nu
       membership,
       exchange: listed.exchange || russell.exchange || prior.exchange || null,
       // v58.71 (pipeline audit): a RETAINED Nasdaq source hands back previous rows, which store the status as nasdaqFinancialStatus.
-      ...((listed.financialStatus || listed.nasdaqFinancialStatus || prior.nasdaqFinancialStatus) ? { nasdaqFinancialStatus: listed.financialStatus || listed.nasdaqFinancialStatus || prior.nasdaqFinancialStatus } : {})
+      // v59.45 (pipeline review P5-DATA-11): a CURRENT directory is the authority — its 'N' (normal) clears a previous
+      // deficiency flag instead of the old 'D' being carried forward; the previous status is kept only for a retained source.
+      ...(financialStatusOf(nasdaqSource.status === 'CURRENT', listed, prior) ? { nasdaqFinancialStatus: financialStatusOf(nasdaqSource.status === 'CURRENT', listed, prior) } : {})
     });
   }
   const anyUsable = [r2000Source, nasdaqSource].some((source) => source.status !== 'UNAVAILABLE');

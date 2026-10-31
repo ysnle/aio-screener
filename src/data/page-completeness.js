@@ -3,8 +3,12 @@
 // now comes from the native screener slice instead of the _aioScreenerLoadState global the data.json loader and the
 // screener projection both wrote. The router writes the result onto each screen as data-aio-vertical-slice-* attributes.
 export const PAGE_COMPLETENESS_VERSION = 'wp10.page-completeness.v1';
-const ISSUE_STATUSES = ['missing', 'loading', 'failed', 'unavailable', 'error', 'stale', 'zero', 'partial', 'blocked', 'reference', 'neutral'];
+// P28-COMPLETENESS-01: 'empty' was listed as an empty state but never raised as an issue, so a required producer that
+// published nothing read as loaded. 'unknown' = loaded, but its time or coverage could not be confirmed.
+const ISSUE_STATUSES = ['missing', 'loading', 'failed', 'unavailable', 'error', 'stale', 'zero', 'empty', 'unknown', 'partial', 'blocked', 'reference', 'neutral'];
 const EMPTY_STATUSES = ['missing', 'zero', 'empty'];
+// A browser clock a few minutes behind the producer's is normal; a success time further ahead is not an observation.
+const FUTURE_SKEW_MS = 5 * 60 * 1000;
 
 const isoMs = (ms) => (ms && Number.isFinite(Number(ms)) ? new Date(Number(ms)).toISOString() : null);
 
@@ -15,7 +19,9 @@ export function screenerLoadState(screener = null) {
   const state = screener && typeof screener === 'object' ? screener : {};
   const metadata = state.metadata && typeof state.metadata === 'object' ? state.metadata : {};
   const hasArtifact = ['current', 'partial', 'ready'].includes(state.status);
-  if (hasArtifact) return { status: metadata.universeFreshnessStatus === 'stale' ? 'partial' : metadata.backtest ? 'ready' : 'partial', detail: null };
+  // P28-COMPLETENESS-01: the provider marks a stale artifact or stale factors 'partial' (data/providers/screener.js); a
+  // backtest object does not make that slice ready.
+  if (hasArtifact) return { status: state.status === 'partial' || metadata.universeFreshnessStatus === 'stale' ? 'partial' : metadata.backtest ? 'ready' : 'partial', detail: null };
   if (!state.status || (state.status === 'unavailable' && !state.updatedAt && !state.revision && !Object.keys(metadata).length)) {
     return { status: 'loading', detail: 'native screener state pending' };
   }
@@ -37,16 +43,21 @@ export function producerState(producer, { meta = {}, refreshSchedule = null, scr
   };
   const load = screenerLoadState(screener);
   const screenerReady = load.status === 'ready';
+  // P28-COMPLETENESS-01: the screener rows are dated by the artifact's own asOf (slice updatedAt), not by data.json's
+  // generation, and cover artifactRows of universe when the slice reports both; otherwise coverage stays unknown.
+  const screenerMeta = screener?.metadata && typeof screener.metadata === 'object' ? screener.metadata : {};
+  const screenerAt = screener?.updatedAt || null;
+  const screenerCoverage = Number(screenerMeta.universe) > 0 && Number.isFinite(Number(screenerMeta.artifactRows))
+    ? Math.min(100, (Number(screenerMeta.artifactRows) / Number(screenerMeta.universe)) * 100) : null;
   const direct = {
     // P1116: derive the citation from the producer's publication flag; data.json.quotes is published empty (P715).
     quotes: meta.generatedAt && Number(meta.symbolsOk) > 0 ? { status: Number(meta.symbolsFail || 0) ? 'partial' : 'loaded', coverage: (Number(meta.symbolsOk) / Math.max(1, Number(meta.symbolsOk) + Number(meta.symbolsFail || 0))) * 100, lastSuccessfulAt: meta.generatedAt, evidenceIds: [meta.quotesPublished === true ? 'data.json:quotes' : 'market-snapshot.json:quotes'], sourceKind: 'delayed-eod' } : null,
     news: meta.generatedAt && meta.newsOk ? { status: 'loaded', coverage: 100, lastSuccessfulAt: meta.generatedAt, evidenceIds: ['data.json:news'], sourceKind: 'server-cache' } : null,
     fred: meta.generatedAt && meta.fredFetchOk ? { status: 'loaded', coverage: 100, lastSuccessfulAt: meta.generatedAt, evidenceIds: ['data.json:macro:fred'], sourceKind: 'official-primary' } : null,
     sentiment: meta.generatedAt && meta.fearGreedOk ? { status: 'loaded', coverage: 100, lastSuccessfulAt: meta.generatedAt, evidenceIds: ['data.json:fearGreed'], sourceKind: 'delayed' } : null,
-    // The projected load state never carried a coverage or generation time: breadth reads 100%, the artifact's coverage
-    // stays unknown (NaN, as before), and both take the data.json generation time.
-    breadth: screenerReady ? { status: 'loaded', coverage: 100, lastSuccessfulAt: meta.generatedAt, evidenceIds: ['screener.json:breadth'], sourceKind: 'delayed-eod' } : null,
-    screenerArtifact: screenerReady ? { status: 'loaded', coverage: NaN, lastSuccessfulAt: meta.generatedAt, evidenceIds: ['screener.json'], sourceKind: 'delayed-eod', allowedUse: 'research-relative-ranking-only' } : null
+    // Breadth no longer claims 100% from the slice being ready; the breadth task's own coverage replaces null below.
+    breadth: screenerReady ? { status: 'loaded', coverage: null, lastSuccessfulAt: screenerAt, evidenceIds: ['screener.json:breadth'], sourceKind: 'delayed-eod' } : null,
+    screenerArtifact: screenerReady ? { status: 'loaded', coverage: screenerCoverage, lastSuccessfulAt: screenerAt, evidenceIds: ['screener.json'], sourceKind: 'delayed-eod', allowedUse: 'research-relative-ranking-only' } : null
   }[producer] || null;
   if (direct) state = Object.assign(state, direct);
   if (cfg) {
@@ -78,12 +89,19 @@ export function pageDataCompleteness(pageId, contract, readProducer, now = Date.
   const producers = {};
   const issues = [];
   producerIds.forEach((producer) => {
-    const state = readProducer(producer);
+    // P28-AUDIT-01: a copy, so one page's age verdict is not written into the reader's object for the next page.
+    const state = { ...(readProducer(producer) || {}) };
     const maxAgeMs = contract.maxAge && contract.maxAge[producer] != null ? Number(contract.maxAge[producer]) : Infinity;
     const minCoverage = contract.minCoverage && contract.minCoverage[producer] != null ? Number(contract.minCoverage[producer]) : 0;
-    const ageMs = state.lastSuccessfulAt ? now - new Date(state.lastSuccessfulAt).getTime() : null;
+    const atMs = state.lastSuccessfulAt ? Date.parse(state.lastSuccessfulAt) : NaN;
+    const ageMs = Number.isFinite(atMs) ? now - atMs : null;
+    // P28-COMPLETENESS-01: with an age budget, a missing, unreadable or future success time cannot pass as current, and
+    // with a coverage floor neither can an unmeasured (null/NaN) coverage.
+    const coverage = state.coverage == null ? null : Number(state.coverage);
+    if (state.status === 'loaded' && Number.isFinite(maxAgeMs) && (ageMs == null || ageMs < -FUTURE_SKEW_MS)) state.status = 'unknown';
     if (state.status === 'loaded' && ageMs != null && Number.isFinite(maxAgeMs) && ageMs > maxAgeMs) state.status = 'stale';
-    if (state.status === 'loaded' && state.coverage != null && state.coverage < minCoverage) state.status = state.coverage <= 0 ? 'zero' : 'partial';
+    if (state.status === 'loaded' && minCoverage > 0 && !Number.isFinite(coverage)) state.status = 'unknown';
+    if (state.status === 'loaded' && Number.isFinite(coverage) && coverage < minCoverage) state.status = coverage <= 0 ? 'zero' : 'partial';
     state.ageMs = ageMs;
     state.maxAgeMs = maxAgeMs;
     state.minCoverage = minCoverage;
@@ -121,7 +139,8 @@ export function auditPageDataCompleteness(pages, ids) {
   const staleReferenceCount = count('stale-reference');
   return {
     version: PAGE_COMPLETENESS_VERSION,
-    status: blockedCount ? 'blocked' : staleReferenceCount ? 'stale-reference' : emptyCount ? 'empty' : partialCount ? 'partial' : 'loaded',
+    // P28-AUDIT-01: an audit of no route checked nothing; it reads empty, not loaded.
+    status: !pages.length ? 'empty' : blockedCount ? 'blocked' : staleReferenceCount ? 'stale-reference' : emptyCount ? 'empty' : partialCount ? 'partial' : 'loaded',
     routeCount: ids.length,
     loadedCount: count('loaded'),
     partialCount,

@@ -39,7 +39,9 @@ export function paintThemesAiChain(doc, root) {
 
 function paintAiChain(doc, root, { id, frame, className, more: withLink, place }) {
   const rows = root?.AIO_ARCH?.getScreenerState?.('rows') || [];
-  const flow = aiChainFlow({ themes: root?.THEME_MAP || [], rows });
+  // v59.45 (P21-CHAIN-01): the medians use the same session the label prints.
+  const session = root?.AIO_ARCH?.getScreenerState?.('metadata.factorSessionDateByMarket')?.US || null;
+  const flow = aiChainFlow({ themes: root?.THEME_MAP || [], rows, session });
   let host = doc.getElementById(id);
   if (!flow.groups.length) { if (host) host.hidden = true; return flow; }
   if (!host) {

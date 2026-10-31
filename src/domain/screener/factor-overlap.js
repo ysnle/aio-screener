@@ -6,8 +6,8 @@
 // The weights are not changed here — a decorrelated model is a different model and must be validated
 // as one (the candidate record, P1465, is where that evidence accumulates).
 import { FACTOR_LABELS as PRESENTATION_LABELS } from './row-presentation.js';
+import { finiteNumber as finite } from '../shared/number.js';
 
-const finite = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
 
 function ranks(values) {
   const order = values.map((value, index) => [value, index]).sort((a, b) => a[0] - b[0]);

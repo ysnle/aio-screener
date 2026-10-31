@@ -21,12 +21,20 @@ function chronology(record) {
   return values.length ? Math.max(...values) : null;
 }
 
-function shouldReplace(current, incoming) {
+// R2-03 (2026-10-31 review): an observation stamped further ahead than a normal clock difference is not newer than a
+// real one; it is compared as undated, so a vix=99 stamped six hours ahead no longer blocks a vix=17 observed now.
+const FUTURE_OBSERVATION_SKEW_MS = 5 * 60 * 1000;
+const observedTime = (value, nowMs) => {
+  const at = time(value);
+  return at !== null && at - nowMs > FUTURE_OBSERVATION_SKEW_MS ? null : at;
+};
+
+function shouldReplace(current, incoming, nowMs = Date.now()) {
   if (!current) return true;
   const incomingBlocked = RIGHTS_BLOCKED.has(String(incoming.rightsId || '').toUpperCase()) || incoming.allowedUse === 'none';
   const currentBlocked = RIGHTS_BLOCKED.has(String(current.rightsId || '').toUpperCase()) || current.allowedUse === 'none';
-  const currentObserved = time(current.observedAt);
-  const incomingObserved = time(incoming.observedAt);
+  const currentObserved = observedTime(current.observedAt, nowMs);
+  const incomingObserved = observedTime(incoming.observedAt, nowMs);
   if (currentObserved !== null || incomingObserved !== null) {
     if (currentObserved === null) return true;
     if (incomingObserved === null) {
@@ -64,7 +72,7 @@ function shouldReplace(current, incoming) {
   return incoming.revisionId !== current.revisionId;
 }
 
-export function createEvidenceStore() {
+export function createEvidenceStore({ now = () => Date.now() } = {}) {
   const entries = new Map();
 
   function ingest(input) {
@@ -74,7 +82,7 @@ export function createEvidenceStore() {
     const decisionCheck = evidence.allowedUse === 'decision' ? evaluateEvidence(evidence, { purpose: 'decision' }) : null;
     if (decisionCheck && !decisionCheck.ok) throw new Error(`EVIDENCE_DECISION_INVALID:${decisionCheck.errors.join(',')}`);
     const current = entries.get(evidence.metric) || null;
-    if (shouldReplace(current, evidence)) entries.set(evidence.metric, evidence);
+    if (shouldReplace(current, evidence, now())) entries.set(evidence.metric, evidence);
     return entries.get(evidence.metric);
   }
 

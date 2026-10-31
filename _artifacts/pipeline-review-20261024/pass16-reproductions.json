@@ -1,0 +1,112 @@
+{
+  "at": "2026-10-29T01:26:29.628Z",
+  "network": false,
+  "special": {
+    "schemaVersion": "market-time-evidence.v1",
+    "market": "KR",
+    "date": "2026-11-19",
+    "status": "open",
+    "session": "regular",
+    "open": "10:00",
+    "close": "16:30",
+    "halfDay": false,
+    "specialSession": true,
+    "timezone": "Asia/Seoul",
+    "dstAware": false
+  },
+  "clock": {
+    "nowMs": 1795048200000,
+    "kstDate": "2026-11-19",
+    "kstTime": "09:30",
+    "us": {
+      "phase": "post",
+      "label": "미국 애프터마켓",
+      "closeMs": 1795035600000
+    },
+    "kr": {
+      "phase": "regular",
+      "label": "한국 정규장",
+      "closesIn": 420
+    }
+  },
+  "aligned": [
+    {
+      "id": "us",
+      "label": "직전 미국장",
+      "verdict": "supports",
+      "evidence": "나스닥 +1.0%",
+      "text": "같은 방향이라 미국장 흐름이 이어진 몫이 있습니다."
+    },
+    {
+      "id": "local",
+      "label": "한국 고유 요인",
+      "verdict": "against",
+      "evidence": "코스피 +1.0%, 코스닥 +1.0%",
+      "text": "바깥 신호와 비슷한 크기라 국내 요인만으로 볼 필요는 적습니다."
+    }
+  ],
+  "mismatched": [
+    {
+      "id": "us",
+      "label": "직전 미국장",
+      "verdict": "supports",
+      "evidence": "나스닥 +1.0%, 반도체 ETF +20.0%",
+      "text": "같은 방향이라 미국장 흐름이 이어진 몫이 있습니다."
+    },
+    {
+      "id": "local",
+      "label": "한국 고유 요인",
+      "verdict": "supports",
+      "evidence": "코스피 +1.0%, 코스닥 -8.0%",
+      "text": "바깥 신호보다 7.0%p 더 움직여 국내 수급·업종·개별 소식의 몫이 큽니다. 코스닥은 반대로 -8.0% 움직여 코스피와 9.0%p 벌어졌습니다 — 대형주와 중소형주가 갈린 날입니다."
+    }
+  ],
+  "future": {
+    "schemaVersion": "session-bridge.v1",
+    "available": true,
+    "clock": {
+      "nowMs": 1793174400000,
+      "kstDate": "2026-10-28",
+      "kstTime": "17:00",
+      "us": {
+        "phase": "pre",
+        "label": "미국 프리마켓",
+        "openMs": 1793194200000,
+        "opensIn": 330
+      },
+      "kr": {
+        "phase": "closed-today",
+        "label": "한국장 마감",
+        "nextOpen": "2026-10-29"
+      }
+    },
+    "clockLine": "지금 17:00 KST — 미국 프리마켓, 정규장 개장 22:30 KST(5시간 30분 후) · 한국장 마감",
+    "koreaHead": null,
+    "koreaRead": null,
+    "links": [],
+    "futuresLine": "나스닥 100 선물 +2.00% (직전 정산 대비, 0분 전 관측)",
+    "futuresStale": false,
+    "next": null,
+    "oil": null,
+    "snapshotAgeMin": null,
+    "readings": {
+      "es": null,
+      "nq": {
+        "id": "NQ=F",
+        "value": 22000,
+        "change": 2,
+        "observedAt": "2026-10-29T08:00:00Z",
+        "ageMin": 0
+      },
+      "kospi": null,
+      "kosdaq": null,
+      "nasdaq": null,
+      "semis": null,
+      "nikkei": null,
+      "hangseng": null,
+      "usdkrw": null,
+      "wti": null,
+      "vix": null
+    }
+  }
+}

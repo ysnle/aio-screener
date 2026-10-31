@@ -58,7 +58,8 @@ export function breakoutChecklist(analysis, { regime = null, earnings = null } =
   const unknownTemplate = analysis.templateChecks.filter(([, ok]) => ok == null).length;
   const failedTemplate = analysis.templateChecks.filter(([, ok]) => ok === false).map(([label]) => label);
   add('template', '추세 템플릿', '오래 오르는 종목은 대개 장기 이동평균이 정배열이고 52주 고점 가까이에 있습니다 — 돌파는 상승 추세 안에서 나올 때 이어지기 쉽다는 원리입니다.',
-    failedTemplate.length ? false : unknownTemplate > 1 ? null : true,
+    // v59.45 P24-EARNINGS-01 (template): 7 met + 1 unknown read 충족; an unchecked rule leaves the item unknown.
+    failedTemplate.length ? false : unknownTemplate ? null : true,
     `8개 중 ${analysis.templatePass}개 충족${failedTemplate.length ? `(미충족: ${failedTemplate.join(', ')})` : ''}${unknownTemplate ? `, 확인 불가 ${unknownTemplate}개` : ''}`);
   add('dryup', '거래 마름', '돌파 직전에는 팔 사람이 줄어 거래량이 평소보다 마릅니다 — 매물이 소화됐다는 흔적입니다.',
     analysis.dryUp == null ? null : analysis.dryUp < 0.8,
@@ -73,8 +74,10 @@ export function breakoutChecklist(analysis, { regime = null, earnings = null } =
   const sessions = earnings?.state === 'scheduled' ? earnings.sessions : null;
   const windowDays = earnings?.state === 'unconfirmed' && earnings.windowEnd ? Math.round((Date.parse(earnings.windowEnd) - Date.parse(analysis.asOf)) / 86400000) : null;
   add('earnings', '다음 실적까지 거리', '실적 발표는 하루에 큰 갭을 만들 수 있어, 발표 2~3주 안에서는 차트 구조보다 발표 결과가 가격을 정하는 경우가 많습니다.',
-    sessions != null ? sessions > 10 : windowDays != null && windowDays >= 14 ? true : null,
-    sessions != null ? `${earnings.text} (10거래일 넘게 남으면 충족)` : windowDays != null && windowDays >= 14 ? `실적 일정 목록(${earnings.windowEnd}까지)에 날짜 없음 — 그 뒤 발표` : earnings?.text || '실적 일정 미확인');
+    // v59.45 P24-EARNINGS-01: 'unconfirmed' means the calendar window does not list the name (fetch-earnings-calendar:
+    // "not 'no report'"), so it is not evidence of a report after the window — the item stays unknown.
+    sessions != null ? sessions > 10 : null,
+    sessions != null ? `${earnings.text} (10거래일 넘게 남으면 충족)` : windowDays != null && windowDays >= 0 ? `실적 일정 목록(${earnings.windowEnd}까지)에 날짜 없음 — 발표 일정 미확인` : earnings?.text || '실적 일정 미확인');
   const multiple = analysis.adrFrom50;
   add('extension', '50일선 대비 과열 아님', '50일선에서 멀리 오른 뒤의 돌파는 되돌림 폭이 커서, 기준선 가까이에서 나온 돌파를 더 낫게 봅니다.',
     Number.isFinite(multiple) ? multiple < TECH.extension.extended : null,

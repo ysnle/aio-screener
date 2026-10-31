@@ -31,7 +31,7 @@
 //       않음 — 이 스크립트는 필요 시 수동/비정기 재실행하는 연구용 산출물이다.)
 // ─────────────────────────────────────────────────────────────────────────
 
-import { writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { reconstructScore } from './backtest-trading-score.mjs';
@@ -157,64 +157,35 @@ export function rollingPercentile(values, idx, window = REL_WINDOW, minObs = REL
   return le / n;
 }
 
-export function reconstructRelativeScore({ vixP, dxyP, tnxP, vvixP, wtiP, spxPrice, spx50ma, spx200ma }) {
-  // warm-up/결측이면 판정 보류 — 절대 변형과 달리 상수 폴백으로 채우지 않는다(fail-closed).
-  if (vixP == null || dxyP == null || tnxP == null) return null;
-
-  // vol: 원 5밴드(vix<15/18/22/27/35 → 90/78/62/42/22/8)의 서수 구조를 percentile 밴드로 보존
-  let volScore;
-  if (vixP < 0.20) volScore = 90;
-  else if (vixP < 0.40) volScore = 78;
-  else if (vixP < 0.60) volScore = 62;
-  else if (vixP < 0.80) volScore = 42;
-  else if (vixP < 0.95) volScore = 22;
-  else volScore = 8;
-
-  // mom/breadth: baseline과 동일한 중립 상수 경로(fg=45→52, breadth200=57→72) — 비교 변인 통제
-  const momScore = 52;
-  let breadthScore = 72;
-
-  // trend: 이미 상대 지표(가격 vs 자기 MA)라 원형 유지
-  const trendScore = calcTrendScoreRel(spxPrice, spx50ma, spx200ma);
-
-  // macro: dxy>107→상위 20%, dxy>110→상위 10%, tnx>4.5→상위 20%, vvix>110→상위 20%
-  let macroScore = 55;
-  if (dxyP > 0.80) macroScore -= 12;
-  if (dxyP > 0.90) macroScore -= 8;
-  if (tnxP > 0.80) macroScore -= 10;
-  if (vvixP != null && vvixP > 0.80) macroScore -= 8;
-  macroScore = Math.max(10, Math.min(90, macroScore));
-
-  // cross-risk: 원형(vix>25/dxy>107/tnx>4.5/oil>100)의 percentile 등가
-  let crossRiskCount = 0;
-  if (vixP > 0.80) crossRiskCount++;
-  if (dxyP > 0.80) crossRiskCount++;
-  if (tnxP > 0.80) crossRiskCount++;
-  if (wtiP != null && wtiP > 0.95) crossRiskCount++;
-  if (crossRiskCount >= 3) macroScore = Math.max(10, macroScore - 10);
-
-  let composite = Math.round(
-    volScore * 0.25 + momScore * 0.25 + trendScore * 0.20 + breadthScore * 0.20 + macroScore * 0.10
-  );
-
-  // oil 보정: 원형($100/$90 절대가)의 percentile 등가(상위 5%/15%)
-  if (wtiP != null) {
-    if (wtiP > 0.95) composite -= 10;
-    else if (wtiP > 0.85) composite -= 5;
-  }
-
-  const total = Math.max(5, Math.min(100, composite));
-  return { total, volScore, trendScore, macroScore };
+// v59.46 P9-BT-01 (owner 2026-10-31, "현행 모델로 다시"): relative-v2 changes ONLY the threshold units of the current
+// model. Each input's trailing percentile picks the band it falls in (the a-priori edges below keep the ordinal structure
+// of the absolute bands), and a representative level inside the matching absolute band of trading-score.js v5 goes into
+// the same reconstructScore() the baseline uses — same trend rule, same risk-appetite inputs (HY proxy, no PCR), same
+// missing-breadth handling and weights. The baseline-vs-relative gap is then the effect of percentile units alone.
+// relative-v1 (2026-07) froze the then-model and is kept only as a summary of the previous file (previousExperiment).
+const REL_LEVELS = Object.freeze({
+  // [percentile upper edge, representative level] — levels sit inside the current model's bands (vix <15/18/22/27/35,
+  // cross-risk vix>25; dxy >107/>110; tnx >4.5; vvix >110; oil >90/>100).
+  vix: [[0.20, 13], [0.40, 16.5], [0.60, 20], [0.80, 24.5], [0.95, 31], [Infinity, 40]],
+  dxy: [[0.80, 104], [0.90, 108.5], [Infinity, 112]],
+  tnx: [[0.80, 4.0], [Infinity, 5.0]],
+  vvix: [[0.80, 95], [Infinity, 120]],
+  wti: [[0.85, 80], [0.95, 95], [Infinity, 110]]
+});
+export function percentileLevel(field, p) {
+  if (typeof p !== 'number' || !Number.isFinite(p)) return null;
+  return REL_LEVELS[field].find(([edge]) => p < edge || (edge === Infinity))[1];
 }
 
-// trend 밴드는 reconstructScore 내부(calcTrendScore)와 동일 — import 순환 없이 로컬 재현
-function calcTrendScoreRel(spxPrice, spx50ma, spx200ma) {
-  if (!spxPrice || !spx50ma || !spx200ma) return 50;
-  if (spxPrice > spx50ma * 1.02) return 82;
-  if (spxPrice > spx50ma) return 68;
-  if (spxPrice > spx200ma) return 50;
-  if (spxPrice > spx200ma * 0.97) return 32;
-  return 15;
+export function reconstructRelativeScore({ vixP, dxyP, tnxP, vvixP, wtiP, spxPrice, spx50ma, spx200ma, hyg = null }) {
+  // warm-up/결측이면 판정 보류 — 상수 폴백으로 채우지 않는다(fail-closed).
+  if (vixP == null || dxyP == null || tnxP == null) return null;
+  const result = reconstructScore({
+    vix: percentileLevel('vix', vixP), fg: 45, dxy: percentileLevel('dxy', dxyP), tnx: percentileLevel('tnx', tnxP),
+    wti: percentileLevel('wti', wtiP), vvix: percentileLevel('vvix', vvixP),
+    spxPrice, spx50ma, spx200ma, mode: 'default', hyg
+  });
+  return { total: result.total, volScore: result.volScore, trendScore: result.trendScore, macroScore: result.macroScore };
 }
 
 function quantileSplit(records, scoreField, returnField, buckets = 3) {
@@ -275,6 +246,16 @@ export function classifyRegime(record, series, idx) {
 }
 
 export async function runLongrunBacktest(range, outPath) {
+  // v59.46: the relative-v1 (2026-07) result is kept as a summary before this run overwrites the file.
+  let previousExperiment = null;
+  try {
+    const prev = JSON.parse(await readFile(outPath, 'utf8'));
+    if (/relative-v1/.test(prev?.relativeVariant?.name || '')) {
+      previousExperiment = { name: prev.relativeVariant.name, generatedAt: prev.generatedAt || null, model: '2026-07 frozen model (not the current trading-score v5)',
+        fwd21d: { baseline: prev.overallCorrelations?.fwd21d?.composite || null, relative: prev.overallCorrelations?.fwd21d?.compositeRel || null },
+        fwd63d: { baseline: prev.overallCorrelations?.fwd63d?.composite || null, relative: prev.overallCorrelations?.fwd63d?.compositeRel || null } };
+    } else if (prev?.previousExperiment) previousExperiment = prev.previousExperiment;
+  } catch { /* first run */ }
   const seriesByField = await fetchAllSeries(range);
   const fetchCounts = Object.fromEntries(Object.entries(seriesByField).map(([k, v]) => [k, v.size]));
   const series = buildMergedSeries(seriesByField);
@@ -291,8 +272,7 @@ export async function runLongrunBacktest(range, outPath) {
     const d = series[i];
     const spx50ma = trailingMA(series, i, 50);
     const spx200ma = trailingMA(series, i, 200);
-    // fg 없음(momScore 재구성 불가) — reconstructScore가 momScore 계산엔 여전히 fg를 쓰지만,
-    // 결론은 "부분 점수(vol/trend/macro)"로만 해석하므로 fg는 중립값(45, Neutral 밴드 중앙)으로 고정.
+    // fg는 P1388(v4)부터 합성 점수 입력이 아니다 — 넘기는 45는 점수에 영향이 없다(호환 인자).
     const result = reconstructScore({
       vix: d.vix, fg: 45, dxy: d.dxy, tnx: d.tnx, wti: d.wti, vvix: d.vvix,
       spxPrice: d.spx, spx50ma, spx200ma, mode: 'default', hyg: d.hyg,
@@ -300,7 +280,7 @@ export async function runLongrunBacktest(range, outPath) {
     const pct = Object.fromEntries(relFields.map(f => [f, rollingPercentile(relValues[f], i)]));
     const rel = reconstructRelativeScore({
       vixP: pct.vix, dxyP: pct.dxy, tnxP: pct.tnx, vvixP: pct.vvix, wtiP: pct.wti,
-      spxPrice: d.spx, spx50ma, spx200ma,
+      spxPrice: d.spx, spx50ma, spx200ma, hyg: d.hyg,
     });
     records.push({
       date: d.date,
@@ -377,7 +357,8 @@ export async function runLongrunBacktest(range, outPath) {
     generatedAt: new Date().toISOString(),
     methodology: {
       scope: 'PARTIAL validation of computeTradingScore() — covers only volScore(VIX)+trendScore(SPX vs 50/200MA)+macroScore(DXY/TNX/HYG/VIX/oil) inputs, which are the ones with freely obtainable multi-year PIT history.',
-      excludedInputs: ['momScore (Fear&Greed) — held at neutral constant (45), no free multi-year historical source', 'breadthScore (breadth200) — held at code fallback constant (57), no free multi-year historical source', 'PCR correction — held at code fallback constant (0.95)', 'AAII-bearish correction — held at code fallback constant (50)', 'news sentiment correction — omitted (0), no historical news corpus'],
+      // v59.46 P9-BT-01: described against the current model (trading-score v5), which the baseline path calls.
+      excludedInputs: ['risk appetite — put/call has no free multi-year history (null); HY spread is a HYG-price proxy, so the 25% risk-appetite axis rests on the proxy alone', 'breadth — no free multi-year history; the current model drops the missing breadth axis from the denominator (weights re-normalised), it is not held at a constant', 'Fear&Greed — not a composite input since P1388 (v4); the value passed is ignored', 'news sentiment correction — omitted, no historical news corpus'],
       fixedRuleNotFittedModel: 'computeTradingScore weights/thresholds are hand-set constants, not parameters fit to data. "referencePeriod"/"holdoutPeriod" below check temporal stability of a FIXED rule, not generalization of a fitted model — deliberately not called "train/test".',
       regimeClassification: 'Computed from the fetched data itself (trailing VIX level + trailing-252-day drawdown from rolling ATH) — not from hardcoded historical narrative dates, to avoid relying on memorized calendar boundaries.',
       dataSource: 'Yahoo Finance public chart API (query1/query2.finance.yahoo.com/v8/finance/chart), same endpoint pattern already used in production by scripts/fetch-data.mjs fetchHistory().',
@@ -390,12 +371,13 @@ export async function runLongrunBacktest(range, outPath) {
     regimes,
     ablationNote: 'overallCorrelations above already reports vol/trend/macro sub-scores individually alongside the composite — that IS the ablation (isolates which sub-score, if any, carries signal vs the blended total).',
     relativeVariant: {
-      name: 'relative-v1 (A-1, 2026-07-17)',
+      name: 'relative-v2 (current model, 2026-10-31)',
       hypothesis: 'R298 — absolute thresholds (dxy>107, tnx>4.5, vix bands) fail to track structural regime shifts over 10y; replacing them with trailing rolling percentiles (window ≤2520d, warm-up ≥252d, trailing-only → no look-ahead) may restore a positive score↔forward-return relationship.',
-      design: 'Same band structure, same weights, same neutral constants for mom/breadth as baseline. Only the threshold *units* change (absolute level → trailing percentile). Percentile band edges ([0.20,0.40,0.60,0.80,0.95]) are hand-set a priori to preserve the ordinal structure of the original bands — NOT fitted to returns. HYG price-band credit corrections are excluded (live already removed them in P713/P714 as duration-polluted).',
+      design: 'Controlled comparison on the current model: baseline and relative both call reconstructScore() → trading-score.js v5 with the same trend, risk-appetite (HYG proxy) and missing-breadth inputs. Only the threshold unit differs: each of VIX/DXY/TNX/VVIX/WTI enters as a representative level of the absolute band its trailing percentile maps to. Percentile band edges ([0.20,0.40,0.60,0.80,0.95] for VIX; 0.80/0.90 DXY; 0.80 TNX/VVIX; 0.85/0.95 WTI) are hand-set a priori to keep the ordinal band structure — NOT fitted to returns.',
       passCriterion: 'Positive rho must remain sign-stable across every non-overlapping T+21/T+63 start phase and consistent across walk-forward reference/holdout. A pooled daily 95% CI alone is ineligible because forward-return windows overlap. Anything else keeps the live score environment-descriptive and blocks formula promotion.',
       warmupExcludedDays: records.filter(r => r.compositeRel == null).length,
     },
+    previousExperiment,
     quantileSpread: { fwd5d: quantile5d, fwd21d: quantile21d, rel_fwd21d: quantileRel21d, rel_fwd63d: quantileRel63d },
     caveats: [
       'This validates only ~55% of computeTradingScore\'s weight (vol 25% + trend 20% + macro 10%) — momScore(25%) and breadthScore(20%) remain unvalidated placeholders here.',
@@ -417,9 +399,9 @@ if (__entryArg && (import.meta.url === `file://${__entryArg}` || import.meta.url
     console.log(`[backtest-trading-score-longrun] walk-forward holdout fwd21d: n=${output.walkForward.holdoutPeriod.n} rho=${output.walkForward.holdoutPeriod.corr21d_composite.rho}`);
     for (const h of ['fwd1d', 'fwd5d', 'fwd21d', 'fwd63d']) {
       const abs = output.overallCorrelations[h].composite, rel = output.overallCorrelations[h].compositeRel;
-      console.log(`[relative-v1] ${h}: baseline rho=${abs.rho} ci95=${JSON.stringify(abs.ci95)} | relative rho=${rel.rho} ci95=${JSON.stringify(rel.ci95)} (n=${rel.n})`);
+      console.log(`[relative-v2] ${h}: baseline rho=${abs.rho} ci95=${JSON.stringify(abs.ci95)} | relative rho=${rel.rho} ci95=${JSON.stringify(rel.ci95)} (n=${rel.n})`);
     }
-    console.log(`[relative-v1] walk-forward 21d ref=${output.walkForward.referencePeriod.corr21d_compositeRel.rho} holdout=${output.walkForward.holdoutPeriod.corr21d_compositeRel.rho} | 63d ref=${output.walkForward.referencePeriod.corr63d_compositeRel.rho} holdout=${output.walkForward.holdoutPeriod.corr63d_compositeRel.rho}`);
+    console.log(`[relative-v2] walk-forward 21d ref=${output.walkForward.referencePeriod.corr21d_compositeRel.rho} holdout=${output.walkForward.holdoutPeriod.corr21d_compositeRel.rho} | 63d ref=${output.walkForward.referencePeriod.corr63d_compositeRel.rho} holdout=${output.walkForward.holdoutPeriod.corr63d_compositeRel.rho}`);
     console.log(`[backtest-trading-score-longrun] regimes found: ${output.regimes.map(r => r.label + '(n=' + r.n + ')').join(', ')}`);
   }).catch((e) => { console.error('[backtest-trading-score-longrun] error:', e.stack || e.message); process.exit(1); });
 }

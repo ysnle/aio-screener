@@ -8,7 +8,9 @@ import { computeTradingScoreModel, deriveTradingScoreDecisionPresentation } from
 import { sortRows, visibleRank, vcpStageLabel } from '../src/ui/pages/screener.js';
 import { SCREENER_FIELD_REGISTRY, fieldValueForPurpose, createScreenDefinition } from '../src/data/contracts/screener.js';
 import { deriveQuotePresentation, quoteDisplayKind } from '../src/domain/market/quote-presentation.js';
-import { signedText } from '../src/domain/shared/number.js';
+import { signedText, readNumber, finiteNumber } from '../src/domain/shared/number.js';
+import { isoDay, stampDay } from '../src/domain/shared/session-date.js';
+import { shortDate } from '../src/domain/content/date-labels.js';
 import { MARKET_LABELS, screenerMarket, formatScreenerPrice } from '../src/domain/screener/market-scope.js';
 // v57.62: the page's pure row helpers live in this module; the vm harness below strips the page's imports, so it
 // receives them as context globals (same functions the page imports).
@@ -23,8 +25,9 @@ for (const route of ROUTE_IDS) {
   assert(existsSync(new URL(`../${modulePath}`, import.meta.url)), `${route}: missing module`);
 }
 const source = read('src/ui/pages/market.js');
-const context = vm.createContext({ deriveQuotePresentation, quoteDisplayKind, signedText });
-vm.runInContext(source.slice(source.indexOf('function finite('), source.indexOf('const SNAPSHOT_ALIASES')), context);
+// v59.46: the page's `finite` is the shared reader (imported); the slice starts at the first local helper.
+const context = vm.createContext({ deriveQuotePresentation, quoteDisplayKind, signedText, finite: readNumber });
+vm.runInContext(source.slice(source.indexOf('function isPlaceholder('), source.indexOf('const SNAPSHOT_ALIASES')), context);
 const node = () => ({ textContent: 'old', attrs: new Map(), children: [], classList: { remove() {}, toggle() {} },
   getAttribute(key) { return this.attrs.get(key); }, setAttribute(key, value) { this.attrs.set(key, value); }, removeAttribute(key) { this.attrs.delete(key); } });
 const price = node(), pct = node(); price.attrs.set('data-live-price', 'AAA'); pct.attrs.set('data-live-pct', 'AAA');
@@ -148,8 +151,9 @@ const documentRef = {
 };
 const analysisSource = read('src/ui/pages/analysis.js');
 const { fearGreedBand } = await import(new URL('../src/domain/sentiment/metrics.js', import.meta.url));
-const uiContext = vm.createContext({ documentRef, fearGreedBand, signedText }); // T11: the home card bands through the shared fearGreedBand
-vm.runInContext(analysisSource.slice(analysisSource.indexOf('function finite('), analysisSource.indexOf('function renderTechnicalHealth(')), uiContext);
+const uiContext = vm.createContext({ documentRef, fearGreedBand, signedText, finite: readNumber }); // T11: the home card bands through the shared fearGreedBand
+// v59.46: the page imports finite from shared/number.js; the slice starts at its first local helper.
+vm.runInContext(analysisSource.slice(analysisSource.indexOf('function setText('), analysisSource.indexOf('function renderTechnicalHealth(')), uiContext);
 // P1392: the home card is the six-axis regime summary; without close history it waits instead of
 // inventing a state (the retired score summary asserted the same fail-closed behaviour).
 const { renderHomeRegime } = await import(new URL('../src/ui/components/market-regime.js', import.meta.url));
@@ -214,7 +218,8 @@ assert(!read('src/app/bootstrap.js').includes('screener:return-context'), 'write
 assert(analysisSource.includes("'aio:serverDataLoaded', renderNow"), 'late snapshot hydration reaches visible home');
 
 const screenerSource = read('src/ui/pages/screener.js');
-const compareContext = vm.createContext({ signedText,
+// v59.46: the page imports finite/isoDay/stampDay/shortDate from the shared modules; the stripped imports enter as globals.
+const compareContext = vm.createContext({ signedText, finite: finiteNumber, isoDay, stampDay, shortDate,
   ...rowPresentation, ...screenerExtended, documentRef, compareSymbols: new Set(['A', 'B']), activeRows: rows,
   SCREENER_FIELD_REGISTRY, fieldValueForPurpose, createScreenDefinition,
   MARKET_LABELS, screenerMarket, formatScreenerPrice,
@@ -237,7 +242,7 @@ assert.equal(compareContext.blockedCapCell, '—');
 assert(!screenerSource.includes('scr-position-sizer') && !read('index.html').includes('id="scr-position-sizer"'), 'unreachable USD-only position sizing panel retired instead of relabelling KRW prices');
 assert(screenerSource.includes('row?.focus?.({ preventScroll: true })') && screenerSource.includes('content.scrollTop = view.scrollTop'));
 assert(screenerSource.includes('const focusedSymbol = body.contains(focusedRow)') && screenerSource.includes('(action || row)?.focus({ preventScroll: true })'), 'quote rerender preserves the selected row/action focus');
-const builderContext = vm.createContext({ signedText,
+const builderContext = vm.createContext({ signedText, finite: finiteNumber, isoDay, stampDay, shortDate,
   documentRef, selectedValue: (doc,id) => id==='scr-listing-market' ? 'US' : '',
   activeDefinition: createScreenDefinition({ screenId: 'builder', filtersAST: { type: 'and', children: [{ type: 'range', field: 'price.ret3m', min: 0 }] } }),
   readBuilderConditions: () => [{ field: 'rsi', value: '52' }], createScreenDefinition

@@ -11,9 +11,9 @@
 // put the 10/13 close and the 10/14 close on the same session and the 10/12 DXY close on both 10/12 and 10/13.
 // They differ in one fact the row keeps: whether a newer bar had opened by the time the value was fetched.
 import { resolveMarketCalendarSession } from './market-calendar.js';
+import { isoDay } from '../shared/session-date.js';
 
 const DAY_MS = 86400000;
-const VALID_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 // The zone that names a daily bar's session, and the calendar its sessions follow.
 const BAR_ZONE = Object.freeze({
@@ -58,7 +58,7 @@ function shiftDate(date, days) {
 
 /** The session before `date` for this field (weekends, and listed-index holidays, skipped). */
 export function previousHistorySession(date, field) {
-  if (!VALID_DATE.test(String(date || ''))) return null;
+  if (!isoDay(date)) return null;
   let cursor = date;
   for (let i = 0; i < 14; i += 1) {
     cursor = shiftDate(cursor, -1);
@@ -113,7 +113,7 @@ function zoneMidnightMs(date, zone) {
  */
 export function historyFieldSessionDate(meta, field) {
   if (!meta || meta.observationRelation === 'carried-forward') return null;
-  if (VALID_DATE.test(String(meta.sessionDate || ''))) return meta.sessionDate;
+  if (isoDay(meta.sessionDate)) return meta.sessionDate;
   if (meta.observationRelation === 'previous-completed-close' || meta.valueBasis === 'previous-completed-close') return inferPreviousCloseSession(meta, field);
   return dailyBarSessionDate(meta, field);
 }

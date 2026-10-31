@@ -1,10 +1,10 @@
 import { hasFinalConsonant } from '../content/korean-particle.js';
 import { relativeBand } from '../themes/recent-check.js';
+import { finiteNumber as finite } from '../shared/number.js';
 // P1743: one definition of "a similar market move in the past" per branch, shared by the weekly long-history producer
 // (scripts/build-scenario-outcomes.mjs, decades of daily closes) and the browser (AIO's own close record as fallback).
 // Episodes never overlap: after a hit, the scan jumps past its outcome window, so one long episode counts once.
 
-const finite = (value) => typeof value === 'number' && Number.isFinite(value) ? value : null;
 
 /** Branch analogs over aligned daily series { spx, tnx, vix, wti, dxy } (tnx in percent). */
 export const BRANCH_ANALOGS = Object.freeze({
@@ -124,21 +124,31 @@ export function themeStateOutcomes(closes, { horizon = 63, benchmark = null, ben
   const buckets = Object.fromEntries(Object.keys(THEME_STATES).map((state) => [state, []])); // 'fading' stays empty here
   const next = Object.fromEntries(Object.keys(THEME_STATES).map((state) => [state, 0]));
   let baseN = 0, baseUp = 0;
-  for (let i = 126; i + horizon < list.length; i += 1) { baseN += 1; if (list[i + horizon][1] > list[i][1]) baseUp += 1; }
+  // v59.45 (P9-THEME-02): the base rate counts the same sessions a stage can be read on — with a benchmark, only those
+  // where the index has all three closes (a stretch before the index existed is not part of either sample).
+  const testable = (i) => !bench || !!(bench.get(list[i - 126][0]) && bench.get(list[i - 21][0]) && bench.get(list[i][0]));
+  let firstTestable = null, lastTestable = null;
+  for (let i = 126; i + horizon < list.length; i += 1) {
+    if (!testable(i)) continue;
+    baseN += 1; if (list[i + horizon][1] > list[i][1]) baseUp += 1;
+    if (firstTestable == null) firstTestable = i;
+    lastTestable = i;
+  }
   for (let i = 126; i + horizon < list.length; i += 1) {
     const trendAbs = (list[i][1] / list[i - 126][1] - 1) * 100;
     const recentAbs = (list[i][1] / list[i - 21][1] - 1) * 100;
     let state;
     if (bench) {
+      if (!testable(i)) continue;
       const b0 = bench.get(list[i - 126][0]), b1 = bench.get(list[i - 21][0]), b2 = bench.get(list[i][0]);
-      if (!(b0 && b1 && b2)) continue;
       state = themeStateOf(trendAbs - (b2 / b0 - 1) * 100, recentAbs - (b2 / b1 - 1) * 100, { band: OUTCOME_BANDS.trend, recentBand: OUTCOME_BANDS.recent, absolute: trendAbs });
     } else state = themeStateOf(trendAbs, recentAbs);
     if (!state || i < next[state]) continue; // non-overlapping within each state
     buckets[state].push((list[i + horizon][1] / list[i][1] - 1) * 100);
     next[state] = i + horizon;
   }
-  const meta = { from: list[0]?.[0] || null, to: list[list.length - 1]?.[0] || null, horizon, basis: bench ? 'relative-banded' : 'absolute', ...baseRate(baseUp, baseN) };
+  const meta = { from: list[0]?.[0] || null, to: list[list.length - 1]?.[0] || null, horizon, basis: bench ? 'relative-banded' : 'absolute', ...baseRate(baseUp, baseN),
+    ...(bench ? { testableFrom: firstTestable == null ? null : list[firstTestable][0], testableTo: lastTestable == null ? null : list[lastTestable][0] } : {}) };
   return { ...Object.fromEntries(Object.entries(buckets).map(([state, values]) => [state, summarise(values, meta)])), basis: meta.basis,
     ...(bench ? { rule: THEME_STAGE_RULE, benchmark: benchmarkField } : {}) };
 }

@@ -281,7 +281,12 @@ if (historyRowsIsV2) {
   fail('13F historical row artifact boundary drifted');
 }
 const liveManagers = filings.managers.filter((manager) => manager.cik);
-if (holdings.latestAvailablePeriod !== '2026-06-30') fail('latest connected 13F period drifted');
+// v59.45 (P4-QA-03): a pinned period/accession failed the first normal refresh that found the next quarter's 13F and
+// restored the Masters files. Check the shape and direction instead: a quarter-end period no older than the last one
+// reviewed, filed after its period, with an SEC accession number.
+const QUARTER_END = /^\d{4}-(03-31|06-30|09-30|12-31)$/;
+const REVIEWED_13F_PERIOD = '2026-06-30';
+if (!QUARTER_END.test(holdings.latestAvailablePeriod || '') || holdings.latestAvailablePeriod < REVIEWED_13F_PERIOD) fail('latest connected 13F period drifted');
 for (const manager of liveManagers) {
   const connected = holdings.managers.find((item) => item.id === manager.id);
   const historyManager = historyIndex.managers.find((item) => item.managerId === manager.id);
@@ -296,7 +301,7 @@ for (const manager of liveManagers) {
   if (!manager.latestFiling.indexUrl || !manager.latestFiling.informationTableXml || !manager.latestFiling.primaryDocumentXml) fail(`latest SEC source links missing for ${manager.id}`);
 }
 const berkshire = filings.managers.find((manager) => manager.id === 'berkshire-hathaway');
-if (berkshire?.latestFiling?.accession !== '0001193125-26-352200' || berkshire.latestFiling.periodOfReport !== '2026-06-30' || berkshire.latestFiling.filedAt !== '2026-08-14') fail('Berkshire latest SEC filing drifted');
+if (!/^\d{10}-\d{2}-\d{6}$/.test(berkshire?.latestFiling?.accession || '') || !QUARTER_END.test(berkshire.latestFiling.periodOfReport || '') || berkshire.latestFiling.periodOfReport < REVIEWED_13F_PERIOD || !(berkshire.latestFiling.filedAt > berkshire.latestFiling.periodOfReport)) fail('Berkshire latest SEC filing drifted');
 if (scion?.freshnessStatus !== 'STALE_REFERENCE') fail('Scion freshness status must remain explicit');
 if (scion?.latestAvailabilityCheck?.result !== 'LATEST_13F_HOLDINGS_REPORTED' || scion.latestAvailabilityCheck.sourceUrl !== 'https://data.sec.gov/submissions/CIK0001649339.json') fail('Scion latest-filing availability check is missing or not tied to SEC submissions');
 if (managerCatalog.schema !== 'masters-13f-manager-catalog.v1' || managerCatalog.status !== 'METADATA_AND_DISCOVERY_SEPARATED') fail('manager catalog schema/status drifted');

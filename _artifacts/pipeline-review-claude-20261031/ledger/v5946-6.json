@@ -1,0 +1,18 @@
+{
+  "version": "v59.46",
+  "date": "2026-10-31",
+  "r": null,
+  "p": {
+    "title": "현금 조건이 빈 설비투자를 설비투자 0%로 읽음",
+    "symptom": "cash-metrics의 지역 숫자 읽기가 ''와 false를 0으로 읽어, 설비투자 칸이 빈 해는 설비투자 0%·영업현금흐름 전체를 잉여현금흐름으로 계산할 수 있었다(잠재, 구조 시범 중 발견).",
+    "root_cause": "숫자 읽기 함수가 70개 파일에 각자 정의돼 있었고, 일부는 Number('')=0을 막지 않았다(v57.60 공용화 이후 다시 퍼짐).",
+    "fix": "공용 readNumber(빈 값·공백·불리언·배열·객체는 없음)를 쓰고 기간 끝 날짜는 공용 isoDay로 읽는다.",
+    "violated_rule": "R3: 빠진 값은 0이 아니다(P2141 클래스).",
+    "prevention": "pipeline-semantics fundamentals 케이스 PILOT-NUM-01; shared-primitive-ratchet이 지역 사본 수를 줄어들기만 하게 고정.",
+    "verification": "node scripts/ci-pipeline-semantics-check.mjs PASS(180); node scripts/ci-shared-primitive-ratchet-check.mjs PASS."
+  },
+  "changelog": [
+    "**현금 조건의 빈 설비투자 ({P}):** 설비투자 칸이 빈 해를 설비투자 0%로 읽지 않는다."
+  ],
+  "note": "v59.46: 소유자 결정 반영 — 설정 가이드 퇴역, 차트 렌즈 R724, 옵션 질문 근거, 미국 스크리너 행 이어쓰기, 상대화 실험 현행 모델 재실행, 공용 관측 부품 시범"
+}

@@ -33,7 +33,9 @@ export function buildAnswerPrinciples({ today, mode = 'analysis', hasTickers = f
   // close is still the latest value. Each value is judged by its own date; an unknown file age is said as unknown.
   lines.push('• 수치의 최신성은 각 수치에 붙은 기준일로 판단한다 — 월간 통계는 다음 발표 전까지 가장 최근 값이고, 휴장일에는 직전 완료 종가가 최신 종가다.');
   if (snapAgeHours == null) lines.push('• 정적 데이터: 생성 시각 확인 안 됨 — 인용할 때마다 그 수치의 기준일을 밝혀라');
-  else if (snapAgeHours >= 72) lines.push(`• 정적 데이터: ${snapAgeHours}시간(${Math.round(snapAgeHours / 24)}일) 경과 — 정적 수치를 현재값으로 인용하지 마라`);
+  // v59.45 (pipeline review PASS12 후보): "정적 수치를 현재값으로 인용하지 마라" contradicted the per-value rule above — a
+  // monthly figure in a four-day-old file is still the latest one. A late file now withholds only values its own date has passed.
+  else if (snapAgeHours >= 72) lines.push(`• 정적 데이터: ${snapAgeHours}시간(${Math.round(snapAgeHours / 24)}일) 경과 — 기준일이 지난 수치(일간 시세 등)는 현재값으로 인용하지 마라`);
   else if (snapAgeHours >= 48) lines.push(`• 정적 데이터: ${snapAgeHours}시간 경과 — 인용 시 기준 시각을 밝혀라`);
   lines.push('• 없거나 확인되지 않은 데이터는 "확인되지 않음"으로 밝히고 추측으로 채우지 마라.');
   return `${lines.join('\n')}\n`;

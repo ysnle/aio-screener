@@ -7,6 +7,7 @@
 import { placeTooltipBody } from './term-tooltip.js';
 import { claimPopover, releasePopover, watchScroll, hoverSuppressed } from './popover.js';
 import { countOpenSessionsBetween, latestCompletedKrSession, latestCompletedUsSession } from '../../domain/market/market-calendar.js';
+import { isIsoDay } from '../../domain/shared/session-date.js';
 
 const DATE_ATTRS = ['data-observed-at', 'data-source-ts', 'data-as-of'];
 const KST = new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
@@ -24,13 +25,18 @@ export function basisAge(stamp, nowMs, { market = 'US', cadence = null, freshnes
   const text = String(stamp || '').trim();
   if (!text) return null;
   const judged = freshness ? (/stale|expired|delayed|late/.test(freshness) ? true : /current|fresh|ok/.test(freshness) ? false : null) : undefined;
-  if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+  if (isIsoDay(text)) {
+    // v59.45 (pipeline review R1-04): a date after the latest completed session (a future date, or today while the session
+    // is still open) is not "최신 거래일" — it is named as not yet complete and claims neither fresh nor late.
     if (CADENCE_DAYS[cadence]) {
-      const days = Math.max(0, Math.floor((nowMs - Date.parse(`${text}T00:00:00Z`)) / 86400000));
+      const rawDays = Math.floor((nowMs - Date.parse(`${text}T00:00:00Z`)) / 86400000);
+      if (rawDays < 0) return { label: `${text} 기준`, age: '아직 오지 않은 날짜', days: null, cadence, stale: judged !== undefined ? judged : null };
+      const days = Math.max(0, rawDays);
       const age = days < 60 ? `${days}일 전` : `약 ${Math.round(days / 30.4)}개월 전`;
       return { label: `${text} 기준`, age, days, cadence, stale: judged !== undefined ? judged : days > CADENCE_DAYS[cadence] };
     }
     const latest = (market === 'KR' ? latestCompletedKrSession(nowMs) : latestCompletedUsSession(nowMs, { requirePrevious: false }))?.date || null;
+    if (latest && text > latest) return { label: `${text} 기준`, age: '완료 전 거래일', lag: null, stale: judged !== undefined ? judged : null };
     const lag = latest && latest > text ? countOpenSessionsBetween(text, latest, market) : 0;
     return { label: `${text} 기준`, age: lag === 0 ? '최신 거래일' : `${lag}거래일 전`, lag, stale: judged !== undefined ? judged : lag > 2 };
   }
@@ -38,7 +44,7 @@ export function basisAge(stamp, nowMs, { market = 'US', cadence = null, freshnes
   if (!Number.isFinite(parsed)) return null;
   const hours = (nowMs - parsed) / 3600000;
   const label = `${KST.format(new Date(parsed)).replace(/\.\s?/g, '-').replace(/-\s*$/, '').replace(/-(\d{2}:)/, ' $1')} KST 관측`;
-  if (hours < 0) return { label, age: null, hours, stale: judged !== undefined ? judged : false };
+  if (hours < 0) return { label, age: null, hours, stale: judged !== undefined ? judged : null }; // v59.45 R1-04: a future instant is not "fresh"
   const age = hours < 1 ? '1시간 이내' : hours < 48 ? `${Math.floor(hours)}시간 전` : `${Math.floor(hours / 24)}일 전`;
   const byCadence = cadence === 'intraday' ? hours > 24 : cadence === 'session' ? hours > 96 : CADENCE_DAYS[cadence] ? hours / 24 > CADENCE_DAYS[cadence] : null;
   return { label, age, hours, stale: judged !== undefined ? judged : byCadence };

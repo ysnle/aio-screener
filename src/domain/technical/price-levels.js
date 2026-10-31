@@ -4,8 +4,8 @@
 // completed daily bars — no DOM, no network.
 import { smaSeries, emaSeries, atrWilder, adrPctOf, rangeExtremesOf, detectContractions } from './definitions.js';
 import { buildVolumeByPrice } from './chart-scenarios.js';
+import { finiteNumber as finite } from '../shared/number.js';
 
-const finite = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
 
 export const PRICE_LEVEL_RULES = Object.freeze({
   swingSpan: 5, // a swing high (low) is the highest high (lowest low) of 5 bars on each side

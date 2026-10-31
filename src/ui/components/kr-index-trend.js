@@ -8,7 +8,7 @@ import { shortDate } from '../../domain/content/date-labels.js';
 import { createTrendChart } from './trend-chart.js';
 import { el } from './dom.js';
 import { RULES } from '../../domain/rules/thresholds.js';
-import { signedText } from '../../domain/shared/number.js';
+import { directionOf, signedText } from '../../domain/shared/number.js';
 
 export const KR_INDEX_TRENDS = Object.freeze([
   Object.freeze({ field: 'kospi', label: '코스피', hostId: 'kr-kospi-tech-result' }),
@@ -40,7 +40,9 @@ export function krIndexTrendFacts(history = [], field, { through = null, now = n
   const record = now != null ? krIndexMoveRecord(history, field, { now }) : null;
   return {
     field, date: last.date, value: last.value, sessions: series.length, series,
-    d1: change(1), d5: change(5), d20: change(KR_MONTH_SESSIONS), ma50, ma200, record: record?.date === last.date ? record : null,
+    d1: change(1), d5: change(5), d20: change(KR_MONTH_SESSIONS), ma50,
+    // v59.45 (R1-05): the day's colour follows the printed one-decimal move ('하루 0.0%' has none).
+    d1Direction: directionOf(change(1), 1), ma200, record: record?.date === last.date ? record : null,
     position50: ma50 == null ? null : side(last.value, ma50),
     position200: ma200 == null ? null : side(last.value, ma200),
     cross: ma50 != null && ma200 != null ? side(ma50, ma200) : null,
@@ -85,7 +87,7 @@ function renderCard(doc, host, def, facts) {
   const head = el(doc, 'div', null, 'trend-card-head');
   head.append(el(doc, 'h3', def.label, 'trend-card-title'), el(doc, 'span', close(facts.value), 'trend-card-value'));
   // v58.53 개편 v2 (5n): the day's move under the value in the Korean convention (up red · down blue, color-theme.js tokens).
-  if (facts.d1 != null) head.append(el(doc, 'span', `하루 ${signed(facts.d1)}`, `kr-index-move ${facts.d1 > 0 ? 'kr-up' : facts.d1 < 0 ? 'kr-down' : ''}`.trim()));
+  if (facts.d1 != null) head.append(el(doc, 'span', `하루 ${signed(facts.d1)}`, `kr-index-move ${({ up: 'kr-up', down: 'kr-down' })[facts.d1Direction] || ''}`.trim()));
   const tags = el(doc, 'div', null, 'trend-card-tags');
   tags.append(el(doc, 'span', '한국', 'sx-chip sx-chip--sm kr-market-chip'), el(doc, 'span', `${shortDate(facts.date)} 한국 종가`, 'basis-chip'));
   const position = el(doc, 'div', krIndexPositionText(facts), 'trend-card-latest');

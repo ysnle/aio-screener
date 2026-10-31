@@ -1,4 +1,5 @@
 import { finiteNumber as finite } from '../../domain/shared/number.js';
+import { isIsoDay } from '../../domain/shared/session-date.js';
 function normalizeThemeDetail(detail) {
   if (!detail || typeof detail !== 'object') return null;
   const leaders = Array.isArray(detail.leaders)
@@ -53,7 +54,7 @@ function normalizeThemeDetail(detail) {
     pct: finite(detail.pct),
     breadth: finite(detail.breadth),
     source: String(detail.source || 'theme-detail-provider'),
-    quoteBasis: detail.quoteBasis?.kind === 'completed-close' && /^\d{4}-\d{2}-\d{2}$/.test(String(detail.quoteBasis.session || ''))
+    quoteBasis: detail.quoteBasis?.kind === 'completed-close' && isIsoDay(String(detail.quoteBasis.session || ''))
       ? Object.freeze({ kind: 'completed-close', session: detail.quoteBasis.session }) : Object.freeze({ kind: 'live', session: null }),
     membershipPolicy: detail.membershipPolicy && typeof detail.membershipPolicy === 'object' ? Object.freeze({
       version: String(detail.membershipPolicy.version || 'theme-membership.v1'),

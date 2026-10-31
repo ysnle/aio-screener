@@ -6,19 +6,20 @@
 // dates instead: FOMC for the years the producer covers, only while meta.fomcStatus is 'ok' (otherwise the manual
 // dates stay, with their own expiry in the manual-reference registry); ISM for the months the producer covers.
 import { refreshSharedArtifact } from './shared-artifacts.js';
+import { isIsoDay } from '../domain/shared/session-date.js';
 
 export const MACRO_CALENDAR = Object.freeze({ key: '_aioMacroCalendar', url: './public-data/macro-calendar.json', schemas: ['macro-calendar.v1'], maxAgeMs: 6 * 60 * 60 * 1000, maxBytes: 256 * 1024 });
 
 const FOMC_KEYS = Object.freeze(['us-fomc', 'us-fed-rate']);
 const ISM_KEYS = Object.freeze(['us-ism-mfg', 'us-ism-svc']);
-const isIsoDate = (date) => /^\d{4}-\d{2}-\d{2}$/.test(String(date));
+const isIsoDate = (date) => isIsoDay(String(date));
 const validDates = (dates) => (Array.isArray(dates) ? [...new Set(dates.filter(isIsoDate))].sort() : []);
 
 export function mergeMacroSchedules(current = {}, produced = {}) {
   const merged = { ...current };
   for (const [calendarId, dates] of Object.entries(produced || {})) {
     if (!Array.isArray(dates)) continue;
-    const valid = dates.filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(String(date)));
+    const valid = dates.filter((date) => isIsoDay(String(date)));
     merged[calendarId] = [...new Set([...(Array.isArray(current[calendarId]) ? current[calendarId] : []), ...valid])].sort();
   }
   return merged;

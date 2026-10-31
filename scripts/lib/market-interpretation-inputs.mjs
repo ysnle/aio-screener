@@ -1,7 +1,10 @@
 // Owner 2026-10-19: the producers' adapter of the interpretation pipeline (src/domain/interpretation/
 // market-interpretation.js). fetch-data (the published narrative) and build-scenario-state (scenario-state.json) build
 // the regime, branches, structure flows, theme stages and market guide through this one function, from the same
-// published artifacts the screens read, so the narrative, the state log and the screens cannot drift apart.
+// published artifacts the screens read. P28-INTERPRETATION-01: same function, not yet the same input — the browser
+// adapter (src/data/selectors/interpretation.js) also passes rotationHistory (outlook sectors, flow), indexEarnings,
+// calendar.releases (hand-kept release dates in js/aio-core.js), breadthSp500 and rates.dgs2AsOf, and keeps HY in
+// received bp where this one rounds; stages fed only there are null here. Both use one clock (nowMs) per build.
 import { buildMarketInterpretation } from '../../src/domain/interpretation/market-interpretation.js';
 import { expandScreenerArtifact } from '../../src/data/screener-extended.js'; // v57.95 core row encoding
 

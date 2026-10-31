@@ -132,11 +132,13 @@ export function selectTopByMarketCap(universeRows, screenerData, topN) {
 async function loadTopUniverse(topN) {
   const universe = JSON.parse(await readFile(`${__dir}/../public-data/screener-universe.json`, 'utf8'));
   const screener = JSON.parse(await readFile(`${__dir}/../public-data/screener.json`, 'utf8'));
-  return selectTopByMarketCap(universe.universe, screener.data, topN);
+  const rows = selectTopByMarketCap(universe.universe, screener.data, topN);
+  // v59.45: the methodology text cites the full universe size; `rows` is already cut to topN.
+  return { rows, fullSize: Array.isArray(universe.universe) ? universe.universe.length : null };
 }
 
 export async function runFactorLongrunBacktest(range, topN, outPath) {
-  const universe = await loadTopUniverse(topN);
+  const { rows: universe, fullSize: fullUniverseSize } = await loadTopUniverse(topN);
 
   // 종목 데이터 + regime 분류용 시장 시리즈(SPX/VIX)를 동일 range로 병렬 fetch(concurrency=4)
   const stockResults = await mapLimit(universe, CONCURRENCY, async (row) => {
@@ -205,46 +207,40 @@ export async function runFactorLongrunBacktest(range, topN, outPath) {
     holdoutPeriod: { n: holdResult.dates, ic: holdResult.ic, icIR: computeICIR(holdResult.icByDate, 21) },
   };
 
-  // regime별 분해: 각 offset(리밸런스 시점)을 시장 시리즈에서 근사 매칭해 regime 라벨 부여 후 그룹핑.
-  // marketSeries와 종목 시리즈 길이가 정확히 같지 않을 수 있어(휴장일 미세 차이) 근사 매칭 —
-  // regime은 범주형 라벨이라 며칠 오차는 실질적 영향이 미미하다(수치형 팩터 계산 자체와는 무관).
-  const regimeGroups = new Map();
-  offsetsAsc.forEach((off) => {
-    const idx = marketSeries.length - off;
-    if (idx < 0 || idx >= marketSeries.length) return;
-    const label = classifyRegime(marketSeries[idx], marketSeries, idx);
-    if (!regimeGroups.has(label)) regimeGroups.set(label, []);
-    regimeGroups.get(label).push(off);
-  });
+  // regime별 분해: backtestFactors가 실제로 채택한 리밸런스 날짜를 시장 시리즈의 같은 날짜에 정확히 맞춘다.
+  // v59.45 (P7-BT-01): offset을 marketSeries.length - off로 다시 환산하면 backtest 달력(length - 1 - off)보다
+  // 한 세션 뒤를 읽어 국면 라벨에 다음 세션 정보가 들어갔다. 시장 시리즈에 그 날짜가 없으면 국면 집계에서 뺀다.
+  const baselineRef = backtestFactors(stockData, { offsets: offsetsAsc, fwdDays: 21 });
+  const { groups: regimeGroups, unmatched: regimeUnmatchedDates } = groupRebalanceDatesByRegime(baselineRef.rebalanceDates, marketSeries);
   const regimes = [...regimeGroups.entries()]
-    .filter(([, offs]) => offs.length >= 5)
-    .map(([label, offs]) => {
-      const r = backtestFactors(stockData, { offsets: offs, fwdDays: 21 });
+    .filter(([, dates]) => dates.length >= 5)
+    .map(([label, dates]) => {
+      const r = backtestFactors(stockData, { rebalanceDates: dates, fwdDays: 21 });
       // Regime groups are non-contiguous dates, so the HAC lag here is only an approximation.
       return { label, n: r.dates, ic: r.ic, icIR: computeICIR(r.icByDate, 21) };
     })
     .sort((a, b) => b.n - a.n);
 
-  const baselineRef = backtestFactors(stockData, { offsets: offsetsAsc, fwdDays: 21 });
   const output = {
     generatedAt: new Date().toISOString(),
     methodology: {
-      scope: `Reduced-scope validation of the live factor ranking model's momentum/trend/lowvol/kalman(+composite) sub-formula, using top ${topN} tickers by market cap (of ${universe.length} in the full SCREENER_DB universe) with real ${range} daily history.`,
+      scope: `Reduced-scope validation of the live factor ranking model's momentum/trend/lowvol/kalman(+composite) sub-formula, using top ${topN} tickers by market cap (of ${fullUniverseSize} in the full SCREENER_DB universe) with real ${range} daily history.`,
       excludedFactors: baselineRef.excludedFactors,
       excludedFactorsReason: baselineRef.excludedFactorsReason,
       survivorshipBiasCaveat: 'Uses TODAY\'s top-mcap universe applied retroactively over the full lookback window — any ticker that would have been delisted/acquired/failed during this period is entirely absent from the sample. This systematically tends to overstate momentum/quality-style factor performance in the finance literature. Not resolvable without paid point-in-time index-constituent history; NOT claimed as resolved or "passed" here.',
-      subsetNotFullUniverse: `Uses top ${topN} by market cap, not the full ${universe.length}-ticker universe, to bound Yahoo Finance request volume (this repo's own fetch-data.mjs/ci.yml comments document a prior Yahoo IP-blocking incident from excess request volume).`,
+      subsetNotFullUniverse: `Uses top ${topN} by market cap, not the full ${fullUniverseSize}-ticker universe, to bound Yahoo Finance request volume (this repo's own fetch-data.mjs/ci.yml comments document a prior Yahoo IP-blocking incident from excess request volume).`,
       icIRNote: 'ICIR = mean(IC across rebalance dates) / stddev(IC across rebalance dates), with a t-stat and approximate 95% CI via the standard IC-IR normal approximation (t = ICIR * sqrt(dates), CI = mean ± 1.96*stddev/sqrt(dates)) — this is what Codex\'s WO-3 gate means by "IC/ICIR/t-stat", distinct from the pooled-cross-section Fisher-z CI used in the WO-2 score backtest.',
       icInferenceCaveat: 'Forward windows (up to 63 trading days) overlap across 21-day rebalances, so the IC observations are serially dependent while se = std/sqrt(n) assumes independence. tStat/ci95 are kept as the naive descriptive figures; hac.hacTStat/hac.hacCi95 apply a Newey-West (Bartlett) HAC standard error with lag max(ceil(fwd/21)-1, floor(4(n/100)^(2/9))) (v58.83). HAC corrects serial dependence only — it does not remove survivorship bias, multiple-testing across factors and horizons, or regime-sample non-contiguity.',
       priceBasisCaveat: 'Only tickers whose Yahoo adjusted-close series is complete over the requested range are ranked (universe.adjustedCloseExcluded counts the rest). Raw and adjusted closes are never mixed in one return series, and no automatic corporate-action repair is attempted.',
       liveModelParity: 'This still validates only 4 of the live _aioComputeFactorRanks() model\'s 7 factors, always at the production-fixed NEUTRAL weights (same limitation already documented in fetch-data.mjs backtestFactors() since P586/C2) — marketState proposal tilts are not promoted or validated here.',
       modelFingerprint: baselineRef.modelFingerprint, // P1449: same model identity contract as the daily backtest artifact (its rebalance offsets differ, so its canonical string may differ from the daily one)
     },
-    universe: { requestedTop: topN, fetchedTickers: stockData.length, fullUniverseSize: universe.length, dataRange: range, priceBasis: 'adjusted-close-only', adjustedCloseExcluded },
+    universe: { requestedTop: topN, fetchedTickers: stockData.length, fullUniverseSize, dataRange: range, priceBasis: 'adjusted-close-only', adjustedCloseExcluded },
     rebalanceDates: { count: offsetsAsc.length, comparedToProductionBacktest: 6 },
     overallByHorizon: overall,
     walkForward,
     regimes,
+    regimeUnmatchedDates,
     externalBenchmark,
     caveats: [
       'Survivorship bias is NOT resolved (see methodology.survivorshipBiasCaveat) — treat all IC/ICIR figures here as an upper-bound-leaning estimate, not a clean out-of-sample figure.',
@@ -301,3 +297,18 @@ if (__entryArg && (import.meta.url === `file://${__entryArg}` || import.meta.url
   }).catch((e) => { console.error('[backtest-factors-longrun] error:', e.stack || e.message); process.exit(1); });
 }
 function walkForwardSummary(period) { return { ic: period.ic.composite, icIR: period.icIR.composite && period.icIR.composite.icIR }; }
+
+// v59.45 (P7-BT-01): label each adopted rebalance date with the market regime observed on that same date.
+export function groupRebalanceDatesByRegime(rebalanceDates, marketSeries) {
+  const indexByDate = new Map((marketSeries || []).map((row, index) => [row.date, index]));
+  const groups = new Map();
+  const unmatched = [];
+  for (const date of rebalanceDates || []) {
+    const idx = indexByDate.get(date);
+    if (idx == null) { unmatched.push(date); continue; }
+    const label = classifyRegime(marketSeries[idx], marketSeries, idx);
+    if (!groups.has(label)) groups.set(label, []);
+    groups.get(label).push(date);
+  }
+  return { groups, unmatched };
+}

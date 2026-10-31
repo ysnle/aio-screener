@@ -6,6 +6,7 @@
 import { keywordHit, keywordMatcher, matchedKeywords, countKeywords } from './keyword-match.js';
 import { keywordMayMatch, textPairs } from './keyword-prefilter.js';
 import { classifyNewsTextStance } from './scoring.js';
+import { reportIsUnconfirmed } from './report-verification.js';
 import { MACRO_KW, TECH_KW, MED_KW, ANALYST_KW, NEWS_BLACKLIST_KW, TOPIC_KEYWORDS, FINANCE_RELEVANCE_KW } from './selection-keywords.js';
 
 // Verb lists keep their tenses ('surged', 'plunged'), as the news stance model does.
@@ -29,8 +30,12 @@ const UNVERIFIED_CLAIM_KW = [
   '복수의 소식통', '사정에 정통한', '알려진 바에 따르면'
 ];
 const hasUnverifiedClaim = keywordMatcher(UNVERIFIED_CLAIM_KW);
+// v59.45 (pipeline review P20-VERIFY-01): the shared report rule (rumour, chatter, anonymous source) and the producer's
+// own 'unconfirmed' label decide too, so a headline the news bundle calls a rumour is never verified-current here.
 export function isUnverifiedClaim(item) {
-  return hasUnverifiedClaim((item.title || '') + ' ' + (item.desc || '') + ' ' + (item.translated || ''));
+  if (item && String(item.verification || '').toLowerCase() === 'unconfirmed') return true;
+  const text = (item.title || '') + ' ' + (item.desc || '') + ' ' + (item.summary || '') + ' ' + (item.translated || '');
+  return hasUnverifiedClaim(text) || reportIsUnconfirmed(text);
 }
 
 /* ── classifyTopic(): 뉴스 토픽 분류 ── */
@@ -242,8 +247,20 @@ function weightedHits(list, title, desc, pairs) {
   return hits;
 }
 
+// v59.45 (pipeline review P20-CACHE-01): the key carries every input of the cached (time-free) part — a richer summary,
+// a new tier or country is a new entry — and the freshness points are added on each call, so a long-open tab no longer
+// keeps a five-day-old article at its first-hour score.
 function scoreCacheKey(item) {
-  return (item.title || '') + '|' + (item.source || '') + '|' + (item.pubDate || '');
+  return [item.title || '', item.source || '', item.pubDate || '', item.desc || '', item.tier ?? '', item.country || '', item.verification || ''].join('|');
+}
+function freshnessPoints(item, env) {
+  if (!item.pubDate) return 0;
+  const ageH = ((env.now ? env.now() : Date.now()) - new Date(item.pubDate).getTime()) / 3600000;
+  if (ageH <= 1) return 20;
+  if (ageH <= 6) return 12;
+  if (ageH <= 24) return 5;
+  if (ageH <= 72) return 0;
+  return -Math.min((ageH - 72) / 24, 15); // 3일 이후: 하루당 -1, 최대 -15
 }
 
 /**
@@ -253,11 +270,14 @@ function scoreCacheKey(item) {
 export function scoreItem(item, env = {}) {
   const cache = env.cache || null;
   const extractTickers = env.extractTickers || ((i) => i.tickers || []);
-  const put = (score) => {
+  // `rest` is the score without the freshness points (null for an excluded article, which always scores 0).
+  const put = (score, rest = null) => {
     if (item && !item.impactVector) item.impactVector = calcNewsImpactVector(item, env);
-    if (cache) cache.set(scoreCacheKey(item), { s: score, tm: item._tickerMentions || 0, bl: !!item._blacklisted, sr: item._scoreReasons || [] });
+    if (cache) cache.set(scoreCacheKey(item), { s: score, rest, tm: item._tickerMentions || 0, bl: !!item._blacklisted, sr: item._scoreReasons || [] });
     return score;
   };
+  // A row scored again starts unexcluded; only this scoring sets the flag (a stale flag must not outlive a changed row).
+  if (item) delete item._blacklisted;
   if (cache) {
     const cached = cache.get(scoreCacheKey(item));
     if (cached !== null && cached !== undefined) {
@@ -265,7 +285,7 @@ export function scoreItem(item, env = {}) {
       if (cached.bl) item._blacklisted = true;
       item._scoreReasons = cached.sr || [];
       item.impactVector = calcNewsImpactVector(item, env);
-      return cached.s;
+      return cached.bl || !Number.isFinite(cached.rest) ? cached.s : Math.max(0, Math.round(cached.rest + freshnessPoints(item, env)));
     }
   }
 
@@ -309,15 +329,9 @@ export function scoreItem(item, env = {}) {
   if (item.country === 'kr' && item.tier === 3) score -= 5; // v38.3 B3: 비금융 기사 유입 가능성 높은 소스
   if ((item.source || '').includes('구글뉴스')) score += 4; // v29.1
 
-  // ── 3. 신선도 감쇄 ──
-  if (item.pubDate) {
-    const ageH = ((env.now ? env.now() : Date.now()) - new Date(item.pubDate).getTime()) / 3600000;
-    if (ageH <= 1) score += 20;
-    else if (ageH <= 6) score += 12;
-    else if (ageH <= 24) score += 5;
-    else if (ageH <= 72) score += 0;
-    else score -= Math.min((ageH - 72) / 24, 15); // 3일 이후: 하루당 -1, 최대 -15
-  }
+  // ── 3. 신선도 감쇄 (freshnessPoints; not cached) ──
+  const freshness = freshnessPoints(item, env);
+  score += freshness;
 
   // ── 4. 티커 언급 부스트 (v30.12: 오탐 방지 — extractTickers 재사용) ──
   const foundTickers = extractTickers(item);
@@ -410,7 +424,7 @@ export function scoreItem(item, env = {}) {
     scoreReasons.push('shortTitle=-10');
   }
   item._scoreReasons = scoreReasons.slice(0, 10);
-  return put(Math.max(0, Math.round(score)));
+  return put(Math.max(0, Math.round(score)), score - freshness);
 }
 
 /* ── 화면별 선별 (v50.2: home / briefing / market-news 공용 계약 + 분석 화면 토픽 줄) ── */
@@ -495,8 +509,9 @@ export function newsPubMs(item) {
 export function newsSourceTier(item) {
   if (item && item.tier != null && isFinite(Number(item.tier))) return Number(item.tier);
   const src = String(item && item.source || '');
-  if (/Reuters|Bloomberg|Associated Press|AP News|Financial Times|FT|Wall Street Journal|WSJ/i.test(src)) return 1;
-  if (/CNBC|MarketWatch|Barron|Yahoo Finance|Investing|Seeking Alpha|Economist|NYT|Nikkei|Yonhap|Naver/i.test(src)) return 2;
+  // v59.45 (pipeline review P20-TIER-01): whole names only — "Software News" is not FT, "Investinghub" not Investing.com.
+  if (/\b(?:Reuters|Bloomberg|Associated Press|AP News|Financial Times|Wall Street Journal|WSJ)\b/i.test(src) || /\bFT\b/.test(src)) return 1;
+  if (/\b(?:CNBC|MarketWatch|Barron's|Barrons?|Yahoo Finance|Investing\.com|Seeking Alpha|Economist|NYT|Nikkei|Yonhap|Naver)\b/i.test(src)) return 2;
   if (/^TG\s|Telegram/i.test(src) || item && (item._tgChannel || item.tgSlug)) return 4;
   return 3;
 }
@@ -599,9 +614,11 @@ export function normalizeNewsItem(surfaceId, item, contract, nowMs, cycleWindow,
   let inNewsCycle = !!(cycleWindow && pubMs && pubMs >= cycleWindow.start && pubMs < cycleWindow.end);
   const itemCycleStart = item && item.newsCycleStart ? new Date(item.newsCycleStart).getTime() : 0;
   const itemCycleEnd = item && item.newsCycleEnd ? new Date(item.newsCycleEnd).getTime() : 0;
-  const serverCycleTrusted = !!(item && item._serverBackstop && item.newsCyclePolicy === contract.newsCyclePolicy && isFinite(itemCycleStart) && isFinite(itemCycleEnd) && itemCycleEnd > itemCycleStart && nowMs - itemCycleEnd <= (contract.windowHours || 24) * 3600000); // P1403: only the latest cycle (an older one restored a 43h-old headline as current)
-  if (!inNewsCycle && serverCycleTrusted && pubMs && pubMs >= itemCycleStart && pubMs < itemCycleEnd) inNewsCycle = true;
-  const statusAgeHours = inNewsCycle && contract.newsCyclePolicy === 'kst-0800-completed-24h' ? Math.min(ageHours, contract.windowHours || 24) : ageHours;
+  const serverCycleTrusted = !!(item && item._serverBackstop && item.newsCyclePolicy === contract.newsCyclePolicy && isFinite(itemCycleStart) && isFinite(itemCycleEnd) && itemCycleEnd > itemCycleStart && nowMs - itemCycleEnd <= (contract.windowHours || 24) * 3600000
+    // v59.45 (pipeline review P20-TIME-01): a completed cycle has ended; one that ends in the future is not trusted.
+    && itemCycleEnd <= nowMs + 5 * 60 * 1000); // P1403: only the latest cycle (an older one restored a 43h-old headline as current)
+  if (!inNewsCycle && serverCycleTrusted && pubMs && !futurePublication && pubMs >= itemCycleStart && pubMs < itemCycleEnd) inNewsCycle = true;
+  const statusAgeHours = inNewsCycle && !futurePublication && contract.newsCyclePolicy === 'kst-0800-completed-24h' ? Math.min(ageHours, contract.windowHours || 24) : ageHours;
   let tickers = [];
   try { tickers = env.displayTickers ? env.displayTickers(item) : (item.tickers || []); } catch (_) { tickers = item && item.tickers || []; }
   const row = Object.assign({}, item || {});
@@ -629,7 +646,7 @@ export function normalizeNewsItem(surfaceId, item, contract, nowMs, cycleWindow,
   row.staleStatus = row.verificationStatus === 'stale' ? 'stale' : 'current-window';
   row.sourcePolicy = surfaceId === 'briefing' ? contract.aiPolicy : 'surface-contract';
   row.inclusionReason = inclusionReason(row, surfaceId);
-  row.eligibleForAi = row.contentDepth !== 'headline-only'
+  row.eligibleForAi = !futurePublication && row.contentDepth !== 'headline-only'
     && (row.verificationStatus === 'verified-current' || (row.verificationStatus === 'current' && row.sourceTier <= 2));
   const windowHours = Number(contract.windowHours || 48);
   const withinWindow = !futurePublication && (inNewsCycle || (isFinite(ageHours) && ageHours <= windowHours));
@@ -662,7 +679,8 @@ function applyNewsFilterOptions(rows, opts, env) {
     } else if (cf === 'eu') {
       filtered = filtered.filter((i) => ['eu','uk'].indexOf(String(i.country || '').toLowerCase()) !== -1);
     } else if (cf === 'tg') {
-      filtered = filtered.filter((i) => i._tgChannel === true || /^TG\s/i.test(i.source || '') || !!i.tgSlug);
+      // v59.45 (R2-02): the producer stores the channel slug ('fastdesk') in _tgChannel; any truthy value is a channel row.
+      filtered = filtered.filter((i) => !!i._tgChannel || /^TG\s/i.test(i.source || '') || !!i.tgSlug);
     } else {
       filtered = filtered.filter((i) => String(i.country || '').toLowerCase() === cf);
     }

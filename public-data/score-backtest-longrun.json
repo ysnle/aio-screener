@@ -1,29 +1,29 @@
 {
- "generatedAt": "2026-08-14T15:17:38.162Z",
+ "generatedAt": "2026-10-31T04:08:34.092Z",
  "methodology": {
   "scope": "PARTIAL validation of computeTradingScore() — covers only volScore(VIX)+trendScore(SPX vs 50/200MA)+macroScore(DXY/TNX/HYG/VIX/oil) inputs, which are the ones with freely obtainable multi-year PIT history.",
   "excludedInputs": [
-   "momScore (Fear&Greed) — held at neutral constant (45), no free multi-year historical source",
-   "breadthScore (breadth200) — held at code fallback constant (57), no free multi-year historical source",
-   "PCR correction — held at code fallback constant (0.95)",
-   "AAII-bearish correction — held at code fallback constant (50)",
-   "news sentiment correction — omitted (0), no historical news corpus"
+   "risk appetite — put/call has no free multi-year history (null); HY spread is a HYG-price proxy, so the 25% risk-appetite axis rests on the proxy alone",
+   "breadth — no free multi-year history; the current model drops the missing breadth axis from the denominator (weights re-normalised), it is not held at a constant",
+   "Fear&Greed — not a composite input since P1388 (v4); the value passed is ignored",
+   "news sentiment correction — omitted, no historical news corpus"
   ],
   "fixedRuleNotFittedModel": "computeTradingScore weights/thresholds are hand-set constants, not parameters fit to data. \"referencePeriod\"/\"holdoutPeriod\" below check temporal stability of a FIXED rule, not generalization of a fitted model — deliberately not called \"train/test\".",
   "regimeClassification": "Computed from the fetched data itself (trailing VIX level + trailing-252-day drawdown from rolling ATH) — not from hardcoded historical narrative dates, to avoid relying on memorized calendar boundaries.",
-  "dataSource": "Yahoo Finance public chart API (query1/query2.finance.yahoo.com/v8/finance/chart), same endpoint pattern already used in production by scripts/fetch-data.mjs fetchHistory()."
+  "dataSource": "Yahoo Finance public chart API (query1/query2.finance.yahoo.com/v8/finance/chart), same endpoint pattern already used in production by scripts/fetch-data.mjs fetchHistory().",
+  "dependenceControl": "Pooled daily correlations are descriptive only because T+n returns overlap. nonOverlappingPhaseCorrelations evaluates every start phase at n-session spacing; promotion requires sign stability across all phases plus holdout consistency."
  },
  "dataRange": {
-  "from": "2016-08-15",
-  "to": "2026-08-14",
+  "from": "2016-10-31",
+  "to": "2026-10-30",
   "tradingDays": 2514,
   "perSymbolFetchCount": {
    "spx": 2514,
-   "vix": 2515,
+   "vix": 2516,
    "vvix": 2506,
    "tnx": 2513,
-   "dxy": 2514,
-   "wti": 2514,
+   "dxy": 2515,
+   "wti": 2515,
    "hyg": 2514
   }
  },
@@ -39,18 +39,18 @@
    },
    "vol": {
     "n": 2513,
-    "rho": -0.041,
+    "rho": -0.046,
     "ci95": [
-     -0.08,
-     -0.002
+     -0.085,
+     -0.007
     ]
    },
    "trend": {
     "n": 2314,
     "rho": -0.037,
     "ci95": [
-     -0.077,
-     0.004
+     -0.078,
+     0.003
     ]
    },
    "macro": {
@@ -58,31 +58,31 @@
     "rho": -0.005,
     "ci95": [
      -0.044,
-     0.034
+     0.035
     ]
    },
    "compositeRel": {
-    "n": 2260,
-    "rho": -0.014,
+    "n": 2261,
+    "rho": -0.019,
     "ci95": [
-     -0.056,
-     0.027
+     -0.061,
+     0.022
     ]
    },
    "volRel": {
-    "n": 2260,
-    "rho": -0.028,
+    "n": 2261,
+    "rho": -0.037,
     "ci95": [
-     -0.069,
-     0.014
+     -0.078,
+     0.004
     ]
    },
    "macroRel": {
-    "n": 2260,
-    "rho": 0.038,
+    "n": 2261,
+    "rho": 0.046,
     "ci95": [
-     -0.003,
-     0.079
+     0.005,
+     0.087
     ]
    }
   },
@@ -97,63 +97,55 @@
    },
    "vol": {
     "n": 2509,
-    "rho": -0.104,
+    "rho": -0.106,
     "ci95": [
-     -0.142,
-     -0.065
+     -0.145,
+     -0.067
     ]
    },
    "trend": {
     "n": 2310,
-    "rho": -0.059,
+    "rho": -0.075,
     "ci95": [
-     -0.1,
-     -0.018
+     -0.116,
+     -0.035
     ]
    },
    "macro": {
     "n": 2509,
-    "rho": -0.015,
+    "rho": -0.005,
     "ci95": [
-     -0.055,
-     0.024
+     -0.044,
+     0.034
     ]
    },
    "compositeRel": {
-    "n": 2256,
-    "rho": -0.034,
+    "n": 2257,
+    "rho": -0.055,
     "ci95": [
-     -0.075,
-     0.008
+     -0.096,
+     -0.014
     ]
    },
    "volRel": {
-    "n": 2256,
-    "rho": -0.066,
+    "n": 2257,
+    "rho": -0.09,
     "ci95": [
-     -0.107,
-     -0.025
+     -0.131,
+     -0.049
     ]
    },
    "macroRel": {
-    "n": 2256,
-    "rho": 0.045,
+    "n": 2257,
+    "rho": 0.052,
     "ci95": [
-     0.004,
-     0.086
+     0.011,
+     0.093
     ]
    }
   },
   "fwd21d": {
    "composite": {
-    "n": 2493,
-    "rho": -0.168,
-    "ci95": [
-     -0.206,
-     -0.129
-    ]
-   },
-   "vol": {
     "n": 2493,
     "rho": -0.17,
     "ci95": [
@@ -161,49 +153,65 @@
      -0.132
     ]
    },
+   "vol": {
+    "n": 2493,
+    "rho": -0.177,
+    "ci95": [
+     -0.215,
+     -0.139
+    ]
+   },
    "trend": {
     "n": 2294,
-    "rho": -0.11,
+    "rho": -0.131,
     "ci95": [
-     -0.15,
-     -0.069
+     -0.171,
+     -0.091
     ]
    },
    "macro": {
     "n": 2493,
-    "rho": -0.108,
+    "rho": -0.116,
     "ci95": [
-     -0.147,
-     -0.069
+     -0.154,
+     -0.077
     ]
    },
    "compositeRel": {
-    "n": 2240,
-    "rho": -0.073,
+    "n": 2241,
+    "rho": -0.104,
     "ci95": [
-     -0.114,
-     -0.031
+     -0.145,
+     -0.063
     ]
    },
    "volRel": {
-    "n": 2240,
-    "rho": -0.107,
+    "n": 2241,
+    "rho": -0.136,
     "ci95": [
-     -0.148,
-     -0.066
+     -0.176,
+     -0.095
     ]
    },
    "macroRel": {
-    "n": 2240,
-    "rho": 0.036,
+    "n": 2241,
+    "rho": 0.045,
     "ci95": [
-     -0.005,
-     0.077
+     0.004,
+     0.087
     ]
    }
   },
   "fwd63d": {
    "composite": {
+    "n": 2451,
+    "rho": -0.257,
+    "ci95": [
+     -0.294,
+     -0.22
+    ]
+   },
+   "vol": {
     "n": 2451,
     "rho": -0.263,
     "ci95": [
@@ -211,116 +219,1842 @@
      -0.226
     ]
    },
-   "vol": {
-    "n": 2451,
-    "rho": -0.264,
-    "ci95": [
-     -0.3,
-     -0.226
-    ]
-   },
    "trend": {
     "n": 2252,
-    "rho": -0.123,
+    "rho": -0.15,
     "ci95": [
-     -0.163,
-     -0.082
+     -0.19,
+     -0.109
     ]
    },
    "macro": {
     "n": 2451,
-    "rho": -0.077,
+    "rho": -0.111,
     "ci95": [
-     -0.116,
-     -0.037
+     -0.15,
+     -0.072
     ]
    },
    "compositeRel": {
-    "n": 2198,
-    "rho": -0.078,
+    "n": 2199,
+    "rho": -0.144,
     "ci95": [
-     -0.12,
-     -0.037
+     -0.185,
+     -0.103
     ]
    },
    "volRel": {
-    "n": 2198,
-    "rho": -0.148,
+    "n": 2199,
+    "rho": -0.2,
     "ci95": [
-     -0.189,
-     -0.107
+     -0.24,
+     -0.16
     ]
    },
    "macroRel": {
-    "n": 2198,
-    "rho": 0.039,
+    "n": 2199,
+    "rho": 0.032,
     "ci95": [
-     -0.003,
-     0.08
+     -0.01,
+     0.074
     ]
+   }
+  }
+ },
+ "nonOverlappingPhaseCorrelations": {
+  "fwd1d": {
+   "composite": {
+    "horizonDays": 1,
+    "phaseCount": 1,
+    "phases": [
+     {
+      "phase": 0,
+      "n": 2513,
+      "rho": -0.042,
+      "ci95": [
+       -0.081,
+       -0.003
+      ]
+     }
+    ],
+    "positivePhasePct": 0,
+    "negativePhasePct": 100,
+    "significantPositivePhases": 0,
+    "significantNegativePhases": 1,
+    "signStablePositive": false,
+    "signStableNegative": true,
+    "allowedUse": "validation-diagnostic-only"
+   },
+   "compositeRel": {
+    "horizonDays": 1,
+    "phaseCount": 1,
+    "phases": [
+     {
+      "phase": 0,
+      "n": 2261,
+      "rho": -0.019,
+      "ci95": [
+       -0.061,
+       0.022
+      ]
+     }
+    ],
+    "positivePhasePct": 0,
+    "negativePhasePct": 100,
+    "significantPositivePhases": 0,
+    "significantNegativePhases": 0,
+    "signStablePositive": false,
+    "signStableNegative": true,
+    "allowedUse": "validation-diagnostic-only"
+   }
+  },
+  "fwd5d": {
+   "composite": {
+    "horizonDays": 5,
+    "phaseCount": 5,
+    "phases": [
+     {
+      "phase": 0,
+      "n": 502,
+      "rho": -0.118,
+      "ci95": [
+       -0.204,
+       -0.031
+      ]
+     },
+     {
+      "phase": 1,
+      "n": 502,
+      "rho": -0.11,
+      "ci95": [
+       -0.196,
+       -0.023
+      ]
+     },
+     {
+      "phase": 2,
+      "n": 502,
+      "rho": -0.063,
+      "ci95": [
+       -0.149,
+       0.025
+      ]
+     },
+     {
+      "phase": 3,
+      "n": 502,
+      "rho": -0.071,
+      "ci95": [
+       -0.157,
+       0.017
+      ]
+     },
+     {
+      "phase": 4,
+      "n": 501,
+      "rho": -0.112,
+      "ci95": [
+       -0.198,
+       -0.025
+      ]
+     }
+    ],
+    "positivePhasePct": 0,
+    "negativePhasePct": 100,
+    "significantPositivePhases": 0,
+    "significantNegativePhases": 3,
+    "signStablePositive": false,
+    "signStableNegative": true,
+    "allowedUse": "validation-diagnostic-only"
+   },
+   "compositeRel": {
+    "horizonDays": 5,
+    "phaseCount": 5,
+    "phases": [
+     {
+      "phase": 0,
+      "n": 451,
+      "rho": -0.071,
+      "ci95": [
+       -0.162,
+       0.021
+      ]
+     },
+     {
+      "phase": 1,
+      "n": 451,
+      "rho": -0.059,
+      "ci95": [
+       -0.151,
+       0.033
+      ]
+     },
+     {
+      "phase": 2,
+      "n": 452,
+      "rho": -0.033,
+      "ci95": [
+       -0.125,
+       0.059
+      ]
+     },
+     {
+      "phase": 3,
+      "n": 452,
+      "rho": -0.035,
+      "ci95": [
+       -0.127,
+       0.057
+      ]
+     },
+     {
+      "phase": 4,
+      "n": 451,
+      "rho": -0.075,
+      "ci95": [
+       -0.166,
+       0.018
+      ]
+     }
+    ],
+    "positivePhasePct": 0,
+    "negativePhasePct": 100,
+    "significantPositivePhases": 0,
+    "significantNegativePhases": 0,
+    "signStablePositive": false,
+    "signStableNegative": true,
+    "allowedUse": "validation-diagnostic-only"
+   }
+  },
+  "fwd21d": {
+   "composite": {
+    "horizonDays": 21,
+    "phaseCount": 21,
+    "phases": [
+     {
+      "phase": 0,
+      "n": 119,
+      "rho": -0.212,
+      "ci95": [
+       -0.377,
+       -0.033
+      ]
+     },
+     {
+      "phase": 1,
+      "n": 119,
+      "rho": -0.167,
+      "ci95": [
+       -0.337,
+       0.013
+      ]
+     },
+     {
+      "phase": 2,
+      "n": 119,
+      "rho": -0.163,
+      "ci95": [
+       -0.333,
+       0.018
+      ]
+     },
+     {
+      "phase": 3,
+      "n": 119,
+      "rho": -0.173,
+      "ci95": [
+       -0.342,
+       0.007
+      ]
+     },
+     {
+      "phase": 4,
+      "n": 119,
+      "rho": -0.153,
+      "ci95": [
+       -0.324,
+       0.028
+      ]
+     },
+     {
+      "phase": 5,
+      "n": 119,
+      "rho": -0.297,
+      "ci95": [
+       -0.453,
+       -0.124
+      ]
+     },
+     {
+      "phase": 6,
+      "n": 119,
+      "rho": -0.157,
+      "ci95": [
+       -0.328,
+       0.023
+      ]
+     },
+     {
+      "phase": 7,
+      "n": 119,
+      "rho": -0.181,
+      "ci95": [
+       -0.35,
+       -0.001
+      ]
+     },
+     {
+      "phase": 8,
+      "n": 119,
+      "rho": -0.13,
+      "ci95": [
+       -0.303,
+       0.052
+      ]
+     },
+     {
+      "phase": 9,
+      "n": 119,
+      "rho": -0.156,
+      "ci95": [
+       -0.327,
+       0.025
+      ]
+     },
+     {
+      "phase": 10,
+      "n": 119,
+      "rho": -0.16,
+      "ci95": [
+       -0.33,
+       0.021
+      ]
+     },
+     {
+      "phase": 11,
+      "n": 119,
+      "rho": -0.142,
+      "ci95": [
+       -0.314,
+       0.039
+      ]
+     },
+     {
+      "phase": 12,
+      "n": 119,
+      "rho": -0.151,
+      "ci95": [
+       -0.322,
+       0.03
+      ]
+     },
+     {
+      "phase": 13,
+      "n": 119,
+      "rho": -0.115,
+      "ci95": [
+       -0.289,
+       0.067
+      ]
+     },
+     {
+      "phase": 14,
+      "n": 119,
+      "rho": -0.108,
+      "ci95": [
+       -0.283,
+       0.073
+      ]
+     },
+     {
+      "phase": 15,
+      "n": 118,
+      "rho": -0.181,
+      "ci95": [
+       -0.35,
+       0
+      ]
+     },
+     {
+      "phase": 16,
+      "n": 118,
+      "rho": -0.148,
+      "ci95": [
+       -0.32,
+       0.034
+      ]
+     },
+     {
+      "phase": 17,
+      "n": 118,
+      "rho": -0.155,
+      "ci95": [
+       -0.327,
+       0.026
+      ]
+     },
+     {
+      "phase": 18,
+      "n": 118,
+      "rho": -0.178,
+      "ci95": [
+       -0.348,
+       0.002
+      ]
+     },
+     {
+      "phase": 19,
+      "n": 118,
+      "rho": -0.201,
+      "ci95": [
+       -0.368,
+       -0.021
+      ]
+     },
+     {
+      "phase": 20,
+      "n": 118,
+      "rho": -0.221,
+      "ci95": [
+       -0.387,
+       -0.042
+      ]
+     }
+    ],
+    "positivePhasePct": 0,
+    "negativePhasePct": 100,
+    "significantPositivePhases": 0,
+    "significantNegativePhases": 5,
+    "signStablePositive": false,
+    "signStableNegative": true,
+    "allowedUse": "validation-diagnostic-only"
+   },
+   "compositeRel": {
+    "horizonDays": 21,
+    "phaseCount": 21,
+    "phases": [
+     {
+      "phase": 0,
+      "n": 107,
+      "rho": -0.174,
+      "ci95": [
+       -0.352,
+       0.016
+      ]
+     },
+     {
+      "phase": 1,
+      "n": 107,
+      "rho": -0.082,
+      "ci95": [
+       -0.268,
+       0.109
+      ]
+     },
+     {
+      "phase": 2,
+      "n": 107,
+      "rho": -0.103,
+      "ci95": [
+       -0.288,
+       0.088
+      ]
+     },
+     {
+      "phase": 3,
+      "n": 107,
+      "rho": -0.097,
+      "ci95": [
+       -0.282,
+       0.094
+      ]
+     },
+     {
+      "phase": 4,
+      "n": 107,
+      "rho": -0.084,
+      "ci95": [
+       -0.269,
+       0.108
+      ]
+     },
+     {
+      "phase": 5,
+      "n": 107,
+      "rho": -0.185,
+      "ci95": [
+       -0.362,
+       0.005
+      ]
+     },
+     {
+      "phase": 6,
+      "n": 107,
+      "rho": -0.089,
+      "ci95": [
+       -0.274,
+       0.103
+      ]
+     },
+     {
+      "phase": 7,
+      "n": 107,
+      "rho": -0.143,
+      "ci95": [
+       -0.324,
+       0.048
+      ]
+     },
+     {
+      "phase": 8,
+      "n": 107,
+      "rho": -0.083,
+      "ci95": [
+       -0.268,
+       0.109
+      ]
+     },
+     {
+      "phase": 9,
+      "n": 107,
+      "rho": -0.083,
+      "ci95": [
+       -0.268,
+       0.109
+      ]
+     },
+     {
+      "phase": 10,
+      "n": 107,
+      "rho": -0.066,
+      "ci95": [
+       -0.252,
+       0.126
+      ]
+     },
+     {
+      "phase": 11,
+      "n": 107,
+      "rho": -0.097,
+      "ci95": [
+       -0.282,
+       0.095
+      ]
+     },
+     {
+      "phase": 12,
+      "n": 107,
+      "rho": -0.073,
+      "ci95": [
+       -0.259,
+       0.118
+      ]
+     },
+     {
+      "phase": 13,
+      "n": 107,
+      "rho": -0.081,
+      "ci95": [
+       -0.267,
+       0.11
+      ]
+     },
+     {
+      "phase": 14,
+      "n": 107,
+      "rho": -0.049,
+      "ci95": [
+       -0.237,
+       0.142
+      ]
+     },
+     {
+      "phase": 15,
+      "n": 106,
+      "rho": -0.086,
+      "ci95": [
+       -0.272,
+       0.107
+      ]
+     },
+     {
+      "phase": 16,
+      "n": 106,
+      "rho": -0.08,
+      "ci95": [
+       -0.266,
+       0.113
+      ]
+     },
+     {
+      "phase": 17,
+      "n": 106,
+      "rho": -0.09,
+      "ci95": [
+       -0.276,
+       0.102
+      ]
+     },
+     {
+      "phase": 18,
+      "n": 106,
+      "rho": -0.064,
+      "ci95": [
+       -0.252,
+       0.128
+      ]
+     },
+     {
+      "phase": 19,
+      "n": 106,
+      "rho": -0.161,
+      "ci95": [
+       -0.341,
+       0.031
+      ]
+     },
+     {
+      "phase": 20,
+      "n": 106,
+      "rho": -0.167,
+      "ci95": [
+       -0.347,
+       0.024
+      ]
+     }
+    ],
+    "positivePhasePct": 0,
+    "negativePhasePct": 100,
+    "significantPositivePhases": 0,
+    "significantNegativePhases": 0,
+    "signStablePositive": false,
+    "signStableNegative": true,
+    "allowedUse": "validation-diagnostic-only"
+   }
+  },
+  "fwd63d": {
+   "composite": {
+    "horizonDays": 63,
+    "phaseCount": 63,
+    "phases": [
+     {
+      "phase": 0,
+      "n": 39,
+      "rho": -0.262,
+      "ci95": [
+       -0.533,
+       0.059
+      ]
+     },
+     {
+      "phase": 1,
+      "n": 39,
+      "rho": -0.109,
+      "ci95": [
+       -0.411,
+       0.214
+      ]
+     },
+     {
+      "phase": 2,
+      "n": 39,
+      "rho": -0.118,
+      "ci95": [
+       -0.418,
+       0.205
+      ]
+     },
+     {
+      "phase": 3,
+      "n": 39,
+      "rho": -0.101,
+      "ci95": [
+       -0.404,
+       0.221
+      ]
+     },
+     {
+      "phase": 4,
+      "n": 39,
+      "rho": -0.169,
+      "ci95": [
+       -0.46,
+       0.155
+      ]
+     },
+     {
+      "phase": 5,
+      "n": 39,
+      "rho": -0.332,
+      "ci95": [
+       -0.586,
+       -0.018
+      ]
+     },
+     {
+      "phase": 6,
+      "n": 39,
+      "rho": -0.185,
+      "ci95": [
+       -0.473,
+       0.138
+      ]
+     },
+     {
+      "phase": 7,
+      "n": 39,
+      "rho": -0.118,
+      "ci95": [
+       -0.418,
+       0.205
+      ]
+     },
+     {
+      "phase": 8,
+      "n": 39,
+      "rho": -0.007,
+      "ci95": [
+       -0.322,
+       0.309
+      ]
+     },
+     {
+      "phase": 9,
+      "n": 39,
+      "rho": 0,
+      "ci95": [
+       -0.316,
+       0.315
+      ]
+     },
+     {
+      "phase": 10,
+      "n": 39,
+      "rho": -0.152,
+      "ci95": [
+       -0.446,
+       0.171
+      ]
+     },
+     {
+      "phase": 11,
+      "n": 39,
+      "rho": -0.087,
+      "ci95": [
+       -0.392,
+       0.235
+      ]
+     },
+     {
+      "phase": 12,
+      "n": 39,
+      "rho": -0.041,
+      "ci95": [
+       -0.352,
+       0.278
+      ]
+     },
+     {
+      "phase": 13,
+      "n": 39,
+      "rho": 0.043,
+      "ci95": [
+       -0.277,
+       0.353
+      ]
+     },
+     {
+      "phase": 14,
+      "n": 39,
+      "rho": -0.039,
+      "ci95": [
+       -0.35,
+       0.28
+      ]
+     },
+     {
+      "phase": 15,
+      "n": 39,
+      "rho": -0.041,
+      "ci95": [
+       -0.352,
+       0.278
+      ]
+     },
+     {
+      "phase": 16,
+      "n": 39,
+      "rho": -0.08,
+      "ci95": [
+       -0.386,
+       0.241
+      ]
+     },
+     {
+      "phase": 17,
+      "n": 39,
+      "rho": -0.066,
+      "ci95": [
+       -0.374,
+       0.255
+      ]
+     },
+     {
+      "phase": 18,
+      "n": 39,
+      "rho": -0.073,
+      "ci95": [
+       -0.38,
+       0.248
+      ]
+     },
+     {
+      "phase": 19,
+      "n": 39,
+      "rho": -0.096,
+      "ci95": [
+       -0.399,
+       0.227
+      ]
+     },
+     {
+      "phase": 20,
+      "n": 39,
+      "rho": -0.067,
+      "ci95": [
+       -0.375,
+       0.254
+      ]
+     },
+     {
+      "phase": 21,
+      "n": 39,
+      "rho": -0.039,
+      "ci95": [
+       -0.35,
+       0.28
+      ]
+     },
+     {
+      "phase": 22,
+      "n": 39,
+      "rho": -0.105,
+      "ci95": [
+       -0.407,
+       0.217
+      ]
+     },
+     {
+      "phase": 23,
+      "n": 39,
+      "rho": -0.217,
+      "ci95": [
+       -0.499,
+       0.105
+      ]
+     },
+     {
+      "phase": 24,
+      "n": 39,
+      "rho": -0.149,
+      "ci95": [
+       -0.444,
+       0.174
+      ]
+     },
+     {
+      "phase": 25,
+      "n": 39,
+      "rho": -0.191,
+      "ci95": [
+       -0.478,
+       0.133
+      ]
+     },
+     {
+      "phase": 26,
+      "n": 39,
+      "rho": -0.314,
+      "ci95": [
+       -0.573,
+       0.001
+      ]
+     },
+     {
+      "phase": 27,
+      "n": 39,
+      "rho": -0.319,
+      "ci95": [
+       -0.576,
+       -0.004
+      ]
+     },
+     {
+      "phase": 28,
+      "n": 39,
+      "rho": -0.336,
+      "ci95": [
+       -0.589,
+       -0.023
+      ]
+     },
+     {
+      "phase": 29,
+      "n": 39,
+      "rho": -0.385,
+      "ci95": [
+       -0.624,
+       -0.079
+      ]
+     },
+     {
+      "phase": 30,
+      "n": 39,
+      "rho": -0.299,
+      "ci95": [
+       -0.562,
+       0.018
+      ]
+     },
+     {
+      "phase": 31,
+      "n": 39,
+      "rho": -0.346,
+      "ci95": [
+       -0.596,
+       -0.034
+      ]
+     },
+     {
+      "phase": 32,
+      "n": 39,
+      "rho": -0.305,
+      "ci95": [
+       -0.566,
+       0.011
+      ]
+     },
+     {
+      "phase": 33,
+      "n": 39,
+      "rho": -0.321,
+      "ci95": [
+       -0.578,
+       -0.006
+      ]
+     },
+     {
+      "phase": 34,
+      "n": 39,
+      "rho": -0.34,
+      "ci95": [
+       -0.592,
+       -0.028
+      ]
+     },
+     {
+      "phase": 35,
+      "n": 39,
+      "rho": -0.448,
+      "ci95": [
+       -0.669,
+       -0.154
+      ]
+     },
+     {
+      "phase": 36,
+      "n": 39,
+      "rho": -0.413,
+      "ci95": [
+       -0.645,
+       -0.112
+      ]
+     },
+     {
+      "phase": 37,
+      "n": 39,
+      "rho": -0.46,
+      "ci95": [
+       -0.677,
+       -0.169
+      ]
+     },
+     {
+      "phase": 38,
+      "n": 39,
+      "rho": -0.471,
+      "ci95": [
+       -0.685,
+       -0.182
+      ]
+     },
+     {
+      "phase": 39,
+      "n": 39,
+      "rho": -0.483,
+      "ci95": [
+       -0.693,
+       -0.198
+      ]
+     },
+     {
+      "phase": 40,
+      "n": 39,
+      "rho": -0.514,
+      "ci95": [
+       -0.714,
+       -0.237
+      ]
+     },
+     {
+      "phase": 41,
+      "n": 39,
+      "rho": -0.542,
+      "ci95": [
+       -0.732,
+       -0.273
+      ]
+     },
+     {
+      "phase": 42,
+      "n": 39,
+      "rho": -0.477,
+      "ci95": [
+       -0.689,
+       -0.19
+      ]
+     },
+     {
+      "phase": 43,
+      "n": 39,
+      "rho": -0.397,
+      "ci95": [
+       -0.633,
+       -0.093
+      ]
+     },
+     {
+      "phase": 44,
+      "n": 39,
+      "rho": -0.342,
+      "ci95": [
+       -0.593,
+       -0.029
+      ]
+     },
+     {
+      "phase": 45,
+      "n": 39,
+      "rho": -0.401,
+      "ci95": [
+       -0.636,
+       -0.098
+      ]
+     },
+     {
+      "phase": 46,
+      "n": 39,
+      "rho": -0.313,
+      "ci95": [
+       -0.572,
+       0.002
+      ]
+     },
+     {
+      "phase": 47,
+      "n": 39,
+      "rho": -0.367,
+      "ci95": [
+       -0.612,
+       -0.058
+      ]
+     },
+     {
+      "phase": 48,
+      "n": 39,
+      "rho": -0.32,
+      "ci95": [
+       -0.577,
+       -0.005
+      ]
+     },
+     {
+      "phase": 49,
+      "n": 39,
+      "rho": -0.316,
+      "ci95": [
+       -0.574,
+       -0.001
+      ]
+     },
+     {
+      "phase": 50,
+      "n": 39,
+      "rho": -0.341,
+      "ci95": [
+       -0.593,
+       -0.029
+      ]
+     },
+     {
+      "phase": 51,
+      "n": 39,
+      "rho": -0.294,
+      "ci95": [
+       -0.558,
+       0.023
+      ]
+     },
+     {
+      "phase": 52,
+      "n": 39,
+      "rho": -0.309,
+      "ci95": [
+       -0.569,
+       0.007
+      ]
+     },
+     {
+      "phase": 53,
+      "n": 39,
+      "rho": -0.336,
+      "ci95": [
+       -0.589,
+       -0.023
+      ]
+     },
+     {
+      "phase": 54,
+      "n": 39,
+      "rho": -0.27,
+      "ci95": [
+       -0.54,
+       0.05
+      ]
+     },
+     {
+      "phase": 55,
+      "n": 39,
+      "rho": -0.247,
+      "ci95": [
+       -0.522,
+       0.075
+      ]
+     },
+     {
+      "phase": 56,
+      "n": 39,
+      "rho": -0.27,
+      "ci95": [
+       -0.54,
+       0.049
+      ]
+     },
+     {
+      "phase": 57,
+      "n": 38,
+      "rho": -0.258,
+      "ci95": [
+       -0.534,
+       0.067
+      ]
+     },
+     {
+      "phase": 58,
+      "n": 38,
+      "rho": -0.274,
+      "ci95": [
+       -0.546,
+       0.051
+      ]
+     },
+     {
+      "phase": 59,
+      "n": 38,
+      "rho": -0.22,
+      "ci95": [
+       -0.504,
+       0.107
+      ]
+     },
+     {
+      "phase": 60,
+      "n": 38,
+      "rho": -0.159,
+      "ci95": [
+       -0.456,
+       0.169
+      ]
+     },
+     {
+      "phase": 61,
+      "n": 38,
+      "rho": -0.268,
+      "ci95": [
+       -0.541,
+       0.057
+      ]
+     },
+     {
+      "phase": 62,
+      "n": 38,
+      "rho": -0.273,
+      "ci95": [
+       -0.545,
+       0.051
+      ]
+     }
+    ],
+    "positivePhasePct": 1.6,
+    "negativePhasePct": 96.8,
+    "significantPositivePhases": 0,
+    "significantNegativePhases": 23,
+    "signStablePositive": false,
+    "signStableNegative": false,
+    "allowedUse": "validation-diagnostic-only"
+   },
+   "compositeRel": {
+    "horizonDays": 63,
+    "phaseCount": 63,
+    "phases": [
+     {
+      "phase": 0,
+      "n": 35,
+      "rho": -0.119,
+      "ci95": [
+       -0.435,
+       0.223
+      ]
+     },
+     {
+      "phase": 1,
+      "n": 35,
+      "rho": 0.053,
+      "ci95": [
+       -0.285,
+       0.379
+      ]
+     },
+     {
+      "phase": 2,
+      "n": 35,
+      "rho": -0.054,
+      "ci95": [
+       -0.38,
+       0.285
+      ]
+     },
+     {
+      "phase": 3,
+      "n": 35,
+      "rho": -0.035,
+      "ci95": [
+       -0.364,
+       0.301
+      ]
+     },
+     {
+      "phase": 4,
+      "n": 35,
+      "rho": 0.033,
+      "ci95": [
+       -0.303,
+       0.363
+      ]
+     },
+     {
+      "phase": 5,
+      "n": 35,
+      "rho": -0.118,
+      "ci95": [
+       -0.434,
+       0.224
+      ]
+     },
+     {
+      "phase": 6,
+      "n": 35,
+      "rho": 0.099,
+      "ci95": [
+       -0.242,
+       0.418
+      ]
+     },
+     {
+      "phase": 7,
+      "n": 35,
+      "rho": 0.11,
+      "ci95": [
+       -0.231,
+       0.428
+      ]
+     },
+     {
+      "phase": 8,
+      "n": 35,
+      "rho": 0.137,
+      "ci95": [
+       -0.205,
+       0.45
+      ]
+     },
+     {
+      "phase": 9,
+      "n": 35,
+      "rho": 0.152,
+      "ci95": [
+       -0.191,
+       0.462
+      ]
+     },
+     {
+      "phase": 10,
+      "n": 35,
+      "rho": 0.169,
+      "ci95": [
+       -0.174,
+       0.476
+      ]
+     },
+     {
+      "phase": 11,
+      "n": 35,
+      "rho": 0.103,
+      "ci95": [
+       -0.239,
+       0.422
+      ]
+     },
+     {
+      "phase": 12,
+      "n": 35,
+      "rho": 0.255,
+      "ci95": [
+       -0.086,
+       0.542
+      ]
+     },
+     {
+      "phase": 13,
+      "n": 35,
+      "rho": 0.272,
+      "ci95": [
+       -0.068,
+       0.555
+      ]
+     },
+     {
+      "phase": 14,
+      "n": 35,
+      "rho": 0.132,
+      "ci95": [
+       -0.211,
+       0.446
+      ]
+     },
+     {
+      "phase": 15,
+      "n": 35,
+      "rho": 0.218,
+      "ci95": [
+       -0.124,
+       0.514
+      ]
+     },
+     {
+      "phase": 16,
+      "n": 35,
+      "rho": 0.105,
+      "ci95": [
+       -0.237,
+       0.423
+      ]
+     },
+     {
+      "phase": 17,
+      "n": 35,
+      "rho": 0.053,
+      "ci95": [
+       -0.285,
+       0.38
+      ]
+     },
+     {
+      "phase": 18,
+      "n": 35,
+      "rho": 0.08,
+      "ci95": [
+       -0.26,
+       0.403
+      ]
+     },
+     {
+      "phase": 19,
+      "n": 35,
+      "rho": -0.006,
+      "ci95": [
+       -0.339,
+       0.328
+      ]
+     },
+     {
+      "phase": 20,
+      "n": 35,
+      "rho": 0.022,
+      "ci95": [
+       -0.313,
+       0.353
+      ]
+     },
+     {
+      "phase": 21,
+      "n": 35,
+      "rho": -0.036,
+      "ci95": [
+       -0.365,
+       0.301
+      ]
+     },
+     {
+      "phase": 22,
+      "n": 35,
+      "rho": -0.012,
+      "ci95": [
+       -0.344,
+       0.322
+      ]
+     },
+     {
+      "phase": 23,
+      "n": 35,
+      "rho": -0.069,
+      "ci95": [
+       -0.393,
+       0.271
+      ]
+     },
+     {
+      "phase": 24,
+      "n": 35,
+      "rho": -0.043,
+      "ci95": [
+       -0.371,
+       0.295
+      ]
+     },
+     {
+      "phase": 25,
+      "n": 35,
+      "rho": -0.067,
+      "ci95": [
+       -0.391,
+       0.272
+      ]
+     },
+     {
+      "phase": 26,
+      "n": 35,
+      "rho": -0.193,
+      "ci95": [
+       -0.495,
+       0.15
+      ]
+     },
+     {
+      "phase": 27,
+      "n": 35,
+      "rho": -0.156,
+      "ci95": [
+       -0.465,
+       0.187
+      ]
+     },
+     {
+      "phase": 28,
+      "n": 35,
+      "rho": -0.185,
+      "ci95": [
+       -0.489,
+       0.158
+      ]
+     },
+     {
+      "phase": 29,
+      "n": 35,
+      "rho": -0.243,
+      "ci95": [
+       -0.533,
+       0.098
+      ]
+     },
+     {
+      "phase": 30,
+      "n": 35,
+      "rho": -0.197,
+      "ci95": [
+       -0.498,
+       0.145
+      ]
+     },
+     {
+      "phase": 31,
+      "n": 35,
+      "rho": -0.2,
+      "ci95": [
+       -0.5,
+       0.143
+      ]
+     },
+     {
+      "phase": 32,
+      "n": 35,
+      "rho": -0.182,
+      "ci95": [
+       -0.486,
+       0.161
+      ]
+     },
+     {
+      "phase": 33,
+      "n": 35,
+      "rho": -0.236,
+      "ci95": [
+       -0.528,
+       0.106
+      ]
+     },
+     {
+      "phase": 34,
+      "n": 35,
+      "rho": -0.283,
+      "ci95": [
+       -0.563,
+       0.056
+      ]
+     },
+     {
+      "phase": 35,
+      "n": 35,
+      "rho": -0.382,
+      "ci95": [
+       -0.635,
+       -0.056
+      ]
+     },
+     {
+      "phase": 36,
+      "n": 35,
+      "rho": -0.298,
+      "ci95": [
+       -0.574,
+       0.039
+      ]
+     },
+     {
+      "phase": 37,
+      "n": 35,
+      "rho": -0.351,
+      "ci95": [
+       -0.613,
+       -0.021
+      ]
+     },
+     {
+      "phase": 38,
+      "n": 35,
+      "rho": -0.378,
+      "ci95": [
+       -0.632,
+       -0.051
+      ]
+     },
+     {
+      "phase": 39,
+      "n": 35,
+      "rho": -0.295,
+      "ci95": [
+       -0.572,
+       0.043
+      ]
+     },
+     {
+      "phase": 40,
+      "n": 35,
+      "rho": -0.429,
+      "ci95": [
+       -0.667,
+       -0.111
+      ]
+     },
+     {
+      "phase": 41,
+      "n": 35,
+      "rho": -0.434,
+      "ci95": [
+       -0.671,
+       -0.118
+      ]
+     },
+     {
+      "phase": 42,
+      "n": 35,
+      "rho": -0.443,
+      "ci95": [
+       -0.676,
+       -0.129
+      ]
+     },
+     {
+      "phase": 43,
+      "n": 35,
+      "rho": -0.321,
+      "ci95": [
+       -0.591,
+       0.013
+      ]
+     },
+     {
+      "phase": 44,
+      "n": 35,
+      "rho": -0.225,
+      "ci95": [
+       -0.519,
+       0.117
+      ]
+     },
+     {
+      "phase": 45,
+      "n": 35,
+      "rho": -0.268,
+      "ci95": [
+       -0.552,
+       0.071
+      ]
+     },
+     {
+      "phase": 46,
+      "n": 35,
+      "rho": -0.206,
+      "ci95": [
+       -0.505,
+       0.137
+      ]
+     },
+     {
+      "phase": 47,
+      "n": 35,
+      "rho": -0.305,
+      "ci95": [
+       -0.579,
+       0.032
+      ]
+     },
+     {
+      "phase": 48,
+      "n": 35,
+      "rho": -0.273,
+      "ci95": [
+       -0.556,
+       0.066
+      ]
+     },
+     {
+      "phase": 49,
+      "n": 35,
+      "rho": -0.312,
+      "ci95": [
+       -0.585,
+       0.024
+      ]
+     },
+     {
+      "phase": 50,
+      "n": 35,
+      "rho": -0.288,
+      "ci95": [
+       -0.567,
+       0.05
+      ]
+     },
+     {
+      "phase": 51,
+      "n": 35,
+      "rho": -0.227,
+      "ci95": [
+       -0.521,
+       0.115
+      ]
+     },
+     {
+      "phase": 52,
+      "n": 35,
+      "rho": -0.213,
+      "ci95": [
+       -0.51,
+       0.129
+      ]
+     },
+     {
+      "phase": 53,
+      "n": 35,
+      "rho": -0.212,
+      "ci95": [
+       -0.509,
+       0.13
+      ]
+     },
+     {
+      "phase": 54,
+      "n": 35,
+      "rho": -0.218,
+      "ci95": [
+       -0.514,
+       0.124
+      ]
+     },
+     {
+      "phase": 55,
+      "n": 35,
+      "rho": -0.208,
+      "ci95": [
+       -0.506,
+       0.134
+      ]
+     },
+     {
+      "phase": 56,
+      "n": 35,
+      "rho": -0.171,
+      "ci95": [
+       -0.477,
+       0.172
+      ]
+     },
+     {
+      "phase": 57,
+      "n": 34,
+      "rho": -0.141,
+      "ci95": [
+       -0.457,
+       0.207
+      ]
+     },
+     {
+      "phase": 58,
+      "n": 34,
+      "rho": -0.213,
+      "ci95": [
+       -0.514,
+       0.135
+      ]
+     },
+     {
+      "phase": 59,
+      "n": 34,
+      "rho": -0.145,
+      "ci95": [
+       -0.461,
+       0.203
+      ]
+     },
+     {
+      "phase": 60,
+      "n": 34,
+      "rho": -0.081,
+      "ci95": [
+       -0.408,
+       0.264
+      ]
+     },
+     {
+      "phase": 61,
+      "n": 34,
+      "rho": -0.119,
+      "ci95": [
+       -0.44,
+       0.228
+      ]
+     },
+     {
+      "phase": 62,
+      "n": 34,
+      "rho": -0.11,
+      "ci95": [
+       -0.432,
+       0.237
+      ]
+     }
+    ],
+    "positivePhasePct": 25.4,
+    "negativePhasePct": 74.6,
+    "significantPositivePhases": 0,
+    "significantNegativePhases": 6,
+    "signStablePositive": false,
+    "signStableNegative": false,
+    "allowedUse": "validation-diagnostic-only"
    }
   }
  },
  "walkForward": {
   "referencePeriod": {
    "dateRange": [
-    "2016-08-15",
-    "2023-08-10"
+    "2016-10-31",
+    "2023-10-26"
    ],
    "n": 1759,
    "corr21d_composite": {
     "n": 1759,
-    "rho": -0.184,
+    "rho": -0.153,
     "ci95": [
-     -0.229,
-     -0.139
+     -0.199,
+     -0.108
     ]
    },
    "corr21d_compositeRel": {
-    "n": 1506,
-    "rho": -0.065,
+    "n": 1507,
+    "rho": -0.081,
     "ci95": [
-     -0.115,
-     -0.015
+     -0.131,
+     -0.031
     ]
    },
    "corr63d_compositeRel": {
-    "n": 1506,
-    "rho": -0.041,
+    "n": 1507,
+    "rho": -0.13,
     "ci95": [
-     -0.091,
-     0.01
+     -0.18,
+     -0.08
     ]
    }
   },
   "holdoutPeriod": {
    "dateRange": [
-    "2023-08-11",
-    "2026-08-14"
+    "2023-10-27",
+    "2026-10-30"
    ],
    "n": 755,
    "corr21d_composite": {
     "n": 734,
-    "rho": -0.175,
+    "rho": -0.221,
     "ci95": [
-     -0.244,
-     -0.104
+     -0.289,
+     -0.151
     ]
    },
    "corr21d_compositeRel": {
     "n": 734,
-    "rho": -0.082,
+    "rho": -0.208,
     "ci95": [
-     -0.154,
-     -0.01
+     -0.276,
+     -0.137
     ]
    },
    "corr63d_compositeRel": {
     "n": 692,
-    "rho": -0.302,
+    "rho": -0.314,
     "ci95": [
-     -0.368,
-     -0.232
+     -0.379,
+     -0.245
     ]
    }
   }
@@ -328,41 +2062,41 @@
  "regimes": [
   {
    "label": "low-vol_bull(within-5%-of-1y-high)",
-   "n": 1360,
+   "n": 1355,
    "corr21d_composite": {
-    "n": 1346,
-    "rho": -0.009,
+    "n": 1340,
+    "rho": -0.055,
     "ci95": [
-     -0.062,
-     0.044
+     -0.108,
+     -0.001
     ]
    },
    "corr21d_compositeRel": {
-    "n": 1100,
-    "rho": 0.16,
+    "n": 1094,
+    "rho": 0.083,
     "ci95": [
-     0.102,
-     0.217
+     0.024,
+     0.142
     ]
    }
   },
   {
    "label": "mid-vol_bull(within-5%-of-1y-high)",
-   "n": 424,
+   "n": 429,
    "corr21d_composite": {
-    "n": 417,
-    "rho": -0.122,
+    "n": 423,
+    "rho": -0.166,
     "ci95": [
-     -0.216,
-     -0.026
+     -0.257,
+     -0.072
     ]
    },
    "corr21d_compositeRel": {
-    "n": 410,
-    "rho": 0.003,
+    "n": 417,
+    "rho": -0.078,
     "ci95": [
-     -0.094,
-     0.099
+     -0.173,
+     0.018
     ]
    }
   },
@@ -371,18 +2105,18 @@
    "n": 322,
    "corr21d_composite": {
     "n": 322,
-    "rho": -0.12,
+    "rho": -0.049,
     "ci95": [
-     -0.226,
-     -0.011
+     -0.158,
+     0.06
     ]
    },
    "corr21d_compositeRel": {
     "n": 322,
-    "rho": 0.009,
+    "rho": 0.029,
     "ci95": [
-     -0.1,
-     0.118
+     -0.08,
+     0.138
     ]
    }
   },
@@ -391,18 +2125,18 @@
    "n": 105,
    "corr21d_composite": {
     "n": 105,
-    "rho": -0.241,
+    "rho": -0.095,
     "ci95": [
-     -0.413,
-     -0.052
+     -0.282,
+     0.098
     ]
    },
    "corr21d_compositeRel": {
     "n": 105,
-    "rho": -0.146,
+    "rho": 0.009,
     "ci95": [
-     -0.329,
-     0.047
+     -0.183,
+     0.2
     ]
    }
   },
@@ -411,18 +2145,18 @@
    "n": 101,
    "corr21d_composite": {
     "n": 101,
-    "rho": 0.067,
+    "rho": -0.001,
     "ci95": [
-     -0.13,
-     0.259
+     -0.196,
+     0.195
     ]
    },
    "corr21d_compositeRel": {
     "n": 101,
-    "rho": 0.155,
+    "rho": 0.084,
     "ci95": [
-     -0.042,
-     0.34
+     -0.113,
+     0.275
     ]
    }
   },
@@ -431,18 +2165,18 @@
    "n": 97,
    "corr21d_composite": {
     "n": 97,
-    "rho": 0.133,
+    "rho": 0.07,
     "ci95": [
-     -0.069,
-     0.324
+     -0.132,
+     0.266
     ]
    },
    "corr21d_compositeRel": {
     "n": 97,
-    "rho": 0.459,
+    "rho": 0.25,
     "ci95": [
-     0.286,
-     0.603
+     0.053,
+     0.428
     ]
    }
   },
@@ -451,18 +2185,18 @@
    "n": 87,
    "corr21d_composite": {
     "n": 87,
-    "rho": 0.133,
+    "rho": 0.022,
     "ci95": [
-     -0.08,
-     0.334
+     -0.189,
+     0.232
     ]
    },
    "corr21d_compositeRel": {
     "n": 87,
-    "rho": 0.008,
+    "rho": -0.023,
     "ci95": [
-     -0.203,
-     0.218
+     -0.233,
+     0.188
     ]
    }
   },
@@ -471,102 +2205,143 @@
    "n": 18,
    "corr21d_composite": {
     "n": 18,
-    "rho": -0.354,
+    "rho": -0.384,
     "ci95": [
-     -0.704,
-     0.135
+     -0.722,
+     0.101
     ]
    },
    "corr21d_compositeRel": {
     "n": 18,
-    "rho": -0.344,
+    "rho": -0.384,
     "ci95": [
-     -0.698,
-     0.147
+     -0.722,
+     0.101
     ]
    }
   }
  ],
  "ablationNote": "overallCorrelations above already reports vol/trend/macro sub-scores individually alongside the composite — that IS the ablation (isolates which sub-score, if any, carries signal vs the blended total).",
  "relativeVariant": {
-  "name": "relative-v1 (A-1, 2026-07-17)",
+  "name": "relative-v2 (current model, 2026-10-31)",
   "hypothesis": "R298 — absolute thresholds (dxy>107, tnx>4.5, vix bands) fail to track structural regime shifts over 10y; replacing them with trailing rolling percentiles (window ≤2520d, warm-up ≥252d, trailing-only → no look-ahead) may restore a positive score↔forward-return relationship.",
-  "design": "Same band structure, same weights, same neutral constants for mom/breadth as baseline. Only the threshold *units* change (absolute level → trailing percentile). Percentile band edges ([0.20,0.40,0.60,0.80,0.95]) are hand-set a priori to preserve the ordinal structure of the original bands — NOT fitted to returns. HYG price-band credit corrections are excluded (live already removed them in P713/P714 as duration-polluted).",
-  "passCriterion": "Statistically significant POSITIVE rho (95% CI excluding 0) for compositeRel vs fwd21d/fwd63d, consistent sign across walk-forward reference/holdout. Anything else → the confirmed policy stands: keep the live score labeled as an environment-descriptive value, no live formula change.",
-  "warmupExcludedDays": 253
+  "design": "Controlled comparison on the current model: baseline and relative both call reconstructScore() → trading-score.js v5 with the same trend, risk-appetite (HYG proxy) and missing-breadth inputs. Only the threshold unit differs: each of VIX/DXY/TNX/VVIX/WTI enters as a representative level of the absolute band its trailing percentile maps to. Percentile band edges ([0.20,0.40,0.60,0.80,0.95] for VIX; 0.80/0.90 DXY; 0.80 TNX/VVIX; 0.85/0.95 WTI) are hand-set a priori to keep the ordinal band structure — NOT fitted to returns.",
+  "passCriterion": "Positive rho must remain sign-stable across every non-overlapping T+21/T+63 start phase and consistent across walk-forward reference/holdout. A pooled daily 95% CI alone is ineligible because forward-return windows overlap. Anything else keeps the live score environment-descriptive and blocks formula promotion.",
+  "warmupExcludedDays": 252
+ },
+ "previousExperiment": {
+  "name": "relative-v1 (A-1, 2026-07-17)",
+  "generatedAt": "2026-08-14T15:17:38.162Z",
+  "model": "2026-07 frozen model (not the current trading-score v5)",
+  "fwd21d": {
+   "baseline": {
+    "n": 2493,
+    "rho": -0.168,
+    "ci95": [
+     -0.206,
+     -0.129
+    ]
+   },
+   "relative": {
+    "n": 2240,
+    "rho": -0.073,
+    "ci95": [
+     -0.114,
+     -0.031
+    ]
+   }
+  },
+  "fwd63d": {
+   "baseline": {
+    "n": 2451,
+    "rho": -0.263,
+    "ci95": [
+     -0.3,
+     -0.226
+    ]
+   },
+   "relative": {
+    "n": 2198,
+    "rho": -0.078,
+    "ci95": [
+     -0.12,
+     -0.037
+    ]
+   }
+  }
  },
  "quantileSpread": {
   "fwd5d": {
    "n": 2509,
    "bottomTercile": {
     "n": 836,
-    "meanReturn": 0.48,
-    "hitRate": 60.9
+    "meanReturn": 0.52,
+    "hitRate": 61
    },
    "topTercile": {
     "n": 836,
-    "meanReturn": 0.23,
-    "hitRate": 64.8
+    "meanReturn": 0.21,
+    "hitRate": 64
    },
    "unconditional": {
-    "meanReturn": 0.28,
-    "hitRate": 61.3
+    "meanReturn": 0.29,
+    "hitRate": 61.2
    },
-   "quantileSpread": -0.25
+   "quantileSpread": -0.3
   },
   "fwd21d": {
    "n": 2493,
    "bottomTercile": {
     "n": 831,
-    "meanReturn": 1.95,
-    "hitRate": 68
+    "meanReturn": 1.83,
+    "hitRate": 66.5
    },
    "topTercile": {
     "n": 831,
-    "meanReturn": 0.67,
-    "hitRate": 69.8
+    "meanReturn": 0.58,
+    "hitRate": 70.2
    },
    "unconditional": {
-    "meanReturn": 1.16,
-    "hitRate": 68.6
+    "meanReturn": 1.19,
+    "hitRate": 69.2
    },
-   "quantileSpread": -1.28
+   "quantileSpread": -1.25
   },
   "rel_fwd21d": {
-   "n": 2240,
+   "n": 2241,
    "bottomTercile": {
-    "n": 746,
-    "meanReturn": 1.49,
-    "hitRate": 64.9
+    "n": 747,
+    "meanReturn": 1.62,
+    "hitRate": 63.7
    },
    "topTercile": {
-    "n": 746,
-    "meanReturn": 1.15,
-    "hitRate": 72.9
+    "n": 747,
+    "meanReturn": 1,
+    "hitRate": 71
    },
    "unconditional": {
-    "meanReturn": 1.18,
-    "hitRate": 68.7
+    "meanReturn": 1.15,
+    "hitRate": 67.8
    },
-   "quantileSpread": -0.33
+   "quantileSpread": -0.62
   },
   "rel_fwd63d": {
-   "n": 2198,
+   "n": 2199,
    "bottomTercile": {
-    "n": 732,
-    "meanReturn": 4.12,
-    "hitRate": 69.9
+    "n": 733,
+    "meanReturn": 4.84,
+    "hitRate": 72
    },
    "topTercile": {
-    "n": 732,
-    "meanReturn": 2.78,
-    "hitRate": 77.2
+    "n": 733,
+    "meanReturn": 2.19,
+    "hitRate": 75.6
    },
    "unconditional": {
-    "meanReturn": 3.45,
+    "meanReturn": 3.34,
     "hitRate": 74.3
    },
-   "quantileSpread": -1.33
+   "quantileSpread": -2.65
   }
  },
  "caveats": [

@@ -25,6 +25,10 @@ export function resolveChatTickers({ query = '', questionPlan = null, state = nu
   let tickers = [...(extract(text) || [])];
   let named = [];
   try { named = questionPlan ? companyEntitySymbols(questionPlan) : []; } catch { named = []; }
+  // v59.45 (P11-ENTITY-01): the registry's spelling of a class share (BRK.B or BRK-B) replaces the typed one instead of
+  // standing beside it as a second subject.
+  const classKey = (sym) => String(sym).toUpperCase().replace(/[./]/g, '-');
+  tickers = tickers.filter((t) => !named.some((n) => n !== t && classKey(n) === classKey(t)));
   for (const sym of named) if (!tickers.includes(sym)) tickers.push(sym);
   // A six-digit code is read as KOSPI by the legacy extractor; the registry's KOSDAQ listing wins.
   tickers = tickers.filter((t) => { const m = /^(\d{6})\.KS$/.exec(t); return !(m && tickers.includes(`${m[1]}.KQ`)); });

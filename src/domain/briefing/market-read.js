@@ -22,6 +22,7 @@ import { buildLeadershipVerdict } from '../market/leadership-verdict.js';
 import { signedText } from '../shared/number.js';
 import { withSubjectParticle } from '../content/korean-particle.js';
 import { breadthScopeOf } from '../market/screener-breadth.js';
+import { isIsoDay } from '../shared/session-date.js';
 import { fearGreedBand } from '../sentiment/metrics.js'; // v58.69: F&G 20 is 극단 공포 (CNN bands), not 공포
 export { closeSessionMarket, isCloseSessionDate, buildCloseSeries, closeBasis, alignInput, isUsable, alignmentLabel, sessionPointBack, RECORD_FULL_YEAR, recordPercentile };
 
@@ -116,7 +117,7 @@ export function hyDelta20Bp(macroHistory, through = null) {
   for (const row of macroHistory?.series?.hyOas?.observations || []) {
     const date = String(Array.isArray(row) ? row[0] : row?.date || '').slice(0, 10);
     const value = finite(Array.isArray(row) ? row[1] : row?.value);
-    if (value != null && /^\d{4}-\d{2}-\d{2}$/.test(date) && (!through || date <= through) && isCloseSessionDate(date, 'US')) byDate.set(date, value);
+    if (value != null && isIsoDay(date) && (!through || date <= through) && isCloseSessionDate(date, 'US')) byDate.set(date, value);
   }
   const stat = stats([...byDate.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([date, value]) => ({ date, value })));
   return stat?.d20 != null ? { value: (stat.value - stat.d20) * 100, date: stat.date, from: stat.d20Date } : null;
@@ -269,7 +270,7 @@ export function hyWidening20Record(macroHistory, through = null) {
   for (const row of macroHistory?.series?.hyOas?.observations || []) {
     const date = String(Array.isArray(row) ? row[0] : row?.date || '').slice(0, 10);
     const value = finite(Array.isArray(row) ? row[1] : row?.value);
-    if (value != null && /^\d{4}-\d{2}-\d{2}$/.test(date) && (!through || date <= through) && isCloseSessionDate(date, 'US')) byDate.set(date, value * 100);
+    if (value != null && isIsoDay(date) && (!through || date <= through) && isCloseSessionDate(date, 'US')) byDate.set(date, value * 100);
   }
   const series = [...byDate.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([date, value]) => ({ date, value }));
   const rule = RULES.credit;

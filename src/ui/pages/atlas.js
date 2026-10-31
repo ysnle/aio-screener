@@ -1054,11 +1054,14 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
           };
           loadKnowledgeArticle = async (moduleId) => {
             if (!moduleId || state.loadingArticleIds.has(moduleId) || state.knowledgeArticles.articles.some((article) => article.lessonId === moduleId)) return;
+            // v59.45 (P30-LOAD-01 class): the artifact cache keeps a parsed copy that failed the identity check, so a
+            // retry after a failure fetches the file again instead of re-reading the same rejected copy.
+            const retryAfterFailure = state.articleErrors.has(moduleId);
             state.articleErrors.delete(moduleId);
             state.loadingArticleIds.add(moduleId);
             render();
             try {
-              const article = await loadJsonArtifact(stableFetcher(root), `./public-data/knowledge/articles/atlas-foundations/${encodeURIComponent(moduleId)}.json`, { signal: scope?.signal });
+              const article = await loadJsonArtifact(stableFetcher(root), `./public-data/knowledge/articles/atlas-foundations/${encodeURIComponent(moduleId)}.json`, { signal: scope?.signal, force: retryAfterFailure });
               if (article?.articleId !== `atlas-foundations:${moduleId}` || article?.surface !== 'atlas-foundations' || article?.lessonId !== moduleId) throw new Error(`article identity mismatch: ${moduleId}`);
               if (!isAlive()) return;
               state.knowledgeArticles = { articles: [...state.knowledgeArticles.articles, article] };

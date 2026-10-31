@@ -1,0 +1,115 @@
+{
+  "generatedAt": "2026-10-28T12:33:32.590Z",
+  "network": false,
+  "kr": {
+    "result": {
+      "matched": true,
+      "criteria": [
+        "섹터=반도체"
+      ],
+      "rows": [
+        {
+          "sym": "005930.KS",
+          "name": "삼성전자",
+          "sector": "반도체",
+          "mcap": 300,
+          "rsi": 50,
+          "rank": 60,
+          "quantSignal": null,
+          "factorScores": null,
+          "ret3m": null,
+          "vol": null,
+          "price": 70000,
+          "pct": 1,
+          "memo": "",
+          "newsMemo": ""
+        }
+      ],
+      "totalMatched": 1
+    },
+    "prompt": "\n\n═══════════════════════════════════════════════════\n【스크리너 결과 — AIO 종목 DB 실시간 필터링】\n조건: 섹터=반도체 | 매칭 1종목 (상위 1 표시)\n출처: AIO SCREENER_DB(기관 메모·시그널) × 멀티팩터 퀀트 랭크 × 실시간 시세(_liveData) · 생산자 관측시각 2026-10-27\n퀀트 백분위(같은 조건 종목 중 위치, 100점 만점이 아님) = 섹터 상대 멀티팩터: 모멘텀(1/3/6M 수익률)·추세(SMA50/200 대비)·저변동(연율 변동성↓)·사이즈. 팩터 기준일 2026-10-27.\n이 목록은 앱 내부 종목 DB를 실제 필터링·랭킹한 결과다. 학습 데이터로 종목을 추가하거나 임의 변경하지 말고 아래 목록만 사용하라.\n═══════════════════════════════════════════════════\n1. 005930.KS (삼성전자) · 반도체 · 퀀트 백분위 60() · 시그널(editorial) undefined · 시총 $300B · RSI 50.0 · 3M N/A · 가격 $70000.00 (+1.00%)\n\n답변 지침: 위 목록을 사용자 조건에 맞춰 (1) 퀀트 랭크 기준 순위/표 (2) 상위 종목 선정 이유(어느 팩터가 강한지) (3) 주의·제외 사유 (4) 다음 행동 순으로 해설. 퀀트 랭크(객관·데이터)와 시그널/메모(editorial·애널리스트)를 구분해 설명하라. 가격은 위 값 그대로 인용하고 (기준시각) 괄호를 붙여라. 목록에 없는 종목을 새로 만들지 마라.\n"
+  },
+  "smallCap": {
+    "matched": true,
+    "criteria": [
+      "소형주(<$10B)"
+    ],
+    "rows": [
+      {
+        "sym": "SMALL",
+        "mcap": 2,
+        "rank": null,
+        "quantSignal": null,
+        "factorScores": null,
+        "ret3m": null,
+        "vol": null,
+        "price": null,
+        "pct": null,
+        "memo": "",
+        "newsMemo": ""
+      },
+      {
+        "sym": "MISSING",
+        "mcap": null,
+        "rank": null,
+        "quantSignal": null,
+        "factorScores": null,
+        "ret3m": null,
+        "vol": null,
+        "price": null,
+        "pct": null,
+        "memo": "",
+        "newsMemo": ""
+      },
+      {
+        "sym": "ZERO",
+        "mcap": 0,
+        "rank": null,
+        "quantSignal": null,
+        "factorScores": null,
+        "ret3m": null,
+        "vol": null,
+        "price": null,
+        "pct": null,
+        "memo": "",
+        "newsMemo": ""
+      }
+    ],
+    "totalMatched": 3
+  },
+  "rsiBelow": {
+    "matched": true,
+    "criteria": [
+      "RSI≤30"
+    ],
+    "rows": [
+      {
+        "sym": "BELOW",
+        "rsi": 29,
+        "rank": null,
+        "quantSignal": null,
+        "factorScores": null,
+        "ret3m": null,
+        "vol": null,
+        "price": null,
+        "pct": null,
+        "memo": "",
+        "newsMemo": ""
+      },
+      {
+        "sym": "AT",
+        "rsi": 30,
+        "rank": null,
+        "quantSignal": null,
+        "factorScores": null,
+        "ret3m": null,
+        "vol": null,
+        "price": null,
+        "pct": null,
+        "memo": "",
+        "newsMemo": ""
+      }
+    ],
+    "totalMatched": 2
+  }
+}

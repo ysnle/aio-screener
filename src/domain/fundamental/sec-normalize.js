@@ -89,7 +89,9 @@ const BASIS_CONCEPTS = Object.freeze({
 // An IFRS bank's customer-contract revenue (IFRS 15) is its fee income — interest sits outside IFRS 15 — so it is not
 // read as revenue when the filer tags bank fee and commission income (BCS: 11.1B fees against ~29B total income).
 const IFRS_BANK_SIGNAL = 'FeeAndCommissionIncomeExpense';
-function revenueFactRows(companyFacts, basis = US_GAAP_BASIS) {
+// v59.45 (pipeline review P5-SEC-01): exported so the 재무제표 panel (sec-statements.js) reads the same revenue rows —
+// bank net revenue derived per filing, IFRS bank fee subtotal excluded — instead of only the concept names.
+export function revenueFactRows(companyFacts, basis = US_GAAP_BASIS) {
   const ifrsBank = basis.taxonomy === 'ifrs-full' && Boolean(companyFacts?.facts?.['ifrs-full']?.[IFRS_BANK_SIGNAL]);
   const rows = factRows(companyFacts, basis.taxonomy, BASIS_CONCEPTS[basis.taxonomy].revenue.filter((concept) => !(ifrsBank && concept === 'RevenueFromContractsWithCustomers')), basis.currency);
   return basis.taxonomy === 'us-gaap' ? [...rows, ...bankNetRevenueRows(companyFacts, basis.currency)] : rows;

@@ -1,0 +1,56 @@
+{
+  "artifact": "AIO_Screener_API_Setup_Guide.pdf",
+  "sha256": "375427d5cd4617c01673d9434d109fc616aee860181b7acd9a7fb80b600f86c6",
+  "pages": 12,
+  "extraction": "text only, no visual QA",
+  "pageTexts": [
+    {
+      "page": 1,
+      "text": "AIO Screener · API Setup Guide v49.57\nPage 1\n AIO Screener\n API 가이드 & 초기 설정 방법\n v49.57 · 2026년 5월 기준\n\u0000 AIO Screener란?\n실시간 시장 분석, 매매 시그널, 섹터 로테이션(RRG), 포트폴리오 관리, AI 채팅을 하나의 웹사이트에\n담은 올인원 투자 터미널. 5개 무료 API를 조합하여 정량 80% + 정성 70% 데이터 커버 가능.\n\u0000 사이트: https://ysnle.github.io/aio-screener/\n\u0000 비용: Claude API 외 모두 무료 (신용카드 불필요)\n\u0000 설정 시간: 약 15~20분 (5개 키 발급)\n\u0000 투자 면책: 본 터미널이 제공하는 모든 정보는 참고용이며, 투자 결정은 본인의 판단과 책임하에\n이루어져야 합니다. 실시간 데이터의 정확성이나 완전성을 보장하지 않습니다.\n"
+    },
+    {
+      "page": 2,
+      "text": "AIO Screener · API Setup Guide v49.57\nPage 2\n목차\n#\n챕터\n소요시간\n0\n시작하기 전에 — 사이트 열기 + API 키 입력 위치\n2분\n1\nClaude API (필수) — AI 채팅·분석 엔진\n3분\n2\nFinnhub API (강력 권장) — 실시간 시세·어닝·뉴스\n3분\n3\nFMP API (권장) — 기업 재무·밸류에이션\n3분\n4\nFRED API (선택) — 매크로 경제 지표\n2분\n5\nPerplexity API (선택) — 실시간 웹 검색\n3분\n6\n키 등록 후 검증 — 사이트 내 self-check\n2분\n7\n비용 관리 + 백업 + 트러블슈팅\n필독\n8\n부록 — v49.57 신규 기능 + 무료 API 매트릭스\n참고\n\u0000 전체 소요시간: 약 15~20분 (Claude + Finnhub + FMP 3개만 등록하면 기본 운용 가능)\n"
+    },
+    {
+      "page": 3,
+      "text": "AIO Screener · API Setup Guide v49.57\nPage 3\n0. 시작하기 전에\n사이트 접속 + API 키 입력 위치 먼저 확인하세요.\n0.1 사이트 접속\n브라우저에서 https://ysnle.github.io/aio-screener/에 접속합니다. 크롬/엣지/파이어폭스 모두 지원.\n모바일도 동작하나 데스크톱 권장.\n첫 방문 시: \"AIO Screener에 오신 것을 환영합니다\" 온보딩 모달이 표시됩니다. 이 가이드를 따라 API\n키를 등록한 후 모달을 닫으세요.\n0.2 API 키 입력 위치 (사이드바)\n좌측 상단의 \u0000 메뉴 버튼 → 사이드바 → \"API 키 설정\" 섹션에 5개 키 입력란이 있습니다. 각 입력란에\n발급받은 키를 붙여넣고 저장 버튼을 누르면 됩니다.\n\u0000 저장 위치: localStorage (브라우저 로컬). 서버 전송 X. 다른 기기에서는 다시 입력 필요.\n0.3 키 백업 (캐시 클리어 대비)\nv49.45부터 IndexedDB 자동 미러링 + 수동 백업 명령 지원. 캐시 클리어 시 키 손실 방지.\n// 키 입력 후 콘솔에서 실행:\nAIO.exportApiKeys({masked: false}) // JSON ■■ ■■■■\nAIO.recoverApiKeysFromIdb() // ■■ ■■■ ■ ■■ ■■\n"
+    },
+    {
+      "page": 4,
+      "text": "AIO Screener · API Setup Guide v49.57\nPage 4\n1. Claude API (필수)\n역할: AI 채팅 + 종목 분석 + 매매 시그널 해석 엔진. 이게 없으면 채팅 기능 작동 X.\n1.1 키 발급 (Anthropic 콘솔)\n• ① 웹사이트 접속: https://console.anthropic.com\n• ② 회원가입: Google/이메일로 가입 (한국 IP 가능, 신용카드 불필요 - 가입 시 $5 무료 크레딧 자동\n충전)\n• ③ 좌측 메뉴 → \"API Keys\" 클릭\n• ④ \"Create Key\" 버튼 → 이름 입력 (예: \"AIO Screener\") → \"Create\"\n• ⑤ 키 복사: 이 화면을 닫으면 키를 다시 못 봅니다. 반드시 즉시 복사 + 안전한 곳에 백업\n• ⑥ 형식: sk-ant-api03-... (sk-ant로 시작하는 100+자리 문자열)\n1.2 AIO 사이트 등록\n사이드바 → \"API 키 설정\" → Claude API 키 입력란에 붙여넣기 → 저장\n1.3 비용 (반드시 읽기)\n모델\n입력 (1M토큰)\n출력 (1M토큰)\n용도\nClaude Sonnet 4.5/4.6\n$3\n$15\n기본 (자동 선택)\nClaude Opus 4.x\n$15\n$75\n심층 분석 자동 전환\nClaude Haiku\n$0.80\n$4\n간단한 질문 (자동)\n\u0000 실제 사용량: 하루 50~100회 채팅 \u0000 월 $3~10. AIO는 v48.0부터 prompt caching 적용해 input 토큰\n90% 절감 (재사용 시).\n\u0000 한도 설정 권장: Anthropic 콘솔 → Settings → Limits에서 월 한도 $20~50 설정 (안전장치).\n"
+    },
+    {
+      "page": 5,
+      "text": "AIO Screener · API Setup Guide v49.57\nPage 5\n2. Finnhub API (강력 권장)\n역할: 실시간 시세 (Yahoo 보조) + 애널리스트 컨센서스 + 어닝 캘린더 + 종목 뉴스 14일 + 임원\n매수/매도 12주 (v49.57 신규) + Short Interest. 종목 분석의 핵심.\n2.1 키 발급\n• ① 웹사이트: https://finnhub.io/register\n• ② 회원가입: 이메일 + 비밀번호. 신용카드 불필요\n• ③ 대시보드 진입 즉시 API 키 표시: 우측 상단 Dashboard 카드에 cv... 형식 키 노출\n• ④ 복사: 키는 언제든 재확인 가능 (Claude와 달리 안전)\n2.2 AIO 사이트 등록\n사이드바 → \"API 키 설정\" → Finnhub API 키 입력란에 붙여넣기 → 저장\n2.3 무료 한도 + 활용 범위\n항목\n무료 한도\n용도\nRate Limit\n60 req/min\n동시 사용자 5명 충분\nQuote (시세)\n무제한\nYahoo 백업\nRecommendation\n∞\n매수/보유/매도 컨센서스\nEarnings Calendar\n∞\n향후 60일 어닝 일정\nCompany News\n∞\n최근 14일 헤드라인 (v49.57)\nInsider Transactions\n∞\n임원 매수/매도 12주 (v49.57)\nStock Metric\n∞\nShort Interest %\n\u0000 v49.57 신규: Company News + Insider Transactions가 AI 채팅에 자동 주입되어 환각 차단 효과 큼.\n"
+    },
+    {
+      "page": 6,
+      "text": "AIO Screener · API Setup Guide v49.57\nPage 6\n3. FMP API (권장)\n역할: Financial Modeling Prep. PER/PBR/PEG/EV/EBITDA + 손익계산서 + 매출 세그먼트 + 애널리스트\n목표가. 밸류에이션 분석의 핵심.\n3.1 키 발급\n• ① 웹사이트: https://financialmodelingprep.com/developer/docs/\n• ② 우측 상단 \"Get my API Key\" → Sign Up: Google/이메일\n• ③ Dashboard → API Keys: 자동 생성된 키 복사 (32자 영숫자)\n• ④ Free Plan 자동 적용: 250 req/day, 신용카드 불필요\n3.2 AIO 사이트 등록\n사이드바 → \"API 키 설정\" → FMP API 키 입력란에 붙여넣기 → 저장\n3.3 무료 한도 (250 req/day) — 효율 운용\n250 req/day는 종목당 4개 호출 (ratios + profile + income + price-target) 기준 약 60개 종목/일. 캐시로\n동일 종목 재조회 차단됨.\n\u0000 권장 운용: 매일 관심 종목 10~20개 분석 + 채팅에서 종목 질의 시 자동 fetch. 한도 초과 시 503 응답\n→ AIO가 \"FMP 한도 초과 — 내일 재시도\" 안내 후 다른 데이터로 답변 계속.\n"
+    },
+    {
+      "page": 7,
+      "text": "AIO Screener · API Setup Guide v49.57\nPage 7\n4. FRED API (선택)\n역할: Federal Reserve Economic Data. CPI / 실업률 / Fed Funds Rate / 10Y 금리 / GDP / PCE 등 매크로\n지표 시계열 12개월. 매크로 페이지 + 거시 환경 분석 핵심.\n4.1 키 발급 (5분 소요)\n• ① 웹사이트: https://fredaccount.stlouisfed.org/login/secure/\n• ② \"Create New Account\": 이메일 + 비밀번호\n• ③ 이메일 인증 (5분 대기): 받은편지함 → 인증 링크 클릭\n• ④ 로그인 → \"API Keys\" → \"Request API Key\": 사용 목적 영문 한 줄 입력 (예: \"Personal investing\ndashboard\")\n• ⑤ 즉시 발급: 32자 소문자+숫자 키 (예: abcdef123456...)\n4.2 AIO 사이트 등록\n사이드바 → \"API 키 설정\" → FRED API 키 입력란에 붙여넣기 → 저장\n\u0000 무료 한도: 사실상 무제한 (rate limit 명시 없음, 분당 120회 권장). 연구 목적 무료 제공이므로 마음껏\n사용 가능.\n\u0000 키 없을 때: AIO는 FRED 키 없으면 정적 fallback 시계열 사용 (월간 수동 갱신). 실시간 매크로 지표\n원하면 반드시 등록 권장.\n"
+    },
+    {
+      "page": 8,
+      "text": "AIO Screener · API Setup Guide v49.57\nPage 8\n5. Perplexity API (선택)\n역할: 실시간 웹 검색 + 인용 출처 자동 첨부. \"오늘 NVDA 발표 뉴스\" 같은 질문 시 LLM이 학습 데이터\n환각 대신 실제 웹 검색 결과로 답변. v49.57부터 Claude 네이티브 web_search로 대체 가능 (선택성 ↑).\n5.1 키 발급\n• ① 웹사이트: https://www.perplexity.ai/settings/api\n• ② Perplexity Pro 구독 필요 ($20/월) — 무료 티어 없음\n• ③ Settings → API → \"Generate\" 버튼: 키 즉시 발급 (pplx-... 형식)\n• ④ $5 무료 크레딧 자동 충전 (Pro 구독 보너스)\n5.2 비용 (모델별)\n모델\n입력 (1M)\n출력 (1M)\n검색 (1K)\nsonar-small-online\n$0.20\n$0.20\n$5\nsonar-large-online\n$1\n$1\n$5\nsonar-huge-online\n$5\n$5\n$5\n\u0000 v49.57 대안: Claude 네이티브 web_search\nPerplexity 키 없어도 Claude API의 내장 웹 검색 도구를 사용 가능. AIO가 자동 트리거 (시점 키워드 /\n티커+이벤트). max_uses 3 제한으로 비용 가드. localStorage.aio_web_search_enabled='off'로 끄기 가능.\n"
+    },
+    {
+      "page": 9,
+      "text": "AIO Screener · API Setup Guide v49.57\nPage 9\n6. 키 등록 후 검증\n키 5개 모두 등록했으면 사이트가 정상 동작하는지 self-check 해야 합니다. AIO에는 11가지 audit 함수가\n내장되어 콘솔에서 확인 가능.\n6.1 사이트 자체 검증 (콘솔 명령)\nF12 → Console 탭에서 다음 명령 실행:\n// ■■■ API ■ 5■ ■■■ ■■\nAIO.diag.maskedApiKeys()\n// ■■ ■■■ ■■ ■■■ (27 axes)\nAIO.getAutoOpsReadiness()\n// v49.57 ■■: ■■ ■■ ■■■\nAIO.assertTickerRegistryCompleteness()\n// ■■■ API ■■ ■■■ (■: AI ■■)\nAIO.getThemeFetchCoverageAudit('ai')\n// ■ ■■ ■■\nAIO.getWebSearchAudit()\n// ■■ ■■■ ■■ (498■)\nAIO.runTests()\n6.2 종목 분석 동작 테스트\n1. 좌측 메뉴 → \"기업 분석\" 페이지 → 검색창에 \"NVDA\" 입력\n2. 다음 데이터가 표시되면 정상: \u0000 가격 (Yahoo) · \u0000 PER/PBR/PEG (FMP) · \u0000 컨센서스 (Finnhub) · \u0000 어닝\n일정 (Finnhub) · \u0000 SEC 10-K (무료) · \u0000 Wikipedia (무료)\n3. 채팅창에 \"오늘 엔비디아 뉴스\" 입력 → \"\u0000 Claude 네이티브 웹 검색 활성화\" 보라색 배지 표시 +\n응답에 검색 결과 인용\n6.3 회귀 테스트 결과 해석\nAIO.runTests() 결과 \"498/498 PASS\"면 완벽. \"483/498 PASS\" 정도면 정상 (15개 pre-existing failures는\nKR 종목 가격 잔존 문제, 무시 가능).\n\u0000 100개 이상 FAIL 시 API 키 미입력 또는 잘못된 키일 가능성. AIO.diag.maskedApiKeys()로 키 5개\n모두 등록 확인.\n"
+    },
+    {
+      "page": 10,
+      "text": "AIO Screener · API Setup Guide v49.57\nPage 10\n7. 비용 관리 + 백업 + 트러블슈팅\n7.1 월 예상 비용 (5명 사용자 기준)\nAPI\n플랜\n월 비용\n제약\nClaude\n종량제\n$3~10/사용자\n월 한도 $20~50 설정 권장\nFinnhub\nFree\n$0\n60 req/min — 5명 동시 OK\nFMP\nFree\n$0\n250 req/day — 캐시로 충분\nFRED\nFree\n$0\n무제한\nPerplexity\nPro\n$20 OR $0\nClaude web_search로 대체 가능\n\u0000 최저 비용 운용: Claude만 등록하고 나머지 모두 무료 사용 → 월 $3~10/사용자. Perplexity 생략 +\nv49.57 Claude web_search 활용.\n7.2 API 키 백업 + 복원\nlocalStorage는 캐시 클리어, 시크릿 모드, 다른 기기 사용 시 키가 모두 사라집니다. v49.45 IndexedDB\n자동 백업 + 수동 export 명령으로 안전 보장.\n// ■ ■■ ■■ ■■■■ 1■ ■■ (JSON ■■■■)\nAIO.exportApiKeys({masked: false})\n// ■■ ■■■ ■ ■■ ■■ (IndexedDB■■)\nAIO.recoverApiKeysFromIdb()\n// JSON ■■■■ ■■ ■■\nAIO.importApiKeys(jsonText)\n7.3 자주 묻는 문제\n증상\n원인\n해결\n\"API 키 없음\" 에러\nClaude 키 미입력\n사이드바에서 sk-ant-... 키 등록\n데이터 모두 \"—\"\nSW 캐시 stale\nCtrl+Shift+R 강력 새로고침\n종목 가격 안 보임\nYahoo CORS 차단\n몇 분 후 재시도 (proxy chain auto-fallback)\n\"503 한도 초과\"\nFMP 250/day 초과\n24시간 후 자동 복구 또는 paid plan\nAI 답변 환각\nweb_search 미트리거\nlocalStorage.aio_web_search_enabled='on'\n키 모두 날아감\n캐시 클리어 / 시크릿\nAIO.recoverApiKeysFromIdb() 실행\n"
+    },
+    {
+      "page": 11,
+      "text": "AIO Screener · API Setup Guide v49.57\nPage 11\n8. 부록 — v49.57 신규 기능 + 무료 API 매트릭스\n8.1 v49.57 핵심 기능 (2026-05-20)\n카테고리\nv49.56 이전\nv49.57\n효과\n종목 REGISTRY\n47개\n152개 (KR 5 추가)\n한글 검색 정합\nSEC CIK_MAP\n50개\n134개\n10-K/8-K fetch 가능\n채팅 데이터 소스\n2개 (10-K+Wiki)\n6개 (+8-K/News/Insider/13F)\n환각 차단 강화\n웹 검색\nPerplexity (유료)\n+Claude 내장 (조건부)\n추가 비용 0\n테마 컨텍스트\n정적 ETF만\n+활성 테마 라이브\n동적 분석\nAudit 함수\n24개\n27개 (3 신규)\n자가 진단\n8.2 검색 API 없이도 가능한 영역 (정량 80% + 정성 70%)\n데이터 종류\n소스\n커버\n검색 API 필요?\n실시간 시세\nYahoo (무료) + Naver + CoinGecko\n\u0000 100%\n\u0000\n펀더멘털\nFMP + Finnhub + Yahoo\n\u0000 95%\n\u0000\n사업 설명\nSEC 10-K (Item 1)\n\u0000 100%\n\u0000\n리스크 요인\nSEC 10-K (Item 1A)\n\u0000 100%\n\u0000\n경영진/CEO\nWikipedia\n\u0000 90%\n\u0000\n어닝 일정\nFinnhub /calendar\n\u0000 100%\n\u0000\n임원 매매 (12주)\nFinnhub /insider (v49.57)\n\u0000 95%\n\u0000\n최근 8-K 이벤트\nSEC /submissions (v49.57)\n\u0000 100%\n\u0000\n종목 뉴스 (14일)\nFinnhub /company-news (v49.57)\n\u0000 95%\n\u0000\n13F 기관 보유\nSEC + WhaleWisdom URL\n\u0000 80%\n\u0000\n트렌딩 뉴스\n검색 API 또는 Claude web_search\n\u0000 70%\n\u0000 (둘 중 하나)\n애널 리포트 본문\nMorningstar (유료)\n\u0000 30%\n\u0000\n소셜 sentiment\nX/Reddit API (유료)\n\u0000 20%\n\u0000\n"
+    },
+    {
+      "page": 12,
+      "text": "AIO Screener · API Setup Guide v49.57\nPage 12\n\u0000 빠른 시작 (15분 루틴)\n 1\n\u0000 2분\nconsole.anthropic.com → 가입 → Create Key → sk-ant-... 복사\n 2\n\u0000 3분\nfinnhub.io/register → 가입 → Dashboard 키 cv... 복사\n 3\n\u0000 3분\nfinancialmodelingprep.com → 가입 → API Keys 복사\n 4\n\u0000 5분\nfredaccount.stlouisfed.org → 가입 → 이메일 인증 → Request API Key\n 5\n\u0000 2분\nysnle.github.io/aio-screener/ 접속 → \u0000 메뉴 → API 키 4개 붙여넣기 → 저장\n 6\n\u0000 검증\nF12 콘솔 → AIO.diag.maskedApiKeys() → 4개 키 마스킹 확인 → 채팅에 \"NVDA 분석\" 입력\n\u0000 완료 후 권장 첫 액션\n1. 콘솔에서 AIO.exportApiKeys({masked:false}) 실행 → JSON 백업 다운로드\n2. 사이드바 → \"포트폴리오\" → 보유 종목 입력 (분석에 자동 반영)\n3. 사이드바 → \"워치리스트\" → 관심 종목 등록 (실시간 가격 자동 갱신)\n4. 매일 아침 \"브리핑\" 페이지로 시작 — 시장 환경 + 액션 아이템 자동 생성\n문의 / 버그 신고 / 기능 요청: github.com/ysnle/aio-screener\n사이트: ysnle.github.io/aio-screener\n본 PDF 생성: AIO Screener v49.57 · 2026년 5월 20일\n"
+    }
+  ]
+}

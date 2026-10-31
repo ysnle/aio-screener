@@ -1,12 +1,8 @@
+import { readNumber as finite } from '../shared/number.js';
 
 const CURRENT_QUALITY = new Set(['CURRENT', 'CLOSED_CURRENT', 'LIVE', 'FRESH', 'VERIFIED_CURRENT']);
 const DELAYED_QUALITY = new Set(['DELAYED']);
 
-function finite(value) {
-  if (value == null || typeof value === 'boolean' || (typeof value === 'string' && !value.trim())) return null;
-  const number = Number(value);
-  return Number.isFinite(number) ? number : null;
-}
 
 function isoOrNull(value) {
   if (value == null || typeof value === 'boolean' || (typeof value === 'string' && !value.trim())) return null;
@@ -23,7 +19,8 @@ function qualityKey(envelope) {
 function allowedUseOf(envelope) {
   const key = String(envelope?.allowedUse ?? '').trim().toLowerCase();
   if (key === 'decision' || key === 'trading') return 'decision';
-  return key ? 'reference' : 'none';
+  // v59.45 (PASS16 candidate): a producer's explicit 'none' stays none; it is not widened to reference.
+  return key && key !== 'none' ? 'reference' : 'none';
 }
 
 /**

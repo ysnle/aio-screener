@@ -19,9 +19,15 @@ export function lookThrough({ rows = [], sp500 = null, isBond = () => false, unp
   if (!members.length || !trackers.length) return { available: false };
   const weightSum = Number(sp500.totalWeight) > 0 ? Number(sp500.totalWeight) : members.reduce((sum, row) => sum + Number(row.weight), 0);
   const lines = new Map();
+  // v59.45 (PASS22 P22-LOOKTHROUGH-01): the first add fixed the sector, so NVDA held directly with no sector before SPY
+  // read Unclassified and after SPY read Technology. A known sector fills an unknown one, and the index file's GICS
+  // sector wins over the holding row's on a conflict, so the input order no longer changes the sector card.
   const add = (symbol, part, value, sector, etf = null) => {
     const key = keyOf(symbol);
-    const line = lines.get(key) || { symbol: key, direct: 0, via: 0, sector: normalizeSectorKey(sector) || 'Unclassified', etfs: [], bond: false };
+    const known = normalizeSectorKey(sector) || null;
+    const line = lines.get(key) || { symbol: key, direct: 0, via: 0, sector: known || 'Unclassified', sectorFromIndex: false, etfs: [], bond: false };
+    if (known && (line.sector === 'Unclassified' || (part === 'via' && !line.sectorFromIndex))) line.sector = known;
+    if (known && part === 'via') line.sectorFromIndex = true;
     line[part] += value;
     if (etf && !line.etfs.includes(etf)) line.etfs.push(etf);
     lines.set(key, line);

@@ -68,7 +68,8 @@ export function normalizeKnowledgeEdge(edge, defaults = {}) {
     reviewStatus: input?.reviewStatus || defaults.reviewStatus || null,
     sourceStatus: input?.sourceStatus || defaults.sourceStatus || null,
     metadataOrigin: explicit || input?.metadataOrigin === 'EXPLICIT_REVIEW' ? 'EXPLICIT_REVIEW' : (input?.metadataOrigin || (inferredFields.length ? 'INFERRED' : 'EXPLICIT')),
-    inferredFields: Object.freeze([...new Set(inferredFields)])
+    // P29-GRAPH-01: an already normalized edge carries its filled values as if explicit; keep what was inferred then.
+    inferredFields: Object.freeze([...new Set([...(Array.isArray(input?.inferredFields) ? input.inferredFields : []), ...inferredFields])])
   });
 }
 
@@ -82,6 +83,11 @@ export function inspectKnowledgeGraph({ nodeIds = [], edges = [] } = {}) {
   const ids = new Set(nodeIds);
   const invalidEndpoints = [];
   const duplicateEdges = [];
+  // P29-GRAPH-01: two relations of different type between the same nodes share the default id; a Set of node ids
+  // drops a repeated node silently. Both are counted.
+  const duplicateEdgeIds = [];
+  const seenIds = new Set();
+  const duplicateNodeIds = [...new Set(nodeIds.filter((id, index) => nodeIds.indexOf(id) !== index))];
   const metadataErrors = [];
   const inferredEdges = [];
   const seen = new Set();
@@ -97,6 +103,8 @@ export function inspectKnowledgeGraph({ nodeIds = [], edges = [] } = {}) {
     const key = `${edge.from}\u0000${edge.to}\u0000${edge.type}`;
     if (seen.has(key)) duplicateEdges.push(edge.id);
     seen.add(key);
+    if (seenIds.has(edge.id)) duplicateEdgeIds.push(edge.id);
+    seenIds.add(edge.id);
     for (const field of ['id', 'from', 'to', 'relation', 'type', 'direction', 'kind', 'strength', 'polarity', 'reviewedAt']) {
       if (!edge[field]) metadataErrors.push({ edgeId: edge.id, field });
     }
@@ -138,6 +146,8 @@ export function inspectKnowledgeGraph({ nodeIds = [], edges = [] } = {}) {
     edgeCount: edges.length,
     invalidEndpoints: Object.freeze(invalidEndpoints.map((row) => Object.freeze(row))),
     duplicateEdges: Object.freeze(duplicateEdges),
+    duplicateEdgeIds: Object.freeze(duplicateEdgeIds),
+    duplicateNodeIds: Object.freeze(duplicateNodeIds),
     metadataErrors: Object.freeze(metadataErrors),
     inferredEdges: Object.freeze(inferredEdges.map((row) => Object.freeze({ ...row, fields: Object.freeze([...row.fields]) }))),
     components: Object.freeze(components.map((component) => Object.freeze(component))),

@@ -155,7 +155,12 @@ if (!inferenceEfficiencySource.includes('const rawPct = quote?.pct ?? quote?.reg
   fail('AI inference proxy must preserve missing pct as null rather than Number(null)=0');
 }
 // P1426: the transmission lens left with the 거시 rebuild; the macro read must still keep a real zero.
-if (marketPageContractSource.includes('number === 0 ? null') || !read('src/domain/macro/macro-read.js').includes("return value != null && value !== '' && Number.isFinite(number) ? number : null;") || read('index.html').includes('id="macro-transmission-lens"')) {
+// v59.46: checked by behaviour, not by the text of a local copy — macro-read uses the shared reader, which keeps 0 and
+// reads ''/null/false as missing.
+const { readNumber: sharedReadNumber } = await import('../src/domain/shared/number.js');
+const macroReadKeepsZero = /readNumber as finite/.test(read('src/domain/macro/macro-read.js')) && sharedReadNumber(0) === 0 && sharedReadNumber('0') === 0
+  && sharedReadNumber('') === null && sharedReadNumber(null) === null && sharedReadNumber(false) === null;
+if (marketPageContractSource.includes('number === 0 ? null') || !macroReadKeepsZero || read('index.html').includes('id="macro-transmission-lens"')) {
   fail('macro read must preserve finite zero observations and the retired transmission lens must stay off the page');
 }
 // v57.76: the home news ticker-suppression pin (hMacroTopics) left with the retired home news list (v57.79: the renderHomeFeed stub is gone).

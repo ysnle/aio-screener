@@ -108,12 +108,17 @@ export function placeAgainstUniverse(candidate, universeRows, { weights = null, 
     const present = spec.fields.filter((field) => typeof candidate[field] === 'number' && Number.isFinite(candidate[field]));
     const active = (population?.activeFactors || []).includes(key);
     const usable = own?.factorScores?.[key] != null;
+    // v59.45 (pipeline review P25-READ-02): the model's own reason a family is off (coverage floor vs. weight 0) and why
+    // no rank came out travel with the placement, so the reading does not name one cause for all of them.
     return Object.freeze({ key, label: spec.label, active, usable, present, missing: spec.fields.filter((field) => !present.includes(field)),
-      blockedReasons: evidence[key]?.blockedReasons ? [...evidence[key].blockedReasons] : [] });
+      blockedReasons: evidence[key]?.blockedReasons ? [...evidence[key].blockedReasons] : [],
+      inactiveReason: active ? null : population?.inactiveFactorReasons?.[key] || result?.inactiveFactorReasons?.[key] || null });
   });
+  const rank = own?.rank ?? null;
   return Object.freeze({
     available: !!(result?.available && own),
-    rank: own?.rank ?? null,
+    rank,
+    unavailableReason: rank != null ? null : !result?.available ? 'model-unavailable' : !own ? 'not-ranked' : own.rankingEligibility || 'not-ranked',
     quantSignal: own?.quantSignal || null,
     rankingEligibility: own?.rankingEligibility || null,
     factorScores: own?.factorScores || null,
@@ -127,6 +132,24 @@ export function placeAgainstUniverse(candidate, universeRows, { weights = null, 
     computedAt: new Date(nowMs).toISOString(),
     sessionDate: candidate.factorSessionDate || null
   });
+}
+
+const universeBound = (status) => status === 'ready' || status === 'in-universe';
+const fnv = (text, hash = 0x811c9dc5) => {
+  for (let i = 0; i < text.length; i += 1) hash = Math.imul(hash ^ text.charCodeAt(i), 0x01000193) >>> 0;
+  return hash;
+};
+const FINGERPRINT_FIELDS = Object.freeze(['factorSessionDate', 'price', ...new Set(Object.values(FACTOR_INPUTS).flatMap((spec) => spec.fields))]);
+/** Identity of the published universe a read is placed against: every row's symbol, session and ranking inputs. */
+export function universeFingerprint(rows) {
+  const list = Array.isArray(rows) ? rows : [];
+  const lines = list.map((row) => [String(row?.sym || row?.symbol || '').toUpperCase(), ...FINGERPRINT_FIELDS.map((field) => row?.[field] ?? '')].join(':')).sort();
+  let hash;
+  for (const line of lines) hash = fnv(`${line}\n`, hash);
+  return `${list.length}:${(hash ?? 0).toString(36)}`;
+}
+function inputsFingerprint(inputs) {
+  try { return fnv(JSON.stringify(inputs ?? {})).toString(36); } catch (_) { return 'unreadable'; }
 }
 
 function queueFor(state) {
@@ -147,26 +170,30 @@ export function createOnDemandSymbolReader({ fetchChart, fetchJson = null, isLis
   const enqueue = queueFor(queueState);
   // v58.63 (architecture audit D3): a ready / in-universe record was kept for the whole session, so after the next
   // published close or universe refresh a symbol kept its old row, SEC summary and placement against the old peers.
-  // Records carry the universe they were read against (row count + latest completed session) and are read again
-  // once that changes.
-  const universeKey = () => {
-    let rows = [];
-    try { rows = universeRows() || []; } catch (_) { rows = []; }
-    let latest = '';
-    for (const row of rows) { const day = row?.factorSessionDate; if (day && day > latest) latest = day; }
-    return `${rows.length}:${latest}`;
-  };
-  const remember = (id, record) => {
+  // Records carry the universe they were read against and are read again once that changes.
+  // v59.45 (pipeline review P25-CACHE-01/P3-RUNTIME-02): the key was row count + latest session, so a same-size
+  // membership swap or a same-day correction kept the old in-universe answer and placement. It is now a fingerprint
+  // of every row's symbol, session and ranking inputs (plus the ranking weights for a placed record), taken from the
+  // rows the read itself used, so a universe that changes mid-read does not label the old result as current.
+  const currentRows = () => { try { return universeRows() || []; } catch (_) { return []; } };
+  const currentInputs = () => { try { return rankInputs() || {}; } catch (_) { return {}; } };
+  const keyFor = (status, rows, inputs) => `${universeFingerprint(rows)}${status === 'ready' ? `|${inputsFingerprint(inputs)}` : ''}`;
+  const isCurrent = (saved) => saved?.universe != null && saved.universe === keyFor(saved.record?.status, currentRows(), currentInputs());
+  const remember = (id, record, universe = null) => {
     entries.delete(id);
-    entries.set(id, { at: now(), record, promise: null, universe: universeKey() });
+    entries.set(id, { at: now(), record, promise: null, universe });
     while (entries.size > MAX_ENTRIES) entries.delete(entries.keys().next().value);
     try { onRecord(record); } catch (_) { /* a consumer's render error does not poison the cache */ }
     return record;
   };
   async function read(id) {
+    const rows = currentRows();
+    const inputs = currentInputs();
+    const record = await readAgainst(id, rows, inputs);
+    return { record, universe: keyFor(record?.status, rows, inputs) };
+  }
+  async function readAgainst(id, rows, inputs) {
     const base = { symbol: id, model: ON_DEMAND_MODEL_VERSION };
-    let rows = [];
-    try { rows = universeRows() || []; } catch (_) { rows = []; }
     // Without the published universe there is nothing to place against; asked again once it has loaded.
     if (!rows.length) return { ...base, status: 'universe-unavailable' };
     if (rows.some((row) => String(row?.sym || row?.symbol || '').toUpperCase() === id)) return { ...base, status: 'in-universe' };
@@ -197,7 +224,7 @@ export function createOnDemandSymbolReader({ fetchChart, fetchJson = null, isLis
     const row = await canonicalOnDemandRow(id, built.raw, { name, classification, computedAt, readLiveData, now });
     if (!row) return { ...base, status: 'unavailable', reason: 'normalization-failed', listing };
     let placement = null;
-    try { placement = placeAgainstUniverse(row, rows, { ...(rankInputs() || {}), nowMs }); } catch (_) { placement = null; }
+    try { placement = placeAgainstUniverse(row, rows, { ...inputs, nowMs }); } catch (_) { placement = null; }
     return Object.freeze({ ...base, status: 'ready', computedAt, listing: listing?.listed ? listing : null, registeredName: known, classification,
       name, etf, row, placement, sec: secSummaryRecord(built.sec), secStatus: built.sec ? built.secStatus : secStatus,
       sessionDate: row.factorSessionDate || null, barCount: built.history?.closes?.length || 0,
@@ -205,16 +232,22 @@ export function createOnDemandSymbolReader({ fetchChart, fetchJson = null, isLis
       lastClose: Number.isFinite(built.raw.price) && built.raw.price > 0 && built.raw.factorSessionDate ? Object.freeze({ price: built.raw.price, date: built.raw.factorSessionDate }) : null });
   }
   return Object.freeze({
-    peek(symbol) { const id = onDemandEligibleSymbol(symbol); return id ? entries.get(id)?.record || null : null; },
+    // A ready / in-universe record read against an earlier universe is not handed out; the caller's load reads it again.
+    peek(symbol) {
+      const id = onDemandEligibleSymbol(symbol);
+      const saved = id ? entries.get(id) : null;
+      if (!saved?.record) return null;
+      return universeBound(saved.record.status) && !saved.promise && !isCurrent(saved) ? null : saved.record;
+    },
     load(symbol) {
       const id = onDemandEligibleSymbol(symbol);
       if (!id) return Promise.resolve(null);
       const saved = entries.get(id);
       if (saved?.promise) return saved.promise;
-      if (saved?.record && (((saved.record.status === 'ready' || saved.record.status === 'in-universe') && saved.universe === universeKey())
-        || (saved.record.status !== 'universe-unavailable' && saved.record.status !== 'ready' && saved.record.status !== 'in-universe' && now() - saved.at < RETRY_AFTER_MS))) return Promise.resolve(saved.record);
-      const promise = enqueue(() => read(id)).catch(() => ({ symbol: id, model: ON_DEMAND_MODEL_VERSION, status: 'unavailable', reason: 'read-failed' }))
-        .then((record) => remember(id, record));
+      if (saved?.record && ((universeBound(saved.record.status) && isCurrent(saved))
+        || (saved.record.status !== 'universe-unavailable' && !universeBound(saved.record.status) && now() - saved.at < RETRY_AFTER_MS))) return Promise.resolve(saved.record);
+      const promise = enqueue(() => read(id)).catch(() => ({ record: { symbol: id, model: ON_DEMAND_MODEL_VERSION, status: 'unavailable', reason: 'read-failed' }, universe: null }))
+        .then(({ record, universe }) => remember(id, record, universe));
       entries.set(id, { at: now(), record: saved?.record || null, promise });
       return promise;
     },

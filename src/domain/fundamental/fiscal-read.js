@@ -5,6 +5,7 @@
 import { withObjectParticle } from '../content/korean-particle.js';
 import { finiteFact, isPriorAnnualPeriod, annualFilingStatus, fiscalYearLabel } from './period.js';
 import { signedText, usdKoreanText } from '../shared/number.js';
+import { isIsoDay, hasLeadingIsoDay } from '../shared/session-date.js';
 // v57.81: a change inside this many %p (margin) or % (revenue) reads as flat in the text, so its tone is neutral too.
 export const FISCAL_FLAT_BAND = 2;
 const NON_LENDING_FINANCIALS = new Set(['V', 'MA', 'PYPL', 'FI', 'FIS', 'GPN', 'CPAY', 'JKHY', 'CME', 'ICE', 'NDAQ', 'CBOE', 'SPGI', 'MCO', 'MSCI', 'FDS', 'BLK', 'BX', 'KKR', 'APO', 'ARES', 'TROW', 'BEN', 'IVZ', 'AMP', 'BR']);
@@ -42,7 +43,7 @@ export function reconcileFiscalHistory(history = [], fundamentals = null, symbol
 // 2026-10-14 audit #2: the four latest consecutive fiscal quarters (about 3 months apart, no gap), newest last, or null.
 // A derived fourth quarter (FY − Q1..Q3) counts; nothing is estimated beyond the published quarters.
 export function trailingQuarters(quarters = [], count = 4) {
-  const rows = (Array.isArray(quarters) ? quarters : []).filter((q) => /^\d{4}-\d{2}-\d{2}$/.test(String(q?.periodEnd || '')))
+  const rows = (Array.isArray(quarters) ? quarters : []).filter((q) => isIsoDay(String(q?.periodEnd || '')))
     .slice().sort((a, b) => a.periodEnd.localeCompare(b.periodEnd));
   if (rows.length < count) return null;
   const span = rows.slice(-count);
@@ -89,7 +90,7 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
     for (let i = history.length - 1; i > 0 && isPriorAnnualPeriod(history[i], history[i - 1]) && history[i].revenue > history[i - 1].revenue; i--) streak += 1;
     const pace = cagr == null ? '' : `, 약 ${Math.round(years)}년 연평균 ${signed(cagr)}`;
     if (lastGrowth != null) points.push({ id: 'growth', tone: Math.abs(lastGrowth) < FISCAL_FLAT_BAND ? 'neutral' : lastGrowth > 0 ? 'favorable' : 'burden', title: '매출 흐름',
-      text: `최근 회계연도 매출 ${formatUsdShort(latest.revenue)}(${signed(lastGrowth)})${pace}. ${streak >= 2 ? `${streak}년 연속 증가입니다` : streak === 1 ? '직전 해보다 늘었습니다' : '직전 해보다 줄었습니다'}${cagr != null && lastGrowth > cagr + 10 ? ' — 성장이 최근에 빨라졌습니다' : cagr != null && lastGrowth < cagr - 10 ? ' — 최근 성장은 평균보다 느립니다' : ''}.` });
+      text: `최근 회계연도 매출 ${formatUsdShort(latest.revenue)}(${signed(lastGrowth)})${pace}. ${streak >= 2 ? `${streak}년 연속 증가입니다` : streak === 1 ? '직전 해보다 늘었습니다' : lastGrowth < 0 ? '직전 해보다 줄었습니다' : '직전 해와 같습니다' /* v59.45 (P19-FISCAL-01): +0% is not a decline */}${cagr != null && lastGrowth > cagr + 10 ? ' — 성장이 최근에 빨라졌습니다' : cagr != null && lastGrowth < cagr - 10 ? ' — 최근 성장은 평균보다 느립니다' : ''}.` });
     const marginNow = latest.margin;
     const thenYear = history[Math.max(0, history.length - 4)];
     const marginThen = thenYear.margin;
@@ -113,7 +114,7 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
       // Name that year and how many months have passed since it closed.
       const earningsEnd = String(row?._fundamentalPeriodEnd || latest.periodEnd || '').slice(0, 10);
       const sessionEnd = String(row?.factorSessionDate || '').slice(0, 10);
-      const monthsSince = /^\d{4}-\d{2}-\d{2}$/.test(earningsEnd) && /^\d{4}-\d{2}-\d{2}$/.test(sessionEnd)
+      const monthsSince = isIsoDay(earningsEnd) && isIsoDay(sessionEnd)
         ? (Number(sessionEnd.slice(0, 4)) - Number(earningsEnd.slice(0, 4))) * 12 + Number(sessionEnd.slice(5, 7)) - Number(earningsEnd.slice(5, 7)) - (Number(sessionEnd.slice(8, 10)) < Number(earningsEnd.slice(8, 10)) ? 1 : 0)
         : null;
       const fyLabel = fiscalYearLabel(earningsEnd);
@@ -123,7 +124,7 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
       // Valid only when the PER's own year is the latest annual row (so PER × FY income recovers the same market value).
       // 2026-10-17 (logic audit D1): a row already priced on the last four quarters carries that basis; its PER is the
       // four-quarter figure itself and no fiscal-year PER is re-derived from it.
-      const rowTtm = row?._valuationPeEarningsBasis === 'ttm' && /^\d{4}-\d{2}-\d{2}/.test(String(row?._valuationPeEarningsThrough || ''));
+      const rowTtm = row?._valuationPeEarningsBasis === 'ttm' && hasLeadingIsoDay(String(row?._valuationPeEarningsThrough || ''));
       const ttm = pe != null && pe > 0 && (rowTtm || earningsEnd === String(latest.periodEnd || '').slice(0, 10)) ? trailingQuarters(quarters, 4) : null;
       const ttmIncome = ttm && ttm[ttm.length - 1].periodEnd > earningsEnd ? ttm.reduce((sum, q) => sum + q.netIncome, 0) : null;
       const peTtm = rowTtm ? pe : !commonBasis && ttmIncome != null && ttmIncome > 0 ? pe * niNow / ttmIncome : null;
@@ -147,7 +148,7 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
     }
   } else if (latest) {
     const growth = finite(fundamentals?.revGrowth);
-    points.push({ id: 'single', tone: growth == null ? 'neutral' : growth >= 0 ? 'favorable' : 'burden', title: '공시 기록', text: `회계연도 ${latest.periodEnd || '최근'} 매출 ${formatUsdShort(latest.revenue)}${growth != null ? `(전년 대비 ${signed(growth)})` : ''}${latest.margin != null ? `, 순이익률 ${latest.margin.toFixed(1)}%` : ''}. 여러 해 추이 그래프는 다음 재무 데이터 갱신 뒤 표시됩니다.` });
+    points.push({ id: 'single', tone: growth == null || Math.abs(growth) < FISCAL_FLAT_BAND ? 'neutral' : growth > 0 ? 'favorable' : 'burden', title: '공시 기록', text: `회계연도 ${latest.periodEnd || '최근'} 매출 ${formatUsdShort(latest.revenue)}${growth != null ? `(전년 대비 ${signed(growth)})` : ''}${latest.margin != null ? `, 순이익률 ${latest.margin.toFixed(1)}%` : ''}. 여러 해 추이 그래프는 다음 재무 데이터 갱신 뒤 표시됩니다.` });
   }
   // P1446 (review 2026-10-04): ROE was net income ÷ year-end equity; with two year-ends it is now over the
   // average equity, and the basis is named. A very high value is read with the buyback/leverage caveat.
@@ -189,7 +190,9 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
       tone: creditableConversion && conversion >= 0.8 && (fcf == null || fcf > 0) ? 'favorable' : 'neutral',
       title: '현금 전환',
       text: !creditableConversion
-        ? `영업현금흐름 ${formatUsdShort(ocf)}, 순이익 ${formatUsdShort(latest.netIncome)} — ${latest.netIncome < 0 && ocf > 0 ? '장부상 순손실이지만 영업에서는 현금이 들어왔습니다. 비현금 비용(감가상각·주식 보상)이 손실을 키웠는지 현금흐름표에서 확인합니다' : latest.netIncome > 0 && ocf < 0 ? '장부상 이익이지만 영업현금은 빠져나갔습니다. 매출채권·재고가 늘었는지 확인합니다' : '순손실과 영업현금 유출이 함께 나타났습니다. 현금 잔고와 조달 계획을 확인합니다'}. 한쪽이 마이너스라 순이익 대비 현금 비율은 쓰지 않습니다.`
+        ? `영업현금흐름 ${formatUsdShort(ocf)}, 순이익 ${formatUsdShort(latest.netIncome)} — ${latest.netIncome < 0 && ocf > 0 ? '장부상 순손실이지만 영업에서는 현금이 들어왔습니다. 비현금 비용(감가상각·주식 보상)이 손실을 키웠는지 현금흐름표에서 확인합니다' : latest.netIncome > 0 && ocf < 0 ? '장부상 이익이지만 영업현금은 빠져나갔습니다. 매출채권·재고가 늘었는지 확인합니다' : latest.netIncome < 0 && ocf < 0 ? '순손실과 영업현금 유출이 함께 나타났습니다. 현금 잔고와 조달 계획을 확인합니다'
+          // v59.45 (P19-FISCAL-01): a zero is break-even / no cash movement, not a loss or an outflow.
+          : `${latest.netIncome === 0 ? '순이익 0(손익분기)' : latest.netIncome < 0 ? '순손실' : '장부상 이익'}, ${ocf === 0 ? '영업현금흐름 0' : ocf < 0 ? '영업현금 유출' : '영업현금 유입'}입니다`}. ${latest.netIncome === 0 || ocf === 0 ? '한쪽이 0이라' : '한쪽이 마이너스라'} 순이익 대비 현금 비율은 쓰지 않습니다.`
         : `영업현금흐름 ${formatUsdShort(ocf)}(순이익의 ${(conversion * 100).toFixed(0)}%)${fcf != null ? `, 설비투자 ${withObjectParticle(formatUsdShort(capex))} 뺀 잉여현금흐름 ${formatUsdShort(fcf)}(매출의 ${(fcf / latest.revenue * 100).toFixed(1)}%)` : ''} — ${conversion >= 0.8 ? (conversion >= 1 ? '이익이 현금으로 들어오고 있습니다' : '이익의 대부분이 현금으로 들어왔습니다') : '장부 이익보다 들어온 현금이 적어 운전자본·회계 이익을 확인할 지점입니다'}.`
     });
   }
@@ -217,7 +220,7 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
     }
     const change = (factor - 1) * 100;
     points.push({ id: 'shares', tone: change <= -1 ? 'favorable' : change >= 3 ? 'burden' : 'neutral', title: '주식 수',
-      text: `${shareYears.length - 1}년 동안 발행 주식 수 ${signed(change)}${splitSeen ? '(주식 분할로 보이는 변화는 제외)' : ''} — ${change <= -1 ? '남은 주주의 지분 비율이 커졌습니다(주당 가치가 커졌는지는 매입 가격과 쓴 현금에 달림)' : change >= 3 ? '신주 발행·보상 주식으로 기존 주주의 지분 비율이 줄었습니다' : '거의 변하지 않았습니다'}.` });
+      text: `${Math.max(1, Math.round((Date.parse(shareYears.at(-1).periodEnd) - Date.parse(shareYears[0].periodEnd)) / (365.25 * 86400000))) || shareYears.length - 1}년 동안 발행 주식 수 ${signed(change)}${splitSeen ? '(주식 분할로 보이는 변화는 제외)' : ''} — ${change <= -1 ? '남은 주주의 지분 비율이 커졌습니다(주당 가치가 커졌는지는 매입 가격과 쓴 현금에 달림)' : change >= 3 ? '신주 발행·보상 주식으로 기존 주주의 지분 비율이 줄었습니다' : '거의 변하지 않았습니다'}.` });
   }
 
   // Codex review 2026-10-05: a 6-month price move set against a fiscal-year revenue change compares

@@ -5,12 +5,12 @@
 import { countOpenSessionsBetween, resolveMarketCalendarSession } from './market-calendar.js';
 import { shortDate } from '../content/date-labels.js';
 import { historyFieldSessionDate } from './history-session.js';
+import { readNumber as finite } from '../shared/number.js';
+import { isoDay, stampDay } from '../shared/session-date.js';
 
-export function finite(value) {
-  if (value == null || typeof value === 'boolean') return null; // Number(null) is 0, not a reading
-  const number = typeof value === 'string' && value.trim() === '' ? NaN : Number(value);
-  return Number.isFinite(number) ? number : null;
-}
+// v59.46: `finite` is the shared reader (Number(null)/'' /booleans are missing, not 0); kept as a named export for the
+// modules that import it from here or from briefing/market-read.js.
+export { finite };
 
 // A date-only stamp (YYYY-MM-DD or midnight UTC) already names the trading date; converting
 // midnight UTC to New York would move it to the previous day.
@@ -21,7 +21,7 @@ const NY_DATE = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York',
 const NY_DATE_MEMO = new Map();
 function nyDate(iso) {
   const text = String(iso || '');
-  if (/^\d{4}-\d{2}-\d{2}$/.test(text) || /^\d{4}-\d{2}-\d{2}T00:00:00(\.000)?Z$/.test(text)) return text.slice(0, 10);
+  if (isoDay(text) || (stampDay(text) && /T00:00:00(\.000)?Z$/.test(text))) return text.slice(0, 10);
   if (NY_DATE_MEMO.has(text)) return NY_DATE_MEMO.get(text);
   const ms = Date.parse(text);
   const date = Number.isFinite(ms) ? NY_DATE.format(new Date(ms)) : null;
@@ -45,7 +45,7 @@ export function isCloseSessionDate(date, market) {
     const status = resolveMarketCalendarSession({ market, date }).status;
     const weekday = new Date(`${date}T12:00:00Z`).getUTCDay();
     if (SESSION_MEMO.size > 5000) SESSION_MEMO.clear();
-    SESSION_MEMO.set(key, status === 'open' || (status === 'unknown' && /^\d{4}-\d{2}-\d{2}$/.test(String(date)) && weekday !== 0 && weekday !== 6));
+    SESSION_MEMO.set(key, status === 'open' || (status === 'unknown' && isoDay(date) && weekday !== 0 && weekday !== 6));
   }
   return SESSION_MEMO.get(key);
 }
@@ -203,7 +203,9 @@ export function recordPercentile(series, value = null, { window = RECORD_FULL_YE
   if (current == null || points.length < 20) return { n: points.length, pct: null, provisional: true };
   const below = points.filter((point) => point.value < current).length;
   const equal = points.filter((point) => point.value === current).length;
-  const pct = Math.round((below + Math.max(0, equal - 1) / 2) / Math.max(1, points.length - 1) * 100);
+  // v59.45 (PASS16 candidate): a value outside the sample is ranked against all of it, so the percentile stays in 0..100.
+  const others = equal > 0 ? points.length - 1 : points.length;
+  const pct = Math.round((below + Math.max(0, equal - 1) / 2) / Math.max(1, others) * 100);
   // v57.81: 1 of 252 rounds to 0%, which read as 최저 for the second-lowest value; the extremes are rank facts.
   const above = points.filter((point) => point.value > current).length;
   return { n: points.length, pct, provisional: points.length < RECORD_FULL_YEAR, lowest: below === 0, highest: above === 0, lowRank: below + 1, highRank: above + 1 };

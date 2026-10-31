@@ -12,8 +12,8 @@
 
 import { extensionMultiple } from '../technical/definitions.js';
 import { RULES } from '../rules/thresholds.js';
+import { finiteNumber as finite } from '../shared/number.js';
 
-const finite = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
 
 // [id, group, label (with {n} for the threshold), default threshold or null, unit, fields read, test]
 export const CUSTOM_CONDITIONS = Object.freeze([

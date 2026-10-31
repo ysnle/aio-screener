@@ -12,7 +12,8 @@ import { RRG_QUADRANT_READS, RRG_QUADRANT_WORDS } from '../themes/rrg.js';
 import { extensionMultiple } from '../technical/definitions.js';
 import { secFilingUrl } from '../fundamental/sec-report.js';
 import { SECTOR_KEY_ALIAS, normalizeSectorKey } from '../screener/sector-label.js';
-import { signedText } from '../shared/number.js';
+import { signedText, readNumber as finite } from '../shared/number.js';
+import { isIsoDay } from '../shared/session-date.js';
 
 // N20 (2026-10-13): the issuer's own recent filings, from the annual-facts record's submissions snapshot (8-K with
 // Item numbers, 10-Q, 10-K). Labels name what the filing is; nothing is read from the filing text.
@@ -34,7 +35,7 @@ export function parseRecentFilings(value) {
       return { filedAt, form, items: items ? items.split(',').filter(Boolean) : [], accession };
     }
     return entry && typeof entry === 'object' ? { filedAt: entry.filedAt, form: entry.form, items: Array.isArray(entry.items) ? entry.items : [], accession: entry.accession } : null;
-  }).filter((filing) => filing && /^\d{4}-\d{2}-\d{2}$/.test(String(filing.filedAt || '')) && /^(8-K|10-Q|10-K)(\/A)?$/.test(String(filing.form || '')));
+  }).filter((filing) => filing && isIsoDay(String(filing.filedAt || '')) && /^(8-K|10-Q|10-K)(\/A)?$/.test(String(filing.form || '')));
 }
 
 export function filingLabel(filing) {
@@ -60,12 +61,11 @@ export function recentFilingsPoint(fundamentals, now = Date.now()) {
   const href = secFilingUrl(fundamentals?.cik, shown[0].accession);
   return {
     id: 'filings', tone: 'neutral', title: '최근 공시',
-    text: `${shown.map((filing) => `${md(filing.filedAt)} ${filingLabel(filing)}`).join(', ')}${more}${/^\d{4}-\d{2}-\d{2}$/.test(checked) ? ` (${md(checked)} 확인)` : ''}.`,
+    text: `${shown.map((filing) => `${md(filing.filedAt)} ${filingLabel(filing)}`).join(', ')}${more}${isIsoDay(checked) ? ` (${md(checked)} 확인)` : ''}.`,
     ...(href ? { link: { href, label: 'SEC 공시 원문', ariaLabel: `${shown[0].form} ${shown[0].filedAt} 제출 SEC 공시 원문 새 창` } } : {})
   };
 }
 
-const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
 // 은/는 by the final Hangul syllable of the label (the ticker in parentheses is not read).
 const topic = (label) => { const code = String(label || '').charCodeAt(String(label || '').length - 1) - 0xac00; return code >= 0 && code <= 11171 && code % 28 ? '은' : '는'; };
 const signed = (value, digits = 1, unit = '%') => signedText(value, digits, unit);
@@ -176,8 +176,15 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   if (compared.length) {
     const three = spans.find((span) => span.key === 'ret3m');
     const anchor = three?.gap != null ? three : compared[compared.length - 1];
-    const ahead = compared.filter((span) => span.gap > 0).length;
-    const consistency = ahead === compared.length ? '모든 기간에서 지수를 앞섰습니다' : ahead === 0 ? '모든 기간에서 지수에 뒤졌습니다' : `${compared.length}개 기간 중 ${ahead}개에서 앞섰습니다`;
+    // v59.45 (pipeline review P25-READ-01): a gap inside the window's band is "비슷", not "뒤짐" — equal returns read
+    // "모든 기간에서 지수에 뒤졌습니다" next to "비슷". Each window uses its own band.
+    const side = (span) => (span.gap > (relativeBand(span.key) ?? 0) ? 1 : span.gap < -(relativeBand(span.key) ?? 0) ? -1 : 0);
+    const ahead = compared.filter((span) => side(span) > 0).length;
+    const behind = compared.filter((span) => side(span) < 0).length;
+    const similar = compared.length - ahead - behind;
+    const consistency = ahead === compared.length ? '모든 기간에서 지수를 앞섰습니다' : behind === compared.length ? '모든 기간에서 지수에 뒤졌습니다'
+      : similar === compared.length ? '모든 기간에서 지수와 비슷했습니다'
+        : `${compared.length}개 기간 중 ${[ahead ? `${ahead}개 앞섬` : '', similar ? `${similar}개 비슷` : '', behind ? `${behind}개 뒤짐` : ''].filter(Boolean).join(', ')}`;
     // v57.81: "ahead" needs a gap beyond the window's relative band (a typical tracking error, themes recent-check), and
     // the last five sessions against the same index are named when both returns exist (fail closed: no line otherwise).
     const band = relativeBand(anchor.key) ?? 0;
@@ -246,7 +253,7 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
     const parts = [];
     // v57.70 (2026-10-15 audit): "선도 — 더 강해지는 중" on a -3% sector day read as today's move; it is the multi-week
     // relative-rotation position as of a dated close, and says so.
-    const rotationAsOf = /^\d{4}-\d{2}-\d{2}$/.test(String(sector?.sessionDate || '')) ? `${Number(sector.sessionDate.slice(5, 7))}/${Number(sector.sessionDate.slice(8, 10))} 종가까지 몇 주의 상대 흐름` : '몇 주의 상대 흐름';
+    const rotationAsOf = isIsoDay(String(sector?.sessionDate || '')) ? `${Number(sector.sessionDate.slice(5, 7))}/${Number(sector.sessionDate.slice(8, 10))} 종가까지 몇 주의 상대 흐름` : '몇 주의 상대 흐름';
     if (sector?.quadrant) parts.push(`섹터 ${sector.label}(${sector.etf})${topic(sector.label)} ${sector.quadrant.label}(${sector.quadrant.between ? `${sector.quadrant.between} 사이, ` : ''}${rotationAsOf}) — ${sector.quadrant.read}${sector.quadrant.recent ? `(${sector.quadrant.recent})` : ''}`);
     if (topTheme?.quadrant && topTheme.etf !== sector?.etf) parts.push(`테마 ${topTheme.label}(${topTheme.etf})${topic(topTheme.label)} ${topTheme.quadrant.label}${topTheme.quadrant.between ? `(${topTheme.quadrant.between} 사이)` : ''}${topTheme.quadrant.recent ? `, ${topTheme.quadrant.recent}${topTheme.quadrant.opposed ? '로 반대 방향' : ''}` : ''}`);
     tailwind = sector?.quadrant?.tone === 'favorable' || topTheme?.quadrant?.tone === 'favorable';

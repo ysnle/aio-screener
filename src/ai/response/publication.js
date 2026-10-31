@@ -142,6 +142,10 @@ export function stripUnverifiedCurrentEventSentences(value, isBound) {
   }).filter(function(line) { return line !== null; }).join('\n').replace(/\n{3,}/g, '\n\n').trim();
   return { text: text, dropped: dropped };
 }
+// v59.45 P11-AI-01: the same event rule, read as "would this text lose a sentence against these rows".
+function currentEventSentenceUnbound(value, rows) {
+  return stripUnverifiedCurrentEventSentences(value, function(sentence) { return eventBoundToEvidence(sentence, rows); }).dropped > 0;
+}
 
 // v58.63 (architecture audit SEC02): the fallback path (a plan that failed to parse) stripped only unverified numbers, so
 // "연준이 금리를 인하했고 신용 스트레스도 해소됐다" was dropped from a structured plan but published from the same text when
@@ -217,6 +221,10 @@ export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensiti
     ids.forEach(function(id) { if (!bindingIds.has(id)) { reasons.push('evidence-unbound'); unboundEvidenceIds.push(id); } });
     var boundRows = rows.filter(function(row) { return ids.indexOf(claimEvidenceId(row)) >= 0; });
     if (currentSensitive && !numeric && hasCurrentNumericContent(claim.text)) reasons.push('untyped-numeric-content');
+    // v59.45 (pipeline review P11-AI-01): a text claim matched only on source and date, so an AAPL price row "proved"
+    // "연준이 금리를 인하했고 신용 스트레스도 해소됐다" and it was listed as a verified value while the same sentence was cut from
+    // the summary. A current-event sentence in a text claim now needs the rows it cites to name its subject, as summary text does.
+    if (currentSensitive && !numeric && currentEventSentenceUnbound(claim.text, boundRows)) reasons.push('current-event-unverified');
     var matchedRow = null;
     if ((numeric || currentSensitive || ids.length) && !boundRows.some(function(row) {
       var source = String(claim.source || '').trim();

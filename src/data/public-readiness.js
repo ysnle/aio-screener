@@ -95,8 +95,12 @@ export function installPublicReadiness(window = globalThis) {
     var blockers = [];
     var warnings = [];
     var ageMin = null;
-    if (meta && meta.generatedAt) {
-      ageMin = Math.max(0, Math.round((Date.now() - new Date(meta.generatedAt).getTime()) / 60000));
+    // P28-AUDIT-01: an unreadable or future generation time is not "0분 전"; it is a time that could not be confirmed.
+    var generatedMs = meta && meta.generatedAt ? Date.parse(meta.generatedAt) : NaN;
+    if (meta && meta.generatedAt && (!Number.isFinite(generatedMs) || generatedMs - Date.now() > 5 * 60000)) {
+      warnings.push('public-data 기준 시각 확인 안 됨');
+    } else if (meta && meta.generatedAt) {
+      ageMin = Math.max(0, Math.round((Date.now() - generatedMs) / 60000));
       if (ageMin > 360) blockers.push('public-data가 6시간 이상 지연');
       else if (ageMin > 180) warnings.push('public-data가 3시간 이상 지연');
     } else {
@@ -162,7 +166,8 @@ export function installPublicReadiness(window = globalThis) {
       dataLabel: meta && meta.generatedAt ? _aioKstShortFromIso(meta.generatedAt) + (ageMin != null ? ', ' + ageMin + '분 전' : '') : 'public-data 미수신',
       dataStatus: meta && meta.newsOk === false ? '뉴스 백스톱 주의' : (meta && meta.symbolsOk ? '서버 스냅샷 시세 ' + meta.symbolsOk + '개 수신' : '수신 상태 확인 중'),
       pageStatus: pageAudit ? (pageAudit.status === 'pass' ? pageAudit.pageCount + '개 페이지 현재성 통과' : '현재성 주의 ' + ((pageAudit.missingCaveat || []).length + (pageAudit.liveOverstatement || []).length) + '건') : '페이지 감사 대기',
-      pipelineStatus: pipelineAudit ? (pipelineAudit.status === 'ok' ? '파이프라인 OK' : '파이프라인 WARN') : '파이프라인 감사 대기',
+      // P28-AUDIT-01: the runtime mode only saw data.json's generation time, not the pipeline audit; say that.
+      pipelineStatus: pipelineAudit ? (pipelineAudit.status === 'ok' ? (detailed ? '파이프라인 OK' : '기준 시각 수신(전체 감사 아님)') : '파이프라인 WARN') : '파이프라인 감사 대기',
       pageEvidenceRows: pageEvidenceRows,
       weakPages: weakPages,
       blockers: blockers,

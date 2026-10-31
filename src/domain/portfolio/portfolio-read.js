@@ -16,9 +16,9 @@ export function portfolioSectorLabel(name) {
 import { buildAttribution } from './attribution.js';
 import { rrgRecentReading } from '../themes/recent-check.js';
 import { koreaRecordText, KR_SHOCK_TAIL_PCT } from '../briefing/market-read.js';
-import { signedText } from '../shared/number.js';
+import { signedText, readNumber as finite } from '../shared/number.js';
+import { hasLeadingIsoDay } from '../shared/session-date.js';
 
-const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
 const signed = (value, digits = 1, unit = '%') => signedText(value, digits, unit);
 const QUADRANT = Object.freeze({ Leading: { label: '선도', tone: 'favorable' }, Improving: { label: '개선', tone: 'neutral' }, Weakening: { label: '약화', tone: 'neutral' }, Lagging: { label: '후행', tone: 'burden' } });
 
@@ -238,7 +238,7 @@ export function portfolioRowsForAI(surface, { sectorOf = () => null } = {}) {
       returnPct: costComparable && value != null && cost > 0 ? round1((value - cost) / cost * 100) : null
     };
   });
-  const asOf = /^\d{4}-\d{2}-\d{2}/.test(String(surface.observedAt || '')) ? String(surface.observedAt).slice(0, 10) : null;
+  const asOf = hasLeadingIsoDay(String(surface.observedAt || '')) ? String(surface.observedAt).slice(0, 10) : null;
   // v57.81: which currencies the cash is held in and the rate basis of its total — currencies only, never amounts.
   const cashCurrencies = (Array.isArray(surface.cashBalances) ? surface.cashBalances : []).filter((row) => row?.currency && finite(row.amount) > 0).map((row) => row.currency);
   return { available: true, baseCurrency: surface.baseCurrency || null, currencyState: surface.currencyState || null, asOf, cashPct: finite(surface.cashPct) == null ? null : round1(surface.cashPct), cashCurrencies, cashBasis: surface.cashConversion?.converted ? surface.cashConversion.basisLabel || null : null, rows };

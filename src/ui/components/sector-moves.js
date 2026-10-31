@@ -28,7 +28,8 @@ export function sectorMoves(artifact, nowMs = Date.now()) {
       // on the last point alone read XLB·XLY·XLF 기준선 부근 and XLU 선도 here while 테마·섹터 read 개선.
       quadrant: fading ? `상대강도 5일 ${rel5.toFixed(1)}%` : quadrantLabel(rrgSettledQuadrant(row) ?? row.quadrant), session: row.sessionDate };
   }).filter(Boolean).sort((a, b) => b.daily - a.daily);
-  return { rows, session: rows[0]?.session || null };
+  // v59.45 (R1-05): a sector counts as up only when its printed two-decimal move is above zero (+0.003 reads +0.00%).
+  return { rows, session: rows[0]?.session || null, upCount: rows.filter((row) => directionOf(row.daily, 2) === 'up').length };
 }
 
 // v58.53 개편 v2 (5a): the bars moved from 오늘 to 브리핑 ("섹터 하루 등락", beside 시간대별 시황). With `host` the block
@@ -48,11 +49,11 @@ export function renderSectorMoves({ documentRef: doc, root, anchor = null, host 
   if (host) section.setAttribute('aria-labelledby', title.id);
   head.append(title, el(doc, 'span', `${md(model.session)} 종가, 미국 섹터 ETF ${model.rows.length === 11 ? '11개' : `${model.rows.length}/11개 확인`}`, 'briefing-h2-note sx-card__meta'));
   const top = model.rows[0], bottom = model.rows.at(-1);
-  const lead = el(doc, 'p', `${top.label}(${signedText(top.daily, 2)}%)${particle(top.label)} 가장 강했고 ${bottom.label}(${signedText(bottom.daily, 2)}%)${particle(bottom.label)} 가장 약했습니다. ${model.rows.filter((row) => row.daily > 0).length}개 섹터가 올랐습니다.`, 'home-sector-lead');
+  const lead = el(doc, 'p', `${top.label}(${signedText(top.daily, 2)}%)${particle(top.label)} 가장 강했고 ${bottom.label}(${signedText(bottom.daily, 2)}%)${particle(bottom.label)} 가장 약했습니다. ${model.upCount}개 섹터가 올랐습니다.`, 'home-sector-lead');
   const max = Math.max(0.5, ...model.rows.map((row) => Math.abs(row.daily)));
   const list = el(doc, 'ul', null, 'home-sector-bars');
   for (const row of model.rows) {
-    const li = el(doc, 'li', null, ({ up: 'is-up', down: 'is-down' }[directionOf(row.daily)] || ''));
+    const li = el(doc, 'li', null, ({ up: 'is-up', down: 'is-down' }[directionOf(row.daily, 2)] || ''));
     li.tabIndex = 0; // U01: the basis card opens from the keyboard too
     li.title = `${row.label} (${row.symbol}), 1일 ${row.daily.toFixed(2)}%${row.weekly == null ? '' : `, 1주 ${row.weekly.toFixed(2)}%`}${row.fading ? ', 회전 선도(약 50일 기준)지만 최근 5거래일 S&P 500보다 약함' : row.quadrant ? `, 회전 ${row.quadrant}(약 50일 기준)` : ''}, 섹터 ETF 일봉 종가로 계산`;
     const bar = el(doc, 'span', null, 'home-sector-bar');

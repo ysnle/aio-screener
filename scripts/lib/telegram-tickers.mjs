@@ -25,14 +25,15 @@ const TICKER_PATTERNS = [
   ['2454.TW', /\bMTK\b|MediaTek/i], ['PWR', /\bPWR\b|Quanta Services/i],
   ['ADBE', /\bADBE\b|Adobe/i], ['SMCI', /\bSMCI\b|Super Micro/i], ['RKLB', /\bRKLB\b|Rocket Lab/i],
   ['285A.T', /Kioxia/i], ['6981.T', /Murata/i],
-  ['005930.KS', /Samsung Electronics|삼성전자/i], ['009150.KS', /Samsung Electro|삼성전기/i], ['000660.KS', /SK\s*Hynix|SK하이닉스/i],
+  ['005930.KS', /Samsung Electronics|삼성전자/i], ['009150.KS', /Samsung Electro(?!nics)|삼성전기/i], ['000660.KS', /SK\s*Hynix|SK하이닉스/i],
   ['042660.KS', /Hanwha Ocean|한화오션/i], ['039030.KQ', /EO Technics|이오테크닉스/i],
   ['247540.KQ', /EcoPro BM|에코프로비엠/i], ['003670.KS', /POSCO Future M|포스코퓨처엠/i],
 ];
 
 // Company names that are also ordinary English words ("coherent", "oracle", "apple", "azure", "gemini").
 // They only count when written as a proper noun (Capitalized or UPPERCASE).
-const COMMON_WORD_NAMES = new Set(['Coherent', 'Oracle', 'Apple', 'Azure', 'Gemini', 'Copilot', 'Astera', 'Adobe']);
+// v59.45 (R3-02): 'micron-scale' and 'amazon rainforest' are words too.
+const COMMON_WORD_NAMES = new Set(['Coherent', 'Oracle', 'Apple', 'Azure', 'Gemini', 'Copilot', 'Astera', 'Adobe', 'Micron', 'Amazon']);
 const commonWordName = (part) => {
   const word = part.replace(/^\\b|\\b$/g, '');
   return COMMON_WORD_NAMES.has(word) ? word : null;

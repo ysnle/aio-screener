@@ -1,0 +1,86 @@
+{
+  "level": "E2 isolated actual functions; no network/producer/product writes; collector mapping extracted unchanged, unrelated key helpers stubbed",
+  "bankRevenue": {
+    "normalizedRevenue": 100,
+    "normalizedMargin": 10,
+    "panelRevenue": []
+  },
+  "financialStatusRecovery": {
+    "parsedStatus": null,
+    "source": "CURRENT",
+    "output": {
+      "sym": "TEST",
+      "name": "Test",
+      "sector": null,
+      "index": "NASDAQ",
+      "membership": [
+        "NASDAQ"
+      ],
+      "exchange": "NASDAQ",
+      "nasdaqFinancialStatus": "D"
+    }
+  },
+  "amendmentProvenance": {
+    "provenance": [
+      {
+        "accession": "original",
+        "role": "ORIGINAL"
+      },
+      {
+        "accession": "added",
+        "role": "NEW_HOLDINGS_ADD"
+      }
+    ],
+    "mappedRows": [
+      {
+        "managerId": "fixture",
+        "cik": "1",
+        "reportPeriod": "2026-06-30",
+        "filedAt": "2026-08-02",
+        "rank": 1,
+        "cusip": "000000001",
+        "value": 1,
+        "shares": 1,
+        "key": "000000001",
+        "cusipNormalized": "000000001",
+        "sourceRowCount": 1,
+        "priorReportPeriod": null,
+        "evidenceId": "sec.13f.1.2026-06-30.000000001",
+        "sourceUrl": "https://fixture.invalid/added",
+        "priorValue": null,
+        "priorShares": null,
+        "valueDelta": null,
+        "sharesDelta": null,
+        "action": "UNAVAILABLE",
+        "actionConfidence": "NOT_AVAILABLE",
+        "actionBasis": "NOT_AVAILABLE",
+        "comparisonStatus": "RAW_ROW_NOT_COMPARABLE"
+      },
+      {
+        "managerId": "fixture",
+        "cik": "1",
+        "reportPeriod": "2026-06-30",
+        "filedAt": "2026-08-02",
+        "rank": 2,
+        "cusip": "000000002",
+        "value": 2,
+        "shares": 2,
+        "key": "000000002",
+        "cusipNormalized": "000000002",
+        "sourceRowCount": 1,
+        "priorReportPeriod": null,
+        "evidenceId": "sec.13f.1.2026-06-30.000000002",
+        "sourceUrl": "https://fixture.invalid/added",
+        "priorValue": null,
+        "priorShares": null,
+        "valueDelta": null,
+        "sharesDelta": null,
+        "action": "UNAVAILABLE",
+        "actionConfidence": "NOT_AVAILABLE",
+        "actionBasis": "NOT_AVAILABLE",
+        "comparisonStatus": "RAW_ROW_NOT_COMPARABLE"
+      }
+    ],
+    "expectedOriginalUrl": "https://fixture.invalid/original"
+  }
+}

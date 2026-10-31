@@ -91,17 +91,25 @@ export function resolveFxRate(legs, { from, to, asOfMs = Date.now(), maxAgeMs = 
   if (!source || !target) return { ok: false, reason: 'currency-undeclared' };
   if (source === target) return { ok: true, rate: 1, leg: null, inverted: false };
   const list = normalizeFxLegs(legs);
-  const direct = list.find((leg) => leg.from === source && leg.to === target);
-  const inverse = direct ? null : list.find((leg) => leg.from === target && leg.to === source);
-  const chosen = direct || inverse;
-  if (!chosen) return { ok: false, reason: 'rate-not-declared', pair: `${source}/${target}` };
-  const observedMs = Date.parse(chosen.observedAt);
-  if (!(observedMs <= asOfMs)) return { ok: false, reason: 'rate-observed-after-cut', pair: `${chosen.from}/${chosen.to}` };
-  if (!(asOfMs - observedMs <= maxAgeMs)) return { ok: false, reason: 'rate-stale', pair: `${chosen.from}/${chosen.to}`, ageMs: asOfMs - observedMs };
+  // v59.45 (PASS22 P22-FX-01): every declaration of the pair, either direction, is a candidate. A 2020 USD→KRW leg used to
+  // hide a KRW→USD leg observed yesterday (rate-stale), and of two legs in one direction the first row won. The latest leg
+  // observed at or before the cut is used (direct first on a tie); with none usable, the reason is the latest leg's.
+  const candidates = list
+    .filter((leg) => (leg.from === source && leg.to === target) || (leg.from === target && leg.to === source))
+    .map((leg) => ({ leg, ms: Date.parse(leg.observedAt), inverted: leg.from !== source }))
+    .sort((a, b) => b.ms - a.ms || Number(a.inverted) - Number(b.inverted));
+  if (!candidates.length) return { ok: false, reason: 'rate-not-declared', pair: `${source}/${target}` };
+  const usable = candidates.find((item) => item.ms <= asOfMs && asOfMs - item.ms <= maxAgeMs);
+  if (!usable) {
+    const past = candidates.find((item) => item.ms <= asOfMs);
+    if (!past) return { ok: false, reason: 'rate-observed-after-cut', pair: `${candidates[0].leg.from}/${candidates[0].leg.to}` };
+    return { ok: false, reason: 'rate-stale', pair: `${past.leg.from}/${past.leg.to}`, ageMs: asOfMs - past.ms };
+  }
+  const chosen = usable.leg;
   return {
     ok: true,
-    rate: direct ? chosen.rate : 1 / chosen.rate,
-    inverted: !!inverse,
+    rate: usable.inverted ? 1 / chosen.rate : chosen.rate,
+    inverted: usable.inverted,
     leg: { from: chosen.from, to: chosen.to, rate: chosen.rate, observedAt: chosen.observedAt, source: chosen.source }
   };
 }

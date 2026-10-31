@@ -62,7 +62,13 @@ jobs:
             const gatedWorkflows = ['Refresh market data'];
             // v58.77 (pipeline audit OPS-01): Pages ends success when main moved on and the deploy step was skipped. Only a
             // run whose released-Pages verification passed deployed and observed the live site, so only that run recovers.
-            const workSteps = { 'Deploy GitHub Pages': 'Verify released Pages and all external planes' };
+            // v59.45 (pipeline review P15-OPS-01): the two Worker deploys also end success when the live Worker already runs
+            // this code or main moved on, with deploy and smoke skipped; only a passed smoke check observed the Worker.
+            const workSteps = {
+              'Deploy GitHub Pages': 'Verify released Pages and all external planes',
+              'Deploy AI proxy': 'Verify health, readiness, CORS, and fail-closed origin',
+              'Deploy fast data plane': 'Smoke check fast plane'
+            };
             const observedWork = async (id) => {
               if (!gatedWorkflows.includes(workflow) && !workSteps[workflow]) return true;
               try {
@@ -70,7 +76,12 @@ jobs:
                 if (workSteps[workflow]) return jobs.some((job) => (job.steps || []).some((step) => step.name === workSteps[workflow] && step.conclusion === 'success'));
                 const work = jobs.filter((job) => !gateJobs.includes(job.name));
                 return !(jobs.length > work.length && work.length && work.every((job) => job.conclusion === 'skipped'));
-              } catch (_) { return true; }
+              } catch (error) {
+                // P15-OPS-01: a job list the API did not return is not evidence the run did its work. It neither closes the
+                // alert nor breaks a failure streak; the next readable run decides.
+                core.info(`Job observation unavailable for run ${id} (api:${error.status || 'error'}); not counted as observed work.`);
+                return false;
+              }
             };
 
             try {
@@ -93,7 +104,7 @@ jobs:
             const sha = String(run.head_sha || '').slice(0, 12);
             const timestamp = new Date(run.updated_at || Date.now()).toISOString();
             if (succeeded && !(await observedWork(run.id))) {
-              core.info('Success without work (gate skipped every job); the alert state is unchanged.');
+              core.info('Success without observed work (skipped, or its jobs were unreadable); the alert state is unchanged.');
               return;
             }
             // v58.84 recovery hysteresis: a lane flapping fail/fail/pass/fail/fail closed and reopened its issue on every

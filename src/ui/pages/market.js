@@ -6,15 +6,10 @@ import { subscribeToSlices } from '../../state/memoize.js';
 import { deriveQuotePresentation, quoteDisplayKind } from '../../domain/market/quote-presentation.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { clearKnowledgeArrival, renderKnowledgeArrival } from '../components/knowledge-arrival.js';
-import { signedText } from '../../domain/shared/number.js';
+import { signedText, readNumber as finite } from '../../domain/shared/number.js';
 import { renderMacroNextRelease, renderKrMacroFreshnessBadges } from '../components/macro-next-release.js';
 import { macroReleasesFor } from '../../domain/briefing/macro-releases.js';
 
-function finite(value) {
-  if (value == null || value === '' || typeof value === 'boolean') return null;
-  const number = Number(value);
-  return Number.isFinite(number) ? number : null;
-}
 
 function isPlaceholder(value) {
   return !value || /^(?:—|-|--|N\/A|null|undefined)$/i.test(String(value).trim());

@@ -12,12 +12,8 @@ import { alignInput, buildCloseSeries, closeBasis, isUsable } from '../../domain
 import { fearGreedBand } from '../../domain/sentiment/metrics.js';
 import { renderKnowledgeArrival, clearKnowledgeArrival } from '../components/knowledge-arrival.js';
 import { renderHomeVix } from '../components/home-vix.js';
+import { readNumber as finite } from '../../domain/shared/number.js';
 
-function finite(value) {
-  if (value == null || typeof value === 'boolean' || String(value).trim() === '') return null;
-  const number = Number(value);
-  return Number.isFinite(number) ? number : null;
-}
 
 // RM-01 (2026-07-19): home and technical secondary/chart surfaces remain compatibility
 // boundaries. P785 transferred the technical market-health primary surface, P786 transferred

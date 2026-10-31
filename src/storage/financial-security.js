@@ -1,4 +1,5 @@
 // P1350: shared Vault authentication, financial-section migration and AI input semantics.
+import { readNumber as finite } from '../domain/shared/number.js';
 export const VERIFY_KEY = 'aio_vault_verify_v1';
 const VERIFY_TEXT = 'AIO Vault authenticated v1';
 export const PERSONAL_KEYS = Object.freeze(['aio_portfolio_data', 'aio_portfolio_ledger', 'aio_portfolio_fx_legs', 'aio_portfolio_trades']);
@@ -114,12 +115,6 @@ export async function restorePortfolioVault(vault, { storage, readDecrypted } = 
   Object.assign(vault._keyRuntime, restored);
 }
 
-function finite(value) {
-  if (typeof value !== 'number' && typeof value !== 'string') return null;
-  if (typeof value === 'string' && !value.trim()) return null;
-  const n = Number(value);
-  return Number.isFinite(n) ? n : null;
-}
 
 export function redactPortfolioForAI(positions, { liveData = {}, now = Date.now(), maxAgeMs = 7 * 86400000 } = {}) {
   const rows = Array.isArray(positions) ? positions.filter((row) => row?.ticker) : [];

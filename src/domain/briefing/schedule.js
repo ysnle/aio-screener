@@ -1,5 +1,6 @@
 import { MARKET_CALENDAR_REGISTRY, MARKET_HOLIDAY_NAMES } from '../market/market-calendar.js';
 import { SCHEDULED_EVENTS, activeScheduledEvents } from './scheduled-events.js';
+import { isIsoDay } from '../shared/session-date.js';
 
 // P1389: the briefing opens with what is coming. Official release dates come from
 // AIO_MACRO_CALENDAR (advanced by AIO_MACRO_OFFICIAL_SCHEDULES); release clock times are the
@@ -50,11 +51,45 @@ function etWallClockToMs(date, [hour, minute]) {
   return out;
 }
 
+/** A New York wall-clock time on a US date as an instant (DST aware) — the one clock every earnings filter reads. */
+export const usWallClockMs = (date, hourMinute) => etWallClockToMs(date, hourMinute);
+
+// v59.45 (pipeline review P26-EVENT-01): the placeholder clocks of an earnings row, one table for the schedule, the
+// previews and the week. The calendar names only a session; 08:00 / 16:05 ET are filter clocks, not announced times.
+export const EARNINGS_FILTER_CLOCK = Object.freeze({ bmo: [8, 0], amc: [16, 5], unknown: [16, 5] });
+export function earningsFilterMs(row) {
+  return isIsoDay(String(row?.date || '')) ? etWallClockToMs(row.date, EARNINGS_FILTER_CLOCK[row.hour] || EARNINGS_FILTER_CLOCK.unknown) : NaN;
+}
+
+/** An actual or estimate that was collected: '' / null / non-finite stay missing (never 0). */
+export const reportedNumber = (value) => (value == null || value === '' || !Number.isFinite(Number(value)) ? null : Number(value));
+
+/**
+ * v59.45 (pipeline review P26-WEEK-01): one row per report. Rows of the same symbol and US date are one event when their
+ * sessions agree or one of them is unknown (a later row that fills the hour in, or adds the revenue actual, is the same
+ * report); the row with a received result (EPS or revenue) wins, else the one that names the session.
+ */
+export function dedupeEarningsRows(rows = []) {
+  const out = [];
+  const received = (row) => reportedNumber(row?.epsActual) != null || reportedNumber(row?.revenueActual) != null;
+  const known = (row) => ['bmo', 'dmh', 'amc'].includes(row?.hour);
+  for (const row of Array.isArray(rows) ? rows : []) {
+    if (!row?.symbol || !row?.date) { out.push(row); continue; }
+    const at = out.findIndex((prior) => prior?.symbol === row.symbol && prior?.date === row.date && (prior.hour === row.hour || !known(prior) || !known(row)));
+    if (at < 0) { out.push(row); continue; }
+    const prior = out[at];
+    const better = (received(row) && !received(prior)) || (received(row) === received(prior) && known(row) && !known(prior));
+    if (better) out[at] = known(row) || !known(prior) ? row : { ...row, hour: prior.hour };
+    else if (!known(prior) && known(row)) out[at] = { ...prior, hour: row.hour };
+  }
+  return out;
+}
+
 /** When a scheduled release becomes public (ms), or null for an id without a known release time. Codex audit F07: a
  *  release whose time has passed is not "다음" any more, while one later today still is (date >= today was both). */
 export function releaseAtMs(id, date) {
   const profile = RELEASE_PROFILES[id === 'us-fed-rate' ? 'us-fomc' : id];
-  if (!profile || !/^\d{4}-\d{2}-\d{2}$/.test(String(date || ''))) return null;
+  if (!profile || !isIsoDay(String(date || ''))) return null;
   return profile.kst
     ? Date.parse(`${date}T${String(profile.kst[0]).padStart(2, '0')}:${String(profile.kst[1]).padStart(2, '0')}:00+09:00`)
     : etWallClockToMs(date, profile.et);
@@ -153,7 +188,7 @@ export function marketStructureEvents({ fomcDecisions = [], nowMs = Date.now(), 
 // v58.75 (persona review): calendar revenue (dollars) in 억/조 달러; zero or missing is left out.
 export function formatUsdRevenue(value) {
   const n = value == null || value === '' ? NaN : Number(value);
-  if (!(n > 0)) return null;
+  if (!(n > 0) || !Number.isFinite(n)) return null; // v59.45 (P26-NULL-01): Infinity is not a revenue
   return n >= 1e12 ? `${Number((n / 1e12).toFixed(2))}조 달러` : n >= 1e8 ? `${Math.round(n / 1e8).toLocaleString('en-US')}억 달러` : `${Math.round(n / 1e4).toLocaleString('en-US')}만 달러`;
 }
 
@@ -196,20 +231,10 @@ export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRang
       comparisonBasis: ['us-cpi', 'us-pce'].includes(key) ? '전년 동월 대비(%)' : key === 'us-retail' ? '전월 대비(%)' : null,
       last: profile.last(snapshot || {}, { policyRange }), today: when.date === today, passed: atMs < nowMs, status: atMs < nowMs ? 'time-passed' : 'upcoming' });
   }
-  const uniqueEarnings = new Map();
-  for (const row of Array.isArray(earnings) ? earnings : []) {
-    const key = `earnings:${row?.symbol}:${row?.date}:${row?.hour || 'unknown'}`;
-    const prior = uniqueEarnings.get(key);
-    // A received result takes precedence over a duplicate pending row, not over a different event.
-    if (!prior || (prior.epsActual == null && row?.epsActual != null)) uniqueEarnings.set(key, row);
-  }
-  const earningRows = [...uniqueEarnings.values()]
+  // A received result takes precedence over a duplicate pending row, not over a different event (dedupeEarningsRows).
+  const earningRows = dedupeEarningsRows(earnings)
     .filter((row) => row?.symbol && names[row.symbol] && row.date)
-    .map((row) => {
-      const hour = row.hour === 'bmo' ? [8, 0] : row.hour === 'amc' ? [16, 5] : [16, 5];
-      const atMs = etWallClockToMs(row.date, hour);
-      return { row, atMs };
-    })
+    .map((row) => ({ row, atMs: earningsFilterMs(row) }))
     .filter(({ atMs }) => atMs >= nowMs - 6 * 3600000 && atMs <= nowMs + days * 86400000);
   // v58.52: an earnings-season session carries dozens of S&P 500 reports. Keep the most market-moving ones (index weight,
   // else the quarter's revenue estimate) and list them by time — the clock-then-name cut kept EFX·GM·GPC·HAL·HAS·KEY and
@@ -230,7 +255,9 @@ export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRang
     const estimateSource = row.estimateSource || earningsMeta.source || null;
     // v58.75 (persona review): the estimate no longer waits for a provider name (that stays in the hover).
     const est = row.epsEstimate != null && row.epsEstimate !== '' && Number.isFinite(Number(row.epsEstimate)) ? Number(row.epsEstimate) : null;
-    const actual = row.epsActual != null && Number.isFinite(Number(row.epsActual)) ? Number(row.epsActual) : null;
+    // P26-NULL-01: an empty EPS actual is not EPS 0.00; a revenue actual alone is a received result as well.
+    const actual = reportedNumber(row.epsActual);
+    const received = actual != null || reportedNumber(row.revenueActual) != null;
     const estimate = actual != null ? `EPS ${actual.toFixed(2)}${est != null ? ` (예상 ${est.toFixed(2)})` : ''}` : est != null ? `EPS 예상 ${est.toFixed(2)}` : null;
     const revA = formatUsdRevenue(row.revenueActual), revE = formatUsdRevenue(row.revenueEstimate);
     const revenue = revA ? `매출 ${revA}${revE ? ` (예상 ${revE})` : ''}` : revE ? `매출 예상 ${revE}` : null;
@@ -255,7 +282,7 @@ export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRang
       originalTimeZone: 'America/New_York', source: earningsMeta.source || null, sourceUrl: earningsMeta.sourceUrl || null,
       sourceTitle: [earningsMeta.source ? `일정: ${earningsMeta.source}` : null, est != null && estimateSource ? `예상치: ${estimateSource}` : null].filter(Boolean).join(', ') || null,
       observedAt: earningsMeta.generatedAt || null, comparisonBasis: row.fiscalPeriod || null,
-      why: session, last: epsContext, today: when.date === today, passed, status: actual != null ? 'received' : passed ? 'time-passed' : 'upcoming' });
+      why: session, last: epsContext, today: when.date === today, passed, status: received ? 'received' : passed ? 'time-passed' : 'upcoming' });
   }
   return rows.sort((a, b) => a.atMs - b.atMs);
 }

@@ -3,7 +3,7 @@
 // and reading out. Market value = valuation close × shares outstanding, both already published per row for P/E
 // (no raw current price is republished — P715). A member without shares or a return is counted, not drawn.
 import { sectorLabel } from '../screener/screener-read.js';
-import { signedText } from '../shared/number.js';
+import { signedText, readNumber as finite } from '../shared/number.js';
 
 export const SECTOR_MAP_VERSION = 'sector-map.v1';
 
@@ -16,7 +16,6 @@ export const SECTOR_MAP_PERIODS = Object.freeze({
   ret3m: Object.freeze({ label: '3개월', steps: [4, 12, 25] })
 });
 
-const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
 const sumValue = (list) => list.reduce((sum, item) => sum + item.value, 0);
 
 // One company listed in several share classes. The holdings file names them "ALPHABET CLASS A/C"; the alias table
@@ -129,7 +128,10 @@ export function buildSectorMap({ rows = [], weights = null, period = 'ret1d', ex
       let value = referenceBillions != null && referenceBillions > 0 ? referenceBillions * 1e9
         : close != null && shares != null && close > 0 && shares > 0 ? close * shares : null;
       // A share count in the wrong unit or class (one stock at 20조 달러) shows up as a turnover no listed stock has.
-      const turnover = value ? finite(row.dollarVolume30d) / value : null;
+      // v59.45 (P17-MAP-01): an unrecorded turnover is unchecked, not 0 (null / value read as zero turnover and dropped
+      // a valid market cap).
+      const volume = finite(row.dollarVolume30d);
+      const turnover = value && volume != null ? volume / value : null;
       if (value != null && turnover != null && (turnover < 0.0002 || turnover > 0.2)) value = null;
       if (value == null) { noValue += 1; missing.push(row); continue; }
       const ret = finite(row[key]);

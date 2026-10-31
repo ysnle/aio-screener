@@ -1,0 +1,290 @@
+{
+  "generatedAt": "2026-10-26T08:15:03.925Z",
+  "evidenceLevel": "E2 isolated domain functions",
+  "limits": "Synthetic fixtures, not browser failures. Production evaluator caller and prior-rank active input impact not established.",
+  "futureOutcome": {
+    "status": "READY",
+    "sample": {
+      "trials": 30,
+      "successes": 30,
+      "estimate": 1,
+      "confidenceInterval": {
+        "low": 0.8864866068260312,
+        "high": 0.9999999999999999,
+        "method": "wilson-95",
+        "confidence": 0.95
+      },
+      "status": "READY"
+    },
+    "independence": {
+      "status": "VERIFIED",
+      "duplicateUnits": 0,
+      "missingUnits": 0,
+      "overlappingWindows": 0,
+      "unknownWindows": 0
+    }
+  },
+  "reversedOutcome": {
+    "status": "READY",
+    "sample": {
+      "trials": 30,
+      "successes": 30,
+      "estimate": 1,
+      "confidenceInterval": {
+        "low": 0.8864866068260312,
+        "high": 0.9999999999999999,
+        "method": "wilson-95",
+        "confidence": 0.95
+      },
+      "status": "READY"
+    }
+  },
+  "retainedRank": {
+    "dirty": {
+      "sym": "F5",
+      "_compositeZ": null,
+      "factorScores": {
+        "momentum": 72,
+        "trend": 72,
+        "lowvol": null
+      },
+      "rank": 99,
+      "quantSignal": "old fixture rank",
+      "factorCoverage": 0.5,
+      "missingFactors": [
+        "lowvol"
+      ],
+      "confidence": 0.525,
+      "rankingEligibility": "insufficient-row-factor-coverage",
+      "minimumFactorCoverage": 0.8,
+      "factorEvidence": {
+        "momentum": {
+          "eligible": true,
+          "observedAt": "2026-08-26T00:00:00Z",
+          "timeBasis": null,
+          "barStart": null,
+          "sessionDate": null,
+          "sourceKind": "T3_PUBLIC_DELAYED",
+          "sourceTier": "T3_PUBLIC_DELAYED",
+          "allowedUse": "research-relative-ranking-only",
+          "blockedReasons": []
+        },
+        "trend": {
+          "eligible": true,
+          "observedAt": "2026-08-26T00:00:00Z",
+          "timeBasis": null,
+          "barStart": null,
+          "sessionDate": null,
+          "sourceKind": "T3_PUBLIC_DELAYED",
+          "sourceTier": "T3_PUBLIC_DELAYED",
+          "allowedUse": "research-relative-ranking-only",
+          "blockedReasons": []
+        },
+        "lowvol": {
+          "eligible": true,
+          "observedAt": "2026-08-26T00:00:00Z",
+          "timeBasis": null,
+          "barStart": null,
+          "sessionDate": null,
+          "sourceKind": "T3_PUBLIC_DELAYED",
+          "sourceTier": "T3_PUBLIC_DELAYED",
+          "allowedUse": "research-relative-ranking-only",
+          "blockedReasons": []
+        },
+        "size": {
+          "eligible": false,
+          "observedAt": null,
+          "timeBasis": null,
+          "barStart": null,
+          "sessionDate": null,
+          "sourceKind": null,
+          "sourceTier": null,
+          "allowedUse": null,
+          "blockedReasons": [
+            "observedAt_missing",
+            "source_tier_missing_or_unknown",
+            "allowedUse_missing",
+            "allowedUse_blocked",
+            "quality_missing",
+            "observedAt_stale_or_future"
+          ]
+        },
+        "value": {
+          "eligible": false,
+          "observedAt": null,
+          "timeBasis": null,
+          "barStart": null,
+          "sessionDate": null,
+          "sourceKind": null,
+          "sourceTier": null,
+          "allowedUse": null,
+          "blockedReasons": [
+            "observedAt_missing",
+            "source_tier_missing_or_unknown",
+            "allowedUse_missing",
+            "allowedUse_blocked",
+            "quality_missing",
+            "observedAt_stale_or_future"
+          ]
+        },
+        "quality": {
+          "eligible": false,
+          "observedAt": null,
+          "timeBasis": null,
+          "barStart": null,
+          "sessionDate": null,
+          "sourceKind": null,
+          "sourceTier": null,
+          "allowedUse": null,
+          "blockedReasons": [
+            "observedAt_missing",
+            "source_tier_missing_or_unknown",
+            "allowedUse_missing",
+            "allowedUse_blocked",
+            "quality_missing",
+            "observedAt_stale_or_future"
+          ]
+        },
+        "kalman": {
+          "eligible": true,
+          "observedAt": "2026-08-26T00:00:00Z",
+          "timeBasis": null,
+          "barStart": null,
+          "sessionDate": null,
+          "sourceKind": "T3_PUBLIC_DELAYED",
+          "sourceTier": "T3_PUBLIC_DELAYED",
+          "allowedUse": "research-relative-ranking-only",
+          "blockedReasons": []
+        }
+      },
+      "allowedUse": "research-relative-ranking-only",
+      "decisionEligible": false,
+      "_z_momentum": 1.3363062095621223,
+      "_z_trend": 1.3363062095621219,
+      "_z_lowvol": null
+    },
+    "clean": {
+      "sym": "F5",
+      "_compositeZ": null,
+      "factorScores": {
+        "momentum": 72,
+        "trend": 72,
+        "lowvol": null
+      },
+      "rank": null,
+      "quantSignal": null,
+      "factorCoverage": 0.5,
+      "missingFactors": [
+        "lowvol"
+      ],
+      "confidence": 0.525,
+      "rankingEligibility": "insufficient-row-factor-coverage",
+      "minimumFactorCoverage": 0.8,
+      "factorEvidence": {
+        "momentum": {
+          "eligible": true,
+          "observedAt": "2026-08-26T00:00:00Z",
+          "timeBasis": null,
+          "barStart": null,
+          "sessionDate": null,
+          "sourceKind": "T3_PUBLIC_DELAYED",
+          "sourceTier": "T3_PUBLIC_DELAYED",
+          "allowedUse": "research-relative-ranking-only",
+          "blockedReasons": []
+        },
+        "trend": {
+          "eligible": true,
+          "observedAt": "2026-08-26T00:00:00Z",
+          "timeBasis": null,
+          "barStart": null,
+          "sessionDate": null,
+          "sourceKind": "T3_PUBLIC_DELAYED",
+          "sourceTier": "T3_PUBLIC_DELAYED",
+          "allowedUse": "research-relative-ranking-only",
+          "blockedReasons": []
+        },
+        "lowvol": {
+          "eligible": true,
+          "observedAt": "2026-08-26T00:00:00Z",
+          "timeBasis": null,
+          "barStart": null,
+          "sessionDate": null,
+          "sourceKind": "T3_PUBLIC_DELAYED",
+          "sourceTier": "T3_PUBLIC_DELAYED",
+          "allowedUse": "research-relative-ranking-only",
+          "blockedReasons": []
+        },
+        "size": {
+          "eligible": false,
+          "observedAt": null,
+          "timeBasis": null,
+          "barStart": null,
+          "sessionDate": null,
+          "sourceKind": null,
+          "sourceTier": null,
+          "allowedUse": null,
+          "blockedReasons": [
+            "observedAt_missing",
+            "source_tier_missing_or_unknown",
+            "allowedUse_missing",
+            "allowedUse_blocked",
+            "quality_missing",
+            "observedAt_stale_or_future"
+          ]
+        },
+        "value": {
+          "eligible": false,
+          "observedAt": null,
+          "timeBasis": null,
+          "barStart": null,
+          "sessionDate": null,
+          "sourceKind": null,
+          "sourceTier": null,
+          "allowedUse": null,
+          "blockedReasons": [
+            "observedAt_missing",
+            "source_tier_missing_or_unknown",
+            "allowedUse_missing",
+            "allowedUse_blocked",
+            "quality_missing",
+            "observedAt_stale_or_future"
+          ]
+        },
+        "quality": {
+          "eligible": false,
+          "observedAt": null,
+          "timeBasis": null,
+          "barStart": null,
+          "sessionDate": null,
+          "sourceKind": null,
+          "sourceTier": null,
+          "allowedUse": null,
+          "blockedReasons": [
+            "observedAt_missing",
+            "source_tier_missing_or_unknown",
+            "allowedUse_missing",
+            "allowedUse_blocked",
+            "quality_missing",
+            "observedAt_stale_or_future"
+          ]
+        },
+        "kalman": {
+          "eligible": true,
+          "observedAt": "2026-08-26T00:00:00Z",
+          "timeBasis": null,
+          "barStart": null,
+          "sessionDate": null,
+          "sourceKind": "T3_PUBLIC_DELAYED",
+          "sourceTier": "T3_PUBLIC_DELAYED",
+          "allowedUse": "research-relative-ranking-only",
+          "blockedReasons": []
+        }
+      },
+      "allowedUse": "research-relative-ranking-only",
+      "decisionEligible": false,
+      "_z_momentum": 1.3363062095621223,
+      "_z_trend": 1.3363062095621219,
+      "_z_lowvol": null
+    }
+  }
+}

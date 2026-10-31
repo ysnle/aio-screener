@@ -1,0 +1,59 @@
+# 데이터 경계 계약 설계 (v59.46, 2026-10-31)
+
+소유자 결정 "(가)로 ㄱㄱ"에 따른 설계와 1단계 구현 기록이다. 이 문서는 맥락이다. 증거는 아래 게이트와 코드다.
+
+## 1. 문제: 계약은 있는데 소비자가 우회한다
+
+v59.45 파이프라인 리뷰에서 나온 결함 클래스(빈 값을 0으로 읽음, 오래된 값을 현재로 읽음, 날짜 형식 검사 사본, 기준 숫자 사본)는 원인이 하나다. 판정 규칙은 계약 모듈에 있는데, 소비 코드는 계약을 거치지 않고 행을 직접 읽었다.
+
+이미 있는 계약은 다음과 같다.
+
+| 계약 | 위치 | 판정 | 실제 사용(v59.46 이전) |
+|---|---|---|---|
+| 필드 준비도 | `src/data/contracts/screener.js` `fieldValueForPurpose` · `calculationRow` | 필드별 상태(CURRENT/DELAYED/INFERRED/STALE/LAST_GOOD/CONFLICT/BLOCKED…)와 용도(표시/계산) | 6개 파일. domain·ui·ai는 행 필드를 직접 읽음(측정 225건, 48파일) |
+| 근거 상태 | `src/data/contracts/evidence.js` | live/fresh/snapshot/reference/stale/missing/failed + 권리 | 근거 카드 위주 |
+| 종가 기준 판정 | `src/domain/signal/close-basis.js` | 세션 기준 | 점수만 사용 |
+| 시장 스냅숏 품질 | `src/data/contracts/market-snapshot.js` | MARKET_QUALITY_STATUS | 스냅숏 소비자 |
+| 팩터 근거 | `src/domain/screener/factor-ranks.js` `factorEvidenceUsable` | 계보(세션·출처·허용 용도) + 4일 예산 | 팩터 순위 내부(자체 게이트가 있어 직접 읽기도 그 게이트 뒤) |
+
+상태 어휘도 넷이 따로 있다(필드 상태, 근거 상태, 운영 상태, 스냅숏 품질). 기준 숫자는 같은 규칙이 여러 파일에 사본으로 있었다(실시간 시세 15분 ×2, 가격 팩터 4일 ×3, 재무 456일 ×2).
+
+## 2. 목표 구조
+
+1. **소비자는 접근자로만 읽는다.** 행의 숫자는 `readRowNumber(row, key, purpose)`로 읽는다. 결측·권리·나이는 계약 한 곳에서 판정한다. 용도는 `display`(날짜와 함께 보여도 되는 값)와 `calculation`(계산·순위에 넣어도 되는 값) 둘이다.
+2. **기준 숫자는 한 곳에만 둔다.** `src/domain/shared/freshness-policy.js`가 같은 의미의 예산을 가진다. 의미가 다른 예산(FX 다리 72시간, 시세 현재성 20분, 캐시 나이)은 숫자가 같아도 합치지 않는다.
+3. **생산자 상태는 계보만 말한다.** 생산자가 쓰는 `factorQuality`는 "언제, 어디서 관측했나"를 기록한다. 지금 현재인지는 읽는 시점에 계약이 판정한다.
+4. **세션 판정은 거래소 달력 하나로 한다.** `market-calendar.js`의 세션이 정본이다. 달력일 예산(4일, 96시간)은 세션 수의 근사치다.
+5. **상태 어휘는 하나로 수렴한다.** 필드 상태를 기준 어휘로 삼고, 나머지는 그 어휘로 대응표를 둔다.
+
+## 3. 단계
+
+| 단계 | 내용 | 동작 변화 | 상태 |
+|---|---|---|---|
+| 1 | 접근자 `readRowNumber` 추가. 테마 소비자 3파일(group-strength, kr-themes, korea-participation) 이전. 중복 기준 숫자 3종을 정책 모듈로 통합(값 동일). 래칫에 `rawRowRead` 지표 추가 | 없음. 테마 화면 전체 텍스트가 옛 직접 읽기와 같음을 브라우저에서 A/B로 확인 | v59.46 완료 |
+| 2 | 직접 읽기가 많은 파일부터 이전: factor-ranks(32건, 자체 게이트 정리 포함), ui/pages/screener(25), theme-playbook-view(23), theme-criteria(16), setup-profile(13) | 표시 용도로 옮기면 없음. 계산 용도로 바꾸는 곳은 STALE·LAST_GOOD 값이 계산에서 빠짐 → 화면마다 소유자 확인 | 다음 |
+| 3 | 달력일 예산을 세션 수로 교체(가격 팩터 "4일" → "완료 세션 N개") | 있음. 연휴 직후 판정이 달라짐 → 소유자 설명 후 진행 | 승인 필요 |
+| 4 | 상태 어휘 대응표와 단일 판정 함수. 근거·운영·스냅숏 상태를 필드 상태로 대응 | 표시 문구 일부 | 설계 후 승인 |
+| 5 | `js/` 호환 모듈의 같은 읽기를 src 접근자로 교체(중복 제거) | 없음을 목표 | 단계 2 뒤 |
+
+## 4. 래칫(줄기만 하는 지표)
+
+`scripts/ci-shared-primitive-ratchet-check.mjs` + `architecture/shared-primitive-baseline.json`. 파일별 수가 늘면 실패하고, 줄면 `--write`로 잠근다. 새 파일은 0으로 시작한다.
+
+| 지표 | v59.46 기준 | 뜻 |
+|---|---|---|
+| localFinite | 0 | 지역 숫자 읽기 사본 |
+| dateRegex | 5 | 날짜 형식 정규식 사본(본문 파서 4, import 없는 거래소 달력 1) |
+| rawRowRead | 225 (48파일) | domain·ui·ai에서 준비도 레지스트리 숫자 필드를 `row.<필드>` 등으로 직접 읽은 수. src/data는 행의 주인이라 세지 않음 |
+
+`rawRowRead`는 이름 기반 측정이라 과대 계수가 있다. 계약으로 이미 읽은 값으로 만든 파생 객체(group-strength의 heavyweight 멤버 2건), 거시 행의 `r.price` 같은 것이 들어간다. 오탐도 기준선에 고정되므로 늘어나는 것만 막는다. 단계 2에서 파일을 옮기며 함께 줄인다.
+
+## 5. 이번에 확인하고 고치지 않은 것
+
+- `scripts/lib/factors.mjs:285`의 `factorQuality: { status: 'CURRENT' }`는 결함이 아니다. 백테스트가 리밸런스 시점에 알 수 있던 값으로 행을 재구성하는 코드라 그 시점 기준 CURRENT가 맞다. 앞선 메모에서 결함 후보로 적은 것을 정정한다.
+- 이어쓴 행(R3-05 `retainUnfetchedRows`)은 직전 실행의 `factorQuality`를 그대로 가진다. 그래도 팩터 순위·테마 중앙값·한국 참여도는 모두 최신 완료 세션의 행만 쓰므로 계산에 들어가지 않는다. 화면은 `retainedFrom`으로 "직전 자료를 이어 표시"를 적는다. 관측 가능한 오류가 없어 복잡도를 더하지 않았다(원칙 3의 "읽는 시점 판정"이 이미 지켜짐).
+
+## 6. 검증
+
+- 의미 검사 `BC-ROWREAD-01`: 준비도 없는 행은 옛 직접 읽기와 같음, 0은 0, 빈 값·불리언·배열·객체는 null, STALE은 표시만·계산 제외, BLOCKED는 표시 제외, 레지스트리 밖 키는 그대로.
+- 브라우저 A/B: 테마 화면을 계약 읽기와 옛 직접 읽기로 각각 렌더해 전체 텍스트(11,456자)가 같음.

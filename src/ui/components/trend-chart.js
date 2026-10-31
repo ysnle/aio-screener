@@ -7,6 +7,7 @@
 // series whose record starts later begins later on the axis.
 import { shortDate } from '../../domain/content/date-labels.js';
 import { signedText } from '../../domain/shared/number.js';
+import { isIsoDay } from '../../domain/shared/session-date.js';
 const SVG = 'http://www.w3.org/2000/svg';
 const W = 520;
 const H = 210;
@@ -37,7 +38,7 @@ function threeTickStep(lo, hi) {
 
 function datedShort(date) {
   const text = String(date || '').slice(0, 10);
-  return /^\d{4}-\d{2}-\d{2}$/.test(text) ? `${text.slice(2, 4)}.${text.slice(5, 7)}.${text.slice(8, 10)}` : '';
+  return isIsoDay(text) ? `${text.slice(2, 4)}.${text.slice(5, 7)}.${text.slice(8, 10)}` : '';
 }
 
 /**

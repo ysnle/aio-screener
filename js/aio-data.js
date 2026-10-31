@@ -6332,6 +6332,8 @@ async function fetchLiveQuotes(requestedSymbols) {
     try {
       if (window.AIO && typeof window.AIO.scheduleSnapshotStaleBanner === 'function') window.AIO.scheduleSnapshotStaleBanner(250); // v59.42: the currentness guard it ran is retired
     } catch(_mcg) {}
+    // v59.45 (R2-01): the refresh scheduler records success from this value; an undefined return read every run as 'loaded'.
+    return { ok: true, updated: true, status: coreCoverageOk ? 'loaded' : 'partial', count: allQuotes.length };
   } else {
     fetchLiveQuotes._failCount = (fetchLiveQuotes._failCount||0) + 1;
     // v46.4: 지수적 백오프 (선형 30×N → 지수 15×2^N, 최대 300초)
@@ -6349,12 +6351,14 @@ async function fetchLiveQuotes(requestedSymbols) {
       : 'API 연결 실패 — ' + wait + '초 후 재시도');
     if (typeof _reportApiError === 'function') _reportApiError('yahoo-quote', '연결 실패 (시도 ' + fetchLiveQuotes._failCount + ')');
     if (!usingSnapshotFallback) setTimeout(fetchLiveQuotes, wait * 1000);
+    return { ok: false, updated: false, status: 'failed', error: 'live quote refresh received no quotes' };
   }
   } catch (e) {
     fetchLiveQuotes._failCount = (fetchLiveQuotes._failCount || 0) + 1;
     if (typeof _aioLog === 'function') _aioLog('error', 'fetch', 'fetchLiveQuotes fatal: ' + (e && e.message ? e.message : e));
     updateDataStatusError('error', 'quote refresh failed - next refresh remains enabled');
     if (typeof _reportApiError === 'function') _reportApiError('yahoo-quote', 'fatal refresh error');
+    return { ok: false, updated: false, status: 'failed', error: 'fetchLiveQuotes fatal: ' + (e && e.message ? e.message : e) };
   } finally {
     window._aioQuoteInFlight = false;
   }

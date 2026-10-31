@@ -1,0 +1,162 @@
+{
+  "names": {
+    "names": [
+      {
+        "symbol": "A",
+        "name": "",
+        "held": false,
+        "dayPct": null,
+        "daySignalled": false,
+        "ret1m": null,
+        "notes": [
+          "RSI 80 과열권"
+        ],
+        "attention": 1,
+        "known": true
+      },
+      {
+        "symbol": "B",
+        "name": "",
+        "held": false,
+        "dayPct": null,
+        "daySignalled": false,
+        "ret1m": null,
+        "notes": [
+          "RSI 80 과열권"
+        ],
+        "attention": 1,
+        "known": true
+      }
+    ],
+    "summary": "내 종목 2개 중 0개가 50일선 아래 — 시장 폭은 좁아졌지만 내 종목 대부분은 아직 50일선 위입니다."
+  },
+  "sort": {
+    "names": [
+      {
+        "symbol": "A",
+        "name": "",
+        "held": false,
+        "dayPct": 100,
+        "daySignalled": false,
+        "ret1m": null,
+        "notes": [],
+        "attention": 0,
+        "known": true
+      },
+      {
+        "symbol": "B",
+        "name": "",
+        "held": false,
+        "dayPct": 2,
+        "daySignalled": false,
+        "ret1m": null,
+        "notes": [],
+        "attention": 0,
+        "known": true
+      }
+    ],
+    "summary": "내 종목 2개 — 아직 지표 기록이 없어 위치를 읽지 못했습니다."
+  },
+  "nullReturn": [
+    {
+      "ticker": "TEST",
+      "name": "TEST",
+      "move": 0,
+      "kind": "aligned",
+      "verdict": "매출 상회, EPS 상회"
+    }
+  ],
+  "winter": [],
+  "week": {
+    "total": 2,
+    "sp500": 0,
+    "mine": [],
+    "days": [
+      {
+        "date": "2026-10-30",
+        "count": 2,
+        "sessions": [
+          {
+            "key": "bmo",
+            "label": "장 전",
+            "count": 2,
+            "rows": [
+              {
+                "symbol": "TEST",
+                "name": "",
+                "date": "2026-10-30",
+                "session": "bmo",
+                "mcap": null,
+                "weight": 0,
+                "revenueEstimate": 0,
+                "eps": null,
+                "revenue": null,
+                "watched": false,
+                "held": false,
+                "reported": false
+              },
+              {
+                "symbol": "TEST",
+                "name": "",
+                "date": "2026-10-30",
+                "session": "bmo",
+                "mcap": null,
+                "weight": 0,
+                "revenueEstimate": 0,
+                "eps": null,
+                "revenue": null,
+                "watched": false,
+                "held": false,
+                "reported": false
+              }
+            ],
+            "hidden": 0
+          }
+        ]
+      }
+    ],
+    "weekStart": null,
+    "weekEnd": null
+  },
+  "emptyActual": [
+    {
+      "id": "earnings:TEST:2026-10-30:bmo",
+      "kind": "earnings",
+      "atMs": 1793361600000,
+      "when": "한국 10/30 밤 (미국 10/30 장 전, 시각 미정)",
+      "label": "Test (TEST) 실적",
+      "originalTimeZone": "America/New_York",
+      "source": null,
+      "sourceUrl": null,
+      "sourceTitle": null,
+      "observedAt": null,
+      "comparisonBasis": null,
+      "why": "장 전",
+      "last": "EPS 0.00",
+      "today": true,
+      "passed": false,
+      "status": "received"
+    }
+  ],
+  "preview": [],
+  "winterSchedule": [
+    {
+      "id": "earnings:TEST:2026-12-01:bmo",
+      "kind": "earnings",
+      "atMs": 1796130000000,
+      "when": "한국 12/1 밤 (미국 12/1 장 전, 시각 미정)",
+      "label": "Test (TEST) 실적",
+      "originalTimeZone": "America/New_York",
+      "source": null,
+      "sourceUrl": null,
+      "sourceTitle": null,
+      "observedAt": null,
+      "comparisonBasis": null,
+      "why": "장 전",
+      "last": "EPS 예상 1.00",
+      "today": false,
+      "passed": true,
+      "status": "time-passed"
+    }
+  ]
+}

@@ -1,16 +1,14 @@
 import { FX_LEG_MAX_AGE_MS, convertWithDeclaredRates, listingCurrency } from './fx.js';
 import { convertCashBalances } from './cash.js';
+import { readNumber as finite } from '../shared/number.js';
+import { hasLeadingIsoDay } from '../shared/session-date.js';
+import { FRESHNESS_POLICY } from '../shared/freshness-policy.js';
 
 export const PORTFOLIO_SURFACE_MODEL_VERSION = 'portfolio-surface.v3';
 
 export const PORTFOLIO_READ_STATES = Object.freeze(['loading', 'locked', 'ready', 'failed']);
 export const PORTFOLIO_VALUATION_STATES = Object.freeze(['empty', 'cash-only', 'complete', 'partial', 'unavailable']);
 
-function finite(value) {
-  if (value === null || value === undefined || value === '') return null;
-  const number = Number(value);
-  return Number.isFinite(number) ? number : null;
-}
 
 function firstFinite(...values) {
   for (const value of values) {
@@ -28,7 +26,7 @@ function firstPositive(...values) {
   return null;
 }
 
-const LIVE_QUOTE_MAX_AGE_MS = 15 * 60 * 1000;
+const LIVE_QUOTE_MAX_AGE_MS = FRESHNESS_POLICY.liveQuoteMs;
 const DELAYED_QUOTE_MAX_AGE_MS = 72 * 60 * 60 * 1000;
 
 function explicitDecisionUse(value) {
@@ -145,12 +143,23 @@ function delayedReferenceQuote(live, { now = Date.now() } = {}) {
   return ageMs >= 0 && ageMs <= DELAYED_QUOTE_MAX_AGE_MS ? { price, observedAt: envelope.observedAt } : null;
 }
 
+// v59.45 (PASS23 P23-FRESHNESS-01): a close older than a week (a long holiday is about four sessions) still values the
+// holding but is counted as stale — completeness and freshness are
+// separate facts, so the total stays 'current' while staleCloseCount / oldestCloseDate say how old its basis is.
+const CLOSE_STALE_DAYS = 7;
+function closeDateMs(close) {
+  const date = String(close?.date || '');
+  return hasLeadingIsoDay(date) ? Date.parse(`${date.slice(0, 10)}T00:00:00Z`) : null;
+}
+
 function holdingValue(holding, live, options, close = null) {
   const sharesRaw = finite(holding?.shares);
   const shares = sharesRaw != null && sharesRaw >= 0 ? sharesRaw : null;
   const liveQuote = runtimeQuoteEvidence(live, options);
   const livePrice = liveQuote?.price ?? null;
+  const closeMs = closeDateMs(close);
   const closePrice = livePrice == null ? firstPositive(close?.price) : null;
+  const closeStale = closePrice != null && closeMs != null && Number(options?.now ?? Date.now()) - closeMs > (CLOSE_STALE_DAYS + 1) * 86400000;
   const delayed = livePrice == null && closePrice == null ? delayedReferenceQuote(live, options) : null;
   const price = firstPositive(livePrice, closePrice, delayed?.price, holding?.price);
   const explicitValue = firstPositive(holding?.value);
@@ -159,6 +168,7 @@ function holdingValue(holding, live, options, close = null) {
     price,
     sourceKind: livePrice != null ? 'live-quote' : closePrice != null ? 'completed-close' : delayed ? 'delayed-reference-quote' : 'portfolio-state',
     closeDate: livePrice == null && closePrice != null ? close?.date || null : null,
+    closeStale,
     observedAt: liveQuote?.observedAt || (closePrice != null ? close?.date || null : null) || delayed?.observedAt || holding?.quoteObservedAt || null,
     quoteAllowedUse: liveQuote?.allowedUse || 'reference-only',
     fallbackUsed: livePrice == null,
@@ -219,6 +229,7 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
       dailyPct,
       sourceKind: quote.sourceKind,
       closeDate: quote.closeDate || null,
+      closeStale: quote.closeStale === true,
       observedAt: quote.observedAt,
       quoteAllowedUse: quote.quoteAllowedUse,
       fallbackUsed: quote.fallbackUsed,
@@ -241,8 +252,15 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
   // v57.81: cash is a list of balances, one per currency. A state without the list (older readers, fixtures) is the legacy
   // single value in its declared cash currency, or in no declared unit (counted as the portfolio's unit, as before).
   const legacyCashValue = firstFinite(state?.cash, totals.cash);
+  const cashRows = Array.isArray(state?.cashBalances)
+    ? state.cashBalances.filter(Boolean).map((row) => ({ currency: String(row?.currency || '').trim().toUpperCase() || null, amount: finite(row?.amount) }))
+    : [];
+  // v59.45 (PASS23 P23-CASH-01): a balance row that cannot be read is neither dropped nor a declared zero — USD 10 beside
+  // an unreadable KRW row published total assets 110, and an all-unreadable list read as "cash 0 entered". It holds the
+  // cash total (cashHeld) and is counted in cashInvalidCount.
+  const cashInvalidCount = cashRows.filter((row) => !(row.amount != null && row.amount >= 0)).length;
   const cashBalances = Array.isArray(state?.cashBalances)
-    ? state.cashBalances.map((row) => ({ currency: String(row?.currency || '').trim().toUpperCase() || null, amount: finite(row?.amount) })).filter((row) => row.amount != null && row.amount >= 0)
+    ? cashRows.filter((row) => row.amount != null && row.amount >= 0)
     : legacyCashValue != null && legacyCashValue >= 0 ? [{ currency: String(state?.cashCurrency || '').trim().toUpperCase() || null, amount: legacyCashValue }] : [];
   const cashCurrencies = [...new Set(cashBalances.map((row) => row.currency).filter(Boolean))];
   const declaredCashCurrency = cashCurrencies.length === 1 ? cashCurrencies[0] : null;
@@ -254,9 +272,13 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
   ].filter(Boolean))];
   // P1418: undeclared rows count with their listing currency, so a hidden mix is still a mix.
   const effectiveCurrencies = [...new Set([...rows.map((row) => row.currency || row.listingCurrency), declaredBaseCurrency].filter(Boolean))];
-  const currencyBasis = declaredCurrencies.length > 1 || effectiveCurrencies.length > 1 ? 'mixed' : declaredCurrencies.length === 1 ? 'declared-single' : 'undeclared';
+  // v59.45 (PASS23 P23-CURRENCY-01): a row whose quote currency is neither declared nor fixed by its listing (ABC.L) has an
+  // unknown unit. Dropping the null let a declared USD base read 'declared-single' and add 100 pence as $100; beside any
+  // known unit it is a mix, and the conversion below holds it instead of treating it as the base.
+  const unknownUnitRows = rows.filter((row) => !row.currency && row.listingCurrency == null).length;
+  const currencyBasis = declaredCurrencies.length > 1 || effectiveCurrencies.length > 1 || (unknownUnitRows > 0 && effectiveCurrencies.length > 0) ? 'mixed' : declaredCurrencies.length === 1 ? 'declared-single' : 'undeclared';
   const cashKnown = readState === 'ready' && (state?.cashKnown === true || cashBalances.length > 0 || holdingsKnown);
-  const cashEnteredZero = cashBalances.length === 0 && (legacyCashValue === 0 || (Array.isArray(state?.cashBalances) && state?.cashKnown === true));
+  const cashEnteredZero = cashInvalidCount === 0 && cashBalances.length === 0 && (legacyCashValue === 0 || (Array.isArray(state?.cashBalances) && state?.cashKnown === true));
 
   // E3/P1194 (11 §23): 혼합 통화는 **선언된 관측 rate leg**가 있을 때만 합계로 만든다. leg가 없거나
   // 컷 이후 관측됐거나 선언 창을 넘으면 환산하지 않고, 어느 통화쌍이 왜 실패했는지 발행한다.
@@ -319,10 +341,14 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
       }
       return result.value;
     };
+    const holdUnknownUnit = () => {
+      if (!held.some((entry) => entry.reason === 'currency-undeclared')) held.push({ currency: null, reason: 'currency-undeclared', pair: `?/${declaredBaseCurrency}` });
+      return null;
+    };
     if (currencyBasis === 'mixed') {
       const convertedRows = rows.map((row) => ({
         ...row,
-        value: convert(row.value, row.currency || row.listingCurrency, held),
+        value: row.currency || row.listingCurrency || row.value == null ? convert(row.value, row.currency || row.listingCurrency, held) : holdUnknownUnit(),
         convertedFrom: (row.currency || row.listingCurrency) && (row.currency || row.listingCurrency) !== declaredBaseCurrency ? (row.currency || row.listingCurrency) : null
       }));
       if (!held.length) {
@@ -361,8 +387,8 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
       : currencyBasis === 'undeclared' ? effectiveCurrencies[0] || null : null;
   const cashTarget = declaredBaseCurrency || holdingsUnit || (rows.length === 0 ? (cashCurrencies.length === 1 ? cashCurrencies[0] : 'USD') : null);
   const cashConversion = convertCashBalances({ balances: cashBalances, target: cashTarget, legs: fxLegs, appFx: cashFx, asOfMs: now });
-  const cash = !cashKnown ? null : cashBalances.length ? cashConversion.total : cashEnteredZero ? 0 : null;
-  const cashHeld = cashBalances.some((row) => row.amount > 0) && cash == null;
+  const cash = !cashKnown || cashInvalidCount ? null : cashBalances.length ? cashConversion.total : cashEnteredZero ? 0 : null;
+  const cashHeld = (cashBalances.some((row) => row.amount > 0) || cashInvalidCount > 0) && cash == null;
   const currencyState = conversion.applied ? 'converted-with-declared-rates'
     : currencyBasis === 'mixed' ? 'mixed-without-conversion'
       : currencyBasis === 'undeclared' ? 'undeclared-single-basis-assumed' : 'declared-single';
@@ -439,6 +465,8 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
     closeValuedCount: rows.filter((row) => row.value != null && row.sourceKind === 'completed-close').length,
     delayedValuedCount: rows.filter((row) => row.value != null && row.sourceKind === 'delayed-reference-quote').length,
     closeDate: rows.map((row) => row.closeDate).filter(Boolean).sort().at(-1) || null,
+    oldestCloseDate: rows.map((row) => row.closeDate).filter(Boolean).sort()[0] || null,
+    staleCloseCount: rows.filter((row) => row.value != null && row.closeStale).length,
     status: hasCanonicalValue ? 'current' : (state?.status || 'unavailable'),
     holdingCount: rows.length,
     rows: Object.freeze(rows),
@@ -454,6 +482,7 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
     // v57.81: every balance in its own currency, the unit of the cash total and the rate basis used (or what was held).
     cashBalances: Object.freeze(cashBalances.map((row) => Object.freeze({ ...row }))),
     cashHeld,
+    cashInvalidCount,
     cashConversion: Object.freeze({ target: cashConversion.target, converted: cashConversion.converted, basisLabel: cashConversion.basisLabel, held: cashConversion.held,
       appRate: cashConversion.parts.some((part) => part.basis === 'app-close') ? cashConversion.appFx?.rate ?? null : null }),
     cashPct: cash != null && totalAssets != null && totalAssets > 0 ? cash / totalAssets * 100 : null,
@@ -473,8 +502,13 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
     sectorBreakdown: Object.freeze(sectorBreakdown),
     sourceKind,
     sourceLabel: sourceKind === 'unavailable' ? 'portfolio-surface-unavailable' : 'native-portfolio-surface-reference-only',
+    // v59.45 (PASS23 P23-FRESHNESS-01): the oldest price basis among the valued rows. Close-valued rows used to report
+    // the save time (state.updatedAt), so the AI rows' asOf read as today on a week-old close; a row with no
+    // observation of its own (stored price) still counts at the save time.
     observedAt: rows.some((row) => row.sourceKind === 'live-quote')
       ? rows.map((row) => row.observedAt).filter(Boolean).sort()[0] || null
-      : state?.updatedAt || null
+      : rows.some((row) => row.value != null && row.observedAt)
+        ? rows.filter((row) => row.value != null).map((row) => row.observedAt || state?.updatedAt || null).filter(Boolean).sort()[0] || null
+        : state?.updatedAt || null
   });
 }

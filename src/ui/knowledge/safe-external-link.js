@@ -2,7 +2,9 @@ export function safeExternalHref(value) {
   if (typeof value !== 'string' || !value.trim()) return null;
   try {
     const url = new URL(value.trim());
-    return url.protocol === 'https:' ? url.href : null;
+    // P30 (links): 'https://publisher.example@other.example/' opens other.example; a URL carrying credentials is not a
+    // source link, the same rule as the company-analysis links.
+    return url.protocol === 'https:' && !url.username && !url.password ? url.href : null;
   } catch {
     return null;
   }

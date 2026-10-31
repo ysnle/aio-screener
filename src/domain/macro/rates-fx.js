@@ -8,7 +8,8 @@ import { buildCloseSeries, closeBasis, sessionPointBack as closeSessionPointBack
 import { resolveMarketCalendarSession } from '../market/market-calendar.js';
 import { RULES } from '../rules/thresholds.js';
 import { MARKET_WINDOWS } from '../market/market-windows.js';
-import { signedText } from '../shared/number.js';
+import { signedText, readNumber as finite } from '../shared/number.js';
+import { isIsoDay } from '../shared/session-date.js';
 
 export const YEN_RALLY_RULE = RULES.fx.yenRally20dPct; // % in 20 sessions — the 시장 상태 FX-axis rule (P1428 registry)
 const CHART_SESSIONS = 126; // about six months of completed sessions
@@ -224,14 +225,10 @@ export const FX_SERIES = Object.freeze([
   Object.freeze({ id: 'usdjpy', label: '엔/달러', digits: 2, unit: '엔' })
 ]);
 
-function finite(value) {
-  const number = Number(value);
-  return value != null && value !== '' && Number.isFinite(number) ? number : null;
-}
 
 function isoDate(value) {
   const text = String(value ?? '').slice(0, 10);
-  return /^\d{4}-\d{2}-\d{2}$/.test(text) ? text : null;
+  return isIsoDay(text) ? text : null;
 }
 
 export function signed(value, digits = 2, suffix = '') {
@@ -261,10 +258,13 @@ function treasury(macro) {
     asOf: isoDate(macro[`_asOf_${tenor.id}`])
   }));
   const dates = [...new Set(yields.map((row) => row.asOf).filter(Boolean))];
-  const sameCut = dates.length === 1 && yields.every((row) => row.value != null);
+  // v59.45 (P18-CURVE-01): every tenor needs its own date to be one cut, and the published 2s10s is used only on the date
+  // of its two legs — an older spread no longer overrides (or inverts) a newer curve.
+  const sameCut = dates.length === 1 && yields.every((row) => row.value != null && row.asOf);
   const by = Object.fromEntries(yields.map((row) => [row.id, row]));
-  const official2s10s = finite(macro.t10y2y);
-  const spread2s10s = official2s10s ?? (sameCut ? by.dgs10.value - by.dgs2.value : null);
+  const legsDate = by.dgs2?.value != null && by.dgs10?.value != null && by.dgs2.asOf && by.dgs2.asOf === by.dgs10.asOf ? by.dgs2.asOf : null;
+  const official2s10s = legsDate && isoDate(macro._asOf_t10y2y) === legsDate ? finite(macro.t10y2y) : null;
+  const spread2s10s = official2s10s ?? (sameCut || legsDate ? by.dgs10.value - by.dgs2.value : null);
   const spread5s30s = sameCut ? by.dgs30.value - by.dgs5.value : null;
   const curve = [
     { id: '2s10s', label: '2년–10년', value: spread2s10s, legs: '10년 − 2년' },
@@ -351,7 +351,9 @@ export function buildRatesFx({ macro = null, history = [], macroHistory = null }
       // yen's own value, and that is now said.
       // v58.80 (first-users run-3 N#32): "엔화 20일 +1.3%" beside the card's "-1.3%" still read as a contradiction; the
       // window carries the same name as the card's and the sentence says the two are one move seen from each side.
-      text: `엔화 가치 20거래일 ${signed(yenStrength, 1, '%')}(${yenStrength >= 0 ? '엔 강세' : '엔 약세'}) — 위 엔/달러 환율이 ${signed(-yenStrength, 1, '%')} 움직였다는 같은 뜻입니다. 엔화 가치가 ${YEN_RALLY_RULE}% 이상 오르면 시장 상태의 환율 참고 지표가 '부담'으로 바뀝니다(6개 지표 합계에는 넣지 않음).`
+      // v59.45 (P18-FX-01): the rule is the USD/JPY fall itself; minus that fall is not the yen's own return (100→80 is −20%
+      // for USD/JPY but +25% for the yen), so the sentence names the rate it measures.
+      text: `엔/달러 20거래일 ${signed(-yenStrength, 1, '%')}(${yenStrength > 0 ? '엔 강세' : yenStrength < 0 ? '엔 약세' : '변화 없음'}). 엔/달러가 20거래일에 ${YEN_RALLY_RULE}% 이상 내리면(엔 급강세) 시장 상태의 환율 참고 지표가 '부담'으로 바뀝니다(6개 지표 합계에는 넣지 않음).`
     };
   const tnxAll = buildCloseSeries(history, 'tnx', { through: basis });
   const tnx = tnxAll.slice(-CHART_SESSIONS);

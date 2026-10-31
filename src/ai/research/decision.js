@@ -7,11 +7,13 @@ export const RESEARCH_REQUIREMENTS = Object.freeze([
   'FORBIDDEN'
 ]);
 
-const CURRENT_RE = /(지금|현재|오늘|장중|장전|장후|방금|최근|실시간|최신|현황|동향|시세|업데이트|이번\s*주|latest|recent|today|now|current|live|breaking|update)/i;
-const CAUSAL_RE = /(왜|원인|이유|무슨\s*이유|때문|영향|driven\s*by|because|why|cause)/i;
-const CONCEPT_RE = /(무엇|뭐야|뜻|개념|설명|배워|초보|what\s+is|how\s+does|explain)/i;
+// v59.45 (pipeline review R4-01 class): English cues match whole words ('now' is not "know", 'live' not "deliver",
+// 'AI' not "said", 'rate' not "corporate", 'SEC' not "second"); Korean cues stay substrings, as in intent/question-cues.js.
+const CURRENT_RE = /(지금|현재|오늘|장중|장전|장후|방금|최근|실시간|최신|현황|동향|시세|업데이트|이번\s*주|\b(?:latest|recent(?:ly)?|today|now|current(?:ly)?|live|breaking|updates?)\b)/i;
+const CAUSAL_RE = /(왜|원인|이유|무슨\s*이유|때문|영향|\b(?:driven\s*by|because|why|caus(?:e|es|ed))\b)/i;
+const CONCEPT_RE = /(무엇|뭐야|뜻|개념|설명|배워|초보|\bwhat\s+is\b|\bhow\s+does\b|\bexplain)/i;
 const EXPLICIT_SEARCH_RE = /(검색|찾아|찾아봐|조사|리서치|search|look\s*up|research|verify|확인해)/i;
-const DOMAIN_RE = /(주식|증시|시장|종목|티커|주가|시세|섹터|업종|산업|기업|실적|공시|뉴스|금리|채권|국채|환율|달러|원화|유가|원유|금|VIX|F\s*&?\s*G|공포|탐욕|반도체|AI|나스닥|S&P|코스피|코스닥|포트폴리오|스크리너|규제|법률|세법|세금|SEC|금융위원회|금감원|stock|market|sector|company|earnings|filing|rate|bond|yield|fx|oil|semiconductor|portfolio|screener|regulation|legal|tax)/i;
+const DOMAIN_RE = /(주식|증시|시장|종목|티커|주가|시세|섹터|업종|산업|기업|실적|공시|뉴스|금리|채권|국채|환율|달러|원화|유가|원유|금|\bVIX\b|F\s*&?\s*G|공포|탐욕|반도체|\bAI\b|나스닥|S&P|코스피|코스닥|포트폴리오|스크리너|규제|법률|세법|세금|\bSEC\b|금융위원회|금감원|\b(?:stocks?|markets?|sectors?|compan(?:y|ies)|earnings|filings?|rates?|bonds?|yields?|fx|oil|semiconductors?|portfolios?|screeners?|regulations?|legal|tax(?:es)?)\b)/i;
 const TICKER_RE = /\b[A-Z]{1,5}(?:\.[A-Z]{1,3})?\b/;
 
 function text(value) { return String(value == null ? '' : value).replace(/\s+/g, ' ').trim(); }

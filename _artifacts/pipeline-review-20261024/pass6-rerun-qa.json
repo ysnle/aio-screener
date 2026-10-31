@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "aio-qa-run.v1",
+  "runId": "2026-10-26T08-21-51-167Z-10144-tpqokq",
+  "manifestVersion": "aio-qa-pipeline.v1",
+  "profile": "rerun-failed",
+  "groups": [
+    "preflight"
+  ],
+  "changeSource": "working-tree-vs-head",
+  "changedFiles": [
+    "_artifacts/pipeline-review-20261024/ALL-PIPELINES-HANDOFF.md",
+    "_artifacts/pipeline-review-20261024/FILE-REVIEW-LEDGER.json",
+    "_artifacts/pipeline-review-20261024/HANDOFF.md",
+    "_artifacts/pipeline-review-20261024/PASS4-HANDOFF.md",
+    "_artifacts/pipeline-review-20261024/PASS5-COVERAGE.md",
+    "_artifacts/pipeline-review-20261024/PASS5-HANDOFF.md",
+    "_artifacts/pipeline-review-20261024/PASS6-HANDOFF.md",
+    "_artifacts/pipeline-review-20261024/build-review-ledger.mjs",
+    "_artifacts/pipeline-review-20261024/pass3-reproduction-console.txt",
+    "_artifacts/pipeline-review-20261024/pass3-reproductions.json",
+    "_artifacts/pipeline-review-20261024/pass4-affected-qa.json",
+    "_artifacts/pipeline-review-20261024/pass4-reproductions.json",
+    "_artifacts/pipeline-review-20261024/pass5-reproductions.json",
+    "_artifacts/pipeline-review-20261024/pass6-reproductions.json",
+    "_artifacts/pipeline-review-20261024/reproduce-pass3.mjs",
+    "_artifacts/pipeline-review-20261024/reproduce-pass4.mjs",
+    "_artifacts/pipeline-review-20261024/reproduce-pass5.mjs",
+    "_artifacts/pipeline-review-20261024/reproduce-pass6.mjs",
+    "_artifacts/pipeline-review-20261024/setup-guide-text-evidence.json",
+    "scratch-why.mjs",
+    "src/data/orchestrators/entity.js",
+    "src/ui/styles/v2-market.css"
+  ],
+  "startedAt": "2026-10-26T08:21:51.430Z",
+  "completedAt": "2026-10-26T08:21:52.524Z",
+  "durationMs": 1094,
+  "noCache": false,
+  "keepGoing": false,
+  "concurrency": {
+    "static": 4,
+    "browser": 1,
+    "external": 2
+  },
+  "counts": {
+    "PASS": 1
+  },
+  "targets": {},
+  "results": [
+    {
+      "id": "syntax",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "PASS",
+      "durationMs": 696,
+      "fingerprint": "f3a4fdedef65c526437b0375ada0b92081ebc4daa5dd84d98afc1d0b97feee52",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "evidenceLevel": "static",
+      "output": "Syntax check OK: 828 JS/ESM files (1 checked, 827 unchanged since a cached pass; 8 workers).",
+      "error": ""
+    }
+  ]
+}

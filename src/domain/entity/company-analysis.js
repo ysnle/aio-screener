@@ -6,7 +6,9 @@ import { screenerMarket, marketRows, MARKET_POPULATION_POLICY } from '../screene
 import { fieldValueForPurpose } from '../../data/contracts/screener.js';
 import { latestCompletedUsSession, latestCompletedKrSession } from '../market/market-calendar.js';
 import { outOfUniverseContext } from './out-of-universe-read.js';
-import { signedText } from '../shared/number.js';
+import { signedText, finiteNumber as finite } from '../shared/number.js';
+import { safeSourceUrl } from './business-profiles.js';
+import { isIsoDay } from '../shared/session-date.js';
 
 export const COMPANY_ANALYSIS_MODEL_VERSION = 'company-analysis.v1';
 export function companyAnalysisContext(model) {
@@ -14,9 +16,8 @@ export function companyAnalysisContext(model) {
   return `현재 선택 기업 ${model.symbol}. ${model.headline}\n정체성: ${model.identity.market||'시장 미확인'} / ${model.identity.assetType||'유형 미확인'} / ${model.identity.sector||'섹터 미확인'}${model.identity.industry ? ` (산업분류: ${model.identity.industry})` : ''}.\n사업: ${model.business.description || '내부 사업 설명 미수집. 필요하면 공식 회사 소개·공시의 사업부문을 웹검색으로 확인하고 추정하지 말 것.'}\n연결 테마: ${model.associations.map(item=>item.name).join(', ')||'없음'} (사업부문 매출 비중이 아님).\n재무: ${model.financial.periodEnd||'미확인'} 회계연도. ${model.financial.fiscal.points.map(item=>`${item.title}: ${item.text}`).join(' ')}\n관찰: ${model.risks.map(item=>item.text).join(' ')||'추가 관측 없음'}. 미수집 자료는 없음으로 알리고 출처·관측일을 분리할 것.${model.outOfUniverse?.context ? `\n${model.outOfUniverse.context}` : ''}`;
 }
 const sym = value => String(value || '').trim().toUpperCase();
-const finite = value => typeof value === 'number' && Number.isFinite(value) ? value : null;
-const validDate = value => /^\d{4}-\d{2}-\d{2}$/.test(value || '') && Number.isFinite(Date.parse(value));
-const safeUrl = value => { try { const url = new URL(value); return url.protocol === 'https:' && !url.username && !url.password ? url.href : null; } catch (_) { return null; } };
+const validDate = value => isIsoDay(value || '') && Number.isFinite(Date.parse(value));
+const safeUrl = safeSourceUrl;
 const signed = value => `${signedText(value, 1)}%`;
 const fact = (row, field, key) => row?.fieldReadiness ? finite(fieldValueForPurpose(row, field, 'display')) : finite(row?.[key]);
 

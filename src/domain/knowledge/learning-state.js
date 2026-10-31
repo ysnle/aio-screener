@@ -27,11 +27,12 @@ function freezeEntries(value) {
   return Object.freeze(Object.fromEntries(Object.entries(value).map(([id, entry]) => [id, Object.freeze({ ...record(entry) })])));
 }
 
-function safeRead(storage, key) {
-  if (!storage || typeof storage.getItem !== 'function') return emptyState();
+// The stored state, or null when there is none or it cannot be read as this schema.
+function readStored(storage, key) {
+  if (!storage || typeof storage.getItem !== 'function') return null;
   try {
     const parsed = JSON.parse(storage.getItem(key) || 'null');
-    if (!parsed || parsed.schemaVersion !== 'knowledge-learning-state.v1') return emptyState();
+    if (!parsed || parsed.schemaVersion !== 'knowledge-learning-state.v1') return null;
     return {
       schemaVersion: 'knowledge-learning-state.v1',
       progress: copyEntries(parsed.progress),
@@ -40,8 +41,12 @@ function safeRead(storage, key) {
       updatedAt: typeof parsed.updatedAt === 'string' ? parsed.updatedAt : null
     };
   } catch {
-    return emptyState();
+    return null;
   }
+}
+
+function safeRead(storage, key) {
+  return readStored(storage, key) || emptyState();
 }
 
 export function createLearningState({ storage = null, key = STORAGE_KEY, now = () => new Date().toISOString() } = {}) {
@@ -57,6 +62,10 @@ export function createLearningState({ storage = null, key = STORAGE_KEY, now = (
     }
     return snapshot();
   };
+  // P29-LEARNING-01: another tab writes the same key. Each change starts from what is stored now (when it reads as this
+  // schema), so tab B's note no longer drops the note tab A saved after B opened.
+  // After a failed save the memory copy is ahead of storage and is kept.
+  const latest = () => { if (persistence === 'memory-only') return; const stored = readStored(storage, key); if (stored) state = stored; };
   const snapshot = () => Object.freeze({
     ...state,
     persistence,
@@ -70,18 +79,21 @@ export function createLearningState({ storage = null, key = STORAGE_KEY, now = (
     markViewed(inputId) {
       const id = articleId(inputId);
       if (!id) return snapshot();
+      latest();
       state.progress[id] = { ...(state.progress[id] || {}), viewed: true, viewedAt: now() };
       return persist();
     },
     setProgress(inputId, progress) {
       const id = articleId(inputId);
       if (!id || progress == null || typeof progress !== 'object' || Array.isArray(progress)) return snapshot();
+      latest();
       state.progress[id] = { ...(state.progress[id] || {}), ...progress, updatedAt: now() };
       return persist();
     },
     toggleBookmark(inputId) {
       const id = articleId(inputId);
       if (!id) return snapshot();
+      latest();
       state.bookmarks = state.bookmarks.includes(id) ? state.bookmarks.filter((entry) => entry !== id) : [...state.bookmarks, id];
       return persist();
     },
@@ -89,6 +101,7 @@ export function createLearningState({ storage = null, key = STORAGE_KEY, now = (
       const id = articleId(inputId);
       if (!id) return snapshot();
       const value = String(note ?? '').trim();
+      latest();
       if (value) state.notes[id] = { value, updatedAt: now() };
       else delete state.notes[id];
       return persist();

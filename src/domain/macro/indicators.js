@@ -6,7 +6,8 @@
 // comparison drawn is against a published target (the FOMC's 2% PCE inflation objective).
 
 import { seriesOf, yoySeries } from './macro-read.js';
-import { signedText } from '../shared/number.js';
+import { signedText, readNumber as finite } from '../shared/number.js';
+import { isIsoDay } from '../shared/session-date.js';
 
 export const FED_PCE_TARGET = 2; // FOMC Statement on Longer-Run Goals: 2% on the PCE price index
 
@@ -55,14 +56,10 @@ export const MACRO_GROUPS = Object.freeze([
   })
 ]);
 
-function finite(value) {
-  const number = Number(value);
-  return value != null && value !== '' && Number.isFinite(number) ? number : null;
-}
 
 function isoDate(value) {
   const text = String(value ?? '').slice(0, 10);
-  return /^\d{4}-\d{2}-\d{2}$/.test(text) ? text : null;
+  return isIsoDay(text) ? text : null;
 }
 
 function monthDay(date) {

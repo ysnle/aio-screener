@@ -1,0 +1,182 @@
+{
+  "schemaVersion": "aio-qa-run.v1",
+  "runId": "2026-10-27T11-33-15-656Z-31172-zzzrgc",
+  "manifestVersion": "aio-qa-pipeline.v1",
+  "profile": "affected",
+  "groups": [
+    "preflight"
+  ],
+  "changeSource": "explicit-files",
+  "changedFiles": [
+    "_artifacts/pipeline-review-20261024/ALL-PIPELINES-HANDOFF.md",
+    "_artifacts/pipeline-review-20261024/FILE-REVIEW-LEDGER.json",
+    "_artifacts/pipeline-review-20261024/HANDOFF.md",
+    "_artifacts/pipeline-review-20261024/PASS7-8-HANDOFF.md",
+    "_artifacts/pipeline-review-20261024/build-review-ledger.mjs",
+    "_artifacts/pipeline-review-20261024/pass7-reproductions.json",
+    "_artifacts/pipeline-review-20261024/pass8-reproductions.json",
+    "_artifacts/pipeline-review-20261024/reproduce-pass7.mjs",
+    "_artifacts/pipeline-review-20261024/reproduce-pass8.mjs"
+  ],
+  "startedAt": "2026-10-27T11:33:15.673Z",
+  "completedAt": "2026-10-27T11:33:30.591Z",
+  "durationMs": 14918,
+  "noCache": false,
+  "keepGoing": false,
+  "concurrency": {
+    "static": 4,
+    "browser": 1,
+    "external": 2
+  },
+  "counts": {
+    "CACHED": 11,
+    "PASS": 3
+  },
+  "targets": {},
+  "results": [
+    {
+      "id": "syntax",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 2417,
+      "fingerprint": "1cb8961a8479f0ad32b567bad84b62157a3d5be66200905cfc1fe303d190c0c0"
+    },
+    {
+      "id": "version",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 117,
+      "fingerprint": "05121c7ca0d86af91f4e7e9a06c7f556e64ae3ab6e6b9ffbdb46e93a153ed5e0"
+    },
+    {
+      "id": "architecture",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 940,
+      "fingerprint": "40ef9666f70563a51ac29cb88bb5f0c48951234b21af75b32cc38c37211046ef"
+    },
+    {
+      "id": "native-decision",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 194,
+      "fingerprint": "8655bffb606bbe0a477a11ff4bd1fc6379e7daef87e40918326599ffe56002f0"
+    },
+    {
+      "id": "vertical-slice",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 105,
+      "fingerprint": "b223db4399c9980740f92ef877dbc209d148a4d831bdd7caea0c8244d5144bcd"
+    },
+    {
+      "id": "capability-claims",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 95,
+      "fingerprint": "87e6d0eed19470687a4a4f2815fe55ba5e81afe4f5258bb4baac72fd79cfcac2"
+    },
+    {
+      "id": "reference-curriculum",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 104,
+      "fingerprint": "c6fd93b3150fd4354fc1f3135003b5ec62bc675adfc10ca00911f988cab6857f"
+    },
+    {
+      "id": "route-registry",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 106,
+      "fingerprint": "cd04308d621ac709d815950a960ab415ed03346727b7650e3e14d2d982ff9a30"
+    },
+    {
+      "id": "generated-state",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 381,
+      "fingerprint": "6adfd8bb1a1b1349a18b8a028b4fc7e57079b7cbb1d37b82f2b7b14b815a97b3"
+    },
+    {
+      "id": "workspace-contract",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 2136,
+      "fingerprint": "25ee8079c5056ff78786b613211c9d01c8e9a2624132d2fcf7de7542b2340adc"
+    },
+    {
+      "id": "qa-runner-behavior",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 26738,
+      "fingerprint": "6e3ff54a75cb74ef2c43e74d6873ad693848d4a969dfb2ece7870542bd81a074"
+    },
+    {
+      "id": "product-charter",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "PASS",
+      "durationMs": 411,
+      "fingerprint": "2381929180146b10c7b6eddf751969830effcadf849a0d015e84d35c78c543a7",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "evidenceLevel": "static",
+      "output": "Product charter OK: self-directed-investment-research-and-decision-support, 7 trust planes, 14 audited domains, execution=NONE.",
+      "error": ""
+    },
+    {
+      "id": "operations-contract",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "PASS",
+      "durationMs": 271,
+      "fingerprint": "f5bd11b36a45c0c8ddc6ee2ac5e0495586f094f5b66f280cc501429f774c642d",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "evidenceLevel": "static",
+      "output": "{\n  \"ok\": true,\n  \"version\": \"v58.80\",\n  \"workflowCount\": 13,\n  \"actionCount\": 62,\n  \"routeCount\": 19,\n  \"stateCount\": 5,\n  \"routeSoak\": \"pending\",\n  \"errors\": []\n}",
+      "error": ""
+    },
+    {
+      "id": "workflow-yaml",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "PASS",
+      "durationMs": 3670,
+      "fingerprint": "7fb212d5cffae5c6ea06d51448cbb8dee7dd6de056a67a9ef2ac176b036fbf65",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "evidenceLevel": "static",
+      "output": "Control character check OK: 13 workflow YAML(s) clean+parseable, 0 file(s) with baseline-tracked pre-existing control chars, 0 regressions.",
+      "error": ""
+    }
+  ]
+}

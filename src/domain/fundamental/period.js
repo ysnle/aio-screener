@@ -1,11 +1,11 @@
 // Shared by the SEC producer and the historical selector. A missing fact is
 // not zero; ratios must not join unrelated fiscal periods.
-export function finiteFact(value) {
-  if (typeof value !== 'number' && typeof value !== 'string') return null;
-  if (typeof value === 'string' && !value.trim()) return null;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : null;
-}
+// v59.46: finiteFact is the shared reader (same rule: numbers and non-blank numeric strings only).
+import { readNumber } from '../shared/number.js';
+import { isIsoDay } from '../shared/session-date.js';
+import { FRESHNESS_POLICY } from '../shared/freshness-policy.js';
+
+export const finiteFact = readNumber;
 
 export function sameFiscalPeriod(left, right) {
   const leftEnd = left?.periodEnd || left?.end;
@@ -20,7 +20,7 @@ export function sameFiscalPeriod(left, right) {
 // 15 months (456 days) before the price session is not the company's current fundamentals. The screener
 // provider holds such values and the factor ranker gates value/quality with the same rule — a second,
 // filing-date budget (180 days) used to switch both factors off for 731 of 810 US rows.
-export const FUNDAMENTAL_MAX_PERIOD_AGE_DAYS = 456;
+export const FUNDAMENTAL_MAX_PERIOD_AGE_DAYS = FRESHNESS_POLICY.fundamentalPeriodDays;
 export function fundamentalPeriodTooOld(periodEnd, sessionDate) {
   const end = Date.parse(String(periodEnd || '').slice(0, 10));
   const session = Date.parse(String(sessionDate || '').slice(0, 10));
@@ -36,7 +36,7 @@ export const ANNUAL_FILING_GRACE_DAYS = 90;
 // labelled by its calendar year (Walmart's year ending 2026-01-31 is its own FY2026).
 export function fiscalYearLabel(periodEnd) {
   const end = String(periodEnd || '').slice(0, 10);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(end)) return null;
+  if (!isIsoDay(end)) return null;
   const [y, m, d] = end.split('-').map(Number);
   return `FY${m === 1 && d <= 7 ? y - 1 : y}`;
 }
@@ -48,7 +48,7 @@ export function fiscalYearShortLabel(periodEnd) {
 }
 export function annualFilingStatus(periodEnd, asOf) {
   const end = String(periodEnd || '').slice(0, 10);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(end)) return null;
+  if (!isIsoDay(end)) return null;
   const asOfMs = typeof asOf === 'number' ? asOf : Date.parse(String(asOf || '').slice(0, 10));
   const [y, m, d] = end.split('-').map(Number);
   const nextEndMs = Date.UTC(y + 1, m - 1, d);

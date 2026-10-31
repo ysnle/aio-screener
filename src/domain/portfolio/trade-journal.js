@@ -3,6 +3,8 @@
 // factual mirrors against the rules the reader declared. It never tells the reader what to buy or sell (AGENTS: no
 // personal trade instructions) — every line is a measurement of the reader's own record or a gap against the reader's
 // own rule, with the sample size beside it.
+import { readNumber as finite } from '../shared/number.js';
+import { isIsoDay } from '../shared/session-date.js';
 
 export const TRADE_JOURNAL_VERSION = 1;
 export const TRADE_REASONS = Object.freeze({
@@ -14,10 +16,19 @@ export const TRADE_MOODS = Object.freeze({ plan: '계획대로', fomo: '놓칠�
 export const MIN_SAMPLE = 10;
 const DAY_MS = 86400000;
 
-const finite = (value) => (value == null || value === '' ? null : Number.isFinite(Number(value)) ? Number(value) : null);
-const isoDate = (value) => (/^\d{4}-\d{2}-\d{2}$/.test(String(value || '')) && Number.isFinite(Date.parse(`${value}T00:00:00Z`)) ? String(value) : null);
+// v59.45 (PASS27 P27-IMPORT-01 class): Date.parse rolls 2026-02-30 over to 3/2, so the shape check alone kept a day that
+// does not exist. A calendar date is a YYYY-MM-DD string that survives the round trip; the ledger and the account
+// performance check use the same helper.
+export function calendarDate(value) {
+  const text = String(value == null ? '' : value).trim();
+  if (!isIsoDay(text)) return null;
+  const ms = Date.parse(`${text}T00:00:00Z`);
+  return Number.isFinite(ms) && new Date(ms).toISOString().slice(0, 10) === text ? text : null;
+}
+const isoDate = calendarDate;
 const symbolOf = (value) => String(value || '').trim().toUpperCase().replace(/\s+/g, '');
-const currencyOf = (symbol, value) => (/^(USD|KRW|JPY|EUR|GBP|HKD|TWD|CNY)$/.test(String(value || '').toUpperCase()) ? String(value).toUpperCase() : /\.(KS|KQ)$/.test(symbol) || /^\d{6}$/.test(symbol) ? 'KRW' : 'USD');
+const SUPPORTED_CURRENCY = /^(USD|KRW|JPY|EUR|GBP|HKD|TWD|CNY)$/;
+const currencyOf = (symbol, value) => (SUPPORTED_CURRENCY.test(String(value || '').trim().toUpperCase()) ? String(value).trim().toUpperCase() : /\.(KS|KQ)$/.test(symbol) || /^\d{6}$/.test(symbol) ? 'KRW' : 'USD');
 
 /** One trade as entered → a stored trade, or { error } naming the first invalid field. */
 export function normalizeTrade(input = {}, { idOf = () => `t${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}` } = {}) {
@@ -26,13 +37,18 @@ export function normalizeTrade(input = {}, { idOf = () => `t${Date.now().toStrin
   const side = input.side === 'sell' ? 'sell' : input.side === 'buy' ? 'buy' : null;
   const qty = finite(input.qty);
   const price = finite(input.price);
-  const fee = finite(input.fee) ?? 0;
+  // v59.45 (PASS22): an empty fee is 0, but a fee that was written and cannot be read is an error, not a free trade; a
+  // written currency outside the supported codes is an error, not USD.
+  const feeGiven = input.fee != null && String(input.fee).trim() !== '';
+  const fee = feeGiven ? finite(input.fee) : 0;
+  const currencyGiven = input.currency != null && String(input.currency).trim() !== '';
   if (!/^[A-Z0-9.\-^=]{1,15}$/.test(symbol)) return { error: 'symbol' };
   if (!date) return { error: 'date' };
   if (!side) return { error: 'side' };
   if (!(qty > 0)) return { error: 'qty' };
   if (!(price > 0)) return { error: 'price' };
-  if (fee < 0) return { error: 'fee' };
+  if (fee == null || fee < 0) return { error: 'fee' };
+  if (currencyGiven && !SUPPORTED_CURRENCY.test(String(input.currency).trim().toUpperCase())) return { error: 'currency' };
   const stop = finite(input.stop);
   const target = finite(input.target);
   return {

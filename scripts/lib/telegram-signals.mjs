@@ -193,7 +193,9 @@ export function extractAnalystActions(text, { universe, date, postId } = {}) {
     const ratingChange = line.match(RATING_CHANGE);
     const ratingAction = ratingChange ? (/상향|upgrade/i.test(ratingChange[0]) ? 'upgrade' : 'downgrade') : null;
     const broker = brokerOf(line) || contextBroker;
-    const key = `pt|${ticker}|${broker || '-'}|${date || ''}`;
+    // v59.45 (R3-03): without a broker the target prices tell two same-day actions apart (200→250 and 180→220 were
+    // folded into one); a relay of the same prices still collapses in mergeSignals.
+    const key = broker ? `pt|${ticker}|${broker}|${date || ''}` : `pt|${ticker}|-|${date || ''}|${change.ptFrom ?? '-'}>${change.ptTo ?? '-'}`;
     if (seen.has(key)) return;
     seen.add(key);
     out.push({ kind: 'pt', key, ticker, broker, ...change, currency, rating: ratingOf(line), ratingAction, date: date || null, post: postId || null });

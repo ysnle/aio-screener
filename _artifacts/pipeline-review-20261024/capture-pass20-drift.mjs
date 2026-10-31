@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+const prior = JSON.parse(fs.readFileSync(new URL('./FILE-REVIEW-LEDGER.json',import.meta.url),'utf8'));
+const paths = [...new Set(execFileSync('git',['ls-files','--cached','--others','--exclude-standard','-z'],{encoding:'utf8',maxBuffer:32*1024*1024}).split('\0').filter(Boolean))];
+const old = new Set(prior.files.map(r=>r.path));
+const changedObserved = prior.files.filter(r=>r.observedSha256 && fs.existsSync(r.path) && createHash('sha256').update(fs.readFileSync(r.path)).digest('hex')!==r.observedSha256).map(r=>({path:r.path,priorStatus:r.semanticStatus,priorEvidence:r.latestDirectEvidence}));
+const report={at:new Date().toISOString(),priorInventoryAt:prior.report.generatedAt,currentFiles:paths.length,version:JSON.parse(fs.readFileSync('version.json','utf8')),newPaths:paths.filter(p=>!old.has(p)),changedObserved,limit:'Inventory/hash difference only; no automatic semantic promotion. Prior hashes may be later than initial read.'};
+fs.writeFileSync(new URL('./pass20-inventory-drift.json',import.meta.url),JSON.stringify(report,null,2)+'\n');
+console.log(JSON.stringify({currentFiles:report.currentFiles,newPaths:report.newPaths.length,changedObserved}));

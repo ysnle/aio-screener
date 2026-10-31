@@ -4426,7 +4426,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const { buildQuestionDomainContext } = await load('src/ai/context/market-content.js');
   const marketSource = readFileSync(path.join(root, 'src/ai/context/market-content.js'), 'utf8');
   // v58.31: through the shared interpretation, whose browser adapter collects collectMarketInputs(root).
-  if (!/renderMarketScenarioModel\(marketInterpretation\(root\)\.scenarios\)/.test(marketSource) || /renderMarketScenarioContext\(\{\s*history\s*:/.test(marketSource) || !/market: collectMarketInputs\(root\)/.test(readFileSync(path.join(root, 'src/data/selectors/interpretation.js'), 'utf8'))) fail('P1729 the AI scenario context must be built from collectMarketInputs(root)');
+  if (!/renderMarketScenarioModel\(marketInterpretation\(root\)\.scenarios\)/.test(marketSource) || /renderMarketScenarioContext\(\{\s*history\s*:/.test(marketSource) || !/market: collectMarketInputs\(root(?:, \{ now: nowMs \})?\)/.test(readFileSync(path.join(root, 'src/data/selectors/interpretation.js'), 'utf8'))) fail('P1729 the AI scenario context must be built from collectMarketInputs(root)');
   if (typeof buildQuestionDomainContext !== 'function') fail('P1729 buildQuestionDomainContext export missing');
 }
 
@@ -5494,8 +5494,9 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const schedule = { screenerArtifact: { _status: 'loaded', _lastOk: Date.parse('2026-10-16T00:00:00Z') } };
   const artifact = producerState('screenerArtifact', { meta, refreshSchedule: schedule, screener: { status: 'unavailable', updatedAt: meta.generatedAt, metadata: { detail: 'HTTP 503' } }, now: Date.parse(meta.generatedAt) });
   if (artifact.status !== 'unavailable' || artifact.failureReason !== 'HTTP 503' || artifact.attemptedAt !== '2026-10-17T00:00:00.000Z') fail(`page completeness: the slice state overrides the schedule for the screener artifact: ${JSON.stringify(artifact)}`);
-  const breadth = producerState('breadth', { meta, screener: { status: 'current', metadata: { backtest: true } } });
-  if (breadth.status !== 'loaded' || breadth.coverage !== 100 || breadth.lastSuccessfulAt !== meta.generatedAt) fail(`page completeness: a ready screener loads breadth: ${JSON.stringify(breadth)}`);
+  // v59.45 (P28-COMPLETENESS-01): breadth has no measured coverage and takes the screener's own time, not data.json's.
+  const breadth = producerState('breadth', { meta, screener: { status: 'current', updatedAt: '2026-10-16T21:00:00Z', metadata: { backtest: true } } });
+  if (breadth.status !== 'loaded' || breadth.coverage !== null || breadth.lastSuccessfulAt !== '2026-10-16T21:00:00Z') fail(`page completeness: a ready screener loads breadth: ${JSON.stringify(breadth)}`);
 }
 {
   // Legacy unification (2026-10-17): the data.json loader's fetch and market-cycle gate.
@@ -6380,7 +6381,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     fail(`v58.81 bridge review cases: ${JSON.stringify({ links: morning.links.map((l) => l.id), next: [morning.next, sat.next], stale: sat.futuresStale, fri: friNight.us.label })}`);
   // P2127 (owner audit 2026-10-28): the KOSDAQ gap follows the day's direction — on 10/28 the KOSPI rose 6.6% and the
   // KOSDAQ 3.7%, so the KOSDAQ rose less; it did not "fall more". Down days and an opposite-direction KOSDAQ as well.
-  const gapLine = (kospi, kosdaq) => koreaLinks({ kospi: { change: kospi, observedAt: '2026-10-28T06:35:00Z' }, kosdaq: { change: kosdaq }, nikkei: { change: 0.9, observedAt: '2026-10-28T06:30:00Z' } }).find((link) => link.id === 'local')?.text || '';
+  const gapLine = (kospi, kosdaq) => koreaLinks({ kospi: { change: kospi, observedAt: '2026-10-28T06:35:00Z' }, kosdaq: { change: kosdaq, observedAt: '2026-10-28T06:35:00Z' }, nikkei: { change: 0.9, observedAt: '2026-10-28T06:30:00Z' } }).find((link) => link.id === 'local')?.text || '';
   const upLess = gapLine(6.6, 3.7), upMore = gapLine(2, 4), downLess = gapLine(-4, -1.5), downMore = gapLine(-1.5, -3.3), split = gapLine(3, -0.5);
   if (/빠져/.test(upLess) || !/덜 올라/.test(upLess) || !/대형주/.test(upLess) || !/더 올라/.test(upMore) || !/중소형/.test(upMore)
     || !/덜 빠져/.test(downLess) || !/더 빠져/.test(downMore) || !/반대/.test(split) || /더 (올라|빠져)|덜 (올라|빠져)/.test(split))

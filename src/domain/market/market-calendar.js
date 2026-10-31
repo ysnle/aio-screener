@@ -156,7 +156,7 @@ export function latestCompletedUsSession(now = Date.now(), { requirePrevious = t
     date: last.date,
     closeMs: closeInstant(last.date, last.close),
     previousDate: before?.date ?? null,
-    inSession: today.status === 'open' && current.minute >= 570 && current.minute < minuteOf(today.close)
+    inSession: today.status === 'open' && current.minute >= minuteOf(today.open) && current.minute < minuteOf(today.close)
   });
 }
 
@@ -188,6 +188,7 @@ export function latestCompletedKrSession(now = Date.now()) {
 const MONTH_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 export function dateOnly(value) {
   const text = String(value || '').slice(0, 10);
+  // The calendar imports nothing (P1533), so it keeps its own format check (shared-primitive ratchet exception).
   if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) return null;
   const year = +text.slice(0, 4), month = +text.slice(5, 7), day = +text.slice(8, 10);
   if (month < 1 || month > 12 || day < 1) return null;

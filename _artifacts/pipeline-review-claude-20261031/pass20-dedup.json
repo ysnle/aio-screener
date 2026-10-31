@@ -1,0 +1,41 @@
+{
+  "input": [
+    {
+      "title": "Company reports quarterly revenue rose 50%",
+      "link": "https://example.test/0",
+      "source": "Reuters",
+      "tier": 1,
+      "score": 100,
+      "ts": 1793316600000,
+      "pubDate": "2026-10-29T23:30:00Z",
+      "topic": "equity"
+    },
+    {
+      "title": "Correction: Company reports quarterly revenue fell 50%",
+      "link": "https://example.test/1",
+      "source": "Reuters",
+      "tier": 1,
+      "score": 99,
+      "ts": 1793316601000,
+      "pubDate": "2026-10-29T23:30:00Z",
+      "topic": "equity",
+      "correctionOf": "original"
+    }
+  ],
+  "output": [
+    {
+      "title": "Company reports quarterly revenue rose 50%",
+      "link": "https://example.test/0",
+      "source": "Reuters",
+      "pubDate": "2026-10-29T23:30:00Z",
+      "topic": "equity",
+      "tier": 1,
+      "score": 100,
+      "sourceTierLabel": "official-or-wire",
+      "contentDepth": "headline-only",
+      "eventTime": "2026-10-29T23:30:00.000Z",
+      "eventTimeKind": "published",
+      "independenceKey": "reuters"
+    }
+  ]
+}

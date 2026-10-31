@@ -1,6 +1,7 @@
 import { buildFieldReadiness, createInstrumentRef, LIVE_QUOTE_DERIVED_ROW_KEYS, SCREENER_FIELD_REGISTRY, stableHashAsync, validateInstrumentRef } from '../contracts/screener.js';
 import { INSTRUMENT_REGISTRY, analysisEligibilityFor, resolveInstrument } from '../../domain/market/instrument-registry.js';
 import { canonicalSourceTier, isDecisionEligibleSourceKind } from '../contracts/source-kind.js';
+import { FRESHNESS_POLICY } from '../../domain/shared/freshness-policy.js';
 import { isDecisionEligibleRightsId } from '../contracts/evidence.js';
 import { createPublicationPolicy, evaluatePublicationSet } from './publication-set.js';
 import { evaluateQuoteContract } from './quote-contract.js';
@@ -247,7 +248,7 @@ export function createScreenerProvider({
 } = {}) {
   if (!httpClient || typeof httpClient.requestJson !== 'function') throw new Error('SCREENER_HTTP_CLIENT_INVALID');
   const ARTIFACT_STALE_AFTER_DAYS = 2;
-  const FACTOR_STALE_AFTER_DAYS = 4;
+  const FACTOR_STALE_AFTER_DAYS = FRESHNESS_POLICY.factorSessionMs / 86400000;
   let cachedResponses = null;
   let fetchGeneration = 0;
   let pendingResponses = null;
@@ -308,7 +309,7 @@ export function createScreenerProvider({
         if (extendedArtifact) extendedStatus = 'loaded';
       }
       const now = typeof clock.now === 'function' ? clock.now() : Date.now();
-      const LIVE_QUOTE_MAX_AGE_MS = 15 * 60 * 1000;
+      const LIVE_QUOTE_MAX_AGE_MS = FRESHNESS_POLICY.liveQuoteMs;
       // v57.95: the core rows arrive in the row-defaults encoding; one held response is expanded once.
       const receivedArtifact = artifactResponse.ok && artifactResponse.data && typeof artifactResponse.data === 'object'
         ? expandScreenerArtifact(artifactResponse.data)

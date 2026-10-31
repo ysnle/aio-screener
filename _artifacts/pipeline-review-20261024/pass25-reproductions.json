@@ -1,0 +1,63 @@
+{
+  "relative": {
+    "id": "relative",
+    "tone": "neutral",
+    "title": "지수 대비",
+    "text": "3개월 +10.0% vs S&P 500 +10.0% — 0.0%p 차이로 비슷(±7.5%p 안). 모든 기간에서 지수에 뒤졌습니다."
+  },
+  "absentDate": {
+    "state": "current",
+    "researchedAt": null,
+    "newReport": null
+  },
+  "absentCalendar": {
+    "state": "current",
+    "researchedAt": "2020-01-01",
+    "newReport": null
+  },
+  "cache": {
+    "first": {
+      "symbol": "TEST",
+      "model": "out-of-universe-read.v1",
+      "status": "in-universe"
+    },
+    "second": {
+      "symbol": "TEST",
+      "model": "out-of-universe-read.v1",
+      "status": "in-universe"
+    },
+    "requests": 0
+  },
+  "inactive": {
+    "available": false,
+    "state": "ready",
+    "title": "랭킹 대상 밖 종목 — 현재 유니버스 기준 위치",
+    "symbol": "TEST",
+    "rank": null,
+    "topPct": null,
+    "ranked": null,
+    "computedAt": null,
+    "sessionDate": null,
+    "lines": [
+      "스크리너 모델은 가중치의 80% 이상에 해당하는 입력이 있어야 위치를 매기는데, 이 종목은 그 기준에 못 미쳐 위치를 매기지 않았습니다.",
+      "계산에 쓴 항목: 없음. 빠진 항목은 추정하지 않고 비워 둡니다.",
+      "요청 시 계산한 값이며 공개 순위에는 들어가지 않습니다, 섹터 분류가 없어 섹터 안이 아닌 유니버스 전체 기준으로 비교했습니다."
+    ],
+    "inputs": [
+      {
+        "key": "size",
+        "label": "규모",
+        "active": false,
+        "usable": false,
+        "status": "모델에서 비활성",
+        "detail": "현재 유니버스 전체에서 이 항목의 유효값이 80%에 못 미쳐 모든 종목에서 빠진 항목입니다"
+      }
+    ],
+    "used": [],
+    "missing": [],
+    "factorScores": null,
+    "secStatus": null
+  },
+  "exchangeName": "삼성전자",
+  "tiny": "0억 달러"
+}

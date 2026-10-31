@@ -9,7 +9,7 @@
 // The RRG neutral band (경계) also lives here so every reader of sector rotation (테마·섹터, the market screens) shares it.
 import { buildCloseSeries } from '../market/close-series.js';
 import { classifyRRG, RRG_QUADRANT_WORDS } from './rrg.js';
-import { signedText } from '../shared/number.js';
+import { signedText, finiteNumber as finite } from '../shared/number.js';
 
 export const RECENT_SESSIONS = 5;
 export const NOISE_MULTIPLE = 2;
@@ -37,7 +37,6 @@ export const WINDOW_LABELS = Object.freeze({ ret5d: '5거래일', ret1m: '1개�
 // A normal variable's median absolute value is 0.6745 σ; σ of a 5-session move is the annual σ × √(5/252).
 const MEDIAN_ABS_OF_SIGMA = 0.6745;
 
-const finite = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
 const round1 = (value) => Math.round(value * 10) / 10;
 export const signedPct = (value, unit = '%') => (value == null ? '—' : `${signedText(value, 1)}${unit}`);
 export function medianOf(values) {

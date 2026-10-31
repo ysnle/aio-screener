@@ -32,6 +32,7 @@ import { latestCompletedKrSession } from '../../domain/market/market-calendar.js
 import { detectContractions } from '../../domain/technical/definitions.js';
 import { vcpStageLabel } from '../../domain/screener/row-presentation.js';
 import { stockLensContext, renderStockContext, renderStockStrengths, installStockLensGlobal } from '../components/stock-lens-cards.js';
+import { isIsoDay } from '../../domain/shared/session-date.js';
 
 // 2026-10-13 review S21: observation times read in Korean time, not "… 20:00:00 UTC".
 export function formatKstStamp(value) {
@@ -103,8 +104,8 @@ export function lastPublishedClose(id, state, root) {
   const row = rows.find(item => item?.sym === id);
   const rowClose = finite(row?._valuationPrice ?? row?._valuationPePrice ?? row?.valuationPrice);
   const rowDate = String(row?.factorSessionDate || '').slice(0, 10);
-  if (rowClose > 0 && /^\d{4}-\d{2}-\d{2}$/.test(rowDate)) candidates.push({ value: rowClose, date: rowDate, currency: String(row.instrumentRef?.currency || row.currency || '').trim().toUpperCase() || null });
-  return candidates.filter(item => /^\d{4}-\d{2}-\d{2}$/.test(item.date)).sort((a, b) => b.date.localeCompare(a.date))[0] || null;
+  if (rowClose > 0 && isIsoDay(rowDate)) candidates.push({ value: rowClose, date: rowDate, currency: String(row.instrumentRef?.currency || row.currency || '').trim().toUpperCase() || null });
+  return candidates.filter(item => isIsoDay(item.date)).sort((a, b) => b.date.localeCompare(a.date))[0] || null;
 }
 
 function renderTickerHero(documentRef, state, root) {
@@ -563,7 +564,7 @@ function renderTickerChart({ root, page, state, charts, requestedRange = '1m' })
       type: 'line',
       data: { labels, datasets: [{ label: state?.id || '가격', data: prices, borderColor: isUp ? '#2f7c57' : '#b54548', backgroundColor: 'transparent', borderWidth: 1.8, borderCapStyle: 'round', borderJoinStyle: 'round', pointRadius: 0, tension: 0, fill: false }] /* v58.53 개편 v2: thin round line, no area fill */ }, // v57.55 review (E3-F9): no smoothing — a curve drew prices that never traded
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: {
-        x: { title: { display: true, text: '관측 날짜' }, ticks: { maxTicksLimit: (canvas.clientWidth || 600) < 480 ? 4 : 8, maxRotation: 0, autoSkip: true, callback(value) { const label = String(this.getLabelForValue(value) || ''); return /^\d{4}-\d{2}-\d{2}$/.test(label) ? `${Number(label.slice(5, 7))}/${Number(label.slice(8, 10))}` : label; } }, grid: { display: false } }, // v58.53: M/D ticks
+        x: { title: { display: true, text: '관측 날짜' }, ticks: { maxTicksLimit: (canvas.clientWidth || 600) < 480 ? 4 : 8, maxRotation: 0, autoSkip: true, callback(value) { const label = String(this.getLabelForValue(value) || ''); return isIsoDay(label) ? `${Number(label.slice(5, 7))}/${Number(label.slice(8, 10))}` : label; } }, grid: { display: false } }, // v58.53: M/D ticks
         y: { title: { display: true, text: `가격${state?.quote?.currency ? ` (${state.quote.currency})` : ''}` },
           ticks: { maxTicksLimit: 4, callback: value => formatMoney(Number(value), state?.quote?.currency) } } } }
     });
@@ -776,7 +777,7 @@ function render({ root, documentRef, store, route, charts, activeTickerTab = 'ov
     try { analysisRow = (root?._aioGetCanonicalScreenerRows?.() || []).find((item) => item?.sym === analysisId) || null; } catch (_) { analysisRow = null; }
     const valuationClose = finite(analysisRow?._valuationPrice ?? analysisRow?._valuationPePrice ?? analysisRow?.valuationPrice);
     const valuationDate = String(analysisRow?.factorSessionDate || '').slice(0, 10);
-    const analysisClose = valuationClose > 0 && /^\d{4}-\d{2}-\d{2}$/.test(valuationDate) ? { value: valuationClose, date: valuationDate } : analysisId ? lastPublishedClose(analysisId, state, root) : null;
+    const analysisClose = valuationClose > 0 && isIsoDay(valuationDate) ? { value: valuationClose, date: valuationDate } : analysisId ? lastPublishedClose(analysisId, state, root) : null;
     renderStockAnalysis({ documentRef, root, symbol: analysisId, fundamentals: state?.id === analysisId ? state?.fundamentals : null, close: analysisClose, sector: analysisRow?.sector || null });
   }
   if (route === 'fundamental') {

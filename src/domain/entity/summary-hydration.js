@@ -1,7 +1,7 @@
 // P1624: one route-owned, identity-checked public chart response supplies quote and history.
 import { canonicalEpochMs } from '../chart/contract.js';
+import { finiteNumber as finite } from '../shared/number.js';
 
-const finite = value => typeof value === 'number' && Number.isFinite(value) ? value : null;
 const positive = value => finite(value) > 0 ? value : null;
 const caches = new WeakMap();
 const symbolOf = value => String(value || '').trim().toUpperCase();

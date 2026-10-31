@@ -26,8 +26,15 @@ export function crossAssetMoves(history = [], { through = null, window = C.windo
   return { window, spx: change('spx'), smh: change('smh'), tnx: change('tnx', true), tlt: change('tlt'), wti: change('wti'), gold: change('gold'), dxy: change('dxy'), vix: change('vix') };
 }
 
+// The assets the all-clear sentence names, in its order.
+const CLEAR_NAMES = [['wti', '유가'], ['tnx', '금리'], ['spx', '주식'], ['tlt', '장기채'], ['gold', '금'], ['dxy', '달러']];
+
 export function buildCrossAssetRelations(history = [], options = {}) {
-  const m = crossAssetMoves(history, options);
+  const raw = crossAssetMoves(history, options);
+  // v59.45 (P18-RELATIONS-01): a relation compares the same 20 sessions — a move whose window ends on another session than
+  // the S&P 500's (an asset whose record stopped earlier) is left out, not compared with it.
+  const anchor = raw.spx?.to || null;
+  const m = Object.fromEntries(Object.entries(raw).map(([key, move]) => [key, key === 'window' || move == null || move.to === anchor ? move : null]));
   const v = (key) => m[key]?.value ?? null;
   const spx = v('spx'), smh = v('smh'), tnx = v('tnx'), tlt = v('tlt'), wti = v('wti'), gold = v('gold'), dxy = v('dxy'), vix = v('vix');
   const known = (...values) => values.every((value) => value != null);
@@ -56,6 +63,13 @@ export function buildCrossAssetRelations(history = [], options = {}) {
   const available = known(spx, tnx);
   const reading = !available ? null
     : breaks.length ? `최근 ${m.window}거래일 ${lead ? `${lead}. ` : ''}${[...breaks].sort((a, b) => ORDER.indexOf(a.id) - ORDER.indexOf(b.id)).slice(0, 3).map((item) => item.text).join(' ')}`
-      : `최근 ${m.window}거래일 ${lead ? `${lead}. ` : ''}유가·금리·주식·장기채·금·달러는 평소 관계에서 크게 벗어나지 않았습니다.`;
+      : `최근 ${m.window}거래일 ${lead ? `${lead}. ` : ''}${clearSentence(m)}`;
   return { available, asOf, window: m.window, moves: m, driver, flow, breaks, reading };
+}
+
+// Only the assets actually checked are said to be within their usual relations; the unchecked are named as such.
+function clearSentence(m) {
+  const checked = CLEAR_NAMES.filter(([key]) => m[key]?.value != null).map(([, name]) => name);
+  const missing = CLEAR_NAMES.filter(([key]) => m[key]?.value == null).map(([, name]) => name);
+  return `${checked.join('·')}${missing.length ? '' : '는'}${missing.length ? ` 사이에서는 평소 관계에서 크게 벗어난 곳이 없습니다(${missing.join('·')}는 같은 기간 기록이 없어 확인하지 못함).` : ' 평소 관계에서 크게 벗어나지 않았습니다.'}`;
 }
