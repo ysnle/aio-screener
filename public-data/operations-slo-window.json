@@ -1,11 +1,11 @@
 {
   "schemaVersion": "operations-slo-window.v3",
   "status": "NOT_CERTIFIED",
-  "observedAt": "2026-10-31T04:21:01.446Z",
+  "observedAt": "2026-10-31T10:21:17.921Z",
   "collectionMode": "MEASURED_RUNTIME",
   "query": {
     "repository": "ysnle/aio-screener",
-    "cutoff": "2026-10-01T04:21:01.446Z",
+    "cutoff": "2026-10-01T10:21:17.921Z",
     "workflows": {
       "market": "refresh-data.yml",
       "screener": "refresh-screener.yml",
@@ -20,7 +20,7 @@
         "truncated": false,
         "excluded": {
           "nonCompleted": 0,
-          "outsideWindow": 1
+          "outsideWindow": 2
         }
       },
       "screener": {
@@ -31,7 +31,7 @@
         "truncated": false,
         "excluded": {
           "nonCompleted": 0,
-          "outsideWindow": 0
+          "outsideWindow": 1
         }
       },
       "watchdog": {
@@ -64,10 +64,10 @@
       "workflow": "refresh-data.yml",
       "required": true,
       "expectedRuns": 1470,
-      "observedRuns": 751,
+      "observedRuns": 762,
       "scheduledArrivalRate": 0.126531,
       "manualRunsExcluded": 97,
-      "successRate": 0.681758,
+      "successRate": 0.686352,
       "observedDays": 31,
       "status": "DEGRADED"
     },
@@ -77,7 +77,7 @@
       "expectedRuns": 150,
       "observedRuns": 118,
       "scheduledArrivalRate": 0.786667,
-      "manualRunsExcluded": 52,
+      "manualRunsExcluded": 54,
       "successRate": 0.694915,
       "observedDays": 31,
       "status": "DEGRADED"
@@ -86,18 +86,18 @@
       "workflow": "data-watchdog.yml",
       "required": true,
       "expectedRuns": 720,
-      "observedRuns": 56,
-      "scheduledArrivalRate": 0.077778,
+      "observedRuns": 57,
+      "scheduledArrivalRate": 0.079167,
       "manualRunsExcluded": 0,
-      "successRate": 0.428571,
-      "observedDays": 12,
+      "successRate": 0.421053,
+      "observedDays": 13,
       "status": "DEGRADED"
     }
   },
   "windows": {
     "7d": {
       "requiredDays": 7,
-      "observedDays": 7,
+      "observedDays": 8,
       "status": "FAIL",
       "domains": {
         "market": {
@@ -106,19 +106,19 @@
           "expectedRuns": 343,
           "expectedRunsBasis": "cadence-history",
           "measures": "workflow-execution",
-          "observedRuns": 331,
-          "scheduledRuns": 44,
+          "observedRuns": 330,
+          "scheduledRuns": 43,
           "automatedDispatchRuns": 287,
-          "deliveryRate": 0.965015,
+          "deliveryRate": 0.962099,
           "manualRunsExcluded": 0,
           "nonScheduledRunsExcluded": 0,
           "nonScheduledEventBreakdown": {},
           "cancelledRuns": 0,
-          "scheduledArrivalRate": 0.12828,
-          "completed": 331,
-          "succeeded": 256,
-          "failed": 75,
-          "successRate": 0.773414,
+          "scheduledArrivalRate": 0.125364,
+          "completed": 330,
+          "succeeded": 257,
+          "failed": 73,
+          "successRate": 0.778788,
           "observedDays": 8,
           "exactSourceIdentityCoverage": 1,
           "status": "DEGRADED"
@@ -157,17 +157,17 @@
           "automatedDispatchRuns": 0,
           "deliveryRate": 0.196429,
           "manualRunsExcluded": 0,
-          "nonScheduledRunsExcluded": 616,
+          "nonScheduledRunsExcluded": 611,
           "nonScheduledEventBreakdown": {
-            "workflow_run": 616
+            "workflow_run": 611
           },
           "cancelledRuns": 3,
           "scheduledArrivalRate": 0.196429,
           "completed": 33,
-          "succeeded": 15,
-          "failed": 18,
-          "successRate": 0.454545,
-          "observedDays": 7,
+          "succeeded": 14,
+          "failed": 19,
+          "successRate": 0.424242,
+          "observedDays": 8,
           "exactSourceIdentityCoverage": 1,
           "status": "DEGRADED"
         }
@@ -184,10 +184,10 @@
         "everySourcePaginated": true
       },
       "artifact": {
-        "completed": 75,
+        "completed": 74,
         "succeeded": 60,
-        "failed": 15,
-        "successRate": 0.8,
+        "failed": 14,
+        "successRate": 0.810811,
         "observedDays": 8,
         "exactSourceIdentityCoverage": 1
       },
@@ -202,17 +202,17 @@
         "automatedDispatchRuns": 0,
         "deliveryRate": 0.196429,
         "manualRunsExcluded": 0,
-        "nonScheduledRunsExcluded": 616,
+        "nonScheduledRunsExcluded": 611,
         "nonScheduledEventBreakdown": {
-          "workflow_run": 616
+          "workflow_run": 611
         },
         "cancelledRuns": 3,
         "scheduledArrivalRate": 0.196429,
         "completed": 33,
-        "succeeded": 15,
-        "failed": 18,
-        "successRate": 0.454545,
-        "observedDays": 7,
+        "succeeded": 14,
+        "failed": 19,
+        "successRate": 0.424242,
+        "observedDays": 8,
         "exactSourceIdentityCoverage": 1,
         "status": "DEGRADED"
       },
@@ -220,7 +220,7 @@
     },
     "30d": {
       "requiredDays": 30,
-      "observedDays": 12,
+      "observedDays": 13,
       "status": "INSUFFICIENT_EVIDENCE",
       "domains": {
         "market": {
@@ -229,19 +229,19 @@
           "expectedRuns": 1470,
           "expectedRunsBasis": "cadence-history",
           "measures": "workflow-execution",
-          "observedRuns": 751,
+          "observedRuns": 762,
           "scheduledRuns": 186,
-          "automatedDispatchRuns": 565,
-          "deliveryRate": 0.510884,
+          "automatedDispatchRuns": 576,
+          "deliveryRate": 0.518367,
           "manualRunsExcluded": 97,
           "nonScheduledRunsExcluded": 0,
           "nonScheduledEventBreakdown": {},
           "cancelledRuns": 1,
           "scheduledArrivalRate": 0.126531,
-          "completed": 751,
-          "succeeded": 512,
+          "completed": 762,
+          "succeeded": 523,
           "failed": 239,
-          "successRate": 0.681758,
+          "successRate": 0.686352,
           "observedDays": 31,
           "exactSourceIdentityCoverage": 1,
           "status": "DEGRADED"
@@ -256,7 +256,7 @@
           "scheduledRuns": 118,
           "automatedDispatchRuns": 0,
           "deliveryRate": 0.786667,
-          "manualRunsExcluded": 52,
+          "manualRunsExcluded": 54,
           "nonScheduledRunsExcluded": 0,
           "nonScheduledEventBreakdown": {},
           "cancelledRuns": 0,
@@ -275,22 +275,22 @@
           "expectedRuns": 720,
           "expectedRunsBasis": "cadence-history",
           "measures": "workflow-execution",
-          "observedRuns": 56,
-          "scheduledRuns": 56,
+          "observedRuns": 57,
+          "scheduledRuns": 57,
           "automatedDispatchRuns": 0,
-          "deliveryRate": 0.077778,
+          "deliveryRate": 0.079167,
           "manualRunsExcluded": 0,
-          "nonScheduledRunsExcluded": 944,
+          "nonScheduledRunsExcluded": 943,
           "nonScheduledEventBreakdown": {
-            "workflow_run": 944
+            "workflow_run": 943
           },
           "cancelledRuns": 3,
-          "scheduledArrivalRate": 0.077778,
-          "completed": 56,
+          "scheduledArrivalRate": 0.079167,
+          "completed": 57,
           "succeeded": 24,
-          "failed": 32,
-          "successRate": 0.428571,
-          "observedDays": 12,
+          "failed": 33,
+          "successRate": 0.421053,
+          "observedDays": 13,
           "exactSourceIdentityCoverage": 1,
           "status": "DEGRADED"
         }
@@ -320,22 +320,22 @@
         "expectedRuns": 720,
         "expectedRunsBasis": "cadence-history",
         "measures": "workflow-execution",
-        "observedRuns": 56,
-        "scheduledRuns": 56,
+        "observedRuns": 57,
+        "scheduledRuns": 57,
         "automatedDispatchRuns": 0,
-        "deliveryRate": 0.077778,
+        "deliveryRate": 0.079167,
         "manualRunsExcluded": 0,
-        "nonScheduledRunsExcluded": 944,
+        "nonScheduledRunsExcluded": 943,
         "nonScheduledEventBreakdown": {
-          "workflow_run": 944
+          "workflow_run": 943
         },
         "cancelledRuns": 3,
-        "scheduledArrivalRate": 0.077778,
-        "completed": 56,
+        "scheduledArrivalRate": 0.079167,
+        "completed": 57,
         "succeeded": 24,
-        "failed": 32,
-        "successRate": 0.428571,
-        "observedDays": 12,
+        "failed": 33,
+        "successRate": 0.421053,
+        "observedDays": 13,
         "exactSourceIdentityCoverage": 1,
         "status": "DEGRADED"
       },
@@ -357,36 +357,36 @@
       "expectedRuns": 720,
       "expectedRunsBasis": "cadence-history",
       "measures": "workflow-execution",
-      "observedRuns": 56,
-      "scheduledRuns": 56,
+      "observedRuns": 57,
+      "scheduledRuns": 57,
       "automatedDispatchRuns": 0,
-      "deliveryRate": 0.077778,
+      "deliveryRate": 0.079167,
       "manualRunsExcluded": 0,
-      "nonScheduledRunsExcluded": 944,
+      "nonScheduledRunsExcluded": 943,
       "nonScheduledEventBreakdown": {
-        "workflow_run": 944
+        "workflow_run": 943
       },
       "cancelledRuns": 3,
-      "scheduledArrivalRate": 0.077778,
-      "completed": 56,
+      "scheduledArrivalRate": 0.079167,
+      "completed": 57,
       "succeeded": 24,
-      "failed": 32,
-      "successRate": 0.428571,
-      "observedDays": 12,
+      "failed": 33,
+      "successRate": 0.421053,
+      "observedDays": 13,
       "exactSourceIdentityCoverage": 1,
       "status": "DEGRADED"
     }
   },
   "failureRecovery": {
-    "failureCount": 32,
-    "recoveryCount": 101,
-    "consecutiveFailuresMax": 164,
+    "failureCount": 33,
+    "recoveryCount": 10,
+    "consecutiveFailuresMax": 11,
     "dedupedAlerts": {
       "issueCount": 8,
       "workflowCount": 8,
       "duplicateMarkerCount": 0,
-      "openCount": 2,
-      "closedCount": 6,
+      "openCount": 0,
+      "closedCount": 8,
       "deduped": true,
       "pagesFetched": 1,
       "paginationComplete": true,
