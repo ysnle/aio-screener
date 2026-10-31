@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-31T02:51:30.417Z",
-  "attemptedAt": "2026-10-31T02:51:30.417Z",
-  "lastSuccessfulAt": "2026-10-31T02:51:30.417Z",
+  "generatedAt": "2026-10-31T03:21:26.600Z",
+  "attemptedAt": "2026-10-31T03:21:26.600Z",
+  "lastSuccessfulAt": "2026-10-31T03:21:26.600Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-17T02:51:24.565Z",
-  "until": "2026-10-31T02:51:24.565Z",
+  "since": "2026-10-17T03:21:20.781Z",
+  "until": "2026-10-31T03:21:20.781Z",
   "current24hWindow": {
     "start": "2026-10-29T23:00:00.000Z",
     "end": "2026-10-30T23:00:00.000Z",
@@ -94,10 +94,10 @@
       "reachedKnown": true,
       "count": 1360,
       "freshCount": 39,
-      "eligibleTextCount": 1296,
+      "eligibleTextCount": 1297,
       "selectedCount": 124,
       "error": null,
-      "lastPostId": 67935
+      "lastPostId": 67937
     },
     {
       "channel": "bornlupin",
@@ -121,20 +121,20 @@
       "eligibleTextCount": 674,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 71290
+      "lastPostId": 71291
     }
   ],
   "count": 2405,
-  "retainedItemCount": 468,
+  "retainedItemCount": 465,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
     "observedCount": 2405,
-    "eligibleTextCount": 2333,
-    "mediaOnlyCount": 72,
-    "highSignalCount": 436,
+    "eligibleTextCount": 2334,
+    "mediaOnlyCount": 71,
+    "highSignalCount": 437,
     "broadSignalCount": 950,
     "selectedRawCount": 412,
     "selectedEligibleCount": 412,
@@ -143,25 +143,26 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
+    "market-note": 854,
+    "ai-policy": 135,
+    "equity": 170,
+    "credit": 125,
+    "macro": 378,
     "semi": 533,
-    "power": 299,
+    "power": 298,
     "earnings": 488,
     "japan": 112,
-    "geo": 417,
-    "market-note": 852,
-    "credit": 124,
-    "ai-policy": 134,
-    "equity": 169,
-    "macro": 377,
+    "geo": 416,
     "optical": 40,
     "healthcare": 122,
     "flows": 94,
     "kr-market": 134,
-    "media-only": 72,
+    "media-only": 71,
     "crypto": 5,
     "insider": 2
   },
   "tickerCounts": {
+    "BX": 1,
     "2454.TW": 3,
     "NVDA": 159,
     "AAPL": 14,
@@ -196,7 +197,7 @@
     "006400.KS": 4,
     "ORCL": 12,
     "CMG": 1,
-    "TSLA": 66,
+    "TSLA": 65,
     "STX": 8,
     "ETSY": 2,
     "BABA": 2,
@@ -252,14 +253,14 @@
     "010130.KS": 1
   },
   "themes": [
-    "Market Notes (852 posts in 14-day research window): 2026년 10월 30일 미국 증시 브리핑 미국 증시는 대형 기술주와 AI 관련주 급락으로 3대 지수 동반 하락 마감. S&P 500 -0.30%, 다우 -0.25%, 나스닥 -1.38%를 기록한 반면 러셀...",
+    "Market Notes (854 posts in 14-day research window): 2026년 10월 30일 미국 증시 브리핑 미국 증시는 대형 기술주와 AI 관련주 급락으로 3대 지수 동반 하락 마감. S&P 500 -0.30%, 다우 -0.25%, 나스닥 -1.38%를 기록한 반면 러셀...",
     "Semiconductors/Memory (533 posts in 14-day research window): 2026년 10월 29일 서학개미 순매수 미국 주식 TOP 50 1위: MICRON TECHNOLOGY INC (15.96%) 2위: LUMENTUM HOLDINGS INC SOFF 39520207144...",
     "Earnings/Corporate (488 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
-    "Geopolitics (417 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 행정부는 이란과 임시 평화협정을 위한 협상을 진행 중인 가운데, 중간선거 이후 이란에 대한 군사작전...",
-    "Macro/Rates (377 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인...",
-    "AI Power/Grid (299 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
-    "Equity/Analyst (169 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
-    "AI Policy/Export Controls (134 posts in 14-day research window): 2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging..."
+    "Geopolitics (416 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 행정부는 이란과 임시 평화협정을 위한 협상을 진행 중인 가운데, 중간선거 이후 이란에 대한 군사작전...",
+    "Macro/Rates (378 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인...",
+    "AI Power/Grid (298 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
+    "Equity/Analyst (170 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
+    "AI Policy/Export Controls (135 posts in 14-day research window): 2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging..."
   ],
   "catalysts": [
     {
@@ -289,7 +290,7 @@
     },
     {
       "key": "TSLA",
-      "count": 66,
+      "count": 65,
       "text": "2026년 10월 29일 미국 레딧 베스트 게시물 분석 > NVDA / MU / VRT / ETN / GEV - AI Trade가 물리 인프라로 확장 · 장문 DD 핵심은 “AI가 싸지면 물리 자원이 병목”..."
     },
     {
@@ -330,7 +331,7 @@
       "topics": [
         "macro"
       ],
-      "count": 377,
+      "count": 378,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인..."
     },
     {
@@ -339,7 +340,7 @@
       "topics": [
         "geo"
       ],
-      "count": 417,
+      "count": 416,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 행정부는 이란과 임시 평화협정을 위한 협상을 진행 중인 가운데, 중간선거 이후 이란에 대한 군사작전..."
     },
     {
@@ -348,7 +349,7 @@
       "topics": [
         "credit"
       ],
-      "count": 124,
+      "count": 125,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — AI 인프라 투자 자금 조달을 위해 약 800억 달러 규모의 공급업체 대출 프로그램을 활용할 계획인 것으로 보도됨. • 알파벳 (GOOGL) — 순다르 피차이 CEO는 Project Suncatcher의 궤도..."
     },
     {
@@ -375,7 +376,7 @@
       "topics": [
         "power"
       ],
-      "count": 299,
+      "count": 298,
       "focus": "Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을..."
     },
     {
@@ -384,7 +385,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 134,
+      "count": 135,
       "focus": "2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging..."
     },
     {
@@ -402,7 +403,7 @@
       "topics": [
         "equity"
       ],
-      "count": 169,
+      "count": 170,
       "focus": "[시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가..."
     },
     {
@@ -465,7 +466,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 852,
+      "count": 854,
       "focus": "2026년 10월 30일 미국 증시 브리핑 미국 증시는 대형 기술주와 AI 관련주 급락으로 3대 지수 동반 하락 마감. S&P 500 -0.30%, 다우 -0.25%, 나스닥 -1.38%를 기록한 반면 러셀..."
     }
   ],
@@ -1689,6 +1690,26 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71291",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71291",
+      "datetime": "2026-10-31T02:57:22.000Z",
+      "localDateKst": "2026-10-31",
+      "tags": [
+        "ai-policy",
+        "equity",
+        "credit",
+        "macro"
+      ],
+      "lead": 2,
+      "score": 73,
+      "hasText": true,
+      "tickers": [
+        "BX"
+      ],
+      "summary": ">>Blackstone “Anthropic, IPO 이후 투기등급 신용평가 받을 가능성” •투자적격등급을 받으면 Anthropic은 더 낮은 금리로 자금을 조달해 관련 프로젝트에 투자할 수 있음. 많은..."
+    },
+    {
       "id": "HANAchina/71290",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71290",
@@ -2574,13 +2595,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": ">>SanDisk 컨퍼런스콜 “고객들이 NAND 수요를 과소평가”…장기 공급계약 2030년까지 확보, PC 시장 바닥 통과 조짐 •SanDisk는 AI 추론수요가 NAND 시장 구조를 바꾸고 있다고 평가....",
+      "lead": 1,
       "tickers": [
         "SNDK"
-      ],
-      "summary": ">>SanDisk 컨퍼런스콜 “고객들이 NAND 수요를 과소평가”…장기 공급계약 2030년까지 확보, PC 시장 바닥 통과 조짐 •SanDisk는 AI 추론수요가 NAND 시장 구조를 바꾸고 있다고 평가...."
+      ]
     },
     {
       "id": "insidertracking/67847",
@@ -6964,23 +6985,6 @@
       "tickers": []
     },
     {
-      "id": "HANAchina/70993",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70993",
-      "datetime": "2026-10-25T23:59:24.000Z",
-      "localDateKst": "2026-10-26",
-      "tags": [
-        "semi"
-      ],
-      "score": 56,
-      "hasText": true,
-      "summary": ">>SK하이닉스, 키옥시아 지분 매각 수익으로 121억 달러 특별배당 지급 추진 •SK하이닉스는 키옥시아 지분 매각으로 얻은 약 20조 원의 순이익 중 80%를 16조 원(약 121억 달러) 규모의...",
-      "lead": 1,
-      "tickers": [
-        "000660.KS"
-      ]
-    },
-    {
       "id": "bornlupin/20814",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20814",
@@ -9151,13 +9155,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": ">>SanDisk 컨퍼런스콜 “고객들이 NAND 수요를 과소평가”…장기 공급계약 2030년까지 확보, PC 시장 바닥 통과 조짐 •SanDisk는 AI 추론수요가 NAND 시장 구조를 바꾸고 있다고 평가....",
+      "lead": 1,
       "tickers": [
         "SNDK"
-      ],
-      "summary": ">>SanDisk 컨퍼런스콜 “고객들이 NAND 수요를 과소평가”…장기 공급계약 2030년까지 확보, PC 시장 바닥 통과 조짐 •SanDisk는 AI 추론수요가 NAND 시장 구조를 바꾸고 있다고 평가...."
+      ]
     },
     {
       "id": "insidertracking/67847",
