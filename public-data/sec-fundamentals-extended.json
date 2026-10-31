@@ -1,15 +1,15 @@
 {
  "schemaVersion": "2.0",
- "generatedAt": "2026-10-30T07:32:52.913Z",
+ "generatedAt": "2026-10-30T22:30:24.607Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
  "allowedUse": "research/reference; normalized annual filing facts, not analyst estimates or live TTM",
  "model": "sec-fy-normalized-v2",
- "eligible": 3878,
- "stored": 3516,
- "attempted": 121,
- "updated": 121,
+ "eligible": 3880,
+ "stored": 3517,
+ "attempted": 2,
+ "updated": 1,
  "failures": [
   {
    "symbol": "AACI",
@@ -446,6 +446,16 @@
    "issuerTaxonomy": "US_GAAP",
    "filingForms": [],
    "attemptedAt": "2026-10-19T22:30:26.357Z",
+   "retryPolicy": "manual-or-explicit-SEC_RECHECK_UNSUPPORTED"
+  },
+  {
+   "symbol": "ASPE",
+   "status": "TERMINAL_UNSUPPORTED",
+   "reasonCode": "required-us-gaap-taxonomy-missing",
+   "reason": "required-us-gaap-taxonomy-missing; issuerTaxonomy=UNKNOWN",
+   "issuerTaxonomy": "UNKNOWN",
+   "filingForms": [],
+   "attemptedAt": "2026-10-30T22:30:12.750Z",
    "retryPolicy": "manual-or-explicit-SEC_RECHECK_UNSUPPORTED"
   },
   {
@@ -4495,7 +4505,8 @@
   "YMAT",
   "YSS",
   "YSWY",
-  "ZKP"
+  "ZKP",
+  "ASPE"
  ],
  "retryableFailures": [
   "AYA",
@@ -4516,47 +4527,47 @@
   "TRBG",
   "TREO"
  ],
- "pointInTimeCoverage": 3516,
- "pointInTimeAcceptedCoverage": 3516,
+ "pointInTimeCoverage": 3517,
+ "pointInTimeAcceptedCoverage": 3517,
  "batchLimit": 600,
  "backfillExtra": 0,
  "unsupportedRecheckPolicy": "SEC_RECHECK_UNSUPPORTED=1 required for explicit recheck; terminal unsupported rows remain auditable and out of normal batches",
- "nextRefreshCandidates": 362,
+ "nextRefreshCandidates": 363,
  "domainReceipt": {
   "schemaVersion": "domain-receipt.v1",
   "domain": "sec-fundamentals",
-  "runId": "gha:41020026109",
-  "attemptedAt": "2026-10-30T07:31:57.941Z",
+  "runId": "gha:41138054446",
+  "attemptedAt": "2026-10-30T22:30:12.750Z",
   "sourceRevision": "sec-company-tickers:76b92fbacfc1a5a8715a32bb5f923df4c79a8062b615735542081ddff6977b46",
   "inputWatermarks": {
-   "universe": "2026-10-30T07:31:56.548Z",
-   "screener": "2026-10-30T07:31:21.188Z",
-   "previousArtifact": "2026-10-30T01:34:55.445Z"
+   "universe": "2026-10-30T22:30:10.424Z",
+   "screener": "2026-10-30T13:45:56.052Z",
+   "previousArtifact": "2026-10-30T07:32:52.913Z"
   },
   "batchLimit": 600,
   "counts": {
-   "eligible": 3878,
-   "attempted": 121,
-   "updated": 121,
-   "retained": 3395,
-   "pendingEligible": 362
+   "eligible": 3880,
+   "attempted": 2,
+   "updated": 1,
+   "retained": 3516,
+   "pendingEligible": 363
   },
   "thisBatch": {
-   "updated": 121,
-   "terminalUnsupported": 0,
+   "updated": 1,
+   "terminalUnsupported": 1,
    "transientFailed": 0,
-   "recorded": 0
+   "recorded": 1
   },
   "ledger": {
-   "total": 362,
-   "terminalUnsupported": 345,
+   "total": 363,
+   "terminalUnsupported": 346,
    "transientFailed": 17,
    "legacyUnknown": 0
   },
-  "lastSuccessfulObservation": "2026-10-30T07:31:57.941Z",
+  "lastSuccessfulObservation": "2026-10-30T22:30:12.750Z",
   "publication": {
-   "status": "SUCCESS",
-   "reason": "every attempted target was updated",
+   "status": "PARTIAL",
+   "reason": "some attempted targets were not updated",
    "allowsPartial": true,
    "basis": "per-symbol independent collection; retained eligible rows stay published while rows that lose their period requirements are excluded from analysis",
    "terminalExcludedFromBatchFailures": true,
@@ -319175,14 +319186,106 @@
    "roe": -317.9,
    "roeBasis": "average-equity",
    "equityPrior": 1279918
+  },
+  "NORD": {
+   "symbol": "NORD",
+   "cik": "0001011060",
+   "entityName": "Nordicus Partners Corp",
+   "source": "SEC EDGAR companyfacts",
+   "sourceTier": "T1_OFFICIAL",
+   "sourceKind": "T1_OFFICIAL",
+   "rightsId": "PUBLIC_REFERENCE",
+   "model": "sec-fy-normalized-v2",
+   "availabilityModel": "sec-pit-availability.v1",
+   "periodType": "FY",
+   "fiscalPeriodEnd": "2025-03-31",
+   "observedAt": "2025-03-31",
+   "filedAt": "2026-07-14",
+   "acceptedAt": "2026-07-14T21:20:48.000Z",
+   "availableAt": "2026-07-14T21:20:48.000Z",
+   "transportFetchedAt": "2026-10-30T22:30:14.557Z",
+   "reportAgeDays": 579,
+   "reportRecency": "stale-fy",
+   "accessionByField": {
+    "revenue": "0001493152-26-033203",
+    "netIncome": "0001493152-26-033203",
+    "equity": "0001493152-26-033203",
+    "sharesOutstanding": "0001641172-25-021335"
+   },
+   "operandAvailability": {
+    "revenue": "2026-07-14T21:20:48.000Z",
+    "netIncome": "2026-07-14T21:20:48.000Z",
+    "equity": "2026-07-14T21:20:48.000Z",
+    "sharesOutstanding": "2025-07-29T19:21:08.000Z",
+    "priorRevenue": "2025-07-29T19:21:08.000Z"
+   },
+   "derivedAvailability": {
+    "revGrowth": "2026-07-14T21:20:48.000Z",
+    "margin": "2026-07-14T21:20:48.000Z",
+    "roe": "2026-07-14T21:20:48.000Z",
+    "pe": "2026-07-14T21:20:48.000Z",
+    "pb": "2026-07-14T21:20:48.000Z"
+   },
+   "allowedUse": "research-relative-ranking-only",
+   "qualityStatus": "REFERENCE",
+   "quality": {
+    "status": "REFERENCE",
+    "stale": true,
+    "decisionUse": false,
+    "allowedUse": "reference"
+   },
+   "fetchedAt": "2026-10-30T22:30:14.557Z",
+   "form": "10-K",
+   "accession": "0001493152-26-033203",
+   "accountingStandard": "US-GAAP",
+   "reportingCurrency": "USD",
+   "revenue": 5000,
+   "netIncome": -2901321,
+   "equity": 59865254,
+   "equityBasis": "parent",
+   "sharesOutstanding": 17487138,
+   "sharesCheck": "consistent",
+   "sharesBasis": "dei-cover",
+   "sharesObservedAt": "2025-07-16",
+   "normalizerVersion": "sec-normalizer.2026-10-24",
+   "revenueConcept": "RevenueFromContractWithCustomerExcludingAssessedTax",
+   "coverage": [
+    "revenue",
+    "netIncome",
+    "equity",
+    "sharesOutstanding",
+    "revGrowth",
+    "margin",
+    "roe"
+   ],
+   "pit": {
+    "schemaVersion": "sec-pit-facts.v1",
+    "status": "accepted-time-partial",
+    "observationCount": 284,
+    "acceptedTimeCount": 284,
+    "observationsDropped": "extended-ledger-compact"
+   },
+   "revGrowth": 100,
+   "margin": -58026.4,
+   "roe": -9.4,
+   "peEarnings": {
+    "basis": "ttm",
+    "concept": "net-income",
+    "value": -5071102,
+    "through": "2026-06-30",
+    "availableAt": "2026-09-28T19:44:23.000Z",
+    "derivedQuarter": true
+   },
+   "roeBasis": "average-equity",
+   "equityPrior": 1781168
   }
  },
  "scope": "extended",
  "recordPolicy": "compact: normalized annual record without point-in-time observation arrays",
  "issuerSicPolicy": "SEC submissions sic per issuer; recorded on every submissions read plus a SIC-only pass of up to 800 issuers (missing first, then older than 30 days); a failed read keeps the previous code",
  "issuerSicCoverage": {
-  "classified": 3833,
-  "eligible": 3878,
+  "classified": 3835,
+  "eligible": 3880,
   "passAttempted": 45,
   "passUpdated": 0,
   "passFailed": 0
@@ -320975,6 +321078,12 @@
    "description": "Blank Checks",
    "cik": "0001890361",
    "observedAt": "2026-10-24T22:32:30.079Z"
+  },
+  "ASPE": {
+   "sic": "2834",
+   "description": "Pharmaceutical Preparations",
+   "cik": "0002124080",
+   "observedAt": "2026-10-30T22:30:12.750Z"
   },
   "ASPI": {
    "sic": "2890",
@@ -333737,6 +333846,12 @@
    "description": "Services-Amusement & Recreation Services",
    "cik": "0001994214",
    "observedAt": "2026-10-27T07:32:15.158Z"
+  },
+  "NORD": {
+   "sic": "8742",
+   "description": "Services-Management Consulting Services",
+   "cik": "0001011060",
+   "observedAt": "2026-10-30T22:30:12.750Z"
   },
   "NOVT": {
    "sic": "3690",
