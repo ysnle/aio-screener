@@ -6,6 +6,7 @@
 // quote and source check in src/domain/briefing/event-briefs.js); reasons stay news-report and are attributed as such.
 import { readFileSync } from 'node:fs';
 import { readNumber } from '../../src/domain/shared/number.js';
+import { BIGTECH_CASHFLOW_SCHEMA, groupCashflowSentence, issuerCashflowSentence } from '../../src/domain/fundamental/quarterly-cashflow.js';
 
 export const EARNINGS_CONTEXT_MAX = 5;
 export const EARNINGS_MENTION_PCT = 5; // a first-session move this large, or a market-cap leader, is offered
@@ -65,4 +66,24 @@ export function earningsContextLines(eventBriefs, usCloseDate, options = {}) {
 export function earningsContextSignature(eventBriefs, usCloseDate) {
   const rows = earningsContextRows(eventBriefs, usCloseDate);
   return rows.length ? `${usCloseDate}:${rows.map((brief) => `${brief.symbol}${Math.round(Number(brief.reaction.latestPct))}`).join(',')}` : '';
+}
+
+// v59.56 (X bookmarks 11/01 follow-up 1): the cash side of the same reports — SEC quarterly operating cash flow and
+// capex (public-data/bigtech-cashflow.json, scripts/fetch-bigtech-cashflow.mjs). The hyperscaler total is one line; an
+// issuer gets its own line only when its report is in the earnings lane above (its cash flow is the night's news).
+export const BIGTECH_CASHFLOW_MAX_AGE_DAYS = 10;
+export function readBigtechCashflow(path = 'public-data/bigtech-cashflow.json') {
+  try { return JSON.parse(readFileSync(path, 'utf8')); } catch { return null; }
+}
+
+export function cashflowContextLines(cashflow, eventBriefs, usCloseDate, { nowMs = Date.now() } = {}) {
+  if (cashflow?.schemaVersion !== BIGTECH_CASHFLOW_SCHEMA) return '';
+  const age = nowMs - Date.parse(cashflow.generatedAt || '');
+  if (!(age >= 0 && age <= BIGTECH_CASHFLOW_MAX_AGE_DAYS * 86400000)) return '';
+  const reporters = new Set(earningsContextRows(eventBriefs, usCloseDate).map((brief) => brief.symbol === 'GOOG' ? 'GOOGL' : brief.symbol));
+  const lines = [];
+  const group = groupCashflowSentence(cashflow.hyperscalers);
+  if (group) lines.push(`- ${group}`);
+  for (const row of cashflow.issuers || []) if (reporters.has(row.symbol) && row.ttm) lines.push(`- ${issuerCashflowSentence(row)}`);
+  return lines.join('\n');
 }

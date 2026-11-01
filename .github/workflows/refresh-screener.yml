@@ -115,6 +115,15 @@ jobs:
           node scripts/fetch-earnings-calendar.mjs
           # A09 (2026-10-12): the CFTC positioning producer was retired with its screen widget (owner request, P1628).
 
+      - name: Refresh big-tech quarterly cash flow (SEC companyfacts, 9 issuers)
+        env:
+          SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}
+        run: |
+          set -euo pipefail
+          # v59.56: operating cash flow and capex per quarter (10-Q year-to-date differences, Q4 = 10-K − 9 months) for the
+          # hyperscaler capex ÷ operating cash flow gauge and the market reading. A failed fetch keeps the previous rows.
+          node scripts/fetch-bigtech-cashflow.mjs
+
       - name: Refresh analyst consensus estimates (rotating batch, reference only)
         run: |
           set -euo pipefail
@@ -218,6 +227,7 @@ jobs:
           # P1757: public-data/sec-fundamentals.json is gitignored and published to the data-store branch below.
           git add -- public-data/screener.json public-data/sec-fundamentals-summary.json public-data/sec-fundamentals-summary.manifest.json public-data/screener-validation-gate.json public-data/reconciliation-status.json public-data/operations-status.json public-data/history.json public-config.json architecture/public-readiness.json
           stage_if_exists public-data/earnings-calendar.json
+          stage_if_exists public-data/bigtech-cashflow.json # v59.56: SEC quarterly cash flow, big tech
           stage_if_exists public-data/sp500-weights.json # 2026-10-13: S&P 500 sector map weights
           stage_if_exists public-data/us-listings.json # v57.81: official US exchange listing (daily)
           stage_if_exists public-data/consensus-estimates.json # v57.54: Forward PER consensus (reference)
