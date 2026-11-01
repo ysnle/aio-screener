@@ -144,7 +144,7 @@ export function renderMarketTemperature({ documentRef: doc, root, anchor }) {
       if (!groups[region]) {
         const box = el(doc, 'div', null, `temp-group is-${region}`);
         groups[region] = el(doc, 'div', null, 'temp-group-grid');
-        box.append(el(doc, 'span', region === 'us' ? '미국' : '한국, 일본 (보조)', 'temp-tiles-group'), groups[region]);
+        box.append(el(doc, 'span', region === 'us' ? '미국' : '한국, 일본 (참고)', 'temp-tiles-group'), groups[region]);
         tabs.append(box);
       }
       const button = el(doc, 'button', null, `temp-tile is-${item.state}${region === 'sub' ? ' is-sub' : ''}${stale.has(item.id) ? ' is-stale' : ''}${item.id === selected ? ' is-selected' : ''}`);
@@ -156,6 +156,8 @@ export function renderMarketTemperature({ documentRef: doc, root, anchor }) {
       for (const row of item.components || []) {
         const bar = el(doc, 'span', null, `temp-tile-bar${row.score <= rules.coldAtOrBelow ? ' is-cold' : row.score >= rules.hotAtOrAbove ? ' is-hot' : ''}`);
         bar.style.height = `${Math.max(12, Math.round(row.score || 0))}%`;
+        // v59.55 (visual audit): each unnamed bar says which component it is on hover; the detail fold below has them all.
+        bar.title = `${row.label} 3년 순위 ${Number.isFinite(row.score) ? Math.round(row.score) : '—'}/100`;
         spark.append(bar);
       }
       button.append(el(doc, 'span', item.label, 'temp-tile-name'),

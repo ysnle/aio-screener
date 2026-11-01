@@ -117,7 +117,9 @@ function card(doc, root, spec, model, failed) {
       const dir = toneOf(close.changePct);
       head.append(' ', el(doc, 'span', close.changePct == null ? '' : signedText(close.changePct, 2, '%'), `home-index-change ${dir}`));
       const box = el(doc, 'div', null, 'home-index-plot is-empty home-index-fallback');
-      box.append(el(doc, 'strong', price(close.value), `home-index-last ${dir}`), ' ', el(doc, 'span', `${close.closeLabel || spec.label} ${close.date} 종가`), ' ', el(doc, 'span', failed ? '장중 그래프는 받지 못했습니다' : '장중 그래프 불러오는 중', 'home-index-fallback-note'));
+      // v59.55 (owner 11/1, "쓸모없는 텍스트 다 없애"): the card shows the close and its date; the name repeated the card
+      // title, and the missing-intraday note (every weekend, four times) stays in the label for screen readers only.
+      box.append(el(doc, 'strong', price(close.value), `home-index-last ${dir}`), ' ', el(doc, 'span', `${close.date} 종가`));
       node.append(head, box);
       node.setAttribute('aria-label', `${spec.label}, ${close.date} 종가 ${price(close.value)}. ${failed ? '장중 그래프는 받지 못했습니다' : '장중 그래프 불러오는 중'}. 누르면 ${shown} 차트로 이동${shown !== spec.closeSym ? '(이 지수를 따르는 ETF)' : ''}`);
       node.title = `누르면 ${shown} 차트${shown !== spec.closeSym ? ', 이 지수를 따르는 ETF' : ''}`;

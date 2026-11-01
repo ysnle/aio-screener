@@ -9,12 +9,7 @@
 .stock-return-signed-line { display:grid; grid-template-columns:44px minmax(0,1fr); gap:10px; align-items:center; margin:12px 0; }
 .stock-return-signed-pair { min-width:0; display:grid; gap:6px; }
 .stock-return-signed-row { display:grid; grid-template-columns:minmax(0,1fr) 62px; gap:8px; align-items:center; }
-.stock-return-signed-track { position:relative; height:12px; min-width:0; background:var(--surface-2); }
-.stock-return-signed-track::after { content:''; position:absolute; left:50%; top:-3px; bottom:-3px; width:1px; background:var(--text-muted); }
-.stock-return-signed-bar { position:absolute; top:2px; height:8px; border-radius:4px; }
-.stock-return-signed-bar.is-stock.is-up { background:var(--dir-up); }
-.stock-return-signed-bar.is-stock.is-down { background:var(--dir-down); }
-.stock-return-signed-bar.is-bench { background:var(--text-muted); }
+.stock-return-signed-track { --signed-h:8px; } /* v59.55 (C3): signed-bar.js draws the track, zero line and colours */
 .stock-return-signed-value { text-align:right; font-size:12px; font-variant-numeric:tabular-nums; color:var(--text-primary); }
 .stock-return-signed-axis { color:var(--text-secondary); font-size:12px; margin:10px 0; text-align:center; }
 #page-ticker textarea, #page-ticker input { background:var(--surface-2); color:var(--text-primary); border:0.5px solid var(--border); border-radius:4px; padding:9px 10px; max-width:100%; box-sizing:border-box; }
@@ -50,6 +45,13 @@ button.stock-read-point-link { display:inline-block; min-height:24px; line-heigh
   .aio-hub-tabs[data-hub="stock"] > .aio-hub-subject { order: -1; flex: 1 0 100%; margin-left: 0; flex-wrap: wrap; align-items: center; white-space: normal; min-width: 0; }
   .aio-hub-tabs[data-hub="stock"] > .aio-hub-subject > .aio-hub-subject-from { margin-left: auto; }
 }
+/* v59.55 (C2): the SPY comparison is the shared SVG trend chart; its status and result lines are plain text above/below. */
+#page-portfolio .pf-benchmark-line { min-height: 44px; }
+#page-portfolio .pf-benchmark-status { margin: 0 0 6px; font-size: var(--fs-sm); color: var(--text-secondary); }
+#page-portfolio .pf-benchmark-status.is-warn { color: var(--text-primary); }
+#page-portfolio .pf-benchmark-status.is-fine { margin: 6px 0 0; color: var(--text-muted); }
+#page-portfolio .pf-benchmark-status b.is-up { color: var(--dir-up); }
+#page-portfolio .pf-benchmark-status b.is-down { color: var(--dir-down); }
 /* v57.81 (phone/iPad parity audit): on a phone the two series names and the note shared one row ("SPY / (S&P / 500)").
    The names keep their words and the note takes its own full-width line. */
 #page-portfolio .pf-benchmark-legend > span:not(:last-child) { white-space: nowrap; }
@@ -68,9 +70,9 @@ button.stock-read-point-link { display:inline-block; min-height:24px; line-heigh
    (src/ui/components/research-snapshots.js, 종목 and 브리핑), moved out of inline `.style.cssText`; old inline 12px reads --fs-base. */
 #ticker-search-hint { margin: -4px 0 12px; font-size: 12px; line-height: 1.6; color: var(--text-secondary); display: grid; gap: 6px; }
 #ticker-search-hint .ticker-search-picks { display: flex; flex-wrap: wrap; gap: 6px; }
-.page [data-research-snapshots] { margin: 14px 0; padding: 10px 12px; border: 0.5px solid var(--border-subtle); font-size: var(--fs-base); }
+.page [data-research-snapshots] { margin: 14px 0; padding: 14px var(--sx-card-pad-x); border: 0; border-radius: 12px; background: var(--bg-card); font-size: var(--fs-base); }
 .page [data-research-snapshots] > textarea { display: block; width: 100%; margin: 8px 0; }
 /* v58.80 run-5 (newcomer #6): before a company is chosen the breadcrumb '종목' sat over the title '종목 분석' under the sidebar's '종목'. */
-#page-ticker.is-empty #ticker-breadcrumb-main { display: none; }
+#page-ticker #ticker-breadcrumb-main { display: none; } /* v59.55: the sidebar and the title already say 종목 */
 #ticker-suggest { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 #ticker-suggest:empty { display: none; }

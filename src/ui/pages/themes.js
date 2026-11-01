@@ -418,6 +418,9 @@ function renderThemeDaySplits({ documentRef, root, store }) {
     flow.strongLine, flow.weakLine
   ].filter(Boolean) : [];
   host.hidden = !lines.length;
+  // v59.55: the map left this fold (it is open under the verdict), so the fold shows only when there are splits.
+  const fold = host.closest?.('details');
+  if (fold) fold.hidden = !lines.length;
   if (!lines.length) { host.replaceChildren(); return; }
   const heading = documentRef.createElement('h3');
   heading.className = 'briefing-h2';
@@ -882,7 +885,7 @@ function themeHeadlines(root, store, members, session) {
     .sort((a, b) => Math.abs(b.row.ret1d) - Math.abs(a.row.ret1d)).slice(0, 4);
   const out = [];
   for (const member of movers) {
-    const hit = headlineForCompany({ symbol: member.sym, name: member.row?.name || '' }, { news, telegram, span });
+    const hit = headlineForCompany({ symbol: member.sym, name: member.row?.name || '' }, { news, telegram, signals: root?.AIO_TELEGRAM_SIGNALS || [], span });
     const title = hit ? String(hit.kind === 'telegram' ? hit.text : hit.row?.titleKo || hit.row?.ko_title || hit.row?.title || '').trim() : '';
     if (title) out.push({ sym: member.sym, ret1d: member.row.ret1d, title: title.length > 90 ? `${title.slice(0, 87)}…` : title });
     if (out.length >= 2) break;

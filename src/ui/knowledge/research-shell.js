@@ -258,7 +258,7 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
   const search = el(doc, 'div', 'rl-search');
   const input = el(doc, 'input');
   input.type = 'search';
-  input.placeholder = '궁금한 단어 검색 (예: ROIC, HBM)';
+  input.placeholder = '용어·개념 검색 (예: ROIC, HBM)';
   input.setAttribute('aria-label', '리서치 라이브러리 통합 검색');
   const results = el(doc, 'div', 'rl-results');
   results.hidden = true;

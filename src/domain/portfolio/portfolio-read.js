@@ -210,7 +210,7 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
     book3 != null && bench3 != null ? `지금 구성을 3개월 전부터 들고 있었다면 ${attribution.blendedLabel.replace(/\([^)]*\)/g, '')}보다 ${Math.abs(book3 - bench3).toFixed(1)}%p ${book3 >= bench3 ? '앞섰습니다' : '뒤처졌습니다'}${relativeBasisNote}.` : null,
     regime?.available ? `미국 시장은 '${regime.overall}'입니다.` : null, krLine?.headline || null].filter(Boolean).join(' ');
   const next = [];
-  if (weakest[0]) next.push({ action: 'showTicker', arg: weakest[0].symbol, route: 'ticker', label: weakest[0].symbol, why: '하락 추세 중 비중이 가장 큰 종목의 요약·차트' });
+  if (weakest[0]) next.push({ action: 'showTicker', arg: weakest[0].symbol, route: 'ticker', label: weakest[0].symbol, why: '하락 추세 중 비중이 가장 큰 종목의 개요·차트' });
   next.push({ route: 'themes', label: '테마와 섹터', why: '보유 섹터가 회전의 어느 단계에 있는지' });
   next.push({ route: 'signal', label: '시장 상태', why: '부담 지표가 무엇이고 무엇이 바뀌면 완화되는지' });
   return { available: true, total, headline, points, trendMix, sectorMix, attribution, excluded, excludedValue, containedPct: trendContainedPct, next };

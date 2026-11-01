@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-dcetiMnmzykJ62fwJokJeX84/mE7AMa66V4AAWPO+2s=' 'sha256-hB453Fuv8kpqS6159CAc7T0dC9Cy2aoimOhilm8sMLs=' 'sha256-NpjyrosmstKyDNh02519yCyscsffdauXitWR/1mEhjA=' 'sha256-Pqx9Lj21xXCJShGE7g+r1MOzSdfynfaG3Cr8U8xa/GI=' 'sha256-5T+3J2ebCwrckSHsspknjhujjTwoiEl+7Um1Ypvmmo8=' 'sha256-SzAsYP/ltyW+WyyJIgRctLebDFvR4gkmGz7JFj0IiDo=' 'sha256-VV8UpH3wY1a4b3QaByIlcvFGjWuyJM/nbjZBjs+Gvp0=' 'sha256-HQnzYv9L+OfpkfLwsSI0GS22FaN770XIffa1KaDxELc=' https://cdn.jsdelivr.net/npm/dompurify@3.4.16/ https://cdn.jsdelivr.net/npm/chart.js@4.4.0/ https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/ https://unpkg.com/lightweight-charts@4.2.0/; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/; img-src 'self' data: blob: https:; font-src 'self' data: https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-dcetiMnmzykJ62fwJokJeX84/mE7AMa66V4AAWPO+2s=' 'sha256-hB453Fuv8kpqS6159CAc7T0dC9Cy2aoimOhilm8sMLs=' 'sha256-NpjyrosmstKyDNh02519yCyscsffdauXitWR/1mEhjA=' 'sha256-Pqx9Lj21xXCJShGE7g+r1MOzSdfynfaG3Cr8U8xa/GI=' 'sha256-5T+3J2ebCwrckSHsspknjhujjTwoiEl+7Um1Ypvmmo8=' 'sha256-SzAsYP/ltyW+WyyJIgRctLebDFvR4gkmGz7JFj0IiDo=' 'sha256-iiczT/ykZdvftPVEUh/e3+mGJuQ0r9qVJemIINRWTXc=' 'sha256-AKMgdaSgzPhZrRBOdmYL8wEz0OJZVCge2WzBmjfbRlU=' https://cdn.jsdelivr.net/npm/dompurify@3.4.16/ https://unpkg.com/lightweight-charts@4.2.0/; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/; img-src 'self' data: blob: https:; font-src 'self' data: https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <link rel="preload" as="style" href="src/ui/styles/responsive.css">
   <script>/* v58.80 F01: the first screens' verdict reads data.json and history.json; both start here, before any stylesheet or script, and their loaders take them once (src/data/boot-prefetch.js). */(function(){try{var m=Math.floor(Date.now()/60000),p=window.__aioBootPrefetch={},go=function(k,u){p[k]={url:u,minute:m,at:Date.now(),res:fetch(u,{cache:'no-cache',priority:'high'})};p[k].res.catch(function(){});};go('data','./public-data/data.json?t='+m);go('history','./public-data/history.json');}catch(_){}})();</script>
@@ -10,7 +10,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v59.54 — 올인원 투자 터미널</title>
+  <title>AIO Screener v59.55 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 시장 환경 참고 지표, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f4f0e8">
@@ -1022,12 +1022,8 @@ body {
 .briefing-move-head { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
 .briefing-move-row { display: grid; grid-template-columns: 84px minmax(0, 320px) 118px; align-items: center; gap: 8px; min-height: 22px; font-size: 12px; }
 .briefing-move-label { color: var(--text-secondary); }
-.briefing-move-track { position: relative; height: 12px; background: linear-gradient(var(--border), var(--border)) center / 1px 100% no-repeat; }
-.briefing-move-bar { position: absolute; top: 2px; height: 8px; border-radius: 4px; }
-.briefing-move-bar.is-5d { top: 0; height: 12px; opacity: .28; }
-.briefing-move-bar.is-up { background: var(--dir-up); }
-.briefing-move-bar.is-down { background: var(--dir-down); }
-.briefing-move-bar.is-rate { background: var(--text-secondary); }
+.briefing-move-track { --signed-h: 12px; } /* v59.55 (C3): signed-bar.js draws the track, zero line and colours */
+.briefing-move-chart .signed-fill.is-1d { top: 2px; bottom: 2px; } .briefing-move-chart .signed-fill.is-5d { opacity: .28; }
 .masters-quarter-trend { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px 24px; margin: 6px 0 12px; }
 .masters-trend-bars { display: flex; align-items: flex-end; gap: 4px; height: 44px; border-bottom: 0.5px solid var(--border); margin-top: 4px; }
 .masters-trend-bar { flex: 1; background: color-mix(in srgb, var(--text-secondary) 32%, transparent); border-radius: 4px 4px 0 0; min-width: 6px; }
@@ -1091,8 +1087,8 @@ body {
 /* P1507: positioning line */
 /* P1505: one folded source note per screen, quiet until opened */
 .page-sources { margin: 40px 0 8px; padding-top: 12px; border-top: 0.5px solid var(--border); font-size: 12px; color: var(--text-muted); }
-.page-sources > summary { cursor: pointer; width: max-content; }
-.page-sources ul { margin: 8px 0 0; padding-left: 18px; line-height: 1.7; }
+.page-sources > summary { cursor: pointer; width: max-content; margin-left: var(--sx-card-pad-x, 22px); } /* v59.55: text on the page's text column; the rule above it stays full width */
+.page-sources ul { margin: 8px 0 0; padding-left: calc(var(--sx-card-pad-x, 22px) + 18px); line-height: 1.7; }
 .regime-chips { display: grid; grid-template-columns: repeat(2, minmax(110px, 1fr)); gap: 6px 14px; flex-shrink: 0; min-width: 240px; }
 .regime-chip { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; }
 .regime-chip-label { color: var(--text-muted); }
@@ -1248,6 +1244,7 @@ body {
 .macro-quadrant-sub { font-size: 12px; fill: var(--text-muted); }
 .macro-quadrant-axis { font-size: 12px; fill: var(--text-muted); }
 .macro-quadrant-dot { fill: var(--text-primary); }
+.macro-quadrant-dot.is-held { fill: var(--bg-card); stroke: var(--text-primary); stroke-width: 1.5; stroke-dasharray: 2 2; }
 .macro-quadrant-now { font-size: 12px; font-weight: 700; fill: var(--text-primary); }
 .macro-overview-side { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .macro-tally { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -1408,7 +1405,7 @@ body.dark-theme .capex-flow-seg { filter: brightness(1.1); }
 .page .stock-read-legend { display: flex; gap: 14px; font-size: 12px; color: var(--text-muted); margin-top: 4px; }
 .page .stock-read-legend span::before { content: ''; display: inline-block; width: 10px; height: 8px; border-radius: 4px; margin-right: 5px; vertical-align: middle; }
 .page .stock-read-legend .is-stock::before { background: linear-gradient(90deg, var(--dir-up) 50%, var(--dir-down) 50%); }
-.page .stock-read-legend .is-bench::before { background: var(--gold-a7); }
+.page .stock-read-legend .is-bench::before { background: rgba(var(--ink-rgb), 0.28); }
 .page .stock-read-points { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .page .stock-read-point { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 10px; padding: 7px 0; font-size: 14px; line-height: 1.6; }
 .page .stock-read-point.is-favorable { border-left-color: var(--data-green); }
@@ -3553,9 +3550,12 @@ button[data-filter-active="true"] {
         <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="themes" data-hub="themes" data-hub-routes="themes theme-detail" data-pass-el="1"><span class="nav-icon"></span><span class="label">테마와 섹터</span></div>
       </div>
       <div class="nav-section">
-        <div class="nav-label">내 투자</div>
-        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="ticker" data-hub="stock" data-hub-routes="ticker technical fundamental" data-pass-el="1"><span class="nav-icon"></span><span class="label">종목</span></div>
+        <div class="nav-label">종목 찾기</div>
         <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="screener" data-hub="screener" data-hub-routes="screener" data-pass-el="1"><span class="nav-icon"></span><span class="label">스크리너</span></div>
+        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="ticker" data-hub="stock" data-hub-routes="ticker technical fundamental" data-pass-el="1"><span class="nav-icon"></span><span class="label">종목</span></div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">내 투자</div>
         <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="portfolio" data-hub="portfolio" data-hub-routes="portfolio" data-pass-el="1"><span class="nav-icon"></span><span class="label">포트폴리오</span></div>
       </div>
       <div class="nav-section">
@@ -3563,11 +3563,6 @@ button[data-filter-active="true"] {
         <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="principles" data-hub="learn" data-hub-routes="principles atlas masters" data-pass-el="1"><span class="nav-icon"></span><span class="label">리서치 라이브러리</span></div>
         <div class="nav-item" role="button" tabindex="0" data-action="openGlossary"><span class="nav-icon"></span><span class="label">용어 사전</span></div>
       </div>
-
-      <!-- 고급 -->
-      <!-- v50.35: '고급 > 옵션' 내비 제거 — 옵션 페이지 폐기(옵션체인 피드 미연결, 스큐·흐름·Greeks 정적 스냅샷) -->
-
-
       <div class="nav-divider"></div>
 
       <!-- v50.35: 피드백·게시판 버튼 제거 (사용자 요청 — 미사용·용량) -->
@@ -3735,7 +3730,7 @@ button[data-filter-active="true"] {
       </header>
       <div class="content" id="main-content" role="main">
         <!-- v58.80 run-5 (phone #2): the first-visit notice is part of the shell, mounted while the page parses (it came from js/aio-ui.js 39 s into a slow-3G load and pushed the reading down); the page foot reopens it. -->
-        <template id="aio-disclaimer-tpl"><div id="aio-first-visit-disclaimer" class="is-inline" role="region" aria-labelledby="aio-first-visit-disclaimer-title"><div class="lu-dc-text"><b class="lu-dc-title" id="aio-first-visit-disclaimer-title">투자 면책 고지</b>본 도구의 모든 수치·점수·시그널·AI 답변은 늦거나 참고용일 수 있으며 <b>투자 권유·자문·매매 지시가 아닙니다</b>. 투자 결정과 그 결과의 책임은 이용자 본인에게 있습니다.</div><button type="button" class="lu-dc-btn">확인했습니다</button></div></template><script>window._aioMountDisclaimer=function(force){var flow=document.getElementById('main-content'),tpl=document.getElementById('aio-disclaimer-tpl');if(!flow||!tpl||document.getElementById('aio-first-visit-disclaimer'))return;var bar=tpl.content.firstElementChild.cloneNode(true),btn=bar.querySelector('button'),trigger=force?document.activeElement:null;btn.addEventListener('click',function(){try{localStorage.setItem('aio_disclaimer_ack_v1','1')}catch(e){}bar.remove();if(trigger&&trigger.isConnected&&trigger.focus)trigger.focus()});bar.addEventListener('keydown',function(e){if(e.key==='Escape'){e.preventDefault();btn.click()}});flow.insertBefore(bar,flow.firstChild);if(force){if(flow.scrollTo)flow.scrollTo({top:0});btn.focus()}};try{if(localStorage.getItem('aio_disclaimer_ack_v1')!=='1')window._aioMountDisclaimer(false)}catch(e){}</script>
+        <template id="aio-disclaimer-tpl"><div id="aio-first-visit-disclaimer" class="is-inline" role="region" aria-labelledby="aio-first-visit-disclaimer-title"><div class="lu-dc-text"><b class="lu-dc-title" id="aio-first-visit-disclaimer-title">투자 참고용</b> 수치와 AI 답변은 늦거나 틀릴 수 있고 <b>투자 권유가 아닙니다</b>. 판단과 책임은 이용자에게 있습니다.</div><button type="button" class="lu-dc-btn">확인했습니다</button></div></template><script>window._aioMountDisclaimer=function(force){var flow=document.getElementById('main-content'),tpl=document.getElementById('aio-disclaimer-tpl');if(!flow||!tpl||document.getElementById('aio-first-visit-disclaimer'))return;var bar=tpl.content.firstElementChild.cloneNode(true),btn=bar.querySelector('button'),trigger=force?document.activeElement:null;btn.addEventListener('click',function(){try{localStorage.setItem('aio_disclaimer_ack_v1','1')}catch(e){}bar.remove();if(trigger&&trigger.isConnected&&trigger.focus)trigger.focus()});bar.addEventListener('keydown',function(e){if(e.key==='Escape'){e.preventDefault();btn.click()}});flow.insertBefore(bar,flow.firstChild);if(force){if(flow.scrollTo)flow.scrollTo({top:0});btn.focus()}};try{if(localStorage.getItem('aio_disclaimer_ack_v1')!=='1')window._aioMountDisclaimer(false)}catch(e){}</script>
         <!-- v50.25/WO-5: 정적 분석 텍스트 레짐 드리프트 경고 (작성 시점 시장 ↔ 현재 시장 급변 시 자동 표시) -->
         <div id="aio-regime-drift-banner" role="status" aria-live="polite" style="display:none;"></div>
         <!-- v42.1: 마켓 펄스 바 — 페이지 간 시장 상태 요약 -->
@@ -3751,12 +3746,12 @@ button[data-filter-active="true"] {
             <span class="ps-status sh-muted-tone" id="mp-breadth-label">불러오는 중</span>
           </div>
           <div class="pulse-seg" data-action="showPage" data-arg="sentiment" role="button" tabindex="0" title="투자 심리 상세" aria-label="투자 심리 페이지 이동">
-            <span class="ps-label">심리</span>
+            <span class="ps-label">투자 심리</span>
             <span class="ps-val sh-muted-tone" id="mp-sentiment-val">—</span>
             <span class="ps-status sh-muted-tone" id="mp-sentiment-label">불러오는 중</span>
           </div>
           <div class="pulse-seg" data-action="showPage" data-arg="macro" role="button" tabindex="0" title="거시경제 상세" aria-label="거시경제 페이지 이동">
-            <span class="ps-label">거시</span>
+            <span class="ps-label">거시 경제</span>
             <span class="ps-val" id="mp-macro-icon" style="color:var(--text-muted);font-size:12px;">●</span>
             <span class="ps-status sh-muted-tone" id="mp-macro-val">불러오는 중</span>
           </div>
@@ -3815,7 +3810,7 @@ button[data-filter-active="true"] {
     <span class="is-interactive sh-baseline-row" data-close-measure="wti" data-action="showPage" data-arg="macro" title="WTI 원유 선물(달러)"><span class="sh-muted-text">WTI</span><b class="sh-ink-figure" data-live-price="CL=F">—</b><span class="sh-semi-figure" data-live-chg="CL=F" data-chg-unit="abs">—</span></span>
     <span class="is-interactive sh-baseline-row" data-close-measure="vix" data-action="showPage" data-arg="sentiment" title="VIX, 변동성 지수 (투자 심리에서 자세히)"><span class="sh-muted-text">VIX</span><b id="home-vix-value" class="sh-ink-figure" data-live-price="^VIX">—</b><span class="sh-semi-figure" data-live-chg="^VIX">—</span><span id="home-vix-status" class="sh-soft-text">—</span></span>
     <span class="is-interactive sh-baseline-row" data-close-measure="fg" data-action="showPage" data-arg="sentiment" title="Fear &amp; Greed, 시장 심리 종합 (투자 심리에서 자세히)"><span class="sh-muted-text">공포·탐욕</span><b id="home-fg-score" class="sh-ink-figure">—</b><span id="home-fg-label" class="sh-soft-text">갱신 대기</span><span id="home-fg-delta" class="is-flat" style="display:none;font-size:12px;color:var(--text-muted);font-family:var(--font-mono);"></span></span>
-    <span class="is-interactive sh-baseline-row" data-close-measure="dxy" data-action="showPage" data-arg="fxbond" title="달러 인덱스(DXY) — 주요 6개 통화 대비 달러 가치"><span class="sh-muted-text">달러 지수</span><b class="sh-ink-figure" data-live-price="DX-Y.NYB">—</b><span class="sh-semi-figure" data-live-chg="DX-Y.NYB">—</span></span>
+    <span class="is-interactive sh-baseline-row" data-close-measure="dxy" data-action="showPage" data-arg="fxbond" title="달러 지수(DXY) — 주요 6개 통화 대비 달러 가치"><span class="sh-muted-text">달러 지수</span><b class="sh-ink-figure" data-live-price="DX-Y.NYB">—</b><span class="sh-semi-figure" data-live-chg="DX-Y.NYB">—</span></span>
     <span class="is-interactive sh-baseline-row" id="home-kospi-chip" data-action="showPage" data-arg="signal" title="코스피 시세 확인 중" hidden><span id="home-kospi-label" class="sh-muted-text">코스피</span><b id="home-kospi-value" class="sh-ink-figure">—</b><span id="home-kospi-chg" class="sh-semi-figure"></span></span>
   </div>
   <!-- v59.44 (owner 2026-10-30) AI supply chain (ai-chain-flow.js) and P1599 participation (home-kpi-trend.js). -->
@@ -3888,15 +3883,14 @@ button[data-filter-active="true"] {
     <div class="mk-axes__head" aria-hidden="true"><span>지표</span><span>판정</span><span>현재값</span><span>기준까지</span><span>5거래일 전</span><span>5일 변화</span></div>
     <div class="regime-board" id="regime-board"></div>
   </section>
-  <section class="sx-card mk-lower" aria-labelledby="regime-radar-title">
-    <details class="mk-fold">
-      <summary><h2 class="sx-card__title" id="regime-radar-title">1년 중 지금 위치 — 6개 지표 레이더</h2><span class="sx-card__meta">오늘, 5거래일 전, 20거래일 전</span></summary>
-      <div id="regime-radar-host"></div>
-    </details>
+  <section class="sx-card mk-lower mk-radar" aria-labelledby="regime-radar-title"><!-- v59.55 (visual review): the screen's one picture, open -->
+    <div class="mk-lower__head"><h2 class="sx-card__title" id="regime-radar-title">1년 중 지금 위치 — 6개 지표 레이더</h2></div><!-- the legend under it names the three dates -->
+    <div id="regime-radar-host"></div>
   </section>
   <div class="mk-pair">
-    <section class="sx-card mk-combo" aria-labelledby="regime-combo-title">
-      <h2 class="sx-card__title" id="regime-combo-title">이 조합이 뜻하는 것</h2>
+    <section class="sx-card mk-combo" aria-labelledby="regime-combo-title"><!-- v59.55 (flow 5): one question — the closest of three flows, then the conflicting combinations -->
+      <h2 class="sx-card__title" id="regime-combo-title">지금 어떤 흐름인가</h2>
+      <div class="mk-structure" id="regime-structure-host"></div>
       <ul class="mk-combo__list" id="regime-conflicts"></ul>
     </section>
     <section class="sx-card mk-watch" aria-labelledby="regime-watch-title">
@@ -3904,8 +3898,6 @@ button[data-filter-active="true"] {
       <ol class="mk-watch__list" id="regime-watch"></ol>
     </section>
   </div>
-  <!-- v57.76: the three market flows, one level down (one line that opens, v59.51). -->
-  <div class="sx-card mk-lower mk-structure" id="regime-structure-host"></div>
   <!-- v59.51: moved from 오늘's last fold — the forward scenarios by release and today's guide (market-regime.js renders them
        after #regime-depth-anchor; 오늘's link opens this fold). -->
   <section class="sx-card mk-lower" aria-labelledby="regime-depth-title">
@@ -4001,8 +3993,8 @@ button[data-filter-active="true"] {
             var isPreCutoff = kst.getHours() < 8, close = /^\d{4}-\d{2}-\d{2}$/.test(String(closeDate || '')) ? new Date(closeDate + 'T12:00:00Z') : null;
             var basis = close ? new Date(close.getUTCFullYear(), close.getUTCMonth(), close.getUTCDate()) : new Date(kst);
             if (isPreCutoff && !close) basis.setDate(basis.getDate() - 1);
-            var label = basis.getFullYear() + '-' + String(basis.getMonth() + 1).padStart(2, '0') + '-' + String(basis.getDate()).padStart(2, '0') +
-              ' (' + days[basis.getDay()] + ')' + (close ? ' 미국 종가 기준' : ''); // P1393: the briefing is close-based
+            // v59.55 (alignment pass): M/D(요일) like every other screen's basis line, not 2026-10-30 (금).
+            var label = (basis.getMonth() + 1) + '/' + basis.getDate() + '(' + days[basis.getDay()] + ')' + (close ? ' 미국 종가 기준' : ''); // P1393: the briefing is close-based
             el.textContent = label;
             return { label: label, isPreCutoff: isPreCutoff, basisDate: basis };
           };
@@ -4020,8 +4012,7 @@ button[data-filter-active="true"] {
       <h2 class="briefing-h2" id="briefing-read-title">오늘의 시장 해석 <span class="briefing-h2-note" id="briefing-read-basis"></span></h2>
       <p class="briefing-read-headline" id="briefing-read-headline">종가 기록을 불러오는 중입니다.</p>
       <p class="briefing-read-reading" id="briefing-read-reading"></p>
-      <details class="sx-disclosure briefing-read-more" id="briefing-read-more"><summary>자세히, 오늘 해석의 근거</summary><ul class="briefing-read-points" id="briefing-read-points"></ul></details>
-      <div class="briefing-ai" id="briefing-ai-wrap"><div class="briefing-ai-label">AI 해설</div><div id="briefing-ai-analysis" data-market-analysis-sink="full" data-analysis-server-only hidden></div></div>
+      <details class="sx-disclosure briefing-read-more" id="briefing-read-more"><summary>자세히, 오늘 해석의 근거와 AI 해설</summary><ul class="briefing-read-points" id="briefing-read-points"></ul><div class="briefing-ai" id="briefing-ai-wrap"><div class="briefing-ai-label">AI 해설</div><div id="briefing-ai-analysis" data-market-analysis-sink="full" data-analysis-server-only hidden></div></div></details>
     </section>
     <!-- v58.53 개편 v2 (5a): 섹터 하루 등락 (sector-moves.js); v59.51: 왜 움직였나 is its fold, 시간대별 시황 moved to 뉴스. -->
     <div class="briefing-pair" id="briefing-pair">
@@ -4038,12 +4029,13 @@ button[data-filter-active="true"] {
     <section class="aio-section briefing-block" id="briefing-checks" aria-labelledby="briefing-checks-title">
       <h2 class="briefing-h2" id="briefing-checks-title">다음 확인 포인트</h2>
       <ul class="briefing-check-list" id="briefing-check-list"></ul>
+      <!-- P1431 → v59.55 (flow 7): the 7-day strip (briefing-read.js, after the list) is the schedule's face; the rows by time and
+           the week's earnings open in this one fold under it instead of a second card. -->
+      <details class="sx-disclosure briefing-schedule-fold" id="briefing-schedule" aria-labelledby="briefing-schedule-title">
+        <summary id="briefing-schedule-title">날짜별 일정, 한국 시간</summary>
+        <div id="briefing-schedule-rows"><div class="briefing-empty">일정 확인 중</div></div>
+      </details>
     </section>
-    <!-- P1431: 일정은 확인 포인트 다음 — 결론(해석) → 근거(자산별 흐름) → 무엇을 볼지 → 언제 나오는지 -->
-    <details class="aio-section briefing-block" id="briefing-schedule" aria-labelledby="briefing-schedule-title">
-      <summary class="briefing-h2" id="briefing-schedule-title">앞으로 7일 일정 <span class="briefing-h2-note">한국 시간</span></summary>
-      <div id="briefing-schedule-rows"><div class="briefing-empty">일정 확인 중</div></div>
-    </details>
     <!-- v57.50: the briefing's "이어서 볼 곳" slot (filled by the briefing read via renderNextSteps; hidden while empty). -->
     <nav class="flow-next" id="briefing-next" aria-label="이어서 볼 곳" hidden></nav>
 
@@ -4172,6 +4164,14 @@ button[data-filter-active="true"] {
   <!-- v59.51 (area H, one next-release answer): the subtitle names the next release from crossroads.nextEvent; the separate
        #macro-next-release line (its own calendar pick, 11/3 ISM beside 11/6 고용) left. -->
   <div class="page-subtitle" id="macro-board-basis">공식 발표 자료를 불러오는 중입니다.</div></div></header>
+  <!-- v59.55 (flow 6): the indicator board is the raw data behind 최근 공식 발표 (event-briefs.js puts that section after the
+       head), so it follows it as one closed line — the releases, the numbers behind them, then the reading below. -->
+  <section class="briefing-block macro-section macro-fold-section" aria-labelledby="macro-board-title">
+    <details class="mk-fold" id="macro-board-fold">
+    <summary><h2 class="briefing-h2" id="macro-board-title">경제 지표 24개월 — 물가, 고용, 소비, 주택</h2></summary>
+    <div class="macro-board" id="macro-board" aria-label="미국 경제 지표"></div>
+    </details>
+  </section>
   <!-- v58.53 개편 v2 (3e): growth × inflation quadrant card beside the six factor rows (single-open, all closed on arrival).
        v59.51: the rate strip moved to 금리와 환율 (#rates-strip, folded). -->
   <div class="mk-macro-top">
@@ -4192,10 +4192,6 @@ button[data-filter-active="true"] {
     <p class="macro-chain-rule">화살표는 교과서의 전달 순서, ▲▼는 실제로 움직인 방향입니다. 칸마다 관측 기간이 달라 지금의 인과를 확인해 주지는 않습니다.</p>
     <div id="macro-chain"></div>
     </details>
-  </section>
-  <section class="briefing-block macro-section" aria-labelledby="macro-board-title">
-    <h2 class="briefing-h2" id="macro-board-title">경제 지표</h2>
-    <div class="macro-board" id="macro-board" aria-label="미국 경제 지표"></div>
   </section>
   <!-- v59.51: S&P 500 이익 전망 (index-earnings.js, painted by renderMacroBoard) — from the economy to index earnings and the
        equity risk premium against the real yield judged above. Moved from 테마. -->
@@ -4545,24 +4541,19 @@ button[data-filter-active="true"] {
     </div>
   </section>
 
-  <!-- v59.44 (owner 2026-10-30) AI 공급망 흐름 (src/ui/components/ai-chain-flow.js paints it). v59.51: a static slot right
-       after the verdict, so a late paint no longer races aio-core's verdict-after-header reorder (the two swapped by run). -->
+  <!-- v59.55 (flow + visual review): wide to narrow under the verdict — the S&P 500 map (open, the market picture), the
+       sub-theme ranking, the largest theme (AI chain, capex folded under it), then the scenarios (theme-playbook-view.js
+       inserts them after #ai-capex-fold) and 한국. The theme splits stay one fold under the map. -->
+  <section class="aio-section sector-map" id="sector-map" aria-label="S&amp;P 500 지도"><div class="briefing-empty">스크리너 수익률 수신 대기</div></section>
+  <details class="sx-disclosure sh-fold-mt16" id="sector-map-fold" hidden>
+    <summary>지난 거래일 — 테마 안에서 갈린 곳</summary>
+    <section class="aio-section" id="themes-day-splits" aria-label="테마 안에서 갈린 곳" hidden></section>
+  </details>
+  <section class="aio-section theme-strength" id="theme-strength-board" aria-label="세부 테마 상대강도 순위"><div class="briefing-empty">스크리너 수익률 수신 대기</div></section>
   <section class="aio-section ai-chain" id="themes-ai-chain" aria-labelledby="themes-ai-chain-title" hidden></section>
-  <!-- P1417: AI capital-spending flow and bottleneck lead times (REFERENCE). v59.51: folded under the AI chain it explains. -->
   <details class="sx-disclosure sh-fold-mt16" id="ai-capex-fold">
     <summary>AI 설비투자 100달러의 흐름과 병목 납기</summary>
     <section class="aio-section capex-flow" id="ai-capex-flow" aria-label="AI 설비투자 흐름"></section>
-  </details>
-
-  <!-- P1417: daily sub-theme relative strength (published screener returns) -->
-  <section class="aio-section theme-strength" id="theme-strength-board" aria-label="세부 테마 상대강도 순위"><div class="briefing-empty">스크리너 수익률 수신 대기</div></section>
-
-  <!-- 2026-10-13 S&P 500 map: area = index weight, colour = return. v59.51: folded (the sector tabs above carry the sector read). -->
-  <details class="sx-disclosure sh-fold-mt16" id="sector-map-fold">
-    <summary>지난 거래일 — S&amp;P 500 지도와 테마 안에서 갈린 곳</summary>
-    <section class="aio-section sector-map" id="sector-map" aria-label="S&amp;P 500 지도"><div class="briefing-empty">스크리너 수익률 수신 대기</div></section>
-    <!-- v59.51 (content audit): the theme splits of 시장 상태's 자금 흐름 (market-flow.js buildThemeFlow) live here. -->
-    <section class="aio-section" id="themes-day-splits" aria-label="테마 안에서 갈린 곳" hidden></section>
   </details>
 
       <!-- 테마 상세 패널 — v59.51: a standalone view (themes-page.css hides the list while a theme is open). -->
@@ -4668,7 +4659,7 @@ button[data-filter-active="true"] {
     </div>
   </details>
   <!-- v57.50 I27: "이어서 볼 곳" closes the screen, after the folded Korea section (was between the ranking and the folds). -->
-  <nav class="flow-next" id="themes-next" aria-label="이어서 볼 곳" hidden></nav>
+  <nav class="flow-next" id="themes-next" aria-label="이어서 볼 곳" data-fold hidden></nav>
 
   </div>
     <!-- ═══════════════ PAGE: THEME-DETAIL (테마 상세) ═══════════════ -->
@@ -4868,14 +4859,14 @@ button[data-filter-active="true"] {
          fold (the top AI panel answers the same asks; its note duplicated 매매일지), the 비중 도넛·섹터 배분 (the table's weight
          column and 점검) and the per-holding mini charts (each row's 차트 opens the same MA/high-low chart) were retired. -->
     <details id="pf-records-fold" class="aio-page-advanced-toggle sh-mb14" data-user-fold>
-      <summary>내 기록, 매매일지 · 보유 종목 논지 점검</summary>
+      <summary>내 기록 — 매매일지, 보유 종목 논지 점검</summary>
       <div class="aio-page-advanced-body">
         <section class="aio-section pf-trades" id="pf-trades" aria-label="매매일지와 복기" hidden></section>
         <section class="aio-section pf-checklist" id="pf-thesis" aria-label="보유 종목 논지 점검" hidden></section>
       </div>
     </details>
     <details id="pf-tools-fold" class="aio-page-advanced-toggle sh-mb14" data-user-fold>
-      <summary>도구, 과거 성과 · 내 계획 점검 · 관심 종목 · 위험 계산 · 고급 설정</summary>
+      <summary>도구 — 과거 성과, 내 계획 점검, 관심 종목, 위험 계산, 고급 설정</summary>
       <div class="aio-page-advanced-body">
     <!-- v52.73 아이보리 4a: 시안엔 없는 백테스트 도구 — details로 압축 -->
     <details id="pf-backtest-fold" class="aio-page-advanced-toggle sh-mb14" data-user-fold><!-- v58.75: user fold, shown once there are holdings (portfolio.js empty state hides it) -->
@@ -4887,9 +4878,9 @@ button[data-filter-active="true"] {
     <div class="sh-base-panel-s1">
       <div class="sh-between-row">
       </div>
-      <canvas id="pf-benchmark-chart" style="width:100%;height:200px;" role="img" aria-label="포트폴리오 대 SPY 벤치마크 비교 차트"></canvas>
+      <div id="pf-benchmark-chart" class="pf-benchmark-line" role="status"><p class="pf-benchmark-status">새로고침을 누르면 최근 30일을 SPY와 비교합니다.</p></div>
       <div class="pf-benchmark-legend sh-portfolio-benchmark-part-row">
-        <span><svg width="18" height="6" aria-hidden="true" class="sh-portfolio-benchmark-part-valign"><line x1="0" x2="18" y1="3" y2="3" stroke="var(--data-green)" stroke-width="2.5"/></svg>내 포트폴리오</span><span><svg width="18" height="6" aria-hidden="true" class="sh-portfolio-benchmark-part-valign"><line x1="0" x2="18" y1="3" y2="3" stroke="var(--text-primary)" stroke-width="2"/></svg>SPY (S&P 500)</span>
+        <span><svg width="18" height="6" aria-hidden="true" class="sh-portfolio-benchmark-part-valign"><line x1="0" x2="18" y1="3" y2="3" stroke="var(--text-primary)" stroke-width="2"/></svg>내 포트폴리오</span><span><svg width="18" height="6" aria-hidden="true" class="sh-portfolio-benchmark-part-valign"><line x1="0" x2="18" y1="3" y2="3" stroke="var(--text-muted)" stroke-width="1.2" stroke-dasharray="4 3"/></svg>SPY (S&P 500)</span>
         <span class="sh-portfolio-benchmark-part-note">※ 지금 구성을 과거에도 들고 있었다고 가정한 참고 그래프 — 실제 계좌 수익이 아닙니다. 배당·분할 미반영, 상위 10종목 밖은 단순 추정입니다.</span>
       </div>
     </div>
@@ -5194,7 +5185,7 @@ button[data-filter-active="true"] {
       </div>
       <div class="sh-ticker-row-baseline">
         <div id="ticker-detail-name" class="sh-ticker-detail-name-stack">
-          <div id="ticker-hero-name" class="page-title">종목 분석</div>
+          <div id="ticker-hero-name" class="page-title">종목</div>
           <div id="ticker-hero-fullname" class="page-subtitle">티커, 종목코드, 한글명으로 검색</div>
         </div>
         <div class="sh-ticker-box">
@@ -5223,7 +5214,7 @@ button[data-filter-active="true"] {
       </div>
       <div id="ticker-chart-meta" class="sh-ticker-plot-meta-fine"></div>
       <div class="sh-ticker-quote-box">
-        <canvas id="ticker-price-chart" role="img" aria-label="종목 가격 차트" style="width:100%;height:100%;display:none;"></canvas>
+        <div id="ticker-price-chart" class="ticker-price-line" hidden></div>
         <div id="ticker-chart-loading" class="sh-ticker-plot-loading-row">
           <span class="aio-spinner sh-ticker-plot-loading-box"></span> 차트 데이터 요청 준비 중...
         </div>
@@ -5249,8 +5240,7 @@ button[data-filter-active="true"] {
         <button type="button" class="q-chip sh-clickable" data-action="showTicker" data-arg="000660.KS">SK하이닉스</button>
       </div>
     </div>
-
-
+    <div id="ticker-start" class="ticker-start" hidden></div><!-- v59.55: 내 종목 · screener top rows with no company chosen (ticker-start.js) -->
     <!-- P1430: 진입 적합성(시장 건강도 점수·BUY 분류) 블록 제거 — 퇴역한 점수 체계를 다시 보여주던 화면이다. -->
     </div><!-- /aio-section 종목검색 -->
 
@@ -5291,7 +5281,6 @@ button[data-filter-active="true"] {
           <span class="chip sh-soft-chip" data-action="filterNewsByCountry" data-arg="kr" data-pass-el="1">한국</span>
           <span class="chip sh-soft-chip" data-action="filterNewsByCountry" data-arg="asia" data-pass-el="1">아시아</span>
           <span class="chip sh-soft-chip" data-action="filterNewsByCountry" data-arg="eu" data-pass-el="1">유럽</span>
-          <span class="chip sh-news-country-chips-chip-cyan" data-action="filterNewsByTelegramOnly" data-pass-el="1">텔레그램</span>
         </div>
         <div class="sh-wrap-row" id="news-topic-chips" role="group" aria-label="주제">
           <span class="chip sh-news-country-chips-chip" data-action="filterNewsByTopic" data-arg="all" data-pass-el="1">전체 주제</span>
@@ -5356,8 +5345,8 @@ button[data-filter-active="true"] {
     </div>
     </details><!-- /aio-section 뉴스피드 (v59.51: folded) -->
     <!-- v58.53 개편 v2 (5b): the channel notes are their own card under the feed. -->
-    <details class="aio-section sx-card news-card news-tg-card" id="news-tg-card" aria-label="채널 소식">
-    <summary class="aio-section-hd"><span class="aio-section-label">채널 소식</span><span class="briefing-h2-note" id="news-tg-scope"></span></summary>
+    <details class="aio-section sx-card news-card news-tg-card" id="news-tg-card" aria-label="시장 신호">
+    <summary class="aio-section-hd"><span class="aio-section-label">시장 신호 — 지표 · 목표주가 · 실적</span><span class="briefing-h2-note" id="news-tg-scope"></span></summary>
     <div id="tg-feed-market-news"></div>
     </details>
 
@@ -5398,8 +5387,8 @@ button[data-filter-active="true"] {
         <!-- One route, three views: the seg buttons switch #page-screener[data-scr-view]; the ranking/backtest ids stay the tab hooks gates use. -->
         <div class="sx-seg scr-view-seg" role="tablist" aria-label="스크리너 보기">
           <button type="button" id="scr-tab-button-ranking" role="tab" aria-selected="true" aria-controls="scr-tab-ranking" data-aio-screener-action="tab" data-aio-screener-arg="ranking" class="is-active">순위</button>
-          <button type="button" id="scr-tab-button-backtest" role="tab" aria-selected="false" aria-controls="scr-tab-backtest" tabindex="-1" data-aio-screener-action="tab" data-aio-screener-arg="backtest" title="정보계수(IC): 팩터 순위와 이후 수익률 순위가 얼마나 같은 방향이었는지 과거 자료로 잰 값">사후 검증</button>
           <button type="button" id="scr-view-button-custom" role="tab" aria-selected="false" aria-controls="screener-workbench" tabindex="-1" data-aio-screener-action="view" data-aio-screener-arg="custom">맞춤 조건</button>
+          <button type="button" id="scr-tab-button-backtest" role="tab" aria-selected="false" aria-controls="scr-tab-backtest" tabindex="-1" data-aio-screener-action="tab" data-aio-screener-arg="backtest" title="정보계수(IC): 팩터 순위와 이후 수익률 순위가 얼마나 같은 방향이었는지 과거 자료로 잰 값">사후 검증</button>
         </div>
       </div>
     </div>
@@ -5524,8 +5513,8 @@ button[data-filter-active="true"] {
         <option value="overview">기본</option><option value="discovery">발견</option><option value="fundamentals">펀더멘털</option><option value="trend">추세·셋업</option><option value="risk">리스크</option><option value="events">이벤트</option><option value="all">전체</option>
       </select>
       <button class="sx-link" data-aio-screener-action="column-chooser" id="scr-col-toggle-btn">컬럼 선택</button>
-      <button class="sx-link" data-aio-screener-action="toggle-filters" title="조건·순위 결과는 그대로 두고 표에 보이는 행만 줄입니다">표 범위 좁히기</button>
-      <button class="sx-link scr-focus-toggle" data-aio-screener-action="focus-mode" aria-pressed="false" title="왼쪽 메뉴를 접어 표를 넓게 봅니다">표 넓게 보기</button>
+      <button class="sx-link" data-aio-screener-action="toggle-filters" title="조건·순위 결과는 그대로 두고 표에 보이는 행만 줄입니다">행 필터</button>
+      <button class="sx-link scr-focus-toggle" data-aio-screener-action="focus-mode" aria-pressed="false" title="왼쪽 메뉴를 접어 표를 넓게 봅니다">메뉴 접기</button>
     </div>
     <div id="scr-column-chooser" class="scr-column-chooser" hidden>
       <div class="sh-screener-column-chooser-row"><strong class="sh-soft-text">표시할 컬럼</strong><span class="sh-muted-note">종목 식별 컬럼은 항상 유지</span></div>
@@ -5717,7 +5706,7 @@ button[data-filter-active="true"] {
     </div>
 
     <details class="scr-workbench-advanced sh-screener-weight-profiles-fold" id="scr-weight-profiles">
-      <summary>순위 가중치 바꾸기 — 과거 검증은 기본(균형) 비중만 했습니다</summary>
+      <summary>순위 가중치 바꾸기 (과거 검증은 기본 비중만)</summary>
       <div class="sh-screener-weight-profiles-row">
       <span class="sh-dim-text" title="조건 화면과 별개로, 같은 결과를 어떤 팩터에 무게를 두어 줄 세울지">순위 가중치</span>
       <button class="scr-profile-btn active" data-aio-screener-action="profile" data-aio-screener-arg="balanced">균형 (기본)</button>
@@ -5774,7 +5763,7 @@ button[data-filter-active="true"] {
     <div class="page-head">
       <div>
         <h1 class="page-title">도움말</h1>
-        <div class="page-subtitle">판정 기준, 주의사항, 데이터 출처</div>
+        <div class="page-subtitle">판정 기준, 유의사항, 데이터 출처</div>
       </div>
     </div>
     </div><!-- /aio-section 사용설명서 -->
@@ -5788,7 +5777,7 @@ button[data-filter-active="true"] {
       <button data-action="_aioGuideJump" data-arg="guide-methodology" class="aio-btn-table">판정 기준표</button>
       <button data-action="_aioGuideJump" data-arg="guide-api" class="aio-btn-table">데이터 출처</button>
       <button data-action="_aioGuideJump" data-arg="guide-cautions" class="aio-btn-table">유의사항</button>
-      <button data-action="_aioGuideJump" data-arg="guide-faq" class="aio-btn-table">FAQ</button>
+      <button data-action="_aioGuideJump" data-arg="guide-faq" class="aio-btn-table">자주 묻는 질문</button>
       <button data-action="openGlossary" class="aio-btn-table">용어 사전</button>
     </div>
     <div id="guide-search-result" class="guide-search-result" style="display:none;"></div>
@@ -5802,7 +5791,7 @@ button[data-filter-active="true"] {
     </div>
 
     <div class="aio-section" id="guide-chapter-read">
-    <div class="aio-section-hd"><span class="aio-section-label">유의사항 · AIO가 말하는 것과 아닌 것 · 투자 배경지식</span></div>
+    <div class="aio-section-hd"><span class="aio-section-label">유의사항, AIO가 말하는 것과 아닌 것, 투자 배경지식</span></div>
     <!-- ═══ 섹션 3: 핵심 유의사항 ═══ -->
     <div id="guide-cautions">
     <div class="aio-widget sh-guide-cautions-box">
@@ -5885,7 +5874,7 @@ button[data-filter-active="true"] {
       <div class="sh-panel-ink05">
         <div class="sh-guide-label-amber">외환(FX)의 기초</div>
         <div class="sh-soft-fine">
-          <b>달러 인덱스(DXY):</b> 유로, 엔, 파운드 등 6개 통화 대비 달러 가치. DXY↑는 달러 강세를 뜻하지만, 수준(예: 100)은 임계값이 아니라 기간별 비교·다른 통화·금리 조건과 함께 확인하는 참고값입니다.<br>
+          <b>달러 지수(DXY):</b> 유로, 엔, 파운드 등 6개 통화 대비 달러 가치. DXY↑는 달러 강세를 뜻하지만, 수준(예: 100)은 임계값이 아니라 기간별 비교·다른 통화·금리 조건과 함께 확인하는 참고값입니다.<br>
           <b>원/달러 환율:</b> 환율 1,300원이면 $1=₩1,300. 환율↑는 원화 약세를 뜻하며 수출·수입·원자재·해외자산의 서로 다른 노출을 나눠 확인합니다.<br>
           <b>캐리 트레이드:</b> 저금리 국가에서 빌려 고금리 국가에 투자하는 구조입니다. 되감기 구간은 환율·금리·변동성 자료를 함께 관찰합니다.<br>
           <b>안전자산:</b> 불안 구간의 달러·엔·금 움직임은 위험 선호를 확인하는 참고 항목입니다. 동시 상승도 원인과 기간을 별도로 확인합니다.
@@ -5928,7 +5917,7 @@ button[data-filter-active="true"] {
     </div><!-- /guide-chapter-read -->
 
     <div class="aio-section" id="guide-chapter-data">
-    <div class="aio-section-hd"><span class="aio-section-label">데이터 출처 · 자주 묻는 질문 · 문제 해결</span></div>
+    <div class="aio-section-hd"><span class="aio-section-label">데이터 출처, 자주 묻는 질문, 문제 해결</span></div>
     <!-- Desktop research workspace: optional connections only. -->
     <div id="guide-api">
 
@@ -6035,193 +6024,28 @@ button[data-filter-active="true"] {
 
   <!-- v50.35: 피드백 모달 + 게시판 드로어/상세 모달 DOM 제거 (사용자 요청 — 미사용·용량 절감) -->
 
-  <!-- H3-F/P674: third-party libraries never hold the local defer queue; SRI pinned (R34); jsDelivr → cdnjs fallback (v38.3).
-       P1756: Chart.js / lightweight-charts load on first chart use, not at boot. This inert element keeps the primary URL
-       and SRI and receives a 'load' event when Chart.js arrives (src/ui/components/color-theme.js listens to it). -->
-  <script id="aio-chart-cdn" type="text/plain" data-aio-src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" data-aio-integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g"></script>
+  <!-- H3-F/P674: third-party libraries never hold the local defer queue; SRI pinned (R34).
+       P1756: lightweight-charts loads on first chart use, not at boot. v59.55: Chart.js left with its last screen. -->
   <!-- v48.31 (v57.83: 3.0.9 → 3.4.16, GHSA-gx9m-whjm-85jf mXSS fix): DOMPurify CDN (~20KB gzip) — innerHTML 외부 데이터 XSS 방지 sanitize -->
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.16/dist/purify.min.js" integrity="sha384-a7SzOxErzJ3ZpQz0zJ32d67dSitNzPcbfybc/ykU9KJhMgZkwqfSxlhhdJRS+XGL" crossorigin="anonymous" async></script>
   <script>
-  // Chart libraries load on demand (P1756). window.Chart starts as a deferred constructor: the first `new Chart()` requests
-  // the primary CDN and the chart is built on the same canvas/config when it arrives; defaults written earlier are replayed.
-  // The secondary CDN is requested only after primary error or a bounded window; if both fail, the local renderer draws.
-  // lightweight-charts (종목 차트) is requested when that screen opens, or via window._aioEnsureChartLibrary('lwc').
+  // Chart library loads on demand (P1756): lightweight-charts (종목 차트) is requested when that screen opens, or via
+  // window._aioEnsureChartLibrary('lwc'). v59.55: the Chart.js deferred constructor, its second CDN and the local canvas
+  // renderer left with the last Chart.js screen (the 종목 price line is the shared SVG line chart).
   (function coordinateChartDependency() {
-  var _chartPlaceholder = document.getElementById('aio-chart-cdn');
-  var CHART_PRIMARY_SRC = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js'; var CHART_SECONDARY = { src: 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js', integrity: 'sha384-DhxhYObIMeMNGyAG7iK11OHzBIKyEIeRL0ad1iFPAOwZB8iirUlTT0O/WJJUk8+o' };
   var LWC_SOURCE = { src: 'https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js', integrity: 'sha384-OK7vELvjHdhUFi31JYioPIcRHTROLdcDa6ZsNWgvgLaKj+9JqhU0Ad8g4wz3CXjA' };
-  var _chartFallbackTimer = null, _chartSecondaryStarted = false, _chartPromise = null, _chartResolve = null;
-  var _realChart = null, _pendingCharts = [], _lwcPromise = null;
-  function hasRealChart() {
-    return !!_realChart || (typeof window.Chart !== 'undefined' && !window.Chart.__aioFallback && !window.Chart.__aioDeferred);
-  }
-  function clearChartFallbackTimer() {
-    if (_chartFallbackTimer) clearTimeout(_chartFallbackTimer);
-    _chartFallbackTimer = null;
-  }
-  function appendScript(source, onLoad, onError) {
-    var script = document.createElement('script');
-    script.src = source.src; script.integrity = source.integrity; script.crossOrigin = 'anonymous'; script.async = true;
-    script.addEventListener('load', onLoad, { once: true });
-    script.addEventListener('error', onError, { once: true });
-    document.head.appendChild(script);
-  }
-  function mergeDefaults(target, recorded) {
-    Object.keys(recorded || {}).forEach(function(key) {
-      if (key === '__proto__' || key === 'constructor' || key === 'prototype') return; var value = recorded[key];
-      if (value && typeof value === 'object' && !Array.isArray(value) && target[key] && typeof target[key] === 'object') mergeDefaults(target[key], value);
-      else target[key] = value;
-    });
-  }
-  function buildPending(Constructor) {
-    _pendingCharts.splice(0).forEach(function(shim) {
-      if (shim._destroyed || (shim.canvas && shim.canvas.isConnected === false)) return;
-      try { shim._real = new Constructor(shim._item, shim.config); } catch (e) { console.warn('[AIO] deferred chart build failed', e && e.message); }
-    });
-  }
-  function settleChart() {
-    if (_realChart) { clearChartFallbackTimer(); return true; }
-    var loaded = window.Chart;
-    if (!loaded || loaded === DeferredChart || loaded.__aioFallback) return false;
-    _realChart = loaded;
-    clearChartFallbackTimer();
-    if (loaded.defaults) mergeDefaults(loaded.defaults, DeferredChart.defaults);
-    buildPending(loaded);
-    if (_chartResolve) _chartResolve(loaded);
-    try { if (_chartPlaceholder) _chartPlaceholder.dispatchEvent(new Event('load')); } catch (_) {}
-    return true;
-  }
-  function loadSecondaryChart() {
-    if (hasRealChart() || _chartSecondaryStarted) {
-      if (hasRealChart()) settleChart();
-      return;
-    }
-    _chartSecondaryStarted = true;
-    console.warn('[AIO] Chart.js primary CDN unavailable — loading secondary CDN');
-    appendScript(CHART_SECONDARY, function() { if (!settleChart()) installChartFallback(); }, installChartFallback);
-  }
-  function ensureChart() {
-    if (_chartPromise) return _chartPromise;
-    _chartPromise = new Promise(function(resolve) { _chartResolve = resolve; });
-    if (settleChart()) return _chartPromise;
-    var primary = _chartPlaceholder && _chartPlaceholder.getAttribute('data-aio-src') === CHART_PRIMARY_SRC ? CHART_PRIMARY_SRC : null; // only the pinned URL is ever requested
-    if (!primary) { loadSecondaryChart(); return _chartPromise; }
-    appendScript({ src: primary, integrity: _chartPlaceholder.getAttribute('data-aio-integrity') || '' }, function() { if (!settleChart()) loadSecondaryChart(); }, loadSecondaryChart);
-    if (!hasRealChart()) _chartFallbackTimer = setTimeout(loadSecondaryChart, 5000);
-    return _chartPromise;
-  }
-  function installChartFallback() {
-    if (hasRealChart()) { settleChart(); return; }
-    function flattenData(config) {
-      var ds = config && config.data && config.data.datasets ? config.data.datasets : [];
-      var first = ds && ds[0] ? ds[0].data || [] : [];
-      // v58.63 (architecture audit C13): Number(null) is 0, so a missing point was drawn as a real 0 — [10,null,20] and
-      // [10,0,20] made the same line. A missing value stays null in its slot and the line breaks there.
-      return first.map(function(v) {
-        var raw = v && typeof v === 'object' ? v.y : v;
-        if (raw == null || raw === '') return null;
-        var n = Number(raw);
-        return isFinite(n) ? n : null;
-      });
-    }
-    var Fallback = function(ctx, config) {
-      this.ctx = ctx && ctx.canvas ? ctx : (ctx && ctx.getContext ? ctx.getContext('2d') : null);
-      this.config = config || {};
-      this.destroy = function() {};
-      this.update = function() {};
-      try {
-        var c = this.ctx && this.ctx.canvas;
-        if (!this.ctx || !c) return;
-        var w = c.clientWidth || c.width || 320;
-        var h = c.clientHeight || c.height || 160;
-        c.width = w;
-        c.height = h;
-        this.ctx.clearRect(0, 0, w, h);
-        this.ctx.strokeStyle = (getComputedStyle(document.body).getPropertyValue('--text-primary').trim() || '#1b1a17');
-        this.ctx.lineWidth = 2;
-        this.ctx.font = '11px sans-serif';
-        this.ctx.fillStyle = '#978365';
-        var data = flattenData(this.config);
-        var present = data.filter(function(v) { return v != null; });
-        if (!present.length) {
-          this.ctx.fillText('차트 자료 없음', 12, 22);
-          return;
-        }
-        var min = Math.min.apply(null, present);
-        var max = Math.max.apply(null, present);
-        var span = max - min || 1;
-        this.ctx.beginPath();
-        var penDown = false;
-        data.forEach(function(v, i) {
-          if (v == null) { penDown = false; return; }
-          var x = 12 + (w - 24) * (data.length === 1 ? 0.5 : i / (data.length - 1));
-          var y = h - 18 - ((v - min) / span) * (h - 36);
-          if (!penDown) { this.ctx.moveTo(x, y); penDown = true; } else this.ctx.lineTo(x, y);
-        }, this);
-        this.ctx.stroke();
-        this.ctx.fillText('간이 표시, 차트 도구를 불러오지 못했습니다', 12, 16);
-      } catch(_) {}
-    };
-    Fallback.__aioFallback = true;
-    // v52.40 (P655): app code sets Chart.defaults.font.family unconditionally — the offline renderer keeps that shape.
-    Fallback.defaults = { font: { family: '', size: 12 } };
-    Fallback.getChart = function() { return undefined; };
-    Fallback.instances = {};
-    window.Chart = Fallback;
-    buildPending(Fallback);
-    if (_chartResolve) _chartResolve(null);
-  }
-  function DeferredChart(item, config) {
-    if (_realChart) return new _realChart(item, config);
-    if (window.Chart && window.Chart !== DeferredChart && window.Chart.__aioFallback) return new window.Chart(item, config);
-    this._item = item;
-    this.config = config || {};
-    if (!this.config.options) this.config.options = {};
-    this.canvas = item && item.canvas ? item.canvas : item;
-    this._real = null;
-    this._destroyed = false;
-    _pendingCharts.push(this);
-    ensureChart();
-  }
-  DeferredChart.__aioDeferred = true;
-  DeferredChart.defaults = { font: {}, plugins: { tooltip: {}, legend: { labels: {} } } };
-  DeferredChart.instances = {};
-  DeferredChart.getChart = function(key) {
-    var el = typeof key === 'string' ? document.getElementById(key) : key;
-    if (el && el.canvas) el = el.canvas;
-    return _pendingCharts.filter(function(shim) { return shim.canvas === el; })[0];
-  };
-  ['data', 'options'].forEach(function(key) {
-    Object.defineProperty(DeferredChart.prototype, key, {
-      get: function() { return this._real ? this._real[key] : this.config[key]; },
-      set: function(value) { if (this._real) this._real[key] = value; else this.config[key] = value; }
-    });
-  });
-  ['scales', 'chartArea', 'width', 'height'].forEach(function(key) {
-    Object.defineProperty(DeferredChart.prototype, key, { get: function() { return this._real ? this._real[key] : undefined; } });
-  });
-  ['update', 'render', 'resize', 'reset', 'stop', 'clear', 'toBase64Image', 'getDatasetMeta', 'setDatasetVisibility', 'isDatasetVisible', 'hide', 'show', 'getElementsAtEventForMode', 'setActiveElements', 'getActiveElements'].forEach(function(name) {
-    DeferredChart.prototype[name] = function() {
-      var real = this._real;
-      if (real && typeof real[name] === 'function') return real[name].apply(real, arguments);
-      return name === 'toBase64Image' ? '' : name === 'getActiveElements' ? [] : undefined;
-    };
-  });
-  DeferredChart.prototype.destroy = function() {
-    this._destroyed = true;
-    if (_pendingCharts.indexOf(this) >= 0) _pendingCharts.splice(_pendingCharts.indexOf(this), 1);
-    if (this._real && typeof this._real.destroy === 'function') this._real.destroy();
-    this._real = null;
-  };
-  if (typeof window.Chart === 'undefined') window.Chart = DeferredChart;
-  else settleChart();
+  var _lwcPromise = null;
   function ensureLightweightCharts() {
     if (typeof window.LightweightCharts !== 'undefined') return Promise.resolve(window.LightweightCharts);
     return _lwcPromise || (_lwcPromise = new Promise(function(resolve) {
-      appendScript(LWC_SOURCE, function() { resolve(window.LightweightCharts || null); }, function() { _lwcPromise = null; resolve(null); });
+      var script = document.createElement('script');
+      script.src = LWC_SOURCE.src; script.integrity = LWC_SOURCE.integrity; script.crossOrigin = 'anonymous'; script.async = true;
+      script.addEventListener('load', function() { resolve(window.LightweightCharts || null); }, { once: true });
+      script.addEventListener('error', function() { _lwcPromise = null; resolve(null); }, { once: true });
+      document.head.appendChild(script);
     }));
   }
-  window._aioEnsureChartLibrary = function(name) { return name === 'lwc' ? ensureLightweightCharts() : ensureChart(); };
+  window._aioEnsureChartLibrary = function(name) { return name === 'lwc' ? ensureLightweightCharts() : Promise.resolve(null); };
   document.addEventListener('aio:pageShown', function(event) { if (event && event.detail === 'technical') ensureLightweightCharts(); });
   if (/^#technical(?:$|[/?&])/.test(location.hash || '')) ensureLightweightCharts();
   })();
@@ -6233,12 +6057,12 @@ button[data-filter-active="true"] {
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
   <!-- R622: block A (workspace) runs first in the defer group; kr-data and pages follow it, as when they sat in <head>. -->
-  <script src="./js/aio-workspace.js?v=59.54" defer></script>
-  <script src="./js/aio-kr-data.js?v=59.54" defer></script>
-  <script src="./js/aio-pages.js?v=59.54" defer></script>
-  <script src="./js/aio-core.js?v=59.54" defer></script>
-  <script src="./js/aio-data.js?v=59.54" defer></script>
-  <script src="./js/aio-ui.js?v=59.54" defer></script>
+  <script src="./js/aio-workspace.js?v=59.55" defer></script>
+  <script src="./js/aio-kr-data.js?v=59.55" defer></script>
+  <script src="./js/aio-pages.js?v=59.55" defer></script>
+  <script src="./js/aio-core.js?v=59.55" defer></script>
+  <script src="./js/aio-data.js?v=59.55" defer></script>
+  <script src="./js/aio-ui.js?v=59.55" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
@@ -6294,7 +6118,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=59.54" defer></script>
+<script src="./js/aio-glossary.js?v=59.55" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->
@@ -6302,7 +6126,7 @@ button[data-filter-active="true"] {
 
 <!-- v58.56 (re-audit #13): R1 release identity moved from the topbar to the page foot — the topbar keeps only what a reader
      uses (quote basis, 도움말, AI). bump-version still patches this element by its id. -->
-<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, 등락 색은 오르면 <span style="color:var(--dir-up)">빨강</span>·내리면 <span style="color:var(--dir-down)">파랑</span>, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <button type="button" data-action="_aioOpenFeedback">이상해요</button>, <span class="sx-page-foot-version" id="app-version-badge">v59.54</span></p>
+<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, 등락 색은 오르면 <span style="color:var(--dir-up)">빨강</span>·내리면 <span style="color:var(--dir-down)">파랑</span>, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <button type="button" data-action="_aioOpenFeedback">오류 신고</button>, <span class="sx-page-foot-version" id="app-version-badge">v59.55</span></p>
 </div><!-- /content -->
 </div><!-- /main -->
 </div><!-- /app -->

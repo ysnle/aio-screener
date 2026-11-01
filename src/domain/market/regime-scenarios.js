@@ -54,7 +54,7 @@ export function buildRegimeAxisHistory(input = {}, { macroHistory = null, regime
       chart('breadth50', '50일선 위 종목 비율', '%', daily('breadth50'), { format: percent, refs: [RULES.breadth.weakBelow, RULES.breadth.broadAtLeast], domain: [0, 100], note: 'S&P 500 구성 종목의 비율(v58.79 전환 전 기록은 AIO 미국 수집 표본), 지수 회사의 공식 통계가 아닙니다.' }),
       chart('breadth200', '200일선 위 종목 비율', '%', daily('breadth200'), { format: percent, refs: [RULES.breadth.weakBelow, RULES.breadth.broadAtLeast], domain: [0, 100], note: '중기 참여도(50일)와 장기 참여도(200일)가 함께 넓어지는지 비교합니다.' })],
     volatility: [chart('vix', 'VIX', '지수 pt', daily('vix'), { format: value => value.toFixed(1), refs: [RULES.volatility.calmBelow, RULES.volatility.stressAt] }),
-      chart('vix-term', 'VIX / 3개월 VIX', '배', ratio, { format: value => value.toFixed(2), refs: [RULES.volatility.calmRatioBelow, RULES.volatility.invertedRatioAt], note: '같은 관측일의 두 지수만 나눕니다. 1 이상은 단기 변동성이 중기보다 높은 기간 구조입니다.' })],
+      chart('vix-term', '단기 불안 비율 (VIX ÷ 3개월 VIX)', '배', ratio, { format: value => value.toFixed(2), refs: [RULES.volatility.calmRatioBelow, RULES.volatility.invertedRatioAt], note: '같은 관측일의 두 지수만 나눕니다. 1 이상은 단기 변동성이 중기보다 높은 기간 구조입니다.' })],
     rates: [chart('tnx', '미 10년물 명목금리', '%', daily('tnx'), { format: percent }),
       chart('tips', '10년 실질금리(TIPS)', '%', macro('realYield10'), { format: percent, note: '명목금리와 실질금리는 서로 다른 관측일일 수 있습니다. 같은 날짜의 자료가 없으면 분해해 단정하지 않습니다.' }),
       chart('breakeven', '10년 기대인플레이션', '%', macro('breakeven10'), { format: percent, note: '물가 예상만이 아니라 유동성·위험 프리미엄도 포함하는 인플레이션 보상 지표입니다.' })],
@@ -63,7 +63,7 @@ export function buildRegimeAxisHistory(input = {}, { macroHistory = null, regime
       // P1638: the weakest tier against B — the average can stay calm while CCC borrowers lose access first.
       chart('ccc-b', '최하위(CCC)·B 등급 가산금리 격차', 'bp', tierGap(macro('cccOas', 100), macro('bOas', 100)), { note: '가장 약한 등급(CCC 이하)과 B 등급의 OAS 차이. 격차는 상대 차이입니다. 벌어지면 시장이 가장 약한 기업을 더 따로 가려내고 있다는 뜻이며, CCC 금리 수준 자체가 올랐는지는 하이일드 가산금리와 함께 확인합니다.' })],
     commodities: [chart('wti', 'WTI 선물', 'USD / 배럴', daily('wti'), { format: value => `$${value.toFixed(1)}` }),
-      chart('dxy', '달러 인덱스', '지수 pt', daily('dxy'), { format: value => value.toFixed(1) })],
+      chart('dxy', '달러 지수', '지수 pt', daily('dxy'), { format: value => value.toFixed(1) })],
     korea: [chart('usdkrw', '원 / 달러', 'KRW / USD', daily('usdkrw'), { format: count })]
   };
   return { range, axes: Object.fromEntries(Object.entries(definitions).map(([id, charts]) => [id, charts.filter(item => item.series.length > 1)])) };

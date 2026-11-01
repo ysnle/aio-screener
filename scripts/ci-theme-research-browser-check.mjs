@@ -34,7 +34,6 @@ const fixture = { profile: 'isolated-local-artifacts', initialMode: 'light', per
 // v58.84: the two pinned chart libraries are served from the SRI-checked copies the entity-quality and
 // out-of-universe journeys already use, so the gate no longer needs the CDN (it timed out wherever egress is blocked).
 const pinnedLibraries = [
-  { url: 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js', file: 'browser-chart.umd.min.js', sri: 'e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g' },
   { url: 'https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js', file: 'browser-lightweight-charts.js', sri: 'OK7vELvjHdhUFi31JYioPIcRHTROLdcDa6ZsNWgvgLaKj+9JqhU0Ad8g4wz3CXjA' }
 ].map((item) => { const body = readFileSync(resolve(root, '_artifacts/entity-quality-20261012', item.file));
   if (createHash('sha384').update(body).digest('base64') !== item.sri) throw new Error(`Pinned chart library SRI mismatch: ${item.file}`);

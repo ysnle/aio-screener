@@ -8,6 +8,7 @@ import { benchmarkRowFor, indexReturns } from '../../domain/market/benchmarks.js
 import { currentRotationItems } from '../../domain/themes/produced-rotation.js';
 import { buildCloseSeries, koreaMoveRecord } from '../../domain/briefing/market-read.js';
 import { el } from './dom.js';
+import { signedBar, signedScale } from './signed-bar.js';
 import { loadJsonArtifact, stableFetcher } from '../../data/artifact-cache.js';
 import { estimateBookSensitivities, bookWeights, STRESS_MIN_WEEKS } from '../../domain/portfolio/stress-sensitivity.js';
 import { bondCushion, assetClassOf, BOND_ETF_MAP, BOND_KIND_LABEL } from '../../domain/portfolio/asset-class.js';
@@ -23,14 +24,11 @@ import { US_THEME_PROFILES, windFor } from '../../domain/scenarios/exposures.js'
 function attributionBox(doc, attribution) {
   const box = el(doc, 'div', null, 'pf-attribution');
   box.append(el(doc, 'span', `지수 대비 차이의 원인, ${attribution.window}`, 'stock-read-vis-title'));
-  const max = Math.max(0.5, ...attribution.excess.map((part) => Math.abs(part.pct)));
+  const max = signedScale(attribution.excess.map((part) => part.pct), 0.5);
   for (const part of attribution.excess) {
     const line = el(doc, 'div', null, 'scr-ic-row');
-    const track = el(doc, 'div', null, 'scr-ic-track');
-    const fill = el(doc, 'span', null, `scr-ic-fill ${part.pct >= 0 ? 'is-up' : 'is-down'}`);
-    fill.style.width = `${Math.min(50, Math.abs(part.pct) / max * 50).toFixed(1)}%`;
-    fill.style[part.pct >= 0 ? 'left' : 'right'] = '50%';
-    track.append(fill);
+    // v59.55 (C3): the shared two-sided bar; a gap to the index is a direction (rising red, falling blue), not green/red.
+    const track = signedBar(doc, part.pct, max, { trackClass: 'pf-attribution-track' });
     line.append(el(doc, 'span', part.label, 'scr-ic-label'), track, el(doc, 'span', `${signedText(part.pct, 1)}%p`, 'scr-ic-value'));
     box.append(line);
   }

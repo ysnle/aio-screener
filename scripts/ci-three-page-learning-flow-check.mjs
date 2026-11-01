@@ -16,7 +16,7 @@ async function dismissDisclaimer(page) {
 const server = await startLocalServer(port, { label: 'three-page-flow/server' });
 let browser;
 const errors = [];
-// 2026-10-05 리서치 라이브러리: the column's "이어서 볼 화면" link (right column) carries the reader to the industry
+// 2026-10-05 리서치 라이브러리: the column's "이어서 볼 곳" link (right column) carries the reader to the industry
 // map and to the 13F page with an arrival context, and the 13F page links back to the column it came from.
 const openColumnChapter = async (page, chapter) => {
   await page.evaluate((id) => { history.replaceState(null, '', `?mode=story&chapter=${id}#principles`); }, chapter);

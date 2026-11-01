@@ -18,7 +18,7 @@
 .rl-shell { --rl-gap: 16px; }
 .rl-shell .rl-head {
   grid-template-columns: minmax(0, 1fr) minmax(280px, 360px); gap: 16px; align-items: end;
-  padding: 0; margin: 0 0 18px; border: 0;
+  padding: 0 0 0 var(--sx-card-pad-x); margin: 0 0 18px; border: 0;
 }
 .rl-shell .rl-head > div:first-child { display: flex; flex-direction: column-reverse; gap: 4px; }
 .rl-shell .rl-title {
@@ -75,7 +75,7 @@
 /* 목차 · 본문 · 연결: the open document is the hero card; contents and connections are quiet columns. */
 .rl-shell .rl-grid { grid-template-columns: minmax(200px, 232px) minmax(0, 1fr) minmax(240px, 288px); gap: 16px; }
 .rl-shell .rl-main {
-  background: var(--bg-card); border-radius: 12px; padding: 26px 30px 28px; box-shadow:none;
+  background: var(--bg-card); border-radius: 12px; padding: 26px var(--sx-card-pad-x) 28px; box-shadow:none;
 }
 .rl-shell .rl-nav { padding: 2px 6px 2px 0; }
 .rl-shell .rl-nav-switch { gap: 2px; margin: 0 0 12px; padding: 0 0 12px; border-bottom: 0.5px solid rgba(var(--ink-rgb), 0.06); }
@@ -94,7 +94,7 @@
 .rl-shell .rl-nav-meta { font-size: 12px; }
 .rl-shell .rl-aside { display: flex; flex-direction: column; gap: 12px; }
 .rl-shell .rl-aside-block {
-  border: 0; border-radius: 12px; padding: 16px 18px; background: var(--bg-card); box-shadow:none;
+  border: 0; border-radius: 12px; padding: 16px var(--sx-card-pad-x); background: var(--bg-card); box-shadow:none;
 }
 .rl-shell .rl-aside-block:first-child { padding-top: 16px; }
 .rl-shell .rl-aside-title { margin: 0 0 8px; font-size: 12px; font-weight: 700; letter-spacing: 0; color: var(--text-secondary); }
@@ -339,7 +339,7 @@
 #page-atlas .atlas-layers-note { margin: 10px 0 0; font-size: 12px; line-height: 1.5; color: var(--text-muted); }
 
 /* ═══ 8. Guide (5j: 읽는 순서 · 메뉴 지도 · 판정 기준표 · 접힘) ═══════════ */#page-guide .guide-nav {
-  border: 0; border-radius: 12px; padding: 16px 18px; background: var(--bg-card); box-shadow:none; gap: 12px;
+  border: 0; border-radius: 12px; padding: 16px var(--sx-card-pad-x); background: var(--bg-card); box-shadow:none; gap: 12px;
 }
 #page-guide .guide-search input { height: 38px; border: 0; border-radius: 12px; background: var(--rs-tile-strong); font-size: 14px; padding: 0 14px; }
 #page-guide .guide-jumps .aio-btn-table, #page-guide .guide-screen-tabs .aio-btn-table { min-height: 28px; font-size: 12px; }
@@ -457,7 +457,7 @@
   .rl-shell .rl-main { padding: 20px 18px 22px; border-radius: 12px; }
   .rl-shell .rl-shelf { padding: 14px 16px 10px; }
   .rl-shell .rl-aside { grid-template-columns: minmax(0, 1fr); }
-  .rl-paths { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 84%; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; margin: 0 -16px 14px; padding: 2px 16px 10px; }
+  .rl-paths { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 84%; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; margin: 0 -16px 14px; padding: 2px 16px 10px; scroll-padding-inline: 16px; }
   .rl-path { scroll-snap-align: start; }
   .rl-path { padding: 16px 18px; }
   .rl-path-step, .rl-used-row, .rl-shell .rl-nav-item, .rl-shell .rl-shelf-chip, .rl-shell .rl-picks-item,

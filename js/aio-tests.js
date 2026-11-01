@@ -7020,7 +7020,7 @@
         var mock871 = new Date('2026-07-10T00:30:00+09:00');
         var r871 = window._aioRenderBriefingDateLine(mock871);
         var noFuture871 = !!r871 && r871.isPreCutoff === true &&
-          r871.label.indexOf('2026-07-10') === -1 && r871.label.indexOf('2026-07-09') !== -1;
+          r871.label.indexOf('7/10(') === -1 && r871.label.indexOf('7/9(') !== -1; // v59.55: M/D(요일) label
         _assert('T871 briefing_date_no_future_label_v5240 (EF-04): 00:30 KST mock renders yesterday-basis label instead of not-yet-generated today 08:00',
           noFuture871, 'label=' + (r871 && r871.label));
       } else {

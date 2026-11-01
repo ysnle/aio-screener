@@ -8,8 +8,9 @@ export const ROUTE_HUBS = Object.freeze([
   { id: 'macro', label: '매크로', routes: [{ id: 'macro', label: '거시 경제' }, { id: 'fxbond', label: '금리와 환율' }] },
   { id: 'themes', label: '테마와 섹터', routes: [{ id: 'themes', label: '테마와 섹터', also: ['theme-detail'] }, { id: 'theme-detail', label: '테마 상세', tab: false }] },
   // P1430: one 종목 screen — 요약 · 차트 · 재무 공시 are three views of the same selected company.
-  { id: 'stock', label: '종목', routes: [{ id: 'ticker', label: '요약' }, { id: 'technical', label: '차트' }, { id: 'fundamental', label: '재무 공시' }] },
+  // v59.55 (flow review): 스크리너 before 종목 — find, then examine; the sidebar, phone tab bar and number keys share it.
   { id: 'screener', label: '스크리너', routes: [{ id: 'screener', label: '스크리너' }] },
+  { id: 'stock', label: '종목', routes: [{ id: 'ticker', label: '개요' }, { id: 'technical', label: '차트' }, { id: 'fundamental', label: '재무 공시' }] },
   { id: 'portfolio', label: '포트폴리오', routes: [{ id: 'portfolio', label: '포트폴리오' }] },
   // 2026-10-05 owner decision: 리서치 라이브러리 — three research pages; the product guide is help (topbar), not research.
   { id: 'learn', label: '리서치 라이브러리', routes: [{ id: 'principles', label: '개념·분석' }, { id: 'atlas', label: '산업 지도' }, { id: 'masters', label: '대가 보유 종목' }, { id: 'guide', label: '도움말', tab: false }] }
@@ -47,16 +48,21 @@ function pickButton(documentRef, root, label) {
 function renderSubject(documentRef, nav, subject, root, routeId) {
   const box = documentRef.createElement('span');
   box.className = 'aio-hub-subject';
+  // v59.55 (alignment pass): on 개요 the page title already names the stock (and the search box invites one), so the
+  // subject line keeps only the way back.
+  if (!subject && routeId === 'ticker') return;
   if (!subject) {
     box.textContent = '종목을 고르면 세 탭이 같은 종목을 보여줍니다';
     if (routeId !== 'ticker') box.append(' ', pickButton(documentRef, root, '종목 고르기'));
     nav.appendChild(box);
     return;
   }
-  const sym = documentRef.createElement('strong');
-  sym.textContent = subject.symbol;
-  box.appendChild(sym);
-  if (subject.name) box.append(` ${subject.name}`);
+  if (routeId !== 'ticker') {
+    const sym = documentRef.createElement('strong');
+    sym.textContent = subject.symbol;
+    box.appendChild(sym);
+    if (subject.name) box.append(` ${subject.name}`);
+  }
   if (subject.from) {
     const back = documentRef.createElement('button');
     back.type = 'button';
@@ -67,6 +73,7 @@ function renderSubject(documentRef, nav, subject, root, routeId) {
     box.appendChild(back);
   }
   if (routeId !== 'ticker') box.appendChild(pickButton(documentRef, root, '다른 종목'));
+  if (!box.childNodes.length) return;
   nav.appendChild(box);
 }
 

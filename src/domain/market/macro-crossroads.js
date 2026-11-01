@@ -325,7 +325,7 @@ export const BRANCHES = Object.freeze([
     costly: ['stage'],
     explore: [['signal', '시장 상태', '하이일드·CCC 격차와 시장 폭'], ['sentiment', '투자 심리', 'VIX와 신용이 같은 쪽인지']] },
   { id: 'dollarsurge', shape: 'concentration', axes: ['commodities', 'rates', 'policy'], title: '달러 급등 — 해외 자금이 빠지기 쉬운 시나리오',
-    gate: [0], conditions: [[`달러 인덱스 20거래일 +${RULES.dollar.rise20dPct + RULES.dollar.bufferPct}% 이상`, (s) => has(s.dxy20) ? dollarRiseBurden(s.dxy20) : null] /* v57.81: the 시장 axis's buffered dollar rule */, [`원/달러 20거래일 +${RULES.fx.krwMove20dPct}% 이상 (원화 약세)`, (s) => has(s.krw20) ? s.krw20 >= RULES.fx.krwMove20dPct : null], ['시장 가격이 금리 상단 쪽 (2년물이 기준금리 위)', (s) => s.lean === 'unknown' ? null : s.lean === 'hike'], ['10년물 20거래일 상승 (평소 변동 범위 밖)', (s) => rose(s, 'tnx20')]],
+    gate: [0], conditions: [[`달러 지수 20거래일 +${RULES.dollar.rise20dPct + RULES.dollar.bufferPct}% 이상`, (s) => has(s.dxy20) ? dollarRiseBurden(s.dxy20) : null] /* v57.81: the 시장 axis's buffered dollar rule */, [`원/달러 20거래일 +${RULES.fx.krwMove20dPct}% 이상 (원화 약세)`, (s) => has(s.krw20) ? s.krw20 >= RULES.fx.krwMove20dPct : null], ['시장 가격이 금리 상단 쪽 (2년물이 기준금리 위)', (s) => s.lean === 'unknown' ? null : s.lean === 'hike'], ['10년물 20거래일 상승 (평소 변동 범위 밖)', (s) => rose(s, 'tnx20')]],
     chain: ['미국 금리 우위, 안전자산 선호', '달러 강세', '신흥국·한국에서 외국인 자금 유출', '원자재 가격 하락 압력, 해외 매출 환산 감소', '수출 기업은 환율 이익, 내수·수입 기업은 부담'],
     firmer: [], weaker: ['liquidity', 'energy'], mixed: ['dollar'],
     triggers: [['us-fed-rate', '기준금리 인상', (a) => a.upperDelta > 0], ['us-cpi', '근원 CPI 전월 대비 0.4% 이상', (a) => a.coreMoM >= 0.4]],

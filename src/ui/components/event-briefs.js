@@ -57,7 +57,9 @@ function basisWord(points) {
   return BRIEF_BASIS_WORDS[points.basis] || BRIEF_BASIS_WORDS['news-report'];
 }
 
-export function briefNode(doc, brief, { showName = true } = {}) {
+// v59.55 (flow 7): `bodyOnly` returns just the folded part — a 뉴스 row already shows the headline, reaction and reason and
+// opens this body in its own fold, so it no longer repeats them and nests a second fold.
+export function briefNode(doc, brief, { showName = true, bodyOnly = false } = {}) {
   const box = el(doc, 'article', null, 'event-brief');
   box.dataset.kind = brief.kind;
   const head = el(doc, 'p', null, 'event-brief__head');
@@ -78,8 +80,8 @@ export function briefNode(doc, brief, { showName = true } = {}) {
   // segments, guidance, call points and next checks open in the one fold below.
   const reasons = brief.reasons?.points || [];
   if (reasons.length) box.append(el(doc, 'p', `이유: ${reasons[0].text}`, 'event-brief__reason'));
-  const more = el(doc, 'details', null, 'event-brief__more');
-  more.append(el(doc, 'summary', brief.kind === 'fomc' ? '수치·바뀐 문구·기자회견·다음에 볼 것' : '수치·이유·부문·가이던스·콜 핵심'));
+  const more = el(doc, bodyOnly ? 'div' : 'details', null, bodyOnly ? 'event-brief__more is-inline' : 'event-brief__more');
+  if (!bodyOnly) more.append(el(doc, 'summary', brief.kind === 'fomc' ? '수치·바뀐 문구·기자회견·다음에 볼 것' : '수치·이유·부문·가이던스·콜 핵심'));
   // v59.44: three headline figures, then capex and cash flow when the release gave them (the market priced cash).
   const cashFigure = (figure) => ['capex', 'free_cash_flow', 'operating_cash_flow'].includes(figure?.metric);
   const figures = [...(brief.figures || []).filter((figure) => !cashFigure(figure)).slice(0, 3), ...(brief.figures || []).filter(cashFigure).slice(0, 2)];
@@ -136,6 +138,7 @@ export function briefNode(doc, brief, { showName = true } = {}) {
   // P21-NUMBER-01: the check is that the same figure (with its unit and direction) stands in the quoted source sentence.
   else source.append(doc.createTextNode(`. 숫자는 원문 문장에 같은 숫자가 있는 것만 싣습니다${dropped ? `(확인되지 않은 항목 ${dropped}건 제외)` : ''}. ${aiWritten ? '요약은 공용 AI가 썼고' : '표는 공시 원문에서 그대로 읽었고'} 매매 판단이 아닙니다.`));
   more.append(source);
+  if (bodyOnly) return more;
   box.append(more);
   return box;
 }
@@ -186,7 +189,7 @@ function briefRow(doc, root, brief) {
   // The line is quieter, not thinner: the full summary (figures, guidance, reasons, source) opens in place.
   if (brief.kind === 'earnings') {
     const fold = el(doc, 'details', null, 'event-brief-row__fold');
-    fold.append(el(doc, 'summary', '실적 요약 펼치기'), briefNode(doc, brief, { showName: false }));
+    fold.append(el(doc, 'summary', '수치·이유·가이던스 펼치기'), briefNode(doc, brief, { showName: false, bodyOnly: true }));
     li.append(fold);
   }
   return li;

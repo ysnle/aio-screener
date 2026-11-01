@@ -103,7 +103,7 @@ export const PACKET_20261030_FRAMES = Object.freeze([
     ],
     reverse: '단위 수익이 낮은 새 화면도 이용이 순증이면 총이익 풀을 키울 수 있습니다. AI 검색 질문의 대부분이 원래 없던 질문이라면 잠식이 아니라 추가이고, 광고가 붙으면 격차는 좁혀집니다. 좌석 과금 소프트웨어도 AI 기능을 비싼 요금제로 팔면 좌석 감소를 상쇄할 수 있습니다.',
     channels: ['매출', '단가'], variables: ['이용량 증가율', '단위당 수익', '새 화면 비중', '과금 단위(좌석·사용량)', '광고·가격 실험 결과', '총매출 성장률'],
-    indicators: [{ label: '소프트웨어·인터넷 종목의 실적 반응', route: 'market-news', routeLabel: '뉴스' }, { label: '기업 이해의 돈이 들어오는 길', route: 'ticker', routeLabel: '종목 요약' }],
+    indicators: [{ label: '소프트웨어·인터넷 종목의 실적 반응', route: 'market-news', routeLabel: '뉴스' }, { label: '기업 이해의 돈이 들어오는 길', route: 'ticker', routeLabel: '종목 개요' }],
     shift: 'AI 이용량 증가를 매출 증가로 바로 읽던 모델에서, 매출 = 이용량 × 단위 수익으로 나눠 이용이 단위 수익이 낮은 곳으로 옮겨 가는지와 과금 단위가 AI에 어떻게 반응하는지로 읽는 모델로 전환', inputs: ['usage growth', 'revenue per unit', 'surface mix', 'pricing unit', 'monetization tests', 'total revenue growth'],
     chart: '분기별 이용량 증가율과 매출 증가율을 같은 축에 겹쳐 두 선의 간격(단위 수익 변화) 보기', counterclaim: '새 화면의 이용 대부분이 순증이면 잠식이 아니라 이익 풀 확대이고, 광고·고가 요금제로 단위 수익 격차는 좁혀질 수 있음', concepts: ['elasticity', 'competition-moat'] },
 
@@ -132,7 +132,7 @@ export const PACKET_20261030_FRAMES = Object.freeze([
     ],
     reverse: '사흘이 바닥을 보장하지 않습니다. 사업이 망가진 종목은 몇 주 뒤에도 새 저점을 만들고, 반대로 일회성 요인이 분명한 종목은 첫날 바로 되돌리기도 합니다. 이 틀은 매수·매도 시점이 아니라 매도가 끝나 가는지 읽는 관찰 순서입니다.',
     channels: ['현금'], variables: ['첫날 갭(%)', '발표 후 거래일별 종가', '거래량 추이', '발표 후 최저가 유지', '하락 이유(일시·구조)', '추정치 수정'],
-    indicators: [{ label: '주요 발표 요약의 발표 후 경로와 반응 이유', route: 'market-news', routeLabel: '뉴스' }, { label: '종목 차트의 거래량', route: 'ticker', routeLabel: '종목 요약' }],
+    indicators: [{ label: '주요 발표 요약의 발표 후 경로와 반응 이유', route: 'market-news', routeLabel: '뉴스' }, { label: '종목 차트의 거래량', route: 'ticker', routeLabel: '종목 개요' }],
     shift: '실적 뒤 하락을 첫날 수익률로 판정하던 모델에서, 발표 후 며칠의 경로·거래량·하락 이유로 매도의 끝과 재평가를 구분하는 모델로 전환', inputs: ['first-day gap', 'post-report closes', 'volume trend', 'post-report low', 'cause of the drop', 'estimate revisions'],
     chart: '발표일을 0으로 둔 거래일별 누적 수익률 선과 거래량 막대, 발표 후 최저가 수평선', counterclaim: '일회성 요인이 분명하면 첫날 바로 되돌리고, 사업이 바뀐 종목은 사흘 뒤에도 새 저점을 만들어 사흘이라는 기간 자체에 근거가 없음', concepts: ['base-rate', 'expected-value'] }
 ].map(Object.freeze));

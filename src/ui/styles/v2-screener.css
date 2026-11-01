@@ -13,7 +13,8 @@
 #page-screener[data-scr-view="validation"] .scr-view-panel { margin: 0 0 16px; }
 
 /* ═══ 2. Header: kicker (counts · close basis once) + view seg ═══ */
-#page-screener .scr-kicker { display: flex; flex-wrap: wrap; gap: 0 12px; }
+#page-screener .scr-kicker { display: flex; flex-wrap: wrap; gap: 0 4px; }
+#page-screener .scr-kicker #scr-kicker-counts:not(:empty)::after { content: ","; } /* v59.55: one line, "920종목 중 915종목 계산, 미국 10/30 종가 기준" */
 #page-screener .scr-kicker #scr-kicker-counts:empty { display: none; }
 #page-screener .scr-head-end { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
 #page-screener .scr-view-seg > button { min-width: 72px; }
@@ -21,7 +22,8 @@
 /* ═══ 3. Banner before the table, filter bar, secondary toolbar ═══ */
 #page-screener .scr-banner { margin: 0 0 16px; flex-wrap: wrap; }
 #page-screener .scr-banner[hidden] { display: none; }
-#page-screener .scr-banner-chips { flex: 0 0 auto; }
+#page-screener .scr-banner-chips { flex: 1 1 auto; min-width: 0; font-size: 13px; color: var(--text-primary); }
+#page-screener .scr-banner { padding-block: 10px; align-items: center; }
 #page-screener .scr-banner-link { flex: 0 0 auto; font-weight: 600; color: var(--data-amber); white-space: nowrap; }
 #page-screener .scr-banner-link:hover { color: var(--text-primary); }
 
@@ -191,12 +193,15 @@
 #page-screener .scr-why-factor-note { margin: 0; font-size: 12px; line-height: 1.6; color: var(--text-muted); }
 #page-screener .scr-excess-row { display: grid; grid-template-columns: 44px minmax(0, 1fr) 66px; gap: 10px; align-items: center; margin: 0 0 8px; font-size: 12px; color: var(--text-secondary); }
 #page-screener .scr-excess-bars { display: flex; flex-direction: column; gap: 3px; }
-#page-screener .scr-excess-track { position: relative; height: 6px; }
-#page-screener .scr-excess-track::before { content: ''; position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: rgba(var(--ink-rgb), 0.12); }
-#page-screener .scr-excess-fill { position: absolute; top: 0; bottom: 0; border-radius: 999px; }
-#page-screener .scr-excess-track.is-stock .scr-excess-fill { background: var(--text-primary); }
-#page-screener .scr-excess-track.is-index .scr-excess-fill { background: rgba(var(--ink-rgb), 0.22); }
+#page-screener .scr-excess-track { --signed-h: 6px; } /* v59.55 (C3): signed-bar.js draws the track, zero line and colours */
 #page-screener .scr-excess-value { text-align: right; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+#page-screener .scr-excess-value.is-up { color: var(--dir-up); }
+#page-screener .scr-excess-value.is-down { color: var(--dir-down); }
+/* v59.55 (visual review): the 순위 head's sector mix — a share comparison in ink and gold at a reading width, not full-bleed rising red. */
+#page-screener .scr-rank-read .screener-mix { max-width: 640px; }
+#page-screener .screener-mix .stock-read-bar.is-stock { background: var(--text-primary); }
+#page-screener .screener-mix .stock-read-bar { height: 6px; border-radius: 999px; }
+#page-screener .screener-mix .stock-read-legend .is-stock::before { background: var(--text-primary); }
 #page-screener .scr-excess-legend { margin: 6px 0 0; }
 #page-screener .scr-why-range-bar { margin: 10px 0 10px; }
 #page-screener .scr-why-range-legend { display: flex; justify-content: space-between; gap: 8px; font-variant-numeric: tabular-nums; }
@@ -221,12 +226,12 @@
 #page-screener .scr-stats-line { margin: 14px 4px 8px; line-height: 1.7; }
 #page-screener .scr-stats-line b { font-weight: 600; color: var(--text-secondary); }
 #page-screener .scr-reading-fold { margin: 6px 0; }
-#page-screener .scr-reading-fold > summary { grid-template-columns: minmax(0, 1fr) auto; }
+#page-screener .scr-reading-fold > summary { grid-template-columns: minmax(0, 1fr) auto; padding-inline: var(--sx-card-pad-x); } /* v59.55: on the text column */
 #page-screener .scr-reading-fold-title { font-size: 14px; font-weight: 600; }
 #page-screener .scr-more-rows { margin: 12px 0 16px; border-radius: 12px; background: var(--bg-card); box-shadow:none; overflow: hidden; }
 #page-screener .scr-more-rows .sx-row:first-child { border-top: 0; }
 #page-screener .scr-more-rows .sx-row { padding: 14px 22px; min-height: 48px; }
-#page-screener .scr-workbench-advanced > summary, #page-screener .scr-data-status > summary { padding: 8px 0; }
+#page-screener .scr-workbench-advanced > summary, #page-screener .scr-data-status > summary { padding: 8px 0 8px var(--sx-card-pad-x); }
 #page-screener .scr-fmp-status { display: none; flex-wrap: wrap; gap: 4px; align-items: center; margin: 6px 0; font-size: 12px; color: var(--text-secondary); }
 #page-screener .scr-profile-btn { min-height: 30px; padding: 0 12px; border: 0; border-radius: 999px; background: var(--sx-ink-a06); color: var(--text-primary); font-size: 12px; }
 #page-screener .scr-profile-btn.active { background: var(--text-primary); color: var(--bg-base); }
@@ -241,11 +246,7 @@
 #page-screener .scr-vh-tile.is-favorable { background: var(--sx-good-bg) !important; }
 #page-screener .scr-vh-tile.is-favorable .scr-vh-value { color: var(--data-green); }
 #page-screener .scr-vh-row { display: grid; grid-template-columns: 104px minmax(0, 1fr) 72px; gap: 14px; align-items: center; padding: 9px 0; font-size: 12px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
-#page-screener .scr-vh-track { position: relative; height: 10px; }
-#page-screener .scr-vh-track::before { content: ''; position: absolute; left: 50%; top: -6px; bottom: -6px; width: 1px; background: rgba(var(--ink-rgb), 0.12); }
-#page-screener .scr-vh-fill { position: absolute; top: 0; bottom: 0; border-radius: 999px; }
-#page-screener .scr-vh-fill.is-up { background: var(--data-green); }
-#page-screener .scr-vh-fill.is-burden { background: var(--data-amber); }
+#page-screener .scr-vh-track { --signed-h: 10px; } /* v59.55 (C3): signed-bar.js */
 #page-screener .scr-vh-ic { text-align: right; font-weight: 600; }
 /* v58.56 (#6): per-date spread rows — date · bar · 상위/하위 legs · top − bottom; the IC rows sit in a fold below. */
 #page-screener .scr-vh-spread-row { grid-template-columns: 104px minmax(0, 1fr) 128px 76px; }

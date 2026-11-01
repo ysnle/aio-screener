@@ -43,7 +43,9 @@ export function aiChainFlow({ themes = [], rows = [], session = null } = {}) {
   const down1d = groups.filter((group) => group.ret1d < 0).length;
   const down1m = groups.filter((group) => group.ret1m < 0).length;
   const weakest = groups.slice(0, 2).map((group) => `${group.name} ${signed(group.ret1m)}`).join(', ');
-  const reading = `AI 공급망 ${groups.length}개 묶음 중 ${down1d}개가 지난 거래일에 내렸고, 한 달로 보면 ${down1m}개가 내렸습니다. 한 달 가장 약한 곳은 ${weakest}입니다.`;
+  const reading = down1d === groups.length && down1m === groups.length
+    ? `AI 공급망 ${groups.length}개 묶음이 지난 거래일과 한 달 모두 내렸습니다. 한 달 가장 약한 곳은 ${weakest}입니다.`
+    : `AI 공급망 ${groups.length}개 묶음 중 ${down1d}개가 지난 거래일에 내렸고, 한 달로 보면 ${down1m}개가 내렸습니다. 한 달 가장 약한 곳은 ${weakest}입니다.`;
   return { groups, reading, down1d, down1m };
 }
 

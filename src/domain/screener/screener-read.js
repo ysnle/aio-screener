@@ -132,7 +132,7 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
   // audit #22: the ranking always continues into the two crossroads.
   next.push({ route: 'themes', label: '테마 시나리오', why: '이 단계 테마의 구성 종목을 차트·재무로 직접 확인', ctx: { anchor: 'theme-playbook' } });
   next.push({ route: 'macro', label: '거시 시나리오', why: '금리·경기 시나리오가 상위권 업종에 수혜인지 부담인지' });
-  next.push({ action: 'showTicker', arg: top[0].sym, route: 'ticker', label: `순위 맨 앞 ${top[0].sym}`, why: '상위 종목 하나를 요약·차트·재무로 확인' });
+  next.push({ action: 'showTicker', arg: top[0].sym, route: 'ticker', label: `순위 맨 앞 ${top[0].sym}`, why: '상위 종목 하나를 개요·차트·재무로 확인' });
   next.push({ route: 'signal', label: '시장 상태', why: `순위가 놓인 환경 — ${regime?.available ? regime.overall : '판정 대기'}` });
   return { available: true, total: ranked.length, topCount: top.length, topName, mix, headline, points, next };
 }

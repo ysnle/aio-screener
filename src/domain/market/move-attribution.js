@@ -8,6 +8,7 @@ import { keywordHit } from '../news/keyword-match.js';
 import { reportIsUnconfirmed } from '../news/report-verification.js';
 import { MOVER_BY_SYMBOL } from '../briefing/market-movers.js';
 import { withObjectParticle } from '../content/korean-particle.js';
+import { channelLineFor } from '../news/channel-lines.js';
 
 const HOUR = 3600000;
 const round = (value, digits = 1) => Math.round(value * 10 ** digits) / 10 ** digits;
@@ -61,7 +62,7 @@ function namesFor(sym, name) {
  * One dated item for a contributor, published in [sessionCloseMs − 30 h, sessionCloseMs + 1 h].
  * @returns {{ kind: 'brief'|'telegram'|'news', text, atMs, url } | null}
  */
-export function datedItemFor({ sym, name }, { sessionCloseMs, briefs = [], telegram = [], news = [] } = {}) {
+export function datedItemFor({ sym, name }, { sessionCloseMs, briefs = [], telegram = [], signals = [], news = [] } = {}) {
   if (!Number.isFinite(sessionCloseMs)) return null;
   const inWindow = (ms) => Number.isFinite(ms) && ms >= sessionCloseMs - 30 * HOUR && ms <= sessionCloseMs + HOUR;
   const key = String(sym).toUpperCase();
@@ -82,17 +83,19 @@ export function datedItemFor({ sym, name }, { sessionCloseMs, briefs = [], teleg
     const unconfirmed = headline.verification === 'unconfirmed' || reportIsUnconfirmed(headline.title);
     return { kind: 'news', text: `${unconfirmed ? '[미확인] ' : ''}${clip(headline.title)}`, atMs: Date.parse(headline.pubDate || headline.eventTime), url: headline.link || null, unconfirmed };
   }
-  if (post) return { kind: 'telegram', text: clip(post.summary), atMs: Date.parse(post.datetime), url: post.url || null };
+  // v59.55 (owner 11/1): the post's extracted fact about this name, never its own text.
+  const line = post ? channelLineFor(key, post, signals) : null;
+  if (line) return { kind: 'telegram', text: clip(line), atMs: Date.parse(post.datetime), url: post.url || null };
   return null;
 }
 
 /** "SK하이닉스 +10.9%(기여 +2.5%p, 10/28 3분기 실적 발표)" pieces and the sentence that carries them. */
-export function contributorsSentence(model, { indexName, sessionCloseMs, briefs, telegram, news } = {}) {
+export function contributorsSentence(model, { indexName, sessionCloseMs, briefs, telegram, signals, news } = {}) {
   if (!model?.items?.length) return null;
   const pieces = model.items.map((item) => {
-    const dated = datedItemFor(item, { sessionCloseMs, briefs, telegram, news });
+    const dated = datedItemFor(item, { sessionCloseMs, briefs, telegram, signals, news });
     const sign = (value) => `${value > 0 ? '+' : ''}${value}`;
-    const datedText = dated ? `, ${mdOf(dated.atMs)} ${dated.kind === 'telegram' ? '채널 글 ' : ''}${dated.text}` : '';
+    const datedText = dated ? `, ${mdOf(dated.atMs)} ${dated.text}` : '';
     return { ...item, dated, text: `${item.name} ${sign(round(item.ret1d, 1))}%(기여 ${sign(round(item.contributionPp, Math.abs(item.contributionPp) < 0.5 ? 2 : 1))}%p${datedText})` };
   });
   const share = Number.isFinite(model.indexChange) && Math.abs(model.indexChange) >= 0.3

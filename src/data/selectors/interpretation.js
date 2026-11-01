@@ -72,6 +72,12 @@ function signature(root, input) {
 }
 const same = (a, b) => a.length === b.length && a.every((value, index) => Object.is(value, b[index]));
 
+/** The last interpretation built for `root` (any page state), or null before the first build. v59.55: the closing
+ * 연결해서 보면 card reads it so a screen without a store does not rebuild the pipeline from the legacy row bridge. */
+export function latestMarketInterpretation(root) {
+  return root && typeof root === 'object' ? cache.get(root)?.value || null : null;
+}
+
 /** The shared interpretation for this page state; one build per input change. */
 export function marketInterpretation(root, { store = null, nowMs = Date.now() } = {}) {
   const input = collectInterpretationInputs(root, { store, nowMs });

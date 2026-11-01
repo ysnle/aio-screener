@@ -122,7 +122,9 @@ body.dark-theme .sidebar-footer .llm-panel { background: var(--white-a1); }
 
 /* ═══ 2. Page header + sub-tabs ═════════════════════════════════════════ */
 /* Kicker (기준 시각·출처, once) sits above a 34px title; no rule under the header. */
-.page-head { border: 0 !important; padding: 0 0 4px !important; margin: 0 0 20px !important; align-items: flex-end !important; gap: 16px; }
+/* v59.55 (owner 11/1, "오늘이 왼쪽으로 튀어나와"): boxes align with boxes, text with text — the header text starts on the
+   cards' text column (the .sx-card inline padding), while the floating hub tabs, a box, keep the card edge. */
+.page-head { border: 0 !important; padding: 0 0 4px var(--sx-card-pad-x) !important; margin: 0 0 20px !important; align-items: flex-end !important; gap: 16px; }
 .page-head > div:has(> .page-title) { display: flex; flex-direction: column-reverse; gap: 4px; }
 .page-title {
   font-family: var(--font-sans) !important; font-size: 28px !important; font-weight: 700 !important;
@@ -231,8 +233,9 @@ details > summary { cursor: pointer; }
 .tp-dot.is-head, .tp-swatch.is-head { fill: var(--data-amber) !important; background: var(--data-amber) !important; }
 
 /* ═══ 5. sx-* component library (3a) ═════════════════════════════════════ */
-.sx-card { padding: 20px 22px; }
-.sx-card--hero { border-radius: 12px !important; padding: 26px 30px; box-shadow:none !important; }
+:root { --sx-card-pad-x: 22px; }
+.sx-card { padding: 20px var(--sx-card-pad-x); }
+.sx-card--hero { border-radius: 12px !important; padding: 26px var(--sx-card-pad-x); box-shadow:none !important; }
 .sx-card--tile { border-radius: 12px !important; padding: 18px 20px; }
 .sx-card--flush { padding: 20px 8px 8px; }
 .sx-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 0 0 10px; }
@@ -298,6 +301,10 @@ details > summary { cursor: pointer; }
 .sx-disclosure > summary, .sx-disclosure__row {
   list-style: none; display: grid; align-items: center; gap: 16px; padding: 14px 16px; border-radius: 12px; cursor: pointer;
 }
+/* v59.55 (finish review): one row — the label takes the width, a chip and the chevron sit after it. With no columns
+   the chevron wrapped to a second row and a one-line fold stood 88px tall (브리핑 ×4, 테마 ×2, 스크리너, 거시 ×2).
+   The 국면 판정 and 거시 6요인 table rows keep their own columns (this rule had pushed their cells off the header). */
+.sx-disclosure > summary:not(.mk-axis__row, .mk-maxis__row), .sx-disclosure__row { grid-auto-flow: column; grid-template-columns: minmax(0, 1fr); }
 .sx-disclosure > summary::-webkit-details-marker { display: none; }
 .sx-disclosure > summary::after, .sx-disclosure__row::after { content: '⌄'; justify-self: end; color: var(--text-muted); font-size: 14px; }
 .sx-disclosure[open] > summary::after, .sx-disclosure.is-open > .sx-disclosure__row::after { content: '⌃'; }
@@ -381,12 +388,15 @@ body:has(#ai-panel.open) #aio-first-visit-disclaimer:not(.is-inline) { display: 
 /* First-users F27 (runs 1-4): the card floated over body text; it now opens the page as a notice in the flow. */
 #aio-first-visit-disclaimer.is-inline {
   position: relative !important; left: auto !important; right: auto !important; bottom: auto !important; transform: none !important;
-  width: auto !important; max-width: none; margin: 0 0 16px !important; padding: 14px 16px !important; z-index: auto !important;
+  width: auto !important; max-width: none; margin: 0 0 16px !important; padding: 8px 8px 8px var(--sx-card-pad-x) !important; z-index: auto !important;
   flex-direction: row !important; flex-wrap: wrap; align-items: center !important; gap: 10px 16px !important;
   border: 0.5px solid var(--border-strong) !important; font-size: 13px !important;
 }
 #aio-first-visit-disclaimer.is-inline .lu-dc-text { flex: 1 1 280px !important; min-width: 0; }
-#aio-first-visit-disclaimer.is-inline .lu-dc-btn { align-self: center; min-height: 44px; }
+/* v59.55: one line, shown until 확인 (localStorage); the page foot keeps the same words and reopens it. */
+#aio-first-visit-disclaimer.is-inline .lu-dc-title { display: inline; margin: 0 6px 0 0; font-size: 13px; }
+#aio-first-visit-disclaimer.is-inline .lu-dc-btn { align-self: center; height: 36px; min-height: 36px; padding: 0 16px !important; font-size: 13px !important; }
+@media (pointer: coarse) { #aio-first-visit-disclaimer.is-inline .lu-dc-btn { height: 44px; min-height: 44px; } }
 body.aio-disclaimer-open .sidebar { padding-bottom: 16px !important; }
 
 .sx-page-foot { clear: both; max-width: 1400px; margin: 28px auto 0; text-align: center; font-size: 12px; color: var(--text-muted); }
@@ -501,8 +511,9 @@ body.dark-theme #aio-first-visit-disclaimer { box-shadow:none !important; }
   .aio-hub-seg > .aio-hub-tab { flex: 1 1 0; padding: 0 8px !important; }
   .aio-hub-subject { flex: 1 1 100%; flex-wrap: wrap; }
   .sx-card, .aio-card, .aio-widget, .data-widget { border-radius: 12px !important; }
-  .sx-card { padding: 16px 18px; }
-  .sx-card--hero { padding: 20px 20px; border-radius: 12px !important; }
+  :root { --sx-card-pad-x: 18px; }
+  .sx-card { padding: 16px var(--sx-card-pad-x); }
+  .sx-card--hero { padding: 20px var(--sx-card-pad-x); border-radius: 12px !important; }
   .sx-verdict { font-size: 28px; }
   .sx-grid--3, .sx-grid--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .sx-grid--2 { grid-template-columns: minmax(0, 1fr); }
@@ -565,3 +576,15 @@ body.dark-theme #aio-first-visit-disclaimer { box-shadow:none !important; }
 .aio-feedback-list { margin: 0; padding-left: 20px; font-size: 14px; }
 .aio-feedback-list p { margin: 2px 0 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
 .aio-feedback-meta { font-size: 12px; color: var(--text-muted); }
+/* v59.55 (C3): one two-sided bar (src/ui/components/signed-bar.js) for every signed comparison — a quiet track, one zero
+   line, round fills. Tones: dir (rising red, falling blue, 0.0 grey), bench (the index, light ink), flat (no good or bad
+   side), verdict (양호 green, 부담 amber). Each screen sets only the height through --signed-h. */
+.signed-track { position: relative; display: block; min-width: 0; height: var(--signed-h, 8px); border-radius: 999px; background: rgba(var(--ink-rgb), 0.05); }
+.signed-track::before { content: ''; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: rgba(var(--ink-rgb), 0.3); }
+.signed-fill { position: absolute; top: 0; bottom: 0; border-radius: 999px; background: var(--text-secondary); }
+.signed-fill.is-up { background: var(--dir-up); }
+.signed-fill.is-down { background: var(--dir-down); }
+.signed-fill.is-flat { background: var(--text-secondary); }
+.signed-fill.is-bench { background: rgba(var(--ink-rgb), 0.28); }
+.signed-fill.is-good { background: var(--data-green); }
+.signed-fill.is-burden { background: var(--data-amber); }

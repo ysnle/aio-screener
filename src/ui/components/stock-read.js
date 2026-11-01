@@ -15,6 +15,7 @@ import { refreshSharedArtifact, SCENARIO_STATE } from '../../data/shared-artifac
 import { koreanThemeGroups } from '../../domain/market/korea-participation.js';
 import { summarizeValidation } from './screener-validation.js';
 import { el } from './dom.js';
+import { signedFill, signedScale, signedTrack } from './signed-bar.js';
 import { openThemeDetail } from '../navigation/theme-detail.js';
 import { buildOutOfUniverseRead } from '../../domain/entity/out-of-universe-read.js';
 import { fiscalYearLabel } from '../../domain/fundamental/period.js';
@@ -199,21 +200,18 @@ export function relativeVisual(doc, read) {
   const box = el(doc, 'div', null, 'stock-read-relative');
   box.append(el(doc, 'span', `수익률 — ${read.symbol} vs ${read.benchmarkLabel}`, 'stock-read-vis-title'));
   const rows = read.spans.filter((span) => span.stock != null);
-  const max = Math.max(1, ...rows.flatMap((span) => [Math.abs(span.stock), Math.abs(span.bench ?? 0)]));
+  const max = signedScale(rows.flatMap((span) => [span.stock, span.bench]), 1);
   for (const span of rows) {
     const line = el(doc, 'div', null, 'stock-return-signed-line');
     line.append(el(doc, 'span', span.label, 'stock-read-bar-label'));
     const pair = el(doc, 'div', null, 'stock-return-signed-pair');
     for (const [kind, value] of [['stock', span.stock], ['bench', span.bench]]) {
       if (value == null) continue;
-      const bar = el(doc, 'div', null, `stock-return-signed-bar is-${kind} ${value >= 0 ? 'is-up' : 'is-down'}`);
-      const width = Math.abs(value) / max * 50;
-      bar.style.width = `${width.toFixed(2)}%`;
-      bar.style.left = `${(value < 0 ? 50 - width : 50).toFixed(2)}%`;
+      // v59.55 (C3): the shared two-sided bar — the stock in direction colours, the index in light ink.
+      const bar = signedFill(doc, value, max, { tone: kind === 'stock' ? 'dir' : 'bench', className: `stock-return-signed-bar is-${kind}` });
       bar.title = `${kind === 'stock' ? read.symbol : read.benchmarkLabel} ${signedText(value, 1)}`;
       const row = el(doc, 'div', null, 'stock-return-signed-row');
-      const track = el(doc, 'div', null, 'stock-return-signed-track');
-      track.append(bar);
+      const track = signedTrack(doc, [bar], 'stock-return-signed-track');
       row.append(track, el(doc, 'span', `${signedText(value, 1)}`, 'stock-return-signed-value'));
       pair.append(row);
     }
@@ -221,7 +219,7 @@ export function relativeVisual(doc, read) {
     box.append(line);
   }
   const legend = el(doc, 'div', null, 'stock-read-legend');
-  legend.append(el(doc, 'span', read.symbol, 'is-stock'), el(doc, 'span', read.benchmarkLabel, 'is-bench'));
+  legend.append(el(doc, 'span', read.symbol, 'is-stock'), el(doc, 'span', String(read.benchmarkLabel || '').replace(/\s*\(.*\)$/, ''), 'is-bench'));
   box.append(el(doc, 'p', '← 하락, 공통 0% 기준, 상승 →', 'stock-return-signed-axis'), legend);
   return box;
 }
@@ -362,7 +360,7 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   if (read.spans.some((span) => span.stock != null)) {
     const card = el(doc, 'div', null, 'sx-card v2-stock-card');
     const head = el(doc, 'div', null, 'sx-card__head');
-    head.append(el(doc, 'h3', `지수 대비, ${read.benchmarkLabel}`, 'sx-card__title'), el(doc, 'span', basisShort ? `${basisShort} 종가, ${/SPY/.test(read.benchmarkLabel || '') ? '둘 다 배당 포함' : '종목은 배당 포함 · 지수는 가격만'}` : '완료 종가', 'sx-card__meta'));
+    head.append(el(doc, 'h3', `${String(read.benchmarkLabel || '지수').replace(/\s*\(.*\)$/, '')} 대비 수익률`, 'sx-card__title'), el(doc, 'span', basisShort ? `${basisShort} 종가, ${/SPY/.test(read.benchmarkLabel || '') ? '둘 다 배당 포함' : '종목은 배당 포함 · 지수는 가격만'}` : '완료 종가', 'sx-card__meta'));
     card.append(head, relativeVisual(doc, read));
     pair.append(card);
   }

@@ -163,7 +163,7 @@ export function installValidationStores(window = globalThis) {
       'BAMLH0A0HYM2': { min: 0, max: 30, warnMax: 15, label: 'HY 스프레드' },
       'VIXCLS':       { min: 0, max: 100, warnMax: 80, label: 'VIX(FRED)' },
       'ICSA':         { min: 0, max: 1000000, warnMax: 500000, label: '신규 실업수당' },
-      'DTWEXBGS':     { min: 50, max: 200, warnMax: 160, label: '달러 인덱스(FRED)' },
+      'DTWEXBGS':     { min: 50, max: 200, warnMax: 160, label: '달러 지수(FRED)' },
     },
     set(id, value, prevValue, date) {
       if (value === '.' || value === '' || value == null || isNaN(parseFloat(value))) {

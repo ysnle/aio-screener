@@ -2,6 +2,7 @@
 // theme that moved, the headline that named it the same day. Pure functions over the loaded news, intraday, timeline and
 // channel rows; the screens own the layout.
 import { finiteNumber as finite } from '../shared/number.js';
+import { channelLineFor } from '../news/channel-lines.js';
 
 // P1391 (owner review 2026-10-02): the important list — the highest-scored story per topic inside the window (moved here
 // from the news page so 오늘's 밤사이 핵심 reads the same picks as the news screen).
@@ -51,7 +52,7 @@ export function sessionNewsWindow(session) {
  * name (never a guess from the topic); a channel post counts only when its producer-extracted tickers list the symbol.
  * News outranks a channel post; within a kind the latest wins.
  */
-export function headlineForCompany({ symbol, name = '' }, { news = [], telegram = [], span = null } = {}) {
+export function headlineForCompany({ symbol, name = '' }, { news = [], telegram = [], signals = [], span = null } = {}) {
   const matcher = companyMatcher(symbol, name);
   if (!matcher || !span) return null;
   const sym = String(symbol).toUpperCase();
@@ -68,12 +69,11 @@ export function headlineForCompany({ symbol, name = '' }, { news = [], telegram 
     const ms = stampOf(row);
     const tickers = (Array.isArray(row?.tickers) ? row.tickers : []).map((tag) => String(tag).replace(/^\$/, '').toUpperCase());
     if (!inside(ms) || !tickers.includes(sym)) continue;
-    // A channel post is often a list of many names; the line shown is the part of the post that names this company,
-    // and a post whose published text does not name it (a cut summary) is passed over.
-    const part = String(row?.summary || row?.text || '').replace(/https?:\/\/\S+/g, ' ').split(/\s*(?:•|·\s|\n|>>|\s>\s)\s*/).find((segment) => matcher.test(segment));
-    if (!part) continue;
-    const text = part.replace(/\s+/g, ' ').trim();
-    if (!best || ms > best.publishedMs) best = { kind: 'telegram', row, publishedMs: ms, text: text.length > 120 ? `${text.slice(0, 117)}…` : text };
+    // v59.55 (owner 11/1): a channel post shows only the fact the producer extracted from it about this company (a
+    // target-price action, a quarter against estimates), in the app's own sentence; its text is never copied here.
+    const text = channelLineFor(sym, row, signals);
+    if (!text) continue;
+    if (!best || ms > best.publishedMs) best = { kind: 'telegram', row, publishedMs: ms, text };
   }
   return best;
 }
@@ -83,12 +83,12 @@ export function headlineForCompany({ symbol, name = '' }, { news = [], telegram 
  * same-day headline or null. A theme carries the headline of its most-moved member in the theme's direction, and says
  * which member it is.
  */
-export function moveHeadlineRows(themeFlow, { session, news = [], telegram = [], names = {}, maxStocks = 4, maxThemes = 2 } = {}) {
+export function moveHeadlineRows(themeFlow, { session, news = [], telegram = [], signals = [], names = {}, maxStocks = 4, maxThemes = 2 } = {}) {
   const span = sessionNewsWindow(session);
   if (!themeFlow?.available || !span) return [];
   const rows = [];
   const seen = new Set();
-  const lookup = (sym) => headlineForCompany({ symbol: sym, name: names[sym] || '' }, { news, telegram, span });
+  const lookup = (sym) => headlineForCompany({ symbol: sym, name: names[sym] || '' }, { news, telegram, signals, span });
   for (const split of themeFlow.memberSplits || []) {
     for (const side of [split.down, split.up]) {
       if (!side?.sym || seen.has(side.sym) || rows.length >= maxStocks) continue;

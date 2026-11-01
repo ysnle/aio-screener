@@ -10,6 +10,7 @@ import { readMarketRegime } from './market-regime.js';
 import { withObjectParticle } from '../../domain/content/korean-particle.js';
 import { el } from './dom.js';
 import { frameHead, markFrame } from './section-frame.js';
+import { openRouteSection } from './page-flow.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { buildKoreaIndexSeries } from '../../domain/market/regime-scenarios.js';
 import { deriveQuotePresentation } from '../../domain/market/quote-presentation.js';
@@ -158,8 +159,9 @@ function requestEarnings(doc, root, repaint) {
   });
 }
 
-// v59.51 (content audit): the next one or two scheduled events (the same buildBriefingSchedule rows 브리핑 lists for 7 days).
-function nextEvents(doc, root, repaint, limit = 2) {
+// v59.51 (content audit): the next scheduled events (the same buildBriefingSchedule rows 브리핑 lists for 7 days).
+// v59.55 (flow review): one row — 브리핑 다음 확인 포인트 owns the list, the branches and the 7 days.
+function nextEvents(doc, root, repaint, limit = 1) {
   requestEarnings(doc, root, repaint);
   // v58.74 (audit): on a weekend three days reached only Monday's minor reports; five reach the next week's Wednesday.
   const days = usWeekendClosed() ? 5 : 3;
@@ -221,7 +223,7 @@ function flipDistanceLine(doc, row) {
 }
 
 // v59.51 (two layers): the face of each row is the condition sentence and its distance; how far that is in ordinary daily
-// moves, every condition of the axis and the full rule open in "전체 조건과 거리". The next one or two scheduled events
+// moves, every condition of the axis and the full rule open in "전체 조건과 거리". The next scheduled event
 // close the tile (what could move the numbers), with the 7-day list one link away on 브리핑.
 function renderHeroFlips(doc, root, regime, events) {
   const tile = doc.getElementById('home-hero-flips');
@@ -291,10 +293,9 @@ function renderHeroFlips(doc, root, regime, events) {
       if (row.sourceTitle) li.title = row.sourceTitle;
       next.append(li);
     }
-    const more = el(doc, 'button', '7일 일정 → 브리핑', 'flow-next-link');
+    const more = el(doc, 'button', '확인 포인트와 7일 일정 → 브리핑', 'flow-next-link');
     more.type = 'button';
-    more.dataset.action = 'showPage';
-    more.dataset.arg = 'briefing';
+    more.addEventListener('click', () => openRouteSection(doc, root, 'briefing', 'briefing-checks'));
     nodes.push(sub, next, more);
   }
   tile.replaceChildren(...nodes);

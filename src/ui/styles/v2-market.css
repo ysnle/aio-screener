@@ -19,7 +19,7 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 .trend-chart-ref.is-band-edge { stroke: none; }
 .trend-chart-guide { fill: none; stroke: var(--text-muted); stroke-width: 1.2; stroke-dasharray: 4 3; stroke-linecap: round; } /* v58.80 run-5: the 50-day line the trend verdict reads */
 .trend-chart-ref-label { font-size: 12px; fill: var(--text-muted); font-variant-numeric: tabular-nums; paint-order: stroke; stroke: var(--bg-card); stroke-width: 3px; stroke-linejoin: round; } /* v58.79: a threshold names its value */
-@container (max-width: 380px) { .page .trend-chart-wrap .trend-chart-ref-label { font-size: 17px; } }
+@container (max-width: 380px) { .page .trend-chart-wrap .trend-chart:not(.is-actual-size) .trend-chart-ref-label { font-size: 17px; } }
 .trend-chart-dot { stroke-width: 1.5; }
 .trend-chart-tip { border-radius: 8px; }
 .trend-card { border-radius: 12px !important; }
@@ -75,7 +75,7 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 #page-signal .regime-quality-board > .mk-axis:hover, #page-signal .regime-quality-board > .mk-axis[open] { background: var(--sx-ink-a03) !important; }
 #page-signal .mk-axis > summary { padding: 14px 16px; font-size: 14px;  }
 /* Run-5 (3 personas): the default-open burden row read as closed, so the first click folded it; the cue is a word, not a 14px glyph. */
-#page-signal .mk-axis > summary::after { content: '펼치기'; font-size: 12px; color: var(--text-secondary); white-space: nowrap; }
+#page-signal .mk-axis > summary::after { content: '펼치기'; font-size: 12px; color: var(--text-secondary); white-space: nowrap; width: auto; height: auto; margin: 0; border: 0; transform: none; } /* the word, not the shared drawn chevron (responsive.css) */
 #page-signal .mk-axis[open] > summary::after { content: '접기'; }
 #page-signal .mk-axis > summary:focus-visible { outline: 2px solid var(--text-primary); outline-offset: -2px; }
 .mk-axis__name { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
@@ -109,7 +109,7 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 #page-signal .mk-axis .regime-chart-caption, #page-signal .mk-axis .regime-chart-note { font-size: 12px; line-height: 1.6; }
 .mk-axis__evidence { margin: 0; padding: 2px 20px 16px; }
 
-/* ③ 이 조합이 뜻하는 것 · 다음에 확인할 것 */
+/* ③ 지금 어떤 흐름인가 (closest flow + conflicting combinations, v59.55) · 다음에 확인할 것 */
 .mk-pair { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 14px; }
 .mk-pair > .sx-card { display: flex; flex-direction: column; gap: 12px; padding: 22px 24px; }
 .mk-combo__list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
@@ -124,6 +124,9 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 
 /* Lower cards: radar (folded), three flows, 한국. */
 .mk-lower { padding: 20px 22px; }
+/* v59.55 (visual review): the radar is the 국면 판정 face picture — an open card with the fold's header line. */
+.mk-lower__head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 0 0 14px; }
+.mk-lower__head .sx-card__meta { margin-left: auto; }
 .mk-fold > summary { list-style: none; display: flex; align-items: baseline; gap: 12px; cursor: pointer; min-height: 28px; }
 .mk-fold > summary::-webkit-details-marker { display: none; }
 .mk-fold > summary::after { content: '⌄'; color: var(--text-muted); font-size: 14px; }
@@ -133,6 +136,10 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 #page-signal .regime-radar { margin: 0; padding: 0; }
 .mk-structure:empty { display: none; }
 #page-signal .mk-structure .regime-scenarios { margin: 0; padding: 0; border: 0; }
+#page-signal .mk-structure__lead { font-size: 15px; font-weight: 600; line-height: 1.5; color: var(--text-primary); }
+/* The three flow cards need the full row: with them open, 다음에 확인할 것 moves under the card. */
+#page-signal .mk-pair:has(.mk-structure details[open]) { grid-template-columns: minmax(0, 1fr); }
+#page-signal .mk-combo .mk-structure + .mk-combo__list { padding-top: 10px; border-top: 0.5px solid rgba(var(--ink-rgb), 0.06); }
 #page-signal .mk-structure .regime-scenarios > .briefing-h2 { margin-top: 0; font-size: 14px; font-weight: 700; }
 #page-signal .regime-scenario-card { border: 0 !important; border-radius: 12px !important; }
 #page-signal .regime-scenario-card[data-lead="true"] { box-shadow: inset 0 0 0 1.5px rgba(var(--ink-rgb), 0.35) !important; }
@@ -143,7 +150,7 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 
 
 /* Shared sub-page hero (5c/5d): verdict chip + one reading line, the rest folded. */
-.mk-sub-hero { margin: 0 0 16px; padding: 22px 28px !important; }
+.mk-sub-hero { margin: 0 0 16px; padding: 22px var(--sx-card-pad-x) !important; }
 .mk-sub-hero__row { display: flex; align-items: flex-start; gap: 16px; }
 .mk-sub-hero__row > .regime-state { flex: none; margin-top: 3px; }
 .mk-sub-hero__lede { margin: 0; font-size: 18px; font-weight: 600; line-height: 1.6; letter-spacing: -0.01em; color: var(--text-primary); text-wrap: pretty; max-width: 60em; }
@@ -167,7 +174,7 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 .bb-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .bb-pair > .bb-group { background: var(--bg-card); border-radius: 12px; box-shadow:none; padding: 20px 22px; }
 #page-breadth .bb-pair .trend-card { box-shadow: none !important; background: var(--sx-ink-a03) !important; }
-#page-breadth .breadth-more > summary { padding: 10px 0 0; }
+#page-breadth .breadth-more > summary { padding: 10px 0 0 var(--sx-card-pad-x); }
 .bb-principle { padding: 20px 22px !important; margin: 0 !important; }
 .bb-principle > summary { font-size: 14px; font-weight: 700; color: var(--text-primary); }
 
@@ -178,18 +185,20 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 .mk-senti-hero > .mk-sub-hero__flip { grid-column: 1 / -1; }
 .mk-fg-gauge { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .mk-fg-gauge[hidden] { display: none; }
-.mk-fg-gauge__bar, .mk-fg-gauge__labels { display: flex; gap: 4px; }
-.mk-fg-gauge__seg { flex: var(--w, 1) 1 0; height: 12px; border-radius: 999px; background: var(--sx-ink-a07); }
-.mk-fg-gauge__seg.is-active { background: rgba(var(--ink-rgb), 0.32); }
-.mk-fg-gauge__track { position: relative; height: 18px; }
-.mk-fg-gauge__marker { position: absolute; left: var(--at, 50%); transform: translateX(-50%); font-size: 12px; font-weight: 700; color: var(--text-primary); white-space: nowrap; font-variant-numeric: tabular-nums; }
-.mk-fg-gauge__labels > span { flex: var(--w, 1) 1 0; font-size: 12px; color: var(--text-muted); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.mk-fg-gauge__labels > .is-active { color: var(--text-primary); font-weight: 600; }
+/* v59.55 (C4): the F&G band is the shared SVG gauge (gauge-bar.js); bands are one ink, today's band and name darker. */
+.mk-fg-gauge .macro-gauge-band.is-neutral { fill: rgba(var(--ink-rgb), 0.07); opacity: 1; }
+.mk-fg-gauge .macro-gauge-band.is-neutral.is-active { fill: rgba(var(--ink-rgb), 0.32); }
+.mk-fg-gauge .macro-gauge-label.is-active { fill: var(--text-primary); font-weight: 600; }
 #sentiment-card-grid, #sentiment-mini-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 14px; margin: 0 0 14px; }
 #page-sentiment .trend-card { background: var(--bg-card) !important; box-shadow:none !important; border-radius: 12px !important; padding: 20px 22px; }
 #page-sentiment .trend-card-head { align-items: baseline; }
 #page-sentiment .trend-card-title { font-size: 12px; font-weight: 500; color: var(--text-secondary); }
 #page-sentiment .trend-card-value { font-size: 28px; }
+/* v59.55 (visual audit): a folded card's native marker sat alone on its own line above the title; the fold cue is a chevron after the tags. */
+#page-sentiment details.trend-card > summary { list-style: none; cursor: pointer; }
+#page-sentiment details.trend-card > summary::-webkit-details-marker { display: none; }
+#page-sentiment details.trend-card > summary .trend-card-tags::after { content: '⌄'; margin-left: auto; color: var(--text-muted); font-size: 14px; }
+#page-sentiment details.trend-card[open] > summary .trend-card-tags::after { content: '⌃'; }
 #sentiment-temperature { background: var(--bg-card); border-radius: 12px; box-shadow:none; padding: 20px 22px; margin: 2px 0 16px !important; border: 0 !important; }
 .mk-principle { margin: 0 0 16px; padding: 22px 24px !important; }
 .mk-principle .sx-card__title { margin: 0 0 8px; }
@@ -308,7 +317,7 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 }
 @media (max-width: 743px) {
   .page .mk-hero__verdict { font-size: 28px !important; }
-  .mk-sub-hero { padding: 20px !important; }
+  .mk-sub-hero { padding: 20px var(--sx-card-pad-x) !important; }
   .mk-sub-hero__row { flex-direction: column; gap: 10px; }
   .mk-sub-hero__lede { font-size: 14px; }
   .bb-group--trio > .bb-face, #sentiment-card-grid, #sentiment-mini-grid { grid-template-columns: minmax(0, 1fr) !important; }
@@ -321,7 +330,7 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
   .mk-maxis__value { grid-area: value; font-size: 12px; color: var(--text-secondary); }
   #page-macro .mk-maxis .sx-disclosure__body { grid-template-columns: minmax(0, 1fr); padding: 0 10px 10px; }
   #page-macro > .macro-section, #page-fxbond > .rates-block, .mk-macro-top > .sx-card { padding: 18px !important; }
-  .mk-hero { padding: 22px 20px !important; }
+  .mk-hero { padding: 22px var(--sx-card-pad-x) !important; }
   .mk-axes__head { display: none; }
   .mk-axis__row { grid-template-columns: minmax(0, 1fr) auto 52px; grid-template-areas: 'name state chev' 'value value value'; gap: 4px 10px; }
   .mk-axis__row::after { grid-area: chev; }
@@ -387,20 +396,20 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
    거시 · 시장 상태 · 시장 폭 · 투자 심리: the closing lessons (screen-lessons.js), 이어서 볼 곳 (page-flow.js, host
    data-fold), the 한국 시장 참고 card (시장 상태) and the chain / oil·gold sections (거시) open on demand; the
    summary line names what is inside. */
-:is(#page-macro, #page-signal, #page-breadth, #page-sentiment) .mg-screen-lessons { margin: 16px 0 0; padding: 0; border: 0; background: none; }
-:is(#page-macro, #page-signal, #page-breadth, #page-sentiment) .mg-screen-lessons-fold { background: var(--bg-card); border-radius: 12px; box-shadow:none; }
-.mg-screen-lessons-fold > summary { grid-template-columns: auto minmax(0, 1fr) 16px; gap: 6px 14px; padding: 14px 20px; min-height: 44px; box-sizing: border-box; }
+.page .mg-screen-lessons { margin: 16px 0 0; padding: 0; border: 0; background: none; }
+.page .mg-screen-lessons-fold { background: var(--bg-card); border-radius: 12px; box-shadow:none; }
+.mg-screen-lessons-fold > summary { grid-template-columns: auto minmax(0, 1fr) 16px; gap: 6px 14px; padding: 14px var(--sx-card-pad-x); min-height: 44px; box-sizing: border-box; }
 .mg-screen-lessons-fold > summary .xr-h3 { margin: 0; font-size: 14px; font-weight: 700; white-space: nowrap; }
 .mg-screen-lessons-names { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: var(--text-secondary); }
 .mg-screen-lessons-fold[open] .mg-screen-lessons-names { white-space: normal; }
-.mg-screen-lessons-fold > .mg-lessons { margin: 0; padding: 0 20px 18px; }
+.mg-screen-lessons-fold > .mg-lessons { margin: 0; padding: 0 var(--sx-card-pad-x) 18px; }
 .page .flow-next:has(> .flow-next-fold) { margin: 12px 0 8px; padding: 0; border: 0; }
 .flow-next-fold { background: var(--bg-card); border-radius: 12px; box-shadow:none; }
-.flow-next-fold > summary { grid-template-columns: auto minmax(0, 1fr) 16px; gap: 6px 14px; padding: 14px 20px; min-height: 44px; box-sizing: border-box; }
+.flow-next-fold > summary { grid-template-columns: auto minmax(0, 1fr) 16px; gap: 6px 14px; padding: 14px var(--sx-card-pad-x); min-height: 44px; box-sizing: border-box; }
 .flow-next-fold > summary .flow-next-title { margin: 0; font-size: 14px; font-weight: 700; white-space: nowrap; }
 .flow-next-names { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: var(--text-secondary); }
 .flow-next-fold[open] .flow-next-names { white-space: normal; }
-.flow-next-fold > .flow-next-list { padding: 0 20px 18px; }
+.flow-next-fold > .flow-next-list { padding: 0 var(--sx-card-pad-x) 18px; }
 #page-signal .mk-korea .mk-fold > summary .sx-card__title { margin: 0; white-space: nowrap; }
 #page-signal .mk-korea .mk-fold > summary .sx-card__meta { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-variant-numeric: tabular-nums; }
 #page-macro .macro-fold-section .mk-fold > summary { align-items: center; }
@@ -419,4 +428,39 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 @container aio-main (max-width: 840px) {
   .mk-hero { grid-template-columns: minmax(0, 1fr); gap: 18px; }
   .bb-pair, .mk-macro-top { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* v59.55 (owner 11/1): 무슨 일이 있었나 (market-story.js) — the moves picture beside its reading, the week ahead under them,
+   and one fold with the asset checks and the earnings table. The bar rows reuse the briefing's move-row grid. */
+#page-signal .mk-story__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 16px 36px; align-items: start; }
+#page-signal .mk-story__bars .briefing-move-row { grid-template-columns: 112px minmax(0, 1fr) 56px; }
+#page-signal .mk-story .signed-fill.is-other { opacity: .5; }
+#page-signal .mk-story__reading .aio-frame-reading { margin: 0; font-size: 15px; line-height: 1.75; color: var(--text-primary); }
+#page-signal .mk-story__week { margin-top: 18px; padding-top: 16px; border-top: 0.5px solid rgba(var(--ink-rgb), 0.06); display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+#page-signal .mk-story__sub { margin: 0 0 4px; font-size: 14px; font-weight: 700; color: var(--text-primary); }
+#page-signal .mk-story__if { font-size: 13px; line-height: 1.55; color: var(--text-secondary); }
+#page-signal .mk-story__more { margin-top: 16px; }
+#page-signal .mk-story__ask { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 16px; }
+#page-signal .mk-story__more > h3 { margin-top: 14px; }
+/* the in-card fold sits 16px outside the card text (responsive.css); its body comes back to the text line */
+#page-signal .mk-story__more > :not(summary) { margin-left: 16px; margin-right: 16px; }
+#page-signal .mk-story__checks { display: grid; gap: 12px; margin: 8px 0 18px; }
+#page-signal .mk-story__check { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 2px 12px; }
+#page-signal .mk-story__check dt { grid-row: span 2; font-size: 13px; font-weight: 700; color: var(--text-primary); }
+#page-signal .mk-story__check dd { margin: 0; }
+#page-signal .mk-story__value { font-size: 13px; font-variant-numeric: tabular-nums; color: var(--text-primary); }
+#page-signal .mk-story__read { font-size: 13px; line-height: 1.6; color: var(--text-secondary); }
+#page-signal .mk-story__table { overflow-x: auto; margin-top: 8px; }
+#page-signal .mk-story__earnings { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.55; }
+#page-signal .mk-story__earnings th { text-align: left; font-size: 12px; font-weight: 600; color: var(--text-muted); padding: 0 12px 6px 0; }
+#page-signal .mk-story__earnings td { padding: 8px 12px 8px 0; vertical-align: top; border-top: 0.5px solid rgba(var(--ink-rgb), 0.06); }
+#page-signal .mk-story__earnings td:nth-child(1), #page-signal .mk-story__earnings td:nth-child(2) { white-space: nowrap; }
+#page-signal .mk-story__earnings td:nth-child(2) { font-weight: 700; font-variant-numeric: tabular-nums; }
+#page-signal .mk-story__earnings td:nth-child(3) { min-width: 240px; }
+#page-signal .mk-story__earnings td:nth-child(4) { min-width: 120px; color: var(--text-secondary); }
+#page-signal .mk-story__earnings td.is-up { color: var(--dir-up); }
+#page-signal .mk-story__earnings td.is-down { color: var(--dir-down); }
+@media (max-width: 743px) {
+  #page-signal .mk-story__grid { grid-template-columns: minmax(0, 1fr); }
+  #page-signal .mk-story__bars .briefing-move-row { grid-template-columns: 96px minmax(0, 1fr) 52px; }
 }

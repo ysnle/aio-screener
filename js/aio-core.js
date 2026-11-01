@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v59.54';
+const APP_VERSION = 'v59.55';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -1540,9 +1540,7 @@ window._aioTimerRegistry = window._aioTimerRegistry || {};
       'fred-unrate-chart': { type:'message', label:'FRED 실업률 시계열 미수신', status:'fred-chart-status' },
       'fred-cpi-chart': { type:'message', label:'FRED CPI 시계열 미수신', status:'fred-chart-status' },
       'fred-fedfunds-chart': { type:'message', label:'FRED 기준금리 시계열 미수신', status:'fred-chart-status' },
-      'rrg-canvas': { type:'message', label:'RRG 시계열 미수신', status:'rrg-chart-status' },
-      'pf-benchmark-chart': { type:'message', label:'포트폴리오 구성 후 표시' },
-      'ticker-price-chart': { type:'message', label:'티커 가격 시계열 미수신' }
+      'rrg-canvas': { type:'message', label:'RRG 시계열 미수신', status:'rrg-chart-status' }
     };
     function isBlank(canvas) {
       if (!canvas) return true;
@@ -8907,7 +8905,7 @@ window.AIO_THRESHOLD_REGISTRY = {
       return this.bands[this.bands.length - 1];
     }
   },
-  // v49.38 F3: DXY 달러 인덱스 임계값 (home L4327 인라인 정합)
+  // v49.38 F3: DXY 달러 지수 임계값 (home L4327 인라인 정합)
   DXY: {
     // 100 base (1973). <95 Risk-On(유동성 완화), 95~100 중립, 100~105 보통, 105+ 역풍, 110+ 극단 강세
     bands: [
@@ -10124,60 +10122,7 @@ if (document.readyState === 'loading') {
 }
 
 
-// ═══ v48.42: Chart.js 전역 defaults — Figma × Bloomberg 팔레트 일괄 적용 ═══
-window._aioApplyChartDefaults = function() {
-  if (typeof Chart === 'undefined' || !Chart.defaults) return;
-  var rs = getComputedStyle(document.documentElement);
-  var get = function(name, fallback) {
-    var v = rs.getPropertyValue(name).trim();
-    return v || fallback;
-  };
-  try {
-    Chart.defaults.font.family = "'Inter', 'Noto Sans KR', -apple-system, sans-serif";
-    Chart.defaults.font.size = 11;
-    Chart.defaults.color = get('--text-muted', '#978365');
-    Chart.defaults.borderColor = get('--chart-grid', 'rgba(255,255,255,0.06)');
-    if (Chart.defaults.plugins && Chart.defaults.plugins.tooltip) {
-      Chart.defaults.plugins.tooltip.backgroundColor = get('--bg-card', '#111927');
-      Chart.defaults.plugins.tooltip.borderColor = get('--border-strong', 'rgba(255,255,255,0.12)');
-      Chart.defaults.plugins.tooltip.borderWidth = 1;
-      Chart.defaults.plugins.tooltip.titleColor = get('--text-secondary', '#b9a88d');
-      Chart.defaults.plugins.tooltip.bodyColor = get('--text-primary', '#e6f4fe');
-      Chart.defaults.plugins.tooltip.padding = 10;
-      Chart.defaults.plugins.tooltip.cornerRadius = 8;
-      Chart.defaults.plugins.tooltip.titleFont = { size: 11, weight: '600' };
-      Chart.defaults.plugins.tooltip.bodyFont = { family: "'JetBrains Mono', monospace", size: 11 };
-      Chart.defaults.plugins.tooltip.boxPadding = 4;
-    }
-    if (Chart.defaults.plugins && Chart.defaults.plugins.legend && Chart.defaults.plugins.legend.labels) {
-      Chart.defaults.plugins.legend.labels.color = get('--text-secondary', '#b9a88d');
-      Chart.defaults.plugins.legend.labels.font = { size: 11, weight: '500' };
-    }
-  } catch (e) {
-    if (window._aioLog) window._aioLog('warn', 'chart', 'defaults 설정 실패: ' + e.message);
-  }
-};
-if (typeof Chart !== 'undefined') {
-  window._aioApplyChartDefaults();
-} else {
-  // v49.1 P185: raw setInterval → _aioRegisterTimer (타이머 레지스트리 등록, 중복 방지)
-  var _chartWait = 0;
-  window._aioRegisterTimer('chartReady', function() {
-    _chartWait += 200;
-    if (typeof Chart !== 'undefined') {
-      window._aioApplyChartDefaults();
-      if (window._aioTimerRegistry && window._aioTimerRegistry['chartReady']) {
-        clearInterval(window._aioTimerRegistry['chartReady']);
-        delete window._aioTimerRegistry['chartReady'];
-      }
-    } else if (_chartWait > 5000) {
-      if (window._aioTimerRegistry && window._aioTimerRegistry['chartReady']) {
-        clearInterval(window._aioTimerRegistry['chartReady']);
-        delete window._aioTimerRegistry['chartReady'];
-      }
-    }
-  }, 200);
-}
+// v59.55: the Chart.js global defaults and their chartReady wait left with the last Chart.js screen.
 
 
 window._aioVaultPublicMode = function(el) {
@@ -16298,7 +16243,7 @@ var breadcrumbMap = {
   'theme-detail': ['테마와 섹터','테마 상세'],
   // A direct ticker-route visit has no selected symbol yet; do not present a
   // stale-looking placeholder symbol as if it were the current entity.
-  ticker: ['종목','요약'],
+  ticker: ['종목','개요'],
 };
 
 // ═══ v49.1 P184: AIO.state — 전역 변수 namespace 초기화 ═══════════════════════
@@ -16489,7 +16434,7 @@ window.PAGES = {
   'themes':         { label: '테마/섹터',        init: null, chatCtx: 'themes' },
   'theme-detail':   { label: '테마 상세',        init: null, chatCtx: 'theme-detail' },
   'portfolio':      { label: '포트폴리오',       init: null, chatCtx: 'portfolio' },
-  'ticker':         { label: '요약',            init: null, chatCtx: null, contextScope: 'entity' },
+  'ticker':         { label: '개요',            init: null, chatCtx: null, contextScope: 'entity' },
   'market-news':    { label: '시장 뉴스',        init: null, chatCtx: null },
   // v53.7 (P725): kr-home/kr-supply/kr-themes/kr-macro/kr-technical 라우트 퇴역 —
   // 콘텐츠는 themes/macro/technical의 "한국 시장" 통합 섹션으로 이관(요소 id 보존),

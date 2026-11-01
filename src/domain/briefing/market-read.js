@@ -728,10 +728,10 @@ export function buildMarketRead(input = {}) {
   // P1599 (F101): structured moves for the briefing chart. Percent assets share one axis; the 10-year yield
   // moves in basis points and is kept apart so the two units never share a scale.
   const moves = [
-    ['S&P 500', spx], ['나스닥 종합', s.nasdaq], ['달러 인덱스', s.dxy], ['WTI', s.wti], ['금', s.gold], ['코스피', s.kospi], ['원/달러', s.usdkrw]
+    ['S&P 500', spx], ['나스닥 종합', s.nasdaq], ['달러 지수', s.dxy], ['WTI', s.wti], ['금', s.gold], ['코스피', s.kospi], ['원/달러', s.usdkrw]
   // v58.71: each row carries its own close date — futures, dollar and won close a session later than the S&P 500, and a
   // provider gap (Yahoo's empty 10/22 WTI·gold·won bars) can hold one back further; the chart names a date that differs.
-  ].map(([label, stat]) => ({ label, unit: '%', neutral: label === '달러 인덱스' || label === '원/달러', asOf: stat?.date || null, d1: stat ? pct(stat.value, stat.d1) : null, d5: stat ? pct(stat.value, stat.d5) : null }))
+  ].map(([label, stat]) => ({ label, unit: '%', neutral: label === '달러 지수' || label === '원/달러', asOf: stat?.date || null, d1: stat ? pct(stat.value, stat.d1) : null, d5: stat ? pct(stat.value, stat.d5) : null }))
     .concat(tnx ? [{ label: '미 10년물', unit: 'bp', asOf: tnx.date || null, d1: bp(tnx.value, tnx.d1), d5: tnx5 }] : [])
     .filter((row) => Number.isFinite(row.d1) || Number.isFinite(row.d5));
   // v57.77: the move chart above the cards already draws each asset's 1-day and 5-day move, so a card for an asset
@@ -749,14 +749,14 @@ export function buildMarketRead(input = {}) {
   };
   const drivers = [
     { id: 'index', title: '지수, 시장 폭', values: [['S&P 500', level('S&P 500', spx)], ['나스닥 종합', level('나스닥 종합', s.nasdaq)], ['50일선 위 종목', b50 == null ? null : `${fmt(b50, 0)}%`]], context: ma(spx, 'S&P 500'), reads: restFor('index') },
-    { id: 'rates', title: '금리, 달러', values: [['미 10년물', level('미 10년물', tnx, 2, '%')], ['달러 인덱스', level('달러 인덱스', s.dxy)]], context: null, reads: restFor('rates') },
+    { id: 'rates', title: '금리, 달러', values: [['미 10년물', level('미 10년물', tnx, 2, '%')], ['달러 지수', level('달러 지수', s.dxy)]], context: null, reads: restFor('rates') },
     { id: 'commodities', title: '원자재', values: [['WTI', level('WTI', s.wti)], ['금', level('금', s.gold, 0)]], context: null, reads: restFor('commodities') },
     { id: 'risk', title: '변동성, 위험선호', values: [['VIX', vix ? `${fmt(vix.value)} (5일 ${signed(vix5, 0)})` : null], ['하이일드 스프레드', hyBp == null ? null : `${fmt(hyBp, 0)}bp`], ['풋/콜', pcr == null ? null : fmt(pcr)], ['F&G', fg == null ? null : fmt(fg, 0)]], context: null, reads: restFor('risk') },
     { id: 'korea', title: '한국', values: [['코스피', level('코스피', s.kospi)], ['원/달러', level('원/달러', s.usdkrw, 1)]], context: null, reads: restFor('korea') }
   ].map((row) => ({ ...row, values: row.values.filter(([, value]) => value) }));
   const headline = statements[0] || null;
   // P1602: archive values and provenance come from the same filtered observations as the screen.
-  const factFields = { 'S&P 500': 'spx', '나스닥 종합': 'nasdaq', '미 10년물': 'tnx', '달러 인덱스': 'dxy', 'WTI': 'wti', '금': 'gold', '코스피': 'kospi', '원/달러': 'usdkrw', '50일선 위 종목': 'breadth50', VIX: 'vix', 'F&G': 'fg' };
+  const factFields = { 'S&P 500': 'spx', '나스닥 종합': 'nasdaq', '미 10년물': 'tnx', '달러 지수': 'dxy', 'WTI': 'wti', '금': 'gold', '코스피': 'kospi', '원/달러': 'usdkrw', '50일선 위 종목': 'breadth50', VIX: 'vix', 'F&G': 'fg' };
   const creditFields = { '하이일드 스프레드': 'hy', '풋/콜': 'pcr', 'F&G': 'fg' };
   const facts = drivers.flatMap((driver) => driver.values.map(([label, value]) => {
     const field = factFields[label];
@@ -1182,7 +1182,7 @@ export function buildMarketRegime(input = {}) {
     const rec50 = recordOf('breadth50', b50);
     const rec200 = recordOf('breadth200', b200);
     const recordText = (rec) => rec?.pct == null ? '' : `, 기록 ${rec.n}일 중 ${rec.pct}백분위${rec.provisional ? '(잠정)' : ''}`;
-    const recordRead = rec50?.pct == null ? '' : ` 50일선 위 비율 ${fmt(b50, 0)}%는 AIO 자체 기록 ${rec50.n}일 중 ${rec50.pct}백분위입니다${rec50.provisional ? `(기록 ${RECORD_FULL_YEAR}거래일 미만, 잠정)` : ''}.`;
+    const recordRead = rec50?.pct == null ? '' : ` 50일선 위 비율 ${fmt(b50, 0)}%는 지난 ${rec50.n}거래일 중 ${rec50.pct >= 80 ? '높은 편' : rec50.pct <= 20 ? '낮은 편' : rec50.pct >= 60 ? '중간보다 조금 높은 편' : rec50.pct <= 40 ? '중간보다 조금 낮은 편' : '중간쯤'}입니다(백분위 ${rec50.pct}${rec50.provisional ? ', 기록이 1년 미만이라 잠정' : ''}).`;
     const read = (state === 'favorable' ? '상승이 다수 종목으로 퍼져 있습니다.'
       : breadthHeld ? `50일선 위 종목 비율이 ${shortDate(breadthLatch.since)}부터 ${B.weakBelow}% 아래에 머물다 ${fmt(b50, 0)}%로 올라왔지만, ${B.holdExitAt}% 위로 회복하기 전까지는 참여가 좁은 상태(부담)로 봅니다.`
       // v57.81: while the leadership break holds, the narrow tape is not "the index leaning on a few leaders" — they are falling too.
@@ -1194,7 +1194,7 @@ export function buildMarketRegime(input = {}) {
         ? breadthGapRead(b20, b50, s.breadth20) : '');
     const flip = state === 'unknown' ? null
       : state === 'burden' ? `50일선·200일선 위 종목 비율이 모두 ${B.holdExitAt}% 이상이면 중립(${B.weakBelow}% 아래로 내려간 뒤에는 ${B.holdExitAt}%까지 회복해야 함), 모두 ${RULES.breadth.broadAtLeast}% 이상이면 양호`
-        : state === 'favorable' ? `둘 중 하나라도 ${RULES.breadth.broadAtLeast}% 아래면 중립, ${RULES.breadth.weakBelow}% 아래면 부담`
+        : state === 'favorable' ? `50일선·200일선 위 비율 중 하나라도 ${RULES.breadth.broadAtLeast}% 아래면 중립, ${RULES.breadth.weakBelow}% 아래면 부담`
           : `50일선·200일선 위 종목 비율이 모두 ${RULES.breadth.broadAtLeast}% 이상이면 양호, 하나라도 ${RULES.breadth.weakBelow}% 아래면 부담`;
     axes.push(axis('breadth', '시장 폭', state, [
       ['20일선 위 종목 (단기)', b20 == null ? null : `${fmt(b20, 0)}%`],
@@ -1268,7 +1268,7 @@ export function buildMarketRegime(input = {}) {
           : `VIX ${V.calmBelow - V.calmBufferPt} 미만(또는 ${V.calmBelow} 미만에서 5일 하락)이고 5일 상승이 +${V.rise5dWatchPct}% 미만, VIX/3개월 VIX ${V.calmRatioBelow} 미만이면 양호. VIX ${V.stressAt} 이상, VIX/3개월 VIX ${V.invertedRatioAt} 이상(역전), 5일 +${V.spike5dPct}% 급등 중 하나면 부담`;
     axes.push(axis('volatility', '변동성', state, [
       ['VIX', vix ? `${fmt(vix.value)} (5일 ${signed(vix5, 0)})` : null],
-      ['VIX / 3개월 VIX', ratio == null ? null : `${fmt(ratio)} ${ratio >= V.invertedRatioAt ? '(역전)' : ratio >= V.calmRatioBelow ? '(평탄)' : '(정상)'}`]
+      ['단기 불안 비율', ratio == null ? null : `${fmt(ratio)} ${ratio >= V.invertedRatioAt ? '(역전)' : ratio >= V.calmRatioBelow ? '(평탄)' : '(정상)'}`]
     ], read, flip, alignments.vix));
     attachDistance(axes[axes.length - 1], volatilityDistance);
   }
@@ -1456,8 +1456,8 @@ export function buildMarketRegime(input = {}) {
         pricePoint(wti, 'WTI', 'WTI', RULES.oil.rise20dPct, 2), pricePoint(wti, 'WTI', 'WTI', RULES.oil.fall20dPct, 2), positionPoint(wti, 'WTI가', 'WTI', RULES.oil.rangeHighAt, 2)
       ].filter(Boolean) } : null,
       s.dxy?.d20 ? { key: 'dxy', current: s.dxy.value, typical: typicalDailyMove(buildCloseSeries(input.history, 'dxy', { through: basis })), points: [
-        pricePoint(s.dxy, '달러 인덱스', '달러', D.rise20dPct + D.bufferPct, 2), pricePoint(s.dxy, '달러 인덱스', '달러', D.rise20dPct, 2), pricePoint(s.dxy, '달러 인덱스', '달러', 0, 2),
-        positionPoint(s.dxy, '달러 인덱스가', '달러', D.rangeHighAt, 2)
+        pricePoint(s.dxy, '달러 지수', '달러', D.rise20dPct + D.bufferPct, 2), pricePoint(s.dxy, '달러 지수', '달러', D.rise20dPct, 2), pricePoint(s.dxy, '달러 지수', '달러', 0, 2),
+        positionPoint(s.dxy, '달러 지수가', '달러', D.rangeHighAt, 2)
       ].filter(Boolean) } : null
     ].filter(Boolean);
     const commoditiesDistance = state === 'unknown' ? null : flipDistanceSearch({
@@ -1482,7 +1482,7 @@ export function buildMarketRegime(input = {}) {
     axes.push(axis('commodities', '달러와 원자재', state, [
       ['WTI', wti ? `${fmt(wti.value)}달러 (20일 ${signed(wti20)}${oilTurn ? `, 최근 5일 ${signed(wti5)} ${oilTurn}` : ''})` : null],
       ['WTI 1년 범위 내 위치', wti?.yearPosition == null ? null : `${fmt(wti.yearPosition * 100, 0)}%`],
-      ['달러 인덱스', s.dxy ? `${fmt(s.dxy.value)} (20일 ${signed(dxy20)}${dxyPos != null ? `, 1년 범위 ${fmt(dxyPos * 100, 0)}%` : ''})` : null],
+      ['달러 지수', s.dxy ? `${fmt(s.dxy.value)} (20일 ${signed(dxy20)}${dxyPos != null ? `, 1년 범위 ${fmt(dxyPos * 100, 0)}%` : ''})` : null],
       ['금', s.gold ? `${fmt(s.gold.value, 0)}달러 (20일 ${signed(gold20)})` : null]
     ], read, flip, alignments.wti));
     attachDistance(axes[axes.length - 1], commoditiesDistance);

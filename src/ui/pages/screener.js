@@ -1,4 +1,5 @@
 import { createResourceBag } from '../../app/lifecycle.js';
+import { signedBar, signedScale } from '../components/signed-bar.js';
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
 import { loadJsonArtifact, stableFetcher } from '../../data/artifact-cache.js';
 import { renderScreenerValidation, readValidationState, renderValidationHero } from '../components/screener-validation.js';
@@ -170,7 +171,7 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
   // v57.87: base number, pocket pivot, index down-day resilience, heavy down days and climax signs (technical/follow-through.js).
   { key: 'followThrough', label: '후속 확인', hint: '베이스 순번·포켓 피벗·지수 하락일 버팀·거래량 실린 하락·클라이맥스 징후 — 종가 기준 관찰, 매매 신호 아님', sortable: false, align: 'left', width: 176, group: 'setup', researchOnly: true },
   // v58.75 (persona review): the stage of the stock's themes, the same rows the 테마 시나리오 and the stock summary read.
-  { key: 'themeStage', label: '테마 단계', hint: '이 종목이 속한 테마의 지금 단계 — 테마 시나리오·종목 요약과 같은 값. 테마 상태 자료가 최신일 때만 표시', sortable: false, align: 'left', width: 150, group: 'evidence' },
+  { key: 'themeStage', label: '테마 단계', hint: '이 종목이 속한 테마의 지금 단계 — 테마 시나리오·종목 개요과 같은 값. 테마 상태 자료가 최신일 때만 표시', sortable: false, align: 'left', width: 150, group: 'evidence' },
   { key: 'news', label: '최신뉴스·근거', sortable: false, align: 'left', width: 190, group: 'evidence' }
 ]);
 
@@ -549,7 +550,7 @@ function renderPresetLesson(documentRef, root, presetsHost, screenId, screenName
   const open = block.open;
   const name = screenName || '이 조건';
   const summary = documentRef.createElement('summary');
-  summary.textContent = `${name}: 이 조건을 왜 보나`;
+  summary.textContent = `${name} — 이 조건을 보는 이유`;
   const columnLabels = lesson.columns.map((key) => SCREENER_COLUMN_REGISTRY.find((column) => column.key === key)?.label).filter(Boolean);
   const rows = [
     ['원리', lesson.principle],
@@ -1208,17 +1209,9 @@ function renderExcessBars(documentRef, row, benchmark) {
     host.append(note);
     return;
   }
-  const max = Math.max(1, ...windows.flatMap((item) => [Math.abs(item.stock), Math.abs(item.index)]));
-  const bar = (value, kind) => {
-    const track = documentRef.createElement('span');
-    track.className = `scr-excess-track is-${kind}`;
-    const fill = documentRef.createElement('span');
-    fill.className = 'scr-excess-fill';
-    fill.style.width = `${Math.min(50, Math.abs(value) / max * 50).toFixed(1)}%`;
-    fill.style[value >= 0 ? 'left' : 'right'] = '50%';
-    track.append(fill);
-    return track;
-  };
+  // v59.55 (C3): the shared two-sided bar, coloured as on 종목's 지수 대비 bars (the stock by direction, SPY in light ink).
+  const max = signedScale(windows.flatMap((item) => [item.stock, item.index]), 1);
+  const bar = (value, kind) => signedBar(documentRef, value, max, { tone: kind === 'stock' ? 'dir' : 'bench', trackClass: `scr-excess-track is-${kind}` });
   for (const item of windows) {
     const gap = item.stock - item.index;
     const line = documentRef.createElement('div');
@@ -1231,14 +1224,15 @@ function renderExcessBars(documentRef, row, benchmark) {
     bars.className = 'scr-excess-bars';
     bars.append(bar(item.stock, 'stock'), bar(item.index, 'index'));
     const value = documentRef.createElement('span');
-    value.className = `scr-excess-value ${gap >= 0 ? 'scr-tone-up' : 'scr-tone-burden'}`;
+    // v59.55 (visual review): a return gap is a direction (rising red, falling blue), as on 종목's 지수 대비 bars.
+    value.className = `scr-excess-value ${gap > 0 ? 'is-up' : gap < 0 ? 'is-down' : ''}`;
     value.textContent = signedText(gap, 1, '%p');
     line.append(label, bars, value);
     host.append(line);
   }
   const legend = documentRef.createElement('p');
   legend.className = 'sx-meta scr-excess-legend';
-  legend.textContent = `진한 막대 = 종목, 옅은 막대 = S&P 500(SPY), 오른쪽 = 차이, 둘 다 ${rowDay} 종가`;
+  legend.textContent = `색 막대 = 종목, 옅은 막대 = S&P 500(SPY), 오른쪽 = 차이, 둘 다 ${rowDay} 종가`;
   host.append(legend);
 }
 
@@ -1251,14 +1245,11 @@ function renderValidationState(documentRef, root, metadata, listingMarket) {
   if (banner) {
     banner.hidden = false;
     banner.dataset.validationState = read.state;
+    // v59.55 (alignment pass): one plain line on every device instead of two jargon chips (검증 요건 미충족, 판단 불가).
+    const plain = read.chips.includes('판단 불가') ? '과거 검증으로는 아직 효과를 판단할 수 없습니다' : read.chips.join(', ');
     const chips = documentRef.createElement('span');
-    chips.className = 'sx-chips scr-banner-chips';
-    for (const label of read.chips) {
-      const chip = documentRef.createElement('span');
-      chip.className = 'sx-chip sx-chip--sm sx-chip--warn';
-      chip.textContent = label;
-      chips.append(chip);
-    }
+    chips.className = 'scr-banner-chips scr-banner-text';
+    chips.textContent = `${plain ? `${plain} — ` : ''}순위는 확인할 후보 목록입니다`;
     // v59.51 (content audit): the 순위 view carries the state chips and the link; the sentence is the 사후 검증 hero's.
     banner.title = read.sentence;
     const link = documentRef.createElement('button');
@@ -1273,7 +1264,7 @@ function renderValidationState(documentRef, root, metadata, listingMarket) {
     short.className = 'scr-banner-short';
     short.dataset.aioScreenerAction = 'tab';
     short.dataset.aioScreenerArg = 'backtest';
-    short.textContent = `${read.chips.length ? `${read.chips.join(', ')} — ` : ''}순위는 확인할 후보 목록 ›`;
+    short.textContent = `${plain ? `${plain} — ` : ''}순위는 확인할 후보 목록 ›`;
     short.title = read.sentence;
     banner.replaceChildren(chips, link, short);
   }
@@ -2451,7 +2442,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   const previewConditions = preview?.definition ? describeFilterAst(preview.definition) : null;
   // 개편 v2 (3c): the kicker states the collected and computable counts once, before the close basis.
   const kickerCounts = documentRef.getElementById('scr-kicker-counts');
-  if (kickerCounts) kickerCounts.textContent = state?.status === 'unavailable' || !allRows.length ? '' : `대상 ${allRows.length}종목 중 ${readyCount}종목 필수 필드 충족`;
+  if (kickerCounts) kickerCounts.textContent = state?.status === 'unavailable' || !allRows.length ? '' : `${allRows.length}종목 중 ${readyCount}종목 계산`;
   // P1167 (15 D05): 정적 유니버스가 MIC·assetType을 발행하지 않으면 식별 미확인 행이 남는다. 가격 조회
   // 성공과 식별 metadata 확인을 같은 것으로 읽지 않도록 미확인 수와 누락 필드를 함께 표시한다.
   // v58.74 (owner decision INTL, resolved on the recommended option): Tokyo/Taiwan listings stay in the table for their
@@ -2679,7 +2670,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
           const lead = ranked[0] || null;
           renderNextSteps(documentRef, documentRef.getElementById('screener-next'), [
             { route: 'themes', label: '한국 테마', why: '상위권 한국 종목이 몰린 테마가 확정 종가 기준으로 어떻게 움직였는지', ctx: { anchor: 'kr-integrated-themes' } },
-            ...(lead ? [{ action: 'showTicker', arg: lead.sym, route: 'ticker', label: `순위 맨 앞 ${lead.sym}`, why: `${lead.name || lead.sym} — 한국 순위 맨 앞 종목을 요약·차트·재무로 확인(검증 전이라 후보로 읽음)` }] : [])
+            ...(lead ? [{ action: 'showTicker', arg: lead.sym, route: 'ticker', label: `순위 맨 앞 ${lead.sym}`, why: `${lead.name || lead.sym} — 한국 순위 맨 앞 종목을 개요·차트·재무로 확인(검증 전이라 후보로 읽음)` }] : [])
           ]);
           reapplyScreenerNextLead(documentRef);
         } else {
@@ -2807,7 +2798,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
           const rankingLabel = rankingState === 'ranked' ? '순위 계산됨'
             : rankingState === 'not-requested' ? '순위 미요청(필터 미통과)' : '순위 계산 불가';
           const title = filterState === 'passed'
-            ? (rankingState === 'ranked' && ordinalRank != null ? '조건 통과, 순위 계산 가능' : '조건 통과, 순위 계산 보류')
+            ? (rankingState === 'ranked' && ordinalRank != null ? '조건 통과' : '조건 통과, 순위 계산 보류')
             : (filterState === 'rejected' ? '조건 미충족' : '데이터 부족 — 판정 보류');
          const missing = explanation.missingEvidence || row.setupProfile?.missingEvidence || [];
          // v57.81: model-level contrary checks (five-session break, under the 20/50/200-day line, RSI regime) run on every
@@ -2846,13 +2837,13 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
           // (filter/ranking states, raw factor input, factor confidence) stays on hover.
           const percentileValue = finite(row.rank);
           const statusEl = documentRef.getElementById('scr-why-status');
+          // v59.55 (alignment pass): the rank and percentile are the panel head's numbers; repeating them here under another
+          // population ("조건 통과 종목 중") read as a second rank. The line keeps the state and the data coverage.
           setText('scr-why-status', [
             title,
-            ordinalRank == null ? '순위 계산 보류' : `조건 통과 종목 중 ${ordinalRank}위`,
-            percentileValue == null ? null : `전체 백분위 ${percentileValue.toFixed(0)}`,
-            readiness.coveragePct == null ? null : `표시 항목 자료 ${readiness.coveragePct}% 수신`
-          ].filter(Boolean).join(', '));
-          if (statusEl) statusEl.title = `${filterLabel}, ${rankingLabel}, ${rankText}, 팩터 근거 ${factorConfidence == null ? '—' : `${Math.round(factorConfidence * 100)}%`} (수익확률 아님)`;
+            readiness.coveragePct == null ? null : `자료 ${Math.round(readiness.coveragePct)}% 확보`
+          ].filter(Boolean).join(' · '));
+          if (statusEl) statusEl.title = `${filterLabel}, ${rankingLabel}, ${rankText}${percentileValue == null ? '' : `, 전체 백분위 ${percentileValue.toFixed(0)}`}, 팩터 근거 ${factorConfidence == null ? '—' : `${Math.round(factorConfidence * 100)}%`} (수익확률 아님)`;
          const uncheckedNote = modelContrary.unchecked.length ? ` 자료가 없어 점검하지 못한 항목: ${modelContrary.unchecked.join(', ')}.` : '';
          setText('scr-why-contrary', `${contrary.length ? contrary.join(', ') : row.screenStatus === 'unavailable' ? '필수 근거 미수신으로 등록 조건 판단을 보류했고, 모델 점검(5거래일 낙폭, 20·50·200일선, RSI)에는 걸리지 않았습니다.' : '모델 점검(5거래일 낙폭, 20·50·200일선, RSI)과 등록된 반대 조건 모두에 걸리지 않았습니다 — 위험이 없다는 뜻은 아닙니다.'}${uncheckedNote}`);
           // v58.75 (teach-and-check D7): the chosen screen's conditions with this row's values and the near-threshold ones.
@@ -2914,6 +2905,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            if (!factors.length) factorList.appendChild(text(documentRef, '팩터 점수 미수신'));
            // 개편 v2 (3c): heaviest weight first; the author·year line appears only for a factor the score actually weights.
            const weightOf = (key) => finite(appliedWeights[key]) ?? 0;
+           const evidenceLines = [];
            [...factors].sort((a, b) => weightOf(b[0]) - weightOf(a[0])).slice(0, 8).forEach(([key, value]) => {
              const item = documentRef.createElement('div');
              item.className = 'sx-factor scr-why-factor';
@@ -2934,8 +2926,9 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
              const contribution = share == null ? null : Number(value) * share;
              const note = documentRef.createElement('p');
              note.className = 'scr-why-factor-evidence';
-             const evidence = share > 0 ? FACTOR_EVIDENCE[key] : null;
-             note.textContent = `${share == null ? '비중 미수신 — 순위 합산에 쓰이지 않았습니다' : `비중 ${Math.round(share * 100)}%${contribution == null ? '' : `, 기여 ${contribution.toFixed(1)}`}`}${evidence ? ` — ${evidence}` : ''}`;
+             // v59.55 (visual audit): the bar line keeps weight and contribution; the study behind the factor moves to the fold below.
+             if (share > 0 && FACTOR_EVIDENCE[key]) evidenceLines.push(`${FACTOR_LABELS[key]?.label || key}: ${FACTOR_EVIDENCE[key]}`);
+             note.textContent = share == null ? '비중 미수신 — 순위 합산에 쓰이지 않았습니다' : `비중 ${Math.round(share * 100)}%${contribution == null ? '' : `, 기여 ${contribution.toFixed(1)}`}`;
              item.title = `${FACTOR_LABELS[key]?.description || key}, 정규화 점수 ${Number(value).toFixed(1)}, 적용 가중치 ${weight == null ? '미수신' : Number(weight).toFixed(3)}, 가중 기여 ${contribution == null ? '계산 불가' : contribution.toFixed(2)}`;
              item.append(head, track, note);
              factorList.appendChild(item);
@@ -2957,8 +2950,9 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            const calc = documentRef.createElement('details');
            calc.className = 'scr-why-calc';
            const calcSummary = documentRef.createElement('summary');
-           calcSummary.textContent = '점수 계산 순서, 요인 겹침';
+           calcSummary.textContent = evidenceLines.length ? '점수 계산 순서, 요인 겹침, 연구 근거' : '점수 계산 순서, 요인 겹침';
            calc.append(calcSummary, rankLine);
+           for (const line of evidenceLines) { const node = documentRef.createElement('p'); node.className = 'scr-why-factor-note'; node.textContent = line; calc.appendChild(node); }
            factorList.appendChild(calc);
            const overlap = documentRef.createElement('div');
            overlap.className = 'scr-why-factor-note';

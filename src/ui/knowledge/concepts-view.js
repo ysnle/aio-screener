@@ -333,7 +333,7 @@ export function renderConceptsPage(doc, { root, state, data, renderMap, mapAside
     const chapterId = state.chapterId || data.chapters?.[0]?.id;
     const chapter = (data.chapters || []).find((item) => item.id === chapterId);
     if (chapter?.routeTarget?.routeId) {
-      const next = block('이어서 볼 화면');
+      const next = block('이어서 볼 곳');
       const link = el(doc, 'button', 'af-route');
       link.type = 'button';
       const hub = ROUTE_HUBS.find((item) => item.routes.some((r) => r.id === chapter.routeTarget.routeId));

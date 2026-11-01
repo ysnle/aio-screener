@@ -28,7 +28,7 @@ export function moveNewsRows(root, store, flow) {
   const news = [...selectNewsItems(store?.getState?.() || {}), ...(Array.isArray(root?._serverNewsIntraday) ? root._serverNewsIntraday : []),
     ...(timeline.current?.headlines || []), ...(Array.isArray(timeline.slots) ? timeline.slots : []).flatMap((slot) => slot?.headlines || [])];
   const names = symbolNames(root);
-  return moveHeadlineRows(flow.themes, { session: flow.session, news, telegram: Array.isArray(root?.AIO_TELEGRAM_CURRENT_ITEMS) ? root.AIO_TELEGRAM_CURRENT_ITEMS : [], names });
+  return moveHeadlineRows(flow.themes, { session: flow.session, news, telegram: Array.isArray(root?.AIO_TELEGRAM_CURRENT_ITEMS) ? root.AIO_TELEGRAM_CURRENT_ITEMS : [], signals: root?.AIO_TELEGRAM_SIGNALS || [], names });
 }
 
 const kstStamp = (ms) => {
@@ -60,7 +60,7 @@ export function moveNewsList(doc, root, rows, { showMissing = false, max = 8, li
     }
     const member = row.kind === 'theme' && row.symbol ? `구성 종목 ${row.symbol}${Number.isFinite(row.memberMove) ? ` ${signedText(row.memberMove, 1, '%')}` : ''}, ` : '';
     const href = safeUrl(isChannel ? hit.row.url : hit.row.link || hit.row.url);
-    const title = el(doc, href ? 'a' : 'span', `${kstStamp(hit.publishedMs)} ${member}${isChannel ? '채널 글, ' : ''}${text}`, titleClass);
+    const title = el(doc, href ? 'a' : 'span', `${kstStamp(hit.publishedMs)} ${member}${text}`, titleClass);
     if (href) { title.href = href; title.target = '_blank'; title.rel = 'noopener noreferrer'; }
     title.title = isChannel ? `텔레그램 공개 채널 @${hit.row.channel || ''}, 앱이 확인한 사실이 아닙니다` : [hit.row.source, hit.row.title].filter(Boolean).join(', ');
     item.append(title);
@@ -84,7 +84,7 @@ function ensureSection(doc) {
   section.id = 'news-timeline';
   const heading = el(doc, 'summary', '시간대별 시황 ', 'briefing-h2');
   heading.id = 'news-timeline-title';
-  heading.append(asOfChip(doc, '하루 4회차', '한국 시간 06·12·18·24시 회차, 지난 회차 보관'));
+  heading.append(asOfChip(doc, '하루 4번', '한국 시간 06·12·18·24시 회차, 지난 회차 보관'));
   const rows = el(doc, 'div');
   rows.id = 'news-timeline-rows';
   section.append(heading, rows);

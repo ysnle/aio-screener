@@ -1071,19 +1071,14 @@ check('H3-D: screener ranking table exposes a keyboard/screen-reader horizontal-
 check('H3-E: external source state normalizer covers success/partial/timeout/malformed and stores a shared registry', /normalizeExternalSourceState/.test(core) && /partial:\s*\{/.test(core) && /timeout:\s*\{/.test(core) && /malformed:\s*\{/.test(core) && /AIO_EXTERNAL_STATES/.test(core));
 check('H3-E: Telegram feeds render an explicit external-feed state instead of silently leaving page slots blank', /tg-source-state/.test(data) && /setExternalSourceState/.test(core) && /statusMarkup/.test(data) && /_rssMarkFail/.test(data));
 check('headless tests cover H3-D/E deterministic state fixtures and scroll affordance', /_testV5256ExternalSourceState/.test(tests) && /T907/.test(tests) && /T908/.test(tests) && /T909/.test(tests) && /T910/.test(tests) && /T911/.test(tests));
-// P1756: Chart.js / lightweight-charts load on first chart use; DOMPurify stays an eager async tag. No third-party tag is
-// defer (an unavailable CDN cannot hold the local defer queue) and neither chart library is preloaded or fetched at boot.
-check('P1756 H3-F: third-party CDN libraries are async progressive enhancements; chart libraries are not preloaded or tagged at boot',
-  /purify\.min\.js"[^>]*async/.test(html) && !/<script[^>]+\ssrc="[^"]*(chart\.umd\.min\.js|lightweight-charts)[^"]*"/.test(html)
-    && !/rel="preload"[^>]*(chart\.umd\.min\.js|lightweight-charts)/.test(html) && !/(chart\.umd\.min\.js|purify\.min\.js)"[^>]*defer/.test(html)
-    && /<script id="aio-chart-cdn" type="text\/plain" data-aio-src="https:\/\/cdn\.jsdelivr\.net\/npm\/chart\.js@4\.4\.0\/dist\/chart\.umd\.min\.js" data-aio-integrity="sha384-[A-Za-z0-9+/=]{64}"/.test(html));
-check('P1756 H3-F: the deferred Chart requests the primary on first use, the secondary only after primary error or a bounded timeout, and the local renderer covers double failure',
-  /id="aio-chart-cdn"/.test(html)
-    && /function DeferredChart\(item, config\)[\s\S]{0,900}_pendingCharts\.push\(this\);\s*ensureChart\(\);/.test(html)
-    && /appendScript\(\{ src: primary[^\n]*loadSecondaryChart\);/.test(html)
-    && /if \(!hasRealChart\(\)\) _chartFallbackTimer = setTimeout\(loadSecondaryChart, 5000\)/.test(html)
-    && /appendScript\(CHART_SECONDARY, function\(\) \{ if \(!settleChart\(\)\) installChartFallback\(\); \}, installChartFallback\)/.test(html)
-    && /_chartPlaceholder\.dispatchEvent\(new Event\('load'\)\)/.test(html)
+// P1756: lightweight-charts loads on first chart use; DOMPurify stays an eager async tag. No third-party tag is defer (an
+// unavailable CDN cannot hold the local defer queue) and the chart library is neither preloaded nor fetched at boot.
+// v59.55: Chart.js left with its last screen; no Chart.js URL, placeholder or deferred constructor remains (the on-demand
+// load itself is exercised by ci-boot-interaction-check).
+check('P1756 H3-F: third-party CDN libraries are async progressive enhancements; the chart library is not preloaded or tagged at boot',
+  /purify\.min\.js"[^>]*async/.test(html) && !/<script[^>]+\ssrc="[^"]*lightweight-charts[^"]*"/.test(html)
+    && !/rel="preload"[^>]*lightweight-charts/.test(html) && !/purify\.min\.js"[^>]*defer/.test(html)
+    && !/chart\.umd|chart\.js@|aio-chart-cdn|DeferredChart/.test(html)
     && /window\._aioEnsureChartLibrary = function/.test(html));
 {
   // P1588: the US theme taxonomy is an industry classification with explicit rules — 3+ members per
@@ -1114,10 +1109,9 @@ check('P1756 H3-F: the deferred Chart requests the primary on first use, the sec
   }
 }check('P1568 (v59.42: the uncalled option-sentiment chain is deleted): put/call ratios are never derived from the total ratio',
   !/async function fetchPutCallRatios\(\)|async function fetchOptionSentiment\(\)/.test(data) && !/total\s*\*\s*0\.72|total\s*\*\s*1\.18/.test(data));
-check('P1569 P1756: Chart secondary and lightweight-charts loaders pin Subresource Integrity like the primary',
-  /var CHART_SECONDARY = \{ src: 'https:\/\/cdnjs\.cloudflare\.com\/[^']+chart\.umd\.min\.js', integrity: 'sha384-[A-Za-z0-9+/=]{64}' \};/.test(html)
-    && /var LWC_SOURCE = \{ src: 'https:\/\/unpkg\.com\/lightweight-charts@4\.2\.0\/[^']+', integrity: 'sha384-[A-Za-z0-9+/=]{64}' \};/.test(html)
-    && /script\.integrity = source\.integrity;\s*script\.crossOrigin = 'anonymous';/.test(html));
+check('P1569 P1756: the lightweight-charts loader pins Subresource Integrity (v59.55: the Chart.js loaders left)',
+  /var LWC_SOURCE = \{ src: 'https:\/\/unpkg\.com\/lightweight-charts@4\.2\.0\/[^']+', integrity: 'sha384-[A-Za-z0-9+/=]{64}' \};/.test(html)
+    && /script\.integrity = LWC_SOURCE\.integrity;\s*script\.crossOrigin = 'anonymous';/.test(html));
 check('route lineage listens to canonical aio:pageShown and nested actions outrank article URL ancestors',
   /document\.addEventListener\(['"]aio:pageShown['"][\s\S]{0,500}annotateLiveDataSinks/.test(core)
     && /var actionEl = e\.target\.closest/.test(core)

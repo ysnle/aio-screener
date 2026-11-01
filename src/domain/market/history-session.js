@@ -21,7 +21,7 @@ const BAR_ZONE = Object.freeze({
   vix: 'America/New_York', vix3m: 'America/New_York', vvix: 'America/New_York', tnx: 'America/New_York', tlt: 'America/New_York',
   smh: 'America/New_York',
   rsp: 'America/New_York',
-  dxy: 'America/New_York', wti: 'America/New_York', brent: 'America/New_York', gold: 'America/New_York',
+  dxy: 'America/New_York', wti: 'America/New_York', brent: 'America/New_York', gold: 'America/New_York', silver: 'America/New_York',
   usdkrw: 'Europe/London', usdjpy: 'Europe/London',
   kospi: 'Asia/Seoul', kosdaq: 'Asia/Seoul',
   btc: 'UTC',

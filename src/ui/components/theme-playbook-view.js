@@ -467,8 +467,10 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   if (!doc) return null;
   let host = doc.getElementById('theme-playbook');
   if (!host) {
+    // v59.55: the scenarios follow the largest theme (after the AI capex fold); without it, before the ranking as before.
+    const after = doc.getElementById('ai-capex-fold');
     const before = doc.getElementById('theme-strength-board');
-    if (!before) return null;
+    if (!after && !before) return null;
     const section = el(doc, 'section', null, 'aio-section tp-section');
     section.setAttribute('aria-labelledby', 'theme-playbook-title');
     // v58.79 section frame: title + close-date chip (the basis sentence is the chip's hover and the rules fold's first line).
@@ -477,7 +479,8 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
     host = el(doc, 'div');
     host.id = 'theme-playbook';
     section.append(title, host);
-    before.insertAdjacentElement('beforebegin', section);
+    if (after) after.insertAdjacentElement('afterend', section);
+    else before.insertAdjacentElement('beforebegin', section);
   }
   if (!host.dataset.aioScenarioLoad) {
     host.dataset.aioScenarioLoad = 'on';
@@ -527,7 +530,9 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
     button.addEventListener('click', () => { root._aioTpMapMarket = value; renderThemePlaybook({ documentRef: doc, root, store }); });
     marketTabs.append(button);
   }
-  mapWrap.append(marketTabs, momentumMap(doc, mapThemes, 'wide', onPick), momentumMap(doc, mapThemes, 'narrow', onPick), pick);
+  // v59.55 (C5): one map, sized for the section it is drawn in (the map was drawn twice and CSS hid one by width).
+  const mapSize = host.clientWidth ? (host.clientWidth < 600 ? 'narrow' : 'wide') : ((root.innerWidth || 1024) < 640 ? 'narrow' : 'wide');
+  mapWrap.append(marketTabs, momentumMap(doc, mapThemes, mapSize, onPick), pick);
   // v58.75 (persona review): 46 stage cards were ~78% of the screen's text — "판단 근거" 46 times, "비용 작은 쪽: 관망" on 40.
   // One stage × theme table replaces them: each stage's definition and its four choices once, a row per theme (10-session
   // stage strip, 1개월, long trend, 50-day share, wind), and the card opens under its row. Rows whose stage changed in the

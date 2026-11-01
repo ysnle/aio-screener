@@ -212,7 +212,7 @@ export const LESSONS = Object.freeze([
     ],
     example: { inputs: ['시장 예상 EPS 2.00', '실제 2.10(+5%)', '다음 분기 전망을 예상보다 8% 낮게 제시'], steps: ['이번 분기는 예상 초과', '향후 이익 기대는 하향'], result: '좋은 실적 발표 뒤 주가가 내려가는 일이 흔히 일어납니다.' },
     reverse: "반대로 기대가 바닥까지 내려간 회사는 나쁜 실적에도 주가가 오른다. \"걱정했던 것보다는 덜 나쁘다\"는 것만으로 충분한 반전이 되기 때문이다.",
-    channels: ['매출', '현금'], indicators: [{ label: '실적 일정과 뉴스', route: 'market-news', routeLabel: '뉴스' }, { label: '주가 추세와 지수 대비', route: 'ticker', routeLabel: '종목 요약' }],
+    channels: ['매출', '현금'], indicators: [{ label: '실적 일정과 뉴스', route: 'market-news', routeLabel: '뉴스' }, { label: '주가 추세와 지수 대비', route: 'ticker', routeLabel: '종목 개요' }],
     concepts: ['competition-moat', 'base-rate'] }),
   L({ id: 'index-weight', path: 'market', title: '시가총액 가중 지수의 비중', issue: '시가총액 가중 지수의 비중 변화와 실제 매수 흐름',
     answer: "한 종목이 급등하자 \"지수 비중이 커졌으니 인덱스 펀드가 더 사야 한다\"는 이야기가 돈다. 그럴듯하게 들리지만, 실제로 펀드는 아무것도 사지 않는다.",
@@ -243,7 +243,7 @@ export const LESSONS = Object.freeze([
     ],
     example: { inputs: ['두 회사 현재 EPS 1', 'A: 1년차 EPS +100%, 2~5년차 성장 0% 가정, 현재 PER 20', 'B: 1~5년차 EPS 연 +30% 가정, 현재 PER 30', '5년 뒤 두 회사 모두 PER 15로 수렴 가정 (배당·희석·할인 생략)'], steps: ['5년 뒤 EPS: A = 2.0, B = 1.3⁵ ≈ 3.71', 'A: 주가 20 → 15 × 2.0 = 30 (+50%)', 'B: 주가 30 → 15 × 3.71 ≈ 55.7 (+86%)'], result: '같은 5년, 같은 종착 배수 가정에서는 지금 더 비싸 보이는 B가 더 많이 오릅니다. 모든 미래 숫자는 설명용 가정이며, B의 성장이 실제로 5년 이어지는지가 핵심입니다.' },
     reverse: "지속성에 대한 믿음이 깨지면 손실은 두 번 온다. 이익 성장이 둔화되고, 동시에 그 성장에 매겨 둔 높은 배수가 내려간다. 예에서 B의 성장이 2년 만에 멈추고 PER이 15로 내려가면 주가는 30에서 15 × 1.69 ≈ 25로 오히려 떨어진다. 배수가 높을수록 지속성이 틀렸을 때의 대가가 크다.",
-    channels: ['매출', '현금'], indicators: [{ label: '분기 매출의 전년 같은 분기 대비 성장률과 그 추세', route: 'fundamental', routeLabel: '재무 공시' }, { label: '주가 추세와 지수 대비', route: 'ticker', routeLabel: '종목 요약' }],
+    channels: ['매출', '현금'], indicators: [{ label: '분기 매출의 전년 같은 분기 대비 성장률과 그 추세', route: 'fundamental', routeLabel: '재무 공시' }, { label: '주가 추세와 지수 대비', route: 'ticker', routeLabel: '종목 개요' }],
     concepts: ['present-value', 'competition-moat', 'base-rate', 'expected-value'],
     columnNote: '칼럼의 “주가 = EPS 성장률 × 지속기간에 대한 믿음 × 불확실성의 감소”는 곱셈 공식이 아니라 배수가 정해지는 요소를 묶은 관점입니다. 지속 기간은 사후에야 확인되므로, 분기 성장률의 추세와 수주·계약 같은 선행 근거로 믿음의 근거를 따로 확인해야 합니다.' }),
   // P1507 (owner materials 2026-10-07): valuation of a cyclical index, the hiking-cycle case, and what happens after a
@@ -272,7 +272,7 @@ export const LESSONS = Object.freeze([
     ],
     example: { inputs: ['가상 종목, 기준선 100', 'A: 100에서 보유 시작 · B: 기준선보다 20% 위인 120에서 보유 시작', '논거가 틀렸다고 볼 가격: 둘 다 94 (기준선 −6%) 가정'], steps: ['94까지 내려갈 때 A의 손실 = 6%', '같은 경우 B의 손실 = (120 − 94) ÷ 120 ≈ 21.7%', '계좌 손실 1%에 해당하는 비중(손실 민감도): A 16.7%, B 4.6%'], result: '같은 종목·같은 무효화 가격이라도 늦게 들어가면 같은 위험 한도로 담을 수 있는 양이 3분의 1 이하로 줄어듭니다. 가정한 가격 변화에 대한 손실 민감도를 보여 주는 가상 계산이며, 실제 종목의 매수·손절 가격 제안이 아닙니다.' },
     reverse: "기준선 근처라고 늘 안전한 것은 아니다. 추세가 깨지는 중이라면 기준선은 지지가 아니라 다음 하락의 출발점이 된다. 반대로 강한 추세는 오래 확장된 채로 더 오르기도 한다. 셋업은 완성돼야 유효하고, 거리는 위험의 크기를 알려 줄 뿐 방향을 알려 주지 않는다. 확인을 기다리면 가격은 높아지지만 무효화 기준이 가까운 직전 저점으로 옮겨져 거리가 짧아지는 교환도 있다.",
-    channels: ['현금'], indicators: [{ label: '종목의 기준선 대비 거리(일평균 변동폭 배수)와 추세', route: 'ticker', routeLabel: '종목 요약' }, { label: '보유 비중과 집중도', route: 'portfolio', routeLabel: '포트폴리오' }],
+    channels: ['현금'], indicators: [{ label: '종목의 기준선 대비 거리(일평균 변동폭 배수)와 추세', route: 'ticker', routeLabel: '종목 개요' }, { label: '보유 비중과 집중도', route: 'portfolio', routeLabel: '포트폴리오' }],
     concepts: ['opportunity-cost', 'expected-value', 'arith-vs-geo'],
     columnNote: '진입 위치 사례는 Ian Lee(@tmmrwseoul)의 차트 설명, 자본 배분 원칙은 Edelbridge Alpha 아티클("Stock Picking Was Only Half the Battle")의 관점입니다. 아티클의 수익률 주장(+302%)은 검증 대상이 아니며 노트에 쓰지 않았습니다.' }),
   // ── 산업과 기술 (대표 레슨) ──

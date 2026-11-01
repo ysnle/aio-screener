@@ -43,8 +43,6 @@ function chartFixture() {
 }
 const fixtureBody = JSON.stringify(chartFixture());
 const libraries = [
-  { url:'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',file:'browser-chart.umd.min.js',
-    sri:'e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g' },
   { url:'https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js',file:'browser-lightweight-charts.js',
     sri:'OK7vELvjHdhUFi31JYioPIcRHTROLdcDa6ZsNWgvgLaKj+9JqhU0Ad8g4wz3CXjA' }
 ].map(item=>{ const body=readFileSync(resolve(out,item.file));
@@ -121,9 +119,8 @@ try {
       await page.evaluate(()=>window.showTicker('AEHR'));
       await page.waitForFunction(()=>document.getElementById('ticker-hero-price')?.textContent.includes('84.64')
         && document.getElementById('ticker-price-chart')?.dataset.tickerChartEnd === '2026-10-09'
-        // Chart.js loads on demand (P1756): the first draw goes to the deferred constructor and the real chart is built on
-        // the same canvas when the pinned library arrives, so wait for that hand-over instead of racing it.
-        && window.Chart?.version === '4.4.0' && !!window.Chart.getChart?.(document.getElementById('ticker-price-chart')), null, {timeout:20000});
+        // v59.55 (C1): the price line is the shared SVG trend chart (no Chart.js hand-over to wait for).
+        && !!document.querySelector('#ticker-price-chart svg.trend-chart path.trend-chart-line'), null, {timeout:20000});
       const summary = await page.evaluate(()=>({ price:document.getElementById('ticker-hero-price').textContent,
         basis:document.getElementById('ticker-summary-price-basis').textContent,
         business:`${document.getElementById('ticker-business-profile').dataset.issuerName || ''} ${document.getElementById('ticker-business-profile').textContent}`, // 2026-10-14 audit #10: heading reads '무엇을 하는 회사'; issuer named on the section
@@ -131,16 +128,17 @@ try {
         canvas:{ width:document.getElementById('ticker-price-chart').clientWidth,height:document.getElementById('ticker-price-chart').clientHeight },
         lastDate:document.getElementById('ticker-price-chart').dataset.tickerChartEnd,
         native:document.getElementById('ticker-price-chart').dataset.aioTickerChartRenderer,
-        chart:{real:window.Chart?.version==='4.4.0',points:window.Chart?.getChart?.(document.getElementById('ticker-price-chart'))?.data?.datasets?.[0]?.data?.length || 0,
-          pixels:(()=>{const canvas=document.getElementById('ticker-price-chart'),pixels=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;let count=0;for(let i=3;i<pixels.length;i+=4)if(pixels[i]>0)count++;return count;})()},
+        chart:(()=>{const path=document.querySelector('#ticker-price-chart path.trend-chart-line'),box=path?.getBoundingClientRect();
+          return {points:(path?.getAttribute('d')?.match(/[ML]/g) || []).length,width:box?.width || 0,height:box?.height || 0,
+            stroke:path ? getComputedStyle(path).stroke : '',up:getComputedStyle(document.body).getPropertyValue('--dir-up').trim(),down:getComputedStyle(document.body).getPropertyValue('--dir-down').trim()};})(),
         active:document.querySelector('.page.active').id,
-        signed:[...document.querySelectorAll('.stock-return-signed-bar')].map(el=>({ down:el.classList.contains('is-down'),left:parseFloat(el.style.left),width:parseFloat(el.style.width),title:el.title })) }));
+        signed:[...document.querySelectorAll('.stock-return-signed-bar')].map(el=>({ down:el.dataset.sign==='down',left:parseFloat(el.style.left),width:parseFloat(el.style.width),title:el.title })) }));
       observations.push({label,summary,fixtureRequests:intercepted.length});
       check(summary.active==='page-ticker' && /^\$84\.64$/.test(summary.price),`${label}: first summary price/currency absent (P1624)`,summary);
       check(/Aehr Test Systems/.test(summary.business) && /^https:\/\//.test(summary.source || '')
         && !/Palantir/.test(summary.business),`${label}: selected issuer profile/source identity lost (P1624)`,summary);
       check(summary.canvas.width>100 && summary.canvas.height>100 && summary.native==='native' && summary.lastDate==='2026-10-09',`${label}: first summary chart absent (P1624)`,summary);
-      check(summary.chart.real && summary.chart.points>=20 && summary.chart.pixels>1000,`${label}: native canvas has no actual pinned Chart.js data/render (P1624)`,summary.chart);
+      check(summary.chart.points>=20 && summary.chart.width>100 && summary.chart.height>10,`${label}: summary price line has no drawn series (P1624, SVG since v59.55)`,summary.chart);
       check(summary.basis.includes('2026-10-10 05:00 한국 시간') && !/UTC|실시간/.test(summary.basis),`${label}: observation basis lost/promoted or not in Korean time (P1624/S21)`,summary);
       check(summary.signed.some(bar=>bar.down && bar.width>0) && summary.signed.every(bar=>bar.down ? Math.abs(bar.left+bar.width-50)<.05 : Math.abs(bar.left-50)<.05),`${label}: signed returns cross common zero incorrectly (P1624)`,summary.signed);
       await captureLayout(page,`${label}/summary`);

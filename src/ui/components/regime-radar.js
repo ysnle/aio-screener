@@ -61,7 +61,10 @@ export function renderRegimeRadar({ documentRef: doc, root, inputs, anchor, verd
   // Codex M-screen: the radar is a position inside each axis's own past, not the 양호/부담 verdict above.
   // v57.54 audit (6): the numbers are a position (0~100), not a grade — the caption says so and each row names its card verdict.
   // v58.79: the scale in a few words; that it differs from the verdicts above is the line's hover.
-  section.append(Object.assign(el(doc, 'p', '숫자 = 1년 중 지금 위치(0~100, 클수록 양호)', 'regime-chart-caption'), { title: '최근 1년(최대 252거래일) 중 지금 위치 — 위 표의 양호·중립·부담 판정과는 다른 잣대' }));
+  // v59.55 (visual review): the radar is 국면 판정's face picture — one reading line, then the picture; the scale and the
+  // verdict-vs-position note sit under it (they were three lines above the drawing).
+  const caption = Object.assign(el(doc, 'p', '숫자 = 1년 중 지금 위치(0~100, 클수록 양호)', 'regime-chart-caption'), { title: '최근 1년(최대 252거래일) 중 지금 위치 — 위 표의 양호·중립·부담 판정과는 다른 잣대' });
+  const notes = [caption];
   section.append(el(doc, 'p', model.lead, 'regime-radar-lead'));
   // X-review (2026-10-13, PM/credit view): "양호" above and 9 here read as a contradiction at first glance. When an
   // axis's absolute verdict and its position in its own past point opposite ways, say so on the face of the chart.
@@ -75,7 +78,7 @@ export function renderRegimeRadar({ documentRef: doc, root, inputs, anchor, verd
     const low = gaps.filter((axis) => stateOf.get(axis.id) !== 'burden');
     const high = gaps.filter((axis) => stateOf.get(axis.id) === 'burden');
     const names = (rows) => rows.map((axis) => axis.label).join(', ');
-    section.append(el(doc, 'p', `판정과 지난 기록 속 위치가 엇갈리는 지표: ${gaps.map((axis) => `${axis.label}(판정 ${word[stateOf.get(axis.id)]}, 위치 ${axis.now})`).join(', ')}.`
+    notes.push(el(doc, 'p', `판정과 지난 기록 속 위치가 엇갈리는 지표: ${gaps.map((axis) => `${axis.label}(판정 ${word[stateOf.get(axis.id)]}, 위치 ${axis.now})`).join(', ')}.`
       + `${low.length ? ` 위치가 바닥권인 쪽(${names(low)})을 다음 갱신에서 먼저 확인합니다.` : ''}`
       + `${high.length ? ` ${low.length ? '반대로 ' : ''}위치가 나아진 쪽(${names(high)})도 수준은 아직 부담입니다.` : ''}`, 'regime-radar-gap'));
   }
@@ -102,7 +105,7 @@ export function renderRegimeRadar({ documentRef: doc, root, inputs, anchor, verd
   details.append(el(doc, 'summary', '숫자 읽는 법'), el(doc, 'p', `각 지표의 숫자는 비교 표본(최대 1년, 252거래일) 안에서 오늘 값이 어디쯤인지입니다. 100은 그 기간 중 가장 우호적인 수준, 0은 가장 부담스러운 수준입니다. 자료가 짧은 지표는 짧은 기간 안의 위치입니다(${model.axes.filter((axis) => axis.sample && axis.sample < 252).map((axis) => `${axis.label} ${axis.sample}거래일`).join(', ') || '모두 252거래일'}). 위의 양호·부담 판정은 절대 기준이고 레이더는 상대 위치라서, 판정이 양호여도 레이더 값은 낮을 수 있습니다. 지표끼리 더한 종합 점수는 예측 근거가 없어 만들지 않습니다.`, 'regime-read'));
   side.append(details);
   body.append(side);
-  section.append(body);
+  section.append(body, ...notes);
   // v58.53 개편 v2: on 시장 상태 the radar is a lower card's content (host element); other anchors keep the old placement.
   if (anchor.id === 'regime-radar-host') anchor.replaceChildren(section);
   else anchor.insertAdjacentElement('beforebegin', section);

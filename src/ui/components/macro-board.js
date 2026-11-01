@@ -12,7 +12,7 @@ import { requestConsensusEstimates, CONSENSUS_KEY } from '../../data/consensus-e
 import { macroNextSteps, ratesNextSteps, seriesOf } from '../../domain/macro/macro-read.js';
 import { renderNextSteps } from './page-flow.js';
 import { readMarketRegime } from './market-regime.js';
-import { marketInterpretation } from '../../data/selectors/interpretation.js';
+import { latestMarketInterpretation, marketInterpretation } from '../../data/selectors/interpretation.js';
 import { buildMacroBoard } from '../../domain/macro/indicators.js';
 import { buildRatesFx, sessionPointBack, signed, tenYearClose, TEN_YEAR_SOURCE } from '../../domain/macro/rates-fx.js';
 import { createTrendChart } from './trend-chart.js';
@@ -21,7 +21,6 @@ import { AXIS_DEEP_DIVES, MACRO_AXIS_DEEP_DIVES, MACRO_GROUP_DEEP_DIVES } from '
 import { deepDiveFold } from './deep-dive.js';
 import { renderMacroCrossroads, openCrossroadsBranch } from './macro-crossroads.js';
 import { BRANCHES } from '../../domain/market/macro-crossroads.js';
-import { scenarioLead } from '../../domain/market/scenario-lead.js';
 import { longHistoryRows } from '../../domain/macro/long-history.js';
 import { taylorRule, TAYLOR_R_STAR_OPTIONS, TAYLOR_R_STAR_SEP } from '../../domain/macro/taylor-rule.js';
 import { el } from './dom.js';
@@ -34,6 +33,7 @@ import { MARKET_WINDOWS } from '../../domain/market/market-windows.js';
 import { RULES } from '../../domain/rules/thresholds.js';
 import { MACRO_SIGNAL_RULES } from '../../domain/macro/macro-signals.js';
 import { renderIndexEarnings } from './index-earnings.js';
+import { gaugeBar, bandOf, TONE_WORD } from './gauge-bar.js';
 
 const SVG = 'http://www.w3.org/2000/svg';
 
@@ -135,18 +135,6 @@ function statCard(doc, { label, valueText, lines = [], meta, note, status, serie
   return card;
 }
 
-const TONE_WORD = Object.freeze({ favorable: '양호', neutral: '중립', burden: '부담' });
-
-// Bands are half-open [from, to) like the rules (core PCE 3.0% is already 부담); the last band is closed.
-function bandOf(g) {
-  const last = g.bands[g.bands.length - 1];
-  if (g.value < g.min) return g.bands[0];
-  if (g.value >= last.to) return last;
-  return g.bands.find((item) => g.value >= item.from && g.value < item.to) || last;
-}
-
-// P1427: a threshold gauge — the rule's bands coloured by their effect on stocks, with the current value pinned.
-
 // v58.53 (owner 2026-10-20: "실제 화면과 사용자 입장에서"): the indicator board was 3,500px on a desktop and 9,100px on a
 // phone below the six factor rows that already carry today's verdict. Every group's title and one-line fact stay on the
 // face (the 30-second read); its cards and charts open one group at a time, like the factor rows above. The reader's open
@@ -180,54 +168,6 @@ function yearChange(points) {
   return base && cutoff.localeCompare(base.date) >= 0 && Date.parse(`${cutoff}T00:00:00Z`) - Date.parse(`${base.date}T00:00:00Z`) <= 10 * 86400000 ? last.value - base.value : null;
 }
 
-export function gaugeBar(doc, g) {
-  if (!g) return null;
-  const W = 320;
-  const H = 46;
-  const left = 8;
-  const right = W - 8;
-  const x = (value) => left + (Math.min(g.max, Math.max(g.min, value)) - g.min) / (g.max - g.min) * (right - left);
-  const svg = doc.createElementNS(SVG, 'svg');
-  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-  svg.setAttribute('class', 'macro-gauge');
-  svg.setAttribute('role', 'img');
-  const add = (tag, attrs, text) => {
-    const node = doc.createElementNS(SVG, tag);
-    for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, String(value));
-    if (text != null) node.textContent = text;
-    svg.append(node);
-    return node;
-  };
-  for (const band of g.bands) add('rect', { x: x(band.from), y: 16, width: Math.max(0, x(band.to) - x(band.from)), height: 8, class: `macro-gauge-band is-${band.tone}` });
-  // v57.81: markers close together (0 and "+0.5 재가속") overlapped; a label that would collide with its neighbour
-  // is anchored away from it (left one ends at its tick, right one starts at its tick).
-  const labelWidth = (text) => [...String(text || '')].reduce((sum, ch) => sum + (/[ㄱ-힝]/.test(ch) ? 12 : 7.5), 0); // 12px labels (owner type scale 2026-10-23)
-  const placed = [...g.markers].sort((a, b) => a.at - b.at).map((marker) => ({ marker, at: x(marker.at), anchor: 'middle' }));
-  placed.forEach((item, i) => {
-    const prev = placed[i - 1];
-    if (!prev) return;
-    const edge = (p, side) => p.anchor === 'middle' ? p.at + side * labelWidth(p.marker.label) / 2 : p.anchor === 'end' ? (side < 0 ? p.at - labelWidth(p.marker.label) : p.at) : (side < 0 ? p.at : p.at + labelWidth(p.marker.label));
-    if (edge(prev, 1) + 4 > edge(item, -1)) { if (i - 1 > 0 || prev.anchor === 'middle') prev.anchor = 'end'; item.anchor = 'start'; }
-  });
-  for (const item of placed) {
-    add('line', { x1: item.at, x2: item.at, y1: 13, y2: 27, class: 'macro-gauge-tick' });
-    add('text', { x: item.anchor === 'middle' ? item.at : item.at + (item.anchor === 'start' ? 2 : -2), y: 40, 'text-anchor': item.anchor, class: 'macro-gauge-label' }, item.marker.label);
-  }
-  const px = x(g.value);
-  add('path', { d: `M${px - 6},4 L${px + 6},4 L${px},14 Z`, class: 'macro-gauge-pin' });
-  add('line', { x1: px, x2: px, y1: 14, y2: 26, class: 'macro-gauge-needle' });
-  const band = bandOf(g);
-  const valueText = `${g.value > 0 && g.min < 0 ? '+' : ''}${signedNumber(g.value, g.digits)}${g.unit}`;
-  svg.setAttribute('aria-label', `${g.label}: ${valueText}${band ? `, ${TONE_WORD[band.tone]} 구간` : ''}${g.clipped ? ' (눈금 밖)' : ''}`);
-  const wrap = doc.createElement('div');
-  wrap.className = 'macro-gauge-wrap';
-  const caption = doc.createElement('div');
-  caption.className = 'macro-gauge-caption';
-  caption.textContent = `${g.label}, ${valueText}${g.clipped ? ' (눈금 밖)' : ''}`;
-  wrap.append(caption, svg);
-  return wrap;
-}
-
 // v58.53 개편 v2 (3e): the six factors are single-open disclosure rows — title · verdict · headline value — that open
 // into 원리 / 지금 읽기 (gauge + reading) / 주식에 주는 영향 cards, then the numbers, the rule and the evidence line.
 const MACRO_REFS = Object.freeze({
@@ -235,7 +175,7 @@ const MACRO_REFS = Object.freeze({
   inflation: ['Phillips 1958, Friedman 1968', 'BEA PCE, BLS CPI (FRED)'],
   policy: ['Taylor 1993, 기대가설', '미 재무부 2년물, FOMC 목표 범위 (FRED)'],
   rates: ['Campbell·Shiller 1988, Adrian·Crump·Moench 2013', '미 재무부 10년물, DFII10 (FRED)'],
-  commodities: ['Bruno·Shin 2015', 'WTI, 달러 인덱스 종가'],
+  commodities: ['Bruno·Shin 2015', 'WTI, 달러 지수 종가'],
   credit: ['Gilchrist·Zakrajšek 2012', 'ICE BofA 하이일드 OAS (FRED)']
 });
 // v59.51 (content audit): rates, oil·dollar and credit carry the same verdict on 시장 상태, where their one-year chart is
@@ -605,6 +545,16 @@ function quadrantChart(doc, regime) {
       add('text', { x: x + cw / 2 + 11, y: y + ch / 2 + 36, class: 'macro-quadrant-now' }, '지금');
     }
   }
+  // v59.55 (visual audit): a held reading still has a place — on the line between the two quadrants it could fall in
+  // (one axis settled), or at the centre (both held) — so the chart never shows no "지금".
+  if (!current) {
+    const col = { down: 0, up: 1 }[regime.growthDir];
+    const row = { up: 0, down: 1 }[regime.inflationDir];
+    const cx = col == null ? pad.left + cw : pad.left + col * cw + cw / 2;
+    const cy = row == null ? pad.top + ch : pad.top + row * ch + ch / 2 + 32;
+    add('circle', { cx, cy, r: 6, class: 'macro-quadrant-dot is-held' });
+    add('text', { x: cx + 11, y: cy + 4, class: 'macro-quadrant-now' }, '지금, 보류');
+  }
   add('text', { x: pad.left + cw, y: H - 6, 'text-anchor': 'middle', class: 'macro-quadrant-axis' }, '← 성장 둔화, 성장 견조 →');
   add('text', { x: 10, y: pad.top + ch, 'text-anchor': 'middle', transform: `rotate(-90 10 ${pad.top + ch})`, class: 'macro-quadrant-axis' }, '← 물가 속도 둔화, 물가 속도 상승 →');
   svg.setAttribute('aria-label', current ? `거시 국면: ${regime.label}` : '거시 국면 판정 보류');
@@ -772,10 +722,10 @@ function renderKoreaWon(doc, root) {
     const krw = (last.value / back.value - 1) * 100;
     const usd = (dxyLast.value / dxyBack.value - 1) * 100;
     const wonWord = krw > 0 ? '약세' : '강세';
-    readNode.textContent = Math.abs(krw) < 1 ? `원화는 3개월 동안 큰 변화가 없습니다(원/달러 ${signed(krw, 1, '%')}, 달러 인덱스 ${signed(usd, 1, '%')}).`
+    readNode.textContent = Math.abs(krw) < 1 ? `원화는 3개월 동안 큰 변화가 없습니다(원/달러 ${signed(krw, 1, '%')}, 달러 지수 ${signed(usd, 1, '%')}).`
       : Math.abs(krw) >= Math.abs(usd) * 2 || Math.sign(krw) !== Math.sign(usd)
-        ? `원화는 3개월 ${wonWord}(원/달러 ${signed(krw, 1, '%')})로, 같은 기간 달러 인덱스(${signed(usd, 1, '%')})보다 움직임이 커 미국 금리보다 한국 쪽 요인(수급·수출)이 더 컸을 수 있습니다.`
-        : `원화는 3개월 ${wonWord}(원/달러 ${signed(krw, 1, '%')})이고, 달러 인덱스도 같은 쪽(${signed(usd, 1, '%')})이라 달러 전체 흐름과 함께 움직였습니다.`;
+        ? `원화는 3개월 ${wonWord}(원/달러 ${signed(krw, 1, '%')})로, 같은 기간 달러 지수(${signed(usd, 1, '%')})보다 움직임이 커 미국 금리보다 한국 쪽 요인(수급·수출)이 더 컸을 수 있습니다.`
+        : `원화는 3개월 ${wonWord}(원/달러 ${signed(krw, 1, '%')})이고, 달러 지수도 같은 쪽(${signed(usd, 1, '%')})이라 달러 전체 흐름과 함께 움직였습니다.`;
   }
 }
 
@@ -788,11 +738,11 @@ function macroThroughLine(read, crossroads) {
   const burden = axes.filter((row) => row.state === 'burden').map((row) => row.title.replace(/ \(.*\)$/, '').replace(/,\s*/g, '·'));
   const weigh = burden.length ? `거시 6요인 중 부담은 ${burden.length}개(${burden.join(', ')})` : '거시 6요인 중 부담 요인은 없고';
   const quadrant = read.regime?.available ? `국면은 '${read.regime.label}'` : '성장·물가 국면은 방향 보류';
-  // v59.51 (area H): one lead rule for every screen — a tie reads as a tie (scenarioLead), never as one 중심.
-  const branch = ` ${scenarioLead(crossroads).face || '핵심 조건을 갖춘 시나리오는 아직 없습니다.'}`;
+  // v59.55 (owner 11/1, alignment pass): the scenario sentence left the lede — the 향후 시나리오 card right below opens with
+  // the same lead (scenarioLead), so the header said it twice.
   // v59.51: the header's single next-release answer (crossroads.nextEvent); the separate "다음 주요 발표" line left.
   const next = crossroads?.nextEvent ? ` 다음 주요 발표는 ${crossroads.nextEvent.when || crossroads.nextEvent.date} ${crossroads.nextEvent.name}입니다.` : '';
-  return `${weigh}${burden.length ? '이고' : ''}, ${quadrant}입니다.${branch}${next}`;
+  return `${weigh}${burden.length ? '이고' : ''}, ${quadrant}입니다.${next}`;
 }
 
 export function renderMacroBoard({ documentRef: doc, root }) {
@@ -859,6 +809,8 @@ export function renderMacroBoard({ documentRef: doc, root }) {
   renderCommodities(doc, root, read.oil);
   renderKoreaWon(doc, root);
   syncUncollectedKorea(doc);
+  // v59.55 (owner 11/1): the six chapters (물가 · 고용 · 금리 · 원자재 · 신용 · 성장) under the quadrant, a lazy chunk.
+  import('./macro-chapters.js').then(({ renderMacroChapters }) => renderMacroChapters({ documentRef: doc, root, events: latestMarketInterpretation(root)?.events || [] })).catch(() => {});
   renderNextSteps(doc, doc.getElementById('macro-next'), macroNextSteps(read)); // v57.50 I04
   host.dataset.aioMacroBoardRenderer = 'native';
   return { board, read };
@@ -986,7 +938,8 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
     const rows = [fxAxis && { ...fxAxis, shared: true, gauge: read.sharedGauges?.korea?.gauge || null, headline: read.sharedGauges?.korea?.headline || null, link: '원화가 약해지면 외국인이 한국 주식을 팔 유인이 커지고 수입 물가가 오릅니다. 엔화가 짧은 기간에 급등하면 엔으로 빌려 투자한 자금(엔 캐리)이 청산되며 전 세계 위험자산이 함께 흔들릴 수 있습니다.' }].filter(Boolean);
     axesHost.replaceChildren(...rows.map((row) => axisCard(doc, row, root)));
   }
-  set('rates-basis', model.basis ? `${shortDate(model.basis)} 미국 종가 기준, 국채 금리 ${t.asOf ? `${shortDate(t.asOf)} ` : ''}공식 고시 기준` : '종가 기록을 불러오는 중입니다.');
+  // v59.55: the header says the close like every screen; the curve card's meta already names the Treasury fixing date.
+  set('rates-basis', model.basis ? `${shortDate(model.basis)} 미국 종가 기준` : '종가 기록을 불러오는 중입니다.');
 
   // 1. Treasury curve
   set('rates-curve-basis', t.basisLabel || ''); // v57.50 C10: source and date of the curve's levels and changes
@@ -1068,10 +1021,10 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
       const ageDays = (Date.now() - Date.parse(`${lastPremium.date}T00:00:00Z`)) / 86400000;
       const premiumLag = alignInput(lastPremium.date, model.basis).lag;
       levels.append(statCard(doc, {
-        label: '10년 기간 프리미엄 (Kim-Wright)',
+        label: '10년 기간 프리미엄', // v59.55: the model is named in the meta (Kim-Wright), not the title
         valueText: `${signedNumber(lastPremium.value, 2)}%`,
         lines: [back63 ? `3개월 ${signed(lastPremium.value - back63.value, 2, '%p')}` : null, year == null ? null : `1년 전보다 ${signed(year, 2, '%p')}`],
-        meta: [shortDate(lastPremium.date), premiumLag ? `${premiumLag}거래일 전` : null, 'FRED THREEFYTP10 (연준 이사회 모형)'].filter(Boolean).join(', '),
+        meta: [shortDate(lastPremium.date), premiumLag ? `${premiumLag}거래일 전` : null, 'FRED THREEFYTP10 (연준 이사회 Kim-Wright 모형)'].filter(Boolean).join(', '),
         // v58.80 (first-users F13) → v59.51 (area H, one 10-year reader): the split of the official constant-maturity 10-year
         // on the model's own date is the expert layer — in the card's fold with its series and date, not on the face.
         note: `10년 금리 가운데 앞으로의 단기금리 예상이 아니라 오래 묶어 두는 위험에 대한 보상으로 추정되는 부분입니다. 관측값이 아닌 모형 추정치이고, 뉴욕 연준 ACM 등 다른 모형과는 수준이 다릅니다.${tenYear ? ` 모형 날짜(${shortDate(tenYear.date)})의 국채 고정만기 10년(DGS10) ${tenYear.value.toFixed(2)}% 가운데 단기금리 예상분은 약 ${(tenYear.value - lastPremium.value).toFixed(2)}%입니다.` : ''}`,
@@ -1096,7 +1049,7 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
           chipOff: align.status !== 'aligned',
           // P1725: the day change here is close-to-close on the FX trading day (New York evening); the live quote strip's
           // 전일 대비 is measured from the 08:00 KST cut, so the two can differ and the line says which this is.
-          lines: card.available ? [`직전 거래일 종가 대비 ${signed(card.day, 2, '%')}, 20거래일 ${signed(card.change20, 1, '%')}`] : ['기록 수집 중'],
+          lines: card.available ? [[card.day == null ? null : `직전 거래일 종가 대비 ${signed(card.day, 2, '%')}`, card.change20 == null ? null : `20거래일 ${signed(card.change20, 1, '%')}`].filter(Boolean).join(', ')] : ['기록 수집 중'],
           series: card.series,
           format: (value) => `${value.toFixed(card.digits === 1 ? 0 : 1)}${card.unit || ''}`,
           note: card.id === 'usdjpy' ? model.carry.text : card.id === 'usdkrw' ? '원/달러가 오르면 원화 약세입니다. 일별 값은 뉴욕 외환 거래일 마감 무렵 종가라, 실시간 시세의 전일 대비(한국 시간 오전 8시 기준)와 기준 시각이 다릅니다.' : '주요 6개 통화 대비 달러 가치입니다.'
@@ -1117,7 +1070,7 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
 // correlation line over the record the TLT series has, and a 1M/3M/YTD table from the daily closes in history.json.
 const ASSET_ROWS = Object.freeze([
   ['spx', 'S&P 500', true], ['ndx', '나스닥 100', true], ['rut', '러셀 2000', true], ['rsp', 'S&P 500 동일가중 (RSP)', true],
-  ['tlt', '미 장기채 (TLT)', true], ['gold', '금', true], ['dxy', '달러 인덱스', false], ['wti', 'WTI 원유', true],
+  ['tlt', '미 장기채 (TLT)', true], ['gold', '금', true], ['dxy', '달러 지수', false], ['wti', 'WTI 원유', true],
   ['kospi', '한국 코스피', true], ['usdkrw', '한국 원/달러 (오르면 원화 약세)', false]
 ]);
 const CORR_WINDOW = 60;
@@ -1182,13 +1135,15 @@ function renderAssetPerformance(doc, root, basis) {
   const fold = el(doc, 'details', null, 'aio-comp-secondary'); // v59.51: starts closed; the lead line above names the extremes
   // v58.79 (layout over captions): the return method is the fold summary's hover, not a paragraph under the table.
   const returnsSummary = el(doc, 'summary', '자산별 1개월·3개월·올해 수익률');
-  returnsSummary.title = '각 자산의 일별 종가로 계산한 가격 변화이며 배당·이자는 넣지 않았습니다. 1개월은 21거래일, 3개월은 63거래일 전 종가 대비이고, 코스피는 한국 거래일 기준입니다. 원/달러와 달러 인덱스는 환율이라 가장 강한·약한 자산 비교에서 뺐습니다.';
+  returnsSummary.title = '각 자산의 일별 종가로 계산한 가격 변화이며 배당·이자는 넣지 않았습니다. 1개월은 21거래일, 3개월은 63거래일 전 종가 대비이고, 코스피는 한국 거래일 기준입니다. 원/달러와 달러 지수는 환율이라 가장 강한·약한 자산 비교에서 뺐습니다.';
   fold.append(returnsSummary, table);
   const parts = [title, lead, fold];
   if (model.corr.length >= 5) {
     const corrTitle = el(doc, 'h3', `S&P 500 – 미 장기채(TLT) ${CORR_WINDOW}거래일 상관`, 'trend-card-title');
     corrTitle.title = `표본: 두 종가가 모두 있는 ${model.jointSessions}거래일(${shortDate(model.corrFrom)}부터), 상관 ${model.corr.length}개 시점. 일간 수익률의 피어슨 상관이며 TLT 기록이 쌓인 만큼만 그립니다.`; // v58.79: sample size as the title's hover
-    parts.push(corrTitle, createTrendChart(doc, { series: model.corr, refLines: [0], domain: [-1, 1], format: (value) => value.toFixed(2), label: `S&P 500과 TLT의 ${CORR_WINDOW}거래일 일간 수익률 상관` }));
+    // v59.55 (alignment pass): drawn at the card's width — scaled from the 360px default, its axis text grew to 30px.
+    const cardWidth = (doc.getElementById('rates-assets')?.clientWidth || 0) - 44;
+    parts.push(corrTitle, createTrendChart(doc, { series: model.corr, refLines: [0], domain: [-1, 1], format: (value) => value.toFixed(2), label: `S&P 500과 TLT의 ${CORR_WINDOW}거래일 일간 수익률 상관`, width: cardWidth > 360 ? Math.min(cardWidth, 1100) : undefined }));
   } else parts.push(el(doc, 'p', `S&P 500과 TLT가 함께 기록된 날이 ${model.jointSessions}거래일이라 ${CORR_WINDOW}거래일 상관은 아직 그리지 않습니다.`, 'briefing-empty'));
   // v58.80 (owner 2026-10-25): the fixed paragraph on the correlation sign (kept in the allocation fold below) gave way to
   // what the same assets did against their usual relations over 20 sessions — the reading the chart above leads into.
@@ -1273,6 +1228,9 @@ function syncOtherCurrencyNote(doc, root) {
   const empty = read.text === '시세 대기';
   const grid = doc.querySelector?.('.rates-other');
   if (grid) grid.style.display = empty ? 'none' : ''; // the class sets display:grid, which a hidden attribute would not override
+  // v59.55 (alignment pass): a fold with nothing in it is not shown at all.
+  const fold = note.closest('details');
+  if (fold) fold.hidden = empty;
   note.textContent = empty ? '시세를 아직 받지 못했습니다' : read.text;
   for (const symbol of OTHER_FX) {
     const change = doc.querySelector?.(`.rates-other [data-live-chg="${symbol}"]`);

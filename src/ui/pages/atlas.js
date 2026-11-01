@@ -367,7 +367,7 @@ function createValueChainLayers(documentRef, research, registry, selectedDomainI
         chip.type = 'button';
         chip.dataset.action = 'showTicker';
         chip.dataset.arg = listing.ticker;
-        chip.title = `${player.name}${listing.parent ? ` (모회사 ${listing.parent})` : ''}, 종목 요약 열기`;
+        chip.title = `${player.name}${listing.parent ? ` (모회사 ${listing.parent})` : ''}, 종목 개요 열기`;
         chip.setAttribute('aria-label', chip.title);
         chips.appendChild(chip);
       } else {
@@ -394,7 +394,7 @@ function createValueChainLayers(documentRef, research, registry, selectedDomainI
   });
   block.appendChild(cross);
   // v58.79: the not-a-recommendation line stays; how to use the layers is its hover.
-  block.appendChild(Object.assign(element(documentRef, 'p', 'atlas-layers-note', '기업은 역할 예시, 추천 아님'), { title: '층을 누르면 그 분야 설명이, 티커를 누르면 종목 요약이 열립니다.' }));
+  block.appendChild(Object.assign(element(documentRef, 'p', 'atlas-layers-note', '기업은 역할 예시, 추천 아님'), { title: '층을 누르면 그 분야 설명이, 티커를 누르면 종목 개요이 열립니다.' }));
   return block;
 }
 

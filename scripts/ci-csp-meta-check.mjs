@@ -17,11 +17,8 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-// The exact package paths index.html loads (Chart.js has a cdnjs fallback; the stock chart uses lightweight-charts).
-const SCRIPT_HOSTS = [
-  'https://cdn.jsdelivr.net/npm/dompurify@3.4.16/', 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/',
-  'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/', 'https://unpkg.com/lightweight-charts@4.2.0/',
-];
+// The exact package paths index.html loads (the stock chart uses lightweight-charts; v59.55: Chart.js left).
+const SCRIPT_HOSTS = ['https://cdn.jsdelivr.net/npm/dompurify@3.4.16/', 'https://unpkg.com/lightweight-charts@4.2.0/'];
 const FONT_HOST = 'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/';
 const NON_EXECUTABLE = /\btype\s*=\s*["']?(?:text\/plain|application\/(?:ld\+)?json|importmap)/i;
 

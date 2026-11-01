@@ -33,7 +33,6 @@
   #pf-positions-tbody td.pfp-empty > .pfp-empty-actions { justify-content: flex-start; width: calc(100vw - 100px); }
   #pf-positions-tbody .pfp-empty-actions > .pfp-add { white-space: normal; text-align: left; }
 }
-#pf-positions-tbody .pfp-privacy { font-size: var(--fs-base); color: var(--text-muted); margin: 6px auto 0; max-width: 60ch; }
 #pf-positions-tbody > tr.pfp-row { border-bottom: 0.5px solid var(--border); cursor: pointer; }
 #pf-positions-tbody td.pfp-ticker { padding: 8px 10px; font-size: var(--fs-base); }
 #pf-positions-tbody .pfp-memo { font-size: var(--fs-xs); color: var(--text-muted); margin-top: 2px; }
@@ -63,7 +62,7 @@
 #pf-trades summary { cursor: pointer; font-weight: 700; color: var(--text-secondary); min-height: 28px; display: flex; align-items: center; }
 /* first-users run-3 B19: a flex summary loses its marker, so "거래 기록하기" (open from the start) read as a heading and the
    first click closed it. Every journal fold says what a click does, like .aio-page-advanced-toggle. */
-#pf-trades summary::after { content: '펼치기'; margin-left: auto; padding-left: 12px; color: var(--accent); font-size: var(--fs-sm, 12px); font-weight: 600; }
+#pf-trades summary::after { width: auto; height: auto; border: 0; transform: none; content: '펼치기'; margin-left: auto; padding-left: 12px; color: var(--accent); font-size: var(--fs-sm, 12px); font-weight: 600; }
 #pf-trades details[open] > summary::after { content: '접기'; }
 @media (pointer: coarse) { #pf-trades summary { min-height: 44px; } }
 #pf-trades .pf-trade-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px 12px; margin: 10px 0; }

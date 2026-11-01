@@ -71,7 +71,7 @@ export function renderChannelData(doc, card, signals) {
   container.replaceChildren();
   container.hidden = !model;
   if (!model) return;
-  container.append(el(doc, 'div', '채널 데이터, 채널이 전한 수치이며 앱이 직접 확인한 값은 아닙니다', 'tg-data-head'));
+  container.append(el(doc, 'div', '최근 발표와 증권사 의견을 모은 수치로, 공시로 직접 확인한 값은 아닙니다', 'tg-data-head'));
   if (model.reading) container.append(el(doc, 'p', model.reading, 'tg-data-reading'));
   if (model.leverage.length) {
     const chart = el(doc, 'div', null, 'tg-data-leverage');

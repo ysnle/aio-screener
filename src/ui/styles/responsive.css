@@ -303,15 +303,15 @@ body { word-break: keep-all; overflow-wrap: break-word; }
    한국 지수 charts on an iPad in landscape, 7.9px for the portfolio sector bubbles). Each chart box is a size container;
    below the width at which the drawn size reaches 11px, labels take the viewBox size that renders at 11px or more
    (trend and curve charts are 520 units wide: 11 x 520 / width; the sector bubbles 430). Wide desktop pointers keep the
-   drawn sizes. */
+   drawn sizes. v59.55: a trend chart drawn at its own pixel width (.is-actual-size, the stock price line) is not scaled. */
 @media (pointer: coarse), (max-width: 1100px) {
   .trend-chart-wrap, .rates-curve-wrap { container-type: inline-size; }
-  @container (max-width: 439.98px) { .page :is(.trend-chart, .rates-curve) text { font-size: 15px !important; } }
-  @container (max-width: 380.98px) { .page :is(.trend-chart, .rates-curve) text { font-size: 17px !important; } }
-  @container (max-width: 335.98px) { .page :is(.trend-chart, .rates-curve) text { font-size: 19px !important; } }
-  @container (max-width: 300.98px) { .page :is(.trend-chart, .rates-curve) text { font-size: 21px !important; } }
-  @container (max-width: 271.98px) { .page :is(.trend-chart, .rates-curve) text { font-size: 23.5px !important; } }
-  @container (max-width: 242.98px) { .page :is(.trend-chart, .rates-curve) text { font-size: 26px !important; } }
+  @container (max-width: 439.98px) { .page :is(.trend-chart:not(.is-actual-size), .rates-curve) text { font-size: 15px !important; } }
+  @container (max-width: 380.98px) { .page :is(.trend-chart:not(.is-actual-size), .rates-curve) text { font-size: 17px !important; } }
+  @container (max-width: 335.98px) { .page :is(.trend-chart:not(.is-actual-size), .rates-curve) text { font-size: 19px !important; } }
+  @container (max-width: 300.98px) { .page :is(.trend-chart:not(.is-actual-size), .rates-curve) text { font-size: 21px !important; } }
+  @container (max-width: 271.98px) { .page :is(.trend-chart:not(.is-actual-size), .rates-curve) text { font-size: 23.5px !important; } }
+  @container (max-width: 242.98px) { .page :is(.trend-chart:not(.is-actual-size), .rates-curve) text { font-size: 26px !important; } }
   @container (max-width: 439.98px) { .page .rates-curve .rates-curve-tenor.is-penult { text-anchor: end; } .page .rates-curve .rates-curve-tenor.is-last { text-anchor: end; transform: translateX(20px); } }
   @container (max-width: 429.98px) { }
   @container (max-width: 393.98px) { }
@@ -471,7 +471,7 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
 #news-filter-row .chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 /* Trend charts drawn narrower than ~380px (the 한국 시장 trio, phones) scaled their 13-unit axis text to ~8px. */
 .trend-chart-wrap { container-type: inline-size; }
-@container (max-width: 380px) { .page .trend-chart-wrap .trend-chart-axis { font-size: 17px; } }
+@container (max-width: 380px) { .page .trend-chart-wrap .trend-chart:not(.is-actual-size) .trend-chart-axis { font-size: 17px; } }
 /* Stock chart evidence: label above value in the 320px side panel, instead of a squeezed two-column list. */
 #stock-chart-evidence .regime-evidence { display: block; font-size: 12px; }
 #stock-chart-evidence .regime-evidence dt { color: var(--text-muted); font-size: 12px; margin-top: 10px; }
@@ -501,3 +501,175 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
   #page-screener .scr-filter-close { min-width: 44px; }
   .sx-page-foot button { min-width: 44px; min-height: 44px; }
 }
+
+/* v59.55 (owner 11/1, alignment pass): one drawn fold chevron. The '⌄'/'⌃' glyphs sat below the row's centre line
+   (their ink is at the bottom of the em box) and differed per font; a 7px rotated corner centres on any row. Same
+   selectors as the glyph rules, later in the cascade, so word cues (펼치기·접기) with higher specificity keep their text. */
+.sx-disclosure > summary::after, .sx-disclosure__row::after, .leaders-line__more > summary::after, .mk-fold > summary::after,
+#page-sentiment details.trend-card > summary .trend-card-tags::after, #glossary-body .lu-gl-head::after,
+#page-guide .aio-guide-chapter > summary::after, #regime-kr-participation > details > summary::after, .kr-flows-basis > summary::after,
+#page-home .home-kr-line > summary::after, #page-home .market-lean > summary::after, #page-briefing summary.market-slot-head::after {
+  content: ''; display: inline-block; flex: none; align-self: center; width: 7px; height: 7px; margin-right: 3px;
+  border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: translateY(-2px) rotate(45deg); font-size: 0;
+}
+.sx-disclosure[open] > summary::after, .sx-disclosure.is-open > .sx-disclosure__row::after, .leaders-line__more[open] > summary::after, .mk-fold[open] > summary::after,
+#page-sentiment details.trend-card[open] > summary .trend-card-tags::after, #glossary-body .aio-glossary-item[open] > .lu-gl-head::after,
+#page-guide .aio-guide-chapter[open] > summary::after, #regime-kr-participation > details[open] > summary::after, .kr-flows-basis[open] > summary::after,
+#page-home .home-kr-line[open] > summary::after, #page-home .market-lean[open] > summary::after, #page-briefing details[open] > summary.market-slot-head::after {
+  content: ''; transform: translateY(2px) rotate(-135deg);
+}
+/* A full-width fold card puts its chevron at the right edge, like every other fold row (the meta, when present, takes it). */
+.mk-fold > summary::after { margin-left: auto; }
+.mk-fold > summary:has(.sx-card__meta)::after { margin-left: 0; }
+
+/* v59.55 (alignment pass, audit 3): every page-level fold is one card row — card surface, 14px/700 title on the text
+   column, drawn chevron at the right. These were bare captions (테마 지도·AI 설비투자), a '펼치기' word box (한국 시장,
+   포트폴리오 기록·도구) or a bordered '+' box (거시·금리 보조 섹션). */
+.page > details.sx-disclosure.sh-fold-mt16 { background: var(--bg-card); border-radius: 12px; margin: 16px 0 !important; }
+.page > details.sx-disclosure.sh-fold-mt16 > summary { padding: 14px var(--sx-card-pad-x); font-size: 14px; font-weight: 700; color: var(--text-primary); }
+#page-themes #themes-ai-chain:not([hidden]) { background: var(--bg-card); border-radius: 12px; padding: 20px var(--sx-card-pad-x); }
+.aio-page-advanced-toggle { border: 0 !important; border-radius: 12px !important; background: var(--bg-card) !important; }
+.aio-page-advanced-toggle > summary { padding: 14px 48px 14px var(--sx-card-pad-x); font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.aio-page-advanced-toggle > summary:after {
+  content: ''; right: calc(var(--sx-card-pad-x) + 3px); width: 7px; height: 7px; border: solid var(--text-muted); border-width: 0 1.5px 1.5px 0;
+  transform: translateY(-70%) rotate(45deg); font-size: 0;
+}
+.aio-page-advanced-toggle[open] > summary:after { content: ''; transform: translateY(-30%) rotate(-135deg); }
+.aio-page-advanced-body { padding: 0 var(--sx-card-pad-x) 16px; }
+.aio-comp-secondary { border: 0; border-top: 0.5px solid var(--border); border-radius: 0; padding: 0; background: none; }
+.aio-comp-secondary > summary { padding: 14px 3px 14px 0; }
+.aio-comp-secondary > summary:after {
+  content: ''; width: 7px; height: 7px; border: solid var(--text-muted); border-width: 0 1.5px 1.5px 0; transform: translateY(-2px) rotate(45deg); font-size: 0;
+}
+.aio-comp-secondary[open] > summary:after { content: ''; transform: translateY(2px) rotate(-135deg); }
+#pf-holdings-table-section { padding-inline: var(--sx-card-pad-x) !important; }
+@media (max-width: 760px) {
+  /* The empty state was a 134px cell inside the 680px scroller; it spans the card instead. */
+  #pf-positions-tbody tr:has(> td.pfp-empty), #pf-positions-tbody td.pfp-empty { display: block; width: 100%; box-sizing: border-box; }
+  #pf-positions-tbody td.pfp-empty > * { position: static; max-width: none; }
+}
+
+/* v59.55 (alignment pass, audits 2 and 4): text on the card text column on every screen. */
+#page-market-news #news-event-briefs { background: var(--bg-card); border-radius: 12px; padding: 20px var(--sx-card-pad-x) 12px; margin: 0 0 16px; }
+#page-breadth .bb-group--participation > :is(h2, h3, p, .sx-card__head, .bb-group__head) { padding-inline: var(--sx-card-pad-x); }
+#sentiment-card-grid:has(> :nth-child(2):last-child) { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+.page .temp-group { display: flex; flex-direction: column; }
+.page .temp-group-grid { flex: 1; align-items: stretch; }
+.masters-change-counts { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+#page-ticker > .aio-section > .mb-4 { padding-left: var(--sx-card-pad-x); }
+#page-ticker > #ticker-price-panel { padding-inline: var(--sx-card-pad-x) !important; }
+/* A fold row inside a card keeps its 16px row inset for the hover tint, but the row reaches 16px into the card padding
+   so its text starts on the card's text column (it sat 16px deeper: 브리핑 자세히·일정, 거시 금리 조건, 환율). */
+:is(.sx-card, .briefing-block) .sx-disclosure:not(.mk-axis, .mk-maxis, .sx-disclosure .sx-disclosure) { margin-inline: -16px; }
+/* The first-visit notice: one card like the others, no outline, even inner padding. */
+#aio-first-visit-disclaimer.is-inline { border: 0 !important; background: var(--bg-card) !important; padding: 8px var(--sx-card-pad-x) !important; }
+
+/* v59.55 (alignment pass, round 2). */
+/* 브리핑 header reads like every screen: basis line, hub kicker, title (the date line sat under the title). */
+#page-briefing .sh-briefing-row > div:has(> .page-title) { display: flex; flex-direction: column-reverse; gap: 4px; }
+/* The 오늘 hero's condition panel ends with its content instead of stretching to the left column (half of it was empty). */
+#page-home .home-hero-flips { align-self: start; }
+/* Small inline folds (설명, 숫자와 집계 기준) read as captions with no marker; a small chevron after the words says they open. */
+.aio-note-fold > summary, #page-home .home-participation-basis > summary { list-style: none; gap: 6px; }
+.aio-note-fold > summary::-webkit-details-marker, #page-home .home-participation-basis > summary::-webkit-details-marker { display: none; }
+.aio-note-fold > summary::after, #page-home .home-participation-basis > summary::after {
+  content: ''; display: inline-block; width: 5px; height: 5px; border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: translateY(-2px) rotate(45deg);
+}
+.aio-note-fold[open] > summary::after, #page-home .home-participation-basis[open] > summary::after { transform: translateY(1px) rotate(-135deg); }
+/* Page-level text outside cards still starts on the text column (edge scan, every route at 1440px). */
+#page-home .home-ask-row, #page-screener #screener-rank-read, .rl-shell .rl-picks,
+#page-ticker > .aio-section > .aio-section-hd, #page-ticker .ticker-start-title { padding-left: var(--sx-card-pad-x); }
+.page > details.sx-disclosure.sh-fold-mt16 > :not(summary) { padding: 0 var(--sx-card-pad-x) 16px; }
+/* Bare page-level folds: the native ▶ put their words 13px in; they take the text column and the drawn chevron. */
+#news-filter-fold > summary, .breadth-more > summary, #scr-weight-profiles > summary, #scr-data-status > summary {
+  list-style: none; display: flex; align-items: center; gap: 8px; padding-left: var(--sx-card-pad-x); cursor: pointer;
+}
+#news-filter-fold > summary::-webkit-details-marker, .breadth-more > summary::-webkit-details-marker,
+#scr-weight-profiles > summary::-webkit-details-marker, #scr-data-status > summary::-webkit-details-marker { display: none; }
+#news-filter-fold > summary::after, .breadth-more > summary::after, #scr-weight-profiles > summary::after, #scr-data-status > summary::after {
+  content: ''; width: 6px; height: 6px; border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: translateY(-2px) rotate(45deg);
+}
+#news-filter-fold[open] > summary::after, .breadth-more[open] > summary::after, #scr-weight-profiles[open] > summary::after, #scr-data-status[open] > summary::after { transform: translateY(1px) rotate(-135deg); }
+/* The screener's data-status notes were the last 4px-radius outlined boxes; they take the soft tile like other notes. */
+.page :is(.sh-screener-data-status-panel, .sh-screener-readiness-note-panel) { border: 0; border-radius: 12px; background: var(--sx-ink-a03); padding: 10px var(--sx-card-pad-x); }
+#pf-holdings-table-section .sh-portfolio-holdings-table-row { padding-left: 0; padding-right: 0; }
+/* The tools fold is now an inset card, so a select with a long option no longer fits a phone row at its intrinsic width. */
+.sh-portfolio-calc-settings-row > div { min-width: 0; max-width: 100%; }
+.sh-portfolio-calc-settings-row select { max-width: 100%; }
+/* v59.55 (owner 11/1): 연결해서 보면 (market-synthesis.js), the closing card of every market screen. The chain is four
+   steps with drawn arrows, the branches a three-up grid with a met/total meter, the stance two columns. */
+.page .mk-synth { margin-top: 16px; }
+.page .mk-synth__page { margin: 0 0 6px; font-size: 14px; line-height: 1.7; color: var(--text-primary); }
+.page .mk-synth__page b { font-weight: 700; margin-right: 4px; }
+.page .mk-synth__sub { margin: 18px 0 10px; font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.page .mk-synth__chain { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px 28px; }
+.page .mk-synth__step { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 12px; background: var(--sx-ink-a03, rgba(0, 0, 0, 0.03)); }
+.page .mk-synth__step:not(:last-child)::after { content: ''; position: absolute; right: -19px; top: 50%; width: 8px; height: 8px; border-top: 1.5px solid var(--text-muted); border-right: 1.5px solid var(--text-muted); transform: translateY(-50%) rotate(45deg); }
+.page .mk-synth__step-label { font-size: 12px; font-weight: 700; color: var(--text-secondary); }
+.page .mk-synth__step-text { font-size: 13px; line-height: 1.6; color: var(--text-primary); }
+.page .mk-synth__branches { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.page .mk-synth__branch { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border-radius: 12px; border: 0.5px solid rgba(var(--ink-rgb), 0.12); }
+.page .mk-synth__branch[data-role="중심"] { border-color: var(--text-primary); }
+.page .mk-synth__branch-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.page .mk-synth__role { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--sx-ink-a06, rgba(0, 0, 0, 0.06)); color: var(--text-secondary); }
+.page .mk-synth__branch[data-role="중심"] .mk-synth__role { background: var(--text-primary); color: var(--bg-card); }
+.page .mk-synth__branch-name { font-size: 14px; line-height: 1.5; }
+.page .mk-synth__meter { display: flex; gap: 3px; }
+.page .mk-synth__meter span { flex: 1 1 0; height: 6px; border-radius: 3px; background: rgba(var(--ink-rgb), 0.1); }
+.page .mk-synth__meter span.is-met { background: var(--text-primary); }
+.page .mk-synth__fit { font-size: 12px; color: var(--text-secondary); }
+.page .mk-synth__branch-lines { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; margin: 0; font-size: 12px; line-height: 1.55; }
+.page .mk-synth__branch-lines dt { font-weight: 700; color: var(--text-secondary); white-space: nowrap; }
+.page .mk-synth__branch-lines dd { margin: 0; color: var(--text-primary); }
+.page .mk-synth__stance { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 28px; }
+.page .mk-synth__stance-title { margin: 0 0 6px; font-size: 13px; font-weight: 700; }
+.page .mk-synth__stance-col.is-pursue .mk-synth__stance-title { color: var(--data-green, var(--text-primary)); }
+.page .mk-synth__stance-col.is-avoid .mk-synth__stance-title { color: var(--data-amber, var(--text-primary)); }
+.page .mk-synth__stance ul, .page .mk-synth__checks { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; line-height: 1.6; color: var(--text-primary); }
+.page .mk-synth__ask { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 18px; }
+@media (max-width: 1023px) {
+  .page .mk-synth__chain { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .page .mk-synth__step:nth-child(2)::after { display: none; }
+  .page .mk-synth__branches { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 743px) {
+  .page .mk-synth__chain { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  .page .mk-synth__step:not(:last-child)::after { display: block; right: auto; left: 22px; top: auto; bottom: -13px; transform: rotate(135deg); }
+  .page .mk-synth__stance { grid-template-columns: minmax(0, 1fr); }
+}
+/* v59.55 (owner 11/1): 매크로 주제별로 보기 (macro-chapters.js) — six cards, two up; each a mini two-sided bar picture
+   beside its reading, then the next release and the flip condition, then one fold. */
+#page-macro .mx-chapters { margin-top: 16px; }
+#page-macro .mx-chapters__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 12px; }
+#page-macro .mx-ch { display: flex; flex-direction: column; gap: 12px; padding: 18px var(--sx-card-pad-x, 22px); border-radius: 16px; background: var(--bg-card); box-shadow: 0 0 0 0.5px rgba(var(--ink-rgb), 0.08); }
+#page-macro .mx-ch__head { display: flex; flex-direction: column; gap: 2px; }
+#page-macro .mx-ch__title { margin: 0; font-size: 16px; font-weight: 700; color: var(--text-primary); }
+#page-macro .mx-ch__q { font-size: 12px; color: var(--text-secondary); }
+#page-macro .mx-ch__body { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 18px; align-items: start; }
+#page-macro .mx-ch__viz { margin: 0; display: flex; flex-direction: column; gap: 4px; }
+#page-macro .mx-ch__plot { display: flex; gap: 4px; height: 96px; }
+#page-macro .mx-ch__plot.has-negative { height: 120px; }
+#page-macro .mx-ch__col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: stretch; }
+#page-macro .mx-ch__val { font-size: 11px; text-align: center; color: var(--text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+#page-macro .mx-ch__half { flex: 1 1 0; display: flex; }
+#page-macro .mx-ch__half.is-up { align-items: flex-end; border-bottom: 1px solid rgba(var(--ink-rgb), 0.3); }
+#page-macro .mx-ch__half.is-down { align-items: flex-start; }
+#page-macro .mx-ch__plot:not(.has-negative) .mx-ch__half.is-down { display: none; }
+#page-macro .mx-ch__bar { width: 100%; border-radius: 2px; background: rgba(var(--ink-rgb), 0.28); }
+#page-macro .mx-ch__bar.is-hot { background: var(--text-primary); }
+#page-macro .mx-ch__bar.is-neg { background: rgba(var(--ink-rgb), 0.16); }
+#page-macro .mx-ch__bar.is-neg.is-hot { background: var(--text-secondary); }
+#page-macro .mx-ch__x { font-size: 11px; text-align: center; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-top: 2px; }
+#page-macro .mx-ch__cap { font-size: 11px; color: var(--text-muted); }
+#page-macro .mx-ch__text { display: flex; flex-direction: column; gap: 6px; }
+#page-macro .mx-ch__now { margin: 0; font-size: 14px; font-weight: 700; line-height: 1.5; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+#page-macro .mx-ch__mean { margin: 0; font-size: 13px; line-height: 1.7; color: var(--text-primary); }
+#page-macro .mx-ch__next { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 4px 10px; margin: 0; padding: 10px 12px; border-radius: 10px; background: var(--sx-ink-a03, rgba(0, 0, 0, 0.03)); font-size: 12px; line-height: 1.55; }
+#page-macro .mx-ch__next dt { font-weight: 700; color: var(--text-secondary); }
+#page-macro .mx-ch__next dd { margin: 0; color: var(--text-primary); }
+#page-macro .mx-ch__more { margin: 0 -16px; }
+#page-macro .mx-ch__detail { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; margin: 4px 16px 0; font-size: 12px; line-height: 1.55; }
+#page-macro .mx-ch__detail dt { color: var(--text-secondary); }
+#page-macro .mx-ch__detail dd { margin: 0; font-variant-numeric: tabular-nums; }
+@media (max-width: 1023px) { #page-macro .mx-chapters__grid { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 743px) { #page-macro .mx-ch__body { grid-template-columns: minmax(0, 1fr); } }

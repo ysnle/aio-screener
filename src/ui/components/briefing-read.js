@@ -9,7 +9,7 @@ import { briefingFlow } from '../../domain/market/page-flow.js';
 import { renderNextSteps } from './page-flow.js';
 import { crossroadsForRoot, themeLinkRow } from './macro-crossroads.js';
 import { el } from './dom.js';
-import { directionOf } from '../../domain/shared/number.js';
+import { signedFill, signedScale, signedTrack } from './signed-bar.js';
 import { asOfChip } from './section-frame.js';
 import { moveNewsList, moveNewsRows, symbolNames } from './market-timeline.js';
 import { renderSectorMoves } from './sector-moves.js';
@@ -72,6 +72,48 @@ export function renderMoveNews(doc, root, store, flow) {
   fold.hidden = false;
 }
 
+// v59.55 (visual review): 다음 확인 포인트's picture — the next 7 Korean days as columns, each naming its official releases
+// (FOMC, CPI, jobs…) and how many of the listed reports fall on it. The same schedule rows as the folded 7-day list below;
+// the strip only places them in time. Today is marked; a passed time is dimmed.
+export function weekStripDays(schedule = [], nowMs = Date.now(), days = 7) {
+  const kstDay = (ms) => new Date(ms + 9 * 3600000).toISOString().slice(0, 10);
+  const start = Date.parse(`${kstDay(nowMs)}T00:00:00Z`);
+  return Array.from({ length: days }, (_, index) => {
+    const date = new Date(start + index * 86400000).toISOString().slice(0, 10);
+    const rows = schedule.filter((row) => Number.isFinite(row?.atMs) && kstDay(row.atMs) === date);
+    return {
+      date,
+      today: index === 0,
+      weekday: new Date(`${date}T00:00:00Z`).getUTCDay(),
+      events: rows.filter((row) => row.kind !== 'earnings').map((row) => ({ label: row.label, major: !!row.major || row.kind === 'macro', passed: !!row.passed })),
+      earnings: rows.filter((row) => row.kind === 'earnings').length
+    };
+  });
+}
+
+function renderWeekStrip(doc, schedule, nowMs) {
+  const anchor = doc.getElementById('briefing-check-list');
+  if (!anchor) return;
+  let strip = doc.getElementById('briefing-week');
+  if (!strip) {
+    strip = el(doc, 'ol', null, 'briefing-week');
+    strip.id = 'briefing-week';
+    strip.setAttribute('aria-label', '앞으로 7일 공식 일정, 한국 시간');
+    anchor.insertAdjacentElement('afterend', strip);
+  }
+  const days = weekStripDays(schedule, nowMs);
+  strip.hidden = !days.some((day) => day.events.length || day.earnings);
+  strip.replaceChildren(...days.map((day) => {
+    const li = el(doc, 'li', null, `briefing-week-day${day.today ? ' is-today' : ''}${day.weekday === 0 || day.weekday === 6 ? ' is-weekend' : ''}`);
+    li.append(el(doc, 'span', `${kstMd(day.date)} ${WEEKDAY[day.weekday]}${day.today ? ', 오늘' : ''}`, 'briefing-week-date'));
+    for (const event of day.events) li.append(el(doc, 'span', event.label, `briefing-week-event${event.major ? ' is-major' : ''}${event.passed ? ' is-passed' : ''}`));
+    // The schedule keeps each date's heaviest S&P 500 reports (perDay), so this counts those, not every report.
+    if (day.earnings) li.append(Object.assign(el(doc, 'span', `주요 실적 ${day.earnings}곳`, 'briefing-week-earnings'), { title: 'S&P 500 비중이 큰 실적 발표만 셉니다. 전체 건수는 아래 날짜별 실적 목록에 있습니다.' }));
+    if (!day.events.length && !day.earnings) li.append(el(doc, 'span', '—', 'briefing-week-none'));
+    return li;
+  }));
+}
+
 const kstMd = (iso) => { const [, m, d] = String(iso || '').split('-').map(Number); return m && d ? `${m}/${d}` : ''; };
 const WEEKDAY = ['일', '월', '화', '수', '목', '금', '토'];
 function mySymbols(root, store) {
@@ -98,7 +140,7 @@ function renderEarningsWeek(doc, root, store, snapshot) {
   if (!box) {
     box = el(doc, 'div', null, 'briefing-earnings-week');
     box.id = 'briefing-earnings-week';
-    section.append(box);
+    section.insertAdjacentElement('afterend', box); // v59.55: beside the schedule fold, not a fold inside it
   }
   const wasOpen = !!box.querySelector('details')?.open;
   const range = week.weekStart && week.weekEnd ? `${kstMd(week.weekStart)}~${kstMd(week.weekEnd)} ` : '';
@@ -108,7 +150,8 @@ function renderEarningsWeek(doc, root, store, snapshot) {
   fold.append(el(doc, 'summary', '날짜별 실적 발표, 시가총액 큰 순'));
   for (const day of week.days) {
     const weekday = WEEKDAY[new Date(`${day.date}T12:00:00Z`).getUTCDay()];
-    fold.append(el(doc, 'h3', `${kstMd(day.date)}(${weekday}) 미국, ${day.count}건`, 'briefing-earnings-day'));
+    // v59.55 (flow 7): a day is a label inside the one fold, not one of eight page headings.
+    fold.append(el(doc, 'p', `${kstMd(day.date)}(${weekday}) 미국, ${day.count}건`, 'briefing-earnings-day'));
     for (const session of day.sessions) {
       const group = el(doc, 'div', null, 'briefing-earnings-session');
       group.append(el(doc, 'div', `${session.label} ${session.count}건${session.hidden > 0 ? `, 큰 순 ${session.rows.length}건 표시` : ''}`, 'briefing-earnings-session-head'));
@@ -234,6 +277,7 @@ export function renderBriefingRead({ documentRef: doc, root, store = null, nowMs
     nowMs,
     perDay: 2 // v58.75 (persona review): each US date keeps its two heaviest reports (home's KO was missing here)
   });
+  renderWeekStrip(doc, schedule, nowMs);
   const scheduleRows = doc.getElementById('briefing-schedule-rows');
   if (scheduleRows) {
     scheduleRows.replaceChildren(...(schedule.length ? schedule.map((row) => {
@@ -256,7 +300,7 @@ export function renderBriefingRead({ documentRef: doc, root, store = null, nowMs
 
   // 2. Read
   const basis = doc.getElementById('briefing-read-basis');
-  if (basis) basis.textContent = read.available ? `${shortDate(read.asOf)} 미국 종가 기준, 자동 해석` : '';
+  if (basis) basis.textContent = read.available ? `${shortDate(read.asOf)} 종가` : '';
   const headline = doc.getElementById('briefing-read-headline');
   if (headline) headline.textContent = read.available ? (read.headline || '눈에 띄는 신호가 없는 평범한 하루입니다.') : '종가 기록을 불러오는 중입니다.';
   const headlineReading = doc.getElementById('briefing-read-reading');
@@ -350,27 +394,23 @@ function renderMoveChart(doc, anchor, moves) {
   for (const unit of ['%', 'bp']) {
     const rows = moves.filter((row) => row.unit === unit);
     if (!rows.length) continue;
-    const max = Math.max(...rows.flatMap((row) => [Math.abs(row.d1 || 0), Math.abs(row.d5 || 0)]), unit === '%' ? 0.5 : 2);
+    const max = signedScale(rows.flatMap((row) => [row.d1, row.d5]), unit === '%' ? 0.5 : 2);
     const block = el(doc, 'div', null, 'briefing-move-block');
-    block.append(el(doc, 'div', unit === '%' ? '가격 등락(%), 진한 막대 1일, 옅은 막대 5일, 달러·환율은 회색(좋고 나쁨 없음)' : '금리 변화(bp) — 다른 단위라 따로 표시', 'briefing-move-head'));
+    // v59.55 (owner 11/1): the legend is the head itself; why 달러·환율 are grey moves to its hover.
+    const moveHead = el(doc, 'div', unit === '%' ? '등락(%), 진한 막대 1일 · 옅은 막대 5일' : '금리 변화(bp)', 'briefing-move-head');
+    if (unit === '%') moveHead.title = '달러·환율 막대는 회색입니다. 오르고 내림에 좋고 나쁨이 없어서입니다.';
+    block.append(moveHead);
     // v58.71: a row closed on another date than the S&P 500 (the first row) names its date.
     const baseDate = moves[0]?.asOf || null;
     for (const row of rows) {
       const line = el(doc, 'div', null, 'briefing-move-row');
       const [, mm, dd] = String(row.asOf || '').split('-').map(Number);
       line.append(el(doc, 'span', row.asOf && baseDate && row.asOf !== baseDate && mm && dd ? `${row.label}, ${mm}/${dd}` : row.label, 'briefing-move-label'));
-      const track = el(doc, 'span', null, 'briefing-move-track');
-      for (const [key, cls] of [['d5', 'is-5d'], ['d1', 'is-1d']]) {
-        const value = row[key];
-        if (!Number.isFinite(value)) continue;
-        // v59.45 (R1-05): the colour follows the printed one-decimal sign; a move printed 0.0% is grey, not falling.
-        const dir = directionOf(value, 1);
-        const bar = el(doc, 'span', null, `briefing-move-bar ${cls} ${row.unit === 'bp' || row.neutral || !dir ? 'is-rate' : dir === 'up' ? 'is-up' : 'is-down'}`);
-        const width = Math.abs(value) / max * 50;
-        bar.style.width = `${Math.max(0.6, width).toFixed(1)}%`;
-        bar.style.left = value >= 0 ? '50%' : `${(50 - width).toFixed(1)}%`;
-        track.append(bar);
-      }
+      // v59.45 (R1-05): the colour follows the printed one-decimal sign; a move printed 0.0% is grey, not falling.
+      // v59.55 (C3): the shared two-sided bar (signed-bar.js); bp rows and the dollar are 'flat' (no good or bad side).
+      const fills = [['d5', 'is-5d'], ['d1', 'is-1d']].filter(([key]) => Number.isFinite(row[key]))
+        .map(([key, cls]) => signedFill(doc, row[key], max, { tone: row.unit === 'bp' || row.neutral ? 'flat' : 'dir', className: cls }));
+      const track = signedTrack(doc, fills, 'briefing-move-track');
       line.append(track, el(doc, 'span', `${fmtMove(row.d1, row.unit)}, ${fmtMove(row.d5, row.unit)}`, 'briefing-move-value'));
       block.append(line);
     }

@@ -13,7 +13,7 @@ export const BRANCH_ANALOGS = Object.freeze({
   slowdown: { label: '10년물이 20거래일 25bp 이상 내리면서 VIX 20 이상일 때', needs: ['tnx', 'vix'], test: (v) => v.tnx20 <= -0.25 && v.vix >= 20 },
   oilshock: { label: 'WTI가 20거래일 15% 이상 오른 뒤', needs: ['wti'], test: (v) => v.wti20 >= 15 },
   creditstress: { label: 'S&P 500이 20거래일 5% 이상 내리고 VIX 25 이상일 때 (신용 스트레스 대용)', needs: ['vix'], test: (v) => v.spx20 <= -5 && v.vix >= 25 },
-  dollarsurge: { label: '달러 인덱스가 20거래일 3% 이상 오른 뒤', needs: ['dxy'], test: (v) => v.dxy20 >= 3 },
+  dollarsurge: { label: '달러 지수가 20거래일 3% 이상 오른 뒤', needs: ['dxy'], test: (v) => v.dxy20 >= 3 },
   reflation: { label: '10년물이 20거래일 25bp 이상 오르면서 S&P 500도 3% 이상 오를 때', needs: ['tnx'], test: (v) => v.tnx20 >= 0.25 && v.spx20 >= 3 },
   volshock: { label: 'VIX가 30 이상일 때', needs: ['vix'], test: (v) => v.vix >= 30 },
   // v57.75: the long-history producer has only spx/tnx/vix/wti/dxy, so both new branches use labelled proxies.

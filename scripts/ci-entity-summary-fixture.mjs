@@ -63,7 +63,7 @@ assert.equal(businessProfileFor('XYZ', company).description, '공식 사업 설�
 assert.equal(businessProfileFor('OTHER', company).description, null, 'P1624 another issuer cannot inherit a description');
 assert.equal(businessProfileFor('UNKNOWN').description, null, 'P1624 unknown business description is not invented');
 
-function element(tag) { return { tag, childNodes: [], style: {}, append(...nodes) { this.childNodes.push(...nodes); } }; }
+function element(tag) { return { tag, childNodes: [], style: {}, dataset: {}, append(...nodes) { this.childNodes.push(...nodes); } }; }
 const visual = relativeVisual({ createElement: element }, { symbol: 'AEHR', benchmarkLabel: 'S&P 500', spans: [{ label: '1개월', stock: -9.8, bench: 2.9 }] });
 const pair = visual.childNodes[1].childNodes[1];
 const negative = pair.childNodes[0].childNodes[0].childNodes[0];
@@ -73,7 +73,9 @@ assert.equal(negative.style.width, '50.00%');
 assert.equal(positive.style.left, '50.00%', 'P1624 positive return starts right of common zero');
 assert.equal(positive.style.width, '14.80%', 'P1624 common scale preserves relative magnitudes');
 const css = await readFile(new URL('../src/ui/styles/entity-quality.css', import.meta.url), 'utf8');
-assert.match(css, /stock-return-signed-track::after[^}]*left:50%/, 'P1624 zero line belongs to signed chart only');
+// v59.55 (C3): the zero line is the shared two-sided bar's (signed-bar.js, soft-ui.css).
+const sharedCss = await readFile(new URL('../src/ui/styles/soft-ui.css', import.meta.url), 'utf8');
+assert.match(sharedCss, /.signed-track::before[^}]*left: 50%/, 'P1624 zero line belongs to signed chart only');
 assert.doesNotMatch(css, /\.stock-read-bar\s*\{/, 'P1624 fiscal peer shared bars remain unchanged');
 console.log('PASS P1624 entity summary: first-load history, quote currency/basis, identity, cancellation/cache and signed returns');
 }],

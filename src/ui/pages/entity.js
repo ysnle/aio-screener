@@ -1,4 +1,4 @@
-import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
+import { createResourceBag } from '../../app/lifecycle.js';
 import { ensureResearchSnapshots } from '../components/research-snapshots.js';
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
 import { parseKnowledgeTargetContext } from '../../app/knowledge-route-state.js';
@@ -11,6 +11,8 @@ import { canonicalEpochMs } from '../../domain/chart/contract.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { setStockSubject } from '../navigation/route-hubs.js';
 import { renderStockRead } from '../components/stock-read.js';
+import { renderTickerStart } from '../components/ticker-start.js';
+import { createTrendChart } from '../components/trend-chart.js';
 import { EARNINGS_CALENDAR, renderFiscalRead, requestFiscalHistory } from '../components/fiscal-read.js';
 import { requestConsensusEstimates } from '../../data/consensus-estimates.js';
 import { refreshSharedArtifact, SCENARIO_STATE } from '../../data/shared-artifacts.js';
@@ -157,13 +159,13 @@ function renderTickerHero(documentRef, state, root) {
   const isKr = /\.(KS|KQ)$/.test(String(id || ''));
   const registryName = isKr ? root?.KR_STOCK_DB?.[String(id).slice(0, 6)]?.name || null : null;
   const krName = isKr ? (registryName || (state?.name && state.name !== id ? state.name : null)) : null;
-  setText(documentRef, 'ticker-hero-name', krName || id || '종목 분석');
+  setText(documentRef, 'ticker-hero-name', krName || id || '종목');
   // v59.54 (first-users run-6 #11): a symbol outside AIO's registries showed only its letters, so FB read as Facebook when the
   // listed FB is a ProShares ETF. The official listing's name (already loaded for the listed/not-listed check) names it.
   const listingName = !isKr && id ? usListingNameFor(root, documentRef, id, state) : null;
   setText(documentRef, 'ticker-hero-fullname', id
     ? (krName ? id : (state?.name && state.name !== id ? state.name : listingName || (state?.id ? id : `${root?._currentTickerName || id}, ${root?._aioEntitySummaryStatus?.[id] === 'unavailable' ? '시세를 불러오지 못했습니다' : '시세 불러오는 중'}`)))
-    : '종목을 검색하세요');
+    : ''); // v59.55: the search box right below says it
   // P1317: a KRX listing (.KS/.KQ) trades only in KRW — the venue, not a guess, fixes the quote currency.
   // P1689: a fallback quote can arrive without a currency; use one already observed for this symbol (live envelope or
   // entity summary) before saying "통화 미확인" — still never inferred from the symbol alone outside the KRX suffix.
@@ -467,9 +469,10 @@ function renderTickerControls(documentRef, page, activeTab = 'overview', request
   });
 }
 
-function renderTickerChart({ root, page, state, charts, requestedRange = '1m' }) {
-  const canvas = page?.querySelector?.('#ticker-price-chart');
-  if (!canvas) return;
+function renderTickerChart({ root, page, state, requestedRange = '1m' }) {
+  // v59.55 (C1): the price line is the shared SVG line chart (same axes, hover and ink as every other trend); Chart.js left.
+  const host = page?.querySelector?.('#ticker-price-chart');
+  if (!host) return;
   const range = TICKER_CHART_RANGES[requestedRange] ? requestedRange : '1m';
   // Codex browser audit H28: the summary said "이력 미수신 · 차트 보류" while the chart tab drew the same stock's
   // daily bars. When the entity history is too short, the summary uses those completed daily bars.
@@ -479,45 +482,46 @@ function renderTickerChart({ root, page, state, charts, requestedRange = '1m' })
   const historySource = ownHistory.length >= 2 ? ownHistory : (Array.isArray(dailyBars) ? dailyBars : []);
   const view = selectTickerChartWindow(historySource, range);
   const rows = view.rows;
-  const ChartConstructor = root?.Chart;
-  const unavailable = rows.length < 2 || typeof ChartConstructor !== 'function';
+  const unavailable = rows.length < 2;
   const signature = `${range}|${rows.map((row) => `${row.epochMs}:${row.close}`).join('|')}`;
   const periodLabel = TICKER_CHART_RANGES[range].label;
   const periodMeta = unavailable
-    ? rows.length < 2 ? (root?._aioEntitySummaryStatus?.[state?.id] === 'unavailable' ? `${state?.id || '종목'} ${periodLabel} 가격 이력을 불러오지 못했습니다. 종목을 다시 선택해 확인할 수 있습니다.` : root?._aioEntitySummaryStatus?.[state?.id] === 'loading' ? `${state?.id || '종목'} ${periodLabel} 가격 이력을 불러오는 중입니다.` : `${state?.id || '종목'} ${periodLabel} 가격 이력이 아직 없습니다. 종목을 다시 선택해 확인할 수 있습니다.`) : '가격 이력은 수신했지만 차트 표시를 준비하지 못했습니다. 새로고침해 다시 확인할 수 있습니다.'
+    ? (root?._aioEntitySummaryStatus?.[state?.id] === 'unavailable' ? `${state?.id || '종목'} ${periodLabel} 가격 이력을 불러오지 못했습니다. 종목을 다시 선택해 확인할 수 있습니다.` : root?._aioEntitySummaryStatus?.[state?.id] === 'loading' ? `${state?.id || '종목'} ${periodLabel} 가격 이력을 불러오는 중입니다.` : `${state?.id || '종목'} ${periodLabel} 가격 이력이 아직 없습니다. 종목을 다시 선택해 확인할 수 있습니다.`)
     // P1255 (07:M04 계열 잔여 D4): 차트는 close 계열(배당 미조정)이다 — "수익률"과 섞이지 않도록
     // 가격 기준을 메타에 함께 말한다. S21: 내부 용어 대신 한 줄 독자 문장.
     : `${periodLabel}, ${view.rowCount}개 관측, ${formatTickerChartDate(view.startEpochMs)} ~ ${formatTickerChartDate(view.endEpochMs)}, 배당 제외 가격, 요약 수익률은 배당 포함`;
-  canvas.dataset.aioTickerChartRenderer = 'native';
-  canvas.dataset.sourceKind = unavailable ? 'unavailable' : 'native-runtime';
-  canvas.dataset.sourceLabel = unavailable ? 'entity-history-unavailable' : 'native:entity-history';
-  canvas.dataset.operationalUse = 'reference-only';
-  canvas.dataset.tickerChartRange = range;
-  canvas.dataset.tickerChartRowCount = String(view.rowCount);
-  canvas.dataset.tickerChartStart = formatTickerChartDate(view.startEpochMs);
-  canvas.dataset.tickerChartEnd = formatTickerChartDate(view.endEpochMs);
-  canvas.setAttribute('aria-label', periodMeta);
-  canvas.setAttribute('title', periodMeta);
+  host.dataset.aioTickerChartRenderer = 'native';
+  host.dataset.sourceKind = unavailable ? 'unavailable' : 'native-runtime';
+  host.dataset.sourceLabel = unavailable ? 'entity-history-unavailable' : 'native:entity-history';
+  host.dataset.operationalUse = 'reference-only';
+  host.dataset.tickerChartRange = range;
+  host.dataset.tickerChartRowCount = String(view.rowCount);
+  host.dataset.tickerChartStart = formatTickerChartDate(view.startEpochMs);
+  host.dataset.tickerChartEnd = formatTickerChartDate(view.endEpochMs);
+  host.setAttribute('title', periodMeta);
   const meta = page.querySelector?.('#ticker-chart-meta');
   // v59.51: the face names the window; the observation count and the price basis stay in the hover.
-  const md = (ms) => { const day = formatTickerChartDate(ms); return isIsoDay(day) ? `${Number(day.slice(5, 7))}/${Number(day.slice(8, 10))}` : day; };
+  // v59.55: a window that crosses a year (1년) names the years, or it read "10/30~10/30".
+  const years = formatTickerChartDate(view.startEpochMs).slice(0, 4) !== formatTickerChartDate(view.endEpochMs).slice(0, 4);
+  const md = (ms) => { const day = formatTickerChartDate(ms); if (!isIsoDay(day)) return day; const m = Number(day.slice(5, 7)), d = Number(day.slice(8, 10)); return years ? `${day.slice(2, 4)}.${m}.${d}` : `${m}/${d}`; };
   if (meta) { meta.textContent = unavailable ? periodMeta : `${md(view.startEpochMs)}~${md(view.endEpochMs)} 종가`; meta.title = periodMeta; }
   const loading = page.querySelector('#ticker-chart-loading');
   // v57.61 WCAG 4.1.3: the chart loading line becomes a failure line in place; announce it as a status.
   if (loading && loading.getAttribute('role') !== 'status') loading.setAttribute('role', 'status');
   // P1591 (S02): without a price history the 380px frame and period buttons stay empty and repeat the same
   // sentence; the box collapses to one line and the buttons hide until rows arrive.
-  const box = canvas.parentElement;
+  const box = host.parentElement;
   const tabs = page.querySelector?.('#ticker-chart-period-tabs');
   // v59.51 (content audit): the price flow is the header's small chart; with no symbol chosen it is not shown.
   const panel = page.querySelector?.('#ticker-price-panel');
   if (panel) panel.hidden = !symbol || root?._aioOnDemandSymbol?.(symbol)?.status === 'not-listed'; // run-6 #11: no chart for no match
-  if (box) box.style.height = unavailable ? '44px' : '200px';
+  if (box) box.style.height = unavailable ? '44px' : '';
   if (tabs) tabs.hidden = unavailable;
-  // v57.79 review: one state at a time — the empty canvas (and any fallback paint on it) hides behind the status line.
-  canvas.style.display = unavailable ? 'none' : '';
+  // v57.79 review: one state at a time — the empty chart hides behind the status line.
+  host.hidden = unavailable;
   if (unavailable) {
-    charts.destroy('ticker-price-chart');
+    host.replaceChildren();
+    host._aioChartSignature = '';
     if (meta) meta.textContent = '';
     if (loading) {
       loading.style.display = 'flex';
@@ -525,27 +529,17 @@ function renderTickerChart({ root, page, state, charts, requestedRange = '1m' })
     }
     return;
   }
-  if (charts.get('ticker-price-chart')?.signature === signature) return;
-  charts.destroy('ticker-price-chart');
-  try {
-    const labels = rows.map((row) => formatTickerChartDate(row.epochMs));
-    const prices = rows.map((row) => finite(row.close));
-    const isUp = prices.at(-1) >= prices[0];
-    const chart = new ChartConstructor(canvas, {
-      type: 'line',
-      data: { labels, datasets: [{ label: state?.id || '가격', data: prices, borderColor: isUp ? '#2f7c57' : '#b54548', backgroundColor: 'transparent', borderWidth: 1.8, borderCapStyle: 'round', borderJoinStyle: 'round', pointRadius: 0, tension: 0, fill: false }] /* v58.53 개편 v2: thin round line, no area fill */ }, // v57.55 review (E3-F9): no smoothing — a curve drew prices that never traded
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: {
-        x: { title: { display: true, text: '관측 날짜' }, ticks: { maxTicksLimit: (canvas.clientWidth || 600) < 480 ? 4 : 8, maxRotation: 0, autoSkip: true, callback(value) { const label = String(this.getLabelForValue(value) || ''); return isIsoDay(label) ? `${Number(label.slice(5, 7))}/${Number(label.slice(8, 10))}` : label; } }, grid: { display: false } }, // v58.53: M/D ticks
-        y: { title: { display: true, text: `가격${state?.quote?.currency ? ` (${state.quote.currency})` : ''}` },
-          ticks: { maxTicksLimit: 4, callback: value => formatMoney(Number(value), state?.quote?.currency) } } } }
-    });
-    charts.set('ticker-price-chart', { chart, signature, canvas });
-    if (loading) loading.style.display = 'none';
-  } catch (_) {
-    charts.destroy('ticker-price-chart');
-    canvas.style.display = 'none';
-    if (loading) { loading.style.display = 'flex'; loading.textContent = `${state?.id || '종목'} ${periodLabel} 차트 런타임 실패, 차트 보류`; }
-  }
+  if (loading) loading.style.display = 'none';
+  if (host._aioChartSignature === signature) return;
+  host._aioChartSignature = signature;
+  const currency = state?.quote?.currency;
+  const series = rows.map((row) => ({ date: formatTickerChartDate(row.epochMs), value: finite(row.close) }));
+  // v59.55 (visual review): the app's direction colours (rising red, falling blue — the candles, sector bars and signed
+  // returns) through the wrap's class; v57.55 review (E3-F9): straight segments, never a smoothed curve.
+  const chart = createTrendChart(host.ownerDocument, { series, width: host.clientWidth || undefined, label: `${state?.id || '종목'} ${periodLabel} 종가`,
+    format: (value) => (currency ? formatMoney(value, currency, { maximumFractionDigits: Math.abs(value) >= 100 ? 0 : 2 }) : value.toLocaleString('en-US', { maximumFractionDigits: 2 })) });
+  chart.classList.add(series.at(-1).value >= series[0].value ? 'is-up' : 'is-down');
+  host.replaceChildren(chart);
 }
 
 // v57.81: why an out-of-universe listing has no SEC filing on screen (never an estimate in its place).
@@ -713,7 +707,7 @@ function renderFundamentalReport(documentRef, page, state) {
 // SEC annual-data availability/source badge on fundamental. P815 transfers only the bounded
 // SEC-derived summary line; options-chain, report sections, charts, and AI narrative remain
 // legacy-owned.
-function render({ root, documentRef, store, route, charts, activeTickerTab = 'overview', tickerChartRange = '1m' }) {
+function render({ root, documentRef, store, route, activeTickerTab = 'overview', tickerChartRange = '1m' }) {
   const selected = selectEntityState(store.getState());
   const state = route === 'ticker' ? summaryState(root, selected) : selected;
   const portfolioState = selectPortfolioState(store.getState());
@@ -730,10 +724,11 @@ function render({ root, documentRef, store, route, charts, activeTickerTab = 'ov
     renderTickerSecondarySymbols(documentRef, state, root);
     renderTickerActivity(documentRef, root, state, portfolioState);
     renderTickerNavigation(documentRef, state, root);
+    renderTickerStart({ documentRef, root, portfolioState, show: !state?.id && !String(root?._currentTickerId || '').trim() });
     ensureResearchSnapshots({ documentRef, root, host: routeNode, kind: 'stock', collect: () => ({ kind: 'stock',
       symbol: state?.id, name: state?.name, quote: { ...state?.quote, basis: state?.quote?.changeBasis || 'unknown' } }) });
     renderTickerControls(documentRef, routeNode, activeTickerTab, tickerChartRange, state);
-    renderTickerChart({ root, page: routeNode, state, charts, requestedRange: tickerChartRange });
+    renderTickerChart({ root, page: routeNode, state, requestedRange: tickerChartRange });
     // Review (v58.53): the 재무 tile tells a pending or failed SEC projection apart from a confirmed absence. The provider
     // dispatches only after the projection settles, so a synced symbol without fundamentalsMeta means the load failed.
     const requestedId = String(root?._currentTickerId || '').trim().toUpperCase();
@@ -788,8 +783,6 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
     route,
     mount() {
       const bag = createResourceBag();
-      const charts = createChartRegistry({ maxCanvasHeight: 520 });
-      bag.add(charts.dispose);
       let activeTickerTab = 'overview';
       let tickerChartRange = '1m';
       const hydrator = route === 'ticker' ? createSummaryHydrator({ root,
@@ -824,7 +817,7 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
       if (hydrator) bag.add(() => hydrator.dispose());
       const renderNow = () => {
         if (hydrator) hydrator.ensure(root?._currentTickerId || selectEntityState(store.getState())?.id || '');
-        render({ root, documentRef, store, route, charts, activeTickerTab, tickerChartRange });
+        render({ root, documentRef, store, route, activeTickerTab, tickerChartRange });
       };
       renderNow();
       bag.add(subscribeToSlices(store, ['entity', 'portfolio'], renderNow));
@@ -967,12 +960,12 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
           if (page?.dataset.aioTickerChartRenderer === 'native') delete page.dataset.aioTickerChartRenderer;
           if (page?.dataset.activeTickerTab) delete page.dataset.activeTickerTab;
           if (page?.dataset.activeTickerRange) delete page.dataset.activeTickerRange;
-          const canvas = documentRef?.getElementById('ticker-price-chart');
-          if (canvas?.dataset.aioTickerChartRenderer === 'native') {
-            delete canvas.dataset.aioTickerChartRenderer;
-            delete canvas.dataset.sourceKind;
-            delete canvas.dataset.sourceLabel;
-            delete canvas.dataset.operationalUse;
+          const host = documentRef?.getElementById('ticker-price-chart');
+          if (host?.dataset.aioTickerChartRenderer === 'native') {
+            delete host.dataset.aioTickerChartRenderer;
+            delete host.dataset.sourceKind;
+            delete host.dataset.sourceLabel;
+            delete host.dataset.operationalUse;
           }
         });
       }

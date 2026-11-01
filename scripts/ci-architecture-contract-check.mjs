@@ -272,8 +272,10 @@ if (!marketPageSource.includes('renderMacroBoard') || !marketPageSource.includes
   const shell = read('index.html');
   // P1426: regime, impact axes, transmission chain and oil/gold charts on 거시 경제; impact axes on 금리 · 환율.
   // P1427: visual layer — threshold gauges on the deciding variable, the regime map and the traffic-light tiles.
+  // v59.55 (C4): the gauge moved to its own module (gauge-bar.js) shared with the 공포·탐욕 band and the earnings breadth.
+  const gaugeSource = read('src/ui/components/gauge-bar.js');
   for (const marker of ['export function gaugeBar', 'function bandOf', 'function quadrantChart', 'macro-gauge-note']) {
-    if (!macroBoardSource.includes(marker)) fail(`P1427 거시 visual marker missing: ${marker}`);
+    if (!macroBoardSource.includes(marker) && !gaugeSource.includes(marker)) fail(`P1427 거시 visual marker missing: ${marker}`);
   }
   if (!read('src/domain/macro/macro-read.js').includes('function sharedGauges({ macro, rateFx, regime })')) fail('P1427 shared gauges must follow the deciding variable');
   // v58.31: the read is the shared interpretation's macroRead stage (scripts/ci-interpretation-boundary-check.mjs).

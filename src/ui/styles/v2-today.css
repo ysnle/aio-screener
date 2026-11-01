@@ -9,7 +9,7 @@
 /* ═══ 1. 오늘 hero (2b) ══════════════════════════════════════════════════ */
 #page-home > #home-score-hero.home-hero {
   display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 40px; align-items: stretch;
-  padding: 28px 32px; margin: 0 0 16px; border: 0 !important; /* responsive.css L43 hairline reset */
+  padding: 28px var(--sx-card-pad-x); margin: 0 0 16px; border: 0 !important; /* responsive.css L43 hairline reset */
 }
 #page-home .home-hero-main { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 #page-home .home-hero-verdict { font-size: 28px; }
@@ -118,7 +118,9 @@
 
 /* ═══ 4. 내 종목 + 다가오는 일정 cards (2b) ═════════════════════════════════ */
 #page-home #home-daily-loop.daily-loop {
-  display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 14px; align-items: start; margin: 0 0 16px; padding: 0; border: 0;
+  /* v59.55 (finish review): one column — the second was 다가오는 일정, which left 오늘 in v59.51, so 내 종목 stood at
+     half width beside an empty space. */
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; align-items: start; margin: 0 0 16px; padding: 0; border: 0;
 }
 #page-home #home-daily-loop > .daily-block {
   background: var(--bg-card); border-radius: 12px; box-shadow:none; padding: 20px 8px 8px; min-width: 0;
@@ -126,7 +128,7 @@
 }
 #page-home #home-daily-loop > .daily-block:empty, #page-home #home-daily-loop > .daily-block[hidden] { display: none; }
 #page-home #home-daily-loop > #home-my-news { grid-column: 1 / -1; padding: 20px 24px; }
-#page-home .daily-card-head { padding: 0 16px 10px; align-items: baseline; }
+#page-home .daily-card-head { padding: 0 calc(var(--sx-card-pad-x) - 8px) 10px; align-items: baseline; }
 #page-home .daily-card-head .briefing-h2 { margin: 0; font-family: var(--font-sans); font-size: 14px; font-weight: 700; }
 #page-home #home-daily-loop .daily-headline { margin: 0 16px 8px; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
 #page-home #home-daily-loop .daily-subhead { margin-top: 12px; font-family: var(--font-sans); font-weight: 600; } /* v58.79: a sub-heading, not a caption */
@@ -156,21 +158,21 @@
 #page-home #home-daily-loop .daily-news-symbol { font-weight: 700; flex: none; }
 
 /* ═══ 5. AI supply chain + participation card (2b) + the link row ══════════════════════════════ */
-#page-home > #home-ai-chain { margin: 0 0 16px; padding: 20px 24px 12px; border-radius: 12px; background: var(--bg-card); }
+#page-home > #home-ai-chain { margin: 0 0 16px; padding: 20px var(--sx-card-pad-x) 12px; border-radius: 12px; background: var(--bg-card); }
 #page-home > #home-ai-chain[hidden], #page-home > #home-participation[hidden], #page-home > #home-next[hidden] { display: none; }
 #page-home > #home-ai-chain .daily-card-head { padding: 0 0 8px; }
 #page-home > #home-ai-chain .flow-next-link { font-size: 12px; }
 #page-home #home-participation.home-participation { padding: 20px 0 12px; margin: 0 0 16px; border: 0; overflow: hidden; }
-#page-home .home-participation .home-breadth-link { margin: 0 24px; font-size: 12px; }
+#page-home .home-participation .home-breadth-link { margin: 0 var(--sx-card-pad-x); font-size: 12px; }
 #page-home > #home-next { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 0 0 16px; font-size: 12px; }
-#page-home .home-participation-head { padding: 0 24px 4px; margin: 0; font-size: 12px; }
+#page-home .home-participation-head { padding: 0 var(--sx-card-pad-x) 4px; margin: 0; font-size: 12px; }
 #page-home .home-participation-head .sx-card__title { font-size: 14px; }
 #page-home .home-participation-head span { color: var(--text-secondary); }
-#page-home .home-participation-read { margin: 0 24px 8px; font-size: 12px; line-height: 1.6; color: var(--text-secondary); text-wrap: pretty; }
-#page-home .home-participation-grid { gap: 32px; padding: 8px 24px 12px; }
+#page-home .home-participation-read { margin: 0 var(--sx-card-pad-x) 8px; font-size: 12px; line-height: 1.6; color: var(--text-secondary); text-wrap: pretty; }
+#page-home .home-participation-grid { gap: 32px; padding: 8px var(--sx-card-pad-x) 12px; }
 #page-home .home-participation-label { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; font-size: 12px; color: var(--text-secondary); }
 #page-home .home-participation-label b { color: var(--text-primary); font-variant-numeric: tabular-nums; white-space: nowrap; }
-#page-home .home-participation-basis { margin: 0 24px 12px; font-size: 12px; color: var(--text-muted); }
+#page-home .home-participation-basis { margin: 0 var(--sx-card-pad-x) 12px; font-size: 12px; color: var(--text-muted); }
 #page-home .home-participation-basis > summary { display: inline-flex; align-items: center; min-height: 24px; cursor: pointer; }
 #page-home .home-participation-basis > p { margin: 4px 0 0; line-height: 1.6; }
 #page-home .home-ask-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 16px; }
@@ -190,7 +192,7 @@
 #page-briefing .briefing-h2 { font-family: var(--font-sans); font-size: 14px; font-weight: 700; letter-spacing: -0.01em; margin: 0 0 12px; }
 #page-briefing .briefing-h2-note { font-size: 12px; font-weight: 400; color: var(--text-secondary); }
 /* Hero: "오늘의 시장 해석" — kicker, the headline, its reading, then the numbered points (오늘의 세 줄). */
-#page-briefing > #briefing-read.sx-card--hero { padding: 26px 30px; border-radius: 12px; }
+#page-briefing > #briefing-read.sx-card--hero { padding: 26px var(--sx-card-pad-x); border-radius: 12px; }
 #page-briefing #briefing-read .briefing-h2 { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin: 0 0 10px; }
 #page-briefing .briefing-read-headline { font-size: 18px; font-weight: 700; line-height: 1.5; letter-spacing: -0.015em; max-width: 62ch; margin: 0 0 8px; }
 #page-briefing .briefing-read-reading { font-size: 14px; line-height: 1.7; margin: 0 0 14px; color: var(--text-secondary); max-width: 70ch; }
@@ -255,7 +257,6 @@
 /* 자산별 흐름: the bars on the face, the per-asset numbers in one fold. */
 #page-briefing .briefing-move-chart { margin: 0 0 12px; }
 #page-briefing .briefing-move-head { font-size: 12px; }
-#page-briefing .briefing-move-bar { border-radius: 999px; }
 #page-briefing .briefing-drivers-fold > summary { grid-template-columns: minmax(0, 1fr) auto; font-size: 14px; font-weight: 600; min-height: 44px; box-sizing: border-box; }
 #page-briefing .briefing-drivers-fold .briefing-driver-grid { padding: 0 16px 16px; }
 #page-briefing .briefing-driver { border: 0; border-radius: 12px; background: var(--bg-card); padding: 14px 16px; }
@@ -269,6 +270,26 @@
 #page-briefing .briefing-event.is-today { background: var(--sx-warn-bg); }
 #page-briefing .briefing-event-when { font-size: 12px; }
 #page-briefing #briefing-schedule-rows > .briefing-event-meta { padding: 8px 12px 0; }
+/* v59.55 (visual review): the 7-day strip — seven equal columns, a hairline between days, today on a warm ground. */
+#page-briefing .briefing-week { list-style: none; margin: 4px 0 14px; padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border: 0.5px solid var(--border); border-radius: 12px; overflow: hidden; }
+#page-briefing .briefing-week[hidden] { display: none; }
+#page-briefing .briefing-week-day { display: flex; flex-direction: column; gap: 6px; min-height: 96px; padding: 10px 10px 12px; border-left: 0.5px solid var(--border); min-width: 0; }
+#page-briefing .briefing-week-day:first-child { border-left: 0; }
+#page-briefing .briefing-week-day.is-today { background: var(--sx-warn-bg); }
+#page-briefing .briefing-week-day.is-weekend { background: var(--sx-ink-a03); }
+#page-briefing .briefing-week-date { font-size: 12px; font-weight: 600; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+#page-briefing .briefing-week-event { font-size: 12px; line-height: 1.45; color: var(--text-primary); overflow-wrap: anywhere; }
+#page-briefing .briefing-week-event.is-major { font-weight: 600; }
+#page-briefing .briefing-week-event.is-passed { color: var(--text-muted); }
+#page-briefing .briefing-week-earnings { margin-top: auto; font-size: 12px; color: var(--text-secondary); }
+#page-briefing .briefing-week-none { font-size: 12px; color: var(--text-muted); }
+@media (max-width: 760px) {
+  #page-briefing .briefing-week { grid-template-columns: minmax(0, 1fr); }
+  #page-briefing .briefing-week-day { min-height: 0; flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; border-left: 0; border-top: 0.5px solid var(--border); }
+  #page-briefing .briefing-week-day:first-child { border-top: 0; }
+  #page-briefing .briefing-week-date { flex: 0 0 72px; }
+  #page-briefing .briefing-week-earnings { margin-top: 0; }
+}
 
 /* ═══ 8. 뉴스 (5b) ═══════════════════════════════════════════════════════ */
 #page-market-news .news-status-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 16px; }
@@ -282,7 +303,7 @@
 #page-market-news #news-refresh-btn:hover { background: var(--sx-ink-a08); }
 #page-market-news #news-stale-banner { border: 0 !important; border-radius: 12px !important; background: var(--sx-warn-bg) !important; padding: 12px 16px !important; font-size: 12px !important; color: var(--text-primary) !important; } /* markup sets these inline */
 
-#page-market-news .news-card { background: var(--bg-card); border: 0; border-radius: 12px; box-shadow:none; padding: 20px 14px 10px; margin: 0 0 16px; }
+#page-market-news .news-card { background: var(--bg-card); border: 0; border-radius: 12px; box-shadow:none; padding: 20px calc(var(--sx-card-pad-x) - 10px) 10px; margin: 0 0 16px; }
 #page-market-news .news-card[hidden] { display: none; }
 #page-market-news .news-card > .briefing-h2, #page-market-news .news-card > .aio-section-hd { padding: 0 10px; margin: 0 0 8px; }
 #page-market-news .news-card .briefing-h2 { font-family: var(--font-sans); font-size: 14px; font-weight: 700; }
@@ -323,17 +344,17 @@
 
 /* ═══ 9. Breakpoints (4a): iPad landscape 1024–1279 · iPad portrait 744–1023 · iPhone ≤743 ═══ */
 @media (max-width: 1279px) {
-  #page-home > #home-score-hero.home-hero { gap: 28px; padding: 24px 26px; }
+  #page-home > #home-score-hero.home-hero { gap: 28px; padding: 24px var(--sx-card-pad-x); }
 }
 @media (max-width: 1023px) {
   /* 5o: the hero is one column; KPI tiles 2×2; the two daily cards stay side by side. */
-  #page-home > #home-score-hero.home-hero { grid-template-columns: minmax(0, 1fr); gap: 20px; padding: 22px 24px !important; } /* responsive.css ≤700 sets 16px 0 !important */
+  #page-home > #home-score-hero.home-hero { grid-template-columns: minmax(0, 1fr); gap: 20px; padding: 22px var(--sx-card-pad-x) !important; } /* responsive.css ≤700 sets 16px 0 !important */
   #page-home #home-daily-loop.daily-loop { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   #page-briefing .briefing-event { grid-template-columns: minmax(0, 1fr); gap: 2px; }
 }
 @media (max-width: 743px) {
   /* iPhone: one column, 44px touch targets. */
-  #page-home > #home-score-hero.home-hero { padding: 20px !important; border-radius: 12px !important; }
+  #page-home > #home-score-hero.home-hero { padding: 20px var(--sx-card-pad-x) !important; border-radius: 12px !important; }
   #page-home .home-hero-verdict { font-size: 28px; }
   #page-home .home-hero-lede { font-size: 14px; }
   #page-home .home-hero-flips { padding: 16px 18px; }
@@ -341,14 +362,14 @@
   #page-home #home-daily-loop .daily-name { grid-template-columns: auto minmax(0, 1fr) auto; }
   #page-home #home-daily-loop .daily-name-price { display: none; }
   #page-home #home-daily-loop .daily-name-symbol, #page-home .home-flips-full > summary, #page-home #home-daily-loop .flow-next-link { min-height: 44px; }
-  #page-home .home-participation-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; padding: 8px 20px 12px; }
-  #page-home .home-participation-head, #page-home .home-participation-read, #page-home .home-participation-basis { margin-left: 20px; margin-right: 20px; padding-left: 0; padding-right: 0; }
+  #page-home .home-participation-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; padding: 8px var(--sx-card-pad-x) 12px; }
+  #page-home .home-participation-head, #page-home .home-participation-read, #page-home .home-participation-basis { margin-left: var(--sx-card-pad-x); margin-right: var(--sx-card-pad-x); padding-left: 0; padding-right: 0; }
   #page-home .home-participation .home-breadth-link { margin: 0 20px; min-height: 44px; }
   #page-home > #home-ai-chain { padding: 18px 16px 10px; }
   #page-home > #home-next .flow-next-link, #page-home .home-hero-flips .flow-next-link { min-height: 44px; }
   #page-home #home-cross-assets > span:not([hidden]) { min-height: 36px; }
   #page-briefing > .briefing-block, #page-briefing .briefing-pair > .briefing-block { padding: 18px 16px; border-radius: 12px; }
-  #page-briefing > #briefing-read.sx-card--hero { padding: 20px 18px; border-radius: 12px; }
+  #page-briefing > #briefing-read.sx-card--hero { padding: 20px var(--sx-card-pad-x); border-radius: 12px; }
   #page-briefing .briefing-read-headline { font-size: 18px; }
   #page-briefing .home-sector-bars li { grid-template-columns: 76px minmax(0, 1fr) 58px; min-height: 44px; }
   #page-briefing .home-sector-quadrant { display: none; }
@@ -407,7 +428,6 @@
 #page-home .home-index-fallback { display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 8px 10px; font-size: 12px; color: var(--sx-ink-2, inherit); }
 #page-home .home-index-fallback strong { font-size: 20px; font-variant-numeric: tabular-nums; }
 #page-home .home-index-plot.home-index-fallback { display: flex; height: auto; min-height: 64px; } /* v58.80: .is-empty (block) outranked the column layout, so price, caption and note ran together */
-#page-home .home-index-fallback-note { color: var(--sx-ink-3, inherit); font-size: var(--fs-min); }
 #page-home .home-index-chart { display: block; width: 100%; height: 100%; overflow: visible; }
 #page-home .home-index-canvas { position: relative; min-width: 0; height: 100%; }
 #page-home .home-index-prev-tag { position: absolute; left: 0; transform: translateY(-50%); padding: 1px 3px; border-radius: 3px; background: var(--bg-card); font-size: 12px; line-height: 1; color: var(--text-muted); pointer-events: none; }

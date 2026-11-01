@@ -22,7 +22,6 @@
   "domWriterIntersectionAllowlist": [
     "theme-detail-panel",
     "sector-perf-bars",
-    "aio-chart-cdn",
     "ai-panel",
     "ai-panel-inp",
     "sidebar-toggle-btn",
@@ -41,7 +40,6 @@
     "home-date-label"
   ],
   "domWriterIntersectionAllowlistNotes": {
-    "aio-chart-cdn": "A05 (2026-10-12): color-theme.js reads the chart CDN script element to wait for load; index.html owns the element. No content write.",
     "ai-panel": "A05: company-analysis.js opens the legacy-owned AI panel (class toggle) to hand over a question; aio-chat.js owns its content.",
     "ai-panel-inp": "A05: company-analysis.js pre-fills the AI question input on a button press; aio-chat.js owns sending and the panel body.",
     "sidebar-toggle-btn": "A05: responsive-shell.js sets aria/inert state on shell controls for phone and tablet; it writes no text.",
@@ -383,7 +381,7 @@
       "p831Boundary": "portfolio.js owns the deterministic holding count, P/L and daily change and cash projection from portfolio-state plus live quote evidence. Missing values remain unavailable; legacy summary/sector writers are fenced. v59.51 (content audit): the VIX exposure rule/current exposure column and the sector allocation card were retired from the page. Risk cards, benchmark/holding charts and narrative remain legacy-owned.",
       "p835Boundary": "v59.51 (content audit): the pf-position-donut chart was retired from the page (the holdings table's 주식 중 비중 and 보유 점검 carry the mix); the legacy drawPositionDonut was deleted with it.",
       "notes": "The native module owns pf-analysis-status, the bounded total-value/P&L hero, the nine-column Vault-backed holdings table and the deterministic summary surface (v59.51: the exposure column, sector card and position allocation chart were retired). Legacy CRUD commands remain compatibility actions through data-action buttons; risk metrics and benchmark/holding charts remain separately legacy-owned (v59.51: the in-page AI workbench was retired; the AI panel is the one way to ask). v57.77: the legacy 포트폴리오 자동 진단 narrative (#pf-analysis-text, _generatePortfolioAnalysis) and the writerless #pf-risk-section card shell were retired; the native #pf-read is the portfolio reading and #pf-analysis-status sits in the hero.",
-      "chartOwnerEvidence": "v59.54 chart audit (browser probe 2026-11-01): the 포트폴리오 vs SPY canvas (#pf-benchmark-chart) is still drawn by js/aio-ui.js updateBenchmarkChart."
+      "chartOwnerEvidence": "v59.55 (C2): #pf-benchmark-chart is the shared SVG trend chart (src/ui/components/trend-chart.js); js/aio-ui.js updateBenchmarkChart still fetches the 30-day closes on the 새로고침 button."
     },
     "ticker": {
       "lifecycleOwner": "native",

@@ -2,6 +2,12 @@
 // adds to the page's conclusion) and "이어서 볼 곳" (where the same reading continues, and why).
 import { setResearchHandoff } from '../../app/research-handoff.js';
 
+// v59.55 (owner 11/1): the screens that end with 연결해서 보면 (market-synthesis.js), by their 이어서 볼 곳 nav id.
+const SYNTHESIS_PAGES = Object.freeze({
+  'regime-next': 'signal', 'breadth-next': 'breadth', 'sentiment-next': 'sentiment', 'macro-next': 'macro',
+  'fxbond-next': 'fxbond', 'themes-next': 'themes', 'briefing-next': 'briefing', 'news-next': 'news'
+});
+
 export function sectionLead(doc, text) {
   const node = doc.createElement('p');
   node.className = 'flow-lead';
@@ -9,8 +15,25 @@ export function sectionLead(doc, text) {
   return node;
 }
 
+// v59.55 (flow review): one owner for "what to watch next" — 브리핑 다음 확인 포인트. 오늘 and 국면 판정 keep one line and
+// land here; the section paints after the route renders, so the scroll waits for it (as openSignalAxis does).
+export function openRouteSection(doc, root, routeId, sectionId) {
+  root?.showPage?.(routeId);
+  let tries = 0;
+  const land = () => {
+    const section = doc?.getElementById?.(sectionId);
+    if (!section || section.hidden || !section.querySelector('li')) { if ((tries += 1) < 30) setTimeout(land, 100); return; }
+    section.scrollIntoView?.({ block: 'start' });
+    // Blocks above (charts, the earnings list) can finish drawing after the first jump and push the section down.
+    setTimeout(() => section.scrollIntoView?.({ block: 'start' }), 600);
+  };
+  setTimeout(land, 60);
+}
+
 export function renderNextSteps(doc, host, items = []) {
   if (!host) return null;
+  // v59.55 (owner 11/1): every market screen ends with 연결해서 보면 just above this nav (a lazy chunk).
+  if (SYNTHESIS_PAGES[host.id]) import('./market-synthesis.js').then(({ renderMarketSynthesis }) => renderMarketSynthesis({ documentRef: doc, host, page: SYNTHESIS_PAGES[host.id] })).catch(() => {});
   const wasOpen = !!host.querySelector?.('.flow-next-fold')?.open;
   host.replaceChildren();
   host.hidden = !items.length;

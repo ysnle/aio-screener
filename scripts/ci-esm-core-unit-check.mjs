@@ -4154,16 +4154,19 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (!ko || ko.last !== 'EPS 예상 0.91, 매출 예상 133억 달러' || week2.filter((row) => row.kind === 'earnings').length !== 3) fail(`v58.75 per-day earnings and estimate line wrong: ${JSON.stringify(week2.map((row) => [row.label, row.last]))}`);
 }
 // v58.75 (persona review): a mover's headline names the company exactly (ticker word or proper name), never a guess; a
-// channel post needs the ticker in its extracted list and in the text shown.
+// channel post needs the ticker in its extracted list; v59.55 (owner 11/1): it shows only the producer-extracted fact about
+// that ticker in the app's sentence (channel-lines.js), never the post's text, and a post without one is passed over.
 {
   const { headlineForCompany, companyMatcher, pickImportantNews } = await load('src/domain/briefing/news-picks.js');
   const window = { start: Date.parse('2026-10-23T00:00:00Z'), end: Date.parse('2026-10-24T12:00:00Z') };
   const at = '2026-10-23T15:00:00Z';
   const news = [{ title: 'Stocks slide as oil jumps', pubDate: at }, { title: 'Credo Technology shares sink after guidance cut', pubDate: at, source: 'Reuters' }, { title: 'Now is the time for AI', pubDate: at }];
   const credo = headlineForCompany({ symbol: 'CRDO', name: 'Credo Technology Group' }, { news, span: window });
-  const telegram = [{ datetime: at, tickers: ['WDC'], summary: '프리마켓 동향 • SBAC (+9.3%) 상회 • Western Digital 목표주가 하향', url: 'https://t.me/x/1', channel: 'x' }];
-  const wdc = headlineForCompany({ symbol: 'WDC', name: 'Western Digital' }, { news, telegram, span: window });
-  if (credo?.row?.source !== 'Reuters' || headlineForCompany({ symbol: 'NOW', name: 'ServiceNow' }, { news, span: window }) || wdc?.text !== 'Western Digital 목표주가 하향'
+  const telegram = [{ id: 'x/1', datetime: at, tickers: ['WDC'], summary: '프리마켓 동향 • SBAC (+9.3%) 상회 • Western Digital 목표주가 하향', url: 'https://t.me/x/1', channel: 'x' }];
+  const signals = [{ kind: 'pt', post: 'x/1', ticker: 'WDC', broker: 'BofA', ptFrom: 120, ptTo: 100, currency: 'USD', direction: 'cut', date: '2026-10-23' }];
+  const wdc = headlineForCompany({ symbol: 'WDC', name: 'Western Digital' }, { news, telegram, signals, span: window });
+  if (headlineForCompany({ symbol: 'WDC', name: 'Western Digital' }, { news, telegram, span: window })) fail('v59.55 a channel post without an extracted fact must not show');
+  if (credo?.row?.source !== 'Reuters' || headlineForCompany({ symbol: 'NOW', name: 'ServiceNow' }, { news, span: window }) || wdc?.text !== 'BofA, WDC 목표주가 $120 → $100 하향'
     || companyMatcher('AI', '')?.test('AI stocks') || pickImportantNews([{ topic: 'macro', score: 60 }, { topic: 'macro', score: 70 }, { topic: 'geo', score: 55 }, { topic: 'semi', score: 40 }], 3).length !== 2)
     fail(`v58.75 move headlines must match the company exactly: ${JSON.stringify({ credo: credo?.row?.title, wdc: wdc?.text })}`);
 }
@@ -4893,6 +4896,17 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
     const januaryTicks = labels.filter((label) => /년 1월$/.test(label.text)).length;
     if (januaryTicks !== januaries) fail('P1529 internal: january count');
   }
+  // v59.55 (C1): the stock price line's 1개월 window had no month start inside the plot and drew no date at all; a window
+  // under two months labels three observation days. A won price widens the value column instead of running off the edge.
+  const month = [];
+  for (let day = 2; day <= 31; day += 1) month.push({ date: `2026-10-${String(day).padStart(2, '0')}`, value: 55000 + day * 300 });
+  const short = createTrendChart(doc, { series: month, label: 'x', width: 900, format: (value) => `₩${Math.round(value).toLocaleString('en-US')}` });
+  const shortSvg = short.children[0];
+  const days = walk(short).filter((node) => node.tag === 'text' && node.attrs['text-anchor'] === 'middle' && Number(node.attrs.y) === 202).map((node) => node.textContent);
+  if (days.length !== 3 || days.some((text) => !/^10\/\d{1,2}$/.test(text))) fail(`v59.55 a one-month chart labels three M/D days: ${JSON.stringify(days)}`);
+  if (shortSvg.attrs.viewBox !== '0 0 900 210' || shortSvg.style.aspectRatio !== '900 / 210') fail(`v59.55 the width option sets the viewBox and aspect ratio: ${shortSvg.attrs.viewBox} ${shortSvg.style.aspectRatio}`);
+  const grid = walk(short).find((node) => node.tag === 'line' && node.attrs.class === 'trend-chart-grid');
+  if (!(Number(grid.attrs.x1) > 48)) fail(`v59.55 a ₩ axis label widens the value column: x1=${grid?.attrs.x1}`);
 }
 
 // v57.77: the 한국 차트·기술 분석 KOSPI/KOSDAQ cards printed "N단계, 확도 NN%", a setup state and English MACD/BB boxes from
@@ -6512,4 +6526,56 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const mixed = diagnoseBreadthConsensus({ sma5: 10, sma20: 50, sma50: 70, mcclellan: 'bearish', weinstein: 'bullish', goldenCross: 'neutral' }, reg);
   if (Math.abs(mixed.consensus - 0.25) > 1e-12 || mixed.verdict !== '강세 우위' || mixed.conflict?.positiveCount !== 3 || mixed.conflict?.negativeCount !== 1) fail(`v59.41 breadth consensus weights drifted: ${JSON.stringify(mixed)}`);
   if (diagnoseBreadthConsensus({ sma50: 30, mcclellan: 'bearish' }, reg).verdict !== '약세 합의') fail('v59.41 breadth consensus reads two bearish signals as 약세 합의');
+}
+
+// v59.55 (flow review): the menu, the phone tab bar and the number keys put 스크리너 before 종목; the empty 종목 screen's
+// start block lists only passed US screener rows by rank (percentiles are per market) and the holdings/watchlist union.
+{
+  const { ROUTE_HUBS } = await load('src/ui/navigation/route-hubs.js');
+  const ids = ROUTE_HUBS.map((hub) => hub.id);
+  if (!(ids.indexOf('screener') >= 0 && ids.indexOf('screener') < ids.indexOf('stock'))) fail(`v59.55 hub order must put screener before stock: ${ids}`);
+  const { buildTickerStart } = await load('src/ui/components/ticker-start.js');
+  const rows = [
+    { sym: 'AAA', name: 'A Co', rank: 90, screenStatus: 'passed' },
+    { sym: 'BBB', rank: 99, screenStatus: 'excluded' },
+    { sym: '005930.KS', rank: 99, screenStatus: 'passed' },
+    { sym: 'CCC', rank: 95, screenStatus: 'passed' },
+    { sym: 'DDD', rank: null, screenStatus: 'passed' }
+  ];
+  const model = buildTickerStart({ holdings: [{ symbol: 'aaa' }], watchlist: ['ccc', 'AAA'], rows, limit: 5 });
+  if (JSON.stringify(model.top.map((row) => row.symbol)) !== '["CCC","AAA"]') fail(`v59.55 ticker start top rows: ${JSON.stringify(model.top)}`);
+  if (JSON.stringify(model.mine.map((row) => row.symbol)) !== '["AAA","CCC"]' || model.mine[0].name !== 'A Co') fail(`v59.55 ticker start 내 종목: ${JSON.stringify(model.mine)}`);
+}
+
+// v59.55 (visual review): the briefing's 7-day strip places the schedule rows on Korean days — official releases named,
+// earnings counted — starting today; a row without a time is not placed.
+{
+  const { weekStripDays } = await load('src/ui/components/briefing-read.js');
+  const now = Date.parse('2026-11-01T03:00:00Z'); // 12:00 KST, Sunday
+  const days = weekStripDays([
+    { kind: 'macro', label: 'ISM', atMs: Date.parse('2026-11-02T15:00:00Z') }, // 11/3 00:00 KST
+    { kind: 'earnings', label: 'A', atMs: Date.parse('2026-11-02T21:00:00Z') }, // 11/3 06:00 KST
+    { kind: 'structure', label: 'vote', major: true, atMs: Date.parse('2026-11-04T00:00:00Z') },
+    { kind: 'macro', label: 'no time' }
+  ], now);
+  if (days.length !== 7 || days[0].date !== '2026-11-01' || !days[0].today || days[0].weekday !== 0) fail(`v59.55 week strip starts today in KST: ${JSON.stringify(days[0])}`);
+  if (days[2].date !== '2026-11-03' || days[2].events[0]?.label !== 'ISM' || days[2].earnings !== 1) fail(`v59.55 week strip places rows on KST days: ${JSON.stringify(days[2])}`);
+  if (!days[3].events[0]?.major || days.reduce((n, day) => n + day.events.length, 0) !== 2) fail('v59.55 week strip keeps major marks and skips rows without a time');
+}
+
+// v59.55 (C3): one two-sided bar for the five signed comparisons (briefing moves, 종목 and screener vs the index, the
+// validation spread, the portfolio's gap). A negative fill ends at the zero line, a positive one starts there, the scale
+// keeps its floor, and the colour follows the printed sign (0.0 is grey, never falling).
+{
+  const { signedScale, signedFill, signedBar } = await load('src/ui/components/signed-bar.js');
+  const node = () => ({ className: '', style: {}, dataset: {}, children: [], append(...kids) { this.children.push(...kids); } });
+  const doc = { createElement: node };
+  if (signedScale([0.1, -0.2, null], 0.5) !== 0.5 || signedScale([3, -4]) !== 4) fail('v59.55 signed scale: max abs with a floor, non-numbers ignored');
+  const down = signedFill(doc, -2, 4);
+  const up = signedFill(doc, 1, 4, { tone: 'bench' });
+  const zero = signedFill(doc, 0.04, 4);
+  if (down.style.left !== '25.00%' || down.style.width !== '25.00%' || !/is-down/.test(down.className) || down.dataset.sign !== 'down') fail(`v59.55 a falling fill ends at zero in blue: ${JSON.stringify(down)}`);
+  if (up.style.left !== '50.00%' || up.style.width !== '12.50%' || !/is-bench/.test(up.className)) fail(`v59.55 a bench fill starts at zero in light ink: ${JSON.stringify(up)}`);
+  if (!/is-flat/.test(zero.className) || zero.style.width !== '0.60%') fail(`v59.55 a move printed 0.0 is grey and keeps a sliver: ${JSON.stringify(zero)}`);
+  if (!/is-burden/.test(signedBar(doc, -0.3, 1, { tone: 'verdict', trackClass: 'x' }).children[0].className)) fail('v59.55 the verdict tone marks a negative spread 부담');
 }

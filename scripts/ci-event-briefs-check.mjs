@@ -274,7 +274,7 @@ check('v59.44 the AI chain by group: US members, median, weakest first', () => {
   const r = (sym, ret1d, ret1m) => ({ sym, ret1d, ret1m });
   const flow = aiChainFlow({ themes, rows: [r('MU', -5, -12), r('SNDK', -5.3, -23.6), r('WDC', -1, -8), r('000660.KS', 13, 40), r('CRWV', -5, -30), r('NBIS', -5.7, -27), r('IREN', -4, -20), r('KO', 1, 3), r('PEP', 1, 3), r('MNST', 1, 3), r('A', 1, 1), r('B', 1, 1)] });
   same(flow.groups.map((group) => [group.name, group.ret1d, group.ret1m]), [['네오클라우드', -5, -27], ['메모리', -5, -12]]);
-  like(flow.reading, /2개 묶음 중 2개가 지난 거래일에 내렸고, 한 달로 보면 2개가 내렸습니다/);
+  like(flow.reading, /2개 묶음이 지난 거래일과 한 달 모두 내렸습니다/); // v59.55: every group down on both windows reads as one clause
 });
 sources.manifest.ai['reasons-MSFT'] = { status: 'completed', model: 'gpt-6-luna', usage: { input_tokens: 3000, output_tokens: 200 }, output: [{ type: 'web_search_call', status: 'completed' }, { type: 'message', status: 'completed', role: 'assistant', content: [{ type: 'output_text', text: JSON.stringify({ reasons: [
   { text: 'Azure 성장이 기대에 못 미쳤다는 보도', url: 'https://www.cnbc.com/msft-q1' }, { text: '설비투자 $150 billion 전망', url: 'https://www.cnbc.com/msft-capex' }, { text: '블로그 추측', url: 'https://example.com/x' }] }) }] }] };

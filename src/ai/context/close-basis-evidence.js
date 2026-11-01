@@ -17,7 +17,7 @@ const METRICS = Object.freeze([
   { field: 'nasdaq', metric: 'close.nasdaq', entity: 'NASDAQ', label: '나스닥 종합 종가', unit: 'index', digits: 2, change: 'pct', symbols: ['^IXIC'] },
   { field: 'vix', metric: 'close.vix', entity: 'VIX', label: 'VIX 종가', unit: 'index', digits: 2, change: 'pct', symbols: ['^VIX', 'VIX'] },
   { field: 'tnx', metric: 'close.us10y', entity: 'US10Y', label: '미 10년물 금리 종가', unit: 'percent', digits: 3, change: 'bp', symbols: ['^TNX', 'US10Y'] },
-  { field: 'dxy', metric: 'close.dxy', entity: 'DXY', label: '달러 인덱스 종가', unit: 'index', digits: 2, change: null, symbols: ['DX-Y.NYB', 'DXY'] },
+  { field: 'dxy', metric: 'close.dxy', entity: 'DXY', label: '달러 지수 종가', unit: 'index', digits: 2, change: null, symbols: ['DX-Y.NYB', 'DXY'] },
   { field: 'wti', metric: 'close.wti', entity: 'WTI', label: 'WTI 종가', unit: 'usd_per_barrel', digits: 2, change: null, symbols: ['CL=F', 'WTI'] },
   { field: 'gold', metric: 'close.gold', entity: 'GOLD', label: '금 종가', unit: 'usd_per_ounce', digits: 1, change: null, symbols: ['GC=F'] },
   { field: 'kospi', metric: 'close.kospi', entity: 'KOSPI', label: '코스피 종가', unit: 'index', digits: 2, change: 'pct', symbols: ['^KS11', 'KOSPI'] },

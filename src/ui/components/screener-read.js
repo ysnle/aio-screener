@@ -17,7 +17,8 @@ function mixVisual(doc, read, limit = 6) {
     const pair = el(doc, 'div', null, 'stock-read-bar-pair');
     for (const [kind, value] of [['stock', row.top], ['bench', row.all]]) {
       const item = el(doc, 'div', null, 'stock-read-bar-row');
-      const bar = el(doc, 'div', null, `stock-read-bar is-${kind} is-up`);
+      // v59.55 (visual review): a share, not a move — ink against the universe's gold, not the rising red.
+      const bar = el(doc, 'div', null, `stock-read-bar is-${kind}`);
       bar.style.width = `${Math.max(2, value / max * 100).toFixed(1)}%`;
       item.append(bar, el(doc, 'span', `${value.toFixed(0)}%`, 'stock-read-bar-value'));
       pair.append(item);
@@ -47,7 +48,7 @@ export function syncScreenerNextLead(doc, row, { scoped = false } = {}) {
   if (!tableLead) { if (item) item.hidden = true; return; }
   if (item) item.hidden = false;
   button.dataset.arg = tableLead.sym;
-  button.textContent = `${tableLead.scoped ? '표 첫 행' : '순위 맨 앞'} ${tableLead.sym} →`;
+  button.textContent = `${tableLead.sym} 종목 보기 →`;
   const why = item?.querySelector('.flow-next-why');
   if (why) why.textContent = tableLead.scoped ? '지금 표(조건·표시 필터·정렬)의 맨 위 종목을 요약·차트·재무로 확인' : '상위 종목 하나를 요약·차트·재무로 확인';
   if (why) button.title = why.textContent; // v58.79: the why is the link's hover

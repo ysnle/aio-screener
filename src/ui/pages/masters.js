@@ -38,12 +38,12 @@ const ACTION_LABELS = Object.freeze({
 
 const VIEW_LABELS = Object.freeze({
   changes: '핵심 변화',
-  holdings: '보유 행 검색',
+  holdings: '보유 검색',
   sectors: '섹터 구성',
   quarters: '분기 추이',
   compare: '투자자 비교',
   principles: '투자 원칙',
-  ownership: '5% 이상 대량 보유(13D/G)',
+  ownership: '대량 보유',
   filings: '원본 공시'
 });
 
@@ -142,9 +142,7 @@ function createTickerLookup(documentRef, tickerIndex, registry, query, loadState
   const section = element(documentRef, 'section', 'masters-ticker-lookup');
   section.dataset.mastersTickerLookup = 'reference-only';
   section.dataset.mastersTickerLoadState = tickerIndex ? 'ready' : loadState;
-  section.append(
-    element(documentRef, 'p', 'masters-ticker-lookup-copy', '종목을 입력하면 이 화면의 운용사 가운데 그 종목을 보유했다고 신고한 곳을 찾아 줍니다.')
-  );
+  // v59.55 (alignment pass): the how-to sentence left; the field's placeholder and label say what it does.
   const label = element(documentRef, 'label', 'masters-search');
   label.appendChild(element(documentRef, 'span', 'masters-sr-only', '종목으로 찾기 (티커 또는 CUSIP)'));
   const input = element(documentRef, 'input', 'masters-ticker-lookup-input');
@@ -194,7 +192,7 @@ function createTickerLookup(documentRef, tickerIndex, registry, query, loadState
         );
         // v57.50 I12: from a holder back to the stock itself (the reference ticker the ledger already names).
         if (/^[A-Z][A-Z0-9.-]{0,9}$/.test(String(record.tickerReference || ''))) {
-          const open = element(documentRef, 'button', 'aio-btn-table masters-ticker-lookup-open', `${record.tickerReference} 종목 요약`);
+          const open = element(documentRef, 'button', 'aio-btn-table masters-ticker-lookup-open', `${record.tickerReference} 종목 개요`);
           open.type = 'button';
           open.dataset.action = 'showTicker';
           open.dataset.arg = record.tickerReference;
@@ -274,7 +272,7 @@ function createTickerLookup(documentRef, tickerIndex, registry, query, loadState
       });
     }
   }
-  body.appendChild(element(documentRef, 'p', 'masters-ticker-lookup-boundary', '결과는 분기 말 기준으로 신고된 보유입니다. 지금도 들고 있는지, 언제 사고팔았는지는 알 수 없고, 종목 코드 연결은 참고용입니다.'));
+  body.appendChild(element(documentRef, 'p', 'masters-ticker-lookup-boundary', '분기 말 기준으로 신고된 보유라 지금 보유 여부와 매매 시점은 알 수 없습니다.'));
   section.appendChild(body);
   return section;
 }
@@ -379,8 +377,8 @@ function tickerChip(documentRef, ticker) {
   chip.type = 'button';
   chip.dataset.action = 'showTicker';
   chip.dataset.arg = ticker;
-  chip.title = `${ticker} 종목 요약 열기`;
-  chip.setAttribute('aria-label', `${ticker} 종목 요약 열기`);
+  chip.title = `${ticker} 종목 개요 열기`;
+  chip.setAttribute('aria-label', `${ticker} 종목 개요 열기`);
   return chip;
 }
 
@@ -1058,12 +1056,12 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
   const valueMismatch = holdingMeta?.verification?.valueReconciliationStatus === 'MISMATCH' || scaleReview;
   const withheld = (text) => (valueMismatch ? '보류' : text);
   metrics.append(
-    createMetric(documentRef, '최신 보고분기', filingMeta?.latestFiling?.periodOfReport || holdingMeta?.verification?.reportPeriod || '—'),
     createMetric(documentRef, '보유 종목 수', holdingMeta?.verification?.reportedPositionCount != null ? `${holdingMeta.verification.reportedPositionCount}개` : '—'),
     createMetric(documentRef, '상위 5, 10 비중', withheld(`${formatPercent(holdingMeta?.verification?.top5ConcentrationPct)}, ${formatPercent(holdingMeta?.verification?.top10ConcentrationPct)}`)),
-    createMetric(documentRef, '직전 분기 대비 (보고 수량)', holdingMeta?.verification?.comparisonActionCounts ? summarizeLatestChange(holdingMeta.verification.comparisonActionCounts) : '—'),
-    // P1444: the distance between reported-value weights — price moves alone change it — not trading turnover.
-    createMetric(documentRef, '신고 가치 비중 변화(회전율 아님)', withheld(formatPercent(holdingMeta?.verification?.turnoverProxyPct))),
+    createMetric(documentRef, '직전 분기 대비', holdingMeta?.verification?.comparisonActionCounts ? summarizeLatestChange(holdingMeta.verification.comparisonActionCounts) : '—'),
+    // P1444: the distance between reported-value weights — price moves alone change it — not trading turnover (the
+    // v59.55 label drops the defensive parenthetical; the metric's hover keeps the definition).
+    Object.assign(createMetric(documentRef, '보유 비중 변화', withheld(formatPercent(holdingMeta?.verification?.turnoverProxyPct))), { title: '신고 가치 기준 비중이 직전 분기와 얼마나 달라졌는지입니다. 주가 변동만으로도 바뀌어 매매 회전율이 아닙니다.' }),
     createMetric(documentRef, '신고 가치 합계', withheld(formatCompactUsd(holdingMeta?.verification?.parsedValueTotal))),
     createMetric(documentRef, '운용 규모', formatScale(manager)),
     createMetric(documentRef, '전략 성격', manager.strategyProfile?.approach || manager.style || '—')

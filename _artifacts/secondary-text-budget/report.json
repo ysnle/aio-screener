@@ -3,7 +3,7 @@
   "status": "PASS",
   "ceilings": {
     "home": 186,
-    "signal": 305,
+    "signal": 355,
     "breadth": 55,
     "sentiment": 182,
     "briefing": 137,
@@ -11,7 +11,7 @@
     "macro": 305,
     "fxbond": 219,
     "fundamental": 34,
-    "themes": 49,
+    "themes": 77,
     "theme-detail": 33,
     "portfolio": 29,
     "ticker": 15,
@@ -27,8 +27,8 @@
   "failures": [],
   "routes": {
     "home": {
-      "total": 1287,
-      "secondary": 177,
+      "total": 1138,
+      "secondary": 113,
       "lines": [
         {
           "chars": 43,
@@ -39,26 +39,6 @@
           "chars": 27,
           "classes": "page-subtitle  page-head",
           "text": "10월 31일 토요일, 10/30 미국 종가 기준"
-        },
-        {
-          "chars": 16,
-          "classes": "home-index-fallback-note home-index-plot is-empty home-index-fallback home-index-card",
-          "text": "장중 그래프는 받지 못했습니다"
-        },
-        {
-          "chars": 16,
-          "classes": "home-index-fallback-note home-index-plot is-empty home-index-fallback home-index-card",
-          "text": "장중 그래프는 받지 못했습니다"
-        },
-        {
-          "chars": 16,
-          "classes": "home-index-fallback-note home-index-plot is-empty home-index-fallback home-index-card",
-          "text": "장중 그래프는 받지 못했습니다"
-        },
-        {
-          "chars": 16,
-          "classes": "home-index-fallback-note home-index-plot is-empty home-index-fallback home-index-card",
-          "text": "장중 그래프는 받지 못했습니다"
         },
         {
           "chars": 10,
@@ -123,23 +103,18 @@
       ]
     },
     "signal": {
-      "total": 1461,
-      "secondary": 294,
+      "total": 4142,
+      "secondary": 300,
       "lines": [
-        {
-          "chars": 42,
-          "classes": "sx-card__meta  mk-fold",
-          "text": "'소수 주도 → 동반 약세 전환 확인 중'에 가장 가까움, 조건 충족 1/3"
-        },
         {
           "chars": 42,
           "classes": "sx-card__meta  mk-fold",
           "text": "10/30 마감, 코스피 5,730.74 (-3.5%, 5거래일 +3.3%)"
         },
         {
-          "chars": 29,
-          "classes": "page-subtitle  page-head",
-          "text": "10/30 미국 종가 기준, 6개 지표, 공개 기준선"
+          "chars": 30,
+          "classes": "regime-chart-caption regime-radar",
+          "text": "숫자 = 1년 중 지금 위치(0~100, 클수록 양호)"
         },
         {
           "chars": 29,
@@ -152,14 +127,14 @@
           "text": "양호 3(시장 폭·금리·신용과 위험선호)"
         },
         {
+          "chars": 21,
+          "classes": "page-subtitle  page-head",
+          "text": "10/30 미국 종가 기준, 6개 지표"
+        },
+        {
           "chars": 20,
           "classes": "mk-axis__dist-basis mk-axis__dist mk-axis__row",
           "text": "WTI 20일 +10%, 100.22"
-        },
-        {
-          "chars": 19,
-          "classes": "sx-card__meta  mk-fold",
-          "text": "오늘, 5거래일 전, 20거래일 전"
         },
         {
           "chars": 16,
@@ -182,23 +157,44 @@
           "text": "5일 +5bp, 345bp"
         },
         {
-          "chars": 10,
-          "classes": "mk-axis__dist-basis mk-axis__dist mk-axis__row",
-          "text": "50일선 7,697"
+          "chars": 14,
+          "classes": "regime-radar-legend",
+          "text": "5거래일 전 (10/23)"
+        },
+        {
+          "chars": 14,
+          "classes": "regime-radar-legend",
+          "text": "20거래일 전 (10/2)"
         }
       ],
       "frames": [
+        {
+          "frame": "signal.story",
+          "hasHead": true,
+          "asof": "최근 15거래일",
+          "readings": [
+            217
+          ],
+          "problems": []
+        },
         {
           "frame": "signal.scenarios",
           "hasHead": false,
           "asof": "",
           "readings": [],
           "problems": []
+        },
+        {
+          "frame": "signal.synthesis",
+          "hasHead": true,
+          "asof": "10/30 종가",
+          "readings": [],
+          "problems": []
         }
       ]
     },
     "breadth": {
-      "total": 1084,
+      "total": 2429,
       "secondary": 49,
       "lines": [
         {
@@ -252,17 +248,20 @@
           "text": "설명"
         }
       ],
-      "frames": []
+      "frames": [
+        {
+          "frame": "breadth.synthesis",
+          "hasHead": true,
+          "asof": "10/30 종가",
+          "readings": [],
+          "problems": []
+        }
+      ]
     },
     "sentiment": {
-      "total": 1197,
-      "secondary": 173,
+      "total": 2309,
+      "secondary": 154,
       "lines": [
-        {
-          "chars": 33,
-          "classes": "page-subtitle  page-head",
-          "text": "10/30 미국 종가 기준, 날짜가 다른 지표는 카드에 표시"
-        },
         {
           "chars": 20,
           "classes": "basis-chip trend-card-tags",
@@ -277,6 +276,11 @@
           "chars": 16,
           "classes": "basis-chip trend-card-tags trend-card",
           "text": "10/28, 2거래일 전 주간"
+        },
+        {
+          "chars": 14,
+          "classes": "page-subtitle  page-head",
+          "text": "10/30 미국 종가 기준"
         },
         {
           "chars": 14,
@@ -319,36 +323,34 @@
           "text": "10/30"
         }
       ],
-      "frames": []
+      "frames": [
+        {
+          "frame": "sentiment.synthesis",
+          "hasHead": true,
+          "asof": "10/30 종가",
+          "readings": [],
+          "problems": []
+        }
+      ]
     },
     "briefing": {
-      "total": 1305,
-      "secondary": 129,
+      "total": 2606,
+      "secondary": 75,
       "lines": [
-        {
-          "chars": 32,
-          "classes": "ai-analysis-scope basis-chip  briefing-ai",
-          "text": "생성 10/31 19:22 KST, 코스피 10/30 종가"
-        },
-        {
-          "chars": 23,
-          "classes": "page-subtitle  sh-briefing-row",
-          "text": "2026-10-30 (금) 미국 종가 기준"
-        },
         {
           "chars": 23,
           "classes": "briefing-h2-note sx-card__meta home-sector-head sx-card__head sector-moves-content",
           "text": "10/30 종가, 미국 섹터 ETF 11개"
         },
         {
-          "chars": 21,
-          "classes": "briefing-h2-note briefing-h2 aio-section briefing-block briefing-read sx-card sx-card--hero",
-          "text": "10/30 미국 종가 기준, 자동 해석"
+          "chars": 17,
+          "classes": "page-subtitle  sh-briefing-row",
+          "text": "10/30(금) 미국 종가 기준"
         },
         {
-          "chars": 11,
+          "chars": 13,
           "classes": "sector-moves-basis sector-moves-content",
-          "text": "오른쪽 표시 읽는 법"
+          "text": "선도·후행 표시 읽는 법"
         },
         {
           "chars": 9,
@@ -356,17 +358,25 @@
           "text": "결과 해석 가이드"
         },
         {
-          "chars": 5,
-          "classes": "aio-note-fold ai-analysis-note-fold",
-          "text": "해설 범위"
+          "chars": 8,
+          "classes": "briefing-h2-note briefing-h2 aio-section briefing-block briefing-read sx-card sx-card--hero",
+          "text": "10/30 종가"
         },
         {
           "chars": 5,
-          "classes": "briefing-h2-note briefing-h2 aio-section briefing-block",
-          "text": "한국 시간"
+          "classes": "aio-note-fold ai-analysis-note-fold",
+          "text": "해설 범위"
         }
       ],
-      "frames": []
+      "frames": [
+        {
+          "frame": "briefing.synthesis",
+          "hasHead": true,
+          "asof": "10/30 종가",
+          "readings": [],
+          "problems": []
+        }
+      ]
     },
     "technical": {
       "total": 273,
@@ -386,13 +396,13 @@
       "frames": []
     },
     "macro": {
-      "total": 3507,
-      "secondary": 294,
+      "total": 6629,
+      "secondary": 233,
       "lines": [
         {
-          "chars": 154,
+          "chars": 93,
           "classes": "page-subtitle  page-head",
-          "text": "거시 6요인 중 부담은 3개(물가, 통화정책, 유가·달러)이고, 성장·물가 국면은 방향 보류입니다. 'AI 투자 꺾임'과 '유가 충격' 시나리오가 맞는 조건 수가 같아, 아직 어느 쪽이라고 말할 수 없습니다. 다음 주요 발표는 11/6(금) 22:30 KST 고용보고서입니다."
+          "text": "거시 6요인 중 부담은 3개(물가, 통화정책, 유가·달러)이고, 성장·물가 국면은 방향 보류입니다. 다음 주요 발표는 11/6(금) 22:30 KST 고용보고서입니다."
         },
         {
           "chars": 23,
@@ -459,23 +469,32 @@
           "problems": []
         },
         {
+          "frame": "macro.chapters",
+          "hasHead": false,
+          "asof": "",
+          "readings": [],
+          "problems": []
+        },
+        {
           "frame": "macro.crossroads",
           "hasHead": true,
           "asof": "10/30 관측",
+          "readings": [],
+          "problems": []
+        },
+        {
+          "frame": "macro.synthesis",
+          "hasHead": true,
+          "asof": "10/30 종가",
           "readings": [],
           "problems": []
         }
       ]
     },
     "fxbond": {
-      "total": 1667,
-      "secondary": 209,
+      "total": 2969,
+      "secondary": 165,
       "lines": [
-        {
-          "chars": 36,
-          "classes": "page-subtitle  page-head",
-          "text": "10/30 미국 종가 기준, 국채 금리 10/30 공식 고시 기준"
-        },
         {
           "chars": 18,
           "classes": "briefing-h2-note briefing-h2 briefing-block rates-block sx-card sx-card--hero mk-curve-card",
@@ -492,9 +511,9 @@
           "text": "만기별 금리와 1일·1주 변화"
         },
         {
-          "chars": 15,
-          "classes": "rates-other-note  rates-guide",
-          "text": "시세를 아직 받지 못했습니다"
+          "chars": 14,
+          "classes": "page-subtitle  page-head",
+          "text": "10/30 미국 종가 기준"
         },
         {
           "chars": 13,
@@ -530,9 +549,22 @@
           "chars": 8,
           "classes": "basis-chip trend-card-tags trend-card",
           "text": "10/30 종가"
+        },
+        {
+          "chars": 5,
+          "classes": "rates-curve-key is-now rates-curve-legend rates-curve-wrap",
+          "text": "10/30"
         }
       ],
-      "frames": []
+      "frames": [
+        {
+          "frame": "fxbond.synthesis",
+          "hasHead": true,
+          "asof": "10/30 종가",
+          "readings": [],
+          "problems": []
+        }
+      ]
     },
     "fundamental": {
       "total": 108,
@@ -547,8 +579,8 @@
       "frames": []
     },
     "themes": {
-      "total": 3410,
-      "secondary": 43,
+      "total": 5229,
+      "secondary": 70,
       "lines": [
         {
           "chars": 17,
@@ -567,8 +599,38 @@
         },
         {
           "chars": 5,
+          "classes": "sector-map-swatch is-d2 sector-map-legend aio-section sector-map aio-frame",
+          "text": "-1.5%"
+        },
+        {
+          "chars": 5,
+          "classes": "sector-map-swatch is-d1 sector-map-legend aio-section sector-map aio-frame",
+          "text": "-0.5%"
+        },
+        {
+          "chars": 5,
+          "classes": "sector-map-swatch is-u1 sector-map-legend aio-section sector-map aio-frame",
+          "text": "+0.5%"
+        },
+        {
+          "chars": 5,
+          "classes": "sector-map-swatch is-u2 sector-map-legend aio-section sector-map aio-frame",
+          "text": "+1.5%"
+        },
+        {
+          "chars": 5,
           "classes": "tp-legend-item tp-legend tp-map-side",
           "text": "영향 작음"
+        },
+        {
+          "chars": 3,
+          "classes": "sector-map-swatch is-d3 sector-map-legend aio-section sector-map aio-frame",
+          "text": "-3%"
+        },
+        {
+          "chars": 3,
+          "classes": "sector-map-swatch is-u3 sector-map-legend aio-section sector-map aio-frame",
+          "text": "+3%"
         },
         {
           "chars": 2,
@@ -579,16 +641,25 @@
           "chars": 2,
           "classes": "tp-legend-item tp-legend tp-map-side",
           "text": "부담"
-        },
-        {
-          "chars": 2,
-          "classes": "tp-legend-item tp-legend tp-map-side",
-          "text": "혼재"
         }
       ],
       "frames": [
         {
           "frame": "themes.rrg",
+          "hasHead": true,
+          "asof": "10/30 종가",
+          "readings": [],
+          "problems": []
+        },
+        {
+          "frame": "themes.sector-map",
+          "hasHead": true,
+          "asof": "10/30 종가",
+          "readings": [],
+          "problems": []
+        },
+        {
+          "frame": "themes.ranking",
           "hasHead": true,
           "asof": "10/30 종가",
           "readings": [],
@@ -618,14 +689,7 @@
           "problems": []
         },
         {
-          "frame": "themes.ranking",
-          "hasHead": true,
-          "asof": "10/30 종가",
-          "readings": [],
-          "problems": []
-        },
-        {
-          "frame": "themes.sector-map",
+          "frame": "themes.synthesis",
           "hasHead": true,
           "asof": "10/30 종가",
           "readings": [],
@@ -651,7 +715,7 @@
       "frames": []
     },
     "portfolio": {
-      "total": 386,
+      "total": 328,
       "secondary": 23,
       "lines": [
         {
@@ -668,19 +732,13 @@
       "frames": []
     },
     "ticker": {
-      "total": 129,
-      "secondary": 9,
-      "lines": [
-        {
-          "chars": 9,
-          "classes": "page-subtitle sh-ticker-detail-name-stack sh-ticker-row-baseline",
-          "text": "종목을 검색하세요"
-        }
-      ],
+      "total": 213,
+      "secondary": 0,
+      "lines": [],
       "frames": []
     },
     "market-news": {
-      "total": 3866,
+      "total": 4599,
       "secondary": 288,
       "lines": [
         {
@@ -751,6 +809,13 @@
           "asof": "",
           "readings": [],
           "problems": []
+        },
+        {
+          "frame": "news.synthesis",
+          "hasHead": true,
+          "asof": "10/30 종가",
+          "readings": [],
+          "problems": []
         }
       ]
     },
@@ -772,7 +837,7 @@
       "frames": []
     },
     "masters": {
-      "total": 2021,
+      "total": 1892,
       "secondary": 217,
       "lines": [
         {
@@ -836,13 +901,13 @@
       "frames": []
     },
     "guide": {
-      "total": 152,
-      "secondary": 153,
+      "total": 153,
+      "secondary": 154,
       "lines": [
         {
           "chars": 33,
-          "classes": "aio-guide-chapter",
-          "text": "유의사항 · AIO가 말하는 것과 아닌 것 · 투자 배경지식"
+          "classes": "aio-btn-table guide-jumps guide-nav",
+          "text": "판정 기준표 데이터 출처 유의사항 자주 묻는 질문 용어 사전"
         },
         {
           "chars": 31,
@@ -850,19 +915,19 @@
           "text": "판정 기준표, 시장 상태·심리·거시·금리·환율 공통 기준"
         },
         {
-          "chars": 28,
-          "classes": "aio-btn-table guide-jumps guide-nav",
-          "text": "판정 기준표 데이터 출처 유의사항 FAQ 용어 사전"
+          "chars": 31,
+          "classes": "aio-guide-chapter",
+          "text": "유의사항, AIO가 말하는 것과 아닌 것, 투자 배경지식"
         },
         {
-          "chars": 25,
+          "chars": 23,
           "classes": "aio-guide-chapter",
-          "text": "데이터 출처 · 자주 묻는 질문 · 문제 해결"
+          "text": "데이터 출처, 자주 묻는 질문, 문제 해결"
         },
         {
           "chars": 19,
           "classes": "page-subtitle  page-head",
-          "text": "판정 기준, 주의사항, 데이터 출처"
+          "text": "판정 기준, 유의사항, 데이터 출처"
         },
         {
           "chars": 15,
@@ -878,23 +943,13 @@
       "frames": []
     },
     "screener": {
-      "total": 2063,
-      "secondary": 992,
+      "total": 1807,
+      "secondary": 717,
       "lines": [
-        {
-          "chars": 94,
-          "classes": "scr-why-factor-evidence sx-factor scr-why-factor",
-          "text": "비중 29%, 기여 18.5 — 중기(3~12개월) 승자가 이후에도 앞서던 경향(Jegadeesh·Titman 1993) — 여기서는 1·3·6개월 수익률을 섞어 씁니다"
-        },
         {
           "chars": 92,
           "classes": "scr-status-full scr-table-status-text scr-table-status sx-meta",
           "text": "균형 상대 순위 조건 통과 332종목, 시총 큰 순(시총 확인 306종목 먼저) — 순위가 우연과 구별되지 않아 기본은 시총 순, 전체 순위 머리글을 누르면 순위 순"
-        },
-        {
-          "chars": 90,
-          "classes": "scr-why-factor-evidence sx-factor scr-why-factor",
-          "text": "비중 17%, 기여 14.4 — 변동성이 낮은 종목의 위험 대비 수익이 더 높던 저변동 이상 현상(Ang 외 2006, Frazzini·Pedersen 2014)"
         },
         {
           "chars": 88,
@@ -902,19 +957,9 @@
           "text": "종가가 50일선과 200일선 위에 있습니다. 3개월 수익률(+13.7%)은 S&P 500보다 13.7%p 높습니다. 빠진 필수값 없음, 걸린 반대 조건 없음."
         },
         {
-          "chars": 85,
-          "classes": "scr-why-factor-evidence sx-factor scr-why-factor",
-          "text": "비중 10%, 기여 6.8 — 수익성이 높은 기업이 장기 초과수익을 내던 경향(Novy-Marx 2013, 매출총이익 기준) — 여기서는 ·마진·매출성장"
-        },
-        {
-          "chars": 61,
-          "classes": "scr-why-status sx-meta scr-why-drawer sx-inspector scr-split",
-          "text": "조건 통과, 순위 계산 가능, 조건 통과 종목 중 38위, 전체 백분위 95, 표시 항목 자료 75.7% 수신"
-        },
-        {
-          "chars": 54,
+          "chars": 53,
           "classes": "sx-meta scr-excess-legend  scr-why-section",
-          "text": "진한 막대 = 종목, 옅은 막대 = S&P 500( ), 오른쪽 = 차이, 둘 다 10/30 종가"
+          "text": "색 막대 = 종목, 옅은 막대 = S&P 500( ), 오른쪽 = 차이, 둘 다 10/30 종가"
         },
         {
           "chars": 40,
@@ -927,11 +972,6 @@
           "text": "점수를 만든 요인 S&P 500 대비 수익률 52주 범위 안 위치"
         },
         {
-          "chars": 25,
-          "classes": "page-subtitle scr-kicker",
-          "text": "대상 920종목 중 915종목 필수 필드 충족"
-        },
-        {
           "chars": 24,
           "classes": "page-subtitle scr-kicker",
           "text": "미국 10/30 종가 기준, 10/31 계산"
@@ -940,6 +980,31 @@
           "chars": 23,
           "classes": "sx-meta  scr-why-section",
           "text": "같은 섹터 안 상대 점수 0~100, 비중"
+        },
+        {
+          "chars": 22,
+          "classes": "scr-why-calc",
+          "text": "점수 계산 순서, 요인 겹침, 연구 근거"
+        },
+        {
+          "chars": 19,
+          "classes": "scr-why-more scr-why-drawer sx-inspector",
+          "text": "반대 근거, 빠진 자료, 가격 기준"
+        },
+        {
+          "chars": 18,
+          "classes": "sx-meta  scr-split-main sx-card sx-card--flush",
+          "text": "미국, 332종목 중 12개 표시"
+        },
+        {
+          "chars": 17,
+          "classes": "scr-market-scope scr-toolbar",
+          "text": "주식 시장 종목 범위 정렬 기준"
+        },
+        {
+          "chars": 17,
+          "classes": "scr-why-status sx-meta scr-why-drawer sx-inspector scr-split",
+          "text": "조건 통과 · 자료 76% 확보"
         }
       ],
       "frames": []

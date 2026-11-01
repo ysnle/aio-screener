@@ -204,7 +204,7 @@ function rateHub(doc, model, pathsOpen = false) {
   const paths = el(doc, 'details', null, 'xr-paths-fold sx-disclosure');
   paths.open = pathsOpen;
   const moving = model.rateHub.pathsDown.filter((path) => path.ok === true).length;
-  paths.append(el(doc, 'summary', `금리가 내려가려면 — 조건 ${model.rateHub.pathsDown.length}가지 중 ${moving}가지 진행 중`, 'xr-h4'));
+  paths.append(el(doc, 'summary', `금리가 내려가려면 — ${moving ? `조건 ${model.rateHub.pathsDown.length}가지 중 ${moving}가지 진행 중` : `조건 ${model.rateHub.pathsDown.length}가지, 아직 진행 중인 것 없음`}`, 'xr-h4'));
   const grid = el(doc, 'div', null, 'xr-paths');
   for (const path of model.rateHub.pathsDown) {
     const card = el(doc, 'div', null, `xr-path is-${path.stateText ? 'mixed' : path.ok == null ? 'unknown' : path.ok ? 'met' : 'unmet'}`);
@@ -288,7 +288,7 @@ function changeLog(doc, state, open = false) {
   if (!transitions.length && !scored.length) return null;
   const box = el(doc, 'details', null, 'xr-changes sx-disclosure');
   box.open = open;
-  box.append(el(doc, 'summary', `자동 기록 — 무엇이 바뀌었나 (발표 판정 ${scored.length}건, 변화 ${transitions.length}건)`, 'xr-h3'));
+  box.append(el(doc, 'summary', `지난 판정과 바뀐 점 (발표 판정 ${scored.length}건, 변화 ${transitions.length}건)`, 'xr-h3'));
   if (scored.length) {
     box.append(el(doc, 'h4', '지난 발표 판정', 'xr-h4'));
     const list = el(doc, 'ul', null, 'xr-scored');

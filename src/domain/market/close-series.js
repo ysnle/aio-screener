@@ -59,7 +59,7 @@ const SESSION_CLOSE_NY_MINUTE = Object.freeze({
   spx: 960, nasdaq: 960, ndx: 960, dow: 960, rut: 960, tlt: 960, // NYSE/Nasdaq close 16:00 ET
   vix: 975, vix3m: 975, vvix: 975, // Cboe volatility indices settle 16:15 ET
   tnx: 900, // the 10-year yield index stops at 15:00 ET
-  dxy: 1020, wti: 1020, brent: 1020, gold: 1020, usdkrw: 1020, usdjpy: 1020 // FX and futures trading day ends 17:00 ET (P1726: Brent futures too)
+  dxy: 1020, wti: 1020, brent: 1020, gold: 1020, silver: 1020, usdkrw: 1020, usdjpy: 1020 // FX and futures trading day ends 17:00 ET (P1726: Brent futures too)
 });
 const NY_CLOCK = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
 const NY_MINUTE_MEMO = new Map();

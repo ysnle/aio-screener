@@ -493,14 +493,12 @@ try {
         && Number(canvas?.dataset.tickerChartRowCount || 0) === expected.rows
         && document.querySelector(`#page-ticker [data-ticker-range="${expected.range}"]`)?.getAttribute('aria-pressed') === 'true';
     }, { range, rows: expectedRows });
-    await page.waitForFunction(() => {
-      const canvas = document.getElementById('ticker-price-chart');
-      const realChart = !!window.Chart?.getChart?.(canvas);
-      const fallbackChart = window.Chart?.__aioFallback === true
-        && canvas?.dataset.aioChartRegistry === 'ticker-price-chart'
+    // v59.55 (C1): the price line is the shared SVG trend chart; one path segment per observation.
+    await page.waitForFunction((expected) => {
+      const path = document.querySelector('#ticker-price-chart svg.trend-chart path.trend-chart-line');
+      return (path?.getAttribute('d')?.match(/[ML]/g) || []).length === expected.rows
         && document.getElementById('ticker-chart-loading')?.style.display === 'none';
-      return realChart || fallbackChart;
-    });
+    }, { rows: expectedRows });
     tickerRangeEvidence.push(await page.evaluate(() => {
       const canvas = document.getElementById('ticker-price-chart');
       return {
@@ -509,7 +507,7 @@ try {
         start: canvas?.dataset.tickerChartStart,
         end: canvas?.dataset.tickerChartEnd,
         sourceKind: canvas?.dataset.sourceKind || null,
-        rendered: !!window.Chart?.getChart?.(canvas) || window.Chart?.__aioFallback === true && canvas?.dataset.aioChartRegistry === 'ticker-price-chart',
+        rendered: !!canvas?.querySelector('svg.trend-chart path.trend-chart-line'),
         meta: document.getElementById('ticker-chart-meta')?.textContent || ''
       };
     }));

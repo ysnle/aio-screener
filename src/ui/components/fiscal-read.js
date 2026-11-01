@@ -18,7 +18,9 @@ import { refreshSharedArtifact, sharedArtifactState } from '../../data/shared-ar
 import { isIsoDay } from '../../domain/shared/session-date.js';
 
 // The provider earnings calendar (week rows + the v58.75 six-week `upcoming` map), shared with the company summary.
-export const EARNINGS_CALENDAR = Object.freeze({ key: '_aioEarningsCalendarArtifact', url: './public-data/earnings-calendar.json', schemas: ['earnings-calendar.v1'], maxAgeMs: 6 * 60 * 60 * 1000, maxBytes: 512 * 1024 });
+// v59.55: declared in event-artifacts.js so 시장 상태's week-ahead list reads it without loading this module.
+import { EARNINGS_CALENDAR } from '../../data/event-artifacts.js';
+export { EARNINGS_CALENDAR };
 
 const CAPITAL_COLUMNS = ['grossProfit', 'operatingIncome', 'cash', 'shortTermInvestments', 'shareBasedCompensation', 'buybacks', 'dividends'];
 // P1436: "YYYY-MM-DD:revenue:netIncome;…" in USD millions (public-data/sec-fiscal-history.json).

@@ -139,10 +139,9 @@ excluded | semi      | neut | Next 100x AI stock to buy before it explodes
  70 | energy    | headline-only    | Oil jumps as OPEC+ signals deeper output cuts
  67 | equity    | verified-current | Stocks making the biggest moves midday: Lockheed, JetBlue, CoreWeave, Surgery Partners & more
  67 | earnings  | headline-only    | Investors Flee India Small-Caps as Margin Calls Come Knocking
- 62 | macro     | secondary-only   | Fed officials weigh slower balance sheet runoff
  57 | earnings  | verified-current | Rambus falls despite earnings beat on muted guidance outlook
  42 | equity    | headline-only    | 반도체는 버티는데 증시는 휘청…코스닥 1%대 급락
--- visible 14, eligible 14, empty -
+-- visible 13, eligible 13, empty -
 ```
 
 ## surface-market-news-korea

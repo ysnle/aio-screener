@@ -36,8 +36,11 @@ const HIST_SYMBOLS = {
   'SMH': 'smh',
   // Audit 2026-10-17 (owner D5): the equal-weight S&P 500 ETF, already in SYMBOLS, is the US theme stage's benchmark.
   'RSP': 'rsp',
+  // v59.55 (owner 11/1, 매크로 원자재 장): COMEX silver futures, already a live quote, get a completed-close column beside
+  // gold so the gold/silver ratio and silver's drawdown have a record. The <60-observation rule backfills one year.
+  'SI=F': 'silver',
 };
-const HIST_FIELDS = ['spx','nasdaq','ndx','dow','rut','vix','vix3m','vvix','tnx','dxy','wti','brent','gold','kospi','kosdaq','btc','usdkrw','usdjpy','tlt','smh','rsp','fg'];
+const HIST_FIELDS = ['spx','nasdaq','ndx','dow','rut','vix','vix3m','vvix','tnx','dxy','wti','brent','gold','silver','kospi','kosdaq','btc','usdkrw','usdjpy','tlt','smh','rsp','fg'];
 // P1246 (data-refresh: 품질 경계): 히스토리 시장 필드의 **단일** 타당 범위 선언. producer가 이 범위를
 // 벗어난 값을 관측으로 승격하지 않고(null + fieldMeta 없음 = P1101의 무관측 표기), 게이트가 같은 선언을
 // 가져와 아티팩트를 검사한다 — 선언과 집행이 서로 다른 리터럴을 들고 어긋나는 경로를 만들지 않는다.
@@ -52,6 +55,7 @@ export const HIST_FIELD_PLAUSIBILITY = Object.freeze({
   tlt: [20, 400],
   smh: [20, 2000],
   rsp: [20, 2000],
+  silver: [1, 500],
 });
 export function histValueWithinPlausibility(field, value) {
   const range = HIST_FIELD_PLAUSIBILITY[field];

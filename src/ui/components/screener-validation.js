@@ -7,6 +7,7 @@
 import { createTrendChart } from './trend-chart.js';
 import { liveScreenerModelFingerprint } from '../../domain/screener/model-fingerprint.js';
 import { el } from './dom.js';
+import { signedBar, signedScale } from './signed-bar.js';
 import { signedText } from '../../domain/shared/number.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
 
@@ -220,16 +221,13 @@ export function renderValidationHero({ documentRef: doc, read }) {
     card.append(head);
     const spread = read.spreadPoints || [];
     if (spread.length) {
-      const max = Math.max(0.5, ...spread.map((point) => Math.abs(point.gross)));
+      const max = signedScale(spread.map((point) => point.gross), 0.5);
       for (const point of spread) {
         const up = point.gross >= 0;
         const line = el(doc, 'div', null, 'scr-vh-row scr-vh-spread-row');
         line.title = `상위 20% 평균 ${pct(point.top)} − 하위 20% 평균 ${pct(point.bottom)} = ${signedPp(point.gross)}${point.net != null ? `, 거래비용(회전율 기준 ${point.cost != null ? `${point.cost.toFixed(2)}%` : '—'}) 반영 ${signedPp(point.net)}` : ''}`;
-        const track = el(doc, 'span', null, 'scr-vh-track');
-        const fill = el(doc, 'span', null, `scr-vh-fill ${up ? 'is-up' : 'is-burden'}`);
-        fill.style.width = `${Math.min(50, Math.abs(point.gross) / max * 50).toFixed(1)}%`;
-        fill.style[up ? 'left' : 'right'] = '50%';
-        track.append(fill);
+        // v59.55 (C3): the shared two-sided bar; a spread is a verdict on the model (양호 green, 부담 amber).
+        const track = signedBar(doc, point.gross, max, { tone: 'verdict', digits: 2, trackClass: 'scr-vh-track' });
         const legs = el(doc, 'span', null, 'scr-vh-legs');
         legs.append(el(doc, 'span', `상위 ${pct(point.top)}`), el(doc, 'span', `하위 ${pct(point.bottom)}`));
         line.append(el(doc, 'span', point.date, 'scr-vh-date'), track, legs, el(doc, 'span', signedPp(point.gross), `scr-vh-ic ${up ? 'scr-tone-up' : 'scr-tone-burden'}`));
@@ -251,14 +249,10 @@ export function renderValidationHero({ documentRef: doc, read }) {
       summary.addEventListener('click', () => { fold.dataset.userToggled = '1'; });
       fold.append(summary);
       const body = el(doc, 'div', null, 'scr-vh-ic-body');
-      const maxIc = Math.max(0.1, ...read.points.map((point) => Math.abs(point.ic)));
+      const maxIc = signedScale(read.points.map((point) => point.ic), 0.1);
       for (const point of read.points) {
         const line = el(doc, 'div', null, 'scr-vh-row');
-        const track = el(doc, 'span', null, 'scr-vh-track');
-        const fill = el(doc, 'span', null, `scr-vh-fill ${point.ic >= 0 ? 'is-up' : 'is-burden'}`);
-        fill.style.width = `${Math.min(50, Math.abs(point.ic) / maxIc * 50).toFixed(1)}%`;
-        fill.style[point.ic >= 0 ? 'left' : 'right'] = '50%';
-        track.append(fill);
+        const track = signedBar(doc, point.ic, maxIc, { tone: 'verdict', digits: 3, trackClass: 'scr-vh-track' });
         line.append(el(doc, 'span', point.date, 'scr-vh-date'), track, el(doc, 'span', signedText(point.ic, 3), `scr-vh-ic ${point.ic >= 0 ? 'scr-tone-up' : 'scr-tone-burden'}`));
         body.append(line);
       }

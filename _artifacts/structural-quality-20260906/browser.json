@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-01T10:14:42.539Z",
+  "generatedAt": "2026-11-01T14:54:24.068Z",
   "routes": [
     {
       "id": "home",
@@ -40,7 +40,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "7일 일정 → 브리핑"
+          "name": "확인 포인트와 7일 일정 → 브리핑"
         },
         {
           "tag": "BUTTON",
@@ -144,7 +144,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "VIX / 3개월 VIX"
+          "name": "단기 불안 비율 (VIX ÷ 3개월 VIX)"
         },
         {
           "tag": "BUTTON",
@@ -200,7 +200,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "달러 인덱스"
+          "name": "달러 지수"
         },
         {
           "tag": "BUTTON",
@@ -305,6 +305,10 @@
         {
           "tag": "BUTTON",
           "name": "다음 발표별 시나리오 → 거시"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "다음 발표 11/6(금) 22:30 KST 고용보고서 — 결과별 시나리오와 7일 일정 → 브리핑"
         },
         {
           "tag": "BUTTON",
@@ -504,12 +508,11 @@
         "혼조",
         "미국 시장 6개 지표",
         "1년 중 지금 위치 — 6개 지표 레이더",
-        "이 조합이 뜻하는 것",
-        "다음에 확인할 것",
-        "지금 시장 흐름",
+        "지금 어떤 흐름인가",
         "고른 상승",
         "소수 종목 주도",
         "소수 주도 → 동반 약세 전환 확인 중",
+        "다음에 확인할 것",
         "다음 발표에 달린 시나리오와 오늘의 가이드",
         "향후 시나리오",
         "오늘의 가이드 — 상황, 시나리오, 대응, 배울 것",
@@ -954,6 +957,14 @@
         },
         {
           "tag": "BUTTON",
+          "name": "시나리오 점검"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "내 대응 점검"
+        },
+        {
+          "tag": "BUTTON",
           "name": "테마와 섹터 →"
         },
         {
@@ -984,7 +995,12 @@
         "4% 이상 상승 − 하락 종목 수 (5일 합계)",
         "지수 확인 — 분배일",
         "S&P 500 매도 우위일(분배일, 최근 25거래일)",
-        "이 화면을 볼 때 — 속지 말 것과 원칙"
+        "이 화면을 볼 때 — 속지 말 것과 원칙",
+        "연결해서 보면",
+        "시장 흐름은 이렇게 이어집니다",
+        "앞으로 펼쳐질 수 있는 갈래",
+        "그래서 무엇을 하고 무엇을 피하나",
+        "확인할 것"
       ]
     },
     {
@@ -1188,6 +1204,26 @@
       "exists": true,
       "moduleState": "ready",
       "controls": [
+        {
+          "tag": "BUTTON",
+          "name": "금리·환율 화면에서 기간 프리미엄과 스프레드 보기 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "브리핑에서 이번 주 발표 일정과 해석 보기 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "개념 노트, 수준과 변화율 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "테마 화면에서 에너지·소재 흐름 보기 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "개념 노트, 한 상품의 가격 상승과 전반적 물가 상승 →"
+        },
         {
           "tag": "BUTTON",
           "name": "물가 둔화 + 고용 완만"
@@ -1582,118 +1618,6 @@
         },
         {
           "tag": "BUTTON",
-          "name": "연준 목표 범위 근거 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "실효 연방기금금리 (월평균) 근거 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CPI (전년 대비) 근거 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "근원 CPI (전년 대비) 근거 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PCE 물가 (전년 대비) 근거 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "근원 PCE (전년 대비) 근거 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "주거비 CPI (전년 대비) 근거 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "주거비 제외 서비스 CPI (전년 대비) 근거 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "실업률 근거 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "비농업 고용 증감 근거 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "시간당 임금 (전년 대비) 근거 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "경제활동참가율 근거 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "소매판매 (전월 대비) 근거 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "주택 착공 (연율) 근거 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "건축 허가 (연율) 근거 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "금리·환율 화면에서 기간 프리미엄과 스프레드 보기 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "브리핑에서 이번 주 발표 일정과 해석 보기 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "개념 노트, 수준과 변화율 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "테마 화면에서 에너지·소재 흐름 보기 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "개념 노트, 한 상품의 가격 상승과 전반적 물가 상승 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "기준금리(실효 연방기금금리) 근거 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "미국 10년물 금리 근거 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "미국 2년물 금리 근거 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "10년물 − 3개월물 금리차 근거 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "10년 실질금리 근거 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "근원 CPI 전년 대비 근거 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "실업률 근거 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "VIX 근거 보기"
-        },
-        {
-          "tag": "BUTTON",
           "name": "맞히기보다 조건으로 생각하기 — 리서치 라이브러리에서 개념 배우기"
         },
         {
@@ -1703,6 +1627,14 @@
         {
           "tag": "BUTTON",
           "name": "'조건 충족 수 = 확률' — 리서치 라이브러리에서 개념 배우기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시나리오 점검"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "내 대응 점검"
         },
         {
           "tag": "BUTTON",
@@ -1720,13 +1652,7 @@
       "headings": [
         "거시 경제",
         "최근 공식 발표",
-        "성장 × 물가 사분면",
-        "증시에 주는 영향 — 거시 6요인",
-        "어떻게 연결되나 — 유가에서 주가까지",
-        "향후 시나리오 — 다음 발표로 확인",
-        "왜 금리가 중심인가",
-        "시나리오 10개 — 조건 충족 순",
-        "경제 지표",
+        "경제 지표 24개월 — 물가, 고용, 소비, 주택",
         "정책금리",
         "연준 목표 범위",
         "실효 연방기금금리 (월평균)",
@@ -1769,12 +1695,30 @@
         "근원 CPI 전년 대비",
         "실업률",
         "VIX",
-        "S&P 500 이익 전망과 밸류에이션 컨센서스 10/31",
+        "성장 × 물가 사분면",
+        "증시에 주는 영향 — 거시 6요인",
+        "주제별로 보기 — 물가 · 고용 · 금리 · 원자재 · 신용 · 성장",
+        "물가 — PCE · CPI",
+        "고용 — 식는가, 꺾이는가",
+        "연준 · 금리 — 왜 움직였나",
+        "원자재 — 유가 · 금",
+        "신용 · 유동성 — 위기인가",
+        "성장 · 소비 · 한국",
+        "어떻게 연결되나 — 유가에서 주가까지",
+        "향후 시나리오 — 다음 발표로 확인",
+        "왜 금리가 중심인가",
+        "시나리오 10개 — 조건 충족 순",
+        "S&P 500 이익 전망과 밸류에이션 컨센서스 11/1",
         "섹터별 4주 상향 우위 (구성 기업 8개 이상)",
         "유가, 금 — 최근 1년",
         "WTI 원유",
         "금",
-        "이 화면을 볼 때 — 속지 말 것과 원칙"
+        "이 화면을 볼 때 — 속지 말 것과 원칙",
+        "연결해서 보면",
+        "시장 흐름은 이렇게 이어집니다",
+        "앞으로 펼쳐질 수 있는 갈래",
+        "그래서 무엇을 하고 무엇을 피하나",
+        "확인할 것"
       ]
     },
     {
@@ -1782,10 +1726,6 @@
       "exists": true,
       "moduleState": "ready",
       "controls": [
-        {
-          "tag": "BUTTON",
-          "name": "10년 기간 프리미엄 (Kim-Wright) 근거 보기"
-        },
         {
           "tag": "BUTTON",
           "name": "거시 화면의 S&P 500 이익 전망"
@@ -1820,6 +1760,14 @@
         },
         {
           "tag": "BUTTON",
+          "name": "시나리오 점검"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "내 대응 점검"
+        },
+        {
+          "tag": "BUTTON",
           "name": "거시 경제 →"
         },
         {
@@ -1841,14 +1789,19 @@
         "실질금리, 기대인플레이션, 기간 프리미엄",
         "10년 실질금리 (TIPS)",
         "10년 기대인플레이션",
-        "10년 기간 프리미엄 (Kim-Wright)",
+        "10년 기간 프리미엄",
         "달러, 원화, 엔화 — 최근 6개월",
-        "달러 인덱스 (DXY)",
+        "달러 지수 (DXY)",
         "원/달러",
         "엔/달러",
         "자산군 성과와 주식·채권 상관10/30 종가 기준",
         "S&P 500 – 미 장기채(TLT) 60거래일 상관",
-        "이 화면을 볼 때 — 속지 말 것과 원칙"
+        "이 화면을 볼 때 — 속지 말 것과 원칙",
+        "연결해서 보면",
+        "시장 흐름은 이렇게 이어집니다",
+        "앞으로 펼쳐질 수 있는 갈래",
+        "그래서 무엇을 하고 무엇을 피하나",
+        "확인할 것"
       ]
     },
     {
@@ -1937,139 +1890,107 @@
         },
         {
           "tag": "BUTTON",
-          "name": "반도체 -22.5%"
+          "name": "1일"
         },
         {
           "tag": "BUTTON",
-          "name": "유틸리티 -2.4%"
+          "name": "1주"
         },
         {
           "tag": "BUTTON",
-          "name": "전력장비/그리드 -9.5%"
+          "name": "1개월"
         },
         {
           "tag": "BUTTON",
-          "name": "광통신/포토닉스 -26.7%"
+          "name": "3개월"
         },
         {
           "tag": "BUTTON",
-          "name": "AI 인프라/데이터센터 -19.8%"
+          "name": "VLO +3.9%"
         },
         {
           "tag": "BUTTON",
-          "name": "AI 인프라/데이터센터 -19.8%"
+          "name": "WMB -0.7%"
         },
         {
           "tag": "BUTTON",
-          "name": "산업재 +2.0%"
+          "name": "STZ +4.7%"
         },
         {
           "tag": "BUTTON",
-          "name": "미국 18"
+          "name": "KMB -1.9%"
         },
         {
           "tag": "BUTTON",
-          "name": "한국 28"
+          "name": "D +2.3%"
         },
         {
           "tag": "BUTTON",
-          "name": "기준 충족"
+          "name": "VST -1.8%"
         },
         {
           "tag": "BUTTON",
-          "name": "미국 헬스케어"
+          "name": "REGN +13.3%"
         },
         {
           "tag": "BUTTON",
-          "name": "미국 소프트웨어/클라우드"
+          "name": "ILMN -18.6%"
         },
         {
           "tag": "BUTTON",
-          "name": "테마 상세, 구성 종목 →"
+          "name": "CSGP +7.2%"
         },
         {
           "tag": "BUTTON",
-          "name": "스크리너에서 소프트웨어/클라우드 종목 보기 →"
+          "name": "EQIX -2.2%"
         },
         {
           "tag": "BUTTON",
-          "name": "미국 필수소비재"
+          "name": "LYB +5.0%"
         },
         {
           "tag": "BUTTON",
-          "name": "미국 에너지"
+          "name": "FCX -5.5%"
         },
         {
           "tag": "BUTTON",
-          "name": "미국 금융"
+          "name": "GPN +13.0%"
         },
         {
           "tag": "BUTTON",
-          "name": "미국 부동산"
+          "name": "COIN -10.6%"
         },
         {
           "tag": "BUTTON",
-          "name": "미국 산업재"
+          "name": "MGM +3.9%"
         },
         {
           "tag": "BUTTON",
-          "name": "미국 경기소비재"
+          "name": "BBY -4.7%"
         },
         {
           "tag": "BUTTON",
-          "name": "미국 로보틱스/자동화"
+          "name": "TMUS +6.2%"
         },
         {
           "tag": "BUTTON",
-          "name": "테마 상세, 구성 종목 →"
+          "name": "RDDT -29.2%"
         },
         {
           "tag": "BUTTON",
-          "name": "스크리너에서 로보틱스/자동화 종목 보기 →"
+          "name": "FDXF +14.9%"
         },
         {
           "tag": "BUTTON",
-          "name": "미국 유틸리티"
+          "name": "BE -8.6%"
         },
         {
           "tag": "BUTTON",
-          "name": "미국 해외 대형 ADR"
+          "name": "GDDY +10.7%"
         },
         {
           "tag": "BUTTON",
-          "name": "미국 방산/항공우주"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "미국 통신"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "미국 소재"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "테마 상세, 구성 종목 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "스크리너에서 소재 종목 보기 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "미국 AI 인프라/데이터센터"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "미국 반도체"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "미국 광통신/포토닉스"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "미국 크립토/블록체인"
+          "name": "INTC -28.6%"
         },
         {
           "tag": "BUTTON",
@@ -2361,146 +2282,6 @@
         },
         {
           "tag": "BUTTON",
-          "name": "산업가스/화학/도료 구성 종목끼리 비교"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "LIN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "APD"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SHW"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ECL"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PPG"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "유럽 대형주 구성 종목끼리 비교"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ASML"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SAP"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NVO"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AZN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NVS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "대형 제약 구성 종목끼리 비교"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "LLY"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "JNJ"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MRK"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PFE"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ABBV"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "BMY"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NVO"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AZN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NVS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ZTS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "음료 구성 종목끼리 비교"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "KO"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PEP"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MNST"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "KDP"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "관리의료/보험 구성 종목끼리 비교"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "UNH"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ELV"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CI"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CVS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "HUM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CNC"
-        },
-        {
-          "tag": "BUTTON",
           "name": "전체 96개 보기"
         },
         {
@@ -2513,107 +2294,139 @@
         },
         {
           "tag": "BUTTON",
-          "name": "1일"
+          "name": "반도체 -22.3%"
         },
         {
           "tag": "BUTTON",
-          "name": "1주"
+          "name": "유틸리티 +1.3%"
         },
         {
           "tag": "BUTTON",
-          "name": "1개월"
+          "name": "전력장비/그리드 -9.5%"
         },
         {
           "tag": "BUTTON",
-          "name": "3개월"
+          "name": "광통신/포토닉스 -27.1%"
         },
         {
           "tag": "BUTTON",
-          "name": "VLO +3.9%"
+          "name": "AI 인프라/데이터센터 -21.6%"
         },
         {
           "tag": "BUTTON",
-          "name": "WMB -0.7%"
+          "name": "AI 인프라/데이터센터 -21.6%"
         },
         {
           "tag": "BUTTON",
-          "name": "STZ +4.7%"
+          "name": "산업재 +2.0%"
         },
         {
           "tag": "BUTTON",
-          "name": "KMB -1.9%"
+          "name": "미국 18"
         },
         {
           "tag": "BUTTON",
-          "name": "D +2.3%"
+          "name": "한국 28"
         },
         {
           "tag": "BUTTON",
-          "name": "VST -1.8%"
+          "name": "기준 충족"
         },
         {
           "tag": "BUTTON",
-          "name": "REGN +13.3%"
+          "name": "미국 헬스케어"
         },
         {
           "tag": "BUTTON",
-          "name": "ILMN -18.6%"
+          "name": "미국 소프트웨어/클라우드"
         },
         {
           "tag": "BUTTON",
-          "name": "CSGP +7.2%"
+          "name": "테마 상세, 구성 종목 →"
         },
         {
           "tag": "BUTTON",
-          "name": "EQIX -2.2%"
+          "name": "스크리너에서 소프트웨어/클라우드 종목 보기 →"
         },
         {
           "tag": "BUTTON",
-          "name": "LYB +5.0%"
+          "name": "미국 필수소비재"
         },
         {
           "tag": "BUTTON",
-          "name": "FCX -5.5%"
+          "name": "미국 에너지"
         },
         {
           "tag": "BUTTON",
-          "name": "GPN +13.0%"
+          "name": "미국 금융"
         },
         {
           "tag": "BUTTON",
-          "name": "COIN -10.6%"
+          "name": "미국 부동산"
         },
         {
           "tag": "BUTTON",
-          "name": "MGM +3.9%"
+          "name": "미국 산업재"
         },
         {
           "tag": "BUTTON",
-          "name": "BBY -4.7%"
+          "name": "미국 경기소비재"
         },
         {
           "tag": "BUTTON",
-          "name": "TMUS +6.2%"
+          "name": "미국 로보틱스/자동화"
         },
         {
           "tag": "BUTTON",
-          "name": "RDDT -29.2%"
+          "name": "테마 상세, 구성 종목 →"
         },
         {
           "tag": "BUTTON",
-          "name": "FDXF +14.9%"
+          "name": "스크리너에서 로보틱스/자동화 종목 보기 →"
         },
         {
           "tag": "BUTTON",
-          "name": "BE -8.6%"
+          "name": "미국 유틸리티"
         },
         {
           "tag": "BUTTON",
-          "name": "GDDY +10.7%"
+          "name": "미국 해외 대형 ADR"
         },
         {
           "tag": "BUTTON",
-          "name": "INTC -28.6%"
+          "name": "미국 방산/항공우주"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "미국 통신"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "미국 소재"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "테마 상세, 구성 종목 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "스크리너에서 소재 종목 보기 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "미국 AI 인프라/데이터센터"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "미국 반도체"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "미국 광통신/포토닉스"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "미국 크립토/블록체인"
         },
         {
           "tag": "BUTTON",
@@ -2785,6 +2598,14 @@
         },
         {
           "tag": "BUTTON",
+          "name": "시나리오 점검"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "내 대응 점검"
+        },
+        {
+          "tag": "BUTTON",
           "name": "스크리너 →"
         },
         {
@@ -2804,6 +2625,9 @@
         "바뀌는 중",
         "섹터 상대강도",
         "세부 테마 상위",
+        "S&P 500 지도",
+        "테마 안에서 갈린 곳 10/30 종가",
+        "미국 세부 테마 상대강도 순위",
         "AI 공급망 흐름",
         "AI 설비투자 100달러는 어디로 가나",
         "반도체",
@@ -2812,12 +2636,13 @@
         "냉각",
         "시설·건설",
         "테마 시나리오 — 단계와 거시 영향",
-        "미국 세부 테마 상대강도 순위",
-        "S&P 500 지도",
-        "테마 안에서 갈린 곳 10/30 종가",
         "한국 테마 흐름 10/30 종가",
         "이 화면을 볼 때 — 속지 말 것과 원칙",
-        "이어서 볼 곳"
+        "연결해서 보면",
+        "시장 흐름은 이렇게 이어집니다",
+        "앞으로 펼쳐질 수 있는 갈래",
+        "그래서 무엇을 하고 무엇을 피하나",
+        "확인할 것"
       ]
     },
     {
@@ -3045,6 +2870,30 @@
         },
         {
           "tag": "BUTTON",
+          "name": "RBRK Rubrik"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ROP Roper Technologies"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ACN Accenture"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "PAYC Paycom"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "APPN Appian"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "스크리너에서 전체 순위 →"
+        },
+        {
+          "tag": "BUTTON",
           "name": "뉴스로 생긴 갭 — 리서치 라이브러리에서 개념 배우기"
         },
         {
@@ -3062,9 +2911,10 @@
       ],
       "headings": [
         "종목",
-        "종목 분석",
+        "종목",
         "가격 흐름",
         "종목 검색",
+        "스크리너 순위 상위, 미국",
         "이 화면을 볼 때 — 속지 말 것과 원칙"
       ]
     },
@@ -3083,51 +2933,51 @@
         },
         {
           "tag": "A",
-          "name": "Anthropic's Gross Margin Rocketed to 85% From 12% in a Year, but the S-1 Warns It Won't Last"
+          "name": "단독 | 걸프만 원유 공급을 유지하기 위한 미군의 기한 없는 임무 내부"
         },
         {
           "tag": "A",
-          "name": "Bank of Japan Declares Inflation Win, Clearing Way for Rate Hikes"
+          "name": "[미확인] OPEC+, 산유량 목표 유지할 듯…소식통"
         },
         {
           "tag": "A",
-          "name": "Anthropic's path to the Nasdaq just got a lot bumpier"
+          "name": "환율이 바꾼 외인 눈높이…6500선도 높다"
         },
         {
           "tag": "A",
-          "name": "Chevron Leads 3 Top Energy Stocks To Watch"
+          "name": "앤스로픽, 대형 IPO 서류 공개"
         },
         {
           "tag": "A",
-          "name": "Oil Futures Fall as Market Holds Out Hope for Middle East Diplomacy"
+          "name": "기록적인 수익은 AI 지출 우려로 시장에 혼란을 주는 삼성, SK 하이닉스 주식을 보호하지 못한다"
         },
         {
           "tag": "A",
-          "name": "OpenAI’s Altman Meets Samsung Executives as Chip Crunch Deepens"
+          "name": "3분기 외환선물시장서 NDF 비중 축소 본격화"
         },
         {
           "tag": "A",
-          "name": "Trump called out Big Oil profits. Here’s how much their refining earnings have surged since"
+          "name": "기업들은 AI 이익을 약속했는데, 여기서 실적으로 나타난 보상은"
         },
         {
           "tag": "A",
-          "name": "키옥시아, AI발 낸드 수요 폭발에 역대 최대 실적…순이익 37배"
+          "name": "바이낸스, 도난당한 63억 달러 대부분을 충당한 뒤 비트코인·이더리움 출금 재개"
         },
         {
           "tag": "A",
-          "name": "[마켓노트] 금리 안정이 주식시장 반등 조건"
+          "name": "미국 중간 선거에 관심 없는 채권 투자자들"
         },
         {
           "tag": "A",
-          "name": "US Natural Gas Drillers Scale Up as Demand Grows"
+          "name": "원유 가격 하락"
         },
         {
           "tag": "A",
-          "name": "OpenAI slashes funding target by $10bn as tech anxieties mount"
+          "name": "美 반도체주 폭락…'인텔 쇼크'에 국내 증시 영향 촉각[주간증시전망](종합)"
         },
         {
           "tag": "A",
-          "name": "Alaska Air to cut about 200 jobs as fuel shock squeezes earnings"
+          "name": "DeepSeek, 앤트로픽과 경쟁하기 위한 강화된 코딩 에이전트 출시"
         },
         {
           "tag": "A",
@@ -3176,30 +3026,6 @@
         {
           "tag": "A",
           "name": "SEC 8-K EX-99.1"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "캐터필러 (CAT)"
-        },
-        {
-          "tag": "A",
-          "name": "SEC 8-K EX-99.1"
-        },
-        {
-          "tag": "A",
-          "name": "반응 이유 기사 1"
-        },
-        {
-          "tag": "A",
-          "name": "반응 이유 기사 2"
-        },
-        {
-          "tag": "A",
-          "name": "반응 이유 기사 3"
-        },
-        {
-          "tag": "A",
-          "name": "반응 이유 기사 4"
         },
         {
           "tag": "BUTTON",
@@ -3411,6 +3237,30 @@
         },
         {
           "tag": "BUTTON",
+          "name": "KLA (KLAC)"
+        },
+        {
+          "tag": "A",
+          "name": "SEC 8-K EX-99.1"
+        },
+        {
+          "tag": "A",
+          "name": "반응 이유 기사 1"
+        },
+        {
+          "tag": "A",
+          "name": "반응 이유 기사 2"
+        },
+        {
+          "tag": "A",
+          "name": "반응 이유 기사 3"
+        },
+        {
+          "tag": "A",
+          "name": "반응 이유 기사 4"
+        },
+        {
+          "tag": "BUTTON",
           "name": "애브비 (ABBV)"
         },
         {
@@ -3499,6 +3349,30 @@
         },
         {
           "tag": "BUTTON",
+          "name": "캐터필러 (CAT)"
+        },
+        {
+          "tag": "A",
+          "name": "SEC 8-K EX-99.1"
+        },
+        {
+          "tag": "A",
+          "name": "반응 이유 기사 1"
+        },
+        {
+          "tag": "A",
+          "name": "반응 이유 기사 2"
+        },
+        {
+          "tag": "A",
+          "name": "반응 이유 기사 3"
+        },
+        {
+          "tag": "A",
+          "name": "반응 이유 기사 4"
+        },
+        {
+          "tag": "BUTTON",
           "name": "서비스나우 (NOW)"
         },
         {
@@ -3532,30 +3406,6 @@
         {
           "tag": "BUTTON",
           "name": "포티넷 (FTNT)"
-        },
-        {
-          "tag": "A",
-          "name": "SEC 8-K EX-99.1"
-        },
-        {
-          "tag": "A",
-          "name": "반응 이유 기사 1"
-        },
-        {
-          "tag": "A",
-          "name": "반응 이유 기사 2"
-        },
-        {
-          "tag": "A",
-          "name": "반응 이유 기사 3"
-        },
-        {
-          "tag": "A",
-          "name": "반응 이유 기사 4"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "KLA (KLAC)"
         },
         {
           "tag": "A",
@@ -3815,6 +3665,122 @@
         },
         {
           "tag": "A",
+          "name": "'AI 수익성 회의론', 증시 계속 짓누르나…美중간선거에 촉각 — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "블랙스톤, 앤트로픽의 IPO 이후 신용 등급이 '고위 자산'으로 상승할 것으로 예상 — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "Teck Resources Ltd (TECK) (Q3 2026) Earnings Call Highlights: Record Copper Prices Drive EBITDA ... — 원문 새 창에서"
+        },
+        {
+          "tag": "A",
+          "name": "메타의 AI 지출, 신용 등급에 영향을 미쳤나? S&P, AA- 신용 등급 전망을 부정적으로 조정 — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "OPEC+, 12월 원유 생산 목표를 유지하기로 원칙적으로 합의, 소식통은 말하다 — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "기록적인 수익은 AI 지출 우려로 시장에 혼란을 주는 삼성, SK 하이닉스 주식을 보호하지 못한다"
+        },
+        {
+          "tag": "A",
+          "name": "미국 고용 증가로 연준, 금리 추가 인상 궤도 유지할 수도"
+        },
+        {
+          "tag": "A",
+          "name": "국채 수익은 거의 변동이 없고, 프랑스 국채가 선전한다"
+        },
+        {
+          "tag": "A",
+          "name": "미국 중간 선거에 관심 없는 채권 투자자들"
+        },
+        {
+          "tag": "A",
+          "name": "美 반도체주 폭락…'인텔 쇼크'에 국내 증시 영향 촉각[주간증시전망](종합)"
+        },
+        {
+          "tag": "A",
+          "name": "DeepSeek, 앤트로픽과 경쟁하기 위한 강화된 코딩 에이전트 출시"
+        },
+        {
+          "tag": "A",
+          "name": "Alphabet 주가 하락, 나스닥도 끌어내려"
+        },
+        {
+          "tag": "A",
+          "name": "Anthropic의 2조 달러 IPO, 코스피 시가총액의 절반 넘어"
+        },
+        {
+          "tag": "A",
+          "name": "미국 중간선거를 앞둔 아시아 주식 트레이더를 위한 가이드"
+        },
+        {
+          "tag": "A",
+          "name": "일본은행, 인플레이션 통제 성공 선언, 금리 인상을 위한 길을 열어"
+        },
+        {
+          "tag": "A",
+          "name": "10일중 8일 주가 같은 방향 삼전닉스…3분기 실적 땐 엇갈려"
+        },
+        {
+          "tag": "A",
+          "name": "'AI 수익성 회의론', 증시 계속 짓누르나…美중간선거에 촉각"
+        },
+        {
+          "tag": "A",
+          "name": "금감원 불법공매도 긴급점검…\"5개 안팎 종목 조사\""
+        },
+        {
+          "tag": "A",
+          "name": "원유 가격, 미국의 이란 외교 재개 시도에 따라 완화되다"
+        },
+        {
+          "tag": "A",
+          "name": "OpenAI, 최신 라운드에서 최대 200억 달러 모금 목표 조정"
+        },
+        {
+          "tag": "A",
+          "name": "Teck Resources Ltd (TECK) (Q3 2026) 실적 콘퍼런스 하이라이트: 구리 가격 기록으로 EBITDA 상승"
+        },
+        {
+          "tag": "A",
+          "name": "중간선거 후 주가는 대체로 랠리를 보이지만, 이번에는 AI 지출과 금리 인상이 위험 요인 추가"
+        },
+        {
+          "tag": "A",
+          "name": "중간선거 최종 카운트다운 시청, 기술주 급락"
+        },
+        {
+          "tag": "A",
+          "name": "주식 포트폴리오가 채권 시장과 중간 선거에 점점 더 의존한다"
+        },
+        {
+          "tag": "A",
+          "name": "중간 선거 지출 급증, 라티노의 영향력에도 불구하고 스페인어 광고는 제외된다"
+        },
+        {
+          "tag": "A",
+          "name": "예측 시장은 선거에서 계속 실패한다. 중간 선거에서도 실패할 것인가?"
+        },
+        {
+          "tag": "A",
+          "name": "Bank of America는 수익 발표 전에 이 주식을 사라고 말한다. 너무 늦기 전에"
+        },
+        {
+          "tag": "A",
+          "name": "Anthropic의 매출총이익률, 1년 새 12%에서 85%로 급등했지만 S-1은 지속되지 않을 것이라고 경고"
+        },
+        {
+          "tag": "A",
+          "name": "Anthropic의 나스닥 상장길, 한층 험난해져"
+        },
+        {
+          "tag": "A",
           "name": "셰브론, 주목할 에너지주 3종목 선도"
         },
         {
@@ -3910,102 +3876,6 @@
           "name": "[표] 주간 코스닥 외국인 순매수도 상위종목"
         },
         {
-          "tag": "A",
-          "name": "코스피 급락에도 원·달러 환율 하락…월말 네고에 1334.3원 마감 [김혜란의 FX]"
-        },
-        {
-          "tag": "A",
-          "name": "코스피·코스닥, 美 빅테크 실적 부진에 3%대 급락 마감(종합)"
-        },
-        {
-          "tag": "A",
-          "name": "메모리반도체 투자 등 ETF 2종, 내달 3일 신규 상장"
-        },
-        {
-          "tag": "A",
-          "name": "금값, 상승한 유가 및 미국 물가 상승률 데이터로 연준 금리 인상 전망 강화로 하락"
-        },
-        {
-          "tag": "A",
-          "name": "Microsoft (MSFT) 주가, AI 지출이 다가오는 가운데 1분기 실적에도 꿈쩍 않아"
-        },
-        {
-          "tag": "A",
-          "name": "일본은행, 금리 유지 및 2027년 인플레이션 전망 상향 조정"
-        },
-        {
-          "tag": "A",
-          "name": "코스피, 장중 낙폭 커져 5%대 급락…코스닥 4%대↓"
-        },
-        {
-          "tag": "A",
-          "name": "한미반도체, 3분기 영업익 34%↑…\"3년째 매출 신기록 전망\""
-        },
-        {
-          "tag": "A",
-          "name": "금리 결정을 앞두고 도쿄 물가 상승률, BOJ의 2% 목표치 웃돌아"
-        },
-        {
-          "tag": "A",
-          "name": "아마존, AI 지출이 5년 만에 가장 빠른 클라우드 성장률을 초과하면서 하락"
-        },
-        {
-          "tag": "A",
-          "name": "Alphabet 매출 예상치 하회에 AI 자본 지출 우려 되살아나며 뉴욕증시 하락 마감"
-        },
-        {
-          "tag": "A",
-          "name": "짐 크레이머는 마이크로소프트가 AI 지출 전쟁에서 승리하고 있으며, 알파벳은 대가를 치루고 있다고 말한다"
-        },
-        {
-          "tag": "A",
-          "name": "아마존 AWS, 클라우드 경쟁사도 가세하며 매출 39% 증가"
-        },
-        {
-          "tag": "A",
-          "name": "아마존, 3분기 매출 12% 늘어난 270조원…시장 전망치 밑돌아"
-        },
-        {
-          "tag": "A",
-          "name": "구글 부채 위험 지표 상승, 실적으로 인해 AI 부채 우려 재점화"
-        },
-        {
-          "tag": "A",
-          "name": "인텔 전망, 개인용 컴퓨터 칩 시장 약세로 손상"
-        },
-        {
-          "tag": "A",
-          "name": "아마존, 실적 미달성 및 자본지출 유지, AI 지출 우려 가중"
-        },
-        {
-          "tag": "A",
-          "name": "미 연준 이어 ECB도 금리 동결…\"인플레·경기둔화 위험 여전\"(종합)"
-        },
-        {
-          "tag": "A",
-          "name": "알파벳 실적으로 인해 AI 지출 우려가 재현되며 나스닥 1% 이상 하락"
-        },
-        {
-          "tag": "A",
-          "name": "뉴욕증시, 알파벳 실적 소화하며 하락 출발"
-        },
-        {
-          "tag": "A",
-          "name": "[2보] ECB 금리 동결…예금금리 연 2.50％"
-        },
-        {
-          "tag": "A",
-          "name": "HSBC, 데이터 센터 부채에 대한 신용 위험 보험으로 헤지 추구"
-        },
-        {
-          "tag": "A",
-          "name": "목요일의 가장 큰 분석가 호출: Nvidia, Anthropic, Apple, Tesla, Chevron, Microsoft, Alphabet 등"
-        },
-        {
-          "tag": "A",
-          "name": "Sinopec, 3분기 실적 57% 증가... 오일 가격 상승과 정제 마진 확대"
-        },
-        {
           "tag": "BUTTON",
           "name": "최신순"
         },
@@ -4015,55 +3885,67 @@
         },
         {
           "tag": "A",
-          "name": "시장소식@insidertracking, 미국 속보, 10-31조선민주주의인민공화국 외무성 대변인 담화 발표 > (평양 10월 31일발 조선중앙통신) 조선민주주의인민공화국 외무성 대변인은 30일 다음"
+          "name": "나스닥, 국채 수익률, 달러에 대한 주요 AI 감성 테스트 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "거시@insidertracking, 미국 속보, 10-31미국 재무부가 이번 주 국채 경매를 통해 역대 최대 규모인 8,390억 달러를 조달하며, 2025년 기록한 종전 주간 최고치 8,340억 달"
+          "name": "[뉴욕증시-주간전망] 애플·AMD, 급락세에 제동걸까…고용·선거도 주시 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "시장소식@insidertracking, 미국 속보, 10-31차주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 11월 2일 월요일 23:45 – 제조업 구매관리자지수 (10월) 202"
+          "name": "전문가의 관점: 후티 반군의 공격으로 사우디 아라비아 수출로가 위협을 받으면서 원유 가격이 하락할 가능성은 낮다 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "실적@insidertracking, 미국 속보, 10-31차주 실적 발표 리스트 월요일: 에스티로더, TEMPUS AI, 매리어트 호텔, 애플, 팔란티어, 매치그룹 화요일: 쇼피파이, 화이자, AM"
+          "name": "노스다코타의 원유 생산량이 증가할 것으로 예상되며, 운영자는 높은 원유 가격을 예상하고 있다 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "수급@insidertracking, 미국 속보, 10-31서학개미 순매수 미국 주식 TOP 50 (10월 누적) > 기간: 2026/10/01 ~ 2026/10/30 1위: DIREXION DAIL"
+          "name": "BTC를 EUR로: 유로로 표시한 비트코인 가격 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "실적@insidertracking, 미국 속보, 10-31엑슨모빌(XOM) Q3 2026 어닝콜 요약 > 긍정 요인: • 강력한 실적 및 현금창출력. 3분기 GAAP 순이익은 154억달러, 영업현금"
+          "name": "10일중 8일 주가 같은 방향 삼전닉스…3분기 실적 땐 엇갈려 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "시장소식@insidertracking, 미국 속보, 10-31셰브론(CVX) Q3 2026 어닝콜 요약 > 긍정 요인: • 강력한 현금창출력 및 수익성. 3분기 GAAP 순이익은 99억달러, 조정 "
+          "name": "US Jobs Pickup May Keep Fed on Track to Hike Rates Again — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "헬스케어@insidertracking, 미국 속보, 10-3152주 신고가 (시총 $1B 이상) 헬스케어 · AbbVie · Addus HomeCare · Amgen · Amneal Pharmace"
+          "name": "OpenAI pares fundraising goal, now seeking up to $20 billion in latest round — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "시장소식@insidertracking, 미국 속보, 10-31미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 아마존 (AMZN)GOOGAMZNMRVLLITE"
+          "name": "3 Numbers to Watch to Know if Meta Platforms' AI Spending Is Paying Off — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "거시@insidertracking, 미국 속보, 10-312026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10"
+          "name": "Why the sell-off in French bonds is a warning for global governments — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "시장소식@insidertracking, 미국 속보, 10-312026년 10월 31일 미장 마감 S&P 500 - 7,580.07 -1.82% 다우 30 - 51,770.31 -1.09% 나스닥 -"
+          "name": "Taifex NT Dollar Gold Futures (Oct 2027) Trade Ideas — TAIFEX:TGFV2027 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "지정학@insidertracking, 미국 속보, 10-31트럼프 발언 및 미국 정치 관련 정리 - 2026년 10월 31일 트럼프·이란 관련 발언 · 트럼프 “이란과 협상이 진행 중” 발언 · 트"
+          "name": "Prediction Markets Keep Whiffing on Elections. Will They Miss on the Midterms? — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "12개 더 보기"
         },
         {
           "tag": "BUTTON",
           "name": "헤드라인과 확인 안 된 소문 — 리서치 라이브러리에서 개념 배우기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시나리오 점검"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "내 대응 점검"
         },
         {
           "tag": "BUTTON",
@@ -4076,13 +3958,18 @@
       ],
       "headings": [
         "뉴스",
-        "08:00 이후 속보, 잠정 10/31 08:00 이후",
+        "08:00 이후 속보, 잠정 11/1 08:00 이후",
         "주요 발표 요약",
         "중요 뉴스 11/1 08:00까지",
+        "오늘 11/1",
         "어제 10/31",
         "10/30",
-        "10/29",
         "이 화면을 볼 때 — 속지 말 것과 원칙",
+        "연결해서 보면",
+        "시장 흐름은 이렇게 이어집니다",
+        "앞으로 펼쳐질 수 있는 갈래",
+        "그래서 무엇을 하고 무엇을 피하나",
+        "확인할 것",
         "이어서 볼 곳"
       ]
     },
@@ -5066,23 +4953,23 @@
         },
         {
           "tag": "BUTTON",
-          "name": "AAPL 종목 요약 열기"
+          "name": "AAPL 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "AXP 종목 요약 열기"
+          "name": "AXP 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "KO 종목 요약 열기"
+          "name": "KO 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "GOOGL 종목 요약 열기"
+          "name": "GOOGL 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "BAC 종목 요약 열기"
+          "name": "BAC 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
@@ -5094,7 +4981,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "보유 행 검색"
+          "name": "보유 검색"
         },
         {
           "tag": "BUTTON",
@@ -5114,7 +5001,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "5% 이상 대량 보유(13D/G)"
+          "name": "대량 보유"
         },
         {
           "tag": "BUTTON",
@@ -5150,43 +5037,43 @@
         },
         {
           "tag": "BUTTON",
-          "name": "GOOGL 종목 요약 열기"
+          "name": "GOOGL 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "BAC 종목 요약 열기"
+          "name": "BAC 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "GOOG 종목 요약 열기"
+          "name": "GOOG 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "AAPL 종목 요약 열기"
+          "name": "AAPL 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "AXP 종목 요약 열기"
+          "name": "AXP 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "KO 종목 요약 열기"
+          "name": "KO 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "CVX 종목 요약 열기"
+          "name": "CVX 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "OXY 종목 요약 열기"
+          "name": "OXY 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "CB 종목 요약 열기"
+          "name": "CB 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "MCO 종목 요약 열기"
+          "name": "MCO 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
@@ -5378,15 +5265,15 @@
         },
         {
           "tag": "BUTTON",
-          "name": "Tesla, 종목 요약 열기"
+          "name": "Tesla, 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "Rocket Lab, 종목 요약 열기"
+          "name": "Rocket Lab, 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "Palantir, 종목 요약 열기"
+          "name": "Palantir, 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
@@ -5398,7 +5285,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "Amazon Web Services (모회사 Amazon), 종목 요약 열기"
+          "name": "Amazon Web Services (모회사 Amazon), 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
@@ -5406,7 +5293,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "Vertiv, 종목 요약 열기"
+          "name": "Vertiv, 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
@@ -5414,15 +5301,15 @@
         },
         {
           "tag": "BUTTON",
-          "name": "Broadcom, 종목 요약 열기"
+          "name": "Broadcom, 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "Coherent, 종목 요약 열기"
+          "name": "Coherent, 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "NVIDIA, 종목 요약 열기"
+          "name": "NVIDIA, 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
@@ -5430,15 +5317,15 @@
         },
         {
           "tag": "BUTTON",
-          "name": "Micron, 종목 요약 열기"
+          "name": "Micron, 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "Sandisk, 종목 요약 열기"
+          "name": "Sandisk, 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "AMD, 종목 요약 열기"
+          "name": "AMD, 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
@@ -5446,19 +5333,19 @@
         },
         {
           "tag": "BUTTON",
-          "name": "TSMC, 종목 요약 열기"
+          "name": "TSMC, 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "ASML, 종목 요약 열기"
+          "name": "ASML, 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "MP Materials, 종목 요약 열기"
+          "name": "MP Materials, 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "Samsung Electronics, 종목 요약 열기"
+          "name": "Samsung Electronics, 종목 개요 열기"
         },
         {
           "tag": "BUTTON",
@@ -5511,7 +5398,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "FAQ"
+          "name": "자주 묻는 질문"
         },
         {
           "tag": "BUTTON",
@@ -5545,11 +5432,11 @@
         },
         {
           "tag": "BUTTON",
-          "name": "사후 검증"
+          "name": "맞춤 조건"
         },
         {
           "tag": "BUTTON",
-          "name": "맞춤 조건"
+          "name": "사후 검증"
         },
         {
           "tag": "SELECT",
@@ -5581,11 +5468,11 @@
         },
         {
           "tag": "BUTTON",
-          "name": "표 범위 좁히기"
+          "name": "행 필터"
         },
         {
           "tag": "BUTTON",
-          "name": "표 넓게 보기"
+          "name": "메뉴 접기"
         },
         {
           "tag": "BUTTON",

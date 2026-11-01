@@ -1791,7 +1791,7 @@ function _aioInjectTelegramFeed(pageId) {
   try {
     var el = document.getElementById('tg-feed-' + pageId);
     if (!el) return;
-    if (!document.body.classList.contains('aio-dev-mode') && pageId !== 'briefing' && pageId !== 'market-news') {
+    if (!document.body.classList.contains('aio-dev-mode')) { // v59.55 (owner 11/1): post text is dev-only; 뉴스 shows extracted facts (channel-data.js)
       el.replaceChildren();
       return;
     }
@@ -3071,10 +3071,6 @@ function _aioScreenerMetadata(path) {
   var arch = window.AIO_ARCH;
   try { return arch && typeof arch.getScreenerState === 'function' ? arch.getScreenerState('metadata.' + path) : undefined; } catch (_) { return undefined; }
 }
-function _aioScreenerFactorAsOf() {
-  var arch = window.AIO_ARCH;
-  try { return _aioScreenerMetadata('asOf') || (arch && typeof arch.getScreenerState === 'function' ? arch.getScreenerState('revision') : null) || null; } catch (_) { return null; }
-}
 // v59.42: _aioScreenerFactorBacktest left with its only reader, the deleted legacy factor-backtest diagram.
 try {
   window.addEventListener('aio:nativeScreenerReady', function(event) {
@@ -3112,23 +3108,8 @@ window._aioGetFieldTs = function(category) {
 // v51.66: 전 페이지 데이터 신선도 UI — screener 듀얼 타임스탬프 + macro FRED 기준 시각
 function _aioRenderDataFreshness() {
   try {
-    // 스크리너: 팩터 기준시각 | 가격 기준시각
-    var asEl = document.querySelector('#page-screener [data-factor-asof]');
-    if (asEl) {
-      var scrObservedAt = _aioScreenerMetadata('factorObservedAt');
-      var scrTs = scrObservedAt ? _aioKstShortFromIso(scrObservedAt) : null;
-      var scrGeneratedTs = window._aioGetFieldTs('screener');
-      var priceTs = window._aioGetFieldTs('prices');
-      if (scrTs && priceTs) {
-        asEl.textContent = '팩터 관측 ' + scrTs + (scrGeneratedTs ? ', 파일 ' + scrGeneratedTs : '') + ' | 가격 ' + priceTs;
-      } else if (scrTs) {
-        asEl.textContent = '팩터 관측 ' + scrTs + (scrGeneratedTs ? ', 파일 ' + scrGeneratedTs : '');
-      } else if (_aioScreenerFactorAsOf()) {
-        asEl.textContent = '팩터 기준 ' + String(_aioScreenerFactorAsOf()).slice(0, 10);
-      } else {
-        asEl.textContent = '팩터 데이터 대기';
-      }
-    }
+    // v59.55 (alignment pass): the screener stamp writer left — it overwrote the native as-of line (screener.js) with
+    // '팩터 관측 … | 가격 …' a few seconds after paint.
     // v57.77: the macro FRED stamp writer (#macro-fred-ts) left with its absent element.
     if (typeof _aioSchedulePublicReadiness === 'function') _aioSchedulePublicReadiness(250);
   } catch(_) {}

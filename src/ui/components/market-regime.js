@@ -9,7 +9,7 @@ import { buildDailyChanges, previousRegime } from '../../domain/briefing/daily-d
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { regimeFlow } from '../../domain/market/page-flow.js';
-import { renderNextSteps } from './page-flow.js';
+import { renderNextSteps, openRouteSection } from './page-flow.js';
 import { createTrendChart } from './trend-chart.js';
 import { MACRO_HISTORY, refreshSharedArtifact, sharedArtifactIsStale } from '../../data/shared-artifacts.js';
 import { buildRegimeAxisHistory, buildKoreaRegimeObservations, buildKoreaIndexSeries } from '../../domain/market/regime-scenarios.js';
@@ -73,7 +73,7 @@ const AXIS_SOURCES = Object.freeze({
   volatility: 'VIX·VIX3M (Cboe 지수, Yahoo Finance 경유)',
   rates: '미 국채 수익률 (미 재무부 공시 par curve, FRED DGS2/DGS10)',
   credit: 'ICE BofA 하이일드 OAS (FRED BAMLH0A0HYM2), CNN Fear & Greed',
-  commodities: 'WTI 선물·금 선물·달러 인덱스 (Yahoo Finance)',
+  commodities: 'WTI 선물·금 선물·달러 지수 (Yahoo Finance)',
   korea: '원/달러·엔/달러·코스피 (Yahoo Finance)'
 });
 
@@ -159,9 +159,10 @@ function scenarioSection(doc, root, model, outlook, openIds = new Set()) {
   fold.open = openIds.has('__section');
   const summary = el(doc, 'summary');
   const leadView = (outlook?.items || []).find((item) => item.id === outlook?.leadId);
-  const title = el(doc, 'h2', '지금 시장 흐름', 'sx-card__title');
-  title.title = '지금 시장이 세 흐름 중 어디에 가까운지(맞는 조건 수, 확률 아님)를 봅니다. 다음 발표가 이 흐름을 어느 쪽으로 옮길지는 거시 화면에서 이어 봅니다.';
-  summary.append(title, el(doc, 'span', !model.available ? '판단 보류' : leadView ? `'${leadView.title}'에 가장 가까움, ${leadView.fit}` : `${model.asOf ? `${shortDate(model.asOf)} 종가` : ''}`, 'sx-card__meta'));
+  // v59.55 (flow 5): "이 조합이 뜻하는 것" and "지금 시장 흐름" asked one question in two cards; the closest flow is now the
+  // first line of the one card "지금 어떤 흐름인가", the three flows open under it and the conflicting combinations follow.
+  summary.title = '지금 시장이 세 흐름 중 어디에 가까운지(맞는 조건 수, 확률 아님)를 봅니다. 다음 발표가 이 흐름을 어느 쪽으로 옮길지는 거시 화면에서 이어 봅니다.';
+  summary.append(el(doc, 'span', !model.available ? '세 흐름 판단 보류' : leadView ? `'${leadView.title}'에 가장 가까움 · ${leadView.fit}` : `${model.asOf ? `${shortDate(model.asOf)} 종가` : ''}`, 'mk-structure__lead'), el(doc, 'span', '세 흐름 보기', 'sx-card__meta'));
   fold.append(summary);
   section.append(fold);
   markFrame(section, 'signal.scenarios');
@@ -228,7 +229,7 @@ const AXIS_REFS = Object.freeze({
 // The headline value(s) of each axis in the table — evidence labels from buildMarketRegime, matched by prefix.
 const AXIS_FACE = Object.freeze({
   trend: ['S&P 500', '50일선 대비'], breadth: ['50일선 위', '200일선 위'], volatility: ['VIX', 'VIX / 3개월'],
-  credit: ['하이일드'], rates: ['미 10년물'], commodities: ['달러 인덱스', 'WTI']
+  credit: ['하이일드'], rates: ['미 10년물'], commodities: ['달러 지수', 'WTI']
 });
 const TONE = { favorable: 'good', burden: 'warn', neutral: 'neutral', unknown: 'neutral' };
 
@@ -428,11 +429,11 @@ function comboAndWatch(doc, root, regime, interpretation) {
   }
   const watch = doc.getElementById('regime-watch');
   if (!watch) return;
-  // Two lines on the face: the next release, then the first price check; the other checks open under them.
-  const items = [];
+  // Two price checks on the face (the other checks open under them). v59.55 (flow review): the next release is one link
+  // line to 브리핑 다음 확인 포인트, which owns the release, its branches and the 7 days (it repeated here word for word).
+  const items = [...(interpretation.marketRead?.checks || [])];
   const next = interpretation.crossroads?.nextEvent;
-  if (next?.name && next?.date) items.push(`${next.when || shortDate(next.date)} ${next.name}`);
-  items.push(...(interpretation.marketRead?.checks || []));
+  const release = next?.name && next?.date ? `${next.when || shortDate(next.date)} ${next.name}` : '';
   const rows = items.slice(0, 2).map((title, index) => {
     const item = el(doc, 'li', null, 'mk-watch__item');
     const text = el(doc, 'span', null, 'mk-watch__text');
@@ -449,8 +450,18 @@ function comboAndWatch(doc, root, regime, interpretation) {
     li.append(more);
     rows.push(li);
   }
+  // v59.55 (owner 11/1): the 무슨 일이 있었나 card above lists the week ahead with this release in it, so the line stays
+  // only while that card is not drawn.
+  if (release && doc.getElementById('regime-story')?.hidden !== false) {
+    const li = el(doc, 'li', null, 'mk-watch__item is-release');
+    const link = el(doc, 'button', `다음 발표 ${release} — 결과별 시나리오와 7일 일정 → 브리핑`, 'flow-next-link');
+    link.type = 'button';
+    link.addEventListener('click', () => openRouteSection(doc, root, 'briefing', 'briefing-checks'));
+    li.append(link);
+    rows.push(li);
+  }
   watch.replaceChildren(...rows);
-  watch.closest?.('section')?.toggleAttribute?.('hidden', !items.length);
+  watch.closest?.('section')?.toggleAttribute?.('hidden', !rows.length);
 }
 
 // v57.78 perf: `store` (optional) lets the scenario outlook read the native screener rows in place instead of the
@@ -469,7 +480,7 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
   const scenarios = interpretation.scenarios || { available: false };
   const previous = previousRegime({ ...inputs, macroHistory: inputs?.macroHistory || root._aioMacroHistory || null }, regime);
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
-  set('regime-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준, 6개 지표, 공개 기준선` : '종가 기록을 불러오는 중입니다.');
+  set('regime-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준, 6개 지표` : '종가 기록을 불러오는 중입니다.');
   // F01: before the closes load, a verdict the static shell painted from today-verdict.json stays (not '판정 대기').
   const overall = regime.available || !doc.getElementById('home-hero-total')?.dataset?.firstPaint ? set('regime-overall', regime.available ? regime.overall : '판정 대기') : doc.getElementById('regime-overall');
   if (overall) { overall.dataset.overall = regime.overall || ''; overall.setAttribute('aria-label', `미국 시장 판정: ${regime.available ? regime.overall : '판정 대기'}`); } // v57.77 (a11y 2.4.6)
@@ -490,6 +501,8 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
   if (whyFold) whyFold.hidden = !regime.available;
   paintLeadershipLine(doc, 'regime-leaders', regime.available ? regime.leadershipVerdict : null, interpretation.flow, { flowOnFace: true });
   heroSide(doc, regime, previous);
+  // v59.55 (owner 11/1): 무슨 일이 있었나 — a lazy chunk (this module is on the boot path through 오늘's verdict).
+  if (regime.available) import('./market-story.js').then(({ renderMarketStory }) => renderMarketStory({ documentRef: doc, root, interpretation })).catch(() => {});
   comboAndWatch(doc, root, regime, interpretation);
   // v59.51: the four-choice cost card (regime-choices.js) is deleted — it repeated 거시's lead-scenario 대응별 득실 word for
   // word, and its next release disagreed with the one above.
@@ -762,7 +775,7 @@ export function renderHomeRegime({ documentRef: doc, root, store = null }) {
     const history = root._aioHistory || [];
     const fg = buildCloseSeries(history, 'fg', { through: closeBasis(history) });
     const change = fg.length > 1 ? Math.round(fg[fg.length - 1].value) - Math.round(fg[fg.length - 2].value) : null;
-    fgDelta.textContent = change == null ? '' : `전일 대비 ${change > 0 ? '+' : ''}${change}`;
+    fgDelta.textContent = change == null ? '' : `전일 ${change > 0 ? '+' : ''}${change}`;
     fgDelta.className = 'aio-metric-delta';
     fgDelta.dataset.aioFgDeltaRenderer = 'native';
   }

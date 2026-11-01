@@ -7,11 +7,11 @@ import { latestCompletedUsSession, nyParts, resolveMarketCalendarSession, usWeek
 import { signedText } from '../shared/number.js';
 import { indexContributors, contributorsSentence, krWeightRows, sp500WeightRows } from './move-attribution.js';
 
-// attribution = { rows (screener), krWeights (kr-index-weights.json), usWeights (screener indexWeights), briefs, telegram, news }
+// attribution = { rows (screener), krWeights (kr-index-weights.json), usWeights (screener indexWeights), briefs, telegram, signals, news }
 function leadersFor(attribution, { weights, sessionDate, indexChange, indexName, sessionCloseMs }) {
   const model = indexContributors({ rows: attribution.rows, weights, sessionDate, indexChange });
   if (!model) return null;
-  const sentence = contributorsSentence(model, { indexName, sessionCloseMs, briefs: attribution.briefs, telegram: attribution.telegram, news: attribution.news });
+  const sentence = contributorsSentence(model, { indexName, sessionCloseMs, briefs: attribution.briefs, telegram: attribution.telegram, signals: attribution.signals, news: attribution.news });
   return sentence ? { ...model, ...sentence } : null;
 }
 

@@ -45,7 +45,6 @@ const sec = {
     submissions: submissionsFixture({ cik: CIK.MLI, name: 'Mueller Industries', ticker: 'MLI', sic: '3350', sicDescription: 'Rolling Drawing & Extruding' }) }
 };
 const libraries = [
-  { url: 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js', file: 'browser-chart.umd.min.js', sri: 'e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g' },
   { url: 'https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js', file: 'browser-lightweight-charts.js', sri: 'OK7vELvjHdhUFi31JYioPIcRHTROLdcDa6ZsNWgvgLaKj+9JqhU0Ad8g4wz3CXjA' }
 ].map((item) => { const body = readFileSync(resolve(libraryDir, item.file));
   if (createHash('sha384').update(body).digest('base64') !== item.sri) throw new Error(`Pinned chart library SRI mismatch: ${item.file}`);

@@ -7,7 +7,7 @@ import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { GICS_KO } from '../../domain/market/sector-map.js';
 import { requestConsensusEstimates, CONSENSUS_KEY } from '../../data/consensus-estimates.js';
 import { el } from './dom.js';
-import { gaugeBar } from './macro-board.js'; // a hoisted function declaration, so the macro-board ↔ index-earnings cycle is safe
+import { gaugeBar } from './gauge-bar.js';
 import { asOfChip } from './section-frame.js';
 import { signedText } from '../../domain/shared/number.js';
 

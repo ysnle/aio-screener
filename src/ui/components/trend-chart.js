@@ -9,7 +9,7 @@ import { shortDate } from '../../domain/content/date-labels.js';
 import { signedText } from '../../domain/shared/number.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
 const SVG = 'http://www.w3.org/2000/svg';
-const W = 520;
+const DEFAULT_W = 520;
 const H = 210;
 const PAD = { top: 14, right: 16, bottom: 30, left: 48 };
 // P1529: the widest month label ("26년 1월" at 13px) is about 44 units; neighbours closer than this overlap.
@@ -47,10 +47,13 @@ function datedShort(date) {
  */
 // v58.80 run-5 (skeptic #5): `guide` is a second, dashed series the reading is measured against (the 50-day line under
 // the S&P 500 close); it sets the scale with the line, names itself at its right end and joins the hover readout.
-export function createTrendChart(doc, { series = [], refLines = [], format = (value) => value.toFixed(1), label = '', domain = null, range = null, spans = [], guide = null } = {}) {
+export function createTrendChart(doc, { series = [], refLines = [], format = (value) => value.toFixed(1), label = '', domain = null, range = null, spans = [], guide = null, width = DEFAULT_W } = {}) {
+  // v59.55 (C1): a wide host (the stock price panel) passes its own width so labels keep their size instead of scaling up.
+  const W = Math.max(320, Math.round(width) || DEFAULT_W);
   const wrap = doc.createElement('div');
   wrap.className = 'trend-chart-wrap';
   const svg = svgEl(doc, 'svg', { viewBox: `0 0 ${W} ${H}`, class: 'trend-chart', role: 'img' });
+  if (W !== DEFAULT_W) { svg.style.aspectRatio = `${W} / ${H}`; svg.setAttribute('class', 'trend-chart is-actual-size'); }
   wrap.append(svg);
   const dayMs = (date) => Date.parse(`${date}T12:00:00Z`);
   const start = range?.[0] || series[0]?.date;
@@ -72,43 +75,56 @@ export function createTrendChart(doc, { series = [], refLines = [], format = (va
   const step = domain ? (domain[1] - domain[0]) / 2 : threeTickStep(lo, hi);
   lo = domain ? domain[0] : Math.floor(lo / step + 1e-9) * step;
   hi = domain ? domain[1] : Math.ceil(hi / step - 1e-9) * step;
-  const plotW = W - PAD.left - PAD.right;
-  const plotH = H - PAD.top - PAD.bottom;
-  const t0 = dayMs(start);
-  const span = Math.max(1, dayMs(end) - t0);
-  const xd = (date) => PAD.left + ((dayMs(date) - t0) / span) * plotW;
-  const x = (index) => xd(points[index].date);
-  const y = (value) => PAD.top + (1 - (value - lo) / (hi - lo)) * plotH;
-
   // Y axis: gridlines + labels.
   // 2026-10-18 UI review: when every tick reads N.0 (100.0%, 25.0, 165.0엔) the decimal carries nothing — drop it.
   const ticks = [];
   for (let tick = lo; tick <= hi + step / 1000; tick += step) ticks.push(tick);
   const tickLabels = ticks.map((tick) => format(tick));
   const trimmed = tickLabels.every((text) => /\d\.0+(?!\d)/.test(text)) ? tickLabels.map((text) => text.replace(/(\d)\.0+(?!\d)/, '$1')) : tickLabels;
+  // v59.55 (C1): a long value label (a won price, "₩185,000") widens the axis column instead of running off the left edge.
+  const padLeft = Math.max(PAD.left, Math.ceil(Math.max(...trimmed.map((text) => text.length)) * 7.2 + 8));
+  const plotW = W - padLeft - PAD.right;
+  const plotH = H - PAD.top - PAD.bottom;
+  const t0 = dayMs(start);
+  const span = Math.max(1, dayMs(end) - t0);
+  const xd = (date) => padLeft + ((dayMs(date) - t0) / span) * plotW;
+  const x = (index) => xd(points[index].date);
+  const y = (value) => PAD.top + (1 - (value - lo) / (hi - lo)) * plotH;
   // Run-5 (skeptic #14): thresholds are named in the value-axis column (a tag at the plot's right edge sat on the line's last
   // point whenever the line ended inside the band); a tick label too close to one gives way, its gridline stays.
   const axisRefs = refLines.filter((ref) => Number.isFinite(ref) && ref >= lo && ref <= hi && !ticks.some((tick) => Math.abs(tick - ref) < step / 1000));
   const LABEL_GAP = 24; // viewBox units: a 13px label still clears its neighbour when a card draws the chart at ~0.55 scale
   ticks.forEach((tick, index) => {
-    svg.append(svgEl(doc, 'line', { x1: PAD.left, x2: W - PAD.right, y1: y(tick), y2: y(tick), class: 'trend-chart-grid' }));
+    svg.append(svgEl(doc, 'line', { x1: padLeft, x2: W - PAD.right, y1: y(tick), y2: y(tick), class: 'trend-chart-grid' }));
     if (axisRefs.some((ref) => Math.abs(y(ref) - y(tick)) < LABEL_GAP)) return;
-    const text = svgEl(doc, 'text', { x: PAD.left - 8, y: y(tick) + 4, 'text-anchor': 'end', class: 'trend-chart-axis' });
+    const text = svgEl(doc, 'text', { x: padLeft - 8, y: y(tick) + 4, 'text-anchor': 'end', class: 'trend-chart-axis' });
     text.textContent = trimmed[index];
     svg.append(text);
   });
   // X axis: one tick on the first day of each month.
-  svg.append(svgEl(doc, 'line', { x1: PAD.left, x2: W - PAD.right, y1: PAD.top + plotH, y2: PAD.top + plotH, class: 'trend-chart-baseline' }));
+  svg.append(svgEl(doc, 'line', { x1: padLeft, x2: W - PAD.right, y1: PAD.top + plotH, y2: PAD.top + plotH, class: 'trend-chart-baseline' }));
   // Ticks stay monthly; labels are thinned to every k-th month with k dividing 12 so January is always labelled and the
   // widest label never collides with its neighbour. A growing range used to put "12월" and "26년 1월" on top of each other.
   // v58.53 개편 v2: at most three labelled months (README: 축 눈금 ≤3); only labelled months keep a tick mark.
   const months = span / MONTH_MS;
   const labelEvery = [1, 2, 3, 4, 6, 12].find((k) => (plotW * MONTH_MS / span) * k >= MIN_MONTH_LABEL_SPACING && months / k <= 3) || 12;
   const first = new Date(t0);
-  for (let cursor = Date.UTC(first.getUTCFullYear(), first.getUTCMonth() + 1, 1); cursor <= t0 + span; cursor = Date.UTC(new Date(cursor).getUTCFullYear(), new Date(cursor).getUTCMonth() + 1, 1)) {
+  // v59.55 (C1): a window under two months (the stock chart's 1개월) has at most one month start, often none inside the
+  // plot; it labels three observation days (M/D) at a quarter, half and three quarters instead.
+  if (months < 2) {
+    for (const share of [0.2, 0.5, 0.8]) {
+      const point = points[Math.round((points.length - 1) * share)];
+      const xm = xd(point.date);
+      svg.append(svgEl(doc, 'line', { x1: xm, x2: xm, y1: PAD.top + plotH, y2: PAD.top + plotH + 4, class: 'trend-chart-baseline' }));
+      const text = svgEl(doc, 'text', { x: xm, y: H - 8, 'text-anchor': 'middle', class: 'trend-chart-axis' });
+      text.textContent = `${Number(point.date.slice(5, 7))}/${Number(point.date.slice(8, 10))}`;
+      svg.append(text);
+    }
+  }
+  for (let cursor = Date.UTC(first.getUTCFullYear(), first.getUTCMonth() + 1, 1); months >= 2 && cursor <= t0 + span; cursor = Date.UTC(new Date(cursor).getUTCFullYear(), new Date(cursor).getUTCMonth() + 1, 1)) {
     const month = new Date(cursor).toISOString().slice(0, 7);
     const xm = xd(`${month}-01`);
-    if (xm < PAD.left + 12 || xm > W - PAD.right - 20) continue;
+    if (xm < padLeft + 12 || xm > W - PAD.right - 20) continue;
     const m = Number(month.slice(5, 7));
     if ((m - 1) % labelEvery !== 0) continue;
     svg.append(svgEl(doc, 'line', { x1: xm, x2: xm, y1: PAD.top + plotH, y2: PAD.top + plotH + 4, class: 'trend-chart-baseline' }));
@@ -121,16 +137,16 @@ export function createTrendChart(doc, { series = [], refLines = [], format = (va
   const shownRefs = refLines.filter((ref) => Number.isFinite(ref) && ref >= lo && ref <= hi);
   if (shownRefs.length >= 2) {
     const top = y(Math.max(...shownRefs)), bottom = y(Math.min(...shownRefs));
-    svg.append(svgEl(doc, 'rect', { x: PAD.left, y: top.toFixed(1), width: plotW, height: Math.max(2, bottom - top).toFixed(1), rx: 6, class: 'trend-chart-band' }));
+    svg.append(svgEl(doc, 'rect', { x: padLeft, y: top.toFixed(1), width: plotW, height: Math.max(2, bottom - top).toFixed(1), rx: 6, class: 'trend-chart-band' }));
   }
-  for (const ref of shownRefs) svg.append(svgEl(doc, 'line', { x1: PAD.left, x2: W - PAD.right, y1: y(ref), y2: y(ref), class: shownRefs.length >= 2 ? 'trend-chart-ref is-band-edge' : 'trend-chart-ref' }));
+  for (const ref of shownRefs) svg.append(svgEl(doc, 'line', { x1: padLeft, x2: W - PAD.right, y1: y(ref), y2: y(ref), class: shownRefs.length >= 2 ? 'trend-chart-ref is-band-edge' : 'trend-chart-ref' }));
   // v58.79 (layout over captions): a threshold names its own value (axis column since run-5; right edge when crowded; halo so the line
   // stays readable under it), so a card label no longer spells "기준선 40%·60%" — unless it sits on a labelled gridline.
   for (const ref of shownRefs) {
     if (ticks.some((tick) => Math.abs(tick - ref) < step / 1000)) continue;
     // Two thresholds too close for the axis column: the upper one keeps the right-edge tag.
     const crowded = shownRefs.some((other) => other !== ref && other < ref && Math.abs(y(other) - y(ref)) < LABEL_GAP);
-    const tag = svgEl(doc, 'text', !crowded ? { x: PAD.left - 8, y: (y(ref) + 4).toFixed(1), 'text-anchor': 'end', class: 'trend-chart-ref-label' }
+    const tag = svgEl(doc, 'text', !crowded ? { x: padLeft - 8, y: (y(ref) + 4).toFixed(1), 'text-anchor': 'end', class: 'trend-chart-ref-label' }
       : { x: W - PAD.right - 2, y: (y(ref) - 3).toFixed(1), 'text-anchor': 'end', class: 'trend-chart-ref-label' });
     tag.textContent = format(ref).replace(/(\d)\.0+(?!\d)/, '$1');
     svg.append(tag);
@@ -138,12 +154,12 @@ export function createTrendChart(doc, { series = [], refLines = [], format = (va
   // P1599 (M04/F46): a series that starts after the shared range marks the earlier span as 'no record yet',
   // so the empty left side reads as missing history rather than a rendering failure.
   const firstX = x(0);
-  if (firstX - PAD.left > 24) {
-    svg.append(svgEl(doc, 'rect', { x: PAD.left, y: PAD.top, width: (firstX - PAD.left).toFixed(1), height: plotH, class: 'trend-chart-nodata' }));
+  if (firstX - padLeft > 24) {
+    svg.append(svgEl(doc, 'rect', { x: padLeft, y: PAD.top, width: (firstX - padLeft).toFixed(1), height: plotH, class: 'trend-chart-nodata' }));
     // v59.08: the centred 12px label (~52 units wide) is written only when it fits inside the shaded span; a narrower span
     // pushed it into the y-axis labels (browser-viewport, breadth "기록 이전" over the "6" tick). The shading stays.
-    if (firstX - PAD.left >= 60) {
-      const note = svgEl(doc, 'text', { x: ((PAD.left + firstX) / 2).toFixed(1), y: PAD.top + plotH / 2, 'text-anchor': 'middle', class: 'trend-chart-empty' });
+    if (firstX - padLeft >= 60) {
+      const note = svgEl(doc, 'text', { x: ((padLeft + firstX) / 2).toFixed(1), y: PAD.top + plotH / 2, 'text-anchor': 'middle', class: 'trend-chart-empty' });
       note.textContent = '기록 이전';
       svg.append(note);
     }
@@ -176,13 +192,13 @@ export function createTrendChart(doc, { series = [], refLines = [], format = (va
   tip.className = 'trend-chart-tip';
   tip.hidden = true;
   wrap.append(tip);
-  const overlay = svgEl(doc, 'rect', { x: PAD.left, y: PAD.top, width: plotW, height: plotH, fill: 'transparent' });
+  const overlay = svgEl(doc, 'rect', { x: padLeft, y: PAD.top, width: plotW, height: plotH, fill: 'transparent' });
   svg.append(overlay);
   const show = (event) => {
     const box = svg.getBoundingClientRect();
     if (!box.width) return;
     const vx = ((event.clientX - box.left) / box.width) * W;
-    const target = t0 + ((vx - PAD.left) / plotW) * span;
+    const target = t0 + ((vx - padLeft) / plotW) * span;
     let index = 0;
     for (let i = 1; i < points.length; i += 1) if (Math.abs(dayMs(points[i].date) - target) < Math.abs(dayMs(points[index].date) - target)) index = i;
     const point = points[index];

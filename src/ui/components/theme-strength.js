@@ -112,7 +112,8 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
   // Ranked rows flip with the order; reference rows (small samples, no rank) stay after them either way.
   const ranked = model.groups.filter((group) => group.rank != null);
   const ordered = [...(weakestFirst ? [...ranked].reverse() : ranked), ...model.groups.filter((group) => group.rank == null)];
-  const visible = expanded ? ordered : ordered.slice(0, 15);
+  // v59.55 (visual audit): ten rows on the face — the five-row summary above already leads, the rest open with 전체 보기.
+  const visible = expanded ? ordered : ordered.slice(0, 10);
   for (const group of visible) {
     const tr = el(doc, 'tr');
     tr.dataset.group = group.id;
@@ -194,19 +195,20 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
   host.append(frame);
   host._aioScrollEdges = attachScrollCue(scroll, { frame, root }); // v57.81: shared helper (scroll-cue.js)
   const footer = el(doc, 'div', null, 'theme-strength-footer');
-  if (model.groups.length > 15) {
-    const more = el(doc, 'button', expanded ? (weakestFirst ? '하위 15개만 보기' : '상위 15개만 보기') : `전체 ${model.groups.length}개 보기`, 'theme-strength-more');
+  if (model.groups.length > 10) {
+    const more = el(doc, 'button', expanded ? (weakestFirst ? '하위 10개만 보기' : '상위 10개만 보기') : `전체 ${model.groups.length}개 보기`, 'theme-strength-more');
     more.type = 'button';
     more.addEventListener('click', onToggle);
     footer.append(more);
   }
-  if (model.excluded.length) footer.append(el(doc, 'span', `수익률이 있는 구성 종목이 3개 미만인 ${model.excluded.length}개 세부 테마는 순위에서 뺐습니다.`, 'theme-strength-theme'));
-  const reference = model.groups.filter((group) => group.smallSample).length;
-  if (reference) footer.append(el(doc, 'span', ` 3종목 세부 테마 ${reference}개는 중앙값이 한 종목에 크게 흔들려 순위 없이 '참고'로 표시합니다.`, 'theme-strength-theme'));
   host.append(footer);
-  if (model.excluded.length) {
+  // v59.55 (alignment pass): why some sub-themes have no rank is fold depth, not a face footnote.
+  const reference = model.groups.filter((group) => group.smallSample).length;
+  if (model.excluded.length || reference) {
     const excluded = el(doc, 'details', null, 'theme-strength-unranked');
-    excluded.append(el(doc, 'summary', '순위 밖 테마의 전체 구성 보기'));
+    excluded.append(el(doc, 'summary', model.excluded.length ? '순위 밖·참고 테마와 그 이유' : '참고 테마와 그 이유'));
+    if (model.excluded.length) excluded.append(el(doc, 'p', `수익률이 있는 구성 종목이 3개 미만인 ${model.excluded.length}개 세부 테마는 순위에서 뺐습니다.`, 'theme-strength-basis'));
+    if (reference) excluded.append(el(doc, 'p', `3종목 세부 테마 ${reference}개는 중앙값이 한 종목에 크게 흔들려 순위 없이 '참고'로 표시합니다.`, 'theme-strength-basis'));
     for (const group of model.excluded) {
       const line = el(doc, 'div'); line.append(el(doc, 'p', `${group.themeName} / ${group.name}, 전체 ${group.listed}개 중 수익률 ${group.members}개`, 'theme-strength-basis'));
       const symbols = el(doc, 'div', null, 'theme-strength-constituents');

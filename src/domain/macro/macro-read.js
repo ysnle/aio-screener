@@ -353,17 +353,17 @@ function sharedGauges({ macro, rateFx, regime }) {
       // v57.84 (threshold consolidation): the burden band starts where dollarRiseBurden() does — rise20dPct + bufferPct, or
       // rise20dPct at the top of the dollar's one-year range — and the falling band is favourable only when the axis is (easing
       // needs oil falling too). DXY +2.2% read 중립 on the axis with the pin in the burden band.
-      : gauge({ label: '달러 인덱스 20일 변화', value: dxy20, unit: '%', digits: 1, ...cuts(-5, 5, [0, dollarLine], [stateOf('commodities') === 'favorable' ? 'favorable' : 'neutral', 'neutral', 'burden'], [[dollarLine, `+${dollarLine}%`]]) });
+      : gauge({ label: '달러 지수 20일 변화', value: dxy20, unit: '%', digits: 1, ...cuts(-5, 5, [0, dollarLine], [stateOf('commodities') === 'favorable' ? 'favorable' : 'neutral', 'neutral', 'burden'], [[dollarLine, `+${dollarLine}%`]]) });
   return {
-    rates: { gauge: rates, headline: tnx20 == null ? null : `10년물 20일 ${signed(tnx20, 0, 'bp')}` },
+    rates: { gauge: rates, headline: tnx20 == null ? null : `10년물 20거래일 ${signed(tnx20, 0, 'bp')}` },
     // P1726: the 5-session WTI move is named when it runs against the 20-session direction.
-    commodities: { gauge: commodities, headline: wti20 == null ? null : `WTI 20일 ${signed(wti20, 1, '%')}${rateFx?.wti5 != null && Math.abs(rateFx.wti5) >= RULES.oil.turn5dPct && Math.sign(rateFx.wti5) !== Math.sign(wti20) ? `(최근 5일 ${signed(rateFx.wti5, 1, '%')})` : ''}, 달러 ${signed(dxy20, 1, '%')}` },
+    commodities: { gauge: commodities, headline: wti20 == null ? null : `WTI 20거래일 ${signed(wti20, 1, '%')}${rateFx?.wti5 != null && Math.abs(rateFx.wti5) >= RULES.oil.turn5dPct && Math.sign(rateFx.wti5) !== Math.sign(wti20) ? `(최근 5일 ${signed(rateFx.wti5, 1, '%')})` : ''}, 달러 ${signed(dxy20, 1, '%')}` },
     credit: { gauge: credit, headline: hyBp == null ? null : `하이일드 ${hyBp.toFixed(0)}bp${hy5 == null ? '' : ` (5거래일 ${signed(hy5, 0, 'bp')}${creditBy20 ? `, 20거래일 ${signed(record20.value, 0, 'bp')}` : ''})`}` },
     korea: stateOf('korea') === 'burden' && (rateFx?.krw20 == null || rateFx.krw20 < RULES.fx.krwMove20dPct) && rateFx?.jpy20 != null && rateFx.jpy20 <= -RULES.fx.yenRally20dPct
       ? { gauge: gauge({ label: '엔화 20일 강세 폭 (엔/달러 하락률)', value: -rateFx.jpy20, unit: '%', digits: 1, ...cuts(-5, 8, [RULES.fx.yenRally20dPct], ['neutral', 'burden'], [[RULES.fx.yenRally20dPct, `+${RULES.fx.yenRally20dPct}% 엔 급강세`]]) }), headline: `엔/달러 20거래일 ${signed(rateFx.jpy20, 1, '%')}, 엔 강세` } /* v59.45 (P18-FX-01): the USD/JPY fall, not the yen's own return */
       // v57.86 (live review): a won past -2% held at 중립 (KOSPI contradicts, last-day turn, endpoint-only) drew its pin in the
       // favourable band — each outer band takes its tone only when the axis reached it, as the dollar gauge does.
-      : { gauge: gauge({ label: '원/달러 20일 변화', value: rateFx?.krw20 ?? null, unit: '%', digits: 1, ...cuts(-5, 5, [-RULES.fx.krwMove20dPct, RULES.fx.krwMove20dPct], [stateOf('korea') === 'favorable' ? 'favorable' : 'neutral', 'neutral', stateOf('korea') === 'burden' ? 'burden' : 'neutral'], [[-RULES.fx.krwMove20dPct, `-${RULES.fx.krwMove20dPct}%`], [RULES.fx.krwMove20dPct, `+${RULES.fx.krwMove20dPct}%`]]) }), headline: rateFx?.krw20 == null ? null : `원/달러 20일 ${signed(rateFx.krw20, 1, '%')}` }
+      : { gauge: gauge({ label: '원/달러 20거래일 변화', value: rateFx?.krw20 ?? null, unit: '%', digits: 1, ...cuts(-5, 5, [-RULES.fx.krwMove20dPct, RULES.fx.krwMove20dPct], [stateOf('korea') === 'favorable' ? 'favorable' : 'neutral', 'neutral', stateOf('korea') === 'burden' ? 'burden' : 'neutral'], [[-RULES.fx.krwMove20dPct, `-${RULES.fx.krwMove20dPct}%`], [RULES.fx.krwMove20dPct, `+${RULES.fx.krwMove20dPct}%`]]) }), headline: rateFx?.krw20 == null ? null : `원/달러 20일 ${signed(rateFx.krw20, 1, '%')}` }
   };
 }
 
@@ -503,10 +503,10 @@ function buildChain({ macro, regime, rateFx, oil = null, mh = null }) {
         : '신용 지표 판정 보류 — 스프레드 기록을 기다립니다';
   const dir = (value, up, down) => value == null ? 'unknown' : value >= up ? 'up' : value <= down ? 'down' : 'flat';
   const nodes = [
-    { id: 'oil', label: '유가 (WTI)', held: oilHeld, value: wti20 == null ? '—' : `20일 ${signed(wti20, 1, '%')}${oilShort}${oilHeld ? (oil?.abnormal ? ', 브렌트 비교 보류' : `, 브렌트 ${signed(oil.brent20, 1, '%')}`) : ''}`, dir: fx.wtiHigh && wti20 != null && wti20 > RULES.oil.fall20dPct ? 'up' : dir(wti20, RULES.oil.rise20dPct, RULES.oil.fall20dPct) },
+    { id: 'oil', label: '유가 (WTI)', held: oilHeld, value: wti20 == null ? '—' : `20거래일 ${signed(wti20, 1, '%')}${oilShort}${oilHeld ? (oil?.abnormal ? ', 브렌트 비교 보류' : `, 브렌트 ${signed(oil.brent20, 1, '%')}`) : ''}`, dir: fx.wtiHigh && wti20 != null && wti20 > RULES.oil.fall20dPct ? 'up' : dir(wti20, RULES.oil.rise20dPct, RULES.oil.fall20dPct) },
     { id: 'breakeven', label: '기대인플레이션', value: bei5 == null ? (splitReal ? '기준일이 달라 보류' : '—') : `5거래일 ${signed(bei5 * 100, 0, 'bp')}`, dir: dir(bei5 == null ? null : bei5 * 100, RULES.breakeven.move5dBp, -RULES.breakeven.move5dBp) },
     { id: 'policy', label: '연준 경로 (2년물)', value: pricing == null ? '—' : pricing >= P.pricedMovePp ? `기준금리 대비 ${signed(pricing, 2, '%p')}` : pricing <= -P.pricedMovePp ? `기준금리 대비 ${signed(pricing, 2, '%p')}` : '동결 근접', dir: dir(pricing, P.pricedMovePp, -P.pricedMovePp) },
-    { id: 'rates', label: '장기금리 (10년물)', value: tnx20 == null ? '—' : `20일 ${signed(tnx20, 0, 'bp')}`, dir: dir(tnx20, RULES.rates.move20dBp, -RULES.rates.move20dBp) },
+    { id: 'rates', label: '장기금리 (10년물)', value: tnx20 == null ? '—' : `20거래일 ${signed(tnx20, 0, 'bp')}`, dir: dir(tnx20, RULES.rates.move20dBp, -RULES.rates.move20dBp) },
     { id: 'valuation', label: '주식 밸류에이션 압력(해석)', inferred: true, value: axisById.rates ? `관측 아님, 금리 지표 ${axisById.rates.stateLabel}에서 추론` : '—', dir: axisById.rates?.state === 'burden' ? 'down' : axisById.rates?.state === 'favorable' ? 'up' : 'flat' }
   ];
   const links = [];

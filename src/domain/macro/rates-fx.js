@@ -234,7 +234,7 @@ function shortDate(date) {
 }
 
 export const FX_SERIES = Object.freeze([
-  Object.freeze({ id: 'dxy', label: '달러 인덱스 (DXY)', digits: 2, unit: '' }),
+  Object.freeze({ id: 'dxy', label: '달러 지수 (DXY)', digits: 2, unit: '' }),
   Object.freeze({ id: 'usdkrw', label: '원/달러', digits: 1, unit: '원' }),
   Object.freeze({ id: 'usdjpy', label: '엔/달러', digits: 2, unit: '엔' })
 ]);
@@ -281,7 +281,7 @@ function treasury(macro) {
   const spread2s10s = official2s10s ?? (sameCut || legsDate ? by.dgs10.value - by.dgs2.value : null);
   const spread5s30s = sameCut ? by.dgs30.value - by.dgs5.value : null;
   const curve = [
-    { id: '2s10s', label: '2년–10년', value: spread2s10s, legs: '10년 − 2년' },
+    { id: '2s10s', label: '장단기 금리차', value: spread2s10s, legs: '10년 − 2년' },
     { id: '5s30s', label: '5년–30년', value: spread5s30s, legs: '30년 − 5년' }
   ];
   const inverted = spread2s10s != null && spread2s10s < 0;

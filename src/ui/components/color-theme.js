@@ -7,23 +7,10 @@ export function chartPalette(root) {
 
 export function installColorTheme(root, doc) {
   const update = () => {
-    const palette = chartPalette(root);
-    const Chart = root.Chart;
-    if (Chart?.defaults) Chart.defaults.color = palette.text;
-    for (const chart of Object.values(Chart?.instances || {})) {
-      for (const scale of Object.values(chart.options?.scales || {})) {
-        scale.ticks ||= {}; scale.ticks.color = palette.text;
-        scale.grid ||= {}; scale.grid.color = palette.grid;
-        scale.title ||= {}; scale.title.color = palette.text;
-      }
-      if (chart.options?.plugins?.legend?.labels) chart.options.plugins.legend.labels.color = palette.text;
-      chart.update('none');
-    }
-    root.__aioStockChartInstance?.applyTheme?.(palette);
+    // v59.55: the Chart.js instances this used to recolour left with the last Chart.js screen; SVG charts read CSS tokens.
+    root.__aioStockChartInstance?.applyTheme?.(chartPalette(root));
   };
   doc.addEventListener('aio:colorThemeChanged', update);
-  const script = doc.getElementById('aio-chart-cdn');
-  script?.addEventListener('load', update);
   update();
-  return () => { doc.removeEventListener('aio:colorThemeChanged', update); script?.removeEventListener('load', update); };
+  return () => { doc.removeEventListener('aio:colorThemeChanged', update); };
 }

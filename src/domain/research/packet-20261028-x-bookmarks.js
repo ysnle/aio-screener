@@ -86,7 +86,7 @@ export const PACKET_20261028_FRAMES = Object.freeze([
     example: { inputs: ['가상 기업: 연간 이익 100, 할인율 10%', '계약 없음: 이익이 5년 지속된다고 시장이 가정', '10년 고정 계약 체결'], steps: ['5년 가치 ≈ 100 × 3.79 = 379', '10년 가치 ≈ 100 × 6.14 = 614'], result: '이익 수준은 같아도 지속 기간 가정만으로 가치가 약 62% 달라집니다. 실제 재평가 폭은 계약 가격이 고정인지, 계약 밖 물량이 얼마인지에 따라 이보다 작습니다.' },
     reverse: '계약 기간이 길어도 가격이 시장가 연동이면 이익의 변동성은 줄지 않습니다. 고객이 장기 계약을 원하는 것은 공급 부족의 정점 근처에서 흔하고, 그 뒤 공급이 늘면 계약 재협상이나 물량 조정이 일어난 사례가 있습니다. 이익 정점 근처의 경기순환주는 PER이 가장 낮아 보이므로, 낮은 PER만으로 지속성을 추정하지 않습니다.',
     channels: ['매출', '현금'], variables: ['계약 기간', '가격 고정 여부', '최소 구매량', '할인율', '연금 현가계수', '선행 PER', '이익 추정치 수정'],
-    indicators: [{ label: '선행 PER과 이익 추정치 수정 방향', route: 'ticker', routeLabel: '종목 요약' }, { label: '공시의 장기 공급 계약 조건', route: 'fundamental', routeLabel: '재무 공시' }],
+    indicators: [{ label: '선행 PER과 이익 추정치 수정 방향', route: 'ticker', routeLabel: '종목 개요' }, { label: '공시의 장기 공급 계약 조건', route: 'fundamental', routeLabel: '재무 공시' }],
     shift: '경기순환주의 낮은 PER을 싸다·비싸다로 읽던 모델에서, 이익 지속 기간의 할인으로 보고 계약 기간·가격 고정·단계로 그 할인이 줄어드는 폭을 계산하는 모델로 전환', inputs: ['contract duration', 'price fixing', 'minimum purchase', 'discount rate', 'annuity factor', 'forward PER', 'estimate revisions'],
     chart: '계약 기간(가로)별 연금 현가계수(세로)를 할인율 8·10·12%로 겹쳐 그리기, 배수 민감도 표', counterclaim: '장기 계약은 공급 부족 정점의 신호일 수 있고 가격 연동이면 이익 변동성이 그대로라 배수 재평가가 일어나지 않을 수 있음', concepts: ['present-value', 'cyclical-per'] },
 
@@ -100,7 +100,7 @@ export const PACKET_20261028_FRAMES = Object.freeze([
     ],
     reverse: '단계 구분은 숫자를 나누는 틀일 뿐 어느 단계가 싸다는 판정이 아닙니다. 전력 가동 시점이 늦어도 고객 계약이 투자등급이고 조달이 끝났으면 위험은 작고, 반대로 가동 중이어도 고객 한 곳에 몰려 있으면 그 고객의 신용이 사업의 신용입니다. 업종 정리가 강한 기업에 유리하다는 주장은 강세 측 시각으로, 조달 시장이 닫히면 강한 기업도 비용이 오릅니다.',
     channels: ['투자', '현금'], variables: ['단계별 MW', '전력 가동 시점', '계통 연결 계약', '고객 계약 기간·신용', '조달 금리', '임대 단가', '건설 진행률'],
-    indicators: [{ label: '전력·데이터센터 테마 흐름', route: 'themes', routeLabel: '테마 · 섹터' }, { label: '기업 이해의 돈이 들어오는 길과 AI 밸류체인 위치', route: 'ticker', routeLabel: '종목 요약' }],
+    indicators: [{ label: '전력·데이터센터 테마 흐름', route: 'themes', routeLabel: '테마 · 섹터' }, { label: '기업 이해의 돈이 들어오는 길과 AI 밸류체인 위치', route: 'ticker', routeLabel: '종목 개요' }],
     shift: '데이터센터 용량 발표를 같은 자산으로 읽던 모델에서, 부지·건물·전력 확보·가동의 단계와 전력 가동 시점·조달 구조로 가치를 나누는 모델로 전환', inputs: ['stage MW', 'energization date', 'interconnection agreement', 'customer contract tenor', 'funding cost', 'rental rate', 'construction progress'],
     chart: '발표 용량을 단계별 막대로 쌓고 전력 가동 예정 연도를 가로축에', counterclaim: '수직통합 사업자도 건설 단계 위험과 조달 위험을 지므로 조달 시장이 닫히면 단계 구분보다 자금 여력이 먼저 가치를 정함', concepts: ['capex', 'utilization-contract'] },
 
@@ -187,7 +187,7 @@ export const PACKET_20261028_FRAMES = Object.freeze([
     ],
     reverse: '지수에서도 많은 참여자가 같은 숫자(예: 큰 단위 숫자, 직전 사상 최고치)를 보면 자기실현적으로 반응이 생길 수 있습니다. 옵션 행사가에 미결제약정이 몰리면 딜러 헤지가 그 가격 근처에서 움직임을 줄이기도 합니다. 시험해 보지 않은 채 레벨이 무의미하다고 단정하는 것도 같은 오류입니다.',
     channels: ['현금'], variables: ['레벨 터치 횟수', '터치 뒤 반전 비율', '무작위 선 대비 초과 반응', '레벨의 나이', '대상 종류(종목·지수·ETF·원자재·통화)'],
-    indicators: [{ label: '차트의 52주 범위와 이동평균', route: 'ticker', routeLabel: '종목 요약' }],
+    indicators: [{ label: '차트의 52주 범위와 이동평균', route: 'ticker', routeLabel: '종목 개요' }],
     shift: '차트의 수평선을 닿은 횟수로 믿던 모델에서, 무작위 선 대비 초과 반응과 대상·레벨 나이별 기저율로 검증하는 모델로 전환', inputs: ['level touches', 'reversal after touch', 'random-line baseline', 'level age', 'asset class'],
     chart: '실제 레벨과 무작위 레벨의 터치 뒤 5일 수익률 분포를 나란히', counterclaim: '많은 참여자가 같은 숫자를 보거나 옵션 미결제약정이 몰린 가격은 지수에서도 자기실현적 반응을 만들 수 있음', concepts: ['base-rate'] },
 

@@ -253,7 +253,7 @@ export function rotationFlow({ groups = {}, regime = null, revisions = null } = 
   // Coordinator follow-up (M08 class, 2026-10-13): quadrant membership alone does not establish a "위험 선호/회피 회전"
   // verdict, so the line only counts which kinds of sectors sit ahead of the benchmark.
   const style = !ahead.length ? '시장 대비 나아진 섹터(선도·개선)가 없습니다'
-    : `선도·개선 ${ahead.length}개 중 방어 업종(유틸리티·필수소비재·헬스케어) ${defensiveAhead}개, 경기 민감 업종 ${ahead.length - defensiveAhead}개입니다`;
+    : `선도·개선 ${ahead.length}개 중 방어 업종 ${defensiveAhead}개, 경기 민감 업종 ${ahead.length - defensiveAhead}개입니다`;
   const concentration = lead.length <= 2 && lagging.length >= Math.ceil(total / 2)
     ? ` ${total}개 중 선도 ${lead.length}개, 후행 ${lagging.length}개입니다. 기준이 시가총액 가중 S&P 500(SPY)이라 대형 기술주 비중이 클수록 나머지 섹터가 후행에 몰리기 쉽습니다.` : '';
   const breadth = regime?.axes?.find((row) => row.id === 'breadth');

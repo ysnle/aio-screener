@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-boot-performance-evidence.v1",
-  "observedAt": "2026-11-01T10:13:20.119Z",
-  "appRevision": "v59.54",
-  "gitHead": "824503118c47d76f4827ecd511ab2a23b575d5fc",
+  "observedAt": "2026-11-01T14:53:02.831Z",
+  "appRevision": "v59.55",
+  "gitHead": "d118747bff5f8bf9e3b92a91a3d82f01dcebe687",
   "gitClean": false,
   "environment": {
     "browser": "chromium",
@@ -16,43 +16,40 @@
   "targetStatus": "TARGET_MISS",
   "targetPolicy": "report-not-blocking",
   "targetFailures": [
-    "decoded same-origin JS 4.21MB > 1.5MB"
+    "decoded same-origin JS 3.91MB > 1.5MB"
   ],
   "metrics": {
-    "fcpMs": 940,
-    "dclMs": 605,
-    "loadMs": 667,
-    "maxLongTaskMs": 128,
-    "totalLongTaskMs": 874,
-    "longTaskCount": 9,
+    "fcpMs": 932,
+    "dclMs": 631,
+    "loadMs": 689,
+    "maxLongTaskMs": 181,
+    "totalLongTaskMs": 795,
+    "longTaskCount": 8,
     "longTaskObservationWindowMs": 2000,
-    "domNodes": 4087,
-    "activeRouteDomNodes": 1610,
+    "domNodes": 4266,
+    "activeRouteDomNodes": 1899,
     "activePage": "page-signal",
     "bootStatusPresent": false,
-    "decodedJsBytes": 4417030,
+    "decodedJsBytes": 4097530,
     "sameOriginScripts": 213,
     "crossOriginScripts": 1,
-    "routeMs": 61,
-    "wallMs": 7523,
+    "routeMs": 63,
+    "wallMs": 7501,
     "totalExternalRequests": 57,
     "quoteRequests": 32,
     "initialExternalRequests": 7,
     "initialQuoteRequests": 4,
     "bootObservationWindowMs": 2000,
-    "delayedPrimaryChart": {
+    "onDemandChartLibrary": {
       "passed": true,
       "bootRequests": 0,
-      "primaryRequests": 1,
-      "secondaryRequests": 0,
-      "lwcRequests": 0,
-      "chartName": "DelayedPrimaryChart",
-      "localFallback": false,
-      "built": true,
-      "defaultsReplayed": true,
-      "placeholderLoads": 1,
-      "direct": true
+      "lwcRequests": 1,
+      "chartJsRequests": 0,
+      "loaded": true,
+      "reused": true,
+      "other": true,
+      "noChartGlobal": true
     },
-    "decodedJsMb": 4.21
+    "decodedJsMb": 3.91
   }
 }

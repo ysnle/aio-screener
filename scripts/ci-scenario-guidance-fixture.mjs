@@ -742,7 +742,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   // Three branches level at 3/4 read "셋" (home and 거시 share COUNT_WORDS and tiedIds).
   // v57.81: 달러 급등 uses the 시장 axis's buffered dollar rule — DXY +2.23% (0.23pp past the line) no longer counts, +2.6% does.
   const surge = buildMacroCrossroads({ signals: oct14 }).items.find((item) => item.id === 'dollarsurge');
-  assert.ok(/달러 인덱스 20거래일 \+2\.5% 이상 미충족/.test(surge.basis.join(' · ')), `v57.81 DXY +2.23% does not meet 달러 급등's dollar condition (${surge.basis.join(' · ')})`);
+  assert.ok(/달러 지수 20거래일 \+2\.5% 이상 미충족/.test(surge.basis.join(' · ')), `v57.81 DXY +2.23% does not meet 달러 급등's dollar condition (${surge.basis.join(' · ')})`);
   const three = buildMacroCrossroads({ signals: { ...oct14, oilSurging: true, wtiPosition: 0.9, tnx20: 0.3, dxy20: 2.6 } });
   assert.ok(three.tiedIds.length === 3 && /시나리오가 셋입니다/.test(three.headline) && COUNT_WORDS[three.tiedIds.length] === '셋', `v57.81 three tied branches read "셋" (${three.headline})`);
   const homeSource = readFileSync(new URL('../src/ui/components/macro-crossroads.js', import.meta.url), 'utf8');

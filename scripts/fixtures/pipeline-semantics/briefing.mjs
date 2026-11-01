@@ -225,10 +225,13 @@ export const cases = [
   } },
 
   // ---- R1/R3: reviewer follow-ups ------------------------------------------------------------------------------------------
-  { id: 'R1-05', name: '0.0%로 표시되는 이동 막대는 하락 색이 아니다', run: async () => {
-      const text = readFileSync(new URL('../../../src/ui/components/briefing-read.js', import.meta.url), 'utf8');
-      assert.match(text, /directionOf\(value, 1\)/);
-      assert.doesNotMatch(text, /value >= 0 \? 'is-up' : 'is-down'/);
+  // v59.55 (C3): the briefing bars are the shared two-sided bar; the rule is tested on it instead of pinning text.
+  { id: 'R1-05', name: '0.0%로 표시되는 이동 막대는 하락 색이 아니다', run: async ({ load }) => {
+      const { signedFill } = await load('src/ui/components/signed-bar.js');
+      const doc = { createElement: () => ({ className: '', style: {}, dataset: {} }) };
+      assert.match(signedFill(doc, -0.04, 1).className, /is-flat/);
+      assert.match(signedFill(doc, -0.06, 1).className, /is-down/);
+      assert.match(signedFill(doc, 0.06, 1).className, /is-up/);
   } },
   { id: 'R3-01', name: '서사 주제 정규식은 단어 일부(유가증권·시즌이란·spike·abundant·exciting)에 걸리지 않는다', run: async ({ load }) => {
       const { NARRATIVE_THEMES } = await load('scripts/lib/narrative-context.mjs');

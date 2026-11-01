@@ -30,6 +30,20 @@
 }
 #page-ticker .v2-stock-search > input { flex: 1 1 220px; min-width: 0; height: 36px; padding: 0 14px !important; font-size: 14px; text-transform: none; }
 #page-ticker .v2-stock-search .sh-wrap-row { display: flex; flex-wrap: wrap; gap: 6px; }
+/* v59.55 (C1): the price line is the shared SVG trend chart; the box grows with it and the ink follows the window's direction. */
+#page-ticker .sh-ticker-quote-box { height: auto; min-height: 44px; }
+#page-ticker .ticker-price-line[hidden] { display: none; }
+#page-ticker .ticker-price-line .is-up .trend-chart-line { stroke: var(--dir-up); }
+#page-ticker .ticker-price-line .is-down .trend-chart-line { stroke: var(--dir-down); }
+#page-ticker .ticker-price-line .is-up .trend-chart-dot { fill: var(--dir-up); }
+#page-ticker .ticker-price-line .is-down .trend-chart-dot { fill: var(--dir-down); }
+/* v59.55: the no-company start block (ticker-start.js) — one labelled row per group under the search. */
+#page-ticker .ticker-start { display: flex; flex-direction: column; gap: 14px; margin-top: 16px; }
+#page-ticker .ticker-start[hidden] { display: none; }
+#page-ticker .ticker-start-group { display: flex; flex-direction: column; gap: 6px; }
+#page-ticker .ticker-start-title { margin: 0; font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+#page-ticker .ticker-start .sh-wrap-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+#page-ticker:not(.is-empty) .ticker-start { display: none; }
 #page-ticker .v2-stock-search .q-chip {
   height: 28px; padding: 0 12px; border: 0 !important; border-radius: 999px !important; background: var(--sx-ink-a06) !important;
   color: var(--text-primary) !important; font-size: 12px; 
@@ -70,9 +84,6 @@
 .v2-stock-card .stock-read-points { gap: 10px; }
 .page .v2-stock-card .stock-read-point { grid-template-columns: 84px minmax(0, 1fr); }
 .stock-read-theme-line { display: block; }
-.stock-return-signed-track { border-radius: 999px; background: var(--sx-ink-a05); }
-.stock-return-signed-bar { border-radius: 999px; }
-.stock-return-signed-bar.is-bench { background: rgba(var(--ink-rgb), 0.28); }
 
 /* ③ Folded long form + ④ evidence line. */
 .v2-stock-fold.sx-disclosure > summary { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; color: var(--text-primary); }
@@ -80,7 +91,7 @@
 .v2-stock-evidence { padding: 0 4px; margin: 0; }
 
 /* Identity, company summary and the price panel follow the reading as soft cards. */
-#page-ticker .entity-business-profile { margin: 0 0 16px; padding: 20px 22px; border: 0; border-radius: 12px; background: var(--bg-card); box-shadow:none; }
+#page-ticker .entity-business-profile { margin: 0 0 16px; padding: 20px var(--sx-card-pad-x); border: 0; border-radius: 12px; background: var(--bg-card); box-shadow:none; }
 #page-ticker > #ticker-price-panel { margin: 0 0 18px; }
 .company-analysis-route { border: 0 !important; border-radius: 12px !important; background: var(--sx-ink-a03) !important;  }
 .company-analysis-route:hover, .company-analysis-route:focus-visible { background: var(--sx-ink-a06) !important; }
@@ -222,7 +233,7 @@
 
 /* ═══ 4. 테마 · 섹터 (3f) ═══════════════════════════════════════════════ */
 #page-themes .v2-themes-verdict { border: 0; padding: 0; margin: 0 0 22px; display: flex; flex-direction: column; gap: 14px; }
-.v2-themes-hero { display: flex; flex-direction: column; gap: 6px; padding: 22px 28px; }
+.v2-themes-hero { display: flex; flex-direction: column; gap: 6px; padding: 22px var(--sx-card-pad-x); }
 .v2-themes-hero .sx-kicker { margin: 0; font-size: 12px !important; font-weight: 600 !important; letter-spacing: 0 !important; }
 .v2-themes-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 14px; align-items: start; }
 .v2-themes-side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
@@ -282,40 +293,40 @@
 .page .thp-detail-heading { font-size: 12px; font-weight: 700; }
 
 /* Lessons and next steps on the stock and theme screens: soft cards and link rows (3d 'stockMore'). */
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .mg-lesson {
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .mg-lesson {
   border: 0; border-radius: 12px; background: var(--bg-card); box-shadow:none; padding: 16px 18px; gap: 6px;
 }
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .mg-kind { border: 0 !important; border-radius: 999px; padding: 2px 9px; background: var(--sx-ink-a07); font-size: 12px; font-weight: 700; }
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .mg-lesson[data-kind="trap"] .mg-kind { background: var(--sx-warn-bg); }
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .mg-lesson[data-kind="trust"] .mg-kind { background: var(--sx-good-bg); }
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .flow-next {
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .mg-kind { border: 0 !important; border-radius: 999px; padding: 2px 9px; background: var(--sx-ink-a07); font-size: 12px; font-weight: 700; }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .mg-lesson[data-kind="trap"] .mg-kind { background: var(--sx-warn-bg); }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .mg-lesson[data-kind="trust"] .mg-kind { background: var(--sx-good-bg); }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .flow-next {
   border-top: 0; margin: 24px 0 8px; padding: 18px 0 6px; background: var(--bg-card); border-radius: 12px; box-shadow:none; overflow: hidden;
 }
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .flow-next[hidden] { display: none; }
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .flow-next-title { padding: 0 24px 6px; font-size: 14px; font-weight: 700; }
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .flow-next-list { gap: 0; }
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .flow-next-list li {
-  position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 11px 48px 11px 24px;
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .flow-next[hidden] { display: none; }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .flow-next-title { padding: 0 var(--sx-card-pad-x) 6px; font-size: 14px; font-weight: 700; }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .flow-next-list { gap: 0; }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .flow-next-list li {
+  position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 11px 48px 11px var(--sx-card-pad-x);
   border-top: 0.5px solid rgba(var(--ink-rgb), 0.06); 
 }
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .flow-next-list li:hover { background: var(--sx-ink-a03); }
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .flow-next-list li::after { content: '›'; position: absolute; right: 24px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px; }
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .flow-next-link { color: var(--text-primary); font-weight: 500; }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .flow-next-list li:hover { background: var(--sx-ink-a03); }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .flow-next-list li::after { content: none; position: absolute; right: 24px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px; }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .flow-next-link { color: var(--text-primary); font-weight: 500; }
 /* the whole row answers the click: the button's hit area stretches over its row (only inside the positioned row;
    v58.75: a bare link elsewhere stretched over the whole viewport and swallowed every click above it) */
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .flow-next-list li .flow-next-link::before { content: ''; position: absolute; inset: 0; }
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .flow-next-why { font-size: 12px; color: var(--text-muted); }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .flow-next-list li .flow-next-link::before { content: ''; position: absolute; inset: 0; }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .flow-next-why { font-size: 12px; color: var(--text-muted); }
 
 /* ═══ 6. Shared reading rows on the stock and theme screens ════════════ */
 /* The legacy rows coloured a burden red and a neutral amber; v2 keeps red for falling prices only. */
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .stock-read-point.is-favorable { border-left-color: var(--data-green); }
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .stock-read-point.is-burden { border-left-color: var(--data-amber); }
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .stock-read-point.is-neutral { border-left-color: rgba(var(--ink-rgb), 0.14); }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .stock-read-point.is-favorable { border-left-color: var(--data-green); }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .stock-read-point.is-burden { border-left-color: var(--data-amber); }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .stock-read-point.is-neutral { border-left-color: rgba(var(--ink-rgb), 0.14); }
 /* State capsules (셋업 상태, 시장 상태 칩, 순위 변화) read as sx chips: no outline, verdict colours without red. */
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .regime-state { border: 0; padding: 3px 10px; font-size: 12px; background: var(--sx-ink-a07); color: var(--text-secondary); }
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .regime-state.is-favorable { background: var(--sx-good-bg); color: var(--green-12); }
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .regime-state.is-burden { background: var(--sx-warn-bg); color: var(--amber-12); }
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .regime-state.is-unknown { background: transparent; box-shadow: inset 0 0 0 1px rgba(var(--ink-rgb), 0.14); color: var(--text-muted); }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .regime-state { border: 0; padding: 3px 10px; font-size: 12px; background: var(--sx-ink-a07); color: var(--text-secondary); }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .regime-state.is-favorable { background: var(--sx-good-bg); color: var(--green-12); }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .regime-state.is-burden { background: var(--sx-warn-bg); color: var(--amber-12); }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .regime-state.is-unknown { background: transparent; box-shadow: inset 0 0 0 1px rgba(var(--ink-rgb), 0.14); color: var(--text-muted); }
 #page-fundamental .stock-read-bar.is-burden { background: var(--data-amber); }
 #page-technical .chart-template-dot.is-fail { background: var(--sx-warn-bg); color: var(--amber-12); }
 

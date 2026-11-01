@@ -17,6 +17,7 @@ import { newsImpactChain } from '../../domain/briefing/event-guide.js';
 import { fixKoreanTerms } from '../../domain/briefing/headline-terms.js';
 import { renderMarketTimeline, symbolNames } from '../components/market-timeline.js';
 import { macroReleasesFor } from '../../domain/briefing/macro-releases.js';
+import { channelLineFor } from '../../domain/news/channel-lines.js';
 
 function text(documentRef, value, fallback = '—') {
   const node = documentRef.createElement('span');
@@ -42,7 +43,7 @@ const NEWS_EMPTY_REASON_COPY = Object.freeze({
 // v57.77: the type tabs left (기업 is a topic chip now), so only country and topic count as filters.
 export function describeNewsScope(controls) {
   const active = !!controls && ['countryFilter', 'topicFilter'].some((key) => controls[key] && controls[key] !== 'all');
-  return { articles: active ? '필터 적용' : '필터 없음', channel: active ? '채널 소식은 국가·주제 필터와 무관하게 자체 분류로 표시됩니다.' : '' };
+  return { articles: active ? '필터 적용' : '필터 없음', channel: active ? '시장 신호는 국가·주제 필터와 무관하게 자체 분류로 표시됩니다.' : '' };
 }
 
 function describeNewsEmptyReason(reason) {
@@ -366,7 +367,8 @@ function createNewsCard(documentRef, root, item, index) {
   evidence.addEventListener('click', (event) => event.stopPropagation());
   const facts = newsEvidence(item);
   const evidenceTitle = documentRef.createElement('summary');
-  evidenceTitle.textContent = [facts.kind, facts.revision, item?.storyArticles?.length > 1 ? `변경 이력 ${item.storyArticles.length}건` : '출처·시각', chain ? '시나리오 연결' : null].filter(Boolean).join(', ');
+  // v59.55 (alignment pass): one action-like label — '기사' was every row's kind and said nothing.
+  evidenceTitle.textContent = [facts.kind === '기사' ? null : facts.kind, facts.revision, item?.storyArticles?.length > 1 ? `변경 이력 ${item.storyArticles.length}건` : '원문과 출처', chain ? '시나리오 연결' : null].filter(Boolean).join(', ');
   // v57.54 audit (11): seventeen identical "기사 · 출처·시각" folds were indistinguishable to a screen reader; each names its headline.
   evidenceTitle.setAttribute('aria-label', `${evidenceTitle.textContent} — ${String(title || '').slice(0, 80)}`);
   evidence.appendChild(evidenceTitle);
@@ -509,24 +511,28 @@ function renderMineChannelPosts(documentRef, card, root, symbols, active) {
     box.id = 'news-tg-mine';
     card.append(box);
   }
+  // v59.55 (owner 11/1): a post shows as the fact extracted from it about my name (channel-lines.js), never its text.
+  const signals = Array.isArray(root?.AIO_TELEGRAM_SIGNALS) ? root.AIO_TELEGRAM_SIGNALS : [];
   const posts = (Array.isArray(root?.AIO_TELEGRAM_CURRENT_ITEMS) ? root.AIO_TELEGRAM_CURRENT_ITEMS : [])
-    .map((post) => ({ post, symbol: (Array.isArray(post?.tickers) ? post.tickers : []).map((tag) => String(tag).replace(/^\$/, '').toUpperCase()).find((symbol) => symbols.has(symbol)) }))
-    .filter((row) => row.symbol).sort((a, b) => Date.parse(b.post.datetime || '') - Date.parse(a.post.datetime || '')).slice(0, 8);
+    .map((post) => {
+      const symbol = (Array.isArray(post?.tickers) ? post.tickers : []).map((tag) => String(tag).replace(/^\$/, '').toUpperCase()).find((sym) => symbols.has(sym) && channelLineFor(sym, post, signals));
+      return { post, symbol, line: symbol ? channelLineFor(symbol, post, signals) : null };
+    })
+    .filter((row) => row.line).sort((a, b) => Date.parse(b.post.datetime || '') - Date.parse(a.post.datetime || '')).slice(0, 8);
   if (feed) feed.hidden = true;
   box.hidden = false;
-  if (!posts.length) { box.replaceChildren(Object.assign(documentRef.createElement('p'), { className: 'briefing-empty', textContent: '최근 24시간 채널 글 가운데 내 종목을 다룬 글이 없습니다.' })); return; }
+  if (!posts.length) { box.replaceChildren(Object.assign(documentRef.createElement('p'), { className: 'briefing-empty', textContent: '최근 24시간 내 종목에 대한 목표주가·실적 신호가 없습니다.' })); return; }
   const list = documentRef.createElement('ul');
   list.className = 'news-intraday-list';
-  for (const { post, symbol } of posts) {
+  for (const { post, line } of posts) {
     const row = documentRef.createElement('li');
     const stamp = compactKstTime(post.datetime);
     const time = documentRef.createElement('time');
     time.textContent = stamp ? `${stamp.date} ${stamp.time}` : '';
     const href = safeUrl(post.url);
-    const text = String(post.summary || post.text || '').replace(/https?:\/\/\S+/g, '').replace(/\s+/g, ' ').trim();
     const title = documentRef.createElement(href ? 'a' : 'span');
     title.className = 'nws-intraday-link';
-    title.textContent = `${symbol}, ${text.length > 110 ? `${text.slice(0, 107)}…` : text}`;
+    title.textContent = line;
     if (href) { title.href = href; title.target = '_blank'; title.rel = 'noopener noreferrer'; }
     title.title = `텔레그램 공개 채널 @${post.channel || ''}`;
     row.append(time, title);

@@ -18,7 +18,7 @@ function renderSentiment(documentRef) {
   return model;
 }
 
-export function createSentimentPage({ documentRef, evidenceStore, store, chartFactory } = {}) {
+export function createSentimentPage({ documentRef, evidenceStore, store } = {}) {
   return {
     route: 'sentiment',
     mount() {

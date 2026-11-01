@@ -5,7 +5,6 @@
 // ║  Chart instances: 페이지별 레지스트리에서 생성·정리                      ║
 // ║  주의: MODULE 1/2의 함수 호출은 모두 이벤트/타이머 콜백 내부 (즉시 호출 X) ║
 // ╚═══════════════════════════════════════════════════════════════════════════╝
-// AAII Chart.js stacked bar + P/C sparkline
 // v57.60: the legacy breadth-page DOM writers and their bp-* chart registry were removed;
 // the breadth route is rendered by src/ui/pages/market.js and window._breadth* globals are set by the screener breadth producer.
 
@@ -1615,55 +1614,53 @@ function calculateRR() {
 //   기존 버그: p.sym/p.avgCost/p.shares (getPortfolioData 실제 필드는 ticker/cost/qty) → 항상 0% 표시
 //   수정: 올바른 필드 참조 + SPY Yahoo chart 1mo 실데이터 + 포트폴리오 종목 Yahoo chart 병렬(최대 10종목)
 async function updateBenchmarkChart() {
-  var canvas = document.getElementById('pf-benchmark-chart');
-  if (!canvas) return;
-  var ctx = canvas.getContext('2d');
-  var W = canvas.width = canvas.parentElement.offsetWidth - 32;
-  var H = canvas.height = 200;
-  ctx.clearRect(0, 0, W, H);
-
-  // 로딩 표시 — v48.61 R43 Canvas hex
-  ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#978365'; ctx.textAlign = 'center';
-  ctx.fillText('SPY 30일 실데이터 조회 중...', W/2, H/2);
+  // v59.55 (C2): the comparison is the shared SVG trend chart (portfolio line, SPY as the dashed guide, 0% line), not a
+  // hand-drawn canvas with hex colours; status lines are plain text in the same box.
+  var host = document.getElementById('pf-benchmark-chart');
+  if (!host) return;
+  var say = function(text, tone) {
+    var line = document.createElement('p');
+    line.className = 'pf-benchmark-status' + (tone ? ' is-' + tone : '');
+    line.textContent = text;
+    host.replaceChildren(line);
+  };
+  say('SPY 30일 종가를 불러오는 중입니다.');
 
   // 포트폴리오 데이터 수집 (v48.13: 실제 필드명 ticker/qty/cost 사용)
   var pfData = (typeof getPortfolioData === 'function') ? getPortfolioData() : [];
   pfData = (pfData || []).filter(function(p){ return p && p.ticker && p.qty > 0 && p.cost > 0; });
 
   if (pfData.length === 0) {
-    ctx.clearRect(0, 0, W, H);
-    ctx.font = '12px Inter, sans-serif'; ctx.fillStyle = '#978365'; ctx.textAlign = 'center';
-    ctx.fillText('포트폴리오가 비어 있습니다', W/2, H/2 - 6);
-    ctx.font = '10px Inter, sans-serif';
-    ctx.fillText('종목 추가 후 갱신 버튼 클릭', W/2, H/2 + 12);
+    say('포트폴리오가 비어 있습니다. 종목을 추가한 뒤 새로고침을 누르세요.');
     return;
   }
 
-  // SPY 30일 실데이터 (Yahoo chart)
-  var spySeries = null;
+  // SPY 30일 실데이터 (Yahoo chart) — v59.55: the dates travel with the closes so the chart places each day.
+  var spySeries = null, spyDates = null;
   try {
     var spyUrl = 'https://query1.finance.yahoo.com/v8/finance/chart/SPY?interval=1d&range=1mo';
     var r = await fetchViaProxy(spyUrl, 8000);
     if (r && r.ok) {
       var d = await r.json();
-      var closes = ((((d||{}).chart||{}).result||[])[0]||{}).indicators;
-      var arr = closes && closes.quote && closes.quote[0] && closes.quote[0].close;
+      var result = (((d||{}).chart||{}).result||[])[0]||{};
+      var arr = result.indicators && result.indicators.quote && result.indicators.quote[0] && result.indicators.quote[0].close;
+      var stamps = result.timestamp || [];
       if (arr && arr.length > 0) {
-        spySeries = arr.filter(function(v){ return v != null && !isNaN(v); });
+        spySeries = []; spyDates = [];
+        arr.forEach(function(v, i) {
+          if (v == null || isNaN(v) || !stamps[i]) return;
+          spySeries.push(v); spyDates.push(new Date(stamps[i] * 1000).toISOString().slice(0, 10));
+        });
       }
     }
   } catch(e) {}
   if (!spySeries || spySeries.length < 5) {
-    ctx.clearRect(0, 0, W, H);
-    ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#b54548'; ctx.textAlign = 'center'; /* v48.61 R43 */
-    ctx.fillText('SPY 시세 조회 실패 — 네트워크 확인', W/2, H/2);
+    say('SPY 시세를 받지 못했습니다. 네트워크를 확인한 뒤 새로고침을 누르세요.', 'warn');
     return;
   }
   var spyBase = spySeries[0];
   if (!isFinite(spyBase) || spyBase <= 0) {
-    ctx.clearRect(0, 0, W, H);
-    ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#b54548'; ctx.textAlign = 'center';
-    ctx.fillText('SPY 기준가 오류 — 데이터 소스 확인 필요', W/2, H/2);
+    say('SPY 기준가가 올바르지 않아 비교를 보류합니다.', 'warn');
     return;
   }
   var spyPct = spySeries.map(function(v){ return (v - spyBase) / spyBase * 100; });
@@ -1723,65 +1720,37 @@ async function updateBenchmarkChart() {
   // straight line over 30 days, so a position bought years ago printed as "+100% (30일)" and an Alpha. A period that was
   // not observed is not drawn: the line is the 30-day return of the holdings whose daily closes arrived (re-weighted to
   // that part), the label names that share, and with no history at all the comparison waits.
-  ctx.clearRect(0, 0, W, H);
   if (!(coveredWeight > 0)) {
-    ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#978365'; ctx.textAlign = 'left';
-    ctx.fillText('보유 종목의 일별 가격 이력을 받지 못해 30일 비교를 보류합니다.', 10, 16);
+    say('보유 종목의 일별 가격 이력을 받지 못해 30일 비교를 보류합니다.');
     return;
   }
   for (var j = 0; j < L; j++) pfPct[j] = pfPct[j] / coveredWeight;
   var partial = coveredWeight < 0.999;
 
-  // 렌더
-  ctx.clearRect(0, 0, W, H);
-  var allVals = pfPct.concat(spyPct.slice(-L));
-  var maxV = Math.max.apply(null, allVals);
-  var minV = Math.min.apply(null, allVals);
-  var range = Math.max(Math.abs(maxV), Math.abs(minV), 2);
-  var padding = 20;
-  var plotH = H - padding * 2;
-  var yZero = padding + plotH / 2;
-  var yScale = (plotH / 2) / range;
-
-  // 0% 기준선
-  ctx.strokeStyle = (getComputedStyle(document.body).getPropertyValue('--border-strong').trim() || 'rgba(27,26,23,0.15)'); ctx.lineWidth = 1; ctx.setLineDash([4,4]);
-  ctx.beginPath(); ctx.moveTo(0, yZero); ctx.lineTo(W, yZero); ctx.stroke(); ctx.setLineDash([]);
-
-  // SPY 선 — v48.61 R43 Canvas hex (#1b1a17 = --data-cyan)
+  var dates = spyDates.slice(-L);
   var spyPlot = spyPct.slice(-L);
-  ctx.strokeStyle = (getComputedStyle(document.body).getPropertyValue('--text-primary').trim() || '#1b1a17'); ctx.lineWidth = 2; ctx.beginPath(); // dark mode: the ink token, not a fixed near-black
-  for (var i = 0; i < L; i++) {
-    var x = (i / (L - 1)) * W;
-    var y = yZero - spyPlot[i] * yScale;
-    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-  }
-  ctx.stroke();
-
-  // 포트폴리오 선 — v48.61 R43 Canvas hex (#2f7c57 = data-green)
-  ctx.strokeStyle = (getComputedStyle(document.body).getPropertyValue('--data-green').trim() || '#2f7c57'); ctx.lineWidth = 2.5; ctx.beginPath();
-  for (var i = 0; i < L; i++) {
-    var x = (i / (L - 1)) * W;
-    var y = yZero - pfPct[i] * yScale;
-    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-  }
-  ctx.stroke();
-
-  // 레이블
-  var pfFinal = pfPct[L-1];
-  var spyFinal = spyPlot[L-1];
-  var alpha = pfFinal - spyFinal;
-  var alphaColor = alpha >= 0 ? '#2f7c57' : '#b54548';
-  ctx.textAlign = 'left';
-  ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#2f7c57';
-  ctx.fillText((partial ? '이력 확보 종목(' + (coveredWeight * 100).toFixed(0) + '% 비중): ' : '내 포트폴리오: ') + (pfFinal>=0?'+':'') + pfFinal.toFixed(1) + '% (30일)', 10, 16);
-  ctx.fillStyle = (getComputedStyle(document.body).getPropertyValue('--text-primary').trim() || '#1b1a17');
-  ctx.fillText('SPY: ' + (spyFinal>=0?'+':'') + spyFinal.toFixed(1) + '% (30일)', 10, 32);
-  ctx.fillStyle = alphaColor;
-  ctx.fillText('Alpha: ' + (alpha>=0?'+':'') + alpha.toFixed(1) + '%p', 10, 48);
-
-  // 커버리지 표시 — v48.61 P37+R43
-  ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#978365'; ctx.textAlign = 'right';
-  ctx.fillText(partial ? '일별 이력 없는 종목은 제외 — 계좌 전체 수익률 아님' : '보유 종목 일별 종가 기준', W - 10, H - 8);
+  // A value that rounds to zero reads 0.0, never +0.0 or -0.0.
+  var signed = function(v, unit) { var r = Number(v.toFixed(1)); return (r > 0 ? '+' : r < 0 ? '-' : '') + Math.abs(r).toFixed(1) + unit; };
+  var pfFinal = pfPct[L-1], spyFinal = spyPlot[L-1], alpha = pfFinal - spyFinal;
+  var mod;
+  try { mod = await import(new URL('src/ui/components/trend-chart.js', document.baseURI).href); } catch (e) { say('비교 차트를 그리지 못했습니다. 새로고침해 다시 확인할 수 있습니다.', 'warn'); return; }
+  var lead = document.createElement('p');
+  lead.className = 'pf-benchmark-status';
+  lead.append((partial ? '이력 확보 종목(비중 ' + (coveredWeight * 100).toFixed(0) + '%) ' : '내 포트폴리오 ') + signed(pfFinal, '%') + ', SPY ' + signed(spyFinal, '%') + ', 차이 ');
+  var gap = document.createElement('b');
+  gap.className = Number(alpha.toFixed(1)) > 0 ? 'is-up' : Number(alpha.toFixed(1)) < 0 ? 'is-down' : '';
+  gap.textContent = signed(alpha, '%p');
+  lead.append(gap, ' (30일)');
+  var chart = mod.createTrendChart(document, {
+    series: dates.map(function(date, i) { return { date: date, value: pfPct[i] }; }),
+    guide: { label: 'SPY', series: dates.map(function(date, i) { return { date: date, value: spyPlot[i] }; }) },
+    refLines: [0], label: '내 포트폴리오와 SPY 30일 수익률', width: host.clientWidth || undefined,
+    format: function(v) { return signed(v, '%'); }
+  });
+  var basis = document.createElement('p');
+  basis.className = 'pf-benchmark-status is-fine';
+  basis.textContent = partial ? '일별 이력이 없는 종목은 빼고 계산 — 계좌 전체 수익률이 아닙니다.' : '보유 종목 일별 종가 기준';
+  host.replaceChildren(lead, chart, basis);
 }
 
 
@@ -1843,7 +1812,7 @@ function toggleTheme() {
 
 // ── v48.22 (P3-4): offline-first Service Worker 등록 ──
 // 이전 v38.4 "완전 제거"에서 offline 지원으로 전환
-// 전략: shell(index.html/manifest/version.json/Chart.js CDN)=Cache-First,
+// 전략: shell(index.html/manifest/version.json)=Cache-First,
 //       API(Yahoo/FRED/CBOE/CORS 프록시/RSS)=Network-First + 캐시 폴백
 // 설치 실패해도 앱 자체는 정상 동작(PROGRESSIVE enhancement)
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {

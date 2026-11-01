@@ -76,7 +76,7 @@
 /* P1637: regime radar — today solid, 5 and 20 sessions ago dashed. */
 .regime-radar { margin: 0 0 22px; padding: 4px 0 6px; } /* v57.76: sits right under the 6개 지표 h2 — no rule between a heading and its visual */
 .regime-radar-lead { font-size: 14px; line-height: 1.6; color: var(--text-primary); margin: 4px 0 10px; }
-.regime-radar-gap { font-size: 12px; line-height: 1.6; color: var(--text-secondary); margin: -4px 0 10px; padding-left: 10px;  }
+.regime-radar-gap { font-size: 12px; line-height: 1.6; color: var(--text-secondary); margin: -4px 0 10px; }
 .regime-radar-body { display: grid; grid-template-columns: minmax(260px, 400px) minmax(0, 1fr); gap: 18px 36px; align-items: center; } /* layout review 2026-10-18: the axis table fills its side and sits level with the drawing */
 .regime-radar-svg { width: 100%; height: auto; overflow: visible; padding: 0 12px; box-sizing: border-box; } /* side labels (신용 · 위험선호) draw a few px outside the viewBox */
 .regime-radar-ring { fill: none; stroke: var(--border-subtle); stroke-width: 1; }
@@ -331,19 +331,15 @@ body.dark-theme .sector-map .is-na { background: var(--gold-3); color: var(--gol
 .page .tp-quad { font-size: 12px; fill: var(--text-secondary); }
 .page .tp-axis-label { font-size: 12px; fill: var(--text-muted); }
 .page .tp-label { font-size: 12px; fill: var(--text-primary); }
-/* The map is drawn twice (640 × 360 and 320 × 300); the section width picks one, so labels stay at 12px or more. */
-.page .tp-map-wrap { container-type: inline-size; max-width: 760px; }
+/* v59.55 (C5): one map, drawn 640 × 360 or 320 × 300 for the section's width, so labels stay at 12px or more. */
+.page .tp-map-wrap { max-width: 760px; }
 /* Layout review 2026-10-18: map and reading side by side on a wide screen; stacked below 1280px. */
 .page .tp-map-row { display: grid; grid-template-columns: minmax(0, 760px) minmax(240px, 1fr); gap: 8px 32px; align-items: start; margin-bottom: 14px; }
 .page .tp-map-side { padding-top: 8px; min-width: 0; }
 @media (max-width: 1279px) { .page .tp-map-row { grid-template-columns: minmax(0, 1fr); } .page .tp-map-side { padding-top: 0; } }
-.page .tp-map.is-narrow { display: none; max-width: 480px; }
+.page .tp-map.is-narrow { max-width: 480px; }
 .page .tp-map.is-narrow .tp-label, .page .tp-map.is-narrow .tp-axis-label { font-size: 14px; }
 .page .tp-map.is-narrow .tp-quad { font-size: 14px; }
-@container (max-width: 599px) {
-  .page .tp-map.is-wide { display: none; }
-  .page .tp-map.is-narrow { display: block; }
-}
 .page .tp-dot { stroke: var(--bg-card); stroke-width: 1.5; fill: var(--text-muted); cursor: pointer; }
 /* v57.79: a tapped point's line (unlabelled points keep their hover title; phones have no hover). */
 .page .tp-pick { font-size: 12px; line-height: 1.5; color: var(--text-primary); margin: 4px 0 6px; }
@@ -534,7 +530,7 @@ body.dark-theme .sector-map .is-na { background: var(--gold-3); color: var(--gol
 /* v59.51 (시장 상태 two layers): a combination is its name on one line, its numbers open under it; the depth fold body. */
 .mk-combo__fold > summary { cursor: pointer; font-weight: 600; min-height: 28px; }
 .mk-combo__detail { margin: 4px 0 0; font-size: 13px; line-height: 1.7; color: var(--text-secondary); }
-.mk-watch__item.is-more { display: block; }
+.mk-watch__item.is-more, .mk-watch__item.is-release { display: block; }
 .mk-watch__more { margin: 6px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.7; color: var(--text-secondary); }
 #page-signal .regime-depth-body { padding: 0 24px 20px; }
 #page-signal .mk-hero__why[hidden] { display: none; }
@@ -570,7 +566,7 @@ body.dark-theme .sector-map .is-na { background: var(--gold-3); color: var(--gol
 .event-brief-row__reason { flex-basis: 100%; color: var(--text-primary); }
 .event-brief-row__fold { flex-basis: 100%; }
 .event-brief-row__fold summary { cursor: pointer; color: var(--text-secondary); min-height: 24px; }
-.event-brief-row__fold .event-brief { padding: 4px 0 0; border-top: 0; }
+.event-brief-row__fold .event-brief__more.is-inline { padding: 6px 0 0; }
 .event-briefs__all { margin-top: 8px; }
 /* v59.44: AI supply chain by group — one-month median bar, last session beside it. */
 .ai-chain__reading { margin: 0 0 6px; font-size: 13px; color: var(--text-primary); }

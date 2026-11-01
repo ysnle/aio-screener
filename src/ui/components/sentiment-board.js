@@ -16,6 +16,7 @@ import { sentimentFlow } from '../../domain/market/page-flow.js';
 import { renderNextSteps } from './page-flow.js';
 import { computeCompositeFearGreed } from '../../domain/sentiment/composite-fear-greed.js';
 import { el } from './dom.js';
+import { gaugeBar } from './gauge-bar.js';
 import { noteFold } from './section-frame.js';
 import { splitReading } from './market-regime.js';
 import { signedText, readNumber as finite } from '../../domain/shared/number.js';
@@ -114,7 +115,7 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   const aaiiLine = bear != null ? `AAII 약세 응답 ${bear.toFixed(1)}%는 장기 평균(${AAII_AVERAGE.bear.toFixed(1)}%)보다 ${signedPp(bear - AAII_AVERAGE.bear)}입니다.` : null;
   let synthesis;
   if (!moodKnown) synthesis = '기준일에 맞는 심리 지표(F&G·AAII)가 없어 종합 판단을 보류합니다.';
-  else if (fearful && creditCalm && volCalm) synthesis = `${fearSource}는 비관 쪽인데 신용(${Math.round(hyBp)}bp)과 변동성 구조(${ratio.toFixed(2)})는 안정 — 비관이 심리 지표에 머물러 있고 신용·변동성 스트레스로는 번지지 않았습니다.`;
+  else if (fearful && creditCalm && volCalm) synthesis = `${fearSource}는 비관 쪽인데 신용(${Math.round(hyBp)}bp)과 단기 불안 비율(${ratio.toFixed(2)})은 안정 — 비관이 심리 지표에 머물러 있고 신용·변동성 스트레스로는 번지지 않았습니다.`;
   else if (fearful && (creditStress || (volKnown && !volCalm))) // v58.74 (text audit): one sentence held three nested parentheses; the mood, the spread and the volatility curve each get one.
     synthesis = [`${fearSource}로 비관 쪽입니다.`,
       creditStress ? `하이일드 스프레드도 ${Math.round(hyBp)}bp로${hy20Stress && hy20 != null ? ` 20거래일 ${signedText(hy20, 0, 'bp')},` : ''}${hy5 != null ? ` 5일 ${signedText(hy5, 0, 'bp')}` : ''} ${hyBp < RULES.credit.tightBelowBp ? `넓어졌습니다(수준은 ${RULES.credit.tightBelowBp}bp 아래).` : '스트레스 구간입니다.'}` : null,
@@ -168,7 +169,8 @@ function compositeCard(composite) {
   const shown = composite.status !== 'withheld' && spread;
   const spreadLine = shown ? `요소 간 차이${spread.gap >= SPREAD_WIDE_AT ? ' 큼' : ''}: 최저 ${spread.low.label} ${Math.round(spread.low.score)}, 최고 ${spread.high.label} ${Math.round(spread.high.score)}` : '';
   return {
-    id: 'composite', title: '공포·탐욕 구성 요소 순위 (참고)', value: shown ? `${Math.round(spread.low.score)}~${Math.round(spread.high.score)}` : '—',
+    id: 'composite', title: '공포·탐욕 구성 요소 순위 (참고)', // v59.55 (owner 11/1): a rank range ("0~94") as the big number read as nothing; the chip and the closed line say it.
+    value: shown ? '' : '—',
     basis: composite.asOf ? `${shortDate(composite.asOf)} 기준, ${composite.componentsTotal}개 중 ${composite.componentsReady}개 반영` : `${composite.componentsTotal}개 중 ${composite.componentsReady}개 반영`,
     basisStatus: shown ? 'aligned' : 'missing',
     state: shown && spread.gap >= SPREAD_WIDE_AT ? { label: '요소 간 차이 큼', tone: LEVEL_TONE } : null,
@@ -185,7 +187,7 @@ export function renderSentimentBoard({ documentRef: doc, root }) {
   const { inputs, regime } = marketInterpretation(root); // owner 2026-10-19: the shared regime, same as 시장 상태
   const model = buildSentimentModel({ ...inputs, snapshot: root.DATA_SNAPSHOT || {}, macroHistory: root._aioMacroHistory || null });
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
-  set('sentiment-basis', model.asOf ? `${shortDate(model.asOf)} 미국 종가 기준${model.mixed.length ? ', 날짜가 다른 지표는 카드에 표시' : ''}` : '기록을 불러오는 중입니다.');
+  set('sentiment-basis', model.asOf ? `${shortDate(model.asOf)} 미국 종가 기준` : '기록을 불러오는 중입니다.');
   // v58.53 개편 v2 (5d): the hero keeps the synthesis's first sentences (the rest folds) beside the F&G position bar.
   // v58.74 (text audit 시장 상태 C4): fear read the contrarian way — the bottom-watch tally the 원칙 card quotes, so a low F&G is
   // not taken as a bottom signal on its own.
@@ -257,25 +259,13 @@ function renderFearGreedGauge(doc, card) {
   const shown = Math.round(value);
   // The highlighted band is the one fearGreedBand gives the same raw value, so the bar and the card's chip always agree.
   const bandLabel = publishedFearGreedBand(value).label;
-  const bar = el(doc, 'div', null, 'mk-fg-gauge__bar');
-  bar.setAttribute('aria-hidden', 'true');
-  const legend = el(doc, 'div', null, 'mk-fg-gauge__labels');
-  labels.forEach((label, index) => {
-    const active = label === bandLabel;
-    const seg = el(doc, 'span', null, `mk-fg-gauge__seg${active ? ' is-active' : ''}`);
-    seg.style.setProperty('--w', String(edges[index + 1] - edges[index]));
-    bar.append(seg);
-    const name = el(doc, 'span', label, active ? 'is-active' : '');
-    name.style.setProperty('--w', String(edges[index + 1] - edges[index]));
-    legend.append(name);
-  });
-  const marker = el(doc, 'span', `▲ ${shown}`, 'mk-fg-gauge__marker');
-  marker.style.setProperty('--at', `${Math.max(0, Math.min(100, value))}%`);
-  const track = el(doc, 'div', null, 'mk-fg-gauge__track');
-  track.append(marker);
-  gauge.setAttribute('role', 'img');
-  gauge.setAttribute('aria-label', `공포·탐욕 지수 ${shown} — ${bandLabel} 구간 (${card.basis})`);
-  gauge.replaceChildren(bar, track, legend);
+  // v59.55 (C4): drawn by the shared SVG gauge (gauge-bar.js) — the same pin and band as the macro gauges, the five
+  // published bands named under the bar and only today's band darker.
+  const bar = gaugeBar(doc, { label: '공포·탐욕 지수', min: 0, max: 100, value: Math.max(0, Math.min(100, value)), digits: 0, unit: '', caption: false,
+    bands: labels.map((name, index) => ({ from: edges[index], to: edges[index + 1], tone: 'neutral', name, active: name === bandLabel })) });
+  bar.querySelector('svg')?.setAttribute('aria-label', `공포·탐욕 지수 ${shown} — ${bandLabel} 구간 (${card.basis})`);
+  gauge.removeAttribute('role');
+  gauge.replaceChildren(bar);
   gauge.hidden = false;
 }
 

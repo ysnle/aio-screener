@@ -33,7 +33,7 @@ const MEASURES = Object.freeze([
   // Screen audit 2026-10-20: VIX '-1.5' sat among % tiles with no unit; level changes name theirs.
   { key: 'vix', label: 'VIX', kind: 'level', digits: 1, unit: 'pt' },
   { key: 'tnx', label: '미 10년물', kind: 'bp' },
-  { key: 'dxy', label: '달러 인덱스', kind: 'pct' },
+  { key: 'dxy', label: '달러 지수', kind: 'pct' },
   { key: 'wti', label: 'WTI', kind: 'pct' },
   { key: 'breadth50', label: '50일선 위 종목', kind: 'pp' },
   { key: 'fg', label: '공포·탐욕', kind: 'level', digits: 0, unit: '점' },

@@ -18,7 +18,7 @@ function attributionOf(root, store) {
   let rows = state.screener?.rows;
   if (!Array.isArray(rows) || !rows.length) { try { rows = root?._aioGetCanonicalScreenerRows?.() || []; } catch (_) { rows = []; } }
   return { rows, krWeights: root?.[KR_INDEX_WEIGHTS.key] || null, usWeights: state.screener?.metadata?.indexWeights || null, briefs: root?.[EVENT_BRIEFS.key]?.briefs || [],
-    telegram: [...(root?.AIO_TELEGRAM_CURRENT_ITEMS || []), ...(root?.AIO_TELEGRAM_BROAD_ITEMS || [])], news: selectNewsItems(state) };
+    telegram: [...(root?.AIO_TELEGRAM_CURRENT_ITEMS || []), ...(root?.AIO_TELEGRAM_BROAD_ITEMS || [])], signals: root?.AIO_TELEGRAM_SIGNALS || [], news: selectNewsItems(state) };
 }
 
 function snapshotOf(root, store) {

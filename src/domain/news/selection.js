@@ -685,6 +685,8 @@ function applyNewsFilterOptions(rows, opts, env) {
       filtered = filtered.filter((i) => String(i.country || '').toLowerCase() === cf);
     }
   }
+  // v59.55 (owner 11/1): a channel post is not an article; its facts reach 뉴스 as the 시장 신호 card and the AI reading.
+  if (cf !== 'tg') filtered = filtered.filter((i) => !(i._tgChannel || i.tgSlug || /^TG\s/i.test(i.source || '')));
   const tf = opts.topicFilter || controls.topicFilter || 'all';
   // v57.77: 'company' (기업 chip) is the one distinct filter the retired type tabs carried — a named company is the subject.
   if (tf === 'company') filtered = filtered.filter((i) => isCompanyNews(i, env));

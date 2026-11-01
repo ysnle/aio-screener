@@ -10,7 +10,7 @@ import { signedText, directionOf } from '../../domain/shared/number.js';
 const particle = (word) => { const code = word.charCodeAt(word.length - 1) - 0xac00; return code >= 0 && code < 11172 && code % 28 ? '이' : '가'; };
 // Audit 2026-10-14: one date format on 오늘 (M/D), and the block is an h2 like its sibling sections.
 const md = (date) => { const [, m, d] = String(date || '').split('-').map(Number); return m && d ? `${m}/${d}` : String(date || ''); };
-const QUADRANT = { Leading: '선도', Improving: '개선', Weakening: '약화', Lagging: '후행', Border: '기준선 부근' };
+const QUADRANT = { Leading: '선도', Improving: '개선', Weakening: '약화', Lagging: '후행', Border: '경계' }; // v59.55: the RRG chart's word; '50일 기준선 부근' ran past the card's text edge
 const quadrantLabel = (key) => QUADRANT[key] || null;
 
 export function sectorMoves(artifact, nowMs = Date.now()) {
@@ -71,7 +71,7 @@ export function renderSectorMoves({ documentRef: doc, root, anchor = null, host 
   const focusBasis = !!previousBasis && doc.activeElement === previousBasis.querySelector('summary');
   const basis = el(doc, 'details', null, 'sector-moves-basis');
   basis.open = !!previousBasis?.open;
-  basis.append(el(doc, 'summary', '오른쪽 표시 읽는 법'), el(doc, 'p', `오른쪽 표시는 S&P 500 대비 상대강도 회전(선도·개선·약화·후행, 약 50일 기준)이며, 기준선(100) 근처는 '기준선 부근'으로 적습니다. 선도 섹터의 최근 5거래일 상대강도가 평소 5일 움직임의 2배 넘게 꺾였으면 회전 위치 대신 5일 상대 변화를 적습니다. 테마 단계는 1개월과 3~6개월 수익률로 따로 판정하므로 같은 섹터가 다르게 불릴 수 있습니다.`, 'theme-strength-basis'));
+  basis.append(el(doc, 'summary', '선도·후행 표시 읽는 법'), el(doc, 'p', `오른쪽 표시는 S&P 500 대비 상대강도 회전(선도·개선·약화·후행, 약 50일 기준)이며, 기준선(100) 근처는 '기준선 부근'으로 적습니다. 선도 섹터의 최근 5거래일 상대강도가 평소 5일 움직임의 2배 넘게 꺾였으면 회전 위치 대신 5일 상대 변화를 적습니다. 테마 단계는 1개월과 3~6개월 수익률로 따로 판정하므로 같은 섹터가 다르게 불릴 수 있습니다.`, 'theme-strength-basis'));
   (content || section).replaceChildren(head, lead, list, basis);
   section.hidden = false;
   if (focusBasis) basis.querySelector('summary')?.focus({ preventScroll: true });

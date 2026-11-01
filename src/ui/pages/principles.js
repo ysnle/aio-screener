@@ -571,7 +571,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
         }
         const lesson = lessonForNode(node.id);
         if (lesson?.route) {
-          const box = block('이어서 볼 화면');
+          const box = block('이어서 볼 곳');
           const link = element(documentRef, 'button', 'af-route');
           link.type = 'button';
           link.append(element(documentRef, 'strong', null, lesson.routeLabel || '연결 화면'), element(documentRef, 'span', null, lesson.title || ''));
