@@ -118,7 +118,7 @@ function commodities(history, macroHistory) {
   const real = macroChange(macroHistory, 'realYield10', 30); const dollar = historySpan(history, 'dxy', 21);
   const peak = gold.rows.slice(-130).reduce((best, row) => (Number(row.gold) > best.value ? { date: row.date, value: Number(row.gold) } : best), { date: '', value: -Infinity });
   const fromPeak = (gold.to / peak.value - 1) * 100;
-  const oilRead = oil.pct >= 10 ? '유가가 크게 올라 다음 달 헤드라인 물가와 소비를 동시에 누릅니다' : oil.pct <= -10 ? '유가가 크게 내려 물가 부담은 줄지만 수요 둔화 신호일 수 있습니다' : '유가는 물가 경로를 바꿀 만큼 움직이지 않았습니다';
+  const oilRead = oil.pct >= 10 ? '유가가 크게 올라 다음 달 헤드라인 물가는 밀어 올리고 소비 여력은 줄입니다' : oil.pct <= -10 ? '유가가 크게 내려 물가 부담은 줄지만 수요 둔화 신호일 수 있습니다' : '유가는 물가 경로를 바꿀 만큼 움직이지 않았습니다';
   let goldRead = '금은 실질금리·달러와 크게 어긋나지 않았습니다.';
   if (gold.pct <= -4 && real && real.bp < -5 && dollar && Math.abs(dollar.pct) < 1.5) goldRead = '금은 실질금리가 내렸고 달러도 그대로인데 빠져, 금리·달러로는 설명되지 않습니다. 많이 오른 자산부터 파는 포지션 정리일 수 있습니다(추정).';
   else if (gold.pct <= -4 && real && real.bp > 5) goldRead = '금 하락은 실질금리 상승과 같은 방향입니다.';

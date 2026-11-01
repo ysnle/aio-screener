@@ -11,6 +11,7 @@
 import { listingCurrency, listingRegion } from './fx.js';
 import { concentrationPenaltyForWeight } from './concentration.js';
 import { readNumber as finite } from '../shared/number.js';
+import { sectorLabel } from '../screener/sector-label.js';
 
 export const PORTFOLIO_CHECKS_MODEL_VERSION = 'portfolio-checks.v1';
 export const SINGLE_CURRENCY_MAX = 0.5;
@@ -50,7 +51,8 @@ export function derivePortfolioChecks({ surface = null, assetTypeOf = () => null
   const byCurrency = shares(valued.map((row) => [currencyOf(row), finite(row.value)]), invested);
   const byRegion = shares(valued.map((row) => [listingRegion(row.listingSymbol || symbolOf(row)), finite(row.value)]), invested);
   const byType = shares(valued.map((row) => [assetTypeOf(symbolOf(row)) || '미분류', finite(row.value)]), invested);
-  const bySector = shares(valued.map((row) => [sectorOf(symbolOf(row)) || row.sector || '미분류', finite(row.value)]), invested);
+  // v59.56 (screen review): the sector card printed 'Technology 38%' beside Korean labels everywhere else.
+  const bySector = shares(valued.map((row) => { const name = sectorOf(symbolOf(row)) || row.sector || ''; return [name ? sectorLabel(name) : '미분류', finite(row.value)]; }), invested);
   const top = byHolding[0];
   const topCurrency = byCurrency[0];
   const baseCurrency = String(surface?.baseCurrency || '').toUpperCase() || null;

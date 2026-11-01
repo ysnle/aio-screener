@@ -51,7 +51,9 @@ export function buildMarketSynthesis(interpretation, { page = '' } = {}) {
   if (!guide?.available) return { available: false };
   const live = guide.direction?.live || [];
   const watch = guide.direction?.watch || [];
-  const role = (index, kind) => (kind === 'watch' ? '지켜볼 갈래' : guide.tiedIds?.length ? '동률' : index === 0 && guide.leadId ? '중심' : '대안');
+  // v59.56 (screen review): a watch branch can show the same count (2/4) as the tied live ones; what keeps it out is its
+  // core condition, so the badge says so.
+  const role = (index, kind) => (kind === 'watch' ? '지켜볼 갈래 — 핵심 조건 아직' : guide.tiedIds?.length ? '동률' : index === 0 && guide.leadId ? '중심' : '대안');
   const branches = [...live.map((path, index) => ({ path, role: role(index, 'live') })), ...watch.map((path) => ({ path, role: role(0, 'watch') }))]
     .slice(0, 3).map(({ path, role: label }) => ({
       id: path.id, role: label, name: path.short, title: path.title, fit: path.fit, met: path.met, total: path.total,

@@ -9,6 +9,7 @@ import { buildChartScenarios, buildVolumeByPrice } from '../../domain/technical/
 import { formatScreenerPrice } from '../../domain/screener/market-scope.js';
 import { normalizeTickerInput } from '../../domain/entity/ticker-symbol.js';
 import { el } from './dom.js';
+import { askRow } from './ask-row.js';
 import { CHART_NOTES } from '../../domain/knowledge/theme-research-links.js';
 import { attachChartDrawings } from './stock-chart-drawings.js';
 import { attachChartCompare } from './stock-chart-compare.js';
@@ -429,6 +430,13 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
     return button;
   }));
   body.append(read, visuals, learn);
+  // v59.56: questions that start from this chart, sent to the shared AI panel.
+  const ask = askRow(doc, [
+    ['셋업 점검', `${sym} 일봉 차트의 지금 셋업(추세 템플릿, 피벗, 변동성 수축)을 읽고 돌파와 실패 조건을 설명해줘`],
+    ['손절과 목표가', `${sym} 차트의 지지·저항 레벨로 손절가와 목표가를 정하는 원칙을 설명해줘`],
+    ['지금 들어가도 되나', `${sym} 지금 가격에서 살 때와 기다릴 때의 근거를 차트와 시장 상태로 비교해줘`]
+  ], 'chart-ask');
+  if (ask) body.append(ask);
   panel.replaceChildren(body, expert);
   if (readCards) expert.append(readCards);
   if (stageVisual.childElementCount) expert.append(stageVisual);

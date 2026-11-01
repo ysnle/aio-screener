@@ -10,6 +10,7 @@ import { frameHead, frameReading, markFrame } from './section-frame.js';
 import { openRouteSection } from './page-flow.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { el } from './dom.js';
+import { askRow } from './ask-row.js';
 
 function ensure(root, artifact, rerender) {
   refreshSharedArtifact(root, artifact).then(({ changed } = {}) => { if (changed) rerender(); }).catch(() => {});
@@ -52,24 +53,15 @@ function weekList(doc, root, story) {
 }
 
 // Three questions that start from this card's own story (the shared _aioAskInPanel chips, as on the theme pages).
-function askRow(doc, story) {
-  const row = el(doc, 'div', null, 'aio-ask-row mk-story__ask');
-  row.append(el(doc, 'span', 'AI에게 묻기', 'sh-muted-text'));
+function questionRow(doc, story) {
   const fell = story.moves.ndx.pct < 0;
-  const events = story.week.filter((item) => item.kind !== 'daily').map((item) => item.title.replace(/\s*\(S&P 500 비중[^)]*\)/, '')).slice(0, 4).join(', ');
+  const events = story.week.filter((item) => item.kind !== 'daily').map((item) => item.names || item.title).slice(0, 4).join(', ');
   const questions = [
     [fell ? '왜 빠졌나' : '왜 올랐나', `최근 ${story.sessions}거래일 대형 기술주가 왜 ${fell ? '빠졌는지' : '올랐는지'} 실적 발표와 뉴스를 근거로 설명해줘`],
     ['AI 투자 흐름', '빅테크 설비투자 전망과 AI 투자 대비 수익 논쟁이 지금 어디까지 왔는지 정리해줘'],
     events ? ['다음 주 시나리오', `다음 주 ${events}의 결과별로 시장이 어떻게 반응할 수 있는지 정리해줘`] : null
   ].filter(Boolean);
-  for (const [label, question] of questions) {
-    const chip = el(doc, 'button', label, 'q-chip');
-    chip.type = 'button';
-    chip.dataset.action = '_aioAskInPanel';
-    chip.dataset.arg = question;
-    row.append(chip);
-  }
-  return row;
+  return askRow(doc, questions, 'mk-story__ask');
 }
 
 function detailFold(doc, story) {
@@ -139,7 +131,7 @@ export function renderMarketStory({ documentRef: doc, root, interpretation }) {
   const fold = detailFold(doc, story);
   if (wasOpen) fold.open = true;
   section.replaceChildren(frameHead(doc, { title: '무슨 일이 있었나', titleId: 'regime-story-title', asOf: `최근 ${story.sessions}거래일`, asOfDetail: `${story.start} 종가부터 ${story.asOf} 종가까지, 미국 정규장 기준` }),
-    grid, weekList(doc, root, story) || '', askRow(doc, story), fold);
+    grid, weekList(doc, root, story) || '', questionRow(doc, story), fold);
   markFrame(section, 'signal.story');
   doc.querySelector('#regime-watch .is-release')?.remove(); // the week list above carries the release now
   section.dataset.signature = key;

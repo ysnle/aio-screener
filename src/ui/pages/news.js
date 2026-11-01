@@ -765,6 +765,11 @@ function render({ documentRef, root, store, route }) {
       ? important.map((item, index) => createNewsCard(documentRef, root, item, index))
       : [Object.assign(documentRef.createElement('div'), { className: 'briefing-empty', textContent: '표시 기간과 선택한 조건에 맞는 중요 뉴스가 없습니다.' })]));
   }
+  // v59.56 (handoff item 3): what the window's coverage leans on — stories per topic and the live scenario each headline
+  // feeds (the cards' own rule) — above 중요 뉴스, as a lazy chunk. Channel posts never enter it.
+  const focusStories = groupNewsStories(importantModel?.eligibleItems || importantModel?.items || []).filter((item) => !item?._tgChannel)
+    .map((item) => { const shown = realTitle(root, item); return { topic: TOPIC_LABELS[item?.topic || item?.feedTopic] || '기타', chain: liveScenarioFor(root, item, shown), title: fixKoreanTerms(item?.title, shown) }; });
+  import('../components/news-focus.js').then(({ renderNewsFocus }) => renderNewsFocus({ documentRef, stories: focusStories })).catch(() => {});
   if (!root._aioEarningsSnapshot && typeof root._fetchEarningsCalendarSnapshot === 'function' && !root._aioNewsEarningsRequested) {
     root._aioNewsEarningsRequested = true;
     Promise.resolve(root._fetchEarningsCalendarSnapshot()).then((snap) => {

@@ -41,9 +41,9 @@
 .page .thp-quadrant-empty { font-size: var(--fs-base); color: var(--text-dim); }
 
 /* Theme detail: summary header */
-.page .thp-summary-title { font-size: 14px; font-weight: 900; color: var(--text-primary); }
+.page .thp-summary-title { font-size: 14px; font-weight: 700; color: var(--text-primary); }
 .page .thp-summary-meta { font-size: var(--fs-sm); font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); }
-.page .thp-summary-pct { font-size: 12px; font-family: var(--font-mono); font-weight: 900; }
+.page .thp-summary-pct { font-size: 12px; font-family: var(--font-mono); font-weight: 700; }
 .page .thp-summary-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 6px; }
 /* v59.51: the one reading under the header (one idea per line) and the expert fold that holds the analysis behind it. */
 .page .thp-reading { list-style: none; margin: 6px 0 10px; padding: 0; display: grid; gap: 4px; font-size: var(--fs-base); line-height: 1.6; color: var(--text-primary); }

@@ -24,19 +24,19 @@
 #kr-theme-perf-bars .krl-pb-fill.is-pos { left: 50%; border-radius: 0 4px 4px 0; }
 #kr-theme-perf-bars .krl-pb-fill.is-neg { right: 50%; border-radius: 4px 0 0 4px; }
 #kr-theme-perf-bars .krl-pb-mid { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: rgba(var(--ink-rgb),0.12); }
-#kr-theme-perf-bars .krl-pb-val { font-size: var(--fs-sm); font-weight: 900; font-family: var(--font-mono); text-align: right; }
+#kr-theme-perf-bars .krl-pb-val { font-size: var(--fs-sm); font-weight: 700; font-family: var(--font-mono); text-align: right; }
 
 /* Theme detail panel (#kr-theme-detail-content). The id outranks `.content table tbody tr(:hover)` and `.page table td`. */
 #kr-theme-detail-content .krl-d-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
-#kr-theme-detail-content .krl-d-title { font-size: 18px; font-weight: 900; }
+#kr-theme-detail-content .krl-d-title { font-size: 18px; font-weight: 700; }
 #kr-theme-detail-content .krl-d-sub { font-size: var(--fs-sm); color: var(--text-muted); margin-top: 2px; }
 #kr-theme-detail-content .krl-d-end { text-align: right; }
-#kr-theme-detail-content .krl-d-avg { font-size: 18px; font-weight: 900; font-family: var(--font-mono); }
+#kr-theme-detail-content .krl-d-avg { font-size: 18px; font-weight: 700; font-family: var(--font-mono); }
 #kr-theme-detail-content .krl-d-band { font-size: var(--fs-sm); font-weight: 700; }
 #kr-theme-detail-content .krl-d-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 14px; }
 #kr-theme-detail-content .krl-d-stat { background: var(--surface-2); border-radius: 4px; padding: 10px; text-align: center; border: 0.5px solid var(--surface-4); }
 #kr-theme-detail-content .krl-d-stat-l { font-size: var(--fs-sm); color: var(--text-muted); font-weight: 600; margin-bottom: 4px; }
-#kr-theme-detail-content .krl-d-stat-v { font-size: 18px; font-weight: 900; }
+#kr-theme-detail-content .krl-d-stat-v { font-size: 18px; font-weight: 700; }
 #kr-theme-detail-content .krl-d-stat-v.is-fig { font-family: var(--font-mono); }
 #kr-theme-detail-content .krl-d-stat-name { font-size: var(--fs-base); font-weight: 800; }
 #kr-theme-detail-content .krl-d-stat-pct { font-size: var(--fs-xs); }
@@ -56,7 +56,7 @@
 #kr-theme-detail-content .krl-d-c { padding: 7px 8px; }
 #kr-theme-detail-content .krl-d-c.is-name { font-size: var(--fs-base); font-weight: 700; white-space: nowrap; cursor: pointer; }
 #kr-theme-detail-content .krl-d-c.is-fig { font-size: 12px; font-weight: 800; font-family: var(--font-mono); text-align: right; }
-#kr-theme-detail-content .krl-d-c.is-heavy { font-weight: 900; }
+#kr-theme-detail-content .krl-d-c.is-heavy { font-weight: 700; }
 #kr-theme-detail-content .krl-d-c.is-ctr { text-align: center; }
 #kr-theme-detail-content .krl-d-c.is-xs { font-size: var(--fs-xs); }
 #kr-theme-detail-content .krl-d-c.is-muted { color: var(--text-muted); }
@@ -68,7 +68,7 @@
 #kr-theme-detail-content .krl-d-ask { margin-top: 14px; display: flex; gap: 6px; flex-wrap: wrap; }
 #kr-theme-detail-content .krl-d-ask-btn { padding: 6px 12px; }
 #kr-theme-detail-content .krl-deep { margin-top: 14px; padding: 14px; background: rgba(var(--ink-rgb),0.05); border: 0.5px solid rgba(var(--ink-rgb),0.15); border-radius: 4px; }
-#kr-theme-detail-content .krl-deep-t { font-size: 12px; font-weight: 900; color: var(--accent); margin-bottom: 10px; }
+#kr-theme-detail-content .krl-deep-t { font-size: 12px; font-weight: 700; color: var(--accent); margin-bottom: 10px; }
 #kr-theme-detail-content .krl-deep-p { font-size: var(--fs-sm); color: var(--text-secondary); line-height: 1.7; margin-bottom: 6px; }
 #kr-theme-detail-content .krl-deep-hr { border: none; border-top: 0.5px solid var(--surface-4); margin: 6px 0; }
 #kr-theme-detail-content .krl-stale { font-size: var(--fs-sm); font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-left: 6px; background: rgba(var(--ink-rgb),0.1); color: var(--data-cyan); border: 0.5px solid rgba(var(--ink-rgb),0.2); }

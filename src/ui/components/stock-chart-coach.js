@@ -14,6 +14,7 @@ import { el } from './dom.js';
 import { myLineFacts } from './stock-chart-drawings.js';
 import { rewardRiskFacts, RR_GUIDE } from '../../domain/technical/chart-strategies.js';
 import { signedText } from '../../domain/shared/number.js';
+import { createStorageGateway } from '../../platform/storage.js';
 
 // The domain functions the sections use, passed as one object so stock-chart.js reads them through this lazy module.
 export const tools = Object.freeze({ buildPriceLevels, checkPricePlan, SETUP_STAGES, setupLifecycle, breakoutChecklist, timeframeAlignment, pastBreakouts, pastBreakoutsText, buildEarningsSchedule });
@@ -232,11 +233,40 @@ function expertMethods(doc, levels, price) {
 const PLAN_FIELDS = Object.freeze([
   ['entry', '진입가(가정)'], ['stop', '손절가'], ['target', '목표가(선택)'], ['amount', '투입 금액(선택)'], ['capital', '전체 자본(선택)']
 ]);
-// v58.75: the plan stays in memory for this page only (UI modules do not touch browser storage — architecture
-// contract); a reload clears it, which also keeps amounts and capital off the device.
+// v59.56: entry, stop and target stay on this device through the storage gateway (same path as the drawn lines in
+// stock-chart-drawings.js), so a reload keeps the user's own prices. Amount and capital stay in memory for this page
+// only (v58.75: money figures never leave the tab). Only what the user typed or picked is written — the prefilled
+// close is never saved, or a later visit would open on a stale price.
+const PLAN_KEY = 'chart-plan-v1';
+const SAVED_FIELDS = Object.freeze(['entry', 'stop', 'target']);
+const MAX_SAVED_PLANS = 40;
+const planStorage = createStorageGateway();
 const PLANS = new Map();
-function readPlan(root, sym) { return { ...(PLANS.get(sym) || {}) }; }
-function savePlan(root, sym, plan) { PLANS.set(sym, { ...plan }); }
+function readSavedPlans() {
+  try { const all = JSON.parse(planStorage.get(PLAN_KEY, '') || 'null'); return all && typeof all === 'object' && !Array.isArray(all) ? all : {}; } catch (_) { return {}; }
+}
+function readPlan(root, sym) {
+  const saved = readSavedPlans()[sym] || {};
+  const plan = { ...(PLANS.get(sym) || {}) };
+  for (const key of SAVED_FIELDS) {
+    const value = Number(saved[key]);
+    if (plan[key] == null && saved[key] != null && Number.isFinite(value) && value > 0) plan[key] = value;
+  }
+  return plan;
+}
+function savedKeys(sym) { const saved = readSavedPlans()[sym] || {}; return SAVED_FIELDS.filter((key) => saved[key] != null); }
+// `touched` names the fields the user typed or picked (plus those saved before); other fields are not written.
+function savePlan(root, sym, plan, touched = null) {
+  PLANS.set(sym, { ...plan });
+  if (!touched) return;
+  const all = readSavedPlans();
+  const kept = Object.fromEntries(SAVED_FIELDS.filter((key) => touched.has(key) && Number.isFinite(plan[key]) && plan[key] > 0).map((key) => [key, plan[key]]));
+  delete all[sym];
+  if (Object.keys(kept).length) all[sym] = kept;
+  const names = Object.keys(all);
+  for (const name of names.slice(0, Math.max(0, names.length - MAX_SAVED_PLANS))) delete all[name];
+  planStorage.set(PLAN_KEY, JSON.stringify(all));
+}
 
 export function planFacts(result, price) {
   if (!result?.available) return [result?.reason === 'stop-equals-entry' ? '손절가가 진입가와 같아 위험 폭이 0입니다.' : '진입가와 손절가를 넣으면 계산합니다.'];
@@ -293,7 +323,7 @@ function rrGuide(doc) {
 
 function planCheck(doc, root, sym, levels, price, checkPricePlan) {
   const box = el(doc, 'div', null, 'chart-plan-check');
-  box.append(el(doc, 'h4', '내 계획 점검'), el(doc, 'p', '내가 정한 가격을 넣으면 레벨 지도와 비교한 사실만 보여 줍니다. 입력값은 이 브라우저 탭에만 잠시 남습니다.', 'theme-strength-basis'));
+  box.append(el(doc, 'h4', '내 계획 점검'), el(doc, 'p', '내가 정한 가격을 넣으면 레벨 지도와 비교한 사실만 보여 줍니다. 진입가·손절가·목표가는 이 기기에 남고, 금액과 자본은 이 탭에만 잠시 남습니다.', 'theme-strength-basis'));
   const stored = readPlan(root, sym);
   // v58.79 (chart review): a holding opened from the portfolio starts from its average cost, not today's close.
   const held = holdingCost(root, sym);
@@ -316,18 +346,20 @@ function planCheck(doc, root, sym, levels, price, checkPricePlan) {
   const out = el(doc, 'ul', null, 'chart-plan-facts');
   out.setAttribute('aria-live', 'polite');
   Object.assign(out.style, { margin: '6px 0 0', paddingLeft: '18px', fontSize: '13px', lineHeight: '1.6' });
-  const update = () => {
+  const touched = new Set(savedKeys(sym));
+  const update = (changedKey) => {
     const plan = Object.fromEntries(PLAN_FIELDS.map(([key]) => [key, inputs[key].value === '' ? null : Number(inputs[key].value)]));
-    savePlan(root, sym, plan);
+    if (changedKey) touched.add(changedKey);
+    savePlan(root, sym, plan, changedKey ? touched : null);
     out.replaceChildren(...planFacts(checkPricePlan(levels, plan), price).map((line) => el(doc, 'li', line)));
   };
-  Object.values(inputs).forEach((input) => input.addEventListener('input', update));
+  Object.entries(inputs).forEach(([key, input]) => input.addEventListener('input', () => update(key)));
   update();
   box.append(grid, out);
   // v58.79: the lines the user drew on the chart, read against the map; each can fill the stop or target field.
   const mineBox = el(doc, 'ul', null, 'chart-plan-mine');
   Object.assign(mineBox.style, { margin: '6px 0 0', paddingLeft: '18px', fontSize: '13px', lineHeight: '1.6' });
-  const fill = (key, value) => { inputs[key].value = String(value); update(); };
+  const fill = (key, value) => { inputs[key].value = String(value); update(key); };
   const renderMine = () => {
     const facts = myLineFacts(sym, levels, price);
     mineBox.hidden = !facts.length;

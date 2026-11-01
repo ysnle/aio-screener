@@ -1,0 +1,18 @@
+{
+  "version": "v59.56",
+  "date": "2026-11-01",
+  "p": {
+    "title": "투자 심리 '심리 종합' 요약이 연결 카드에 덮여 사라짐",
+    "symptom": "투자 심리 화면 맨 위 '심리 종합' 카드에 게이지만 남고 한 줄 판정이 비었으며, 화면 끝 '연결해서 보면'은 카드 배경 없이 페이지 가장자리에 붙어 그려졌다.",
+    "root_cause": "v59.55 market-synthesis.js가 카드 id를 `${page}-synthesis`로 만들었고, 투자 심리의 기존 요약 문단 id가 sentiment-synthesis였다. 렌더러가 getElementById로 그 문단을 찾아 내용을 바꾸고 이어서 볼 곳 앞으로 옮겼다.",
+    "fix": "연결 카드 id를 `mk-synth-${page}`로 바꿨다. 다른 화면에서 국면 판정의 전체 카드로 가는 링크도 새 id를 쓴다.",
+    "violated_rule": "동적으로 만드는 블록 id는 정적 셸의 기존 id와 겹치지 않는 고유 접두사를 쓴다.",
+    "prevention": "새 화면 블록 id는 컴포넌트 접두사(mk-synth-, fx-krw, news-focus)로 만들고, 추가 전 index.html·src에서 같은 id를 검색한다.",
+    "verification": "브라우저에서 #sentiment-synthesis가 hero 요약 문단(mk-sub-hero__lede)으로 남고 #mk-synth-sentiment가 별도 카드로 그려지는지 확인."
+  },
+  "r": null,
+  "changelog": [
+    "**투자 심리 요약 복구 ({P}, v59.56):** v59.55 '연결해서 보면' 카드의 id가 투자 심리 요약 문단(#sentiment-synthesis)과 같아, 요약을 비우고 화면 끝으로 옮기던 결함을 고쳤다. 카드 id는 mk-synth-<화면>이다."
+  ],
+  "note": "v59.56: 투자 심리 요약 id 충돌 수정"
+}

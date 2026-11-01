@@ -598,7 +598,8 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
 .sh-portfolio-calc-settings-row select { max-width: 100%; }
 /* v59.55 (owner 11/1): 연결해서 보면 (market-synthesis.js), the closing card of every market screen. The chain is four
    steps with drawn arrows, the branches a three-up grid with a met/total meter, the stance two columns. */
-.page .mk-synth { margin-top: 16px; }
+.page .mk-synth { margin-top: 16px; background: var(--bg-card); border-radius: 12px; padding: 20px var(--sx-card-pad-x); }
+.page .mk-synth__more { display: inline-flex; margin-top: 14px; }
 .page .mk-synth__page { margin: 0 0 6px; font-size: 14px; line-height: 1.7; color: var(--text-primary); }
 .page .mk-synth__page b { font-weight: 700; margin-right: 4px; }
 .page .mk-synth__sub { margin: 18px 0 10px; font-size: 14px; font-weight: 700; color: var(--text-primary); }
@@ -673,3 +674,26 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
 #page-macro .mx-ch__detail dd { margin: 0; font-variant-numeric: tabular-nums; }
 @media (max-width: 1023px) { #page-macro .mx-chapters__grid { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 743px) { #page-macro .mx-ch__body { grid-template-columns: minmax(0, 1fr); } }
+/* v59.56: the shared 'AI에게 묻기' row (components/ask-row.js) on screens without their own row style. */
+.page .aio-ask-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 16px; }
+/* v59.56: 금리와 환율 '원화는 왜 움직였나' and 뉴스 '뉴스가 모이는 곳' — one picture, a short read, one fold. */
+#page-fxbond .fx-krw { display: flex; flex-direction: column; gap: 10px; margin: 12px 0 16px; padding: 16px var(--sx-card-pad-x, 22px); border-radius: 14px; background: var(--sx-ink-a03, rgba(0, 0, 0, 0.03)); }
+#page-fxbond .fx-krw__title { margin: 0; font-size: 15px; font-weight: 700; color: var(--text-primary); }
+:is(#page-fxbond .fx-krw, #page-market-news .news-focus) :is(.fx-krw__body, .news-focus__body) { display: grid; grid-template-columns: minmax(220px, 300px) minmax(0, 1fr); gap: 18px; align-items: start; }
+#page-fxbond .fx-krw__viz, #page-market-news .news-focus__viz { margin: 0; display: flex; flex-direction: column; gap: 6px; }
+#page-fxbond .fx-krw__row { display: grid; grid-template-columns: 84px minmax(0, 1fr) 48px; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary); }
+:is(#page-fxbond .fx-krw__val, #page-market-news .news-focus__val) { text-align: right; font-variant-numeric: tabular-nums; color: var(--text-primary); }
+:is(#page-fxbond .fx-krw__cap, #page-market-news .news-focus__cap) { font-size: 11px; color: var(--text-muted); }
+:is(#page-fxbond .fx-krw__now, #page-market-news .news-focus__now) { margin: 0 0 6px; font-size: 14px; font-weight: 700; line-height: 1.5; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+:is(#page-fxbond .fx-krw__mean, #page-market-news .news-focus__mean) { margin: 0; font-size: 13px; line-height: 1.7; color: var(--text-primary); }
+#page-fxbond .fx-krw__more p { margin: 6px 0 0; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
+#page-market-news .news-focus__row { display: grid; grid-template-columns: 72px minmax(0, 1fr) 28px; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary); }
+#page-market-news .news-focus__track { position: relative; display: block; height: 8px; border-radius: 999px; background: rgba(var(--ink-rgb), 0.05); }
+#page-market-news .news-focus__bar { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px; background: rgba(var(--ink-rgb), 0.22); }
+#page-market-news .news-focus__bar.is-tied { background: var(--text-primary); }
+#page-market-news .news-focus__more { margin-top: 10px; }
+#page-market-news .news-focus__group-title { margin: 10px 0 4px; font-size: 13px; font-weight: 700; }
+#page-market-news .news-focus__titles { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.6; }
+#page-market-news .news-focus__check { margin: 4px 0 0; font-size: 12px; line-height: 1.55; color: var(--text-secondary); }
+@media (max-width: 743px) { :is(#page-fxbond .fx-krw__body, #page-market-news .news-focus__body) { grid-template-columns: minmax(0, 1fr); } }
+#page-market-news .news-focus { background: var(--bg-card); border-radius: 12px; padding: 20px var(--sx-card-pad-x); margin: 0 0 16px; }

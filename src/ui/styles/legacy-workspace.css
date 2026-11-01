@@ -70,7 +70,7 @@
 #page-portfolio .wsl-bt-kpis { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 8px; margin-bottom: 10px; }
 #page-portfolio .wsl-bt-kpi { background: var(--surface-2); border: 0.5px solid var(--border); border-radius: 4px; padding: 10px; }
 #page-portfolio .wsl-bt-kpi-l { font-size: var(--fs-xs); color: var(--text-muted); font-weight: 800; }
-#page-portfolio .wsl-bt-kpi-v { font-size: 18px; font-family: var(--font-mono); font-weight: 900; }
+#page-portfolio .wsl-bt-kpi-v { font-size: 18px; font-family: var(--font-mono); font-weight: 700; }
 #page-portfolio .wsl-bt-kpi-v.is-loss { color: var(--dir-down); }
 #page-portfolio .wsl-bt-kpi-v.is-plain { color: var(--text-primary); }
 #page-portfolio .wsl-bt-kpi-v.is-up { color: var(--dir-up); }

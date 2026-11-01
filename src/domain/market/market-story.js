@@ -199,18 +199,22 @@ function weekAhead({ calendar, nextEvent, story, nowMs, days = 8 }) {
   const reports = (Array.isArray(calendar?.earnings) ? calendar.earnings : [])
     .filter((row) => row?.symbol && row.date && Number(row.indexWeight) > 0 && readNumber(row.epsActual) === null && inside(row.date))
     .sort((a, b) => Number(b.indexWeight) - Number(a.indexWeight)).slice(0, 3);
-  // Reports in the same session are one line: "애플 · PLTR 실적 (S&P 500 비중 7.7%, 0.7%)".
+  // Reports in the same session are one line: "애플 7.7% · PLTR 0.7% 실적 (S&P 500 비중)" — each weight beside its name.
   const sessionsOf = new Map();
   for (const row of reports) {
     const key = `${row.date}|${row.hour || ''}`;
     if (!sessionsOf.has(key)) sessionsOf.set(key, []);
     sessionsOf.get(key).push(row);
   }
-  for (const rows of sessionsOf.values()) {
+  for (const rows of [...sessionsOf.values()].sort((a, b) => a[0].date.localeCompare(b[0].date))) {
     const { date, hour } = rows[0];
     out.push({ kind: 'earnings', date, when: `${dayLabel(date)}${SESSION_WORDS[hour] ? ` ${SESSION_WORDS[hour]}` : ''}`,
-      title: `${rows.map((row) => MOVER_BY_SYMBOL[row.symbol]?.nameKo || row.symbol).join(' · ')} 실적 (S&P 500 비중 ${rows.map((row) => `${Number(row.indexWeight).toFixed(1)}%`).join(', ')})`,
-      why: aiStory ? '대형 기술주 쏠림이 이어질지 가르는 실적입니다. 가이던스가 AI 투자 대비 수익에 대한 의문을 키우는지 줄이는지 봅니다.' : '지수 비중이 커서 결과가 지수 방향에 바로 들어옵니다.' });
+      names: rows.map((row) => MOVER_BY_SYMBOL[row.symbol]?.nameKo || row.symbol).join(' · '),
+      title: `${rows.map((row) => `${MOVER_BY_SYMBOL[row.symbol]?.nameKo || row.symbol} ${Number(row.indexWeight).toFixed(1)}%`).join(' · ')} 실적 (S&P 500 비중)`,
+      // v59.56 (screen review): two report days printed the same sentence; the later one says it continues the question.
+      why: !aiStory ? '지수 비중이 커서 결과가 지수 방향에 바로 들어옵니다.'
+        : out.some((item) => item.kind === 'earnings') ? '앞 실적에서 나온 AI 투자 대비 수익 판단이 이어지는지, 다른 회사 가이던스로 한 번 더 확인합니다.'
+          : '대형 기술주 쏠림이 이어질지 가르는 실적입니다. 가이던스가 AI 투자 대비 수익에 대한 의문을 키우는지 줄이는지 봅니다.' });
   }
   out.sort((a, b) => a.date.localeCompare(b.date));
   if (story.credit?.kind !== 'calm' && story.credit) out.push({ kind: 'daily', date: '', when: '매일', title: 'CCC · 하이일드 스프레드', why: '약한 등급부터 계속 벌어지면 주가 조정이 신용 경계로 바뀝니다.' });
