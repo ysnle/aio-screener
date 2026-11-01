@@ -1,0 +1,26 @@
+{
+ "version": "v59.56",
+ "date": "2026-11-01",
+ "p": {
+  "title": "시황 해석이 실적 요약을 입력으로 받지 않아 급락 원인을 일반 헤드라인으로만 씀",
+  "symptom": "10/30 나스닥100 -3.46%, SMH -6.98%의 원인을 'AI 수익성 회의론' 헤드라인 하나로 썼다. 같은 시각 event-briefs.json에는 인텔 -28.6%와 4분기 매출 가이던스 $15.0–16.0B, 아마존 실적과 보도된 이유가 있었고, 소유자가 북마크한 글들은 모두 이 사실부터 썼다.",
+  "root_cause": "market-narrative 프롬프트의 입력은 종가 근거·국면 판정·헤드라인·텔레그램·시간외였고, 실적 요약 레인(fetch-event-briefs)은 화면에만 연결돼 해석 생성기와 이어지지 않았다.",
+  "fix": "scripts/producer/earnings-context.mjs가 직전 미국 종가에 반응이 닫힌 실적(그날 발표 → 시가총액 상위 → 반응 크기 순, 최대 5)을 원문 수치·가이던스·보도된 이유와 함께 US_EARNINGS 블록으로 만들고, 검증 문맥과 재사용 키에 넣는다.",
+  "violated_rule": "해석은 그날 종가를 움직인 1차 원문(실적 요약)을 입력으로 받는다",
+  "prevention": "ci-event-briefs-check에 선정 순서·문장 형식·재사용 키 검사, ci-data-pipeline-contract-check에 프롬프트·검증 문맥 연결 검사를 더했다.",
+  "verification": "node scripts/ci-event-briefs-check.mjs && node scripts/ci-data-pipeline-contract-check.mjs"
+ },
+ "r": null,
+ "qa": [
+  {
+   "id": "QA-MA-EARN-01",
+   "text": "v59.56 실적 발표 다음 날 시황 해석이 큰 반응 종목의 원문 수치·가이던스와 종가 반응을 날짜와 함께 쓰고, 보도된 이유를 '보도에 따르면'으로 귀속하는지 확인.",
+   "verify_by": "manual"
+  }
+ ],
+ "qa_section": "시황 해석 입력",
+ "changelog": [
+  "**시황 해석에 실적 요약 연결 ({P}):** 시황 해석이 실적 요약을 보지 못해 10/30 급락 원인을 일반 헤드라인 하나로 썼다. 이제 직전 미국 종가에 반응이 닫힌 실적(그날 발표와 시가총액 상위 먼저)의 원문 수치·가이던스·보도된 이유가 해석 입력(US_EARNINGS)과 숫자 검증 문맥에 들어가고, 새 실적이 들어오면 해석을 다시 쓴다."
+ ],
+ "note": "v59.56 market reading reads the event briefs"
+}

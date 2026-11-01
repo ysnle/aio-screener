@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { classifyPostTickers, LIST_POST_TICKER_THRESHOLD, KR_INSTITUTIONAL_FLOW } from './lib/telegram-tickers.mjs';
 import { COMMON_WORD_ISSUER_NAMES } from '../src/domain/news/stories.js';
 import { cleanTelegramText } from './lib/telegram-text.mjs';
+import { telegramMedia, mediaClassifierText, mediaCoverage } from './lib/telegram-media.mjs';
 import { buildUniverseIndex, extractPostSignals, mergeSignals } from './lib/telegram-signals.mjs';
 
 const CHANNEL_CATALOG = [
@@ -365,7 +366,12 @@ function parsePage(html, channel) {
     const textMatch = block.match(/<div class="tgme_widget_message_text js-message_text"[^>]*>([\s\S]*?)<\/div>/);
     const text = decodeEntities(textMatch ? textMatch[1] : '');
     const date = new Date(tm[1]);
-    const classified = text ? classifyPost(text) : null;
+    // v59.56: attachments are recorded (kind, counts, document file names); a document's name joins the classifier text
+    // so a captionless broker PDF is tagged by its company and quarter instead of falling to 'media-only'.
+    const media = telegramMedia(block);
+    const docText = mediaClassifierText(media);
+    const classifyText = [text, docText].filter(Boolean).join('\n');
+    const classified = classifyText ? classifyPost(classifyText) : null;
     const tags = classified ? classified.allTags : ['media-only']; // every matched rule: the selection score below
     const roles = text ? extractTickers(text) : { tickers: [], relatedTickers: [], listTickers: [] };
     const tickers = roles.tickers;
@@ -385,6 +391,7 @@ function parsePage(html, channel) {
       score: text ? scoreItem(text, tags, [...tickers, ...roles.listTickers, ...roles.relatedTickers], signals.length > 0) : 0,
       hasText: !!text,
       text,
+      ...(media ? { media } : {}),
       ...(signals.length ? { signals } : {}),
     });
   }
@@ -485,7 +492,9 @@ for (const it of [...previousObservedPool, ...freshItems]) {
     ...(roles.listTickers ? { listTickers:roles.listTickers } : {}),
     // P1503: carried-over lineage rows have no text field by design (P715); keep their recorded hasText instead of
     // re-deriving it from an absent body, which turned every carried post into 'media only' run after run.
-    hasText: typeof it.text === 'string' || typeof it.summary === 'string' ? !!String(it.text || it.summary || '').trim() : it.hasText === true
+    hasText: typeof it.text === 'string' || typeof it.summary === 'string' ? !!String(it.text || it.summary || '').trim() : it.hasText === true,
+    // v59.56: lineage keeps the attachment kind and counts (document names stay on the summary payload only).
+    ...(it.media?.kind ? { media: { kind: it.media.kind, photoCount: Number(it.media.photoCount) || 0, videoCount: Number(it.media.videoCount) || 0, documentCount: Array.isArray(it.media.documents) ? it.media.documents.length : Number(it.media.documentCount) || 0 } } : {})
   });
 }
 const observedItems = [...observedById.values()].sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
@@ -652,13 +661,15 @@ const digest = {
     observedCount:observedItems.length,
     eligibleTextCount,
     mediaOnlyCount:observedItems.length - eligibleTextCount,
+    // v59.56: attachment counts — image and PDF bodies are not read (no OCR/vision), so this is the unread visual share.
+    ...mediaCoverage(observedItems),
     highSignalCount:observedItems.filter(it => it.score >= 65).length,
     broadSignalCount:observedItems.filter(it => it.score >= 50).length,
     selectedRawCount:selectedRawIds.size,
     selectedEligibleCount:selectedEligibleRawIds.size,
     selectedRawCoveragePct:eligibleTextCount ? Math.round(selectedEligibleRawIds.size / eligibleTextCount * 1000) / 10 : 0,
     selectedOfObservedPct:observedItems.length ? Math.round(selectedRawIds.size / observedItems.length * 1000) / 10 : 0,
-    semantics:'observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount.'
+    semantics:'observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56).'
   },
   topicCounts,
   tickerCounts,

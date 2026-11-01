@@ -10,7 +10,8 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { buildEventBriefs, fixtureSources } from './fetch-event-briefs.mjs';
-import { recentBriefs, latestBriefFor, numberTokens, verifyQuotedItems, EVENT_BRIEFS_SCHEMA } from '../src/domain/briefing/event-briefs.js';
+import { earningsContextLines, earningsContextSignature } from './producer/earnings-context.mjs';
+import { recentBriefs, latestBriefFor, numberTokens, verifyQuotedItems, unverifiedNumbers, sourceNumberSet, EVENT_BRIEFS_SCHEMA } from '../src/domain/briefing/event-briefs.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const fixtureDir = resolve(root, 'scripts/fixtures/event-briefs');
@@ -108,6 +109,22 @@ check('v59.42 selectors for 오늘 and 종목', () => {
 check('v59.42 number tokens skip quarter ordinals', () => {
   same(numberTokens('3분기 Q3 FY2026 매출 104.62조, +32%'), ['104.62', '32']);
   eq(verifyQuotedItems([{ label: 'x', value: '$1', text: '', quote: 'not here' }], 'source').kept.length, 0);
+});
+
+check('v59.56 period labels are not figures, amounts that look like years still are', () => {
+  same(numberTokens('2026년 4분기 매출 $1,315 million, Q1 2027 EPS $52.60, 3Q 2026 $65,237, 최근 12개월 $42.4 billion, 첫 9개월 $15.32 billion'), ['1315', '52.60', '65237', '42.4', '15.32']);
+  same(numberTokens('$2026 million, 2,026억 원, 2026 million units'), ['2026', '2026', '2026']);
+  const fcf = 'Free cash flow decreased to an outflow of $42.4 billion for the trailing twelve months.';
+  eq(verifyQuotedItems([{ label: '잉여현금흐름', value: 'an outflow of $42.4 billion', text: '최근 12개월 기준 유출', quote: fcf }], fcf).kept.length, 1);
+  const guide = 'Forecasting fourth-quarter 2026 gross margin of 37.1%.';
+  eq(verifyQuotedItems([{ label: '4분기 매출총이익률', value: '37.1%', text: '2026년 4분기 전망.', quote: guide }], guide).kept.length, 1);
+});
+
+check('v59.56 a Korean-unit dollar amount matches its billion form, a won amount does not', () => {
+  const numbers = sourceNumberSet('Capital expenditures of about $220 billion; operating income between $28.5 billion and $33.5 billion.');
+  same(unverifiedNumbers('현금 자본지출을 약 2,200억 달러로 예상', numbers), []);
+  same(unverifiedNumbers('영업이익 가이던스는 285억~335억 달러', numbers), []);
+  same(unverifiedNumbers('설비투자 2,200억 원', numbers), ['2200']);
 });
 
 check('v59.42 the producer does not write public-data outside Actions', () => {
@@ -343,6 +360,24 @@ sources.manifest.ai['earnings-ASML'] = sources.manifest.ai['earnings-MSFT'];
 const foreign = await buildEventBriefs({ ...base, previous: null, nowMs, earningsRows: [{ symbol: 'ASML', date: '2026-10-28' }], extended: [{ sym: 'ASML', tier: 2, extended: true, layer: 'semicap-foundry', nameKo: 'ASML', irDomains: [] }] });
 check('v59.44 a story name filing on 6-K is matched on its results 6-K only', () => {
   same(foreign.briefs.filter((row) => row.symbol === 'ASML').map((row) => [row.id, row.source?.title]), [['earnings-ASML-asml-6k-results', 'SEC 6-K EX-99.1']]);
+});
+
+// v59.56: the market reading is handed the reports whose sessions closed on its US close (the 10/30 reading never saw them).
+check('v59.56 earnings context: the close\'s own reports and leaders first, figures and reasons from the brief', () => {
+  const brief = (symbol, firstDate, latestPct, extra = {}) => ({ kind: 'earnings', symbol, nameKo: symbol, eventDate: '2026-10-29', reaction: { basis: 'close', firstDate, latestDate: '2026-10-30', latestPct, sessions: firstDate === '2026-10-30' ? 1 : 2 }, ...extra });
+  const briefs = { briefs: [
+    brief('NOW', '2026-10-29', -30.0),
+    brief('INTC', '2026-10-30', -28.6, { figures: [{ metric: 'revenue', label: '매출', value: '$16.5 billion', estimate: { surprisePct: -1.7, basis: 'provider-consensus-reference' } }], guidance: [{ label: '4분기 매출', value: '$15.0 billion to $16.0 billion' }], reasons: { points: [{ text: '다음 분기 전망이 예상에 못 미쳤다.' }] } }),
+    brief('AMZN', '2026-10-30', -1.4),
+    brief('XYZ', '2026-10-30', 2.0),
+    { ...brief('OLD', '2026-10-28', -9), reaction: { basis: 'close', firstDate: '2026-10-28', latestDate: '2026-10-29', latestPct: -9, sessions: 2 } }
+  ] };
+  const lines = earningsContextLines(briefs, '2026-10-30').split('\n');
+  same(lines.map((line) => line.slice(2, line.indexOf('('))), ['AMZN', 'INTC', 'NOW']);
+  ok(lines[1].includes('10/30 종가 -28.6%(발표 후 첫 거래일)') && lines[1].includes('매출 $16.5 billion(시장 추정 대비 -1.7%)') && lines[1].includes('4분기 매출 전망 $15.0 billion to $16.0 billion') && lines[1].includes('보도된 이유: 다음 분기'));
+  ok(lines[2].includes('발표 후 2거래일 누적'));
+  eq(earningsContextSignature(briefs, '2026-10-30'), '2026-10-30:AMZN-1,INTC-29,NOW-30');
+  eq(earningsContextLines(briefs, null), '');
 });
 
 if (failures.length) {

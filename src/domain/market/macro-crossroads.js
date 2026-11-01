@@ -256,8 +256,11 @@ export const BRANCH_NOTES = Object.freeze({
     invalidation: ['금리는 오르는데 달러가 약해지는 조합이 이어짐 — 달러 급등이 아니라 달러 신뢰 의심 국면'] },
   reflation: { checks: ['설비가동률 상승이 생산 확대·설비투자를 동반하는지, 특정 병목의 가격 급등인지'],
     invalidation: ['가동률 상승과 함께 근원 물가·임금이 넓게 가속함(물가 재가속 시나리오 쪽)'] },
-  aibust: { checks: ['토큰을 전력으로 환산한 수요 대 발표된 데이터센터 파이프라인 × 실제 전환율', '분산·혼합 세대 학습의 상용 채택과 대형 수요자의 부지·계획 축소', '금리 하락이 설비투자 삭감·주문 감소·신용 스트레스와 함께 오는지(나쁜 금리 하락)', 'AI 연계 회사채 스프레드와 공급자-고객 지분 순환 비중', '좋은 실적 뒤 업종 급락이 반복되는지'],
-    invalidation: ['토큰 단가 하락보다 사용량 증가가 빨라 총지출이 늘어남', 'AI는 성공하지만 투자가 가벼워지는 경로 — 꺾임이 아니라 하드웨어에서 소프트웨어로 주도 이동', '가격이 무너져도 남은 인프라가 생산성을 올리는 생산적 버블 경로', '제도 관성과 정책 대응이 노동 대체 속도를 늦춤'] },
+  aibust: { checks: ['토큰을 전력으로 환산한 수요 대 발표된 데이터센터 파이프라인 × 실제 전환율', '분산·혼합 세대 학습의 상용 채택과 대형 수요자의 부지·계획 축소', '금리 하락이 설비투자 삭감·주문 감소·신용 스트레스와 함께 오는지(나쁜 금리 하락)', 'AI 연계 회사채 스프레드와 공급자-고객 지분 순환 비중', '좋은 실적 뒤 업종 급락이 반복되는지',
+      // v59.56 (X bookmarks 11/01): the 10/30 authors read the drop as "who funds AI capex, on what terms" — four gauges together.
+      '네 계기판이 같은 쪽인지 — 이익 추정치 상향·하향 종목 수, 하이일드·CCC의 60거래일 분화(투자등급은 그대로인데 하위 등급만 넓어지는지), 빅테크 설비투자 ÷ 영업현금흐름, 이익 없는 상장과 상장 첫날 수익률'],
+    invalidation: ['토큰 단가 하락보다 사용량 증가가 빨라 총지출이 늘어남', 'AI는 성공하지만 투자가 가벼워지는 경로 — 꺾임이 아니라 하드웨어에서 소프트웨어로 주도 이동', '가격이 무너져도 남은 인프라가 생산성을 올리는 생산적 버블 경로', '제도 관성과 정책 대응이 노동 대체 속도를 늦춤',
+      '이익 전망 하향이 넓어지지 않고 하이일드가 안정되며 동일가중 지수가 버팀 — 강세장의 끝이 아니라 주도주가 다른 업종으로 넘어가는 중'] },
   fiscalsteep: { checks: ['국채 순발행·차환 물량 대비 증분 매수자(해외·중앙은행·가계·MMF)와 이자 상환액 ÷ 세수', '단기채 발행 비중 — 커질수록 차환 위험과 이자비용 변동성', '매파 발언 뒤 2년물이 오르고 30년물이 내리는지(곡선 관리 성공), 장기금리가 위로 뚫리는지(실패)', '해외(일본 등) 장기금리 상승과 통화 약세의 동시 진행'],
     invalidation: ['생산성 붐으로 소득이 부채 부담보다 빠르게 늘거나 재정 긴축', '장기물 수요 회복으로 기간 프리미엄 하락'] },
   volshock: { checks: ['반등이 헤지 청산·숏커버인지 넓은 참여인지 — 200일선·사건 전 수준 회복으로 지속성 확인', '지수 신고점 근처의 VIX 곡선 역전 조짐과 VIX − 3개월 VIX 차이의 기울기', 'RSI 30 아래 종목 비율이 과거 투매 바닥 수준에 닿았는지'],
@@ -538,7 +541,10 @@ export function buildMacroCrossroads({ read = null, macroHistory = null, history
   // v57.86 (live review): a branch whose conditions already test its own price gauge cannot be "confirmed" by it again.
   const tone = (item) => item.pricingInConditions && item.pricing.tone === 'same' ? '' : item.pricing.tone === 'same' ? '시장 가격도 같은 방향' : item.pricing.tone === 'against' ? '시장 가격은 반대' : item.pricing.tone === 'neutral' ? '시장 가격은 중립' : '';
   const sameFit = tied.every((item) => item.met === lead.met && item.total === lead.total);
-  const tiedText = tied.map((item) => { const extra = [sameFit ? '' : item.fit, tone(item)].filter(Boolean).join(', '); return `'${short(item)}'${extra ? `(${extra})` : ''}`; });
+  // v59.56 (text-quality audit): the headline listed a tie as 'AI 투자 꺾임'과 '유가 충격' while the cards and the market guide
+  // list it in registry order; the lead-keeping order (v57.69) decides leadId, not the order a tie is written in.
+  const registryIndex = (item) => BRANCHES.findIndex((branch) => branch.id === item.id);
+  const tiedText = [...tied].sort((a, b) => registryIndex(a) - registryIndex(b)).map((item) => { const extra = [sameFit ? '' : item.fit, tone(item)].filter(Boolean).join(', '); return `'${short(item)}'${extra ? `(${extra})` : ''}`; });
   const headline = held ? (partial ? `핵심 조건이 충족된 시나리오가 없어 중심 시나리오를 정하지 않습니다 — 조건이 가장 많이 맞는 '${short(partial)}'도 핵심 조건(${partial.gate.labels[0].split(' (')[0]})은 ${partial.gate.met === false ? '충족하지 못했습니다' : '확인할 수 없습니다'}.${nextEvent ? ` 다음 발표: ${nextEvent.when} ${nextEvent.name}.` : ''}` : '조건을 확인할 관측이 부족하거나 뚜렷하게 맞는 시나리오가 없어 판단을 보류합니다.')
     : tied.length >= 2 ? `조건 충족이 같은${sameFit ? `(${lead.met}/${lead.total})` : ''} 시나리오가 ${COUNT_WORDS[tied.length] || `${tied.length}개`}입니다 — ${tiedText.slice(0, -1).join(', ')}${andParticle(tiedText.at(-2))} ${tiedText.at(-1)}. ${nextEvent ? `${nextEvent.when} ${nextEvent.name} 발표가 ${tied.length === 2 ? '둘을' : '이 시나리오들을'} 가릅니다.` : '다음 발표가 이 시나리오들을 가릅니다.'}`
     : `지금 조건이 가장 많이 맞는 시나리오는 '${short(lead)}'(${lead.fit})입니다.${lead.pricing.tone === 'same' && !lead.pricingInConditions ? ' 시장 가격도 같은 방향입니다.' : lead.pricing.tone === 'against' ? ' 다만 시장 가격은 반대 방향입니다.' : ''}${alt ? ` 대안 시나리오: '${short(alt)}'(${alt.fit}${pricedSame(alt) ? ', 시장 가격은 이쪽' : ''}).` : ''}${nextEvent ? ` 다음 발표: ${nextEvent.when} ${nextEvent.name}.` : ''}`;

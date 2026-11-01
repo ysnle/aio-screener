@@ -339,6 +339,29 @@ export function oilCheckOf(history = [], through = null) {
   return brentWtiFromSeries({ brent: buildCloseSeries(history, 'brent', { through }), wti: buildCloseSeries(history, 'wti', { through }), pointBack: sessionPointBack });
 }
 
+// v59.56: the slower credit split — HY over 60 sessions against CCC and investment grade over the same span. Returned
+// only when HY widened RULES.credit.widen60dBp or more, or CCC widened faster than HY by RULES.credit.cccGap60dBp.
+export function creditDispersion(macroHistory, through = null) {
+  const C = RULES.credit;
+  const obs = (key) => (macroHistory?.series?.[key]?.observations || [])
+    .map((row) => ({ date: String(Array.isArray(row) ? row[0] : row?.date || '').slice(0, 10), value: finite(Array.isArray(row) ? row[1] : row?.value) }))
+    .filter((row) => row.value != null && (!through || row.date <= through));
+  const change = (key, n) => { const rows = obs(key); if (rows.length <= n) return null; const now = rows.at(-1), then = rows.at(-1 - n); return { now: now.value * 100, then: then.value * 100, from: then.date, bp: (now.value - then.value) * 100 }; };
+  const n = C.dispersionSessions;
+  const hy = change('hyOas', n), ccc = change('cccOas', n), ig = change('igOas', n);
+  if (!hy) return null;
+  const lowerRated = ccc != null && ccc.bp - hy.bp >= C.cccGap60dBp;
+  if (hy.bp < C.widen60dBp && !lowerRated) return null;
+  const md = (date) => `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}`;
+  const sign = (v) => `${v >= 0 ? '+' : ''}${Math.round(v)}bp`;
+  const parts = [`하이일드 ${sign(hy.bp)}(${Math.round(hy.then)}→${Math.round(hy.now)}bp)`];
+  if (ccc) parts.push(`CCC ${sign(ccc.bp)}`);
+  if (ig) parts.push(`투자등급 ${sign(ig.bp)}(${Math.round(ig.now)}bp)`);
+  const igCalm = ig != null && ig.bp < C.widen20dBp;
+  const text = `${n}거래일 전(${md(hy.from)})보다 ${parts.join(', ')} 넓어졌습니다 — ${igCalm ? '투자등급은 거의 그대로라 차입 의존이 큰 하위 등급부터 다시 값이 매겨지는 흐름입니다.' : '등급 전반이 함께 넓어지는 흐름입니다.'}`;
+  return { sessions: n, from: hy.from, hyBp: hy.bp, cccBp: ccc?.bp ?? null, igBp: ig?.bp ?? null, igCalm, lowerRated, text, row: parts.join(' / ') };
+}
+
 // v57.50 C01/C02/D01: one credit judgement for every surface (market-state axis, briefing, scenarios, sentiment).
 // 'favorable' = low level, not widening over 5 days or 20 sessions, no heavy hedging; 'burden' = stress level or a
 // fast 5-day widening, or (v57.81) a 20-session widening in the top of its own record (hy20Stress, with hysteresis);
@@ -589,7 +612,9 @@ export function buildMarketRead(input = {}) {
     const ddSeries = buildCloseSeries(input.history, 'distributionDays', { through: basis });
     const record = recordPercentile(ddSeries, dd);
     const common = ddSeries.length ? Math.round(ddSeries.filter((point) => point.value >= ddAt).length / ddSeries.length * 100) : null;
-    const where = record.pct == null ? '' : ` AIO 기록 ${record.n}일 중 ${record.pct}백분위${record.provisional ? '(기록 1년 미만, 잠정)' : ''}.`;
+    // v59.56 (text-quality audit): "AIO 기록 121일 중 96백분위" read as jargon; the same plain wording as the page-flow line.
+    const rankWord = record.pct == null ? '' : record.pct >= 60 ? `상위 ${Math.max(1, 100 - record.pct)}%에 드는 많은 편` : record.pct <= 40 ? `하위 ${Math.max(1, record.pct)}%에 드는 적은 편` : '중간쯤';
+    const where = record.pct == null ? '' : ` 이 사이트가 기록한 ${record.n}거래일 가운데 ${rankWord}입니다${record.provisional ? '(기록 1년 미만, 잠정)' : ''}.`;
     add('distribution-cluster', 74, `S&P 500 최근 25거래일 중 ${fmt(dd, 0)}일이 0.2% 이상 하락하면서 거래량이 늘어난 날(분배일)입니다.${where}`, 'index', {
       reading: record.pct != null && record.pct < 80 && common != null
         ? `흔히 25거래일 중 5~6회 이상을 추세 약화 신호로 보지만, AIO 기록에서는 ${common}%의 날이 ${ddAt}회 이상이라 이 숫자만으로 경고라고 단정하지 않습니다.`
@@ -956,7 +981,8 @@ export function leadershipBreakOf(s = {}, basis = null, history = null) {
   const undecided = proxyWeak && !broken && met + (confirmations.length - known) >= rule.minConfirmations;
   const proxyText = `나스닥 100 5거래일 ${signed(drop5)}${belowMa50 ? `, 50일선 대비 ${signed(pct(ndx.value, ndx.ma50))}` : ''}${proxyWeak && offHigh != null ? `, 1년 고점 대비 ${signed(offHigh)}` : ''}`;
   // v58.74 (audit): a confirmation held earlier in the window says so — "S&P 500 분배일 6일(10/19)" read as a second current count beside 5.
-  const seenText = (item) => item.date && item.date !== today.date ? `${item.value}(${shortDate(item.date)} 기록, 최근 ${rule.confirmWindowSessions ?? 5}거래일 안)` : item.value;
+  // v59.56: no parenthesis here — the summary itself is quoted inside one ("…-0.5%(10/26 기록, 최근 5거래일 안))").
+  const seenText = (item) => item.date && item.date !== today.date ? `${item.value} ${shortDate(item.date)} 기록·최근 ${rule.confirmWindowSessions ?? 5}거래일 안` : item.value;
   return { available: true, break: broken, state: broken ? 'break' : undecided ? 'unknown' : proxyWeak ? 'weak' : 'holding', proxy: 'ndx', proxyLabel: '나스닥 100',
     proxyWeak, drop5, belowMa50, offHigh, date: today.date, confirmations, met, known, need: rule.minConfirmations, window, heldSince: broken ? heldSince : null, held,
     summary: [proxyText, ...confirmations.filter((item) => item.ok).map(seenText), held ? `${shortDate(heldSince)} 이탈 판정 후 나스닥 100 약세 지속` : null].filter(Boolean).join(', ') };
@@ -1183,7 +1209,9 @@ export function buildMarketRegime(input = {}) {
     const rec200 = recordOf('breadth200', b200);
     const recordText = (rec) => rec?.pct == null ? '' : `, 기록 ${rec.n}일 중 ${rec.pct}백분위${rec.provisional ? '(잠정)' : ''}`;
     const recordRead = rec50?.pct == null ? '' : ` 50일선 위 비율 ${fmt(b50, 0)}%는 지난 ${rec50.n}거래일 중 ${rec50.pct >= 80 ? '높은 편' : rec50.pct <= 20 ? '낮은 편' : rec50.pct >= 60 ? '중간보다 조금 높은 편' : rec50.pct <= 40 ? '중간보다 조금 낮은 편' : '중간쯤'}입니다(백분위 ${rec50.pct}${rec50.provisional ? ', 기록이 1년 미만이라 잠정' : ''}).`;
-    const read = (state === 'favorable' ? '상승이 다수 종목으로 퍼져 있습니다.'
+    // v59.56 (text-quality audit): the verdict reads the 50/200-day ratios only; "상승이 다수 종목으로 퍼져" sat beside a day
+    // with 61 decliners to 14 advancers. The sentence says what it measured.
+    const read = (state === 'favorable' ? `50일선·200일선 위 종목이 모두 ${B.broadAtLeast}% 이상 — 중기 참여는 넓습니다(하루·5일 등락 종목 수는 따로 봅니다).`
       : breadthHeld ? `50일선 위 종목 비율이 ${shortDate(breadthLatch.since)}부터 ${B.weakBelow}% 아래에 머물다 ${fmt(b50, 0)}%로 올라왔지만, ${B.holdExitAt}% 위로 회복하기 전까지는 참여가 좁은 상태(부담)로 봅니다.`
       // v57.81: while the leadership break holds, the narrow tape is not "the index leaning on a few leaders" — they are falling too.
       : state === 'burden' ? (narrow && leadership.break ? `지수는 고점권(${signed(fromHigh)})이지만 ${narrowWho} 좁은 장세에서, 최근에는 주도 영역(${leadership.drop5 != null && leadership.drop5 <= -RULES.trend.leaderDrop5dPct ? `나스닥 100 5거래일 ${signed(leadership.drop5)}` : '나스닥 100 50일선 아래'})까지 밀려 소수 종목이 지수를 받치는 힘도 약해지고 있습니다.`
@@ -1261,7 +1289,9 @@ export function buildMarketRegime(input = {}) {
           : ratio == null ? 'VIX는 낮은 편이지만 3개월 VIX가 없어 기간 구조를 확인하지 못했습니다.'
             : calmLevel && rising ? `VIX ${fmt(vix.value)}는 ${V.calmBelow} 아래지만 5일 ${signed(vix5, 0)} 올라 단기 불안이 커지는 중입니다 — 양호로 보지 않습니다.`
               : calmLevel && nearEdge ? `VIX ${fmt(vix.value)}가 ${V.calmBelow} 경계에서 ${V.calmBufferPt}pt 안이고 5일 ${signed(vix5, 0)} 올라 양호로 보지 않습니다.`
-                : 'VIX 18~25 주의 구간이거나 기간 구조가 평탄합니다.';
+                // v59.56 (text-quality audit): name the reason that applies, not both.
+                : vix && vix.value >= V.calmBelow ? `VIX ${fmt(vix.value)} — ${V.calmBelow}~${V.stressAt} 주의 구간입니다${ratio < V.calmRatioBelow ? `(VIX/3개월 VIX ${fmt(ratio, 2)}, 기간 구조는 정상)` : ''}.`
+                  : `VIX ${fmt(vix.value)}는 ${V.calmBelow} 아래지만 VIX/3개월 VIX ${fmt(ratio, 2)}로 기간 구조가 평탄합니다.`;
     const flip = state === 'unknown' ? null
       : state === 'burden' ? `VIX ${V.stressAt} 미만, VIX/3개월 VIX ${V.invertedRatioAt} 미만, 5일 상승률 +${V.spike5dPct}% 미만이 모두 충족되면 중립으로 바뀜`
         : state === 'favorable' ? `VIX ${V.calmBelow - V.calmBufferPt} 이상에서 5일 상승, 5일 +${V.rise5dWatchPct}% 이상 상승, VIX ${V.calmBelow} 이상 또는 VIX/3개월 VIX ${V.calmRatioBelow} 이상이면 중립, VIX ${V.stressAt} 이상, 역전(${V.invertedRatioAt} 이상), 5일 +${V.spike5dPct}% 급등 중 하나면 부담`
@@ -1398,6 +1428,11 @@ export function buildMarketRegime(input = {}) {
         : state === 'unknown' ? staleRead('신용 스프레드', alignments.hy)
           : widening20 ? `수준(${fmt(hyBp, 0)}bp)은 ${RULES.credit.stressAtBp}bp 아래지만 20거래일 동안 ${signed(hy20, 0, 'bp')} 넓어졌습니다${hy5 != null ? `(최근 5일 ${signed(hy5, 0, 'bp')})` : ''} — 한 달째 확대라 안정으로 보지 않습니다.`
             : hy5 == null && hyBp < RULES.credit.tightBelowBp ? '스프레드 수준은 낮지만 5일 변화가 없어 방향을 확인하지 못했습니다.' : `신용은 크게 나쁘지 않지만 스프레드 수준·방향이나 풋 거래 비중이 경계선입니다(하이일드 ${fmt(hyBp, 0)}bp, 5일 ${signed(hy5, 0, 'bp')}${month}).`;
+    // v59.56 (X bookmarks 11/01): HY 326bp read 양호 on 10/30 while it sat 55bp above 60 sessions earlier, CCC had widened
+    // 300bp+ and investment grade barely moved — the split the authors read as "borrowers being repriced, not AI as a whole".
+    // The verdict rule is unchanged (owner decision pending); the read names the slower, lower-rated widening beside it.
+    const dispersion = creditDispersion(input.macroHistory, basis);
+    const dispersionText = dispersion && state !== 'burden' && state !== 'unknown' ? ` 다만 ${dispersion.text}` : '';
     const flip = state === 'unknown' ? null
       : state === 'burden' ? `하이일드 스프레드가 ${RULES.credit.stressAtBp}bp 아래이고 5일 확대가 +${RULES.credit.widen5dBp}bp 미만이며 20거래일 확대가 +${RULES.credit.widen20dBp}bp 아래로 줄면 중립, 그때 5일 확대도 멈추고 수준이 ${RULES.credit.tightBelowBp}bp 미만이면 바로 양호로 바뀜`
         : state === 'favorable' ? `하이일드 스프레드 ${RULES.credit.tightBelowBp}bp 이상, 5일 확대, 20거래일 +${RULES.credit.widen20dBp}bp 이상 확대, 풋/콜 ${RULES.credit.putCallHedgeAt} 이상 중 하나면 중립, ${RULES.credit.stressAtBp}bp 이상, 5일 +${RULES.credit.widen5dBp}bp 확대, 20거래일 확대가 자체 기록 상위 ${100 - RULES.credit.stress20dPct}% 중 하나면 부담`
@@ -1405,8 +1440,10 @@ export function buildMarketRegime(input = {}) {
     axes.push(axis('credit', '신용과 위험선호', state, [
       ['하이일드 스프레드', hyBp == null ? null : `${fmt(hyBp, 0)}bp${hy5 != null ? ` (5거래일 ${signed(hy5, 0, 'bp')}${month})` : ''}`],
       ['풋/콜 비율', pcr == null ? null : fmt(pcr)],
-      ['공포·탐욕 (참고)', c.fg == null ? null : fmt(c.fg, 0)]
-    ], read, flip, alignments.hy, [alignments.hy, alignments.pcr, alignments.fg]));
+      ['공포·탐욕 (참고)', c.fg == null ? null : fmt(c.fg, 0)],
+      ['석 달 변화 (하이일드 / CCC / 투자등급)', dispersion ? dispersion.row : null],
+    ], read + dispersionText, flip, alignments.hy, [alignments.hy, alignments.pcr, alignments.fg, alignments.hy]));
+    if (dispersion) axes[axes.length - 1].dispersion = dispersion;
     // D01: scenario checks say why a non-favorable credit state is not "안정" (widening vs a borderline level).
     axes[axes.length - 1].widening = widening20 || (hy5 != null && hy5 > 0);
     attachDistance(axes[axes.length - 1], creditDistance);

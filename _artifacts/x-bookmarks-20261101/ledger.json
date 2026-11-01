@@ -1,0 +1,397 @@
+{
+ "schemaVersion": "x-bookmark-ledger.v2",
+ "readOn": "2026-11-01",
+ "collectedFrom": "x.com/i/history (Claude in Chrome), ids above 2116139928174182778 (first id of the 10/30 read); posts via fxtwitter /2/thread with author threads; quoted posts followed up to three levels; other users' replies read on x.com status pages; every attached image opened",
+ "gradeScale": "same as _artifacts/x-bookmarks-20261030/ledger.json",
+ "rows": [
+  {
+   "id": "2116235808109986188",
+   "author": "dubidubabap",
+   "kind": "investment",
+   "postedAtUtc": "2026-10-30T18:28:29Z",
+   "replies": 11,
+   "repliesRead": true,
+   "quotes": [],
+   "quality": {
+    "data": "A",
+    "coverage": "A",
+    "logic": "A",
+    "insight": "B"
+   },
+   "repo": "partial",
+   "usedBy": [
+    "truth-leverage-gauges",
+    "credit dispersion line (v59.56)"
+   ],
+   "looksAt": "AI 인프라 투자 자금과 회수 의구심이 자산 전반으로 번지는지 — 빅테크 현금흐름과 신용시장",
+   "says": "AI 밸류에이션 조정과 차입 의존 기업의 신용 재평가가 진행 중이며 금융 시스템 위기 증거는 제한적. 주문·출하가 유지되고 신용이 안정되면 기회",
+   "dataClaims": [
+    [
+     "반도체·나스닥·금·은·BTC·VIX·업종·국채·엔",
+     "have",
+     "quotes/history: SMH, NDX, gold, silver, BTC, VIX, 11 sector ETFs, TLT, USD/JPY"
+    ],
+    [
+     "빅테크 5곳 1–9월 OCF·capex·주주환원 비율",
+     "missing",
+     "sec-fiscal-history quarters carry revenue/net income only"
+    ],
+    [
+     "HY 263→326bp, IG 89bp",
+     "have",
+     "macro-history hyOas/igOas (and bb/ccc) — not shown as a 60-session split until v59.56"
+    ],
+    [
+     "PCE 3.6%",
+     "have",
+     "macro board"
+    ],
+    [
+     "바이낸스 보안 사고",
+     "news-only",
+     ""
+    ]
+   ],
+   "structure": "자산별 관측 → 핵심 변수(현금흐름·신용) → 연결고리(차입 → 프로젝트 수익률 → 공급망 매출) → 확인할 지표 4개 → 양방향 시나리오 → 판단 기준(가격보다 실적 변화)",
+   "replyNotes": [
+    "ludixter: HY와 IG의 차이는 빚내서 짓는 쪽만 거르는 것 — 신생 클라우드 조달 금리가 선행지표",
+    "damipov: GPU 담보 가치가 견조하면 신용 안정 뒤 회복 가능",
+    "wsgbrief: 금·은·BTC 동반 하락 + 방어 업종 상승은 현금으로 도망치기"
+   ]
+  },
+  {
+   "id": "2116230300548350309",
+   "author": "NURadu_",
+   "kind": "investment",
+   "postedAtUtc": "2026-10-30T18:06:35Z",
+   "replies": 34,
+   "repliesRead": true,
+   "quality": {
+    "data": "A",
+    "coverage": "A",
+    "logic": "B",
+    "insight": "B"
+   },
+   "repo": "partial",
+   "usedBy": [
+    "US_EARNINGS reading lane (v59.56)",
+    "event-briefs number check (v59.56)"
+   ],
+   "looksAt": "같은 날 세 사건(아마존 현금, 앤스로픽 차입, 인텔 가이던스)이 하나의 돈줄 사슬인지",
+   "says": "질문이 수요의 크기에서 그 돈을 누가 대느냐로 바뀌었다",
+   "dataClaims": [
+    [
+     "AMZN capex $77B, 연간 $220B, TTM FCF -$42.4B, EPS $1.89",
+     "partial",
+     "brief had EPS; TTM FCF dropped by the number check ('12개월'), capex dropped by 억-달러 conversion — fixed v59.56"
+    ],
+    [
+     "INTC 매출·EPS·Q4 가이던스",
+     "have",
+     "event brief (SEC 8-K)"
+    ],
+    [
+     "앤스로픽 BB급 보도·KBRA BB+",
+     "missing",
+     "no rating data; headline only"
+    ],
+    [
+     "10/30 시황 원인 연결",
+     "conflict-with-output",
+     "AIO reading cited only 'AI 수익성 회의론' headline; briefs never reached the prompt — fixed v59.56"
+    ]
+   ],
+   "structure": "세 사건 → 각자의 숫자 → 연결(내부 현금 고갈 → 외부 차입 경색 → 공급망 실적) → 질문의 전환",
+   "replyNotes": [
+    "SianRN01: 인텔은 이스라엘 팹 화재·신규 라인 지연·PC 시장 등 자체 악재",
+    "rufan64: 적자 감수 증설은 대박 아이템이라는 반대 해석",
+    "prcij: 상장 전 BB+는 쇼크가 아님 — 타이틀 효과"
+   ]
+  },
+  {
+   "id": "2115846289737089247",
+   "author": "NURadu_",
+   "kind": "investment",
+   "postedAtUtc": "2026-10-29T16:40:40Z",
+   "replies": 19,
+   "repliesRead": true,
+   "quality": {
+    "data": "C",
+    "coverage": "B",
+    "logic": "B",
+    "insight": "B"
+   },
+   "repo": "reflected",
+   "usedBy": [
+    "usage-up-yield-down"
+   ],
+   "looksAt": "AI 사용량 증가가 왜 소프트웨어 주가 급락이 되는가",
+   "says": "좌석 과금이 AI에 잠식 — 과금 전환 1–2년 동안 성장·배수 하락",
+   "dataClaims": [
+    [
+     "NOW -25%",
+     "have",
+     "brief reaction -30.0% (2 sessions)"
+    ],
+    [
+     "원인 = 좌석 잠식",
+     "differs",
+     "AIO reported reasons: guidance and cRPO"
+    ]
+   ],
+   "structure": "역설 제시 → 과금 구조 → 비유 → 전환 비용 → 자금 흐름(인프라로)",
+   "replyNotes": [
+    "ludixter: FDE 팀 — 소프트웨어가 컨설팅처럼 사람을 붙여 팜",
+    "i_Drohi: 사이트 라이선스 전환",
+    "goldft: 창조적 파괴 vs 잠식"
+   ]
+  },
+  {
+   "id": "2116515796184969332",
+   "author": "sshleo84",
+   "kind": "investment",
+   "postedAtUtc": "2026-10-31T13:01:03Z",
+   "replies": 6,
+   "repliesRead": true,
+   "quality": {
+    "data": "C",
+    "coverage": "A",
+    "logic": "A",
+    "insight": "A"
+   },
+   "repo": "partial",
+   "usedBy": [
+    "leadership-handoff-criteria"
+   ],
+   "looksAt": "주도주 급락이 강세장의 끝인지 주도권 이동인지",
+   "says": "판단을 바꿀 세 조건(이익 하향 확산·HY 확대·동일가중 약세) 전까지는 성장 확산에 주목",
+   "dataClaims": [
+    [
+     "이익 전망 하향 확산",
+     "have",
+     "consensus-estimates up4w/down4w (344 up vs 227 down) and 매크로 index earnings"
+    ],
+    [
+     "HY 확대",
+     "have",
+     "credit axis (20d) + 60-session split from v59.56"
+    ],
+    [
+     "동일가중 상대 약세",
+     "have",
+     "rsp in history; market-story names it"
+    ],
+    [
+     "RSP-SPY 20년 연간 차이",
+     "partial",
+     "rsp history only since 2026"
+    ]
+   ],
+   "structure": "반증 조건 먼저 → 행동 두 가지(위험 관리·새 주도주 탐색) → 가격과 경제의 구분 → 확률적 관리",
+   "replyNotes": [
+    "afterwork2604: 업종 비중 재점검",
+    "norad1976: 희망회로라는 반론"
+   ]
+  },
+  {
+   "id": "2116358611236786369",
+   "author": "Trader_Jesse_",
+   "kind": "investment",
+   "postedAtUtc": "2026-10-31T02:36:27Z",
+   "replies": 3,
+   "repliesRead": true,
+   "quality": {
+    "data": "C",
+    "coverage": "A",
+    "logic": "A",
+    "insight": "B"
+   },
+   "repo": "reflected",
+   "usedBy": [
+    "leadership-handoff-criteria"
+   ],
+   "looksAt": "공포 글의 논리 오류",
+   "says": "가능성≠근거, 유사성≠인과, 상관≠법칙. 관찰·가설·반증을 나누고 이벤트 뒤 불확실성 해소를 고려",
+   "dataClaims": [
+    [
+     "중간선거 11/3",
+     "have",
+     "scheduled-events (11/4 KST, label 11/3)"
+    ]
+   ],
+   "structure": "오류 유형 분류 → 사례(국가 롱숏) → 이벤트 → 원칙",
+   "replyNotes": [
+    "Quantview_trade: 헤지펀드 그로스 노출 축소 — 추가 매도 여력 감소(포지션 데이터, AIO 없음)"
+   ]
+  },
+  {
+   "id": "2116345952256835942",
+   "author": "Trader_Jesse_",
+   "kind": "investment",
+   "postedAtUtc": "2026-10-31T01:46:09Z",
+   "replies": 3,
+   "repliesRead": true,
+   "quality": {
+    "data": "C",
+    "coverage": "B",
+    "logic": "B",
+    "insight": "B"
+   },
+   "repo": "partial",
+   "usedBy": [
+    "leadership-handoff-criteria"
+   ],
+   "looksAt": "과매도 국면의 페어 트레이드",
+   "says": "극단 과매도에서 하락 전환은 뒤늦은 공포 추종",
+   "dataClaims": [],
+   "structure": "주장 → 인용(10/13 평균회귀 글)",
+   "quotesRead": [
+    "2110148140334797228",
+    "2110147535579074812",
+    "2109899296825106667"
+   ]
+  },
+  {
+   "id": "2116233205116481850",
+   "author": "Trader_Jesse_",
+   "kind": "investment",
+   "postedAtUtc": "2026-10-30T18:18:08Z",
+   "replies": 1,
+   "repliesRead": true,
+   "quality": {
+    "data": "C",
+    "coverage": "A",
+    "logic": "A",
+    "insight": "A"
+   },
+   "repo": "partial",
+   "usedBy": [
+    "bottleneck-beneficiary-tiers",
+    "truth-leverage-gauges"
+   ],
+   "looksAt": "수요 → 병목 → 가격결정력 → 수주·매출·이익의 시점과 속도",
+   "says": "좋은 기업과 좋은 주식은 다르다 — 펀더멘털·밸류·매크로·수급·심리·가격을 함께",
+   "dataClaims": [
+    [
+     "한·중·일·대만 공급망 월매출·수주·생산능력",
+     "missing",
+     "AIO has US SEC + KR DART only; no Taiwan/Japan monthly sales"
+    ]
+   ],
+   "structure": "방법론 → 질문 4개 → 분석 순서",
+   "quotesRead": [
+    "2114012389226283209",
+    "2107962769333182489",
+    "2111472301153903053",
+    "2095346132889321702",
+    "2107496261494726966",
+    "2107430483282067843",
+    "2115788117668167713",
+    "2053065976393212101",
+    "2115606385849430331"
+   ]
+  },
+  {
+   "id": "2116342909259944335",
+   "author": "ysh1yo2848",
+   "kind": "investment",
+   "postedAtUtc": "2026-10-31T01:34:03Z",
+   "replies": 7,
+   "repliesRead": true,
+   "quality": {
+    "data": "B",
+    "coverage": "A",
+    "logic": "C",
+    "insight": "C"
+   },
+   "repo": "reflected",
+   "usedBy": [],
+   "looksAt": "상대강도 상위 50의 업종 이동",
+   "says": "바이오·제약·진단 최상위 — 정치 선반영 추정",
+   "dataClaims": [
+    [
+     "업종별 RS 상위 편입 수",
+     "partial",
+     "themes group strength + sector momentum map"
+    ]
+   ],
+   "structure": "이미지 한 장 + 추정"
+  },
+  {
+   "id": "2116375222479942111",
+   "author": "sustain_abund",
+   "kind": "investment",
+   "postedAtUtc": "2026-10-31T03:42:28Z",
+   "replies": 4,
+   "repliesRead": false,
+   "quality": {
+    "data": "B",
+    "coverage": "A",
+    "logic": "C",
+    "insight": "C"
+   },
+   "repo": "missing",
+   "usedBy": [],
+   "looksAt": "지수·VIX·금·BTC 가격 구간",
+   "says": "가격 구간 예측",
+   "dataClaims": [
+    [
+     "SPY 120/200일선",
+     "have",
+     "trend axis 200-day"
+    ]
+   ],
+   "structure": "번호 목록",
+   "note": "Replies not read: the Chrome extension disconnected mid-read. 120-day line not shown (AIO uses 20/50/100/200)."
+  },
+  {
+   "id": "2116593247854453244",
+   "author": "benjitaylor",
+   "kind": "agent-practice",
+   "repo": "n/a",
+   "note": "Listed in /mnt/project-files/x-bookmarks-20261101/off-topic-bookmarks.md for a separate thread"
+  },
+  {
+   "id": "2115855028737200211",
+   "author": "shuding",
+   "kind": "agent-practice",
+   "repo": "n/a",
+   "note": "Listed in /mnt/project-files/x-bookmarks-20261101/off-topic-bookmarks.md for a separate thread"
+  },
+  {
+   "id": "2116302165702783320",
+   "author": "poteto",
+   "kind": "agent-practice",
+   "repo": "n/a",
+   "note": "Listed in /mnt/project-files/x-bookmarks-20261101/off-topic-bookmarks.md for a separate thread"
+  },
+  {
+   "id": "2115864882637922809",
+   "author": "kunchenguid",
+   "kind": "agent-practice",
+   "repo": "n/a",
+   "note": "Listed in /mnt/project-files/x-bookmarks-20261101/off-topic-bookmarks.md for a separate thread"
+  },
+  {
+   "id": "2116008451923230843",
+   "author": "lucas_flatwhite",
+   "kind": "agent-practice",
+   "repo": "n/a",
+   "note": "Listed in /mnt/project-files/x-bookmarks-20261101/off-topic-bookmarks.md for a separate thread"
+  },
+  {
+   "id": "2115964949935857869",
+   "author": "minheo93698092",
+   "kind": "agent-practice",
+   "repo": "n/a",
+   "note": "Listed in /mnt/project-files/x-bookmarks-20261101/off-topic-bookmarks.md for a separate thread"
+  },
+  {
+   "id": "2116144374170235224",
+   "author": "emilkowalski",
+   "kind": "agent-practice",
+   "repo": "n/a",
+   "note": "Listed in /mnt/project-files/x-bookmarks-20261101/off-topic-bookmarks.md for a separate thread"
+  }
+ ]
+}

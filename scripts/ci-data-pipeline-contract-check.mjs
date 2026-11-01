@@ -2402,10 +2402,32 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       && nc.buildNarrativeContext({ nowMs: at }).text === '');
   check('v58.24 the market-analysis prompt carries NARRATIVE_CONTEXT with attribution, rumour and no-number rules',
     /NARRATIVE_CONTEXT \(/.test(fetchData) && /readNarrativeContext\(\{ nowMs \}\)/.test(fetchData) && /"루머" 또는 "미확인"/.test(fetchData) && /METRIC_EVIDENCE가 아니므로 쓰지 않는다/.test(fetchData)
-      // v59.25: the reuse key is the narrative signature plus the after-hours key when one exists
-      && /narrativeSignature: inputSignature/.test(fetchData) && /inputSignature = afterHoursKey \? [^\n]*narrativeContext\.signature/.test(fetchData));
+      // v59.25: the reuse key is the narrative signature plus the after-hours key when one exists; v59.56 adds the earnings key
+      && /narrativeSignature: inputSignature/.test(fetchData) && /inputSignature = \[narrativeContext\.signature[^\n]*ah:\$\{afterHoursKey\}[^\n]*er:\$\{earningsKey\}/.test(fetchData));
   check('v59.25 the market-analysis prompt carries US_AFTER_HOURS with 시간외 + ET time, and the validator context includes it',
-    /US_AFTER_HOURS \(/.test(fetchData) && /시간외·ET 시각·잠정을 같은 문장에/.test(fetchData) && /context: afterHoursLines \? /.test(fetchData));
+    /US_AFTER_HOURS \(/.test(fetchData) && /시간외·ET 시각·잠정을 같은 문장에/.test(fetchData) && /context: \[regimeContext, afterHoursLines, earningsLines\]/.test(fetchData));
+  check('v59.56 the market-analysis prompt carries US_EARNINGS from event-briefs with attribution, and the validator context includes it',
+    /US_EARNINGS \(/.test(fetchData) && /earningsContextLines\(briefsInput, earningsCloseDate\)/.test(fetchData) && /"…보도에 따르면"으로 귀속/.test(fetchData));
+}
+
+// v59.56 (owner 11/01): Telegram attachments are recorded, a document's file name is classifier text, and coverage counts
+// the posts whose image or file body is not read.
+{
+  const tm = await import('./lib/telegram-media.mjs');
+  const album = '<a class="tgme_widget_message_photo_wrap grouped_media_wrap" style="x"></a><a class="tgme_widget_message_photo_wrap grouped_media_wrap"></a><div class="tgme_widget_message_text js-message_text">차트 참고</div>';
+  const pdf = '<a class="tgme_widget_message_document_wrap" href="x"><div class="tgme_widget_message_document"><div class="tgme_widget_message_document_title accent_color" dir="auto">SK하이닉스_3Q26_Review.pdf</div><div class="tgme_widget_message_document_extra" dir="auto">1.2 MB</div></div></a>';
+  const albumMedia = tm.telegramMedia(album);
+  const pdfMedia = tm.telegramMedia(pdf);
+  check('v59.56 a Telegram album counts each photo, a PDF keeps its file name, a text-only bubble has no media',
+    albumMedia?.kind === 'photo' && albumMedia.photoCount === 2 && pdfMedia?.kind === 'document' && pdfMedia.documents[0].title === 'SK하이닉스_3Q26_Review.pdf'
+      && pdfMedia.documents[0].extra === '1.2 MB' && tm.telegramMedia('<div class="tgme_widget_message_text js-message_text">본문</div>') === null, JSON.stringify({ albumMedia, pdfMedia }));
+  check('v59.56 a document name becomes classifier text and coverage counts unread image and file posts',
+    tm.mediaClassifierText(pdfMedia) === 'SK하이닉스 3Q26 Review'
+      && JSON.stringify(tm.mediaCoverage([{ hasText: false, media: { kind: 'photo', photoCount: 1 } }, { hasText: true, media: { kind: 'document', photoCount: 0 } }, { hasText: true }]))
+        === JSON.stringify({ mediaAttachedCount: 2, photoPostCount: 1, documentPostCount: 1, imageOnlyCount: 1 }));
+  const digestSource = read('scripts/fetch-telegram-digest.mjs');
+  check('v59.56 the Telegram digest records attachments, classifies on document names and reports media coverage',
+    /const media = telegramMedia\(block\)/.test(digestSource) && /classifyPost\(classifyText\)/.test(digestSource) && /\.\.\.mediaCoverage\(observedItems\)/.test(digestSource));
 }
 
 // 2026-10-19 cadence (owner): the macro read keeps its 08:00 KST 24h cycle; micro slots end 06/12/18/24 KST, are sealed

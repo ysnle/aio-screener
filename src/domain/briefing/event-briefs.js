@@ -69,11 +69,35 @@ export function normalizeSourceText(text) {
     .replace(/ /g, ' ').replace(/\s+/g, ' ').trim();
 }
 
-/** The numeric tokens of `text` (commas removed), quarter ordinals skipped. */
+// v59.56 (X bookmarks 11/01 pipeline review): 289 items of the 59 briefs were dropped as number-not-in-source, and 129 of
+// them only for a period label — the year of a guidance line ("2026년 4분기 전망", "Q1 2027"), "3Q", or a reporting window
+// ("최근 12개월", "첫 9개월") the source writes in words ("trailing twelve months", "nine months ended"). Amazon's TTM free
+// cash flow (-$42.4B) and Intel's Q4 margin guidance were among them. A period label names when, not how much: a bare
+// year (no $, comma or decimal around it, no unit after it), nQ, and 3/6/9/12-month windows are skipped like Q3.
+const PERIOD_RE = /(?:(?<![\d,.$₩])(?:19|20)\d{2}(?![\d,.]|\s*(?:%|퍼센트|percent|bp|million|billion|trillion|억|조|만|천|백만|십억|달러|원|명|개|주|건|대|톤|kgU|lb)))|\b[1-4]Q\b|(?:최근|첫|지난|직전)\s*(?:3|6|9|12)\s*개월|(?<![\d.])(?:3|6|9|12)\s*개월(?=\s*(?:누계|기준|간|동안|합계|[$₩(,]))|\b(?:3|6|9|12)[- ]months?\b|\bTTM\b/gi;
+
+/** The numeric tokens of `text` (commas removed), quarter ordinals and period labels skipped. */
 export function numberTokens(text) {
-  const cleaned = String(text ?? '').replace(ORDINAL_RE, ' ');
+  const cleaned = String(text ?? '').replace(ORDINAL_RE, ' ').replace(PERIOD_RE, ' ');
   return [...cleaned.matchAll(NUMBER_RE)].map((m) => m[0].replace(/,/g, '').replace(/\.$/, '')).filter((token) => token !== '');
 }
+
+// v59.56: call points written in Korean units ("2,200억 달러", "285억~335억 달러") were dropped against an English source
+// ("$220 billion", "$28.5 billion"). A dollar amount in 억 or 조 also counts as its billion form (억 ÷ 10, 조 × 1,000).
+// Only when the text names 달러, so a 억원 figure is never matched against a dollar one.
+function koreanDollarForms(text) {
+  const forms = new Map();
+  const raw = String(text ?? '');
+  if (!/달러/.test(raw)) return forms;
+  for (const m of raw.matchAll(/(\d[\d,]*(?:\.\d+)?)\s*(억|조)/g)) {
+    const value = Number(m[1].replace(/,/g, ''));
+    if (!Number.isFinite(value)) continue;
+    const billion = m[2] === '억' ? value / 10 : value * 1000;
+    forms.set(m[1].replace(/,/g, ''), String(Number(billion.toFixed(3))));
+  }
+  return forms;
+}
+const hasToken = (numbers, token) => numbers.has(token) || numbers.has(token.replace(/\.0+$/, ''));
 
 /** An index of the source's numbers for repeated checks. */
 export function sourceNumberSet(sourceText) {
@@ -87,7 +111,8 @@ export function sourceNumberSet(sourceText) {
 
 /** The tokens of `text` the source does not contain. Empty = every figure is in the source. */
 export function unverifiedNumbers(text, numbers) {
-  return numberTokens(text).filter((token) => !numbers.has(token) && !numbers.has(token.replace(/\.0+$/, '')));
+  const forms = koreanDollarForms(text);
+  return numberTokens(text).filter((token) => !hasToken(numbers, token) && !(forms.has(token) && hasToken(numbers, forms.get(token))));
 }
 
 const squash = (text) => normalizeSourceText(text).toLowerCase();
@@ -130,7 +155,7 @@ export function verifyQuotedItems(items, sourceText, { textKeys = ['label', 'val
     const body = textKeys.map((key) => item?.[key]).filter((value) => typeof value === 'string').join(' ');
     if (!quote || !source.includes(squash(quote))) { dropped.push({ reason: 'quote-not-in-source', text: body.slice(0, 120) }); continue; }
     const quoteNumbers = sourceNumberSet(quote);
-    const missing = unverifiedNumbers(body, numbers).concat(numberTokens(body).filter((token) => !quoteNumbers.has(token) && !quoteNumbers.has(token.replace(/\.0+$/, ''))));
+    const missing = unverifiedNumbers(body, numbers).concat(unverifiedNumbers(body, quoteNumbers));
     if (missing.length) { dropped.push({ reason: 'number-not-in-source', numbers: [...new Set(missing)].slice(0, 6), text: body.slice(0, 120) }); continue; }
     const mismatch = quoteMeaningMismatch(body, quote);
     if (mismatch) { dropped.push({ ...mismatch, text: body.slice(0, 120) }); continue; }
