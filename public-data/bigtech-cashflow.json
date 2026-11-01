@@ -1,6 +1,6 @@
 {
  "schemaVersion": "bigtech-cashflow.v1",
- "generatedAt": "2026-11-01T17:00:00.000Z",
+ "generatedAt": "2026-11-01T18:09:41.357Z",
  "source": "SEC EDGAR companyfacts (10-Q/10-K, us-gaap)",
  "method": "분기 = 10-Q 누계(3·6·9개월)의 차이, 4분기 = 10-K 연간 − 9개월 누계. 설비투자는 현금흐름표의 유형자산 취득(총액), 잉여현금흐름 = 영업현금흐름 − 설비투자. 회사 자체 정의(매각 대금·리스 차감 등)와 다를 수 있음.",
  "unit": "USD",
@@ -10,83 +10,1245 @@
    "cik": 789019,
    "nameKo": "마이크로소프트",
    "group": "hyperscaler",
-   "status": "fetch-failed",
-   "reason": "awaiting-first-collection",
-   "quarters": []
+   "fetchedAt": "2026-11-01T18:09:41.357Z",
+   "carried": false,
+   "status": "ok",
+   "quarters": [
+    {
+     "start": "2024-10-01",
+     "end": "2024-12-31",
+     "ocf": 22291000000,
+     "capex": 15804000000,
+     "fcf": 6487000000,
+     "basis": "reported",
+     "filed": "2026-01-28",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2025-01-01",
+     "end": "2025-03-31",
+     "ocf": 37044000000,
+     "capex": 16745000000,
+     "fcf": 20299000000,
+     "basis": "reported",
+     "filed": "2026-04-29",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2025-04-01",
+     "end": "2025-06-30",
+     "ocf": 42647000000,
+     "capex": 17079000000,
+     "fcf": 25568000000,
+     "basis": "fy-minus-9m",
+     "filed": "2026-07-29",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2025-07-01",
+     "end": "2025-09-30",
+     "ocf": 45057000000,
+     "capex": 19394000000,
+     "fcf": 25663000000,
+     "basis": "reported",
+     "filed": "2026-10-28",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2025-10-01",
+     "end": "2025-12-31",
+     "ocf": 35758000000,
+     "capex": 29876000000,
+     "fcf": 5882000000,
+     "basis": "reported",
+     "filed": "2026-01-28",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2026-01-01",
+     "end": "2026-03-31",
+     "ocf": 46679000000,
+     "capex": 30876000000,
+     "fcf": 15803000000,
+     "basis": "reported",
+     "filed": "2026-04-29",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2026-04-01",
+     "end": "2026-06-30",
+     "ocf": 55441000000,
+     "capex": 35802000000,
+     "fcf": 19639000000,
+     "basis": "fy-minus-9m",
+     "filed": "2026-07-29",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2026-07-01",
+     "end": "2026-09-30",
+     "ocf": 58000000000,
+     "capex": 39367000000,
+     "fcf": 18633000000,
+     "basis": "reported",
+     "filed": "2026-10-28",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    }
+   ],
+   "ttm": {
+    "start": "2025-10-01",
+    "end": "2026-09-30",
+    "ocf": 195878000000,
+    "capex": 135921000000,
+    "fcf": 59957000000,
+    "capexToOcfPct": 69.39064111334606,
+    "filed": "2026-10-28"
+   },
+   "ttmYearAgo": {
+    "start": "2024-10-01",
+    "end": "2025-09-30",
+    "ocf": 147039000000,
+    "capex": 69022000000,
+    "fcf": 78017000000,
+    "capexToOcfPct": 46.94128768558002,
+    "filed": "2026-10-28"
+   },
+   "capexYoyPct": 96.9,
+   "latestQuarterCapexYoyPct": 103
   },
   {
    "symbol": "GOOGL",
    "cik": 1652044,
    "nameKo": "알파벳",
    "group": "hyperscaler",
-   "status": "fetch-failed",
-   "reason": "awaiting-first-collection",
-   "quarters": []
+   "fetchedAt": "2026-11-01T18:09:41.357Z",
+   "carried": false,
+   "status": "ok",
+   "quarters": [
+    {
+     "start": "2024-10-01",
+     "end": "2024-12-31",
+     "ocf": 39113000000,
+     "capex": 14276000000,
+     "fcf": 24837000000,
+     "basis": "fy-minus-9m",
+     "filed": "2026-02-05",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2025-01-01",
+     "end": "2025-03-31",
+     "ocf": 36150000000,
+     "capex": 17197000000,
+     "fcf": 18953000000,
+     "basis": "reported",
+     "filed": "2026-04-30",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2025-04-01",
+     "end": "2025-06-30",
+     "ocf": 27747000000,
+     "capex": 22446000000,
+     "fcf": 5301000000,
+     "basis": "ytd-difference",
+     "filed": "2026-07-23",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2025-07-01",
+     "end": "2025-09-30",
+     "ocf": 48414000000,
+     "capex": 23953000000,
+     "fcf": 24461000000,
+     "basis": "ytd-difference",
+     "filed": "2026-10-29",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2025-10-01",
+     "end": "2025-12-31",
+     "ocf": 52402000000,
+     "capex": 27851000000,
+     "fcf": 24551000000,
+     "basis": "fy-minus-9m",
+     "filed": "2026-10-29",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2026-01-01",
+     "end": "2026-03-31",
+     "ocf": 45790000000,
+     "capex": 35674000000,
+     "fcf": 10116000000,
+     "basis": "reported",
+     "filed": "2026-04-30",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2026-04-01",
+     "end": "2026-06-30",
+     "ocf": 39069000000,
+     "capex": 44924000000,
+     "fcf": -5855000000,
+     "basis": "ytd-difference",
+     "filed": "2026-07-23",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2026-07-01",
+     "end": "2026-09-30",
+     "ocf": 42290000000,
+     "capex": 51355000000,
+     "fcf": -9065000000,
+     "basis": "ytd-difference",
+     "filed": "2026-10-29",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    }
+   ],
+   "ttm": {
+    "start": "2025-10-01",
+    "end": "2026-09-30",
+    "ocf": 179551000000,
+    "capex": 159804000000,
+    "fcf": 19747000000,
+    "capexToOcfPct": 89.00201057081276,
+    "filed": "2026-10-29"
+   },
+   "ttmYearAgo": {
+    "start": "2024-10-01",
+    "end": "2025-09-30",
+    "ocf": 151424000000,
+    "capex": 77872000000,
+    "fcf": 73552000000,
+    "capexToOcfPct": 51.42645815722739,
+    "filed": "2026-10-29"
+   },
+   "capexYoyPct": 105.2,
+   "latestQuarterCapexYoyPct": 114.4
   },
   {
    "symbol": "AMZN",
    "cik": 1018724,
    "nameKo": "아마존",
    "group": "hyperscaler",
-   "status": "fetch-failed",
-   "reason": "awaiting-first-collection",
-   "quarters": []
+   "fetchedAt": "2026-11-01T18:09:41.357Z",
+   "carried": false,
+   "status": "ok",
+   "quarters": [
+    {
+     "start": "2024-10-01",
+     "end": "2024-12-31",
+     "ocf": 45636000000,
+     "capex": 27834000000,
+     "fcf": 17802000000,
+     "basis": "fy-minus-9m",
+     "filed": "2026-02-06",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquireProductiveAssets"
+     }
+    },
+    {
+     "start": "2025-01-01",
+     "end": "2025-03-31",
+     "ocf": 17015000000,
+     "capex": 25019000000,
+     "fcf": -8004000000,
+     "basis": "reported",
+     "filed": "2026-04-30",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquireProductiveAssets"
+     }
+    },
+    {
+     "start": "2025-04-01",
+     "end": "2025-06-30",
+     "ocf": 32515000000,
+     "capex": 32183000000,
+     "fcf": 332000000,
+     "basis": "reported",
+     "filed": "2026-07-31",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquireProductiveAssets"
+     }
+    },
+    {
+     "start": "2025-07-01",
+     "end": "2025-09-30",
+     "ocf": 35525000000,
+     "capex": 35095000000,
+     "fcf": 430000000,
+     "basis": "reported",
+     "filed": "2026-10-30",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquireProductiveAssets"
+     }
+    },
+    {
+     "start": "2025-10-01",
+     "end": "2025-12-31",
+     "ocf": 54459000000,
+     "capex": 39522000000,
+     "fcf": 14937000000,
+     "basis": "fy-minus-9m",
+     "filed": "2026-10-30",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquireProductiveAssets"
+     }
+    },
+    {
+     "start": "2026-01-01",
+     "end": "2026-03-31",
+     "ocf": 26032000000,
+     "capex": 44203000000,
+     "fcf": -18171000000,
+     "basis": "reported",
+     "filed": "2026-04-30",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquireProductiveAssets"
+     }
+    },
+    {
+     "start": "2026-04-01",
+     "end": "2026-06-30",
+     "ocf": 45387000000,
+     "capex": 54208000000,
+     "fcf": -8821000000,
+     "basis": "reported",
+     "filed": "2026-07-31",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquireProductiveAssets"
+     }
+    },
+    {
+     "start": "2026-07-01",
+     "end": "2026-09-30",
+     "ocf": 42422000000,
+     "capex": 77259000000,
+     "fcf": -34837000000,
+     "basis": "reported",
+     "filed": "2026-10-30",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquireProductiveAssets"
+     }
+    }
+   ],
+   "ttm": {
+    "start": "2025-10-01",
+    "end": "2026-09-30",
+    "ocf": 168300000000,
+    "capex": 215192000000,
+    "fcf": -46892000000,
+    "capexToOcfPct": 127.86215092097446,
+    "filed": "2026-10-30"
+   },
+   "ttmYearAgo": {
+    "start": "2024-10-01",
+    "end": "2025-09-30",
+    "ocf": 130691000000,
+    "capex": 120131000000,
+    "fcf": 10560000000,
+    "capexToOcfPct": 91.91987206464103,
+    "filed": "2026-10-30"
+   },
+   "capexYoyPct": 79.1,
+   "latestQuarterCapexYoyPct": 120.1
   },
   {
    "symbol": "META",
    "cik": 1326801,
    "nameKo": "메타",
    "group": "hyperscaler",
-   "status": "fetch-failed",
-   "reason": "awaiting-first-collection",
-   "quarters": []
+   "fetchedAt": "2026-11-01T18:09:41.357Z",
+   "carried": false,
+   "status": "ok",
+   "quarters": [
+    {
+     "start": "2024-10-01",
+     "end": "2024-12-31",
+     "ocf": 27988000000,
+     "capex": 14425000000,
+     "fcf": 13563000000,
+     "basis": "fy-minus-9m",
+     "filed": "2026-01-29",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2025-01-01",
+     "end": "2025-03-31",
+     "ocf": 24026000000,
+     "capex": 12941000000,
+     "fcf": 11085000000,
+     "basis": "reported",
+     "filed": "2026-04-30",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2025-04-01",
+     "end": "2025-06-30",
+     "ocf": 25561000000,
+     "capex": 16538000000,
+     "fcf": 9023000000,
+     "basis": "ytd-difference",
+     "filed": "2026-07-30",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2025-07-01",
+     "end": "2025-09-30",
+     "ocf": 29999000000,
+     "capex": 18829000000,
+     "fcf": 11170000000,
+     "basis": "ytd-difference",
+     "filed": "2026-10-22",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2025-10-01",
+     "end": "2025-12-31",
+     "ocf": 36214000000,
+     "capex": 21383000000,
+     "fcf": 14831000000,
+     "basis": "fy-minus-9m",
+     "filed": "2026-10-22",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2026-01-01",
+     "end": "2026-03-31",
+     "ocf": 32226000000,
+     "capex": 18997000000,
+     "fcf": 13229000000,
+     "basis": "reported",
+     "filed": "2026-04-30",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2026-04-01",
+     "end": "2026-06-30",
+     "ocf": 31862000000,
+     "capex": 30116000000,
+     "fcf": 1746000000,
+     "basis": "ytd-difference",
+     "filed": "2026-07-30",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2026-07-01",
+     "end": "2026-09-30",
+     "ocf": 32785000000,
+     "capex": 33942000000,
+     "fcf": -1157000000,
+     "basis": "ytd-difference",
+     "filed": "2026-10-22",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    }
+   ],
+   "ttm": {
+    "start": "2025-10-01",
+    "end": "2026-09-30",
+    "ocf": 133087000000,
+    "capex": 104438000000,
+    "fcf": 28649000000,
+    "capexToOcfPct": 78.47347975384523,
+    "filed": "2026-10-22"
+   },
+   "ttmYearAgo": {
+    "start": "2024-10-01",
+    "end": "2025-09-30",
+    "ocf": 107574000000,
+    "capex": 62733000000,
+    "fcf": 44841000000,
+    "capexToOcfPct": 58.316135869262084,
+    "filed": "2026-10-22"
+   },
+   "capexYoyPct": 66.5,
+   "latestQuarterCapexYoyPct": 80.3
   },
   {
    "symbol": "ORCL",
    "cik": 1341439,
    "nameKo": "오라클",
    "group": "hyperscaler",
-   "status": "fetch-failed",
-   "reason": "awaiting-first-collection",
-   "quarters": []
+   "fetchedAt": "2026-11-01T18:09:41.357Z",
+   "carried": false,
+   "status": "ok",
+   "quarters": [
+    {
+     "start": "2024-09-01",
+     "end": "2024-11-30",
+     "ocf": 1304000000,
+     "capex": 3970000000,
+     "fcf": -2666000000,
+     "basis": "ytd-difference",
+     "filed": "2025-12-11",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2024-12-01",
+     "end": "2025-02-28",
+     "ocf": 5933000000,
+     "capex": 5862000000,
+     "fcf": 71000000,
+     "basis": "ytd-difference",
+     "filed": "2026-03-11",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2025-03-01",
+     "end": "2025-05-31",
+     "ocf": 6157000000,
+     "capex": 9080000000,
+     "fcf": -2923000000,
+     "basis": "fy-minus-9m",
+     "filed": "2026-06-22",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2025-06-01",
+     "end": "2025-08-31",
+     "ocf": 8140000000,
+     "capex": 8502000000,
+     "fcf": -362000000,
+     "basis": "reported",
+     "filed": "2026-09-11",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2025-09-01",
+     "end": "2025-11-30",
+     "ocf": 2066000000,
+     "capex": 12033000000,
+     "fcf": -9967000000,
+     "basis": "ytd-difference",
+     "filed": "2026-09-11",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2025-12-01",
+     "end": "2026-02-28",
+     "ocf": 7151000000,
+     "capex": 18635000000,
+     "fcf": -11484000000,
+     "basis": "ytd-difference",
+     "filed": "2026-03-11",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2026-03-01",
+     "end": "2026-05-31",
+     "ocf": 14620000000,
+     "capex": 16493000000,
+     "fcf": -1873000000,
+     "basis": "fy-minus-9m",
+     "filed": "2026-06-22",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2026-06-01",
+     "end": "2026-08-31",
+     "ocf": 23103000000,
+     "capex": 28499000000,
+     "fcf": -5396000000,
+     "basis": "reported",
+     "filed": "2026-09-11",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    }
+   ],
+   "ttm": {
+    "start": "2025-09-01",
+    "end": "2026-08-31",
+    "ocf": 46940000000,
+    "capex": 75660000000,
+    "fcf": -28720000000,
+    "capexToOcfPct": 161.1844908393694,
+    "filed": "2026-09-11"
+   },
+   "ttmYearAgo": {
+    "start": "2024-09-01",
+    "end": "2025-08-31",
+    "ocf": 21534000000,
+    "capex": 27414000000,
+    "fcf": -5880000000,
+    "capexToOcfPct": 127.30565617163556,
+    "filed": "2026-09-11"
+   },
+   "capexYoyPct": 176,
+   "latestQuarterCapexYoyPct": 235.2
   },
   {
    "symbol": "AAPL",
    "cik": 320193,
    "nameKo": "애플",
    "group": "other",
-   "status": "fetch-failed",
-   "reason": "awaiting-first-collection",
-   "quarters": []
+   "fetchedAt": "2026-11-01T18:09:41.357Z",
+   "carried": false,
+   "status": "ok",
+   "quarters": [
+    {
+     "start": "2024-06-30",
+     "end": "2024-09-28",
+     "ocf": 26811000000,
+     "capex": 2908000000,
+     "fcf": 23903000000,
+     "basis": "fy-minus-9m",
+     "filed": "2025-10-31",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2024-09-29",
+     "end": "2024-12-28",
+     "ocf": 29935000000,
+     "capex": 2940000000,
+     "fcf": 26995000000,
+     "basis": "reported",
+     "filed": "2026-01-30",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2024-12-29",
+     "end": "2025-03-29",
+     "ocf": 23952000000,
+     "capex": 3071000000,
+     "fcf": 20881000000,
+     "basis": "ytd-difference",
+     "filed": "2026-05-01",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2025-03-30",
+     "end": "2025-06-28",
+     "ocf": 27867000000,
+     "capex": 3462000000,
+     "fcf": 24405000000,
+     "basis": "ytd-difference",
+     "filed": "2026-07-31",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2025-06-29",
+     "end": "2025-09-27",
+     "ocf": 29728000000,
+     "capex": 3242000000,
+     "fcf": 26486000000,
+     "basis": "fy-minus-9m",
+     "filed": "2026-07-31",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2025-09-28",
+     "end": "2025-12-27",
+     "ocf": 53925000000,
+     "capex": 2373000000,
+     "fcf": 51552000000,
+     "basis": "reported",
+     "filed": "2026-01-30",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2025-12-28",
+     "end": "2026-03-28",
+     "ocf": 28702000000,
+     "capex": 1971000000,
+     "fcf": 26731000000,
+     "basis": "ytd-difference",
+     "filed": "2026-05-01",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2026-03-29",
+     "end": "2026-06-27",
+     "ocf": 34369000000,
+     "capex": 2455000000,
+     "fcf": 31914000000,
+     "basis": "ytd-difference",
+     "filed": "2026-07-31",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    }
+   ],
+   "ttm": {
+    "start": "2025-06-29",
+    "end": "2026-06-27",
+    "ocf": 146724000000,
+    "capex": 10041000000,
+    "fcf": 136683000000,
+    "capexToOcfPct": 6.843461192442954,
+    "filed": "2026-07-31"
+   },
+   "ttmYearAgo": {
+    "start": "2024-06-30",
+    "end": "2025-06-28",
+    "ocf": 108565000000,
+    "capex": 12381000000,
+    "fcf": 96184000000,
+    "capexToOcfPct": 11.40422788191406,
+    "filed": "2026-07-31"
+   },
+   "capexYoyPct": -18.9,
+   "latestQuarterCapexYoyPct": -29.1
   },
   {
    "symbol": "NVDA",
    "cik": 1045810,
    "nameKo": "엔비디아",
    "group": "other",
-   "status": "fetch-failed",
-   "reason": "awaiting-first-collection",
-   "quarters": []
+   "fetchedAt": "2026-11-01T18:09:41.357Z",
+   "carried": false,
+   "status": "ok",
+   "quarters": [
+    {
+     "start": "2024-07-29",
+     "end": "2024-10-27",
+     "ocf": 17627000000,
+     "capex": 813000000,
+     "fcf": 16814000000,
+     "basis": "ytd-difference",
+     "filed": "2025-11-19",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquireProductiveAssets"
+     }
+    },
+    {
+     "start": "2024-10-28",
+     "end": "2025-01-26",
+     "ocf": 16629000000,
+     "capex": 1077000000,
+     "fcf": 15552000000,
+     "basis": "fy-minus-9m",
+     "filed": "2026-02-25",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquireProductiveAssets"
+     }
+    },
+    {
+     "start": "2025-01-27",
+     "end": "2025-04-27",
+     "ocf": 27414000000,
+     "capex": 1227000000,
+     "fcf": 26187000000,
+     "basis": "reported",
+     "filed": "2026-05-20",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquireProductiveAssets"
+     }
+    },
+    {
+     "start": "2025-04-28",
+     "end": "2025-07-27",
+     "ocf": 15365000000,
+     "capex": 1895000000,
+     "fcf": 13470000000,
+     "basis": "ytd-difference",
+     "filed": "2026-08-26",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquireProductiveAssets"
+     }
+    },
+    {
+     "start": "2025-07-28",
+     "end": "2025-10-26",
+     "ocf": 23751000000,
+     "capex": 1636000000,
+     "fcf": 22115000000,
+     "basis": "ytd-difference",
+     "filed": "2026-08-26",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquireProductiveAssets"
+     }
+    },
+    {
+     "start": "2025-10-27",
+     "end": "2026-01-25",
+     "ocf": 36188000000,
+     "capex": 1284000000,
+     "fcf": 34904000000,
+     "basis": "fy-minus-9m",
+     "filed": "2026-02-25",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquireProductiveAssets"
+     }
+    },
+    {
+     "start": "2026-01-26",
+     "end": "2026-04-26",
+     "ocf": 50344000000,
+     "capex": 1757000000,
+     "fcf": 48587000000,
+     "basis": "reported",
+     "filed": "2026-05-20",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquireProductiveAssets"
+     }
+    },
+    {
+     "start": "2026-04-27",
+     "end": "2026-07-26",
+     "ocf": 24077000000,
+     "capex": 2677000000,
+     "fcf": 21400000000,
+     "basis": "ytd-difference",
+     "filed": "2026-08-26",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquireProductiveAssets"
+     }
+    }
+   ],
+   "ttm": {
+    "start": "2025-07-28",
+    "end": "2026-07-26",
+    "ocf": 134360000000,
+    "capex": 7354000000,
+    "fcf": 127006000000,
+    "capexToOcfPct": 5.473355165227747,
+    "filed": "2026-08-26"
+   },
+   "ttmYearAgo": {
+    "start": "2024-07-29",
+    "end": "2025-07-27",
+    "ocf": 77035000000,
+    "capex": 5012000000,
+    "fcf": 72023000000,
+    "capexToOcfPct": 6.506133575647432,
+    "filed": "2026-08-26"
+   },
+   "capexYoyPct": 46.7,
+   "latestQuarterCapexYoyPct": 41.3
   },
   {
    "symbol": "AVGO",
    "cik": 1730168,
    "nameKo": "브로드컴",
    "group": "other",
-   "status": "fetch-failed",
-   "reason": "awaiting-first-collection",
-   "quarters": []
+   "fetchedAt": "2026-11-01T18:09:41.357Z",
+   "carried": false,
+   "status": "ok",
+   "quarters": [
+    {
+     "start": "2024-08-05",
+     "end": "2024-11-03",
+     "ocf": 5604000000,
+     "capex": 122000000,
+     "fcf": 5482000000,
+     "basis": "fy-minus-9m",
+     "filed": "2025-12-18",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2024-11-04",
+     "end": "2025-02-02",
+     "ocf": 6113000000,
+     "capex": 100000000,
+     "fcf": 6013000000,
+     "basis": "reported",
+     "filed": "2026-03-11",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2025-02-03",
+     "end": "2025-05-04",
+     "ocf": 6555000000,
+     "capex": 144000000,
+     "fcf": 6411000000,
+     "basis": "ytd-difference",
+     "filed": "2026-06-09",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2025-05-05",
+     "end": "2025-08-03",
+     "ocf": 7166000000,
+     "capex": 142000000,
+     "fcf": 7024000000,
+     "basis": "ytd-difference",
+     "filed": "2026-09-10",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2025-08-04",
+     "end": "2025-11-02",
+     "ocf": 7703000000,
+     "capex": 237000000,
+     "fcf": 7466000000,
+     "basis": "fy-minus-9m",
+     "filed": "2026-09-10",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2025-11-03",
+     "end": "2026-02-01",
+     "ocf": 8260000000,
+     "capex": 250000000,
+     "fcf": 8010000000,
+     "basis": "reported",
+     "filed": "2026-03-11",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2026-02-02",
+     "end": "2026-05-03",
+     "ocf": 10493000000,
+     "capex": 231000000,
+     "fcf": 10262000000,
+     "basis": "ytd-difference",
+     "filed": "2026-06-09",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2026-05-04",
+     "end": "2026-08-02",
+     "ocf": 14197000000,
+     "capex": 532000000,
+     "fcf": 13665000000,
+     "basis": "ytd-difference",
+     "filed": "2026-09-10",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    }
+   ],
+   "ttm": {
+    "start": "2025-08-04",
+    "end": "2026-08-02",
+    "ocf": 40653000000,
+    "capex": 1250000000,
+    "fcf": 39403000000,
+    "capexToOcfPct": 3.0748038275158045,
+    "filed": "2026-09-10"
+   },
+   "ttmYearAgo": {
+    "start": "2024-08-05",
+    "end": "2025-08-03",
+    "ocf": 25438000000,
+    "capex": 508000000,
+    "fcf": 24930000000,
+    "capexToOcfPct": 1.9970123437377152,
+    "filed": "2026-09-10"
+   },
+   "capexYoyPct": 146.1,
+   "latestQuarterCapexYoyPct": 274.6
   },
   {
    "symbol": "TSLA",
    "cik": 1318605,
    "nameKo": "테슬라",
    "group": "other",
-   "status": "fetch-failed",
-   "reason": "awaiting-first-collection",
-   "quarters": []
+   "fetchedAt": "2026-11-01T18:09:41.357Z",
+   "carried": false,
+   "status": "ok",
+   "quarters": [
+    {
+     "start": "2024-10-01",
+     "end": "2024-12-31",
+     "ocf": 4814000000,
+     "capex": 2780000000,
+     "fcf": 2034000000,
+     "basis": "fy-minus-9m",
+     "filed": "2026-01-29",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2025-01-01",
+     "end": "2025-03-31",
+     "ocf": 2156000000,
+     "capex": 1492000000,
+     "fcf": 664000000,
+     "basis": "reported",
+     "filed": "2026-04-23",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2025-04-01",
+     "end": "2025-06-30",
+     "ocf": 2540000000,
+     "capex": 2394000000,
+     "fcf": 146000000,
+     "basis": "ytd-difference",
+     "filed": "2026-07-23",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2025-07-01",
+     "end": "2025-09-30",
+     "ocf": 6238000000,
+     "capex": 2248000000,
+     "fcf": 3990000000,
+     "basis": "ytd-difference",
+     "filed": "2026-10-22",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2025-10-01",
+     "end": "2025-12-31",
+     "ocf": 3813000000,
+     "capex": 2393000000,
+     "fcf": 1420000000,
+     "basis": "fy-minus-9m",
+     "filed": "2026-10-22",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2026-01-01",
+     "end": "2026-03-31",
+     "ocf": 3937000000,
+     "capex": 2493000000,
+     "fcf": 1444000000,
+     "basis": "reported",
+     "filed": "2026-04-23",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2026-04-01",
+     "end": "2026-06-30",
+     "ocf": 4697000000,
+     "capex": 5789000000,
+     "fcf": -1092000000,
+     "basis": "ytd-difference",
+     "filed": "2026-07-23",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    },
+    {
+     "start": "2026-07-01",
+     "end": "2026-09-30",
+     "ocf": 6263000000,
+     "capex": 4732000000,
+     "fcf": 1531000000,
+     "basis": "ytd-difference",
+     "filed": "2026-10-22",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
+    }
+   ],
+   "ttm": {
+    "start": "2025-10-01",
+    "end": "2026-09-30",
+    "ocf": 18710000000,
+    "capex": 15407000000,
+    "fcf": 3303000000,
+    "capexToOcfPct": 82.34633885622662,
+    "filed": "2026-10-22"
+   },
+   "ttmYearAgo": {
+    "start": "2024-10-01",
+    "end": "2025-09-30",
+    "ocf": 15748000000,
+    "capex": 8914000000,
+    "fcf": 6834000000,
+    "capexToOcfPct": 56.604013208026416,
+    "filed": "2026-10-22"
+   },
+   "capexYoyPct": 72.8,
+   "latestQuarterCapexYoyPct": 110.5
   }
  ],
- "hyperscalers": null,
- "summary": ""
+ "hyperscalers": {
+  "members": [
+   "MSFT",
+   "GOOGL",
+   "AMZN",
+   "META",
+   "ORCL"
+  ],
+  "missing": [],
+  "complete": true,
+  "ends": {
+   "MSFT": "2026-09-30",
+   "GOOGL": "2026-09-30",
+   "AMZN": "2026-09-30",
+   "META": "2026-09-30",
+   "ORCL": "2026-08-31"
+  },
+  "ocf": 723756000000,
+  "capex": 691015000000,
+  "fcf": 32741000000,
+  "capexToOcfPct": 95.5,
+  "yearAgo": {
+   "ocf": 558262000000,
+   "capex": 357172000000,
+   "fcf": 201090000000,
+   "capexToOcfPct": 64
+  },
+  "capexYoyPct": 93.5
+ },
+ "summary": "빅테크 5개사(MSFT·GOOGL·AMZN·META·ORCL) 최근 4분기 합계 설비투자 $691.0B ÷ 영업현금흐름 $723.8B = 95.5%, 잉여현금흐름 $32.7B — 1년 전 64%, 설비투자 +93.5%"
 }
