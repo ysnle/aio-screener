@@ -9,6 +9,7 @@
 // The base rate is said out loud: since 1990 the S&P 500 was higher 21 sessions later on about two days in three, so
 // "no lean" still leaves the long-run upward drift, and a burden-heavy tape shifts that drift rather than reversing it.
 import { stressBandOf } from '../signal/stress-outcomes.js';
+import { withTopicParticle } from '../content/korean-particle.js';
 import { CHOICES } from './macro-crossroads.js';
 
 export const MARKET_LEAN_VERSION = 'market-lean.v1';
@@ -18,7 +19,7 @@ export const LEAN_LABELS = Object.freeze({ 2: '매수 우위', 1: '약한 매수
 const round = (value) => Math.round(value);
 
 /** One historical-frequency item: rate vs base, sample gate, and whether it may vote. */
-export function frequencyEvidence({ id, label, condition, rate, base, n, unit = '회' }) {
+export function frequencyEvidence({ id, label, condition, rate, base, n, unit = '회', sampleNote = '' }) {
   if (!Number.isFinite(n) || n <= 0 || !Number.isFinite(base)) return null;
   // Floored: an effective count of 9.9 is under the 10-case line, not rounded up to it.
   const sampleN = Math.floor(n);
@@ -34,7 +35,7 @@ export function frequencyEvidence({ id, label, condition, rate, base, n, unit = 
   const tail = vote ? (edge > 0 ? ' — 평소보다 상승 쪽' : ' — 평소보다 하락 쪽')
     : voting ? ` — 차이 ${Math.abs(round(edge))}%p가 ${threshold > LEAN_RULES.seMultiple * se ? `최소 기준 ${LEAN_RULES.minEdgePp}%p` : `표본 오차 범위(약 ±${round(LEAN_RULES.seMultiple * se)}%p)`}보다 작아 평소와 구분되지 않음` : ' — 표본이 작아 참고만';
   return { id, label, kind: 'frequency', vote, small: !voting, rate: round(rate), base: round(base), n: sampleN, edge: round(edge),
-    text: `${condition}: ${LEAN_RULES.horizon}거래일 뒤 상승 ${round(rate)}% (평소 ${round(base)}%, 표본 ${sampleN}${unit})${tail}` };
+    text: `${condition}: ${LEAN_RULES.horizon}거래일 뒤 상승 ${round(rate)}% (평소 ${round(base)}%, 표본 ${sampleN}${unit}${sampleNote})${tail}` };
 }
 
 /** The six-axis count as a condition item (votes when one side leads by two or more). */
@@ -66,8 +67,8 @@ function stressItem(stress, vix) {
   if (!row) return null;
   // The band rate pools overlapping daily 21-session windows, so it is not a frequency of independent cases (AGENTS
   // past-frequency rule): it is shown for reference beside the base rate and never votes.
-  const item = frequencyEvidence({ id: 'vix-band', label: '변동성 구간', condition: `VIX ${Number(vix).toFixed(1)}(${band.label} 구간, 겹치는 날짜 기준)`, rate: row.hitRate, base, n: row.nEff ?? row.n / LEAN_RULES.horizon, unit: '(독립 환산)' });
-  return item && { ...item, vote: 0, reference: true, text: `${item.text.replace(/ — .*$/, '')} — 날짜가 겹치는 통계라 참고로만 보고 판단에 넣지 않음` };
+  const item = frequencyEvidence({ id: 'vix-band', label: '변동성 구간', condition: `VIX ${Number(vix).toFixed(1)}(${band.label} 구간)`, rate: row.hitRate, base, n: row.nEff ?? row.n / LEAN_RULES.horizon, unit: '개', sampleNote: ', 겹침 보정' });
+  return item && { ...item, vote: 0, reference: true, text: `${item.text.replace(/ — .*$/, '')} — 기간이 서로 겹치는 통계라 참고만 하고 판단에는 넣지 않음` };
 }
 
 function combine(items) {
@@ -82,7 +83,7 @@ const CHOICE_BY_LEAN = Object.freeze({ 2: ['stage', 'hold'], 1: ['hold', 'stage'
 
 function leanRead(key, items, baseRate) {
   const drivers = items.filter((item) => item?.vote);
-  const base = Number.isFinite(baseRate) ? `기본값부터: 1990년 이후 S&P 500이 ${LEAN_RULES.horizon}거래일 뒤 오른 날은 ${round(baseRate)}%입니다. ` : '';
+  const base = Number.isFinite(baseRate) ? `1990년 이후 S&P 500은 ${LEAN_RULES.horizon}거래일(약 한 달) 뒤 ${round(baseRate)}%의 경우 올라 있었습니다. 이것이 기본값입니다. ` : '';
   if (key === 'mixed') return `${base}지금 조건과 과거 빈도가 서로 다른 쪽을 가리켜 한쪽 우위로 정리하지 않습니다.`;
   if (!drivers.length) return `${base}지금 확인되는 ${items.some((item) => item?.kind === 'frequency' && !item.reference) ? '조건과 과거 빈도 모두' : '조건이'} 이 기본값을 의미 있게 바꾸지 못해 뚜렷한 우위는 없습니다.`;
   const side = drivers[0].vote > 0 ? '상승' : '하락';
@@ -120,7 +121,7 @@ export function buildMarketLean({ regime = null, stress = null, temperature = nu
   const krBase = temperature?.markets?.[krFirst?.id === 'temp-kosdaq' ? 'kosdaq' : 'kospi']?.outcomes?.all?.h21?.hitRate;
   const krTail = krItems.some((item) => item.vote) ? '가격 온도가 이 기본값을 의미 있게 바꿉니다.' : '지금 가격 온도의 과거 빈도는 이 기본값과 구분되지 않습니다.';
   const kr = { available: krItems.length > 0, market: 'KR', key: krCombined.key, score: krCombined.score, label: LEAN_LABELS[krCombined.key], items: krItems,
-    read: krItems.length ? `${Number.isFinite(krBase) ? `${krName}가 ${LEAN_RULES.horizon}거래일 뒤 오른 날은 평소 ${round(krBase)}%입니다. ` : ''}${krTail}` : null };
+    read: krItems.length ? `${Number.isFinite(krBase) ? `${withTopicParticle(krName)} 평소 ${LEAN_RULES.horizon}거래일 뒤 ${round(krBase)}%의 경우 올라 있었습니다. ` : ''}${krTail}` : null };
   return { schemaVersion: MARKET_LEAN_VERSION, us, kr };
 }
 

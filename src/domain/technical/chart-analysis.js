@@ -332,7 +332,7 @@ export function chartReading(analysis, regime = null) {
     // v57.84: a valid contraction run with price more than 8% under the pivot is not 'no contraction'.
     none: analysis.vcp?.valid && analysis.pivot ? `변동성 수축은 확인되지만 가격이 피벗보다 ${((1 - analysis.last.close / analysis.pivot) * 100).toFixed(1)}% 아래라 아직 셋업 자리는 아닙니다`
       : analysis.templatePass >= 6
-      ? `장기 추세는 상승(${TEMPLATE_LABEL} ${analysis.templatePass}/8)이지만, 최근 변동성이 차례로 줄어드는 수축${analysis.dryUp != null && analysis.dryUp >= 0.8 ? '과 거래량 감소' : ''}가 확인되지 않아 VCP 셋업은 성립하지 않습니다 — 셋업이 없다는 것이 악재라는 뜻은 아닙니다${vcp ? ` (${vcp})` : ''}`
+      ? `장기 추세는 상승(추세 조건 8개 중 ${analysis.templatePass}개 충족)이지만, 최근 변동성이 차례로 줄어드는 수축${analysis.dryUp != null && analysis.dryUp >= 0.8 ? '과 거래량 감소가' : '이'} 확인되지 않아 VCP 셋업은 성립하지 않습니다 — 셋업이 없다는 것이 악재라는 뜻은 아닙니다${vcp ? ` (${vcp})` : ''}`
       : `뚜렷한 셋업은 없습니다${vcp ? ` (${vcp})` : ''}`
   }[analysis.state];
   // v57.50 D23: no unsourced "weak markets fail more setups" claim — the market state is stated, not interpreted.

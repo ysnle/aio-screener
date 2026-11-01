@@ -159,7 +159,7 @@ function renderDrill(doc, root, card, contributors, basis) {
         li.append(button, el(doc, 'span', [assetType === 'ETF' ? 'ETF' : '', nameOf(root, symbol)].filter(Boolean).join(' '), 'breadth-drill-name'), el(doc, 'span', change == null ? '' : signedText(change, 1, '%'), `breadth-drill-chg ${({ up: 'is-up', down: 'is-down' }[directionOf(change)] || '')}`));
         const badge = (text) => el(doc, 'span', text, 'breadth-drill-ca'); // .breadth-drill-ca: src/ui/styles/responsive.css
         if (assetType === 'ETF') li.append(badge('ETF — 개별 주식 수에 함께 집계됩니다'));
-        else if (caSuspected) li.append(badge('분사·합병 가능성(공시 미확인)'));
+        else if (caSuspected) li.append(badge('변동 폭이 커 분할·분사 반영 여부 확인 전'));
         ul.append(li);
       }
       column.append(ul);

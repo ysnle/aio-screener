@@ -54,7 +54,7 @@ export const LESSONS = Object.freeze([
     }
   },
   {
-    id: 'fear-is-not-a-signal', kind: 'attitude', concept: 'H4', title: '공포에 팔고 환호에 사지 않기',
+    id: 'fear-is-not-a-signal', kind: 'attitude', concept: 'H4', title: '공포에 팔지 않고 환호에 사지 않기',
     principle: '많은 사람이 겁낼 때 가격은 이미 나쁜 소식을 상당 부분 반영하고, 모두가 낙관할 때는 좋은 소식이 이미 들어가 있습니다. 감정이 가장 강할 때가 판단이 가장 흐린 때입니다.',
     why: '군중의 감정은 가격을 한쪽으로 과하게 밀었다가 되돌립니다. 다만 공포가 크다는 것만으로 바닥이 확인되지는 않습니다.',
     live: (ctx) => {

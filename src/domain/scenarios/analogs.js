@@ -174,14 +174,16 @@ export function pastEvidence(freq) {
 
 export function frequencyText(freq, label, { source = 'AIO 종가 기록' } = {}) {
   if (!freq) return `${label}: 과거 기록이 없어 빈도를 계산하지 않습니다.`;
-  const span = `${String(freq.from || '').slice(0, 4)}~${String(freq.to || '').slice(0, 7)}`;
+  // v59.56 (text pass): '2001~2026-10' mixed a bare year with an ISO month; both ends read as words.
+  const toYm = String(freq.to || '').slice(0, 7).split('-').map(Number);
+  const span = `${String(freq.from || '').slice(0, 4)}년~${toYm[0] ? `${toYm[0]}년${toYm[1] ? ` ${toYm[1]}월` : ''}` : ''}`;
   if (freq.n < 3) return `${label}: ${source}(${span})에서 같은 움직임이 ${freq.n}번뿐이라 빈도로 말하지 않습니다.`;
-  const signed = (value) => `${value > 0 ? '+' : ''}${value}%`;
+  const signed = (value) => `${value > 0 ? '+' : ''}${Number(value).toFixed(1)}%`;
   // v57.79: a percentage needs at least 10 non-overlapping cases; below that the counts stand alone.
   const sharePct = Math.round(freq.up / freq.n * 100);
   const evidence = pastEvidence(freq);
   // Not beyond the base rate: the counts and the base, without a share or median to anchor on.
-  if (evidence.informative === false) return `${label}: ${source}(${span})의 겹치지 않는 ${freq.n}번 뒤 ${freq.horizon}거래일 흐름은 같은 기록 전체 거래일(${freq.baseUpPct}% 상승)과 표본 오차 안에서 구별되지 않았습니다 — 이 움직임만으로는 방향에 대한 정보가 없습니다.${freq.n < 30 ? ' 30번 미만의 작은 표본입니다.' : ''}`;
+  if (evidence.informative === false) return `${label}: ${source}(${span})에서 서로 겹치지 않는 사례 ${freq.n}번의 이후 ${freq.horizon}거래일 흐름은 평소(같은 기록 전체 거래일의 ${freq.baseUpPct}% 상승)와 표본 오차 안에서 구별되지 않았습니다. 이 조건만으로는 방향을 말할 수 없습니다.${freq.n < 30 ? ' 30번 미만의 작은 표본입니다.' : ''}`;
   const base = evidence.informative ? ` 비슷한 때 ${sharePct}%, 같은 기록 전체 거래일에서는 ${freq.baseUpPct}%가 올라, 둘의 차이가 이 조건이 더하는 정보입니다.` : '';
-  return `${label}: ${source}(${span})의 겹치지 않는 ${freq.n}번 중 ${freq.up}번은 이후 ${freq.horizon}거래일 ${hasFinalConsonant(freq.subject || 'S&P 500') ? `${freq.subject || 'S&P 500'}이` : `${freq.subject || 'S&P 500'}가`} 올랐습니다 (중앙값 ${signed(freq.median)}${freq.p25 != null && freq.n >= 8 ? `, 가운데 절반 ${signed(freq.p25)}~${signed(freq.p75)}` : ''}).${base}${freq.n < 10 ? ' 표본이 작아 경향 참고용입니다.' : freq.n < 30 ? ' 30번 미만의 작은 표본이라 비율은 참고용입니다.' : ''}`; // R706: 10-29 cases carry a small-sample note (codex audit F09)
+  return `${label}: ${source}(${span})에서 서로 겹치지 않는 사례 ${freq.n}번 중 ${freq.up}번은 이후 ${freq.horizon}거래일 동안 ${hasFinalConsonant(freq.subject || 'S&P 500') ? `${freq.subject || 'S&P 500'}이` : `${freq.subject || 'S&P 500'}가`} 올랐습니다 (중앙값 ${signed(freq.median)}${freq.p25 != null && freq.n >= 8 ? `, 가운데 절반 ${signed(freq.p25)}~${signed(freq.p75)}` : ''}).${base}${freq.n < 10 ? ' 표본이 작아 경향 참고용입니다.' : freq.n < 30 ? ' 30번 미만의 작은 표본이라 비율은 참고용입니다.' : ''}`; // R706: 10-29 cases carry a small-sample note (codex audit F09)
 }

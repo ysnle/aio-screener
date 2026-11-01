@@ -203,7 +203,8 @@ function themeRow({ market, id, label, ret1m, ret3m, ret6m, ret5d = null, vol = 
     market, id, label, tags, tagLabels: tags.map((tag) => EXPOSURE_TAGS[tag]), thesis: profile?.thesis || null, breaks: profile?.breaks || [],
     ret1m, ret3m, ret6m, ret5d, above50, basis, members, state, stateLabel, recent, contradicted, weeklyNoise,
     relative: bench ? { name: benchName, field: bench.field || null, trendKey, trend: trendX, recent: recentX, band, recentBand, reference } : null,
-    wind, windText: scenario.state === 'tie' ? `중심 시나리오가 ${withDirectionParticle(leadNames)} 갈려(맞는 조건 수 같음) ${leads.map((item, index) => `${scenario.names[index]}에서 ${WIND_LABELS[leadWinds[index]]}`).join(', ')}`
+    wind, // v59.56 (text pass): a tie names its branches once and says 'both' when their wind is the same.
+    windText: scenario.state === 'tie' ? `중심 시나리오 ${withSubjectParticle(leadNames)} 동률이며 ${new Set(leadWinds).size === 1 ? `${leadWinds.length === 2 ? '두' : '모든'} 경우 모두 ${WIND_LABELS[leadWinds[0]]}` : leads.map((item, index) => `${scenario.names[index]}에서는 ${WIND_LABELS[leadWinds[index]]}`).join(', ')}`
       : lead ? `중심 시나리오 ${scenario.names[0]}에서 ${WIND_LABELS[wind.lead]}${alt ? `, 대안 시나리오 '${alt.title.split(' — ')[0]}'에서 ${WIND_LABELS[wind.alt]}` : ''}` : '거시 시나리오 판단 보류',
     favored, favoredWhy: why, choices,
     fit: known.length < 2 ? '판단 보류' : `조건 충족 ${met}/${conditions.length}`, met, total: conditions.length, known: known.length,
@@ -284,7 +285,9 @@ export function buildThemePlaybook({ usGroups = [], krThemes = [], crossroads = 
     const name = scenario.names.join('·');
     const tie = upTail + downHead > upHead + downTail ? '시나리오와 가격이 같은 방향입니다'
       : upHead + downTail > upTail + downHead ? '가격이 시나리오와 반대로 움직였습니다' : '시나리오와 가격의 방향이 뚜렷하게 겹치지 않습니다';
-    rotation.scenarioTie = `중심 시나리오 ${withDirectionParticle(name)} 보면${scenario.state === 'tie' ? '(동률인 시나리오들에서 영향이 같은 테마만 셈)' : ''} 상위 ${usUp.length}개 중 ${upTail}개가 수혜 쪽, 하위 ${usDown.length}개 중 ${downHead}개가 부담 쪽이라 ${tie}.`;
+    const upPart = upTail ? `1개월 상위 테마 ${usUp.length}개 중 ${upTail}개가 수혜 쪽` : `1개월 상위 테마 ${usUp.length}개 중 수혜 쪽은 없고`;
+    const downPart = downHead ? `하위 테마 ${usDown.length}개 중 ${downHead}개가 부담 쪽이라` : `하위 테마 ${usDown.length}개 중 부담 쪽은 없어`;
+    rotation.scenarioTie = `중심 시나리오 ${withDirectionParticle(name)} 보면${scenario.state === 'tie' ? '(동률인 시나리오들에서 영향이 같은 테마만 셈)' : ''} ${upPart}${upTail ? ',' : ''} ${downPart} ${tie}.`;
     rotation.text = `${rotation.text} ${rotation.scenarioTie}`;
   }
   const highlights = {
@@ -363,16 +366,18 @@ export function rotationOf(rows, { period = null, benchRet5d = null } = {}) {
   const spread = top && bottom ? top.ret1m - bottom.ret1m : null;
   const week = (row) => (row.recent?.broken || row.recent?.surged) && row.ret5d != null ? `, 5거래일 ${pct(row.ret5d)}` : '';
   const named = (row) => `${scope === '미국·한국' ? `${marketWord(row)} ` : ''}${row.label}(${pct(row.ret1m)}${week(row)})`;
-  const krLine = sub ? ` 한국은 1개월 상위 ${sub.up.map((row) => `${row.label}(${pct(row.ret1m)}${week(row)})`).join(', ')}, 하위 ${sub.down.map((row) => `${row.label}(${pct(row.ret1m)}${week(row)})`).join(', ')}입니다.` : '';
+  // v59.56 (text pass): '상위 바이오(-0.4%)' called a falling theme 상위; the words follow the sign of the end rows.
+  const upWord = (list) => (list[0]?.ret1m > 0 ? '가장 오른 곳이' : '가장 덜 내린 곳이'), downWord = (list) => (list.at(-1)?.ret1m < 0 ? '가장 내린 곳이' : '가장 덜 오른 곳이');
+  const krLine = sub ? ` 한국은 ${upWord(sub.up)} ${sub.up.map((row) => `${row.label}(${pct(row.ret1m)}${week(row)})`).join(', ')}이고, ${downWord(sub.down)} ${sub.down.map((row) => `${row.label}(${pct(row.ret1m)}${week(row)})`).join(', ')}입니다.` : '';
   const span = period?.from && period?.to ? `(${shortDay(period.from)}~${shortDay(period.to)})` : '';
   const lead = `최근 1개월${span} ${scope} 테마`;
-  const sides = `상위 ${main.up.map(named).join(', ')}, 하위 ${main.down.map(named).join(', ')}`;
+  const sides = `${upWord(main.up)} ${main.up.map(named).join(', ')}이고, ${downWord(main.down)} ${main.down.map(named).join(', ')}입니다`;
   const thick = top && bottom && top.n >= ROTATION_TAG_MIN_THEMES && bottom.n >= ROTATION_TAG_MIN_THEMES;
   const against = top?.ret1m > 0 && top.recent?.broken
     ? ` 다만 최근 5거래일 '${top.label}' 성격 중앙값은 ${pct(top.ret5d)}로 평소 1주 움직임의 2배를 넘게 반대로 움직여, 1개월 기준 이동이 지금도 이어진다고 보지 않습니다.` : '';
   const text = !top || !bottom || top === bottom ? '테마 기록이 부족해 가격 기준 강약 이동을 읽지 않습니다.'
     : spread < 3 ? `${lead}는 성격별 차이가 작습니다(가장 강한 '${top.label}' ${pct(top.ret1m)}, 가장 약한 '${bottom.label}' ${pct(bottom.ret1m)}) — 뚜렷한 가격 기준 강약 이동은 보이지 않습니다.${krLine}`
-      : !thick ? `${lead}는 ${sides}입니다. 테마 묶음마다 표본이 ${ROTATION_TAG_MIN_THEMES}개 미만이라 한 달 동안 힘이 어느 묶음으로 옮겨 갔는지는 판단하지 않습니다.${krLine} 가격 흐름 기준이며 자금 유출입 자료는 아닙니다.`
+      : !thick ? `${lead}는 ${sides}. 테마 묶음마다 표본이 ${ROTATION_TAG_MIN_THEMES}개 미만이라 한 달 동안 힘이 어느 묶음으로 옮겨 갔는지는 판단하지 않습니다.${krLine} 가격 흐름 기준이며 자금 유출입 자료는 아닙니다.`
         : `${lead}는 '${bottom.label}' 성격(중앙값 ${pct(bottom.ret1m)})에서 '${top.label}' 성격(중앙값 ${pct(top.ret1m)})으로 힘이 옮겨 갔습니다.${against} ${sides}.${krLine} 가격 흐름 기준이며 자금 유출입 자료는 아닙니다.`;
   return { tags, gainers: [...main.up, ...(sub?.up || [])], losers: [...main.down, ...(sub?.down || [])], market: scope, text };
 }

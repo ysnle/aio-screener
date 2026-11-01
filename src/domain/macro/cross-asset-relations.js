@@ -44,7 +44,7 @@ export function buildCrossAssetRelations(history = [], options = {}) {
   if (known(wti, tnx) && wti >= C.oil20dPct && tnx * 100 <= -C.rate20dBp) add('oil-up-rates-down', `유가가 ${size(wti)} 올랐는데 10년물 금리는 ${bpSize(tnx)} 내렸습니다 — 물가보다 성장 걱정이 금리를 이끕니다.`);
   else if (known(wti, tnx) && wti <= -C.oil20dPct && tnx * 100 >= C.rate20dBp) add('oil-down-rates-up', `유가가 ${size(wti)} 내렸는데 10년물 금리는 ${bpSize(tnx)} 올랐습니다 — 국채 공급·기간 프리미엄 같은 물가 밖 요인 쪽입니다.`);
   // Lower yields usually support stock valuations; higher yields weigh on them.
-  if (known(tnx, spx) && tnx * 100 <= -C.rate20dBp && spx <= -C.stock20dPct) add('rates-down-stocks-down', `금리가 내렸는데도 주식은 받쳐지지 않았습니다 — 할인율 효과보다 이익 걱정이 큽니다.`);
+  if (known(tnx, spx) && tnx * 100 <= -C.rate20dBp && spx <= -C.stock20dPct) add('rates-down-stocks-down', `금리가 내렸는데도 S&P 500은 ${size(spx)} 내렸습니다 — 낮아진 할인율보다 이익 걱정이 더 크게 작용했습니다.`);
   else if (known(tnx, spx) && tnx * 100 >= C.rate20dBp && spx >= C.stock20dPct) add('rates-up-stocks-up', `금리가 ${bpSize(tnx)} 올랐는데도 S&P 500은 ${size(spx)} 올랐습니다 — 금리 부담보다 성장 기대가 큽니다.`);
   // Long bonds usually cushion a stock fall; falling together means the cushion failed.
   const stocksDown = known(spx) && spx <= -C.stock20dPct;
@@ -57,7 +57,7 @@ export function buildCrossAssetRelations(history = [], options = {}) {
 
   const driver = known(smh, spx) && spx < 0 && smh - spx <= -C.semisLeadPp ? `하락은 반도체가 이끌었습니다(반도체 ETF ${pct(smh)}, S&P 500 ${pct(spx)})`
     : known(smh, spx) && spx > 0 && smh - spx >= C.semisLeadPp ? `상승은 반도체가 이끌었습니다(반도체 ETF ${pct(smh)}, S&P 500 ${pct(spx)})` : null;
-  const flow = bondHaven ? `장기채가 ${size(tlt)} 올라 주식 하락을 받쳤습니다` : null;
+  const flow = bondHaven ? `주식이 내리는 동안 장기채는 ${size(tlt)} 올라 분산 투자에서 완충 역할을 했습니다` : null;
   const lead = [driver, flow].filter(Boolean).join('. ');
   const asOf = m.spx?.to || m.tnx?.to || null;
   const available = known(spx, tnx);

@@ -130,7 +130,7 @@ function commodities(history, macroHistory) {
     mean: `${oilRead}. ${goldRead}`,
     next: '매일 · 산유국 회의와 전쟁 관련 뉴스',
     flip: 'WTI가 더 오르면 물가 시나리오가 올라가고, 금이 실질금리와 다시 같이 움직이면 포지션 정리 국면이 끝난 것입니다.',
-    detail: [['WTI 한 달 전', `$${oil.from.toFixed(1)}`], ['금 6개월 고점', `$${Math.round(peak.value).toLocaleString('en-US')} (${dayLabel(peak.date).split('(')[0]})`], ['달러 지수 한 달', dollar ? signed(dollar.pct, 1) : '—'], ['은', '시세만 받고 이력은 아직 쌓지 않습니다']]
+    detail: [['WTI 한 달 전', `$${oil.from.toFixed(1)}`], ['금 6개월 고점', `$${Math.round(peak.value).toLocaleString('en-US')} (${dayLabel(peak.date).split('(')[0]})`], ['달러 지수 한 달', dollar ? signed(dollar.pct, 1) : '—'], ['은', '현재 시세만 제공, 추이는 아직 없음']]
   };
 }
 
@@ -173,7 +173,7 @@ function growthKorea(macroHistory, history, events) {
     mean: `${sentiment && sentiment.value < 60 ? '소비심리는 낮지만 ' : ''}${retail ? (retail.value >= 0 ? '소비 지출은 아직 꺾이지 않았습니다. ' : '소비 지출이 줄었습니다. ') : ''}${korea}.${won}`,
     next: whenOf(next) || 'ISM 제조업(매월 첫 영업일) · 서비스업(셋째 영업일)',
     flip: '소매판매가 두 달 연속 줄고 ISM 제조·서비스가 함께 50 아래면 경기 둔화로 읽습니다.',
-    detail: [['소비심리(미시간)', sentiment ? sentiment.value.toFixed(1) : '—'], ['소매판매 전월비', retail ? signed(retail.value, 1) : '—'], ['원/달러 한 달', krw ? signed(krw.pct, 1) : '—'], ['외국인 매매', '수집기는 있으나 키가 등록되지 않아 아직 비어 있습니다']]
+    detail: [['소비심리(미시간)', sentiment ? sentiment.value.toFixed(1) : '—'], ['소매판매 전월비', retail ? signed(retail.value, 1) : '—'], ['원/달러 한 달', krw ? signed(krw.pct, 1) : '—'], ['외국인 매매', '아직 제공하지 않음']]
   };
 }
 

@@ -105,7 +105,7 @@ function paintAiChain(doc, root, { id, frame, className, more: withLink, place, 
   const shown = new Set(ranked.slice(0, limit));
   const chart = barList(flow.groups.filter((group) => shown.has(group)));
   const others = flow.groups.filter((group) => !shown.has(group));
-  const legend = el(doc, 'p', `한 달 · 지난 거래일, ${sessionLabel(root)}`, 'ai-chain__scale');
+  const legend = el(doc, 'p', `막대 한 달, 숫자 지난 거래일 · ${sessionLabel(root)}`, 'ai-chain__scale');
   const contrast = defensiveContrast(root?._serverDataMeta?.rotationHistory || null);
   const fullReading = contrast ? `${flow.reading} ${contrast}` : flow.reading;
   // Face: the reading's first sentence (the count of groups that fell); the full reading leads the fold.
@@ -117,14 +117,15 @@ function paintAiChain(doc, root, { id, frame, className, more: withLink, place, 
   if (Number.isFinite(limit)) {
     fold.append(el(doc, 'p', fullReading, 'ai-chain__reading'));
     if (others.length) fold.append(barList(others));
-    fold.append(el(doc, 'p', '막대는 묶음별 미국 종목의 한 달 수익률 중앙값, 오른쪽 숫자는 지난 거래일 중앙값입니다. 묶음은 테마 화면의 반도체·AI 인프라·광통신 분류를 따릅니다.', 'ai-chain__member-list'));
+    fold.append(el(doc, 'p', '막대는 묶음별 미국 종목의 한 달 수익률 중앙값, 오른쪽 숫자는 지난 거래일 중앙값입니다. 아래 종목은 한 달 수익률, 괄호 안은 지난 거래일입니다. 묶음은 테마 화면의 반도체·AI 인프라·광통신 분류를 따릅니다.', 'ai-chain__member-list'));
   }
+  else fold.append(el(doc, 'p', '종목 옆 숫자는 한 달 수익률, 괄호 안은 지난 거래일입니다.', 'ai-chain__member-list'));
   // Taiwan's monthly revenue opens the member lists: a short block, read before the long US lists.
   const tw = twRevenue(doc, root, id, () => paintAiChain(doc, root, { id, frame, className, more: withLink, place, limit }));
   if (tw) fold.append(...tw.fold);
   for (const group of flow.groups) {
     fold.append(el(doc, 'p', group.name, 'event-brief__sub'),
-      el(doc, 'p', group.members.map((member) => `${member.sym} ${signed(member.ret1m)}(지난 거래일 ${signed(member.ret1d)})`).join(', '), 'ai-chain__member-list'));
+      el(doc, 'p', group.members.map((member) => `${member.sym} ${signed(member.ret1m)}(${signed(member.ret1d)})`).join(', '), 'ai-chain__member-list'));
   }
   const more = el(doc, 'button', '테마별 흐름 → 테마와 섹터', 'flow-next-link daily-card-more');
   more.type = 'button';

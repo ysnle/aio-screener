@@ -37,7 +37,7 @@ const kstStamp = (ms) => {
 };
 
 /** One list of mover rows; `showMissing` keeps a mover without a headline as '관련 보도 없음'. Returns the list or null. */
-export function moveNewsList(doc, root, rows, { showMissing = false, max = 8, listClass = 'market-slot-news', timeClass = 'market-slot-news-time', titleClass = 'market-slot-news-title' } = {}) {
+export function moveNewsList(doc, root, rows, { showMissing = false, missingText = '같은 날 관련 보도 없음', max = 8, listClass = 'market-slot-news', timeClass = 'market-slot-news-time', titleClass = 'market-slot-news-title' } = {}) {
   const shown = rows.filter((row) => showMissing || row.headline).slice(0, max);
   if (!shown.length) return null;
   const list = el(doc, 'ul', null, listClass);
@@ -47,7 +47,7 @@ export function moveNewsList(doc, root, rows, { showMissing = false, max = 8, li
     item.append(el(doc, 'span', move, timeClass));
     const hit = row.headline;
     if (!hit) {
-      item.append(el(doc, 'span', '같은 날 관련 보도 없음', titleClass));
+      if (missingText) item.append(el(doc, 'span', missingText, titleClass));
       list.append(item);
       continue;
     }

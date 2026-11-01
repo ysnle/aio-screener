@@ -64,7 +64,7 @@ export function paintSessionBridge(doc, root, store, anchor, rerender = null) {
   // intraday move, so the head names the session it explains (date, 진행 중 with the observation time, or 마감).
   if (model.koreaRead) {
     const head = el(doc, 'p', null, 'session-bridge__head');
-    head.append(el(doc, 'strong', model.koreaHead ? `${model.koreaHead}, 왜 움직였나` : '한국장이 왜 움직였나'), doc.createTextNode(` ${model.koreaRead}`));
+    head.append(el(doc, 'strong', model.koreaHead ? `${model.koreaHead}.` : '한국장이 움직인 이유'), doc.createTextNode(` ${model.koreaRead}`));
     nodes.push(head);
   }
   if (model.links.length) {

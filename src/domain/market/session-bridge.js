@@ -5,6 +5,7 @@
 // US cue, Asia together, the won, Korea-only — so the reader sees several links at once instead of one cause.
 import { latestCompletedUsSession, nyParts, resolveMarketCalendarSession, usWeekendClosed } from './market-calendar.js';
 import { signedText } from '../shared/number.js';
+import { withAndParticle, withSubjectParticle } from '../content/korean-particle.js';
 import { indexContributors, contributorsSentence, krWeightRows, sp500WeightRows } from './move-attribution.js';
 
 // attribution = { rows (screener), krWeights (kr-index-weights.json), usWeights (screener indexWeights), briefs, telegram, signals, news }
@@ -205,9 +206,13 @@ export function buildSessionBridge({ nowMs = Date.now(), snapshot = null, attrib
   const kosdaqSame = sameKstDate(r.kosdaq, krDate);
   const koreaHead = r.kospi?.change != null ? `한국장 ${md(krDate)} ${krLive ? `진행 중(${kstClock(Date.parse(r.kospi.observedAt))} 관측)` : '마감'} 코스피 ${pct(r.kospi.change)}${kosdaqSame?.change != null ? `, 코스닥 ${pct(kosdaqSame.change)}` : ''}` : null;
   // The face names the leaders and their dated item in words; the numbers sit in the folded '한국 고유 요인' line.
-  const leaderNames = krLeaders ? ` 지수를 끈 종목: ${krLeaders.pieces.map((piece) => `${piece.name}${piece.dated?.kind === 'brief' ? `(${piece.dated.text})` : ''}`).join(', ')}.` : '';
-  const koreaRead = !links.length ? (leaderNames.trim() || null) : (supported.length ? `맞아떨어지는 근거: ${supported.join(' · ')}${supported.length > 1 ? ' — 한 가지 원인이 아니라 여러 요인이 겹친 날입니다' : ''}.`
-    : '확인한 바깥 요인 어느 것도 크게 맞지 않아 원인을 하나로 단정하지 않습니다.') + leaderNames;
+  // Text pass (v59.56): whole sentences instead of '근거: X.' / '종목: A, B.' fragments; the verb follows the day's sign.
+  const krDown = (r.kospi?.change ?? 0) < 0;
+  const leaderNames = krLeaders ? ` 코스피를 가장 많이 ${krDown ? '끌어내린' : '끌어올린'} 종목은 ${krLeaders.pieces.map((piece) => `${piece.name}${piece.dated?.kind === 'brief' ? `(${piece.dated.text})` : ''}`).join(', ')}입니다.` : '';
+  const supportedText = supported.length === 2 ? `${withAndParticle(supported[0])} ${supported[1]}` : supported.join(' · ');
+  const koreaRead = !links.length ? (leaderNames.trim() || null) : (supported.length === 1 ? `가장 잘 맞는 설명은 ${supported[0]}입니다.`
+    : supported.length > 1 ? `${withSubjectParticle(supportedText)} 함께 맞습니다. 한 가지 원인이 아니라 여러 요인이 겹친 날입니다.`
+      : '확인한 바깥 요인 어느 것도 크게 맞지 않아 원인을 하나로 단정하지 않습니다.') + leaderNames;
   // Futures since the previous settlement — the market-implied direction into the US open.
   const futures = [['S&P 500 선물', r.es], ['나스닥 100 선물', r.nq]].filter(([, row]) => row?.change != null);
   const ages = futures.map(([, row]) => row.ageMin);

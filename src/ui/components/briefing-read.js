@@ -68,7 +68,7 @@ export function renderMoveNews(doc, root, store, flow) {
     ? `${rows.length}곳 중 ${matched}곳은 같은 날 이름이 나온 보도나 채널 글이 있습니다. 보도는 같은 날 나왔다는 사실이며 원인을 확정하지는 않습니다.`
     : `${rows.length}곳 모두 같은 날 이름이 나온 보도를 찾지 못했습니다.`, 'briefing-read-reading');
   // The matched rows first, then the movers without a same-day headline.
-  body.replaceChildren(lead, ...[moveNewsList(doc, root, rows), moveNewsList(doc, root, rows.filter((row) => !row.headline), { showMissing: true })].filter(Boolean));
+  body.replaceChildren(lead, ...[moveNewsList(doc, root, rows), moveNewsList(doc, root, rows.filter((row) => !row.headline), { showMissing: true, missingText: matched ? '같은 날 관련 보도 없음' : '' })].filter(Boolean));
   fold.hidden = false;
 }
 
@@ -294,7 +294,7 @@ export function renderBriefingRead({ documentRef: doc, root, store = null, nowMs
       return item;
     }) : [el(doc, 'div', '7일 안에 예정된 주요 일정이 없습니다.', 'briefing-empty')]));
     // v58.52: say how many reports the S&P-weight cut left out, instead of dropping them silently.
-    if (schedule.omittedEarnings > 0) scheduleRows.append(Object.assign(el(doc, 'div', `나머지 실적 발표 ${schedule.omittedEarnings}건은 아래 이번 주 실적 목록에`, 'briefing-event-meta'), { title: '실적 발표는 S&P 500 비중이 큰 것(날짜마다 상위 2곳 포함)만 시간순으로 보여 줍니다.' }));
+    if (schedule.omittedEarnings > 0) scheduleRows.append(Object.assign(el(doc, 'div', `나머지 실적 발표 ${schedule.omittedEarnings}건은 아래 이번 주 실적 목록에 있습니다.`, 'briefing-event-meta'), { title: '실적 발표는 S&P 500 비중이 큰 것(날짜마다 상위 2곳 포함)만 시간순으로 보여 줍니다.' }));
   }
   renderEarningsWeek(doc, root, store, root._aioEarningsSnapshot);
 

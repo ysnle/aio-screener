@@ -102,7 +102,7 @@ export function breadthFlow({ cards = [], regime = null } = {}) {
             : spx20 > 0 && down ? '지수는 올랐지만 참여는 소폭 줄었습니다 — 아직 큰 괴리(10%p 이상 감소)는 아닙니다'
               : !up && !down ? `참여 비율의 20거래일 변화가 ±${zone}%p 안이라 지수 움직임을 참여가 확인하지도 부정하지도 않습니다` : '지수와 참여가 모두 거의 변하지 않았습니다';
     const ddText = dd == null ? '' : ddRecord?.pct == null ? ` 최근 25거래일 분배일은 ${round(dd)}회입니다.`
-      : ` 최근 25거래일 분배일은 ${round(dd)}회로, AIO 기록 ${ddRecord.n}일 중 ${ddRecord.pct}백분위입니다${ddRecord.provisional ? `(기록 ${RECORD_FULL_YEAR}거래일 미만, 잠정)` : ''}.`;
+      : ` 최근 25거래일 분배일은 ${round(dd)}회로, 이 사이트가 기록한 ${ddRecord.n}거래일 가운데 ${ddRecord.pct >= 50 ? `상위 ${Math.max(1, 100 - ddRecord.pct)}%에 드는 많은 편` : `하위 ${Math.max(1, ddRecord.pct)}%에 드는 적은 편`}입니다${ddRecord.provisional ? `(기록이 ${RECORD_FULL_YEAR}거래일이 안 돼 잠정)` : ''}.`;
     index = `S&P 500은 20일 ${signed(spx20, 1, '%')}, 50일선 위 종목 비율은 20일 ${signed(b50d20, 1, '%p')} — ${gap}.${ddText}`;
   }
 
@@ -132,9 +132,9 @@ export function sentimentFlow({ model = null, regime = null } = {}) {
   const links = [];
   // v59.51: credit is read once, on the 시장 상태 credit axis (the sentiment page's HY card was a second copy).
   const hy = (byId.credit?.evidence || []).find(([label]) => label === '하이일드 스프레드')?.[1];
-  if (hy && byId.credit) links.push(`하이일드 스프레드 ${hy}는 시장 상태 '신용과 위험선호' 지표(${byId.credit.stateLabel})의 근거`);
-  if (cards.term?.value && cards.term.value !== '—' && byId.volatility) links.push(`VIX 단기 불안 비율 ${cards.term.value}는 '변동성' 지표(${byId.volatility.stateLabel})의 근거`);
-  const bridge = links.length ? `${links.join(', ')}입니다. 공포·탐욕과 AAII는 6개 지표에 넣지 않는 참고 지표라, 가격에서 나온 심리가 자금 시장까지 번졌는지를 신용·변동성 두 지표로 확인합니다.` : '';
+  if (hy && byId.credit) links.push(`하이일드 스프레드 ${hy.replace(/^(.*), (\d{1,2}\/\d{1,2})$/, '$2 기준 $1')}는 시장 상태 '신용과 위험선호' 지표(${byId.credit.stateLabel})의 근거`);
+  if (cards.term?.value && cards.term.value !== '—' && byId.volatility) links.push(`VIX 단기 불안 비율(${cards.term.value})은 '변동성' 지표(${byId.volatility.stateLabel})의 근거`);
+  const bridge = links.length ? `${links.join('이고, ')}입니다. 공포·탐욕과 AAII는 6개 지표에 넣지 않는 참고 지표라, 가격에서 나온 심리가 자금 시장까지 번졌는지를 신용·변동성 두 지표로 확인합니다.` : '';
   const next = [];
   if (byId.credit?.state === 'burden') next.push({ route: 'fxbond', label: '금리와 환율', why: '하이일드 스프레드 확대가 실질금리·달러와 같은 방향인지' });
   if (byId.breadth?.state === 'burden') next.push({ route: 'breadth', label: '시장 폭', why: `심리와 별개로 참여 종목이 줄고 있는지(시장 폭 ${byId.breadth.stateLabel})` });
@@ -317,7 +317,7 @@ export function themeStrengthLead(model = null, { stages = null } = {}) {
   const rising = improving.filter((group) => !group.recent?.broken), held = improving.filter((group) => group.recent?.broken);
   if (rising.length) parts.push(`${cooling.length ? '반대로 ' : ''}${joined(rising)}${topic(label(rising[rising.length - 1]))} 1개월 순위가 크게 올라 최근 강해지는 곳입니다`);
   if (held.length) parts.push(`${held.map((group) => `${group.name}(최근 5거래일 ${signed(group.recent.ret5d, 1, '%')})`).join(', ')}${topic(held[held.length - 1].name)} 1개월 순위는 올랐지만 최근 5거래일에 평소 1주 움직임의 2배를 넘게 밀려 강해지는 중으로 보지 않습니다`);
-  parts.push(`상위 5개 중 ${healthy}개는 구성 종목 대부분이 50일선 위입니다`);
+  parts.push(healthy === top.length ? `상위 ${top.length}개 모두 구성 종목 대부분이 50일선 위에 있습니다` : healthy ? `상위 ${top.length}개 중 ${healthy}개는 구성 종목 대부분이 50일선 위에 있습니다` : `상위 ${top.length}개 중 구성 종목 대부분이 50일선 위인 곳은 없습니다`);
   // v58.74 (text audit 테마 C6): the sub-theme ranking tied to the theme stage — when two or more of the top five share a
   // parent theme, that theme's stage and its wind under the central scenario are named.
   const byTheme = new Map();

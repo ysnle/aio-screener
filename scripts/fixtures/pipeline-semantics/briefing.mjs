@@ -281,6 +281,15 @@ export const cases = [
       assert.equal(koreanReleaseText('165억 달러'), '165억 달러', 'already Korean text is unchanged');
       assert.equal(koreanReleaseText('성명은 10 - 2 표결로 승인됐다.'), '성명은 10대 2 표결로 승인됐다.', 'an FOMC vote reads 10대 2');
       assert.equal(koreanReleaseText('2025-2026 기간'), '2025-2026 기간', 'a year range is not a vote');
+      // v59.56 (text pass): ranges, Y/Y · Q/Q, approximations, bare units and the particle after 달러 read in Korean.
+      assert.equal(koreanReleaseText('$2.684 and $2.72 billion'), '26.8억~27.2억 달러', 'one unit spreads over both ends');
+      assert.equal(koreanReleaseText('$220 million to $225 million'), '2.2억~2.3억 달러', 'a range never prints one figure twice');
+      assert.equal(koreanReleaseText('35% 증가 to 40% Y/Y'), '전년 대비 35~40% 증가');
+      assert.equal(koreanReleaseText('approximately $220 billion'), '약 2,200억 달러');
+      assert.equal(koreanReleaseText('순이익은 15.4 billion 달러였다.'), '순이익은 154억 달러였다.');
+      assert.equal(koreanReleaseText('($2,047) million'), '-20.5억 달러');
+      assert.equal(koreanReleaseText('토지 $740 million을 취득.'), '토지 7.4억 달러를 취득.');
+      assert.equal(koreanReleaseText('조정 EPS는 $1.30 to $1.33이다.'), '조정 EPS는 $1.30~$1.33이다.');
   } },
   { id: 'EB-BUDGET-01', name: '브리프 파일은 예산을 넘으면 오래된 것부터 줄이되 최근 조회 범위와 이번 달 AI 비용 브리프는 남긴다', run: async ({ load }) => {
       const { pruneBriefsToBudget } = await load('scripts/fetch-event-briefs.mjs');

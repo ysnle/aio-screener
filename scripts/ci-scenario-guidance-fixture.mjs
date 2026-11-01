@@ -228,7 +228,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   const freq = analogOutcome(synthetic, BRANCH_ANALOGS.reheat);
   assert.ok(freq.n >= 1 && freq.n <= 3, `P1743: overlapping windows are counted once per episode (n=${freq.n})`);
   const longModel = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { sourceLabel: '장기 일봉 기록', branches: { reheat: { n: 41, up: 22, median: 0.4, p25: -2.1, p75: 2.9, from: '1990-01-02', to: '2026-10-09', horizon: 20 } } } });
-  assert.match(longModel.items.find((item) => item.id === 'reheat').past.text, /장기 일봉 기록\(1990~2026-10\)의 겹치지 않는 41번 중 22번/, 'P1743: long-history outcomes replace the one-year record');
+  assert.match(longModel.items.find((item) => item.id === 'reheat').past.text, /장기 일봉 기록\(1990년~2026년 10월\)에서 서로 겹치지 않는 사례 41번 중 22번/, 'P1743: long-history outcomes replace the one-year record');
   const held = buildMacroCrossroads({ read: null, macroHistory: null, history: [], events: [] });
   assert.equal(held.leadId, null, 'P1742: no lead without observations');
   // Audit 1: branches level on met conditions are named as a tie, and the next release is what separates them.
@@ -340,14 +340,14 @@ console.log('scenario guidance fixture (basis card): PASS');
     const krHeavy = rotationOf([mk('KR', 'a', 12), mk('KR', 'b', 10), mk('KR', 'c', 9), mk('US', 'd', 8), mk('KR', 'e', -9), mk('KR', 'f', -10), mk('KR', 'g', -11), mk('KR', 'h', -12)].map((row, i) => ({ ...row, tags: [i < 4 ? 'growth' : 'energy'] })));
     // v57.54: one US theme is too thin for a US read, so the sentence mixes markets and every name carries its market word.
     assert.match(krHeavy.text, /미국·한국 테마는/, 'v57.54: a thin US set falls back to all themes and says so');
-    assert.match(krHeavy.text, /상위 한국 a\(\+12\.0%\)/, 'audit 15: in a mixed sentence every named theme carries its market');
+    assert.match(krHeavy.text, /가장 오른 곳이 한국 a\(\+12\.0%\)/, 'audit 15: in a mixed sentence every named theme carries its market');
     assert.doesNotMatch(krHeavy.text, /국내/, "v57.54: the market word is '한국', not the ambiguous '국내'");
     const krOnly = rotationOf([mk('KR', 'a', 12), mk('KR', 'b', 10), mk('KR', 'e', -9), mk('KR', 'f', -10)].map((row, i) => ({ ...row, tags: [i < 2 ? 'growth' : 'defensive'] })));
     assert.ok(krOnly.market === '한국' && /^최근 1개월 한국 테마는/.test(krOnly.text) && !/미국·한국/.test(krOnly.text), `v57.54 review: with no US rows the read says '한국', not '미국·한국' (${krOnly.text})`);
     const usFirst = rotationOf([mk('US', 'u1', 9), mk('US', 'u2', 7), mk('US', 'u3', -6), mk('US', 'u4', -8), mk('KR', 'k1', 20), mk('KR', 'k2', 12), mk('KR', 'k3', -15), mk('KR', 'k4', -23)].map((row, i) => ({ ...row, tags: [i % 4 < 2 ? 'growth' : 'energy'] })));
     assert.match(usFirst.text, /^최근 1개월 미국 테마는/, 'v57.54: with enough US themes the rotation is read on the US set first');
-    assert.match(usFirst.text, /상위 u1\(\+9\.0%\)/, 'v57.54: US names lead without a market word');
-    assert.match(usFirst.text, / 한국은 1개월 상위 k1\(\+20\.0%\), k2\(\+12\.0%\), 하위 k4\(-23\.0%\)/, 'v57.54: Korea follows as one short secondary line');
+    assert.match(usFirst.text, /가장 오른 곳이 u1\(\+9\.0%\)/, 'v57.54: US names lead without a market word');
+    assert.match(usFirst.text, / 한국은 가장 오른 곳이 k1\(\+20\.0%\), k2\(\+12\.0%\)이고, 가장 내린 곳이 k4\(-23\.0%\)/, 'v57.54: Korea follows as one short secondary line');
   }
   const themeText = renderThemePlaybookContext(playbook, { query: '반도체 지금 분할로 들어가도 돼?' });
   assert.match(themeText, /반도체: 추세 속 조정/, 'P1743: a named theme is always in the AI block');
@@ -1051,7 +1051,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   const oct = buildCrossAssetRelations(rows, { through: '2026-10-23' });
   assert.equal(oct.asOf, '2026-10-23', 'v58.80 relations read on the asked close');
   assert.deepEqual(oct.breaks.map((item) => item.id).sort(), ['oil-up-rates-down', 'rates-down-stocks-down', 'risk-off-gold-down'], 'v58.80 10/23 relations against the usual direction');
-  assert.ok(oct.driver?.startsWith('하락은 반도체가 이끌었습니다') && /장기채가 2\.5% 올라/.test(oct.flow || ''), 'v58.80 driver and bond flow named');
+  assert.ok(oct.driver?.startsWith('하락은 반도체가 이끌었습니다') && /장기채는 2\.5% 올라/.test(oct.flow || ''), 'v58.80 driver and bond flow named');
   assert.ok(oct.reading.indexOf('금은') < oct.reading.indexOf('금리가 내렸는데도') && oct.reading.indexOf('금리가 내렸는데도') < oct.reading.indexOf('유가가'), 'v58.80 story order: havens, rates→stocks, oil→rates');
   assert.ok(!/[+-]\d[\d.]*%\s*(올|내)/.test(oct.reading), 'v58.80 a size beside a verb carries no sign');
   const sep = buildCrossAssetRelations(rows, { through: '2026-09-30' });

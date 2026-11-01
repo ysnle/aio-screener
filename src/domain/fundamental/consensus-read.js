@@ -68,13 +68,14 @@ export function buildConsensusPoint(row, estimate, options = {}) {
   // first of them has already ended — results due, not yet out — that is said, so '향후' does not read as all-future quarters.
   const [fy, fm] = String(view.fwdFrom || '').split('-').map(Number);
   const firstEnded = Number.isFinite(fy) && Number.isFinite(fm) && Date.UTC(fy, fm, 1) <= Date.parse(`${view.priceDate || view.asOf}T00:00:00Z`);
-  const range = `${view.fwdFrom}~${view.fwdTo}${firstEnded ? `, 첫 분기 ${view.fwdFrom}는 끝났고 실적 발표 전` : ''}`;
+  const ym = (text) => { const [y, m] = String(text || '').split('-').map(Number); return Number.isFinite(y) && Number.isFinite(m) ? `${y}년 ${m}월` : String(text || ''); };
+  const range = `${ym(view.fwdFrom)}~${ym(view.fwdTo)} 분기${firstEnded ? `, 첫 분기(${ym(view.fwdFrom)})는 끝났고 실적 발표 전` : ''}`;
   // The visible line leads with the multiple; the stock page folds everything after the first ' — '.
   const lead = view.fwdPe != null
     ? `Forward PER ${view.fwdPe > PE_MEANINGFUL_MAX ? '' : '약 '}${peMultipleText(view.fwdPe)}${view.trailingPe != null ? `, 직전 4개 분기 조정 기준 ${peMultipleText(view.trailingPe)}` : ''}${view.growth != null ? `, 예상 이익 ${signed(view.growth)}` : ''}`
     : '향후 4개 분기 적자 예상';
   const basis = `종가 ${usd(view.price)}${view.priceDate ? `(${view.priceDate})` : ''} ÷ 아직 실적이 발표되지 않은 4개 분기(${range}) 예상 EPS 합 ${usd(view.fwdEps)}`
-    + (view.growth != null ? `, 직전 4개 분기 실적 ${usd(view.trailingEps)}과 같은 조정 EPS 기준으로 비교했습니다`
+    + (view.growth != null ? `, 직전 4개 분기 실적 ${usd(view.trailingEps)}와 같은 조정 EPS 기준으로 비교했습니다`
       : view.basisGap ? `. 직전 4개 분기 실적 합 ${usd(view.trailingEps)}보다 30% 이상 낮아, 일회성 항목 포함 여부 등 같은 기준인지 확인되지 않으므로 성장률과 직전 PER은 표시하지 않습니다` : '');
   const revisions = !view.revisionsKnown ? '최근 4주 추정치 변경 자료 없음' : view.up4w || view.down4w ? `최근 4주 추정치 상향 ${view.up4w}, 하향 ${view.down4w}(향후 4개 분기 건수 합계)` /* v58.74: 32 up from 9 analysts read as impossible */ : '최근 4주 추정치 변경 없음';
   const cautions = [];

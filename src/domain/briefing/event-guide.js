@@ -201,7 +201,7 @@ export function buildEarningsWeek({ earnings = [], weekStart = null, weekEnd = n
     const screener = bySym.get(symbol);
     const mcap = Number(screener?.mcap);
     const eps = row.epsEstimate != null && row.epsEstimate !== '' && Number.isFinite(Number(row.epsEstimate)) ? Number(row.epsEstimate) : null;
-    return { symbol, name: names[symbol] || screener?.name || '', date: row.date, session: ['bmo', 'dmh', 'amc'].includes(row.hour) ? row.hour : 'unknown',
+    return { symbol, name: String(names[symbol] || screener?.name || '').replace(/\s*\(The\)$/i, ''), date: row.date, session: ['bmo', 'dmh', 'amc'].includes(row.hour) ? row.hour : 'unknown',
       mcap: Number.isFinite(mcap) && mcap > 0 ? mcap : null, weight: Number(row.indexWeight) || 0, revenueEstimate: Number(row.revenueEstimate) || 0,
       eps, revenue: formatUsdRevenue(row.revenueEstimate), watched: watched.has(symbol), held: held.has(symbol), reported: reportedNumber(row.epsActual) != null || reportedNumber(row.revenueActual) != null };
   });

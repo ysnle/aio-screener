@@ -157,7 +157,7 @@ function growthAxis({ macro, mh }) {
     headline: payrollTriggered && payroll ? `일자리 3개월 평균 ${peopleText(payroll.avg3, { sign: true })}` : sahm ? `Sahm ${sahm.value.toFixed(2)}%p` : unrate == null ? null : `실업률 ${unrate.toFixed(1)}%`,
     evidence: [
       ['실업률', unrate == null ? null : `${unrate.toFixed(1)}%${finite(macro.unemploymentDelta) != null ? ` (전월 ${signed(finite(macro.unemploymentDelta), 1, '%p')})` : ''}`],
-      ['Sahm 지표', sahm ? `${sahm.value.toFixed(2)}%p (${G.sahmRecessionAt} 이상이면 침체 신호)` : null],
+      ['Sahm 지표', sahm ? `${sahm.value.toFixed(2)}%p (${G.sahmWatchAt}%p 이상이면 둔화, ${G.sahmRecessionAt}%p 이상이면 침체 신호)` : null],
       [payroll ? '일자리 3개월 평균' : '일자리 (최근 1개월)', payroll ? `${peopleText(payroll.avg3, { sign: true })} (그 전 3개월 ${peopleText(payroll.prior3, { sign: true })})` : nfp == null ? null : peopleText(nfp, { sign: true })],
       ['신규 실업수당 청구 (4주 평균)', claims ? `${(claims.avg4 / 10000).toFixed(1)}만 건 (1년 저점 대비 ${signed(claims.aboveLow, 0, '%')})` : null],
       ['소매판매 (전년 대비, 명목)', retailYoy ? `${signed(retailYoy.value, 1, '%')}` : finite(macro.retailSales) == null ? null : `전월 대비 ${signed(finite(macro.retailSales), 1, '%')}`]
@@ -370,7 +370,7 @@ function sharedGauges({ macro, rateFx, regime }) {
 // v57.50 D16/D17: a direction is set only by a signal past its cut. Within the dead band (growth: half the
 // slowdown step around the cut; prices: |3-month pace − year| below the re-acceleration step) the direction is held,
 // and "no slowdown signal" alone is no longer read as 견조 — 견조 needs the payroll level the growth axis calls solid.
-export const REGIME_CRITERIA = `성장 방향: Sahm 지표 ${G.sahmWatchAt}%p 이상이거나 최근 3개월 일자리 증가가 그 전 3개월보다 ${G.payrollSlowdownK / 10}만 명 넘게 적으면 둔화, 둔화 신호가 없고 3개월 평균이 ${G.payrollSolidK / 10}만 명 이상이면 견조, 둘 다 아니면 확인 안 됨, 둔화 기준과의 차이가 ${G.payrollSlowdownK / 2}천 명 미만이면 근소(경계)로 보고 방향을 정하지 않음. 물가 방향: 근원 PCE와 근원 CPI 각각의 최근 3개월 속도(연율)와 전년 대비의 차이가 ${I.reaccelPp}%p 이상이면 그 쪽(빠르면 상승, 느리면 둔화), 두 지표가 같은 쪽이면 그 방향, 반대쪽이면 엇갈림, 한쪽이라도 ${I.reaccelPp}%p 미만이면 방향 보류(각 지표의 가장 최근 발표 기준). 두 방향이 모두 정해질 때만 사분면을 표시합니다.`;
+export const REGIME_CRITERIA = `성장 방향: Sahm 지표 ${G.sahmWatchAt}%p 이상이거나 최근 3개월 일자리 증가가 그 전 3개월보다 ${G.payrollSlowdownK / 10}만 명 넘게 적으면 둔화, 둔화 신호가 없고 3개월 평균이 ${G.payrollSolidK / 10}만 명 이상이면 견조, 둘 다 아니면 확인 안 됨, 둔화 기준과의 차이가 ${(G.payrollSlowdownK / 2 * 1000).toLocaleString('en-US')}명 미만이면 근소(경계)로 보고 방향을 정하지 않음. 물가 방향: 근원 PCE와 근원 CPI 각각의 최근 3개월 속도(연율)와 전년 대비의 차이가 ${I.reaccelPp}%p 이상이면 그 쪽(빠르면 상승, 느리면 둔화), 두 지표가 같은 쪽이면 그 방향, 반대쪽이면 엇갈림, 한쪽이라도 ${I.reaccelPp}%p 미만이면 방향 보류(각 지표의 가장 최근 발표 기준). 두 방향이 모두 정해질 때만 사분면을 표시합니다.`;
 
 /** Growth × inflation direction — the classic four-regime frame, with its historical tendency as 해석. */
 // Expert review M12: a quarter or month label for the observation a regime input reads ("26년 2분기", "9월").
@@ -438,7 +438,7 @@ function buildRegime(growth, inflation, mh = null) {
     g?.payroll ? ['일자리 증가 3개월 평균', `${peopleText(g.payroll.avg3)} (직전 3개월 ${peopleText(g.payroll.prior3)})`, `직전보다 ${peopleText(G.payrollSlowdownK)} 넘게 적으면 둔화, ${peopleText(G.payrollSolidK)} 이상이면 견조`, growthHeld ? (near.growth ? '경계, 방향 보류 (근소)' : `${growthHeld} — 방향 보류`) : g.sahm && g.sahm.value >= G.sahmWatchAt ? '판정은 Sahm 지표' : growthDir === 'down' ? '둔화 신호' : '견조'] : ['일자리 증가 3개월 평균', '—', '직전 3개월과 비교', '자료 없음'],
     ...(dirFlag ? [dirFlag.pce, dirFlag.cpi].filter(Boolean).map((row) => [`${row.name}${row.month ? ` (${row.month})` : ''}`, `최근 3개월 연율 ${n(row.pace)}%, 전년 대비 ${n(row.yoy)}%`, `차이 ${I.reaccelPp}%p 이상이면 그 방향(빠르면 상승, 느리면 둔화)`, row.dir === 'up' ? '상승 방향' : row.dir === 'down' ? '둔화 방향' : `방향 없음 (차이 ${n(Math.abs(row.margin))}%p)`])
       : [i?.pace && i.yoy != null ? ['근원 PCE', `최근 3개월 연율 ${n(i.pace.value)}%, 전년 대비 ${n(i.paceYoy ?? i.yoy)}%`, `차이 ${I.reaccelPp}%p 이상이면 그 방향(빠르면 상승, 느리면 둔화)`, inflationHeld ? `${inflationHeld} (차이 ${n(Math.abs(inflationMargin))}%p)` : inflationDir === 'up' ? '상승 방향' : '둔화 방향'] : ['근원 PCE', '—', '3개월 연율과 전년 대비 비교', '자료 없음']]),
-    ...(dirFlag && !dirFlag.single ? [['물가 방향 (두 지표)', dirFlag.label, '두 지표가 같은 쪽이어야 방향, 반대면 엇갈림', inflationDir ? (inflationDir === 'up' ? '상승 방향' : '둔화 방향') : `${inflationHeld} — 방향 보류`]] : [])
+    ...(dirFlag && !dirFlag.single ? [['물가 방향 (두 지표)', dirFlag.label, '두 지표가 같은 쪽이어야 방향, 반대면 엇갈림', inflationDir ? (inflationDir === 'up' ? '상승 방향' : '둔화 방향') : inflationHeld === '방향 보류' ? '방향 보류' : `${inflationHeld} — 방향 보류`]] : [])
   ];
   const picked = key ? table[key] : null;
   if (picked) return { ...picked, available: true, provisional, growthDir, inflationDir, criteria: REGIME_CRITERIA, inputs, near, held, timing, inflationSplit: null };
