@@ -6,6 +6,42 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P2202 - v59.56 - 시황 해석이 실적 요약을 입력으로 받지 않아 급락 원인을 일반 헤드라인으로만 씀 (2026-11-01)
+
+- symptom/reproduction: 10/30 나스닥100 -3.46%, SMH -6.98%의 원인을 'AI 수익성 회의론' 헤드라인 하나로 썼다. 같은 시각 event-briefs.json에는 인텔 -28.6%와 4분기 매출 가이던스 $15.0–16.0B, 아마존 실적과 보도된 이유가 있었고, 소유자가 북마크한 글들은 모두 이 사실부터 썼다.
+- root_cause: market-narrative 프롬프트의 입력은 종가 근거·국면 판정·헤드라인·텔레그램·시간외였고, 실적 요약 레인(fetch-event-briefs)은 화면에만 연결돼 해석 생성기와 이어지지 않았다.
+- fix: scripts/producer/earnings-context.mjs가 직전 미국 종가에 반응이 닫힌 실적(그날 발표 → 시가총액 상위 → 반응 크기 순, 최대 5)을 원문 수치·가이던스·보도된 이유와 함께 US_EARNINGS 블록으로 만들고, 검증 문맥과 재사용 키에 넣는다.
+- violated_rule: 해석은 그날 종가를 움직인 1차 원문(실적 요약)을 입력으로 받는다
+- prevention: ci-event-briefs-check에 선정 순서·문장 형식·재사용 키 검사, ci-data-pipeline-contract-check에 프롬프트·검증 문맥 연결 검사를 더했다.
+- verification/residual: node scripts/ci-event-briefs-check.mjs && node scripts/ci-data-pipeline-contract-check.mjs
+
+## P2201 - v59.56 - 실적 요약 숫자 검증이 기간 표기와 억 달러 표기를 숫자 불일치로 보고 항목을 버림 (2026-11-01)
+
+- symptom/reproduction: 저장된 59개 실적 요약에서 289개 항목이 number-not-in-source로 버려졌고, 그중 129개는 연도·3Q·최근 12개월 같은 기간 표기만 원문에 없었다. 아마존 최근 12개월 잉여현금흐름 -$42.4B, 인텔 4분기 매출총이익률 가이던스, 연간 가이던스 다수가 화면에 없었고, 콜 요약의 '2,200억 달러'는 원문 '$220 billion'과 맞지 않아 버려졌다.
+- root_cause: numberTokens가 분기 서수(Q3·3분기)만 건너뛰고, 기간 표기(2026년, Q1 2027, 3Q, 최근 12개월)와 한국어 단위로 바꾼 달러 금액을 숫자 주장으로 셌다. 원문은 같은 기간을 단어로(trailing twelve months) 쓰거나 billion으로 쓴다.
+- fix: PERIOD_RE로 앞뒤에 금액 표지가 없는 연도, nQ, 3·6·9·12개월 기간을 건너뛰고, 문장에 '달러'가 있으면 억·조 금액을 billion 값으로도 대조한다(event-briefs.js). 저장분 재현 시 129건 중 119건 회복.
+- violated_rule: 검증은 숫자만 대조한다 — 기간 표기·단위 환산은 숫자로 세지 않는다
+- prevention: ci-event-briefs-check에 기간 표기·금액형 연도·억 달러/억 원 대조 회귀 검사를 더했다.
+- verification/residual: node scripts/ci-event-briefs-check.mjs
+
+## P2200 - v59.56 - 투자 심리 '심리 종합' 요약이 연결 카드에 덮여 사라짐 (2026-11-01)
+
+- symptom/reproduction: 투자 심리 화면 맨 위 '심리 종합' 카드에 게이지만 남고 한 줄 판정이 비었으며, 화면 끝 '연결해서 보면'은 카드 배경 없이 페이지 가장자리에 붙어 그려졌다.
+- root_cause: v59.55 market-synthesis.js가 카드 id를 `${page}-synthesis`로 만들었고, 투자 심리의 기존 요약 문단 id가 sentiment-synthesis였다. 렌더러가 getElementById로 그 문단을 찾아 내용을 바꾸고 이어서 볼 곳 앞으로 옮겼다.
+- fix: 연결 카드 id를 `mk-synth-${page}`로 바꿨다. 다른 화면에서 국면 판정의 전체 카드로 가는 링크도 새 id를 쓴다.
+- violated_rule: 동적으로 만드는 블록 id는 정적 셸의 기존 id와 겹치지 않는 고유 접두사를 쓴다.
+- prevention: 새 화면 블록 id는 컴포넌트 접두사(mk-synth-, fx-krw, news-focus)로 만들고, 추가 전 index.html·src에서 같은 id를 검색한다.
+- verification/residual: 브라우저에서 #sentiment-synthesis가 hero 요약 문단(mk-sub-hero__lede)으로 남고 #mk-synth-sentiment가 별도 카드로 그려지는지 확인.
+
+## P2199 - v59.56 - 실적 요약의 범위·단위·비교 기준이 영어로 남거나 한쪽 끝만 한국어 단위로 바뀜 (2026-11-01)
+
+- symptom/reproduction: 뉴스 실적 요약에 '$2.684 and 27.2억 달러', '$91 to 920억 달러', '2.2억 달러 to 2.2억 달러', '35% 증가 to 40% Y/Y', 'approximately 2,200억 달러', '15.4 billion 달러', '(37.0) million', '토지 7.4억 달러을 취득'이 그대로 보였다.
+- root_cause: koreanReleaseText는 '$N unit' 한 덩어리와 'up/down N%'만 바꿨다. 단위가 뒤 끝에만 붙은 범위, $ 없는 금액, 괄호 손실, to/and/between·approximately·~ 같은 연결어, Y/Y·Q/Q, 금액 변환 뒤의 조사를 다루지 않았고, 범위 양끝을 따로 반올림해 같은 숫자로 찍었다.
+- fix: 범위 금액은 한 단위로 양끝을 함께 바꾸고(같아지면 소수 둘째 자리), $ 없는 'N billion 달러'·'($N) million'·파운드를 바꾸고, 퍼센트 범위는 '전년 대비 35~40% 증가'처럼 기준을 앞에 둔다. approximately·~는 '약', non-GAAP는 '비GAAP', '달러을/이/은/과'는 '달러를/가/는/와'.
+- violated_rule: 화면 숫자는 한국어 단위와 한 가지 표기로 읽힌다
+- prevention: pipeline-semantics briefing 픽스처에 범위·Y/Y·근사·$ 없는 단위·괄호 손실·조사 사례 8개를 더했다.
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs
+
 ## P2198 - v59.54 - 등록 종목 밖 미국 상장 기호(FB, AAP)의 종목 화면 제목에 회사 이름이 없음 (2026-11-01)
 
 - symptom/reproduction: 첫 사용자 점검 run-6 #11: FB·AAP를 열면 이름 없이 기호만 보여 '없는 종목'처럼 읽혔다. 실제로 FB는 ProShares S&P 500 Dynamic Buffer ETF, AAP는 Advance Auto Parts Inc.로 상장돼 있다(MERGED.md의 '퇴역 기호' 전제가 틀렸음).

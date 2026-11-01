@@ -1,8 +1,0 @@
-{
- "version": "v59.56",
- "date": "2026-11-01",
- "changelog": [
-  "**텔레그램 첨부 기록 (v59.56):** 텔레그램 수집은 캡션 글자만 읽어, 차트·리포트 캡처 이미지와 PDF 리포트는 보이지 않았다(캡션이 있으면 글로 세고 그림은 조용히 버렸고, 캡션이 없으면 'media-only' 0점). 이제 글마다 첨부 종류와 수(사진·영상·문서, 앨범은 사진마다)와 문서 파일명을 기록하고, 파일명(예: 'SK하이닉스_3Q26_Review.pdf')을 분류 문장에 더해 캡션 없는 리포트도 종목·주제로 분류한다. 이미지·PDF 본문은 여전히 읽지 않으며(AI Worker가 비용 보호로 이미지 입력을 거부, P1421), coverage의 mediaAttachedCount·photoPostCount·documentPostCount·imageOnlyCount가 읽지 않은 시각 자료의 양을 보여 준다."
- ],
- "note": "v59.56 telegram attachment lineage"
-}

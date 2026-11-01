@@ -4,6 +4,14 @@ last_verified: 2026-11-01
 confidence: medium
 ---
 
+## v59.56 빅테크 분기 현금흐름 (2026-11-01)
+
+- [ ] QA-BTCF-01: v59.56 빅테크 분기 현금흐름: 첫 refresh-screener 실행 로그에서 9개사 모두 status ok이고 하이퍼스케일러 5개사 합계(complete)가 나오는지, AMZN·MSFT 최근 4분기 영업현금흐름·설비투자가 회사 실적 발표의 현금흐름표 합계와 맞는지(설비투자는 총액 기준이라 회사 FCF 정의와 차이는 허용) 확인. 집계 전 종목이 있으면 로그의 concepts 값으로 태그를 CASHFLOW_CONCEPTS에 더한다. verify_by: manual
+- [x] QA-TEXT-RELEASE-01: v59.56 뉴스 실적 요약에 to/and/between/approximately/Y/Y/Q/Q/billion/million이 남지 않고, 범위가 '26.8억~27.2억 달러'처럼 한 단위로 읽히는지 확인. verify_by: manual
+- [x] QA-TW-REV-01: v59.56 머지 뒤 첫 refresh-screener 실행 로그에 '[tw-revenue] ok <월> · N companies'가 찍히고 public-data/tw-monthly-revenue.json이 status ok·16개 코드(collected+missing)로 커밋되는지, 11/10 이후 실행에서 latestMonth가 2026-10으로 넘어가는지 확인. GitHub Actions에서 TWSE OpenAPI가 막히면 경고만 남고 수집 전 표시가 유지된다. verify_by: contract
+- [x] QA-EB-PERIOD-01: v59.56 다음 실적 시즌의 실적 요약에서 '2026년 4분기 전망'·'최근 12개월' 항목과 억 달러로 쓴 콜 요약 금액이 원문과 맞을 때 남는지 확인(dropped 목록에 기간 숫자만 남은 항목이 없어야 함). verify_by: contract
+- [x] QA-MA-EARN-01: v59.56 실적 발표 다음 날 시황 해석이 큰 반응 종목의 원문 수치·가이던스와 종가 반응을 날짜와 함께 쓰고, 보도된 이유를 '보도에 따르면'으로 귀속하는지 확인. verify_by: manual
+
 ## v59.54 포트폴리오 통화 (2026-11-01)
 
 - [x] QA-PF-CCY-01: v59.54 기준 통화를 선언하지 않은 포트폴리오에서 AI 문맥이 '기준 통화 미선언(종목 상장 통화 …로 계산)'으로 나오고, 시세 통화를 알 수 없는 보유만 있을 때 '환율을 선언하세요' 대신 시세 통화를 알 수 없다는 안내가 나오는지 확인. verify_by: contract

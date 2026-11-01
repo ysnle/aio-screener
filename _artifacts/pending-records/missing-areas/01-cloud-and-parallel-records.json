@@ -1,8 +1,0 @@
-{
-  "changelog": [
-    "**클라우드 세션 준비 자동화 ({VERSION}):** 클라우드 작업 세션은 의존성 없이 시작하고, 내장 브라우저 리비전이 저장소의 Playwright보다 낮아 첫 브라우저 검사가 'Executable doesn't exist'로 실패했다. `node scripts/cloud-session-setup.mjs`가 npm ci와 브라우저 리비전 연결, 실행 확인을 한 번에 하고, 세션 시작 안내가 준비 여부를 알려 준다.",
-    "**세션 시작 핸드오프 순서 ({VERSION}):** 새로 받은 저장소는 모든 파일의 수정 시각이 같아 세션 시작 안내가 임의의 핸드오프를 '최신'으로 보여 줬다. 이제 각 파일을 마지막으로 바꾼 커밋 시각으로 고른다.",
-    "**병렬 스레드 기록 보류 ({VERSION}):** 여러 스레드가 동시에 같은 다음 버전과 P 번호를 쓰던 충돌을 막는다. 병렬 작업은 기록 항목을 `_artifacts/pending-records/<스레드>/`에 두고, 통합 때 `node scripts/apply-pending-records.mjs <버전>`이 버전 올림과 기록을 한 번에 순서대로 한다."
-  ],
-  "note": "cloud session setup, handoff order by commit time, deferred ledger records for parallel threads"
-}
