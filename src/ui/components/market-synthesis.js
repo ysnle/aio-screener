@@ -2,7 +2,9 @@
 // 이어서 볼 곳: this screen's own line, the four-step chain (체력 → 흐름 → 움직이는 힘 → 다음 갈림길), up to three
 // scenario branches with a met/total meter and what confirms or breaks each, where to lean and what to avoid, the checks
 // to make, and two questions for the AI. renderNextSteps (page-flow.js) loads it lazily for the SYNTHESIS_PAGES navs.
-import { buildMarketSynthesis } from '../../domain/market/market-synthesis.js';
+import { buildMarketSynthesis, firstSentence } from '../../domain/market/market-synthesis.js';
+
+const OWN_LEAD = Object.freeze({ sentiment: '#sentiment-synthesis', news: '#news-focus .news-focus__now' });
 import { latestMarketInterpretation, marketInterpretation } from '../../data/selectors/interpretation.js';
 import { frameHead, markFrame } from './section-frame.js';
 import { shortDate } from '../../domain/content/date-labels.js';
@@ -79,6 +81,10 @@ export function renderMarketSynthesis({ documentRef: doc, host, page }) {
   let section = doc.getElementById(id);
   const model = buildMarketSynthesis(interpretation, { page });
   if (!model.available) { section?.remove(); return null; }
+  // v59.56 (screen review): 투자 심리 and 뉴스 start from their own verdict line on the screen (the 심리 종합 lede, the
+  // '뉴스가 모이는 곳' lead), not the shared volatility axis sentence or nothing.
+  const ownLead = OWN_LEAD[page] ? firstSentence(doc.querySelector(OWN_LEAD[page])?.textContent || '') : '';
+  if (ownLead) model.pageLine = ownLead;
   const key = [model.asOf, model.headline, model.pageLine, model.branches.map((row) => `${row.id}:${row.met}`).join(',')].join('|');
   if (section?.dataset.signature === key) return section;
   if (!section) {

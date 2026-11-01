@@ -378,8 +378,8 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
 .aio-term-more { font: inherit; font-size: 12px; min-height: 28px; padding: 2px 10px; border: 0.5px solid var(--border); border-radius: 4px; background: transparent; color: var(--text-primary); cursor: pointer; }
 
 /* v57.79 review: an empty portfolio (no holdings, no cash) collapses the hero strip to one empty-state line. */
-#pf-hero.is-empty > :not(#pf-hero-empty) { display: none !important; }
-#pf-hero.is-empty { padding-bottom: 16px; margin-bottom: 16px; }
+#pf-hero.is-empty { display: none !important; }
+#page-portfolio.pf-is-empty :is([data-action="refreshPortfolioPrices"], [data-action="clearAllPositions"]) { display: none !important; }
 .pf-hero-empty { margin: 0; font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
 
 /* v57.81: 비중 현황 | 섹터 배분. Both tracks shrink (minmax 0) and every child is bounded, so no control can push past its card;
@@ -697,3 +697,4 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
 #page-market-news .news-focus__check { margin: 4px 0 0; font-size: 12px; line-height: 1.55; color: var(--text-secondary); }
 @media (max-width: 743px) { :is(#page-fxbond .fx-krw__body, #page-market-news .news-focus__body) { grid-template-columns: minmax(0, 1fr); } }
 #page-market-news .news-focus { background: var(--bg-card); border-radius: 12px; padding: 20px var(--sx-card-pad-x); margin: 0 0 16px; }
+#page-screener #scr-tab-evidence.is-empty { display: none !important; }

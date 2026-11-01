@@ -1556,6 +1556,9 @@ function renderConditionalEvidence(documentRef, metadata) {
   };
   const status = statusLabels[evidenceContractValid ? evidence.status : evidence ? 'BLOCKED' : 'NO_DATA'] || '조건별 통계 미수신';
   panel.dataset.statusCode = evidenceContractValid ? evidence.status : evidence ? 'BLOCKED' : 'NO_CONDITIONAL_EVIDENCE';
+  // v59.56 (screen review): with no conditional statistics at all, the card was an empty '검증 자료 없음' box in 사후 검증;
+  // it stays out of the view until a statistic exists (a blocked one still shows why it is withheld).
+  panel.closest?.('#scr-tab-evidence')?.classList.toggle('is-empty', !evidence);
   const header = documentRef.createElement('div');
   header.className = 'scr-evidence-header';
   const title = documentRef.createElement('strong');
