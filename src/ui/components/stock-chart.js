@@ -9,6 +9,7 @@ import { buildChartScenarios, buildVolumeByPrice } from '../../domain/technical/
 import { formatScreenerPrice } from '../../domain/screener/market-scope.js';
 import { normalizeTickerInput } from '../../domain/entity/ticker-symbol.js';
 import { el } from './dom.js';
+import { askRow } from './ask-row.js';
 import { CHART_NOTES } from '../../domain/knowledge/theme-research-links.js';
 import { attachChartDrawings } from './stock-chart-drawings.js';
 import { attachChartCompare } from './stock-chart-compare.js';
@@ -308,7 +309,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   if (first === '__slow__') {
     set('stock-chart-status', `${sym} 시세 응답이 늦어 계속 시도 중입니다`);
     if (!root.__aioStockChartInstance || otherSymbolShown) setChartEmpty(doc, true);
-    panel.replaceChildren(emptyState(doc, { title: `${sym} 시세를 아직 받아오지 못했습니다`, reason: '시세 제공처나 중계 서버 응답이 늦어지고 있습니다.', next: '응답이 오면 차트가 나타납니다 — 기다리거나 다시 시도하세요.', action: { label: '다시 시도', onClick: () => renderStockChart({ documentRef: doc, root, symbol: sym }) } }));
+    panel.replaceChildren(emptyState(doc, { title: `${sym} 시세를 아직 받아오지 못했습니다`, reason: '시세 제공처나 AIO 시세 서버 응답이 늦어지고 있습니다.', next: '응답이 오면 차트가 나타납니다 — 기다리거나 다시 시도하세요.', action: { label: '다시 시도', onClick: () => renderStockChart({ documentRef: doc, root, symbol: sym }) } }));
   }
   const payload = await pending;
   if (ticket !== root.__aioStockChartTicket) return null;
@@ -326,7 +327,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
     try { held = payload == null ? root?._aioLastPublishedClose?.(sym) || null : null; } catch (_) { held = null; }
     const heldText = held ? `앱에 있는 마지막 종가는 ${Number(held.date.slice(5, 7))}/${Number(held.date.slice(8, 10))} ${formatScreenerPrice(held.value, held.currency || (kr ? 'KRW' : 'USD'))}입니다(요약 탭과 같은 값). ` : '';
     const state = payload == null
-      ? emptyState(doc, { title: `${sym} 시세를 받아오지 못했습니다`, reason: '시세 제공처나 중계 서버가 응답하지 않았습니다.', next: `${heldText}잠시 후 다시 시도하거나 다른 종목으로 확인해 보세요.`, action: retry })
+      ? emptyState(doc, { title: `${sym} 시세를 받아오지 못했습니다`, reason: '시세 제공처나 AIO 시세 서버가 응답하지 않았습니다.', next: `${heldText}잠시 후 다시 시도하거나 다른 종목으로 확인해 보세요.`, action: retry })
       : bars.length === 0
         ? emptyState(doc, { title: `${sym}의 일봉이 없습니다`, reason: '티커가 맞는지 확인하세요. 한국 종목은 6자리 코드(예: 005930)로 검색합니다.' })
         : emptyState(doc, { title: `${sym}의 일봉이 ${bars.length}개뿐입니다`, reason: '추세·셋업 분석에는 최소 60거래일이 필요합니다.', next: '상장 직후 종목은 기록이 쌓인 뒤 분석됩니다.' });
@@ -429,6 +430,13 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
     return button;
   }));
   body.append(read, visuals, learn);
+  // v59.56: questions that start from this chart, sent to the shared AI panel.
+  const ask = askRow(doc, [
+    ['셋업 점검', `${sym} 일봉 차트의 지금 셋업(추세 템플릿, 피벗, 변동성 수축)을 읽고 돌파와 실패 조건을 설명해줘`],
+    ['손절과 목표가', `${sym} 차트의 지지·저항 레벨로 손절가와 목표가를 정하는 원칙을 설명해줘`],
+    ['지금 들어가도 되나', `${sym} 지금 가격에서 살 때와 기다릴 때의 근거를 차트와 시장 상태로 비교해줘`]
+  ], 'chart-ask');
+  if (ask) body.append(ask);
   panel.replaceChildren(body, expert);
   if (readCards) expert.append(readCards);
   if (stageVisual.childElementCount) expert.append(stageVisual);
@@ -563,7 +571,7 @@ async function renderIntervalChart({ doc, root, sym, spec, ticket }) {
   doc.getElementById('stock-chart-section')?.setAttribute('data-symbol', sym);
   if (bars.length < 2) {
     set('stock-chart-status', '');
-    panel.replaceChildren(emptyState(doc, { title: `${sym} ${spec.label}봉을 받아오지 못했습니다`, reason: payload == null ? '시세 제공처나 중계 서버가 응답하지 않았습니다.' : '이 주기의 봉 데이터가 없습니다.', action: { label: '다시 시도', onClick: () => renderStockChart({ documentRef: doc, root, symbol: sym, interval: spec.id }) } }));
+    panel.replaceChildren(emptyState(doc, { title: `${sym} ${spec.label}봉을 받아오지 못했습니다`, reason: payload == null ? '시세 제공처나 AIO 시세 서버가 응답하지 않았습니다.' : '이 주기의 봉 데이터가 없습니다.', action: { label: '다시 시도', onClick: () => renderStockChart({ documentRef: doc, root, symbol: sym, interval: spec.id }) } }));
     setChartEmpty(doc, true);
     return null;
   }

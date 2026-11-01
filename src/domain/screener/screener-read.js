@@ -52,7 +52,7 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
       const leading = withQuadrant.filter((row) => row.quadrant === 'Leading' || row.quadrant === 'Improving');
       // v57.50 D12: the ranking (momentum·trend) and the rotation quadrant are both built from relative price strength,
       // so agreement between them is the same information seen twice — not a second confirmation. Neutral tone.
-      points.push({ id: 'rotation', tone: 'neutral', title: '섹터 회전과',
+      points.push({ id: 'rotation', tone: 'neutral', title: '섹터 회전',
         text: `${withQuadrant.map((row) => `${row.label} ${QUADRANT_KO[row.quadrant]}`).join(', ')} — ${leading.length === withQuadrant.length ? '쏠린 업종이 섹터 회전에서도 앞서는 쪽입니다' : leading.length ? '쏠린 업종 중 일부만 섹터 회전에서 앞섭니다' : '쏠린 업종이 섹터 회전에서는 뒤처지는 쪽이라, 순위가 지난 강세를 늦게 반영하고 있을 수 있습니다'}. 순위와 섹터 회전은 같은 가격 상대강도 정보에서 나온 결과라, 둘이 같은 방향이어도 서로를 확인하는 독립 근거는 아닙니다.` });
     }
   } else {

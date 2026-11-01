@@ -307,7 +307,10 @@ function renderPortfolioSurface(documentRef, page, surface) {
   documentRef?.getElementById('pf-hero')?.classList.toggle('is-empty', heroEmpty);
   const heroEmptyLine = documentRef?.getElementById('pf-hero-empty');
   if (heroEmptyLine) heroEmptyLine.hidden = !heroEmpty;
-  setSurfaceText(documentRef, 'pf-holding-count', surface.holdingCount ? `${surface.holdingCount} 종목` : '—', surface.holdingCount || null, surface);
+  // v59.56 (screen review): an empty portfolio said '넣으면 계산합니다' above the table's own empty state and still offered
+  // 시세 갱신 and 전체 삭제; the page keeps the table's one empty state and only the add action.
+  page.classList.toggle('pf-is-empty', heroEmpty);
+  setSurfaceText(documentRef, 'pf-holding-count', surface.holdingCount ? `${surface.holdingCount}종목` : '—', surface.holdingCount || null, surface);
   setSurfaceText(documentRef, 'pf-total-pnl-pct', surface.totalPnlPct == null ? '—' : `${signedText(surface.totalPnlPct, 1)}%`, surface.totalPnlPct, surface, surface.totalPnl == null ? 'var(--text-dim)' : surface.totalPnl >= 0 ? 'var(--dir-up)' : 'var(--dir-down)');
   setSurfaceText(documentRef, 'pf-daily-chg', formatSurfaceMoney(surface.dailyChange, surface.declaredBaseCurrency), surface.dailyChange, surface, surface.dailyChange == null ? 'var(--text-dim)' : surface.dailyChange >= 0 ? 'var(--dir-up)' : 'var(--dir-down)');
   setSurfaceText(documentRef, 'pf-daily-pct', surface.dailyPct == null ? '—' : `${signedText(surface.dailyPct, 2)}%`, surface.dailyPct, surface, surface.dailyChange == null ? 'var(--text-dim)' : surface.dailyChange >= 0 ? 'var(--dir-up)' : 'var(--dir-down)');

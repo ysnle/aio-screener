@@ -171,7 +171,7 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 #page-breadth .trend-card { background: var(--bg-card) !important; box-shadow:none !important; border-radius: 12px !important; padding: 20px 22px; }
 #page-breadth .breadth-more-grid .trend-card { box-shadow: none !important; background: var(--sx-ink-a03) !important; }
 #page-breadth .breadth-lead { max-width: none; }
-.bb-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.bb-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; } /* v59.56: a short card no longer stretches to its tall neighbour */
 .bb-pair > .bb-group { background: var(--bg-card); border-radius: 12px; box-shadow:none; padding: 20px 22px; }
 #page-breadth .bb-pair .trend-card { box-shadow: none !important; background: var(--sx-ink-a03) !important; }
 #page-breadth .breadth-more > summary { padding: 10px 0 0 var(--sx-card-pad-x); }

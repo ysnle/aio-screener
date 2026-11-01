@@ -114,11 +114,11 @@
 .page .sh-muted-note-centered { font-size: var(--fs-sm) !important; }
 .sh-soft-label-mb8 { font-weight: 700; color: var(--text-secondary); margin-bottom: 8px; }
 .page .sh-soft-label-mb8 { font-size: var(--fs-sm) !important; }
-.sh-muted-big { font-size: 18px; font-weight: 900; font-family: var(--font-mono); color: var(--text-muted); }
+.sh-muted-big { font-size: 18px; font-weight: 700; font-family: var(--font-mono); color: var(--text-muted); }
 .sh-ink-lead { font-size: 14px; font-weight: 700; color: var(--text-primary); font-family: var(--font-mono); }
 .sh-soft-text-loose { padding: 10px; font-size: 12px; color: var(--text-secondary); line-height: 1.7; }
 .page .sh-soft-text-loose { font-size: var(--fs-base) !important; }
-.sh-green-lead { font-size: 14px; font-weight: 900; font-family: var(--font-mono); color: var(--data-green); }
+.sh-green-lead { font-size: 14px; font-weight: 700; font-family: var(--font-mono); color: var(--data-green); }
 .sh-raised-panel-s2 { background: var(--surface-2); border: 0.5px solid rgba(var(--ink-rgb),0.2); border-radius: 4px; padding: 10px; }
 .sh-cyan-label { font-weight: 800; color: var(--data-cyan); margin-bottom: 5px; }
 .page .sh-cyan-label { font-size: var(--fs-sm) !important; }
@@ -417,7 +417,7 @@
 .sh-portfolio-cols { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 8px; align-items: end; }
 .sh-portfolio-rr-result-cols { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 10px; }
 .sh-portfolio-rr-result-panel { text-align: center; padding: 8px; background: var(--gold-3); border: 0.5px solid var(--gold-6); border-radius: 4px; }
-.sh-portfolio-rr-risk-lead { font-size: 14px; font-weight: 900; font-family: var(--font-mono); color: var(--data-red); }
+.sh-portfolio-rr-risk-lead { font-size: 14px; font-weight: 700; font-family: var(--font-mono); color: var(--data-red); }
 .sh-portfolio-rr-result-panel-green { text-align: center; padding: 8px; background: var(--gold-3); border: 0.5px solid var(--gold-6); border-radius: 4px; }
 .sh-portfolio-rr-result-panel-centered { text-align: center; padding: 8px; background: var(--gold-3); border: 0.5px solid var(--gold-6); border-radius: 4px; }
 .sh-portfolio-rr-result-panel-pad8 { text-align: center; padding: 8px; background: var(--gold-4); border: 0.5px solid var(--green-6); border-radius: 4px; }

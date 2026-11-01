@@ -880,7 +880,11 @@ function curveSvg(doc, yields, previous = null) {
     if (labelled.has(index)) add('text', { x: x(index) + lean.dx, y: H - 6, 'text-anchor': lean.anchor, class: `trend-chart-axis rates-curve-tenor${edge}` }, row.label);
     if (row.value == null) return;
     add('circle', { cx: x(index), cy: y(row.value), r: 3.5, class: 'rates-curve-dot' });
-    if (labelled.has(index)) add('text', { x: x(index) + lean.dx, y: y(row.value) - 8, 'text-anchor': lean.anchor, class: 'rates-curve-label' }, row.value.toFixed(2));
+    // v59.56 (screen review): the value sat on the dashed 1개월 전 curve where that curve ran just above the point (2년·3년·
+    // 20년 on 10/30); there the label goes under the point instead.
+    const prevY = prevById.has(row.id) ? y(prevById.get(row.id)) : null;
+    const below = prevY != null && prevY < y(row.value) && y(row.value) - prevY <= (narrow ? 34 : 22);
+    if (labelled.has(index)) add('text', { x: x(index) + lean.dx, y: below ? y(row.value) + 16 : y(row.value) - 8, 'text-anchor': lean.anchor, class: 'rates-curve-label' }, row.value.toFixed(2));
   });
   return svg;
 }
@@ -1049,13 +1053,15 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
           chipOff: align.status !== 'aligned',
           // P1725: the day change here is close-to-close on the FX trading day (New York evening); the live quote strip's
           // 전일 대비 is measured from the 08:00 KST cut, so the two can differ and the line says which this is.
-          lines: card.available ? [[card.day == null ? null : `직전 거래일 종가 대비 ${signed(card.day, 2, '%')}`, card.change20 == null ? null : `20거래일 ${signed(card.change20, 1, '%')}`].filter(Boolean).join(', ')] : ['기록 수집 중'],
+          lines: card.available ? [[card.day == null ? null : `직전 거래일 종가 대비 ${signed(card.day, 2, '%')}`, card.change20 == null ? null : `20거래일 ${signed(card.change20, 1, '%')}${card.id === 'usdkrw' ? (card.change20 > 0 ? '(원화 약세)' : card.change20 < 0 ? '(원화 강세)' : '') : card.id === 'usdjpy' ? (card.change20 > 0 ? '(엔 약세)' : card.change20 < 0 ? '(엔 강세)' : '') : ''}`].filter(Boolean).join(', ')] : ['기록 수집 중'],
           series: card.series,
           format: (value) => `${value.toFixed(card.digits === 1 ? 0 : 1)}${card.unit || ''}`,
           note: card.id === 'usdjpy' ? model.carry.text : card.id === 'usdkrw' ? '원/달러가 오르면 원화 약세입니다. 일별 값은 뉴욕 외환 거래일 마감 무렵 종가라, 실시간 시세의 전일 대비(한국 시간 오전 8시 기준)와 기준 시각이 다릅니다.' : '주요 6개 통화 대비 달러 가치입니다.'
         });
       }));
   }
+  // v59.56: the won split into the dollar's share and Korea's share heads the FX charts (a lazy chunk).
+  import('./krw-read.js').then(({ renderKrwRead }) => renderKrwRead({ documentRef: doc, root })).catch(() => {});
   renderRateStrip(doc, root);
   renderErpLine(doc, root);
   renderAssetPerformance(doc, root, model.basis);

@@ -256,3 +256,19 @@ export function newsEvidence(row) {
     publishedAt: stamp(row), observedAt: value(row?.observedAt),
     revision: row?.retractionOf || row?.revisionType === 'retraction' ? '철회' : isNewsRevision(row) ? '정정·변경' : '' };
 }
+
+// v59.56 (screen review): the topic chip came from the feed the headline arrived on, so an OPEC+ quota story on a macro
+// feed read 거시 and a copper-miner result on an energy feed read 에너지. For the displayed label only (LC-31: the feed
+// topic stays the row's topic and never drives article-topic risk signals), the headline's own words correct it in two
+// clear cases: oil-supply words move a broad macro/general row to energy, and metal words with no oil word
+// move it to metals (원자재). Every other row keeps its feed topic.
+const OIL_WORDS = /\bOPEC\+?|\bcrude\b|\boil (?:price|output|supply|production)s?\b|\bBrent\b|\bWTI\b|(?<![가-힣])(?:원유|유가|산유국|감산|증산)/i;
+const METAL_WORDS = /\bcopper\b|\baluminium\b|\baluminum\b|\bnickel\b|\biron ore\b|\blithium\b|(?<![가-힣])(?:구리|알루미늄|니켈|철광석|리튬)/i;
+export function newsTopicOf(item, shownTitle = '') {
+  const feed = value(item?.topic || item?.feedTopic);
+  const text = `${value(item?.title || item?.headline)} ${value(item?.ko_title)} ${value(shownTitle)}`;
+  const oil = OIL_WORDS.test(text);
+  if (oil && (!feed || feed === 'macro' || feed === 'general')) return 'energy';
+  if (!oil && METAL_WORDS.test(text) && (!feed || ['macro', 'general', 'energy'].includes(feed))) return 'metals';
+  return feed;
+}

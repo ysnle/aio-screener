@@ -175,7 +175,9 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   const spans = [['ret1m', '1개월'], ['ret3m', '3개월'], ['ret6m', '6개월']].map(([key, label]) => {
     const stock = value(row, key);
     const bench = finite(benchmark?.[key]);
-    return { key, label, stock, bench, gap: stock != null && bench != null ? stock - bench : null };
+    // v59.56 (screen review): the gap is taken from the one-decimal values the chart prints (-0.9% vs 0.0% reads -0.9%p,
+    // not the -0.8%p the unrounded difference gave).
+    return { key, label, stock, bench, gap: stock != null && bench != null ? Number(stock.toFixed(1)) - Number(bench.toFixed(1)) : null };
   });
   const compared = spans.filter((span) => span.gap != null);
   if (compared.length) {

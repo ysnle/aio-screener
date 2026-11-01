@@ -411,7 +411,7 @@ body {
 /* [시그널] 스냅샷 카드 입력 데이터 — 원시 시세 가독성 향상 */
 #snap-gspc [data-live-price], #snap-ixic [data-live-price],
 #snap-oil  [data-live-price], #snap-gold [data-live-price],
-#snap-btc  [data-live-price] { font-size: 18px !important; font-weight: 900 !important; }
+#snap-btc  [data-live-price] { font-size: 18px !important; font-weight: 700 !important; }
 
 /* ═══════════════════════════════════════════════════════════════════════ */
 
@@ -1365,7 +1365,7 @@ body.dark-theme .capex-flow-seg { filter: brightness(1.1); }
 .page .pf-sector-bar.is-neutral { background: var(--data-amber); }
 .page .pf-sector-bar.is-burden { background: var(--data-red); }
 .page .pf-sector-bar.is-unknown { background: var(--gold-a7); }
-.page .scr-ic-bars { display: grid; gap: 6px; margin: 10px 0 12px; } .page .scr-ic-row { display: grid; grid-template-columns: 84px minmax(0, 1fr) 56px; gap: 10px; align-items: center; font-size: 12px; } .page .scr-ic-track { position: relative; height: 10px; background: var(--surface-1); border-radius: 4px; } .page .scr-ic-track::after { content: ''; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--border); } .page .scr-ic-fill { position: absolute; top: 0; bottom: 0; border-radius: 4px; } .page .scr-ic-fill.is-up { background: var(--data-green); } .page .scr-ic-fill.is-down { background: var(--data-red); } .page .scr-ic-value { font-variant-numeric: tabular-nums; text-align: right; color: var(--text-secondary); }
+.page .scr-ic-bars { display: grid; gap: 6px; margin: 10px 0 12px; } .page .scr-ic-row { display: grid; grid-template-columns: 84px minmax(0, 1fr) 56px; gap: 10px; align-items: center; font-size: 12px; } .page .scr-ic-track { position: relative; height: 10px; background: var(--surface-1); border-radius: 4px; } .page .scr-ic-track::after { content: ''; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--border); } .page .scr-ic-fill { position: absolute; top: 0; bottom: 0; border-radius: 4px; } .page .scr-ic-fill.is-up { background: var(--data-green); } .page .scr-ic-fill.is-down { background: var(--data-amber); } .page .scr-ic-value { font-variant-numeric: tabular-nums; text-align: right; color: var(--text-secondary); }
 .page .fiscal-chart { margin: 12px 0 14px; }
 .page .fiscal-bars { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 14px; align-items: end; height: 220px; padding: 0 4px; border-bottom: 0.5px solid var(--border); }
 .page .fiscal-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 4px; min-width: 0; }
@@ -2664,7 +2664,7 @@ body.dark-theme .nav-item.active { background: var(--gold-a3) !important; color:
 body.aio-dev-mode .aio-audit-widget { display:block !important; }
 .aio-decision-top { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:10px; }
 .aio-decision-kicker { font-size:12px; font-weight:800; color:var(--accent); letter-spacing:0; text-transform:none; }
-.aio-decision-verdict { margin-top:4px; font-size:18px; font-weight:900; color:var(--text-primary); line-height:1.25; letter-spacing:var(--ls-tight); }
+.aio-decision-verdict { margin-top:4px; font-size:18px; font-weight:700; color:var(--text-primary); line-height:1.25; letter-spacing:var(--ls-tight); }
 .aio-decision-meta { display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:6px; min-width:220px; }
 .aio-source-badge, .aio-confidence-badge {
   display:inline-flex; align-items:center; gap:4px;
@@ -2701,7 +2701,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
 }
 #home-operator-note .aio-operator-note-kicker {
   font-size:12px;
-  font-weight:900;
+  font-weight:700;
   color:var(--accent,var(--gold-12));
   letter-spacing:0;
   text-transform:none;
@@ -2714,7 +2714,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
 #home-operator-note .aio-operator-note-title {
   font-size:18px;
   line-height:1.35;
-  font-weight:900;
+  font-weight:700;
   color:var(--text-primary);
   margin-bottom:8px;
 }
@@ -3174,7 +3174,7 @@ body:not(.aio-dev-mode) #briefing-live-news-list.is-expanded { max-height:none; 
 /* Buy phase label (Buy Alert / Buy Ready / SEPA style) */
 .aio-visual-report { margin:12px 0 14px; padding:12px; border:0.5px solid var(--border); border-radius:4px; background:var(--bg-card); }
 .aio-visual-report-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
-.aio-visual-report-title { font-size:12px; font-weight:900; color:var(--text-primary); }
+.aio-visual-report-title { font-size:12px; font-weight:700; color:var(--text-primary); }
 .aio-visual-report canvas { width:100%; max-width:540px; border-radius:4px; border:0.5px solid var(--black-a2); background:var(--gold-2); display:block; }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -3894,7 +3894,7 @@ button[data-filter-active="true"] {
       <ul class="mk-combo__list" id="regime-conflicts"></ul>
     </section>
     <section class="sx-card mk-watch" aria-labelledby="regime-watch-title">
-      <h2 class="sx-card__title" id="regime-watch-title">다음에 확인할 것</h2>
+      <h2 class="sx-card__title" id="regime-watch-title">다음에 확인할 가격 조건</h2>
       <ol class="mk-watch__list" id="regime-watch"></ol>
     </section>
   </div>

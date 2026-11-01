@@ -15,6 +15,7 @@ import { refreshSharedArtifact, SCENARIO_STATE } from '../../data/shared-artifac
 import { koreanThemeGroups } from '../../domain/market/korea-participation.js';
 import { summarizeValidation } from './screener-validation.js';
 import { el } from './dom.js';
+import { askRow } from './ask-row.js';
 import { signedFill, signedScale, signedTrack } from './signed-bar.js';
 import { openThemeDetail } from '../navigation/theme-detail.js';
 import { buildOutOfUniverseRead } from '../../domain/entity/out-of-universe-read.js';
@@ -380,6 +381,14 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
     if (focusFold) fold.querySelector(':scope > summary')?.focus({ preventScroll: true });
   }
   if (onDemand) host.append(outOfUniverseBlock(doc, root, onDemand));
+  // v59.56: questions that start from this stock, sent to the shared AI panel.
+  const subject = read.available && read.name && read.name !== sym ? `${sym}(${read.name})` : sym;
+  const ask = askRow(doc, [
+    ['추세가 왜 이런가', `${subject}의 지금 추세와 지수 대비 강도를 근거와 함께 설명해줘`],
+    ['실적과 가치는', `${subject}의 최근 실적, 다음 실적 발표에서 볼 것, 지금 밸류에이션 수준을 정리해줘`],
+    ['위험과 손절 기준은', `${subject}의 지금 위험 요소와 손절 기준을 어떤 원칙으로 정해야 하는지 알려줘`]
+  ], 'stock-read-ask');
+  if (ask) host.append(ask);
   // The 요약 · 차트 · 재무 tabs sit above the page; the next links name only other screens.
   renderNextSteps(doc, next, read.next.filter((step) => !['technical', 'fundamental'].includes(step.route)));
   return read;

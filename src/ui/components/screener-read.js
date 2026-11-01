@@ -6,6 +6,7 @@ import { readMarketRegime } from './market-regime.js';
 import { renderNextSteps } from './page-flow.js';
 import { currentRotationItems } from '../../domain/themes/produced-rotation.js';
 import { el } from './dom.js';
+import { askRow } from './ask-row.js';
 
 function mixVisual(doc, read, limit = 6) {
   const box = el(doc, 'div', null, 'screener-mix');
@@ -77,7 +78,13 @@ export function renderScreenerRead({ documentRef: doc, root, rows = [] }) {
   const rankRead = doc.getElementById('screener-rank-read');
   if (rankRead) {
     const mixLine = String(read.points.find((point) => point.id === 'mix')?.text || read.headline).split(' — ')[0];
-    rankRead.replaceChildren(el(doc, 'p', mixLine, 'scr-rank-read-line'), mixVisual(doc, read, 3));
+    // v59.56: questions that start from the ranking, at the end of the 순위 view's read (the default view).
+    const ask = askRow(doc, [
+      ['상위 종목의 공통점', '지금 스크리너 상위 종목들의 공통점과 섹터·테마 쏠림을 설명해줘'],
+      ['지금 국면에 맞는 종목', '스크리너 상위 종목 중 지금 시장 국면에 맞는 종목을 고르는 기준을 알려줘'],
+      ['이 순위를 믿어도 되나', '이 스크리너 점수가 잘 맞았던 때와 틀렸던 때, 사후 검증 결과를 어떻게 읽어야 하는지 알려줘']
+    ], 'screener-read-ask');
+    rankRead.replaceChildren(el(doc, 'p', mixLine, 'scr-rank-read-line'), mixVisual(doc, read, 3), ...(ask ? [ask] : []));
     rankRead.hidden = false;
   }
   // P1599 (F106/C01): the reasoning comes first, but the table is one click away instead of two screens down.

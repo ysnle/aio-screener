@@ -2,11 +2,15 @@
 // 이어서 볼 곳: this screen's own line, the four-step chain (체력 → 흐름 → 움직이는 힘 → 다음 갈림길), up to three
 // scenario branches with a met/total meter and what confirms or breaks each, where to lean and what to avoid, the checks
 // to make, and two questions for the AI. renderNextSteps (page-flow.js) loads it lazily for the SYNTHESIS_PAGES navs.
-import { buildMarketSynthesis } from '../../domain/market/market-synthesis.js';
+import { buildMarketSynthesis, firstSentence } from '../../domain/market/market-synthesis.js';
+
+const OWN_LEAD = Object.freeze({ sentiment: '#sentiment-synthesis', news: '#news-focus .news-focus__now' });
 import { latestMarketInterpretation, marketInterpretation } from '../../data/selectors/interpretation.js';
 import { frameHead, markFrame } from './section-frame.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { el } from './dom.js';
+import { askRow } from './ask-row.js';
+import { openRouteSection } from './page-flow.js';
 
 function chain(doc, rows) {
   const list = el(doc, 'ol', null, 'mk-synth__chain');
@@ -58,32 +62,29 @@ function stance(doc, model) {
   return box;
 }
 
-function askRow(doc, model) {
+function questionRow(doc, model) {
   const lead = model.branches[0];
-  const row = el(doc, 'div', null, 'aio-ask-row mk-synth__ask');
-  row.append(el(doc, 'span', 'AI에게 묻기', 'sh-muted-text'));
   const questions = [
     lead ? ['시나리오 점검', `지금 중심 시나리오 '${lead.name}'가 맞는지, 틀렸다면 어떤 신호가 먼저 나오는지 설명해줘`] : null,
     ['내 대응 점검', '지금 시장 국면에서 현금 비중, 보유 종목 비중, 손절 기준을 어떤 원칙으로 점검해야 하는지 알려줘']
   ].filter(Boolean);
-  for (const [label, question] of questions) {
-    const chip = el(doc, 'button', label, 'q-chip');
-    chip.type = 'button';
-    chip.dataset.action = '_aioAskInPanel';
-    chip.dataset.arg = question;
-    row.append(chip);
-  }
-  return row;
+  return askRow(doc, questions, 'mk-synth__ask');
 }
 
 export function renderMarketSynthesis({ documentRef: doc, host, page }) {
   if (!doc || !host || !page) return null;
   const root = doc.defaultView || globalThis;
   const interpretation = latestMarketInterpretation(root) || marketInterpretation(root);
-  const id = `${page}-synthesis`;
+  // v59.56 (screen review): '${page}-synthesis' collided with 투자 심리's hero lede (#sentiment-synthesis), which this card then
+  // emptied and moved to the bottom of the page; the card's ids carry their own prefix.
+  const id = `mk-synth-${page}`;
   let section = doc.getElementById(id);
   const model = buildMarketSynthesis(interpretation, { page });
   if (!model.available) { section?.remove(); return null; }
+  // v59.56 (screen review): 투자 심리 and 뉴스 start from their own verdict line on the screen (the 심리 종합 lede, the
+  // '뉴스가 모이는 곳' lead), not the shared volatility axis sentence or nothing.
+  const ownLead = OWN_LEAD[page] ? firstSentence(doc.querySelector(OWN_LEAD[page])?.textContent || '') : '';
+  if (ownLead) model.pageLine = ownLead;
   const key = [model.asOf, model.headline, model.pageLine, model.branches.map((row) => `${row.id}:${row.met}`).join(',')].join('|');
   if (section?.dataset.signature === key) return section;
   if (!section) {
@@ -99,6 +100,19 @@ export function renderMarketSynthesis({ documentRef: doc, host, page }) {
     parts.push(line);
   }
   parts.push(el(doc, 'h3', '시장 흐름은 이렇게 이어집니다', 'mk-synth__sub'), chain(doc, model.chain));
+  // v59.56 (screen review, both reviewers' first finding): the scenario cards, the stance and the checks were the same
+  // ~700px on eight screens. They stay whole on 국면 판정, the screen that owns the regime and scenarios; every other
+  // screen keeps its own line and the four-step chain, then one link to the full card there.
+  if (page !== 'signal') {
+    const more = el(doc, 'button', '갈래별 시나리오, 대응, 확인할 것 → 국면 판정', 'flow-next-link mk-synth__more');
+    more.type = 'button';
+    more.addEventListener('click', () => openRouteSection(doc, root, 'signal', 'mk-synth-signal'));
+    parts.push(more, questionRow(doc, model));
+    section.replaceChildren(...parts);
+    markFrame(section, `${page}.synthesis`);
+    section.dataset.signature = key;
+    return section;
+  }
   if (model.branches.length) {
     const grid = el(doc, 'div', null, 'mk-synth__branches');
     grid.append(...model.branches.map((row) => branchCard(doc, row)));
@@ -111,7 +125,7 @@ export function renderMarketSynthesis({ documentRef: doc, host, page }) {
     for (const text of model.checks) list.append(el(doc, 'li', text));
     parts.push(el(doc, 'h3', '확인할 것', 'mk-synth__sub'), list);
   }
-  parts.push(askRow(doc, model));
+  parts.push(questionRow(doc, model));
   section.replaceChildren(...parts);
   markFrame(section, `${page}.synthesis`);
   section.dataset.signature = key;

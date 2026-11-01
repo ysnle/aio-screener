@@ -35,6 +35,7 @@ import { DATA_STATE_CHIPS } from '../../domain/content/data-state.js';
 import { requestConsensusEstimates, CONSENSUS_KEY } from '../../data/consensus-estimates.js';
 import { asOfChip, setAsOf } from '../components/section-frame.js';
 import { isoDay, stampDay, latestSessionRows } from '../../domain/shared/session-date.js';
+import { askRow } from '../components/ask-row.js';
 
 const finiteOrNull = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
 // Published screener rows by symbol (the store's rows; ETFs included), for the period bars and the member tables.
@@ -1150,22 +1151,7 @@ function renderThemeDetailNext(documentRef, next, askName) {
     host.append(nav);
     renderNextSteps(documentRef, nav, next);
   }
-  const ask = documentRef.createElement('div');
-  ask.className = 'aio-ask-row thp-ask-row';
-  const askLabel = documentRef.createElement('span');
-  askLabel.className = 'sh-muted-text';
-  askLabel.textContent = 'AI에게 묻기';
-  ask.append(askLabel);
-  for (const [label, question] of [['성장 동력', `${askName} 테마의 성장 동력과 지금 흐름을 설명해줘`], ['경쟁 구도', `${askName} 테마의 경쟁 구도를 정리해줘`], ['위험 요소', `${askName} 테마의 위험 요소와 확인할 지표를 정리해줘`]]) {
-    const chip = documentRef.createElement('button');
-    chip.type = 'button';
-    chip.className = 'q-chip';
-    chip.dataset.action = '_aioAskInPanel';
-    chip.dataset.arg = question;
-    chip.textContent = label;
-    ask.append(chip);
-  }
-  host.append(ask);
+  host.append(askRow(documentRef, [['성장 동력', `${askName} 테마의 성장 동력과 지금 흐름을 설명해줘`], ['경쟁 구도', `${askName} 테마의 경쟁 구도를 정리해줘`], ['위험 요소', `${askName} 테마의 위험 요소와 확인할 지표를 정리해줘`]], 'thp-ask-row'));
   host.hidden = false;
 }
 

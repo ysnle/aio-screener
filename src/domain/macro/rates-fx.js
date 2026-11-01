@@ -168,7 +168,9 @@ export function curveDynamics(macroHistory, rule = CURVE_DYNAMICS_RULE, latest =
   if (latest && isoDate(latest.date) && finite(latest.short) != null && finite(latest.long) != null && (!rows.length || latest.date > rows[rows.length - 1].date)) rows.push({ date: latest.date, long: finite(latest.long), short: finite(latest.short) });
   if (rows.length <= rule.sessions) return null;
   const last = rows[rows.length - 1];
-  const from = rows[rows.length - 1 - rule.sessions];
+  // v59.56 (screen review): "20거래일" is 20 NYSE sessions like every other 20-session figure. Counting paired FRED rows
+  // skipped bond-market holidays (Columbus Day), so 10/1→10/30 read 10년 -30bp beside 매크로's 10/2→10/30 -35bp.
+  const from = sessionPointBack(rows, rule.sessions) || rows[rows.length - 1 - rule.sessions];
   const shortBp = Math.round((last.short - from.short) * 100);
   const longBp = Math.round((last.long - from.long) * 100);
   const spreadBp = longBp - shortBp;

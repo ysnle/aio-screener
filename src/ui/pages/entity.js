@@ -652,6 +652,10 @@ function renderFundamentalReport(documentRef, page, state) {
   markSecReportElement(coverage, report);
   markSecReportElement(grid, report);
   if (title) title.textContent = report.entityName || report.symbol ? `SEC 연간 공시 요약, ${report.entityName || report.symbol}` : 'SEC 연간 공시 요약';
+  // v59.56 (screen review): a Korean listing has no SEC report; the DART card above says so, and the empty SEC fold under it
+  // only repeated that, so it is not shown for .KS/.KQ.
+  const secFold = documentRef?.getElementById('fund-native-sec-report');
+  if (secFold) secFold.hidden = isKrSymbol(state?.id);
   if (meta) {
     // P1591 (S08): the reader line says which report and how old it is; filing ledger details
     // (acceptance time, accession, point-in-time count) move to the tooltip.

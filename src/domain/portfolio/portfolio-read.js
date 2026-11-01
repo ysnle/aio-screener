@@ -141,7 +141,7 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
     const krPct = sectorMix.reduce((sum, row) => sum + row.krValue, 0) / denom * 100;
     const krNote = krPct > 0 ? ` 한국 보유(${krPct.toFixed(0)}%)는 미국 섹터 회전으로 분류하지 않아 위 비율에서 빠집니다.` : '';
     const heldNote = heldPct > 0 ? ` ${heldPct.toFixed(0)}%는 판정을 보류합니다 — ${heldRows.map((row) => `${row.label} ${row.pct.toFixed(0)}%: '${row.quadrant.base}' 사분면이지만 ${row.quadrant.why}`).join(', ')}.` : '';
-    points.push({ id: 'rotation', tone: favourable === 0 && lagging === 0 ? 'neutral' : favourable >= lagging ? 'favorable' : 'burden', title: '섹터 회전과',
+    points.push({ id: 'rotation', tone: favourable === 0 && lagging === 0 ? 'neutral' : favourable >= lagging ? 'favorable' : 'burden', title: '섹터 회전',
       text: `${basisWord} 중 ${favourable.toFixed(0)}%가 시장보다 강해지는 '선도' 섹터, ${lagging.toFixed(0)}%가 '후행' 섹터에 있습니다(약 50거래일 상대강도 기준) (${sectorMix.slice(0, 3).map((row) => `${row.label} ${row.pct.toFixed(0)}%${row.quadrant ? (row.krShare > 0 ? `(미국 보유분 ${usPct(row).toFixed(0)}% ${row.quadrant.label})` : ` ${row.quadrant.label}`) : ''}`).join(', ')}).${heldNote}${krNote}` });
   }
 

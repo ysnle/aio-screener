@@ -76,7 +76,8 @@ export function renderPortfolioCriteria({ documentRef: doc, root, surface, check
   const host = el(doc, 'div', null, 'pf-criteria');
   host.id = 'pf-criteria';
   const lead = el(doc, 'p', null, 'pf-criteria-lead');
-  lead.append(el(doc, 'strong', `점검 기준 ${model.items.length}개 중 ${model.met}개 충족`), doc.createTextNode(`${model.unknown ? `, ${model.unknown}개 판정 보류` : ''} — 충족 개수이며 점수가 아닙니다.`));
+  // v59.56 (screen review): '충족' next to '한 종목 쏠림' read as 'the risk is met'; the state says whether the value is inside the line.
+  lead.append(el(doc, 'strong', `점검 기준 ${model.items.length}개 중 ${model.met}개 기준 이내`), doc.createTextNode(`${model.unknown ? `, ${model.unknown}개 판정 보류` : ''} — 기준 안에 든 개수이며 점수가 아닙니다.`));
   // v59.51 (two layers): the face row is the verdict, the criterion and the reader's value; each threshold and its reason,
   // the drawdown reference and the 내 원칙 note go to the top of 점검's expert fold.
   const list = el(doc, 'ul', null, 'pf-trade-mirror');
@@ -85,7 +86,7 @@ export function renderPortfolioCriteria({ documentRef: doc, root, surface, check
   const reasonList = el(doc, 'ul', null, 'stock-read-points');
   for (const item of model.items) {
     const li = el(doc, 'li', null, `pf-trade-mirror-row is-${item.ok == null ? 'unknown' : item.ok ? 'favorable' : 'burden'}`);
-    li.append(el(doc, 'span', item.ok == null ? item.held || '확인 불가' : item.ok ? '충족' : '미충족', 'pf-trade-mirror-state'), el(doc, 'strong', item.label),
+    li.append(el(doc, 'span', item.ok == null ? item.held || '확인 불가' : item.ok ? '기준 이내' : '기준 밖', 'pf-trade-mirror-state'), el(doc, 'strong', item.label),
       el(doc, 'span', ` — ${item.value}`));
     list.append(li);
     const reason = el(doc, 'li', null, 'stock-read-point is-neutral');

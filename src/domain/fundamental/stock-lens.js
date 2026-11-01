@@ -10,6 +10,7 @@ import { signedText, usdKoreanText } from '../shared/number.js';
 import { withTopicParticle } from '../content/korean-particle.js';
 import { RETURNED_LABEL } from './analysis-read.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
+import { formatScreenerPrice } from '../screener/market-scope.js';
 
 const pct = (value, digits = 1) => (value == null ? null : `${value.toFixed(digits)}%`);
 const usdShort = (value) => usdKoreanText(value); // first-users F33: one money format
@@ -314,7 +315,9 @@ export function buildThesisFrame({ implied = null, trailing = null, marginCash =
 }
 
 // ── 5. What to keep watching ───────────────────────────────────────────────────────────────────────────────────────
-export function buildWatchList({ schedule = null, consensus = null, trailing = null, row = null, stage = null, levels = null, benchmarkRet3m = null, benchmarkLabel = 'S&P 500' } = {}) {
+export function buildWatchList({ schedule = null, consensus = null, trailing = null, row = null, stage = null, levels = null, benchmarkRet3m = null, benchmarkLabel = 'S&P 500', currency = 'USD' } = {}) {
+  // v59.56 (screen review): a Korean stock's levels printed as "$228000.00"; prices follow the listing currency.
+  const money = (value) => formatScreenerPrice(Number(value), currency);
   const items = [];
   if (schedule?.text) items.push({ id: 'earnings', label: '다음 실적', now: schedule.text, why: '가이던스와 마진 방향이 논지를 가장 직접 확인합니다.' });
   const fwd = consensus?.fwd;
@@ -325,8 +328,8 @@ export function buildWatchList({ schedule = null, consensus = null, trailing = n
   if (r3 != null) items.push({ id: 'relative', label: '상대강도', now: `3개월 ${signedText(r3, 1, '%')}${benchmarkRet3m != null ? `, 같은 기간 ${benchmarkLabel} ${signedText(benchmarkRet3m, 1, '%')}` : ''}`, why: '지수보다 강한지 약한지가 수급의 방향입니다.' });
   const support = levels?.supportCandidates?.[0];
   const resistance = levels?.resistanceCandidates?.[0];
-  if (support || resistance) items.push({ id: 'levels', label: '가까운 가격 레벨', now: [support ? `아래 $${support.price.toFixed(2)}` : null, resistance ? `위 $${resistance.price.toFixed(2)}` : null].filter(Boolean).join(', '), why: '관찰할 가격대이며 매매 가격 제안이 아닙니다.' });
-  else if (finite(row?.vcpPivot)) items.push({ id: 'levels', label: '피벗', now: `$${Number(row.vcpPivot).toFixed(2)}`, why: '차트 판정의 기준 가격대이며 매매 가격 제안이 아닙니다.' });
+  if (support || resistance) items.push({ id: 'levels', label: '가까운 가격 레벨', now: [support ? `아래 ${money(support.price)}` : null, resistance ? `위 ${money(resistance.price)}` : null].filter(Boolean).join(', '), why: '관찰할 가격대이며 매매 가격 제안이 아닙니다.' });
+  else if (finite(row?.vcpPivot)) items.push({ id: 'levels', label: '피벗', now: money(row.vcpPivot), why: '차트 판정의 기준 가격대이며 매매 가격 제안이 아닙니다.' });
   if (stage) items.push({ id: 'theme', label: '테마 단계', now: `${stage.label} ${stage.stateLabel}`, why: '테마 전체가 약해지면 개별 종목도 같은 방향으로 끌리기 쉽습니다.' });
   return items.slice(0, 6);
 }
