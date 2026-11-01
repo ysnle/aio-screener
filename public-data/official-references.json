@@ -1,14 +1,14 @@
 {
   "schemaVersion": "official-web-references.v2",
-  "checkedAt": "2026-11-01T13:22:24.173Z",
+  "checkedAt": "2026-11-01T15:21:48.413Z",
   "lane": {
     "month": "2026-11",
-    "callsThisMonth": 1,
+    "callsThisMonth": 2,
     "monthlyCallCap": 40,
-    "day": "2026-11-01",
+    "day": "2026-11-02",
     "callsToday": 1,
     "dailyCallCap": 6,
-    "lastRunCalls": 0,
+    "lastRunCalls": 1,
     "aiConfigured": true,
     "policy": "official-page-verified; model candidates are never published"
   },
@@ -52,8 +52,8 @@
       "allowedUse": "reference-only"
     },
     "krExports": {
-      "status": "verified",
-      "reason": null,
+      "status": "stale",
+      "reason": "amount-value-not-on-page",
       "exportsYoyPct": 105.4,
       "exportsBillionUsd": 61.6,
       "period": "2026-10-01..2026-10-20",
@@ -61,10 +61,10 @@
       "publishedAt": "2026-10-21",
       "sourceUrl": "https://customs.go.kr/kcs/na/ntt/selectNttInfo.do?bbsId=1362&mi=2891&nttSn=10180465&nttSnUrl=3b279b0d8ae0387ac138c4741fb65b67",
       "verifiedQuote": ", 10 월 1 일 ~20 일 기간의 수출입 현황 잠정치를 발표 했다 . ◇ 동기간 수출은 616 억 달러 로 전년동기대비 105.4% 증가 , 수입은 471 억 달러 로 42.8% 증가 했으며 , 무역수지는 145 억 달러 흑자 를 기록했다고 밝혔다 . → 동기간 (1 ~ 20 일 ) 수출 10 월 기준 역대최대 / 반도체 (275 억 달러 ) 수출 1",
-      "checkedAt": "2026-11-01T00:21:50.882Z",
+      "checkedAt": "2026-11-01T15:21:48.413Z",
       "verifiedAt": "2026-11-01T00:21:50.882Z",
       "nextExpectedAt": "2026-11-01T00:00:00.000Z",
-      "lastAttemptOk": true,
+      "lastAttemptOk": false,
       "observation": "2026-10-20",
       "source": "수출입 현황 잠정치 · 수출입동향",
       "sourceKind": "official-primary",
