@@ -35,7 +35,7 @@ function bars(doc, story) {
 function weekList(doc, root, story) {
   if (!story.week.length) return null;
   const box = el(doc, 'div', null, 'mk-story__week');
-  box.append(el(doc, 'h3', '다음 주 판단을 바꿀 것', 'mk-story__sub'));
+  box.append(el(doc, 'h3', '다음 주 판단을 바꿀 일정', 'mk-story__sub'));
   const list = el(doc, 'ol', null, 'mk-watch__list');
   story.week.forEach((row, index) => {
     const item = el(doc, 'li', null, 'mk-watch__item');
@@ -90,7 +90,7 @@ function detailFold(doc, story) {
       const tr = el(doc, 'tr');
       tr.dataset.symbol = row.symbol;
       const move = el(doc, 'td', `${row.pct > 0 ? '+' : ''}${row.pct.toFixed(1)}%`, row.pct > 0 ? 'is-up' : row.pct < 0 ? 'is-down' : '');
-      tr.append(el(doc, 'td', `${row.name} ${shortDate(row.date)}`), move, el(doc, 'td', row.reason || '보도 근거를 찾지 못했습니다'), el(doc, 'td', row.capex || '—'));
+      tr.append(el(doc, 'td', `${row.name} ${shortDate(row.date)}`), move, el(doc, 'td', row.reason || '보도된 이유 없음'), el(doc, 'td', row.capex || '—'));
       body.append(tr);
     }
     table.append(body);

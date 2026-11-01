@@ -880,7 +880,11 @@ function curveSvg(doc, yields, previous = null) {
     if (labelled.has(index)) add('text', { x: x(index) + lean.dx, y: H - 6, 'text-anchor': lean.anchor, class: `trend-chart-axis rates-curve-tenor${edge}` }, row.label);
     if (row.value == null) return;
     add('circle', { cx: x(index), cy: y(row.value), r: 3.5, class: 'rates-curve-dot' });
-    if (labelled.has(index)) add('text', { x: x(index) + lean.dx, y: y(row.value) - 8, 'text-anchor': lean.anchor, class: 'rates-curve-label' }, row.value.toFixed(2));
+    // v59.56 (screen review): the value sat on the dashed 1개월 전 curve where that curve ran just above the point (2년·3년·
+    // 20년 on 10/30); there the label goes under the point instead.
+    const prevY = prevById.has(row.id) ? y(prevById.get(row.id)) : null;
+    const below = prevY != null && prevY < y(row.value) && y(row.value) - prevY <= (narrow ? 34 : 22);
+    if (labelled.has(index)) add('text', { x: x(index) + lean.dx, y: below ? y(row.value) + 16 : y(row.value) - 8, 'text-anchor': lean.anchor, class: 'rates-curve-label' }, row.value.toFixed(2));
   });
   return svg;
 }

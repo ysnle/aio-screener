@@ -95,7 +95,7 @@ function creditOf(macroHistory, from, to) {
 }
 
 const RATE_READ = Object.freeze({
-  'growth-fear': '대부분 실질금리 하락이라 물가 안도보다 성장 걱정과 채권 이동 쪽입니다',
+  'growth-fear': '대부분 실질금리 하락이라 물가 안도보다 성장 걱정에 안전자산인 국채로 돈이 옮겨 간 쪽입니다',
   'inflation-relief': '대부분 기대인플레 하락이라 물가 안도 쪽입니다',
   'real-up': '대부분 실질금리 상승이라 긴축 부담 쪽입니다',
   'inflation-fear': '대부분 기대인플레 상승이라 물가 걱정 쪽입니다',
@@ -120,7 +120,7 @@ export function earningsMovers(briefs, { from, to } = {}) {
     .filter((row) => (seen.has(row.symbol) ? false : seen.add(row.symbol)));
 }
 
-function lead({ n, moves, concentration, drivers, rates, credit }) {
+function lead({ n, moves, concentration, drivers, rates, credit, asOf = null }) {
   const parts = [];
   const f = (id) => pctText(moves[id].pct);
   if (concentration.kind === 'narrow-down') parts.push(`최근 ${n}거래일 나스닥 100 ${f('ndx')}, 동일가중 S&P 500 ${f('rsp')}. 하락은 대형 기술주에 몰렸고 시장 전체가 팔린 것은 아닙니다.`);
@@ -130,7 +130,9 @@ function lead({ n, moves, concentration, drivers, rates, credit }) {
   else if (concentration.kind === 'flat') parts.push(`최근 ${n}거래일 S&P 500 ${f('spx')}, 나스닥 100 ${f('ndx')}로 뚜렷한 방향이 없었습니다.`);
   if (drivers.length) parts.push(`실적 다음 날 ${drivers.map((row) => `${row.name} ${pctText(row.pct)}`).join(', ')}가 ${drivers[0].pct < 0 ? '하락' : '상승'}을 이끌었습니다.`);
   const tail = [];
-  if (rates && rates.kind !== 'flat') tail.push(`10년 금리 ${bpText(rates.ten.bp)}는 ${RATE_READ[rates.kind]}`);
+  // v59.56 (screen review): the split comes from FRED, a session behind the closes; the span is named when it ends earlier.
+  const tenSpan = rates && asOf && rates.ten.toDate < asOf ? `(${dayLabel(rates.ten.toDate).split('(')[0]}까지) ` : '';
+  if (rates && rates.kind !== 'flat') tail.push(`10년 금리 ${tenSpan}${bpText(rates.ten.bp)}는 ${RATE_READ[rates.kind]}`);
   if (credit) tail.push(credit.kind === 'stress' ? `하이일드 스프레드가 ${bpText(credit.hy.bp)} 벌어져 신용 쪽 경계가 필요합니다` : `하이일드 스프레드는 ${bpText(credit.hy.bp)}로 신용 불안은 아닙니다`);
   if (tail.length) parts.push(`${tail.join('. ')}.`);
   return parts.join(' ');
@@ -245,7 +247,7 @@ export function buildMarketStory({ history = [], macroHistory = null, briefs = n
   const drivers = reported.filter((row) => row.core && !row.korea && Math.abs(row.pct) >= 3 && Math.sign(row.pct) === direction).slice(0, 3);
   const story = { available: true, asOf, start, sessions, concentration, rates, credit, moves };
   story.bars = MOVE_ROWS.filter(([id]) => moves[id]).map(([id, label, group]) => ({ id, label, group, pct: moves[id].pct, asOf: moves[id].toDate }));
-  story.lead = lead({ n: sessions, moves, concentration, drivers, rates, credit });
+  story.lead = lead({ n: sessions, moves, concentration, drivers, rates, credit, asOf });
   story.checks = confirmations({ moves, rates, credit, macroHistory, history, asOf, start });
   // The table: every index-moving core name, then the four largest other moves of 8% or more.
   story.earnings = [...reported.filter((row) => row.core).slice(0, 8),

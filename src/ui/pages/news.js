@@ -6,7 +6,7 @@ import { closeBasis } from '../../domain/briefing/market-read.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { selectNewsItems, selectNewsStatus } from '../../state/selectors/news.js';
 import { subscribeToSlices } from '../../state/memoize.js';
-import { groupNewsStories, newsArticleKey, newsEvidence, resolveNewsIssuers, selectIntradayNews } from '../../domain/news/stories.js';
+import { groupNewsStories, newsArticleKey, newsEvidence, newsTopicOf, resolveNewsIssuers, selectIntradayNews } from '../../domain/news/stories.js';
 import { briefingWindowKST, deriveNewsSummary, isNewsAnalysisEligible, isNewsHeadlineOnly, isNewsTopicReviewRequired } from '../../domain/news/scoring.js';
 import { newsFlow } from '../../domain/market/page-flow.js';
 import { renderNextSteps } from '../components/page-flow.js';
@@ -202,7 +202,7 @@ function realTitle(root, item) {
   return typeof root?._aioStripPictographs === 'function' ? root._aioStripPictographs(fixed) : fixed; // P1500
 }
 
-const TOPIC_LABELS = Object.freeze({ macro: '거시', semi: '반도체·AI', geo: '지정학', energy: '에너지', fxbond: '금리·외환', bond: '금리', fx: '외환', credit: '신용', crypto: '크립토', equity: '주식', earnings: '실적', kr: '한국' });
+const TOPIC_LABELS = Object.freeze({ macro: '거시', semi: '반도체·AI', geo: '지정학', energy: '에너지', metals: '원자재', fxbond: '금리·외환', bond: '금리', fx: '외환', credit: '신용', crypto: '크립토', equity: '주식', earnings: '실적', kr: '한국' });
 
 // v58.74 (text audit 오늘 C6): a headline names a live scenario (the lead or the alternative) only when its topic feeds one of
 // that scenario's axes; the old fixed topic → scenario names did not exist among the live branches (P2030). The model is
@@ -212,7 +212,7 @@ const TOPIC_LABELS = Object.freeze({ macro: '거시', semi: '반도체·AI', geo
 // src/domain/briefing/event-guide.js), and the card now carries the whole chain — axis → live branch → burdened and
 // helped exposures → what to check — instead of the branch name alone ('고르는 법' E1).
 // The topic only keeps a scenario off unrelated feeds, so the broad macro feed may reach the oil, rates and policy branches.
-const TOPIC_AXES = Object.freeze({ macro: ['inflation', 'growth', 'commodities', 'rates', 'policy'], fxbond: ['rates', 'policy'], bond: ['rates', 'policy'], fx: ['rates', 'policy'], energy: ['commodities'], geo: ['commodities'], credit: ['credit'], semi: ['growth', 'credit'] });
+const TOPIC_AXES = Object.freeze({ macro: ['inflation', 'growth', 'commodities', 'rates', 'policy'], fxbond: ['rates', 'policy'], bond: ['rates', 'policy'], fx: ['rates', 'policy'], energy: ['commodities'], metals: ['commodities'], geo: ['commodities'], credit: ['credit'], semi: ['growth', 'credit'] });
 let scenarioMemo = { at: 0, xr: null };
 function liveScenarioFor(root, item, shownTitle = '') {
   const axes = TOPIC_AXES[item?.topic || item?.feedTopic];
@@ -349,7 +349,8 @@ function createNewsCard(documentRef, root, item, index) {
   // P1391: developer markers (selection score, headline-only boundary, feed-review flag) are not
   // user content; the card keeps source, topic and time. LC-31 still holds — a feed-query topic is
   // shown only as a plain label, never as a verified sector assignment elsewhere.
-  const topicLabel = TOPIC_LABELS[item?.topic || item?.feedTopic] || '';
+  const shownTopic = newsTopicOf(item);
+  const topicLabel = TOPIC_LABELS[shownTopic] || '';
   // v57.76: the NewsData free-plan delay marker left with the personal NewsData fetcher (no producer sets it).
   // Owner 2026-10-18: a rumour or anonymous-source headline is labelled where the reader sees it, not only scored down.
   const verificationLabel = item?.verification === 'unconfirmed' ? '미확인 보도(루머·익명 소식통)' : '';
@@ -377,7 +378,7 @@ function createNewsCard(documentRef, root, item, index) {
   const times = [['발행', facts.publishedAt], ['관찰', facts.observedAt], ['수집', item?.fetchedAt]].map(([label, value]) => (shortKst(value) ? `${label} ${shortKst(value)}` : null)).filter(Boolean);
   detail.textContent = [times.length ? `${times.join(', ')} (한국 시간)` : '',
     // LC-31 (v57.77): the 카테고리별 view that named this boundary left; a feed-query topic says so in the card's fold.
-    isNewsTopicReviewRequired(item) && topicLabel ? `주제 표시(${topicLabel})는 출처 기준 분류, 기사 본문으로 확인 전` : ''].filter(Boolean).join(', ');
+    isNewsTopicReviewRequired(item) && topicLabel ? `주제 표시(${topicLabel})는 ${shownTopic !== (item?.topic || item?.feedTopic) ? '제목 기준 분류' : '출처 기준 분류'}, 기사 본문으로 확인 전` : ''].filter(Boolean).join(', ');
   evidence.appendChild(detail);
   if (chain) {
     const chainNode = documentRef.createElement('div');
@@ -768,7 +769,7 @@ function render({ documentRef, root, store, route }) {
   // v59.56 (handoff item 3): what the window's coverage leans on — stories per topic and the live scenario each headline
   // feeds (the cards' own rule) — above 중요 뉴스, as a lazy chunk. Channel posts never enter it.
   const focusStories = groupNewsStories(importantModel?.eligibleItems || importantModel?.items || []).filter((item) => !item?._tgChannel)
-    .map((item) => { const shown = realTitle(root, item); return { topic: TOPIC_LABELS[item?.topic || item?.feedTopic] || '기타', chain: liveScenarioFor(root, item, shown), title: fixKoreanTerms(item?.title, shown) }; });
+    .map((item) => { const shown = realTitle(root, item); return { topic: TOPIC_LABELS[newsTopicOf(item, shown)] || '기타', chain: liveScenarioFor(root, item, shown), title: fixKoreanTerms(item?.title, shown) }; });
   import('../components/news-focus.js').then(({ renderNewsFocus }) => renderNewsFocus({ documentRef, stories: focusStories })).catch(() => {});
   if (!root._aioEarningsSnapshot && typeof root._fetchEarningsCalendarSnapshot === 'function' && !root._aioNewsEarningsRequested) {
     root._aioNewsEarningsRequested = true;

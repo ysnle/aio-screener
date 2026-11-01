@@ -604,7 +604,12 @@ export function buildMarketRead(input = {}) {
   if (leaders.break || leaders.state === 'weak') {
     const smh = s.smh, smh5 = smh ? pct(smh.value, smh.d5) : null, smhHigh = smh?.yearMax ? pct(smh.value, smh.yearMax) : null;
     const n = leaders.confirmations.length;
-    add('leadership-break', leaders.break ? 86 : 72, `5거래일 기준 나스닥 100 ${signed(leaders.drop5)}${smh5 != null ? `, 반도체(SMH) ${signed(smh5)}${smhHigh != null ? `(1년 고점 대비 ${signed(smhHigh)})` : ''}` : ''}, S&P 500 ${signed(spx5)}.`, 'index', {
+    // v59.56 (screen review, 10/30): the 5-session figures hid the last session's larger fall (S&P 500 -1.8% that day,
+    // -0.6% over 5). When one session moved the index more than the whole five did, that session leads the sentence.
+    const spx1 = pct(spx.value, spx.d1), ndx1 = s.ndx ? pct(s.ndx.value, s.ndx.d1) : null;
+    const dayLead = spx1 != null && Math.abs(spx1) >= B.derisk1dPct && (spx5 == null || Math.abs(spx1) > Math.abs(spx5))
+      ? `${shortDate(spx.date)} 하루 S&P 500 ${signed(spx1)}${ndx1 != null ? `, 나스닥 100 ${signed(ndx1)}` : ''}. ` : '';
+    add('leadership-break', leaders.break ? 86 : 72, `${dayLead}5거래일 기준 나스닥 100 ${signed(leaders.drop5)}${smh5 != null ? `, 반도체(SMH) ${signed(smh5)}${smhHigh != null ? `(1년 고점 대비 ${signed(smhHigh)})` : ''}` : ''}, S&P 500 ${signed(spx5)}.`, 'index', {
       reading: leaders.break ? `AI·반도체 주도 영역이 꺾였고 시장 전반의 확인 신호도 ${n}개 중 ${leaders.met}개가 겹쳐, 주도주 조정이 지금 시장의 중심 변수입니다.${Number.isFinite(leaders.ndx?.ma50 ?? s.ndx?.ma50) ? ` 나스닥 100이 50일선(${fmt(leaders.ndx?.ma50 ?? s.ndx?.ma50, 0)})을 되찾고 5거래일 낙폭이 ${RULES.trend.leaderDrop5dPct}% 안이면 이 판단은 풀립니다.` : ''}`
         : `AI·반도체 주도 영역이 약해졌지만 시장 전반의 확인 신호는 ${n}개 중 ${leaders.met}개라 아직 동반 약세로 번지지 않았습니다.`,
       check: `${smh ? '나스닥 100과 SMH가' : '나스닥 100이'} 50일선(나스닥 100 ${fmt(leaders.ndx?.ma50 ?? s.ndx?.ma50, 0)}${smh?.ma50 != null ? `, SMH ${fmt(smh.ma50, 0)}` : ''})을 되찾는지` });
