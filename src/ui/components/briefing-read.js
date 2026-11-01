@@ -101,7 +101,8 @@ function renderWeekStrip(doc, schedule, nowMs) {
     strip.setAttribute('aria-label', '앞으로 7일 공식 일정, 한국 시간');
     anchor.insertAdjacentElement('afterend', strip);
   }
-  const days = weekStripDays(schedule, nowMs);
+  // v59.56 (screen review): a Saturday or Sunday with no release and no report was a blank '—' column; it is left out.
+  const days = weekStripDays(schedule, nowMs).filter((day) => !((day.weekday === 0 || day.weekday === 6) && !day.today && !day.events.length && !day.earnings));
   strip.hidden = !days.some((day) => day.events.length || day.earnings);
   strip.replaceChildren(...days.map((day) => {
     const li = el(doc, 'li', null, `briefing-week-day${day.today ? ' is-today' : ''}${day.weekday === 0 || day.weekday === 6 ? ' is-weekend' : ''}`);
@@ -109,7 +110,7 @@ function renderWeekStrip(doc, schedule, nowMs) {
     for (const event of day.events) li.append(el(doc, 'span', event.label, `briefing-week-event${event.major ? ' is-major' : ''}${event.passed ? ' is-passed' : ''}`));
     // The schedule keeps each date's heaviest S&P 500 reports (perDay), so this counts those, not every report.
     if (day.earnings) li.append(Object.assign(el(doc, 'span', `주요 실적 ${day.earnings}곳`, 'briefing-week-earnings'), { title: 'S&P 500 비중이 큰 실적 발표만 셉니다. 전체 건수는 아래 날짜별 실적 목록에 있습니다.' }));
-    if (!day.events.length && !day.earnings) li.append(el(doc, 'span', '—', 'briefing-week-none'));
+    if (!day.events.length && !day.earnings) li.append(el(doc, 'span', '일정 없음', 'briefing-week-none'));
     return li;
   }));
 }

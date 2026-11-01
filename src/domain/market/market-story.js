@@ -201,7 +201,7 @@ function weekAhead({ calendar, nextEvent, story, nowMs, days = 8 }) {
   const reports = (Array.isArray(calendar?.earnings) ? calendar.earnings : [])
     .filter((row) => row?.symbol && row.date && Number(row.indexWeight) > 0 && readNumber(row.epsActual) === null && inside(row.date))
     .sort((a, b) => Number(b.indexWeight) - Number(a.indexWeight)).slice(0, 3);
-  // Reports in the same session are one line: "애플 7.7% · PLTR 0.7% 실적 (S&P 500 비중)" — each weight beside its name.
+  // Reports in the same session are one line: "AAPL 7.7% · PLTR 0.7% 실적 (S&P 500 비중)" — each weight beside its name.
   const sessionsOf = new Map();
   for (const row of reports) {
     const key = `${row.date}|${row.hour || ''}`;
@@ -210,9 +210,13 @@ function weekAhead({ calendar, nextEvent, story, nowMs, days = 8 }) {
   }
   for (const rows of [...sessionsOf.values()].sort((a, b) => a[0].date.localeCompare(b[0].date))) {
     const { date, hour } = rows[0];
+    // v59.56 (text review): one naming rule per line — Korean names only when every company on it has one, otherwise
+    // tickers for all ('애플 · PLTR' mixed the two; no Korean name is guessed for a company outside the mover list).
+    const allKo = rows.every((row) => MOVER_BY_SYMBOL[row.symbol]?.nameKo);
+    const nameOf = (row) => (allKo ? MOVER_BY_SYMBOL[row.symbol].nameKo : row.symbol);
     out.push({ kind: 'earnings', date, when: `${dayLabel(date)}${SESSION_WORDS[hour] ? ` ${SESSION_WORDS[hour]}` : ''}`,
-      names: rows.map((row) => MOVER_BY_SYMBOL[row.symbol]?.nameKo || row.symbol).join(' · '),
-      title: `${rows.map((row) => `${MOVER_BY_SYMBOL[row.symbol]?.nameKo || row.symbol} ${Number(row.indexWeight).toFixed(1)}%`).join(' · ')} 실적 (S&P 500 비중)`,
+      names: rows.map(nameOf).join(' · '),
+      title: `${rows.map((row) => `${nameOf(row)} ${Number(row.indexWeight).toFixed(1)}%`).join(' · ')} 실적 (S&P 500 비중)`,
       // v59.56 (screen review): two report days printed the same sentence; the later one says it continues the question.
       why: !aiStory ? '지수 비중이 커서 결과가 지수 방향에 바로 들어옵니다.'
         : out.some((item) => item.kind === 'earnings') ? '앞 실적에서 나온 AI 투자 대비 수익 판단이 이어지는지, 다른 회사 가이던스로 한 번 더 확인합니다.'

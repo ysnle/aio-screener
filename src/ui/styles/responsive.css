@@ -698,3 +698,11 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
 @media (max-width: 743px) { :is(#page-fxbond .fx-krw__body, #page-market-news .news-focus__body) { grid-template-columns: minmax(0, 1fr); } }
 #page-market-news .news-focus { background: var(--bg-card); border-radius: 12px; padding: 20px var(--sx-card-pad-x); margin: 0 0 16px; }
 #page-screener #scr-tab-evidence.is-empty { display: none !important; }
+
+/* v59.56 (screen review): on a phone the 투자 참고용 notice took ~130px above the page (three text lines, then the button on
+   its own row). The button now sits beside the text, so the notice is as tall as its text. */
+@media (max-width: 640px) {
+  #aio-first-visit-disclaimer.is-inline { flex-wrap: nowrap !important; gap: 10px !important; margin-bottom: 12px !important; }
+  #aio-first-visit-disclaimer.is-inline .lu-dc-text { flex: 1 1 0 !important; font-size: 12px; line-height: 1.5; }
+  #aio-first-visit-disclaimer.is-inline .lu-dc-btn { flex: 0 0 auto; padding: 0 12px !important; font-size: 12px !important; }
+}
