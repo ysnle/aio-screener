@@ -23,9 +23,9 @@
     "UNAVAILABLE",
     "UNKNOWN"
   ],
-  "generatedAt": "2026-11-01T10:21:18.487Z",
+  "generatedAt": "2026-11-01T14:27:26.920Z",
   "appRevision": "v59.55",
-  "dataRevision": "market-snapshot:2026-11-01T10:21:03.659Z:6e4cf4f8",
+  "dataRevision": "market-snapshot:2026-11-01T14:27:07.072Z:d7f2e31e",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
   "overall": "OPERATOR_REQUIRED",
   "overallBasis": {
@@ -41,7 +41,7 @@
   "featureAvailability": {
     "market-breadth": {
       "availability": "AVAILABLE",
-      "asOf": "2026-11-01T10:21:03.659Z",
+      "asOf": "2026-11-01T14:27:07.072Z",
       "missingReason": null,
       "sources": [
         "durable"
@@ -49,7 +49,7 @@
     },
     "fundamental-ranking": {
       "availability": "AVAILABLE",
-      "asOf": "2026-11-01T10:21:03.659Z",
+      "asOf": "2026-11-01T14:27:07.072Z",
       "missingReason": null,
       "sources": [
         "durable"
@@ -57,7 +57,7 @@
     },
     "quotes": {
       "availability": "AVAILABLE",
-      "asOf": "2026-11-01T10:21:18.487Z",
+      "asOf": "2026-11-01T14:27:26.920Z",
       "missingReason": null,
       "sources": [
         "fast"
@@ -65,7 +65,7 @@
     },
     "ai-chat": {
       "availability": "AVAILABLE",
-      "asOf": "2026-11-01T10:21:18.487Z",
+      "asOf": "2026-11-01T14:27:26.920Z",
       "missingReason": null,
       "sources": [
         "fast"
@@ -91,8 +91,8 @@
   "domainReceipts": {
     "market-quotes": {
       "publicationStatus": "SUCCESS",
-      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-11-01T10:21:03.659Z",
-      "lastSuccessfulObservation": "2026-11-01T10:21:03.659Z",
+      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-11-01T14:27:07.072Z",
+      "lastSuccessfulObservation": "2026-11-01T14:27:07.072Z",
       "counts": {
         "eligible": 81,
         "attempted": 81,
@@ -102,19 +102,19 @@
     },
     "news": {
       "publicationStatus": "PARTIAL",
-      "userCopy": "일부만 갱신 — 나머지는 기존값 유지 중 · 마지막 성공 관측 2026-11-01T10:21:03.659Z",
-      "lastSuccessfulObservation": "2026-11-01T10:21:03.659Z",
+      "userCopy": "일부만 갱신 — 나머지는 기존값 유지 중 · 마지막 성공 관측 2026-11-01T14:27:07.072Z",
+      "lastSuccessfulObservation": "2026-11-01T14:27:07.072Z",
       "counts": {
         "eligible": 17,
         "attempted": 17,
-        "updated": 16,
-        "retained": 0
+        "updated": 15,
+        "retained": 1
       }
     },
     "macro-fred": {
       "publicationStatus": "SUCCESS",
-      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-11-01T10:21:03.659Z",
-      "lastSuccessfulObservation": "2026-11-01T10:21:03.659Z",
+      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-11-01T14:27:07.072Z",
+      "lastSuccessfulObservation": "2026-11-01T14:27:07.072Z",
       "counts": {
         "eligible": 23,
         "attempted": 23,
@@ -124,8 +124,8 @@
     },
     "macro-bls": {
       "publicationStatus": "SUCCESS",
-      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-11-01T10:21:03.659Z",
-      "lastSuccessfulObservation": "2026-11-01T10:21:03.659Z",
+      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-11-01T14:27:07.072Z",
+      "lastSuccessfulObservation": "2026-11-01T14:27:07.072Z",
       "counts": {
         "eligible": 8,
         "attempted": 8,
@@ -135,8 +135,8 @@
     },
     "macro-bea": {
       "publicationStatus": "SUCCESS",
-      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-11-01T10:21:03.659Z",
-      "lastSuccessfulObservation": "2026-11-01T10:21:03.659Z",
+      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-11-01T14:27:07.072Z",
+      "lastSuccessfulObservation": "2026-11-01T14:27:07.072Z",
       "counts": {
         "eligible": 1,
         "attempted": 1,
@@ -146,8 +146,8 @@
     },
     "treasury-curve": {
       "publicationStatus": "SUCCESS",
-      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-11-01T10:21:03.659Z",
-      "lastSuccessfulObservation": "2026-11-01T10:21:03.659Z",
+      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-11-01T14:27:07.072Z",
+      "lastSuccessfulObservation": "2026-11-01T14:27:07.072Z",
       "counts": {
         "eligible": 1,
         "attempted": 1,
@@ -157,8 +157,8 @@
     },
     "surveys-aaii": {
       "publicationStatus": "SUCCESS",
-      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-11-01T10:21:03.659Z",
-      "lastSuccessfulObservation": "2026-11-01T10:21:03.659Z",
+      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-11-01T14:27:07.072Z",
+      "lastSuccessfulObservation": "2026-11-01T14:27:07.072Z",
       "counts": {
         "eligible": 1,
         "attempted": 1,
@@ -183,7 +183,7 @@
       "status": "CURRENT",
       "statusCode": "CONFIGURED_HEALTHY",
       "source": "github-actions",
-      "lastSuccessfulAt": "2026-11-01T10:21:03.659Z",
+      "lastSuccessfulAt": "2026-11-01T14:27:07.072Z",
       "coverage": {
         "required": 16,
         "observed": 16,
@@ -198,10 +198,10 @@
         "coverageComplete": true,
         "quoteQualityComplete": true,
         "blockedQuotes": [],
-        "generatedAt": "2026-11-01T10:21:03.659Z",
-        "ageHours": 0,
+        "generatedAt": "2026-11-01T14:27:07.072Z",
+        "ageHours": 0.01,
         "maxAgeHours": 12,
-        "evaluatedAt": "2026-11-01T10:21:18.487Z",
+        "evaluatedAt": "2026-11-01T14:27:26.920Z",
         "reason": null
       },
       "readiness": {
@@ -221,14 +221,14 @@
         "status": "CURRENT",
         "statusCode": 200,
         "coverage": "16/16",
-        "revision": "fast-quotes:4b8d1efe",
+        "revision": "fast-quotes:ef0963e9",
         "sourceSha": "1b8508f631ae1fc6f6ce1cf3f9149e0295505563",
-        "observedAt": "2026-11-01T10:21:18.487Z",
+        "observedAt": "2026-11-01T14:27:26.920Z",
         "source": "periodic-live-health",
         "observationStatus": "SUCCESS",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-11-01T10:21:18.487Z"
+        "evidenceEvaluatedAt": "2026-11-01T14:27:26.920Z"
       },
       "soak": {
         "requiredDays": 0,
@@ -261,14 +261,14 @@
   },
   "ai": {
     "scheduledAnalysis": {
-      "status": "CURRENT",
-      "statusCode": "CONFIGURED_HEALTHY",
+      "status": "DEGRADED",
+      "statusCode": "STALE",
       "source": "github-actions",
-      "lastCallSucceeded": "CURRENT",
+      "lastCallSucceeded": "BLOCKED",
       "evidence": {
-        "marketAnalysisOk": true,
-        "retainedFrom": null,
-        "generatedAt": "2026-11-01T10:21:03.659Z"
+        "marketAnalysisOk": false,
+        "retainedFrom": "2026-11-01T12:21:22.599Z",
+        "generatedAt": "2026-11-01T14:27:07.072Z"
       }
     },
     "publicChat": {
@@ -280,9 +280,9 @@
       "health": {
         "status": "CURRENT",
         "statusCode": 200,
-        "observedAt": "2026-11-01T10:21:18.487Z",
-        "revision": "v59.51",
-        "sourceSha": "824503118c47d76f4827ecd511ab2a23b575d5fc",
+        "observedAt": "2026-11-01T14:27:26.920Z",
+        "revision": "v59.54",
+        "sourceSha": "d118747bff5f8bf9e3b92a91a3d82f01dcebe687",
         "configured": true,
         "provider": "openai",
         "model": "gpt-6-luna",
@@ -296,7 +296,7 @@
         "observationStatus": "SUCCESS",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-11-01T10:21:18.487Z"
+        "evidenceEvaluatedAt": "2026-11-01T14:27:26.920Z"
       },
       "scheduledAnalysisDoesNotImplyChat": true
     }
@@ -306,7 +306,7 @@
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "reference",
-      "lastFetchAt": "2026-11-01T10:21:03.659Z"
+      "lastFetchAt": "2026-11-01T14:27:07.072Z"
     },
     "fred": {
       "rights": "REVIEW_REQUIRED",
@@ -316,8 +316,8 @@
         "BAMLH0A0HYM2: ICE Data Indices — reproduction requires ICE prior written permission (FRED series notice)"
       ],
       "status": "CURRENT",
-      "lastAttemptAt": "2026-11-01T10:21:03.709Z",
-      "lastFetchAt": "2026-11-01T10:21:03.709Z"
+      "lastAttemptAt": "2026-11-01T14:27:07.106Z",
+      "lastFetchAt": "2026-11-01T14:27:07.106Z"
     },
     "sec": {
       "rights": "REVIEW_REQUIRED",
@@ -331,7 +331,7 @@
   "reconciliation": {
     "tier0": {
       "status": "MATCH",
-      "artifact": "market-snapshot:2026-11-01T10:21:03.659Z:6e4cf4f8",
+      "artifact": "market-snapshot:2026-11-01T14:27:07.072Z:d7f2e31e",
       "uiEvidence": "same-revision-contract",
       "observedAtComplete": true
     },
@@ -468,7 +468,7 @@
           }
         ]
       },
-      "sourceRevision": "market-snapshot:2026-11-01T10:21:03.659Z:6e4cf4f8",
+      "sourceRevision": "market-snapshot:2026-11-01T14:27:07.072Z:d7f2e31e",
       "sourceArtifacts": [
         "public-data/data.json",
         "public-data/market-snapshot.json",
@@ -553,14 +553,19 @@
       "screener"
     ],
     "nativeChartOwner": [
+      "home",
+      "signal",
       "breadth",
       "sentiment",
+      "briefing",
       "technical",
       "macro",
       "fxbond",
+      "fundamental",
       "themes",
-      "portfolio",
-      "ticker"
+      "theme-detail",
+      "ticker",
+      "screener"
     ],
     "nativeNarrativeOwner": [
       "sentiment",
