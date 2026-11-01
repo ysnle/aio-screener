@@ -1,15 +1,15 @@
 {
  "schemaVersion": "2.0",
- "generatedAt": "2026-10-31T07:32:56.921Z",
+ "generatedAt": "2026-11-01T18:15:46.011Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
  "allowedUse": "research/reference; normalized annual filing facts, not analyst estimates or live TTM",
  "model": "sec-fy-normalized-v2",
- "eligible": 3880,
- "stored": 3519,
- "attempted": 0,
- "updated": 0,
+ "eligible": 3883,
+ "stored": 3521,
+ "attempted": 17,
+ "updated": 2,
  "failures": [
   {
    "symbol": "AACI",
@@ -530,7 +530,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001826836.json HTTP 404",
-   "attemptedAt": "2026-10-31T06:36:53.121Z",
+   "attemptedAt": "2026-11-01T18:15:18.447Z",
    "retryAfterMs": 86400000
   },
   {
@@ -552,6 +552,16 @@
    "issuerTaxonomy": "UNKNOWN",
    "filingForms": [],
    "attemptedAt": "2026-10-15T12:43:26.039Z",
+   "retryPolicy": "manual-or-explicit-SEC_RECHECK_UNSUPPORTED"
+  },
+  {
+   "symbol": "BBTX",
+   "status": "TERMINAL_UNSUPPORTED",
+   "reasonCode": "required-us-gaap-taxonomy-missing",
+   "reason": "required-us-gaap-taxonomy-missing; issuerTaxonomy=UNKNOWN",
+   "issuerTaxonomy": "UNKNOWN",
+   "filingForms": [],
+   "attemptedAt": "2026-11-01T18:15:18.447Z",
    "retryPolicy": "manual-or-explicit-SEC_RECHECK_UNSUPPORTED"
   },
   {
@@ -592,7 +602,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0002072188.json HTTP 404",
-   "attemptedAt": "2026-10-31T06:36:53.121Z",
+   "attemptedAt": "2026-11-01T18:15:18.447Z",
    "retryAfterMs": 86400000
   },
   {
@@ -650,7 +660,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001732379.json HTTP 404",
-   "attemptedAt": "2026-10-31T06:36:53.121Z",
+   "attemptedAt": "2026-11-01T18:15:18.447Z",
    "retryAfterMs": 86400000
   },
   {
@@ -658,7 +668,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001929908.json HTTP 404",
-   "attemptedAt": "2026-10-31T06:36:53.121Z",
+   "attemptedAt": "2026-11-01T18:15:18.447Z",
    "retryAfterMs": 86400000
   },
   {
@@ -690,7 +700,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0002076975.json HTTP 404",
-   "attemptedAt": "2026-10-31T06:36:53.121Z",
+   "attemptedAt": "2026-11-01T18:15:18.447Z",
    "retryAfterMs": 86400000
   },
   {
@@ -786,7 +796,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001821866.json HTTP 404",
-   "attemptedAt": "2026-10-31T06:36:53.121Z",
+   "attemptedAt": "2026-11-01T18:15:18.447Z",
    "retryAfterMs": 86400000
   },
   {
@@ -1525,7 +1535,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000825202.json HTTP 404",
-   "attemptedAt": "2026-10-31T06:36:53.121Z",
+   "attemptedAt": "2026-11-01T18:15:18.447Z",
    "retryAfterMs": 86400000
   },
   {
@@ -2353,7 +2363,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001784930.json HTTP 404",
-   "attemptedAt": "2026-10-31T06:36:53.121Z",
+   "attemptedAt": "2026-11-01T18:15:18.447Z",
    "retryAfterMs": 86400000
   },
   {
@@ -2629,7 +2639,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001526475.json HTTP 404",
-   "attemptedAt": "2026-10-31T06:36:53.121Z",
+   "attemptedAt": "2026-11-01T18:15:18.447Z",
    "retryAfterMs": 86400000
   },
   {
@@ -2886,7 +2896,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001569650.json HTTP 404",
-   "attemptedAt": "2026-10-31T06:36:53.121Z",
+   "attemptedAt": "2026-11-01T18:15:18.447Z",
    "retryAfterMs": 86400000
   },
   {
@@ -2999,7 +3009,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001492165.json HTTP 404",
-   "attemptedAt": "2026-10-31T06:36:53.121Z",
+   "attemptedAt": "2026-11-01T18:15:18.447Z",
    "retryAfterMs": 86400000
   },
   {
@@ -3159,7 +3169,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001608741.json HTTP 404",
-   "attemptedAt": "2026-10-31T06:36:53.121Z",
+   "attemptedAt": "2026-11-01T18:15:18.447Z",
    "retryAfterMs": 86400000
   },
   {
@@ -3416,7 +3426,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001548536.json HTTP 404",
-   "attemptedAt": "2026-10-31T06:36:53.121Z",
+   "attemptedAt": "2026-11-01T18:15:18.447Z",
    "retryAfterMs": 86400000
   },
   {
@@ -3791,7 +3801,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0002088375.json HTTP 404",
-   "attemptedAt": "2026-10-31T06:36:53.121Z",
+   "attemptedAt": "2026-11-01T18:15:18.447Z",
    "retryAfterMs": 86400000
   },
   {
@@ -4495,7 +4505,8 @@
   "YMAT",
   "YSS",
   "YSWY",
-  "ZKP"
+  "ZKP",
+  "BBTX"
  ],
  "retryableFailures": [
   "AYA",
@@ -4513,47 +4524,47 @@
   "SCZM",
   "TRBG"
  ],
- "pointInTimeCoverage": 3519,
- "pointInTimeAcceptedCoverage": 3519,
+ "pointInTimeCoverage": 3521,
+ "pointInTimeAcceptedCoverage": 3521,
  "batchLimit": 600,
  "backfillExtra": 0,
  "unsupportedRecheckPolicy": "SEC_RECHECK_UNSUPPORTED=1 required for explicit recheck; terminal unsupported rows remain auditable and out of normal batches",
- "nextRefreshCandidates": 361,
+ "nextRefreshCandidates": 362,
  "domainReceipt": {
   "schemaVersion": "domain-receipt.v1",
   "domain": "sec-fundamentals",
-  "runId": "gha:41180559662",
-  "attemptedAt": "2026-10-31T07:32:45.692Z",
-  "sourceRevision": "sec-company-tickers:76b92fbacfc1a5a8715a32bb5f923df4c79a8062b615735542081ddff6977b46",
+  "runId": "gha:41335050554",
+  "attemptedAt": "2026-11-01T18:15:18.447Z",
+  "sourceRevision": "sec-company-tickers:67da093c67735ef6dd1182a5ab95040559c99456a8724b740196b7cd00e75f77",
   "inputWatermarks": {
-   "universe": "2026-10-31T07:32:43.974Z",
-   "screener": "2026-10-31T07:32:04.483Z",
-   "previousArtifact": "2026-10-31T06:37:45.855Z"
+   "universe": "2026-11-01T18:15:16.258Z",
+   "screener": "2026-11-01T18:14:34.137Z",
+   "previousArtifact": "2026-10-31T07:32:56.921Z"
   },
   "batchLimit": 600,
   "counts": {
-   "eligible": 3880,
-   "attempted": 0,
-   "updated": 0,
+   "eligible": 3883,
+   "attempted": 17,
+   "updated": 2,
    "retained": 3519,
-   "pendingEligible": 361
+   "pendingEligible": 362
   },
   "thisBatch": {
-   "updated": 0,
-   "terminalUnsupported": 0,
-   "transientFailed": 0,
-   "recorded": 0
+   "updated": 2,
+   "terminalUnsupported": 1,
+   "transientFailed": 14,
+   "recorded": 15
   },
   "ledger": {
-   "total": 361,
-   "terminalUnsupported": 347,
+   "total": 362,
+   "terminalUnsupported": 348,
    "transientFailed": 14,
    "legacyUnknown": 0
   },
-  "lastSuccessfulObservation": "2026-10-31T06:36:53.121Z",
+  "lastSuccessfulObservation": "2026-11-01T18:15:18.447Z",
   "publication": {
-   "status": "NOT_ATTEMPTED",
-   "reason": "no target was due in this batch",
+   "status": "PARTIAL",
+   "reason": "some attempted targets were not updated",
    "allowsPartial": true,
    "basis": "per-symbol independent collection; retained eligible rows stay published while rows that lose their period requirements are excluded from analysis",
    "terminalExcludedFromBatchFailures": true,
@@ -319431,15 +319442,195 @@
     "acceptedTimeCount": 14,
     "observationsDropped": "extended-ledger-compact"
    }
+  },
+  "AZR": {
+   "symbol": "AZR",
+   "cik": "0001513525",
+   "entityName": "ADIAL PHARMACEUTICALS, INC.",
+   "source": "SEC EDGAR companyfacts",
+   "sourceTier": "T1_OFFICIAL",
+   "sourceKind": "T1_OFFICIAL",
+   "rightsId": "PUBLIC_REFERENCE",
+   "model": "sec-fy-normalized-v2",
+   "availabilityModel": "sec-pit-availability.v1",
+   "periodType": "FY",
+   "fiscalPeriodEnd": "2025-12-31",
+   "observedAt": "2025-12-31",
+   "filedAt": "2026-03-05",
+   "acceptedAt": "2026-03-05T22:03:27.000Z",
+   "availableAt": "2026-03-05T22:03:27.000Z",
+   "transportFetchedAt": "2026-11-01T18:15:20.199Z",
+   "reportAgeDays": 306,
+   "reportRecency": "recent-fy",
+   "periodAnchor": "net-income",
+   "revenueStatus": "unreported",
+   "accessionByField": {
+    "revenue": null,
+    "netIncome": "0001213900-26-024175",
+    "equity": "0001213900-26-024175",
+    "sharesOutstanding": "0001213900-26-024175"
+   },
+   "operandAvailability": {
+    "revenue": null,
+    "netIncome": "2026-03-05T22:03:27.000Z",
+    "equity": "2026-03-05T22:03:27.000Z",
+    "sharesOutstanding": "2026-03-05T22:03:27.000Z",
+    "priorRevenue": null
+   },
+   "derivedAvailability": {
+    "revGrowth": null,
+    "margin": "2026-03-05T22:03:27.000Z",
+    "roe": "2026-03-05T22:03:27.000Z",
+    "pe": "2026-03-05T22:03:27.000Z",
+    "pb": "2026-03-05T22:03:27.000Z"
+   },
+   "allowedUse": "research-relative-ranking-only",
+   "qualityStatus": "CURRENT",
+   "quality": {
+    "status": "CURRENT",
+    "stale": false,
+    "decisionUse": false,
+    "allowedUse": "reference"
+   },
+   "fetchedAt": "2026-11-01T18:15:20.199Z",
+   "form": "10-K",
+   "accession": "0001213900-26-024175",
+   "accountingStandard": "US-GAAP",
+   "reportingCurrency": "USD",
+   "revenue": null,
+   "netIncome": -7977171,
+   "equity": 5276458,
+   "equityBasis": "parent",
+   "sharesOutstanding": 1427970,
+   "sharesCheck": "consistent",
+   "sharesBasis": "dei-cover",
+   "sharesObservedAt": "2026-03-04",
+   "normalizerVersion": "sec-normalizer.2026-10-24",
+   "revenueConcept": null,
+   "coverage": [
+    "netIncome",
+    "equity",
+    "sharesOutstanding",
+    "roe"
+   ],
+   "pit": {
+    "schemaVersion": "sec-pit-facts.v1",
+    "status": "accepted-time-partial",
+    "observationCount": 158,
+    "acceptedTimeCount": 158,
+    "observationsDropped": "extended-ledger-compact"
+   },
+   "roe": -170.7,
+   "peEarnings": {
+    "basis": "ttm",
+    "concept": "net-income",
+    "value": -57802171,
+    "through": "2026-06-30",
+    "availableAt": "2026-10-21T00:25:58.000Z",
+    "derivedQuarter": true
+   },
+   "roeBasis": "average-equity",
+   "equityPrior": 4068084
+  },
+  "FFTT": {
+   "symbol": "FFTT",
+   "cik": "0002020228",
+   "entityName": "Masonglory Ltd",
+   "source": "SEC EDGAR companyfacts",
+   "sourceTier": "T1_OFFICIAL",
+   "sourceKind": "T1_OFFICIAL",
+   "rightsId": "PUBLIC_REFERENCE",
+   "model": "sec-fy-normalized-v2",
+   "availabilityModel": "sec-pit-availability.v1",
+   "periodType": "FY",
+   "fiscalPeriodEnd": "2026-03-31",
+   "observedAt": "2026-03-31",
+   "filedAt": "2026-07-30",
+   "acceptedAt": "2026-07-30T12:31:06.000Z",
+   "availableAt": "2026-07-30T12:31:06.000Z",
+   "transportFetchedAt": "2026-11-01T18:15:20.646Z",
+   "reportAgeDays": 216,
+   "reportRecency": "recent-fy",
+   "accessionByField": {
+    "revenue": "0001213900-26-083085",
+    "netIncome": "0001213900-26-083085",
+    "equity": "0001213900-26-083085",
+    "sharesOutstanding": null
+   },
+   "operandAvailability": {
+    "revenue": "2026-07-30T12:31:06.000Z",
+    "netIncome": "2026-07-30T12:31:06.000Z",
+    "equity": "2026-07-30T12:31:06.000Z",
+    "sharesOutstanding": null,
+    "priorRevenue": "2026-07-30T12:31:06.000Z"
+   },
+   "derivedAvailability": {
+    "revGrowth": "2026-07-30T12:31:06.000Z",
+    "margin": "2026-07-30T12:31:06.000Z",
+    "roe": "2026-07-30T12:31:06.000Z",
+    "pe": "2026-07-30T12:31:06.000Z",
+    "pb": "2026-07-30T12:31:06.000Z"
+   },
+   "allowedUse": "research-relative-ranking-only",
+   "qualityStatus": "CURRENT",
+   "quality": {
+    "status": "CURRENT",
+    "stale": false,
+    "decisionUse": false,
+    "allowedUse": "reference"
+   },
+   "fetchedAt": "2026-11-01T18:15:20.646Z",
+   "form": "20-F",
+   "accession": "0001213900-26-083085",
+   "accountingStandard": "US-GAAP",
+   "reportingCurrency": "USD",
+   "revenue": 23555839,
+   "netIncome": -8004730,
+   "equity": 8363242,
+   "equityBasis": "parent",
+   "sharesOutstanding": null,
+   "sharesCheck": "foreign-share-basis-unverified",
+   "sharesBasis": null,
+   "sharesObservedAt": null,
+   "normalizerVersion": "sec-normalizer.2026-10-24",
+   "revenueConcept": "Revenues",
+   "coverage": [
+    "revenue",
+    "netIncome",
+    "equity",
+    "revGrowth",
+    "margin",
+    "roe"
+   ],
+   "pit": {
+    "schemaVersion": "sec-pit-facts.v1",
+    "status": "accepted-time-partial",
+    "observationCount": 55,
+    "acceptedTimeCount": 55,
+    "observationsDropped": "extended-ledger-compact"
+   },
+   "revGrowth": 1,
+   "margin": -34,
+   "roe": -135.4,
+   "peEarnings": {
+    "basis": "fy",
+    "concept": "common",
+    "value": 8004730,
+    "through": "2026-03-31",
+    "availableAt": "2026-07-30T12:31:06.000Z",
+    "derivedQuarter": false
+   },
+   "roeBasis": "average-equity",
+   "equityPrior": 3460293
   }
  },
  "scope": "extended",
  "recordPolicy": "compact: normalized annual record without point-in-time observation arrays",
  "issuerSicPolicy": "SEC submissions sic per issuer; recorded on every submissions read plus a SIC-only pass of up to 800 issuers (missing first, then older than 30 days); a failed read keeps the previous code",
  "issuerSicCoverage": {
-  "classified": 3835,
-  "eligible": 3880,
-  "passAttempted": 45,
+  "classified": 3838,
+  "eligible": 3883,
+  "passAttempted": 41,
   "passUpdated": 0,
   "passFailed": 0
  },
@@ -321718,6 +321909,12 @@
    "cik": "0001563568",
    "observedAt": "2026-10-25T22:33:15.356Z"
   },
+  "AZR": {
+   "sic": "2834",
+   "description": "Pharmaceutical Preparations",
+   "cik": "0001513525",
+   "observedAt": "2026-11-01T18:15:18.447Z"
+  },
   "AZTA": {
    "sic": "3559",
    "description": "Special Industry Machinery, NEC",
@@ -321861,6 +322058,12 @@
    "description": "Savings Institutions, Not Federally Chartered",
    "cik": "0001108134",
    "observedAt": "2026-10-25T22:33:15.356Z"
+  },
+  "BBTX": {
+   "sic": "2836",
+   "description": "Biological Products, (No Diagnostic Substances)",
+   "cik": "0002044950",
+   "observedAt": "2026-11-01T18:15:18.447Z"
   },
   "BBUC": {
    "sic": "1700",
@@ -327075,6 +327278,12 @@
    "description": "Finance Services",
    "cik": "0001460702",
    "observedAt": "2026-10-26T07:32:18.839Z"
+  },
+  "FFTT": {
+   "sic": "1700",
+   "description": "Construction - Special Trade Contractors",
+   "cik": "0002020228",
+   "observedAt": "2026-11-01T18:15:18.447Z"
   },
   "FG": {
    "sic": "6311",
