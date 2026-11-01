@@ -122,6 +122,7 @@ const POLICIES = {
   'kr-fundamentals.json': { kind: 'filing-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 14 }, // P1654: OpenDART annual accounts (refresh-screener, weekly; needs DART_API_KEY)
   'bigtech-cashflow.json': { kind: 'filing-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // v59.56: SEC companyfacts quarterly cash flow, 9 big-tech issuers (refresh-screener, 6-hourly)
   'kr-investor-flows.json': { kind: 'official-market-flow', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // v58.55: BOK ECOS 투자자별 순매수 (refresh-screener, 6-hourly; needs BOK_API_KEY)
+  'tw-monthly-revenue.json': { kind: 'official-filing-monthly', timestamp: ['generatedAt'], maxAgeHours: 24 * 62 }, // v59.56: TWSE 대만 AI 공급망 월매출 (refresh-screener; rewritten only when the month's numbers change)
   'market-snapshot.json': { kind: 'live-core', timestamp: ['generatedAt', 'lastSuccessfulAt', 'attemptedAt'], maxAgeHours: 24 },
   'market-snapshot-status.json': { kind: 'operational-status', timestamp: ['updatedAt', 'lastSuccessfulAt', 'attemptedAt'], maxAgeHours: 24 },
   'operator-note.json': { kind: 'editorial-reference', custom: 'operator-updated', maxAgeHours: 24 * 30 },
