@@ -1547,7 +1547,9 @@
             "scripts/**",
             "js/aio-tests.js",
             "_context/**",
-            "CHANGELOG.md"
+            "CHANGELOG.md",
+            "version.json",
+            "_artifacts/pending-records/**"
           ]
         },
         {
@@ -2332,7 +2334,10 @@
         "_context/rule-gap-manifest.json",
         "_context/open-item-baseline.json",
         "_context/assertion-trace-baseline.json",
-        "_context/doc-freshness-baseline.json"
+        "_context/doc-freshness-baseline.json",
+        "scripts/apply-pending-records.mjs",
+        "_artifacts/pending-records/**",
+        "version.json"
       ],
       "groups": [
         "workspace"
@@ -2664,7 +2669,8 @@
         "scripts/*doc*.mjs",
         "scripts/*header-policy*.mjs",
         "architecture/agent-profiles.json",
-        "architecture/skill-eval-cases.json"
+        "architecture/skill-eval-cases.json",
+        "scripts/cloud-session-setup.mjs"
       ],
       "groups": [
         "workspace"

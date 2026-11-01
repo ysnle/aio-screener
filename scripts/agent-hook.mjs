@@ -90,8 +90,32 @@ function latestHandoffs(limit = 3) {
     }
   };
   visit(base, 0);
+  // v59.56: a fresh clone (every cloud session) stamps all files with the clone time, so mtime ordering picked an
+  // arbitrary handoff. Order by the last commit that touched each file; mtime stays for files not yet committed.
+  const committed = new Map();
+  try {
+    let at = 0;
+    const log = execFileSync('git', ['log', '-n', '400', '--format=%x00%ct', '--name-only', '--', '_artifacts'], { cwd: root, encoding: 'utf8', timeout: 4000, maxBuffer: 8 * 1024 * 1024 });
+    for (const line of log.split(/\r?\n/)) {
+      if (line.startsWith('\u0000')) at = Number(line.slice(1)) * 1000;
+      else if (line && !committed.has(line)) committed.set(line, at);
+    }
+  } catch { /* no git history: keep mtimes */ }
+  for (const item of found) if (committed.has(item.path)) item.mtime = committed.get(item.path);
   return found.sort((a, b) => b.mtime - a.mtime).slice(0, limit)
     .map((item) => `${item.path} (${new Date(item.mtime).toISOString().slice(0, 10)})`);
+}
+
+// v59.56: a cloud container starts without node_modules and with a Chromium revision that can lag the pinned
+// Playwright; say so up front instead of letting the first browser gate fail with "Executable doesn't exist".
+function cloudSetupNote() {
+  if (process.env.CLAUDE_CODE_REMOTE !== 'true') return '';
+  try {
+    execFileSync(process.execPath, [join(root, 'scripts', 'cloud-session-setup.mjs'), '--check'], { cwd: root, stdio: 'ignore', timeout: 5000 });
+    return ' Cloud session: dependencies and browser ready.';
+  } catch {
+    return ' Cloud session: run `node scripts/cloud-session-setup.mjs` once before qa-runner or any browser gate (npm ci + Playwright browser revision links).';
+  }
 }
 
 if (mode === 'session-start') {
@@ -103,7 +127,7 @@ if (mode === 'session-start') {
     state = {
       hookSpecificOutput: {
         hookEventName: 'SessionStart',
-        additionalContext: `AIO preflight: ${version}; working tree ${dirty.length ? `dirty (${dirty.length} paths)` : 'clean'}. Read _context/CURRENT-STATE.md once; consult governance/index only when relevant and reuse unchanged context. Search large ledgers only for matching terms. Existing dirty changes belong to the user. Automatic commit/deploy is forbidden. Current-state bytes loaded=${Buffer.byteLength(text, 'utf8')}.${(() => { const items = latestHandoffs(); return items.length ? ` Latest handoffs (read only when continuing prior work): ${items.join('; ')}.` : ''; })()}`
+        additionalContext: `AIO preflight: ${version}; working tree ${dirty.length ? `dirty (${dirty.length} paths)` : 'clean'}.${cloudSetupNote()} Read _context/CURRENT-STATE.md once; consult governance/index only when relevant and reuse unchanged context. Search large ledgers only for matching terms. Existing dirty changes belong to the user. Automatic commit/deploy is forbidden. Current-state bytes loaded=${Buffer.byteLength(text, 'utf8')}.${(() => { const items = latestHandoffs(); return items.length ? ` Latest handoffs (read only when continuing prior work): ${items.join('; ')}.` : ''; })()}`
       }
     };
   } catch (error) {
