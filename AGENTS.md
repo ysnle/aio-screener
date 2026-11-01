@@ -66,7 +66,7 @@ Owner decisions every agent applies without re-asking; change only when the user
 - Static, headless, browser and live evidence are separate; never promote a lower level to a higher one.
 - Change flow (2026-09-30): work on `main`; local QA (`qa-runner affected`; `npm run qa:full` for release/shared-shell certification, see Closeout) → commit → push only when asked. CI on main is the release gate (Pages and Workers deploy only the CI-attested SHA). No PR step for routine work.
 - Before pushing, `git fetch origin` then `git merge origin/main` (or `git pull --no-rebase origin main`); on generated-manifest conflicts run `node scripts/resolve-generated-conflicts.mjs` and the gates it prints. Push only after `git diff --name-only --diff-filter=U` is empty and no conflict markers remain, as its own command — never at the end of a `;`/pipe chain that can swallow a failure (v57.82).
-- Branches only for parallel agents or risky experiments: one worktree per agent (`git worktree add <dir> -b <agent>/<topic> main`), disjoint files; the main agent merges and gates once.
+- Branches only for parallel agents or risky experiments: disjoint files; no version bump or record-fix on the branch, entries go to `_artifacts/pending-records/<thread>/` for `apply-pending-records.mjs` at merge.
 - LF line endings everywhere (`.gitattributes`, P1344) except `*.cmd`/`*.ps1`.
 
 ## Closeout

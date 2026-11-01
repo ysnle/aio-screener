@@ -327,6 +327,23 @@ try {
     const r = run(d, baseEntry());
     check('a UTF-8 BOM on a ledger file is preserved (QA-OPS-REC-16)', r.code === 0 && readFileSync(join(d, 'CHANGELOG.md')).slice(0, 3).equals(Buffer.from([0xef, 0xbb, 0xbf])), r.err);
   }
+  // v59.56 deferred records for parallel threads: two threads' entries get consecutive ids in one dry run, and the
+  // real ledgers stay untouched (covered by the byte-identity check below).
+  {
+    const pending = mkdtempSync(join(tmpdir(), 'aio-pending-check-'));
+    tmpRoots.push(pending);
+    for (const thread of ['a-thread', 'b-thread']) {
+      mkdirSync(join(pending, thread), { recursive: true });
+      writeFileSync(join(pending, thread, '01.json'), JSON.stringify({ ...baseEntry(), version: undefined, date: undefined, qa: [], qa_section: undefined, changelog: [`**${thread} ({P}, {VERSION}):** pending`] }));
+    }
+    const { materializeEntry, listPendingEntries } = await import('./apply-pending-records.mjs');
+    const filled = materializeEntry({ changelog: ['x ({VERSION})'], qa: [{ text: 'since {VERSION}' }] }, 'v99.2', '2026-11-01');
+    check('v59.56 pending entries take the release and date and substitute {VERSION}', filled.version === 'v99.2' && filled.date === '2026-11-01' && filled.changelog[0] === 'x (v99.2)' && filled.qa[0].text === 'since v99.2', JSON.stringify(filled));
+    check('v59.56 pending entries are listed in thread then file order', listPendingEntries(pending).map((f) => f.slice(pending.length + 1).replace(/\\/g, '/')).join(',') === 'a-thread/01.json,b-thread/01.json');
+    const dry = spawnSync(process.execPath, [join(repo, 'scripts', 'apply-pending-records.mjs'), 'v99.2', '--dry-run', '--dir', pending], { encoding: 'utf8' });
+    const ids = [...dry.stdout.matchAll(/ok .* P(\d+)/g)].map((m) => Number(m[1]));
+    check('v59.56 two threads\' pending entries get consecutive P ids in one dry run', dry.status === 0 && ids.length === 2 && ids[1] === ids[0] + 1, `${dry.stdout}${dry.stderr}`);
+  }
 } finally {
   for (const dir of tmpRoots) rmSync(dir, { recursive: true, force: true });
 }

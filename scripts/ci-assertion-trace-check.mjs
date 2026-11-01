@@ -109,6 +109,13 @@ const changelogPath = join(root, 'CHANGELOG.md');
 const releaseHeadings = new Set(existsSync(changelogPath)
   ? [...read('CHANGELOG.md').matchAll(/^##\s+(v\d{1,3}(?:\.\d{1,2})?)(?![0-9.])/gm)].map((match) => match[1])
   : []);
+// v59.56: parallel threads defer bump-version/record-fix to integration (_artifacts/pending-records/, recorded by
+// apply-pending-records.mjs), so while entries are pending, the release that integration will assign is evidence.
+{
+  const pendingDir = join(root, '_artifacts', 'pending-records');
+  const hasPending = (dir) => existsSync(dir) && readdirSync(dir, { withFileTypes: true }).some((entry) => entry.isDirectory() ? hasPending(join(dir, entry.name)) : entry.name.endsWith('.json'));
+  if (hasPending(pendingDir)) releaseHeadings.add((await import('./apply-pending-records.mjs')).nextRelease(JSON.parse(read('version.json')).version));
+}
 const RELEASE_ID = /(?:^|[^A-Za-z0-9.])(v\d{1,3}\.\d{1,2})(?![0-9.])/g;
 const citesRelease = (label) => [...label.matchAll(RELEASE_ID)].some((match) => releaseHeadings.has(match[1]));
 const hasEvidence = (label) => EVIDENCE.test(label) || citesRelease(label);

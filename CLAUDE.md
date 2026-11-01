@@ -52,6 +52,12 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 - **게이트-문서 계약**: 원장(RULES/QA-CHECKLIST/BUG-POSTMORTEM/CHANGELOG) 산문은 자유롭게 압축·정리해도 된다. 게이트는 구조만 검사한다 — `## R<n>.` 헤딩(번호 보존), QA 행 형식·`verify_by`, CHANGELOG `## v<버전>` 헤딩. 정책↔원장 추적은 `architecture/governance-markers.json`이 담당한다
 - **배치 마감 시 push 여부를 한 번 묻는다** — 로컬 미푸시가 길어지면 실서비스 생산자·라이브가 어긋난다(v57.54 검토)
 
+## 환경 주의 (클라우드 세션)
+
+- 클라우드 컨테이너는 node_modules 없이, 저장소 Playwright보다 낮은 리비전의 브라우저로 시작한다 — 브라우저 게이트 전에 `node scripts/cloud-session-setup.mjs` 한 번(세션 시작 안내가 필요 여부를 알려 준다)
+- 다른 스레드와 병렬로 일할 때는 `bump-version`·`record-fix`를 돌리지 않고 기록 항목을 `_artifacts/pending-records/<스레드>/`에 두고, 새 assertion은 다음 릴리스(현재+1, 예 v59.56)를 인용한다 — 통합 때 `node scripts/apply-pending-records.mjs --dry-run` 후 같은 명령으로 그 릴리스에 한 번에 기록한다
+- 이 클론도 얕은 클론이다(`--is-shallow-repository` true) — 커밋 존재는 `git cat-file -e`로 본다
+
 ## 환경 주의 (Windows · Git Bash)
 
 - 셸 heredoc·`sed`로 JS를 고치면 `\n` 같은 백슬래시가 사라지거나 실제 줄바꿈이 된다 — Edit 도구로 고치고 `node --check`

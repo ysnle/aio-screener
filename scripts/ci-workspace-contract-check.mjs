@@ -96,6 +96,15 @@ const sessionHook = runHook('session-start', { cwd: root, hook_event_name: 'Sess
 let sessionOutput = {};
 try { sessionOutput = JSON.parse(sessionHook.stdout || '{}'); } catch { sessionOutput = {}; }
 check('SessionStart hook fixture injects generated current state', sessionHook.status === 0 && sessionOutput.hookSpecificOutput?.hookEventName === 'SessionStart' && String(sessionOutput.hookSpecificOutput?.additionalContext || '').includes(state.application.version));
+// v59.56: cloud sessions are told whether setup is needed; local sessions get no cloud line. Browser revisions link to
+// the newest installed revision of the same browser and nothing is planned when the pinned one exists.
+const cloudOff = runHook('session-start', { cwd: root, hook_event_name: 'SessionStart' }, { CLAUDE_CODE_REMOTE: '' });
+const cloudOn = runHook('session-start', { cwd: root, hook_event_name: 'SessionStart' }, { CLAUDE_CODE_REMOTE: 'true' });
+check('v59.56 SessionStart mentions cloud setup only in a cloud session', !/Cloud session:/.test(cloudOff.stdout) && /Cloud session: /.test(cloudOn.stdout), cloudOn.stderr);
+const { planBrowserLinks } = await import('./cloud-session-setup.mjs');
+const plannedLinks = planBrowserLinks([{ name: 'chromium-headless-shell', revision: '1248' }, { name: 'chromium', revision: '1243' }, { name: 'ffmpeg', revision: '1013' }],
+  ['chromium-1243', 'chromium_headless_shell-1200', 'chromium_headless_shell-1243', 'ffmpeg']);
+check('v59.56 cloud setup links only missing revisions to the newest installed one', JSON.stringify(plannedLinks) === JSON.stringify([{ link: 'chromium_headless_shell-1248', target: 'chromium_headless_shell-1243' }]), JSON.stringify(plannedLinks));
 const unrelatedPostEdit = runHook('post-edit', { cwd: root, hook_event_name: 'PostToolUse', tool_input: { command: '*** Update File: notes.txt' } });
 check('unrelated PostToolUse hook fixture passes silently', unrelatedPostEdit.status === 0 && unrelatedPostEdit.stdout === '', unrelatedPostEdit.stderr);
 const advisoryPostEdit = runHook(
