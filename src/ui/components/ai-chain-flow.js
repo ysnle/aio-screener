@@ -119,10 +119,10 @@ function paintAiChain(doc, root, { id, frame, className, more: withLink, place, 
     if (others.length) fold.append(barList(others));
     fold.append(el(doc, 'p', '막대는 묶음별 미국 종목의 한 달 수익률 중앙값, 오른쪽 숫자는 지난 거래일 중앙값입니다. 아래 종목은 한 달 수익률, 괄호 안은 지난 거래일입니다. 묶음은 테마 화면의 반도체·AI 인프라·광통신 분류를 따릅니다.', 'ai-chain__member-list'));
   }
-  else fold.append(el(doc, 'p', '종목 옆 숫자는 한 달 수익률, 괄호 안은 지난 거래일입니다.', 'ai-chain__member-list'));
   // Taiwan's monthly revenue opens the member lists: a short block, read before the long US lists.
   const tw = twRevenue(doc, root, id, () => paintAiChain(doc, root, { id, frame, className, more: withLink, place, limit }));
   if (tw) fold.append(...tw.fold);
+  if (!Number.isFinite(limit)) fold.append(el(doc, 'p', '종목 옆 숫자는 한 달 수익률, 괄호 안은 지난 거래일입니다.', 'ai-chain__member-list'));
   for (const group of flow.groups) {
     fold.append(el(doc, 'p', group.name, 'event-brief__sub'),
       el(doc, 'p', group.members.map((member) => `${member.sym} ${signed(member.ret1m)}(${signed(member.ret1d)})`).join(', '), 'ai-chain__member-list'));
