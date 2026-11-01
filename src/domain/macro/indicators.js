@@ -6,7 +6,7 @@
 // comparison drawn is against a published target (the FOMC's 2% PCE inflation objective).
 
 import { seriesOf, yoySeries } from './macro-read.js';
-import { signedText, readNumber as finite } from '../shared/number.js';
+import { peopleText, signedText, readNumber as finite } from '../shared/number.js';
 import { isIsoDay } from '../shared/session-date.js';
 // MERGED #13 (run-6): '다음 FOMC 결정 12/9' (the ET calendar day) sat beside the timeline's 12/10(목) — every release date
 // is the one KST release clock with the zone named (eventWhenText).
@@ -45,7 +45,7 @@ export const MACRO_GROUPS = Object.freeze([
   Object.freeze({
     id: 'labor', title: '고용', items: Object.freeze([
       Object.freeze({ id: 'unemployment', history: { field: 'unemployment', derive: 'level' }, key: 'unemployment', label: '실업률', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-nfp', note: '가계 조사 기준입니다.' }),
-      Object.freeze({ id: 'nfp', history: { field: 'payrolls', derive: 'diff' }, key: 'nfp', label: '비농업 고용 증감', unit: '천 명', digits: 0, signed: true, priorPrint: true, release: 'us-nfp', note: '전월 대비 늘어난 일자리 수(사업체 조사 기준)입니다.' }),
+      Object.freeze({ id: 'nfp', history: { field: 'payrolls', derive: 'diff' }, key: 'nfp', label: '비농업 고용 증감', unit: '천 명', digits: 0, signed: true, people: true, priorPrint: true, release: 'us-nfp', note: '전월 대비 늘어난 일자리 수(사업체 조사 기준)입니다.' }),
       Object.freeze({ id: 'usWageGrowth', history: { field: 'hourlyEarnings', derive: 'yoy' }, key: 'usWageGrowth', label: '시간당 임금 (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-nfp', note: '민간 부문 평균 시간당 임금 상승률입니다.' }),
       Object.freeze({ id: 'participation', key: 'blsLaborForceParticipation', blsSeries: 'laborForceParticipation', label: '경제활동참가율', unit: '%', digits: 1, release: 'us-nfp', note: '16세 이상 인구 중 일하거나 구직 중인 비율입니다.' })
     ])
@@ -148,11 +148,12 @@ function buildItem(macro, releases, schedules, item, macroHistory = null) {
   const value = values[0] * scale;
   const valueText = item.range
     ? `${values[0].toFixed(item.digits)}–${values[1].toFixed(item.digits)}${item.unit}`
-    : `${item.signed ? signed(value, item.digits) : value.toFixed(item.digits)}${item.unit}`;
+    // v59.56 (text pass): job counts read '+2.9만 명' as everywhere else, not '+29천 명'.
+    : item.people ? peopleText(value, { sign: item.signed }) : `${item.signed ? signed(value, item.digits) : value.toFixed(item.digits)}${item.unit}`;
   const rawDelta = finite(macro[`${keys[0]}Delta`]);
   const delta = rawDelta == null ? null : rawDelta * scale;
   let deltaText = null;
-  if (item.priorPrint && delta != null) deltaText = `전월 ${signed(value - delta, item.digits)}${item.unit}`;
+  if (item.priorPrint && delta != null) deltaText = `전월 ${item.people ? peopleText(value - delta, { sign: true }) : `${signed(value - delta, item.digits)}${item.unit}`}`;
   else if (item.deltaUnit && delta != null && !item.range) deltaText = `전월 대비 ${signed(delta, item.digits)}${item.deltaUnit}`;
   const targetGap = item.target != null ? value - item.target : null;
   const period = !asOf ? null : item.daily ? `${monthDay(asOf)} 기준` : `${Number(asOf.slice(5, 7))}월분`;

@@ -94,13 +94,14 @@ export function contributorsSentence(model, { indexName, sessionCloseMs, briefs,
   if (!model?.items?.length) return null;
   const pieces = model.items.map((item) => {
     const dated = datedItemFor(item, { sessionCloseMs, briefs, telegram, signals, news });
-    const sign = (value) => `${value > 0 ? '+' : ''}${value}`;
+    // Text pass (v59.56): fixed decimals so '-3%' never sits beside '-7.1%'.
+    const sign = (value, digits) => `${value > 0 ? '+' : ''}${round(value, digits).toFixed(digits)}`;
     const datedText = dated ? `, ${mdOf(dated.atMs)} ${dated.text}` : '';
-    return { ...item, dated, text: `${item.name} ${sign(round(item.ret1d, 1))}%(기여 ${sign(round(item.contributionPp, Math.abs(item.contributionPp) < 0.5 ? 2 : 1))}%p${datedText})` };
+    return { ...item, dated, text: `${item.name} ${sign(item.ret1d, 1)}%(기여 ${sign(item.contributionPp, Math.abs(item.contributionPp) < 0.5 ? 2 : 1)}%p${datedText})` };
   });
   const share = Number.isFinite(model.indexChange) && Math.abs(model.indexChange) >= 0.3
-    ? ` — ${pieces.length}종목이 ${indexName} ${model.indexChange > 0 ? '+' : ''}${round(model.indexChange, 1)}% 중 ${Math.abs(model.explainedPp)}%p` : '';
-  return { pieces, text: `${withObjectParticle(indexName)} 가장 많이 움직인 종목: ${pieces.map((piece) => piece.text).join(', ')}${share}.` };
+    ? ` 이 ${pieces.length}종목이 ${indexName} ${model.indexChange > 0 ? '+' : ''}${round(model.indexChange, 1).toFixed(1)}% 가운데 ${Math.abs(model.explainedPp).toFixed(1)}%p를 차지합니다.` : '';
+  return { pieces, text: `${withObjectParticle(indexName)} 가장 많이 움직인 종목은 ${pieces.map((piece) => piece.text).join(', ')}입니다.${share}` };
 }
 
 export const sessionDateKst = kstDay;

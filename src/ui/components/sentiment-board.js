@@ -84,7 +84,7 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
       // T10: the card reads the same RULES edges as the credit axis (1.1 hedging, below 0.7 optimism). D19: level only, neutral tone.
       state: shown.pcr == null ? null : judged(pcr, pcr >= RULES.credit.putCallHedgeAt ? { label: '풋 거래 우세', tone: LEVEL_TONE } : pcr < RULES.credit.putCallOptimismBelow ? { label: '콜 우위 (낙관 쪽)', tone: LEVEL_TONE } : { label: '중립', tone: LEVEL_TONE }),
       change: '', note: `미국 상장 옵션 전체에서 풋옵션 거래가 콜옵션보다 얼마나 많은지 — ${RULES.credit.putCallHedgeAt} 이상 풋 거래 우세, ${RULES.credit.putCallOptimismBelow} 미만 콜 거래 우세. 풋을 사서 대비한 거래인지 팔아서 수익을 낸 거래인지는 이 비율로 구분되지 않습니다` },
-    { id: 'aaii', title: 'AAII 개인 설문', value: shown.bear == null ? '—' : `약세 ${shown.bear.toFixed(1)}%`, basis: credit.aaiiAsOf ? `${alignmentLabel(aaiiAlign)} 주간` : '미수신', basisStatus: isUsable(aaiiAlign) ? 'aligned' : aaiiAlign.status,
+    { id: 'aaii', title: 'AAII 개인 설문', value: shown.bear == null ? '—' : `약세 ${shown.bear.toFixed(1)}%`, basis: credit.aaiiAsOf ? `주간 설문, ${alignmentLabel(aaiiAlign)}` : '미수신', basisStatus: isUsable(aaiiAlign) ? 'aligned' : aaiiAlign.status,
       // v57.50 D24/C04: no sourced 45% '비관' cut-off exists, so the state is the distance from AAII's published long-run average.
       state: shown.bear == null ? null : judged(bear, { label: `약세 장기 평균 대비 ${signedPp(bear - AAII_AVERAGE.bear)}`, tone: LEVEL_TONE }),
       change: shown.bull == null ? '' : `강세 ${shown.bull.toFixed(1)}%${bull != null ? ` (평균 대비 ${signedPp(bull - AAII_AVERAGE.bull)})` : ''}, 장기 평균 강세 ${AAII_AVERAGE.bull.toFixed(1)}% / 약세 ${AAII_AVERAGE.bear.toFixed(1)}%`,
@@ -196,7 +196,7 @@ export function renderSentimentBoard({ documentRef: doc, root }) {
   const contrarian = !bw || !/공포/.test(model.synthesis) ? ''
     : bw.exhaustionMet >= 2 && bw.confirmationMet >= 2 ? ` 역발상으로 보면 매도 소진(${tallyOf(bw.exhaustionMet, bw.exhaustion)})과 회복 확인(${tallyOf(bw.confirmationMet, bw.confirmation)})이 함께 보여, 공포가 바닥 근처 신호로 쓰일 수 있는 구간입니다. 다음 종가로 확인합니다.`
       : bw.exhaustionMet >= 2 ? ` 역발상으로 보면 매도 소진 신호는 ${tallyOf(bw.exhaustionMet, bw.exhaustion)}로 쌓였지만 회복 확인은 ${tallyOf(bw.confirmationMet, bw.confirmation)}라, 공포 자체를 바닥 근거로 읽기는 이릅니다.`
-        : ` 역발상으로 보면 매도 소진 신호도 ${tallyOf(bw.exhaustionMet, bw.exhaustion)}로 적어, 공포가 깊어도 투매가 끝났다고 보기는 이릅니다.`;
+        : ` 역발상으로 보면 매도 소진 조건은 ${bw.exhaustion.length}개 중 ${bw.exhaustionMet}개만 보여, 공포가 깊어도 투매가 끝났다고 보기는 이릅니다.`;
   const { lead: synthLead, rest: synthRest } = splitReading(`${model.synthesis}${contrarian}`);
   set('sentiment-synthesis', synthLead);
   const more = doc.getElementById('sentiment-synthesis-more');

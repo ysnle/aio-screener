@@ -249,28 +249,75 @@ export function epsComparisonBasis(figure, figures = []) {
 // "3-3/4 to 4 percent") read in Korean units on screen. Display only — the stored figure keeps the source text the
 // parsers and gates read. Idempotent: a Korean string passes through unchanged.
 const trimZero = (text) => text.replace(/\.0$/, '');
-function usdKorean(usd) {
-  const eok = usd / 1e8;
-  if (eok >= 10000) return `${trimZero((eok / 10000).toFixed(1))}조 달러`;
-  if (eok >= 100) return `${Math.round(eok).toLocaleString('en-US')}억 달러`;
-  if (eok >= 1) return `${trimZero(eok.toFixed(1))}억 달러`;
-  return `${Math.round(usd / 1e4).toLocaleString('en-US')}만 달러`;
+// A plain count in Korean scale words (1조 / 165억 / 25.2억 / 7,710만); `digits` widens the 억 decimals for a range.
+function scaleKorean(value, digits = 1) {
+  const eok = value / 1e8;
+  if (eok >= 10000) return `${trimZero((eok / 10000).toFixed(1))}조`;
+  if (eok >= 100) return `${Math.round(eok).toLocaleString('en-US')}억`;
+  if (eok >= 1) return `${eok.toFixed(digits).replace(/(\.\d*[1-9])0+$|\.0+$/, '$1')}억`;
+  return `${Math.round(value / 1e4).toLocaleString('en-US')}만`;
+}
+function usdKorean(usd) { return `${scaleKorean(usd)} 달러`; }
+// v59.56 (text pass): both ends of a range in one scale — '2.2억 to 2.2억' rounded two different figures to one.
+function scalePair(a, b) {
+  for (const digits of [1, 2]) {
+    const left = scaleKorean(a, digits), right = scaleKorean(b, digits);
+    if (left !== right) return `${left}~${right}`;
+  }
+  return scaleKorean(a, 2);
 }
 const USD_WORD_SCALE = { thousand: 1e3, million: 1e6, billion: 1e9, trillion: 1e12 };
 const fraction = (whole, num, den) => Number(whole) + Number(num) / Number(den);
+const num = (text) => Number(String(text).replace(/,/g, ''));
+const NUM = String.raw`(\d[\d,]*(?:\.\d+)?)`;
+const UNIT = String.raw`(thousand|million|billion|trillion)`;
+const SEP = String.raw`\s*(?:\bto\b|\band\b|~|–|-)\s*`;
+const BASIS = { 'Y/Y': '전년 대비 ', 'Q/Q': '전분기 대비 ' };
+const OBJECT_AFTER_DALLAR = { 을: '를', 이: '가', 은: '는', 과: '와', 으로: '로' };
+
 export function koreanReleaseText(text) {
   return String(text ?? '')
     .replace(/(\d+)-(\d)\/(\d)\s*(?:to|~|–|-)\s*(\d+)(?:-(\d)\/(\d))?\s*percent/gi, (m, a, b, c, d, e, f) => `${fraction(a, b, c)}~${e ? fraction(d, e, f) : Number(d)}%`)
     .replace(/(\d+(?:\.\d+)?)\s*(?:to|~|–)\s*(\d+(?:\.\d+)?)\s*percent/gi, '$1~$2%')
-    .replace(/(-)?\$\s*(\d[\d,]*(?:\.\d+)?)\s*(thousand|million|billion|trillion)\b/gi, (m, sign, n, unit) => `${sign ? '-' : ''}${usdKorean(Number(n.replace(/,/g, '')) * USD_WORD_SCALE[unit.toLowerCase()])}`)
-    .replace(/\b(?:up|increased?|rose|grew)\s+(?:by\s+)?(\d+(?:\.\d+)?)\s*(?:%|percent)/gi, '$1% 증가')
-    .replace(/\b(?:down|decreased?|fell|declined?)\s+(?:by\s+)?(\d+(?:\.\d+)?)\s*(?:%|percent)/gi, '$1% 감소')
+    .replace(/\bbetween\s+(?=[$\d])/gi, '')
+    .replace(/\b(?:approximately|approx\.|about|roughly|around)\s+(?=[$\d])/gi, '약 ')
+    .replace(/(^|[\s(])~\s*(?=[$\d])/g, '$1약 ')
+    // Money ranges: '$2.684 and $2.72 billion', '$91 to $92 billion', '$220 million to $225 million'.
+    .replace(new RegExp(String.raw`\$\s*${NUM}\s*${UNIT}?${SEP}\$\s*${NUM}\s*${UNIT}\b(\s*달러)?`, 'gi'), (m, a, ua, b, ub) => {
+      const scale = USD_WORD_SCALE[(ua || ub).toLowerCase()], scaleB = USD_WORD_SCALE[ub.toLowerCase()];
+      return `${scalePair(num(a) * scale, num(b) * scaleB)} 달러`;
+    })
+    // Bare-unit ranges: '19.5 million~20.5 million pounds'.
+    .replace(new RegExp(String.raw`${NUM}\s*${UNIT}${SEP}${NUM}\s*${UNIT}\b`, 'gi'), (m, a, ua, b, ub) => scalePair(num(a) * USD_WORD_SCALE[ua.toLowerCase()], num(b) * USD_WORD_SCALE[ub.toLowerCase()]))
+    // '($2,047) million' is a loss.
+    .replace(new RegExp(String.raw`\(\$?\s*${NUM}\)\s*${UNIT}\b`, 'gi'), (m, n, unit) => `-${usdKorean(num(n) * USD_WORD_SCALE[unit.toLowerCase()])}`)
+    .replace(new RegExp(String.raw`(-)?\$\s*${NUM}\s*${UNIT}\b(\s*달러)?`, 'gi'), (m, sign, n, unit) => `${sign ? '-' : ''}${usdKorean(num(n) * USD_WORD_SCALE[unit.toLowerCase()])}`)
+    // '15.4 billion 달러' (no $) and a bare '604.9 million'.
+    .replace(new RegExp(String.raw`${NUM}\s*${UNIT}\s*달러`, 'gi'), (m, n, unit) => usdKorean(num(n) * USD_WORD_SCALE[unit.toLowerCase()]))
+    .replace(new RegExp(String.raw`${NUM}\s*${UNIT}\b`, 'gi'), (m, n, unit) => scaleKorean(num(n) * USD_WORD_SCALE[unit.toLowerCase()]))
+    .replace(/\bpounds\b/gi, '파운드')
+    .replace(/\bU\s?3\s?O\s?8\b/g, 'U3O8')
+    // A range already in Korean units: '150억 달러 to 160억 달러' → '150억~160억 달러'.
+    .replace(/(\d[\d,.]*(?:조|억|만))\s*달러\s*(?:\bto\b|\band\b|~|–|-)\s*(\d[\d,.]*(?:조|억|만))\s*달러/g, '$1~$2 달러')
+    // Percent ranges, with the Y/Y · Q/Q basis in front: '35% 증가 to 40% Y/Y' → '전년 대비 35~40% 증가'.
+    .replace(/(?:\b(up|increased?|rose|grew|down|decreased?|fell|declined?)\s+)?(\d[\d,]*(?:\.\d+)?)%\s*(증가|감소)?\s*(?:\bto\b|~|–|\s-\s)\s*(\d[\d,]*(?:\.\d+)?)%(?:\s*(Y\/Y|Q\/Q))?/gi,
+      (m, verb, a, dir, b, basis) => `${basis ? BASIS[basis.toUpperCase()] : ''}${a}~${b}%${dir ? ` ${dir}` : verb ? (/^(?:up|increase|rose|grew)/i.test(verb) ? ' 증가' : ' 감소') : ''}`)
+    .replace(/(\d+(?:\.\d+)?)\s+-\s+(\d+(?:\.\d+)?)%/g, '$1~$2%')
+    .replace(/\b(?:up|increased?|rose|grew)\s+(?:by\s+)?(약 )?(\d[\d,]*(?:\.\d+)?)\s*(?:%|percent)/gi, '$1$2% 증가')
+    .replace(/\b(?:down|decreased?|fell|declined?)\s+(?:by\s+)?(약 )?(\d[\d,]*(?:\.\d+)?)\s*(?:%|percent)/gi, '$1$2% 감소')
+    .replace(/(\d[\d,]*(?:\.\d+)?%(?:~\d[\d,]*(?:\.\d+)?%)?)\s*(Y\/Y|Q\/Q)/gi, (m, value, basis) => `${BASIS[basis.toUpperCase()]}${value}`)
+    .replace(/\bY\/Y\b/gi, '전년 대비').replace(/\bQ\/Q\b/gi, '전분기 대비')
     .replace(/\b(?:up|increased?|rose)\s+(\d+(?:\.\d+)?)\s*ppts?\b/gi, '$1%p 상승')
     .replace(/\b(?:down|decreased?|fell)\s+(\d+(?:\.\d+)?)\s*ppts?\b/gi, '$1%p 하락')
     .replace(/(\d+(?:\.\d+)?)\s*ppts?\b/gi, '$1%p')
     .replace(/(\d+(?:\.\d+)?)\s*percent\b/gi, '$1%')
     .replace(/\s*per\s+(?:fully\s+)?(?:diluted\s+)?(?:common\s+)?share\b/gi, '')
     .replace(/\$\s+(\(?\d)/g, '$$$1')
+    // Per-share ranges: '$1.13 to $1.16' → '$1.13~$1.16'.
+    .replace(/(\$\d[\d,]*(?:\.\d+)?)\s*(?:\bto\b|\band\b|–)\s*(\$\d[\d,]*(?:\.\d+)?)/gi, '$1~$2')
+    .replace(/\bnon-(?=GAAP\b)/gi, '비')
+    // The model wrote the particle for 'million'; after conversion it follows '달러'.
+    .replace(/달러(으로|을|이|은|과)(?=[\s.,·)]|$)/g, (m, particle) => `달러${OBJECT_AFTER_DALLAR[particle]}`)
     .replace(/(표결\s*)(\d+)\s*-\s*(\d+)|(\d+)\s*-\s*(\d+)(?=\s*표결)/g, (m, pre, a, b, c, d) => (pre ? `${pre}${a}대 ${b}` : `${c}대 ${d}`)); // FOMC vote "10 - 2"
 }
 

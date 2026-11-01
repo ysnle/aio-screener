@@ -6435,7 +6435,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     news: [{ title: 'Samsung Electronics shares jump on buyback', pubDate: '2026-10-28T02:00:00Z' }] });
   const leaderLine = koreaLinks({ kospi: { change: 6.6, observedAt: '2026-10-28T06:35:00Z' }, kosdaq: { change: 3.7 }, nikkei: { change: 0.9, observedAt: '2026-10-28T06:30:00Z' } }, { krLeaders: sentence }).find((link) => link.id === 'local')?.text || '';
   if (leaders?.items.map((item) => item.sym).join() !== '005930.KS,000660.KS' || !/SK하이닉스 \+10\.9%\(기여 \+2\.5%p, 10\/28 2026년 3분기 실적 발표\)/.test(leaderLine)
-    || !/삼성전자 \+9%\(기여 \+2\.7%p, 10\/28 Samsung Electronics shares jump/.test(leaderLine) || /SK스퀘어/.test(leaderLine)
+    || !/삼성전자 \+9\.0%\(기여 \+2\.7%p, 10\/28 Samsung Electronics shares jump/.test(leaderLine) || /SK스퀘어/.test(leaderLine)
     || datedItemFor({ sym: '000660.KS', name: 'SK하이닉스' }, { sessionCloseMs: closeMs, telegram: [wrap] }) !== null
     || datedItemFor({ sym: 'GE', name: 'GE' }, { sessionCloseMs: closeMs, news: [{ title: 'GE shares rise', pubDate: '2026-10-28T02:00:00Z' }] }) !== null)
     fail(`v59.42 Korea contributors and dated items: ${JSON.stringify({ leaders, leaderLine })}`);

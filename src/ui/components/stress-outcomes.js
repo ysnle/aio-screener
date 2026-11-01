@@ -95,7 +95,7 @@ export function renderStressOutcomes({ documentRef: doc, root, host }) {
       : ' 지금 표에서는 어느 구간도 평균의 범위가 전체 평균의 범위와 갈리지 않아, 구간 사이의 평균 차이는 구별되지 않습니다.';
 
     const deep = el(doc, 'details', null, 'regime-axis-details regime-axis-deep');
-    deep.append(el(doc, 'summary', '더 깊이 보기, 이 표를 읽는 법과 원리'));
+    deep.append(el(doc, 'summary', '더 깊이 보기: 이 표를 읽는 법과 원리'));
     deep.append(el(doc, 'h4', '불안한 구간 뒤의 결과를 읽는 원리'), el(doc, 'p', `변동성이 높을 때 투자자가 위험을 떠안는 대가로 더 큰 기대수익을 요구한다는 설명(위험 프리미엄)이 있습니다. 다만 이 표의 평균 차이가 그 증거가 되려면 구간 평균의 범위(±)가 서로 겹치지 않아야 합니다.${distinctLine} 같은 구간의 하위 10% 결과 손실 폭도 함께 봐야 결과의 폭을 읽을 수 있습니다.`));
     deep.append(el(doc, 'h4', '숫자를 믿을 수 있는 정도'), el(doc, 'p', `연속된 날은 뒤 한 달이 서로 겹치므로 거래일 수만큼 독립적인 사례가 있는 것이 아닙니다. 평균 옆의 ±는 겹치지 않는 한 달 수(거래일 ÷ 21)로 계산한 표준오차의 2배입니다. ${rows.some((band) => Number.isFinite(band.clusters)) ? `경계 근처에서 하루이틀 빠졌다 돌아온 진입은 ${CLUSTER_GAP_SESSIONS}세션 안의 재진입이면 하나의 군집으로 셉니다. ` : '경계 근처에서 하루이틀 빠졌다 돌아오는 진입이 많아, 진입 횟수 대신 겹치지 않는 한 달 수를 표본으로 적었습니다. '}VIX 30 이상은 표본이 적어 평균이 몇 번의 위기에 크게 좌우됩니다. 수익률은 배당을 뺀 가격 기준입니다.`));
     const table = el(doc, 'dl', null, 'regime-evidence');

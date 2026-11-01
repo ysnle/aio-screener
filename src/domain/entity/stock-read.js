@@ -3,7 +3,7 @@
 // against the S&P 500, its sector's rotation and the market it trades in — each tied to the next.
 // Pure: every input is the published screener row, the SPY row of the same artifact, the sector /
 // theme rotation items and the market regime. A missing input drops its sentence; nothing is guessed.
-import { withTopicParticle } from '../content/korean-particle.js';
+import { hasFinalConsonant, withTopicParticle } from '../content/korean-particle.js';
 import { EXTENSION_BANDS } from '../screener/setup-profile.js';
 import { RULES } from '../rules/thresholds.js';
 import { NEAR_LINE_ADR, bufferedTrend, extensionBand } from '../technical/bands.js';
@@ -71,7 +71,8 @@ export function recentFilingsPoint(fundamentals, now = Date.now()) {
 }
 
 // 은/는 by the final Hangul syllable of the label (the ticker in parentheses is not read).
-const topic = (label) => { const code = String(label || '').charCodeAt(String(label || '').length - 1) - 0xac00; return code >= 0 && code <= 11171 && code % 28 ? '은' : '는'; };
+// v59.56 (text pass): the shared reading rule, so 'S&P 500', 'HBM' and '5G' take the particle they are read with.
+const topic = (label) => (hasFinalConsonant(String(label || '').replace(/\s*\([^)]*\)\s*$/, '')) ? '은' : '는');
 const signed = (value, digits = 1, unit = '%') => signedText(value, digits, unit);
 
 // V13 (2026-10-13): the one canonical sector key. The universe uses these eleven keys; names from other
@@ -196,9 +197,9 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
     const bench5 = finite(benchmark?.ret5d);
     const recent5 = stock5 != null && bench5 != null ? stock5 - bench5 : null;
     const against = recent5 != null && Math.sign(recent5) !== 0 && Math.sign(recent5) !== Math.sign(anchor.gap);
-    const verdict = Math.abs(anchor.gap) <= band ? `${Math.abs(anchor.gap).toFixed(1)}%p 차이로 비슷(±${band.toFixed(1)}%p 안)` : `${Math.abs(anchor.gap).toFixed(1)}%p ${anchor.gap >= 0 ? '강함' : '약함'}`;
+    const verdict = Math.abs(anchor.gap) <= band ? `차이 ${Math.abs(anchor.gap).toFixed(1)}%p로 비슷합니다(±${band.toFixed(1)}%p 안)` : `${Math.abs(anchor.gap).toFixed(1)}%p ${anchor.gap >= 0 ? '앞섭니다' : '뒤처집니다'}`;
     points.push({ id: 'relative', tone: anchor.gap > band && !against ? 'favorable' : anchor.gap < -band && !against ? 'burden' : 'neutral', title: '지수 대비',
-      text: `${anchor.label} ${signed(anchor.stock)} vs ${benchmark?.label || 'S&P 500'} ${signed(anchor.bench)} — ${verdict}. ${consistency}.${recent5 != null ? ` 최근 5거래일은 ${signed(stock5)} vs ${signed(bench5)}(${signed(recent5, 1, '%p')})${against ? '로 반대 방향입니다' : ''}.` : ''}` });
+      text: `${anchor.label} ${signed(anchor.stock)}, 같은 기간 ${benchmark?.label || 'S&P 500'} ${signed(anchor.bench)} — ${verdict} ${consistency}.${recent5 != null ? ` 최근 5거래일은 종목 ${signed(stock5)}, 지수 ${signed(bench5)}(${signed(recent5, 1, '%p')})${against ? '로 반대 방향입니다' : '입니다'}.` : ''}` });
   }
 
   // P1507: distance from the 50-day line in units of the stock's own average daily range — how late an entry

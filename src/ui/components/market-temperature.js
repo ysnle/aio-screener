@@ -77,7 +77,7 @@ export function extremeSpans(history = [], rules = TEMPERATURE_RULES) {
 function rawText(row) {
   const v = row?.raw;
   if (!Number.isFinite(v)) return '';
-  if (row.id === 'rsi') return `RSI ${Math.round(v)}`;
+  if (row.id === 'rsi') return `${Math.round(v)}`;
   if (row.id === 'range') return `${Math.round(v * 100)}% 지점`;
   if (row.id === 'calm') return `일간 ${(Math.abs(v) * 100).toFixed(2)}%`;
   return pct(v * 100);
@@ -98,7 +98,7 @@ function componentBars(doc, market, rules) {
     // v58.75 (persona review): the bar is a 3-year rank, not the reading itself — "RSI 14일 11" read as RSI 11.
     // The value now shows today's raw reading first and the rank as "순위 n/100".
     const raw = rawText(row);
-    item.append(el(doc, 'span', row.label, 'temp-bar-label'), track, el(doc, 'span', Number.isFinite(row.score) ? `${raw ? `${raw} · ` : ''}순위 ${Math.round(row.score)}/100${tone ? (tone === ' is-cold' ? ', 하위 10%' : ', 상위 10%') : ''}` : '—', 'temp-bar-value'));
+    item.append(el(doc, 'span', row.label, 'temp-bar-label'), track, el(doc, 'span', Number.isFinite(row.score) ? `${raw ? `${raw} · ` : ''}3년 순위 ${Math.round(row.score)}/100${tone ? (tone === ' is-cold' ? ', 하위 10% 구간' : ', 상위 10% 구간') : ''}` : '—', 'temp-bar-value'));
     if (def) item.title = `${def.label}: ${def.basis}. 앞 숫자는 오늘 값, 순위는 최근 3년(756거래일) 안에서의 위치(0 가장 낮음, 100 가장 높음)`;
     list.append(item);
   }
@@ -161,7 +161,7 @@ export function renderMarketTemperature({ documentRef: doc, root, anchor }) {
         spark.append(bar);
       }
       button.append(el(doc, 'span', item.label, 'temp-tile-name'),
-        el(doc, 'span', stale.has(item.id) ? '갱신 지연' : item.state === 'none' ? temperatureStateLabel(item) : `${STATE_LABEL[item.state]} ${item.streak}일째`, 'temp-tile-state'),
+        el(doc, 'span', stale.has(item.id) ? '갱신 지연' : item.state === 'none' ? temperatureStateLabel(item) : `${STATE_LABEL[item.state]} ${item.streak}거래일째`, 'temp-tile-state'),
         spark,
         el(doc, 'span', `${md(item.asOf)} 종가 ${pct(item.change1d, 1)}`, 'temp-tile-meta'));
       button.setAttribute('aria-label', `${item.label}: ${temperatureStateText(item, rules)}`);
@@ -183,7 +183,7 @@ export function renderMarketTemperature({ documentRef: doc, root, anchor }) {
     const reading = `${temperatureStateText(market, rules)}. ${past ? `하위·상위 10% 요소 수는 ${past}였습니다. ` : ''}${market.state !== 'none' ? temperatureEvidence(market) : ''}${gapLine}`.trim();
 
     const deep = el(doc, 'details', null, 'regime-axis-details regime-axis-deep');
-    deep.append(el(doc, 'summary', '더 깊이 보기, 온도를 재는 방법과 과거 결과'));
+    deep.append(el(doc, 'summary', '더 깊이 보기: 온도를 재는 방법과 과거 결과'));
     deep.append(el(doc, 'h4', '다섯 요소와 과열·냉각 구간의 정의'), el(doc, 'p', `${withObjectParticle(TEMPERATURE_COMPONENTS.map((item) => `${item.label}(${item.basis})`).join(', '))} 각각 그 지수의 최근 3년(756거래일) 안에서 순위로 바꿨습니다. 높을수록 뜨거운 쪽입니다. 다섯 개 중 ${rules.extremeMinComponents}개 이상이 동시에 하위 ${rules.coldAtOrBelow}%면 강한 냉각, 상위 ${100 - rules.hotAtOrAbove}%면 강한 과열입니다. 서로 다른 쪽을 가리키는 요소를 평균해 한 점수로 만들지 않습니다 — 평균은 차가운 요소와 뜨거운 요소가 상쇄된 50을 '중립'으로 보이게 하기 때문입니다.`));
     deep.append(el(doc, 'h4', '외부 온도계와의 관계'), el(doc, 'p', '시장 심리 온도계를 공개하는 곳들은 계산식을 밝히지 않아 같은 값을 만들 수 없습니다. 이 표는 가격만으로 다시 만든 AIO의 계산이라 거래대금·신용잔고·수급은 들어 있지 않고, 같은 날 비교에서 방향은 대체로 비슷하지만 값은 다릅니다. 신용잔고 반대매매나 외국인 매도처럼 가격 밖의 압력은 이 표에 잡히지 않으니 뉴스와 거래소 공시로 따로 확인해야 합니다.'));
     const table = el(doc, 'dl', null, 'regime-evidence');
