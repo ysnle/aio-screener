@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-01T21:21:27.872Z",
-  "attemptedAt": "2026-11-01T21:21:27.872Z",
-  "lastSuccessfulAt": "2026-11-01T21:21:27.872Z",
+  "generatedAt": "2026-11-01T22:21:33.001Z",
+  "attemptedAt": "2026-11-01T22:21:33.001Z",
+  "lastSuccessfulAt": "2026-11-01T22:21:33.001Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-18T21:21:23.117Z",
-  "until": "2026-11-01T21:21:23.117Z",
+  "since": "2026-10-18T22:21:26.755Z",
+  "until": "2026-11-01T22:21:26.755Z",
   "current24hWindow": {
     "start": "2026-10-30T23:00:00.000Z",
     "end": "2026-10-31T23:00:00.000Z",
@@ -89,15 +89,15 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 3,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1317,
-      "freshCount": 20,
-      "eligibleTextCount": 1262,
+      "count": 1320,
+      "freshCount": 59,
+      "eligibleTextCount": 1264,
       "selectedCount": 124,
       "error": null,
-      "lastPostId": 67986
+      "lastPostId": 68013
     },
     {
       "channel": "bornlupin",
@@ -113,33 +113,33 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 672,
-      "freshCount": 17,
-      "eligibleTextCount": 671,
+      "count": 670,
+      "freshCount": 33,
+      "eligibleTextCount": 669,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 71357
+      "lastPostId": 71363
     }
   ],
-  "count": 2350,
-  "retainedItemCount": 444,
+  "count": 2351,
+  "retainedItemCount": 488,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2350,
+    "observedCount": 2351,
     "eligibleTextCount": 2286,
-    "mediaOnlyCount": 64,
-    "mediaAttachedCount": 22,
-    "photoPostCount": 19,
+    "mediaOnlyCount": 65,
+    "mediaAttachedCount": 48,
+    "photoPostCount": 38,
     "documentPostCount": 0,
     "imageOnlyCount": 0,
-    "highSignalCount": 425,
-    "broadSignalCount": 931,
+    "highSignalCount": 424,
+    "broadSignalCount": 925,
     "selectedRawCount": 411,
     "selectedEligibleCount": 411,
     "selectedRawCoveragePct": 18,
@@ -147,38 +147,42 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "geo": 417,
-    "market-note": 821,
+    "market-note": 828,
+    "semi": 527,
+    "ai-policy": 133,
+    "power": 291,
     "earnings": 485,
-    "credit": 124,
-    "semi": 528,
-    "kr-market": 134,
-    "power": 294,
-    "equity": 167,
+    "macro": 355,
+    "media-only": 65,
+    "geo": 413,
     "japan": 107,
-    "media-only": 64,
-    "healthcare": 120,
-    "macro": 356,
-    "flows": 89,
-    "ai-policy": 132,
+    "credit": 124,
+    "kr-market": 134,
+    "equity": 164,
+    "healthcare": 119,
+    "flows": 88,
     "optical": 38,
-    "crypto": 4,
+    "crypto": 3,
     "insider": 2
   },
   "tickerCounts": {
-    "NVDA": 157,
-    "MSFT": 64,
+    "AVGO": 24,
+    "TSM": 44,
+    "ORCL": 13,
+    "INTC": 5,
+    "PLTR": 13,
+    "NVDA": 156,
+    "AMD": 30,
+    "MSFT": 61,
     "GOOG": 130,
-    "AVGO": 23,
     "AMZN": 82,
     "005930.KS": 49,
     "000660.KS": 77,
     "6981.T": 3,
-    "AMD": 28,
     "MU": 50,
     "AAPL": 14,
-    "TSLA": 61,
-    "META": 14,
+    "TSLA": 59,
+    "META": 13,
     "MRVL": 9,
     "LITE": 11,
     "SNDK": 12,
@@ -186,13 +190,10 @@
     "017670.KS": 4,
     "BX": 1,
     "2454.TW": 2,
-    "INTC": 4,
-    "PLTR": 10,
     "LLY": 3,
     "TEM": 1,
     "JD": 1,
     "ABBV": 2,
-    "TSM": 43,
     "AZN": 1,
     "009150.KS": 17,
     "COIN": 1,
@@ -202,7 +203,6 @@
     "MRK": 2,
     "006800.KS": 1,
     "006400.KS": 4,
-    "ORCL": 12,
     "CMG": 1,
     "STX": 8,
     "ETSY": 2,
@@ -210,12 +210,12 @@
     "V": 1,
     "HOOD": 1,
     "005940.KS": 2,
-    "CRWV": 12,
+    "CRWV": 11,
     "MS": 4,
     "MRNA": 1,
     "RDDT": 2,
     "FDX": 1,
-    "BE": 30,
+    "BE": 29,
     "APO": 2,
     "CRM": 1,
     "AMAT": 1,
@@ -224,12 +224,12 @@
     "218410.KQ": 1,
     "SHOP": 5,
     "DB": 3,
-    "T": 6,
+    "T": 5,
     "PANW": 1,
     "EQIX": 1,
     "FCEL": 1,
     "BMY": 2,
-    "WDC": 9,
+    "WDC": 8,
     "RKLB": 1,
     "267250.KS": 1,
     "032640.KS": 1,
@@ -256,19 +256,19 @@
     "ULTA": 1
   },
   "themes": [
-    "Market Notes (821 posts in 14-day research window): 빌 애크먼(Bill Ackman) – Equity Mates 인터뷰 1. AI 버블과 컴퓨팅 수요 “컴퓨팅 수요 측면에서 지금이 버블이라고 생각하지 않는다.” AI가 초지능에 빠르게 접근할수록 이를 뒷받침할...",
-    "Semiconductors/Memory (528 posts in 14-day research window): 2026년 10월 29일 서학개미 순매수 미국 주식 TOP 50 1위: MICRON TECHNOLOGY INC (15.96%) 2위: LUMENTUM HOLDINGS INC SOFF 39520207144...",
+    "Market Notes (828 posts in 14-day research window): 빌 애크먼(Bill Ackman) – Equity Mates 인터뷰 1. AI 버블과 컴퓨팅 수요 “컴퓨팅 수요 측면에서 지금이 버블이라고 생각하지 않는다.” AI가 초지능에 빠르게 접근할수록 이를 뒷받침할...",
+    "Semiconductors/Memory (527 posts in 14-day research window): 2026년 10월 29일 서학개미 순매수 미국 주식 TOP 50 1위: MICRON TECHNOLOGY INC (15.96%) 2위: LUMENTUM HOLDINGS INC SOFF 39520207144...",
     "Earnings/Corporate (485 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
-    "Geopolitics (417 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 31일 🇺🇸 아메리카 • 트럼프 대통령은 이란과 협상이 진행 중이라고 밝혀. 다만 미국 정부는 이란에 대한 경제 봉쇄와 추가 제재를 검토 중이며, 중간선거 직후...",
-    "Macro/Rates (356 posts in 14-day research window): 2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,...",
-    "AI Power/Grid (294 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
-    "Equity/Analyst (167 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
+    "Geopolitics (413 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 31일 🇺🇸 아메리카 • 트럼프 대통령은 이란과 협상이 진행 중이라고 밝혀. 다만 미국 정부는 이란에 대한 경제 봉쇄와 추가 제재를 검토 중이며, 중간선거 직후...",
+    "Macro/Rates (355 posts in 14-day research window): 2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,...",
+    "AI Power/Grid (291 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
+    "Equity/Analyst (164 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
     "Korea Market (134 posts in 14-day research window): Alphabet 2026년 3분기 실적 요약 실적 • 매출 $1,275.8억, YoY +25%, QoQ +6% • 환율 영향 제외 매출 성장률 YoY +25%, QoQ +7% • 영업이익 $405.8억,..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 157,
+      "count": 156,
       "text": "2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,..."
     },
     {
@@ -288,12 +288,12 @@
     },
     {
       "key": "MSFT",
-      "count": 64,
+      "count": 61,
       "text": "빌 애크먼(Bill Ackman) – Equity Mates 인터뷰 1. AI 버블과 컴퓨팅 수요 “컴퓨팅 수요 측면에서 지금이 버블이라고 생각하지 않는다.” AI가 초지능에 빠르게 접근할수록 이를 뒷받침할..."
     },
     {
       "key": "TSLA",
-      "count": 61,
+      "count": 59,
       "text": "2026년 10월 29일 미국 레딧 베스트 게시물 분석 > NVDA / MU / VRT / ETN / GEV - AI Trade가 물리 인프라로 확장 · 장문 DD 핵심은 “AI가 싸지면 물리 자원이 병목”..."
     },
     {
@@ -308,22 +308,22 @@
     },
     {
       "key": "TSM",
-      "count": 43,
+      "count": 44,
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
-      "key": "BE",
-      "count": 30,
-      "text": "Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을..."
-    },
-    {
       "key": "AMD",
-      "count": 28,
+      "count": 30,
       "text": "2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,..."
     },
     {
+      "key": "BE",
+      "count": 29,
+      "text": "Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을..."
+    },
+    {
       "key": "AVGO",
-      "count": 23,
+      "count": 24,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인..."
     }
   ],
@@ -334,7 +334,7 @@
       "topics": [
         "macro"
       ],
-      "count": 356,
+      "count": 355,
       "focus": "2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,..."
     },
     {
@@ -343,7 +343,7 @@
       "topics": [
         "geo"
       ],
-      "count": 417,
+      "count": 413,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 31일 🇺🇸 아메리카 • 트럼프 대통령은 이란과 협상이 진행 중이라고 밝혀. 다만 미국 정부는 이란에 대한 경제 봉쇄와 추가 제재를 검토 중이며, 중간선거 직후..."
     },
     {
@@ -353,7 +353,7 @@
         "credit"
       ],
       "count": 124,
-      "focus": "Anthropic의 IPO 불확실성 확대: 현금흐름 및 자금조달 부담 부각 » Anthropic의 IPO 추진 과정에서 Microsoft, Alphabet, Amazon의 실적 발표 이후 AI 인프라 투자에..."
+      "focus": "10월 28일 미주인 브리핑 • 나스닥 1.18% 상승 · 반도체 중심 매수세 유입 • 소파이 13% 급등 · 보잉 11% 급락 • 브로드컴 630억 달러 AI 인프라 금융조달 • 메타 975억 달러 자금조달..."
     },
     {
       "id": "semi",
@@ -361,7 +361,7 @@
       "topics": [
         "semi"
       ],
-      "count": 528,
+      "count": 527,
       "focus": "2026년 10월 29일 서학개미 순매수 미국 주식 TOP 50 1위: MICRON TECHNOLOGY INC (15.96%) 2위: LUMENTUM HOLDINGS INC SOFF 39520207144..."
     },
     {
@@ -379,7 +379,7 @@
       "topics": [
         "power"
       ],
-      "count": 294,
+      "count": 291,
       "focus": "Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을..."
     },
     {
@@ -388,7 +388,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 132,
+      "count": 133,
       "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
@@ -406,7 +406,7 @@
       "topics": [
         "equity"
       ],
-      "count": 167,
+      "count": 164,
       "focus": "[시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가..."
     },
     {
@@ -415,8 +415,8 @@
       "topics": [
         "crypto"
       ],
-      "count": 4,
-      "focus": "No retained full-text sample; 4 observed posts in the 14-day research window."
+      "count": 3,
+      "focus": "No retained full-text sample; 3 observed posts in the 14-day research window."
     },
     {
       "id": "earnings",
@@ -433,7 +433,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 120,
+      "count": 119,
       "focus": ">>미중 상호 기술 수출통제 강화, 글로벌 기술 질서 재편 가속화 (대만공상시보) •중국 상무부와 과기부는 10월 AI·바이오·태양광 등 40개 기술을 수출통제 목록에 추가하는 개정안 발표. 이중 14개는..."
     },
     {
@@ -451,7 +451,7 @@
       "topics": [
         "flows"
       ],
-      "count": 89,
+      "count": 88,
       "focus": "서학개미 순매수 미국 주식 TOP 50 (10월 누적) > 기간: 2026/10/01 ~ 2026/10/30 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -469,7 +469,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 821,
+      "count": 828,
       "focus": "빌 애크먼(Bill Ackman) – Equity Mates 인터뷰 1. AI 버블과 컴퓨팅 수요 “컴퓨팅 수요 측면에서 지금이 버블이라고 생각하지 않는다.” AI가 초지능에 빠르게 접근할수록 이를 뒷받침할..."
     }
   ],
@@ -737,14 +737,14 @@
       "datetime": "2026-10-31T12:35:33.000Z",
       "localDateKst": "2026-10-31",
       "tags": [
-        "credit",
         "ai-policy",
+        "credit",
         "equity",
-        "earnings"
+        "macro"
       ],
+      "lead": 3,
       "score": 100,
       "hasText": true,
-      "summary": "Anthropic의 IPO 불확실성 확대: 현금흐름 및 자금조달 부담 부각 » Anthropic의 IPO 추진 과정에서 Microsoft, Alphabet, Amazon의 실적 발표 이후 AI 인프라 투자에...",
       "tickers": [],
       "listTickers": [
         "MSFT",
@@ -753,7 +753,8 @@
         "000660.KS",
         "GOOGL",
         "CRWV"
-      ]
+      ],
+      "summary": "Anthropic의 IPO 불확실성 확대: 현금흐름 및 자금조달 부담 부각 » Anthropic의 IPO 추진 과정에서 Microsoft, Alphabet, Amazon의 실적 발표 이후 AI 인프라 투자에..."
     },
     {
       "id": "bornlupin/20907",
@@ -1687,6 +1688,153 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71363",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71363",
+      "datetime": "2026-11-01T21:58:48.000Z",
+      "localDateKst": "2026-11-02",
+      "tags": [
+        "semi",
+        "ai-policy",
+        "power"
+      ],
+      "lead": 2,
+      "score": 87,
+      "hasText": true,
+      "tickers": [
+        "AVGO",
+        "TSM",
+        "ORCL"
+      ],
+      "summary": "> >OpenAI, 자체 ASIC 및 Stargate 추진 가속화…Sam Altman 대만 재방문, AI 공급망 협력 확대 (대만공상시보) •OpenAI CEO Sam Altman이 자체 ASIC 개발과..."
+    },
+    {
+      "id": "insidertracking/68008",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68008",
+      "datetime": "2026-11-01T21:46:34.000Z",
+      "localDateKst": "2026-11-02",
+      "tags": [
+        "macro"
+      ],
+      "score": 52,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": "금주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 11월 2일 월요일 23:45 – 제조업 구매관리자지수 (10월) 2026년 11월 3일 화요일 00:00 – ISM 제조업구매자지수 (10월)..."
+    },
+    {
+      "id": "insidertracking/68004",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68004",
+      "datetime": "2026-11-01T21:44:09.000Z",
+      "localDateKst": "2026-11-02",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy"
+      ],
+      "score": 99,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 2,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA",
+        "AMD",
+        "PLTR"
+      ],
+      "summary": "2026년 11월 2일 미국 증시 주간 브리핑 이번 주 미국 증시는 11월 3일 중간선거와 6일 고용보고서를 중심으로 정치·통화정책 불확실성이 확대되는 가운데, 애플·AMD·팔란티어 등 주요 기술기업 실적이..."
+    },
+    {
+      "id": "insidertracking/68003",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68003",
+      "datetime": "2026-11-01T21:41:39.000Z",
+      "localDateKst": "2026-11-02",
+      "tags": [
+        "macro",
+        "semi",
+        "earnings"
+      ],
+      "score": 67,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "AMD",
+        "PLTR"
+      ],
+      "summary": "美 중간선거에 애플·AMD 실적까지! 11월 첫째 주 증시 일정 > • 미국 서머타임 해제, 정규장 한국시간 밤 11시 30분 개장 • 미국 중간선거·ISM 제조업 및 서비스업 PMI 발표 •..."
+    },
+    {
+      "id": "insidertracking/67989",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67989",
+      "datetime": "2026-11-01T21:28:45.000Z",
+      "localDateKst": "2026-11-02",
+      "tags": [
+        "geo",
+        "power",
+        "japan"
+      ],
+      "score": 58,
+      "hasText": true,
+      "tickers": [],
+      "summary": "김정식 조선로동당 중앙위원회 제１부부장 담화 발표 > (평양 11월 2일발 조선중앙통신) 김정식 조선로동당 중앙위원회 제１부부장이 2일에 발표한 담화 《핵전쟁억제력을 더욱 가속적으로 강화하려는 우리의..."
+    },
+    {
+      "id": "insidertracking/67988",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67988",
+      "datetime": "2026-11-01T21:26:21.000Z",
+      "localDateKst": "2026-11-02",
+      "tags": [
+        "macro",
+        "geo"
+      ],
+      "score": 62,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 2일 트럼프·이란 관련 발언 · 트럼프 “이란에는 아직 해결되지 않은 문제들이 있다” 발언 · 트럼프 “네타냐후와 생산적인 대화를 나눴으며 이란..."
+    },
+    {
+      "id": "insidertracking/67987",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67987",
+      "datetime": "2026-11-01T21:25:21.000Z",
+      "localDateKst": "2026-11-02",
+      "tags": [
+        "macro",
+        "geo",
+        "ai-policy",
+        "japan"
+      ],
+      "score": 77,
+      "hasText": true,
+      "tickers": [],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 2일 🇺🇸 아메리카 • 트럼프 대통령은 캐나다와의 무역협정 체결이 매우 임박했으며, 양국이 긍정적인 합의안을 마련하고 있다고 밝혀. 캐나다 카니 총리도 트럼프..."
+    },
+    {
       "id": "insidertracking/67980",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/67980",
@@ -1881,12 +2029,12 @@
       "datetime": "2026-11-01T06:57:46.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
-        "semi"
+        "semi",
+        "kr-market"
       ],
+      "lead": 1,
       "score": 80,
       "hasText": true,
-      "summary": ">>SanDisk·Intel·NVIDIA 시간외 거래 상승 •11월 1일 오후, 반도체 등 하드테크주가 시간외 거래에서 일제히 강세. 보도 시점 기준 SanDisk는 1% 이상, Intel은 약 1%,...",
-      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -1896,7 +2044,8 @@
         "STX",
         "000660.KS",
         "INTC"
-      ]
+      ],
+      "summary": ">>SanDisk·Intel·NVIDIA 시간외 거래 상승 •11월 1일 오후, 반도체 등 하드테크주가 시간외 거래에서 일제히 강세. 보도 시점 기준 SanDisk는 1% 이상, Intel은 약 1%,..."
     },
     {
       "id": "HANAchina/71334",
@@ -1905,19 +2054,21 @@
       "datetime": "2026-11-01T06:36:32.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
-        "semi"
+        "semi",
+        "power",
+        "kr-market"
       ],
+      "lead": 1,
       "score": 88,
       "hasText": true,
-      "summary": ">>젠슨 황 “2029년까지 메모리 공급과잉 가능성 낮아…AI 성장의 최대 걸림돌은 자금” •젠슨황은 메모리 공급과잉 우려에도 2029년 이전에 공급과잉이 발생할 가능성은 낮다고 전망. HBM은 향후 몇 년간...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "AVGO",
         "MU",
         "005930.KS",
         "000660.KS"
-      ]
+      ],
+      "summary": ">>젠슨 황 “2029년까지 메모리 공급과잉 가능성 낮아…AI 성장의 최대 걸림돌은 자금” •젠슨황은 메모리 공급과잉 우려에도 2029년 이전에 공급과잉이 발생할 가능성은 낮다고 전망. HBM은 향후 몇 년간..."
     },
     {
       "id": "HANAchina/71326",
@@ -1926,13 +2077,14 @@
       "datetime": "2026-11-01T06:15:22.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
-        "earnings"
+        "earnings",
+        "semi"
       ],
+      "lead": 1,
       "score": 57,
       "hasText": true,
-      "summary": ">>AI 서버 수요 확대에 고급 CCL 호황 지속 : 대만 Elite Material과 TUC, 실적 전망 상향 (대만공상시보) •AI 서버와 고속 전송 수요가 증가하면서 고급 CCL 제품의 가격 인상과 제품...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>AI 서버 수요 확대에 고급 CCL 호황 지속 : 대만 Elite Material과 TUC, 실적 전망 상향 (대만공상시보) •AI 서버와 고속 전송 수요가 증가하면서 고급 CCL 제품의 가격 인상과 제품..."
     },
     {
       "id": "HANAchina/71324",
@@ -1941,15 +2093,16 @@
       "datetime": "2026-11-01T05:51:37.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
-        "market-note"
+        "credit",
+        "earnings"
       ],
       "score": 65,
       "hasText": true,
-      "summary": ">>골드만삭스 내부 ‘강세론과 약세론’ 논쟁 : 이익은 이미 정점을 지났나 vs 투자수익률은 입증됐나 •골드만삭스의 두 전략가가 AI 시장 전망을 놓고 엇갈린 견해를 제시함. Pasquariello는 빅테크...",
       "tickers": [
         "GOOG",
         "AMZN"
-      ]
+      ],
+      "summary": ">>골드만삭스 내부 ‘강세론과 약세론’ 논쟁 : 이익은 이미 정점을 지났나 vs 투자수익률은 입증됐나 •골드만삭스의 두 전략가가 AI 시장 전망을 놓고 엇갈린 견해를 제시함. Pasquariello는 빅테크..."
     },
     {
       "id": "HANAchina/71319",
@@ -2122,14 +2275,20 @@
       "datetime": "2026-10-31T22:45:37.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
-        "market-note"
+        "semi"
       ],
       "score": 56,
       "hasText": true,
-      "summary": "메타가 중국 스타트업 푸리에(Fourier)와 협력해 가정용 휴머노이드 로봇 시제품을 비공개 개발했으며, 현재 두 번째 버전 개발을 진행 중. 디인포메이션은 프로젝트 관계자들을 인용해 메타가 인공지능을...",
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "메타가 중국 스타트업 푸리에(Fourier)와 협력해 가정용 휴머노이드 로봇 시제품을 비공개 개발했으며, 현재 두 번째 버전 개발을 진행 중. 디인포메이션은 프로젝트 관계자들을 인용해 메타가 인공지능을..."
     },
     {
       "id": "insidertracking/67960",
@@ -2138,16 +2297,16 @@
       "datetime": "2026-10-31T22:42:57.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
-        "market-note"
+        "semi"
       ],
       "score": 64,
       "hasText": true,
-      "summary": "다우존스 지수 주간 상승·하락 상위 종목 (10월 26~30일) > 다우존스 지수는 한 주간 0.9% 하락. 주간 상승률 상위 10개 종목 • 암젠 +6.09% • 맥도날드 +3.89% • 나이키 +3.67%...",
       "tickers": [
         "NVDA",
         "GOOG",
         "AMZN"
-      ]
+      ],
+      "summary": "다우존스 지수 주간 상승·하락 상위 종목 (10월 26~30일) > 다우존스 지수는 한 주간 0.9% 하락. 주간 상승률 상위 10개 종목 • 암젠 +6.09% • 맥도날드 +3.89% • 나이키 +3.67%..."
     },
     {
       "id": "insidertracking/67959",
@@ -2156,15 +2315,15 @@
       "datetime": "2026-10-31T22:42:50.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
-        "market-note"
+        "semi"
       ],
       "score": 60,
       "hasText": true,
-      "summary": "나스닥 100 지수 주간 상승·하락 상위 종목 (10월 26~30일) > 나스닥 100 지수는 한 주간 2% 하락. 주간 상승률 상위 10개 종목 • 리제네론 파마슈티컬스 +15.26% • 페로비알...",
       "tickers": [
         "TSLA",
         "GOOG"
-      ]
+      ],
+      "summary": "나스닥 100 지수 주간 상승·하락 상위 종목 (10월 26~30일) > 나스닥 100 지수는 한 주간 2% 하락. 주간 상승률 상위 10개 종목 • 리제네론 파마슈티컬스 +15.26% • 페로비알..."
     },
     {
       "id": "insidertracking/67957",
@@ -2177,8 +2336,8 @@
       ],
       "score": 50,
       "hasText": true,
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 1일 트럼프·이란 군사 대응 · 루비오 국무장관 “트럼프는 아직 이란에 대한 군사 행동을 결정하지 않았다” 발언 · 루비오 “미국은 이란 분쟁의...",
-      "tickers": []
+      "tickers": [],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 1일 트럼프·이란 군사 대응 · 루비오 국무장관 “트럼프는 아직 이란에 대한 군사 행동을 결정하지 않았다” 발언 · 루비오 “미국은 이란 분쟁의..."
     },
     {
       "id": "insidertracking/67956",
@@ -2187,12 +2346,13 @@
       "datetime": "2026-10-31T22:28:18.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
+        "macro",
         "geo"
       ],
       "score": 67,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 1일 🇺🇸 아메리카 • 미국 루비오 국무장관은 이란과의 분쟁을 외교적으로 해결할 의사가 있으며, 트럼프 대통령은 이란에 대한 추가 군사행동 여부를 아직 결정하지...",
-      "tickers": []
+      "tickers": [],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 1일 🇺🇸 아메리카 • 미국 루비오 국무장관은 이란과의 분쟁을 외교적으로 해결할 의사가 있으며, 트럼프 대통령은 이란에 대한 추가 군사행동 여부를 아직 결정하지..."
     },
     {
       "id": "insidertracking/67955",
@@ -2201,14 +2361,14 @@
       "datetime": "2026-10-31T12:35:33.000Z",
       "localDateKst": "2026-10-31",
       "tags": [
-        "credit",
         "ai-policy",
+        "credit",
         "equity",
-        "earnings"
+        "macro"
       ],
+      "lead": 3,
       "score": 100,
       "hasText": true,
-      "summary": "Anthropic의 IPO 불확실성 확대: 현금흐름 및 자금조달 부담 부각 » Anthropic의 IPO 추진 과정에서 Microsoft, Alphabet, Amazon의 실적 발표 이후 AI 인프라 투자에...",
       "tickers": [],
       "listTickers": [
         "MSFT",
@@ -2217,7 +2377,8 @@
         "000660.KS",
         "GOOGL",
         "CRWV"
-      ]
+      ],
+      "summary": "Anthropic의 IPO 불확실성 확대: 현금흐름 및 자금조달 부담 부각 » Anthropic의 IPO 추진 과정에서 Microsoft, Alphabet, Amazon의 실적 발표 이후 AI 인프라 투자에..."
     },
     {
       "id": "HANAchina/71303",
@@ -2281,12 +2442,15 @@
       "datetime": "2026-10-31T10:04:28.000Z",
       "localDateKst": "2026-10-31",
       "tags": [
-        "geo"
+        "credit",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 82,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 31일 > 오전 7시~오후 7시 🇺🇸 아메리카 • 트럼프 행정부가 11월 4일 이란에 대한 단기간 고강도 군사작전을 준비하고 있다는 보도가 나와. 미국은 걸프...",
-      "tickers": []
+      "tickers": [],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 31일 > 오전 7시~오후 7시 🇺🇸 아메리카 • 트럼프 행정부가 11월 4일 이란에 대한 단기간 고강도 군사작전을 준비하고 있다는 보도가 나와. 미국은 걸프..."
     },
     {
       "id": "HANAchina/71300",
@@ -2507,25 +2671,6 @@
       "summary": ">>Anthropic IPO 서류에서 약 9,000억 달러 규모의 ‘숨겨진 부채’ 드러나 (블룸버그) •Anthropic은 IPO 서류에서 인프라 확장에 따라 서버, 건물, 전력 등에 향후 약 9,000억...",
       "lead": 3,
       "tickers": []
-    },
-    {
-      "id": "insidertracking/67927",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67927",
-      "datetime": "2026-10-31T00:34:00.000Z",
-      "localDateKst": "2026-10-31",
-      "tags": [
-        "earnings",
-        "semi"
-      ],
-      "score": 67,
-      "hasText": true,
-      "summary": "美 중간선거에 애플·AMD 실적까지! 11월 첫째 주 증시 일정 > • 미국 서머타임 해제, 정규장 한국시간 밤 11시 30분 개장 • 미국 중간선거·ISM 제조업 및 서비스업 PMI 발표 •...",
-      "lead": 2,
-      "tickers": [
-        "AMD",
-        "PLTR"
-      ]
     },
     {
       "id": "bornlupin/20903",
@@ -5694,38 +5839,6 @@
       ]
     },
     {
-      "id": "insidertracking/67606",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67606",
-      "datetime": "2026-10-28T03:11:27.000Z",
-      "localDateKst": "2026-10-28",
-      "tags": [
-        "macro"
-      ],
-      "score": 57,
-      "hasText": true,
-      "summary": "미국 연방준비제도(Fed)는 10월 27~28일 연방공개시장위원회(FOMC) 회의에서 기준금리를 현행 3.75~4.00%로 동결할 것으로 예상되지만, 인플레이션 압력이 지속되면서 12월 추가 금리 인상...",
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/67603",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67603",
-      "datetime": "2026-10-28T02:21:17.000Z",
-      "localDateKst": "2026-10-28",
-      "tags": [
-        "semi"
-      ],
-      "score": 59,
-      "hasText": true,
-      "summary": "레딧 관심도 현황 로빈후드→구글→테슬라→마이크론→하이닉스",
-      "tickers": [
-        "TSLA",
-        "GOOG",
-        "MU"
-      ]
-    },
-    {
       "id": "HANAchina/71130",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71130",
@@ -5766,36 +5879,6 @@
       ]
     },
     {
-      "id": "insidertracking/67598",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67598",
-      "datetime": "2026-10-28T01:53:45.000Z",
-      "localDateKst": "2026-10-28",
-      "tags": [
-        "semi"
-      ],
-      "score": 51,
-      "hasText": true,
-      "summary": "마이크론 오버나잇",
-      "tickers": [
-        "MU"
-      ]
-    },
-    {
-      "id": "insidertracking/67596",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67596",
-      "datetime": "2026-10-28T01:48:43.000Z",
-      "localDateKst": "2026-10-28",
-      "tags": [
-        "market-note"
-      ],
-      "score": 50,
-      "hasText": true,
-      "summary": "이번 작전은 사실상 올해 우리가 수행한 세 번째 기념비적인 군사작전입니다. 첫 번째는 공수강습군의 작전이었습니다. 매우 중요한 작전이었으며, 이를 통해 800제곱킬로미터가 넘는 영토를 탈환했습니다. 두 번째는...",
-      "tickers": []
-    },
-    {
       "id": "HANAchina/71125",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71125",
@@ -5825,21 +5908,6 @@
       "tickers": [
         "AVGO"
       ]
-    },
-    {
-      "id": "insidertracking/67587",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67587",
-      "datetime": "2026-10-28T01:08:49.000Z",
-      "localDateKst": "2026-10-28",
-      "tags": [
-        "geo"
-      ],
-      "score": 53,
-      "hasText": true,
-      "summary": "월스트리트저널에 따르면 미국이 여러 걸프 국가에 11월 중간선거 이후 이란을 상대로 단기간 고강도 군사작전이 전개될 가능성에 대비할 것을 경고. 미군은 미사일 방어체계를 강화하고 탄약 재고를 보충하는 동시에...",
-      "lead": 1,
-      "tickers": []
     },
     {
       "id": "HANAchina/71121",
@@ -6755,23 +6823,6 @@
       "tickers": [
         "NVDA",
         "GOOG",
-        "TSM"
-      ]
-    },
-    {
-      "id": "HANAchina/71051",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71051",
-      "datetime": "2026-10-26T22:41:12.000Z",
-      "localDateKst": "2026-10-27",
-      "tags": [
-        "market-note"
-      ],
-      "score": 55,
-      "hasText": true,
-      "summary": "• 스페이스X가 아폴로 글로벌 매니지먼트와 협력해 대규모 설비 금융 리스 계약을 체결하며, 자금 조달은 올해 말 완료되어 내년 상반기부터 리스가 시작될 예정. 조달한 자금은 AI 개발 가속화를 위한 칩 구매에...",
-      "tickers": [
-        "NVDA",
         "TSM"
       ]
     },
@@ -8551,14 +8602,20 @@
       "datetime": "2026-10-31T22:45:37.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
-        "market-note"
+        "semi"
       ],
       "score": 56,
       "hasText": true,
-      "summary": "메타가 중국 스타트업 푸리에(Fourier)와 협력해 가정용 휴머노이드 로봇 시제품을 비공개 개발했으며, 현재 두 번째 버전 개발을 진행 중. 디인포메이션은 프로젝트 관계자들을 인용해 메타가 인공지능을...",
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "메타가 중국 스타트업 푸리에(Fourier)와 협력해 가정용 휴머노이드 로봇 시제품을 비공개 개발했으며, 현재 두 번째 버전 개발을 진행 중. 디인포메이션은 프로젝트 관계자들을 인용해 메타가 인공지능을..."
     },
     {
       "id": "insidertracking/67960",
@@ -8567,16 +8624,16 @@
       "datetime": "2026-10-31T22:42:57.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
-        "market-note"
+        "semi"
       ],
       "score": 64,
       "hasText": true,
-      "summary": "다우존스 지수 주간 상승·하락 상위 종목 (10월 26~30일) > 다우존스 지수는 한 주간 0.9% 하락. 주간 상승률 상위 10개 종목 • 암젠 +6.09% • 맥도날드 +3.89% • 나이키 +3.67%...",
       "tickers": [
         "NVDA",
         "GOOG",
         "AMZN"
-      ]
+      ],
+      "summary": "다우존스 지수 주간 상승·하락 상위 종목 (10월 26~30일) > 다우존스 지수는 한 주간 0.9% 하락. 주간 상승률 상위 10개 종목 • 암젠 +6.09% • 맥도날드 +3.89% • 나이키 +3.67%..."
     },
     {
       "id": "insidertracking/67959",
@@ -8585,15 +8642,15 @@
       "datetime": "2026-10-31T22:42:50.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
-        "market-note"
+        "semi"
       ],
       "score": 60,
       "hasText": true,
-      "summary": "나스닥 100 지수 주간 상승·하락 상위 종목 (10월 26~30일) > 나스닥 100 지수는 한 주간 2% 하락. 주간 상승률 상위 10개 종목 • 리제네론 파마슈티컬스 +15.26% • 페로비알...",
       "tickers": [
         "TSLA",
         "GOOG"
-      ]
+      ],
+      "summary": "나스닥 100 지수 주간 상승·하락 상위 종목 (10월 26~30일) > 나스닥 100 지수는 한 주간 2% 하락. 주간 상승률 상위 10개 종목 • 리제네론 파마슈티컬스 +15.26% • 페로비알..."
     },
     {
       "id": "insidertracking/67957",
@@ -8606,8 +8663,8 @@
       ],
       "score": 50,
       "hasText": true,
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 1일 트럼프·이란 군사 대응 · 루비오 국무장관 “트럼프는 아직 이란에 대한 군사 행동을 결정하지 않았다” 발언 · 루비오 “미국은 이란 분쟁의...",
-      "tickers": []
+      "tickers": [],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 1일 트럼프·이란 군사 대응 · 루비오 국무장관 “트럼프는 아직 이란에 대한 군사 행동을 결정하지 않았다” 발언 · 루비오 “미국은 이란 분쟁의..."
     },
     {
       "id": "insidertracking/67956",
@@ -8616,12 +8673,13 @@
       "datetime": "2026-10-31T22:28:18.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
+        "macro",
         "geo"
       ],
       "score": 67,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 1일 🇺🇸 아메리카 • 미국 루비오 국무장관은 이란과의 분쟁을 외교적으로 해결할 의사가 있으며, 트럼프 대통령은 이란에 대한 추가 군사행동 여부를 아직 결정하지...",
-      "tickers": []
+      "tickers": [],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 1일 🇺🇸 아메리카 • 미국 루비오 국무장관은 이란과의 분쟁을 외교적으로 해결할 의사가 있으며, 트럼프 대통령은 이란에 대한 추가 군사행동 여부를 아직 결정하지..."
     },
     {
       "id": "insidertracking/67955",
@@ -8630,14 +8688,14 @@
       "datetime": "2026-10-31T12:35:33.000Z",
       "localDateKst": "2026-10-31",
       "tags": [
-        "credit",
         "ai-policy",
+        "credit",
         "equity",
-        "earnings"
+        "macro"
       ],
+      "lead": 3,
       "score": 100,
       "hasText": true,
-      "summary": "Anthropic의 IPO 불확실성 확대: 현금흐름 및 자금조달 부담 부각 » Anthropic의 IPO 추진 과정에서 Microsoft, Alphabet, Amazon의 실적 발표 이후 AI 인프라 투자에...",
       "tickers": [],
       "listTickers": [
         "MSFT",
@@ -8646,7 +8704,8 @@
         "000660.KS",
         "GOOGL",
         "CRWV"
-      ]
+      ],
+      "summary": "Anthropic의 IPO 불확실성 확대: 현금흐름 및 자금조달 부담 부각 » Anthropic의 IPO 추진 과정에서 Microsoft, Alphabet, Amazon의 실적 발표 이후 AI 인프라 투자에..."
     },
     {
       "id": "HANAchina/71303",
@@ -8710,12 +8769,15 @@
       "datetime": "2026-10-31T10:04:28.000Z",
       "localDateKst": "2026-10-31",
       "tags": [
-        "geo"
+        "credit",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 82,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 31일 > 오전 7시~오후 7시 🇺🇸 아메리카 • 트럼프 행정부가 11월 4일 이란에 대한 단기간 고강도 군사작전을 준비하고 있다는 보도가 나와. 미국은 걸프...",
-      "tickers": []
+      "tickers": [],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 31일 > 오전 7시~오후 7시 🇺🇸 아메리카 • 트럼프 행정부가 11월 4일 이란에 대한 단기간 고강도 군사작전을 준비하고 있다는 보도가 나와. 미국은 걸프..."
     },
     {
       "id": "HANAchina/71300",
