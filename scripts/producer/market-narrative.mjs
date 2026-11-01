@@ -21,7 +21,7 @@ import { POLITICAL_EVENTS } from '../../src/domain/briefing/schedule.js';
 import { interpretationFromArtifacts, marketAnalysisRegimeInput as regimeInputFromArtifacts } from '../lib/market-interpretation-inputs.mjs'; // owner 2026-10-19: one interpretation pipeline
 import { NEWS_INTRADAY_MAX } from '../lib/news-selection.mjs';
 import { afterHoursContextLines, afterHoursSignature } from './after-hours.mjs';
-import { earningsContextLines, earningsContextSignature, readEventBriefs } from './earnings-context.mjs';
+import { earningsContextLines, earningsContextSignature, readEventBriefs, cashflowContextLines, readBigtechCashflow } from './earnings-context.mjs';
 import { EVIDENCE_TIER_METRIC_IDS, KOREA_MOVE_MENTION_PCT, MARKET_ANALYSIS_CLOSED_SESSIONS, snapshotEvidenceRows, buildCompletedCloseBasis, marketAnalysisReversal, marketAnalysisLargeMove, marketAnalysisLargeMoveDirection, marketSentenceDay, marketSentenceRejectReason, dailyMarketSentence, MARKET_SENTENCE_LABEL, splitMarketSentence, buildMarketAnalysisEvidence, buildMarketAnalysisHeadlineContext, buildMarketAnalysisNewsEvidence, buildStructuredMarketAnalysis, describeMarketAnalysisIssues, retainVerifiedMarketAnalysis, reusableMarketAnalysis, validateMarketAnalysisText, lastVerifiedMarketAnalysis, plainMarketFallbackSummary } from '../lib/market-analysis-validate.mjs';
 import { HIST, SCENARIO_STATE_OUT, SCENARIO_OUTCOMES_OUT, EARNINGS_CALENDAR_OUT, REPO_ROOT } from './paths.mjs';
 const SCREENER_OUT = `${REPO_ROOT}/public-data/screener.json`;
@@ -332,7 +332,7 @@ function readEarningsCalendar() {
   try { return JSON.parse(readFileSync(EARNINGS_CALENDAR_OUT, 'utf8')); } catch (_) { return null; }
 }
 
-export async function genMarketAnalysis(data, snapshot = null, { previous = null, request = null, nowMs = Date.now(), history = null, narrative = null, earnings = undefined, eventBriefs = undefined } = {}) {
+export async function genMarketAnalysis(data, snapshot = null, { previous = null, request = null, nowMs = Date.now(), history = null, narrative = null, earnings = undefined, eventBriefs = undefined, bigtechCashflow = undefined } = {}) {
   const metricEvidence = buildMarketAnalysisEvidence(data, { snapshot });
   const newsEvidence = buildMarketAnalysisNewsEvidence(data);
   const keep = { previous, nowMs }; // v57.81: every fallback carries the last verified reading forward
@@ -403,7 +403,9 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     // v59.25: the after-hours lines are part of the packet the validator checks numbers against.
     const afterHoursLines = afterHoursContextLines(data?.afterHours);
     const earningsLines = earningsContextLines(briefsInput, earningsCloseDate);
-    const validate = (body) => validateMarketAnalysisText(body, data, snapshot, { context: [regimeContext, afterHoursLines, earningsLines].filter(Boolean).join('\n'), history: historyRows });
+    // v59.56: SEC quarterly cash flow (hyperscaler total + the night's big-tech reporters); `bigtechCashflow` is a fixture seam.
+    const cashflowLines = cashflowContextLines(bigtechCashflow === undefined ? readBigtechCashflow() : bigtechCashflow, briefsInput, earningsCloseDate, { nowMs });
+    const validate = (body) => validateMarketAnalysisText(body, data, snapshot, { context: [regimeContext, afterHoursLines, earningsLines, cashflowLines].filter(Boolean).join('\n'), history: historyRows });
     // v57.75: a large equity move (KOSPI 3% / S&P 500 1%) lets the day's sentence be replaced once (dailyMarketSentence).
     // v57.81: computed before the prompt so the first attempt is told a cause must be attributed (the validator blocks
     // an unattributed reading on such a day; before, only the retry was told and both 10/15 05:55Z/07:52Z attempts failed).
@@ -458,6 +460,8 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
       ...(afterHoursLines ? ['US_AFTER_HOURS (직전 미국 정규장 마감 뒤 장 마감 후 실적 발표 종목의 시간외 지연 값, 잠정. 크게 움직인 종목이 반도체·대형 기술주·한국 관련 업종과 닿으면 한 줄로 쓴다: "CDNS 10/26 시간외 19:55 ET 기준 +2.40%(잠정)"처럼 시간외·ET 시각·잠정을 같은 문장에 쓰고 마감·종가라고 쓰지 마라. 이유는 실적 수치와 HEADLINE_CONTEXT 헤드라인에만 귀속하라):\n' + afterHoursLines] : []),
       // v59.56: what the night's reports said, from the filings — the first thing every bookmarked author led with on 10/30.
       ...(earningsLines ? ['US_EARNINGS (직전 미국 종가까지의 실적 발표 반응. 수치·전망은 SEC 원문에서 확인된 값, "보도된 이유"는 보도 기반. 쓰는 법: (a) 지수·반도체·업종의 큰 움직임을 설명할 때 HEADLINE_CONTEXT의 일반론("AI 수익성 회의론")보다 이 사실을 먼저 쓴다: 어느 회사의 무엇(매출·설비투자·현금흐름·다음 분기 전망)이 기대와 어떻게 달랐고 종가가 얼마였는지 (b) 숫자는 이 블록에 있는 값만, 종목 이름과 M/D 날짜를 같은 문장에 쓴다 (c) "보도된 이유"는 "…보도에 따르면"으로 귀속하고 단정하지 않는다 (d) 여러 보고가 같은 고리(예: 빅테크 설비투자 → 공급망 전망)로 이어지면 그 고리를 한 문장으로 잇되, 연결은 해석이라고 밝힌다 (e) 발표 후 누적 반응은 "발표 후 n거래일 누적"이라고 쓴다):\n' + earningsLines] : []),
+      // v59.56: the cash side the 10/30 authors led with (Amazon TTM FCF, big-tech capex ÷ operating cash flow).
+      ...(cashflowLines ? ['BIGTECH_CASHFLOW (SEC 10-Q/10-K 현금흐름표에서 분기로 차감해 합친 최근 4분기 값. 설비투자는 유형자산 취득 총액이라 회사가 발표한 잉여현금흐름 정의와 다를 수 있다. 쓰는 법: AI·반도체·빅테크 움직임이나 위 US_EARNINGS의 설비투자·현금흐름을 설명할 때만 쓴다. 숫자는 이 블록 표기 그대로($xx.xB, %) 쓰고 "SEC 공시 기준 최근 4분기"라고 밝힌다. 설비투자 ÷ 영업현금흐름이 높을수록 투자를 내부 현금으로 감당할 여유가 적다는 뜻이며, 그 해석이 차입·신용으로 이어진다는 말은 해석이라고 밝힌다):\n' + cashflowLines] : []),
       ...(crossMarketIntradayLines ? ['CROSS_MARKET_INTRADAY (미국 지수 선물·아시아 지수의 장중 지연 값. 한국 장이나 미국 장의 움직임을 설명할 때 반도체(SMH)·선물·아시아가 같은 방향으로 움직였다면 근거로 함께 쓴다. 쓰면 "나스닥 100 선물 장중 HH:MM KST 기준 +x.xx%"처럼 장중과 시각을 같은 문장에 쓰고 마감·종가라고 쓰지 마라):\n' + crossMarketIntradayLines] : []),
       'NEWS_CLUSTERS (article-level evidence, may be absent):\n' + (newsLines || 'none'),
       'HEADLINE_CONTEXT (retained headlines — titles only; these are the only news material available):\n' + (headlineLines || 'none')

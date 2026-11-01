@@ -120,6 +120,7 @@ const POLICIES = {
   'today-verdict.json': { kind: 'derived-state', timestamp: ['generatedAt'], maxAgeHours: 48 }, // v58.80 F01: the 오늘 verdict the static shell paints first (build-scenario-state)
   'official-references.json': { kind: 'official-web-reference', timestamp: ['checkedAt'], maxAgeHours: 48 }, // P1734: page-verified KR references (NAAIM retired) (refresh-data, 12h heartbeat)
   'kr-fundamentals.json': { kind: 'filing-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 14 }, // P1654: OpenDART annual accounts (refresh-screener, weekly; needs DART_API_KEY)
+  'bigtech-cashflow.json': { kind: 'filing-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // v59.56: SEC companyfacts quarterly cash flow, 9 big-tech issuers (refresh-screener, 6-hourly)
   'kr-investor-flows.json': { kind: 'official-market-flow', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // v58.55: BOK ECOS 투자자별 순매수 (refresh-screener, 6-hourly; needs BOK_API_KEY)
   'market-snapshot.json': { kind: 'live-core', timestamp: ['generatedAt', 'lastSuccessfulAt', 'attemptedAt'], maxAgeHours: 24 },
   'market-snapshot-status.json': { kind: 'operational-status', timestamp: ['updatedAt', 'lastSuccessfulAt', 'attemptedAt'], maxAgeHours: 24 },

@@ -2405,7 +2405,11 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       // v59.25: the reuse key is the narrative signature plus the after-hours key when one exists; v59.56 adds the earnings key
       && /narrativeSignature: inputSignature/.test(fetchData) && /inputSignature = \[narrativeContext\.signature[^\n]*ah:\$\{afterHoursKey\}[^\n]*er:\$\{earningsKey\}/.test(fetchData));
   check('v59.25 the market-analysis prompt carries US_AFTER_HOURS with 시간외 + ET time, and the validator context includes it',
-    /US_AFTER_HOURS \(/.test(fetchData) && /시간외·ET 시각·잠정을 같은 문장에/.test(fetchData) && /context: \[regimeContext, afterHoursLines, earningsLines\]/.test(fetchData));
+    /US_AFTER_HOURS \(/.test(fetchData) && /시간외·ET 시각·잠정을 같은 문장에/.test(fetchData) && /context: \[regimeContext, afterHoursLines, earningsLines, cashflowLines\]/.test(fetchData));
+  // v59.56: the SEC quarterly cash-flow lane (hyperscaler capex ÷ operating cash flow) reaches the prompt and the validator context.
+  check('v59.56 the market-analysis prompt carries BIGTECH_CASHFLOW from public-data/bigtech-cashflow.json with the SEC basis named',
+    /BIGTECH_CASHFLOW \(/.test(fetchData) && /cashflowContextLines\(bigtechCashflow === undefined \? readBigtechCashflow\(\) : bigtechCashflow/.test(fetchData) && /"SEC 공시 기준 최근 4분기"/.test(fetchData)
+      && /node scripts\/fetch-bigtech-cashflow\.mjs/.test(readFileSync(join(root, '.github/workflows/refresh-screener.yml'), 'utf8')) && /stage_if_exists public-data\/bigtech-cashflow\.json/.test(readFileSync(join(root, '.github/workflows/refresh-screener.yml'), 'utf8')));
   check('v59.56 the market-analysis prompt carries US_EARNINGS from event-briefs with attribution, and the validator context includes it',
     /US_EARNINGS \(/.test(fetchData) && /earningsContextLines\(briefsInput, earningsCloseDate\)/.test(fetchData) && /"…보도에 따르면"으로 귀속/.test(fetchData));
 }

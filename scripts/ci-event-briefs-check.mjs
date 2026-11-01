@@ -10,7 +10,9 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { buildEventBriefs, fixtureSources } from './fetch-event-briefs.mjs';
-import { earningsContextLines, earningsContextSignature } from './producer/earnings-context.mjs';
+import { earningsContextLines, earningsContextSignature, cashflowContextLines } from './producer/earnings-context.mjs';
+import { buildBigtechCashflow } from './fetch-bigtech-cashflow.mjs';
+import { issuerCashflow, quartersSpanned, HYPERSCALERS } from '../src/domain/fundamental/quarterly-cashflow.js';
 import { recentBriefs, latestBriefFor, numberTokens, verifyQuotedItems, unverifiedNumbers, sourceNumberSet, EVENT_BRIEFS_SCHEMA } from '../src/domain/briefing/event-briefs.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -378,6 +380,79 @@ check('v59.56 earnings context: the close\'s own reports and leaders first, figu
   ok(lines[2].includes('발표 후 2거래일 누적'));
   eq(earningsContextSignature(briefs, '2026-10-30'), '2026-10-30:AMZN-1,INTC-29,NOW-30');
   eq(earningsContextLines(briefs, null), '');
+});
+
+// v59.56 (X bookmarks 11/01 follow-up 1): SEC cash-flow statements are year-to-date; a quarter is the difference of two
+// year-to-date values with the same start and the fourth quarter is the 10-K year minus nine months.
+const B = 1e9;
+const ENDS = ['03-31', '06-30', '09-30', '12-31'];
+function ytdRows(quarterValues, { years = [2024, 2025, 2026], start = (y) => `${y}-01-01`, end = (y, q) => `${y}-${ENDS[q]}` } = {}) {
+  const rows = []; let i = 0;
+  for (const y of years) {
+    let cum = 0;
+    for (let q = 0; q < 4 && i < quarterValues.length; q += 1) {
+      cum += quarterValues[i++];
+      rows.push({ start: start(y), end: end(y, q), val: cum, form: q === 3 ? '10-K' : '10-Q', fp: q === 3 ? 'FY' : `Q${q + 1}`, fy: y, filed: `${q === 3 ? y + 1 : y}-${q === 3 ? '01-30' : ENDS[q].slice(0, 2) + '-28'}`, accn: `a-${y}-${q}` });
+    }
+  }
+  return rows;
+}
+const companyFacts = (ocfQ, capexQ, { capexConcept = 'PaymentsToAcquirePropertyPlantAndEquipment', extraOcf = [], ...opts } = {}) => ({ facts: { 'us-gaap': {
+  NetCashProvidedByUsedInOperatingActivities: { units: { USD: [...ytdRows(ocfQ, opts), ...extraOcf] } },
+  [capexConcept]: { units: { USD: ytdRows(capexQ, opts) } } } } });
+const ocfQ = [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].map((x) => x * B);
+const capexQ = [5, 5, 6, 6, 7, 8, 9, 10, 11, 12, 13].map((x) => x * B);
+
+check('v59.56 quarterly cash flow: year-to-date differences, Q4 from the 10-K, twelve months and a year earlier', () => {
+  const read = issuerCashflow(companyFacts(ocfQ, capexQ));
+  eq(read.status, 'ok');
+  same(read.quarters.slice(-4).map((q) => [q.end, q.ocf / B, q.capex / B, q.basis]), [['2025-12-31', 17, 10, 'fy-minus-9m'], ['2026-03-31', 18, 11, 'reported'], ['2026-06-30', 19, 12, 'ytd-difference'], ['2026-09-30', 20, 13, 'ytd-difference']]);
+  same([read.ttm.start, read.ttm.end, read.ttm.ocf / B, read.ttm.capex / B, read.ttm.fcf / B], ['2025-10-01', '2026-09-30', 74, 46, 28]);
+  same([read.ttmYearAgo.end, read.ttmYearAgo.capex / B], ['2025-09-30', 30]);
+  eq(read.capexYoyPct, 53.3);
+  // 52/53-week years: 91 and 98 days are quarters, 371 days a year; 120 days is none of them.
+  same([quartersSpanned('2025-09-28', '2025-12-27'), quartersSpanned('2025-09-28', '2026-01-03'), quartersSpanned('2024-09-29', '2025-10-04'), quartersSpanned('2026-01-01', '2026-04-30')], [1, 1, 4, null]);
+});
+
+check('v59.56 quarterly cash flow: a restated comparative wins, a missing link leaves the twelve months out, tags switch', () => {
+  const restated = { start: '2026-01-01', end: '2026-06-30', val: 39 * B, form: '10-Q', fp: 'Q3', fy: 2026, filed: '2026-10-28', accn: 'later' };
+  eq(issuerCashflow(companyFacts(ocfQ, capexQ, { extraOcf: [restated] })).quarters.find((q) => q.end === '2026-06-30').ocf, 39 * B - 18 * B);
+  // No nine-month value for 2026 → Q3 2026 has no quarter, so the last four are not consecutive.
+  const gap = companyFacts(ocfQ, capexQ);
+  gap.facts['us-gaap'].NetCashProvidedByUsedInOperatingActivities.units.USD = gap.facts['us-gaap'].NetCashProvidedByUsedInOperatingActivities.units.USD.filter((row) => row.end !== '2026-09-30');
+  const gapRead = issuerCashflow(gap);
+  eq(gapRead.quarters.at(-1).end, '2026-06-30'); eq(gapRead.ttm.end, '2026-06-30');
+  eq(issuerCashflow(companyFacts(ocfQ, capexQ, { capexConcept: 'PaymentsToAcquireProductiveAssets' })).ttm.capex, 46 * B);
+  eq(issuerCashflow({ facts: { 'us-gaap': {} } }).status, 'no-cashflow-facts');
+  // A 20-F or an 8-K exhibit is not a periodic cash-flow statement here.
+  const foreign = companyFacts(ocfQ, capexQ); for (const row of foreign.facts['us-gaap'].NetCashProvidedByUsedInOperatingActivities.units.USD) row.form = '20-F';
+  eq(issuerCashflow(foreign).status, 'no-cashflow-facts');
+});
+
+check('v59.56 big-tech cash flow artifact: hyperscaler total only when all five are in, a failed fetch keeps the previous row', () => {
+  const nowMs = Date.parse('2026-11-01T00:00:00Z');
+  const all = Object.fromEntries(HYPERSCALERS.map((symbol) => [symbol, companyFacts(ocfQ, capexQ)]));
+  const first = buildBigtechCashflow({ factsBySymbol: all, nowMs });
+  same([first.hyperscalers.complete, first.hyperscalers.capex / B, first.hyperscalers.ocf / B, first.hyperscalers.capexToOcfPct], [true, 230, 370, 62.2]);
+  like(first.summary, /^빅테크 5개사\(MSFT·GOOGL·AMZN·META·ORCL\) 최근 4분기 합계 설비투자 \$230\.0B ÷ 영업현금흐름 \$370\.0B = 62\.2%, 잉여현금흐름 \$140\.0B — 1년 전 51\.7%, 설비투자 \+53\.3%$/);
+  const second = buildBigtechCashflow({ factsBySymbol: { ...all, AMZN: new Error('HTTP 503') }, previous: first, nowMs: nowMs + 3600000 });
+  const amzn = second.issuers.find((row) => row.symbol === 'AMZN');
+  same([amzn.carried, amzn.lastError, amzn.ttm.capex / B, second.hyperscalers.complete], [true, 'HTTP 503', 46, true]);
+  const cold = buildBigtechCashflow({ factsBySymbol: { ...all, ORCL: new Error('HTTP 404') }, nowMs });
+  same([cold.hyperscalers.complete, cold.hyperscalers.missing, cold.summary], [false, ['ORCL'], '']);
+});
+
+check('v59.56 cash-flow lane in the reading: the group line always, an issuer line only for the night\'s reporter, stale data dropped', () => {
+  const nowMs = Date.parse('2026-10-31T00:00:00Z');
+  const cashflow = buildBigtechCashflow({ factsBySymbol: Object.fromEntries(HYPERSCALERS.map((symbol) => [symbol, companyFacts(ocfQ, capexQ)])), nowMs });
+  const briefs = { briefs: [{ kind: 'earnings', symbol: 'AMZN', nameKo: '아마존', eventDate: '2026-10-29', reaction: { basis: 'close', firstDate: '2026-10-30', latestDate: '2026-10-30', latestPct: -1.4, sessions: 1 } }] };
+  const lines = cashflowContextLines(cashflow, briefs, '2026-10-30', { nowMs }).split('\n');
+  eq(lines.length, 2);
+  like(lines[0], /^- 빅테크 5개사/);
+  like(lines[1], /^- AMZN\(아마존\) 2026\.09 분기까지 최근 4분기 영업현금흐름 \$74\.0B · 설비투자 \$46\.0B · 잉여현금흐름 \$28\.0B/);
+  eq(cashflowContextLines(cashflow, { briefs: [] }, '2026-10-30', { nowMs }).split('\n').length, 1);
+  eq(cashflowContextLines(cashflow, briefs, '2026-10-30', { nowMs: nowMs + 11 * 86400000 }), '');
+  eq(cashflowContextLines(null, briefs, '2026-10-30', { nowMs }), '');
 });
 
 if (failures.length) {

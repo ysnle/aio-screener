@@ -10,7 +10,8 @@ import { scenarioLead } from '../../domain/market/scenario-lead.js';
 import { CHOICE_WORDS } from '../../domain/content/choice-words.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { frameHead, markFrame, noteFold, setAsOf } from './section-frame.js';
-import { refreshSharedArtifact, SCENARIO_OUTCOMES, SCENARIO_STATE } from '../../data/shared-artifacts.js';
+import { refreshSharedArtifact, SCENARIO_OUTCOMES, SCENARIO_STATE, BIGTECH_CASHFLOW } from '../../data/shared-artifacts.js';
+import { groupCashflowSentence } from '../../domain/fundamental/quarterly-cashflow.js';
 import { themesForBranch } from '../../domain/scenarios/exposures.js';
 import { themeRotationRead } from '../../domain/scenarios/theme-playbook.js';
 import { krThemeLabel } from '../../domain/themes/kr-themes.js';
@@ -36,7 +37,7 @@ export function crossroadsForRoot(root, { nowMs = Date.now() } = {}) {
 
 /** P1743: load the weekly long-history outcomes and the per-refresh state once; repaint when either arrives. */
 export function refreshScenarioArtifacts(root, repaint) {
-  for (const spec of [SCENARIO_OUTCOMES, SCENARIO_STATE]) {
+  for (const spec of [SCENARIO_OUTCOMES, SCENARIO_STATE, BIGTECH_CASHFLOW]) {
     refreshSharedArtifact(root, spec).then(({ changed }) => { if (changed) repaint?.(); }).catch(() => {});
   }
 }
@@ -217,6 +218,14 @@ function rateHub(doc, model, pathsOpen = false) {
   return hub;
 }
 
+const CASHFLOW_MAX_AGE_MS = 10 * 86400000;
+function bigtechCashflowText(root) {
+  const payload = root?.[BIGTECH_CASHFLOW.key];
+  const age = Date.now() - Date.parse(payload?.generatedAt || '');
+  const sentence = age >= 0 && age <= CASHFLOW_MAX_AGE_MS ? groupCashflowSentence(payload?.hyperscalers) : '';
+  return sentence ? `투자 자금 여력(SEC 분기 공시 기준, 조건에 넣지 않는 참고값): ${sentence}` : '';
+}
+
 function branchCard(doc, root, item, lead, open = false) {
   const card = el(doc, 'details', null, 'xr-branch');
   card.dataset.branch = item.id;
@@ -249,6 +258,9 @@ function branchCard(doc, root, item, lead, open = false) {
   for (const text of item.basis) conditionList.append(el(doc, 'li', text));
   conditionItem.append(conditionList);
   evidence.append(conditionItem, el(doc, 'li', `시장 가격: ${item.pricing.text}`), el(doc, 'li', `과거 빈도: ${item.past.text}${item.pastBridge ? ` ${item.pastBridge}` : ''}`));
+  // v59.56 (X bookmarks 11/01): the AI-capex funding gauge the authors read, from SEC quarterly filings — reference, not a condition.
+  const cashflow = item.id === 'aibust' ? bigtechCashflowText(root) : '';
+  if (cashflow) evidence.append(el(doc, 'li', cashflow));
   body.append(evidence);
   if (item.triggers.length) {
     body.append(el(doc, 'h4', '확인할 발표', 'xr-h4'));
