@@ -3,8 +3,8 @@
   "logicalArtifact": "public-data/sec-fundamentals.json",
   "runtimeArtifact": "public-data/sec-fundamentals-summary.json",
   "artifactRole": "BOUNDED_PAGE_PROJECTION",
-  "sourceSha256": "918c97e740e864683eb93d5d77d978ff9b0a1b97a4ce8b18fd9086f25ea18b74",
-  "runtimeSha256": "873fe67eddade7cf7b9047335b4eb28bbdbb90a65f12e232c62fd87a81a533a5",
+  "sourceSha256": "4dc43bbeda84c10cbccff3fcdafe112eb6ae1e2a3dd7a7f2fcda2741c67bc344",
+  "runtimeSha256": "3b69216ba034f987fbe319587374aa1c1e4e25d92959c62de43081df092007db",
   "sourceBytes": 134904979,
   "runtimeBytes": 665391,
   "records": 848,
@@ -13,5 +13,5 @@
     "records": 797,
     "format": "periodEnd:revenue:netIncome:equity:operatingCashFlow:capex:longTermDebt:sharesMillions[:totalAssets:researchAndDevelopment[:grossProfit:operatingIncome:cash:shortTermInvestments:shareBasedCompensation:buybacks:dividends]] (USD millions; the first bracket is present once the issuer was read with total assets and R&D, the second on the latest two fiscal years once it was read with the capital items — absent = not yet collected, empty = not reported)"
   },
-  "generatedAt": "2026-10-31T21:55:26.213Z"
+  "generatedAt": "2026-11-01T00:28:56.625Z"
 }
