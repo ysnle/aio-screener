@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-01T12:21:27.437Z",
-  "attemptedAt": "2026-11-01T12:21:27.437Z",
-  "lastSuccessfulAt": "2026-11-01T12:21:27.437Z",
+  "generatedAt": "2026-11-01T13:22:16.062Z",
+  "attemptedAt": "2026-11-01T13:22:16.062Z",
+  "lastSuccessfulAt": "2026-11-01T13:22:16.062Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-18T12:21:23.240Z",
-  "until": "2026-11-01T12:21:23.240Z",
+  "since": "2026-10-18T13:22:08.834Z",
+  "until": "2026-11-01T13:22:08.834Z",
   "current24hWindow": {
     "start": "2026-10-30T23:00:00.000Z",
     "end": "2026-10-31T23:00:00.000Z",
@@ -89,89 +89,89 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1318,
-      "freshCount": 20,
-      "eligibleTextCount": 1263,
+      "count": 1323,
+      "freshCount": 40,
+      "eligibleTextCount": 1268,
       "selectedCount": 124,
       "error": null,
-      "lastPostId": 67979
+      "lastPostId": 67985
     },
     {
       "channel": "bornlupin",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 227,
-      "freshCount": 9,
-      "eligibleTextCount": 227,
+      "count": 228,
+      "freshCount": 29,
+      "eligibleTextCount": 228,
       "selectedCount": 111,
       "error": null,
-      "lastPostId": 20927
+      "lastPostId": 20928
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 671,
-      "freshCount": 35,
-      "eligibleTextCount": 670,
+      "count": 674,
+      "freshCount": 32,
+      "eligibleTextCount": 673,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 71348
+      "lastPostId": 71357
     }
   ],
-  "count": 2350,
-  "retainedItemCount": 453,
+  "count": 2359,
+  "retainedItemCount": 480,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2350,
-    "eligibleTextCount": 2286,
+    "observedCount": 2359,
+    "eligibleTextCount": 2295,
     "mediaOnlyCount": 64,
     "highSignalCount": 427,
-    "broadSignalCount": 934,
+    "broadSignalCount": 935,
     "selectedRawCount": 411,
     "selectedEligibleCount": 411,
-    "selectedRawCoveragePct": 18,
-    "selectedOfObservedPct": 17.5,
+    "selectedRawCoveragePct": 17.9,
+    "selectedOfObservedPct": 17.4,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
+    "geo": 420,
+    "market-note": 825,
+    "earnings": 487,
+    "credit": 124,
+    "semi": 530,
+    "kr-market": 134,
     "power": 296,
     "equity": 168,
-    "earnings": 485,
     "japan": 109,
-    "market-note": 822,
-    "geo": 416,
     "media-only": 64,
-    "semi": 529,
     "healthcare": 122,
-    "macro": 359,
+    "macro": 358,
     "flows": 89,
-    "kr-market": 133,
-    "credit": 124,
-    "ai-policy": 134,
+    "ai-policy": 133,
     "optical": 38,
     "crypto": 5,
     "insider": 2
   },
   "tickerCounts": {
+    "NVDA": 159,
+    "MSFT": 66,
+    "GOOG": 130,
+    "AVGO": 23,
+    "AMZN": 82,
+    "005930.KS": 50,
+    "000660.KS": 77,
     "6981.T": 3,
-    "MSFT": 65,
-    "AMZN": 81,
     "AMD": 28,
-    "GOOG": 129,
-    "NVDA": 158,
-    "AVGO": 22,
     "MU": 50,
-    "005930.KS": 49,
-    "000660.KS": 76,
     "AAPL": 14,
     "TSLA": 61,
     "META": 14,
@@ -188,7 +188,7 @@
     "TEM": 1,
     "JD": 1,
     "ABBV": 2,
-    "TSM": 45,
+    "TSM": 44,
     "AZN": 1,
     "009150.KS": 17,
     "COIN": 1,
@@ -252,40 +252,40 @@
     "ULTA": 1
   },
   "themes": [
-    "Market Notes (822 posts in 14-day research window): 빌 애크먼(Bill Ackman) – Equity Mates 인터뷰 1. AI 버블과 컴퓨팅 수요 “컴퓨팅 수요 측면에서 지금이 버블이라고 생각하지 않는다.” AI가 초지능에 빠르게 접근할수록 이를 뒷받침할...",
-    "Semiconductors/Memory (529 posts in 14-day research window): 2026년 10월 29일 서학개미 순매수 미국 주식 TOP 50 1위: MICRON TECHNOLOGY INC (15.96%) 2위: LUMENTUM HOLDINGS INC SOFF 39520207144...",
-    "Earnings/Corporate (485 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
-    "Geopolitics (416 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 31일 🇺🇸 아메리카 • 트럼프 대통령은 이란과 협상이 진행 중이라고 밝혀. 다만 미국 정부는 이란에 대한 경제 봉쇄와 추가 제재를 검토 중이며, 중간선거 직후...",
-    "Macro/Rates (359 posts in 14-day research window): 2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,...",
+    "Market Notes (825 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — AI 인프라 투자 자금 조달을 위해 약 800억 달러 규모의 공급업체 대출 프로그램을 활용할 계획인 것으로...",
+    "Semiconductors/Memory (530 posts in 14-day research window): 2026년 10월 29일 서학개미 순매수 미국 주식 TOP 50 1위: MICRON TECHNOLOGY INC (15.96%) 2위: LUMENTUM HOLDINGS INC SOFF 39520207144...",
+    "Earnings/Corporate (487 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
+    "Geopolitics (420 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 31일 🇺🇸 아메리카 • 트럼프 대통령은 이란과 협상이 진행 중이라고 밝혀. 다만 미국 정부는 이란에 대한 경제 봉쇄와 추가 제재를 검토 중이며, 중간선거 직후...",
+    "Macro/Rates (358 posts in 14-day research window): 2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,...",
     "AI Power/Grid (296 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
     "Equity/Analyst (168 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
-    "AI Policy/Export Controls (134 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은 CSP의 막대한 CapEx가 실제 매출과 FCF로 얼마나 전환되는지에 주목. AI 인프라 투자 증가 속도가..."
+    "Korea Market (134 posts in 14-day research window): Alphabet 2026년 3분기 실적 요약 실적 • 매출 $1,275.8억, YoY +25%, QoQ +6% • 환율 영향 제외 매출 성장률 YoY +25%, QoQ +7% • 영업이익 $405.8억,..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 158,
+      "count": 159,
       "text": "2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,..."
     },
     {
       "key": "GOOG",
-      "count": 129,
-      "text": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은 CSP의 막대한 CapEx가 실제 매출과 FCF로 얼마나 전환되는지에 주목. AI 인프라 투자 증가 속도가..."
+      "count": 130,
+      "text": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
       "key": "AMZN",
-      "count": 81,
-      "text": "빌 애크먼(Bill Ackman) – Equity Mates 인터뷰 1. AI 버블과 컴퓨팅 수요 “컴퓨팅 수요 측면에서 지금이 버블이라고 생각하지 않는다.” AI가 초지능에 빠르게 접근할수록 이를 뒷받침할..."
+      "count": 82,
+      "text": "빌 애크먼(Bill Ackman) – Equity Mates 인터뷰 1. AI 버블과 컴퓨팅 수요 “컴퓨팅 수요 측면에서 지금이 버블이라고 생각하지 않는다.” AI가 초지능에 빠르게 접근할수록 이를 뒷받침할 컴퓨팅 수요는 사실상 무한대에 가까워질 수 있음. 초지능을 구현하려면 결국 막대한 컴퓨팅 자원이 필요하기..."
     },
     {
       "key": "000660.KS",
-      "count": 76,
+      "count": 77,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인..."
     },
     {
       "key": "MSFT",
-      "count": 65,
-      "text": "빌 애크먼(Bill Ackman) – Equity Mates 인터뷰 1. AI 버블과 컴퓨팅 수요 “컴퓨팅 수요 측면에서 지금이 버블이라고 생각하지 않는다.” AI가 초지능에 빠르게 접근할수록 이를 뒷받침할..."
+      "count": 66,
+      "text": "빌 애크먼(Bill Ackman) – Equity Mates 인터뷰 1. AI 버블과 컴퓨팅 수요 “컴퓨팅 수요 측면에서 지금이 버블이라고 생각하지 않는다.” AI가 초지능에 빠르게 접근할수록 이를 뒷받침할 컴퓨팅 수요는 사실상 무한대에 가까워질 수 있음. 초지능을 구현하려면 결국 막대한 컴퓨팅 자원이 필요하기..."
     },
     {
       "key": "TSLA",
@@ -293,18 +293,18 @@
       "text": "2026년 10월 29일 미국 레딧 베스트 게시물 분석 > NVDA / MU / VRT / ETN / GEV - AI Trade가 물리 인프라로 확장 · 장문 DD 핵심은 “AI가 싸지면 물리 자원이 병목”..."
     },
     {
+      "key": "005930.KS",
+      "count": 50,
+      "text": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인..."
+    },
+    {
       "key": "MU",
       "count": 50,
       "text": "2026년 10월 29일 미국 레딧 베스트 게시물 분석 > NVDA / MU / VRT / ETN / GEV - AI Trade가 물리 인프라로 확장 · 장문 DD 핵심은 “AI가 싸지면 물리 자원이 병목”..."
     },
     {
-      "key": "005930.KS",
-      "count": 49,
-      "text": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인..."
-    },
-    {
       "key": "TSM",
-      "count": 45,
+      "count": 44,
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
@@ -319,7 +319,7 @@
     },
     {
       "key": "AVGO",
-      "count": 22,
+      "count": 23,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인..."
     }
   ],
@@ -330,7 +330,7 @@
       "topics": [
         "macro"
       ],
-      "count": 359,
+      "count": 358,
       "focus": "2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,..."
     },
     {
@@ -339,7 +339,7 @@
       "topics": [
         "geo"
       ],
-      "count": 416,
+      "count": 420,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 31일 🇺🇸 아메리카 • 트럼프 대통령은 이란과 협상이 진행 중이라고 밝혀. 다만 미국 정부는 이란에 대한 경제 봉쇄와 추가 제재를 검토 중이며, 중간선거 직후..."
     },
     {
@@ -349,7 +349,7 @@
         "credit"
       ],
       "count": 124,
-      "focus": "Anthropic의 IPO 불확실성 확대: 현금흐름 및 자금조달 부담 부각 » Anthropic의 IPO 추진 과정에서 Microsoft, Alphabet, Amazon의 실적 발표 이후 AI 인프라 투자에..."
+      "focus": "빌 애크먼(Bill Ackman) – Equity Mates 인터뷰 1. AI 버블과 컴퓨팅 수요 “컴퓨팅 수요 측면에서 지금이 버블이라고 생각하지 않는다.” AI가 초지능에 빠르게 접근할수록 이를 뒷받침할 컴퓨팅 수요는 사실상 무한대에 가까워질 수 있음. 초지능을 구현하려면 결국 막대한 컴퓨팅 자원이 필요하기..."
     },
     {
       "id": "semi",
@@ -357,7 +357,7 @@
       "topics": [
         "semi"
       ],
-      "count": 529,
+      "count": 530,
       "focus": "2026년 10월 29일 서학개미 순매수 미국 주식 TOP 50 1위: MICRON TECHNOLOGY INC (15.96%) 2위: LUMENTUM HOLDINGS INC SOFF 39520207144..."
     },
     {
@@ -384,8 +384,8 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 134,
-      "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은 CSP의 막대한 CapEx가 실제 매출과 FCF로 얼마나 전환되는지에 주목. AI 인프라 투자 증가 속도가..."
+      "count": 133,
+      "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
       "id": "kr-market",
@@ -393,7 +393,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 133,
+      "count": 134,
       "focus": "Alphabet 2026년 3분기 실적 요약 실적 • 매출 $1,275.8억, YoY +25%, QoQ +6% • 환율 영향 제외 매출 성장률 YoY +25%, QoQ +7% • 영업이익 $405.8억,..."
     },
     {
@@ -420,7 +420,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 485,
+      "count": 487,
       "focus": "마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장...."
     },
     {
@@ -430,7 +430,7 @@
         "healthcare"
       ],
       "count": 122,
-      "focus": "52주 신고가 (시총 $1B 이상) 헬스케어 · AbbVie · Addus HomeCare · Amgen · Amneal Pharmaceuticals · Bausch Health Companies ·..."
+      "focus": ">>미중 상호 기술 수출통제 강화, 글로벌 기술 질서 재편 가속화 (대만공상시보) •중국 상무부와 과기부는 10월 AI·바이오·태양광 등 40개 기술을 수출통제 목록에 추가하는 개정안 발표. 이중 14개는..."
     },
     {
       "id": "japan",
@@ -465,8 +465,8 @@
       "topics": [
         "market-note"
       ],
-      "count": 822,
-      "focus": "빌 애크먼(Bill Ackman) – Equity Mates 인터뷰 1. AI 버블과 컴퓨팅 수요 “컴퓨팅 수요 측면에서 지금이 버블이라고 생각하지 않는다.” AI가 초지능에 빠르게 접근할수록 이를 뒷받침할..."
+      "count": 825,
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — AI 인프라 투자 자금 조달을 위해 약 800억 달러 규모의 공급업체 대출 프로그램을 활용할 계획인 것으로..."
     }
   ],
   "pageMap": {
@@ -716,18 +716,15 @@
       "datetime": "2026-10-31T23:57:29.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
-        "ai-policy",
-        "credit",
-        "macro",
-        "geo"
+        "ai-policy"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
+      "summary": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은...",
+      "lead": 1,
       "tickers": [
         "GOOG"
-      ],
-      "summary": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
+      ]
     },
     {
       "id": "insidertracking/67955",
@@ -736,14 +733,14 @@
       "datetime": "2026-10-31T12:35:33.000Z",
       "localDateKst": "2026-10-31",
       "tags": [
-        "credit",
         "ai-policy",
+        "credit",
         "equity",
-        "earnings"
+        "macro"
       ],
+      "lead": 3,
       "score": 100,
       "hasText": true,
-      "summary": "Anthropic의 IPO 불확실성 확대: 현금흐름 및 자금조달 부담 부각 » Anthropic의 IPO 추진 과정에서 Microsoft, Alphabet, Amazon의 실적 발표 이후 AI 인프라 투자에...",
       "tickers": [],
       "listTickers": [
         "MSFT",
@@ -752,7 +749,8 @@
         "000660.KS",
         "GOOGL",
         "CRWV"
-      ]
+      ],
+      "summary": "Anthropic의 IPO 불확실성 확대: 현금흐름 및 자금조달 부담 부각 » Anthropic의 IPO 추진 과정에서 Microsoft, Alphabet, Amazon의 실적 발표 이후 AI 인프라 투자에..."
     },
     {
       "id": "bornlupin/20907",
@@ -761,16 +759,19 @@
       "datetime": "2026-10-31T12:18:11.000Z",
       "localDateKst": "2026-10-31",
       "tags": [
-        "market-note"
+        "credit",
+        "macro",
+        "geo",
+        "semi"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "빌 애크먼(Bill Ackman) – Equity Mates 인터뷰 1. AI 버블과 컴퓨팅 수요 “컴퓨팅 수요 측면에서 지금이 버블이라고 생각하지 않는다.” AI가 초지능에 빠르게 접근할수록 이를 뒷받침할...",
       "tickers": [
         "MSFT",
         "META",
         "AMZN"
-      ]
+      ],
+      "summary": "빌 애크먼(Bill Ackman) – Equity Mates 인터뷰 1. AI 버블과 컴퓨팅 수요 “컴퓨팅 수요 측면에서 지금이 버블이라고 생각하지 않는다.” AI가 초지능에 빠르게 접근할수록 이를 뒷받침할..."
     },
     {
       "id": "insidertracking/67914",
@@ -1686,6 +1687,48 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/67980",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67980",
+      "datetime": "2026-11-01T12:27:32.000Z",
+      "localDateKst": "2026-11-01",
+      "tags": [
+        "credit",
+        "semi"
+      ],
+      "lead": 1,
+      "score": 94,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "MSFT",
+        "GOOG",
+        "AVGO",
+        "AMZN"
+      ],
+      "summary": "뱅크오브아메리카 글로벌 리서치에 따르면 10월 투자적격등급(IG) 인공지능 관련 기업들의 회사채 신용 스프레드 확대는 스페이스X와 오라클이 주도. 9월 30일부터 10월 29일까지 스페이스X의 신용 스프레드는..."
+    },
+    {
+      "id": "HANAchina/71353",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71353",
+      "datetime": "2026-11-01T12:25:13.000Z",
+      "localDateKst": "2026-11-01",
+      "tags": [
+        "semi",
+        "kr-market",
+        "earnings"
+      ],
+      "lead": 1,
+      "score": 63,
+      "hasText": true,
+      "tickers": [
+        "005930.KS",
+        "000660.KS"
+      ],
+      "summary": ">>메모리는 ‘기술주의 피난처’인가? Nomura “2027년 예상 PER 2~3배에 불과” •Nomura는 메모리 공급 부족이 2028년까지 지속되고, 주주환원도 성장 국면에 진입할 것으로 전망함. 그러나..."
+    },
+    {
       "id": "HANAchina/71348",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71348",
@@ -1912,17 +1955,16 @@
       "tags": [
         "macro",
         "earnings",
-        "geo",
         "semi"
       ],
-      "lead": 2,
       "score": 77,
       "hasText": true,
+      "summary": ">>금주 시장 핵심 이벤트 : 미국 중간선거·고용지표·빅테크 실적 집중 •기술주 급락 이후 금주 Apple과 AMD의 실적이 AI 투자 논리 회복 여부를 가늠하는 핵심 시험대 •미국 중간선거에서는 상·하원...",
+      "lead": 3,
       "tickers": [
         "AMD",
         "AAPL"
-      ],
-      "summary": ">>금주 시장 핵심 이벤트 : 미국 중간선거·고용지표·빅테크 실적 집중 •기술주 급락 이후 금주 Apple과 AMD의 실적이 AI 투자 논리 회복 여부를 가늠하는 핵심 시험대 •미국 중간선거에서는 상·하원..."
+      ]
     },
     {
       "id": "bornlupin/20924",
@@ -1996,18 +2038,15 @@
       "datetime": "2026-10-31T23:57:29.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
-        "ai-policy",
-        "credit",
-        "macro",
-        "geo"
+        "ai-policy"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
+      "summary": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은...",
+      "lead": 1,
       "tickers": [
         "GOOG"
-      ],
-      "summary": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
+      ]
     },
     {
       "id": "HANAchina/71310",
@@ -2016,18 +2055,17 @@
       "datetime": "2026-10-31T23:06:32.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
-        "ai-policy",
-        "semi",
-        "healthcare"
+        "healthcare",
+        "ai-policy"
       ],
-      "lead": 1,
       "score": 70,
       "hasText": true,
+      "summary": ">>미중 상호 기술 수출통제 강화, 글로벌 기술 질서 재편 가속화 (대만공상시보) •중국 상무부와 과기부는 10월 AI·바이오·태양광 등 40개 기술을 수출통제 목록에 추가하는 개정안 발표. 이중 14개는...",
+      "lead": 2,
       "tickers": [
         "NVDA",
         "AMD"
-      ],
-      "summary": ">>미중 상호 기술 수출통제 강화, 글로벌 기술 질서 재편 가속화 (대만공상시보) •중국 상무부와 과기부는 10월 AI·바이오·태양광 등 40개 기술을 수출통제 목록에 추가하는 개정안 발표. 이중 14개는..."
+      ]
     },
     {
       "id": "HANAchina/71307",
@@ -2040,10 +2078,11 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": ">>젠슨 황: 아이에게 야망이 없다면 AI는 오히려 아이를 더 게으르게 만들 뿐 •10월 23일, Nvidia 젠슨 황은 카자흐스탄 부총리 자슬란 마디예프와 회담. 젠슨 황은 연설에서 AI 시대에 성공을...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>젠슨 황: 아이에게 야망이 없다면 AI는 오히려 아이를 더 게으르게 만들 뿐 •10월 23일, Nvidia 젠슨 황은 카자흐스탄 부총리 자슬란 마디예프와 회담. 젠슨 황은 연설에서 AI 시대에 성공을..."
+      ]
     },
     {
       "id": "insidertracking/67961",
@@ -2107,8 +2146,8 @@
       ],
       "score": 50,
       "hasText": true,
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 1일 트럼프·이란 군사 대응 · 루비오 국무장관 “트럼프는 아직 이란에 대한 군사 행동을 결정하지 않았다” 발언 · 루비오 “미국은 이란 분쟁의...",
-      "tickers": []
+      "tickers": [],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 1일 트럼프·이란 군사 대응 · 루비오 국무장관 “트럼프는 아직 이란에 대한 군사 행동을 결정하지 않았다” 발언 · 루비오 “미국은 이란 분쟁의..."
     },
     {
       "id": "insidertracking/67956",
@@ -2117,12 +2156,13 @@
       "datetime": "2026-10-31T22:28:18.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
+        "macro",
         "geo"
       ],
       "score": 67,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 1일 🇺🇸 아메리카 • 미국 루비오 국무장관은 이란과의 분쟁을 외교적으로 해결할 의사가 있으며, 트럼프 대통령은 이란에 대한 추가 군사행동 여부를 아직 결정하지...",
-      "tickers": []
+      "tickers": [],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 1일 🇺🇸 아메리카 • 미국 루비오 국무장관은 이란과의 분쟁을 외교적으로 해결할 의사가 있으며, 트럼프 대통령은 이란에 대한 추가 군사행동 여부를 아직 결정하지..."
     },
     {
       "id": "insidertracking/67955",
@@ -2131,14 +2171,14 @@
       "datetime": "2026-10-31T12:35:33.000Z",
       "localDateKst": "2026-10-31",
       "tags": [
-        "credit",
         "ai-policy",
+        "credit",
         "equity",
-        "earnings"
+        "macro"
       ],
+      "lead": 3,
       "score": 100,
       "hasText": true,
-      "summary": "Anthropic의 IPO 불확실성 확대: 현금흐름 및 자금조달 부담 부각 » Anthropic의 IPO 추진 과정에서 Microsoft, Alphabet, Amazon의 실적 발표 이후 AI 인프라 투자에...",
       "tickers": [],
       "listTickers": [
         "MSFT",
@@ -2147,7 +2187,8 @@
         "000660.KS",
         "GOOGL",
         "CRWV"
-      ]
+      ],
+      "summary": "Anthropic의 IPO 불확실성 확대: 현금흐름 및 자금조달 부담 부각 » Anthropic의 IPO 추진 과정에서 Microsoft, Alphabet, Amazon의 실적 발표 이후 AI 인프라 투자에..."
     },
     {
       "id": "HANAchina/71303",
@@ -2174,16 +2215,19 @@
       "datetime": "2026-10-31T12:18:11.000Z",
       "localDateKst": "2026-10-31",
       "tags": [
-        "market-note"
+        "credit",
+        "macro",
+        "geo",
+        "semi"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "빌 애크먼(Bill Ackman) – Equity Mates 인터뷰 1. AI 버블과 컴퓨팅 수요 “컴퓨팅 수요 측면에서 지금이 버블이라고 생각하지 않는다.” AI가 초지능에 빠르게 접근할수록 이를 뒷받침할...",
       "tickers": [
         "MSFT",
         "META",
         "AMZN"
-      ]
+      ],
+      "summary": "빌 애크먼(Bill Ackman) – Equity Mates 인터뷰 1. AI 버블과 컴퓨팅 수요 “컴퓨팅 수요 측면에서 지금이 버블이라고 생각하지 않는다.” AI가 초지능에 빠르게 접근할수록 이를 뒷받침할..."
     },
     {
       "id": "HANAchina/71301",
@@ -2211,12 +2255,15 @@
       "datetime": "2026-10-31T10:04:28.000Z",
       "localDateKst": "2026-10-31",
       "tags": [
-        "geo"
+        "credit",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 82,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 31일 > 오전 7시~오후 7시 🇺🇸 아메리카 • 트럼프 행정부가 11월 4일 이란에 대한 단기간 고강도 군사작전을 준비하고 있다는 보도가 나와. 미국은 걸프...",
-      "tickers": []
+      "tickers": [],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 31일 > 오전 7시~오후 7시 🇺🇸 아메리카 • 트럼프 행정부가 11월 4일 이란에 대한 단기간 고강도 군사작전을 준비하고 있다는 보도가 나와. 미국은 걸프..."
     },
     {
       "id": "HANAchina/71300",
@@ -2261,16 +2308,18 @@
       "datetime": "2026-10-31T07:38:59.000Z",
       "localDateKst": "2026-10-31",
       "tags": [
-        "market-note"
+        "semi",
+        "power",
+        "healthcare"
       ],
       "score": 72,
       "hasText": true,
-      "summary": "[단독] 최태원 SK그룹 회장 샘 올트먼 오픈AI CEO와 오찬 최태원 SK그룹 회장이 방한 중인 샘 올트먼 오픈AI 최고경영자(CEO)와 오찬을 갖고 인공지능(AI) 산업 발전과 양사 간 협력 방안을...",
       "tickers": [
         "005930.KS",
         "000660.KS",
         "017670.KS"
-      ]
+      ],
+      "summary": "[단독] 최태원 SK그룹 회장 샘 올트먼 오픈AI CEO와 오찬 최태원 SK그룹 회장이 방한 중인 샘 올트먼 오픈AI 최고경영자(CEO)와 오찬을 갖고 인공지능(AI) 산업 발전과 양사 간 협력 방안을..."
     },
     {
       "id": "HANAchina/71298",
@@ -2466,11 +2515,11 @@
       "tags": [
         "geo"
       ],
+      "lead": 1,
       "score": 50,
       "hasText": true,
-      "summary": "미국-이란 협상 중재안 초안 공개 — 중국의 보증인 역할 가능성 및 1주일 내 호르무즈 해협 개방 논의 1. 미국-이란 협상 중재안 초안의 주요 내용 알아라비야가 입수한 미국-이란 협상 프레임워크 초기...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "미국-이란 협상 중재안 초안 공개 — 중국의 보증인 역할 가능성 및 1주일 내 호르무즈 해협 개방 논의 1. 미국-이란 협상 중재안 초안의 주요 내용 알아라비야가 입수한 미국-이란 협상 프레임워크 초기..."
     },
     {
       "id": "bornlupin/20902",
@@ -2479,11 +2528,13 @@
       "datetime": "2026-10-30T23:30:17.000Z",
       "localDateKst": "2026-10-31",
       "tags": [
-        "market-note"
+        "macro",
+        "semi",
+        "optical",
+        "equity"
       ],
       "score": 92,
       "hasText": true,
-      "summary": "다음주 일정 11월 1일: 한국 10월 수출입 2일: 미국 10월 ISM 제조업 PMI, 미국 서머타임 해제(한국시간 오후11시30분 장시작, 오전 6시 장마감), TEM, EL, CIFR, TSEM...",
       "tickers": [],
       "listTickers": [
         "AMD",
@@ -2493,7 +2544,8 @@
         "PLTR",
         "SMCI",
         "ROKU"
-      ]
+      ],
+      "summary": "다음주 일정 11월 1일: 한국 10월 수출입 2일: 미국 10월 ISM 제조업 PMI, 미국 서머타임 해제(한국시간 오후11시30분 장시작, 오전 6시 장마감), TEM, EL, CIFR, TSEM..."
     },
     {
       "id": "insidertracking/67925",
@@ -3050,14 +3102,17 @@
       "datetime": "2026-10-30T07:34:18.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "semi"
+        "semi",
+        "macro",
+        "healthcare"
       ],
+      "lead": 1,
       "score": 73,
       "hasText": true,
-      "summary": "[SK증권 반도체 한동희, 손 건/해외주식 박제민] TrendForce, 2026년 10월 DRAM 고정가 업데이트 10월 가격 동향 핵심 요약 - 4Q26 PC DRAM 고정가 QoQ +13~18% 확정 —...",
       "tickers": [
         "AMD"
-      ]
+      ],
+      "summary": "[SK증권 반도체 한동희, 손 건/해외주식 박제민] TrendForce, 2026년 10월 DRAM 고정가 업데이트 10월 가격 동향 핵심 요약 - 4Q26 PC DRAM 고정가 QoQ +13~18% 확정 —..."
     },
     {
       "id": "insidertracking/67870",
@@ -3239,14 +3294,14 @@
       "datetime": "2026-10-30T00:17:10.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "market-note"
+        "credit"
       ],
       "score": 76,
       "hasText": true,
-      "summary": "샌디스크(SNDK) FY27 1분기 어닝콜 Q&A 중 Q. [BofA) / 왐시 모한] 발표 자료에서 선도적인 AI 기업들과의 협의가 추가적인 수요 증가 가능성을 시사한다고 언급했습니다. 여기서 말하는 AI...",
       "tickers": [
         "SNDK"
-      ]
+      ],
+      "summary": "샌디스크(SNDK) FY27 1분기 어닝콜 Q&A 중 Q. [BofA) / 왐시 모한] 발표 자료에서 선도적인 AI 기업들과의 협의가 추가적인 수요 증가 가능성을 시사한다고 언급했습니다. 여기서 말하는 AI..."
     },
     {
       "id": "insidertracking/67837",
@@ -3271,14 +3326,16 @@
       "datetime": "2026-10-29T23:46:42.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "market-note"
+        "semi",
+        "power",
+        "earnings"
       ],
       "score": 77,
       "hasText": true,
-      "summary": "아마존(AMZN) 2026년 3분기 어닝콜 중 CapEx 및 AI 인프라 CEO 앤디 재시·CFO 브라이언 올사브스키 발언 1. CapEx 및 투자 계획 - 3분기 현금 기준 설비투자(Cash CapEx)는...",
       "tickers": [
         "AMZN"
-      ]
+      ],
+      "summary": "아마존(AMZN) 2026년 3분기 어닝콜 중 CapEx 및 AI 인프라 CEO 앤디 재시·CFO 브라이언 올사브스키 발언 1. CapEx 및 투자 계획 - 3분기 현금 기준 설비투자(Cash CapEx)는..."
     },
     {
       "id": "HANAchina/71246",
@@ -3690,14 +3747,16 @@
       "datetime": "2026-10-29T20:15:29.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "earnings"
+        "earnings",
+        "power"
       ],
+      "lead": 1,
       "score": 77,
       "hasText": true,
-      "summary": "샌디스크(SNDK) 2027 회계연도 1분기 실적 (시간외 +1.4%) 1분기 실적: 시장 예상치 상회 매출 110.3억 달러(예상 106.4억 달러 상회), 전년 대비 378% 증가, 전분기 대비 23%...",
       "tickers": [
         "SNDK"
-      ]
+      ],
+      "summary": "샌디스크(SNDK) 2027 회계연도 1분기 실적 (시간외 +1.4%) 1분기 실적: 시장 예상치 상회 매출 110.3억 달러(예상 106.4억 달러 상회), 전년 대비 378% 증가, 전분기 대비 23%..."
     },
     {
       "id": "bornlupin/20889",
@@ -3706,14 +3765,16 @@
       "datetime": "2026-10-29T20:10:48.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "earnings"
+        "earnings",
+        "ai-policy"
       ],
+      "lead": 1,
       "score": 67,
       "hasText": true,
-      "summary": "아마존(AMZN) 2026년 3분기 실적 (시간외 -6%) 매출: 2,019억 달러 (예상 2,023억 달러), 전년 대비 12% 증가 주당순이익(EPS): 1.89달러 (예상 1.96달러), 앤트로픽 관련...",
       "tickers": [
         "AMZN"
-      ]
+      ],
+      "summary": "아마존(AMZN) 2026년 3분기 실적 (시간외 -6%) 매출: 2,019억 달러 (예상 2,023억 달러), 전년 대비 12% 증가 주당순이익(EPS): 1.89달러 (예상 1.96달러), 앤트로픽 관련..."
     },
     {
       "id": "HANAchina/71230",
@@ -5772,22 +5833,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/67584",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67584",
-      "datetime": "2026-10-28T01:00:26.000Z",
-      "localDateKst": "2026-10-28",
-      "tags": [
-        "earnings"
-      ],
-      "score": 69,
-      "hasText": true,
-      "summary": "씨게이트(STX) Q1 2027 어닝콜 요약 > 긍정 요인: • 폭발적인 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 42억달러로 전년 대비 61%, 전분기 대비 17% 증가. 비GAAP...",
-      "tickers": [
-        "STX"
-      ]
-    },
-    {
       "id": "HANAchina/71121",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71121",
@@ -6720,21 +6765,6 @@
         "NVDA",
         "TSM"
       ]
-    },
-    {
-      "id": "HANAchina/71050",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71050",
-      "datetime": "2026-10-26T22:10:43.000Z",
-      "localDateKst": "2026-10-27",
-      "tags": [
-        "macro"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": ">>골드만삭스, 대만 올해 GDP 성장률 전망 11.7%로 상향 •골드만삭스는 대만의 2026년·2027년 GDP 성장률 전망을 각각 11.7%, 3.3%로 상향. 내수 회복을 반영해 올해 12월부터 금리...",
-      "lead": 1,
-      "tickers": []
     },
     {
       "id": "aetherjapanresearch/26057",
@@ -8499,10 +8529,11 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": ">>젠슨 황: 아이에게 야망이 없다면 AI는 오히려 아이를 더 게으르게 만들 뿐 •10월 23일, Nvidia 젠슨 황은 카자흐스탄 부총리 자슬란 마디예프와 회담. 젠슨 황은 연설에서 AI 시대에 성공을...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>젠슨 황: 아이에게 야망이 없다면 AI는 오히려 아이를 더 게으르게 만들 뿐 •10월 23일, Nvidia 젠슨 황은 카자흐스탄 부총리 자슬란 마디예프와 회담. 젠슨 황은 연설에서 AI 시대에 성공을..."
+      ]
     },
     {
       "id": "insidertracking/67961",
@@ -8566,8 +8597,8 @@
       ],
       "score": 50,
       "hasText": true,
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 1일 트럼프·이란 군사 대응 · 루비오 국무장관 “트럼프는 아직 이란에 대한 군사 행동을 결정하지 않았다” 발언 · 루비오 “미국은 이란 분쟁의...",
-      "tickers": []
+      "tickers": [],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 1일 트럼프·이란 군사 대응 · 루비오 국무장관 “트럼프는 아직 이란에 대한 군사 행동을 결정하지 않았다” 발언 · 루비오 “미국은 이란 분쟁의..."
     },
     {
       "id": "insidertracking/67956",
@@ -8576,12 +8607,13 @@
       "datetime": "2026-10-31T22:28:18.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
+        "macro",
         "geo"
       ],
       "score": 67,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 1일 🇺🇸 아메리카 • 미국 루비오 국무장관은 이란과의 분쟁을 외교적으로 해결할 의사가 있으며, 트럼프 대통령은 이란에 대한 추가 군사행동 여부를 아직 결정하지...",
-      "tickers": []
+      "tickers": [],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 1일 🇺🇸 아메리카 • 미국 루비오 국무장관은 이란과의 분쟁을 외교적으로 해결할 의사가 있으며, 트럼프 대통령은 이란에 대한 추가 군사행동 여부를 아직 결정하지..."
     },
     {
       "id": "insidertracking/67955",
@@ -8590,14 +8622,14 @@
       "datetime": "2026-10-31T12:35:33.000Z",
       "localDateKst": "2026-10-31",
       "tags": [
-        "credit",
         "ai-policy",
+        "credit",
         "equity",
-        "earnings"
+        "macro"
       ],
+      "lead": 3,
       "score": 100,
       "hasText": true,
-      "summary": "Anthropic의 IPO 불확실성 확대: 현금흐름 및 자금조달 부담 부각 » Anthropic의 IPO 추진 과정에서 Microsoft, Alphabet, Amazon의 실적 발표 이후 AI 인프라 투자에...",
       "tickers": [],
       "listTickers": [
         "MSFT",
@@ -8606,7 +8638,8 @@
         "000660.KS",
         "GOOGL",
         "CRWV"
-      ]
+      ],
+      "summary": "Anthropic의 IPO 불확실성 확대: 현금흐름 및 자금조달 부담 부각 » Anthropic의 IPO 추진 과정에서 Microsoft, Alphabet, Amazon의 실적 발표 이후 AI 인프라 투자에..."
     },
     {
       "id": "HANAchina/71303",
@@ -8633,16 +8666,19 @@
       "datetime": "2026-10-31T12:18:11.000Z",
       "localDateKst": "2026-10-31",
       "tags": [
-        "market-note"
+        "credit",
+        "macro",
+        "geo",
+        "semi"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "빌 애크먼(Bill Ackman) – Equity Mates 인터뷰 1. AI 버블과 컴퓨팅 수요 “컴퓨팅 수요 측면에서 지금이 버블이라고 생각하지 않는다.” AI가 초지능에 빠르게 접근할수록 이를 뒷받침할...",
       "tickers": [
         "MSFT",
         "META",
         "AMZN"
-      ]
+      ],
+      "summary": "빌 애크먼(Bill Ackman) – Equity Mates 인터뷰 1. AI 버블과 컴퓨팅 수요 “컴퓨팅 수요 측면에서 지금이 버블이라고 생각하지 않는다.” AI가 초지능에 빠르게 접근할수록 이를 뒷받침할..."
     },
     {
       "id": "HANAchina/71301",
@@ -8670,12 +8706,15 @@
       "datetime": "2026-10-31T10:04:28.000Z",
       "localDateKst": "2026-10-31",
       "tags": [
-        "geo"
+        "credit",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 82,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 31일 > 오전 7시~오후 7시 🇺🇸 아메리카 • 트럼프 행정부가 11월 4일 이란에 대한 단기간 고강도 군사작전을 준비하고 있다는 보도가 나와. 미국은 걸프...",
-      "tickers": []
+      "tickers": [],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 31일 > 오전 7시~오후 7시 🇺🇸 아메리카 • 트럼프 행정부가 11월 4일 이란에 대한 단기간 고강도 군사작전을 준비하고 있다는 보도가 나와. 미국은 걸프..."
     },
     {
       "id": "HANAchina/71300",
@@ -8720,16 +8759,18 @@
       "datetime": "2026-10-31T07:38:59.000Z",
       "localDateKst": "2026-10-31",
       "tags": [
-        "market-note"
+        "semi",
+        "power",
+        "healthcare"
       ],
       "score": 72,
       "hasText": true,
-      "summary": "[단독] 최태원 SK그룹 회장 샘 올트먼 오픈AI CEO와 오찬 최태원 SK그룹 회장이 방한 중인 샘 올트먼 오픈AI 최고경영자(CEO)와 오찬을 갖고 인공지능(AI) 산업 발전과 양사 간 협력 방안을...",
       "tickers": [
         "005930.KS",
         "000660.KS",
         "017670.KS"
-      ]
+      ],
+      "summary": "[단독] 최태원 SK그룹 회장 샘 올트먼 오픈AI CEO와 오찬 최태원 SK그룹 회장이 방한 중인 샘 올트먼 오픈AI 최고경영자(CEO)와 오찬을 갖고 인공지능(AI) 산업 발전과 양사 간 협력 방안을..."
     },
     {
       "id": "HANAchina/71298",
@@ -8925,11 +8966,11 @@
       "tags": [
         "geo"
       ],
+      "lead": 1,
       "score": 50,
       "hasText": true,
-      "summary": "미국-이란 협상 중재안 초안 공개 — 중국의 보증인 역할 가능성 및 1주일 내 호르무즈 해협 개방 논의 1. 미국-이란 협상 중재안 초안의 주요 내용 알아라비야가 입수한 미국-이란 협상 프레임워크 초기...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "미국-이란 협상 중재안 초안 공개 — 중국의 보증인 역할 가능성 및 1주일 내 호르무즈 해협 개방 논의 1. 미국-이란 협상 중재안 초안의 주요 내용 알아라비야가 입수한 미국-이란 협상 프레임워크 초기..."
     },
     {
       "id": "bornlupin/20902",
@@ -8938,11 +8979,13 @@
       "datetime": "2026-10-30T23:30:17.000Z",
       "localDateKst": "2026-10-31",
       "tags": [
-        "market-note"
+        "macro",
+        "semi",
+        "optical",
+        "equity"
       ],
       "score": 92,
       "hasText": true,
-      "summary": "다음주 일정 11월 1일: 한국 10월 수출입 2일: 미국 10월 ISM 제조업 PMI, 미국 서머타임 해제(한국시간 오후11시30분 장시작, 오전 6시 장마감), TEM, EL, CIFR, TSEM...",
       "tickers": [],
       "listTickers": [
         "AMD",
@@ -8952,7 +8995,8 @@
         "PLTR",
         "SMCI",
         "ROKU"
-      ]
+      ],
+      "summary": "다음주 일정 11월 1일: 한국 10월 수출입 2일: 미국 10월 ISM 제조업 PMI, 미국 서머타임 해제(한국시간 오후11시30분 장시작, 오전 6시 장마감), TEM, EL, CIFR, TSEM..."
     },
     {
       "id": "insidertracking/67925",
