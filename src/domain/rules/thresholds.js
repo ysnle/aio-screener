@@ -98,7 +98,10 @@ export const RULES = Object.freeze({
   // stress20dMultiple x widen20dBp when the record is shorter than recordMin); it stays 부담 until the 20-session change
   // is back under widen20dBp (hysteresis). HY +40bp in 20 sessions — the 96th percentile — could never reach 부담 before.
   credit: Object.freeze({ tightBelowBp: 350, stressAtBp: 450, widen5dBp: 25, widenWatch5dBp: 15, calm5dBp: 5, widen20dBp: 25, putCallHedgeAt: 1.1, putCallOptimismBelow: 0.7,
-    stress20dPct: 90, stress20dMultiple: 2, recordMin: 120, latchSessions: 60 }),
+    stress20dPct: 90, stress20dMultiple: 2, recordMin: 120, latchSessions: 60,
+    // v59.56: the slower split named beside the verdict (not part of it) — HY over 60 FRED observations, and CCC widening
+    // that much faster than HY (lower ratings repriced first).
+    dispersionSessions: 60, widen60dBp: 50, cccGap60dBp: 150 }),
   // WTI against its own one-year range (P1394) and 20-session change; the dollar index 20-session change.
   // v57.84: aboveYearAvgPct — WTI 25% above its one-year average is the second 유가 급등 test of the 거시 branches; turn5dPct — a
   // five-session WTI move this large against the 20-session direction is named beside it (시장 axis and 거시 headline).

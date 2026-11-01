@@ -12,7 +12,7 @@
   ],
   "boundary": "Search index of learning surfaces; titles and short texts only. Glossary entries are searched in the page itself.",
   "counts": {
-    "frame": 84,
+    "frame": 87,
     "column": 12,
     "principles-lesson": 112,
     "principles-node": 60,
@@ -1868,6 +1868,66 @@
         "params": {
           "mode": "frames",
           "node": "post-report-path"
+        }
+      }
+    },
+    {
+      "id": "frame:truth-leverage-gauges",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "산업이 진짜여도 주가는 그 위에 얹힌 레버리지 때문에 크게 꺾일 수 있어, 이익 추정치·레버리지·신용·상장 시장 네 가지로 국면을 읽는 방법",
+      "text": "AI 수요가 진짜라는 것과 주가가 안전하다는 것은 다릅니다. 이익이 먼저 증명되면 그 이익을 담보로 차입·신용·구조화 상품이 붙고, 마지막에는 이익 없는 기업 상장까지 이어집니다. 그래서 국면은 이익 추정치가 계속 오르는지, 레버리지가 얼마나 들어왔는지, 신용 시장에…",
+      "group": "가격·기대",
+      "keys": [
+        "진짜 산업 위의 레버리지: 이익·레버리지·신용·상장 네 계기판",
+        "credit-creation",
+        "fcf-vs-funding"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "truth-leverage-gauges"
+        }
+      }
+    },
+    {
+      "id": "frame:leadership-handoff-criteria",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "주도주가 급락할 때 그것이 상승장의 끝인지 주도권이 다른 업종으로 넘어가는 중인지를, 미리 정한 세 조건(이익 전망·하이일드·동일가중)으로 판정하는 방법",
+      "text": "주도주가 크게 빠진 날 경기침체를 확정처럼 말하는 글이 늘어납니다. 그 전에 판단을 바꿀 조건을 먼저 정해 둡니다. 기업 이익 전망이 넓게 하향되고, 하이일드 스프레드가 넓어지고, 동일가중 지수까지 시가총액 지수보다 약해지면 시장 전체가 약해지는 쪽입니다. 셋이 아직…",
+      "group": "가격·기대",
+      "keys": [
+        "주도주 교체와 강세장 끝을 가르는 세 조건",
+        "sector-rotation-cycle",
+        "correlation"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "leadership-handoff-criteria"
+        }
+      }
+    },
+    {
+      "id": "frame:bottleneck-beneficiary-tiers",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "수요가 병목을 만들 때 수혜가 병목 제품 공급자, 생산능력을 늘리는 장비 공급자, 가동률이 오르며 소모품을 파는 공급자 순으로 다르게 오는 구조",
+      "text": "빅테크 설비투자가 늘었다고 모든 반도체·장비 기업의 이익이 같은 속도로 늘지 않습니다. 병목 제품을 직접 만드는 회사는 판매가·제품 구성·장기 계약으로 먼저 벌고, 그 병목을 풀려고 생산능력을 늘릴 때 검사·정렬·후공정 장비 회사가 발주로 벌며, 늘어난 생산이 돌아가…",
+      "group": "산업별 수익 모델",
+      "keys": [
+        "공급 병목의 세 수혜층: 병목 제품·증설·가동률",
+        "capex",
+        "utilization-contract"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "bottleneck-beneficiary-tiers"
         }
       }
     },

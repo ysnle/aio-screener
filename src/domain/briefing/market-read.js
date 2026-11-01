@@ -339,6 +339,29 @@ export function oilCheckOf(history = [], through = null) {
   return brentWtiFromSeries({ brent: buildCloseSeries(history, 'brent', { through }), wti: buildCloseSeries(history, 'wti', { through }), pointBack: sessionPointBack });
 }
 
+// v59.56: the slower credit split — HY over 60 sessions against CCC and investment grade over the same span. Returned
+// only when HY widened RULES.credit.widen60dBp or more, or CCC widened faster than HY by RULES.credit.cccGap60dBp.
+export function creditDispersion(macroHistory, through = null) {
+  const C = RULES.credit;
+  const obs = (key) => (macroHistory?.series?.[key]?.observations || [])
+    .map((row) => ({ date: String(Array.isArray(row) ? row[0] : row?.date || '').slice(0, 10), value: finite(Array.isArray(row) ? row[1] : row?.value) }))
+    .filter((row) => row.value != null && (!through || row.date <= through));
+  const change = (key, n) => { const rows = obs(key); if (rows.length <= n) return null; const now = rows.at(-1), then = rows.at(-1 - n); return { now: now.value * 100, then: then.value * 100, from: then.date, bp: (now.value - then.value) * 100 }; };
+  const n = C.dispersionSessions;
+  const hy = change('hyOas', n), ccc = change('cccOas', n), ig = change('igOas', n);
+  if (!hy) return null;
+  const lowerRated = ccc != null && ccc.bp - hy.bp >= C.cccGap60dBp;
+  if (hy.bp < C.widen60dBp && !lowerRated) return null;
+  const md = (date) => `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}`;
+  const sign = (v) => `${v >= 0 ? '+' : ''}${Math.round(v)}bp`;
+  const parts = [`하이일드 ${sign(hy.bp)}(${Math.round(hy.then)}→${Math.round(hy.now)}bp)`];
+  if (ccc) parts.push(`CCC ${sign(ccc.bp)}`);
+  if (ig) parts.push(`투자등급 ${sign(ig.bp)}(${Math.round(ig.now)}bp)`);
+  const igCalm = ig != null && ig.bp < C.widen20dBp;
+  const text = `${n}거래일 전(${md(hy.from)})보다 ${parts.join(', ')} 넓어졌습니다 — ${igCalm ? '투자등급은 거의 그대로라 차입 의존이 큰 하위 등급부터 다시 값이 매겨지는 흐름입니다.' : '등급 전반이 함께 넓어지는 흐름입니다.'}`;
+  return { sessions: n, from: hy.from, hyBp: hy.bp, cccBp: ccc?.bp ?? null, igBp: ig?.bp ?? null, igCalm, lowerRated, text, row: parts.join(' / ') };
+}
+
 // v57.50 C01/C02/D01: one credit judgement for every surface (market-state axis, briefing, scenarios, sentiment).
 // 'favorable' = low level, not widening over 5 days or 20 sessions, no heavy hedging; 'burden' = stress level or a
 // fast 5-day widening, or (v57.81) a 20-session widening in the top of its own record (hy20Stress, with hysteresis);
@@ -1398,6 +1421,11 @@ export function buildMarketRegime(input = {}) {
         : state === 'unknown' ? staleRead('신용 스프레드', alignments.hy)
           : widening20 ? `수준(${fmt(hyBp, 0)}bp)은 ${RULES.credit.stressAtBp}bp 아래지만 20거래일 동안 ${signed(hy20, 0, 'bp')} 넓어졌습니다${hy5 != null ? `(최근 5일 ${signed(hy5, 0, 'bp')})` : ''} — 한 달째 확대라 안정으로 보지 않습니다.`
             : hy5 == null && hyBp < RULES.credit.tightBelowBp ? '스프레드 수준은 낮지만 5일 변화가 없어 방향을 확인하지 못했습니다.' : `신용은 크게 나쁘지 않지만 스프레드 수준·방향이나 풋 거래 비중이 경계선입니다(하이일드 ${fmt(hyBp, 0)}bp, 5일 ${signed(hy5, 0, 'bp')}${month}).`;
+    // v59.56 (X bookmarks 11/01): HY 326bp read 양호 on 10/30 while it sat 55bp above 60 sessions earlier, CCC had widened
+    // 300bp+ and investment grade barely moved — the split the authors read as "borrowers being repriced, not AI as a whole".
+    // The verdict rule is unchanged (owner decision pending); the read names the slower, lower-rated widening beside it.
+    const dispersion = creditDispersion(input.macroHistory, basis);
+    const dispersionText = dispersion && state !== 'burden' && state !== 'unknown' ? ` 다만 ${dispersion.text}` : '';
     const flip = state === 'unknown' ? null
       : state === 'burden' ? `하이일드 스프레드가 ${RULES.credit.stressAtBp}bp 아래이고 5일 확대가 +${RULES.credit.widen5dBp}bp 미만이며 20거래일 확대가 +${RULES.credit.widen20dBp}bp 아래로 줄면 중립, 그때 5일 확대도 멈추고 수준이 ${RULES.credit.tightBelowBp}bp 미만이면 바로 양호로 바뀜`
         : state === 'favorable' ? `하이일드 스프레드 ${RULES.credit.tightBelowBp}bp 이상, 5일 확대, 20거래일 +${RULES.credit.widen20dBp}bp 이상 확대, 풋/콜 ${RULES.credit.putCallHedgeAt} 이상 중 하나면 중립, ${RULES.credit.stressAtBp}bp 이상, 5일 +${RULES.credit.widen5dBp}bp 확대, 20거래일 확대가 자체 기록 상위 ${100 - RULES.credit.stress20dPct}% 중 하나면 부담`
@@ -1405,8 +1433,10 @@ export function buildMarketRegime(input = {}) {
     axes.push(axis('credit', '신용과 위험선호', state, [
       ['하이일드 스프레드', hyBp == null ? null : `${fmt(hyBp, 0)}bp${hy5 != null ? ` (5거래일 ${signed(hy5, 0, 'bp')}${month})` : ''}`],
       ['풋/콜 비율', pcr == null ? null : fmt(pcr)],
-      ['공포·탐욕 (참고)', c.fg == null ? null : fmt(c.fg, 0)]
-    ], read, flip, alignments.hy, [alignments.hy, alignments.pcr, alignments.fg]));
+      ['공포·탐욕 (참고)', c.fg == null ? null : fmt(c.fg, 0)],
+      ['석 달 변화 (하이일드 / CCC / 투자등급)', dispersion ? dispersion.row : null],
+    ], read + dispersionText, flip, alignments.hy, [alignments.hy, alignments.pcr, alignments.fg, alignments.hy]));
+    if (dispersion) axes[axes.length - 1].dispersion = dispersion;
     // D01: scenario checks say why a non-favorable credit state is not "안정" (widening vs a borderline level).
     axes[axes.length - 1].widening = widening20 || (hy5 != null && hy5 > 0);
     attachDistance(axes[axes.length - 1], creditDistance);
