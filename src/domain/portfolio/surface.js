@@ -209,7 +209,10 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
   const live = liveData && typeof liveData === 'object' ? liveData : {};
   const rows = holdings.map((holding) => {
     const symbol = String(holding?.symbol || holding?.ticker || '').toUpperCase();
-    const quote = holdingValue(holding, live[symbol] || {}, { now }, typeof closeOf === 'function' ? closeOf(symbol) : null);
+    // v59.54: the stored code (005930) is the key the user saved; the listing symbol (005930.KS) is the key quotes, closes
+    // and sectors are published under. The reader resolves it once and every lookup here uses it.
+    const listingSymbol = String(holding?.listingSymbol || symbol).toUpperCase();
+    const quote = holdingValue(holding, live[listingSymbol] || live[symbol] || {}, { now }, typeof closeOf === 'function' ? closeOf(listingSymbol) : null);
     const sharesValue = finite(holding?.shares);
     const shares = sharesValue != null && sharesValue >= 0 ? sharesValue : null;
     const avgCostValue = finite(holding?.avgCost);
@@ -225,7 +228,7 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
       value: quote.value,
       price: quote.price,
       cost,
-      sector: String((typeof sectorOf === 'function' ? sectorOf(symbol) : null) || holding?.sector || 'Unclassified'),
+      sector: String((typeof sectorOf === 'function' ? sectorOf(listingSymbol) : null) || holding?.sector || 'Unclassified'),
       dailyPct,
       sourceKind: quote.sourceKind,
       closeDate: quote.closeDate || null,
@@ -238,7 +241,8 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
       currency: String(holding?.currency || holding?.priceCurrency || '').trim().toUpperCase() || null,
       // P1418: the listing market's currency (.KS = KRW, US-listed = USD), used only to detect a mix
       // the declarations hide — without it a won holding and a dollar holding were summed as one unit.
-      listingCurrency: symbol ? listingCurrency(symbol) : null,
+      listingSymbol,
+      listingCurrency: symbol ? listingCurrency(listingSymbol) : null,
       // E3/P1181 (11 P11-02): cost and price are different axes. A declared cost currency that
       // differs from the price currency means the P&L subtraction has no conversion basis.
       costCurrency: String(holding?.costCurrency || '').trim().toUpperCase() || null
@@ -276,7 +280,7 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
   // unknown unit. Dropping the null let a declared USD base read 'declared-single' and add 100 pence as $100; beside any
   // known unit it is a mix, and the conversion below holds it instead of treating it as the base.
   const unknownUnitRows = rows.filter((row) => !row.currency && row.listingCurrency == null).length;
-  const currencyBasis = declaredCurrencies.length > 1 || effectiveCurrencies.length > 1 || (unknownUnitRows > 0 && effectiveCurrencies.length > 0) ? 'mixed' : declaredCurrencies.length === 1 ? 'declared-single' : 'undeclared';
+  const currencyBasis = declaredCurrencies.length > 1 || effectiveCurrencies.length > 1 || unknownUnitRows > 0 ? 'mixed' : declaredCurrencies.length === 1 ? 'declared-single' : 'undeclared';
   const cashKnown = readState === 'ready' && (state?.cashKnown === true || cashBalances.length > 0 || holdingsKnown);
   const cashEnteredZero = cashInvalidCount === 0 && cashBalances.length === 0 && (legacyCashValue === 0 || (Array.isArray(state?.cashBalances) && state?.cashKnown === true));
 
@@ -446,7 +450,15 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
     currencyState,
     currencyBasis,
     costCurrencyState,
+    // v59.54: two different facts. baseCurrency is the base the user declared (or the one unit a conversion produced) and is
+    // what every "기준 통화" sentence names; valuationCurrency is the unit the totals are printed in, which may be the
+    // holdings' assumed listing unit when nothing is declared.
     baseCurrency: conversion.applied ? declaredBaseCurrency : (currencyBasis === 'declared-single' ? declaredCurrencies[0] : null),
+    valuationCurrency: holdingsUnit,
+    // Why a total is held: a currency mix a declared rate would convert, or a holding whose unit is unknown, which no rate fixes.
+    currencyHeldReason: currencyState !== 'mixed-without-conversion' ? null
+      : declaredCurrencies.length > 1 || effectiveCurrencies.length > 1 ? 'mixed' : 'unknown-unit',
+    unknownCurrencyCount: unknownUnitRows,
     declaredCurrencies: Object.freeze(declaredCurrencies),
     // P1449: 환산이 보류여도 "선언된" 통화는 참이므로 그대로 공개한다. 표기자(현금 hero·일간
     // 변동 등)가 합계 미성립과 무관하게 선언 통화로 기입할 수 있게 하는 표시용 라벨이며,

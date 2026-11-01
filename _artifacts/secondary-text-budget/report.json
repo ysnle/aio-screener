@@ -123,7 +123,7 @@
       ]
     },
     "signal": {
-      "total": 1966,
+      "total": 1461,
       "secondary": 294,
       "lines": [
         {
@@ -255,7 +255,7 @@
       "frames": []
     },
     "sentiment": {
-      "total": 1194,
+      "total": 1197,
       "secondary": 173,
       "lines": [
         {
@@ -337,7 +337,7 @@
         },
         {
           "chars": 23,
-          "classes": "briefing-h2-note sx-card__meta home-sector-head sx-card__head aio-section briefing-block sector-moves",
+          "classes": "briefing-h2-note sx-card__meta home-sector-head sx-card__head sector-moves-content",
           "text": "10/30 종가, 미국 섹터 ETF 11개"
         },
         {
@@ -347,7 +347,7 @@
         },
         {
           "chars": 11,
-          "classes": "sector-moves-basis aio-section briefing-block sector-moves",
+          "classes": "sector-moves-basis sector-moves-content",
           "text": "오른쪽 표시 읽는 법"
         },
         {
@@ -547,7 +547,7 @@
       "frames": []
     },
     "themes": {
-      "total": 3340,
+      "total": 3410,
       "secondary": 43,
       "lines": [
         {
@@ -602,6 +602,15 @@
           "problems": []
         },
         {
+          "frame": "themes.capex-flow",
+          "hasHead": true,
+          "asof": "2026-08 인용 자료",
+          "readings": [
+            37
+          ],
+          "problems": []
+        },
+        {
           "frame": "themes.playbook",
           "hasHead": true,
           "asof": "10/30 종가",
@@ -610,6 +619,13 @@
         },
         {
           "frame": "themes.ranking",
+          "hasHead": true,
+          "asof": "10/30 종가",
+          "readings": [],
+          "problems": []
+        },
+        {
+          "frame": "themes.sector-map",
           "hasHead": true,
           "asof": "10/30 종가",
           "readings": [],

@@ -66,7 +66,7 @@
       "lifecycleOwner": "native",
       "rendererOwner": "native",
       "dataOwner": "native",
-      "chartOwner": "legacy",
+      "chartOwner": "native",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/analysis.js (createAnalysisPage route=home)",
       "loadingStrategy": "route-dynamic-import",
@@ -88,13 +88,14 @@
       "p787Boundary": "analysis.js owns the four home score/decision summary sinks from trading-score.v3/signal-presentation.v1. Quality meter, Fear & Greed, market regime, factor detail, chart, and narrative remain legacy secondary boundaries.",
       "p820Boundary": "P1010: analysis.js owns both home Fear & Greed score and label from the same normalized sentiment slice; legacy writers are removed.",
       "p821Boundary": "analysis.js owns the complete home quality meter surface and fails closed until canonical five-input quality evidence exists; the legacy trading-score-as-quality writer is fenced.",
-      "notes": "P1010: score components now derive from signal-presentation.v1 with null-preserving weights; the duplicate legacy home hero is retired. Market regime, charts and other narratives remain compatibility boundaries. No full-native completion claim."
+      "notes": "P1010: score components now derive from signal-presentation.v1 with null-preserving weights; the duplicate legacy home hero is retired. Market regime, charts and other narratives remain compatibility boundaries. No full-native completion claim.",
+      "chartOwnerEvidence": "v59.54 chart audit (browser probe 2026-11-01): the index participation lines (#home-participation) are SVG drawn by src/ui/components/home-kpi-trend.js; no js/ chart writer is left."
     },
     "signal": {
       "lifecycleOwner": "native",
       "rendererOwner": "native",
       "dataOwner": "native",
-      "chartOwner": "legacy",
+      "chartOwner": "native",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/analysis.js (createAnalysisPage route=signal)",
       "loadingStrategy": "route-dynamic-import",
@@ -116,7 +117,8 @@
       ],
       "p786Boundary": "analysis.js owns the score display, five-tier decision text, and the post-composite adjustment rows from trading-score.v3/signal-presentation.v1. Score timestamp, canvas, factor bars, execution window, risk monitor, and narrative remain legacy secondary boundaries.",
       "notes": "The signal hero is native; legacy refreshSignalDashboard remains responsible for secondary signal widgets and is explicitly fenced from the three primary decision sinks. P1118 adds #score-adjustments-container to the native set so the factor bars and the total reconcile on screen. Home summary has separate ownership and is not remapped by this packet.",
-      "verifyAioRegistryBoundary": "2026-10-13 verify-aio registry probe: surfaces retired by later rebuilds (P1391 news strip, P1392 six-axis board, P1395 breadth board, P1420 technical regime, P1425 macro, P1430 stock tabs) replaced by the elements the native renderer writes today; scripts/ci-architecture-contract-check.mjs (surface-exists) keeps them present; verify-aio registry checks the live DOM."
+      "verifyAioRegistryBoundary": "2026-10-13 verify-aio registry probe: surfaces retired by later rebuilds (P1391 news strip, P1392 six-axis board, P1395 breadth board, P1420 technical regime, P1425 macro, P1430 stock tabs) replaced by the elements the native renderer writes today; scripts/ci-architecture-contract-check.mjs (surface-exists) keeps them present; verify-aio registry checks the live DOM.",
+      "chartOwnerEvidence": "v59.54 chart audit (browser probe 2026-11-01): the regime board lines (#regime-board) are SVG drawn by src/ui/components/market-regime.js."
     },
     "breadth": {
       "lifecycleOwner": "native",
@@ -163,7 +165,7 @@
       "lifecycleOwner": "native",
       "rendererOwner": "native",
       "dataOwner": "native",
-      "chartOwner": "legacy",
+      "chartOwner": "native",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/news.js (createNewsPage route=briefing)",
       "loadingStrategy": "route-dynamic-import",
@@ -171,7 +173,8 @@
       "legacyWriterEvidence": [],
       "p770Boundary": "news.js owns briefing-live-news-list, count, completed 08:00 KST timestamp, and reveal control from canonical normalized news state; P1209 makes display-text entity decoding a single non-recursive pass before text-node rendering.",
       "p1206Boundary": "archive/interview date and stale-days sinks are item-bound by window._aioRenderSnapshotDateBindings; no route may fall back to briefing-stale-days for another key, and TNX 2Y uses only its DGS2 observation date.",
-      "notes": "P770/P1209: native news.js owns briefing-live-news-list, count, completed 08:00 KST timestamp, reveal control, and normalized display text. Legacy AI digest and model/translation producers remain compatibility/narrative boundaries; no legacy primary-feed DOM writer remains."
+      "notes": "P770/P1209: native news.js owns briefing-live-news-list, count, completed 08:00 KST timestamp, reveal control, and normalized display text. Legacy AI digest and model/translation producers remain compatibility/narrative boundaries; no legacy primary-feed DOM writer remains.",
+      "chartOwnerEvidence": "v59.54 chart audit (browser probe 2026-11-01): the sector move bars are drawn by src/ui/components/sector-moves.js."
     },
     "technical": {
       "lifecycleOwner": "native",
@@ -253,7 +256,7 @@
       "lifecycleOwner": "native",
       "rendererOwner": "native",
       "dataOwner": "native",
-      "chartOwner": "legacy",
+      "chartOwner": "native",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/entity.js (createEntityPage route=fundamental)",
       "loadingStrategy": "route-dynamic-import",
@@ -273,7 +276,8 @@
       "p779Boundary": "entity.js owns the SEC annual-data availability/source badge from the normalized sec-fundamentals artifact.",
       "p815Boundary": "v58.76: the SEC-derived fund-analysis-text summary line (developer-only) is retired. Formerly: entity.js owned only the bounded SEC-derived fund-analysis-text summary line from normalized fundamentals; the former inline aggregate report is inert and the multi-source report sections, charts, and AI narrative remain legacy-owned.",
       "p832Boundary": "entity.js owns the bounded SEC annual-fact core report from sec-report.v3: filing identity, period/submission/acceptance metadata, point-in-time status/counts, coverage count, finite observed metrics, and explicit freshness state. The multi-source report sections, peer/news/external panels, charts, and AI narrative remain legacy-owned.",
-      "notes": "Shares entity.js render() with ticker (options route retired v56.79); P832 is a bounded official-SEC core report cutover, not a full multi-source fundamental-report cutover."
+      "notes": "Shares entity.js render() with ticker (options route retired v56.79); P832 is a bounded official-SEC core report cutover, not a full multi-source fundamental-report cutover.",
+      "chartOwnerEvidence": "v59.54 chart audit (browser probe 2026-11-01): the fiscal bars are drawn by src/ui/components/fiscal-read.js; the seven legacy financial canvases left in v59.51."
     },
     "themes": {
       "lifecycleOwner": "native",
@@ -307,7 +311,7 @@
       "lifecycleOwner": "native",
       "rendererOwner": "native",
       "dataOwner": "native",
-      "chartOwner": "legacy",
+      "chartOwner": "native",
       "narrativeOwner": "native",
       "nativeModule": "src/ui/pages/themes.js (themes route mount; derived theme-detail event boundary and all visible child surfaces)",
       "loadingStrategy": "route-dynamic-import",
@@ -339,13 +343,14 @@
       "p797Boundary": "showThemeDetail() no longer writes visible detail HTML; it only opens the derived panel, records the selected id, clears #theme-detail-legacy-content, and emits the explicit selection event consumed by native children. Theme-detail renderer ownership is now native while data/chart remain legacy compatibility boundaries.",
       "p800Boundary": "theme-detail native children consume the normalized selectedDetail in the themes store; the aio:themeDetailShown payload is a compatibility notification and not the data source.",
       "p818Boundary": "themes.js owns the bounded detail-panel open/close display and current-theme marker after the compatibility event; showThemeDetail/closeThemeDetail retain selection/event behavior but skip native panel writes.",
-      "notes": "theme-detail is a derived inline view, not a separate user route: showPage('theme-detail') redirects to themes and opens the panel. P788-P797 add native summary, composition, detailed-leader, temperature, spread, breadth-health, subtheme-gap, benchmark, and insights children, P800 moves selected-detail data to the native themes provider, and P818 transfers panel display/selection marker ownership. The dead renderPageThemeDetail() declaration and static page-theme-detail title writer were retired in P776; chart ownership remains legacy."
+      "notes": "theme-detail is a derived inline view, not a separate user route: showPage('theme-detail') redirects to themes and opens the panel. P788-P797 add native summary, composition, detailed-leader, temperature, spread, breadth-health, subtheme-gap, benchmark, and insights children, P800 moves selected-detail data to the native themes provider, and P818 transfers panel display/selection marker ownership. The dead renderPageThemeDetail() declaration and static page-theme-detail title writer were retired in P776; chart ownership remains legacy.",
+      "chartOwnerEvidence": "v59.54 chart audit (browser probe 2026-11-01): the theme relative-strength chart is drawn by src/ui/pages/themes.js."
     },
     "portfolio": {
       "lifecycleOwner": "native",
       "rendererOwner": "native",
       "dataOwner": "native",
-      "chartOwner": "native",
+      "chartOwner": "legacy",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/portfolio.js (createPortfolioPage)",
       "loadingStrategy": "route-dynamic-import",
@@ -377,7 +382,8 @@
       "p810Boundary": "portfolio.js owns only the bounded total-value and total-P/L hero projection from normalized portfolio totals/holdings with a fail-closed pending display; the legacy summary writer remains active for the other portfolio cards and its two competing hero writes were deleted for cutover.",
       "p831Boundary": "portfolio.js owns the deterministic holding count, P/L and daily change and cash projection from portfolio-state plus live quote evidence. Missing values remain unavailable; legacy summary/sector writers are fenced. v59.51 (content audit): the VIX exposure rule/current exposure column and the sector allocation card were retired from the page. Risk cards, benchmark/holding charts and narrative remain legacy-owned.",
       "p835Boundary": "v59.51 (content audit): the pf-position-donut chart was retired from the page (the holdings table's 주식 중 비중 and 보유 점검 carry the mix); the legacy drawPositionDonut was deleted with it.",
-      "notes": "The native module owns pf-analysis-status, the bounded total-value/P&L hero, the nine-column Vault-backed holdings table and the deterministic summary surface (v59.51: the exposure column, sector card and position allocation chart were retired). Legacy CRUD commands remain compatibility actions through data-action buttons; risk metrics and benchmark/holding charts remain separately legacy-owned (v59.51: the in-page AI workbench was retired; the AI panel is the one way to ask). v57.77: the legacy 포트폴리오 자동 진단 narrative (#pf-analysis-text, _generatePortfolioAnalysis) and the writerless #pf-risk-section card shell were retired; the native #pf-read is the portfolio reading and #pf-analysis-status sits in the hero."
+      "notes": "The native module owns pf-analysis-status, the bounded total-value/P&L hero, the nine-column Vault-backed holdings table and the deterministic summary surface (v59.51: the exposure column, sector card and position allocation chart were retired). Legacy CRUD commands remain compatibility actions through data-action buttons; risk metrics and benchmark/holding charts remain separately legacy-owned (v59.51: the in-page AI workbench was retired; the AI panel is the one way to ask). v57.77: the legacy 포트폴리오 자동 진단 narrative (#pf-analysis-text, _generatePortfolioAnalysis) and the writerless #pf-risk-section card shell were retired; the native #pf-read is the portfolio reading and #pf-analysis-status sits in the hero.",
+      "chartOwnerEvidence": "v59.54 chart audit (browser probe 2026-11-01): the 포트폴리오 vs SPY canvas (#pf-benchmark-chart) is still drawn by js/aio-ui.js updateBenchmarkChart."
     },
     "ticker": {
       "lifecycleOwner": "native",
@@ -417,7 +423,7 @@
       "lifecycleOwner": "native",
       "rendererOwner": "native",
       "dataOwner": "native",
-      "chartOwner": "legacy",
+      "chartOwner": "not-applicable",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/news.js (createNewsPage route=market-news)",
       "loadingStrategy": "route-dynamic-import",
@@ -435,7 +441,11 @@
       "p1209Boundary": "news.js renders normalized display text through text nodes after one bounded entity decode; URLs are excluded and hostile markup remains inert text.",
       "p1268Boundary": "news.js owns the market-news sentiment score/label, 08:00 KST cycle count/current-filter source count, risk-signal count/copy, and cut status from one normalized model. scoring.js excludes headline-only or unverified rows from article-level sentiment/risk; feed-query topics are not used for topic-specific risk signals until reviewed. Legacy summary calls retain compatibility return values without writing these sinks.",
       "notes": "P769/P770/P1209/P1268: native news.js owns the primary live-news-feed, briefing-live-news-list, and market-news summary DOM from canonical news state. The registered-source count remains the stable registry total; filtered source counts are shown only in the 24h summary. Legacy RSS/filter/translation/model handlers remain compatibility producers; the secondary Korean rewrite, briefing digest/AI narrative, and data pipeline remain legacy-owned for the next content packet.",
-      "verifyAioRegistryBoundary": "2026-10-13 verify-aio registry probe: surfaces retired by later rebuilds (P1391 news strip, P1392 six-axis board, P1395 breadth board, P1420 technical regime, P1425 macro, P1430 stock tabs) replaced by the elements the native renderer writes today; scripts/ci-architecture-contract-check.mjs (surface-exists) keeps them present; verify-aio registry checks the live DOM."
+      "verifyAioRegistryBoundary": "2026-10-13 verify-aio registry probe: surfaces retired by later rebuilds (P1391 news strip, P1392 six-axis board, P1395 breadth board, P1420 technical regime, P1425 macro, P1430 stock tabs) replaced by the elements the native renderer writes today; scripts/ci-architecture-contract-check.mjs (surface-exists) keeps them present; verify-aio registry checks the live DOM.",
+      "chartOwnerEvidence": "v59.54 chart audit (browser probe 2026-11-01): the news route draws no chart.",
+      "notApplicableFields": [
+        "chartOwner"
+      ]
     },
     "principles": {
       "lifecycleOwner": "native",
@@ -505,13 +515,14 @@
       "lifecycleOwner": "native",
       "rendererOwner": "native",
       "dataOwner": "native",
-      "chartOwner": "legacy",
+      "chartOwner": "native",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/screener.js (createScreenerPage)",
       "loadingStrategy": "route-dynamic-import",
       "contestedIds": [],
       "legacyWriterEvidence": [],
-      "notes": "ARX-10/ARX-16: screener.js is the sole visible DOM owner and the native provider/orchestrator owns the canonical screener state and single artifact fetch. Non-route readers use AIO_ARCH.getScreenerRows() through the compatibility boundary; legacy profile/watchlist storage and identity/memo overlays remain as explicit compatibility producers."
+      "notes": "ARX-10/ARX-16: screener.js is the sole visible DOM owner and the native provider/orchestrator owns the canonical screener state and single artifact fetch. Non-route readers use AIO_ARCH.getScreenerRows() through the compatibility boundary; legacy profile/watchlist storage and identity/memo overlays remain as explicit compatibility producers.",
+      "chartOwnerEvidence": "v59.54 chart audit (browser probe 2026-11-01): the validation chart (#screener-validation) is SVG drawn by src/ui/components/screener-validation.js."
     }
   },
   "counts": {
@@ -562,16 +573,21 @@
       "guide",
       "screener"
     ],
-    "chartNative": 8,
+    "chartNative": 13,
     "chartNativeRoutes": [
+      "home",
+      "signal",
       "breadth",
       "sentiment",
+      "briefing",
       "technical",
       "macro",
       "fxbond",
+      "fundamental",
       "themes",
-      "portfolio",
-      "ticker"
+      "theme-detail",
+      "ticker",
+      "screener"
     ],
     "narrativeNative": 4,
     "narrativeNativeRoutes": ["sentiment", "macro", "fxbond", "theme-detail"],

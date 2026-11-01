@@ -84,14 +84,14 @@ function renderPortfolioHero(documentRef, surface) {
   const totalValue = surface.valuationState === 'cash-only' || surface.valuationState === 'complete' ? surface.totalAssets ?? (surface.valuationState === 'complete' && surface.cash == null && !surface.cashHeld ? surface.positionValue ?? null : null) : null;
   const totalPnl = surface.valuationState === 'complete' ? surface.totalPnl : null;
   if (valueElement) {
-    valueElement.textContent = formatMoney(totalValue, surface.baseCurrency || surface.declaredBaseCurrency || 'USD');
+    valueElement.textContent = formatMoney(totalValue, surface.valuationCurrency || surface.declaredBaseCurrency || 'USD');
     valueElement.setAttribute('data-aio-portfolio-hero-renderer', 'native');
     valueElement.setAttribute('data-source-kind', totalValue == null ? 'unavailable' : 'portfolio-state');
     valueElement.setAttribute('data-source-label', totalValue == null ? 'portfolio-value-unavailable' : 'native-portfolio-totals');
     valueElement.setAttribute('data-operational-use', 'reference-only');
   }
   if (pnlElement) {
-    pnlElement.textContent = totalPnl == null ? '—' : `${totalPnl >= 0 ? '+' : '-'}${formatMoney(totalPnl, surface.baseCurrency || surface.declaredBaseCurrency || 'USD')}`;
+    pnlElement.textContent = totalPnl == null ? '—' : `${totalPnl >= 0 ? '+' : '-'}${formatMoney(totalPnl, surface.valuationCurrency || surface.declaredBaseCurrency || 'USD')}`;
     pnlElement.style.color = totalPnl == null ? 'var(--text-dim)' : totalPnl >= 0 ? 'var(--dir-up)' : 'var(--dir-down)';
     pnlElement.setAttribute('data-aio-portfolio-hero-renderer', 'native');
     pnlElement.setAttribute('data-source-kind', totalPnl == null ? 'unavailable' : 'portfolio-state');
@@ -133,23 +133,9 @@ function setSurfaceText(documentRef, id, text, value, surface, color = null) {
 // v57.50 C24: the sector of a holding comes from the same screener row the 포트폴리오 해석 reads.
 // v57.54 review: the latest completed close per symbol (canonical screener row), so holdings without a live quote
 // are still valued — and the status line says which date that close is.
-// v57.55 review (B4-F5): a Korean holding is stored as its six digits, but quotes, charts and screener rows key it with
-// the exchange suffix (105560 -> 105560.KS), so it never got a price. One lookup symbol for all three.
-const quoteSymbolOf = (root, symbol) => {
-  const code = String(symbol || '').trim().toUpperCase();
-  if (!/^\d{6}$/.test(code)) return code;
-  try { if (typeof root?.krTickerToYahoo === 'function') return root.krTickerToYahoo(code) || `${code}.KS`; } catch (_) {}
-  return `${code}.KS`;
-};
-const liveDataFor = (root, holdings, liveData) => {
-  const view = { ...liveData };
-  for (const holding of holdings || []) {
-    const code = String(holding?.symbol || holding?.ticker || '').toUpperCase();
-    const mapped = quoteSymbolOf(root, code);
-    if (mapped !== code && !view[code] && liveData[mapped]) view[code] = liveData[mapped];
-  }
-  return view;
-};
+// v57.55 review (B4-F5) + v59.54: a Korean holding is stored as its six digits while quotes, charts and screener rows key it
+// with the exchange suffix (105560 -> 105560.KS). The portfolio reader resolves that listing symbol once and the surface rows
+// carry it, so this page looks every row up by row.listingSymbol instead of resolving the code again.
 // v57.78 perf: one symbol map per render, shared by the close and sector lookups (each built its own from a fresh
 // bridge read). A non-empty native store set is read in place; an empty one defers to the bridge, which owns the
 // pre-publication fallback (screener-row-policy, same rule as scenario-outlook), then the bundled DB as before.
@@ -182,7 +168,7 @@ function withOnDemandHoldings(root, bySymbol, holdings) {
   let requested = 0;
   for (const holding of Array.isArray(holdings) ? holdings : []) {
     const symbol = String(holding?.symbol || holding?.ticker || '').trim().toUpperCase();
-    if (!symbol || records.has(symbol) || bySymbol.has(symbol) || /\.K[SQ]$/.test(symbol)) continue;
+    if (!symbol || records.has(symbol) || bySymbol.has(symbol) || /^(?:\d{6}|.*\.K[SQ])$/.test(symbol)) continue;
     const record = root._aioOnDemandSymbol(symbol);
     if (record?.status === 'ready' && record.row) { records.set(symbol, record); bySymbol.set(symbol, record.row); }
     else if (!record && requested < ON_DEMAND_HOLDING_REQUESTS && typeof root._aioRequestOnDemandSymbol === 'function') {
@@ -194,7 +180,7 @@ function withOnDemandHoldings(root, bySymbol, holdings) {
 }
 function screenerCloseOf(root, bySymbol, onDemand = new Map()) {
   return (symbol) => {
-    const row = bySymbol.get(String(symbol || '').toUpperCase()) || bySymbol.get(quoteSymbolOf(root, symbol));
+    const row = bySymbol.get(String(symbol || '').toUpperCase());
     // v58.63 (SCR03): the canonical valuation close first, as every other close reader does.
     const price = closeField(row);
     const own = onDemand.get(String(symbol || '').toUpperCase())?.lastClose;
@@ -244,7 +230,7 @@ function listenCrossTab(documentRef, root) {
   });
 }
 function requestHoldingQuotes(root, rows, attempt = 0) { // attempt > 0: a retry, which alone passes the throttle
-  const symbols = [...new Set((rows || []).filter((row) => row?.sourceKind !== 'live-quote').map((row) => quoteSymbolOf(root, row?.symbol)).filter(Boolean))].slice(0, 60);
+  const symbols = [...new Set((rows || []).filter((row) => row?.sourceKind !== 'live-quote').map((row) => row?.listingSymbol || row?.symbol).filter(Boolean))].slice(0, 60);
   if (!symbols.length) return;
   symbols.forEach((symbol) => root?.AIO?.registerLiveSymbol?.(symbol, { reason: 'portfolio-holding' }));
   const signature = symbols.join('|');
@@ -340,7 +326,8 @@ function renderPortfolioSurface(documentRef, page, surface) {
     : surface.currencyState === 'converted-with-declared-rates'
       ? `통화 환산(${fxBasisLabel}) → ${surface.baseCurrency}`
       : surface.currencyState === 'mixed-without-conversion'
-        ? `통화 혼합(${(surface.declaredCurrencies || []).join('/')}) — 환산 없어 합계 보류`
+        ? surface.currencyHeldReason === 'unknown-unit' ? `시세 통화 미확인 ${surface.unknownCurrencyCount}종목 — 합계 보류`
+          : `통화 혼합(${(surface.declaredCurrencies || []).join('/')}) — 환산 없어 합계 보류`
         : surface.currencyState === 'declared-single' ? `통화 ${surface.baseCurrency}`
           : '기준 통화를 따로 고르지 않아 종목의 시장 통화 그대로 계산';
   // E3/P1196: 원가/시세 불일치는 이제 두 갈래다 — 선언된 leg로 환산됐으면 P&L이 성립하고, 근거가
@@ -419,10 +406,10 @@ function renderPortfolioTable(documentRef, page, state, surface, { preview = fal
   const sourceHoldings = holdings.filter((entry) => entry?.symbol || entry?.ticker);
   const rows = surface.rows.map((item, index) => {
     const holding = sourceHoldings[index];
-    const { symbol, shares, avgCost, price, value, cost: costValue } = item;
+    const { value, cost: costValue } = item;
     const pnl = value != null && costValue != null ? value - costValue : null;
     const pnlPct = pnl != null && costValue > 0 ? pnl / costValue * 100 : null;
-    return { holding, symbol, shares, avgCost, price, value, costValue, pnl, pnlPct, sourceKind: item.sourceKind, closeDate: item.closeDate || null, dailyPct: item.dailyPct ?? null, dailyPctEligible: item.dailyPctEligible === true };
+    return { ...item, holding, costValue, pnl, pnlPct };
   });
   const totalValue = surface.positionValue;
   tbody.replaceChildren();
@@ -521,24 +508,24 @@ function renderPortfolioTable(documentRef, page, state, surface, { preview = fal
     row.appendChild(tickerCell);
     // LC-45: the table printed `$` for every row while the domain already declares each row's price
     // and cost currency. Print the declared code instead, so a KRW/mixed row is not relabelled as USD.
-    const baseCurrency = String(surface?.baseCurrency || 'USD').trim().toUpperCase();
+    const baseCurrency = String(surface?.valuationCurrency || (surface?.currencyHeldReason === 'unknown-unit' ? '통화 미확인' : 'USD')).trim().toUpperCase();
     // Codex browser audit H49: the P&L column is summed in the base currency; its header names it.
     const pnlHeader = documentRef.getElementById('pf-th-pnl');
     if (pnlHeader) pnlHeader.textContent = `손익 (${baseCurrency})`;
-    const priceCurrency = String(holding?.currency || '').trim().toUpperCase() || baseCurrency;
-    const costCurrency = String(holding?.costCurrency || holding?.currency || '').trim().toUpperCase() || baseCurrency;
+    const priceCurrency = String(holding?.currency || rowData.listingCurrency || '').trim().toUpperCase() || null;
+    const costCurrency = String(holding?.costCurrency || holding?.currency || rowData.listingCurrency || '').trim().toUpperCase() || null;
     const money = (amount, currency) => (amount == null
       ? '—'
-      : `${currency === 'USD' ? '$' : currency === 'KRW' ? '₩' : `${currency} `}${Math.abs(amount).toLocaleString('en-US', currency === 'KRW' ? { maximumFractionDigits: 0 } : { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`); // v57.55 B4-F14: won has no decimals
+      : `${currency === 'USD' ? '$' : currency === 'KRW' ? '₩' : currency ? `${currency} ` : '통화 미확인 '}${Math.abs(amount).toLocaleString('en-US', currency === 'KRW' ? { maximumFractionDigits: 0 } : { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`); // v57.55 B4-F14: won has no decimals
     row.appendChild(tableCell(documentRef, 'pf-th-qty', shares == null ? '—' : String(shares)));
     const costCell = tableCell(documentRef, 'pf-th-cost', money(avgCost, costCurrency));
-    costCell.title = `원가 통화 ${holding?.costCurrency ? costCurrency : `${costCurrency}(추정)`}`;
+    costCell.title = costCurrency ? `원가 통화 ${costCurrency}${holding?.costCurrency ? '' : '(상장 시장 기준)'}` : '원가 통화 미확인';
     row.appendChild(costCell);
     // v57.81: one failure state for a holding whose quote and close both came back empty (any listed symbol is requested).
     const priceCellNode = tableCell(documentRef, 'pf-th-price', price == null ? (root && screenerRowsState(root) === 'loading' ? '가격 불러오는 중' : '가격 없음') : money(price, priceCurrency));
     priceCellNode.style.color = price == null ? 'var(--text-muted)' : 'var(--text-primary)';
     const closeDated = rowData.sourceKind === 'completed-close' && rowData.closeDate ? `, 실시간 시세 대신 ${rowData.closeDate} 종가` : '';
-    priceCellNode.title = price == null ? '시세와 종가를 받지 못했습니다, 총자산과 손익 합계에서 뺐습니다' : `시세 통화 ${priceCurrency}${closeDated}`;
+    priceCellNode.title = price == null ? '시세와 종가를 받지 못했습니다, 총자산과 손익 합계에서 뺐습니다' : `시세 통화 ${priceCurrency || '미확인'}${closeDated}`;
     if (price == null) priceCellNode.dataset.priceState = 'missing';
     row.appendChild(priceCellNode);
     // v59.51 (first-users run-6 #9): a bare '—' read as a missing calculation; an empty cell names why it is empty.
@@ -646,7 +633,7 @@ function render({ root, documentRef, store }) {
   const cashFx = appUsdKrwClose(root?._aioHistory || globalThis._aioHistory || []);
   const onDemand = withOnDemandHoldings(root, bySymbol, state?.holdings);
   if (root) root._aioPortfolioOnDemandRows = [...onDemand.values()].map((record) => record.row); // v57.81: 포트폴리오 해석 rows
-  const surface = derivePortfolioSurface({ state, liveData: liveDataFor(root, state?.holdings, liveData), vix: liveData?.['^VIX'] || null, sectorOf: screenerSectorOf(bySymbol), closeOf: screenerCloseOf(root, bySymbol, onDemand), cashFx });
+  const surface = derivePortfolioSurface({ state, liveData, vix: liveData?.['^VIX'] || null, sectorOf: screenerSectorOf(bySymbol), closeOf: screenerCloseOf(root, bySymbol, onDemand), cashFx });
   // v58.75 (persona review): an empty portfolio offers 종목 추가 · 가져오기 · 예시로 미리 보기 only. The preview is a memory-only
   // state rendered through the same surface (never written to the store, storage or the root hand-offs the AI and legacy
   // panels read), with no cost basis, so it shows weights and links but no invented P&L.
@@ -747,9 +734,11 @@ function renderPortfolioChecks(documentRef, root, surface) {
   host.replaceChildren(el('h2', '포트폴리오 점검', 'briefing-h2'));
   host.dataset.aioPortfolioChecksRenderer = 'native';
   // Audit 2026-10-14: an empty portfolio shows one empty state (the holdings table); a currency hold is still explained.
-  host.hidden = result.status !== 'current' && result.reason !== 'currency-unconverted';
+  const currencyHold = { 'currency-unconverted': '통화가 다른 종목이 섞여 있고 환율이 선언되지 않아, 비중을 한 통화로 맞출 수 없습니다. 포트폴리오 설정에서 기준 통화와 환율을 선언하세요.',
+    'currency-unknown': '시세 통화를 알 수 없는 종목이 있어 비중을 한 통화로 맞출 수 없습니다. 그 종목의 시세 통화를 입력하세요.' }[result.reason];
+  host.hidden = result.status !== 'current' && !currencyHold;
   if (result.status !== 'current') {
-    host.append(el('p', result.reason === 'currency-unconverted' ? '통화가 다른 종목이 섞여 있고 환율이 선언되지 않아, 비중을 한 통화로 맞출 수 없습니다. 포트폴리오 설정에서 기준 통화와 환율을 선언하세요.' : '평가액이 있는 포지션을 추가하면 점검이 표시됩니다.', 'briefing-empty'));
+    host.append(el('p', currencyHold || '평가액이 있는 포지션을 추가하면 점검이 표시됩니다.', 'briefing-empty'));
     return result;
   }
   // v58.75 (persona review, spec F4): the criteria list (portfolio-checklist.js) leads; the share cards fold under it.

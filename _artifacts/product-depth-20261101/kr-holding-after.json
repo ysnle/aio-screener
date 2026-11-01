@@ -1,0 +1,116 @@
+{
+  "kr": {
+    "stored": [
+      {
+        "ticker": "005930",
+        "qty": 1,
+        "cost": 50000,
+        "target": null,
+        "memo": "",
+        "costCurrency": "KRW",
+        "addedAt": 1793523446488,
+        "updatedAt": 1793523446488
+      }
+    ],
+    "table": "보유 종목\n⟳ 시세 갱신\n전체 삭제\n종목\t손익 (KRW)\t수익률\t오늘\t주식 중 비중\n005930상세\t가격 없음\t가격 없음\t시세 대기\t가격 없음",
+    "surface": {
+      "modelVersion": "portfolio-surface.v3",
+      "readState": "ready",
+      "valuationState": "unavailable",
+      "currencyState": "declared-single",
+      "currencyBasis": "declared-single",
+      "costCurrencyState": "cost-declared",
+      "baseCurrency": "KRW",
+      "unknownCurrencyCount": 0,
+      "declaredCurrencies": [
+        "KRW"
+      ],
+      "declaredBaseCurrency": null,
+      "declaredCashCurrency": null,
+      "conversion": {
+        "basis": "declared-observed-rates",
+        "baseCurrency": null,
+        "asOf": "2026-11-01T08:57:26.490Z",
+        "maxAgeMs": 259200000,
+        "applied": false,
+        "costApplied": false,
+        "legs": [],
+        "held": [],
+        "costHeld": []
+      },
+      "holdingsKnown": true,
+      "cashKnown": true,
+      "valuedHoldingCount": 0,
+      "closeValuedCount": 0,
+      "delayedValuedCount": 0,
+      "closeDate": null,
+      "oldestCloseDate": null,
+      "staleCloseCount": 0,
+      "status": "current",
+      "holdingCount": 1,
+      "rows": [
+        {
+          "symbol": "005930",
+          "shares": 1,
+          "avgCost": 50000,
+          "value": null,
+          "price": null,
+          "cost": 50000,
+          "sector": "Unclassified",
+          "dailyPct": null,
+          "sourceKind": "unavailable",
+          "closeDate": null,
+          "closeStale": false,
+          "observedAt": null,
+          "quoteAllowedUse": "none",
+          "fallbackUsed": false,
+          "dailyPctEligible": false,
+          "changeBasis": null,
+          "currency": "KRW",
+          "listingSymbol": "005930",
+          "listingCurrency": null,
+          "costCurrency": "KRW"
+        }
+      ],
+      "positionValue": null,
+      "totalAssets": null,
+      "totalCost": 50000,
+      "totalPnl": null,
+      "totalPnlPct": null,
+      "cash": null,
+      "cashEntered": null,
+      "cashBalances": [],
+      "cashHeld": false,
+      "cashInvalidCount": 0,
+      "cashConversion": {
+        "target": "KRW",
+        "converted": false,
+        "basisLabel": null,
+        "held": [],
+        "appRate": null
+      },
+      "cashPct": null,
+      "dailyChange": null,
+      "dailyPct": null,
+      "vix": null,
+      "exposurePct": null,
+      "exposurePolicyStatus": "reference-only",
+      "allowedUse": "reference-only",
+      "decisionUse": false,
+      "decisionEligible": false,
+      "decisionReadyQuoteCount": 0,
+      "snapshotFallbackBlocked": true,
+      "costFallbackBlocked": true,
+      "promotionBlocked": true,
+      "promotionBlockers": [
+        "portfolio-surface-is-reference-only",
+        "snapshot-fallback-blocked",
+        "cost-fallback-blocked"
+      ],
+      "sectorBreakdown": [],
+      "sourceKind": "portfolio-state",
+      "sourceLabel": "native-portfolio-surface-reference-only",
+      "observedAt": null
+    }
+  }
+}

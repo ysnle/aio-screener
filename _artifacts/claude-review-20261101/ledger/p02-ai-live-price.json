@@ -1,0 +1,21 @@
+{
+  "version": "v59.54",
+  "date": "2026-11-01",
+  "p": {
+    "title": "AI 스크리너 문맥에서 실시간 시세가 'N/A' 또는 'STALE'로 표시됨",
+    "symptom": "Codex v59.52(P2178) 검토에서 확인: 스크리너 행의 price는 실시간 시세인데 포매터가 종가용 준비 상태(price.close)를 그 값에 붙여, 관측 시각이 있는 시세가 AI에 'price: STALE' 또는 N/A로 전달됐다.",
+    "root_cause": "src/ai/context/screener-query.js referenceFields에 ['price','price.close']가 있어 실시간 시세 필드에 종가 필드의 준비 상태를 복사했다.",
+    "fix": "포매터가 행의 price를 실시간 시세로 읽어 자체 관측 시각과 함께 쓰고, referenceFields에서 price 항목을 뺐다.",
+    "violated_rule": "AGENTS 종가 기준 점수와 실시간 시세 구분 — 서로 다른 시점의 값에 다른 값의 상태를 붙이지 않는다.",
+    "prevention": "scripts/fixtures/pipeline-semantics/ai.mjs v59.54 사례가 '가격 $101.00 (관측 …)' 출력과 STALE 부재를 확인한다.",
+    "verification": "node scripts/ci-pipeline-semantics-check.mjs --only ai (22건 통과)."
+  },
+  "qa": [
+    { "id": "QA-AI-PRICE-01", "text": "v59.54 AI 스크리너 문맥의 실시간 시세가 관측 시각과 함께 나오고 종가 준비 상태(STALE)가 붙지 않는지 확인", "verify_by": "contract" }
+  ],
+  "qa_section": "AI 문맥",
+  "changelog": [
+    "**AI 시세 표시 ({P}):** AI에 넘기는 스크리너 행의 실시간 시세가 종가 상태를 빌려 'STALE'로 찍히던 것을 고쳤다. 시세는 자기 관측 시각과 함께 전달된다."
+  ],
+  "note": "v59.54: Codex v59.52~53 객관 검토 반영(구조 수정) + run-6 남은 후속 작업"
+}

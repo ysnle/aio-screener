@@ -14,6 +14,7 @@ export default {
     ['공식 지표 보드', (p) => expectCount(p, '#macro-board > *', 1)],
     ['탭 금리와 환율', (p) => tabTo(p, '금리와 환율', 'page-fxbond')],
     ['국채 5개 만기 (% · bp)', async (p) => {
+      await p.locator('#page-fxbond details.rates-guide > summary', { hasText: '만기별 금리와 1일·1주 변화' }).click();
       const r = await expectCount(p, '#rates-yields .rates-yield', 5);
       return { ...r, ...(await expectText(p, '#rates-yields', { pattern: /%[\s\S]*bp/ })), ...(await expectText(p, '#rates-basis', { pattern: /종가|고시/ })) };
     }],

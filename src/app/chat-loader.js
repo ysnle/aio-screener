@@ -54,11 +54,10 @@ export function installChatLoader(root = globalThis, doc = root.document, { onLo
     stubs[name] = function (...args) {
       const input = doc.getElementById('ai-panel-inp');
       const draft = input?.value || '';
-      // First-users run-6 (breaker #8): a queued send takes its draft out of the box, as the loaded send does, so a second
-      // Enter before the chat script arrives finds nothing to send instead of queuing the same question twice.
+      // Keep the draft visible until the real send accepts it, including a failed script load. A repeated Enter
+      // retries loading without queuing the same draft twice (P2171).
       if (name === 'chatSendUnified') {
-        if (!draft.trim()) { load().catch(() => {}); return; }
-        input.value = '';
+        if (!draft.trim() || queue.some(([entry, , , queuedDraft]) => entry === name && queuedDraft === draft)) { load().catch(() => {}); return; }
       }
       queue.push([name, this, args, draft]);
       load().catch(() => {});

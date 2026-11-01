@@ -62,8 +62,9 @@ export function buildAttribution({ holdings = [], cash = null, baseCurrency = nu
     // sectorBasisHeld.
     const sectorRow = etf ? rowFor(etf) : null;
     const sectorAligned = !!sectorRow && dateOf(sectorRow.factorSessionDate || sectorRow.asOf) === rBasis;
-    if (etf && sectorRow && finite(sectorRow.ret3m) != null && !sectorAligned) sectorBasisHeld.push({ symbol: holding.symbol, etf, sBasis: dateOf(sectorRow.factorSessionDate || sectorRow.asOf), rBasis });
-    const s = etf && sectorAligned ? finite(sectorRow.ret3m) : null;
+    const sectorReturn = readRowNumber(sectorRow, 'ret3m', 'calculation');
+    if (etf && sectorReturn != null && !sectorAligned) sectorBasisHeld.push({ symbol: holding.symbol, etf, sBasis: dateOf(sectorRow.factorSessionDate || sectorRow.asOf), rBasis });
+    const s = etf && sectorAligned ? sectorReturn : null;
     const local = r / 100;
     const base = (1 + local) * (1 + fx) - 1;
     // Portfolio audit 2026-10-17: the weight is the holding's value at the start of the window (today's value ÷ its 3-month

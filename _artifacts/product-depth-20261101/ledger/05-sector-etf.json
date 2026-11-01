@@ -1,0 +1,26 @@
+{
+  "version": "v59.53",
+  "date": "2026-11-01",
+  "qa_section": "기존 기능과 콘텐츠의 의미·사용성",
+  "p": {
+    "title": "섹터 ETF를 광범위 ETF로 묶어 업종 집중도를 숨김",
+    "symptom": "XLE 50%와 SPY 50%를 보유하면 익스포저가 ETF 100%로 묶이고 Energy 50% 집중 경고가 사라졌다.",
+    "root_cause": "ETF라는 상품 종류를 sector 분류보다 우선해 개별 회사 분산과 업종 분산을 같은 축으로 취급했다.",
+    "fix": "상품 종류와 sector를 분리해 섹터 ETF는 실제 업종에 집계하고 광범위 ETF만 기존 별도 묶음으로 둔다. 한국 저장 키의 sector 조회도 공용 listing identity를 사용한다.",
+    "verification": "HEAD의 실제 exposure renderer를 독립 fixture에 로드하면 Energy 경고 누락으로 assertion 실패. 수정 renderer는 같은 fixture에서 Energy 50% 경고를 내고 SPY를 실제 sector로 세지 않는다. portfolio 26건 PASS.",
+    "violated_rule": "C4 공용 의미와 단일 소유권, 데이터 정직성, 사용자 가치 우선",
+    "prevention": "섹터 ETF의 업종 비중은 유지하고, ETF 상품 여부만으로 업종 집중도에서 제외하지 않는다 — node scripts/ci-pipeline-semantics-check.mjs --only portfolio"
+  },
+  "qa": [
+    {
+      "id": "QA-SECTOR-ETF-EXPOSURE-01",
+      "text": "섹터 ETF의 업종 비중은 유지하고, ETF 상품 여부만으로 업종 집중도에서 제외하지 않는다",
+      "verify_by": "node scripts/ci-pipeline-semantics-check.mjs --only portfolio",
+      "done": true
+    }
+  ],
+  "changelog": [
+    "**섹터 ETF를 광범위 ETF로 묶어 업종 집중도를 숨김 ({P}):** 상품 종류와 sector를 분리해 섹터 ETF는 실제 업종에 집계하고 광범위 ETF만 기존 별도 묶음으로 둔다. 한국 저장 키의 sector 조회도 공용 listing identity를 사용한다."
+  ],
+  "note": "v59.53: 포트폴리오 통화·ETF 분류, 시장 온도 의미, 리서치 읽기 포커스와 사용자 콘텐츠 접근 구조 개선"
+}

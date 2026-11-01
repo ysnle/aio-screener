@@ -61,11 +61,14 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
   // the same fabrication the surface already refuses (P1175), while an undeclared-single
   // basis is a disclosed assumption, not a mix.
   if (surface && surface.currencyState === 'mixed-without-conversion') {
-    return { available: false, reason: `통화가 다른 보유가 섞여 있는데 환율이 선언되지 않아(${(surface.declaredCurrencies || []).join('/')}) 비중·회전·지수 대비를 한 통화로 만들 수 없습니다. 포트폴리오 설정에서 환율을 선언하면 다시 표시됩니다.` };
+    return { available: false, reason: surface.currencyHeldReason === 'unknown-unit'
+      ? `시세 통화를 알 수 없는 보유가 ${surface.unknownCurrencyCount || 1}종목 있어 비중·회전·지수 대비를 한 통화로 만들 수 없습니다. 그 종목의 시세 통화를 입력하면 다시 표시됩니다.`
+      : `통화가 다른 보유가 섞여 있는데 환율이 선언되지 않아(${(surface.declaredCurrencies || []).join('/')}) 비중·회전·지수 대비를 한 통화로 만들 수 없습니다. 포트폴리오 설정에서 환율을 선언하면 다시 표시됩니다.` };
   }
   const bySymbol = new Map((rows || []).map((row) => [String(row?.sym || '').toUpperCase(), row]));
   const holdings = (Array.isArray(surface?.rows) ? surface.rows : [])
-    .map((row) => ({ symbol: String(row?.symbol || row?.ticker || '').toUpperCase(), value: finite(row?.value), convertedFrom: row?.convertedFrom || null, sector: row?.sector || null }))
+    // v59.54: the listing symbol (005930.KS) is the key screener rows and the KR test use; the stored code is not.
+    .map((row) => ({ symbol: String(row?.listingSymbol || row?.symbol || row?.ticker || '').toUpperCase(), value: finite(row?.value), convertedFrom: row?.convertedFrom || null, sector: row?.sector || null }))
     .filter((row) => row.symbol && row.value != null && row.value > 0)
     .map((row) => ({ ...row, data: bySymbol.get(row.symbol) || null }));
   const total = holdings.reduce((sum, row) => sum + row.value, 0);
@@ -196,13 +199,13 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
   const nearPct = trendMix.find((row) => row.state === 'near')?.pct;
   // v57.84 review: the mix names the remainder (조정·반등) so the shares add up, and the 3-month line says it is the
   // current holdings looked back on, not the account's own track record.
-  const otherPct = trendMix.length ? Math.max(0, 100 - (upPct || 0) - (downPct || 0) - (nearPct || 0)) : 0;
+  const otherPct = trendMix.filter((row) => row.state === 'pullback' || row.state === 'rebound').reduce((sum, row) => sum + row.pct, 0);
   // v59.51 (first-users run-6 #9, two layers): the face line is for a beginner. "0%는 내리는 흐름" read as not calculated,
   // so a zero share is said as "없습니다"; the 3-month line carries its own assumption (it once sat two paragraphs away
   // and "내 수익률" read as the account's). The 50·200일선 definitions and buffers stay in the folded points.
-  const share = (pct) => `${(pct || 0).toFixed(0)}%`;
+  const share = (pct) => pct > 0 && pct < 1 ? '1% 미만' : `${(pct || 0).toFixed(0)}%`;
   const trendLine = !trendMix.length ? null
-    : `${trendContainedPct >= 99.5 ? (unpriced ? `가격을 확인한 보유 금액${unpricedNote} 중` : '보유 금액 중') : `${plainBasis.replace(/ 기준으로$/, '')} 중`} ${(upPct || 0) >= 0.5 ? `${share(upPct)}는 오르는 흐름에 있고` : '오르는 흐름에 있는 종목은 없고'}, ${(downPct || 0) >= 0.5 ? `${share(downPct)}는 내리는 흐름입니다` : '내리는 흐름인 종목은 없습니다'}.${nearPct >= 0.5 ? ` ${share(nearPct)}는 아직 방향이 뚜렷하지 않습니다.` : ''}${otherPct >= 1 ? ` ${share(otherPct)}는 큰 흐름 속 조정이나 반등 중입니다.` : ''}`;
+    : `${trendContainedPct >= 99.5 ? (unpriced ? `가격을 확인한 보유 금액${unpricedNote} 중` : '보유 금액 중') : `${plainBasis.replace(/ 기준으로$/, '')} 중`} ${upPct > 0 ? `${share(upPct)}는 오르는 흐름에 있고` : '오르는 흐름에 있는 종목은 없고'}, ${downPct > 0 ? `${share(downPct)}는 내리는 흐름입니다` : '내리는 흐름인 종목은 없습니다'}.${nearPct > 0 ? ` ${share(nearPct)}는 아직 방향이 뚜렷하지 않습니다.` : ''}${otherPct > 0 ? ` ${share(otherPct)}는 큰 흐름 속 조정이나 반등 중입니다.` : ''}`;
   const headline = [trendLine,
     book3 != null && bench3 != null ? `지금 구성을 3개월 전부터 들고 있었다면 ${attribution.blendedLabel.replace(/\([^)]*\)/g, '')}보다 ${Math.abs(book3 - bench3).toFixed(1)}%p ${book3 >= bench3 ? '앞섰습니다' : '뒤처졌습니다'}${relativeBasisNote}.` : null,
     regime?.available ? `미국 시장은 '${regime.overall}'입니다.` : null, krLine?.headline || null].filter(Boolean).join(' ');
@@ -249,5 +252,5 @@ export function portfolioRowsForAI(surface, { sectorOf = () => null } = {}) {
   const asOf = hasLeadingIsoDay(String(surface.observedAt || '')) ? String(surface.observedAt).slice(0, 10) : null;
   // v57.81: which currencies the cash is held in and the rate basis of its total — currencies only, never amounts.
   const cashCurrencies = (Array.isArray(surface.cashBalances) ? surface.cashBalances : []).filter((row) => row?.currency && finite(row.amount) > 0).map((row) => row.currency);
-  return { available: true, baseCurrency: surface.baseCurrency || null, currencyState: surface.currencyState || null, asOf, cashPct: finite(surface.cashPct) == null ? null : round1(surface.cashPct), cashCurrencies, cashBasis: surface.cashConversion?.converted ? surface.cashConversion.basisLabel || null : null, rows };
+  return { available: true, baseCurrency: surface.baseCurrency || null, valuationCurrency: surface.valuationCurrency || null, currencyState: surface.currencyState || null, asOf, cashPct: finite(surface.cashPct) == null ? null : round1(surface.cashPct), cashCurrencies, cashBasis: surface.cashConversion?.converted ? surface.cashConversion.basisLabel || null : null, rows };
 }

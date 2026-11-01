@@ -10,7 +10,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v59.51 — 올인원 투자 터미널</title>
+  <title>AIO Screener v59.54 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 시장 환경 참고 지표, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f4f0e8">
@@ -3885,7 +3885,7 @@ button[data-filter-active="true"] {
   <script>(window._aioTodayVerdict||Promise.resolve(null)).then(function(v){var t=document.getElementById('home-hero-total'),m=/^\d{4}-(\d\d)-(\d\d)$/.exec(v&&v.asOf||'');if(!v||!v.overall||!m||!t||t.textContent!=='판정 대기')return;t.textContent=v.overall;t.dataset.firstPaint=v.asOf;var d=document.getElementById('home-hero-desc'),h=document.getElementById('home-hero-headline'),k=document.getElementById('home-date-label'),r=document.getElementById('regime-overall');if(d&&!d.textContent)d.textContent=v.heroLine||'';if(h)h.textContent=v.holdReason||'';if(r&&r.textContent==='판정 대기')r.textContent=v.overall;if(k){var day='';try{day=new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',month:'long',day:'numeric',weekday:'long'}).format(new Date())+', '}catch(e){}k.textContent=day+(+m[1])+'/'+(+m[2])+' 미국 종가 기준'}});</script>
   <section class="sx-card mk-axes" aria-labelledby="regime-axes-title">
     <h2 class="sr-only" id="regime-axes-title">미국 시장 6개 지표</h2>
-    <div class="mk-axes__head" aria-hidden="true"><span>지표</span><span>판정</span><span>현재값</span><span>판정이 바뀌는 조건</span><span>기준까지</span><span>5거래일 전</span><span>5일 변화</span></div>
+    <div class="mk-axes__head" aria-hidden="true"><span>지표</span><span>판정</span><span>현재값</span><span>기준까지</span><span>5거래일 전</span><span>5일 변화</span></div>
     <div class="regime-board" id="regime-board"></div>
   </section>
   <section class="sx-card mk-lower" aria-labelledby="regime-radar-title">
@@ -4549,7 +4549,7 @@ button[data-filter-active="true"] {
        after the verdict, so a late paint no longer races aio-core's verdict-after-header reorder (the two swapped by run). -->
   <section class="aio-section ai-chain" id="themes-ai-chain" aria-labelledby="themes-ai-chain-title" hidden></section>
   <!-- P1417: AI capital-spending flow and bottleneck lead times (REFERENCE). v59.51: folded under the AI chain it explains. -->
-  <details class="aio-page-advanced-toggle sh-fold-mt16" id="ai-capex-fold">
+  <details class="sx-disclosure sh-fold-mt16" id="ai-capex-fold">
     <summary>AI 설비투자 100달러의 흐름과 병목 납기</summary>
     <section class="aio-section capex-flow" id="ai-capex-flow" aria-label="AI 설비투자 흐름"></section>
   </details>
@@ -4558,7 +4558,7 @@ button[data-filter-active="true"] {
   <section class="aio-section theme-strength" id="theme-strength-board" aria-label="세부 테마 상대강도 순위"><div class="briefing-empty">스크리너 수익률 수신 대기</div></section>
 
   <!-- 2026-10-13 S&P 500 map: area = index weight, colour = return. v59.51: folded (the sector tabs above carry the sector read). -->
-  <details class="aio-page-advanced-toggle sh-fold-mt16" id="sector-map-fold">
+  <details class="sx-disclosure sh-fold-mt16" id="sector-map-fold">
     <summary>지난 거래일 — S&amp;P 500 지도와 테마 안에서 갈린 곳</summary>
     <section class="aio-section sector-map" id="sector-map" aria-label="S&amp;P 500 지도"><div class="briefing-empty">스크리너 수익률 수신 대기</div></section>
     <!-- v59.51 (content audit): the theme splits of 시장 상태's 자금 흐름 (market-flow.js buildThemeFlow) live here. -->
@@ -6233,12 +6233,12 @@ button[data-filter-active="true"] {
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
   <!-- R622: block A (workspace) runs first in the defer group; kr-data and pages follow it, as when they sat in <head>. -->
-  <script src="./js/aio-workspace.js?v=59.51" defer></script>
-  <script src="./js/aio-kr-data.js?v=59.51" defer></script>
-  <script src="./js/aio-pages.js?v=59.51" defer></script>
-  <script src="./js/aio-core.js?v=59.51" defer></script>
-  <script src="./js/aio-data.js?v=59.51" defer></script>
-  <script src="./js/aio-ui.js?v=59.51" defer></script>
+  <script src="./js/aio-workspace.js?v=59.54" defer></script>
+  <script src="./js/aio-kr-data.js?v=59.54" defer></script>
+  <script src="./js/aio-pages.js?v=59.54" defer></script>
+  <script src="./js/aio-core.js?v=59.54" defer></script>
+  <script src="./js/aio-data.js?v=59.54" defer></script>
+  <script src="./js/aio-ui.js?v=59.54" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
@@ -6294,7 +6294,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=59.51" defer></script>
+<script src="./js/aio-glossary.js?v=59.54" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->
@@ -6302,7 +6302,7 @@ button[data-filter-active="true"] {
 
 <!-- v58.56 (re-audit #13): R1 release identity moved from the topbar to the page foot — the topbar keeps only what a reader
      uses (quote basis, 도움말, AI). bump-version still patches this element by its id. -->
-<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, 등락 색은 오르면 <span style="color:var(--dir-up)">빨강</span>·내리면 <span style="color:var(--dir-down)">파랑</span>, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <button type="button" data-action="_aioOpenFeedback">이상해요</button>, <span class="sx-page-foot-version" id="app-version-badge">v59.51</span></p>
+<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, 등락 색은 오르면 <span style="color:var(--dir-up)">빨강</span>·내리면 <span style="color:var(--dir-down)">파랑</span>, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <button type="button" data-action="_aioOpenFeedback">이상해요</button>, <span class="sx-page-foot-version" id="app-version-badge">v59.54</span></p>
 </div><!-- /content -->
 </div><!-- /main -->
 </div><!-- /app -->

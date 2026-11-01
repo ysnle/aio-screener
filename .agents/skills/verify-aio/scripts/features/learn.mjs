@@ -21,6 +21,7 @@ export default {
     }],
     ['목차 항목 열기 → 활성 표시 + 본문 변경', async (p) => {
       await p.keyboard.press('Escape');
+      await p.locator('#page-principles .rl-nav-list > summary').first().click();
       const item = p.locator('#page-principles .rl-nav-item[data-principles-action="frame"]:not([aria-pressed="true"])').first();
       const label = (await item.innerText()).trim().split('\n')[0];
       const before = await p.evaluate(() => document.querySelector('#page-principles .rl-main')?.innerText.slice(0, 200) || '');
@@ -29,11 +30,13 @@ export default {
       await p.waitForFunction((b) => { const m = document.querySelector('#page-principles .rl-main'); return m && m.innerText.slice(0, 200) !== b; }, before, { timeout: 10000 });
       const pressed = await p.$$eval('#page-principles .rl-nav-item[aria-pressed="true"], #page-principles .rl-nav-item.is-active', (n) => n.map((x) => x.innerText.trim().split('\n')[0]));
       if (!pressed.includes(label)) throw new Error(`clicked "${label}" but active items are ${JSON.stringify(pressed)}`);
+      // v59.53: opening a document must move keyboard reading into it, rather than dropping focus on BODY.
+      if (!await p.evaluate(() => !!document.activeElement?.closest('#page-principles .rl-main'))) throw new Error('opened document did not receive reading focus');
       return { opened: label, docTitle: await p.evaluate(() => document.querySelector('#page-principles .rl-main h2.rl-doc-title')?.innerText.trim() || null) };
     }],
     ['서가 칩 칼럼 → 책등 → 상세 카드 → 읽기', async (p) => {
       const shelf = '#page-principles .rl-shelf';
-      await p.evaluate((s) => { const d = document.querySelector(s); if (d && !d.open) d.open = true; }, shelf);
+      await p.locator(`${shelf} > summary`).click();
       await expectCount(p, `${shelf} .rl-spine`, 1, 10000);
       const chip = p.locator(`${shelf} .rl-shelf-chip`, { hasText: '칼럼' }).first();
       const want = Number((await chip.locator('span').innerText()).trim());

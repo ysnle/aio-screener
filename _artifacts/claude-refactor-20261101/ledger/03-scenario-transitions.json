@@ -1,0 +1,14 @@
+{
+  "version": "v59.52", "date": "2026-11-01", "qa_section": "v59 변경 재검토", "note": "v59.52: AI 비교 표본 재설계·지표 계약·초안 보존, 추세 비중·시나리오 전환·의미 검사 선택 수정",
+  "p": {
+    "title": "시나리오 동률 진입·해소·구성원 변경이 기록에서 누락",
+    "symptom": "선두 id가 같으면 동률 해소를 기록하지 않고, 현재 동률 안에서 id가 바뀌면 이전 동률의 구성원 변경까지 숨겼다. 동률 진입을 단독 선두 변화로 적기도 했다.",
+    "root_cause": "v59.51 diffSnapshots는 현재 tiedIds와 이전/현재 leadId만 비교해 이전과 현재의 전체 선두 집합을 비교하지 않았다.",
+    "fix": "화면과 같은 scenarioLead로 이전·현재 선두 집합을 구하고 순서를 제외한 구성 변화만 기록한다. 동률은 모든 이름을 적고 단독 선두의 대안 변화만 별도로 기록한다.",
+    "violated_rule": "C10 한 지표에는 한 원천과 한 표시 owner, R734 공용 함수와 재현",
+    "prevention": "pipeline-semantics producers에서 보류·단독 두 종류·동률 두 종류의 25개 전환과 동률 순서 변경을 비교한다.",
+    "verification": "node scripts/ci-pipeline-semantics-check.mjs --only producers: 수정 전 동률 진입 사례 실패, 수정 후 통과. 프로듀서는 로컬 실행하지 않고 순수 diffSnapshots만 호출했다."
+  },
+  "qa": [{ "id": "QA-SCENARIO-LEADER-SET-01", "text": "시나리오 기록은 동률의 순서만 무시하고 구성 변화와 진입·해소는 기록한다", "verify_by": "node scripts/ci-pipeline-semantics-check.mjs --only producers", "done": true }],
+  "changelog": ["**시나리오 변화 기록 ({P}):** 공용 선두 판독기로 동률의 진입·해소·구성원 변경을 구분한다. 동률 안의 정렬 변화만 기록에서 제외한다."]
+}

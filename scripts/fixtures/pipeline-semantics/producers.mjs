@@ -8,6 +8,21 @@ const yieldsFor = async (load, quarters) => {
 };
 
 export const cases = [
+  { id: 'v59.52', name: 'scenario transitions compare the complete leader set, including entering and leaving ties without an id swap', run: async ({ load }) => {
+    const { diffSnapshots } = await load('scripts/build-scenario-state.mjs');
+    const items = ['a', 'b', 'c'].map((id) => ({ id, title: `Scenario ${id}`, met: 2, total: 4 }));
+    const states = [[], ['a'], ['b'], ['a', 'b'], ['a', 'c']];
+    const snap = (ids, reverse = false) => ({ crossroads: { leadId: (reverse ? ids.at(-1) : ids[0]) || null, altId: 'c', tiedIds: ids.length > 1 ? ids : [], items } });
+    for (const before of states) for (const after of states) {
+      const changes = diffSnapshots(snap(before), snap(after), 'T').filter((row) => row.kind === 'lead');
+      assert.equal(changes.length, JSON.stringify(before) === JSON.stringify(after) ? 0 : 1, `${before} -> ${after}`);
+      if (changes.length && after.length > 1) {
+        assert.match(changes[0].text, /동률/);
+        for (const id of after) assert.ok(changes[0].text.includes(`Scenario ${id}`));
+      }
+    }
+    assert.equal(diffSnapshots(snap(['a', 'b']), snap(['b', 'a'], true), 'T').filter((row) => row.kind === 'lead').length, 0);
+  } },
   { id: 'RUN6-TIE-01', name: 'a lead swap between two tied branches is not logged as a scenario change; leaving the tie is', run: async ({ load }) => {
       const { diffSnapshots } = await load('scripts/build-scenario-state.mjs');
       const items = [{ id: 'aibust', title: 'AI 투자 꺾임 — x', met: 3, total: 4 }, { id: 'oilshock', title: '유가 충격 — y', met: 3, total: 4 }];

@@ -1,5 +1,7 @@
 // scripts/fixtures/pipeline-semantics/knowledge-state.mjs — v59.45 pipeline review regressions (shared artifact load/cache/currentness, page completeness and readiness, interpretation inputs, knowledge sources/graph/relations/learning state, evidence store, freshness badge, server macro load)
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { runInNewContext } from 'node:vm';
 
 const memoryStorage = () => {
   const data = new Map();
@@ -8,6 +10,22 @@ const memoryStorage = () => {
 const NOW = Date.parse('2026-10-30T00:00:00Z');
 
 export const cases = [
+  // v59.54 (run-6 #5, P2173 class): markTerms skips a target with no glossary entry silently, so a renamed entry unmarks
+  // the word everywhere with no error. Every TERM_MARKS target must name an entry of the glossary as the page builds it.
+  { id: 'RUN6-TERM-01', name: '용어 표시 대상은 모두 실제 사전 항목을 가리킨다', run: async ({ load }) => {
+      const { TERM_MARKS } = await load('src/ui/components/term-marks.js');
+      const { appendScreenTerms } = await load('src/domain/knowledge/screen-term-additions.js');
+      const { mergeConceptCore } = await load('src/ui/knowledge/glossary-bridge.js');
+      const { DEFERRED_SCREEN_TERMS } = await load('src/domain/knowledge/deferred-screen-terms.js');
+      const sandbox = {};
+      runInNewContext(`${readFileSync('js/aio-glossary.js', 'utf8')}\nthis.GLOSSARY = GLOSSARY;`, sandbox);
+      const glossary = sandbox.GLOSSARY;
+      appendScreenTerms(glossary);
+      mergeConceptCore(glossary);
+      appendScreenTerms(glossary, DEFERRED_SCREEN_TERMS);
+      const terms = new Set(glossary.map((entry) => entry?.term));
+      assert.deepEqual(TERM_MARKS.filter(([, term]) => !terms.has(term)).map(([text, term]) => `${text} → ${term}`), []);
+  } },
   { id: 'P10-STATE-01', name: '연구 화면 테마 단계는 pending 기록을 현재 단계로 보이지 않는다', run: async ({ load }) => {
       const { themeStageBlock } = await load('src/ui/knowledge/theme-stage-links.js');
       const el = () => ({ dataset: {}, textContent: '', title: '', append() {}, appendChild() {}, addEventListener() {} });

@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v59.51';
+const APP_VERSION = 'v59.54';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -1177,7 +1177,6 @@ window._aioChartRegistry = {
   get: function(id) { return this._charts[id] || null; },
   _isVisibleChart: function(chart) {
     var el = chart && (chart.canvas || chart.ctx && chart.ctx.canvas || chart.renderTo || chart.container);
-    if (!el && chart && chart._lwc && chart._lwc.container) el = chart._lwc.container;
     if (!el || !el.getBoundingClientRect) return true;
     var cur = el;
     while (cur && cur.nodeType === 1) {
@@ -11893,241 +11892,6 @@ window.AIO._bindCore = function() {
 // 즉시 가능한 부분만 바인딩 (후순위 정의는 DOMContentLoaded 시점 재시도)
 try { window.AIO.stores.price = window.PriceStore || null; window.AIO.stores.news = window.NewsStore || null; } catch(_){}
 
-// ═══════════════════════════════════════════════════════════════════
-// v48.23 (P3-5): lightweight-charts 통합 헬퍼 — Chart.js와 혼합 사용
-// ─────────────────────────────────────────────────────────────────
-// time series 전문 → VIX/NAAIM/II/HY/yieldCurve/FRED 등 약 8개 차트 점진 전환 가능
-// 복잡 차트(RRG 산점도, 게이지, 도넛, stacked bar)는 Chart.js 유지
-// API 차이: lightweight-charts는 container div 필요(canvas 아님) + 시계열 {time, value} 형식
-// ─────────────────────────────────────────────────────────────────
-window.AIO.charts = {
-  // 인스턴스 관리 (native sentiment renderer의 resource bag과 별개)
-  _lwc: {},  // lightweight-charts 인스턴스 pool
-
-  /** lightweight-charts time series 생성 헬퍼
-   * @param {string|Element} containerOrId - <div> 컨테이너 ID 또는 요소
-   * @param {Array<{time: number|string, value: number}>} data - 시계열 데이터
-   * @param {Object} options - {color, lineWidth, height, theme, tooltipFmt}
-   * @returns {{chart, series, destroy}|null}
-   */
-  createLineChart: function(containerOrId, data, options) {
-    options = options || {};
-    if (typeof LightweightCharts === 'undefined') {
-      if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'lightweight-charts not loaded, skipping ' + containerOrId);
-      return null;
-    }
-    var container = typeof containerOrId === 'string' ? document.getElementById(containerOrId) : containerOrId;
-    if (!container) return null;
-    try {
-      // 다크 테마 기본 (AIO 전역 테마와 일치)
-      var theme = options.theme || 'dark';
-      var bgColor = theme === 'dark' ? '#111927' : '#ffffff';
-      var textColor = theme === 'dark' ? 'rgba(255,255,255,0.5)' : '#38352e';
-      var gridColor = theme === 'dark' ? 'var(--surface-4)' : 'rgba(0,0,0,0.05)';
-
-      var disposed = false;
-      var chart = LightweightCharts.createChart(container, {
-        width: container.clientWidth || 300,
-        height: options.height || 200,
-        layout: { background: { color: bgColor }, textColor: textColor, fontSize: 10, fontFamily: 'JetBrains Mono, monospace' },
-        grid: { vertLines: { color: gridColor }, horzLines: { color: gridColor } },
-        rightPriceScale: { borderColor: gridColor },
-        timeScale: { borderColor: gridColor, timeVisible: true, secondsVisible: false },
-        crosshair: { mode: LightweightCharts.CrosshairMode.Normal }
-      });
-      var series = chart.addLineSeries({
-        color: options.color || '#4ccce6',
-        lineWidth: options.lineWidth || 2,
-        priceFormat: options.priceFormat || { type: 'price', precision: 2, minMove: 0.01 }
-      });
-      if (Array.isArray(data) && data.length > 0) {
-        series.setData(data);
-      }
-      if (typeof window._aioMarkChartCanvases === 'function') {
-        window._aioMarkChartCanvases(container, options.ariaLabel || options.title || 'AIO line chart');
-      }
-      // 뷰포트 resize 자동 대응
-      var _ro = null;
-      if (typeof ResizeObserver !== 'undefined') {
-        _ro = new ResizeObserver(function(entries) {
-          for (var i = 0; i < entries.length; i++) {
-            var cr = entries[i].contentRect;
-            if (!disposed && cr.width > 0) {
-              try { chart.resize(cr.width, options.height || 200); } catch(_) {}
-            }
-          }
-        });
-        _ro.observe(container);
-      }
-      return {
-        chart: chart,
-        series: series,
-        setData: function(d) { if (!disposed) series.setData(d); },
-        update: function(point) { if (!disposed) series.update(point); },
-        destroy: function() {
-          if (disposed) return;
-          disposed = true;
-          try { if (_ro) _ro.disconnect(); } catch(_){}
-          try { chart.remove(); } catch(_){}
-        }
-      };
-    } catch(e) {
-      if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'createLineChart failed: ' + (e && e.message || e));
-      return null;
-    }
-  },
-
-  /** 다중 라인 차트 (Bull/Bear 비교 등)
-   * @param {string|Element} containerOrId
-   * @param {Array<{name, color, data: Array<{time,value}>}>} seriesConfig
-   * @param {Object} options
-   */
-  createMultiLineChart: function(containerOrId, seriesConfig, options) {
-    options = options || {};
-    if (typeof LightweightCharts === 'undefined') return null;
-    var container = typeof containerOrId === 'string' ? document.getElementById(containerOrId) : containerOrId;
-    if (!container) return null;
-    try {
-      var bgColor = '#111927';
-      var gridColor = 'var(--surface-4)';
-      var disposed = false;
-      var chart = LightweightCharts.createChart(container, {
-        width: container.clientWidth || 300,
-        height: options.height || 200,
-        layout: { background: { color: bgColor }, textColor: 'rgba(255,255,255,0.5)', fontSize: 10, fontFamily: 'JetBrains Mono, monospace' },
-        grid: { vertLines: { color: gridColor }, horzLines: { color: gridColor } },
-        timeScale: { borderColor: gridColor, timeVisible: true, secondsVisible: false }
-      });
-      var seriesList = [];
-      for (var i = 0; i < seriesConfig.length; i++) {
-        var cfg = seriesConfig[i];
-        var s = chart.addLineSeries({ color: cfg.color || '#4ccce6', lineWidth: cfg.lineWidth || 2, title: cfg.name });
-        if (Array.isArray(cfg.data)) s.setData(cfg.data);
-        seriesList.push(s);
-      }
-      if (typeof window._aioMarkChartCanvases === 'function') {
-        window._aioMarkChartCanvases(container, options.ariaLabel || options.title || 'AIO multi-series chart');
-      }
-      var _ro = null;
-      if (typeof ResizeObserver !== 'undefined') {
-        _ro = new ResizeObserver(function(entries) {
-          for (var j = 0; j < entries.length; j++) {
-            var cr = entries[j].contentRect;
-            if (!disposed && cr.width > 0) {
-              try { chart.resize(cr.width, options.height || 200); } catch(_) {}
-            }
-          }
-        });
-        _ro.observe(container);
-      }
-      return {
-        chart: chart, series: seriesList,
-        destroy: function() {
-          if (disposed) return;
-          disposed = true;
-          try { if (_ro) _ro.disconnect(); } catch(_){}
-          try { chart.remove(); } catch(_){}
-        }
-      };
-    } catch(e) {
-      if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'createMultiLineChart failed: ' + (e && e.message || e));
-      return null;
-    }
-  },
-
-  /** YYYY-MM-DD → lightweight-charts time 형식 (문자열 그대로) */
-  toTimeStr: function(ymd) { return ymd; },
-  /** ms timestamp → {year, month, day} */
-  toTimeObj: function(tsMs) {
-    var d = new Date(tsMs);
-    return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
-  },
-
-  /** lightweight-charts 로드 대기 (CDN 비동기 로드 대응) */
-  whenReady: function(callback, maxWaitMs) {
-    maxWaitMs = maxWaitMs || 10000;
-    var start = Date.now();
-    var poll = function() {
-      if (typeof LightweightCharts !== 'undefined') { callback(); return; }
-      if (Date.now() - start > maxWaitMs) {
-        if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'lightweight-charts load timeout');
-        return;
-      }
-      setTimeout(poll, 100);
-    };
-    poll();
-  },
-
-  /** v48.24: Chart.js API 호환성 래퍼 — legacy chart consumers가 destroy/resize 호출해도 작동
-   * @param {Object} lwcResult - createLineChart/createMultiLineChart 반환 객체
-   * @param {Element} [hiddenCanvas] - 숨긴 canvas 요소 (복원용)
-   * @param {Element} [lwcContainer] - LWC 컨테이너 div (제거용)
-   */
-  createCompatWrapper: function(lwcResult, hiddenCanvas, lwcContainer) {
-    if (!lwcResult) return null;
-    return {
-      _isLWC: true,  // feature detect용
-      _lwc: lwcResult,
-      data: { labels: [], datasets: [{ data: [] }] },  // Chart.js compat shape (최소)
-      options: {},
-      update: function(mode) {
-        // Chart.js chart.update() 호환 — LWC는 setData/update가 시리즈 레벨이므로 noop
-        // 호출 시 내부 데이터 갱신이 이미 series.setData()로 완료된 상태 가정
-      },
-      resize: function() {
-        // ResizeObserver가 자동 처리하지만 명시 resize 요청 시 컨테이너 크기 기반 재설정
-        try {
-          if (lwcContainer && lwcResult.chart) {
-            lwcResult.chart.resize(lwcContainer.clientWidth, lwcContainer.clientHeight);
-          }
-        } catch(_){}
-      },
-      destroy: function() {
-        try { if (lwcResult.destroy) lwcResult.destroy(); } catch(_){}
-        try { if (lwcContainer && lwcContainer.parentElement) lwcContainer.parentElement.removeChild(lwcContainer); } catch(_){}
-        try { if (hiddenCanvas) hiddenCanvas.style.display = ''; } catch(_){}
-      }
-    };
-  },
-
-  /** v48.24: canvas 요소를 숨기고 옆에 LWC 컨테이너 div 생성 — HTML 변경 없이 전환 */
-  wrapCanvas: function(canvasEl, height) {
-    if (!canvasEl || !canvasEl.parentElement) return null;
-    var containerId = 'lwc-' + (canvasEl.id || 'chart') + '-' + Date.now();
-    var container = document.createElement('div');
-    container.id = containerId;
-    container.className = 'lwc-chart-container';
-    var h = height || parseInt(canvasEl.style.height) || canvasEl.clientHeight || 140;
-    container.style.width = '100%';
-    container.style.height = h + 'px';
-    canvasEl.parentElement.insertBefore(container, canvasEl);
-    canvasEl.style.display = 'none';
-    return container;
-  },
-
-  /** v48.24: MM/DD 라벨 → ISO (YYYY-MM-DD) 변환 — lightweight-charts time 포맷 */
-  monthDayToISO: function(labels, baseYear) {
-    baseYear = baseYear || new Date().getFullYear();
-    return labels.map(function(lbl) {
-      var parts = lbl.split('/');
-      if (parts.length !== 2) return lbl;
-      var m = parseInt(parts[0], 10);
-      var d = parseInt(parts[1], 10);
-      if (isNaN(m) || isNaN(d)) return lbl;
-      return baseYear + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
-    });
-  },
-
-  /** v48.24: feature flag 체크 — localStorage 또는 AIO.charts.useFallback 기반 */
-  shouldUseLWC: function() {
-    try {
-      if (typeof LightweightCharts === 'undefined') return false;
-      if (window.AIO && window.AIO.charts && window.AIO.charts.useFallback) return false;
-      if (localStorage.getItem('aio_charts_fallback') === '1') return false;
-      return true;
-    } catch(_){ return false; }
-  }
-};
 
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
@@ -16758,12 +16522,6 @@ window.AIO_ROUTE_REGISTRY = window.AIO_ROUTE_REGISTRY || {
 // P1137/R623: NAV_ROUTE is the canonical 20 minus the derived-view and reference classes — derived, not re-listed.
 window.AIO_ROUTE_REGISTRY.classes.NAV_ROUTE = (window.AIO_ALL_ROUTE_PAGE_IDS || []).filter(function(id) { var c = window.AIO_ROUTE_REGISTRY.classes; return (c.DERIVED_VIEW || []).indexOf(id) < 0 && (c.REFERENCE || []).indexOf(id) < 0; });
 
-var _initFundamentalPage = function() {
-  if (typeof _fundRecentSearches === 'function') { try { _fundRecentSearches(); } catch(e) {} }
-  // The native entity slice fills the default surface from the bounded SEC projection.
-  // Multi-source ticker analysis is intentionally user-triggered: route entry must not
-  // consume network/API budgets or imply that one hardcoded company is the user's context.
-}
 
 // v59.07: the guide chapter layout (_aioPolishRemainingPages, v52.89 P704) runs from src/ui/pages/guide.js on mount.
 
@@ -16788,12 +16546,11 @@ var _safePageInitGlobal = function(pageId, fn) {
   } catch(e) { if (typeof _aioLog === 'function') _aioLog('error', 'page-init', pageId + ' init failed: ' + e.message); }
 }
 // P1339: b7bce36b nulled PAGES[route].init and orphaned these initializers (macro calendar/FRED/KR badges,
-// briefing strip, fundamental recent searches; guide chapters since v59.07 in guide.js). One page-shown hook restores them without PAGES.init.
+// briefing strip; guide chapters since v59.07 in guide.js, retired fundamental recent searches removed v59.52).
 // 2026-10-26: the macro initializer left with the 거시 · 금리 renderers (src/ui/components/macro-next-release.js).
 _aioPageBus.register('core-page-init-rewire', 'aio:pageShown', function(e) {
   var id = e && e.detail;
   if (id === 'briefing') _safePageInitGlobal('briefing', _initBriefingPage);
-  else if (id === 'fundamental') _safePageInitGlobal('fundamental', _initFundamentalPage);
 });
 
 // v48.14: aio:pageShown dedup guard (Agent C2/P1-1 대응)

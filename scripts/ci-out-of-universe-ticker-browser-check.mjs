@@ -25,7 +25,7 @@ mkdirSync(out, { recursive: true });
 const nowMs = Date.now();
 const CIK = { UFPT: '0000914156', MLI: '0000089439' };
 const universe = new Set((JSON.parse(readFileSync(resolve(root, 'public-data/screener-universe.json'), 'utf8')).universe || []).map((row) => String(row.sym || row.symbol || '').toUpperCase()));
-for (const sym of ['UFPT', 'HALO', 'MLI']) if (universe.has(sym)) throw new Error(`${sym} joined the published universe; pick another out-of-universe fixture symbol`);
+for (const sym of ['UFPT', 'HALO', 'MLI', 'BUFX']) if (universe.has(sym)) throw new Error(`${sym} joined the published universe; pick another out-of-universe fixture symbol`);
 const charts = {
   UFPT: chartFixture('UFPT', { nowMs, name: 'UFP Technologies', start: 180, drift: 0.0012 }),
   HALO: chartFixture('HALO', { nowMs, name: 'Halozyme Therapeutics', start: 45, drift: 0.0004, wave: 0.09 }),
@@ -34,7 +34,9 @@ const charts = {
 const listing = listingFixture([
   { symbol: 'UFPT', name: 'UFP Technologies, Inc. - Common Stock', exchange: 'Q', etf: 'N', cik: CIK.UFPT },
   { symbol: 'HALO', name: 'Halozyme Therapeutics, Inc. - Common Stock', exchange: 'Q', etf: 'N' },
-  { symbol: 'MLI', name: 'Mueller Industries, Inc. Common Stock', exchange: 'N', etf: 'N', cik: CIK.MLI }
+  { symbol: 'MLI', name: 'Mueller Industries, Inc. Common Stock', exchange: 'N', etf: 'N', cik: CIK.MLI },
+  // v59.54 (run-6 #11): listed, no quote fixture and no registry name, like FB (a ProShares ETF, not Facebook).
+  { symbol: 'BUFX', name: 'Fixture Dynamic Buffer ETF', exchange: 'Z', etf: 'Y' }
 ]);
 const sec = {
   [CIK.UFPT]: { facts: companyFactsFixture({ cik: CIK.UFPT, name: 'UFP Technologies', revenue: [400e6, 504e6], netIncome: [44e6, 59e6], equity: [300e6, 360e6], shares: 7.7e6 }),
@@ -122,6 +124,12 @@ try {
       check(hero.chartEnd === hero.record.sessionDate || hero.chartEnd > hero.record.sessionDate, `${label}: UFPT chart did not render the fixture series (v57.81)`, hero);
       check(/랭킹 대상 밖 종목/.test(hero.context || ''), `${label}: the AI company context lacks the on-demand placement (v57.81)`, hero.context);
       check(hero.registered === false, `${label}: the company analysis must not call an on-demand row a registered universe row (v57.81)`, hero.registered);
+      // v59.54 (run-6 #11): a listed symbol no registry names shows the official listing name, not only its letters.
+      await page.evaluate(() => window.showTicker('BUFX'));
+      const bufx = await page.waitForFunction(() => /Fixture Dynamic Buffer ETF/.test(document.getElementById('ticker-hero-fullname')?.textContent || ''), null, { timeout: 15000 }).then(() => true).catch(() => false);
+      check(bufx, `${label}: an unregistered listed symbol must show its official listing name (v59.54)`, await page.evaluate(() => document.getElementById('ticker-hero-fullname')?.textContent || ''));
+      await page.evaluate(() => window.showTicker('UFPT'));
+      await page.waitForFunction(() => document.getElementById('ticker-out-of-universe')?.dataset.onDemandState === 'ready', null, { timeout: 30000 });
       await layout(page, `${label}/ticker-ufpt`);
       await atomicWriteFile(resolve(out, `browser-${label}-ufpt.png`), await page.screenshot({ fullPage: true }));
       // The section re-renders with each quote event, so the viewport is captured after scrolling to it.

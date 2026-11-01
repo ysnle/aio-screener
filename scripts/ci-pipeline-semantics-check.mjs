@@ -15,14 +15,18 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const dir = join(root, 'scripts/fixtures/pipeline-semantics');
-const onlyAt = process.argv.indexOf('--only');
-const only = onlyAt > -1 ? process.argv[onlyAt + 1] : null;
+const args = process.argv.slice(2);
+const only = args[0] === '--only' ? args[1] : null;
 const load = (rel) => import(pathToFileURL(join(root, rel)));
 const errors = [];
 let total = 0;
 
 const files = existsSync(dir) ? readdirSync(dir).filter((name) => name.endsWith('.mjs')).sort() : [];
 if (!files.length) errors.push('v59.45 pipeline-semantics fixtures exist: scripts/fixtures/pipeline-semantics/*.mjs');
+if (args.length && (args.length !== 2 || args[0] !== '--only' || !only || !files.includes(`${only}.mjs`))) {
+  console.error(`pipeline semantics: --only requires one known area (${files.map((file) => file.slice(0, -4)).join(', ')})`);
+  process.exit(1);
+}
 const seen = new Map();
 for (const file of files) {
   const area = file.replace(/\.mjs$/, '');

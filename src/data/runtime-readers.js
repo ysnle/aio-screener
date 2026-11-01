@@ -9,6 +9,8 @@ import { spxMovingAveragesFromHistory } from '../domain/market/moving-average.js
 import { historyFieldSessionDate } from '../domain/market/history-session.js';
 import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
 import { finiteNumber as finite } from '../domain/shared/number.js';
+import { resolveHoldingInput } from '../domain/ticker/resolve-name.js';
+import { listingCurrency } from '../domain/portfolio/fx.js';
 
 // Native runtime readers.  These readers are deliberately kept in the data
 // layer so route providers do not depend on the legacy compatibility facade.
@@ -694,16 +696,20 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
       if (locked) return { holdings: [], holdingsKnown: false, cash: null, cashKnown: false, readState: 'locked', privacy: 'opt-in', status: 'locked', updatedAt: null };
       const positions = hasPositionsFn ? root.getPortfolioData() : [];
       const live = readLive();
+      const holdingRegistry = { entries: root?.AIO_TICKER_NAME_REGISTRY?.entries, krStockDb: root?.KR_STOCK_DB,
+        universe: root?._aioGetCanonicalScreenerRows?.() || root?.SCREENER_DB || [], krToYahoo: root?.krTickerToYahoo };
       const holdings = Array.isArray(positions) ? positions.map((position) => {
         const symbol = String(position?.ticker || position?.symbol || position?.sym || '').toUpperCase();
         const shares = Number(position?.qty ?? position?.shares);
         const avgCost = Number(position?.cost ?? position?.avgCost);
-        const quote = quoteObservation(root, symbol, now());
+        const listingSymbol = resolveHoldingInput(symbol, holdingRegistry).listingSymbol;
+        const quote = quoteObservation(root, listingSymbol || symbol, now());
         return { symbol, shares: Number.isFinite(shares) ? shares : null, avgCost: Number.isFinite(avgCost) ? avgCost : null, price: quote.value != null && quote.value > 0 ? quote.value : null, dailyPct: quote.pct, quoteObservedAt: quote.observedAt, fetchedAt: quote.fetchedAt, revisionId: quote.revisionId, changeBasis: quote.changeBasis, sourceKind: quote.sourceKind, sourceTier: quote.sourceTier, allowedUse: quote.allowedUse, allowedUseCeiling: quote.allowedUseCeiling, quality: quote.quality, rightsId: quote.rightsId, quoteEnvelopeComplete: quote.envelopeComplete, decisionEligible: quote.decisionEligible, blockedReasons: quote.decisionEligible ? [] : ['quote-envelope-not-decision-eligible'], sector: position?.sector || null, target: optionalPrice(position?.target), targetWeight: optionalNumber(position?.targetWeight), memo: position?.memo || '', addedAt: position?.addedAt || null, updatedAt: position?.updatedAt || null, source: quote.source || 'native-runtime-vault',
           // E3/P1181 (11 P11-02): 통화는 합산의 단위다 — reader가 지우면 downstream의 mixed 판정이
           // 영원히 발화하지 않는다. 시세 통화는 선언 우선·quote 차선으로 보존하고, 원가 통화는
           // 선언만 읽되 없으면 null(USD로 추정하지 않는다).
-          currency: String(position?.currency || position?.priceCurrency || quote.currency || '').trim().toUpperCase() || null,
+          listingSymbol,
+          currency: String(position?.currency || position?.priceCurrency || quote.currency || (listingSymbol && listingSymbol !== symbol ? listingCurrency(listingSymbol) : '') || '').trim().toUpperCase() || null,
           costCurrency: String(position?.costCurrency || '').trim().toUpperCase() || null };
       }).filter((item) => item.symbol) : [];
       // v57.81: cash is one balance per currency (src/data/portfolio-cash.js). A legacy single value is read as one

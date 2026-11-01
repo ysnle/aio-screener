@@ -1,6 +1,7 @@
 // P1438: 포트폴리오's lead block — value share by trend state (one stacked bar), sector weights coloured
 // by rotation quadrant, and the reading that ties the book to the market.
 import { buildPortfolioRead } from '../../domain/portfolio/portfolio-read.js';
+import { readRowNumber } from '../../data/contracts/screener.js';
 import { readMarketRegime } from './market-regime.js';
 import { renderNextSteps } from './page-flow.js';
 import { benchmarkRowFor, indexReturns } from '../../domain/market/benchmarks.js';
@@ -132,13 +133,14 @@ export function renderPortfolioRead({ documentRef: doc, root, surface }) {
   if (Array.isArray(root?._aioPortfolioOnDemandRows) && root._aioPortfolioOnDemandRows.length) rows = [...rows, ...root._aioPortfolioOnDemandRows];
   const history = root?._aioHistory || [];
   const spy = rows.find((row) => row?.sym === 'SPY') || null;
+  const spyReturn = readRowNumber(spy, 'ret3m', 'calculation');
   // P1466: US holdings are measured against SPY's adjusted return (dividends included, the same basis
   // as the stocks' and sector ETFs' returns); KRX holdings against the KOSPI/KOSDAQ price index.
   const marketReturnFor = (symbol) => {
     const bench = benchmarkRowFor(symbol, history);
-    if (bench.market === 'US' && spy?.ret3m != null && spy.ret3m !== '' && Number.isFinite(Number(spy.ret3m))) {
+    if (bench.market === 'US' && spyReturn != null) {
       // E02: null is missing, not 0% return. X01 (2026-10-13): this return once sat inside the comment, so SPY was never used.
-      return { ret3m: Number(spy.ret3m), label: 'S&P 500(SPY, 배당 포함)', asOf: spy.factorSessionDate || null };
+      return { ret3m: spyReturn, label: 'S&P 500(SPY, 배당 포함)', asOf: spy.factorSessionDate || null };
     }
     return bench;
   };

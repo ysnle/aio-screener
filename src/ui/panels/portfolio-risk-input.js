@@ -13,7 +13,7 @@ import { finiteNumber as finite } from '../../domain/shared/number.js';
 // about which company a symbol is. The listing rule lives in domain/portfolio/fx.js (P1418).
 export function holdingPriceCurrency(position, evidence = null) {
   const declared = String(position?.currency || position?.priceCurrency || evidence?.currency || '').trim().toUpperCase();
-  return declared || listingCurrency(position?.ticker);
+  return declared || listingCurrency(position?.listingSymbol || position?.ticker);
 }
 
 export function assembleRiskEstimateInput({

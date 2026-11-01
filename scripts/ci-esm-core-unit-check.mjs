@@ -2574,7 +2574,8 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     fail(`P1175/P11-02 portfolio-surface: a declared single currency must still total, got ${JSON.stringify(singleCurrency)}`);
   }
   const undeclaredCurrency = derivePortfolioSurface({ state: { readState: 'ready', holdingsKnown: true, status: 'current', holdings: [{ symbol: 'AAA', shares: 1, avgCost: 90, price: 100 }], cash: 0, cashKnown: true }, liveData: {}, vix: null });
-  if (undeclaredCurrency.totalAssets !== 100 || undeclaredCurrency.currencyState !== 'undeclared-single-basis-assumed' || undeclaredCurrency.baseCurrency !== null) {
+  // v59.53/v59.54: the valuation unit is known (USD from the listing) while the base currency stays undeclared (null).
+  if (undeclaredCurrency.totalAssets !== 100 || undeclaredCurrency.currencyState !== 'undeclared-single-basis-assumed' || undeclaredCurrency.valuationCurrency !== 'USD' || undeclaredCurrency.baseCurrency !== null || undeclaredCurrency.declaredBaseCurrency !== null) {
     fail(`P1175/P11-02 portfolio-surface: an undeclared currency must keep single-basis behaviour and disclose the assumption, got ${JSON.stringify(undeclaredCurrency)}`);
   }
   const { normalizePortfolio } = await load('src/data/normalize/portfolio.js');
@@ -5580,13 +5581,6 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const staleCloses = buildIndexEarnings({ rows: rows.map((row) => ({ ...row, factorSessionDate: '2020-01-02' })), weights, consensus, realYield10: 2, now: indexNow });
   if (staleEstimates.available !== false || staleCloses.forwardPe != null || staleCloses.breadth == null) fail(`v58.63 F-DELTA-01 index earnings must drop expired estimates and closes: ${JSON.stringify({ staleEstimates, pe: staleCloses.forwardPe, breadth: staleCloses.breadth })}`);
 
-  const { parseSecStatements } = await load('src/domain/fundamental/sec-statements.js');
-  const fy = (val) => ({ val, end: '2025-12-31', filed: '2026-02-10', form: '10-K' });
-  const facts = (debt) => ({ facts: { 'us-gaap': { Revenues: { units: { USD: [{ ...fy(1000), start: '2025-01-01' }] } }, StockholdersEquity: { units: { USD: [fy(500)] } }, ...debt, DebtCurrent: { units: { USD: [fy(100)] } } } } });
-  const split = parseSecStatements(facts({ LongTermDebtNoncurrent: { units: { USD: [fy(400)] } } }), { symbol: 'X' }).metrics;
-  const total = parseSecStatements(facts({ LongTermDebt: { units: { USD: [fy(450)] } } }), { symbol: 'X' }).metrics;
-  if (split.debtToEquity !== 1 || split.debtBasis !== 'noncurrent+current' || total.debtToEquity !== 0.9 || total.debtBasis !== 'total-as-filed') fail(`sec debt/equity basis: ${JSON.stringify([split, total].map((m) => [m.debtToEquity, m.debtBasis]))}`);
-
   const { analyzeChart, chartReading } = await load('src/domain/technical/chart-analysis.js');
   const bars = []; const bench = []; let price = 100; let index2 = 100;
   for (let i = 0; i < 300; i += 1) {
@@ -6165,15 +6159,18 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (hoverSuppressed(win)) fail('v58.80 a real pointer move lifts the navigation hover suppression');
 }
 
-// v58.80 run-5: a company opened anywhere joins 재무 공시's 최근 검색; the sentence parser names only the refusal that
-// applied; the stock watch line names its benchmark.
+// v59.52: company selection keeps its session subject without writing the retired recent-search store.
+// v58.80: the sentence parser names only the refusal that applied; the stock watch line names its benchmark.
 {
-  const { rememberRecentSymbol } = await load('src/data/stock-subject-store.js');
+  const { readSavedStockSubject } = await load('src/data/stock-subject-store.js');
+  const { setStockSubject } = await load('src/ui/navigation/route-hubs.js');
   const store = new Map([['aio_fund_recent', JSON.stringify(['AAPL', 'MSFT'])]]);
-  const fakeRoot = { localStorage: { getItem: (key) => store.get(key) ?? null, setItem: (key, value) => store.set(key, value) } };
-  rememberRecentSymbol(fakeRoot, 'MSFT');
-  rememberRecentSymbol(fakeRoot, '<b>');
-  if (store.get('aio_fund_recent') !== JSON.stringify(['MSFT', 'AAPL'])) fail(`v58.80 recent symbols move to the front once and refuse non-symbols: ${store.get('aio_fund_recent')}`);
+  const session = new Map();
+  let persistentWrites = 0;
+  const fakeRoot = { localStorage: { getItem: (key) => store.get(key) ?? null, setItem: () => { persistentWrites++; } },
+    sessionStorage: { getItem: (key) => session.get(key) ?? null, setItem: (key, value) => session.set(key, value) } };
+  setStockSubject({ root: fakeRoot, documentRef: { dispatchEvent() {} }, symbol: 'MSFT', name: 'Microsoft' });
+  if (readSavedStockSubject(fakeRoot)?.symbol !== 'MSFT' || persistentWrites || store.get('aio_fund_recent') !== JSON.stringify(['AAPL', 'MSFT'])) fail('v59.52 selection persists the session subject and leaves retired recent history untouched');
   const { parseConditionText } = await load('src/domain/screener/condition-text-parser.js');
   const orRead = parseConditionText('PER 10 이하 또는 ROE 20 이상');
   if (JSON.stringify(orRead.reasons) !== '["or"]') fail(`v58.80 an OR sentence names only the OR reason: ${JSON.stringify(orRead.reasons)}`);

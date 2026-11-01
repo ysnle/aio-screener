@@ -20,6 +20,7 @@ import { SCENARIO_STATE_CURRENT } from '../src/domain/scenarios/theme-stage.js';
 import { choiceName } from '../src/domain/guide/market-guide.js';
 import { withDirectionParticle } from '../src/domain/content/korean-particle.js';
 import { LESSON_BY_ID } from '../src/domain/guide/lessons.js';
+import { scenarioLead } from '../src/domain/market/scenario-lead.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PD = (name) => path.join(ROOT, 'public-data', name);
@@ -76,13 +77,14 @@ export function diffSnapshots(previous, current, at) {
   const push = (kind, text) => out.push({ at, kind, text });
   const titleOf = (id, snap) => short(snap.crossroads?.items?.find((item) => item.id === id)?.title) || id;
   const p = previous.crossroads || {}, c = current.crossroads || {};
-  // v59.51 (run-6): inside a tie the lead id is only a sort order; a swap between two tied branches is not a change, and
-  // a tie has no alternative to record.
-  const tied = new Set(c.tiedIds || []);
-  const insideTie = tied.size >= 2 && tied.has(p.leadId) && tied.has(c.leadId);
-  if (insideTie) { /* the tie is the state; nothing moved */ }
-  else if (p.leadId !== c.leadId) push('lead', c.leadId ? `가장 맞는 시나리오가 '${p.leadId ? titleOf(p.leadId, previous) : '판단 보류'}'에서 ${withDirectionParticle(`'${titleOf(c.leadId, current)}'`)} 바뀌었습니다.` : '조건을 확인할 관측이 부족해 중심 시나리오 판단을 보류합니다.');
-  else if (p.altId !== c.altId && c.altId) push('alt', `대안 시나리오가 ${withDirectionParticle(`'${titleOf(c.altId, current)}'`)} 바뀌었습니다.`);
+  // Snapshots keep the lead fields without the live model's availability flag. Compare the same leader sets the
+  // screens read: order inside a tie is immaterial, entering/leaving it or changing its members is a real transition.
+  const beforeLead = scenarioLead({ ...p, available: true }), afterLead = scenarioLead({ ...c, available: true });
+  const leadChanged = [...beforeLead.ids].sort().join('|') !== [...afterLead.ids].sort().join('|');
+  if (leadChanged) {
+    if (afterLead.state === 'tie') push('lead', `조건 충족 동률 시나리오가 ${afterLead.names.join(' · ')}입니다(직전: ${beforeLead.names.join(' · ') || '판단 보류'}).`);
+    else push('lead', c.leadId ? `가장 맞는 시나리오가 ${beforeLead.names.join(' · ') || "'판단 보류'"}에서 ${withDirectionParticle(`'${titleOf(c.leadId, current)}'`)} 바뀌었습니다.` : '조건을 확인할 관측이 부족해 중심 시나리오 판단을 보류합니다.');
+  } else if (afterLead.state === 'lead' && p.altId !== c.altId && c.altId) push('alt', `대안 시나리오가 ${withDirectionParticle(`'${titleOf(c.altId, current)}'`)} 바뀌었습니다.`);
   const before = new Map((p.items || []).map((item) => [item.id, item]));
   for (const item of c.items || []) {
     const old = before.get(item.id);

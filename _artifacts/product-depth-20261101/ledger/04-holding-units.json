@@ -1,0 +1,26 @@
+{
+  "version": "v59.53",
+  "date": "2026-11-01",
+  "qa_section": "기존 기능과 콘텐츠의 의미·사용성",
+  "p": {
+    "title": "한국 보유 코드의 시세 키와 통화 분리로 원화 값을 USD로 합산·표시",
+    "symptom": "저장된 005930과 005930.KS 시세 키는 화면에서 연결되지만 통화 reader는 bare 코드를 USD로 읽었다. 100000원과 200달러가 $100200으로 합산됐고 원화 단독 단위도 표시 단계에서 USD로 떨어질 수 있었다.",
+    "root_cause": "보관용 issuer key와 상장 시세 key의 변환이 화면에만 있었고 runtime reader·통화·상장지역에는 공유되지 않았다. 미확인 단독 통화도 합산을 허용했다.",
+    "fix": "정확한 등록부에서 listingSymbol을 함께 해석해 reader·시세 조회·통화·상장지역이 공유한다. 저장 키는 보존하며 미등록 숫자 코드는 거래소·USD를 추정하지 않는다. 단위 미확인 합계는 보류하고 유효 평가 통화와 사용자 선언 통화를 구분한다.",
+    "verification": "portfolio 회귀 수정 전 실패, 수정 후 26건 PASS. 등록 KRX 두 시장·미등록·단독 미확인·혼합 보류·명시 환율 변환 300을 검사. 실제 005930.KS 추가 경로의 손익 헤더 USD→KRW 확인(실제 시세는 로컬 미수신). esm-core PASS.",
+    "violated_rule": "C4 공용 의미와 단일 소유권, 데이터 정직성, 사용자 가치 우선",
+    "prevention": "보유 저장 키와 등록된 상장 시세 키·통화를 함께 읽고, 통화 미확인과 환산 없는 혼합 합계를 만들지 않는다 — node scripts/ci-pipeline-semantics-check.mjs --only portfolio"
+  },
+  "qa": [
+    {
+      "id": "QA-HOLDING-LISTING-UNIT-01",
+      "text": "보유 저장 키와 등록된 상장 시세 키·통화를 함께 읽고, 통화 미확인과 환산 없는 혼합 합계를 만들지 않는다",
+      "verify_by": "node scripts/ci-pipeline-semantics-check.mjs --only portfolio",
+      "done": true
+    }
+  ],
+  "changelog": [
+    "**한국 보유 코드의 시세 키와 통화 분리로 원화 값을 USD로 합산·표시 ({P}):** 정확한 등록부에서 listingSymbol을 함께 해석해 reader·시세 조회·통화·상장지역이 공유한다. 저장 키는 보존하며 미등록 숫자 코드는 거래소·USD를 추정하지 않는다. 단위 미확인 합계는 보류하고 유효 평가 통화와 사용자 선언 통화를 구분한다."
+  ],
+  "note": "v59.53: 포트폴리오 통화·ETF 분류, 시장 온도 의미, 리서치 읽기 포커스와 사용자 콘텐츠 접근 구조 개선"
+}

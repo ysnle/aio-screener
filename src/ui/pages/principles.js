@@ -597,11 +597,21 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
         else if (params.mode === 'frames' || !params.mode) { state.view = 'frames'; state.frameId = null; state.openGroup = 'frames'; }
         syncSharedState({ push });
         render();
-        queueMicrotask(() => page.querySelector('.rl-main')?.scrollIntoView({ block: 'start', behavior: 'auto' }));
+        queueMicrotask(() => {
+          const main = page.querySelector('.rl-main');
+          main?.scrollIntoView({ block: 'start', behavior: 'auto' });
+          main?.focus({ preventScroll: true });
+        });
       };
 
       function render() {
         if (!isAlive()) return;
+        // v59.53: asynchronous content hydration must preserve the reader's current place and keyboard context.
+        const active = documentRef.activeElement;
+        const readingFocused = active === content.querySelector('.rl-main');
+        const action = content.contains(active) ? active?.closest?.('[data-principles-action]') : null;
+        const focusAction = action?.dataset.principlesAction;
+        const focusValue = action?.dataset.principlesValue;
         if (state.view === 'concept' && !state.conceptStories && !state.conceptStoriesLoading) {
           state.conceptStoriesLoading = true;
           import('../../domain/knowledge/concept-stories.js').then((module) => { state.conceptStories = module.CONCEPT_STORIES; render(); }).catch(() => {});
@@ -623,6 +633,9 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
         if (arrival) shell.querySelector('.rl-main')?.prepend(arrival);
         markLessonAuthoring(shell);
         content.replaceChildren(shell);
+        if (readingFocused) shell.querySelector('.rl-main')?.focus({ preventScroll: true });
+        else if (focusAction) [...shell.querySelectorAll('[data-principles-action]')]
+          .find((node) => node.dataset.principlesAction === focusAction && node.dataset.principlesValue === focusValue)?.focus({ preventScroll: true });
       }
 
       // v57.48 expert review #21: each lesson states its own document's authoring status and review date
@@ -684,8 +697,11 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
           event.preventDefault();
           syncSharedState({ push: ['frame', 'concept', 'story-chapter', 'select-lesson', 'select-node'].includes(action) });
           render();
-          if (['frame', 'concept', 'story-chapter', 'select-lesson'].includes(action)) queueMicrotask(() => page.querySelector('.rl-main')?.scrollIntoView({ block: 'start', behavior: 'auto' }));
-          if (action === 'story-chapter') queueMicrotask(() => page.querySelector('.principles-narrative-title')?.focus({ preventScroll: true }));
+          if (['frame', 'concept', 'story-chapter', 'select-lesson'].includes(action)) queueMicrotask(() => {
+            const main = page.querySelector('.rl-main');
+            main?.scrollIntoView({ block: 'start', behavior: 'auto' });
+            main?.focus({ preventScroll: true });
+          });
         }
       };
       page.addEventListener('click', onClick);

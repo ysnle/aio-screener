@@ -2330,10 +2330,7 @@
 
     // v58.19: T561(generateMacroStoryline) 제거 — 함수가 퇴역해 typeof 분기로만 통과했다.
 
-    var chartGuardSrc = window.AIO && window.AIO.charts && window.AIO.charts.createLineChart ? window.AIO.charts.createLineChart.toString() : '';
-    _assert('T562 lightweight_chart_disposal_guard_v4971: removed charts are not resized/updated again',
-      chartGuardSrc.indexOf('disposed') >= 0 && typeof window._itbSafeRemoveChart !== 'function', // v57.76: the brief mini-chart remover left with the brief
-      'disposed=' + (chartGuardSrc.indexOf('disposed') >= 0) + ' briefRemover=' + (typeof window._itbSafeRemoveChart));
+    // v59.54: T562 retired with window.AIO.charts (the lightweight-charts helpers had no caller left).
 
     var fxbond2yText = (document.querySelector('#page-fxbond [data-snap-date="tnx-2y"]') || {}).parentElement;
     fxbond2yText = fxbond2yText ? fxbond2yText.textContent : '';
@@ -6235,7 +6232,7 @@
         broad825.recentSuppressed >= 1 &&
         maxSector825 <= 3 &&
         specific825 && specific825.mode !== 'diversified-recommendation' &&
-        /균형 추천 후보/.test(prompt825) && /반복|분산|다양/.test(prompt825) &&
+        broad825.purpose === 'comparison' && /반복|분산|다양/.test(prompt825) &&
         // P1239/E2 S-E: recent-recommendation extraction moved into the shared screener helper.
         csSrc825.indexOf('_aioBuildScreenerAiContext') >= 0 &&
         typeof window._aioBuildScreenerAiContext === 'function' &&
@@ -6248,7 +6245,7 @@
         recentSuppressed:broad825 && broad825.recentSuppressed,
         maxSector:maxSector825,
         specificMode:specific825 && specific825.mode,
-        promptOk:/균형 추천 후보/.test(prompt825),
+        promptOk:broad825 && broad825.purpose === 'comparison',
         chatWire:csSrc825.indexOf('_aioBuildScreenerAiContext') >= 0
       });
     } catch(e) { t825detail = 'ERR:' + e.message; }
@@ -6262,26 +6259,19 @@
       var pGeneral826 = (typeof window._aioChatAnswerPolicy === 'function') ? window._aioChatAnswerPolicy('PER이 뭐야?', 'home', [], null) : null;
       var pScreener826 = (typeof window._aioChatAnswerPolicy === 'function') ? window._aioChatAnswerPolicy('종목 추천해줘', 'home', [], broad826) : null;
       var pDecision826 = (typeof window._aioChatAnswerPolicy === 'function') ? window._aioChatAnswerPolicy('NVDA 지금 매수해도 돼?', 'home', ['NVDA'], null) : null;
-      var csSrc826 = typeof window.chatSendUnified === 'function' ? window.chatSendUnified.toString() : ''; // v57.62: per-page chatSend retired
-      var fetchSrc826 = typeof window._fetchTickerDataForChat === 'function' ? window._fetchTickerDataForChat.toString() : '';
-      var prompt826 = broad826 && typeof window._formatScreenerResultPrompt === 'function' ? window._formatScreenerResultPrompt(broad826) : '';
+      var modes826 = [pGeneral826, pScreener826, pDecision826].map(function(policy) { return window.AIO.chooseAnswerMode(policy); });
       t826ok = !!(pGeneral826 && pGeneral826.needsGeneralGuide && !pGeneral826.needsFullStockMemo &&
         pScreener826 && pScreener826.needsScreenerGuide && !pScreener826.needsFullStockMemo &&
         pDecision826 && pDecision826.needsFullStockMemo &&
-        csSrc826.indexOf('_aioChatAnswerPolicy(q, ctxId, detectedTickers, _uniScreenerResult)') >= 0 &&
-        csSrc826.indexOf('chooseAnswerMode(_uniPolicy)') >= 0 &&
-        csSrc826.indexOf('answerModeGuide(_uniMode)') >= 0 &&
-        fetchSrc826.indexOf('_forceScenarioAnswer') >= 0 &&
-        fetchSrc826.indexOf('Bull/Base/Bear·기관 프레임을 강제하지 말라') >= 0 &&
-        prompt826.indexOf('더 넓은 탐색') >= 0);
+        modes826.join(',') === 'explain,screen,decision');
       t826detail = JSON.stringify({
         general:pGeneral826,
         screener:pScreener826,
         decision:pDecision826,
-        promptFlexible:prompt826.indexOf('더 넓은 탐색') >= 0
+        modes:modes826
       });
     } catch(e) { t826detail = 'ERR:' + e.message; }
-    _assert('T826 v57.62 chat_policy_flexibility: unified answer mode follows the question policy without over-forcing stock-report structure', t826ok, t826detail);
+    _assert('T826 v59.52 chat_policy_flexibility: unified answer mode follows the question policy without over-forcing stock-report structure', t826ok, t826detail);
 
     // T827: v50.59 무티커 차트 질문도 시장 대표 OHLCV 기술 컨텍스트를 사용하고 출처 레지스트리에 노출
     var t827ok = false, t827detail = '';

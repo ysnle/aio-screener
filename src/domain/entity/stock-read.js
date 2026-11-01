@@ -319,14 +319,12 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   const relative3 = spans.find((span) => span.key === 'ret3m');
   // 2026-10-13 review S07: a factor file older than the market's latest completed session says so in the headline.
   const lagSessions = finite(sessionLag?.sessions);
+  // v59.54: the lede is the trend and one index comparison. The 52-week position is the '위치' tile and the sector's
+  // rotation is the 'sector' point, so the lede no longer stacks four figures the card repeats below it.
   const headline = [
     lagSessions != null && lagSessions > 0 ? `${lagSessions}거래일 전 종가 기준${sessionLag?.session ? `(${Number(String(sessionLag.session).slice(5, 7))}/${Number(String(sessionLag.session).slice(8, 10))})` : ''}` : null,
     trend ? trend.label : null,
-    position != null ? `52주 범위 ${Math.round(position * 100)}% 지점` : null,
-    relative3?.gap != null ? `3개월 지수 대비 ${signed(relative3.gap, 1, '%p')}` : null,
-    // v58.80 run-5 (skeptic #6): '섹터 후행' beside the stock's own +32%p did not say whose lag; it is the sector ETF's
-    // rotation against the S&P 500.
-    sector?.quadrant ? `섹터${sector.etf ? `(${sector.etf})` : ''} 지수 대비 ${sector.quadrant.headLabel}` : null
+    relative3?.gap != null ? `최근 3개월 지수 대비 ${signed(relative3.gap, 1, '%p')}` : null
   ].filter(Boolean).join(', ');
   // v57.55 review (8o): an ETF has no filings to read and no sector peers — its links say so.
   const fund = /^ETF$/i.test(String(row.sector || ''));

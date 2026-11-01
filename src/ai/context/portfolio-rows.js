@@ -13,5 +13,5 @@ export function portfolioRowsLine(root = globalThis) {
   }).join(', ');
   if (!snap?.available) return line;
   const cash = snap.cashPct != null ? `, 현금 ${snap.cashPct}%${snap.cashCurrencies?.length ? `(${snap.cashCurrencies.join('·')}${snap.cashBasis ? `, ${snap.cashBasis} 환산` : ''})` : ''}` : '';
-  return `${line} [기준 통화 ${snap.baseCurrency || '미선언'}, 평가 기준일 ${snap.asOf || '미확인'}, 비중은 현금 포함 총자산 대비${cash}]`;
+  return `${line} [기준 통화 ${snap.baseCurrency || (snap.valuationCurrency ? `미선언(종목 상장 통화 ${snap.valuationCurrency}로 계산)` : '미선언')}, 평가 기준일 ${snap.asOf || '미확인'}, 비중은 현금 포함 총자산 대비${cash}]`;
 }

@@ -1,0 +1,15 @@
+{
+  "version": "v59.52", "date": "2026-11-01", "qa_section": "v59 변경 재검토",
+  "p": {
+    "title": "AI 종목 검색이 정본 지표의 사용 제한과 기준일을 버림",
+    "symptom": "RSI MISSING·BLOCKED_RIGHTS·STALE인 종목도 RSI 30 미만에 포함되고 차단 수치가 AI 문맥에 다시 나타났다. 분산 후보 점수와 시총 분류도 원시 값을 썼다.",
+    "root_cause": "screener-query의 필터·점수·정렬이 row의 원시 값을 읽고, 결과 투영이 fieldReadiness를 제거해 출력 단계의 readRowNumber까지 무력화했다.",
+    "fix": "필터·정렬·시총 분류는 readRowNumber(calculation)를 사용한다. 결과에 readiness와 factorSessionDate를 보존하고, 표시 가능한 오래된 참고 값은 상태와 기준일을 AI에 함께 전달한다. 임의 분산 점수는 별도 구조 수정으로 제거했다.",
+    "violated_rule": "C8 결측은 값이 아니다, C10 한 지표에는 한 원천과 한 표시 owner",
+    "prevention": "pipeline-semantics ai에서 CURRENT 양성 대조와 MISSING·UNSUPPORTED·BLOCKED_RIGHTS·STALE·LAST_GOOD·CONFLICT를 필터·시총 분류·출력·정렬에 대조한다.",
+    "verification": "node scripts/ci-pipeline-semantics-check.mjs --only ai: 새 사례는 수정 전 MISSING에서 실패, 수정 후 통과. 유료 AI 호출 없음."
+  },
+  "qa": [{ "id": "QA-AI-SCREENER-READINESS-01", "text": "AI 종목 검색은 정본 지표의 calculation/display 허용 상태와 기준일을 보존한다", "verify_by": "node scripts/ci-pipeline-semantics-check.mjs --only ai", "done": true }],
+  "changelog": ["**AI 종목 검색의 지표 계약 ({P}):** 차단·결측·오래된 수치로 현재 조건을 충족시키던 경로를 고쳤다. 참고 값은 상태·기준일을 함께 전달한다."],
+  "note": "v59.52: v59 변경 재검토 — AI 지표 계약·초안 보존, 추세 비중, 시나리오 전환, 의미 검사 선택 수정"
+}

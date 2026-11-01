@@ -283,7 +283,7 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
   };
   // v57.81: the portfolio entry box shares this owner — it had its own narrower hand list and rejected universe symbols (SPCX).
   window._aioResolveHoldingInput = (raw) => resolveHoldingInput(raw, { entries: window.AIO_TICKER_NAME_REGISTRY?.entries, krStockDb: window.KR_STOCK_DB,
-    universe: typeof window._aioGetCanonicalScreenerRows === 'function' ? window._aioGetCanonicalScreenerRows() || [] : [] });
+    universe: typeof window._aioGetCanonicalScreenerRows === 'function' ? window._aioGetCanonicalScreenerRows() || [] : [], krToYahoo: window.krTickerToYahoo });
   // v57.81: cash is one balance per currency (원화 현금 · 달러 현금). Storage shape and the legacy single-value migration are
   // owned by src/data/portfolio-cash.js; the shell reads, writes and re-renders through this one bridge.
   window._pfPortfolioCash = {

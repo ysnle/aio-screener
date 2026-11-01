@@ -10,6 +10,16 @@ const rotation = (daily, session = '2026-10-22') => ({ schemaVersion: 'rotation-
 const ELEVEN = { XLP: 3.3, XLU: 2.1, XLV: 1.3, XLF: 1.1, XLRE: 1.1, XLB: 0.7, XLY: -0.5, XLE: -0.9, XLI: -1, XLC: -1.4, XLK: -3.3 };
 
 export const cases = [
+  { id: 'v59.53', name: 'price temperature describes opposing extremes without calling them an ordinary range', run: async ({ load }) => {
+    const { temperatureStateLabel, temperatureStateText } = await load('src/ui/components/market-temperature.js');
+    const mixed = { state: 'none', cold: 2, hot: 2, components: [5, 5, 95, 95, 50].map((score) => ({ score })) };
+    assert.match(temperatureStateText(mixed), /^냉각·과열 혼재/);
+    assert.equal(temperatureStateLabel(mixed), '냉각·과열 혼재');
+    assert.equal(temperatureStateLabel({ state: 'none', cold: 1, hot: 0 }), '일부 냉각');
+    assert.equal(temperatureStateLabel({ state: 'none', cold: 0, hot: 0 }), '극단 요소 없음');
+    assert.equal(temperatureStateLabel({ state: 'cold', cold: 3, hot: 0 }), '강한 냉각');
+    assert.equal(temperatureStateLabel({ state: 'hot', cold: 0, hot: 3 }), '강한 과열');
+  } },
   { id: 'RUN6-SMH-01', name: 'the money-flow SMH move is the completed history close the 주도 영역 line prints, not a later rotation bar', run: async ({ load }) => {
     const { buildMarketFlow } = await load('src/domain/market/market-flow.js');
     const { sessionMove } = await load('src/domain/market/leadership-verdict.js');

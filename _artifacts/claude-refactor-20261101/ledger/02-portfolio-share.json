@@ -1,0 +1,14 @@
+{
+  "version": "v59.52", "date": "2026-11-01", "qa_section": "v59 변경 재검토", "note": "v59.52: AI 비교 표본 재설계·지표 계약·초안 보존, 추세 비중·시나리오 전환·의미 검사 선택 수정",
+  "p": {
+    "title": "작은 추세 비중을 보유 종목 없음으로 표시",
+    "symptom": "하락 종목 비중이 0.01%면 첫 문장은 내리는 흐름인 종목이 없다고 말하면서 다음 링크는 그 하락 종목을 지목했다.",
+    "root_cause": "v59.51의 쉬운 문장이 0.5% 미만을 실제 0과 같은 없음으로 바꿨다. 선 근처·조정·반등의 작은 비중도 숨겼다.",
+    "fix": "실제 0일 때만 없음이라고 말하고 0~1% 사이 양수는 1% 미만으로 표시한다. 조정·반등 비중은 잔차 대신 해당 구간을 합쳐 부동소수점 잔차를 종목으로 읽지 않는다.",
+    "violated_rule": "C7 읽는 문장은 관측과 근거만 말한다",
+    "prevention": "pipeline-semantics portfolio에서 9999:1 구성의 상승·하락·선 근처·조정과 실제 하락 0을 대조한다.",
+    "verification": "node scripts/ci-pipeline-semantics-check.mjs --only portfolio: 수정 전 tiny down 사례 실패, 수정 후 통과."
+  },
+  "qa": [{ "id": "QA-PORTFOLIO-TINY-TREND-01", "text": "포트폴리오의 양수 추세 비중은 반올림 후에도 없음으로 바뀌지 않는다", "verify_by": "node scripts/ci-pipeline-semantics-check.mjs --only portfolio", "done": true }],
+  "changelog": ["**포트폴리오 작은 비중 ({P}):** 1% 미만의 추세 비중을 종목 없음으로 표시하지 않는다. 실제 0과 작은 양수를 구분한다."]
+}

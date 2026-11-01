@@ -30,7 +30,7 @@ export function derivePortfolioChecks({ surface = null, assetTypeOf = () => null
   const rows = Array.isArray(surface?.rows) ? surface.rows : [];
   // Shares need one unit: a currency mix without a declared rate is held, not summed.
   if (surface?.currencyState === 'mixed-without-conversion') {
-    return Object.freeze({ model: PORTFOLIO_CHECKS_MODEL_VERSION, status: 'unavailable', reason: 'currency-unconverted', excluded: rows.length, checks: Object.freeze([]), breakdowns: Object.freeze({}) });
+    return Object.freeze({ model: PORTFOLIO_CHECKS_MODEL_VERSION, status: 'unavailable', reason: surface.currencyHeldReason === 'unknown-unit' ? 'currency-unknown' : 'currency-unconverted', excluded: rows.length, checks: Object.freeze([]), breakdowns: Object.freeze({}) });
   }
   const valued = rows.filter((row) => finite(row?.value) != null && finite(row.value) > 0);
   const excluded = rows.length - valued.length;
@@ -48,7 +48,7 @@ export function derivePortfolioChecks({ surface = null, assetTypeOf = () => null
   const currencyOf = (row) => String(row.convertedFrom || row.currency || '').toUpperCase() || listingCurrency(symbolOf(row)) || '통화 미확인';
   const byHolding = shares(valued.map((row) => [symbolOf(row), finite(row.value)]), invested);
   const byCurrency = shares(valued.map((row) => [currencyOf(row), finite(row.value)]), invested);
-  const byRegion = shares(valued.map((row) => [listingRegion(symbolOf(row)), finite(row.value)]), invested);
+  const byRegion = shares(valued.map((row) => [listingRegion(row.listingSymbol || symbolOf(row)), finite(row.value)]), invested);
   const byType = shares(valued.map((row) => [assetTypeOf(symbolOf(row)) || '미분류', finite(row.value)]), invested);
   const bySector = shares(valued.map((row) => [sectorOf(symbolOf(row)) || row.sector || '미분류', finite(row.value)]), invested);
   const top = byHolding[0];
@@ -95,7 +95,7 @@ export function derivePortfolioChecks({ surface = null, assetTypeOf = () => null
   return Object.freeze({
     model: PORTFOLIO_CHECKS_MODEL_VERSION,
     status: 'current',
-    currency: surface?.baseCurrency || null,
+    currency: surface?.valuationCurrency || null,
     excluded,
     invested,
     checks: Object.freeze(checks.map((check) => Object.freeze(check))),

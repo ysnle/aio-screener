@@ -34,6 +34,20 @@ import { stockLensContext, renderStockContext, renderStockStrengths, installStoc
 import { isIsoDay } from '../../domain/shared/session-date.js';
 
 // 2026-10-13 review S21: observation times read in Korean time, not "… 20:00:00 UTC".
+
+// The official US listing name for a symbol none of AIO's registries name; cached per symbol, written once it arrives.
+function usListingNameFor(root, documentRef, id, state) {
+  if ((state?.name && state.name !== id) || typeof root?._aioCheckUsListing !== 'function' || root?._aioIsKnownTicker?.(id)) return null;
+  const names = (root._aioListingNames ||= {});
+  if (id in names) return names[id];
+  names[id] = null;
+  Promise.resolve(root._aioCheckUsListing(id)).then((listing) => {
+    if (listing?.listed !== true || !listing.name) return;
+    names[id] = listing.name;
+    if (String(root._currentTickerId || '').toUpperCase() === id) setText(documentRef, 'ticker-hero-fullname', listing.name);
+  }).catch(() => {});
+  return null;
+}
 export function formatKstStamp(value) {
   const ms = Date.parse(value || '');
   if (!Number.isFinite(ms)) return null;
@@ -144,8 +158,11 @@ function renderTickerHero(documentRef, state, root) {
   const registryName = isKr ? root?.KR_STOCK_DB?.[String(id).slice(0, 6)]?.name || null : null;
   const krName = isKr ? (registryName || (state?.name && state.name !== id ? state.name : null)) : null;
   setText(documentRef, 'ticker-hero-name', krName || id || '종목 분석');
+  // v59.54 (first-users run-6 #11): a symbol outside AIO's registries showed only its letters, so FB read as Facebook when the
+  // listed FB is a ProShares ETF. The official listing's name (already loaded for the listed/not-listed check) names it.
+  const listingName = !isKr && id ? usListingNameFor(root, documentRef, id, state) : null;
   setText(documentRef, 'ticker-hero-fullname', id
-    ? (krName ? id : (state?.name || (state?.id ? id : `${root?._currentTickerName || id}, ${root?._aioEntitySummaryStatus?.[id] === 'unavailable' ? '시세를 불러오지 못했습니다' : '시세 불러오는 중'}`)))
+    ? (krName ? id : (state?.name && state.name !== id ? state.name : listingName || (state?.id ? id : `${root?._currentTickerName || id}, ${root?._aioEntitySummaryStatus?.[id] === 'unavailable' ? '시세를 불러오지 못했습니다' : '시세 불러오는 중'}`)))
     : '종목을 검색하세요');
   // P1317: a KRX listing (.KS/.KQ) trades only in KRW — the venue, not a guess, fixes the quote currency.
   // P1689: a fallback quote can arrive without a currency; use one already observed for this symbol (live envelope or

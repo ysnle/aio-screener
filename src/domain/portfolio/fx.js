@@ -40,10 +40,12 @@ const LISTING_MARKETS = Object.freeze([
 // a currency is declared. A one-letter A–E suffix stays a US share class (BRK.B, BF.B).
 const FOREIGN_SUFFIX = /\.(?:[A-Z]{2,}|[F-Z])$/i;
 export function listingCurrency(ticker) {
+  if (/^\d+$/.test(String(ticker || ''))) return null; // v59.53: an unresolved numeric code is not a US listing
   const listed = LISTING_MARKETS.find(([pattern]) => pattern.test(String(ticker || '')));
   return listed ? listed[1] : FOREIGN_SUFFIX.test(String(ticker || '')) ? null : 'USD';
 }
 export function listingRegion(ticker) {
+  if (/^\d+$/.test(String(ticker || ''))) return '상장 시장 미확인';
   const listed = LISTING_MARKETS.find(([pattern]) => pattern.test(String(ticker || '')));
   return listed ? listed[2] : FOREIGN_SUFFIX.test(String(ticker || '')) ? '기타 해외 상장' : '미국 상장';
 }

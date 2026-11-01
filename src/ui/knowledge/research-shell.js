@@ -315,6 +315,9 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
   const nav = el(doc, 'nav', 'rl-nav');
   nav.setAttribute('aria-label', `${page.title} 목차`);
   const main = el(doc, 'div', 'rl-main');
+  main.tabIndex = -1;
+  main.setAttribute('role', 'region');
+  main.setAttribute('aria-label', '선택한 문서');
   const aside = el(doc, 'aside', 'rl-aside');
   aside.setAttribute('aria-label', '연결');
   grid.append(nav, main, aside);

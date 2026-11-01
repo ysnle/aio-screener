@@ -1,0 +1,32 @@
+{
+  "runId": "2026-11-01T04-32-04-265Z-19196-9m22sf",
+  "counts": {
+    "PASS": 157,
+    "CACHED": 9,
+    "FAIL": 4
+  },
+  "browserAndHeadlessGates": 33,
+  "browserAndHeadlessStatuses": {
+    "PASS": 33
+  },
+  "semantics": "pipeline semantics: 203 case(s) passed across 12 area(s)",
+  "headless": "[ci-headless-tests] selection=shard=1/1 groups=111/111 [AIO TEST] 결과: 1091/1091 PASS | ✓ ALL PASS",
+  "failures": [
+    {
+      "id": "data-refresh",
+      "reason": "| A1 | DATA_SNAPSHOT / durable market artifact | 2026-10-31T13:49:32.114Z | 0.61 | daily | STALE | revision=market-snapshot:2026-10-31T13:49:32.114Z:3d9b15a7 attemptedRevision=market-snapshot:2026-10-31T13:49:32.114Z:3d9b15a7 attempt=published; SLA=12h |"
+    },
+    {
+      "id": "data-lineage",
+      "reason": "     FAIL: artifact exceeded freshness SLA (14.72h > 12h)"
+    },
+    {
+      "id": "watchdog-web-research",
+      "reason": "Error: AAII automated collection has not succeeded within 12h: 2026-10-31T11:21:07.880Z\r"
+    },
+    {
+      "id": "watchdog-data-refresh",
+      "reason": "| A1 | DATA_SNAPSHOT / durable market artifact | 2026-10-31T13:49:32.114Z | 0.62 | daily | STALE | revision=market-snapshot:2026-10-31T13:49:32.114Z:3d9b15a7 attemptedRevision=market-snapshot:2026-10-31T13:49:32.114Z:3d9b15a7 attempt=published; SLA=12h |"
+    }
+  ]
+}

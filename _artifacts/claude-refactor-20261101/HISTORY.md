@@ -1,0 +1,66 @@
+# v59 source history
+
+Base: b65e770f4891f1cf5e3ec032379978624b2f8629
+
+Head: 824503118c47d76f4827ecd511ab2a23b575d5fc
+
+- 3190907f v59.50-51: recurrence ratchets, two-layer content restructure of every screen (P2167-P2177, R734)
+- a9825f31 v59.48-49: failure-ledger pass, session sweep gate, review fixes, boot trim (P2157-P2166, R733)
+- 88139db3 v59.47: boundary contract stages 2-3, session-based factor currency, SEC projection record defaults (P2156)
+- 46bad2f6 v59.45–46: pipeline-review fixes, owner decisions, shared primitives, boundary contract stage 1
+- 6b8e33c4 v59.44: home order, regime cap, AI follow-ups, news/macro briefs, X bookmarks 10/30, screener cash conditions
+- cf7278a7 v59.44: shorter midterm schedule line (home secondary-text budget blocked CI and deploy)
+- 069e748b v59.44: reasons search on open outlets, drop "not found" lines, rebuild English headlines
+- 2eacb459 v59.44: news by weight, AI supply chain, company stories for all AI-chain names
+- 5054971a test(v59.43): FOMC statement URL check follows the registry's decision day (P2135)
+- e2af5a7c fix(v59.43): T905 reads the FOMC registry date; home election line within text budget
+- 9968467a feat: company stories, X bookmarks 10/28, event briefs, news/legacy fixes, FOMC unblock (v59.43)
+- fb302da0 v59.42 P2122: trend flip point labels use ASCII minus
+- 4c7c58ca v59.42: review contract, news selection to src, legacy cleanup, company-profile pilot
+- 457b6fbb v59.41: roadmap 11 layer 5 — score entry points moved to src
+- d8243d06 v59.40: roadmap 11 layer 5 — trader profiles moved to src
+- f24e2c49 v59.39: Pages release provenance accepts its own run reported as queued (P2112)
+- 94ccd17f v59.38: retire the v51.67 delta display that had no target elements
+- 75928bfd v59.37: live change sign follows the printed digits — no -0.00% on home (P2111)
+- f6b79438 v59.36: roadmap 11 layer 4 — boot sequence moved to src/app/boot-sequence.js
+- 09e5dcd8 v59.35: roadmap 11 layer 4 — public readiness model moved to src/data/public-readiness.js
+- 3cfbf70a v59.34: roadmap 11 layer 4 — server data loader moved to src/data/server-data-loader.js
+- 8cb95d9f v59.33: roadmap 11 layer 4 — refresh scheduler moved to src/app/refresh-scheduler.js
+- 8a7f69cb v59.32: renumber live-quote enablement (main took v59.31)
+- a86bbbb3 merge origin/main (v59.31 news cache) before renumbering live quotes to v59.32
+- ded83165 v59.31: turn on live quotes (owner rights decision, no 7-day wait)
+- 33e24903 v59.30: roadmap 11 vault — AioVault cryptography moved to src/storage/vault-crypto.js
+- 77a1acbd v59.29: roadmap 11 layer 3 — direct Telegram collector moved to src/data/providers/telegram-direct.js
+- a495cfd6 v59.28: roadmap 11 layer 3 — Naver KR collector moved to src/data/providers/naver-kr.js
+- 4ac3bcd0 restore batch changes lost in the generated-file merge, regenerate v59.27 surfaces
+- c894ac02 merge origin/main (v59.26 Naver US collector) and renumber this batch to v59.27
+- fa0c4f36 renumber to v59.27 (main took v59.26)
+- cacc14dc v59.26: remove user/operator friction — AI $20 as target, no-input manual redeploys, consent once per device, persisted ops window
+- 3b7bcfaa ci-headless-tests: a body the page read in full is not a failed request
+- 8fa9fa45 merge origin/main
+- ff5d5eb2 v59.25 review: a newly reported or corrected EPS changes the after-hours reuse key
+- db02a4d9 v59.24–v59.25: stale WTI lead fix (P2109) + after-hours lane for the market reading
+- bd9e7bde v59.23: a late timeout no longer aborts an artifact response queued behind a long task (P2108)
+- 54ec8f4e v59.22: move the relay transport to src/data/providers/proxy-transport.js (roadmap 11, layer 3)
+- 734c6fee v59.21: cash save keeps the typed amount (P2106); screener run archive reloads after a cut-short read (P2107)
+- 6c73670f v59.20: one owner for the data-status chip and the stale banner (roadmap 11, layer 2)
+- 2133bf48 v59.19: move the freshness engine to src/data/quality/freshness-engine.js (roadmap 11, layer 2)
+- 12bbf1cb v59.18: move the source-health state to src/data/quality/api-health.js (roadmap 11, layer 2)
+- 8735cb03 v59.17: move the data validation stores to src; keep a pre-filled question in the lazy AI panel (P2105)
+- ff0f10cb v59.16: take js/aio-chat.js out of the boot scripts (roadmap 11, layer 1 chat)
+- be2985e2 v59.15: move the AI request/response pipeline out of js/aio-chat.js (roadmap 11, layer 1 chat)
+- 4fc8e3e0 v59.14: move the boot-time helpers out of js/aio-chat.js (roadmap 11, layer 1 chat)
+- 15945c30 v59.12: move the 재무 공시 search out of js/aio-chat.js (roadmap 11, layer 1 chat)
+- 346cb7ca v59.11: renumber the shared AI transport move (#110) after v59.10 family-code removal; drop family-code bits from the moved module
+- f2ec2ff2 merge origin/main (v59.10 family-code removal) into the shared AI transport move
+- 28a3a909 v59.10: move the shared AI transport out of js/aio-chat.js (roadmap 11, layer 1 chat)
+- efc4ee44 v59.09: record PR #108 (telegram coverage needs three healthy channels; failing channel is a warning) as change-only
+- 4703b992 External pipeline check: one failing Telegram channel is a warning, not a red release
+- 91a8c3d9 v59.08: legacy decomposition 8/8 (screener) and trend-chart label overlap fix
+- c5e72a09 v59.07: legacy decomposition 7/8 (research/guide) — guide chapter layout to src
+- 44a13872 v59.06: legacy decomposition 6/8 (portfolio, part 4) — watchlist view to src
+- d96197ae v59.05: legacy decomposition 6/8 (portfolio, part 3) — risk metrics panel to src
+- 9da1f011 v59.04: legacy decomposition 6/8 (포트폴리오, part 2) — exposure/stress panels moved to src/
+- de4c0c6d v59.03: legacy decomposition 6/8 (포트폴리오, part 1) — backtest lab renderer moved to src/
+- fba69e00 v59.02: legacy decomposition 5/8 (종목, part 2) — fenced hero P&L/after-hours fallbacks deleted
+- 7b06e8cd v59.01: legacy decomposition 5/8 (종목, part 1) — ticker factor fold moved to src/

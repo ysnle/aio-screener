@@ -4266,7 +4266,7 @@ async function chatSendUnified(_aioDispatchOptions) {
             sysPrompt += _wrapUnifiedExternal('SCREENER_RESULT', _uniScreenerStr, { maxChars: 10000 });
           if (_uniScreenerResult.mode === 'diversified-recommendation') {
             sysPrompt += '\n\n[통합 AI 패널 추천 편향 방지]\n' +
-              '스크리너 후보군을 사용할 때는 특정 테마/기업 반복을 피하고 최소 3개 섹터·스타일 관점으로 분산해 답하라. CEG/전력/AVGO가 후보군에 있어도 반드시 대안과 제외 조건을 함께 제시하라.\n';
+              '스크리너 표본은 투자 우선순위가 아니다. 특정 테마/기업을 반복하지 말고 여러 섹터·스타일의 조건과 차이를 비교하라. 최종 종목을 대신 고르지 말고, 사용자가 비교 범위와 기준을 정하도록 설명하라.\n';
           }
         }
       } catch(se2) { _aioLog('warn', 'fetch', '통합 AI 스크리너 질의 실패: ' + se2.message); }

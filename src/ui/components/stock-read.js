@@ -232,6 +232,11 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   const host = doc?.getElementById('ticker-read');
   if (!host) return null;
   const sym = String(symbol || '').trim().toUpperCase();
+  // v59.52: a quote refresh updates this symbol's facts without discarding the reader's disclosure choice.
+  // A different symbol starts closed; its expert reading is a different document.
+  const previousFold = host.dataset.aioStockReadSymbol === sym ? host.querySelector(':scope > details.stock-read-fold') : null;
+  const foldOpen = !!previousFold?.open;
+  const focusFold = !!previousFold && doc.activeElement === previousFold.querySelector(':scope > summary');
   host.dataset.aioStockReadRenderer = 'native';
   // Run-5 (newcomer #8): the late repaints below (on-demand row, 13F, scenario state) re-render with the latest route state;
   // their own closures held the click-time state, so a repaint after the SEC record arrived put the 재무 tile back on loading.
@@ -368,11 +373,13 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   const restated = read.points.filter((point) => charted.has(point.id) || tiled.has(point.id));
   if (reading.length || restated.length) {
     const fold = el(doc, 'details', null, 'stock-read-fold sx-disclosure v2-stock-fold');
+    fold.open = foldOpen;
     fold.append(el(doc, 'summary', '자세히 — 섹터·테마, 시장, 공시와 각 수치의 근거'));
     const list = el(doc, 'ul', null, 'stock-read-points');
     [...reading, ...restated].forEach((point) => list.append(item(point)));
     fold.append(list, el(doc, 'p', `근거, 이동평균 추세(50·200일선), RSI(Wilder 1978), 일평균 변동폭 대비 거리, 데이터, ${basisShort ? `${basisShort} ` : ''}완료 종가, ${read.benchmarkLabel} 같은 기간${fundamentals?.form ? `, SEC ${fundamentals.form}` : ''}`, 'sx-evidence v2-stock-evidence'));
     host.append(fold);
+    if (focusFold) fold.querySelector(':scope > summary')?.focus({ preventScroll: true });
   }
   if (onDemand) host.append(outOfUniverseBlock(doc, root, onDemand));
   // The 요약 · 차트 · 재무 tabs sit above the page; the next links name only other screens.

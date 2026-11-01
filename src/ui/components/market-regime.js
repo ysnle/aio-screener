@@ -306,10 +306,8 @@ function axisRow(doc, root, row, { history, scenarios, previous, inputs, asOf, o
   // A previous state rebuilt from partial inputs (prev.partial) is not shown as a flip.
   const prevShown = prev && !prev.partial ? prev : null;
   const prevText = prevShown ? (prevShown.state === row.state ? `${prevShown.stateLabel}, 같음` : `${prevShown.stateLabel} → ${row.stateLabel}`) : '—';
-  const rule = el(doc, 'span', row.flip || '—', 'mk-axis__rule');
-  if (row.flip) rule.title = row.flip;
   summary.append(name, el(doc, 'span', row.stateLabel, `sx-chip sx-chip--sm sx-chip--${TONE[row.state] || 'neutral'} mk-axis__state`),
-    el(doc, 'span', faceValue(row) || '최신 관측 없음', 'mk-axis__value'), rule, distanceCell(doc, row),
+    el(doc, 'span', faceValue(row) || '최신 관측 없음', 'mk-axis__value'), distanceCell(doc, row),
     el(doc, 'span', prevText, `mk-axis__prev${prevShown && prevShown.state !== row.state ? ' is-changed' : ''}`),
     el(doc, 'span', fiveDayChange(row.id, inputs, asOf) || '—', 'mk-axis__d5'));
   card.append(summary);

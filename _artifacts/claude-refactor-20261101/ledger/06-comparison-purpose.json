@@ -1,0 +1,15 @@
+{
+  "version": "v59.52", "date": "2026-11-01", "qa_section": "AI 비교 표본",
+  "p": {
+    "title": "AI 후보 탐색이 임의 점수와 최종 종목 선택 지시로 제품 결정에 충돌",
+    "symptom": "넓은 종목 질문의 문맥이 BUY +18, RSI 구간 가산점, 장중 등락과 시총 가산점을 합쳐 분산점수를 만들고 AI에 최종 3~5개를 고르라고 지시했다.",
+    "root_cause": "R211의 섹터·시장 분산과 반복 방지라는 탐색 목적을 별도 추천 점수로 구현하고, 이후 R724의 종목을 대신 고르지 않는 결정과 대조하지 않았다. 기존 T825 검사는 추천 문구의 존재를 요구해 의도 불일치를 유지했다.",
+    "fix": "독립 점수 모델을 제거한다. 최근 다룬 종목을 뒤로 미루고 심볼순과 섹터·시장 범위로 비교 표본을 구성해 정본 rank가 표본 선택을 지배하지 않게 한다. purpose=comparison과 표본의 범위·비대표성을 명시하고 AI의 종목 선정 지시와 특정 종목 앵커를 조건 비교·근거 부족 설명으로 바꾼다. T825는 비교 목적, T826는 실제 설명·스크리닝·판단 검토 모드를 검사한다.",
+    "violated_rule": "R211 본문은 diversified candidate list for research, never a recommendation이며 R724는 종목을 대신 고르지 않는다. C4 한 의미 한 구현, C7 검증 안 된 합산 금지.",
+    "prevention": "pipeline-semantics ai에서 원시 RSI·시총·장중 등락·BUY 편집 라벨·rank·입력 순서를 바꿔도 비교 표본이 재채점되지 않는지, 여러 섹터와 반복 억제를 유지하는지, 분산점수와 최종 종목 선택 지시가 없는지 확인한다.",
+    "verification": "node scripts/ci-pipeline-semantics-check.mjs --only ai: 수정 전 comparison 목적 assertion 실패, 수정 후 20건 통과. 응답 생성/유료 AI 호출은 하지 않았다."
+  },
+  "qa": [{ "id": "QA-AI-COMPARISON-PURPOSE-01", "text": "넓은 종목 질문은 임의 추천 점수 없이 분산 비교 표본과 조건별 차이를 제공한다", "verify_by": "node scripts/ci-pipeline-semantics-check.mjs --only ai", "done": true }],
+  "changelog": ["**AI 후보 탐색의 목적 정리 ({P}):** 별도 추천 점수와 최종 3~5개 종목 선정 지시를 없앴다. 심볼순·섹터·시장 분산·반복 방지로 비교 표본을 만들고 사용자가 조건을 정하도록 설명한다. 정본 rank·입력 순서가 바뀌어도 같은 비교 표본이며 통계적 대표 표본을 뜻하지 않는다."],
+  "note": "v59.52: AI 비교 표본 재설계·지표 계약·초안 보존, 추세 비중·시나리오 전환·의미 검사 선택 수정"
+}

@@ -2,12 +2,13 @@
 // (it came there from js/aio-chat.js in v51.17). The functions are pure: the caller passes the canonical screener rows
 // (already ranked by the native screener orchestrator), the live quote map and the keyword aliases. The legacy chat
 // keeps calling the same window names, which src/app/compatibility-globals.js binds to these functions.
-// Behaviour is unchanged except that no second ranking run happens here: the rows arrive ranked from the screen's own
-// run, so the old "rank on demand" fallback (a duplicate of the native ranking) is gone.
+// The rows arrive ranked from the screen's own run; there is no second factor-ranking model here. A broad comparison
+// sample uses symbol order instead of rank, so membership does not imply investment priority.
 
 import { listingCurrency } from '../../domain/portfolio/fx.js';
 import { formatScreenerPrice } from '../../domain/screener/market-scope.js';
-import { readRowNumber } from '../../data/contracts/screener.js';
+import { readLiveQuotePrice, readRowNumber } from '../../data/contracts/screener.js';
+import { keywordHit } from '../../domain/news/keyword-match.js';
 
 // v59.45 (pipeline review P13-SCREEN-01): a row copied quote.price and dropped its currency, and the prompt put "$" on every
 // price, so Samsung read "가격 $70000.00". A quote keeps its own currency (the listing's when the quote declares none; an
@@ -56,10 +57,13 @@ const SECTOR_INTENT_PATTERNS = ['비교','추천','찾아','뽑아','골라','�
 const rowList = (rows) => (Array.isArray(rows) ? rows : []);
 
 // Longest keyword wins, as before (a "소프트웨어" question is not read as the shorter "IT").
-function longestSectorMatch(lower) {
+function longestSectorMatch(text) {
+  const lower = String(text || '').toLowerCase();
   let matched = null, matchedKey = '';
   Object.keys(SECTOR_KEYWORDS).forEach((kw) => {
-    if (lower.indexOf(kw.toLowerCase()) >= 0 && (!matched || kw.length > matchedKey.length)) { matched = SECTOR_KEYWORDS[kw]; matchedKey = kw; }
+    // The acronym IT is meaningful as typed, unlike the lowercase English pronoun.
+    if (kw === 'IT' && !/\bIT\b/.test(String(text))) return;
+    if (keywordHit(lower, kw) && (!matched || kw.length > matchedKey.length)) { matched = SECTOR_KEYWORDS[kw]; matchedKey = kw; }
   });
   return { matched, matchedKey };
 }
@@ -67,11 +71,11 @@ function longestSectorMatch(lower) {
 export function detectSectorQuery(text, { rows = [] } = {}) {
   const lower = String(text || '').toLowerCase();
   if (!SECTOR_INTENT_PATTERNS.some((p) => lower.indexOf(p) >= 0)) return null;
-  const { matched, matchedKey } = longestSectorMatch(lower);
+  const { matched, matchedKey } = longestSectorMatch(text);
   if (!matched) return null;
   const stocks = rowList(rows)
     .filter((s) => matched.some((sec) => s.sector === sec))
-    .sort((a, b) => (b.mcap || 0) - (a.mcap || 0)).slice(0, 8);
+    .sort((a, b) => (readRowNumber(b, 'mcap', 'calculation') || 0) - (readRowNumber(a, 'mcap', 'calculation') || 0)).slice(0, 8);
   return stocks.length > 0 ? { sectorLabel: matchedKey, stocks } : null;
 }
 
@@ -114,6 +118,17 @@ export function extractRecentRecommendationTickers(messages, { rows = [] } = {})
   } catch (_) { return []; }
 }
 
+// v59.54: the sample order is a hash of the symbol and the day, not alphabetical order, which handed every broad question
+// the same first names in each sector. It carries no score: the same day and rows give the same sample whatever the rank
+// or input order, and the next day draws another one.
+function sampleOrder(sym, day) {
+  let hash = 2166136261;
+  for (const ch of `${day}|${sym}`) hash = Math.imul(hash ^ ch.charCodeAt(0), 16777619);
+  return hash >>> 0;
+}
+
+// The exported name and result mode are kept for the classic chat bridge. This is a coverage sample for comparison,
+// not a recommendation model: a day-seeded order, names not already discussed first; never invent a rating.
 export function buildDiversifiedRecommendationRows(rows, live, opts) {
   opts = opts || {}; live = live || {};
   const recent = {};
@@ -128,28 +143,24 @@ export function buildDiversifiedRecommendationRows(rows, live, opts) {
     return true;
   }).map((s) => {
     const ld = live[s.sym] || {};
-    const rank = (typeof s.rank === 'number') ? s.rank : 50;
-    const signalScore = ({ BUY: 18, WATCH: 8, HOLD: 2 })[s.signal] || 0;
-    const rsi = Number(s.rsi);
-    const rsiScore = Number.isFinite(rsi) ? (rsi >= 35 && rsi <= 62 ? 5 : rsi > 75 ? -12 : rsi < 25 ? -6 : 0) : 0;
-    const capScore = Math.min(10, Math.max(0, Math.log10(Math.max(1, Number(s.mcap || 1))) * 2));
+    const mcap = readRowNumber(s, 'mcap', 'calculation');
     const pct = (ld && ld.pct != null && Number.isFinite(Number(ld.pct))) ? Number(ld.pct) : null;
-    const liveScore = pct == null ? 0 : Math.max(-5, Math.min(5, pct));
-    const repeatPenalty = recent[s.sym] ? 25 : 0;
-    const score = rank + signalScore + rsiScore + capScore + liveScore - repeatPenalty;
     return {
       sym: s.sym, name: s.name, sector: s.sector, signal: s.signal, mcap: s.mcap, rsi: s.rsi,
+      fieldReadiness: s.fieldReadiness, factorSessionDate: s.factorSessionDate,
       rank: (typeof s.rank === 'number' ? s.rank : null), quantSignal: s.quantSignal || null, factorScores: s.factorScores || null,
       ret3m: (typeof s.ret3m === 'number' ? s.ret3m : null), vol: (typeof s.vol === 'number' ? s.vol : null),
       ...quoteFields(s.sym, ld), pct, memo: (s.memo || '').slice(0, 90),
-      market: inferTickerMarket(s.sym, s.index), capBucket: capBucket(s.mcap), diversityScore: Math.round(score), repeatPenalty
+      market: inferTickerMarket(s.sym, s.index), capBucket: capBucket(mcap), repeated: !!recent[s.sym]
     };
-  }).sort((a, b) => b.diversityScore - a.diversityScore);
+  });
+  const day = opts.sampleDay || new Date().toISOString().slice(0, 10);
+  eligible.sort((a, b) => Number(a.repeated) - Number(b.repeated) || sampleOrder(a.sym, day) - sampleOrder(b.sym, day) || a.sym.localeCompare(b.sym, 'en'));
 
   // P626-followup/T825: count the suppressed repeats from the full set, before the non-repeat narrowing below
   // (counting after it always returned 0).
-  const recentSuppressed = eligible.filter((r) => r.repeatPenalty > 0).length;
-  const nonRepeat = eligible.filter((r) => r.repeatPenalty === 0);
+  const recentSuppressed = eligible.filter((r) => r.repeated).length;
+  const nonRepeat = eligible.filter((r) => !r.repeated);
   if (nonRepeat.length >= 20) eligible = nonRepeat;
 
   function pickRows(sectorLimit, marketLimit, maxRows) {
@@ -180,7 +191,7 @@ export function buildDiversifiedRecommendationRows(rows, live, opts) {
   };
 }
 
-export function runScreenerQuery(query, { rows = [], live = {}, aliases = {}, recentTickers = [] } = {}) {
+export function runScreenerQuery(query, { rows = [], live = {}, aliases = {}, recentTickers = [], sampleDay = null } = {}) {
   try {
     const db = rowList(rows);
     if (!db.length) return null;
@@ -213,12 +224,12 @@ export function runScreenerQuery(query, { rows = [], live = {}, aliases = {}, re
     else if (/중형주|mid\s*-?cap/.test(q)) { crit.mcapMin = 10; crit.mcapMax = 100; labels.push('중형주($10~100B)'); }
     else if (/소형주|small\s*-?cap/.test(q)) { crit.mcapMax = 10; labels.push('소형주(<$10B)'); }
 
-    const { matched: matchedSector, matchedKey: secKey } = longestSectorMatch(q);
+    const { matched: matchedSector, matchedKey: secKey } = longestSectorMatch(query);
 
     let themeTickers = null, themeKey = '';
     const aliasMap = aliases && typeof aliases === 'object' ? aliases : {};
     Object.keys(aliasMap).forEach((kw) => {
-      if (q.indexOf(kw.toLowerCase()) >= 0 && Array.isArray(aliasMap[kw]) && (!themeTickers || kw.length > themeKey.length)) { themeTickers = aliasMap[kw]; themeKey = kw; }
+      if (keywordHit(q, kw) && Array.isArray(aliasMap[kw]) && (!themeTickers || kw.length > themeKey.length)) { themeTickers = aliasMap[kw]; themeKey = kw; }
     });
     if (themeTickers && themeTickers.length && themeKey.length >= secKey.length) {
       crit.themeSet = {}; themeTickers.forEach((t) => { crit.themeSet[t] = true; }); labels.push('테마=' + themeKey);
@@ -237,9 +248,9 @@ export function runScreenerQuery(query, { rows = [], live = {}, aliases = {}, re
     const onlyGenericRank = crit.byRank && labels.length === 1 && !crit.signal && crit.rsiMax == null && crit.rsiMin == null &&
       crit.mcapMin == null && crit.mcapMax == null && !crit.sectors && !crit.themeSet && !crit.index && !crit.dir;
     if (isBroadRecommendation && (labels.length === 0 || onlyGenericRank)) {
-      const diversified = buildDiversifiedRecommendationRows(db, live || {}, { recentTickers });
-      return { matched: true, mode: 'diversified-recommendation',
-        criteria: onlyGenericRank ? ['균형 추천 후보', '퀀트 랭킹 참고'] : ['균형 추천 후보'],
+      const diversified = buildDiversifiedRecommendationRows(db, live || {}, { recentTickers, sampleDay });
+      return { matched: true, mode: 'diversified-recommendation', purpose: 'comparison',
+        criteria: onlyGenericRank ? ['분산 비교 표본', '퀀트 랭킹 참고'] : ['분산 비교 표본'],
         rows: diversified.rows, totalMatched: diversified.totalMatched, diversity: diversified.diversity, recentSuppressed: diversified.recentSuppressed };
     }
 
@@ -249,12 +260,13 @@ export function runScreenerQuery(query, { rows = [], live = {}, aliases = {}, re
     let mcapUnknown = 0;
     const matchedRows = db.filter((s) => {
       if (crit.signal && s.signal !== crit.signal) return false;
-      const rsi = typeof s.rsi === 'number' && Number.isFinite(s.rsi) ? s.rsi : null;
+      const rsi = readRowNumber(s, 'rsi', 'calculation');
       if (crit.rsiMax != null && !(rsi != null && (crit.rsiMaxInclusive !== false ? rsi <= crit.rsiMax : rsi < crit.rsiMax))) return false;
       if (crit.rsiMin != null && !(rsi != null && (crit.rsiMinInclusive !== false ? rsi >= crit.rsiMin : rsi > crit.rsiMin))) return false;
-      if ((crit.mcapMin != null || crit.mcapMax != null) && !knownCap(s.mcap)) { mcapUnknown += 1; return false; }
-      if (crit.mcapMin != null && !(s.mcap >= crit.mcapMin)) return false;
-      if (crit.mcapMax != null && !(s.mcap < crit.mcapMax)) return false;
+      const mcap = readRowNumber(s, 'mcap', 'calculation');
+      if ((crit.mcapMin != null || crit.mcapMax != null) && !knownCap(mcap)) { mcapUnknown += 1; return false; }
+      if (crit.mcapMin != null && !(mcap >= crit.mcapMin)) return false;
+      if (crit.mcapMax != null && !(mcap < crit.mcapMax)) return false;
       if (crit.sectors && !crit.sectors.some((sec) => s.sector === sec)) return false;
       if (crit.index && s.index !== crit.index) return false;
       if (crit.themeSet && !crit.themeSet[s.sym]) return false;
@@ -268,6 +280,7 @@ export function runScreenerQuery(query, { rows = [], live = {}, aliases = {}, re
     }).map((s) => {
       const ld = quotes[s.sym] || {};
       return { sym: s.sym, name: s.name, sector: s.sector, signal: s.signal, mcap: s.mcap, rsi: s.rsi,
+        fieldReadiness: s.fieldReadiness, factorSessionDate: s.factorSessionDate,
         rank: (typeof s.rank === 'number' ? s.rank : null), quantSignal: s.quantSignal || null, factorScores: s.factorScores || null,
         ret3m: (typeof s.ret3m === 'number' ? s.ret3m : null), vol: (typeof s.vol === 'number' ? s.vol : null),
         ...quoteFields(s.sym, ld), pct: ld.pct != null ? ld.pct : null, memo: (s.memo || '').slice(0, 90),
@@ -280,10 +293,10 @@ export function runScreenerQuery(query, { rows = [], live = {}, aliases = {}, re
       if (crit.byRank) return (b.rank == null ? -1 : b.rank) - (a.rank == null ? -1 : a.rank);
       if (crit.dir === 'up') return (b.pct == null ? -999 : b.pct) - (a.pct == null ? -999 : a.pct);
       if (crit.dir === 'down') return (a.pct == null ? 999 : a.pct) - (b.pct == null ? 999 : b.pct);
-      if (crit.rsiMax != null) return (a.rsi == null ? 999 : a.rsi) - (b.rsi == null ? 999 : b.rsi);
-      if (crit.rsiMin != null) return (b.rsi == null ? -999 : b.rsi) - (a.rsi == null ? -999 : a.rsi);
+      if (crit.rsiMax != null) return (readRowNumber(a, 'rsi', 'calculation') ?? 999) - (readRowNumber(b, 'rsi', 'calculation') ?? 999);
+      if (crit.rsiMin != null) return (readRowNumber(b, 'rsi', 'calculation') ?? -999) - (readRowNumber(a, 'rsi', 'calculation') ?? -999);
       if (a.rank != null && b.rank != null) return b.rank - a.rank;
-      return (b.mcap || 0) - (a.mcap || 0);
+      return (readRowNumber(b, 'mcap', 'calculation') || 0) - (readRowNumber(a, 'mcap', 'calculation') || 0);
     });
 
     return { matched: true, criteria: labels, rows: matchedRows.slice(0, 12), totalMatched: matchedRows.length, mcapUnknown };
@@ -299,15 +312,15 @@ export function formatScreenerResultPrompt(result, { rankAsOf = null } = {}) {
   const lines = [];
   const isDiversified = result.mode === 'diversified-recommendation';
   lines.push('═══════════════════════════════════════════════════');
-  lines.push(isDiversified ? '【균형 추천 후보 — AIO 종목 DB 분산 샘플링】' : '【스크리너 결과 — AIO 종목 DB 실시간 필터링】');
+  lines.push(isDiversified ? '【종목 비교 표본 — AIO 종목 DB 분산 샘플링】' : '【스크리너 결과 — AIO 종목 DB 조건 필터링】');
   lines.push('조건: ' + result.criteria.join(' · ') + ' | 매칭 ' + result.totalMatched + '종목 (상위 ' + result.rows.length + ' 표시)' + (result.mcapUnknown ? ' · 시총 확인 안 됨 ' + result.mcapUnknown + '종목은 크기 조건을 판정하지 못해 제외' : ''));
   lines.push('출처: AIO SCREENER_DB(기관 메모·시그널) × 멀티팩터 퀀트 랭크 × 실시간 시세(_liveData) · 생산자 관측시각 ' + ts);
   const fAsOf = rankAsOf ? String(rankAsOf).slice(0, 10) : null;
   lines.push('퀀트 백분위(같은 조건 종목 중 위치, 100점 만점이 아님) = 섹터 상대 멀티팩터: 모멘텀(1/3/6M 수익률)·추세(SMA50/200 대비)·저변동(연율 변동성↓)·사이즈. ' + (fAsOf ? '팩터 기준일 ' + fAsOf : '팩터 데이터 대기 — 시그널/메모는 editorial(애널리스트 노트)') + '.');
   if (isDiversified) {
     const dv = result.diversity || {};
-    lines.push('분산 설계: 섹터 ' + (dv.sectorCount || '?') + '개 · 시장/지역 ' + (dv.marketCount || '?') + '개 · 시총 버킷 ' + (dv.capBucketCount || '?') + '개. 최근 대화 반복 티커는 점수 감점: ' + (result.recentSuppressed || 0) + '개.');
-    lines.push('이 목록은 넓은 "종목 추천" 질문에서 특정 섹터/기업으로 과도하게 수렴하지 않도록 만든 후보군이다. 최종 답변은 이 후보군에서 3~5개만 골라야 하며, 같은 섹터·테마는 최대 2개까지만 선택하라.');
+    lines.push('비교 범위: 섹터 ' + (dv.sectorCount || '?') + '개 · 시장/지역 ' + (dv.marketCount || '?') + '개 · 시총 버킷 ' + (dv.capBucketCount || '?') + '개. 최근 대화에서 다룬 ' + (result.recentSuppressed || 0) + '개 종목은 뒤로 미뤘다.');
+    lines.push('이 목록은 날짜별로 섞은 순서에서 섹터·시장별 표시 수를 제한한 비교 표본이며 매력도나 투자 우선순위가 아니다. 전체 시장을 대표하는 통계 표본도 아니다. 종목을 대신 고르지 말고 비교 기준, 충족한 조건과 미확인 항목을 설명하라.');
   } else {
     lines.push('이 목록은 앱 내부 종목 DB를 실제 필터링·랭킹한 결과다. 학습 데이터로 종목을 추가하거나 임의 변경하지 말고 아래 목록만 사용하라.');
   }
@@ -315,21 +328,26 @@ export function formatScreenerResultPrompt(result, { rankAsOf = null } = {}) {
   // v59.46 boundary contract: the result rows' numbers are read through the screener readiness contract.
   const value = (row, key) => readRowNumber(row, key, 'display');
   result.rows.forEach((r, i) => {
-    const mcap = value(r, 'mcap'), price = value(r, 'price');
+    const mcap = value(r, 'mcap'), live = readLiveQuotePrice(r);
     const rankStr = (r.rank != null) ? ('퀀트 백분위 ' + r.rank + '(' + (r.quantSignal || '') + ')') : '퀀트 N/A';
     const fsStr = r.factorScores ? (' [모멘텀' + r.factorScores.momentum + '·추세' + r.factorScores.trend + '·저변동' + r.factorScores.lowvol + ']') : '';
-    const divStr = isDiversified ? (' · ' + (r.market || 'US') + '/' + (r.capBucket || 'unknown') + ' · 분산점수 ' + (r.diversityScore != null ? r.diversityScore : 'N/A')) : '';
+    const divStr = isDiversified ? (' · ' + (r.market || 'US') + '/' + (r.capBucket || 'unknown')) : '';
     lines.push((i + 1) + '. ' + r.sym + ' (' + r.name + ') · ' + r.sector + divStr + ' · ' + rankStr + fsStr +
       ' · 시그널(editorial) ' + r.signal + ' · 시총 ' + (mcap ? '$' + mcap + 'B' : 'N/A') + ' · RSI ' + fmt(value(r, 'rsi'), 0) +
-      ' · 3M ' + signedPct(value(r, 'ret3m')) + ' · 가격 ' + (price != null ? formatScreenerPrice(price, r.currency || null) + (r.priceObservedAt ? ' (관측 ' + r.priceObservedAt + ')' : '') : 'N/A') + ' (' + signedPct(r.pct) + ')');
+      ' · 3M ' + signedPct(value(r, 'ret3m')) + ' · 가격 ' + (live ? formatScreenerPrice(live.price, r.currency || null) + (live.observedAt ? ' (관측 ' + live.observedAt + ')' : '') : 'N/A') + ' (' + signedPct(r.pct) + ')');
+    if (r.factorSessionDate) lines.push('   팩터 기준일: ' + r.factorSessionDate);
+    const referenceFields = [['rsi', 'price.rsi14'], ['mcap', 'valuation.marketCap'], ['ret3m', 'price.ret3m']]
+      .filter(([key, id]) => value(r, key) != null && ['STALE', 'LAST_GOOD', 'CONFLICT'].includes(r.fieldReadiness?.fields?.[id]?.status))
+      .map(([key, id]) => `${key}: ${r.fieldReadiness.fields[id].status}`);
+    if (referenceFields.length) lines.push('   현재 조건 계산에 쓰지 않는 참고 값: ' + referenceFields.join(', '));
     if (r.memo) lines.push('   메모: ' + r.memo);
     if (r.newsMemo) lines.push('   최신뉴스(제목만, 발행 주체 확인됨): ' + r.newsMemo);
   });
   lines.push('');
   if (isDiversified) {
-    lines.push('답변 지침: (1) 먼저 "후보군을 넓게 분산해 봤다"고 밝히고 (2) 성장/퀄리티/방어/경기민감/한국·글로벌 중 최소 3개 관점으로 3~5개를 선택 (3) 제외·보류 후보 2~3개와 이유 제시 (4) 사용자가 공격형/방어형/한국주 선호를 밝히면 다음 답변에서 재랭킹하겠다고 안내. CEG·전력·AVGO·AI 반도체 같은 기존 강한 테마가 포함돼도 자동 1순위로 두지 말고, 비AI/비전력 대안과 비교해 상대 우위가 있을 때만 선택하라. 후보와 수치 근거는 후보군 안에서 제시하되, 사용자가 더 넓은 탐색을 원하면 어떤 조건(시장·섹터·시총·위험도)으로 SCREENER_DB를 다시 펼치면 되는지 안내하라.');
+    lines.push('답변 지침: 표본의 범위와 한계를 먼저 밝히고, 성장·현금흐름·가격 추세·위험·시장별 차이 등 비교할 기준을 설명하라. 제공된 수치로 확인되는 차이와 부족한 근거를 함께 보여라. 매수할 종목이나 최종 후보를 선정하지 말고, 사용자가 시장·섹터·시총·위험 조건을 정해 같은 기준으로 비교하도록 안내하라.');
   } else {
-    lines.push('답변 지침: 위 목록을 사용자 조건에 맞춰 (1) 퀀트 랭크 기준 순위/표 (2) 상위 종목 선정 이유(어느 팩터가 강한지) (3) 주의·제외 사유 (4) 다음 행동 순으로 해설. 퀀트 랭크(객관·데이터)와 시그널/메모(editorial·애널리스트)를 구분해 설명하라. 가격은 위 값 그대로 인용하고 (기준시각) 괄호를 붙여라. 목록에 없는 종목을 새로 만들지 마라.');
+    lines.push('답변 지침: 사용자가 정한 조건을 충족한 목록과 지표별 차이, 미확인 근거를 해설하라. 퀀트 백분위는 같은 모델 안의 상대 위치이며 수익성 검증이나 매수 순위가 아니다. 시그널/메모는 편집 의견으로 구분하고, 종목을 대신 고르지 마라. 가격은 위 값 그대로 기준시각과 함께 인용하고 목록 밖 종목을 추가하지 마라.');
   }
   return '\n\n' + lines.join('\n') + '\n';
 }

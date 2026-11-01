@@ -1,0 +1,69 @@
+{
+  "status": "FAIL",
+  "postmortems": [
+    "P1624",
+    "P1625",
+    "P1626",
+    "P1627"
+  ],
+  "version": "v59.52",
+  "sourceHashes": {
+    "index.html": "9ee197c089cbdec162cebd811eaab0467a91e8371d584872c708611c59de487a",
+    "src/ui/pages/entity.js": "ff6bad7a417269a54201362688ce998ca7a8940e6e530cb8762e73dbbb0bdf03",
+    "src/ui/pages/screener.js": "283eab9e63982237a1a5d56b35b9c5de0a18c05a15353b4f0d3f93ca6ff600d5",
+    "src/ui/pages/analysis.js": "df0c68521eae90b0fc5581ec2abe4dcefb29e052b7acbcefc55f1d27ccf7efee",
+    "src/ui/components/stock-chart.js": "357042c34f20e8852823fafce7ca36982c0c8ba09fcb860c684abde51c9404a9",
+    "src/ui/components/stock-read.js": "67a7619dccfc6b79523fa370a1f5dccd7767e095649b51eeea4b86db1138d41a",
+    "src/ui/components/fiscal-read.js": "0e93d926b42d5e03056c6367ad79cebc6493d95902b4e21a4b3301f74cc7512d",
+    "src/domain/entity/summary-hydration.js": "218ea3f2216e59b1fbe4ef361ec17c045ca6fec67e75f900c984bdb6b85f812c",
+    "src/domain/screener/market-scope.js": "ac4a26f2d0b195ef36157cb7dcd88b2a1e8c004b32f9f2c360dc5c7c1157701e",
+    "src/domain/screener/factor-ranks.js": "e9dbfffee8b75c7733927307f92f7fe7316c2de5ddfbcf7b01b2928e7c1fa04f",
+    "src/data/providers/screener.js": "c457b3390a413c04dbc016e5c2d42f45c6f1bec5d8093c4b6c7baf35079eb329",
+    "src/domain/fundamental/fiscal-read.js": "a57d69dffe94617c82efd897f1f4500f6c0727dd50f935dda7c58bdeec58fcae",
+    "src/domain/technical/chart-scenarios.js": "3c25bec0a2a488fedb6ed358b18ec22b091378347122a42d7808f1d044aba776"
+  },
+  "evidence": "Headless real route lifecycle with intercepted synthetic AEHR Yahoo chart fixture; unrelated Yahoo tickers return explicit offline 404, other external calls aborted; local published screener/SEC artifacts. Not live market/provider certification.",
+  "paidCalls": 0,
+  "selectedCase": "does-not-exist",
+  "executedCases": [],
+  "libraries": [
+    {
+      "url": "https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js",
+      "sri": "e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g",
+      "transport": "intercepted local pinned bytes"
+    },
+    {
+      "url": "https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js",
+      "sri": "OK7vELvjHdhUFi31JYioPIcRHTROLdcDa6ZsNWgvgLaKj+9JqhU0Ad8g4wz3CXjA",
+      "transport": "intercepted local pinned bytes"
+    }
+  ],
+  "viewports": [
+    {
+      "name": "phone",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "name": "tablet",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 1000
+    }
+  ],
+  "themes": [
+    "light",
+    "dark"
+  ],
+  "observations": [],
+  "failures": [
+    {
+      "message": "v59.52 selected entity-quality case must exist",
+      "detail": "does-not-exist"
+    }
+  ]
+}

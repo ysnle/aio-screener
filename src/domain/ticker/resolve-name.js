@@ -43,12 +43,25 @@ export function isKnownSymbol(symbol, { entries = {}, krStockDb = {}, universe =
  * only a non-ticker-shaped input (a Korean name or a registered nickname such as "스엑") resolves, and only by an exact
  * registry match. `known` uses the same owner as the ticker route (isKnownSymbol: name registry, KRX list, screener universe).
  */
-export function resolveHoldingInput(raw, { entries = {}, krStockDb = {}, universe = [] } = {}) {
+export function resolveHoldingInput(raw, { entries = {}, krStockDb = {}, universe = [], krToYahoo = null } = {}) {
   const text = String(raw || '').normalize('NFKC').trim(); // v58.82: full-width ＡＡＰＬ is AAPL
   if (!text) return { symbol: '', known: false, resolvedFrom: null };
   const typed = text.toUpperCase();
   const tickerShaped = /^[A-Z0-9.^=-]{1,10}$/.test(typed);
   const named = tickerShaped ? null : resolveRegisteredName(text, entries);
   const symbol = named || typed;
-  return { symbol, known: isKnownSymbol(symbol, { entries, krStockDb, universe }), resolvedFrom: named && named !== typed ? text : null };
+  // v59.53: the stored issuer key and its quote listing are separate identities. Only an exact registry resolves
+  // a bare code; an unknown code is never assigned a guessed exchange or US dollar currency.
+  let listingSymbol = symbol;
+  if (/^\d{6}$/.test(symbol)) {
+    const matches = [...new Set([...Object.keys(entries), ...(Array.isArray(universe) ? universe.map((row) => row?.sym || row) : [])]
+      .filter((key) => key === `${symbol}.KS` || key === `${symbol}.KQ`))];
+    listingSymbol = matches.length === 1 ? matches[0] : null;
+    if (!matches.length && krStockDb?.[symbol] && typeof krToYahoo === 'function') {
+      const mapped = krToYahoo(symbol);
+      if (mapped === `${symbol}.KS` || mapped === `${symbol}.KQ`) listingSymbol = mapped;
+    }
+  }
+  const known = isKnownSymbol(symbol, { entries, krStockDb, universe }) || (listingSymbol !== symbol && !!listingSymbol);
+  return { symbol, listingSymbol, known, resolvedFrom: named && named !== typed ? text : null };
 }

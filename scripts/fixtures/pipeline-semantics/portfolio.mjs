@@ -19,6 +19,82 @@ function memoryStorage(seed = {}, { dropWrites = false } = {}) {
 }
 
 export const cases = [
+  { id: 'v59.53', name: 'sector ETFs contribute to their actual sector without turning a broad ETF into a sector', run: async ({ load }) => {
+    const { renderPortfolioExposure } = await load('src/ui/components/portfolio-exposure.js');
+    const panel = { innerHTML: '', insertAdjacentHTML(_position, text) { this.innerHTML += text; } };
+    const root = { _aioGetCanonicalScreenerRows: () => [{ sym: 'XLE', index: 'ETF', sector: 'Energy' }, { sym: 'SPY', index: 'ETF', sector: 'ETF' }],
+      _pfBaseValues: () => ({ rows: [{ sym: 'XLE', value: 100 }, { sym: 'SPY', value: 100 }] }),
+      _aioPortfolioSurface: { totalAssets: 200 }, _aioPortfolioSectorLabel: (sector) => sector === 'Energy' ? '에너지' : sector, _pfPearson: () => null, _pfBaseNote: () => '' };
+    renderPortfolioExposure([{ ticker: 'XLE' }, { ticker: 'SPY' }], {}, { documentRef: { getElementById: () => panel }, root });
+    assert.match(panel.innerHTML, /에너지 섹터 50% 집중/);
+    assert.doesNotMatch(panel.innerHTML, /ETF[^<]*섹터 100% 집중/);
+  } },
+  { id: 'v59.53', name: 'registered bare Korean holdings retain their quote listing and currency through valuation', run: async ({ load }) => {
+    const { createRuntimeReaders } = await load('src/data/runtime-readers.js');
+    const { derivePortfolioSurface } = await load('src/domain/portfolio/surface.js');
+    const { resolveHoldingInput } = await load('src/domain/ticker/resolve-name.js');
+    const { listingCurrency } = await load('src/domain/portfolio/fx.js');
+    const universe = [{ sym: '005930.KS' }, { sym: '035900.KQ' }, { sym: 'AAPL' }];
+    const root = { getPortfolioData: () => [{ ticker: '005930', qty: 1, cost: 70000, costCurrency: 'KRW' }, { ticker: 'AAPL', qty: 1, cost: 100, costCurrency: 'USD' }],
+      _aioGetCanonicalScreenerRows: () => universe, _liveData: { '005930.KS': { price: 100000, currency: 'KRW' }, AAPL: { price: 200, currency: 'USD' } } };
+    const read = createRuntimeReaders({ root, now: () => NOW }).readPortfolio();
+    assert.equal(read.holdings[0].currency, 'KRW');
+    assert.equal(read.holdings[0].listingSymbol, '005930.KS');
+    assert.equal(resolveHoldingInput('035900', { universe }).listingSymbol, '035900.KQ');
+    assert.equal(resolveHoldingInput('999999', { universe }).listingSymbol, null);
+    assert.equal(listingCurrency('999999'), null);
+    const result = derivePortfolioSurface({ state: { ...read, readState: 'ready', cashKnown: true, cash: 0 }, now: NOW,
+      closeOf: (symbol) => ({ price: symbol === '005930.KS' ? 100000 : 200, date: '2026-10-29' }) });
+    assert.equal(result.positionValue, null, 'won and dollars cannot be added without a declared conversion');
+    assert.equal(result.currencyState, 'mixed-without-conversion');
+    const converted = derivePortfolioSurface({ state: { ...read, readState: 'ready', baseCurrency: 'USD', cashKnown: true, cash: 0,
+      fxLegs: [{ from: 'KRW', to: 'USD', rate: 0.001, observedAt: '2026-10-29T00:00:00Z', source: 'fixture-declared' }] }, now: NOW,
+      closeOf: (symbol) => ({ price: symbol === '005930.KS' ? 100000 : 200, date: '2026-10-29' }) });
+    assert.equal(converted.positionValue, 300, 'a declared rate converts units before adding them');
+    assert.equal(converted.baseCurrency, 'USD');
+    const unknown = derivePortfolioSurface({ state: { readState: 'ready', holdings: [{ symbol: '999999', shares: 1 }], cashKnown: true, cash: 0 }, now: NOW,
+      closeOf: () => ({ price: 100000, date: '2026-10-29' }) });
+    assert.equal(unknown.positionValue, null, 'a lone unknown currency is also held');
+    // v59.54: the hold names its own reason, so no reader says "currencies mixed" or "declare a rate" for it.
+    assert.equal(unknown.currencyHeldReason, 'unknown-unit');
+    assert.equal(result.currencyHeldReason, 'mixed');
+    const { buildPortfolioRead } = await load('src/domain/portfolio/portfolio-read.js');
+    assert.match(buildPortfolioRead({ surface: unknown }).reason, /시세 통화를 알 수 없는/);
+    assert.doesNotMatch(buildPortfolioRead({ surface: unknown }).reason, /환율을 선언/);
+    const known = derivePortfolioSurface({ state: { readState: 'ready', holdings: [{ symbol: '005930.KS', shares: 1 }], cashKnown: true, cash: 0 }, now: NOW,
+      closeOf: () => ({ price: 100000, date: '2026-10-29' }) });
+    assert.equal(known.valuationCurrency, 'KRW', 'an undeclared but known listing unit must not be displayed as USD');
+    assert.equal(known.baseCurrency, null, 'an assumed unit is not a declared base currency');
+  } },
+  { id: 'v59.52', name: 'sector attribution obeys the same return-readiness contract as the holding', run: async ({ load }) => {
+    const { buildAttribution } = await load('src/domain/portfolio/attribution.js');
+    const run = (status) => buildAttribution({ holdings: [{ symbol: 'AAPL', value: 110 }], cash: 0,
+      rowFor: (symbol) => symbol === 'AAPL' ? { ret3m: 10, sector: 'Technology', factorSessionDate: '2026-10-23' }
+        : { ret3m: 50, factorSessionDate: '2026-10-23', fieldReadiness: { fields: { 'price.ret3m': { status } } } },
+      marketReturnFor: () => ({ ret3m: 5, label: 'SPY', asOf: '2026-10-23' }) });
+    assert.equal(run('CURRENT').sectorMappedPct, 100);
+    for (const status of ['MISSING', 'BLOCKED_RIGHTS', 'STALE', 'LAST_GOOD', 'CONFLICT']) {
+      const result = run(status);
+      assert.equal(result.sectorMappedPct, 0, status);
+      assert.equal(result.components.find((row) => row.id === 'sector').pct, 0, status);
+    }
+  } },
+  { id: 'v59.52', name: 'a nonzero trend share never reads as no holdings, including a tiny near-line share', run: async ({ load }) => {
+    const { buildPortfolioRead } = await load('src/domain/portfolio/portfolio-read.js');
+    for (const state of ['up', 'down', 'near', 'pullback']) {
+      const signs = { up: [10, 20], down: [-10, -20], near: [0, 0], pullback: [-10, 20] };
+      const [pctSma50, pctSma200] = signs[state];
+      const read = buildPortfolioRead({ surface: { rows: [{ symbol: 'LARGE', value: 9999 }, { symbol: 'SMALL', value: 1 }] },
+        rows: [{ sym: 'LARGE', pctSma50: -10, pctSma200: -20 }, { sym: 'SMALL', pctSma50, pctSma200 }] });
+      if (state !== 'down') assert.match(read.headline, /1% 미만/, state);
+    }
+    const tinyDown = buildPortfolioRead({ surface: { rows: [{ symbol: 'LARGE', value: 9999 }, { symbol: 'SMALL', value: 1 }] },
+      rows: [{ sym: 'LARGE', pctSma50: 10, pctSma200: 20 }, { sym: 'SMALL', pctSma50: -10, pctSma200: -20 }] });
+    assert.match(tinyDown.headline, /1% 미만/);
+    assert.doesNotMatch(tinyDown.headline, /내리는 흐름인 종목은 없습니다/);
+    const zero = buildPortfolioRead({ surface: { rows: [{ symbol: 'UP', value: 1 }] }, rows: [{ sym: 'UP', pctSma50: 10, pctSma200: 20 }] });
+    assert.match(zero.headline, /내리는 흐름인 종목은 없습니다/);
+  } },
   { id: 'P22-LEDGER-01', name: '읽을 수 없는 입출금 행은 버리지 않고 계좌 성과를 보류한다', run: async ({ load }) => {
     const { assessAccountPerformance } = await load('src/domain/portfolio/risk.js');
     const ledger = (tx) => ({ coverage: coverageAll(LEDGER_IDS), currency: 'USD', dayCount: 'actual-365', flowTiming: 'end-of-period',

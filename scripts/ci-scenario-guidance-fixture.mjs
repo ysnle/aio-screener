@@ -389,6 +389,9 @@ console.log('scenario guidance fixture (basis card): PASS');
   // was none and the gate failed on the market, so the baseline gives the first theme a stage when none has one.
   const baseline = JSON.parse(JSON.stringify(state1));
   assert.ok(baseline.themes.length > 0, 'P1743: the state carries theme rows');
+  // v59.52: move between two single leaders; reordering the same tied set is intentionally not a transition.
+  baseline.crossroads.tiedIds = [];
+  baseline.crossroads.leadId ||= baseline.crossroads.items[0].id;
   if (!baseline.themes.some((row) => row.state)) baseline.themes[0].state = 'leading';
   const moved = JSON.parse(JSON.stringify(baseline));
   moved.crossroads.leadId = moved.crossroads.items.find((item) => item.id !== baseline.crossroads.leadId).id;

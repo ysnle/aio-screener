@@ -1,0 +1,21 @@
+{
+  "version": "v59.54",
+  "date": "2026-11-01",
+  "p": {
+    "title": "포트폴리오 기준 통화를 선언하지 않았는데 AI에 '기준 통화 USD'로 전달되고, 시세 통화를 모르는 보유가 '통화 혼합'으로 안내됨",
+    "symptom": "Codex v59.53(P2192) 검토에서 확인: 기준 통화를 선언하지 않은 포트폴리오도 surface.baseCurrency가 보유 상장 통화(USD)로 채워져 AI 문맥에 '기준 통화 USD'가 들어갔다. 시세 통화를 알 수 없는 보유 한 종목만 있어도 '통화 혼합 — 환율을 선언하세요'라는 안내가 떠서 할 수 없는 행동을 요구했다. 상장 기호(005930.KS)는 일부 소비자에만 덧붙여져 화면과 노출 계산이 기호를 다시 풀었다.",
+    "root_cause": "baseCurrency 한 필드가 '사용자가 선언한 기준 통화'와 '계산에 쓴 통화' 두 뜻을 함께 지고 있었고, 보류 사유가 하나(mixed)뿐이라 '알 수 없음'과 '섞임'을 구분하지 못했다. 상장 기호는 surface가 아니라 소비자마다 따로 다시 매핑했다.",
+    "fix": "src/domain/portfolio/surface.js가 행마다 listingSymbol로 시세·종가·섹터를 찾고, baseCurrency(선언 또는 단일 선언 통화만)와 valuationCurrency(계산 통화)를 나누며 currencyHeldReason('mixed' | 'unknown-unit')과 unknownCurrencyCount를 낸다. portfolio.js의 quoteSymbolOf/liveDataFor 재매핑을 지우고 surface 값을 그대로 쓴다. portfolio-read·checks·base-values·AI portfolio-rows가 같은 두 필드를 읽는다. AI에는 '미선언(종목 상장 통화 KRW로 계산)'으로 전달한다.",
+    "violated_rule": "AGENTS 원천 없는 값 금지 — 사용자가 선언하지 않은 기준 통화를 선언된 값처럼 전달했다.",
+    "prevention": "scripts/fixtures/pipeline-semantics/portfolio.mjs가 unknown-unit/mixed 사유, 안내 문구, valuationCurrency와 baseCurrency 분리를 확인하고, ci-esm-core-unit-check가 미선언 포트폴리오의 baseCurrency null을 확인한다.",
+    "verification": "node scripts/ci-pipeline-semantics-check.mjs --only portfolio (26건 통과), node scripts/ci-esm-core-unit-check.mjs 통과."
+  },
+  "qa": [
+    { "id": "QA-PF-CCY-01", "text": "v59.54 기준 통화를 선언하지 않은 포트폴리오에서 AI 문맥이 '기준 통화 미선언(종목 상장 통화 …로 계산)'으로 나오고, 시세 통화를 알 수 없는 보유만 있을 때 '환율을 선언하세요' 대신 시세 통화를 알 수 없다는 안내가 나오는지 확인", "verify_by": "contract" }
+  ],
+  "qa_section": "포트폴리오 통화",
+  "changelog": [
+    "**포트폴리오 통화 구분 ({P}):** 선언한 기준 통화와 계산에 쓴 통화를 나눴다. 선언하지 않았으면 AI에도 '미선언'으로 전하고, 시세 통화를 모르는 보유는 '통화 혼합'이 아니라 그 사유로 안내한다. 상장 기호(005930.KS 등)는 포트폴리오 계산 한 곳에서 풀린다."
+  ],
+  "note": "v59.54: Codex v59.52~53 객관 검토 반영(구조 수정) + run-6 남은 후속 작업"
+}

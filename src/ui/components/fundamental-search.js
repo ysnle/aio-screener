@@ -2,22 +2,7 @@
 // quote, SEC submissions, FMP-era quarterly charts, "Yahoo Finance 응답 없음" provider lines) under the native 재무 흐름.
 // The 종목 search on 요약 is the one search; the native entity slice (SEC projection) is the one report. What stays here is
 // the selection hand-off: the company 요약 · 차트 show becomes the selected issuer, and the native slice projects its
-// filing. The four exports keep their names because src/app/legacy-screen-bridges.js installs them as window globals.
-import { rememberRecentSymbol } from '../../data/stock-subject-store.js';
-
-// Kept for the bridge (root._fundRecentSearches): the list it painted is gone; a ticker is still remembered.
-export function renderFundRecentSearches(ticker, { root = globalThis } = {}) {
-  if (ticker) rememberRecentSymbol(root, ticker);
-}
-
-// Kept for the bridge (root._resetFundamentalReport): there is no legacy report left to clear.
-export function resetFundamentalReport(_message, { root = globalThis } = {}) {
-  root._fundAnalysisData = null;
-}
-
-export function fundSearchQuick(ticker, search) {
-  return ticker ? search(ticker) : undefined;
-}
+// filing. src/app/legacy-screen-bridges.js installs the remaining selection hand-off as window.fundamentalSearch.
 
 export function createFundamentalSearch({ documentRef = globalThis.document, root = globalThis } = {}) {
   // The ticker comes from the caller (entity.js) or, for a no-argument call (a search queued before this module

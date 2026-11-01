@@ -11,7 +11,16 @@ import { withObjectParticle } from '../../domain/content/korean-particle.js';
 // A value that rounds to zero prints without a sign ('-0.0%' read as a fall).
 const pct = (value, digits = 1) => { if (!Number.isFinite(value)) return '—'; const text = Math.abs(value).toFixed(digits); return Number(text) === 0 ? `${text}%` : `${value > 0 ? '+' : '-'}${text}%`; };
 const md = (date) => (date ? `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}` : '—');
-const STATE_LABEL = { cold: '강한 냉각', hot: '강한 과열', none: '보통 범위' };
+const STATE_LABEL = { cold: '강한 냉각', hot: '강한 과열' };
+
+// v59.53: not meeting the three-component extreme rule does not mean that every component is ordinary.
+export function temperatureStateLabel(market) {
+  if (STATE_LABEL[market.state]) return STATE_LABEL[market.state];
+  if (market.cold > 0 && market.hot > 0) return '냉각·과열 혼재';
+  if (market.cold > 0) return '일부 냉각';
+  if (market.hot > 0) return '일부 과열';
+  return '극단 요소 없음';
+}
 
 // v57.54 review: a market whose fetch failed keeps yesterday's body in the artifact (payload.retained), so the
 // "now" lead must not name it. A body more than a week behind the newest market is treated the same way.
@@ -33,7 +42,7 @@ export function temperatureStateText(market, rules = TEMPERATURE_RULES) {
   const total = TEMPERATURE_COMPONENTS.length;
   if (market.state === 'cold') return `${total}개 요소 중 ${market.cold}개가 최근 3년 하위 ${rules.coldAtOrBelow}% — 강한 냉각 ${market.streak}거래일째`;
   if (market.state === 'hot') return `${total}개 요소 중 ${market.hot}개가 최근 3년 상위 ${100 - rules.hotAtOrAbove}% — 강한 과열 ${market.streak}거래일째`;
-  return `보통 범위${scores.length ? ` — 다섯 요소 순위 ${Math.round(Math.min(...scores))}~${Math.round(Math.max(...scores))}` : ''}${market.cold || market.hot ? `(하위 ${rules.coldAtOrBelow}% ${market.cold}개, 상위 ${100 - rules.hotAtOrAbove}% ${market.hot}개)` : ''}`;
+  return `${temperatureStateLabel(market)}${scores.length ? ` — 다섯 요소 순위 ${Math.round(Math.min(...scores))}~${Math.round(Math.max(...scores))}` : ''}${market.cold || market.hot ? `(하위 ${rules.coldAtOrBelow}% ${market.cold}개, 상위 ${100 - rules.hotAtOrAbove}% ${market.hot}개)` : ''}`;
 }
 
 // The 63-session result after past first days of the same spell, against any day; the ± is two standard errors
@@ -118,9 +127,11 @@ export function renderMarketTemperature({ documentRef: doc, root, anchor }) {
 
     // The tiles already carry each market's state; the lead names only the markets in an extreme spell (US first).
     const stale = staleMarketIds(payload, markets);
-    const extreme = markets.filter((item) => item.state !== 'none' && !stale.has(item.id)).map((item) => `${item.label}(${STATE_LABEL[item.state]} ${item.streak}거래일째)`);
+    const current = markets.filter((item) => !stale.has(item.id));
+    const extreme = current.filter((item) => item.state !== 'none').map((item) => `${item.label}(${STATE_LABEL[item.state]} ${item.streak}거래일째)`);
     // v59.51 (content audit): the face is the state line and the tiles; what the table measures opens with the detail fold.
-    const lead = extreme.length ? `지금 과열·냉각 구간: ${extreme.join(', ')}.` : '지금 과열·냉각 구간에 있는 지수는 없습니다.';
+    const lead = !current.length ? '최신 종가 자료가 없어 현재 냉각·과열 여부를 판단하지 않습니다.'
+      : extreme.length ? `지금 강한 과열·냉각 구간: ${extreme.join(', ')}.` : '강한 냉각·과열 기준에 해당하는 지수는 없습니다.';
 
     // The first thing a reader sees: one tile per market (state, streak, the five component ranks as a tiny bar
     // fingerprint). A tile is the selector for the detail below.
@@ -148,7 +159,7 @@ export function renderMarketTemperature({ documentRef: doc, root, anchor }) {
         spark.append(bar);
       }
       button.append(el(doc, 'span', item.label, 'temp-tile-name'),
-        el(doc, 'span', stale.has(item.id) ? '갱신 지연' : item.state === 'none' ? '보통 범위' : `${STATE_LABEL[item.state]} ${item.streak}일째`, 'temp-tile-state'),
+        el(doc, 'span', stale.has(item.id) ? '갱신 지연' : item.state === 'none' ? temperatureStateLabel(item) : `${STATE_LABEL[item.state]} ${item.streak}일째`, 'temp-tile-state'),
         spark,
         el(doc, 'span', `${md(item.asOf)} 종가 ${pct(item.change1d, 1)}`, 'temp-tile-meta'));
       button.setAttribute('aria-label', `${item.label}: ${temperatureStateText(item, rules)}`);

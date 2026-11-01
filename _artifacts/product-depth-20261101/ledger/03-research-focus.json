@@ -1,0 +1,26 @@
+{
+  "version": "v59.53",
+  "date": "2026-11-01",
+  "qa_section": "기존 기능과 콘텐츠의 의미·사용성",
+  "p": {
+    "title": "리서치 문서를 선택하면 키보드 읽기 포커스가 BODY로 유실",
+    "symptom": "분석 노트 목차를 열어 다른 문서를 선택하면 본문은 바뀌지만 document.activeElement가 BODY였다. 목차를 정상적으로 여는 수정 후에도 실제 드라이브의 읽기 포커스 검사에서 실패했다.",
+    "root_cause": "문서 선택이 전체 shell을 교체한 뒤 스크롤만 했고 포커스를 넘기지 않았다. 비동기 콘텐츠 로드도 기존 키보드 맥락을 폐기했다.",
+    "fix": "본문을 이름 있는 focusable region으로 만들고 문서 선택의 두 진입점에서 본문으로 읽기 포커스를 옮긴다. 비동기 재렌더는 현재 본문/의미가 같은 목차 컨트롤의 포커스를 보존한다.",
+    "verification": "실제 drive learn product-depth-focus-red: opened document did not receive reading focus. 수정 후 product-depth-focus-green 8/8 PASS 및 최종 desktop learn 8/8 PASS.",
+    "violated_rule": "C4 공용 의미와 단일 소유권, 데이터 정직성, 사용자 가치 우선",
+    "prevention": "목차·서가·검색에서 고른 문서는 본문으로 읽기 포커스를 연결하고 비동기 로딩도 현재 키보드 맥락을 보존한다 — node .claude/skills/verify-aio/scripts/verify-aio.mjs drive learn --port 8798 --viewport desktop --run product-depth-final"
+  },
+  "qa": [
+    {
+      "id": "QA-RESEARCH-READING-FOCUS-01",
+      "text": "목차·서가·검색에서 고른 문서는 본문으로 읽기 포커스를 연결하고 비동기 로딩도 현재 키보드 맥락을 보존한다",
+      "verify_by": "node .claude/skills/verify-aio/scripts/verify-aio.mjs drive learn --port 8798 --viewport desktop --run product-depth-final",
+      "done": true
+    }
+  ],
+  "changelog": [
+    "**리서치 문서를 선택하면 키보드 읽기 포커스가 BODY로 유실 ({P}):** 본문을 이름 있는 focusable region으로 만들고 문서 선택의 두 진입점에서 본문으로 읽기 포커스를 옮긴다. 비동기 재렌더는 현재 본문/의미가 같은 목차 컨트롤의 포커스를 보존한다."
+  ],
+  "note": "v59.53: 포트폴리오 통화·ETF 분류, 시장 온도 의미, 리서치 읽기 포커스와 사용자 콘텐츠 접근 구조 개선"
+}

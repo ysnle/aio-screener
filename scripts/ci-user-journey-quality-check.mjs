@@ -26,6 +26,56 @@ try {
     }, id);
     report.routes.push(row); check('route shell ' + id, row.exists && row.moduleState !== 'failed');
   }
+  const foldFixture = await page.evaluate(async () => {
+    const { renderMoveNews } = await import('/src/ui/components/briefing-read.js');
+    const { renderSectorMoves } = await import('/src/ui/components/sector-moves.js');
+    const sector = document.createElement('section'); sector.id = 'briefing-sector-moves'; document.body.append(sector);
+    const doc = { createElement: document.createElement.bind(document), createTextNode: document.createTextNode.bind(document),
+      getElementById: (id) => id === sector.id ? sector : sector.querySelector(`#${id}`) };
+    const nowMs = Date.parse('2026-10-31T12:00:00Z');
+    const root = { _serverDataMeta: { rotationHistory: { schemaVersion: 'rotation-history.v1', modelVersion: 'rrg.v3', benchmark: 'SPY',
+      timeframe: '1d', priceBasis: 'adjusted-close', decisionUse: false, allowedUseCeiling: 'reference', latestCompletedSession: '2026-10-30',
+      items: Object.fromEntries(['XLK', 'XLF', 'XLV', 'XLI', 'XLE', 'XLP'].map((symbol) => [symbol, { status: 'CURRENT', sessionDate: '2026-10-30',
+        rsRatio: 101, rsMomentum: 101, quadrant: 'Leading', dailyPct: 1, weeklyPct: 2, alignedSessionCount: 60,
+        observedAt: '2026-10-30T20:00:00Z', fetchedAt: '2026-10-30T20:20:00Z' }])) } } };
+    const flow = { available: true, session: '2026-10-30', themes: { available: true, memberSplits: [{ up: { sym: 'AAA', d1: 2 }, down: { sym: 'BBB', d1: -1 } }] } };
+    renderSectorMoves({ documentRef: doc, root, host: sector, nowMs });
+    renderMoveNews(doc, root, null, flow);
+    const fold = sector.querySelector('#briefing-move-news');
+    const summary = fold?.querySelector(':scope > summary');
+    fold.open = true; summary?.focus();
+    renderSectorMoves({ documentRef: doc, root, host: sector, nowMs });
+    renderMoveNews(doc, root, null, flow);
+    const retainedNode = sector.querySelector('#briefing-move-news') === fold && fold.open;
+    const retainedFocus = document.activeElement === summary;
+    renderMoveNews(doc, root, null, { available: false });
+    const hiddenWhileMissing = fold.hidden;
+    renderMoveNews(doc, root, null, flow);
+    const retainedOpenAfterMissing = sector.querySelector('#briefing-move-news') === fold && fold.open && !fold.hidden;
+    sector.remove();
+    return { retainedNode, retainedFocus, hiddenWhileMissing, retainedOpenAfterMissing };
+  });
+  for (const [name, ok] of Object.entries(foldFixture)) check(`v59.52 (P2187) briefing why-moved fold ${name}`, ok);
+  const temperatureFixture = await page.evaluate(async () => {
+    const { renderMarketTemperature } = await import('/src/ui/components/market-temperature.js');
+    const { TEMPERATURE_COMPONENTS } = await import('/src/domain/sentiment/market-temperature.js');
+    const host = document.createElement('div'); document.body.append(host);
+    const anchor = document.createElement('div'); host.append(anchor);
+    const doc = { createElement: document.createElement.bind(document), createElementNS: document.createElementNS.bind(document),
+      createTextNode: document.createTextNode.bind(document), getElementById: (id) => host.querySelector(`#${id}`) };
+    const make = (asOf) => ({ schemaVersion: 'market-temperature.v1', status: 'current', generatedAt: `${asOf}T20:00:00Z`,
+      markets: { spx: { asOf, close: 100, state: 'none', cold: 2, hot: 2, streak: 1,
+        components: TEMPERATURE_COMPONENTS.map((row, i) => ({ ...row, score: [5, 5, 95, 95, 50][i], raw: 0 })) } } });
+    const root = { _aioMarketTemperature: make(new Date().toISOString().slice(0, 10)), fetch: async () => { throw Error('offline fixture'); } };
+    renderMarketTemperature({ documentRef: doc, root, anchor });
+    const mixed = host.querySelector('.temp-tile-state')?.textContent === '냉각·과열 혼재';
+    root._aioMarketTemperature = make('2020-01-01');
+    renderMarketTemperature({ documentRef: doc, root, anchor });
+    const unavailable = /판단하지 않습니다/.test(host.querySelector('.market-temperature > .regime-read')?.textContent || '');
+    host.remove();
+    return { mixed, unavailable };
+  });
+  for (const [name, ok] of Object.entries(temperatureFixture)) check(`v59.53 temperature presentation ${name}`, ok);
   await page.evaluate(() => window.showPage('guide', null));
   await page.waitForFunction(() => document.querySelector('#page-guide')?.dataset.aioArchitectureRenderer === 'native');
   await page.locator('#guide-search-input').fill('판정');

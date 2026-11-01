@@ -1,0 +1,15 @@
+{
+  "version": "v59.52", "date": "2026-11-01", "qa_section": "실시간 갱신과 읽기 상태",
+  "p": {
+    "title": "시세 갱신 때 브리핑·종목의 열린 근거가 닫히고 포커스가 사라짐",
+    "symptom": "브리핑 왜 움직였나 또는 종목 요약의 자세히를 연 뒤 자료/시세 갱신이 오면 접히고 summary의 키보드 포커스가 사라졌다.",
+    "root_cause": "브리핑은 섹터 renderer가 공유 host 전체를 교체해 다른 renderer의 details를 지웠다. 뉴스 renderer도 매번 details를 새로 만들었다. 종목 renderer는 동일 종목의 사용자 펼침 상태까지 계산 결과와 함께 폐기했다.",
+    "fix": "섹터 renderer는 자기 content 자식만 소유하고 뉴스의 stable details는 형제로 유지한다. 뉴스 summary와 본문 갱신을 분리해 열린 노드와 포커스를 보존한다. 종목은 동일 심볼에 한해 펼침 상태와 summary 포커스를 복원하고 다른 심볼은 초기 상태로 시작한다.",
+    "violated_rule": "REVIEW.md 수명주기와 정본 소유권, C4 한 의미에는 한 구현",
+    "prevention": "독립된 브라우저 fixture가 실제 두 briefing renderer의 연속 갱신, 노드·열림·포커스, 자료 부재 후 복귀를 검사한다. 종목은 실제 aio:liveQuotes 이벤트 뒤 펼침과 포커스를 확인한다.",
+    "verification": "fold-red-green.json: HEAD 소스 주입 4개 false, 수정 소스 4개 true. user-journey 19 routes/30 checks PASS. entity-quality desktop-light: 수정 전 open=false/focus=false 실패, 수정 후 PASS. 최종 전 viewport 검사는 별도 QA 보고서 참조."
+  },
+  "qa": [{ "id": "QA-RENDER-FOLD-OWNERSHIP-01", "text": "자료·시세 갱신은 같은 문서의 열린 브리핑·종목 근거와 summary 포커스를 보존한다", "verify_by": "node scripts/ci-user-journey-quality-check.mjs && node scripts/ci-entity-quality-browser-check.mjs", "done": true }],
+  "changelog": ["**갱신과 읽기 상태 ({P}):** 섹터 막대와 뉴스 근거의 DOM 소유권을 나눠 다른 renderer의 열린 노드를 지우지 않게 했다. 종목 요약도 같은 종목의 펼침과 키보드 포커스를 갱신 후 보존한다."],
+  "note": "v59.52: AI 비교·지표·세션 경계 재설계, 렌더러 소유권과 읽기 상태 보강"
+}

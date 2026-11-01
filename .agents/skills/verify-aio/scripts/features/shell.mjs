@@ -8,7 +8,7 @@ export default {
   steps: [
     ['topbar 도움말 → 사용 설명서', async (p) => ({
       ...(await (async () => { await p.click('#topbar-help-btn'); return expectActive(p, 'page-guide'); })()),
-      ...(await expectCount(p, '#guide-screen-cards > *', 1))
+      ...(await expectCount(p, '#page-guide > details.aio-guide-chapter', 3)) // v59.51: help has three chapters; screen cards retired
     })],
     ['설명서 검색 → 결과', async (p) => {
       await p.fill('#guide-search-input', '시장 폭');

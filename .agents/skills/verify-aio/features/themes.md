@@ -26,15 +26,16 @@ Preconditions:
 - **Open.** Click sidebar `테마와 섹터`. `page-themes` active (single-tab hub, no tab bar).
 - **Cards.** `#rrg-quadrant-cards` has children; ≥1 detail chip.
 - **Scope.** Click `서브섹터` pill, then `11섹터`; each becomes `.active` and the chip set differs.
-- **Detail.** Click the first detail chip. `#theme-detail-panel` visible, >100 chars; page stays `page-themes`.
-- **Back.** Click `선택한 목록으로`; that chip is inside the viewport again.
-- **To 종목.** Click the first `showTicker` chip in the panel. `page-ticker` active and `#ticker-hero-name` names that symbol.
-- **S&P 500 map.** Step "S&P 500 지도" waits for >50 `#sector-map .sector-map-tile`, clicks the first tile and expects `.sector-map-detail` to start with its symbol (a second click opens the stock page).
+- **Detail.** Open `사분면별 섹터` (`#rrg-quadrant-fold > summary`), then click the first detail chip. `#theme-detail-panel` visible, >100 chars; page stays `page-themes`.
+- **Back.** Click `← 테마 목록으로`; the detail closes and the selected chip is inside the viewport again.
+- **To 종목.** Reopen that theme, then click its first visible `showTicker` chip. `page-ticker` active and `#ticker-hero-name` names that symbol.
+- **S&P 500 map.** Open `#sector-map-fold > summary`, wait for >50 `#sector-map .sector-map-tile`, click the first tile and expect `.sector-map-detail` to start with its symbol (a second click opens the stock page).
 - **Proof.** `drive themes` evidence folder.
+- **AI capital flow.** Open `#ai-capex-fold > summary`; `#ai-capex-flow` contains the explanation and its reference basis (at least 80 visible characters).
 
 ## Gotchas
 
-- From the list the detail is inline; asserting a switch to `page-theme-detail` fails falsely.
+- The detail uses the same route but hides the list while open. The back button closes it and restores the list; asserting a switch to `page-theme-detail` fails falsely.
 - Constituent rows show `시세 대기` locally (quotes are CORS-blocked on 127.0.0.1).
 - "11 sectors" holds only for the default scope.
 - Until the screener producer embeds `indexWeights`, the S&P 500 map sizes by shares × close and names the missing members in the lead — that is the honest fallback, not a failure. The 1일/1주 tabs stay disabled until `ret1d`/`ret5d` are published.

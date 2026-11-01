@@ -463,7 +463,16 @@ window._aioTogglePortfolioEntry = function(forceOpen) {
 // lost it, because the form was cleared after the save. The form is cleared (and the entry panel closed) only while it
 // still holds what was submitted.
 function _pfFormSnapshot() { return JSON.stringify(['pf-add-ticker', 'pf-add-qty', 'pf-add-cost', 'pf-add-target', 'pf-add-cost-currency', 'pf-add-memo'].map(function(id) { var el = document.getElementById(id); return el ? String(el.value) : ''; })); }
-var _pfConfirmedAdd = null; async function addPortfolioPosition() { // v57.55 review (B4-F2/F6): one-shot confirm for an unlisted six-digit code or a won-sized USD cost
+var _pfConfirmedAdd = null, _pfAddRun = null; // v57.55 review (B4-F2/F6): one-shot confirm for an unlisted six-digit code or a won-sized USD cost
+// P2197: one add at a time; the same form joins the running add (a double click asked to replace what it just saved).
+async function addPortfolioPosition() {
+  var form = _pfFormSnapshot();
+  if (_pfAddRun && _pfAddRun.form === form) return _pfAddRun.done;
+  var run = { form: form, done: _pfAddRun ? _pfAddRun.done.catch(function() {}).then(_pfAddOnce) : _pfAddOnce() };
+  _pfAddRun = run;
+  try { return await run.done; } finally { if (_pfAddRun === run) _pfAddRun = null; }
+}
+async function _pfAddOnce() {
   const pfFormAtSubmit = _pfFormSnapshot();
   // P1592 (F14): '005930.KS' / '000660.KQ' (the screener's own format) is the same listed code — keep the six digits.
   const pfRawTicker = (document.getElementById('pf-add-ticker').value || '').trim(), pfHolding = typeof window._aioResolveHoldingInput === 'function' ? window._aioResolveHoldingInput(pfRawTicker) : null; // v57.81: shared symbol owner with the ticker route — ticker-shaped input kept as typed; only a name ("스엑") resolves, by exact registry match (P1339)

@@ -345,14 +345,17 @@ export function countOpenSessionsBetween(fromDate, toDate, market = 'US') {
 }
 
 // v59.47: an observation's session against the latest completed one (lag 0 = latest; in progress = 0), replacing the
-// 4-day age. null for an unknown calendar year or a future observation (callers fall back to their day budget).
+// 4-day age. null for an unknown calendar year (callers fall back to their day budget).
+// v59.52: invalid future evidence is distinct from an unknown calendar; it must never use that fallback.
 export function observationSessionState({ market = 'US', sessionDate = null, observedAt = null, now = Date.now(), latest = null } = {}) {
   const nowMs = Number(now);
   if (!Number.isFinite(nowMs)) return null;
   const observedMs = observedAt == null || observedAt === '' ? NaN : Date.parse(observedAt);
-  if (Number.isFinite(observedMs) && observedMs > nowMs) return null;
+  if (Number.isFinite(observedMs) && observedMs > nowMs) return { status: 'invalid', reason: 'future-observation' };
   const kr = ['KR', 'KRX'].includes(String(market).toUpperCase());
-  const own = dateOnly(sessionDate) || (Number.isFinite(observedMs) ? dateInTimezone(observedMs, kr ? 'Asia/Seoul' : 'America/New_York') : null);
+  const timezone = kr ? 'Asia/Seoul' : 'America/New_York';
+  const own = dateOnly(sessionDate) || (Number.isFinite(observedMs) ? dateInTimezone(observedMs, timezone) : null);
+  if (own && own > dateInTimezone(nowMs, timezone)) return { status: 'invalid', reason: 'future-session' };
   const last = latest || (kr ? latestCompletedKrSession(nowMs) : latestCompletedUsSession(nowMs, { requirePrevious: false }));
   if (!own || !last?.date) return null;
   const lag = own >= last.date ? 0 : countOpenSessionsBetween(own, last.date, kr ? 'KR' : 'US');
@@ -364,6 +367,7 @@ export function observationSessionState({ market = 'US', sessionDate = null, obs
 export function isSessionCurrent(args = {}, { maxLag = 1, graceMs = 12 * 3600000 } = {}) {
   const state = observationSessionState(args);
   if (!state) return null;
+  if (state.status === 'invalid') return false;
   if (state.lag === 0) return true;
   return state.lag <= maxLag && state.sinceLatestCloseMs != null && state.sinceLatestCloseMs <= graceMs;
 }

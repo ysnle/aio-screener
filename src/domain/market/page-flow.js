@@ -278,7 +278,7 @@ export function rotationFlow({ groups = {}, regime = null, revisions = null } = 
     const index = revRank.findIndex((row) => normalizeSectorKey(row.sector) === normalizeSectorKey(sector) && row.revision > 0);
     return index >= 0 ? { name: sectorName(item), word, rank: index, revision: revRank[index].revision } : null;
   }).filter(Boolean)[0];
-  const earningsSplit = split ? ` ${withTopicParticle(split.name)} 이익 전망 상향 우위가 ${signedText(split.revision * 100, 0, '%')}로 ${split.rank === 0 ? '가장 높은데' : '두 번째로 높은데'} 상대강도는 ${split.word}라, 가격과 이익 전망이 엇갈립니다. 상향이 가격으로 이어지는지가 확인할 점입니다.` : '';
+  const earningsSplit = split ? ` ${withTopicParticle(split.name)} 이익 전망 상향 우위가 ${signedText(split.revision * 100, 0, '%')}로 ${split.rank === 0 ? '가장 높은데' : '두 번째로 높은데'} 상대강도는 ${split.word}${hasFinalConsonant(split.word) ? '이라' : '라'}, 가격과 이익 전망이 엇갈립니다. 상향이 가격으로 이어지는지가 확인할 점입니다.` : '';
   const read = `약 50일 상대강도 기준 ${leaders}. ${style}.${concentration}${counts}${borderText}${tie}${earningsSplit}`;
   const next = [];
   // I09: the screener opens on the first improving sector (the screener reads ctx.sector, an English universe sector).

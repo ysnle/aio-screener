@@ -1,0 +1,15 @@
+{
+  "version": "v59.52", "date": "2026-11-01", "qa_section": "거래 세션 유효성",
+  "p": {
+    "title": "미래 세션 날짜가 최신 가격 팩터로 인정됨",
+    "symptom": "미국 10월 30일 종가가 최신인 10월 30일 저녁에 factorSessionDate=11월 2일인 자료도 lag=0, isSessionCurrent=true였다.",
+    "root_cause": "관측 세션이 최신 완료 세션보다 크거나 같으면 모두 현재로 분류했다. 장중 관측을 허용하려던 비교가 아직 오지 않은 거래소 현지 날짜까지 허용했으며, 알 수 없음과 잘못된 미래 관측을 같은 null로 반환했다.",
+    "fix": "공용 세션 판정이 미래 관측 시각과 거래소 현지 미래 날짜를 invalid 상태로 구분하고 isSessionCurrent는 false를 반환한다. 미등록 달력의 null fallback과 정상 장중 관측은 유지한다.",
+    "violated_rule": "R670 직전 미국 정규장 기준, 데이터 정직성과 미래 정보 금지",
+    "prevention": "실제 공용 판정 함수에 미국·한국 미래 세션, UTC와 현지 날짜 경계, 장중 현재 세션 및 미등록 달력 회귀를 함께 검사한다.",
+    "verification": "ci-pipeline-semantics-check --only screener: 수정 전 BC-SESSION-01 실패, 수정 후 17건 통과. 읽기 전용 독립 검토가 발견한 입력도 재현했다."
+  },
+  "qa": [{ "id": "QA-SESSION-FUTURE-VALIDITY-01", "text": "미래 관측과 미래 현지 세션은 invalid이고 장중 현재 세션 및 미등록 달력 fallback은 별개다", "verify_by": "node scripts/ci-pipeline-semantics-check.mjs --only screener", "done": true }],
+  "changelog": ["**거래 세션의 유효성 ({P}):** 미래 현지 날짜와 미래 관측 시각을 미등록 달력과 구분해 현재 판정을 차단했다. 정상 장중 관측은 계속 허용한다.", "**Worker 접근 계약 정정 (v59.52):** 주간 운영 리뷰가 이미 사용하는 ai-usage의 Automation token 접근을 endpoint 레지스트리에 명시했다. 인증 구현·권한은 변경하지 않았다."],
+  "note": "v59.52: AI 비교·키워드·지표·거래 세션 경계 재설계와 퇴역 경로 정리"
+}

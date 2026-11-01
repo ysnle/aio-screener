@@ -45,23 +45,31 @@ function statementNode(doc, tag, { text, reading }, className) {
 // shows) with the headline that named each the same day, or '같은 날 관련 보도 없음'. No movers, no section.
 // v59.51 (content audit): the movers' headlines are a fold under the sector bars (one visual, one section) instead of a
 // section of their own — the bars say what moved, the fold says which names moved and what was reported the same day.
-function renderMoveNews(doc, root, store, flow) {
-  doc.getElementById('briefing-move-news')?.remove();
+export function renderMoveNews(doc, root, store, flow) {
   const sector = doc.getElementById('briefing-sector-moves');
+  if (!sector) return;
   const rows = moveNewsRows(root, store, flow);
-  if (!rows.length || !sector) return;
+  let fold = doc.getElementById('briefing-move-news');
+  if (!rows.length) { if (fold) fold.hidden = true; return; }
   const matched = rows.filter((row) => row.headline).length;
-  const fold = el(doc, 'details', null, 'sx-disclosure briefing-move-news');
-  fold.id = 'briefing-move-news';
-  const summary = el(doc, 'summary', `왜 움직였나, 종목·테마 ${rows.length}곳 `);
+  if (!fold) {
+    fold = el(doc, 'details', null, 'sx-disclosure briefing-move-news');
+    fold.id = 'briefing-move-news';
+    sector.append(fold);
+  }
+  let summary = fold.querySelector(':scope > summary');
+  if (!summary) { summary = el(doc, 'summary'); fold.append(summary); }
+  let body = fold.querySelector(':scope > .briefing-move-news-body');
+  if (!body) { body = el(doc, 'div', null, 'briefing-move-news-body'); fold.append(body); }
+  summary.replaceChildren(doc.createTextNode(`왜 움직였나, 종목·테마 ${rows.length}곳 `));
   // v58.79: date chip; what the list compares is its hover.
   summary.append(asOfChip(doc, `${shortDate(flow.session)} 종가`, '미국 종가, 같은 업종·테마 안에서 갈린 종목과 테마'));
   const lead = el(doc, 'p', matched
     ? `${rows.length}곳 중 ${matched}곳은 같은 날 이름이 나온 보도나 채널 글이 있습니다. 보도는 같은 날 나왔다는 사실이며 원인을 확정하지는 않습니다.`
     : `${rows.length}곳 모두 같은 날 이름이 나온 보도를 찾지 못했습니다.`, 'briefing-read-reading');
   // The matched rows first, then the movers without a same-day headline.
-  fold.append(summary, lead, ...[moveNewsList(doc, root, rows), moveNewsList(doc, root, rows.filter((row) => !row.headline), { showMissing: true })].filter(Boolean));
-  sector.append(fold);
+  body.replaceChildren(lead, ...[moveNewsList(doc, root, rows), moveNewsList(doc, root, rows.filter((row) => !row.headline), { showMissing: true })].filter(Boolean));
+  fold.hidden = false;
 }
 
 const kstMd = (iso) => { const [, m, d] = String(iso || '').split('-').map(Number); return m && d ? `${m}/${d}` : ''; };

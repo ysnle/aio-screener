@@ -8,6 +8,12 @@ import vm from 'node:vm';
 const root = process.cwd();
 
 export const cases = [
+  { id: 'v59.52', name: 'an unknown or missing semantics area fails instead of passing zero cases', run: async () => {
+      for (const args of [['--only', 'not-an-area'], ['--only'], ['--only', 'ai,qa'], ['--only', 'ai', 'qa'], ['--only', 'ai', '--only', 'qa'], ['--unknown']]) {
+        const run = spawnSync(process.execPath, ['scripts/ci-pipeline-semantics-check.mjs', ...args], { cwd: root, encoding: 'utf8', timeout: 10000 });
+        assert.equal(run.status, 1, `invalid selection ${args.join(' ')} must fail: ${run.stdout} ${run.stderr}`);
+      }
+  } },
   { id: 'P3-QA-02', name: 'staged blob over 1 MiB still gets a digest in candidate binding', run: async () => {
       const source = readFileSync('scripts/qa-runner.mjs', 'utf8');
       const fn = source.match(/const stagedDigest = \(file\) => \{[\s\S]*?\n  \};/)?.[0];

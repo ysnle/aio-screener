@@ -1,8 +1,39 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-10-31
+last_verified: 2026-11-01
 confidence: medium
 ---
+
+## v59.54 포트폴리오 통화 (2026-11-01)
+
+- [x] QA-PF-CCY-01: v59.54 기준 통화를 선언하지 않은 포트폴리오에서 AI 문맥이 '기준 통화 미선언(종목 상장 통화 …로 계산)'으로 나오고, 시세 통화를 알 수 없는 보유만 있을 때 '환율을 선언하세요' 대신 시세 통화를 알 수 없다는 안내가 나오는지 확인. verify_by: contract
+- [x] QA-AI-PRICE-01: v59.54 AI 스크리너 문맥의 실시간 시세가 관측 시각과 함께 나오고 종가 준비 상태(STALE)가 붙지 않는지 확인. verify_by: contract
+- [x] QA-PF-ADD-01: v59.54 포트폴리오 보유 추가를 연달아 두 번 누르면 행이 하나만 생기고 교체 확인 창이 뜨지 않는지 확인. verify_by: browser
+- [x] QA-TICKER-NAME-01: v59.54 등록 종목 밖 미국 상장 기호를 열면 상장 목록의 회사 이름이 제목에 나오는지 확인. verify_by: browser
+
+## v59.53 기존 기능과 콘텐츠의 의미·사용성 (2026-11-01)
+
+- [x] QA-TEMPERATURE-MEANING-01: 온도계는 반대 방향의 극단을 정상으로 평균내지 않고, 지연 자료만 있으면 현재 상태를 판정하지 않는다. verify_by: node scripts/ci-pipeline-semantics-check.mjs --only market
+- [x] QA-VERIFY-CURRENT-PATHS-01: 검증 지도와 드라이버는 현재 화면을 사용자의 실제 펼침·목록 복귀 조작으로 검증한다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive all --port 8798 --viewport desktop --run product-depth-final
+- [x] QA-RESEARCH-READING-FOCUS-01: 목차·서가·검색에서 고른 문서는 본문으로 읽기 포커스를 연결하고 비동기 로딩도 현재 키보드 맥락을 보존한다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive learn --port 8798 --viewport desktop --run product-depth-final
+- [x] QA-HOLDING-LISTING-UNIT-01: 보유 저장 키와 등록된 상장 시세 키·통화를 함께 읽고, 통화 미확인과 환산 없는 혼합 합계를 만들지 않는다. verify_by: node scripts/ci-pipeline-semantics-check.mjs --only portfolio
+- [x] QA-SECTOR-ETF-EXPOSURE-01: 섹터 ETF의 업종 비중은 유지하고, ETF 상품 여부만으로 업종 집중도에서 제외하지 않는다. verify_by: node scripts/ci-pipeline-semantics-check.mjs --only portfolio
+- [x] QA-THEME-USER-DISCLOSURES-01: S&P 500 지도와 AI 설비투자 설명은 일반 화면에서 사용자가 직접 펼치고 읽을 수 있다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive themes --port 8798 --viewport desktop --run product-depth-final
+
+## v59.52 v59 변경 재검토 (2026-11-01)
+
+- [x] QA-AI-SCREENER-READINESS-01: AI 종목 검색은 정본 지표의 calculation/display 허용 상태와 기준일을 보존한다. verify_by: node scripts/ci-pipeline-semantics-check.mjs --only ai
+- [x] QA-PORTFOLIO-TINY-TREND-01: 포트폴리오의 양수 추세 비중은 반올림 후에도 없음으로 바뀌지 않는다. verify_by: node scripts/ci-pipeline-semantics-check.mjs --only portfolio
+- [x] QA-SCENARIO-LEADER-SET-01: 시나리오 기록은 동률의 순서만 무시하고 구성 변화와 진입·해소는 기록한다. verify_by: node scripts/ci-pipeline-semantics-check.mjs --only producers
+- [x] QA-SEMANTICS-AREA-01: 의미 검사에 잘못된 영역·누락된 값을 주면 0건 PASS 대신 실패한다. verify_by: node scripts/ci-pipeline-semantics-check.mjs --only qa
+- [x] QA-AI-LAZY-DRAFT-01: 채팅 스크립트 다운로드 실패에도 초안이 유지되고 재시도에서 한 번만 전송한다. verify_by: node scripts/ci-pipeline-semantics-check.mjs --only ai
+- [x] QA-AI-COMPARISON-PURPOSE-01: 넓은 종목 질문은 임의 추천 점수 없이 분산 비교 표본과 조건별 차이를 제공한다. verify_by: node scripts/ci-pipeline-semantics-check.mjs --only ai
+- [x] QA-PORTFOLIO-BENCHMARK-READINESS-01: 보유 종목·비교 지수·섹터 ETF의 수익률은 같은 지표 사용 계약을 따른다. verify_by: node scripts/ci-pipeline-semantics-check.mjs --only portfolio; node scripts/ci-portfolio-vault-e2e.mjs
+- [x] QA-RETIRED-FUND-RECENT-01: 종목 선택은 세션에 보존되고 퇴역한 최근 검색 저장소에 쓰지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-runtime-contract-check.mjs
+- [x] QA-AI-QUERY-WORD-BOUNDARY-01: AI 종목 검색은 retail 안의 AI/IT나 대명사 it를 업종·테마로 읽지 않고 실제 AI·IT·영문 복수형은 인식한다. verify_by: node scripts/ci-pipeline-semantics-check.mjs --only ai
+- [x] QA-SESSION-FUTURE-VALIDITY-01: 미래 관측과 미래 현지 세션은 invalid이고 장중 현재 세션 및 미등록 달력 fallback은 별개다. verify_by: node scripts/ci-pipeline-semantics-check.mjs --only screener
+- [x] QA-RENDER-FOLD-OWNERSHIP-01: 자료·시세 갱신은 같은 문서의 열린 브리핑·종목 근거와 summary 포커스를 보존한다. verify_by: node scripts/ci-user-journey-quality-check.mjs && node scripts/ci-entity-quality-browser-check.mjs
+- [x] QA-BROWSER-EVIDENCE-SCOPE-01: entity-quality는 실행 case 목록과 자료 의존 probe 생략을 정직하게 보고하며 존재하지 않는 case는 실패한다. verify_by: node scripts/ci-entity-quality-browser-check.mjs
 
 ## v59.51 휴대폰 첫 동작 (2026-10-31)
 

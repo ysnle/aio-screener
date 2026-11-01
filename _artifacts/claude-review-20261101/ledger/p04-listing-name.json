@@ -1,0 +1,21 @@
+{
+  "version": "v59.54",
+  "date": "2026-11-01",
+  "p": {
+    "title": "등록 종목 밖 미국 상장 기호(FB, AAP)의 종목 화면 제목에 회사 이름이 없음",
+    "symptom": "첫 사용자 점검 run-6 #11: FB·AAP를 열면 이름 없이 기호만 보여 '없는 종목'처럼 읽혔다. 실제로 FB는 ProShares S&P 500 Dynamic Buffer ETF, AAP는 Advance Auto Parts Inc.로 상장돼 있다(MERGED.md의 '퇴역 기호' 전제가 틀렸음).",
+    "root_cause": "src/ui/pages/entity.js 헤더가 등록 종목 이름만 읽고, 이미 내려받는 미국 상장 목록(_aioCheckUsListing)의 이름을 쓰지 않았다.",
+    "fix": "entity.js usListingNameFor가 등록 종목이 아니고 이름이 없을 때 상장 목록 이름을 한 번 찾아(root._aioListingNames 캐시) ticker-hero-fullname에 쓴다.",
+    "violated_rule": "AGENTS 티커 추정 금지 — 이름은 상장 목록 원천에서만 가져온다.",
+    "prevention": "scripts/ci-out-of-universe-ticker-browser-check.mjs가 픽스처 BUFX의 상장 이름이 제목에 뜨는지 휴대폰·데스크톱에서 확인한다.",
+    "verification": "브라우저에서 FB·AAP 이름 표시, NVDA 변화 없음 확인; out-of-universe 브라우저 검사 통과."
+  },
+  "qa": [
+    { "id": "QA-TICKER-NAME-01", "text": "v59.54 등록 종목 밖 미국 상장 기호를 열면 상장 목록의 회사 이름이 제목에 나오는지 확인", "verify_by": "browser" }
+  ],
+  "qa_section": "종목 화면",
+  "changelog": [
+    "**상장 목록 이름 ({P}):** 등록 종목 밖의 미국 상장 기호를 열면 상장 목록에 있는 회사·펀드 이름을 제목에 보여 준다(예: AAP → Advance Auto Parts Inc.)."
+  ],
+  "note": "v59.54: Codex v59.52~53 객관 검토 반영(구조 수정) + run-6 남은 후속 작업"
+}

@@ -1,0 +1,1254 @@
+{
+  "schema": "aio-product-depth-qa.v1",
+  "version": "v59.53",
+  "scope": "Local source and artifacts. Not deployed service certification or complete research-fact audit.",
+  "runs": [
+    {
+      "runId": "2026-11-01T09-07-24-207Z-31964-7s11c6",
+      "profile": "full",
+      "counts": {
+        "PASS": 157,
+        "CACHED": 0,
+        "FAIL": 3,
+        "SKIP": 0
+      },
+      "failed": [
+        "data-refresh",
+        "data-lineage",
+        "browser-architecture"
+      ],
+      "skipped": []
+    },
+    {
+      "runId": "2026-11-01T09-20-21-594Z-8984-rqq1h7",
+      "profile": "rerun-failed",
+      "counts": {
+        "PASS": 0,
+        "CACHED": 0,
+        "FAIL": 2,
+        "SKIP": 1
+      },
+      "failed": [
+        "data-refresh",
+        "data-lineage"
+      ],
+      "skipped": [
+        "browser-architecture"
+      ]
+    },
+    {
+      "runId": "2026-11-01T09-21-19-210Z-1600-ai0u9k",
+      "profile": "affected",
+      "counts": {
+        "PASS": 108,
+        "CACHED": 58,
+        "FAIL": 4,
+        "SKIP": 0
+      },
+      "failed": [
+        "data-refresh",
+        "data-lineage",
+        "watchdog-web-research",
+        "watchdog-data-refresh"
+      ],
+      "skipped": []
+    }
+  ],
+  "final": {
+    "countsByKind": {
+      "static": {
+        "PASS": 67,
+        "CACHED": 58,
+        "FAIL": 2
+      },
+      "browser": {
+        "PASS": 33
+      },
+      "external": {
+        "PASS": 8,
+        "FAIL": 2
+      }
+    },
+    "results": [
+      {
+        "id": "product-charter",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 114,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "version",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 227,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "native-decision",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 248,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "capability-claims",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 235
+      },
+      {
+        "id": "operations-contract",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 215,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "route-registry",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 228
+      },
+      {
+        "id": "generated-state",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 764
+      },
+      {
+        "id": "workspace-contract",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 3848
+      },
+      {
+        "id": "qa-runner-behavior",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 36957
+      },
+      {
+        "id": "syntax",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 1049,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "architecture",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 1058,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "workflow-yaml",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 3846,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "csp-meta",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 106,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "inline-style-ratchet",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 420,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "event-briefs",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 646,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "shared-primitive-ratchet",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 452,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "regex-term-ratchet",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 375,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "boot-budget",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 1043,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "research-reference-index",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 130,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "decomposition",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 175,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "expect-output",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 505
+      },
+      {
+        "id": "instruction-text-ratchet",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 289,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "page-decision-reference",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 108,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "rotation-history",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 284,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "fundamental-watchlist-timeline",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 189,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "market-session",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 2630,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "service-worker-cache-policy",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 335,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "ai-intelligence",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 571,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "artifact-cache",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 1838,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "pipeline-semantics",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 2496,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "ai-evidence",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 247,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "research-model",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 226,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "domain-parity",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 358,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "research-flow",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 179,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "data-continuity",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 1724
+      },
+      {
+        "id": "proxy-continuity",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 507,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "research-validation",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 652,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "deployment-convergence",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 138
+      },
+      {
+        "id": "storage-migration",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 194,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "retirement",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 168,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "csp",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 337,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "esm-core",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 4029,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "desktop-continuity",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 690,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "structural",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 475,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "default-ux",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 363,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "desktop-scope",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 416,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "ai-chat-reliability",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 309,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "page-timeline",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 168,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "semantic-review",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 125,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "reference-adoption-contract",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 214,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "runtime",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 863,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "conditional-native-search",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 331,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "entity-summary-fixture",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 300,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "chart-scenarios-fixture",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 278,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "screener-market-fixture",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 362,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "interpretation-boundary-check",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 905,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "scenario-guidance-fixture",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 2203,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "codex-structure-regression-fixture",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 2481,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "data-pipeline",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 5586,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "architecture-audit-regression-fixture",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 227,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "fiscal-quality-fixture",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 387,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "korea-participation-fixture",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 222,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "13f-figi-ticker-fixture",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 156,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "ui-vocabulary",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 437,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "macro-calendar-review",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 289
+      },
+      {
+        "id": "official-references",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 213
+      },
+      {
+        "id": "screener-workbench",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 1009
+      },
+      {
+        "id": "screener-extended",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 21484
+      },
+      {
+        "id": "conditional-evidence",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 197
+      },
+      {
+        "id": "market-snapshot",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 6177
+      },
+      {
+        "id": "history-time",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 618
+      },
+      {
+        "id": "history-session-model",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 847
+      },
+      {
+        "id": "narrative-lifecycle-model",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 70981
+      },
+      {
+        "id": "data-plane",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 486
+      },
+      {
+        "id": "operations-status",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 242
+      },
+      {
+        "id": "operations-alert-policy",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 242
+      },
+      {
+        "id": "operations-weekly-review",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 231
+      },
+      {
+        "id": "fast-plane-consumer",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 364
+      },
+      {
+        "id": "operations-slo",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 327
+      },
+      {
+        "id": "reconciliation",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 223
+      },
+      {
+        "id": "source-registry",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 215
+      },
+      {
+        "id": "professional-gap",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 899
+      },
+      {
+        "id": "lookahead-check",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 5381,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "sec-runtime-projection",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 1178
+      },
+      {
+        "id": "sec-ledger-store",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 8612
+      },
+      {
+        "id": "candidate-archive",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 3743
+      },
+      {
+        "id": "us-listings",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 303
+      },
+      {
+        "id": "review-integrity",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 590
+      },
+      {
+        "id": "static-data",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 616
+      },
+      {
+        "id": "artifact-semantics",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 1170
+      },
+      {
+        "id": "crash-replay-check",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 6753,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "regime-scenarios-fixture",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 1852,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "static-db-expiry",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 222,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "refresh-integrity",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 396
+      },
+      {
+        "id": "producer-dry-run",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 28120
+      },
+      {
+        "id": "release-revision",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 396
+      },
+      {
+        "id": "13f-currentness",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 301
+      },
+      {
+        "id": "13f-semantic-noop",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 235
+      },
+      {
+        "id": "artifact-headroom",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 285
+      },
+      {
+        "id": "company-profile-contract",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 594
+      },
+      {
+        "id": "knowledge-generated-parity",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 69658
+      },
+      {
+        "id": "knowledge-corpus",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 1340
+      },
+      {
+        "id": "six-doc-coverage",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 428
+      },
+      {
+        "id": "atlas-contract",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 371
+      },
+      {
+        "id": "principles-contract",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 430
+      },
+      {
+        "id": "masters-contract",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 3635
+      },
+      {
+        "id": "knowledge-lint",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 1968
+      },
+      {
+        "id": "workflow-compaction",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 436
+      },
+      {
+        "id": "skill-contract",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 359
+      },
+      {
+        "id": "agent-profiles",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 207
+      },
+      {
+        "id": "agent-skills",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 369
+      },
+      {
+        "id": "operator-provisioning",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 280
+      },
+      {
+        "id": "manual-reference-expiry",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 1052,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "record-fix",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 9764
+      },
+      {
+        "id": "generated-conflict-fixture",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 9578
+      },
+      {
+        "id": "data-refresh",
+        "status": "FAIL",
+        "kind": "static",
+        "durationMs": 1061,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "text-pin-ratchet",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 714
+      },
+      {
+        "id": "qa-pipeline-contract",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 786
+      },
+      {
+        "id": "ledger-integrity",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 378,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "extension-api-runtime",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 209
+      },
+      {
+        "id": "worker-anthropic",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 458,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "ai-budget-scope",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 308,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "operations-alert-source",
+        "status": "CACHED",
+        "kind": "static",
+        "durationMs": 366
+      },
+      {
+        "id": "assertion-trace",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 980,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "worker-relay",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 217,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "cloudflare-deployment",
+        "status": "PASS",
+        "kind": "static",
+        "durationMs": 452,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "data-lineage",
+        "status": "FAIL",
+        "kind": "static",
+        "durationMs": 7945,
+        "evidenceLevel": "static"
+      },
+      {
+        "id": "headless",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 10334,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-ai-public",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 14836,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-chat-ui-state",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 722,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-chat-response-layout",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 1685,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-market-epoch",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 7876,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-screener-refresh",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 18671,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-screener-extended",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 30518,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-boot",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 11630,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-architecture",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 24420,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-vertical",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 11146,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "artifact-budget",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 6726,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-atlas",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 15479,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-principles",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 12880,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-masters",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 9497,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-user-journey",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 14770,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-reference-adoption",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 10055,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-theme-research",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 26431,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-learning-flow",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 5603,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-route-soak",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 20630,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-sa02",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 13763,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-sa03",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 2822,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-sa04",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 9343,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-viewport",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 16743,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-responsive",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 23898,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-entity-quality",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 26715,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-touch-ergonomics",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 16749,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-out-of-universe-ticker",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 30525,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-critical",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 12165,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-vault",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 26229,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-a11y",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 9006,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-ui-render-hygiene",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 21609,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-rendered-copy-lint",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 20631,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "browser-secondary-text-budget",
+        "status": "PASS",
+        "kind": "browser",
+        "durationMs": 37147,
+        "evidenceLevel": "runtime/headless"
+      },
+      {
+        "id": "watchdog-operations",
+        "status": "PASS",
+        "kind": "external",
+        "durationMs": 114,
+        "evidenceLevel": "live/external"
+      },
+      {
+        "id": "watchdog-reconciliation",
+        "status": "PASS",
+        "kind": "external",
+        "durationMs": 175,
+        "evidenceLevel": "live/external"
+      },
+      {
+        "id": "watchdog-source-registry",
+        "status": "PASS",
+        "kind": "external",
+        "durationMs": 121,
+        "evidenceLevel": "live/external"
+      },
+      {
+        "id": "watchdog-professional-gap",
+        "status": "PASS",
+        "kind": "external",
+        "durationMs": 552,
+        "evidenceLevel": "live/external"
+      },
+      {
+        "id": "watchdog-static-data",
+        "status": "PASS",
+        "kind": "external",
+        "durationMs": 372,
+        "evidenceLevel": "live/external"
+      },
+      {
+        "id": "watchdog-manual-reference-expiry",
+        "status": "PASS",
+        "kind": "external",
+        "durationMs": 159,
+        "evidenceLevel": "live/external"
+      },
+      {
+        "id": "watchdog-web-research",
+        "status": "FAIL",
+        "kind": "external",
+        "durationMs": 104,
+        "evidenceLevel": "live/external"
+      },
+      {
+        "id": "watchdog-data-refresh",
+        "status": "FAIL",
+        "kind": "external",
+        "durationMs": 234,
+        "evidenceLevel": "live/external"
+      },
+      {
+        "id": "watchdog-artifact-headroom",
+        "status": "PASS",
+        "kind": "external",
+        "durationMs": 163,
+        "evidenceLevel": "live/external"
+      },
+      {
+        "id": "watchdog-market-snapshot",
+        "status": "PASS",
+        "kind": "external",
+        "durationMs": 3112,
+        "evidenceLevel": "live/external"
+      }
+    ],
+    "semantics": "206 cases across 12 areas PASS",
+    "headless": "1091/1091 PASS",
+    "architecture": "PASS",
+    "failures": [
+      {
+        "ids": [
+          "data-refresh",
+          "watchdog-data-refresh"
+        ],
+        "reason": "Posted snapshot beyond 12h SLA; table also flags old Put/Call, HY OAS and shared market evidence. No local producer or timestamp rewrite performed."
+      },
+      {
+        "ids": [
+          "data-lineage"
+        ],
+        "reason": "data.json live-core age exceeds SLA."
+      },
+      {
+        "ids": [
+          "watchdog-web-research"
+        ],
+        "reason": "AAII automated collection has no success within 12h; weekly survey observation itself is still current."
+      }
+    ]
+  },
+  "userFlows": {
+    "cases": 33,
+    "steps": 243,
+    "pass": 33
+  },
+  "performance": {
+    "status": "TARGET_MISS",
+    "policy": "report-not-blocking",
+    "decodedSameOriginJsMb": 4.22,
+    "targetMb": 1.5,
+    "scope": "Boot measurement window plus synthetic route transitions; not first-paint-only payload."
+  },
+  "verificationServer": "port8798 stopped; PID4964 absent",
+  "git": {
+    "commit": false,
+    "push": false,
+    "deploy": false
+  },
+  "limits": [
+    "All research documents were not individually fact-checked.",
+    "Live AI, Worker and market provider results were not certified.",
+    "SMH home price-change vs rotation adjusted-close total-return basis differs; observed numeric discrepancy cause remains unverified."
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "version": "v59.53",
+  "date": "2026-11-01",
+  "qa_section": "기존 기능과 콘텐츠의 의미·사용성",
+  "p": {
+    "title": "접힌 사용자 콘텐츠와 현재 탐색 계약을 따르지 않는 검증 드라이버",
+    "symptom": "수정 전 실제 desktop 사용자 드라이브는 11개 중 7개만 통과했다. 목차·금리 상세를 열지 않고 내부 요소를 누르거나 퇴역한 도움말 카드·테마 복귀 버튼을 찾았다.",
+    "root_cause": "v59.51의 상세 접기와 테마 독립 화면 전환이 검증 지도·드라이버의 사용자 경로에 반영되지 않았다.",
+    "fix": "목차·금리·지도·사분면·서가를 실제 summary 클릭으로 펼친다. 도움말은 현행 세 장을 확인하고 테마 복귀는 상세 닫기 후 같은 테마 재진입으로 검증한다. 내부 open setter를 제거하고 원본·미러를 생성기로 동기화했다.",
+    "verification": "수정 전 drive all desktop 7/11 PASS. 수정 후 각 11개 feature report PASS, themes 8단계 및 learn 8단계 PASS. check 11features PASS. mobile/tablet는 최종 증거로 구분.",
+    "violated_rule": "C4 공용 의미와 단일 소유권, 데이터 정직성, 사용자 가치 우선",
+    "prevention": "검증 지도와 드라이버는 현재 화면을 사용자의 실제 펼침·목록 복귀 조작으로 검증한다 — node .claude/skills/verify-aio/scripts/verify-aio.mjs drive all --port 8798 --viewport desktop --run product-depth-final"
+  },
+  "qa": [
+    {
+      "id": "QA-VERIFY-CURRENT-PATHS-01",
+      "text": "검증 지도와 드라이버는 현재 화면을 사용자의 실제 펼침·목록 복귀 조작으로 검증한다",
+      "verify_by": "node .claude/skills/verify-aio/scripts/verify-aio.mjs drive all --port 8798 --viewport desktop --run product-depth-final",
+      "done": true
+    }
+  ],
+  "changelog": [
+    "**접힌 사용자 콘텐츠와 현재 탐색 계약을 따르지 않는 검증 드라이버 ({P}):** 목차·금리·지도·사분면·서가를 실제 summary 클릭으로 펼친다. 도움말은 현행 세 장을 확인하고 테마 복귀는 상세 닫기 후 같은 테마 재진입으로 검증한다. 내부 open setter를 제거하고 원본·미러를 생성기로 동기화했다."
+  ],
+  "note": "v59.53: 포트폴리오 통화·ETF 분류, 시장 온도 의미, 리서치 읽기 포커스와 사용자 콘텐츠 접근 구조 개선"
+}

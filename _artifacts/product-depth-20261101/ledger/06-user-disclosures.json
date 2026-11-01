@@ -1,0 +1,26 @@
+{
+  "version": "v59.53",
+  "date": "2026-11-01",
+  "qa_section": "기존 기능과 콘텐츠의 의미·사용성",
+  "p": {
+    "title": "일반 사용자에게 필요한 S&P 500 지도와 AI 설비투자 설명을 개발자 전용 CSS가 숨김",
+    "symptom": "테마의 두 콘텐츠는 DOM과 데이터가 있어도 일반 화면의 CSS가 summary까지 숨겨 사용자가 열 수 없었다. 실제 드라이브가 summary 클릭에서도 timeout으로 실패했다.",
+    "root_cause": "새 사용자 콘텐츠의 접기를 과거 개발자 도구 class로 분류했다. 모든 advanced 영역을 숨기는 기존 CSS 계약과 충돌했다.",
+    "fix": "지도와 설비투자 설명을 기존 사용자용 sx-disclosure 구성으로 분류한다. 개발자 숨김 CSS에 예외 selector를 덧붙이지 않았다.",
+    "verification": "수정 전 지도 summary 클릭 timeout. 수정 후 실제 desktop themes 8/8 PASS: 지도 데이터·설비투자 내용·목록 복귀·같은 테마 재진입·종목 연결 확인.",
+    "violated_rule": "C4 공용 의미와 단일 소유권, 데이터 정직성, 사용자 가치 우선",
+    "prevention": "S&P 500 지도와 AI 설비투자 설명은 일반 화면에서 사용자가 직접 펼치고 읽을 수 있다 — node .claude/skills/verify-aio/scripts/verify-aio.mjs drive themes --port 8798 --viewport desktop --run product-depth-final"
+  },
+  "qa": [
+    {
+      "id": "QA-THEME-USER-DISCLOSURES-01",
+      "text": "S&P 500 지도와 AI 설비투자 설명은 일반 화면에서 사용자가 직접 펼치고 읽을 수 있다",
+      "verify_by": "node .claude/skills/verify-aio/scripts/verify-aio.mjs drive themes --port 8798 --viewport desktop --run product-depth-final",
+      "done": true
+    }
+  ],
+  "changelog": [
+    "**일반 사용자에게 필요한 S&P 500 지도와 AI 설비투자 설명을 개발자 전용 CSS가 숨김 ({P}):** 지도와 설비투자 설명을 기존 사용자용 sx-disclosure 구성으로 분류한다. 개발자 숨김 CSS에 예외 selector를 덧붙이지 않았다."
+  ],
+  "note": "v59.53: 포트폴리오 통화·ETF 분류, 시장 온도 의미, 리서치 읽기 포커스와 사용자 콘텐츠 접근 구조 개선"
+}

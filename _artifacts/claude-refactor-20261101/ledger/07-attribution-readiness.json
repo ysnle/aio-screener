@@ -1,0 +1,15 @@
+{
+  "version": "v59.52", "date": "2026-11-01", "qa_section": "포트폴리오 비교 입력",
+  "p": {
+    "title": "포트폴리오 비교 지수·섹터 ETF가 지표 계약을 우회",
+    "symptom": "보유 종목 수익률이 허용된 경우에도 MISSING·BLOCKED_RIGHTS·STALE인 SPY나 섹터 ETF의 원시 수익률을 기준 지수와 섹터 기여도에 사용했다.",
+    "root_cause": "v59.46의 경계 보강이 보유 종목의 수익률만 readRowNumber(calculation)로 바꾸고, 비교하는 두 수익률은 finite/Number 직접 읽기를 남겼다.",
+    "fix": "보유 종목·비교 지수·섹터 ETF 모두 같은 calculation 판독기를 사용한다. 사용할 수 없는 SPY는 기존 가격 지수 비교로 돌아가고, 사용할 수 없는 섹터 수익률은 기존 미분해·coverage 표시를 따른다.",
+    "violated_rule": "C8 결측은 값이 아니다, C10 한 지표에는 한 원천과 한 표시 owner",
+    "prevention": "pipeline-semantics portfolio가 같은 날짜의 MISSING·권리 차단·STALE·LAST_GOOD·CONFLICT 섹터 입력과 CURRENT를 대조한다. ci-portfolio-vault-e2e가 실제 렌더러의 SPY 선택을 CURRENT·BLOCKED_RIGHTS·STALE·MISSING에서 대조한다.",
+    "verification": "node scripts/ci-pipeline-semantics-check.mjs --only portfolio: 새 섹터 사례는 수정 전 MISSING에서 실패, 수정 후 24건 통과. 배치 QA browser-vault PASS에서 실제 렌더러의 SPY 선택도 확인했다."
+  },
+  "qa": [{ "id": "QA-PORTFOLIO-BENCHMARK-READINESS-01", "text": "보유 종목·비교 지수·섹터 ETF의 수익률은 같은 지표 사용 계약을 따른다", "verify_by": "node scripts/ci-pipeline-semantics-check.mjs --only portfolio; node scripts/ci-portfolio-vault-e2e.mjs", "done": true }],
+  "changelog": ["**포트폴리오 비교 입력 계약 ({P}):** 보유 종목뿐 아니라 SPY·섹터 ETF 수익률도 같은 공용 판독기를 사용한다. 차단·결측·오래된 비교 수익률로 기여도를 만들지 않는다."],
+  "note": "v59.52: AI 비교 표본 재설계와 지표 경계 통일, 초안·추세·시나리오·검증 선택 근본 수정"
+}

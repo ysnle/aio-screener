@@ -13,7 +13,7 @@ export function baseValueRows(surface, positions = []) {
   }
   const rows = list.map((position) => ({ sym: position.ticker, value: byTicker.get(String(position.ticker || '').toUpperCase()) ?? null }));
   const valued = rows.filter((row) => row.value != null);
-  return { blocked: false, rows: valued, excluded: rows.length - valued.length, currency: surface?.baseCurrency || null };
+  return { blocked: false, rows: valued, excluded: rows.length - valued.length, currency: surface?.valuationCurrency || null };
 }
 
 export function baseValueNote(base) {

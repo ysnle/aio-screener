@@ -18,7 +18,7 @@ const sourceFiles = ['index.html','src/ui/pages/entity.js','src/ui/pages/screene
   'src/domain/entity/summary-hydration.js','src/domain/screener/market-scope.js','src/domain/screener/factor-ranks.js',
   'src/data/providers/screener.js','src/domain/fundamental/fiscal-read.js','src/domain/technical/chart-scenarios.js'];
 const sourceHashes = Object.fromEntries(sourceFiles.map(file=>[file,createHash('sha256').update(readFileSync(resolve(root,file))).digest('hex')]));
-const failures = [], observations = [];
+const failures = [], observations = [], executedCases = [];
 // v57.60: screenshots are captured as buffers and written atomically (retries Windows EPERM/EBUSY locks).
 const snap = async (page, name, options = {}) => atomicWriteFile(resolve(out, name), await page.screenshot(options));
 const viewports = [{ name: 'phone', width:390, height:844 }, { name:'tablet', width:820, height:1180 }, { name:'desktop', width:1440, height:1000 }];
@@ -82,10 +82,12 @@ try {
   server = await startLocalServer(port, { label: 'entity-quality/server' });
   browser = await chromium.launch({ headless:true });
   // QA speed (2026-10-12): the six viewport x theme cases are independent pages on one browser; run three at once.
-  const cases = viewports.flatMap((viewport) => [false, true].map((dark) => ({ viewport, dark })));
+  const allCases = viewports.flatMap((viewport) => [false, true].map((dark) => ({ viewport, dark })));
+  const cases = allCases.filter(({ viewport, dark }) => !process.env.AIO_ENTITY_QUALITY_CASE || process.env.AIO_ENTITY_QUALITY_CASE === `${viewport.name}-${dark ? 'dark' : 'light'}`);
+  check(cases.length > 0, 'v59.52 selected entity-quality case must exist', process.env.AIO_ENTITY_QUALITY_CASE);
   const runCase = async ({ viewport, dark }) => {
     const label = `${viewport.name}-${dark ? 'dark' : 'light'}`;
-    if(process.env.AIO_ENTITY_QUALITY_CASE && process.env.AIO_ENTITY_QUALITY_CASE!==label) return;
+    executedCases.push(label);
     console.log(`Entity quality: ${label}`);
     const page = await browser.newPage({ viewport:{width:viewport.width,height:viewport.height}, hasTouch:viewport.width<1100, serviceWorkers:'block' });
     const intercepted = [], errors = [];
@@ -143,18 +145,31 @@ try {
       check(summary.signed.some(bar=>bar.down && bar.width>0) && summary.signed.every(bar=>bar.down ? Math.abs(bar.left+bar.width-50)<.05 : Math.abs(bar.left-50)<.05),`${label}: signed returns cross common zero incorrectly (P1624)`,summary.signed);
       await captureLayout(page,`${label}/summary`);
       await snap(page, `browser-${label}-summary.png`);
+      // v59.52 (P2187): the stock reading is rebuilt on the same real quote event as the company block.
+      const stockFoldRerender = await page.evaluate(() => {
+        const fold = document.querySelector('#ticker-read > details.stock-read-fold');
+        if (!fold) return { exists:false, open:false, focus:false };
+        fold.open = true; fold.querySelector('summary').focus();
+        document.dispatchEvent(new CustomEvent('aio:liveQuotes'));
+        const after = document.querySelector('#ticker-read > details.stock-read-fold');
+        return { exists:!!after, open:!!after?.open, focus:document.activeElement === after?.querySelector('summary') };
+      });
+      observations.push({ label, stockFoldRerender });
+      check(stockFoldRerender.exists && stockFoldRerender.open && stockFoldRerender.focus, `${label}: stock reading fold lost its open state or focus on a quote update (v59.52/P2187)`, stockFoldRerender);
       // v59.51 (content audit) supersedes P1640: the second company summary left 요약; the valuation line sits under the
       // price, and what stays in #ticker-company-analysis is the AI primer hand-off and closed expert folds.
       check(await page.locator('#ticker-company-analysis').isVisible() && await page.locator('#ticker-hero-valuation').count()===1
         && !await page.locator('.company-analysis-expanded, .company-analysis-routes').count(),`${label}: company block missing or the retired second summary returned (v59.51)`);
       const rerender = await page.evaluate(()=>{
-        const fold=document.querySelector('#ticker-company-analysis details'); if (!fold) return { skipped:true, open:true, focus:true };
+        const fold=document.querySelector('#ticker-company-analysis details'); if (!fold) return { skipped:true, reason:'no-company-observations', open:null, focus:null };
         fold.open=true; fold.querySelector('summary').focus();
         document.dispatchEvent(new CustomEvent('aio:liveQuotes'));
         const after=document.querySelector(`#ticker-company-analysis details.${fold.className.split(' ')[0]}`);
         return { open:!!after?.open, focus:document.activeElement===after?.querySelector('summary') };
       });
-      check(rerender.open && rerender.focus,`${label}: quote re-render collapsed the opened company fold or dropped focus (P1630)`,rerender);
+      // v59.52: this data-dependent probe cannot prove state preservation when there is no fold to open.
+      observations.push({ label, companyFoldRerender:rerender });
+      if (!rerender.skipped) check(rerender.open && rerender.focus,`${label}: quote re-render collapsed the opened company fold or dropped focus (P1630)`,rerender);
       await page.getByRole('button',{name:'AI로 기업 분석',exact:true}).click();
       check(await page.locator('#ai-panel-inp').inputValue().then(value=>value.startsWith('AEHR 기업') && value.includes('웹검색')),`${label}: company evidence does not hand off to AI research (P1624)`);
       await page.locator('.ai-ph-close').click();
@@ -253,7 +268,7 @@ finally {
     status:failures.length?'FAIL':'PASS',postmortems:['P1624','P1625','P1626','P1627'],
     version:sourceVersion,sourceHashes,
     evidence:'Headless real route lifecycle with intercepted synthetic AEHR Yahoo chart fixture; unrelated Yahoo tickers return explicit offline 404, other external calls aborted; local published screener/SEC artifacts. Not live market/provider certification.',
-    paidCalls:0,selectedCase:process.env.AIO_ENTITY_QUALITY_CASE || null,libraries:libraries.map(({url,sri})=>({url,sri,transport:'intercepted local pinned bytes'})),viewports,themes:['light','dark'],observations,failures },null,2)+'\n');
+    paidCalls:0,selectedCase:process.env.AIO_ENTITY_QUALITY_CASE || null,executedCases,libraries:libraries.map(({url,sri})=>({url,sri,transport:'intercepted local pinned bytes'})),viewports,themes:['light','dark'],observations,failures },null,2)+'\n');
 }
 if(failures.length) { console.error(`Entity quality browser FAIL (${failures.length})`); failures.forEach(row=>console.error(JSON.stringify(row))); process.exit(1); }
-console.log('Entity quality browser PASS: first summary, signed returns, market separation/3M order, fiscal loss/table and three conditional chart paths across 3 viewports × 2 themes (intercepted fixture; no paid calls).');
+console.log(`Entity quality browser PASS: ${executedCases.length} viewport/theme cases (${executedCases.join(', ')}); intercepted fixture, no paid calls. See observations for data-dependent probe skips.`);

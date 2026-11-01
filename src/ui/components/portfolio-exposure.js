@@ -11,7 +11,10 @@ export function renderPortfolioExposure(positions, returnsMap, { documentRef = g
   if (!el) return;
   if (!positions || !positions.length) { el.innerHTML = ''; return; }
   const db = typeof root._aioGetCanonicalScreenerRows === 'function' ? root._aioGetCanonicalScreenerRows() : [];
-  const find = (sym) => db.find((row) => row.sym === sym) || null;
+  const find = (sym) => {
+    const listing = root._aioResolveHoldingInput?.(sym)?.listingSymbol || sym;
+    return db.find((row) => row.sym === sym || row.sym === listing) || null;
+  };
   const base = root._pfBaseValues(positions);
   if (base.blocked) { el.innerHTML = root._pfBaseNote(base); return; }
   const rows = base.rows.map((r) => ({ sym: r.sym, value: r.value, stock: find(r.sym) }));
@@ -29,7 +32,8 @@ export function renderPortfolioExposure(positions, returnsMap, { documentRef = g
   // the opposite of the 점검 card on the same screen. Both stay on the list, named, but only real sectors are counted
   // and warned on.
   const isEtf = (r) => !!r.stock && (r.stock.index === 'ETF' || r.stock.sector === 'ETF');
-  const kindOf = (r) => (isEtf(r) ? 'etf' : r.stock && r.stock.sector ? 'sector' : 'none');
+  // v59.53: instrument type and sector exposure are separate axes; a sector ETF retains its sector.
+  const kindOf = (r) => (r.stock?.sector && r.stock.sector !== 'ETF' ? 'sector' : isEtf(r) ? 'etf' : 'none');
   const bySec = {};
   const secKind = {};
   rows.forEach((r) => {

@@ -424,6 +424,13 @@ export function readRowNumber(row, rowKey, purpose = 'display') {
   return readNumber(fieldId && row?.fieldReadiness ? fieldValueForPurpose(row, fieldId, purpose) : row?.[rowKey]);
 }
 
+// v59.54 (P2196): `price` is the live quote overlay (LIVE_QUOTE_PRICE_ROW_KEYS) carrying its own observation time; the
+// close readiness under the same row key judges the artifact's close, so readRowNumber would hide a valid live quote.
+export function readLiveQuotePrice(row) {
+  const price = readNumber(row?.price);
+  return price == null ? null : { price, observedAt: row?.priceObservedAt || null };
+}
+
 export function calculationRow(row) {
   const result = { ...row };
   for (const definition of SCREENER_FIELD_REGISTRY.fields) {

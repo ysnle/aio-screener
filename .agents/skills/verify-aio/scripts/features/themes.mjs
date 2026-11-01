@@ -25,7 +25,8 @@ export default {
       if (sub === sectors) throw new Error('scope toggle did not change the chip set');
       return { subsectorChips: sub.split(',').length, sectorChips: sectors.split(',').length };
     }],
-    ['S&P 500 지도 → 타일 두 번 눌러 종목 화면 진입 준비', async (p) => {
+    ['S&P 500 지도 펼치기 → 구성 종목과 기준 확인', async (p) => {
+      await p.locator('#sector-map-fold > summary').click();
       // 2026-10-13: the map paints after the screener rows land; the tile detail line names the member.
       await p.waitForFunction(() => document.querySelectorAll('#sector-map .sector-map-tile').length > 50, null, { timeout: 20000 });
       const tiles = await p.$$eval('#sector-map .sector-map-tile', (n) => n.length);
@@ -37,9 +38,13 @@ export default {
       if (!detail.startsWith(sym)) throw new Error(`tile detail did not name ${sym}: ${detail.slice(0, 80)}`);
       return { tiles, sym, basis: (await visibleText(p, '#sector-map .sector-map-basis')).slice(0, 90) };
     }],
+    ['AI 설비투자 흐름 펼치기 → 설명과 근거', async (p) => {
+      await p.locator('#ai-capex-fold > summary').click();
+      return expectText(p, '#ai-capex-flow', { min: 80 });
+    }],
     ['첫 테마 열기 → 같은 화면 안 상세 패널', async (p) => {
       // v57.76: the quadrant chips sit in the 사분면별 섹터 fold under the scatter chart.
-      await p.evaluate(() => { const fold = document.querySelector('#rrg-quadrant-fold'); if (fold) fold.open = true; });
+      await p.locator('#rrg-quadrant-fold > summary').click();
       const t = p.locator(CHIP).first();
       const arg = await t.getAttribute('data-arg');
       await t.scrollIntoViewIfNeeded();
@@ -47,14 +52,17 @@ export default {
       await p.waitForFunction(() => { const el = document.querySelector('#theme-detail-panel'); return !!el && el.offsetParent !== null && el.innerText.trim().length > 100; }, null, { timeout: 15000 });
       return { themeId: arg, activePage: await activePage(p), panel: (await visibleText(p, '#theme-detail-panel')).slice(0, 120) };
     }],
-    ['선택한 목록으로 (칩으로 스크롤 복귀, 패널 유지)', async (p) => {
+    ['테마 목록으로 (상세 닫힘 · 선택한 칩으로 스크롤 복귀)', async (p) => {
       const arg = await p.locator(CHIP).first().getAttribute('data-arg');
-      await p.click('#theme-detail-panel :text("선택한 목록으로")');
+      await p.getByRole('button', { name: '← 테마 목록으로', exact: true }).click();
       await p.waitForFunction((id) => { const el = document.querySelector(`#page-themes [data-action="showThemeDetail"][data-arg="${id}"]`); if (!el) return false; const r = el.getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; }, arg, { timeout: 8000 });
-      return { chipInViewport: arg };
+      if (await p.locator('#theme-detail-panel').isVisible()) throw new Error('theme detail stayed open after returning to its list');
+      return { chipInViewport: arg, detailClosed: true };
     }],
-    ['상세의 종목 칩 → 종목 화면', async (p) => {
-      const chip = p.locator('#theme-detail-panel [data-action="showTicker"][data-arg]').first();
+    ['목록에서 같은 테마 다시 열기 → 구성 종목 화면', async (p) => {
+      await p.locator(CHIP).first().click();
+      await p.waitForSelector('#theme-detail-panel', { state: 'visible' });
+      const chip = p.locator('#theme-detail-panel [data-action="showTicker"][data-arg]:visible').first();
       const sym = await chip.getAttribute('data-arg');
       await chip.scrollIntoViewIfNeeded();
       await chip.click();

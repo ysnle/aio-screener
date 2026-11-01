@@ -211,7 +211,14 @@ export const cases = [
     assert.equal(current({ market: 'KR', sessionDate: '2026-10-08', now: at('2026-10-13T01:00:00Z') }), false);
     // A year the calendar does not hold cannot be judged; callers fall back to their calendar-day budget.
     assert.equal(current({ sessionDate: '2019-05-01', now: at('2019-05-03T22:00:00Z') }), null);
-    // A future observation is not current.
-    assert.equal(current({ observedAt: '2026-10-31T13:00:00Z', now: at('2026-10-31T12:00:00Z') }), null);
+    // v59.52: invalid future evidence is false, not unknown (which permits the age-budget fallback).
+    assert.equal(current({ observedAt: '2026-10-31T13:00:00Z', now: at('2026-10-31T12:00:00Z') }), false);
+    assert.equal(current({ sessionDate: '2026-11-02', observedAt: '2026-10-30T21:00:00Z', now: at('2026-10-30T21:00:00Z') }), false);
+    assert.equal(current({ market: 'KR', sessionDate: '2026-11-02', now: at('2026-10-30T21:00:00Z') }), false);
+    // In-progress observations are legitimate, even though the previous session is the latest completed one.
+    assert.equal(current({ sessionDate: '2026-10-30', observedAt: '2026-10-30T16:00:00Z', now: at('2026-10-30T16:00:00Z') }), true);
+    // Exchange-local dates, rather than UTC dates, determine whether a session is in the future.
+    assert.equal(current({ sessionDate: '2026-10-31', now: at('2026-10-31T00:30:00Z') }), false);
+    assert.equal(current({ market: 'KR', sessionDate: '2026-11-02', now: at('2026-11-02T00:30:00Z') }), true);
   } }
 ];

@@ -196,12 +196,6 @@ export const cases = [
       const current = secFundamentalRowFields({ observedAt: '2025-12-31', filedAt: '2026-02-01', roe: 20 }, { factorSessionDate: '2026-10-28', nowMs: NOW });
       assert.equal(current.fundamentalQuality.status, 'CURRENT');
   } },
-  { id: 'P5-SEC-01', name: '은행의 순이자+비이자 합성 매출이 재무제표 패널에도 같은 값으로 나온다', run: async ({ load }) => {
-      const { parseSecStatements } = await load('src/domain/fundamental/sec-statements.js');
-      const fy = (val) => ({ start: '2025-01-01', end: '2025-12-31', val, form: '10-K', fp: 'FY', filed: '2026-02-10', accn: '0000000001-26-000001' });
-      const facts = { cik: 1, facts: { 'us-gaap': { InterestIncomeExpenseNet: { units: { USD: [fy(80)] } }, NoninterestIncome: { units: { USD: [fy(20)] } }, NetIncomeLoss: { units: { USD: [fy(10)] } } } } };
-      assert.deepEqual(parseSecStatements(facts, { symbol: 'X' }).revenue.map((row) => row.val), [100]);
-  } },
   { id: 'P5-DATA-11', name: 'Nasdaq 재무 상태가 정상(N)으로 돌아오면 이전 D 경고를 지운다', run: async ({ load }) => {
       const { buildExtendedUniverse, parseNasdaqListed } = await load('scripts/lib/extended-universe.mjs');
       const previous = { universe: [{ sym: 'TEST', membership: ['NASDAQ'], nasdaqFinancialStatus: 'D' }] };

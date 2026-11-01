@@ -156,6 +156,8 @@
   /* v57.92: in one column the 424-item list sat between the article and its next/prerequisite links, so the
      reading flow ran into an inner scroller; the article's own links follow it and the full list comes last. */
   .page .rl-aside { order: 2; }
+  /* v59.54: the atlas domain's value-chain layer card is that page's one picture; it comes before the article. */
+  .page .rl-aside:has(> .atlas-layers) { order: 0; }
   .page .rl-nav { order: 3; max-height: 260px; }
   .page .rl-pages { flex-wrap: wrap; }
   :is(.trend-grid, .guide-screen-grid, .regime-board, .pf-checks-list, .kr-theme-grid, .macro-chain-branches) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }

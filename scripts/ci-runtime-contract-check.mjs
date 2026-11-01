@@ -835,10 +835,8 @@ check('v59.06 the 포트폴리오 watchlist fills its select once, tones quote a
 check('P1753 briefing news wall is capped and the retired legacy cap/toggle adapters stay gone', /#briefing-live-news-list\s*\{\s*max-height:820px/.test(html) && !/_aioCapBriefingNews|_aioToggleBriefingNews/.test(core));
 // v59.51 (content audit): the exposure-rule column left the portfolio hero (보유 점검 owns concentration); the stats are 총 손익 and 현금.
 check('v59.51 (content audit) portfolio summary exposes total P&L and cash, and the exposure-rule column is gone', /id="pf-hero-stats"/.test(html) && /id="pf-total-pnl"/.test(html) && /id="pf-cash-hero"/.test(html) && !/id="pf-exposure-rule"/.test(html));
-check('fundamental route entry remains a free bounded SEC surface without automatic ticker/API work',
-  /var\s+_initFundamentalPage\s*=\s*function\(\)[\s\S]{0,500}user-triggered/.test(core)
-    && !/aioDefaultCompany/.test(core)
-    && !/var\s+_initFundamentalPage\s*=\s*function\(\)[\s\S]{0,700}fundamentalSearch\s*\(/.test(core));
+check('v59.52 retired fundamental recent-search initializer stays absent; native SEC owns route entry',
+  !/_initFundamentalPage|_fundRecentSearches|aioDefaultCompany/.test(core));
 const guideChapterProbe = await (async () => {
   const { organizeGuideChapters } = await import('../src/ui/components/guide-chapters.js');
   const node = (tag, id, cls, label) => ({

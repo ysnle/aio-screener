@@ -1,0 +1,15 @@
+{
+  "version": "v59.52", "date": "2026-11-01", "qa_section": "브라우저 증거의 범위",
+  "p": {
+    "title": "기업 펼침 검증을 건너뛰어도 성공을 합성하고 단일 case를 6개 실행으로 보고",
+    "symptom": "기업 관찰 fold가 없으면 open=true/focus=true를 반환했다. AIO_ENTITY_QUALITY_CASE로 한 case만 실행해도 콘솔은 3 viewports × 2 themes PASS라고 했으며 잘못된 case 값은 0건 PASS였다.",
+    "root_cause": "동적 자료가 만드는 관찰 fold와 필수 fixture를 구분하지 않았고 실행 집합을 report의 정본으로 삼지 않았다.",
+    "fix": "관찰 fold 부재는 null/skip 이유로 기록하고 상태 보존 성공 판정에서 제외한다. 실행 전 case 집합을 선택·검증하고 실제 시작한 case 목록과 개수를 보고한다.",
+    "violated_rule": "REVIEW.md 게이트가 증명하지 않는다, 정적·브라우저·라이브 증거 분리",
+    "prevention": "최종 보고서의 executedCases와 companyFoldRerender 상태를 확인한다. 존재하지 않는 case는 실패하며 생략된 관찰의 열림/포커스 성공을 만들지 않는다.",
+    "verification": "앞선 desktop-light 실행의 실제 1건과 고정 6건 성공 문구 불일치를 확인했다. 수정 뒤 실제 실행 목록·선택 오류·probe 상태는 최종 entity-quality 및 QA 보고서로 검증한다."
+  },
+  "qa": [{ "id": "QA-BROWSER-EVIDENCE-SCOPE-01", "text": "entity-quality는 실행 case 목록과 자료 의존 probe 생략을 정직하게 보고하며 존재하지 않는 case는 실패한다", "verify_by": "node scripts/ci-entity-quality-browser-check.mjs", "done": true }],
+  "changelog": ["**브라우저 증거의 정합성 ({P}):** 없는 기업 관찰 fold를 상태 보존 성공으로 만들지 않는다. 단일 case를 전체 viewport 실행으로 보고하거나 잘못된 case가 0건 PASS를 내는 것도 고쳤다."],
+  "note": "v59.52: AI 비교·지표·세션·렌더러 경계와 검증 증거 정합성 보강"
+}

@@ -25,7 +25,7 @@ Preconditions:
 - **Open.** Click sidebar `리서치 라이브러리`. `page-principles`; tabs exactly the three RESEARCH_PAGES titles.
 - **Title + shelf.** `h1.rl-title` = the principles title (`개념·분석`); shelf summary matches `/컬렉션/`.
 - **Search.** Fill `ROIC`; ≥1 result.
-- **Open a document.** Esc, click the first non-active `frame` TOC item; `.rl-main` changes and that item is active.
+- **Open a document.** Esc, open the selected group's contents fold, then click the first non-active `frame` TOC item; `.rl-main` changes, that item is active and keyboard reading focus moves into the document.
 - **Shelf.** Open the shelf, click chip `칼럼`: spine count equals the chip's count. Click the first spine: the card `h3` matches the spine label. Click `읽기`: the URL gains `chapter=`.
 - **Atlas.** Tab `산업 지도` → title `산업 지도`.
 - **Masters.** Tab `대가 보유 종목` → title `대가 보유 종목`; ≥1 manager TOC item.
@@ -33,7 +33,7 @@ Preconditions:
 
 ## Gotchas
 
-- The same shelf on all three tabs is by design; prove the tab by its `h1.rl-title`, not page text.
+- The whole-library shelf belongs to 개념·분석; 산업 지도 and 대가 보유 종목 open on their own content. Prove each tab by its `h1.rl-title`, not page text.
 - The shelf opens on the open document's collection (or the tab's first one) unless a chip was picked this session; drive the chip explicitly.
 - `AI에게 이 글 묻기` and the selection button `선택한 문장 AI에게 묻기` only fill `#ai-panel-inp`; never press send in verification (shared $20 AI budget).
 - A failed index load renders a retry item `다시 불러오기` in the TOC; it must not count as content.

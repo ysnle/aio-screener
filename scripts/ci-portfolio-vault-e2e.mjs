@@ -334,6 +334,28 @@ async function main() {
     check('PFE2-07 opt_out_is_explicit_plaintext', boundary.optOutPlain && boundary.rawRoundTrip, JSON.stringify(boundary));
     check('PFE2-08 portfolio_input_boundary', !boundary.domHasExecutableHandler && boundary.escapedTextVisible, JSON.stringify(boundary));
 
+    // v59.52: execute the real portfolio reader: SPY is an adjusted benchmark only when its return is calculable.
+    const benchmarkReadiness = await page.evaluate(async () => {
+      const { renderPortfolioRead } = await import('./src/ui/components/portfolio-read.js');
+      const { benchmarkRowFor } = await import('./src/domain/market/benchmarks.js');
+      const originalRows = window._aioGetCanonicalScreenerRows;
+      const date = benchmarkRowFor('AAPL', window._aioHistory || []).asOf;
+      const result = {};
+      try {
+        for (const status of ['CURRENT', 'BLOCKED_RIGHTS', 'STALE', 'MISSING']) {
+          window._aioGetCanonicalScreenerRows = () => [
+            { sym: 'AAPL', ret3m: 10, factorSessionDate: date },
+            { sym: 'SPY', ret3m: 99, factorSessionDate: date, fieldReadiness: { fields: { 'price.ret3m': { status } } } }
+          ];
+          const read = renderPortfolioRead({ documentRef: document, root: window, surface: { rows: [{ symbol: 'AAPL', value: 110 }], totalAssets: 110 } });
+          result[status] = read?.attribution?.blendedLabel || '';
+        }
+      } finally { window._aioGetCanonicalScreenerRows = originalRows; window.renderPortfolio(); }
+      return result;
+    });
+    check('v59.52 only a calculable SPY return is the adjusted portfolio benchmark',
+      /SPY/.test(benchmarkReadiness.CURRENT) && ['BLOCKED_RIGHTS', 'STALE', 'MISSING'].every((status) => benchmarkReadiness[status] && !/SPY/.test(benchmarkReadiness[status])), JSON.stringify(benchmarkReadiness));
+
     // P1176 (22 PFR01/PFR06): an empty target field used to be serialized as 0, and the native
     // cell then rendered $0.00 with a -100% potential return. An unset target must stay unset end
     // to end, while a real target must still render as an amount — the second half is the control
@@ -419,7 +441,11 @@ async function main() {
         return window.addPortfolioPosition();
       };
       await fill('005930', 'krw');
-      await fill('000660', '');
+      // v59.54 (run-6 #16): a double submit joins the running add; it used to ask "이미 보유 중인 종목 — 바꿀까요?" about the holding just added.
+      const first = fill('000660', '');
+      await Promise.all([first, window.addPortfolioPosition()]);
+      const doubleRows = window.getPortfolioData().filter((p) => p.ticker === '000660').length;
+      const doubleAsked = document.getElementById('aio-confirm-modal').style.display === 'flex';
       // P2066 run-3: the same holding updated by its Korean name with a blank currency must not fall back to dollars.
       document.getElementById('pf-add-ticker').value = '삼성전자';
       const nameLabel = (_pfEntryCurrency || (() => null))();
@@ -434,7 +460,7 @@ async function main() {
       const afterInvalid = window.getPortfolioData();
       return {
         declared: row('005930').costCurrency ?? null,
-        nameLabel, updateAsked,
+        nameLabel, updateAsked, doubleRows, doubleAsked,
         rows: stored.length,
         undeclared: row('000660').costCurrency ?? null,
         invalidRejected: afterInvalid.length === beforeInvalid && !afterInvalid.some((entry) => entry.costCurrency === 'US')
@@ -442,7 +468,7 @@ async function main() {
     });
     check('PFE2-12 cost_currency_writer_round_trip (P1187)',
       // P2066 (v58.80 first-users F18): a blank currency box under the "매수 단가 (KRW)" label keeps KRW, not dollars.
-      currencyWriter.declared === 'KRW' && currencyWriter.undeclared === 'KRW' && currencyWriter.nameLabel === 'KRW' && currencyWriter.updateAsked && currencyWriter.rows === 2 && currencyWriter.invalidRejected,
+      currencyWriter.declared === 'KRW' && currencyWriter.undeclared === 'KRW' && currencyWriter.nameLabel === 'KRW' && currencyWriter.updateAsked && currencyWriter.rows === 2 && currencyWriter.doubleRows === 1 && !currencyWriter.doubleAsked && currencyWriter.invalidRejected,
       JSON.stringify(currencyWriter));
 
     // v57.81: SPCX (SpaceX, Nasdaq since 2026-06-12) sat in the screener universe but the portfolio box checked only its own

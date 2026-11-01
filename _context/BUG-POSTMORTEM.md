@@ -1,10 +1,199 @@
 ---
-last_verified: 2026-10-31
+last_verified: 2026-11-01
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
 
+
+## P2198 - v59.54 - 등록 종목 밖 미국 상장 기호(FB, AAP)의 종목 화면 제목에 회사 이름이 없음 (2026-11-01)
+
+- symptom/reproduction: 첫 사용자 점검 run-6 #11: FB·AAP를 열면 이름 없이 기호만 보여 '없는 종목'처럼 읽혔다. 실제로 FB는 ProShares S&P 500 Dynamic Buffer ETF, AAP는 Advance Auto Parts Inc.로 상장돼 있다(MERGED.md의 '퇴역 기호' 전제가 틀렸음).
+- root_cause: src/ui/pages/entity.js 헤더가 등록 종목 이름만 읽고, 이미 내려받는 미국 상장 목록(_aioCheckUsListing)의 이름을 쓰지 않았다.
+- fix: entity.js usListingNameFor가 등록 종목이 아니고 이름이 없을 때 상장 목록 이름을 한 번 찾아(root._aioListingNames 캐시) ticker-hero-fullname에 쓴다.
+- violated_rule: AGENTS 티커 추정 금지 — 이름은 상장 목록 원천에서만 가져온다.
+- prevention: scripts/ci-out-of-universe-ticker-browser-check.mjs가 픽스처 BUFX의 상장 이름이 제목에 뜨는지 휴대폰·데스크톱에서 확인한다.
+- verification/residual: 브라우저에서 FB·AAP 이름 표시, NVDA 변화 없음 확인; out-of-universe 브라우저 검사 통과.
+
+## P2197 - v59.54 - 보유 추가를 두 번 누르면 방금 저장한 종목을 '이미 보유 중 — 바꿀까요?'로 다시 물음 (2026-11-01)
+
+- symptom/reproduction: 첫 사용자 점검 run-6 #16(breaker): 보유 추가 버튼을 빠르게 두 번 누르면 두 번째 추가가 첫 번째가 막 저장한 종목을 찾아 교체 확인 창을 띄웠다.
+- root_cause: js/aio-workspace.js addPortfolioPosition이 비동기인데 동시에 여러 번 실행될 수 있었다.
+- fix: 추가를 한 번에 하나씩 실행한다. 같은 입력이면 진행 중인 추가에 합류하고, 입력이 바뀌었으면 앞의 추가가 끝난 뒤 실행한다. 첫 추가는 누른 시점의 입력을 읽는다.
+- violated_rule: R734 — 반복 결함 클래스(중복 실행)는 공용 경로에서 닫는다.
+- prevention: scripts/ci-portfolio-vault-e2e.mjs PFE2-12가 같은 입력 두 번 추가 시 행 1개·확인 창 없음을 확인한다(잠금 없이 실패, 잠금으로 통과 확인).
+- verification/residual: node scripts/ci-portfolio-vault-e2e.mjs 통과(exit 0).
+
+## P2196 - v59.54 - AI 스크리너 문맥에서 실시간 시세가 'N/A' 또는 'STALE'로 표시됨 (2026-11-01)
+
+- symptom/reproduction: Codex v59.52(P2178) 검토에서 확인: 스크리너 행의 price는 실시간 시세인데 포매터가 종가용 준비 상태(price.close)를 그 값에 붙여, 관측 시각이 있는 시세가 AI에 'price: STALE' 또는 N/A로 전달됐다.
+- root_cause: src/ai/context/screener-query.js referenceFields에 ['price','price.close']가 있어 실시간 시세 필드에 종가 필드의 준비 상태를 복사했다.
+- fix: 포매터가 행의 price를 실시간 시세로 읽어 자체 관측 시각과 함께 쓰고, referenceFields에서 price 항목을 뺐다.
+- violated_rule: AGENTS 종가 기준 점수와 실시간 시세 구분 — 서로 다른 시점의 값에 다른 값의 상태를 붙이지 않는다.
+- prevention: scripts/fixtures/pipeline-semantics/ai.mjs v59.54 사례가 '가격 $101.00 (관측 …)' 출력과 STALE 부재를 확인한다.
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs --only ai (22건 통과).
+
+## P2195 - v59.54 - 포트폴리오 기준 통화를 선언하지 않았는데 AI에 '기준 통화 USD'로 전달되고, 시세 통화를 모르는 보유가 '통화 혼합'으로 안내됨 (2026-11-01)
+
+- symptom/reproduction: Codex v59.53(P2192) 검토에서 확인: 기준 통화를 선언하지 않은 포트폴리오도 surface.baseCurrency가 보유 상장 통화(USD)로 채워져 AI 문맥에 '기준 통화 USD'가 들어갔다. 시세 통화를 알 수 없는 보유 한 종목만 있어도 '통화 혼합 — 환율을 선언하세요'라는 안내가 떠서 할 수 없는 행동을 요구했다. 상장 기호(005930.KS)는 일부 소비자에만 덧붙여져 화면과 노출 계산이 기호를 다시 풀었다.
+- root_cause: baseCurrency 한 필드가 '사용자가 선언한 기준 통화'와 '계산에 쓴 통화' 두 뜻을 함께 지고 있었고, 보류 사유가 하나(mixed)뿐이라 '알 수 없음'과 '섞임'을 구분하지 못했다. 상장 기호는 surface가 아니라 소비자마다 따로 다시 매핑했다.
+- fix: src/domain/portfolio/surface.js가 행마다 listingSymbol로 시세·종가·섹터를 찾고, baseCurrency(선언 또는 단일 선언 통화만)와 valuationCurrency(계산 통화)를 나누며 currencyHeldReason('mixed' | 'unknown-unit')과 unknownCurrencyCount를 낸다. portfolio.js의 quoteSymbolOf/liveDataFor 재매핑을 지우고 surface 값을 그대로 쓴다. portfolio-read·checks·base-values·AI portfolio-rows가 같은 두 필드를 읽는다. AI에는 '미선언(종목 상장 통화 KRW로 계산)'으로 전달한다.
+- violated_rule: AGENTS 원천 없는 값 금지 — 사용자가 선언하지 않은 기준 통화를 선언된 값처럼 전달했다.
+- prevention: scripts/fixtures/pipeline-semantics/portfolio.mjs가 unknown-unit/mixed 사유, 안내 문구, valuationCurrency와 baseCurrency 분리를 확인하고, ci-esm-core-unit-check가 미선언 포트폴리오의 baseCurrency null을 확인한다.
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs --only portfolio (26건 통과), node scripts/ci-esm-core-unit-check.mjs 통과.
+
+## P2194 - v59.53 - 일반 사용자에게 필요한 S&P 500 지도와 AI 설비투자 설명을 개발자 전용 CSS가 숨김 (2026-11-01)
+
+- symptom/reproduction: 테마의 두 콘텐츠는 DOM과 데이터가 있어도 일반 화면의 CSS가 summary까지 숨겨 사용자가 열 수 없었다. 실제 드라이브가 summary 클릭에서도 timeout으로 실패했다.
+- root_cause: 새 사용자 콘텐츠의 접기를 과거 개발자 도구 class로 분류했다. 모든 advanced 영역을 숨기는 기존 CSS 계약과 충돌했다.
+- fix: 지도와 설비투자 설명을 기존 사용자용 sx-disclosure 구성으로 분류한다. 개발자 숨김 CSS에 예외 selector를 덧붙이지 않았다.
+- violated_rule: C4 공용 의미와 단일 소유권, 데이터 정직성, 사용자 가치 우선
+- prevention: S&P 500 지도와 AI 설비투자 설명은 일반 화면에서 사용자가 직접 펼치고 읽을 수 있다 — node .claude/skills/verify-aio/scripts/verify-aio.mjs drive themes --port 8798 --viewport desktop --run product-depth-final
+- verification/residual: 수정 전 지도 summary 클릭 timeout. 수정 후 실제 desktop themes 8/8 PASS: 지도 데이터·설비투자 내용·목록 복귀·같은 테마 재진입·종목 연결 확인.
+
+## P2193 - v59.53 - 섹터 ETF를 광범위 ETF로 묶어 업종 집중도를 숨김 (2026-11-01)
+
+- symptom/reproduction: XLE 50%와 SPY 50%를 보유하면 익스포저가 ETF 100%로 묶이고 Energy 50% 집중 경고가 사라졌다.
+- root_cause: ETF라는 상품 종류를 sector 분류보다 우선해 개별 회사 분산과 업종 분산을 같은 축으로 취급했다.
+- fix: 상품 종류와 sector를 분리해 섹터 ETF는 실제 업종에 집계하고 광범위 ETF만 기존 별도 묶음으로 둔다. 한국 저장 키의 sector 조회도 공용 listing identity를 사용한다.
+- violated_rule: C4 공용 의미와 단일 소유권, 데이터 정직성, 사용자 가치 우선
+- prevention: 섹터 ETF의 업종 비중은 유지하고, ETF 상품 여부만으로 업종 집중도에서 제외하지 않는다 — node scripts/ci-pipeline-semantics-check.mjs --only portfolio
+- verification/residual: HEAD의 실제 exposure renderer를 독립 fixture에 로드하면 Energy 경고 누락으로 assertion 실패. 수정 renderer는 같은 fixture에서 Energy 50% 경고를 내고 SPY를 실제 sector로 세지 않는다. portfolio 26건 PASS.
+
+## P2192 - v59.53 - 한국 보유 코드의 시세 키와 통화 분리로 원화 값을 USD로 합산·표시 (2026-11-01)
+
+- symptom/reproduction: 저장된 005930과 005930.KS 시세 키는 화면에서 연결되지만 통화 reader는 bare 코드를 USD로 읽었다. 100000원과 200달러가 $100200으로 합산됐고 원화 단독 단위도 표시 단계에서 USD로 떨어질 수 있었다.
+- root_cause: 보관용 issuer key와 상장 시세 key의 변환이 화면에만 있었고 runtime reader·통화·상장지역에는 공유되지 않았다. 미확인 단독 통화도 합산을 허용했다.
+- fix: 정확한 등록부에서 listingSymbol을 함께 해석해 reader·시세 조회·통화·상장지역이 공유한다. 저장 키는 보존하며 미등록 숫자 코드는 거래소·USD를 추정하지 않는다. 단위 미확인 합계는 보류하고 유효 평가 통화와 사용자 선언 통화를 구분한다.
+- violated_rule: C4 공용 의미와 단일 소유권, 데이터 정직성, 사용자 가치 우선
+- prevention: 보유 저장 키와 등록된 상장 시세 키·통화를 함께 읽고, 통화 미확인과 환산 없는 혼합 합계를 만들지 않는다 — node scripts/ci-pipeline-semantics-check.mjs --only portfolio
+- verification/residual: portfolio 회귀 수정 전 실패, 수정 후 26건 PASS. 등록 KRX 두 시장·미등록·단독 미확인·혼합 보류·명시 환율 변환 300을 검사. 실제 005930.KS 추가 경로의 손익 헤더 USD→KRW 확인(실제 시세는 로컬 미수신). esm-core PASS.
+
+## P2191 - v59.53 - 리서치 문서를 선택하면 키보드 읽기 포커스가 BODY로 유실 (2026-11-01)
+
+- symptom/reproduction: 분석 노트 목차를 열어 다른 문서를 선택하면 본문은 바뀌지만 document.activeElement가 BODY였다. 목차를 정상적으로 여는 수정 후에도 실제 드라이브의 읽기 포커스 검사에서 실패했다.
+- root_cause: 문서 선택이 전체 shell을 교체한 뒤 스크롤만 했고 포커스를 넘기지 않았다. 비동기 콘텐츠 로드도 기존 키보드 맥락을 폐기했다.
+- fix: 본문을 이름 있는 focusable region으로 만들고 문서 선택의 두 진입점에서 본문으로 읽기 포커스를 옮긴다. 비동기 재렌더는 현재 본문/의미가 같은 목차 컨트롤의 포커스를 보존한다.
+- violated_rule: C4 공용 의미와 단일 소유권, 데이터 정직성, 사용자 가치 우선
+- prevention: 목차·서가·검색에서 고른 문서는 본문으로 읽기 포커스를 연결하고 비동기 로딩도 현재 키보드 맥락을 보존한다 — node .claude/skills/verify-aio/scripts/verify-aio.mjs drive learn --port 8798 --viewport desktop --run product-depth-final
+- verification/residual: 실제 drive learn product-depth-focus-red: opened document did not receive reading focus. 수정 후 product-depth-focus-green 8/8 PASS 및 최종 desktop learn 8/8 PASS.
+
+## P2190 - v59.53 - 접힌 사용자 콘텐츠와 현재 탐색 계약을 따르지 않는 검증 드라이버 (2026-11-01)
+
+- symptom/reproduction: 수정 전 실제 desktop 사용자 드라이브는 11개 중 7개만 통과했다. 목차·금리 상세를 열지 않고 내부 요소를 누르거나 퇴역한 도움말 카드·테마 복귀 버튼을 찾았다.
+- root_cause: v59.51의 상세 접기와 테마 독립 화면 전환이 검증 지도·드라이버의 사용자 경로에 반영되지 않았다.
+- fix: 목차·금리·지도·사분면·서가를 실제 summary 클릭으로 펼친다. 도움말은 현행 세 장을 확인하고 테마 복귀는 상세 닫기 후 같은 테마 재진입으로 검증한다. 내부 open setter를 제거하고 원본·미러를 생성기로 동기화했다.
+- violated_rule: C4 공용 의미와 단일 소유권, 데이터 정직성, 사용자 가치 우선
+- prevention: 검증 지도와 드라이버는 현재 화면을 사용자의 실제 펼침·목록 복귀 조작으로 검증한다 — node .claude/skills/verify-aio/scripts/verify-aio.mjs drive all --port 8798 --viewport desktop --run product-depth-final
+- verification/residual: 수정 전 drive all desktop 7/11 PASS. 수정 후 각 11개 feature report PASS, themes 8단계 및 learn 8단계 PASS. check 11features PASS. mobile/tablet는 최종 증거로 구분.
+
+## P2189 - v59.53 - 시장 온도의 혼재를 보통 범위로, 전부 지연된 자료를 현재 극단 없음으로 표시 (2026-11-01)
+
+- symptom/reproduction: 하위 10% 요소 2개·상위 10% 요소 2개인 상태가 보통 범위였다. 모든 시장이 지연돼 제외돼도 현재 과열·냉각 구간이 없다고 말했다.
+- root_cause: 강한 극단 기준 미충족을 보통과 동일시했고, 최신 자료가 없는 경우와 최신 자료에 극단이 없는 경우를 구분하지 않았다.
+- fix: 상태 문구의 공용 reader가 혼재·일부 냉각·일부 과열·극단 요소 없음을 구분한다. 현재성이 확인된 시장이 없으면 현재 판정을 보류한다.
+- violated_rule: C4 공용 의미와 단일 소유권, 데이터 정직성, 사용자 가치 우선
+- prevention: 온도계는 반대 방향의 극단을 정상으로 평균내지 않고, 지연 자료만 있으면 현재 상태를 판정하지 않는다 — node scripts/ci-pipeline-semantics-check.mjs --only market
+- verification/residual: 수정 전 실제 temperatureStateText는 보통 범위, 수정 후 market 의미 회귀 39건 PASS. 실제 브라우저 fixture의 mixed/unavailable 모두 PASS.
+
+## P2188 - v59.52 - 기업 펼침 검증을 건너뛰어도 성공을 합성하고 단일 case를 6개 실행으로 보고 (2026-11-01)
+
+- symptom/reproduction: 기업 관찰 fold가 없으면 open=true/focus=true를 반환했다. AIO_ENTITY_QUALITY_CASE로 한 case만 실행해도 콘솔은 3 viewports × 2 themes PASS라고 했으며 잘못된 case 값은 0건 PASS였다.
+- root_cause: 동적 자료가 만드는 관찰 fold와 필수 fixture를 구분하지 않았고 실행 집합을 report의 정본으로 삼지 않았다.
+- fix: 관찰 fold 부재는 null/skip 이유로 기록하고 상태 보존 성공 판정에서 제외한다. 실행 전 case 집합을 선택·검증하고 실제 시작한 case 목록과 개수를 보고한다.
+- violated_rule: REVIEW.md 게이트가 증명하지 않는다, 정적·브라우저·라이브 증거 분리
+- prevention: 최종 보고서의 executedCases와 companyFoldRerender 상태를 확인한다. 존재하지 않는 case는 실패하며 생략된 관찰의 열림/포커스 성공을 만들지 않는다.
+- verification/residual: 앞선 desktop-light 실행의 실제 1건과 고정 6건 성공 문구 불일치를 확인했다. 수정 뒤 실제 실행 목록·선택 오류·probe 상태는 최종 entity-quality 및 QA 보고서로 검증한다.
+
+## P2187 - v59.52 - 시세 갱신 때 브리핑·종목의 열린 근거가 닫히고 포커스가 사라짐 (2026-11-01)
+
+- symptom/reproduction: 브리핑 왜 움직였나 또는 종목 요약의 자세히를 연 뒤 자료/시세 갱신이 오면 접히고 summary의 키보드 포커스가 사라졌다.
+- root_cause: 브리핑은 섹터 renderer가 공유 host 전체를 교체해 다른 renderer의 details를 지웠다. 뉴스 renderer도 매번 details를 새로 만들었다. 종목 renderer는 동일 종목의 사용자 펼침 상태까지 계산 결과와 함께 폐기했다.
+- fix: 섹터 renderer는 자기 content 자식만 소유하고 뉴스의 stable details는 형제로 유지한다. 뉴스 summary와 본문 갱신을 분리해 열린 노드와 포커스를 보존한다. 종목은 동일 심볼에 한해 펼침 상태와 summary 포커스를 복원하고 다른 심볼은 초기 상태로 시작한다.
+- violated_rule: REVIEW.md 수명주기와 정본 소유권, C4 한 의미에는 한 구현
+- prevention: 독립된 브라우저 fixture가 실제 두 briefing renderer의 연속 갱신, 노드·열림·포커스, 자료 부재 후 복귀를 검사한다. 종목은 실제 aio:liveQuotes 이벤트 뒤 펼침과 포커스를 확인한다.
+- verification/residual: fold-red-green.json: HEAD 소스 주입 4개 false, 수정 소스 4개 true. user-journey 19 routes/30 checks PASS. entity-quality desktop-light: 수정 전 open=false/focus=false 실패, 수정 후 PASS. 최종 전 viewport 검사는 별도 QA 보고서 참조.
+
+## P2186 - v59.52 - 미래 세션 날짜가 최신 가격 팩터로 인정됨 (2026-11-01)
+
+- symptom/reproduction: 미국 10월 30일 종가가 최신인 10월 30일 저녁에 factorSessionDate=11월 2일인 자료도 lag=0, isSessionCurrent=true였다.
+- root_cause: 관측 세션이 최신 완료 세션보다 크거나 같으면 모두 현재로 분류했다. 장중 관측을 허용하려던 비교가 아직 오지 않은 거래소 현지 날짜까지 허용했으며, 알 수 없음과 잘못된 미래 관측을 같은 null로 반환했다.
+- fix: 공용 세션 판정이 미래 관측 시각과 거래소 현지 미래 날짜를 invalid 상태로 구분하고 isSessionCurrent는 false를 반환한다. 미등록 달력의 null fallback과 정상 장중 관측은 유지한다.
+- violated_rule: R670 직전 미국 정규장 기준, 데이터 정직성과 미래 정보 금지
+- prevention: 실제 공용 판정 함수에 미국·한국 미래 세션, UTC와 현지 날짜 경계, 장중 현재 세션 및 미등록 달력 회귀를 함께 검사한다.
+- verification/residual: ci-pipeline-semantics-check --only screener: 수정 전 BC-SESSION-01 실패, 수정 후 17건 통과. 읽기 전용 독립 검토가 발견한 입력도 재현했다.
+
+## P2185 - v59.52 - AI 종목 검색이 retail의 AI와 대명사 it를 기술 테마로 읽음 (2026-11-01)
+
+- symptom/reproduction: best retail stocks가 retail 안의 ai/IT를 맞춰 NVDA 같은 AI 테마 종목만 반환하고 find it도 IT 섹터 조건으로 바뀌었다.
+- root_cause: 뉴스·의도 분류가 공용 단어 매처로 이전된 뒤에도 screener-query의 섹터·테마 별칭은 indexOf 부분 일치를 유지했고, IT 약어를 소문자로 바꾸며 일반 영어 대명사와 합쳤다.
+- fix: 섹터와 테마 별칭 모두 기존 keywordHit를 사용해 영어 단어·복수형과 한국어 조사를 같은 규칙으로 읽는다. IT 약어는 원래 입력의 대문자 독립 단어일 때 인정한다.
+- violated_rule: R734 반복 결함의 공용 함수화, C4 한 의미에는 한 구현
+- prevention: pipeline-semantics ai의 retail·find it 음성 사례와 AI·IT·financials 양성 사례가 실제 질의 함수를 호출한다.
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs --only ai: 수정 전 retail 비교에서 실패, 수정 후 21건 통과. 최초 실제 질의 출력은 테마=ai, symbols=[NVDA]였다.
+
+## P2184 - v59.52 - 포트폴리오 비교 지수·섹터 ETF가 지표 계약을 우회 (2026-11-01)
+
+- symptom/reproduction: 보유 종목 수익률이 허용된 경우에도 MISSING·BLOCKED_RIGHTS·STALE인 SPY나 섹터 ETF의 원시 수익률을 기준 지수와 섹터 기여도에 사용했다.
+- root_cause: v59.46의 경계 보강이 보유 종목의 수익률만 readRowNumber(calculation)로 바꾸고, 비교하는 두 수익률은 finite/Number 직접 읽기를 남겼다.
+- fix: 보유 종목·비교 지수·섹터 ETF 모두 같은 calculation 판독기를 사용한다. 사용할 수 없는 SPY는 기존 가격 지수 비교로 돌아가고, 사용할 수 없는 섹터 수익률은 기존 미분해·coverage 표시를 따른다.
+- violated_rule: C8 결측은 값이 아니다, C10 한 지표에는 한 원천과 한 표시 owner
+- prevention: pipeline-semantics portfolio가 같은 날짜의 MISSING·권리 차단·STALE·LAST_GOOD·CONFLICT 섹터 입력과 CURRENT를 대조한다. ci-portfolio-vault-e2e가 실제 렌더러의 SPY 선택을 CURRENT·BLOCKED_RIGHTS·STALE·MISSING에서 대조한다.
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs --only portfolio: 새 섹터 사례는 수정 전 MISSING에서 실패, 수정 후 24건 통과. 브라우저 비교 입력 검사는 배치 QA에서 실행한다.
+
+## P2183 - v59.52 - AI 후보 탐색이 임의 점수와 최종 종목 선택 지시로 제품 결정에 충돌 (2026-11-01)
+
+- symptom/reproduction: 넓은 종목 질문의 문맥이 BUY +18, RSI 구간 가산점, 장중 등락과 시총 가산점을 합쳐 분산점수를 만들고 AI에 최종 3~5개를 고르라고 지시했다.
+- root_cause: R211의 섹터·시장 분산과 반복 방지라는 탐색 목적을 별도 추천 점수로 구현하고, 이후 R724의 종목을 대신 고르지 않는 결정과 대조하지 않았다. 기존 T825 검사는 추천 문구의 존재를 요구해 의도 불일치를 유지했다.
+- fix: 독립 점수 모델을 제거한다. 정본 입력 순서를 유지하며 최근 다룬 종목을 뒤로 미루고 섹터·시장 범위로 비교 표본을 구성한다. purpose=comparison을 명시하고 AI의 종목 선정 지시와 특정 종목 앵커를 조건 비교·근거 부족 설명으로 바꾼다. T825는 오래된 추천 문구 대신 비교 목적을 확인한다.
+- violated_rule: R211 본문은 diversified candidate list for research, never a recommendation이며 R724는 종목을 대신 고르지 않는다. C4 한 의미 한 구현, C7 검증 안 된 합산 금지.
+- prevention: pipeline-semantics ai에서 원시 RSI·시총·장중 등락·BUY 편집 라벨 변경이 비교 표본의 선택 순서를 재채점하지 않는지, 여러 섹터와 반복 억제를 유지하는지, 분산점수와 최종 종목 선택 지시가 없는지 확인한다.
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs --only ai: 수정 전 comparison 목적 assertion 실패, 수정 후 20건 통과. 응답 생성/유료 AI 호출은 하지 않았다.
+
+## P2182 - v59.52 - AI 지연 스크립트 로드 실패 전에 질문 초안이 비워짐 (2026-11-01)
+
+- symptom/reproduction: 채팅 스크립트를 받기 전에 전송하면 입력이 즉시 비워져 스크립트 다운로드 실패 후에도 질문을 확인할 수 없었다.
+- root_cause: v59.51 대기열의 중복 방지가 실제 전송보다 먼저 입력창을 지우는 방식이었고 스크립트 오류 경로는 초안을 되돌리지 않았다.
+- fix: 실제 전송 함수가 수락할 때까지 초안을 유지한다. 같은 초안은 대기열에 한 번만 넣고 반복 전송 동작은 스크립트 로드를 재시도한다.
+- violated_rule: C5 입력 수명주기, P2105 질문 보존과 P2171 중복 전송 방지
+- prevention: pipeline-semantics ai에서 전송 두 번·스크립트 실패·같은 초안 재시도·로드 완료를 재현해 입력 보존과 정확히 한 번의 재생을 확인한다.
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs --only ai: 수정 전 입력 유지 assertion 실패, 수정 후 통과.
+
+## P2181 - v59.52 - 의미 검사 영역 오타가 0건 PASS로 통과 (2026-11-01)
+
+- symptom/reproduction: --only not-an-area 또는 --only ai,qa가 0건 검사 후 exit 0으로 성공했고 --only 값 누락은 전체 검사를 실행했다.
+- root_cause: 선택한 영역을 fixture 목록과 대조하지 않고 결과 문구의 영역 수만 1로 고정했다.
+- fix: --only에는 실제 존재하는 단일 영역을 요구하고 잘못된 값·누락은 가능한 영역 안내와 exit 1로 종료한다.
+- violated_rule: C3 검증은 실제 결과를 증명한다
+- prevention: pipeline-semantics qa가 실제 CLI에 오타·쉼표 목록·값 누락을 전달해 실패 종료를 확인한다.
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs --only qa: 수정 전 exit 0을 검출해 실패, 수정 후 통과.
+
+## P2180 - v59.52 - 시나리오 동률 진입·해소·구성원 변경이 기록에서 누락 (2026-11-01)
+
+- symptom/reproduction: 선두 id가 같으면 동률 해소를 기록하지 않고, 현재 동률 안에서 id가 바뀌면 이전 동률의 구성원 변경까지 숨겼다. 동률 진입을 단독 선두 변화로 적기도 했다.
+- root_cause: v59.51 diffSnapshots는 현재 tiedIds와 이전/현재 leadId만 비교해 이전과 현재의 전체 선두 집합을 비교하지 않았다.
+- fix: 화면과 같은 scenarioLead로 이전·현재 선두 집합을 구하고 순서를 제외한 구성 변화만 기록한다. 동률은 모든 이름을 적고 단독 선두의 대안 변화만 별도로 기록한다.
+- violated_rule: C10 한 지표에는 한 원천과 한 표시 owner, R734 공용 함수와 재현
+- prevention: pipeline-semantics producers에서 보류·단독 두 종류·동률 두 종류의 25개 전환과 동률 순서 변경을 비교한다.
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs --only producers: 수정 전 동률 진입 사례 실패, 수정 후 통과. 프로듀서는 로컬 실행하지 않고 순수 diffSnapshots만 호출했다.
+
+## P2179 - v59.52 - 작은 추세 비중을 보유 종목 없음으로 표시 (2026-11-01)
+
+- symptom/reproduction: 하락 종목 비중이 0.01%면 첫 문장은 내리는 흐름인 종목이 없다고 말하면서 다음 링크는 그 하락 종목을 지목했다.
+- root_cause: v59.51의 쉬운 문장이 0.5% 미만을 실제 0과 같은 없음으로 바꿨다. 선 근처·조정·반등의 작은 비중도 숨겼다.
+- fix: 실제 0일 때만 없음이라고 말하고 0~1% 사이 양수는 1% 미만으로 표시한다. 조정·반등 비중은 잔차 대신 해당 구간을 합쳐 부동소수점 잔차를 종목으로 읽지 않는다.
+- violated_rule: C7 읽는 문장은 관측과 근거만 말한다
+- prevention: pipeline-semantics portfolio에서 9999:1 구성의 상승·하락·선 근처·조정과 실제 하락 0을 대조한다.
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs --only portfolio: 수정 전 tiny down 사례 실패, 수정 후 통과.
+
+## P2178 - v59.52 - AI 종목 검색이 정본 지표의 사용 제한과 기준일을 버림 (2026-11-01)
+
+- symptom/reproduction: RSI MISSING·BLOCKED_RIGHTS·STALE인 종목도 RSI 30 미만에 포함되고 차단 수치가 AI 문맥에 다시 나타났다. 분산 후보 점수와 시총 분류도 원시 값을 썼다.
+- root_cause: screener-query의 필터·점수·정렬이 row의 원시 값을 읽고, 결과 투영이 fieldReadiness를 제거해 출력 단계의 readRowNumber까지 무력화했다.
+- fix: 필터·정렬·시총 분류는 readRowNumber(calculation)를 사용한다. 결과에 readiness와 factorSessionDate를 보존하고, 표시 가능한 오래된 참고 값은 상태와 기준일을 AI에 함께 전달한다. 임의 분산 점수는 별도 구조 수정으로 제거했다.
+- violated_rule: C8 결측은 값이 아니다, C10 한 지표에는 한 원천과 한 표시 owner
+- prevention: pipeline-semantics ai에서 CURRENT 양성 대조와 MISSING·UNSUPPORTED·BLOCKED_RIGHTS·STALE·LAST_GOOD·CONFLICT를 필터·시총 분류·출력·정렬에 대조한다.
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs --only ai: 새 사례는 수정 전 MISSING에서 실패, 수정 후 통과. 유료 AI 호출 없음.
 
 ## P2177 - v59.51 - AI 패널을 열면 페이지가 눌려 표가 잘리고, 휴대폰 포트폴리오 저장 버튼이 하단 탭 아래에 깔림 (2026-10-31)
 

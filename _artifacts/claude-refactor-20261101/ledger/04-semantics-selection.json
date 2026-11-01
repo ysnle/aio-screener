@@ -1,0 +1,14 @@
+{
+  "version": "v59.52", "date": "2026-11-01", "qa_section": "v59 변경 재검토", "note": "v59.52: AI 비교 표본 재설계·지표 계약·초안 보존, 추세 비중·시나리오 전환·의미 검사 선택 수정",
+  "p": {
+    "title": "의미 검사 영역 오타가 0건 PASS로 통과",
+    "symptom": "--only not-an-area 또는 --only ai,qa가 0건 검사 후 exit 0으로 성공했고 --only 값 누락은 전체 검사를 실행했다.",
+    "root_cause": "선택한 영역을 fixture 목록과 대조하지 않고 결과 문구의 영역 수만 1로 고정했다.",
+    "fix": "--only에는 실제 존재하는 단일 영역을 요구하고 잘못된 값·누락은 가능한 영역 안내와 exit 1로 종료한다.",
+    "violated_rule": "C3 검증은 실제 결과를 증명한다",
+    "prevention": "pipeline-semantics qa가 실제 CLI에 오타·쉼표 목록·값 누락을 전달해 실패 종료를 확인한다.",
+    "verification": "node scripts/ci-pipeline-semantics-check.mjs --only qa: 수정 전 exit 0을 검출해 실패, 수정 후 통과."
+  },
+  "qa": [{ "id": "QA-SEMANTICS-AREA-01", "text": "의미 검사에 잘못된 영역·누락된 값을 주면 0건 PASS 대신 실패한다", "verify_by": "node scripts/ci-pipeline-semantics-check.mjs --only qa", "done": true }],
+  "changelog": ["**의미 검사 선택 검증 ({P}):** 검사 영역 오타와 값 누락을 실패로 처리해 검사 없이 성공하는 경로를 막았다."]
+}

@@ -1,0 +1,11 @@
+{
+  "version": "v59.54",
+  "date": "2026-11-01",
+  "changelog": [
+    "**용어 표시 게이트 (v59.54):** 화면처럼 용어집을 조립해(기본 용어집 + 화면 용어 + 개념 핵심 + 지연 화면 용어) 모든 TERM_MARKS 대상이 풀리는지 knowledge-state 의미 검사(RUN6-TERM-01)가 확인한다. 이전 표시(근원 물가, PCE, 50/200일선)에서 실패하고 지금 통과한다.",
+    "**죽은 코드 정리 (v59.54):** 운영 소비자가 없던 src/domain/fundamental/sec-statements.js와 그 시험, 호출처 없는 window.AIO.charts(lightweight-charts 도우미 235줄)와 T562를 지웠다.",
+    "**차트 소유 등록부 (v59.54):** architecture/route-owners.json chartOwner를 브라우저에서 실제로 그리는 쪽으로 고쳤다(홈·시장 상태·브리핑·재무·스크리너·테마 상세 native, 뉴스 해당 없음, 포트폴리오 legacy #pf-benchmark-chart). 각 값에 chartOwnerEvidence를 붙였다.",
+    "**AI 비교 표본 순서 (v59.54):** 같은 조건의 추천 비교 표본이 알파벳 앞 종목으로 쏠리던 것을 날짜별로 섞은 순서로 바꿨다. 같은 날에는 같은 표본, 다른 날에는 다른 표본이다."
+  ],
+  "note": "v59.54: Codex v59.52~53 객관 검토 반영(구조 수정) + run-6 남은 후속 작업"
+}
