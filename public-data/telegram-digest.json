@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-01T00:21:49.493Z",
-  "attemptedAt": "2026-11-01T00:21:49.493Z",
-  "lastSuccessfulAt": "2026-11-01T00:21:49.493Z",
+  "generatedAt": "2026-11-01T01:22:04.501Z",
+  "attemptedAt": "2026-11-01T01:22:04.501Z",
+  "lastSuccessfulAt": "2026-11-01T01:22:04.501Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-18T00:21:43.193Z",
-  "until": "2026-11-01T00:21:43.193Z",
+  "since": "2026-10-18T01:21:59.360Z",
+  "until": "2026-11-01T01:21:59.360Z",
   "current24hWindow": {
     "start": "2026-10-30T23:00:00.000Z",
     "end": "2026-10-31T23:00:00.000Z",
@@ -92,9 +92,9 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1335,
+      "count": 1333,
       "freshCount": 20,
-      "eligibleTextCount": 1278,
+      "eligibleTextCount": 1276,
       "selectedCount": 124,
       "error": null,
       "lastPostId": 67962
@@ -105,56 +105,56 @@
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 227,
-      "freshCount": 39,
+      "freshCount": 29,
       "eligibleTextCount": 227,
-      "selectedCount": 109,
+      "selectedCount": 110,
       "error": null,
-      "lastPostId": 20910
+      "lastPostId": 20921
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 672,
+      "count": 671,
       "freshCount": 38,
-      "eligibleTextCount": 672,
+      "eligibleTextCount": 671,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 71312
+      "lastPostId": 71313
     }
   ],
-  "count": 2378,
-  "retainedItemCount": 461,
+  "count": 2375,
+  "retainedItemCount": 458,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2378,
-    "eligibleTextCount": 2313,
+    "observedCount": 2375,
+    "eligibleTextCount": 2310,
     "mediaOnlyCount": 65,
-    "highSignalCount": 438,
-    "broadSignalCount": 942,
-    "selectedRawCount": 410,
-    "selectedEligibleCount": 410,
-    "selectedRawCoveragePct": 17.7,
-    "selectedOfObservedPct": 17.2,
+    "highSignalCount": 435,
+    "broadSignalCount": 941,
+    "selectedRawCount": 411,
+    "selectedEligibleCount": 411,
+    "selectedRawCoveragePct": 17.8,
+    "selectedOfObservedPct": 17.3,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "semi": 537,
-    "ai-policy": 136,
-    "credit": 126,
-    "macro": 368,
-    "geo": 419,
-    "market-note": 836,
-    "healthcare": 123,
-    "earnings": 486,
+    "semi": 538,
+    "equity": 171,
     "power": 297,
-    "equity": 170,
+    "earnings": 486,
+    "ai-policy": 135,
+    "credit": 125,
+    "macro": 367,
+    "geo": 418,
+    "market-note": 833,
+    "healthcare": 123,
     "kr-market": 134,
-    "optical": 40,
+    "optical": 39,
     "japan": 109,
     "flows": 92,
     "media-only": 65,
@@ -167,12 +167,12 @@
     "AMD": 26,
     "AMZN": 79,
     "TSLA": 64,
-    "005930.KS": 53,
-    "000660.KS": 79,
+    "005930.KS": 52,
+    "000660.KS": 78,
     "MSFT": 66,
     "META": 15,
     "MRVL": 9,
-    "LITE": 13,
+    "LITE": 12,
     "SNDK": 12,
     "285A.T": 4,
     "017670.KS": 4,
@@ -186,7 +186,7 @@
     "TEM": 1,
     "JD": 1,
     "ABBV": 2,
-    "TSM": 49,
+    "TSM": 48,
     "AZN": 1,
     "6981.T": 1,
     "009150.KS": 17,
@@ -237,7 +237,7 @@
     "016360.KS": 1,
     "039490.KS": 1,
     "SPOT": 1,
-    "COHR": 4,
+    "COHR": 3,
     "PINS": 1,
     "WMT": 2,
     "SMCI": 4,
@@ -252,14 +252,14 @@
     "ULTA": 1
   },
   "themes": [
-    "Market Notes (836 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — AI 인프라 투자 자금 조달을 위해 약 800억 달러 규모의 공급업체 대출 프로그램을 활용할 계획인 것으로...",
-    "Semiconductors/Memory (537 posts in 14-day research window): 2026년 10월 29일 서학개미 순매수 미국 주식 TOP 50 1위: MICRON TECHNOLOGY INC (15.96%) 2위: LUMENTUM HOLDINGS INC SOFF 39520207144...",
+    "Market Notes (833 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — AI 인프라 투자 자금 조달을 위해 약 800억 달러 규모의 공급업체 대출 프로그램을 활용할 계획인 것으로...",
+    "Semiconductors/Memory (538 posts in 14-day research window): 2026년 10월 29일 서학개미 순매수 미국 주식 TOP 50 1위: MICRON TECHNOLOGY INC (15.96%) 2위: LUMENTUM HOLDINGS INC SOFF 39520207144...",
     "Earnings/Corporate (486 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
-    "Geopolitics (419 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 31일 🇺🇸 아메리카 • 트럼프 대통령은 이란과 협상이 진행 중이라고 밝혀. 다만 미국 정부는 이란에 대한 경제 봉쇄와 추가 제재를 검토 중이며, 중간선거 직후...",
-    "Macro/Rates (368 posts in 14-day research window): 2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,...",
+    "Geopolitics (418 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 31일 🇺🇸 아메리카 • 트럼프 대통령은 이란과 협상이 진행 중이라고 밝혀. 다만 미국 정부는 이란에 대한 경제 봉쇄와 추가 제재를 검토 중이며, 중간선거 직후...",
+    "Macro/Rates (367 posts in 14-day research window): 2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,...",
     "AI Power/Grid (297 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
-    "Equity/Analyst (170 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
-    "AI Policy/Export Controls (136 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 생성형 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은 CSP의 막대한 CapEx가 실제 매출과 FCF로 얼마나 전환되는지에 주목. AI 인프라 투자 증가..."
+    "Equity/Analyst (171 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
+    "AI Policy/Export Controls (135 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은 CSP의 막대한 CapEx가 실제 매출과 FCF로 얼마나 전환되는지에 주목. AI 인프라 투자 증가 속도가..."
   ],
   "catalysts": [
     {
@@ -270,7 +270,7 @@
     {
       "key": "GOOG",
       "count": 130,
-      "text": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 생성형 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은 CSP의 막대한 CapEx가 실제 매출과 FCF로 얼마나 전환되는지에 주목. AI 인프라 투자 증가..."
+      "text": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은 CSP의 막대한 CapEx가 실제 매출과 FCF로 얼마나 전환되는지에 주목. AI 인프라 투자 증가 속도가..."
     },
     {
       "key": "AMZN",
@@ -279,7 +279,7 @@
     },
     {
       "key": "000660.KS",
-      "count": 79,
+      "count": 78,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인..."
     },
     {
@@ -294,7 +294,7 @@
     },
     {
       "key": "005930.KS",
-      "count": 53,
+      "count": 52,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인..."
     },
     {
@@ -304,7 +304,7 @@
     },
     {
       "key": "TSM",
-      "count": 49,
+      "count": 48,
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
@@ -330,7 +330,7 @@
       "topics": [
         "macro"
       ],
-      "count": 368,
+      "count": 367,
       "focus": "2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,..."
     },
     {
@@ -339,7 +339,7 @@
       "topics": [
         "geo"
       ],
-      "count": 419,
+      "count": 418,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 31일 🇺🇸 아메리카 • 트럼프 대통령은 이란과 협상이 진행 중이라고 밝혀. 다만 미국 정부는 이란에 대한 경제 봉쇄와 추가 제재를 검토 중이며, 중간선거 직후..."
     },
     {
@@ -348,7 +348,7 @@
       "topics": [
         "credit"
       ],
-      "count": 126,
+      "count": 125,
       "focus": "빌 애크먼(Bill Ackman) – Equity Mates 인터뷰 1. AI 버블과 컴퓨팅 수요 “컴퓨팅 수요 측면에서 지금이 버블이라고 생각하지 않는다.” AI가 초지능에 빠르게 접근할수록 이를 뒷받침할 컴퓨팅 수요는 사실상 무한대에 가까워질 수 있음. 초지능을 구현하려면 결국 막대한 컴퓨팅 자원이 필요하기..."
     },
     {
@@ -357,7 +357,7 @@
       "topics": [
         "semi"
       ],
-      "count": 537,
+      "count": 538,
       "focus": "2026년 10월 29일 서학개미 순매수 미국 주식 TOP 50 1위: MICRON TECHNOLOGY INC (15.96%) 2위: LUMENTUM HOLDINGS INC SOFF 39520207144..."
     },
     {
@@ -366,7 +366,7 @@
       "topics": [
         "optical"
       ],
-      "count": 40,
+      "count": 39,
       "focus": "StoneX, 루멘텀( $LITE ), 매수 의견으로 커버리지 개시 , 목표주가 $1,200 NPO 수요 가속화 * 루멘텀의 NPO 사업 모멘텀이 강화되면서 2028 회계연도 투자 전망이 앞당겨지고 있음. *..."
     },
     {
@@ -384,8 +384,8 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 136,
-      "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 생성형 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은 CSP의 막대한 CapEx가 실제 매출과 FCF로 얼마나 전환되는지에 주목. AI 인프라 투자 증가..."
+      "count": 135,
+      "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은 CSP의 막대한 CapEx가 실제 매출과 FCF로 얼마나 전환되는지에 주목. AI 인프라 투자 증가 속도가..."
     },
     {
       "id": "kr-market",
@@ -402,7 +402,7 @@
       "topics": [
         "equity"
       ],
-      "count": 170,
+      "count": 171,
       "focus": "[시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가..."
     },
     {
@@ -465,7 +465,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 836,
+      "count": 833,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — AI 인프라 투자 자금 조달을 위해 약 800억 달러 규모의 공급업체 대출 프로그램을 활용할 계획인 것으로..."
     }
   ],
@@ -727,7 +727,7 @@
       "tickers": [
         "GOOG"
       ],
-      "summary": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 생성형 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와..."
+      "summary": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
       "id": "insidertracking/67955",
@@ -1011,21 +1011,18 @@
       "datetime": "2026-10-28T23:27:17.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "알파벳(GOOGL) 2026년 3분기 어닝콜 — CapEx·AI 인프라 관련 1. CapEx 규모 및 2027년 전망 — CFO 아나트 아슈케나지 • 3분기 CapEx는 514억 달러. 대부분 AI 투자를...",
       "tickers": [
         "NVDA",
         "AAPL",
         "GOOG",
         "AVGO",
         "ORCL"
-      ],
-      "summary": "알파벳(GOOGL) 2026년 3분기 어닝콜 — CapEx·AI 인프라 관련 1. CapEx 규모 및 2027년 전망 — CFO 아나트 아슈케나지 • 3분기 CapEx는 514억 달러. 대부분 AI 투자를..."
+      ]
     },
     {
       "id": "bornlupin/20873",
@@ -1034,19 +1031,16 @@
       "datetime": "2026-10-28T23:19:57.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "credit",
-        "semi",
-        "power",
-        "ai-policy"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "마이크로소프트(MSFT) FY27 1분기 어닝콜 중 CapEx 및 AI 인프라 관련 1. 1분기 설비투자(CapEx) CapEx 452억 달러. 1분기에 예상했던 일부 외부 업체(3P)의 컴퓨팅 용량 공급이...",
       "tickers": [
         "NVDA",
         "AMD",
         "MSFT"
-      ],
-      "summary": "마이크로소프트(MSFT) FY27 1분기 어닝콜 중 CapEx 및 AI 인프라 관련 1. 1분기 설비투자(CapEx) CapEx 452억 달러. 1분기에 예상했던 일부 외부 업체(3P)의 컴퓨팅 용량 공급이..."
+      ]
     },
     {
       "id": "insidertracking/67676",
@@ -1699,6 +1693,36 @@
   ],
   "broadItems": [
     {
+      "id": "bornlupin/20921",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20921",
+      "datetime": "2026-11-01T01:18:54.000Z",
+      "localDateKst": "2026-11-01",
+      "tags": [
+        "semi",
+        "equity"
+      ],
+      "score": 52,
+      "hasText": true,
+      "tickers": [],
+      "summary": "일론 머스크 1. Colossus 2 구축 현황 Macrohard와 Minihard는 각각 GB300 GPU 22만 개를 보유하고 있으며 , 800Gbps NIC(네트워크 인터페이스 카드)를 사용해 학습용으로..."
+    },
+    {
+      "id": "bornlupin/20911",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20911",
+      "datetime": "2026-11-01T01:12:37.000Z",
+      "localDateKst": "2026-11-01",
+      "tags": [
+        "semi",
+        "power"
+      ],
+      "score": 60,
+      "hasText": true,
+      "tickers": [],
+      "summary": "(TRASS-BF) 잠정 수출 | 2026년 10월 31일 ※ 주요 품목별 수출 성장률 - 디램: +595% Y/Y, +2% M/M (*ATH*) - 낸드: +342% Y/Y, -10% M/M - SSD:..."
+    },
+    {
       "id": "bornlupin/20910",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20910",
@@ -1731,7 +1755,7 @@
       "tickers": [
         "GOOG"
       ],
-      "summary": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 생성형 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와..."
+      "summary": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
       "id": "HANAchina/71310",
@@ -2582,14 +2606,13 @@
       "datetime": "2026-10-30T13:47:51.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "credit",
-        "macro",
-        "geo"
+        "credit"
       ],
       "score": 89,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>BofA Hartnett: AI와 ABB의 모순 심화…기술주의 본격적인 부담 완화는 2027년 상반기 •BofA는 대형 클라우드 업체들의 회사채 발행이 급증하면서 ABB(Anything but..."
+      "summary": ">>BofA Hartnett: AI와 ABB의 모순 심화…기술주의 본격적인 부담 완화는 2027년 상반기 •BofA는 대형 클라우드 업체들의 회사채 발행이 급증하면서 ABB(Anything but...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71271",
@@ -4079,16 +4102,15 @@
       "localDateKst": "2026-10-29",
       "tags": [
         "semi",
-        "earnings",
-        "healthcare"
+        "earnings"
       ],
-      "lead": 1,
       "score": 69,
       "hasText": true,
+      "summary": "[DS증권 반도체 이수림] 삼성전자 3Q26 컨퍼런스콜 주요 Q/A (1) 1) 2028년 메모리 시장 전망 - 타이트한 공급 상황 지속될 것. 26년 양호한 실적 기반 27년 전반적인 Capex 큰 폭으로...",
+      "lead": 1,
       "tickers": [
         "005930.KS"
-      ],
-      "summary": "[DS증권 반도체 이수림] 삼성전자 3Q26 컨퍼런스콜 주요 Q/A (1) 1) 2028년 메모리 시장 전망 - 타이트한 공급 상황 지속될 것. 26년 양호한 실적 기반 27년 전반적인 Capex 큰 폭으로..."
+      ]
     },
     {
       "id": "bornlupin/20882",
@@ -4097,18 +4119,15 @@
       "datetime": "2026-10-29T02:03:57.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "earnings",
-        "macro",
-        "semi",
-        "power"
+        "earnings"
       ],
-      "lead": 1,
       "score": 81,
       "hasText": true,
+      "summary": "[미래에셋 김철중] 삼성SDI 3Q26 실적 컨콜 요약 t.me/cjdbj 핵심 3줄 - 영업이익 4,078억원으로 컨센(1,913억원)의 2배 이상. ESS·BBU 판매 확대에 고객 보상 반영이 더해진...",
+      "lead": 1,
       "tickers": [
         "006400.KS"
-      ],
-      "summary": "[미래에셋 김철중] 삼성SDI 3Q26 실적 컨콜 요약 t.me/cjdbj 핵심 3줄 - 영업이익 4,078억원으로 컨센(1,913억원)의 2배 이상. ESS·BBU 판매 확대에 고객 보상 반영이 더해진..."
+      ]
     },
     {
       "id": "bornlupin/20881",
@@ -4121,10 +4140,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "[속보] 삼성전자 \"내년 HBM 공급협상 완료…완판속 추가 요청\"",
       "tickers": [
         "005930.KS"
-      ],
-      "summary": "[속보] 삼성전자 \"내년 HBM 공급협상 완료…완판속 추가 요청\""
+      ]
     },
     {
       "id": "HANAchina/71197",
@@ -4150,16 +4169,14 @@
       "datetime": "2026-10-29T01:31:07.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "semi",
-        "earnings"
+        "semi"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
+      "summary": "[DS증권 반도체 이수림] 삼성전자 3Q26 Key Takeaways 3분기 - B/G DRAM은 한자릿수 초중반, NAND는 한자릿수 중반 증가 - ASP DRAM 20% 수준 상승, NAND 10% 후반...",
       "tickers": [
         "005930.KS"
-      ],
-      "summary": "[DS증권 반도체 이수림] 삼성전자 3Q26 Key Takeaways 3분기 - B/G DRAM은 한자릿수 초중반, NAND는 한자릿수 중반 증가 - ASP DRAM 20% 수준 상승, NAND 10% 후반..."
+      ]
     },
     {
       "id": "bornlupin/20879",
@@ -4168,16 +4185,14 @@
       "datetime": "2026-10-29T01:30:23.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "semi",
-        "earnings"
+        "semi"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
+      "summary": "[컨콜] 삼성전자 \"주주환원 최대 110조…우선주 자사주 매입 확대 검토\" 3분기 30조 현금배당 결의…잔여 55조~75조 환원 추진 주주평등 강화…자사주 매입 시 우선주 비중 확대 조율 삼성전자가 올 3분기...",
       "tickers": [
         "005930.KS"
-      ],
-      "summary": "[컨콜] 삼성전자 \"주주환원 최대 110조…우선주 자사주 매입 확대 검토\" 3분기 30조 현금배당 결의…잔여 55조~75조 환원 추진 주주평등 강화…자사주 매입 시 우선주 비중 확대 조율 삼성전자가 올 3분기..."
+      ]
     },
     {
       "id": "HANAchina/71192",
@@ -4236,13 +4251,13 @@
         "semi",
         "earnings"
       ],
-      "lead": 1,
       "score": 61,
       "hasText": true,
+      "summary": "[SK증권 반도체 한동희, 손 건] 안녕하세요, 한동희입니다. SK하이닉스의 목표주가 400만원을 유지합니다. 수요 강세 속 공급 부족 장기화, 실적 안정성 제고, 이에 기반한 주주환원 강화, 지속성 제고가...",
+      "lead": 1,
       "tickers": [
         "000660.KS"
-      ],
-      "summary": "[SK증권 반도체 한동희, 손 건] 안녕하세요, 한동희입니다. SK하이닉스의 목표주가 400만원을 유지합니다. 수요 강세 속 공급 부족 장기화, 실적 안정성 제고, 이에 기반한 주주환원 강화, 지속성 제고가..."
+      ]
     },
     {
       "id": "bornlupin/20874",
@@ -4251,21 +4266,18 @@
       "datetime": "2026-10-28T23:27:17.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "알파벳(GOOGL) 2026년 3분기 어닝콜 — CapEx·AI 인프라 관련 1. CapEx 규모 및 2027년 전망 — CFO 아나트 아슈케나지 • 3분기 CapEx는 514억 달러. 대부분 AI 투자를...",
       "tickers": [
         "NVDA",
         "AAPL",
         "GOOG",
         "AVGO",
         "ORCL"
-      ],
-      "summary": "알파벳(GOOGL) 2026년 3분기 어닝콜 — CapEx·AI 인프라 관련 1. CapEx 규모 및 2027년 전망 — CFO 아나트 아슈케나지 • 3분기 CapEx는 514억 달러. 대부분 AI 투자를..."
+      ]
     },
     {
       "id": "HANAchina/71185",
@@ -4304,19 +4316,16 @@
       "datetime": "2026-10-28T23:19:57.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "credit",
-        "semi",
-        "power",
-        "ai-policy"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "마이크로소프트(MSFT) FY27 1분기 어닝콜 중 CapEx 및 AI 인프라 관련 1. 1분기 설비투자(CapEx) CapEx 452억 달러. 1분기에 예상했던 일부 외부 업체(3P)의 컴퓨팅 용량 공급이...",
       "tickers": [
         "NVDA",
         "AMD",
         "MSFT"
-      ],
-      "summary": "마이크로소프트(MSFT) FY27 1분기 어닝콜 중 CapEx 및 AI 인프라 관련 1. 1분기 설비투자(CapEx) CapEx 452억 달러. 1분기에 예상했던 일부 외부 업체(3P)의 컴퓨팅 용량 공급이..."
+      ]
     },
     {
       "id": "HANAchina/71184",
@@ -4429,17 +4438,15 @@
       "localDateKst": "2026-10-29",
       "tags": [
         "semi",
-        "optical",
-        "power"
+        "optical"
       ],
-      "lead": 2,
       "score": 68,
       "hasText": true,
+      "summary": "블룸버그 독점) 마벨(Marvell), AI 관련 초대형 거래로 루멘텀(Lumentum) 인수 임박 ​ 마벨 테크놀로지(Marvell Technology Inc.)가 인공지능(AI) 부문의 규모 확장 경쟁...",
       "tickers": [
         "MRVL",
         "LITE"
-      ],
-      "summary": "블룸버그 독점) 마벨(Marvell), AI 관련 초대형 거래로 루멘텀(Lumentum) 인수 임박 ​ 마벨 테크놀로지(Marvell Technology Inc.)가 인공지능(AI) 부문의 규모 확장 경쟁..."
+      ]
     },
     {
       "id": "insidertracking/67693",
@@ -8505,40 +8512,6 @@
       "hasText": true,
       "summary": "메타 3분기 어닝콜 중 저커버그: \"MUSE는 명확한 제품·시장 적합성(Product-Market Fit)을 확보했으며, 이제 대규모 확장 단계에 진입했다.\" - MUSE는 메타가 추진하는 개인...",
       "tickers": []
-    },
-    {
-      "id": "bornlupin/20756",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20756",
-      "datetime": "2026-10-21T20:24:16.000Z",
-      "localDateKst": "2026-10-22",
-      "tags": [
-        "earnings"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "테슬라(TSLA) 2026년 3분기 실적 (시간외 +1%) 1. 매출 280.46억 달러 (예상 278.83억), 전년 대비 보합 조정 EPS 0.48달러 (예상 0.43달러), 전년 대비 -4% 조정...",
-      "lead": 1,
-      "tickers": [
-        "TSLA"
-      ]
-    },
-    {
-      "id": "bornlupin/20755",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20755",
-      "datetime": "2026-10-21T20:07:38.000Z",
-      "localDateKst": "2026-10-22",
-      "tags": [
-        "equity",
-        "earnings"
-      ],
-      "score": 69,
-      "hasText": true,
-      "summary": "메타 플랫폼스(META) 2026년 3분기 실적 (시간외 +4%) 매출: 646억 달러 (예상 633.3억 달러), 전년 대비 26% 증가 주당순이익(EPS): 3.83달러 (예상 5.89달러), 전년 대비...",
-      "tickers": [
-        "META"
-      ]
     }
   ],
   "current24hItems": [
