@@ -612,7 +612,9 @@ export function buildMarketRead(input = {}) {
     const ddSeries = buildCloseSeries(input.history, 'distributionDays', { through: basis });
     const record = recordPercentile(ddSeries, dd);
     const common = ddSeries.length ? Math.round(ddSeries.filter((point) => point.value >= ddAt).length / ddSeries.length * 100) : null;
-    const where = record.pct == null ? '' : ` AIO 기록 ${record.n}일 중 ${record.pct}백분위${record.provisional ? '(기록 1년 미만, 잠정)' : ''}.`;
+    // v59.56 (text-quality audit): "AIO 기록 121일 중 96백분위" read as jargon; the same plain wording as the page-flow line.
+    const rankWord = record.pct == null ? '' : record.pct >= 60 ? `상위 ${Math.max(1, 100 - record.pct)}%에 드는 많은 편` : record.pct <= 40 ? `하위 ${Math.max(1, record.pct)}%에 드는 적은 편` : '중간쯤';
+    const where = record.pct == null ? '' : ` 이 사이트가 기록한 ${record.n}거래일 가운데 ${rankWord}입니다${record.provisional ? '(기록 1년 미만, 잠정)' : ''}.`;
     add('distribution-cluster', 74, `S&P 500 최근 25거래일 중 ${fmt(dd, 0)}일이 0.2% 이상 하락하면서 거래량이 늘어난 날(분배일)입니다.${where}`, 'index', {
       reading: record.pct != null && record.pct < 80 && common != null
         ? `흔히 25거래일 중 5~6회 이상을 추세 약화 신호로 보지만, AIO 기록에서는 ${common}%의 날이 ${ddAt}회 이상이라 이 숫자만으로 경고라고 단정하지 않습니다.`
@@ -979,7 +981,8 @@ export function leadershipBreakOf(s = {}, basis = null, history = null) {
   const undecided = proxyWeak && !broken && met + (confirmations.length - known) >= rule.minConfirmations;
   const proxyText = `나스닥 100 5거래일 ${signed(drop5)}${belowMa50 ? `, 50일선 대비 ${signed(pct(ndx.value, ndx.ma50))}` : ''}${proxyWeak && offHigh != null ? `, 1년 고점 대비 ${signed(offHigh)}` : ''}`;
   // v58.74 (audit): a confirmation held earlier in the window says so — "S&P 500 분배일 6일(10/19)" read as a second current count beside 5.
-  const seenText = (item) => item.date && item.date !== today.date ? `${item.value}(${shortDate(item.date)} 기록, 최근 ${rule.confirmWindowSessions ?? 5}거래일 안)` : item.value;
+  // v59.56: no parenthesis here — the summary itself is quoted inside one ("…-0.5%(10/26 기록, 최근 5거래일 안))").
+  const seenText = (item) => item.date && item.date !== today.date ? `${item.value} ${shortDate(item.date)} 기록·최근 ${rule.confirmWindowSessions ?? 5}거래일 안` : item.value;
   return { available: true, break: broken, state: broken ? 'break' : undecided ? 'unknown' : proxyWeak ? 'weak' : 'holding', proxy: 'ndx', proxyLabel: '나스닥 100',
     proxyWeak, drop5, belowMa50, offHigh, date: today.date, confirmations, met, known, need: rule.minConfirmations, window, heldSince: broken ? heldSince : null, held,
     summary: [proxyText, ...confirmations.filter((item) => item.ok).map(seenText), held ? `${shortDate(heldSince)} 이탈 판정 후 나스닥 100 약세 지속` : null].filter(Boolean).join(', ') };
@@ -1206,7 +1209,9 @@ export function buildMarketRegime(input = {}) {
     const rec200 = recordOf('breadth200', b200);
     const recordText = (rec) => rec?.pct == null ? '' : `, 기록 ${rec.n}일 중 ${rec.pct}백분위${rec.provisional ? '(잠정)' : ''}`;
     const recordRead = rec50?.pct == null ? '' : ` 50일선 위 비율 ${fmt(b50, 0)}%는 지난 ${rec50.n}거래일 중 ${rec50.pct >= 80 ? '높은 편' : rec50.pct <= 20 ? '낮은 편' : rec50.pct >= 60 ? '중간보다 조금 높은 편' : rec50.pct <= 40 ? '중간보다 조금 낮은 편' : '중간쯤'}입니다(백분위 ${rec50.pct}${rec50.provisional ? ', 기록이 1년 미만이라 잠정' : ''}).`;
-    const read = (state === 'favorable' ? '상승이 다수 종목으로 퍼져 있습니다.'
+    // v59.56 (text-quality audit): the verdict reads the 50/200-day ratios only; "상승이 다수 종목으로 퍼져" sat beside a day
+    // with 61 decliners to 14 advancers. The sentence says what it measured.
+    const read = (state === 'favorable' ? `50일선·200일선 위 종목이 모두 ${B.broadAtLeast}% 이상 — 중기 참여는 넓습니다(하루·5일 등락 종목 수는 따로 봅니다).`
       : breadthHeld ? `50일선 위 종목 비율이 ${shortDate(breadthLatch.since)}부터 ${B.weakBelow}% 아래에 머물다 ${fmt(b50, 0)}%로 올라왔지만, ${B.holdExitAt}% 위로 회복하기 전까지는 참여가 좁은 상태(부담)로 봅니다.`
       // v57.81: while the leadership break holds, the narrow tape is not "the index leaning on a few leaders" — they are falling too.
       : state === 'burden' ? (narrow && leadership.break ? `지수는 고점권(${signed(fromHigh)})이지만 ${narrowWho} 좁은 장세에서, 최근에는 주도 영역(${leadership.drop5 != null && leadership.drop5 <= -RULES.trend.leaderDrop5dPct ? `나스닥 100 5거래일 ${signed(leadership.drop5)}` : '나스닥 100 50일선 아래'})까지 밀려 소수 종목이 지수를 받치는 힘도 약해지고 있습니다.`
@@ -1284,7 +1289,9 @@ export function buildMarketRegime(input = {}) {
           : ratio == null ? 'VIX는 낮은 편이지만 3개월 VIX가 없어 기간 구조를 확인하지 못했습니다.'
             : calmLevel && rising ? `VIX ${fmt(vix.value)}는 ${V.calmBelow} 아래지만 5일 ${signed(vix5, 0)} 올라 단기 불안이 커지는 중입니다 — 양호로 보지 않습니다.`
               : calmLevel && nearEdge ? `VIX ${fmt(vix.value)}가 ${V.calmBelow} 경계에서 ${V.calmBufferPt}pt 안이고 5일 ${signed(vix5, 0)} 올라 양호로 보지 않습니다.`
-                : 'VIX 18~25 주의 구간이거나 기간 구조가 평탄합니다.';
+                // v59.56 (text-quality audit): name the reason that applies, not both.
+                : vix && vix.value >= V.calmBelow ? `VIX ${fmt(vix.value)} — ${V.calmBelow}~${V.stressAt} 주의 구간입니다${ratio < V.calmRatioBelow ? `(VIX/3개월 VIX ${fmt(ratio, 2)}, 기간 구조는 정상)` : ''}.`
+                  : `VIX ${fmt(vix.value)}는 ${V.calmBelow} 아래지만 VIX/3개월 VIX ${fmt(ratio, 2)}로 기간 구조가 평탄합니다.`;
     const flip = state === 'unknown' ? null
       : state === 'burden' ? `VIX ${V.stressAt} 미만, VIX/3개월 VIX ${V.invertedRatioAt} 미만, 5일 상승률 +${V.spike5dPct}% 미만이 모두 충족되면 중립으로 바뀜`
         : state === 'favorable' ? `VIX ${V.calmBelow - V.calmBufferPt} 이상에서 5일 상승, 5일 +${V.rise5dWatchPct}% 이상 상승, VIX ${V.calmBelow} 이상 또는 VIX/3개월 VIX ${V.calmRatioBelow} 이상이면 중립, VIX ${V.stressAt} 이상, 역전(${V.invertedRatioAt} 이상), 5일 +${V.spike5dPct}% 급등 중 하나면 부담`

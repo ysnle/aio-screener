@@ -271,13 +271,17 @@ const HEADLINE_TERMS = Object.freeze([
   // v58.75 (persona review): "guidance" came back as 지침/안내; a company outlook is 가이던스 or 전망.
   [/\bguidance\b/i, /가이던스|전망/],
   // "Bearish Euro Bets" passed as "유로 매도 건으로 상승" (매도 satisfied the bearish term); a bet is a 베팅/포지션.
-  [/\b(?:bearish|bullish)\b(?:\s+\S+){0,2}\s+bets?\b/i, /(?:약세|강세|하락|상승|매도|매수|숏|롱)\s*(?:베팅|포지션)|공매도/]
+  [/\b(?:bearish|bullish)\b(?:\s+\S+){0,2}\s+bets?\b/i, /(?:약세|강세|하락|상승|매도|매수|숏|롱)\s*(?:베팅|포지션)|공매도/],
+  // v59.56 (text-quality audit): 'high junk' came back as '고위 자산'·'상승' — a junk/high-yield credit word must stay a credit word.
+  [/\bjunk\b|\bhigh[- ]yield\b/i, /정크|하이일드|투기\s*등급|고위험\s*(?:채|회사채|등급)/]
 ]);
 // v58.75 (persona review): the shared model is told the market words up front (the validator above only rejects a miss
 // afterwards). The free Workers AI path takes no instructions; its misses fall to this prompt through the validator.
 export const HEADLINE_GLOSSARY = HEADLINE_GLOSSARY_PAIRS.map(([en, ko]) => `${en} → ${ko}`).join(', '); // shared with the browser's after-translation fixes
 export const isFaithfulKoreanTitle = (title, ko) => {
   if (!isCleanKoreanTitle(ko)) return false;
+  // v59.56: a dictionary-form verb left mid-headline ('소식통은 말하다') is an unfinished translation, not a title.
+  if (/(?:말하|밝히|전하|보도하)다(?=\s|[,.·]|$)/.test(String(ko || ''))) return false;
   if (!HEADLINE_TERMS.every(([en, kr]) => !en.test(String(title || '')) || kr.test(String(ko || '')))) return false;
   if ((String(ko || '').match(ACCENTED_WORD) || []).some((word) => !String(title || '').includes(word))) return false;
   if (!HEADLINE_NAMES.every(([en, kr]) => !en.test(String(title || '')) || kr.test(String(ko || '')))) return false;

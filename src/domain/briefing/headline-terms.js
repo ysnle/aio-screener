@@ -7,7 +7,9 @@ export const HEADLINE_GLOSSARY_PAIRS = Object.freeze([
   ['bearish bets', '약세 베팅'], ['bullish bets', '강세 베팅'], ['short sellers', '공매도 세력'], ['selloff', '매도세(급락)'],
   ['rally', '랠리(반등)'], ['Treasury yields', '미 국채 금리'], ['haven', '안전자산'], ['rate cut/hike', '금리 인하/인상'],
   ['the Fed', '연준'], ['downgrade/upgrade (analyst)', '투자의견 하향/상향'], ['price target', '목표주가'], ['buyback', '자사주 매입'],
-  ['futures', '선물'], ['stocks slide/jump', '주가 하락/급등'], ['layoffs', '감원'], ['tariffs', '관세']
+  ['futures', '선물'], ['stocks slide/jump', '주가 하락/급등'], ['layoffs', '감원'], ['tariffs', '관세'],
+  // v59.56 (text-quality audit): 'high junk' came back as '고위 자산'·'상승'; 'sources say' left '소식통은 말하다'.
+  ['junk / high-yield (bonds, ratings)', '정크(투기 등급)/하이일드'], ['sources say', '소식통에 따르면']
 ]);
 
 // [English term in the original, wrong Korean rendering, replacement]
