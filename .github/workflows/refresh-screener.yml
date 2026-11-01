@@ -99,6 +99,13 @@ jobs:
           if [ -z "${BOK_API_KEY}" ]; then echo "::notice::BOK_API_KEY is not set — Korean investor-type net buying is not collected"; fi
           node scripts/fetch-kr-investor-flows.mjs
 
+      - name: Refresh Taiwan AI supply-chain monthly revenue (TWSE OpenAPI, no key)
+        run: |
+          set -euo pipefail
+          # v59.56: TWSE t187ap05_L (MOPS monthly revenue of listed companies), free and keyless. The script exits 0 and
+          # keeps the artifact on any failure, and rewrites it only when the numbers change (monthly, by the 10th).
+          node scripts/fetch-tw-monthly-revenue.mjs
+
       - name: Refresh weekly earnings calendar (Finnhub free tier)
         env:
           FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
@@ -223,6 +230,7 @@ jobs:
           stage_if_exists public-data/consensus-estimates.json # v57.54: Forward PER consensus (reference)
           stage_if_exists public-data/kr-fundamentals.json # P1654: OpenDART Korean fundamentals
           stage_if_exists public-data/kr-investor-flows.json # v58.55: BOK ECOS investor-type net buying
+          stage_if_exists public-data/tw-monthly-revenue.json # v59.56: TWSE Taiwan AI supply-chain monthly revenue
           stage_if_exists public-data/backtest-history.json
           stage_if_exists public-data/breadth-contributors.json # P1416: breadth drilldown
           stage_if_exists public-data/theme-stage-history.json # v58.79: recomputed theme-stage record

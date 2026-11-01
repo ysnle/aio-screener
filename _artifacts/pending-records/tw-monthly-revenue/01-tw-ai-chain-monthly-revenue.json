@@ -1,0 +1,16 @@
+{
+ "version": "v59.56",
+ "date": "2026-11-01",
+ "qa": [
+  {
+   "id": "QA-TW-REV-01",
+   "text": "v59.56 머지 뒤 첫 refresh-screener 실행 로그에 '[tw-revenue] ok <월> · N companies'가 찍히고 public-data/tw-monthly-revenue.json이 status ok·16개 코드(collected+missing)로 커밋되는지, 11/10 이후 실행에서 latestMonth가 2026-10으로 넘어가는지 확인. GitHub Actions에서 TWSE OpenAPI가 막히면 경고만 남고 수집 전 표시가 유지된다.",
+   "verify_by": "contract"
+  }
+ ],
+ "qa_section": "대만 AI 공급망 월매출",
+ "changelog": [
+  "**대만 AI 공급망 월매출 (v59.56):** X 북마크 대조에서 빠졌던 대만 월매출을 수집한다. 대만증권거래소 OpenAPI t187ap05_L(상장사 월매출, MOPS 신고, 키·비용 없음)에서 TSMC·미디어텍·알칩·GUC, ASE·KYEC, 유니마이크론·골드서킷·EMC, 폭스콘·콴타·위스트론·위윈, 델타·AVC·액톤 16개사를 종목코드로 고정해 읽고(scripts/fetch-tw-monthly-revenue.mjs, refresh-screener 6시간 주기), 숫자가 바뀔 때만 public-data/tw-monthly-revenue.json을 다시 쓴다. 원천이 주는 당월·전월·전년 동월 금액으로 회사별 24개월 이력을 쌓는다. 오늘·테마의 'AI 공급망 흐름' 블록에 '대만 AI 공급망 N개사의 M월 매출 합계는 1년 전보다 ±X%' 한 문장을, 펼침에 묶음별 합계 증감과 회사별 전년·전월 대비를 붙였다. 묶음 값은 금액 합계로 계산하고 다른 달에 머문 회사는 최신 달 합계에 넣지 않는다. 장외(TPEx) 종목(애스피드 등)은 스키마를 실행으로 확인하지 못해 넣지 않았다. 검증 node scripts/ci-tw-monthly-revenue-fixture.mjs."
+ ],
+ "note": "v59.56 Taiwan AI supply-chain monthly revenue (TWSE OpenAPI)"
+}

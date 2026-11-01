@@ -4,6 +4,8 @@
 import { el } from './dom.js';
 import { frameHead, markFrame } from './section-frame.js';
 import { aiChainFlow, defensiveContrast } from '../../domain/briefing/ai-chain-flow.js';
+import { buildTwRevenueView, signedPct, TW_MONTHLY_REVENUE } from '../../domain/briefing/tw-monthly-revenue.js';
+import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 
 // Rounded first, so a move under 0.05% reads 0.0% and is flat, never "+0.0%" or "-0.0%".
 const tenth = (value) => (value == null ? null : Math.round(value * 10) / 10 || 0);
@@ -35,6 +37,31 @@ export function paintThemesAiChain(doc, root) {
     const head = page.querySelector(':scope > .page-head');
     if (head) head.insertAdjacentElement('afterend', host); else page.prepend(host);
   } });
+}
+
+// v59.56 (X-bookmark gap 2): Taiwan's monthly revenue under the US price medians — one sentence on the face, each
+// group's year-on-year change and its companies in the fold. Requested once per load; a new copy repaints the block.
+function twRevenue(doc, root, id, repaint) {
+  (root.__aioTwRevenueRepaint ||= {})[id] = repaint; // home and 테마 each repaint their own block when a new copy lands
+  if (!root.__aioTwRevenueRequested) {
+    root.__aioTwRevenueRequested = true;
+    const done = (payload, changed) => {
+      root.__aioTwRevenueRequested = false;
+      root.__aioTwRevenueLoad = payload ? 'loaded' : 'failed';
+      if (changed) Object.values(root.__aioTwRevenueRepaint).forEach((fn) => fn());
+    };
+    refreshSharedArtifact(root, TW_MONTHLY_REVENUE).then(({ payload, changed }) => done(payload, changed)).catch(() => done(root[TW_MONTHLY_REVENUE.key] || null, false));
+  }
+  const view = buildTwRevenueView(root[TW_MONTHLY_REVENUE.key] || null, { loadState: root.__aioTwRevenueLoad || 'loading' });
+  if (view.state !== 'ok') return null;
+  const face = el(doc, 'p', view.reading, 'ai-chain__reading ai-chain__tw');
+  face.title = `${view.source || '대만증권거래소 월매출'} · 회사가 신고한 월 매출 합계의 1년 전 같은 달 대비 변화`;
+  const fold = [el(doc, 'p', `대만 월매출 (${Number(view.month.slice(5, 7))}월, 1년 전 같은 달 대비 · 지난달 대비)`, 'event-brief__sub')];
+  for (const group of view.groups) {
+    fold.push(el(doc, 'p', `${group.name} ${signedPct(group.yoyPct)} — ${group.members.map((m) => `${m.name} ${signedPct(m.yoyPct)}(지난달 대비 ${signedPct(m.momPct)})`).join(', ')}`, 'ai-chain__member-list'));
+  }
+  fold.push(el(doc, 'p', '대만 상장사는 매달 10일까지 전월 매출을 공시합니다. 미국 분기 실적보다 먼저 나오는 수요 신호이고, 묶음 값은 회사별 금액을 더해 계산합니다. 출처: 대만증권거래소 OpenAPI.', 'ai-chain__member-list'));
+  return { face, fold };
 }
 
 function paintAiChain(doc, root, { id, frame, className, more: withLink, place, limit = Infinity }) {
@@ -92,6 +119,9 @@ function paintAiChain(doc, root, { id, frame, className, more: withLink, place, 
     if (others.length) fold.append(barList(others));
     fold.append(el(doc, 'p', '막대는 묶음별 미국 종목의 한 달 수익률 중앙값, 오른쪽 숫자는 지난 거래일 중앙값입니다. 묶음은 테마 화면의 반도체·AI 인프라·광통신 분류를 따릅니다.', 'ai-chain__member-list'));
   }
+  // Taiwan's monthly revenue opens the member lists: a short block, read before the long US lists.
+  const tw = twRevenue(doc, root, id, () => paintAiChain(doc, root, { id, frame, className, more: withLink, place, limit }));
+  if (tw) fold.append(...tw.fold);
   for (const group of flow.groups) {
     fold.append(el(doc, 'p', group.name, 'event-brief__sub'),
       el(doc, 'p', group.members.map((member) => `${member.sym} ${signed(member.ret1m)}(지난 거래일 ${signed(member.ret1d)})`).join(', '), 'ai-chain__member-list'));
@@ -100,7 +130,7 @@ function paintAiChain(doc, root, { id, frame, className, more: withLink, place, 
   more.type = 'button';
   more.dataset.action = 'showPage';
   more.dataset.arg = 'themes';
-  host.replaceChildren(head, el(doc, 'p', faceReading, 'ai-chain__reading'), legend, chart, fold, ...(withLink ? [more] : []));
+  host.replaceChildren(head, el(doc, 'p', faceReading, 'ai-chain__reading'), legend, chart, ...(tw ? [tw.face] : []), fold, ...(withLink ? [more] : []));
   host.hidden = false;
   return flow;
 }
