@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-01T16:21:40.388Z",
-  "attemptedAt": "2026-11-01T16:21:40.388Z",
-  "lastSuccessfulAt": "2026-11-01T16:21:40.388Z",
+  "generatedAt": "2026-11-01T17:21:46.929Z",
+  "attemptedAt": "2026-11-01T17:21:46.929Z",
+  "lastSuccessfulAt": "2026-11-01T17:21:46.929Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-18T16:21:36.430Z",
-  "until": "2026-11-01T16:21:36.430Z",
+  "since": "2026-10-18T17:21:40.814Z",
+  "until": "2026-11-01T17:21:40.814Z",
   "current24hWindow": {
     "start": "2026-10-30T23:00:00.000Z",
     "end": "2026-10-31T23:00:00.000Z",
@@ -134,13 +134,17 @@
     "observedCount": 2351,
     "eligibleTextCount": 2287,
     "mediaOnlyCount": 64,
+    "mediaAttachedCount": 22,
+    "photoPostCount": 19,
+    "documentPostCount": 0,
+    "imageOnlyCount": 0,
     "highSignalCount": 426,
     "broadSignalCount": 932,
     "selectedRawCount": 411,
     "selectedEligibleCount": 411,
     "selectedRawCoveragePct": 18,
     "selectedOfObservedPct": 17.5,
-    "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
+    "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
     "geo": 418,
@@ -1695,6 +1699,12 @@
       "lead": 1,
       "score": 94,
       "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
       "tickers": [
         "NVDA",
         "MSFT",
@@ -1718,6 +1728,12 @@
       "lead": 1,
       "score": 63,
       "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
       "tickers": [
         "005930.KS",
         "000660.KS"
@@ -1756,6 +1772,12 @@
       "lead": 2,
       "score": 50,
       "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
       "tickers": [],
       "summary": "우크라이나 무인체계군 사령관 로베르트 브로우디에 따르면 10월 드론 공격 실적이 전쟁 발발 이후 월간 기준 최고치를 기록. 10월 한 달간 총 25만 5,605회의 작전을 수행해 러시아군 표적 6만..."
     },
@@ -1788,6 +1810,12 @@
       "lead": 1,
       "score": 59,
       "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
       "tickers": [
         "AMD",
         "GOOG",
@@ -1989,6 +2017,12 @@
       ],
       "score": 52,
       "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 3,
+        "videoCount": 0,
+        "documents": []
+      },
       "tickers": [],
       "summary": "일론 머스크 1. Colossus 2 구축 현황 Macrohard와 Minihard는 각각 GB300 GPU 22만 개를 보유하고 있으며 , 800Gbps NIC(네트워크 인터페이스 카드)를 사용해 학습용으로..."
     },
@@ -2004,6 +2038,12 @@
       ],
       "score": 60,
       "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 10,
+        "videoCount": 0,
+        "documents": []
+      },
       "tickers": [],
       "summary": "(TRASS-BF) 잠정 수출 | 2026년 10월 31일 ※ 주요 품목별 수출 성장률 - 디램: +595% Y/Y, +2% M/M (*ATH*) - 낸드: +342% Y/Y, -10% M/M - SSD:..."
     },
