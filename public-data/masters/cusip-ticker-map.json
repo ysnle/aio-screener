@@ -3,7 +3,7 @@
   "artifactRole": "CUSIP_TICKER_CACHE",
   "source": "OpenFIGI /v3/mapping (idType ID_CUSIP, exchCode US)",
   "sourceUrl": "https://www.openfigi.com/api",
-  "generatedAt": "2026-10-26T16:00:08.483Z",
+  "generatedAt": "2026-11-02T12:27:54.426Z",
   "status": "OK",
   "policy": "A CUSIP gets a ticker only when OpenFIGI returns exactly one US-exchange common-stock ticker for it. Ambiguous, non-common and missing answers are kept as such and never shown as tickers. The runtime builder also drops a ticker that disagrees with the reference crosswalk.",
   "lastRun": {
@@ -12,18 +12,54 @@
     "answered": 984
   },
   "counts": {
-    "EXACT": 664,
+    "EXACT": 1220,
     "AMBIGUOUS": 0,
-    "NOT_COMMON": 217,
-    "NOT_FOUND": 103,
+    "NOT_COMMON": 367,
+    "NOT_FOUND": 381,
     "INVALID_TICKER": 0
   },
   "entries": {
+    "100557107": {
+      "s": "EXACT",
+      "t": "SAM",
+      "n": "BOSTON BEER COMPANY INC-A",
+      "on": "2026-11-02"
+    },
     "101137107": {
       "s": "EXACT",
       "t": "BSX",
       "n": "BOSTON SCIENTIFIC CORP",
       "on": "2026-10-26"
+    },
+    "103304101": {
+      "s": "EXACT",
+      "t": "BYD",
+      "n": "BOYD GAMING CORP",
+      "on": "2026-11-02"
+    },
+    "104674106": {
+      "s": "EXACT",
+      "t": "BRC",
+      "n": "BRADY CORPORATION - CL A",
+      "on": "2026-11-02"
+    },
+    "109194100": {
+      "s": "EXACT",
+      "t": "BFAM",
+      "n": "BRIGHT HORIZONS FAMILY SOLUT",
+      "on": "2026-11-02"
+    },
+    "109641100": {
+      "s": "EXACT",
+      "t": "EAT",
+      "n": "BRINKER INTERNATIONAL INC",
+      "on": "2026-11-02"
+    },
+    "109696104": {
+      "s": "EXACT",
+      "t": "BCO",
+      "n": "BRINK'S CO/THE",
+      "on": "2026-11-02"
     },
     "110122108": {
       "s": "EXACT",
@@ -34,6 +70,12 @@
     "110448107": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "112463104": {
+      "s": "EXACT",
+      "t": "BKD",
+      "n": "BROOKDALE SENIOR LIVING INC",
+      "on": "2026-11-02"
     },
     "113004105": {
       "s": "EXACT",
@@ -53,6 +95,18 @@
       "n": "BROWN-FORMAN CORP-CLASS A",
       "on": "2026-10-26"
     },
+    "115637209": {
+      "s": "EXACT",
+      "t": "BF-B",
+      "n": "BROWN-FORMAN CORP-CLASS B",
+      "on": "2026-11-02"
+    },
+    "116794108": {
+      "s": "EXACT",
+      "t": "BRKR",
+      "n": "BRUKER CORP",
+      "on": "2026-11-02"
+    },
     "116794207": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
@@ -68,6 +122,22 @@
       "t": "BFLY",
       "n": "BUTTERFLY NETWORK INC",
       "on": "2026-10-26"
+    },
+    "124805102": {
+      "s": "EXACT",
+      "t": "CBZ",
+      "n": "CBIZ INC",
+      "on": "2026-11-02"
+    },
+    "124830878": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "125141101": {
+      "s": "EXACT",
+      "t": "CECO",
+      "n": "CECO ENVIRONMENTAL CORP",
+      "on": "2026-11-02"
     },
     "125269100": {
       "s": "EXACT",
@@ -111,6 +181,12 @@
       "n": "CVS HEALTH CORP",
       "on": "2026-10-26"
     },
+    "127055101": {
+      "s": "EXACT",
+      "t": "CBT",
+      "n": "CABOT CORP",
+      "on": "2026-11-02"
+    },
     "127203107": {
       "s": "EXACT",
       "t": "WHD",
@@ -123,11 +199,27 @@
       "n": "CADENCE DESIGN SYS INC",
       "on": "2026-10-26"
     },
+    "128030202": {
+      "s": "EXACT",
+      "t": "CALM",
+      "n": "CAL-MAINE FOODS INC",
+      "on": "2026-11-02"
+    },
     "131193104": {
       "s": "EXACT",
       "t": "CALY",
       "n": "CALLAWAY GOLF COMPANY",
       "on": "2026-10-26"
+    },
+    "133131102": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "134429109": {
+      "s": "EXACT",
+      "t": "CPB",
+      "n": "THE CAMPBELL'S COMPANY",
+      "on": "2026-11-02"
     },
     "136069101": {
       "s": "EXACT",
@@ -153,6 +245,50 @@
       "n": "SONIDA SENIOR LIVING INC",
       "on": "2026-10-26"
     },
+    "141788109": {
+      "s": "EXACT",
+      "t": "CARG",
+      "n": "CARGURUS INC",
+      "on": "2026-11-02"
+    },
+    "142152107": {
+      "s": "EXACT",
+      "t": "CAI",
+      "n": "CARIS LIFE SCIENCES INC",
+      "on": "2026-11-02"
+    },
+    "142339100": {
+      "s": "EXACT",
+      "t": "CSL",
+      "n": "CARLISLE COS INC",
+      "on": "2026-11-02"
+    },
+    "143130102": {
+      "s": "EXACT",
+      "t": "KMX",
+      "n": "CARMAX INC",
+      "on": "2026-11-02"
+    },
+    "143658300": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "144285103": {
+      "s": "EXACT",
+      "t": "CRS",
+      "n": "CARPENTER TECHNOLOGY",
+      "on": "2026-11-02"
+    },
+    "146229109": {
+      "s": "EXACT",
+      "t": "CRI",
+      "n": "CARTER'S INC",
+      "on": "2026-11-02"
+    },
+    "146280508": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "146869102": {
       "s": "EXACT",
       "t": "CVNA",
@@ -164,6 +300,12 @@
       "t": "CWST",
       "n": "CASELLA WASTE SYSTEMS INC-A",
       "on": "2026-10-26"
+    },
+    "147528103": {
+      "s": "EXACT",
+      "t": "CASY",
+      "n": "CASEY'S GENERAL STORES INC",
+      "on": "2026-11-02"
     },
     "148929102": {
       "s": "EXACT",
@@ -183,9 +325,45 @@
       "n": "CATHAY GENERAL BANCORP",
       "on": "2026-10-26"
     },
+    "149568107": {
+      "s": "EXACT",
+      "t": "CVCO",
+      "n": "CAVCO INDUSTRIES INC",
+      "on": "2026-11-02"
+    },
+    "150870103": {
+      "s": "EXACT",
+      "t": "CE",
+      "n": "CELANESE CORP",
+      "on": "2026-11-02"
+    },
     "151290889": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "156431108": {
+      "s": "EXACT",
+      "t": "CENX",
+      "n": "CENTURY ALUMINUM COMPANY",
+      "on": "2026-11-02"
+    },
+    "157085101": {
+      "s": "EXACT",
+      "t": "CERS",
+      "n": "CERUS CORP",
+      "on": "2026-11-02"
+    },
+    "163072101": {
+      "s": "EXACT",
+      "t": "CAKE",
+      "n": "CHEESECAKE FACTORY INC/THE",
+      "on": "2026-11-02"
+    },
+    "163851108": {
+      "s": "EXACT",
+      "t": "CC",
+      "n": "CHEMOURS CO/THE",
+      "on": "2026-11-02"
     },
     "165167735": {
       "s": "EXACT",
@@ -211,17 +389,35 @@
       "n": "CHURCH & DWIGHT CO INC",
       "on": "2026-10-26"
     },
+    "171484108": {
+      "s": "EXACT",
+      "t": "CHDN",
+      "n": "CHURCHILL DOWNS INC",
+      "on": "2026-11-02"
+    },
     "171779309": {
       "s": "EXACT",
       "t": "CIEN",
       "n": "CIENA CORP",
       "on": "2026-10-26"
     },
+    "172573107": {
+      "s": "EXACT",
+      "t": "CRCL",
+      "n": "CIRCLE INTERNET GROUP INC",
+      "on": "2026-11-02"
+    },
     "172755100": {
       "s": "EXACT",
       "t": "CRUS",
       "n": "CIRRUS LOGIC INC",
       "on": "2026-10-26"
+    },
+    "172908105": {
+      "s": "EXACT",
+      "t": "CTAS",
+      "n": "CINTAS CORP",
+      "on": "2026-11-02"
     },
     "172967424": {
       "s": "EXACT",
@@ -234,6 +430,22 @@
       "t": "CFG",
       "n": "CITIZENS FINANCIAL GROUP",
       "on": "2026-10-26"
+    },
+    "184496107": {
+      "s": "EXACT",
+      "t": "CLH",
+      "n": "CLEAN HARBORS INC",
+      "on": "2026-11-02"
+    },
+    "185123106": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "185899101": {
+      "s": "EXACT",
+      "t": "CLF",
+      "n": "CLEVELAND-CLIFFS INC",
+      "on": "2026-11-02"
     },
     "191216100": {
       "s": "EXACT",
@@ -277,11 +489,53 @@
       "n": "COMMUNITY TRUST BANCORP INC",
       "on": "2026-10-26"
     },
+    "204166102": {
+      "s": "EXACT",
+      "t": "CVLT",
+      "n": "COMMVAULT SYSTEMS INC",
+      "on": "2026-11-02"
+    },
+    "205887102": {
+      "s": "EXACT",
+      "t": "CAG",
+      "n": "CONAGRA BRANDS INC",
+      "on": "2026-11-02"
+    },
+    "209115104": {
+      "s": "EXACT",
+      "t": "ED",
+      "n": "CONSOLIDATED EDISON INC",
+      "on": "2026-11-02"
+    },
+    "217204106": {
+      "s": "EXACT",
+      "t": "CPRT",
+      "n": "COPART INC",
+      "on": "2026-11-02"
+    },
+    "218352102": {
+      "s": "EXACT",
+      "t": "CORT",
+      "n": "CORCEPT THERAPEUTICS INC",
+      "on": "2026-11-02"
+    },
     "219350105": {
       "s": "EXACT",
       "t": "GLW",
       "n": "CORNING INC",
       "on": "2026-10-26"
+    },
+    "219948106": {
+      "s": "EXACT",
+      "t": "CPAY",
+      "n": "CORPAY INC",
+      "on": "2026-11-02"
+    },
+    "221006109": {
+      "s": "EXACT",
+      "t": "CRVL",
+      "n": "CORVEL CORP",
+      "on": "2026-11-02"
     },
     "224408104": {
       "s": "EXACT",
@@ -301,6 +555,12 @@
       "n": "CROWN HOLDINGS INC",
       "on": "2026-10-26"
     },
+    "229899109": {
+      "s": "EXACT",
+      "t": "CFR",
+      "n": "CULLEN/FROST BANKERS INC",
+      "on": "2026-11-02"
+    },
     "231021106": {
       "s": "EXACT",
       "t": "CMI",
@@ -310,6 +570,12 @@
     "233051200": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "234264109": {
+      "s": "EXACT",
+      "t": "DAKT",
+      "n": "DAKTRONICS INC",
+      "on": "2026-11-02"
     },
     "235851102": {
       "s": "EXACT",
@@ -322,6 +588,12 @@
       "t": "DRI",
       "n": "DARDEN RESTAURANTS INC",
       "on": "2026-10-26"
+    },
+    "243537107": {
+      "s": "EXACT",
+      "t": "DECK",
+      "n": "DECKERS OUTDOOR CORP",
+      "on": "2026-11-02"
     },
     "244199105": {
       "s": "EXACT",
@@ -341,15 +613,37 @@
       "n": "DEXCOM INC",
       "on": "2026-10-26"
     },
+    "253393102": {
+      "s": "EXACT",
+      "t": "DKS",
+      "n": "DICK'S SPORTING GOODS INC",
+      "on": "2026-11-02"
+    },
     "253868103": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "254067101": {
+      "s": "EXACT",
+      "t": "DDS",
+      "n": "DILLARDS INC-CL A",
+      "on": "2026-11-02"
     },
     "254687106": {
       "s": "EXACT",
       "t": "DIS",
       "n": "WALT DISNEY CO/THE",
       "on": "2026-10-26"
+    },
+    "256135203": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "256163106": {
+      "s": "EXACT",
+      "t": "DOCU",
+      "n": "DOCUSIGN INC",
+      "on": "2026-11-02"
     },
     "256746108": {
       "s": "EXACT",
@@ -369,6 +663,12 @@
       "n": "DOW INC",
       "on": "2026-10-26"
     },
+    "267475101": {
+      "s": "EXACT",
+      "t": "DY",
+      "n": "DYCOM INDUSTRIES INC",
+      "on": "2026-11-02"
+    },
     "268150109": {
       "s": "EXACT",
       "t": "DT",
@@ -381,11 +681,23 @@
       "n": "EBAY INC",
       "on": "2026-10-26"
     },
+    "278768106": {
+      "s": "EXACT",
+      "t": "ECHO",
+      "n": "ECHOSTAR CORP-A",
+      "on": "2026-11-02"
+    },
     "278865100": {
       "s": "EXACT",
       "t": "ECL",
       "n": "ECOLAB INC",
       "on": "2026-10-26"
+    },
+    "281020107": {
+      "s": "EXACT",
+      "t": "EIX",
+      "n": "EDISON INTERNATIONAL",
+      "on": "2026-11-02"
     },
     "282914100": {
       "s": "EXACT",
@@ -421,11 +733,21 @@
       "n": "EQUIFAX INC",
       "on": "2026-10-26"
     },
+    "296013105": {
+      "s": "EXACT",
+      "t": "EROC",
+      "n": "EROCK INC-A",
+      "on": "2026-11-02"
+    },
     "296315104": {
       "s": "EXACT",
       "t": "ESE",
       "n": "ESCO TECHNOLOGIES INC",
       "on": "2026-10-26"
+    },
+    "297178105": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
     },
     "300426103": {
       "s": "EXACT",
@@ -445,6 +767,12 @@
       "n": "FLYWIRE CORP-VOTING",
       "on": "2026-10-26"
     },
+    "302520101": {
+      "s": "EXACT",
+      "t": "FNB",
+      "n": "FNB CORP",
+      "on": "2026-11-02"
+    },
     "302941109": {
       "s": "EXACT",
       "t": "FCN",
@@ -457,11 +785,37 @@
       "n": "FAIR ISAAC CORP",
       "on": "2026-10-26"
     },
+    "314352105": {
+      "s": "EXACT",
+      "t": "FDXF",
+      "n": "FEDEX FREIGHT HOLDING CO",
+      "on": "2026-11-02"
+    },
+    "315616102": {
+      "s": "EXACT",
+      "t": "FFIV",
+      "n": "F5 INC",
+      "on": "2026-11-02"
+    },
+    "316092113": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "316188705": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "316773100": {
       "s": "EXACT",
       "t": "FITB",
       "n": "FIFTH THIRD BANCORP",
       "on": "2026-10-26"
+    },
+    "316841105": {
+      "s": "EXACT",
+      "t": "FIG",
+      "n": "FIGMA INC-CL A",
+      "on": "2026-11-02"
     },
     "320209109": {
       "s": "EXACT",
@@ -469,11 +823,23 @@
       "n": "FIRST FINANCIAL BANCORP",
       "on": "2026-10-26"
     },
+    "320517105": {
+      "s": "EXACT",
+      "t": "FHN",
+      "n": "FIRST HORIZON CORP",
+      "on": "2026-11-02"
+    },
     "320551104": {
       "s": "EXACT",
       "t": "DIBS",
       "n": "1STDIBS.COM INC",
       "on": "2026-10-26"
+    },
+    "336433107": {
+      "s": "EXACT",
+      "t": "FSLR",
+      "n": "FIRST SOLAR INC",
+      "on": "2026-11-02"
     },
     "336901103": {
       "s": "EXACT",
@@ -481,11 +847,57 @@
       "n": "1ST SOURCE CORP",
       "on": "2026-10-26"
     },
+    "337932107": {
+      "s": "EXACT",
+      "t": "FE",
+      "n": "FIRSTENERGY CORP",
+      "on": "2026-11-02"
+    },
     "339750101": {
       "s": "EXACT",
       "t": "FND",
       "n": "FLOOR & DECOR HOLDINGS INC-A",
       "on": "2026-10-26"
+    },
+    "343412102": {
+      "s": "EXACT",
+      "t": "FLR",
+      "n": "FLUOR CORP",
+      "on": "2026-11-02"
+    },
+    "343928107": {
+      "s": "EXACT",
+      "t": "FLYX",
+      "n": "FLYEXCLUSIVE INC",
+      "on": "2026-11-02"
+    },
+    "343928115": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "345370860": {
+      "s": "EXACT",
+      "t": "F",
+      "n": "FORD MOTOR CO",
+      "on": "2026-11-02"
+    },
+    "346375108": {
+      "s": "EXACT",
+      "t": "FORM",
+      "n": "FORMFACTOR INC",
+      "on": "2026-11-02"
+    },
+    "349381103": {
+      "s": "EXACT",
+      "t": "FIGR",
+      "n": "FIGURE TECHNOLOGY SOLUT-CL A",
+      "on": "2026-11-02"
+    },
+    "351858105": {
+      "s": "EXACT",
+      "t": "FNV",
+      "n": "FRANCO-NEVADA CORP",
+      "on": "2026-11-02"
     },
     "359694106": {
       "s": "EXACT",
@@ -517,6 +929,12 @@
       "n": "GARRETT MOTION INC",
       "on": "2026-10-26"
     },
+    "366651107": {
+      "s": "EXACT",
+      "t": "IT",
+      "n": "GARTNER INC",
+      "on": "2026-11-02"
+    },
     "368736104": {
       "s": "EXACT",
       "t": "GNRC",
@@ -534,6 +952,10 @@
       "t": "GE",
       "n": "GENERAL ELECTRIC",
       "on": "2026-10-26"
+    },
+    "372303206": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
     },
     "372460105": {
       "s": "EXACT",
@@ -553,9 +975,27 @@
       "n": "GLOBUS MEDICAL INC - A",
       "on": "2026-10-26"
     },
+    "380237107": {
+      "s": "EXACT",
+      "t": "GDDY",
+      "n": "GODADDY INC - CLASS A",
+      "on": "2026-11-02"
+    },
     "381430123": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "382550101": {
+      "s": "EXACT",
+      "t": "GT",
+      "n": "GOODYEAR TIRE & RUBBER CO",
+      "on": "2026-11-02"
+    },
+    "384109104": {
+      "s": "EXACT",
+      "t": "GGG",
+      "n": "GRACO INC",
+      "on": "2026-11-02"
     },
     "384802104": {
       "s": "EXACT",
@@ -563,17 +1003,63 @@
       "n": "WW GRAINGER INC",
       "on": "2026-10-26"
     },
+    "398182303": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "399909100": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "400506101": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "402635502": {
+      "s": "EXACT",
+      "t": "GPOR",
+      "n": "GULFPORT ENERGY CORP",
+      "on": "2026-11-02"
+    },
+    "403949100": {
+      "s": "EXACT",
+      "t": "DINO",
+      "n": "HF SINCLAIR CORP",
+      "on": "2026-11-02"
+    },
+    "404280406": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "406216101": {
       "s": "EXACT",
       "t": "HAL",
       "n": "HALLIBURTON CO",
       "on": "2026-10-26"
     },
+    "416515104": {
+      "s": "EXACT",
+      "t": "HIG",
+      "n": "HARTFORD INSURANCE GROUP INC",
+      "on": "2026-11-02"
+    },
+    "418056107": {
+      "s": "EXACT",
+      "t": "HAS",
+      "n": "HASBRO INC",
+      "on": "2026-11-02"
+    },
     "420201105": {
       "s": "EXACT",
       "t": "HAWK",
       "n": "HAWKEYE 360 INC",
       "on": "2026-10-26"
+    },
+    "422704106": {
+      "s": "EXACT",
+      "t": "HL",
+      "n": "HECLA MINING CO",
+      "on": "2026-11-02"
     },
     "422806109": {
       "s": "EXACT",
@@ -593,6 +1079,18 @@
       "n": "HEMAB THERAPEUTICS HOLDINGS",
       "on": "2026-10-26"
     },
+    "426281101": {
+      "s": "EXACT",
+      "t": "JKHY",
+      "n": "JACK HENRY & ASSOCIATES INC",
+      "on": "2026-11-02"
+    },
+    "428291108": {
+      "s": "EXACT",
+      "t": "HXL",
+      "n": "HEXCEL CORP",
+      "on": "2026-11-02"
+    },
     "437076102": {
       "s": "EXACT",
       "t": "HD",
@@ -604,6 +1102,12 @@
       "t": "HON",
       "n": "HONEYWELL INTERNATIONAL INC",
       "on": "2026-10-26"
+    },
+    "440452100": {
+      "s": "EXACT",
+      "t": "HRL",
+      "n": "HORMEL FOODS CORP",
+      "on": "2026-11-02"
     },
     "441593100": {
       "s": "EXACT",
@@ -623,6 +1127,12 @@
       "n": "HUB GROUP INC-CL A",
       "on": "2026-10-26"
     },
+    "443573100": {
+      "s": "EXACT",
+      "t": "HUBS",
+      "n": "HUBSPOT INC",
+      "on": "2026-11-02"
+    },
     "444097406": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
@@ -632,6 +1142,18 @@
       "t": "HUM",
       "n": "HUMANA INC",
       "on": "2026-10-26"
+    },
+    "446150104": {
+      "s": "EXACT",
+      "t": "HBAN",
+      "n": "HUNTINGTON BANCSHARES INC",
+      "on": "2026-11-02"
+    },
+    "447011107": {
+      "s": "EXACT",
+      "t": "HUN",
+      "n": "HUNTSMAN CORP",
+      "on": "2026-11-02"
     },
     "451107106": {
       "s": "EXACT",
@@ -645,6 +1167,12 @@
       "n": "ILLINOIS TOOL WORKS",
       "on": "2026-10-26"
     },
+    "452327109": {
+      "s": "EXACT",
+      "t": "ILMN",
+      "n": "ILLUMINA INC",
+      "on": "2026-11-02"
+    },
     "453038408": {
       "s": "EXACT",
       "t": "IMO",
@@ -656,6 +1184,12 @@
       "t": "PI",
       "n": "IMPINJ INC",
       "on": "2026-10-26"
+    },
+    "457152106": {
+      "s": "EXACT",
+      "t": "INGM",
+      "n": "INGRAM MICRO HOLDING CORP",
+      "on": "2026-11-02"
     },
     "457669307": {
       "s": "EXACT",
@@ -681,11 +1215,23 @@
       "n": "INTL BUSINESS MACHINES CORP",
       "on": "2026-10-26"
     },
+    "460146103": {
+      "s": "EXACT",
+      "t": "IP",
+      "n": "INTERNATIONAL PAPER CO",
+      "on": "2026-11-02"
+    },
     "461202103": {
       "s": "EXACT",
       "t": "INTU",
       "n": "INTUIT INC",
       "on": "2026-10-26"
+    },
+    "462222100": {
+      "s": "EXACT",
+      "t": "IONS",
+      "n": "IONIS PHARMACEUTICALS INC",
+      "on": "2026-11-02"
     },
     "464285204": {
       "s": "NOT_COMMON",
@@ -695,6 +1241,10 @@
       "s": "NOT_COMMON",
       "on": "2026-10-26"
     },
+    "464286509": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "464286772": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
@@ -702,6 +1252,10 @@
     "464287150": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "464287184": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
     },
     "464287200": {
       "s": "NOT_COMMON",
@@ -763,9 +1317,21 @@
       "s": "NOT_COMMON",
       "on": "2026-10-26"
     },
+    "464287622": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "464287655": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "464287804": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "464288414": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
     },
     "464288513": {
       "s": "NOT_COMMON",
@@ -779,6 +1345,30 @@
       "s": "NOT_COMMON",
       "on": "2026-10-26"
     },
+    "464288810": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "465562106": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "465741106": {
+      "s": "EXACT",
+      "t": "ITRI",
+      "n": "ITRON INC",
+      "on": "2026-11-02"
+    },
+    "466313103": {
+      "s": "EXACT",
+      "t": "JBL",
+      "n": "JABIL INC",
+      "on": "2026-11-02"
+    },
+    "471024109": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "478160104": {
       "s": "EXACT",
       "t": "JNJ",
@@ -791,11 +1381,65 @@
       "n": "KLA CORP",
       "on": "2026-10-26"
     },
+    "482931102": {
+      "s": "EXACT",
+      "t": "KLRA",
+      "n": "KAILERA THERAPEUTICS INC",
+      "on": "2026-11-02"
+    },
+    "483007704": {
+      "s": "EXACT",
+      "t": "KALU",
+      "n": "KAISER ALUMINUM CORP",
+      "on": "2026-11-02"
+    },
+    "485925101": {
+      "s": "EXACT",
+      "t": "KARD",
+      "n": "KARDIGAN INC",
+      "on": "2026-11-02"
+    },
+    "486917107": {
+      "s": "EXACT",
+      "t": "KEEL",
+      "n": "KEEL INFRASTRUCTURE CORP",
+      "on": "2026-11-02"
+    },
+    "489170100": {
+      "s": "EXACT",
+      "t": "KMT",
+      "n": "KENNAMETAL INC",
+      "on": "2026-11-02"
+    },
+    "493267108": {
+      "s": "EXACT",
+      "t": "KEY",
+      "n": "KEYCORP",
+      "on": "2026-11-02"
+    },
+    "494368103": {
+      "s": "EXACT",
+      "t": "KMB",
+      "n": "KIMBERLY-CLARK CORP",
+      "on": "2026-11-02"
+    },
     "496902404": {
       "s": "EXACT",
       "t": "KGC",
       "n": "KINROSS GOLD CORP",
       "on": "2026-10-26"
+    },
+    "499049104": {
+      "s": "EXACT",
+      "t": "KNX",
+      "n": "KNIGHT-SWIFT TRANSPORTATION",
+      "on": "2026-11-02"
+    },
+    "500081104": {
+      "s": "EXACT",
+      "t": "KDK",
+      "n": "KODIAK AI INC",
+      "on": "2026-11-02"
     },
     "500688106": {
       "s": "EXACT",
@@ -803,9 +1447,37 @@
       "n": "KOSMOS ENERGY LTD",
       "on": "2026-10-26"
     },
+    "500754106": {
+      "s": "EXACT",
+      "t": "KHC",
+      "n": "KRAFT HEINZ CO/THE",
+      "on": "2026-11-02"
+    },
+    "500767306": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "501044101": {
+      "s": "EXACT",
+      "t": "KR",
+      "n": "KROGER CO",
+      "on": "2026-11-02"
+    },
+    "501575104": {
+      "s": "EXACT",
+      "t": "KYMR",
+      "n": "KYMERA THERAPEUTICS INC",
+      "on": "2026-11-02"
+    },
     "502175102": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "502431109": {
+      "s": "EXACT",
+      "t": "LHX",
+      "n": "L3HARRIS TECHNOLOGIES INC",
+      "on": "2026-11-02"
     },
     "512807306": {
       "s": "EXACT",
@@ -831,11 +1503,29 @@
       "n": "LAS VEGAS SANDS CORP",
       "on": "2026-10-26"
     },
+    "518415104": {
+      "s": "EXACT",
+      "t": "LSCC",
+      "n": "LATTICE SEMICONDUCTOR CORP",
+      "on": "2026-11-02"
+    },
     "518613203": {
       "s": "EXACT",
       "t": "LAUR",
       "n": "LAUREATE EDUCATION INC",
       "on": "2026-10-26"
+    },
+    "526057104": {
+      "s": "EXACT",
+      "t": "LEN",
+      "n": "LENNAR CORP-A",
+      "on": "2026-11-02"
+    },
+    "526057302": {
+      "s": "EXACT",
+      "t": "LEN-B",
+      "n": "LENNAR CORP - B SHS",
+      "on": "2026-11-02"
     },
     "526107107": {
       "s": "EXACT",
@@ -847,11 +1537,27 @@
       "s": "NOT_COMMON",
       "on": "2026-10-26"
     },
+    "530307305": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "530909100": {
+      "s": "EXACT",
+      "t": "LLYVA",
+      "n": "LIBERTY LIVE HOLDINGS-A",
+      "on": "2026-11-02"
+    },
     "530909308": {
       "s": "EXACT",
       "t": "LLYVK",
       "n": "LIBERTY LIVE HOLDINGS-C",
       "on": "2026-10-26"
+    },
+    "531229755": {
+      "s": "EXACT",
+      "t": "FWONK",
+      "n": "LIBERTY MEDIA CORP-C",
+      "on": "2026-11-02"
     },
     "532206109": {
       "s": "EXACT",
@@ -865,6 +1571,18 @@
       "n": "ELI LILLY & CO",
       "on": "2026-10-26"
     },
+    "533714101": {
+      "s": "EXACT",
+      "t": "LCLN",
+      "n": "LINCOLN INTERNATIONAL INC",
+      "on": "2026-11-02"
+    },
+    "533900106": {
+      "s": "EXACT",
+      "t": "LECO",
+      "n": "LINCOLN ELECTRIC HOLDINGS",
+      "on": "2026-11-02"
+    },
     "538034109": {
       "s": "EXACT",
       "t": "LYV",
@@ -877,11 +1595,23 @@
       "n": "LOCKHEED MARTIN CORP",
       "on": "2026-10-26"
     },
+    "546347105": {
+      "s": "EXACT",
+      "t": "LPX",
+      "n": "LOUISIANA-PACIFIC CORP",
+      "on": "2026-11-02"
+    },
     "548661107": {
       "s": "EXACT",
       "t": "LOW",
       "n": "LOWE'S COS INC",
       "on": "2026-10-26"
+    },
+    "549498202": {
+      "s": "EXACT",
+      "t": "LCID",
+      "n": "LUCID GROUP INC",
+      "on": "2026-11-02"
     },
     "550021109": {
       "s": "EXACT",
@@ -892,6 +1622,26 @@
     "552737108": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "552738106": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "552953101": {
+      "s": "EXACT",
+      "t": "MGM",
+      "n": "MGM RESORTS INTERNATIONAL",
+      "on": "2026-11-02"
+    },
+    "553368101": {
+      "s": "EXACT",
+      "t": "MP",
+      "n": "MP MATERIALS CORP",
+      "on": "2026-11-02"
+    },
+    "554382101": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
     },
     "570535104": {
       "s": "EXACT",
@@ -929,17 +1679,41 @@
       "n": "MASTEC INC",
       "on": "2026-10-26"
     },
+    "576690101": {
+      "s": "EXACT",
+      "t": "MTRN",
+      "n": "MATERION CORP",
+      "on": "2026-11-02"
+    },
     "577081102": {
       "s": "EXACT",
       "t": "MAT",
       "n": "MATTEL INC",
       "on": "2026-10-26"
     },
+    "577128101": {
+      "s": "EXACT",
+      "t": "MATW",
+      "n": "MATTHEWS INTL CORP-CLASS A",
+      "on": "2026-11-02"
+    },
     "580135101": {
       "s": "EXACT",
       "t": "MCD",
       "n": "MCDONALD'S CORP",
       "on": "2026-10-26"
+    },
+    "589400100": {
+      "s": "EXACT",
+      "t": "MCY",
+      "n": "MERCURY GENERAL CORP",
+      "on": "2026-11-02"
+    },
+    "591774104": {
+      "s": "EXACT",
+      "t": "MCB",
+      "n": "METROPOLITAN BANK HOLDING CO",
+      "on": "2026-11-02"
     },
     "592688105": {
       "s": "EXACT",
@@ -971,6 +1745,12 @@
       "n": "MICRON TECHNOLOGY INC",
       "on": "2026-10-26"
     },
+    "596278101": {
+      "s": "EXACT",
+      "t": "MIDD",
+      "n": "MIDDLEBY CORP",
+      "on": "2026-11-02"
+    },
     "603158106": {
       "s": "EXACT",
       "t": "MTX",
@@ -1001,11 +1781,21 @@
       "n": "AIRJOULE TECHNOLOGIES CORP",
       "on": "2026-10-26"
     },
+    "612160119": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "615369105": {
       "s": "EXACT",
       "t": "MCO",
       "n": "MOODY'S CORP",
       "on": "2026-10-26"
+    },
+    "615394202": {
+      "s": "EXACT",
+      "t": "MOG-A",
+      "n": "MOOG INC-CLASS A",
+      "on": "2026-11-02"
     },
     "617446448": {
       "s": "EXACT",
@@ -1019,11 +1809,29 @@
       "n": "MOTOROLA SOLUTIONS INC",
       "on": "2026-10-26"
     },
+    "626755102": {
+      "s": "EXACT",
+      "t": "MUSA",
+      "n": "MURPHY USA INC",
+      "on": "2026-11-02"
+    },
+    "629337106": {
+      "s": "EXACT",
+      "t": "NNBR",
+      "n": "NN INC",
+      "on": "2026-11-02"
+    },
     "629377508": {
       "s": "EXACT",
       "t": "NRG",
       "n": "NRG ENERGY INC",
       "on": "2026-10-26"
+    },
+    "631103108": {
+      "s": "EXACT",
+      "t": "NDAQ",
+      "n": "NASDAQ INC",
+      "on": "2026-11-02"
     },
     "632307104": {
       "s": "EXACT",
@@ -1031,19 +1839,59 @@
       "n": "NATERA INC",
       "on": "2026-10-26"
     },
+    "635017106": {
+      "s": "EXACT",
+      "t": "FIZZ",
+      "n": "NATIONAL BEVERAGE CORP",
+      "on": "2026-11-02"
+    },
+    "636274409": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "637870106": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
     },
+    "647581206": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "649445400": {
+      "s": "EXACT",
+      "t": "FLG",
+      "n": "FLAGSTAR BANK NA",
+      "on": "2026-11-02"
+    },
     "649604840": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "650111107": {
+      "s": "EXACT",
+      "t": "NYT",
+      "n": "NEW YORK TIMES CO-A",
+      "on": "2026-11-02"
     },
     "651639106": {
       "s": "EXACT",
       "t": "NEM",
       "n": "NEWMONT CORP",
       "on": "2026-10-26"
+    },
+    "653656108": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "654106103": {
+      "s": "EXACT",
+      "t": "NKE",
+      "n": "NIKE INC -CL B",
+      "on": "2026-11-02"
+    },
+    "654902204": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
     },
     "655844108": {
       "s": "EXACT",
@@ -1057,11 +1905,49 @@
       "n": "NORTHROP GRUMMAN CORP",
       "on": "2026-10-26"
     },
+    "668771108": {
+      "s": "EXACT",
+      "t": "GEN",
+      "n": "GEN DIGITAL INC",
+      "on": "2026-11-02"
+    },
+    "670100205": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "670346105": {
+      "s": "EXACT",
+      "t": "NUE",
+      "n": "NUCOR CORP",
+      "on": "2026-11-02"
+    },
+    "670703107": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "674215207": {
+      "s": "EXACT",
+      "t": "CHRD",
+      "n": "CHORD ENERGY CORP",
+      "on": "2026-11-02"
+    },
     "674599105": {
       "s": "EXACT",
       "t": "OXY",
       "n": "OCCIDENTAL PETROLEUM CORP",
       "on": "2026-10-26"
+    },
+    "679295105": {
+      "s": "EXACT",
+      "t": "OKTA",
+      "n": "OKTA INC",
+      "on": "2026-11-02"
+    },
+    "679580100": {
+      "s": "EXACT",
+      "t": "ODFL",
+      "n": "OLD DOMINION FREIGHT LINE",
+      "on": "2026-11-02"
     },
     "682189105": {
       "s": "EXACT",
@@ -1085,11 +1971,37 @@
       "n": "OPENDOOR TECHNOLOGIES INC",
       "on": "2026-10-26"
     },
+    "683712129": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "683712137": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "686688102": {
       "s": "EXACT",
       "t": "ORA",
       "n": "ORMAT TECHNOLOGIES INC",
       "on": "2026-10-26"
+    },
+    "687604108": {
+      "s": "EXACT",
+      "t": "ORKA",
+      "n": "ORUKA THERAPEUTICS INC",
+      "on": "2026-11-02"
+    },
+    "687793109": {
+      "s": "EXACT",
+      "t": "OSCR",
+      "n": "OSCAR HEALTH INC - CLASS A",
+      "on": "2026-11-02"
+    },
+    "688239201": {
+      "s": "EXACT",
+      "t": "OSK",
+      "n": "OSHKOSH CORP",
+      "on": "2026-11-02"
     },
     "690732102": {
       "s": "EXACT",
@@ -1109,17 +2021,41 @@
       "n": "PNC FINANCIAL SERVICES GROUP",
       "on": "2026-10-26"
     },
+    "693506107": {
+      "s": "EXACT",
+      "t": "PPG",
+      "n": "PPG INDUSTRIES INC",
+      "on": "2026-11-02"
+    },
     "693718108": {
       "s": "EXACT",
       "t": "PCAR",
       "n": "PACCAR INC",
       "on": "2026-10-26"
     },
+    "695156109": {
+      "s": "EXACT",
+      "t": "PKG",
+      "n": "PACKAGING CORP OF AMERICA",
+      "on": "2026-11-02"
+    },
     "697435105": {
       "s": "EXACT",
       "t": "PANW",
       "n": "PALO ALTO NETWORKS INC",
       "on": "2026-10-26"
+    },
+    "697900108": {
+      "s": "EXACT",
+      "t": "PAAS",
+      "n": "PAN AMERICAN SILVER CORP",
+      "on": "2026-11-02"
+    },
+    "698813102": {
+      "s": "EXACT",
+      "t": "PZZA",
+      "n": "PAPA JOHN'S INTL INC",
+      "on": "2026-11-02"
     },
     "701094104": {
       "s": "EXACT",
@@ -1132,6 +2068,18 @@
       "t": "PAYX",
       "n": "PAYCHEX INC",
       "on": "2026-10-26"
+    },
+    "704551100": {
+      "s": "EXACT",
+      "t": "BTU",
+      "n": "PEABODY ENERGY CORP",
+      "on": "2026-11-02"
+    },
+    "713317105": {
+      "s": "EXACT",
+      "t": "PEPG",
+      "n": "PEPGEN INC",
+      "on": "2026-11-02"
     },
     "713448108": {
       "s": "EXACT",
@@ -1167,6 +2115,22 @@
       "n": "PINNACLE WEST CAPITAL",
       "on": "2026-10-26"
     },
+    "732908108": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "733174700": {
+      "s": "EXACT",
+      "t": "BPOP",
+      "n": "POPULAR INC",
+      "on": "2026-11-02"
+    },
+    "736508847": {
+      "s": "EXACT",
+      "t": "POR",
+      "n": "PORTLAND GENERAL ELECTRIC CO",
+      "on": "2026-11-02"
+    },
     "742718109": {
       "s": "EXACT",
       "t": "PG",
@@ -1185,21 +2149,101 @@
       "n": "PROGRESSIVE CORP",
       "on": "2026-10-26"
     },
+    "743713109": {
+      "s": "EXACT",
+      "t": "PRLB",
+      "n": "PROTO LABS INC",
+      "on": "2026-11-02"
+    },
+    "744573106": {
+      "s": "EXACT",
+      "t": "PEG",
+      "n": "PUBLIC SERVICE ENTERPRISE GP",
+      "on": "2026-11-02"
+    },
     "747525103": {
       "s": "EXACT",
       "t": "QCOM",
       "n": "QUALCOMM INC",
       "on": "2026-10-26"
     },
+    "747906600": {
+      "s": "EXACT",
+      "t": "QMCO",
+      "n": "QUANTUM CORP",
+      "on": "2026-11-02"
+    },
+    "750491102": {
+      "s": "EXACT",
+      "t": "RDNT",
+      "n": "RADNET INC",
+      "on": "2026-11-02"
+    },
+    "750917106": {
+      "s": "EXACT",
+      "t": "RMBS",
+      "n": "RAMBUS INC",
+      "on": "2026-11-02"
+    },
+    "750940108": {
+      "s": "EXACT",
+      "t": "RAL",
+      "n": "RALLIANT CORP",
+      "on": "2026-11-02"
+    },
+    "751212101": {
+      "s": "EXACT",
+      "t": "RL",
+      "n": "RALPH LAUREN CORP",
+      "on": "2026-11-02"
+    },
+    "754730109": {
+      "s": "EXACT",
+      "t": "RJF",
+      "n": "RAYMOND JAMES FINANCIAL INC",
+      "on": "2026-11-02"
+    },
     "756109104": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "758750103": {
+      "s": "EXACT",
+      "t": "RRX",
+      "n": "REGAL REXNORD CORP",
+      "on": "2026-11-02"
+    },
+    "759351604": {
+      "s": "EXACT",
+      "t": "RGA",
+      "n": "REINSURANCE GROUP OF AMERICA",
+      "on": "2026-11-02"
+    },
+    "759530108": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "759916109": {
+      "s": "EXACT",
+      "t": "RGEN",
+      "n": "REPLIGEN CORP",
+      "on": "2026-11-02"
+    },
+    "760759100": {
+      "s": "EXACT",
+      "t": "RSG",
+      "n": "REPUBLIC SERVICES INC",
+      "on": "2026-11-02"
     },
     "761152107": {
       "s": "EXACT",
       "t": "RMD",
       "n": "RESMED INC",
       "on": "2026-10-26"
+    },
+    "767204100": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
     },
     "767292105": {
       "s": "EXACT",
@@ -1213,11 +2257,39 @@
       "n": "ROBINHOOD MARKETS INC - A",
       "on": "2026-10-26"
     },
+    "770701100": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "771049103": {
+      "s": "EXACT",
+      "t": "RBLX",
+      "n": "ROBLOX CORP -CLASS A",
+      "on": "2026-11-02"
+    },
+    "773121108": {
+      "s": "EXACT",
+      "t": "RKLB",
+      "n": "ROCKET LAB CORP",
+      "on": "2026-11-02"
+    },
     "773903109": {
       "s": "EXACT",
       "t": "ROK",
       "n": "ROCKWELL AUTOMATION INC",
       "on": "2026-10-26"
+    },
+    "775133101": {
+      "s": "EXACT",
+      "t": "ROG",
+      "n": "ROGERS CORP",
+      "on": "2026-11-02"
+    },
+    "776696106": {
+      "s": "EXACT",
+      "t": "ROP",
+      "n": "ROPER TECHNOLOGIES INC",
+      "on": "2026-11-02"
     },
     "778296103": {
       "s": "EXACT",
@@ -1225,11 +2297,21 @@
       "n": "ROSS STORES INC",
       "on": "2026-10-26"
     },
+    "778920306": {
+      "s": "EXACT",
+      "t": "SHAZ",
+      "n": "SHARONAI HOLDINGS INC",
+      "on": "2026-11-02"
+    },
     "780087102": {
       "s": "EXACT",
       "t": "RY",
       "n": "ROYAL BANK OF CANADA",
       "on": "2026-10-26"
+    },
+    "780259305": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
     },
     "781154109": {
       "s": "EXACT",
@@ -1237,15 +2319,43 @@
       "n": "RUBRIK INC-A",
       "on": "2026-10-26"
     },
+    "781846209": {
+      "s": "EXACT",
+      "t": "RUSHA",
+      "n": "RUSH ENTERPRISES INC-CL A",
+      "on": "2026-11-02"
+    },
+    "782011100": {
+      "s": "EXACT",
+      "t": "RSI",
+      "n": "RUSH STREET INTERACTIVE INC",
+      "on": "2026-11-02"
+    },
     "783513203": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "784305104": {
+      "s": "EXACT",
+      "t": "HTO",
+      "n": "H2O AMERICA",
+      "on": "2026-11-02"
     },
     "800422107": {
       "s": "EXACT",
       "t": "JBSS",
       "n": "JOHN B. SANFILIPPO & SON INC",
       "on": "2026-10-26"
+    },
+    "801056102": {
+      "s": "EXACT",
+      "t": "SANM",
+      "n": "SANMINA CORP",
+      "on": "2026-11-02"
+    },
+    "803054204": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
     },
     "806857108": {
       "s": "EXACT",
@@ -1287,6 +2397,42 @@
       "s": "NOT_COMMON",
       "on": "2026-10-26"
     },
+    "829073105": {
+      "s": "EXACT",
+      "t": "SSD",
+      "n": "SIMPSON MANUFACTURING CO INC",
+      "on": "2026-11-02"
+    },
+    "829401108": {
+      "s": "EXACT",
+      "t": "SION",
+      "n": "SIONNA THERAPEUTICS INC",
+      "on": "2026-11-02"
+    },
+    "829933100": {
+      "s": "EXACT",
+      "t": "SIRI",
+      "n": "SIRIUS XM HOLDINGS INC",
+      "on": "2026-11-02"
+    },
+    "830830105": {
+      "s": "EXACT",
+      "t": "SKY",
+      "n": "CHAMPION HOMES INC",
+      "on": "2026-11-02"
+    },
+    "831865209": {
+      "s": "EXACT",
+      "t": "AOS",
+      "n": "SMITH (A.O.) CORP",
+      "on": "2026-11-02"
+    },
+    "832696405": {
+      "s": "EXACT",
+      "t": "SJM",
+      "n": "JM SMUCKER CO/THE",
+      "on": "2026-11-02"
+    },
     "833445109": {
       "s": "EXACT",
       "t": "SNOW",
@@ -1317,11 +2463,35 @@
       "n": "STANDARD MOTOR PRODS",
       "on": "2026-10-26"
     },
+    "854502101": {
+      "s": "EXACT",
+      "t": "SWK",
+      "n": "STANLEY BLACK & DECKER INC",
+      "on": "2026-11-02"
+    },
     "855244109": {
       "s": "EXACT",
       "t": "SBUX",
       "n": "STARBUCKS CORP",
       "on": "2026-10-26"
+    },
+    "857477103": {
+      "s": "EXACT",
+      "t": "STT",
+      "n": "STATE STREET CORP",
+      "on": "2026-11-02"
+    },
+    "858119100": {
+      "s": "EXACT",
+      "t": "STLD",
+      "n": "STEEL DYNAMICS INC",
+      "on": "2026-11-02"
+    },
+    "859241101": {
+      "s": "EXACT",
+      "t": "STRL",
+      "n": "STERLING INFRASTRUCTURE INC",
+      "on": "2026-11-02"
     },
     "860372101": {
       "s": "EXACT",
@@ -1343,6 +2513,12 @@
       "s": "NOT_COMMON",
       "on": "2026-10-26"
     },
+    "866966104": {
+      "s": "EXACT",
+      "t": "SUNB",
+      "n": "SUNBELT RENTALS HOLDINGS INC",
+      "on": "2026-11-02"
+    },
     "867224107": {
       "s": "EXACT",
       "t": "SU",
@@ -1354,6 +2530,12 @@
       "t": "SNPS",
       "n": "SYNOPSYS INC",
       "on": "2026-10-26"
+    },
+    "871829107": {
+      "s": "EXACT",
+      "t": "SYY",
+      "n": "SYSCO CORP",
+      "on": "2026-11-02"
     },
     "872540109": {
       "s": "EXACT",
@@ -1367,6 +2549,12 @@
       "n": "T-MOBILE US INC",
       "on": "2026-10-26"
     },
+    "872657101": {
+      "s": "EXACT",
+      "t": "TPG",
+      "n": "TPG INC",
+      "on": "2026-11-02"
+    },
     "874039100": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
@@ -1377,11 +2565,27 @@
       "n": "TAKE-TWO INTERACTIVE SOFTWRE",
       "on": "2026-10-26"
     },
+    "876030107": {
+      "s": "EXACT",
+      "t": "TPR",
+      "n": "TAPESTRY INC",
+      "on": "2026-11-02"
+    },
     "878742204": {
       "s": "EXACT",
       "t": "TECK",
       "n": "TECK RESOURCES LTD-CLS B",
       "on": "2026-10-26"
+    },
+    "879273209": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "879360105": {
+      "s": "EXACT",
+      "t": "TDY",
+      "n": "TELEDYNE TECHNOLOGIES INC",
+      "on": "2026-11-02"
     },
     "879369106": {
       "s": "EXACT",
@@ -1401,6 +2605,20 @@
       "n": "TERADYNE INC",
       "on": "2026-10-26"
     },
+    "880779103": {
+      "s": "EXACT",
+      "t": "TEX",
+      "n": "TEREX CORP",
+      "on": "2026-11-02"
+    },
+    "880890108": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "881624209": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "882508104": {
       "s": "EXACT",
       "t": "TXN",
@@ -1413,11 +2631,29 @@
       "n": "THERMO FISHER SCIENTIFIC INC",
       "on": "2026-10-26"
     },
+    "887389104": {
+      "s": "EXACT",
+      "t": "TKR",
+      "n": "TIMKEN CO",
+      "on": "2026-11-02"
+    },
     "888787108": {
       "s": "EXACT",
       "t": "TOST",
       "n": "TOAST INC-CLASS A",
       "on": "2026-10-26"
+    },
+    "889478103": {
+      "s": "EXACT",
+      "t": "TOL",
+      "n": "TOLL BROTHERS INC",
+      "on": "2026-11-02"
+    },
+    "891092108": {
+      "s": "EXACT",
+      "t": "TTC",
+      "n": "TORO CO",
+      "on": "2026-11-02"
     },
     "891160509": {
       "s": "EXACT",
@@ -1425,11 +2661,39 @@
       "n": "TORONTO-DOMINION BANK",
       "on": "2026-10-26"
     },
+    "892356106": {
+      "s": "EXACT",
+      "t": "TSCO",
+      "n": "TRACTOR SUPPLY COMPANY",
+      "on": "2026-11-02"
+    },
+    "892672106": {
+      "s": "EXACT",
+      "t": "TW",
+      "n": "TRADEWEB MARKETS INC-CLASS A",
+      "on": "2026-11-02"
+    },
     "893641100": {
       "s": "EXACT",
       "t": "TDG",
       "n": "TRANSDIGM GROUP INC",
       "on": "2026-10-26"
+    },
+    "896239100": {
+      "s": "EXACT",
+      "t": "TRMB",
+      "n": "TRIMBLE INC",
+      "on": "2026-11-02"
+    },
+    "896945201": {
+      "s": "EXACT",
+      "t": "TRIP",
+      "n": "TRIPADVISOR INC",
+      "on": "2026-11-02"
+    },
+    "900934100": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
     },
     "900934209": {
       "s": "NOT_COMMON",
@@ -1439,9 +2703,17 @@
       "s": "NOT_COMMON",
       "on": "2026-10-26"
     },
+    "900934506": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "900934704": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "900934795": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
     },
     "900934803": {
       "s": "NOT_COMMON",
@@ -1477,17 +2749,39 @@
       "n": "US BANCORP",
       "on": "2026-10-26"
     },
+    "903731107": {
+      "s": "EXACT",
+      "t": "ULS",
+      "n": "UL SOLUTIONS INC - CLASS A",
+      "on": "2026-11-02"
+    },
     "904708104": {
       "s": "EXACT",
       "t": "UNF",
       "n": "UNIFIRST CORP/MA",
       "on": "2026-10-26"
     },
+    "904767803": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "907818108": {
       "s": "EXACT",
       "t": "UNP",
       "n": "UNION PACIFIC CORP",
       "on": "2026-10-26"
+    },
+    "910047109": {
+      "s": "EXACT",
+      "t": "UAL",
+      "n": "UNITED AIRLINES HOLDINGS INC",
+      "on": "2026-11-02"
+    },
+    "910710102": {
+      "s": "EXACT",
+      "t": "ACIC",
+      "n": "AMERICAN COASTAL INSURANCE C",
+      "on": "2026-11-02"
     },
     "911163103": {
       "s": "EXACT",
@@ -1513,17 +2807,47 @@
       "n": "UNITED STATES ANTIMONY CORP",
       "on": "2026-10-26"
     },
+    "911684108": {
+      "s": "EXACT",
+      "t": "AD",
+      "n": "ARRAY DIGITAL INFRASTRUCTURE",
+      "on": "2026-11-02"
+    },
+    "912008109": {
+      "s": "EXACT",
+      "t": "USFD",
+      "n": "US FOODS HOLDING CORP",
+      "on": "2026-11-02"
+    },
     "912932100": {
       "s": "EXACT",
       "t": "UNIT",
       "n": "UNITI GROUP INC",
       "on": "2026-10-26"
     },
+    "913903100": {
+      "s": "EXACT",
+      "t": "UHS",
+      "n": "UNIVERSAL HEALTH SERVICES-B",
+      "on": "2026-11-02"
+    },
     "915271100": {
       "s": "EXACT",
       "t": "UVSP",
       "n": "UNIVEST FINANCIAL CORP",
       "on": "2026-10-26"
+    },
+    "916896103": {
+      "s": "EXACT",
+      "t": "UEC",
+      "n": "URANIUM ENERGY CORP",
+      "on": "2026-11-02"
+    },
+    "918284100": {
+      "s": "EXACT",
+      "t": "VSEC",
+      "n": "VSE CORP",
+      "on": "2026-11-02"
     },
     "921937827": {
       "s": "NOT_COMMON",
@@ -1537,9 +2861,25 @@
       "s": "NOT_COMMON",
       "on": "2026-10-26"
     },
+    "922042858": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "922042874": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "922280102": {
+      "s": "EXACT",
+      "t": "VRNS",
+      "n": "VARONIS SYSTEMS INC",
+      "on": "2026-11-02"
+    },
+    "922475108": {
+      "s": "EXACT",
+      "t": "VEEV",
+      "n": "VEEVA SYSTEMS INC-CLASS A",
+      "on": "2026-11-02"
     },
     "922907746": {
       "s": "NOT_COMMON",
@@ -1561,17 +2901,53 @@
       "s": "NOT_COMMON",
       "on": "2026-10-26"
     },
+    "922967104": {
+      "s": "EXACT",
+      "t": "MANE",
+      "n": "VERADERMICS INC",
+      "on": "2026-11-02"
+    },
+    "925550105": {
+      "s": "EXACT",
+      "t": "VIAV",
+      "n": "VIAVI SOLUTIONS INC",
+      "on": "2026-11-02"
+    },
+    "925815102": {
+      "s": "EXACT",
+      "t": "VICR",
+      "n": "VICOR CORP",
+      "on": "2026-11-02"
+    },
     "926400102": {
       "s": "EXACT",
       "t": "VSXY",
       "n": "VICTORIA'S SECRET & CO",
       "on": "2026-10-26"
     },
+    "928254101": {
+      "s": "EXACT",
+      "t": "VIRT",
+      "n": "VIRTU FINANCIAL INC-CLASS A",
+      "on": "2026-11-02"
+    },
     "928298108": {
       "s": "EXACT",
       "t": "VSH",
       "n": "VISHAY INTERTECHNOLOGY INC",
       "on": "2026-10-26"
+    },
+    "929160109": {
+      "s": "EXACT",
+      "t": "VMC",
+      "n": "VULCAN MATERIALS CO",
+      "on": "2026-11-02"
+    },
+    "929740108": {
+      "s": "EXACT",
+      "t": "WAB",
+      "n": "WABTEC CORP",
+      "on": "2026-11-02"
     },
     "931142103": {
       "s": "EXACT",
@@ -1589,11 +2965,23 @@
       "n": "WATERBRIDGE INFRASTRUC-CL A",
       "on": "2026-10-26"
     },
+    "941848103": {
+      "s": "EXACT",
+      "t": "WAT",
+      "n": "WATERS CORP",
+      "on": "2026-11-02"
+    },
     "942622200": {
       "s": "EXACT",
       "t": "WSO",
       "n": "WATSCO INC",
       "on": "2026-10-26"
+    },
+    "947002101": {
+      "s": "EXACT",
+      "t": "WLTH",
+      "n": "WEALTHFRONT CORP",
+      "on": "2026-11-02"
     },
     "947890109": {
       "s": "NOT_FOUND",
@@ -1605,17 +2993,81 @@
       "n": "WELLS FARGO & CO",
       "on": "2026-10-26"
     },
+    "955306105": {
+      "s": "EXACT",
+      "t": "WST",
+      "n": "WEST PHARMACEUTICAL SERVICES",
+      "on": "2026-11-02"
+    },
+    "957638109": {
+      "s": "EXACT",
+      "t": "WAL",
+      "n": "WESTERN ALLIANCE BANCORP",
+      "on": "2026-11-02"
+    },
     "958102105": {
       "s": "EXACT",
       "t": "WDC",
       "n": "WESTERN DIGITAL CORP",
       "on": "2026-10-26"
     },
+    "960413102": {
+      "s": "EXACT",
+      "t": "WLK",
+      "n": "WESTLAKE CORP",
+      "on": "2026-11-02"
+    },
+    "962166104": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "962879102": {
+      "s": "EXACT",
+      "t": "WPM",
+      "n": "WHEATON PRECIOUS METALS CORP",
+      "on": "2026-11-02"
+    },
+    "963320106": {
+      "s": "EXACT",
+      "t": "WHR",
+      "n": "WHIRLPOOL CORP",
+      "on": "2026-11-02"
+    },
     "969457100": {
       "s": "EXACT",
       "t": "WMB",
       "n": "WILLIAMS COS INC",
       "on": "2026-10-26"
+    },
+    "969904101": {
+      "s": "EXACT",
+      "t": "WSM",
+      "n": "WILLIAMS-SONOMA INC",
+      "on": "2026-11-02"
+    },
+    "974250102": {
+      "s": "EXACT",
+      "t": "WINA",
+      "n": "WINMARK CORP",
+      "on": "2026-11-02"
+    },
+    "980745103": {
+      "s": "EXACT",
+      "t": "WWD",
+      "n": "WOODWARD INC",
+      "on": "2026-11-02"
+    },
+    "983134107": {
+      "s": "EXACT",
+      "t": "WYNN",
+      "n": "WYNN RESORTS LTD",
+      "on": "2026-11-02"
+    },
+    "983793100": {
+      "s": "EXACT",
+      "t": "XPO",
+      "n": "XPO INC",
+      "on": "2026-11-02"
     },
     "984245100": {
       "s": "NOT_COMMON",
@@ -1626,6 +3078,18 @@
       "t": "YUM",
       "n": "YUM! BRANDS INC",
       "on": "2026-10-26"
+    },
+    "989207105": {
+      "s": "EXACT",
+      "t": "ZBRA",
+      "n": "ZEBRA TECHNOLOGIES CORP-CL A",
+      "on": "2026-11-02"
+    },
+    "989701107": {
+      "s": "EXACT",
+      "t": "ZION",
+      "n": "ZIONS BANCORP NA",
+      "on": "2026-11-02"
     },
     "00032Q104": {
       "s": "EXACT",
@@ -1665,6 +3129,14 @@
       "s": "NOT_COMMON",
       "on": "2026-10-26"
     },
+    "00039J608": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "00039J707": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "00039J764": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
@@ -1681,6 +3153,10 @@
       "s": "NOT_COMMON",
       "on": "2026-10-26"
     },
+    "00039J830": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "00039J848": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
@@ -1688,6 +3164,10 @@
     "00039J855": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "00039J863": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
     },
     "00039J871": {
       "s": "NOT_COMMON",
@@ -1844,6 +3324,14 @@
       "t": "POWW",
       "n": "OUTDOOR HOLDING CO",
       "on": "2026-10-26"
+    },
+    "00180G304": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "00180N101": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
     },
     "00181T107": {
       "s": "EXACT",
@@ -2017,9 +3505,25 @@
       "s": "NOT_COMMON",
       "on": "2026-10-26"
     },
+    "00301W105": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "003022266": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "003022274": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "00302M106": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "003057106": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
     },
     "003260106": {
       "s": "NOT_COMMON",
@@ -2041,6 +3545,10 @@
       "s": "NOT_COMMON",
       "on": "2026-10-26"
     },
+    "003264108": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "00326A104": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
@@ -2049,15 +3557,31 @@
       "s": "NOT_COMMON",
       "on": "2026-10-26"
     },
+    "00326W106": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "00370M103": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "00384X202": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "00384X301": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
     },
     "003881307": {
       "s": "EXACT",
       "t": "ACTG",
       "n": "ACACIA RESEARCH CORP",
       "on": "2026-10-26"
+    },
+    "00400R858": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
     },
     "00402L107": {
       "s": "EXACT",
@@ -2116,6 +3640,12 @@
       "t": "ACU",
       "n": "ACME UNITED CORP",
       "on": "2026-10-26"
+    },
+    "004848206": {
+      "s": "EXACT",
+      "t": "ACFN",
+      "n": "ACORN ENERGY INC",
+      "on": "2026-11-02"
     },
     "00486H105": {
       "s": "EXACT",
@@ -2185,6 +3715,10 @@
       "n": "ADAGIO MEDICAL HOLDINGS INC",
       "on": "2026-10-26"
     },
+    "00548F105": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "006212104": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
@@ -2219,11 +3753,21 @@
       "n": "ADICET BIO INC",
       "on": "2026-10-26"
     },
+    "00704R109": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "00724F101": {
       "s": "EXACT",
       "t": "ADBE",
       "n": "ADOBE INC",
       "on": "2026-10-26"
+    },
+    "00737L103": {
+      "s": "EXACT",
+      "t": "CVSA",
+      "n": "COVISTA INC",
+      "on": "2026-11-02"
     },
     "007408206": {
       "s": "EXACT",
@@ -2243,11 +3787,19 @@
       "n": "AEHR TEST SYSTEMS",
       "on": "2026-10-26"
     },
+    "00764C109": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "00766T100": {
       "s": "EXACT",
       "t": "ACM",
       "n": "AECOM",
       "on": "2026-10-26"
+    },
+    "00768Y453": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
     },
     "0076CA104": {
       "s": "NOT_COMMON",
@@ -2270,6 +3822,10 @@
       "t": "ASIX",
       "n": "ADVANSIX INC",
       "on": "2026-10-26"
+    },
+    "00775Y322": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
     },
     "00776X109": {
       "s": "EXACT",
@@ -2301,6 +3857,16 @@
       "n": "ADVANCED ENERGY INDUSTRIES",
       "on": "2026-10-26"
     },
+    "007973AE0": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "008064206": {
+      "s": "EXACT",
+      "t": "JBIO",
+      "n": "JADE BIOSCIENCES INC",
+      "on": "2026-11-02"
+    },
     "008073108": {
       "s": "EXACT",
       "t": "AVAV",
@@ -2316,6 +3882,10 @@
       "t": "ASLE",
       "n": "AERSALE CORP",
       "on": "2026-10-26"
+    },
+    "008183113": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "008183204": {
       "s": "EXACT",
@@ -2334,6 +3904,10 @@
       "t": "AFRM",
       "n": "AFFIRM HOLDINGS INC",
       "on": "2026-10-26"
+    },
+    "00827BAB2": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "00827BAD8": {
       "s": "NOT_FOUND",
@@ -2405,6 +3979,16 @@
       "n": "AGILON HEALTH INC",
       "on": "2026-10-26"
     },
+    "00860C102": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "008875304": {
+      "s": "EXACT",
+      "t": "DOMH",
+      "n": "DOMINARI HOLDINGS INC",
+      "on": "2026-11-02"
+    },
     "008933103": {
       "s": "EXACT",
       "t": "AIAI",
@@ -2417,6 +4001,10 @@
       "n": "AIRSHIP AI HOLDINGS INC",
       "on": "2026-10-26"
     },
+    "008940116": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "009066101": {
       "s": "EXACT",
       "t": "ABNB",
@@ -2428,6 +4016,12 @@
       "t": "APD",
       "n": "AIR PRODUCTS & CHEMICALS INC",
       "on": "2026-10-26"
+    },
+    "009207101": {
+      "s": "EXACT",
+      "t": "AIRT",
+      "n": "AIR T INC",
+      "on": "2026-11-02"
     },
     "00938A104": {
       "s": "EXACT",
@@ -2489,6 +4083,12 @@
       "n": "ALAMO GROUP INC",
       "on": "2026-10-26"
     },
+    "011532108": {
+      "s": "EXACT",
+      "t": "AGI",
+      "n": "ALAMOS GOLD INC-CLASS A",
+      "on": "2026-11-02"
+    },
     "011642105": {
       "s": "EXACT",
       "t": "ALRM",
@@ -2545,6 +4145,10 @@
       "n": "ALECTOR INC",
       "on": "2026-10-26"
     },
+    "01444V111": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "01446U103": {
       "s": "EXACT",
       "t": "ALRS",
@@ -2558,6 +4162,16 @@
     "015271109": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "015658107": {
+      "s": "EXACT",
+      "t": "ASTL",
+      "n": "ALGOMA STEEL GROUP INC",
+      "on": "2026-11-02"
+    },
+    "015658115": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "015857105": {
       "s": "EXACT",
@@ -2590,6 +4204,12 @@
       "t": "ALHC",
       "n": "ALIGNMENT HEALTHCARE INC",
       "on": "2026-10-26"
+    },
+    "01626L204": {
+      "s": "EXACT",
+      "t": "ALGS",
+      "n": "ALIGOS THERAPEUTICS INC",
+      "on": "2026-11-02"
     },
     "01626W101": {
       "s": "NOT_FOUND",
@@ -2625,6 +4245,12 @@
       "n": "ALLEGRO MICROSYSTEMS INC",
       "on": "2026-10-26"
     },
+    "018581108": {
+      "s": "EXACT",
+      "t": "BFH",
+      "n": "BREAD FINANCIAL HOLDINGS INC",
+      "on": "2026-11-02"
+    },
     "01862Q107": {
       "s": "EXACT",
       "t": "ALH",
@@ -2646,6 +4272,12 @@
       "t": "AIFA",
       "n": "ALL IN FUTURETECH ALLIANCE I",
       "on": "2026-10-26"
+    },
+    "01921D204": {
+      "s": "EXACT",
+      "t": "AAUC",
+      "n": "ALLIED GOLD CORP",
+      "on": "2026-11-02"
     },
     "019330109": {
       "s": "EXACT",
@@ -2693,6 +4325,12 @@
       "s": "NOT_FOUND",
       "on": "2026-10-26"
     },
+    "02074J501": {
+      "s": "EXACT",
+      "t": "ACOG",
+      "n": "ALPHA COGNITION INC",
+      "on": "2026-11-02"
+    },
     "020764106": {
       "s": "EXACT",
       "t": "AMR",
@@ -2737,6 +4375,10 @@
       "n": "ALPHATEC HOLDINGS INC",
       "on": "2026-10-26"
     },
+    "02081GAB8": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "02081GAD4": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
@@ -2768,6 +4410,18 @@
       "t": "ALT",
       "n": "ALTIMMUNE INC",
       "on": "2026-10-26"
+    },
+    "02156K103": {
+      "s": "EXACT",
+      "t": "OPTU",
+      "n": "OPTIMUM COMMUNICATIONS INC-A",
+      "on": "2026-11-02"
+    },
+    "02156V109": {
+      "s": "EXACT",
+      "t": "OKLO",
+      "n": "OKLO INC",
+      "on": "2026-11-02"
     },
     "02157E106": {
       "s": "EXACT",
@@ -2809,6 +4463,12 @@
       "n": "AMAZON.COM INC",
       "on": "2026-10-26"
     },
+    "023139884": {
+      "s": "EXACT",
+      "t": "OSG",
+      "n": "OCTAVE SPECIALTY GROUP INC",
+      "on": "2026-11-02"
+    },
     "023193105": {
       "s": "EXACT",
       "t": "AMBQ",
@@ -2818,6 +4478,12 @@
     "02319V103": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "02341Q205": {
+      "s": "EXACT",
+      "t": "DIT",
+      "n": "AMCON DISTRIBUTING CO",
+      "on": "2026-11-02"
     },
     "023576101": {
       "s": "EXACT",
@@ -2830,6 +4496,12 @@
       "t": "UHAL",
       "n": "U-HAUL HOLDING CO",
       "on": "2026-10-26"
+    },
+    "023586506": {
+      "s": "EXACT",
+      "t": "UHAL-B",
+      "n": "U-HAUL HOLDING CO-NON VOTING",
+      "on": "2026-11-02"
     },
     "023608102": {
       "s": "EXACT",
@@ -2859,6 +4531,40 @@
       "n": "AMENTUM HOLDINGS INC",
       "on": "2026-10-26"
     },
+    "024013104": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "024061103": {
+      "s": "EXACT",
+      "t": "DCH",
+      "n": "DAUCH CORPORATION",
+      "on": "2026-11-02"
+    },
+    "02462A104": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "025072349": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "025072703": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "025072802": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "025072877": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "025072885": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "025537101": {
       "s": "EXACT",
       "t": "AEP",
@@ -2877,15 +4583,111 @@
       "n": "AMERICAN EXPRESS CO",
       "on": "2026-10-26"
     },
+    "025932104": {
+      "s": "EXACT",
+      "t": "AFG",
+      "n": "AMERICAN FINANCIAL GROUP INC",
+      "on": "2026-11-02"
+    },
+    "02665T306": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "026874784": {
+      "s": "EXACT",
+      "t": "AIG",
+      "n": "AMERICAN INTERNATIONAL GROUP",
+      "on": "2026-11-02"
+    },
+    "026948109": {
+      "s": "EXACT",
+      "t": "AII",
+      "n": "AMERICAN INTEGRITY INSURANCE",
+      "on": "2026-11-02"
+    },
+    "02875D109": {
+      "s": "EXACT",
+      "t": "AOUT",
+      "n": "AMERICAN OUTDOOR BRANDS INC",
+      "on": "2026-11-02"
+    },
+    "02913V103": {
+      "s": "EXACT",
+      "t": "APEI",
+      "n": "AMERICAN PUBLIC EDUCATION",
+      "on": "2026-11-02"
+    },
+    "029174109": {
+      "s": "EXACT",
+      "t": "ARL",
+      "n": "AMERICAN REALTY INVESTORS IN",
+      "on": "2026-11-02"
+    },
+    "029595105": {
+      "s": "EXACT",
+      "t": "AMS",
+      "n": "AMERICAN SHARED HOSPITAL SER",
+      "on": "2026-11-02"
+    },
     "029899101": {
       "s": "EXACT",
       "t": "AWR",
       "n": "AMERICAN STATES WATER CO",
       "on": "2026-10-26"
     },
+    "030111207": {
+      "s": "EXACT",
+      "t": "AMSC",
+      "n": "AMERICAN SUPERCONDUCTOR CORP",
+      "on": "2026-11-02"
+    },
     "03027X100": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "030371108": {
+      "s": "EXACT",
+      "t": "AVD",
+      "n": "AMERICAN VANGUARD CORP",
+      "on": "2026-11-02"
+    },
+    "03040WBE4": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "030420103": {
+      "s": "EXACT",
+      "t": "AWK",
+      "n": "AMERICAN WATER WORKS CO INC",
+      "on": "2026-11-02"
+    },
+    "03044L204": {
+      "s": "EXACT",
+      "t": "AMWL",
+      "n": "AMERICAN WELL CORP-CLASS A",
+      "on": "2026-11-02"
+    },
+    "03062D803": {
+      "s": "EXACT",
+      "t": "USAS",
+      "n": "AMERICAS GOLD AND SILVER COR",
+      "on": "2026-11-02"
+    },
+    "03062T105": {
+      "s": "EXACT",
+      "t": "CRMT",
+      "n": "AMERICA'S CAR-MART INC",
+      "on": "2026-11-02"
+    },
+    "03064D108": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "03071H100": {
+      "s": "EXACT",
+      "t": "AMSF",
+      "n": "AMERISAFE INC",
+      "on": "2026-11-02"
     },
     "03073E105": {
       "s": "EXACT",
@@ -2893,11 +4695,35 @@
       "n": "CENCORA INC",
       "on": "2026-10-26"
     },
+    "03074A102": {
+      "s": "EXACT",
+      "t": "ASRV",
+      "n": "AMERISERV FINANCIAL INC",
+      "on": "2026-11-02"
+    },
     "03076C106": {
       "s": "EXACT",
       "t": "AMP",
       "n": "AMERIPRISE FINANCIAL INC",
       "on": "2026-10-26"
+    },
+    "03076K108": {
+      "s": "EXACT",
+      "t": "ABCB",
+      "n": "AMERIS BANCORP",
+      "on": "2026-11-02"
+    },
+    "031001100": {
+      "s": "EXACT",
+      "t": "ATLO",
+      "n": "AMES NATIONAL CORP",
+      "on": "2026-11-02"
+    },
+    "031094204": {
+      "s": "EXACT",
+      "t": "AMST",
+      "n": "AMESITE INC",
+      "on": "2026-11-02"
     },
     "031100100": {
       "s": "EXACT",
@@ -2911,11 +4737,81 @@
       "n": "AMGEN INC",
       "on": "2026-10-26"
     },
+    "031652100": {
+      "s": "EXACT",
+      "t": "AMKR",
+      "n": "AMKOR TECHNOLOGY INC",
+      "on": "2026-11-02"
+    },
+    "03168L105": {
+      "s": "EXACT",
+      "t": "AMRX",
+      "n": "AMNEAL PHARMACEUTICALS INC",
+      "on": "2026-11-02"
+    },
+    "032037103": {
+      "s": "EXACT",
+      "t": "AP",
+      "n": "AMPCO-PITTSBURGH CORP",
+      "on": "2026-11-02"
+    },
     "032095101": {
       "s": "EXACT",
       "t": "APH",
       "n": "AMPHENOL CORP-CL A",
       "on": "2026-10-26"
+    },
+    "03209R103": {
+      "s": "EXACT",
+      "t": "AMPH",
+      "n": "AMPHASTAR PHARMACEUTICALS IN",
+      "on": "2026-11-02"
+    },
+    "03209RAB9": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "032108409": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "032108607": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "032108649": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "03211Q200": {
+      "s": "EXACT",
+      "t": "AMPG",
+      "n": "AMPLITECH GROUP INC",
+      "on": "2026-11-02"
+    },
+    "03212B103": {
+      "s": "EXACT",
+      "t": "AMPY",
+      "n": "AMPLIFY ENERGY CORP",
+      "on": "2026-11-02"
+    },
+    "03214Q108": {
+      "s": "EXACT",
+      "t": "AMPX",
+      "n": "AMPRIUS TECHNOLOGIES INC",
+      "on": "2026-11-02"
+    },
+    "032159105": {
+      "s": "EXACT",
+      "t": "AXR",
+      "n": "AMREP CORP",
+      "on": "2026-11-02"
+    },
+    "032332504": {
+      "s": "EXACT",
+      "t": "ASYS",
+      "n": "AMTECH SYSTEMS INC",
+      "on": "2026-11-02"
     },
     "03237H101": {
       "s": "EXACT",
@@ -2929,15 +4825,125 @@
       "n": "ANALOG DEVICES INC",
       "on": "2026-10-26"
     },
+    "032724106": {
+      "s": "EXACT",
+      "t": "ANAB",
+      "n": "ANAPTYSBIO INC",
+      "on": "2026-11-02"
+    },
+    "032797300": {
+      "s": "EXACT",
+      "t": "AVXL",
+      "n": "ANAVEX LIFE SCIENCES CORP",
+      "on": "2026-11-02"
+    },
+    "033853102": {
+      "s": "EXACT",
+      "t": "ANDG",
+      "n": "ANDERSEN GROUP INC - A",
+      "on": "2026-11-02"
+    },
+    "034164103": {
+      "s": "EXACT",
+      "t": "ANDE",
+      "n": "ANDERSONS INC/THE",
+      "on": "2026-11-02"
+    },
+    "03464Y108": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "03475V101": {
+      "s": "EXACT",
+      "t": "ANGO",
+      "n": "ANGIODYNAMICS INC",
+      "on": "2026-11-02"
+    },
+    "034948109": {
+      "s": "EXACT",
+      "t": "ANGX",
+      "n": "ANGEL STUDIOS INC",
+      "on": "2026-11-02"
+    },
     "03524A108": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "035255108": {
+      "s": "EXACT",
+      "t": "ANIK",
+      "n": "ANIKA THERAPEUTICS INC",
+      "on": "2026-11-02"
+    },
+    "03528H109": {
+      "s": "EXACT",
+      "t": "ANIX",
+      "n": "ANIXA BIOSCIENCES INC",
+      "on": "2026-11-02"
+    },
+    "035710839": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "03589W102": {
+      "s": "EXACT",
+      "t": "ANNX",
+      "n": "ANNEXON INC",
+      "on": "2026-11-02"
+    },
+    "03615A108": {
+      "s": "EXACT",
+      "t": "ANVS",
+      "n": "ANNOVIS BIO",
+      "on": "2026-11-02"
+    },
+    "03674X106": {
+      "s": "EXACT",
+      "t": "AR",
+      "n": "ANTERO RESOURCES CORP",
+      "on": "2026-11-02"
     },
     "036752103": {
       "s": "EXACT",
       "t": "ELV",
       "n": "ELEVANCE HEALTH INC",
       "on": "2026-10-26"
+    },
+    "03675P102": {
+      "s": "EXACT",
+      "t": "AVR",
+      "n": "ANTERIS TECHNOLOGIES GLOBAL",
+      "on": "2026-11-02"
+    },
+    "03676B102": {
+      "s": "EXACT",
+      "t": "AM",
+      "n": "ANTERO MIDSTREAM CORP",
+      "on": "2026-11-02"
+    },
+    "037326105": {
+      "s": "EXACT",
+      "t": "ANTX",
+      "n": "AN2 THERAPEUTICS INC",
+      "on": "2026-11-02"
+    },
+    "03743Q108": {
+      "s": "EXACT",
+      "t": "APA",
+      "n": "APA CORP",
+      "on": "2026-11-02"
+    },
+    "037598109": {
+      "s": "EXACT",
+      "t": "APOG",
+      "n": "APOGEE ENTERPRISES INC",
+      "on": "2026-11-02"
+    },
+    "03761U502": {
+      "s": "EXACT",
+      "t": "MFIC",
+      "n": "MIDCAP FINANCIAL INVESTMENT",
+      "on": "2026-11-02"
     },
     "03769M106": {
       "s": "EXACT",
@@ -2963,6 +4969,12 @@
       "s": "NOT_COMMON",
       "on": "2026-10-26"
     },
+    "03815J107": {
+      "s": "EXACT",
+      "t": "AADX",
+      "n": "APPLIED AEROSPACE & DEFENSE",
+      "on": "2026-11-02"
+    },
     "038169207": {
       "s": "EXACT",
       "t": "APLD",
@@ -2987,15 +4999,55 @@
       "n": "APPLOVIN CORP-CLASS A",
       "on": "2026-10-26"
     },
+    "038336103": {
+      "s": "EXACT",
+      "t": "ATR",
+      "n": "APTARGROUP INC",
+      "on": "2026-11-02"
+    },
     "03852U106": {
       "s": "EXACT",
       "t": "ARMK",
       "n": "ARAMARK",
       "on": "2026-10-26"
     },
+    "038923108": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "03945R102": {
+      "s": "EXACT",
+      "t": "ACHR",
+      "n": "ARCHER AVIATION INC-A",
+      "on": "2026-11-02"
+    },
+    "039483102": {
+      "s": "EXACT",
+      "t": "ADM",
+      "n": "ARCHER-DANIELS-MIDLAND CO",
+      "on": "2026-11-02"
+    },
+    "03957W106": {
+      "s": "EXACT",
+      "t": "AROC",
+      "n": "ARCHROCK INC",
+      "on": "2026-11-02"
+    },
     "039653100": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
+    },
+    "039697107": {
+      "s": "EXACT",
+      "t": "ARDX",
+      "n": "ARDELYX INC",
+      "on": "2026-11-02"
+    },
+    "03969T109": {
+      "s": "EXACT",
+      "t": "ARCT",
+      "n": "ARCTURUS THERAPEUTICS HOLDIN",
+      "on": "2026-11-02"
     },
     "03990B101": {
       "s": "EXACT",
@@ -3003,11 +5055,35 @@
       "n": "ARES MANAGEMENT CORP - A",
       "on": "2026-10-26"
     },
+    "04010E109": {
+      "s": "EXACT",
+      "t": "AGX",
+      "n": "ARGAN INC",
+      "on": "2026-11-02"
+    },
+    "04016X101": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "040413205": {
       "s": "EXACT",
       "t": "ANET",
       "n": "ARISTA NETWORKS INC",
       "on": "2026-10-26"
+    },
+    "04071F102": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "040919102": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "041242108": {
+      "s": "EXACT",
+      "t": "ARKO",
+      "n": "ARKO CORP",
+      "on": "2026-11-02"
     },
     "042068205": {
       "s": "NOT_COMMON",
@@ -3027,11 +5103,73 @@
       "n": "ARMSTRONG WORLD INDUSTRIES",
       "on": "2026-10-26"
     },
+    "04271TAB6": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "042735100": {
+      "s": "EXACT",
+      "t": "ARW",
+      "n": "ARROW ELECTRONICS INC",
+      "on": "2026-11-02"
+    },
+    "042744102": {
+      "s": "EXACT",
+      "t": "AROW",
+      "n": "ARROW FINANCIAL CORP",
+      "on": "2026-11-02"
+    },
+    "04280AAC4": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "04317A107": {
+      "s": "EXACT",
+      "t": "ARTV",
+      "n": "ARTIVA BIOTHERAPEUTICS INC",
+      "on": "2026-11-02"
+    },
     "04339D105": {
       "s": "EXACT",
       "t": "ARXS",
       "n": "ARXIS INC-A",
       "on": "2026-10-26"
+    },
+    "043436104": {
+      "s": "EXACT",
+      "t": "ABG",
+      "n": "ASBURY AUTOMOTIVE GROUP",
+      "on": "2026-11-02"
+    },
+    "044186104": {
+      "s": "EXACT",
+      "t": "ASH",
+      "n": "ASHLAND INC",
+      "on": "2026-11-02"
+    },
+    "045396207": {
+      "s": "EXACT",
+      "t": "ASMB",
+      "n": "ASSEMBLY BIOSCIENCES INC",
+      "on": "2026-11-02"
+    },
+    "045487105": {
+      "s": "EXACT",
+      "t": "ASB",
+      "n": "ASSOCIATED BANC-CORP",
+      "on": "2026-11-02"
+    },
+    "04621X108": {
+      "s": "EXACT",
+      "t": "AIZ",
+      "n": "ASSURANT INC",
+      "on": "2026-11-02"
+    },
+    "046224101": {
+      "s": "EXACT",
+      "t": "ASTE",
+      "n": "ASTEC INDUSTRIES INC",
+      "on": "2026-11-02"
     },
     "04626A103": {
       "s": "EXACT",
@@ -3045,11 +5183,33 @@
       "n": "ASTRONICS CORP",
       "on": "2026-10-26"
     },
+    "047649108": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "047726104": {
+      "s": "EXACT",
+      "t": "BATRA",
+      "n": "ATLANTA BRAVES HOLDINGS IN-A",
+      "on": "2026-11-02"
+    },
+    "047726302": {
+      "s": "EXACT",
+      "t": "BATRK",
+      "n": "ATLANTA BRAVES HOLDINGS IN-C",
+      "on": "2026-11-02"
+    },
     "04914Y102": {
       "s": "EXACT",
       "t": "ATLC",
       "n": "ATLANTICUS HOLDINGS CORP",
       "on": "2026-10-26"
+    },
+    "049468101": {
+      "s": "EXACT",
+      "t": "TEAM",
+      "n": "ATLASSIAN CORP-CL A",
+      "on": "2026-11-02"
     },
     "049560105": {
       "s": "EXACT",
@@ -3063,11 +5223,27 @@
       "n": "ATMUS FILTRATION TECHNOLOGIE",
       "on": "2026-10-26"
     },
+    "04963C209": {
+      "s": "EXACT",
+      "t": "ATRC",
+      "n": "ATRICURE INC",
+      "on": "2026-11-02"
+    },
     "051774107": {
       "s": "EXACT",
       "t": "AUR",
       "n": "AURORA INNOVATION INC",
       "on": "2026-10-26"
+    },
+    "051774115": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "052769106": {
+      "s": "EXACT",
+      "t": "ADSK",
+      "n": "AUTODESK INC",
+      "on": "2026-11-02"
     },
     "052800109": {
       "s": "EXACT",
@@ -3081,11 +5257,45 @@
       "n": "AUTOMATIC DATA PROCESSING",
       "on": "2026-10-26"
     },
+    "05329W102": {
+      "s": "EXACT",
+      "t": "AN",
+      "n": "AUTONATION INC",
+      "on": "2026-11-02"
+    },
     "053332102": {
       "s": "EXACT",
       "t": "AZO",
       "n": "AUTOZONE INC",
       "on": "2026-10-26"
+    },
+    "053484101": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "05348Y105": {
+      "s": "EXACT",
+      "t": "AVLN",
+      "n": "AVALYN PHARMA INC",
+      "on": "2026-11-02"
+    },
+    "05352A100": {
+      "s": "EXACT",
+      "t": "AVTR",
+      "n": "AVANTOR INC",
+      "on": "2026-11-02"
+    },
+    "053604104": {
+      "s": "EXACT",
+      "t": "AVPT",
+      "n": "AVEPOINT INC",
+      "on": "2026-11-02"
+    },
+    "053611109": {
+      "s": "EXACT",
+      "t": "AVY",
+      "n": "AVERY DENNISON CORP",
+      "on": "2026-11-02"
     },
     "05368V106": {
       "s": "EXACT",
@@ -3093,11 +5303,57 @@
       "n": "AVIENT CORP",
       "on": "2026-10-26"
     },
+    "053774105": {
+      "s": "EXACT",
+      "t": "CAR",
+      "n": "AVIS BUDGET GROUP INC",
+      "on": "2026-11-02"
+    },
+    "05379B107": {
+      "s": "EXACT",
+      "t": "AVA",
+      "n": "AVISTA CORP",
+      "on": "2026-11-02"
+    },
+    "053807103": {
+      "s": "EXACT",
+      "t": "AVT",
+      "n": "AVNET INC",
+      "on": "2026-11-02"
+    },
+    "054540208": {
+      "s": "EXACT",
+      "t": "ACLS",
+      "n": "AXCELIS TECHNOLOGIES INC",
+      "on": "2026-11-02"
+    },
+    "05464C101": {
+      "s": "EXACT",
+      "t": "AXON",
+      "n": "AXON ENTERPRISE INC",
+      "on": "2026-11-02"
+    },
     "05464T104": {
       "s": "EXACT",
       "t": "AXSM",
       "n": "AXSOME THERAPEUTICS INC",
       "on": "2026-10-26"
+    },
+    "05501U601": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "055298103": {
+      "s": "EXACT",
+      "t": "BCBP",
+      "n": "BCB BANCORP INC",
+      "on": "2026-11-02"
+    },
+    "05534B760": {
+      "s": "EXACT",
+      "t": "BCE",
+      "n": "BCE INC",
+      "on": "2026-11-02"
     },
     "05550J101": {
       "s": "EXACT",
@@ -3105,17 +5361,43 @@
       "n": "BJ'S WHOLESALE CLUB HOLDINGS",
       "on": "2026-10-26"
     },
+    "055622104": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "05589G102": {
       "s": "EXACT",
       "t": "BWIN",
       "n": "BALDWIN INSURANCE GROUP INC/",
       "on": "2026-10-26"
     },
+    "05605H100": {
+      "s": "EXACT",
+      "t": "BWXT",
+      "n": "BWX TECHNOLOGIES INC",
+      "on": "2026-11-02"
+    },
+    "056752108": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "05722G100": {
       "s": "EXACT",
       "t": "BKR",
       "n": "BAKER HUGHES CO",
       "on": "2026-10-26"
+    },
+    "057665200": {
+      "s": "EXACT",
+      "t": "BCPC",
+      "n": "BALCHEM CORP",
+      "on": "2026-11-02"
+    },
+    "058498106": {
+      "s": "EXACT",
+      "t": "BALL",
+      "n": "BALL CORP",
+      "on": "2026-11-02"
     },
     "05946K101": {
       "s": "NOT_COMMON",
@@ -3124,6 +5406,10 @@
     "05964H105": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "05988JAD5": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "060505104": {
       "s": "EXACT",
@@ -3155,6 +5441,22 @@
       "n": "BANK OF NOVA SCOTIA",
       "on": "2026-10-26"
     },
+    "06417N103": {
+      "s": "EXACT",
+      "t": "OZK",
+      "n": "BANK OZK",
+      "on": "2026-11-02"
+    },
+    "06652K103": {
+      "s": "EXACT",
+      "t": "BKU",
+      "n": "BANKUNITED INC",
+      "on": "2026-11-02"
+    },
+    "06738E204": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "06849F108": {
       "s": "EXACT",
       "t": "B",
@@ -3167,9 +5469,71 @@
       "n": "BATH & BODY WORKS INC",
       "on": "2026-10-26"
     },
+    "07134L107": {
+      "s": "EXACT",
+      "t": "BATL",
+      "n": "BATTALION OIL CORP",
+      "on": "2026-11-02"
+    },
+    "071705107": {
+      "s": "EXACT",
+      "t": "BLCO",
+      "n": "BAUSCH + LOMB CORP",
+      "on": "2026-11-02"
+    },
+    "071734107": {
+      "s": "EXACT",
+      "t": "BHC",
+      "n": "BAUSCH HEALTH COS INC",
+      "on": "2026-11-02"
+    },
+    "071813109": {
+      "s": "EXACT",
+      "t": "BAX",
+      "n": "BAXTER INTERNATIONAL INC",
+      "on": "2026-11-02"
+    },
+    "07317Q105": {
+      "s": "EXACT",
+      "t": "BTE",
+      "n": "BAYTEX ENERGY CORP",
+      "on": "2026-11-02"
+    },
+    "07373V105": {
+      "s": "EXACT",
+      "t": "BEAM",
+      "n": "BEAM THERAPEUTICS INC",
+      "on": "2026-11-02"
+    },
+    "075887109": {
+      "s": "EXACT",
+      "t": "BDX",
+      "n": "BECTON DICKINSON AND CO",
+      "on": "2026-11-02"
+    },
     "07725L102": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "077454106": {
+      "s": "EXACT",
+      "t": "BDC",
+      "n": "BELDEN INC",
+      "on": "2026-11-02"
+    },
+    "07782B104": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "08265TAD1": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "084423102": {
+      "s": "EXACT",
+      "t": "WRB",
+      "n": "WR BERKLEY CORP",
+      "on": "2026-11-02"
     },
     "084670108": {
       "s": "EXACT",
@@ -3183,9 +5547,21 @@
       "n": "BERKSHIRE HATHAWAY INC-CL B",
       "on": "2026-10-26"
     },
+    "086516101": {
+      "s": "EXACT",
+      "t": "BBY",
+      "n": "BEST BUY CO INC",
+      "on": "2026-11-02"
+    },
     "088606108": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "088929104": {
+      "s": "EXACT",
+      "t": "BGC",
+      "n": "BGC GROUP INC-A",
+      "on": "2026-11-02"
     },
     "090043100": {
       "s": "EXACT",
@@ -3193,9 +5569,53 @@
       "n": "BILL HOLDINGS INC",
       "on": "2026-10-26"
     },
+    "090043AD2": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "090043AF7": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
+    },
+    "09058V103": {
+      "s": "EXACT",
+      "t": "BCRX",
+      "n": "BIOCRYST PHARMACEUTICALS INC",
+      "on": "2026-11-02"
+    },
+    "09061G101": {
+      "s": "EXACT",
+      "t": "BMRN",
+      "n": "BIOMARIN PHARMACEUTICAL INC",
+      "on": "2026-11-02"
+    },
+    "09061GAK7": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "09062X103": {
+      "s": "EXACT",
+      "t": "BIIB",
+      "n": "BIOGEN INC",
+      "on": "2026-11-02"
+    },
+    "09073M104": {
+      "s": "EXACT",
+      "t": "TECH",
+      "n": "BIO-TECHNE CORP",
+      "on": "2026-11-02"
+    },
+    "09075P204": {
+      "s": "EXACT",
+      "t": "BTAIQ",
+      "n": "BIOXCEL THERAPEUTICS INC",
+      "on": "2026-11-02"
+    },
+    "09175A206": {
+      "s": "EXACT",
+      "t": "BMNR",
+      "n": "BITMINE IMMERSION TECHNOLOGI",
+      "on": "2026-11-02"
     },
     "09227Q100": {
       "s": "EXACT",
@@ -3203,17 +5623,43 @@
       "n": "BLACKBAUD INC",
       "on": "2026-10-26"
     },
+    "09228F103": {
+      "s": "EXACT",
+      "t": "BB",
+      "n": "BLACKBERRY LTD",
+      "on": "2026-11-02"
+    },
+    "09239BAF6": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "09257WAE0": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "09260D107": {
       "s": "EXACT",
       "t": "BX",
       "n": "BLACKSTONE INC",
       "on": "2026-10-26"
     },
+    "092667104": {
+      "s": "EXACT",
+      "t": "SRTA",
+      "n": "STRATA CRITICAL MEDICAL INC",
+      "on": "2026-11-02"
+    },
     "09290D101": {
       "s": "EXACT",
       "t": "BLK",
       "n": "BLACKROCK INC",
       "on": "2026-10-26"
+    },
+    "093671105": {
+      "s": "EXACT",
+      "t": "HRB",
+      "n": "H&R BLOCK INC",
+      "on": "2026-11-02"
     },
     "093712107": {
       "s": "EXACT",
@@ -3227,17 +5673,41 @@
       "n": "AIB DATA CENTERS INC",
       "on": "2026-10-26"
     },
+    "094235108": {
+      "s": "EXACT",
+      "t": "BLMN",
+      "n": "BLOOMIN' BRANDS INC",
+      "on": "2026-11-02"
+    },
+    "09570Q509": {
+      "s": "EXACT",
+      "t": "BMM",
+      "n": "BLUE MOON METALS INC",
+      "on": "2026-11-02"
+    },
     "09581B103": {
       "s": "EXACT",
       "t": "OWL",
       "n": "BLUE OWL CAPITAL INC",
       "on": "2026-10-26"
     },
+    "095924106": {
+      "s": "EXACT",
+      "t": "OTF",
+      "n": "BLUE OWL TECHNOLOGY FINANCE",
+      "on": "2026-11-02"
+    },
     "097023105": {
       "s": "EXACT",
       "t": "BA",
       "n": "BOEING CO/THE",
       "on": "2026-10-26"
+    },
+    "09739D100": {
+      "s": "EXACT",
+      "t": "BCC",
+      "n": "BOISE CASCADE CO",
+      "on": "2026-11-02"
     },
     "09857L108": {
       "s": "EXACT",
@@ -3251,17 +5721,61 @@
       "n": "BOOT BARN HOLDINGS INC",
       "on": "2026-10-26"
     },
+    "099502106": {
+      "s": "EXACT",
+      "t": "BAH",
+      "n": "BOOZ ALLEN HAMILTON HOLDINGS",
+      "on": "2026-11-02"
+    },
+    "099724106": {
+      "s": "EXACT",
+      "t": "BWA",
+      "n": "BORGWARNER INC",
+      "on": "2026-11-02"
+    },
     "10316T104": {
       "s": "EXACT",
       "t": "BOX",
       "n": "BOX INC - CLASS A",
       "on": "2026-10-26"
     },
+    "10501L106": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "10806X102": {
+      "s": "EXACT",
+      "t": "BBIO",
+      "n": "BRIDGEBIO PHARMA INC",
+      "on": "2026-11-02"
+    },
+    "10922N103": {
+      "s": "EXACT",
+      "t": "BHF",
+      "n": "BRIGHTHOUSE FINANCIAL INC",
+      "on": "2026-11-02"
+    },
     "10948W103": {
       "s": "EXACT",
       "t": "AAMI",
       "n": "ACADIAN ASSET MANAGEMENT INC",
       "on": "2026-10-26"
+    },
+    "10950A106": {
+      "s": "EXACT",
+      "t": "BTSG",
+      "n": "BRIGHTSPRING HEALTH SERVICES",
+      "on": "2026-11-02"
+    },
+    "11120U105": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "11133T103": {
+      "s": "EXACT",
+      "t": "BR",
+      "n": "BROADRIDGE FINANCIAL SOLUTIO",
+      "on": "2026-11-02"
     },
     "11135F101": {
       "s": "EXACT",
@@ -3274,6 +5788,12 @@
       "t": "BN",
       "n": "BROOKFIELD CORP",
       "on": "2026-10-26"
+    },
+    "11777Q209": {
+      "s": "EXACT",
+      "t": "BTG",
+      "n": "B2GOLD CORP",
+      "on": "2026-11-02"
     },
     "12008R107": {
       "s": "EXACT",
@@ -3293,11 +5813,35 @@
       "n": "C3.AI INC-A",
       "on": "2026-10-26"
     },
+    "12503M108": {
+      "s": "EXACT",
+      "t": "CBOE",
+      "n": "CBOE GLOBAL MARKETS INC",
+      "on": "2026-11-02"
+    },
+    "12504L109": {
+      "s": "EXACT",
+      "t": "CBRE",
+      "n": "CBRE GROUP INC - A",
+      "on": "2026-11-02"
+    },
+    "12510Q100": {
+      "s": "EXACT",
+      "t": "CCC",
+      "n": "CCC INTELLIGENT SOLUTIONS HO",
+      "on": "2026-11-02"
+    },
     "12514G108": {
       "s": "EXACT",
       "t": "CDW",
       "n": "CDW CORP/DE",
       "on": "2026-10-26"
+    },
+    "12541W209": {
+      "s": "EXACT",
+      "t": "CHRW",
+      "n": "C.H. ROBINSON WORLDWIDE INC",
+      "on": "2026-11-02"
     },
     "12572Q105": {
       "s": "EXACT",
@@ -3311,11 +5855,21 @@
       "n": "CADRE HOLDINGS INC",
       "on": "2026-10-26"
     },
+    "12769G100": {
+      "s": "EXACT",
+      "t": "CZR",
+      "n": "CAESARS ENTERTAINMENT INC",
+      "on": "2026-11-02"
+    },
     "13057Q305": {
       "s": "EXACT",
       "t": "CRC",
       "n": "CALIFORNIA RESOURCES CORP",
       "on": "2026-10-26"
+    },
+    "131193AE4": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "13321L108": {
       "s": "EXACT",
@@ -3425,11 +5979,37 @@
       "n": "CARDINAL HEALTH INC",
       "on": "2026-10-26"
     },
+    "14167L103": {
+      "s": "EXACT",
+      "t": "CDNA",
+      "n": "CAREDX INC",
+      "on": "2026-11-02"
+    },
+    "14174T107": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "14316J108": {
+      "s": "EXACT",
+      "t": "CG",
+      "n": "CARLYLE GROUP INC/THE",
+      "on": "2026-11-02"
+    },
     "14448C104": {
       "s": "EXACT",
       "t": "CARR",
       "n": "CARRIER GLOBAL CORP",
       "on": "2026-10-26"
+    },
+    "14888U101": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "15101Q207": {
+      "s": "EXACT",
+      "t": "CLS",
+      "n": "CELESTICA INC",
+      "on": "2026-11-02"
     },
     "15102K100": {
       "s": "EXACT",
@@ -3437,11 +6017,25 @@
       "n": "CELCUITY INC",
       "on": "2026-10-26"
     },
+    "15102KAA8": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "15102KAB6": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "15118V207": {
       "s": "EXACT",
       "t": "CELH",
       "n": "CELSIUS HOLDINGS INC",
       "on": "2026-10-26"
+    },
+    "15135B101": {
+      "s": "EXACT",
+      "t": "CNC",
+      "n": "CENTENE CORP",
+      "on": "2026-11-02"
     },
     "15135U109": {
       "s": "EXACT",
@@ -3455,11 +6049,25 @@
       "n": "CENTERPOINT ENERGY INC",
       "on": "2026-10-26"
     },
+    "15643U104": {
+      "s": "EXACT",
+      "t": "LEU",
+      "n": "CENTRUS ENERGY CORP-CLASS A",
+      "on": "2026-11-02"
+    },
+    "156727AD1": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "15675D103": {
       "s": "EXACT",
       "t": "CBRS",
       "n": "CEREBRAS SYSTEMS INC - A",
       "on": "2026-10-26"
+    },
+    "16115Q308": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "16119P108": {
       "s": "EXACT",
@@ -3467,9 +6075,47 @@
       "n": "CHARTER COMMUNICATIONS INC-A",
       "on": "2026-10-26"
     },
+    "163072AA9": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "16359R103": {
+      "s": "EXACT",
+      "t": "CHE",
+      "n": "CHEMED CORP",
+      "on": "2026-11-02"
+    },
+    "16411R208": {
+      "s": "EXACT",
+      "t": "LNG",
+      "n": "CHENIERE ENERGY INC",
+      "on": "2026-11-02"
+    },
+    "16679L109": {
+      "s": "EXACT",
+      "t": "CHWY",
+      "n": "CHEWY INC - CLASS A",
+      "on": "2026-11-02"
+    },
+    "16935C109": {
+      "s": "EXACT",
+      "t": "CHYM",
+      "n": "CHIME FINANCIAL INC-CL A",
+      "on": "2026-11-02"
+    },
     "16954L204": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "17133Q502": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "17243V102": {
+      "s": "EXACT",
+      "t": "CNK",
+      "n": "CINEMARK HOLDINGS INC",
+      "on": "2026-11-02"
     },
     "17253J106": {
       "s": "EXACT",
@@ -3483,11 +6129,25 @@
       "n": "CISCO SYSTEMS INC",
       "on": "2026-10-26"
     },
+    "18467V109": {
+      "s": "EXACT",
+      "t": "YOU",
+      "n": "CLEAR SECURE INC -CLASS A",
+      "on": "2026-11-02"
+    },
     "18915M107": {
       "s": "EXACT",
       "t": "NET",
       "n": "CLOUDFLARE INC - CLASS A",
       "on": "2026-10-26"
+    },
+    "18915MAF4": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "19240QAA0": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "19247G107": {
       "s": "EXACT",
@@ -3495,17 +6155,49 @@
       "n": "COHERENT CORP",
       "on": "2026-10-26"
     },
+    "19260Q107": {
+      "s": "EXACT",
+      "t": "COIN",
+      "n": "COINBASE GLOBAL INC -CLASS A",
+      "on": "2026-11-02"
+    },
+    "19260QAB3": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "19260QAF4": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "194014AB2": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "20030N101": {
       "s": "EXACT",
       "t": "CMCSA",
       "n": "COMCAST CORP-CLASS A",
       "on": "2026-10-26"
     },
+    "20451W101": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "20459V105": {
+      "s": "EXACT",
+      "t": "GPGI",
+      "n": "GPGI INC",
+      "on": "2026-11-02"
+    },
     "20464U100": {
       "s": "EXACT",
       "t": "COMP",
       "n": "COMPASS INC - CLASS A",
       "on": "2026-10-26"
+    },
+    "207410AH4": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "20825C104": {
       "s": "EXACT",
@@ -3525,6 +6217,12 @@
       "n": "CONSTELLATION ENERGY",
       "on": "2026-10-26"
     },
+    "21871X109": {
+      "s": "EXACT",
+      "t": "CRBG",
+      "n": "COREBRIDGE FINANCIAL INC",
+      "on": "2026-11-02"
+    },
     "21873S108": {
       "s": "EXACT",
       "t": "CRWV",
@@ -3536,6 +6234,16 @@
       "t": "CORZ",
       "n": "CORE SCIENTIFIC INC",
       "on": "2026-10-26"
+    },
+    "21874A114": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "21874C102": {
+      "s": "EXACT",
+      "t": "CNM",
+      "n": "CORE & MAIN INC-CLASS A",
+      "on": "2026-11-02"
     },
     "22052L104": {
       "s": "EXACT",
@@ -3561,11 +6269,27 @@
       "n": "COUPANG INC",
       "on": "2026-10-26"
     },
+    "22410JAB2": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "22410JAD8": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "22788C105": {
       "s": "EXACT",
       "t": "CRWD",
       "n": "CROWDSTRIKE HOLDINGS INC - A",
       "on": "2026-10-26"
+    },
+    "22822V101": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "23248VAD7": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "23282W605": {
       "s": "EXACT",
@@ -3573,11 +6297,37 @@
       "n": "CYTOKINETICS INC",
       "on": "2026-10-26"
     },
+    "23306J309": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "23331A109": {
+      "s": "EXACT",
+      "t": "DHI",
+      "n": "DR HORTON INC",
+      "on": "2026-11-02"
+    },
     "23804L103": {
       "s": "EXACT",
       "t": "DDOG",
       "n": "DATADOG INC - CLASS A",
       "on": "2026-10-26"
+    },
+    "23804LAD5": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "23834J201": {
+      "s": "EXACT",
+      "t": "DAVE",
+      "n": "DAVE INC",
+      "on": "2026-11-02"
+    },
+    "23918K108": {
+      "s": "EXACT",
+      "t": "DVA",
+      "n": "DAVITA INC",
+      "on": "2026-11-02"
     },
     "24477V105": {
       "s": "EXACT",
@@ -3591,17 +6341,45 @@
       "n": "DELL TECHNOLOGIES -C",
       "on": "2026-10-26"
     },
+    "24906P109": {
+      "s": "EXACT",
+      "t": "XRAY",
+      "n": "DENTSPLY SIRONA INC",
+      "on": "2026-11-02"
+    },
     "25179M103": {
       "s": "EXACT",
       "t": "DVN",
       "n": "DEVON ENERGY CORP",
       "on": "2026-10-26"
     },
+    "252131AM9": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "25278X109": {
+      "s": "EXACT",
+      "t": "FANG",
+      "n": "DIAMONDBACK ENERGY INC",
+      "on": "2026-11-02"
+    },
+    "25401T603": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "25402D102": {
       "s": "EXACT",
       "t": "DOCN",
       "n": "DIGITALOCEAN HOLDINGS INC",
       "on": "2026-10-26"
+    },
+    "25402DAB8": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "25459W458": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
     },
     "25525P107": {
       "s": "NOT_COMMON",
@@ -3619,9 +6397,33 @@
       "n": "DOORDASH INC - A",
       "on": "2026-10-26"
     },
+    "25809KAB1": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "25960P109": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "26142RAB0": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "26142V105": {
+      "s": "EXACT",
+      "t": "DKNG",
+      "n": "DRAFTKINGS INC-CL A",
+      "on": "2026-11-02"
+    },
+    "26210C104": {
+      "s": "EXACT",
+      "t": "DBX",
+      "n": "DROPBOX INC-CLASS A",
+      "on": "2026-11-02"
+    },
+    "26210CAD6": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "26441C204": {
       "s": "EXACT",
@@ -3659,6 +6461,22 @@
       "n": "EAST WEST BANCORP INC",
       "on": "2026-10-26"
     },
+    "27627N105": {
+      "s": "EXACT",
+      "t": "EBC",
+      "n": "EASTERN BANKSHARES INC",
+      "on": "2026-11-02"
+    },
+    "278768AB2": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "27923Q109": {
+      "s": "EXACT",
+      "t": "ECVT",
+      "n": "ECOVYST INC",
+      "on": "2026-11-02"
+    },
     "28176E108": {
       "s": "EXACT",
       "t": "EW",
@@ -3669,17 +6487,39 @@
       "s": "NOT_COMMON",
       "on": "2026-10-26"
     },
+    "28414H103": {
+      "s": "EXACT",
+      "t": "ELAN",
+      "n": "ELANCO ANIMAL HEALTH INC",
+      "on": "2026-11-02"
+    },
     "28618M106": {
       "s": "EXACT",
       "t": "ESI",
       "n": "ELEMENT SOLUTIONS INC",
       "on": "2026-10-26"
     },
+    "29082A107": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "29084Q100": {
+      "s": "EXACT",
+      "t": "EME",
+      "n": "EMCOR GROUP INC",
+      "on": "2026-11-02"
+    },
     "29250N105": {
       "s": "EXACT",
       "t": "ENB",
       "n": "ENBRIDGE INC",
       "on": "2026-10-26"
+    },
+    "29261A100": {
+      "s": "EXACT",
+      "t": "EHC",
+      "n": "ENCOMPASS HEALTH CORP",
+      "on": "2026-11-02"
     },
     "29270J100": {
       "s": "EXACT",
@@ -3691,11 +6531,33 @@
       "s": "NOT_COMMON",
       "on": "2026-10-26"
     },
+    "29355A107": {
+      "s": "EXACT",
+      "t": "ENPH",
+      "n": "ENPHASE ENERGY INC",
+      "on": "2026-11-02"
+    },
+    "29355AAK3": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "29355X107": {
       "s": "EXACT",
       "t": "NPO",
       "n": "ENPRO INC",
       "on": "2026-10-26"
+    },
+    "29357K103": {
+      "s": "EXACT",
+      "t": "ENVA",
+      "n": "ENOVA INTERNATIONAL INC",
+      "on": "2026-11-02"
+    },
+    "29362U104": {
+      "s": "EXACT",
+      "t": "ENTG",
+      "n": "ENTEGRIS INC",
+      "on": "2026-11-02"
     },
     "29364G103": {
       "s": "EXACT",
@@ -3703,9 +6565,19 @@
       "n": "ENTERGY CORP",
       "on": "2026-10-26"
     },
+    "29415FAD6": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "29444U700": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "29445S100": {
+      "s": "EXACT",
+      "t": "EQPT",
+      "n": "EQUIPMENTSHARE.COM INC-A",
+      "on": "2026-11-02"
     },
     "29452E101": {
       "s": "EXACT",
@@ -3713,11 +6585,59 @@
       "n": "EQUITABLE HOLDINGS INC",
       "on": "2026-10-26"
     },
+    "29472R108": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "29476L107": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "29605J106": {
+      "s": "EXACT",
+      "t": "ESAB",
+      "n": "ESAB CORP",
+      "on": "2026-11-02"
+    },
+    "29664W105": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "29786A106": {
+      "s": "EXACT",
+      "t": "ETSY",
+      "n": "ETSY INC",
+      "on": "2026-11-02"
+    },
+    "29786AAL0": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "29786AAN6": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "29786AAQ9": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "29977A105": {
       "s": "EXACT",
       "t": "EVR",
       "n": "EVERCORE INC - A",
       "on": "2026-10-26"
+    },
+    "30040W108": {
+      "s": "EXACT",
+      "t": "ES",
+      "n": "EVERSOURCE ENERGY",
+      "on": "2026-11-02"
+    },
+    "30052F100": {
+      "s": "EXACT",
+      "t": "EVGO",
+      "n": "EVGO INC",
+      "on": "2026-11-02"
     },
     "30054Y107": {
       "s": "EXACT",
@@ -3789,6 +6709,20 @@
       "n": "FIRST INTERSTATE BANCSYS-A",
       "on": "2026-10-26"
     },
+    "337932AT4": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "33829M101": {
+      "s": "EXACT",
+      "t": "FIVE",
+      "n": "FIVE BELOW",
+      "on": "2026-11-02"
+    },
+    "338307AF8": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "33830Q208": {
       "s": "EXACT",
       "t": "FEAM",
@@ -3800,6 +6734,28 @@
       "t": "FSBC",
       "n": "FIVE STAR BANCORP",
       "on": "2026-10-26"
+    },
+    "343412AJ1": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "34354P105": {
+      "s": "EXACT",
+      "t": "FLS",
+      "n": "FLOWSERVE CORP",
+      "on": "2026-11-02"
+    },
+    "34385P108": {
+      "s": "EXACT",
+      "t": "LAB",
+      "n": "STANDARD BIOTOOLS INC",
+      "on": "2026-11-02"
+    },
+    "34631F102": {
+      "s": "EXACT",
+      "t": "FPS",
+      "n": "FORGENT POWER SOLUTIONS-CL A",
+      "on": "2026-11-02"
     },
     "34959E109": {
       "s": "EXACT",
@@ -3823,15 +6779,55 @@
       "n": "4D MOLECULAR THERAPEUTICS IN",
       "on": "2026-10-26"
     },
+    "35137L105": {
+      "s": "EXACT",
+      "t": "FOXA",
+      "n": "FOX CORP - CLASS A",
+      "on": "2026-11-02"
+    },
+    "35137L204": {
+      "s": "EXACT",
+      "t": "FOX",
+      "n": "FOX CORP - CLASS B",
+      "on": "2026-11-02"
+    },
     "35671D857": {
       "s": "EXACT",
       "t": "FCX",
       "n": "FREEPORT-MCMORAN INC",
       "on": "2026-10-26"
     },
+    "358039AB1": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "35905A109": {
+      "s": "EXACT",
+      "t": "FTDR",
+      "n": "FRONTDOOR INC",
+      "on": "2026-11-02"
+    },
     "36118L106": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "36164V800": {
+      "s": "EXACT",
+      "t": "GLIBK",
+      "n": "LIBERTY CAPITAL CORP-CL C",
+      "on": "2026-11-02"
+    },
+    "36168Q104": {
+      "s": "EXACT",
+      "t": "GFL",
+      "n": "GFL ENVIRONMENTAL INC-SUB VT",
+      "on": "2026-11-02"
+    },
+    "36262G101": {
+      "s": "EXACT",
+      "t": "GXO",
+      "n": "GXO LOGISTICS INC",
+      "on": "2026-11-02"
     },
     "36266G107": {
       "s": "EXACT",
@@ -3839,11 +6835,31 @@
       "n": "GE HEALTHCARE TECHNOLOGY",
       "on": "2026-10-26"
     },
+    "36317J209": {
+      "s": "EXACT",
+      "t": "GLXY",
+      "n": "GALAXY DIGITAL INC-A",
+      "on": "2026-11-02"
+    },
+    "36322Q206": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "36467WAE9": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "36828A101": {
       "s": "EXACT",
       "t": "GEV",
       "n": "GE VERNOVA INC",
       "on": "2026-10-26"
+    },
+    "36866J105": {
+      "s": "EXACT",
+      "t": "GEMI",
+      "n": "GEMINI SPACE STATION INC-A",
+      "on": "2026-11-02"
     },
     "37045V100": {
       "s": "EXACT",
@@ -3857,21 +6873,61 @@
       "n": "GENWORTH FINANCIAL INC",
       "on": "2026-10-26"
     },
+    "37611X209": {
+      "s": "EXACT",
+      "t": "DNA",
+      "n": "GINKGO BIOWORKS HOLDINGS INC",
+      "on": "2026-11-02"
+    },
+    "37637K108": {
+      "s": "EXACT",
+      "t": "GTLB",
+      "n": "GITLAB INC-CL A",
+      "on": "2026-11-02"
+    },
     "37637Q105": {
       "s": "EXACT",
       "t": "GBCI",
       "n": "GLACIER BANCORP INC",
       "on": "2026-10-26"
     },
+    "376535AG5": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "37733W204": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "37890B100": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "37940XAU6": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
+    },
+    "37950E259": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
     },
     "38141G104": {
       "s": "EXACT",
       "t": "GS",
       "n": "GOLDMAN SACHS GROUP INC",
       "on": "2026-10-26"
+    },
+    "393222AK0": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "399473AK3": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "40054J109": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
     },
     "40131M109": {
       "s": "EXACT",
@@ -3885,6 +6941,26 @@
       "n": "HCA HEALTHCARE INC",
       "on": "2026-10-26"
     },
+    "40415F101": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "40434L105": {
+      "s": "EXACT",
+      "t": "HPQ",
+      "n": "HP INC",
+      "on": "2026-11-02"
+    },
+    "405024AD2": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "40637H109": {
+      "s": "EXACT",
+      "t": "HALO",
+      "n": "HALOZYME THERAPEUTICS INC",
+      "on": "2026-11-02"
+    },
     "42226K105": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
@@ -3894,6 +6970,10 @@
       "t": "HTFL",
       "n": "HEARTFLOW INC",
       "on": "2026-10-26"
+    },
+    "42806J148": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
     },
     "42806J700": {
       "s": "EXACT",
@@ -3935,6 +7015,12 @@
       "n": "HUT 8 CORP",
       "on": "2026-10-26"
     },
+    "44916Y106": {
+      "s": "EXACT",
+      "t": "PURR",
+      "n": "HYPERLIQUID STRATEGIES",
+      "on": "2026-11-02"
+    },
     "44951W106": {
       "s": "EXACT",
       "t": "IESC",
@@ -3953,6 +7039,10 @@
       "n": "IPG PHOTONICS CORP",
       "on": "2026-10-26"
     },
+    "450056AB2": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "45073V108": {
       "s": "EXACT",
       "t": "ITT",
@@ -3969,11 +7059,27 @@
       "n": "IDEX CORP",
       "on": "2026-10-26"
     },
+    "45258DAB1": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "45337C102": {
+      "s": "EXACT",
+      "t": "INCY",
+      "n": "INCYTE CORP",
+      "on": "2026-11-02"
+    },
     "45579U109": {
       "s": "EXACT",
       "t": "INDV",
       "n": "INDIVIOR PHARMACEUTICALS INC",
       "on": "2026-10-26"
+    },
+    "45676K103": {
+      "s": "EXACT",
+      "t": "INFQ",
+      "n": "INFLEQTION INC",
+      "on": "2026-11-02"
     },
     "45687V106": {
       "s": "EXACT",
@@ -3981,11 +7087,41 @@
       "n": "INGERSOLL-RAND INC",
       "on": "2026-10-26"
     },
+    "45720N103": {
+      "s": "EXACT",
+      "t": "INBX",
+      "n": "INHIBRX BIOSCIENCES INC",
+      "on": "2026-11-02"
+    },
+    "45781M101": {
+      "s": "EXACT",
+      "t": "INVA",
+      "n": "INNOVIVA INC",
+      "on": "2026-11-02"
+    },
+    "45784P101": {
+      "s": "EXACT",
+      "t": "PODD",
+      "n": "INSULET CORP",
+      "on": "2026-11-02"
+    },
     "45826H109": {
       "s": "EXACT",
       "t": "ITGR",
       "n": "INTEGER HOLDINGS CORP",
       "on": "2026-10-26"
+    },
+    "45826J105": {
+      "s": "EXACT",
+      "t": "NTLA",
+      "n": "INTELLIA THERAPEUTICS INC",
+      "on": "2026-11-02"
+    },
+    "45841N107": {
+      "s": "EXACT",
+      "t": "IBKR",
+      "n": "INTERACTIVE BROKERS GRO-CL A",
+      "on": "2026-11-02"
     },
     "45866F104": {
       "s": "EXACT",
@@ -4013,15 +7149,49 @@
       "s": "NOT_COMMON",
       "on": "2026-10-26"
     },
+    "46138G508": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "46266A109": {
       "s": "EXACT",
       "t": "IRMD",
       "n": "IRADIMED CORP",
       "on": "2026-10-26"
     },
+    "46269C102": {
+      "s": "EXACT",
+      "t": "IRDM",
+      "n": "IRIDIUM COMMUNICATIONS INC",
+      "on": "2026-11-02"
+    },
+    "46270CAB5": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "46284V101": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "46428Q109": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "46428R107": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "46429B267": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "46432F339": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "46432F396": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
     },
     "46432F834": {
       "s": "NOT_COMMON",
@@ -4054,6 +7224,20 @@
     "46435G425": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "46438F101": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "46520M204": {
+      "s": "EXACT",
+      "t": "ACCS",
+      "n": "ACCESS NEWSWIRE INC",
+      "on": "2026-11-02"
+    },
+    "465741AQ9": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "46591M109": {
       "s": "NOT_COMMON",
@@ -4109,6 +7293,12 @@
       "s": "NOT_COMMON",
       "on": "2026-10-26"
     },
+    "46982L108": {
+      "s": "EXACT",
+      "t": "J",
+      "n": "JACOBS SOLUTIONS INC",
+      "on": "2026-11-02"
+    },
     "47089W104": {
       "s": "EXACT",
       "t": "AIFC",
@@ -4121,11 +7311,49 @@
       "n": "JANUS INTERNATIONAL GROUP IN",
       "on": "2026-10-26"
     },
+    "472145AH4": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "47215P106": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "47215PAJ5": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "47233W109": {
+      "s": "EXACT",
+      "t": "JEF",
+      "n": "JEFFERIES FINANCIAL GROUP IN",
+      "on": "2026-11-02"
+    },
+    "477143AP6": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "477143AR2": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "477839AB0": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "48020Q107": {
       "s": "EXACT",
       "t": "JLL",
       "n": "JONES LANG LASALLE INC",
       "on": "2026-10-26"
+    },
+    "48123VAE2": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "48123VAH5": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "48251W104": {
       "s": "EXACT",
@@ -4133,17 +7361,35 @@
       "n": "KKR & CO INC",
       "on": "2026-10-26"
     },
+    "48251W500": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "48581R205": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "49177J102": {
       "s": "EXACT",
       "t": "KVUE",
       "n": "KENVUE INC",
       "on": "2026-10-26"
     },
+    "49271V100": {
+      "s": "EXACT",
+      "t": "KDP",
+      "n": "KEURIG DR PEPPER INC",
+      "on": "2026-11-02"
+    },
     "49338L103": {
       "s": "EXACT",
       "t": "KEYS",
       "n": "KEYSIGHT TECHNOLOGIES IN",
       "on": "2026-10-26"
+    },
+    "49427F108": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
     },
     "49456B101": {
       "s": "EXACT",
@@ -4167,11 +7413,25 @@
       "n": "KONTOOR BRANDS INC",
       "on": "2026-10-26"
     },
+    "50077B207": {
+      "s": "EXACT",
+      "t": "KTOS",
+      "n": "KRATOS DEFENSE & SECURITY",
+      "on": "2026-11-02"
+    },
     "50127T109": {
       "s": "EXACT",
       "t": "KURA",
       "n": "KURA ONCOLOGY INC",
       "on": "2026-10-26"
+    },
+    "501812AB7": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "501812AD3": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "52472M101": {
       "s": "EXACT",
@@ -4179,17 +7439,133 @@
       "n": "LEGACY HOUSING CORP",
       "on": "2026-10-26"
     },
+    "52476L109": {
+      "s": "EXACT",
+      "t": "LGN",
+      "n": "LEGENCE CORP-CL A",
+      "on": "2026-11-02"
+    },
     "53115L104": {
       "s": "EXACT",
       "t": "LBRT",
       "n": "LIBERTY ENERGY INC",
       "on": "2026-10-26"
     },
+    "53229X101": {
+      "s": "EXACT",
+      "t": "LFTO",
+      "n": "LIFTOFF MOBILE INC",
+      "on": "2026-11-02"
+    },
+    "53680QAA6": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "538034BA6": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "538034BC2": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "53947R105": {
+      "s": "EXACT",
+      "t": "LOAR",
+      "n": "LOAR HOLDINGS INC",
+      "on": "2026-11-02"
+    },
     "55024U109": {
       "s": "EXACT",
       "t": "LITE",
       "n": "LUMENTUM HOLDINGS INC",
       "on": "2026-10-26"
+    },
+    "55024UAD1": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "55024UAF6": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "55024UAH2": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "55087P104": {
+      "s": "EXACT",
+      "t": "LYFT",
+      "n": "LYFT INC-A",
+      "on": "2026-11-02"
+    },
+    "55261F104": {
+      "s": "EXACT",
+      "t": "MTB",
+      "n": "M & T BANK CORP",
+      "on": "2026-11-02"
+    },
+    "55277P104": {
+      "s": "EXACT",
+      "t": "MGEE",
+      "n": "MGE ENERGY INC",
+      "on": "2026-11-02"
+    },
+    "55303JAB2": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "55306N104": {
+      "s": "EXACT",
+      "t": "MKSI",
+      "n": "MKS INC",
+      "on": "2026-11-02"
+    },
+    "55318A108": {
+      "s": "EXACT",
+      "t": "MNTN",
+      "n": "MNTN INC-A",
+      "on": "2026-11-02"
+    },
+    "55336V100": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "55354G100": {
+      "s": "EXACT",
+      "t": "MSCI",
+      "n": "MSCI INC",
+      "on": "2026-11-02"
+    },
+    "55405Y100": {
+      "s": "EXACT",
+      "t": "MTSI",
+      "n": "MACOM TECHNOLOGY SOLUTIONS H",
+      "on": "2026-11-02"
+    },
+    "55616P104": {
+      "s": "EXACT",
+      "t": "M",
+      "n": "MACY'S INC",
+      "on": "2026-11-02"
+    },
+    "55658T105": {
+      "s": "EXACT",
+      "t": "MAIR",
+      "n": "MADISON AIR SOLUTIONS CORP-A",
+      "on": "2026-11-02"
+    },
+    "55825T103": {
+      "s": "EXACT",
+      "t": "MSGK",
+      "n": "MSG KNICKERBOCKERS CORP",
+      "on": "2026-11-02"
+    },
+    "55933J203": {
+      "s": "EXACT",
+      "t": "MX",
+      "n": "MAGNACHIP SEMICONDUCTOR CORP",
+      "on": "2026-11-02"
     },
     "56418H100": {
       "s": "EXACT",
@@ -4209,6 +7585,10 @@
       "n": "MARATHON PETROLEUM CORP",
       "on": "2026-10-26"
     },
+    "57164YAF4": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "57636Q104": {
       "s": "EXACT",
       "t": "MA",
@@ -4221,6 +7601,16 @@
       "n": "MATCH GROUP INC",
       "on": "2026-10-26"
     },
+    "57667T100": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "57808L305": {
+      "s": "EXACT",
+      "t": "MINE",
+      "n": "MAYFAIR GOLD CORP",
+      "on": "2026-11-02"
+    },
     "58155Q103": {
       "s": "EXACT",
       "t": "MCK",
@@ -4230,6 +7620,18 @@
     "58463J304": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "58506Q109": {
+      "s": "EXACT",
+      "t": "MEDP",
+      "n": "MEDPACE HOLDINGS INC",
+      "on": "2026-11-02"
+    },
+    "58507V107": {
+      "s": "EXACT",
+      "t": "MDLN",
+      "n": "MEDLINE INC-CL A",
+      "on": "2026-11-02"
     },
     "58733R102": {
       "s": "EXACT",
@@ -4242,6 +7644,48 @@
       "t": "MRK",
       "n": "MERCK & CO. INC.",
       "on": "2026-10-26"
+    },
+    "59001ABF8": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "59156R108": {
+      "s": "EXACT",
+      "t": "MET",
+      "n": "METLIFE INC",
+      "on": "2026-11-02"
+    },
+    "594972AJ0": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "594972AL5": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "594972AS0": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "595017BG8": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "59522J103": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "60741F104": {
+      "s": "EXACT",
+      "t": "MBLY",
+      "n": "MOBILEYE GLOBAL INC-A",
+      "on": "2026-11-02"
+    },
+    "60770K107": {
+      "s": "EXACT",
+      "t": "MRNA",
+      "n": "MODERNA INC",
+      "on": "2026-11-02"
     },
     "60855R100": {
       "s": "EXACT",
@@ -4261,17 +7705,79 @@
       "n": "MONSTER BEVERAGE CORP",
       "on": "2026-10-26"
     },
+    "61225M102": {
+      "s": "EXACT",
+      "t": "GLUE",
+      "n": "MONTE ROSA THERAPEUTICS INC",
+      "on": "2026-11-02"
+    },
     "61945C103": {
       "s": "EXACT",
       "t": "MOS",
       "n": "MOSAIC CO/THE",
       "on": "2026-10-26"
     },
+    "62548M209": {
+      "s": "EXACT",
+      "t": "CTEV",
+      "n": "CLARITEV CORP",
+      "on": "2026-11-02"
+    },
+    "62886HBD2": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "62914V106": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "62944T105": {
+      "s": "EXACT",
+      "t": "NVR",
+      "n": "NVR INC",
+      "on": "2026-11-02"
+    },
+    "62955J103": {
+      "s": "EXACT",
+      "t": "NOV",
+      "n": "NOV INC",
+      "on": "2026-11-02"
+    },
+    "62957HAL9": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "63001N106": {
+      "s": "EXACT",
+      "t": "NATL",
+      "n": "NCR ATLEOS CORP",
+      "on": "2026-11-02"
+    },
+    "63008G203": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "63888U108": {
       "s": "EXACT",
       "t": "NGVC",
       "n": "NATURAL GROCERS BY VITAMIN C",
       "on": "2026-10-26"
+    },
+    "63942X106": {
+      "s": "EXACT",
+      "t": "NVTS",
+      "n": "NAVITAS SEMICONDUCTOR CORP",
+      "on": "2026-11-02"
+    },
+    "64049MAB6": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "64073B103": {
+      "s": "EXACT",
+      "t": "NP",
+      "n": "NEPTUNE INSURANCE HOLDI-CL A",
+      "on": "2026-11-02"
     },
     "64110D104": {
       "s": "EXACT",
@@ -4285,11 +7791,21 @@
       "n": "NETFLIX INC",
       "on": "2026-10-26"
     },
+    "64110W102": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "64119N608": {
       "s": "EXACT",
       "t": "NTSK",
       "n": "NETSKOPE INC-CL A",
       "on": "2026-10-26"
+    },
+    "64125C109": {
+      "s": "EXACT",
+      "t": "NBIX",
+      "n": "NEUROCRINE BIOSCIENCES INC",
+      "on": "2026-11-02"
     },
     "64361Q101": {
       "s": "EXACT",
@@ -4297,11 +7813,37 @@
       "n": "VIPER ENERGY INC-CL A",
       "on": "2026-10-26"
     },
+    "65249B109": {
+      "s": "EXACT",
+      "t": "NWSA",
+      "n": "NEWS CORP - CLASS A",
+      "on": "2026-11-02"
+    },
+    "65249B208": {
+      "s": "EXACT",
+      "t": "NWS",
+      "n": "NEWS CORP - CLASS B",
+      "on": "2026-11-02"
+    },
+    "65290E101": {
+      "s": "EXACT",
+      "t": "NXT",
+      "n": "NEXTPOWER INC",
+      "on": "2026-11-02"
+    },
     "65339F101": {
       "s": "EXACT",
       "t": "NEE",
       "n": "NEXTERA ENERGY INC",
       "on": "2026-10-26"
+    },
+    "65339F655": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "65339KCY4": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "65442R208": {
       "s": "NOT_COMMON",
@@ -4313,11 +7855,55 @@
       "n": "908 DEVICES INC",
       "on": "2026-10-26"
     },
+    "65473P105": {
+      "s": "EXACT",
+      "t": "NI",
+      "n": "NISOURCE INC",
+      "on": "2026-11-02"
+    },
+    "665531AJ8": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "66987V109": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "67000B203": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "67059N108": {
+      "s": "EXACT",
+      "t": "NTNX",
+      "n": "NUTANIX INC - A",
+      "on": "2026-11-02"
+    },
+    "67059NAH1": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "67059NAK4": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "67066G104": {
       "s": "EXACT",
       "t": "NVDA",
       "n": "NVIDIA CORP",
       "on": "2026-10-26"
+    },
+    "67077M108": {
+      "s": "EXACT",
+      "t": "NTR",
+      "n": "NUTRIEN LTD",
+      "on": "2026-11-02"
+    },
+    "67080M103": {
+      "s": "EXACT",
+      "t": "NRIX",
+      "n": "NURIX THERAPEUTICS INC",
+      "on": "2026-11-02"
     },
     "67080N101": {
       "s": "EXACT",
@@ -4330,6 +7916,30 @@
       "t": "ORLY",
       "n": "O'REILLY AUTOMOTIVE INC",
       "on": "2026-10-26"
+    },
+    "67401P405": {
+      "s": "EXACT",
+      "t": "OCSL",
+      "n": "OAKTREE SPECIALTY LENDING CO",
+      "on": "2026-11-02"
+    },
+    "67623C307": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "679295AF2": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "68062P106": {
+      "s": "EXACT",
+      "t": "OLMA",
+      "n": "OLEMA PHARMACEUTICALS INC",
+      "on": "2026-11-02"
+    },
+    "682189AU9": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "68235P108": {
       "s": "EXACT",
@@ -4353,6 +7963,12 @@
       "s": "NOT_COMMON",
       "on": "2026-10-26"
     },
+    "68268W103": {
+      "s": "EXACT",
+      "t": "OMF",
+      "n": "ONEMAIN HOLDINGS INC",
+      "on": "2026-11-02"
+    },
     "68375N103": {
       "s": "EXACT",
       "t": "OPK",
@@ -4364,6 +7980,52 @@
       "t": "ORCL",
       "n": "ORACLE CORP",
       "on": "2026-10-26"
+    },
+    "68389X204": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "68390D106": {
+      "s": "EXACT",
+      "t": "OR",
+      "n": "OR ROYALTIES INC",
+      "on": "2026-11-02"
+    },
+    "68404L201": {
+      "s": "EXACT",
+      "t": "OPCH",
+      "n": "OPTION CARE HEALTH INC",
+      "on": "2026-11-02"
+    },
+    "68622P109": {
+      "s": "EXACT",
+      "t": "ORIC",
+      "n": "ORIC PHARMACEUTICALS INC",
+      "on": "2026-11-02"
+    },
+    "68902V107": {
+      "s": "EXACT",
+      "t": "OTIS",
+      "n": "OTIS WORLDWIDE CORP",
+      "on": "2026-11-02"
+    },
+    "69047Q102": {
+      "s": "EXACT",
+      "t": "OVV",
+      "n": "OVINTIV INC",
+      "on": "2026-11-02"
+    },
+    "69121K104": {
+      "s": "EXACT",
+      "t": "OBDC",
+      "n": "BLUE OWL CAPITAL CORP",
+      "on": "2026-11-02"
+    },
+    "69318G106": {
+      "s": "EXACT",
+      "t": "PBF",
+      "n": "PBF ENERGY INC-CLASS A",
+      "on": "2026-11-02"
     },
     "69331C108": {
       "s": "EXACT",
@@ -4379,15 +8041,123 @@
       "s": "NOT_COMMON",
       "on": "2026-10-26"
     },
+    "69351T106": {
+      "s": "EXACT",
+      "t": "PPL",
+      "n": "PPL CORP",
+      "on": "2026-11-02"
+    },
+    "69370C100": {
+      "s": "EXACT",
+      "t": "PTC",
+      "n": "PTC INC",
+      "on": "2026-11-02"
+    },
+    "69404D108": {
+      "s": "EXACT",
+      "t": "PACB",
+      "n": "PACIFIC BIOSCIENCES OF CALIF",
+      "on": "2026-11-02"
+    },
+    "69553PAD2": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "69608A108": {
       "s": "EXACT",
       "t": "PLTR",
       "n": "PALANTIR TECHNOLOGIES INC-A",
       "on": "2026-10-26"
     },
+    "70202LAD4": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "70432V102": {
+      "s": "EXACT",
+      "t": "PAYC",
+      "n": "PAYCOM SOFTWARE INC",
+      "on": "2026-11-02"
+    },
+    "70450C101": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "70451X104": {
+      "s": "EXACT",
+      "t": "PAYO",
+      "n": "PAYONEER GLOBAL INC",
+      "on": "2026-11-02"
+    },
+    "70509VAA8": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "707569AU3": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "70932AAH6": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "70975L107": {
+      "s": "EXACT",
+      "t": "PEN",
+      "n": "PENUMBRA INC",
+      "on": "2026-11-02"
+    },
+    "71363P106": {
+      "s": "EXACT",
+      "t": "PRDO",
+      "n": "PERDOCEO EDUCATION CORP",
+      "on": "2026-11-02"
+    },
+    "71377A103": {
+      "s": "EXACT",
+      "t": "PFGC",
+      "n": "PERFORMANCE FOOD GROUP CO",
+      "on": "2026-11-02"
+    },
+    "71424F105": {
+      "s": "EXACT",
+      "t": "PR",
+      "n": "PERMIAN RESOURCES CORP-CL A",
+      "on": "2026-11-02"
+    },
+    "71535D106": {
+      "s": "EXACT",
+      "t": "PSNL",
+      "n": "PERSONALIS INC",
+      "on": "2026-11-02"
+    },
+    "71654V101": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "71654V408": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "72201R833": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "72348N109": {
+      "s": "EXACT",
+      "t": "PNFP",
+      "n": "PINNACLE FINANCIAL PARTNERS",
+      "on": "2026-11-02"
+    },
+    "72352L106": {
+      "s": "EXACT",
+      "t": "PINS",
+      "n": "PINTEREST INC- CLASS A",
+      "on": "2026-11-02"
+    },
+    "72651A207": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
     },
     "72703H101": {
       "s": "EXACT",
@@ -4395,11 +8165,37 @@
       "n": "PLANET FITNESS INC - CL A",
       "on": "2026-10-26"
     },
+    "72815L107": {
+      "s": "EXACT",
+      "t": "PLTK",
+      "n": "PLAYTIKA HOLDING CORP",
+      "on": "2026-11-02"
+    },
+    "737446AT1": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "74164F103": {
+      "s": "EXACT",
+      "t": "PRIM",
+      "n": "PRIMORIS SERVICES CORP",
+      "on": "2026-11-02"
+    },
+    "74168J101": {
+      "s": "EXACT",
+      "t": "PRME",
+      "n": "PRIME MEDICINE INC",
+      "on": "2026-11-02"
+    },
     "74275K108": {
       "s": "EXACT",
       "t": "PCOR",
       "n": "PROCORE TECHNOLOGIES INC",
       "on": "2026-10-26"
+    },
+    "743312AB6": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "74340W103": {
       "s": "NOT_COMMON",
@@ -4411,6 +8207,16 @@
       "n": "PROPETRO HOLDING CORP",
       "on": "2026-10-26"
     },
+    "74347X831": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "74366E102": {
+      "s": "EXACT",
+      "t": "PTGX",
+      "n": "PROTAGONIST THERAPEUTICS INC",
+      "on": "2026-11-02"
+    },
     "74386T105": {
       "s": "EXACT",
       "t": "PFS",
@@ -4421,9 +8227,31 @@
       "s": "NOT_COMMON",
       "on": "2026-10-26"
     },
+    "74623V103": {
+      "s": "EXACT",
+      "t": "PCT",
+      "n": "PURECYCLE TECHNOLOGIES INC",
+      "on": "2026-11-02"
+    },
+    "74624M102": {
+      "s": "EXACT",
+      "t": "P",
+      "n": "EVERPURE INC-A",
+      "on": "2026-11-02"
+    },
     "74736K101": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
+    },
+    "74736LAD1": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "74743L100": {
+      "s": "EXACT",
+      "t": "Q",
+      "n": "QNITY ELECTRONICS INC",
+      "on": "2026-11-02"
     },
     "74762E102": {
       "s": "EXACT",
@@ -4431,11 +8259,51 @@
       "n": "QUANTA SERVICES INC",
       "on": "2026-10-26"
     },
+    "74765K105": {
+      "s": "EXACT",
+      "t": "QSI",
+      "n": "QUANTUM-SI INC",
+      "on": "2026-11-02"
+    },
+    "74768A104": {
+      "s": "EXACT",
+      "t": "QNT",
+      "n": "QUANTINUUM INC-A",
+      "on": "2026-11-02"
+    },
+    "74834L100": {
+      "s": "EXACT",
+      "t": "DGX",
+      "n": "QUEST DIAGNOSTICS INC",
+      "on": "2026-11-02"
+    },
+    "75120L209": {
+      "s": "EXACT",
+      "t": "RLYB",
+      "n": "RALLYBIO CORP",
+      "on": "2026-11-02"
+    },
     "75134P600": {
       "s": "EXACT",
       "t": "METC",
       "n": "RAMACO RESOURCES INC-A",
       "on": "2026-10-26"
+    },
+    "75281A109": {
+      "s": "EXACT",
+      "t": "RRC",
+      "n": "RANGE RESOURCES CORP",
+      "on": "2026-11-02"
+    },
+    "753422AF1": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "75381A108": {
+      "s": "EXACT",
+      "t": "REA",
+      "n": "RARE EARTHS AMERICAS INC",
+      "on": "2026-11-02"
     },
     "75513E101": {
       "s": "EXACT",
@@ -4443,17 +8311,59 @@
       "n": "RTX CORP",
       "on": "2026-10-26"
     },
+    "75524B104": {
+      "s": "EXACT",
+      "t": "RBC",
+      "n": "RBC BEARINGS INC",
+      "on": "2026-11-02"
+    },
+    "75629V104": {
+      "s": "EXACT",
+      "t": "RXRX",
+      "n": "RECURSION PHARMACEUTICALS-A",
+      "on": "2026-11-02"
+    },
     "75734B100": {
       "s": "EXACT",
       "t": "RDDT",
       "n": "REDDIT INC-CL A",
       "on": "2026-10-26"
     },
+    "75737FAE8": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "75776W103": {
+      "s": "EXACT",
+      "t": "RDW",
+      "n": "REDWIRE CORP",
+      "on": "2026-11-02"
+    },
+    "758075AF2": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "75886F107": {
       "s": "EXACT",
       "t": "REGN",
       "n": "REGENERON PHARMACEUTICALS",
       "on": "2026-10-26"
+    },
+    "7591EP100": {
+      "s": "EXACT",
+      "t": "RF",
+      "n": "REGIONS FINANCIAL CORP",
+      "on": "2026-11-02"
+    },
+    "75943R102": {
+      "s": "EXACT",
+      "t": "RLAY",
+      "n": "RELAY THERAPEUTICS INC",
+      "on": "2026-11-02"
+    },
+    "759916AD1": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "76118Y104": {
       "s": "EXACT",
@@ -4467,15 +8377,69 @@
       "n": "RESTAURANT BRANDS INTERN",
       "on": "2026-10-26"
     },
+    "76155X100": {
+      "s": "EXACT",
+      "t": "RVMD",
+      "n": "REVOLUTION MEDICINES INC",
+      "on": "2026-11-02"
+    },
+    "76155XAA8": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "76169C100": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "76243J105": {
+      "s": "EXACT",
+      "t": "RYTM",
+      "n": "RHYTHM PHARMACEUTICALS INC",
+      "on": "2026-11-02"
+    },
+    "767292AB1": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "76954A103": {
+      "s": "EXACT",
+      "t": "RIVN",
+      "n": "RIVIAN AUTOMOTIVE INC-A",
+      "on": "2026-11-02"
+    },
     "76954AAB9": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
+    },
+    "76954AAD5": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "77311W101": {
       "s": "EXACT",
       "t": "RKT",
       "n": "ROCKET COS INC-CLASS A",
       "on": "2026-10-26"
+    },
+    "77543R102": {
+      "s": "EXACT",
+      "t": "ROKU",
+      "n": "ROKU INC",
+      "on": "2026-11-02"
+    },
+    "77926X320": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "781154AD1": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "78163D100": {
+      "s": "EXACT",
+      "t": "RWAY",
+      "n": "RUNWAY GROWTH FINANCE CORP",
+      "on": "2026-11-02"
     },
     "78409V104": {
       "s": "EXACT",
@@ -4509,6 +8473,10 @@
       "s": "NOT_COMMON",
       "on": "2026-10-26"
     },
+    "78464A755": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "78464A854": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
@@ -4517,9 +8485,23 @@
       "s": "NOT_COMMON",
       "on": "2026-10-26"
     },
+    "78467X109": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "78468R556": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "78468R663": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "78473E103": {
+      "s": "EXACT",
+      "t": "SPXC",
+      "n": "SPX TECHNOLOGIES INC",
+      "on": "2026-11-02"
     },
     "78475V103": {
       "s": "EXACT",
@@ -4527,11 +8509,27 @@
       "n": "SOLV ENERGY INC-CL A",
       "on": "2026-10-26"
     },
+    "78643B500": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "78709Y105": {
+      "s": "EXACT",
+      "t": "SAIA",
+      "n": "SAIA INC",
+      "on": "2026-11-02"
+    },
     "79466L302": {
       "s": "EXACT",
       "t": "CRM",
       "n": "SALESFORCE INC",
       "on": "2026-10-26"
+    },
+    "79589L106": {
+      "s": "EXACT",
+      "t": "IOT",
+      "n": "SAMSARA INC-CL A",
+      "on": "2026-11-02"
     },
     "80004C200": {
       "s": "EXACT",
@@ -4539,15 +8537,29 @@
       "n": "SANDISK CORP",
       "on": "2026-10-26"
     },
+    "803607AD2": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "80706P103": {
       "s": "EXACT",
       "t": "SRRK",
       "n": "SCHOLAR ROCK HOLDING CORP",
       "on": "2026-10-26"
     },
+    "80810D103": {
+      "s": "EXACT",
+      "t": "SDGR",
+      "n": "SCHRODINGER INC",
+      "on": "2026-11-02"
+    },
     "81141R100": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "81141RAG5": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "81369Y209": {
       "s": "NOT_COMMON",
@@ -4577,11 +8589,21 @@
       "s": "NOT_COMMON",
       "on": "2026-10-26"
     },
+    "81369Y886": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
     "81617J301": {
       "s": "EXACT",
       "t": "WTTR",
       "n": "SELECT WATER SOLUTIONS INC",
       "on": "2026-10-26"
+    },
+    "81663L200": {
+      "s": "EXACT",
+      "t": "WGS",
+      "n": "GENEDX HOLDINGS CORP",
+      "on": "2026-11-02"
     },
     "81761L102": {
       "s": "NOT_FOUND",
@@ -4593,11 +8615,49 @@
       "n": "SERVICENOW INC",
       "on": "2026-10-26"
     },
+    "81807M304": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "819047AB7": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "82452JAD1": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "82509L107": {
       "s": "EXACT",
       "t": "SHOP",
       "n": "SHOPIFY INC - CLASS A",
       "on": "2026-10-26"
+    },
+    "82575P107": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "82706C108": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "82835W108": {
+      "s": "EXACT",
+      "t": "SPRY",
+      "n": "ARS PHARMACEUTICALS INC",
+      "on": "2026-11-02"
+    },
+    "82846H405": {
+      "s": "EXACT",
+      "t": "QXO",
+      "n": "QXO INC",
+      "on": "2026-11-02"
+    },
+    "82900L102": {
+      "s": "EXACT",
+      "t": "SMPL",
+      "n": "SIMPLY GOOD FOODS CO/THE",
+      "on": "2026-11-02"
     },
     "82982L103": {
       "s": "EXACT",
@@ -4605,11 +8665,83 @@
       "n": "SITEONE LANDSCAPE SUPPLY INC",
       "on": "2026-10-26"
     },
+    "82982T106": {
+      "s": "EXACT",
+      "t": "SITM",
+      "n": "SITIME CORP",
+      "on": "2026-11-02"
+    },
+    "82982TAA4": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "83001C108": {
       "s": "EXACT",
       "t": "FUN",
       "n": "SIX FLAGS ENTERTAINMENT CORP",
       "on": "2026-10-26"
+    },
+    "83006G500": {
+      "s": "EXACT",
+      "t": "SXTP",
+      "n": "60 DEGREES PHARMA INC",
+      "on": "2026-11-02"
+    },
+    "83056P715": {
+      "s": "EXACT",
+      "t": "SKE",
+      "n": "SKEENA RESOURCES LTD",
+      "on": "2026-11-02"
+    },
+    "83193G107": {
+      "s": "EXACT",
+      "t": "SMRT",
+      "n": "SMARTRENT INC",
+      "on": "2026-11-02"
+    },
+    "83304AAB2": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "83304AAF3": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "83304AAH9": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "83304AAK2": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "833445AB5": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "83406F102": {
+      "s": "EXACT",
+      "t": "SOFI",
+      "n": "SOFI TECHNOLOGIES INC",
+      "on": "2026-11-02"
+    },
+    "83417M104": {
+      "s": "EXACT",
+      "t": "SEDG",
+      "n": "SOLAREDGE TECHNOLOGIES INC",
+      "on": "2026-11-02"
+    },
+    "83418M103": {
+      "s": "EXACT",
+      "t": "SEI",
+      "n": "SOLARIS ENERGY INFRASTRUCTUR",
+      "on": "2026-11-02"
+    },
+    "83443Q103": {
+      "s": "EXACT",
+      "t": "SOLS",
+      "n": "SOLSTICE ADV MATERIALS INC",
+      "on": "2026-11-02"
     },
     "83444M101": {
       "s": "EXACT",
@@ -4617,11 +8749,35 @@
       "n": "SOLVENTUM CORP",
       "on": "2026-10-26"
     },
+    "842587DZ7": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "842587ED5": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "84265V105": {
+      "s": "EXACT",
+      "t": "SCCO",
+      "n": "SOUTHERN COPPER CORP",
+      "on": "2026-11-02"
+    },
+    "84472E102": {
+      "s": "EXACT",
+      "t": "SSB",
+      "n": "SOUTHSTATE BANK CORP",
+      "on": "2026-11-02"
+    },
     "84615Q103": {
       "s": "EXACT",
       "t": "SPCX",
       "n": "SPACE EXPLORATION TECHN-CL A",
       "on": "2026-10-26"
+    },
+    "84762LAZ8": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "84857L101": {
       "s": "EXACT",
@@ -4629,15 +8785,97 @@
       "n": "SPIRE INC",
       "on": "2026-10-26"
     },
+    "85205TAQ3": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "85208M102": {
+      "s": "EXACT",
+      "t": "SFM",
+      "n": "SPROUTS FARMERS MARKET INC",
+      "on": "2026-11-02"
+    },
+    "852234AJ2": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "852234AK9": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "85423L103": {
+      "s": "EXACT",
+      "t": "SARO",
+      "n": "STANDARDAERO INC",
+      "on": "2026-11-02"
+    },
     "85571B105": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "85571BBA2": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "85914M107": {
+      "s": "EXACT",
+      "t": "STEP",
+      "n": "STEPSTONE GROUP INC-CLASS A",
+      "on": "2026-11-02"
+    },
+    "86384P109": {
+      "s": "EXACT",
+      "t": "STUB",
+      "n": "STUBHUB HOLDINGS INC-CLASS A",
+      "on": "2026-11-02"
+    },
+    "8676EP108": {
+      "s": "EXACT",
+      "t": "STKL",
+      "n": "SUNOPTA INC",
+      "on": "2026-11-02"
+    },
+    "86771W105": {
+      "s": "EXACT",
+      "t": "RUN",
+      "n": "SUNRUN INC",
+      "on": "2026-11-02"
+    },
+    "86800U302": {
+      "s": "EXACT",
+      "t": "SMCI",
+      "n": "SUPER MICRO COMPUTER INC",
+      "on": "2026-11-02"
+    },
+    "86800U500": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "86800UAB0": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "86881A100": {
       "s": "EXACT",
       "t": "SGRY",
       "n": "SURGERY PARTNERS INC",
       "on": "2026-10-26"
+    },
+    "87151X101": {
+      "s": "EXACT",
+      "t": "SYM",
+      "n": "SYMBOTIC INC",
+      "on": "2026-11-02"
+    },
+    "87157DAJ8": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "87162W100": {
+      "s": "EXACT",
+      "t": "SNX",
+      "n": "TD SYNNEX CORP",
+      "on": "2026-11-02"
     },
     "87164F105": {
       "s": "EXACT",
@@ -4650,6 +8888,36 @@
       "t": "TFSL",
       "n": "TFS FINANCIAL CORP",
       "on": "2026-10-26"
+    },
+    "87256C101": {
+      "s": "EXACT",
+      "t": "TKO",
+      "n": "TKO GROUP HOLDINGS INC",
+      "on": "2026-11-02"
+    },
+    "87283Q602": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "87283Q867": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "87305R109": {
+      "s": "EXACT",
+      "t": "TTMI",
+      "n": "TTM TECHNOLOGIES",
+      "on": "2026-11-02"
+    },
+    "87422Q109": {
+      "s": "EXACT",
+      "t": "TLN",
+      "n": "TALEN ENERGY CORP",
+      "on": "2026-11-02"
+    },
+    "87427V103": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "87484T108": {
       "s": "EXACT",
@@ -4669,11 +8937,27 @@
       "n": "TARGA RESOURCES CORP",
       "on": "2026-10-26"
     },
+    "87724P106": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "87807B107": {
       "s": "EXACT",
       "t": "TRP",
       "n": "TC ENERGY CORP",
       "on": "2026-10-26"
+    },
+    "87911K100": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "87911L108": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "87918AAF2": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "88023B103": {
       "s": "EXACT",
@@ -4693,9 +8977,25 @@
       "n": "10X GENOMICS INC-CLASS A",
       "on": "2026-10-26"
     },
+    "88031M109": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "88033G407": {
+      "s": "EXACT",
+      "t": "THC",
+      "n": "TENET HEALTHCARE CORP",
+      "on": "2026-11-02"
+    },
     "88034P109": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "88080T104": {
+      "s": "EXACT",
+      "t": "WULF",
+      "n": "TERAWULF INC",
+      "on": "2026-11-02"
     },
     "88160R101": {
       "s": "EXACT",
@@ -4703,9 +9003,31 @@
       "n": "TESLA INC",
       "on": "2026-10-26"
     },
+    "88162G103": {
+      "s": "EXACT",
+      "t": "TTEK",
+      "n": "TETRA TECH INC",
+      "on": "2026-11-02"
+    },
+    "88322Q108": {
+      "s": "EXACT",
+      "t": "TGTX",
+      "n": "TG THERAPEUTICS INC",
+      "on": "2026-11-02"
+    },
+    "88339J105": {
+      "s": "EXACT",
+      "t": "TTD",
+      "n": "TRADE DESK INC/THE -CLASS A",
+      "on": "2026-11-02"
+    },
     "88339Y102": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "88429K202": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
     },
     "88554D205": {
       "s": "EXACT",
@@ -4731,6 +9053,20 @@
       "n": "374WATER INC",
       "on": "2026-10-26"
     },
+    "89055F103": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "89346D107": {
+      "s": "EXACT",
+      "t": "TAC",
+      "n": "TRANSALTA CORP",
+      "on": "2026-11-02"
+    },
+    "89377MAB5": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "89417E109": {
       "s": "EXACT",
       "t": "TRV",
@@ -4749,6 +9085,12 @@
       "n": "TREKOR METALS LTD",
       "on": "2026-10-26"
     },
+    "89532M101": {
+      "s": "EXACT",
+      "t": "TRVI",
+      "n": "TREVI THERAPEUTICS INC",
+      "on": "2026-11-02"
+    },
     "89621C105": {
       "s": "EXACT",
       "t": "TMQ",
@@ -4766,6 +9108,10 @@
     "89628W708": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "89677QAB3": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "89679M104": {
       "s": "EXACT",
@@ -4799,6 +9145,12 @@
       "n": "TWILIO INC - A",
       "on": "2026-10-26"
     },
+    "90138K101": {
+      "s": "EXACT",
+      "t": "AIDX",
+      "n": "20/20 BIOLABS INC",
+      "on": "2026-11-02"
+    },
     "90184D100": {
       "s": "EXACT",
       "t": "TWST",
@@ -4816,6 +9168,36 @@
       "t": "UBER",
       "n": "UBER TECHNOLOGIES INC",
       "on": "2026-10-26"
+    },
+    "90353TAM2": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "90353TAS9": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "90353W103": {
+      "s": "EXACT",
+      "t": "UI",
+      "n": "UBIQUITI INC",
+      "on": "2026-11-02"
+    },
+    "90364P105": {
+      "s": "EXACT",
+      "t": "PATH",
+      "n": "UIPATH INC - CLASS A",
+      "on": "2026-11-02"
+    },
+    "90384S303": {
+      "s": "EXACT",
+      "t": "ULTA",
+      "n": "ULTA BEAUTY INC",
+      "on": "2026-11-02"
+    },
+    "91232N207": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
     },
     "91307C102": {
       "s": "EXACT",
@@ -4835,11 +9217,25 @@
       "n": "UNITY SOFTWARE INC",
       "on": "2026-10-26"
     },
+    "91332UAB7": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "91347P105": {
       "s": "EXACT",
       "t": "OLED",
       "n": "UNIVERSAL DISPLAY CORP",
       "on": "2026-10-26"
+    },
+    "91529Y106": {
+      "s": "EXACT",
+      "t": "UNM",
+      "n": "UNUM GROUP",
+      "on": "2026-11-02"
+    },
+    "91680MAB3": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "91688F104": {
       "s": "EXACT",
@@ -4847,11 +9243,31 @@
       "n": "UPWORK INC",
       "on": "2026-10-26"
     },
+    "91688FAB0": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "91733P107": {
+      "s": "EXACT",
+      "t": "USAR",
+      "n": "USA RARE EARTH INC",
+      "on": "2026-11-02"
+    },
     "91823B109": {
       "s": "EXACT",
       "t": "UWMC",
       "n": "UWM HOLDINGS CORP",
       "on": "2026-10-26"
+    },
+    "91879Q109": {
+      "s": "EXACT",
+      "t": "MTN",
+      "n": "VAIL RESORTS INC",
+      "on": "2026-11-02"
+    },
+    "91912E105": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
     },
     "91913Y100": {
       "s": "EXACT",
@@ -4901,11 +9317,23 @@
       "s": "NOT_COMMON",
       "on": "2026-10-26"
     },
+    "92337F107": {
+      "s": "EXACT",
+      "t": "VCYT",
+      "n": "VERACYTE INC",
+      "on": "2026-11-02"
+    },
     "92337R101": {
       "s": "EXACT",
       "t": "VERA",
       "n": "VERA THERAPEUTICS INC",
       "on": "2026-10-26"
+    },
+    "92338C103": {
+      "s": "EXACT",
+      "t": "VLTO",
+      "n": "VERALTO CORP",
+      "on": "2026-11-02"
     },
     "92343E102": {
       "s": "EXACT",
@@ -4919,6 +9347,12 @@
       "n": "VERIZON COMMUNICATIONS INC",
       "on": "2026-10-26"
     },
+    "92345Y106": {
+      "s": "EXACT",
+      "t": "VRSK",
+      "n": "VERISK ANALYTICS INC",
+      "on": "2026-11-02"
+    },
     "92532F100": {
       "s": "EXACT",
       "t": "VRTX",
@@ -4930,6 +9364,12 @@
       "t": "VRT",
       "n": "VERTIV HOLDINGS CO-A",
       "on": "2026-10-26"
+    },
+    "92552V100": {
+      "s": "EXACT",
+      "t": "VSAT",
+      "n": "VIASAT INC",
+      "on": "2026-11-02"
     },
     "92556V106": {
       "s": "EXACT",
@@ -4949,6 +9389,16 @@
       "n": "VISA INC-CLASS A SHARES",
       "on": "2026-10-26"
     },
+    "92837L109": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "92839U206": {
+      "s": "EXACT",
+      "t": "VC",
+      "n": "VISTEON CORP",
+      "on": "2026-11-02"
+    },
     "92840M102": {
       "s": "EXACT",
       "t": "VST",
@@ -4961,11 +9411,37 @@
       "n": "VOYAGER TECHNOLOGIES INC-A",
       "on": "2026-10-26"
     },
+    "92939U106": {
+      "s": "EXACT",
+      "t": "WEC",
+      "n": "WEC ENERGY GROUP INC",
+      "on": "2026-11-02"
+    },
+    "92939UAT3": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "94106B101": {
+      "s": "EXACT",
+      "t": "WCN",
+      "n": "WASTE CONNECTIONS INC",
+      "on": "2026-11-02"
+    },
     "94106L109": {
       "s": "EXACT",
       "t": "WM",
       "n": "WASTE MANAGEMENT INC",
       "on": "2026-10-26"
+    },
+    "94419L101": {
+      "s": "EXACT",
+      "t": "W",
+      "n": "WAYFAIR INC- CLASS A",
+      "on": "2026-11-02"
+    },
+    "94419LAR2": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "95040Q104": {
       "s": "NOT_COMMON",
@@ -4987,11 +9463,29 @@
       "s": "NOT_FOUND",
       "on": "2026-10-26"
     },
+    "974637AF7": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "97785W106": {
+      "s": "EXACT",
+      "t": "WOLF",
+      "n": "WOLFSPEED INC",
+      "on": "2026-11-02"
+    },
     "98138H101": {
       "s": "EXACT",
       "t": "WDAY",
       "n": "WORKDAY INC-CLASS A",
       "on": "2026-10-26"
+    },
+    "98139AAB1": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "98139AAD7": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "98311A105": {
       "s": "EXACT",
@@ -4999,17 +9493,87 @@
       "n": "WYNDHAM HOTELS & RESORTS INC",
       "on": "2026-10-26"
     },
+    "98386P102": {
+      "s": "EXACT",
+      "t": "XE",
+      "n": "X-ENERGY INC",
+      "on": "2026-11-02"
+    },
     "98389B100": {
       "s": "EXACT",
       "t": "XEL",
       "n": "XCEL ENERGY INC",
       "on": "2026-10-26"
     },
+    "98390R102": {
+      "s": "EXACT",
+      "t": "XNDU",
+      "n": "XANADU QUANTUM TECHNOLO-CL B",
+      "on": "2026-11-02"
+    },
+    "98419M100": {
+      "s": "EXACT",
+      "t": "XYL",
+      "n": "XYLEM INC",
+      "on": "2026-11-02"
+    },
+    "98420N105": {
+      "s": "EXACT",
+      "t": "XENE",
+      "n": "XENON PHARMACEUTICALS INC",
+      "on": "2026-11-02"
+    },
+    "98422P108": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-02"
+    },
+    "98423F109": {
+      "s": "EXACT",
+      "t": "XMTR",
+      "n": "XOMETRY INC-A",
+      "on": "2026-11-02"
+    },
+    "98954M101": {
+      "s": "EXACT",
+      "t": "ZG",
+      "n": "ZILLOW GROUP INC - A",
+      "on": "2026-11-02"
+    },
+    "98954M200": {
+      "s": "EXACT",
+      "t": "Z",
+      "n": "ZILLOW GROUP INC - C",
+      "on": "2026-11-02"
+    },
+    "98956P102": {
+      "s": "EXACT",
+      "t": "ZBH",
+      "n": "ZIMMER BIOMET HOLDINGS INC",
+      "on": "2026-11-02"
+    },
+    "98978V103": {
+      "s": "EXACT",
+      "t": "ZTS",
+      "n": "ZOETIS INC",
+      "on": "2026-11-02"
+    },
     "98980F104": {
       "s": "EXACT",
       "t": "GTM",
       "n": "ZOOMINFO TECHNOLOGIES INC",
       "on": "2026-10-26"
+    },
+    "98980G102": {
+      "s": "EXACT",
+      "t": "ZS",
+      "n": "ZSCALER INC",
+      "on": "2026-11-02"
+    },
+    "98980L101": {
+      "s": "EXACT",
+      "t": "ZM",
+      "n": "ZOOM COMMUNICATIONS INC",
+      "on": "2026-11-02"
     },
     "D18190898": {
       "s": "NOT_FOUND",
@@ -5019,9 +9583,41 @@
       "s": "NOT_FOUND",
       "on": "2026-10-26"
     },
+    "G00582109": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G00582117": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G00582125": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G0069D110": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G0081J103": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G0081J111": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G0081J129": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "G0084W101": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
+    },
+    "G0085J109": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "G00894108": {
       "s": "NOT_FOUND",
@@ -5031,6 +9627,38 @@
       "s": "NOT_FOUND",
       "on": "2026-10-26"
     },
+    "G0113G101": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G0113G127": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G0118C105": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G0131Y118": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G01336109": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G0136H110": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G01558108": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G01558124": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "G01767105": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
@@ -5038,6 +9666,14 @@
     "G0176J109": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
+    },
+    "G01900102": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G01900110": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "G0250X149": {
       "s": "NOT_FOUND",
@@ -5051,6 +9687,10 @@
       "s": "NOT_FOUND",
       "on": "2026-10-26"
     },
+    "G0344N123": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "G0378L100": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
@@ -5063,25 +9703,93 @@
       "s": "NOT_FOUND",
       "on": "2026-10-26"
     },
+    "G0450A105": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G0585R106": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "G0593M107": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
+    },
+    "G0692U109": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G0750C108": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "G0896C103": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
     },
+    "G0R30P136": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G1000S109": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G1000S125": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G1143H101": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G1143H119": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G11448100": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G1149B108": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G1149B116": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "G1151C101": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
+    },
+    "G16252101": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G16910120": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "G17977110": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
     },
+    "G1828S109": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G2004J103": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "G22845104": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
+    },
+    "G25457105": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "G25508105": {
       "s": "NOT_FOUND",
@@ -5095,9 +9803,33 @@
       "s": "NOT_FOUND",
       "on": "2026-10-26"
     },
+    "G2R11M108": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "G31249108": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
+    },
+    "G32089107": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G3223R108": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G3265R107": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G3303U112": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G3323L100": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "G3421J106": {
       "s": "NOT_FOUND",
@@ -5115,9 +9847,33 @@
       "s": "NOT_FOUND",
       "on": "2026-10-26"
     },
+    "G3934V109": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G39387108": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G4124C109": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G4253H101": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "G4474Y214": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
+    },
+    "G4705A100": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G470AU126": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "G491BT108": {
       "s": "NOT_FOUND",
@@ -5135,6 +9891,10 @@
       "s": "NOT_FOUND",
       "on": "2026-10-26"
     },
+    "G5279N105": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "G54950103": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
@@ -5151,17 +9911,57 @@
       "s": "NOT_FOUND",
       "on": "2026-10-26"
     },
+    "G63325123": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G65163100": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G66721104": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "G6683N103": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
+    },
+    "G6700G107": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "G6757R105": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
     },
+    "G6757R113": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "G6757R121": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
+    },
+    "G6S34K113": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G7496G103": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G7553X106": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G7553X114": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G76279101": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "G7709Q104": {
       "s": "NOT_FOUND",
@@ -5171,6 +9971,30 @@
       "s": "NOT_FOUND",
       "on": "2026-10-26"
     },
+    "G7997W102": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G8068L108": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G8267P108": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G8473T100": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G87052109": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G87110105": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "G89479102": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
@@ -5178,6 +10002,38 @@
     "G8994E103": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
+    },
+    "G9001E102": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G9001E128": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G93A5A101": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G9460G101": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G9572D103": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G9600F104": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G9723Y105": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "G98239109": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "H00263105": {
       "s": "NOT_FOUND",
@@ -5195,6 +10051,10 @@
       "s": "NOT_FOUND",
       "on": "2026-10-26"
     },
+    "H11356104": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "H1467J104": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
@@ -5203,29 +10063,181 @@
       "s": "NOT_FOUND",
       "on": "2026-10-26"
     },
+    "H2906T109": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "H2927K103": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "H42097107": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
+    },
+    "H50430232": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "H8817H100": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "K08588103": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "L00849106": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
     },
+    "L0175J112": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "L0175J120": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "L0175J138": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
+    },
+    "L01800108": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "L01800116": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "L8681T102": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
     },
+    "M0740A108": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "M0854Q105": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
     },
+    "M15342104": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "M20791105": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "M2197Q107": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "M22465104": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "M25133105": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "M3760D101": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "M4R82T106": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "M51474118": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "M5425M103": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "M6158M104": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "M6191J100": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "M68830112": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "M70700105": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "M7516K103": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "M7518J104": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "M78673114": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "M7S64H106": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "M7S64L123": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
+    },
+    "M7S750159": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "M81865111": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "M81873107": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "M8216R109": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "M84137104": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "M85548101": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "M8740S227": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "M8744T106": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "M87915274": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "M9607U115": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "M96088105": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "M98068105": {
       "s": "NOT_FOUND",
@@ -5239,6 +10251,10 @@
       "s": "NOT_FOUND",
       "on": "2026-10-26"
     },
+    "N14506104": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "N3167Y103": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
@@ -5247,13 +10263,33 @@
       "s": "NOT_FOUND",
       "on": "2026-10-26"
     },
+    "N4732M103": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "N52A8C105": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
+    "N53745100": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "N5505D105": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
     },
+    "N62509109": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "N6596X109": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
+    },
+    "N69605108": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "N82405106": {
       "s": "NOT_FOUND",
@@ -5267,9 +10303,17 @@
       "s": "NOT_FOUND",
       "on": "2026-10-26"
     },
+    "P31076105": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
+    },
     "Q4982L109": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
+    },
+    "V5633W109": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     },
     "V7780T103": {
       "s": "NOT_FOUND",
@@ -5282,6 +10326,10 @@
     "Y2990R101": {
       "s": "NOT_FOUND",
       "on": "2026-10-26"
+    },
+    "Y95308105": {
+      "s": "NOT_FOUND",
+      "on": "2026-11-02"
     }
   }
 }

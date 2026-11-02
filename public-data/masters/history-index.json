@@ -1,7 +1,7 @@
 {
   "schemaVersion": "masters-13f-history-index.v3",
-  "revision": "2026-10-26-v58.90",
-  "reviewedAt": "2026-10-26",
+  "revision": "2026-11-02-v59.59",
+  "reviewedAt": "2026-11-02",
   "status": "FILING_HISTORY_ROWS_CONNECTED",
   "publication": "EDUCATIONAL_REFERENCE_ONLY",
   "boundary": "SEC filing metadata와 정보표 원문 행·보고가치·보유수량을 연결한다. 각 분기는 원본+정정 제출을 같은 합성 정책(scripts/lib/13f-compose.mjs)으로 합성하고, 분류되지 않은 정정은 REVIEW_REQUIRED로 닫는다. ticker·sector·issuer aggregate·corporate action은 verified security master가 확인되기 전 공개하지 않는다.",
@@ -261,6 +261,14 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "coverEntryTotal": 114,
+          "coverValueTotal": 259807694872,
+          "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1067983/000095012325005701/form13fInfoTable.xml",
+          "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1067983/000095012325005701/form13fInfoTable.html",
+          "rowCount": 114,
+          "reportedValueTotal": 259807694872,
+          "reportedSharesTotal": 2587184386,
+          "countReconciled": true,
           "amendmentChain": [
             {
               "accession": "0000950123-25-005701",
@@ -282,15 +290,7 @@
               "ORIGINAL",
               "NEW_HOLDINGS_ADD"
             ]
-          },
-          "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1067983/000095012325005701/form13fInfoTable.xml",
-          "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1067983/000095012325005701/form13fInfoTable.html",
-          "coverEntryTotal": 114,
-          "coverValueTotal": 259807694872,
-          "countReconciled": true,
-          "rowCount": 114,
-          "reportedValueTotal": 259807694872,
-          "reportedSharesTotal": 2587184386
+          }
         },
         {
           "form": "13F-HR",
@@ -494,6 +494,14 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "coverEntryTotal": 139,
+          "coverValueTotal": 351900674461,
+          "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1067983/000095012324002518/30197.xml",
+          "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1067983/000095012324002518/30197.html",
+          "rowCount": 139,
+          "reportedValueTotal": 351900674461,
+          "reportedSharesTotal": 3805174603,
+          "countReconciled": true,
           "amendmentChain": [
             {
               "accession": "0000950123-24-002518",
@@ -515,15 +523,7 @@
               "ORIGINAL",
               "NEW_HOLDINGS_ADD"
             ]
-          },
-          "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1067983/000095012324002518/30197.xml",
-          "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1067983/000095012324002518/30197.html",
-          "coverEntryTotal": 139,
-          "coverValueTotal": 351900674461,
-          "countReconciled": true,
-          "rowCount": 139,
-          "reportedValueTotal": 351900674461,
-          "reportedSharesTotal": 3805174603
+          }
         },
         {
           "form": "13F-HR",
@@ -557,13 +557,15 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "coverEntryTotal": 153,
+          "coverValueTotal": 314952628264,
+          "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1067983/000095012323011029/28498.xml",
+          "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1067983/000095012323011029/28498.html",
+          "rowCount": 153,
+          "reportedValueTotal": 314952628264,
+          "reportedSharesTotal": 3864956727,
+          "countReconciled": true,
           "amendmentChain": [
-            {
-              "accession": "0000950123-23-010898",
-              "type": "ORIGINAL",
-              "role": "ORIGINAL",
-              "rows": 152
-            },
             {
               "accession": "0000950123-23-011029",
               "type": "RESTATEMENT",
@@ -581,19 +583,10 @@
             "composite": true,
             "label": "원본+정정행 합성",
             "roles": [
-              "ORIGINAL",
               "RESTATEMENT",
               "NEW_HOLDINGS_ADD"
             ]
-          },
-          "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1067983/000095012323010898/27893.xml",
-          "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1067983/000095012323010898/27893.html",
-          "coverEntryTotal": 153,
-          "coverValueTotal": 314952628264,
-          "countReconciled": true,
-          "rowCount": 153,
-          "reportedValueTotal": 314952628264,
-          "reportedSharesTotal": 3864956727
+          }
         }
       ]
     },
@@ -1924,6 +1917,14 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "coverEntryTotal": 11,
+          "coverValueTotal": 12661093451,
+          "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1336528/000117266125001119/infotable.xml",
+          "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1336528/000117266125001119/infotable.html",
+          "rowCount": 11,
+          "reportedValueTotal": 12661093451,
+          "reportedSharesTotal": 169758531,
+          "countReconciled": true,
           "amendmentChain": [
             {
               "accession": "0001172661-25-001119",
@@ -1945,15 +1946,7 @@
               "ORIGINAL",
               "NEW_HOLDINGS_ADD"
             ]
-          },
-          "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1336528/000117266125001119/infotable.xml",
-          "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1336528/000117266125001119/infotable.html",
-          "coverEntryTotal": 11,
-          "coverValueTotal": 12661093451,
-          "countReconciled": true,
-          "rowCount": 11,
-          "reportedValueTotal": 12661093451,
-          "reportedSharesTotal": 169758531
+          }
         },
         {
           "form": "13F-HR",
@@ -3095,17 +3088,19 @@
               "primaryDocument": "xslForm13F_X02/primary_doc.xml"
             }
           ],
-          "compositionStatus": "AMENDMENT_COMPOSED",
+          "compositionStatus": "ORIGINAL_CONNECTED",
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "coverEntryTotal": 25,
+          "coverValueTotal": 94591240,
+          "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1649339/000090514824000751/informationtable.xml",
+          "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1649339/000090514824000751/informationtable.html",
+          "rowCount": 25,
+          "reportedValueTotal": 94591240,
+          "reportedSharesTotal": 3857774,
+          "countReconciled": true,
           "amendmentChain": [
-            {
-              "accession": "0000905148-24-000653",
-              "type": "ORIGINAL",
-              "role": "ORIGINAL",
-              "rows": 25
-            },
             {
               "accession": "0000905148-24-000751",
               "type": "RESTATEMENT",
@@ -3114,21 +3109,12 @@
             }
           ],
           "composition": {
-            "composite": true,
-            "label": "원본+정정행 합성",
+            "composite": false,
+            "label": "정정(전체 교체)",
             "roles": [
-              "ORIGINAL",
               "RESTATEMENT"
             ]
-          },
-          "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1649339/000090514824000653/informationtable.xml",
-          "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1649339/000090514824000653/informationtable.html",
-          "coverEntryTotal": 25,
-          "coverValueTotal": 94591240,
-          "countReconciled": true,
-          "rowCount": 25,
-          "reportedValueTotal": 94591240,
-          "reportedSharesTotal": 3857774
+          }
         },
         {
           "form": "13F-HR",
@@ -3777,17 +3763,19 @@
               "primaryDocument": "xslForm13F_X02/primary_doc.xml"
             }
           ],
-          "compositionStatus": "AMENDMENT_COMPOSED",
+          "compositionStatus": "ORIGINAL_CONNECTED",
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "coverEntryTotal": 981,
+          "coverValueTotal": 189126873810,
+          "informationTableXml": "https://www.sec.gov/Archives/edgar/data/850529/000085052924000006/2023Q413Famendment.xml",
+          "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/850529/000085052924000006/2023Q413Famendment.html",
+          "rowCount": 981,
+          "reportedValueTotal": 189126873810,
+          "reportedSharesTotal": 2149264713,
+          "countReconciled": true,
           "amendmentChain": [
-            {
-              "accession": "0000850529-24-000005",
-              "type": "ORIGINAL",
-              "role": "ORIGINAL",
-              "rows": 1161
-            },
             {
               "accession": "0000850529-24-000006",
               "type": "RESTATEMENT",
@@ -3796,21 +3784,12 @@
             }
           ],
           "composition": {
-            "composite": true,
-            "label": "원본+정정행 합성",
+            "composite": false,
+            "label": "정정(전체 교체)",
             "roles": [
-              "ORIGINAL",
               "RESTATEMENT"
             ]
-          },
-          "informationTableXml": "https://www.sec.gov/Archives/edgar/data/850529/000085052924000005/2023Q413F.xml",
-          "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/850529/000085052924000005/2023Q413F.html",
-          "coverEntryTotal": 981,
-          "coverValueTotal": 189126873810,
-          "countReconciled": true,
-          "rowCount": 981,
-          "reportedValueTotal": 189126873810,
-          "reportedSharesTotal": 2149264713
+          }
         },
         {
           "form": "13F-HR",
