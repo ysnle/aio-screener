@@ -213,7 +213,11 @@ function _calcCorrelationMatrix(returnsMap) {
       if (t1 === t2) return 1;
       var r1 = returnsMap[t1], r2 = returnsMap[t2];
       var minLen = Math.min(r1.length, r2.length);
-      return _pearsonCorr(r1.slice(r1.length - minLen), r2.slice(r2.length - minLen));
+      var a = r1.slice(r1.length - minLen), b = r2.slice(r2.length - minLen);
+      // v59.59 (logic refactor): a flat or too-short pair has no correlation — the cell is null ("—"), not the 0 that
+      // _pearsonCorr's legacy contract returns, which the heatmap read as "uncorrelated" (diversifying).
+      if (minLen < 3 || _statStdDev(a) < 1e-10 || _statStdDev(b) < 1e-10) return null;
+      return _pearsonCorr(a, b);
     });
   });
   return { tickers: tickers, matrix: matrix };

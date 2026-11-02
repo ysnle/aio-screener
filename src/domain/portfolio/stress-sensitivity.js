@@ -11,6 +11,7 @@
 // common dates: Korean and US closes on the same calendar date are ~16 hours apart, which daily pairs understate.
 // A shock is the weekly relationship scaled linearly — an extrapolation the label states, never a forecast.
 import { buildCloseSeries } from '../market/close-series.js';
+import { listingCurrency } from './fx.js';
 
 export const STRESS_MIN_WEEKS = 30; // below this the slope's error band is too wide to print a figure
 const STEP = 5;
@@ -72,7 +73,9 @@ export function regressOne(xs, ys) {
  */
 export function estimateBookSensitivities({ historyMap = {}, commonDates = [], weights = {}, history = [] } = {}) {
   const dates = [...(Array.isArray(commonDates) ? commonDates : [])].sort();
-  const syms = Object.keys(weights).filter((sym) => weights[sym] > 0 && historyMap[sym]);
+  // v59.59 (logic refactor): only USD and KRW listings have an index factor here (S&P 500, KOSPI); a Tokyo or Hong Kong
+  // holding used to be regressed on the S&P 500 as if it were a US stock. Others leave the coverage.
+  const syms = Object.keys(weights).filter((sym) => weights[sym] > 0 && historyMap[sym] && ['USD', 'KRW'].includes(listingCurrency(sym)));
   const covered = syms.reduce((s, sym) => s + weights[sym], 0);
   if (!syms.length || covered < 0.8) return { available: false, reason: 'weights-uncovered', covered };
   const marks = [];
@@ -126,8 +129,10 @@ export function krwTranslationPct({ weights = {}, baseCurrency = null, shockPct 
   if (base !== 'KRW' && base !== 'USD') return null;
   let total = 0;
   for (const [sym, w] of Object.entries(weights)) {
-    if (base === 'KRW' && !isKr(sym)) total += w * shockPct;
-    if (base === 'USD' && isKr(sym)) total += w * ((1 / (1 + shockPct / 100)) - 1) * 100;
+    // v59.59: by listing currency — a non-KRW, non-USD listing does not move with USD/KRW alone, so it is not counted.
+    const currency = listingCurrency(sym);
+    if (base === 'KRW' && currency === 'USD') total += w * shockPct;
+    if (base === 'USD' && currency === 'KRW') total += w * ((1 / (1 + shockPct / 100)) - 1) * 100;
   }
   return total;
 }

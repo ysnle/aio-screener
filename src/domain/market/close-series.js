@@ -7,6 +7,7 @@ import { shortDate } from '../content/date-labels.js';
 import { historyFieldSessionDate } from './history-session.js';
 import { readNumber as finite } from '../shared/number.js';
 import { isoDay, stampDay } from '../shared/session-date.js';
+import { percentileOf } from '../shared/percentile.js';
 
 // v59.46: `finite` is the shared reader (Number(null)/'' /booleans are missing, not 0); kept as a named export for the
 // modules that import it from here or from briefing/market-read.js.
@@ -202,10 +203,8 @@ export function recordPercentile(series, value = null, { window = RECORD_FULL_YE
   const current = finite(value) ?? points.at(-1)?.value ?? null;
   if (current == null || points.length < 20) return { n: points.length, pct: null, provisional: true };
   const below = points.filter((point) => point.value < current).length;
-  const equal = points.filter((point) => point.value === current).length;
-  // v59.45 (PASS16 candidate): a value outside the sample is ranked against all of it, so the percentile stays in 0..100.
-  const others = equal > 0 ? points.length - 1 : points.length;
-  const pct = Math.round((below + Math.max(0, equal - 1) / 2) / Math.max(1, others) * 100);
+  // v59.45 (PASS16 candidate): a value outside the sample is ranked against all of it — v59.59: shared/percentile.js.
+  const pct = Math.round(percentileOf(points.map((point) => point.value), current));
   // v57.81: 1 of 252 rounds to 0%, which read as 최저 for the second-lowest value; the extremes are rank facts.
   const above = points.filter((point) => point.value > current).length;
   return { n: points.length, pct, provisional: points.length < RECORD_FULL_YEAR, lowest: below === 0, highest: above === 0, lowRank: below + 1, highRank: above + 1 };

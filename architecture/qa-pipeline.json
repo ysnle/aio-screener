@@ -455,6 +455,12 @@
           "script": "scripts/ci-esm-core-unit-check.mjs"
         },
         {
+          "id": "quant-reference",
+          "script": "scripts/ci-quant-reference-check.mjs",
+          "remedy": "each failing case names its formula and reference source; fix the module, not the expected value",
+          "inputs": ["src/domain/**", "scripts/ci-quant-reference-check.mjs"]
+        },
+        {
           "id": "expect-output",
           "script": "scripts/ci-expect-output-check.mjs",
           "remedy": "node scripts/ci-expect-output-check.mjs --update, then review the .expect.md diff",

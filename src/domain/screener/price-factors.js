@@ -4,7 +4,7 @@
 import { FACTOR_FRESHNESS_MS } from './factor-ranks.js';
 import { RULES } from '../rules/thresholds.js';
 // v57.84: the 52-week range, ADR, moving averages and EMAs are technical/definitions.js — the chart's own definitions.
-import { smaLast, emaLast, adrPctOf, rangeExtremesOf, detectContractions, isBreakoutDay, priorVolumeAverage } from '../technical/definitions.js';
+import { smaLast, emaLast, rsiWilder, adrPctOf, rangeExtremesOf, detectContractions, isBreakoutDay, priorVolumeAverage } from '../technical/definitions.js';
 import { followThroughFields } from '../technical/follow-through.js';
 import { listingMarketOfSymbol, sessionDateInMarket, timeZoneForMarket, timeZoneForSymbol } from '../market/session-time.js';
 import { isoDay } from '../shared/session-date.js';
@@ -35,25 +35,9 @@ function _annVol(closes, n) {
 // "RSI" by default — the named-methodology-parity requirement from R265. Verified by extraction:
 // scripts/ci-data-pipeline-contract-check.mjs runs both implementations against identical synthetic
 // closes and asserts the outputs match within tolerance.
+// v59.59 (logic refactor): the body is technical/definitions.js rsiWilder — one RSI for producer, chart and summary.
 function _rsi14(closes) {
-  const period = 14;
-  const nums = closes.filter((v) => typeof v === 'number' && isFinite(v) && v > 0);
-  if (nums.length < period + 1) return null;
-  let gain = 0, loss = 0;
-  for (let i = 1; i <= period; i++) {
-    const d = nums[i] - nums[i - 1];
-    if (d >= 0) gain += d; else loss -= d;
-  }
-  let avgGain = gain / period;
-  let avgLoss = loss / period;
-  for (let j = period + 1; j < nums.length; j++) {
-    const diff = nums[j] - nums[j - 1];
-    avgGain = ((avgGain * (period - 1)) + Math.max(diff, 0)) / period;
-    avgLoss = ((avgLoss * (period - 1)) + Math.max(-diff, 0)) / period;
-  }
-  if (avgLoss === 0) return 100;
-  const rs = avgGain / avgLoss;
-  return round(100 - (100 / (1 + rs)), 1);
+  return round(rsiWilder(closes, 14), 1);
 }
 // v51.32: 칼만 추세 필터 — 숨겨진 가격 레벨과 추세 속도(velocity)를 재귀 추정.
 // 노이즈 측정에서 실제 추세 속도를 분리 (Rolling OLS보다 연속적이고 안정적).
@@ -184,7 +168,8 @@ export function _calcVCPServer(closes, highs, lows, volumes) {
   const vcpStage = !stage2 ? 'not_stage2' : brk ? 'breakout' : pivotDown ? 'pivot_down' : extended ? 'extended' : nearPivot ? 'near_pivot' : (cnt >= 2 && shrink) ? 'contracting' : cnt >= 1 ? 'basing' : 'stage2_only';
   // 2026-10-14: the latest contraction against the one before it (isShrinking requires every step to shrink).
   const latestShrinking = cnt >= 2 ? detected.contractions[cnt - 1].depth < detected.contractions[cnt - 2].depth : null;
-  return { vcpScore: score, vcpStage, pivotLevel: pivot,
+  // v59.59: stage2 · depths · nearPivot · breakout too, so the legacy snapshot (aio-core _calcVCP) reads this one result.
+  return { vcpScore: score, vcpStage, pivotLevel: pivot, stage2, contractionDepths: ctrs.map((row) => row.depth), nearPivot, breakout: brk,
            contractionCount: cnt, isShrinking: shrink, latestShrinking, volumeDrying: volDry,
            pctFrom52wHigh: pct52 !== null ? Math.round(pct52 * 10) / 10 : null };
 }

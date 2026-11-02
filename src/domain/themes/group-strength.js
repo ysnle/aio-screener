@@ -148,7 +148,9 @@ export function buildGroupStrength({ themes = [], rows = [], sortKey = 'ret3m', 
     const r3 = rank3m.get(group.id) ?? null;
     // Direction: a 1-month rank clearly better (lower) than the 3-month rank is improving momentum.
     const shift = r1 != null && r3 != null ? r3 - r1 : null;
-    const band = Math.max(3, Math.round(total * 0.15));
+    // v59.59 (logic refactor): 15% of the groups that were ranked — small-sample and dated groups carry no rank, and
+    // counting them widened the band so a real 1-month vs 3-month rank shift read as 'steady'.
+    const band = Math.max(3, Math.round(Math.min(rank1m.size, rank3m.size) * 0.15));
     const direction = shift == null ? null : shift >= band ? 'improving' : shift <= -band ? 'weakening' : 'steady';
     // v57.81: the week against the group's own typical weekly move (benchmark-relative when the S&P 500 5-session
     // return is on the same close), so "1개월 순위 상승" is not read as "강해지는 중" during a sharp five-session drop.

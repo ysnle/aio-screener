@@ -16,6 +16,8 @@ import { brentWtiCheck } from './liquidity-growth.js';
 import { inflationDirection, oilDivergence, MACRO_SIGNAL_RULES } from './macro-signals.js';
 import { peopleText, signedText, readNumber as finite } from '../shared/number.js';
 import { withTopicParticle } from '../content/korean-particle.js';
+// v59.59: the neutral real rate on the 정책 axis is the Taylor rule's own SEP-derived r* (an import cycle used only at call time).
+import { sepNeutral } from './taylor-rule.js';
 
 const G = RULES.growth;
 const I = RULES.inflation;
@@ -173,7 +175,12 @@ function growthAxis({ macro, mh }) {
 function inflationAxis({ macro, mh }) {
   const corePceIndex = seriesOf(mh, 'corePceIndex');
   const corePceYoySeries = yoySeries(corePceIndex);
-  const yoy = finite(macro.corePce) ?? lastOf(corePceYoySeries)?.value ?? null;
+  // v59.59 (logic refactor): macro.corePce stays the number of record, but the producer rounds it to one decimal; when
+  // the unrounded series value is that same figure (within the rounding), the series value is read, as the Taylor rule
+  // does — 3.05 published as 3.1 crossed the 0.1pp buffer above the 3% line only through the rounding.
+  const recorded = finite(macro.corePce);
+  const unrounded = lastOf(corePceYoySeries)?.value ?? null;
+  const yoy = recorded == null ? unrounded : unrounded != null && Math.abs(unrounded - recorded) <= 0.05 + 1e-9 ? unrounded : recorded;
   const pace = annualised3m(corePceIndex);
   const coreCpiIndex = seriesOf(mh, 'coreCpiIndex');
   const coreCpiPace = annualised3m(coreCpiIndex);
@@ -262,7 +269,9 @@ function policyPricing(macro) {
   return { upper, lower, mid, twoYear, pricing: mid != null && twoYear != null ? twoYear - mid : null };
 }
 
-function policyAxis({ macro, inflationState, growthState = null }) {
+const fmtNeutral = (value) => Number(value.toFixed(2)).toString();
+
+function policyAxis({ macro, inflationState, growthState = null, neutralReal = P.neutralRealPct }) {
   const { upper, lower, mid, twoYear, pricing } = policyPricing(macro);
   const corePce = finite(macro.corePce);
   const realPolicy = mid != null && corePce != null ? mid - corePce : null;
@@ -281,13 +290,13 @@ function policyAxis({ macro, inflationState, growthState = null }) {
   const read = state === 'burden'
     ? (pricing != null && pricing >= P.pricedMovePp
       ? `2년물(${twoYear.toFixed(2)}%)이 기준금리 중간값(${mid.toFixed(2)}%)보다 ${pricing.toFixed(2)}%p 높습니다. 앞으로 1~2년 기준금리가 지금보다 높을 가능성이 일부 반영됐을 수 있지만, 이 차이에는 기간·위험 프리미엄도 섞여 있어 ‘인상 예상’으로 단정할 수는 없습니다.`
-      : `물가를 뺀 실질 기준금리가 ${realPolicy.toFixed(1)}%로 중립 수준(약 ${P.neutralRealPct}%)보다 훨씬 높은 긴축 상태입니다.`)
+      : `물가를 뺀 실질 기준금리가 ${realPolicy.toFixed(1)}%로 중립 수준(약 ${fmtNeutral(neutralReal)}%)보다 훨씬 높은 긴축 상태입니다.`)
     : state === 'favorable' ? `2년물이 기준금리 중간값보다 ${Math.abs(pricing).toFixed(2)}%p 낮습니다. 인하 가능성이 일부 반영됐을 수 있지만, 프리미엄을 분리한 자료가 없어 ‘인하 예상’으로 단정할 수는 없습니다.`
       : state === 'unknown' ? '정책금리나 2년물 자료를 기다리는 중입니다.'
         : recessionCut ? `2년물이 기준금리 중간값보다 ${Math.abs(pricing).toFixed(2)}%p 낮지만, 성장 축이 부담이라 경기 악화 때문에 인하를 반영하는 쪽으로 읽어 양호로 보지 않습니다. ${PRICING_BASIS}`
           : `2년물은 ${pricingText ? pricingText.replace('(동결에 가까운)', '인(동결에 가까운)') : '큰 변화 없는'} 수준입니다. ${PRICING_BASIS}`;
   return axis('policy', '통화정책', state, {
-    gauge: state === 'burden' && (pricing == null || pricing < P.pricedMovePp) && realPolicy != null ? gauge({ label: '실질 기준금리 (중간값 − 근원 PCE)', value: realPolicy, unit: '%', digits: 1, ...cuts(-2, 4, [P.restrictiveRealPct], ['neutral', 'burden'], [[P.neutralRealPct, `중립 약 ${P.neutralRealPct}%`], [P.restrictiveRealPct, `${P.restrictiveRealPct}%`]]) }) : gauge({ label: '2년물 − 기준금리 중간값', value: pricing, unit: '%p', digits: 2, ...cuts(-1.5, 1.5, [-P.pricedMovePp, P.pricedMovePp], ['favorable', 'neutral', 'burden'], [[-P.pricedMovePp, `-${P.pricedMovePp}%p`], [P.pricedMovePp, `+${P.pricedMovePp}%p`]]) }),
+    gauge: state === 'burden' && (pricing == null || pricing < P.pricedMovePp) && realPolicy != null ? gauge({ label: '실질 기준금리 (중간값 − 근원 PCE)', value: realPolicy, unit: '%', digits: 1, ...cuts(-2, 4, [P.restrictiveRealPct], ['neutral', 'burden'], [[neutralReal, `중립 약 ${fmtNeutral(neutralReal)}%`], [P.restrictiveRealPct, `${P.restrictiveRealPct}%`]]) }) : gauge({ label: '2년물 − 기준금리 중간값', value: pricing, unit: '%p', digits: 2, ...cuts(-1.5, 1.5, [-P.pricedMovePp, P.pricedMovePp], ['favorable', 'neutral', 'burden'], [[-P.pricedMovePp, `-${P.pricedMovePp}%p`], [P.pricedMovePp, `+${P.pricedMovePp}%p`]]) }),
     // Codex review 2026-10-05: the headline states the observed gap; the reading below says why it is not
     // a forecast of hikes (premia are not separated).
     headline: pricing == null ? null : pricing >= P.pricedMovePp ? `2년물이 기준금리 중간값보다 ${pricing.toFixed(2)}%p 높음` : pricing <= -P.pricedMovePp ? `2년물이 기준금리 중간값보다 ${Math.abs(pricing).toFixed(2)}%p 낮음` : '2년물이 기준금리 중간값과 비슷함',
@@ -295,7 +304,7 @@ function policyAxis({ macro, inflationState, growthState = null }) {
       // v58.63 (architecture audit M01): only the upper bound arriving threw on lower.toFixed and stopped the whole macro read.
       ['연준 목표 범위', upper == null || lower == null ? null : `${lower.toFixed(2)}~${upper.toFixed(2)}%`],
       ['2년물 − 기준금리 중간값', pricing == null ? null : `${signed(pricing, 2, '%p')} (${pricingText} 수준)`],
-      ['실질 기준금리 (중간값 − 근원 PCE)', realPolicy == null ? null : `${realPolicy.toFixed(1)}% (중립 약 ${P.neutralRealPct}%)`]
+      ['실질 기준금리 (중간값 − 근원 PCE)', realPolicy == null ? null : `${realPolicy.toFixed(1)}% (중립 약 ${fmtNeutral(neutralReal)}%)`]
     ],
     read,
     flip: state === 'unknown' ? null : `2년물이 기준금리 중간값보다 ${P.pricedMovePp}%p 이상 높거나 실질 기준금리 ${P.restrictiveRealPct}% 이상이면 부담, ${P.pricedMovePp}%p 이상 낮고(인하 반영) 물가·성장이 부담이 아니면 양호`,
@@ -600,7 +609,10 @@ export function buildMacroRead({ macro = null, macroHistory = null, regime = nul
   const oil = brentWtiCheck(macroHistory, Array.isArray(history) ? history : []);
   const growth = growthAxis({ macro: m, mh });
   const inflation = inflationAxis({ macro: m, mh });
-  const policy = policyAxis({ macro: m, inflationState: inflation.state, growthState: growth.state });
+  // v59.59 (logic refactor, feature audit 11-02): one neutral real rate — the FOMC SEP longer-run median − 2% the Taylor
+  // rule uses (1.0% fixed here vs 1.2% there on the same screen); the fixed 1% only when no current SEP value is collected.
+  const sep = mh ? sepNeutral(mh) : null;
+  const policy = policyAxis({ macro: m, inflationState: inflation.state, growthState: growth.state, neutralReal: sep && !sep.old && !sep.stale ? sep.rStar : P.neutralRealPct });
   const axes = [
     growth, inflation, policy,
     reuse(regime, 'rates', '금리, 할인율', '10년물 금리는 주식 가치를 계산하는 할인율의 기준입니다. 빠르게 오르면 PER이 높은 성장주부터 부담을 받습니다.', gauges.rates),

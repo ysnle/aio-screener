@@ -1854,8 +1854,9 @@ check('backtest publishes native liquidity/cost/rebalance disclosures', /transac
 // Wilder's RSI (recursively smoothed), same label, different numbers. Recompute both against
 // identical synthetic input rather than trusting that matching source comments mean matching math.
 let rsiParityDetail = '';
-const rsiParityOk = (() => {
+const rsiParityOk = await (async () => {
   try {
+    // v59.59: the producer's _rsi14 rounds technical/definitions.js rsiWilder; the parity runs the real module.
     const serverSrc = extractFunctionSource(fetchData, '_rsi14');
     const clientRsiSrc = extractFunctionSource(core, '_calcRSILast');
     const cleanNumsSrc = extractFunctionSource(core, '_aioCleanNums');
@@ -1863,7 +1864,8 @@ const rsiParityOk = (() => {
     if (!clientRsiSrc) { rsiParityDetail = 'could not extract _calcRSILast from aio-core.js'; return false; }
     if (!cleanNumsSrc) { rsiParityDetail = 'could not extract _aioCleanNums from aio-core.js'; return false; }
     const roundFn = (v, d) => (typeof v === 'number' && isFinite(v)) ? Number(v.toFixed(d)) : null;
-    const serverRsi14 = new Function('round', `${serverSrc}\nreturn _rsi14;`)(roundFn);
+    const { rsiWilder } = await import('../src/domain/technical/definitions.js');
+    const serverRsi14 = new Function('round', 'rsiWilder', `${serverSrc}\nreturn _rsi14;`)(roundFn, rsiWilder);
     const clientCalcRsiLast = new Function(`${cleanNumsSrc}\n${clientRsiSrc}\nreturn _calcRSILast;`)();
     // Deterministic synthetic series long enough (300 bars) for Wilder's smoothing to be well
     // past its warm-up window, matching real usage (screener enrichment runs on ~1y of history).
@@ -1915,16 +1917,21 @@ const vcpParityOk = (() => {
     // (not the comment) and confirming a loose pattern missed it before tightening to these.
     // v57.84 (owner decision): both sides delegate contractions and the pivot to technical/definitions.js detectContractions
     // (the chart's detector); the old 65-bar / 4-bar-swing / 1-45% literals are gone from both, and must not come back.
+    // v59.59 (logic refactor): the client no longer carries its own stage chain — it reads the producer's _calcVCPServer
+    // through AIO_ARCH.vcpRead (src/app/bootstrap.js), so parity is delegation; the server's own literals stay pinned.
+    const bootstrapSrc = readFileSync(join(root, 'src/app/bootstrap.js'), 'utf8');
     const params = [
-      { label: 'minimum bar count (60)', re: /\bn\s*<\s*60\b/ },
-      { label: 'shared contraction detector', server: /detectContractions\(bars\)/, client: /window\.AIO_ARCH\.detectContractions\(/ },
-      { label: 'pivot only from a valid contraction run', server: /const pivot = detected\.valid \? detected\.pivot : null/, client: /var pivot = _det\.valid \? _det\.pivot : null/ },
+      { label: 'minimum bar count (60)', re: /\bn\s*<\s*60\b/, serverOnly: true },
+      { label: 'shared contraction detector', server: /detectContractions\(bars\)/, client: /arch\.vcpRead\(/ },
+      { label: 'pivot only from a valid contraction run', server: /const pivot = detected\.valid \? detected\.pivot : null/, client: /return Object\.assign\(\{ ok: true \}, v\)/ },
       { label: 'no private swing pairing left (N=4 / 1-45%)', re: /\bN\s*=\s*4\s*[;,]|<=\s*45\)\s*ctrs\.push/, absent: true },
-      { label: '52-week full-year rule (v57.86: 240 sessions; one calendar year is 251 US / 245 KR)', server: /rangeExtremesOf\(highs, lows\)[\s\S]*range\?\.fullYear/, client: /n\s*>=\s*240\s*&&\s*h52\s*>\s*0/, constant: RULES_FOR_VCP.technical.fullYearSessions === 240 },
-      { label: 'stage-2 52w-off-high floor (-30)', server: /pct52\s*>=\s*-RULES\.technical\.stage2Gate\.nearHighPct/, client: /pct52\s*>=\s*-30\b/, constant: RULES_FOR_VCP.technical.stage2Gate.nearHighPct === 30 },
+      { label: 'no private stage chain in the client', re: /vcpStage\s*=\s*!stage2/, clientAbsent: true },
+      { label: 'AIO_ARCH.vcpRead is the producer function', server: /_calcVCPServer/, client: /vcpRead: \(\.\.\.args\) => \(producerVcpRead/, clientSource: bootstrapSrc },
+      { label: '52-week full-year rule (v57.86: 240 sessions; one calendar year is 251 US / 245 KR)', server: /rangeExtremesOf\(highs, lows\)[\s\S]*range\?\.fullYear/, client: /arch\.vcpRead\(/, constant: RULES_FOR_VCP.technical.fullYearSessions === 240 },
+      { label: 'stage-2 52w-off-high floor (-30)', server: /pct52\s*>=\s*-RULES\.technical\.stage2Gate\.nearHighPct/, client: /arch\.vcpRead\(/, constant: RULES_FOR_VCP.technical.stage2Gate.nearHighPct === 30 },
     ];
-    const sides = (p) => p.re ? [p.re.test(serverSrc), p.re.test(clientSrc)] : [p.server.test(serverSrc), p.client.test(clientSrc) && p.constant !== false];
-    const mismatches = params.filter((p) => { const [a, b] = sides(p); return p.absent ? a || b : p.re ? a !== b : !(a && b); });
+    const sides = (p) => p.re ? [p.re.test(serverSrc), p.re.test(clientSrc)] : [p.server.test(serverSrc), p.client.test(p.clientSource || clientSrc) && p.constant !== false];
+    const mismatches = params.filter((p) => { const [a, b] = sides(p); return p.absent ? a || b : p.clientAbsent ? b : p.serverOnly ? !a : p.re ? a !== b : !(a && b); });
     if (mismatches.length) {
       vcpParityDetail = mismatches.map((p) => `${p.label}: server=${sides(p)[0]} client=${sides(p)[1]}`).join('; ');
       return false;

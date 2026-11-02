@@ -6,6 +6,7 @@
 // bottom/top decile at once, and the evidence line is what the index did after past first days of such spells.
 // Pure function shared by the producer (scripts/build-market-temperature.mjs) and the unit check.
 import { isIsoDay } from '../shared/session-date.js';
+import { percentileOf } from '../shared/percentile.js';
 
 export const MARKET_TEMPERATURE_SCHEMA = 'market-temperature.v1';
 // US first (AIO is a US-market screener); Korea and Japan follow as the secondary read.
@@ -54,7 +55,7 @@ function rawComponents(closes) {
       const delta = closes[i] - closes[i - 1];
       const up = Math.max(delta, 0), down = Math.max(-delta, 0);
       if (i <= 14) { gain += up / 14; loss += down / 14; } else { gain = (gain * 13 + up) / 14; loss = (loss * 13 + down) / 14; }
-      if (i >= 14) rsi[i] = loss === 0 ? 100 : 100 - 100 / (1 + gain / loss);
+      if (i >= 14) rsi[i] = loss === 0 ? (gain === 0 ? 50 : 100) : 100 - 100 / (1 + gain / loss); // v59.59: flat = 50, as rsiWilder
     }
     if (i >= 20) {
       let s = 0, s2 = 0;
@@ -73,14 +74,8 @@ export function trailingRanks(values, { window = TEMPERATURE_RULES.rankWindow, m
   for (let i = 0; i < values.length; i += 1) {
     const v = values[i];
     if (v == null) continue;
-    let count = 0, below = 0;
-    for (let k = Math.max(0, i - window + 1); k <= i; k += 1) {
-      const w = values[k];
-      if (w == null) continue;
-      count += 1;
-      if (w < v) below += 1; else if (w === v) below += 0.5;
-    }
-    if (count >= minSample) out[i] = Math.round((below / count) * 1000) / 10;
+    const sample = values.slice(Math.max(0, i - window + 1), i + 1).filter((w) => w != null);
+    if (sample.length >= minSample) out[i] = Math.round(percentileOf(sample, v) * 10) / 10; // v59.59: shared/percentile.js
   }
   return out;
 }

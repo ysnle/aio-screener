@@ -199,15 +199,15 @@ export function computeTradingScoreModel(input = {}) {
   // 추세-시장폭 다이버전스 보너스/패널티
   if (trendScore != null && breadthScore != null && trendScore > 65 && breadthScore < 30) {
     trendScore = Math.max(10, trendScore - 10);
-    trendCalcScore = trendScore;
   } else if (trendScore != null && breadthScore != null && trendScore < 35 && breadthScore > 55) {
     breadthScore = Math.min(90, breadthScore + 8);
-    breadthCalcScore = breadthScore;
   }
 
   const weightedComponents = [
     { value: volScore, weight: 25 }, { value: momScore, weight: 25 },
-    { value: trendCalcScore, weight: 20 }, { value: breadthCalcScore, weight: 20 },
+    // v59.59 (logic refactor): the gated scores, not the raw *CalcScore — a stale MA or unavailable breadth was listed in
+    // componentMissing yet still moved the total at full coverage (the legacy path, where callers pass the flags).
+    { value: trendScore, weight: 20 }, { value: breadthScore, weight: 20 },
     { value: macroScore, weight: 10 }
   ];
   const availableWeight = weightedComponents.reduce((sum, row) => sum + (row.value == null ? 0 : row.weight), 0);

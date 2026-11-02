@@ -9,7 +9,7 @@ import { RULES } from '../rules/thresholds.js';
 import { signalHistory, signalHistoryText } from './signal-history.js';
 // v57.84: moving averages, ATR, ADR, the 52-week range, the 50-day extension and the Weinstein stage come from the one
 // definitions module the screener producer and the summary also use.
-import { smaSeries, emaSeries, atrWilder, adrPctOf, rangeExtremesOf, extensionMultiple, extensionStateFor, weeklyCloses, weinsteinStage, detectContractions, isBreakoutDay } from './definitions.js';
+import { smaSeries, emaSeries, atrWilder, adrPctOf, rangeExtremesOf, extensionMultiple, extensionStateFor, weeklyCloses, weinsteinStage, detectContractions, isBreakoutDay, priorVolumeAverage } from './definitions.js';
 import { signedText, readNumber as finite } from '../shared/number.js';
 const TECH = RULES.technical;
 
@@ -101,7 +101,9 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   // P1397 events (owner-supplied chart material 2026-10-03): descriptive chart events, not orders.
   const events = [];
   const from = Math.max(1, n - 80);
-  const avg50 = (i) => vol50[i] || null;
+  // v59.59 (logic refactor): the power gap's "2× volume" is against the 50 sessions before the gap day (the breakout
+  // rule's basis, priorVolumeAverage) — the 50-day average including the gap day itself raised its own bar.
+  const avg50 = (i) => priorVolumeAverage(volumes, i, 50) || null;
   // (a) 8-day EMA lost / reclaimed — the short-term trend line most swing traders watch.
   // Expertise review 2026-10-19: events (a)–(c) are found over the whole history so their past outcomes can be read
   // (signal-history.js); the chart still marks only the last ~80 sessions.
@@ -243,7 +245,7 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   const evidence = [
     ['일봉 이동평균', aligned ? '정배열 (종가 > 21일 EMA > 50일 > 200일)' : ema21[n] && sma50[n] ? `혼조 (종가 ${last.close > sma50[n] ? '50일선 위' : '50일선 아래'})` : '기록 부족'],
     ['주봉 추세 (10·30주)', weeklyTrend || '기록 부족'],
-    ['Weinstein 단계 (30주선)', weinstein ? `${weinstein.stage}단계, 30주선 4주 ${signedText(weinstein.slope, 1)}%` : '기록 부족'],
+    ['Weinstein 단계 (30주선)', weinstein ? `${weinstein.stage}단계${weinstein.pullback ? '(30주선 아래 눌림)' : ''}, 30주선 4주 ${signedText(weinstein.slope, 1)}%` : '기록 부족'],
     [`${benchmarkLabel} 대비 6개월`, rs == null ? '—' : `${signed(rs)}p (종목 ${signed(ret6)})`],
     ['상대강도선 (종목 ÷ 지수)', rsFromHigh == null ? '—' : rsAtHigh ? (rsLeadsPrice ? `신고가 — 가격(고점 대비 ${signed(fromHigh)})보다 먼저` : '신고가 (가격도 고점권)') : `자체 고점 대비 ${signed(rsFromHigh)} (${rsWindow.length >= TECH.fullYearSessions ? '1년' : `${rsWindow.length}거래일`} 기준)`],
     ['추세 강도 ADX', strength ? `${fmt(strength.adx, 0)} ${strength.adx >= 25 ? '(추세 뚜렷)' : strength.adx < 20 ? '(추세 약함)' : '(보통)'}` : '—'],

@@ -43,7 +43,10 @@ export function rallyAttemptSeries(bars = [], rules = RULES.rallyAttempt) {
       }
     }
     const inEpisode = phase !== RALLY_PHASE.none && lowIndex >= 0;
-    out.push({ date, phase, day: inEpisode ? i - lowIndex + 1 : null, followThrough, failed,
+    // warmedUp: the 63-session high window is full. Before it the "high" is only the series' own running max, so a
+    // correction from an earlier peak is missed; the producer re-runs a 1-year window every refresh and must not
+    // overwrite the well-warmed rows it wrote earlier with these cold-start states.
+    out.push({ date, phase, day: inEpisode ? i - lowIndex + 1 : null, followThrough, failed, warmedUp: i + 1 >= rules.lookbackSessions,
       lowDate: inEpisode ? bars[lowIndex].date : null, lowClose: inEpisode ? bars[lowIndex].close : null, gainPct: gainPct == null ? null : Number(gainPct.toFixed(2)) });
   }
   return out;
@@ -74,8 +77,12 @@ export function rallyAttemptRead(history = [], { through = null, rules = RULES.r
   // A follow-through inside this episode, and whether one failed in the 40 sessions before it began.
   const episode = rows.slice(start);
   const ftdIndex = episode.findIndex((row) => Number(row.followThroughDay) === 1);
+  // A follow-through "failed" only when the index undercut the low it rallied from, which restarts day 1 without passing
+  // through phase 0. An earlier follow-through that ran on to a new high (phase 0 rows after it) succeeded; counting any
+  // follow-through in the 40 sessions before as a failure told the reader a successful signal had failed.
   const before = rows.slice(Math.max(0, start - 40), start);
-  const failedEarlier = before.some((row) => Number(row.followThroughDay) === 1);
+  const lastFtd = before.map((row) => Number(row.followThroughDay) === 1).lastIndexOf(true);
+  const failedEarlier = lastFtd >= 0 && before.slice(lastFtd).every((row) => Number(row.rallyPhase) !== RALLY_PHASE.none);
   if (phase === RALLY_PHASE.attempt) {
     const toGo = Math.max(0, rules.minDay - day);
     const state = `반등 시도 ${day}일째`;

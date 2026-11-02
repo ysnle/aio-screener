@@ -1333,6 +1333,11 @@ export function buildMarketRegime(input = {}) {
     if (!tnx || tnx20 == null) state = 'unknown';
     else if (latch.on) state = 'burden';
     else if (tnx20 <= -R.move20dBp) state = 'favorable';
+    // v59.59 (logic refactor, feature audit 11-02): a 10-year falling while the S&P 500 also fell 3%+ over the same 20
+    // sessions is the bond market pricing weaker growth — the discount-rate relief does not reach stocks, so it is not 양호.
+    const spxFall20 = s.spx ? pct(s.spx.value, s.spx.d20) : null;
+    const growthScare = state === 'favorable' && spxFall20 != null && spxFall20 <= R.growthScareSpx20dPct;
+    if (growthScare) state = 'neutral';
     // v58.55: the rule on a hypothetical 10-year close (5/20-session bases and the one-year range held, the latch as of
     // today: 부담 holds unless the exit holds), for 판단이 바뀌는 조건.
     const ratesAt = (yieldPct) => {
@@ -1364,6 +1369,7 @@ export function buildMarketRegime(input = {}) {
       : `1년 범위 상단에서 최근 5일 ${signed(tnx5, 0, 'bp')} 오른 장기금리`;
     const heldRead = held ? `장기금리가 ${tnx.yearPosition == null ? '' : `1년 범위 상단(${fmt(tnx.yearPosition * 100, 0)}%)에서 `}20거래일 ${signed(tnx20, 0, 'bp')}이고 최근 5일은 ${signed(tnx5, 0, 'bp')}${tnx5 != null && tnx5 < 0 ? ' 되돌렸지만' : '였지만'}, 범위 ${R.rangeExitAt * 100}% 아래로 내려오거나 20거래일 상승이 +${R.exit20dBp}bp 아래로 줄기 전까지는 할인율 부담으로 봅니다.${latch.since ? ` 부담 판정은 ${shortDate(latch.since)}부터 이어지고 있습니다.` : ''}` : null;
     const read = heldRead || state === 'burden' ? heldRead || `${rateMove} — 주식 할인율 부담${realLed ? '. 실질금리 주도 여부는 5일 관측 기준이며(20일 전체를 분해한 자료는 없습니다), 최근 5일 상승분 대부분이 실질금리였습니다' : ''}.`
+      : growthScare ? `장기금리가 20거래일 ${signed(tnx20, 0, 'bp')} 내렸지만 S&P 500도 ${signed(spxFall20)} 빠졌습니다 — 성장 걱정형 금리 하락이라 할인율 부담 감소로 보지 않습니다.`
       : state === 'favorable' ? '장기금리가 내려오는 구간 — 할인율 부담이 줄고 있습니다.'
         : state === 'unknown' ? (tnx ? '10년물 20일 변화를 계산할 기록이 부족합니다.' : staleRead('금리', alignments.tnx))
           // v57.55 review (E2-09): "+22bp" read as "뚜렷한 방향 없이" — below the burden bar is not the same as no direction.

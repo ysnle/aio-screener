@@ -60,15 +60,20 @@ export function buildIndexEarnings({ rows = [], weights = null, consensus = null
     if (est.asOf && (!latest || est.asOf > latest)) latest = est.asOf;
     if (est.asOf && (!oldest || est.asOf < oldest)) oldest = est.asOf;
     const secondClass = Object.hasOwn(SHARE_CLASS_OF, sym) && members.some((row) => String(row.sym).toUpperCase() === SHARE_CLASS_OF[sym]);
-    const up = secondClass ? 0 : finite(fwd.up4w) ?? 0;
-    const down = secondClass ? 0 : finite(fwd.down4w) ?? 0;
-    const sector = member.sector || '기타';
-    const bucket = sectors.get(sector) || { sector, up: 0, down: 0, members: 0, weight: 0 };
-    for (const target of [all, bucket]) {
-      target.up += up; target.down += down; target.members += secondClass ? 0 : 1; target.weight += member.weight;
+    // v59.59 (logic refactor): a member without both 4-week revision counts is not collected, not "0 up, 0 down" — it
+    // used to add its weight to the revision coverage, so the 80% gate passed with a breadth resting on a few members.
+    const revisionsKnown = finite(fwd.up4w) != null && finite(fwd.down4w) != null;
+    if (revisionsKnown) {
+      const up = secondClass ? 0 : finite(fwd.up4w);
+      const down = secondClass ? 0 : finite(fwd.down4w);
+      const sector = member.sector || '기타';
+      const bucket = sectors.get(sector) || { sector, up: 0, down: 0, members: 0, weight: 0 };
+      for (const target of [all, bucket]) {
+        target.up += up; target.down += down; target.members += secondClass ? 0 : 1; target.weight += member.weight;
+      }
+      if (up > down) all.netUp += 1; else if (down > up) all.netDown += 1;
+      sectors.set(sector, bucket);
     }
-    if (up > down) all.netUp += 1; else if (down > up) all.netDown += 1;
-    sectors.set(sector, bucket);
     const priceRow = bySym.get(sym);
     const price = closeCurrent(priceRow) ? priceOf(priceRow) : null;
     const eps = finite(fwd.eps);
@@ -83,7 +88,7 @@ export function buildIndexEarnings({ rows = [], weights = null, consensus = null
       }
     }
   }
-  if (!all.members) return { available: false, reason: '지수 구성 종목의 컨센서스가 없습니다.' };
+  if (!all.members && !yieldWeight) return { available: false, reason: '지수 구성 종목의 컨센서스가 없습니다.' };
   const coveragePct = totalWeight > 0 ? (all.weight / totalWeight) * 100 : null;
   const yieldCoveragePct = totalWeight > 0 ? (yieldWeight / totalWeight) * 100 : null;
   const breadth = coveragePct >= INDEX_EARNINGS_MIN_WEIGHT_PCT ? revisionOf(all) : null;

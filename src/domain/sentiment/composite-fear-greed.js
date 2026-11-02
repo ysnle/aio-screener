@@ -10,6 +10,7 @@
 import { alignInput, buildCloseSeries, closeBasis, isUsable } from '../market/close-series.js';
 import { readNumber as finite } from '../shared/number.js';
 import { isIsoDay } from '../shared/session-date.js';
+import { percentileOf } from '../shared/percentile.js';
 
 export const COMPOSITE_FEAR_GREED_VERSION = 'aio-sentiment-composite.v1';
 const RANK_WINDOW = 252;
@@ -41,9 +42,7 @@ function percentileRank(raw) {
   if (raw.length < MIN_RANK_SAMPLE) return null;
   const sample = raw.slice(-RANK_WINDOW);
   const latest = sample[sample.length - 1];
-  const below = sample.filter((value) => value < latest).length;
-  const equal = sample.filter((value) => value === latest).length;
-  return Math.round(((below + 0.5 * equal) / sample.length) * 1000) / 10;
+  return Math.round(percentileOf(sample, latest) * 10) / 10; // v59.59: shared/percentile.js (a 1-year high is 100, not 99.8)
 }
 
 function component(id, label, rawSeries, { invert = false, basis }) {
@@ -97,9 +96,17 @@ export function computeCompositeFearGreed({ history = [], macroHistory = null } 
   // 1. Market momentum: S&P 500 against its 125-day average.
   components.push(component('momentum', '시장 모멘텀', ratioToAverage(history, 'spx', 125), { basis: 'S&P 500 ÷ 125일 평균 − 1' }));
   // 2. Stock price strength: new highs minus new lows (screener universe, not NYSE-wide).
+  // v59.59 (logic refactor): ranked as a share of the eligible names, within the latest universe. The raw count difference
+  // was ranked across a universe change (826 AIO names → ~497 S&P 500 members on 2025-11-04), so the old rows' counts
+  // stood ~1.7× higher and pulled the latest rank; a row without an eligible count cannot be put on the same scale.
+  const rowByDate = new Map((Array.isArray(history) ? history : []).filter((row) => row?.date).map((row) => [row.date, row]));
   const highs = new Map(series(history, 'breadthNewHighs').map((row) => [row.date, row.value]));
-  const strength = series(history, 'breadthNewLows').filter((row) => highs.has(row.date)).map((row) => ({ date: row.date, value: highs.get(row.date) - row.value }));
-  components.push(component('strength', '주가 강도', strength, { basis: '52주 신고가 − 신저가 (스크리너 유니버스)' }));
+  const metaOf = (date) => rowByDate.get(date)?.fieldMeta?.breadthNewHighs || null;
+  const strengthRaw = series(history, 'breadthNewLows').filter((row) => highs.has(row.date) && finite(metaOf(row.date)?.eligible) > 0);
+  const scope = strengthRaw.length ? metaOf(strengthRaw.at(-1).date)?.universeScope ?? null : null;
+  const strength = strengthRaw.filter((row) => (metaOf(row.date)?.universeScope ?? null) === scope)
+    .map((row) => ({ date: row.date, value: (highs.get(row.date) - row.value) / finite(metaOf(row.date).eligible) * 100 }));
+  components.push(component('strength', '주가 강도', strength, { basis: '(52주 신고가 − 신저가) ÷ 판정 가능 종목 % (같은 유니버스 안에서)' }));
   // 3. Breadth: McClellan-style oscillator on the advancing share (counts, not volume).
   const advance = series(history, 'advanceRatio');
   const centered = advance.map((row) => row.value - 0.5);

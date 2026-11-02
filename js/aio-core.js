@@ -11852,10 +11852,11 @@ function _aioCleanOHLCV(ohlcv) {
     var close = Number(d.close);
     if (!isFinite(close) || close <= 0) return null;
     var open = Number(d.open); if (!isFinite(open) || open <= 0) open = close;
-    var high = Number(d.high); if (!isFinite(high) || high <= 0) high = Math.max(open, close);
-    var low = Number(d.low); if (!isFinite(low) || low <= 0) low = Math.min(open, close);
+    var high = Number(d.high), low = Number(d.low), hlFilled = !(isFinite(high) && high > 0 && isFinite(low) && low > 0); // v59.59: filled H/L is marked, ADR/VCP skip it
+    if (!isFinite(high) || high <= 0) high = Math.max(open, close);
+    if (!isFinite(low) || low <= 0) low = Math.min(open, close);
     var volume = Number(d.volume); if (!isFinite(volume) || volume < 0) volume = 0;
-    return { time: d.time || d.datetime || d.date || null, open: open, high: Math.max(high, open, close), low: Math.min(low, open, close), close: close, volume: volume };
+    return { time: d.time || d.datetime || d.date || null, open: open, high: Math.max(high, open, close), low: Math.min(low, open, close), close: close, volume: volume, hlFilled: hlFilled };
   }).filter(Boolean);
 }
 
@@ -11926,7 +11927,7 @@ function _calcRSILast(closes, period) {
     avgGain = ((avgGain * (period - 1)) + Math.max(diff, 0)) / period;
     avgLoss = ((avgLoss * (period - 1)) + Math.max(-diff, 0)) / period;
   }
-  if (avgLoss === 0) return 100;
+  if (avgLoss === 0) return avgGain === 0 ? 50 : 100; // v59.59: flat (no gain, no loss) is neutral 50, as technical/definitions.js rsiWilder
   var rs = avgGain / avgLoss;
   return 100 - (100 / (1 + rs));
 }
@@ -12000,18 +12001,12 @@ function _calcClosePosition(bar) {
   return Math.max(0, Math.min(1, (c - l) / (h - l)));
 }
 
+// v59.59 (logic refactor): technical/definitions.js adrPctOf — (high − low) ÷ that day's close, as the screener's adrPct;
+// this copy divided by the open and counted a bar whose high/low was filled from open/close. Unknown without the ESM.
 function _calcADRPercent(ohlcv, period) {
-  var bars = _aioCleanOHLCV(ohlcv);
-  period = period || 20;
-  if (bars.length < 2) return null;
-  var slice = bars.slice(-Math.min(period, bars.length));
-  var vals = [];
-  for (var i = 0; i < slice.length; i++) {
-    var b = slice[i];
-    var base = b.open > 0 ? b.open : b.close;
-    if (base > 0 && b.high >= b.low) vals.push(((b.high - b.low) / base) * 100);
-  }
-  return vals.length ? vals.reduce(function(s, v) { return s + v; }, 0) / vals.length : null;
+  var bars = _aioCleanOHLCV(ohlcv), arch = window.AIO_ARCH;
+  if (bars.length < 2 || !arch || typeof arch.adrPctOf !== 'function') return null;
+  return arch.adrPctOf(bars.map(function(b) { return b.hlFilled ? null : b.high; }), bars.map(function(b) { return b.hlFilled ? null : b.low; }), bars.map(function(b) { return b.close; }), period || 20);
 }
 
 function _calcCandleMetrics(bar, prevBar) {
@@ -12038,63 +12033,16 @@ function _calcRecentLevel(values, lookback, fn) {
   return fn.apply(null, nums);
 }
 
-// v51.68: VCP (Volatility Contraction Pattern) — Mark Minervini 방법론
-// Stage 2 확인 + 스윙 고/저 수축(폭 감소) + 거래량 고갈 + 피벗 돌파 감지
-function _calcVCP(bars, indicators) {
-  var n = bars.length;
-  if (n < 60) return { ok: false, vcpScore: 0, vcpStage: 'insufficient_data' };
-  var closes  = bars.map(function(b) { return b.close; });
-  var highs   = bars.map(function(b) { return b.high; });
-  var lows    = bars.map(function(b) { return b.low; });
-  var volumes = bars.map(function(b) { return b.volume; });
-  var price = bars[n - 1].close;
-  var ind = indicators || {};
-  var sma50  = ind.sma50  || _calcSMA(closes, 50);
-  var sma200 = ind.sma200 || _calcSMA(closes, 200);
-  var sma150 = _calcSMA(closes, 150);
-  // 52주 고점 (최대 252바)
-  var lk52 = Math.min(252, n);
-  var h52 = highs.slice(n - lk52).reduce(function(m, v) { return v > m ? v : m; }, 0);
-  var pct52 = n >= 240 && h52 > 0 ? (price - h52) / h52 * 100 : null;
-  // Stage 2: 가격 > SMA150 > SMA200, 가격 > SMA50, 52주 고점 -30% 이내 — v57.84: _calcVCPServer·technical/definitions와 같이 252봉 미만은 판정 보류
-  var stage2 = !!(sma50 && sma150 && sma200 && price > sma150 && sma150 > sma200 && price > sma50 && pct52 !== null && pct52 >= -30);
-  // 베이스 구간: 최근 65봉(또는 n-10)
-  var bLen = Math.min(65, n - 10), bV = volumes.slice(n - bLen);
-  // v57.84: 수축·피벗은 생산자와 같은 감지기(technical/definitions.js) — v57.88: ESM 미탑재 시 '패턴 없음'이 아니라 판정 불가
-  var _det = window.AIO_ARCH && typeof window.AIO_ARCH.detectContractions === 'function' ? window.AIO_ARCH.detectContractions(bars.filter(function(b) { return b.high > 0 && b.low > 0 && b.high >= b.low; })) : null;
-  if (!_det) return { ok: false, vcpScore: 0, vcpStage: 'insufficient_data' };
-  var ctrs = _det.contractions.map(function(c) { return { depth: Math.round(c.depth * 10) / 10, highPx: c.high, lowPx: c.low }; });
-  var cnt = ctrs.length, shrink = !!_det.valid;
-  // 거래량 고갈: 후반부 평균 < 전반부 평균 × 0.85
-  var volDry = false;
-  if (bV.length >= 20) {
-    var half = Math.floor(bV.length / 2);
-    var fv = bV.slice(0, half).filter(function(v) { return v > 0; });
-    var sv = bV.slice(half).filter(function(v) { return v > 0; });
-    var fa = fv.length ? fv.reduce(function(s, v) { return s + v; }, 0) / fv.length : 0;
-    var sa = sv.length ? sv.reduce(function(s, v) { return s + v; }, 0) / sv.length : 0;
-    volDry = fa > 0 && sa > 0 && sa < fa * 0.85;
-  }
-  var pivot = _det.valid ? _det.pivot : null; // v57.84: 유효한 수축 구간의 마지막 고점만 피벗
-  var nearPivot = !!(pivot && price >= pivot * 0.97 && price <= pivot * 1.03);
-  var brk = !!(pivot && typeof window.AIO_ARCH.isBreakoutDay === 'function' && window.AIO_ARCH.isBreakoutDay({ closes: closes, volumes: volumes, i: n - 1, pivot: pivot }) && closes.slice(-6, -1).some(function(c) { return c <= pivot; })); // audit 2026-10-17 D6: the shared breakout day (technical/definitions.js), as _calcVCPServer
-  // VCP 점수 (0~100)
-  var score = 0;
-  if (stage2)    score += 25;
-  if (cnt >= 2)  score += Math.min(20, cnt * 7);
-  if (shrink)    score += 20;
-  if (volDry)    score += 15;
-  if (nearPivot) score += 10;
-  if (brk)       score += 10;
-  score = Math.min(100, Math.round(score));
-  var vcpStage = !stage2 ? 'not_stage2' : brk ? 'breakout' : nearPivot ? 'near_pivot' : (cnt >= 2 && shrink) ? 'contracting' : cnt >= 1 ? 'basing' : 'stage2_only';
-  return {
-    ok: true, vcpScore: score, vcpStage: vcpStage, stage2: stage2,
-    contractionCount: cnt, contractionDepths: ctrs.map(function(c) { return c.depth; }),
-    isShrinking: shrink, volumeDrying: volDry, pivotLevel: pivot,
-    nearPivot: nearPivot, breakout: brk,
-    pctFrom52wHigh: pct52 !== null ? Math.round(pct52 * 10) / 10 : null
-  };
+// v51.68: VCP (Volatility Contraction Pattern) — Mark Minervini 방법론. v59.59 (logic refactor): the producer's own
+// _calcVCPServer (AIO_ARCH.vcpRead) — this copy had no 'pivot_down'/'extended' stage, so a close >5% over the pivot read
+// near_pivot here and extended in the screener for the same bars. Bars with a filled high/low are left out, as there.
+function _calcVCP(bars) {
+  var arch = window.AIO_ARCH;
+  if (bars.length < 60 || !arch || typeof arch.vcpRead !== 'function') return { ok: false, vcpScore: 0, vcpStage: 'insufficient_data' };
+  var col = function(key) { return bars.map(function(b) { return (key === 'high' || key === 'low') && b.hlFilled ? null : b[key]; }); };
+  var v = arch.vcpRead(col('close'), col('high'), col('low'), col('volume'));
+  if (!v) return { ok: false, vcpScore: 0, vcpStage: 'insufficient_data' };
+  return Object.assign({ ok: true }, v);
 }
 
 // v51.69: RSI 시리즈 전체 계산 (Wilder's smoothing) — divergence 감지용
@@ -12111,11 +12059,11 @@ function _calcRSISeries(closes, period) {
   var avgG = 0, avgL = 0;
   for (var k = 0; k < period; k++) { avgG += gains[k]; avgL += losses[k]; }
   avgG /= period; avgL /= period;
-  var rsi = [avgL === 0 ? 100 : avgG === 0 ? 0 : 100 - 100 / (1 + avgG / avgL)];
+  var _rsiOf = function(g, l) { return l === 0 ? (g === 0 ? 50 : 100) : 100 - 100 / (1 + g / l); }, rsi = [_rsiOf(avgG, avgL)]; // v59.59: flat = 50 (rsiWilder)
   for (var m = period; m < gains.length; m++) {
     avgG = (avgG * (period - 1) + gains[m]) / period;
     avgL = (avgL * (period - 1) + losses[m]) / period;
-    rsi.push(avgL === 0 ? 100 : avgG === 0 ? 0 : 100 - 100 / (1 + avgG / avgL));
+    rsi.push(_rsiOf(avgG, avgL));
   }
   return rsi;
 }

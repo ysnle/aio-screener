@@ -34,7 +34,10 @@ export function buildKrInvestorFlowView(artifact, { nowMs = Date.now(), loadStat
       const last = series.at(-1);
       rows.push({ id: investor, label: investorLabel, value: last.date === date ? last.value : null, date: last.date });
       const recent = series.slice(-KR_FLOW_TREND_SESSIONS);
-      trends.push({ id: investor, label: investorLabel, points: recent, sum5: series.length >= 5 ? sum(series.slice(-5)) : null, sum20: series.length >= KR_FLOW_TREND_SESSIONS ? sum(recent) : null, sessions: recent.length });
+      // v59.59 (logic refactor): an investor series that ends before the market's latest session has no current 5/20-session
+      // sum — the row value was already withheld, but its sums sat next to the other investors' current ones.
+      const current = last.date === date;
+      trends.push({ id: investor, label: investorLabel, points: recent, sum5: current && series.length >= 5 ? sum(series.slice(-5)) : null, sum20: current && series.length >= KR_FLOW_TREND_SESSIONS ? sum(recent) : null, sessions: recent.length });
     }
     if (!rows.length || !date) continue;
     const ageDays = Math.round((Date.parse(`${today}T00:00:00Z`) - Date.parse(`${date}T00:00:00Z`)) / 86400000);

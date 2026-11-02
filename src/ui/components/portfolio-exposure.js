@@ -6,7 +6,7 @@
 
 const esc = (root, s) => (typeof root.escHtml === 'function' ? root.escHtml(String(s)) : String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])));
 
-export function renderPortfolioExposure(positions, returnsMap, { documentRef = globalThis.document, root = globalThis } = {}) {
+export function renderPortfolioExposure(positions, returnsMap, { documentRef = globalThis.document, root = globalThis, corrRes = null } = {}) {
   const el = documentRef.getElementById('pf-exposure-panel');
   if (!el) return;
   if (!positions || !positions.length) { el.innerHTML = ''; return; }
@@ -52,10 +52,15 @@ export function renderPortfolioExposure(positions, returnsMap, { documentRef = g
   const avgRank = wr > 0 ? Math.round(ranked.reduce((s, r) => s + r.stock.rank * r.w, 0) / wr) : null;
   // The rank average is over the ranked holdings only; its coverage of the holdings is printed beside it.
   const rankCoverage = posSum > 0 ? Math.round(ranked.reduce((s, r) => s + (r.value || 0), 0) / posSum * 100) : null;
-  // Mean pairwise correlation.
+  // Mean pairwise correlation. v59.59 (logic refactor): from the risk panel's own matrix when it is passed — its KR–US
+  // cells are weekly (non-synchronous closes understate daily co-movement), so the daily average here read lower than
+  // the matrix beside it. The daily fallback stays for a caller without the matrix.
   const tk = Object.keys(returnsMap || {});
   let cs = 0; let cn = 0;
-  for (let a = 0; a < tk.length; a++) {
+  const matrix = Array.isArray(corrRes?.matrix) ? corrRes.matrix : null;
+  if (matrix) {
+    for (let a = 0; a < matrix.length; a++) for (let b = a + 1; b < matrix.length; b++) { const c = matrix[a]?.[b]; if (typeof c === 'number' && Number.isFinite(c)) { cs += c; cn++; } }
+  } else for (let a = 0; a < tk.length; a++) {
     for (let b = a + 1; b < tk.length; b++) {
       const c = root._pfPearson(returnsMap[tk[a]], returnsMap[tk[b]]);
       if (c != null) { cs += c; cn++; }

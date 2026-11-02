@@ -11,21 +11,26 @@ export const TECHNICAL_DEFINITIONS_VERSION = 'technical-definitions.v1';
 const T = RULES.technical;
 
 
-/** Simple moving average per index (null until `period` values exist). */
+const isNum = (value) => typeof value === 'number' && Number.isFinite(value);
+
+/**
+ * Simple moving average per index (null until `period` values exist). v59.59 (logic refactor): a window holding a
+ * missing value is null — `sum += null` added 0, so [1, 2, null, 4] averaged 1 at index 2.
+ */
 export function smaSeries(values, period) {
   return values.map((_, index) => {
     if (index + 1 < period) return null;
     let sum = 0;
-    for (let k = index + 1 - period; k <= index; k++) sum += values[k];
+    for (let k = index + 1 - period; k <= index; k++) { if (!isNum(values[k])) return null; sum += values[k]; }
     return sum / period;
   });
 }
 
-/** Simple average of the last `period` values, or null when fewer exist. */
+/** Simple average of the last `period` values, or null when fewer exist or one of them is missing. */
 export function smaLast(values, period) {
   if (!Array.isArray(values) || period <= 0 || values.length < period) return null;
   let sum = 0;
-  for (let i = values.length - period; i < values.length; i++) sum += values[i];
+  for (let i = values.length - period; i < values.length; i++) { if (!isNum(values[i])) return null; sum += values[i]; }
   return sum / period;
 }
 
@@ -47,6 +52,32 @@ export function emaSeries(values, period) {
 export function emaLast(values, period) {
   if (!Array.isArray(values) || values.length < period) return null;
   return emaSeries(values, period).at(-1) ?? null;
+}
+
+/**
+ * Wilder's RSI on the last value of `closes` (period-bar simple seed, then Wilder smoothing over the whole input) — the
+ * TradingView/TA-Lib default and the one RSI of the producer (screener rsi), the chart and the legacy snapshot
+ * (P584/R265 parity). Non-positive or non-finite closes are dropped before the differences are taken. A series with no
+ * gains and no losses has no relative strength: 50 (neutral), not the 100 the old `avgLoss === 0` branch printed for a
+ * halted or flat stock. Unrounded; null below period + 1 closes.
+ */
+export function rsiWilder(closes, period = 14) {
+  const nums = (Array.isArray(closes) ? closes : []).filter((v) => typeof v === 'number' && Number.isFinite(v) && v > 0);
+  if (!(period > 0) || nums.length < period + 1) return null;
+  let gain = 0, loss = 0;
+  for (let i = 1; i <= period; i++) {
+    const d = nums[i] - nums[i - 1];
+    if (d >= 0) gain += d; else loss -= d;
+  }
+  let avgGain = gain / period;
+  let avgLoss = loss / period;
+  for (let j = period + 1; j < nums.length; j++) {
+    const diff = nums[j] - nums[j - 1];
+    avgGain = ((avgGain * (period - 1)) + Math.max(diff, 0)) / period;
+    avgLoss = ((avgLoss * (period - 1)) + Math.max(-diff, 0)) / period;
+  }
+  if (avgLoss === 0) return avgGain === 0 ? 50 : 100;
+  return 100 - (100 / (1 + avgGain / avgLoss));
 }
 
 /** True range per bar; the first bar has no prior close, so its range is high − low. */
@@ -151,14 +182,15 @@ export function isBreakoutDay({ closes, volumes, i, pivot, ceiling = true }) {
 export const WEINSTEIN_READS = Object.freeze({
   1: '바닥 형성 — 30주선이 평평하거나 아직 내려가는 중이고, 가격이 그 주변에서 다지는 단계',
   2: '상승 추세 — 가격이 오르는 30주선 위에 있는 단계(추세 추종이 유효한 구간)',
-  3: '천장 형성 — 오르던 30주선이 평평해지거나 가격이 그 아래로 내려오는 단계',
+  3: '천장 형성 — 오르던 30주선이 평평해지고 가격이 그 위아래를 오가는 단계',
   4: '하락 추세 — 가격이 내려가는 30주선 아래에 있는 단계'
 });
 
 /**
  * Weinstein stage on weekly closes: the 30-week average and its 4-week slope. Flat (|slope| < 1%) is a base (1) or a
- * top (3) by whether the average stands above where it was 26 weeks ago; rising is 2 above the line and 3 under it;
- * falling is 4 under the line and 1 above it. The only reading that may be called 'n단계' (stage.js names the moving-
+ * top (3) by whether the average stands above where it was 26 weeks ago; rising is 2 (a close under the still-rising
+ * line is a stage-2 pullback, `pullback: true` — v59.59: it used to read 3, but Weinstein's top is the line flattening,
+ * and chart-strategies' exit rule says the same); falling is 4 under the line and 1 above it. The only reading that may be called 'n단계' (stage.js names the moving-
  * average order, not this).
  */
 export function weinsteinStage(closes, rules = T.weinstein) {
@@ -171,8 +203,9 @@ export function weinsteinStage(closes, rules = T.weinstein) {
   const slope = (now / then - 1) * 100;
   const above = closes[wn] > now;
   const flat = Math.abs(slope) < rules.flatSlopePct;
-  const stage = flat ? (prior != null && now > prior ? 3 : 1) : slope > 0 ? (above ? 2 : 3) : (above ? 1 : 4);
-  return Object.freeze({ stage, slope, above, text: WEINSTEIN_READS[stage] });
+  const stage = flat ? (prior != null && now > prior ? 3 : 1) : slope > 0 ? 2 : (above ? 1 : 4);
+  const pullback = stage === 2 && !above;
+  return Object.freeze({ stage, slope, above, pullback, text: pullback ? '상승 추세 중 눌림 — 30주선은 아직 오르는데 가격이 그 아래로 내려온 단계(선이 평평해지면 천장 형성)' : WEINSTEIN_READS[stage] });
 }
 
 // v57.84 (owner decision, TECHNICAL-DEFINITIONS 2절 1): moved from chart-analysis.js — the one VCP contraction detector for the

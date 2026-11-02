@@ -47,14 +47,20 @@ export function rebasedLine(bars, otherBars, window = COMPARE_WINDOW) {
   const scale = bars[base].close / aligned[base];
   const points = [];
   for (let k = base; k < bars.length; k++) if (aligned[k] > 0) points.push({ time: bars[k].time, value: aligned[k] * scale });
-  return points.length >= 2 ? { points, start: bars[base].time, endPct: (aligned.at(-1) > 0 ? aligned.at(-1) / aligned[base] - 1 : null) } : null;
+  return points.length >= 2 ? { points, start: bars[base].time, endPct: (aligned.at(-1) > 0 ? (aligned.at(-1) / aligned[base] - 1) * 100 : null) } : null; // v59.59: %, as every other return here
 }
 
 /** Period returns (%) from completed closes, newest close against the close `n` sessions earlier. */
 export function periodReturns(bars) {
-  const closes = (Array.isArray(bars) ? bars : []).map((bar) => bar?.close).filter((value) => value > 0);
+  // v59.59 (logic refactor): counted on the bar index, as alignedPeriodReturns is. Filtering out a bar without a close
+  // first made "1개월 = 21 sessions" reach 22 sessions back, so the stock row and the comparison rows covered different
+  // spans; a missing start close is now null for that period.
+  const closes = (Array.isArray(bars) ? bars : []).map((bar) => bar?.close);
   const last = closes.at(-1);
-  return Object.fromEntries(COMPARE_PERIODS.map(([label, n]) => [label, closes.length > n && last > 0 ? (last / closes[closes.length - 1 - n] - 1) * 100 : null]));
+  return Object.fromEntries(COMPARE_PERIODS.map(([label, n]) => {
+    const start = closes[closes.length - 1 - n];
+    return [label, closes.length > n && last > 0 && start > 0 ? (last / start - 1) * 100 : null];
+  }));
 }
 
 /**

@@ -1035,7 +1035,7 @@ async function refreshPortfolioRisk() {
   window._aioRenderPortfolioRiskMetrics({ var95: var95, var99: var99, sharpe: sharpe, mddRes: mddRes,
     corrRes: corrRes, validTickers: validTickers, n: minLen, rfAnnual: rfAnnual,
     estimate: estimate, fxExcluded: !!(assembled && assembled.fxIncluded === false) }); // P1445
-  try { window._aioRenderPortfolioExposure(positions, returnsMap); } catch(_) {}   // v50.54 3D
+  try { window._aioRenderPortfolioExposure(positions, returnsMap, corrRes); } catch(_) {}   // v50.54 3D · v59.59 the matrix's own cells
   try { window._aioRenderPortfolioStress(positions, historyMap, commonDates); } catch(_) {} // v50.54 3E
   try { refreshPortfolioTechnicalRisk(); } catch(_) {}
 }
