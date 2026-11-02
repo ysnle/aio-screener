@@ -127,9 +127,12 @@ for (const manager of filerProfiles) {
 const successful = discovered.filter((item) => item.status === 'DISCOVERED');
 const latestPeriod = successful.map((item) => item.latestSubmission.periodOfReport).sort().at(-1) || null;
 for (const item of successful) {
-  item.freshnessStatus = item.latestSubmission.periodOfReport === latestPeriod ? 'CURRENT_REFERENCE' : 'STALE_REFERENCE';
-  item.noticeStatus = item.latestSubmission.baseForm === '13F-NT' ? 'NOTICE_FILED' : 'HOLDINGS_FILED';
+  // v59.59 (feature audit 2026-11-02): currentness follows the holdings this site can show, not the latest submission.
+  // Pershing filed a 13F-NT for 2026-06-30 (its holdings were reported by another filer), so its newest own holdings are
+  // 2026-03-31; it was marked CURRENT_REFERENCE beside holdingsLag true. noticeStatus still says why the period is missing.
   item.holdingsLag = item.latestSubmission.periodOfReport > item.latestHoldings.periodOfReport;
+  item.freshnessStatus = item.latestHoldings.periodOfReport === latestPeriod && !item.holdingsLag ? 'CURRENT_REFERENCE' : 'STALE_REFERENCE';
+  item.noticeStatus = item.latestSubmission.baseForm === '13F-NT' ? 'NOTICE_FILED' : 'HOLDINGS_FILED';
 }
 
 const connectedById = new Map((holdings.managers || []).map((manager) => [manager.id, manager]));

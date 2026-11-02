@@ -132,11 +132,19 @@ export function buildRotationHistory({ histories = {}, previous = null, now = Da
   };
 }
 
+// 2026-11-02 (feature audit): the 30-minute producer computed the 10/30 rows at 20:21Z, 21 minutes after the close, and
+// then reused them for the whole session. Yahoo's daily bar was not final yet: SMH read -8.41% and SPY -2.3% while the
+// settled closes (screener, fetched later) were -6.98% and -1.77%. A completed session is reused only once every row
+// was fetched at least this long after the close; until then each run collects it again. completionGraceMinutes (5)
+// stays the earliest a bar may be read at all, and this window is not part of the artifact contract.
+export const ROTATION_SETTLED_FETCH_MINUTES = 120;
+const settledRow = (row, target) => validIso(row?.fetchedAt) && Date.parse(row.fetchedAt) >= target.closeMs + ROTATION_SETTLED_FETCH_MINUTES * 60000;
+
 /** Injectable collector: fixture tests never execute the real producer/network. */
 export async function collectRotationHistory({ fetchHistory, previous = null, now = Date.now(), symbols = ROTATION_SYMBOLS, concurrency = 3, clock = Date.now } = {}) {
   const nowMs = Number(now);
   const target = Number.isFinite(nowMs) ? latestCompletedUsSession(nowMs - 5 * 60000, { requirePrevious: false }) : null;
-  if (target && contractMatches(previous) && validIso(previous.generatedAt) && symbols.every(symbol => currentRow(previous.items?.[symbol], target, symbol))) {
+  if (target && contractMatches(previous) && validIso(previous.generatedAt) && symbols.every(symbol => currentRow(previous.items?.[symbol], target, symbol) && settledRow(previous.items[symbol], target))) {
     return { ...previous, attemptedAt: new Date(nowMs).toISOString(), collectionStatus: 'CACHED_COMPLETED_SESSION' };
   }
   if (!target || typeof fetchHistory !== 'function') return buildRotationHistory({ previous, now, symbols });
