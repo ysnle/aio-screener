@@ -116,7 +116,7 @@ function buildHistoryItem(releases, schedules, item, macroHistory) {
   const last = series[series.length - 1] || null;
   const asOf = last ? isoDate(last.date) : null;
   const release = releaseInfo({ releases, schedules, id: item.release, asOf });
-  const base = { id: item.id, label: item.label, note: item.note, unit: item.unit, release, asOf };
+  const base = { id: item.id, label: item.label, note: item.note, unit: item.unit, people: item.people === true, release, asOf };
   if (!last) return { ...base, status: 'missing', valueText: '—', deltaText: null, meta: '수집된 값이 없습니다.' };
   const prior = monthsBack(series, last.date, 1);
   const digits = item.digits ?? 1;
@@ -140,7 +140,7 @@ function buildItem(macro, releases, schedules, item, macroHistory = null) {
   const blsSeries = item.blsSeries ? macro._bls?.series?.[item.blsSeries] : null;
   const asOf = isoDate(macro[`_asOf_${keys[0]}`]) || isoDate(blsSeries?.observedAt) || null;
   const release = releaseInfo({ releases, schedules, id: item.release, asOf, daily: item.daily, releasedAt: item.release === 'us-pce' ? macro._bea?.releasedAt : null });
-  const base = { id: item.id, label: item.label, note: item.note, unit: item.unit, release, asOf };
+  const base = { id: item.id, label: item.label, note: item.note, unit: item.unit, people: item.people === true, release, asOf };
   if (values.some((value) => value == null)) return { ...base, status: 'missing', valueText: '—', deltaText: null, meta: '수집된 값이 없습니다.' };
   const freshness = macro[`_freshness_${keys[0]}`];
   const stale = freshness && freshness !== 'observed';
@@ -204,7 +204,7 @@ function trendOf(item, series) {
   const half = monthsBack(series, last.date, 6);
   const digits = item.digits ?? 1;
   const unit = item.unit === '%' ? '%' : item.unit;
-  const fmt = (value) => `${item.signed ? signed(value, digits) : value.toFixed(digits)}${unit}`;
+  const fmt = (value) => item.people ? peopleText(value, { sign: item.signed }) : `${item.signed ? signed(value, digits) : value.toFixed(digits)}${unit}`;
   // P1427: direction compares 3-month averages (latest vs six months earlier) so one noisy month does not flip it.
   const avg = (rows) => rows.reduce((sum, row) => sum + row.value, 0) / rows.length;
   const recent = avg(series.slice(-3));

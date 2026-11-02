@@ -332,7 +332,9 @@ export function buildMarginCashRead(history = []) {
   const returnedBasis = returned == null ? null : buybacks != null && dividends != null ? 'both' : buybacks != null ? 'buybacks-only' : 'dividends-only';
   return {
     state: 'ready', periodEnd: latest.periodEnd, label: fyLabel(latest.periodEnd), priorLabel: prior ? fyLabel(prior.periodEnd) : null, ladder,
-    cash: liquid == null ? null : { cash, shortTermInvestments: sti, liquid, debt, net: debt != null ? liquid - debt : null, debtBasis: 'long-term' },
+    // Feature audit 2026-11-02: NVDA FY2026 had no short-term investments collected after FY2025 reported $34.6B, so net
+    // cash read $3.1B instead of ~10x that. When the prior year had them and this year's are missing, net cash is held.
+    cash: liquid == null ? null : { cash, shortTermInvestments: sti, liquid, debt, net: debt != null && !(sti == null && finite(prior?.shortTermInvestments) > 0) ? liquid - debt : null, investmentsMissing: sti == null && finite(prior?.shortTermInvestments) > 0, debtBasis: 'long-term' },
     capital: { sbc, sbcRatio: ratio(sbc), buybacks, dividends, returned, returnedBasis, fcf, returnedShareOfFcf: returned != null && fcf > 0 ? returned / fcf * 100 : null }
   };
 }

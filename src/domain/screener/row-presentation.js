@@ -11,7 +11,7 @@ export const FACTOR_LABELS = Object.freeze({
   trend: { label: '추세', color: 'var(--data-green)', description: '50일선 거리 60%·200일선 거리 40%' },
   lowvol: { label: '저변동', color: 'var(--data-cyan)', description: '실현 변동성의 역순' },
   size: { label: '규모', color: 'var(--text-muted)', description: '시가총액의 역순(작을수록 높음)' },
-  value: { label: '밸류', color: 'var(--data-amber)', description: '저PER·저PBR — 최근 연간(FY) 순이익·자본 기준' },
+  value: { label: '밸류', color: 'var(--data-amber)', description: '저PER·저PBR — PER은 최근 4개 분기(TTM) 순이익, PBR은 최근 연간(FY) 자본 기준' },
   quality: { label: '퀄리티', color: 'var(--data-amber)', description: 'ROE·마진·매출성장 — 최근 연간(FY) 공시 기준' },
   // 2026-10-17 audit: kalmanVelConf is the filter's daily trend velocity discounted by its own uncertainty, and the discount
   // is 1~9% (median 2%) because the state covariance is in log units — it reads as a speed, not a confidence.

@@ -200,10 +200,14 @@ export function buildEarningsWeek({ earnings = [], weekStart = null, weekEnd = n
     const symbol = String(row.symbol).toUpperCase();
     const screener = bySym.get(symbol);
     const mcap = Number(screener?.mcap);
-    const eps = row.epsEstimate != null && row.epsEstimate !== '' && Number.isFinite(Number(row.epsEstimate)) ? Number(row.epsEstimate) : null;
+    // Feature audit 2026-11-02: the calendar's estimates for foreign filers are in their reporting currency (KSPI "매출 예상
+    // 1.27조 달러" was tenge), and the row has no currency field. Estimates are shown — and used for ordering — only for an
+    // index member or a name in our screener universe, whose estimates are in dollars.
+    const dollarEstimates = Number(row.indexWeight) > 0 || !!screener;
+    const eps = dollarEstimates && row.epsEstimate != null && row.epsEstimate !== '' && Number.isFinite(Number(row.epsEstimate)) ? Number(row.epsEstimate) : null;
     return { symbol, name: String(names[symbol] || screener?.name || '').replace(/\s*\(The\)$/i, ''), date: row.date, session: ['bmo', 'dmh', 'amc'].includes(row.hour) ? row.hour : 'unknown',
-      mcap: Number.isFinite(mcap) && mcap > 0 ? mcap : null, weight: Number(row.indexWeight) || 0, revenueEstimate: Number(row.revenueEstimate) || 0,
-      eps, revenue: formatUsdRevenue(row.revenueEstimate), watched: watched.has(symbol), held: held.has(symbol), reported: reportedNumber(row.epsActual) != null || reportedNumber(row.revenueActual) != null };
+      mcap: Number.isFinite(mcap) && mcap > 0 ? mcap : null, weight: Number(row.indexWeight) || 0, revenueEstimate: dollarEstimates ? Number(row.revenueEstimate) || 0 : 0,
+      eps, revenue: dollarEstimates ? formatUsdRevenue(row.revenueEstimate) : null, watched: watched.has(symbol), held: held.has(symbol), reported: reportedNumber(row.epsActual) != null || reportedNumber(row.revenueActual) != null };
   });
   const rank = (a, b) => (b.mcap || 0) - (a.mcap || 0) || b.weight - a.weight || b.revenueEstimate - a.revenueEstimate || a.symbol.localeCompare(b.symbol);
   const dates = [...new Set(list.map((row) => row.date))].sort();

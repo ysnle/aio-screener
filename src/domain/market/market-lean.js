@@ -33,7 +33,7 @@ export function frequencyEvidence({ id, label, condition, rate, base, n, unit = 
   const voting = sampleN >= LEAN_RULES.minVoteN;
   const vote = voting && Math.abs(edge) >= threshold ? Math.sign(edge) : 0;
   const tail = vote ? (edge > 0 ? ' — 평소보다 상승 쪽' : ' — 평소보다 하락 쪽')
-    : voting ? ` — 차이 ${Math.abs(round(edge))}%p가 ${threshold > LEAN_RULES.seMultiple * se ? `최소 기준 ${LEAN_RULES.minEdgePp}%p` : `표본 오차 범위(약 ±${round(LEAN_RULES.seMultiple * se)}%p)`}보다 작아 평소와 구분되지 않음` : ' — 표본이 작아 참고만';
+    : voting ? ` — 차이 ${Math.abs(round(edge))}%p가 ${threshold > LEAN_RULES.seMultiple * se ? `최소 기준 ${LEAN_RULES.minEdgePp}%p` : `표본 오차 범위(표준오차의 ${LEAN_RULES.seMultiple}배, 약 ±${round(LEAN_RULES.seMultiple * se)}%p)`}보다 작아 평소와 구분되지 않음` : ' — 표본이 작아 참고만';
   return { id, label, kind: 'frequency', vote, small: !voting, rate: round(rate), base: round(base), n: sampleN, edge: round(edge),
     text: `${condition}: ${LEAN_RULES.horizon}거래일 뒤 상승 ${round(rate)}% (평소 ${round(base)}%, 표본 ${sampleN}${unit}${sampleNote})${tail}` };
 }

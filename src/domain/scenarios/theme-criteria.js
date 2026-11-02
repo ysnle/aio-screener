@@ -120,7 +120,7 @@ export const MEMBER_ROLES = Object.freeze({
   laggard: Object.freeze({ label: '후발', name: '후발주', rule: '3개월은 테마 중앙값보다 뒤지지만 50일선 위를 지킴',
     pro: '추세는 살아 있고 덜 올라 따라잡을 여지가 있습니다.', con: '뒤처진 데는 실적·사업 구성 같은 이유가 있을 수 있어 끝내 따라오지 않기도 합니다.' }),
   dropout: Object.freeze({ label: '이탈', name: '이탈주', rule: '50일선 아래이고 1개월·3개월 모두 테마 중앙값 미만',
-    pro: '가격이 많이 내려 반등 폭이 클 수 있습니다.', con: '테마 안에서 힘이 빠지는 쪽이라 50일선 아래 하락 추세가 이어지기 쉽습니다.' })
+    pro: '테마가 다시 살아날 때 이유(실적·수주)가 바뀌었는지 확인할 대상이 됩니다 — 많이 내렸다는 사실만으로는 싸다는 근거가 아닙니다.', con: '테마 안에서 힘이 빠지는 쪽이라 50일선 아래 하락 추세가 이어지기 쉽습니다.' })
 });
 
 /** Roles per member: Map sym -> { role, upRevision, thin, earnings }. Roles need minMembers measured members. */

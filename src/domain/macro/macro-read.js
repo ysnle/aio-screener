@@ -78,6 +78,15 @@ export function sahmGap(unemployment) {
   return { date: last.date, value: last.value - low, avg3: last.value, low };
 }
 
+// The monthly print that settles the held growth direction once the next report rolls both 3-month windows.
+function nextPayrollCuts(payroll, G) {
+  const changes = payroll?.changes || [];
+  if (changes.length < 5) return null;
+  const tail = changes.slice(-2).reduce((sum, row) => sum + row.value, 0);
+  const rolledPrior = changes.slice(-5, -2).reduce((sum, row) => sum + row.value, 0) / 3;
+  return { down: 3 * (rolledPrior - G.payrollSlowdownK * 1.5) - tail, up: 3 * Math.max(rolledPrior - G.payrollSlowdownK / 2, G.payrollSolidK) - tail };
+}
+
 function payrollTrend(payrolls) {
   if (payrolls.length < 7) return null;
   const changes = payrolls.slice(1).map((row, index) => ({ date: row.date, value: row.value - payrolls[index].value }));
@@ -356,7 +365,7 @@ function sharedGauges({ macro, rateFx, regime }) {
   const commodityTrigger = stateOf('commodities') !== 'burden' ? 'dollar'
     : rateFx?.wtiHigh ? 'oil-range' : wti20 != null && wti20 >= RULES.oil.rise20dPct ? 'oil-change' : 'dollar';
   const commodities = commodityTrigger === 'oil-range'
-    ? gauge({ label: 'WTI 1년 범위 내 위치', value: rateFx.wtiPosition * 100, unit: '%', digits: 0, ...cuts(0, 100, [RULES.oil.rangeHighAt * 100], ['neutral', 'burden'], [[RULES.oil.rangeHighAt * 100, `${RULES.oil.rangeHighAt * 100}%`]]) })
+    ? gauge({ label: 'WTI 1년 범위 내 위치', value: rateFx.wtiPosition * 100, unit: '%', digits: 1, ...cuts(0, 100, [RULES.oil.rangeHighAt * 100], ['neutral', 'burden'], [[RULES.oil.rangeHighAt * 100, `${RULES.oil.rangeHighAt * 100}%`]]) })
     : commodityTrigger === 'oil-change'
       ? gauge({ label: 'WTI 20일 변화', value: wti20, unit: '%', digits: 1, ...cuts(-20, 20, [RULES.oil.fall20dPct, RULES.oil.rise20dPct], ['favorable', 'neutral', 'burden'], [[RULES.oil.fall20dPct, `${RULES.oil.fall20dPct}%`], [RULES.oil.rise20dPct, `+${RULES.oil.rise20dPct}%`]]) })
       // v57.84 (threshold consolidation): the burden band starts where dollarRiseBurden() does — rise20dPct + bufferPct, or
@@ -461,7 +470,10 @@ function buildRegime(growth, inflation, mh = null) {
   // v58.74 (text audit C2): a held quadrant names what settles it — the cut each held input has to cross at the next release
   // (the payroll cuts move with the trailing 3 months once a new month arrives, so they are today's lines).
   const deciders = [
-    !growthDir && g?.payroll ? `다음 고용보고서에서 일자리 3개월 평균이 ${peopleText(g.payroll.prior3 - G.payrollSlowdownK * 1.5)} 이하면 '성장 둔화', ${peopleText(Math.max(g.payroll.prior3 - G.payrollSlowdownK / 2, G.payrollSolidK))} 이상이면 '성장 견조'로 정해집니다.` : null,
+    // Feature audit 2026-11-02: both 3-month windows roll at the next report, so today's cut (prior3 − 1.5·step) was not
+    // the line the next print has to cross. Restate it as the single new monthly print, on the rolled windows
+    // (prior revisions ignored).
+    !growthDir && nextPayrollCuts(g?.payroll, G) ? (({ down, up }) => `다음 고용보고서의 한 달 일자리 증가가 ${peopleText(down, { sign: true })} 이하면 '성장 둔화', ${peopleText(up, { sign: true })} 이상이면 '성장 견조'로 정해집니다(이전 달 수정치 제외).`)(nextPayrollCuts(g.payroll, G)) : null,
     !inflationDir && inflationHeld === '엇갈림' ? `근원 PCE와 근원 CPI의 3개월 속도가 같은 쪽으로 모이면(둘 다 전년 대비보다 ${I.reaccelPp}%p 이상 빠르거나 느림) 물가 방향이 정해집니다.` : null,
     !inflationDir && inflationHeld && inflationHeld !== '엇갈림' ? `근원 물가 3개월 연율이 전년 대비보다 ${I.reaccelPp}%p 이상 빠르면 '물가 속도 상승', 그만큼 느리면 '물가 속도 둔화'로 정해집니다.` : null
   ].filter(Boolean);

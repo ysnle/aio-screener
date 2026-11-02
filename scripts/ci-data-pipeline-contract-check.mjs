@@ -2772,7 +2772,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   const cd = await import('../src/ui/components/channel-data.js');
   const panel = cd.channelDataModel(digest.signals);
   check('v58.71 the news screen 채널 데이터 block: one reading, the leverage share by day, the rows in a fold',
-    /10\/22 서학개미 순매수에서 레버리지 롱 상품 비중은 22\.41%로 직전\(10\.84%\)보다 늘었습니다\./.test(panel?.reading || '') && panel.leverage.map((row) => row.date).join(',') === '2026-10-21,2026-10-22'
+    /10\/22 서학개미 순매수 상위 10종목에서 레버리지 롱 상품 비중은 22\.41%로 직전\(10\.84%\)보다 늘었습니다\./.test(panel?.reading || '') && panel.leverage.map((row) => row.date).join(',') === '2026-10-21,2026-10-22'
       && panel.actions.some((row) => row === '10/22 META, Rosenblatt, $886 → $900 상향, 매수') && panel.releases.length === 1 && cd.channelDataModel([]) === null,
     JSON.stringify(panel));
   if (savedSignals === undefined) delete globalThis.AIO_TELEGRAM_SIGNALS; else globalThis.AIO_TELEGRAM_SIGNALS = savedSignals;

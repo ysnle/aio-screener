@@ -67,7 +67,10 @@ export function datedItemFor({ sym, name }, { sessionCloseMs, briefs = [], teleg
   const inWindow = (ms) => Number.isFinite(ms) && ms >= sessionCloseMs - 30 * HOUR && ms <= sessionCloseMs + HOUR;
   const key = String(sym).toUpperCase();
   const brief = (briefs || []).find((item) => String(item?.symbol || '').toUpperCase() === key && inWindow(Date.parse(item.publishedAt)));
-  if (brief) return { kind: 'brief', text: `${brief.period ? `${brief.period} ` : ''}실적 발표`, atMs: Date.parse(brief.publishedAt), url: brief.source?.url || null };
+  // Feature audit 2026-11-02: an after-close US report is published early the next KST morning, so the KST day of
+  // publishedAt named the reaction day (INTC "10/30 실적 발표" for a 10/29 report); the brief's own eventDate is the day.
+  const eventMd = /^\d{4}-(\d{2})-(\d{2})$/.exec(String(brief?.eventDate || ''));
+  if (brief) return { kind: 'brief', text: `${brief.period ? `${brief.period} ` : ''}실적 발표`, atMs: Date.parse(brief.publishedAt), dateText: eventMd ? `${Number(eventMd[1])}/${Number(eventMd[2])}` : null, url: brief.source?.url || null };
   const names = namesFor(sym, name);
   // A market wrap tags many symbols (and a tag can be wrong); a post counts for this name only when it is about it: at
   // most five tags and the name in its opening text.
@@ -96,7 +99,7 @@ export function contributorsSentence(model, { indexName, sessionCloseMs, briefs,
     const dated = datedItemFor(item, { sessionCloseMs, briefs, telegram, signals, news });
     // Text pass (v59.56): fixed decimals so '-3%' never sits beside '-7.1%'.
     const sign = (value, digits) => `${value > 0 ? '+' : ''}${round(value, digits).toFixed(digits)}`;
-    const datedText = dated ? `, ${mdOf(dated.atMs)} ${dated.text}` : '';
+    const datedText = dated ? `, ${dated.dateText || mdOf(dated.atMs)} ${dated.text}` : '';
     return { ...item, dated, text: `${item.name} ${sign(item.ret1d, 1)}%(기여 ${sign(item.contributionPp, Math.abs(item.contributionPp) < 0.5 ? 2 : 1)}%p${datedText})` };
   });
   const share = Number.isFinite(model.indexChange) && Math.abs(model.indexChange) >= 0.3

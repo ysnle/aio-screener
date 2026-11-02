@@ -148,7 +148,7 @@ function renderEarningsWeek(doc, root, store, snapshot) {
   const lead = el(doc, 'p', `이번 주 ${range}실적 발표 ${week.total.toLocaleString('en-US')}건, 그중 S&P 500 ${week.sp500}건${watched.size || held.size ? `, 관심·보유 ${week.mine.length}건` : ''}`, 'briefing-earnings-lead');
   const fold = el(doc, 'details', null, 'sx-disclosure briefing-earnings-fold');
   fold.open = wasOpen;
-  fold.append(el(doc, 'summary', '날짜별 실적 발표, 시가총액 큰 순'));
+  fold.append(el(doc, 'summary', '날짜별 실적 발표, 큰 기업 순'));
   for (const day of week.days) {
     const weekday = WEEKDAY[new Date(`${day.date}T12:00:00Z`).getUTCDay()];
     // v59.55 (flow 7): a day is a label inside the one fold, not one of eight page headings.

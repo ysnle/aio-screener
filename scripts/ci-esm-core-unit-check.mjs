@@ -1940,7 +1940,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const mixedRank = buildStockRead({ symbol: '005930.KS', row: { name: 'KR fixture', sector: 'Technology', screenRank: 890 }, universeSize: 239 });
   const inRange = buildStockRead({ symbol: '005930.KS', row: { name: 'KR fixture', sector: 'Technology', screenRank: 188 }, universeSize: 239 });
   if (mixedRank.ranking || mixedRank.points.some((point) => point.id === 'rank')) fail('v57.54 rank above its denominator must not be shown');
-  if (!/가격 흐름 순위 188\/239/.test(inRange.points.find((point) => point.id === 'rank')?.text || '')) fail('v57.54 in-range market rank must be shown on its own denominator');
+  if (!/스크리너 종합 순위\(여러 요인의 가중 합\) 188\/239/.test(inRange.points.find((point) => point.id === 'rank')?.text || '')) fail('v57.54 in-range market rank must be shown on its own denominator');
   if (!/같은 섹터\(기술\)/.test(inRange.next.find((step) => step.route === 'screener')?.why || '')) fail('v57.54 screener handoff must use the Korean sector name');
   const { benchmarkRowFor } = await load('src/domain/market/benchmarks.js');
   const benchHistory = ['2026-10-06', '2026-10-07', '2026-10-08', '2026-10-12'].map((date, index) => ({ date, kospi: 100 + index }));

@@ -295,7 +295,7 @@ function learningPaths(doc) {
     if (!series.length) continue;
     const card = el(doc, 'div', 'rl-path');
     const head = el(doc, 'div', 'rl-path-head');
-    head.append(el(doc, 'span', 'rl-path-level', band.level), el(doc, 'span', 'rl-path-count', `${series.reduce((sum, path) => sum + path.lessons.length, 0)}개 노트`));
+    head.append(el(doc, 'span', 'rl-path-level', band.level), el(doc, 'span', 'rl-path-count', `${new Set(series.flatMap((path) => path.lessons)).size}개 노트`));
     const list = el(doc, 'ol', 'rl-path-steps');
     series.forEach((path, index) => {
       const item = el(doc, 'li');

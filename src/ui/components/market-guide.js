@@ -70,7 +70,9 @@ export function renderHomeGuide({ documentRef: doc, root, store = null, anchor =
   const costs = d.costIfWrong.length ? el(doc, 'ul', null, 'mg-costs') : null;
   for (const cost of d.costIfWrong) costs.append(el(doc, 'li', `'${cost.short}'(${cost.fit}) 쪽으로 가면 — ${cost.text}${cost.trigger ? ` 확인: ${cost.trigger}` : ''}`));
   const stance = el(doc, 'div', null, 'mg-stance');
-  for (const [label, list, kind] of [['지향할 것', guide.stance.pursue, 'pursue'], ['지양할 것', guide.stance.avoid, 'avoid']]) {
+  // Feature audit 2026-11-02: '지향할 것/지양할 것' read as instructions to the reader; the lists are the scenario cost
+  // comparison's result and the traps, so the headings say that (AGENTS: conditional reasoning, never an instruction).
+  for (const [label, list, kind] of [['시나리오 비교에서 유리하게 적힌 쪽', guide.stance.pursue, 'pursue'], ['비용이 크게 적힌 쪽과 피할 함정', guide.stance.avoid, 'avoid']]) {
     if (!list.length) continue;
     const col = el(doc, 'div', null, 'mg-stance-col'); col.dataset.kind = kind;
     const ul = el(doc, 'ul'); list.forEach((text) => ul.append(el(doc, 'li', text)));
