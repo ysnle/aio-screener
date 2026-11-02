@@ -455,6 +455,83 @@ check('v59.56 cash-flow lane in the reading: the group line always, an issuer li
   eq(cashflowContextLines(null, briefs, '2026-10-30', { nowMs }), '');
 });
 
+// v59.59 (feature audit 2026-11-02, CCJ): a foreign issuer's home-currency release is not compared with the USD consensus.
+{
+  const { statedReportingCurrency, consensusComparable } = await import('../src/domain/briefing/event-briefs.js');
+  check('v59.59 reporting currency: a stated Canadian basis or NT$ amounts are not USD; US$ amounts are; an 8-K is compared as before', () => {
+    eq(statedReportingCurrency('All dollar amounts are expressed in Canadian dollars unless otherwise stated. Revenue 619'), 'other');
+    eq(statedReportingCurrency('(in millions of U.S. dollars) Revenue 500'), 'USD');
+    eq(statedReportingCurrency('net revenue NT$989.9 billion, NT$12, US$33.1 billion'), 'other');
+    eq(statedReportingCurrency('net sales US$242.1 million, US$1.2, gross US$0.5'), 'USD');
+    eq(consensusComparable({ form: 'SEC 6-K EX-99.1', currency: 'other' }), false);
+    eq(consensusComparable({ form: 'SEC 6-K EX-99.1', currency: null }), false);
+    eq(consensusComparable({ form: 'SEC 6-K EX-99.1', currency: 'USD' }), true);
+    eq(consensusComparable({ form: 'SEC 8-K EX-99.1', currency: null }), true, 'an 8-K mentioning the euro as an exposure keeps its comparison');
+  });
+  const stored = { id: 'earnings-CCJ-0001193125-26-439858', kind: 'earnings', status: 'complete', basis: 'primary-source', symbol: 'CCJ', nameKo: '카메코', tier: 2, eventDate: '2026-10-30',
+    publishedAt: '2026-10-30T11:00:00.000Z', headline: '카메코 3분기 매출 6.19억', details: [], guidance: [], watch: [], dropped: [], ai: [],
+    figures: [{ metric: 'revenue', label: '3분기 매출', value: '$619 million', text: '', estimate: { value: 725149094, surprisePct: -14.6, source: 'Finnhub', basis: 'provider-consensus-reference' } }],
+    source: { kind: 'T1_OFFICIAL', title: 'SEC 6-K EX-99.1', url: 'https://www.sec.gov/x', accession: '0001193125-26-439858' } };
+  const rerun = await buildEventBriefs({ ...base, previous: { ...first, briefs: [...first.briefs, stored] }, nowMs });
+  check('v59.59 a stored foreign-issuer brief loses the USD consensus comparison (CCJ C$619M read −14.6% against a USD estimate)', () => {
+    const ccj = rerun.briefs.find((brief) => brief.id === stored.id);
+    ok(ccj, 'the stored brief is kept');
+    eq(ccj.figures[0].estimate, undefined);
+    ok(rerun.briefs.find((brief) => brief.id === msft.id)?.figures.some((figure) => figure.estimate), 'a domestic 8-K keeps its comparison');
+  });
+}
+
+// v59.59 (AI lane refactor): every brief request goes through the shared transport with its lane's registered profile, and
+// every prompt carries the shared writing rules (합니다체, Korean names, no value repeated in the text).
+{
+  const { SHARED_AI_PROFILES, sharedAiPurpose, requestSharedJson } = await import('./lib/ai-shared-analysis.mjs');
+  const { FORMAL_ENDING, PROMPT_RULES } = await import('./lib/ai-prompt-rules.mjs');
+  const recorded = await fixtureSources(fixtureDir);
+  const bodies = [];
+  const replay = recorded.ai.bind(recorded);
+  recorded.ai = async (body, purpose) => { bodies.push({ purpose, body }); return replay(body, purpose); };
+  const fixtureBase = { sources: recorded, fomcDecisions: recorded.manifest.macroCalendar['us-fomc'], earningsRows: recorded.manifest.earnings, earningsSource: 'Finnhub' };
+  const firstRun = await buildEventBriefs({ ...fixtureBase, previous: null, nowMs });
+  await buildEventBriefs({ ...fixtureBase, previous: firstRun, nowMs: nowMs + 3 * 3600000 });
+  check('v59.59 each event-brief request is a registered purpose and uses its profile (token ceiling, effort, search bound)', () => {
+    ok(bodies.length >= 4, `requests: ${bodies.map((row) => row.purpose)}`);
+    for (const { purpose, body } of bodies) {
+      const entry = sharedAiPurpose(`event-brief-${purpose}`);
+      ok(entry, `unregistered purpose event-brief-${purpose}`);
+      const profile = SHARED_AI_PROFILES[entry.profile];
+      eq(body.reasoning.effort, profile.effort, purpose);
+      eq(body.store, false, purpose);
+      eq(Boolean(body.tools), entry.profile === 'search', purpose);
+      if (entry.profile === 'structured') eq(body.max_output_tokens, profile.maxOutputTokens, purpose);
+      else ok(body.max_tool_calls >= 1 && body.max_tool_calls <= 2 && body.max_output_tokens <= 1500, purpose);
+      ok(body.text?.format?.type === 'json_schema' && body.text.format.strict === true, `${purpose}: strict JSON schema`);
+    }
+  });
+  check('v59.59 brief prompts state the sentence ending, the no-trade rule, and (structured) Korean names and no repeated value', () => {
+    for (const { purpose, body } of bodies) {
+      const prompt = body.input[0].content;
+      ok(prompt.includes(FORMAL_ENDING), `${purpose}: ending rule`);
+      ok(prompt.includes(PROMPT_RULES.noTradeInstruction), `${purpose}: no-trade rule`);
+      if (!body.tools) {
+        ok(prompt.includes(PROMPT_RULES.koreanNames), `${purpose}: Korean names`);
+        like(prompt, /text에는 value에 쓴 숫자를 다시 쓰거나 다른 단위로 바꿔 쓰지 않는다/, `${purpose}: no repeated value`);
+      }
+    }
+  });
+  const sent = [];
+  const env = { AIO_AUTOMATION_TOKEN: 'x'.repeat(40), AI_PROXY_URL: 'https://fixture.workers.dev', GITHUB_RUN_ID: '42', GITHUB_RUN_ATTEMPT: '2' };
+  const payload = { status: 'completed', model: 'gpt-6-luna', usage: { input_tokens: 900, output_tokens: 120 },
+    output: [{ type: 'web_search_call' }, { type: 'message', status: 'completed', role: 'assistant', content: [{ type: 'output_text', text: '{"reasons":[]}' }] }] };
+  const answer = await requestSharedJson(bodies[0].body, { env, purpose: 'event-brief-reasons-NVT', fetchImpl: async (url, init) => { sent.push(init); return new Response(JSON.stringify(payload), { status: 200 }); } });
+  const failed = await requestSharedJson(bodies[0].body, { env, purpose: 'event-brief-reasons-NVT', fetchImpl: async () => new Response('{}', { status: 503 }) });
+  check('v59.59 the event-brief transport keys each request by lane, run and attempt, and returns the usage counts', () => {
+    like(sent[0].headers['X-AIO-Idempotency-Key'], /^event-brief-reasons-NVT-42-2-[0-9a-f-]{36}$/);
+    eq(sent[0].redirect, 'error');
+    same(answer, { json: { reasons: [] }, usage: { inputTokens: 900, outputTokens: 120, searchCalls: 1 } });
+    same(failed, { reason: 'provider-http-503' });
+  });
+}
+
 if (failures.length) {
   console.error(`[event-briefs] ${failures.length} failure(s):\n- ${failures.join('\n- ')}`);
   process.exit(1);

@@ -240,6 +240,32 @@ export function parseUsdPerShare(value) {
   return m ? (m[1] || m[2] ? -1 : 1) * Number(m[3]) : null;
 }
 
+// v59.59 (feature audit 2026-11-02, CCJ): a foreign private issuer's release (6-K / 40-F / 20-F exhibit) is often in its
+// home currency. Cameco's 'Revenue 619' is C$619 million; compared with the provider's USD-based consensus it printed
+// '예상 대비 −14.6%' under a reported "revenue beat". A domestic filing (8-K) is compared as before (its text may mention
+// the euro or the yen as an exposure); a foreign issuer's release is compared only when it is shown to be in US dollars:
+// a stated presentation currency, else US$-prefixed amounts outnumbering other-currency ones.
+export const FOREIGN_ISSUER_FORM = /\b(?:6-K|40-F|20-F)\b/;
+const CURRENCY_NAME = '(U\\.?S\\.?|United States|Canadian|Australian|New Taiwan|Hong Kong|Singapore|New Zealand)\\s+dollars?|euros?|Japanese yen|Swiss francs?|pounds sterling|renminbi';
+const PRESENTATION = new RegExp(`(?:\\b(?:in|of)\\s+(?:millions|thousands|billions)\\s+of|amounts?\\s+(?:are\\s+)?(?:in|expressed\\s+in|stated\\s+in|reported\\s+in|presented\\s+in))\\s+(?:${CURRENCY_NAME})`, 'i');
+const US_PREFIX = /\bUS\$\s?\d|\bU\.S\.\s?\$\s?\d|\bUSD\s?\d/g;
+const OTHER_PREFIX = /(?:\b(?:C|CA|A|AU|NT|HK|S|NZ)\$|€|£|¥|\b(?:EUR|GBP|JPY|CHF|TWD|HKD|CNY|RMB|CAD|AUD)\s?)\s?\d/g;
+/** 'USD', 'other' or null (not shown) for a results release text. */
+export function statedReportingCurrency(text) {
+  const head = String(text || '').slice(0, 30000);
+  const stated = head.match(PRESENTATION);
+  if (stated) return /U\.?S\.?|United States/i.test(stated[0]) ? 'USD' : 'other';
+  const us = (head.match(US_PREFIX) || []).length;
+  const other = (head.match(OTHER_PREFIX) || []).length;
+  if (us > other) return 'USD';
+  if (other > us) return 'other';
+  return null;
+}
+/** Whether a release's figures may be compared with the provider's (USD-based) consensus. */
+export function consensusComparable({ form = '', currency = null } = {}) {
+  return !FOREIGN_ISSUER_FORM.test(String(form || '')) || currency === 'USD';
+}
+
 export function surprisePct(actual, estimate) {
   if (!Number.isFinite(actual) || !Number.isFinite(estimate) || estimate === 0) return null;
   return Math.round(((actual - estimate) / Math.abs(estimate)) * 1000) / 10;

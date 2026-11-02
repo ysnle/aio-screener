@@ -14,7 +14,7 @@ import { releaseAtMs, formatKstWhen } from '../briefing/schedule.js';
 import { seriesOf, yoySeries, annualised3m } from '../macro/macro-read.js';
 import { RULES } from '../rules/thresholds.js';
 import { changeBand, bandDirection, changeOverDays, inflationDirection, oilDivergence, sentimentRank, MACRO_SIGNAL_RULES } from '../macro/macro-signals.js';
-import { BRANCH_ANALOGS, analogOutcome, frequencyText, BASE_RATE_SE } from '../scenarios/analogs.js';
+import { BRANCH_ANALOGS, analogOutcome, frequencyText, BASE_RATE_SE, pastEvidence } from '../scenarios/analogs.js';
 import { EXPOSURE_TAGS } from '../scenarios/exposures.js';
 import { signedText, finiteNumber as finite } from '../shared/number.js';
 import { buildCrossAssetRelations } from '../macro/cross-asset-relations.js';
@@ -589,13 +589,29 @@ export function renderMacroCrossroadsContext(model, { state = null } = {}) {
   lines.push(`금리가 내려가려면: ${model.rateHub.pathsDown.map((p) => `${p.label} ${p.stateText || (p.ok == null ? '확인 불가' : p.ok ? '진행 중' : '아직 아님')} (${p.evidence}${p.next ? `; 확인: ${p.next}` : ''})`).join(' / ')}. ${model.rateHub.caveat}`);
   const rank = (item) => (item.id === model.leadId ? 2 : item.id === model.altId ? 1 : 0);
   const ordered = [...model.items].sort((a, b) => rank(b) - rank(a) || b.met / b.total - a.met / a.total);
+  // v59.59 (AI token budget): a one-line branch whose long-record frequency is within sampling noise of the base rate
+  // repeated the same 150-character sentence (record span, base rate, "방향을 말할 수 없습니다") for up to ten branches.
+  // When those branches share one record, span, horizon and base, the shared part is said once and each line keeps its
+  // own label and case count. A small sample (< 30) or an informative frequency keeps its full screen text.
+  const pastKey = (past) => `${past.source}|${past.from}|${past.to}|${past.horizon}|${past.baseUpPct}`;
+  const plain = ordered.filter((item) => rank(item) === 0 && item.past?.source === 'long' && pastEvidence(item.past).informative === false && !pastEvidence(item.past).small);
+  const sharedKey = plain.length >= 2 && plain.every((item) => pastKey(item.past) === pastKey(plain[0].past)) ? pastKey(plain[0].past) : null;
+  const compactPast = new Set(sharedKey ? plain.map((item) => item.id) : []);
+  if (sharedKey) {
+    const [, from, to, horizon, base] = sharedKey.split('|');
+    const toYm = String(to).slice(0, 7).split('-').map(Number);
+    lines.push(`과거 빈도 공통 기준(아래 "평소와 구별 안 됨" 줄): 장기 일봉 기록(${String(from).slice(0, 4)}년~${toYm[0]}년${toYm[1] ? ` ${toYm[1]}월` : ''})의 서로 겹치지 않는 사례, 이후 ${horizon}거래일 흐름을 평소(같은 기록 전체 거래일의 ${base}% 상승)와 비교해 표본 오차 안에서 구별되지 않았다 — 그 조건만으로는 방향을 말할 수 없다.`);
+  }
+  const pastLine = (item) => (compactPast.has(item.id)
+    ? `${BRANCH_ANALOGS[item.id]?.label || '같은 조건'}: 사례 ${item.past.n}번, 평소와 구별 안 됨`
+    : item.past?.n ? item.past.text : '비교 표본 없음');
   for (const item of ordered) {
     const detailed = rank(item) > 0; // lead and alternative in full; the rest stay one line so themes fit the same budget
     lines.push(detailed
       ? `- ${item.title}: ${item.status || item.fit} [${item.basis.join(', ')}]. 인과: ${item.chain.join(' → ')}. 강해지는 쪽: ${item.impact.firmer}; 약해지는 쪽: ${item.impact.weaker}${item.impact.mixed ? `; 혼재: ${item.impact.mixed}` : ''}. 시장 가격: ${item.pricing.text.replace(/\.$/, '')}. 과거 빈도: ${item.past.text}${item.pastBridge ? ` ${item.pastBridge}` : ''} 확인 일정: ${item.triggers.map((t) => `${t.when} — ${t.text}`).join('; ') || '일정 없음(시장 지표로 확인)'}. 선택지: ${Object.entries(item.choices).map(([key, text]) => `${CHOICES[key]} — ${text}`).join(' / ')} 이 시나리오에서 ${CHOICE_WORDS.favored}(비용 가설 — 과거 성과로 검증한 우위 아님): ${item.favored.map((key) => CHOICES[key]).join(', ')} (${item.favoredWhy})${item.pastConflict ? ` [과거 표본과 어긋남: 비슷한 때 ${item.pastConflict.sharePct}% 상승, 전체 ${item.pastConflict.basePct}%]` : ''}${item.checks?.length ? ` 더 확인할 것(참고): ${item.checks.join('; ')}.` : ''}${item.invalidation?.length ? ` 이 읽기가 빗나가는 조건: ${item.invalidation.join('; ')}.` : ''}`
       // v57.88 (screen audit): the one-line branches carried no past frequency, so the reading said "과거 빈도와 표본 수는
       // 제공되지 않아" while the screen showed 138 cases — the count line is kept short but present.
-      : `- ${item.title}: ${item.status || item.fit}. 인과: ${item.chain.join(' → ')}. 과거 빈도: ${item.past?.n ? item.past.text : '비교 표본 없음'}. 시장 가격: ${item.pricing.tone === 'same' ? '이 시나리오 쪽' : item.pricing.tone === 'against' ? '반대쪽' : item.pricing.tone === 'neutral' ? '중립' : '보류'}. 이 시나리오라면 ${CHOICE_WORDS.favored}(비용 가설): ${item.favored.map((key) => CHOICES[key]).join(', ')}${item.pastConflict ? ' (과거 표본과 어긋남)' : ''}`);
+      : `- ${item.title}: ${item.status || item.fit}. 인과: ${item.chain.join(' → ')}. 과거 빈도: ${pastLine(item)}. 시장 가격: ${item.pricing.tone === 'same' ? '이 시나리오 쪽' : item.pricing.tone === 'against' ? '반대쪽' : item.pricing.tone === 'neutral' ? '중립' : '보류'}. 이 시나리오라면 ${CHOICE_WORDS.favored}(비용 가설): ${item.favored.map((key) => CHOICES[key]).join(', ')}${item.pastConflict ? ' (과거 표본과 어긋남)' : ''}`);
   }
   const macroLog = macroTransitions(state);
   if (macroLog.length) lines.push(`최근 변화(자동 기록): ${macroLog.slice(-6).map((t) => `${String(t.at).slice(5, 10)} ${t.text}`).join(' / ')}`);

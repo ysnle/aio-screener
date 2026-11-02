@@ -24,11 +24,15 @@ import { loadThemeMaps } from './build-scenario-state.mjs';
 import { pdfText, readableEnglish } from './lib/pdf-text.mjs';
 import { createSecClient, requireSecUserAgent, filingIndexUrl } from './lib/sec-edgar.mjs';
 import { SEC_TICKERS_URL, submissionsUrl, submissionTextUrl, tickerCikMap, filingRowsWithItems, isResultsFiling, resultsExhibit, looksLikeQuarterlyResults, htmlToText } from './lib/sec-results-filings.mjs';
-import { SHARED_AI_MODEL, resolveSharedAiConfig, extractCompletedResponseText, buildSharedWebSearchBody } from './lib/ai-shared-analysis.mjs';
+import { requestSharedJson, parseSharedJsonPayload, SHARED_AI_TIMEOUT_MS } from './lib/ai-shared-analysis.mjs';
+import { EARNINGS_SCHEMA, FOMC_SCHEMA, POINTS_SCHEMA, TRANSCRIPT_SCHEMA, REASONS_SCHEMA, earningsPrompt, fomcPrompt, transcriptPrompt, presserPrompt, callPrompt, reasonsPrompt,
+  fomcStatementBody, fomcTranscriptBody, earningsReleaseBody, presserSearchBody, callSearchBody, reasonsSearchBody, capSourceText } from './lib/event-brief-prompts.mjs';
+
+export { EARNINGS_SCHEMA, FOMC_SCHEMA, POINTS_SCHEMA, TRANSCRIPT_SCHEMA, REASONS_SCHEMA, earningsPrompt, fomcPrompt, transcriptPrompt, presserPrompt, callPrompt, reasonsPrompt };
 import {
   EVENT_BRIEFS_SCHEMA, MARKET_MOVERS, NEWS_REPORT_DOMAINS, REACTION_REPORT_DOMAINS, isNoReasonText, onReportDomain, normalizeSourceText, verifyQuotedItems, verifyFreeText, unverifiedNumbers, sourceNumberSet,
   parseDartPreliminaryResults, formatKrw, parseUsdAmount, parseUsdPerShare, surprisePct, epsComparisonBasis, estimateAiCostUsd, AI_RATE_CARD,
-  MOVER_BY_SYMBOL, briefHeadline, releaseSession, earningsReaction, reactionPct, CALL_SEARCH_MAX_ATTEMPTS
+  MOVER_BY_SYMBOL, briefHeadline, releaseSession, earningsReaction, reactionPct, CALL_SEARCH_MAX_ATTEMPTS, statedReportingCurrency, consensusComparable
 } from '../src/domain/briefing/event-briefs.js';
 import { readNumber } from '../src/domain/shared/number.js';
 
@@ -42,7 +46,6 @@ const RETAIN_DAYS = 120;
 const BRIEF_BYTE_BUDGET = 640 * 1024;
 const FIRST_RUN_LOOKBACK_DAYS = 12; // the first run (2026-10-29) reaches back to 10/18, so META's 10/21 report is in
 const LOOKBACK_DAYS = 4;
-const SOURCE_CHAR_CAP = 60000;
 const CALL_SEARCH_AFTER_MS = 2 * 3600000; // the call starts ~1.5 h after an after-close release
 const PRESSER_AFTER_MS = 105 * 60000; // 14:30 ET start, about an hour long
 const MAX_SEARCH_ATTEMPTS = CALL_SEARCH_MAX_ATTEMPTS; // shared with the screen, which says "not found" after the last try
@@ -185,19 +188,11 @@ function liveSources({ env, fetchImpl = fetch }) {
       }
       return { bars, extended: last };
     },
+    // v59.59: the shared transport (scripts/lib/ai-shared-analysis.mjs); the brief keeps its short purpose ('earnings-NVT')
+    // and the Worker log gets the lane prefix. Structured summaries read up to SOURCE_CHAR_CAP characters, so every
+    // event-brief request keeps the search deadline.
     async ai(body, purpose) {
-      const config = resolveSharedAiConfig(env);
-      if (!config) return { reason: 'shared-ai-not-configured' };
-      try {
-        const run = String(env.GITHUB_RUN_ID || 'local').replace(/[^a-zA-Z0-9-]/g, '').slice(0, 40);
-        const response = await fetchImpl(config.url, {
-          method: 'POST', redirect: 'error', signal: AbortSignal.timeout(125000),
-          headers: { 'Content-Type': 'application/json', 'X-AIO-Automation-Token': config.token, 'X-AIO-Idempotency-Key': `event-brief-${purpose}-${run}-${Date.now().toString(36)}`.slice(0, 120) },
-          body: JSON.stringify(body)
-        });
-        if (!response.ok) return { reason: `provider-http-${response.status}` };
-        return parseAiPayload(await response.json());
-      } catch (error) { return { reason: error?.name === 'TimeoutError' || error?.name === 'AbortError' ? 'provider-timeout' : 'provider-error' }; }
+      return requestSharedJson(body, { env, fetchImpl, purpose: `event-brief-${purpose}`, timeoutMs: SHARED_AI_TIMEOUT_MS.search });
     }
   };
 }
@@ -225,80 +220,10 @@ export async function fixtureSources(dir) {
   };
 }
 
-export function parseAiPayload(payload) {
-  const text = extractCompletedResponseText(payload);
-  const usage = { inputTokens: Number(payload?.usage?.input_tokens) || 0, outputTokens: Number(payload?.usage?.output_tokens) || 0,
-    searchCalls: Array.isArray(payload?.output) ? payload.output.filter((item) => item?.type === 'web_search_call').length : 0 };
-  if (!text) return { reason: 'provider-response-incomplete', usage };
-  try { return { json: JSON.parse(text), usage }; } catch { return { reason: 'provider-json-invalid', usage }; }
-}
+// The fixture path parses recorded payloads with the same parser as the live transport.
+export const parseAiPayload = parseSharedJsonPayload;
 
-// ---- AI request bodies -----------------------------------------------------------------------------------------------
-const STR = { type: 'string' };
-const quoted = (extra = {}) => ({ type: 'array', items: { type: 'object', additionalProperties: false, required: ['label', 'value', 'text', 'quote', ...Object.keys(extra)], properties: { label: STR, value: STR, text: STR, quote: STR, ...extra } } });
-export const EARNINGS_SCHEMA = { type: 'object', additionalProperties: false, required: ['headline', 'figures', 'segments', 'guidance', 'watch'], properties: {
-  headline: STR,
-  figures: quoted({ metric: { type: 'string', enum: ['revenue', 'eps_diluted', 'operating_income', 'net_income', 'margin', 'capex', 'free_cash_flow', 'operating_cash_flow', 'other'] } }),
-  segments: quoted(), guidance: quoted(), watch: { type: 'array', items: STR } } };
-export const FOMC_SCHEMA = { type: 'object', additionalProperties: false, required: ['headline', 'figures', 'changes', 'dissents', 'watch'], properties: {
-  headline: STR, figures: quoted({ metric: { type: 'string', enum: ['policy_rate_range', 'vote', 'balance_sheet', 'other'] } }), changes: quoted(), dissents: quoted(), watch: { type: 'array', items: STR } } };
-export const POINTS_SCHEMA = { type: 'object', additionalProperties: false, required: ['speaker', 'points'], properties: { speaker: STR,
-  points: { type: 'array', items: { type: 'object', additionalProperties: false, required: ['text', 'url'], properties: { text: STR, url: STR } } } } };
-
-const RULES = [
-  '규칙: 한국어로 짧게 쓴다. 매매 지시·목표가·예측 확률을 쓰지 않는다.',
-  '각 항목의 quote에는 원문 문장을 한 글자도 바꾸지 않고 그대로 옮긴다. value에는 원문 표기 그대로의 숫자와 단위를 쓴다(환산·반올림 금지).',
-  'label·text·headline에 숫자를 쓸 때는 원문에 그대로 있는 숫자만 쓴다. 원문에 없는 숫자(계산한 증감률, 환산 금액)는 쓰지 않는다.',
-  'watch는 다음에 확인할 일(다음 발표, 지표, 조건)을 숫자 없이 한 줄씩 쓴다.'
-].join('\n');
-
-function jsonBody(prompt, schemaName, schema) {
-  return { model: SHARED_AI_MODEL, input: [{ role: 'user', content: prompt }], max_output_tokens: 2500, reasoning: { effort: 'low' }, store: false, stream: false,
-    text: { format: { type: 'json_schema', name: schemaName, schema, strict: true } } };
-}
-
-const capText = (text) => normalizeSourceText(text).slice(0, SOURCE_CHAR_CAP);
-
-export function earningsPrompt(mover, source) {
-  return [`아래는 ${mover.nameKo}(${mover.sym})의 실적 발표 원문(${source.kind})이다.`,
-    '보고한 핵심 수치(매출, 주당순이익, 영업이익 등), 사업부문별 내용, 회사가 낸 다음 분기·연간 가이던스를 뽑아라.',
-    // v59.44 (X bookmarks 10/30: GOOGL fell on negative free cash flow, AMZN on capex): the cash lines, when stated.
-    '원문에 설비투자(capex, 유형자산 취득), 잉여현금흐름, 영업현금흐름이 있으면 figures에 각각 capex·free_cash_flow·operating_cash_flow로 넣어라.', RULES,
-    '', '--- 원문 시작 ---', capText(source.text), '--- 원문 끝 ---'].join('\n');
-}
-
-export function fomcPrompt(date, current, previous) {
-  return [`아래는 ${date} FOMC 성명 원문과 직전 성명이다.`,
-    '결정(정책금리 범위), 표결, 직전 성명 대비 바뀐 문구(changes: quote는 이번 성명 문장), 반대 의견(dissents)을 뽑아라.', RULES,
-    '', '--- 이번 성명 ---', capText(current), '--- 직전 성명 ---', capText(previous || '(없음)'), '--- 끝 ---'].join('\n');
-}
-
-export const TRANSCRIPT_SCHEMA = { type: 'object', additionalProperties: false, required: ['speaker', 'points'], properties: { speaker: STR,
-  points: { type: 'array', items: { type: 'object', additionalProperties: false, required: ['text'], properties: { text: STR } } } } };
-
-export function transcriptPrompt(date, text) {
-  return [`아래는 ${date} FOMC 기자회견 녹취록(연준 공개 PDF에서 추출한 텍스트)이다.`,
-    '의장이 한 핵심 발언(금리 경로, 물가·고용 판단, 대차대조표, 질의응답 쟁점)을 한국어 한 줄씩 3~6개로 정리하라. speaker에는 의장 이름을 쓴다.', RULES,
-    '', '--- 녹취록 ---', capText(text), '--- 끝 ---'].join('\n');
-}
-
-export function presserPrompt(date) {
-  return `${date} FOMC 기자회견에서 연준 의장이 한 핵심 발언(금리 경로, 물가·고용 판단, 대차대조표, 질의응답의 쟁점)을 보도와 연준 자료에서 찾아 한국어 한 줄씩 3~6개로 정리하라. 각 줄에 근거 기사 url을 붙인다. speaker에는 의장 이름을 쓴다. 숫자는 보도에 그대로 있는 것만 쓴다. 매매 지시는 쓰지 않는다.`;
-}
-
-export function callPrompt(mover, eventDate) {
-  return `${mover.nameKo}(${mover.sym})의 ${eventDate} 실적 발표 컨퍼런스콜에서 경영진이 강조한 점(수요, 투자, 마진, 가이던스 설명, 질의응답 쟁점)을 회사 자료와 보도에서 찾아 한국어 한 줄씩 3~6개로 정리하라. 각 줄에 근거 url을 붙인다. speaker에는 발언한 경영진을 쓴다(모르면 빈 문자열). 숫자는 자료에 그대로 있는 것만 쓴다. 매매 지시는 쓰지 않는다.`;
-}
-
-// v59.44 (owner 2026-10-30, "왜 빠졌는지 알아야 대응이라도"): why the stock moved after the report, as reported. The
-// figures are on the brief already, so the reasons are written without numbers (a line with an unchecked number drops).
-export const REASONS_SCHEMA = { type: 'object', additionalProperties: false, required: ['reasons'], properties: {
-  reasons: { type: 'array', items: { type: 'object', additionalProperties: false, required: ['text', 'url'], properties: { text: STR, url: STR } } } } };
-export function reasonsPrompt(brief) {
-  const move = reactionPct(brief);
-  const direction = move == null ? '움직인' : move < 0 ? '하락한' : '상승한';
-  return `${brief.nameKo}(${brief.symbol}) 주가가 ${brief.eventDate} 실적 발표 뒤 ${direction} 이유로 보도된 내용(가이던스와 시장 기대의 차이, 마진, 설비투자·현금흐름, 수요 설명, 경영진 발언)을 보도와 회사 자료에서 찾아 한국어 한 줄씩 2~4개로 정리하라. 각 줄에 근거 기사 url을 붙인다. 숫자는 쓰지 않는다(수치는 따로 싣는다). 보도에 없는 추측이나 매매 지시는 쓰지 않는다. 회사 보도자료만으로 주가 반응을 설명하지 말고, 이유를 다룬 보도를 찾지 못하면 빈 배열을 돌려준다.`;
-}
+// ---- AI request bodies: scripts/lib/event-brief-prompts.mjs (schemas, prompts and their shared rules) ----------------
 
 /** A calendar row that already carries actuals, shown before the filing is summarised (basis 'provider'). */
 export function provisionalBrief(row, mover, { source = null, sourceUrl = null } = {}) {
@@ -436,7 +361,7 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
         const prevDate = previousDecision(fomcDecisions, date);
         const prev = prevDate ? await sources.fedStatement(prevDate) : null;
         const verifyText = `${statement.text}\n${prev?.text || ''}`;
-        const result = await runAi(jsonBody(fomcPrompt(date, statement.text, prev?.text), 'fomc_statement', FOMC_SCHEMA), 'fomc-statement');
+        const result = await runAi(fomcStatementBody(date, statement.text, prev?.text), 'fomc-statement');
         brief = { ...brief, source: { kind: 'T1_OFFICIAL', title: 'FOMC statement (federalreserve.gov)', url: statement.url, fetchedAt: nowIso, sha256: sha256(statement.text) },
           previousSource: prev ? { url: prev.url, date: prevDate } : null };
         if (result.json) {
@@ -469,7 +394,7 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
         const transcript = await sources.fedTranscript(date);
         const preliminary = transcript ? /\bPRELIMINARY\b/.test(transcript.text.slice(0, 400)) : null;
         if (transcript && transcript.readable && !(stage === 'preliminary' && preliminary)) {
-          const result = await runAi(jsonBody(transcriptPrompt(date, transcript.text), 'fomc_transcript', TRANSCRIPT_SCHEMA), 'fomc-transcript');
+          const result = await runAi(fomcTranscriptBody(date, transcript.text), 'fomc-transcript');
           const statementText = (await sources.fedStatement(date))?.text || '';
           const checked = result.json ? verifyFreeText((result.json.points || []).map((point) => ({ text: String(point?.text || '').trim(), url: transcript.url })).filter((point) => point.text), `${transcript.text}\n${statementText}`) : { kept: [], dropped: [] };
           const tries = transcriptTries() + 1;
@@ -483,7 +408,7 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
       }
       if (!brief.callPoints?.done && nowMs >= statementAt + PRESSER_AFTER_MS && (brief.callPoints?.attempts || 0) < MAX_SEARCH_ATTEMPTS) {
         const domains = ['federalreserve.gov', ...NEWS_REPORT_DOMAINS];
-        const body = buildSharedWebSearchBody(presserPrompt(date), { allowedDomains: domains, schemaName: 'fomc_presser', schema: POINTS_SCHEMA, maxToolCalls: 1, maxOutputTokens: 1500 });
+        const body = presserSearchBody(date, domains);
         const result = await runAi(body, 'fomc-presser');
         const statementText = brief.source ? (await sources.fedStatement(date))?.text || '' : '';
         const accepted = result.json ? acceptPoints(result.json, { sourceText: statementText, domains }) : { points: [], dropped: [], speaker: null };
@@ -531,18 +456,21 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
           const exhibit = await sources.secExhibit(cik, filing.accession);
           if (!exhibit?.text || (filing.form === '6-K' && !looksLikeQuarterlyResults(exhibit.text))) { skipped.add(filing.accession); continue; }
           const estimate = earningsRows.find((row) => row?.symbol === mover.sym && Math.abs(Date.parse(row.date) - Date.parse(filing.filingDate)) <= 3 * DAY) || null;
-          const result = await runAi(jsonBody(earningsPrompt(mover, { kind: `SEC ${filing.form} ${exhibit.type}`, text: exhibit.text }), 'earnings_release', EARNINGS_SCHEMA), `earnings-${mover.sym}`);
-          const sourceText = capText(exhibit.text);
+          const result = await runAi(earningsReleaseBody(mover, { kind: `SEC ${filing.form} ${exhibit.type}`, text: exhibit.text }), `earnings-${mover.sym}`);
+          const sourceText = capSourceText(exhibit.text);
           const base = { id, kind: 'earnings', symbol: mover.sym, nameKo: mover.nameKo, tier: mover.tier, ...(mover.extended ? { scope: 'release', layer: mover.layer } : {}), eventDate: filing.filingDate, publishedAt: filing.acceptedAt || `${filing.filingDate}T00:00:00Z`,
             // v59.45 (P21-TIME-01): without EDGAR's acceptance time only the filed date is known (not "00:00 UTC").
             ...(filing.acceptedAt ? {} : { publishedDateOnly: true }),
             source: { kind: 'T1_OFFICIAL', title: `SEC ${filing.form} ${exhibit.type}`, url: exhibit.url, accession: filing.accession, fetchedAt: nowIso, sha256: sha256(exhibit.text) },
             ai: [...(brief?.ai || []), ...(result.usage ? [aiLedger(`earnings-${mover.sym}`, result.usage)] : [])] };
           if (!result.json) { briefs.set(id, { ...base, status: 'pending', aiReason: result.reason }); continue; }
-          const sections = assembleEarningsSections(result.json, sourceText, estimate ? { ...estimate, source: earningsSource } : null);
+          // v59.59 (CCJ): a foreign issuer's home-currency release is not compared with the USD consensus.
+          const reportingCurrency = statedReportingCurrency(exhibit.text);
+          const comparable = consensusComparable({ form: filing.form, currency: reportingCurrency });
+          const sections = assembleEarningsSections(result.json, sourceText, estimate && comparable ? { ...estimate, source: earningsSource } : null);
           brief = { ...base, status: 'partial', basis: 'primary-source', headline: briefHeadline(result.json.headline, { nameKo: mover.nameKo, figures: sections.figures, sourceNumbers: sourceNumberSet(sourceText) }),
             figures: sections.figures, details: sections.segments, detailTitle: '사업부문', guidance: sections.guidance, watch: sections.watch, dropped: sections.dropped,
-            checkText: sourceText };
+            checkText: sourceText, ...(reportingCurrency ? { reportingCurrency } : {}), ...(estimate && !comparable ? { consensusSkipped: 'currency-not-usd' } : {}) };
         }
         // A story name's release is summarised without a call search (tier 2, owner 2026-10-29).
         if (mover.extended) brief = brief.status === 'pending' ? brief : { ...brief, status: 'complete' };
@@ -627,6 +555,9 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
     const headline = briefHeadline(brief.headline, { nameKo: brief.nameKo, figures: brief.figures || [] });
     const figures = (brief.figures || []).map((figure) => {
       if (!figure.estimate || (figure.estimate.basis && figure.estimate.basis !== 'provider-consensus-reference') || brief.status === 'provisional') return figure;
+      // v59.59 (CCJ): briefs stored before the currency check — a foreign issuer's release without a stated USD basis
+      // loses the provider comparison (the release text is not kept, so its currency cannot be re-read).
+      if (!consensusComparable({ form: brief.source?.title, currency: brief.reportingCurrency || null })) return (({ estimate, ...rest }) => rest)(figure);
       if (figure.metric === 'eps_diluted') {
         const comparison = epsComparisonBasis(figure, brief.figures || []);
         if (!comparison) return (({ estimate, ...rest }) => rest)(figure);
@@ -676,7 +607,7 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
     const mover = listed.get(brief.symbol) || MOVER_BY_SYMBOL[brief.symbol] || { irDomains: [] };
     const domains = REACTION_REPORT_DOMAINS;
     const known = [brief.checkText || '', ...['figures', 'details', 'guidance'].flatMap((key) => (brief[key] || []).map((item) => `${item.label || ''} ${item.value || ''} ${item.text || ''} ${item.quote || ''}`))].join('\n');
-    const result = await runAi(buildSharedWebSearchBody(reasonsPrompt(brief), { allowedDomains: domains, schemaName: 'earnings_reasons', schema: REASONS_SCHEMA, maxToolCalls: 2, maxOutputTokens: 1200 }), `reasons-${brief.symbol}`);
+    const result = await runAi(reasonsSearchBody(brief, domains), `reasons-${brief.symbol}`);
     const checked = result.json ? acceptPoints({ points: result.json.reasons }, { sourceText: known, domains }) : { points: [], dropped: [] };
     const accepted = { points: checked.points.filter((point) => !isNoReasonText(point.text)),
       dropped: [...checked.dropped, ...checked.points.filter((point) => isNoReasonText(point.text)).map((point) => ({ reason: 'no-reason-found', text: point.text }))] };
@@ -715,7 +646,7 @@ async function withCallPoints(brief, { mover, nowMs, nowIso, sourceText, sources
   const releasedMs = Date.parse(brief.firstSeenAt || brief.publishedAt) || nowMs;
   if (nowMs < releasedMs + CALL_SEARCH_AFTER_MS) return brief;
   const domains = [...mover.irDomains, ...NEWS_REPORT_DOMAINS];
-  const body = buildSharedWebSearchBody(callPrompt(mover, brief.eventDate), { allowedDomains: domains, schemaName: 'earnings_call', schema: POINTS_SCHEMA, maxToolCalls: 1, maxOutputTokens: 1500 });
+  const body = callSearchBody(mover, brief.eventDate, domains);
   const result = await runAi(body, `call-${mover.sym}`);
   // The call's figures are checked against the fetched release, kept on the brief until the call summary is settled.
   const checkText = sourceText || '';
