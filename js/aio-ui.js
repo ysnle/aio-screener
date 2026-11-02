@@ -1094,83 +1094,8 @@ setTimeout(function() {
 // registration and 2.2s timer were deleted — the move/vvix data-snap sinks are gone and the ^VVIX
 // DATA_SNAPSHOT mirror is written by js/aio-data.js on quote acceptance.
 
-// ═══ v34: Keyboard Shortcuts Help Modal ═══════════════════════════════
-function openKbdHelp() {
-  const m = document.getElementById('kbd-shortcuts-modal');
-  if (m) {
-    m._aioPreviousFocus = document.activeElement && document.activeElement !== document.body ? document.activeElement : null;
-    if (m._aioTrapCleanup) m._aioTrapCleanup();
-    m.classList.add('active');
-    m._aioTrapCleanup = typeof window._aioModalTrap === 'function' ? window._aioModalTrap(m, closeKbdHelp) : null;
-    var fb = m.querySelector('button'); if (fb) fb.focus();
-  }
-}
-function closeKbdHelp() {
-  const m = document.getElementById('kbd-shortcuts-modal');
-  if (m) {
-    m.classList.remove('active');
-    if (m._aioTrapCleanup) { m._aioTrapCleanup(); m._aioTrapCleanup = null; }
-    var previousFocus = m._aioPreviousFocus;
-    m._aioPreviousFocus = null;
-    if (previousFocus && document.contains(previousFocus) && !previousFocus.disabled) { try { previousFocus.focus(); } catch (_) {} }
-  }
-}
-
-// ═══ v34: Enhanced Keyboard Navigation ═══════════════════════════════
-document.addEventListener('keydown', function(e) {
-  // Don't fire shortcuts when typing in inputs
-  const tag = (e.target.tagName || '').toLowerCase();
-  const isInput = tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable;
-
-  // ESC always works — closes modals and panels
-  if (e.key === 'Escape') {
-    closeKbdHelp();
-    if (typeof window._aioGlossaryIsOpen === 'function' && window._aioGlossaryIsOpen()) { window._aioCloseGlossary(); return; } // roadmap 11: src/ui/knowledge/glossary-modal.js
-    // AI 패널 Escape 닫기
-    var aiPanel = document.getElementById('ai-panel');
-    if (aiPanel && aiPanel.classList.contains('open')) {
-      if (typeof toggleAIPanel === 'function') toggleAIPanel();
-      return;
-    }
-    return;
-  }
-
-  // Ctrl+K for quick search focus (works even in inputs)
-  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-    e.preventDefault();
-    var searchInput = (document.querySelector('.page.active') || document).querySelector('#scr-text-search, #ticker-direct-search, #guide-search-input'); // P1315: .search-bar never existed
-    if (searchInput && searchInput.offsetParent !== null) searchInput.focus(); else if (typeof window.openGlossary === 'function') { window.openGlossary(); setTimeout(function() { var g = document.getElementById('glossary-search'); if (g) g.focus(); }, 60); } // owner 2026-10-25: the sidebar search button is gone; only an on-screen search box takes focus; run-3 I#21: with none, 용어 사전 as the help row promises
-    return;
-  }
-
-  // All other shortcuts only when NOT in input
-  if (isInput) return;
-
-  // ? = show shortcuts help
-  if (e.key === '?' || (e.shiftKey && e.key === '/')) {
-    e.preventDefault();
-    const m = document.getElementById('kbd-shortcuts-modal');
-    if (m && m.classList.contains('active')) closeKbdHelp();
-    else openKbdHelp();
-    return;
-  }
-
-  // Number keys 1-8 = the eight screens in menu order (v57.54: one table, src/ui/navigation/screen-shortcuts.js,
-  // also draws the ? help rows). The G key toggled a home overview that no longer renders, so it is gone.
-  const shortcutRoute = typeof window.AIO_SCREEN_SHORTCUT_ROUTE === 'function' ? window.AIO_SCREEN_SHORTCUT_ROUTE(e.key) : null;
-  if (shortcutRoute && !e.ctrlKey && !e.metaKey && !e.altKey) {
-    e.preventDefault();
-    if (typeof showPage === 'function') showPage(shortcutRoute, null);
-    return;
-  }
-
-  // R = refresh live data. v59.42: plain R only — Ctrl/Cmd+R is the browser's page reload and must not be swallowed.
-  if ((e.key === 'r' || e.key === 'R') && !e.ctrlKey && !e.metaKey && !e.altKey) {
-    e.preventDefault();
-    if (typeof fetchLiveQuotes === 'function') fetchLiveQuotes();
-    return;
-  }
-});
+// Roadmap 11: the ? help modal (openKbdHelp / closeKbdHelp) and the keydown shortcuts (Escape, Ctrl/⌘K, ?, 1..8, R) moved
+// to src/ui/navigation/screen-shortcuts.js beside the screen table they read; src/app/bootstrap.js installs them.
 
 // ═════════════════════════════════════════════════════════════════
 // NEW FUNCTIONS: Enhanced Technical Analysis Features

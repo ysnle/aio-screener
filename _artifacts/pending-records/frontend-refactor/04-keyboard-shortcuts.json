@@ -1,0 +1,7 @@
+{
+  "changelog": [
+    "**키보드 단축키 이관 ({VERSION}, roadmap 11):** js/aio-ui.js의 ? 도움말 모달(openKbdHelp·closeKbdHelp)과 document keydown 처리(Escape, Ctrl/⌘K, ?, 1~8, R)를 그 키들이 읽는 화면 표 옆 src/ui/navigation/screen-shortcuts.js로 옮겼다. 동작은 같다. 키 처리기를 handleShortcutKey로 분리해 ci-runtime-contract-check의 P1315 텍스트 고정 검사를 동작 검사(검색창 포커스, 없을 때 용어 사전, 입력 중 숫자키 무시)로 바꿨다. 부팅 번들 590,330 B gzip(한도 591,000)."
+  ],
+  "note": "{VERSION}: keyboard shortcuts and the ? help modal moved to src/ui/navigation/screen-shortcuts.js",
+  "qa_section": "Roadmap 11 frontend decomposition (2026-11-02)"
+}

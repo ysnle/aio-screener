@@ -1367,7 +1367,23 @@ check('P1315 KR theme detail reads the optional KR_THEME_INSIGHTS global behind 
 check('P1315 KR index cards carry no hardcoded direction class/colour; direction follows the live previous-close delta', !/kr-idx-card (?:up|down)"/.test(html) && !/id="kr-(?:kospi|kosdaq|krw)-price" style="color:var\(--(?:green|red)\)"/.test(html) && /_krIdxCard\.classList\.toggle\('up', atomicDelta > 0\)/.test(data));
 check('P1315 a11y direction classes carry colour, not only a glyph (v58.80: direction tokens, up red / down blue)', /\.a11y-up \{ color: var\(--dir-up\); \}/.test(html) && /\.a11y-dn \{ color: var\(--dir-down\); \}/.test(html));
 check('P1315 signal weight legend uses the canonical 심리 component (F&G + put/call), not 모멘텀/추세추종', !/모멘텀\(F&G·추세추종\)/.test(html + ui) && !/심리\(공포·탐욕·풋콜\) 25%/.test(html)); // P1392: the weighted legend left with the score
-check('P1315 Ctrl+K targets real page search inputs (the .search-bar selector never existed)', !/querySelector\('\.search-bar input'\)/.test(ui) && /#scr-text-search, #ticker-direct-search, #guide-search-input/.test(ui) /* v59.51 (content audit): #fund-search-input retired */ && !/<span class="kbd-desc">한국장<\/span>/.test(html));
+const ctrlKProbe = await (async () => {
+  // v59.59 roadmap 11: the keydown shortcuts moved from js/aio-ui.js to src/ui/navigation/screen-shortcuts.js.
+  const { handleShortcutKey } = await import('../src/ui/navigation/screen-shortcuts.js');
+  let asked = null; let focused = false; let opened = 0;
+  const box = { offsetParent: {}, focus() { focused = true; } };
+  const page = { querySelector: (sel) => { asked = sel; return box; } };
+  const documentRef = { querySelector: (sel) => (sel === '.page.active' ? page : null), getElementById: () => null };
+  const root = { openGlossary: () => { opened += 1; }, setTimeout: () => {} };
+  const help = { open() {}, close() {}, isOpen: () => false };
+  const key = (extra) => ({ key: 'k', ctrlKey: true, target: { tagName: 'INPUT' }, preventDefault() {}, ...extra });
+  const first = handleShortcutKey(key(), { root, documentRef, help });
+  box.offsetParent = null;
+  const second = handleShortcutKey(key(), { root, documentRef, help });
+  const typedOne = handleShortcutKey({ key: '1', target: { tagName: 'INPUT' }, preventDefault() {} }, { root, documentRef, help });
+  return first === 'search' && focused && asked === '#scr-text-search, #ticker-direct-search, #guide-search-input' && second === 'glossary-open' && opened === 1 && typedOne === null;
+})();
+check('P1315 Ctrl+K targets real page search inputs (the .search-bar selector never existed), falls back to 용어 사전, and screen keys ignore typing (v59.59 probe)', ctrlKProbe && !/<span class="kbd-desc">한국장<\/span>/.test(html));
 check('P1315 KOSPI sell tax states securities-transaction tax plus rural special tax; Piotroski is dated 2000 with 8-9/0-2 original bins', /농어촌특별세 0\.15%가 더해져 합계 0\.20%/.test(glossary) && /Piotroski\(2000\)/.test(glossary) && !/Piotroski\(1998\)/.test(glossary) && /8~9점을 강한 그룹/.test(glossary));
 check('QA-GLOSSARY-SWEEP/P1261 unattributed aphorism and sourced superlative stay unasserted', !/— 아인슈타인\./.test(glossary) && !/역사상 가장 강력한 주가 부양 수단/.test(glossary) && /출처가 확정된 문헌이 없어/.test(glossary));
 check('LIVE3-09: quote producers preserve exchange observation time separately from file freshness', /regularMarketTime/.test(fetchData) && /marketState/.test(fetchData) && /exchangeTimezoneName/.test(fetchData) && /window\._liveData\[q\.symbol\]\.observedAt/.test(data));

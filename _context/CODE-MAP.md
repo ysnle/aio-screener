@@ -483,12 +483,11 @@ Shared modules (import these instead of re-declaring): `src/ui/components/dom.js
 | `updateQuotaBadge` | 290 | AI 쿼터 배지 |
 | `ghPollOnce` | 458 | GitHub version polling (운영자 설정) |
 | `_aioParseRouteHash` | 585 | 해시 라우트 해석·지식 라우트 문맥 |
-| `renderPortfolioTechnicalRisk` | 915 | 포트폴리오 기술 위험 배지 |
-| `openKbdHelp` / 키보드 단축키 | 1097 | 단축키 도움말·Escape·Ctrl+K |
-| `calculateRR` / `updateBenchmarkChart` | 1217 / 1263 | 손익비 계산기·벤치마크 차트 |
-| `toggleTheme` | 1431 | 테마 전환 |
+| `renderPortfolioTechnicalRisk` | 916 | 포트폴리오 기술 위험 배지 |
+| `calculateRR` / `updateBenchmarkChart` | 1143 / 1189 | 손익비 계산기·벤치마크 차트 |
+| `toggleTheme` | 1357 | 테마 전환 |
 
-> 2026-11-02 (roadmap 11, v59.59): 용어 사전 모달은 `src/ui/knowledge/glossary-modal.js`, 새로고침 진행 패널과 `globalRefresh`는 `src/ui/components/refresh-progress.js`로 옮겼다(둘 다 `src/app/legacy-screen-bridges.js`가 설치). 기존 표의 `LLM_BUDGET`·Institutional Technical Brief·`_renderFund*`·`AIO_PAGE_FUNDAMENTALS` 행은 이미 삭제된 코드였다. 줄 번호는 이 날짜 기준이며 다음 ±500줄 변화 때 재스캔한다.
+> 2026-11-02 (roadmap 11, v59.59): 용어 사전 모달은 `src/ui/knowledge/glossary-modal.js`, 새로고침 진행 패널과 `globalRefresh`는 `src/ui/components/refresh-progress.js`로 옮겼다(둘 다 `src/app/legacy-screen-bridges.js`가 설치). 키보드 단축키와 ? 도움말 모달은 `src/ui/navigation/screen-shortcuts.js`(bootstrap 설치). 기존 표의 `LLM_BUDGET`·Institutional Technical Brief·`_renderFund*`·`AIO_PAGE_FUNDAMENTALS` 행은 이미 삭제된 코드였다. 줄 번호는 이 날짜 기준이며 다음 ±500줄 변화 때 재스캔한다.
 
 `src/ui/pages/sentiment.js`가 sentiment 카드·상태·차트와 resource bag lifecycle을 소유한다. `js/aio-ui.js`에는 sentiment legacy renderer/init/chart registry를 두지 않는다.
 
