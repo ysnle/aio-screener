@@ -2,7 +2,7 @@
   "schemaVersion": "aio-model-check-coverage.v1",
   "gates": {
     "history-session-model": {
-      "syncedAt": "6d29b2e0",
+      "syncedAt": "5a96ff64",
       "covers": [
         {
           "module": "scripts/producer/history.mjs",
@@ -17,7 +17,7 @@
       ]
     },
     "narrative-lifecycle-model": {
-      "syncedAt": "6d29b2e0",
+      "syncedAt": "5a96ff64",
       "covers": [
         {
           "module": "scripts/producer/market-narrative.mjs",
@@ -52,7 +52,7 @@
       ]
     },
     "ai-ledger-model": {
-      "syncedAt": "6d29b2e0",
+      "syncedAt": "5a96ff64",
       "covers": [
         {
           "module": "cloudflare-worker-proxy.js",
@@ -82,7 +82,7 @@
       ]
     },
     "market-session-model": {
-      "syncedAt": "6d29b2e0",
+      "syncedAt": "5a96ff64",
       "covers": [
         {
           "module": "scripts/build-market-snapshot.mjs",
@@ -112,7 +112,7 @@
       ]
     },
     "refresh-scheduler-model": {
-      "syncedAt": "6d29b2e0",
+      "syncedAt": "5a96ff64",
       "covers": [
         {
           "module": "src/app/refresh-scheduler.js",
@@ -122,7 +122,7 @@
       ]
     },
     "artifact-cache-model": {
-      "syncedAt": "6d29b2e0",
+      "syncedAt": "5a96ff64",
       "covers": [
         {
           "module": "src/data/artifact-cache.js",
