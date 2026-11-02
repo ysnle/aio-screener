@@ -163,11 +163,11 @@ assert.deepEqual(deadNewsFeeds({ meta: { newsFeedHealth: health2 } }, { nowMs: D
 // release and watchdog run failed on it. A quiet official feed waits its quietMaxHours; an erroring or empty one does not.
 const fedQuiet = { source: 'Federal Reserve', status: 'no-current', parsed: 20, missStreak: 98, lastHealthyAt: '2026-10-29T22:51:02.658Z' };
 const fedNow = Date.parse('2026-11-02T01:28:00.000Z');
-assert.deepEqual(deadNewsFeeds({ meta: { newsFeedHealth: [fedQuiet] } }, { nowMs: fedNow }), [], 'v59.57 a quiet Fed feed that still parses items is not dead at 75h');
-assert.equal(dataSourceWarnings({ meta: { newsFeedHealth: [fedQuiet] } }, { nowMs: fedNow }).length, 0, 'v59.57 nor a 24h warning');
-assert.deepEqual(deadNewsFeeds({ meta: { newsFeedHealth: [fedQuiet] } }, { nowMs: Date.parse('2026-11-07T00:00:00.000Z') }), ['Federal Reserve'], 'v59.57 past its 192h allowance it is dead');
-assert.deepEqual(deadNewsFeeds({ meta: { newsFeedHealth: [{ ...fedQuiet, status: 'error', parsed: 0 }] } }, { nowMs: fedNow }), ['Federal Reserve'], 'v59.57 an erroring Fed feed keeps the 72h gate');
-assert.deepEqual(deadNewsFeeds({ meta: { newsFeedHealth: [{ ...fedQuiet, source: 'Google News - Wires' }] } }, { nowMs: fedNow }), ['Google News - Wires'], 'v59.57 a quiet Google query keeps the 72h gate');
+assert.deepEqual(deadNewsFeeds({ meta: { newsFeedHealth: [fedQuiet] } }, { nowMs: fedNow }), [], 'v59.58 a quiet Fed feed that still parses items is not dead at 75h');
+assert.equal(dataSourceWarnings({ meta: { newsFeedHealth: [fedQuiet] } }, { nowMs: fedNow }).length, 0, 'v59.58 nor a 24h warning');
+assert.deepEqual(deadNewsFeeds({ meta: { newsFeedHealth: [fedQuiet] } }, { nowMs: Date.parse('2026-11-07T00:00:00.000Z') }), ['Federal Reserve'], 'v59.58 past its 192h allowance it is dead');
+assert.deepEqual(deadNewsFeeds({ meta: { newsFeedHealth: [{ ...fedQuiet, status: 'error', parsed: 0 }] } }, { nowMs: fedNow }), ['Federal Reserve'], 'v59.58 an erroring Fed feed keeps the 72h gate');
+assert.deepEqual(deadNewsFeeds({ meta: { newsFeedHealth: [{ ...fedQuiet, source: 'Google News - Wires' }] } }, { nowMs: fedNow }), ['Google News - Wires'], 'v59.58 a quiet Google query keeps the 72h gate');
 assert.equal(dataSourceWarnings({ meta: { marketSentenceReject: 'latin-word' }, marketAnalysis: { sentence: { day: '2026-10-18' } } }, { nowMs: Date.parse(healthAt) }).length, 1, 'a rejected new-day sentence is named');
 // 2026-10-19 pipeline redesign: feed records accumulate, an idle feed is named with its drop reasons, and one rumour rule
 // labels the news bundle and the narrative context alike.
