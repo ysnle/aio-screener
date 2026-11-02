@@ -116,7 +116,8 @@ function check(name, ok, detail) {
   const stats = journalStats([{ pnl: 0, pnlPct: 0, currency: 'USD', holdDays: 3 }, { pnl: 5, pnlPct: 5, currency: 'USD', holdDays: 4 }, { pnl: -4, pnlPct: -2, currency: 'USD', holdDays: 6 }]);
   check('v59.59 break-even lot is neither a win nor a loss', stats.wins === 1 && stats.losses === 1 && stats.flats === 1 && stats.avgLossPct === -2 && stats.payoff === 2.5, stats);
   const { _calcMaxDrawdown } = await load('src/domain/portfolio/return-stats.js');
-  check('v59.59 one −50% return is a 50% drawdown', near(_calcMaxDrawdown([-0.5])?.mdd, 0.5, 1e-12), _calcMaxDrawdown([-0.5]));
+  // One return stays null — the legacy contract (js/aio-tests.js T29) treats it as no sample, not a drawdown.
+  check('v59.59 one return is no drawdown sample (T29 contract)', _calcMaxDrawdown([-0.5]) === null, _calcMaxDrawdown([-0.5]));
   // +10%, −20%, +5%: peak 1.10, trough 0.88 → 20%.
   check('v59.59 max drawdown peak to trough', near(_calcMaxDrawdown([0.1, -0.2, 0.05])?.mdd, 0.2, 1e-12), _calcMaxDrawdown([0.1, -0.2, 0.05]));
   const { stockBondCorrelation } = await load('src/domain/portfolio/asset-class.js');
@@ -133,6 +134,57 @@ function check(name, ok, detail) {
   const rows = Object.fromEntries(syms.map((sym, i) => [sym, { asOf, fwd: i < 2 ? { up4w: 3, down4w: 1, eps: 5 } : { eps: 5 } }]));
   const out = buildIndexEarnings({ rows: [], weights, consensus: { asOf, rows }, now: Date.parse('2026-11-02T00:00:00Z') });
   check('v59.59 revision breadth withheld when only 20% of weight has revision counts', out.available === false || (out.breadth == null && (out.coveragePct ?? 0) <= 20.0001), { breadth: out.breadth, coveragePct: out.coveragePct, members: out.members, reason: out.reason });
+}
+
+
+// ── One percentile convention (shared/percentile.js) ───────────────────────────────────────────────────────────────
+{
+  const { percentileOf } = await load('src/domain/shared/percentile.js');
+  const sample = [1, 2, 3, 4, 5];
+  check('v59.59 percentile: the sample high is 100, the low 0, the middle 50', percentileOf(sample, 5) === 100 && percentileOf(sample, 1) === 0 && percentileOf(sample, 3) === 50, [percentileOf(sample, 5), percentileOf(sample, 1), percentileOf(sample, 3)]);
+  check('v59.59 percentile: ties count half among the others', percentileOf([1, 2, 2, 3], 2) === 50, percentileOf([1, 2, 2, 3], 2));
+  check('v59.59 percentile: a value outside the sample ranks against all of it', percentileOf([1, 2, 3], 10) === 100 && percentileOf([1, 2, 3], 2.5) === (2 / 3) * 100);
+  const { trailingRanks } = await load('src/domain/sentiment/market-temperature.js');
+  const rising = Array.from({ length: 10 }, (_, i) => i);
+  check('v59.59 temperature rank of a running high is 100 (was 95)', trailingRanks(rising, { window: 10, minSample: 10 }).at(-1) === 100, trailingRanks(rising, { window: 10, minSample: 10 }).at(-1));
+}
+
+// ── Portfolio FX ───────────────────────────────────────────────────────────────────────────────────────────────────
+{
+  const { krwTranslationPct } = await load('src/domain/portfolio/stress-sensitivity.js');
+  // KRW book: 50% AAPL (USD) gains the +10% won move; 30% Toyota (JPY) and 20% Samsung (KRW) do not.
+  const krw = krwTranslationPct({ weights: { AAPL: 0.5, '7203.T': 0.3, '005930.KS': 0.2 }, baseCurrency: 'KRW', shockPct: 10 });
+  check('v59.59 won translation counts USD listings only in a KRW book', near(krw, 5, 1e-12), krw);
+  const { appUsdKrwClose } = await load('src/domain/portfolio/cash.js');
+  const fx = appUsdKrwClose([{ date: '2026-10-29', usdkrw: 1400 }, { date: '2026-10-30', usdkrw: 1414 }], { now: Date.parse('2026-10-31T00:00:00Z') });
+  check('v59.59 app USD/KRW close carries the previous session', fx?.rate === 1414 && fx?.prevRate === 1400, fx);
+  const { _calcCorrelationMatrix } = await load('src/domain/portfolio/return-stats.js');
+  const m = _calcCorrelationMatrix({ A: [0.01, -0.02, 0.03, 0.01], B: [0, 0, 0, 0] });
+  check('v59.59 a flat holding has no correlation cell (not 0)', m.matrix[0][1] === null && m.matrix[1][0] === null, m.matrix);
+}
+
+// ── Legacy snapshot reads the producer's VCP ───────────────────────────────────────────────────────────────────────
+{
+  const { _calcVCPServer } = await load('src/domain/screener/price-factors.js');
+  const n = 260;
+  const closes = Array.from({ length: n }, (_, i) => 50 + i * 0.2);
+  const v = _calcVCPServer(closes, closes.map((c) => c * 1.01), closes.map((c) => c * 0.99), closes.map(() => 1e6));
+  check('v59.59 producer VCP result carries the legacy fields', v && typeof v.stage2 === 'boolean' && Array.isArray(v.contractionDepths) && typeof v.nearPivot === 'boolean' && typeof v.breakout === 'boolean', v);
+}
+
+
+// ── Feature-audit hand-offs: Weinstein stage, growth-scare rates, one neutral real rate ────────────────────────────
+{
+  const { weinsteinStage } = await load('src/domain/technical/definitions.js');
+  // 40 weeks rising 1/week, then a 4-week dip under the still-rising 30-week line.
+  const weekly = [...Array.from({ length: 40 }, (_, i) => 100 + i), 128, 124, 122, 121];
+  const w = weinsteinStage(weekly);
+  check('v59.59 a close under a still-rising 30-week line is a stage-2 pullback, not stage 3', w?.stage === 2 && w.pullback === true && w.slope > 0, w);
+  const { sepNeutral } = await load('src/domain/macro/taylor-rule.js');
+  const { buildMacroRead } = await load('src/domain/macro/macro-read.js');
+  const mh = { schemaVersion: 'macro-history.v1', series: { sepLongRunFedFunds: { observations: [[new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10), 3.2]] } } };
+  const policy = buildMacroRead({ macro: { fedTargetUpper: 6, fedTargetLower: 5.75, corePce: 2.5 }, macroHistory: mh }).axes.find((axis) => axis.id === 'policy');
+  check('v59.59 the policy axis names the Taylor rule SEP neutral rate', sepNeutral(mh)?.rStar === 1.2 && /중립 수준\(약 1\.2%\)/.test(policy?.read || ''), policy?.read);
 }
 
 if (failures.length) {

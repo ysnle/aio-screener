@@ -45,7 +45,7 @@ export function installLegacyScreenBridges(root, documentRef) {
   root._aioRenderPortfolioBacktestStatus = (text, warn) => renderPortfolioBacktestStatus(text, warn, at);
   root._aioBtVarCertLabel = varCertLabel;
   // v59.04 포트폴리오: the 익스포저·집중도 and stress panels (refreshPortfolioRisk calls them).
-  root._aioRenderPortfolioExposure = (positions, returnsMap) => renderPortfolioExposure(positions, returnsMap, at);
+  root._aioRenderPortfolioExposure = (positions, returnsMap, corrRes = null) => renderPortfolioExposure(positions, returnsMap, { ...at, corrRes });
   root._aioRenderPortfolioStress = (positions, historyMap, commonDates) => renderPortfolioStress(positions, historyMap, commonDates, at);
   // v59.05 포트폴리오: the 리스크 지표 panel and its status lines; a refreshPortfolioRisk that ran before this module
   // loaded is repeated now.

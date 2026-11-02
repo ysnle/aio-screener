@@ -10,6 +10,7 @@
 import { alignInput, buildCloseSeries, closeBasis, isUsable } from '../market/close-series.js';
 import { readNumber as finite } from '../shared/number.js';
 import { isIsoDay } from '../shared/session-date.js';
+import { percentileOf } from '../shared/percentile.js';
 
 export const COMPOSITE_FEAR_GREED_VERSION = 'aio-sentiment-composite.v1';
 const RANK_WINDOW = 252;
@@ -41,9 +42,7 @@ function percentileRank(raw) {
   if (raw.length < MIN_RANK_SAMPLE) return null;
   const sample = raw.slice(-RANK_WINDOW);
   const latest = sample[sample.length - 1];
-  const below = sample.filter((value) => value < latest).length;
-  const equal = sample.filter((value) => value === latest).length;
-  return Math.round(((below + 0.5 * equal) / sample.length) * 1000) / 10;
+  return Math.round(percentileOf(sample, latest) * 10) / 10; // v59.59: shared/percentile.js (a 1-year high is 100, not 99.8)
 }
 
 function component(id, label, rawSeries, { invert = false, basis }) {

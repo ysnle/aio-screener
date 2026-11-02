@@ -26,7 +26,9 @@ export function appUsdKrwClose(history, { now = Date.now() } = {}) {
   if (!last || !(Number.isFinite(rate) && rate > 0) || !isIsoDay(String(last.date || ''))) return null;
   const ageDays = (Number(now) - Date.parse(`${last.date}T00:00:00Z`)) / 86400000;
   if (!(ageDays >= -1 && ageDays <= APP_FX_MAX_AGE_DAYS + 1)) return null;
-  return Object.freeze({ pair: 'USD/KRW', rate, date: last.date, basis: 'completed-close', label: `USD/KRW ${md(last.date)} 종가 기준` });
+  // v59.59: the session before it too, so a converted holding's daily change can carry the won's own move.
+  const prev = Number(series[series.length - 2]?.value);
+  return Object.freeze({ pair: 'USD/KRW', rate, date: last.date, prevRate: Number.isFinite(prev) && prev > 0 ? prev : null, basis: 'completed-close', label: `USD/KRW ${md(last.date)} 종가 기준` });
 }
 
 // v59.45 (PASS23 P23-FX-01): exported so the risk input converts holdings with the same app close the surface uses.

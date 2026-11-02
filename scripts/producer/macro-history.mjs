@@ -76,7 +76,9 @@ export const MACRO_HISTORY_SERIES = Object.freeze({
   // same operator FRED key. Raw observations only; readings are derived in src/domain/macro.
   fedBalanceSheet:{ id: 'WALCL',         frequency: 'weekly',  limit: 110, unit: 'usd-millions', label: '연준 총자산' },
   reverseRepo:    { id: 'RRPONTSYD',     frequency: 'daily',   limit: 280, unit: 'usd-billions', label: '역레포 잔액' },
-  treasuryAccount:{ id: 'WTREGEN',       frequency: 'weekly',  limit: 110, unit: 'usd-millions', label: '재무부 일반계정(TGA)' },
+  // v59.59 (logic refactor): WDTGAL, the Wednesday level — net liquidity is WALCL (Wednesday level) − TGA − RRP (that day),
+  // and WTREGEN is the week average, so the three legs were not the same day. The series is refetched whole each run.
+  treasuryAccount:{ id: 'WDTGAL',        frequency: 'weekly',  limit: 110, unit: 'usd-millions', label: '재무부 일반계정(TGA)' },
   sofr:           { id: 'SOFR',          frequency: 'daily',   limit: 280, unit: 'percent', label: 'SOFR 단기금리' },
   financialConditions: { id: 'NFCI',     frequency: 'weekly',  limit: 110, unit: 'index', label: '시카고 연은 금융여건지수' },
   realGdp:        { id: 'GDPC1',         frequency: 'quarterly', limit: 24, unit: 'usd-billions-chained', label: '실질 GDP' },

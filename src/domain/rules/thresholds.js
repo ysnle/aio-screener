@@ -56,7 +56,7 @@ export const RULES = Object.freeze({
   // 10-year Treasury: a 25bp move in 20 sessions, or the top 10% of its one-year range while still rising.
   // v57.81 hysteresis: once 부담, it stays until the range position falls under rangeExitAt or the 20-session rise is
   // under exit20dBp (a 5-day dip of -9bp at 91% of the range flipped 부담 to 중립 and back on one week's sign).
-  rates: Object.freeze({ move20dBp: 25, rangeHighAt: 0.9, rangeExitAt: 0.8, exit20dBp: 10, latchSessions: 60, levelHighThird: 2 / 3 }),
+  rates: Object.freeze({ move20dBp: 25, rangeHighAt: 0.9, rangeExitAt: 0.8, exit20dBp: 10, latchSessions: 60, levelHighThird: 2 / 3, growthScareSpx20dPct: -3 }), // v59.59: a yield fall with the S&P 500 down this much over the same 20 sessions is a growth scare, not relief
   // ICE BofA US High Yield OAS: below 350bp tight, 450bp+ stressed, +25bp in five sessions a fast widening;
   // +15bp in five sessions is the early-watch level (P1449: HY 324bp +44bp must read as widening
   // stress forming, not calm), and ≤5bp / five sessions counts as calm for the smallcap reading.

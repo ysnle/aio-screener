@@ -415,8 +415,22 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
     ? positionValue - totalCost
     : null;
   const totalPnlPct = totalPnl != null && totalCost > 0 ? totalPnl / totalCost * 100 : null;
-  const allRowsDaily = rows.length > 0 && rows.every((row) => row.value != null && row.dailyPctEligible === true && row.dailyPct != null && row.dailyPct > -100);
-  const dailyChange = allRowsDaily ? rows.reduce((sum, row) => sum + row.value - row.value / (1 + row.dailyPct / 100), 0) : null;
+  // v59.59 (logic refactor): a converted row's value is in the base currency, so its day is the listing's move and the
+  // USD/KRW move together, (1 + r)(1 + fx) − 1 — the local dailyPct alone dropped the won's day from a KRW book's change.
+  // Without the app's previous USD/KRW close (or for another pair) the row has no base-currency daily change.
+  const fxDayPct = (from) => {
+    if (!from || from === declaredBaseCurrency) return 0;
+    if (!(cashFx?.rate > 0 && cashFx?.prevRate > 0)) return null;
+    if (from === 'USD' && declaredBaseCurrency === 'KRW') return (cashFx.rate / cashFx.prevRate - 1) * 100;
+    if (from === 'KRW' && declaredBaseCurrency === 'USD') return (cashFx.prevRate / cashFx.rate - 1) * 100;
+    return null;
+  };
+  const baseDailyPct = (row) => {
+    const fx = fxDayPct(row.convertedFrom);
+    return fx == null || row.dailyPct == null ? null : ((1 + row.dailyPct / 100) * (1 + fx / 100) - 1) * 100;
+  };
+  const allRowsDaily = rows.length > 0 && rows.every((row) => row.value != null && row.dailyPctEligible === true && row.dailyPct != null && row.dailyPct > -100 && baseDailyPct(row) != null);
+  const dailyChange = allRowsDaily ? rows.reduce((sum, row) => sum + row.value - row.value / (1 + baseDailyPct(row) / 100), 0) : null;
   const previousAssets = dailyChange != null && totalAssets != null ? totalAssets - dailyChange : null;
   const dailyPct = previousAssets > 0 ? dailyChange / previousAssets * 100 : null;
   const exposurePct = totalAssets != null && totalAssets > 0 && positionValue != null ? positionValue / totalAssets * 100 : null;

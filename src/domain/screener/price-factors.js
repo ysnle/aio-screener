@@ -168,7 +168,8 @@ export function _calcVCPServer(closes, highs, lows, volumes) {
   const vcpStage = !stage2 ? 'not_stage2' : brk ? 'breakout' : pivotDown ? 'pivot_down' : extended ? 'extended' : nearPivot ? 'near_pivot' : (cnt >= 2 && shrink) ? 'contracting' : cnt >= 1 ? 'basing' : 'stage2_only';
   // 2026-10-14: the latest contraction against the one before it (isShrinking requires every step to shrink).
   const latestShrinking = cnt >= 2 ? detected.contractions[cnt - 1].depth < detected.contractions[cnt - 2].depth : null;
-  return { vcpScore: score, vcpStage, pivotLevel: pivot,
+  // v59.59: stage2 · depths · nearPivot · breakout too, so the legacy snapshot (aio-core _calcVCP) reads this one result.
+  return { vcpScore: score, vcpStage, pivotLevel: pivot, stage2, contractionDepths: ctrs.map((row) => row.depth), nearPivot, breakout: brk,
            contractionCount: cnt, isShrinking: shrink, latestShrinking, volumeDrying: volDry,
            pctFrom52wHigh: pct52 !== null ? Math.round(pct52 * 10) / 10 : null };
 }

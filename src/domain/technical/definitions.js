@@ -182,14 +182,15 @@ export function isBreakoutDay({ closes, volumes, i, pivot, ceiling = true }) {
 export const WEINSTEIN_READS = Object.freeze({
   1: '바닥 형성 — 30주선이 평평하거나 아직 내려가는 중이고, 가격이 그 주변에서 다지는 단계',
   2: '상승 추세 — 가격이 오르는 30주선 위에 있는 단계(추세 추종이 유효한 구간)',
-  3: '천장 형성 — 오르던 30주선이 평평해지거나 가격이 그 아래로 내려오는 단계',
+  3: '천장 형성 — 오르던 30주선이 평평해지고 가격이 그 위아래를 오가는 단계',
   4: '하락 추세 — 가격이 내려가는 30주선 아래에 있는 단계'
 });
 
 /**
  * Weinstein stage on weekly closes: the 30-week average and its 4-week slope. Flat (|slope| < 1%) is a base (1) or a
- * top (3) by whether the average stands above where it was 26 weeks ago; rising is 2 above the line and 3 under it;
- * falling is 4 under the line and 1 above it. The only reading that may be called 'n단계' (stage.js names the moving-
+ * top (3) by whether the average stands above where it was 26 weeks ago; rising is 2 (a close under the still-rising
+ * line is a stage-2 pullback, `pullback: true` — v59.59: it used to read 3, but Weinstein's top is the line flattening,
+ * and chart-strategies' exit rule says the same); falling is 4 under the line and 1 above it. The only reading that may be called 'n단계' (stage.js names the moving-
  * average order, not this).
  */
 export function weinsteinStage(closes, rules = T.weinstein) {
@@ -202,8 +203,9 @@ export function weinsteinStage(closes, rules = T.weinstein) {
   const slope = (now / then - 1) * 100;
   const above = closes[wn] > now;
   const flat = Math.abs(slope) < rules.flatSlopePct;
-  const stage = flat ? (prior != null && now > prior ? 3 : 1) : slope > 0 ? (above ? 2 : 3) : (above ? 1 : 4);
-  return Object.freeze({ stage, slope, above, text: WEINSTEIN_READS[stage] });
+  const stage = flat ? (prior != null && now > prior ? 3 : 1) : slope > 0 ? 2 : (above ? 1 : 4);
+  const pullback = stage === 2 && !above;
+  return Object.freeze({ stage, slope, above, pullback, text: pullback ? '상승 추세 중 눌림 — 30주선은 아직 오르는데 가격이 그 아래로 내려온 단계(선이 평평해지면 천장 형성)' : WEINSTEIN_READS[stage] });
 }
 
 // v57.84 (owner decision, TECHNICAL-DEFINITIONS 2절 1): moved from chart-analysis.js — the one VCP contraction detector for the

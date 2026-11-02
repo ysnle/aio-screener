@@ -245,7 +245,7 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   const evidence = [
     ['일봉 이동평균', aligned ? '정배열 (종가 > 21일 EMA > 50일 > 200일)' : ema21[n] && sma50[n] ? `혼조 (종가 ${last.close > sma50[n] ? '50일선 위' : '50일선 아래'})` : '기록 부족'],
     ['주봉 추세 (10·30주)', weeklyTrend || '기록 부족'],
-    ['Weinstein 단계 (30주선)', weinstein ? `${weinstein.stage}단계, 30주선 4주 ${signedText(weinstein.slope, 1)}%` : '기록 부족'],
+    ['Weinstein 단계 (30주선)', weinstein ? `${weinstein.stage}단계${weinstein.pullback ? '(30주선 아래 눌림)' : ''}, 30주선 4주 ${signedText(weinstein.slope, 1)}%` : '기록 부족'],
     [`${benchmarkLabel} 대비 6개월`, rs == null ? '—' : `${signed(rs)}p (종목 ${signed(ret6)})`],
     ['상대강도선 (종목 ÷ 지수)', rsFromHigh == null ? '—' : rsAtHigh ? (rsLeadsPrice ? `신고가 — 가격(고점 대비 ${signed(fromHigh)})보다 먼저` : '신고가 (가격도 고점권)') : `자체 고점 대비 ${signed(rsFromHigh)} (${rsWindow.length >= TECH.fullYearSessions ? '1년' : `${rsWindow.length}거래일`} 기준)`],
     ['추세 강도 ADX', strength ? `${fmt(strength.adx, 0)} ${strength.adx >= 25 ? '(추세 뚜렷)' : strength.adx < 20 ? '(추세 약함)' : '(보통)'}` : '—'],

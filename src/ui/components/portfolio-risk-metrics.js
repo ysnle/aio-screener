@@ -118,6 +118,8 @@ export function renderPortfolioRiskMetrics(data, { documentRef = globalThis.docu
             (val == null || !isFinite(val) ? '비동시' : val.toFixed(2) + '*') + '</td>';
           return;
         }
+        // v59.59: a flat or too-short pair has no correlation (null) — a plain dash, not a colour for 0.
+        if (val == null || !isFinite(val)) { heatHtml += '<td class="wsl-rk-hv" title="변동이 없거나 표본이 짧아 상관을 계산하지 않음">—</td>'; return; }
         let abs = Math.abs(val);
         let bg, textC;
         if (val >= 0.99) {

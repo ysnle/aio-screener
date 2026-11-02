@@ -7,6 +7,7 @@ import { alignInput, buildCloseSeries, isUsable, sessionPointBack } from './clos
 import { RULES } from '../rules/thresholds.js';
 import { finiteNumber as finite } from '../shared/number.js';
 import { isoDay } from '../shared/session-date.js';
+import { percentileOf } from '../shared/percentile.js';
 
 
 export const RADAR_AXES = Object.freeze([
@@ -49,9 +50,7 @@ function positionAt(series, date, invert, window) {
   const slice = series.slice(end - window + 1, end + 1);
   if (end - window + 1 < 0 || slice.length < MIN_SAMPLE) return null;
   const current = slice.at(-1).value;
-  const below = slice.filter((point) => point.value < current).length;
-  const equal = slice.filter((point) => point.value === current).length;
-  const rank = (below + (equal - 1) / 2) / Math.max(1, slice.length - 1) * 100;
+  const rank = percentileOf(slice.map((point) => point.value), current); // v59.59: shared/percentile.js (same convention)
   return { value: Math.round(invert ? 100 - rank : rank), date: series[end].date };
 }
 

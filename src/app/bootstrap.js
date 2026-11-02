@@ -49,7 +49,11 @@ import { earningsContextForHeadline } from '../domain/news/earnings-context.js';
 import { normalizeSignalScoreMode, describeSignalScoreMode, SIGNAL_SCORE_MODE_STORAGE_KEY } from '../domain/signal/mode.js';
 import { computeRelativeRotation } from '../domain/themes/rrg.js';
 import { classifyMovingAverageStructure, deriveMultiTimeframeView } from '../domain/technical/stage.js';
-import { detectContractions, isBreakoutDay } from '../domain/technical/definitions.js';
+import { detectContractions, isBreakoutDay, adrPctOf } from '../domain/technical/definitions.js';
+// v59.59 (logic refactor): the producer's VCP read for the legacy snapshot, behind import() (boot budget). The snapshot is
+// built on a stock's detail, well after boot; before the module arrives the legacy read is 'insufficient_data'.
+let producerVcpRead = null;
+import('../domain/screener/price-factors.js').then((module) => { producerVcpRead = module._calcVCPServer; }).catch(() => { /* the VCP stays unknown */ });
 import { computeNewsSentimentScore, computeNewsRiskSignals, MIN_NEWS_ANALYSIS_SAMPLE, normalizeNewsSentimentHistory } from '../domain/news/scoring.js';
 import { classifyBreadthParticipation } from '../domain/market/breadth.js';
 import { spxMovingAveragesFromHistory } from '../domain/market/moving-average.js';
@@ -1167,6 +1171,9 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     ,detectContractions
     // Audit 2026-10-17 (owner D6): the one breakout-day test — legacy _calcVCP reads it too.
     ,isBreakoutDay
+    // v59.59 (logic refactor): the legacy snapshot's ADR and VCP stage read the producer's own functions.
+    ,adrPctOf
+    ,vcpRead: (...args) => (producerVcpRead ? producerVcpRead(...args) : null)
     ,computeNewsSentimentScore
     ,computeNewsRiskSignals
     ,MIN_NEWS_ANALYSIS_SAMPLE
