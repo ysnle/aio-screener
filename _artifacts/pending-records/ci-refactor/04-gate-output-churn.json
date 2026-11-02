@@ -1,0 +1,12 @@
+{
+ "changelog": [
+  "**로컬 QA 실행이 저장소를 더럽히지 않도록 ({VERSION}):** 브라우저 게이트를 로컬에서 한 번 돌리면 추적 중인 스크린샷 약 50개와 과거 날짜 증거 파일 2개가 바뀌어 매번 되돌려야 했다. 실행마다 다시 만드는 스크린샷(반응형·종목 품질·유니버스 밖 종목·렌더 위생)은 viewport-matrix와 같은 규칙으로 추적에서 뺐고, 사용자 여정 게이트는 2026-09-06 증거 폴더 대신 자기 폴더(_artifacts/user-journey, 추적 안 함)에 쓴다(QA-CRED-32). 다른 게이트·architecture 파일이 읽는 JSON 보고서는 그대로 추적한다."
+ ],
+ "qa": [
+  { "id": "QA-CRED-32", "update": true, "done": true,
+    "text": "**`ci-user-journey-quality-check`가 자기 출력을 날짜 박힌 과거 증거 디렉터리에 쓴다.** {VERSION}: 출력은 `_artifacts/user-journey/`(gitignore)로 옮겼고 `_artifacts/structural-quality-20260906/`은 동결 증거로 남는다.",
+    "verify_by": "판정 완료 — {VERSION} `node scripts/ci-user-journey-quality-check.mjs` PASS 뒤 `git status`가 깨끗하고, `grep -r structural-quality-20260906 scripts architecture .github`는 설명 주석 한 줄뿐." }
+ ],
+ "qa_section": "로컬 게이트 출력 정리",
+ "note": "{VERSION} browser gate screenshots untracked; user-journey output moved"
+}

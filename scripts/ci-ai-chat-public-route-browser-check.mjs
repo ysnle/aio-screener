@@ -129,13 +129,21 @@ try {
   // v59.16 (roadmap 11): a real reader's browser (navigator.webdriver false) loads js/aio-chat.js only on first use or
   // when idle. Asking from a page before that must load the panel, replay the queued open and send, and reach the Worker.
   const lazyContext = await browser.newContext({ viewport: { width: 1440, height: 900 } });
-  await lazyContext.addInitScript(() => { localStorage.clear(); Object.defineProperty(Navigator.prototype, 'webdriver', { get: () => false }); });
+  // v59.59: the idle load (requestIdleCallback, 4 s timeout) is held for this page. Under parallel QA load the gate reached
+  // its first read after the idle load had already run, so "boots without the chat script" failed 4 of 6 runs; this
+  // check is about the first-use path. The held callback is recorded, so the idle path is still shown to be armed.
+  await lazyContext.addInitScript(() => {
+    localStorage.clear(); Object.defineProperty(Navigator.prototype, 'webdriver', { get: () => false });
+    window.__aioHeldIdleCallbacks = 0;
+    window.requestIdleCallback = () => { window.__aioHeldIdleCallbacks += 1; return 0; };
+  });
   const lazyPage = await lazyContext.newPage();
   lazyPage.on('pageerror', (error) => errors.push('lazy: ' + String(error)));
   await lazyPage.route('**/*', routeFixture);
   await lazyPage.goto(`${localBase}/index.html`, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await lazyPage.waitForFunction(() => typeof window.AIO?.loadChat === 'function' && typeof window._aioAskInPanel === 'function', { timeout: 30000 });
-  const lazyBefore = await lazyPage.evaluate(() => ({ chatScript: !!document.querySelector('script[src*="aio-chat.js"]'), getChatState: typeof window.getChatState }));
+  await lazyPage.waitForFunction(() => document.readyState === 'complete' && window.__aioHeldIdleCallbacks > 0, { timeout: 30000 }).catch(() => {});
+  const lazyBefore = await lazyPage.evaluate(() => ({ chatScript: !!document.querySelector('script[src*="aio-chat.js"]'), getChatState: typeof window.getChatState, idleArmed: window.__aioHeldIdleCallbacks > 0 }));
   await lazyPage.evaluate(() => window._aioAskInPanel('지연 로드 경로 확인'));
   await lazyPage.waitForFunction(() => typeof window.getChatState === 'function' && document.getElementById('ai-panel')?.classList.contains('open'), { timeout: 30000 });
   await lazyPage.waitForFunction(() => /지연 로드 경로 확인/.test(document.getElementById('ai-panel-msgs')?.textContent || ''), { timeout: 30000 });
@@ -146,7 +154,7 @@ try {
   await lazyContext.close();
   const failures = [];
   const assert = (label, condition) => { if (!condition) failures.push(label); };
-  if (!(lazyBefore.chatScript === false && lazyBefore.getChatState === 'undefined')) failures.push('v59.16 reader browser boots without the chat script');
+  if (!(lazyBefore.chatScript === false && lazyBefore.getChatState === 'undefined' && lazyBefore.idleArmed === true)) failures.push('v59.16 reader browser boots without the chat script and arms the idle load');
   if (!(lazyAfter.sessions === true && lazyAfter.expanded === 'true')) failures.push('v59.16 an ask before the chat loads opens the panel with saved-conversation glue');
   if (!(lazySent && lazyAnswered)) failures.push('P2105 the queued send keeps the filled question, reaches the Worker and publishes the answer');
   assert('P1423: concurrent translation preserves the requested item', queuedTranslation === true);
