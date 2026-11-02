@@ -39,7 +39,9 @@ export function longHistoryRows(artifact) {
     const below = points.filter((point) => point.value <= last.value).length;
     const max = points.reduce((best, point) => (point.value > best.value ? point : best), points[0]);
     const min = points.reduce((best, point) => (point.value < best.value ? point : best), points[0]);
-    const percentile = Math.round((below / points.length) * 100);
+    // Feature audit 2026-11-02: 285 of 286 months rounded to "100%가 이하" while the card beside it printed a higher peak;
+    // 100 is kept for a value that really is the period high and 0 can't occur (the value counts itself), so clamp to 99.
+    const percentile = last.value >= max.value ? 100 : Math.min(99, Math.round((below / points.length) * 100));
     const unit = entry.unit === 'index' ? '' : entry.unit === 'percentage-points' ? '%p' : '%';
     const fmt = (value) => `${value.toFixed(2)}${unit}`;
     const place = percentile >= 80 ? '과거 기준 높은 편' : percentile <= 20 ? '과거 기준 낮은 편' : '과거 기준 중간쯤';

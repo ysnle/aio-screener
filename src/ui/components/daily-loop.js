@@ -181,7 +181,9 @@ function nextEvents(doc, root, repaint, limit = 1) {
   // v59.42: a major registered event (the US midterm) keeps a place among the shown rows.
   const shown = rows.slice(0, limit);
   const major = rows.slice(limit).find((row) => row.major);
-  if (major && !shown.some((row) => row.major)) shown.splice(shown.length - 1, 1, major);
+  // Feature audit 2026-11-02: with one row (오늘's 다음 일정) the swap hid the actual next event (ISM, AAPL earnings) behind a
+  // later major one; a single-row list keeps the next event and adds the major beside it.
+  if (major && !shown.some((row) => row.major)) shown.splice(shown.length > 1 ? shown.length - 1 : shown.length, shown.length > 1 ? 1 : 0, major);
   return shown;
 }
 

@@ -25,9 +25,12 @@ export function dayLabel(date) {
 const pctText = (value, digits = 1) => `${value > 0 ? '+' : ''}${value.toFixed(digits)}%`;
 const bpText = (value) => `${value > 0 ? '+' : ''}${Math.round(value)}bp`;
 
-// The US sessions: weekday rows with an S&P 500 close (weekend rows carry Friday forward).
+// The US sessions: weekday rows with an S&P 500 close (weekend rows carry Friday forward). Feature audit 2026-11-02: a
+// weekday row written before that day's close carries the prior close (fieldMeta.spx.sessionDate is the earlier day),
+// so it is not a session — counting it made "10/12 → 11/2, 15거래일" out of the 14 sessions 10/12 → 10/30.
 function usSessions(history) {
-  return (Array.isArray(history) ? history : []).filter((row) => row?.date && weekday(row.date) && readNumber(row.spx) !== null);
+  return (Array.isArray(history) ? history : []).filter((row) => row?.date && weekday(row.date) && readNumber(row.spx) !== null
+    && (!row.fieldMeta?.spx?.sessionDate || row.fieldMeta.spx.sessionDate === row.date));
 }
 
 // A field's value on `from` (else the nearest earlier close) and its latest close on or before `to`.

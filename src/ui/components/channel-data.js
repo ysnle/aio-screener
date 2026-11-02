@@ -46,7 +46,7 @@ export function channelDataModel(signals, { recentDays = 3 } = {}) {
   if (retail[0]) {
     const [now, before] = retail;
     const change = before ? (now.leveragedLongShare > before.leveragedLongShare + 5 ? '늘었습니다' : now.leveragedLongShare < before.leveragedLongShare - 5 ? '줄었습니다' : '비슷합니다') : '';
-    sentences.push(`${day(now.date)} 서학개미 순매수에서 레버리지 롱 상품 비중은 ${fmt(now.leveragedLongShare)}%${before ? `로 직전(${fmt(before.leveragedLongShare)}%)${change === '비슷합니다' ? '과 비슷합니다' : `보다 ${change}`}` : '입니다'}.`);
+    sentences.push(`${day(now.date)} 서학개미 순매수 상위 10종목에서 레버리지 롱 상품 비중은 ${fmt(now.leveragedLongShare)}%${before ? `로 직전(${fmt(before.leveragedLongShare)}%)${change === '비슷합니다' ? '과 비슷합니다' : `보다 ${change}`}` : '입니다'}.`);
   }
   return {
     latest,
@@ -76,8 +76,8 @@ export function renderChannelData(doc, card, signals) {
   if (model.leverage.length) {
     const chart = el(doc, 'div', null, 'tg-data-leverage');
     chart.setAttribute('role', 'img');
-    chart.setAttribute('aria-label', `서학개미 순매수 중 레버리지 롱 상품 비중: ${model.leverage.map((row) => `${day(row.date)} ${fmt(row.value)}%`).join(', ')}`);
-    chart.append(el(doc, 'div', '서학개미 순매수 중 레버리지 롱 상품 비중 (날짜별)', 'tg-data-sub'));
+    chart.setAttribute('aria-label', `서학개미 순매수 상위 10종목 중 레버리지 롱 상품 비중: ${model.leverage.map((row) => `${day(row.date)} ${fmt(row.value)}%`).join(', ')}`);
+    chart.append(el(doc, 'div', '서학개미 순매수 상위 10종목 중 레버리지 롱 상품 비중 (날짜별, 1위 종목에 따라 크게 흔들림)', 'tg-data-sub'));
     for (const row of model.leverage) {
       const line = el(doc, 'div', null, 'pf-weight-row');
       const track = el(doc, 'span', null, 'pf-weight-track');

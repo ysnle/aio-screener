@@ -318,7 +318,7 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   // screener's own validation verdict when it is loaded — otherwise the rank alone, without a claim.
   // v57.81: under the screener's 확장 range the denominator includes Russell 2000·Nasdaq stocks — the rank says so.
   const rankScope = row.rankingUniverse === 'extended' ? '(확장 종목 범위 기준: 기본 + 러셀2000·나스닥) ' : '';
-  if (ranking) points.push({ id: 'rank', tone: 'neutral', title: '순위', text: `가격 흐름 순위 ${rankScope}${ranking.rank}/${ranking.of}(가격 기록이 충분해 순위를 매긴 종목 수 기준)${rankVerdict(validation)}.` });
+  if (ranking) points.push({ id: 'rank', tone: 'neutral', title: '순위', text: `스크리너 종합 순위(여러 요인의 가중 합) ${rankScope}${ranking.rank}/${ranking.of}(가격 기록이 충분해 순위를 매긴 종목 수 기준)${rankVerdict(validation)}.` });
   const relative3 = spans.find((span) => span.key === 'ret3m');
   // 2026-10-13 review S07: a factor file older than the market's latest completed session says so in the headline.
   const lagSessions = finite(sessionLag?.sessions);

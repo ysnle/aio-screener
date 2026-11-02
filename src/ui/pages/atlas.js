@@ -328,10 +328,12 @@ const PLAYER_NO_TICKER_REASON = Object.freeze({ PRIVATE: '비상장', 'google-cl
 export function valueChainLayerPlayers(layer, research, registry) {
   if (layer.node) return []; // no model company in the registry; the managed-AI-service node holds cloud companies
   const nodeIds = new Set((research?.taxonomyDomains || []).filter((domain) => layer.domains.includes(domain.id)).flatMap((domain) => (domain.nodes || []).map((node) => node.id)));
+  // Feature audit 2026-11-02: counting matching tags pushed NVIDIA (two compute tags, one network tag) behind four
+  // memory makers in 반도체·메모리. A player whose first (primary) tag is in this layer comes first, then registry order.
   return (registry?.players || [])
-    .map((player) => ({ player, hits: (player.taxonomyNodeIds || []).filter((id) => nodeIds.has(id)).length }))
+    .map((player, order) => ({ player, order, primary: nodeIds.has((player.taxonomyNodeIds || [])[0]), hits: (player.taxonomyNodeIds || []).filter((id) => nodeIds.has(id)).length }))
     .filter((item) => item.hits > 0)
-    .sort((a, b) => b.hits - a.hits || String(a.player.name).localeCompare(String(b.player.name)))
+    .sort((a, b) => Number(b.primary) - Number(a.primary) || a.order - b.order)
     .map((item) => item.player);
 }
 

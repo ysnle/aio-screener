@@ -72,11 +72,13 @@ export function strategyLenses(analysis, levels = null, { rsi = null } = {}) {
     const known = conditions.filter(([, ok]) => ok != null);
     return { ...style, conditions, met: known.filter(([, ok]) => ok).length, known: known.length, total: conditions.length, ...rules };
   };
-  const pivot = analysis.pivot;
+  // Feature audit 2026-11-02: a pivot exists for any swing high; chart-analysis gates every breakout state on a valid
+  // contraction run, so the lens counts the pivot only when the VCP is valid (else it is just the latest swing high).
+  const pivot = analysis.vcp?.valid === true ? analysis.pivot : null;
   return [
     pack(STRATEGY_STYLES[0], [
       [`추세 템플릿 8개 중 7개 이상 (지금 ${templateMet}개)`, templateMet >= 7],
-      ['유효한 변동성 수축과 피벗', pivot > 0 ? true : false],
+      ['유효한 변동성 수축과 피벗', pivot > 0],
       [`피벗까지 5% 이내 또는 막 돌파${pivot > 0 ? ` (피벗 ${fmt(pivot)})` : ''}`, pivot > 0 ? close >= pivot * 0.95 && close <= pivot * 1.05 : null],
       ['최근 10일 거래량이 50일 평균의 80% 미만(마름)', analysis.dryUp == null ? null : analysis.dryUp < 0.8],
       ['상대강도선이 1년 고점 근처(-5% 이내)', analysis.rsFromHigh == null ? null : analysis.rsFromHigh >= -5]

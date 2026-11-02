@@ -27,7 +27,7 @@ import { el } from './dom.js';
 import { frameHead, noteFold } from './section-frame.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { usWeekendClosed } from '../../domain/market/market-calendar.js';
-import { signedText } from '../../domain/shared/number.js';
+import { peopleText, signedText } from '../../domain/shared/number.js';
 import { buildCrossAssetRelations } from '../../domain/macro/cross-asset-relations.js';
 import { MARKET_WINDOWS } from '../../domain/market/market-windows.js';
 import { RULES } from '../../domain/rules/thresholds.js';
@@ -774,7 +774,7 @@ export function renderMacroBoard({ documentRef: doc, root }) {
     const section = el(doc, 'section', null, 'macro-group');
     section.dataset.group = group.id;
     const grid = el(doc, 'div', null, 'macro-stat-grid');
-    grid.append(...group.items.map((item) => statCard(doc, { label: item.label, valueText: item.valueText, lines: [item.deltaText, item.targetText, item.trendText], meta: item.meta, note: item.note, status: item.status, series: item.series, direction: item.direction, unit: item.unit })));
+    grid.append(...group.items.map((item) => statCard(doc, { label: item.label, valueText: item.valueText, lines: [item.deltaText, item.targetText, item.trendText], meta: item.meta, note: item.note, status: item.status, series: item.series, direction: item.direction, unit: item.unit, format: item.people ? (value) => peopleText(value, { sign: true }) : null })));
     section.append(groupFold(doc, root, group.id, group.title, group.fact, group.items.length, [grid]));
     return section;
   }));
@@ -1171,7 +1171,10 @@ function allocationPrinciples(doc, root, model, nowCorr) {
   let cash = null;
   try { cash = marketInterpretation(root).crossroads?.cash || null; } catch (_) { cash = null; }
   const corrLine = nowCorr == null ? '상관 기록이 쌓이면 지금 채권이 완충 쪽인지 표시합니다.'
-    : nowCorr.value > 0 ? `지금은 ${nowCorr.value.toFixed(2)}로 0보다 커, 주식이 내리는 날 장기채도 함께 내리기 쉬운 쪽입니다 — 채권을 들고 있어도 분산 효과가 평소보다 작습니다.`
+    // Feature audit 2026-11-02: a 60-session correlation within ±0.2 is inside its own noise (SE ≈ 0.13), and "평소보다"
+    // had no baseline (the past year ran 0.06~0.54), so a small value says no clear sign instead of a weaker cushion.
+    : Math.abs(nowCorr.value) < 0.2 ? `지금은 ${nowCorr.value.toFixed(2)}로 0에 가까워 뚜렷한 부호가 없습니다 — 장기채가 주식 하락을 받쳐 줄지 이 숫자만으로는 정해지지 않습니다.`
+    : nowCorr.value > 0 ? `지금은 ${nowCorr.value.toFixed(2)}로 0보다 커, 주식이 내리는 날 장기채도 함께 내리기 쉬운 쪽입니다 — 채권을 들고 있어도 분산 효과가 작습니다.`
       : `지금은 ${nowCorr.value.toFixed(2)}로 0보다 작아, 주식이 내리는 날 장기채가 받쳐 주는 쪽입니다.`;
   const items = [
     ['주식·채권 상관의 부호', `채권이 주식의 완충이 되는지는 상관의 부호가 정합니다. ${corrLine}`],

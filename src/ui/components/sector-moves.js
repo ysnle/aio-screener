@@ -71,7 +71,7 @@ export function renderSectorMoves({ documentRef: doc, root, anchor = null, host 
   const focusBasis = !!previousBasis && doc.activeElement === previousBasis.querySelector('summary');
   const basis = el(doc, 'details', null, 'sector-moves-basis');
   basis.open = !!previousBasis?.open;
-  basis.append(el(doc, 'summary', '선도·후행 표시 읽는 법'), el(doc, 'p', `오른쪽 표시는 S&P 500 대비 상대강도 회전(선도·개선·약화·후행, 약 50일 기준)이며, 기준선(100) 근처는 '기준선 부근'으로 적습니다. 선도 섹터의 최근 5거래일 상대강도가 평소 5일 움직임의 2배 넘게 꺾였으면 회전 위치 대신 5일 상대 변화를 적습니다. 테마 단계는 1개월과 3~6개월 수익률로 따로 판정하므로 같은 섹터가 다르게 불릴 수 있습니다.`, 'theme-strength-basis'));
+  basis.append(el(doc, 'summary', '선도·후행 표시 읽는 법'), el(doc, 'p', `오른쪽 표시는 S&P 500 대비 상대강도 회전(선도·개선·약화·후행, 약 50일 기준)이며, 기준선(100) 근처는 '경계'로 적습니다. 선도 섹터의 최근 5거래일 상대강도가 평소 5일 움직임의 2배 넘게 꺾였으면 회전 위치 대신 5일 상대 변화를 적습니다. 테마 단계는 1개월과 3~6개월 수익률로 따로 판정하므로 같은 섹터가 다르게 불릴 수 있습니다.`, 'theme-strength-basis'));
   (content || section).replaceChildren(head, lead, list, basis);
   section.hidden = false;
   if (focusBasis) basis.querySelector('summary')?.focus({ preventScroll: true });

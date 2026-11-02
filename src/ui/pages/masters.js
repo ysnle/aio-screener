@@ -673,7 +673,6 @@ function createQuarterView(documentRef, holdingMeta, historyManager, historyRows
   const section = element(documentRef, 'section', 'masters-holdings-section');
   section.appendChild(element(documentRef, 'h3', 'masters-holdings-title', '분기 보고 추이'));
   if (scaleReviewed) section.appendChild(element(documentRef, 'p', 'masters-holdings-meta masters-scale-review', describeValueScaleCarryover()));
-  section.appendChild(element(documentRef, 'p', 'masters-holdings-meta', `최근 ${historyManager?.historyDepthTarget || 12}개 분기에 SEC에 신고한 보유 행 수와 신고 가치입니다. 정정 공시는 원본과 합쳐 분기 전체가 확인될 때만 추이에 넣습니다.`));
   const importedRows = [
     { period: verification?.priorReportPeriod, count: verification?.priorFullRowCount, value: scaleReviewed ? null : verification?.priorParsedValueTotal, reconciliation: verification?.priorCountReconciled },
     { period: verification?.reportPeriod, count: verification?.fullRowCount, value: verification?.valueScaleReview ? null : verification?.parsedValueTotal, reconciliation: verification?.countReconciled }
@@ -693,6 +692,9 @@ function createQuarterView(documentRef, holdingMeta, historyManager, historyRows
     const partial = isPartialAmendmentPeriod(period, imported);
     return { period: period.periodOfReport, partial, count: partial ? null : imported?.count ?? period.rowCount ?? historical?.count ?? null, partialCount: partial ? period.rowCount ?? historical?.count ?? null : null, value: partial || scaleReviewed ? null : imported?.value ?? period.reportedValueTotal ?? historical?.value ?? null, reconciliation: imported?.reconciliation ?? period.countReconciled ?? false, filedAt: period.filedAt, accession: period.accession, rowImportStatus: period.rowImportStatus, indexUrl: period.indexUrl, composition: period.composition || null };
   });
+  // Feature audit 2026-11-02: only managers in history-index.json carry a multi-quarter history; the rest have the
+  // current and prior quarter, so the sentence states the quarters actually shown instead of a 12-quarter default.
+  section.appendChild(element(documentRef, 'p', 'masters-holdings-meta', `최근 ${rows.length}개 분기에 SEC에 신고한 보유 행 수와 신고 가치입니다.${historyManager ? '' : ' 이 운용사는 이번·직전 분기만 연결돼 있습니다.'} 정정 공시는 원본과 합쳐 분기 전체가 확인될 때만 추이에 넣습니다.`));
   section.appendChild(createQuarterTrend(documentRef, rows));
   const table = createTable(documentRef, ['보고 분기', '보유 행', '신고 가치 합계', '상태', '원문'], rows, (row) => {
     const tr = element(documentRef, 'tr', '');
@@ -997,7 +999,12 @@ export function thirteenFStale(periodOfReport, now = Date.now()) {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(periodOfReport || ''));
   if (!match) return false;
   const nextQuarterEnd = Date.UTC(Number(match[1]), Number(match[2]) + 3, 0);
-  return now > nextQuarterEnd + 45 * 86400000;
+  // A deadline on a weekend rolls to the next Monday (SEC business-day rule); holidays are ignored.
+  let due = nextQuarterEnd + 45 * 86400000;
+  const weekday = new Date(due).getUTCDay();
+  if (weekday === 6) due += 2 * 86400000;
+  else if (weekday === 0) due += 86400000;
+  return now >= due + 86400000;
 }
 
 function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscovery, holdingMeta, compactRows, fullRows, comparisonRows, previewMeta, previewRows, state, securityMaster, referenceMaster, historyManager, historyRowsArtifact, issuerAggregates, principlesArtifact, registry, holdingManagers, rowsByManager) {
@@ -1029,7 +1036,12 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
   const quarterEnd = filingMeta?.latestFiling?.periodOfReport || holdingMeta?.verification?.reportPeriod || null;
   if (quarterEnd) {
     const stale = thirteenFStale(quarterEnd);
-    const chip = element(documentRef, 'span', `sx-chip sx-chip--sm masters-quarter-chip${stale ? ' sx-chip--date' : ''}`, `${quarterEnd} 분기 말 기준${stale ? ', 다음 신고 지남' : ''}`);
+    // Feature audit 2026-11-02: a stale chip names why — a 13F-NT for the next quarter means another filer reports the
+    // holdings (Pershing), and no later 13F at all means the filer may have stopped filing (Scion).
+    const submission = ownershipDiscovery?.latestSubmission;
+    const noticeAfter = submission?.baseForm === '13F-NT' && submission.periodOfReport > quarterEnd;
+    const staleReason = noticeAfter ? `, 다음 분기는 13F-NT(보유는 다른 신고자 보고)` : ', 다음 신고 지남';
+    const chip = element(documentRef, 'span', `sx-chip sx-chip--sm masters-quarter-chip${stale ? ' sx-chip--date' : ''}`, `${quarterEnd} 분기 말 기준${stale ? staleReason : ''}`);
     chip.dataset.mastersQuarterEnd = quarterEnd;
     detail.querySelector('.masters-detail-filer')?.before(chip);
   }

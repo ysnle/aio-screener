@@ -361,7 +361,8 @@ export function marginCashCard(doc, read, { financial = false } = {}) {
   if (cash && !financial) {
     const what = cash.shortTermInvestments != null ? '현금·단기투자' : '현금성 자산';
     lines.append(el(doc, 'li', cash.debt == null ? `${what} ${formatUsdShort(cash.liquid)}, 장기부채 자료 없음`
-      : `${what} ${formatUsdShort(cash.liquid)} 대 장기부채 ${formatUsdShort(cash.debt)} — ${cash.net >= 0 ? `순현금 ${formatUsdShort(cash.net)}` : `순부채 ${formatUsdShort(-cash.net)}`}(${read.label} 말)`));
+      : cash.investmentsMissing ? `${what} ${formatUsdShort(cash.liquid)}, 장기부채 ${formatUsdShort(cash.debt)} — 단기투자가 이번 연도에 수집되지 않아(전년에는 있음) 순현금 계산 보류(${read.label} 말)`
+        : `${what} ${formatUsdShort(cash.liquid)} 대 장기부채 ${formatUsdShort(cash.debt)} — ${cash.net >= 0 ? `순현금 ${formatUsdShort(cash.net)}` : `순부채 ${formatUsdShort(-cash.net)}`}(${read.label} 말)`));
   }
   const cap = read.capital;
   const capital = [cap.sbcRatio != null ? `주식보상 매출의 ${cap.sbcRatio.toFixed(1)}%` : null, cap.buybacks != null ? `자사주 매입 ${formatUsdShort(cap.buybacks)}` : null, cap.dividends != null ? `배당 ${formatUsdShort(cap.dividends)}` : null].filter(Boolean);

@@ -139,7 +139,7 @@ export function koreaLinks({ kospi, kosdaq: kosdaqRow, nasdaq: nasdaqRow, semis:
   if (nasdaq?.change != null) {
     const usSide = sideOf(nasdaq.change);
     const verdict = krSide === 0 ? 'unknown' : usSide === krSide ? 'supports' : 'against';
-    links.push({ id: 'us', label: '직전 미국장', verdict, evidence: `나스닥 ${pct(nasdaq.change)}${semis?.change != null ? `, 반도체 ETF ${pct(semis.change)}` : ''}`,
+    links.push({ id: 'us', label: '직전 미국장', verdict, evidence: `나스닥 종합 ${pct(nasdaq.change)}${semis?.change != null ? `, 반도체 ETF ${pct(semis.change)}` : ''}`,
       text: verdict === 'supports' ? '같은 방향이라 미국장 흐름이 이어진 몫이 있습니다.' : verdict === 'against' ? (usSide === 0 ? '미국장 변화가 작아 이 움직임을 설명하지 못합니다.' : '미국장과 반대 방향이라 미국발로 보기 어렵습니다.') : '한국 변화가 작아 비교하지 않습니다.' });
   }
   // 2. Asia on the same day.
@@ -239,8 +239,12 @@ export function buildSessionBridge({ nowMs = Date.now(), snapshot = null, attrib
           : '미국 선물 변화가 작아 한국장 흐름을 미국이 이어 받을지는 정규장에서 확인합니다.';
   }
   // Oil → inflation/rates chain when oil moved enough to matter for the rates read.
+  const oilMs = Date.parse(r.wti?.observedAt || '');
+  const oilDay = Number.isFinite(oilMs) ? kstParts(oilMs).date.slice(5).split('-').map(Number).join('/') : null;
   const oil = r.wti?.change != null && Math.abs(r.wti.change) >= BRIDGE_RULES.oilPct
-    ? `유가(WTI) ${pct(r.wti.change)} — ${r.wti.change < 0 ? '물가·금리 부담을 덜어 주는 쪽' : '물가·금리 부담을 키우는 쪽'}이라 금리와 성장주 흐름을 같이 봅니다.` : null;
+    // Feature audit 2026-11-02: this is the live CL=F quote (Sunday-night futures on a Monday morning), while 자금 흐름 above
+    // quotes the last settle's day; the observation day keeps the two from reading as one contradictory number.
+    ? `유가(WTI 선물${oilDay ? ` ${oilDay} 시세` : ''}, 직전 정산 대비) ${pct(r.wti.change)} — ${r.wti.change < 0 ? '물가·금리 부담을 덜어 주는 쪽' : '물가·금리 부담을 키우는 쪽'}이라 금리와 성장주 흐름을 같이 봅니다.` : null;
   const snapshotAgeMin = ageMinutes(snapshot?.generatedAt, nowMs);
   return {
     schemaVersion: SESSION_BRIDGE_VERSION,

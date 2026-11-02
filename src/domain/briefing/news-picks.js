@@ -6,13 +6,18 @@ import { channelLineFor } from '../news/channel-lines.js';
 
 // P1391 (owner review 2026-10-02): the important list — the highest-scored story per topic inside the window (moved here
 // from the news page so 오늘's 밤사이 핵심 reads the same picks as the news screen).
+// Feature audit 2026-11-02: stock-pick listicles ("5 Most Undervalued Dividend Growth Stocks…", "…Stock to Buy Hand Over
+// Fist") scored ≥50 on source and topic and became the 신용 pick; they are promotion, not news, and stay in the full feed.
+const PROMO_TITLES = [/\bstocks? to buy\b/i, /\bto buy hand over fist\b/i, /\bundervalued\b[^.]*\bstocks\b/i, /(?<![가-힣])사라고/, /(?<![가-힣])매수 추천/];
+export const isPromotionalTitle = (title) => PROMO_TITLES.some((pattern) => pattern.test(String(title || '')));
+
 export function pickImportantNews(items = [], limit = 5) {
   const picked = items.filter((item) => item.storyHasRevision).slice(0, limit);
   const topics = new Set();
   for (const item of [...items].sort((a, b) => (finite(b?.score) || 0) - (finite(a?.score) || 0))) {
     const topic = item?.topic || item?.feedTopic || 'general';
     // Filler is worse than a shorter list: unclassified and low-score items stay in the full feed.
-    if (picked.includes(item) || item?._tgChannel || topic === 'general' || (finite(item?.score) || 0) < 50 || topics.has(topic) || picked.length >= limit) continue;
+    if (picked.includes(item) || item?._tgChannel || isPromotionalTitle(item?.title) || isPromotionalTitle(item?.originalTitle) || topic === 'general' || (finite(item?.score) || 0) < 50 || topics.has(topic) || picked.length >= limit) continue;
     topics.add(topic);
     picked.push(item);
     if (picked.length >= limit) break;
