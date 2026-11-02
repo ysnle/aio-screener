@@ -455,6 +455,57 @@ check('v59.56 cash-flow lane in the reading: the group line always, an issuer li
   eq(cashflowContextLines(null, briefs, '2026-10-30', { nowMs }), '');
 });
 
+// v59.59 (AI lane refactor): every brief request goes through the shared transport with its lane's registered profile, and
+// every prompt carries the shared writing rules (합니다체, Korean names, no value repeated in the text).
+{
+  const { SHARED_AI_PROFILES, sharedAiPurpose, requestSharedJson } = await import('./lib/ai-shared-analysis.mjs');
+  const { FORMAL_ENDING, PROMPT_RULES } = await import('./lib/ai-prompt-rules.mjs');
+  const recorded = await fixtureSources(fixtureDir);
+  const bodies = [];
+  const replay = recorded.ai.bind(recorded);
+  recorded.ai = async (body, purpose) => { bodies.push({ purpose, body }); return replay(body, purpose); };
+  const fixtureBase = { sources: recorded, fomcDecisions: recorded.manifest.macroCalendar['us-fomc'], earningsRows: recorded.manifest.earnings, earningsSource: 'Finnhub' };
+  const firstRun = await buildEventBriefs({ ...fixtureBase, previous: null, nowMs });
+  await buildEventBriefs({ ...fixtureBase, previous: firstRun, nowMs: nowMs + 3 * 3600000 });
+  check('v59.59 each event-brief request is a registered purpose and uses its profile (token ceiling, effort, search bound)', () => {
+    ok(bodies.length >= 4, `requests: ${bodies.map((row) => row.purpose)}`);
+    for (const { purpose, body } of bodies) {
+      const entry = sharedAiPurpose(`event-brief-${purpose}`);
+      ok(entry, `unregistered purpose event-brief-${purpose}`);
+      const profile = SHARED_AI_PROFILES[entry.profile];
+      eq(body.reasoning.effort, profile.effort, purpose);
+      eq(body.store, false, purpose);
+      eq(Boolean(body.tools), entry.profile === 'search', purpose);
+      if (entry.profile === 'structured') eq(body.max_output_tokens, profile.maxOutputTokens, purpose);
+      else ok(body.max_tool_calls >= 1 && body.max_tool_calls <= 2 && body.max_output_tokens <= 1500, purpose);
+      ok(body.text?.format?.type === 'json_schema' && body.text.format.strict === true, `${purpose}: strict JSON schema`);
+    }
+  });
+  check('v59.59 brief prompts state the sentence ending, the no-trade rule, and (structured) Korean names and no repeated value', () => {
+    for (const { purpose, body } of bodies) {
+      const prompt = body.input[0].content;
+      ok(prompt.includes(FORMAL_ENDING), `${purpose}: ending rule`);
+      ok(prompt.includes(PROMPT_RULES.noTradeInstruction), `${purpose}: no-trade rule`);
+      if (!body.tools) {
+        ok(prompt.includes(PROMPT_RULES.koreanNames), `${purpose}: Korean names`);
+        like(prompt, /text에는 value에 쓴 숫자를 다시 쓰거나 다른 단위로 바꿔 쓰지 않는다/, `${purpose}: no repeated value`);
+      }
+    }
+  });
+  const sent = [];
+  const env = { AIO_AUTOMATION_TOKEN: 'x'.repeat(40), AI_PROXY_URL: 'https://fixture.workers.dev', GITHUB_RUN_ID: '42', GITHUB_RUN_ATTEMPT: '2' };
+  const payload = { status: 'completed', model: 'gpt-6-luna', usage: { input_tokens: 900, output_tokens: 120 },
+    output: [{ type: 'web_search_call' }, { type: 'message', status: 'completed', role: 'assistant', content: [{ type: 'output_text', text: '{"reasons":[]}' }] }] };
+  const answer = await requestSharedJson(bodies[0].body, { env, purpose: 'event-brief-reasons-NVT', fetchImpl: async (url, init) => { sent.push(init); return new Response(JSON.stringify(payload), { status: 200 }); } });
+  const failed = await requestSharedJson(bodies[0].body, { env, purpose: 'event-brief-reasons-NVT', fetchImpl: async () => new Response('{}', { status: 503 }) });
+  check('v59.59 the event-brief transport keys each request by lane, run and attempt, and returns the usage counts', () => {
+    like(sent[0].headers['X-AIO-Idempotency-Key'], /^event-brief-reasons-NVT-42-2-[0-9a-f-]{36}$/);
+    eq(sent[0].redirect, 'error');
+    same(answer, { json: { reasons: [] }, usage: { inputTokens: 900, outputTokens: 120, searchCalls: 1 } });
+    same(failed, { reason: 'provider-http-503' });
+  });
+}
+
 if (failures.length) {
   console.error(`[event-briefs] ${failures.length} failure(s):\n- ${failures.join('\n- ')}`);
   process.exit(1);

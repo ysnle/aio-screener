@@ -1,0 +1,8 @@
+{
+  "changelog": [
+    "**AI 호출 경로 하나로 ({VERSION}):** Actions 생산자가 공용 Worker AI를 부르던 경로 세 벌(시장 해석·공식 참고치 검색·이벤트 브리프)을 `scripts/lib/ai-shared-analysis.mjs`의 `postSharedAi` 하나로 합쳤다. 요청 헤더·타임아웃·멱등 키·오류 코드가 한 곳에서 정해지고, 이벤트 브리프 요청도 다른 레인처럼 `레인-런-시도-UUID` 키를 쓴다(전에는 `Date.now()` 기반, 시도 번호 없음). 토큰 상한·추론 강도는 `SHARED_AI_PROFILES`(analysis·structured·search) 세 프로필로, 용도별 소유 파일은 `SHARED_AI_PURPOSES`로 한 표에 모았다. 요청 본문 값은 그대로다.",
+    "**시장 해석 프롬프트 분리 ({VERSION}):** `genMarketAnalysis` 안의 44줄 프롬프트 배열을 `scripts/lib/market-analysis-prompt.mjs`의 이름 붙은 구간(`marketAnalysisPromptSections`)으로 옮겼다. 생성기는 근거 묶음만 만들고 문구는 이 모듈이 쓴다. 2026-10-21 픽스처로 첫 시도·재시도 프롬프트가 바이트 단위로 같음을 확인했다. 구간 순서(정적 규칙 → REGIME_CONTEXT → 회차별 근거)는 공급자 프롬프트 캐시를 위해 계약으로 고정했고, CPI 값이 비어 있을 때 '근원 null%'가 찍히던 경로는 빈 값을 없는 값으로 읽는다.",
+    "**AI 사용 영수증에 토큰 ({VERSION}):** `meta.aiUsage`가 단계별·전체 입력/출력 토큰 수를 싣는다(본문 없이 숫자만). 2026-10-26 사용량 기준선에서 비용 지표로 정한 '요청당 입력 토큰'을 다음 CSV 없이도 실행마다 볼 수 있다."
+  ],
+  "note": "{VERSION}: one shared-AI transport and profile table; market-reading prompt as named sections (byte-identical); token counts in meta.aiUsage"
+}

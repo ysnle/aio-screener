@@ -8,20 +8,26 @@ import { requestSharedAnalysis, requestWorkersAiTranslation, resolveSharedAiConf
 export const AI_USAGE_SCHEMA = 'aio-pipeline-ai-usage.v1';
 const REASON = /^[a-z0-9:-]{1,64}$/;
 
-export function createAiUsage({ env = process.env } = {}) {
+export function createAiUsage({ env = process.env, fetchImpl = undefined } = {}) {
   const configured = !!resolveSharedAiConfig(env);
   const steps = {};
   const step = (purpose) => (steps[purpose] ||= { requests: 0, ok: 0, failures: {} });
-  const count = (purpose, ok, reason) => {
+  const count = (purpose, ok, reason, usage = null) => {
     const row = step(purpose);
     row.requests += 1;
+    // v59.59: token counts per step (the provider's usage block; counts only). Input tokens per request is the cost
+    // metric the AI-context work is judged by (OpenAI usage baseline 2026-10-26: ~2.5k -> ~11.7k per request).
+    if (usage) {
+      row.inputTokens = (row.inputTokens || 0) + (Number(usage.inputTokens) || 0);
+      row.outputTokens = (row.outputTokens || 0) + (Number(usage.outputTokens) || 0);
+    }
     if (ok) row.ok += 1;
     else { const code = REASON.test(String(reason || '')) ? reason : 'unknown'; row.failures[code] = (row.failures[code] || 0) + 1; }
   };
   // Returns null when the Worker is not configured, so each step keeps its own "not configured" path.
   const shared = (purpose) => (configured ? async (prompt) => {
-    const result = await requestSharedAnalysis(prompt, { env, purpose });
-    count(purpose, !!result?.text, result?.reason);
+    const result = await requestSharedAnalysis(prompt, { env, purpose, ...(fetchImpl ? { fetchImpl } : {}) });
+    count(purpose, !!result?.text, result?.reason, result?.usage || null);
     return result;
   } : null);
   const workersTranslate = (purpose) => (configured ? async (titles) => {
@@ -35,7 +41,9 @@ export function createAiUsage({ env = process.env } = {}) {
     const purposes = Object.fromEntries(Object.entries(steps).sort(([a], [b]) => a.localeCompare(b)));
     const sharedRequests = Object.entries(purposes).filter(([purpose]) => !purpose.endsWith(':workers-ai')).reduce((sum, [, row]) => sum + row.requests, 0);
     const workersAiRequests = Object.entries(purposes).filter(([purpose]) => purpose.endsWith(':workers-ai')).reduce((sum, [, row]) => sum + row.requests, 0);
-    return { schemaVersion: AI_USAGE_SCHEMA, configured, sharedRequests, workersAiRequests, purposes };
+    const inputTokens = Object.values(purposes).reduce((sum, row) => sum + (row.inputTokens || 0), 0);
+    const outputTokens = Object.values(purposes).reduce((sum, row) => sum + (row.outputTokens || 0), 0);
+    return { schemaVersion: AI_USAGE_SCHEMA, configured, sharedRequests, workersAiRequests, inputTokens, outputTokens, purposes };
   };
   return { configured, shared, workersTranslate, note, receipt };
 }

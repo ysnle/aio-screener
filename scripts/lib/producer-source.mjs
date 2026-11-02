@@ -28,6 +28,7 @@ export const PRODUCER_SOURCE_FILES = Object.freeze([
   'src/domain/screener/price-factors.js', // v57.81: the per-symbol factor math moved here (shared with the browser)
   'src/domain/fundamental/sec-row-fields.js', // v57.81: the per-symbol SEC row fields moved here (shared with the browser)
   'scripts/lib/market-analysis-validate.mjs',
+  'scripts/lib/market-analysis-prompt.mjs', // v59.59: the market-reading prompt's wording moved out of market-narrative.mjs
   'scripts/lib/market-timeline.mjs' // 2026-10-19: six-hour KST market slots
 ]);
 

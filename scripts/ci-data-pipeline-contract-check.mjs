@@ -364,6 +364,41 @@ check('P1421 refresh workflow fetches market data with official optional secrets
     && !/api\.anthropic\.com|api\.openai\.com|ANTHROPIC_API_KEY|OPENAI_API_KEY/.test(fetchData));
   const limited = await requestSharedAnalysis('fixture', { env, fetchImpl: async () => new Response('{}', { status: 429 }) });
   check('P1421 monthly quota exhaustion fails closed without direct provider retry', limited.text === null && limited.reason === 'provider-http-429');
+  // v59.59 (AI lane refactor): one transport and one profile table; the run receipt carries token counts per step.
+  const { SHARED_AI_PROFILES, sharedAiPurpose } = await import('./lib/ai-shared-analysis.mjs');
+  const { createAiUsage } = await import('./producer/ai-usage.mjs');
+  const counted = { ...complete, usage: { input_tokens: 11700, output_tokens: 640 } };
+  const usage = createAiUsage({ env, fetchImpl: async () => new Response(JSON.stringify(counted), { status: 200 }) });
+  await usage.shared('market-analysis')('fixture');
+  await usage.shared('market-analysis')('fixture retry');
+  const receipt = usage.receipt();
+  check('v59.59 the AI usage receipt records input/output tokens per step and in total (counts only, never text)',
+    receipt.purposes['market-analysis']?.requests === 2 && receipt.purposes['market-analysis'].inputTokens === 23400
+      && receipt.purposes['market-analysis'].outputTokens === 1280 && receipt.inputTokens === 23400 && receipt.outputTokens === 1280
+      && !JSON.stringify(receipt).includes('검증된 시장 요약'), JSON.stringify(receipt));
+  check('v59.59 every producer AI purpose resolves to one registered profile; the analysis body is built from it',
+    ['market-analysis', 'headline-translation', 'slot-summary', 'event-brief-earnings-NVT', 'event-brief-reasons-005930.KS', 'official-ref-kr-cpi']
+      .every((purpose) => SHARED_AI_PROFILES[sharedAiPurpose(purpose)?.profile])
+      && sharedAiPurpose('event-brief-fomc-presser')?.profile === 'search' && sharedAiPurpose('unregistered') === null
+      && requestBody.max_output_tokens === SHARED_AI_PROFILES.analysis.maxOutputTokens && requestBody.reasoning.effort === SHARED_AI_PROFILES.analysis.effort
+      && /^market-analysis-42-1-[0-9a-f-]{36}$/.test(requests[0].options.headers['X-AIO-Idempotency-Key']));
+}
+{
+  // v59.59: the market-reading prompt is worded by scripts/lib/market-analysis-prompt.mjs from the packet the generator
+  // assembles. Static rules come first and REGIME_CONTEXT before the per-run evidence (shared, cacheable prefix); an absent
+  // optional block leaves no gap; the one-sentence instruction stays last; the retry appends to the unchanged prompt.
+  const mp = await import('./lib/market-analysis-prompt.mjs');
+  const packet = { regimeContext: 'R', evidenceLines: '- E', newsLines: '', headlineLines: '- H', driversContext: 'MARKET_DRIVERS x', largeMove: false };
+  const ids = mp.marketAnalysisPromptSections(packet).filter(([, text]) => text != null).map(([id]) => id);
+  const full = mp.marketAnalysisPromptSections({ ...packet, inflationLine: 'INFLATION_DIRECTION: x', koreaIntradayLines: '- K', afterHoursLines: '- A', earningsLines: '- U', cashflowLines: '- C', crossMarketIntradayLines: '- X', narrativeText: 'N', largeMove: true })
+    .map(([id]) => id);
+  const prompt = mp.buildMarketAnalysisPrompt(packet);
+  check('v59.59 market-reading prompt sections: static rules, then REGIME_CONTEXT, then per-run evidence; optional blocks drop cleanly; sentence last',
+    ids.indexOf('style') < ids.indexOf('regime') && ids.indexOf('regime') < ids.indexOf('metricEvidence') && ids.at(-1) === 'sentence'
+      && !ids.includes('koreaIntraday') && !ids.includes('narrative') && full.length === 24 && full.at(-1) === 'sentence'
+      && !prompt.includes('\n\n\n\n') && prompt.startsWith('아래 근거로 시장 해석을') && prompt.includes('METRIC_EVIDENCE:\n- E')
+      && mp.buildMarketAnalysisRetryPrompt(prompt, 'issue').startsWith(`${prompt}\n\nPREVIOUS_ATTEMPT_REJECTED`)
+      && Object.keys(mp.marketAnalysisPromptSizes(packet)).length === ids.length && mp.inflationDirectionLine({}) === '', JSON.stringify(ids));
 }
 check('refresh workflow fetches Telegram digest artifact', /node scripts\/fetch-telegram-digest\.mjs --days=(?:7|14) --out=public-data\/telegram-digest\.json/.test(refresh));
 check('P1204 core refresh workflow stages core public-data artifacts and validates the Git index', /(?:git add -- )?public-data\/data\.json public-data\/history\.json/.test(refresh) && /stage_if_exists public-data\/telegram-digest\.json/.test(refresh) && /stage_if_exists public-data\/score-backtest-history\.json/.test(refresh) && /stage_if_exists public-data\/masters\/index\.json/.test(refresh) && /node scripts\/ci-masters-contract-check\.mjs --staged/.test(refresh));
