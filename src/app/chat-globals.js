@@ -9,10 +9,11 @@ import { buildMarketContentContext, buildQuestionDomainContext } from '../ai/con
 import { buildScreenerAiContext, detectSectorQuery, formatScreenerResultPrompt, runScreenerQuery } from '../ai/context/screener-query.js';
 import { chooseAnswerMode, answerModeGuide } from '../ai/response/answer-modes.js';
 import { buildAnswerPrinciples, describeAnswerVisuals, promptWithoutWebSearch } from '../ai/response/answer-principles.js';
+import { CHAT_REFERENCE_BUDGET, capReferenceLines } from '../ai/context/reference-budget.js'; // 2026-11-02 chat context budget
 
 export function installChatGlobals(root = globalThis) {
   root.AIO = root.AIO || {};
-  Object.assign(root.AIO, { buildMarketContentContext, buildQuestionDomainContext, chooseAnswerMode, answerModeGuide, buildAnswerPrinciples, describeAnswerVisuals, promptWithoutWebSearch });
+  Object.assign(root.AIO, { buildMarketContentContext, buildQuestionDomainContext, chooseAnswerMode, answerModeGuide, buildAnswerPrinciples, describeAnswerVisuals, promptWithoutWebSearch, chatReferenceBudget: CHAT_REFERENCE_BUDGET, capReferenceLines });
   const input = () => (typeof root.AIO.screenerQueryInput === 'function' ? root.AIO.screenerQueryInput() : null) || { rows: [] };
   const rankAsOf = () => (typeof root.AIO.screenerFactorAsOf === 'function' ? root.AIO.screenerFactorAsOf() : null);
   root._aioRunScreenerQuery = (query, opts) => runScreenerQuery(query, { ...input(), recentTickers: opts?.recentTickers || [] });

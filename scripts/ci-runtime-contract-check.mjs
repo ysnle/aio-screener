@@ -923,6 +923,17 @@ const refreshProgressProbe = await (async () => {
   return quiet && shown && els['aio-refresh-progress-layer'].style.display === 'none' && els['topbar-refresh-btn'].textContent === '새로고침';
 })();
 check('v59.59 refresh progress keeps background runs on the topbar button and shows the panel only for a reader-started run', refreshProgressProbe);
+const referenceBudgetProbe = await (async () => {
+  // v59.59 chat context budget: reference blocks (supplied materials, AI-infrastructure framework, imported research)
+  // are capped; live evidence is not. Measured 2026-11-02: six fixture questions 319,922 -> 265,980 instruction chars.
+  const { CHAT_REFERENCE_BUDGET, capReferenceLines } = await import('../src/ai/context/reference-budget.js');
+  const block = ['[header]', 'provenance', 'hierarchy', ...Array.from({ length: 200 }, (_, i) => `middle line ${i} ${'x'.repeat(60)}`), 'rule A', 'rule B', 'Do not infer a bottom'].join('\n');
+  const capped = capReferenceLines(block, CHAT_REFERENCE_BUDGET.aiInfraFramework);
+  const lines = capped.split('\n');
+  return capped.length <= CHAT_REFERENCE_BUDGET.aiInfraFramework && lines[0] === '[header]' && lines.at(-1) === 'Do not infer a bottom' && /reference trimmed/.test(capped)
+    && capReferenceLines('short', 100) === 'short' && CHAT_REFERENCE_BUDGET.suppliedMaterials < 9000 && CHAT_REFERENCE_BUDGET.importedResearch < 5600;
+})();
+check('v59.59 chat reference blocks are capped by line with header and closing rules kept and a trim note', referenceBudgetProbe);
 check('headless tests cover the redesigned default path', /T869 redesign_default_path_v5289/.test(tests));
 
 // [G2] v52.90 P705/R331: 최종 렌더의 loaded/empty/degraded/closed 사용자 상태 계약.
