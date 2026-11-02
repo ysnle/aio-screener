@@ -54,7 +54,7 @@ function rawComponents(closes) {
       const delta = closes[i] - closes[i - 1];
       const up = Math.max(delta, 0), down = Math.max(-delta, 0);
       if (i <= 14) { gain += up / 14; loss += down / 14; } else { gain = (gain * 13 + up) / 14; loss = (loss * 13 + down) / 14; }
-      if (i >= 14) rsi[i] = loss === 0 ? 100 : 100 - 100 / (1 + gain / loss);
+      if (i >= 14) rsi[i] = loss === 0 ? (gain === 0 ? 50 : 100) : 100 - 100 / (1 + gain / loss); // v59.59: flat = 50, as rsiWilder
     }
     if (i >= 20) {
       let s = 0, s2 = 0;

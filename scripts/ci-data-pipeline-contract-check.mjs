@@ -1813,8 +1813,9 @@ check('backtest publishes native liquidity/cost/rebalance disclosures', /transac
 // Wilder's RSI (recursively smoothed), same label, different numbers. Recompute both against
 // identical synthetic input rather than trusting that matching source comments mean matching math.
 let rsiParityDetail = '';
-const rsiParityOk = (() => {
+const rsiParityOk = await (async () => {
   try {
+    // v59.59: the producer's _rsi14 rounds technical/definitions.js rsiWilder; the parity runs the real module.
     const serverSrc = extractFunctionSource(fetchData, '_rsi14');
     const clientRsiSrc = extractFunctionSource(core, '_calcRSILast');
     const cleanNumsSrc = extractFunctionSource(core, '_aioCleanNums');
@@ -1822,7 +1823,8 @@ const rsiParityOk = (() => {
     if (!clientRsiSrc) { rsiParityDetail = 'could not extract _calcRSILast from aio-core.js'; return false; }
     if (!cleanNumsSrc) { rsiParityDetail = 'could not extract _aioCleanNums from aio-core.js'; return false; }
     const roundFn = (v, d) => (typeof v === 'number' && isFinite(v)) ? Number(v.toFixed(d)) : null;
-    const serverRsi14 = new Function('round', `${serverSrc}\nreturn _rsi14;`)(roundFn);
+    const { rsiWilder } = await import('../src/domain/technical/definitions.js');
+    const serverRsi14 = new Function('round', 'rsiWilder', `${serverSrc}\nreturn _rsi14;`)(roundFn, rsiWilder);
     const clientCalcRsiLast = new Function(`${cleanNumsSrc}\n${clientRsiSrc}\nreturn _calcRSILast;`)();
     // Deterministic synthetic series long enough (300 bars) for Wilder's smoothing to be well
     // past its warm-up window, matching real usage (screener enrichment runs on ~1y of history).

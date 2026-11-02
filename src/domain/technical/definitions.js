@@ -11,21 +11,26 @@ export const TECHNICAL_DEFINITIONS_VERSION = 'technical-definitions.v1';
 const T = RULES.technical;
 
 
-/** Simple moving average per index (null until `period` values exist). */
+const isNum = (value) => typeof value === 'number' && Number.isFinite(value);
+
+/**
+ * Simple moving average per index (null until `period` values exist). v59.59 (logic refactor): a window holding a
+ * missing value is null — `sum += null` added 0, so [1, 2, null, 4] averaged 1 at index 2.
+ */
 export function smaSeries(values, period) {
   return values.map((_, index) => {
     if (index + 1 < period) return null;
     let sum = 0;
-    for (let k = index + 1 - period; k <= index; k++) sum += values[k];
+    for (let k = index + 1 - period; k <= index; k++) { if (!isNum(values[k])) return null; sum += values[k]; }
     return sum / period;
   });
 }
 
-/** Simple average of the last `period` values, or null when fewer exist. */
+/** Simple average of the last `period` values, or null when fewer exist or one of them is missing. */
 export function smaLast(values, period) {
   if (!Array.isArray(values) || period <= 0 || values.length < period) return null;
   let sum = 0;
-  for (let i = values.length - period; i < values.length; i++) sum += values[i];
+  for (let i = values.length - period; i < values.length; i++) { if (!isNum(values[i])) return null; sum += values[i]; }
   return sum / period;
 }
 
@@ -47,6 +52,32 @@ export function emaSeries(values, period) {
 export function emaLast(values, period) {
   if (!Array.isArray(values) || values.length < period) return null;
   return emaSeries(values, period).at(-1) ?? null;
+}
+
+/**
+ * Wilder's RSI on the last value of `closes` (period-bar simple seed, then Wilder smoothing over the whole input) — the
+ * TradingView/TA-Lib default and the one RSI of the producer (screener rsi), the chart and the legacy snapshot
+ * (P584/R265 parity). Non-positive or non-finite closes are dropped before the differences are taken. A series with no
+ * gains and no losses has no relative strength: 50 (neutral), not the 100 the old `avgLoss === 0` branch printed for a
+ * halted or flat stock. Unrounded; null below period + 1 closes.
+ */
+export function rsiWilder(closes, period = 14) {
+  const nums = (Array.isArray(closes) ? closes : []).filter((v) => typeof v === 'number' && Number.isFinite(v) && v > 0);
+  if (!(period > 0) || nums.length < period + 1) return null;
+  let gain = 0, loss = 0;
+  for (let i = 1; i <= period; i++) {
+    const d = nums[i] - nums[i - 1];
+    if (d >= 0) gain += d; else loss -= d;
+  }
+  let avgGain = gain / period;
+  let avgLoss = loss / period;
+  for (let j = period + 1; j < nums.length; j++) {
+    const diff = nums[j] - nums[j - 1];
+    avgGain = ((avgGain * (period - 1)) + Math.max(diff, 0)) / period;
+    avgLoss = ((avgLoss * (period - 1)) + Math.max(-diff, 0)) / period;
+  }
+  if (avgLoss === 0) return avgGain === 0 ? 50 : 100;
+  return 100 - (100 / (1 + avgGain / avgLoss));
 }
 
 /** True range per bar; the first bar has no prior close, so its range is high − low. */

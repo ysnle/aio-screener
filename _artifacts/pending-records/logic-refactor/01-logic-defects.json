@@ -1,0 +1,24 @@
+{
+  "p": {
+    "title": "Analysis math counted missing, stale or gated inputs as values and measured windows on filtered arrays",
+    "symptom": "An audit of the indicator, regime, sentiment, macro and portfolio math (2026-11-02, owner request to doubt every formula) found results that ran and looked plausible but disagreed with their own definitions: the trading score kept a stale-MA trend and unavailable breadth in its total at 100% coverage; the S&P 500 revision breadth passed its 80% weight gate with members that had no revision counts; the composite fear-greed 'strength' ranked raw new-high minus new-low counts across the 826→497 universe change; the KR flow card showed 5/20-session sums for an investor series that had stopped; the VIX term structure was blocked by an unused 6-month point; the macro cards' '3개월'/'1개월' read four or two months for 1st-of-month dates; a null fed-funds lower bound printed 0.00–4.00%; the core-PCE inflation axis applied its 0.1pp buffer to a 1-decimal rounded value; the theme rank-shift band counted unranked groups; the comparison table's period returns skipped a missing bar and reached one session further back; rebasedLine.endPct was a fraction among % values; smaSeries/smaLast added null as 0; the power-gap volume test included the gap day in its own 50-day average; RSI printed 100 for a flat series; the FTD reader called any earlier follow-through 'failed', and the producer overwrote warmed rally-attempt rows with cold-start states; the trade journal counted break-even lots as losses; a single −50% return had no drawdown; an EUR base took the USD/KRW move inverted.",
+    "root_cause": "Each module guarded the happy path (finite numbers, full windows, one universe, USD/KRW only) and treated the rest by coercion: `?? 0`, `Number(null)` = 0, filtering before indexing, raw rather than gated variables in the weighted sum, calendar days for calendar months. No test fed the modules reference values or degenerate inputs.",
+    "fix": "v59.59: trading-score weighs trendScore/breadthScore (the gated values); index-earnings counts revision weight only for members with both 4-week counts; composite F&G strength = (highs − lows) ÷ eligible % within the latest universeScope; kr-investor-flows withholds sums for a non-current series; vixTermStructure needs only 9-day/spot/3-month; liquidity-growth compares monthly series by calendar month (changeOverMonths) and reads the target range with readNumber; macro-read reads the unrounded core-PCE series value when it matches the published 1-decimal macro.corePce within rounding; group-strength sizes the band from the ranked groups; chart-compare counts period returns on the bar index and reports endPct in %; smaSeries/smaLast return null for a window with a missing value; the power gap uses priorVolumeAverage; rsiWilder (technical/definitions.js) is the one RSI, flat = 50, with the legacy _calcRSILast/_calcRSISeries and market-temperature matching; rallyAttemptSeries marks warmedUp and the producer skips cold-start rows; rallyAttemptRead calls an earlier FTD failed only when no phase-0 row followed it; journalStats has a flats bucket; _calcMaxDrawdown accepts one return; stockBondCorrelation refuses a non-USD/KRW base.",
+    "violated_rule": "C4 one meaning one implementation; null is unknown, never 0; a named method follows its published definition (R265).",
+    "prevention": "scripts/ci-quant-reference-check.mjs (qa-pipeline id quant-reference) feeds each formula a reference value or the degenerate input that broke it; a new indicator or score adds its case there.",
+    "verification": "node scripts/ci-quant-reference-check.mjs (27 cases; fails on the pre-fix modules); ci-esm-core-unit-check, ci-expect-output-check, ci-pipeline-semantics-check, ci-domain-parity-check, ci-review-integrity-unit-check, ci-data-pipeline-contract-check, ci-decomp-hotspot-check pass. ci-scenario-guidance-fixture and ci-assertion-trace-check pass; qa-runner affected 122 pass."
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-CALC-01",
+      "text": "{VERSION} reference values: each indicator, score and portfolio statistic has a reference or degenerate-input case in scripts/ci-quant-reference-check.mjs, and a missing/stale/gated input changes coverage instead of counting as 0",
+      "verify_by": "node scripts/ci-quant-reference-check.mjs"
+    }
+  ],
+  "qa_section": "Analysis math reference values",
+  "changelog": [
+    "**Analysis math audit ({P}):** 18 formula defects fixed across the trading score, index revisions, sentiment, macro cards, theme ranks, chart comparison, follow-through day and portfolio statistics; one RSI (rsiWilder, flat = 50); new reference-value gate scripts/ci-quant-reference-check.mjs."
+  ],
+  "note": "Analysis/calculation logic refactor: 18 formula defects, one RSI, reference-value gate"
+}

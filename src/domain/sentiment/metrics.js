@@ -19,7 +19,8 @@ export function vixTermStructure(values = {}) {
   const spot = finite(values.vix);
   const medium = finite(values.vix3m);
   const long = finite(values.vix6m);
-  if ([short, spot, medium, long].some((value) => value == null || value < 0)) {
+  // v59.59 (logic refactor): the reading uses the 9-day, spot and 3-month points; a missing 6-month point no longer blocks it.
+  if ([short, spot, medium].some((value) => value == null || value < 0) || (long != null && long < 0)) {
     return Object.freeze({ regime: '판정 보류', inverted: null, blocked: true, points: Object.freeze({ short, spot, medium, long }) });
   }
   // v59.43 (X bookmark 2111332560634888446): VIX9D above VIX is a front-end inversion even while the 3- and 6-month

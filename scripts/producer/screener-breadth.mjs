@@ -267,7 +267,8 @@ export async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), dis
   // and the follow-through session flag — the counterpart of the distribution-day count (src/domain/market/rally-attempt.js).
   let rallyRows = 0;
   for (const point of Array.isArray(rally?.series) ? rally.series : []) {
-    if (!point?.date || !isSessionComplete(point.date, 'us', nowMs)) continue;
+    // A cold-start state (the 63-session high window not yet full) never overwrites a row an earlier, longer run wrote.
+    if (!point?.date || point.warmedUp === false || !isSessionComplete(point.date, 'us', nowMs)) continue;
     const target = history.find((row) => row?.date === point.date);
     if (!target) continue;
     target.rallyPhase = point.phase;

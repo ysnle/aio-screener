@@ -113,7 +113,10 @@ const median = (values) => { if (!values.length) return null; const s = [...valu
 /** Statistics of closed lots: rates in %, money per currency (never summed across currencies). */
 export function journalStats(closed = []) {
   const wins = closed.filter((row) => row.pnl > 0);
-  const losses = closed.filter((row) => row.pnl <= 0);
+  // v59.59 (logic refactor): a break-even lot is neither — counting pnl 0 as a loss pulled the average loss toward 0%
+  // and blanked the payoff ratio when the only "loss" was a flat sale.
+  const losses = closed.filter((row) => row.pnl < 0);
+  const flats = closed.length - wins.length - losses.length;
   const avgWin = mean(wins.map((row) => row.pnlPct));
   const avgLoss = mean(losses.map((row) => row.pnlPct));
   const pnlByCurrency = {};
@@ -129,7 +132,7 @@ export function journalStats(closed = []) {
   const stopKept = { n: withStop.length, kept: withStop.filter((row) => row.sellPrice >= row.stop).length };
   return {
     stopKept,
-    n: closed.length, wins: wins.length, losses: losses.length,
+    n: closed.length, wins: wins.length, losses: losses.length, flats,
     winRate: closed.length ? wins.length / closed.length * 100 : null,
     avgWinPct: avgWin, avgLossPct: avgLoss,
     payoff: avgWin != null && avgLoss != null && avgLoss < 0 ? avgWin / Math.abs(avgLoss) : null,

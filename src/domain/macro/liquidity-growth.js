@@ -9,7 +9,7 @@ import { buildCloseSeries, closeBasis } from '../market/close-series.js';
 import { RULES } from '../rules/thresholds.js';
 import { sessionPointBack } from './rates-fx.js';
 import { BRENT_WTI_SPREAD_HOLD_USD, brentWtiFromSeries, changeOverDays, MACRO_SIGNAL_RULES } from './macro-signals.js';
-import { signedText } from '../shared/number.js';
+import { readNumber, signedText } from '../shared/number.js';
 import { isIsoDay } from '../shared/session-date.js';
 
 const seriesOf = (macroHistory, field) => (macroHistory?.series?.[field]?.observations || [])
@@ -40,6 +40,19 @@ function changeOver(series, days) {
   if (!last) return null;
   const target = new Date(Date.parse(last.date) - days * 86400000).toISOString().slice(0, 10);
   const then = atOrBefore(series, target);
+  return then ? { then, last } : null;
+}
+
+// v59.59 (logic refactor): a monthly "N개월" change compares with the observation of the calendar month N months back —
+// 92 calendar days from a 1st-of-month date (May 1 → Jan 30) landed on the month before, so the card's "3개월" read
+// four months for some endings (and "1개월" two). No exact month, no change (never a neighbouring month).
+function changeOverMonths(series, months) {
+  const last = series.at(-1);
+  if (!last) return null;
+  const [year, month] = String(last.date).split('-').map(Number);
+  if (!year || !month) return null;
+  const key = new Date(Date.UTC(year, month - 1 - months, 1)).toISOString().slice(0, 7);
+  const then = series.find((row) => String(row.date).slice(0, 7) === key) || null;
   return then ? { then, last } : null;
 }
 
@@ -180,8 +193,10 @@ function liquidityGroup(macroHistory, { macro, referenceMs }) {
   if (sofr.length >= 6) {
     const last = sofr.at(-1);
     // M22: the target range the reading refers to, on the SOFR date.
-    const upper = atOrBefore(seriesOf(macroHistory, 'fedTargetUpper'), last.date)?.value ?? (Number.isFinite(Number(macro?.fedTargetUpper)) ? Number(macro.fedTargetUpper) : null);
-    const lower = upper == null ? null : Number.isFinite(Number(macro?.fedTargetLower)) && Number(macro?.fedTargetUpper) === upper ? Number(macro.fedTargetLower) : upper - 0.25;
+    const upper = atOrBefore(seriesOf(macroHistory, 'fedTargetUpper'), last.date)?.value ?? readNumber(macro?.fedTargetUpper);
+    // v59.59: a null lower bound is missing (Number(null) is 0 and printed a 0.00–4.00% range), so it falls back to upper − 0.25.
+    const lowerRaw = readNumber(macro?.fedTargetLower);
+    const lower = upper == null ? null : lowerRaw != null && readNumber(macro?.fedTargetUpper) === upper ? lowerRaw : upper - 0.25;
     const range = upper == null ? null : `${lower.toFixed(2)}–${upper.toFixed(2)}%`;
     const where = upper == null ? null : last.value > upper ? `목표 범위 ${range} 위 ${((last.value - upper) * 100).toFixed(0)}bp` : last.value < lower ? `목표 범위 ${range} 아래 ${((lower - last.value) * 100).toFixed(0)}bp` : `목표 범위 ${range} 안`;
     items.push(card({ id: 'sofr', label: 'SOFR 단기 자금 금리', series: sofr, asOf: last.date, unit: '%', frequency: frequencyOf(macroHistory, 'sofr', 'daily'), referenceMs, format: (value) => `${fmt(value, 2)}%`,
@@ -204,7 +219,7 @@ function growthGroup(macroHistory, { referenceMs }) {
   }
   const jolts = seriesOf(macroHistory, 'jobOpenings');
   if (jolts.length >= 6) {
-    const c = changeOver(jolts, 365);
+    const c = changeOverMonths(jolts, 12);
     const toMillions = (value) => `${Math.round(value / 10).toLocaleString('en-US')}만 건`; // v57.91: thousands -> 만 건 (7,080 -> 708만 건)
     items.push(card({ id: 'jobOpenings', label: '구인 건수 (JOLTS)', series: jolts, asOf: jolts.at(-1).date, frequency: 'monthly', referenceMs, format: toMillions,
       valueText: toMillions(jolts.at(-1).value), changeText: c ? `1년 ${signed(pct(c.last.value, c.then.value))}` : null,
@@ -212,7 +227,7 @@ function growthGroup(macroHistory, { referenceMs }) {
   }
   const sentiment = seriesOf(macroHistory, 'consumerSentiment');
   if (sentiment.length >= 6) {
-    const c = changeOver(sentiment, 92);
+    const c = changeOverMonths(sentiment, 3);
     items.push(card({ id: 'consumerSentiment', label: '미시간대 소비자심리', series: sentiment, asOf: sentiment.at(-1).date, frequency: 'monthly', referenceMs, format: (value) => fmt(value, 1),
       valueText: fmt(sentiment.at(-1).value, 1), changeText: c ? `3개월 ${signed(c.last.value - c.then.value, 1, '')}` : null,
       reading: '가계가 느끼는 경기와 물가 부담입니다. 심리는 실제 소비보다 먼저 움직이지만 소비와 어긋나는 때도 많습니다.' }));
@@ -220,7 +235,7 @@ function growthGroup(macroHistory, { referenceMs }) {
   const ppi = monthlyYoySeries(seriesOf(macroHistory, 'ppiFinalDemand'));
   if (ppi.length >= 2) {
     const last = ppi.at(-1);
-    const back = changeOver(ppi, 92);
+    const back = changeOverMonths(ppi, 3);
     items.push(card({ id: 'ppiFinalDemand', label: '생산자물가 (최종수요, 전년 대비)', series: ppi.length >= 6 ? ppi : [], asOf: last.date, unit: '%', frequency: 'monthly', referenceMs, format: (value) => signed(value, 1),
       valueText: signed(last.value, 1), changeText: back ? `3개월 전 ${signed(back.then.value, 1)}` : null,
       reading: '기업이 받는 가격입니다. 생산자물가가 오르면 몇 달 뒤 소비자물가나 기업 마진에 압력이 됩니다.' }));
@@ -236,7 +251,7 @@ function commodityFxGroup(macroHistory, { referenceMs }) {
     const frequency = frequencyOf(macroHistory, field, 'daily');
     // M06: a daily series changes over 20 exchange sessions (the WTI span on the same screen); a monthly one over a month.
     const daily = frequency === 'daily';
-    const back = daily ? sessionPointBack(s, 20) : changeOver(s, 30)?.then;
+    const back = daily ? sessionPointBack(s, 20) : changeOverMonths(s, 1)?.then;
     const format = (value) => `${fmt(value, digits)}${unitText}`;
     const [, month, day] = s.at(-1).date.split('-').map(Number);
     // A spot card names its basis and end date on the change, so it is not read as the futures span beside it.

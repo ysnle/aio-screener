@@ -9,7 +9,7 @@ import { RULES } from '../rules/thresholds.js';
 import { signalHistory, signalHistoryText } from './signal-history.js';
 // v57.84: moving averages, ATR, ADR, the 52-week range, the 50-day extension and the Weinstein stage come from the one
 // definitions module the screener producer and the summary also use.
-import { smaSeries, emaSeries, atrWilder, adrPctOf, rangeExtremesOf, extensionMultiple, extensionStateFor, weeklyCloses, weinsteinStage, detectContractions, isBreakoutDay } from './definitions.js';
+import { smaSeries, emaSeries, atrWilder, adrPctOf, rangeExtremesOf, extensionMultiple, extensionStateFor, weeklyCloses, weinsteinStage, detectContractions, isBreakoutDay, priorVolumeAverage } from './definitions.js';
 import { signedText, readNumber as finite } from '../shared/number.js';
 const TECH = RULES.technical;
 
@@ -101,7 +101,9 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   // P1397 events (owner-supplied chart material 2026-10-03): descriptive chart events, not orders.
   const events = [];
   const from = Math.max(1, n - 80);
-  const avg50 = (i) => vol50[i] || null;
+  // v59.59 (logic refactor): the power gap's "2× volume" is against the 50 sessions before the gap day (the breakout
+  // rule's basis, priorVolumeAverage) — the 50-day average including the gap day itself raised its own bar.
+  const avg50 = (i) => priorVolumeAverage(volumes, i, 50) || null;
   // (a) 8-day EMA lost / reclaimed — the short-term trend line most swing traders watch.
   // Expertise review 2026-10-19: events (a)–(c) are found over the whole history so their past outcomes can be read
   // (signal-history.js); the chart still marks only the last ~80 sessions.

@@ -173,7 +173,12 @@ function growthAxis({ macro, mh }) {
 function inflationAxis({ macro, mh }) {
   const corePceIndex = seriesOf(mh, 'corePceIndex');
   const corePceYoySeries = yoySeries(corePceIndex);
-  const yoy = finite(macro.corePce) ?? lastOf(corePceYoySeries)?.value ?? null;
+  // v59.59 (logic refactor): macro.corePce stays the number of record, but the producer rounds it to one decimal; when
+  // the unrounded series value is that same figure (within the rounding), the series value is read, as the Taylor rule
+  // does — 3.05 published as 3.1 crossed the 0.1pp buffer above the 3% line only through the rounding.
+  const recorded = finite(macro.corePce);
+  const unrounded = lastOf(corePceYoySeries)?.value ?? null;
+  const yoy = recorded == null ? unrounded : unrounded != null && Math.abs(unrounded - recorded) <= 0.05 + 1e-9 ? unrounded : recorded;
   const pace = annualised3m(corePceIndex);
   const coreCpiIndex = seriesOf(mh, 'coreCpiIndex');
   const coreCpiPace = annualised3m(coreCpiIndex);

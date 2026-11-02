@@ -11926,7 +11926,7 @@ function _calcRSILast(closes, period) {
     avgGain = ((avgGain * (period - 1)) + Math.max(diff, 0)) / period;
     avgLoss = ((avgLoss * (period - 1)) + Math.max(-diff, 0)) / period;
   }
-  if (avgLoss === 0) return 100;
+  if (avgLoss === 0) return avgGain === 0 ? 50 : 100; // v59.59: flat (no gain, no loss) is neutral 50, as technical/definitions.js rsiWilder
   var rs = avgGain / avgLoss;
   return 100 - (100 / (1 + rs));
 }
@@ -12111,11 +12111,11 @@ function _calcRSISeries(closes, period) {
   var avgG = 0, avgL = 0;
   for (var k = 0; k < period; k++) { avgG += gains[k]; avgL += losses[k]; }
   avgG /= period; avgL /= period;
-  var rsi = [avgL === 0 ? 100 : avgG === 0 ? 0 : 100 - 100 / (1 + avgG / avgL)];
+  var _rsiOf = function(g, l) { return l === 0 ? (g === 0 ? 50 : 100) : 100 - 100 / (1 + g / l); }, rsi = [_rsiOf(avgG, avgL)]; // v59.59: flat = 50 (rsiWilder)
   for (var m = period; m < gains.length; m++) {
     avgG = (avgG * (period - 1) + gains[m]) / period;
     avgL = (avgL * (period - 1) + losses[m]) / period;
-    rsi.push(avgL === 0 ? 100 : avgG === 0 ? 0 : 100 - 100 / (1 + avgG / avgL));
+    rsi.push(_rsiOf(avgG, avgL));
   }
   return rsi;
 }

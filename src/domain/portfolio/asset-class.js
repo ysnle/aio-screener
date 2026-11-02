@@ -95,6 +95,9 @@ export function stockBondCorrelation({ historyMap = {}, commonDates = [], bondWe
   const currencies = new Set([...Object.keys(bondWeights), ...Object.keys(stockWeights)].map(listingCurrency));
   if ([...currencies].some((c) => c !== 'USD' && c !== 'KRW')) return { available: false, reason: 'currency-unsupported' };
   if (!base && currencies.size > 1) return { available: false, reason: 'currency-mixed' };
+  // v59.59 (logic refactor): only USD/KRW can be translated (the app's one FX close); an EUR base used to take the
+  // KRW-per-USD move inverted, as if it were a USD book.
+  if (base && base !== 'USD' && base !== 'KRW') return { available: false, reason: 'currency-unsupported' };
   const translate = base && [...currencies].some((c) => c !== base);
   const fxAt = translate ? usdkrwAsOf(history) : null;
   if (translate && !dates.some((d) => fxAt(d) != null)) return { available: false, reason: 'fx-missing' };

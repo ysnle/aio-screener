@@ -170,7 +170,8 @@ function _calcSharpe(returns, rfRate) {
  * @returns {{mdd: number, peakIdx: number, troughIdx: number}|null}
  */
 function _calcMaxDrawdown(returns) {
-  if (!returns || returns.length < 2) return null;
+  // v59.59: one return is a drawdown already ([-0.5] is a 50% fall from the starting value); it read null.
+  if (!returns || returns.length < 1) return null;
   var cum = [1];
   for (var i = 0; i < returns.length; i++) {
     cum.push(cum[cum.length - 1] * (1 + returns[i]));
