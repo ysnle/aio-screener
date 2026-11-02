@@ -30,7 +30,27 @@ jobs:
     name: Preflight (cheap blocking gate)
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    # v59.59: the validation scope is decided once here. A refresh origin (a bot commit that changes only generated data)
+    # runs the reduced contract set, skips the browser shards and is attested on top of a fully tested source commit.
+    # The origin list used to be repeated in four expressions; event-briefs (v59.49) had to be added to each by hand.
+    outputs:
+      reduced_scope: ${{ steps.scope.outputs.reduced_scope }}
+      contract_groups: ${{ steps.scope.outputs.contract_groups }}
     steps:
+      - name: Resolve validation scope
+        id: scope
+        env:
+          ORIGIN: ${{ inputs.origin || '' }}
+        run: |
+          case "$ORIGIN" in
+            refresh-data) reduced=true; groups='["core","data","knowledge"]' ;;
+            refresh-screener|event-briefs) reduced=true; groups='["core","data"]' ;;
+            *) reduced=false; groups='["core","data","knowledge","workspace","cloudflare"]'
+               # Any other value validates the full scope, as before; name it so a typo in a dispatcher is visible.
+               [ -n "$ORIGIN" ] && echo "::warning::unknown validation origin '$ORIGIN'; running the full scope" ;;
+          esac
+          { echo "reduced_scope=$reduced"; echo "contract_groups=$groups"; } >> "$GITHUB_OUTPUT"
+          echo "origin=${ORIGIN:-source-push} reduced_scope=$reduced contract_groups=$groups"
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -63,7 +83,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        group: ${{ fromJSON(inputs.origin == 'refresh-data' && '["core","data","knowledge"]' || (inputs.origin == 'refresh-screener' || inputs.origin == 'event-briefs') && '["core","data"]' || '["core","data","knowledge","workspace","cloudflare"]') }}
+        group: ${{ fromJSON(needs.preflight.outputs.contract_groups) }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -108,7 +128,7 @@ jobs:
     # Its browser shards depended on the apt mirror and held 10/22 04:50Z-23:20Z of data off the live site.
     # v59.49: event-briefs commits only public-data too; its full browser run failed the home text budget on brief text
     # (10-30 02:23Z, 16:43Z), so its releases were never attested.
-    if: inputs.origin != 'refresh-data' && inputs.origin != 'refresh-screener' && inputs.origin != 'event-briefs'
+    if: needs.preflight.outputs.reduced_scope != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
@@ -214,7 +234,7 @@ jobs:
     if: >-
       !cancelled() && github.event_name != 'pull_request' && github.ref_name == 'main'
       && needs.preflight.result == 'success' && needs.contracts.result == 'success'
-      && (needs.browser.result == 'success' || (needs.browser.result == 'skipped' && (inputs.origin == 'refresh-data' || inputs.origin == 'refresh-screener' || inputs.origin == 'event-briefs')))
+      && (needs.browser.result == 'success' || (needs.browser.result == 'skipped' && needs.preflight.outputs.reduced_scope == 'true'))
     needs: [preflight, contracts, browser]
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -234,7 +254,7 @@ jobs:
       # paths must already have a successful full push CI; otherwise this release waits for that run to attest it.
       # First-parent history: push CI runs on the merge commit main received, not on the merged branch's own commits.
       - name: Reduced-scope release sits on a fully tested source commit
-        if: inputs.origin == 'refresh-data' || inputs.origin == 'refresh-screener' || inputs.origin == 'event-briefs'
+        if: needs.preflight.outputs.reduced_scope == 'true'
         env:
           EXPECTED_SHA: ${{ inputs.release_sha || github.sha }}
           GH_TOKEN: ${{ github.token }}

@@ -6,6 +6,7 @@ on:
   # P1666: GitHub ran the hourly schedule 11 times in 3 days (2026-10-10~12), so the watchdog also follows
   # each Pages deployment — the moment live data changes. The schedule stays as the backstop for a stalled
   # pipeline that deploys nothing.
+  # v59.59: the github-watchdog-cadence check counts these workflow_run arrivals too (11-01~02: cron 4 of 60 runs).
   schedule:
     - cron: '23 * * * *'
   # v57.88 (automation audit): bot-dispatched Pages runs emit no workflow_run, so between pushes the watchdog ran every

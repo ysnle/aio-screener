@@ -583,7 +583,7 @@ check('v57.92 W06 default convergence branch propagates a settled CI failure',
   const guardAt = attestJob.indexOf('Reduced-scope release sits on a fully tested source commit');
   check('v58.20 reduced-scope refresh CI attests only on top of a source commit with a successful full push CI',
     guardAt > 0 && guardAt < attestJob.indexOf('Build immutable release attestation')
-      && /inputs\.origin == 'refresh-data' \|\| inputs\.origin == 'refresh-screener'/.test(attestJob)
+      && /if: needs\.preflight\.outputs\.reduced_scope == 'true'/.test(attestJob)
       && /git log -1 --first-parent --format=%H "\$EXPECTED_SHA" -- \. ':\(exclude\)public-data'/.test(attestJob)
       && /event=push&status=success/.test(attestJob) && /permissions:\s*\n\s*contents: read\s*\n\s*actions: read/.test(attestJob));
 }
@@ -593,10 +593,18 @@ check('v57.92 W06 default convergence branch propagates a settled CI failure',
   // v59.49: event-briefs is a refresh origin too (it commits public-data/event-briefs.json only).
   const browserJob = ciSource.slice(ciSource.indexOf('\n  browser:'), ciSource.indexOf('\n  attest:'));
   const attestHead = ciSource.slice(ciSource.indexOf('\n  attest:'), ciSource.indexOf('    steps:', ciSource.indexOf('\n  attest:')));
+  // v59.59: the refresh origins are named once, in the preflight scope step; every job reads its reduced_scope output.
+  const scopeStep = ciSource.match(/- name: Resolve validation scope([\s\S]*?)(?=\n      - name:)/)?.[1] || '';
   check('v58.70 refresh-origin CI skips the browser shards and attest accepts that skip only for a refresh origin',
-    /if: inputs\.origin != 'refresh-data' && inputs\.origin != 'refresh-screener'/.test(browserJob)
+    /refresh-data\) reduced=true; groups='\["core","data","knowledge"\]'/.test(scopeStep)
+      && /refresh-screener\|event-briefs\) reduced=true; groups='\["core","data"\]'/.test(scopeStep)
+      && /\*\) reduced=false; groups='\["core","data","knowledge","workspace","cloudflare"\]'/.test(scopeStep)
+      && /reduced_scope: \$\{\{ steps\.scope\.outputs\.reduced_scope \}\}/.test(ciSource)
+      && /group: \$\{\{ fromJSON\(needs\.preflight\.outputs\.contract_groups\) \}\}/.test(ciSource)
+      && /if: needs\.preflight\.outputs\.reduced_scope != 'true'/.test(browserJob)
+      && !/inputs\.origin (==|!=) '/.test(ciSource)
       && /needs\.preflight\.result == 'success' && needs\.contracts\.result == 'success'/.test(attestHead)
-      && /needs\.browser\.result == 'success' \|\| \(needs\.browser\.result == 'skipped' && \(inputs\.origin == 'refresh-data' \|\| inputs\.origin == 'refresh-screener' \|\| inputs\.origin == 'event-briefs'\)\)/.test(attestHead)
+      && /needs\.browser\.result == 'success' \|\| \(needs\.browser\.result == 'skipped' && needs\.preflight\.outputs\.reduced_scope == 'true'\)/.test(attestHead)
       && /github\.event_name != 'pull_request' && github\.ref_name == 'main'/.test(attestHead));
 }
 check('CI accepts exact refresh SHA and emits immutable attestation', /release_sha:/.test(ciSource) && /aio-release-attestation\.v1/.test(ciSource) && /actions\/upload-artifact@[0-9a-f]{40}/.test(ciSource));

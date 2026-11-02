@@ -193,6 +193,9 @@ try {
     }
     await page.evaluate(() => window.showPage('themes', null));
     await settle(page, () => !!document.querySelector('.theme-strength-table > tbody > tr[data-group]'));
+    // v59.59: the route loop visits theme-detail, then leaves before 테마 mounts; a plain 테마 visit must open the overview,
+    // not that pending detail (#themes?theme=defense hid every compare button and the click below timed out).
+    check(await page.evaluate(() => location.hash === '#themes' && !window._aioOpenThemeDetailOnThemes), `${viewport.name}: plain 테마 re-entry opened a stale pending theme detail (v59.59)`, await page.evaluate(() => location.hash));
     const constituents = await page.evaluate(async () => {
       const { buildGroupStrength } = await import('./src/domain/themes/group-strength.js');
       const model = buildGroupStrength({ themes: window.THEME_MAP || [], rows: window.AIO_ARCH?.getScreenerState?.()?.rows || [], sortKey: window._aioThemeStrengthSort || 'ret3m' });

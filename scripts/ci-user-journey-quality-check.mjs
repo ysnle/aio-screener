@@ -2,7 +2,10 @@ import { chromium } from 'playwright';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
 import { ROUTE_IDS } from '../src/app/routes.js';
-mkdirSync('_artifacts/structural-quality-20260906', { recursive: true });
+// v59.59 (QA-CRED-32): the run writes to its own ignored folder; _artifacts/structural-quality-20260906 stays the frozen
+// 2026-09-06 evidence it is named for (every local run used to overwrite two tracked files there).
+const OUT_DIR = '_artifacts/user-journey';
+mkdirSync(OUT_DIR, { recursive: true });
 const PORT = Number(process.env.CI_USER_JOURNEY_PORT || 8921);
 const BASE_URL = 'http://127.0.0.1:' + PORT + '/';
 const server = await startLocalServer(PORT, { label: 'user-journey/server' }); // v57.62 shared lifecycle
@@ -107,7 +110,7 @@ try {
     return { draft, memory, cleaned, retried };
   });
   for (const [name, ok] of Object.entries(fixtures)) check(name, ok);
-  await page.screenshot({ path: '_artifacts/structural-quality-20260906/guide.png' });
+  await page.screenshot({ path: `${OUT_DIR}/guide.png` });
 } catch (e) { report.errors.push(String(e)); process.exitCode = 1; }
-finally { writeFileSync('_artifacts/structural-quality-20260906/browser.json', JSON.stringify(report, null, 2)); await closeAll({ browser, server }); }
+finally { writeFileSync(`${OUT_DIR}/browser.json`, JSON.stringify(report, null, 2)); await closeAll({ browser, server }); }
 console.log(JSON.stringify({ routes: report.routes.length, checks: report.checks, errors: report.errors }));

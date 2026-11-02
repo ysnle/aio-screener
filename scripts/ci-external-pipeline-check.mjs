@@ -2,7 +2,7 @@ import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { isTrustedDeploymentRun, resolveProvenanceRun } from './deployment-provenance.mjs';
-import { summarizeOperationalChecks, marketAnalysisDiagnostic, workflowCadence, operationalSummary, dataSourceWarnings, deadNewsFeeds } from './lib/operational-health.mjs';
+import { summarizeOperationalChecks, marketAnalysisDiagnostic, workflowCadence, CADENCE_EVENTS, WATCHDOG_THRESHOLDS, operationalSummary, dataSourceWarnings, deadNewsFeeds } from './lib/operational-health.mjs';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const args = process.argv.slice(2);
@@ -94,8 +94,8 @@ async function observeOnce() {
     check('pages-repository-revision', version?.version === localVersion, `live=${version?.version || 'missing'} local=${localVersion}`);
     if (mode !== 'refresh-deploy') {
       check('pages-data-freshness', Number.isFinite(dataAge) && dataAge <= maxAgeMinutes, `age=${dataAge}m max=${maxAgeMinutes}m`);
-      check('pages-data-quality', Number(data?.meta?.symbolsOk) >= 70 && data?.meta?.newsOk === true && Number(data?.meta?.newsCount) >= 10, `symbols=${data?.meta?.symbolsOk || 0} news=${data?.meta?.newsCount || 0}`);
-      check('pages-screener-freshness', Number.isFinite(screenerAge) && screenerAge <= 48 * 60 && Number(screener?.ok) > 0 && Number(screener?.universe) >= Number(screener?.ok), `age=${screenerAge}m ok=${screener?.ok || 0}/${screener?.universe || 0}`);
+      check('pages-data-quality', Number(data?.meta?.symbolsOk) >= WATCHDOG_THRESHOLDS.minSymbolsOk && data?.meta?.newsOk === true && Number(data?.meta?.newsCount) >= WATCHDOG_THRESHOLDS.minNewsCount, `symbols=${data?.meta?.symbolsOk || 0} news=${data?.meta?.newsCount || 0}`);
+      check('pages-screener-freshness', Number.isFinite(screenerAge) && screenerAge <= WATCHDOG_THRESHOLDS.screenerMaxAgeMinutes && Number(screener?.ok) > 0 && Number(screener?.universe) >= Number(screener?.ok), `age=${screenerAge}m ok=${screener?.ok || 0}/${screener?.universe || 0}`);
       check('pages-telegram-freshness', Number.isFinite(telegramAge) && telegramAge <= maxAgeMinutes, `age=${telegramAge}m max=${maxAgeMinutes}m`);
       check('pages-market-snapshot', snapshot?.status === 'published' && snapshot?.coverage?.tier0Required === 16 && snapshot?.coverage?.tier0Observed === 16, `status=${snapshot?.status} coverage=${snapshot?.coverage?.tier0Observed}/${snapshot?.coverage?.tier0Required}`);
       check('pages-operations', !!operations?.generatedAt && !!operations?.planes?.durable?.status && operations?.reconciliation?.categoryCount === 22, `overall=${operations?.overall || 'missing'}`);
@@ -105,7 +105,7 @@ async function observeOnce() {
       // digest were healthy. Coverage needs three healthy channels; any failing channel stays visible as a warning.
       const telegramChannels = Array.isArray(telegram?.channels) ? telegram.channels : [];
       const telegramFailing = telegramChannels.filter((channel) => channel.error || !Number.isFinite(Number(channel.lastPostId)));
-      check('pages-telegram-coverage', Number(telegram?.count) >= 100 && telegramChannels.length - telegramFailing.length >= 3, `count=${telegram?.count || 0} channels=${telegramChannels.length} healthy=${telegramChannels.length - telegramFailing.length}`);
+      check('pages-telegram-coverage', Number(telegram?.count) >= WATCHDOG_THRESHOLDS.minTelegramCount && telegramChannels.length - telegramFailing.length >= WATCHDOG_THRESHOLDS.minHealthyTelegramChannels, `count=${telegram?.count || 0} channels=${telegramChannels.length} healthy=${telegramChannels.length - telegramFailing.length}`);
       check('pages-telegram-channels (v59.09)', telegramChannels.length > 0 && !telegramFailing.length, telegramFailing.map((channel) => `${channel.channel}: ${channel.error || 'no lastPostId'}`).join('; ') || `channels=${telegramChannels.length}`, 'warning');
       if (!data?.meta?.fearGreedOk) result.warnings.push('live Fear & Greed provider is degraded; static fallback is active');
       if (!data?.meta?.fredHasKey || !data?.meta?.fredFetchOk) result.warnings.push('live FRED enrichment is unavailable or degraded');
@@ -166,7 +166,9 @@ async function observeOnce() {
           lastCompleted: compactRun(run)
         };
         if (['refreshMarket', 'watchdog'].includes(id)) {
-          const cadence = workflowCadence(workflowRuns.runs, { maxAgeMinutes: id === 'refreshMarket' ? 65 : 125 });
+          const cadence = workflowCadence(workflowRuns.runs, id === 'refreshMarket'
+            ? { maxAgeMinutes: WATCHDOG_THRESHOLDS.refreshMarketCadenceMinutes }
+            : { maxAgeMinutes: WATCHDOG_THRESHOLDS.watchdogCadenceMinutes, events: [...CADENCE_EVENTS, 'workflow_run'] });
           result.github[id].cadence = cadence;
           check(`github-${id}-cadence (P1596)`, cadence.ok, JSON.stringify(cadence), 'warning');
         }

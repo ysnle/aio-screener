@@ -10,7 +10,7 @@ import { factorScopesByMarket, marketOfSymbol, sessionDateInMarket, timeZoneForM
 import { FACTOR_FRESHNESS_MS } from '../src/domain/screener/factor-ranks.js';
 import { percentileRank01, spearman } from './lib/rank-statistics.mjs';
 import { SHARED_AI_MODEL, extractCompletedResponseText, requestSharedAnalysis, resolveSharedAiConfig } from './lib/ai-shared-analysis.mjs';
-import { marketAnalysisDiagnostic, summarizeOperationalChecks, workflowCadence, operationalSummary } from './lib/operational-health.mjs';
+import { marketAnalysisDiagnostic, summarizeOperationalChecks, workflowCadence, operationalSummary, WATCHDOG_THRESHOLDS } from './lib/operational-health.mjs';
 import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -37,6 +37,10 @@ check('P1596 operational summary preserves nonblocking failures', operationalSum
   check('P1596 cadence detects missing slots despite a recent success', !workflowCadence([run(5), run(180)], { now, maxAgeMinutes: 65 }).ok
     && workflowCadence([run(5), run(35)], { now, maxAgeMinutes: 65 }).ok
     && !workflowCadence([run(-10)], { now, maxAgeMinutes: 65 }).ok);
+  // v59.59: the watchdog's workflow_run arrivals count toward its cadence; the default still counts only the cron and dispatches.
+  const triggered = (minutes) => ({ ...run(minutes), event: 'workflow_run' });
+  check('P1596 v59.59 watchdog cadence counts workflow_run arrivals only when asked', !workflowCadence([run(5), triggered(60), run(300)], { now, maxAgeMinutes: 125 }).ok
+    && workflowCadence([run(5), triggered(60), run(300)], { now, maxAgeMinutes: 125, events: ['schedule', 'workflow_dispatch', 'workflow_run'] }).ok);
 }
 check('P1596 external observer collects all Pages results and preserves degraded status', /const pagesPromise = Promise\.allSettled/.test(read('scripts/ci-external-pipeline-check.mjs'))
   && /summarizeOperationalChecks\(result\.checks, result\.warnings\)/.test(read('scripts/ci-external-pipeline-check.mjs')));
@@ -395,9 +399,11 @@ check('watchdog runs the aggregate local+external profile', /qa-runner\.mjs watc
 check('watchdog checks data and Telegram freshness', /pages-data-freshness/.test(externalPipeline) && /pages-telegram-freshness/.test(externalPipeline));
 check('watchdog checks live Telegram channel coverage', /pages-telegram-coverage/.test(externalPipeline) && /lastPostId/.test(externalPipeline));
 check('watchdog freshness threshold tolerates transient Actions lag', /default:\s*'360'/.test(watchdog) && /AIO_LIVE_MAX_AGE_MIN:/.test(watchdog));
-check('watchdog has core quality floors for public data', /symbolsOk\)\s*>=\s*70/.test(externalPipeline) && /newsCount\)\s*>=\s*10/.test(externalPipeline) && /telegram\?\.count\)\s*>=\s*100/.test(externalPipeline));
+// v59.59: the floors live in WATCHDOG_THRESHOLDS; pin their values and that the observer reads them.
+check('watchdog has core quality floors for public data', WATCHDOG_THRESHOLDS.minSymbolsOk === 70 && WATCHDOG_THRESHOLDS.minNewsCount === 10 && WATCHDOG_THRESHOLDS.minTelegramCount === 100 && WATCHDOG_THRESHOLDS.minHealthyTelegramChannels === 3
+  && ['minSymbolsOk', 'minNewsCount', 'minTelegramCount', 'minHealthyTelegramChannels'].every((key) => externalPipeline.includes(`WATCHDOG_THRESHOLDS.${key}`)));
 check('watchdog reports optional degraded services', /fearGreedOk/.test(externalPipeline) && /fredFetchOk/.test(externalPipeline) && /marketAnalysisOk/.test(externalPipeline));
-check('watchdog checks screener artifact health', /pages-screener-freshness/.test(externalPipeline) && /48 \* 60/.test(externalPipeline));
+check('watchdog checks screener artifact health', /pages-screener-freshness/.test(externalPipeline) && WATCHDOG_THRESHOLDS.screenerMaxAgeMinutes === 48 * 60 && externalPipeline.includes('WATCHDOG_THRESHOLDS.screenerMaxAgeMinutes'));
 check('watchdog retains local data contracts', ['scripts/ci-market-snapshot-contract-check.mjs', 'scripts/ci-operations-status-check.mjs', 'scripts/ci-reconciliation-contract-check.mjs', 'scripts/ci-data-refresh-audit.mjs'].every((script) => watchdogScripts.includes(script)));
 
 check('fetch-data writes data/history/screener artifacts', /public-data\/data\.json/.test(fetchData) && /public-data\/history\.json/.test(fetchData) && /public-data\/screener\.json/.test(fetchData));
