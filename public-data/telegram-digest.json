@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-02T05:51:25.072Z",
-  "attemptedAt": "2026-11-02T05:51:25.072Z",
-  "lastSuccessfulAt": "2026-11-02T05:51:25.072Z",
+  "generatedAt": "2026-11-02T06:21:45.509Z",
+  "attemptedAt": "2026-11-02T06:21:45.509Z",
+  "lastSuccessfulAt": "2026-11-02T06:21:45.509Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-19T05:51:17.865Z",
-  "until": "2026-11-02T05:51:17.865Z",
+  "since": "2026-10-19T06:21:39.701Z",
+  "until": "2026-11-02T06:21:39.701Z",
   "current24hWindow": {
     "start": "2026-10-31T23:00:00.000Z",
     "end": "2026-11-01T23:00:00.000Z",
@@ -83,7 +83,7 @@
       "count": 126,
       "freshCount": 0,
       "eligibleTextCount": 119,
-      "selectedCount": 42,
+      "selectedCount": 41,
       "error": "first page parsed no posts",
       "lastPostId": 26057
     },
@@ -97,49 +97,49 @@
       "eligibleTextCount": 1275,
       "selectedCount": 124,
       "error": null,
-      "lastPostId": 68052
+      "lastPostId": 68057
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 233,
+      "count": 232,
       "freshCount": 29,
-      "eligibleTextCount": 233,
-      "selectedCount": 123,
+      "eligibleTextCount": 232,
+      "selectedCount": 124,
       "error": null,
-      "lastPostId": 20944
+      "lastPostId": 20945
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 665,
-      "freshCount": 35,
-      "eligibleTextCount": 664,
+      "count": 663,
+      "freshCount": 16,
+      "eligibleTextCount": 662,
       "selectedCount": 123,
       "error": null,
       "lastPostId": 71398
     }
   ],
-  "count": 2357,
-  "retainedItemCount": 475,
+  "count": 2354,
+  "retainedItemCount": 459,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2357,
-    "eligibleTextCount": 2291,
+    "observedCount": 2354,
+    "eligibleTextCount": 2288,
     "mediaOnlyCount": 66,
-    "mediaAttachedCount": 83,
-    "photoPostCount": 72,
+    "mediaAttachedCount": 86,
+    "photoPostCount": 73,
     "documentPostCount": 0,
     "imageOnlyCount": 0,
-    "highSignalCount": 423,
-    "broadSignalCount": 923,
+    "highSignalCount": 421,
+    "broadSignalCount": 921,
     "selectedRawCount": 412,
     "selectedEligibleCount": 412,
     "selectedRawCoveragePct": 18,
@@ -147,41 +147,42 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 840,
-    "semi": 528,
+    "market-note": 838,
+    "japan": 106,
+    "semi": 526,
+    "power": 284,
+    "healthcare": 114,
+    "geo": 416,
     "kr-market": 132,
-    "earnings": 484,
+    "earnings": 481,
     "flows": 88,
     "credit": 122,
-    "macro": 352,
-    "geo": 416,
+    "macro": 350,
     "media-only": 66,
-    "japan": 106,
-    "ai-policy": 130,
-    "power": 285,
+    "ai-policy": 129,
     "equity": 163,
-    "healthcare": 115,
     "optical": 36,
     "crypto": 3,
     "insider": 2
   },
   "tickerCounts": {
+    "GOOG": 129,
+    "007660.KS": 1,
     "285A.T": 7,
     "005930.KS": 50,
     "000660.KS": 78,
     "AAPL": 15,
     "PLTR": 15,
-    "MSFT": 61,
+    "MSFT": 60,
     "009150.KS": 18,
     "000990.KS": 1,
-    "NVDA": 150,
+    "NVDA": 149,
     "TSM": 42,
-    "AMD": 30,
-    "GOOG": 129,
+    "AMD": 29,
     "AVGO": 23,
     "ORCL": 13,
     "INTC": 5,
-    "AMZN": 80,
+    "AMZN": 79,
     "6981.T": 3,
     "MU": 47,
     "TSLA": 58,
@@ -255,19 +256,19 @@
     "GLW": 1
   },
   "themes": [
-    "Market Notes (840 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — AI 인프라 투자 자금 조달을 위해 약 800억 달러 규모의 공급업체 대출 프로그램을 활용할 계획인 것으로...",
-    "Semiconductors/Memory (528 posts in 14-day research window): 노무라, 시장이 메모리 산업의 이익 지속성을 심각하게 과소평가하고 있음 삼성전자와 SK하이닉스의 2027년 예상 PER은 불과 2~3배로, 글로벌 빅테크 대비 85~90% 할인된 수준 메모리 공급 부족이 2028년까지 지속된다면 현재의 극단적인 저평가는 매력적인 투자 기회가 될 수 있다 1. AI 투자 경쟁으로...",
-    "Earnings/Corporate (484 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
+    "Market Notes (838 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — AI 인프라 투자 자금 조달을 위해 약 800억 달러 규모의 공급업체 대출 프로그램을 활용할 계획인 것으로...",
+    "Semiconductors/Memory (526 posts in 14-day research window): 노무라, 시장이 메모리 산업의 이익 지속성을 심각하게 과소평가하고 있음 삼성전자와 SK하이닉스의 2027년 예상 PER은 불과 2~3배로, 글로벌 빅테크 대비 85~90% 할인된 수준 메모리 공급 부족이 2028년까지 지속된다면 현재의 극단적인 저평가는 매력적인 투자 기회가 될 수 있다 1. AI 투자 경쟁으로...",
+    "Earnings/Corporate (481 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
     "Geopolitics (416 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 31일 🇺🇸 아메리카 • 트럼프 대통령은 이란과 협상이 진행 중이라고 밝혀. 다만 미국 정부는 이란에 대한 경제 봉쇄와 추가 제재를 검토 중이며, 중간선거 직후...",
-    "Macro/Rates (352 posts in 14-day research window): 2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,...",
-    "AI Power/Grid (285 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
+    "Macro/Rates (350 posts in 14-day research window): 2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,...",
+    "AI Power/Grid (284 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
     "Equity/Analyst (163 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
     "Korea Market (132 posts in 14-day research window): Alphabet 2026년 3분기 실적 요약 실적 • 매출 $1,275.8억, YoY +25%, QoQ +6% • 환율 영향 제외 매출 성장률 YoY +25%, QoQ +7% • 영업이익 $405.8억,..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 150,
+      "count": 149,
       "text": "2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,..."
     },
     {
@@ -277,7 +278,7 @@
     },
     {
       "key": "AMZN",
-      "count": 80,
+      "count": 79,
       "text": "빌 애크먼(Bill Ackman) – Equity Mates 인터뷰 1. AI 버블과 컴퓨팅 수요 “컴퓨팅 수요 측면에서 지금이 버블이라고 생각하지 않는다.” AI가 초지능에 빠르게 접근할수록 이를 뒷받침할 컴퓨팅 수요는 사실상 무한대에 가까워질 수 있음. 초지능을 구현하려면 결국 막대한 컴퓨팅 자원이 필요하기..."
     },
     {
@@ -287,7 +288,7 @@
     },
     {
       "key": "MSFT",
-      "count": 61,
+      "count": 60,
       "text": "빌 애크먼(Bill Ackman) – Equity Mates 인터뷰 1. AI 버블과 컴퓨팅 수요 “컴퓨팅 수요 측면에서 지금이 버블이라고 생각하지 않는다.” AI가 초지능에 빠르게 접근할수록 이를 뒷받침할 컴퓨팅 수요는 사실상 무한대에 가까워질 수 있음. 초지능을 구현하려면 결국 막대한 컴퓨팅 자원이 필요하기..."
     },
     {
@@ -312,7 +313,7 @@
     },
     {
       "key": "AMD",
-      "count": 30,
+      "count": 29,
       "text": "2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,..."
     },
     {
@@ -333,7 +334,7 @@
       "topics": [
         "macro"
       ],
-      "count": 352,
+      "count": 350,
       "focus": "2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,..."
     },
     {
@@ -360,7 +361,7 @@
       "topics": [
         "semi"
       ],
-      "count": 528,
+      "count": 526,
       "focus": "노무라, 시장이 메모리 산업의 이익 지속성을 심각하게 과소평가하고 있음 삼성전자와 SK하이닉스의 2027년 예상 PER은 불과 2~3배로, 글로벌 빅테크 대비 85~90% 할인된 수준 메모리 공급 부족이 2028년까지 지속된다면 현재의 극단적인 저평가는 매력적인 투자 기회가 될 수 있다 1. AI 투자 경쟁으로..."
     },
     {
@@ -378,7 +379,7 @@
       "topics": [
         "power"
       ],
-      "count": 285,
+      "count": 284,
       "focus": "Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을..."
     },
     {
@@ -387,7 +388,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 130,
+      "count": 129,
       "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
@@ -423,7 +424,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 484,
+      "count": 481,
       "focus": "마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장...."
     },
     {
@@ -432,7 +433,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 115,
+      "count": 114,
       "focus": ">>미중 상호 기술 수출통제 강화, 글로벌 기술 질서 재편 가속화 (대만공상시보) •중국 상무부와 과기부는 10월 AI·바이오·태양광 등 40개 기술을 수출통제 목록에 추가하는 개정안 발표. 이중 14개는..."
     },
     {
@@ -468,7 +469,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 840,
+      "count": 838,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — AI 인프라 투자 자금 조달을 위해 약 800억 달러 규모의 공급업체 대출 프로그램을 활용할 계획인 것으로..."
     }
   ],
@@ -1698,6 +1699,24 @@
   ],
   "broadItems": [
     {
+      "id": "bornlupin/20945",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20945",
+      "datetime": "2026-11-02T06:04:58.000Z",
+      "localDateKst": "2026-11-02",
+      "tags": [
+        "semi",
+        "power",
+        "healthcare"
+      ],
+      "score": 64,
+      "hasText": true,
+      "tickers": [
+        "007660.KS"
+      ],
+      "summary": "이수페타시스, 대구에 PCB 제조시설 5000억원 투자 글로벌 빅테크 기업 AI수요증가 선제 대응을 위한 생산라인 구축 초고다층 인쇄회로기판 세계적기업, 대구국가산단 내 7공장 신설 대구광역시는 2일..."
+    },
+    {
       "id": "HANAchina/71397",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71397",
@@ -2087,8 +2106,8 @@
       ],
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>Citi, 소비자 구매 지연으로 리튬 가격 전망 약화 •Citi는 공급망 재고 축소의 영향으로 단기적으로 리튬 가격이 계속 부진할 것으로 전망함. 9월 초 이후 리튬 가격은 최대 40% 하락, 시장이..."
+      "summary": ">>Citi, 소비자 구매 지연으로 리튬 가격 전망 약화 •Citi는 공급망 재고 축소의 영향으로 단기적으로 리튬 가격이 계속 부진할 것으로 전망함. 9월 초 이후 리튬 가격은 최대 40% 하락, 시장이...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71376",
@@ -2101,8 +2120,9 @@
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "•중국증시 개장 다수 증권사 상한가 •CXMT +1.5%, 반도체 강보합 출발 •유니트리 -10%, 로봇테마주 급락 •중국•홍콩증시 순매도 여전히 우위"
+      "summary": "•중국증시 개장 다수 증권사 상한가 •CXMT +1.5%, 반도체 강보합 출발 •유니트리 -10%, 로봇테마주 급락 •중국•홍콩증시 순매도 여전히 우위",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/20932",
@@ -2143,12 +2163,12 @@
       "datetime": "2026-11-02T00:06:57.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 67,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>미국 중간선거, 민주당의 ‘싹쓸이’는 이미 시장에 반영됐지만 ‘압승’은 아직 미반영 (BofA) •BofA의 Hartnett는 지난 9월 민주당이 의회를 싹쓸이할 경우 증시 급락과 AI 버블 붕괴를 초래할..."
+      "summary": ">>미국 중간선거, 민주당의 ‘싹쓸이’는 이미 시장에 반영됐지만 ‘압승’은 아직 미반영 (BofA) •BofA의 Hartnett는 지난 9월 민주당이 의회를 싹쓸이할 경우 증시 급락과 AI 버블 붕괴를 초래할...",
+      "tickers": []
     },
     {
       "id": "bornlupin/20931",
@@ -2218,17 +2238,15 @@
       "localDateKst": "2026-11-02",
       "tags": [
         "semi",
-        "macro",
-        "kr-market",
-        "flows"
+        "kr-market"
       ],
-      "lead": 1,
       "score": 76,
       "hasText": true,
+      "summary": ">UMC 생산능력 포화, 삼성전자 긴급 주문 거절 (대만경제일보) •최근 시장에서는 Samsung이 스마트폰 판매 호조로 UMC(2303)에 OLED 디스플레이 구동칩 생산을 1만 장 이상 긴급 추가...",
+      "lead": 2,
       "tickers": [
         "005930.KS"
-      ],
-      "summary": ">UMC 생산능력 포화, 삼성전자 긴급 주문 거절 (대만경제일보) •최근 시장에서는 Samsung이 스마트폰 판매 호조로 UMC(2303)에 OLED 디스플레이 구동칩 생산을 1만 장 이상 긴급 추가..."
+      ]
     },
     {
       "id": "insidertracking/68014",
@@ -2238,9 +2256,7 @@
       "localDateKst": "2026-11-02",
       "tags": [
         "macro",
-        "geo",
-        "semi",
-        "earnings"
+        "semi"
       ],
       "score": 77,
       "hasText": true,
@@ -2250,11 +2266,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "11월 02일 미주인 브리핑 • 미국 서머타임 해제 · 정규장 밤 11시 30분 개장 • 미국 중간선거 · 11월 3일 실시 • 금요일 미국 고용보고서 · 예상 6.5만 명 • 애플·팔란티어·AMD 등 주요...",
       "tickers": [
         "AMD",
         "PLTR"
-      ],
-      "summary": "11월 02일 미주인 브리핑 • 미국 서머타임 해제 · 정규장 밤 11시 30분 개장 • 미국 중간선거 · 11월 3일 실시 • 금요일 미국 고용보고서 · 예상 6.5만 명 • 애플·팔란티어·AMD 등 주요..."
+      ]
     },
     {
       "id": "HANAchina/71363",
@@ -2264,18 +2280,17 @@
       "localDateKst": "2026-11-02",
       "tags": [
         "semi",
-        "ai-policy",
-        "power"
+        "ai-policy"
       ],
-      "lead": 2,
       "score": 87,
       "hasText": true,
+      "summary": "> >OpenAI, 자체 ASIC 및 Stargate 추진 가속화…Sam Altman 대만 재방문, AI 공급망 협력 확대 (대만공상시보) •OpenAI CEO Sam Altman이 자체 ASIC 개발과...",
+      "lead": 2,
       "tickers": [
         "AVGO",
         "TSM",
         "ORCL"
-      ],
-      "summary": "> >OpenAI, 자체 ASIC 및 Stargate 추진 가속화…Sam Altman 대만 재방문, AI 공급망 협력 확대 (대만공상시보) •OpenAI CEO Sam Altman이 자체 ASIC 개발과..."
+      ]
     },
     {
       "id": "insidertracking/68008",
@@ -8606,20 +8621,6 @@
       "tickers": [
         "GOOG"
       ]
-    },
-    {
-      "id": "aetherjapanresearch/25983",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25983",
-      "datetime": "2026-10-22T09:10:49.000Z",
-      "localDateKst": "2026-10-22",
-      "tags": [
-        "macro"
-      ],
-      "score": 62,
-      "hasText": true,
-      "summary": "노무라 경고: 현재 AI 신용위험은 닷컴버블 & 리먼 사태 이전과 놀랄만큼 유사. 모든 것은 유가에 달려 있음 • '10년 신용 사이클' 프레임워크 구축. 현재 AI 기술 & 프랑스 신용 불안을 '2차...",
-      "tickers": []
     }
   ],
   "current24hItems": [
@@ -8631,17 +8632,15 @@
       "localDateKst": "2026-11-02",
       "tags": [
         "semi",
-        "macro",
-        "kr-market",
-        "flows"
+        "kr-market"
       ],
-      "lead": 1,
       "score": 76,
       "hasText": true,
+      "summary": ">UMC 생산능력 포화, 삼성전자 긴급 주문 거절 (대만경제일보) •최근 시장에서는 Samsung이 스마트폰 판매 호조로 UMC(2303)에 OLED 디스플레이 구동칩 생산을 1만 장 이상 긴급 추가...",
+      "lead": 2,
       "tickers": [
         "005930.KS"
-      ],
-      "summary": ">UMC 생산능력 포화, 삼성전자 긴급 주문 거절 (대만경제일보) •최근 시장에서는 Samsung이 스마트폰 판매 호조로 UMC(2303)에 OLED 디스플레이 구동칩 생산을 1만 장 이상 긴급 추가..."
+      ]
     },
     {
       "id": "insidertracking/68014",
@@ -8651,9 +8650,7 @@
       "localDateKst": "2026-11-02",
       "tags": [
         "macro",
-        "geo",
-        "semi",
-        "earnings"
+        "semi"
       ],
       "score": 77,
       "hasText": true,
@@ -8663,11 +8660,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "11월 02일 미주인 브리핑 • 미국 서머타임 해제 · 정규장 밤 11시 30분 개장 • 미국 중간선거 · 11월 3일 실시 • 금요일 미국 고용보고서 · 예상 6.5만 명 • 애플·팔란티어·AMD 등 주요...",
       "tickers": [
         "AMD",
         "PLTR"
-      ],
-      "summary": "11월 02일 미주인 브리핑 • 미국 서머타임 해제 · 정규장 밤 11시 30분 개장 • 미국 중간선거 · 11월 3일 실시 • 금요일 미국 고용보고서 · 예상 6.5만 명 • 애플·팔란티어·AMD 등 주요..."
+      ]
     },
     {
       "id": "HANAchina/71363",
@@ -8677,18 +8674,17 @@
       "localDateKst": "2026-11-02",
       "tags": [
         "semi",
-        "ai-policy",
-        "power"
+        "ai-policy"
       ],
-      "lead": 2,
       "score": 87,
       "hasText": true,
+      "summary": "> >OpenAI, 자체 ASIC 및 Stargate 추진 가속화…Sam Altman 대만 재방문, AI 공급망 협력 확대 (대만공상시보) •OpenAI CEO Sam Altman이 자체 ASIC 개발과...",
+      "lead": 2,
       "tickers": [
         "AVGO",
         "TSM",
         "ORCL"
-      ],
-      "summary": "> >OpenAI, 자체 ASIC 및 Stargate 추진 가속화…Sam Altman 대만 재방문, AI 공급망 협력 확대 (대만공상시보) •OpenAI CEO Sam Altman이 자체 ASIC 개발과..."
+      ]
     },
     {
       "id": "insidertracking/68008",
