@@ -271,7 +271,7 @@ Shared modules (import these instead of re-declaring): `src/ui/components/dom.js
 | `js/aio-tests.js` | CI/로컬 브라우저 회귀 테스트 전용(110그룹). Pages·service worker 배포 대상에서 제외 |
 | `js/aio-qa-audits.js` | P1329/R673 자기 감사·QA 기계(aio-core에서 분리). `AIO.loadQaAudits()`로 자동화 브라우저·?qa=1·상세 감사 모드·운영자 자가 진단 위젯·`AIO.loadTests()`에서만 로드. Pages·service worker 배포 제외 |
 | `js/aio-glossary.js` | 용어사전 데이터 리터럴 |
-| `js/aio-pages.js` | **P1133으로 index.html 인라인 블록 D에서 추출한 페이지 렌더러** — 신호 대시보드, 기업분석 레거시 위젯(P1425: FX/채권·크로스에셋 렌더러 삭제), RRG/섹터/테마 맵, `showThemeDetail` 네이티브 브리지, 가격 이력·RRG 하이드레이션, ETF/서브테마 그리드. `defer`로 로드되며 `index.html`의 `data-action` 위임이 그대로 호출한다 |
+| `js/aio-pages.js` | **P1133으로 index.html 인라인 블록 D에서 추출한 페이지 렌더러** — 신호 대시보드, 기업분석 진입 트리거(실적 일정 렌더러는 v59.59에 `src/ui/components/earnings-calendar.js`, 스냅샷 리더는 `src/data/earnings-calendar-snapshot.js`; P1425: FX/채권·크로스에셋 렌더러 삭제), RRG/섹터/테마 맵, `showThemeDetail` 네이티브 브리지, 가격 이력·RRG 하이드레이션, ETF/서브테마 그리드. `defer`로 로드되며 `index.html`의 `data-action` 위임이 그대로 호출한다 |
 | `js/aio-workspace.js` | **P1136으로 index.html 인라인 블록 A에서 추출한 사용자 상태·워크스페이스 계층** — 포트폴리오(`updatePortfolioSummary`/`refreshPortfolioPrices`/`refreshPortfolioRisk`/`exportPortfolio`/`importPortfolio`), 백테스트 랩(`_aioRenderPortfolioBacktestLab`/`runPortfolioBacktestLab`), 워치리스트(`getWatchlists`/`createWatchlist`/`switchWatchlist`/`addToWatchlist`), 투자 일지·채팅 이력(`PF_JOURNAL_KEY`/`CHAT_HISTORY_LS`/`CHAT_DEFAULT_CHIPS`), 공용 헬퍼(`showToast`/`_escHtmlSafe`). **`defer` 그룹의 첫 번째** — core·data·ui가 자기 평가 시점에 이 전역들을 읽는다(P1136/R622) |
 | ~~`js/aio-macro-tech.js`~~ | **퇴역(2026-10-17 레거시 통합)** — P1135로 인라인 블록 B에서 추출된 뒤 남아 있던 `computeMarketHealth` 호환 wrapper와 채팅 칩 덮어쓰기만 있었다. 0-100 시장 건강도 모델(`src/domain/market/health.js`)과 함께 삭제했고, 종목 판단 게이트는 `window._aioMarketRegimeSummary().sufficient`(시장 상태 6축 판정 충분성)를 읽는다. 칩은 `js/aio-workspace.js` `CHAT_DEFAULT_CHIPS`에 한 번만 선언한다. |
 | `js/aio-kr-data.js` | **P1134로 index.html 인라인 블록 C에서 추출한 KR/SEC 데이터 플레인** — KR 테마 카드·심층분석(`initKoreaThemes`/`showKrThemeDetail`), KR 수급(`fetchKrSupplyData`/`updateKrSupplyDOM`), VKOSPI 동적 수집·이력(`fetchVkospiDynamic`/`AIO_VKOSPI_HIST_KEY`), KR 투자자 TOP10과 캐시, `KR_STOCK_DB`/`KR_THEME_MAP`/`_KR_SECTOR_MAP`, SEC 공시·재무(`fetchSECFilings`/`fetchSECFinancials`). 렌더러가 아니라 수집·정규화 계층이다 |
@@ -478,19 +478,17 @@ Shared modules (import these instead of re-declaring): `src/ui/components/dom.js
 
 | 항목 | line | 비고 |
 |------|-----:|------|
-| `LLM_MODELS` | 351 | Claude 모델 설정(haiku-4-5/sonnet-4-6, 2026-07 기준 유효) |
-| `LLM_BUDGET` | 483 | 예산/쿼터 |
-| `updateQuotaBadge` | 540 | LLM UI 동기화 |
-| `ghPollOnce` | 751 | GitHub version polling |
-| `globalRefresh` | 1036 | 전체 새로고침 |
-| `renderSellPressurePanel` / `renderExitPlanPanel` | 1493 / 1503 | Institutional Technical Brief 렌더러 |
-| `_renderFundHeader` | 2625 | 기업 분석 헤더 렌더(aio-chat.js가 로드순서로 역참조) |
-| `_renderFundFinancials` | 2770 | 재무/애널리스트/SEC Frames |
-| `_renderFundEarnings` | 3438 | 어닝 일정/서프라이즈 |
-| `_renderFundNews` | 3494 | Finnhub 기업 뉴스 |
-| `AIO_PAGE_FUNDAMENTALS` | 3933 | v52.39 P654: 페이지별 기초 교육 레이어 콘텐츠 |
+| `_aioGetKstDateParts` | 11 | KST 날짜 조각 (`AIO.getKstDateParts`) |
+| `LLM_MODELS` | 113 | 모델 설정·쿼리 복잡도 |
+| `updateQuotaBadge` | 290 | AI 쿼터 배지 |
+| `ghPollOnce` | 458 | GitHub version polling (운영자 설정) |
+| `_aioParseRouteHash` | 585 | 해시 라우트 해석·지식 라우트 문맥 |
+| `renderPortfolioTechnicalRisk` | 915 | 포트폴리오 기술 위험 배지 |
+| `openKbdHelp` / 키보드 단축키 | 1097 | 단축키 도움말·Escape·Ctrl+K |
+| `calculateRR` / `updateBenchmarkChart` | 1217 / 1263 | 손익비 계산기·벤치마크 차트 |
+| `toggleTheme` | 1431 | 테마 전환 |
 
-> v52.39: 이 파일이 5,259→5,723줄로 성장(P654, +464줄) — 다음 ±500줄 트리거 근접. 대규모 신규 추가 전 재스캔 검토.
+> 2026-11-02 (roadmap 11, v59.59): 용어 사전 모달은 `src/ui/knowledge/glossary-modal.js`, 새로고침 진행 패널과 `globalRefresh`는 `src/ui/components/refresh-progress.js`로 옮겼다(둘 다 `src/app/legacy-screen-bridges.js`가 설치). 기존 표의 `LLM_BUDGET`·Institutional Technical Brief·`_renderFund*`·`AIO_PAGE_FUNDAMENTALS` 행은 이미 삭제된 코드였다. 줄 번호는 이 날짜 기준이며 다음 ±500줄 변화 때 재스캔한다.
 
 `src/ui/pages/sentiment.js`가 sentiment 카드·상태·차트와 resource bag lifecycle을 소유한다. `js/aio-ui.js`에는 sentiment legacy renderer/init/chart registry를 두지 않는다.
 

@@ -6107,17 +6107,12 @@ button[data-filter-active="true"] {
   </div>
 </div>
 
-<!-- v27.2: Draggable glossary floating button -->
-<!-- v40.6: 용어 사전 플로팅 버튼 제거 — 사이드바 '용어 사전' 페이지와 중복 -->
-<button id="glossary-btn" aria-label="용어 사전 열기" title="용어 사전 열기" style="display:none;"></button>
-<!-- P1130: 블록 E(용어사전 플로팅 버튼 + 옵션 페이지 연동)는 js/aio-ui.js 끝으로 이동했다. -->
-<!-- 파싱 시점 실행이던 것을 defer로 옮겼으므로 여기에는 아무 것도 남기지 않는다. -->
 <button id="scroll-top-btn" data-action="_aioScrollContentTop" aria-label="맨 위로 스크롤">↑</button>
 
 <!-- 2026-10-01: duplicate small risk banner removed; the sticky 투자 면책 고지 is the single disclaimer -->
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
-     renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
+     용어 사전 모달(src/ui/knowledge/glossary-modal.js, 호출 시점에만 읽음)이라 추가 방어 없이 안전. -->
 <script src="./js/aio-glossary.js?v=59.58" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->

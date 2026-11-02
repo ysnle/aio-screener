@@ -28,6 +28,16 @@
 #aio-refresh-progress-bar { height: 100%; width: 0%; background: var(--data-cyan,var(--blue-5)); transition:width 250ms ease-out; }
 #aio-refresh-progress-list { display: grid; gap: 4px; max-height: 190px; overflow: auto; }
 #aio-refresh-progress-layer .lu-rp-state { font-family: var(--font-mono,monospace); }
+/* roadmap 11: the count, current-task line, rows and state colours were inline styles in js/aio-ui.js; src/ui/components/refresh-progress.js sets classes. */
+#aio-refresh-progress-count { font-size: 12px; font-family: var(--font-mono,monospace); color: var(--data-cyan); }
+#aio-refresh-progress-current { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+#aio-refresh-progress-bar.lu-rp-bar-warn { background: var(--data-amber); }
+#aio-refresh-progress-list .lu-rp-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; border-top: 0.5px solid var(--white-a1); padding-top: 4px; }
+#aio-refresh-progress-layer .lu-rp-state { color: var(--text-muted); }
+#aio-refresh-progress-layer .lu-rp-state[data-tone="ok"] { color: var(--data-green); }
+#aio-refresh-progress-layer .lu-rp-state[data-tone="run"] { color: var(--data-cyan); }
+#aio-refresh-progress-layer .lu-rp-state[data-tone="skip"] { color: var(--data-amber); }
+#aio-refresh-progress-layer .lu-rp-state[data-tone="fail"] { color: var(--data-red); }
 
 /* Glossary modal (#glossary-modal, outside .page): index.html/responsive.css !important rules on the item, term and tag still win. */
 #glossary-cats .lu-gl-cat { padding: 5px 12px; border-radius: 4px; border: 0.5px solid var(--border); background: transparent; color: var(--text-primary); font-size: 12px; cursor: pointer; }

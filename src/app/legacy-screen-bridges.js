@@ -14,6 +14,9 @@ import { renderScreenerFmpStatus } from '../ui/components/screener-fmp-status.js
 import { organizeGuideChapters } from '../ui/components/guide-chapters.js';
 import { renderWatchlist, readWatchlistSelect, readWatchlistInputs, clearWatchlistInputs } from '../ui/components/portfolio-watchlist.js';
 import { createFundamentalSearch } from '../ui/components/fundamental-search.js';
+import { installGlossaryModal } from '../ui/knowledge/glossary-modal.js';
+import { bindRefreshProgress, createGlobalRefresh } from '../ui/components/refresh-progress.js';
+import { createEarningsCalendar } from '../ui/components/earnings-calendar.js';
 import { renderPortfolioBacktestLab, renderPortfolioBacktestStatus, varCertLabel } from '../ui/components/portfolio-backtest-lab.js';
 
 export function installLegacyScreenBridges(root, documentRef) {
@@ -67,4 +70,15 @@ export function installLegacyScreenBridges(root, documentRef) {
   // v59.12 → v59.52: the native entity slice consumes this selection hand-off; a request made before loading runs now.
   root.fundamentalSearch = createFundamentalSearch(at);
   if (root._aioFundSearchPending) { root._aioFundSearchPending = false; root.fundamentalSearch(); }
+  // Roadmap 11 용어 사전: the modal opener, its renderers and the close/category/search handlers (js/aio-ui.js, js/aio-core.js).
+  installGlossaryModal(root, documentRef);
+  // Roadmap 11 shell: the refresh progress panel and topbar button text (js/aio-ui.js); every scheduler event carries the
+  // whole run state, so events before this install are not needed.
+  bindRefreshProgress({ root, documentRef });
+  root.globalRefresh = createGlobalRefresh({ root, documentRef });
+  // Roadmap 11 종목 · 실적 일정: the weekly earnings calendar and its 이전/이번주/다음 buttons (js/aio-pages.js).
+  const earningsCalendar = createEarningsCalendar({ root, documentRef });
+  root.loadEarningsCalendar = earningsCalendar.load;
+  root._aioEarnCalWeekShift = earningsCalendar.shiftWeek;
+  if (root._aioEarnCalPending) { root._aioEarnCalPending = false; earningsCalendar.load(); }
 }

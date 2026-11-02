@@ -23,6 +23,12 @@
 #earnings-calendar-body .pgl-ec-none { padding: 20px 4px; text-align: center; color: var(--text-muted); font-size: var(--fs-sm); opacity: 0.5; }
 #earnings-calendar-body .pgl-ec-sess { border-width: 0.5px; border-style: solid; border-radius: 4px; padding: 4px 5px; }
 #earnings-calendar-body .pgl-ec-sess-t { font-size: var(--fs-sm); font-weight: 700; margin-bottom: 3px; }
+/* roadmap 11: the Before Open / After Close colours were inline styles in js/aio-pages.js _renderEarnSection. */
+#earnings-calendar-body .pgl-ec-sess.is-bmo, #earnings-calendar-body .pgl-ec-sess.is-amc { background: rgba(var(--ink-rgb),0.08); }
+#earnings-calendar-body .pgl-ec-sess.is-bmo { border-color: rgba(var(--ink-rgb),0.25); }
+#earnings-calendar-body .pgl-ec-sess.is-amc { border-color: rgba(var(--ink-rgb),0.2); }
+#earnings-calendar-body .pgl-ec-sess.is-bmo .pgl-ec-sess-t { color: var(--data-amber); }
+#earnings-calendar-body .pgl-ec-sess.is-amc .pgl-ec-sess-t { color: var(--data-cyan); }
 #earnings-calendar-body .pgl-ec-syms { display: grid; grid-template-columns: repeat(3,1fr); gap: 3px; }
 #earnings-calendar-body .pgl-ec-sym { background: var(--surface-4); border: 0.5px solid var(--border); border-radius: 4px; padding: 3px; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer;  }
 #earnings-calendar-body .pgl-ec-sym-t { font-size: var(--fs-sm); font-weight: 700; color: var(--text-secondary); font-family: var(--font-mono); }

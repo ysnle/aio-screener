@@ -2080,14 +2080,6 @@ window._aioAiFeedback = function(fbId, score, el) {
   if (el) el.style.color = score > 0 ? 'var(--green-11)' : 'var(--orange-11)';
   if (typeof window._aiFeedback === 'function') window._aiFeedback(fbId, score);
 };
-window._aioGlossaryCat = function(cat) {
-  window._glossaryCat = cat;
-  if (typeof window.renderGlossaryCats === 'function') window.renderGlossaryCats();
-  if (typeof window.renderGlossaryItems === 'function') {
-    var s = document.getElementById('glossary-search');
-    window.renderGlossaryItems(s ? s.value : '');
-  }
-};
 window._aioEditPosition = function(tk) {
   if (typeof window.editPosition === 'function') window.editPosition(tk);
 };
@@ -3190,16 +3182,7 @@ window._aioNextSiblingToggle = function(el) {
 window._aioCloseThemeDetailPanel = function() {
   window._aioHideEl('kr-theme-detail-panel');
 };
-window._aioCloseGlossary = function() {
-  var modal = document.getElementById('glossary-modal');
-  if (modal) {
-    modal.style.display = 'none';
-    if (modal._aioTrapCleanup) { modal._aioTrapCleanup(); modal._aioTrapCleanup = null; }
-  }
-  var previousFocus = typeof _glossaryPreviousFocus !== 'undefined' ? _glossaryPreviousFocus : null;
-  if (typeof _glossaryPreviousFocus !== 'undefined') _glossaryPreviousFocus = null;
-  if (previousFocus && document.contains(previousFocus) && !previousFocus.disabled) { try { previousFocus.focus(); } catch (_) {} }
-};
+// Roadmap 11: _aioCloseGlossary, _aioGlossaryCat and _aioFilterGlossary live in src/ui/knowledge/glossary-modal.js.
 // v59.42: the 대화 기록 overlay handlers (_aioChatHistoryClear/_aioChatHistoryClose/_aioChatHistoryToggle,
 // _aioToggleWhiteSpace) left with the unreachable overlay (js/aio-workspace.js).
 window._aioFetchAllNewsForce = function() {
@@ -10151,9 +10134,6 @@ window._aioTriggerPortfolioImport = function() {
 // window._aioSaveCashBalance (src/app/compatibility-globals.js).
 window._aioSavePortfolioAssumption = function(el) {
   if (typeof window.savePortfolioAssumption === 'function') window.savePortfolioAssumption(el ? el.id : '', el ? el.value : '');
-};
-window._aioFilterGlossary = function(el) {
-  if (typeof window.filterGlossary === 'function') window.filterGlossary(el ? el.value : '');
 };
 window._aioUppercaseInput = function(el) {
   if (!el || typeof el.value !== 'string') return;

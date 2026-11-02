@@ -876,7 +876,53 @@ check('v59.08 the 스크리너 재무 팩터 note reads coverage against the 80%
 // itself, so re-introducing a hand-listed copy fails here as well as in the registry gate.
 check('route terminology derives user surfaces from internal QA routes and retires options (P1321)', /NAV_ROUTE:\s*\[\]/.test(core) && /classes\.NAV_ROUTE = \(window\.AIO_ALL_ROUTE_PAGE_IDS \|\| \[\]\)\.filter/.test(core) && /DERIVED_VIEW:\s*\['ticker','theme-detail'\]/.test(core) && /REFERENCE:\s*\[\]/.test(core) && /REMOVED:\s*\[[^\]]*'options'\]/.test(core) && /OVERLAY:\s*\['glossary'\]/.test(core));
 check('guide chapters and KR secondary groups are explicit progressive-disclosure controls', /#kr-integrated-themes \.aio-theme-progressive \.kr-theme-card:nth-child\(n\+4\)/.test(html) && /\.aio-comp-secondary[\s\S]{0,1200}\.aio-guide-chapter/.test(html));
-check('glossary renders countable semantic rows and a readable comp modal', /class="aio-glossary-item"/.test(ui) && /class="aio-glossary-term"/.test(ui) && /GLOSSARY\.length/.test(ui));
+const glossaryProbe = await (async () => {
+  // v59.59 roadmap 11: the glossary modal moved from js/aio-ui.js and js/aio-core.js to src/ui/knowledge/glossary-modal.js.
+  const { createGlossaryModal } = await import('../src/ui/knowledge/glossary-modal.js');
+  const els = { 'glossary-modal': { style: { display: 'none' } }, 'glossary-search': { value: 'x', focus() {} }, 'glossary-cats': { innerHTML: '' }, 'glossary-body': { innerHTML: '', addEventListener() {} } };
+  const title = { textContent: '' };
+  const documentRef = { getElementById: (id) => els[id] || null, querySelector: (sel) => (sel === '#glossary-modal h2' ? title : null), activeElement: null, body: {}, contains: () => false };
+  const root = { GLOSSARY: [{ term: 'PER', cat: '기초', def: '주가 ÷ 주당순이익' }, { term: 'RRG', cat: '기술', def: '상대 회전 그래프' }], escHtml: (v) => String(v) };
+  const modal = createGlossaryModal({ root, documentRef });
+  modal.open();
+  const opened = els['glossary-modal'].style.display === '' && els['glossary-search'].value === '' && title.textContent === '투자 용어 사전, 2개';
+  const rows = (els['glossary-body'].innerHTML.match(/class="aio-glossary-item"/g) || []).length === 2 && /class="aio-glossary-term">RRG</.test(els['glossary-body'].innerHTML);
+  modal.selectCategory('기초·회계');
+  modal.renderItems('RRG');
+  const widened = /전체에서 검색한 결과/.test(els['glossary-body'].innerHTML) && /aria-pressed="true" class="lu-gl-cat">전체 2</.test(els['glossary-cats'].innerHTML);
+  modal.close();
+  return opened && rows && widened && els['glossary-modal'].style.display === 'none';
+})();
+check('v59.59 glossary renders countable semantic rows, titles the modal with the registry count and widens an empty category search', glossaryProbe);
+const earningsCalendarProbe = await (async () => {
+  // v59.59 roadmap 11: the weekly earnings calendar moved from js/aio-pages.js to src/ui/components/earnings-calendar.js.
+  const { earningsWeekDays, earningsWeekHtml } = await import('../src/ui/components/earnings-calendar.js');
+  const satWeek = earningsWeekDays(new Date('2026-10-31T15:00:00Z'), 0); // Saturday in New York opens the coming week
+  const nextWeek = earningsWeekDays(new Date('2026-11-04T15:00:00Z'), 1);
+  const weekHtml = earningsWeekHtml([{ date: '2026-11-02', symbol: 'AMC1', hour: 'amc' }, { date: '2026-11-02', symbol: 'BMO1', hour: 'bmo', epsEstimate: 1.234 }], [], satWeek, { now: new Date('2026-11-02T15:00:00Z') });
+  return satWeek.join() === '2026-11-02,2026-11-03,2026-11-04,2026-11-05,2026-11-06' && nextWeek[0] === '2026-11-09'
+    && weekHtml.indexOf('is-bmo') < weekHtml.indexOf('is-amc') && /title="BMO1 어닝 \$1\.23"/.test(weekHtml) && /월 2, 오늘/.test(weekHtml)
+    && (weekHtml.match(/\(발표 없음\)/g) || []).length === 4 && !/style=/.test(weekHtml);
+})();
+check('v59.59 earnings calendar opens the coming week on a New York weekend, puts Before Open first and styles sessions by class', earningsCalendarProbe);
+const refreshProgressProbe = await (async () => {
+  // v59.59 roadmap 11: the refresh progress panel moved from js/aio-ui.js to src/ui/components/refresh-progress.js.
+  const { bindRefreshProgress } = await import('../src/ui/components/refresh-progress.js');
+  const els = {}; const listeners = {};
+  const el = (id) => { const node = { id, style: {}, dataset: {}, children: [], textContent: '', className: '', disabled: false, classList: { toggle() {} }, setAttribute() {}, appendChild(c) { this.children.push(c); if (c.id) els[c.id] = c; return c; } }; Object.defineProperty(node, 'innerHTML', { set(v) { this.children = []; for (const m of String(v).matchAll(/id="([^"]+)"/g)) els[m[1]] = el(m[1]); }, get() { return ''; } }); return node; };
+  els['topbar-refresh-btn'] = el('topbar-refresh-btn');
+  const documentRef = { getElementById: (id) => els[id] || null, createElement: () => el(''), body: el('body') };
+  const timers = [];
+  const root = { addEventListener: (type, fn) => { listeners[type] = fn; }, setTimeout: (fn) => timers.push(fn), AIO: { getRefreshState: () => null } };
+  bindRefreshProgress({ root, documentRef });
+  listeners['aio:refresh:progress']({ detail: { keys: ['quotes', 'news'], total: 2, done: 1, currentKey: 'news', phase: 'running', results: [{ key: 'quotes', ok: true }] } });
+  const quiet = els['aio-refresh-progress-layer'].style.display === 'none' && els['topbar-refresh-btn'].textContent === '갱신 1/2' && els['aio-refresh-progress-list'].children.map((r) => r.children[1].dataset.tone).join() === 'ok,run';
+  listeners['aio:refresh:done']({ detail: { type: 'done', forceRefresh: true, keys: ['quotes', 'news'], total: 2, done: 2, results: [{ key: 'quotes', ok: true }, { key: 'news', ok: false }] } });
+  const shown = els['aio-refresh-progress-layer'].style.display === 'block' && els['topbar-refresh-btn'].textContent === '확인 필요' && els['aio-refresh-progress-current'].textContent === '1개 소스 확인 필요';
+  timers.forEach((fn) => fn());
+  return quiet && shown && els['aio-refresh-progress-layer'].style.display === 'none' && els['topbar-refresh-btn'].textContent === '새로고침';
+})();
+check('v59.59 refresh progress keeps background runs on the topbar button and shows the panel only for a reader-started run', refreshProgressProbe);
 check('headless tests cover the redesigned default path', /T869 redesign_default_path_v5289/.test(tests));
 
 // [G2] v52.90 P705/R331: 최종 렌더의 loaded/empty/degraded/closed 사용자 상태 계약.
