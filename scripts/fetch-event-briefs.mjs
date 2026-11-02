@@ -32,7 +32,7 @@ export { EARNINGS_SCHEMA, FOMC_SCHEMA, POINTS_SCHEMA, TRANSCRIPT_SCHEMA, REASONS
 import {
   EVENT_BRIEFS_SCHEMA, MARKET_MOVERS, NEWS_REPORT_DOMAINS, REACTION_REPORT_DOMAINS, isNoReasonText, onReportDomain, normalizeSourceText, verifyQuotedItems, verifyFreeText, unverifiedNumbers, sourceNumberSet,
   parseDartPreliminaryResults, formatKrw, parseUsdAmount, parseUsdPerShare, surprisePct, epsComparisonBasis, estimateAiCostUsd, AI_RATE_CARD,
-  MOVER_BY_SYMBOL, briefHeadline, releaseSession, earningsReaction, reactionPct, CALL_SEARCH_MAX_ATTEMPTS
+  MOVER_BY_SYMBOL, briefHeadline, releaseSession, earningsReaction, reactionPct, CALL_SEARCH_MAX_ATTEMPTS, statedReportingCurrency, consensusComparable
 } from '../src/domain/briefing/event-briefs.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -463,10 +463,13 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
             source: { kind: 'T1_OFFICIAL', title: `SEC ${filing.form} ${exhibit.type}`, url: exhibit.url, accession: filing.accession, fetchedAt: nowIso, sha256: sha256(exhibit.text) },
             ai: [...(brief?.ai || []), ...(result.usage ? [aiLedger(`earnings-${mover.sym}`, result.usage)] : [])] };
           if (!result.json) { briefs.set(id, { ...base, status: 'pending', aiReason: result.reason }); continue; }
-          const sections = assembleEarningsSections(result.json, sourceText, estimate ? { ...estimate, source: earningsSource } : null);
+          // v59.59 (CCJ): a foreign issuer's home-currency release is not compared with the USD consensus.
+          const reportingCurrency = statedReportingCurrency(exhibit.text);
+          const comparable = consensusComparable({ form: filing.form, currency: reportingCurrency });
+          const sections = assembleEarningsSections(result.json, sourceText, estimate && comparable ? { ...estimate, source: earningsSource } : null);
           brief = { ...base, status: 'partial', basis: 'primary-source', headline: briefHeadline(result.json.headline, { nameKo: mover.nameKo, figures: sections.figures, sourceNumbers: sourceNumberSet(sourceText) }),
             figures: sections.figures, details: sections.segments, detailTitle: '사업부문', guidance: sections.guidance, watch: sections.watch, dropped: sections.dropped,
-            checkText: sourceText };
+            checkText: sourceText, ...(reportingCurrency ? { reportingCurrency } : {}), ...(estimate && !comparable ? { consensusSkipped: 'currency-not-usd' } : {}) };
         }
         // A story name's release is summarised without a call search (tier 2, owner 2026-10-29).
         if (mover.extended) brief = brief.status === 'pending' ? brief : { ...brief, status: 'complete' };
@@ -551,6 +554,9 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
     const headline = briefHeadline(brief.headline, { nameKo: brief.nameKo, figures: brief.figures || [] });
     const figures = (brief.figures || []).map((figure) => {
       if (!figure.estimate || (figure.estimate.basis && figure.estimate.basis !== 'provider-consensus-reference') || brief.status === 'provisional') return figure;
+      // v59.59 (CCJ): briefs stored before the currency check — a foreign issuer's release without a stated USD basis
+      // loses the provider comparison (the release text is not kept, so its currency cannot be re-read).
+      if (!consensusComparable({ form: brief.source?.title, currency: brief.reportingCurrency || null })) return (({ estimate, ...rest }) => rest)(figure);
       if (figure.metric === 'eps_diluted') {
         const comparison = epsComparisonBasis(figure, brief.figures || []);
         if (!comparison) return (({ estimate, ...rest }) => rest)(figure);
