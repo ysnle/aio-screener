@@ -8,7 +8,7 @@
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
-import { fetchWithDeadline, withRetry } from './lib/http-fetch.mjs';
+import { createSecClient } from './lib/sec-edgar.mjs';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { finiteFact, sameFiscalPeriod, isPriorAnnualPeriod, FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from '../src/domain/fundamental/period.js';
@@ -53,16 +53,17 @@ const FAILURE_RETRY_AFTER_MS = 24 * 60 * 60 * 1000;
 const USER_AGENT = process.env.SEC_USER_AGENT || '';
 
 
-// The failure reason names the URL (`<url> HTTP <status>`): it is stored in the failure ledger. A definitive 4xx
-// (a CIK without companyfacts answers 404) is not retried; network errors and 5xx/408/429 are.
-function fetchJSON(url, tries = 3, as = 'json') {
-  const init = { headers: { 'User-Agent': USER_AGENT, 'Accept': as === 'json' ? 'application/json' : 'application/xml', 'Accept-Encoding': 'gzip, deflate' } };
-  const read = (response) => (as === 'json' ? response.json() : response.text());
-  return withRetry(() => fetchWithDeadline(url, { timeoutMs: 20000, init, read }).catch((error) => {
-    if (error?.status) error.message = `${url} ${error.message}`;
-    throw error;
-  }), { tries, delayMs: (attempt) => 900 * (attempt + 1) });
+// 2026-11-02: every SEC request of this producer goes through the one paced client (scripts/lib/sec-edgar.mjs) the 13F
+// and earnings lanes use: requests queued at ≤8/s (SEC fair access allows 10), a deadline on each attempt, retries only
+// for 403/429/5xx and dropped connections (one client per attempt count; the lanes that use them run one after another). Before, this file sent the companyfacts/submissions pair in parallel
+// with no spacing and retried a definitive 404. `tries` keeps its old meaning (total attempts).
+const SEC_REQUEST_TIMEOUT_MS = 20000;
+const secClients = new Map();
+function secClient(tries) {
+  if (!secClients.has(tries)) secClients.set(tries, createSecClient({ userAgent: USER_AGENT, maxRetries: Math.max(0, tries - 1), requestTimeoutMs: SEC_REQUEST_TIMEOUT_MS, fetchFn: (...args) => globalThis.fetch(...args) }));
+  return secClients.get(tries);
 }
+const fetchJSON = (url, tries = 3, as = 'json') => (as === 'json' ? secClient(tries).json(url) : secClient(tries).text(url));
 
 // Pure (v58.71): the form-type daily index as cik -> latest filing date (YYYY-MM-DD) for periodic report forms.
 export function parsePeriodicFilers(indexText, into = new Map()) {
