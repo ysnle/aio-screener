@@ -6,6 +6,7 @@ import { readFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
+import { fetchTextWithDeadline } from './lib/http-fetch.mjs';
 import {
   IWM_HOLDINGS_URLS, NASDAQ_LISTED_URL, OTHER_LISTED_URL, buildExtendedUniverse, parseIwmHoldings, parseNasdaqListed, parseOtherListed
 } from './lib/extended-universe.mjs';
@@ -14,17 +15,7 @@ const __dir = dirname(fileURLToPath(import.meta.url));
 export const EXTENDED_UNIVERSE_OUT = `${__dir}/../public-data/screener-extended-universe.json`;
 const CORE_UNIVERSE = `${__dir}/../public-data/screener-universe.json`;
 
-async function fetchText(url, timeoutMs = 30000) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const response = await fetch(url, { signal: controller.signal, headers: { 'User-Agent': 'Mozilla/5.0 (aio-screener data refresh)', Accept: 'text/csv,text/plain,*/*' } });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return await response.text();
-  } finally {
-    clearTimeout(timer);
-  }
-}
+const fetchText = (url, timeoutMs = 30000) => fetchTextWithDeadline(url, { timeoutMs, init: { headers: { 'User-Agent': 'Mozilla/5.0 (aio-screener data refresh)', Accept: 'text/csv,text/plain,*/*' } } });
 
 async function readJson(path) {
   try { return JSON.parse(await readFile(path, 'utf8')); } catch { return null; }

@@ -7,6 +7,7 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
+import { fetchJsonWithDeadline } from './lib/http-fetch.mjs';
 import { buildTreasuryAuctions } from '../src/domain/macro/treasury-auctions.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -14,15 +15,9 @@ export const TREASURY_AUCTIONS_OUT = path.join(root, 'public-data', 'treasury-au
 const URL_FOR = (type) => `https://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=${type}&days=400`;
 
 async function fetchType(type) {
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 30000);
-  try {
-    const response = await fetch(URL_FOR(type), { headers: { Accept: 'application/json', 'User-Agent': 'aio-screener (github.com/ysnle/aio-screener)' }, signal: ctrl.signal });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const body = await response.json();
-    if (!Array.isArray(body)) throw new Error('not an array');
-    return body;
-  } finally { clearTimeout(timer); }
+  const body = await fetchJsonWithDeadline(URL_FOR(type), { timeoutMs: 30000, init: { headers: { Accept: 'application/json', 'User-Agent': 'aio-screener (github.com/ysnle/aio-screener)' } } });
+  if (!Array.isArray(body)) throw new Error('not an array');
+  return body;
 }
 
 async function main() {

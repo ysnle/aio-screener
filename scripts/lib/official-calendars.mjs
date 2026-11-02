@@ -11,6 +11,7 @@
 //   holidays, not NYSE-only closures (ISM publishes on Good Friday).
 // - Fed policy rate: derived from the FRED target-range series already collected (DFEDTARL/DFEDTARU).
 
+import { readNumber } from '../../src/domain/shared/number.js';
 export const FOMC_CALENDAR_URL = 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm';
 export const FOMC_RECHECK_MS = 12 * 60 * 60 * 1000;
 export const FOMC_MEETINGS_PER_YEAR = 8;
@@ -246,7 +247,7 @@ export function buildMacroCalendarPayload({ nowMs = Date.now(), fredSchedules = 
 // FED_POLICY_RATE_MAX_AGE_DAYS; anything else is published as stale with the reason (consumers then show the
 // previous reference with its date instead of a current-looking value).
 export function deriveFedPolicyRate(macro = {}, nowMs = Date.now()) {
-  const num = (value) => (value === null || value === undefined || value === '' ? null : (Number.isFinite(Number(value)) ? Number(value) : null));
+  const num = readNumber;
   const lower = num(macro?.fedTargetLower);
   const upper = num(macro?.fedTargetUpper);
   const asOfLower = isoDate(macro?._asOf_fedTargetLower);

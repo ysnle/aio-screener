@@ -26,6 +26,7 @@ import { EVIDENCE_TIER_METRIC_IDS, KOREA_MOVE_MENTION_PCT, MARKET_ANALYSIS_CLOSE
 import { HIST, SCENARIO_STATE_OUT, SCENARIO_OUTCOMES_OUT, EARNINGS_CALENDAR_OUT, REPO_ROOT } from './paths.mjs';
 const SCREENER_OUT = `${REPO_ROOT}/public-data/screener.json`;
 import { MACRO_HISTORY_OUT, MACRO_CALENDAR_OUT } from './macro-history.mjs';
+import { readNumber } from '../../src/domain/shared/number.js';
 
 // v57.81: plain Korean values with their session ("10/14 종가"), never "SPX=… (ISO)"; the last verified reading rides along
 // as `lastVerified` so the next run can still keep it (retainVerifiedMarketAnalysis).
@@ -376,7 +377,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
   if (!request && !resolveSharedAiConfig()) return buildMarketAnalysisFallback(data, 'shared-ai-not-configured', metricEvidence, newsEvidence, keep);
   const ask = request || requestSharedAnalysis;
   try {
-    const changeOf = new Map(snapshotEvidenceRows(snapshot).filter(row => row?.evidenceId && Number.isFinite(Number(row.changePct))).map(row => [row.evidenceId, Number(row.changePct)]));
+    const changeOf = new Map(snapshotEvidenceRows(snapshot).filter(row => row?.evidenceId && readNumber(row.changePct) != null).map(row => [row.evidenceId, Number(row.changePct)]));
     // T08 (v57.48 review): the briefing shows completed closes, and the commentary under it opened with KOSPI/WTI/DXY/gold
     // in-session moves. Only completed-session values reach the prompt; in-session rows stay out (the validator still
     // requires 장중 + time if one appears). T03: a rate's change is given in bp — its changePct is a relative change of
@@ -433,8 +434,8 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     const driversContext = marketDriversContext({ history: historyRows, reversal, intradayRows, earningsLine: nextEarningsLine(earnings === undefined ? readEarningsCalendar() : earnings, usCloseDate), eventsLine: upcomingPoliticalLine() });
     const macroNow = data?.macro || {};
     const signed = (value) => `${Number(value) >= 0 ? '+' : ''}${value}`;
-    const inflationLine = Number.isFinite(Number(macroNow.cpi)) && macroNow.cpiDelta != null && Number.isFinite(Number(macroNow.cpiDelta))
-      ? `INFLATION_DIRECTION: 미국 CPI 전년비 ${macroNow.cpi}% (직전 달 대비 ${signed(macroNow.cpiDelta)}%p)${Number.isFinite(Number(macroNow.coreCpi)) ? `, 근원 ${macroNow.coreCpi}%${macroNow.coreCpiDelta != null && Number.isFinite(Number(macroNow.coreCpiDelta)) ? ` (${signed(macroNow.coreCpiDelta)}%p)` : ''}` : ''}, 기준월 ${String(macroNow._asOf_cpi || '').slice(0, 7) || '미확인'}. `
+    const inflationLine = readNumber(macroNow.cpi) != null && readNumber(macroNow.cpiDelta) != null
+      ? `INFLATION_DIRECTION: 미국 CPI 전년비 ${macroNow.cpi}% (직전 달 대비 ${signed(macroNow.cpiDelta)}%p)${readNumber(macroNow.coreCpi) != null ? `, 근원 ${macroNow.coreCpi}%${readNumber(macroNow.coreCpiDelta) != null ? ` (${signed(macroNow.coreCpiDelta)}%p)` : ''}` : ''}, 기준월 ${String(macroNow._asOf_cpi || '').slice(0, 7) || '미확인'}. `
         + (Number(macroNow.cpiDelta) > 0 || Number(macroNow.coreCpiDelta) > 0 ? '물가는 오르는 중이다 — "물가 둔화"라고 쓰지 마라.' : '물가 방향을 이 값 밖에서 추정하지 마라.')
       : '';
     const model = SHARED_AI_MODEL;

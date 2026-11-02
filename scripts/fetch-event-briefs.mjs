@@ -30,6 +30,7 @@ import {
   parseDartPreliminaryResults, formatKrw, parseUsdAmount, parseUsdPerShare, surprisePct, epsComparisonBasis, estimateAiCostUsd, AI_RATE_CARD,
   MOVER_BY_SYMBOL, briefHeadline, releaseSession, earningsReaction, reactionPct, CALL_SEARCH_MAX_ATTEMPTS
 } from '../src/domain/briefing/event-briefs.js';
+import { readNumber } from '../src/domain/shared/number.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = resolve(ROOT, 'public-data/event-briefs.json');
@@ -304,7 +305,7 @@ export function provisionalBrief(row, mover, { source = null, sourceUrl = null }
   const at = row.hour === 'bmo' ? etWallClockMs(row.date, 7, 0) : row.hour === 'amc' ? etWallClockMs(row.date, 16, 5) : etWallClockMs(row.date, 12, 0);
   const figures = [];
   // v59.45 (pipeline review P21-PROVISIONAL-01): a numeric string from the provider is a number; '' and null stay missing.
-  const num = (value) => (value == null || value === '' || !Number.isFinite(Number(value)) ? null : Number(value));
+  const num = readNumber;
   const revenueActual = num(row.revenueActual), epsActual = num(row.epsActual);
   const vs = (actual, estimate) => (Number.isFinite(actual) && num(estimate) != null && num(estimate) !== 0 ? { value: num(estimate), surprisePct: surprisePct(actual, num(estimate)), source: source || 'Finnhub', basis: 'provider-consensus-reference' } : null);
   if (revenueActual != null) {
@@ -363,12 +364,12 @@ export function assembleEarningsSections(json, sourceText, estimate = null) {
   const strip = ({ quote, ...rest }) => ({ ...rest, quote });
   const outFigures = figures.kept.map(strip).map((figure) => {
     if (!estimate) return figure;
-    if (figure.metric === 'revenue' && Number.isFinite(Number(estimate.revenueEstimate))) {
+    if (figure.metric === 'revenue' && readNumber(estimate.revenueEstimate) != null) {
       const actual = parseUsdAmount(figure.value);
       const pct = surprisePct(actual, Number(estimate.revenueEstimate));
       if (pct != null) return { ...figure, estimate: { value: Number(estimate.revenueEstimate), surprisePct: pct, source: estimate.source || 'Finnhub', basis: 'provider-consensus-reference' } };
     }
-    if (figure.metric === 'eps_diluted' && Number.isFinite(Number(estimate.epsEstimate))) {
+    if (figure.metric === 'eps_diluted' && readNumber(estimate.epsEstimate) != null) {
       // v59.45 (P21-AMOUNT-01): one per-share amount, its sign kept ("$(0.12)" is a loss), or no comparison.
       // v59.48: the amount the adjusted consensus is compared with (epsComparisonBasis), named on the estimate.
       const comparison = epsComparisonBasis(figure, figures.kept);

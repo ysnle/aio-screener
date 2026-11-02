@@ -1,7 +1,9 @@
 #!/usr/bin/env node
-import { writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
+import { atomicWriteFileSync } from './lib/atomic-write.mjs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { fetchTextWithDeadline } from './lib/http-fetch.mjs';
 import { classifyPostTickers, LIST_POST_TICKER_THRESHOLD, KR_INSTITUTIONAL_FLOW } from './lib/telegram-tickers.mjs';
 import { COMMON_WORD_ISSUER_NAMES } from '../src/domain/news/stories.js';
 import { cleanTelegramText } from './lib/telegram-text.mjs';
@@ -398,17 +400,7 @@ function parsePage(html, channel) {
   return out;
 }
 
-async function fetchText(url) {
-  const ctrl = new AbortController();
-  const to = setTimeout(() => ctrl.abort(), 15000);
-  try {
-    const res = await fetch(url, { headers: UA, signal: ctrl.signal });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.text();
-  } finally {
-    clearTimeout(to);
-  }
-}
+const fetchText = (url) => fetchTextWithDeadline(url, { timeoutMs: 15000, init: { headers: UA } });
 
 async function scrapeChannel(channel) {
   const items = [];
@@ -719,9 +711,9 @@ const { observedItems: _observedState, ...servedDigest } = outputDigest;
 const lineageRows = collectionStatus === 'failed' && previousDigest && Number(previousDigest.count || 0) > 0 ? (_observedState || []) : observedItems;
 const json = JSON.stringify(servedDigest, null, 2);
 if (outPath) {
-  writeFileSync(outPath, json + '\n', 'utf8');
+  atomicWriteFileSync(outPath, json + '\n', 'utf8');
   if (observedPath) {
-    writeFileSync(observedPath, JSON.stringify({ schemaVersion: 'telegram-observed.v1', generatedAt: servedDigest.generatedAt || new Date().toISOString(), count: lineageRows.length, semantics: 'Lightweight whole-window lineage behind telegram-digest.json `count` (ids, channel, time, score, tags, tickers; no text). Producer state, not read by the app.', observedItems: lineageRows }) + '\n', 'utf8');
+    atomicWriteFileSync(observedPath, JSON.stringify({ schemaVersion: 'telegram-observed.v1', generatedAt: servedDigest.generatedAt || new Date().toISOString(), count: lineageRows.length, semantics: 'Lightweight whole-window lineage behind telegram-digest.json `count` (ids, channel, time, score, tags, tickers; no text). Producer state, not read by the app.', observedItems: lineageRows }) + '\n', 'utf8');
   }
   // Telegram digest and Atlas discovery index are one publication unit. Keep
   // the derived lineage count synchronized in the producer so a scheduled
@@ -732,7 +724,7 @@ if (outPath) {
     const lineageCount = servedDigest.retainedItemCount ?? lineageRows.length ?? null;
     if (lineageCount != null && atlasIndex.telegramObservedLineage !== lineageCount) {
       atlasIndex.telegramObservedLineage = lineageCount;
-      writeFileSync(atlasIndexPath, JSON.stringify(atlasIndex, null, 2) + '\n', 'utf8');
+      atomicWriteFileSync(atlasIndexPath, JSON.stringify(atlasIndex, null, 2) + '\n', 'utf8');
     }
   }
 }

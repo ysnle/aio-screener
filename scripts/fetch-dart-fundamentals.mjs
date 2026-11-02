@@ -4,10 +4,12 @@
 // symbol in the screener universe it records the latest annual business report's key accounts (consolidated when
 // filed, otherwise separate) and the prior year for growth. Values are the filing's own figures in KRW; nothing is
 // estimated. Without a key it exits 0 and leaves the previous artifact untouched.
-import { readFile, writeFile, rename } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { inflateRawSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { atomicWriteFile } from './lib/atomic-write.mjs';
+import { fetchJsonWithDeadline, fetchWithDeadline } from './lib/http-fetch.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(root, 'public-data', 'kr-fundamentals.json');
@@ -59,11 +61,7 @@ export function pickAccounts(list = []) {
   return out;
 }
 
-async function getJson(url) {
-  const response = await fetch(url, { headers: { 'User-Agent': 'AIO-Screener research (GitHub Actions)' }, signal: AbortSignal.timeout(20000) });
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  return response.json();
-}
+const getJson = (url) => fetchJsonWithDeadline(url, { timeoutMs: 20000, init: { headers: { 'User-Agent': 'AIO-Screener research (GitHub Actions)' } } });
 
 // v58.82: OpenDART answers a spent daily quota (020), a bad or blocked key (010-012) or a system check (800/901) with
 // HTTP 200, and every later call fails the same way, so the run stops there instead of logging hundreds of failures.
@@ -107,9 +105,8 @@ async function main() {
   }
   const screener = JSON.parse(await readFile(SCREENER, 'utf8'));
   const symbols = Object.keys(screener.data || {}).filter((sym) => /^\d{6}\.K[SQ]$/.test(sym));
-  const corpResponse = await fetch(`${API}/corpCode.xml?crtfc_key=${encodeURIComponent(key)}`, { signal: AbortSignal.timeout(60000) });
-  if (!corpResponse.ok) throw new Error(`corpCode HTTP ${corpResponse.status}`);
-  const zip = Buffer.from(await corpResponse.arrayBuffer());
+  const zip = await fetchWithDeadline(`${API}/corpCode.xml?crtfc_key=${encodeURIComponent(key)}`, { timeoutMs: 60000, read: async (response) => Buffer.from(await response.arrayBuffer()) })
+    .catch((error) => { throw error?.status ? new Error(`corpCode ${error.message}`) : error; });
   const corps = parseCorpCodes(unzipFirstEntry(zip).toString('utf8'));
   const now = new Date();
   // An annual report for fiscal year Y is due by the end of March of Y+1. 2026-10-17 (logic audit): before April the last
@@ -147,9 +144,7 @@ async function main() {
     return;
   }
   const payload = { schemaVersion: 'kr-fundamentals.v1', generatedAt: new Date().toISOString(), source: 'OpenDART (금융감독원 전자공시) 단일회사 주요계정', sourceKind: 'T1_OFFICIAL', unit: 'KRW', reportType: '사업보고서', count: merged.count, requested: symbols.length, failed, companies: merged.companies };
-  const tmp = `${OUT}.tmp`;
-  await writeFile(tmp, JSON.stringify(payload));
-  await rename(tmp, OUT);
+  await atomicWriteFile(OUT, JSON.stringify(payload));
   console.log(`[dart] ${payload.count}/${symbols.length} companies · failed ${failed.length}`);
 }
 

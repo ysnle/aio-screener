@@ -6,6 +6,7 @@
 // inside the window (selectNewsIntraday's filters) and a short summary. A thin window is still sealed: the summary says so,
 // and no minimum-news gate applies (the 10-item gate stays on the 24h bundle only).
 import { selectNewsIntraday } from './news-selection.mjs';
+import { readNumber } from '../../src/domain/shared/number.js';
 
 export const MARKET_TIMELINE_SCHEMA = 'market-timeline.v1';
 export const MARKET_TIMELINE_POLICY = 'kst-6h-slots-sealed-once';
@@ -65,10 +66,10 @@ export function buildMarketSlotMarks(snapshot) {
   const marks = {};
   for (const [metricId, label] of MARKET_SLOT_METRICS) {
     const row = byMetric.get(metricId);
-    const value = Number(row?.value);
-    if (!row || !Number.isFinite(value) || !Number.isFinite(Date.parse(row.observedAt))) continue;
+    const value = readNumber(row?.value); // a quote without a value is missing, not a 0 mark
+    if (!row || value == null || !Number.isFinite(Date.parse(row.observedAt))) continue;
     marks[metricId] = { label, value, unit: row.unit || null, observedAt: row.observedAt, session: row.session || null,
-      ...(Number.isFinite(Number(row.changePct)) ? { changePct: Number(row.changePct) } : {}) };
+      ...(readNumber(row.changePct) != null ? { changePct: Number(row.changePct) } : {}) };
   }
   return marks;
 }
@@ -84,7 +85,7 @@ export function marketSlotMoves(marks, previousMarks, window) {
     const observedMs = Date.parse(mark.observedAt);
     let change = null;
     let basis = null;
-    if (before && Number.isFinite(Number(before.value)) && before.observedAt !== mark.observedAt) {
+    if (before && readNumber(before.value) != null && before.observedAt !== mark.observedAt) {
       change = mark.unit === 'percent' ? (mark.value - Number(before.value)) * 100 : (mark.value / Number(before.value) - 1) * 100;
       basis = 'previous-slot';
     } else if (!before && Number.isFinite(mark.changePct) && observedMs >= window.startMs) {
@@ -98,7 +99,7 @@ export function marketSlotMoves(marks, previousMarks, window) {
 }
 
 export function selectMarketSlotHeadlines(pool, window, max = MARKET_SLOT_HEADLINE_MAX) {
-  const inWindow = (Array.isArray(pool) ? pool : []).filter((row) => Number.isFinite(Number(row?.ts)) && row.ts >= window.startMs && row.ts < window.endMs);
+  const inWindow = (Array.isArray(pool) ? pool : []).filter((row) => readNumber(row?.ts) != null && row.ts >= window.startMs && row.ts < window.endMs);
   return selectNewsIntraday(inWindow, { cycleEndMs: window.startMs, nowMs: window.endMs, canonical: [], max })
     .map(({ score, selectionReason, contentDepth, provisional, ...row }) => row);
 }

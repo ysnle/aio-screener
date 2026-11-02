@@ -3,6 +3,7 @@
 // The day's after-close reporters (earnings-calendar.json, hour=amc) are read from Yahoo's 5-minute chart with
 // extended hours: the last 16:00-20:00 ET print of that session against the regular close. Provisional, reference-only.
 import { fetchJSON } from '../lib/producer-http.mjs';
+import { readNumber } from '../../src/domain/shared/number.js';
 
 export const AFTER_HOURS_MAX = 8;
 export const AFTER_HOURS_MENTION_PCT = 3; // a move this large, or an index-weight leader, is offered to the reading
@@ -93,7 +94,7 @@ export async function collectAfterHours({ calendar, sessionDate, previous = null
 }
 
 const signedPct = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
-const reported = (value) => value != null && value !== '' && Number.isFinite(Number(value)); // null is not 0 (missing EPS stays missing)
+const reported = (value) => readNumber(value) != null; // null is not 0 (missing EPS stays missing)
 const eps = (row) => (reported(row.epsActual) && reported(row.epsEstimate) ? `, EPS ${row.epsActual} (예상 ${Number(row.epsEstimate).toFixed(2)})` : '');
 // The prompt block: moves of 3% or more and the heaviest index names, each with its ET time. Empty when nothing qualifies.
 const mentionedRows = (afterHours) => (Array.isArray(afterHours?.rows) ? afterHours.rows : [])

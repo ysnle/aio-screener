@@ -3,6 +3,7 @@
 // parses: the submissions feed into rows with their 8-K items, the full submission text into its documents, and HTML
 // into plain text for the brief's number check.
 import { archiveBase, normalizeCik } from './sec-edgar.mjs';
+import { readNumber } from '../../src/domain/shared/number.js';
 
 export const SEC_TICKERS_URL = 'https://www.sec.gov/files/company_tickers.json';
 export const submissionsUrl = (cik) => `https://data.sec.gov/submissions/CIK${normalizeCik(cik)}.json`;
@@ -11,7 +12,7 @@ export const submissionTextUrl = (cik, accession) => `${archiveBase(cik, accessi
 /** Exact ticker → CIK from SEC's own list (no fuzzy match: a ticker the list does not carry has no CIK). */
 export function tickerCikMap(payload) {
   const map = new Map();
-  for (const row of Object.values(payload || {})) if (row?.ticker && Number.isFinite(Number(row.cik_str))) map.set(String(row.ticker).toUpperCase(), Number(row.cik_str));
+  for (const row of Object.values(payload || {})) if (row?.ticker && readNumber(row.cik_str) != null) map.set(String(row.ticker).toUpperCase(), Number(row.cik_str));
   return map;
 }
 

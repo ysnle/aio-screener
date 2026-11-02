@@ -62,4 +62,39 @@ export const cases = [
       const round = expandScreenerArtifact(encodeScreenerArtifact({ asOf: 'x', data }));
       assert.equal(round.data.MSFT.retainedFrom, '2026-10-29T22:00:00Z');
   } },
+  { id: 'v59.59', name: 'collector HTTP policy: `HTTP <status>` with a status field, no retry on a definitive 4xx, retry on 5xx, deadline covers the body read', run: async ({ load }) => {
+      const { fetchJsonWithDeadline, withRetry } = await load('scripts/lib/http-fetch.mjs');
+      let calls = 0;
+      const answering = (status) => async () => { calls += 1; return { ok: status < 400, status, json: async () => ({ ok: true }) }; };
+      const retryFast = { tries: 3, delayMs: () => 0 };
+      calls = 0;
+      await assert.rejects(withRetry(() => fetchJsonWithDeadline('x', { fetchImpl: answering(404) }), retryFast), (error) => error.message === 'HTTP 404' && error.status === 404);
+      assert.equal(calls, 1, 'a 404 is not retried');
+      calls = 0;
+      await assert.rejects(withRetry(() => fetchJsonWithDeadline('x', { fetchImpl: answering(503) }), retryFast), { message: 'HTTP 503' });
+      assert.equal(calls, 3, 'a 503 is retried');
+      calls = 0;
+      await assert.rejects(withRetry(() => fetchJsonWithDeadline('x', { fetchImpl: answering(429) }), retryFast));
+      assert.equal(calls, 3, 'a 429 is retried');
+      const stalledBody = async (url, { signal }) => ({ ok: true, status: 200, json: () => new Promise((resolve, reject) => signal.addEventListener('abort', () => reject(Object.assign(new Error('aborted'), { name: 'AbortError' })))) });
+      await assert.rejects(fetchJsonWithDeadline('x', { timeoutMs: 20, fetchImpl: stalledBody }), { name: 'AbortError' });
+  } },
+  { id: 'v59.59', name: 'a missing reading is not a zero: null quote value/change and null estimates stay missing in producers', run: async ({ load }) => {
+      const { buildMarketSlotMarks } = await load('scripts/lib/market-timeline.mjs');
+      const marks = buildMarketSlotMarks({ quotes: [
+        { metricId: 'market.index.spx', value: null, observedAt: '2026-10-30T20:00:00Z' },
+        { metricId: 'market.index.nasdaq', value: 100, changePct: null, observedAt: '2026-10-30T20:00:00Z' },
+        { metricId: 'market.fx.usdkrw', value: '1400.5', changePct: '-0.2', observedAt: '2026-10-30T20:00:00Z' }
+      ] });
+      assert.equal(marks['market.index.spx'], undefined, 'a null value is not a 0 mark');
+      assert.equal('changePct' in marks['market.index.nasdaq'], false, 'a null change is not 0%');
+      assert.equal(marks['market.fx.usdkrw'].value, 1400.5);
+      assert.equal(marks['market.fx.usdkrw'].changePct, -0.2);
+      const { isObservedNumber } = await load('scripts/lib/refresh-continuity.mjs');
+      assert.deepEqual([null, '', ' ', false, '1.5', 0].map(isObservedNumber), [false, false, false, false, true, true]);
+      const { tickerCikMap } = await load('scripts/lib/sec-results-filings.mjs');
+      const map = tickerCikMap({ 0: { ticker: 'AAA', cik_str: null }, 1: { ticker: 'BBB', cik_str: 320193 } });
+      assert.equal(map.has('AAA'), false, 'a null CIK is not CIK 0');
+      assert.equal(map.get('BBB'), 320193);
+  } },
 ];

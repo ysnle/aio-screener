@@ -4,6 +4,7 @@
 // _asOf_<field> and _source_<field>, so a reader can tell where a number came from.
 import { FRED_SERIES, mergeMacroLastKnownGood, officialTreasuryDeltas } from '../lib/macro-sources.mjs';
 import { planeFresh } from './source-planes.mjs';
+import { readNumber } from '../../src/domain/shared/number.js';
 
 // v58.65 (live 2026-10-21 14:52Z–10-22 04:53Z): when FRED answered HTML, last-known-good marked every field
 // `stale-reference`; BLS/BEA/Treasury then replaced the values and the source but left that marker, so the artifact
@@ -40,7 +41,7 @@ export function mergeMacroPlanes({ macroRaw, previousMacro, bls, bea, treasury, 
   const macro = mergeMacroLastKnownGood(macroRaw, previousMacro);
   for (const field of Object.keys(FRED_SERIES)) {
     // DATA-02: a newer earlier-run observation the merge kept is not this run's FRED value.
-    if (Number.isFinite(Number(macroRaw?.[field])) && String(macro[`_asOf_${field}`] || '') === String(macroRaw[`_asOf_${field}`] || '')) macro[`_source_${field}`] = 'fred-official-primary';
+    if (readNumber(macroRaw?.[field]) != null && String(macro[`_asOf_${field}`] || '') === String(macroRaw[`_asOf_${field}`] || '')) macro[`_source_${field}`] = 'fred-official-primary';
   }
   Object.assign(macro, bls.values || {});
   // Promote only the successful BLS headline/core fields to the canonical
@@ -68,14 +69,14 @@ export function mergeMacroPlanes({ macroRaw, previousMacro, bls, bea, treasury, 
   macro._bea = bea;
   macro._treasury = treasury;
   macro._fredHyOas = fredHyOas;
-  if (planeFresh('fredHyOas', fredHyOas) && Number.isFinite(Number(fredHyOas.value))) {
+  if (planeFresh('fredHyOas', fredHyOas) && readNumber(fredHyOas.value) != null) {
     const currentObservedAt = String(macro._asOf_hyOAS || '');
     if (!currentObservedAt || String(fredHyOas.observedAt || '') >= currentObservedAt) {
       promote(macro, 'hyOAS', Number(fredHyOas.value), fredHyOas.observedAt, 'fred-official-public-csv');
       // v58.71: a newer CSV date brings its own deltas; the API deltas belong to the older date and go.
       if (currentObservedAt !== String(fredHyOas.observedAt || '')) {
         for (const [suffix, value] of [['Delta', fredHyOas.delta], ['Delta5', fredHyOas.delta5]]) {
-          if (value != null && Number.isFinite(Number(value))) macro[`hyOAS${suffix}`] = Number(value);
+          if (readNumber(value) != null) macro[`hyOAS${suffix}`] = Number(value);
           else delete macro[`hyOAS${suffix}`];
         }
       }
@@ -83,7 +84,7 @@ export function mergeMacroPlanes({ macroRaw, previousMacro, bls, bea, treasury, 
   }
   if (planeFresh('treasury', treasury) && treasury.values) {
     for (const field of ['dgs2', 'dgs5', 'dgs10', 'dgs20', 'dgs30', 't10y2y']) {
-      if (!Number.isFinite(Number(treasury.values[field]))) continue;
+      if (readNumber(treasury.values[field]) == null) continue;
       const fredAsOf = String(macro[`_asOf_${field}`] || '');
       // v58.71 (pipeline audit): like BLS and HY OAS above, an older official date never replaces a newer FRED one.
       if (fredAsOf && String(treasury.observedAt || '') < fredAsOf) continue;

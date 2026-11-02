@@ -1,0 +1,6 @@
+{
+ "changelog": [
+  "**수집기 HTTP 정책 통합 ({VERSION}, 파이프라인 리팩토링):** 수집 스크립트 13개가 각자 갖고 있던 '제한 시간 + 오류 + 재시도' 코드를 `scripts/lib/http-fetch.mjs` 하나로 모았다. 제한 시간은 본문을 다 읽을 때까지 적용되고(P1547), 오류 문구는 `HTTP <코드>`로 같으며, 404 같은 확정 4xx는 같은 원천에 다시 묻지 않는다(SEC 회사 데이터 없음 404를 세 번 묻던 대기 제거). 텔레그램·대만 월매출·한국 수급·DART 산출물 쓰기도 고정 `.tmp` 이름 대신 원자적 쓰기(atomic-write)로 통일했다. 산출물 형식은 바뀌지 않는다."
+ ],
+ "note": "{VERSION} shared collector HTTP policy (scripts/lib/http-fetch.mjs) and atomic artifact writes"
+}

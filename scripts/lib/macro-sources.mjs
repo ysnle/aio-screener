@@ -5,6 +5,7 @@
 import { round } from './producer-math.mjs';
 import { UA, fetchJSON, _fetchRss } from './producer-http.mjs';
 import { latestCompletedUsSession } from '../../src/ai/time/market-session.js';
+import { readNumber } from '../../src/domain/shared/number.js';
 
 // FRED 시리즈 (YoY 또는 레벨). PAYEMS는 MoM 차이(천명) = NFP.
 // v51.97/Phase 2 [B2]: housingStarts/retailSales/usWageGrowth 추가 — 세 시리즈 ID(HOUST/RSAFS/
@@ -656,7 +657,7 @@ export async function fetchFearGreed(previous = null) {
       };
     }
   } catch (e) {}
-  if (previous && Number.isFinite(Number(previous.score))) {
+  if (previous && readNumber(previous.score) != null) {
     return {
       ...previous,
       _source: previous._source || 'cnn:last-known-good',

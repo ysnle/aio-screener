@@ -1,6 +1,7 @@
 // v57.81: semantic contract of the extended screener shard (public-data/screener-extended.json). Used by the
 // refresh workflow before commit (with freshness) and by the CI contract gate (structure only).
 import { EXTENDED_ROW_ENCODING, EXTENDED_SHARD_SCHEMA, expandShardRows, shardIdentityRows } from '../../src/data/screener-extended.js';
+import { readNumber } from '../../src/domain/shared/number.js';
 
 // Row keys every factor row carries (core and extended alike): lineage, session and price basis.
 export const EXTENDED_REQUIRED_ROW_KEYS = Object.freeze([
@@ -49,12 +50,12 @@ export function validateExtendedShard(shard, { coreData = null, now = Date.now()
     if ('price' in row) { errors.push(`row ${sym} publishes raw price (P715)`); break; }
     const missing = EXTENDED_REQUIRED_ROW_KEYS.filter((key) => !(key in row));
     if (missing.length) { errors.push(`row ${sym} lacks ${missing.join(',')}`); break; }
-    if (!Number.isFinite(Number(row.ret1m)) && !Number.isFinite(Number(row.rsi))) { errors.push(`row ${sym} has no derived factors`); break; }
+    if (readNumber(row.ret1m) == null && readNumber(row.rsi) == null) { errors.push(`row ${sym} has no derived factors`); break; }
     if (coreKeys) {
       const extra = Object.keys(row).filter((key) => !coreKeys.has(key));
       if (extra.length) { errors.push(`row ${sym} has fields outside the core row schema: ${extra.join(',')}`); break; }
     }
-    if (FUNDAMENTAL_FIELDS.some((key) => Number.isFinite(Number(row[key]))) && (!row.fundamentalSource || !row.fundamentalModel || !row.fundamentalObservedAt)) {
+    if (FUNDAMENTAL_FIELDS.some((key) => readNumber(row[key]) != null) && (!row.fundamentalSource || !row.fundamentalModel || !row.fundamentalObservedAt)) {
       errors.push(`row ${sym} fundamentals lack source/model/observedAt lineage`); break;
     }
   }
