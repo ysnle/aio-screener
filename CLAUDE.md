@@ -47,7 +47,7 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 - 변경 이유 추적은 `/why`(`node scripts/why-trace.mjs`), 선례 없는 화면 결정은 `/prototype`, 첫 사용자 관점 QA는 `/first-users`
 - **자동 배포/커밋 금지** — 사용자가 해당 동작을 명시적으로 요청한 경우에만
 - **코드 전면 재작성 금지** — CODE-MAP/owner registry 기반으로 가장 낮은 공통 원인을 부분 패치
-- **제품 결정·협업 원칙·변경 흐름의 정본은 `AGENTS.md`**: 소유자 요청도 근거로 검토·반대 의견 제시, 8화면 정보구조, 원천 없는 위젯·근거 없는 등급 제거, 느린 데이터 정적화, AI는 gpt-6-luna 공용 Worker(웹검색 포함 월 $20 목표·항상 사용), 종가 기준 점수, 데스크톱·모바일·아이패드 반응형 지원(2026-10-11 재승인), 옵션 퇴역, 티커 추정 금지, 로컬 프로듀서 금지, **main 직접 작업**(PR 없음, push는 요청 시), 생성물 충돌 해소 스크립트
+- **제품 결정·협업 원칙·변경 흐름의 정본은 `AGENTS.md`**: 소유자 요청도 근거로 검토·반대 의견 제시, 8화면 정보구조, 원천 없는 위젯·근거 없는 등급 제거, 느린 데이터 정적화, AI는 gpt-6-luna 공용 Worker(웹검색 포함 월 $20 목표·항상 사용), 종가 기준 점수, 데스크톱·모바일·아이패드 반응형 지원(2026-10-11 재승인), 옵션 퇴역, 티커 추정 금지, 로컬 프로듀서 금지, **main 직접 작업**(단일 작업은 PR 없음, 병렬 스레드는 브랜치 → 통합 때 병합, push는 배치 끝 한 번), 생성물 충돌 해소 스크립트
 - **생성 파일은 손으로 고치지 않는다** — `.claude/agents/*`·`.codex/agents/*`는 `architecture/agent-profiles.json` → `node scripts/sync-agent-profiles.mjs`, `.agents/skills/`는 `.claude/skills/` → `node scripts/sync-agent-skills.mjs`, `CURRENT-STATE`·`CONTEXT-CATALOG`는 `generate-workspace-state --write`, `*.expect.md`는 `node scripts/ci-expect-output-check.mjs --update`(바뀐 출력 diff를 읽고 확인)
 - **기록 순서**: `bump-version` → 항목별 `record-fix` → `generate-workspace-state --write` → 원장·버전·워크스페이스 게이트. 큰 배치는 구현을 모은 뒤 기록·검증을 한 번에
 - **게이트-문서 계약**: 원장(RULES/QA-CHECKLIST/BUG-POSTMORTEM/CHANGELOG) 산문은 자유롭게 압축·정리해도 된다. 게이트는 구조만 검사한다 — `## R<n>.` 헤딩(번호 보존), QA 행 형식·`verify_by`, CHANGELOG `## v<버전>` 헤딩. 정책↔원장 추적은 `architecture/governance-markers.json`이 담당한다
