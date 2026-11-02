@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-02T13:21:29.130Z",
-  "attemptedAt": "2026-11-02T13:21:29.130Z",
-  "lastSuccessfulAt": "2026-11-02T13:21:29.130Z",
+  "generatedAt": "2026-11-02T13:52:12.965Z",
+  "attemptedAt": "2026-11-02T13:52:12.965Z",
+  "lastSuccessfulAt": "2026-11-02T13:52:12.965Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-19T13:21:22.824Z",
-  "until": "2026-11-02T13:21:22.824Z",
+  "since": "2026-10-19T13:52:05.914Z",
+  "until": "2026-11-02T13:52:05.914Z",
   "current24hWindow": {
     "start": "2026-10-31T23:00:00.000Z",
     "end": "2026-11-01T23:00:00.000Z",
@@ -89,11 +89,11 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 1320,
-      "freshCount": 38,
+      "freshCount": 20,
       "eligibleTextCount": 1260,
       "selectedCount": 123,
       "error": null,
@@ -104,12 +104,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 226,
-      "freshCount": 32,
-      "eligibleTextCount": 226,
+      "count": 228,
+      "freshCount": 34,
+      "eligibleTextCount": 228,
       "selectedCount": 125,
       "error": null,
-      "lastPostId": 20953
+      "lastPostId": 20955
     },
     {
       "channel": "HANAchina",
@@ -117,66 +117,66 @@
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 665,
-      "freshCount": 33,
+      "freshCount": 36,
       "eligibleTextCount": 664,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 71421
+      "lastPostId": 71426
     }
   ],
-  "count": 2333,
-  "retainedItemCount": 475,
+  "count": 2335,
+  "retainedItemCount": 460,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2333,
-    "eligibleTextCount": 2265,
+    "observedCount": 2335,
+    "eligibleTextCount": 2267,
     "mediaOnlyCount": 68,
     "mediaAttachedCount": 106,
     "photoPostCount": 87,
     "documentPostCount": 0,
     "imageOnlyCount": 0,
-    "highSignalCount": 420,
-    "broadSignalCount": 912,
+    "highSignalCount": 422,
+    "broadSignalCount": 915,
     "selectedRawCount": 412,
     "selectedEligibleCount": 412,
     "selectedRawCoveragePct": 18.2,
-    "selectedOfObservedPct": 17.7,
+    "selectedOfObservedPct": 17.6,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 819,
+    "geo": 426,
+    "semi": 521,
+    "optical": 42,
+    "power": 282,
     "earnings": 478,
-    "optical": 40,
-    "credit": 118,
-    "geo": 424,
-    "semi": 518,
-    "power": 280,
-    "equity": 162,
     "macro": 352,
-    "ai-policy": 131,
     "kr-market": 131,
+    "flows": 85,
+    "ai-policy": 132,
+    "market-note": 817,
+    "credit": 117,
+    "equity": 162,
     "japan": 107,
     "media-only": 68,
     "healthcare": 113,
-    "flows": 85,
     "crypto": 3
   },
   "tickerCounts": {
+    "MRVL": 14,
+    "LITE": 15,
+    "TSM": 44,
     "AAPL": 16,
-    "LITE": 13,
     "ORCL": 14,
     "PLTR": 15,
     "TSLA": 59,
     "GOOG": 130,
-    "MRVL": 12,
     "T": 7,
     "AMZN": 80,
     "MSFT": 59,
     "GOOGL": 7,
-    "TSM": 42,
     "2454.TW": 3,
     "BCS": 1,
     "MS": 5,
@@ -184,8 +184,8 @@
     "MFG": 1,
     "007660.KS": 1,
     "285A.T": 7,
-    "005930.KS": 50,
-    "000660.KS": 78,
+    "005930.KS": 49,
+    "000660.KS": 77,
     "009150.KS": 18,
     "000990.KS": 1,
     "NVDA": 144,
@@ -255,14 +255,14 @@
     "025560.KS": 1
   },
   "themes": [
-    "Market Notes (819 posts in 14-day research window): 빌 애크먼(Bill Ackman) – Equity Mates 인터뷰 1. AI 버블과 컴퓨팅 수요 “컴퓨팅 수요 측면에서 지금이 버블이라고 생각하지 않는다.” AI가 초지능에 빠르게 접근할수록 이를 뒷받침할...",
-    "Semiconductors/Memory (518 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로 상향. AI 확산에 따른 사이버보안 수요 증가와 장기 시장 확대 가능성을 주요 근거로 제시. 반도체 ·...",
+    "Market Notes (817 posts in 14-day research window): 11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000...",
+    "Semiconductors/Memory (521 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로 상향. AI 확산에 따른 사이버보안 수요 증가와 장기 시장 확대 가능성을 주요 근거로 제시. 반도체 ·...",
     "Earnings/Corporate (478 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
-    "Geopolitics (424 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 31일 🇺🇸 아메리카 • 트럼프 대통령은 이란과 협상이 진행 중이라고 밝혀. 다만 미국 정부는 이란에 대한 경제 봉쇄와 추가 제재를 검토 중이며, 중간선거 직후...",
+    "Geopolitics (426 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 31일 🇺🇸 아메리카 • 트럼프 대통령은 이란과 협상이 진행 중이라고 밝혀. 다만 미국 정부는 이란에 대한 경제 봉쇄와 추가 제재를 검토 중이며, 중간선거 직후...",
     "Macro/Rates (352 posts in 14-day research window): 2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,...",
-    "AI Power/Grid (280 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
+    "AI Power/Grid (282 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
     "Equity/Analyst (162 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
-    "AI Policy/Export Controls (131 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
+    "AI Policy/Export Controls (132 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
   ],
   "catalysts": [
     {
@@ -282,7 +282,7 @@
     },
     {
       "key": "000660.KS",
-      "count": 78,
+      "count": 77,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인..."
     },
     {
@@ -297,7 +297,7 @@
     },
     {
       "key": "005930.KS",
-      "count": 50,
+      "count": 49,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인..."
     },
     {
@@ -307,7 +307,7 @@
     },
     {
       "key": "TSM",
-      "count": 42,
+      "count": 44,
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
@@ -342,7 +342,7 @@
       "topics": [
         "geo"
       ],
-      "count": 424,
+      "count": 426,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 31일 🇺🇸 아메리카 • 트럼프 대통령은 이란과 협상이 진행 중이라고 밝혀. 다만 미국 정부는 이란에 대한 경제 봉쇄와 추가 제재를 검토 중이며, 중간선거 직후..."
     },
     {
@@ -351,8 +351,8 @@
       "topics": [
         "credit"
       ],
-      "count": 118,
-      "focus": "11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000 +0.59% 기록. 변동성지수(VIX)는 19.50으로 4.23% 하락하며 위험자산 선호 심리 개선. 미국 서머타임..."
+      "count": 117,
+      "focus": "모건스탠리 마이크 윌슨 “미국 중간선거 전후 조정은 매수 기회… S&P 500 8,000 도달 전망” - Bloomberg 인터뷰 모건스탠리의 미국 주식 수석 전략가 마이크 윌슨(Mike Wilson)은 미국 중간선거, AI 투자 부담, 유동성 제약 등이 단기적으로 증시 조정을 유발할 수 있지만, 이번 조정이..."
     },
     {
       "id": "semi",
@@ -360,7 +360,7 @@
       "topics": [
         "semi"
       ],
-      "count": 518,
+      "count": 521,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로 상향. AI 확산에 따른 사이버보안 수요 증가와 장기 시장 확대 가능성을 주요 근거로 제시. 반도체 ·..."
     },
     {
@@ -369,7 +369,7 @@
       "topics": [
         "optical"
       ],
-      "count": 40,
+      "count": 42,
       "focus": "StoneX, 루멘텀( $LITE ), 매수 의견으로 커버리지 개시 , 목표주가 $1,200 NPO 수요 가속화 * 루멘텀의 NPO 사업 모멘텀이 강화되면서 2028 회계연도 투자 전망이 앞당겨지고 있음. *..."
     },
     {
@@ -378,7 +378,7 @@
       "topics": [
         "power"
       ],
-      "count": 280,
+      "count": 282,
       "focus": "Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을..."
     },
     {
@@ -387,7 +387,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 131,
+      "count": 132,
       "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
@@ -468,8 +468,8 @@
       "topics": [
         "market-note"
       ],
-      "count": 819,
-      "focus": "빌 애크먼(Bill Ackman) – Equity Mates 인터뷰 1. AI 버블과 컴퓨팅 수요 “컴퓨팅 수요 측면에서 지금이 버블이라고 생각하지 않는다.” AI가 초지능에 빠르게 접근할수록 이를 뒷받침할..."
+      "count": 817,
+      "focus": "11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000..."
     }
   ],
   "pageMap": {
@@ -748,10 +748,7 @@
       "datetime": "2026-11-02T05:23:24.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
@@ -761,11 +758,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000...",
       "tickers": [
         "AAPL",
         "PLTR"
-      ],
-      "summary": "11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000..."
+      ]
     },
     {
       "id": "bornlupin/20941",
@@ -1700,6 +1697,114 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71426",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71426",
+      "datetime": "2026-11-02T13:47:56.000Z",
+      "localDateKst": "2026-11-02",
+      "tags": [
+        "geo"
+      ],
+      "lead": 1,
+      "score": 50,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>보도: 이란 최고지도자, 정부에 협상 권한 부여 •이란 통신사에 따르면 이란 최고지도자가 정부에 협상을 진행할 권한을 부여 •WTI와 브렌트유는 장중 낙폭이 각 -6.0%로 확대 （来自华尔街见闻）직역"
+    },
+    {
+      "id": "bornlupin/20954",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20954",
+      "datetime": "2026-11-02T13:37:13.000Z",
+      "localDateKst": "2026-11-02",
+      "tags": [
+        "semi",
+        "optical",
+        "power",
+        "earnings"
+      ],
+      "lead": 1,
+      "score": 73,
+      "hasText": true,
+      "tickers": [
+        "MRVL",
+        "LITE"
+      ],
+      "summary": "마벨(MRVL) × 루멘텀(LITE) 합병 발표 — 투자자 프레젠테이션 1. 합병 조건 및 일정 마벨이 루멘텀을 100% 주식교환 방식으로 인수 루멘텀 1주당 마벨 주식 4.5주 지급 합병 기업가치(EV) 약..."
+    },
+    {
+      "id": "HANAchina/71425",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71425",
+      "datetime": "2026-11-02T13:31:19.000Z",
+      "localDateKst": "2026-11-02",
+      "tags": [
+        "semi",
+        "optical",
+        "power"
+      ],
+      "lead": 2,
+      "score": 63,
+      "hasText": true,
+      "tickers": [
+        "MRVL",
+        "LITE"
+      ],
+      "summary": ">>Marvell, Lumentum 1,150억 달러에 인수…‘칩+광학’ 통합으로 AI 연결 시장 공략 •Marvell이 Lumentum을 주식 교환 방식으로 인수한다고 발표했으며, 거래에 반영된 기업가치는..."
+    },
+    {
+      "id": "HANAchina/71424",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71424",
+      "datetime": "2026-11-02T13:28:02.000Z",
+      "localDateKst": "2026-11-02",
+      "tags": [
+        "macro"
+      ],
+      "lead": 1,
+      "score": 52,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>중국 인민은행 등 3개 부처, 자본시장 지원 수단 개선…자사주 매입·주식 추가 매입 재대출 금리 1%로 인하 •주식 자사주 매입 및 주식 추가 매입 재대출 정책을 한시적 조치에서 장기적인 제도적 정책으로..."
+    },
+    {
+      "id": "HANAchina/71423",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71423",
+      "datetime": "2026-11-02T13:24:53.000Z",
+      "localDateKst": "2026-11-02",
+      "tags": [
+        "semi",
+        "kr-market",
+        "flows"
+      ],
+      "lead": 3,
+      "score": 69,
+      "hasText": true,
+      "tickers": [
+        "TSM"
+      ],
+      "summary": ">>TSMC, 외국인 지분율 20년래 최저…하루 349억 TWD 순매도 (대만경제일보) •TSMC가 2일 외국인 매도세로 1만5,000주 이상 순매도, 순매도 금액은 349.7억TWD. 장중 주가는 한때..."
+    },
+    {
+      "id": "HANAchina/71422",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71422",
+      "datetime": "2026-11-02T13:22:16.000Z",
+      "localDateKst": "2026-11-02",
+      "tags": [
+        "semi",
+        "ai-policy"
+      ],
+      "lead": 1,
+      "score": 66,
+      "hasText": true,
+      "tickers": [
+        "TSM"
+      ],
+      "summary": ">>대만 여당, 중국 대상 반도체·소재·부품 수출 제한 추진…TSMC 공청회 참석 •대만 입법원 경제위원회는 2일 무역법 일부 개정안, 이른바 ‘칩 법안’ 관련 공청회를 열고 집적회로와 반도체 웨이퍼 핵심..."
+    },
+    {
       "id": "HANAchina/71417",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71417",
@@ -2052,7 +2157,7 @@
       "datetime": "2026-11-02T06:54:42.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "geo"
+        "market-note"
       ],
       "score": 55,
       "hasText": true,
@@ -2062,8 +2167,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "예측시장, 잇따른 선거 결과 오판에 신뢰성 논란 확산 미국의 대표적인 예측시장 플랫폼 폴리마켓(Polymarket)과 칼시(Kalshi)가 주요 선거 결과를 잇달아 잘못 예측하면서 신뢰성 논란에 직면함. 기존..."
+      "summary": "예측시장, 잇따른 선거 결과 오판에 신뢰성 논란 확산 미국의 대표적인 예측시장 플랫폼 폴리마켓(Polymarket)과 칼시(Kalshi)가 주요 선거 결과를 잇달아 잘못 예측하면서 신뢰성 논란에 직면함. 기존...",
+      "tickers": []
     },
     {
       "id": "bornlupin/20946",
@@ -2133,10 +2238,7 @@
       "datetime": "2026-11-02T05:23:24.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
@@ -2146,11 +2248,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000...",
       "tickers": [
         "AAPL",
         "PLTR"
-      ],
-      "summary": "11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000..."
+      ]
     },
     {
       "id": "insidertracking/68048",
@@ -2159,9 +2261,7 @@
       "datetime": "2026-11-02T05:16:23.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "macro",
-        "geo",
-        "japan"
+        "market-note"
       ],
       "score": 62,
       "hasText": true,
@@ -2171,8 +2271,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 2일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 행정부는 중간선거에서 민주당이 승리할 경우 의회 협조 없이 국정을 운영하는 방안을 검토 중이라고 로이터..."
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 2일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 행정부는 중간선거에서 민주당이 승리할 경우 의회 협조 없이 국정을 운영하는 방안을 검토 중이라고 로이터...",
+      "tickers": []
     },
     {
       "id": "bornlupin/20943",
@@ -2350,10 +2450,8 @@
       "datetime": "2026-11-02T03:06:56.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "power",
-        "healthcare"
+        "power"
       ],
-      "lead": 1,
       "score": 58,
       "hasText": true,
       "media": {
@@ -2362,8 +2460,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>70GW 전력 부족! 미국 전력망·주민·AI 기업 중 누군가는 양보해야…막대한 자본지출 실현 어려워 •Morgan Stanley의 추산에 따르면 원자력, 연료전지 등 가능한 모든 해결책을 동원하더라도 순수..."
+      "summary": ">>70GW 전력 부족! 미국 전력망·주민·AI 기업 중 누군가는 양보해야…막대한 자본지출 실현 어려워 •Morgan Stanley의 추산에 따르면 원자력, 연료전지 등 가능한 모든 해결책을 동원하더라도 순수...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/20937",
@@ -7019,74 +7118,6 @@
       ]
     },
     {
-      "id": "HANAchina/71094",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71094",
-      "datetime": "2026-10-27T08:33:16.000Z",
-      "localDateKst": "2026-10-27",
-      "tags": [
-        "semi",
-        "equity"
-      ],
-      "score": 51,
-      "hasText": true,
-      "summary": ">>엔비디아, Meta 지분 30억 달러 투자 추진…AI 비서 Muse 협력 강화 •엔비디아와 Meta가 대규모 전략적 협력에 합의했으며, 엔비디아는 Meta에 30억 달러 규모의 지분 투자를 추진할 예정임....",
-      "lead": 2,
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
-      "id": "HANAchina/71093",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71093",
-      "datetime": "2026-10-27T08:25:31.000Z",
-      "localDateKst": "2026-10-27",
-      "tags": [
-        "earnings"
-      ],
-      "score": 69,
-      "hasText": true,
-      "summary": "중화권 마감 시황 (26.10.26, 월) 🇨🇳 중국 본토 증시는 이번 주 집중된 3분기 실적 발표를 앞둔 경계감 속에 급락. 창업판지수와 과창50지수는 장중 투매가 심화되며 각각 3.4%, 4.8% 하락...",
-      "lead": 1,
-      "tickers": [
-        "TSM"
-      ]
-    },
-    {
-      "id": "HANAchina/71092",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71092",
-      "datetime": "2026-10-27T08:23:05.000Z",
-      "localDateKst": "2026-10-27",
-      "tags": [
-        "market-note"
-      ],
-      "score": 65,
-      "hasText": true,
-      "summary": ">>200억 달러 자금이 TMT에서 이탈한 가운데, 골드만삭스 트레이딩 데스크는 AI 관련주 선별 매수를 권고하며 4대 투자 방향을 제시 (중국언론) •골드만삭스 트레이딩 데스크는 이번 AI 주가 급락이 수요...",
-      "tickers": [
-        "MSFT",
-        "GOOG",
-        "AMZN"
-      ]
-    },
-    {
-      "id": "HANAchina/71091",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71091",
-      "datetime": "2026-10-27T07:41:46.000Z",
-      "localDateKst": "2026-10-27",
-      "tags": [
-        "macro"
-      ],
-      "score": 64,
-      "hasText": true,
-      "summary": ">>블랙록: AI 채권 투자 기회, 장기 미국 국채보다 매력적 •블랙록의 채권 부문 CIO 릭 리더는 AI를 중심으로 한 부채 조달 열풍이 최근 수년간 가장 매력적인 채권 투자 기회를 창출하고 있으며, 장기...",
-      "lead": 1,
-      "tickers": []
-    },
-    {
       "id": "bornlupin/20847",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20847",
@@ -7122,21 +7153,6 @@
         "005930.KS",
         "000660.KS"
       ]
-    },
-    {
-      "id": "HANAchina/71087",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71087",
-      "datetime": "2026-10-27T07:01:00.000Z",
-      "localDateKst": "2026-10-27",
-      "tags": [
-        "macro"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": "•공상은행, 건설은행 장중 신고가 경신 •30년 국채 선물 가격 연중 신고가 **당대회중인데 중국 투심은 ‘튀어튀어’",
-      "lead": 1,
-      "tickers": []
     },
     {
       "id": "bornlupin/20845",
@@ -8593,22 +8609,6 @@
       "summary": "SK하이닉스 솔라다임 상장 검토 중단",
       "tickers": [
         "000660.KS"
-      ]
-    },
-    {
-      "id": "bornlupin/20769",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20769",
-      "datetime": "2026-10-22T20:11:33.000Z",
-      "localDateKst": "2026-10-23",
-      "tags": [
-        "earnings"
-      ],
-      "score": 69,
-      "hasText": true,
-      "summary": "블룸에너지(BE) 2026년 3분기 실적 매출액: 12억 4,000만 달러 (예상 10억 5,000만 달러 상회), 전년 대비 138.1% 증가 조정 주당순이익(EPS): 0.94달러 (예상 0.68달러...",
-      "tickers": [
-        "BE"
       ]
     },
     {
