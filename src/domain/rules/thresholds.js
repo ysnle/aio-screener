@@ -30,6 +30,12 @@ export const RULES = Object.freeze({
   // eleven sectors moving one way is a market-wide day (10/22: defensives +2.2%, growth -3.6%, 6 of 11 up). A sector's
   // sub-themes split when one rose splitSidePct or more, another fell as much, and they are themeSplitPp apart (10/22:
   // regulated utilities +2.6% vs nuclear/independent power -5.4%).
+  // v59.57 (X bookmarks 11/02, damipov/shmath8218): O'Neil's index follow-through day on the Nasdaq Composite. A rally
+  // attempt starts at the lowest close after a drawdown of correctionPct from the lookback closing high (that session is
+  // day 1); a lower close restarts it. From day minDay on, a close up gainPct on volume above the prior session is the
+  // follow-through day; a later close under the day-1 close is a failed follow-through. A new lookback closing high ends
+  // the episode. Evidence only — no scenario or trend condition reads it.
+  rallyAttempt: Object.freeze({ correctionPct: 6, lookbackSessions: 63, minDay: 4, gainPct: 1.25, leaderWindowSessions: 15 }),
   leadership: Object.freeze({ advanceRatioWeakBelow: 0.45, distributionDaysAt: 6, minConfirmations: 2, confirmWindowSessions: 5, aiLagNdx20dPp: 3, aiLagSemis20dPp: 8, shockSemis1dPct: 4, shockNdx1dPct: 2.5, rotationGapPp: 3, broadSectorCount: 9, splitSidePct: 1, themeSplitPp: 4 }),
   // v57.81: "회복 중" only when the last session did not give back reversalShare of the window's gain (a 5-day +8pp bounce
   // that lost 4pp on the last close is 되밀림, not recovery); a last-session drop of lastSessionNoticePp or more is named.

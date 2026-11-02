@@ -1,8 +1,13 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-11-01
+last_verified: 2026-11-02
 confidence: medium
 ---
+
+## v59.57 X 북마크 11/02 — FTD·국채 입찰 (2026-11-02)
+
+- [x] QA-DATA-FTD-01: v59.57 시장 상태 추세 칸에 나스닥 반등 시도·바닥 확인일 줄이 보이고, 첫 refresh-screener 실행 뒤 history.json 최근 행에 rallyPhase가 채워진다. verify_by: node scripts/ci-esm-core-unit-check.mjs (v59.57 rally attempt) + 배포 후 history.json 최신 행 확인
+- [x] QA-DATA-AUCTION-01: v59.57 refresh-screener 로그에 [treasury-auctions] ok가 찍히고 public-data/treasury-auctions.json generatedAt이 갱신된다. verify_by: Actions refresh-screener 로그 + node scripts/ci-data-lineage-audit.mjs
 
 ## v59.56 빅테크 분기 현금흐름 (2026-11-01)
 

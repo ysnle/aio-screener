@@ -2278,6 +2278,19 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       || packet01.PACKET_20261101_CLAIMS.some((claim) => !claim.blockedConsumers.includes('rank') || !claim.blockedConsumers.includes('score'))) fail('v59.56 x-bookmarks 2026-11-01 frames must be lessons on a path, cite unique graded sources with a timeline, reach the claim ledger, add up and stay out of rank/score');
     if (top('이익 레버리지 신용 상장 네 계기판') !== 'supplied-material:claim-20261101-truth-leverage-gauges' || top('주도주 교체인지 강세장 끝인지 동일가중 하이일드 조건') !== 'supplied-material:claim-20261101-leadership-handoff-criteria'
       || top('병목 제품 증설 가동률 세 수혜층') !== 'supplied-material:claim-20261101-bottleneck-beneficiary-tiers') fail('v59.56 x-bookmarks 2026-11-01 chat retrieval must reach the new frames');
+    // v59.57 x-bookmarks 2026-11-02: the same contract.
+    const packet02 = await load('src/domain/research/packet-20261102-x-bookmarks.js');
+    const ids02 = new Set(packet02.PACKET_20261102_SOURCES.map((row) => row.id));
+    const audit02 = packet02.PACKET_20261102_AUDIT;
+    if (packet02.PACKET_20261102_FRAMES.length !== audit02.framesAdded
+      || packet02.PACKET_20261102_FRAMES.some((frame) => !learning.lessonById(frame.id) || !onPath.has(frame.id) || frame.sourceRefs.some((id) => !ids02.has(id)) || !claimIds.has(`claim-20261102-${frame.id}`))
+      || ids02.size !== packet02.PACKET_20261102_SOURCES.length || [...ids02].some((id) => ids16.has(id) || ids18.has(id) || ids28set.has(id) || ids30set.has(id) || ids01.has(id))
+      || audit02.inScope + audit02.agentPractice + audit02.unrelated !== audit02.newSinceLedger || Object.values(audit02.repoState).reduce((a, b) => a + b, 0) !== audit02.newSinceLedger
+      || packet02.PACKET_20261102_SOURCES.some((row) => !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(row.timeline?.postedAtUtc || '') || !row.timeline.laterOutcome || !grades(row.quality))
+      || packet02.PACKET_20261102_SOURCES.flatMap((row) => row.checks).some((row) => !['VERIFIED', 'CONSISTENT', 'UNVERIFIED'].includes(row.state) || !row.basis)
+      || packet02.PACKET_20261102_CLAIMS.some((claim) => !claim.blockedConsumers.includes('rank') || !claim.blockedConsumers.includes('score'))) fail('v59.57 x-bookmarks 2026-11-02 frames must be lessons on a path, cite unique graded sources with a timeline, reach the claim ledger, add up and stay out of rank/score');
+    if (top('바닥 확인일 FTD 뒤 주도주 신고가') !== 'supplied-material:claim-20261102-follow-through-day-leaders' || top('횡보장 하락장 쉬는 규칙 신규 매수 잠금') !== 'supplied-material:claim-20261102-regime-fit-pause-rules'
+      || top('매출 증가율 가속도 기저효과 반도체 고점') !== 'supplied-material:claim-20261102-growth-acceleration-peak') fail('v59.57 x-bookmarks 2026-11-02 chat retrieval must reach the new frames');
   }
 
   // S12: the Korean filing button opens a receipt only when one is published; otherwise the DART search.
@@ -4211,6 +4224,30 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     || cases.length !== 1 || cases[0].kind !== 'beat-fell'
     || fixKoreanTerms('Apple earnings may push it over the top', '다가오는 수익으로, 수익률은') !== '다가오는 실적으로, 수익률은' || fixKoreanTerms('Stocks rally', '주식 집회') !== '주식 랠리' || fixKoreanTerms('Stocks rise', '수익 증가') !== '수익 증가')
     fail(`v58.75 event guide wrong: ${JSON.stringify({ chain: chain?.text, checks, previews, week: week.days[0]?.sessions[0]?.rows.map((row) => row.symbol), cases })}`);
+}
+
+// ── v59.57: Nasdaq rally attempt / follow-through day and Treasury auction comparison ────
+{
+  const { rallyAttemptSeries, rallyAttemptRead } = await load('src/domain/market/rally-attempt.js');
+  // 30 flat sessions at 100, a slide to 90 (day 1 = the lowest close), three quiet sessions, then +2% on rising volume.
+  const closes = [...Array(30).fill(100), 97, 94, 92, 90, 90.5, 90.8, 91, 92.82, 93, 89];
+  const bars = closes.map((close, i) => ({ date: `2026-0${i < 20 ? 7 : 8}-${String((i % 20) + 1).padStart(2, '0')}`, close, volume: i === 37 ? 2000 : 1000 }));
+  const series = rallyAttemptSeries(bars);
+  const day1 = series[33], ftd = series[37], failed = series[39];
+  if (day1.phase !== 1 || day1.day !== 1 || ftd.phase !== 2 || !ftd.followThrough || ftd.day !== 5 || !failed.failed || failed.phase !== 1 || failed.day !== 1
+    || series[36].followThrough || rallyAttemptSeries(bars.map((bar) => ({ ...bar, volume: 1000 })))[37].followThrough) fail(`v59.57 rally attempt series wrong: ${JSON.stringify([day1, ftd, failed])}`);
+  const history = series.map((point, i) => ({ date: bars[i].date, nasdaq: bars[i].close, rallyPhase: point.phase, rallyDay: point.day, followThroughDay: point.followThrough ? 1 : 0, breadthNewHighs: 10 + i }));
+  const atFtd = rallyAttemptRead(history, { through: bars[38].date });
+  const attempt = rallyAttemptRead(history, { through: bars[34].date });
+  if (atFtd?.phase !== 'confirmed' || !/\+2\.00%/.test(atFtd.state) || attempt?.phase !== 'attempt' || attempt.day !== 2 || !/1일째는 .* 저점\(종가 90\)입니다/.test(attempt.plain)
+    || rallyAttemptRead(history, { through: bars[10].date }) !== null) fail(`v59.57 rally attempt read wrong: ${JSON.stringify({ atFtd, attempt })}`);
+  const { buildTreasuryAuctions, auctionTenor } = await load('src/domain/macro/treasury-auctions.js');
+  const fixture = JSON.parse(readFileSync(path.join(root, 'scripts/fixtures/treasury-auctions/ta-ws-20261102.json'), 'utf8'));
+  const auctions = buildTreasuryAuctions(fixture.rows, { nowMs: Date.parse('2026-11-02T00:00:00Z') });
+  const seven = auctions.rows[0];
+  if (auctionTenor('9-Year 10-Month') !== 10 || auctionTenor('29-Year 11-Month') !== 30 || auctionTenor('26-Week') !== null
+    || seven.tenor !== 7 || seven.date !== '2026-10-29' || seven.prior !== 6 || seven.read !== 'weak' || Math.abs(seven.indirectPct - 57.8) > 0.1
+    || buildTreasuryAuctions([{ ...fixture.rows[0], type: 'TIPS' }]).rows.length !== 0 || !/^최근 3주 5건/.test(auctions.summary)) fail(`v59.57 treasury auctions wrong: ${JSON.stringify({ seven, summary: auctions.summary })}`);
 }
 
 // ── P1416: breadth signals — 4% movers, 52-week highs/lows, 40-day ratio, distribution days ────

@@ -186,7 +186,7 @@ export async function writeBreadthContributors(rows, nowMs = Date.now()) {
   return { written: true, sessions: sessions.length };
 }
 
-export async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), distribution = null) {
+export async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), distribution = null, rally = null) {
   if (!Array.isArray(rows) || rows.length < 60) return { updated: false, rows: rows?.length || 0 };
   let history = [];
   try { const raw = JSON.parse(await readFile(HIST, 'utf8')); if (Array.isArray(raw)) history = raw; } catch { /* first producer run */ }
@@ -263,8 +263,30 @@ export async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), dis
     };
     distributionRows += 1;
   }
+  // v59.57: Nasdaq Composite rally attempt (phase 0 none · 1 attempt · 2 confirmed), its day count from the lowest close,
+  // and the follow-through session flag — the counterpart of the distribution-day count (src/domain/market/rally-attempt.js).
+  let rallyRows = 0;
+  for (const point of Array.isArray(rally?.series) ? rally.series : []) {
+    if (!point?.date || !isSessionComplete(point.date, 'us', nowMs)) continue;
+    const target = history.find((row) => row?.date === point.date);
+    if (!target) continue;
+    target.rallyPhase = point.phase;
+    target.rallyDay = point.day;
+    target.followThroughDay = point.followThrough ? 1 : 0;
+    target.fieldMeta = target.fieldMeta || {};
+    const meta = {
+      observedAt: `${point.date}T20:00:00.000Z`, fetchedAt, lastSuccessfulAt: fetchedAt,
+      source: 'Yahoo chart ^IXIC daily bars', sourceKind: 'derived-research', allowedUse: 'research-history',
+      observationRelation: 'latest-completed-close', observedAtSource: 'derived-from-index-daily-bars',
+      rule: 'day 1 = lowest close after a 6% drawdown from the 63-session closing high; follow-through = day 4+ close up 1.25% on volume above the prior session; a close under day 1 fails it'
+    };
+    target.fieldMeta.rallyPhase = meta;
+    if (point.day != null) target.fieldMeta.rallyDay = meta; else delete target.fieldMeta.rallyDay;
+    target.fieldMeta.followThroughDay = meta;
+    rallyRows += 1;
+  }
   history.sort((a, b) => String(a?.date || '').localeCompare(String(b?.date || '')));
   if (history.length > 420) history = history.slice(-420);
   await atomicWriteFile(HIST, JSON.stringify(normalizeHistoryRows(history)));
-  return { updated: true, rows: rows.length, totalHistoryRows: history.length, distributionRows };
+  return { updated: true, rows: rows.length, totalHistoryRows: history.length, distributionRows, rallyRows };
 }

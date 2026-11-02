@@ -8,6 +8,7 @@ import { factorScopesByMarket, listingMarketOfSymbol } from '../../src/domain/ma
 import { reconcileSecRecord } from '../../src/domain/fundamental/sec-report.js';
 import { secFundamentalRowFields } from '../../src/domain/fundamental/sec-row-fields.js';
 import { distributionDaySeries } from '../../src/domain/market/breadth-signals.js';
+import { rallyAttemptSeries } from '../../src/domain/market/rally-attempt.js';
 import { updateCandidateArchive } from '../lib/candidate-archive.mjs';
 import { round } from '../lib/producer-math.mjs';
 import { encodeScreenerArtifact, expandScreenerArtifact } from '../../src/data/screener-extended.js';
@@ -663,7 +664,13 @@ export async function enrichScreener() {
     const spxBars = await fetchHistory('^GSPC', '6mo');
     distribution = { series: distributionDaySeries((spxBars || []).map((bar) => ({ date: bar.date, close: bar.close, volume: bar.volume }))) };
   } catch (e) { console.warn('[fetch-data] distribution-day bars unavailable:', e && e.message || e); }
-  const breadthHistoryInfo = await updateScreenerBreadthHistory(breadthHistory, Date.now(), distribution);
+  // v59.57: the Nasdaq Composite rally attempt and follow-through day (O'Neil) need the index's own volume too.
+  let rally = null;
+  try {
+    const ixicBars = await fetchHistory('^IXIC', '1y');
+    rally = { series: rallyAttemptSeries((ixicBars || []).map((bar) => ({ date: bar.date, close: bar.close, volume: bar.volume }))) };
+  } catch (e) { console.warn('[fetch-data] follow-through-day bars unavailable:', e && e.message || e); }
+  const breadthHistoryInfo = await updateScreenerBreadthHistory(breadthHistory, Date.now(), distribution, rally);
   await writeBreadthContributors(breadthHistory, Date.now());
   // v58.79 (owner 2026-10-25): the theme-stage record before 10/12, recomputed from these closes with the live rule.
   try { await writeThemeStageBackfill(results, Date.now()); }

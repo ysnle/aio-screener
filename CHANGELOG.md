@@ -1,3 +1,9 @@
+## v59.57 (2026-11-02)
+- **나스닥 바닥 확인일(FTD) (v59.57, X 북마크 11/02 damipov·shmath8218·laylaperfume):** 분배일만 세던 오닐 방법의 다른 절반을 넣었습니다. refresh-screener가 ^IXIC 일봉으로 반등 시도 일수(조정 6% 뒤 가장 낮은 종가 = 1일째)·바닥 확인일(4일째 이후 +1.25%, 거래량 증가)·실패(1일째 종가 이탈)를 history.json(rallyPhase·rallyDay·followThroughDay)에 쓰고, 시장 상태 추세 칸의 분배일 옆에 S&P 500 52주 신고가 수와 함께 보입니다(`src/domain/market/rally-attempt.js`, RULES.rallyAttempt). 작성자가 든 2025-04-22(10일째)·2026-04-14(11일째)·6/15(4일째, 7/23 실패)와 같은 날짜가 나옵니다.
+- **미 국채 입찰 결과 (v59.57, 10/27 MrMarket89 후속):** 10/28 원장에 제안만 있던 입찰 결과를 자동 수집합니다. `scripts/fetch-treasury-auctions.mjs`가 TreasuryDirect(키 없음)에서 명목 이표채 결과를 받아 같은 만기 직전 6회와 응찰률·간접 낙찰 비중을 비교하고(`src/domain/macro/treasury-auctions.js`), 거시 '왜 금리가 중심인가'에 한 줄과 만기별 접힘으로 붙습니다. 테일은 when-issued 금리가 없어 계산하지 않습니다.
+- **X 북마크 11/02 판단 틀 3개 (v59.57):** 바닥 확인일과 따라 나오는 주도주, 도구가 맞는 장을 고르는 쉬는 규칙, 성장률보다 성장의 가속도(기저효과·첫 하락 판단선) — `packet-20261102-x-bookmarks.js`, 원장 `_artifacts/x-bookmarks-20261102/`.
+- R1 7곳 v59.57
+
 ## v59.56 (2026-11-02)
 - **빅테크 분기 현금흐름 수집 (v59.56):** 10/30 저자들이 가장 많이 쓴 숫자(아마존 최근 12개월 잉여현금흐름, 빅테크 설비투자 ÷ 영업현금흐름)를 수집하지 않던 빈칸을 메웠다. SEC companyfacts에서 9개사(MSFT·GOOGL·AMZN·META·ORCL·AAPL·NVDA·AVGO·TSLA)의 10-Q 누계 영업현금흐름·설비투자를 분기로 차감하고 4분기는 10-K 연간에서 9개월 누계를 빼서 만든다(`scripts/fetch-bigtech-cashflow.mjs` → `public-data/bigtech-cashflow.json`, refresh-screener 6시간마다, 요청 9건). 최근 4분기 잉여현금흐름과 하이퍼스케일러 5개사 합계 설비투자 ÷ 영업현금흐름(1년 전 대비)을 계산해 시황 해석 입력(BIGTECH_CASHFLOW, 그날 실적을 낸 빅테크는 회사별 줄 추가)과 거시 'AI 투자 꺾임' 갈래의 판단 근거(조건 수에는 넣지 않는 참고값)에 넣었다. 5개사 중 하나라도 빠지면 합계는 내지 않고, 실패한 회사는 이전 값을 유지한다.
 - **클라우드 세션 준비 자동화 (v59.56):** 클라우드 작업 세션은 의존성 없이 시작하고, 내장 브라우저 리비전이 저장소의 Playwright보다 낮아 첫 브라우저 검사가 'Executable doesn't exist'로 실패했다. `node scripts/cloud-session-setup.mjs`가 npm ci와 브라우저 리비전 연결, 실행 확인을 한 번에 하고, 세션 시작 안내가 준비 여부를 알려 준다.

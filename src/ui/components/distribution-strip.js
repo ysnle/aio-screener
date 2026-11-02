@@ -4,6 +4,7 @@ import { buildCloseSeries } from '../../domain/briefing/market-read.js';
 import { RULES } from '../../domain/rules/thresholds.js';
 import { el } from './dom.js';
 import { shortDate } from '../../domain/content/date-labels.js';
+import { rallyAttemptRead } from '../../domain/market/rally-attempt.js';
 
 // v58.75 (persona review): the 25-session distribution-day count over its last 25 sessions, always on the face of 시장 상태
 // (it was only an evidence row) — bars at or above the leadership confirmation line (RULES.leadership) take the burden tone.
@@ -86,5 +87,21 @@ export function distributionStrip(doc, history, through) {
     el(doc, 'div', `분배일은 S&P 500이 전날보다 거래량이 늘면서 0.2% 이상 내린 날입니다. 막대 하나가 하루이고, 높이는 그날까지 25거래일 동안의 분배일 수입니다. 붉은 막대는 ${at}일 이상인 날, 점선이 ${at}일 기준입니다.`, 'leaders-line__evidence'));
   part.append(head, gauge, scaleRow, fold);
   part.title = '분배일 수는 근거로만 쓰며 추세 판정 규칙은 바꾸지 않습니다. 주도 영역 이탈의 확인 신호 하나로 셉니다.';
+  return part;
+}
+
+// v59.57 (X bookmarks 11/02, damipov): the other half of the distribution-day method — after a correction, is the Nasdaq
+// counting a rally attempt, has a follow-through day come, and are new highs following it. Same chunk and placement as
+// the distribution strip (trend axis detail); absent outside an episode.
+export function rallyAttemptStrip(doc, history, through) {
+  const read = rallyAttemptRead(history || [], { through: through || null });
+  if (!read) return null;
+  const part = el(doc, 'div', null, 'leaders-line__part leaders-line__dist leaders-line__rally');
+  const head = el(doc, 'div', null, 'leaders-line__head');
+  head.append(el(doc, 'span', '나스닥 바닥 확인 (반등 시도·FTD)', 'leaders-line__label'),
+    el(doc, 'span', read.state, 'leaders-line__state'),
+    el(doc, 'span', read.plain, 'leaders-line__read'));
+  part.append(head);
+  part.title = '윌리엄 오닐의 바닥 확인일(follow-through day) 규칙을 나스닥 종합지수 일봉으로 계산합니다. 근거로만 쓰며 추세 판정과 시나리오 조건은 바꾸지 않습니다.';
   return part;
 }

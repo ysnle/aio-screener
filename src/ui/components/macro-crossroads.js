@@ -10,7 +10,8 @@ import { scenarioLead } from '../../domain/market/scenario-lead.js';
 import { CHOICE_WORDS } from '../../domain/content/choice-words.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { frameHead, markFrame, noteFold, setAsOf } from './section-frame.js';
-import { refreshSharedArtifact, SCENARIO_OUTCOMES, SCENARIO_STATE, BIGTECH_CASHFLOW } from '../../data/shared-artifacts.js';
+import { refreshSharedArtifact, SCENARIO_OUTCOMES, SCENARIO_STATE, BIGTECH_CASHFLOW, TREASURY_AUCTIONS } from '../../data/shared-artifacts.js';
+import { auctionLine, latestByTenor, AUCTION_METHOD } from '../../domain/macro/treasury-auctions.js';
 import { groupCashflowSentence } from '../../domain/fundamental/quarterly-cashflow.js';
 import { themesForBranch } from '../../domain/scenarios/exposures.js';
 import { themeRotationRead } from '../../domain/scenarios/theme-playbook.js';
@@ -37,7 +38,7 @@ export function crossroadsForRoot(root, { nowMs = Date.now() } = {}) {
 
 /** P1743: load the weekly long-history outcomes and the per-refresh state once; repaint when either arrives. */
 export function refreshScenarioArtifacts(root, repaint) {
-  for (const spec of [SCENARIO_OUTCOMES, SCENARIO_STATE, BIGTECH_CASHFLOW]) {
+  for (const spec of [SCENARIO_OUTCOMES, SCENARIO_STATE, BIGTECH_CASHFLOW, TREASURY_AUCTIONS]) {
     refreshSharedArtifact(root, spec).then(({ changed }) => { if (changed) repaint?.(); }).catch(() => {});
   }
 }
@@ -190,11 +191,31 @@ export function openCrossroadsBranch(doc, root, branchId) {
   retry([80, 300, 900]);
 }
 
-function rateHub(doc, model, pathsOpen = false) {
+// v59.57 (X bookmarks 11/02, MrMarket89 10/27): who is buying the new supply. The latest note and bond auction of each tenor
+// against its own previous six, one line on the face and the per-tenor rows one fold down; a reference, never a condition.
+const AUCTIONS_MAX_AGE_MS = 21 * 86400000;
+function auctionBlock(doc, root) {
+  const payload = root?.[TREASURY_AUCTIONS.key];
+  const age = Date.now() - Date.parse(payload?.latestAuction || '');
+  if (!payload?.summary || !(age >= 0 && age <= AUCTIONS_MAX_AGE_MS)) return null;
+  const box = el(doc, 'div', null, 'xr-auctions');
+  box.append(el(doc, 'p', `국채 입찰: ${payload.summary}`, 'xr-hub-now'));
+  const fold = el(doc, 'details', null, 'xr-auctions-fold sx-disclosure');
+  fold.append(el(doc, 'summary', '만기별 최근 입찰 결과와 읽는 법'));
+  const list = el(doc, 'ul', null, 'xr-evidence');
+  for (const row of latestByTenor(payload.rows || [])) list.append(el(doc, 'li', auctionLine(row)));
+  fold.append(list, el(doc, 'p', AUCTION_METHOD, 'xr-path-evidence'));
+  box.append(fold);
+  return box;
+}
+
+function rateHub(doc, model, pathsOpen = false, root = null) {
   const hub = el(doc, 'div', null, 'xr-hub');
   hub.append(el(doc, 'h3', '왜 금리가 중심인가', 'xr-h3'));
   if (model.rateHub.policy) hub.append(el(doc, 'p', model.rateHub.policy, 'xr-hub-now')); // v57.55 review (E2-03): policy path first
   if (model.rateHub.now) hub.append(el(doc, 'p', model.rateHub.now, 'xr-hub-now'));
+  const auctions = auctionBlock(doc, root);
+  if (auctions) hub.append(auctions);
   // v59.51 (two layers): the face keeps today's numbers and the tension line; how higher rates reach stocks (the textbook
   // channels) and the proxy caveat are the expert layer, one fold down.
   const why = [model.rateHub.whyHigherHurts, model.rateHub.pricingNote].filter(Boolean).join(' ');
@@ -354,7 +375,7 @@ export function renderMacroCrossroads({ documentRef: doc, root, regime = null, h
   // v57.79 (UI review): the heading says what the list is (ordered by conditions met), not how to use it.
   const mapHead = el(doc, 'h3', `시나리오 ${model.items.length}개 — 조건 충족 순`, 'xr-h3');
   // v58.79: the closing "세부 종목 선택은 …" caption left; the screen names no price, size or timing by construction (R724).
-  target.replaceChildren(el(doc, 'p', model.headline, 'xr-lead'), timeline(doc, model), rateHub(doc, model, pathsOpen), mapHead, branchMap(doc, root, model, openIds, { restOpen }), ...[changeLog(doc, root?.[SCENARIO_STATE.key], changesOpen)].filter(Boolean));
+  target.replaceChildren(el(doc, 'p', model.headline, 'xr-lead'), timeline(doc, model), rateHub(doc, model, pathsOpen, root), mapHead, branchMap(doc, root, model, openIds, { restOpen }), ...[changeLog(doc, root?.[SCENARIO_STATE.key], changesOpen)].filter(Boolean));
   target.dataset.aioCrossroads = 'native';
   if (focused) target.querySelector(`.xr-branch[data-branch="${focused}"] > summary`)?.focus?.({ preventScroll: true }); // a repaint keeps keyboard focus
   return model;

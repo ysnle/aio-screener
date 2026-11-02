@@ -518,11 +518,14 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
     board.replaceChildren(...usAxes.map((row) => axisRow(doc, root, row, { history, scenarios, previous, inputs, asOf: regime.asOf, open: row.id === openId })));
     // v59.51 (content audit): the distribution-day strip (a lazy chunk, v58.75) is trend evidence, so it opens with the
     // trend row instead of standing under the verdict.
-    if (regime.available) import('./distribution-strip.js').then(({ distributionStrip }) => {
+    if (regime.available) import('./distribution-strip.js').then(({ distributionStrip, rallyAttemptStrip }) => {
       const detail = doc.querySelector?.('#regime-board .mk-axis[data-axis="trend"] .mk-axis__detail');
       if (!detail) return;
-      detail.querySelector(':scope > .leaders-line__dist')?.remove();
+      detail.querySelectorAll(':scope > .leaders-line__dist').forEach((node) => node.remove());
       const strip = distributionStrip(doc, inputs?.history || root._aioHistory, regime.asOf);
+      // v59.57: the follow-through-day reading sits right under the distribution count (the two halves of one method).
+      const rally = rallyAttemptStrip(doc, inputs?.history || root._aioHistory, regime.asOf);
+      if (rally) detail.prepend(rally);
       if (strip) detail.prepend(strip);
     }).catch(() => {});
     const radarHost = doc.getElementById('regime-radar-host');

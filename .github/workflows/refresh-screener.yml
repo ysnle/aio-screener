@@ -131,6 +131,13 @@ jobs:
           # hyperscaler capex ÷ operating cash flow gauge and the market reading. A failed fetch keeps the previous rows.
           node scripts/fetch-bigtech-cashflow.mjs
 
+      - name: Refresh US Treasury note and bond auction results (TreasuryDirect, keyless)
+        run: |
+          set -euo pipefail
+          # v59.57: high yield, bid-to-cover and indirect share of each coupon auction against the same tenor's previous
+          # six, for the 거시 rate hub. A failed request keeps the previous artifact.
+          node scripts/fetch-treasury-auctions.mjs
+
       - name: Refresh analyst consensus estimates (rotating batch, reference only)
         run: |
           set -euo pipefail
@@ -235,6 +242,7 @@ jobs:
           git add -- public-data/screener.json public-data/sec-fundamentals-summary.json public-data/sec-fundamentals-summary.manifest.json public-data/screener-validation-gate.json public-data/reconciliation-status.json public-data/operations-status.json public-data/history.json public-config.json architecture/public-readiness.json
           stage_if_exists public-data/earnings-calendar.json
           stage_if_exists public-data/bigtech-cashflow.json # v59.56: SEC quarterly cash flow, big tech
+          stage_if_exists public-data/treasury-auctions.json # v59.57: TreasuryDirect coupon auction results
           stage_if_exists public-data/sp500-weights.json # 2026-10-13: S&P 500 sector map weights
           stage_if_exists public-data/us-listings.json # v57.81: official US exchange listing (daily)
           stage_if_exists public-data/consensus-estimates.json # v57.54: Forward PER consensus (reference)
