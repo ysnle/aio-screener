@@ -1,6 +1,0 @@
-{
-  "changelog": [
-    "**실적·FOMC 브리프 문장 규칙 ({VERSION}):** 브리프 프롬프트와 스키마를 `scripts/lib/event-brief-prompts.mjs`로 옮기고, 생산자 프롬프트가 함께 쓰는 문장 규칙을 `scripts/lib/ai-prompt-rules.mjs`에 한 번만 적었다. 2026-11-01 문구 점검에서 남긴 항목을 반영해 브리프의 text·watch와 검색 요약 줄은 화면 안내문처럼 '-습니다/-입니다'로 끝내고, 사업부문·제품 이름은 한국어로 옮겨 원문 이름을 처음 한 번 괄호에 두며, text에 value의 숫자를 다른 단위로 되풀이하지 않는다. 검증 규칙(인용·숫자 대조)은 그대로이고 다음 수집부터 적용된다. 프롬프트가 요청당 약 300자 길어진다(원문 최대 60,000자 대비 미미)."
-  ],
-  "note": "{VERSION}: event-brief prompts in their own module with the shared writing rules (합니다체, Korean names, no repeated value)"
-}

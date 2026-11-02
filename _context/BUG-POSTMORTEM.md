@@ -39,6 +39,87 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2212 - v59.59 - Same quantity computed two ways across screens: percentile conventions, legacy ADR/VCP, Weinstein stage, neutral rate, portfolio FX (2026-11-02)
+
+- symptom/reproduction: A one-year high scored 99.8 in the fear-greed composite and market temperature but 100 in the regime radar and record percentile. The legacy stock snapshot divided ADR by the open and counted filled highs/lows, and it had no extended/pivot_down VCP stage, so the same bars read near_pivot there and extended in the screener. definitions.js called a close under a still-rising 30-week line stage 3 while chart-strategies said stage 3 is the line flattening. The macro policy axis used a fixed 1% neutral real rate beside the Taylor rule's SEP-derived 1.2%. The rates axis counted a 10-year fall during a 3%+ S&P 500 slide as 양호. The '평균 상관' warning averaged daily correlations while the matrix beside it used weekly KR–US cells, and a flat holding printed correlation 0. A KRW book's daily change applied the US stock's local return to its KRW value without the won's own move. The won-shock translation and the factor regression treated Tokyo/HK listings as USD/S&P 500. Net liquidity mixed the week-average TGA (WTREGEN) with Wednesday-level WALCL and RRP.
+- root_cause: Each reading was implemented where it was first needed. A later reader reused the label but not the function, and no gate compared the copies.
+- fix: v59.59: src/domain/shared/percentile.js percentileOf (mid-rank over the others) for F&G, temperature, radar and recordPercentile. Legacy _calcADRPercent calls AIO_ARCH.adrPctOf, and _calcVCP calls AIO_ARCH.vcpRead (the producer _calcVCPServer, loaded behind import()); filled H/L bars are marked hlFilled and skipped. weinsteinStage returns stage 2 with pullback:true under a rising line. The policy axis takes sepNeutral's r* when current. The rates axis is neutral (성장 걱정형) when the S&P 500 20-day return is at or below RULES.rates.growthScareSpx20dPct (−3). The exposure average reads the risk matrix's cells. _calcCorrelationMatrix gives null for flat or short pairs, and the heatmap prints '—'. appUsdKrwClose carries prevRate, and surface dailyChange uses (1+r)(1+fx)−1 for converted rows, or withholds the change. stress-sensitivity filters by listingCurrency. macro-history treasuryAccount is WDTGAL.
+- violated_rule: C4 one meaning one implementation; a named method follows its published definition (R265).
+- prevention: scripts/ci-quant-reference-check.mjs has cases for each (percentile extremes and ties, Weinstein pullback, SEP neutral in the policy read, KRW translation by listing currency, prevRate, flat-pair null, producer VCP legacy fields). The data-pipeline D-VCP parity now asserts that the client delegates and keeps no stage chain.
+- verification/residual: node scripts/ci-quant-reference-check.mjs passes 37 cases. qa-runner affected passes 144; browser-responsive's theme compare-button wait timed out once under the parallel run, then passed on rerun and twice standalone, and it also passes on origin/main. The boot budget passes (the price-factors import is lazy).
+
+## P2211 - v59.59 - Analysis math counted missing, stale or gated inputs as values and measured windows on filtered arrays (2026-11-02)
+
+- symptom/reproduction: An audit of the indicator, regime, sentiment, macro and portfolio math (2026-11-02, owner request to doubt every formula) found results that ran and looked plausible but disagreed with their own definitions: the trading score kept a stale-MA trend and unavailable breadth in its total at 100% coverage; the S&P 500 revision breadth passed its 80% weight gate with members that had no revision counts; the composite fear-greed 'strength' ranked raw new-high minus new-low counts across the 826→497 universe change; the KR flow card showed 5/20-session sums for an investor series that had stopped; the VIX term structure was blocked by an unused 6-month point; the macro cards' '3개월'/'1개월' read four or two months for 1st-of-month dates; a null fed-funds lower bound printed 0.00–4.00%; the core-PCE inflation axis applied its 0.1pp buffer to a 1-decimal rounded value; the theme rank-shift band counted unranked groups; the comparison table's period returns skipped a missing bar and reached one session further back; rebasedLine.endPct was a fraction among % values; smaSeries/smaLast added null as 0; the power-gap volume test included the gap day in its own 50-day average; RSI printed 100 for a flat series; the FTD reader called any earlier follow-through 'failed', and the producer overwrote warmed rally-attempt rows with cold-start states; the trade journal counted break-even lots as losses; an EUR base took the USD/KRW move inverted.
+- root_cause: Each module guarded the happy path (finite numbers, full windows, one universe, USD/KRW only) and treated the rest by coercion: `?? 0`, `Number(null)` = 0, filtering before indexing, raw rather than gated variables in the weighted sum, calendar days for calendar months. No test fed the modules reference values or degenerate inputs.
+- fix: v59.59: trading-score weighs trendScore/breadthScore (the gated values); index-earnings counts revision weight only for members with both 4-week counts; composite F&G strength = (highs − lows) ÷ eligible % within the latest universeScope; kr-investor-flows withholds sums for a non-current series; vixTermStructure needs only 9-day/spot/3-month; liquidity-growth compares monthly series by calendar month (changeOverMonths) and reads the target range with readNumber; macro-read reads the unrounded core-PCE series value when it matches the published 1-decimal macro.corePce within rounding; group-strength sizes the band from the ranked groups; chart-compare counts period returns on the bar index and reports endPct in %; smaSeries/smaLast return null for a window with a missing value; the power gap uses priorVolumeAverage; rsiWilder (technical/definitions.js) is the one RSI, flat = 50, with the legacy _calcRSILast/_calcRSISeries and market-temperature matching; rallyAttemptSeries marks warmedUp and the producer skips cold-start rows; rallyAttemptRead calls an earlier FTD failed only when no phase-0 row followed it; journalStats has a flats bucket; stockBondCorrelation refuses a non-USD/KRW base.
+- violated_rule: C4 one meaning one implementation; null is unknown, never 0; a named method follows its published definition (R265).
+- prevention: scripts/ci-quant-reference-check.mjs (qa-pipeline id quant-reference) feeds each formula a reference value or the degenerate input that broke it; a new indicator or score adds its case there.
+- verification/residual: node scripts/ci-quant-reference-check.mjs (27 cases; fails on the pre-fix modules); ci-esm-core-unit-check, ci-expect-output-check, ci-pipeline-semantics-check, ci-domain-parity-check, ci-review-integrity-unit-check, ci-data-pipeline-contract-check, ci-decomp-hotspot-check pass. ci-scenario-guidance-fixture and ci-assertion-trace-check pass; qa-runner affected 122 pass.
+
+## P2210 - v59.59 - 스크리너 보관 실행 목록이 화면 재진입 뒤 '불러오는 중' 표시에 묶여 재현 버튼이 사라짐 (2026-11-02)
+
+- symptom/reproduction: 스크리너를 열자마자 다른 화면으로 갔다가 돌아오면(또는 부팅 중 스크리너가 두 번 마운트되면) 실행 기록 접힘 패널에 '저장 입력으로 재현' 버튼이 나오지 않았다. browser-screener-refresh 게이트가 이 브랜치에서 9회 중 2회 '저장 입력으로 재현' 대기 시간 초과로 실패했다(main 10회 0실패, 타이밍 차이로 드러남).
+- root_cause: src/ui/pages/screener.js refreshRunArchive는 공유 노드 #scr-run-history에 data-archive-loaded='loading'을 쓰고 workbench.list()를 기다린다. 기다리는 사이 화면이 언마운트되면(mountActive=false) 그대로 반환해 'loading'이 남았고, 다음 마운트는 표시가 없는 노드만 다시 읽으므로 목록을 영영 읽지 않았다. P2107(v59.21)이 같은 표시의 실행 경로를 고쳤지만 언마운트 경로는 남아 있었다.
+- fix: 언마운트로 중단된 읽기는 자기가 남긴 'loading' 표시를 지우고 반환한다(목록 읽기 성공·실패 두 경로 모두). 세대가 바뀐 경우는 새 호출이 표시를 마무리하므로 그대로 둔다.
+- violated_rule: 비동기 로드 표시는 그 로드를 끝내지 않고 반환하는 모든 경로에서 해제해야 한다(P2107 계열).
+- prevention: browser-screener-refresh 게이트가 재로드 후 재현 버튼을 기다리는 경로를 이미 검사한다. 이 브랜치에서 10회 연속 통과로 확인했다.
+- verification/residual: node scripts/ci-screener-auto-refresh-browser-check.mjs 10회 반복 10/10 통과(수정 전 9회 중 2회 실패).
+
+## P2209 - v59.59 - 기능별 점검: 화면이 주장한 내용이 데이터·계산과 어긋난 25곳 (2026-11-02)
+
+- symptom/reproduction: 11/2 전 화면 기능 점검(18개 라우트 렌더 + 공개 데이터 재계산)에서, 화면 문장이 실제 값·기간·단위·정의와 다른 곳이 나왔다. 예: '10/12 → 11/2, 15거래일'(실제 10/12→10/30, 14거래일), 'Intel 10/30 실적 발표'(10/29 발표), 다음 고용보고서 '3개월 평균 4.3만 명 이하면 둔화'(창이 굴러 실제 기준은 한 달 −19만 명), 10년 실질금리 '100%가 이하'(286개월 중 285), 'WTI 1년 범위 85%'인데 '85% 이상 미충족', NVDA 순현금 31억 달러(단기투자 미수집), KSPI '매출 예상 1.27조 달러'(텡게), 대가 '최근 12개 분기'인데 2개 분기, 아틀라스 반도체 층에서 NVIDIA 누락, 개념 난이도 합 92 대 90.
+- root_cause: 기능마다 '값이 나오면 맞다'로 넘어가, 문장이 기대는 전제(창이 고정인지, 행이 실제 거래일인지, 날짜가 어느 시간대인지, 통화·단위, 빈 칸이 0인지 미수집인지, 반올림이 기준선을 넘는지)를 확인하는 단계가 없었다.
+- fix: market-story 거래일은 fieldMeta.spx.sessionDate가 그날인 행만, move-attribution은 브리프 eventDate, macro-read는 다음 발표 한 달 값으로 환산, long-history 백분위는 기간 고점이 아니면 99 상한, WTI 위치 소수 1자리, analysis-read는 전년에 있던 단기투자가 빠지면 순현금 보류, event-guide는 지수 편입·스크리너 종목만 실적 추정치 표시, masters 분기 수·13F 마감 주말 이월·13F-NT 사유, atlas 주력 태그·등록 순서, concepts 중복 노트 제외, 용어 4개 추가와 정의 4개 교정, 뉴스 중요 목록에서 종목 추천 리스트 제외, 차트 렌즈는 유효한 VCP일 때만 피벗 인정, 그 밖의 라벨(나스닥 종합, 스크리너 종합 순위, PER=TTM, 상위 10종목 중, 표준오차 1.5배, 경계, 시나리오 비교 제목).
+- violated_rule: AGENTS 데이터 정직성(날짜·기간·미수집 표시, 지어낸 숫자 금지)
+- prevention: 기능 판정 문서(/mnt/project-files/feature-audit/2026-11-02-feature-verdicts.md)의 점검 순서 — 창·거래일·시간대·통화·빈 칸·반올림 경계 — 를 새 기능 리뷰에 적용한다.
+- verification/residual: ci-esm-core-unit-check, architecture contract, qa-runner affected (변경 파일 기준) 통과; 공개 데이터로 고용 기준(−19.05만/+13.8만), SMH 종가 −6.98% 재계산.
+
+## P2208 - v59.59 - v59.59 회전(RRG) 산출물이 종가 21분 뒤 읽은 미확정 일봉을 그 세션 내내 재사용했고(SMH -8.41% 대 확정 -6.98%), 13F 발견기는 13F-NT만 낸 운용사를 최신으로 표시했다 (2026-11-02)
+
+- symptom/reproduction: 기능 감사 2026-11-02: 오늘 'AI 공급망' 접기의 '반도체 -8.4%'와 섹터 회전 위치가 data.json rotationHistory SMH dailyPct -8.41%(fetchedAt 2026-10-30T20:21Z)를 썼고, 같은 날 종가 시계열·스크리너는 -6.98%(561.67→522.49), SPY도 회전 쪽 약 -2.3% 대 스크리너 -1.77%였다. 13F filing-discovery는 Pershing Square를 holdingsLag true(최신 보유 2026-03-31, 6/30은 13F-NT)인데 freshnessStatus CURRENT_REFERENCE로 냈다.
+- root_cause: collectRotationHistory는 목표 세션의 모든 행이 CURRENT이면 공급자 호출 없이 이전 산출물을 재사용한다. 종가 5분 유예 뒤 첫 실행(20:21Z)에 읽은 Yahoo 일봉이 아직 확정 전이었고, 그 값이 다음 세션까지 고정됐다. collect-13f-discovery는 최신성을 latestSubmission(13F-NT 포함)의 보고 기간으로 판정해, 보유 내역이 없는 통지 제출을 최신 보유처럼 셌다.
+- fix: rotation-history: ROTATION_SETTLED_FETCH_MINUTES 120을 두고, 모든 행이 종가 120분 이후에 수집된 경우에만 완료 세션을 재사용한다(그 전에는 매 실행 다시 수집; 산출물 계약 completionGraceMinutes 5는 그대로). collect-13f-discovery: freshnessStatus는 latestHoldings 기간이 최신 기간이고 holdingsLag가 아닐 때만 CURRENT_REFERENCE, noticeStatus NOTICE_FILED는 그대로 사유를 전한다. 산출물은 다음 refresh-data 실행에서 스스로 고쳐진다.
+- violated_rule: 확정 종가 기준 — 종가 직후 공급자 값은 확정값이 아니며, 보유 내역 없는 통지 제출은 보유 최신성이 아니다.
+- prevention: ci-rotation-history-check v59.59 단언: 종가 21분 뒤 수집된 완료 세션은 다시 수집되고 캐시로 표시되지 않으며 재수집 값이 CURRENT가 된다.
+- verification/residual: node scripts/ci-rotation-history-check.mjs PASS; 현재 filing-discovery에 새 판정을 적용하면 Pershing만 CURRENT_REFERENCE→STALE_REFERENCE; qa-runner affected 88 PASS / 0 FAIL.
+
+## P2207 - v59.59 - v59.59 수집·발행 코드 44곳이 Number.isFinite(Number(x))로 판정해 null·빈 문자열 값을 0 관측으로 받아들였다 (2026-11-02)
+
+- symptom/reproduction: 공유 primitive ratchet이 scripts/ 안 null-as-zero 122건을 기록하고 있었다. 실행 경로 예: 시장 6시간 슬롯 마크가 값이 null인 시세를 0 마크로, 등락률 null을 0%로 봉인할 수 있었다(market-timeline buildMarketSlotMarks). AI 시황 입력은 근원 CPI가 null이면 '근원 null%'를 넣을 수 있었다(market-narrative). 실적 브리프는 컨센서스 추정치가 null이면 0 대비 서프라이즈를 계산할 수 있었다(fetch-event-briefs). 히스토리 백필은 null 칸을 '완성된 기록'으로 보고 같은 세션 봉을 채우지 않았다. 스크리너 검증기는 null 펀더멘털을 커버리지에 셌다.
+- root_cause: P715 함정(Number(null)=0, Number('')=0, Number(false)=0)이 src/에서는 v59.46에 정리됐지만 scripts/ 생산자·수집기에는 v59.50 측정 뒤에도 그대로 남아 있었다. 일부는 `x != null && x !== ''`로 덧대 막았고 일부는 막지 않았다.
+- fix: 파이프라인 파일 18개의 판정을 src/domain/shared/number.js readNumber로 바꿨다(producer/history·macro-merge·market-narrative·receipts·source-planes·after-hours, fetch-consensus-estimates·earnings-calendar·event-briefs·sec-fundamentals, lib/market-timeline·screener-extended-validate·macro-sources·official-calendars·sec-results-filings·sec-edgar·refresh-continuity, validate-screener-artifact). 덧댄 null 가드와 지역 num 헬퍼는 readNumber 하나로 줄였다. buildMarketSlotMarks의 Number(row.value)도 readNumber로 바꿨다. 공유 primitive 기준선은 null-as-zero 122→78로 고정했다.
+- violated_rule: 없는 값은 없는 값이다 — 관측이 없는 칸을 0 관측으로 승격하지 않는다(P715·P2164, shared-primitive ratchet).
+- prevention: pipeline-semantics producers v59.59 케이스: null 시세 값은 슬롯 마크가 아니고 null 등락률은 0%가 아니며, isObservedNumber는 null/''/' '/false를 거부하고, null CIK는 CIK 0이 아니다. ratchet 기준선 78은 다시 늘 수 없다.
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs PASS; ci-shared-primitive-ratchet-check PASS(78); 현재 public-data에서 validate-screener-artifact·validate-screener-extended 출력이 HEAD와 같음; history-session-model·narrative-lifecycle-model --sync(불변식 그대로 성립); qa-runner affected PASS.
+
+## P2206 - v59.59 - v59.59 AI 공개 경로 게이트가 병렬 QA 부하에서 '채팅 스크립트 없이 부팅' 확인 전에 유휴 로드가 먼저 끝나 간헐 실패했다 (2026-11-02)
+
+- symptom/reproduction: browser-ai-public(ci-ai-chat-public-route-browser-check)이 qa-runner 묶음 실행에서 실패하고 단독으로는 통과했다. 같은 게이트 6개를 동시에 돌리면 4/6 실패: 'v59.16 reader browser boots without the chat script', 일부는 이어서 'an ask before the chat loads opens the panel…'·'P2105 the queued send…'까지 실패.
+- root_cause: src/app/chat-loader.js는 사람 브라우저(navigator.webdriver false)에서 js/aio-chat.js를 첫 사용 또는 유휴(requestIdleCallback, 4초 timeout) 중 먼저 오는 때 로드한다. 게이트는 그 페이지의 첫 읽기 전에 유휴 로드가 일어나지 않는다고 가정했는데, CPU 부하에서 페이지 준비 대기가 4초를 넘기면 유휴 로드가 먼저 끝나 첫 사용 경로를 시험하지 못했다.
+- fix: 게이트의 지연 로드 컨텍스트가 requestIdleCallback을 붙잡아(호출만 기록) 유휴 로드가 그 페이지에서 일어나지 않게 했다. 첫 확인은 스크립트가 없고 유휴 로드가 예약됐는지(__aioHeldIdleCallbacks > 0)까지 본다. 제품 코드는 바꾸지 않았다.
+- violated_rule: 타이머 경합을 시험하는 게이트는 경쟁하는 타이머를 고정해야 한다 — 실행 속도에 기대는 순서 가정은 병렬 CI에서 깨진다.
+- prevention: ci-ai-chat-public-route-browser-check v59.59 확인: 사람 브라우저는 채팅 스크립트 없이 부팅하고 유휴 로드를 예약한다.
+- verification/residual: 수정 전 6개 동시 실행 4/6 FAIL, 수정 후 6/6 PASS; qa-runner affected(.gitignore, 두 게이트 스크립트) 107/107 PASS.
+
+## P2205 - v59.59 - v59.59 감시 cadence 경고가 GitHub가 건너뛴 시간별 cron만 세어, 실제로는 30~100분마다 돈 감시를 '실행 누락'으로 표시했다 (2026-11-02)
+
+- symptom/reproduction: Data freshness watchdog가 매 실행 github-watchdog-cadence (P1596) 경고를 남겼다(간격 최대 234~458분). 2026-11-01 02:51Z~11-02 02:25Z 24시간 실측: watchdog 실행 60회 중 schedule 4회, workflow_run 56회. cron만 세면 최대 간격 458분, 전체로 세면 103분(기준 125분 이내).
+- root_cause: workflowCadence가 schedule·workflow_dispatch 이벤트만 도착으로 셌다. P1666 이후 watchdog는 Pages 배포·AI 프록시 배포·시장 데이터 갱신 완료 때마다 workflow_run으로도 돌고 같은 점검을 하지만, 그 실행은 cadence에 들어가지 않았다. 시장 갱신 cadence에는 맞는 정의였지만 watchdog에는 아니었다.
+- fix: workflowCadence에 events 옵션(기본 CADENCE_EVENTS = schedule, workflow_dispatch)을 두고 watchdog cadence만 workflow_run을 더해 센다. 시장 갱신 cadence는 그대로다. 감시 임계값(cadence 65/125분, 스크리너 48시간, 데이터 품질 하한 70/10, Telegram 100건·정상 채널 3, 뉴스 피드 24h/72h, receipt 3일)을 scripts/lib/operational-health.mjs WATCHDOG_THRESHOLDS 한 표로 모아 각 값의 근거를 적었다.
+- violated_rule: 감시 게이트는 실제로 일어나는 실행 경로를 모두 세야 한다 — 백업 경로(cron)만 세면 경보 피로가 생긴다.
+- prevention: ci-data-pipeline-contract-check v59.59 단언: workflow_run 도착은 events로 요청할 때만 cadence에 들어가고 기본값은 cron·dispatch만 센다; 품질 하한·스크리너 기준은 WATCHDOG_THRESHOLDS 값으로 고정되고 관찰기가 그 표를 읽는다.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs OK, node scripts/ci-deployment-convergence-check.mjs OK. gh api data-watchdog.yml runs 24시간 재계산: cron만 458분, 전체 103분.
+
+## P2204 - v59.59 - v59.59 테마 상세로 갔다가 모듈 마운트 전에 다른 화면으로 떠나면, 다음 테마 진입이 개요 대신 방산 상세로 열렸다 (2026-11-02)
+
+- symptom/reproduction: ci-responsive-browser-check(browser-viewport)가 로컬에서 3/3, GitHub CI에서는 간헐적으로 실패했다: 테마 비교 버튼 [data-compare-group] 클릭이 'element is not visible'로 30초 시간 초과. 실패 시 주소는 #themes?theme=defense였고 상세 패널이 열려 개요 표의 비교 버튼이 모두 숨어 있었다.
+- root_cause: showPage('theme-detail')가 window._aioOpenThemeDetailOnThemes에 대기 상세 id(_currentThemeId 또는 THEME_MAP[0] = defense)를 넣고, 테마 모듈이 마운트될 때 그 id를 꺼내 상세를 연다. 마운트 전에 다른 화면으로 떠나면 id가 남았고, 다음의 평범한 테마 진입이 그것을 소비해 사용자가 요청하지 않은 상세를 열었다. 게이트의 경로 순회(theme-detail → portfolio … → themes, 140ms 간격)가 이 순서를 그대로 밟았다.
+- fix: js/aio-core.js showPage가 themes·theme-detail이 아닌 화면으로 이동할 때 대기 상세 id를 지운다. 대기 id는 그것을 요청한 이동에만 속한다. ci-responsive-browser-check는 테마 재진입 직후 주소가 #themes이고 대기 id가 없는지 따로 확인해 같은 실패를 이름으로 보고한다.
+- violated_rule: 화면 전환 사이에 넘기는 일회성 상태는 그 전환에만 속해야 한다 — 소비되지 않은 대기 상태가 다음 진입으로 새면 사용자가 고르지 않은 화면이 열린다.
+- prevention: ci-responsive-browser-check v59.59 단언: 4개 뷰포트 모두 theme-detail 방문 뒤 테마 재진입이 #themes 개요로 열리고 _aioOpenThemeDetailOnThemes가 비어 있다.
+- verification/residual: 수정 전 node scripts/ci-responsive-browser-check.mjs 3/3 FAIL(1~3 뷰포트), 수정 후 2/2 PASS. 프로브: themes → theme-detail → portfolio → themes 순서에서 수정 전 #themes?theme=defense·비교 버튼 0개, 수정 후 #themes·비교 버튼 10개.
+
 ## P2203 - v59.58 - v59.58 연준 보도자료 피드가 FOMC 주 뒤 주말에 조용해지자 72h 죽은 피드 게이트가 Pages 배포·감시 실행을 매번 실패로 표시했다 (2026-11-02)
 
 - symptom/reproduction: 2026-11-01 22:55Z부터 Deploy GitHub Pages(배포 자체는 성공 후 ci-external-pipeline-check release 단계)와 Data freshness watchdog가 30분마다 빨간 실패가 됐다. 유일한 error 항목은 pages-news-feeds-alive "no usable item for 72h+: Federal Reserve". 같은 시점 데이터 6분·스크리너 18분·AI 시황 당일(2026-11-02)로 실제 데이터와 AI 텍스트는 정상 갱신 중이었고, 소유자는 '자동화가 계속 실패한다'고 인식했다.

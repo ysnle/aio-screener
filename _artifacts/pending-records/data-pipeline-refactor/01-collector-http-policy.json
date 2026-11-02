@@ -1,6 +1,0 @@
-{
- "changelog": [
-  "**수집기 HTTP 정책 통합 ({VERSION}, 파이프라인 리팩토링):** 수집 스크립트 13개가 각자 갖고 있던 '제한 시간 + 오류 + 재시도' 코드를 `scripts/lib/http-fetch.mjs` 하나로 모았다. 제한 시간은 본문을 다 읽을 때까지 적용되고(P1547), 오류 문구는 `HTTP <코드>`로 같으며, 404 같은 확정 4xx는 같은 원천에 다시 묻지 않는다. 텔레그램·대만 월매출·한국 수급·DART 산출물 쓰기도 고정 `.tmp` 이름 대신 원자적 쓰기(atomic-write)로 통일했다. SEC 재무 수집(fetch-sec-fundamentals)은 13F·실적 lane과 같은 SEC 공용 클라이언트(초당 8건 이하 간격, 403/429/5xx만 재시도)로 옮겨, 간격 없이 두 요청을 동시에 보내고 404도 다시 묻던 동작을 없앴다. 산출물 형식은 바뀌지 않는다."
- ],
- "note": "{VERSION} shared collector HTTP policy (scripts/lib/http-fetch.mjs) and atomic artifact writes; SEC fundamentals on the paced SEC client"
-}
