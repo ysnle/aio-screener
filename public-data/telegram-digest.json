@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-02T20:23:14.263Z",
-  "attemptedAt": "2026-11-02T20:23:14.263Z",
-  "lastSuccessfulAt": "2026-11-02T20:23:14.263Z",
+  "generatedAt": "2026-11-02T21:22:01.662Z",
+  "attemptedAt": "2026-11-02T21:22:01.662Z",
+  "lastSuccessfulAt": "2026-11-02T21:22:01.662Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-19T20:23:08.702Z",
-  "until": "2026-11-02T20:23:08.702Z",
+  "since": "2026-10-19T21:21:57.060Z",
+  "until": "2026-11-02T21:21:57.060Z",
   "current24hWindow": {
     "start": "2026-10-31T23:00:00.000Z",
     "end": "2026-11-01T23:00:00.000Z",
@@ -89,27 +89,27 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1320,
-      "freshCount": 20,
-      "eligibleTextCount": 1260,
-      "selectedCount": 123,
+      "count": 1298,
+      "freshCount": 40,
+      "eligibleTextCount": 1238,
+      "selectedCount": 122,
       "error": null,
-      "lastPostId": 68088
+      "lastPostId": 68103
     },
     {
       "channel": "bornlupin",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 228,
-      "freshCount": 20,
-      "eligibleTextCount": 228,
+      "count": 229,
+      "freshCount": 35,
+      "eligibleTextCount": 229,
       "selectedCount": 125,
       "error": null,
-      "lastPostId": 20955
+      "lastPostId": 20956
     },
     {
       "channel": "HANAchina",
@@ -124,59 +124,63 @@
       "lastPostId": 71428
     }
   ],
-  "count": 2337,
-  "retainedItemCount": 441,
+  "count": 2316,
+  "retainedItemCount": 465,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2337,
-    "eligibleTextCount": 2269,
+    "observedCount": 2316,
+    "eligibleTextCount": 2248,
     "mediaOnlyCount": 68,
-    "mediaAttachedCount": 106,
-    "photoPostCount": 87,
+    "mediaAttachedCount": 120,
+    "photoPostCount": 101,
     "documentPostCount": 0,
     "imageOnlyCount": 0,
-    "highSignalCount": 422,
-    "broadSignalCount": 917,
-    "selectedRawCount": 412,
-    "selectedEligibleCount": 412,
-    "selectedRawCoveragePct": 18.2,
-    "selectedOfObservedPct": 17.6,
+    "highSignalCount": 423,
+    "broadSignalCount": 913,
+    "selectedRawCount": 411,
+    "selectedEligibleCount": 411,
+    "selectedRawCoveragePct": 18.3,
+    "selectedOfObservedPct": 17.7,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "ai-policy": 133,
-    "earnings": 479,
-    "semi": 522,
+    "earnings": 483,
+    "semi": 518,
+    "power": 280,
+    "macro": 350,
+    "ai-policy": 131,
+    "market-note": 805,
+    "credit": 118,
+    "geo": 417,
+    "kr-market": 130,
     "optical": 43,
-    "geo": 426,
-    "power": 282,
-    "macro": 352,
-    "kr-market": 131,
-    "flows": 85,
-    "market-note": 817,
-    "credit": 117,
-    "equity": 162,
-    "japan": 107,
+    "flows": 84,
+    "equity": 160,
+    "japan": 105,
     "media-only": 68,
-    "healthcare": 113,
+    "healthcare": 111,
     "crypto": 3
   },
   "tickerCounts": {
+    "MTCH": 1,
+    "ON": 1,
+    "BWXT": 1,
+    "PLTR": 18,
+    "NVDA": 142,
+    "MSFT": 60,
     "GOOG": 131,
+    "TSLA": 60,
     "BABA": 3,
     "MRVL": 14,
     "LITE": 15,
-    "TSM": 44,
+    "TSM": 43,
     "AAPL": 16,
     "ORCL": 14,
-    "PLTR": 15,
-    "TSLA": 59,
     "T": 7,
-    "AMZN": 80,
-    "MSFT": 59,
+    "AMZN": 79,
     "GOOGL": 7,
     "2454.TW": 3,
     "BCS": 1,
@@ -189,12 +193,11 @@
     "000660.KS": 77,
     "009150.KS": 18,
     "000990.KS": 1,
-    "NVDA": 144,
-    "AMD": 29,
+    "AMD": 28,
     "AVGO": 21,
     "INTC": 5,
     "6981.T": 3,
-    "MU": 46,
+    "MU": 45,
     "META": 13,
     "SNDK": 12,
     "017670.KS": 4,
@@ -211,7 +214,7 @@
     "006800.KS": 1,
     "006400.KS": 2,
     "CMG": 1,
-    "STX": 7,
+    "STX": 6,
     "ETSY": 2,
     "V": 1,
     "HOOD": 1,
@@ -255,29 +258,29 @@
     "025560.KS": 1
   },
   "themes": [
-    "Market Notes (817 posts in 14-day research window): 11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000...",
-    "Semiconductors/Memory (522 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로 상향. AI 확산에 따른 사이버보안 수요 증가와 장기 시장 확대 가능성을 주요 근거로 제시. 반도체 ·...",
-    "Earnings/Corporate (479 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
-    "Geopolitics (426 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 31일 🇺🇸 아메리카 • 트럼프 대통령은 이란과 협상이 진행 중이라고 밝혀. 다만 미국 정부는 이란에 대한 경제 봉쇄와 추가 제재를 검토 중이며, 중간선거 직후...",
-    "Macro/Rates (352 posts in 14-day research window): 2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,...",
-    "AI Power/Grid (282 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
-    "Equity/Analyst (162 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
-    "AI Policy/Export Controls (133 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
+    "Market Notes (805 posts in 14-day research window): 11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000...",
+    "Semiconductors/Memory (518 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로 상향. AI 확산에 따른 사이버보안 수요 증가와 장기 시장 확대 가능성을 주요 근거로 제시. 반도체 ·...",
+    "Earnings/Corporate (483 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
+    "Geopolitics (417 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 31일 🇺🇸 아메리카 • 트럼프 대통령은 이란과 협상이 진행 중이라고 밝혀. 다만 미국 정부는 이란에 대한 경제 봉쇄와 추가 제재를 검토 중이며, 중간선거 직후...",
+    "Macro/Rates (350 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 델 테크놀로지스·엔비디아와 협력해 Dell AI Factory에 Falcon 보안을 통합하고, 코어위브와의 파트너십도 확대해 AI 워크로드에 24시간 위협 헌팅 및 관리형 보안을 제공....",
+    "AI Power/Grid (280 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
+    "Equity/Analyst (160 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
+    "AI Policy/Export Controls (131 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 144,
-      "text": "2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,..."
+      "count": 142,
+      "text": "2026년 11월 3일 미국 증시 브리핑 미국 증시는 중간선거를 앞둔 정치적 불확실성과 AI·반도체 중심의 대규모 매도세로 혼조 마감. S&P500 -0.51%, 나스닥 -1.07%, 다우 +0.41%, 러셀2000 +0.04% 기록. 나스닥100 ETF(QQQ)는 최근 3거래일간 6.2% 하락하며 10월 고점..."
     },
     {
       "key": "GOOG",
       "count": 131,
-      "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로 상향. AI 확산에 따른 사이버보안 수요 증가와 장기 시장 확대 가능성을 주요 근거로 제시. 반도체 ·..."
+      "text": "2026년 11월 3일 미국 증시 브리핑 미국 증시는 중간선거를 앞둔 정치적 불확실성과 AI·반도체 중심의 대규모 매도세로 혼조 마감. S&P500 -0.51%, 나스닥 -1.07%, 다우 +0.41%, 러셀2000 +0.04% 기록. 나스닥100 ETF(QQQ)는 최근 3거래일간 6.2% 하락하며 10월 고점..."
     },
     {
       "key": "AMZN",
-      "count": 80,
+      "count": 79,
       "text": "빌 애크먼(Bill Ackman) – Equity Mates 인터뷰 1. AI 버블과 컴퓨팅 수요 “컴퓨팅 수요 측면에서 지금이 버블이라고 생각하지 않는다.” AI가 초지능에 빠르게 접근할수록 이를 뒷받침할..."
     },
     {
@@ -286,14 +289,14 @@
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인..."
     },
     {
-      "key": "TSLA",
-      "count": 59,
-      "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로 상향. AI 확산에 따른 사이버보안 수요 증가와 장기 시장 확대 가능성을 주요 근거로 제시. 반도체 ·..."
+      "key": "MSFT",
+      "count": 60,
+      "text": "2026년 11월 3일 미국 증시 브리핑 미국 증시는 중간선거를 앞둔 정치적 불확실성과 AI·반도체 중심의 대규모 매도세로 혼조 마감. S&P500 -0.51%, 나스닥 -1.07%, 다우 +0.41%, 러셀2000 +0.04% 기록. 나스닥100 ETF(QQQ)는 최근 3거래일간 6.2% 하락하며 10월 고점..."
     },
     {
-      "key": "MSFT",
-      "count": 59,
-      "text": "빌 애크먼(Bill Ackman) – Equity Mates 인터뷰 1. AI 버블과 컴퓨팅 수요 “컴퓨팅 수요 측면에서 지금이 버블이라고 생각하지 않는다.” AI가 초지능에 빠르게 접근할수록 이를 뒷받침할..."
+      "key": "TSLA",
+      "count": 60,
+      "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로 상향. AI 확산에 따른 사이버보안 수요 증가와 장기 시장 확대 가능성을 주요 근거로 제시. 반도체 ·..."
     },
     {
       "key": "005930.KS",
@@ -302,17 +305,17 @@
     },
     {
       "key": "MU",
-      "count": 46,
+      "count": 45,
       "text": "2026년 10월 29일 미국 레딧 베스트 게시물 분석 > NVDA / MU / VRT / ETN / GEV - AI Trade가 물리 인프라로 확장 · 장문 DD 핵심은 “AI가 싸지면 물리 자원이 병목”..."
     },
     {
       "key": "TSM",
-      "count": 44,
+      "count": 43,
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
       "key": "AMD",
-      "count": 29,
+      "count": 28,
       "text": "2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,..."
     },
     {
@@ -333,8 +336,8 @@
       "topics": [
         "macro"
       ],
-      "count": 352,
-      "focus": "2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,..."
+      "count": 350,
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 델 테크놀로지스·엔비디아와 협력해 Dell AI Factory에 Falcon 보안을 통합하고, 코어위브와의 파트너십도 확대해 AI 워크로드에 24시간 위협 헌팅 및 관리형 보안을 제공...."
     },
     {
       "id": "geo",
@@ -342,7 +345,7 @@
       "topics": [
         "geo"
       ],
-      "count": 426,
+      "count": 417,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 31일 🇺🇸 아메리카 • 트럼프 대통령은 이란과 협상이 진행 중이라고 밝혀. 다만 미국 정부는 이란에 대한 경제 봉쇄와 추가 제재를 검토 중이며, 중간선거 직후..."
     },
     {
@@ -351,8 +354,8 @@
       "topics": [
         "credit"
       ],
-      "count": 117,
-      "focus": "모건스탠리 마이크 윌슨 “미국 중간선거 전후 조정은 매수 기회… S&P 500 8,000 도달 전망” - Bloomberg 인터뷰 모건스탠리의 미국 주식 수석 전략가 마이크 윌슨(Mike Wilson)은 미국 중간선거, AI 투자 부담, 유동성 제약 등이 단기적으로 증시 조정을 유발할 수 있지만, 이번 조정이..."
+      "count": 118,
+      "focus": "2026년 11월 3일 미국 증시 브리핑 미국 증시는 중간선거를 앞둔 정치적 불확실성과 AI·반도체 중심의 대규모 매도세로 혼조 마감. S&P500 -0.51%, 나스닥 -1.07%, 다우 +0.41%, 러셀2000 +0.04% 기록. 나스닥100 ETF(QQQ)는 최근 3거래일간 6.2% 하락하며 10월 고점..."
     },
     {
       "id": "semi",
@@ -360,7 +363,7 @@
       "topics": [
         "semi"
       ],
-      "count": 522,
+      "count": 518,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로 상향. AI 확산에 따른 사이버보안 수요 증가와 장기 시장 확대 가능성을 주요 근거로 제시. 반도체 ·..."
     },
     {
@@ -378,7 +381,7 @@
       "topics": [
         "power"
       ],
-      "count": 282,
+      "count": 280,
       "focus": "Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을..."
     },
     {
@@ -387,7 +390,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 133,
+      "count": 131,
       "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
@@ -396,7 +399,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 131,
+      "count": 130,
       "focus": "Alphabet 2026년 3분기 실적 요약 실적 • 매출 $1,275.8억, YoY +25%, QoQ +6% • 환율 영향 제외 매출 성장률 YoY +25%, QoQ +7% • 영업이익 $405.8억,..."
     },
     {
@@ -405,7 +408,7 @@
       "topics": [
         "equity"
       ],
-      "count": 162,
+      "count": 160,
       "focus": "[시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가..."
     },
     {
@@ -423,7 +426,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 479,
+      "count": 483,
       "focus": "마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장...."
     },
     {
@@ -432,7 +435,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 113,
+      "count": 111,
       "focus": ">>미중 상호 기술 수출통제 강화, 글로벌 기술 질서 재편 가속화 (대만공상시보) •중국 상무부와 과기부는 10월 AI·바이오·태양광 등 40개 기술을 수출통제 목록에 추가하는 개정안 발표. 이중 14개는..."
     },
     {
@@ -441,7 +444,7 @@
       "topics": [
         "japan"
       ],
-      "count": 107,
+      "count": 105,
       "focus": "JPM) 일본 퀀트 전략; 바닥은 닛케이평균 62,000선이나 핵심 분기점은 60,980 – 사이버 관련 헤드라인과 AI 피로감이 선별적 퀄리티 그로스에 다시 불을 지피다 내용 요약 10월 22일 닛케이평균은..."
     },
     {
@@ -450,7 +453,7 @@
       "topics": [
         "flows"
       ],
-      "count": 85,
+      "count": 84,
       "focus": "서학개미 순매수 미국 주식 TOP 50 (10월 누적) > 기간: 2026/10/01 ~ 2026/10/30 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -468,7 +471,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 817,
+      "count": 805,
       "focus": "11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000..."
     }
   ],
@@ -712,6 +715,96 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "insidertracking/68099",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68099",
+      "datetime": "2026-11-02T21:15:09.000Z",
+      "localDateKst": "2026-11-03",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy"
+      ],
+      "score": 100,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "relatedTickers": [
+        "AVGO"
+      ],
+      "listTickers": [
+        "NVDA",
+        "MSFT",
+        "GOOG",
+        "META",
+        "MRVL",
+        "LITE",
+        "ORCL",
+        "RKLB",
+        "T"
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 델 테크놀로지스·엔비디아와 협력해 Dell AI Factory에 Falcon 보안을 통합하고,..."
+    },
+    {
+      "id": "insidertracking/68095",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68095",
+      "datetime": "2026-11-02T21:10:52.000Z",
+      "localDateKst": "2026-11-03",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi"
+      ],
+      "score": 100,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA",
+        "MSFT",
+        "GOOG",
+        "PLTR"
+      ],
+      "summary": "2026년 11월 3일 미국 증시 브리핑 미국 증시는 중간선거를 앞둔 정치적 불확실성과 AI·반도체 중심의 대규모 매도세로 혼조 마감. S&P500 -0.51%, 나스닥 -1.07%, 다우 +0.41%,..."
+    },
+    {
+      "id": "insidertracking/68089",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68089",
+      "datetime": "2026-11-02T21:02:16.000Z",
+      "localDateKst": "2026-11-03",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "power"
+      ],
+      "score": 100,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "GOOG"
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 3일 🇺🇸 아메리카 • 트럼프 대통령은 중간선거 이후 이란에 대한 추가 공습 계획을 부인하며 군사작전 재개를 서두르지 않겠다고 밝혀. 이란이 합의를 원하고 있으며..."
+    },
     {
       "id": "insidertracking/68085",
       "channel": "insidertracking",
@@ -1273,30 +1366,6 @@
       ]
     },
     {
-      "id": "insidertracking/67616",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67616",
-      "datetime": "2026-10-28T05:08:46.000Z",
-      "localDateKst": "2026-10-28",
-      "tags": [
-        "macro",
-        "earnings"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "2026년 10월 28일 미국 증시 프리마켓 브리핑 미국 증시 선물은 FOMC 금리 결정과 빅테크 실적 발표를 앞두고 혼조세. 다우 선물 -0.17%, S&P500 선물 +0.02%, 나스닥100 선물...",
-      "lead": 2,
-      "tickers": [],
-      "listTickers": [
-        "NVDA",
-        "MSFT",
-        "GOOG",
-        "AVGO",
-        "005930.KS",
-        "000660.KS"
-      ]
-    },
-    {
       "id": "bornlupin/20856",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20856",
@@ -1313,62 +1382,6 @@
       "tickers": [
         "285A.T",
         "000660.KS"
-      ]
-    },
-    {
-      "id": "insidertracking/67553",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67553",
-      "datetime": "2026-10-27T21:27:24.000Z",
-      "localDateKst": "2026-10-28",
-      "tags": [
-        "credit",
-        "semi"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "10월 28일 미주인 브리핑 • 나스닥 1.18% 상승 · 반도체 중심 매수세 유입 • 소파이 13% 급등 · 보잉 11% 급락 • 브로드컴 630억 달러 AI 인프라 금융조달 • 메타 975억 달러 자금조달...",
-      "tickers": [
-        "AMD",
-        "MSFT",
-        "GOOG",
-        "AVGO"
-      ]
-    },
-    {
-      "id": "insidertracking/67535",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67535",
-      "datetime": "2026-10-27T20:57:27.000Z",
-      "localDateKst": "2026-10-28",
-      "tags": [
-        "flows"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "2026년 10월 27일 서학개미 순매수 미국 주식 TOP 50 1위: SPACE EXPLORATION TECHN-CL A (18.39%) 2위: PROSHARES ULTRAPRO QQQ ETF (8.86%)...",
-      "tickers": [],
-      "listTickers": [
-        "NVDA",
-        "GOOG",
-        "MU",
-        "TSM",
-        "BE",
-        "GOOGL",
-        "GS",
-        "INTC",
-        "RBRK",
-        "NOW",
-        "CRWD",
-        "DDOG",
-        "IONQ",
-        "CRWV",
-        "CRDO",
-        "QQQ",
-        "SOXX",
-        "XLV",
-        "HAS",
-        "IVZ"
       ]
     },
     {
@@ -1696,6 +1709,251 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "insidertracking/68100",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68100",
+      "datetime": "2026-11-02T21:16:35.000Z",
+      "localDateKst": "2026-11-03",
+      "tags": [
+        "earnings",
+        "semi",
+        "power"
+      ],
+      "lead": 2,
+      "score": 89,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "ON"
+      ],
+      "summary": "ON Semiconductor 2026년 3분기 실적 요약 실적 • 매출 $17.2억, YoY +11%, 예상 $17억 상회 • 조정 EPS $0.90, YoY +43%, 예상 $0.88 상회 • 조정..."
+    },
+    {
+      "id": "insidertracking/68099",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68099",
+      "datetime": "2026-11-02T21:15:09.000Z",
+      "localDateKst": "2026-11-03",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy"
+      ],
+      "score": 100,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "relatedTickers": [
+        "AVGO"
+      ],
+      "listTickers": [
+        "NVDA",
+        "MSFT",
+        "GOOG",
+        "META",
+        "MRVL",
+        "LITE",
+        "ORCL",
+        "RKLB",
+        "T"
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 델 테크놀로지스·엔비디아와 협력해 Dell AI Factory에 Falcon 보안을 통합하고,..."
+    },
+    {
+      "id": "insidertracking/68097",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68097",
+      "datetime": "2026-11-02T21:13:09.000Z",
+      "localDateKst": "2026-11-03",
+      "tags": [
+        "earnings",
+        "macro"
+      ],
+      "lead": 1,
+      "score": 81,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "BWXT"
+      ],
+      "summary": "BWX Technologies 2026년 3분기 실적 요약 실적 • 매출 $9.53억, YoY +10%, 예상 $9.70억 하회 • GAAP EPS $1.11, YoY +25% • 조정 EPS $1.26,..."
+    },
+    {
+      "id": "insidertracking/68096",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68096",
+      "datetime": "2026-11-02T21:11:44.000Z",
+      "localDateKst": "2026-11-03",
+      "tags": [
+        "earnings",
+        "ai-policy"
+      ],
+      "lead": 1,
+      "score": 79,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "PLTR"
+      ],
+      "summary": "Palantir 2026년 3분기 실적 요약 실적 • 매출 $23.1억, YoY +96%, 예상 $21.8억 상회 • 조정 EPS $0.44, 예상 $0.41 상회 • 조정 영업이익 $14.3억, 예상..."
+    },
+    {
+      "id": "bornlupin/20956",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20956",
+      "datetime": "2026-11-02T21:11:06.000Z",
+      "localDateKst": "2026-11-03",
+      "tags": [
+        "earnings",
+        "ai-policy"
+      ],
+      "lead": 1,
+      "score": 79,
+      "hasText": true,
+      "tickers": [
+        "PLTR"
+      ],
+      "summary": "팔란티어(PLTR) 2026년 3분기 실적 (시간외 +3%) 매출 23.1억 달러(예상 21.8억 달러 상회), 전년 대비 96% 증가 조정 EPS 0.44달러(예상 0.41달러 상회) 미국 상업 부문 매출..."
+    },
+    {
+      "id": "insidertracking/68095",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68095",
+      "datetime": "2026-11-02T21:10:52.000Z",
+      "localDateKst": "2026-11-03",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi"
+      ],
+      "score": 100,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA",
+        "MSFT",
+        "GOOG",
+        "PLTR"
+      ],
+      "summary": "2026년 11월 3일 미국 증시 브리핑 미국 증시는 중간선거를 앞둔 정치적 불확실성과 AI·반도체 중심의 대규모 매도세로 혼조 마감. S&P500 -0.51%, 나스닥 -1.07%, 다우 +0.41%,..."
+    },
+    {
+      "id": "insidertracking/68092",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68092",
+      "datetime": "2026-11-02T21:07:14.000Z",
+      "localDateKst": "2026-11-03",
+      "tags": [
+        "macro"
+      ],
+      "score": 52,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": "2026년 11월 3일 미장 마감 S&P 500 - 7,541.56 -0.51% 다우 30 - 51,983.98 +0.41% 나스닥 - 25,164.32 -1.07% 러셀 2000 - 2,813.08..."
+    },
+    {
+      "id": "insidertracking/68091",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68091",
+      "datetime": "2026-11-02T21:06:02.000Z",
+      "localDateKst": "2026-11-03",
+      "tags": [
+        "macro",
+        "geo"
+      ],
+      "score": 57,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": "트럼프 SNS 발언 > [2026-11-03 오전 5:45] 가짜 댄 설리번을 아무도 찾지 못하는 이유는 변호사들이 그를 데려가 숨겨놓고, 미국 역사상 최대 규모의 선거 사기 사건 중 하나로 기소되는 것을..."
+    },
+    {
+      "id": "insidertracking/68090",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68090",
+      "datetime": "2026-11-02T21:03:22.000Z",
+      "localDateKst": "2026-11-03",
+      "tags": [
+        "macro",
+        "geo"
+      ],
+      "score": 66,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "TSLA"
+      ],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 3일 트럼프·이란 관련 발언 · 트럼프 “이란은 합의를 원하고 있으며 실제로 합의가 이뤄질 수 있다” 발언 · 트럼프 “이란과의 상황이 순조롭게..."
+    },
+    {
+      "id": "insidertracking/68089",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68089",
+      "datetime": "2026-11-02T21:02:16.000Z",
+      "localDateKst": "2026-11-03",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "power"
+      ],
+      "score": 100,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "GOOG"
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 3일 🇺🇸 아메리카 • 트럼프 대통령은 중간선거 이후 이란에 대한 추가 공습 계획을 부인하며 군사작전 재개를 서두르지 않겠다고 밝혀. 이란이 합의를 원하고 있으며..."
+    },
     {
       "id": "HANAchina/71428",
       "channel": "HANAchina",
@@ -2549,11 +2807,11 @@
         "geo",
         "macro"
       ],
+      "lead": 2,
       "score": 67,
       "hasText": true,
-      "summary": "중동 평화협상 재개를 위한 외교적 노력 속에 유가 하락 - WSJ 1. 미국·이란 평화협상 재개 움직임 - 워싱턴과 테헤란 간 평화협상을 재개하려는 최근 외교적 노력 속에 국제유가가 하락. - WSJ에 따르면...",
-      "lead": 2,
-      "tickers": []
+      "tickers": [],
+      "summary": "중동 평화협상 재개를 위한 외교적 노력 속에 유가 하락 - WSJ 1. 미국·이란 평화협상 재개 움직임 - 워싱턴과 테헤란 간 평화협상을 재개하려는 최근 외교적 노력 속에 국제유가가 하락. - WSJ에 따르면..."
     },
     {
       "id": "bornlupin/20934",
@@ -2562,12 +2820,14 @@
       "datetime": "2026-11-02T02:16:32.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "market-note"
+        "semi",
+        "power",
+        "ai-policy"
       ],
       "score": 70,
       "hasText": true,
-      "summary": "이 대통령 \"선도국가 만들어 갈 미래선점 예산…미래성장·격차완화 집중투자\" 2027년도 정부 예산안 약 821조원…총지출 12.8% 증가 \"역대 최대 재정투자…경제적 성취 걸맞게 살림 키운 것\" 이 대통령은...",
-      "tickers": []
+      "tickers": [],
+      "summary": "이 대통령 \"선도국가 만들어 갈 미래선점 예산…미래성장·격차완화 집중투자\" 2027년도 정부 예산안 약 821조원…총지출 12.8% 증가 \"역대 최대 재정투자…경제적 성취 걸맞게 살림 키운 것\" 이 대통령은..."
     },
     {
       "id": "bornlupin/20933",
@@ -2579,11 +2839,11 @@
         "semi",
         "power"
       ],
+      "lead": 2,
       "score": 60,
       "hasText": true,
-      "summary": "[속보] 李 \"반도체·AI 데이터센터 등 올해보다 두 배 늘어난 21.3조원 투자\"",
-      "lead": 2,
-      "tickers": []
+      "tickers": [],
+      "summary": "[속보] 李 \"반도체·AI 데이터센터 등 올해보다 두 배 늘어난 21.3조원 투자\""
     },
     {
       "id": "insidertracking/68031",
@@ -2648,10 +2908,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "일론 머스크, 보다 현실적인 태도로 선회…TSMC와 'Terafab 협력 프로젝트' 재협상설 일론 머스크(Elon Musk)가 Terafab 프로젝트와 관련해 TSMC와의 협력에 대한 태도를 바꾼 것으로...",
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "일론 머스크, 보다 현실적인 태도로 선회…TSMC와 'Terafab 협력 프로젝트' 재협상설 일론 머스크(Elon Musk)가 Terafab 프로젝트와 관련해 TSMC와의 협력에 대한 태도를 바꾼 것으로..."
     },
     {
       "id": "insidertracking/68023",
@@ -2688,7 +2948,7 @@
       "datetime": "2026-11-02T00:01:45.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "market-note"
+        "semi"
       ],
       "score": 57,
       "hasText": true,
@@ -2698,8 +2958,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "한국 경제, 2026년 3분기 전분기 대비 1.0% 성장… 시장 예상치 상회 한국 경제는 2026년 3분기 전분기 대비 1.0% 성장하며 3개 분기 연속 성장세를 기록했습니다. 이는 시장 예상치인 +0.8%를...",
-      "tickers": []
+      "tickers": [],
+      "summary": "한국 경제, 2026년 3분기 전분기 대비 1.0% 성장… 시장 예상치 상회 한국 경제는 2026년 3분기 전분기 대비 1.0% 성장하며 3개 분기 연속 성장세를 기록했습니다. 이는 시장 예상치인 +0.8%를..."
     },
     {
       "id": "bornlupin/20929",
@@ -2708,12 +2968,14 @@
       "datetime": "2026-11-01T23:55:57.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "geo"
+        "geo",
+        "macro"
       ],
+      "lead": 1,
       "score": 62,
       "hasText": true,
-      "summary": "Axios, 미국·이란 협상에 관여한 외교관 인용 “협상은 긍정적인 진전을 보였으며, 중재국들은 양측 사이에 여전히 남아 있는 입장 차이와 우려 사항을 해소하기 위해 노력하고 있다.” 미국·이란 전쟁 종식을...",
-      "tickers": []
+      "tickers": [],
+      "summary": "Axios, 미국·이란 협상에 관여한 외교관 인용 “협상은 긍정적인 진전을 보였으며, 중재국들은 양측 사이에 여전히 남아 있는 입장 차이와 우려 사항을 해소하기 위해 노력하고 있다.” 미국·이란 전쟁 종식을..."
     },
     {
       "id": "insidertracking/68022",
@@ -3016,12 +3278,15 @@
       "datetime": "2026-11-01T08:59:03.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
-        "semi"
+        "semi",
+        "earnings",
+        "healthcare"
       ],
+      "lead": 1,
       "score": 62,
       "hasText": true,
-      "summary": "UBS: CPU-to-GPU 비율의 상당한 상승 여력, 그러나 궁극적으로 전체 시장 규모(TAM)를 결정하는 것은 메모리 UBS는 복잡한 에이전틱 AI 워크로드의 확산으로 GPU당 필요한 CPU 수가 크게...",
-      "tickers": []
+      "tickers": [],
+      "summary": "UBS: CPU-to-GPU 비율의 상당한 상승 여력, 그러나 궁극적으로 전체 시장 규모(TAM)를 결정하는 것은 메모리 UBS는 복잡한 에이전틱 AI 워크로드의 확산으로 GPU당 필요한 CPU 수가 크게..."
     },
     {
       "id": "insidertracking/67976",
@@ -3084,14 +3349,16 @@
       "datetime": "2026-11-01T06:58:11.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
-        "semi"
+        "semi",
+        "power"
       ],
+      "lead": 1,
       "score": 59,
       "hasText": true,
-      "summary": "젠슨 황, \"2029년 전까지 메모리 과잉 가능성 낮다\" 2029년 이전 메모리 공급 과잉 가능성 낮아 ​ 수요 지속 전망: 시장 일각의 공급 과잉 우려와 달리, 젠슨 황은 고대역폭메모리(HBM) 등 메모리는...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "젠슨 황, \"2029년 전까지 메모리 과잉 가능성 낮다\" 2029년 이전 메모리 공급 과잉 가능성 낮아 ​ 수요 지속 전망: 시장 일각의 공급 과잉 우려와 달리, 젠슨 황은 고대역폭메모리(HBM) 등 메모리는..."
     },
     {
       "id": "HANAchina/71335",
@@ -3211,16 +3478,18 @@
       "datetime": "2026-11-01T01:31:24.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
-        "semi"
+        "semi",
+        "geo",
+        "earnings"
       ],
+      "lead": 1,
       "score": 75,
       "hasText": true,
-      "summary": "한국의 반도체 주도 수출 가속화, 연간 1조 달러 목표에 한 걸음 더 근접 - WSJ 한국의 반도체 주도 수출 성장세가 10월 들어 예상보다 훨씬 빠른 속도로 가속화되면서, 사상 초유의 연간 수출 1조 달러...",
-      "lead": 1,
       "tickers": [
         "005930.KS",
         "000660.KS"
-      ]
+      ],
+      "summary": "한국의 반도체 주도 수출 가속화, 연간 1조 달러 목표에 한 걸음 더 근접 - WSJ 한국의 반도체 주도 수출 성장세가 10월 들어 예상보다 훨씬 빠른 속도로 가속화되면서, 사상 초유의 연간 수출 1조 달러..."
     },
     {
       "id": "bornlupin/20921",
@@ -3229,7 +3498,8 @@
       "datetime": "2026-11-01T01:18:54.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
-        "semi"
+        "semi",
+        "equity"
       ],
       "score": 52,
       "hasText": true,
@@ -3239,9 +3509,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "일론 머스크 1. Colossus 2 구축 현황 Macrohard와 Minihard는 각각 GB300 GPU 22만 개를 보유하고 있으며 , 800Gbps NIC(네트워크 인터페이스 카드)를 사용해 학습용으로...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "일론 머스크 1. Colossus 2 구축 현황 Macrohard와 Minihard는 각각 GB300 GPU 22만 개를 보유하고 있으며 , 800Gbps NIC(네트워크 인터페이스 카드)를 사용해 학습용으로..."
     },
     {
       "id": "bornlupin/20911",
@@ -3250,7 +3519,8 @@
       "datetime": "2026-11-01T01:12:37.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
-        "market-note"
+        "semi",
+        "power"
       ],
       "score": 60,
       "hasText": true,
@@ -3260,8 +3530,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "(TRASS-BF) 잠정 수출 | 2026년 10월 31일 ※ 주요 품목별 수출 성장률 - 디램: +595% Y/Y, +2% M/M (*ATH*) - 낸드: +342% Y/Y, -10% M/M - SSD:...",
-      "tickers": []
+      "tickers": [],
+      "summary": "(TRASS-BF) 잠정 수출 | 2026년 10월 31일 ※ 주요 품목별 수출 성장률 - 디램: +595% Y/Y, +2% M/M (*ATH*) - 낸드: +342% Y/Y, -10% M/M - SSD:..."
     },
     {
       "id": "bornlupin/20910",
@@ -6155,88 +6425,6 @@
       ]
     },
     {
-      "id": "insidertracking/67664",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67664",
-      "datetime": "2026-10-28T20:43:54.000Z",
-      "localDateKst": "2026-10-29",
-      "tags": [
-        "macro",
-        "earnings"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "2026년 10월 29일 미국 증시 브리핑 미국 증시는 연방준비제도(Fed)의 금리 동결과 대형 기술주 실적 발표를 소화하며 상승 마감. S&P500 +0.28%, 나스닥 +0.27%, 다우 +0.19%,...",
-      "lead": 2,
-      "tickers": [],
-      "listTickers": [
-        "NVDA",
-        "AAPL",
-        "MSFT",
-        "GOOG",
-        "AMZN",
-        "ORCL",
-        "000660.KS",
-        "EBAY"
-      ]
-    },
-    {
-      "id": "insidertracking/67661",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67661",
-      "datetime": "2026-10-28T20:39:00.000Z",
-      "localDateKst": "2026-10-29",
-      "tags": [
-        "market-note"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": "2026년 10월 29일 미장 마감 S&P 500 - 7,743.98 +0.28% 다우 30 - 52,475.10 +0.19% 나스닥 - 26,549.85 +0.27% 러셀 2000 - 2,830.51...",
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/67658",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67658",
-      "datetime": "2026-10-28T20:34:45.000Z",
-      "localDateKst": "2026-10-29",
-      "tags": [
-        "macro"
-      ],
-      "score": 69,
-      "hasText": true,
-      "summary": "FOMC 및 케빈 워시 관련 정리 - 2026년 10월 29일 FOMC 금리 결정 · 연준, 기준금리 3.75%~4.00%로 동결 · FOMC, 찬성 10표·반대 2표로 금리 동결 결정 · 리사 쿡 연준...",
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/67657",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67657",
-      "datetime": "2026-10-28T20:33:18.000Z",
-      "localDateKst": "2026-10-29",
-      "tags": [
-        "geo"
-      ],
-      "score": 67,
-      "hasText": true,
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 10월 29일 트럼프·이란 핵협상 · 트럼프 지시로 JD 밴스 부통령, 이란 강경파 핵심 인사 모흐센 레자이에게 서한 전달 - WSJ · 밴스, 이란과...",
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/67656",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67656",
-      "datetime": "2026-10-28T20:30:52.000Z",
-      "localDateKst": "2026-10-29",
-      "tags": [
-        "geo"
-      ],
-      "score": 89,
-      "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 29일 🇺🇸 아메리카 • 미국 부통령 JD 밴스는 트럼프 대통령의 지시에 따라 이란 최고 안보 기구의 수장이자 전 혁명수비대 사령관인 모흐센 레자에이에게 서한을...",
-      "tickers": []
-    },
-    {
       "id": "bornlupin/20869",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20869",
@@ -6336,78 +6524,6 @@
       "lead": 1,
       "tickers": [
         "NVDA"
-      ]
-    },
-    {
-      "id": "insidertracking/67651",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67651",
-      "datetime": "2026-10-28T12:39:46.000Z",
-      "localDateKst": "2026-10-28",
-      "tags": [
-        "macro",
-        "earnings"
-      ],
-      "score": 51,
-      "hasText": true,
-      "summary": "내일 새벽에 굵직한 이벤트가 예정되어있습니다. > FOMC.... 마쏘, 구글 실적",
-      "tickers": [
-        "GOOG"
-      ]
-    },
-    {
-      "id": "insidertracking/67650",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67650",
-      "datetime": "2026-10-28T12:38:10.000Z",
-      "localDateKst": "2026-10-28",
-      "tags": [
-        "kr-market",
-        "macro"
-      ],
-      "score": 55,
-      "hasText": true,
-      "summary": "코스피 야간선물 일단 양호. 내일 새벽 FOMC 이후에 잘 말아올리길..!!!",
-      "lead": 1,
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/67649",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67649",
-      "datetime": "2026-10-28T12:37:33.000Z",
-      "localDateKst": "2026-10-28",
-      "tags": [
-        "market-note"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "2026년 10월 28일 프리마켓 주요 종목 동향 상승 종목 ULBI (+144.65%) ENS, 3억2,000만 달러 규모 전액 현금 거래로 Ultralife 인수 추진 VRT (+15.73%) 주당순이익...",
-      "tickers": [
-        "MU",
-        "SNDK",
-        "STX",
-        "000660.KS",
-        "ETSY"
-      ]
-    },
-    {
-      "id": "insidertracking/67648",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67648",
-      "datetime": "2026-10-28T12:36:50.000Z",
-      "localDateKst": "2026-10-28",
-      "tags": [
-        "semi",
-        "power"
-      ],
-      "score": 99,
-      "hasText": true,
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) 반도체 · 데이터센터 · 광통신 • 온세미 (ON) — AI 전력관리 스타트업 페릭(Ferric)을 약 10억 달러에 인수하기 위한 협상을 진행 중인 것으로 보도됨....",
-      "tickers": [
-        "MSFT",
-        "AMZN",
-        "ETSY"
       ]
     },
     {
@@ -8544,25 +8660,6 @@
       "tickers": []
     },
     {
-      "id": "bornlupin/20771",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20771",
-      "datetime": "2026-10-22T23:20:55.000Z",
-      "localDateKst": "2026-10-23",
-      "tags": [
-        "earnings"
-      ],
-      "score": 91,
-      "hasText": true,
-      "summary": "블룸에너지 ( $BE ) 2026년 3분기 어닝콜 Q&A 세션 Q1. 프리몬트 부지 확장(10GW 증설 여부) 및 매출총이익률 전망 (JPMorgan) 질문: 지금 프리몬트 공장 부지를 확장하는 이유와 신규...",
-      "tickers": [
-        "NVDA",
-        "GOOG",
-        "BE",
-        "MS"
-      ]
-    },
-    {
       "id": "aetherjapanresearch/25991",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25991",
@@ -8971,12 +9068,15 @@
       "datetime": "2026-11-01T08:59:03.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
-        "semi"
+        "semi",
+        "earnings",
+        "healthcare"
       ],
+      "lead": 1,
       "score": 62,
       "hasText": true,
-      "summary": "UBS: CPU-to-GPU 비율의 상당한 상승 여력, 그러나 궁극적으로 전체 시장 규모(TAM)를 결정하는 것은 메모리 UBS는 복잡한 에이전틱 AI 워크로드의 확산으로 GPU당 필요한 CPU 수가 크게...",
-      "tickers": []
+      "tickers": [],
+      "summary": "UBS: CPU-to-GPU 비율의 상당한 상승 여력, 그러나 궁극적으로 전체 시장 규모(TAM)를 결정하는 것은 메모리 UBS는 복잡한 에이전틱 AI 워크로드의 확산으로 GPU당 필요한 CPU 수가 크게..."
     },
     {
       "id": "insidertracking/67976",
@@ -9039,14 +9139,16 @@
       "datetime": "2026-11-01T06:58:11.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
-        "semi"
+        "semi",
+        "power"
       ],
+      "lead": 1,
       "score": 59,
       "hasText": true,
-      "summary": "젠슨 황, \"2029년 전까지 메모리 과잉 가능성 낮다\" 2029년 이전 메모리 공급 과잉 가능성 낮아 ​ 수요 지속 전망: 시장 일각의 공급 과잉 우려와 달리, 젠슨 황은 고대역폭메모리(HBM) 등 메모리는...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "젠슨 황, \"2029년 전까지 메모리 과잉 가능성 낮다\" 2029년 이전 메모리 공급 과잉 가능성 낮아 ​ 수요 지속 전망: 시장 일각의 공급 과잉 우려와 달리, 젠슨 황은 고대역폭메모리(HBM) 등 메모리는..."
     },
     {
       "id": "HANAchina/71335",
@@ -9166,16 +9268,18 @@
       "datetime": "2026-11-01T01:31:24.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
-        "semi"
+        "semi",
+        "geo",
+        "earnings"
       ],
+      "lead": 1,
       "score": 75,
       "hasText": true,
-      "summary": "한국의 반도체 주도 수출 가속화, 연간 1조 달러 목표에 한 걸음 더 근접 - WSJ 한국의 반도체 주도 수출 성장세가 10월 들어 예상보다 훨씬 빠른 속도로 가속화되면서, 사상 초유의 연간 수출 1조 달러...",
-      "lead": 1,
       "tickers": [
         "005930.KS",
         "000660.KS"
-      ]
+      ],
+      "summary": "한국의 반도체 주도 수출 가속화, 연간 1조 달러 목표에 한 걸음 더 근접 - WSJ 한국의 반도체 주도 수출 성장세가 10월 들어 예상보다 훨씬 빠른 속도로 가속화되면서, 사상 초유의 연간 수출 1조 달러..."
     },
     {
       "id": "bornlupin/20921",
@@ -9184,7 +9288,8 @@
       "datetime": "2026-11-01T01:18:54.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
-        "semi"
+        "semi",
+        "equity"
       ],
       "score": 52,
       "hasText": true,
@@ -9194,9 +9299,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "일론 머스크 1. Colossus 2 구축 현황 Macrohard와 Minihard는 각각 GB300 GPU 22만 개를 보유하고 있으며 , 800Gbps NIC(네트워크 인터페이스 카드)를 사용해 학습용으로...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "일론 머스크 1. Colossus 2 구축 현황 Macrohard와 Minihard는 각각 GB300 GPU 22만 개를 보유하고 있으며 , 800Gbps NIC(네트워크 인터페이스 카드)를 사용해 학습용으로..."
     },
     {
       "id": "bornlupin/20911",
@@ -9205,7 +9309,8 @@
       "datetime": "2026-11-01T01:12:37.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
-        "market-note"
+        "semi",
+        "power"
       ],
       "score": 60,
       "hasText": true,
@@ -9215,8 +9320,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "(TRASS-BF) 잠정 수출 | 2026년 10월 31일 ※ 주요 품목별 수출 성장률 - 디램: +595% Y/Y, +2% M/M (*ATH*) - 낸드: +342% Y/Y, -10% M/M - SSD:...",
-      "tickers": []
+      "tickers": [],
+      "summary": "(TRASS-BF) 잠정 수출 | 2026년 10월 31일 ※ 주요 품목별 수출 성장률 - 디램: +595% Y/Y, +2% M/M (*ATH*) - 낸드: +342% Y/Y, -10% M/M - SSD:..."
     },
     {
       "id": "bornlupin/20910",
@@ -9272,7 +9377,7 @@
   "signalsNote": "Numbers the channels reported (analyst target-price and rating actions, quarters against estimates, economic releases against forecasts, retail net-buy lists). Secondary observations for context and screener conditions; never a measurement of this app.",
   "signalCounts": {
     "pt": 55,
-    "earnings": 50,
+    "earnings": 53,
     "macro": 2,
     "retail": 7
   },
@@ -10046,6 +10151,42 @@
       "ratingAction": null,
       "date": "2026-10-20",
       "post": "bornlupin/20717"
+    },
+    {
+      "kind": "earnings",
+      "key": "earnings|PLTR|2026-11-03",
+      "ticker": "PLTR",
+      "name": "팔란티어",
+      "quarter": "2026Q3",
+      "revenue": "beat",
+      "eps": "beat",
+      "guidance": "raise",
+      "date": "2026-11-03",
+      "post": "bornlupin/20956"
+    },
+    {
+      "kind": "earnings",
+      "key": "earnings|BWXT|2026-11-03",
+      "ticker": "BWXT",
+      "name": "BWX Technologies",
+      "quarter": "2026Q3",
+      "revenue": "miss",
+      "eps": "beat",
+      "guidance": null,
+      "date": "2026-11-03",
+      "post": "insidertracking/68097"
+    },
+    {
+      "kind": "earnings",
+      "key": "earnings|ON|2026-11-03",
+      "ticker": "ON",
+      "name": "ON Semiconductor",
+      "quarter": "2026Q3",
+      "revenue": "beat",
+      "eps": "beat",
+      "guidance": null,
+      "date": "2026-11-03",
+      "post": "insidertracking/68100"
     },
     {
       "kind": "earnings",
