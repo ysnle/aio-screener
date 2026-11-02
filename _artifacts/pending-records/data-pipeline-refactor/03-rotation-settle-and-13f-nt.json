@@ -1,0 +1,15 @@
+{
+ "p": {
+  "title": "{VERSION} 회전(RRG) 산출물이 종가 21분 뒤 읽은 미확정 일봉을 그 세션 내내 재사용했고(SMH -8.41% 대 확정 -6.98%), 13F 발견기는 13F-NT만 낸 운용사를 최신으로 표시했다",
+  "symptom": "기능 감사 2026-11-02: 오늘 'AI 공급망' 접기의 '반도체 -8.4%'와 섹터 회전 위치가 data.json rotationHistory SMH dailyPct -8.41%(fetchedAt 2026-10-30T20:21Z)를 썼고, 같은 날 종가 시계열·스크리너는 -6.98%(561.67→522.49), SPY도 회전 쪽 약 -2.3% 대 스크리너 -1.77%였다. 13F filing-discovery는 Pershing Square를 holdingsLag true(최신 보유 2026-03-31, 6/30은 13F-NT)인데 freshnessStatus CURRENT_REFERENCE로 냈다.",
+  "root_cause": "collectRotationHistory는 목표 세션의 모든 행이 CURRENT이면 공급자 호출 없이 이전 산출물을 재사용한다. 종가 5분 유예 뒤 첫 실행(20:21Z)에 읽은 Yahoo 일봉이 아직 확정 전이었고, 그 값이 다음 세션까지 고정됐다. collect-13f-discovery는 최신성을 latestSubmission(13F-NT 포함)의 보고 기간으로 판정해, 보유 내역이 없는 통지 제출을 최신 보유처럼 셌다.",
+  "fix": "rotation-history: ROTATION_SETTLED_FETCH_MINUTES 120을 두고, 모든 행이 종가 120분 이후에 수집된 경우에만 완료 세션을 재사용한다(그 전에는 매 실행 다시 수집; 산출물 계약 completionGraceMinutes 5는 그대로). collect-13f-discovery: freshnessStatus는 latestHoldings 기간이 최신 기간이고 holdingsLag가 아닐 때만 CURRENT_REFERENCE, noticeStatus NOTICE_FILED는 그대로 사유를 전한다. 산출물은 다음 refresh-data 실행에서 스스로 고쳐진다.",
+  "violated_rule": "확정 종가 기준 — 종가 직후 공급자 값은 확정값이 아니며, 보유 내역 없는 통지 제출은 보유 최신성이 아니다.",
+  "prevention": "ci-rotation-history-check {VERSION} 단언: 종가 21분 뒤 수집된 완료 세션은 다시 수집되고 캐시로 표시되지 않으며 재수집 값이 CURRENT가 된다.",
+  "verification": "node scripts/ci-rotation-history-check.mjs PASS; 현재 filing-discovery에 새 판정을 적용하면 Pershing만 CURRENT_REFERENCE→STALE_REFERENCE; qa-runner affected 88 PASS / 0 FAIL."
+ },
+ "changelog": [
+  "**섹터 회전 하루 등락 정정과 13F 최신 표시 ({VERSION}):** 섹터 회전(RRG)이 종가 직후 덜 확정된 값을 그날 내내 써서 반도체(SMH)가 -8.4%로 보였습니다(확정 종가 -7.0%). 이제 종가 2시간 뒤 다시 읽은 값으로 고정합니다. 13F에서 보유 내역 대신 통지(13F-NT)만 낸 운용사(Pershing Square)는 '최신'이 아니라 '최신성 지연'으로 표시됩니다."
+ ],
+ "note": "{VERSION} rotation settle window and 13F-NT freshness"
+}

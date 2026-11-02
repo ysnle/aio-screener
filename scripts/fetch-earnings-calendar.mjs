@@ -8,10 +8,12 @@
 
 import { readFile } from 'node:fs/promises';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
+import { fetchJsonWithDeadline } from './lib/http-fetch.mjs';
 import { createSecClient, requireSecUserAgent } from './lib/sec-edgar.mjs';
 import { SEC_TICKERS_URL, submissionsUrl, tickerCikMap, filingRowsWithItems, isResultsFiling } from './lib/sec-results-filings.mjs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { readNumber } from '../src/domain/shared/number.js';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const ROOT = `${__dir}/..`;
@@ -21,17 +23,7 @@ const FINNHUB_BASE = 'https://finnhub.io/api/v1';
 
 const isoDay = (date) => date.toISOString().slice(0, 10);
 
-async function fetchJSON(url) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 15000);
-  try {
-    const response = await fetch(url, { signal: controller.signal });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return await response.json();
-  } finally {
-    clearTimeout(timer);
-  }
-}
+const fetchJSON = (url) => fetchJsonWithDeadline(url, { timeoutMs: 15000 });
 
 // 2026-10-13 news audit N18: on a Saturday/Sunday (UTC) the window used to be the week that had just ended, so the
 // weekend snapshot showed only past reports. The window starts at this week's Monday on a weekday and at the next
@@ -53,7 +45,7 @@ export const LARGE_CAP_WATCH_TOP_WEIGHTS = 30;
 export function largeCapScheduleGaps(earningsRows = [], { sp500Rows = [], universeRows = [], top = LARGE_CAP_WATCH_TOP_WEIGHTS } = {}) {
   const norm = (sym) => String(sym || '').trim().toUpperCase().replace(/[.\/]/g, '-');
   const listed = new Set((Array.isArray(earningsRows) ? earningsRows : []).map((row) => norm(row?.symbol)).filter(Boolean));
-  const byWeight = (Array.isArray(sp500Rows) ? sp500Rows : []).filter((row) => row?.sym && Number.isFinite(Number(row.weight)))
+  const byWeight = (Array.isArray(sp500Rows) ? sp500Rows : []).filter((row) => row?.sym && readNumber(row.weight) != null)
     .sort((a, b) => Number(b.weight) - Number(a.weight)).slice(0, top).map((row) => norm(row.sym));
   const adrs = (Array.isArray(universeRows) ? universeRows : []).filter((row) => row?.sym && row.index === 'ADR').map((row) => norm(row.sym));
   const watch = [...new Set([...byWeight, ...adrs])];
@@ -217,7 +209,7 @@ async function main() {
   console.log(`[earnings-calendar] upcoming ${upcomingDays.length} day queries (${upcomingGaps.length} failed), ${Object.keys(upcoming).length} universe listings dated`);
   // v58.52: S&P 500 weight per row so the briefing schedule keeps the market-moving reports (META, TSLA, NFLX) when a
   // single session carries dozens of names; the screen used to keep the first six by clock time and name.
-  const indexWeightOf = new Map((Array.isArray(sp500?.rows) ? sp500.rows : []).filter((r) => r?.sym && Number.isFinite(Number(r.weight))).map((r) => [r.sym, Number(r.weight)]));
+  const indexWeightOf = new Map((Array.isArray(sp500?.rows) ? sp500.rows : []).filter((r) => r?.sym && readNumber(r.weight) != null).map((r) => [r.sym, Number(r.weight)]));
   const payload = {
     schemaVersion: 'earnings-calendar.v1',
     status: 'current-reference',

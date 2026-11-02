@@ -11,6 +11,7 @@ import { isSessionComplete } from '../../src/domain/screener/price-factors.js';
 import { compareUsdKrwCrossCheck } from '../lib/macro-sources.mjs';
 import { HIST } from './paths.mjs';
 import { mapLimit, fetchHistory, fetchHourlySessionClose } from './quotes.mjs';
+import { readNumber } from '../../src/domain/shared/number.js';
 
 // history.json 레코드 필드 ↔ Yahoo 심볼 매핑 (백필 대상). F&G/IV는 과거 무료 소스 없어 제외(해당 일자 null).
 const HIST_SYMBOLS = {
@@ -85,7 +86,7 @@ export function normalizeHistoryRows(hist) {
     for (const key of HIST_ROW_META) if (row[key] === undefined) row[key] = null;
     for (const field of HIST_ALL_FIELDS) {
       if (row[field] === undefined) row[field] = null;
-      if (row[field] === null || !Number.isFinite(Number(row[field]))) delete row.fieldMeta[field];
+      if (readNumber(row[field]) == null) delete row.fieldMeta[field];
     }
   }
   return hist;
@@ -103,7 +104,7 @@ export function missingRecentUsSessions(hist, nowMs = Date.now(), lookbackDays =
   if (!basis?.date) return [];
   const have = new Set();
   for (const row of Array.isArray(hist) ? hist : []) {
-    if (!Number.isFinite(Number(row?.spx))) continue;
+    if (readNumber(row?.spx) == null) continue;
     const meta = row?.fieldMeta?.spx;
     if (meta?.observationRelation === 'carried-forward') continue;
     const at = meta?.observedAt ? Date.parse(meta.observedAt) : NaN;
@@ -197,7 +198,7 @@ export function mergeBackfillBars(hist, byDate, fields = HIST_FIELDS) {
         const meta = existing.fieldMeta[f];
         const ownSession = meta ? (historyFieldSessionDate(meta, f) || observationSessionDate(f, meta.observedAt)) : null;
         const barSession = byDate[date].fieldMeta?.[f]?.sessionDate || date;
-        if (Number.isFinite(Number(existing[f])) && meta?.valueBasis && (!ownSession || ownSession === barSession)) continue;
+        if (readNumber(existing[f]) != null && meta?.valueBasis && (!ownSession || ownSession === barSession)) continue;
         existing[f] = byDate[date][f];
         if (byDate[date].fieldMeta?.[f]) existing.fieldMeta[f] = byDate[date].fieldMeta[f];
       }
@@ -502,7 +503,7 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
     // dates instead of waiting 60 future refresh cycles or inventing history.
     for (const point of Array.isArray(data.fearGreed?.history) ? data.fearGreed.history : []) {
       const date = String(point?.observedAt || '').slice(0, 10);
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isFinite(Number(point?.score))) continue;
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || readNumber(point?.score) == null) continue;
       let row = hist.find((item) => item?.date === date);
       if (!row) { row = { date, fieldMeta: {} }; hist.push(row); }
       row.fg = Number(point.score);
@@ -518,7 +519,7 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
     }
     // P1586: the Cboe total put/call ratio accumulates one point per trading date (the page's own date,
     // never the fetch day) so the self-computed sentiment index can average five sessions.
-    if (data.putCall?.status === 'current-reference' && /^\d{4}-\d{2}-\d{2}$/.test(String(data.putCall.asOf || '')) && Number.isFinite(Number(data.putCall.totalPutCall))) {
+    if (data.putCall?.status === 'current-reference' && /^\d{4}-\d{2}-\d{2}$/.test(String(data.putCall.asOf || '')) && readNumber(data.putCall.totalPutCall) != null) {
       let row = hist.find((item) => item?.date === data.putCall.asOf);
       if (!row) { row = { date: data.putCall.asOf, fieldMeta: {} }; hist.push(row); }
       row.pcr = Number(data.putCall.totalPutCall);
@@ -529,7 +530,7 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
     // separately, and spreading it over the row published 26 beside provenance
     // that recorded 26.11 (P1100).
     const fgSeriesValue = hist.find((row) => row?.date === today)?.fg;
-    if (Number.isFinite(Number(fgSeriesValue))) rec.fg = Number(fgSeriesValue);
+    if (readNumber(fgSeriesValue) != null) rec.fg = Number(fgSeriesValue);
     // v50.52 B4: 최초/얇을 때(또는 BACKFILL=1) 6개월 일별 종가로 과거 시드 — 차트 대기 제거(멱등).
     let backfilled = 0;
     const needsFieldMeta = hist.some(row => HIST_MARKET_FIELDS.some(field => typeof row?.[field] === 'number' && !row?.fieldMeta?.[field]?.observedAt));

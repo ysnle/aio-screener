@@ -11,6 +11,7 @@ import { readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
+import { fetchTextWithDeadline, withRetry } from './lib/http-fetch.mjs';
 import {
   NASDAQ_LISTED_URL, OTHER_LISTED_URL, SEC_TICKERS_URL, buildArtifact, buildListingRows, fileCreationDate,
   joinSecCik, secCikMap, validateListing
@@ -21,24 +22,10 @@ const OUT = join(ROOT, 'public-data', 'us-listings.json');
 const UNIVERSE = join(ROOT, 'public-data', 'screener-universe.json');
 const FRESH_MS = 20 * 60 * 60 * 1000;
 
-async function fetchText(url, headers, tries = 3) {
-  let lastError;
-  for (let attempt = 1; attempt <= tries; attempt += 1) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 30000);
-    try {
-      const response = await fetch(url, { signal: controller.signal, headers });
-      if (!response.ok) throw new Error(`${url} HTTP ${response.status}`);
-      return await response.text();
-    } catch (error) {
-      lastError = error;
-      if (attempt < tries) await new Promise((resolve) => setTimeout(resolve, 1500 * attempt));
-    } finally {
-      clearTimeout(timer);
-    }
-  }
-  throw lastError;
-}
+const fetchText = (url, headers, tries = 3) => withRetry(() => fetchTextWithDeadline(url, { timeoutMs: 30000, init: { headers } }).catch((error) => {
+  if (error?.status) error.message = `${url} ${error.message}`;
+  throw error;
+}), { tries, delayMs: (attempt) => 1500 * (attempt + 1) });
 
 async function readJson(file) {
   try { return JSON.parse(await readFile(file, 'utf8')); } catch { return null; }

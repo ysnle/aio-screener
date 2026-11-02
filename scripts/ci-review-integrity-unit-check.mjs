@@ -250,7 +250,7 @@ if (!/termPremium10:\s+\{ id: 'THREEFYTP10'/.test(readProducerSource()) || !/Kim
   const { planeFresh } = await import('./producer/source-planes.mjs');
   if (planeFresh('putCall', { fetchedAt: '2026-10-23T21:00Z', status: 'stale-reference', failureReason: 'HTTP 503', totalPutCall: 0.9 })) fail('P2-DATA-06 a retained put/call value counted as fresh');
   if (!planeFresh('putCall', { fetchedAt: '2026-10-24T21:00Z', status: 'current-reference', totalPutCall: 0.9 })) fail('P2-DATA-06 a current put/call read must stay fresh');
-  if (/prior\.putCall\?\.asOf/.test(read('scripts/producer/source-planes.mjs')) && !/prior\.putCall\?\.totalPutCall != null/.test(read('scripts/producer/source-planes.mjs'))) fail('P2-DATA-06 null totalPutCall must not be retained as 0');
+  if (/prior\.putCall\?\.asOf/.test(read('scripts/producer/source-planes.mjs')) && !/prior\.putCall\?\.totalPutCall != null|readNumber\(prior\.putCall\?\.totalPutCall\) != null/.test(read('scripts/producer/source-planes.mjs'))) fail('P2-DATA-06 null totalPutCall must not be retained as 0');
   if (!/endpoint\.includes\('\?'\) \? '&' : '\?'/.test(read('scripts/producer/screener.mjs'))) fail('P2-DATA-07 FMP endpoint with a query must append apikey with &');
   const dossierFacts = (id) => JSON.parse(read(`public-data/knowledge/research-dossiers/${id}.json`)).researchFactIds || [];
   const wrong = [['atlas-foundation_evaluation', /sec:/], ['principles_evaluation', /sec:/]].filter(([id, pattern]) => dossierFacts(id).some((f) => pattern.test(f)));

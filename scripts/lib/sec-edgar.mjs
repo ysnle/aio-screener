@@ -1,3 +1,4 @@
+import { readNumber } from '../../src/domain/shared/number.js';
 const PLACEHOLDER_CONTACT = /(?:example\.com|contact@|research@|your[-_.]?email|localhost)/i;
 const SEC_FORMS = /^(13F-(?:HR|NT))(?:\/A)?$/;
 // v58.71 (pipeline audit): EDGAR files structured Schedules as 'SCHEDULE 13D/G' since 2024-12-18; the old 'SC' prefix alone froze discovery at 2024-12-17.
@@ -192,7 +193,7 @@ export function parseOwnershipHeader(sgml = '') {
 export function parsePercentOfClass(document = '') {
   const text = String(document).replace(/<[^>]+>/g, ' ').replace(/&nbsp;|&#160;/gi, ' ').replace(/\s+/g, ' ');
   const xml = String(document).match(/<(?:\w+:)?(?:percentOfClass|classPercent)>\s*([\d.]+)\s*</i)?.[1];
-  if (xml != null && Number.isFinite(Number(xml))) return Number(xml);
+  if (readNumber(xml) != null) return Number(xml);
   const index = text.search(/percent of class represented/i);
   if (index < 0) return null;
   const match = text.slice(index, index + 400).match(/(\d{1,2}(?:\.\d+)?)\s*%/);

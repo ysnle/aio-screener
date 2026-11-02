@@ -10,7 +10,9 @@ import { readFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
+import { fetchJsonWithDeadline, sleep } from './lib/http-fetch.mjs';
 import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
+import { readNumber } from '../src/domain/shared/number.js';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const ROOT = `${__dir}/..`;
@@ -26,7 +28,7 @@ const DAY_MS = 86400000;
 const KEEP_GOOD_ROW_DAYS = 21;
 const MONTHS = { Jan: 1, Feb: 2, Mar: 3, Apr: 4, May: 5, Jun: 6, Jul: 7, Aug: 8, Sep: 9, Oct: 10, Nov: 11, Dec: 12 };
 
-const num = (value) => (value === '' || value == null || !Number.isFinite(Number(value)) ? null : Number(value));
+const num = readNumber;
 // 'Oct 2026' -> '2026-10'
 export function fiscalMonth(label) {
   const match = /^([A-Z][a-z]{2})\s+(\d{4})$/.exec(String(label || '').trim());
@@ -70,16 +72,12 @@ export function surpriseHistory(reported = []) {
 }
 
 async function getJson(url) {
-  const response = await fetch(url, {
-    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; aio-screener research)', Accept: 'application/json, text/plain, */*', 'Accept-Language': 'en-US,en;q=0.9' },
-    signal: AbortSignal.timeout(15000)
+  const body = await fetchJsonWithDeadline(url, {
+    timeoutMs: 15000,
+    init: { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; aio-screener research)', Accept: 'application/json, text/plain, */*', 'Accept-Language': 'en-US,en;q=0.9' } }
   });
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  const body = await response.json();
   return body?.data ?? null;
 }
-
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // v57.54 review: an empty answer (200 with data:null, or only the just-reported quarter ahead) must not wipe a
 // good row and hide it for NO_COVERAGE_RETRY_DAYS; keep the previous row until the reader's age limit expires it.

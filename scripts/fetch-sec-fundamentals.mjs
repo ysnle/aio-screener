@@ -8,6 +8,7 @@
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
+import { createSecClient } from './lib/sec-edgar.mjs';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { finiteFact, sameFiscalPeriod, isPriorAnnualPeriod, FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from '../src/domain/fundamental/period.js';
@@ -19,6 +20,7 @@ import { secClassification } from '../src/domain/fundamental/sic-sector.js';
 export { SEC_NORMALIZER_VERSION, SEC_CONCEPT_SET_VERSION, SEC_CONCEPT_SET_REASON_CODES, reportingBasis, classifyIssuerCapability, parseClassShareFacts, CLASS_EPS_TOLERANCE, selectClassDimensionedShares, classInstanceUrl, RECENT_FILING_WINDOW_DAYS, RECENT_FILING_MAX, recentFilingsFrom, normalizeSecCompanyFacts } from '../src/domain/fundamental/sec-normalize.js';
 import { buildDomainReceipt } from './lib/domain-receipt.mjs';
 import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
+import { readNumber } from '../src/domain/shared/number.js';
 
 // P1256: 도메인 receipt 계약은 이제 모든 수집 도메인이 공유한다(SEC는 첫 수용자).
 export { buildDomainReceipt };
@@ -51,31 +53,17 @@ const FAILURE_RETRY_AFTER_MS = 24 * 60 * 60 * 1000;
 const USER_AGENT = process.env.SEC_USER_AGENT || '';
 
 
-async function fetchJSON(url, tries = 3, as = 'json') {
-  let lastError;
-  for (let i = 0; i < tries; i++) {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 20000);
-    try {
-      const response = await fetch(url, {
-        headers: {
-          'User-Agent': USER_AGENT,
-          'Accept': as === 'json' ? 'application/json' : 'application/xml',
-          'Accept-Encoding': 'gzip, deflate'
-        },
-        signal: ctrl.signal
-      });
-      if (!response.ok) throw new Error(`${url} HTTP ${response.status}`);
-      return as === 'json' ? await response.json() : await response.text();
-    } catch (error) {
-      lastError = error;
-      if (i + 1 < tries) await new Promise(resolve => setTimeout(resolve, 900 * (i + 1)));
-    } finally {
-      clearTimeout(timer);
-    }
-  }
-  throw lastError;
+// 2026-11-02: every SEC request of this producer goes through the one paced client (scripts/lib/sec-edgar.mjs) the 13F
+// and earnings lanes use: requests queued at ≤8/s (SEC fair access allows 10), a deadline on each attempt, retries only
+// for 403/429/5xx and dropped connections (one client per attempt count; the lanes that use them run one after another). Before, this file sent the companyfacts/submissions pair in parallel
+// with no spacing and retried a definitive 404. `tries` keeps its old meaning (total attempts).
+const SEC_REQUEST_TIMEOUT_MS = 20000;
+const secClients = new Map();
+function secClient(tries) {
+  if (!secClients.has(tries)) secClients.set(tries, createSecClient({ userAgent: USER_AGENT, maxRetries: Math.max(0, tries - 1), requestTimeoutMs: SEC_REQUEST_TIMEOUT_MS, fetchFn: (...args) => globalThis.fetch(...args) }));
+  return secClients.get(tries);
 }
+const fetchJSON = (url, tries = 3, as = 'json') => (as === 'json' ? secClient(tries).json(url) : secClient(tries).text(url));
 
 // Pure (v58.71): the form-type daily index as cik -> latest filing date (YYYY-MM-DD) for periodic report forms.
 export function parsePeriodicFilers(indexText, into = new Map()) {
@@ -385,7 +373,7 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
       // 없으면 종전대로 screener.json 값을 본다. 어느 경로도 발행 아티팩트에
       // 가격을 기록하지 않는다.
       const hintedPrice = priceHints && typeof priceHints.get === 'function' ? priceHints.get(target.symbol) : null;
-      const price = Number.isFinite(Number(hintedPrice)) && Number(hintedPrice) > 0
+      const price = readNumber(hintedPrice) != null && Number(hintedPrice) > 0
         ? Number(hintedPrice)
         : screener.data && screener.data[target.symbol] && screener.data[target.symbol].price;
       const capability = classifyIssuerCapability(facts, submissions);

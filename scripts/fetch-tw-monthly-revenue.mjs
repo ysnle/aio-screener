@@ -12,9 +12,11 @@
 // the TPEx OpenAPI schema has not been verified from a run. Without network, or on any fetch/shape failure, it exits 0
 // and leaves the previous artifact untouched. A run whose data equals the previous artifact's does not rewrite it, so
 // the monthly series does not commit every six hours.
-import { readFile, writeFile, rename } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { atomicWriteFile } from './lib/atomic-write.mjs';
+import { fetchJsonWithDeadline } from './lib/http-fetch.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const TW_REVENUE_OUT = path.join(root, 'public-data', 'tw-monthly-revenue.json');
@@ -121,9 +123,7 @@ export function sameRevenueData(a, b) {
 async function main() {
   let previous = null;
   try { previous = JSON.parse(await readFile(TW_REVENUE_OUT, 'utf8')); } catch { /* first run */ }
-  const response = await fetch(TW_REVENUE_URL, { headers: { 'User-Agent': 'AIO-Screener research (GitHub Actions)', Accept: 'application/json' }, signal: AbortSignal.timeout(30000) });
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  const rows = await response.json();
+  const rows = await fetchJsonWithDeadline(TW_REVENUE_URL, { timeoutMs: 30000, init: { headers: { 'User-Agent': 'AIO-Screener research (GitHub Actions)', Accept: 'application/json' } } });
   if (!Array.isArray(rows) || !rows.length) throw new Error('empty dataset');
   const payload = buildTwMonthlyRevenue({ rows, previous: previous?.status === 'ok' ? previous : null });
   if (payload.status !== 'ok') {
@@ -132,9 +132,7 @@ async function main() {
   }
   if (payload.renamed.length) console.log(`::warning::[tw-revenue] source name changed: ${payload.renamed.join(', ')}`);
   if (sameRevenueData(payload, previous)) { console.log(`[tw-revenue] unchanged (${payload.latestMonth}) — not rewritten`); return; }
-  const tmp = `${TW_REVENUE_OUT}.tmp`;
-  await writeFile(tmp, JSON.stringify(payload));
-  await rename(tmp, TW_REVENUE_OUT);
+  await atomicWriteFile(TW_REVENUE_OUT, JSON.stringify(payload));
   console.log(`[tw-revenue] ok ${payload.latestMonth} · ${payload.companies.length} companies · missing ${payload.missing.join(',') || 'none'}`);
 }
 

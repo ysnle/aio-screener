@@ -8,6 +8,7 @@ import { FRED_SERIES, fetchAaiiSentiment, fetchBeaPce, fetchBlsSeries, fetchCboe
 import { fetchNews } from '../lib/news-selection.mjs';
 import { SYMBOLS, fetchQuote, mapLimit, fetchCoinGeckoCrossCheck } from './quotes.mjs';
 import { fetchFred } from './fred.mjs';
+import { readNumber } from '../../src/domain/shared/number.js';
 
 // Provider statuses that mean "this run collected the value" (not a carried last-known-good copy).
 export const FRESH_STATUSES = Object.freeze({
@@ -69,7 +70,7 @@ export function sourcePlanes({ prior, attemptedAt, env = process.env, blsRelease
     // v58.74 (refresh-data 10/24 01:20Z): a failed Cboe read published totalPutCall null and the static-data contract
     // refused the whole refresh. A failed read keeps the last value labelled stale-reference (history writes only
     // current-reference rows), like Fear & Greed.
-    { id: 'putCall', label: 'Put/Call', run: () => fetchCboePutCall().then((value) => (value?.error && prior.putCall?.totalPutCall != null && Number.isFinite(Number(prior.putCall.totalPutCall)) && prior.putCall?.asOf
+    { id: 'putCall', label: 'Put/Call', run: () => fetchCboePutCall().then((value) => (value?.error && readNumber(prior.putCall?.totalPutCall) != null && prior.putCall?.asOf
       ? { ...prior.putCall, status: 'stale-reference', attemptedAt, failureReason: value.error } : value)),
       fallback: () => ({ source: 'Cboe Daily Market Statistics', sourceKind: 'unavailable', allowedUse: 'none', fetchedAt: null, attemptedAt, totalPutCall: null, error: 'put-call-plane-failed' }) },
     { id: 'bls', label: 'BLS', run: () => fetchBlsSeries(prior.bls, { releaseSchedules: blsReleaseSchedules }),

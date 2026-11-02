@@ -8,6 +8,7 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
+import { fetchJsonWithDeadline } from './lib/http-fetch.mjs';
 import { BIGTECH_CASHFLOW_SCHEMA, BIGTECH_ISSUERS, HYPERSCALERS, issuerCashflow, groupCashflow, groupCashflowSentence } from '../src/domain/fundamental/quarterly-cashflow.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -40,15 +41,7 @@ export function buildBigtechCashflow({ factsBySymbol = {}, previous = null, nowM
   };
 }
 
-async function fetchFacts(cik, userAgent) {
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 25000);
-  try {
-    const response = await fetch(FACTS_URL(cik), { headers: { 'User-Agent': userAgent, Accept: 'application/json', 'Accept-Encoding': 'gzip, deflate' }, signal: ctrl.signal });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return await response.json();
-  } finally { clearTimeout(timer); }
-}
+const fetchFacts = (cik, userAgent) => fetchJsonWithDeadline(FACTS_URL(cik), { timeoutMs: 25000, init: { headers: { 'User-Agent': userAgent, Accept: 'application/json', 'Accept-Encoding': 'gzip, deflate' } } });
 
 async function main() {
   const userAgent = process.env.SEC_USER_AGENT || '';

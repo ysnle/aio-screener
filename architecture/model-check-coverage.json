@@ -2,7 +2,7 @@
   "schemaVersion": "aio-model-check-coverage.v1",
   "gates": {
     "history-session-model": {
-      "syncedAt": "07ecac57",
+      "syncedAt": "f7a8f0a",
       "covers": [
         {
           "module": "scripts/producer/history.mjs",
@@ -12,17 +12,17 @@
         {
           "module": "scripts/producer/history.mjs",
           "name": "mergeBackfillBars",
-          "fingerprint": "cf3a09bb0d099ec9"
+          "fingerprint": "cac2d73639df0117"
         }
       ]
     },
     "narrative-lifecycle-model": {
-      "syncedAt": "942ed56",
+      "syncedAt": "f7a8f0a",
       "covers": [
         {
           "module": "scripts/producer/market-narrative.mjs",
           "name": "genMarketAnalysis",
-          "fingerprint": "f538c653fc00e501"
+          "fingerprint": "37bc3d58590a57c7"
         },
         {
           "module": "scripts/producer/market-narrative.mjs",

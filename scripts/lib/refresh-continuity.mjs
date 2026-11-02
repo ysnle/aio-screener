@@ -1,6 +1,7 @@
 // Shared collector contract: an attempt cannot renew a prior successful cycle.
+import { readNumber } from '../../src/domain/shared/number.js';
 export function isObservedNumber(value) {
-  return value != null && value !== '' && typeof value !== 'boolean' && Number.isFinite(Number(value));
+  return readNumber(value) != null;
 }
 
 export function deriveFredCycle({ configured, expected, current = {}, previous = {}, previousMeta = {}, attemptedAt }) {

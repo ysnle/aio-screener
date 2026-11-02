@@ -11,9 +11,11 @@
 // in a known unit. ECOS publishes the foreign investors' net purchase; the individual and institutional figures are
 // used only if the table lists them. Values are ECOS's own numbers converted to 억원; nothing is estimated.
 // Without a key, or on any fetch failure, it exits 0 and leaves the previous artifact untouched.
-import { readFile, writeFile, rename } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { atomicWriteFile } from './lib/atomic-write.mjs';
+import { fetchJsonWithDeadline } from './lib/http-fetch.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const KR_INVESTOR_FLOWS_OUT = path.join(root, 'public-data', 'kr-investor-flows.json');
@@ -109,19 +111,11 @@ export function pendingKrInvestorFlows(reason = 'key-missing', generatedAt = new
   return { schemaVersion: KR_INVESTOR_FLOWS_SCHEMA, generatedAt, status: 'not-collected', reason, source: '한국은행 경제통계시스템(ECOS) 802Y001 주식시장(일)', sourceUrl: 'https://ecos.bok.or.kr/', sourceKind: 'T1_OFFICIAL', statCode: ECOS_STAT_CODE, unit: '억원', markets: {}, missingInvestors: INVESTORS.map((inv) => inv.id), skipped: [] };
 }
 
-async function writeArtifact(payload) {
-  const tmp = `${KR_INVESTOR_FLOWS_OUT}.tmp`;
-  await writeFile(tmp, JSON.stringify(payload));
-  await rename(tmp, KR_INVESTOR_FLOWS_OUT);
-}
+const writeArtifact = (payload) => atomicWriteFile(KR_INVESTOR_FLOWS_OUT, JSON.stringify(payload));
 
 const ymd = (ms) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(ms)).replace(/-/g, '');
 
-async function getJson(url) {
-  const response = await fetch(url, { headers: { 'User-Agent': 'AIO-Screener research (GitHub Actions)' }, signal: AbortSignal.timeout(20000) });
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  return response.json();
-}
+const getJson = (url) => fetchJsonWithDeadline(url, { timeoutMs: 20000, init: { headers: { 'User-Agent': 'AIO-Screener research (GitHub Actions)' } } });
 
 async function main() {
   const key = process.env.BOK_API_KEY || '';

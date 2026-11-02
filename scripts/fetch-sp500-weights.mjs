@@ -8,6 +8,7 @@ import { readFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
+import { fetchTextWithDeadline } from './lib/http-fetch.mjs';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const OUT = `${__dir}/../public-data/sp500-weights.json`;
@@ -58,12 +59,9 @@ export function parseHoldings(text) {
 async function main() {
   let previous = null;
   try { previous = JSON.parse(await readFile(OUT, 'utf8')); } catch { /* first run */ }
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 30000);
   try {
-    const response = await fetch(SOURCE_URL, { signal: controller.signal, headers: { 'User-Agent': 'Mozilla/5.0 (aio-screener data refresh)', Accept: 'text/csv,*/*' } });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const { asOfDate, rows } = parseHoldings(await response.text());
+    const csv = await fetchTextWithDeadline(SOURCE_URL, { timeoutMs: 30000, init: { headers: { 'User-Agent': 'Mozilla/5.0 (aio-screener data refresh)', Accept: 'text/csv,*/*' } } });
+    const { asOfDate, rows } = parseHoldings(csv);
     const total = rows.reduce((sum, row) => sum + row.weight, 0);
     // A truncated or reshaped file must not replace a good one: the index has ~500 members summing to ~100%.
     if (rows.length < 450 || total < 90 || total > 105) throw new Error(`implausible holdings: ${rows.length} rows, ${total.toFixed(1)}% total`);
@@ -84,8 +82,6 @@ async function main() {
     console.log(`[sp500-weights] ${rows.length} members, ${total.toFixed(2)}% total, holdings as of ${asOfDate}`);
   } catch (error) {
     console.log(`::warning::S&P 500 weights not refreshed (${error.message}); ${previous ? 'previous file kept' : 'no previous file'}`);
-  } finally {
-    clearTimeout(timer);
   }
 }
 

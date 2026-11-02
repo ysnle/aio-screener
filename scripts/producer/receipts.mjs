@@ -5,6 +5,7 @@
 import { buildDomainReceipt } from '../lib/domain-receipt.mjs';
 import { NEWS_FEEDS } from '../lib/news-selection.mjs';
 import { planeFresh } from './source-planes.mjs';
+import { readNumber } from '../../src/domain/shared/number.js';
 
 export function buildDomainReceipts({ previousMeta, attemptedAt, generatedAt, symbolCount, quotes, failed, news, previousNews,
   fredSeriesIds, fredFetchedKeys, fredFailedSeries, planes }) {
@@ -85,7 +86,7 @@ export function buildDomainReceipts({ previousMeta, attemptedAt, generatedAt, sy
     }),
     'options-put-call': planeReceipt('options-put-call', {
       eligible: 1, attempted: 1, updated: putCallFresh ? 1 : 0,
-      stored: (putCallFresh || (putCall && putCall.totalPutCall != null && Number.isFinite(Number(putCall.totalPutCall)))) ? 1 : 0,
+      stored: (putCallFresh || readNumber(putCall?.totalPutCall) != null) ? 1 : 0,
       failures: putCallFresh ? [] : failure('cboe-put-call')
     })
   };

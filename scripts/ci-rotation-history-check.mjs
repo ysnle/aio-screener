@@ -104,6 +104,17 @@ const cached=await collectRotationHistory({previous:baseline,now:now+10000,symbo
 assert.equal(requests,0,'P1358 same completed session uses zero provider calls');
 assert.equal(cached.generatedAt,baseline.generatedAt,'P1358 cache reuse does not fabricate a new observation');
 assert.equal(cached.collectionStatus,'CACHED_COMPLETED_SESSION','P1358 cache provenance stays explicit');
+// v59.59 (feature audit 2026-11-02): a session read 21 minutes after the close (SMH -8.41% vs settled -6.98%) is collected
+// again until a fetch at least ROTATION_SETTLED_FETCH_MINUTES after the close; that settled read is then cached.
+{
+  const early=new Date(target.closeMs+21*60000).toISOString();
+  const earlyBaseline={...baseline,items:{XLK:{...row,fetchedAt:early}}};
+  let refetches=0;
+  const again=await collectRotationHistory({previous:earlyBaseline,now:now+10000,symbols:['XLK'],fetchHistory:async(symbol)=>{refetches++;return symbol==='SPY'?spy:sector;},clock:()=>now+10000});
+  assert.equal(refetches,2,'v59.59 a completed session fetched before it settled is collected again');
+  assert.equal(again.items.XLK.status,'CURRENT','v59.59 the settled re-read replaces the early one');
+  assert.notEqual(again.collectionStatus,'CACHED_COMPLETED_SESSION','v59.59 an unsettled read is not cached');
+}
 let active=0,peak=0;
 const all=await collectRotationHistory({now,symbols:ROTATION_SYMBOLS,concurrency:3,clock:()=>now,fetchHistory:async(symbol,range)=>{
   assert.equal(range,'6mo','P1358 bounded history source window');requests++;active++;peak=Math.max(peak,active);
