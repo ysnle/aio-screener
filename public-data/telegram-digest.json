@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-02T06:21:45.509Z",
-  "attemptedAt": "2026-11-02T06:21:45.509Z",
-  "lastSuccessfulAt": "2026-11-02T06:21:45.509Z",
+  "generatedAt": "2026-11-02T06:51:23.513Z",
+  "attemptedAt": "2026-11-02T06:51:23.513Z",
+  "lastSuccessfulAt": "2026-11-02T06:51:23.513Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-19T06:21:39.701Z",
-  "until": "2026-11-02T06:21:39.701Z",
+  "since": "2026-10-19T06:51:16.906Z",
+  "until": "2026-11-02T06:51:16.906Z",
   "current24hWindow": {
     "start": "2026-10-31T23:00:00.000Z",
     "end": "2026-11-01T23:00:00.000Z",
@@ -92,24 +92,24 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1333,
+      "count": 1331,
       "freshCount": 34,
-      "eligibleTextCount": 1275,
+      "eligibleTextCount": 1273,
       "selectedCount": 124,
       "error": null,
-      "lastPostId": 68057
+      "lastPostId": 68058
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 232,
+      "count": 233,
       "freshCount": 29,
-      "eligibleTextCount": 232,
-      "selectedCount": 124,
+      "eligibleTextCount": 233,
+      "selectedCount": 125,
       "error": null,
-      "lastPostId": 20945
+      "lastPostId": 20946
     },
     {
       "channel": "HANAchina",
@@ -124,31 +124,33 @@
       "lastPostId": 71398
     }
   ],
-  "count": 2354,
+  "count": 2353,
   "retainedItemCount": 459,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2354,
-    "eligibleTextCount": 2288,
+    "observedCount": 2353,
+    "eligibleTextCount": 2287,
     "mediaOnlyCount": 66,
-    "mediaAttachedCount": 86,
+    "mediaAttachedCount": 87,
     "photoPostCount": 73,
     "documentPostCount": 0,
     "imageOnlyCount": 0,
-    "highSignalCount": 421,
-    "broadSignalCount": 921,
-    "selectedRawCount": 412,
-    "selectedEligibleCount": 412,
-    "selectedRawCoveragePct": 18,
-    "selectedOfObservedPct": 17.5,
+    "highSignalCount": 422,
+    "broadSignalCount": 922,
+    "selectedRawCount": 413,
+    "selectedEligibleCount": 413,
+    "selectedRawCoveragePct": 18.1,
+    "selectedOfObservedPct": 17.6,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 838,
-    "japan": 106,
+    "japan": 107,
+    "equity": 164,
+    "ai-policy": 130,
+    "market-note": 836,
     "semi": 526,
     "power": 284,
     "healthcare": 114,
@@ -159,13 +161,14 @@
     "credit": 122,
     "macro": 350,
     "media-only": 66,
-    "ai-policy": 129,
-    "equity": 163,
     "optical": 36,
     "crypto": 3,
     "insider": 2
   },
   "tickerCounts": {
+    "GS": 1,
+    "MS": 4,
+    "MFG": 1,
     "GOOG": 129,
     "007660.KS": 1,
     "285A.T": 7,
@@ -213,7 +216,6 @@
     "HOOD": 1,
     "005940.KS": 2,
     "CRWV": 9,
-    "MS": 3,
     "MRNA": 1,
     "RDDT": 2,
     "FDX": 1,
@@ -256,13 +258,13 @@
     "GLW": 1
   },
   "themes": [
-    "Market Notes (838 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — AI 인프라 투자 자금 조달을 위해 약 800억 달러 규모의 공급업체 대출 프로그램을 활용할 계획인 것으로...",
+    "Market Notes (836 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — AI 인프라 투자 자금 조달을 위해 약 800억 달러 규모의 공급업체 대출 프로그램을 활용할 계획인 것으로...",
     "Semiconductors/Memory (526 posts in 14-day research window): 노무라, 시장이 메모리 산업의 이익 지속성을 심각하게 과소평가하고 있음 삼성전자와 SK하이닉스의 2027년 예상 PER은 불과 2~3배로, 글로벌 빅테크 대비 85~90% 할인된 수준 메모리 공급 부족이 2028년까지 지속된다면 현재의 극단적인 저평가는 매력적인 투자 기회가 될 수 있다 1. AI 투자 경쟁으로...",
     "Earnings/Corporate (481 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
     "Geopolitics (416 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 31일 🇺🇸 아메리카 • 트럼프 대통령은 이란과 협상이 진행 중이라고 밝혀. 다만 미국 정부는 이란에 대한 경제 봉쇄와 추가 제재를 검토 중이며, 중간선거 직후...",
     "Macro/Rates (350 posts in 14-day research window): 2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,...",
     "AI Power/Grid (284 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
-    "Equity/Analyst (163 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
+    "Equity/Analyst (164 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
     "Korea Market (132 posts in 14-day research window): Alphabet 2026년 3분기 실적 요약 실적 • 매출 $1,275.8억, YoY +25%, QoQ +6% • 환율 영향 제외 매출 성장률 YoY +25%, QoQ +7% • 영업이익 $405.8억,..."
   ],
   "catalysts": [
@@ -388,7 +390,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 129,
+      "count": 130,
       "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
@@ -406,7 +408,7 @@
       "topics": [
         "equity"
       ],
-      "count": 163,
+      "count": 164,
       "focus": "[시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가..."
     },
     {
@@ -442,7 +444,7 @@
       "topics": [
         "japan"
       ],
-      "count": 106,
+      "count": 107,
       "focus": "JPM) 일본 퀀트 전략; 바닥은 닛케이평균 62,000선이나 핵심 분기점은 60,980 – 사이버 관련 헤드라인과 AI 피로감이 선별적 퀄리티 그로스에 다시 불을 지피다 내용 요약 10월 22일 닛케이평균은..."
     },
     {
@@ -469,7 +471,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 838,
+      "count": 836,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — AI 인프라 투자 자금 조달을 위해 약 800억 달러 규모의 공급업체 대출 프로그램을 활용할 계획인 것으로..."
     }
   ],
@@ -1698,6 +1700,27 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "bornlupin/20946",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20946",
+      "datetime": "2026-11-02T06:48:47.000Z",
+      "localDateKst": "2026-11-02",
+      "tags": [
+        "japan",
+        "equity",
+        "ai-policy"
+      ],
+      "lead": 2,
+      "score": 72,
+      "hasText": true,
+      "tickers": [
+        "GS",
+        "MS",
+        "MFG"
+      ],
+      "summary": "앤트로픽, 대규모 미국 IPO 위해 일본에서 최대 35억 달러 조달 추진 1. 앤트로픽, 일본 투자자로부터 최대 35억 달러 조달 추진 - AI 스타트업 앤트로픽(Anthropic PBC)이 미국 증시..."
+    },
     {
       "id": "bornlupin/20945",
       "channel": "bornlupin",
@@ -3056,18 +3079,16 @@
       "datetime": "2026-10-31T07:38:59.000Z",
       "localDateKst": "2026-10-31",
       "tags": [
-        "semi",
-        "power",
-        "healthcare"
+        "market-note"
       ],
       "score": 72,
       "hasText": true,
+      "summary": "[단독] 최태원 SK그룹 회장 샘 올트먼 오픈AI CEO와 오찬 최태원 SK그룹 회장이 방한 중인 샘 올트먼 오픈AI 최고경영자(CEO)와 오찬을 갖고 인공지능(AI) 산업 발전과 양사 간 협력 방안을...",
       "tickers": [
         "005930.KS",
         "000660.KS",
         "017670.KS"
-      ],
-      "summary": "[단독] 최태원 SK그룹 회장 샘 올트먼 오픈AI CEO와 오찬 최태원 SK그룹 회장이 방한 중인 샘 올트먼 오픈AI 최고경영자(CEO)와 오찬을 갖고 인공지능(AI) 산업 발전과 양사 간 협력 방안을..."
+      ]
     },
     {
       "id": "HANAchina/71298",
@@ -8539,20 +8560,6 @@
       "tickers": [
         "NVDA"
       ]
-    },
-    {
-      "id": "bornlupin/20763",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20763",
-      "datetime": "2026-10-22T11:52:45.000Z",
-      "localDateKst": "2026-10-22",
-      "tags": [
-        "market-note"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "네비우스(Nebius), 씨티(Citi)와 35억 달러 규모의 금융 약정 체결 AI 클라우드 기업 네비우스(Nebius, $NBIS )가 씨티(Citi)로부터 35억 달러(약 4조 8천억 원) 규모의 선순위...",
-      "tickers": []
     },
     {
       "id": "aetherjapanresearch/25987",
