@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-11-01T14:58:36.364Z",
-  "appRevision": "v59.55",
-  "gitHead": "d118747bff5f8bf9e3b92a91a3d82f01dcebe687",
+  "observedAt": "2026-11-02T02:47:51.190Z",
+  "appRevision": "v59.58",
+  "gitHead": "e168610a946cc765fd041904a8c17472d300ae8f",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -41,72 +41,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 9,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "ETF",
-          "width": 18,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "WTI",
-          "width": 21,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "bp",
-          "width": 14,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "%p",
-          "width": 17,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "VIX",
-          "width": 18,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "TIPS",
-          "width": 23,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "HY",
-          "width": 15,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "OAS",
-          "width": 23,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "CPI",
-          "width": 20,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -141,8 +77,16 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 1,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "VIX",
+          "width": 19,
+          "height": 27,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
@@ -159,51 +103,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 6,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "KST",
-          "width": 23,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "EPS",
-          "width": 19,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "PER",
-          "width": 20,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "CPI",
-          "width": 17,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "%p",
-          "width": 17,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "OAS",
-          "width": 23,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -238,168 +139,14 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 23,
+      "smallTargetExceptionCount": 1,
       "smallTargetExceptions": [
         {
           "id": "",
-          "text": "연준 목표 범위 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "실효 연방기금금리 (월평균) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "CPI (전년 대비) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "근원 CPI (전년 대비) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "PCE 물가 (전년 대비) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "근원 PCE (전년 대비) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "주거비 CPI (전년 대비) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "주거비 제외 서비스 CPI (전년 대비) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "실업률 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "비농업 고용 증감 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "시간당 임금 (전년 대비) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "경제활동참가율 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "소매판매 (전월 대비) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "주택 착공 (연율) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "건축 허가 (연율) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "기준금리(실효 연방기금금리) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "미국 10년물 금리 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "미국 2년물 금리 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "10년물 − 3개월물 금리차 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "10년 실질금리 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "근원 CPI 전년 대비 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "실업률 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "VIX 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
+          "text": "KST",
+          "width": 23,
+          "height": 27,
+          "exception": "wcag-inline-text"
         }
       ],
       "skipLink": true,
@@ -436,23 +183,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 2,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "SEC",
-          "width": 20,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "EPS",
-          "width": 19,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -469,37 +201,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 4,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "RRG",
-          "width": 22,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "SPY",
-          "width": 21,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "ETF",
-          "width": 18,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "EPS",
-          "width": 19,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -574,338 +277,338 @@
       "smallTargetExceptions": [
         {
           "id": "",
+          "text": "2026년 11월 비트코인 가격 예측",
+          "width": 180,
+          "height": 15,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "중동 및 우크라이나-러시아 충돌로 공급 우려가 고조되며 원유 가격 상승",
+          "width": 385,
+          "height": 15,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "메모리 부족으로 CXMT가 중국의 칩 챔피언으로 자리 잡다",
+          "width": 310,
+          "height": 15,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "원유, 인플레이션, 연준 리스크... 왜 마이크로스트래티지리는 지금도 더 많은 비트코인을 원하는가?",
+          "width": 522,
+          "height": 15,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "과거 한 달 동안 기름, AI, 채권 거래 모든 것이 달라짐",
+          "width": 278,
+          "height": 15,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "미국 기후 전쟁에서 천연 가스를 구입할 권리에 대한 콜로라도 주 투표",
+          "width": 368,
+          "height": 15,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "마이크 윌슨, 중간 선거 결과와 상관없이 주식 하락 매수해야 한다",
+          "width": 344,
+          "height": 15,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "메모리 부족으로 CXMT가 중국의 칩 챔피언으로 자리 잡다",
+          "width": 310,
+          "height": 15,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "아마존·인텔 실적에 AI 매도세 심화되며 미국 주가 하락",
+          "width": 290,
+          "height": 15,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "Alphabet, AI 지출 계속 늘릴 것이라고 밝혀…2030년까지 매수해 보유할 데이터센터 주식 2종목",
+          "width": 510,
+          "height": 15,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "‘반도체 3배’ 베팅한 서학개미, 10월 29억弗 쓸어담아",
+          "width": 284,
+          "height": 15,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "환율이 바꾼 외인 눈높이…6500선도 높다",
+          "width": 222,
+          "height": 15,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
           "text": "기록적인 수익은 AI 지출 우려로 시장에 혼란을 주는 삼성, SK 하이닉스 주식을 보호하지 못한다",
-          "width": 502,
-          "height": 16,
+          "width": 504,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "미국 고용 증가로 연준, 금리 추가 인상 궤도 유지할 수도",
           "width": 296,
-          "height": 16,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "국채 수익은 거의 변동이 없고, 프랑스 국채가 선전한다",
           "width": 290,
-          "height": 16,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "미국 중간 선거에 관심 없는 채권 투자자들",
-          "width": 224,
-          "height": 16,
+          "width": 223,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "美 반도체주 폭락…'인텔 쇼크'에 국내 증시 영향 촉각[주간증시전망](종합)",
-          "width": 388,
-          "height": 16,
+          "width": 394,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "DeepSeek, 앤트로픽과 경쟁하기 위한 강화된 코딩 에이전트 출시",
-          "width": 343,
-          "height": 16,
+          "width": 348,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "Alphabet 주가 하락, 나스닥도 끌어내려",
-          "width": 208,
-          "height": 16,
+          "width": 211,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "Anthropic의 2조 달러 IPO, 코스피 시가총액의 절반 넘어",
-          "width": 295,
-          "height": 16,
+          "width": 301,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "미국 중간선거를 앞둔 아시아 주식 트레이더를 위한 가이드",
           "width": 311,
-          "height": 16,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "일본은행, 인플레이션 통제 성공 선언, 금리 인상을 위한 길을 열어",
           "width": 347,
-          "height": 16,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "10일중 8일 주가 같은 방향 삼전닉스…3분기 실적 땐 엇갈려",
-          "width": 313,
-          "height": 16,
+          "width": 319,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "'AI 수익성 회의론', 증시 계속 짓누르나…美중간선거에 촉각",
-          "width": 312,
-          "height": 16,
+          "width": 315,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "금감원 불법공매도 긴급점검…\"5개 안팎 종목 조사\"",
-          "width": 269,
-          "height": 16,
+          "width": 272,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "원유 가격, 미국의 이란 외교 재개 시도에 따라 완화되다",
           "width": 293,
-          "height": 16,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "OpenAI, 최신 라운드에서 최대 200억 달러 모금 목표 조정",
-          "width": 304,
-          "height": 16,
+          "width": 310,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "Teck Resources Ltd (TECK) (Q3 2026) 실적 콘퍼런스 하이라이트: 구리 가격 기록으",
-          "width": 511,
-          "height": 16,
+          "width": 543,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "중간선거 후 주가는 대체로 랠리를 보이지만, 이번에는 AI 지출과 금리 인상이 위험 요인 추가",
-          "width": 488,
-          "height": 16,
+          "width": 489,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "중간선거 최종 카운트다운 시청, 기술주 급락",
           "width": 235,
-          "height": 16,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "주식 포트폴리오가 채권 시장과 중간 선거에 점점 더 의존한다",
           "width": 326,
-          "height": 16,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "중간 선거 지출 급증, 라티노의 영향력에도 불구하고 스페인어 광고는 제외된다",
           "width": 416,
-          "height": 16,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "예측 시장은 선거에서 계속 실패한다. 중간 선거에서도 실패할 것인가?",
-          "width": 370,
-          "height": 16,
+          "width": 371,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "Bank of America는 수익 발표 전에 이 주식을 사라고 말한다. 너무 늦기 전에",
-          "width": 398,
-          "height": 16,
+          "width": 405,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "Anthropic의 매출총이익률, 1년 새 12%에서 85%로 급등했지만 S-1은 지속되지 않을 것이라고 경",
-          "width": 520,
-          "height": 16,
+          "width": 539,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "Anthropic의 나스닥 상장길, 한층 험난해져",
-          "width": 224,
-          "height": 16,
+          "width": 227,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "셰브론, 주목할 에너지주 3종목 선도",
-          "width": 190,
-          "height": 16,
+          "width": 192,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "칩 부족 심화 속 OpenAI의 Altman, 삼성 경영진과 회동",
-          "width": 287,
-          "height": 16,
+          "width": 291,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "삼성·오픈AI 수장, AI가 미래 사업 전략에 미칠 영향 논의",
-          "width": 293,
-          "height": 16,
+          "width": 295,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "호르무즈 공격에 이란 평화 노력 위협…유가 6개월 최고치",
-          "width": 302,
-          "height": 16,
+          "width": 305,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "삼성 경영진, AI 전략 논의 위해 OpenAI의 올트먼과 회동",
-          "width": 296,
-          "height": 16,
+          "width": 299,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "트럼프가 빅오일의 수익을 비판했다…정유 부문 실적은 이후 얼마나 급증했나",
-          "width": 407,
-          "height": 16,
+          "width": 408,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "키옥시아, AI발 낸드 수요 폭발에 역대 최대 실적…순이익 37배",
-          "width": 326,
-          "height": 16,
+          "width": 330,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "[마켓노트] 금리 안정이 주식시장 반등 조건",
-          "width": 228,
-          "height": 16,
+          "width": 230,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "OpenAI, 기술 우려가 고조함에 따라 자금 조달 목표를 100억 달러 줄이다",
-          "width": 383,
-          "height": 16,
+          "width": 389,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "크래머의 주간 전망: 기술 실적과 중간 선거 앞두고 변동성 더 기대",
           "width": 347,
-          "height": 16,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "실망스러운 기술 실적, 주가 하락, 비트코인도 바이너스 해킹으로 하락",
           "width": 368,
-          "height": 16,
+          "height": 15,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "아마존·인텔 실적에 AI 매도세 심화되며 미국 주가 하락",
-          "width": 289,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "뉴욕증시 기술주 매도 확대…나스닥 2.9%↓·인텔 29%↓",
-          "width": 279,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "이란 확전 우려에 국제유가 2%대 급등…브렌트유 6개월만에 최고",
-          "width": 343,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "중간 선거, 애플 실적, 고용 보고서. 월 스트리트는 기술을 처분하는 투자자들에게 앞으로 큰 한 주를 맞이한",
-          "width": 573,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "엑손, 체번의 실적이 예상치를 상회하며 정제 마진이 전쟁 기간 동안 급등",
-          "width": 383,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "브로드컴 주식 전망은 AI 칩 성장과 앤트로픽 파트너십에 달려 있다",
-          "width": 353,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "아마존이 AI 지출에 대한 우려를 더해 기술주 하락 예상",
-          "width": 289,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "아마존, 인텔이 AI 투자에 대한 우려를 더해 나스닥, 거의 3개월래 최저치 기록",
-          "width": 407,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "뉴욕증시, 아마존·인텔 실적 부진에 하락 출발",
-          "width": 238,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "아마존이 AI 지출에 대한 우려를 더해 기술주 하락 예상",
-          "width": 289,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "메모리 부족으로 CXMT가 중국의 칩 챔피언으로 자리 잡다",
-          "width": 307,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "강력한 실적은 인플레이션과 유가 상승으로 인한 어려움을 가린다",
-          "width": 347,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "[표] 주간 코스닥 외국인 순매수도 상위종목",
-          "width": 228,
-          "height": 16,
+          "width": 290,
+          "height": 15,
           "exception": "wcag-inline-text"
         }
       ],
@@ -984,8 +687,8 @@
         {
           "id": "",
           "text": "GitHub Issues",
-          "width": 72,
-          "height": 16,
+          "width": 79,
+          "height": 15,
           "exception": "wcag-inline-text"
         }
       ],
@@ -1005,16 +708,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 1,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "SEC",
-          "width": 20,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     }

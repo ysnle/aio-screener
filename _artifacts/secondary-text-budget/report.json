@@ -27,7 +27,7 @@
   "failures": [],
   "routes": {
     "home": {
-      "total": 1138,
+      "total": 1144,
       "secondary": 113,
       "lines": [
         {
@@ -103,7 +103,7 @@
       ]
     },
     "signal": {
-      "total": 4142,
+      "total": 4171,
       "secondary": 300,
       "lines": [
         {
@@ -173,7 +173,7 @@
           "hasHead": true,
           "asof": "최근 15거래일",
           "readings": [
-            217
+            239
           ],
           "problems": []
         },
@@ -194,7 +194,7 @@
       ]
     },
     "breadth": {
-      "total": 2429,
+      "total": 1703,
       "secondary": 49,
       "lines": [
         {
@@ -259,9 +259,14 @@
       ]
     },
     "sentiment": {
-      "total": 2309,
-      "secondary": 154,
+      "total": 1686,
+      "secondary": 158,
       "lines": [
+        {
+          "chars": 20,
+          "classes": "basis-chip trend-card-tags trend-card",
+          "text": "주간 설문, 10/28, 2거래일 전"
+        },
         {
           "chars": 20,
           "classes": "basis-chip trend-card-tags",
@@ -271,11 +276,6 @@
           "chars": 17,
           "classes": "basis-chip trend-card-tags",
           "text": "10/22, 오래됨(판정 제외)"
-        },
-        {
-          "chars": 16,
-          "classes": "basis-chip trend-card-tags trend-card",
-          "text": "10/28, 2거래일 전 주간"
         },
         {
           "chars": 14,
@@ -334,7 +334,7 @@
       ]
     },
     "briefing": {
-      "total": 2606,
+      "total": 1804,
       "secondary": 75,
       "lines": [
         {
@@ -379,7 +379,7 @@
       ]
     },
     "technical": {
-      "total": 273,
+      "total": 277,
       "secondary": 37,
       "lines": [
         {
@@ -396,7 +396,7 @@
       "frames": []
     },
     "macro": {
-      "total": 6629,
+      "total": 5769,
       "secondary": 233,
       "lines": [
         {
@@ -492,7 +492,7 @@
       ]
     },
     "fxbond": {
-      "total": 2969,
+      "total": 2381,
       "secondary": 165,
       "lines": [
         {
@@ -579,7 +579,7 @@
       "frames": []
     },
     "themes": {
-      "total": 5229,
+      "total": 4354,
       "secondary": 70,
       "lines": [
         {
@@ -715,18 +715,13 @@
       "frames": []
     },
     "portfolio": {
-      "total": 328,
-      "secondary": 23,
+      "total": 294,
+      "secondary": 18,
       "lines": [
         {
           "chars": 18,
           "classes": "sh-portfolio-toggle pf-privacy sh-portfolio-fold page-subtitle",
           "text": "이 브라우저에만 저장, 보안 설정"
-        },
-        {
-          "chars": 5,
-          "classes": "aio-btn-table sh-red-note sh-row sh-portfolio-holdings-table-row",
-          "text": "전체 삭제"
         }
       ],
       "frames": []
@@ -738,7 +733,7 @@
       "frames": []
     },
     "market-news": {
-      "total": 4599,
+      "total": 3969,
       "secondary": 288,
       "lines": [
         {
@@ -943,7 +938,7 @@
       "frames": []
     },
     "screener": {
-      "total": 1807,
+      "total": 1848,
       "secondary": 717,
       "lines": [
         {

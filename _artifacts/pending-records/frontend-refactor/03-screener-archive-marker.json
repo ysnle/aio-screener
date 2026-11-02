@@ -1,0 +1,16 @@
+{
+  "p": {
+    "title": "스크리너 보관 실행 목록이 화면 재진입 뒤 '불러오는 중' 표시에 묶여 재현 버튼이 사라짐",
+    "symptom": "스크리너를 열자마자 다른 화면으로 갔다가 돌아오면(또는 부팅 중 스크리너가 두 번 마운트되면) 실행 기록 접힘 패널에 '저장 입력으로 재현' 버튼이 나오지 않았다. browser-screener-refresh 게이트가 이 브랜치에서 9회 중 2회 '저장 입력으로 재현' 대기 시간 초과로 실패했다(main 10회 0실패, 타이밍 차이로 드러남).",
+    "root_cause": "src/ui/pages/screener.js refreshRunArchive는 공유 노드 #scr-run-history에 data-archive-loaded='loading'을 쓰고 workbench.list()를 기다린다. 기다리는 사이 화면이 언마운트되면(mountActive=false) 그대로 반환해 'loading'이 남았고, 다음 마운트는 표시가 없는 노드만 다시 읽으므로 목록을 영영 읽지 않았다. P2107(v59.21)이 같은 표시의 실행 경로를 고쳤지만 언마운트 경로는 남아 있었다.",
+    "fix": "언마운트로 중단된 읽기는 자기가 남긴 'loading' 표시를 지우고 반환한다(목록 읽기 성공·실패 두 경로 모두). 세대가 바뀐 경우는 새 호출이 표시를 마무리하므로 그대로 둔다.",
+    "violated_rule": "비동기 로드 표시는 그 로드를 끝내지 않고 반환하는 모든 경로에서 해제해야 한다(P2107 계열).",
+    "prevention": "browser-screener-refresh 게이트가 재로드 후 재현 버튼을 기다리는 경로를 이미 검사한다. 이 브랜치에서 10회 연속 통과로 확인했다.",
+    "verification": "node scripts/ci-screener-auto-refresh-browser-check.mjs 10회 반복 10/10 통과(수정 전 9회 중 2회 실패)."
+  },
+  "changelog": [
+    "**스크리너 보관 실행 재현 버튼 복구 ({P}, {VERSION}):** 목록을 읽는 중에 스크리너를 떠나면 '불러오는 중' 표시가 남아 다시 들어와도 '저장 입력으로 재현' 버튼이 나오지 않던 경합을 고쳤다. 언마운트로 중단된 읽기는 자기 표시를 지운다."
+  ],
+  "note": "{VERSION}: screener run archive no longer sticks at 'loading' after leaving the screen mid-read ({P})",
+  "qa_section": "Roadmap 11 frontend decomposition (2026-11-02)"
+}
