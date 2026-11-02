@@ -28,7 +28,7 @@ last_verified: 2026-11-02
 
 ## Workspace
 
-- Context documents: 78; preflight reads current state once; governance and INDEX are targeted references.
+- Context documents: 79; preflight reads current state once; governance and INDEX are targeted references.
 - Skills: 9; command wrappers: 19; agent profiles: 4.
 - Workflows: 16; CI scripts: 161.
 - Ledgers: latest rule R734; latest postmortem P2203; open QA 87 unique IDs (87 rows, 0 explicitly superseded).

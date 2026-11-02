@@ -7,7 +7,7 @@
     "targeted": "Search or read only when the task touches the named domain.",
     "explicitOnly": "Point-in-time evidence; never load by default or treat as current state."
   },
-  "documentCount": 78,
+  "documentCount": 79,
   "documents": [
     {
       "path": "_context/AI-CHAT-INSTITUTIONAL-AUDIT-2026-07-12.md",
@@ -152,11 +152,11 @@
     },
     {
       "path": "_context/BUG-POSTMORTEM.md",
-      "title": "2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.",
+      "title": "결함 사후 분석 원장 (P 항목)",
       "kind": "ledger",
       "readPolicy": "targeted",
-      "bytes": 2550076,
-      "lines": 13513,
+      "bytes": 2553036,
+      "lines": 13546,
       "lastVerified": "2026-11-02",
       "autoRefresh": false
     },
@@ -379,9 +379,9 @@
       "title": "AIO Context Index",
       "kind": "targeted-map",
       "readPolicy": "targeted",
-      "bytes": 8950,
-      "lines": 100,
-      "lastVerified": "2026-10-22",
+      "bytes": 9586,
+      "lines": 118,
+      "lastVerified": "2026-11-02",
       "autoRefresh": true
     },
     {
@@ -503,6 +503,16 @@
       "bytes": 25257,
       "lines": 346,
       "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/OWNER-DECISIONS.md",
+      "title": "소유자 결정 등록부",
+      "kind": "targeted-map",
+      "readPolicy": "targeted",
+      "bytes": 15008,
+      "lines": 111,
+      "lastVerified": "2026-11-02",
       "autoRefresh": false
     },
     {
@@ -630,9 +640,9 @@
       "title": "AIO 로드맵 (한 장)",
       "kind": "historical-snapshot",
       "readPolicy": "explicit-only",
-      "bytes": 3319,
+      "bytes": 4436,
       "lines": 43,
-      "lastVerified": "2026-10-15",
+      "lastVerified": "2026-11-02",
       "autoRefresh": false
     },
     {
@@ -640,28 +650,30 @@
       "title": "규칙 원장 — 원칙 18개(C1~C18)와 그 아래 R 규칙 (2026-10-31 v59.48 재구성)",
       "kind": "ledger",
       "readPolicy": "targeted",
-      "bytes": 215350,
-      "lines": 2194,
+      "bytes": 215293,
+      "lines": 2192,
       "lastVerified": "2026-10-31",
       "autoRefresh": false
     },
     {
       "path": "_context/SCREENER-OPEN-SOURCE-BENCHMARK-AND-REBUILD-HANDOFF-2026-08-12.md",
       "title": "오픈소스 전문 스크리너 비교와 AIO Screener 재설계 핸드오프",
-      "kind": "current-handoff",
-      "readPolicy": "targeted",
-      "bytes": 69273,
-      "lines": 938,
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "supersededBy": "_artifacts/full-audit-20260927/HANDOFF.md (2026-09-27 full audit; open items re-triaged there)",
+      "bytes": 69383,
+      "lines": 939,
       "lastVerified": "2026-09-28",
       "autoRefresh": false
     },
     {
       "path": "_context/SCREENER-OS-00-BASELINE-2026-08-12.md",
       "title": "SCR-OS-00 Baseline and Dependency Ledger",
-      "kind": "current-handoff",
-      "readPolicy": "targeted",
-      "bytes": 4683,
-      "lines": 55,
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "supersededBy": "_artifacts/full-audit-20260927/HANDOFF.md (2026-09-27 full audit; open items re-triaged there)",
+      "bytes": 4793,
+      "lines": 56,
       "lastVerified": "2026-09-28",
       "autoRefresh": false
     },

@@ -18,20 +18,6 @@ target_version: v57.79
 
 **Validation**: node scripts/ci-instruction-text-ratchet-check.mjs(R724 지시 문형·계산 가격), node scripts/ci-regex-term-ratchet-check.mjs(부분 문자열), node scripts/ci-shared-primitive-ratchet-check.mjs(결측→0, scripts/ 포함), node scripts/ci-market-session-contract-check.mjs(시계 함수 전수 검사), node scripts/ci-pipeline-semantics-check.mjs --only market(P2164~P2166 재현).
 
-## R733. 시간 경계를 다루는 분류기와 그 게이트는 벽시계·그날 자료가 아니라 고정 시계와 시간표 전수 검사로 증명한다 (v59.49, P2162)
-
-**Rule**: 장 시작·마감·주말·재개장·서머타임 경계를 판정하는 코드(세션 분류, 뉴스 주기, 단계 창)와 그것을 검사하는 게이트는 실행 시각이나 그날의 공개 자료에 따라 결과가 달라지면 안 된다. 테스트는 고정 시계와 고정 입력으로 돌리고, 세션 분류기는 시장 시간표에서 따로 유도한 기대값과 일주일 이상을 10분 간격으로 전수 비교한다. 데이터 전용 커밋을 만드는 생산자는 CI를 데이터 출처(origin)로 호출해 자료 내용에 반응하는 브라우저 예산 게이트로 데이터 반영이 멈추지 않게 한다.
-
-**Validation**: node scripts/ci-market-snapshot-contract-check.mjs(시간표 전수 검사, scripts/lib/market-session-sweep.mjs), node scripts/ci-esm-core-unit-check.mjs(뉴스 점검 07:00·12:00 KST 고정 시계), node scripts/ci-qa-pipeline-contract-check.mjs(event-briefs 데이터 출처).
-
-## R732. 의미 검토에서 찾은 결함은 결함 id를 단 실제 함수 케이스로 남긴다 (v59.45, P2141)
-
-**Rule**: 파이프라인 의미·정합성 검토(외부 리뷰어 포함)에서 확인된 결함을 고칠 때는 scripts/fixtures/pipeline-semantics/<영역>.mjs에 그 finding id를 단 케이스를 추가한다. 케이스는 실제 도메인·생산자 함수를 작은 고정 입력으로 부르고, 결함 조건이 돌아오면 실패해야 한다. 소스 문자열 고정(regex pin)으로 대신하지 않는다.
-
-**Validation**: node scripts/ci-pipeline-semantics-check.mjs (qa-pipeline core 그룹 pipeline-semantics 게이트, 중복 id+name 거부).
-
-**원칙**: C3 검증은 실제 결과를 증명한다.
-
 ## 핵심 규칙 색인 — 원칙 C1~C18 (먼저 읽기)
 
 각 원칙은 불변식 하나와 그것을 실행하는 게이트를 가진다. 규칙(R)은 그 불변식을 어긴 사례에서 나온 구체 요구이고, 원칙 본문에는 원칙이 말하지 않는 요구 한 줄과 게이트·퇴역 줄만 남긴다. `**Retired**`/`**Superseded by**` 줄이 있는 규칙은 살아 있지 않다. 축약 전 전문은 frontmatter의 커밋에 있다.
@@ -40,8 +26,8 @@ target_version: v57.79
 |---|---|---|---|---|
 | C1 기록·버전·원장은 스크립트가 쓴다 | 버전 표면·결함 기록·규칙 번호는 손으로 맞추지 않는다. | R618 | `ci-version-check` 외 4 | 16 (비활성 2) |
 | C2 작업 공간 사실은 생성되고, 도구는 정본 하나에서 나온다 | 변하는 작업 공간 사실은 생성된 `CURRENT-STATE.md`에서만 읽고, 큰 원장은 검색 전용이다. | R520 | `ci-knowledge-lint-check` 외 3 | 19 (비활성 0) |
-| C3 검증은 실제 결과를 증명한다 | 게이트 PASS는 의미 검토가 아니다. | R219 | `ci-semantic-review-check` 외 4 | 63 (비활성 1) |
-| C4 한 의미에는 한 구현 | 같은 의미의 함수·전역·집합은 한 곳에서만 구현하고 나머지는 그것을 읽는다. | R619 | `ci-structural-check` 외 4 | 41 (비활성 0) |
+| C3 검증은 실제 결과를 증명한다 | 게이트 PASS는 의미 검토가 아니다. | R219 | `ci-semantic-review-check` 외 4 | 64 (비활성 1) |
+| C4 한 의미에는 한 구현 | 같은 의미의 함수·전역·집합은 한 곳에서만 구현하고 나머지는 그것을 읽는다. | R619 | `ci-structural-check` 외 4 | 42 (비활성 0) |
 | C5 화면은 라우트가 소유한다 | 사용자 화면은 8화면 정보구조(`architecture/route-owners.json`)이고, 각 화면의 마운트·데이터 적재·타이머·리스너·입력 처리는 그 라우트의 owner 하나가 가진다. | R704 | `ci-architecture-contract-check` 외 4 | 50 (비활성 1) |
 | C6 표시는 기기에 적응하고 접근성을 지킨다 | 데스크톱·휴대폰·아이패드는 같은 라우트·데이터를 쓰고 레이아웃만 적응한다. | R669 | `ci-accessibility-matrix-check` 외 3 | 23 (비활성 4) |
 | C7 읽는 문장은 관측과 근거만 말한다 | 화면 문장은 측정한 조건과 그 근거를 말하고, 등급·검증 안 된 합산·행동 지시·근거 없는 확률·내부 코드·개발자 마커를 쓰지 않는다. | R697 | `ci-rendered-copy-lint-check` 외 2 | 14 (비활성 1) |
@@ -179,7 +165,19 @@ Hooks use repo-relative paths and never stage or commit; a session's own changed
 
 **게이트**: `scripts/ci-semantic-review-check.mjs` · `scripts/ci-pipeline-semantics-check.mjs` · `scripts/ci-qa-pipeline-contract-check.mjs` · `scripts/ci-qa-runner-behavior-check.mjs` · `scripts/ci-headless-tests.mjs`
 
-**정본**: R219 · 수신함: R732 · 규칙 63건 (비활성 1건)
+**정본**: R219 · 규칙 64건 (비활성 1건)
+
+## R733. 시간 경계를 다루는 분류기와 그 게이트는 벽시계·그날 자료가 아니라 고정 시계와 시간표 전수 검사로 증명한다 (v59.49, P2162)
+
+**Rule**: 장 시작·마감·주말·재개장·서머타임 경계를 판정하는 코드(세션 분류, 뉴스 주기, 단계 창)와 그것을 검사하는 게이트는 실행 시각이나 그날의 공개 자료에 따라 결과가 달라지면 안 된다. 테스트는 고정 시계와 고정 입력으로 돌리고, 세션 분류기는 시장 시간표에서 따로 유도한 기대값과 일주일 이상을 10분 간격으로 전수 비교한다. 데이터 전용 커밋을 만드는 생산자는 CI를 데이터 출처(origin)로 호출해 자료 내용에 반응하는 브라우저 예산 게이트로 데이터 반영이 멈추지 않게 한다.
+
+**Validation**: node scripts/ci-market-snapshot-contract-check.mjs(시간표 전수 검사, scripts/lib/market-session-sweep.mjs), node scripts/ci-esm-core-unit-check.mjs(뉴스 점검 07:00·12:00 KST 고정 시계), node scripts/ci-qa-pipeline-contract-check.mjs(event-briefs 데이터 출처).
+
+## R732. 의미 검토에서 찾은 결함은 결함 id를 단 실제 함수 케이스로 남긴다 (v59.45, P2141)
+
+**Rule**: 파이프라인 의미·정합성 검토(외부 리뷰어 포함)에서 확인된 결함을 고칠 때는 scripts/fixtures/pipeline-semantics/<영역>.mjs에 그 finding id를 단 케이스를 추가한다. 케이스는 실제 도메인·생산자 함수를 작은 고정 입력으로 부르고, 결함 조건이 돌아오면 실패해야 한다. 소스 문자열 고정(regex pin)으로 대신하지 않는다.
+
+**Validation**: node scripts/ci-pipeline-semantics-check.mjs (qa-pipeline core 그룹 pipeline-semantics 게이트, 중복 id+name 거부).
 
 ## R720. 게이트는 자신이 막는 결함을 재현한 입력에서 실패함을 보인 뒤에만 통과 근거가 된다 (v58.63, P1966)
 새 게이트·단언이나 게이트 수정은 (1) 막으려는 결함을 재현한 입력(또는 수정 전 코드)에서 실패하고 (2) 올바른 입력에서 통과함을 함께 보인다. 측정 대상 집합이 비었거나 일부만 읽히면(0개 파일, 0개 필수 항목, 잘린 표본) 통과가 아니라 실패다. 게이트: `ci-qa-runner-behavior-check`, `ci-record-fix-check`, `ci-architecture-audit-regression-fixture`.
@@ -355,7 +353,7 @@ Audit rows render only in developer/QA mode (`body.aio-dev-mode`, `?aioAudit=1` 
 
 **게이트**: `scripts/ci-structural-check.mjs` · `scripts/ci-architecture-contract-check.mjs` · `scripts/ci-architecture-browser-check.mjs` · `scripts/ci-decomp-hotspot-check.mjs` · `scripts/ci-text-pin-ratchet-check.mjs`
 
-**정본**: R619 · 핵심: R619, R620, R624, R352 · 규칙 41건 (비활성 0건)
+**정본**: R619 · 핵심: R619, R620, R624, R352 · 수신함: R734 · 규칙 42건 (비활성 0건)
 
 ## R731. src가 설치하는 window 전역을 js/가 부팅 경로에서 부를 때는 존재를 먼저 확인한다 (v59.42, P2120)
 js/의 classic 스크립트는 src/ 모듈이 window에 설치하는 함수(compatibility-globals.js 등)를 로드 즉시 실행되는 코드나 그 콜백(서비스 워커 메시지, 타이머, 초기 fetch)에서 부를 때 typeof 확인을 거친다. 게이트: `ci-runtime-contract-check`.

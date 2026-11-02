@@ -1,4 +1,5 @@
 ---
+superseded_by: _artifacts/full-audit-20260927/HANDOFF.md (2026-09-27 full audit; open items re-triaged there)
 status: IMPLEMENTED_LOCAL
 verified_by: Codex local verification
 last_verified: 2026-09-28

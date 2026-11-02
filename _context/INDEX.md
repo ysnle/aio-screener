@@ -1,6 +1,6 @@
 ---
 verified_by: generated-workspace-contract + P1313/R659 ledger routing
-last_verified: 2026-10-22
+last_verified: 2026-11-02
 confidence: high
 auto_refresh: true
 target_version: version.json
@@ -19,6 +19,7 @@ target_version: version.json
 | `INDEX.md` | 이 라우터 | 문서 위치 탐색 시 |
 | `CODE-MAP.md` | 대형 셸/호환 모듈의 부분 탐색 지도 | 해당 코드 수정 시 |
 | `QA-PIPELINE-ARCHITECTURE.md` | 영향 기반 로컬 QA, CI DAG, Pages/Cloudflare 운영 경계 | QA·CI·배포·watchdog 수정 시 |
+| `OWNER-DECISIONS.md` | 소유자 결정·상시 규칙의 날짜순 등록부와 정본과의 어긋남 | 결정 이력·대체 관계를 찾을 때 |
 | `AIO-CURRENT-PRODUCT-ARCHITECTURE-CHARTER.md` | 최초 설계 의도에 대한 객관적 판정, 제품 경계, 목표 구조와 단계별 개편 | 제품 방향·범위·아키텍처·신뢰 모델 변경 시 |
 
 ## Search-only ledgers
@@ -28,15 +29,25 @@ target_version: version.json
 | Ledger | Search key | Update trigger |
 |---|---|---|
 | `RULES.md` | 맨 위 수신함 다음의 원칙 색인(C1~C18: 불변식·게이트) → 해당 원칙의 R번호·함수 | 새 결함을 어긴 원칙에 넣거나 규칙/게이트로 승격할 때 |
-| `BUG-POSTMORTEM.md` | 관련 P번호, 증상, producer/consumer | 버그 수정 시 |
+| `BUG-POSTMORTEM.md` | 관련 P번호, 증상, producer/consumer; 맨 위 원칙별 반복 결함 표(`scripts/ledger-class-report.mjs --write`) | 버그 수정 시 |
 | `QA-CHECKLIST.md` | QA ID, 페이지, 게이트 | 새 회귀·미검증 경계 발생 시 |
 | `KNOWLEDGE-BASE.md` | 도메인 용어, source/evidence 상태 | 재사용 가능한 지식 또는 경계 변경 시 |
 
 ## Task routing
 
-Latest review handoff: [`통합 HANDOFF.md`](../_artifacts/architecture-quality-audit/HANDOFF.md) (2026-10-22, 날짜별 Architecture 감사 통합·핸드오프 재검토). 파일별 범위·근거·과거 발견의 상태 연결은 이 단일 진입점을 따른다. 전체 전문 감사·제품 수정·릴리스 인증을 뜻하지 않는다. Earlier reform review: [`2026-10-15 HANDOFF.md`](../_artifacts/codex-reform-audit-20261015/HANDOFF.md). Previous continuation: [`NEXT-SESSION-20261001.md`](../_artifacts/codex-semantic-audit-20260930/NEXT-SESSION-20261001.md), with historical findings in [`REPORT.md`](../_artifacts/codex-semantic-audit-20260930/REPORT.md). Foundation handoff (2026-09-27 full audit, supersedes the August handoffs): [`HANDOFF.md`](../_artifacts/full-audit-20260927/HANDOFF.md), progress/history in [`EXECUTION-STATUS.md`](../_artifacts/full-audit-20260927/EXECUTION-STATUS.md), target design in `FOUNDATION-DESIGN.md` / `V2-BLUEPRINT.md` beside it. Inventory coverage, semantic review, local browser checks and deployed certification are explicitly separate.
+Handoff lineage (최신이 위, 열린 항목은 가장 위 문서가 소유한다; 아래 문서는 이력):
 
-Latest desktop journey evidence and open boundaries: [`user-flow-remediation-20260830.md`](../_artifacts/user-flow-remediation-20260830.md). The route walkthrough is not whole-content semantic or deployment certification (P1010/R572).
+| 날짜 | 문서 | 역할 |
+|---|---|---|
+| 2026-10-22 | [`architecture-quality-audit/HANDOFF.md`](../_artifacts/architecture-quality-audit/HANDOFF.md) + [`FINDINGS-HISTORY.md`](../_artifacts/architecture-quality-audit/FINDINGS-HISTORY.md), [`REVIEW-CORRECTIONS.md`](../_artifacts/architecture-quality-audit/REVIEW-CORRECTIONS.md) | 감사 단일 진입점. 전체 의미 감사·릴리스 인증은 아니다 |
+| 2026-10-15 | [`codex-reform-audit-20261015/HANDOFF.md`](../_artifacts/codex-reform-audit-20261015/HANDOFF.md) | 이전 개편 검토 |
+| 2026-10-01 | [`NEXT-SESSION-20261001.md`](../_artifacts/codex-semantic-audit-20260930/NEXT-SESSION-20261001.md), [`REPORT.md`](../_artifacts/codex-semantic-audit-20260930/REPORT.md) | 의미 감사 이어받기 |
+| 2026-09-27 | [`full-audit-20260927/HANDOFF.md`](../_artifacts/full-audit-20260927/HANDOFF.md), [`EXECUTION-STATUS.md`](../_artifacts/full-audit-20260927/EXECUTION-STATUS.md), `FOUNDATION-DESIGN.md`, `V2-BLUEPRINT.md` | 기초 감사. 8월 핸드오프(`superseded_by:` 표기)를 대체 |
+| 2026-09-18 | [`data-semantic-consistency-20260918/REPORT.md`](../_artifacts/data-semantic-consistency-20260918/REPORT.md) | 데이터 의미·정합성 전수 감사(P1096~P1114, R614~R615) |
+| 2026-08-31 | [`exhaustive-audit-20260831/REPORT.md`](../_artifacts/exhaustive-audit-20260831/REPORT.md) | 전 행 이력 감사(이력) |
+| 2026-08-30 | [`user-flow-remediation-20260830.md`](../_artifacts/user-flow-remediation-20260830.md) | 데스크톱 이동 흐름 증거(P1010/R572, 의미·배포 인증 아님) |
+
+인벤토리 범위, 의미 검토, 로컬 브라우저 확인, 배포 인증은 서로 다른 증거 수준이다. 세션별 이어받기 문서(`_artifacts/**/HANDOFF*.md`)는 SessionStart 훅이 최신을 보여 준다.
 
 정식 스킬 원본은 `.claude/skills/<name>/`, Codex 런타임 미러는 `.agents/skills/<name>/`다. 원본을 고친 뒤 동기화 게이트로 두 표면의 동일성을 검증한다.
 
@@ -51,6 +62,7 @@ Latest desktop journey evidence and open boundaries: [`user-flow-remediation-202
 | Docs/skills/hooks/agents | `knowledge-lint` skill → eight passes |
 | Skill optimization | `autoresearch` skill → eval guide and experiment log |
 | Product scope or architecture | `AGENTS.md` "Product decisions (fixed)" → `AIO-CURRENT-PRODUCT-ARCHITECTURE-CHARTER.md` → relevant architecture contracts |
+| When/why the owner decided something, or what replaced it | `OWNER-DECISIONS.md` (dated register; AGENTS.md stays canonical) |
 | Recording a fix, delegating, post-PR trim | `record-fix.mjs` (`/version-up`), `.claude/skills/_shared/agent-prompt-anatomy.md`, `/restate` `/assumptions` `/trim-pr` `/retro` |
 | Merging main into a version branch | `node scripts/resolve-generated-conflicts.mjs` — R626 field-level merge (delegates to `resolve-data-manifest-merge.mjs`), then runs the release parity gates |
 
@@ -64,15 +76,21 @@ Latest desktop journey evidence and open boundaries: [`user-flow-remediation-202
 - `generated`: change the producer and regenerate, never edit by hand.
 - catalog `readPolicy: explicit-only`: 현재 작업과 직접 관련된 경우에만 읽는다.
 
+## Document map
+
+| 묶음 | 파일 | 읽는 때 |
+|---|---|---|
+| 현재 기준 | `CURRENT-STATE.md`(생성), `AGENTS.md`(루트), `OWNER-DECISIONS.md`, `AIO-CURRENT-PRODUCT-ARCHITECTURE-CHARTER.md` | 시작·제품 판단 |
+| 작업 방법 | `WORKFLOW-GOVERNANCE.md`, `QA-PIPELINE-ARCHITECTURE.md`, `OPERATOR-RUNBOOK.md`, `CODE-MAP.md`, `../REVIEW.md` | 해당 작업을 할 때 |
+| 원장(검색 전용) | `RULES.md`, `BUG-POSTMORTEM.md`, `QA-CHECKLIST.md`, `KNOWLEDGE-BASE.md`, `../CHANGELOG.md` | ID·키워드 검색 |
+| 열린 작업·결정 대기 | `ROADMAP.md`(배치마다 확인한 열린 항목), `QA-CHECKLIST.md`의 `- [ ]` 행 | 다음 작업을 고를 때 |
+| 기계 계약 | `*.json`(베이스라인·매니페스트) | 그 생산자·게이트를 고칠 때 |
+| 자료 통합 기록 | `RESEARCH-INTEGRATION-*.md` | 같은 자료 영역을 다룰 때 |
+| 과거 감사·핸드오프 | 날짜가 붙은 나머지 `*-2026-MM-DD.md`, `DEFERRED-BLOCKS.md`(v50), `WORKTREE-AUDIT.md`(v48), `../EVIDENCE-DEBT.md`(v50.1) — 카탈로그 `historical-snapshot` | 이력을 명시적으로 물을 때만 |
+
 The exact classification for every `_context/*.md|json` file is in `CONTEXT-CATALOG.json`. `ci-knowledge-lint-check.mjs` verifies both filesystem-to-catalog and catalog-to-filesystem parity, frontmatter, references and currentness.
 
 ## Current and live state
-
-- Earlier all-line/history audit (historical): `../_artifacts/exhaustive-audit-20260831/REPORT.md` and `coverage-summary.json`. Inventory/parse coverage is separate from semantic completion; unresolved work is not closed by a passing gate.
-
-- **Latest audit handoff: [`통합 HANDOFF.md`](../_artifacts/architecture-quality-audit/HANDOFF.md)** — Architecture 감사의 단일 진입점이다. [과거 발견 상태](../_artifacts/architecture-quality-audit/FINDINGS-HISTORY.md)와 [검토·정정 기록](../_artifacts/architecture-quality-audit/REVIEW-CORRECTIONS.md)을 함께 읽는다. 이전 수정 이력은 `../_artifacts/codex-semantic-audit-20260930/NEXT-SESSION-20261001.md`와 `../_artifacts/full-audit-20260927/EXECUTION-STATUS.md`에 보존한다.
-
-- **데이터 의미·정합성 전수 감사 (2026-09-18): `../_artifacts/data-semantic-consistency-20260918/REPORT.md`** — 상위 23개 산출물(§1~§9, P1096~P1108/R614)에 이어 **중첩 산출물까지 전부** 검사했다(§10, P1109~P1114/R615): 8,908개 참조·37개 매니저 농도 재계산·629 객체 해시·퇴역 범위 정리·중첩 신선도 측정면 신설·미사용 sw 등록부 삭제. 전환 면제 만료는 **2026-10-18**. 남은 OPEN: 날짜 없는 중첩 산출물 12건, `objects/**` 592/629 미참조 blob 보존 정책, 실제 소비 산출물의 캐시 라우팅 누락, `factorObservedAt` 계층별 이름 분리.
 
 - Repository current state: `CURRENT-STATE.md`.
 - Runtime knowledge state: `public-data/knowledge/status-summary.json`.
