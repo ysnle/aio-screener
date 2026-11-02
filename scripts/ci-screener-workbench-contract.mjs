@@ -302,7 +302,7 @@ async function run() {
   const contextCatalog = JSON.parse(fs.readFileSync(path.join(root, '_context/CONTEXT-CATALOG.json'), 'utf8'));
   const page = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
   const provider = fs.readFileSync(path.join(root, 'src/data/providers/screener.js'), 'utf8');
-  assert(contextCatalog.documents?.some((doc) => doc.path === '_context/SCREENER-OPEN-SOURCE-BENCHMARK-AND-REBUILD-HANDOFF-2026-08-12.md' && doc.readPolicy === 'targeted'), 'G-SCR-DOCS: handoff remains catalogued for targeted reads');
+  assert(contextCatalog.documents?.some((doc) => doc.path === '_context/SCREENER-OPEN-SOURCE-BENCHMARK-AND-REBUILD-HANDOFF-2026-08-12.md' && ['targeted', 'explicit-only'].includes(doc.readPolicy)), 'G-SCR-DOCS: handoff remains catalogued (v59.59: explicit-only once superseded by the 09-27 audit)');
   assert(page.includes('scr-definition-editor') && page.includes('scr-readiness-preview') && page.includes('scr-run-history') && page.includes('scr-outcome-lab'), 'G-SCR-UI: workbench adapter controls are present');
   const screenerUi = fs.readFileSync(path.join(root, 'src/ui/pages/screener.js'), 'utf8');
   const screenerOrchestrator = fs.readFileSync(path.join(root, 'src/data/orchestrators/screener.js'), 'utf8');
