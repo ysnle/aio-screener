@@ -1,0 +1,11 @@
+{
+  "changelog": [
+    "**용어 사전 모달 소유권 통합 ({VERSION}, roadmap 11):** 용어 사전 모달의 세 갈래 클래식 소유자 — js/aio-ui.js의 openGlossary·renderGlossaryCats·renderGlossaryItems·filterGlossary·분류 7묶음과 js/aio-core.js의 _aioCloseGlossary·_aioGlossaryCat·_aioFilterGlossary — 를 src/ui/knowledge/glossary-modal.js 하나로 옮겼다(출력 동일, 실제 GLOSSARY 287개로 6개 검색·분류 조합 HTML 일치 확인). #glossary-modal·#glossary-cats·#glossary-body의 쓰기 주체가 한 모듈이 되고, 분류 상태(_glossaryCat)가 클로저로 들어가 architecture/global-ownership-baseline.json의 동결 상태 전역 목록이 비었다(QA-EXHAUST-95 마지막 항목). 화면 브리지(src/app/legacy-screen-bridges.js)가 설치하고, 그 전에 누른 열기는 설치 때 열린다. Escape 키는 _aioGlossaryIsOpen으로 묻는다. 텍스트 고정 검사 3개는 모듈 동작 검사로 바꿨다(ci-runtime-contract-check).",
+    "**죽은 화면 코드 제거 ({VERSION}, roadmap 11):** v40.6부터 display:none이던 #glossary-btn과 그 드래그 핸들러, v51.58 이후 일치하는 요소가 없는 .insight-box 클릭 토글·첫 방문 펼침(aio_visited), 호출자 없는 forceRefresh(), 로딩 감시가 보던 사라진 id 4개(#macro-storyline·#risk-radar-body·#home-quality-label·#risk-radar-status)를 지웠다."
+  ],
+  "note": "{VERSION}: glossary modal moved to src/ui/knowledge/glossary-modal.js; dead floating button, insight-box and forceRefresh code removed",
+  "qa": [
+    { "id": "QA-DECOMP-GLOSSARY", "text": "{VERSION} 용어 사전 모달은 src/ui/knowledge/glossary-modal.js 하나가 열기·닫기·분류·검색을 소유하고, 빈 분류 검색은 전체로 넓혀 안내한다", "verify_by": "node scripts/ci-runtime-contract-check.mjs", "done": true }
+  ],
+  "qa_section": "Roadmap 11 frontend decomposition (2026-11-02)"
+}

@@ -876,7 +876,64 @@ check('v59.08 the 스크리너 재무 팩터 note reads coverage against the 80%
 // itself, so re-introducing a hand-listed copy fails here as well as in the registry gate.
 check('route terminology derives user surfaces from internal QA routes and retires options (P1321)', /NAV_ROUTE:\s*\[\]/.test(core) && /classes\.NAV_ROUTE = \(window\.AIO_ALL_ROUTE_PAGE_IDS \|\| \[\]\)\.filter/.test(core) && /DERIVED_VIEW:\s*\['ticker','theme-detail'\]/.test(core) && /REFERENCE:\s*\[\]/.test(core) && /REMOVED:\s*\[[^\]]*'options'\]/.test(core) && /OVERLAY:\s*\['glossary'\]/.test(core));
 check('guide chapters and KR secondary groups are explicit progressive-disclosure controls', /#kr-integrated-themes \.aio-theme-progressive \.kr-theme-card:nth-child\(n\+4\)/.test(html) && /\.aio-comp-secondary[\s\S]{0,1200}\.aio-guide-chapter/.test(html));
-check('glossary renders countable semantic rows and a readable comp modal', /class="aio-glossary-item"/.test(ui) && /class="aio-glossary-term"/.test(ui) && /GLOSSARY\.length/.test(ui));
+const glossaryProbe = await (async () => {
+  // v59.59 roadmap 11: the glossary modal moved from js/aio-ui.js and js/aio-core.js to src/ui/knowledge/glossary-modal.js.
+  const { createGlossaryModal } = await import('../src/ui/knowledge/glossary-modal.js');
+  const els = { 'glossary-modal': { style: { display: 'none' } }, 'glossary-search': { value: 'x', focus() {} }, 'glossary-cats': { innerHTML: '' }, 'glossary-body': { innerHTML: '', addEventListener() {} } };
+  const title = { textContent: '' };
+  const documentRef = { getElementById: (id) => els[id] || null, querySelector: (sel) => (sel === '#glossary-modal h2' ? title : null), activeElement: null, body: {}, contains: () => false };
+  const root = { GLOSSARY: [{ term: 'PER', cat: '기초', def: '주가 ÷ 주당순이익' }, { term: 'RRG', cat: '기술', def: '상대 회전 그래프' }], escHtml: (v) => String(v) };
+  const modal = createGlossaryModal({ root, documentRef });
+  modal.open();
+  const opened = els['glossary-modal'].style.display === '' && els['glossary-search'].value === '' && title.textContent === '투자 용어 사전, 2개';
+  const rows = (els['glossary-body'].innerHTML.match(/class="aio-glossary-item"/g) || []).length === 2 && /class="aio-glossary-term">RRG</.test(els['glossary-body'].innerHTML);
+  modal.selectCategory('기초·회계');
+  modal.renderItems('RRG');
+  const widened = /전체에서 검색한 결과/.test(els['glossary-body'].innerHTML) && /aria-pressed="true" class="lu-gl-cat">전체 2</.test(els['glossary-cats'].innerHTML);
+  modal.close();
+  return opened && rows && widened && els['glossary-modal'].style.display === 'none';
+})();
+check('v59.59 glossary renders countable semantic rows, titles the modal with the registry count and widens an empty category search', glossaryProbe);
+const earningsCalendarProbe = await (async () => {
+  // v59.59 roadmap 11: the weekly earnings calendar moved from js/aio-pages.js to src/ui/components/earnings-calendar.js.
+  const { earningsWeekDays, earningsWeekHtml } = await import('../src/ui/components/earnings-calendar.js');
+  const satWeek = earningsWeekDays(new Date('2026-10-31T15:00:00Z'), 0); // Saturday in New York opens the coming week
+  const nextWeek = earningsWeekDays(new Date('2026-11-04T15:00:00Z'), 1);
+  const weekHtml = earningsWeekHtml([{ date: '2026-11-02', symbol: 'AMC1', hour: 'amc' }, { date: '2026-11-02', symbol: 'BMO1', hour: 'bmo', epsEstimate: 1.234 }], [], satWeek, { now: new Date('2026-11-02T15:00:00Z') });
+  return satWeek.join() === '2026-11-02,2026-11-03,2026-11-04,2026-11-05,2026-11-06' && nextWeek[0] === '2026-11-09'
+    && weekHtml.indexOf('is-bmo') < weekHtml.indexOf('is-amc') && /title="BMO1 어닝 \$1\.23"/.test(weekHtml) && /월 2, 오늘/.test(weekHtml)
+    && (weekHtml.match(/\(발표 없음\)/g) || []).length === 4 && !/style=/.test(weekHtml);
+})();
+check('v59.59 earnings calendar opens the coming week on a New York weekend, puts Before Open first and styles sessions by class', earningsCalendarProbe);
+const refreshProgressProbe = await (async () => {
+  // v59.59 roadmap 11: the refresh progress panel moved from js/aio-ui.js to src/ui/components/refresh-progress.js.
+  const { bindRefreshProgress } = await import('../src/ui/components/refresh-progress.js');
+  const els = {}; const listeners = {};
+  const el = (id) => { const node = { id, style: {}, dataset: {}, children: [], textContent: '', className: '', disabled: false, classList: { toggle() {} }, setAttribute() {}, appendChild(c) { this.children.push(c); if (c.id) els[c.id] = c; return c; } }; Object.defineProperty(node, 'innerHTML', { set(v) { this.children = []; for (const m of String(v).matchAll(/id="([^"]+)"/g)) els[m[1]] = el(m[1]); }, get() { return ''; } }); return node; };
+  els['topbar-refresh-btn'] = el('topbar-refresh-btn');
+  const documentRef = { getElementById: (id) => els[id] || null, createElement: () => el(''), body: el('body') };
+  const timers = [];
+  const root = { addEventListener: (type, fn) => { listeners[type] = fn; }, setTimeout: (fn) => timers.push(fn), AIO: { getRefreshState: () => null } };
+  bindRefreshProgress({ root, documentRef });
+  listeners['aio:refresh:progress']({ detail: { keys: ['quotes', 'news'], total: 2, done: 1, currentKey: 'news', phase: 'running', results: [{ key: 'quotes', ok: true }] } });
+  const quiet = els['aio-refresh-progress-layer'].style.display === 'none' && els['topbar-refresh-btn'].textContent === '갱신 1/2' && els['aio-refresh-progress-list'].children.map((r) => r.children[1].dataset.tone).join() === 'ok,run';
+  listeners['aio:refresh:done']({ detail: { type: 'done', forceRefresh: true, keys: ['quotes', 'news'], total: 2, done: 2, results: [{ key: 'quotes', ok: true }, { key: 'news', ok: false }] } });
+  const shown = els['aio-refresh-progress-layer'].style.display === 'block' && els['topbar-refresh-btn'].textContent === '확인 필요' && els['aio-refresh-progress-current'].textContent === '1개 소스 확인 필요';
+  timers.forEach((fn) => fn());
+  return quiet && shown && els['aio-refresh-progress-layer'].style.display === 'none' && els['topbar-refresh-btn'].textContent === '새로고침';
+})();
+check('v59.59 refresh progress keeps background runs on the topbar button and shows the panel only for a reader-started run', refreshProgressProbe);
+const referenceBudgetProbe = await (async () => {
+  // v59.59 chat context budget: reference blocks (supplied materials, AI-infrastructure framework, imported research)
+  // are capped; live evidence is not. Measured 2026-11-02: six fixture questions 319,922 -> 265,980 instruction chars.
+  const { CHAT_REFERENCE_BUDGET, capReferenceLines } = await import('../src/ai/context/reference-budget.js');
+  const block = ['[header]', 'provenance', 'hierarchy', ...Array.from({ length: 200 }, (_, i) => `middle line ${i} ${'x'.repeat(60)}`), 'rule A', 'rule B', 'Do not infer a bottom'].join('\n');
+  const capped = capReferenceLines(block, CHAT_REFERENCE_BUDGET.aiInfraFramework);
+  const lines = capped.split('\n');
+  return capped.length <= CHAT_REFERENCE_BUDGET.aiInfraFramework && lines[0] === '[header]' && lines.at(-1) === 'Do not infer a bottom' && /reference trimmed/.test(capped)
+    && capReferenceLines('short', 100) === 'short' && CHAT_REFERENCE_BUDGET.suppliedMaterials < 9000 && CHAT_REFERENCE_BUDGET.importedResearch < 5600;
+})();
+check('v59.59 chat reference blocks are capped by line with header and closing rules kept and a trim note', referenceBudgetProbe);
 check('headless tests cover the redesigned default path', /T869 redesign_default_path_v5289/.test(tests));
 
 // [G2] v52.90 P705/R331: 최종 렌더의 loaded/empty/degraded/closed 사용자 상태 계약.
@@ -1321,7 +1378,23 @@ check('P1315 KR theme detail reads the optional KR_THEME_INSIGHTS global behind 
 check('P1315 KR index cards carry no hardcoded direction class/colour; direction follows the live previous-close delta', !/kr-idx-card (?:up|down)"/.test(html) && !/id="kr-(?:kospi|kosdaq|krw)-price" style="color:var\(--(?:green|red)\)"/.test(html) && /_krIdxCard\.classList\.toggle\('up', atomicDelta > 0\)/.test(data));
 check('P1315 a11y direction classes carry colour, not only a glyph (v58.80: direction tokens, up red / down blue)', /\.a11y-up \{ color: var\(--dir-up\); \}/.test(html) && /\.a11y-dn \{ color: var\(--dir-down\); \}/.test(html));
 check('P1315 signal weight legend uses the canonical 심리 component (F&G + put/call), not 모멘텀/추세추종', !/모멘텀\(F&G·추세추종\)/.test(html + ui) && !/심리\(공포·탐욕·풋콜\) 25%/.test(html)); // P1392: the weighted legend left with the score
-check('P1315 Ctrl+K targets real page search inputs (the .search-bar selector never existed)', !/querySelector\('\.search-bar input'\)/.test(ui) && /#scr-text-search, #ticker-direct-search, #guide-search-input/.test(ui) /* v59.51 (content audit): #fund-search-input retired */ && !/<span class="kbd-desc">한국장<\/span>/.test(html));
+const ctrlKProbe = await (async () => {
+  // v59.59 roadmap 11: the keydown shortcuts moved from js/aio-ui.js to src/ui/navigation/screen-shortcuts.js.
+  const { handleShortcutKey } = await import('../src/ui/navigation/screen-shortcuts.js');
+  let asked = null; let focused = false; let opened = 0;
+  const box = { offsetParent: {}, focus() { focused = true; } };
+  const page = { querySelector: (sel) => { asked = sel; return box; } };
+  const documentRef = { querySelector: (sel) => (sel === '.page.active' ? page : null), getElementById: () => null };
+  const root = { openGlossary: () => { opened += 1; }, setTimeout: () => {} };
+  const help = { open() {}, close() {}, isOpen: () => false };
+  const key = (extra) => ({ key: 'k', ctrlKey: true, target: { tagName: 'INPUT' }, preventDefault() {}, ...extra });
+  const first = handleShortcutKey(key(), { root, documentRef, help });
+  box.offsetParent = null;
+  const second = handleShortcutKey(key(), { root, documentRef, help });
+  const typedOne = handleShortcutKey({ key: '1', target: { tagName: 'INPUT' }, preventDefault() {} }, { root, documentRef, help });
+  return first === 'search' && focused && asked === '#scr-text-search, #ticker-direct-search, #guide-search-input' && second === 'glossary-open' && opened === 1 && typedOne === null;
+})();
+check('P1315 Ctrl+K targets real page search inputs (the .search-bar selector never existed), falls back to 용어 사전, and screen keys ignore typing (v59.59 probe)', ctrlKProbe && !/<span class="kbd-desc">한국장<\/span>/.test(html));
 check('P1315 KOSPI sell tax states securities-transaction tax plus rural special tax; Piotroski is dated 2000 with 8-9/0-2 original bins', /농어촌특별세 0\.15%가 더해져 합계 0\.20%/.test(glossary) && /Piotroski\(2000\)/.test(glossary) && !/Piotroski\(1998\)/.test(glossary) && /8~9점을 강한 그룹/.test(glossary));
 check('QA-GLOSSARY-SWEEP/P1261 unattributed aphorism and sourced superlative stay unasserted', !/— 아인슈타인\./.test(glossary) && !/역사상 가장 강력한 주가 부양 수단/.test(glossary) && /출처가 확정된 문헌이 없어/.test(glossary));
 check('LIVE3-09: quote producers preserve exchange observation time separately from file freshness', /regularMarketTime/.test(fetchData) && /marketState/.test(fetchData) && /exchangeTimezoneName/.test(fetchData) && /window\._liveData\[q\.symbol\]\.observedAt/.test(data));

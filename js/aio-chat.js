@@ -577,14 +577,14 @@ function _aioCreateEvidenceContext(title, focus) {
       var framework = typeof _getV48IntegratedContext === 'function' ? _getV48IntegratedContext(focus) : '';
       // P1740: both reference frameworks are chosen by the question. They were called with the page id only, and the
       // page list covered every route, so the 16K-character AI-infrastructure packet reached "PER이 뭐야?" too.
-      var aiInfra = typeof _aioAIInfraCycleContext === 'function' ? _aioAIInfraCycleContext(focus, activeQuery) : '';
+      var aiInfra = typeof _aioAIInfraCycleContext === 'function' ? _aioAIInfraCycleContext(focus, activeQuery) : ''; if (aiInfra && window.AIO && window.AIO.capReferenceLines) aiInfra = window.AIO.capReferenceLines(aiInfra, window.AIO.chatReferenceBudget.aiInfraFramework); // 2026-11-02 chat budget (src/ai/context/reference-budget.js)
       var marketLearning = typeof _aioMarketLearningCurriculumContext === 'function' ? _aioMarketLearningCurriculumContext(focus, activeQuery) : '';
       var supplied = typeof _aioSuppliedMaterialsContext === 'function' ? _aioSuppliedMaterialsContext(focus) : '';
       // Supplied packets are reference data, not system instructions. Keep the
       // explicit provenance block while quarantining any source text that may
       // contain prompt-injection language before it reaches either chat surface.
       if (supplied && window.AIO && typeof window.AIO.buildAIUntrustedBlock === 'function') {
-        supplied = window.AIO.buildAIUntrustedBlock('SUPPLIED_MATERIALS_REFERENCE', supplied, { maxChars: 9000, maxItems: 1 });
+        supplied = window.AIO.buildAIUntrustedBlock('SUPPLIED_MATERIALS_REFERENCE', supplied, { maxChars: (window.AIO.chatReferenceBudget || {}).suppliedMaterials || 9000, maxItems: 1 });
       }
       var rules = typeof _getChatRules === 'function' ? _getChatRules() : '';
       return lines.join('\n') + framework + supplied + aiInfra + marketLearning + '\n\n【현재 관측】\n' + liveLines.join('\n') + rules;
@@ -4177,7 +4177,7 @@ async function chatSendUnified(_aioDispatchOptions) {
   try {
     if (typeof _getImportedResearchContext === 'function') {
       var _uniImportedResearch = _getImportedResearchContext(ctxId);
-      if (_uniImportedResearch) sysPrompt += _wrapUnifiedExternal('IMPORTED_RESEARCH_REFERENCE', _uniImportedResearch, { maxChars: 5600 });
+      if (_uniImportedResearch) sysPrompt += _wrapUnifiedExternal('IMPORTED_RESEARCH_REFERENCE', _uniImportedResearch, { maxChars: ((window.AIO || {}).chatReferenceBudget || {}).importedResearch || 5600 });
     }
     var _uniKnowledgeOrchestrator = window.AIO_ARCH && typeof window.AIO_ARCH.getAIOrchestrator === 'function' ? window.AIO_ARCH.getAIOrchestrator() : null;
     if (_uniKnowledgeOrchestrator && typeof _uniKnowledgeOrchestrator.buildAIKnowledgeContext === 'function') {

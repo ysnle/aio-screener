@@ -2,6 +2,7 @@
 // installCompatibilityGlobals(window) at the same point of boot; `window`/`document` below are the passed root so the
 // assignments read exactly as they did in bootstrap (gates match these lines).
 import { installGlossaryBridge } from '../ui/knowledge/glossary-bridge.js';
+import { fetchEarningsCalendarSnapshot } from '../data/earnings-calendar-snapshot.js'; // roadmap 11: moved from js/aio-pages.js
 import { installFreshnessEngine } from '../data/quality/freshness-engine.js'; // v59.19 roadmap 11: moved from js/aio-core.js
 import { installDataStatusSurface } from '../ui/components/data-status-surface.js'; // v59.20 roadmap 11: moved from js/aio-core.js and js/aio-data.js
 import { installApiHealth } from '../data/quality/api-health.js'; // v59.18 roadmap 11: moved from js/aio-core.js
@@ -349,6 +350,10 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
   window._fundAnalysisData = null;
   window._fundCache = window._fundCache || {};
   window.fundamentalSearch = () => { window._aioFundSearchPending = true; };
+  // Roadmap 11 용어 사전: the glossary modal installs with the bridges; an open asked before they load is shown on install.
+  window.openGlossary = () => { window._aioGlossaryPending = true; };
+  // Roadmap 11 실적 일정: the stored calendar reader that 브리핑, 오늘 and 뉴스 call at first paint (js/aio-pages.js).
+  window._fetchEarningsCalendarSnapshot = () => fetchEarningsCalendarSnapshot({ root: window });
   import('./legacy-screen-bridges.js').then((m) => m.installLegacyScreenBridges(window, document)).catch(() => {});
   window._aioUsListingSymbol = (symbol) => usListingSymbol(symbol);
   const universeSymbols = () => new Set((typeof window._aioGetCanonicalScreenerRows === 'function' ? window._aioGetCanonicalScreenerRows() || [] : [])

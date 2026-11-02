@@ -1,0 +1,8 @@
+{
+  "changelog": [
+    "**새로고침 진행 패널·실적 일정 이관 ({VERSION}, roadmap 11):** js/aio-ui.js의 새로고침 진행 패널(bindAioRefreshProgressSurface)과 globalRefresh를 src/ui/components/refresh-progress.js로 옮겨 #topbar-refresh-btn의 쓰기 주체를 하나로 모았다. 항상 존재하는 AIO.forceRefreshAllData·runScheduledRefresh가 없을 때를 위한 죽은 대체 경로는 지웠다. js/aio-pages.js의 주간 실적 일정(loadEarningsCalendar·주 이동·렌더러)은 src/ui/components/earnings-calendar.js로, 스냅샷 리더는 src/data/earnings-calendar-snapshot.js로 옮겼다(브리핑·오늘·뉴스가 첫 화면에서 부르므로 리더만 부팅 때 설치). 뉴욕 날짜는 market-calendar.js의 dateInTimezone을 재사용한다. 인라인 스타일은 legacy-ui.css·legacy-pages.css의 클래스로 옮겼고, 실적 일정 HTML은 이관 전후 동일함을 확인했다. 부팅 번들은 늘지 않았다(1,594,799 / 589,191 B, 한도 1,602,000 / 591,000).",
+    "**코드 지도 정정 ({VERSION}):** _context/CODE-MAP.md의 js/aio-ui.js 표가 이미 삭제된 LLM_BUDGET·_renderFund*·AIO_PAGE_FUNDAMENTALS를 가리키고 있어 현재 줄 번호로 고쳤다."
+  ],
+  "note": "{VERSION}: refresh progress + globalRefresh → src/ui/components/refresh-progress.js; earnings calendar → src/ui/components/earnings-calendar.js + src/data/earnings-calendar-snapshot.js",
+  "qa_section": "Roadmap 11 frontend decomposition (2026-11-02)"
+}

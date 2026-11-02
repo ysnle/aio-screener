@@ -3267,7 +3267,10 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          try {
            if (typeof workbench.list !== 'function') throw new Error('SCREEN_ARCHIVE_UNAVAILABLE');
            const entries = await workbench.list();
-           if (!mountActive || generation !== archiveGeneration) return;
+           // A screen left while the list was read keeps no 'loading' marker on the shared #scr-run-history node: the
+           // next mount only loads an archive that has no marker, so a stale one hid the replay buttons for good.
+           if (!mountActive) { if (runHistory.dataset.archiveLoaded === 'loading') delete runHistory.dataset.archiveLoaded; return; }
+           if (generation !== archiveGeneration) return;
            runHistory.replaceChildren();
            runHistory.dataset.archiveLoaded = 'true';
            if (!entries.length) runHistory.textContent = '보관한 사용자 실행 없음, 실행하면 입력을 이 브라우저에 최대 5개 보관합니다.';
@@ -3304,7 +3307,8 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
              item.append(label, replay, remove); runHistory.appendChild(item);
            }
          } catch (_) {
-           if (!mountActive || generation !== archiveGeneration) return;
+           if (!mountActive) { if (runHistory.dataset.archiveLoaded === 'loading') delete runHistory.dataset.archiveLoaded; return; }
+           if (generation !== archiveGeneration) return;
            runHistory.dataset.archiveLoaded = 'unavailable';
            runHistory.textContent = '이 브라우저에서는 실행 입력을 보관할 수 없습니다.';
          }

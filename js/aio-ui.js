@@ -538,11 +538,7 @@ function showUpdateBanner(newVer, builtTs) {
   banner.classList.add('show');
 }
 
-// v34.6: 강제 캐시 무효화 새로고침
-function forceRefresh() {
-  // 쿼리스트링으로 캐시 무시
-  window.location.href = window.location.pathname + '?v=' + Date.now();
-}
+// Roadmap 11: forceRefresh() (v34.6) is deleted — nothing called it; the update banner reloads through _aioForceReload.
 
 // ── 폴링 시작/재시작 ─────────────────────────────────────
 function startGhPolling() {
@@ -632,178 +628,12 @@ window._aioSyncKnowledgeRouteContext = _aioSyncKnowledgeRouteContext;
 })();
 
 // ── Global refresh: all data sources ──────────────────────────────────
-// Unified refresh progress surface. It listens to the scheduler events emitted by aio-data.js.
-(function bindAioRefreshProgressSurface() {
-  var lastKeys = [];
-  var labels = {
-    quotes: '시세',
-    news: '뉴스',
-    sentiment: '심리',
-    breadth: '시장폭',
-    fred: 'FRED',
-    technicals: '기술지표',
-    vixHistory: 'VIX 히스토리',
-    hySpread: 'HY 스프레드',
-    maUpdate: 'MA 갱신',
-    krDynamic: 'KR 동적 데이터'
-  };
+// Roadmap 11: the refresh progress surface (bindAioRefreshProgressSurface) moved to src/ui/components/refresh-progress.js,
+// installed with the screen bridges (src/app/legacy-screen-bridges.js).
 
-  function ensureLayer() {
-    var layer = document.getElementById('aio-refresh-progress-layer');
-    if (layer) return layer;
-    layer = document.createElement('div');
-    layer.id = 'aio-refresh-progress-layer';
-    layer.setAttribute('role', 'status');
-    layer.setAttribute('aria-live', 'polite');
-    // layout lives in legacy-ui.css (#aio-refresh-progress-layer); display stays inline — T802 reads layer.style.display
-    layer.style.display = 'none';
-    layer.innerHTML = '<div class="lu-rp-head"><div id="aio-refresh-progress-title">전체 데이터 최신화</div><div id="aio-refresh-progress-count" style="font-size:12px;font-family:var(--font-mono,monospace);color:var(--data-cyan,#4ccce6);">0/0</div></div><div class="lu-rp-track"><div id="aio-refresh-progress-bar"></div></div><div id="aio-refresh-progress-current" style="font-size:12px;color:var(--text-muted,#a39073);margin-bottom:8px;">대기 중</div><div id="aio-refresh-progress-list"></div>';
-    document.body.appendChild(layer);
-    return layer;
-  }
-
-  function statusText(key, detail, byKey) {
-    var row = byKey[key];
-    if (row) {
-      if (row.ok && !row.skipped) return '완료';
-      if (row.skipped) return '스킵';
-      return '확인 필요';
-    }
-    if (detail.currentKey === key && detail.phase === 'running') return '진행 중';
-    return '대기';
-  }
-
-  function statusColor(text) {
-    if (text === '완료') return 'var(--data-green,#3dd68c)';
-    if (text === '진행 중') return 'var(--data-cyan,#4ccce6)';
-    if (text === '스킵') return 'var(--data-amber,#ffa057)';
-    if (text === '확인 필요') return 'var(--data-red,#ec5d5e)';
-    return 'var(--text-muted,#a39073)';
-  }
-
-  function render(detail) {
-    detail = detail || {};
-    if (Array.isArray(detail.keys) && detail.keys.length) lastKeys = detail.keys.slice();
-    var total = detail.total || lastKeys.length || 0;
-    var done = detail.done || 0;
-    var pct = total ? Math.min(100, Math.round(done / total * 100)) : 0;
-    var active = detail.type !== 'done';
-    // v50.31: 플로팅 진행 패널은 사용자가 직접 누른 전체 새로고침(forceRefresh)일 때만 표시.
-    // 부팅/페이지 진입 등 백그라운드 갱신까지 자동 팝업 → 레짐 배너·콘텐츠 위 겹침(사용자 스크린샷).
-    // 백그라운드 갱신 피드백은 topbar 버튼 텍스트("갱신 N/M")가 조용히 담당.
-    var userRun = detail.forceRefresh === true;
-    var layer = ensureLayer();
-    var btn = document.getElementById('topbar-refresh-btn');
-    var title = document.getElementById('aio-refresh-progress-title');
-    var count = document.getElementById('aio-refresh-progress-count');
-    var bar = document.getElementById('aio-refresh-progress-bar');
-    var current = document.getElementById('aio-refresh-progress-current');
-    var list = document.getElementById('aio-refresh-progress-list');
-    var failed = (detail.results || []).filter(function(r) { return r && !r.ok && !r.skipped; }).length;
-
-    if (userRun) layer.style.display = 'block';
-    if (title) title.textContent = active ? '전체 데이터 최신화 중' : (failed ? '최신화 완료 - 확인 필요' : '최신화 완료');
-    if (count) count.textContent = done + '/' + total;
-    if (bar) {
-      bar.style.width = pct + '%';
-      bar.style.background = failed ? 'var(--data-amber,#ffa057)' : 'var(--data-cyan,#4ccce6)';
-    }
-    if (current) {
-      current.textContent = active
-        ? ((detail.currentLabel || labels[detail.currentKey] || detail.currentKey || '데이터') + ' 수신 중')
-        : (failed ? failed + '개 소스 확인 필요' : '모든 요청이 정리되었습니다');
-    }
-    // v50.31: data-status-panel 칩 중복 기록 제거 — topbar에 "갱신 N/M"(버튼)과 "전체 최신화 N/M"(칩)이
-    // 같은 정보를 나란히 표시하던 것 정리. 칩은 updateDataStatus(데이터 상태)가 단독 소유.
-    if (btn) {
-      btn.disabled = active;
-      btn.textContent = active ? ('갱신 ' + done + '/' + total) : (failed ? '확인 필요' : '완료');
-    }
-    if (list) {
-      var byKey = {};
-      (detail.results || []).forEach(function(r) { if (r && r.key) byKey[r.key] = r; });
-      list.innerHTML = '';
-      (lastKeys.length ? lastKeys : Object.keys(byKey)).forEach(function(key) {
-        var txt = statusText(key, detail, byKey);
-        var row = document.createElement('div');
-        row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;border-top:0.5px solid var(--white-a1);padding-top:4px;';
-        var name = document.createElement('span');
-        name.textContent = labels[key] || key;
-        var state = document.createElement('span');
-        state.textContent = txt;
-        state.className = 'lu-rp-state';
-        state.style.color = statusColor(txt);
-        row.appendChild(name);
-        row.appendChild(state);
-        list.appendChild(row);
-      });
-    }
-    if (!active) {
-      setTimeout(function() {
-        var latest = window.AIO && window.AIO.getRefreshState ? window.AIO.getRefreshState() : null;
-        if (!latest || latest.runId === detail.runId) {
-          layer.style.display = 'none';
-          if (btn) { btn.disabled = false; btn.textContent = '새로고침'; }
-        }
-      }, failed ? 6000 : 2500);
-    }
-  }
-
-  window.addEventListener('aio:refresh:start', function(e) { render(e.detail); });
-  window.addEventListener('aio:refresh:progress', function(e) { render(e.detail); });
-  window.addEventListener('aio:refresh:done', function(e) { render(e.detail); });
-})();
-
-async function globalRefresh() {
-  const btn = document.getElementById('topbar-refresh-btn');
-  if (window.AIO && (typeof window.AIO.forceRefreshAllData === 'function' || typeof window.AIO.runScheduledRefresh === 'function')) {
-    if (btn) { btn.textContent = '갱신 준비'; btn.disabled = true; }
-    try {
-      var result = typeof window.AIO.forceRefreshAllData === 'function'
-        ? await window.AIO.forceRefreshAllData()
-        : await window.AIO.runScheduledRefresh({ forceRefresh: true });
-      var activePage = document.querySelector('.page.active');
-      var activeId = activePage ? activePage.id.replace('page-','') : (typeof prevPage !== 'undefined' ? prevPage : 'home');
-      if (activeId === 'signal' && typeof initSignalDashboard === 'function') initSignalDashboard();
-      if (btn) {
-        btn.textContent = result && result.status === 'warn' ? '확인 필요' : '완료';
-        btn.disabled = false;
-        setTimeout(function(){ btn.textContent = '새로고침'; }, result && result.status === 'warn' ? 6000 : 2500);
-      }
-      return result;
-    } catch(e) {
-      if (typeof _aioLog === 'function') _aioLog('warn', 'fetch', 'globalRefresh scheduler error: ' + (e && e.message || e));
-      if (typeof showDataError === 'function') showDataError('새로고침', '전체 새로고침 중 오류 - 일부 데이터가 갱신되지 않았을 수 있습니다', 'warn');
-      if (btn) { btn.textContent = '새로고침'; btn.disabled = false; }
-      return null;
-    }
-  }
-  if (btn) { btn.textContent = '↻ 갱신 중...'; btn.disabled = true; }
-  try {
-  const tasks = [];
-  if (typeof fetchLiveQuotes  === 'function') tasks.push(fetchLiveQuotes());
-  if (typeof fetchFearGreed   === 'function') tasks.push(fetchFearGreed());
-  if (typeof fetchPutCall     === 'function') tasks.push(fetchPutCall());
-  if (typeof fetchHYSpread    === 'function') tasks.push(fetchHYSpread());
-  if (typeof fetchAllNews     === 'function') tasks.push(fetchAllNews(true));
-  // Re-init charts on current page
-  const activePage = document.querySelector('.page.active');
-  const activeId = activePage ? activePage.id.replace('page-','') : prevPage;
-  if (activeId === 'signal')    initSignalDashboard();
-
-  await Promise.allSettled(tasks);
-
-  if (btn) {
-    btn.textContent = '✓ 완료';
-    btn.disabled = false;
-    setTimeout(() => { btn.textContent = '↻ 새로고침'; }, 2000);
-  }
-  } catch(e) {
-    _aioLog('warn', 'fetch', 'globalRefresh error: ' + (e && e.message || e));
-    showDataError('새로고침', '전체 새로고침 중 오류 — 일부 데이터가 갱신되지 않았을 수 있습니다', 'warn');
-    if (btn) { btn.textContent = '↻ 새로고침'; btn.disabled = false; }
-  }
-}
+// Roadmap 11: globalRefresh (the topbar 새로고침 button) moved there too, so one module writes #topbar-refresh-btn. Its
+// fallback branch for a shell without AIO.forceRefreshAllData / AIO.runScheduledRefresh is deleted — both always exist.
+// That branch was the last js/ caller of fetchPutCall (js/aio-data.js); src/app/boot-sequence.js and refresh-scheduler.js call it.
 
 // v30.11: T4 _sentimentAutoInterval 삭제 — REFRESH_SCHEDULE.sentiment(10min)이 FG+PC 담당, HY는 hySpread(6h)로 이관
 // (기존 5분 IIFE 제거 — 중앙 스케줄러 단일 경로화)
@@ -1176,49 +1006,8 @@ window.renderPortfolioTechnicalRisk = renderPortfolioTechnicalRisk;
 // the native entity slice (src/ui/pages/entity.js) is the one company report.
 window.AIO = window.AIO || {};
 
-// P1130/R619: index.html 인라인 블록 E(용어사전 플로팅 버튼 드래그 + 옵션 페이지 연동)를 이 파일로 옮겼다.
-// 새 js 파일을 만들면 매니페스트 4곳·RUNTIME_SCRIPT_FILES 2곳 등록이 필요해지고, 그 등록 누락이 과거
-// P605(중복 전역 섀도잉이 수십 버전 동안 미탐지) 같은 사고의 원인이었다. 이미 등록된 이 파일에 접어넣으면
-// 등록 비용이 0이다. 실행 시점은 파싱 시점 → defer(파싱 후·DOMContentLoaded 전)로 바뀌는데, 옮긴 코드는
-// (a) 이미 파싱된 #glossary-btn에 리스너를 붙이고 (b) DOMContentLoaded에서 pageBus를 등록하므로
-// 둘 다 defer가 더 안전하다. 파싱 시점에 이 블록의 심볼을 호출하는 경로가 없음을 확인했다.
-(function(){
-  var btn=document.getElementById('glossary-btn');
-  if(!btn) return;
-  var isDragging=false, hasMoved=false, startX=0, startY=0, origX=0, origY=0;
-  function onStart(e){
-    isDragging=true; hasMoved=false;
-    startX=e.clientX; startY=e.clientY;
-    var r=btn.getBoundingClientRect();
-    origX=r.left; origY=r.top;
-    btn.style.cursor='grabbing';
-    btn.style.transition='box-shadow .2s';
-    btn.style.boxShadow='0 6px 25px var(--black-a7)';
-    e.preventDefault();
-  }
-  function onMove(e){
-    if(!isDragging) return;
-    var dx=e.clientX-startX, dy=e.clientY-startY;
-    if(Math.abs(dx)>3||Math.abs(dy)>3) hasMoved=true;
-    if(!hasMoved) return;
-    var nx=origX+dx, ny=origY+dy;
-    nx=Math.max(0,Math.min(window.innerWidth-52,nx));
-    ny=Math.max(0,Math.min(window.innerHeight-52,ny));
-    btn.style.left=nx+'px'; btn.style.top=ny+'px';
-    btn.style.right='auto'; btn.style.bottom='auto';
-    e.preventDefault();
-  }
-  function onEnd(){
-    if(!isDragging) return;
-    isDragging=false;
-    btn.style.cursor='grab';
-    btn.style.boxShadow='0 4px 15px var(--black-a6)';
-    if(!hasMoved) openGlossary();
-  }
-  btn.addEventListener('mousedown',onStart);
-  document.addEventListener('mousemove',onMove);
-  document.addEventListener('mouseup',onEnd);
-})();
+// Roadmap 11: the 용어 사전 floating-button drag handler (P1130, block E) is deleted with its #glossary-btn — the button
+// was hidden (display:none) since v40.6, when the sidebar 용어 사전 row replaced it.
 
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1237,146 +1026,11 @@ window.AIO = window.AIO || {};
 // GLOSSARY SYSTEM — 투자 용어 사전
 // ══════════════════════════════════════════════════════════════════
 
-var _glossaryCat = 'all';
-var _GLOSSARY_GROUPS = [['기초·회계', ['기초', '금융수학·통계', '회계·재무제표']], ['거시·금리·외환', ['경제', '경제 기본', '거시·돈', '거시', '외환', '채권']], ['시장·차트·전략', ['기술적분석', '기술', '전략', '시장·밸류에이션']], ['옵션', ['옵션']], ['한국', ['한국시장', '한국 기업·시장']], ['산업', ['은행', '보험', '부동산·리츠', '소비·유통', '소프트웨어·플랫폼', '바이오·의료', '에너지·화학·소재', '운송·물류', '농업·식품', '반도체·AI 인프라']], ['배경·심화', ['배경지식', '심화']]];
-function _glossaryGroupOf(cat) { for (var i = 0; i < _GLOSSARY_GROUPS.length; i++) if (_GLOSSARY_GROUPS[i][1].indexOf(cat) !== -1) return _GLOSSARY_GROUPS[i][0]; return '기타'; }
-var _glossaryPreviousFocus = null;
+// Roadmap 11: the glossary modal (openGlossary, renderGlossaryCats, renderGlossaryItems, filterGlossary and the seven
+// reader groups) moved to src/ui/knowledge/glossary-modal.js, installed at boot by src/app/compatibility-globals.js.
 
-function openGlossary() {
-  var modal = document.getElementById('glossary-modal');
-  if (!modal) return;
-  _glossaryPreviousFocus = document.activeElement && document.activeElement !== document.body ? document.activeElement : null;
-  if (modal._aioTrapCleanup) modal._aioTrapCleanup();
-  modal.style.display = '';
-  var searchInput = document.getElementById('glossary-search');
-  searchInput.value = '';
-  _glossaryCat = 'all';
-  renderGlossaryCats();
-  renderGlossaryItems('');
-  var title = document.querySelector('#glossary-modal h2');
-  if (title) title.textContent = '투자 용어 사전, ' + GLOSSARY.length + '개';
-  modal._aioTrapCleanup = typeof window._aioModalTrap === 'function' ? window._aioModalTrap(modal, window._aioCloseGlossary) : null;
-  if (!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches)) searchInput.focus(); // run-3 phone #21: on touch the keyboard covered half the list
-}
-
-function renderGlossaryCats() {
-  // P1248: 분류 버튼을 수동 목록이 아닌 GLOSSARY 레지스트리에서 생성한다 —
-  // 데이터에만 있는 분류(기술/심화 등)가 필터에서 누락되지 않는다(구 LC-56).
-  // P1599 (F113): 28 raw categories mixed subject, industry and difficulty on four rows; seven reader groups replace them (each item keeps its own category tag).
-  var counts = {}; GLOSSARY.forEach(function(g) { var k = _glossaryGroupOf(g.cat); counts[k] = (counts[k] || 0) + 1; });
-  var cats = ['all'].concat(_GLOSSARY_GROUPS.map(function(r) { return r[0]; }), ['기타']).filter(function(c) { return c === 'all' || counts[c]; });
-  var html = '';
-  cats.forEach(function(c) {
-    var active = c === _glossaryCat;
-    var label = (c === 'all' ? '전체' : c) + ' ' + (c === 'all' ? GLOSSARY.length : counts[c]);
-    html += '<button data-action="_aioGlossaryCat" data-arg="' + escHtml(c) + '" aria-pressed="' + active + '" class="lu-gl-cat">' + escHtml(label) + '</button>';
-  });
-  document.getElementById('glossary-cats').innerHTML = html;
-}
-
-function renderGlossaryItems(query) {
-  var q = (query||'').toLowerCase().trim();
-  function matches(g) {
-    if (!q) return true;
-    if (g.term.toLowerCase().indexOf(q) !== -1) return true;
-    if (g.alias && g.alias.toLowerCase().indexOf(q) !== -1) return true;
-    return g.def.toLowerCase().indexOf(q) !== -1;
-  }
-  var filtered = GLOSSARY.filter(function(g) {
-    if (_glossaryCat !== 'all' && _glossaryGroupOf(g.cat) !== _glossaryCat) return false;
-    return matches(g);
-  }); if (q) { var _rank = function(g) { var t = g.term.toLowerCase(); return t === q ? 0 : t.indexOf(q) === 0 ? 1 : t.indexOf(q) !== -1 ? 2 : 3; }; filtered.sort(function(a, b) { return _rank(a) - _rank(b); }); } // v57.55 (2b): the searched term itself first
-  // P1248: 검색이 선택 분류 안에서만 이뤄진다는 사실을 드러내고, 선택 분류에서 0건이면
-  // 전체 검색으로 자동 전환한다(구 LC-56 — "차트분석에서 RRG 검색 0건" 혼동 방지).
-  var scopeNote = '';
-  if (q && _glossaryCat !== 'all') {
-    if (filtered.length === 0) {
-      var global = GLOSSARY.filter(matches);
-      if (global.length > 0) {
-        scopeNote = '‘' + _glossaryCat + '’ 분류에서 0건이라 전체에서 검색한 결과입니다.';
-        _glossaryCat = 'all';
-        renderGlossaryCats();
-        filtered = global;
-      } else {
-        scopeNote = '‘' + _glossaryCat + '’ 분류와 전체 모두에서 0건입니다.';
-      }
-    } else {
-      scopeNote = '‘' + _glossaryCat + '’ 분류 안에서 검색 중입니다 — 전체 검색은 ‘전체’를 선택하세요.';
-    }
-  }
-  var html = '';
-  if (scopeNote) {
-    html += '<div role="status" class="lu-gl-scope">' + escHtml(scopeNote) + '</div>';
-  }
-  if (filtered.length === 0) {
-    html += '<div class="lu-gl-empty">검색 결과가 없습니다</div>';
-  } else {
-    // v58.53 개편 v2 (3h): each entry is a disclosure row (term · 분류 · 첫 문장); opened, it reads definition →
-    // formula → 한계 → "이 개념이 쓰이는 화면" (parts from src/ui/knowledge/glossary-bridge.js, cut from the entry's own text).
-    var partsOf = typeof window._aioGlossaryEntryParts === 'function' ? window._aioGlossaryEntryParts : null;
-    filtered.forEach(function(g, index) {
-      var parts = null;
-      try { parts = partsOf ? partsOf(g) : null; } catch (_e) { parts = null; }
-      var lead = parts && parts.lead.length ? parts.lead.join(' ') : g.def;
-      html += '<details class="aio-glossary-item"' + (q && index === 0 ? ' open' : '') + '>';
-      html += '<summary class="lu-gl-head">';
-      html += '<span class="aio-glossary-term">' + escHtml(g.term) + '</span>';
-      html += '<span class="lu-gl-tag">' + escHtml(g.cat) + '</span>';
-      html += '<span class="lu-gl-first">' + escHtml(lead) + '</span>';
-      html += '</summary>';
-      html += '<div class="lu-gl-def">';
-      html += '<p class="lu-gl-lead">' + escHtml(lead) + '</p>';
-      if (parts) {
-        parts.formulas.forEach(function(f) { html += '<div class="lu-gl-formula">' + escHtml(f) + '</div>'; });
-        if (parts.limits.length) html += '<p class="lu-gl-limits"><b>한계, 주의</b> ' + escHtml(parts.limits.join(' ')) + '</p>';
-        if (parts.screens.length || parts.conceptId) {
-          html += '<div class="lu-gl-used"><span class="lu-gl-used-label">이 개념이 쓰이는 화면</span>';
-          parts.screens.forEach(function(s) { html += '<button type="button" class="lu-gl-route" data-action="_aioGlossaryOpenScreen" data-arg="' + escHtml(s.route) + '">' + escHtml(s.label) + '</button>'; });
-          if (parts.conceptId) html += '<button type="button" class="lu-gl-route" data-action="_aioGlossaryOpenConcept" data-arg="' + escHtml(parts.conceptId) + '">리서치, 개념 사전</button>';
-          html += '</div>';
-        }
-        if (parts.basis) html += '<p class="lu-gl-basis">근거, ' + escHtml(parts.basis) + '</p>';
-      }
-      html += '</div>';
-      html += '</details>';
-    });
-  }
-  var body = document.getElementById('glossary-body');
-  body.innerHTML = html;
-  if (!body._aioSingleOpen) {
-    body._aioSingleOpen = true;
-    // single-open accordion: opening one entry folds the others (toggle does not bubble, so listen in capture)
-    body.addEventListener('toggle', function(e) {
-      var item = e.target;
-      if (!item || !item.open || !item.classList || !item.classList.contains('aio-glossary-item')) return;
-      body.querySelectorAll('details.aio-glossary-item[open]').forEach(function(other) { if (other !== item) other.open = false; });
-    }, true);
-  }
-}
-
-function filterGlossary(val) { renderGlossaryItems(val); }
-
-// v33.0: 통합 분석 모드 — 레벨 선택 UI 없음, 항상 전문가급 통합 분석
-// Insight box 펼침/접기 토글
-document.querySelectorAll('.insight-box').forEach(function(el) {
-  el.addEventListener('click', function() { this.classList.toggle('box-collapsed'); });
-});
-// v38.8: 첫 방문 시 insight-box를 펼친 상태로 표시 (핵심 설명 노출)
-// v58.63 (architecture audit A19): a browser that refuses storage threw from this top-level IIFE and stopped the rest of
-// the file — the keyboard listener, theme restore and _aioOpenStockSearch were never registered. Only the visit record
-// and the old-key cleanup are skipped when storage is refused.
-(function() {
-  var firstVisit = false;
-  try {
-    firstVisit = !localStorage.getItem('aio_visited');
-    if (firstVisit) localStorage.setItem('aio_visited', '1');
-  } catch (_) { firstVisit = false; }
-  if (firstVisit) {
-    document.querySelectorAll('.insight-box.box-collapsed').forEach(function(el) {
-      el.classList.remove('box-collapsed');
-    });
-  }
-})();
+// v33.0 → roadmap 11: the .insight-box click toggle and the first-visit unfold (aio_visited) are deleted — no page has an
+// .insight-box since v51.58, so neither ever matched an element.
 // 이전 localStorage 키 정리
 (function() {
   try {
@@ -1389,10 +1043,9 @@ document.querySelectorAll('.insight-box').forEach(function(el) {
 // v48.57: 워치독 범위 확장 (earn-cal-body / risk-radar-body / kr-investor 3개 / last-fetch-time / home-quality-label / score-gauge-result)
 setTimeout(function() {
   var loadingPatterns = ['로딩 중', '생성 중', 'Loading', '계산중', '계산 중', '분석 로딩', '데이터 로딩'];
-  var candidates = document.querySelectorAll(
-    '#macro-storyline, #earnings-calendar-body, #risk-radar-body, ' +
-    '#last-fetch-time, #home-quality-label'
-  );
+  // Roadmap 11: #macro-storyline, #risk-radar-body, #home-quality-label and #risk-radar-status left the markup; the
+  // watchdog keeps the two sinks that remain.
+  var candidates = document.querySelectorAll('#earnings-calendar-body, #last-fetch-time');
   candidates.forEach(function(el) {
     if (!el) return;
     var txt = (el.textContent || '').trim();
@@ -1406,7 +1059,7 @@ setTimeout(function() {
     }
   });
   // status 스팬류 (텍스트 짧은 단일 라인)
-  ['earn-cal-status','risk-radar-status'].forEach(function(id){
+  ['earn-cal-status'].forEach(function(id){
     var s = document.getElementById(id);
     if (s && /로딩 중|데이터 로딩/.test(s.textContent || '')) s.textContent = '불러오지 못했습니다, 잠시 뒤 새로고침';
   });
@@ -1441,88 +1094,8 @@ setTimeout(function() {
 // registration and 2.2s timer were deleted — the move/vvix data-snap sinks are gone and the ^VVIX
 // DATA_SNAPSHOT mirror is written by js/aio-data.js on quote acceptance.
 
-// ═══ v34: Keyboard Shortcuts Help Modal ═══════════════════════════════
-function openKbdHelp() {
-  const m = document.getElementById('kbd-shortcuts-modal');
-  if (m) {
-    m._aioPreviousFocus = document.activeElement && document.activeElement !== document.body ? document.activeElement : null;
-    if (m._aioTrapCleanup) m._aioTrapCleanup();
-    m.classList.add('active');
-    m._aioTrapCleanup = typeof window._aioModalTrap === 'function' ? window._aioModalTrap(m, closeKbdHelp) : null;
-    var fb = m.querySelector('button'); if (fb) fb.focus();
-  }
-}
-function closeKbdHelp() {
-  const m = document.getElementById('kbd-shortcuts-modal');
-  if (m) {
-    m.classList.remove('active');
-    if (m._aioTrapCleanup) { m._aioTrapCleanup(); m._aioTrapCleanup = null; }
-    var previousFocus = m._aioPreviousFocus;
-    m._aioPreviousFocus = null;
-    if (previousFocus && document.contains(previousFocus) && !previousFocus.disabled) { try { previousFocus.focus(); } catch (_) {} }
-  }
-}
-
-// ═══ v34: Enhanced Keyboard Navigation ═══════════════════════════════
-document.addEventListener('keydown', function(e) {
-  // Don't fire shortcuts when typing in inputs
-  const tag = (e.target.tagName || '').toLowerCase();
-  const isInput = tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable;
-
-  // ESC always works — closes modals and panels
-  if (e.key === 'Escape') {
-    closeKbdHelp();
-    var glossary = document.getElementById('glossary-modal');
-    if (glossary && glossary.style.display !== 'none') {
-      if (typeof window._aioCloseGlossary === 'function') window._aioCloseGlossary();
-      else glossary.style.display = 'none';
-      return;
-    }
-    // AI 패널 Escape 닫기
-    var aiPanel = document.getElementById('ai-panel');
-    if (aiPanel && aiPanel.classList.contains('open')) {
-      if (typeof toggleAIPanel === 'function') toggleAIPanel();
-      return;
-    }
-    return;
-  }
-
-  // Ctrl+K for quick search focus (works even in inputs)
-  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-    e.preventDefault();
-    var searchInput = (document.querySelector('.page.active') || document).querySelector('#scr-text-search, #ticker-direct-search, #guide-search-input'); // P1315: .search-bar never existed
-    if (searchInput && searchInput.offsetParent !== null) searchInput.focus(); else if (typeof window.openGlossary === 'function') { window.openGlossary(); setTimeout(function() { var g = document.getElementById('glossary-search'); if (g) g.focus(); }, 60); } // owner 2026-10-25: the sidebar search button is gone; only an on-screen search box takes focus; run-3 I#21: with none, 용어 사전 as the help row promises
-    return;
-  }
-
-  // All other shortcuts only when NOT in input
-  if (isInput) return;
-
-  // ? = show shortcuts help
-  if (e.key === '?' || (e.shiftKey && e.key === '/')) {
-    e.preventDefault();
-    const m = document.getElementById('kbd-shortcuts-modal');
-    if (m && m.classList.contains('active')) closeKbdHelp();
-    else openKbdHelp();
-    return;
-  }
-
-  // Number keys 1-8 = the eight screens in menu order (v57.54: one table, src/ui/navigation/screen-shortcuts.js,
-  // also draws the ? help rows). The G key toggled a home overview that no longer renders, so it is gone.
-  const shortcutRoute = typeof window.AIO_SCREEN_SHORTCUT_ROUTE === 'function' ? window.AIO_SCREEN_SHORTCUT_ROUTE(e.key) : null;
-  if (shortcutRoute && !e.ctrlKey && !e.metaKey && !e.altKey) {
-    e.preventDefault();
-    if (typeof showPage === 'function') showPage(shortcutRoute, null);
-    return;
-  }
-
-  // R = refresh live data. v59.42: plain R only — Ctrl/Cmd+R is the browser's page reload and must not be swallowed.
-  if ((e.key === 'r' || e.key === 'R') && !e.ctrlKey && !e.metaKey && !e.altKey) {
-    e.preventDefault();
-    if (typeof fetchLiveQuotes === 'function') fetchLiveQuotes();
-    return;
-  }
-});
+// Roadmap 11: the ? help modal (openKbdHelp / closeKbdHelp) and the keydown shortcuts (Escape, Ctrl/⌘K, ?, 1..8, R) moved
+// to src/ui/navigation/screen-shortcuts.js beside the screen table they read; src/app/bootstrap.js installs them.
 
 // ═════════════════════════════════════════════════════════════════
 // NEW FUNCTIONS: Enhanced Technical Analysis Features
