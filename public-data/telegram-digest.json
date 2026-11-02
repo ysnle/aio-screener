@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-02T03:21:28.459Z",
-  "attemptedAt": "2026-11-02T03:21:28.459Z",
-  "lastSuccessfulAt": "2026-11-02T03:21:28.459Z",
+  "generatedAt": "2026-11-02T03:58:56.176Z",
+  "attemptedAt": "2026-11-02T03:58:56.176Z",
+  "lastSuccessfulAt": "2026-11-02T03:58:56.176Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-19T03:21:21.166Z",
-  "until": "2026-11-02T03:21:21.166Z",
+  "since": "2026-10-19T03:58:50.904Z",
+  "until": "2026-11-02T03:58:50.904Z",
   "current24hWindow": {
     "start": "2026-10-31T23:00:00.000Z",
     "end": "2026-11-01T23:00:00.000Z",
@@ -83,7 +83,7 @@
       "count": 129,
       "freshCount": 0,
       "eligibleTextCount": 122,
-      "selectedCount": 45,
+      "selectedCount": 43,
       "error": "first page parsed no posts",
       "lastPostId": 26057
     },
@@ -92,24 +92,24 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1327,
+      "count": 1329,
       "freshCount": 36,
-      "eligibleTextCount": 1270,
+      "eligibleTextCount": 1272,
       "selectedCount": 125,
       "error": null,
-      "lastPostId": 68040
+      "lastPostId": 68043
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 232,
-      "freshCount": 37,
-      "eligibleTextCount": 232,
-      "selectedCount": 120,
+      "count": 234,
+      "freshCount": 30,
+      "eligibleTextCount": 234,
+      "selectedCount": 121,
       "error": null,
-      "lastPostId": 20938
+      "lastPostId": 20941
     },
     {
       "channel": "HANAchina",
@@ -117,72 +117,74 @@
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 663,
-      "freshCount": 32,
+      "freshCount": 33,
       "eligibleTextCount": 662,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 71386
+      "lastPostId": 71390
     }
   ],
-  "count": 2351,
-  "retainedItemCount": 486,
+  "count": 2355,
+  "retainedItemCount": 479,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2351,
-    "eligibleTextCount": 2286,
+    "observedCount": 2355,
+    "eligibleTextCount": 2290,
     "mediaOnlyCount": 65,
-    "mediaAttachedCount": 74,
-    "photoPostCount": 63,
+    "mediaAttachedCount": 78,
+    "photoPostCount": 67,
     "documentPostCount": 0,
     "imageOnlyCount": 0,
-    "highSignalCount": 423,
-    "broadSignalCount": 921,
-    "selectedRawCount": 413,
-    "selectedEligibleCount": 413,
-    "selectedRawCoveragePct": 18.1,
-    "selectedOfObservedPct": 17.6,
+    "highSignalCount": 424,
+    "broadSignalCount": 923,
+    "selectedRawCount": 412,
+    "selectedEligibleCount": 412,
+    "selectedRawCoveragePct": 18,
+    "selectedOfObservedPct": 17.5,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "macro": 352,
-    "market-note": 831,
+    "macro": 354,
+    "geo": 416,
+    "market-note": 834,
+    "credit": 123,
     "power": 291,
-    "healthcare": 116,
-    "earnings": 486,
-    "semi": 528,
-    "credit": 122,
-    "equity": 164,
-    "geo": 415,
-    "ai-policy": 133,
+    "semi": 529,
+    "earnings": 487,
+    "flows": 91,
+    "healthcare": 117,
+    "equity": 163,
+    "ai-policy": 132,
     "media-only": 65,
     "kr-market": 133,
-    "flows": 89,
     "japan": 106,
     "optical": 36,
     "crypto": 3,
     "insider": 2
   },
   "tickerCounts": {
+    "005930.KS": 50,
+    "009150.KS": 18,
+    "000660.KS": 78,
+    "000990.KS": 1,
     "NVDA": 152,
     "TSM": 44,
     "285A.T": 5,
     "AMD": 31,
     "GOOG": 131,
-    "005930.KS": 49,
     "PLTR": 14,
     "AVGO": 24,
     "ORCL": 13,
     "INTC": 5,
     "MSFT": 61,
     "AMZN": 81,
-    "000660.KS": 77,
     "6981.T": 3,
     "MU": 48,
     "AAPL": 14,
-    "TSLA": 59,
+    "TSLA": 58,
     "META": 13,
     "MRVL": 9,
     "LITE": 11,
@@ -195,14 +197,13 @@
     "JD": 1,
     "ABBV": 2,
     "AZN": 1,
-    "009150.KS": 17,
     "COIN": 1,
     "CAT": 3,
     "SBUX": 1,
     "GOOGL": 5,
     "MRK": 2,
     "006800.KS": 1,
-    "006400.KS": 4,
+    "006400.KS": 3,
     "CMG": 1,
     "STX": 8,
     "ETSY": 2,
@@ -254,14 +255,14 @@
     "GLW": 1
   },
   "themes": [
-    "Market Notes (831 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — AI 인프라 투자 자금 조달을 위해 약 800억 달러 규모의 공급업체 대출 프로그램을 활용할 계획인 것으로...",
-    "Semiconductors/Memory (528 posts in 14-day research window): 노무라, 시장이 메모리 산업의 이익 지속성을 심각하게 과소평가하고 있음 삼성전자와 SK하이닉스의 2027년 예상 PER은 불과 2~3배로, 글로벌 빅테크 대비 85~90% 할인된 수준 메모리 공급 부족이 2028년까지 지속된다면 현재의 극단적인 저평가는 매력적인 투자 기회가 될 수 있다 1. AI 투자 경쟁으로...",
-    "Earnings/Corporate (486 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
-    "Geopolitics (415 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 31일 🇺🇸 아메리카 • 트럼프 대통령은 이란과 협상이 진행 중이라고 밝혀. 다만 미국 정부는 이란에 대한 경제 봉쇄와 추가 제재를 검토 중이며, 중간선거 직후...",
-    "Macro/Rates (352 posts in 14-day research window): 2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,...",
+    "Market Notes (834 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — AI 인프라 투자 자금 조달을 위해 약 800억 달러 규모의 공급업체 대출 프로그램을 활용할 계획인 것으로...",
+    "Semiconductors/Memory (529 posts in 14-day research window): 노무라, 시장이 메모리 산업의 이익 지속성을 심각하게 과소평가하고 있음 삼성전자와 SK하이닉스의 2027년 예상 PER은 불과 2~3배로, 글로벌 빅테크 대비 85~90% 할인된 수준 메모리 공급 부족이 2028년까지 지속된다면 현재의 극단적인 저평가는 매력적인 투자 기회가 될 수 있다 1. AI 투자 경쟁으로...",
+    "Earnings/Corporate (487 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
+    "Geopolitics (416 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 31일 🇺🇸 아메리카 • 트럼프 대통령은 이란과 협상이 진행 중이라고 밝혀. 다만 미국 정부는 이란에 대한 경제 봉쇄와 추가 제재를 검토 중이며, 중간선거 직후...",
+    "Macro/Rates (354 posts in 14-day research window): 2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,...",
     "AI Power/Grid (291 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
-    "Equity/Analyst (164 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
-    "AI Policy/Export Controls (133 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
+    "Equity/Analyst (163 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
+    "Korea Market (133 posts in 14-day research window): Alphabet 2026년 3분기 실적 요약 실적 • 매출 $1,275.8억, YoY +25%, QoQ +6% • 환율 영향 제외 매출 성장률 YoY +25%, QoQ +7% • 영업이익 $405.8억,..."
   ],
   "catalysts": [
     {
@@ -281,7 +282,7 @@
     },
     {
       "key": "000660.KS",
-      "count": 77,
+      "count": 78,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인..."
     },
     {
@@ -291,12 +292,12 @@
     },
     {
       "key": "TSLA",
-      "count": 59,
+      "count": 58,
       "text": "2026년 10월 29일 미국 레딧 베스트 게시물 분석 > NVDA / MU / VRT / ETN / GEV - AI Trade가 물리 인프라로 확장 · 장문 DD 핵심은 “AI가 싸지면 물리 자원이 병목”..."
     },
     {
       "key": "005930.KS",
-      "count": 49,
+      "count": 50,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인..."
     },
     {
@@ -332,7 +333,7 @@
       "topics": [
         "macro"
       ],
-      "count": 352,
+      "count": 354,
       "focus": "2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,..."
     },
     {
@@ -341,7 +342,7 @@
       "topics": [
         "geo"
       ],
-      "count": 415,
+      "count": 416,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 31일 🇺🇸 아메리카 • 트럼프 대통령은 이란과 협상이 진행 중이라고 밝혀. 다만 미국 정부는 이란에 대한 경제 봉쇄와 추가 제재를 검토 중이며, 중간선거 직후..."
     },
     {
@@ -350,8 +351,8 @@
       "topics": [
         "credit"
       ],
-      "count": 122,
-      "focus": "Anthropic의 IPO 불확실성 확대: 현금흐름 및 자금조달 부담 부각 » Anthropic의 IPO 추진 과정에서 Microsoft, Alphabet, Amazon의 실적 발표 이후 AI 인프라 투자에..."
+      "count": 123,
+      "focus": "모건스탠리 마이크 윌슨 “미국 중간선거 전후 조정은 매수 기회… S&P 500 8,000 도달 전망” - Bloomberg 인터뷰 모건스탠리의 미국 주식 수석 전략가 마이크 윌슨(Mike Wilson)은 미국 중간선거, AI 투자 부담, 유동성 제약 등이 단기적으로 증시 조정을 유발할 수 있지만, 이번 조정이..."
     },
     {
       "id": "semi",
@@ -359,7 +360,7 @@
       "topics": [
         "semi"
       ],
-      "count": 528,
+      "count": 529,
       "focus": "노무라, 시장이 메모리 산업의 이익 지속성을 심각하게 과소평가하고 있음 삼성전자와 SK하이닉스의 2027년 예상 PER은 불과 2~3배로, 글로벌 빅테크 대비 85~90% 할인된 수준 메모리 공급 부족이 2028년까지 지속된다면 현재의 극단적인 저평가는 매력적인 투자 기회가 될 수 있다 1. AI 투자 경쟁으로..."
     },
     {
@@ -386,7 +387,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 133,
+      "count": 132,
       "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
@@ -404,7 +405,7 @@
       "topics": [
         "equity"
       ],
-      "count": 164,
+      "count": 163,
       "focus": "[시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가..."
     },
     {
@@ -422,7 +423,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 486,
+      "count": 487,
       "focus": "마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장...."
     },
     {
@@ -431,7 +432,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 116,
+      "count": 117,
       "focus": ">>미중 상호 기술 수출통제 강화, 글로벌 기술 질서 재편 가속화 (대만공상시보) •중국 상무부와 과기부는 10월 AI·바이오·태양광 등 40개 기술을 수출통제 목록에 추가하는 개정안 발표. 이중 14개는..."
     },
     {
@@ -449,7 +450,7 @@
       "topics": [
         "flows"
       ],
-      "count": 89,
+      "count": 91,
       "focus": "서학개미 순매수 미국 주식 TOP 50 (10월 누적) > 기간: 2026/10/01 ~ 2026/10/30 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -467,7 +468,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 831,
+      "count": 834,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — AI 인프라 투자 자금 조달을 위해 약 800억 달러 규모의 공급업체 대출 프로그램을 활용할 계획인 것으로..."
     }
   ],
@@ -711,6 +712,23 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "bornlupin/20941",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20941",
+      "datetime": "2026-11-02T03:45:05.000Z",
+      "localDateKst": "2026-11-02",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "power"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [],
+      "summary": "모건스탠리 마이크 윌슨 “미국 중간선거 전후 조정은 매수 기회… S&P 500 8,000 도달 전망” - Bloomberg 인터뷰 모건스탠리의 미국 주식 수석 전략가 마이크 윌슨(Mike Wilson)은 미국..."
+    },
     {
       "id": "bornlupin/20936",
       "channel": "bornlupin",
@@ -1675,26 +1693,65 @@
         "MS",
         "DB"
       ]
-    },
+    }
+  ],
+  "broadItems": [
     {
-      "id": "aetherjapanresearch/25949",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25949",
-      "datetime": "2026-10-20T11:27:43.000Z",
-      "localDateKst": "2026-10-20",
+      "id": "HANAchina/71390",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71390",
+      "datetime": "2026-11-02T03:54:45.000Z",
+      "localDateKst": "2026-11-02",
       "tags": [
         "macro",
+        "geo"
+      ],
+      "lead": 1,
+      "score": 62,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>국제유가 하락세 지속, 낙폭 약 3%로 확대 •국제유가의 낙폭이 확대. WTI 원유 선물은 3% 넘게 하락한 배럴당 100.94달러에 거래중, 브렌트유 선물은 약 3% 하락한 배럴당 110.05달러를 기록..."
+    },
+    {
+      "id": "bornlupin/20941",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20941",
+      "datetime": "2026-11-02T03:45:05.000Z",
+      "localDateKst": "2026-11-02",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
         "power"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "Citi) 오라클 (ORCL.K); 오라클 AI 월드 프리뷰: 목표치의 상향 조정을 기대. TP $330 씨티의 견해 오라클의 AI 월드 및 애널리스트 데이(10/28)는 금리 상승과 데이터센터 지연 리스크를...",
+      "tickers": [],
+      "summary": "모건스탠리 마이크 윌슨 “미국 중간선거 전후 조정은 매수 기회… S&P 500 8,000 도달 전망” - Bloomberg 인터뷰 모건스탠리의 미국 주식 수석 전략가 마이크 윌슨(Mike Wilson)은 미국..."
+    },
+    {
+      "id": "bornlupin/20939",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20939",
+      "datetime": "2026-11-02T03:34:55.000Z",
+      "localDateKst": "2026-11-02",
+      "tags": [
+        "semi",
+        "macro",
+        "earnings",
+        "flows"
+      ],
+      "lead": 1,
+      "score": 88,
+      "hasText": true,
       "tickers": [
-        "ORCL"
-      ]
-    }
-  ],
-  "broadItems": [
+        "005930.KS",
+        "009150.KS",
+        "000660.KS",
+        "000990.KS"
+      ],
+      "summary": "KB증권 \"반도체, 'W자 반등' 두번째 바닥…상승여력 주목할 시점\" \"빅테크, 과잉투자 아닌 수요 따라가기 위한 증설…수익화 구간 진입\" \"실적·주가, 역사적 수준의 괴리…메모리, 내년 강력 상승 사이클..."
+    },
     {
       "id": "bornlupin/20938",
       "channel": "bornlupin",
@@ -2236,17 +2293,15 @@
       "datetime": "2026-11-01T11:45:13.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
-        "power",
-        "equity",
-        "earnings",
-        "japan"
+        "equity"
       ],
       "score": 57,
       "hasText": true,
+      "summary": ">>(상세) 무라타, MLCC 증설에 1조 엔 투자…AI 서버 한 대에 최대 2만5,000개 사용 (대만공상시보) •AI 서버 수요 급증으로 MLCC 공급 부족이 심화되면서 Murata...",
+      "lead": 1,
       "tickers": [
         "6981.T"
-      ],
-      "summary": ">>(상세) 무라타, MLCC 증설에 1조 엔 투자…AI 서버 한 대에 최대 2만5,000개 사용 (대만공상시보) •AI 서버 수요 급증으로 MLCC 공급 부족이 심화되면서 Murata..."
+      ]
     },
     {
       "id": "insidertracking/67978",
@@ -3606,17 +3661,14 @@
       "datetime": "2026-10-30T07:34:18.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "semi",
-        "macro",
-        "healthcare"
+        "semi"
       ],
-      "lead": 1,
       "score": 73,
       "hasText": true,
+      "summary": "[SK증권 반도체 한동희, 손 건/해외주식 박제민] TrendForce, 2026년 10월 DRAM 고정가 업데이트 10월 가격 동향 핵심 요약 - 4Q26 PC DRAM 고정가 QoQ +13~18% 확정 —...",
       "tickers": [
         "AMD"
-      ],
-      "summary": "[SK증권 반도체 한동희, 손 건/해외주식 박제민] TrendForce, 2026년 10월 DRAM 고정가 업데이트 10월 가격 동향 핵심 요약 - 4Q26 PC DRAM 고정가 QoQ +13~18% 확정 —..."
+      ]
     },
     {
       "id": "insidertracking/67870",
@@ -3798,14 +3850,14 @@
       "datetime": "2026-10-30T00:17:10.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "credit"
+        "market-note"
       ],
       "score": 76,
       "hasText": true,
+      "summary": "샌디스크(SNDK) FY27 1분기 어닝콜 Q&A 중 Q. [BofA) / 왐시 모한] 발표 자료에서 선도적인 AI 기업들과의 협의가 추가적인 수요 증가 가능성을 시사한다고 언급했습니다. 여기서 말하는 AI...",
       "tickers": [
         "SNDK"
-      ],
-      "summary": "샌디스크(SNDK) FY27 1분기 어닝콜 Q&A 중 Q. [BofA) / 왐시 모한] 발표 자료에서 선도적인 AI 기업들과의 협의가 추가적인 수요 증가 가능성을 시사한다고 언급했습니다. 여기서 말하는 AI..."
+      ]
     },
     {
       "id": "insidertracking/67837",
@@ -3830,16 +3882,14 @@
       "datetime": "2026-10-29T23:46:42.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "semi",
-        "power",
-        "earnings"
+        "market-note"
       ],
       "score": 77,
       "hasText": true,
+      "summary": "아마존(AMZN) 2026년 3분기 어닝콜 중 CapEx 및 AI 인프라 CEO 앤디 재시·CFO 브라이언 올사브스키 발언 1. CapEx 및 투자 계획 - 3분기 현금 기준 설비투자(Cash CapEx)는...",
       "tickers": [
         "AMZN"
-      ],
-      "summary": "아마존(AMZN) 2026년 3분기 어닝콜 중 CapEx 및 AI 인프라 CEO 앤디 재시·CFO 브라이언 올사브스키 발언 1. CapEx 및 투자 계획 - 3분기 현금 기준 설비투자(Cash CapEx)는..."
+      ]
     },
     {
       "id": "HANAchina/71246",
@@ -6881,29 +6931,6 @@
       "tickers": []
     },
     {
-      "id": "HANAchina/71059",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71059",
-      "datetime": "2026-10-27T00:13:15.000Z",
-      "localDateKst": "2026-10-27",
-      "tags": [
-        "semi",
-        "ai-policy",
-        "equity"
-      ],
-      "score": 74,
-      "hasText": true,
-      "summary": ">>Anthropic의 컴퓨팅 칩 구성: Nvidia 비중 42% •Anthropic이 전날 IPO를 공식 신청하면서 공개한 투자설명서에 따르면, 2025년 말부터 현재까지 컴퓨팅 자원 확보를 위해 체결한...",
-      "lead": 3,
-      "tickers": [
-        "NVDA",
-        "GOOG"
-      ],
-      "relatedTickers": [
-        "AVGO"
-      ]
-    },
-    {
       "id": "bornlupin/20837",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20837",
@@ -8570,41 +8597,6 @@
       "hasText": true,
       "summary": "신현송 한국은행 총재 • 이번 동결은 호미질의 결실(선제적 연속 인상 대응으로 정책효과를 지켜볼 수 있는 시간을 확보). 연속 인상은 관행을 벗어난 결정이었지만 비용을 줄이는데 도움이 되었다고 생각 • 성장,...",
       "tickers": []
-    },
-    {
-      "id": "aetherjapanresearch/25979",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25979",
-      "datetime": "2026-10-22T02:52:08.000Z",
-      "localDateKst": "2026-10-22",
-      "tags": [
-        "market-note"
-      ],
-      "score": 53,
-      "hasText": true,
-      "summary": "제목: 마크 저커버그, 억만장자세 주민투표 법안에도 불구하고 캘리포니아에 남기로 합의 메타가 수요일 공개한 규제 당국 제출 서류에 따르면, 마크 저커버그 CEO는 9월 9일 이사회 멤버들과의 저녁 자리에서...",
-      "tickers": []
-    },
-    {
-      "id": "bornlupin/20762",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20762",
-      "datetime": "2026-10-22T01:50:35.000Z",
-      "localDateKst": "2026-10-22",
-      "tags": [
-        "semi",
-        "optical"
-      ],
-      "score": 81,
-      "hasText": true,
-      "summary": "엔비디아 광 혁명이 왔다! TSMC COUPE, CPO 양산 지원…실리콘웨어 광학 엔진 생산능력 30배 급증 AI 경쟁이 반도체 확보에서 광통신 생산능력 확보로 확대되고 있다. 1. 엔비디아, TSMC와 공동...",
-      "lead": 1,
-      "tickers": [
-        "NVDA",
-        "MU",
-        "TSM",
-        "009150.KS"
-      ]
     }
   ],
   "current24hItems": [
@@ -8855,17 +8847,15 @@
       "datetime": "2026-11-01T11:45:13.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
-        "power",
-        "equity",
-        "earnings",
-        "japan"
+        "equity"
       ],
       "score": 57,
       "hasText": true,
+      "summary": ">>(상세) 무라타, MLCC 증설에 1조 엔 투자…AI 서버 한 대에 최대 2만5,000개 사용 (대만공상시보) •AI 서버 수요 급증으로 MLCC 공급 부족이 심화되면서 Murata...",
+      "lead": 1,
       "tickers": [
         "6981.T"
-      ],
-      "summary": ">>(상세) 무라타, MLCC 증설에 1조 엔 투자…AI 서버 한 대에 최대 2만5,000개 사용 (대만공상시보) •AI 서버 수요 급증으로 MLCC 공급 부족이 심화되면서 Murata..."
+      ]
     },
     {
       "id": "insidertracking/67978",
