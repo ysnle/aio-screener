@@ -229,6 +229,16 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.ok(freq.n >= 1 && freq.n <= 3, `P1743: overlapping windows are counted once per episode (n=${freq.n})`);
   const longModel = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { sourceLabel: '장기 일봉 기록', branches: { reheat: { n: 41, up: 22, median: 0.4, p25: -2.1, p75: 2.9, from: '1990-01-02', to: '2026-10-09', horizon: 20 } } } });
   assert.match(longModel.items.find((item) => item.id === 'reheat').past.text, /장기 일봉 기록\(1990년~2026년 10월\)에서 서로 겹치지 않는 사례 41번 중 22번/, 'P1743: long-history outcomes replace the one-year record');
+  // v59.59 (AI token budget): one-line branches whose long-record frequency is within noise of the base rate share one
+  // stated basis; each line keeps its label and case count, and the screen text (item.past.text) is unchanged.
+  const noise = (n) => ({ n, up: Math.round(n * 0.64), median: 0.5, from: '1990-01-02', to: '2026-10-09', horizon: 20, baseUpPct: 64 });
+  const noisyModel = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { sourceLabel: '장기 일봉 기록', branches: Object.fromEntries(Object.keys(BRANCH_ANALOGS).map((id, i) => [id, noise(60 + i)])) } });
+  const noisyText = renderMacroCrossroadsContext(noisyModel);
+  const compacted = noisyModel.items.filter((item) => item.id !== noisyModel.leadId && item.id !== noisyModel.altId);
+  assert.equal((noisyText.match(/과거 빈도 공통 기준/g) || []).length, 1, 'v59.59: the shared base-rate basis is stated once');
+  assert.ok(compacted.length >= 2 && compacted.every((item) => noisyText.includes(`${BRANCH_ANALOGS[item.id].label}: 사례 ${item.past.n}번, 평소와 구별 안 됨`)), 'v59.59: each compact line keeps its label and case count');
+  assert.ok(compacted.every((item) => /표본 오차 안에서 구별되지 않았습니다/.test(item.past.text)), 'v59.59: the screen sentence is unchanged');
+  assert.ok((noisyText.match(/표본 오차 안에서 구별되지 않았습니다/g) || []).length <= 2, 'v59.59: only the detailed lead/alternative lines keep the full sentence');
   const held = buildMacroCrossroads({ read: null, macroHistory: null, history: [], events: [] });
   assert.equal(held.leadId, null, 'P1742: no lead without observations');
   // Audit 1: branches level on met conditions are named as a tie, and the next release is what separates them.
