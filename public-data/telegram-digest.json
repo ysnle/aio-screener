@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-02T15:22:14.884Z",
-  "attemptedAt": "2026-11-02T15:22:14.884Z",
-  "lastSuccessfulAt": "2026-11-02T15:22:14.884Z",
+  "generatedAt": "2026-11-02T16:22:18.418Z",
+  "attemptedAt": "2026-11-02T16:22:18.418Z",
+  "lastSuccessfulAt": "2026-11-02T16:22:18.418Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-19T15:22:09.858Z",
-  "until": "2026-11-02T15:22:09.858Z",
+  "since": "2026-10-19T16:22:12.066Z",
+  "until": "2026-11-02T16:22:12.066Z",
   "current24hWindow": {
     "start": "2026-10-31T23:00:00.000Z",
     "end": "2026-11-01T23:00:00.000Z",
@@ -116,30 +116,30 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 666,
+      "count": 667,
       "freshCount": 36,
-      "eligibleTextCount": 665,
+      "eligibleTextCount": 666,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 71427
+      "lastPostId": 71428
     }
   ],
-  "count": 2336,
-  "retainedItemCount": 451,
+  "count": 2337,
+  "retainedItemCount": 450,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2336,
-    "eligibleTextCount": 2268,
+    "observedCount": 2337,
+    "eligibleTextCount": 2269,
     "mediaOnlyCount": 68,
     "mediaAttachedCount": 106,
     "photoPostCount": 87,
     "documentPostCount": 0,
     "imageOnlyCount": 0,
     "highSignalCount": 422,
-    "broadSignalCount": 916,
+    "broadSignalCount": 917,
     "selectedRawCount": 412,
     "selectedEligibleCount": 412,
     "selectedRawCoveragePct": 18.2,
@@ -147,15 +147,15 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "ai-policy": 133,
+    "earnings": 479,
     "semi": 522,
     "optical": 43,
     "geo": 426,
     "power": 282,
-    "earnings": 478,
     "macro": 352,
     "kr-market": 131,
     "flows": 85,
-    "ai-policy": 132,
     "market-note": 817,
     "credit": 117,
     "equity": 162,
@@ -165,6 +165,7 @@
     "crypto": 3
   },
   "tickerCounts": {
+    "GOOG": 131,
     "BABA": 3,
     "MRVL": 14,
     "LITE": 15,
@@ -173,7 +174,6 @@
     "ORCL": 14,
     "PLTR": 15,
     "TSLA": 59,
-    "GOOG": 130,
     "T": 7,
     "AMZN": 80,
     "MSFT": 59,
@@ -257,12 +257,12 @@
   "themes": [
     "Market Notes (817 posts in 14-day research window): 11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000...",
     "Semiconductors/Memory (522 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로 상향. AI 확산에 따른 사이버보안 수요 증가와 장기 시장 확대 가능성을 주요 근거로 제시. 반도체 ·...",
-    "Earnings/Corporate (478 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
+    "Earnings/Corporate (479 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
     "Geopolitics (426 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 31일 🇺🇸 아메리카 • 트럼프 대통령은 이란과 협상이 진행 중이라고 밝혀. 다만 미국 정부는 이란에 대한 경제 봉쇄와 추가 제재를 검토 중이며, 중간선거 직후...",
     "Macro/Rates (352 posts in 14-day research window): 2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,...",
     "AI Power/Grid (282 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
     "Equity/Analyst (162 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
-    "AI Policy/Export Controls (132 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
+    "AI Policy/Export Controls (133 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
   ],
   "catalysts": [
     {
@@ -272,7 +272,7 @@
     },
     {
       "key": "GOOG",
-      "count": 130,
+      "count": 131,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로 상향. AI 확산에 따른 사이버보안 수요 증가와 장기 시장 확대 가능성을 주요 근거로 제시. 반도체 ·..."
     },
     {
@@ -387,7 +387,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 132,
+      "count": 133,
       "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
@@ -423,7 +423,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 478,
+      "count": 479,
       "focus": "마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장...."
     },
     {
@@ -1696,6 +1696,24 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "HANAchina/71428",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71428",
+      "datetime": "2026-11-02T15:28:35.000Z",
+      "localDateKst": "2026-11-03",
+      "tags": [
+        "ai-policy",
+        "earnings"
+      ],
+      "lead": 1,
+      "score": 59,
+      "hasText": true,
+      "tickers": [
+        "GOOG"
+      ],
+      "summary": ">>Anthropic 3분기 순손실 233억 달러로 전년 동기(121억 달러) 대비 확대됨. 영업손실은 5.67억 달러, 매출은 169.6억 달러로 전년 동기(13.8억 달러) 대비 1,127% 증가..."
+    },
     {
       "id": "HANAchina/71427",
       "channel": "HANAchina",
@@ -7018,22 +7036,6 @@
       "hasText": true,
       "summary": ">>AI 서사가 흔들리기 시작하자, 오랫동안 시장에서 간과됐던 위험들이 서서히 수면 위로 떠오르고 있음 •Citadel 증권은 최근 주식시장 매도세가 AI 투자 수익에 대한 투자자들의 인내심이 약해지고 있음을...",
       "tickers": []
-    },
-    {
-      "id": "HANAchina/71102",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71102",
-      "datetime": "2026-10-27T12:58:31.000Z",
-      "localDateKst": "2026-10-27",
-      "tags": [
-        "market-note"
-      ],
-      "score": 56,
-      "hasText": true,
-      "summary": ">>PCB·CCL 공급 부족 수혜…모건스탠리·골드만삭스, 대만 3개 종목 공통 추천 (대만경제일보) •모건스탠리와 골드만삭스는 AI 서버 업그레이드에 따른 PCB 공급망 수요가 강한 가운데 공급 병목이...",
-      "tickers": [
-        "MU"
-      ]
     },
     {
       "id": "bornlupin/20851",
