@@ -1,0 +1,6 @@
+{
+ "changelog": [
+  "**CI 검증 범위 한 곳에서 결정 ({VERSION}):** 갱신 봇 커밋(refresh-data·refresh-screener·event-briefs)의 축소 검증 범위를 ci.yml 네 군데 식에서 따로 판정하던 것을 preflight의 한 단계로 모았다. 계약 묶음·브라우저 생략·attest 허용·기반 커밋 확인이 그 출력(reduced_scope, contract_groups)을 읽는다. 새 갱신 원천은 한 줄만 추가하면 된다."
+ ],
+ "note": "{VERSION} CI validation scope resolved once in preflight"
+}

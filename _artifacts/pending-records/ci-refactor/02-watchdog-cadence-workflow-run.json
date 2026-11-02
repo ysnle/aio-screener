@@ -1,0 +1,15 @@
+{
+ "p": {
+  "title": "{VERSION} 감시 cadence 경고가 GitHub가 건너뛴 시간별 cron만 세어, 실제로는 30~100분마다 돈 감시를 '실행 누락'으로 표시했다",
+  "symptom": "Data freshness watchdog가 매 실행 github-watchdog-cadence (P1596) 경고를 남겼다(간격 최대 234~458분). 2026-11-01 02:51Z~11-02 02:25Z 24시간 실측: watchdog 실행 60회 중 schedule 4회, workflow_run 56회. cron만 세면 최대 간격 458분, 전체로 세면 103분(기준 125분 이내).",
+  "root_cause": "workflowCadence가 schedule·workflow_dispatch 이벤트만 도착으로 셌다. P1666 이후 watchdog는 Pages 배포·AI 프록시 배포·시장 데이터 갱신 완료 때마다 workflow_run으로도 돌고 같은 점검을 하지만, 그 실행은 cadence에 들어가지 않았다. 시장 갱신 cadence에는 맞는 정의였지만 watchdog에는 아니었다.",
+  "fix": "workflowCadence에 events 옵션(기본 CADENCE_EVENTS = schedule, workflow_dispatch)을 두고 watchdog cadence만 workflow_run을 더해 센다. 시장 갱신 cadence는 그대로다. 감시 임계값(cadence 65/125분, 스크리너 48시간, 데이터 품질 하한 70/10, Telegram 100건·정상 채널 3, 뉴스 피드 24h/72h, receipt 3일)을 scripts/lib/operational-health.mjs WATCHDOG_THRESHOLDS 한 표로 모아 각 값의 근거를 적었다.",
+  "violated_rule": "감시 게이트는 실제로 일어나는 실행 경로를 모두 세야 한다 — 백업 경로(cron)만 세면 경보 피로가 생긴다.",
+  "prevention": "ci-data-pipeline-contract-check {VERSION} 단언: workflow_run 도착은 events로 요청할 때만 cadence에 들어가고 기본값은 cron·dispatch만 센다; 품질 하한·스크리너 기준은 WATCHDOG_THRESHOLDS 값으로 고정되고 관찰기가 그 표를 읽는다.",
+  "verification": "node scripts/ci-data-pipeline-contract-check.mjs OK, node scripts/ci-deployment-convergence-check.mjs OK. gh api data-watchdog.yml runs 24시간 재계산: cron만 458분, 전체 103분."
+ },
+ "changelog": [
+  "**감시 경보 정리 ({VERSION}):** 데이터 감시가 'GitHub 시간별 예약 실행 누락'을 계속 경고하던 것을 고쳤다. 감시는 배포·갱신이 끝날 때마다 따로 돌아 실제 간격은 최대 103분이었다. 감시 임계값은 한 표로 모아 근거를 적었다."
+ ],
+ "note": "{VERSION} watchdog cadence counts workflow_run arrivals; WATCHDOG_THRESHOLDS"
+}

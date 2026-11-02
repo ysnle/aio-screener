@@ -16539,12 +16539,11 @@ function showPage(id, navEl) {
   }
   // P1631: an overlay id (#glossary) has no page — open it over the guide instead of blanking the screen.
   if ((window.AIO_ROUTE_REGISTRY.classes.OVERLAY || []).indexOf(id) >= 0) { id = 'guide'; try { history.replaceState(Object.assign({}, history.state || {}, { page: id }), '', '#guide'); } catch (_) {} setTimeout(function() { if (typeof window.openGlossary === 'function') window.openGlossary(); }, 0); } else if (id !== 'theme-detail' && !document.getElementById('page-' + id)) { id = 'home'; try { history.replaceState(Object.assign({}, history.state || {}, { page: id }), '', '#home'); } catch (_) {} } // v57.55 E3-F2: unknown id → 오늘
+  // v59.59: a pending theme detail belongs to the navigation that asked for it; leaving 테마 before it mounted kept the id and the next plain 테마 visit opened 방산.
+  if (id !== 'themes' && id !== 'theme-detail') { try { delete window._aioOpenThemeDetailOnThemes; } catch(_) {} }
   // v52.27 P642: theme-detail is an inline panel on #themes, not a separate user route.
   if (id === 'theme-detail') {
-    try {
-      var fallbackTheme = window._currentThemeId || (window.THEME_MAP && window.THEME_MAP[0] && window.THEME_MAP[0].id) || null;
-      if (fallbackTheme) window._aioOpenThemeDetailOnThemes = fallbackTheme;
-    } catch(_) {}
+    try { var fallbackTheme = window._currentThemeId || (window.THEME_MAP && window.THEME_MAP[0] && window.THEME_MAP[0].id) || null; if (fallbackTheme) window._aioOpenThemeDetailOnThemes = fallbackTheme; } catch(_) {}
     id = 'themes';
   }
   // v49.58 R106: 페이지 진입 시 ticker-related 마커 자동 sync.
