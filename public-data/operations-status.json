@@ -23,9 +23,9 @@
     "UNAVAILABLE",
     "UNKNOWN"
   ],
-  "generatedAt": "2026-11-02T04:51:17.488Z",
+  "generatedAt": "2026-11-02T05:21:26.310Z",
   "appRevision": "v59.59",
-  "dataRevision": "market-snapshot:2026-11-02T04:51:02.799Z:3620fbda",
+  "dataRevision": "market-snapshot:2026-11-02T05:21:02.788Z:0009b06d",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
   "overall": "OPERATOR_REQUIRED",
   "overallBasis": {
@@ -41,7 +41,7 @@
   "featureAvailability": {
     "market-breadth": {
       "availability": "AVAILABLE",
-      "asOf": "2026-11-02T04:51:02.799Z",
+      "asOf": "2026-11-02T05:21:02.788Z",
       "missingReason": null,
       "sources": [
         "durable"
@@ -49,7 +49,7 @@
     },
     "fundamental-ranking": {
       "availability": "AVAILABLE",
-      "asOf": "2026-11-02T04:51:02.799Z",
+      "asOf": "2026-11-02T05:21:02.788Z",
       "missingReason": null,
       "sources": [
         "durable"
@@ -57,7 +57,7 @@
     },
     "quotes": {
       "availability": "AVAILABLE",
-      "asOf": "2026-11-02T04:51:17.488Z",
+      "asOf": "2026-11-02T05:21:26.310Z",
       "missingReason": null,
       "sources": [
         "fast"
@@ -65,7 +65,7 @@
     },
     "ai-chat": {
       "availability": "AVAILABLE",
-      "asOf": "2026-11-02T04:51:17.488Z",
+      "asOf": "2026-11-02T05:21:26.310Z",
       "missingReason": null,
       "sources": [
         "fast"
@@ -91,8 +91,8 @@
   "domainReceipts": {
     "market-quotes": {
       "publicationStatus": "SUCCESS",
-      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-11-02T04:51:02.799Z",
-      "lastSuccessfulObservation": "2026-11-02T04:51:02.799Z",
+      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-11-02T05:21:02.788Z",
+      "lastSuccessfulObservation": "2026-11-02T05:21:02.788Z",
       "counts": {
         "eligible": 81,
         "attempted": 81,
@@ -102,19 +102,19 @@
     },
     "news": {
       "publicationStatus": "PARTIAL",
-      "userCopy": "일부만 갱신 — 나머지는 기존값 유지 중 · 마지막 성공 관측 2026-11-02T04:51:02.799Z",
-      "lastSuccessfulObservation": "2026-11-02T04:51:02.799Z",
+      "userCopy": "일부만 갱신 — 나머지는 기존값 유지 중 · 마지막 성공 관측 2026-11-02T05:21:02.788Z",
+      "lastSuccessfulObservation": "2026-11-02T05:21:02.788Z",
       "counts": {
         "eligible": 17,
         "attempted": 17,
-        "updated": 15,
-        "retained": 1
+        "updated": 14,
+        "retained": 2
       }
     },
     "macro-fred": {
       "publicationStatus": "SUCCESS",
-      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-11-02T04:51:02.799Z",
-      "lastSuccessfulObservation": "2026-11-02T04:51:02.799Z",
+      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-11-02T05:21:02.788Z",
+      "lastSuccessfulObservation": "2026-11-02T05:21:02.788Z",
       "counts": {
         "eligible": 23,
         "attempted": 23,
@@ -124,8 +124,8 @@
     },
     "macro-bls": {
       "publicationStatus": "SUCCESS",
-      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-11-02T04:51:02.799Z",
-      "lastSuccessfulObservation": "2026-11-02T04:51:02.799Z",
+      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-11-02T05:21:02.788Z",
+      "lastSuccessfulObservation": "2026-11-02T05:21:02.788Z",
       "counts": {
         "eligible": 8,
         "attempted": 8,
@@ -135,8 +135,8 @@
     },
     "macro-bea": {
       "publicationStatus": "SUCCESS",
-      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-11-02T04:51:02.799Z",
-      "lastSuccessfulObservation": "2026-11-02T04:51:02.799Z",
+      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-11-02T05:21:02.788Z",
+      "lastSuccessfulObservation": "2026-11-02T05:21:02.788Z",
       "counts": {
         "eligible": 1,
         "attempted": 1,
@@ -146,8 +146,8 @@
     },
     "treasury-curve": {
       "publicationStatus": "SUCCESS",
-      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-11-02T04:51:02.799Z",
-      "lastSuccessfulObservation": "2026-11-02T04:51:02.799Z",
+      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-11-02T05:21:02.788Z",
+      "lastSuccessfulObservation": "2026-11-02T05:21:02.788Z",
       "counts": {
         "eligible": 1,
         "attempted": 1,
@@ -157,8 +157,8 @@
     },
     "surveys-aaii": {
       "publicationStatus": "SUCCESS",
-      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-11-02T04:51:02.799Z",
-      "lastSuccessfulObservation": "2026-11-02T04:51:02.799Z",
+      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-11-02T05:21:02.788Z",
+      "lastSuccessfulObservation": "2026-11-02T05:21:02.788Z",
       "counts": {
         "eligible": 1,
         "attempted": 1,
@@ -183,7 +183,7 @@
       "status": "CURRENT",
       "statusCode": "CONFIGURED_HEALTHY",
       "source": "github-actions",
-      "lastSuccessfulAt": "2026-11-02T04:51:02.799Z",
+      "lastSuccessfulAt": "2026-11-02T05:21:02.788Z",
       "coverage": {
         "required": 16,
         "observed": 16,
@@ -198,10 +198,10 @@
         "coverageComplete": true,
         "quoteQualityComplete": true,
         "blockedQuotes": [],
-        "generatedAt": "2026-11-02T04:51:02.799Z",
-        "ageHours": 0,
+        "generatedAt": "2026-11-02T05:21:02.788Z",
+        "ageHours": 0.01,
         "maxAgeHours": 12,
-        "evaluatedAt": "2026-11-02T04:51:17.488Z",
+        "evaluatedAt": "2026-11-02T05:21:26.310Z",
         "reason": null
       },
       "readiness": {
@@ -221,14 +221,14 @@
         "status": "CURRENT",
         "statusCode": 200,
         "coverage": "16/16",
-        "revision": "fast-quotes:96c00920",
+        "revision": "fast-quotes:c5e1a34f",
         "sourceSha": "1b8508f631ae1fc6f6ce1cf3f9149e0295505563",
-        "observedAt": "2026-11-02T04:51:17.488Z",
+        "observedAt": "2026-11-02T05:21:26.310Z",
         "source": "periodic-live-health",
         "observationStatus": "SUCCESS",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-11-02T04:51:17.488Z"
+        "evidenceEvaluatedAt": "2026-11-02T05:21:26.310Z"
       },
       "soak": {
         "requiredDays": 0,
@@ -268,7 +268,7 @@
       "evidence": {
         "marketAnalysisOk": false,
         "retainedFrom": "2026-11-02T03:21:18.544Z",
-        "generatedAt": "2026-11-02T04:51:02.799Z"
+        "generatedAt": "2026-11-02T05:21:02.788Z"
       }
     },
     "publicChat": {
@@ -280,7 +280,7 @@
       "health": {
         "status": "CURRENT",
         "statusCode": 200,
-        "observedAt": "2026-11-02T04:51:17.488Z",
+        "observedAt": "2026-11-02T05:21:26.310Z",
         "revision": "v59.58",
         "sourceSha": "dc9741be934bd2c42bd8bff9a98345f183d5a3e3",
         "configured": true,
@@ -296,7 +296,7 @@
         "observationStatus": "SUCCESS",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-11-02T04:51:17.488Z"
+        "evidenceEvaluatedAt": "2026-11-02T05:21:26.310Z"
       },
       "scheduledAnalysisDoesNotImplyChat": true
     }
@@ -306,7 +306,7 @@
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "reference",
-      "lastFetchAt": "2026-11-02T04:51:02.799Z"
+      "lastFetchAt": "2026-11-02T05:21:02.788Z"
     },
     "fred": {
       "rights": "REVIEW_REQUIRED",
@@ -316,8 +316,8 @@
         "BAMLH0A0HYM2: ICE Data Indices — reproduction requires ICE prior written permission (FRED series notice)"
       ],
       "status": "CURRENT",
-      "lastAttemptAt": "2026-11-02T04:51:02.850Z",
-      "lastFetchAt": "2026-11-02T04:51:02.850Z"
+      "lastAttemptAt": "2026-11-02T05:21:02.840Z",
+      "lastFetchAt": "2026-11-02T05:21:02.840Z"
     },
     "sec": {
       "rights": "REVIEW_REQUIRED",
@@ -331,7 +331,7 @@
   "reconciliation": {
     "tier0": {
       "status": "MATCH",
-      "artifact": "market-snapshot:2026-11-02T04:51:02.799Z:3620fbda",
+      "artifact": "market-snapshot:2026-11-02T05:21:02.788Z:0009b06d",
       "uiEvidence": "same-revision-contract",
       "observedAtComplete": true
     },
@@ -470,7 +470,7 @@
           }
         ]
       },
-      "sourceRevision": "market-snapshot:2026-11-02T04:51:02.799Z:3620fbda",
+      "sourceRevision": "market-snapshot:2026-11-02T05:21:02.788Z:0009b06d",
       "sourceArtifacts": [
         "public-data/data.json",
         "public-data/market-snapshot.json",
