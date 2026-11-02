@@ -25,6 +25,7 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 | **자료 통합** | `/integrate` 스킬 (→ `CHANGELOG.md` + `_context/KNOWLEDGE-BASE.md` 환류) |
 | **데이터 갱신** | `/data-refresh` 스킬 |
 | **지식 린팅** | `/knowledge-lint` 스킬 |
+| **소유자 결정 이력·대체 관계** | `_context/OWNER-DECISIONS.md` (정본은 AGENTS.md; 어긋남은 그 문서 끝에 모아 소유자 확인 뒤 고친다) |
 
 상세 라우팅: `_context/INDEX.md`; 기계 상태: `_context/CURRENT-STATE.md`; 전체 파일 분류: `_context/CONTEXT-CATALOG.json`.
 

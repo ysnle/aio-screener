@@ -1,5 +1,7 @@
 # AIO Evidence Debt
 
+> 이력 문서(v50.1, 2026-06-02 기준선). 부채 분류의 정의는 아직 유효하지만 수치·라우트 목록은 낡았다. 지금 열린 작업은 `_context/ROADMAP.md`와 `_context/QA-CHECKLIST.md`의 열린 행, 현재 집계는 `_context/CURRENT-STATE.md`를 본다.
+
 Version: v50.1
 Updated: 2026-06-02T19:10:00+09:00
 
