@@ -73,7 +73,8 @@ const unlabeledCanvas = canvasTags.filter((tag) => !/\b(aria-label|aria-labelled
 check('visible canvas elements must have accessible names or be explicitly hidden', canvasTags.length > 0 && unlabeledCanvas.length === 0, `unlabeled=${unlabeledCanvas.slice(0, 3).join(' | ')}`);
 
 check('chart registry resize must skip hidden charts to avoid viewport resize storms',
-  /resizeAllVisible/.test(core) && /_isVisibleChart/.test(core) && /offsetParent !== null/.test(ui),
+  // v59.59: a third clause matched `offsetParent !== null` in js/aio-ui.js's Ctrl+K handler, not chart code; it left with that handler.
+  /resizeAllVisible/.test(core) && /_isVisibleChart/.test(core),
   'resizeAllVisible/_isVisibleChart contract missing');
 check('quote status comes from one presenter; the data layer no longer writes clock-based quote labels (P1326/R671)',
   !/클라 시세/.test(data) && /aio:quoteTopbar/.test(data),
