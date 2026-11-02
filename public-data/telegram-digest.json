@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-02T16:22:18.418Z",
-  "attemptedAt": "2026-11-02T16:22:18.418Z",
-  "lastSuccessfulAt": "2026-11-02T16:22:18.418Z",
+  "generatedAt": "2026-11-02T17:05:56.817Z",
+  "attemptedAt": "2026-11-02T17:05:56.817Z",
+  "lastSuccessfulAt": "2026-11-02T17:05:56.817Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-19T16:22:12.066Z",
-  "until": "2026-11-02T16:22:12.066Z",
+  "since": "2026-10-19T17:05:51.612Z",
+  "until": "2026-11-02T17:05:51.612Z",
   "current24hWindow": {
     "start": "2026-10-31T23:00:00.000Z",
     "end": "2026-11-01T23:00:00.000Z",
@@ -113,11 +113,11 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 667,
-      "freshCount": 36,
+      "freshCount": 20,
       "eligibleTextCount": 666,
       "selectedCount": 123,
       "error": null,
@@ -125,7 +125,7 @@
     }
   ],
   "count": 2337,
-  "retainedItemCount": 450,
+  "retainedItemCount": 441,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -2142,17 +2142,16 @@
       "datetime": "2026-11-02T07:36:35.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "macro",
-        "earnings"
+        "market-note"
       ],
       "score": 64,
       "hasText": true,
+      "summary": ">>Alphabet, 올해 두 번째 유로화 채권 발행 착수…7개 만기 구간으로 구성 •Bloomberg에 따르면 Alphabet이 7개 구간으로 구성된 유로화 표시 채권 발행을 위한 주문 접수를 시작함. 올해...",
       "tickers": [
         "GOOG",
         "GOOGL",
         "BCS"
-      ],
-      "summary": ">>Alphabet, 올해 두 번째 유로화 채권 발행 착수…7개 만기 구간으로 구성 •Bloomberg에 따르면 Alphabet이 7개 구간으로 구성된 유로화 표시 채권 발행을 위한 주문 접수를 시작함. 올해..."
+      ]
     },
     {
       "id": "HANAchina/71406",
@@ -2165,8 +2164,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>골드만삭스 “미국 증시에서 7가지 반등 신호 포착…다만 2026년을 먼저 견뎌야” •미국 증시는 10월 극심한 변동성 속에 마감했음. Nasdaq 100은 한 달 동안 7% 급락했고, 반도체주는 15년..."
+      "summary": ">>골드만삭스 “미국 증시에서 7가지 반등 신호 포착…다만 2026년을 먼저 견뎌야” •미국 증시는 10월 극심한 변동성 속에 마감했음. Nasdaq 100은 한 달 동안 7% 급락했고, 반도체주는 15년...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71399",
@@ -2175,15 +2174,14 @@
       "datetime": "2026-11-02T07:06:29.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "geo",
-        "healthcare"
+        "market-note"
       ],
       "score": 69,
       "hasText": true,
+      "summary": ">>Morgan Stanley 미국 주식 수석 전략가, 중간선거 결과와 관계없이 주가 하락 시 매수해야 ( 중국언론) •Mike Wilson은 주식시장이 조정을 마무리하기 위해 앞으로 몇 가지 추가적인 충격...",
       "tickers": [
         "MS"
-      ],
-      "summary": ">>Morgan Stanley 미국 주식 수석 전략가, 중간선거 결과와 관계없이 주가 하락 시 매수해야 ( 중국언론) •Mike Wilson은 주식시장이 조정을 마무리하기 위해 앞으로 몇 가지 추가적인 충격..."
+      ]
     },
     {
       "id": "insidertracking/68059",
@@ -2252,19 +2250,18 @@
       "localDateKst": "2026-11-02",
       "tags": [
         "semi",
-        "kr-market",
-        "earnings",
-        "flows"
+        "japan",
+        "kr-market"
       ],
-      "lead": 2,
       "score": 72,
       "hasText": true,
+      "summary": ">>골드만삭스, NAND 공급 부족 2027년까지 지속 전망…삼성전자·SK hynix 지지 •10월 30일 일본 NAND 플래시 메모리 제조업체 Kioxia가 2026년 역년 3분기(2026 회계연도 2분기)...",
+      "lead": 3,
       "tickers": [
         "285A.T",
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": ">>골드만삭스, NAND 공급 부족 2027년까지 지속 전망…삼성전자·SK hynix 지지 •10월 30일 일본 NAND 플래시 메모리 제조업체 Kioxia가 2026년 역년 3분기(2026 회계연도 2분기)..."
+      ]
     },
     {
       "id": "insidertracking/68052",
@@ -2340,17 +2337,15 @@
       "datetime": "2026-11-02T04:48:32.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "power",
-        "ai-policy",
-        "equity"
+        "power"
       ],
-      "lead": 1,
       "score": 57,
       "hasText": true,
+      "summary": ">>데이터센터 규제 압력 심화…미국 다수 주지사 후보, 건설 중단 지지 •이번 선거가 치러지는 36개 주 가운데 절반이 넘는 주에서 최소 한 명의 주요 주지사 후보가 데이터센터 건설 일시 중단을 지지하고...",
+      "lead": 1,
       "tickers": [
         "MSFT"
-      ],
-      "summary": ">>데이터센터 규제 압력 심화…미국 다수 주지사 후보, 건설 중단 지지 •이번 선거가 치러지는 36개 주 가운데 절반이 넘는 주에서 최소 한 명의 주요 주지사 후보가 데이터센터 건설 일시 중단을 지지하고..."
+      ]
     },
     {
       "id": "HANAchina/71393",
@@ -2359,15 +2354,13 @@
       "datetime": "2026-11-02T04:27:37.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "macro",
-        "kr-market",
-        "flows"
+        "macro"
       ],
-      "lead": 1,
       "score": 60,
       "hasText": true,
-      "tickers": [],
-      "summary": "• 대만 중앙은행은 최근 약세를 보이는 대만달러를 방어하고 달러 매도를 유도하기 위해, 이례적으로 최소 4개 은행에 연락하여 수출업체의 달러 매도에 적용되던 일일 한도(원칙상 1일 최대 1,000만 달러)를..."
+      "summary": "• 대만 중앙은행은 최근 약세를 보이는 대만달러를 방어하고 달러 매도를 유도하기 위해, 이례적으로 최소 4개 은행에 연락하여 수출업체의 달러 매도에 적용되던 일일 한도(원칙상 1일 최대 1,000만 달러)를...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/20942",
@@ -2391,16 +2384,16 @@
       "datetime": "2026-11-02T04:05:09.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "semi",
         "earnings",
         "japan"
       ],
       "score": 56,
       "hasText": true,
+      "summary": ">>(요약) Kioxia, 다음 분기 이익 전망 시장 예상 하회…주가 장중 한때 약 15% 급락 •일본 Kioxia가 사상 최대 실적을 발표. 분기 매출은 2조 4,800억 엔으로 전년비 453% 급증했고,...",
+      "lead": 2,
       "tickers": [
         "285A.T"
-      ],
-      "summary": ">>(요약) Kioxia, 다음 분기 이익 전망 시장 예상 하회…주가 장중 한때 약 15% 급락 •일본 Kioxia가 사상 최대 실적을 발표. 분기 매출은 2조 4,800억 엔으로 전년비 453% 급증했고,..."
+      ]
     },
     {
       "id": "HANAchina/71390",
@@ -2409,14 +2402,13 @@
       "datetime": "2026-11-02T03:54:45.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "macro",
-        "geo"
+        "macro"
       ],
-      "lead": 1,
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>국제유가 하락세 지속, 낙폭 약 -3%로 확대 •국제유가의 낙폭이 확대. WTI 원유 선물은 3% 넘게 하락한 배럴당 100.94달러에 거래중, 브렌트유 선물은 약 3% 하락한 배럴당 110.05달러를..."
+      "summary": ">>국제유가 하락세 지속, 낙폭 약 -3%로 확대 •국제유가의 낙폭이 확대. WTI 원유 선물은 3% 넘게 하락한 배럴당 100.94달러에 거래중, 브렌트유 선물은 약 3% 하락한 배럴당 110.05달러를...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/20941",
