@@ -25,8 +25,8 @@ export default {
       if (sub === sectors) throw new Error('scope toggle did not change the chip set');
       return { subsectorChips: sub.split(',').length, sectorChips: sectors.split(',').length };
     }],
-    ['S&P 500 지도 펼치기 → 구성 종목과 기준 확인', async (p) => {
-      await p.locator('#sector-map-fold > summary').click();
+    ['S&P 500 지도 → 구성 종목 확인', async (p) => {
+      // 2026-11-02: #sector-map is an open section; #sector-map-fold now holds only the day's splits and is hidden without them.
       // 2026-10-13: the map paints after the screener rows land; the tile detail line names the member.
       await p.waitForFunction(() => document.querySelectorAll('#sector-map .sector-map-tile').length > 50, null, { timeout: 20000 });
       const tiles = await p.$$eval('#sector-map .sector-map-tile', (n) => n.length);
@@ -36,7 +36,7 @@ export default {
       await tile.click();
       const detail = await visibleText(p, '#sector-map .sector-map-detail');
       if (!detail.startsWith(sym)) throw new Error(`tile detail did not name ${sym}: ${detail.slice(0, 80)}`);
-      return { tiles, sym, basis: (await visibleText(p, '#sector-map .sector-map-basis')).slice(0, 90) };
+      return { tiles, sym, detail: detail.slice(0, 90) };
     }],
     ['AI 설비투자 흐름 펼치기 → 설명과 근거', async (p) => {
       await p.locator('#ai-capex-fold > summary').click();

@@ -756,7 +756,6 @@ export function installRefreshScheduler(window = globalThis) {
       runSymbols = Array.isArray(runProfile.symbols) ? runProfile.symbols.slice() : [];
     }
     var out = [];
-    var wasPaused = _schedulerPaused;
     var prevQuoteRequestSymbols = window._aioQuoteRequestSymbols;
     var runId = 'refresh-' + Date.now() + '-' + Math.round(Math.random() * 100000);
     var startedAt = Date.now();
@@ -839,7 +838,10 @@ export function installRefreshScheduler(window = globalThis) {
         });
       }
     } finally {
-      _schedulerPaused = wasPaused;
+      // v59.60 (refresh-scheduler model check): the pause flag follows the tab as it is now, not as it was when the run
+      // started. Restoring the start value left a run begun while hidden (portfolio/screener retry, AI ensure-fresh) that
+      // ended after the tab returned with a visible tab paused, and every timer then stopped without rescheduling.
+      _schedulerPaused = !!(typeof document !== 'undefined' && document.hidden);
       if (prevQuoteRequestSymbols == null) delete window._aioQuoteRequestSymbols;
       else window._aioQuoteRequestSymbols = prevQuoteRequestSymbols;
     }

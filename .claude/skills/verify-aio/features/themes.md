@@ -1,14 +1,14 @@
 # 테마와 섹터
 
-테마와 섹터 (page heading 테마 · 트렌드) ranks sectors by relative strength in RRG quadrant cards, lets the user switch scope, opens a sector or theme detail inline on the same screen, and links its constituents to the 종목 screen.
+테마와 섹터 (page heading 테마와 섹터) ranks sectors by relative strength in RRG quadrant cards, lets the user switch scope, opens a sector or theme detail inline on the same screen, and links its constituents to the 종목 screen.
 
 ## Sub-features
 
 - `themes-rotation` — 섹터 회전 판정 plus quadrant cards `#rrg-quadrant-cards` made of chips.
-- `themes-scope` — pills `#rrg-view-tabs [data-action=setRRGView][data-arg=sectors|subsectors|all]` (11섹터 / 서브섹터 / 전체); the active pill has `.active` and the chip set changes.
+- `themes-scope` — pills `#rrg-view-tabs [data-action=setRRGView][data-arg=sectors|subsectors|all]` (11섹터 / 세부 업종 / 전체); the active pill has `.active` and the chip set changes.
 - `themes-detail-inline` — a solid chip `[data-action=showThemeDetail][data-arg]` opens `#theme-detail-panel` on `page-themes` (leaders, sub-theme bars, constituents).
 - `themes-summary-only` — dashed chips (`data-detail-availability="summary-only"`) open no detail; they scroll to the sub-theme ranking `#theme-strength-board`.
-- `themes-back` — `← 선택한 목록으로` scrolls back to the chip; the panel stays open.
+- `themes-back` — `← 테마 목록으로` closes the detail panel and returns to the list.
 - `themes-ticker` — constituent/leader chips `#theme-detail-panel [data-action=showTicker][data-arg]` open the 종목 screen.
 
 ## How to get to it (user POV)
@@ -25,11 +25,11 @@ Preconditions:
 
 - **Open.** Click sidebar `테마와 섹터`. `page-themes` active (single-tab hub, no tab bar).
 - **Cards.** `#rrg-quadrant-cards` has children; ≥1 detail chip.
-- **Scope.** Click `서브섹터` pill, then `11섹터`; each becomes `.active` and the chip set differs.
+- **Scope.** Click `세부 업종` pill, then `11섹터`; each becomes `.active` and the chip set differs.
 - **Detail.** Open `사분면별 섹터` (`#rrg-quadrant-fold > summary`), then click the first detail chip. `#theme-detail-panel` visible, >100 chars; page stays `page-themes`.
 - **Back.** Click `← 테마 목록으로`; the detail closes and the selected chip is inside the viewport again.
 - **To 종목.** Reopen that theme, then click its first visible `showTicker` chip. `page-ticker` active and `#ticker-hero-name` names that symbol.
-- **S&P 500 map.** Open `#sector-map-fold > summary`, wait for >50 `#sector-map .sector-map-tile`, click the first tile and expect `.sector-map-detail` to start with its symbol (a second click opens the stock page).
+- **S&P 500 map.** `#sector-map` is an open section (`#sector-map-fold` holds only the day's splits and is hidden without them); wait for >50 `#sector-map .sector-map-tile`, click the first tile and expect `.sector-map-detail` to start with its symbol (a second click opens the stock page).
 - **Proof.** `drive themes` evidence folder.
 - **AI capital flow.** Open `#ai-capex-fold > summary`; `#ai-capex-flow` contains the explanation and its reference basis (at least 80 visible characters).
 

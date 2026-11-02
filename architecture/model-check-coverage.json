@@ -2,7 +2,7 @@
   "schemaVersion": "aio-model-check-coverage.v1",
   "gates": {
     "history-session-model": {
-      "syncedAt": "f7a8f0a",
+      "syncedAt": "6d29b2e0",
       "covers": [
         {
           "module": "scripts/producer/history.mjs",
@@ -17,7 +17,7 @@
       ]
     },
     "narrative-lifecycle-model": {
-      "syncedAt": "c1596da",
+      "syncedAt": "6d29b2e0",
       "covers": [
         {
           "module": "scripts/producer/market-narrative.mjs",
@@ -48,6 +48,91 @@
           "module": "scripts/lib/lane-quarantine.mjs",
           "name": "applyLaneQuarantine",
           "fingerprint": "25d0b9703c7090ff"
+        }
+      ]
+    },
+    "ai-ledger-model": {
+      "syncedAt": "6d29b2e0",
+      "covers": [
+        {
+          "module": "cloudflare-worker-proxy.js",
+          "name": "AIOQuotaDurableObject.load",
+          "fingerprint": "8d1012621a3ddd16"
+        },
+        {
+          "module": "cloudflare-worker-proxy.js",
+          "name": "AIOQuotaDurableObject.save",
+          "fingerprint": "dea4340bcd5d8df3"
+        },
+        {
+          "module": "cloudflare-worker-proxy.js",
+          "name": "AIOQuotaDurableObject.refundClientSpend",
+          "fingerprint": "e2d7adadef6d07d6"
+        },
+        {
+          "module": "cloudflare-worker-proxy.js",
+          "name": "AIOQuotaDurableObject.prune",
+          "fingerprint": "c18e9c9cd6bca562"
+        },
+        {
+          "module": "cloudflare-worker-proxy.js",
+          "name": "AIOQuotaDurableObject.mutateQuota",
+          "fingerprint": "0ae7a848787c0248"
+        }
+      ]
+    },
+    "market-session-model": {
+      "syncedAt": "6d29b2e0",
+      "covers": [
+        {
+          "module": "scripts/build-market-snapshot.mjs",
+          "name": "deriveMarketSession",
+          "fingerprint": "a56f601a1e364092"
+        },
+        {
+          "module": "scripts/build-market-snapshot.mjs",
+          "name": "scheduledSession",
+          "fingerprint": "7b2148ac666f33b6"
+        },
+        {
+          "module": "src/domain/market/market-calendar.js",
+          "name": "isLatestUsRegularClose",
+          "fingerprint": "b3a01aedf1572441"
+        },
+        {
+          "module": "src/domain/market/market-calendar.js",
+          "name": "latestCompletedUsSession",
+          "fingerprint": "9c09fdb923bfb797"
+        },
+        {
+          "module": "src/domain/market/market-calendar.js",
+          "name": "latestCompletedKrSession",
+          "fingerprint": "84dda6c12ec73a8f"
+        }
+      ]
+    },
+    "refresh-scheduler-model": {
+      "syncedAt": "6d29b2e0",
+      "covers": [
+        {
+          "module": "src/app/refresh-scheduler.js",
+          "name": "installRefreshScheduler",
+          "fingerprint": "1a92ae89d7855b13"
+        }
+      ]
+    },
+    "artifact-cache-model": {
+      "syncedAt": "6d29b2e0",
+      "covers": [
+        {
+          "module": "src/data/artifact-cache.js",
+          "name": "loadJsonArtifact",
+          "fingerprint": "24edbf2612caaa46"
+        },
+        {
+          "module": "src/data/artifact-cache.js",
+          "name": "clearArtifactCache",
+          "fingerprint": "3dd5878ad482c088"
         }
       ]
     }

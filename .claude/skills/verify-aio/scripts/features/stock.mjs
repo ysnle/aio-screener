@@ -9,8 +9,15 @@ async function search(p, value) {
   await p.press('#ticker-direct-search', 'Enter');
 }
 
+// v59.55 (alignment pass): on 개요 the hub line drops the symbol (the page title names it), so the selected company there is
+// the route's `sym` and the hero; on 차트 and 재무 공시 it is the hub subject.
+const OVERVIEW_SUBJECT = () => new URLSearchParams(decodeURIComponent(location.hash).split('?')[1] || '').get('sym') || '';
+async function currentSubject(p) {
+  return (await p.evaluate(() => document.querySelector('.page.active')?.id)) === 'page-ticker' ? p.evaluate(OVERVIEW_SUBJECT) : visibleText(p, SUBJECT);
+}
+
 async function heroState(p, symbol) {
-  await p.waitForFunction((s) => (document.querySelector('#aio-hub-tabs .aio-hub-subject strong')?.textContent || '') === s, symbol, { timeout: 25000 });
+  await p.waitForFunction(([s, read]) => new Function(`return (${read})()`)() === s && (document.querySelector('#ticker-hero-name')?.textContent || '').trim(), [symbol, OVERVIEW_SUBJECT.toString()], { timeout: 25000 });
   const price = await visibleText(p, '#ticker-hero-price');
   if (!PRICE.test(price)) throw new Error(`hero price is neither a number nor —: "${price}"`);
   const basis = await visibleText(p, '#ticker-summary-price-basis');
@@ -22,8 +29,8 @@ export default {
   title: '종목 (티커·한글명 검색 · 같은 종목 3탭 유지 · 잘못된 입력)',
   steps: [
     ['nav 종목', (p) => openFromNav(p, '종목', 'page-ticker')],
-    ['허브 탭 3개', (p) => expectTabs(p, ['요약', '차트', '재무 공시'])],
-    ['티커 NVDA + Enter → 요약', async (p) => { await search(p, 'NVDA'); return heroState(p, 'NVDA'); }],
+    ['허브 탭 3개', (p) => expectTabs(p, ['개요', '차트', '재무 공시'])],
+    ['티커 NVDA + Enter → 개요', async (p) => { await search(p, 'NVDA'); return heroState(p, 'NVDA'); }],
     ['탭 차트 (같은 종목)', async (p) => ({ ...(await tabTo(p, '차트', 'page-technical')), subject: await visibleText(p, SUBJECT) })],
     // The visible chart (stock-chart component) must follow the company, not stay on SPY.
     ['차트 제목이 같은 종목', async (p) => expectText(p, '#stock-chart-title', { pattern: /^NVDA\b/ })],
@@ -33,7 +40,7 @@ export default {
       if (subject !== 'NVDA') throw new Error(`subject lost on 재무 공시: "${subject}"`);
       return { ...r, subject };
     }],
-    ['탭 요약 복귀 (같은 종목)', async (p) => ({ ...(await tabTo(p, '요약', 'page-ticker')), ...(await heroState(p, 'NVDA')) })],
+    ['탭 개요 복귀 (같은 종목)', async (p) => ({ ...(await tabTo(p, '개요', 'page-ticker')), ...(await heroState(p, 'NVDA')) })],
     ['한글명 삼성전자 → 005930.KS', async (p) => {
       await search(p, '삼성전자');
       const r = await heroState(p, '005930.KS');
@@ -53,10 +60,10 @@ export default {
     }],
     ['잘못된 입력 → 안내, 화면 유지', async (p) => {
       // Codex audit F12: the miss is a persistent role=status hint beside the search (no toast); the subject stays.
-      const before = await visibleText(p, SUBJECT);
+      const before = await currentSubject(p);
       await search(p, '!!');
       await p.waitForFunction(() => { const h = document.querySelector('#ticker-search-hint[role="status"]'); return h && /일치하는 종목이 없습니다|입력해 주세요/.test(h.textContent || ''); }, null, { timeout: 8000 });
-      const subject = await visibleText(p, SUBJECT);
+      const subject = await currentSubject(p);
       if (subject !== before) throw new Error(`an invalid search replaced the subject: "${before}" -> "${subject}"`);
       return { subject, hint: (await visibleText(p, '#ticker-search-hint')).slice(0, 80) };
     }]

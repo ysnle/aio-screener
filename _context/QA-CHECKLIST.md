@@ -1,8 +1,13 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-11-02
+last_verified: 2026-11-03
 confidence: medium
 ---
+
+## v59.60 형식 검증 회차 (v59.60) (2026-11-03)
+
+- [x] QA-MARKET-SESSION-MODEL: v59.60 시세 세션 분류가 반일장·휴장·KRX 지연 개장·수능 시간에서 장중/확정 종가를 달력대로 나눈다. verify_by: node scripts/ci-market-session-model-check.mjs
+- [x] QA-SCHEDULER-PAUSE-MODEL: v59.60 보이는 탭은 갱신 실행 순서와 무관하게 자동 갱신이 일시정지되지 않는다. verify_by: node scripts/ci-refresh-scheduler-model-check.mjs
 
 ## v59.59 기능별 정합성 점검 (2026-11-02)
 

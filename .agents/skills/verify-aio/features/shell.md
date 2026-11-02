@@ -7,6 +7,7 @@ The shell is what every screen shares: the topbar 도움말 that opens the produ
 - `shell-help` — `#topbar-help-btn` opens `page-guide` (사용 설명서), its three folded chapters and search `#guide-search-input` → `#guide-search-result`.
 - `shell-theme` — `.sidebar #sidebar-theme-btn` toggles `body.dark-theme`; `#sidebar-theme-label` names the next action (`라이트 모드로 전환` / `다크 모드로 전환`); `localStorage['aio_theme']` restores it on reload.
 - `shell-deeplink` — `index.html#<route>` opens that route; the hub tab for it is the active one.
+- Not driven yet (2026-11-02 source audit): `?` or the sidebar `단축키 보기 (?)` opens `#kbd-shortcuts-modal`; keys 1-8 switch screens, R refreshes, Esc closes help → glossary → AI in that order (`src/ui/navigation/screen-shortcuts.js`). Below 1024 px the bottom bar `#aio-tabbar` (오늘·시장·스크리너·종목·더보기) is a second way in; 더보기 opens the drawer, whose backdrop `메뉴 닫기` and Esc close it (`src/ui/components/responsive-shell.js`). With no saved theme the theme follows `prefers-color-scheme`.
 
 ## How to get to it (user POV)
 

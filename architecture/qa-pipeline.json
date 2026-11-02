@@ -473,6 +473,16 @@
           "inputs": ["src/**", "js/**", "scripts/*.mjs", "scripts/lib/**", "scripts/producer/**", "scripts/fixtures/pipeline-semantics/**", ".github/workflows/**"]
         },
         {
+          "id": "refresh-scheduler-model",
+          "script": "scripts/ci-refresh-scheduler-model-check.mjs",
+          "inputs": ["src/app/refresh-scheduler.js", "scripts/ci-refresh-scheduler-model-check.mjs", "scripts/lib/model-check-kit.mjs", "architecture/model-check-coverage.json"]
+        },
+        {
+          "id": "artifact-cache-model",
+          "script": "scripts/ci-artifact-cache-model-check.mjs",
+          "inputs": ["src/data/artifact-cache.js", "scripts/ci-artifact-cache-model-check.mjs", "scripts/lib/model-check-kit.mjs", "architecture/model-check-coverage.json"]
+        },
+        {
           "id": "page-decision-reference",
           "script": "scripts/ci-page-decision-reference-check.mjs"
         },
@@ -958,6 +968,10 @@
         {
           "id": "narrative-lifecycle-model",
           "script": "scripts/ci-narrative-lifecycle-model-check.mjs"
+        },
+        {
+          "id": "market-session-model",
+          "script": "scripts/ci-market-session-model-check.mjs"
         },
         {
           "id": "data-plane",
@@ -1624,6 +1638,10 @@
         "scripts/ci-cloudflare-deployment-contract-check.mjs"
       ],
       "gates": [
+        {
+          "id": "ai-ledger-model",
+          "script": "scripts/ci-ai-ledger-model-check.mjs"
+        },
         {
           "id": "worker-anthropic",
           "script": "scripts/ci-worker-anthropic-check.mjs"

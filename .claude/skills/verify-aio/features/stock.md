@@ -1,6 +1,6 @@
 # 종목
 
-종목 is one company viewed three ways: 요약, 차트 and 재무 공시. The user searches by ticker, 6-digit KR code or Korean name, and the hub bar keeps naming the same company (and where they came from) across all three tabs.
+종목 is one company viewed three ways: 개요, 차트 and 재무 공시. The user searches by ticker, 6-digit KR code or Korean name, and the same company stays selected across all three tabs: on 차트 and 재무 공시 the hub bar names it (plus `다른 종목` and where they came from); on 개요 the hub bar keeps only the way back, and the route `#ticker?sym=<SYM>` plus the hero name it (v59.55).
 
 ## Sub-features
 
@@ -22,9 +22,9 @@ Preconditions:
 
 - Doctor OK.
 
-- **Open.** Click sidebar `종목`. `page-ticker`; tabs exactly `요약,차트,재무 공시`.
+- **Open.** Click sidebar `종목`. `page-ticker`; tabs exactly `개요,차트,재무 공시`.
 - **Search.** Fill `NVDA`, Enter. Subject `NVDA`; price is a number or `—`; when `—`, `#ticker-summary-price-basis` is non-empty.
-- **Chart / filings.** Tabs `차트` → `page-technical`, `재무 공시` → `page-fundamental`; subject stays `NVDA` (failure if lost). Tab `요약` returns to the same hero.
+- **Chart / filings.** Tabs `차트` → `page-technical`, `재무 공시` → `page-fundamental`; subject stays `NVDA` (failure if lost). Tab `개요` returns to the same hero.
 - **Chart follows the company.** On 차트, `#stock-chart-title` starts with `NVDA` (failure if it stayed on SPY or the previous company).
 - **Korean name.** Fill `삼성전자`, Enter. Subject `005930.KS`; hero name contains `삼성전자`.
 - **Korean candidate.** Fill `애플` (no Enter), click the `#ticker-suggest` button. Subject `AAPL`; the 재무 tile leaves '불러오는 중' within 4 s (P2088/R728: late repaints use the latest state).

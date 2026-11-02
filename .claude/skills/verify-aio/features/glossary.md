@@ -4,7 +4,7 @@
 
 ## Sub-features
 
-- `glossary-open` — resets search and category, draws chips (`전체 N` + groups + `기타`), lists all terms (`.aio-glossary-item`), titles `투자 용어 사전 · N개`, focuses `#glossary-search`.
+- `glossary-open` — resets search and category, draws chips (`전체 N` + groups + `기타`), lists all terms (`.aio-glossary-item`), titles `투자 용어 사전, N개`, focuses `#glossary-search` (not on touch screens, `pointer: coarse`). Entries are single-open `<details>`; an open entry lists `이 개념이 쓰이는 화면` buttons.
 - `glossary-category` — `#glossary-cats button[data-action=_aioGlossaryCat]` sets `aria-pressed=true` and narrows the list.
 - `glossary-search` — `#glossary-search` filters within the selected group; a group with 0 hits falls back to 전체 with a status note.
 - `glossary-close` — × (`용어 사전 닫기`) or Escape; focus returns to the opener.
@@ -29,4 +29,4 @@ Preconditions:
 ## Gotchas
 
 - Opening through a registered overlay route can rewrite the hash to `#guide` first; do not assert an unchanged hash.
-- There is no backdrop-click close.
+- A click on the dimmed backdrop also closes it (`src/ui/components/shell-overlays.js`).

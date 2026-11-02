@@ -504,9 +504,9 @@ Shared modules (import these instead of re-declaring): `src/ui/components/dom.js
 | `_aioChatAnswerPolicy` | 3700 | 일반/스크리너/단순 종목/매매 판단 답변 정책 분리(R212) |
 | `_buildAioIntegratedAnswerContext` | 3777 | 현재 시장+정량+정성+페이지 연결 계약(R214) |
 | `_googleSearch` | 4208 | Google CSE fallback |
-| `fundamentalSearch` | 6559 | 기업 분석 수집/렌더 |
-| `_fmtNum` | 6443 (alias) | **실제 정의는 aio-core.js:24102** |
-| `_renderFundHeader`/`_renderFundFinancials`/`_renderFundEarnings`/`_renderFundNews` | 6866~6874 (alias) | **실제 정의는 aio-ui.js**(§ 위 표) — 4개 모두 로드순서 의존 alias |
+
+
+> 2026-11-02: `fundamentalSearch`는 `src/ui/components/fundamental-search.js`(`src/app/legacy-screen-bridges.js`가 설치)로 옮겼고, `_fmtNum`·`_renderFund*` alias는 aio-chat.js에 없다. `_renderFund*` 렌더러는 v59.51에 삭제됐고 기업 보고서는 `src/ui/pages/entity.js`가 그린다.
 
 ---
 
@@ -523,10 +523,10 @@ Shared modules (import these instead of re-declaring): `src/ui/components/dom.js
 | RSI/기술지표 (서버·클라 이중 구현, 공식은 v51.91에 단일화됨 — 진단 C1 해소) | 서버 `scripts/fetch-data.mjs:1082`(`_rsi14`, Wilder) = 클라 `js/aio-core.js:18612`(`_calcRSILast`, Wilder) — 파라미터 드리프트만 잔여 감시 대상 (좌표 2026-07-21 재확인) |
 | 팩터 랭킹/백테스트 (진단 C2 — 의도적 live 7팩터 vs server 4팩터 서브셋, P759 domain 추출 완료) | `src/domain/screener/factor-ranks.js:105` `computeFactorRanks` → legacy `js/aio-data.js:15947` projection; 서버 `scripts/fetch-data.mjs:1173` `backtestFactors`는 look-ahead/data-coverage 사유로 모멘텀/추세/저변동/kalman 4팩터만 사용 |
 | 페이지 전환/init 가드 | `js/aio-core.js:22841~23313`(destroyPageCharts/showPage), 각 page init 함수 |
-| sentiment/breadth 차트 | `js/aio-ui.js:14~900` |
-| LLM 모델/쿼터 | `js/aio-ui.js:1551~1780` |
+| sentiment 차트 | `src/ui/pages/sentiment.js` |
+| LLM 모델/쿼터 | `js/aio-ui.js:113~360` |
 | Claude 채팅/웹검색/preflight | `js/aio-chat.js:2320~5160` |
-| 기업 분석 UI | `index.html:8816~9118`, `js/aio-ui.js:3948~4900`, `js/aio-chat.js:6559~6877` |
+| 기업 분석 UI | `src/ui/pages/entity.js`, `src/ui/components/fundamental-search.js` |
 | 포트폴리오 DOM | `index.html:9476~9931` |
 | 옵션 분석 DOM(폐기 shell) | `index.html:10333~10343` |
 | 한국 페이지 DOM | `index.html:10526~11699` |

@@ -24,16 +24,24 @@ const warn = (label, condition, detail = '') => {
   if (!condition) warnings.push(label + (detail ? ': ' + detail : ''));
 };
 
-async function fetchText(path) {
-  const r = await fetch(`${BASE}/${path}`, { headers: { 'cache-control': 'no-cache' } });
-  if (!r.ok) throw new Error(`${path} HTTP ${r.status}`);
-  return r.text();
+// v59.60: 9 of the 7-day Pages deploy failures were this check meeting HTTP 503 (src/chunks/*.js, public-config.json) in
+// the first seconds after the deploy step, while ci-external-pipeline-check before it already retries. A 5xx or a network
+// error is retried; a 4xx is a real missing file and fails at once.
+const RETRY_MS = Number(process.env.AIO_LIVE_RETRY_MS || 5000);
+const RETRIES = Number(process.env.AIO_LIVE_RETRIES || 4);
+async function fetchResponse(path) {
+  for (let attempt = 0; ; attempt += 1) {
+    let r = null;
+    try { r = await fetch(`${BASE}/${path}`, { headers: { 'cache-control': 'no-cache' } }); }
+    catch (error) { if (attempt >= RETRIES) throw new Error(`${path} ${error.message}`); }
+    if (r?.ok) return r;
+    if (r && (r.status < 500 || attempt >= RETRIES)) throw new Error(`${path} HTTP ${r.status}`);
+    await new Promise((resolve) => setTimeout(resolve, RETRY_MS));
+  }
 }
 
-async function fetchResponse(path) {
-  const r = await fetch(`${BASE}/${path}`, { headers: { 'cache-control': 'no-cache' } });
-  if (!r.ok) throw new Error(`${path} HTTP ${r.status}`);
-  return r;
+async function fetchText(path) {
+  return (await fetchResponse(path)).text();
 }
 
 async function main() {

@@ -44,6 +44,13 @@ function observedAtOrAfterLastKrSessionClose(symbol, observedMs, nowMs) {
   return session?.closeMs != null && Number.isFinite(observedMs) && observedMs >= session.closeMs;
 }
 
+// v59.60 (market-session model check): both KRX indices arrive 20 minutes late, so from the open they still hold the previous
+// session's close. After a weekend or holiday that close is over 24 h old and the open-session leash called it
+// STALE_UNEXPECTED (Monday 09:00-09:20 KST) — the KR twin of the ^RUT case. The previous completed KRX close is the expected one.
+function previousCloseExpected(ageMs, symbol, observedMs, nowMs) {
+  return ageMs <= DAY_MS || observedAtOrAfterLastKrSessionClose(symbol, observedMs, nowMs);
+}
+
 function stableHash(value) {
   const source = JSON.stringify(value);
   let hash = 2166136261;
@@ -119,7 +126,14 @@ function scheduledSession(symbol, observedMs, nowMs) {
   // 10:00 KST on the second day of 설날 2027 (02-09) read the Fri 02-05 close as STALE_UNEXPECTED.
   if (krToday?.reason === 'holiday') return 'MARKET_CLOSED';
   if (nowMinute != null && nowMinute >= openMinutes && nowMinute < closeMinutes) {
-    if (observedLocal && isWeekday(observedLocal.weekday) && observedMinute != null && observedMinute >= openMinutes && observedMinute < closeMinutes) {
+    // v59.60 (market-session model check): an observation is judged against the hours of the day it was taken. On 수능
+    // (10:00-16:30) yesterday's 15:30 close fell inside today's window by minute of day and was judged an 18-hour-old
+    // in-session print (STALE_UNEXPECTED); an intraday print from an earlier day stays in-session (and so stale), never a close.
+    const observedDate = dateInTimezone(observedMs, zone);
+    const krObserved = isKorea && observedDate !== dateInTimezone(nowMs, zone) ? resolveMarketCalendarSession({ market: 'KR', date: observedDate }) : krToday;
+    const ownOpen = asia ? asia.open : krObserved?.status === 'open' ? hhmm(krObserved.open) : isKorea ? 9 * 60 : 9 * 60 + 30;
+    const ownClose = asia ? asia.close : krObserved?.status === 'open' ? hhmm(krObserved.close) : isKorea ? 15 * 60 + 30 : 16 * 60;
+    if (observedLocal && isWeekday(observedLocal.weekday) && observedMinute != null && observedMinute >= ownOpen && observedMinute < ownClose) {
       return 'IN_SESSION';
     }
     return 'PREVIOUS_CLOSE_EXPECTED';
@@ -144,10 +158,15 @@ export function deriveMarketSession({ instrumentId, observedAt, providerSession 
   // v59.49 (session sweep): once a session opens, a delayed cash-index feed still holds the previous session's final print
   // (^RUT, 15 minutes). After a weekend that print is 65 h old and the 24 h leash below called it STALE_UNEXPECTED on
   // Monday 09:30-09:45 ET; the previous completed session's close is exactly the expected previous close.
-  if (/^\^(GSPC|IXIC|DJI|RUT)$/.test(symbol)) {
+  // v59.60 (market-session model check): SMH takes the same NYSE calendar. Its fixed 09:30-16:00 weekday schedule read
+  // the 11-27 13:00 half-day close as in session, and a holiday's previous close as STALE_UNEXPECTED after 24 h.
+  if (/^(?:\^(GSPC|IXIC|DJI|RUT)|SMH)$/.test(symbol)) {
     const last = latestCompletedUsSession(nowMs, { requirePrevious: false });
     const observed = nyParts(observedMs);
-    if (last?.inSession && observed.date === last.date && observed.minute >= nyParts(last.closeMs).minute - 5) return 'PREVIOUS_CLOSE_EXPECTED';
+    if (last && observed.date === last.date && observed.minute >= nyParts(last.closeMs).minute - 5) {
+      if (last.inSession) return 'PREVIOUS_CLOSE_EXPECTED';
+      if (symbol === 'SMH') return 'MARKET_CLOSED';
+    }
   }
   // Evidence tier (SMH, Tokyo, Hong Kong): the chart meta keeps the regular-session price and flags PRE/POST outside
   // the session, so the venue schedule — not the extended-hours flag — decides whether it is a completed close.
@@ -179,7 +198,7 @@ export function deriveMarketSession({ instrumentId, observedAt, providerSession 
     // before allowing it to promote an old completed close to a live value.
     const scheduled = scheduledSession(symbol, observedMs, Number(now));
     if (scheduled === 'MARKET_CLOSED') return ageMs <= CLOSED_VENUE_MAX_AGE_MS || observedAtOrAfterLastKrSessionClose(symbol, observedMs, Number(now)) ? 'MARKET_CLOSED' : 'STALE_UNEXPECTED';
-    if (scheduled === 'PREVIOUS_CLOSE_EXPECTED') return ageMs <= 24 * 60 * 60 * 1000 ? 'PREVIOUS_CLOSE_EXPECTED' : 'STALE_UNEXPECTED';
+    if (scheduled === 'PREVIOUS_CLOSE_EXPECTED') return previousCloseExpected(ageMs, symbol, observedMs, nowMs) ? 'PREVIOUS_CLOSE_EXPECTED' : 'STALE_UNEXPECTED';
     if (scheduled === 'IN_SESSION') return ageMs <= 10 * 60 * 1000 ? 'CURRENT_SESSION' : ageMs <= 2 * 60 * 60 * 1000 ? 'DELAYED_IN_SESSION' : 'STALE_UNEXPECTED';
     return ageMs <= 10 * 60 * 1000 ? 'CURRENT_SESSION' : ageMs <= 2 * 60 * 60 * 1000 ? 'DELAYED_IN_SESSION' : 'STALE_UNEXPECTED';
   }
@@ -189,7 +208,7 @@ export function deriveMarketSession({ instrumentId, observedAt, providerSession 
     // this branch bypass the schedule entirely and re-introduce the weekend rejection.
     const scheduled = scheduledSession(symbol, observedMs, Number(now));
     if (scheduled === 'MARKET_CLOSED') return ageMs <= CLOSED_VENUE_MAX_AGE_MS || observedAtOrAfterLastKrSessionClose(symbol, observedMs, Number(now)) ? 'MARKET_CLOSED' : 'STALE_UNEXPECTED';
-    return ageMs <= 24 * 60 * 60 * 1000 ? 'PREVIOUS_CLOSE_EXPECTED' : 'STALE_UNEXPECTED';
+    return previousCloseExpected(ageMs, symbol, observedMs, nowMs) ? 'PREVIOUS_CLOSE_EXPECTED' : 'STALE_UNEXPECTED';
   }
 
   // Even when a provider omits marketState, the venue schedule still defines
@@ -197,7 +216,7 @@ export function deriveMarketSession({ instrumentId, observedAt, providerSession 
   // stale point. This keeps the fallback path consistent with provider hints.
   const scheduled = scheduledSession(symbol, observedMs, Number(now));
   if (scheduled === 'MARKET_CLOSED') return ageMs <= CLOSED_VENUE_MAX_AGE_MS || observedAtOrAfterLastKrSessionClose(symbol, observedMs, Number(now)) ? 'MARKET_CLOSED' : 'STALE_UNEXPECTED';
-  if (scheduled === 'PREVIOUS_CLOSE_EXPECTED') return ageMs <= 24 * 60 * 60 * 1000 ? 'PREVIOUS_CLOSE_EXPECTED' : 'STALE_UNEXPECTED';
+  if (scheduled === 'PREVIOUS_CLOSE_EXPECTED') return previousCloseExpected(ageMs, symbol, observedMs, nowMs) ? 'PREVIOUS_CLOSE_EXPECTED' : 'STALE_UNEXPECTED';
   if (scheduled === 'IN_SESSION') return ageMs <= 10 * 60 * 1000 ? 'CURRENT_SESSION' : ageMs <= 2 * 60 * 60 * 1000 ? 'DELAYED_IN_SESSION' : 'STALE_UNEXPECTED';
 
   if (/-USD$/i.test(symbol)) return ageMs <= 10 * 60 * 1000 ? 'CURRENT_SESSION' : ageMs <= 2 * 60 * 60 * 1000 ? 'DELAYED_IN_SESSION' : 'STALE_UNEXPECTED';

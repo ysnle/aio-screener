@@ -6,6 +6,9 @@
 // returned, and checks the invariants after every run. A lane-quarantine restore of the narrative is checked from
 // every reached state as well. The model call is a stub; the clock is simulated (buildStructuredMarketAnalysis stamps
 // generatedAt with `new Date()`, so Date follows the simulated time).
+// The earnings-reaction key (v59.56, `er:` in the reuse signature) and the big-tech cash-flow validator context (v59.56)
+// are pinned empty through their fixture seams: the model's inputs move only through the snapshot version, so a run
+// never reads public-data/event-briefs.json or bigtech-cashflow.json from the working tree (maintenance 2026-11-02).
 //
 // Invariants:
 //   N1 verified   — a published reading marked verified passed the semantic gate and is at most 12 h old.
@@ -114,7 +117,8 @@ async function explore({ genMarketAnalysis, applyMarketAnalysis, applyLaneQuaran
     const request = async () => { calls++; return { text: answers.shift() ?? null }; };
     clockMs = nowMs;
     const data = { meta: { generatedAt: new RealDate(nowMs).toISOString() }, news: [], macro: {} };
-    const out = await genMarketAnalysis(data, snapshotFor(version), { previous: state.published, request, nowMs, history: [], narrative: { text: '', signature: 'fixture', themes: [] }, earnings: null });
+    const out = await genMarketAnalysis(data, snapshotFor(version), { previous: state.published, request, nowMs, history: [], narrative: { text: '', signature: 'fixture', themes: [] }, earnings: null,
+      eventBriefs: null, bigtechCashflow: null });
     applyMarketAnalysis(data, out, { previous: state.published, nowMs });
     return { nowMs, version, published: data.marketAnalysis, meta: data.meta, calls };
   }

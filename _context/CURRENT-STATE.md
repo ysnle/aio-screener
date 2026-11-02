@@ -1,8 +1,8 @@
 ---
 generated_by: scripts/generate-workspace-state.mjs
-generated_from_build: 2026-11-02T12:40:00+09:00
+generated_from_build: 2026-11-03T00:10:00+09:00
 auto_refresh: true
-last_verified: 2026-11-02
+last_verified: 2026-11-03
 ---
 
 # AIO Current State
@@ -11,7 +11,7 @@ last_verified: 2026-11-02
 
 ## Application
 
-- Version: `v59.59`
+- Version: `v59.60`
 - Architecture: `hybrid-static-shell-native-esm`
 - Active routes: 19 (source: `architecture/route-owners.json`)
 - App shell: 6,218 lines / 448,694 bytes
@@ -29,9 +29,9 @@ last_verified: 2026-11-02
 ## Workspace
 
 - Context documents: 79; preflight reads current state once; governance and INDEX are targeted references.
-- Skills: 9; command wrappers: 19; agent profiles: 4.
-- Workflows: 16; CI scripts: 162.
-- Ledgers: latest rule R734; latest postmortem P2212; open QA 86 unique IDs (86 rows, 0 explicitly superseded).
+- Skills: 10; command wrappers: 20; agent profiles: 4.
+- Workflows: 16; CI scripts: 166.
+- Ledgers: latest rule R735; latest postmortem P2215; open QA 86 unique IDs (86 rows, 0 explicitly superseded).
 - Canonical skills: `.claude/skills`; Codex mirror: `.agents/skills`.
 
 ## Knowledge Boundary

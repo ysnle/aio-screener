@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-11-02
+last_verified: 2026-11-03
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
@@ -38,6 +38,33 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 <!-- ledger-class-report:end -->
 
 ---
+
+## P2215 - v59.60 - Pages 배포 직후 라이브 불변식 검사가 일시 503에 재시도 없이 실패 (2026-11-03)
+
+- symptom/reproduction: 지난 7일 Deploy GitHub Pages 실패 9건이 모두 배포 직후 ci-live-invariant-check가 src/chunks/*.js·public-config.json에서 HTTP 503을 만난 것이었다.
+- root_cause: scripts/ci-live-invariant-check.mjs fetchText/fetchResponse가 한 번만 요청했다. 앞 단계 ci-external-pipeline-check는 재시도하지만 이 검사는 배포→CDN 반영 사이 공백을 견디지 못했다.
+- fix: 5xx와 네트워크 오류는 AIO_LIVE_RETRY_MS(기본 5초) 간격으로 AIO_LIVE_RETRIES(기본 4)번 재시도하고, 4xx는 실제 누락으로 즉시 실패한다.
+- violated_rule: R290 라이브 불변식
+- prevention: 재시도 규칙을 검사 파일 머리 주석에 고정; 503을 두 번 낸 뒤 200을 주는 로컬 서버로 재시도 0회는 실패·4회는 통과함을 확인했다.
+- verification/residual: AIO_LIVE_BASE=로컬 503 서버: AIO_LIVE_RETRIES=0 → HTTP 503 1건, 기본 → 0건
+
+## P2214 - v59.60 - 숨김 중 시작한 갱신이 복귀 뒤 끝나면 보이는 탭의 자동 갱신이 멈춤 (2026-11-03)
+
+- symptom/reproduction: 모델 검사 최단 경로 숨김 → 갱신 요청 → 복귀 → 응답 뒤 스케줄러 감사가 paused=true를 보고, 모든 타이머가 재예약 없이 끝나 탭을 다시 숨겼다 열 때까지 자동 갱신이 멈췄다.
+- root_cause: src/app/refresh-scheduler.js runScheduledRefresh가 시작 시점의 _schedulerPaused를 저장했다가 finally에서 되돌렸다. 포트폴리오·스크리너 4초 재시도나 AI ensure-fresh가 숨김 중에 시작하면 저장값이 true라, 그 사이 복귀한 탭을 다시 일시정지시켰다.
+- fix: finally에서 시작 값 대신 지금의 document.hidden으로 일시정지 상태를 맞춘다.
+- violated_rule: 없음(새 상태 기계 검사)
+- prevention: scripts/ci-refresh-scheduler-model-check.mjs(qa core 그룹 refresh-scheduler-model): 실제 모듈을 가상 시계로 숨김·복귀·갱신 요청·응답·타이머의 모든 순서(깊이 6)에 돌려 R1~R3를 확인하고, v59.60 이전 동작을 되살린 변형이 R1을 깨야 통과한다.
+- verification/residual: node scripts/ci-refresh-scheduler-model-check.mjs (known 0, 4 variants broke); node scripts/ci-pipeline-semantics-check.mjs 209 cases
+
+## P2213 - v59.60 - 시세 세션 분류가 달력 경계(SMH 반일장·휴장, KRX 지연 개장, 수능 시간)에서 확정 종가를 장중·STALE로 읽음 (2026-11-03)
+
+- symptom/reproduction: 달력 기반 전수 훑기(116,446 판정)에서 SMH가 11-27 13:00 반일장 종가를 장중으로, 12-25 휴장일엔 STALE_UNEXPECTED로 분류했다. KOSPI·KOSDAQ는 20분 지연이라 월요일 09:00~09:20 KST 금요일 종가를 STALE_UNEXPECTED로, 수능일 10:00 개장 땐 전날 15:30 종가를 오늘 장중 값으로 보고 STALE_UNEXPECTED로 분류했다.
+- root_cause: scripts/build-market-snapshot.mjs deriveMarketSession: SMH는 평일 09:30~16:00 고정 일정만 보고 NYSE 달력을 쓰지 않았고, 장중 전일 종가 허용은 24시간 한도뿐이라 주말·휴일 뒤 KRX 지연 피드를 거부했으며, scheduledSession은 관측 시각의 '분'만 오늘 개장 시간과 비교해 다른 날 관측을 오늘 장중으로 보았다.
+- fix: SMH를 현금 지수와 같은 latestCompletedUsSession 분기에 넣어 달력상 확정 종가는 MARKET_CLOSED, 장중이면 PREVIOUS_CLOSE_EXPECTED로 판정한다. 장중 전일 종가 허용(previousCloseExpected)은 24시간 또는 직전 KRX 확정 세션 종가 이후 관측이면 통과한다. scheduledSession은 관측을 그 관측일의 거래 시간으로 판단한다(이전 날 장중 값은 장중으로 남아 STALE, 전날 종가는 직전 종가). 리뷰가 찾은 '날짜만 다르면 직전 종가' 회귀는 S3(멈춘 전일 장중 값) 불변식으로 막았다.
+- violated_rule: R447 시장 달력
+- prevention: scripts/ci-market-session-model-check.mjs(qa data 그룹 market-session-model): 반일장·휴장·수능·설날 창을 달력 오라클로 10분 간격 전수 판정하고, 가드 5개를 하나씩 지운 변형이 모두 실패해야 통과한다.
+- verification/residual: node scripts/ci-market-session-model-check.mjs (known 0, variants 5/5 broke); node scripts/ci-market-snapshot-contract-check.mjs OK
 
 ## P2212 - v59.59 - Same quantity computed two ways across screens: percentile conventions, legacy ADR/VCP, Weinstein stage, neutral rate, portfolio FX (2026-11-02)
 

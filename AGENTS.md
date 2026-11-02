@@ -13,7 +13,7 @@ AIO Screener는 GitHub Pages의 하이브리드 정적 셸 + native ESM 투자 �
 
 ## Working agreement
 
-- 현재 지시와 승인된 범위를 따른다. “할 수 있나”, “원한다”, “도와줘”는 실행 요청이고. 사용자 지시가 스킬 지침보다 우선하며, 스킬 때문에 멈출 때는 파일·문구·적용 이유를 밝힌다.
+- 현재 지시와 승인된 범위를 따른다. “할 수 있나”, “원한다”, “도와줘”는 실행 요청이다. 사용자 지시가 스킬 지침보다 우선하며, 스킬 때문에 멈출 때는 파일·문구·적용 이유를 밝힌다.
 - 완료 = 구현 + 필요한 실행 + 결과 확인 + 발견된 관련 실패 수정. 중간 질문에 답한 뒤에도 원래 목표를 유지한다. 넓은 범위는 항목별 미검증 상태를 남기고, 자동 PASS를 의미 검수로 바꾸지 않는다. 로컬 수정·생성·격리 테스트에는 중복 확인을 요구하지 않는다.
 - 큰 작업의 독립 조사·리뷰는 범위가 명확한 서브에이전트(Sonnet 5.5, owner 2026-11-01; 읽기 전용은 low/medium effort)에 위임하고, 파일 소유권을 나누며 결과는 주 담당자가 통합 검증한다.
 - 한국어로 결과와 근거를 간결하게 설명한다(에이전트 간 메시지도 정상 문장). 통과한 검사는 새 변경·실패·위험이 있을 때만 다시 돌린다.
@@ -42,7 +42,7 @@ Owner decisions every agent applies without re-asking; change only when the user
 - **Honesty without clutter:** one status per card (최신/지연/참고/없음), details on demand, one global disclaimer. Remove widgets that have no data source by design; a designed source that failed stays visible as 없음 with its last date, never silently hidden; remove uncalibrated grades/scores; a reference score always shows its basis.
 - **Slow data is static:** 13F, knowledge base, principles and glossary are versioned static JSON updated when the source changes; content-addressed artifacts hash content only (P1370). 13D/G keeps its light daily poll (P1309/R654).
 - **Filling gaps (2026-10-11):** existing artifacts and official free sources first (FRED, Treasury, BLS, BEA, SEC, CBOE, BOK/ECOS, KOSIS, KRX); cited OpenAI web search when they cannot answer or to corroborate. Search never supplies numeric inputs to scores, tables or charts; citations do not certify freshness and collection time never replaces publication time.
-- **AI (2026-10-11/12; Workers AI 2026-10-14):** generation uses OpenAI `gpt-6-luna` via the shared Worker, except headline translation, which tries the Worker's free Workers AI binding first and falls back to it; `OPENAI_API_KEY` stays in Worker Secrets. Chat, translation, Actions analysis and web search share one atomic UTC-month ledger, $20 target (R681 v59.27); personal keys or other paid providers never bypass it. No per-user search allowance; optimise existing evidence first. Hosted search ≤ 2 calls per response; completed responses (text or searched) may settle with validated usage plus one fee per web_search_call item (v57.62), incomplete attempts keep the reservation, and reservations are not an invoice. AI is always on, search is automatic, one top AI panel (no per-page chat). Daily counts: runaway backstop only. Local gates do not certify the deployed service.
+- **AI (2026-10-11/12; Workers AI 2026-10-14):** generation uses OpenAI `gpt-6-luna` via the shared Worker, except headline translation, which tries the Worker's free Workers AI binding first and falls back to it; `OPENAI_API_KEY` stays in Worker Secrets. Chat, translation, Actions analysis and web search share one atomic UTC-month ledger, $20 target (R681 v59.27); personal keys or other paid providers never bypass it. No per-user search allowance; optimise existing evidence first. Hosted search ≤ 2 calls per response; completed responses (text or searched) may settle with validated usage plus one fee per web_search_call item (v57.62), incomplete attempts keep the reservation, and reservations are not an invoice. AI is always on, search is automatic, one top AI panel (no per-page chat). Daily and request counts are runaway backstops, not billing caps. Local gates do not certify the deployed service.
 
 ## Task routing
 
