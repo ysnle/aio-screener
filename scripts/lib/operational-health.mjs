@@ -1,4 +1,4 @@
-import { idleNewsFeeds } from './news-selection.mjs';
+import { idleNewsFeeds, newsFeedQuietAllowanceMs } from './news-selection.mjs';
 // P1596: passing blocking gates does not certify optional services or workflow cadence.
 export function summarizeOperationalChecks(checks = [], warnings = []) {
   const failed = checks.filter(check => !check.ok && check.severity === 'error');
@@ -35,7 +35,7 @@ export function dataSourceWarnings(data, { nowMs = Date.now(), feedStaleMs = 24 
   const meta = data?.meta || {};
   for (const feed of (Array.isArray(meta.newsFeedHealth) ? meta.newsFeedHealth : [])) {
     const since = Date.parse(feed?.lastHealthyAt || '');
-    if (feed?.missStreak > 0 && Number.isFinite(since) && nowMs - since > feedStaleMs) {
+    if (feed?.missStreak > 0 && Number.isFinite(since) && nowMs - since > newsFeedQuietAllowanceMs(feed, feedStaleMs)) {
       warnings.push(`news feed "${feed.source}" has had no usable current item for ${Math.round((nowMs - since) / 3600000)}h (${feed.missStreak} runs, last status ${feed.status})`);
     }
   }
@@ -59,8 +59,10 @@ export function dataSourceWarnings(data, { nowMs = Date.now(), feedStaleMs = 24 
   return warnings;
 }
 // A feed with no usable item for three days is broken, not quiet: the watchdog fails, which opens the operations issue.
+// v59.57: a low-cadence official feed that still answers with items (the Fed after an FOMC week) gets its own quiet
+// allowance (NEWS_FEED_QUIET_MAX_MS); 11/01 22:55Z it failed every Pages release and watchdog run at exactly 72h.
 export function deadNewsFeeds(data, { nowMs = Date.now(), deadMs = 72 * 3600000 } = {}) {
   return (Array.isArray(data?.meta?.newsFeedHealth) ? data.meta.newsFeedHealth : [])
-    .filter((feed) => feed?.missStreak > 0 && nowMs - Date.parse(feed.lastHealthyAt || '') > deadMs)
+    .filter((feed) => feed?.missStreak > 0 && nowMs - Date.parse(feed.lastHealthyAt || '') > newsFeedQuietAllowanceMs(feed, deadMs))
     .map((feed) => feed.source);
 }

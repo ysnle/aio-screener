@@ -106,7 +106,9 @@ export const NEWS_FEEDS = [
   { query: 'bitcoin OR ethereum OR "crypto market" OR stablecoin OR "bitcoin ETF" when:2d', source: 'Google News - Crypto', topic: 'crypto', country: 'global', tier: 2 },
   { query: '"FDA approval" OR "FDA approves" OR biotech stocks OR drugmaker OR GLP-1 OR "Eli Lilly" OR "Novo Nordisk" when:2d', source: 'Google News - Healthcare/Biotech', topic: 'healthcare', country: 'us', tier: 2 },
   { query: '"Bank of Japan" OR Nikkei OR "European Central Bank" OR "Stoxx 600" OR "China stocks" OR "Hang Seng" OR PBOC when:2d', source: 'Google News - Japan/China/Europe', topic: 'macro', country: 'global', tier: 1 },
-  { url: 'https://www.federalreserve.gov/feeds/press_all.xml', source: 'Federal Reserve', topic: 'macro', country: 'us', tier: 1 },
+  // v59.57: an official publisher's own feed goes quiet for days (10/29 FOMC → nothing until after the weekend), which is
+  // not a dead feed. quietMaxHours lets the 72h dead-feed gate wait that long while the feed still answers with items.
+  { url: 'https://www.federalreserve.gov/feeds/press_all.xml', source: 'Federal Reserve', topic: 'macro', country: 'us', tier: 1, quietMaxHours: 192 },
 ].map(feed => feed.url ? feed : ({ ...feed, url: _googleNewsSearchUrl(feed.query, feed.country === 'kr' ? 'ko' : 'en-US', feed.country === 'kr' ? 'KR' : 'US', feed.country === 'kr' ? 'KR:ko' : 'US:en') }));
 
 const SERVER_NEWS_PRIORITY_RULES = [
@@ -429,6 +431,13 @@ export const NEWS_FEED_FLOORS = Object.freeze([['fxbond', 3], ['credit', 2], ['G
 // counts, a streak of consecutive runs without a usable current item and when it last had one; the watchdog warns when
 // a feed has had none for a day (a quiet Korean weekend morning is not a dead feed).
 export const NEWS_FEED_STALE_MS = 24 * 3600000;
+// v59.57 (P-feed-quiet): per-source quiet allowance for low-cadence official feeds. It applies only while the feed still
+// answers and parses items ("no-current"); an error or an empty response keeps the default thresholds.
+export const NEWS_FEED_QUIET_MAX_MS = Object.freeze(Object.fromEntries(NEWS_FEEDS.filter((feed) => feed.quietMaxHours > 0).map((feed) => [feed.source, feed.quietMaxHours * 3600000])));
+export function newsFeedQuietAllowanceMs(row, defaultMs) {
+  const quiet = row?.status === 'no-current' && Number(row?.parsed) > 0 ? Number(NEWS_FEED_QUIET_MAX_MS[row.source] || 0) : 0;
+  return Math.max(defaultMs, quiet);
+}
 // Why an in-window article missed the selection floor (P1504). Filter reasons come from scoreServerNewsItem.
 export function newsFloorDropReason(item) {
   if (Number(item?.tier) >= 4) return 'low-quality-source';
@@ -455,7 +464,7 @@ export function idleNewsFeeds(feedHealth, nowMs = Date.now(), minAgeMs = NEWS_FE
   return (Array.isArray(feedHealth) ? feedHealth : []).filter((row) => nowMs - Date.parse(row?.countedSince || '') >= minAgeMs && Number(row?.runs) > 0 && Number(row?.selectedTotal || 0) === 0);
 }
 export function staleNewsFeeds(feedHealth, nowMs = Date.now(), maxAgeMs = NEWS_FEED_STALE_MS) {
-  return (Array.isArray(feedHealth) ? feedHealth : []).filter((row) => row?.missStreak > 0 && nowMs - Date.parse(row.lastHealthyAt || '') > maxAgeMs);
+  return (Array.isArray(feedHealth) ? feedHealth : []).filter((row) => row?.missStreak > 0 && nowMs - Date.parse(row.lastHealthyAt || '') > newsFeedQuietAllowanceMs(row, maxAgeMs));
 }
 
 /** Previous-run news rows of the same completed cycle, rebuilt as scoring candidates. */

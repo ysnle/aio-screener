@@ -159,6 +159,15 @@ const health1 = mergeNewsFeedHealth(null, [{ source: 'A', status: 'ok', kept: 3 
 const health2 = mergeNewsFeedHealth(health1, [{ source: 'A', status: 'ok', kept: 2 }, { source: 'B', status: 'error', kept: 0 }], healthAt);
 assert.deepEqual(health2.map((row) => [row.source, row.missStreak]), [['A', 0], ['B', 2]], 'a feed without usable items accumulates a streak');
 assert.deepEqual(deadNewsFeeds({ meta: { newsFeedHealth: health2 } }, { nowMs: Date.parse(healthAt) }), ['B'], 'a feed never healthy since first seen 3.5 days ago is dead');
+// v59.57: the Fed's own feed answered with 20 items but none current for 75h after the 10/29 FOMC week; every Pages
+// release and watchdog run failed on it. A quiet official feed waits its quietMaxHours; an erroring or empty one does not.
+const fedQuiet = { source: 'Federal Reserve', status: 'no-current', parsed: 20, missStreak: 98, lastHealthyAt: '2026-10-29T22:51:02.658Z' };
+const fedNow = Date.parse('2026-11-02T01:28:00.000Z');
+assert.deepEqual(deadNewsFeeds({ meta: { newsFeedHealth: [fedQuiet] } }, { nowMs: fedNow }), [], 'v59.57 a quiet Fed feed that still parses items is not dead at 75h');
+assert.equal(dataSourceWarnings({ meta: { newsFeedHealth: [fedQuiet] } }, { nowMs: fedNow }).length, 0, 'v59.57 nor a 24h warning');
+assert.deepEqual(deadNewsFeeds({ meta: { newsFeedHealth: [fedQuiet] } }, { nowMs: Date.parse('2026-11-07T00:00:00.000Z') }), ['Federal Reserve'], 'v59.57 past its 192h allowance it is dead');
+assert.deepEqual(deadNewsFeeds({ meta: { newsFeedHealth: [{ ...fedQuiet, status: 'error', parsed: 0 }] } }, { nowMs: fedNow }), ['Federal Reserve'], 'v59.57 an erroring Fed feed keeps the 72h gate');
+assert.deepEqual(deadNewsFeeds({ meta: { newsFeedHealth: [{ ...fedQuiet, source: 'Google News - Wires' }] } }, { nowMs: fedNow }), ['Google News - Wires'], 'v59.57 a quiet Google query keeps the 72h gate');
 assert.equal(dataSourceWarnings({ meta: { marketSentenceReject: 'latin-word' }, marketAnalysis: { sentence: { day: '2026-10-18' } } }, { nowMs: Date.parse(healthAt) }).length, 1, 'a rejected new-day sentence is named');
 // 2026-10-19 pipeline redesign: feed records accumulate, an idle feed is named with its drop reasons, and one rumour rule
 // labels the news bundle and the narrative context alike.
