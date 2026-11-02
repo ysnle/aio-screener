@@ -51,7 +51,7 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 - **생성 파일은 손으로 고치지 않는다** — `.claude/agents/*`·`.codex/agents/*`는 `architecture/agent-profiles.json` → `node scripts/sync-agent-profiles.mjs`, `.agents/skills/`는 `.claude/skills/` → `node scripts/sync-agent-skills.mjs`, `CURRENT-STATE`·`CONTEXT-CATALOG`는 `generate-workspace-state --write`, `*.expect.md`는 `node scripts/ci-expect-output-check.mjs --update`(바뀐 출력 diff를 읽고 확인)
 - **기록 순서**: `bump-version` → 항목별 `record-fix` → `generate-workspace-state --write` → 원장·버전·워크스페이스 게이트. 큰 배치는 구현을 모은 뒤 기록·검증을 한 번에
 - **게이트-문서 계약**: 원장(RULES/QA-CHECKLIST/BUG-POSTMORTEM/CHANGELOG) 산문은 자유롭게 압축·정리해도 된다. 게이트는 구조만 검사한다 — `## R<n>.` 헤딩(번호 보존), QA 행 형식·`verify_by`, CHANGELOG `## v<버전>` 헤딩. 정책↔원장 추적은 `architecture/governance-markers.json`이 담당한다
-- **배치 마감 시 push 여부를 한 번 묻는다** — 로컬 미푸시가 길어지면 실서비스 생산자·라이브가 어긋난다(v57.54 검토)
+- **배치 마감 시 통합·push (소유자 2026-11-01 상시 승인)** — 모든 스레드가 끝나면 안전하게 통합하고 커밋·push를 한 번 한다. 배치 중간 push는 하지 않는다. 로컬 미푸시가 길어지면 실서비스 생산자·라이브가 어긋난다(v57.54 검토)
 
 ## 환경 주의 (클라우드 세션)
 
