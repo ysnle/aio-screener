@@ -1,15 +1,15 @@
 {
  "schemaVersion": "2.0",
- "generatedAt": "2026-11-02T22:04:22.891Z",
+ "generatedAt": "2026-11-03T22:33:35.266Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
  "allowedUse": "research/reference; normalized annual filing facts, not analyst estimates or live TTM",
  "model": "sec-fy-normalized-v2",
- "eligible": 3884,
- "stored": 3521,
- "attempted": 15,
- "updated": 0,
+ "eligible": 3879,
+ "stored": 3516,
+ "attempted": 73,
+ "updated": 59,
  "failures": [
   {
    "symbol": "AACI",
@@ -530,7 +530,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "404 https://data.sec.gov/api/xbrl/companyfacts/CIK0001826836.json",
-   "attemptedAt": "2026-11-02T22:04:09.333Z",
+   "attemptedAt": "2026-11-03T22:33:00.661Z",
    "retryAfterMs": 86400000
   },
   {
@@ -602,7 +602,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "404 https://data.sec.gov/api/xbrl/companyfacts/CIK0002072188.json",
-   "attemptedAt": "2026-11-02T22:04:09.333Z",
+   "attemptedAt": "2026-11-03T22:33:00.661Z",
    "retryAfterMs": 86400000
   },
   {
@@ -660,7 +660,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "404 https://data.sec.gov/api/xbrl/companyfacts/CIK0001732379.json",
-   "attemptedAt": "2026-11-02T22:04:09.333Z",
+   "attemptedAt": "2026-11-03T22:33:00.661Z",
    "retryAfterMs": 86400000
   },
   {
@@ -668,7 +668,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "404 https://data.sec.gov/api/xbrl/companyfacts/CIK0001929908.json",
-   "attemptedAt": "2026-11-02T22:04:09.333Z",
+   "attemptedAt": "2026-11-03T22:33:00.661Z",
    "retryAfterMs": 86400000
   },
   {
@@ -700,7 +700,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "404 https://data.sec.gov/api/xbrl/companyfacts/CIK0002076975.json",
-   "attemptedAt": "2026-11-02T22:04:09.333Z",
+   "attemptedAt": "2026-11-03T22:33:00.661Z",
    "retryAfterMs": 86400000
   },
   {
@@ -796,7 +796,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "404 https://data.sec.gov/api/xbrl/companyfacts/CIK0001821866.json",
-   "attemptedAt": "2026-11-02T22:04:09.333Z",
+   "attemptedAt": "2026-11-03T22:33:00.661Z",
    "retryAfterMs": 86400000
   },
   {
@@ -1535,7 +1535,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "404 https://data.sec.gov/api/xbrl/companyfacts/CIK0000825202.json",
-   "attemptedAt": "2026-11-02T22:04:09.333Z",
+   "attemptedAt": "2026-11-03T22:33:00.661Z",
    "retryAfterMs": 86400000
   },
   {
@@ -2363,7 +2363,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "404 https://data.sec.gov/api/xbrl/companyfacts/CIK0001784930.json",
-   "attemptedAt": "2026-11-02T22:04:09.333Z",
+   "attemptedAt": "2026-11-03T22:33:00.661Z",
    "retryAfterMs": 86400000
   },
   {
@@ -2650,7 +2650,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "404 https://data.sec.gov/api/xbrl/companyfacts/CIK0001526475.json",
-   "attemptedAt": "2026-11-02T22:04:09.333Z",
+   "attemptedAt": "2026-11-03T22:33:00.661Z",
    "retryAfterMs": 86400000
   },
   {
@@ -2907,7 +2907,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "404 https://data.sec.gov/api/xbrl/companyfacts/CIK0001569650.json",
-   "attemptedAt": "2026-11-02T22:04:09.333Z",
+   "attemptedAt": "2026-11-03T22:33:00.661Z",
    "retryAfterMs": 86400000
   },
   {
@@ -3020,7 +3020,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "404 https://data.sec.gov/api/xbrl/companyfacts/CIK0001492165.json",
-   "attemptedAt": "2026-11-02T22:04:09.333Z",
+   "attemptedAt": "2026-11-03T22:33:00.661Z",
    "retryAfterMs": 86400000
   },
   {
@@ -3180,7 +3180,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "404 https://data.sec.gov/api/xbrl/companyfacts/CIK0001608741.json",
-   "attemptedAt": "2026-11-02T22:04:09.333Z",
+   "attemptedAt": "2026-11-03T22:33:00.661Z",
    "retryAfterMs": 86400000
   },
   {
@@ -3437,7 +3437,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "404 https://data.sec.gov/api/xbrl/companyfacts/CIK0001548536.json",
-   "attemptedAt": "2026-11-02T22:04:09.333Z",
+   "attemptedAt": "2026-11-03T22:33:00.661Z",
    "retryAfterMs": 86400000
   },
   {
@@ -3812,7 +3812,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "404 https://data.sec.gov/api/xbrl/companyfacts/CIK0002088375.json",
-   "attemptedAt": "2026-11-02T22:04:09.333Z",
+   "attemptedAt": "2026-11-03T22:33:00.661Z",
    "retryAfterMs": 86400000
   },
   {
@@ -4385,6 +4385,7 @@
   "MWH",
   "MYX",
   "NANO",
+  "NARA",
   "NCNA",
   "NCO",
   "NEXM",
@@ -4517,8 +4518,7 @@
   "YMAT",
   "YSS",
   "YSWY",
-  "ZKP",
-  "NARA"
+  "ZKP"
  ],
  "retryableFailures": [
   "AYA",
@@ -4536,8 +4536,8 @@
   "SCZM",
   "TRBG"
  ],
- "pointInTimeCoverage": 3521,
- "pointInTimeAcceptedCoverage": 3521,
+ "pointInTimeCoverage": 3516,
+ "pointInTimeAcceptedCoverage": 3516,
  "batchLimit": 600,
  "backfillExtra": 0,
  "unsupportedRecheckPolicy": "SEC_RECHECK_UNSUPPORTED=1 required for explicit recheck; terminal unsupported rows remain auditable and out of normal batches",
@@ -4545,27 +4545,27 @@
  "domainReceipt": {
   "schemaVersion": "domain-receipt.v1",
   "domain": "sec-fundamentals",
-  "runId": "gha:41532939464",
-  "attemptedAt": "2026-11-02T22:04:09.333Z",
-  "sourceRevision": "sec-company-tickers:67da093c67735ef6dd1182a5ab95040559c99456a8724b740196b7cd00e75f77",
+  "runId": "gha:41730705248",
+  "attemptedAt": "2026-11-03T22:33:00.661Z",
+  "sourceRevision": "sec-company-tickers:f4a4b46839d1a38065d14ed64c8544a6be245bfd2d855e1bb301addceb4488d8",
   "inputWatermarks": {
-   "universe": "2026-11-02T22:04:07.274Z",
-   "screener": "2026-11-02T22:03:28.021Z",
-   "previousArtifact": "2026-11-01T22:46:06.277Z"
+   "universe": "2026-11-03T22:32:58.429Z",
+   "screener": "2026-11-03T22:32:10.986Z",
+   "previousArtifact": "2026-11-02T22:04:22.891Z"
   },
   "batchLimit": 600,
   "counts": {
-   "eligible": 3884,
-   "attempted": 15,
-   "updated": 0,
-   "retained": 3521,
+   "eligible": 3879,
+   "attempted": 73,
+   "updated": 59,
+   "retained": 3457,
    "pendingEligible": 363
   },
   "thisBatch": {
-   "updated": 0,
-   "terminalUnsupported": 1,
+   "updated": 59,
+   "terminalUnsupported": 0,
    "transientFailed": 14,
-   "recorded": 15
+   "recorded": 14
   },
   "ledger": {
    "total": 363,
@@ -4573,10 +4573,10 @@
    "transientFailed": 14,
    "legacyUnknown": 0
   },
-  "lastSuccessfulObservation": "2026-11-01T18:15:18.447Z",
+  "lastSuccessfulObservation": "2026-11-03T22:33:00.661Z",
   "publication": {
-   "status": "NO_REFRESH_RETAINED",
-   "reason": "every attempted target failed; previously stored rows stay published",
+   "status": "PARTIAL",
+   "reason": "some attempted targets were not updated",
    "allowsPartial": true,
    "basis": "per-symbol independent collection; retained eligible rows stay published while rows that lose their period requirements are excluded from analysis",
    "terminalExcludedFromBatchFailures": true,
@@ -13412,8 +13412,8 @@
    "filedAt": "2026-02-13",
    "acceptedAt": "2026-02-13T21:57:05.000Z",
    "availableAt": "2026-02-13T21:57:05.000Z",
-   "transportFetchedAt": "2026-10-25T07:37:19.852Z",
-   "reportAgeDays": 298,
+   "transportFetchedAt": "2026-11-03T22:33:08.503Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001193125-26-051677",
@@ -13443,7 +13443,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-25T07:37:19.852Z",
+   "fetchedAt": "2026-11-03T22:33:08.503Z",
    "form": "10-K",
    "accession": "0001193125-26-051677",
    "accountingStandard": "US-GAAP",
@@ -13480,9 +13480,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "common",
-    "value": 54840000,
-    "through": "2026-06-30",
-    "availableAt": "2026-07-29T20:21:02.000Z",
+    "value": 45628000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:34:10.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -15492,8 +15492,8 @@
    "filedAt": "2026-02-09",
    "acceptedAt": "2026-02-09T13:30:31.000Z",
    "availableAt": "2026-02-09T13:30:31.000Z",
-   "transportFetchedAt": "2026-10-25T07:37:27.801Z",
-   "reportAgeDays": 298,
+   "transportFetchedAt": "2026-11-03T22:33:08.828Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0000003499-26-000005",
@@ -15523,7 +15523,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-25T07:37:27.801Z",
+   "fetchedAt": "2026-11-03T22:33:08.828Z",
    "form": "10-K",
    "accession": "0000003499-26-000005",
    "accountingStandard": "US-GAAP",
@@ -15560,9 +15560,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "net-income",
-    "value": 169816000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-03T12:28:07.000Z",
+    "value": 191252000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T13:23:05.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -28265,8 +28265,8 @@
    "filedAt": "2026-02-23",
    "acceptedAt": "2026-02-23T22:02:12.000Z",
    "availableAt": "2026-02-23T22:02:12.000Z",
-   "transportFetchedAt": "2026-10-25T22:33:40.358Z",
-   "reportAgeDays": 299,
+   "transportFetchedAt": "2026-11-03T22:33:09.150Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001193125-26-064267",
@@ -28296,7 +28296,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-25T22:33:40.358Z",
+   "fetchedAt": "2026-11-03T22:33:09.150Z",
    "form": "10-K",
    "accession": "0001193125-26-064267",
    "accountingStandard": "US-GAAP",
@@ -28333,9 +28333,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "net-income",
-    "value": -191644000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-10T20:07:28.000Z",
+    "value": -157292000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:31:11.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -30329,8 +30329,8 @@
    "filedAt": "2026-02-24",
    "acceptedAt": "2026-02-24T21:16:20.000Z",
    "availableAt": "2026-02-24T21:16:20.000Z",
-   "transportFetchedAt": "2026-10-25T22:33:46.718Z",
-   "reportAgeDays": 299,
+   "transportFetchedAt": "2026-11-03T22:33:09.546Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001328581-26-000006",
@@ -30360,7 +30360,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-25T22:33:46.718Z",
+   "fetchedAt": "2026-11-03T22:33:09.546Z",
    "form": "10-K",
    "accession": "0001328581-26-000006",
    "accountingStandard": "US-GAAP",
@@ -30397,9 +30397,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "net-income",
-    "value": 105687000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-03T20:40:50.000Z",
+    "value": 120308000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:30:47.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -36056,8 +36056,8 @@
    "filedAt": "2026-03-10",
    "acceptedAt": "2026-03-10T20:02:31.000Z",
    "availableAt": "2026-03-10T20:02:31.000Z",
-   "transportFetchedAt": "2026-10-25T22:34:02.338Z",
-   "reportAgeDays": 299,
+   "transportFetchedAt": "2026-11-03T22:33:09.882Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001628280-26-016395",
@@ -36087,7 +36087,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-25T22:34:02.338Z",
+   "fetchedAt": "2026-11-03T22:33:09.882Z",
    "form": "10-K",
    "accession": "0001628280-26-016395",
    "accountingStandard": "US-GAAP",
@@ -36124,9 +36124,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "net-income",
-    "value": -20427000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-03T20:07:23.000Z",
+    "value": -19013000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:06:25.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -38961,8 +38961,8 @@
    "filedAt": "2026-03-02",
    "acceptedAt": "2026-03-02T21:19:28.000Z",
    "availableAt": "2026-03-02T21:19:28.000Z",
-   "transportFetchedAt": "2026-10-25T22:34:10.445Z",
-   "reportAgeDays": 299,
+   "transportFetchedAt": "2026-11-03T22:33:10.205Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001891101-26-000022",
@@ -38992,7 +38992,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-25T22:34:10.445Z",
+   "fetchedAt": "2026-11-03T22:33:10.205Z",
    "form": "10-K",
    "accession": "0001891101-26-000022",
    "accountingStandard": "US-GAAP",
@@ -39029,9 +39029,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "common",
-    "value": -3815000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-03T20:18:11.000Z",
+    "value": -6674000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:17:50.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -41671,8 +41671,8 @@
    "filedAt": "2026-03-05",
    "acceptedAt": "2026-03-05T12:37:04.000Z",
    "availableAt": "2026-03-05T12:37:04.000Z",
-   "transportFetchedAt": "2026-10-25T22:34:18.122Z",
-   "reportAgeDays": 299,
+   "transportFetchedAt": "2026-11-03T22:33:10.561Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001665988-26-000011",
@@ -41702,7 +41702,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-25T22:34:18.122Z",
+   "fetchedAt": "2026-11-03T22:33:10.561Z",
    "form": "10-K",
    "accession": "0001665988-26-000011",
    "accountingStandard": "US-GAAP",
@@ -41739,9 +41739,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "net-income",
-    "value": 54464000,
-    "through": "2026-06-27",
-    "availableAt": "2026-08-05T11:43:20.000Z",
+    "value": 57296000,
+    "through": "2026-09-26",
+    "availableAt": "2026-11-02T21:20:38.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -43736,8 +43736,8 @@
    "filedAt": "2026-02-23",
    "acceptedAt": "2026-02-23T22:01:17.000Z",
    "availableAt": "2026-02-23T22:01:17.000Z",
-   "transportFetchedAt": "2026-10-25T22:34:25.176Z",
-   "reportAgeDays": 300,
+   "transportFetchedAt": "2026-11-03T22:33:11.039Z",
+   "reportAgeDays": 309,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001104659-26-018643",
@@ -43767,7 +43767,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-25T22:34:25.176Z",
+   "fetchedAt": "2026-11-03T22:33:11.039Z",
    "form": "10-K",
    "accession": "0001104659-26-018643",
    "accountingStandard": "US-GAAP",
@@ -43804,9 +43804,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "net-income",
-    "value": 178616000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-03T21:01:13.000Z",
+    "value": 208017000,
+    "through": "2026-09-29",
+    "availableAt": "2026-11-02T22:01:05.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -46172,98 +46172,6 @@
    },
    "roeBasis": "average-equity",
    "equityPrior": 92157000
-  },
-  "CBZ": {
-   "symbol": "CBZ",
-   "cik": "0000944148",
-   "entityName": "CBIZ, Inc.",
-   "source": "SEC EDGAR companyfacts",
-   "sourceTier": "T1_OFFICIAL",
-   "sourceKind": "T1_OFFICIAL",
-   "rightsId": "PUBLIC_REFERENCE",
-   "model": "sec-fy-normalized-v2",
-   "availabilityModel": "sec-pit-availability.v1",
-   "periodType": "FY",
-   "fiscalPeriodEnd": "2025-12-31",
-   "observedAt": "2025-12-31",
-   "filedAt": "2026-08-04",
-   "acceptedAt": "2026-08-04T20:45:53.000Z",
-   "availableAt": "2026-08-04T20:45:53.000Z",
-   "transportFetchedAt": "2026-10-31T06:37:03.172Z",
-   "reportAgeDays": 304,
-   "reportRecency": "recent-fy",
-   "accessionByField": {
-    "revenue": "0000944148-26-000094",
-    "netIncome": "0000944148-26-000094",
-    "equity": "0000944148-26-000094",
-    "sharesOutstanding": "0000944148-26-000094"
-   },
-   "operandAvailability": {
-    "revenue": "2026-08-04T20:45:53.000Z",
-    "netIncome": "2026-08-04T20:45:53.000Z",
-    "equity": "2026-08-04T20:45:53.000Z",
-    "sharesOutstanding": "2026-08-04T20:45:53.000Z",
-    "priorRevenue": "2026-08-04T20:45:53.000Z"
-   },
-   "derivedAvailability": {
-    "revGrowth": "2026-08-04T20:45:53.000Z",
-    "margin": "2026-08-04T20:45:53.000Z",
-    "roe": "2026-08-04T20:45:53.000Z",
-    "pe": "2026-08-04T20:45:53.000Z",
-    "pb": "2026-08-04T20:45:53.000Z"
-   },
-   "allowedUse": "research-relative-ranking-only",
-   "qualityStatus": "CURRENT",
-   "quality": {
-    "status": "CURRENT",
-    "stale": false,
-    "decisionUse": false,
-    "allowedUse": "reference"
-   },
-   "fetchedAt": "2026-10-31T06:37:03.172Z",
-   "form": "10-K/A",
-   "accession": "0000944148-26-000094",
-   "accountingStandard": "US-GAAP",
-   "reportingCurrency": "USD",
-   "revenue": 2757991000,
-   "netIncome": 115444000,
-   "equity": 1762067000,
-   "equityBasis": "parent",
-   "sharesOutstanding": 55073267,
-   "sharesCheck": "consistent",
-   "sharesBasis": "dei-cover",
-   "sharesObservedAt": "2026-02-20",
-   "normalizerVersion": "sec-normalizer.2026-10-24",
-   "revenueConcept": "RevenueFromContractWithCustomerExcludingAssessedTax",
-   "coverage": [
-    "revenue",
-    "netIncome",
-    "equity",
-    "sharesOutstanding",
-    "revGrowth",
-    "margin",
-    "roe"
-   ],
-   "pit": {
-    "schemaVersion": "sec-pit-facts.v1",
-    "status": "accepted-time-partial",
-    "observationCount": 355,
-    "acceptedTimeCount": 353,
-    "observationsDropped": "extended-ledger-compact"
-   },
-   "revGrowth": 52.1,
-   "margin": 4.2,
-   "roe": 6.5,
-   "peEarnings": {
-    "basis": "ttm",
-    "concept": "net-income",
-    "value": 128745000,
-    "through": "2026-09-30",
-    "availableAt": "2026-10-30T20:31:05.000Z",
-    "derivedQuarter": true
-   },
-   "roeBasis": "average-equity",
-   "equityPrior": 1779983000
   },
   "CC": {
    "symbol": "CC",
@@ -48873,8 +48781,8 @@
    "filedAt": "2026-03-02",
    "acceptedAt": "2026-03-02T22:03:45.000Z",
    "availableAt": "2026-03-02T22:03:45.000Z",
-   "transportFetchedAt": "2026-10-25T22:34:37.412Z",
-   "reportAgeDays": 299,
+   "transportFetchedAt": "2026-11-03T22:33:11.363Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001193125-26-085678",
@@ -48904,7 +48812,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-25T22:34:37.412Z",
+   "fetchedAt": "2026-11-03T22:33:11.363Z",
    "form": "10-K",
    "accession": "0001193125-26-085678",
    "accountingStandard": "US-GAAP",
@@ -48938,14 +48846,6 @@
    "revGrowth": 16.1,
    "margin": -6.7,
    "roe": -26,
-   "peEarnings": {
-    "basis": "ttm",
-    "concept": "net-income",
-    "value": -6783000,
-    "through": "2026-06-30",
-    "availableAt": "2026-07-30T20:44:09.000Z",
-    "derivedQuarter": true
-   },
    "roeBasis": "average-equity",
    "equityPrior": 56145000
   },
@@ -59537,8 +59437,8 @@
    "filedAt": "2026-03-19",
    "acceptedAt": "2026-03-19T20:18:53.000Z",
    "availableAt": "2026-03-19T20:18:53.000Z",
-   "transportFetchedAt": "2026-10-25T22:35:09.736Z",
-   "reportAgeDays": 299,
+   "transportFetchedAt": "2026-11-03T22:33:11.895Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001193125-26-116011",
@@ -59568,7 +59468,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-25T22:35:09.736Z",
+   "fetchedAt": "2026-11-03T22:33:11.895Z",
    "form": "10-K/A",
    "accession": "0001193125-26-116011",
    "accountingStandard": "US-GAAP",
@@ -59610,9 +59510,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "net-income",
-    "value": 23521000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-03T20:24:33.000Z",
+    "value": 26121000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:20:33.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -59904,8 +59804,8 @@
    "filedAt": "2026-02-25",
    "acceptedAt": "2026-02-25T21:53:43.000Z",
    "availableAt": "2026-02-25T21:53:43.000Z",
-   "transportFetchedAt": "2026-10-25T22:35:10.782Z",
-   "reportAgeDays": 299,
+   "transportFetchedAt": "2026-11-03T22:33:12.227Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001866175-26-000026",
@@ -59935,7 +59835,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-25T22:35:10.782Z",
+   "fetchedAt": "2026-11-03T22:33:12.227Z",
    "form": "10-K",
    "accession": "0001866175-26-000026",
    "accountingStandard": "US-GAAP",
@@ -59972,9 +59872,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "net-income",
-    "value": 54753000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-03T20:31:41.000Z",
+    "value": 62093000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:39:01.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -61717,8 +61617,8 @@
    "filedAt": "2026-02-17",
    "acceptedAt": "2026-02-17T21:15:59.000Z",
    "availableAt": "2026-02-17T21:15:59.000Z",
-   "transportFetchedAt": "2026-10-25T22:35:16.761Z",
-   "reportAgeDays": 299,
+   "transportFetchedAt": "2026-11-03T22:33:12.713Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0000798359-26-000014",
@@ -61748,7 +61648,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-25T22:35:16.761Z",
+   "fetchedAt": "2026-11-03T22:33:12.713Z",
    "form": "10-K",
    "accession": "0000798359-26-000014",
    "accountingStandard": "US-GAAP",
@@ -61785,9 +61685,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "common",
-    "value": 21361000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-03T20:15:58.000Z",
+    "value": 90497000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:15:39.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -62260,8 +62160,8 @@
    "filedAt": "2013-05-31",
    "acceptedAt": "2013-05-31T16:01:10.000Z",
    "availableAt": "2013-05-31T16:01:10.000Z",
-   "transportFetchedAt": "2026-10-25T22:35:18.485Z",
-   "reportAgeDays": 4957,
+   "transportFetchedAt": "2026-11-03T22:33:13.040Z",
+   "reportAgeDays": 4966,
    "reportRecency": "stale-fy",
    "accessionByField": {
     "revenue": "0001140361-13-023510",
@@ -62291,7 +62191,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-25T22:35:18.485Z",
+   "fetchedAt": "2026-11-03T22:33:13.040Z",
    "form": "10-K",
    "accession": "0001140361-13-023510",
    "accountingStandard": "US-GAAP",
@@ -62315,17 +62215,17 @@
    "pit": {
     "schemaVersion": "sec-pit-facts.v1",
     "status": "accepted-time-partial",
-    "observationCount": 170,
-    "acceptedTimeCount": 170,
+    "observationCount": 172,
+    "acceptedTimeCount": 172,
     "observationsDropped": "extended-ledger-compact"
    },
    "revGrowth": 16.1,
    "peEarnings": {
     "basis": "ttm",
     "concept": "common",
-    "value": 109468000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-03T20:10:43.000Z",
+    "value": 105258000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:32:16.000Z",
     "derivedQuarter": true
    }
   },
@@ -64680,8 +64580,8 @@
    "filedAt": "2026-03-10",
    "acceptedAt": "2026-03-10T20:54:09.000Z",
    "availableAt": "2026-03-10T20:54:09.000Z",
-   "transportFetchedAt": "2026-10-25T22:35:25.522Z",
-   "reportAgeDays": 299,
+   "transportFetchedAt": "2026-11-03T22:33:13.451Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001628280-26-016520",
@@ -64711,7 +64611,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-25T22:35:25.522Z",
+   "fetchedAt": "2026-11-03T22:33:13.451Z",
    "form": "10-K",
    "accession": "0001628280-26-016520",
    "accountingStandard": "US-GAAP",
@@ -64748,9 +64648,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "net-income",
-    "value": -23048000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-03T21:14:28.000Z",
+    "value": -10397000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:43:30.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -70078,8 +69978,8 @@
    "filedAt": "2026-02-24",
    "acceptedAt": "2026-02-23T22:41:18.000Z",
    "availableAt": "2026-02-23T22:41:18.000Z",
-   "transportFetchedAt": "2026-10-25T22:35:43.408Z",
-   "reportAgeDays": 299,
+   "transportFetchedAt": "2026-11-03T22:33:13.832Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001075415-26-000013",
@@ -70109,7 +70009,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-25T22:35:43.408Z",
+   "fetchedAt": "2026-11-03T22:33:13.832Z",
    "form": "10-K",
    "accession": "0001075415-26-000013",
    "accountingStandard": "US-GAAP",
@@ -70146,9 +70046,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "net-income",
-    "value": -265955000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-03T20:47:22.000Z",
+    "value": -152144000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T22:21:51.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -90436,8 +90336,8 @@
    "filedAt": "2026-02-26",
    "acceptedAt": "2026-02-26T20:42:51.000Z",
    "availableAt": "2026-02-26T20:42:51.000Z",
-   "transportFetchedAt": "2026-10-26T07:33:16.288Z",
-   "reportAgeDays": 299,
+   "transportFetchedAt": "2026-11-03T22:33:14.280Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001649749-26-000012",
@@ -90467,7 +90367,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-26T07:33:16.288Z",
+   "fetchedAt": "2026-11-03T22:33:14.280Z",
    "form": "10-K",
    "accession": "0001649749-26-000012",
    "accountingStandard": "US-GAAP",
@@ -90504,9 +90404,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "common",
-    "value": 196527000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-03T16:01:28.000Z",
+    "value": 233354000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T20:05:37.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -90620,8 +90520,8 @@
    "filedAt": "2026-02-25",
    "acceptedAt": "2026-02-25T21:41:33.000Z",
    "availableAt": "2026-02-25T21:41:33.000Z",
-   "transportFetchedAt": "2026-10-26T07:33:17.049Z",
-   "reportAgeDays": 299,
+   "transportFetchedAt": "2026-11-03T22:33:14.613Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0000811589-26-000051",
@@ -90651,7 +90551,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-26T07:33:17.049Z",
+   "fetchedAt": "2026-11-03T22:33:14.613Z",
    "form": "10-K",
    "accession": "0000811589-26-000051",
    "accountingStandard": "US-GAAP",
@@ -90688,9 +90588,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "common",
-    "value": 132626000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-06T20:41:53.000Z",
+    "value": 163417000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:09:24.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -93550,8 +93450,8 @@
    "filedAt": "2026-02-27",
    "acceptedAt": "2026-02-27T21:06:28.000Z",
    "availableAt": "2026-02-27T21:06:28.000Z",
-   "transportFetchedAt": "2026-10-26T07:33:29.376Z",
-   "reportAgeDays": 299,
+   "transportFetchedAt": "2026-11-03T22:33:15.050Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001104659-26-021544",
@@ -93581,7 +93481,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-26T07:33:29.376Z",
+   "fetchedAt": "2026-11-03T22:33:15.050Z",
    "form": "10-K",
    "accession": "0001104659-26-021544",
    "accountingStandard": "US-GAAP",
@@ -93618,9 +93518,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "net-income",
-    "value": 284930000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-03T20:04:54.000Z",
+    "value": 274820000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:06:56.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -93730,8 +93630,8 @@
    "filedAt": "2026-02-26",
    "acceptedAt": "2026-02-26T21:19:39.000Z",
    "availableAt": "2026-02-26T21:19:39.000Z",
-   "transportFetchedAt": "2026-10-26T07:33:30.188Z",
-   "reportAgeDays": 299,
+   "transportFetchedAt": "2026-11-03T22:33:15.380Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0000860413-26-000011",
@@ -93761,7 +93661,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-26T07:33:30.188Z",
+   "fetchedAt": "2026-11-03T22:33:15.380Z",
    "form": "10-K",
    "accession": "0000860413-26-000011",
    "accountingStandard": "US-GAAP",
@@ -93798,9 +93698,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "net-income",
-    "value": 324300000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-03T20:01:24.000Z",
+    "value": 315100000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:16:59.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -99774,8 +99674,8 @@
    "filedAt": "2026-02-27",
    "acceptedAt": "2026-02-27T22:17:02.000Z",
    "availableAt": "2026-02-27T22:17:02.000Z",
-   "transportFetchedAt": "2026-10-26T07:33:55.205Z",
-   "reportAgeDays": 299,
+   "transportFetchedAt": "2026-11-03T22:33:15.707Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001628280-26-012940",
@@ -99805,7 +99705,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-26T07:33:55.205Z",
+   "fetchedAt": "2026-11-03T22:33:15.707Z",
    "form": "10-K",
    "accession": "0001628280-26-012940",
    "accountingStandard": "US-GAAP",
@@ -99842,9 +99742,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "common",
-    "value": 477636000,
-    "through": "2026-06-30",
-    "availableAt": "2026-07-31T20:17:31.000Z",
+    "value": 512691000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T11:07:23.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -102414,8 +102314,8 @@
    "filedAt": "2026-03-06",
    "acceptedAt": "2026-03-06T21:11:01.000Z",
    "availableAt": "2026-03-06T21:11:01.000Z",
-   "transportFetchedAt": "2026-10-26T07:34:05.461Z",
-   "reportAgeDays": 299,
+   "transportFetchedAt": "2026-11-03T22:33:16.067Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001193125-26-096522",
@@ -102445,7 +102345,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-26T07:34:05.461Z",
+   "fetchedAt": "2026-11-03T22:33:16.067Z",
    "form": "10-K",
    "accession": "0001193125-26-096522",
    "accountingStandard": "US-GAAP",
@@ -102472,8 +102372,8 @@
    "pit": {
     "schemaVersion": "sec-pit-facts.v1",
     "status": "accepted-time-partial",
-    "observationCount": 349,
-    "acceptedTimeCount": 349,
+    "observationCount": 351,
+    "acceptedTimeCount": 351,
     "observationsDropped": "extended-ledger-compact"
    },
    "revGrowth": 10.8,
@@ -102481,10 +102381,10 @@
    "roe": -5.3,
    "peEarnings": {
     "basis": "ttm",
-    "concept": "net-income",
-    "value": -5963000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-10T20:10:45.000Z",
+    "concept": "common",
+    "value": -7828000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:10:32.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -106879,8 +106779,8 @@
    "filedAt": "2026-03-09",
    "acceptedAt": "2026-03-09T20:40:45.000Z",
    "availableAt": "2026-03-09T20:40:45.000Z",
-   "transportFetchedAt": "2026-10-26T07:34:23.326Z",
-   "reportAgeDays": 299,
+   "transportFetchedAt": "2026-11-03T22:33:16.521Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001385613-26-000010",
@@ -106910,7 +106810,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-26T07:34:23.326Z",
+   "fetchedAt": "2026-11-03T22:33:16.521Z",
    "form": "10-K",
    "accession": "0001385613-26-000010",
    "accountingStandard": "US-GAAP",
@@ -106947,9 +106847,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "common",
-    "value": 51030000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-04T20:43:45.000Z",
+    "value": 58669000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:29:46.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -107144,57 +107044,57 @@
    "model": "sec-fy-normalized-v2",
    "availabilityModel": "sec-pit-availability.v1",
    "periodType": "FY",
-   "fiscalPeriodEnd": "2025-06-30",
-   "observedAt": "2025-06-30",
-   "filedAt": "2025-11-14",
-   "acceptedAt": "2025-11-14T21:33:03.000Z",
-   "availableAt": "2025-11-14T21:33:03.000Z",
-   "transportFetchedAt": "2026-10-26T07:34:24.483Z",
-   "reportAgeDays": 483,
-   "reportRecency": "stale-fy",
+   "fiscalPeriodEnd": "2026-06-30",
+   "observedAt": "2026-06-30",
+   "filedAt": "2026-11-02",
+   "acceptedAt": "2026-11-02T21:40:49.000Z",
+   "availableAt": "2026-11-02T21:40:49.000Z",
+   "transportFetchedAt": "2026-11-03T22:33:16.906Z",
+   "reportAgeDays": 127,
+   "reportRecency": "recent-fy",
    "accessionByField": {
-    "revenue": "0001493152-25-023553",
-    "netIncome": "0001493152-25-023553",
-    "equity": "0001493152-25-023553",
+    "revenue": "0001493152-26-049631",
+    "netIncome": "0001493152-26-049631",
+    "equity": "0001493152-26-049631",
     "sharesOutstanding": null
    },
    "operandAvailability": {
-    "revenue": "2025-11-14T21:33:03.000Z",
-    "netIncome": "2025-11-14T21:33:03.000Z",
-    "equity": "2025-11-14T21:33:03.000Z",
+    "revenue": "2026-11-02T21:40:49.000Z",
+    "netIncome": "2026-11-02T21:40:49.000Z",
+    "equity": "2026-11-02T21:40:49.000Z",
     "sharesOutstanding": null,
-    "priorRevenue": "2025-11-14T21:33:03.000Z"
+    "priorRevenue": "2026-11-02T21:40:49.000Z"
    },
    "derivedAvailability": {
-    "revGrowth": "2025-11-14T21:33:03.000Z",
-    "margin": "2025-11-14T21:33:03.000Z",
-    "roe": "2025-11-14T21:33:03.000Z",
-    "pe": "2025-11-14T21:33:03.000Z",
-    "pb": "2025-11-14T21:33:03.000Z"
+    "revGrowth": "2026-11-02T21:40:49.000Z",
+    "margin": "2026-11-02T21:40:49.000Z",
+    "roe": "2026-11-02T21:40:49.000Z",
+    "pe": "2026-11-02T21:40:49.000Z",
+    "pb": "2026-11-02T21:40:49.000Z"
    },
    "allowedUse": "research-relative-ranking-only",
-   "qualityStatus": "REFERENCE",
+   "qualityStatus": "CURRENT",
    "quality": {
-    "status": "REFERENCE",
-    "stale": true,
+    "status": "CURRENT",
+    "stale": false,
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-26T07:34:24.483Z",
+   "fetchedAt": "2026-11-03T22:33:16.906Z",
    "form": "20-F",
-   "accession": "0001493152-25-023553",
+   "accession": "0001493152-26-049631",
    "accountingStandard": "US-GAAP",
    "reportingCurrency": "USD",
-   "revenue": 5200138,
-   "netIncome": -682724,
-   "equity": 9189958,
+   "revenue": 5609615,
+   "netIncome": -17275818,
+   "equity": 28576975,
    "equityBasis": "parent",
    "sharesOutstanding": null,
    "sharesCheck": "foreign-share-basis-unverified",
    "sharesBasis": null,
    "sharesObservedAt": null,
    "normalizerVersion": "sec-normalizer.2026-10-24",
-   "revenueConcept": "RevenueFromContractWithCustomerExcludingAssessedTax",
+   "revenueConcept": "Revenues",
    "coverage": [
     "revenue",
     "netIncome",
@@ -107206,15 +107106,15 @@
    "pit": {
     "schemaVersion": "sec-pit-facts.v1",
     "status": "accepted-time-partial",
-    "observationCount": 63,
-    "acceptedTimeCount": 63,
+    "observationCount": 85,
+    "acceptedTimeCount": 85,
     "observationsDropped": "extended-ledger-compact"
    },
-   "revGrowth": 16.4,
-   "margin": -13.1,
-   "roe": -7.5,
+   "revGrowth": 7.9,
+   "margin": -308,
+   "roe": -91.5,
    "roeBasis": "average-equity",
-   "equityPrior": 9008872
+   "equityPrior": 9189958
   },
   "GMHS": {
    "symbol": "GMHS",
@@ -116423,8 +116323,8 @@
    "filedAt": "2026-02-18",
    "acceptedAt": "2026-02-18T21:23:03.000Z",
    "availableAt": "2026-02-18T21:23:03.000Z",
-   "transportFetchedAt": "2026-10-26T07:34:58.659Z",
-   "reportAgeDays": 299,
+   "transportFetchedAt": "2026-11-03T22:33:17.343Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001193125-26-057113",
@@ -116454,7 +116354,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-26T07:34:58.659Z",
+   "fetchedAt": "2026-11-03T22:33:17.343Z",
    "form": "10-K",
    "accession": "0001193125-26-057113",
    "accountingStandard": "US-GAAP",
@@ -116489,9 +116389,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "net-income",
-    "value": 164200000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-05T20:17:55.000Z",
+    "value": 179800000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:15:19.000Z",
     "derivedQuarter": true
    }
   },
@@ -117771,94 +117671,6 @@
    },
    "roeBasis": "average-equity",
    "equityPrior": 196638000
-  },
-  "HODO": {
-   "symbol": "HODO",
-   "cik": "0001903595",
-   "entityName": "House of Doge Inc.",
-   "source": "SEC EDGAR companyfacts",
-   "sourceTier": "T1_OFFICIAL",
-   "sourceKind": "T1_OFFICIAL",
-   "rightsId": "PUBLIC_REFERENCE",
-   "model": "sec-fy-normalized-v2",
-   "availabilityModel": "sec-pit-availability.v1",
-   "periodType": "FY",
-   "fiscalPeriodEnd": "2024-12-31",
-   "observedAt": "2024-12-31",
-   "filedAt": "2026-04-22",
-   "acceptedAt": "2026-04-21T21:49:54.000Z",
-   "availableAt": "2026-04-21T21:49:54.000Z",
-   "transportFetchedAt": "2026-10-26T07:35:03.458Z",
-   "reportAgeDays": 664,
-   "reportRecency": "stale-fy",
-   "accessionByField": {
-    "revenue": "0001213900-26-046293",
-    "netIncome": "0001213900-26-046293",
-    "equity": "0001213900-26-046293",
-    "sharesOutstanding": "0001213900-25-040732"
-   },
-   "operandAvailability": {
-    "revenue": "2026-04-21T21:49:54.000Z",
-    "netIncome": "2026-04-21T21:49:54.000Z",
-    "equity": "2026-04-21T21:49:54.000Z",
-    "sharesOutstanding": "2025-05-07T21:27:19.000Z",
-    "priorRevenue": "2025-05-07T21:27:19.000Z"
-   },
-   "derivedAvailability": {
-    "revGrowth": "2026-04-21T21:49:54.000Z",
-    "margin": "2026-04-21T21:49:54.000Z",
-    "roe": "2026-04-21T21:49:54.000Z",
-    "pe": "2026-04-21T21:49:54.000Z",
-    "pb": "2026-04-21T21:49:54.000Z"
-   },
-   "allowedUse": "research-relative-ranking-only",
-   "qualityStatus": "REFERENCE",
-   "quality": {
-    "status": "REFERENCE",
-    "stale": true,
-    "decisionUse": false,
-    "allowedUse": "reference"
-   },
-   "fetchedAt": "2026-10-26T07:35:03.458Z",
-   "form": "10-K/A",
-   "accession": "0001213900-26-046293",
-   "accountingStandard": "US-GAAP",
-   "reportingCurrency": "USD",
-   "revenue": 105,
-   "netIncome": -3288519,
-   "equity": -8456285,
-   "equityBasis": "parent",
-   "sharesOutstanding": 10822588,
-   "sharesCheck": "consistent",
-   "sharesBasis": "dei-cover",
-   "sharesObservedAt": "2025-05-06",
-   "normalizerVersion": "sec-normalizer.2026-10-24",
-   "revenueConcept": "Revenues",
-   "coverage": [
-    "revenue",
-    "netIncome",
-    "equity",
-    "sharesOutstanding",
-    "revGrowth",
-    "margin"
-   ],
-   "pit": {
-    "schemaVersion": "sec-pit-facts.v1",
-    "status": "accepted-time-partial",
-    "observationCount": 72,
-    "acceptedTimeCount": 72,
-    "observationsDropped": "extended-ledger-compact"
-   },
-   "revGrowth": -100,
-   "margin": -3131922.9,
-   "peEarnings": {
-    "basis": "ttm",
-    "concept": "net-income",
-    "value": -248113,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-14T21:30:05.000Z",
-    "derivedQuarter": true
-   }
   },
   "HOFT": {
    "symbol": "HOFT",
@@ -125616,8 +125428,8 @@
    "filedAt": "2026-03-06",
    "acceptedAt": "2026-03-06T18:08:40.000Z",
    "availableAt": "2026-03-06T18:08:40.000Z",
-   "transportFetchedAt": "2026-10-26T07:35:35.042Z",
-   "reportAgeDays": 299,
+   "transportFetchedAt": "2026-11-03T22:33:17.693Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001104659-26-024573",
@@ -125647,7 +125459,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-26T07:35:35.042Z",
+   "fetchedAt": "2026-11-03T22:33:17.693Z",
    "form": "10-K",
    "accession": "0001104659-26-024573",
    "accountingStandard": "US-GAAP",
@@ -125684,9 +125496,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "net-income",
-    "value": 11684000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-06T16:44:11.000Z",
+    "value": 11998000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T17:16:19.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -129189,8 +129001,8 @@
    "filedAt": "2026-02-13",
    "acceptedAt": "2026-02-13T21:05:53.000Z",
    "availableAt": "2026-02-13T21:05:53.000Z",
-   "transportFetchedAt": "2026-10-26T07:35:47.115Z",
-   "reportAgeDays": 299,
+   "transportFetchedAt": "2026-11-03T22:33:18.019Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001609550-26-000016",
@@ -129220,7 +129032,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-26T07:35:47.115Z",
+   "fetchedAt": "2026-11-03T22:33:18.019Z",
    "form": "10-K",
    "accession": "0001609550-26-000016",
    "accountingStandard": "US-GAAP",
@@ -129257,9 +129069,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "net-income",
-    "value": 135042000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-03T20:07:30.000Z",
+    "value": 100716000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:32:09.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -140487,8 +140299,8 @@
    "filedAt": "2026-03-02",
    "acceptedAt": "2026-03-02T20:03:22.000Z",
    "availableAt": "2026-03-02T20:03:22.000Z",
-   "transportFetchedAt": "2026-10-26T22:32:52.907Z",
-   "reportAgeDays": 300,
+   "transportFetchedAt": "2026-11-03T22:33:18.368Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001509991-26-000017",
@@ -140518,7 +140330,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-26T22:32:52.907Z",
+   "fetchedAt": "2026-11-03T22:33:18.368Z",
    "form": "10-K",
    "accession": "0001509991-26-000017",
    "accountingStandard": "US-GAAP",
@@ -140555,9 +140367,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "net-income",
-    "value": -542239000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-03T16:09:58.000Z",
+    "value": -460950000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T20:00:00.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -141926,8 +141738,8 @@
    "filedAt": "2026-02-17",
    "acceptedAt": "2026-02-17T12:05:57.000Z",
    "availableAt": "2026-02-17T12:05:57.000Z",
-   "transportFetchedAt": "2026-10-26T22:32:58.608Z",
-   "reportAgeDays": 300,
+   "transportFetchedAt": "2026-11-03T22:33:18.739Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001711279-26-000016",
@@ -141957,7 +141769,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-26T22:32:58.608Z",
+   "fetchedAt": "2026-11-03T22:33:18.739Z",
    "form": "10-K",
    "accession": "0001711279-26-000016",
    "accountingStandard": "US-GAAP",
@@ -141994,9 +141806,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "net-income",
-    "value": 241465000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-03T11:03:15.000Z",
+    "value": 225168000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T12:05:29.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -155413,8 +155225,8 @@
    "filedAt": "2025-10-31",
    "acceptedAt": "2025-10-31T20:29:22.000Z",
    "availableAt": "2025-10-31T20:29:22.000Z",
-   "transportFetchedAt": "2026-10-26T22:33:49.776Z",
-   "reportAgeDays": 484,
+   "transportFetchedAt": "2026-11-03T22:33:19.075Z",
+   "reportAgeDays": 492,
    "reportRecency": "stale-fy",
    "accessionByField": {
     "revenue": "0001140361-25-040022",
@@ -155444,7 +155256,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-26T22:33:49.776Z",
+   "fetchedAt": "2026-11-03T22:33:19.075Z",
    "form": "20-F",
    "accession": "0001140361-25-040022",
    "accountingStandard": "IFRS",
@@ -155473,8 +155285,8 @@
    "pit": {
     "schemaVersion": "sec-pit-facts.v1",
     "status": "accepted-time-partial",
-    "observationCount": 37,
-    "acceptedTimeCount": 37,
+    "observationCount": 38,
+    "acceptedTimeCount": 38,
     "observationsDropped": "extended-ledger-compact"
    },
    "revGrowth": -9.6,
@@ -160566,52 +160378,52 @@
    "model": "sec-fy-normalized-v2",
    "availabilityModel": "sec-pit-availability.v1",
    "periodType": "FY",
-   "fiscalPeriodEnd": "2025-06-30",
-   "observedAt": "2025-06-30",
-   "filedAt": "2025-10-30",
-   "acceptedAt": "2025-10-30T20:06:48.000Z",
-   "availableAt": "2025-10-30T20:06:48.000Z",
-   "transportFetchedAt": "2026-10-26T22:34:07.901Z",
-   "reportAgeDays": 484,
-   "reportRecency": "stale-fy",
+   "fiscalPeriodEnd": "2026-06-30",
+   "observedAt": "2026-06-30",
+   "filedAt": "2026-11-02",
+   "acceptedAt": "2026-11-02T22:20:54.000Z",
+   "availableAt": "2026-11-02T22:20:54.000Z",
+   "transportFetchedAt": "2026-11-03T22:33:19.435Z",
+   "reportAgeDays": 127,
+   "reportRecency": "recent-fy",
    "accessionByField": {
-    "revenue": "0001104659-25-104370",
-    "netIncome": "0001104659-25-104370",
-    "equity": "0001104659-25-104370",
+    "revenue": "0001104659-26-121484",
+    "netIncome": "0001104659-26-121484",
+    "equity": "0001104659-26-121484",
     "sharesOutstanding": null
    },
    "operandAvailability": {
-    "revenue": "2025-10-30T20:06:48.000Z",
-    "netIncome": "2025-10-30T20:06:48.000Z",
-    "equity": "2025-10-30T20:06:48.000Z",
+    "revenue": "2026-11-02T22:20:54.000Z",
+    "netIncome": "2026-11-02T22:20:54.000Z",
+    "equity": "2026-11-02T22:20:54.000Z",
     "sharesOutstanding": null,
-    "priorRevenue": "2025-10-30T20:06:48.000Z"
+    "priorRevenue": "2026-11-02T22:20:54.000Z"
    },
    "derivedAvailability": {
-    "revGrowth": "2025-10-30T20:06:48.000Z",
-    "margin": "2025-10-30T20:06:48.000Z",
-    "roe": "2025-10-30T20:06:48.000Z",
-    "pe": "2025-10-30T20:06:48.000Z",
-    "pb": "2025-10-30T20:06:48.000Z"
+    "revGrowth": "2026-11-02T22:20:54.000Z",
+    "margin": "2026-11-02T22:20:54.000Z",
+    "roe": "2026-11-02T22:20:54.000Z",
+    "pe": "2026-11-02T22:20:54.000Z",
+    "pb": "2026-11-02T22:20:54.000Z"
    },
    "allowedUse": "research-relative-ranking-only",
-   "qualityStatus": "REFERENCE",
+   "qualityStatus": "CURRENT",
    "quality": {
-    "status": "REFERENCE",
-    "stale": true,
+    "status": "CURRENT",
+    "stale": false,
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-26T22:34:07.901Z",
+   "fetchedAt": "2026-11-03T22:33:19.435Z",
    "form": "20-F",
-   "accession": "0001104659-25-104370",
+   "accession": "0001104659-26-121484",
    "accountingStandard": "US-GAAP",
    "reportingCurrency": "JPY",
    "reportedAmounts": {
     "currency": "JPY",
-    "revenue": 18842663000,
-    "netIncome": 846784000,
-    "equity": 5030713000
+    "revenue": 18174206000,
+    "netIncome": 642260000,
+    "equity": 5539241000
    },
    "revenue": null,
    "netIncome": null,
@@ -160631,15 +160443,15 @@
    "pit": {
     "schemaVersion": "sec-pit-facts.v1",
     "status": "accepted-time-partial",
-    "observationCount": 84,
-    "acceptedTimeCount": 84,
+    "observationCount": 113,
+    "acceptedTimeCount": 113,
     "observationsDropped": "extended-ledger-compact"
    },
-   "revGrowth": -0.6,
-   "margin": 4.5,
-   "roe": 18.3,
+   "revGrowth": -3.5,
+   "margin": 3.5,
+   "roe": 12.2,
    "roeBasis": "average-equity",
-   "equityPrior": 4237368000
+   "equityPrior": 5030713000
   },
   "LRMR": {
    "symbol": "LRMR",
@@ -162984,8 +162796,8 @@
    "filedAt": "2026-03-11",
    "acceptedAt": "2026-03-11T18:36:49.000Z",
    "availableAt": "2026-03-11T18:36:49.000Z",
-   "transportFetchedAt": "2026-10-26T22:34:16.997Z",
-   "reportAgeDays": 300,
+   "transportFetchedAt": "2026-11-03T22:33:19.762Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001628280-26-016765",
@@ -163015,7 +162827,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-26T22:34:16.997Z",
+   "fetchedAt": "2026-11-03T22:33:19.762Z",
    "form": "10-K",
    "accession": "0001628280-26-016765",
    "accountingStandard": "US-GAAP",
@@ -163052,9 +162864,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "net-income",
-    "value": 26975000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-10T21:16:28.000Z",
+    "value": 20816000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T22:11:51.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -163504,98 +163316,6 @@
    },
    "roeBasis": "average-equity",
    "equityPrior": 116057000
-  },
-  "MGPI": {
-   "symbol": "MGPI",
-   "cik": "0000835011",
-   "entityName": "MGP INGREDIENTS INC",
-   "source": "SEC EDGAR companyfacts",
-   "sourceTier": "T1_OFFICIAL",
-   "sourceKind": "T1_OFFICIAL",
-   "rightsId": "PUBLIC_REFERENCE",
-   "model": "sec-fy-normalized-v2",
-   "availabilityModel": "sec-pit-availability.v1",
-   "periodType": "FY",
-   "fiscalPeriodEnd": "2025-12-31",
-   "observedAt": "2025-12-31",
-   "filedAt": "2026-02-25",
-   "acceptedAt": "2026-02-25T12:34:45.000Z",
-   "availableAt": "2026-02-25T12:34:45.000Z",
-   "transportFetchedAt": "2026-10-29T07:32:47.155Z",
-   "reportAgeDays": 302,
-   "reportRecency": "recent-fy",
-   "accessionByField": {
-    "revenue": "0000835011-26-000031",
-    "netIncome": "0000835011-26-000031",
-    "equity": "0000835011-26-000031",
-    "sharesOutstanding": "0000835011-26-000031"
-   },
-   "operandAvailability": {
-    "revenue": "2026-02-25T12:34:45.000Z",
-    "netIncome": "2026-02-25T12:34:45.000Z",
-    "equity": "2026-02-25T12:34:45.000Z",
-    "sharesOutstanding": "2026-02-25T12:34:45.000Z",
-    "priorRevenue": "2026-02-25T12:34:45.000Z"
-   },
-   "derivedAvailability": {
-    "revGrowth": "2026-02-25T12:34:45.000Z",
-    "margin": "2026-02-25T12:34:45.000Z",
-    "roe": "2026-02-25T12:34:45.000Z",
-    "pe": "2026-02-25T12:34:45.000Z",
-    "pb": "2026-02-25T12:34:45.000Z"
-   },
-   "allowedUse": "research-relative-ranking-only",
-   "qualityStatus": "CURRENT",
-   "quality": {
-    "status": "CURRENT",
-    "stale": false,
-    "decisionUse": false,
-    "allowedUse": "reference"
-   },
-   "fetchedAt": "2026-10-29T07:32:47.155Z",
-   "form": "10-K",
-   "accession": "0000835011-26-000031",
-   "accountingStandard": "US-GAAP",
-   "reportingCurrency": "USD",
-   "revenue": 536375000,
-   "netIncome": -107809000,
-   "equity": 718436000,
-   "equityBasis": "parent",
-   "sharesOutstanding": 21363225,
-   "sharesCheck": "consistent",
-   "sharesBasis": "dei-cover",
-   "sharesObservedAt": "2026-02-20",
-   "normalizerVersion": "sec-normalizer.2026-10-24",
-   "revenueConcept": "RevenueFromContractWithCustomerExcludingAssessedTax",
-   "coverage": [
-    "revenue",
-    "netIncome",
-    "equity",
-    "sharesOutstanding",
-    "revGrowth",
-    "margin",
-    "roe"
-   ],
-   "pit": {
-    "schemaVersion": "sec-pit-facts.v1",
-    "status": "accepted-time-partial",
-    "observationCount": 413,
-    "acceptedTimeCount": 344,
-    "observationsDropped": "extended-ledger-compact"
-   },
-   "revGrowth": -23.8,
-   "margin": -20.1,
-   "roe": -13.9,
-   "peEarnings": {
-    "basis": "ttm",
-    "concept": "common",
-    "value": -249201000,
-    "through": "2026-09-30",
-    "availableAt": "2026-10-28T11:36:27.000Z",
-    "derivedQuarter": true
-   },
-   "roeBasis": "average-equity",
-   "equityPrior": 834166000
   },
   "MGRC": {
    "symbol": "MGRC",
@@ -164428,8 +164148,8 @@
    "filedAt": "2026-03-06",
    "acceptedAt": "2026-03-06T12:29:31.000Z",
    "availableAt": "2026-03-06T12:29:31.000Z",
-   "transportFetchedAt": "2026-10-26T22:34:22.069Z",
-   "reportAgeDays": 300,
+   "transportFetchedAt": "2026-11-03T22:33:20.087Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001438472-26-000023",
@@ -164459,7 +164179,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-26T22:34:22.069Z",
+   "fetchedAt": "2026-11-03T22:33:20.087Z",
    "form": "10-K",
    "accession": "0001438472-26-000023",
    "accountingStandard": "US-GAAP",
@@ -164486,8 +164206,8 @@
    "pit": {
     "schemaVersion": "sec-pit-facts.v1",
     "status": "accepted-time-partial",
-    "observationCount": 61,
-    "acceptedTimeCount": 61,
+    "observationCount": 70,
+    "acceptedTimeCount": 70,
     "observationsDropped": "extended-ledger-compact"
    },
    "revGrowth": 19.6,
@@ -164496,9 +164216,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "net-income",
-    "value": 142296000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-07T11:24:44.000Z",
+    "value": 296848000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T13:42:23.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -165577,89 +165297,6 @@
    },
    "revGrowth": 11.3,
    "margin": 3.6
-  },
-  "MLEC": {
-   "symbol": "MLEC",
-   "cik": "0001937737",
-   "entityName": "Moolec Science SA",
-   "source": "SEC EDGAR companyfacts",
-   "sourceTier": "T1_OFFICIAL",
-   "sourceKind": "T1_OFFICIAL",
-   "rightsId": "PUBLIC_REFERENCE",
-   "model": "sec-fy-normalized-v2",
-   "availabilityModel": "sec-pit-availability.v1",
-   "periodType": "FY",
-   "fiscalPeriodEnd": "2024-06-30",
-   "observedAt": "2024-06-30",
-   "filedAt": "2024-10-30",
-   "acceptedAt": "2024-10-30T18:53:09.000Z",
-   "availableAt": "2024-10-30T18:53:09.000Z",
-   "transportFetchedAt": "2026-10-26T22:34:26.105Z",
-   "reportAgeDays": 849,
-   "reportRecency": "stale-fy",
-   "accessionByField": {
-    "revenue": "0001213900-24-092168",
-    "netIncome": "0001213900-24-092168",
-    "equity": "0001213900-24-092168",
-    "sharesOutstanding": null
-   },
-   "operandAvailability": {
-    "revenue": "2024-10-30T18:53:09.000Z",
-    "netIncome": "2024-10-30T18:53:09.000Z",
-    "equity": "2024-10-30T18:53:09.000Z",
-    "sharesOutstanding": null,
-    "priorRevenue": "2024-10-30T18:53:09.000Z"
-   },
-   "derivedAvailability": {
-    "revGrowth": "2024-10-30T18:53:09.000Z",
-    "margin": "2024-10-30T18:53:09.000Z",
-    "roe": "2024-10-30T18:53:09.000Z",
-    "pe": "2024-10-30T18:53:09.000Z",
-    "pb": "2024-10-30T18:53:09.000Z"
-   },
-   "allowedUse": "research-relative-ranking-only",
-   "qualityStatus": "REFERENCE",
-   "quality": {
-    "status": "REFERENCE",
-    "stale": true,
-    "decisionUse": false,
-    "allowedUse": "reference"
-   },
-   "fetchedAt": "2026-10-26T22:34:26.105Z",
-   "form": "20-F",
-   "accession": "0001213900-24-092168",
-   "accountingStandard": "IFRS",
-   "reportingCurrency": "USD",
-   "revenue": 5625124,
-   "netIncome": -7312260,
-   "equity": 6815760,
-   "equityBasis": "including-noncontrolling-interest",
-   "sharesOutstanding": null,
-   "sharesCheck": "foreign-share-basis-unverified",
-   "sharesBasis": null,
-   "sharesObservedAt": null,
-   "normalizerVersion": "sec-normalizer.2026-10-24",
-   "revenueConcept": "Revenue",
-   "coverage": [
-    "revenue",
-    "netIncome",
-    "equity",
-    "revGrowth",
-    "margin",
-    "roe"
-   ],
-   "pit": {
-    "schemaVersion": "sec-pit-facts.v1",
-    "status": "accepted-time-partial",
-    "observationCount": 70,
-    "acceptedTimeCount": 70,
-    "observationsDropped": "extended-ledger-compact"
-   },
-   "revGrowth": 521.5,
-   "margin": -130,
-   "roe": -86.4,
-   "roeBasis": "average-equity",
-   "equityPrior": 10105933
   },
   "MLGO": {
    "symbol": "MLGO",
@@ -181807,8 +181444,8 @@
    "filedAt": "2026-08-24",
    "acceptedAt": "2026-08-24T13:32:23.000Z",
    "availableAt": "2026-08-24T13:32:23.000Z",
-   "transportFetchedAt": "2026-10-27T07:33:19.575Z",
-   "reportAgeDays": 119,
+   "transportFetchedAt": "2026-11-03T22:33:21.400Z",
+   "reportAgeDays": 127,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001104659-26-100081",
@@ -181838,7 +181475,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-27T07:33:19.575Z",
+   "fetchedAt": "2026-11-03T22:33:21.400Z",
    "form": "10-K",
    "accession": "0001104659-26-100081",
    "accountingStandard": "US-GAAP",
@@ -181873,12 +181510,12 @@
    "margin": 21.3,
    "roe": 23.9,
    "peEarnings": {
-    "basis": "fy",
-    "concept": "common",
-    "value": 43027000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-24T13:32:23.000Z",
-    "derivedQuarter": false
+    "basis": "ttm",
+    "concept": "net-income",
+    "value": 43871000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T16:05:49.000Z",
+    "derivedQuarter": true
    },
    "roeBasis": "average-equity",
    "equityPrior": 168606000
@@ -189389,29 +189026,29 @@
    "observedAt": "2025-12-31",
    "filedAt": "2026-03-31",
    "acceptedAt": "2026-03-31T20:13:57.000Z",
-   "availableAt": "2026-03-31T20:13:57.000Z",
-   "transportFetchedAt": "2026-10-27T07:33:47.516Z",
-   "reportAgeDays": 300,
+   "availableAt": "2026-11-02T21:30:38.000Z",
+   "transportFetchedAt": "2026-11-03T22:33:21.739Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001193125-26-134584",
     "netIncome": "0001193125-26-134584",
     "equity": "0001193125-26-134584",
-    "sharesOutstanding": "0001193125-26-134584"
+    "sharesOutstanding": "0001193125-26-443747"
    },
    "operandAvailability": {
     "revenue": "2026-03-31T20:13:57.000Z",
     "netIncome": "2026-03-31T20:13:57.000Z",
     "equity": "2026-03-31T20:13:57.000Z",
-    "sharesOutstanding": "2026-03-31T20:13:57.000Z",
+    "sharesOutstanding": "2026-11-02T21:30:38.000Z",
     "priorRevenue": "2026-03-31T20:13:57.000Z"
    },
    "derivedAvailability": {
     "revGrowth": "2026-03-31T20:13:57.000Z",
     "margin": "2026-03-31T20:13:57.000Z",
     "roe": "2026-03-31T20:13:57.000Z",
-    "pe": "2026-03-31T20:13:57.000Z",
-    "pb": "2026-03-31T20:13:57.000Z"
+    "pe": "2026-11-02T21:30:38.000Z",
+    "pb": "2026-11-02T21:30:38.000Z"
    },
    "allowedUse": "research-relative-ranking-only",
    "qualityStatus": "CURRENT",
@@ -189421,7 +189058,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-27T07:33:47.516Z",
+   "fetchedAt": "2026-11-03T22:33:21.739Z",
    "form": "10-K",
    "accession": "0001193125-26-134584",
    "accountingStandard": "US-GAAP",
@@ -189430,10 +189067,11 @@
    "netIncome": -43085185,
    "equity": -37648703,
    "equityBasis": "parent",
-   "sharesOutstanding": 58225462,
+   "sharesOutstanding": 2347568,
    "sharesCheck": "consistent",
-   "sharesBasis": "dei-cover",
-   "sharesObservedAt": "2026-03-26",
+   "sharesBasis": "dei-cover-post-split",
+   "sharesSplitRatio": 0.04,
+   "sharesObservedAt": "2026-10-29",
    "normalizerVersion": "sec-normalizer.2026-10-24",
    "revenueConcept": "RevenueFromContractWithCustomerIncludingAssessedTax",
    "coverage": [
@@ -189456,9 +189094,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "common",
-    "value": -39441233,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-11T20:30:42.000Z",
+    "value": -31011378,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:30:38.000Z",
     "derivedQuarter": true
    }
   },
@@ -190813,29 +190451,29 @@
    "observedAt": "2025-12-31",
    "filedAt": "2026-02-24",
    "acceptedAt": "2026-02-24T21:25:23.000Z",
-   "availableAt": "2026-08-03T20:40:43.000Z",
-   "transportFetchedAt": "2026-10-27T07:33:51.993Z",
-   "reportAgeDays": 300,
+   "availableAt": "2026-11-02T22:00:36.000Z",
+   "transportFetchedAt": "2026-11-03T22:33:22.057Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001193125-26-067147",
     "netIncome": "0001193125-26-067147",
     "equity": "0001193125-26-067147",
-    "sharesOutstanding": "0001193125-26-330713"
+    "sharesOutstanding": "0001193125-26-443850"
    },
    "operandAvailability": {
     "revenue": "2026-02-24T21:25:23.000Z",
     "netIncome": "2026-02-24T21:25:23.000Z",
     "equity": "2026-02-24T21:25:23.000Z",
-    "sharesOutstanding": "2026-08-03T20:40:43.000Z",
+    "sharesOutstanding": "2026-11-02T22:00:36.000Z",
     "priorRevenue": "2026-02-24T21:25:23.000Z"
    },
    "derivedAvailability": {
     "revGrowth": "2026-02-24T21:25:23.000Z",
     "margin": "2026-02-24T21:25:23.000Z",
     "roe": "2026-02-24T21:25:23.000Z",
-    "pe": "2026-08-03T20:40:43.000Z",
-    "pb": "2026-08-03T20:40:43.000Z"
+    "pe": "2026-11-02T22:00:36.000Z",
+    "pb": "2026-11-02T22:00:36.000Z"
    },
    "allowedUse": "research-relative-ranking-only",
    "qualityStatus": "CURRENT",
@@ -190845,7 +190483,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-27T07:33:51.993Z",
+   "fetchedAt": "2026-11-03T22:33:22.057Z",
    "form": "10-K",
    "accession": "0001193125-26-067147",
    "accountingStandard": "US-GAAP",
@@ -190854,11 +190492,11 @@
    "netIncome": -46384000,
    "equity": 38219000,
    "equityBasis": "parent",
-   "sharesOutstanding": 4832749,
+   "sharesOutstanding": 5137774,
    "sharesCheck": "consistent",
    "sharesBasis": "dei-cover-post-split",
-   "sharesSplitRatio": 0.102,
-   "sharesObservedAt": "2026-07-27",
+   "sharesSplitRatio": 0.109,
+   "sharesObservedAt": "2026-10-26",
    "normalizerVersion": "sec-normalizer.2026-10-24",
    "revenueConcept": "Revenues",
    "coverage": [
@@ -190883,9 +190521,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "net-income",
-    "value": -39845000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-03T20:40:43.000Z",
+    "value": -39693000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T22:00:36.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -200243,8 +199881,8 @@
    "filedAt": "2026-06-01",
    "acceptedAt": "2026-06-01T20:27:11.000Z",
    "availableAt": "2026-06-01T20:27:11.000Z",
-   "transportFetchedAt": "2026-10-27T07:34:29.336Z",
-   "reportAgeDays": 300,
+   "transportFetchedAt": "2026-11-03T22:33:22.388Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001883085-26-000036",
@@ -200274,7 +199912,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-27T07:34:29.336Z",
+   "fetchedAt": "2026-11-03T22:33:22.388Z",
    "form": "10-K/A",
    "accession": "0001883085-26-000036",
    "accountingStandard": "US-GAAP",
@@ -200301,8 +199939,8 @@
    "pit": {
     "schemaVersion": "sec-pit-facts.v1",
     "status": "accepted-time-partial",
-    "observationCount": 265,
-    "acceptedTimeCount": 265,
+    "observationCount": 267,
+    "acceptedTimeCount": 267,
     "observationsDropped": "extended-ledger-compact"
    },
    "revGrowth": 26.1,
@@ -200311,9 +199949,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "common",
-    "value": 122541000,
-    "through": "2026-06-30",
-    "availableAt": "2026-07-30T20:21:37.000Z",
+    "value": 149811000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:12:05.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -205346,8 +204984,8 @@
    "filedAt": "2026-02-20",
    "acceptedAt": "2026-02-20T11:26:12.000Z",
    "availableAt": "2026-02-20T11:26:12.000Z",
-   "transportFetchedAt": "2026-10-27T07:34:49.771Z",
-   "reportAgeDays": 300,
+   "transportFetchedAt": "2026-11-03T22:33:22.861Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001628280-26-009997",
@@ -205377,7 +205015,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-27T07:34:49.771Z",
+   "fetchedAt": "2026-11-03T22:33:22.861Z",
    "form": "10-K",
    "accession": "0001628280-26-009997",
    "accountingStandard": "US-GAAP",
@@ -205414,9 +205052,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "common",
-    "value": 336296000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-03T20:20:04.000Z",
+    "value": -329316000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:13:36.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -209097,8 +208735,8 @@
    "filedAt": "2026-02-10",
    "acceptedAt": "2026-02-10T21:17:35.000Z",
    "availableAt": "2026-02-10T21:17:35.000Z",
-   "transportFetchedAt": "2026-10-24T22:33:47.977Z",
-   "reportAgeDays": 298,
+   "transportFetchedAt": "2026-11-03T22:33:02.535Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0000889900-26-000013",
@@ -209128,7 +208766,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-24T22:33:47.977Z",
+   "fetchedAt": "2026-11-03T22:33:02.535Z",
    "form": "10-K",
    "accession": "0000889900-26-000013",
    "accountingStandard": "US-GAAP",
@@ -209165,9 +208803,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "common",
-    "value": -89725000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-04T20:36:36.000Z",
+    "value": -24970000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:36:42.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -213172,98 +212810,6 @@
     "availableAt": "2026-08-03T20:19:24.000Z",
     "derivedQuarter": true
    }
-  },
-  "RAMP": {
-   "symbol": "RAMP",
-   "cik": "0000733269",
-   "entityName": "LiveRamp Holdings, Inc.",
-   "source": "SEC EDGAR companyfacts",
-   "sourceTier": "T1_OFFICIAL",
-   "sourceKind": "T1_OFFICIAL",
-   "rightsId": "PUBLIC_REFERENCE",
-   "model": "sec-fy-normalized-v2",
-   "availabilityModel": "sec-pit-availability.v1",
-   "periodType": "FY",
-   "fiscalPeriodEnd": "2026-03-31",
-   "observedAt": "2026-03-31",
-   "filedAt": "2026-05-21",
-   "acceptedAt": "2026-05-21T20:46:51.000Z",
-   "availableAt": "2026-05-21T20:46:51.000Z",
-   "transportFetchedAt": "2026-10-24T22:34:09.525Z",
-   "reportAgeDays": 208,
-   "reportRecency": "recent-fy",
-   "accessionByField": {
-    "revenue": "0000733269-26-000025",
-    "netIncome": "0000733269-26-000025",
-    "equity": "0000733269-26-000025",
-    "sharesOutstanding": "0000733269-26-000025"
-   },
-   "operandAvailability": {
-    "revenue": "2026-05-21T20:46:51.000Z",
-    "netIncome": "2026-05-21T20:46:51.000Z",
-    "equity": "2026-05-21T20:46:51.000Z",
-    "sharesOutstanding": "2026-05-21T20:46:51.000Z",
-    "priorRevenue": "2026-05-21T20:46:51.000Z"
-   },
-   "derivedAvailability": {
-    "revGrowth": "2026-05-21T20:46:51.000Z",
-    "margin": "2026-05-21T20:46:51.000Z",
-    "roe": "2026-05-21T20:46:51.000Z",
-    "pe": "2026-05-21T20:46:51.000Z",
-    "pb": "2026-05-21T20:46:51.000Z"
-   },
-   "allowedUse": "research-relative-ranking-only",
-   "qualityStatus": "CURRENT",
-   "quality": {
-    "status": "CURRENT",
-    "stale": false,
-    "decisionUse": false,
-    "allowedUse": "reference"
-   },
-   "fetchedAt": "2026-10-24T22:34:09.525Z",
-   "form": "10-K",
-   "accession": "0000733269-26-000025",
-   "accountingStandard": "US-GAAP",
-   "reportingCurrency": "USD",
-   "revenue": 812940000,
-   "netIncome": 145952000,
-   "equity": 971979000,
-   "equityBasis": "parent",
-   "sharesOutstanding": 60087866,
-   "sharesCheck": "consistent",
-   "sharesBasis": "dei-cover",
-   "sharesObservedAt": "2026-05-15",
-   "normalizerVersion": "sec-normalizer.2026-10-24",
-   "revenueConcept": "RevenueFromContractWithCustomerExcludingAssessedTax",
-   "coverage": [
-    "revenue",
-    "netIncome",
-    "equity",
-    "sharesOutstanding",
-    "revGrowth",
-    "margin",
-    "roe"
-   ],
-   "pit": {
-    "schemaVersion": "sec-pit-facts.v1",
-    "status": "accepted-time-partial",
-    "observationCount": 409,
-    "acceptedTimeCount": 295,
-    "observationsDropped": "extended-ledger-compact"
-   },
-   "revGrowth": 9,
-   "margin": 18,
-   "roe": 15.2,
-   "peEarnings": {
-    "basis": "ttm",
-    "concept": "net-income",
-    "value": 155720000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-05T20:16:54.000Z",
-    "derivedQuarter": true
-   },
-   "roeBasis": "average-equity",
-   "equityPrior": 948859000
   },
   "RANI": {
    "symbol": "RANI",
@@ -223357,8 +222903,8 @@
    "filedAt": "2026-02-25",
    "acceptedAt": "2026-02-25T11:33:18.000Z",
    "availableAt": "2026-02-25T11:33:18.000Z",
-   "transportFetchedAt": "2026-10-24T22:34:58.729Z",
-   "reportAgeDays": 298,
+   "transportFetchedAt": "2026-11-03T22:33:02.920Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001601830-26-000039",
@@ -223388,7 +222934,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-24T22:34:58.729Z",
+   "fetchedAt": "2026-11-03T22:33:02.920Z",
    "form": "10-K",
    "accession": "0001601830-26-000039",
    "accountingStandard": "US-GAAP",
@@ -223425,9 +222971,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "net-income",
-    "value": -518884000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-05T10:32:43.000Z",
+    "value": -475667000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:34:11.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -226306,8 +225852,8 @@
    "filedAt": "2026-02-12",
    "acceptedAt": "2026-02-12T21:07:32.000Z",
    "availableAt": "2026-02-12T21:07:32.000Z",
-   "transportFetchedAt": "2026-10-24T22:35:16.332Z",
-   "reportAgeDays": 298,
+   "transportFetchedAt": "2026-11-03T22:33:03.268Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001492298-26-000008",
@@ -226337,7 +225883,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-24T22:35:16.332Z",
+   "fetchedAt": "2026-11-03T22:33:03.268Z",
    "form": "10-K",
    "accession": "0001492298-26-000008",
    "accountingStandard": "US-GAAP",
@@ -226374,9 +225920,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "net-income",
-    "value": 65441000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-03T20:06:42.000Z",
+    "value": 71510000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:06:42.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -228280,8 +227826,8 @@
    "filedAt": "2026-07-10",
    "acceptedAt": "2026-07-10T13:27:02.000Z",
    "availableAt": "2026-07-10T13:27:02.000Z",
-   "transportFetchedAt": "2026-10-24T22:35:28.538Z",
-   "reportAgeDays": 298,
+   "transportFetchedAt": "2026-11-03T22:33:03.572Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001493152-26-032786",
@@ -228311,7 +227857,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-24T22:35:28.538Z",
+   "fetchedAt": "2026-11-03T22:33:03.572Z",
    "form": "10-K",
    "accession": "0001493152-26-032786",
    "accountingStandard": "US-GAAP",
@@ -228348,9 +227894,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "net-income",
-    "value": -21849896,
-    "through": "2026-03-31",
-    "availableAt": "2026-10-08T14:56:16.000Z",
+    "value": -21328212,
+    "through": "2026-06-30",
+    "availableAt": "2026-11-02T14:18:11.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -231150,8 +230696,8 @@
    "filedAt": "2026-03-02",
    "acceptedAt": "2026-03-02T21:04:11.000Z",
    "availableAt": "2026-03-02T21:04:11.000Z",
-   "transportFetchedAt": "2026-10-24T22:35:46.346Z",
-   "reportAgeDays": 298,
+   "transportFetchedAt": "2026-11-03T22:33:03.905Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001035092-26-000014",
@@ -231181,7 +230727,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-24T22:35:46.346Z",
+   "fetchedAt": "2026-11-03T22:33:03.905Z",
    "form": "10-K",
    "accession": "0001035092-26-000014",
    "accountingStandard": "US-GAAP",
@@ -231218,9 +230764,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "net-income",
-    "value": 66188000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-03T19:32:30.000Z",
+    "value": 68611000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:04:49.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -233042,8 +232588,8 @@
    "filedAt": "2026-02-26",
    "acceptedAt": "2026-02-26T21:31:18.000Z",
    "availableAt": "2026-02-26T21:31:18.000Z",
-   "transportFetchedAt": "2026-10-24T22:35:56.036Z",
-   "reportAgeDays": 298,
+   "transportFetchedAt": "2026-11-03T22:33:04.387Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001193125-26-076905",
@@ -233073,7 +232619,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-24T22:35:56.036Z",
+   "fetchedAt": "2026-11-03T22:33:04.387Z",
    "form": "10-K",
    "accession": "0001193125-26-076905",
    "accountingStandard": "US-GAAP",
@@ -237103,8 +236649,8 @@
    "filedAt": "2026-02-26",
    "acceptedAt": "2026-02-26T21:04:57.000Z",
    "availableAt": "2026-02-26T21:04:57.000Z",
-   "transportFetchedAt": "2026-10-24T22:36:19.770Z",
-   "reportAgeDays": 298,
+   "transportFetchedAt": "2026-11-03T22:33:04.717Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001193125-26-076536",
@@ -237134,7 +236680,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-24T22:36:19.770Z",
+   "fetchedAt": "2026-11-03T22:33:04.717Z",
    "form": "10-K",
    "accession": "0001193125-26-076536",
    "accountingStandard": "US-GAAP",
@@ -237171,9 +236717,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "common",
-    "value": -220765000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-04T20:04:35.000Z",
+    "value": -209483000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:04:35.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -244525,31 +244071,31 @@
    "periodType": "FY",
    "fiscalPeriodEnd": "2025-09-30",
    "observedAt": "2025-09-30",
-   "filedAt": "2026-01-16",
-   "acceptedAt": "2026-01-16T12:31:25.000Z",
-   "availableAt": "2026-01-16T12:31:25.000Z",
-   "transportFetchedAt": "2026-10-24T22:36:55.363Z",
-   "reportAgeDays": 390,
+   "filedAt": "2026-11-02",
+   "acceptedAt": "2026-11-02T22:18:00.000Z",
+   "availableAt": "2026-11-02T22:18:00.000Z",
+   "transportFetchedAt": "2026-11-03T22:33:05.038Z",
+   "reportAgeDays": 400,
    "reportRecency": "recent-fy",
    "accessionByField": {
-    "revenue": "0001753926-26-000125",
-    "netIncome": "0001753926-26-000125",
-    "equity": "0001753926-26-000125",
+    "revenue": "0001753926-26-002040",
+    "netIncome": "0001753926-26-002040",
+    "equity": "0001753926-26-002040",
     "sharesOutstanding": null
    },
    "operandAvailability": {
-    "revenue": "2026-01-16T12:31:25.000Z",
-    "netIncome": "2026-01-16T12:31:25.000Z",
-    "equity": "2026-01-16T12:31:25.000Z",
+    "revenue": "2026-11-02T22:18:00.000Z",
+    "netIncome": "2026-11-02T22:18:00.000Z",
+    "equity": "2026-11-02T22:18:00.000Z",
     "sharesOutstanding": null,
-    "priorRevenue": "2026-01-16T12:31:25.000Z"
+    "priorRevenue": "2026-11-02T22:18:00.000Z"
    },
    "derivedAvailability": {
-    "revGrowth": "2026-01-16T12:31:25.000Z",
-    "margin": "2026-01-16T12:31:25.000Z",
-    "roe": "2026-01-16T12:31:25.000Z",
-    "pe": "2026-01-16T12:31:25.000Z",
-    "pb": "2026-01-16T12:31:25.000Z"
+    "revGrowth": "2026-11-02T22:18:00.000Z",
+    "margin": "2026-11-02T22:18:00.000Z",
+    "roe": "2026-11-02T22:18:00.000Z",
+    "pe": "2026-11-02T22:18:00.000Z",
+    "pb": "2026-11-02T22:18:00.000Z"
    },
    "allowedUse": "research-relative-ranking-only",
    "qualityStatus": "CURRENT",
@@ -244559,9 +244105,9 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-24T22:36:55.363Z",
-   "form": "20-F",
-   "accession": "0001753926-26-000125",
+   "fetchedAt": "2026-11-03T22:33:05.038Z",
+   "form": "20-F/A",
+   "accession": "0001753926-26-002040",
    "accountingStandard": "US-GAAP",
    "reportingCurrency": "HKD",
    "reportedAmounts": {
@@ -244588,8 +244134,8 @@
    "pit": {
     "schemaVersion": "sec-pit-facts.v1",
     "status": "accepted-time-partial",
-    "observationCount": 104,
-    "acceptedTimeCount": 104,
+    "observationCount": 130,
+    "acceptedTimeCount": 130,
     "observationsDropped": "extended-ledger-compact"
    },
    "revGrowth": 5.6,
@@ -248860,8 +248406,8 @@
    "filedAt": "2026-02-17",
    "acceptedAt": "2026-02-17T21:06:15.000Z",
    "availableAt": "2026-02-17T21:06:15.000Z",
-   "transportFetchedAt": "2026-10-25T07:33:46.155Z",
-   "reportAgeDays": 298,
+   "transportFetchedAt": "2026-11-03T22:33:05.366Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001104659-26-016380",
@@ -248891,7 +248437,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-25T07:33:46.155Z",
+   "fetchedAt": "2026-11-03T22:33:05.366Z",
    "form": "10-K",
    "accession": "0001104659-26-016380",
    "accountingStandard": "US-GAAP",
@@ -248928,9 +248474,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "net-income",
-    "value": 24865000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-10T20:06:29.000Z",
+    "value": 23816000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:06:29.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -258120,8 +257666,8 @@
    "filedAt": "2026-02-25",
    "acceptedAt": "2026-02-25T22:09:44.000Z",
    "availableAt": "2026-02-25T22:09:44.000Z",
-   "transportFetchedAt": "2026-10-25T07:34:32.213Z",
-   "reportAgeDays": 298,
+   "transportFetchedAt": "2026-11-03T22:33:05.693Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0000844965-26-000015",
@@ -258151,7 +257697,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-25T07:34:32.213Z",
+   "fetchedAt": "2026-11-03T22:33:05.693Z",
    "form": "10-K",
    "accession": "0000844965-26-000015",
    "accountingStandard": "US-GAAP",
@@ -258188,9 +257734,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "net-income",
-    "value": 6207000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-03T22:53:52.000Z",
+    "value": 8904000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T22:06:33.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -258653,8 +258199,8 @@
    "filedAt": "2026-02-19",
    "acceptedAt": "2026-02-19T21:47:50.000Z",
    "availableAt": "2026-02-19T21:47:50.000Z",
-   "transportFetchedAt": "2026-10-25T07:34:35.540Z",
-   "reportAgeDays": 298,
+   "transportFetchedAt": "2026-11-03T22:33:06.021Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001438533-26-000014",
@@ -258684,7 +258230,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-25T07:34:35.540Z",
+   "fetchedAt": "2026-11-03T22:33:06.021Z",
    "form": "10-K",
    "accession": "0001438533-26-000014",
    "accountingStandard": "US-GAAP",
@@ -258721,9 +258267,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "common",
-    "value": -43464000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-04T20:45:53.000Z",
+    "value": -121507000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:46:19.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -261908,8 +261454,8 @@
    "filedAt": "2026-02-25",
    "acceptedAt": "2026-02-25T21:17:07.000Z",
    "availableAt": "2026-02-25T21:17:07.000Z",
-   "transportFetchedAt": "2026-10-24T22:32:52.464Z",
-   "reportAgeDays": 298,
+   "transportFetchedAt": "2026-11-03T22:33:02.102Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001493152-26-008042",
@@ -261939,7 +261485,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-24T22:32:52.464Z",
+   "fetchedAt": "2026-11-03T22:33:02.102Z",
    "form": "10-K",
    "accession": "0001493152-26-008042",
    "accountingStandard": "US-GAAP",
@@ -261975,9 +261521,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "common",
-    "value": 10704000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-05T20:16:18.000Z",
+    "value": 4349000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:15:51.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -263168,8 +262714,8 @@
    "filedAt": "2026-02-13",
    "acceptedAt": "2026-02-12T23:11:18.000Z",
    "availableAt": "2026-02-12T23:11:18.000Z",
-   "transportFetchedAt": "2026-10-25T07:34:55.362Z",
-   "reportAgeDays": 298,
+   "transportFetchedAt": "2026-11-03T22:33:06.346Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001627475-26-000012",
@@ -263199,7 +262745,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-25T07:34:55.362Z",
+   "fetchedAt": "2026-11-03T22:33:06.346Z",
    "form": "10-K",
    "accession": "0001627475-26-000012",
    "accountingStandard": "US-GAAP",
@@ -263236,9 +262782,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "common",
-    "value": 101834000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-10T20:50:06.000Z",
+    "value": 104309000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:32:02.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -264521,8 +264067,8 @@
    "filedAt": "2026-02-09",
    "acceptedAt": "2026-02-09T22:01:06.000Z",
    "availableAt": "2026-02-09T22:01:06.000Z",
-   "transportFetchedAt": "2026-10-25T07:35:02.111Z",
-   "reportAgeDays": 298,
+   "transportFetchedAt": "2026-11-03T22:33:06.676Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001193125-26-042983",
@@ -264552,7 +264098,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-25T07:35:02.111Z",
+   "fetchedAt": "2026-11-03T22:33:06.676Z",
    "form": "10-K",
    "accession": "0001193125-26-042983",
    "accountingStandard": "US-GAAP",
@@ -264589,9 +264135,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "common",
-    "value": 56300000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-03T21:00:52.000Z",
+    "value": 55100000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T22:00:48.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -268940,8 +268486,8 @@
    "filedAt": "2025-11-06",
    "acceptedAt": "2025-11-06T22:25:52.000Z",
    "availableAt": "2025-11-06T22:25:52.000Z",
-   "transportFetchedAt": "2026-10-25T07:35:19.592Z",
-   "reportAgeDays": 482,
+   "transportFetchedAt": "2026-11-03T22:33:07.179Z",
+   "reportAgeDays": 492,
    "reportRecency": "stale-fy",
    "accessionByField": {
     "revenue": "0001493152-25-021108",
@@ -268971,7 +268517,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-25T07:35:19.592Z",
+   "fetchedAt": "2026-11-03T22:33:07.179Z",
    "form": "20-F/A",
    "accession": "0001493152-25-021108",
    "accountingStandard": "IFRS",
@@ -268997,8 +268543,8 @@
    "pit": {
     "schemaVersion": "sec-pit-facts.v1",
     "status": "accepted-time-partial",
-    "observationCount": 262,
-    "acceptedTimeCount": 262,
+    "observationCount": 263,
+    "acceptedTimeCount": 263,
     "observationsDropped": "extended-ledger-compact"
    },
    "revGrowth": 281.3,
@@ -271712,8 +271258,8 @@
    "filedAt": "2026-03-02",
    "acceptedAt": "2026-03-02T21:08:22.000Z",
    "availableAt": "2026-03-02T21:08:22.000Z",
-   "transportFetchedAt": "2026-10-25T07:35:31.940Z",
-   "reportAgeDays": 298,
+   "transportFetchedAt": "2026-11-03T22:33:07.501Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001944558-26-000009",
@@ -271743,7 +271289,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-25T07:35:31.940Z",
+   "fetchedAt": "2026-11-03T22:33:07.501Z",
    "form": "10-K",
    "accession": "0001944558-26-000009",
    "accountingStandard": "US-GAAP",
@@ -271780,9 +271326,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "common",
-    "value": -10873000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-03T20:13:30.000Z",
+    "value": -45922000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:08:01.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -272170,8 +271716,8 @@
    "filedAt": "2026-02-23",
    "acceptedAt": "2026-02-23T21:06:20.000Z",
    "availableAt": "2026-02-23T21:06:20.000Z",
-   "transportFetchedAt": "2026-10-25T07:35:34.173Z",
-   "reportAgeDays": 298,
+   "transportFetchedAt": "2026-11-03T22:33:07.837Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001601548-26-000015",
@@ -272201,7 +271747,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-25T07:35:34.173Z",
+   "fetchedAt": "2026-11-03T22:33:07.837Z",
    "form": "10-K",
    "accession": "0001601548-26-000015",
    "accountingStandard": "US-GAAP",
@@ -272238,9 +271784,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "net-income",
-    "value": 91849000,
-    "through": "2026-07-03",
-    "availableAt": "2026-08-03T20:05:45.000Z",
+    "value": 99237000,
+    "through": "2026-10-02",
+    "availableAt": "2026-11-02T21:05:39.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -273071,8 +272617,8 @@
    "filedAt": "2026-02-17",
    "acceptedAt": "2026-02-17T11:49:32.000Z",
    "availableAt": "2026-02-17T11:49:32.000Z",
-   "transportFetchedAt": "2026-10-25T07:35:39.703Z",
-   "reportAgeDays": 298,
+   "transportFetchedAt": "2026-11-03T22:33:08.167Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "accessionByField": {
     "revenue": "0001990354-26-000011",
@@ -273102,7 +272648,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-25T07:35:39.703Z",
+   "fetchedAt": "2026-11-03T22:33:08.167Z",
    "form": "10-K",
    "accession": "0001990354-26-000011",
    "accountingStandard": "US-GAAP",
@@ -273129,8 +272675,8 @@
    "pit": {
     "schemaVersion": "sec-pit-facts.v1",
     "status": "accepted-time-partial",
-    "observationCount": 124,
-    "acceptedTimeCount": 124,
+    "observationCount": 130,
+    "acceptedTimeCount": 130,
     "observationsDropped": "extended-ledger-compact"
    },
    "revGrowth": 16.5,
@@ -273139,9 +272685,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "common",
-    "value": 134786000,
-    "through": "2026-06-30",
-    "availableAt": "2026-07-29T20:04:00.000Z",
+    "value": 135163000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:02:43.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -297412,8 +296958,8 @@
    "filedAt": "2026-03-02",
    "acceptedAt": "2026-03-02T22:07:21.000Z",
    "availableAt": "2026-03-02T22:07:21.000Z",
-   "transportFetchedAt": "2026-10-26T22:35:33.178Z",
-   "reportAgeDays": 300,
+   "transportFetchedAt": "2026-11-03T22:33:20.442Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "periodAnchor": "net-income",
    "revenueStatus": "unreported",
@@ -297445,7 +296991,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-26T22:35:33.178Z",
+   "fetchedAt": "2026-11-03T22:33:20.442Z",
    "form": "10-K",
    "accession": "0001193125-26-085697",
    "accountingStandard": "US-GAAP",
@@ -297477,9 +297023,9 @@
    "peEarnings": {
     "basis": "ttm",
     "concept": "net-income",
-    "value": -38305000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-05T20:04:53.000Z",
+    "value": -20519000,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T21:20:30.000Z",
     "derivedQuarter": true
    },
    "roeBasis": "average-equity",
@@ -299238,8 +298784,8 @@
    "filedAt": "2026-03-26",
    "acceptedAt": "2026-03-25T23:42:56.000Z",
    "availableAt": "2026-03-25T23:42:56.000Z",
-   "transportFetchedAt": "2026-10-26T22:35:37.979Z",
-   "reportAgeDays": 300,
+   "transportFetchedAt": "2026-11-03T22:33:20.757Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "periodAnchor": "net-income",
    "revenueStatus": "unreported",
@@ -299271,7 +298817,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-26T22:35:37.979Z",
+   "fetchedAt": "2026-11-03T22:33:20.757Z",
    "form": "10-K",
    "accession": "0001213900-26-034278",
    "accountingStandard": "US-GAAP",
@@ -299294,16 +298840,16 @@
    "pit": {
     "schemaVersion": "sec-pit-facts.v1",
     "status": "accepted-time-partial",
-    "observationCount": 20,
-    "acceptedTimeCount": 20,
+    "observationCount": 25,
+    "acceptedTimeCount": 25,
     "observationsDropped": "extended-ledger-compact"
    },
    "peEarnings": {
     "basis": "ttm",
     "concept": "net-income",
-    "value": 3820847,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-06T20:02:18.000Z",
+    "value": 3758475,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-02T22:25:47.000Z",
     "derivedQuarter": true
    }
   },
@@ -302797,8 +302343,8 @@
    "filedAt": "2026-02-24",
    "acceptedAt": "2026-02-24T21:32:02.000Z",
    "availableAt": "2026-02-24T21:32:02.000Z",
-   "transportFetchedAt": "2026-10-27T07:32:31.390Z",
-   "reportAgeDays": 300,
+   "transportFetchedAt": "2026-11-03T22:33:21.082Z",
+   "reportAgeDays": 308,
    "reportRecency": "recent-fy",
    "periodAnchor": "net-income",
    "revenueStatus": "unreported",
@@ -302830,7 +302376,7 @@
     "decisionUse": false,
     "allowedUse": "reference"
    },
-   "fetchedAt": "2026-10-27T07:32:31.390Z",
+   "fetchedAt": "2026-11-03T22:33:21.082Z",
    "form": "10-K",
    "accession": "0001496099-26-000008",
    "accountingStandard": "US-GAAP",
@@ -302859,14 +302405,6 @@
     "observationsDropped": "extended-ledger-compact"
    },
    "roe": 1.3,
-   "peEarnings": {
-    "basis": "ttm",
-    "concept": "net-income",
-    "value": -48370000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-03T20:28:10.000Z",
-    "derivedQuarter": true
-   },
    "roeBasis": "average-equity",
    "equityPrior": 1353339000
   },
@@ -312734,98 +312272,6 @@
    "roeBasis": "average-equity",
    "equityPrior": 219500000
   },
-  "LXP": {
-   "symbol": "LXP",
-   "cik": "0000910108",
-   "entityName": "LXP Industrial Trust",
-   "source": "SEC EDGAR companyfacts",
-   "sourceTier": "T1_OFFICIAL",
-   "sourceKind": "T1_OFFICIAL",
-   "rightsId": "PUBLIC_REFERENCE",
-   "model": "sec-fy-normalized-v2",
-   "availabilityModel": "sec-pit-availability.v1",
-   "periodType": "FY",
-   "fiscalPeriodEnd": "2025-12-31",
-   "observedAt": "2025-12-31",
-   "filedAt": "2026-02-12",
-   "acceptedAt": "2026-02-12T21:41:24.000Z",
-   "availableAt": "2026-02-12T21:41:24.000Z",
-   "transportFetchedAt": "2026-10-28T06:36:25.802Z",
-   "reportAgeDays": 301,
-   "reportRecency": "recent-fy",
-   "accessionByField": {
-    "revenue": "0000910108-26-000009",
-    "netIncome": "0000910108-26-000009",
-    "equity": "0000910108-26-000009",
-    "sharesOutstanding": "0000910108-26-000009"
-   },
-   "operandAvailability": {
-    "revenue": "2026-02-12T21:41:24.000Z",
-    "netIncome": "2026-02-12T21:41:24.000Z",
-    "equity": "2026-02-12T21:41:24.000Z",
-    "sharesOutstanding": "2026-02-12T21:41:24.000Z",
-    "priorRevenue": "2026-02-12T21:41:24.000Z"
-   },
-   "derivedAvailability": {
-    "revGrowth": "2026-02-12T21:41:24.000Z",
-    "margin": "2026-02-12T21:41:24.000Z",
-    "roe": "2026-02-12T21:41:24.000Z",
-    "pe": "2026-02-12T21:41:24.000Z",
-    "pb": "2026-02-12T21:41:24.000Z"
-   },
-   "allowedUse": "research-relative-ranking-only",
-   "qualityStatus": "CURRENT",
-   "quality": {
-    "status": "CURRENT",
-    "stale": false,
-    "decisionUse": false,
-    "allowedUse": "reference"
-   },
-   "fetchedAt": "2026-10-28T06:36:25.802Z",
-   "form": "10-K",
-   "accession": "0000910108-26-000009",
-   "accountingStandard": "US-GAAP",
-   "reportingCurrency": "USD",
-   "revenue": 350228000,
-   "netIncome": 113160000,
-   "equity": 2036679000,
-   "equityBasis": "parent",
-   "sharesOutstanding": 59077036,
-   "sharesCheck": "consistent",
-   "sharesBasis": "dei-cover",
-   "sharesObservedAt": "2026-02-11",
-   "normalizerVersion": "sec-normalizer.2026-10-24",
-   "revenueConcept": "Revenues",
-   "coverage": [
-    "revenue",
-    "netIncome",
-    "equity",
-    "sharesOutstanding",
-    "revGrowth",
-    "margin",
-    "roe"
-   ],
-   "pit": {
-    "schemaVersion": "sec-pit-facts.v1",
-    "status": "accepted-time-partial",
-    "observationCount": 333,
-    "acceptedTimeCount": 327,
-    "observationsDropped": "extended-ledger-compact"
-   },
-   "revGrowth": -2.3,
-   "margin": 32.3,
-   "roe": 5.5,
-   "peEarnings": {
-    "basis": "ttm",
-    "concept": "common",
-    "value": 113826000,
-    "through": "2026-09-30",
-    "availableAt": "2026-10-27T15:19:57.000Z",
-    "derivedQuarter": true
-   },
-   "roeBasis": "average-equity",
-   "equityPrior": 2098292000
-  },
   "LXRX": {
    "symbol": "LXRX",
    "cik": "0001062822",
@@ -319634,15 +319080,108 @@
    },
    "roeBasis": "average-equity",
    "equityPrior": 3460293
+  },
+  "CASK": {
+   "symbol": "CASK",
+   "cik": "0001788230",
+   "entityName": "IP STRATEGY HOLDINGS, INC.",
+   "source": "SEC EDGAR companyfacts",
+   "sourceTier": "T1_OFFICIAL",
+   "sourceKind": "T1_OFFICIAL",
+   "rightsId": "PUBLIC_REFERENCE",
+   "model": "sec-fy-normalized-v2",
+   "availabilityModel": "sec-pit-availability.v1",
+   "periodType": "FY",
+   "fiscalPeriodEnd": "2025-12-31",
+   "observedAt": "2025-12-31",
+   "filedAt": "2026-04-14",
+   "acceptedAt": "2026-04-14T20:15:59.000Z",
+   "availableAt": "2026-10-23T20:08:59.000Z",
+   "transportFetchedAt": "2026-11-03T22:33:23.268Z",
+   "reportAgeDays": 308,
+   "reportRecency": "recent-fy",
+   "accessionByField": {
+    "revenue": "0001788230-26-000046",
+    "netIncome": "0001788230-26-000046",
+    "equity": "0001788230-26-000046",
+    "sharesOutstanding": "0001788230-26-000085"
+   },
+   "operandAvailability": {
+    "revenue": "2026-04-14T20:15:59.000Z",
+    "netIncome": "2026-04-14T20:15:59.000Z",
+    "equity": "2026-04-14T20:15:59.000Z",
+    "sharesOutstanding": "2026-10-23T20:08:59.000Z",
+    "priorRevenue": "2026-04-14T20:15:59.000Z"
+   },
+   "derivedAvailability": {
+    "revGrowth": "2026-04-14T20:15:59.000Z",
+    "margin": "2026-04-14T20:15:59.000Z",
+    "roe": "2026-04-14T20:15:59.000Z",
+    "pe": "2026-10-23T20:08:59.000Z",
+    "pb": "2026-10-23T20:08:59.000Z"
+   },
+   "allowedUse": "research-relative-ranking-only",
+   "qualityStatus": "CURRENT",
+   "quality": {
+    "status": "CURRENT",
+    "stale": false,
+    "decisionUse": false,
+    "allowedUse": "reference"
+   },
+   "fetchedAt": "2026-11-03T22:33:23.268Z",
+   "form": "10-K",
+   "accession": "0001788230-26-000046",
+   "accountingStandard": "US-GAAP",
+   "reportingCurrency": "USD",
+   "revenue": 10119387,
+   "netIncome": -137715315,
+   "equity": 98216130,
+   "equityBasis": "parent",
+   "sharesOutstanding": 995933,
+   "sharesCheck": "consistent",
+   "sharesBasis": "dei-cover-post-split",
+   "sharesSplitRatio": 0.097,
+   "sharesObservedAt": "2026-10-22",
+   "normalizerVersion": "sec-normalizer.2026-10-24",
+   "revenueConcept": "RevenueFromContractWithCustomerExcludingAssessedTax",
+   "coverage": [
+    "revenue",
+    "netIncome",
+    "equity",
+    "sharesOutstanding",
+    "revGrowth",
+    "margin",
+    "roe"
+   ],
+   "pit": {
+    "schemaVersion": "sec-pit-facts.v1",
+    "status": "accepted-time-partial",
+    "observationCount": 91,
+    "acceptedTimeCount": 91,
+    "observationsDropped": "extended-ledger-compact"
+   },
+   "revGrowth": 20.4,
+   "margin": -1360.9,
+   "roe": -278.2,
+   "peEarnings": {
+    "basis": "ttm",
+    "concept": "common",
+    "value": -208843507,
+    "through": "2026-06-30",
+    "availableAt": "2026-10-23T20:08:59.000Z",
+    "derivedQuarter": true
+   },
+   "roeBasis": "average-equity",
+   "equityPrior": 791767
   }
  },
  "scope": "extended",
  "recordPolicy": "compact: normalized annual record without point-in-time observation arrays",
  "issuerSicPolicy": "SEC submissions sic per issuer; recorded on every submissions read plus a SIC-only pass of up to 800 issuers (missing first, then older than 30 days); a failed read keeps the previous code",
  "issuerSicCoverage": {
-  "classified": 3839,
-  "eligible": 3884,
-  "passAttempted": 41,
+  "classified": 3834,
+  "eligible": 3879,
+  "passAttempted": 38,
   "passUpdated": 0,
   "passFailed": 0
  },
@@ -320497,7 +320036,7 @@
    "sic": "6798",
    "description": "Real Estate Investment Trusts",
    "cik": "0000899629",
-   "observedAt": "2026-10-25T07:33:38.735Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "AKTS": {
    "sic": "2834",
@@ -320725,7 +320264,7 @@
    "sic": "6798",
    "description": "Real Estate Investment Trusts",
    "cik": "0000003499",
-   "observedAt": "2026-10-25T07:33:38.735Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "ALXO": {
    "sic": "2834",
@@ -321889,7 +321428,7 @@
    "sic": "2834",
    "description": "Pharmaceutical Preparations",
    "cik": "0001579428",
-   "observedAt": "2026-10-25T22:33:15.356Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "AYA": {
    "sic": "1040",
@@ -322111,7 +321650,7 @@
    "sic": "5030",
    "description": "Wholesale-Lumber & Other Construction Materials",
    "cik": "0001328581",
-   "observedAt": "2026-10-25T22:33:15.356Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "BCCQ": {
    "sic": "6770",
@@ -322651,7 +322190,7 @@
    "sic": "7372",
    "description": "Services-Prepackaged Software",
    "cik": "0001462056",
-   "observedAt": "2026-10-25T22:33:15.356Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "BLZR": {
    "sic": "6770",
@@ -322939,7 +322478,7 @@
    "sic": "2080",
    "description": "Beverages",
    "cik": "0001891101",
-   "observedAt": "2026-10-25T22:33:15.356Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "BREZ": {
    "sic": "6770",
@@ -323203,7 +322742,7 @@
    "sic": "3841",
    "description": "Surgical & Medical Instruments & Apparatus",
    "cik": "0001665988",
-   "observedAt": "2026-10-25T22:33:15.356Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "BW": {
    "sic": "3433",
@@ -323401,7 +322940,7 @@
    "sic": "5812",
    "description": "Retail-Eating  Places",
    "cik": "0000887596",
-   "observedAt": "2026-10-25T22:33:15.356Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "CAL": {
    "sic": "3140",
@@ -323504,6 +323043,12 @@
    "description": "National Commercial Banks",
    "cik": "0000907471",
    "observedAt": "2026-10-25T22:33:15.356Z"
+  },
+  "CASK": {
+   "sic": "2080",
+   "description": "Beverages",
+   "cik": "0001788230",
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "CASS": {
    "sic": "7389",
@@ -323630,12 +323175,6 @@
    "description": "Agricultural Chemicals",
    "cik": "0001705843",
    "observedAt": "2026-10-25T22:33:15.356Z"
-  },
-  "CBZ": {
-   "sic": "7389",
-   "description": "Services-Business Services, NEC",
-   "cik": "0000944148",
-   "observedAt": "2026-10-31T06:36:53.121Z"
   },
   "CC": {
    "sic": "2800",
@@ -323905,7 +323444,7 @@
    "sic": "3841",
    "description": "Surgical & Medical Instruments & Apparatus",
    "cik": "0001020214",
-   "observedAt": "2026-10-25T22:33:15.356Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "CERT": {
    "sic": "7372",
@@ -324829,7 +324368,7 @@
    "sic": "6411",
    "description": "Insurance Agents, Brokers & Service",
    "cik": "0000025475",
-   "observedAt": "2026-10-25T22:33:15.356Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "CRDF": {
    "sic": "2836",
@@ -324871,7 +324410,7 @@
    "sic": "1311",
    "description": "Crude Petroleum & Natural Gas",
    "cik": "0001866175",
-   "observedAt": "2026-10-25T22:33:15.356Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "CRI": {
    "sic": "2300",
@@ -325015,7 +324554,7 @@
    "sic": "6798",
    "description": "Real Estate Investment Trusts",
    "cik": "0000798359",
-   "observedAt": "2026-10-25T22:33:15.356Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "CSTE": {
    "sic": "3281",
@@ -325261,7 +324800,7 @@
    "sic": "3714",
    "description": "Motor Vehicle Parts & Accessories",
    "cik": "0001290900",
-   "observedAt": "2026-10-25T22:33:15.356Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "CVI": {
    "sic": "2911",
@@ -325711,7 +325250,7 @@
    "sic": "6798",
    "description": "Real Estate Investment Trusts",
    "cik": "0001075415",
-   "observedAt": "2026-10-25T22:33:15.356Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "DHT": {
    "sic": "4412",
@@ -326485,7 +326024,7 @@
    "sic": "1400",
    "description": "Mining & Quarrying of  Nonmetallic Minerals (No Fuels)",
    "cik": "0001739016",
-   "observedAt": "2026-10-26T22:32:21.536Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "ELWT": {
    "sic": "4899",
@@ -327079,7 +326618,7 @@
    "sic": "6022",
    "description": "State Commercial Banks",
    "cik": "0001649749",
-   "observedAt": "2026-10-26T07:32:18.839Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "FBLA": {
    "sic": "6036",
@@ -327097,7 +326636,7 @@
    "sic": "6022",
    "description": "State Commercial Banks",
    "cik": "0000811589",
-   "observedAt": "2026-10-26T07:32:18.839Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "FBP": {
    "sic": "6022",
@@ -327337,7 +326876,7 @@
    "sic": "6022",
    "description": "State Commercial Banks",
    "cik": "0000036377",
-   "observedAt": "2026-10-26T07:32:18.839Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "FHTX": {
    "sic": "2834",
@@ -327349,7 +326888,7 @@
    "sic": "6022",
    "description": "State Commercial Banks",
    "cik": "0000860413",
-   "observedAt": "2026-10-26T07:32:18.839Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "FIEE": {
    "sic": "7372",
@@ -327835,7 +327374,7 @@
    "sic": "7350",
    "description": "Services-Miscellaneous Equipment Rental & Leasing",
    "cik": "0001590364",
-   "observedAt": "2026-10-26T07:32:18.839Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "FTCI": {
    "sic": "3674",
@@ -328045,7 +327584,7 @@
    "sic": "7812",
    "description": "Services-Motion Picture & Video Tape Production",
    "cik": "0001089872",
-   "observedAt": "2026-10-26T07:32:18.839Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "GALT": {
    "sic": "2834",
@@ -328465,7 +328004,7 @@
    "sic": "6331",
    "description": "Fire, Marine & Casualty Insurance",
    "cik": "0001385613",
-   "observedAt": "2026-10-26T07:32:18.839Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "GLSI": {
    "sic": "2834",
@@ -328495,7 +328034,7 @@
    "sic": "3949",
    "description": "Sporting & Athletic Goods, NEC",
    "cik": "0001928581",
-   "observedAt": "2026-10-26T07:32:18.839Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "GMHS": {
    "sic": "7374",
@@ -329299,7 +328838,7 @@
    "sic": "5122",
    "description": "Wholesale-Drugs, Proprietaries & Druggists' Sundries",
    "cik": "0001180262",
-   "observedAt": "2026-10-26T07:32:18.839Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "HLIO": {
    "sic": "3490",
@@ -329395,12 +328934,6 @@
    "sic": "6022",
    "description": "State Commercial Banks",
    "cik": "0001828588",
-   "observedAt": "2026-10-26T07:32:18.839Z"
-  },
-  "HODO": {
-   "sic": "6199",
-   "description": "Finance Services",
-   "cik": "0001903595",
    "observedAt": "2026-10-26T07:32:18.839Z"
   },
   "HOFT": {
@@ -330013,7 +329546,7 @@
    "sic": "8742",
    "description": "Services-Management Consulting Services",
    "cik": "0001371489",
-   "observedAt": "2026-10-26T07:32:18.839Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "IIIN": {
    "sic": "3310",
@@ -330193,7 +329726,7 @@
    "sic": "6770",
    "description": "Blank Checks",
    "cik": "0002063816",
-   "observedAt": "2026-10-26T22:32:21.536Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "INBK": {
    "sic": "6022",
@@ -330361,7 +329894,7 @@
    "sic": "3841",
    "description": "Surgical & Medical Instruments & Apparatus",
    "cik": "0001609550",
-   "observedAt": "2026-10-26T07:32:18.839Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "INSW": {
    "sic": "4400",
@@ -331321,7 +330854,7 @@
    "sic": "1311",
    "description": "Crude Petroleum & Natural Gas",
    "cik": "0001509991",
-   "observedAt": "2026-10-26T22:32:21.536Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "KOSS": {
    "sic": "3651",
@@ -331435,7 +330968,7 @@
    "sic": "2836",
    "description": "Biological Products, (No Diagnostic Substances)",
    "cik": "0001711279",
-   "observedAt": "2026-10-26T22:32:21.536Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "KSCP": {
    "sic": "3669",
@@ -332191,7 +331724,7 @@
    "sic": "1531",
    "description": "Operative Builders",
    "cik": "0001888980",
-   "observedAt": "2026-10-26T22:32:21.536Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "LRMR": {
    "sic": "2834",
@@ -332360,12 +331893,6 @@
    "description": "Industrial Inorganic Chemicals",
    "cik": "0001096056",
    "observedAt": "2026-10-29T07:32:29.715Z"
-  },
-  "LXP": {
-   "sic": "6798",
-   "description": "Real Estate Investment Trusts",
-   "cik": "0000910108",
-   "observedAt": "2026-10-28T06:36:12.719Z"
   },
   "LXRX": {
    "sic": "2834",
@@ -332869,7 +332396,7 @@
    "sic": "8711",
    "description": "Services-Engineering Services",
    "cik": "0001436126",
-   "observedAt": "2026-10-26T22:32:21.536Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "MGEE": {
    "sic": "4900",
@@ -332900,12 +332427,6 @@
    "description": "Pharmaceutical Preparations",
    "cik": "0001125345",
    "observedAt": "2026-10-26T22:32:21.536Z"
-  },
-  "MGPI": {
-   "sic": "5180",
-   "description": "Wholesale-Beer, Wine & Distilled Alcoholic Beverages",
-   "cik": "0000835011",
-   "observedAt": "2026-10-29T07:32:29.715Z"
   },
   "MGRC": {
    "sic": "7359",
@@ -332971,7 +332492,7 @@
    "sic": "6211",
    "description": "Security Brokers, Dealers & Flotation Companies",
    "cik": "0001438472",
-   "observedAt": "2026-10-26T22:32:21.536Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "MIDD": {
    "sic": "3580",
@@ -333067,12 +332588,6 @@
    "sic": "7011",
    "description": "Hotels & Motels",
    "cik": "0001381640",
-   "observedAt": "2026-10-26T22:32:21.536Z"
-  },
-  "MLEC": {
-   "sic": "2000",
-   "description": "Food and Kindred Products",
-   "cik": "0001937737",
    "observedAt": "2026-10-26T22:32:21.536Z"
   },
   "MLGO": {
@@ -334369,7 +333884,7 @@
    "sic": "3669",
    "description": "Communications Equipment, NEC",
    "cik": "0000069633",
-   "observedAt": "2026-10-27T07:32:15.158Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "NSYS": {
    "sic": "3679",
@@ -334993,7 +334508,7 @@
    "sic": "4400",
    "description": "Water Transportation",
    "cik": "0000798528",
-   "observedAt": "2026-10-27T07:32:15.158Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "OMH": {
    "sic": "6531",
@@ -335101,7 +334616,7 @@
    "sic": "6531",
    "description": "Real Estate Agents & Managers (For Others)",
    "cik": "0001825024",
-   "observedAt": "2026-10-27T07:32:15.158Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "OPAL": {
    "sic": "4932",
@@ -335875,7 +335390,7 @@
    "sic": "6199",
    "description": "Finance Services",
    "cik": "0001883085",
-   "observedAt": "2026-10-27T07:32:15.158Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "PHAR": {
    "sic": "2834",
@@ -336295,7 +335810,7 @@
    "sic": "7370",
    "description": "Services-Computer Programming, Data Processing, Etc.",
    "cik": "0001800227",
-   "observedAt": "2026-10-27T07:32:15.158Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "PPSI": {
    "sic": "3690",
@@ -336565,7 +336080,7 @@
    "sic": "1381",
    "description": "Drilling Oil & Gas Wells",
    "cik": "0000889900",
-   "observedAt": "2026-10-24T22:32:30.079Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "PTGX": {
    "sic": "2834",
@@ -336907,12 +336422,6 @@
    "sic": "3590",
    "description": "Misc Industrial & Commercial Machinery & Equipment",
    "cik": "0002028293",
-   "observedAt": "2026-10-24T22:32:30.079Z"
-  },
-  "RAMP": {
-   "sic": "7374",
-   "description": "Services-Computer Processing & Data Preparation",
-   "cik": "0000733269",
    "observedAt": "2026-10-24T22:32:30.079Z"
   },
   "RANG": {
@@ -337735,7 +337244,7 @@
    "sic": "2836",
    "description": "Biological Products, (No Diagnostic Substances)",
    "cik": "0001601830",
-   "observedAt": "2026-10-24T22:32:30.079Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "RXST": {
    "sic": "3851",
@@ -337975,7 +337484,7 @@
    "sic": "6798",
    "description": "Real Estate Investment Trusts",
    "cik": "0001492298",
-   "observedAt": "2026-10-24T22:32:30.079Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "SBSI": {
    "sic": "6022",
@@ -338143,7 +337652,7 @@
    "sic": "7372",
    "description": "Services-Prepackaged Software",
    "cik": "0001673481",
-   "observedAt": "2026-10-24T22:32:30.079Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "SEIC": {
    "sic": "6211",
@@ -338359,7 +337868,7 @@
    "sic": "6021",
    "description": "National Commercial Banks",
    "cik": "0001035092",
-   "observedAt": "2026-10-24T22:32:30.079Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "SHC": {
    "sic": "8090",
@@ -338509,7 +338018,7 @@
    "sic": "6798",
    "description": "Real Estate Investment Trusts",
    "cik": "0000894315",
-   "observedAt": "2026-10-24T22:32:30.079Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "SJ": {
    "sic": "7374",
@@ -338815,7 +338324,7 @@
    "sic": "2834",
    "description": "Pharmaceutical Preparations",
    "cik": "0001395937",
-   "observedAt": "2026-10-24T22:32:30.079Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "SNES": {
    "sic": "2870",
@@ -339361,7 +338870,7 @@
    "sic": "7381",
    "description": "Services-Detective, Guard & Armored Car Services",
    "cik": "0001969863",
-   "observedAt": "2026-10-24T22:32:30.079Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "SUIG": {
    "sic": "6199",
@@ -339733,7 +339242,7 @@
    "sic": "3841",
    "description": "Surgical & Medical Instruments & Apparatus",
    "cik": "0001027838",
-   "observedAt": "2026-10-25T07:33:38.735Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "TCRT": {
    "sic": "2834",
@@ -340477,7 +339986,7 @@
    "sic": "1311",
    "description": "Crude Petroleum & Natural Gas",
    "cik": "0000844965",
-   "observedAt": "2026-10-25T07:33:38.735Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "TTMI": {
    "sic": "3672",
@@ -340543,7 +340052,7 @@
    "sic": "2834",
    "description": "Pharmaceutical Preparations",
    "cik": "0001438533",
-   "observedAt": "2026-10-25T07:33:38.735Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "TW": {
    "sic": "6200",
@@ -340777,7 +340286,7 @@
    "sic": "6798",
    "description": "Real Estate Investment Trusts",
    "cik": "0000752642",
-   "observedAt": "2026-10-24T22:32:30.079Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "UNB": {
    "sic": "6022",
@@ -340861,7 +340370,7 @@
    "sic": "7374",
    "description": "Services-Computer Processing & Data Preparation",
    "cik": "0001627475",
-   "observedAt": "2026-10-25T07:33:38.735Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "UPXI": {
    "sic": "6199",
@@ -340963,7 +340472,7 @@
    "sic": "4931",
    "description": "Electric & Other Services Combined",
    "cik": "0000755001",
-   "observedAt": "2026-10-25T07:33:38.735Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "UTMD": {
    "sic": "3841",
@@ -341305,7 +340814,7 @@
    "sic": "4931",
    "description": "Electric & Other Services Combined",
    "cik": "0001681348",
-   "observedAt": "2026-10-25T07:33:38.735Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "VIVS": {
    "sic": "2836",
@@ -341527,7 +341036,7 @@
    "sic": "1311",
    "description": "Crude Petroleum & Natural Gas",
    "cik": "0001944558",
-   "observedAt": "2026-10-25T07:33:38.735Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "VTSI": {
    "sic": "3990",
@@ -341563,7 +341072,7 @@
    "sic": "8744",
    "description": "Services-Facilities Support Management Services",
    "cik": "0001601548",
-   "observedAt": "2026-10-25T07:33:38.735Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "VWAV": {
    "sic": "7372",
@@ -341635,7 +341144,7 @@
    "sic": "7373",
    "description": "Services-Computer Integrated Systems Design",
    "cik": "0001990354",
-   "observedAt": "2026-10-25T07:33:38.735Z"
+   "observedAt": "2026-11-03T22:33:00.661Z"
   },
   "WB": {
    "sic": "7370",
