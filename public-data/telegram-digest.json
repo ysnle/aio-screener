@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-03T07:51:41.574Z",
-  "attemptedAt": "2026-11-03T07:51:41.574Z",
-  "lastSuccessfulAt": "2026-11-03T07:51:41.574Z",
+  "generatedAt": "2026-11-03T08:21:42.632Z",
+  "attemptedAt": "2026-11-03T08:21:42.632Z",
+  "lastSuccessfulAt": "2026-11-03T08:21:42.632Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-20T07:51:36.326Z",
-  "until": "2026-11-03T07:51:36.326Z",
+  "since": "2026-10-20T08:21:36.560Z",
+  "until": "2026-11-03T08:21:36.560Z",
   "current24hWindow": {
     "start": "2026-11-01T23:00:00.000Z",
     "end": "2026-11-02T23:00:00.000Z",
@@ -89,12 +89,12 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1342,
-      "freshCount": 38,
-      "eligibleTextCount": 1280,
+      "count": 1339,
+      "freshCount": 18,
+      "eligibleTextCount": 1277,
       "selectedCount": 125,
       "error": null,
       "lastPostId": 68182
@@ -116,26 +116,26 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 656,
+      "count": 658,
       "freshCount": 32,
-      "eligibleTextCount": 655,
+      "eligibleTextCount": 657,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 71477
+      "lastPostId": 71479
     }
   ],
-  "count": 2336,
-  "retainedItemCount": 473,
+  "count": 2335,
+  "retainedItemCount": 456,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2336,
-    "eligibleTextCount": 2266,
+    "observedCount": 2335,
+    "eligibleTextCount": 2265,
     "mediaOnlyCount": 70,
-    "mediaAttachedCount": 178,
-    "photoPostCount": 154,
+    "mediaAttachedCount": 179,
+    "photoPostCount": 155,
     "documentPostCount": 0,
     "imageOnlyCount": 0,
     "highSignalCount": 419,
@@ -147,14 +147,14 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "market-note": 822,
     "equity": 157,
     "semi": 516,
+    "earnings": 484,
     "geo": 426,
     "power": 278,
-    "earnings": 485,
     "media-only": 70,
     "macro": 350,
-    "market-note": 822,
     "ai-policy": 130,
     "optical": 44,
     "japan": 104,
@@ -260,7 +260,7 @@
   "themes": [
     "Market Notes (822 posts in 14-day research window): 11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000...",
     "Semiconductors/Memory (516 posts in 14-day research window): 2026년 11월 2일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.76%) 2위: ALPHABET INC CL A...",
-    "Earnings/Corporate (485 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
+    "Earnings/Corporate (484 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
     "Geopolitics (426 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 3일 🇺🇸 아메리카 • 트럼프 대통령은 중간선거 이후 이란에 대한 추가 공습 계획을 부인하며 군사작전 재개를 서두르지 않겠다고 밝혀. 이란이 합의를 원하고 있으며...",
     "Macro/Rates (350 posts in 14-day research window): 2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,...",
     "AI Power/Grid (278 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
@@ -426,7 +426,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 485,
+      "count": 484,
       "focus": "마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장...."
     },
     {
@@ -1722,10 +1722,11 @@
       "datetime": "2026-11-03T07:29:55.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
+        "earnings",
         "geo",
-        "power",
-        "earnings"
+        "power"
       ],
+      "lead": 1,
       "score": 63,
       "hasText": true,
       "media": {
@@ -1998,17 +1999,14 @@
       "datetime": "2026-11-03T02:37:03.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "macro",
-        "ai-policy",
-        "earnings",
-        "healthcare"
+        "earnings"
       ],
       "score": 71,
       "hasText": true,
+      "summary": "팔란티어(PLTR) Q3 2026 어닝콜 요약 > 긍정 요인: • 폭발적인 매출 성장. 3분기 매출은 23억1,300만달러로 전년 대비 96%, 전분기 대비 20% 증가. 미국 매출은 19억3,700만달러로...",
       "tickers": [
         "PLTR"
-      ],
-      "summary": "팔란티어(PLTR) Q3 2026 어닝콜 요약 > 긍정 요인: • 폭발적인 매출 성장. 3분기 매출은 23억1,300만달러로 전년 대비 96%, 전분기 대비 20% 증가. 미국 매출은 19억3,700만달러로..."
+      ]
     },
     {
       "id": "insidertracking/68158",
@@ -2017,17 +2015,14 @@
       "datetime": "2026-11-03T02:15:47.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "macro",
-        "semi",
-        "kr-market",
         "earnings"
       ],
       "score": 81,
       "hasText": true,
+      "summary": "애플(AAPL) Q4 2026 어닝콜 요약 > 긍정 요인: • 사상 최대 매출 및 EPS 달성. 4분기 매출은 1,145억달러로 전년 대비 12% 증가. 2026 회계연도 매출은 4,788억달러로 15%,...",
       "tickers": [
         "AAPL"
-      ],
-      "summary": "애플(AAPL) Q4 2026 어닝콜 요약 > 긍정 요인: • 사상 최대 매출 및 EPS 달성. 4분기 매출은 1,145억달러로 전년 대비 12% 증가. 2026 회계연도 매출은 4,788억달러로 15%,..."
+      ]
     },
     {
       "id": "HANAchina/71453",
@@ -2252,17 +2247,15 @@
       "datetime": "2026-11-02T23:02:37.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "semi",
-        "earnings",
-        "japan"
+        "semi"
       ],
-      "lead": 1,
       "score": 69,
       "hasText": true,
+      "summary": ">>TSMC 2나노 양산 확대에 대만 반도체 공급망 증설 가속화 (대만공상시보) •TSMC의 2나노 공정 양산 확대로 2027년 N2 계열 생산능력은 올해보다 2배 이상 증가할 전망임. 신주·가오슝 공장...",
+      "lead": 1,
       "tickers": [
         "TSM"
-      ],
-      "summary": ">>TSMC 2나노 양산 확대에 대만 반도체 공급망 증설 가속화 (대만공상시보) •TSMC의 2나노 공정 양산 확대로 2027년 N2 계열 생산능력은 올해보다 2배 이상 증가할 전망임. 신주·가오슝 공장..."
+      ]
     },
     {
       "id": "HANAchina/71435",
@@ -2271,16 +2264,15 @@
       "datetime": "2026-11-02T22:46:56.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "semi",
-        "power"
+        "semi"
       ],
-      "lead": 1,
       "score": 59,
       "hasText": true,
+      "summary": "• 대만 국가과학기술위원회가 TSMC의 차세대 1나노 공정 유치를 대비해 타이난 과학단지 체계 내 대형 신규 단지 개발을 2027년부터 착수할 계획. 부지 및 투자 시점은 TSMC의 최종 확정 필요 • 2나노...",
+      "lead": 1,
       "tickers": [
         "TSM"
-      ],
-      "summary": "• 대만 국가과학기술위원회가 TSMC의 차세대 1나노 공정 유치를 대비해 타이난 과학단지 체계 내 대형 신규 단지 개발을 2027년부터 착수할 계획. 부지 및 투자 시점은 TSMC의 최종 확정 필요 • 2나노..."
+      ]
     },
     {
       "id": "HANAchina/71434",
@@ -8865,16 +8857,15 @@
       "datetime": "2026-11-02T22:46:56.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "semi",
-        "power"
+        "semi"
       ],
-      "lead": 1,
       "score": 59,
       "hasText": true,
+      "summary": "• 대만 국가과학기술위원회가 TSMC의 차세대 1나노 공정 유치를 대비해 타이난 과학단지 체계 내 대형 신규 단지 개발을 2027년부터 착수할 계획. 부지 및 투자 시점은 TSMC의 최종 확정 필요 • 2나노...",
+      "lead": 1,
       "tickers": [
         "TSM"
-      ],
-      "summary": "• 대만 국가과학기술위원회가 TSMC의 차세대 1나노 공정 유치를 대비해 타이난 과학단지 체계 내 대형 신규 단지 개발을 2027년부터 착수할 계획. 부지 및 투자 시점은 TSMC의 최종 확정 필요 • 2나노..."
+      ]
     },
     {
       "id": "HANAchina/71434",
