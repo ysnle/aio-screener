@@ -718,6 +718,8 @@ function render({ documentRef, root, store, route }) {
     // P1389: the briefing is a connected read of the completed close plus the schedule; its news
     // list moved to the news screen (important / general split).
     renderBriefingRead({ documentRef, root, store });
+    // v59.65: the last 24 hours as linked stories (a lazy chunk; market-day.json loads on first use).
+    import('../components/briefing-day.js').then(({ renderBriefingDay }) => renderBriefingDay({ documentRef, root })).catch(() => {});
     // T18: the title date is the US close the read is based on, not the KST calendar day.
     root?._aioRenderBriefingDateLine?.(undefined, closeBasis(root?._aioHistory || []));
     return;

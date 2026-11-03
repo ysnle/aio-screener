@@ -218,7 +218,7 @@ function headlineFacts(news, matchers, nowMs) {
     if (!row?.title || !Number.isFinite(at) || at < nowMs - 36 * HOUR || at > nowMs + HOUR || seen.has(key)) continue;
     seen.add(key);
     const subjects = matchers.filter(([, re]) => re.test(row.title)).map(([sym]) => sym).slice(0, 4);
-    out.push({ id: `headline:${row.guid || row.sourceArticleId || key}`.slice(0, 120), kind: 'headline', title: row.title, at: new Date(at).toISOString(), date: new Date(at).toISOString().slice(0, 10),
+    out.push({ id: `headline:${row.guid || row.sourceArticleId || key}`.slice(0, 120), kind: 'headline', title: row.title, titleKo: row.titleKo || null, at: new Date(at).toISOString(), date: new Date(at).toISOString().slice(0, 10),
       subjects, topics: topicsOf(row.title, NEWS_TOPICS[row.topic] || []), wordTopics: topicsOf(row.title), tier: readNumber(row.tier), score: readNumber(row.score),
       src: { kind: 'news', source: row.source || null, link: row.link || null }, weight: (readNumber(row.score) || 0) / 50 });
   }
@@ -328,7 +328,7 @@ function threadsOf(facts, links) {
 // Tiers: lead >= 60, major >= 35, minor >= 15, below that the fact is context only.
 const CORE_GAUGES = new Set(['spx', 'ndx', 'kospi', 'tnx', 'dxy', 'wti', 'gold', 'hyOas', 'vix']);
 const MAJOR_RELEASES = new Set(['us-nfp', 'us-cpi', 'us-fed-rate', 'us-pce']);
-export const HEADLINE_NOISE = /\b(?:stock forecasts?|price, chart|tokenized stock|outperforms competitors|underperforms (?:\w+ )?when compared to competitors|(?:sells|buys) \$[\d,]+ (?:in|of|worth)|executes (?:sale|purchase) of|position in|stake (?:raised|lowered|trimmed|boosted)|shares (?:sold|bought|acquired) by|stock quote|stock price today|should you buy)\b/i;
+export const HEADLINE_NOISE = /\b(?:stock forecasts?|price, chart|tokenized (?:stock|bstock)s?|price \([A-Z]+\/USD\) today|outperforms competitors|underperforms (?:\w+ )?when compared to competitors|(?:sells|buys) \$[\d,]+ (?:in|of|worth)|executes (?:sale|purchase) of|position in|stake (?:raised|lowered|trimmed|boosted)|shares (?:sold|bought|acquired) by|stock quote|stock price today|should you buy)\b/i;
 const clamp = (value) => Math.max(0, Math.min(100, Math.round(value)));
 let NOW_MS = Date.now();
 const nearness = (fact) => { const days = (Date.parse(`${fact.date}T12:00:00Z`) - NOW_MS) / DAY; return days <= 2 ? 1 : Math.max(1 / 3, 1 - (days - 2) / 12); };

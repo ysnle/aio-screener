@@ -4,6 +4,10 @@ last_verified: 2026-11-03
 confidence: medium
 ---
 
+## v59.65 v59.65 브리핑 24시간 (2026-11-03)
+
+- [x] QA-DATA-65A: After push and the next refresh-data run, 브리핑 shows 지난 24시간 stories whose reports carry Korean titles where the bundle has them. verify_by: 2026-11-05
+
 ## v59.64 v59.64 macro assets and 기술적 분석 (2026-11-03)
 
 - [x] QA-DATA-64A: After push and the next refresh-data run, 매크로 chapters show a 오늘 line from market-day.json and 기술적 분석 lists the day's movers under the ten largest weights. verify_by: 2026-11-05

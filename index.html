@@ -10,7 +10,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v59.64 — 올인원 투자 터미널</title>
+  <title>AIO Screener v59.65 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 시장 환경 참고 지표, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f4f0e8">
@@ -4015,6 +4015,14 @@ button[data-filter-active="true"] {
       <p class="briefing-read-reading" id="briefing-read-reading"></p>
       <details class="sx-disclosure briefing-read-more" id="briefing-read-more"><summary>자세히, 오늘 해석의 근거와 AI 해설</summary><ul class="briefing-read-points" id="briefing-read-points"></ul><div class="briefing-ai" id="briefing-ai-wrap"><div class="briefing-ai-label">AI 해설</div><div id="briefing-ai-analysis" data-market-analysis-sink="full" data-analysis-server-only hidden></div></div></details>
     </section>
+    <!-- v59.65 (owner 2026-11-03, phase 3): the last 24 hours as linked stories from market-day.json, in materiality order
+         (src/domain/briefing/day-account.js, src/ui/components/briefing-day.js). -->
+    <section class="aio-section briefing-block briefing-day" id="briefing-day" aria-labelledby="briefing-day-title" hidden>
+      <h2 class="briefing-h2" id="briefing-day-title">지난 24시간, 이어서 보면 <span class="briefing-h2-note" id="briefing-day-basis"></span></h2>
+      <p class="briefing-day-opening" id="briefing-day-opening"></p>
+      <ol class="briefing-day-stories" id="briefing-day-stories"></ol>
+      <div id="briefing-day-folds"></div>
+    </section>
     <!-- v58.53 개편 v2 (5a): 섹터 하루 등락 (sector-moves.js); v59.51: 왜 움직였나 is its fold, 시간대별 시황 moved to 뉴스. -->
     <div class="briefing-pair" id="briefing-pair">
       <section class="aio-section briefing-block sector-moves" id="briefing-sector-moves" hidden></section>
@@ -6073,12 +6081,12 @@ button[data-filter-active="true"] {
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
   <!-- R622: block A (workspace) runs first in the defer group; kr-data and pages follow it, as when they sat in <head>. -->
-  <script src="./js/aio-workspace.js?v=59.64" defer></script>
-  <script src="./js/aio-kr-data.js?v=59.64" defer></script>
-  <script src="./js/aio-pages.js?v=59.64" defer></script>
-  <script src="./js/aio-core.js?v=59.64" defer></script>
-  <script src="./js/aio-data.js?v=59.64" defer></script>
-  <script src="./js/aio-ui.js?v=59.64" defer></script>
+  <script src="./js/aio-workspace.js?v=59.65" defer></script>
+  <script src="./js/aio-kr-data.js?v=59.65" defer></script>
+  <script src="./js/aio-pages.js?v=59.65" defer></script>
+  <script src="./js/aio-core.js?v=59.65" defer></script>
+  <script src="./js/aio-data.js?v=59.65" defer></script>
+  <script src="./js/aio-ui.js?v=59.65" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
@@ -6129,7 +6137,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      용어 사전 모달(src/ui/knowledge/glossary-modal.js, 호출 시점에만 읽음)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=59.64" defer></script>
+<script src="./js/aio-glossary.js?v=59.65" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->
@@ -6137,7 +6145,7 @@ button[data-filter-active="true"] {
 
 <!-- v58.56 (re-audit #13): R1 release identity moved from the topbar to the page foot — the topbar keeps only what a reader
      uses (quote basis, 도움말, AI). bump-version still patches this element by its id. -->
-<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, 등락 색은 오르면 <span style="color:var(--dir-up)">빨강</span>·내리면 <span style="color:var(--dir-down)">파랑</span>, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <button type="button" data-action="_aioOpenFeedback">오류 신고</button>, <span class="sx-page-foot-version" id="app-version-badge">v59.64</span></p>
+<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, 등락 색은 오르면 <span style="color:var(--dir-up)">빨강</span>·내리면 <span style="color:var(--dir-down)">파랑</span>, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <button type="button" data-action="_aioOpenFeedback">오류 신고</button>, <span class="sx-page-foot-version" id="app-version-badge">v59.65</span></p>
 </div><!-- /content -->
 </div><!-- /main -->
 </div><!-- /app -->

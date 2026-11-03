@@ -1449,6 +1449,33 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       if (oilToday?.rank !== 'lead' || !/에너지/.test(oilToday.text) || words !== 'up,pullback,breakdown,rebound,recovery,down' || stock?.trend !== 'breakdown') {
         fail(`v59.64: macro today line / chart trend words broke ${JSON.stringify({ oilToday, words, stock: stock?.trend })}`);
       }
+      // v59.65: 브리핑's 24-hour stories — same-family prices in one story, the theme speaks for its sector, a report that
+      // points the other way is not evidence, a big move nothing explains is kept apart, the opening reads equal weight.
+      const { buildDayAccount } = await load('src/domain/briefing/day-account.js');
+      const D = '2026-11-02';
+      const account = buildDayAccount({ generatedAt: 'x', sessions: { us: D }, dropped: { noise: 1 }, facts: [
+        { id: 'p:wti', kind: 'price', asset: 'wti', label: 'WTI 유가', change: -7, z: -3, rank: 'lead', materiality: 70 },
+        { id: 'p:brent', kind: 'price', asset: 'brent', label: '브렌트 유가', change: -7.5, z: -2.9, rank: 'major', materiality: 50 },
+        { id: 'p:spx', kind: 'price', asset: 'spx', label: 'S&P 500', change: -0.5, rank: 'minor', materiality: 20 },
+        { id: 'p:rsp', kind: 'price', asset: 'rsp', label: 'S&P 500 동일가중', change: 0.8, rank: 'minor', materiality: 20 },
+        { id: 'g:theme', kind: 'group-move', group: 'theme:energy', label: '에너지', members: ['OIL1'], change: -4, rank: 'major', materiality: 40 },
+        { id: 'g:sector', kind: 'group-move', group: 'sector:Energy', label: 'Energy', members: ['OIL1'], change: -4, rank: 'major', materiality: 41 },
+        { id: 's:oil1', kind: 'stock-move', subjects: ['OIL1'], label: 'Oil One', change: -6, rank: 'minor', materiality: 30, explainedBy: ['driver'] },
+        { id: 's:myst', kind: 'stock-move', subjects: ['MYST'], label: 'Mystery', change: 9, rank: 'major', materiality: 45, explainedBy: [] },
+        { id: 'h:oil', kind: 'headline', title: 'Oil prices slump as supply returns', wordTopics: ['energy'], subjects: [], rank: 'major', materiality: 40 },
+        { id: 'h:off', kind: 'headline', title: 'Bond futures rule eased', wordTopics: [], subjects: [], rank: 'major', materiality: 45 },
+        { id: 's:dn1', kind: 'stock-move', subjects: ['DN1'], label: 'Down One', change: -5, rank: 'major', materiality: 44, explainedBy: ['subject'] },
+        { id: 'h:up', kind: 'headline', title: 'Down One shares jump on buyback', subjects: ['DN1'], rank: 'major', materiality: 42 },
+        { id: 'h:dn', kind: 'headline', title: 'Down One falls after guidance cut', subjects: ['DN1'], rank: 'major', materiality: 41 },
+        { id: 'u:nfp', kind: 'upcoming', label: '고용보고서', date: '2026-11-06', rank: 'lead', materiality: 60 }],
+        links: [{ from: 'p:wti', to: 'g:theme', basis: 'driver' }, { from: 'p:wti', to: 'g:sector', basis: 'driver' }, { from: 'h:oil', to: 'p:wti', basis: 'topic' }, { from: 'h:off', to: 'p:wti', basis: 'topic' }] });
+      const oilStory = account.stories[0];
+      const told = [...account.stories, ...account.more].flatMap((item) => item.evidence.map((report) => report.title));
+      if (oilStory?.title !== '유가 하락' || !/브렌트/.test(oilStory.line) || !/에너지\(/.test(oilStory.why.join(' ')) || /Energy/.test(oilStory.why.join(' '))
+        || !told.includes('Oil prices slump as supply returns') || told.includes('Bond futures rule eased') || told.includes('Down One shares jump on buyback') || !told.includes('Down One falls after guidance cut')
+        || account.unexplained[0]?.sym !== 'MYST' || !/동일가중/.test(account.opening) || account.ahead[0]?.label !== '고용보고서') {
+        fail(`v59.65: briefing day account broke ${JSON.stringify({ oilStory, told, unexplained: account.unexplained, opening: account.opening })}`);
+      }
     }
     // v59.62: chart levels — 50-day line, closing high, six-month support, and a double top read at its neck (testing, broken).
     const { indexLevel, levelsRead } = await load('src/domain/market/index-levels.js');
