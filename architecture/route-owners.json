@@ -75,8 +75,7 @@
       ],
       "nativeSecondarySurface": [
         "#page-home #home-fg-score",
-        "#page-home #home-fg-label",
-        "#page-home #home-hero-components"
+        "#page-home #home-fg-label"
       ],
       "contestedIds": [],
       "legacyWriterEvidence": [
@@ -87,7 +86,7 @@
       "p820Boundary": "P1010: analysis.js owns both home Fear & Greed score and label from the same normalized sentiment slice; legacy writers are removed.",
       "p821Boundary": "analysis.js owns the complete home quality meter surface and fails closed until canonical five-input quality evidence exists; the legacy trading-score-as-quality writer is fenced.",
       "notes": "P1010: score components now derive from signal-presentation.v1 with null-preserving weights; the duplicate legacy home hero is retired. Market regime, charts and other narratives remain compatibility boundaries. No full-native completion claim.",
-      "chartOwnerEvidence": "v59.54 chart audit (browser probe 2026-11-01): the index participation lines (#home-participation) are SVG drawn by src/ui/components/home-kpi-trend.js; no js/ chart writer is left."
+      "chartOwnerEvidence": "v59.54 chart audit (browser probe 2026-11-01): home charts are native SVG; v59.68 the participation card left 오늘 (breadth lives on 시장 상태) and the index strip (src/ui/components/home-index-strip.js) is the page's chart; no js/ chart writer is left."
     },
     "signal": {
       "lifecycleOwner": "native",

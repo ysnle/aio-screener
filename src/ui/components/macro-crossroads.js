@@ -5,7 +5,7 @@
 // row (one list, not the map plus a second accordion of the same branches): the
 // cause→effect chain, the dated triggers, the three likelihood lines and the reader's choices with their
 // opportunity cost. Reads only published artifacts already loaded for the 거시 and 시장 상태 screens.
-import { CHOICES, SHAPES, COUNT_WORDS, EVENT_NAMES, fomcDecisionDate, macroTransitions } from '../../domain/market/macro-crossroads.js';
+import { CHOICES, EVENT_NAMES, fomcDecisionDate, macroTransitions } from '../../domain/market/macro-crossroads.js';
 import { scenarioLead } from '../../domain/market/scenario-lead.js';
 import { CHOICE_WORDS } from '../../domain/content/choice-words.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
@@ -14,12 +14,10 @@ import { refreshSharedArtifact, SCENARIO_OUTCOMES, SCENARIO_STATE, BIGTECH_CASHF
 import { auctionLine, latestByTenor, AUCTION_METHOD } from '../../domain/macro/treasury-auctions.js';
 import { groupCashflowSentence } from '../../domain/fundamental/quarterly-cashflow.js';
 import { themesForBranch } from '../../domain/scenarios/exposures.js';
-import { themeRotationRead } from '../../domain/scenarios/theme-playbook.js';
 import { krThemeLabel } from '../../domain/themes/kr-themes.js';
 import { el } from './dom.js';
-import { signedText } from '../../domain/shared/number.js';
 import { withDirectionParticle } from '../../domain/content/korean-particle.js';
-import { isIsoDay, hasLeadingIsoDay } from '../../domain/shared/session-date.js';
+import { hasLeadingIsoDay } from '../../domain/shared/session-date.js';
 
 const md = (date) => { const [, m, d] = String(date || '').split('-').map(Number); return m && d ? `${m}/${d}` : ''; };
 // Korean particles follow the last Hangul syllable of a quoted path name (quotes are skipped).
@@ -164,18 +162,24 @@ function branchMap(doc, root, model, openIds, { restOpen = false } = {}) {
   return map;
 }
 
-/** v57.76: open 거시 at the 향후 시나리오 heading. The section now follows the current-state blocks, whose content can
- * still grow after the route change, so the scroll repeats briefly once the heading exists. */
-export function showCrossroadsSection(doc, root) {
-  root?.showPage?.('macro');
-  for (const delay of [80, 400, 1200]) setTimeout(() => doc?.getElementById?.('macro-crossroads-title')?.scrollIntoView?.({ block: 'start' }), delay);
+// v59.68: the scenario map lives in 시장 상태's scenario fold; opening it shows the page and unfolds it.
+function openScenarioFold(doc) {
+  const fold = doc?.getElementById?.('regime-depth-fold');
+  if (fold) fold.open = true;
 }
 
-/** Open one branch's detail on 거시 (from the six-axis cards or another screen) and bring it into view. */
+/** Open 시장 상태 at the scenario map. The blocks above can still grow after the route change, so the scroll repeats. */
+export function showCrossroadsSection(doc, root) {
+  root?.showPage?.('signal');
+  for (const delay of [80, 400, 1200]) setTimeout(() => { openScenarioFold(doc); doc?.getElementById?.('macro-crossroads')?.scrollIntoView?.({ block: 'start' }); }, delay);
+}
+
+/** Open one branch's detail on 시장 상태 (from the 매크로 factor cards or another screen) and bring it into view. */
 export function openCrossroadsBranch(doc, root, branchId) {
   const reveal = () => {
     const card = doc?.querySelector?.(`.xr-branch[data-branch="${branchId}"]`);
     if (!card) return false;
+    openScenarioFold(doc);
     const fold = card.closest?.('.xr-map-rest');
     if (fold) fold.open = true;
     card.open = true;
@@ -183,10 +187,10 @@ export function openCrossroadsBranch(doc, root, branchId) {
     card.querySelector('summary')?.focus?.({ preventScroll: true });
     return true;
   };
-  const onMacro = doc?.getElementById('page-macro')?.classList?.contains('active');
-  if (onMacro !== false && reveal()) return;
-  root?.showPage?.('macro');
-  // The 거시 section may still be mounting after the route change: try a few times, then give up quietly.
+  const onSignal = doc?.getElementById('page-signal')?.classList?.contains('active');
+  if (onSignal !== false && reveal()) return;
+  root?.showPage?.('signal');
+  // The scenario map may still be mounting after the route change: try a few times, then give up quietly.
   const retry = (delays) => { if (!delays.length) return; setTimeout(() => { if (!reveal()) retry(delays.slice(1)); }, delays[0]); };
   retry([80, 300, 900]);
 }
@@ -381,98 +385,4 @@ export function renderMacroCrossroads({ documentRef: doc, root, regime = null, h
   return model;
 }
 
-// P1743: the theme side of the same picture, from the per-refresh state (every theme read by one rule).
-function themeLines(doc, root) {
-  // v58.75 (persona review): the rotation sentence came from scenario-state.json while 테마 recomputed it live; a state built
-  // by the older group-median rule printed 크립토 -25.1% here and -44.7% there. One read (themeRotationRead): live first.
-  let live = null;
-  try { live = marketInterpretation(root).playbook || null; } catch (_) { live = null; }
-  const read = themeRotationRead({ live, artifact: root?.[SCENARIO_STATE.key] || null });
-  if (!read.source) return [];
-  const pullbacks = read.pullbacks.slice(0, 4);
-  const lines = [];
-  // v59.45 (P10-STATE-01): the per-refresh stand-in names the close it was read on.
-  const basis = read.source === 'artifact' && isIsoDay(String(read.asOf || '')) ? `${Number(read.asOf.slice(5, 7))}/${Number(read.asOf.slice(8, 10))} 종가 기준` : null;
-  if (read.text) lines.push(el(doc, 'p', `테마${basis ? `(${basis})` : ''}: ${read.text}`, 'xr-reading'));
-  const ret1m = (value) => (Number.isFinite(value) ? `1개월 ${signedText(value, 1)}%` : '1개월 —');
-  // v57.81 (audit): the line names the condition exactly (the lead branch's wind is not a headwind) and carries no action
-  // suggestion — "분할 접근의 부담이 비교적 작은 경우" read as one.
-  if (pullbacks.length) lines.push(el(doc, 'p', `상승 추세 속 쉬어 가는 테마(중심 시나리오에서 역풍이 아닌): ${pullbacks.map((row) => `${row.market === 'KR' ? '한국' : '미국'} ${row.label}(${ret1m(row.ret1m)})`).join(', ')}.`, 'xr-reading'));
-  return lines;
-}
 
-// One branch as a card: name, condition fit and market-price direction, what fares relatively better, the structure the
-// path leads to and the themes it touches (US first, Korean themes as one link).
-function pathCard(doc, root, item, { kicker, fit }) {
-  const card = el(doc, 'div', null, 'xr-path-card');
-  // v57.86 (live review): when the price gauge is itself a condition, "시장 가격도 이 방향" would confirm the branch with its own input.
-  const tone = item.pricingInConditions && item.pricing.tone === 'same' ? '시장 가격도 같은 쪽(조건에 포함)' : item.pricing.tone === 'same' ? '시장 가격도 이 방향' : item.pricing.tone === 'against' ? '시장 가격은 반대 방향' : item.pricing.tone === 'neutral' ? '시장 가격은 중립' : '시장 가격 확인 불가';
-  const head = el(doc, 'div', null, 'xr-path-head');
-  head.append(el(doc, 'span', kicker, 'xr-path-kicker'), el(doc, 'strong', `'${item.title.split(' — ')[0]}'`, 'xr-path-name'));
-  const tags = el(doc, 'div', null, 'xr-path-tags');
-  if (fit) tags.append(el(doc, 'span', fit, 'basis-chip'));
-  tags.append(el(doc, 'span', tone, `basis-chip xr-price is-${item.pricing.tone || 'none'}`));
-  const rows = el(doc, 'dl', null, 'xr-path-rows');
-  // v57.55 review (E1-13/E2-16): the owner-approved "상대적으로 유리한 쪽" (2026-10-13). v58.80 (first-users F07): three of five
-  // first users read "유리한 대응" as an instruction, so it is named by what it counts — the smaller cost in that scenario.
-  const favoredRow = el(doc, 'dd', item.favored.map((key) => CHOICES[key]).join(', '));
-  favoredRow.title = item.favoredWhy || '';
-  if (item.pastConflict) favoredRow.append(' ', pastConflictTag(doc, item));
-  rows.append(el(doc, 'dt', `이때 ${CHOICE_WORDS.favored}`), favoredRow);
-  if (item.shape && SHAPES[item.shape]) rows.append(el(doc, 'dt', item.gate?.met === true ? '이후 시장 흐름' : '성립하면 시장 흐름'), el(doc, 'dd', `'${SHAPES[item.shape]}'`));
-  card.append(head, tags, rows);
-  const themes = themeLinkRow(doc, root, item);
-  if (themes) card.append(themes);
-  card.title = item.favoredWhy || '';
-  return card;
-}
-
-/** Compact block on 오늘 (v57.76: no longer on 시장 상태): one forward view — the present structure (when given), the branch the next
- * releases would most likely confirm and the structure it leads to, its chain and favoured choice, the alternative,
- * the rate tension and the theme side — then links to 거시 and 테마. */
-export function renderCrossroadsCompact({ documentRef: doc, root, regime = null, anchor = null, id = 'home-crossroads', structure = null, title = '향후 시나리오', headingLevel = 'h3' } = {}) {
-  if (!doc || !anchor) return null;
-  const model = crossroadsForRoot(root, { regime });
-  let box = doc.getElementById(id);
-  if (!box) { box = el(doc, 'div', null, 'xr-compact'); box.id = id; anchor.insertAdjacentElement('afterend', box); }
-  if (!box.dataset.aioScenarioLoad) { box.dataset.aioScenarioLoad = 'on'; refreshScenarioArtifacts(root, () => renderCrossroadsCompact({ documentRef: doc, root, regime, anchor, id, structure, title })); }
-  const lead = model.items?.find((item) => item.id === model.leadId);
-  box.hidden = (!model.available || !lead) && !structure;
-  if (box.hidden) return model;
-  const alt = model.items.find((item) => item.id === model.altId) || null;
-  const short = (item) => item.title.split(' — ')[0];
-  const links = el(doc, 'div', null, 'xr-explore');
-  links.append(linkButton(doc, root, '모든 시나리오와 선택지', 'macro', 'macro-crossroads-title'));
-  if (root?.[SCENARIO_STATE.key]?.themes?.length) links.append(linkButton(doc, root, '모든 테마의 단계', 'themes', 'theme-playbook-title'));
-  const parts = [el(doc, headingLevel, title, 'xr-h3')];
-  if (structure) parts.push(...structure);
-  // v57.54 audit (8): the same tie rule as 거시 (tiedIds, P1747) — a tie names both paths up front and says why one is
-  // written first. v57.54 (owner review 2026-10-14, "조금만 압축하고 정렬"): one lead line, the lead path's chain,
-  // then the two paths side by side as cards (market-price direction, what fares better, the structure it leads to,
-  // its themes) instead of three run-on sentences.
-  const tied = lead && alt && model.tiedIds?.includes(lead.id) && model.tiedIds.includes(alt.id);
-  if (lead) {
-    // v57.81 (audit X7): the tie count comes from tiedIds (거시 said "셋" while 홈 hard-coded "두").
-    const tiedItems = tied ? model.tiedIds.map((id) => model.items.find((item) => item.id === id)).filter(Boolean) : [];
-    const sameFit = tied && tiedItems.every((item) => item.met === lead.met && item.total === lead.total);
-    const event = model.nextEvent ? `${model.nextEvent.when || md(model.nextEvent.date)} ${model.nextEvent.name}` : '';
-    const count = COUNT_WORDS[tiedItems.length] || `${tiedItems.length}개`;
-    const rest = tiedItems.filter((item) => item !== lead && item !== alt).map((item) => `'${short(item)}'`);
-    const leadLine = tied
-      ? `${event ? `${event} 발표에 달린` : '다음 발표에 달린'} 시나리오 ${count} — 조건 충족이 같습니다${sameFit ? `(${lead.met}/${lead.total})` : ''}.${rest.length ? ` 아래 두 카드 외에 ${rest.join(', ')}도 같은 수준이며, 거시 화면에 함께 있습니다.` : ''}${lead.pricing.tone === 'same' && alt.pricing.tone !== 'same' ? ` 시장 가격이 같은 방향인 '${short(lead)}'${josa(short(lead), '을', '를')} 먼저 둡니다.` : ''}`
-      : `다음 발표에 달린 시나리오${event ? `, ${event}` : ''} — 지금은 '${short(lead)}' 쪽 조건이 더 맞습니다.`;
-    parts.push(el(doc, 'p', leadLine, 'xr-lead'), chainRow(doc, lead.chain));
-    const cards = el(doc, 'div', null, 'xr-path-cards');
-    // Expert review 2026-10-14: a tie is not a ranking — the first card says why it is first, or both read '대안 시나리오'.
-    const pricedFirst = tied && lead.pricing.tone === 'same' && alt.pricing.tone !== 'same';
-    cards.append(pathCard(doc, root, lead, { kicker: !tied ? '조건이 더 맞는 시나리오' : pricedFirst ? '시장도 같은 방향' : '대안 시나리오', fit: sameFit ? null : lead.fit }));
-    if (alt) cards.append(pathCard(doc, root, alt, { kicker: '대안 시나리오', fit: sameFit ? null : alt.fit }));
-    // v58.74 (text audit 오늘 B17): home states this once, in the guide right below; the compact block elsewhere keeps it.
-    parts.push(cards, ...(id === 'home-crossroads' ? [] : [el(doc, 'p', `'${CHOICE_WORDS.favored}'은 그 시나리오가 실제로 이어질 때의 비용 비교이며, 따라 하라는 뜻은 아닙니다.`, 'xr-scope-note')]));
-    if (model.rateHub.tension) parts.push(el(doc, 'p', model.rateHub.tension, 'xr-tension'));
-  } else parts.push(el(doc, 'p', model.headline, 'xr-reading'));
-  parts.push(...themeLines(doc, root), links);
-  box.replaceChildren(...parts);
-  box.dataset.aioCrossroads = 'compact';
-  return model;
-}

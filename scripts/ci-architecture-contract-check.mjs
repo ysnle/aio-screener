@@ -449,8 +449,6 @@ if (legacyRuntimeSource.includes('function loadTechCandleChart')) fail('retired 
     { ids: ['scr-listing-market', 'scr-order'], file: 'src/ui/pages/screener.js', proof: /\['scr-listing-market', [\s\S]{0,200}?\['scr-order', [\s\S]{0,600}?select\.id = id;/, reason: 'the market-scope controls loop creates one <select> per [id, label, entries] tuple' },
     // v59.51 (content audit): the theme detail face/fold slots are built by a local make(tag, className, id) helper.
     { ids: ['theme-detail-reading', 'theme-detail-native-why', 'theme-detail-native-criteria', 'theme-detail-native-criteria-table'], file: 'src/ui/pages/themes.js', proof: /const make = \(tag, className, id = null\) => \{[\s\S]{0,200}?node\.id = id;[\s\S]*?make\('ul', 'thp-reading', 'theme-detail-reading'\)/, reason: 'renderThemeDetailSummary make(tag, className, id) assigns node.id from its third argument' },
-    // v59.51 (content audit): 시장 상태 places the scenario box with renderCrossroadsCompact({ id }), which assigns box.id = id.
-    { ids: ['signal-crossroads'], file: 'src/ui/components/market-regime.js', proof: /renderCrossroadsCompact\(\{[^}]*id: 'signal-crossroads'/, reason: 'renderCrossroadsCompact (macro-crossroads.js) creates its box with box.id = id' },
   ];
   // Dead writers found in page files this change does not own (v57.79 parallel page work). Each entry fails once its
   // lookup is gone, so the list can only shrink.

@@ -28,8 +28,8 @@
   "failures": [],
   "routes": {
     "home": {
-      "total": 1171,
-      "secondary": 113,
+      "total": 422,
+      "secondary": 84,
       "lines": [
         {
           "chars": 43,
@@ -42,16 +42,6 @@
           "text": "10월 31일 토요일, 10/30 미국 종가 기준"
         },
         {
-          "chars": 10,
-          "classes": "sx-kicker home-flips-title home-flips-head sx-tile home-hero-flips",
-          "text": "판단이 바뀌는 조건"
-        },
-        {
-          "chars": 9,
-          "classes": "home-participation-basis sx-card home-participation aio-frame",
-          "text": "숫자와 집계 기준"
-        },
-        {
           "chars": 8,
           "classes": "aio-operator-note-date aio-operator-note-meta aio-operator-note-card aio-operator-note-priority aio-market-sentence",
           "text": "10/31 작성"
@@ -60,35 +50,11 @@
           "chars": 6,
           "classes": "aio-operator-note-kicker aio-operator-note-meta aio-operator-note-card aio-operator-note-priority aio-market-sentence",
           "text": "오늘의 질문"
-        },
-        {
-          "chars": 5,
-          "classes": "sx-disclosure home-hero-why home-hero-main",
-          "text": "판정 근거"
-        },
-        {
-          "chars": 5,
-          "classes": "sx-kicker home-flips-title home-flips-next-title sx-tile home-hero-flips sx-card sx-card--hero home-hero",
-          "text": "다음 일정"
         }
       ],
       "frames": [
         {
           "frame": "home.index-strip",
-          "hasHead": true,
-          "asof": "10/30 종가",
-          "readings": [],
-          "problems": []
-        },
-        {
-          "frame": "home.ai-chain",
-          "hasHead": true,
-          "asof": "",
-          "readings": [],
-          "problems": []
-        },
-        {
-          "frame": "home.participation",
           "hasHead": true,
           "asof": "10/30 종가",
           "readings": [],
@@ -104,8 +70,8 @@
       ]
     },
     "signal": {
-      "total": 4669,
-      "secondary": 300,
+      "total": 5491,
+      "secondary": 335,
       "lines": [
         {
           "chars": 42,
@@ -121,6 +87,11 @@
           "chars": 29,
           "classes": "mg-library-summary mg-library xr-section mg-guide",
           "text": "참여 원칙 28개 — 태도·전략·속지 말 것·믿을 것"
+        },
+        {
+          "chars": 23,
+          "classes": "aio-note-fold xr-hub",
+          "text": "금리가 주가에 닿는 경로와 이 수치의 한계"
         },
         {
           "chars": 22,
@@ -161,11 +132,6 @@
           "chars": 14,
           "classes": "regime-radar-legend",
           "text": "5거래일 전 (10/23)"
-        },
-        {
-          "chars": 14,
-          "classes": "regime-radar-legend",
-          "text": "20거래일 전 (10/2)"
         }
       ],
       "frames": [
@@ -195,7 +161,7 @@
       ]
     },
     "breadth": {
-      "total": 1721,
+      "total": 1042,
       "secondary": 49,
       "lines": [
         {
@@ -249,18 +215,10 @@
           "text": "설명"
         }
       ],
-      "frames": [
-        {
-          "frame": "breadth.synthesis",
-          "hasHead": true,
-          "asof": "10/30 종가",
-          "readings": [],
-          "problems": []
-        }
-      ]
+      "frames": []
     },
     "sentiment": {
-      "total": 1704,
+      "total": 1089,
       "secondary": 158,
       "lines": [
         {
@@ -324,18 +282,10 @@
           "text": "10/30"
         }
       ],
-      "frames": [
-        {
-          "frame": "sentiment.synthesis",
-          "hasHead": true,
-          "asof": "10/30 종가",
-          "readings": [],
-          "problems": []
-        }
-      ]
+      "frames": []
     },
     "briefing": {
-      "total": 1820,
+      "total": 1233,
       "secondary": 75,
       "lines": [
         {
@@ -360,7 +310,7 @@
         },
         {
           "chars": 8,
-          "classes": "briefing-h2-note briefing-h2 aio-section briefing-block briefing-read sx-card sx-card--hero",
+          "classes": "briefing-h2-note briefing-h2 aio-section briefing-block briefing-read",
           "text": "10/30 종가"
         },
         {
@@ -369,18 +319,10 @@
           "text": "해설 범위"
         }
       ],
-      "frames": [
-        {
-          "frame": "briefing.synthesis",
-          "hasHead": true,
-          "asof": "10/30 종가",
-          "readings": [],
-          "problems": []
-        }
-      ]
+      "frames": []
     },
     "technical": {
-      "total": 277,
+      "total": 187,
       "secondary": 37,
       "lines": [
         {
@@ -397,18 +339,13 @@
       "frames": []
     },
     "macro": {
-      "total": 6381,
-      "secondary": 233,
+      "total": 4275,
+      "secondary": 198,
       "lines": [
         {
           "chars": 93,
           "classes": "page-subtitle  page-head",
           "text": "거시 6요인 중 부담은 3개(물가, 통화정책, 유가·달러)이고, 성장·물가 국면은 방향 보류입니다. 다음 주요 발표는 11/6(금) 22:30 KST 고용보고서입니다."
-        },
-        {
-          "chars": 23,
-          "classes": "aio-note-fold xr-hub",
-          "text": "금리가 주가에 닿는 경로와 이 수치의 한계"
         },
         {
           "chars": 22,
@@ -426,9 +363,14 @@
           "text": "기준선 근처, 방향 보류"
         },
         {
-          "chars": 12,
-          "classes": "aio-note-fold xr-hub",
-          "text": "금리 하락이 늘 좋은가"
+          "chars": 2,
+          "classes": "aio-note-fold macro-stat",
+          "text": "설명"
+        },
+        {
+          "chars": 2,
+          "classes": "aio-note-fold macro-stat",
+          "text": "설명"
         },
         {
           "chars": 2,
@@ -475,25 +417,11 @@
           "asof": "",
           "readings": [],
           "problems": []
-        },
-        {
-          "frame": "macro.crossroads",
-          "hasHead": true,
-          "asof": "10/30 관측",
-          "readings": [],
-          "problems": []
-        },
-        {
-          "frame": "macro.synthesis",
-          "hasHead": true,
-          "asof": "10/30 종가",
-          "readings": [],
-          "problems": []
         }
       ]
     },
     "fxbond": {
-      "total": 2399,
+      "total": 1791,
       "secondary": 165,
       "lines": [
         {
@@ -557,18 +485,10 @@
           "text": "10/30"
         }
       ],
-      "frames": [
-        {
-          "frame": "fxbond.synthesis",
-          "hasHead": true,
-          "asof": "10/30 종가",
-          "readings": [],
-          "problems": []
-        }
-      ]
+      "frames": []
     },
     "fundamental": {
-      "total": 108,
+      "total": 60,
       "secondary": 28,
       "lines": [
         {
@@ -580,7 +500,7 @@
       "frames": []
     },
     "themes": {
-      "total": 4379,
+      "total": 3890,
       "secondary": 70,
       "lines": [
         {
@@ -688,18 +608,11 @@
           "asof": "10/30 종가",
           "readings": [],
           "problems": []
-        },
-        {
-          "frame": "themes.synthesis",
-          "hasHead": true,
-          "asof": "10/30 종가",
-          "readings": [],
-          "problems": []
         }
       ]
     },
     "theme-detail": {
-      "total": 1556,
+      "total": 1499,
       "secondary": 27,
       "lines": [
         {
@@ -728,13 +641,13 @@
       "frames": []
     },
     "ticker": {
-      "total": 213,
+      "total": 153,
       "secondary": 0,
       "lines": [],
       "frames": []
     },
     "market-news": {
-      "total": 3994,
+      "total": 3445,
       "secondary": 288,
       "lines": [
         {
@@ -803,13 +716,6 @@
           "frame": "market-news.event-briefs",
           "hasHead": true,
           "asof": "",
-          "readings": [],
-          "problems": []
-        },
-        {
-          "frame": "news.synthesis",
-          "hasHead": true,
-          "asof": "10/30 종가",
           "readings": [],
           "problems": []
         }
@@ -939,7 +845,7 @@
       "frames": []
     },
     "screener": {
-      "total": 1873,
+      "total": 1745,
       "secondary": 717,
       "lines": [
         {

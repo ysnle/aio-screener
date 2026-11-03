@@ -5,7 +5,7 @@ import { AXIS_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
 import { renderStressOutcomes } from './stress-outcomes.js';
 import { deepDiveLinks } from './deep-dive.js';
 import { alignInput, buildCloseSeries, closeBasis, isUsable, koreaMoveRecord, koreaRecordText, KR_SHOCK_TAIL_PCT, sessionPointBack } from '../../domain/briefing/market-read.js';
-import { buildDailyChanges, previousRegime } from '../../domain/briefing/daily-diff.js';
+import { previousRegime } from '../../domain/briefing/daily-diff.js';
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { regimeFlow } from '../../domain/market/page-flow.js';
@@ -14,7 +14,7 @@ import { createTrendChart } from './trend-chart.js';
 import { MACRO_HISTORY, refreshSharedArtifact, sharedArtifactIsStale } from '../../data/shared-artifacts.js';
 import { buildRegimeAxisHistory, buildKoreaRegimeObservations, buildKoreaIndexSeries } from '../../domain/market/regime-scenarios.js';
 import { renderRegimeRadar } from './regime-radar.js';
-import { renderCrossroadsCompact, showCrossroadsSection } from './macro-crossroads.js';
+import { renderMacroCrossroads, showCrossroadsSection } from './macro-crossroads.js';
 import { el } from './dom.js';
 import { markFrame } from './section-frame.js';
 import { shortDate } from '../../domain/content/date-labels.js';
@@ -207,7 +207,7 @@ function scenarioSection(doc, root, model, outlook, openIds = new Set()) {
 // same root.showPage + section scroll as the other cross-screen links (home's 세 구조 link, the crossroads links).
 function scenarioLink(doc, root) {
   const line = el(doc, 'p', null, 'regime-scenario-next');
-  const button = el(doc, 'button', '다음 발표별 시나리오 → 거시', 'flow-next-link');
+  const button = el(doc, 'button', '다음 발표별 시나리오 전체', 'flow-next-link');
   button.type = 'button';
   button.addEventListener('click', () => showCrossroadsSection(doc, root));
   line.append(button);
@@ -290,9 +290,9 @@ function distanceCell(doc, row) {
 // The screens that render an axis's AXIS_DEEP_DIVES teaching blocks in full (breadth-board deepDiveFold, macro-board axisCard).
 const AXIS_PRINCIPLE_HOME = Object.freeze({
   breadth: { route: 'breadth', label: '시장 폭' },
-  rates: { route: 'macro', label: '거시 경제' },
-  credit: { route: 'macro', label: '거시 경제' },
-  commodities: { route: 'macro', label: '거시 경제' }
+  rates: { route: 'macro', label: '매크로' },
+  credit: { route: 'macro', label: '매크로' },
+  commodities: { route: 'macro', label: '매크로' }
 });
 
 function axisRow(doc, root, row, { history, scenarios, previous, inputs, asOf, open }) {
@@ -520,6 +520,8 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
   const whyFold = doc.getElementById('regime-why');
   if (whyFold) whyFold.hidden = !regime.available;
   paintLeadershipLine(doc, 'regime-leaders', regime.available ? regime.leadershipVerdict : null, interpretation.flow, { flowOnFace: true });
+  // v59.68: the month-ahead tilt (market-lean) moved here from 오늘, under the leaders line it qualifies.
+  (sessionLean ||= import('./session-lean.js')).then((mod) => mod.paintMarketLean(doc, root, regime.available ? regime : null, doc.getElementById('regime-leaders'), () => renderRegimePage({ documentRef: doc, root, store }))).catch(() => { sessionLean = null; });
   heroSide(doc, regime, previous);
   // v59.55 (owner 11/1): 무슨 일이 있었나 — a lazy chunk (this module is on the boot path through 오늘's verdict).
   if (regime.available) import('./market-story.js').then(({ renderMarketStory }) => renderMarketStory({ documentRef: doc, root, interpretation })).catch(() => {});
@@ -603,8 +605,12 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
   // renderers, into one closed fold (expert layer); 오늘 keeps one link to it.
   const depthAnchor = doc.getElementById('regime-depth-anchor');
   if (depthAnchor) {
-    renderCrossroadsCompact({ documentRef: doc, root, regime, anchor: depthAnchor, id: 'signal-crossroads', headingLevel: 'h3' });
-    renderHomeGuide({ documentRef: doc, root, store, anchor: doc.getElementById('signal-crossroads') || depthAnchor });
+    // v59.68 (owner IA 2026-11-03: 시장 상태 owns the scenarios): the full map by release (with the rate hub) moved here
+    // from 매크로, in place of the compact copy; 매크로 keeps the current state of each asset.
+    let host = doc.getElementById('macro-crossroads');
+    if (!host) { host = el(doc, 'div', null, 'xr-section'); host.id = 'macro-crossroads'; depthAnchor.insertAdjacentElement('afterend', host); }
+    renderMacroCrossroads({ documentRef: doc, root, regime, host });
+    renderHomeGuide({ documentRef: doc, root, store, anchor: host });
   }
   renderNextSteps(doc, doc.getElementById('regime-next'), regimeFlow({ regime, groups: root.__aioScenarioOutlook?.rotation || {} }).next); // P1431, I02
   // P1727: a link that asked for a section of this page (the briefing's Korea sentence -> 한국 시장 참고) shows it once.
@@ -739,7 +745,6 @@ export function openSignalAxis(doc, root, axisId, { chart = false } = {}) {
 
 // Day-over-day axis flips (two completed US closes) as an arrow on the changed chip; the full sentence is the chip's hover
 // and a line in the 근거 fold. It replaced the "지난 마감 이후 변화" fold, whose quote tiles repeated the quote row.
-const STATE_RANK = Object.freeze({ 부담: 0, 중립: 1, 양호: 2 }); // buildDailyChanges flips carry the state labels
 
 // Home: one line plus the axis states, linking to the full board.
 // v57.78 perf: the market inputs are gathered once per render (they were gathered for the regime, again for the
@@ -772,22 +777,8 @@ export function renderHomeRegime({ documentRef: doc, root, store = null }) {
   // v58.56 (re-audit #2): the hero sentence is the regime's one plain line (heroLine); the full conflict sentences with
   // their numbers and rules move into the 6개 축 근거 fold under the axis chips.
   if (!held) set('home-hero-desc', regime.heroLine || '');
-  paintLeadershipLine(doc, 'home-hero-leaders', regime.available ? regime.leadershipVerdict : null, interpretation.flow);
-  // v59.51 (two layers): the face is the verdict word, one plain sentence and the axis chips; the 근거 fold is the expert
-  // breakdown — the count with the axes behind it, what flipped since the previous close, and each conflict with its numbers.
-  const flips = regime.available ? (buildDailyChanges(root._aioHistory || []).flips || []) : [];
-  const why = doc.getElementById('home-hero-why');
-  const whyList = doc.getElementById('home-hero-why-list');
-  if (why && whyList) {
-    const names = (state) => (regime.axes || []).filter((row) => row.id !== 'korea' && row.state === state).map((row) => row.title).join('·');
-    const lines = !regime.available ? [] : [
-      `미국 6개 지표 ${summaryLine(regime)}${names('favorable') ? `. 양호: ${names('favorable')}` : ''}${names('burden') ? `. 부담: ${names('burden')}` : ''}.`,
-      ...(flips.length ? [`지난 마감 대비 바뀐 지표: ${flips.map((flip) => `${flip.title} ${flip.from} → ${flip.to}`).join(', ')} (종가만으로 다시 계산, 신용 지표 제외).`] : []),
-      ...(regime.conflicts || [])
-    ];
-    whyList.replaceChildren(...lines.map((text) => el(doc, 'li', text)));
-    why.hidden = !lines.length;
-  }
+  // v59.68 (owner 2026-11-03, 홈 = prices, stocks, news): the axis chips, 판정 근거, the leaders line and the month tilt
+  // left 오늘 for 시장 상태 (renderRegimePage); the verdict word and its sentence stay, with one link there.
   paintKoreaLine(doc, root);
   // v58.81 (owner 2026-10-26): the market clock with the Korea↔US link check, then the probabilistic lean, under the verdict.
   // Loaded after first paint (boot budget); the module also hands the AI context its two readers.
@@ -804,38 +795,6 @@ export function renderHomeRegime({ documentRef: doc, root, store = null }) {
     fgDelta.textContent = change == null ? '' : `전일 ${change > 0 ? '+' : ''}${change}`;
     fgDelta.className = 'aio-metric-delta';
     fgDelta.dataset.aioFgDeltaRenderer = 'native';
-  }
-  const chips = doc.getElementById('home-hero-components');
-  if (chips) {
-    chips.replaceChildren(...regime.axes.map((row) => {
-      // v58.80 (first-users run-4): the chips looked clickable and did nothing, and the verdict had no way to its chart.
-      // Each chip opens 시장 상태 with that axis (its chart and rule) unfolded.
-      const chip = el(doc, 'button', null, 'regime-chip');
-      chip.type = 'button';
-      chip.dataset.state = row.state;
-      chip.addEventListener('click', () => openSignalAxis(doc, root, row.id));
-      // P1592 (F42): the tally above counts the six US axes; the Korea FX card is a reference beside it.
-      const reference = row.id === 'korea';
-      if (reference) { chip.classList.add('is-reference'); chip.title = '한국 참고 — 위 양호·중립·부담 합계에 넣지 않습니다'; }
-      chip.append(el(doc, 'span', reference ? `${row.title}, 참고` : row.title, 'regime-chip-label'), el(doc, 'span', row.stateLabel, `regime-state is-${row.state}`));
-      const flip = flips.find((item) => item.id === row.id);
-      if (flip) {
-        const worse = (STATE_RANK[flip.to] ?? 1) < (STATE_RANK[flip.from] ?? 1);
-        const mark = el(doc, 'span', worse ? '↓' : '↑', `regime-chip-delta ${worse ? 'is-down' : 'is-up'}`);
-        mark.setAttribute('aria-label', `지난 마감 ${flip.from}에서 바뀜`);
-        chip.title = `지난 마감 대비 ${flip.from} → ${flip.to}`;
-        chip.append(mark);
-      }
-      return chip;
-    }));
-    // v58.80 run-5 (impatient #2): one named link under the chips opens 시장 상태 on the trend axis's S&P 500 chart.
-    if (!doc.getElementById('home-hero-chart-link')) {
-      const toChart = el(doc, 'button', '지수 차트와 6개 지표 보기 →', 'flow-next-link');
-      toChart.type = 'button';
-      toChart.id = 'home-hero-chart-link';
-      toChart.addEventListener('click', () => openSignalAxis(doc, root, 'trend', { chart: true }));
-      chips.insertAdjacentElement('afterend', toChart);
-    }
   }
   // v59.51 (content audit): the forward block and today's guide (crossroads + guide, ~9k characters folded) moved to 시장
   // 상태 (renderRegimePage); 오늘 keeps one link to it (daily-loop.js renderHomeLinks).

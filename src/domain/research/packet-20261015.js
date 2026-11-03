@@ -42,7 +42,7 @@ export const PACKET_20261015_FRAMES = Object.freeze([
     example: { inputs: ['가상 데이터센터 투자 100', '연 매출 15, 현금 마진 40%', '장비 수명 5년'], steps: ['연 현금 창출 = 15 × 0.40 = 6', '5년 누적 = 6 × 5 = 30'], result: '장비 수명 안에 투자 100 중 30만 돌아옵니다. 매출이 빠르게 늘지 않으면 장비를 바꿀 때 회사의 다른 현금이나 새 자금 조달에 기대야 하고, 빚으로 지은 회사라면 조달 비용이 투자 속도를 정하게 됩니다.' },
     reverse: '빅테크가 설비투자 지침을 유지하거나 올리고, AI 기업 매출이 투자보다 빨리 늘며, 회사채 금리가 안정되면 의심은 가격 조정으로 끝날 수 있습니다. 지침 하향·데이터센터 취소·메모리 가격 하락이 함께 나오면 판단을 이익 전망 하향 쪽으로 옮깁니다.',
     channels: ['투자', '매출', '현금'], variables: ['빅테크 설비투자 지침', 'AI 기업 매출 증가율', 'AI 클라우드 회사채 금리', '데이터센터 착공·취소', '서버 D램·HBM 가격과 주문'],
-    indicators: [{ label: 'AI 설비투자 사슬 테마의 단계와 거시 영향', route: 'themes', routeLabel: '테마 · 섹터' }, { label: '신용 스프레드와 금리', route: 'macro', routeLabel: '거시 경제' }, { label: '종목별 Forward PER와 예상 이익 증가율', route: 'screener', routeLabel: '스크리너' }],
+    indicators: [{ label: 'AI 설비투자 사슬 테마의 단계와 거시 영향', route: 'themes', routeLabel: '테마 · 섹터' }, { label: '신용 스프레드와 금리', route: 'macro', routeLabel: '매크로' }, { label: '종목별 Forward PER와 예상 이익 증가율', route: 'screener', routeLabel: '스크리너' }],
     shift: '설비투자 증가를 곧장 공급자 이익으로 옮기던 모델에서 회수(매출)·조달(신용)·주문(시차)을 나눠 보는 모델로 전환', inputs: ['hyperscaler capex guidance', 'AI revenue run-rate', 'AI cloud bond yields', 'data center starts and cancellations', 'server DRAM and HBM contract prices'],
     chart: '설비투자와 AI 매출을 같은 분기 축에 나란히, 회사채 금리는 별도 축', counterclaim: '인프라 투자는 원래 매출보다 앞서며, 회수 기간이 길다는 것만으로 투자가 과하다고 단정할 수 없음', concepts: ['capex', 'roic', 'credit-cost'] },
   { id: 'tech-claim-stages', path: 'industry', title: '경쟁사 기술 발표를 읽는 단계', issue: '발표·샘플·양산·수율·고객 인증·점유율과 제품 시장의 구분', sourceRefs: [DRIVERS],
@@ -69,7 +69,7 @@ export const PACKET_20261015_FRAMES = Object.freeze([
     example: { inputs: ['가상 주식의 내년 이익 100', '할인율 8% → 9%', '장기 성장률 3%'], steps: ['가치 = 100 ÷ (0.08 − 0.03) = 2,000', '할인율 9%면 100 ÷ (0.09 − 0.03) ≈ 1,667'], result: '이익이 그대로여도 장기 금리가 올라 할인율이 1%p 오르면 가치는 약 17% 낮아집니다. 연쇄를 막아 바닥을 만드는 대응과 가격을 올리는 대응은 다를 수 있습니다.' },
     reverse: '물가가 꺾여 연준이 인상을 멈추거나 인하로 돌아서고, 10년물 금리가 함께 내려가며 하이일드 스프레드 확대가 멈추면 정책 바닥이 가격 회복으로 이어지는 쪽입니다. 물가가 다시 오르는데 주가와 국채 가격이 함께 빠지면 바닥은 더 아래에 있다고 봅니다.',
     channels: ['금리', '현금', '투자'], variables: ['근원 물가 추세', 'FOMC 다음 결정', '10년물 금리와 장단기 금리차', '하이일드 스프레드', '재정 적자·국채 발행 계획', '변동성(VIX)'],
-    indicators: [{ label: '금리·물가와 향후 시나리오', route: 'macro', routeLabel: '거시 경제' }, { label: '과열·냉각 구간과 투자 심리', route: 'sentiment', routeLabel: '투자 심리' }],
+    indicators: [{ label: '금리·물가와 향후 시나리오', route: 'macro', routeLabel: '매크로' }, { label: '과열·냉각 구간과 투자 심리', route: 'sentiment', routeLabel: '투자 심리' }],
     shift: '"당국이 하락을 용인하지 않는다"를 하나의 바닥으로 보던 모델에서, 연쇄 차단(바닥)과 가격 회복(이익·장기 금리)을 나누고 물가가 연준의 대응 크기를 정한다고 보는 모델로 전환', inputs: ['core inflation trend', 'FOMC decision', '10-year yield and 2s10s', 'HY spread', 'deficit and Treasury issuance', 'VIX'],
     chart: 'S&P 500과 10년물 금리를 같은 기간 축에 — 함께 빠지는 구간과 엇갈리는 구간을 음영', counterclaim: '침체가 깊어져 물가가 함께 내려가면 연준의 여력이 커지고 장기 금리도 경기 둔화 쪽으로 내려가, 2020년처럼 정책 대응이 바닥과 회복을 함께 만들 수 있음', concepts: ['policy-vs-long-rate', 'term-premium', 'credit-cost'] }
 ].map(Object.freeze));

@@ -3,20 +3,15 @@
 // v59.51 (content audit 2026-10-31): 밤사이 핵심, 주요 발표 요약, 다가오는 일정, 오늘 확인할 3가지 and "지난 마감 이후 변화" left
 // 오늘 — each repeated a block on 뉴스, 브리핑 or the hero (same pickers, same rows). The links row says where they are.
 import { buildMyNames } from '../../domain/briefing/daily-diff.js';
-import { buildBriefingSchedule, sp500NameMap } from '../../domain/briefing/schedule.js';
-import { EVENT_BRIEFS } from '../../data/event-artifacts.js';
-import { usWeekendClosed } from '../../domain/market/market-calendar.js';
 import { readMarketRegime } from './market-regime.js';
 import { withObjectParticle } from '../../domain/content/korean-particle.js';
 import { el } from './dom.js';
 import { frameHead, markFrame } from './section-frame.js';
-import { openRouteSection } from './page-flow.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { buildKoreaIndexSeries } from '../../domain/market/regime-scenarios.js';
 import { deriveQuotePresentation } from '../../domain/market/quote-presentation.js';
 import { formatScreenerPrice, screenerMarket } from '../../domain/screener/market-scope.js';
 import { signedText, directionOf } from '../../domain/shared/number.js';
-import { macroReleasesFor } from '../../domain/briefing/macro-releases.js';
 function call(root, name, arg, fallback) {
   try { const fn = root?.[name]; return typeof fn === 'function' ? (fn(arg) ?? fallback) : fallback; } catch (_) { return fallback; }
 }
@@ -141,168 +136,6 @@ function namePrice(doc, symbol, quote, screenerRow = null) {
 }
 
 // T16 (expert review 2026-10-13): the schedule uses the briefing's S&P 500 name list and requests the calendar once itself.
-function homeNames(root) {
-  if (root._aioSp500Names) return root._aioSp500Names;
-  const names = sp500NameMap(root.SCREENER_DB);
-  if (Object.keys(names).length) root._aioSp500Names = names;
-  return names;
-}
-
-function requestEarnings(doc, root, repaint) {
-  const nowMs = Date.now();
-  if (root._aioEarningsSnapshot || typeof root._fetchEarningsCalendarSnapshot !== 'function' || root._aioBriefingEarningsRequested || nowMs - (Number(root._aioBriefingEarningsRequestedAt) || 0) < 60000) return;
-  root._aioBriefingEarningsRequested = true;
-  root._aioBriefingEarningsRequestedAt = nowMs;
-  Promise.resolve(root._fetchEarningsCalendarSnapshot()).then((snap) => { if (snap && !root._aioEarningsSnapshot) root._aioEarningsSnapshot = snap; }).catch(() => {}).finally(() => {
-    root._aioBriefingEarningsRequested = false;
-    if (root._aioEarningsSnapshot && doc.getElementById('page-home')?.classList?.contains('active')) repaint();
-  });
-}
-
-// v59.51 (content audit): the next scheduled events (the same buildBriefingSchedule rows 브리핑 lists for 7 days).
-// v59.55 (flow review): one row — 브리핑 다음 확인 포인트 owns the list, the branches and the 7 days.
-function nextEvents(doc, root, repaint, limit = 1) {
-  requestEarnings(doc, root, repaint);
-  // v58.74 (audit): on a weekend three days reached only Monday's minor reports; five reach the next week's Wednesday.
-  const days = usWeekendClosed() ? 5 : 3;
-  const rows = buildBriefingSchedule({
-    fomcDecisions: Array.isArray(root.AIO_MACRO_OFFICIAL_SCHEDULES?.['us-fomc']) ? root.AIO_MACRO_OFFICIAL_SCHEDULES['us-fomc'] : [],
-    releases: root.AIO_MACRO_CALENDAR?.releases || {},
-    snapshot: root.DATA_SNAPSHOT || {},
-    // P1737: one Fed-range answer (producer -> FRED -> manual within its window; null once the manual value expired).
-    policyRange: typeof root.AIO?.getFedPolicyRange === 'function' ? root.AIO.getFedPolicyRange()?.range || null : root.AIO_EVENT_FRESHNESS_REGISTRY?.fomc?.policyRange || null,
-    earnings: root._aioEarningsSnapshot?.earnings || [],
-    earningsMeta: root._aioEarningsSnapshot || {},
-    names: homeNames(root),
-    nowMs: Date.now(),
-    days,
-    maxEarnings: 4
-  }).filter((row) => !row.passed);
-  // v59.42: a major registered event (the US midterm) keeps a place among the shown rows.
-  const shown = rows.slice(0, limit);
-  const major = rows.slice(limit).find((row) => row.major);
-  // Feature audit 2026-11-02: with one row (오늘's 다음 일정) the swap hid the actual next event (ISM, AAPL earnings) behind a
-  // later major one; a single-row list keeps the next event and adds the major beside it.
-  if (major && !shown.some((row) => row.major)) shown.splice(shown.length > 1 ? shown.length - 1 : shown.length, shown.length > 1 ? 1 : 0, major);
-  return shown;
-}
-
-// v58.53 개편 v2 (2b): the hero's right tile — "판단이 바뀌는 조건".
-// v58.55 (owner 2026-10-20): each US axis carries the distance to its nearest flip (regime axis.flipDistance). The tile
-// lists the three axes nearest to changing — the distance divided by the indicator's average daily move over 20
-// sessions, smallest first; a distance that still needs a condition no number measures ranks after the measured ones.
-// Without any distance the tile falls back to the v58.53 order: one-sided axes first, full rule sentence, board order.
-const FLIP_ORDER = Object.freeze({ burden: 0, favorable: 1, neutral: 2 });
-const FLIP_MARK = Object.freeze({ burden: ['↑', 'is-up', '나아지는 조건'], favorable: ['↓', 'is-down', '약해지는 조건'], neutral: ['↑↓', 'is-both', '양쪽 조건'] });
-const DISTANCE_MARK = Object.freeze({ improve: ['↑', 'is-up', '나아지는 쪽'], worsen: ['↓', 'is-down', '약해지는 쪽'] });
-export function heroFlipRows(regime, limit = 3) {
-  if (!regime?.available || !Array.isArray(regime.axes)) return [];
-  const us = regime.axes.map((axis, index) => ({ axis, index })).filter(({ axis }) => axis.id !== 'korea' && axis.state in FLIP_ORDER);
-  const measured = us.filter(({ axis }) => axis.flipDistance && axis.flipDistance.text);
-  const rank = ({ axis }) => [axis.flipDistance.needsMore ? 1 : 0, axis.flipDistance.sessions ?? Infinity];
-  const near = measured
-    .sort((a, b) => { const [a1, a2] = rank(a), [b1, b2] = rank(b); return a1 - b1 || a2 - b2 || a.index - b.index; })
-    .slice(0, limit)
-    .map(({ axis }) => ({ id: axis.id, title: axis.title, state: axis.state, stateLabel: axis.stateLabel, flip: axis.flip ? String(axis.flip) : '', distance: axis.flipDistance }));
-  // v58.55 review: the slots measured axes leave are filled in the v58.53 order with the full rule sentence.
-  const rest = us
-    .filter(({ axis }) => axis.flip && !near.some((row) => row.id === axis.id))
-    .sort((a, b) => FLIP_ORDER[a.axis.state] - FLIP_ORDER[b.axis.state] || a.index - b.index)
-    .slice(0, Math.max(0, limit - near.length))
-    .map(({ axis }) => ({ id: axis.id, title: axis.title, state: axis.state, stateLabel: axis.stateLabel, flip: String(axis.flip), distance: null, unmeasured: near.length > 0 }));
-  return [...near, ...rest];
-}
-
-function flipDistanceLine(doc, row) {
-  const d = row.distance;
-  const text = el(doc, 'span', null, 'home-flip-text');
-  const parts = d.parts || null;
-  if (parts) text.append(doc.createTextNode(`${parts.subject} `), el(doc, 'b', parts.mark, 'home-flip-num'), doc.createTextNode(` ${parts.verb} `));
-  else text.append(doc.createTextNode(`${d.condition} `));
-  text.append(el(doc, 'b', `${row.title} → ${d.towardLabel}`, 'home-flip-axis'));
-  for (const item of d.also || []) text.append(el(doc, 'span', `함께 필요, ${item.condition}${item.text ? ` (${item.text})` : ''}`, 'home-flip-also'));
-  return text;
-}
-
-// v59.51 (two layers): the face of each row is the condition sentence and its distance; how far that is in ordinary daily
-// moves, every condition of the axis and the full rule open in "전체 조건과 거리". The next scheduled event
-// close the tile (what could move the numbers), with the 7-day list one link away on 브리핑.
-function renderHeroFlips(doc, root, regime, events) {
-  const tile = doc.getElementById('home-hero-flips');
-  if (!tile) return;
-  const rows = heroFlipRows(regime);
-  tile.hidden = !rows.length && !events.length;
-  if (tile.hidden) { tile.replaceChildren(); return; }
-  const measured = rows.some((row) => row.distance);
-  const head = el(doc, 'div', null, 'home-flips-head');
-  const title = el(doc, 'h2', '판단이 바뀌는 조건', 'sx-kicker home-flips-title');
-  title.id = 'home-hero-flips-title';
-  head.append(title);
-  // v58.56 (re-audit #23): the distances are measured from the last US close, not the live quotes.
-  if (measured) title.title = `거리는 ${regime.asOf ? `${shortDate(regime.asOf)} ` : '마지막 '}미국 종가로 잽니다(실시간 시세 아님), 조건까지 남은 거리를 그 지표의 최근 20거래일 평균 하루 변동폭으로 나눠, 작은 순서로 3개를 보여줍니다`;
-  const list = el(doc, 'ul', null, 'home-flips');
-  for (const row of rows) {
-    const li = el(doc, 'li', null, 'home-flip');
-    li.dataset.axis = row.id;
-    if (row.distance) {
-      const [mark, tone, words] = DISTANCE_MARK[row.distance.direction] || DISTANCE_MARK.worsen;
-      const badge = el(doc, 'span', mark, `home-flip-mark ${tone}`);
-      badge.setAttribute('aria-label', `${row.title} ${row.stateLabel} → ${row.distance.towardLabel}, ${words}`);
-      const chip = el(doc, 'span', `남은 거리 ${row.distance.text}`, 'home-flip-chip');
-      chip.title = `${regime.asOf ? `${shortDate(regime.asOf)} ` : ''}종가 기준, 지금 ${row.title} ${row.stateLabel}, 기준까지 ${row.distance.text}${row.distance.sessions != null ? `, 최근 20거래일 평균 하루 변동폭의 ${row.distance.sessions}배` : ''}${row.distance.needsMore ? ', 숫자로 잴 수 없는 조건이 함께 필요' : ''}`;
-      li.dataset.direction = row.distance.direction;
-      const dist = el(doc, 'span', null, 'home-flip-dist');
-      dist.append(chip);
-      li.append(badge, flipDistanceLine(doc, row), dist);
-    } else {
-      const [mark, tone, words] = FLIP_MARK[row.state];
-      const badge = el(doc, 'span', mark, `home-flip-mark ${tone}`);
-      badge.setAttribute('aria-label', `${row.title} ${row.stateLabel} — ${words}`);
-      const text = el(doc, 'span', null, 'home-flip-text');
-      text.append(el(doc, 'b', `${row.title} ${row.stateLabel}`, 'home-flip-axis'), doc.createTextNode(` ${row.flip}`));
-      li.append(badge, text);
-      if (row.unmeasured) {
-        li.dataset.unmeasured = 'true';
-        const none = el(doc, 'span', '거리 계산 불가', 'home-flip-none');
-        none.title = '이 지표는 기준까지의 거리를 계산할 입력이 없어 조건 문장만 보여줍니다';
-        li.append(none);
-      }
-    }
-    list.append(li);
-  }
-  const nodes = [head, ...(rows.length ? [list] : [])];
-  // Expert layer: each listed axis's distance in ordinary daily moves and its full rule (every condition, both directions).
-  const full = rows.filter((row) => row.distance && row.flip);
-  if (full.length) {
-    const wasOpen = !!tile.querySelector(':scope > .home-flips-full')?.open;
-    const fold = el(doc, 'details', null, 'sx-disclosure home-flips-full');
-    fold.open = wasOpen;
-    fold.append(el(doc, 'summary', '전체 조건과 거리', 'home-flips-full-summary'));
-    const rules = el(doc, 'dl', null, 'home-flips-rules');
-    for (const row of full) {
-      rules.append(el(doc, 'dt', `${row.title} ${row.stateLabel}`), el(doc, 'dd', `${row.distance.sessions != null ? `기준까지 ${row.distance.text}, 최근 20거래일 평균 하루 변동폭의 ${row.distance.sessions}배. ` : ''}${row.flip}`));
-    }
-    fold.append(rules);
-    nodes.push(fold);
-  }
-  if (events.length) {
-    const sub = el(doc, 'h3', '다음 일정', 'sx-kicker home-flips-title home-flips-next-title');
-    sub.title = '한국 시간';
-    const next = el(doc, 'ul', null, 'home-flips-next');
-    for (const row of events) {
-      const li = el(doc, 'li', null, `home-flips-event${row.today ? ' is-today' : ''}`);
-      li.append(el(doc, 'span', row.when, 'home-flips-event-when'), el(doc, 'span', row.label, 'home-flips-event-label'));
-      if (row.sourceTitle) li.title = row.sourceTitle;
-      next.append(li);
-    }
-    const more = el(doc, 'button', '확인 포인트와 7일 일정 → 브리핑', 'flow-next-link');
-    more.type = 'button';
-    more.addEventListener('click', () => openRouteSection(doc, root, 'briefing', 'briefing-checks'));
-    nodes.push(sub, next, more);
-  }
-  tile.replaceChildren(...nodes);
-}
-
 function renderMyNews(doc, host, root, store, names) {
   const symbols = new Set((names || []).map((row) => row.symbol));
   host.replaceChildren(el(doc, 'h2', '내 종목 뉴스', 'briefing-h2'));
@@ -335,39 +168,6 @@ function renderMyNews(doc, host, root, store, names) {
   host.append(list);
 }
 
-// v59.51 (content audit): the blocks that left 오늘, one tap away — the overnight news and the release write-ups (뉴스
-// paints both, paintNewsBriefs), and the forward scenarios with today's guide (시장 상태, in one fold there).
-function renderHomeLinks(doc, root) {
-  const nav = doc.getElementById('home-next');
-  if (!nav) return;
-  const news = el(doc, 'button', '밤사이 뉴스와 발표 요약 → 뉴스', 'flow-next-link');
-  news.type = 'button';
-  news.dataset.action = 'showPage';
-  news.dataset.arg = 'market-news';
-  // The count reads the same tiers 뉴스 paints (a lazy chunk, as the write-ups were: not part of the boot set).
-  const macro = macroReleasesFor(root).length;
-  import('../../domain/briefing/event-briefs.js').then(({ homeBriefTiers }) => {
-    const tiers = homeBriefTiers(root?.[EVENT_BRIEFS.key] || null, { nowMs: Date.now() });
-    const count = tiers.core.length + tiers.notable.length + macro;
-    if (count && news.isConnected) news.textContent = `밤사이 뉴스와 발표 요약 ${count}건 → 뉴스`;
-  }).catch(() => {});
-  const depth = el(doc, 'button', '다음 발표에 달린 시나리오와 오늘의 가이드 → 시장 상태', 'flow-next-link');
-  depth.type = 'button';
-  depth.addEventListener('click', () => {
-    root?.showPage?.('signal');
-    let tries = 0;
-    const land = () => {
-      const fold = doc.getElementById('regime-depth-fold');
-      if (!fold?.querySelector('#signal-crossroads, #home-guide')) { if ((tries += 1) < 30) setTimeout(land, 100); return; }
-      fold.open = true;
-      fold.scrollIntoView?.({ block: 'start' });
-    };
-    setTimeout(land, 60);
-  });
-  nav.replaceChildren(news, depth);
-  nav.hidden = false;
-}
-
 // v57.78 perf: `regime` is the one home already computed this render (renderHomeRegime returns it); without it the
 // loop reads the regime itself, so a caller that renders the loop alone sees the same breadth state.
 export function renderDailyLoop({ documentRef: doc, root, store, regime = null }) {
@@ -375,17 +175,14 @@ export function renderDailyLoop({ documentRef: doc, root, store, regime = null }
   if (!host) return null;
   const current = regime || readMarketRegime(root);
   renderKoreaQuote(doc, root);
-  const repaint = () => renderHeroFlips(doc, root, current, nextEvents(doc, root, () => {}));
-  renderHeroFlips(doc, root, current, nextEvents(doc, root, repaint));
+  // v59.68 (owner 2026-11-03, 홈 = prices, stocks, news): the flip conditions and next events (시장 상태, 브리핑 own them),
+  // the AI supply chain (테마와 섹터) and the link row left 오늘.
   const namesHost = doc.getElementById('home-my-names');
   const names = namesHost ? renderMyNames(doc, namesHost, root, store, current) : null;
   const newsHost = doc.getElementById('home-my-news');
   if (newsHost) renderMyNews(doc, newsHost, root, store, names?.names || []);
-  renderHomeLinks(doc, root);
-  // v59.67 (phase 5): 오늘의 핵심 — the day's top stories and movers (a lazy chunk; market-day.json loads on first use).
-  import('./home-day.js').then(({ renderHomeDay }) => renderHomeDay({ documentRef: doc, root })).catch(() => {});
-  // v59.44 (owner 2026-10-30): the AI supply chain by group (a lazy chunk) — the leaders' visual under the verdict.
-  import('./ai-chain-flow.js').then(({ paintHomeAiChain }) => paintHomeAiChain(doc, root)).catch(() => {});
+  // v59.67 (phase 5): 오늘의 핵심 — the day's top stories, movers and headlines (a lazy chunk; market-day.json loads on first use).
+  import('./home-day.js').then(({ renderHomeDay }) => renderHomeDay({ documentRef: doc, root, store })).catch(() => {});
   host.dataset.aioDailyLoopRenderer = 'native';
   return { names };
 }

@@ -458,7 +458,7 @@ const ATLAS_RELATIONSHIP_KIND_LABELS = Object.freeze({ concept: '핵심 개념',
 const ATLAS_CRITICALITY_LABELS = Object.freeze({ structural: '구조 관계', conditional: '조건부 관계', claim: '기업 주장' });
 // Actions that open a different document (a history entry each); selections inside one document replace the URL.
 const ATLAS_DOCUMENT_ACTIONS = new Set(['tab', 'section', 'layer', 'module', 'domain', 'domain-node', 'relationship-guide']);
-const ATLAS_ROUTE_LABELS = Object.freeze({ principles: '개념·분석', atlas: '산업 지도', masters: '대가 보유 종목', fundamental: '재무 공시', themes: '테마·산업', macro: '거시 경제', fxbond: '금리와 환율', technical: '종목, 차트' });
+const ATLAS_ROUTE_LABELS = Object.freeze({ principles: '개념·분석', atlas: '산업 지도', masters: '대가 보유 종목', fundamental: '재무 공시', themes: '테마·산업', macro: '매크로', fxbond: '금리와 환율', technical: '종목, 차트' });
 
 const ATLAS_PACKET_DISPLAY = Object.freeze({
   'ATLAS-00': { title: 'AI 산업 지도 읽는 법', scope: '노드·관계·출처·검토 상태를 읽는 공통 언어' },

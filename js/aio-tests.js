@@ -2858,9 +2858,10 @@
       chatSendSrc.indexOf("_aioRunAIResponsePipeline(fullText") >= 0 && chatSendSrc.indexOf('aio-chat-structure-badge') < 0 && typeof window.AIO.assertChatAnswerStructureAudit === 'function',
       'pipeline=' + (chatSendSrc.indexOf("_aioRunAIResponsePipeline(fullText") >= 0) + ' badge=' + (chatSendSrc.indexOf('aio-chat-structure-badge') >= 0));
     // T595 home 채팅 DOM 존재 (v49.74 hotfix)
-    var homeDom = !!document.getElementById('chat-home-inp'), homeAsk =!!document.querySelector('#page-home [data-action="_aioAskInPanel"]');
+    // v59.68: 오늘 has no question chips either; the top AI panel is the one way in.
+    var homeDom = !!document.getElementById('chat-home-inp');
     _assert('T595 home_chat_dom_v4974_hotfix: P1653 홈 질문은 상단 AI 패널로 (인라인 입력 없음)',
-      !homeDom && homeAsk, 'homeDom=' + homeDom + ' ask=' + homeAsk);
+      !homeDom, 'homeDom=' + homeDom);
     // T596 APP_VERSION === 'v49.75' (v49.76 갱신 — 하위 호환)
     _assert('T596 app_version_v4975_final: APP_VERSION === "v49.75" or 신규',
       typeof APP_VERSION === 'string' && _versionAtLeast(APP_VERSION, 'v49.70'),
@@ -3941,12 +3942,12 @@
       audit && typeof audit.issueCount === 'number',
       audit ? ('issueCount=' + audit.issueCount + ' tables=' + audit.inlineTables.length) : 'api missing');
 
-    // T310: home subSections (v49.37 8 → v49.38 15 → v57.76 12 → v57.77 5 → v59.51 7)
+    // T310: home subSections (v49.37 8 → v49.38 15 → v57.76 12 → v57.77 5 → v59.51 7 → v59.68 6)
     var pageReg = window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY;
     var subCount = pageReg && pageReg.pages && pageReg.pages.home && pageReg.pages.home.subSections.length;
     var homeRetired310 = pageReg && pageReg.pages && pageReg.pages.home ? pageReg.pages.home.subSections.filter(function(s) { return ['home-conclusion-bar', 'home-market-summary', 'home-gmo-bloomberg', 'home-api-onboarding', 'home-score-legend', 'home-quick-nav', 'home-3-cards-decision', 'home-explain-decision', 'home-explain-top', 'home-explain-gmo'].indexOf(s.id) >= 0; }).length : -1;
-    _assert('T310 v59.51 home_subsections_7: subSections 7개, 퇴역 섹션(결론바·배너·GMO·온보딩·범례·빠른 이동·3카드·해설) 미등재',
-      subCount === 7 && homeRetired310 === 0, 'count=' + subCount + ' retiredListed=' + homeRetired310);
+    _assert('T310 v59.68 home_subsections_6: subSections 6개, 퇴역 섹션(결론바·배너·GMO·온보딩·범례·빠른 이동·3카드·해설) 미등재',
+      subCount === 6 && homeRetired310 === 0, 'count=' + subCount + ' retiredListed=' + homeRetired310);
 
     // T311: home findings 배열 (v57.77 5+ → 3+ → v59.51 1+)
     var findings = pageReg && pageReg.pages && pageReg.pages.home && pageReg.pages.home.findings;

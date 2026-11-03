@@ -4086,11 +4086,10 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
         // v57.76: home-conclusion-bar (order 5), home-market-summary banner (order 6) and the GMO table (order 14) are retired.
         // v57.77: entries whose section left index.html are pruned — API onboarding (2), score legend (4), quick-nav chips (7),
         // the three decision cards (8, v57.50 I16), the decision explainer (10), the top-indicator fold (13) and the GMO explainer (15).
-        { id: 'home-score-hero',        order:  5, topic: '판정 히어로 + 오늘의 질문 + 판단이 바뀌는 조건 (v59.51)', lines: 'index.html #home-score-hero' },
+        { id: 'home-score-hero',        order:  5, topic: '판정 히어로 + 오늘의 질문 (v59.68)', lines: 'index.html #home-score-hero' },
         { id: 'home-index-strip',       order:  7, topic: '지수 하루 흐름 4카드 (v59.51)', lines: 'index.html #home-index-strip' },
         { id: 'home-sub-indicators',    order: 12, topic: '교차 자산 줄 (선물 칩/VIX/공포·탐욕/코스피 등, v59.51 갱신)', lines: 'index.html #home-cross-assets' },
-        { id: 'home-ai-chain',          order: 13, topic: 'AI 공급망 (v59.51)', lines: 'index.html #home-ai-chain' },
-        { id: 'home-participation',     order: 14, topic: '지수와 참여 종목, 같은 기간 (v59.51)', lines: 'index.html #home-participation' }
+        { id: 'home-day',               order: 13, topic: '오늘의 핵심 — 이야기·주요 뉴스·크게 움직인 종목 (v59.68)', lines: 'index.html #home-day' }
       ],
       // v49.40 home 3차 점검 완료 후 audit status
       auditStatus: {

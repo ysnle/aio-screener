@@ -950,9 +950,11 @@ const screenerAt = html.indexOf('id="page-screener"');
 // v59.51 (content audit): the verdict hero leads again under the date line, then the index strip, the cross-asset row, the AI
 // supply chain, the participation pair, the daily loop with 내 종목, and the next-screen links. 시세 기준 line, KPI strip, 일정 and
 // 지난 마감 이후 변화 left 오늘 (each repeated 시장 상태 or 브리핑).
-const homeOrder = ['home-date-label', 'home-score-hero', 'home-index-strip', 'home-cross-assets', 'home-ai-chain', 'home-participation', 'home-daily-loop', 'home-my-names', 'home-next'].map((id) => html.indexOf(`id="${id}"`));
-const homeRetired = ['home-quote-basis', 'home-kpi-strip', 'home-schedule', 'home-daily-changes'].every((id) => html.indexOf(`id="${id}"`) < 0);
-check('v59.51 (content audit) home static order: date, verdict hero, index strip, cross assets, AI chain, participation, daily loop, 내 종목, next links; retired quote-basis/KPI/schedule/close-change ids absent; no runtime reorder (P1322/P1494)', homeOrder.every((at, i) => at > 0 && (i === 0 || at > homeOrder[i - 1])) && homeRetired && html.indexOf('id="home-market-summary-banner"') < 0 &&!/crossAssets\.insertAdjacentElement\('afterend', anchorH\)/.test(core) && /hero\.dataset\.state = regime\.available/.test(read('src/ui/components/market-regime.js')));
+// v59.68 (owner 2026-11-03, 홈 = indexes, prices, key stocks, key news): 오늘의 핵심 follows the quote row; the AI supply chain,
+// participation card, flip tile, axis chips and the link row left the page (시장 상태, 브리핑, 테마와 섹터 own them).
+const homeOrder = ['home-date-label', 'home-score-hero', 'home-index-strip', 'home-cross-assets', 'home-day', 'home-daily-loop', 'home-my-names'].map((id) => html.indexOf(`id="${id}"`));
+const homeRetired = ['home-quote-basis', 'home-kpi-strip', 'home-schedule', 'home-daily-changes', 'home-ai-chain', 'home-participation', 'home-hero-flips', 'home-hero-components', 'home-next'].every((id) => html.indexOf(`id="${id}"`) < 0);
+check('v59.68 home static order: date, verdict hero, index strip, cross assets, 오늘의 핵심, daily loop, 내 종목; retired quote-basis/KPI/schedule/close-change/AI chain/participation/flips/chips/next ids absent; no runtime reorder (P1322/P1494)', homeOrder.every((at, i) => at > 0 && (i === 0 || at > homeOrder[i - 1])) && homeRetired && html.indexOf('id="home-market-summary-banner"') < 0 &&!/crossAssets\.insertAdjacentElement\('afterend', anchorH\)/.test(core) && /hero\.dataset\.state = regime\.available/.test(read('src/ui/components/market-regime.js')));
 // v57.77: the screener reads, then filters, then shows the table; the ranking validation lives once inside the
 // 과거 검증 tab, and the weight-profile and data-status folds sit below the tab panels.
 const screenerOrder = ['screener-read', 'screener-workbench', 'scr-tab-ranking', 'screener-results-table', 'scr-tab-backtest', 'screener-validation', 'scr-tab-evidence', 'scr-weight-profiles', 'scr-data-status', 'screener-next'].map((id) => html.indexOf(`id="${id}"`));
@@ -1023,7 +1025,7 @@ check('EF-03/P713: US FOMC calendar entry has valid ISO lastRelease < nextReleas
 // only with a live quote on an open CME week).
 {
   const crossAt = html.indexOf('id="home-cross-assets"');
-  const crossEnd = html.indexOf('id="home-ai-chain"', crossAt);
+  const crossEnd = html.indexOf('id="home-day"', crossAt);
   const cross = crossAt >= 0 && crossEnd > crossAt ? html.slice(crossAt, crossEnd) : '';
   check('EF-17 v59.51 (content audit): the home cross-asset row carries the ES=F/NQ=F futures chips and the GMO table is gone', ['ES=F', 'NQ=F'].every((sym) => cross.indexOf(`data-futures="${sym}"`) >= 0 && cross.indexOf(`data-live-price="${sym}"`) >= 0) && /getElementById\?\.\('home-cross-assets'\)/.test(read('src/ui/components/home-kpi-trend.js')) && html.indexOf('id="gmo-tbody"') < 0 && ui.indexOf('const GMO_MARKETS') < 0 && ui.indexOf('function renderGmoTable') < 0);
 }

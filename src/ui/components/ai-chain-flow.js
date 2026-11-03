@@ -18,15 +18,6 @@ function sessionLabel(root) {
   return m && d ? `${m}/${d} 종가 기준` : '종가 기준';
 }
 
-/**
- * 오늘 (v59.51, content audit): the leaders' visual under the verdict — the five largest one-month moves as bars and one
- * plain sentence on the face; the full reading, the defensive contrast, every other group and each group's members open
- * under it (two layers, owner 2026-10-31). The host is static markup (#home-ai-chain).
- */
-export function paintHomeAiChain(doc, root) {
-  if (!doc?.getElementById('home-ai-chain')) return null;
-  return paintAiChain(doc, root, { id: 'home-ai-chain', frame: 'home.ai-chain', more: true, limit: 5 });
-}
 
 /** 테마: the same block opens the page, above 섹터 회전 (owner 2026-10-30, each screen carries the AI-chain read). */
 export function paintThemesAiChain(doc, root) {

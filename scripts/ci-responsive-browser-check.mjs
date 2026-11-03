@@ -209,7 +209,7 @@ try {
     await snap(page, `${viewport.name}-theme-comparison.png`);
     await page.evaluate(() => window.showPage('home', null));
     // v57.76: the five home breadth cards are replaced by one link to the 시장 폭 screen.
-    check(await page.locator('.home-breadth-cards').count() === 0 && await page.locator('#home-participation .home-breadth-link[data-action="showPage"][data-arg="breadth"]').count() === 1, `${viewport.name}: home must link to 시장 폭 instead of repeating its breadth cards (v57.76)`);
+    check(await page.locator('.home-breadth-cards, #home-participation').count() === 0, `${viewport.name}: home leaves breadth to 시장 상태 (v57.76, v59.68)`);
     await page.locator('#topbar-ai-btn').click();
     await settle(page, () => { const panel = document.getElementById('ai-panel'); return !!panel?.classList.contains('open') && !!document.querySelector('.app')?.inert && !panel.getAnimations().some((animation) => animation.playState === 'running'); });
     const ai = await page.locator('#ai-panel').evaluate((el) => {

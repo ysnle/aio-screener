@@ -10,7 +10,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v59.67 — 올인원 투자 터미널</title>
+  <title>AIO Screener v59.68 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 시장 환경 참고 지표, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f4f0e8">
@@ -3752,7 +3752,7 @@ button[data-filter-active="true"] {
             <span class="ps-status sh-muted-tone" id="mp-sentiment-label">불러오는 중</span>
           </div>
           <div class="pulse-seg" data-action="showPage" data-arg="macro" role="button" tabindex="0" title="거시경제 상세" aria-label="거시경제 페이지 이동">
-            <span class="ps-label">거시 경제</span>
+            <span class="ps-label">매크로</span>
             <span class="ps-val" id="mp-macro-icon" style="color:var(--text-muted);font-size:12px;">●</span>
             <span class="ps-status sh-muted-tone" id="mp-macro-val">불러오는 중</span>
           </div>
@@ -3780,10 +3780,10 @@ button[data-filter-active="true"] {
       <span id="llm-quota" style="font-size:12px;color:var(--text-muted);font-family:var(--font-mono);" title="오늘 남은 AI 호출 / 일일 한도 (5명 공유 키)">10/10</span>
     </div>
   </div>
-  <!-- v59.51 (owner 2026-10-31: "홈 결론 … 다시 위로 올려", compact; two layers): the verdict opens the page as one
-       card — the verdict word, one plain sentence, the day's question, the leaders and Korea lines, the axis chips and what
-       would change it; every reading behind them is a closed fold (the expert layer). Then the one market picture (index
-       strip, one quote row, the AI supply chain, participation), your names, and one link row to what left the page. -->
+  <!-- v59.51 (owner 2026-10-31: "홈 결론 … 다시 위로 올려") the verdict opens the page. v59.68 (owner 2026-11-03: 홈 =
+       indexes, key prices, key stocks, key news; "simple purpose"): the verdict word, one sentence, the day's question and
+       the Korea line; its chips, conditions and reasons live on 시장 상태, one tap away. Then the indexes, the quote row,
+       오늘의 핵심 (stories, movers, headlines) and your names. -->
   <section id="home-score-hero" class="sx-card sx-card--hero home-hero" aria-label="지금 시장">
     <div class="home-hero-main">
       <span id="home-hero-total" class="sx-verdict home-hero-verdict">판정 대기</span>
@@ -3791,14 +3791,10 @@ button[data-filter-active="true"] {
       <!-- 오늘의 질문 (owner 2026-10-15; js/aio-data.js _aioRenderOperatorNote fills it) sits beside the answer it questions. -->
       <div id="home-operator-note" style="display:none;"></div>
       <div id="home-hero-headline" class="home-hero-basis">종가 기록을 불러오는 중입니다.</div>
-      <!-- v58.68 (owner 2026-10-23): the AI·semiconductor leaders' line; the month tilt (session-lean.js) folds under it. -->
-      <div id="home-hero-leaders" class="leaders-line" hidden></div>
       <!-- P1651 + v58.81 (owner): one Korea line; the market clock and the Korea-US link checks open under it. -->
       <details id="home-kr-line" class="home-kr-line" hidden><summary></summary><p id="home-kr-detail" class="home-kr-detail"></p></details>
-      <div id="home-hero-components" class="regime-chips home-hero-chips"></div>
-      <details id="home-hero-why" class="sx-disclosure home-hero-why" hidden><summary>판정 근거</summary><ul id="home-hero-why-list" class="home-hero-why-list"></ul></details>
+      <button type="button" class="flow-next-link home-hero-more" data-action="showPage" data-arg="signal">근거와 시나리오 → 시장 상태</button>
     </div>
-    <aside id="home-hero-flips" class="sx-tile home-hero-flips" aria-labelledby="home-hero-flips-title" hidden></aside>
   </section>
   <!-- Owner 2026-10-25: the four index ETFs' last regular session (5-minute candles), the page's market picture. -->
   <section id="home-index-strip" class="home-index-strip" aria-label="지수 하루 흐름"></section>
@@ -3817,16 +3813,11 @@ button[data-filter-active="true"] {
   <!-- v59.67 (owner 2026-11-03, phase 5): 오늘의 핵심 — the three most material stories and the stocks that moved most, from
        the same 24-hour account as 브리핑 (src/ui/components/home-day.js). -->
   <section id="home-day" class="sx-card home-day" aria-labelledby="home-day-title" hidden></section>
-  <!-- v59.44 (owner 2026-10-30) AI supply chain (ai-chain-flow.js) and P1599 participation (home-kpi-trend.js). -->
-  <section id="home-ai-chain" class="daily-block ai-chain" aria-labelledby="home-ai-chain-title" hidden></section>
-  <section id="home-participation" class="sx-card home-participation" aria-labelledby="home-participation-title" hidden></section>
   <!-- P1432: 내 종목 and its news. -->
   <div id="home-daily-loop" class="daily-loop">
     <section class="daily-block" id="home-my-names" aria-label="내 종목"></section>
     <section class="daily-block" id="home-my-news" aria-label="내 종목 뉴스" hidden></section>
   </div>
-  <!-- v59.51: 밤사이 핵심 and 주요 발표 요약 live on 뉴스, the forward scenarios and today's guide on 시장 상태 (daily-loop.js). -->
-  <nav id="home-next" class="flow-next home-next" aria-label="이어서 볼 곳" hidden></nav>
 
   <!-- v51.65: 파이프라인 상태 배너 — AI/FMP/FRED 이슈 있을 때만 표시 (R234: 기본 hidden)
        v52.15 P6/P616: pill 11개 연속 노출이 "고장난 시스템" 인상을 주던 문제 —
@@ -3850,16 +3841,13 @@ button[data-filter-active="true"] {
   <div class="aio-card has-stripe-left" style="display:none;">
     <div id="home-market-analysis" data-market-analysis-sink="full"></div>
   </div>
-
-  <!-- P1653: questions go to the one top AI panel (owner 2026-10-12) -->
-  <div class="aio-ask-row home-ask-row"><span class="sh-muted-text">AI에게 묻기</span><button type="button" class="q-chip" data-action="_aioAskInPanel" data-arg="오늘 시장 환경 요약해줘">오늘 시장 환경 요약</button><button type="button" class="q-chip" data-action="_aioAskInPanel" data-arg="현재 시장에서 우선 확인할 지표와 리스크를 정리해줘">우선 확인할 것</button><button type="button" class="q-chip" data-action="_aioAskInPanel" data-arg="지금 시장 흐름별로 확인할 것과 기회비용을 정리해줘">흐름별 확인할 것</button></div>
 </div><!-- fix: page-home outer close -->
 
 
   <div class="page" id="page-signal" data-page-purpose="signal">
   <!-- P1392 (owner decision 2026-10-02): 시장 상태 = 6지표 판정판. 0~100 점수·스윙/데이 토글·진입 체크리스트·
        리스크 모니터·국면 진단·트레이딩 원칙·하단 시장 폭/청산 블록(시장 폭·투자 심리 화면과 중복)을 대체. -->
-  <header class="page-head"><div><h1 class="page-title">국면 판정</h1>
+  <header class="page-head"><div><h1 class="page-title">시장 상태</h1>
   <div class="page-subtitle" id="regime-basis">종가 기록을 불러오는 중입니다.</div></div></header>
   <!-- v58.53 개편 v2 (3b): ① hero (verdict · tally · previous verdict) → ② six-axis table, rows open one at a time into
        원리 / 지금 읽기 / 한계 cards → 이 조합이 뜻하는 것 · 다음에 확인할 것 → lower cards (radar, three flows, 한국).
@@ -4018,19 +4006,19 @@ button[data-filter-active="true"] {
 
     <!-- P1389 (owner review 2026-10-02): 일정 → 오늘의 해석 → 자산별 흐름 → 다음 확인. 같은 수치를 반복하던
          시장 바·6개 지표 요약·확인 목록·시장 분석·8월 자료 대조·과거 참고·주요 뉴스(→ 뉴스 화면)를 이 흐름으로 대체. -->
-    <section class="aio-section briefing-block briefing-read sx-card sx-card--hero" id="briefing-read" aria-labelledby="briefing-read-title">
-      <h2 class="briefing-h2" id="briefing-read-title">오늘의 시장 해석 <span class="briefing-h2-note" id="briefing-read-basis"></span></h2>
-      <p class="briefing-read-headline" id="briefing-read-headline">종가 기록을 불러오는 중입니다.</p>
-      <p class="briefing-read-reading" id="briefing-read-reading"></p>
-      <details class="sx-disclosure briefing-read-more" id="briefing-read-more"><summary>자세히, 오늘 해석의 근거와 AI 해설</summary><ul class="briefing-read-points" id="briefing-read-points"></ul><div class="briefing-ai" id="briefing-ai-wrap"><div class="briefing-ai-label">AI 해설</div><div id="briefing-ai-analysis" data-market-analysis-sink="full" data-analysis-server-only hidden></div></div></details>
-    </section>
-    <!-- v59.65 (owner 2026-11-03, phase 3): the last 24 hours as linked stories from market-day.json, in materiality order
+    <!-- v59.65 (owner 2026-11-03, phase 3): the last 24 hours as linked stories (v59.68: it opens the page; the five-session read follows) from market-day.json, in materiality order
          (src/domain/briefing/day-account.js, src/ui/components/briefing-day.js). -->
-    <section class="aio-section briefing-block briefing-day" id="briefing-day" aria-labelledby="briefing-day-title" hidden>
-      <h2 class="briefing-h2" id="briefing-day-title">지난 24시간, 이어서 보면 <span class="briefing-h2-note" id="briefing-day-basis"></span></h2>
+    <section class="aio-section briefing-block briefing-day sx-card sx-card--hero" id="briefing-day" aria-labelledby="briefing-day-title" hidden>
+      <h2 class="briefing-h2" id="briefing-day-title">지난 24시간 <span class="briefing-h2-note" id="briefing-day-basis"></span></h2>
       <p class="briefing-day-opening" id="briefing-day-opening"></p>
       <ol class="briefing-day-stories" id="briefing-day-stories"></ol>
       <div id="briefing-day-folds"></div>
+    </section>
+    <section class="aio-section briefing-block briefing-read" id="briefing-read" aria-labelledby="briefing-read-title">
+      <h2 class="briefing-h2" id="briefing-read-title">한 주 흐름 <span class="briefing-h2-note" id="briefing-read-basis"></span></h2>
+      <p class="briefing-read-headline" id="briefing-read-headline">종가 기록을 불러오는 중입니다.</p>
+      <p class="briefing-read-reading" id="briefing-read-reading"></p>
+      <details class="sx-disclosure briefing-read-more" id="briefing-read-more"><summary>자세히, 오늘 해석의 근거와 AI 해설</summary><ul class="briefing-read-points" id="briefing-read-points"></ul><div class="briefing-ai" id="briefing-ai-wrap"><div class="briefing-ai-label">AI 해설</div><div id="briefing-ai-analysis" data-market-analysis-sink="full" data-analysis-server-only hidden></div></div></details>
     </section>
     <!-- v58.53 개편 v2 (5a): 섹터 하루 등락 (sector-moves.js); v59.51: 왜 움직였나 is its fold, 시간대별 시황 moved to 뉴스. -->
     <div class="briefing-pair" id="briefing-pair">
@@ -4178,7 +4166,7 @@ button[data-filter-active="true"] {
        가격만 보이던 WTI/금 카드는 퇴역. -->
   <!-- v57.76: 향후 시나리오(macro-crossroads.js가 만드는 구역)는 연결 지도 바로 뒤, 경제 지표 앞에 들어간다 — 지금 상태 다음에 시나리오. -->
   <div id="tg-feed-macro"></div>
-  <header class="page-head"><div><h1 class="page-title">거시 경제</h1>
+  <header class="page-head"><div><h1 class="page-title">매크로</h1>
   <!-- v59.51 (area H, one next-release answer): the subtitle names the next release from crossroads.nextEvent; the separate
        #macro-next-release line (its own calendar pick, 11/3 ISM beside 11/6 고용) left. -->
   <div class="page-subtitle" id="macro-board-basis">공식 발표 자료를 불러오는 중입니다.</div></div></header>
@@ -6090,12 +6078,12 @@ button[data-filter-active="true"] {
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
   <!-- R622: block A (workspace) runs first in the defer group; kr-data and pages follow it, as when they sat in <head>. -->
-  <script src="./js/aio-workspace.js?v=59.67" defer></script>
-  <script src="./js/aio-kr-data.js?v=59.67" defer></script>
-  <script src="./js/aio-pages.js?v=59.67" defer></script>
-  <script src="./js/aio-core.js?v=59.67" defer></script>
-  <script src="./js/aio-data.js?v=59.67" defer></script>
-  <script src="./js/aio-ui.js?v=59.67" defer></script>
+  <script src="./js/aio-workspace.js?v=59.68" defer></script>
+  <script src="./js/aio-kr-data.js?v=59.68" defer></script>
+  <script src="./js/aio-pages.js?v=59.68" defer></script>
+  <script src="./js/aio-core.js?v=59.68" defer></script>
+  <script src="./js/aio-data.js?v=59.68" defer></script>
+  <script src="./js/aio-ui.js?v=59.68" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
@@ -6146,7 +6134,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      용어 사전 모달(src/ui/knowledge/glossary-modal.js, 호출 시점에만 읽음)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=59.67" defer></script>
+<script src="./js/aio-glossary.js?v=59.68" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->
@@ -6154,7 +6142,7 @@ button[data-filter-active="true"] {
 
 <!-- v58.56 (re-audit #13): R1 release identity moved from the topbar to the page foot — the topbar keeps only what a reader
      uses (quote basis, 도움말, AI). bump-version still patches this element by its id. -->
-<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, 등락 색은 오르면 <span style="color:var(--dir-up)">빨강</span>·내리면 <span style="color:var(--dir-down)">파랑</span>, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <button type="button" data-action="_aioOpenFeedback">오류 신고</button>, <span class="sx-page-foot-version" id="app-version-badge">v59.67</span></p>
+<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, 등락 색은 오르면 <span style="color:var(--dir-up)">빨강</span>·내리면 <span style="color:var(--dir-down)">파랑</span>, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <button type="button" data-action="_aioOpenFeedback">오류 신고</button>, <span class="sx-page-foot-version" id="app-version-badge">v59.68</span></p>
 </div><!-- /content -->
 </div><!-- /main -->
 </div><!-- /app -->

@@ -247,7 +247,7 @@ body.dark-theme .sector-map .is-na { background: var(--gold-3); color: var(--gol
 .page .xr-hub-note { font-size: 12px; line-height: 1.6; color: var(--text-secondary); margin: 2px 0 8px; }
 .page .xr-path.is-mixed { border-style: dashed; border-color: var(--text-primary); }
 /* Lead line of the compact block on 오늘·시장 상태 ("지금 구조: …", rendered by market-regime.js). */
-.page .xr-compact .xr-structure, .page .xr-structure { font-size: 14px; font-weight: 600; line-height: 1.6; color: var(--text-primary); margin: 0 0 6px; }
+.page .xr-structure { font-size: 14px; font-weight: 600; line-height: 1.6; color: var(--text-primary); margin: 0 0 6px; }
 .page .xr-map-branch[data-lead="true"] { border-color: var(--text-primary); box-shadow:none; }
 .page .xr-map-head, .page .xr-branch-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
 .page .xr-map-title { font-weight: 600; font-size: 14px; color: var(--text-primary); }
@@ -290,10 +290,7 @@ body.dark-theme .sector-map .is-na { background: var(--gold-3); color: var(--gol
 .page .xr-choice-flag { font-size: 12px; color: var(--data-green); white-space: nowrap; }
 .page .xr-explore { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
 .page .xr-explore-label { font-size: 14px; color: var(--text-secondary); }
-.page .xr-compact { margin: 16px 0 6px; padding: 14px 16px; border: 0.5px solid var(--border); border-radius: 8px; background: var(--bg-card); }
-.page .xr-compact .xr-h3 { margin-top: 0; }
 /* v57.91 (desktop audit): the full-width home card ran ~80 Korean characters a line; prose lines stop at a readable length. */
-.page .xr-compact :is(p, li) { max-width: 72ch; }
 @media (max-width: 760px) {
   .page .xr-paths { grid-template-columns: minmax(0, 1fr); }
   .page .xr-map { grid-template-columns: minmax(0, 1fr); }
@@ -416,18 +413,8 @@ body.dark-theme .sector-map .is-na { background: var(--gold-3); color: var(--gol
    quieter register, and the two paths as aligned cards (two columns from 720px, stacked on a phone). */
 .page .xr-structure .basis-chip { margin: 0 6px; vertical-align: 1px; }
 .page .xr-structure-note { font-size: 14px; line-height: 1.6; color: var(--text-secondary); margin: 0 0 8px; }
-.page .xr-path-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; margin: 10px 0; }
-.page .xr-path-card { display: grid; gap: 8px; align-content: start; padding: 12px 14px; border: 0.5px solid var(--border); border-radius: var(--radius); background: var(--bg-elevated); }
-.page .xr-path-head { display: grid; gap: 2px; }
-.page .xr-path-kicker { font-size: 12px; font-weight: 700; color: var(--text-muted); }
-.page .xr-path-name { font-size: 14px; color: var(--text-primary); }
-.page .xr-path-tags { display: flex; flex-wrap: wrap; gap: 6px; }
 .page .xr-price.is-same { color: var(--text-primary); font-weight: 700; }
 .page .xr-price.is-against { color: var(--data-amber); }
-.page .xr-path-rows { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; margin: 0; font-size: 14px; }
-.page .xr-path-rows dt { color: var(--text-muted); }
-.page .xr-path-rows dd { margin: 0; color: var(--text-primary); }
-.page .xr-path-card .xr-explore { margin-top: 2px; gap: 4px 8px; }
 /* Live review 2026-10-14: the folded remainder of a long axis reading. */
 .page .regime-read-more { margin: -10px 0 14px; color: var(--text-secondary); }
 .page .regime-read-more summary { cursor: pointer; min-height: 28px; display: list-item; font-size: 12px; color: var(--text-secondary); }

@@ -151,7 +151,7 @@ assert.equal(ndxFallback?.value, 31000, 'v59.51 (content audit): P1619 NDX close
 assert.notEqual(ndxFallback?.value, 27366, 'v59.51 (content audit): P1619 Composite value never enters the 나스닥 100 card');
 renderHomeRegime({ documentRef, root: { _aioHistory: [], DATA_SNAPSHOT: {} } });
 assert.equal(nodes.get('home-hero-total').textContent, '판정 대기');
-assert(!/양호|부담/.test(nodes.get('home-hero-components').textContent), 'missing history cannot display axis states');
+// v59.68: the axis chips left 오늘 for 시장 상태; the verdict above is the fail-closed check that stays on this page.
 // The home Fear & Greed card: the mounted home page reads sentiment from the store and the completed close from history.
 const setState = (state, action) => (action.type === 'test:set' ? { ...state, ...action.patch } : state);
 const homeStore = createStore({ initialState: { sentiment: { values: {} } }, reducer: setState });

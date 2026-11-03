@@ -132,10 +132,9 @@ export function paintMarketLean(doc, root, regime, anchor, rerender = null) {
   return model;
 }
 
-// The 오늘 hero call (src/ui/components/market-regime.js renderHomeRegime): clock and links inside the Korea line's fold,
-// the month tilt under the leaders.
+// The 오늘 hero call (src/ui/components/market-regime.js renderHomeRegime): clock and links inside the Korea line's fold.
+// The month tilt is painted on 시장 상태 under its leaders line (v59.68).
 export function paintHome(doc, root, store, regime, rerender, currentRegime) {
   exposeContextReaders(root, store, currentRegime);
   paintSessionBridge(doc, root, store, doc.getElementById('home-kr-line'), rerender);
-  paintMarketLean(doc, root, regime?.available ? regime : null, doc.getElementById('home-hero-leaders'), rerender);
 }

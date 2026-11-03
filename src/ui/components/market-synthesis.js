@@ -2,15 +2,13 @@
 // 이어서 볼 곳: this screen's own line, the four-step chain (체력 → 흐름 → 움직이는 힘 → 다음 갈림길), up to three
 // scenario branches with a met/total meter and what confirms or breaks each, where to lean and what to avoid, the checks
 // to make, and two questions for the AI. renderNextSteps (page-flow.js) loads it lazily for the SYNTHESIS_PAGES navs.
-import { buildMarketSynthesis, firstSentence } from '../../domain/market/market-synthesis.js';
+import { buildMarketSynthesis } from '../../domain/market/market-synthesis.js';
 
-const OWN_LEAD = Object.freeze({ sentiment: '#sentiment-synthesis', news: '#news-focus .news-focus__now' });
 import { latestMarketInterpretation, marketInterpretation } from '../../data/selectors/interpretation.js';
 import { frameHead, markFrame } from './section-frame.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { el } from './dom.js';
 import { askRow } from './ask-row.js';
-import { openRouteSection } from './page-flow.js';
 
 function chain(doc, rows) {
   const list = el(doc, 'ol', null, 'mk-synth__chain');
@@ -81,10 +79,6 @@ export function renderMarketSynthesis({ documentRef: doc, host, page }) {
   let section = doc.getElementById(id);
   const model = buildMarketSynthesis(interpretation, { page });
   if (!model.available) { section?.remove(); return null; }
-  // v59.56 (screen review): 투자 심리 and 뉴스 start from their own verdict line on the screen (the 심리 종합 lede, the
-  // '뉴스가 모이는 곳' lead), not the shared volatility axis sentence or nothing.
-  const ownLead = OWN_LEAD[page] ? firstSentence(doc.querySelector(OWN_LEAD[page])?.textContent || '') : '';
-  if (ownLead) model.pageLine = ownLead;
   const key = [model.asOf, model.headline, model.pageLine, model.branches.map((row) => `${row.id}:${row.met}`).join(',')].join('|');
   if (section?.dataset.signature === key) return section;
   if (!section) {
@@ -94,25 +88,8 @@ export function renderMarketSynthesis({ documentRef: doc, host, page }) {
   }
   if (section.nextElementSibling !== host) host.before(section);
   const parts = [frameHead(doc, { title: '연결해서 보면', titleId: `${id}-title`, asOf: model.asOf ? `${shortDate(model.asOf)} 종가` : '' })];
-  if (model.pageLine) {
-    const line = el(doc, 'p', null, 'mk-synth__page');
-    line.append(el(doc, 'b', `${model.pageLabel}에서 본 것 `), doc.createTextNode(model.pageLine));
-    parts.push(line);
-  }
+  // v59.68: the card sits on 시장 상태 only, under the verdict it would have repeated as 'X에서 본 것'.
   parts.push(el(doc, 'h3', '시장 흐름은 이렇게 이어집니다', 'mk-synth__sub'), chain(doc, model.chain));
-  // v59.56 (screen review, both reviewers' first finding): the scenario cards, the stance and the checks were the same
-  // ~700px on eight screens. They stay whole on 국면 판정, the screen that owns the regime and scenarios; every other
-  // screen keeps its own line and the four-step chain, then one link to the full card there.
-  if (page !== 'signal') {
-    const more = el(doc, 'button', '갈래별 시나리오, 대응, 확인할 것 → 국면 판정', 'flow-next-link mk-synth__more');
-    more.type = 'button';
-    more.addEventListener('click', () => openRouteSection(doc, root, 'signal', 'mk-synth-signal'));
-    parts.push(more, questionRow(doc, model));
-    section.replaceChildren(...parts);
-    markFrame(section, `${page}.synthesis`);
-    section.dataset.signature = key;
-    return section;
-  }
   if (model.branches.length) {
     const grid = el(doc, 'div', null, 'mk-synth__branches');
     grid.append(...model.branches.map((row) => branchCard(doc, row)));

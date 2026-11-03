@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v59.67';
+const APP_VERSION = 'v59.68';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -16170,10 +16170,10 @@ if (typeof document !== 'undefined') {
 // initialized, so the early route path must not observe a lexical TDZ.
 var breadcrumbMap = {
   home: ['오늘','요약'], themes: ['테마와 섹터'], // v57.79: <sidebar hub>/<tab-bar label>; a one-tab hub shows its label alone (pinned in ci-esm-core-unit-check)
-  portfolio: ['포트폴리오'], macro: ['매크로','거시 경제'],
+  portfolio: ['포트폴리오'], macro: ['매크로','개요'],
   technical: ['종목','차트'], fundamental: ['종목','재무 공시'],
   briefing: ['오늘','브리핑'], fxbond: ['매크로','금리와 환율'],
-  'market-news': ['오늘','뉴스'], signal: ['시장 상태','국면 판정'], breadth: ['시장 상태','시장 폭'], sentiment: ['시장 상태','투자 심리'],
+  'market-news': ['오늘','뉴스'], signal: ['시장 상태','개요'], breadth: ['시장 상태','시장 폭'], sentiment: ['시장 상태','투자 심리'],
   guide: ['도움말','화면 안내'], principles: ['리서치 라이브러리','개념·분석'], masters: ['리서치 라이브러리','대가 보유 종목'], atlas: ['리서치 라이브러리','산업 지도'],
   screener: ['스크리너'], charts: ['기술적 분석'], // v59.64
   'theme-detail': ['테마와 섹터','테마 상세'],
@@ -16364,7 +16364,7 @@ window.PAGES = {
   'sentiment':      { label: '투자 심리',        init: null, chatCtx: null },  // v53.15/ARX-01: ESM renderer가 native owner; data producer cutover는 ARX-02
   'briefing':       { label: '브리핑',    init: null, chatCtx: 'briefing' },
   'technical':      { label: '차트',            init: null, chatCtx: 'technical' },
-  'macro':          { label: '거시 경제',        init: null, chatCtx: 'macro' },
+  'macro':          { label: '매크로',        init: null, chatCtx: 'macro' },
   'fxbond':         { label: '금리와 환율',      init: null, chatCtx: 'fxbond' },
   'charts':         { label: '기술적 분석',      init: null, chatCtx: 'technical' }, // v59.64
   'fundamental':    { label: '재무 공시',       init: null, chatCtx: 'fundamental', contextScope: 'entity' },

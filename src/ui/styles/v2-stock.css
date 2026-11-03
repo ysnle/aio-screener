@@ -289,7 +289,6 @@
 .page .thp-ticker-chip { border-radius: 999px; padding: 2px 8px; }
 .page .thp-summary-title { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
 #theme-detail-panel .flow-next { box-shadow: none !important; background: var(--sx-ink-a03) !important; }
-#theme-detail-panel .flow-next-list li { border-top-color: rgba(var(--ink-rgb), 0.06); }
 .page .thp-detail-heading { font-size: 12px; font-weight: 700; }
 
 /* Lessons and next steps on the stock and theme screens: soft cards and link rows (3d 'stockMore'). */
@@ -303,19 +302,9 @@
   border-top: 0; margin: 24px 0 8px; padding: 18px 0 6px; background: var(--bg-card); border-radius: 12px; box-shadow:none; overflow: hidden;
 }
 :is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .flow-next[hidden] { display: none; }
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .flow-next-title { padding: 0 var(--sx-card-pad-x) 6px; font-size: 14px; font-weight: 700; }
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .flow-next-list { gap: 0; }
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .flow-next-list li {
-  position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 11px 48px 11px var(--sx-card-pad-x);
-  border-top: 0.5px solid rgba(var(--ink-rgb), 0.06); 
-}
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .flow-next-list li:hover { background: var(--sx-ink-a03); }
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .flow-next-list li::after { content: none; position: absolute; right: 24px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px; }
 :is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .flow-next-link { color: var(--text-primary); font-weight: 500; }
 /* the whole row answers the click: the button's hit area stretches over its row (only inside the positioned row;
    v58.75: a bare link elsewhere stretched over the whole viewport and swallowed every click above it) */
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .flow-next-list li .flow-next-link::before { content: ''; position: absolute; inset: 0; }
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .flow-next-why { font-size: 12px; color: var(--text-muted); }
 
 /* ═══ 6. Shared reading rows on the stock and theme screens ════════════ */
 /* The legacy rows coloured a burden red and a neutral amber; v2 keeps red for falling prices only. */
@@ -450,8 +439,6 @@
   .v2-themes-top__row > .sx-chip { display: none; }
   #page-themes .thp-perf-badge { width: 62px; padding-left: 2px; }
   #page-themes .thp-perf-label { width: 54px; }
-  :is(#page-ticker, #page-technical, #page-fundamental, #page-themes) .flow-next-list li { padding: 12px 40px 12px 18px; min-height: 44px; }
-  :is(#page-ticker, #page-technical, #page-fundamental, #page-themes) .flow-next-title { padding: 0 18px 6px; }
 }
 @media (pointer: coarse) {
   #page-technical .stock-chart-intervals.sx-seg > button, .v2-themes-top > .sx-row { min-height: 44px !important; }

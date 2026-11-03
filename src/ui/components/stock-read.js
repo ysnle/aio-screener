@@ -337,6 +337,7 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
           const go = el(doc, 'button', '이 테마의 시나리오 →', 'stock-read-point-link');
           go.type = 'button';
           go.setAttribute('aria-label', `${line.label} 테마의 시나리오 보기`);
+          go.dataset.themeId = line.id;
           go.addEventListener('click', () => openThemeDetail(root, line.id, { symbol: sym }));
           row.append(doc.createTextNode(' '), go);
         }
@@ -389,7 +390,18 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
     ['위험과 손절 기준은', `${subject}의 지금 위험 요소와 손절 기준을 어떤 원칙으로 정해야 하는지 알려줘`]
   ], 'stock-read-ask');
   if (ask) host.append(ask);
-  // The 요약 · 차트 · 재무 tabs sit above the page; the next links name only other screens.
-  renderNextSteps(doc, next, read.next.filter((step) => !['technical', 'fundamental'].includes(step.route)));
+  // v59.68: the 이어서 볼 곳 list is gone; its one context link — the stock's own theme — stays, under the reading, unless
+  // a theme line on the face (not in a fold) already carries it.
+  const theme = read.next.find((step) => step.action === 'showThemeDetail' && step.arg);
+  if (theme && ![...host.querySelectorAll('.stock-read-point-link[data-theme-id]')].some((node) => !node.closest('details'))) {
+    const go = el(doc, 'button', `${theme.label} →`, 'flow-next-link stock-read-point-link');
+    go.type = 'button';
+    go.dataset.action = 'showThemeDetail';
+    go.dataset.arg = theme.arg;
+    go.dataset.themeId = theme.arg;
+    if (theme.why) go.title = theme.why;
+    host.append(go);
+  }
+  renderNextSteps(doc, next);
   return read;
 }

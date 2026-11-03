@@ -151,7 +151,7 @@ const AXIS_ROUTES = Object.freeze({
   volatility: { route: 'sentiment', label: '투자 심리', why: (axis) => `변동성 ${axis.stateLabel} — 옵션 헤지 수요·심리와 같은 쪽인지` },
   rates: { route: 'fxbond', label: '금리와 환율', why: (axis) => `금리 ${axis.stateLabel} — 실질금리와 수익률 곡선 중 어디에서 오는지` },
   credit: { route: 'sentiment', label: '투자 심리', why: (axis) => `신용 ${axis.stateLabel} — 공포 심리와 함께 움직이는지` },
-  commodities: { route: 'macro', label: '거시 경제', why: (axis) => `유가·달러 ${axis.stateLabel} — 물가와 금리 경로에 주는 압력` }
+  commodities: { route: 'macro', label: '매크로', why: (axis) => `유가·달러 ${axis.stateLabel} — 물가와 금리 경로에 주는 압력` }
 });
 
 // I02/I14: 시장 상태 always continues to 테마 · 섹터 with the same leader names the rotation read uses; in a narrow tape
@@ -184,7 +184,7 @@ export function regimeFlow({ regime = null, groups = {} } = {}) {
 const BRIEFING_ROUTES = Object.freeze({
   index: { route: 'breadth', label: '시장 폭', why: '지수와 참여 종목이 같은 방향인지, 괴리가 어디서 커지는지' },
   rates: { route: 'fxbond', label: '금리와 환율', why: '금리 움직임이 실질금리·기대인플레·수익률 곡선 중 어디서 오는지' },
-  commodities: { route: 'macro', label: '거시 경제', why: '유가·금·달러 움직임이 물가와 금리 경로에 주는 압력' },
+  commodities: { route: 'macro', label: '매크로', why: '유가·금·달러 움직임이 물가와 금리 경로에 주는 압력' },
   risk: { route: 'sentiment', label: '투자 심리', why: '변동성·신용·공포 심리가 같은 쪽을 가리키는지' },
   // P1727: the Korea box continues to 시장 상태's 한국 시장 참고 board (코스피·코스닥·원화·한국 표본 참여도), not 거시 경제.
   korea: { route: 'signal', label: '시장 상태, 한국 시장 참고', why: '코스피·코스닥과 원화, AIO 추적 종목(한국)의 참여도를 미국 판정과 따로 확인', ctx: { anchor: 'regime-board-kr' } }
@@ -287,7 +287,7 @@ export function rotationFlow({ groups = {}, regime = null, revisions = null } = 
   if (improving.length) next.push({ route: 'screener', label: '스크리너', why: `개선 사분면(${names('Improving').join('·')})에서 상대강도가 먼저 오르는 종목${firstSector && improving.length > 1 ? ` — ${firstLabel.label || firstLabel.symbol} 섹터부터` : ''}`,
     ...(firstSector ? { ctx: { sector: firstSector } } : {}) });
   if (breadth) next.push({ route: 'breadth', label: '시장 폭', why: `섹터 쏠림이 참여 종목 수(시장 폭 ${breadth.stateLabel})에도 나타나는지` });
-  next.push({ route: 'macro', label: '거시 경제', why: '금리·유가·달러가 어느 업종에 유리한 국면인지' });
+  next.push({ route: 'macro', label: '매크로', why: '금리·유가·달러가 어느 업종에 유리한 국면인지' });
   return { read, next };
 }
 

@@ -606,7 +606,7 @@ export function macroNextSteps(read) {
 export function ratesNextSteps({ read = null, carry = null } = {}) {
   const byId = Object.fromEntries((read?.axes || []).map((row) => [row.id, row]));
   const label = (id) => byId[id]?.stateLabel || '판정 보류';
-  const next = [{ route: 'macro', label: '거시 경제', why: `물가 ${label('inflation')}, 통화정책 ${label('policy')} — 금리 경로를 움직이는 쪽` }];
+  const next = [{ route: 'macro', label: '매크로', why: `물가 ${label('inflation')}, 통화정책 ${label('policy')} — 금리 경로를 움직이는 쪽` }];
   next.push({ route: 'signal', label: '시장 상태', why: `금리(${label('rates')})와 추세·시장 폭을 합친 판정${carry?.available ? ` (환율은 참고로 따로 표시, 엔/달러 20거래일 ${signed(-carry.yenStrength, 1, '%')})` : ''}` });
   if (byId.rates?.state === 'burden' || byId.rates?.state === 'favorable') next.push({ route: 'themes', label: '테마와 섹터', why: `금리 ${label('rates')} 국면에서 섹터 회전(선도·후행)이 어떻게 나타나는지` });
   next.push({ route: 'briefing', label: '브리핑', why: '다음 7일 국채·물가·연준 일정과 오늘 금리·달러 움직임 해석' });

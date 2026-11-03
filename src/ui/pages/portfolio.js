@@ -695,7 +695,6 @@ function syncEmptyState(documentRef, root, page, { empty, preview }) {
     const hide = empty && !EMPTY_KEEP[id]?.(node);
     if (hide) { if (!node.hidden) { node.hidden = true; node.dataset.pfEmptyHidden = '1'; } } else if (node.dataset.pfEmptyHidden) { node.hidden = false; delete node.dataset.pfEmptyHidden; }
   }
-  page.querySelector('[data-aio-screen-lessons="portfolio"]')?.toggleAttribute('hidden', empty);
   const section = documentRef.getElementById('pf-holdings-table-section');
   let note = documentRef.getElementById('pf-preview-note');
   if (!preview) { note?.remove(); return; }

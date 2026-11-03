@@ -19,7 +19,7 @@ import { createTrendChart } from './trend-chart.js';
 import { buildLiquidityGrowthGroups } from '../../domain/macro/liquidity-growth.js';
 import { AXIS_DEEP_DIVES, MACRO_AXIS_DEEP_DIVES, MACRO_GROUP_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
 import { deepDiveFold } from './deep-dive.js';
-import { renderMacroCrossroads, openCrossroadsBranch } from './macro-crossroads.js';
+import { openCrossroadsBranch } from './macro-crossroads.js';
 import { BRANCHES } from '../../domain/market/macro-crossroads.js';
 import { longHistoryRows } from '../../domain/macro/long-history.js';
 import { taylorRule, TAYLOR_R_STAR_OPTIONS, TAYLOR_R_STAR_SEP } from '../../domain/macro/taylor-rule.js';
@@ -757,7 +757,7 @@ export function renderMacroBoard({ documentRef: doc, root }) {
     basis.textContent = board.available ? macroThroughLine(read, crossroads) || '공식 발표와 미국 종가 기준' : '공식 발표 자료를 불러오는 중입니다.';
     basis.title = '공식 발표와 미국 종가 기준';
   }
-  renderMacroCrossroads({ documentRef: doc, root, regime }); // P1742; v57.76: the forward branches follow the chain (current state first)
+  // v59.68: the forward branches (P1742) are on 시장 상태 (market-regime.js renders them into its scenario fold).
   renderRegime(doc, read);
   const axesHost = doc.getElementById('macro-axes');
   if (axesHost) {
@@ -1199,7 +1199,7 @@ function renderErpLine(doc, root) {
   if (!root[CONSENSUS_KEY]) requestConsensusEstimates(root, () => renderErpLine(doc, root));
   const model = marketInterpretation(root).indexEarnings;
   if (!model?.available || model.erp == null) { line.hidden = true; line.replaceChildren(); return; }
-  const link = el(doc, 'button', '거시 화면의 S&P 500 이익 전망', 'flow-next-link');
+  const link = el(doc, 'button', 'S&P 500 이익 전망 보기', 'flow-next-link');
   link.type = 'button';
   link.dataset.action = 'showPage';
   link.dataset.arg = 'macro';

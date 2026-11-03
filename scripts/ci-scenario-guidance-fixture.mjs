@@ -423,7 +423,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.equal(chooseAnswerMode({ intent: { canonical: ['OUTLOOK'] } }), 'outlook', 'P1742: a market outlook question is answered as branches');
   assert.equal(chooseAnswerMode({ asksDecision: true, hasTicker: true, intent: { canonical: ['OUTLOOK'] } }), 'decision', 'P1742: a single-company decision stays a decision');
   const component = readFileSync(new URL('../src/ui/components/macro-crossroads.js', import.meta.url), 'utf8');
-  assert.match(component, /if \(alt\) cards\.append\(pathCard\(doc, root, alt, \{ kicker: '대안 시나리오'/, 'P1742: the compact block never shows one path alone (v57.54: as the second path card)');
+  // v59.68: the compact block (and its two path cards) is retired; 시장 상태 shows the full map, every branch listed.
   assert.match(component, /refreshScenarioArtifacts/, 'P1743: screens load the long-history outcomes and the per-refresh state');
   const themesPage = readFileSync(new URL('../src/ui/pages/themes.js', import.meta.url), 'utf8');
   assert.match(themesPage, /renderThemePlaybook\(/, 'P1743: 테마 renders the theme playbook');
@@ -755,8 +755,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.ok(/달러 지수 20거래일 \+2\.5% 이상 미충족/.test(surge.basis.join(' · ')), `v57.81 DXY +2.23% does not meet 달러 급등's dollar condition (${surge.basis.join(' · ')})`);
   const three = buildMacroCrossroads({ signals: { ...oct14, oilSurging: true, wtiPosition: 0.9, tnx20: 0.3, dxy20: 2.6 } });
   assert.ok(three.tiedIds.length === 3 && /시나리오가 셋입니다/.test(three.headline) && COUNT_WORDS[three.tiedIds.length] === '셋', `v57.81 three tied branches read "셋" (${three.headline})`);
-  const homeSource = readFileSync(new URL('../src/ui/components/macro-crossroads.js', import.meta.url), 'utf8');
-  assert.ok(!/달린'\} 두 시나리오/.test(homeSource) && /COUNT_WORDS\[tiedItems\.length\]/.test(homeSource), 'v57.81 the home tie line counts tiedIds instead of a hard-coded "두"'); // text-pin-ok: retirement absence
+  // v59.68: the compact tie line is retired with the compact block; the full map's headline (above) carries the count.
 
   // Clean oil shock from series: WTI +15% in 20 sessions, breakevens +20bp → '유가 충격' ranks first.
   const wave = (i, amp, period) => amp * Math.sin(i / period);

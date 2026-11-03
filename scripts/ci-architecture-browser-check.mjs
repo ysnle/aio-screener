@@ -516,9 +516,11 @@ try {
     || new Set(tickerRangeEvidence.map((item) => item.range)).size !== 4
     || tickerRangeEvidence.some((item) => item.sourceKind !== 'native-runtime' || !item.rendered)) throw new Error(`ticker native range windows failed: ${JSON.stringify(tickerRangeEvidence)}`);
   tickerRoute.tabRangeEvidence = tickerRangeEvidence;
-  const relatedTheme = page.locator('#page-ticker [data-action="showThemeDetail"][data-arg]:visible').first(); // 2026-10-14 audit #10: the duplicate 관련 테마 chips are hidden; the visible theme action is used
-  if (await relatedTheme.count() < 1) throw new Error('ticker related-theme action is unavailable for NVDA');
-  const relatedThemeId = await relatedTheme.getAttribute('data-arg');
+  // v59.68: the related-theme action is the reading's own theme line (the 이어서 볼 곳 list that also carried one is gone).
+  const relatedTheme = page.locator('#page-ticker .stock-read-point-link[data-theme-id]:visible').first();
+  await relatedTheme.waitFor({ state: 'visible', timeout: 10000 }).catch(() => {});
+  if (await relatedTheme.count() < 1 || !(await relatedTheme.isVisible())) throw new Error('ticker related-theme action is unavailable for NVDA');
+  const relatedThemeId = await relatedTheme.getAttribute('data-theme-id');
   await relatedTheme.click();
   await page.waitForFunction((themeId) => {
     const pageNode = document.getElementById('page-themes');

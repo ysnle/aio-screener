@@ -5,7 +5,7 @@
 // marketRead), so 시장 상태, 매크로, 테마 and 브리핑 cannot tell four different stories.
 
 const PAGE_LABELS = Object.freeze({
-  signal: '국면 판정', breadth: '시장 폭', sentiment: '투자 심리', macro: '거시 경제', fxbond: '금리와 환율', themes: '테마와 섹터', briefing: '브리핑', news: '뉴스'
+  signal: '시장 상태', breadth: '시장 폭', sentiment: '투자 심리', macro: '매크로', fxbond: '금리와 환율', themes: '테마와 섹터', briefing: '브리핑', news: '뉴스'
 });
 
 export function firstSentence(text) {

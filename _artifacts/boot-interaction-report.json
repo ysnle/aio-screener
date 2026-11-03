@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-boot-performance-evidence.v1",
-  "observedAt": "2026-11-03T13:42:01.987Z",
-  "appRevision": "v59.67",
-  "gitHead": "549b640072ad6d095ab23d28e8e16b7c0678c20b",
+  "observedAt": "2026-11-03T14:36:45.369Z",
+  "appRevision": "v59.68",
+  "gitHead": "64031345c9b7c56658ad35b212f3159a2849cbe4",
   "gitClean": false,
   "environment": {
     "browser": "chromium",
@@ -16,25 +16,26 @@
   "targetStatus": "TARGET_MISS",
   "targetPolicy": "report-not-blocking",
   "targetFailures": [
-    "decoded same-origin JS 4.2MB > 1.5MB"
+    "active DOM 2690 > 2500",
+    "decoded same-origin JS 4.16MB > 1.5MB"
   ],
   "metrics": {
-    "fcpMs": 296,
-    "dclMs": 589,
-    "loadMs": 646,
-    "maxLongTaskMs": 127,
-    "totalLongTaskMs": 822,
+    "fcpMs": 212,
+    "dclMs": 635,
+    "loadMs": 697,
+    "maxLongTaskMs": 122,
+    "totalLongTaskMs": 806,
     "longTaskCount": 9,
     "longTaskObservationWindowMs": 2000,
-    "domNodes": 4358,
-    "activeRouteDomNodes": 1938,
+    "domNodes": 5038,
+    "activeRouteDomNodes": 2690,
     "activePage": "page-signal",
     "bootStatusPresent": false,
-    "decodedJsBytes": 4407903,
+    "decodedJsBytes": 4358332,
     "sameOriginScripts": 213,
     "crossOriginScripts": 1,
-    "routeMs": 139,
-    "wallMs": 7299,
+    "routeMs": 130,
+    "wallMs": 7344,
     "totalExternalRequests": 57,
     "quoteRequests": 32,
     "initialExternalRequests": 7,
@@ -50,6 +51,6 @@
       "other": true,
       "noChartGlobal": true
     },
-    "decodedJsMb": 4.2
+    "decodedJsMb": 4.16
   }
 }

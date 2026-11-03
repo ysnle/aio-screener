@@ -41,10 +41,6 @@
 .page-head + .briefing-block,
 .aio-section:has(> .page-head:last-child) + .briefing-block { border-top: 0; padding-top: 4px; }
 .page-head ~ #home-score-hero { border-top: 0 !important; padding-top: 28px !important; } /* run-5 prep: the hero became a card (sx-card--hero); 4px left its title on the card's top edge */
-/* Layout review 2026-10-18: the six-axis chips end on the content's right edge, the same edge as the blocks below. */
-#home-score-hero > #home-hero-components { margin-left: auto; }
-#home-crossroads.xr-compact { margin: 20px 0 24px; } /* its own section now: the same breathing room as the home blocks around it */
-@media (max-width: 1100px) { #home-score-hero > #home-hero-components { flex: 1 1 100%; margin-left: 0; max-width: 560px; } } /* tablet: the chips take their own row under the reading */
 /* UI review 2026-10-18: one look for every "pick a view" toggle. The screens used four (grey square chips, outlined
    rectangles, a pill group, filled pills); all now read as outlined pills with the chosen one filled in ink. */
 .page :is(.news-sort-btn, .sector-map-tab, .stock-chart-intervals button, .regime-chart-selectors button) {
@@ -213,7 +209,7 @@
   #page-portfolio .aio-table-scroll:has(> table.sh-portfolio-holdings-table) { overflow-x: visible; -webkit-mask-image: none; mask-image: none; }
   #page-portfolio #pf-positions-tbody td { position: static; width: auto; text-align: left; padding: 0; }
   #page-portfolio .pf-hero-divider { display: none; }
-  .page :is(.home-participation-grid, .briefing-move-chart, .breadth-drill-body, .scr-why-grid,
+  .page :is(.briefing-move-chart, .breadth-drill-body, .scr-why-grid,
       .principles-reference-body, .masters-principles-list, .aio-vis-panel,
       .principles-chapter-grid, .atlas-node-grid) { grid-template-columns: minmax(0, 1fr); }
   .page :is(.rates-yields, .rates-other, .kr-index-grid, .scr-funnel, .principles-reference-loop, .integrated-framework-flow, .page .daily-moves, .chart-stage-steps) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -567,17 +563,15 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
 /* v59.55 (alignment pass, round 2). */
 /* 브리핑 header reads like every screen: basis line, hub kicker, title (the date line sat under the title). */
 #page-briefing .sh-briefing-row > div:has(> .page-title) { display: flex; flex-direction: column-reverse; gap: 4px; }
-/* The 오늘 hero's condition panel ends with its content instead of stretching to the left column (half of it was empty). */
-#page-home .home-hero-flips { align-self: start; }
 /* Small inline folds (설명, 숫자와 집계 기준) read as captions with no marker; a small chevron after the words says they open. */
-.aio-note-fold > summary, #page-home .home-participation-basis > summary { list-style: none; gap: 6px; }
-.aio-note-fold > summary::-webkit-details-marker, #page-home .home-participation-basis > summary::-webkit-details-marker { display: none; }
-.aio-note-fold > summary::after, #page-home .home-participation-basis > summary::after {
+.aio-note-fold > summary { list-style: none; gap: 6px; }
+.aio-note-fold > summary::-webkit-details-marker { display: none; }
+.aio-note-fold > summary::after {
   content: ''; display: inline-block; width: 5px; height: 5px; border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: translateY(-2px) rotate(45deg);
 }
-.aio-note-fold[open] > summary::after, #page-home .home-participation-basis[open] > summary::after { transform: translateY(1px) rotate(-135deg); }
+.aio-note-fold[open] > summary::after { transform: translateY(1px) rotate(-135deg); }
 /* Page-level text outside cards still starts on the text column (edge scan, every route at 1440px). */
-#page-home .home-ask-row, #page-screener #screener-rank-read, .rl-shell .rl-picks,
+#page-screener #screener-rank-read, .rl-shell .rl-picks,
 #page-ticker > .aio-section > .aio-section-hd, #page-ticker .ticker-start-title { padding-left: var(--sx-card-pad-x); }
 .page > details.sx-disclosure.sh-fold-mt16 > :not(summary) { padding: 0 var(--sx-card-pad-x) 16px; }
 /* Bare page-level folds: the native ▶ put their words 13px in; they take the text column and the drawn chevron. */
@@ -627,7 +621,6 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
 .page .mk-synth__stance-col.is-pursue .mk-synth__stance-title { color: var(--data-green, var(--text-primary)); }
 .page .mk-synth__stance-col.is-avoid .mk-synth__stance-title { color: var(--data-amber, var(--text-primary)); }
 .page .mk-synth__stance ul, .page .mk-synth__checks { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; line-height: 1.6; color: var(--text-primary); }
-.page .mk-synth__ask { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 18px; }
 @media (max-width: 1023px) {
   .page .mk-synth__chain { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .page .mk-synth__step:nth-child(2)::after { display: none; }
@@ -678,7 +671,6 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
 @media (max-width: 1023px) { #page-macro .mx-chapters__grid { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 743px) { #page-macro .mx-ch__body { grid-template-columns: minmax(0, 1fr); } }
 /* v59.56: the shared 'AI에게 묻기' row (components/ask-row.js) on screens without their own row style. */
-.page .aio-ask-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 16px; }
 /* v59.56: 금리와 환율 '원화는 왜 움직였나' and 뉴스 '뉴스가 모이는 곳' — one picture, a short read, one fold. */
 #page-fxbond .fx-krw { display: flex; flex-direction: column; gap: 10px; margin: 12px 0 16px; padding: 16px var(--sx-card-pad-x, 22px); border-radius: 14px; background: var(--sx-ink-a03, rgba(0, 0, 0, 0.03)); }
 #page-fxbond .fx-krw__title { margin: 0; font-size: 15px; font-weight: 700; color: var(--text-primary); }
@@ -759,3 +751,9 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
 #page-home .home-day__stock { display: inline-flex; gap: 6px; min-height: 32px; align-items: center; padding: 4px 10px; border: 1px solid rgba(var(--ink-rgb), 0.18); border-radius: 8px; background: transparent; color: var(--text-primary); font: inherit; font-size: 13px; cursor: pointer; font-variant-numeric: tabular-nums; }
 #page-home .home-day__stock.is-up span { color: var(--dir-up); }
 #page-home .home-day__stock.is-down span { color: var(--dir-down); }
+#page-home .home-day__news { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 4px; }
+#page-home .home-day__headline { font-size: 14px; line-height: 1.5; color: var(--text-primary); padding-left: 10px; position: relative; }
+#page-home .home-day__headline::before { content: ''; position: absolute; left: 0; top: 0.7em; width: 4px; height: 4px; border-radius: 50%; background: rgba(var(--ink-rgb), 0.4); }
+#page-home .home-day__links { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+
+@media (max-width: 767px) { #page-home .home-day .flow-next-link, #page-home .home-hero-more { min-height: 44px; } }

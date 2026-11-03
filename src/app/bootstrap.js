@@ -28,7 +28,6 @@ import { selectForDecision, selectForDisplay, selectLastKnown, selectCompletenes
 import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
 import { finalizePageDecision } from '../domain/signal/page-decision.js';
 import { installRouteHubTabs, setStockSubject } from '../ui/navigation/route-hubs.js';
-import { installScreenLessons } from '../ui/components/screen-lessons.js';
 import { registerInterpretationStore } from '../data/selectors/interpretation.js';
 import { installScreenShortcuts } from '../ui/navigation/screen-shortcuts.js';
 import { installRouteScrollMemory } from '../ui/navigation/scroll-memory.js';
@@ -122,7 +121,7 @@ import { CAPABILITY_MANIFEST_VERSION, getCapability, getCapabilityManifest, audi
 import { classifyAIConduct, buildScopedConductFallback, getAIConductPolicy } from '../ai/policy/conduct.js';
 import { coalesceMicrotask, createDeferredTaskQueue } from './lifecycle.js';
 import { renderPageSources } from '../ui/components/page-sources.js';
-import { renderHomeParticipation, syncHomeQuoteRow } from '../ui/components/home-kpi-trend.js';
+import { syncHomeQuoteRow } from '../ui/components/home-kpi-trend.js';
 import { krIndexStressRows } from '../domain/portfolio/kr-stress.js';
 import { portfolioStressHtml } from '../ui/panels/portfolio-stress.js';
 import { SUPPLIED_MATERIAL_CLAIM_IDS } from '../domain/research/reference-index.js';
@@ -862,10 +861,10 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     // P1505: one folded 데이터 출처 note per screen.
     // Owner 2026-10-25: the index strip on 오늘 loads with the route (lazy chunk; the boot module set stays unchanged).
     const renderIndexStrip = () => import('../ui/components/home-index-strip.js').then(({ renderHomeIndexStrip }) => renderHomeIndexStrip({ documentRef, root })).catch(() => {});
-    const stopSourcesShown = legacy.on('aio:pageShown', (event) => { const route = normalizeShownRoute(event); queueMicrotask(() => { if (disposed) return; renderPageSources(documentRef, route); if (route === 'home') { renderHomeParticipation({ documentRef, root }); renderIndexStrip(); } }); });
-    const stopKpiTrendHistory = compatibilityEvents.on('aio:historyLoaded', () => { if (!disposed) renderHomeParticipation({ documentRef, root }); });
+    const stopSourcesShown = legacy.on('aio:pageShown', (event) => { const route = normalizeShownRoute(event); queueMicrotask(() => { if (disposed) return; renderPageSources(documentRef, route); if (route === 'home') { syncHomeQuoteRow({ documentRef, root }); renderIndexStrip(); } }); });
+    const stopKpiTrendHistory = compatibilityEvents.on('aio:historyLoaded', () => { if (!disposed) syncHomeQuoteRow({ documentRef, root }); });
     const stopQuoteHeading = legacy.on('aio:liveQuotes', () => { if (!disposed) syncHomeQuoteRow({ documentRef, root }); }); // v58.80 run-5: the live chip's observation time
-    queueMicrotask(() => { if (disposed) return; const initial = String(router.active() || '').replace(/^page-/, ''); renderPageSources(documentRef, initial); if (initial === 'home') { renderHomeParticipation({ documentRef, root }); renderIndexStrip(); } });
+    queueMicrotask(() => { if (disposed) return; const initial = String(router.active() || '').replace(/^page-/, ''); renderPageSources(documentRef, initial); if (initial === 'home') { syncHomeQuoteRow({ documentRef, root }); renderIndexStrip(); } });
     // E2/LC-26: a mode change is a score input change, so re-derive the analysis slice instead of
     // leaving the hero on the previous mode until the next refresh cycle. Deliberately its own
     // event (not `aio:refresh:done`) so toggling the pill does not re-run every route provider.
@@ -952,7 +951,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     // W00-B: the initial route commits through the same typed boundary. router.start()
     // first so observers of aio:navigationCommitted see the very first commit.
     const stopHubTabs = installRouteHubTabs({ root, documentRef, activeRoute: () => router.active() }); // 8-screen IA
-    const stopScreenLessons = installScreenLessons({ root, documentRef, activeRoute: () => router.active() }); // owner 2026-10-19: per-screen principles
+    // v59.68 (owner 2026-11-03, "cut helper text"): the per-screen principles fold (owner 2026-10-19) left the screens;
+    // the lessons stay in 리서치 라이브러리 (domain/guide/lessons.js).
     const stopScrollMemory = installRouteScrollMemory({ root, documentRef, activeRoute: () => router.active() }); // v57.81: back restores scroll
     const stopShellOverlays = installShellOverlays({ root, documentRef }); // v57.81: banner/disclaimer offsets, glossary backdrop
     installScreenShortcuts({ root, documentRef }); // v57.54: ? help rows and 1..8 keys from ROUTE_HUBS
@@ -1074,7 +1074,6 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopTimelineStore();
       stopDecisionHeaders();
       stopHubTabs();
-      stopScreenLessons();
       stopInterpretationStore();
       stopScrollMemory();
       stopShellOverlays();

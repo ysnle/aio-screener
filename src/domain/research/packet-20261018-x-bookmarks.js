@@ -250,7 +250,7 @@ export const PACKET_20261018_FRAMES = Object.freeze([
     ],
     reverse: '생산성 통계가 늦게 오른다고 AI 효과가 없는 것은 아니고, 반대로 투자 수요가 크다고 생산성이 증명된 것도 아닙니다. 효율 개선(같은 일을 더 적은 연산으로)이 빠르면 투자 수요가 예상보다 빨리 꺾일 수 있습니다.',
     channels: ['투자', '매출'], variables: ['노동생산성', '데이터센터 임대 GW', '설비투자 ÷ 영업현금흐름', '부채 조달 설비투자', 'AI 매출', '층별 이익률'],
-    indicators: [{ label: '성장·물가와 투자 지표', route: 'macro', routeLabel: '거시 경제' }, { label: 'AI 공급망 층', route: 'atlas', routeLabel: '산업 지도' }],
+    indicators: [{ label: '성장·물가와 투자 지표', route: 'macro', routeLabel: '매크로' }, { label: 'AI 공급망 층', route: 'atlas', routeLabel: '산업 지도' }],
     shift: 'AI가 곧바로 생산성과 이익을 올린다고 보던 모델에서, 조직 재설계의 시차 동안 투자 수요가 먼저 나타나고 가치가 층을 따라 옮겨 간다는 모델로 전환', inputs: ['labor productivity', 'data center leasing', 'capex to operating cash flow', 'debt-funded capex', 'AI revenue', 'layer margins'],
     chart: '설비투자 ÷ 영업현금흐름 비율과 노동생산성 증가율을 같은 기간 축에', counterclaim: '이번에는 소프트웨어 배포가 빨라 시차가 과거보다 훨씬 짧을 수 있다는 반론', concepts: ['capex', 'roic', 'marginal'] },
   { id: 'headline-provenance', path: 'foundation', title: '헤드라인의 출처와 정의를 거슬러 확인하기', issue: '자극적인 시장·AI 헤드라인을 원문·정의·공식 채널로 되짚는 순서', sourceRefs: [R.agi, R.fg, R.vendorScore, R.briefing, R.slope],
@@ -276,7 +276,7 @@ export const PACKET_20261018_FRAMES = Object.freeze([
     ],
     reverse: '제한 타격 뒤에도 보복이 이어지거나 해상 통과량이 실제로 줄면 두 번째 길로 옮겨 갑니다. 반대로 재고가 넉넉하고 우회 수송이 빠르게 늘면 큰 가격 급등도 짧게 끝날 수 있습니다. 과거 사례의 ‘며칠 뒤 회복’ 평균은 확전되지 않은 사례가 많아 생존 편향이 섞여 있습니다.',
     channels: ['비용', '단가'], variables: ['표적 범위', '발언 시제', '레드라인 교집합', '상업용 원유 재고', '재고 일수', '전략비축 방출', '해상 통과량', '정제유 가격'],
-    indicators: [{ label: '유가·물가와 시나리오', route: 'macro', routeLabel: '거시 경제' }],
+    indicators: [{ label: '유가·물가와 시나리오', route: 'macro', routeLabel: '매크로' }],
     shift: '지정학 뉴스의 강도로 시장 영향을 가늠하던 모델에서, 첫 행동의 성격·레드라인 교집합과 재고 문턱·지속 기간으로 제한 충격과 구조 충격을 가르는 모델로 전환', inputs: ['strike scope', 'statement tense', 'red-line overlap', 'commercial crude inventories', 'days of cover', 'strategic reserve releases', 'strait transits', 'refined product prices'],
     chart: '상업용 원유 재고와 운영 최소치 기준선, 유가와 지속 일수를 같은 축에', counterclaim: '정치 결정은 관측 신호보다 내부 사정에 좌우될 수 있어 두 경로의 구분이 사후적으로만 분명해질 수 있음', concepts: ['stocks-to-use', 'pass-through', 'base-rate'] },
   { id: 'growth-inflation-balance', path: 'rates', title: '성장·물가 노출과 금융 여건을 함께 보기', issue: '보유 자산이 어떤 성장·물가 환경에 기대는지와 금리·달러·에너지가 함께 조이는지', sourceRefs: [R.allWeather, R.dollar, R.members, R.termPremium, R.disagree, R.flight],
@@ -289,7 +289,7 @@ export const PACKET_20261018_FRAMES = Object.freeze([
     ],
     reverse: '네 환경 분류는 단순화이고, 같은 자산도 시기에 따라 반응이 달라집니다(주식과 채권의 상관 부호가 바뀌는 시기). 기업 채권 발행이 국채 수요를 빼앗아 기간 프리미엄을 올린다는 가설은 근거가 약해, 경매 결과와 기간 프리미엄 추정치로 확인하기 전에는 원인으로 쓰지 않습니다.',
     channels: ['현금', '투자'], variables: ['성장 서프라이즈', '물가 서프라이즈', '금융 여건 지수', '10년물 금리', '달러 지수', '유가 선물 곡선', '주식·금·국채 동시 방향', 'EPS 성장 기여 집중도'],
-    indicators: [{ label: '성장·물가와 시나리오', route: 'macro', routeLabel: '거시 경제' }, { label: '금리·환율', route: 'fxbond', routeLabel: '금리·환율' }],
+    indicators: [{ label: '성장·물가와 시나리오', route: 'macro', routeLabel: '매크로' }, { label: '금리·환율', route: 'fxbond', routeLabel: '금리·환율' }],
     shift: '다음 국면을 맞혀 자산을 고르던 모델에서, 보유가 기대는 성장·물가 환경과 금리·달러·에너지의 동반 긴축, 자산 간 불일치로 취약점을 진단하는 모델로 전환', inputs: ['growth surprise', 'inflation surprise', 'financial conditions composite', '10-year yield', 'dollar index', 'oil futures curve', 'joint direction of stocks, gold and treasuries', 'EPS growth concentration'],
     chart: '성장·물가 2×2 위에 보유 자산 표시, 금리·달러·에너지 z점수 평균 선', counterclaim: '노출 진단도 과거 상관에 기대므로 상관이 바뀌는 국면에서는 틀릴 수 있음; 배분 결정에는 쓰지 않음', concepts: ['correlation', 'term-premium', 'policy-vs-long-rate'] }
 ].map(Object.freeze));

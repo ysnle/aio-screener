@@ -219,7 +219,7 @@ assert.ok(!/id="llm-switch-track"/.test(shell), 'P1653: no AI ON/OFF switch');
 const aioUi1653 = fs.readFileSync(new URL('../js/aio-ui.js', import.meta.url), 'utf8');
 assert.ok(!/llm-switch-track|function getLLMState\(/.test(aioUi1653), 'v57.77: no AI ON/OFF state read or switch-track writer in js/aio-ui.js'); // text-pin-ok: retirement absence
 assert.ok(!/id="chat-home-inp"|id="chat-theme-detail-inp"/.test(shell), 'P1653: no per-page inline chat inputs');
-assert.ok(/data-action="_aioAskInPanel"/.test(shell), 'P1653: page prompts route to the top AI panel');
+assert.ok(/pageQuestions\(documentRef\)/.test(fs.readFileSync(new URL('../src/ui/panels/ask-panel.js', import.meta.url), 'utf8')), 'P1653: page prompts route to the top AI panel (v59.68: the screen\'s questions are the panel\'s chips)');
 const connections = fs.readFileSync(new URL('../src/ui/panels/connections.js', import.meta.url), 'utf8');
 assert.ok(!/aio-web-search-toggle/.test(connections), 'P1653: no web search toggle');
 const shellJs = fs.readFileSync(new URL('../src/ui/components/responsive-shell.js', import.meta.url), 'utf8');

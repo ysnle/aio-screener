@@ -5328,12 +5328,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   const gatedUp = gated?.all?.find((item) => item.toward === 'favorable');
   if (!gatedUp?.needsMore || gatedUp.also[0]?.condition !== '50일선 상승 전환' || gated.primary.toward !== 'burden') fail(`v58.55 a condition no number measures is named and ranks after measured distances: ${JSON.stringify(gated)}`);
   if (typicalDailyMove([{ value: 1 }, { value: 3 }, { value: 2 }], 2) !== 1.5) fail('v58.55 the typical move is the mean absolute daily change');
-  const { heroFlipRows } = await load('src/ui/components/daily-loop.js');
-  const axis = (id, sessions, extra = {}) => ({ id, title: id, state: 'neutral', stateLabel: '중립', flip: `${id} rule`, flipDistance: { text: '+1%', sessions, direction: 'worsen', towardLabel: '부담', ...extra } });
-  const rows = heroFlipRows({ available: true, axes: [axis('trend', 3), axis('breadth', 0.5), axis('rates', 0.2, { needsMore: true }), axis('credit', 1), axis('korea', 0.1)] });
-  if (rows.map((row) => row.id).join(',') !== 'breadth,credit,trend') fail(`v58.55 오늘 lists the three US axes nearest to flipping, measured before assumed, Korea out: ${rows.map((row) => row.id)}`);
-  const partial = heroFlipRows({ available: true, axes: [axis('trend', 2), { id: 'credit', title: 'credit', state: 'burden', stateLabel: '부담', flip: 'credit rule', flipDistance: null }, { id: 'volatility', title: 'volatility', state: 'neutral', stateLabel: '중립', flip: 'vol rule', flipDistance: null }] });
-  if (partial.map((row) => `${row.id}:${row.distance ? 'd' : row.unmeasured ? 'u' : '?'}`).join(',') !== 'trend:d,credit:u,volatility:u') fail(`v58.55 review: axes without a distance fill the remaining slots in the one-sided order, marked unmeasured: ${JSON.stringify(partial)}`);
+  // v59.68: 오늘's flip tile is retired (시장 상태's six axes carry each distance); the flipDistanceSearch checks above stay.
 }
 
 // v57.79 (UI review): the home 코스피 chip names its basis and never shows an unlabeled number that conflicts with the

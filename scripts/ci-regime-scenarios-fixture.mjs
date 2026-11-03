@@ -96,12 +96,13 @@ assert.equal(descendants(page).filter(node => node.dataset.scenario).length, 3, 
 // v57.76: 시장 상태 reads current state then links once to 거시 for the branches by release (no compact branch block), and
 // the VIX-only past-outcome table is a fold inside the volatility card, not a separate unbridged section.
 assert.ok(!descendants(page).some(node => node.id === 'signal-crossroads' || String(node.className).includes('xr-compact')), 'v57.76 시장 상태 no longer repeats the 거시 branch block');
-const macroLinks = descendants(page).filter(node => node.tagName === 'button' && node.textContent === '다음 발표별 시나리오 → 거시');
-assert.equal(macroLinks.length, 1, 'v57.76 the flow section ends with exactly one link line to the 거시 scenarios');
+// v59.68 (owner IA 2026-11-03): the scenario map by release lives on 시장 상태 itself; the flow section's one link opens it here.
+const macroLinks = descendants(page).filter(node => node.tagName === 'button' && node.textContent === '다음 발표별 시나리오 전체');
+assert.equal(macroLinks.length, 1, 'v59.68 the flow section ends with exactly one link line to the scenario map');
 {
   const shown = []; root.showPage = (route) => shown.push(route);
   macroLinks[0].listeners.click();
-  assert.deepEqual(shown, ['macro'], 'v57.76 the scenario link navigates through root.showPage to 거시');
+  assert.deepEqual(shown, ['signal'], 'v59.68 the scenario link stays on 시장 상태 (root.showPage signal)');
   delete root.showPage;
 }
 const vixCard = ids.get('regime-board').children.find(card => card.dataset.axis === 'volatility');

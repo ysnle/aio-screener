@@ -149,7 +149,8 @@ const ui = read('js/aio-ui.js');
 const dataJs = read('js/aio-data.js') + '\n' + read('src/data/server-data-loader.js'); // v59.34: the server data loader moved to src
 check('P1736 applyDataSnapshot holds expired BOK/KR CPI values as 기한 지남', /'bok-rate':\s*refHeld\('bokPolicy'/.test(core) && /'kr-cpi':\s*refHeld\('krInflation'/.test(core) && /'kr-cpi-yoy':\s*refHeld\('krInflation'/.test(core));
 check('P1737 v57.60 fed-target fallback and the CP2 text writer use AIO.getFedPolicyRange (the retired cp2-detail DOM sink stays gone)', /'fed-target':[^\n]*_fedRange/.test(core) && !/getElementById\('cp2-detail'\)/.test(core) && /function getCP2Text\(\)[\s\S]{0,700}getFedPolicyRange\(\)/.test(core));
-for (const file of ['src/ui/components/daily-loop.js', 'src/ui/components/briefing-read.js', 'src/ui/pages/market.js']) check(`P1737 ${file} reads the Fed range through AIO.getFedPolicyRange`, /getFedPolicyRange/.test(read(file)));
+// v59.68: 오늘's next-event row (daily-loop.js) is retired; 브리핑 and 시장 상태 keep the Fed-range read.
+for (const file of ['src/ui/components/briefing-read.js', 'src/ui/pages/market.js']) check(`P1737 ${file} reads the Fed range through AIO.getFedPolicyRange`, /getFedPolicyRange/.test(read(file)));
 check('P1736 the BOK next-meeting helper has no hand-typed month/day list', !/function getNextBOK\(\)\s*\{[\s\S]{0,200}var schedule = \[\[/.test(ui) && /function getNextBOK\(\)[\s\S]{0,300}releases\['kr-bok'\]/.test(ui));
 check('P1737 data.json and official-references.json reach applyProducedReferences', /applyProducedReferences\(\{ policyRates:/.test(dataJs) && /official-references\.json/.test(dataJs) && /applyProducedReferences\(\{ officialReferences: payload \}\)/.test(dataJs));
 // The browser fetches the artifact only after data.json announces it (meta.officialReferencesCheckedAt). fetch-data
