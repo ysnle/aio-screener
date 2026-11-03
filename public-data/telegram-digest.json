@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-03T01:21:45.059Z",
-  "attemptedAt": "2026-11-03T01:21:45.059Z",
-  "lastSuccessfulAt": "2026-11-03T01:21:45.059Z",
+  "generatedAt": "2026-11-03T01:51:38.093Z",
+  "attemptedAt": "2026-11-03T01:51:38.093Z",
+  "lastSuccessfulAt": "2026-11-03T01:51:38.093Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-20T01:21:39.576Z",
-  "until": "2026-11-03T01:21:39.576Z",
+  "since": "2026-10-20T01:51:31.503Z",
+  "until": "2026-11-03T01:51:31.503Z",
   "current24hWindow": {
     "start": "2026-11-01T23:00:00.000Z",
     "end": "2026-11-02T23:00:00.000Z",
@@ -97,35 +97,35 @@
       "eligibleTextCount": 1265,
       "selectedCount": 124,
       "error": null,
-      "lastPostId": 68152
+      "lastPostId": 68154
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 229,
+      "count": 230,
       "freshCount": 39,
-      "eligibleTextCount": 229,
+      "eligibleTextCount": 230,
       "selectedCount": 126,
       "error": null,
-      "lastPostId": 20966
+      "lastPostId": 20967
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 664,
-      "freshCount": 40,
-      "eligibleTextCount": 663,
+      "count": 663,
+      "freshCount": 39,
+      "eligibleTextCount": 662,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 71450
+      "lastPostId": 71453
     }
   ],
   "count": 2335,
-  "retainedItemCount": 480,
+  "retainedItemCount": 481,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -134,12 +134,12 @@
     "observedCount": 2335,
     "eligibleTextCount": 2266,
     "mediaOnlyCount": 69,
-    "mediaAttachedCount": 153,
-    "photoPostCount": 133,
+    "mediaAttachedCount": 158,
+    "photoPostCount": 138,
     "documentPostCount": 0,
     "imageOnlyCount": 0,
     "highSignalCount": 421,
-    "broadSignalCount": 906,
+    "broadSignalCount": 905,
     "selectedRawCount": 414,
     "selectedEligibleCount": 414,
     "selectedRawCoveragePct": 18.3,
@@ -147,28 +147,29 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 824,
+    "earnings": 485,
+    "flows": 77,
+    "power": 274,
+    "market-note": 825,
     "media-only": 69,
     "japan": 106,
     "geo": 423,
-    "flows": 76,
     "macro": 352,
-    "semi": 518,
+    "semi": 516,
     "equity": 156,
-    "earnings": 484,
     "ai-policy": 130,
     "healthcare": 107,
-    "power": 273,
     "crypto": 4,
     "credit": 111,
     "kr-market": 125,
     "optical": 43
   },
   "tickerCounts": {
+    "GOOG": 131,
+    "AMZN": 80,
     "TSLA": 61,
     "NVDA": 141,
     "AVGO": 22,
-    "AMZN": 79,
     "005930.KS": 48,
     "000660.KS": 75,
     "PLTR": 24,
@@ -183,12 +184,11 @@
     "AMD": 30,
     "BE": 26,
     "SMCI": 5,
-    "MU": 43,
+    "MU": 42,
     "MTCH": 1,
     "ON": 1,
     "BWXT": 1,
     "MSFT": 58,
-    "GOOG": 130,
     "BABA": 3,
     "MRVL": 14,
     "LITE": 15,
@@ -258,12 +258,12 @@
     "UMC": 1
   },
   "themes": [
-    "Market Notes (824 posts in 14-day research window): 11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000...",
-    "Semiconductors/Memory (518 posts in 14-day research window): 2026년 11월 2일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.76%) 2위: ALPHABET INC CL A...",
-    "Earnings/Corporate (484 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
+    "Market Notes (825 posts in 14-day research window): 11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000...",
+    "Semiconductors/Memory (516 posts in 14-day research window): 2026년 11월 2일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.76%) 2위: ALPHABET INC CL A...",
+    "Earnings/Corporate (485 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
     "Geopolitics (423 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 3일 🇺🇸 아메리카 • 트럼프 대통령은 중간선거 이후 이란에 대한 추가 공습 계획을 부인하며 군사작전 재개를 서두르지 않겠다고 밝혀. 이란이 합의를 원하고 있으며...",
     "Macro/Rates (352 posts in 14-day research window): 2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,...",
-    "AI Power/Grid (273 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
+    "AI Power/Grid (274 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
     "Equity/Analyst (156 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로...",
     "AI Policy/Export Controls (130 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
   ],
@@ -275,12 +275,12 @@
     },
     {
       "key": "GOOG",
-      "count": 130,
+      "count": 131,
       "text": "2026년 11월 3일 미국 증시 브리핑 미국 증시는 중간선거를 앞둔 정치적 불확실성과 AI·반도체 중심의 대규모 매도세로 혼조 마감. S&P500 -0.51%, 나스닥 -1.07%, 다우 +0.41%,..."
     },
     {
       "key": "AMZN",
-      "count": 79,
+      "count": 80,
       "text": "빌 애크먼(Bill Ackman) – Equity Mates 인터뷰 1. AI 버블과 컴퓨팅 수요 “컴퓨팅 수요 측면에서 지금이 버블이라고 생각하지 않는다.” AI가 초지능에 빠르게 접근할수록 이를 뒷받침할..."
     },
     {
@@ -310,7 +310,7 @@
     },
     {
       "key": "MU",
-      "count": 43,
+      "count": 42,
       "text": "2026년 10월 29일 미국 레딧 베스트 게시물 분석 > NVDA / MU / VRT / ETN / GEV - AI Trade가 물리 인프라로 확장 · 장문 DD 핵심은 “AI가 싸지면 물리 자원이 병목”..."
     },
     {
@@ -363,7 +363,7 @@
       "topics": [
         "semi"
       ],
-      "count": 518,
+      "count": 516,
       "focus": "2026년 11월 2일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.76%) 2위: ALPHABET INC CL A..."
     },
     {
@@ -381,7 +381,7 @@
       "topics": [
         "power"
       ],
-      "count": 273,
+      "count": 274,
       "focus": "Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을..."
     },
     {
@@ -426,7 +426,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 484,
+      "count": 485,
       "focus": "마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장...."
     },
     {
@@ -453,7 +453,7 @@
       "topics": [
         "flows"
       ],
-      "count": 76,
+      "count": 77,
       "focus": "서학개미 순매수 미국 주식 TOP 50 (10월 누적) > 기간: 2026/10/01 ~ 2026/10/30 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -471,7 +471,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 824,
+      "count": 825,
       "focus": "11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000..."
     }
   ],
@@ -1723,6 +1723,31 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71453",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71453",
+      "datetime": "2026-11-03T01:40:11.000Z",
+      "localDateKst": "2026-11-03",
+      "tags": [
+        "power",
+        "earnings"
+      ],
+      "lead": 1,
+      "score": 56,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "GOOG",
+        "AMZN"
+      ],
+      "summary": ">>Nomura : AI 데이터센터는 수익성이 매우 높으며, 기술주 하락은 시장의 과도한 오판 •Nomura는 시장이 빅테크 기업들의 마이너스 잉여현금흐름(FCF)을 AI 사업의 수익성 부족으로 잘못 해석하고..."
+    },
+    {
       "id": "HANAchina/71446",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71446",
@@ -2114,11 +2139,8 @@
       "datetime": "2026-11-02T21:34:37.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "earnings",
-        "macro",
-        "japan"
+        "earnings"
       ],
-      "lead": 1,
       "score": 61,
       "hasText": true,
       "media": {
@@ -2127,10 +2149,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "Apple 2026년 4분기 실적 요약 실적 • 매출 $1,144.77억, YoY +11.7%, 9월 분기 역대 최고 • 제품 매출 $829.04억, YoY +12.5% • 서비스 매출 $315.73억,...",
       "tickers": [
         "AAPL"
-      ],
-      "summary": "Apple 2026년 4분기 실적 요약 실적 • 매출 $1,144.77억, YoY +11.7%, 9월 분기 역대 최고 • 제품 매출 $829.04억, YoY +12.5% • 서비스 매출 $315.73억,..."
+      ]
     },
     {
       "id": "insidertracking/68109",
@@ -2836,19 +2858,17 @@
       "datetime": "2026-11-02T09:36:46.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "macro",
-        "equity",
-        "earnings"
+        "macro"
       ],
-      "lead": 1,
       "score": 59,
       "hasText": true,
+      "summary": ">>AI는 고금리에도 영향을 받지 않는가? 버블 말기에는 시장에 환상이 만연하는 경우가 많음 (중국언론) •애널리스트들이 “고금리가 AI 호황에 영향을 주지 않는다”고 주장하는 가운데, 이는 2000년 인터넷...",
+      "lead": 1,
       "tickers": [
         "MSFT",
         "GOOG",
         "GOOGL"
-      ],
-      "summary": ">>AI는 고금리에도 영향을 받지 않는가? 버블 말기에는 시장에 환상이 만연하는 경우가 많음 (중국언론) •애널리스트들이 “고금리가 AI 호황에 영향을 주지 않는다”고 주장하는 가운데, 이는 2000년 인터넷..."
+      ]
     },
     {
       "id": "bornlupin/20948",
@@ -3774,15 +3794,12 @@
       "datetime": "2026-11-01T08:59:03.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
-        "semi",
-        "earnings",
-        "healthcare"
+        "semi"
       ],
-      "lead": 1,
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": "UBS: CPU-to-GPU 비율의 상당한 상승 여력, 그러나 궁극적으로 전체 시장 규모(TAM)를 결정하는 것은 메모리 UBS는 복잡한 에이전틱 AI 워크로드의 확산으로 GPU당 필요한 CPU 수가 크게..."
+      "summary": "UBS: CPU-to-GPU 비율의 상당한 상승 여력, 그러나 궁극적으로 전체 시장 규모(TAM)를 결정하는 것은 메모리 UBS는 복잡한 에이전틱 AI 워크로드의 확산으로 GPU당 필요한 CPU 수가 크게...",
+      "tickers": []
     },
     {
       "id": "insidertracking/67976",
@@ -7258,25 +7275,6 @@
       ]
     },
     {
-      "id": "HANAchina/71118",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71118",
-      "datetime": "2026-10-27T23:33:55.000Z",
-      "localDateKst": "2026-10-28",
-      "tags": [
-        "earnings",
-        "semi",
-        "kr-market"
-      ],
-      "score": 79,
-      "hasText": true,
-      "summary": ">>SK hynix 3분기 실적 및 주주환원 계획 •매출 : 104.62조원 (컨센서스 98.96조원 상회) •영업이익 : 83.33조원 (컨센서스 77.5조원 상회) •순이익 : 39.53조원 (컨센서스...",
-      "lead": 3,
-      "tickers": [
-        "000660.KS"
-      ]
-    },
-    {
       "id": "bornlupin/20855",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20855",
@@ -9037,11 +9035,8 @@
       "datetime": "2026-11-02T21:34:37.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "earnings",
-        "macro",
-        "japan"
+        "earnings"
       ],
-      "lead": 1,
       "score": 61,
       "hasText": true,
       "media": {
@@ -9050,10 +9045,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "Apple 2026년 4분기 실적 요약 실적 • 매출 $1,144.77억, YoY +11.7%, 9월 분기 역대 최고 • 제품 매출 $829.04억, YoY +12.5% • 서비스 매출 $315.73억,...",
       "tickers": [
         "AAPL"
-      ],
-      "summary": "Apple 2026년 4분기 실적 요약 실적 • 매출 $1,144.77억, YoY +11.7%, 9월 분기 역대 최고 • 제품 매출 $829.04억, YoY +12.5% • 서비스 매출 $315.73억,..."
+      ]
     },
     {
       "id": "insidertracking/68109",
@@ -9739,19 +9734,17 @@
       "datetime": "2026-11-02T09:36:46.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "macro",
-        "equity",
-        "earnings"
+        "macro"
       ],
-      "lead": 1,
       "score": 59,
       "hasText": true,
+      "summary": ">>AI는 고금리에도 영향을 받지 않는가? 버블 말기에는 시장에 환상이 만연하는 경우가 많음 (중국언론) •애널리스트들이 “고금리가 AI 호황에 영향을 주지 않는다”고 주장하는 가운데, 이는 2000년 인터넷...",
+      "lead": 1,
       "tickers": [
         "MSFT",
         "GOOG",
         "GOOGL"
-      ],
-      "summary": ">>AI는 고금리에도 영향을 받지 않는가? 버블 말기에는 시장에 환상이 만연하는 경우가 많음 (중국언론) •애널리스트들이 “고금리가 AI 호황에 영향을 주지 않는다”고 주장하는 가운데, 이는 2000년 인터넷..."
+      ]
     },
     {
       "id": "bornlupin/20948",
