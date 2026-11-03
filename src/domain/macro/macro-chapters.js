@@ -7,6 +7,7 @@ import { dayLabel } from '../market/market-story.js';
 import { buildCloseSeries } from '../market/close-series.js';
 import { MARKET_WINDOWS, closeChange } from '../market/market-windows.js';
 import { sessionPointBack } from './rates-fx.js';
+import { RULES } from '../rules/thresholds.js';
 
 // v59.56: the shared signedText, so a 20-session +0.04% prints 0.0%, never '+0.0%'.
 const signed = (value, digits = 2, unit = '%') => signedText(value, digits, unit);
@@ -239,7 +240,7 @@ function credit(macroHistory) {
   const stress = hy.bp >= 40 || hy.to >= 4.5;
   const tail = ccc && ccc.bp >= 50;
   // v59.64: +25bp to +40bp in 20 sessions is no longer quiet (HY +34bp read as 조용 on 11/3 while IG widened 4.7 sd in a day).
-  const widening = hy.bp >= 25;
+  const widening = hy.bp >= RULES.credit.widen20dBp;
   const mean = stress ? '스프레드가 크게 벌어졌습니다. 주가 조정이 신용 문제로 번지는지 확인해야 합니다.'
     : widening ? `하이일드가 20거래일 동안 ${bp(hy.bp)} 벌어져 경계 쪽으로 움직이고 있습니다.${tail ? ' 가장 약한 CCC 등급이 더 빠르게 벌어져, 약한 기업부터 자금 조달이 어려워지는 모습입니다.' : ''}`
     : tail ? '전체 하이일드는 조용하지만 가장 약한 CCC 등급이 먼저 벌어지고 있습니다. 위기 신호가 오면 여기서 시작됩니다.'

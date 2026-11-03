@@ -1476,6 +1476,28 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
         || account.unexplained[0]?.sym !== 'MYST' || !/동일가중/.test(account.opening) || account.ahead[0]?.label !== '고용보고서') {
         fail(`v59.65: briefing day account broke ${JSON.stringify({ oilStory, told, unexplained: account.unexplained, opening: account.opening })}`);
       }
+      // v59.66: 시장 상태 reads indicators in pairs — an index under its 50-day line with most members above it is a narrow
+      // pullback; extreme fear with a calm VIX is not a capitulation; falling yields with widening spreads is growth fear;
+      // a day as large as a week is read on the day.
+      const { crossReadings } = await load('src/domain/market/cross-readings.js');
+      const cdays = []; for (let d = Date.parse('2026-06-01T12:00:00Z'); cdays.length < 80; d += 86400000) { const day = new Date(d); if (![0, 6].includes(day.getUTCDay())) cdays.push(day.toISOString().slice(0, 10)); }
+      const chist = cdays.map((date, i) => ({ date, spx: i < 79 ? 5000 : 4800, rsp: 100 + i * 0.2, breadth50: 68, vix: 21, vix3m: 22, fg: 19, pcr: 0.9, tnx: 4.9 - i * 0.02, kospi: i < 79 ? 5000 : 4800, usdkrw: i < 79 ? 1400 : 1410 }));
+      const chy = { series: { hyOas: { observations: cdays.map((date, i) => [date, 3 + i * 0.02]) } } };
+      const pairs = Object.fromEntries(crossReadings({ history: chist, macroHistory: chy, day: null }).map((row) => [row.id, row.text]));
+      if (!/68%는 아직 50일선 위/.test(pairs['trend-breadth'] || '') || !/투매는 아닌/.test(pairs['volatility-sentiment'] || '') || !/성장 걱정형/.test(pairs['rates-credit'] || '') || !/코스피 하루 -4\.0%/.test(pairs['korea-won'] || '')) {
+        fail(`v59.66: cross readings broke ${JSON.stringify(pairs)}`);
+      }
+      // v59.67: 홈's movers — lead/major or a large index pull, ranked by rank then materiality, each symbol once.
+      const { keyStocks } = await load('src/ui/components/home-day.js');
+      const movers = keyStocks({ facts: [
+        { kind: 'stock-move', rank: 'minor', materiality: 9, subjects: ['SMALL'], change: 4 },
+        { kind: 'stock-move', rank: 'major', materiality: 5, subjects: ['AMD'], change: -6 },
+        { kind: 'stock-move', rank: 'lead', materiality: 3, subjects: ['NVDA'], change: -4, indexBp: -22 },
+        { kind: 'stock-move', rank: 'minor', materiality: 2, subjects: ['AAPL'], change: -1.5, indexBp: -9 },
+        { kind: 'stock-move', rank: 'major', materiality: 4, subjects: ['NVDA'], change: -4 },
+        { kind: 'sector-move', rank: 'lead', materiality: 9, subjects: ['SMH'], change: -3 },
+      ] }).map((row) => row.sym).join(',');
+      if (movers !== 'NVDA,AMD,AAPL') fail(`v59.67: home movers must be NVDA,AMD,AAPL, got ${movers}`);
     }
     // v59.62: chart levels — 50-day line, closing high, six-month support, and a double top read at its neck (testing, broken).
     const { indexLevel, levelsRead } = await load('src/domain/market/index-levels.js');

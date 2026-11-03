@@ -5,6 +5,7 @@
 // SCHEDULED_EVENTS.
 import { MOVER_BY_SYMBOL } from '../briefing/market-movers.js';
 import { readNumber } from '../shared/number.js';
+import { RULES } from '../rules/thresholds.js';
 import { SCHEDULED_EVENTS as REGISTRY } from '../briefing/scheduled-events.js';
 import { indexLevels, levelValue, levelsRead } from './index-levels.js';
 
@@ -95,7 +96,9 @@ function creditOf(macroHistory, from, to) {
   const hy = macroSpan(macroHistory, 'hyOas', from, to);
   if (!hy) return null;
   const ccc = macroSpan(macroHistory, 'cccOas', from, to);
-  const kind = hy.bp >= 40 || hy.to >= 4.5 ? 'stress' : ccc && ccc.bp >= 50 ? 'weak-tail' : 'calm';
+  // v59.66: one widening line for every screen (RULES.credit.widen20dBp, as 매크로's 신용 chapter) — +33bp read as
+  // '신용 불안은 아닙니다' here while 매크로 called the same move 경계 쪽.
+  const kind = hy.bp >= 40 || hy.to >= 4.5 ? 'stress' : hy.bp >= RULES.credit.widen20dBp ? 'widening' : ccc && ccc.bp >= 50 ? 'weak-tail' : 'calm';
   return { hy, ccc, kind };
 }
 
@@ -138,7 +141,10 @@ function lead({ n, moves, concentration, drivers, rates, credit, asOf = null }) 
   // v59.56 (screen review): the split comes from FRED, a session behind the closes; the span is named when it ends earlier.
   const tenSpan = rates && asOf && rates.ten.toDate < asOf ? `(${dayLabel(rates.ten.toDate).split('(')[0]}까지) ` : '';
   if (rates && rates.kind !== 'flat') tail.push(`10년 금리 ${tenSpan}${bpText(rates.ten.bp)}는 ${RATE_READ[rates.kind]}`);
-  if (credit) tail.push(credit.kind === 'stress' ? `하이일드 스프레드가 ${bpText(credit.hy.bp)} 벌어져 신용 쪽 경계가 필요합니다` : `하이일드 스프레드는 ${bpText(credit.hy.bp)}로 신용 불안은 아닙니다`);
+  if (credit) tail.push(credit.kind === 'stress' ? `하이일드 스프레드가 ${bpText(credit.hy.bp)} 벌어져 신용 쪽 경계가 필요합니다`
+    : credit.kind === 'widening' ? `하이일드가 ${bpText(credit.hy.bp)} 벌어져 경계 쪽입니다`
+      : credit.kind === 'weak-tail' ? 'CCC 등급이 먼저 벌어지는 중입니다'
+        : `하이일드 스프레드는 ${bpText(credit.hy.bp)}로 신용 불안은 아닙니다`);
   if (tail.length) parts.push(`${tail.join('. ')}.`);
   return parts.join(' ');
 }
@@ -151,6 +157,7 @@ function confirmations({ moves, rates, credit, macroHistory, history, asOf, star
   if (credit) {
     const tail = credit.ccc ? ` · CCC ${bpText(credit.ccc.bp)}` : '';
     const read = credit.kind === 'stress' ? '스프레드가 크게 벌어졌습니다. 주가 조정이 신용 문제로 번지는지 확인해야 합니다.'
+      : credit.kind === 'widening' ? '스프레드가 경계 쪽으로 벌어지고 있습니다. 아직 위기 수준은 아니지만, 더 벌어지면 주가 조정이 신용 문제로 번집니다.'
       : credit.kind === 'weak-tail' ? '전체 하이일드는 조용하지만 가장 약한 CCC 등급이 먼저 벌어지고 있습니다. 위기 신호가 오면 여기서 시작됩니다.'
         : '주가가 움직여도 스프레드가 넓어지지 않아 신용 문제는 아닙니다.';
     rows.push({ id: 'credit', label: '신용', value: `하이일드 ${credit.hy.from.toFixed(2)} → ${credit.hy.to.toFixed(2)}% (${bpText(credit.hy.bp)})${tail}`, read });

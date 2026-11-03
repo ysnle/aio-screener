@@ -382,6 +382,8 @@ export function renderDailyLoop({ documentRef: doc, root, store, regime = null }
   const newsHost = doc.getElementById('home-my-news');
   if (newsHost) renderMyNews(doc, newsHost, root, store, names?.names || []);
   renderHomeLinks(doc, root);
+  // v59.67 (phase 5): 오늘의 핵심 — the day's top stories and movers (a lazy chunk; market-day.json loads on first use).
+  import('./home-day.js').then(({ renderHomeDay }) => renderHomeDay({ documentRef: doc, root })).catch(() => {});
   // v59.44 (owner 2026-10-30): the AI supply chain by group (a lazy chunk) — the leaders' visual under the verdict.
   import('./ai-chain-flow.js').then(({ paintHomeAiChain }) => paintHomeAiChain(doc, root)).catch(() => {});
   host.dataset.aioDailyLoopRenderer = 'native';

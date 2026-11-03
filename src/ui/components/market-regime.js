@@ -469,6 +469,26 @@ function comboAndWatch(doc, root, regime, interpretation) {
 // v58.53 개편 v2 (3b): ① hero (verdict · tally bar · previous verdict) → ② six-axis table whose rows open single-file
 // into ③ 원리 / 지금 읽기 / 한계 cards with the chart and evidence → ④ evidence line; then 이 조합이 뜻하는 것 ·
 // 다음에 확인할 것, and the radar, the three market flows and the Korea board as lower cards.
+function paintCrossReadings(doc, root, inputs) {
+  Promise.all([import('../../domain/market/cross-readings.js'), import('../../data/shared-artifacts.js')]).then(([{ crossReadings }, { MARKET_DAY, refreshSharedArtifact }]) => {
+    const paint = () => {
+      const host = doc.getElementById('regime-cross-list');
+      const section = doc.getElementById('regime-cross');
+      if (!host || !section) return;
+      const rows = crossReadings({ history: inputs?.history || root._aioHistory || [], macroHistory: root._aioMacroHistory || null, day: root[MARKET_DAY.key] || null });
+      section.hidden = !rows.length;
+      host.replaceChildren(...rows.map((row) => {
+        const item = el(doc, 'div', null, 'mk-cross__item');
+        item.dataset.pair = row.id;
+        item.append(el(doc, 'h3', row.title, 'mk-cross__title'), el(doc, 'p', row.text, 'mk-cross__text'));
+        return item;
+      }));
+    };
+    paint();
+    if (!root[MARKET_DAY.key]) refreshSharedArtifact(root, MARKET_DAY).then(({ changed }) => { if (changed) paint(); }).catch(() => {});
+  }).catch(() => {});
+}
+
 export function renderRegimePage({ documentRef: doc, root, store = null }) {
   const page = doc?.getElementById('page-signal');
   if (!page) return null;
@@ -528,6 +548,9 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
       if (rally) detail.prepend(rally);
       if (strip) detail.prepend(strip);
     }).catch(() => {});
+    // v59.66 (phase 4): the indicators read in pairs — breadth against the trend, sentiment against volatility and
+    // positioning, rates against credit, Korea against the won (a lazy chunk; market-day.json loads on first use).
+    if (regime.available) paintCrossReadings(doc, root, inputs);
     const radarHost = doc.getElementById('regime-radar-host');
     if (regime.available) renderRegimeRadar({ documentRef: doc, root, inputs, anchor: radarHost || board, verdicts: regime.axes }); // P1637
     if (boardKr) {

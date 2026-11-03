@@ -10,7 +10,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v59.65 — 올인원 투자 터미널</title>
+  <title>AIO Screener v59.67 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 시장 환경 참고 지표, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f4f0e8">
@@ -3814,6 +3814,9 @@ button[data-filter-active="true"] {
     <span class="is-interactive sh-baseline-row" data-close-measure="dxy" data-action="showPage" data-arg="fxbond" title="달러 지수(DXY) — 주요 6개 통화 대비 달러 가치"><span class="sh-muted-text">달러 지수</span><b class="sh-ink-figure" data-live-price="DX-Y.NYB">—</b><span class="sh-semi-figure" data-live-chg="DX-Y.NYB">—</span></span>
     <span class="is-interactive sh-baseline-row" id="home-kospi-chip" data-action="showPage" data-arg="signal" title="코스피 시세 확인 중" hidden><span id="home-kospi-label" class="sh-muted-text">코스피</span><b id="home-kospi-value" class="sh-ink-figure">—</b><span id="home-kospi-chg" class="sh-semi-figure"></span></span>
   </div>
+  <!-- v59.67 (owner 2026-11-03, phase 5): 오늘의 핵심 — the three most material stories and the stocks that moved most, from
+       the same 24-hour account as 브리핑 (src/ui/components/home-day.js). -->
+  <section id="home-day" class="sx-card home-day" aria-labelledby="home-day-title" hidden></section>
   <!-- v59.44 (owner 2026-10-30) AI supply chain (ai-chain-flow.js) and P1599 participation (home-kpi-trend.js). -->
   <section id="home-ai-chain" class="daily-block ai-chain" aria-labelledby="home-ai-chain-title" hidden></section>
   <section id="home-participation" class="sx-card home-participation" aria-labelledby="home-participation-title" hidden></section>
@@ -3883,6 +3886,12 @@ button[data-filter-active="true"] {
     <h2 class="sr-only" id="regime-axes-title">미국 시장 6개 지표</h2>
     <div class="mk-axes__head" aria-hidden="true"><span>지표</span><span>판정</span><span>현재값</span><span>기준까지</span><span>5거래일 전</span><span>5일 변화</span></div>
     <div class="regime-board" id="regime-board"></div>
+  </section>
+  <!-- v59.66 (owner 2026-11-03, phase 4): breadth, sentiment and positioning read against the indicator they qualify
+       (src/domain/market/cross-readings.js), on the face instead of a fold of their own. -->
+  <section class="sx-card mk-cross" id="regime-cross" aria-labelledby="regime-cross-title" hidden>
+    <h2 class="sx-card__title" id="regime-cross-title">지표를 같이 놓고 보면</h2>
+    <div class="mk-cross__list" id="regime-cross-list"></div>
   </section>
   <section class="sx-card mk-lower mk-radar" aria-labelledby="regime-radar-title"><!-- v59.55 (visual review): the screen's one picture, open -->
     <div class="mk-lower__head"><h2 class="sx-card__title" id="regime-radar-title">1년 중 지금 위치 — 6개 지표 레이더</h2></div><!-- the legend under it names the three dates -->
@@ -6081,12 +6090,12 @@ button[data-filter-active="true"] {
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
   <!-- R622: block A (workspace) runs first in the defer group; kr-data and pages follow it, as when they sat in <head>. -->
-  <script src="./js/aio-workspace.js?v=59.65" defer></script>
-  <script src="./js/aio-kr-data.js?v=59.65" defer></script>
-  <script src="./js/aio-pages.js?v=59.65" defer></script>
-  <script src="./js/aio-core.js?v=59.65" defer></script>
-  <script src="./js/aio-data.js?v=59.65" defer></script>
-  <script src="./js/aio-ui.js?v=59.65" defer></script>
+  <script src="./js/aio-workspace.js?v=59.67" defer></script>
+  <script src="./js/aio-kr-data.js?v=59.67" defer></script>
+  <script src="./js/aio-pages.js?v=59.67" defer></script>
+  <script src="./js/aio-core.js?v=59.67" defer></script>
+  <script src="./js/aio-data.js?v=59.67" defer></script>
+  <script src="./js/aio-ui.js?v=59.67" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
@@ -6137,7 +6146,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      용어 사전 모달(src/ui/knowledge/glossary-modal.js, 호출 시점에만 읽음)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=59.65" defer></script>
+<script src="./js/aio-glossary.js?v=59.67" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->
@@ -6145,7 +6154,7 @@ button[data-filter-active="true"] {
 
 <!-- v58.56 (re-audit #13): R1 release identity moved from the topbar to the page foot — the topbar keeps only what a reader
      uses (quote basis, 도움말, AI). bump-version still patches this element by its id. -->
-<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, 등락 색은 오르면 <span style="color:var(--dir-up)">빨강</span>·내리면 <span style="color:var(--dir-down)">파랑</span>, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <button type="button" data-action="_aioOpenFeedback">오류 신고</button>, <span class="sx-page-foot-version" id="app-version-badge">v59.65</span></p>
+<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, 등락 색은 오르면 <span style="color:var(--dir-up)">빨강</span>·내리면 <span style="color:var(--dir-down)">파랑</span>, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <button type="button" data-action="_aioOpenFeedback">오류 신고</button>, <span class="sx-page-foot-version" id="app-version-badge">v59.67</span></p>
 </div><!-- /content -->
 </div><!-- /main -->
 </div><!-- /app -->
