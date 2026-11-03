@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-03T00:51:44.423Z",
-  "attemptedAt": "2026-11-03T00:51:44.423Z",
-  "lastSuccessfulAt": "2026-11-03T00:51:44.423Z",
+  "generatedAt": "2026-11-03T01:21:45.059Z",
+  "attemptedAt": "2026-11-03T01:21:45.059Z",
+  "lastSuccessfulAt": "2026-11-03T01:21:45.059Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-20T00:51:37.485Z",
-  "until": "2026-11-03T00:51:37.485Z",
+  "since": "2026-10-20T01:21:39.576Z",
+  "until": "2026-11-03T01:21:39.576Z",
   "current24hWindow": {
     "start": "2026-11-01T23:00:00.000Z",
     "end": "2026-11-02T23:00:00.000Z",
@@ -92,80 +92,83 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1324,
+      "count": 1326,
       "freshCount": 38,
       "eligibleTextCount": 1265,
       "selectedCount": 124,
       "error": null,
-      "lastPostId": 68145
+      "lastPostId": 68152
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 228,
-      "freshCount": 40,
-      "eligibleTextCount": 228,
+      "count": 229,
+      "freshCount": 39,
+      "eligibleTextCount": 229,
       "selectedCount": 126,
       "error": null,
-      "lastPostId": 20962
+      "lastPostId": 20966
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 660,
+      "count": 664,
       "freshCount": 40,
-      "eligibleTextCount": 659,
+      "eligibleTextCount": 663,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 71445
+      "lastPostId": 71450
     }
   ],
-  "count": 2328,
-  "retainedItemCount": 474,
+  "count": 2335,
+  "retainedItemCount": 480,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2328,
-    "eligibleTextCount": 2261,
-    "mediaOnlyCount": 67,
-    "mediaAttachedCount": 145,
-    "photoPostCount": 125,
+    "observedCount": 2335,
+    "eligibleTextCount": 2266,
+    "mediaOnlyCount": 69,
+    "mediaAttachedCount": 153,
+    "photoPostCount": 133,
     "documentPostCount": 0,
     "imageOnlyCount": 0,
-    "highSignalCount": 422,
-    "broadSignalCount": 909,
+    "highSignalCount": 421,
+    "broadSignalCount": 906,
     "selectedRawCount": 414,
     "selectedEligibleCount": 414,
     "selectedRawCoveragePct": 18.3,
-    "selectedOfObservedPct": 17.8,
+    "selectedOfObservedPct": 17.7,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 818,
-    "geo": 425,
-    "earnings": 485,
-    "equity": 155,
+    "market-note": 824,
+    "media-only": 69,
+    "japan": 106,
+    "geo": 423,
+    "flows": 76,
+    "macro": 352,
     "semi": 518,
-    "macro": 354,
+    "equity": 156,
+    "earnings": 484,
     "ai-policy": 130,
-    "flows": 75,
-    "healthcare": 109,
-    "japan": 105,
-    "power": 274,
+    "healthcare": 107,
+    "power": 273,
     "crypto": 4,
-    "credit": 112,
+    "credit": 111,
     "kr-market": 125,
-    "optical": 43,
-    "media-only": 67
+    "optical": 43
   },
   "tickerCounts": {
-    "NVDA": 140,
+    "TSLA": 61,
+    "NVDA": 141,
+    "AVGO": 22,
+    "AMZN": 79,
     "005930.KS": 48,
     "000660.KS": 75,
     "PLTR": 24,
@@ -184,15 +187,13 @@
     "MTCH": 1,
     "ON": 1,
     "BWXT": 1,
-    "MSFT": 59,
+    "MSFT": 58,
     "GOOG": 130,
-    "TSLA": 60,
     "BABA": 3,
     "MRVL": 14,
     "LITE": 15,
     "ORCL": 13,
     "T": 7,
-    "AMZN": 78,
     "GOOGL": 7,
     "BCS": 1,
     "MFG": 1,
@@ -200,7 +201,6 @@
     "285A.T": 7,
     "009150.KS": 18,
     "000990.KS": 1,
-    "AVGO": 21,
     "6981.T": 3,
     "META": 12,
     "SNDK": 11,
@@ -214,7 +214,7 @@
     "COIN": 1,
     "CAT": 3,
     "SBUX": 1,
-    "MRK": 2,
+    "MRK": 1,
     "006800.KS": 1,
     "006400.KS": 2,
     "CMG": 1,
@@ -258,19 +258,19 @@
     "UMC": 1
   },
   "themes": [
-    "Market Notes (818 posts in 14-day research window): 11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000...",
-    "Semiconductors/Memory (518 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 델 테크놀로지스·엔비디아와 협력해 Dell AI Factory에 Falcon 보안을 통합하고,...",
-    "Earnings/Corporate (485 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
-    "Geopolitics (425 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 3일 🇺🇸 아메리카 • 트럼프 대통령은 중간선거 이후 이란에 대한 추가 공습 계획을 부인하며 군사작전 재개를 서두르지 않겠다고 밝혀. 이란이 합의를 원하고 있으며...",
-    "Macro/Rates (354 posts in 14-day research window): 2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,...",
-    "AI Power/Grid (274 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
-    "Equity/Analyst (155 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로...",
+    "Market Notes (824 posts in 14-day research window): 11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000...",
+    "Semiconductors/Memory (518 posts in 14-day research window): 2026년 11월 2일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.76%) 2위: ALPHABET INC CL A...",
+    "Earnings/Corporate (484 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
+    "Geopolitics (423 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 3일 🇺🇸 아메리카 • 트럼프 대통령은 중간선거 이후 이란에 대한 추가 공습 계획을 부인하며 군사작전 재개를 서두르지 않겠다고 밝혀. 이란이 합의를 원하고 있으며...",
+    "Macro/Rates (352 posts in 14-day research window): 2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,...",
+    "AI Power/Grid (273 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
+    "Equity/Analyst (156 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로...",
     "AI Policy/Export Controls (130 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 140,
+      "count": 141,
       "text": "2026년 11월 3일 미국 증시 브리핑 미국 증시는 중간선거를 앞둔 정치적 불확실성과 AI·반도체 중심의 대규모 매도세로 혼조 마감. S&P500 -0.51%, 나스닥 -1.07%, 다우 +0.41%,..."
     },
     {
@@ -280,7 +280,7 @@
     },
     {
       "key": "AMZN",
-      "count": 78,
+      "count": 79,
       "text": "빌 애크먼(Bill Ackman) – Equity Mates 인터뷰 1. AI 버블과 컴퓨팅 수요 “컴퓨팅 수요 측면에서 지금이 버블이라고 생각하지 않는다.” AI가 초지능에 빠르게 접근할수록 이를 뒷받침할..."
     },
     {
@@ -290,12 +290,12 @@
     },
     {
       "key": "TSLA",
-      "count": 60,
+      "count": 61,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로..."
     },
     {
       "key": "MSFT",
-      "count": 59,
+      "count": 58,
       "text": "2026년 11월 3일 미국 증시 브리핑 미국 증시는 중간선거를 앞둔 정치적 불확실성과 AI·반도체 중심의 대규모 매도세로 혼조 마감. S&P500 -0.51%, 나스닥 -1.07%, 다우 +0.41%,..."
     },
     {
@@ -336,7 +336,7 @@
       "topics": [
         "macro"
       ],
-      "count": 354,
+      "count": 352,
       "focus": "2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,..."
     },
     {
@@ -345,7 +345,7 @@
       "topics": [
         "geo"
       ],
-      "count": 425,
+      "count": 423,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 3일 🇺🇸 아메리카 • 트럼프 대통령은 중간선거 이후 이란에 대한 추가 공습 계획을 부인하며 군사작전 재개를 서두르지 않겠다고 밝혀. 이란이 합의를 원하고 있으며..."
     },
     {
@@ -354,7 +354,7 @@
       "topics": [
         "credit"
       ],
-      "count": 112,
+      "count": 111,
       "focus": "모건스탠리 마이크 윌슨 “미국 중간선거 전후 조정은 매수 기회… S&P 500 8,000 도달 전망” - Bloomberg 인터뷰 모건스탠리의 미국 주식 수석 전략가 마이크 윌슨(Mike Wilson)은 미국 중간선거, AI 투자 부담, 유동성 제약 등이 단기적으로 증시 조정을 유발할 수 있지만, 이번 조정이..."
     },
     {
@@ -364,7 +364,7 @@
         "semi"
       ],
       "count": 518,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 델 테크놀로지스·엔비디아와 협력해 Dell AI Factory에 Falcon 보안을 통합하고,..."
+      "focus": "2026년 11월 2일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.76%) 2위: ALPHABET INC CL A..."
     },
     {
       "id": "optical",
@@ -381,7 +381,7 @@
       "topics": [
         "power"
       ],
-      "count": 274,
+      "count": 273,
       "focus": "Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을..."
     },
     {
@@ -408,7 +408,7 @@
       "topics": [
         "equity"
       ],
-      "count": 155,
+      "count": 156,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로..."
     },
     {
@@ -426,7 +426,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 485,
+      "count": 484,
       "focus": "마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장...."
     },
     {
@@ -435,7 +435,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 109,
+      "count": 107,
       "focus": ">>미중 상호 기술 수출통제 강화, 글로벌 기술 질서 재편 가속화 (대만공상시보) •중국 상무부와 과기부는 10월 AI·바이오·태양광 등 40개 기술을 수출통제 목록에 추가하는 개정안 발표. 이중 14개는..."
     },
     {
@@ -444,7 +444,7 @@
       "topics": [
         "japan"
       ],
-      "count": 105,
+      "count": 106,
       "focus": "JPM) 일본 퀀트 전략; 바닥은 닛케이평균 62,000선이나 핵심 분기점은 60,980 – 사이버 관련 헤드라인과 AI 피로감이 선별적 퀄리티 그로스에 다시 불을 지피다 내용 요약 10월 22일 닛케이평균은..."
     },
     {
@@ -453,8 +453,8 @@
       "topics": [
         "flows"
       ],
-      "count": 75,
-      "focus": "2026년 11월 2일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.76%) 2위: ALPHABET INC CL A (23.16%) 3위: ALPHABET INC CL C CHAN 39527405649 US38259P7069..."
+      "count": 76,
+      "focus": "서학개미 순매수 미국 주식 TOP 50 (10월 누적) > 기간: 2026/10/01 ~ 2026/10/30 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
       "id": "insider",
@@ -471,7 +471,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 818,
+      "count": 824,
       "focus": "11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000..."
     }
   ],
@@ -722,12 +722,9 @@
       "datetime": "2026-11-02T21:29:13.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "flows",
-        "macro",
         "semi",
-        "power"
+        "flows"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
       "media": {
@@ -736,6 +733,7 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "2026년 11월 2일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.76%) 2위: ALPHABET INC CL A...",
       "tickers": [],
       "listTickers": [
         "CAT",
@@ -758,8 +756,7 @@
         "SHOP",
         "FSLR",
         "QQQ"
-      ],
-      "summary": "2026년 11월 2일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.76%) 2위: ALPHABET INC CL A..."
+      ]
     },
     {
       "id": "insidertracking/68099",
@@ -1726,6 +1723,31 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71446",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71446",
+      "datetime": "2026-11-03T00:51:19.000Z",
+      "localDateKst": "2026-11-03",
+      "tags": [
+        "semi",
+        "equity"
+      ],
+      "score": 59,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA",
+        "AVGO",
+        "AMZN"
+      ],
+      "summary": ">>CDS가 짓누르는 채권시장, 나스닥도 부담 가중 •AI관련 채권부담이 점차 커지면서 Nvidia, Amazon, Broadcom의 CDS 프리미엄이 지속적으로 상승. 채권시장의 압박이 커지는 상황에서..."
+    },
+    {
       "id": "bornlupin/20962",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20962",
@@ -2083,7 +2105,7 @@
         "AMD",
         "SMCI"
       ],
-      "summary": "금일 실적 발표 리스트 장전에 쇼피파이, 화이자, 이튼, 레이도스, 페라리 장 마감후에 AMD, SMCI (슈퍼마이크로컴퓨터), 아리스타, 듀오링고, 쿠팡, 아스트라랩"
+      "summary": "금일 실적 발표 리스트 장전에 쇼피파이, 화이자, 이튼, 레이도스, 페라리 장 마감후에 AMD, SMCI (슈퍼마이크로컴퓨터), 아리스타, 듀오링고, 쿠팡, 아스트라랩, 아우스터"
     },
     {
       "id": "insidertracking/68114",
@@ -2117,12 +2139,9 @@
       "datetime": "2026-11-02T21:29:13.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "flows",
-        "macro",
         "semi",
-        "power"
+        "flows"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
       "media": {
@@ -2131,6 +2150,7 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "2026년 11월 2일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.76%) 2위: ALPHABET INC CL A...",
       "tickers": [],
       "listTickers": [
         "CAT",
@@ -2153,8 +2173,7 @@
         "SHOP",
         "FSLR",
         "QQQ"
-      ],
-      "summary": "2026년 11월 2일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.76%) 2위: ALPHABET INC CL A..."
+      ]
     },
     {
       "id": "insidertracking/68106",
@@ -2163,11 +2182,11 @@
       "datetime": "2026-11-02T21:24:02.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "power",
-        "healthcare"
+        "market-note"
       ],
       "score": 68,
       "hasText": true,
+      "summary": "52주 신고가 (시총 $1B 이상) 금융 · AerCap Holdings · American Financial Group · Arch Capital Group · Arthur J. Gallagher & Co....",
       "tickers": [],
       "listTickers": [
         "V",
@@ -2190,8 +2209,7 @@
         "J",
         "KDP",
         "EG"
-      ],
-      "summary": "52주 신고가 (시총 $1B 이상) 금융 · AerCap Holdings · American Financial Group · Arch Capital Group · Arthur J. Gallagher & Co...."
+      ]
     },
     {
       "id": "insidertracking/68105",
@@ -2854,9 +2872,6 @@
       "datetime": "2026-11-02T08:21:47.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "macro",
-        "semi",
-        "kr-market",
         "earnings"
       ],
       "score": 85,
@@ -2867,11 +2882,12 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "중화권 마감 시황 (26.11.02, 월) 🇨🇳 중국 본토 증시는 11월 첫 거래일을 맞아 3분기 실적 시즌 종료에 따른 불확실성 해소와 기술적 반발 매수세가 유입되며 반등장을 연출. 특히 창업판지수는...",
+      "lead": 1,
       "tickers": [
         "TSM",
         "2454.TW"
-      ],
-      "summary": "중화권 마감 시황 (26.11.02, 월) 🇨🇳 중국 본토 증시는 11월 첫 거래일을 맞아 3분기 실적 시즌 종료에 따른 불확실성 해소와 기술적 반발 매수세가 유입되며 반등장을 연출. 특히 창업판지수는..."
+      ]
     },
     {
       "id": "HANAchina/71407",
@@ -2880,17 +2896,16 @@
       "datetime": "2026-11-02T07:36:35.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "macro",
-        "earnings"
+        "market-note"
       ],
       "score": 64,
       "hasText": true,
+      "summary": ">>Alphabet, 올해 두 번째 유로화 채권 발행 착수…7개 만기 구간으로 구성 •Bloomberg에 따르면 Alphabet이 7개 구간으로 구성된 유로화 표시 채권 발행을 위한 주문 접수를 시작함. 올해...",
       "tickers": [
         "GOOG",
         "GOOGL",
         "BCS"
-      ],
-      "summary": ">>Alphabet, 올해 두 번째 유로화 채권 발행 착수…7개 만기 구간으로 구성 •Bloomberg에 따르면 Alphabet이 7개 구간으로 구성된 유로화 표시 채권 발행을 위한 주문 접수를 시작함. 올해..."
+      ]
     },
     {
       "id": "HANAchina/71406",
@@ -2903,8 +2918,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>골드만삭스 “미국 증시에서 7가지 반등 신호 포착…다만 2026년을 먼저 견뎌야” •미국 증시는 10월 극심한 변동성 속에 마감했음. Nasdaq 100은 한 달 동안 7% 급락했고, 반도체주는 15년..."
+      "summary": ">>골드만삭스 “미국 증시에서 7가지 반등 신호 포착…다만 2026년을 먼저 견뎌야” •미국 증시는 10월 극심한 변동성 속에 마감했음. Nasdaq 100은 한 달 동안 7% 급락했고, 반도체주는 15년...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71399",
@@ -3830,16 +3845,14 @@
       "datetime": "2026-11-01T06:58:11.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
-        "semi",
-        "power"
+        "semi"
       ],
-      "lead": 1,
       "score": 59,
       "hasText": true,
+      "summary": "젠슨 황, \"2029년 전까지 메모리 과잉 가능성 낮다\" 2029년 이전 메모리 공급 과잉 가능성 낮아 ​ 수요 지속 전망: 시장 일각의 공급 과잉 우려와 달리, 젠슨 황은 고대역폭메모리(HBM) 등 메모리는...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "젠슨 황, \"2029년 전까지 메모리 과잉 가능성 낮다\" 2029년 이전 메모리 공급 과잉 가능성 낮아 ​ 수요 지속 전망: 시장 일각의 공급 과잉 우려와 달리, 젠슨 황은 고대역폭메모리(HBM) 등 메모리는..."
+      ]
     },
     {
       "id": "HANAchina/71335",
@@ -3959,18 +3972,16 @@
       "datetime": "2026-11-01T01:31:24.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
-        "semi",
-        "geo",
-        "earnings"
+        "semi"
       ],
-      "lead": 1,
       "score": 75,
       "hasText": true,
+      "summary": "한국의 반도체 주도 수출 가속화, 연간 1조 달러 목표에 한 걸음 더 근접 - WSJ 한국의 반도체 주도 수출 성장세가 10월 들어 예상보다 훨씬 빠른 속도로 가속화되면서, 사상 초유의 연간 수출 1조 달러...",
+      "lead": 1,
       "tickers": [
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": "한국의 반도체 주도 수출 가속화, 연간 1조 달러 목표에 한 걸음 더 근접 - WSJ 한국의 반도체 주도 수출 성장세가 10월 들어 예상보다 훨씬 빠른 속도로 가속화되면서, 사상 초유의 연간 수출 1조 달러..."
+      ]
     },
     {
       "id": "bornlupin/20921",
@@ -3979,8 +3990,7 @@
       "datetime": "2026-11-01T01:18:54.000Z",
       "localDateKst": "2026-11-01",
       "tags": [
-        "semi",
-        "equity"
+        "semi"
       ],
       "score": 52,
       "hasText": true,
@@ -3990,8 +4000,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "일론 머스크 1. Colossus 2 구축 현황 Macrohard와 Minihard는 각각 GB300 GPU 22만 개를 보유하고 있으며 , 800Gbps NIC(네트워크 인터페이스 카드)를 사용해 학습용으로..."
+      "summary": "일론 머스크 1. Colossus 2 구축 현황 Macrohard와 Minihard는 각각 GB300 GPU 22만 개를 보유하고 있으며 , 800Gbps NIC(네트워크 인터페이스 카드)를 사용해 학습용으로...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/20911",
@@ -7282,23 +7293,6 @@
       ]
     },
     {
-      "id": "HANAchina/71117",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71117",
-      "datetime": "2026-10-27T23:30:44.000Z",
-      "localDateKst": "2026-10-28",
-      "tags": [
-        "semi"
-      ],
-      "score": 79,
-      "hasText": true,
-      "summary": ">>CXMT, 중국 내 고객사 우선 공급…DRAM 공급 부족에 대만 업체 수혜 전망 (대만공상시보) •CXMT가 Apple의 저가 메모리 구매 요구와 대만 서버 업체의 DDR5 공급 문의를 거절한 것으로...",
-      "lead": 1,
-      "tickers": [
-        "AAPL"
-      ]
-    },
-    {
       "id": "bornlupin/20853",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20853",
@@ -9034,7 +9028,7 @@
         "AMD",
         "SMCI"
       ],
-      "summary": "금일 실적 발표 리스트 장전에 쇼피파이, 화이자, 이튼, 레이도스, 페라리 장 마감후에 AMD, SMCI (슈퍼마이크로컴퓨터), 아리스타, 듀오링고, 쿠팡, 아스트라랩"
+      "summary": "금일 실적 발표 리스트 장전에 쇼피파이, 화이자, 이튼, 레이도스, 페라리 장 마감후에 AMD, SMCI (슈퍼마이크로컴퓨터), 아리스타, 듀오링고, 쿠팡, 아스트라랩, 아우스터"
     },
     {
       "id": "insidertracking/68114",
@@ -9068,12 +9062,9 @@
       "datetime": "2026-11-02T21:29:13.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "flows",
-        "macro",
         "semi",
-        "power"
+        "flows"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
       "media": {
@@ -9082,6 +9073,7 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "2026년 11월 2일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.76%) 2위: ALPHABET INC CL A...",
       "tickers": [],
       "listTickers": [
         "CAT",
@@ -9104,8 +9096,7 @@
         "SHOP",
         "FSLR",
         "QQQ"
-      ],
-      "summary": "2026년 11월 2일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.76%) 2위: ALPHABET INC CL A..."
+      ]
     },
     {
       "id": "insidertracking/68106",
@@ -9114,11 +9105,11 @@
       "datetime": "2026-11-02T21:24:02.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "power",
-        "healthcare"
+        "market-note"
       ],
       "score": 68,
       "hasText": true,
+      "summary": "52주 신고가 (시총 $1B 이상) 금융 · AerCap Holdings · American Financial Group · Arch Capital Group · Arthur J. Gallagher & Co....",
       "tickers": [],
       "listTickers": [
         "V",
@@ -9141,8 +9132,7 @@
         "J",
         "KDP",
         "EG"
-      ],
-      "summary": "52주 신고가 (시총 $1B 이상) 금융 · AerCap Holdings · American Financial Group · Arch Capital Group · Arthur J. Gallagher & Co...."
+      ]
     },
     {
       "id": "insidertracking/68105",
@@ -9785,9 +9775,6 @@
       "datetime": "2026-11-02T08:21:47.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "macro",
-        "semi",
-        "kr-market",
         "earnings"
       ],
       "score": 85,
@@ -9798,11 +9785,12 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "중화권 마감 시황 (26.11.02, 월) 🇨🇳 중국 본토 증시는 11월 첫 거래일을 맞아 3분기 실적 시즌 종료에 따른 불확실성 해소와 기술적 반발 매수세가 유입되며 반등장을 연출. 특히 창업판지수는...",
+      "lead": 1,
       "tickers": [
         "TSM",
         "2454.TW"
-      ],
-      "summary": "중화권 마감 시황 (26.11.02, 월) 🇨🇳 중국 본토 증시는 11월 첫 거래일을 맞아 3분기 실적 시즌 종료에 따른 불확실성 해소와 기술적 반발 매수세가 유입되며 반등장을 연출. 특히 창업판지수는..."
+      ]
     },
     {
       "id": "HANAchina/71407",
@@ -9811,17 +9799,16 @@
       "datetime": "2026-11-02T07:36:35.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "macro",
-        "earnings"
+        "market-note"
       ],
       "score": 64,
       "hasText": true,
+      "summary": ">>Alphabet, 올해 두 번째 유로화 채권 발행 착수…7개 만기 구간으로 구성 •Bloomberg에 따르면 Alphabet이 7개 구간으로 구성된 유로화 표시 채권 발행을 위한 주문 접수를 시작함. 올해...",
       "tickers": [
         "GOOG",
         "GOOGL",
         "BCS"
-      ],
-      "summary": ">>Alphabet, 올해 두 번째 유로화 채권 발행 착수…7개 만기 구간으로 구성 •Bloomberg에 따르면 Alphabet이 7개 구간으로 구성된 유로화 표시 채권 발행을 위한 주문 접수를 시작함. 올해..."
+      ]
     },
     {
       "id": "HANAchina/71406",
@@ -9834,8 +9821,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>골드만삭스 “미국 증시에서 7가지 반등 신호 포착…다만 2026년을 먼저 견뎌야” •미국 증시는 10월 극심한 변동성 속에 마감했음. Nasdaq 100은 한 달 동안 7% 급락했고, 반도체주는 15년..."
+      "summary": ">>골드만삭스 “미국 증시에서 7가지 반등 신호 포착…다만 2026년을 먼저 견뎌야” •미국 증시는 10월 극심한 변동성 속에 마감했음. Nasdaq 100은 한 달 동안 7% 급락했고, 반도체주는 15년...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71399",
