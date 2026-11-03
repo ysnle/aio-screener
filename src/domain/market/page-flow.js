@@ -140,7 +140,7 @@ export function sentimentFlow({ model = null, regime = null } = {}) {
   if (byId.breadth?.state === 'burden') next.push({ route: 'breadth', label: '시장 폭', why: `심리와 별개로 참여 종목이 줄고 있는지(시장 폭 ${byId.breadth.stateLabel})` });
   next.push({ route: 'signal', label: '시장 상태', why: '공포·탐욕과 AAII를 넣지 않은 6개 지표(변동성·신용 포함)의 전체 판정' });
   // Audit 2026-10-14: mood is a reading of today; where it leads is decided by the next releases.
-  next.push({ route: 'macro', label: '거시 시나리오', why: '지금의 심리가 다음 발표로 갈릴 시나리오(신용 경색·변동성 충격 등) 가운데 어느 쪽과 같은 방향인지' });
+  next.push({ route: 'signal', label: '시나리오', ctx: { anchor: 'regime-depth-fold' }, why: '지금의 심리가 다음 발표로 갈릴 시나리오(신용 경색·변동성 충격 등) 가운데 어느 쪽과 같은 방향인지' });
   return { bridge, next };
 }
 
@@ -186,8 +186,8 @@ const BRIEFING_ROUTES = Object.freeze({
   rates: { route: 'fxbond', label: '금리와 환율', why: '금리 움직임이 실질금리·기대인플레·수익률 곡선 중 어디서 오는지' },
   commodities: { route: 'macro', label: '매크로', why: '유가·금·달러 움직임이 물가와 금리 경로에 주는 압력' },
   risk: { route: 'sentiment', label: '투자 심리', why: '변동성·신용·공포 심리가 같은 쪽을 가리키는지' },
-  // P1727: the Korea box continues to 시장 상태's 한국 시장 참고 board (코스피·코스닥·원화·한국 표본 참여도), not 거시 경제.
-  korea: { route: 'signal', label: '시장 상태, 한국 시장 참고', why: '코스피·코스닥과 원화, AIO 추적 종목(한국)의 참여도를 미국 판정과 따로 확인', ctx: { anchor: 'regime-board-kr' } }
+  // P1727: the Korea box continues to 시장 상태's 한국 시장 board (코스피·코스닥·원화·한국 표본 참여도), not 거시 경제.
+  korea: { route: 'signal', label: '시장 상태, 한국 시장', why: '코스피·코스닥과 원화, AIO 추적 종목(한국)의 참여도를 미국 판정과 따로 확인', ctx: { anchor: 'regime-board-kr' } }
 });
 // P1727: the asset groups whose moves usually start in the news continue to that topic of 뉴스 as well (one link at most).
 // The context names the news topic/country chip; the news page applies it when it reads the handoff.
@@ -387,7 +387,7 @@ export function themeDetailFlow({ themeId, themeName = null, groups = [], etf = 
 export function newsFlow({ countryFilter = 'all' } = {}) {
   const next = [{ route: 'briefing', label: '브리핑', why: '기사 속 사건이 최근 마감의 지수·금리·유가·달러 움직임과 같은 쪽이었는지' }];
   next.push(String(countryFilter || '').toLowerCase() === 'kr'
-    ? { route: 'signal', label: '시장 상태, 한국 시장 참고', why: '한국 기사와 코스피·코스닥·원화, AIO 추적 종목(한국)의 참여도가 같은 방향인지', ctx: { anchor: 'regime-board-kr' } }
+    ? { route: 'signal', label: '시장 상태, 한국 시장', why: '한국 기사와 코스피·코스닥·원화, AIO 추적 종목(한국)의 참여도가 같은 방향인지', ctx: { anchor: 'regime-board-kr' } }
     : { route: 'signal', label: '시장 상태', why: '사건이 6개 지표(추세·시장 폭·변동성·금리·신용·달러/원자재) 판정을 바꿀 만큼 가격에 반영됐는지' });
   return { next };
 }

@@ -7,6 +7,10 @@ import { RULES } from '../rules/thresholds.js';
 import { sessionCloses } from './index-levels.js';
 
 const pct = (value, digits = 1) => signedText(value, digits, '%');
+const unit = (value) => Math.max(0.04, Math.min(0.96, value));
+// v59.68: each pair is also a 2×2 map — x and y run 0..1 (left→right, bottom→top), the four cells name what that
+// combination means, and the dot is where the latest closes sit. cells are [bottom-left, bottom-right, top-left, top-right].
+const quad = (x, y, xAxis, yAxis, cells) => ({ x: unit(x), y: unit(y), xAxis, yAxis, cells });
 const bp = (value) => signedText(value, 0, 'bp');
 const WINDOW = 20;
 
@@ -46,7 +50,8 @@ function trendAndBreadth(history) {
   const gap = rsp.length > WINDOW ? change(rsp, WINDOW) - change(spx, WINDOW) : null;
   if (Number.isFinite(gap) && gap >= 3) text += ` 20거래일 동안 동일가중 지수가 ${gap.toFixed(1)}%p 앞서, 돈이 대형주에서 나머지 종목으로 옮겨 가고 있습니다.`;
   else if (Number.isFinite(gap) && gap <= -3) text += ` 20거래일 동안 동일가중 지수가 ${Math.abs(gap).toFixed(1)}%p 뒤처져, 대형주 쏠림이 더 심해졌습니다.`;
-  return { id: 'trend-breadth', title: '추세와 시장 폭', axes: ['trend', 'breadth'], text };
+  const map = quad(0.5 + vs50 / 10, b / 100, ['지수 50일선 아래', '50일선 위'], ['종목 참여 적음', '종목 참여 많음'], ['넓은 하락', '좁은 상승', '좁은 조정', '넓은 상승']);
+  return { id: 'trend-breadth', title: '추세와 시장 폭', axes: ['trend', 'breadth'], text, map };
 }
 
 function volatilityAndSentiment(history, day) {
@@ -67,7 +72,8 @@ function volatilityAndSentiment(history, day) {
   const retail = (day?.facts || []).find((fact) => fact.kind === 'positioning' && fact.side === 'buy' && Number.isFinite(fact.leveragedLongShare));
   const crowd = retail && retail.leveragedLongShare >= 40
     ? ` 서학개미 순매수의 ${Math.round(retail.leveragedLongShare)}%가 레버리지 상품이라, 개인은 하락에도 사들이고 있습니다. 공포가 개인 투자자까지 번지지 않았다는 뜻이기도 합니다.` : '';
-  return { id: 'volatility-sentiment', title: '변동성과 투자 심리', axes: ['volatility'], text: `${numbers.join(', ')}. ${read}${crowd}` };
+  const map = fg === null ? null : quad((vix - 12) / 24, 1 - fg / 100, ['VIX 낮음', 'VIX 높음'], ['심리 탐욕', '심리 공포'], ['과열', '흔들리는 강세', '겁만 난 상태', '투매형 공포']);
+  return { id: 'volatility-sentiment', title: '변동성과 투자 심리', axes: ['volatility'], text: `${numbers.join(', ')}. ${read}${crowd}`, map };
 }
 
 function ratesAndCredit(history, macroHistory) {
@@ -87,7 +93,8 @@ function ratesAndCredit(history, macroHistory) {
   else if (yieldBp >= 10) read = '금리는 올랐지만 신용은 차분해, 경기나 물가 쪽 금리 상승으로 읽힙니다.';
   else if (widening) read = '금리는 크게 움직이지 않았는데 스프레드만 벌어져, 신용 쪽 경계가 따로 커지고 있습니다.';
   else read = '금리와 신용 모두 큰 변화가 없습니다.';
-  return { id: 'rates-credit', title: '금리와 신용', axes: ['rates', 'credit'], text: `${numbers} ${read}` };
+  const map = quad(0.5 + yieldBp / 80, 0.5 + spreadBp / 80, ['금리 하락', '금리 상승'], ['스프레드 축소', '스프레드 확대'], ['완화', '경기·물가', '성장 걱정', '긴축 부담']);
+  return { id: 'rates-credit', title: '금리와 신용', axes: ['rates', 'credit'], text: `${numbers} ${read}`, map };
 }
 
 function koreaAndWon(history) {
@@ -105,7 +112,8 @@ function koreaAndWon(history) {
   else if (k >= -kDown && w <= -wWeak) read = '원화 강세와 함께 오른, 외국인 자금이 들어오는 상승입니다.';
   else if (w5 >= 1.5) read = '주가보다 원화 약세가 먼저 움직이고 있어, 환율이 다음 부담이 될 수 있습니다.';
   else read = '주가와 환율 모두 큰 쏠림은 없습니다.';
-  return { id: 'korea-won', title: '한국 증시와 원화', axes: ['korea'], text: `${numbers} ${read}` };
+  const map = quad(0.5 + k / (daily ? 8 : 10), 0.5 + w / (daily ? 2 : 4), ['코스피 하락', '코스피 상승'], ['원화 강세', '원화 약세'], ['업종 요인 하락', '외국인 유입', '자금 이탈형 하락', '환율 부담 속 상승']);
+  return { id: 'korea-won', title: '한국 증시와 원화', axes: ['korea'], text: `${numbers} ${read}`, map };
 }
 
 /** The pairs that have their inputs, in reading order. */

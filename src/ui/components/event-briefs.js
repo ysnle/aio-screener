@@ -5,6 +5,9 @@
 // v59.44 (owner 2026-10-29, news by weight): 오늘 leads with the releases that move the whole market — a monthly macro
 // release of the last two days, the FOMC, the core movers — as full cards; other notable reports are one line each
 // (name, the price after the report, headline) under '그 밖의 실적'; everything else of the last 30 days sits in a fold.
+import { releaseZones } from '../../domain/macro/release-zones.js';
+import { releaseZoneBar } from './release-zone-bar.js';
+import { reactionRead } from '../../domain/briefing/reaction-read.js';
 import { el } from './dom.js';
 import { directionOf } from '../../domain/shared/number.js';
 import { frameHead, markFrame } from './section-frame.js';
@@ -79,9 +82,12 @@ export function briefNode(doc, brief, { showName = true, bodyOnly = false } = {}
   // and the first reported reason in one line. The figures with their estimate comparison, all the reasons and the
   // segments, guidance, call points and next checks open in the one fold below.
   const reasons = brief.reasons?.points || [];
-  if (reasons.length) box.append(el(doc, 'p', `이유: ${reasons[0].text}`, 'event-brief__reason'));
+  const read = brief.kind === 'earnings' ? readFor(doc, brief) : null;
+  if (read) box.append(reactionNode(doc, read));
+  else if (reasons.length) box.append(el(doc, 'p', `이유: ${reasons[0].text}`, 'event-brief__reason'));
   const more = el(doc, bodyOnly ? 'div' : 'details', null, bodyOnly ? 'event-brief__more is-inline' : 'event-brief__more');
   if (!bodyOnly) more.append(el(doc, 'summary', brief.kind === 'fomc' ? '수치·바뀐 문구·기자회견·다음에 볼 것' : '수치·이유·부문·가이던스·콜 핵심'));
+  if (bodyOnly && read) more.append(reactionNode(doc, read)); // the row's 왜 line, with the checks behind it
   // v59.44: three headline figures, then capex and cash flow when the release gave them (the market priced cash).
   const cashFigure = (figure) => ['capex', 'free_cash_flow', 'operating_cash_flow'].includes(figure?.metric);
   const figures = [...(brief.figures || []).filter((figure) => !cashFigure(figure)).slice(0, 3), ...(brief.figures || []).filter(cashFigure).slice(0, 2)];
@@ -162,11 +168,35 @@ export function macroNode(doc, release) {
     return box;
   }
   box.append(head, list(doc, release.items.map((item) => [`${item.label.replace(/ \(.*\)$/, '')} ${item.valueText}`, item.deltaText, item.targetText].filter(Boolean).join(' · ')), 'event-brief__figures'));
+  // v59.69: where the number landed among the bands that are good, neutral, a burden or bad for stocks right now.
+  const zone = releaseZones(release.id, (doc.defaultView || globalThis)._aioMacroHistory || null);
+  if (zone?.latest && String(zone.latest.period).slice(0, 7) === String(release.period || '').slice(0, 7)) box.append(releaseZoneBar(doc, zone, { compact: true }));
   if (release.next) box.append(el(doc, 'p', `다음 발표 ${shortDay(release.next)}`, 'event-brief__when'));
   return box;
 }
 
 /** One line: name (opens 종목), day, the price after the report, headline. */
+// v59.69: why the price moved — the checks a reader would run (reaction-read.js), the conclusion first.
+function readFor(doc, brief) {
+  const root = doc.defaultView || globalThis;
+  let row = null;
+  try { row = (root._aioGetCanonicalScreenerRows?.() || []).find((item) => item?.sym === brief.symbol) || null; } catch (_) { row = null; }
+  return reactionRead(brief, { row, history: root._aioHistory || [] });
+}
+function reactionNode(doc, read) {
+  const box = el(doc, 'div', null, `reaction-read is-${read.down ? 'down' : 'up'}`);
+  const head = el(doc, 'p', null, 'reaction-read__head');
+  head.append(el(doc, 'span', read.title, `reaction-read__tag is-${read.kind}`));
+  if (read.line) head.append(doc.createTextNode(` ${read.line}`));
+  box.append(head);
+  if (read.steps.length) {
+    const facts = el(doc, 'p', null, 'reaction-read__facts');
+    read.steps.forEach((step) => facts.append(el(doc, 'span', step.value, step.hit ? 'is-hit' : '')));
+    box.append(facts);
+  }
+  return box;
+}
+
 function briefRow(doc, root, brief) {
   const li = el(doc, 'li', null, 'event-brief-row');
   const name = brief.kind === 'fomc' ? 'FOMC 금리 결정' : `${brief.nameKo}${brief.symbol && !/\.K[SQ]$/.test(brief.symbol) ? ` (${brief.symbol})` : ''}`;
@@ -185,7 +215,9 @@ function briefRow(doc, root, brief) {
   }
   if (brief.headline) li.append(el(doc, 'span', koreanReleaseText(brief.headline), 'event-brief-row__headline'));
   const reason = brief.reasons?.points?.[0]?.text;
-  if (reason) li.append(el(doc, 'span', `이유: ${reason}`, 'event-brief-row__reason'));
+  const read = brief.kind === 'earnings' ? readFor(doc, brief) : null;
+  if (read) li.append(el(doc, 'span', read.title, `reaction-read__tag is-${read.kind}`));
+  else if (reason) li.append(el(doc, 'span', `이유: ${reason}`, 'event-brief-row__reason')); // the reports stay in the fold
   // The line is quieter, not thinner: the full summary (figures, guidance, reasons, source) opens in place.
   if (brief.kind === 'earnings') {
     const fold = el(doc, 'details', null, 'event-brief-row__fold');
@@ -213,6 +245,12 @@ export function paintNewsBriefs(doc, root, rerender, macro = []) {
 
 function paintBriefs(doc, root, { rerender, macro, id, frame, className, limits = {}, place }) {
   const nowMs = Date.now();
+  // v59.69: the reaction reading compares each move with its index on the same day; a paint before the close history
+  // arrives repaints once it does, so a move the market explains is not read as unexplained.
+  if (!(root?._aioHistory || []).length && typeof rerender === 'function' && !root.__aioBriefHistoryWait) {
+    root.__aioBriefHistoryWait = true;
+    root.addEventListener?.('aio:historyLoaded', () => { root.__aioBriefHistoryWait = false; rerender(); }, { once: true });
+  }
   const tiers = homeBriefTiers(ensureArtifact(root, rerender), { nowMs, ...limits });
   const briefs = [...tiers.core, ...tiers.notable];
   let host = doc.getElementById(id);

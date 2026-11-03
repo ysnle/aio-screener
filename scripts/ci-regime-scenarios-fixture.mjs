@@ -160,7 +160,7 @@ assert.ok(css.includes('grid-template-columns: repeat(2, minmax(0, 1fr))') && cs
   const kospiMove = daily.moves.find((move) => move.key === 'kospi');
   assert.ok(kospiMove?.market === 'KR' && kospiMove.from === '2026-10-12' && kospiMove.to === '2026-10-13' && Math.abs(kospiMove.value + 6) < 1e-9 && daily.big.includes('kospi'), `P1724 KOSPI compares its own previous KRX session (${JSON.stringify(daily)})`);
   const flow = briefingFlow({ read }).next;
-  assert.ok(flow[0].route === 'signal' && flow[0].ctx?.anchor === 'regime-board-kr' && flow.some((item) => item.route === 'market-news' && item.ctx?.country === 'kr'), `P1727 the Korean lead continues to the 한국 시장 참고 board first, then Korean news (${JSON.stringify(flow)})`);
+  assert.ok(flow[0].route === 'signal' && flow[0].ctx?.anchor === 'regime-board-kr' && flow.some((item) => item.route === 'market-news' && item.ctx?.country === 'kr'), `P1727 the Korean lead continues to the 한국 시장 board first, then Korean news (${JSON.stringify(flow)})`);
   const withBrent = rows.map((row) => (row.wti != null ? { ...row, brent: row.wti + 30 } : row));
   const brent = brentWtiCheck(null, withBrent);
   assert.ok(brent.basis === 'futures' && brent.abnormal && /보류/.test(brent.sentence) && !/20거래일 기준 브렌트/.test(brent.sentence), `P1726 an abnormal Brent-WTI futures gap holds the spread reading (${brent.sentence})`);

@@ -12,7 +12,7 @@ export function deepDiveFold(doc, root, title, deep, extra = []) {
   if (!doc || (!deep && !extra.length)) return null;
   const node = (tag, text, className) => { const item = doc.createElement(tag); if (text != null) item.textContent = text; if (className) item.className = className; return item; };
   const details = node('details', null, 'regime-axis-details regime-axis-deep');
-  details.append(node('summary', `${title ? `${title} ` : ''}더 깊이 보기: 원리와 읽는 법`));
+  details.append(node('summary', `${title ? `${title} ` : ''}원리`)); // v59.69: the label, not a how-to
   for (const [heading, text] of deep?.blocks || []) details.append(node('h4', heading), node('p', text));
   details.append(...extra.filter(Boolean), ...deepDiveLinks(doc, root, deep));
   return details;

@@ -6,15 +6,15 @@
     "P1626",
     "P1627"
   ],
-  "version": "v59.68",
+  "version": "v59.69",
   "sourceHashes": {
-    "index.html": "8f4c51b8ef808e6bae0377682baaa7a0597515efe3d542f1ed4529c8e43fdb0b",
+    "index.html": "d1ba0a8629de550e339a8ddf5a1667476ccc6e37e6e5e41c360429749b0cbeb1",
     "src/ui/pages/entity.js": "fd460973ac77d7a57f17c9e01db203a0bef40b338b22c2e3aad5111333deadfe",
-    "src/ui/pages/screener.js": "92c805c62e845c0830ec555cd89dc1e30a784d59bc45bf22cda910191ae1c3c8",
+    "src/ui/pages/screener.js": "c2441eb6ec862a268a598fce9196c81dd8029e67d8d71760e79d3d499fc50d6b",
     "src/ui/pages/analysis.js": "df0c68521eae90b0fc5581ec2abe4dcefb29e052b7acbcefc55f1d27ccf7efee",
-    "src/ui/components/stock-chart.js": "2262bfc1b0d2f63c75a718abe3b4ad71fbd510c49dabf43007281305f6057dc2",
-    "src/ui/components/stock-read.js": "20904babbd4d604506c4fc8fb2db0a3b7e89e7738753d005d627ef8f94127d68",
-    "src/ui/components/fiscal-read.js": "86687a2ba49332e948c448264a2209f241529ea46f04e70f4e961e3e7c166e48",
+    "src/ui/components/stock-chart.js": "a837910fce37ba04c1f54d4761816d1a27d01243c05c0f4f38e08d04d05beca0",
+    "src/ui/components/stock-read.js": "937ac169b1821b76d40c8d225608eb4f85e0e99af021cda09ab3f6cd664fe997",
+    "src/ui/components/fiscal-read.js": "7f935ddd829d0a9e40831c88b268d106430ce9d4c115bf12e495afd93dc01715",
     "src/domain/entity/summary-hydration.js": "218ea3f2216e59b1fbe4ef361ec17c045ca6fec67e75f900c984bdb6b85f812c",
     "src/domain/screener/market-scope.js": "ac4a26f2d0b195ef36157cb7dcd88b2a1e8c004b32f9f2c360dc5c7c1157701e",
     "src/domain/screener/factor-ranks.js": "e9dbfffee8b75c7733927307f92f7fe7316c2de5ddfbcf7b01b2928e7c1fa04f",
@@ -126,6 +126,14 @@
       "fixtureRequests": 2
     },
     {
+      "label": "phone-light/summary",
+      "layout": {
+        "route": "page-ticker",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
       "label": "tablet-light",
       "summary": {
         "price": "$84.64",
@@ -190,14 +198,6 @@
     },
     {
       "label": "tablet-light/summary",
-      "layout": {
-        "route": "page-ticker",
-        "overflow": 0,
-        "clipped": []
-      }
-    },
-    {
-      "label": "phone-light/summary",
       "layout": {
         "route": "page-ticker",
         "overflow": 0,
@@ -774,96 +774,6 @@
       }
     },
     {
-      "label": "tablet-light",
-      "fiscal": {
-        "rows": 19,
-        "captions": [
-          "연간 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다",
-          "분기 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다",
-          "추적할 지표, 이 기업의 값과 방향, 미확인은 이 화면 공시 수집본에 없는 항목"
-        ],
-        "loss": [
-          {
-            "top": 90.284,
-            "height": 2.764,
-            "zero": 90.284
-          },
-          {
-            "top": 90.284,
-            "height": 5.331,
-            "zero": 90.284
-          },
-          {
-            "top": 90.284,
-            "height": 9.716,
-            "zero": 90.284
-          },
-          {
-            "top": 85.361,
-            "height": 4.659,
-            "zero": 85.361
-          },
-          {
-            "top": 85.361,
-            "height": 2.914,
-            "zero": 85.361
-          },
-          {
-            "top": 85.361,
-            "height": 9.445,
-            "zero": 85.361
-          },
-          {
-            "top": 85.361,
-            "height": 14.639,
-            "zero": 85.361
-          },
-          {
-            "top": 85.361,
-            "height": 14.516,
-            "zero": 85.361
-          },
-          {
-            "top": 26.316,
-            "height": 15.789,
-            "zero": 26.316
-          },
-          {
-            "top": 26.316,
-            "height": 26.316,
-            "zero": 26.316
-          },
-          {
-            "top": 26.316,
-            "height": 63.158,
-            "zero": 26.316
-          },
-          {
-            "top": 26.316,
-            "height": 57.895,
-            "zero": 26.316
-          },
-          {
-            "top": 26.316,
-            "height": 73.684,
-            "zero": 26.316
-          },
-          {
-            "top": 26.316,
-            "height": 47.368,
-            "zero": 26.316
-          },
-          {
-            "top": 26.316,
-            "height": 31.579,
-            "zero": 26.316
-          }
-        ],
-        "tableText": "연간 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다회계연도 말매출순이익영업현금흐름설비투자잉여현금흐름자기자본(기말)장기부채주식 수2021-05-311,660만 달러-203만 달러-270만 달러23만 달러-293만 달러1,145만 달러0달러24.2M주2022-05-315,083만 달러945만 달러151만 달러42만 달러109만 달러5,099만 달러자료 없음27.3M주2023-05-316,496만 달러1,456만 달러1,001만 달러136만 달러865만 달러7,560만 달러자료 없음28.8M주2024-05-316,622만 달러3,316만 달러176만 달러75만 달러101만 달러1.1억 달러자료 없음29.0M주2025-05-305,897만 달러-391만 달러-740만 달러499만 달러-1,239만 달러1.2억 달러자료 없음29.9M주2026-05-295,000만 달러-713만 달러-331만 달러207만 달러-538만 달러2.2억 달러자료 없음32.6M주",
-        "basis": "최근 4개 분기(2026-05 분기까지) 매출 5,000만 달러, 순이익 -713만 달러, 순이익률 -14.3%. (4분기 하나는 연간에서 1~3분기를 뺀 값)"
-      }
-    },
-    {
       "label": "phone-light",
       "fiscal": {
         "rows": 19,
@@ -959,6 +869,96 @@
         "route": "page-fundamental",
         "overflow": 0,
         "clipped": []
+      }
+    },
+    {
+      "label": "tablet-light",
+      "fiscal": {
+        "rows": 19,
+        "captions": [
+          "연간 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다",
+          "분기 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다",
+          "추적할 지표, 이 기업의 값과 방향, 미확인은 이 화면 공시 수집본에 없는 항목"
+        ],
+        "loss": [
+          {
+            "top": 90.284,
+            "height": 2.764,
+            "zero": 90.284
+          },
+          {
+            "top": 90.284,
+            "height": 5.331,
+            "zero": 90.284
+          },
+          {
+            "top": 90.284,
+            "height": 9.716,
+            "zero": 90.284
+          },
+          {
+            "top": 85.361,
+            "height": 4.659,
+            "zero": 85.361
+          },
+          {
+            "top": 85.361,
+            "height": 2.914,
+            "zero": 85.361
+          },
+          {
+            "top": 85.361,
+            "height": 9.445,
+            "zero": 85.361
+          },
+          {
+            "top": 85.361,
+            "height": 14.639,
+            "zero": 85.361
+          },
+          {
+            "top": 85.361,
+            "height": 14.516,
+            "zero": 85.361
+          },
+          {
+            "top": 26.316,
+            "height": 15.789,
+            "zero": 26.316
+          },
+          {
+            "top": 26.316,
+            "height": 26.316,
+            "zero": 26.316
+          },
+          {
+            "top": 26.316,
+            "height": 63.158,
+            "zero": 26.316
+          },
+          {
+            "top": 26.316,
+            "height": 57.895,
+            "zero": 26.316
+          },
+          {
+            "top": 26.316,
+            "height": 73.684,
+            "zero": 26.316
+          },
+          {
+            "top": 26.316,
+            "height": 47.368,
+            "zero": 26.316
+          },
+          {
+            "top": 26.316,
+            "height": 31.579,
+            "zero": 26.316
+          }
+        ],
+        "tableText": "연간 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다회계연도 말매출순이익영업현금흐름설비투자잉여현금흐름자기자본(기말)장기부채주식 수2021-05-311,660만 달러-203만 달러-270만 달러23만 달러-293만 달러1,145만 달러0달러24.2M주2022-05-315,083만 달러945만 달러151만 달러42만 달러109만 달러5,099만 달러자료 없음27.3M주2023-05-316,496만 달러1,456만 달러1,001만 달러136만 달러865만 달러7,560만 달러자료 없음28.8M주2024-05-316,622만 달러3,316만 달러176만 달러75만 달러101만 달러1.1억 달러자료 없음29.0M주2025-05-305,897만 달러-391만 달러-740만 달러499만 달러-1,239만 달러1.2억 달러자료 없음29.9M주2026-05-295,000만 달러-713만 달러-331만 달러207만 달러-538만 달러2.2억 달러자료 없음32.6M주",
+        "basis": "최근 4개 분기(2026-05 분기까지) 매출 5,000만 달러, 순이익 -713만 달러, 순이익률 -14.3%. (4분기 하나는 연간에서 1~3분기를 뺀 값)"
       }
     },
     {
@@ -1158,69 +1158,6 @@
       }
     },
     {
-      "label": "desktop-dark",
-      "summary": {
-        "price": "$84.64",
-        "basis": "정규장 관측가, 2026-10-10 05:00 한국 시간",
-        "business": "Aehr Test Systems 무엇을 하는 회사종목 등록 정보",
-        "source": "https://finance.yahoo.com/quote/AEHR/history/",
-        "canvas": {
-          "width": 1092,
-          "height": 210
-        },
-        "lastDate": "2026-10-09",
-        "native": "native",
-        "chart": {
-          "points": 23,
-          "width": 1028,
-          "height": 97.69998168945312,
-          "stroke": "rgb(255, 149, 146)",
-          "up": "#ff9592",
-          "down": "#70b8ff"
-        },
-        "active": "page-ticker",
-        "signed": [
-          {
-            "down": true,
-            "left": 1.1,
-            "width": 48.9,
-            "title": "AEHR -52.0%"
-          },
-          {
-            "down": true,
-            "left": 47.86,
-            "width": 2.14,
-            "title": "S&P 500(SPY, 배당 포함) -2.3%"
-          },
-          {
-            "down": true,
-            "left": 0,
-            "width": 50,
-            "title": "AEHR -53.2%"
-          },
-          {
-            "down": true,
-            "left": 47.88,
-            "width": 2.12,
-            "title": "S&P 500(SPY, 배당 포함) -2.3%"
-          },
-          {
-            "down": true,
-            "left": 12.49,
-            "width": 37.51,
-            "title": "AEHR -39.9%"
-          },
-          {
-            "down": false,
-            "left": 50,
-            "width": 4.97,
-            "title": "S&P 500(SPY, 배당 포함) +5.3%"
-          }
-        ]
-      },
-      "fixtureRequests": 2
-    },
-    {
       "label": "desktop-light",
       "summary": {
         "price": "$84.64",
@@ -1292,6 +1229,69 @@
       }
     },
     {
+      "label": "desktop-dark",
+      "summary": {
+        "price": "$84.64",
+        "basis": "정규장 관측가, 2026-10-10 05:00 한국 시간",
+        "business": "Aehr Test Systems 무엇을 하는 회사종목 등록 정보",
+        "source": "https://finance.yahoo.com/quote/AEHR/history/",
+        "canvas": {
+          "width": 1092,
+          "height": 210
+        },
+        "lastDate": "2026-10-09",
+        "native": "native",
+        "chart": {
+          "points": 23,
+          "width": 1028,
+          "height": 97.69998168945312,
+          "stroke": "rgb(255, 149, 146)",
+          "up": "#ff9592",
+          "down": "#70b8ff"
+        },
+        "active": "page-ticker",
+        "signed": [
+          {
+            "down": true,
+            "left": 1.1,
+            "width": 48.9,
+            "title": "AEHR -52.0%"
+          },
+          {
+            "down": true,
+            "left": 47.86,
+            "width": 2.14,
+            "title": "S&P 500(SPY, 배당 포함) -2.3%"
+          },
+          {
+            "down": true,
+            "left": 0,
+            "width": 50,
+            "title": "AEHR -53.2%"
+          },
+          {
+            "down": true,
+            "left": 47.88,
+            "width": 2.12,
+            "title": "S&P 500(SPY, 배당 포함) -2.3%"
+          },
+          {
+            "down": true,
+            "left": 12.49,
+            "width": 37.51,
+            "title": "AEHR -39.9%"
+          },
+          {
+            "down": false,
+            "left": 50,
+            "width": 4.97,
+            "title": "S&P 500(SPY, 배당 포함) +5.3%"
+          }
+        ]
+      },
+      "fixtureRequests": 2
+    },
+    {
       "label": "desktop-dark/summary",
       "layout": {
         "route": "page-ticker",
@@ -1308,16 +1308,16 @@
       }
     },
     {
-      "label": "desktop-dark",
-      "stockFoldRerender": {
-        "exists": true,
+      "label": "desktop-light",
+      "companyFoldRerender": {
         "open": true,
         "focus": true
       }
     },
     {
-      "label": "desktop-light",
-      "companyFoldRerender": {
+      "label": "desktop-dark",
+      "stockFoldRerender": {
+        "exists": true,
         "open": true,
         "focus": true
       }
@@ -1967,7 +1967,7 @@
       }
     },
     {
-      "label": "desktop-dark",
+      "label": "tablet-dark",
       "fiscal": {
         "rows": 19,
         "captions": [
@@ -2057,7 +2057,15 @@
       }
     },
     {
-      "label": "tablet-dark",
+      "label": "tablet-dark/fiscal",
+      "layout": {
+        "route": "page-fundamental",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
+      "label": "desktop-dark",
       "fiscal": {
         "rows": 19,
         "captions": [
@@ -2155,14 +2163,6 @@
       }
     },
     {
-      "label": "tablet-dark/fiscal",
-      "layout": {
-        "route": "page-fundamental",
-        "overflow": 0,
-        "clipped": []
-      }
-    },
-    {
       "label": "desktop-light",
       "technical": {
         "scenarios": [
@@ -2215,6 +2215,14 @@
       }
     },
     {
+      "label": "tablet-dark/technical",
+      "layout": {
+        "route": "page-technical",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
       "label": "desktop-dark",
       "technical": {
         "scenarios": [
@@ -2234,14 +2242,6 @@
         "volume": "거래 집중 가격대, 일봉 추정2026-04-13~2026-10-09, 130거래일$75.89~$76.857.9%$78.77~$79.726.2%$73.98~$74.945.1%일별 거래량을 그날 저가~고가 범위에 균등 배분한 참고 분포입니다. 실제 가격별 체결량·보유자의 매입단가·매수/매도 우위를 보여주지는 않습니다. 구간은 관찰할 가격대이며 지지·저항을 보장하지 않습니다.",
         "zones": 3,
         "logic": "차트를 읽는 순서와 계산 기준① 완료된 일봉과 30주선으로 큰 추세를 확인합니다. ② 8·21·50·200일선과 수축 고점/저점으로 현재 가격 구조를 읽습니다. ③ 상승·하락일 거래량과 평균 거래량 대비로 참여를 확인합니다. ④ 같은 시장 지수의 동일 기간 수익률과 비교합니다. ⑤ 가격이 관찰 구간 위·안·아래로 움직일 때 해석을 갱신합니다. 지표 하나만으로 미래 방향을 확정하지 않습니다.상대강도선: 각 거래일 종가를 같은 날(없으면 3일 이내 직전) S&P 500 종가로 나눈 값을 첫 비교일 100으로 맞춰 가격 아래 칸에 그립니다. 선이 오르면 지수보다 강했다는 뜻이고, 점은 직전 1년(252거래일, 비교값 240개 이상) 중 가장 높은 값을 새로 쓴 날입니다. 가격이 고점 아래인데 선이 먼저 신고가를 쓰면 지수 대비 강세가 가격보다 앞선 것으로 읽습니다. 지수 기록이 1년에 못 미치면 점은 찍지 않습니다."
-      }
-    },
-    {
-      "label": "tablet-dark/technical",
-      "layout": {
-        "route": "page-technical",
-        "overflow": 0,
-        "clipped": []
       }
     },
     {

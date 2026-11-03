@@ -11,6 +11,7 @@ import { createTrendChart } from '../components/trend-chart.js';
 import { noteFold } from '../components/section-frame.js';
 import { openMarketChart } from '../components/stock-chart.js';
 import { el } from '../components/dom.js';
+import { shortDate } from '../../domain/content/date-labels.js';
 
 // The ETF the 종목 차트 tab can open for each index; the Korean indexes have no tradable twin there.
 const CHART_SYMBOL = Object.freeze({ ndx: 'QQQ', spx: 'SPY', smh: 'SMH', rut: 'IWM' });
@@ -65,7 +66,19 @@ function stockTable(doc, root, rows) {
   table.append(el(doc, 'thead'), el(doc, 'tbody'));
   table.tHead.append(head);
   const pct = (value) => (Number.isFinite(value) ? `${signedText(value, 1)}%` : '—');
+  // v59.68: a group row names each part (S&P 500 비중 상위, 오늘 크게 움직인 종목) where the table note used to.
+  const GROUPS = { weight: 'S&P 500 비중 상위', mover: '오늘 크게 움직인 종목' };
+  let group = null;
   for (const pick of rows) {
+    if (pick.group !== group) {
+      group = pick.group;
+      const label = el(doc, 'tr', null, 'charts-group');
+      const cell = el(doc, 'th', GROUPS[group] || '', 'charts-group__label');
+      cell.colSpan = 7;
+      cell.scope = 'colgroup';
+      label.append(cell);
+      table.tBodies[0].append(label);
+    }
     const line = el(doc, 'tr');
     line.dataset.group = pick.group;
     const nameCell = el(doc, 'td');
@@ -86,7 +99,7 @@ function render(documentRef, root, store, page) {
   const readings = indexChartReadings(history);
   const set = (id, text) => { const node = documentRef.getElementById(id); if (node) node.textContent = text; };
   const asOf = readings.map((reading) => reading.asOf).sort().at(-1);
-  set('charts-basis', readings.length ? `${asOf} 종가까지의 일봉, 50일선(점선)과 200일선 기준입니다.` : '종가 기록을 불러오는 중입니다.');
+  set('charts-basis', readings.length ? `${shortDate(asOf)} 종가 · 일봉` : '종가 기록을 불러오는 중입니다.');
   set('charts-conclusion', chartsConclusion(readings));
   const grid = documentRef.getElementById('charts-index-grid');
   if (grid) {
@@ -98,7 +111,6 @@ function render(documentRef, root, store, page) {
   if (host) {
     const rows = coreStockRows({ ...screenerOf(root, store), day: root?.[MARKET_DAY.key] || null });
     host.replaceChildren(rows.length ? stockTable(documentRef, root, rows) : el(documentRef, 'p', '종목 지표를 불러오는 중입니다.', 'briefing-empty'));
-    if (rows.length) host.append(el(documentRef, 'p', '위 10개는 S&P 500 비중 상위, 그 아래는 오늘 크게 움직인 종목입니다. 종목을 누르면 차트가 열립니다.', 'charts-table-note'));
   }
   page.dataset.aioChartsRendered = String(readings.length);
 }

@@ -3103,7 +3103,7 @@ function _buildAioIntegratedAnswerContext(ctxId, query, flags) {
         else if (p === 'screener') pushPage('퀀트 스크리너');
         else if (p === 'breadth') pushPage('시장 상태, 시장 폭');
         else if (p === 'sentiment') pushPage('시장 상태, 투자 심리');
-        else if (p === 'macro') pushPage('거시와 금리 › 거시 경제');
+        else if (p === 'macro') pushPage('매크로');
         else if (p === 'fxbond') pushPage('거시와 금리 › 금리와 환율');
         else if (p === 'fundamental') pushPage('종목, 재무 공시');
         else if (p === 'themes' || p === 'theme-detail') pushPage('테마와 섹터');

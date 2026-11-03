@@ -36,7 +36,7 @@ function stageChoiceTable(doc, stage, list) {
   return wrap;
 }
 import { MACRO_HISTORY, SCENARIO_STATE, refreshSharedArtifact } from '../../data/shared-artifacts.js';
-import { refreshScenarioArtifacts } from './macro-crossroads.js';
+import { refreshScenarioArtifacts, showCrossroadsSection } from './macro-crossroads.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { themePlaybookForRoot } from './theme-playbook.js';
 import { setResearchHandoff } from '../../app/research-handoff.js';
@@ -337,7 +337,6 @@ function themeCard(doc, root, row, screenerSector = null, { change = null, teach
   if (row.heavyweightNote) card.append(el(doc, 'p', row.heavyweightNote, 'xr-reading'));
   card.append(el(doc, 'p', `거시 영향: ${row.windText}.`, 'xr-reading'));
   // v58.75 (persona review, A-4·6): the expert-criteria count and the branches that would turn the wind either way.
-  if (teach?.criteria) card.append(el(doc, 'p', `전문가 기준: ${teach.criteria.headline}.`, 'xr-reading'));
   const split = scenarioSplitText(teach?.split);
   if (split) card.append(el(doc, 'p', split, 'xr-reading'));
   const evidence = el(doc, 'ul', null, 'xr-evidence');
@@ -709,7 +708,7 @@ export function renderThemeDetailPlaybook({ documentRef: doc, root } = {}) {
   const links = el(doc, 'div', null, 'xr-explore');
   // v59.51: the detail is a view of its own, so the comparison link closes it before scrolling to the section.
   links.append(link('모든 테마 시나리오와 비교', () => { root?.closeThemeDetail?.(); doc.getElementById('theme-playbook-title')?.scrollIntoView?.({ block: 'start', behavior: 'smooth' }); }),
-    link('거시 시나리오의 근거', () => { root?.showPage?.('macro'); setTimeout(() => doc.getElementById('macro-crossroads-title')?.scrollIntoView?.({ block: 'start' }), 60); }));
+    link('시나리오의 근거', () => showCrossroadsSection(doc, root))); // v59.68 moved the scenarios to 시장 상태
   // v58.79 (owner 2026-10-25): how this theme's businesses earn — the research library's notes and 산업 지도 domain.
   const research = researchForTheme(row.id);
   for (const id of research.notes) links.append(link(`산업 구조 읽기, ${NOTE_TITLES[id] || id}`, () => navigateKnowledgeRoute({ root, page: 'principles', params: { mode: 'frames', node: id } })));

@@ -6,6 +6,7 @@ import { MARKET_DAY, refreshSharedArtifact } from '../../data/shared-artifacts.j
 import { buildDayAccount } from '../../domain/briefing/day-account.js';
 import { signedText } from '../../domain/shared/number.js';
 import { el } from './dom.js';
+import { storyWeight } from './story-weight.js';
 import { frameHead } from './section-frame.js';
 import { pickImportantNews } from '../../domain/briefing/news-picks.js';
 import { groupNewsStories } from '../../domain/news/stories.js';
@@ -51,7 +52,9 @@ export function renderHomeDay({ documentRef: doc, root, store = null }) {
   const shown = account.stories.slice(0, 3);
   for (const story of shown) {
     const item = el(doc, 'li', null, `home-day__story is-${story.rank}`);
-    item.append(el(doc, 'b', story.title, 'home-day__title'), el(doc, 'span', story.line, 'home-day__line'));
+    const head = el(doc, 'span', null, 'home-day__story-head');
+    head.append(el(doc, 'b', story.title, 'home-day__title'), storyWeight(doc, story));
+    item.append(head, el(doc, 'span', story.line, 'home-day__line'));
     list.append(item);
   }
   const parts = [head, list];

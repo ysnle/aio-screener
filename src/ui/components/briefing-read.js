@@ -1,6 +1,8 @@
 // P1389: one native owner for the briefing page — 일정 → 오늘의 해석 → 자산별 흐름 → 다음 확인.
 // Replaces the six-axis summary, the market strip, the checklist, the legacy analysis block, the
 // August research bridge and the news list (news now lives on the news screen).
+import { releaseZoneBar } from './release-zone-bar.js';
+import { releaseZones } from '../../domain/macro/release-zones.js';
 import { alignInput } from '../../domain/briefing/market-read.js';
 import { buildBriefingSchedule } from '../../domain/briefing/schedule.js';
 import { ensureResearchSnapshots } from './research-snapshots.js';
@@ -18,7 +20,7 @@ import { shortDate } from '../../domain/content/date-labels.js';
 // re-exported here so existing importers keep working.
 export { collectMarketInputs } from '../../data/selectors/market-inputs.js';
 import { marketInterpretation, screenerRowsForRoot } from '../../data/selectors/interpretation.js';
-import { buildEarningsWeek, earningsReactionCases, eventPreviews } from '../../domain/briefing/event-guide.js';
+import { buildEarningsWeek, eventPreviews } from '../../domain/briefing/event-guide.js';
 
 // Only S&P 500 members: the weekly calendar lists hundreds of micro-caps.
 function universeNames(root) {
@@ -179,26 +181,22 @@ function renderEarningsWeek(doc, root, store, snapshot) {
 // the result — and, folded, how to read a result against the price, with the latest recorded reactions.
 // v59.51 (content audit): merged into 다음 확인 포인트 — the next release was named there, here and in the schedule. The
 // face keeps the one check line (xr.nextEvent and what each scenario needs from it); the previews, the result guide and
-// the recent cases are this closed fold under it.
+// the recent cases were this closed fold; v59.69 keeps only the previews.
 function renderEventPreview(doc, root, store, { xr, schedule, flow, nowMs }) {
   const anchor = doc.getElementById('briefing-checks');
   if (!anchor) return;
   let section = doc.getElementById('briefing-events');
   const previews = eventPreviews({ xr, schedule, earnings: root._aioEarningsSnapshot?.earnings || [], names: universeNames(root), themeMap: root.THEME_MAP, nowMs });
-  const posts = [...(Array.isArray(root.AIO_TELEGRAM_CURRENT_ITEMS) ? root.AIO_TELEGRAM_CURRENT_ITEMS : []), ...(Array.isArray(root.AIO_TELEGRAM_BROAD_ITEMS) ? root.AIO_TELEGRAM_BROAD_ITEMS : [])];
-  const cases = flow?.session ? earningsReactionCases({ signals: root.AIO_TELEGRAM_SIGNALS || [], posts, rows: screenerRowsForRoot(root, store), session: flow.session }) : [];
   if (!previews.length) { if (section) section.hidden = true; return; }
   if (!section) {
     section = el(doc, 'details', null, 'sx-disclosure briefing-events');
     section.id = 'briefing-events';
     anchor.append(section);
   }
-  const wasOpen = !!section.querySelector('details.briefing-result-guide')?.open;
-  const heading = el(doc, 'summary', `다음 이벤트 ${previews.length}건, 예상과 결과 갈래 · 결과 해석 가이드`);
+  const heading = el(doc, 'summary', `다음 이벤트 ${previews.length}건, 예상과 결과 갈래`);
   heading.id = 'briefing-events-title';
   heading.title = '시장이 예상하는 것, 결과 갈래, 지금 시나리오와의 연결';
-  const first = previews[0];
-  const lead = el(doc, 'p', `가장 가까운 큰 이벤트는 ${first.when} ${first.title}입니다.${first.branches.length > 1 ? ' 결과에 따라 지금 시나리오가 갈립니다.' : ''}`, 'briefing-read-reading');
+  // v59.69: the nearest release is the fork on the face (forkNode); the fold no longer repeats it as a sentence.
   const list = el(doc, 'div', null, 'briefing-events-list');
   for (const preview of previews) {
     const card = el(doc, 'div', null, 'briefing-event-preview');
@@ -209,28 +207,28 @@ function renderEventPreview(doc, root, store, { xr, schedule, flow, nowMs }) {
     if (preview.note) card.title = preview.note;
     list.append(card);
   }
-  const guide = el(doc, 'details', null, 'sx-disclosure briefing-result-guide');
-  guide.open = wasOpen;
-  guide.append(el(doc, 'summary', '결과 해석 가이드'));
-  const rules = el(doc, 'ul', null, 'briefing-result-rules');
-  for (const line of [
-    '실적은 EPS 상회보다 가이던스·매출 성장·마진이 반응을 더 좌우하는 경향이 있습니다. 대부분의 회사가 예상치를 넘기 때문에, 시장은 다음 분기 전망이 바뀌었는지를 봅니다.',
-    '좋은 결과에도 내리면 이미 기대가 가격에 들어가 있었을 수 있습니다("소문에 사고 뉴스에 판다"). 부진한 결과에도 오르면 더 나쁜 결과가 반영돼 있었을 수 있습니다.',
-    '경제지표는 숫자 자체보다 예상과의 차이, 그리고 그 차이가 금리 경로 기대(2년물)를 바꿨는지가 중요합니다.',
-    '하루 반응 한 번은 원인을 확정하지 않습니다. 며칠에 걸쳐 같은 방향이 이어지는지, 같은 업종이 함께 움직였는지 확인합니다.'
-  ]) rules.append(el(doc, 'li', line));
-  guide.append(rules);
-  if (cases.length) {
-    guide.append(el(doc, 'div', `최근 사례, ${shortDate(flow.session)} 미국 종가 반응 (채널이 전한 실적 결과 기준)`, 'briefing-result-sub'));
-    const ul = el(doc, 'ul', null, 'briefing-result-cases');
-    for (const row of cases) {
-      const reading = row.kind === 'beat-fell' ? '좋은 결과에도 하락, 기대가 먼저 반영됐을 수 있는 사례' : row.kind === 'miss-rose' ? '부진한 결과에도 상승, 더 나쁜 결과가 반영돼 있었을 수 있는 사례' : '결과와 가격이 같은 방향';
-      ul.append(el(doc, 'li', `${row.ticker}${row.name && row.name !== row.ticker ? ` (${row.name})` : ''}: ${row.verdict} → ${row.move > 0 ? '+' : ''}${row.move.toFixed(1)}%, ${reading}`));
-    }
-    guide.append(ul);
-  }
-  section.replaceChildren(heading, lead, list, guide);
+  // v59.69 (owner 2026-11-04): the rule paragraphs and sample cases left; each earnings card reads its own move.
+  section.replaceChildren(heading, list);
   section.hidden = false;
+}
+
+// v59.69: the next release as a fork — the release on top, one branch per leading scenario.
+function forkNode(doc, split) {
+  const li = el(doc, 'li', null, 'briefing-check-fork');
+  const node = el(doc, 'div', null, 'briefing-check-fork__node');
+  node.append(el(doc, 'span', split.when, 'briefing-check-fork__when'), el(doc, 'span', split.name, 'briefing-check-fork__name'));
+  li.append(node);
+  if (split.zone?.latest) li.append(releaseZoneBar(doc, split.zone, { compact: true }));
+  if (split.sides.length) {
+    const list = el(doc, 'ul', null, 'briefing-check-fork__branches');
+    list.append(...split.sides.map((side) => {
+      const row = el(doc, 'li', null, 'briefing-check-fork__branch');
+      row.append(el(doc, 'strong', side.title), doc.createTextNode(` 쪽이면 ${side.text}`));
+      return row;
+    }));
+    li.append(list);
+  }
+  return li;
 }
 
 export function renderBriefingRead({ documentRef: doc, root, store = null, nowMs = Date.now() }) {
@@ -300,8 +298,6 @@ export function renderBriefingRead({ documentRef: doc, root, store = null, nowMs
   renderEarningsWeek(doc, root, store, root._aioEarningsSnapshot);
 
   // 2. Read
-  const basis = doc.getElementById('briefing-read-basis');
-  if (basis) basis.textContent = read.available ? `${shortDate(read.asOf)} 종가` : '';
   const headline = doc.getElementById('briefing-read-headline');
   if (headline) headline.textContent = read.available ? (read.headline || '눈에 띄는 신호가 없는 평범한 하루입니다.') : '종가 기록을 불러오는 중입니다.';
   const headlineReading = doc.getElementById('briefing-read-reading');
@@ -339,7 +335,7 @@ export function renderBriefingRead({ documentRef: doc, root, store = null, nowMs
     }));
   }
 
-  // 4. Next checks — dated events first, then what the tape itself asks to confirm.
+  // 4. Next checks — what the tape itself asks to confirm, then the next release drawn as a fork.
   const checks = doc.getElementById('briefing-check-list');
   if (checks) {
     // P1599 (H06): dated releases live in the schedule right below (with their 'why'); repeating them here read
@@ -353,12 +349,13 @@ export function renderBriefingRead({ documentRef: doc, root, store = null, nowMs
       xr = interpretation?.crossroads || crossroadsForRoot(root, { nowMs });
       const event = xr?.nextEvent;
       const sides = event ? (xr.items || []).filter((item) => item.id === xr.leadId || item.id === xr.altId)
-        .map((item) => { const trigger = item.triggers.find((row) => row.id === event.id); return trigger ? `'${item.title.split(' — ')[0]}' 쪽이면 ${trigger.text}` : null; }).filter(Boolean) : [];
+        .map((item) => { const trigger = item.triggers.find((row) => row.id === event.id); return trigger ? { title: item.title.split(' — ')[0], text: trigger.text } : null; }).filter(Boolean) : [];
       const [, m, d] = String(event?.date || '').split('-').map(Number);
-      if (event) split = `다음 발표: ${event.when || (m && d ? `${m}/${d}` : '')} ${event.name}${sides.length ? ` — ${sides.join(', ')}` : ''}`;
+      if (event) split = { when: event.when || (m && d ? `${m}/${d}` : ''), name: event.name, sides, zone: releaseZones(event.id, root._aioMacroHistory || null) };
     } catch (_) { split = null; }
-    if (split) items.push(split);
-    checks.replaceChildren(...(items.length ? items.map((text) => el(doc, 'li', text)) : [el(doc, 'li', '특별히 확인할 변화가 없습니다.')]));
+    const lines = items.map((text) => el(doc, 'li', text));
+    if (split) lines.push(forkNode(doc, split));
+    checks.replaceChildren(...(lines.length ? lines : [el(doc, 'li', '특별히 확인할 변화가 없습니다.')]));
     renderEventPreview(doc, root, store, { xr: interpretation?.crossroads, schedule, flow: interpretation?.flow, nowMs });
     // v57.54 audit (13): the two paths the next release splits link to the themes each one favours.
     // v59.51 (two layers): the theme links sit at the end of the event fold, not on the face.

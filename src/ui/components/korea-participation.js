@@ -27,7 +27,7 @@ export function renderKoreaParticipation({documentRef:doc,root,store=null}) {
   const model=buildKoreaParticipation({rows,themes:root.KR_THEME_MAP||{},index:kr?{date:kr.date,d1:kr.d1,d5:kr.d5}:null});root.__aioKoreaParticipation=model;
   // v57.81: the list is ranked by 3-month return, some of it negative and falling over the month — it is named by its window
   // (3개월 수익률 상위), with the 1-month return beside each theme, never as 강한 테마.
-  const title=el(doc,'h2','한국 종목의 참여도와 3개월 수익률 상위 테마');title.prepend(el(doc,'span','한국','sx-chip sx-chip--sm kr-market-chip'));host.replaceChildren(title);
+  const title=el(doc,'h2','참여도와 3개월 수익률 상위 테마');host.replaceChildren(title);
   if(model.session?.text){const lead=el(doc,'p',model.session.text);lead.className='flow-lead';host.append(lead);}
   host.append(el(doc,'p',model.headline));
   if(!model.available){host.hidden=true;return model;}host.hidden=false;
@@ -149,7 +149,7 @@ export function renderKrInvestorFlows({ documentRef: doc, root, before = null, n
   const nodes = [head, grid];
   if (view.missing.length) nodes.push(el(doc, 'p', `${view.missing.join('·')}은 공개 출처 없음`, 'kr-flows-note'));
   const basis = el(doc, 'details', null, 'kr-flows-basis');
-  basis.append(el(doc, 'summary', '읽는 법과 출처'),
+  basis.append(el(doc, 'summary', '기준'),
     el(doc, 'p', '순매수는 그날 산 금액에서 판 금액을 뺀 값입니다. +는 순매수(빨강), −는 순매도(파랑)이며, 막대 길이는 같은 시장의 최근 20거래일 가운데 가장 큰 하루와 비교한 크기입니다.'),
     el(doc, 'p', '한국 증시는 외국인 보유 비중이 높아 원화가 약할 때 외국인 순매도가 지수 하락과 함께 나타나는 일이 잦습니다. 하루 수급은 다음 날 방향을 말해 주지 않습니다.'),
     el(doc, 'p', `출처: ${view.source}, 한국거래소 집계를 한국은행이 게시한 값, 단위 억 원.`),

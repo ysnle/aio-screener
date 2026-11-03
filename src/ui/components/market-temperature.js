@@ -212,7 +212,6 @@ export function renderMarketTemperature({ documentRef: doc, root, anchor }) {
     detail.open = detailOpen;
     detail.addEventListener('toggle', () => { detailOpen = detail.open; });
     detail.append(el(doc, 'summary', `${market.label} — 다섯 요소 순위와 2년 종가`),
-      el(doc, 'p', '각 지수의 가격이 최근 3년 안에서 얼마나 차갑거나 뜨거운지입니다. 위 카드가 미국 투자자의 설문·옵션을 본다면 이 표는 가격 자체를 봅니다.', 'regime-read'),
       head, body, el(doc, 'p', reading, 'regime-read'), deep);
     section.replaceChildren(el(doc, 'h2', '지수별 가격 온도 (참고)', 'briefing-h2'), el(doc, 'p', lead, 'regime-read'), tabs, detail);
     section.title = `출처: ${payload.source || 'Yahoo Finance'}`; // T22: provider names in the hover

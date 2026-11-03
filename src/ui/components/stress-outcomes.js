@@ -6,6 +6,7 @@ import { CLUSTER_GAP_SESSIONS, stressBandOf } from '../../domain/signal/stress-o
 import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
 import { RULES } from '../../domain/rules/thresholds.js';
 import { el } from './dom.js';
+import { signedBar } from './signed-bar.js';
 import { signedText } from '../../domain/shared/number.js';
 
 const pct = (value, digits = 1) => (Number.isFinite(value) ? signedText(value, digits, '%') : '—');
@@ -67,10 +68,8 @@ export function renderStressOutcomes({ documentRef: doc, root, host }) {
       const stats = month(band);
       const row = el(doc, 'div', null, `stress-bar-row${band.id === current?.id ? ' is-current' : ''}`);
       row.setAttribute('role', 'listitem');
-      const bar = el(doc, 'span', null, `stress-bar ${stats.mean >= 0 ? 'is-up' : 'is-down'}`);
-      bar.style.width = `${Math.max(2, Math.round((Math.abs(stats.mean || 0) / scale) * 100))}%`;
-      const track = el(doc, 'span', null, 'stress-bar-track');
-      track.append(bar);
+      // v59.69: a mean return can be negative — the shared two-sided bar keeps its side of the zero line.
+      const track = signedBar(doc, Number(stats.mean) || 0, scale);
       // T14 (expert review 2026-10-13): the sample behind each bar is on screen, not only in the hover.
       // v57.50 D07/D08: separate spells (re-entries within 21 sessions merged) and the ± range of the mean.
       const range = meanRange(stats, 21);
@@ -95,7 +94,7 @@ export function renderStressOutcomes({ documentRef: doc, root, host }) {
       : ' 지금 표에서는 어느 구간도 평균의 범위가 전체 평균의 범위와 갈리지 않아, 구간 사이의 평균 차이는 구별되지 않습니다.';
 
     const deep = el(doc, 'details', null, 'regime-axis-details regime-axis-deep');
-    deep.append(el(doc, 'summary', '더 깊이 보기: 이 표를 읽는 법과 원리'));
+    deep.append(el(doc, 'summary', '원리와 신뢰도'));
     deep.append(el(doc, 'h4', '불안한 구간 뒤의 결과를 읽는 원리'), el(doc, 'p', `변동성이 높을 때 투자자가 위험을 떠안는 대가로 더 큰 기대수익을 요구한다는 설명(위험 프리미엄)이 있습니다. 다만 이 표의 평균 차이가 그 증거가 되려면 구간 평균의 범위(±)가 서로 겹치지 않아야 합니다.${distinctLine} 같은 구간의 하위 10% 결과 손실 폭도 함께 봐야 결과의 폭을 읽을 수 있습니다.`));
     deep.append(el(doc, 'h4', '숫자를 믿을 수 있는 정도'), el(doc, 'p', `연속된 날은 뒤 한 달이 서로 겹치므로 거래일 수만큼 독립적인 사례가 있는 것이 아닙니다. 평균 옆의 ±는 겹치지 않는 한 달 수(거래일 ÷ 21)로 계산한 표준오차의 2배입니다. ${rows.some((band) => Number.isFinite(band.clusters)) ? `경계 근처에서 하루이틀 빠졌다 돌아온 진입은 ${CLUSTER_GAP_SESSIONS}세션 안의 재진입이면 하나의 군집으로 셉니다. ` : '경계 근처에서 하루이틀 빠졌다 돌아오는 진입이 많아, 진입 횟수 대신 겹치지 않는 한 달 수를 표본으로 적었습니다. '}VIX 30 이상은 표본이 적어 평균이 몇 번의 위기에 크게 좌우됩니다. 수익률은 배당을 뺀 가격 기준입니다.`));
     const table = el(doc, 'dl', null, 'regime-evidence');
@@ -106,7 +105,6 @@ export function renderStressOutcomes({ documentRef: doc, root, host }) {
     // T14: the title names the one thing that was matched (VIX), and the bands are said to differ from the judgement bands.
     // v57.76: the fold summary is the title; the first line bridges from this card's VIX level to the table.
     section.replaceChildren(el(doc, 'summary', STRESS_TITLE),
-      el(doc, 'p', '위 VIX 수준과 비슷했던 날에서 시작한 과거의 한 달이 실제로 어떻게 끝났는지입니다.', 'regime-read'),
       // v58.79: the band caveat is the chart caption's hover, not a second caption under the reading.
       Object.assign(el(doc, 'p', `변동성(VIX) 구간별 S&P 500 한 달 뒤 평균, ${from}~${String(payload.to || '').slice(0, 4)}`, 'regime-chart-caption'), { title: `이 표의 VIX 구간(${payload.bands.map((band) => band.label.replace(/^VIX /, '')).join(', ')})은 과거 결과를 나누는 구간이라, 시장 상태 변동성 축의 판정 기준(${RULES.volatility.calmBelow}, ${RULES.volatility.stressAt}, ${RULES.volatility.highAt})과 다릅니다` }), chart, el(doc, 'p', reading, 'regime-read'), deep);
     section.title = `출처: ${payload.source || 'Yahoo Finance'}`;

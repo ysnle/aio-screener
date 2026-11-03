@@ -2,6 +2,7 @@ import { createResourceBag } from '../../app/lifecycle.js';
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
 import { renderKnowledgeArrival } from '../components/knowledge-arrival.js';
 import { chartPalette } from '../components/color-theme.js';
+import { signedBar } from '../components/signed-bar.js';
 import { selectSelectedThemeDetail, selectThemesItems } from '../../state/selectors/themes.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { renderThemeStrength } from '../components/theme-strength.js';
@@ -267,7 +268,7 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
   context.fillText(compact ? '상대강도 변화 속도 ↑' : '상대강도 변화 속도(10거래일 전 대비) ↑', 0, 0);
   context.restore();
   const note = documentRef.getElementById('rrg-method-note');
-  if (note) note.textContent = `이 그림은 흔히 RRG(상대 회전 그래프)라 부르는 방식입니다. ${RRG_DEFINITION.ratio}. ${RRG_DEFINITION.momentum}. ${RRG_DEFINITION.benchmarkBias}`;
+  if (note) note.textContent = `${RRG_DEFINITION.ratio}. ${RRG_DEFINITION.momentum}. ${RRG_DEFINITION.benchmarkBias}`;
   context.font = 'bold 12px "Pretendard Variable", Pretendard, sans-serif';
   context.textAlign = 'right'; context.fillStyle = colors.Leading; context.fillText('선도', plot.right - 6, plot.top + 14);
   context.fillStyle = colors.Weakening; context.fillText('약화', plot.right - 6, plot.bottom - 6);
@@ -1115,9 +1116,7 @@ function renderThemeDetailSummary({ documentRef, root, store, themeId = null }) 
       name.textContent = group.smallSample ? `${group.name}, 표본 ${group.members}종목, 참고` : group.name; // D15
       const item = documentRef.createElement('div');
       item.className = 'stock-read-bar-row';
-      const bar = documentRef.createElement('div');
-      bar.className = `stock-read-bar is-stock ${(group.ret3m ?? 0) >= 0 ? 'is-up' : 'is-down'}`;
-      bar.style.width = `${Math.max(2, Math.abs(group.ret3m ?? 0) / max * 100).toFixed(1)}%`;
+      const bar = signedBar(documentRef, group.ret3m ?? 0, max); // v59.69: a falling group sits left of zero
       const value = documentRef.createElement('span');
       value.className = 'stock-read-bar-value';
       const dir = directionLabel(group); // 3개월→1개월 순위 변화 (audit 19: not the playbook stage words; v58.74 names a contrary week)

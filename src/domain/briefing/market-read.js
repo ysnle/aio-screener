@@ -617,8 +617,8 @@ export function buildMarketRead(input = {}) {
     const where = record.pct == null ? '' : ` 이 사이트가 기록한 ${record.n}거래일 가운데 ${rankWord}입니다${record.provisional ? '(기록 1년 미만, 잠정)' : ''}.`;
     add('distribution-cluster', 74, `S&P 500 최근 25거래일 중 ${fmt(dd, 0)}일이 0.2% 이상 하락하면서 거래량이 늘어난 날(분배일)입니다.${where}`, 'index', {
       reading: record.pct != null && record.pct < 80 && common != null
-        ? `흔히 25거래일 중 5~6회 이상을 추세 약화 신호로 보지만, AIO 기록에서는 ${common}%의 날이 ${ddAt}회 이상이라 이 숫자만으로 경고라고 단정하지 않습니다.`
-        : '매도 압력이 평소보다 많이 쌓인 편입니다 — 흔히 25거래일 중 5~6회 이상을 추세 약화 신호로 봅니다.',
+        ? `기록상 ${common}%의 날이 ${ddAt}회 이상이라 이 숫자만으로는 경고가 아닙니다.`
+        : '매도 압력이 평소보다 많이 쌓인 편입니다.',
       check: '분배일이 줄어드는지, 지수가 거래량을 동반해 반등하는지' });
   }
   // 3. Leadership: tech and small caps relative to the S&P over a month.
@@ -744,9 +744,9 @@ export function buildMarketRead(input = {}) {
     const where = koreaRecordText(krRec, { maxTail: B.krTailPct });
     const rare = tail != null && tail <= KR_SHOCK_TAIL_PCT;
     add('korea-relative', weight, `코스피 ${shortDate(kospi.date)} ${signed(kospi1)}${kospi5 != null ? `(5거래일 ${signed(kospi5)})` : ''}${usText}${krwText}.${where ? ` 코스피 변화는 ${where}입니다.` : ''}`, 'korea', {
-      reading: rare ? '미국 6개 지표 판정은 미국 종가로만 내려 이 움직임을 반영하지 않습니다 — 한국 고유 요인인지, 대형주에 몰린 움직임인지 표본 종목 전반으로 번졌는지는 시장 상태의 한국 시장 참고에서 따로 확인합니다.' : null,
+      reading: rare ? '미국 6개 지표 판정은 미국 종가로만 내려 이 움직임을 반영하지 않습니다 — 한국 고유 요인인지, 대형주에 몰린 움직임인지 표본 종목 전반으로 번졌는지는 시장 상태의 한국 시장에서 따로 확인합니다.' : null,
       // v57.86 (live review): the check asked what 시장 상태 already answers (sample median, share falling) — it now names what to watch next.
-      check: rare ? `다음 한국 거래일에 코스피가 ${kospi1 < 0 ? '하락' : '상승'}을 이어가는지와 원/달러가 함께 움직이는지 — 표본 종목 전반의 하락 폭은 시장 상태의 한국 시장 참고에 있습니다` : null });
+      check: rare ? `다음 한국 거래일에 코스피가 ${kospi1 < 0 ? '하락' : '상승'}을 이어가는지와 원/달러가 함께 움직이는지 — 표본 종목 전반의 하락 폭은 시장 상태의 한국 시장에 있습니다` : null });
   }
 
   statements.sort((a, b) => b.weight - a.weight);

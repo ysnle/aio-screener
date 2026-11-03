@@ -474,7 +474,7 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
 #stock-chart-evidence .regime-evidence dd { margin: 2px 0 0; line-height: 1.55; }
 /* Phone: the eight chart intervals fit on one line instead of scrolling the last two out of view. */
 @media (max-width: 520px) { .page .stock-chart-intervals { gap: 4px; } .page .stock-chart-intervals button { padding: 0 8px; min-height: 30px; font-size: 12px; } }
-/* Section headings with a trailing note (속보 · 잠정, 한국 시장 참고) squeezed both into half-width columns on phones and broke
+/* Section headings with a trailing note (속보 · 잠정, 한국 시장) squeezed both into half-width columns on phones and broke
    the heading mid-phrase; let the note drop to its own line instead. */
 .page .briefing-h2 { flex-wrap: wrap; row-gap: 2px; }
 
@@ -720,7 +720,7 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
 #page-charts .charts-table th, #page-charts .charts-table td { padding: 6px 8px; text-align: right; border-bottom: 1px solid rgba(var(--ink-rgb), 0.08); white-space: nowrap; }
 #page-charts .charts-table th:first-child, #page-charts .charts-table td:first-child, #page-charts .charts-table td:nth-child(2), #page-charts .charts-table th:nth-child(2) { text-align: left; }
 #page-charts .charts-stock-name { margin-left: 8px; color: var(--text-secondary); }
-#page-charts .charts-table-note { margin: 8px 0 0; font-size: 13px; color: var(--text-secondary); }
+#page-charts .charts-group__label { padding: 12px 8px 4px; text-align: left; font-size: 12px; font-weight: 600; color: var(--text-secondary); border-bottom: 1px solid rgba(var(--ink-rgb), 0.12); }
 /* v59.65 브리핑 지난 24시간: stories as a quiet numbered list; the lead ones carry the accent rule. */
 #page-briefing .briefing-day-opening { margin: 0 0 12px; font-size: 15px; line-height: 1.6; color: var(--text-primary); }
 #page-briefing .briefing-day-stories { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
@@ -757,3 +757,20 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
 #page-home .home-day__links { display: flex; flex-wrap: wrap; gap: 4px 16px; }
 
 @media (max-width: 767px) { #page-home .home-day .flow-next-link, #page-home .home-hero-more { min-height: 44px; } }
+/* v59.68 story weight: the bar is the day's ranking at a glance (story-weight.js). */
+.story-weight { display: inline-flex; align-items: center; gap: 6px; flex: none; }
+.story-weight__bar { position: relative; width: 72px; height: 6px; border-radius: 3px; background: rgba(var(--ink-rgb), 0.10); overflow: hidden; }
+.story-weight__bar::after { content: ''; position: absolute; inset: 0 auto 0 0; width: var(--w, 0%); border-radius: 3px; background: rgba(var(--ink-rgb), 0.45); }
+.story-weight.is-lead .story-weight__bar::after { background: var(--accent); }
+.story-weight__dir { font-size: var(--fs-min); line-height: 1; color: var(--text-secondary); }
+#page-briefing .briefing-day-story__head, #page-home .home-day__story-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+#page-home .home-day__story-head { margin-bottom: 2px; }
+#page-home .home-day__story { display: grid; }
+/* v59.68 시장 상태 pairs as 2×2 maps (market-regime.js crossMap). */
+#page-signal .mk-cross__map { display: block; width: 100%; max-width: 272px; height: auto; margin: 6px 0 8px; } /* ~1.1x: the 12px floor stays ~13px */
+#page-signal .mk-cross__cell { fill: rgba(var(--ink-rgb), 0.04); stroke: var(--bg-card, var(--bg-surface)); stroke-width: 2; }
+#page-signal .mk-cross__cell.is-now { fill: rgba(var(--ink-rgb), 0.12); }
+#page-signal .mk-cross__cell-label { font-size: var(--fs-min); fill: var(--text-secondary); }
+#page-signal .mk-cross__cell.is-now + .mk-cross__cell-label { fill: var(--text-primary); font-weight: 700; }
+#page-signal .mk-cross__axis { font-size: var(--fs-min); fill: var(--text-secondary); }
+#page-signal .mk-cross__dot { fill: var(--accent); stroke: var(--bg-card, var(--bg-surface)); stroke-width: 2; }

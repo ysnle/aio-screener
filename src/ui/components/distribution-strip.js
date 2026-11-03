@@ -43,7 +43,8 @@ export function distributionStrip(doc, history, through) {
   gauge.setAttribute('height', '12');
   gauge.setAttribute('role', 'img');
   gauge.setAttribute('aria-label', `분배일 ${last.value}일, 경고 기준 ${at}일`);
-  const rect = (x, w, cls) => { const node = doc.createElementNS(NSG, 'rect'); for (const [key, value] of [['x', x], ['y', 2], ['width', w], ['height', 8], ['rx', 4], ['fill', 'currentColor'], ['class', cls]]) node.setAttribute(key, String(value)); return node; };
+  // v59.69 (visual audit): square ends — preserveAspectRatio none stretched rx 4 into ovals.
+  const rect = (x, w, cls) => { const node = doc.createElementNS(NSG, 'rect'); for (const [key, value] of [['x', x], ['y', 2], ['width', w], ['height', 8], ['fill', 'currentColor'], ['class', cls]]) node.setAttribute(key, String(value)); return node; };
   const mark = doc.createElementNS(NSG, 'line');
   for (const [key, value] of [['x1', at * 20], ['x2', at * 20], ['y1', 0], ['y2', 12], ['stroke', 'currentColor'], ['stroke-width', '2'], ['vector-effect', 'non-scaling-stroke'], ['class', 'sh-muted-note']]) mark.setAttribute(key, String(value));
   gauge.append(rect(0, scale * 20, 'leaders-line__dist-track'), rect(0, Math.max(4, last.value * 20), last.value >= at ? 'sh-red-note' : 'sh-muted-note'), mark);

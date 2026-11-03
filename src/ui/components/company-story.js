@@ -244,7 +244,6 @@ export function renderCompanyStory(doc, host, { profile, earnings = [], peers = 
   if (has(upcoming)) watch.append(pair(doc, '다가오는 일정', list(doc, upcoming.map((x) => `${hasLeadingIsoDay(x.date || '') ? mdOf(x.date) : x.date} ${x.event}`))));
   if (has(t.reaction)) watch.append(pair(doc, '실적 발표 때 주가가 반응하는 것', el(doc, 'p', t.reaction)));
   if (has(t.conditions)) watch.append(pair(doc, '매매할 때 함께 확인하는 조건', list(doc, t.conditions)));
-  watch.append(el(doc, 'p', '조건을 확인하는 틀이며, 사고팔 가격이나 시점을 제시하지 않습니다.', 'company-story-small'));
   nodes.push(watch);
 
   if (has(profile.governance?.line)) nodes.push(el(doc, 'p', `경영·지배구조: ${profile.governance.line}`, 'company-story-small'));

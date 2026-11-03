@@ -100,6 +100,14 @@ export async function ensureChartLibrary(root, timeoutMs = 8000) {
 function cssVar(root, name, fallback) {
   try { return root.getComputedStyle(root.document.body).getPropertyValue(name).trim() || fallback; } catch (_) { return fallback; }
 }
+// v59.69 (visual audit): the volume bars are the candle colours at 35%, so the theme's candles and volume never drift apart.
+function withAlpha(color, alpha) {
+  const hex = /^#([0-9a-f]{6})$/i.exec(color);
+  if (hex) return `#${hex[1]}${Math.round(alpha * 255).toString(16).padStart(2, '0')}`;
+  const rgb = /^rgba?\(([^)]+)\)$/i.exec(color);
+  if (rgb) { const [r, g, b] = rgb[1].split(',').map((part) => part.trim()); return `rgba(${r}, ${g}, ${b}, ${alpha})`; }
+  return color;
+}
 
 // Screen audit 2026-10-20: a Korean listing's axis read "400000.00" and the phone's last date tick read "9일" with no month.
 // Won prices are whole numbers with separators; a day tick carries its month (M/D).
@@ -173,16 +181,19 @@ function drawChart(root, host, analysis, previous, kr = false) {
     series.setData(analysis.bars.map((bar, i) => values[i] == null ? null : { time: bar.time, value: values[i] }).filter(Boolean));
     return series;
   };
-  line(analysis.lines.ema8, '#12a594', 1.2);
-  line(analysis.lines.ema21, '#2870bd', 1.5);
-  line(analysis.lines.sma50, '#ad7f58', 1.5);
-  line(analysis.lines.sma200, '#953ea3', 1.5, 2);
+  // v59.69 (visual audit): the legend's own tokens; the 21-day line was the falling-candle blue.
+  const brown = cssVar(root, '--brown-11', '#815e46');
+  line(analysis.lines.ema8, cssVar(root, '--teal-11', '#008573'), 1.2);
+  line(analysis.lines.ema21, cssVar(root, '--orange-11', '#cc4e00'), 1.5);
+  line(analysis.lines.sma50, brown, 1.5);
+  line(analysis.lines.sma200, cssVar(root, '--plum-11', '#953ea3'), 1.5, 2);
   const volume = chart.addHistogramSeries({ priceScaleId: 'volume', priceFormat: { type: 'volume' }, lastValueVisible: false, priceLineVisible: false });
   // v58.75 (persona review): the relative-strength line (close ÷ index, rebased to 100) in its own band between the price and
   // the volume, with its one-year highs dotted. Without an index series the chart keeps its previous layout.
   const rs = rsLineSeries(analysis);
   chart.priceScale('volume').applyOptions({ scaleMargins: rs ? { top: 0.86, bottom: 0 } : { top: 0.82, bottom: 0 } });
-  volume.setData(analysis.bars.map((bar) => ({ time: bar.time, value: bar.volume || 0, color: bar.close >= bar.open ? 'rgba(220,62,66,0.35)' : 'rgba(40,112,189,0.35)' })));
+  const upVol = withAlpha(up, 0.35), downVol = withAlpha(down, 0.35);
+  volume.setData(analysis.bars.map((bar) => ({ time: bar.time, value: bar.volume || 0, color: bar.close >= bar.open ? upVol : downVol })));
   if (rs) {
     chart.priceScale('right').applyOptions({ scaleMargins: { top: 0.06, bottom: 0.34 } });
     const rsSeries = chart.addLineSeries({ priceScaleId: 'rs', color: RS_LINE_COLOR, lineWidth: 1.5, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false, priceFormat: { type: 'price', precision: 1, minMove: 0.1 } });
@@ -193,7 +204,7 @@ function drawChart(root, host, analysis, previous, kr = false) {
   }
   // First-users run 4 (breaker #17): '피벗' sat under '전일 고가' when the two levels nearly matched. Levels within 0.4% of the
   // last close share one axis label that names both; each keeps its own line.
-  const levels = [[analysis.pivot, '#ad7f58', '피벗', 0], [analysis.prev.high, text, '전일 고가', 1], [analysis.prev.low, text, '전일 저가', 1]];
+  const levels = [[analysis.pivot, brown, '피벗', 0], [analysis.prev.high, text, '전일 고가', 1], [analysis.prev.low, text, '전일 저가', 1]];
   if (analysis.high52 > analysis.last.close * 1.002) levels.push([analysis.high52, grid === '#e8e2d9' ? '#999' : text, '52주 고점', 3]);
   const near = Math.abs(analysis.last.close) * 0.004;
   const placed = [];
@@ -205,7 +216,7 @@ function drawChart(root, host, analysis, previous, kr = false) {
   for (const item of placed) candles.createPriceLine({ price: item.price, color: item.color, lineWidth: 1, lineStyle: item.style, axisLabelVisible: true, title: item.titles.join('·') });
   // Contraction lows (depth) + descriptive events (8-day line, volume gap, squeeze, overheating).
   const toneColor = { favorable: up, burden: down, neutral: '#978365' };
-  const markers = (analysis.vcp.valid ? analysis.vcp.contractions : []).map((row) => ({ time: analysis.bars[row.lowIndex].time, position: 'belowBar', color: '#ad7f58', shape: 'arrowUp', text: `수축 -${row.depth.toFixed(1)}%` }));
+  const markers = (analysis.vcp.valid ? analysis.vcp.contractions : []).map((row) => ({ time: analysis.bars[row.lowIndex].time, position: 'belowBar', color: brown, shape: 'arrowUp', text: `수축 -${row.depth.toFixed(1)}%` }));
   for (const event of analysis.events || []) markers.push({ time: analysis.bars[event.index].time, position: event.position, color: toneColor[event.tone] || '#978365', shape: event.position === 'aboveBar' ? 'arrowDown' : 'arrowUp', text: event.text });
   if (analysis.state === 'breakout') markers.push({ time: analysis.last.time, position: 'aboveBar', color: up, shape: 'arrowDown', text: '피벗 돌파' });
   // 2026-10-18 UI review: the same label (8일 EMA 회복 …) printed at every occurrence piled up over the latest bars; older
@@ -594,7 +605,7 @@ async function renderIntervalChart({ doc, root, sym, spec, ticket }) {
   const candles = chart.addCandlestickSeries({ upColor: up, downColor: down, borderUpColor: up, borderDownColor: down, wickUpColor: up, wickDownColor: down });
   candles.setData(bars.map(({ time, open, high, low, close }) => ({ time, open, high, low, close })));
   const closes = bars.map((bar) => bar.close);
-  const maColors = { 5: '#e2a336', 20: '#2870bd', 60: '#12a594', 120: '#953ea3' };
+  const maColors = { 5: cssVar(root, '--amber-11', '#ab6400'), 20: cssVar(root, '--orange-11', '#cc4e00'), 60: cssVar(root, '--teal-11', '#008573'), 120: cssVar(root, '--plum-11', '#953ea3') };
   for (const n of [5, 20, 60, 120]) {
     if (bars.length < n) continue;
     const values = smaOf(closes, n);
@@ -603,7 +614,8 @@ async function renderIntervalChart({ doc, root, sym, spec, ticket }) {
   }
   const volume = chart.addHistogramSeries({ priceScaleId: 'volume', priceFormat: { type: 'volume' }, lastValueVisible: false, priceLineVisible: false });
   chart.priceScale('volume').applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
-  volume.setData(bars.map((bar) => ({ time: bar.time, value: bar.volume || 0, color: bar.close >= bar.open ? 'rgba(220,62,66,0.35)' : 'rgba(40,112,189,0.35)' })));
+  const upVol = withAlpha(up, 0.35), downVol = withAlpha(down, 0.35);
+  volume.setData(bars.map((bar) => ({ time: bar.time, value: bar.volume || 0, color: bar.close >= bar.open ? upVol : downVol })));
   const showRecent = () => chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, bars.length - 130), to: bars.length + 3 });
   showRecent();
   (root.requestAnimationFrame || setTimeout)(showRecent);
@@ -619,8 +631,10 @@ async function renderIntervalChart({ doc, root, sym, spec, ticket }) {
   const structure = intervalStructure(bars);
   const read = el(doc, 'div', null, 'chart-read');
   read.append(el(doc, 'p', `${spec.label}봉 기준 단기 이동평균(종가>5>10>20)은 ${structure.short || '계산 불가'}, 장기(20>50>100>200)는 ${structure.long || '기록 부족'}입니다.`, 'chart-read-headline'));
-  read.append(el(doc, 'p', `${bars.length}개 봉, 이동평균 5·20·60·120, 거래량. ${spec.intraday ? '분·시간봉은 정규장 기준이며 마지막 봉은 아직 진행 중일 수 있습니다. 짧은 주기일수록 잡음이 크므로 일봉 추세와 같은 방향인지 함께 봅니다.' : '주·월봉은 큰 추세를 확인하는 용도이며 마지막 봉은 기간이 끝나기 전까지 바뀝니다.'}`, 'stock-chart-interval-note'));
-  read.append(el(doc, 'p', '피벗·변동성 수축·추세 템플릿 판정은 일봉 기준으로만 계산합니다.', 'stock-chart-interval-note'));
+  // v59.69 (owner 2026-11-04): one line of facts; what an intraday or weekly bar means is the hover.
+  const note = el(doc, 'p', `${bars.length}봉 · 이평 5·20·60·120${spec.intraday ? ' · 마지막 봉 진행 중' : ''}`, 'stock-chart-interval-note');
+  note.title = `${spec.intraday ? '분·시간봉은 정규장 기준, 짧은 주기는 일봉 추세와 같은 방향인지 함께 봅니다.' : '주·월봉의 마지막 봉은 기간이 끝나기 전까지 바뀝니다.'} 피벗·변동성 수축·추세 템플릿은 일봉 기준입니다.`;
+  read.append(note);
   const toDaily = el(doc, 'button', '일봉 셋업 분석 보기', 'aio-btn-table');
   toDaily.type = 'button';
   toDaily.addEventListener('click', () => renderStockChart({ documentRef: doc, root, symbol: sym, interval: '1d' }));

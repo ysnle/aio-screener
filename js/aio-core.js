@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v59.68';
+const APP_VERSION = 'v59.69';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -2817,7 +2817,7 @@ if (typeof document !== 'undefined') {
         + (rs && rs.available && rs.counts ? '(양호 ' + rs.counts.favorable + ', 중립 ' + rs.counts.neutral + ', 부담 ' + rs.counts.burden + ')' : '');
       var riskPart = '';
       // 4) 주도 뉴스/감성
-      var topicKo = { macro: '거시', geo: '지정학', semi: '반도체', earnings: '실적', energy: '에너지', crypto: '크립토', equity: '주식', defense: '방산', analyst: '애널리스트' };
+      var topicKo = { macro: '매크로', geo: '지정학', semi: '반도체', earnings: '실적', energy: '에너지', crypto: '크립토', equity: '주식', defense: '방산', analyst: '애널리스트' };
       var newsPart = '';
       if (ns.available) {
         var biasKo = ns.bias === 'bullish' ? '긍정 우위' : ns.bias === 'bearish' ? '부정 우위' : '중립';
@@ -3229,7 +3229,7 @@ var AIO_PAGE_BRIEFS = {
     use: '매일 장 시작 전 체크리스트입니다.',
     steps: ['오늘의 리스크와 이벤트 확인', '관심 섹터·종목 트리거 확인', '확인이 필요한 항목만 남기기'],
     focus: '긴 설명보다 오늘 값이 바뀔 수 있는 변수(이벤트·지표 발표)만 보세요.',
-    links: [['market-news','뉴스'], ['macro','거시'], ['signal','시그널']]
+    links: [['market-news','뉴스'], ['macro','매크로'], ['signal','시장 상태']]
   },
   technical: {
     title: '추세선 위치와 과열·약화 신호 확인',

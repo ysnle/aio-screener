@@ -2,6 +2,7 @@
 // one-month median move with the last session beside it, a sentence of counts, and each group's members in a fold.
 // A lazy chunk like the release summaries; the rows and themes are the screener's and the 테마 screen's, already loaded.
 import { el } from './dom.js';
+import { signedBar } from './signed-bar.js';
 import { frameHead, markFrame } from './section-frame.js';
 import { aiChainFlow, defensiveContrast } from '../../domain/briefing/ai-chain-flow.js';
 import { buildTwRevenueView, signedPct, TW_MONTHLY_REVENUE } from '../../domain/briefing/tw-monthly-revenue.js';
@@ -77,15 +78,12 @@ function paintAiChain(doc, root, { id, frame, className, more: withLink, place, 
     chart.setAttribute('aria-label', `묶음별 한 달 중앙값, ${sessionLabel(root)}`);
     for (const group of groups) {
       const li = el(doc, 'li', null, 'ai-chain__row');
-      const bar = el(doc, 'span', null, 'ai-chain__bar');
-      bar.dataset.direction = direction(group.ret1m);
-      bar.style.setProperty('--w', `${Math.round((Math.abs(group.ret1m || 0) / scale) * 100)}%`);
       const day = el(doc, 'span', signed(group.ret1d), 'ai-chain__day');
       day.dataset.direction = direction(group.ret1d);
       const name = el(doc, 'span', group.name, 'ai-chain__name');
       name.title = group.name;
-      li.append(name, el(doc, 'span', null, 'ai-chain__track'), el(doc, 'span', signed(group.ret1m), 'ai-chain__month'), day);
-      li.children[1].append(bar);
+      // v59.69: the shared two-sided bar — a falling group sits left of the zero line instead of right-anchored.
+      li.append(name, signedBar(doc, Number(group.ret1m) || 0, scale), el(doc, 'span', signed(group.ret1m), 'ai-chain__month'), day);
       li.children[2].dataset.direction = direction(group.ret1m);
       chart.append(li);
     }
@@ -96,7 +94,7 @@ function paintAiChain(doc, root, { id, frame, className, more: withLink, place, 
   const shown = new Set(ranked.slice(0, limit));
   const chart = barList(flow.groups.filter((group) => shown.has(group)));
   const others = flow.groups.filter((group) => !shown.has(group));
-  const legend = el(doc, 'p', `막대 한 달, 숫자 지난 거래일 · ${sessionLabel(root)}`, 'ai-chain__scale');
+  const legend = el(doc, 'p', `막대 1개월 · 숫자 1일 · ${sessionLabel(root)}`, 'ai-chain__scale');
   const contrast = defensiveContrast(root?._serverDataMeta?.rotationHistory || null);
   const fullReading = contrast ? `${flow.reading} ${contrast}` : flow.reading;
   // Face: the reading's first sentence (the count of groups that fell); the full reading leads the fold.
@@ -108,7 +106,6 @@ function paintAiChain(doc, root, { id, frame, className, more: withLink, place, 
   if (Number.isFinite(limit)) {
     fold.append(el(doc, 'p', fullReading, 'ai-chain__reading'));
     if (others.length) fold.append(barList(others));
-    fold.append(el(doc, 'p', '막대는 묶음별 미국 종목의 한 달 수익률 중앙값, 오른쪽 숫자는 지난 거래일 중앙값입니다. 아래 종목은 한 달 수익률, 괄호 안은 지난 거래일입니다. 묶음은 테마 화면의 반도체·AI 인프라·광통신 분류를 따릅니다.', 'ai-chain__member-list'));
   }
   // Taiwan's monthly revenue opens the member lists: a short block, read before the long US lists.
   const tw = twRevenue(doc, root, id, () => paintAiChain(doc, root, { id, frame, className, more: withLink, place, limit }));

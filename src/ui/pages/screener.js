@@ -1451,12 +1451,14 @@ function renderBacktest(documentRef, metadata, root = globalThis, rows = null) {
   panel.append(el('p', verdict, 'briefing-read-headline'), el('p', parity, 'theme-strength-basis'));
   const labels = { momentum: '모멘텀', trend: '추세', lowvol: '저변동', kalman: '추세 속도', composite: '종합 순위' };
   const bars = el('div', null, 'scr-ic-bars');
+  // v59.69 (visual audit): half the track is 0.2 unless a value is larger — a larger IC used to clip silently at the edge.
+  const icMax = Math.max(0.2, ...Object.keys(labels).map((key) => Math.abs(finite(ic[key]) ?? 0)));
   for (const [key, label] of Object.entries(labels)) {
     const value = finite(ic[key]);
     const line = el('div', null, 'scr-ic-row');
     const track = el('div', null, 'scr-ic-track');
     const fill = el('span', null, `scr-ic-fill ${value == null ? '' : value >= 0 ? 'is-up' : 'is-down'}`);
-    if (value != null) { fill.style.width = `${Math.min(50, Math.abs(value) / 0.2 * 50).toFixed(1)}%`; fill.style[value >= 0 ? 'left' : 'right'] = '50%'; }
+    if (value != null) { fill.style.width = `${Math.min(50, Math.abs(value) / icMax * 50).toFixed(1)}%`; fill.style[value >= 0 ? 'left' : 'right'] = '50%'; }
     track.append(fill);
     line.append(el('span', label, 'scr-ic-label'), track, el('span', value == null ? '—' : value.toFixed(3), 'scr-ic-value'));
     bars.append(line);
@@ -2096,7 +2098,9 @@ function renderTableStatus(documentRef, { status, scopeRows, filtered, definitio
     if (withCap && !sortState.ascending && validation !== 'favorable') order = `${order} — 순위가 우연과 구별되지 않아 기본은 시총 순, 전체 순위 머리글을 누르면 순위 순`;
   }
   // v58.56 review: quote refreshes re-render the table, so the text is written only when it changes.
-  const fullText = `${leadFor(fullName, ' 조건')}, ${order}`;
+  // v59.68: the face keeps the count and the order; why the default is market cap (and the cap coverage) is the hover.
+  const fullText = `${leadFor(fullName, ' 조건')}, ${shortOrder}`;
+  if (textNode.title !== order) textNode.title = order;
   const shortText = `${leadFor(shortName, '')}, ${shortOrder}`;
   if (textNode.firstChild.textContent !== fullText) textNode.firstChild.textContent = fullText;
   if (textNode.lastChild.textContent !== shortText) textNode.lastChild.textContent = shortText;

@@ -161,7 +161,7 @@ function scenarioSection(doc, root, model, outlook, openIds = new Set()) {
   const leadView = (outlook?.items || []).find((item) => item.id === outlook?.leadId);
   // v59.55 (flow 5): "이 조합이 뜻하는 것" and "지금 시장 흐름" asked one question in two cards; the closest flow is now the
   // first line of the one card "지금 어떤 흐름인가", the three flows open under it and the conflicting combinations follow.
-  summary.title = '지금 시장이 세 흐름 중 어디에 가까운지(맞는 조건 수, 확률 아님)를 봅니다. 다음 발표가 이 흐름을 어느 쪽으로 옮길지는 거시 화면에서 이어 봅니다.';
+  summary.title = '지금 시장이 세 흐름 중 어디에 가까운지(맞는 조건 수, 확률 아님)를 봅니다. 다음 발표가 이 흐름을 어느 쪽으로 옮길지는 매크로에서 이어 봅니다.';
   summary.append(el(doc, 'span', !model.available ? '세 흐름 판단 보류' : leadView ? `'${leadView.title}'에 가장 가까움 · ${leadView.fit}` : `${model.asOf ? `${shortDate(model.asOf)} 종가` : ''}`, 'mk-structure__lead'), el(doc, 'span', '세 흐름 보기', 'sx-card__meta'));
   fold.append(summary);
   section.append(fold);
@@ -329,10 +329,10 @@ function axisRow(doc, root, row, { history, scenarios, previous, inputs, asOf, o
     go.type = 'button';
     go.dataset.action = 'showPage';
     go.dataset.arg = home.route;
-    body.append(readNow, cardOf('원리, 읽는 법', el(doc, 'p', `이 지표가 무엇을 재고 전문가가 어떻게 읽는지는 ${home.label} 화면에 있습니다. 여기서는 판정과 기준, 근거 숫자만 봅니다.`, 'sx-disclosure__text'), go));
+    body.append(readNow, go); // v59.69: the link alone — the card that said where the principle lives is gone
   } else {
     body.append(cardOf('원리', el(doc, 'p', blocks[0]?.[1] || '', 'sx-disclosure__text')), readNow,
-      cardOf('읽는 법, 함께 볼 것', ...blocks.slice(1).map(([, text]) => el(doc, 'p', text, 'sx-disclosure__text'))));
+      cardOf('함께 볼 것', ...blocks.slice(1).map(([, text]) => el(doc, 'p', text, 'sx-disclosure__text'))));
   }
   // The chart, every evidence row and the flip condition stay one level down in the opened row.
   const detail = el(doc, 'div', null, 'mk-axis__detail');
@@ -371,7 +371,7 @@ function axisRow(doc, root, row, { history, scenarios, previous, inputs, asOf, o
   if (row.id === 'volatility') renderStressOutcomes({ documentRef: doc, root, host: card });
   // ④ evidence line: academic basis (authors · year), data source, validation state.
   const evidence = el(doc, 'p', null, 'sx-evidence mk-axis__evidence');
-  evidence.append(el(doc, 'span', `학술 근거, ${AXIS_REFS[row.id] || '—'}`), el(doc, 'span', `데이터, ${AXIS_SOURCES[row.id] || '—'}`), el(doc, 'span', '판정 기준, 공개 관례 기준선, 예측력 검증 전'));
+  evidence.append(el(doc, 'span', `학술 근거, ${AXIS_REFS[row.id] || '—'}`), el(doc, 'span', `데이터, ${AXIS_SOURCES[row.id] || '—'}`), el(doc, 'span', '검증 전 기준선'));
   card.append(evidence);
   // Single-open accordion (README: openAxis); the choice survives a repaint of the board.
   card.addEventListener('toggle', () => {
@@ -469,6 +469,33 @@ function comboAndWatch(doc, root, regime, interpretation) {
 // v58.53 개편 v2 (3b): ① hero (verdict · tally bar · previous verdict) → ② six-axis table whose rows open single-file
 // into ③ 원리 / 지금 읽기 / 한계 cards with the chart and evidence → ④ evidence line; then 이 조합이 뜻하는 것 ·
 // 다음에 확인할 것, and the radar, the three market flows and the Korea board as lower cards.
+// v59.68: the pair's 2×2 map — four named cells, the axis words on the edges, one dot for the latest closes.
+const SVG_NS = 'http://www.w3.org/2000/svg';
+function crossMap(doc, row) {
+  const { x, y, xAxis, yAxis, cells } = row.map;
+  const W = 248, H = 158, L = 4, T = 20, R = 244, B = 138;
+  const svg = doc.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('class', 'mk-cross__map');
+  svg.setAttribute('role', 'img');
+  const at = cells[(y >= 0.5 ? 2 : 0) + (x >= 0.5 ? 1 : 0)];
+  svg.setAttribute('aria-label', `${row.title}: 지금은 '${at}' 칸`);
+  const node = (tag, attrs, text) => { const n = doc.createElementNS(SVG_NS, tag); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); if (text != null) n.textContent = text; svg.append(n); return n; };
+  const mx = (L + R) / 2, my = (T + B) / 2;
+  cells.forEach((label, i) => {
+    const cx = i % 2 ? mx : L, cy = i >= 2 ? T : my;
+    node('rect', { x: cx, y: cy, width: mx - L, height: my - T, class: `mk-cross__cell${label === at ? ' is-now' : ''}` });
+    const right = i % 2 === 1, top = i >= 2;
+    node('text', { x: right ? R - 6 : L + 6, y: top ? T + 15 : B - 7, 'text-anchor': right ? 'end' : 'start', class: 'mk-cross__cell-label' }, label);
+  });
+  // The vertical axis names only its top end; the arrow says the bottom is the opposite.
+  node('text', { x: L, y: T - 6, class: 'mk-cross__axis is-y' }, `↑ ${yAxis[1]}`);
+  node('text', { x: R, y: H - 4, 'text-anchor': 'end', class: 'mk-cross__axis' }, `${xAxis[1]} →`);
+  node('text', { x: L, y: H - 4, class: 'mk-cross__axis' }, `← ${xAxis[0]}`);
+  node('circle', { cx: L + x * (R - L), cy: B - y * (B - T), r: 6, class: 'mk-cross__dot' });
+  return svg;
+}
+
 function paintCrossReadings(doc, root, inputs) {
   Promise.all([import('../../domain/market/cross-readings.js'), import('../../data/shared-artifacts.js')]).then(([{ crossReadings }, { MARKET_DAY, refreshSharedArtifact }]) => {
     const paint = () => {
@@ -480,7 +507,9 @@ function paintCrossReadings(doc, root, inputs) {
       host.replaceChildren(...rows.map((row) => {
         const item = el(doc, 'div', null, 'mk-cross__item');
         item.dataset.pair = row.id;
-        item.append(el(doc, 'h3', row.title, 'mk-cross__title'), el(doc, 'p', row.text, 'mk-cross__text'));
+        item.append(el(doc, 'h3', row.title, 'mk-cross__title'));
+        if (row.map) item.append(crossMap(doc, row));
+        item.append(el(doc, 'p', row.text, 'mk-cross__text'));
         return item;
       }));
     };
@@ -582,12 +611,12 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
       boardKr.replaceChildren(...cards);
       boardKr.hidden = !cards.length;
       const krSection = boardKr.closest?.('section.mk-korea');
-      if (krSection) krSection.hidden = !cards.length; // the 한국 시장 참고 card goes with its board
+      if (krSection) krSection.hidden = !cards.length; // the 한국 시장 card goes with its board
       // v58.56 (re-audit #16): the folded card's one line carries the latest KRX close (same record as the 오늘 line).
       const krSummary = doc.getElementById('regime-kr-summary');
       if (krSummary) {
         const parts = koreaIndexParts(root._aioHistory || []);
-        krSummary.textContent = parts.kospi ? `${shortDate(parts.kospi.date)} 마감, ${parts.kospi.text}` : '위 6개 지표 합계 제외';
+        krSummary.textContent = parts.kospi ? `${shortDate(parts.kospi.date)} 마감, ${parts.kospi.text}` : '';
         krSummary.title = '한국 정규장 확정 종가, 미국 6개 지표의 양호·중립·부담 합계에는 넣지 않는 참고입니다';
       }
     }
@@ -613,7 +642,7 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
     renderHomeGuide({ documentRef: doc, root, store, anchor: host });
   }
   renderNextSteps(doc, doc.getElementById('regime-next'), regimeFlow({ regime, groups: root.__aioScenarioOutlook?.rotation || {} }).next); // P1431, I02
-  // P1727: a link that asked for a section of this page (the briefing's Korea sentence -> 한국 시장 참고) shows it once.
+  // P1727: a link that asked for a section of this page (the briefing's Korea sentence -> 한국 시장) shows it once.
   const handoff = consumeResearchHandoff({ root, routeId: 'signal' });
   const anchorId = handoff?.context?.anchor ? String(handoff.context.anchor) : '';
   if (/^[a-z0-9-]+$/i.test(anchorId)) {
@@ -630,7 +659,7 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
 
 // P1651: home summarized only the six US axes, so a -3.6% KOSPI day (-8.4% over five KRX sessions) after the US
 // close appeared only as a small ticker number. One line states the latest completed KRX session on its own date.
-// v58.56: shared by the 오늘 line and the folded 한국 시장 참고 summary on 시장 상태.
+// v58.56: shared by the 오늘 line and the folded 한국 시장 summary on 시장 상태.
 function koreaIndexParts(history) {
   const part = (field, title) => {
     const series = buildKoreaIndexSeries(history, field);
@@ -675,7 +704,7 @@ function paintLeadershipLine(doc, id, verdict, flow = null, { flowOnFace = false
     box.append(el(doc, 'h4', title, 'leaders-line__label'));
     if (read) box.append(el(doc, 'p', read, 'leaders-line__read'));
     if (evidence) box.append(el(doc, 'p', evidence, 'leaders-line__evidence'));
-    if (method) box.append(el(doc, 'p', method, 'leaders-line__method'));
+    if (method) box.title = method; // v59.69: the method is the section's hover
     return box;
   };
   if (lead) fold.append(section(`주도 영역 (AI·반도체): ${lead.label}`, lead.read, lead.line,

@@ -7,6 +7,7 @@
 //   금리 · 환율 (route fxbond) — Treasury curve, real yield / breakeven / HY spread, and the dollar,
 //                              won, yen and 10Y on the completed-close basis with six-month charts.
 // Observations only: the fixed-threshold storyline, risk pill and four-axis bull/bear count are retired.
+import { renderReleaseGuide } from './release-zone-bar.js';
 import { alignInput, alignmentLabel, buildCloseSeries, closeBasis, closeSessionMarket, sessionPointBack as closePointBack } from '../../domain/briefing/market-read.js';
 import { requestConsensusEstimates, CONSENSUS_KEY } from '../../data/consensus-estimates.js';
 import { macroNextSteps, ratesNextSteps, seriesOf } from '../../domain/macro/macro-read.js';
@@ -217,7 +218,7 @@ function axisCard(doc, row, root = null, open = false) {
   body.append(cardOf('원리', deep?.blocks?.[0] ? el(doc, 'p', deep.blocks[0][1], 'sx-disclosure__text') : null), now,
     cardOf('주식에 주는 영향', row.link ? el(doc, 'p', row.link, 'sx-disclosure__text macro-axis-link') : el(doc, 'p', '—', 'sx-disclosure__text')));
   const facts = el(doc, 'div', null, 'mk-maxis__facts');
-  if (AXIS_TIMING[row.id]) facts.append(el(doc, 'p', `읽는 법: ${AXIS_TIMING[row.id]}`, 'regime-flip macro-axis-timing'));
+  if (AXIS_TIMING[row.id]) facts.title = AXIS_TIMING[row.id]; // v59.69: timing is the hover, not a '읽는 법' line
   // P1427: the threshold gauge spans the full row width under the three cards (in a card column it shrank past legibility).
   const bar = gaugeBar(doc, row.gauge);
   if (bar) {
@@ -311,7 +312,7 @@ function renderRateStrip(doc, root) {
     const marketTen = tenYearClose(root?._aioHistory || []);
     const later = marketTen && marketTen.date > common ? ` 화면의 10년물(${TEN_YEAR_SOURCE.label})은 ${shortDate(marketTen.date)} ${pct(marketTen.value)}로, 날짜와 계열이 달라 값이 조금 다릅니다.` : '';
     const value = basisValue(doc, `${pct(n)} ≈ ${pct(r)} + ${pct(b)}`, `10년물 명목 금리를 같은 날의 10년 실질금리(TIPS)와 기대 인플레이션(BEI)으로 나눈 값입니다. 세 값이 모두 있는 가장 최근 관측일(${shortDate(common)}) 기준입니다.${later}`, common);
-    tile.append(el(doc, 'span', '명목 금리 분해, 피셔 방정식', 'mk-rate-tile__label'), value,
+    tile.append(el(doc, 'span', '10년물 분해', 'mk-rate-tile__label'), value,
       el(doc, 'span', `명목 ${pct(n)} = 국채 고정만기 10년(DGS10, ${shortDate(common)})`, 'mk-rate-tile__note'),
       el(doc, 'span', `10년 실질금리(TIPS) + 기대 인플레이션(BEI)${Math.abs(gap) >= 0.005 ? `, 나머지 ${signedText(gap, 2, '%p')}` : ''}`, 'mk-rate-tile__note'),
       // v58.74 (text audit): the expert's next step after the split — which part carries the level.
@@ -627,7 +628,7 @@ function renderRegime(doc, read) {
     criteria.append(table);
   }
   right.append(criteria);
-  if (read.historyStatus !== 'ok') right.append(el(doc, 'p', '월별 경제 기록이 다음 자동 수집부터 쌓입니다. 그 전까지 성장·물가의 3개월 추세와 국면 판정은 일부 보류됩니다.', 'briefing-footnote'));
+  if (read.historyStatus !== 'ok') right.append(el(doc, 'p', '월별 기록 누적 중.', 'briefing-footnote'));
   const grid = el(doc, 'div', null, 'macro-overview');
   grid.append(left, right);
   host.replaceChildren(grid);
@@ -751,6 +752,7 @@ export function renderMacroBoard({ documentRef: doc, root }) {
   const macroHistory = root._aioMacroHistory || null;
   const board = buildMacroBoard({ macro: root._aioServerMacro || null, releases: root.AIO_MACRO_CALENDAR?.releases || {}, schedules: root.AIO_MACRO_OFFICIAL_SCHEDULES || {}, macroHistory });
   readMarketRegime(root); // keeps the macro-history refresh request
+  renderReleaseGuide(doc, root);
   const { regime, macroRead: read, crossroads } = marketInterpretation(root); // owner 2026-10-19: the shared macro read (same as the branches)
   const basis = doc.getElementById('macro-board-basis');
   if (basis) {
@@ -801,7 +803,7 @@ export function renderMacroBoard({ documentRef: doc, root }) {
     // is folded behind its basis line (last completed month's average) so the values do not read as a contradiction.
     const fold = el(doc, 'details', null, 'regime-axis-details macro-long-fold');
     fold.append(el(doc, 'summary', `수십 년 속 위치 보기 (${longRows.length}개 지표)`),
-      el(doc, 'p', `1990년(또는 자료 시작) 이후 매달 평균 가운데 가장 최근 마감된 달이 어디쯤인지 봅니다. 높은 편·낮은 편은 과거 분포 안의 위치일 뿐 앞으로의 방향을 말하지 않고, 오르는 중인지 내리는 중인지는 위 카드의 6개월 추세로 읽습니다.`, 'macro-group-fact'), grid);
+      grid);
     // v58.79: the basis is a chip; why the numbers differ from the cards above is its hover.
     section.append(frameHead(doc, { title: '수십 년 속 지금 위치', level: 'h3', titleClass: 'macro-group-title', asOf: '지난달 월평균', asOfDetail: '위 카드(최신 발표값)나 금리 카드(최근 종가)와 시점이 달라 같은 지표도 숫자가 다를 수 있습니다.' }), fold);
     host.append(section);
@@ -1226,7 +1228,7 @@ export function describeOtherFx(live = {}) {
   const hm = kst ? `${String(kst.getUTCHours()).padStart(2, '0')}:${String(kst.getUTCMinutes()).padStart(2, '0')}` : null;
   return reference
     // v58.74 (audit): the provider stamps its Saturday update '10/24 고시' over Friday's rates; on a weekend it says so.
-    ? { text: `참고 환율, ${md ? (usWeekendClosed(latest.getTime()) ? `${md} 고시(주말이라 금요일 시세)` : `${md} 고시`) : '고시일 미확인'}. 하루 한 번 갱신해 등락은 표시하지 않습니다`, reference: true }
+    ? { text: `참고 환율, ${md ? (usWeekendClosed(latest.getTime()) ? `${md} 고시(주말이라 금요일 시세)` : `${md} 고시`) : '고시일 미확인'}`, reference: true }
     : { text: latest ? `시장 시세, ${md} ${hm} 관측` : '시장 시세, 관측 시각 미확인', reference: false };
 }
 function syncOtherCurrencyNote(doc, root) {

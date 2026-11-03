@@ -63,7 +63,7 @@ export function renderHomeGuide({ documentRef: doc, root, store = null, anchor =
   // The long-history outcomes and the per-refresh state can land after first paint; the guide is rebuilt with them.
   if (!box.dataset.aioScenarioLoad) { box.dataset.aioScenarioLoad = 'on'; refreshScenarioArtifacts(root, () => renderHomeGuide({ documentRef: doc, root, store, anchor, nowMs: Date.now() })); }
   if (!guide.available) return guide;
-  const title = el(doc, 'h2', '오늘의 가이드 — 상황, 시나리오, 대응, 배울 것', 'xr-h3'); title.id = 'home-guide-title';
+  const title = el(doc, 'h2', '오늘의 가이드', 'xr-h3'); title.id = 'home-guide-title';
   const situation = el(doc, 'dl', null, 'mg-situation');
   for (const row of guide.situation) situation.append(el(doc, 'dt', row.label), el(doc, 'dd', row.text));
   const d = guide.direction;

@@ -5,6 +5,7 @@ import { MARKET_DAY, refreshSharedArtifact } from '../../data/shared-artifacts.j
 import { buildDayAccount } from '../../domain/briefing/day-account.js';
 import { signedText } from '../../domain/shared/number.js';
 import { el } from './dom.js';
+import { storyWeight } from './story-weight.js';
 
 function fold(doc, summary, children, className = 'sx-disclosure briefing-day-fold') {
   const node = el(doc, 'details', null, className);
@@ -15,7 +16,9 @@ function fold(doc, summary, children, className = 'sx-disclosure briefing-day-fo
 function storyItem(doc, story) {
   const item = el(doc, 'li', null, `briefing-day-story is-${story.rank}`);
   item.dataset.story = story.id;
-  item.append(el(doc, 'h3', story.title, 'briefing-day-story__title'), el(doc, 'p', [story.line, ...story.why].filter(Boolean).join(' '), 'briefing-day-story__line'));
+  const head = el(doc, 'div', null, 'briefing-day-story__head');
+  head.append(el(doc, 'h3', story.title, 'briefing-day-story__title'), storyWeight(doc, story));
+  item.append(head, el(doc, 'p', [story.line, ...story.why].filter(Boolean).join(' '), 'briefing-day-story__line'));
   if (story.evidence.length) {
     const list = el(doc, 'ul', null, 'briefing-day-evidence');
     for (const report of story.evidence) {
@@ -39,8 +42,7 @@ export function renderBriefingDay({ documentRef: doc, root }) {
   const key = `${day.generatedAt}`;
   if (section.dataset.renderKey === key) return;
   section.dataset.renderKey = key;
-  const basis = doc.getElementById('briefing-day-basis');
-  if (basis) basis.textContent = account.coverage.session ? `미국 ${account.md(account.coverage.session)} 마감 기준` : '';
+  // v59.68: the page subtitle names the close once; the section heads carry no date of their own.
   const opening = doc.getElementById('briefing-day-opening');
   if (opening) opening.textContent = account.opening;
   doc.getElementById('briefing-day-stories')?.replaceChildren(...account.stories.map((story) => storyItem(doc, story)));
@@ -56,6 +58,6 @@ export function renderBriefingDay({ documentRef: doc, root }) {
     folds.push(fold(doc, `이유가 확인되지 않은 큰 움직임 ${account.unexplained.length}건`, [el(doc, 'p', '관련 보도나 같이 움직인 업종·가격이 없는 움직임입니다. 원인이 나오기 전까지는 추측하지 않습니다.', 'briefing-day-note'), list]));
   }
   const { facts, lead, major, noise } = account.coverage;
-  folds.push(el(doc, 'p', `가격·종목·업종·실적·일정·보도 ${facts}건을 시장 영향 순으로 정리했습니다. 핵심 ${lead}건, 주요 ${major}건이고, 자동 생성 기사 ${noise}건은 뺐습니다.`, 'briefing-day-coverage'));
+  folds.push(el(doc, 'p', `${facts}건 · 핵심 ${lead} · 주요 ${major}`, 'briefing-day-coverage'));
   doc.getElementById('briefing-day-folds')?.replaceChildren(...folds);
 }

@@ -202,7 +202,7 @@ function realTitle(root, item) {
   return typeof root?._aioStripPictographs === 'function' ? root._aioStripPictographs(fixed) : fixed; // P1500
 }
 
-const TOPIC_LABELS = Object.freeze({ macro: '거시', semi: '반도체·AI', geo: '지정학', energy: '에너지', metals: '원자재', fxbond: '금리·외환', bond: '금리', fx: '외환', credit: '신용', crypto: '크립토', equity: '주식', earnings: '실적', kr: '한국' });
+const TOPIC_LABELS = Object.freeze({ macro: '매크로', semi: '반도체·AI', geo: '지정학', energy: '에너지', metals: '원자재', fxbond: '금리·외환', bond: '금리', fx: '외환', credit: '신용', crypto: '크립토', equity: '주식', earnings: '실적', kr: '한국' });
 
 // v58.74 (text audit 오늘 C6): a headline names a live scenario (the lead or the alternative) only when its topic feeds one of
 // that scenario's axes; the old fixed topic → scenario names did not exist among the live branches (P2030). The model is

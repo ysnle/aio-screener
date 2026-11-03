@@ -87,7 +87,8 @@ export function buildDayAccount(day) {
 
   for (const seed of facts.filter((fact) => SEED_KINDS.has(fact.kind) && fact.kind !== 'price' || (fact.kind === 'price' && FAMILY_OF.get(fact.asset)?.id !== 'us' && FAMILY_OF.get(fact.asset)?.id !== 'kr')).sort(byMateriality)) {
     if (claimed.has(seed.id) || !['lead', 'major', 'minor'].includes(seed.rank)) continue;
-    const story = { id: `story:${seed.id}`, rank: seed.rank, materiality: seed.materiality || 0, kind: seed.kind, title: '', line: '', why: [], evidence: [], related: [] };
+    // v59.68: direction is the lead fact's own sign (a spread widening is +), for the story's weight bar; not a tone.
+    const story = { id: `story:${seed.id}`, rank: seed.rank, materiality: seed.materiality || 0, direction: Math.sign(Number(seed.change) || 0), kind: seed.kind, title: '', line: '', why: [], evidence: [], related: [] };
     if (seed.kind === 'price') {
       const family = FAMILY_OF.get(seed.asset);
       const kin = facts.filter((fact) => fact.kind === 'price' && FAMILY_OF.get(fact.asset) === family && fact.rank !== 'context' && !claimed.has(fact.id)).sort(byMateriality);

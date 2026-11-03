@@ -138,8 +138,6 @@
 #page-briefing .home-sector-bars { gap: 2px; }
 #page-briefing .home-sector-bars li { grid-template-columns: 96px minmax(0, 1fr) 64px 72px; min-height: 30px; padding: 0 4px; border-radius: 8px; font-size: 12px; }
 #page-briefing .home-sector-bars li:hover, #page-briefing .home-sector-bars li:focus-visible { background: var(--sx-ink-a03); outline: none; }
-#page-briefing .home-sector-bar { height: 10px; background: none; }
-#page-briefing .home-sector-bar > span { border-radius: 999px; }
 #page-briefing .home-sector-bars .is-up .home-sector-value { color: var(--dir-up); }
 #page-briefing .home-sector-bars .is-down .home-sector-value { color: var(--dir-down); }
 #page-briefing .home-sector-value { font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
@@ -186,6 +184,16 @@
 #page-briefing .briefing-check-list { list-style: none; padding: 0; margin: 0 0 10px; display: flex; flex-direction: column; gap: 8px; }
 #page-briefing .briefing-check-list > li { position: relative; padding-left: 22px; font-size: 14px; line-height: 1.65; color: var(--text-primary); }
 #page-briefing .briefing-check-list > li::before { content: '›'; position: absolute; left: 6px; top: 0; color: var(--text-muted); font-weight: 700; }
+/* v59.69: the next release as a fork — the release node, then one branch per leading scenario */
+#page-briefing .briefing-check-list > li.briefing-check-fork { padding-left: 0; margin-top: 4px; }
+#page-briefing .briefing-check-list > li.briefing-check-fork::before { content: none; }
+#page-briefing .briefing-check-fork__node { display: inline-flex; align-items: baseline; gap: 8px; padding: 6px 12px; border-radius: 8px; background: var(--sx-ink-a03); }
+#page-briefing .briefing-check-fork__when { font-size: 12px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+#page-briefing .briefing-check-fork__name { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+#page-briefing .briefing-check-fork__branches { list-style: none; margin: 0 0 0 18px; padding: 0; border-left: 2px solid var(--border); }
+#page-briefing .briefing-check-fork__branch { position: relative; padding: 8px 0 0 18px; color: var(--text-secondary); }
+#page-briefing .briefing-check-fork__branch::before { content: ''; position: absolute; left: 0; top: 19px; width: 12px; border-top: 2px solid var(--border); }
+#page-briefing .briefing-check-fork__branch strong { color: var(--text-primary); font-weight: 700; }
 #page-briefing .briefing-footnote { font-size: 12px; color: var(--text-muted); margin: 8px 0 0; }
 #page-briefing .briefing-event { grid-template-columns: 210px minmax(0, 1fr); padding: 10px 12px; border: 0; border-radius: 12px;  }
 #page-briefing .briefing-event:hover { background: var(--sx-ink-a03); }

@@ -295,7 +295,7 @@ export function thesisCard(doc, root, ctx) {
   const save = el(doc, 'button', '이 틀로 내 논지 메모 시작', 'aio-btn-table');
   save.type = 'button';
   save.addEventListener('click', () => openThesisMemo(doc, root, thesisTemplate(ctx)));
-  card.append(save, el(doc, 'p', '가격·확률은 제시하지 않습니다. 조건과 신호는 이 화면의 공시·컨센서스·차트 값으로 만든 확인 목록입니다.', 'theme-strength-basis'));
+  card.append(save);
   return card;
 }
 

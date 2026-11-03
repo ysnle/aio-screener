@@ -70,18 +70,13 @@
       ]
     },
     "signal": {
-      "total": 5491,
-      "secondary": 335,
+      "total": 5259,
+      "secondary": 305,
       "lines": [
         {
           "chars": 42,
           "classes": "sx-card__meta  mk-fold",
           "text": "10/30 마감, 코스피 5,730.74 (-3.5%, 5거래일 +3.3%)"
-        },
-        {
-          "chars": 30,
-          "classes": "regime-chart-caption regime-radar",
-          "text": "숫자 = 1년 중 지금 위치(0~100, 클수록 양호)"
         },
         {
           "chars": 29,
@@ -132,6 +127,11 @@
           "chars": 14,
           "classes": "regime-radar-legend",
           "text": "5거래일 전 (10/23)"
+        },
+        {
+          "chars": 14,
+          "classes": "regime-radar-legend",
+          "text": "20거래일 전 (10/2)"
         }
       ],
       "frames": [
@@ -161,7 +161,7 @@
       ]
     },
     "breadth": {
-      "total": 1042,
+      "total": 1027,
       "secondary": 49,
       "lines": [
         {
@@ -218,7 +218,7 @@
       "frames": []
     },
     "sentiment": {
-      "total": 1089,
+      "total": 997,
       "secondary": 158,
       "lines": [
         {
@@ -285,8 +285,8 @@
       "frames": []
     },
     "briefing": {
-      "total": 1233,
-      "secondary": 75,
+      "total": 1198,
+      "secondary": 45,
       "lines": [
         {
           "chars": 23,
@@ -297,21 +297,6 @@
           "chars": 17,
           "classes": "page-subtitle  sh-briefing-row",
           "text": "10/30(금) 미국 종가 기준"
-        },
-        {
-          "chars": 13,
-          "classes": "sector-moves-basis sector-moves-content",
-          "text": "선도·후행 표시 읽는 법"
-        },
-        {
-          "chars": 9,
-          "classes": "sx-disclosure briefing-result-guide sx-disclosure briefing-events",
-          "text": "결과 해석 가이드"
-        },
-        {
-          "chars": 8,
-          "classes": "briefing-h2-note briefing-h2 aio-section briefing-block briefing-read",
-          "text": "10/30 종가"
         },
         {
           "chars": 5,
@@ -339,8 +324,8 @@
       "frames": []
     },
     "macro": {
-      "total": 4275,
-      "secondary": 198,
+      "total": 4387,
+      "secondary": 245,
       "lines": [
         {
           "chars": 93,
@@ -363,39 +348,39 @@
           "text": "기준선 근처, 방향 보류"
         },
         {
-          "chars": 2,
-          "classes": "aio-note-fold macro-stat",
-          "text": "설명"
+          "chars": 12,
+          "classes": "briefing-h2 briefing-block macro-section sx-card release-guide",
+          "text": "물가 · 고용 · 소비"
         },
         {
-          "chars": 2,
-          "classes": "aio-note-fold macro-stat",
-          "text": "설명"
+          "chars": 10,
+          "classes": "release-guide__name release-guide__row",
+          "text": "소비자물가(CPI)"
         },
         {
-          "chars": 2,
-          "classes": "aio-note-fold macro-stat",
-          "text": "설명"
+          "chars": 6,
+          "classes": "release-guide__name release-guide__row",
+          "text": "PCE 물가"
         },
         {
-          "chars": 2,
-          "classes": "aio-note-fold macro-stat",
-          "text": "설명"
+          "chars": 5,
+          "classes": "release-guide__name release-guide__row",
+          "text": "고용보고서"
         },
         {
-          "chars": 2,
-          "classes": "aio-note-fold macro-stat",
-          "text": "설명"
+          "chars": 4,
+          "classes": "release-guide__name release-guide__row",
+          "text": "소매판매"
         },
         {
-          "chars": 2,
-          "classes": "aio-note-fold macro-stat",
-          "text": "설명"
+          "chars": 3,
+          "classes": "release-guide__state is-burden release-guide__name release-guide__row",
+          "text": "끈적함"
         },
         {
-          "chars": 2,
-          "classes": "aio-note-fold macro-stat",
-          "text": "설명"
+          "chars": 3,
+          "classes": "release-guide__state is-burden release-guide__name release-guide__row",
+          "text": "끈적함"
         },
         {
           "chars": 2,
@@ -421,7 +406,7 @@
       ]
     },
     "fxbond": {
-      "total": 1791,
+      "total": 1774,
       "secondary": 165,
       "lines": [
         {
@@ -488,19 +473,13 @@
       "frames": []
     },
     "fundamental": {
-      "total": 60,
-      "secondary": 28,
-      "lines": [
-        {
-          "chars": 28,
-          "classes": "page-subtitle  page-head",
-          "text": "매출·이익·현금흐름이 같은 기간에 어떻게 움직였는지"
-        }
-      ],
+      "total": 32,
+      "secondary": 0,
+      "lines": [],
       "frames": []
     },
     "themes": {
-      "total": 3890,
+      "total": 3885,
       "secondary": 70,
       "lines": [
         {
@@ -629,13 +608,13 @@
       "frames": []
     },
     "portfolio": {
-      "total": 294,
-      "secondary": 18,
+      "total": 278,
+      "secondary": 2,
       "lines": [
         {
-          "chars": 18,
+          "chars": 2,
           "classes": "sh-portfolio-toggle pf-privacy sh-portfolio-fold page-subtitle",
-          "text": "이 브라우저에만 저장, 보안 설정"
+          "text": "보안"
         }
       ],
       "frames": []
@@ -647,7 +626,7 @@
       "frames": []
     },
     "market-news": {
-      "total": 3445,
+      "total": 3155,
       "secondary": 288,
       "lines": [
         {
@@ -845,14 +824,9 @@
       "frames": []
     },
     "screener": {
-      "total": 1745,
-      "secondary": 717,
+      "total": 1681,
+      "secondary": 653,
       "lines": [
-        {
-          "chars": 92,
-          "classes": "scr-status-full scr-table-status-text scr-table-status sx-meta",
-          "text": "균형 상대 순위 조건 통과 332종목, 시총 큰 순(시총 확인 306종목 먼저) — 순위가 우연과 구별되지 않아 기본은 시총 순, 전체 순위 머리글을 누르면 순위 순"
-        },
         {
           "chars": 88,
           "classes": "sx-tile scr-why-preview scr-why-drawer sx-inspector scr-split",
@@ -872,6 +846,11 @@
           "chars": 36,
           "classes": "scr-why-section",
           "text": "점수를 만든 요인 S&P 500 대비 수익률 52주 범위 안 위치"
+        },
+        {
+          "chars": 28,
+          "classes": "scr-status-full scr-table-status-text scr-table-status sx-meta",
+          "text": "균형 상대 순위 조건 통과 332종목, 시총 큰 순"
         },
         {
           "chars": 24,
@@ -912,18 +891,13 @@
       "frames": []
     },
     "charts": {
-      "total": 1054,
-      "secondary": 135,
+      "total": 975,
+      "secondary": 43,
       "lines": [
         {
-          "chars": 62,
-          "classes": "charts-table-note charts-table-wrap briefing-block charts-section",
-          "text": "위 10개는 S&P 500 비중 상위, 그 아래는 오늘 크게 움직인 종목입니다. 종목을 누르면 차트가 열립니다."
-        },
-        {
-          "chars": 43,
+          "chars": 13,
           "classes": "page-subtitle  page-head",
-          "text": "2026-10-30 종가까지의 일봉, 50일선(점선)과 200일선 기준입니다."
+          "text": "10/30 종가 · 일봉"
         },
         {
           "chars": 5,

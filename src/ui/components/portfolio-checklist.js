@@ -94,7 +94,8 @@ export function renderPortfolioCriteria({ documentRef: doc, root, surface, check
     reasonList.append(reason);
   }
   const drawdown = el(doc, 'p', model.beta == null ? `낙폭 감내(참고): 시장 민감도는 아직 계산되지 않았습니다 — ${model.betaNote || '주간 가격 기록이 더 필요합니다'}.` : `낙폭 감내(참고, 판정 없음): 과거 주간 기준으로 시장 지수가 10% 내릴 때 보유 종목 부분은 평균 약 ${(model.beta * 10).toFixed(1)}% 움직였습니다. 내가 견딜 수 있는 낙폭과 비교해 보는 값이며 앞으로의 낙폭을 뜻하지 않습니다.`, 'theme-strength-basis');
-  reasons.append(reasonList, drawdown, el(doc, 'p', '앱 점검선은 쏠림을 세는 선이며 권장 비중이 아닙니다. 한 종목 최대 비중과 현금 최소 비중을 매매일지의 ‘내 원칙’에 적으면 기준이 그 값으로 바뀝니다.', 'theme-strength-basis'));
+  reasons.title = '앱 점검선은 쏠림을 세는 선이며 권장 비중이 아닙니다. 한 종목 최대 비중과 현금 최소 비중을 매매일지의 ‘내 원칙’에 적으면 기준이 그 값으로 바뀝니다.';
+  reasons.append(reasonList, drawdown);
   host.append(lead, list);
   section.querySelector(':scope > h2')?.after(host);
   doc.getElementById('pf-criteria-reasons')?.remove();
@@ -175,6 +176,8 @@ export function renderThesisCheck({ documentRef: doc, root, surface, holdings = 
       el(doc, 'span', ` — ${row.memo ? `메모: ${row.memo.length > 60 ? `${row.memo.slice(0, 60)}…` : row.memo}` : '메모 없음'}${row.signals.length ? `. 켜진 신호: ${row.signals.join(', ')}` : ''}${row.unknown?.length ? `. 자료 없음: ${row.unknown.join(', ')}` : ''}`));
     list.append(li);
   }
-  host.replaceChildren(head, list, el(doc, 'p', `신호는 논지가 틀렸을 수 있다는 사실 확인용입니다: 50일선 아래, 속한 테마의 단계 약함, 최근 4주 이익 전망 하향 건수가 상향보다 많음, 2주 안의 실적 발표.${noMemo ? ' 매수 이유를 메모로 적어 두면 이 신호와 나란히 비교됩니다.' : ''} 무엇을 할지는 내 논지와 원칙으로 정합니다.`, 'theme-strength-basis'));
+  // v59.69 (owner 2026-11-04): what the four signals are is the list's hover, not a paragraph under it.
+  list.title = '신호: 50일선 아래, 속한 테마의 단계 약함, 최근 4주 이익 전망 하향 우세, 2주 안의 실적 발표';
+  host.replaceChildren(head, list);
   return rows;
 }

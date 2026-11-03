@@ -86,17 +86,19 @@ export function renderMarketSynthesis({ documentRef: doc, host, page }) {
     section.id = id;
     section.setAttribute('aria-labelledby', `${id}-title`);
   }
-  if (section.nextElementSibling !== host) host.before(section);
+  // v59.69: on 시장 상태 the card is the step between 'what flow and which price conditions' and the scenario fold it opens.
+  const anchor = doc.getElementById('regime-depth-fold')?.closest('section') || host;
+  if (section.nextElementSibling !== anchor) anchor.before(section);
   const parts = [frameHead(doc, { title: '연결해서 보면', titleId: `${id}-title`, asOf: model.asOf ? `${shortDate(model.asOf)} 종가` : '' })];
   // v59.68: the card sits on 시장 상태 only, under the verdict it would have repeated as 'X에서 본 것'.
-  parts.push(el(doc, 'h3', '시장 흐름은 이렇게 이어집니다', 'mk-synth__sub'), chain(doc, model.chain));
+  parts.push(el(doc, 'h3', '흐름', 'mk-synth__sub'), chain(doc, model.chain));
   if (model.branches.length) {
     const grid = el(doc, 'div', null, 'mk-synth__branches');
     grid.append(...model.branches.map((row) => branchCard(doc, row)));
-    parts.push(el(doc, 'h3', '앞으로 펼쳐질 수 있는 갈래', 'mk-synth__sub'), grid);
+    parts.push(el(doc, 'h3', '갈래', 'mk-synth__sub'), grid);
   }
   const lean = stance(doc, model);
-  if (lean) parts.push(el(doc, 'h3', '그래서 무엇을 하고 무엇을 피하나', 'mk-synth__sub'), lean);
+  if (lean) parts.push(el(doc, 'h3', '기울일 쪽과 피할 쪽', 'mk-synth__sub'), lean);
   if (model.checks.length) {
     const list = el(doc, 'ol', null, 'mk-synth__checks');
     for (const text of model.checks) list.append(el(doc, 'li', text));

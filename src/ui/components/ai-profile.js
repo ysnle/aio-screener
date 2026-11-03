@@ -6,7 +6,7 @@ import { PROFILE_FIELDS, PROFILE_KEY, MAX_LENSES, MAX_INTERESTS_CHARS, buildProf
 import { LEARN_KEY, LEARN_CONSENT_KEY, clearLearned, learningEnabled, loadLearned, recordUsage, setLearning, summarizeLearned } from '../../ai/session/usage-learning.js';
 import { el } from './dom.js';
 
-const SCREEN_NAME = { home: '오늘', briefing: '브리핑', macro: '거시', fxbond: '금리·환율', themes: '테마', 'theme-detail': '테마', signal: '시장 상태', breadth: '시장 폭', sentiment: '투자 심리', ticker: '종목', technical: '차트', fundamental: '재무', screener: '스크리너', portfolio: '포트폴리오', 'market-news': '뉴스', principles: '개념', atlas: '산업 지도', masters: '투자 대가', guide: '안내' };
+const SCREEN_NAME = { home: '오늘', briefing: '브리핑', macro: '매크로', fxbond: '금리·환율', themes: '테마', 'theme-detail': '테마', signal: '시장 상태', breadth: '시장 폭', sentiment: '투자 심리', ticker: '종목', technical: '차트', fundamental: '재무', screener: '스크리너', portfolio: '포트폴리오', 'market-news': '뉴스', principles: '개념', atlas: '산업 지도', masters: '투자 대가', guide: '안내' };
 const TICKER_ROUTES = new Set(['ticker', 'technical', 'fundamental']);
 const LENS_NAME = Object.fromEntries(PROFILE_FIELDS.lenses.map(([id, label]) => [id, label]));
 

@@ -85,7 +85,7 @@ export function summarizeValidation(history = [], status = null, liveWeights = n
       : tone === 'favorable' ? `최근 ${last.dates}번의 과거 시점에서 기본 복합 순위 상위 20%가 하위 20%보다 평균 ${pct(last.quantileSpreadNet)} 앞섰습니다(비용 반영). 표본이 작고 생존 편향이 있어 예측 우위의 증명은 아닙니다.`
         : `지금까지 이 순위의 예측 우위는 확인되지 않았습니다. 최근 ${last.dates}번의 과거 시점에서 상위 20%가 하위 20%보다 평균 ${pct(last.quantileSpreadNet)} — 기본 복합 순위(모멘텀·추세·저변동·칼만)는 이 기간 동안 뒤처졌습니다(비용 반영).`,
     validation: status?.status === 'BLOCKED' || status?.predictiveValidation === 'not-established'
-      ? '예측력 검증 미완료 — 지금의 종목 구성으로 과거를 본 결과라 사라진 종목이 빠진 생존 편향이 있고, 거래량·체결 용량은 반영하지 않았습니다. 순위는 상대 비교용입니다.'
+      ? '예측력 검증 미완료 · 생존 편향 · 체결 용량 미반영' // P1419: the survivorship caveat stays on the face
       : status?.status ? `검증 상태: ${status.status}` : null
   };
 }
@@ -127,7 +127,6 @@ const GATE_BLOCKER_WORDS = Object.freeze({
   liveBacktestParity: '실제 순위와 검증 정의의 일치'
 });
 const signedPp = (value, digits = 2) => signedText(value, digits, '%p');
-const CANDIDATE_LINE = '순위는 결론이 아니라 확인할 후보입니다.';
 
 export function readValidationState({ metadata = null, root = null, listingMarket = 'US' } = {}) {
   const gate = root?._aioScreenerValidationGate || null;
@@ -135,14 +134,14 @@ export function readValidationState({ metadata = null, root = null, listingMarke
   const blockers = (Array.isArray(gate?.blockers) ? gate.blockers : []).map((key) => GATE_BLOCKER_WORDS[key] || key);
   const base = { gate, gateChip, blockers, gateObservedAt: gate?.observedAt ? String(gate.observedAt).slice(0, 10) : null };
   if (listingMarket === 'KR') {
-    return { ...base, state: 'kr', chips: [gateChip, '판단 불가'].filter(Boolean), sentence: `한국 순위는 아직 사후 검증 기록이 없어 판단 불가입니다 — 미국 검증을 한국 순위의 근거로 쓰지 않습니다. ${CANDIDATE_LINE}` };
+    return { ...base, state: 'kr', chips: [gateChip, '판단 불가'].filter(Boolean), sentence: `한국 순위는 아직 사후 검증 기록이 없어 판단 불가입니다 — 미국 검증을 한국 순위의 근거로 쓰지 않습니다.` };
   }
   const backtest = metadata?.backtest || null;
   const dates = Array.isArray(backtest?.rebalanceDates) ? backtest.rebalanceDates : [];
   const samples = finiteOrNull(backtest?.rebalancesCounted) ?? (dates.length || null);
   const net = finiteOrNull(backtest?.quantileSpreadNet);
   if (!backtest || samples == null || net == null) {
-    return { ...base, state: 'none', chips: [gateChip, '판단 불가'].filter(Boolean), sentence: `사후 검증 기록을 받지 못해 판단 불가입니다. ${CANDIDATE_LINE}` };
+    return { ...base, state: 'none', chips: [gateChip, '판단 불가'].filter(Boolean), sentence: `사후 검증 기록을 받지 못해 판단 불가입니다.` };
   }
   const netRate = finiteOrNull(backtest.netHitRate);
   const rate = netRate ?? finiteOrNull(backtest.hitRate);
@@ -173,8 +172,7 @@ export function readValidationState({ metadata = null, root = null, listingMarke
   const sentence = [
     modelMatch ? null : '지금 가중치와 다른 모델로 계산된 기록입니다.',
     `과거 ${samples}회 시점 중 상위 20%가 하위 20%보다 앞선 것은 ${wins == null ? '—' : `${wins}회`}, 두 묶음의 평균 수익 차이는 ${signedPp(net)}(비용 반영)입니다.`,
-    distinguishable ? null : `표본 ${samples}회로는 우연과 구별되지 않아 판단 불가입니다.`,
-    CANDIDATE_LINE
+    distinguishable ? null : `표본 ${samples}회로는 우연과 구별되지 않아 판단 불가입니다.`
   ].filter(Boolean).join(' ');
   return {
     ...base,

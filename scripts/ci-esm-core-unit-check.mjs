@@ -1487,6 +1487,34 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       if (!/68%는 아직 50일선 위/.test(pairs['trend-breadth'] || '') || !/투매는 아닌/.test(pairs['volatility-sentiment'] || '') || !/성장 걱정형/.test(pairs['rates-credit'] || '') || !/코스피 하루 -4\.0%/.test(pairs['korea-won'] || '')) {
         fail(`v59.66: cross readings broke ${JSON.stringify(pairs)}`);
       }
+      // v59.69: each pair is also a 2x2 map; the dot's cell must agree with the sentence (a narrow pullback sits in
+      // 좁은 조정, falling yields with widening spreads in 성장 걱정), and the day's lead story carries its direction.
+      const cell = (map) => map && map.cells[(map.y >= 0.5 ? 2 : 0) + (map.x >= 0.5 ? 1 : 0)];
+      const maps = Object.fromEntries(crossReadings({ history: chist, macroHistory: chy, day: null }).map((row) => [row.id, cell(row.map)]));
+      if (maps['trend-breadth'] !== '좁은 조정' || maps['rates-credit'] !== '성장 걱정' || oilStory.direction !== -1) {
+        fail(`v59.69: cross maps / story direction broke ${JSON.stringify({ maps, direction: oilStory.direction })}`);
+      }
+      // v59.69: why a stock moved after its report — a beat with a weak outlook reads as guidance (mixed numbers are not the
+      // cause), a move matched by its group is the market's, a +40% run-up into a beat that fell is priced in.
+      const { reactionRead } = await load('src/domain/briefing/reaction-read.js');
+      const rh = [{ date: '2026-10-29', smh: 100, spx: 100 }, { date: '2026-10-30', smh: 93, spx: 99.7 }];
+      const fig = (metric, surprisePct, extra = {}) => ({ metric, estimate: { surprisePct, ...extra } });
+      const reaction = (pct, latestDate = '2026-10-30') => ({ baseDate: '2026-10-29', firstDate: '2026-10-30', firstPct: pct, latestDate, latestPct: pct });
+      const intc = reactionRead({ layer: 'ai-core', figures: [fig('revenue', -1.7), fig('eps_diluted', 30, { actualBasis: 'adjusted' })], guidance: [], reasons: { points: [{ text: '다음 분기 매출·이익 전망이 시장 예상에 못 미쳐 우려를 키웠다.' }] }, reaction: reaction(-28.6) }, { history: rh });
+      const nvt = reactionRead({ layer: 'ai-core', figures: [fig('revenue', 3), fig('eps_diluted', 4)], guidance: [{ text: '연간 전망 제시' }], reasons: { points: [] }, reaction: reaction(-8.8) }, { history: rh });
+      const run = reactionRead({ layer: 'limited', figures: [fig('revenue', 3), fig('eps_diluted', 4)], guidance: [], reasons: { points: [] }, reaction: reaction(-9) }, { history: rh, row: { factorSessionDate: '2026-10-30', ret3m: 27.4 } });
+      if (intc?.kind !== 'guidance' || nvt?.kind !== 'with-market' || run?.kind !== 'priced-in' || run.steps.find((step) => step.id === 'run-up')?.value !== '발표 전 3개월 +40%') {
+        fail(`v59.69: reaction reading broke ${JSON.stringify({ intc: intc?.kind, nvt: nvt?.kind, run: run && { kind: run.kind, steps: run.steps } })}`);
+      }
+      // v59.69: release bands — with core PCE above 2.5% a 25만 jobs report is a burden (cuts wait), near target it is
+      // growth; a jobs report with unemployment up 0.2%p is 급랭 whatever the payroll; core CPI 0.33% is 끈적함.
+      const { releaseZones } = await load('src/domain/macro/release-zones.js');
+      const hot = (inflationFirst) => releaseZones('us-nfp', null, { actuals: { 'us-nfp': { period: '2026-09-01', payroll: 250, unempDelta: 0 } }, regime: { inflationFirst, corePceYoY: inflationFirst ? 3.1 : 2.1 } }).latest;
+      const sahm = releaseZones('us-nfp', null, { actuals: { 'us-nfp': { period: '2026-09-01', payroll: 120, unempDelta: 0.2 } }, regime: null }).latest;
+      const cpi = releaseZones('us-cpi', null, { actuals: { 'us-cpi': { period: '2026-09-01', coreMoM: 0.33 } }, regime: null }).latest;
+      if (hot(true).tone !== 'burden' || hot(false).tone !== 'good' || sahm.label !== '급랭' || cpi.label !== '끈적함') {
+        fail(`v59.69: release zones broke ${JSON.stringify({ hotFirst: hot(true), hotNear: hot(false), sahm, cpi })}`);
+      }
       // v59.67: 홈's movers — lead/major or a large index pull, ranked by rank then materiality, each symbol once.
       const { keyStocks } = await load('src/ui/components/home-day.js');
       const movers = keyStocks({ facts: [

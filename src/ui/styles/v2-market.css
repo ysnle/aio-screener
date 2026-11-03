@@ -223,7 +223,9 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 #page-macro .macro-quadrant { max-width: 360px; margin: 0 auto; }
 #page-macro .macro-quadrant-cell { fill: rgba(var(--ink-rgb), 0.035) !important; fill-opacity: 1 !important; stroke: none !important; }
 #page-macro .macro-quadrant-cell.is-partial { stroke: rgba(var(--ink-rgb), 0.2) !important; stroke-width: 1 !important; stroke-dasharray: 4 3; }
-#page-macro .macro-quadrant-cell.is-current { fill: var(--sx-warn-bg) !important; stroke: var(--mk-burden-bar) !important; stroke-width: 1.5 !important; stroke-dasharray: none; }
+/* v59.69: the current cell is marked by weight; only the burden quadrant takes the warning colour (골디락스 read as a burden). */
+#page-macro .macro-quadrant-cell.is-current { fill: rgba(var(--ink-rgb), 0.10) !important; stroke: rgba(var(--ink-rgb), 0.45) !important; stroke-width: 1.5 !important; stroke-dasharray: none; }
+#page-macro .macro-quadrant-cell.is-current.is-burden { fill: var(--sx-warn-bg) !important; stroke: var(--mk-burden-bar) !important; }
 #page-macro .macro-quadrant-sub, #page-macro .macro-quadrant-axis, #page-macro .macro-quadrant-now { font-size: 12px; }
 #page-macro .macro-regime-label { font-family: var(--font-sans) !important; font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
 #page-macro .macro-regime-label.is-burden { color: var(--data-amber); }
@@ -394,7 +396,7 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 
 /* ═══ v58.56 re-audit #16 (today/shell agent) — one-line folds on the long market screens ═══════════════════
    거시 · 시장 상태 · 시장 폭 · 투자 심리: the closing lessons (screen-lessons.js), 이어서 볼 곳 (page-flow.js, host
-   data-fold), the 한국 시장 참고 card (시장 상태) and the chain / oil·gold sections (거시) open on demand; the
+   data-fold), the 한국 시장 card (시장 상태) and the chain / oil·gold sections (거시) open on demand; the
    summary line names what is inside. */
 #page-signal .mk-korea .mk-fold > summary .sx-card__title { margin: 0; white-space: nowrap; }
 #page-signal .mk-korea .mk-fold > summary .sx-card__meta { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-variant-numeric: tabular-nums; }

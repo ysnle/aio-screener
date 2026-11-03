@@ -1,6 +1,7 @@
 // P1641: 오늘 — the eleven US sector ETFs on the last completed session, largest gain to largest loss
 // (owner reference: a daily report's sector bar). Read from the produced rotation artifact; a sector
 // whose row is not current for that session is left out rather than shown with an old number.
+import { signedBar } from './signed-bar.js';
 import { selectProducedRotation } from '../../domain/themes/produced-rotation.js';
 import { SECTOR_ETF_LABELS, sectorRecentCheck, leaderFading } from '../../domain/market/scenario-outlook.js';
 import { rrgSettledQuadrant } from '../../domain/themes/recent-check.js';
@@ -58,23 +59,15 @@ export function renderSectorMoves({ documentRef: doc, root, anchor = null, host 
     const li = el(doc, 'li', null, ({ up: 'is-up', down: 'is-down' }[directionOf(row.daily, 2)] || ''));
     li.tabIndex = 0; // U01: the basis card opens from the keyboard too
     li.title = `${row.label} (${row.symbol}), 1일 ${row.daily.toFixed(2)}%${row.weekly == null ? '' : `, 1주 ${row.weekly.toFixed(2)}%`}${row.fading ? ', 회전 선도(약 50일 기준)지만 최근 5거래일 S&P 500보다 약함' : row.quadrant ? `, 회전 ${row.quadrant}(약 50일 기준)` : ''}, 섹터 ETF 일봉 종가로 계산`;
-    const bar = el(doc, 'span', null, 'home-sector-bar');
-    const fill = el(doc, 'span');
-    fill.style.width = `${(Math.abs(row.daily) / max * 50).toFixed(1)}%`;
-    fill.style.left = row.daily >= 0 ? '50%' : `${(50 - Math.abs(row.daily) / max * 50).toFixed(1)}%`;
-    bar.append(fill);
+    const bar = signedBar(doc, row.daily, max, { digits: 2 }); // v59.69: the shared two-sided bar (zero line, colours, scale)
     li.append(el(doc, 'span', row.label, 'home-sector-name'), bar, el(doc, 'span', `${signedText(row.daily, 2)}%`, 'home-sector-value'), el(doc, 'span', row.quadrant ? (row.fading ? row.quadrant : `50일 ${row.quadrant}`) : '', 'home-sector-quadrant')); // v58.80 (first-users F12): "선도" beside -1.92% read as today's; the cell names its ~50-day window
     list.append(li);
   }
   // The reading rule for the right-hand label folds under the bars (conclusion first, method on request).
-  const previousBasis = content?.querySelector('details.sector-moves-basis');
-  const focusBasis = !!previousBasis && doc.activeElement === previousBasis.querySelector('summary');
-  const basis = el(doc, 'details', null, 'sector-moves-basis');
-  basis.open = !!previousBasis?.open;
-  basis.append(el(doc, 'summary', '선도·후행 표시 읽는 법'), el(doc, 'p', `오른쪽 표시는 S&P 500 대비 상대강도 회전(선도·개선·약화·후행, 약 50일 기준)이며, 기준선(100) 근처는 '경계'로 적습니다. 선도 섹터의 최근 5거래일 상대강도가 평소 5일 움직임의 2배 넘게 꺾였으면 회전 위치 대신 5일 상대 변화를 적습니다. 테마 단계는 1개월과 3~6개월 수익률로 따로 판정하므로 같은 섹터가 다르게 불릴 수 있습니다.`, 'theme-strength-basis'));
-  (content || section).replaceChildren(head, lead, list, basis);
+  // v59.69 (owner 2026-11-04): how the lead/lag marks are read is the list's hover, not a fold.
+  list.title = `오른쪽 표시는 S&P 500 대비 상대강도 회전(선도·개선·약화·후행, 약 50일 기준)이며, 기준선(100) 근처는 '경계'로 적습니다. 선도 섹터의 최근 5거래일 상대강도가 평소 5일 움직임의 2배 넘게 꺾였으면 회전 위치 대신 5일 상대 변화를 적습니다. 테마 단계는 1개월과 3~6개월 수익률로 따로 판정하므로 같은 섹터가 다르게 불릴 수 있습니다.`, 'theme-strength-basis';
+  (content || section).replaceChildren(head, lead, list);
   section.hidden = false;
-  if (focusBasis) basis.querySelector('summary')?.focus({ preventScroll: true });
   if (!host) anchor.insertAdjacentElement('afterend', section);
   return model;
 }

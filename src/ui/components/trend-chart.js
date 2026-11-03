@@ -47,7 +47,8 @@ function datedShort(date) {
  */
 // v58.80 run-5 (skeptic #5): `guide` is a second, dashed series the reading is measured against (the 50-day line under
 // the S&P 500 close); it sets the scale with the line, names itself at its right end and joins the hover readout.
-export function createTrendChart(doc, { series = [], refLines = [], format = (value) => value.toFixed(1), label = '', domain = null, range = null, spans = [], guide = null, width = DEFAULT_W } = {}) {
+export function createTrendChart(doc, options = {}) {
+  const { series = [], refLines = [], format = (value) => value.toFixed(1), label = '', domain = null, range = null, spans = [], guide = null, width = DEFAULT_W } = options;
   // v59.55 (C1): a wide host (the stock price panel) passes its own width so labels keep their size instead of scaling up.
   const W = Math.max(320, Math.round(width) || DEFAULT_W);
   const wrap = doc.createElement('div');
@@ -221,6 +222,19 @@ export function createTrendChart(doc, { series = [], refLines = [], format = (va
   overlay.addEventListener('pointerleave', (event) => { if (event.pointerType !== 'touch') hide(); });
   overlay.addEventListener('pointercancel', hide);
   svg.setAttribute('aria-label', `${label} ${datedShort(points[0].date)}~${datedShort(last.date)} 추이, 최근 ${format(last.value)}${guideAt.has(last.date) ? `, ${guide.label} ${format(guideAt.get(last.date))}` : ''}`);
+  // v59.69 (visual audit): most hosts build the chart before it is in the page, so it draws at the 520-unit default and
+  // a 380-519px card shrank its 12px axis text to ~9px (a wide one grew it). Once mounted, a chart whose card is more than
+  // 15% off that width redraws once at its real width — the same path the stock panel takes by passing `width`.
+  if (!options.width) {
+    const view = doc.defaultView;
+    view?.requestAnimationFrame?.(() => {
+      const real = wrap.isConnected ? Math.round(wrap.clientWidth) : 0;
+      if (!(real > 0 && Math.abs(real - W) / W > 0.15)) return;
+      const next = createTrendChart(doc, { ...options, width: real });
+      next.className = wrap.className; // classes a caller added (is-up/is-down) carry over
+      wrap.replaceWith(next);
+    });
+  }
   return wrap;
 }
 
