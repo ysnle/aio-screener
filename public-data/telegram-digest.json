@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-03T07:30:37.954Z",
-  "attemptedAt": "2026-11-03T07:30:37.954Z",
-  "lastSuccessfulAt": "2026-11-03T07:30:37.954Z",
+  "generatedAt": "2026-11-03T07:51:41.574Z",
+  "attemptedAt": "2026-11-03T07:51:41.574Z",
+  "lastSuccessfulAt": "2026-11-03T07:51:41.574Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-20T07:30:32.390Z",
-  "until": "2026-11-03T07:30:32.390Z",
+  "since": "2026-10-20T07:51:36.326Z",
+  "until": "2026-11-03T07:51:36.326Z",
   "current24hWindow": {
     "start": "2026-11-01T23:00:00.000Z",
     "end": "2026-11-02T23:00:00.000Z",
@@ -97,15 +97,15 @@
       "eligibleTextCount": 1280,
       "selectedCount": 125,
       "error": null,
-      "lastPostId": 68181
+      "lastPostId": 68182
     },
     {
       "channel": "bornlupin",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 231,
-      "freshCount": 39,
+      "freshCount": 19,
       "eligibleTextCount": 231,
       "selectedCount": 126,
       "error": null,
@@ -113,29 +113,29 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 652,
-      "freshCount": 13,
-      "eligibleTextCount": 651,
+      "count": 656,
+      "freshCount": 32,
+      "eligibleTextCount": 655,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 71472
+      "lastPostId": 71477
     }
   ],
-  "count": 2332,
-  "retainedItemCount": 465,
+  "count": 2336,
+  "retainedItemCount": 473,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2332,
-    "eligibleTextCount": 2262,
+    "observedCount": 2336,
+    "eligibleTextCount": 2266,
     "mediaOnlyCount": 70,
-    "mediaAttachedCount": 176,
-    "photoPostCount": 152,
+    "mediaAttachedCount": 178,
+    "photoPostCount": 154,
     "documentPostCount": 0,
     "imageOnlyCount": 0,
     "highSignalCount": 419,
@@ -147,24 +147,25 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "equity": 157,
+    "semi": 516,
+    "geo": 426,
+    "power": 278,
+    "earnings": 485,
     "media-only": 70,
     "macro": 350,
-    "geo": 426,
-    "earnings": 484,
     "market-note": 822,
-    "semi": 514,
-    "power": 277,
     "ai-policy": 130,
     "optical": 44,
     "japan": 104,
     "kr-market": 122,
     "flows": 74,
     "healthcare": 107,
-    "equity": 154,
     "crypto": 4,
     "credit": 109
   },
   "tickerCounts": {
+    "GOOG": 130,
     "PLTR": 26,
     "NVDA": 138,
     "AMD": 30,
@@ -173,7 +174,6 @@
     "005930.KS": 48,
     "000660.KS": 74,
     "AAPL": 21,
-    "GOOG": 130,
     "AMZN": 80,
     "TSLA": 59,
     "AVGO": 22,
@@ -188,7 +188,7 @@
     "MTCH": 1,
     "ON": 1,
     "BWXT": 1,
-    "MSFT": 58,
+    "MSFT": 57,
     "BABA": 3,
     "MRVL": 14,
     "LITE": 15,
@@ -259,12 +259,12 @@
   },
   "themes": [
     "Market Notes (822 posts in 14-day research window): 11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000...",
-    "Semiconductors/Memory (514 posts in 14-day research window): 2026년 11월 2일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.76%) 2위: ALPHABET INC CL A...",
-    "Earnings/Corporate (484 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
+    "Semiconductors/Memory (516 posts in 14-day research window): 2026년 11월 2일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.76%) 2위: ALPHABET INC CL A...",
+    "Earnings/Corporate (485 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
     "Geopolitics (426 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 3일 🇺🇸 아메리카 • 트럼프 대통령은 중간선거 이후 이란에 대한 추가 공습 계획을 부인하며 군사작전 재개를 서두르지 않겠다고 밝혀. 이란이 합의를 원하고 있으며...",
     "Macro/Rates (350 posts in 14-day research window): 2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,...",
-    "AI Power/Grid (277 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
-    "Equity/Analyst (154 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로...",
+    "AI Power/Grid (278 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
+    "Equity/Analyst (157 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로...",
     "AI Policy/Export Controls (130 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
   ],
   "catalysts": [
@@ -295,7 +295,7 @@
     },
     {
       "key": "MSFT",
-      "count": 58,
+      "count": 57,
       "text": "2026년 11월 3일 미국 증시 브리핑 미국 증시는 중간선거를 앞둔 정치적 불확실성과 AI·반도체 중심의 대규모 매도세로 혼조 마감. S&P500 -0.51%, 나스닥 -1.07%, 다우 +0.41%,..."
     },
     {
@@ -355,7 +355,7 @@
         "credit"
       ],
       "count": 109,
-      "focus": "모건스탠리 마이크 윌슨 “미국 중간선거 전후 조정은 매수 기회… S&P 500 8,000 도달 전망” - Bloomberg 인터뷰 모건스탠리의 미국 주식 수석 전략가 마이크 윌슨(Mike Wilson)은 미국 중간선거, AI 투자 부담, 유동성 제약 등이 단기적으로 증시 조정을 유발할 수 있지만, 이번 조정이..."
+      "focus": "Anthropic의 IPO 불확실성 확대: 현금흐름 및 자금조달 부담 부각 » Anthropic의 IPO 추진 과정에서 Microsoft, Alphabet, Amazon의 실적 발표 이후 AI 인프라 투자에..."
     },
     {
       "id": "semi",
@@ -363,7 +363,7 @@
       "topics": [
         "semi"
       ],
-      "count": 514,
+      "count": 516,
       "focus": "2026년 11월 2일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.76%) 2위: ALPHABET INC CL A..."
     },
     {
@@ -381,7 +381,7 @@
       "topics": [
         "power"
       ],
-      "count": 277,
+      "count": 278,
       "focus": "Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을..."
     },
     {
@@ -408,7 +408,7 @@
       "topics": [
         "equity"
       ],
-      "count": 154,
+      "count": 157,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로..."
     },
     {
@@ -426,7 +426,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 484,
+      "count": 485,
       "focus": "마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장...."
     },
     {
@@ -897,15 +897,12 @@
       "datetime": "2026-11-02T03:45:05.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "power"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
-      "tickers": [],
-      "summary": "모건스탠리 마이크 윌슨 “미국 중간선거 전후 조정은 매수 기회… S&P 500 8,000 도달 전망” - Bloomberg 인터뷰 모건스탠리의 미국 주식 수석 전략가 마이크 윌슨(Mike Wilson)은 미국..."
+      "summary": "모건스탠리 마이크 윌슨 “미국 중간선거 전후 조정은 매수 기회… S&P 500 8,000 도달 전망” - Bloomberg 인터뷰 모건스탠리의 미국 주식 수석 전략가 마이크 윌슨(Mike Wilson)은 미국...",
+      "tickers": []
     },
     {
       "id": "bornlupin/20936",
@@ -914,14 +911,11 @@
       "datetime": "2026-11-02T02:54:05.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "semi",
-        "credit",
-        "power",
-        "equity"
+        "semi"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
+      "summary": "노무라, 시장이 메모리 산업의 이익 지속성을 심각하게 과소평가하고 있음 삼성전자와 SK하이닉스의 2027년 예상 PER은 불과 2~3배로, 글로벌 빅테크 대비 85~90% 할인된 수준 메모리 공급 부족이...",
       "tickers": [],
       "listTickers": [
         "MSFT",
@@ -930,8 +924,7 @@
         "005930.KS",
         "000660.KS",
         "GOOGL"
-      ],
-      "summary": "노무라, 시장이 메모리 산업의 이익 지속성을 심각하게 과소평가하고 있음 삼성전자와 SK하이닉스의 2027년 예상 PER은 불과 2~3배로, 글로벌 빅테크 대비 85~90% 할인된 수준 메모리 공급 부족이..."
+      ]
     },
     {
       "id": "HANAchina/71312",
@@ -1723,6 +1716,28 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/68182",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68182",
+      "datetime": "2026-11-03T07:29:55.000Z",
+      "localDateKst": "2026-11-03",
+      "tags": [
+        "geo",
+        "power",
+        "earnings"
+      ],
+      "score": 63,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": "Saudi Aramco 2026년 3분기 실적 요약 실적 • 순이익 $362.52억, YoY +34.6%, QoQ +10.9% • 조정 순이익 $311.98억, YoY +9.2%, QoQ -6.6% •..."
+    },
+    {
       "id": "insidertracking/68178",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/68178",
@@ -2057,13 +2072,12 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": ">>CDS가 짓누르는 채권시장, 나스닥도 부담 가중 •AI관련 채권부담이 점차 커지면서 Nvidia, Amazon, Broadcom의 CDS 프리미엄이 지속적으로 상승. 채권시장의 압박이 커지는 상황에서...",
-      "lead": 2,
       "tickers": [
         "NVDA",
         "AVGO",
         "AMZN"
-      ]
+      ],
+      "summary": ">>CDS가 짓누르는 채권시장, 나스닥도 부담 가중 •AI관련 채권부담이 점차 커지면서 Nvidia, Amazon, Broadcom의 CDS 프리미엄이 지속적으로 상승. 채권시장의 압박이 커지는 상황에서..."
     },
     {
       "id": "bornlupin/20962",
@@ -2161,15 +2175,18 @@
       "datetime": "2026-11-02T23:23:12.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "earnings"
+        "earnings",
+        "macro",
+        "semi",
+        "flows"
       ],
+      "lead": 1,
       "score": 73,
       "hasText": true,
-      "summary": ">>애플 실적 컨퍼런스콜 주요 내용 •실적 및 제품 전략 : 9월 분기 매출 1,145억 달러로 전년비 12% 증가하며 사상 최고치. iPhone Duo, iPhone 18 Pro, 신형 홈 하드웨어,...",
-      "lead": 1,
       "tickers": [
         "AAPL"
-      ]
+      ],
+      "summary": ">>애플 실적 컨퍼런스콜 주요 내용 •실적 및 제품 전략 : 9월 분기 매출 1,145억 달러로 전년비 12% 증가하며 사상 최고치. iPhone Duo, iPhone 18 Pro, 신형 홈 하드웨어,..."
     },
     {
       "id": "bornlupin/20958",
@@ -2196,12 +2213,14 @@
       "datetime": "2026-11-02T23:05:05.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi"
       ],
       "score": 74,
       "hasText": true,
-      "summary": "• 9월 대만 증시 변동성에도 노동기금·국민연금기금·퇴직연금기금은 9월 한 달간 1,536억 2,000만 대만달러를 벌어들였으며, 1~9월 누적 수익은 2조 9,000억 대만달러를 달성 • 최대 규모인...",
-      "tickers": []
+      "tickers": [],
+      "summary": "• 9월 대만 증시 변동성에도 노동기금·국민연금기금·퇴직연금기금은 9월 한 달간 1,536억 2,000만 대만달러를 벌어들였으며, 1~9월 누적 수익은 2조 9,000억 대만달러를 달성 • 최대 규모인..."
     },
     {
       "id": "HANAchina/71439",
@@ -2210,12 +2229,12 @@
       "datetime": "2026-11-02T23:04:29.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "semi"
+        "semi",
+        "earnings"
       ],
+      "lead": 1,
       "score": 78,
       "hasText": true,
-      "summary": ">>AI ASIC 사업 호조에 외국계 증권사, MediaTek 긍정적 전망 (대만공상시보) •MediaTek의 TPU v9 개발이 일정대로 진행되고 두 번째 AI ASIC 고객사 확보도 확인되면서 외국계...",
-      "lead": 1,
       "tickers": [
         "2454.TW",
         "GS",
@@ -2223,7 +2242,8 @@
       ],
       "relatedTickers": [
         "AVGO"
-      ]
+      ],
+      "summary": ">>AI ASIC 사업 호조에 외국계 증권사, MediaTek 긍정적 전망 (대만공상시보) •MediaTek의 TPU v9 개발이 일정대로 진행되고 두 번째 AI ASIC 고객사 확보도 확인되면서 외국계..."
     },
     {
       "id": "HANAchina/71437",
@@ -2232,15 +2252,17 @@
       "datetime": "2026-11-02T23:02:37.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "semi"
+        "semi",
+        "earnings",
+        "japan"
       ],
+      "lead": 1,
       "score": 69,
       "hasText": true,
-      "summary": ">>TSMC 2나노 양산 확대에 대만 반도체 공급망 증설 가속화 (대만공상시보) •TSMC의 2나노 공정 양산 확대로 2027년 N2 계열 생산능력은 올해보다 2배 이상 증가할 전망임. 신주·가오슝 공장...",
-      "lead": 1,
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": ">>TSMC 2나노 양산 확대에 대만 반도체 공급망 증설 가속화 (대만공상시보) •TSMC의 2나노 공정 양산 확대로 2027년 N2 계열 생산능력은 올해보다 2배 이상 증가할 전망임. 신주·가오슝 공장..."
     },
     {
       "id": "HANAchina/71435",
@@ -2249,15 +2271,16 @@
       "datetime": "2026-11-02T22:46:56.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "semi"
+        "semi",
+        "power"
       ],
+      "lead": 1,
       "score": 59,
       "hasText": true,
-      "summary": "• 대만 국가과학기술위원회가 TSMC의 차세대 1나노 공정 유치를 대비해 타이난 과학단지 체계 내 대형 신규 단지 개발을 2027년부터 착수할 계획. 부지 및 투자 시점은 TSMC의 최종 확정 필요 • 2나노...",
-      "lead": 1,
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "• 대만 국가과학기술위원회가 TSMC의 차세대 1나노 공정 유치를 대비해 타이난 과학단지 체계 내 대형 신규 단지 개발을 2027년부터 착수할 계획. 부지 및 투자 시점은 TSMC의 최종 확정 필요 • 2나노..."
     },
     {
       "id": "HANAchina/71434",
@@ -3077,14 +3100,13 @@
       "localDateKst": "2026-11-02",
       "tags": [
         "geo",
-        "macro",
-        "semi"
+        "macro"
       ],
-      "lead": 1,
       "score": 74,
       "hasText": true,
-      "tickers": [],
-      "summary": "트럼프 \"이란과의 합의가 이루어질지는 지켜봐야 합니다. 이란은 합의를 원하고 있습니다.\" \"이란 전쟁 기간 국제유가는 제가 예상했던 것보다 덜 상승했습니다.\" \"미국의 휘발유 가격은 갤런당 2달러 아래로..."
+      "summary": "트럼프 \"이란과의 합의가 이루어질지는 지켜봐야 합니다. 이란은 합의를 원하고 있습니다.\" \"이란 전쟁 기간 국제유가는 제가 예상했던 것보다 덜 상승했습니다.\" \"미국의 휘발유 가격은 갤런당 2달러 아래로...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/20949",
@@ -3093,19 +3115,17 @@
       "datetime": "2026-11-02T11:42:05.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "semi",
-        "optical",
-        "earnings"
+        "market-note"
       ],
       "score": 73,
       "hasText": true,
+      "summary": "트렌드포스) AI 네트워킹 및 인터커넥트 시장, 2027년 2,798억 달러 규모 전망…스케일업 비중 24%로 상승 1. AI 네트워킹 시장, 2027년까지 연평균 95% 성장 전망 -...",
       "tickers": [
         "GOOG"
       ],
       "relatedTickers": [
         "AVGO"
-      ],
-      "summary": "트렌드포스) AI 네트워킹 및 인터커넥트 시장, 2027년 2,798억 달러 규모 전망…스케일업 비중 24%로 상승 1. AI 네트워킹 시장, 2027년까지 연평균 95% 성장 전망 -..."
+      ]
     },
     {
       "id": "insidertracking/68074",
@@ -3157,11 +3177,11 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "매크로닉스 회장 “메모리 호황 2030년까지 지속 전망…가격도 현재보다 나빠지지 않을 것” 대만 메모리 반도체 기업 매크로닉스(Macronix)의 우민추 회장은 메모리 산업의 향후 전망을 낙관적으로 평가했다...."
+      "summary": "매크로닉스 회장 “메모리 호황 2030년까지 지속 전망…가격도 현재보다 나빠지지 않을 것” 대만 메모리 반도체 기업 매크로닉스(Macronix)의 우민추 회장은 메모리 산업의 향후 전망을 낙관적으로 평가했다....",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71409",
@@ -3266,15 +3286,15 @@
         "equity",
         "ai-policy"
       ],
-      "lead": 2,
       "score": 72,
       "hasText": true,
+      "summary": "앤트로픽, 대규모 미국 IPO 위해 일본에서 최대 35억 달러 조달 추진 1. 앤트로픽, 일본 투자자로부터 최대 35억 달러 조달 추진 - AI 스타트업 앤트로픽(Anthropic PBC)이 미국 증시...",
+      "lead": 2,
       "tickers": [
         "GS",
         "MS",
         "MFG"
-      ],
-      "summary": "앤트로픽, 대규모 미국 IPO 위해 일본에서 최대 35억 달러 조달 추진 1. 앤트로픽, 일본 투자자로부터 최대 35억 달러 조달 추진 - AI 스타트업 앤트로픽(Anthropic PBC)이 미국 증시..."
+      ]
     },
     {
       "id": "bornlupin/20945",
@@ -3283,16 +3303,14 @@
       "datetime": "2026-11-02T06:04:58.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "semi",
-        "power",
-        "healthcare"
+        "market-note"
       ],
       "score": 64,
       "hasText": true,
+      "summary": "이수페타시스, 대구에 PCB 제조시설 5000억원 투자 글로벌 빅테크 기업 AI수요증가 선제 대응을 위한 생산라인 구축 초고다층 인쇄회로기판 세계적기업, 대구국가산단 내 7공장 신설 대구광역시는 2일...",
       "tickers": [
         "007660.KS"
-      ],
-      "summary": "이수페타시스, 대구에 PCB 제조시설 5000억원 투자 글로벌 빅테크 기업 AI수요증가 선제 대응을 위한 생산라인 구축 초고다층 인쇄회로기판 세계적기업, 대구국가산단 내 7공장 신설 대구광역시는 2일..."
+      ]
     },
     {
       "id": "HANAchina/71397",
@@ -3365,12 +3383,11 @@
       "datetime": "2026-11-02T05:13:34.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "semi",
-        "ai-policy"
+        "semi"
       ],
-      "lead": 1,
       "score": 82,
       "hasText": true,
+      "summary": "엔비디아, 9일부터 AI 데이 서울 2026 개최...최신 AI 인프라 등 공개 삼성전자·SK하이닉스·LG전자 등 발표 엔비디아가 '엔비디아 인공지능(AI) 데이 서울 2026'을 이달 개최한다고 2일...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -3379,8 +3396,7 @@
         "454910.KS",
         "066570.KS",
         "017670.KS"
-      ],
-      "summary": "엔비디아, 9일부터 AI 데이 서울 2026 개최...최신 AI 인프라 등 공개 삼성전자·SK하이닉스·LG전자 등 발표 엔비디아가 '엔비디아 인공지능(AI) 데이 서울 2026'을 이달 개최한다고 2일..."
+      ]
     },
     {
       "id": "HANAchina/71394",
@@ -3421,13 +3437,12 @@
       "datetime": "2026-11-02T04:15:10.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "semi",
-        "earnings"
+        "market-note"
       ],
       "score": 70,
       "hasText": true,
-      "tickers": [],
-      "summary": "BofA, AI 설비투자(Capex) 전망치를 상향 조정 클라우드 설비투자가 2026년(역년 기준) 1조 300억 달러, 2027년 1조 5,800억 달러에 달할 것으로 추산했습니다. 이는 전년 동기 대비..."
+      "summary": "BofA, AI 설비투자(Capex) 전망치를 상향 조정 클라우드 설비투자가 2026년(역년 기준) 1조 300억 달러, 2027년 1조 5,800억 달러에 달할 것으로 추산했습니다. 이는 전년 동기 대비...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71392",
@@ -3469,15 +3484,12 @@
       "datetime": "2026-11-02T03:45:05.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "power"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
-      "tickers": [],
-      "summary": "모건스탠리 마이크 윌슨 “미국 중간선거 전후 조정은 매수 기회… S&P 500 8,000 도달 전망” - Bloomberg 인터뷰 모건스탠리의 미국 주식 수석 전략가 마이크 윌슨(Mike Wilson)은 미국..."
+      "summary": "모건스탠리 마이크 윌슨 “미국 중간선거 전후 조정은 매수 기회… S&P 500 8,000 도달 전망” - Bloomberg 인터뷰 모건스탠리의 미국 주식 수석 전략가 마이크 윌슨(Mike Wilson)은 미국...",
+      "tickers": []
     },
     {
       "id": "bornlupin/20939",
@@ -3487,20 +3499,17 @@
       "localDateKst": "2026-11-02",
       "tags": [
         "semi",
-        "macro",
-        "earnings",
-        "flows"
+        "earnings"
       ],
-      "lead": 1,
       "score": 88,
       "hasText": true,
+      "summary": "KB증권 \"반도체, 'W자 반등' 두번째 바닥…상승여력 주목할 시점\" \"빅테크, 과잉투자 아닌 수요 따라가기 위한 증설…수익화 구간 진입\" \"실적·주가, 역사적 수준의 괴리…메모리, 내년 강력 상승 사이클...",
       "tickers": [
         "005930.KS",
         "009150.KS",
         "000660.KS",
         "000990.KS"
-      ],
-      "summary": "KB증권 \"반도체, 'W자 반등' 두번째 바닥…상승여력 주목할 시점\" \"빅테크, 과잉투자 아닌 수요 따라가기 위한 증설…수익화 구간 진입\" \"실적·주가, 역사적 수준의 괴리…메모리, 내년 강력 상승 사이클..."
+      ]
     },
     {
       "id": "bornlupin/20938",
@@ -3509,7 +3518,7 @@
       "datetime": "2026-11-02T03:08:54.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
@@ -3519,8 +3528,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "미국의 AI 투자가 빠르게 가속화되고 있다. 2026년 3분기 미국의 정보처리 장비 및 소프트웨어에 대한 민간 고정투자는 연율 기준 7.3% 증가하며, 사상 최고치 인 1조 7,700억 달러를 기록했다. 이는..."
+      "summary": "미국의 AI 투자가 빠르게 가속화되고 있다. 2026년 3분기 미국의 정보처리 장비 및 소프트웨어에 대한 민간 고정투자는 연율 기준 7.3% 증가하며, 사상 최고치 인 1조 7,700억 달러를 기록했다. 이는...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71381",
@@ -3550,10 +3559,9 @@
       "datetime": "2026-11-02T03:04:05.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "earnings",
-        "semi"
+        "semi",
+        "earnings"
       ],
-      "lead": 2,
       "score": 57,
       "hasText": true,
       "media": {
@@ -3562,8 +3570,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "2026년 3분기 글로벌 상위 5개 반도체 장비업체의 DRAM 관련 매출, 전년 대비 80% 증가 2026년 3분기(3QCY26), 글로벌 상위 5개 반도체 제조장비 업체의 DRAM 관련 장비 매출이 전년..."
+      "summary": "2026년 3분기 글로벌 상위 5개 반도체 장비업체의 DRAM 관련 매출, 전년 대비 80% 증가 2026년 3분기(3QCY26), 글로벌 상위 5개 반도체 제조장비 업체의 DRAM 관련 장비 매출이 전년...",
+      "tickers": []
     },
     {
       "id": "bornlupin/20936",
@@ -3572,14 +3580,11 @@
       "datetime": "2026-11-02T02:54:05.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "semi",
-        "credit",
-        "power",
-        "equity"
+        "semi"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
+      "summary": "노무라, 시장이 메모리 산업의 이익 지속성을 심각하게 과소평가하고 있음 삼성전자와 SK하이닉스의 2027년 예상 PER은 불과 2~3배로, 글로벌 빅테크 대비 85~90% 할인된 수준 메모리 공급 부족이...",
       "tickers": [],
       "listTickers": [
         "MSFT",
@@ -3588,8 +3593,7 @@
         "005930.KS",
         "000660.KS",
         "GOOGL"
-      ],
-      "summary": "노무라, 시장이 메모리 산업의 이익 지속성을 심각하게 과소평가하고 있음 삼성전자와 SK하이닉스의 2027년 예상 PER은 불과 2~3배로, 글로벌 빅테크 대비 85~90% 할인된 수준 메모리 공급 부족이..."
+      ]
     },
     {
       "id": "bornlupin/20935",
@@ -3601,11 +3605,11 @@
         "geo",
         "macro"
       ],
-      "lead": 2,
       "score": 67,
       "hasText": true,
-      "tickers": [],
-      "summary": "중동 평화협상 재개를 위한 외교적 노력 속에 유가 하락 - WSJ 1. 미국·이란 평화협상 재개 움직임 - 워싱턴과 테헤란 간 평화협상을 재개하려는 최근 외교적 노력 속에 국제유가가 하락. - WSJ에 따르면..."
+      "summary": "중동 평화협상 재개를 위한 외교적 노력 속에 유가 하락 - WSJ 1. 미국·이란 평화협상 재개 움직임 - 워싱턴과 테헤란 간 평화협상을 재개하려는 최근 외교적 노력 속에 국제유가가 하락. - WSJ에 따르면...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "bornlupin/20934",
@@ -3614,14 +3618,12 @@
       "datetime": "2026-11-02T02:16:32.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "semi",
-        "power",
-        "ai-policy"
+        "market-note"
       ],
       "score": 70,
       "hasText": true,
-      "tickers": [],
-      "summary": "이 대통령 \"선도국가 만들어 갈 미래선점 예산…미래성장·격차완화 집중투자\" 2027년도 정부 예산안 약 821조원…총지출 12.8% 증가 \"역대 최대 재정투자…경제적 성취 걸맞게 살림 키운 것\" 이 대통령은..."
+      "summary": "이 대통령 \"선도국가 만들어 갈 미래선점 예산…미래성장·격차완화 집중투자\" 2027년도 정부 예산안 약 821조원…총지출 12.8% 증가 \"역대 최대 재정투자…경제적 성취 걸맞게 살림 키운 것\" 이 대통령은...",
+      "tickers": []
     },
     {
       "id": "bornlupin/20933",
@@ -3633,11 +3635,11 @@
         "semi",
         "power"
       ],
-      "lead": 2,
       "score": 60,
       "hasText": true,
-      "tickers": [],
-      "summary": "[속보] 李 \"반도체·AI 데이터센터 등 올해보다 두 배 늘어난 21.3조원 투자\""
+      "summary": "[속보] 李 \"반도체·AI 데이터센터 등 올해보다 두 배 늘어난 21.3조원 투자\"",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "insidertracking/68031",
@@ -3702,10 +3704,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "일론 머스크, 보다 현실적인 태도로 선회…TSMC와 'Terafab 협력 프로젝트' 재협상설 일론 머스크(Elon Musk)가 Terafab 프로젝트와 관련해 TSMC와의 협력에 대한 태도를 바꾼 것으로...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "일론 머스크, 보다 현실적인 태도로 선회…TSMC와 'Terafab 협력 프로젝트' 재협상설 일론 머스크(Elon Musk)가 Terafab 프로젝트와 관련해 TSMC와의 협력에 대한 태도를 바꾼 것으로..."
+      ]
     },
     {
       "id": "insidertracking/68023",
@@ -6540,20 +6542,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/67720",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67720",
-      "datetime": "2026-10-29T02:26:36.000Z",
-      "localDateKst": "2026-10-29",
-      "tags": [
-        "earnings"
-      ],
-      "score": 65,
-      "hasText": true,
-      "summary": "KLA(KLAC) Q1 2027 어닝콜 요약 > 긍정 요인: • 사상 최대 매출 및 실적 성장. 2027 회계연도 1분기 매출은 41억4,000만달러로 가이던스 중간값을 상회하며 사상 최고치 기록. 비GAAP...",
-      "tickers": []
-    },
-    {
       "id": "HANAchina/71201",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71201",
@@ -8877,15 +8865,16 @@
       "datetime": "2026-11-02T22:46:56.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "semi"
+        "semi",
+        "power"
       ],
+      "lead": 1,
       "score": 59,
       "hasText": true,
-      "summary": "• 대만 국가과학기술위원회가 TSMC의 차세대 1나노 공정 유치를 대비해 타이난 과학단지 체계 내 대형 신규 단지 개발을 2027년부터 착수할 계획. 부지 및 투자 시점은 TSMC의 최종 확정 필요 • 2나노...",
-      "lead": 1,
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "• 대만 국가과학기술위원회가 TSMC의 차세대 1나노 공정 유치를 대비해 타이난 과학단지 체계 내 대형 신규 단지 개발을 2027년부터 착수할 계획. 부지 및 투자 시점은 TSMC의 최종 확정 필요 • 2나노..."
     },
     {
       "id": "HANAchina/71434",
@@ -9685,14 +9674,13 @@
       "localDateKst": "2026-11-02",
       "tags": [
         "geo",
-        "macro",
-        "semi"
+        "macro"
       ],
-      "lead": 1,
       "score": 74,
       "hasText": true,
-      "tickers": [],
-      "summary": "트럼프 \"이란과의 합의가 이루어질지는 지켜봐야 합니다. 이란은 합의를 원하고 있습니다.\" \"이란 전쟁 기간 국제유가는 제가 예상했던 것보다 덜 상승했습니다.\" \"미국의 휘발유 가격은 갤런당 2달러 아래로..."
+      "summary": "트럼프 \"이란과의 합의가 이루어질지는 지켜봐야 합니다. 이란은 합의를 원하고 있습니다.\" \"이란 전쟁 기간 국제유가는 제가 예상했던 것보다 덜 상승했습니다.\" \"미국의 휘발유 가격은 갤런당 2달러 아래로...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/20949",
@@ -9701,19 +9689,17 @@
       "datetime": "2026-11-02T11:42:05.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "semi",
-        "optical",
-        "earnings"
+        "market-note"
       ],
       "score": 73,
       "hasText": true,
+      "summary": "트렌드포스) AI 네트워킹 및 인터커넥트 시장, 2027년 2,798억 달러 규모 전망…스케일업 비중 24%로 상승 1. AI 네트워킹 시장, 2027년까지 연평균 95% 성장 전망 -...",
       "tickers": [
         "GOOG"
       ],
       "relatedTickers": [
         "AVGO"
-      ],
-      "summary": "트렌드포스) AI 네트워킹 및 인터커넥트 시장, 2027년 2,798억 달러 규모 전망…스케일업 비중 24%로 상승 1. AI 네트워킹 시장, 2027년까지 연평균 95% 성장 전망 -..."
+      ]
     },
     {
       "id": "insidertracking/68074",
@@ -9765,11 +9751,11 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "매크로닉스 회장 “메모리 호황 2030년까지 지속 전망…가격도 현재보다 나빠지지 않을 것” 대만 메모리 반도체 기업 매크로닉스(Macronix)의 우민추 회장은 메모리 산업의 향후 전망을 낙관적으로 평가했다...."
+      "summary": "매크로닉스 회장 “메모리 호황 2030년까지 지속 전망…가격도 현재보다 나빠지지 않을 것” 대만 메모리 반도체 기업 매크로닉스(Macronix)의 우민추 회장은 메모리 산업의 향후 전망을 낙관적으로 평가했다....",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71409",
@@ -9874,15 +9860,15 @@
         "equity",
         "ai-policy"
       ],
-      "lead": 2,
       "score": 72,
       "hasText": true,
+      "summary": "앤트로픽, 대규모 미국 IPO 위해 일본에서 최대 35억 달러 조달 추진 1. 앤트로픽, 일본 투자자로부터 최대 35억 달러 조달 추진 - AI 스타트업 앤트로픽(Anthropic PBC)이 미국 증시...",
+      "lead": 2,
       "tickers": [
         "GS",
         "MS",
         "MFG"
-      ],
-      "summary": "앤트로픽, 대규모 미국 IPO 위해 일본에서 최대 35억 달러 조달 추진 1. 앤트로픽, 일본 투자자로부터 최대 35억 달러 조달 추진 - AI 스타트업 앤트로픽(Anthropic PBC)이 미국 증시..."
+      ]
     },
     {
       "id": "bornlupin/20945",
@@ -9891,16 +9877,14 @@
       "datetime": "2026-11-02T06:04:58.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "semi",
-        "power",
-        "healthcare"
+        "market-note"
       ],
       "score": 64,
       "hasText": true,
+      "summary": "이수페타시스, 대구에 PCB 제조시설 5000억원 투자 글로벌 빅테크 기업 AI수요증가 선제 대응을 위한 생산라인 구축 초고다층 인쇄회로기판 세계적기업, 대구국가산단 내 7공장 신설 대구광역시는 2일...",
       "tickers": [
         "007660.KS"
-      ],
-      "summary": "이수페타시스, 대구에 PCB 제조시설 5000억원 투자 글로벌 빅테크 기업 AI수요증가 선제 대응을 위한 생산라인 구축 초고다층 인쇄회로기판 세계적기업, 대구국가산단 내 7공장 신설 대구광역시는 2일..."
+      ]
     },
     {
       "id": "HANAchina/71397",
@@ -9973,12 +9957,11 @@
       "datetime": "2026-11-02T05:13:34.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "semi",
-        "ai-policy"
+        "semi"
       ],
-      "lead": 1,
       "score": 82,
       "hasText": true,
+      "summary": "엔비디아, 9일부터 AI 데이 서울 2026 개최...최신 AI 인프라 등 공개 삼성전자·SK하이닉스·LG전자 등 발표 엔비디아가 '엔비디아 인공지능(AI) 데이 서울 2026'을 이달 개최한다고 2일...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -9987,8 +9970,7 @@
         "454910.KS",
         "066570.KS",
         "017670.KS"
-      ],
-      "summary": "엔비디아, 9일부터 AI 데이 서울 2026 개최...최신 AI 인프라 등 공개 삼성전자·SK하이닉스·LG전자 등 발표 엔비디아가 '엔비디아 인공지능(AI) 데이 서울 2026'을 이달 개최한다고 2일..."
+      ]
     },
     {
       "id": "HANAchina/71394",
@@ -10029,13 +10011,12 @@
       "datetime": "2026-11-02T04:15:10.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "semi",
-        "earnings"
+        "market-note"
       ],
       "score": 70,
       "hasText": true,
-      "tickers": [],
-      "summary": "BofA, AI 설비투자(Capex) 전망치를 상향 조정 클라우드 설비투자가 2026년(역년 기준) 1조 300억 달러, 2027년 1조 5,800억 달러에 달할 것으로 추산했습니다. 이는 전년 동기 대비..."
+      "summary": "BofA, AI 설비투자(Capex) 전망치를 상향 조정 클라우드 설비투자가 2026년(역년 기준) 1조 300억 달러, 2027년 1조 5,800억 달러에 달할 것으로 추산했습니다. 이는 전년 동기 대비...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71392",
@@ -10077,15 +10058,12 @@
       "datetime": "2026-11-02T03:45:05.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "power"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
-      "tickers": [],
-      "summary": "모건스탠리 마이크 윌슨 “미국 중간선거 전후 조정은 매수 기회… S&P 500 8,000 도달 전망” - Bloomberg 인터뷰 모건스탠리의 미국 주식 수석 전략가 마이크 윌슨(Mike Wilson)은 미국..."
+      "summary": "모건스탠리 마이크 윌슨 “미국 중간선거 전후 조정은 매수 기회… S&P 500 8,000 도달 전망” - Bloomberg 인터뷰 모건스탠리의 미국 주식 수석 전략가 마이크 윌슨(Mike Wilson)은 미국...",
+      "tickers": []
     },
     {
       "id": "bornlupin/20939",
@@ -10095,20 +10073,17 @@
       "localDateKst": "2026-11-02",
       "tags": [
         "semi",
-        "macro",
-        "earnings",
-        "flows"
+        "earnings"
       ],
-      "lead": 1,
       "score": 88,
       "hasText": true,
+      "summary": "KB증권 \"반도체, 'W자 반등' 두번째 바닥…상승여력 주목할 시점\" \"빅테크, 과잉투자 아닌 수요 따라가기 위한 증설…수익화 구간 진입\" \"실적·주가, 역사적 수준의 괴리…메모리, 내년 강력 상승 사이클...",
       "tickers": [
         "005930.KS",
         "009150.KS",
         "000660.KS",
         "000990.KS"
-      ],
-      "summary": "KB증권 \"반도체, 'W자 반등' 두번째 바닥…상승여력 주목할 시점\" \"빅테크, 과잉투자 아닌 수요 따라가기 위한 증설…수익화 구간 진입\" \"실적·주가, 역사적 수준의 괴리…메모리, 내년 강력 상승 사이클..."
+      ]
     },
     {
       "id": "bornlupin/20938",
@@ -10117,7 +10092,7 @@
       "datetime": "2026-11-02T03:08:54.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
@@ -10127,8 +10102,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "미국의 AI 투자가 빠르게 가속화되고 있다. 2026년 3분기 미국의 정보처리 장비 및 소프트웨어에 대한 민간 고정투자는 연율 기준 7.3% 증가하며, 사상 최고치 인 1조 7,700억 달러를 기록했다. 이는..."
+      "summary": "미국의 AI 투자가 빠르게 가속화되고 있다. 2026년 3분기 미국의 정보처리 장비 및 소프트웨어에 대한 민간 고정투자는 연율 기준 7.3% 증가하며, 사상 최고치 인 1조 7,700억 달러를 기록했다. 이는...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71381",
@@ -10158,10 +10133,9 @@
       "datetime": "2026-11-02T03:04:05.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "earnings",
-        "semi"
+        "semi",
+        "earnings"
       ],
-      "lead": 2,
       "score": 57,
       "hasText": true,
       "media": {
@@ -10170,8 +10144,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "2026년 3분기 글로벌 상위 5개 반도체 장비업체의 DRAM 관련 매출, 전년 대비 80% 증가 2026년 3분기(3QCY26), 글로벌 상위 5개 반도체 제조장비 업체의 DRAM 관련 장비 매출이 전년..."
+      "summary": "2026년 3분기 글로벌 상위 5개 반도체 장비업체의 DRAM 관련 매출, 전년 대비 80% 증가 2026년 3분기(3QCY26), 글로벌 상위 5개 반도체 제조장비 업체의 DRAM 관련 장비 매출이 전년...",
+      "tickers": []
     },
     {
       "id": "bornlupin/20936",
@@ -10180,14 +10154,11 @@
       "datetime": "2026-11-02T02:54:05.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "semi",
-        "credit",
-        "power",
-        "equity"
+        "semi"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
+      "summary": "노무라, 시장이 메모리 산업의 이익 지속성을 심각하게 과소평가하고 있음 삼성전자와 SK하이닉스의 2027년 예상 PER은 불과 2~3배로, 글로벌 빅테크 대비 85~90% 할인된 수준 메모리 공급 부족이...",
       "tickers": [],
       "listTickers": [
         "MSFT",
@@ -10196,8 +10167,7 @@
         "005930.KS",
         "000660.KS",
         "GOOGL"
-      ],
-      "summary": "노무라, 시장이 메모리 산업의 이익 지속성을 심각하게 과소평가하고 있음 삼성전자와 SK하이닉스의 2027년 예상 PER은 불과 2~3배로, 글로벌 빅테크 대비 85~90% 할인된 수준 메모리 공급 부족이..."
+      ]
     },
     {
       "id": "bornlupin/20935",
@@ -10209,11 +10179,11 @@
         "geo",
         "macro"
       ],
-      "lead": 2,
       "score": 67,
       "hasText": true,
-      "tickers": [],
-      "summary": "중동 평화협상 재개를 위한 외교적 노력 속에 유가 하락 - WSJ 1. 미국·이란 평화협상 재개 움직임 - 워싱턴과 테헤란 간 평화협상을 재개하려는 최근 외교적 노력 속에 국제유가가 하락. - WSJ에 따르면..."
+      "summary": "중동 평화협상 재개를 위한 외교적 노력 속에 유가 하락 - WSJ 1. 미국·이란 평화협상 재개 움직임 - 워싱턴과 테헤란 간 평화협상을 재개하려는 최근 외교적 노력 속에 국제유가가 하락. - WSJ에 따르면...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "bornlupin/20934",
@@ -10222,14 +10192,12 @@
       "datetime": "2026-11-02T02:16:32.000Z",
       "localDateKst": "2026-11-02",
       "tags": [
-        "semi",
-        "power",
-        "ai-policy"
+        "market-note"
       ],
       "score": 70,
       "hasText": true,
-      "tickers": [],
-      "summary": "이 대통령 \"선도국가 만들어 갈 미래선점 예산…미래성장·격차완화 집중투자\" 2027년도 정부 예산안 약 821조원…총지출 12.8% 증가 \"역대 최대 재정투자…경제적 성취 걸맞게 살림 키운 것\" 이 대통령은..."
+      "summary": "이 대통령 \"선도국가 만들어 갈 미래선점 예산…미래성장·격차완화 집중투자\" 2027년도 정부 예산안 약 821조원…총지출 12.8% 증가 \"역대 최대 재정투자…경제적 성취 걸맞게 살림 키운 것\" 이 대통령은...",
+      "tickers": []
     },
     {
       "id": "bornlupin/20933",
@@ -10241,11 +10209,11 @@
         "semi",
         "power"
       ],
-      "lead": 2,
       "score": 60,
       "hasText": true,
-      "tickers": [],
-      "summary": "[속보] 李 \"반도체·AI 데이터센터 등 올해보다 두 배 늘어난 21.3조원 투자\""
+      "summary": "[속보] 李 \"반도체·AI 데이터센터 등 올해보다 두 배 늘어난 21.3조원 투자\"",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "insidertracking/68031",
@@ -10310,10 +10278,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "일론 머스크, 보다 현실적인 태도로 선회…TSMC와 'Terafab 협력 프로젝트' 재협상설 일론 머스크(Elon Musk)가 Terafab 프로젝트와 관련해 TSMC와의 협력에 대한 태도를 바꾼 것으로...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "일론 머스크, 보다 현실적인 태도로 선회…TSMC와 'Terafab 협력 프로젝트' 재협상설 일론 머스크(Elon Musk)가 Terafab 프로젝트와 관련해 TSMC와의 협력에 대한 태도를 바꾼 것으로..."
+      ]
     },
     {
       "id": "insidertracking/68023",
