@@ -542,6 +542,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   modules['market-news'] = createLazyPage({ route: 'market-news', loader: () => import('../ui/pages/news.js'), factory: ({ createNewsPage }) => createNewsPage({ root, documentRef, store, route: 'market-news' }) });
   modules.briefing = createLazyPage({ route: 'briefing', loader: () => import('../ui/pages/news.js'), factory: ({ createNewsPage }) => createNewsPage({ root, documentRef, store, route: 'briefing' }) });
   modules.macro = createLazyPage({ route: 'macro', loader: () => import('../ui/pages/market.js'), factory: ({ createMarketSlicePage }) => createMarketSlicePage({ documentRef, store, route: 'macro' }) });
+  modules.charts = createLazyPage({ route: 'charts', loader: () => import('../ui/pages/charts.js'), factory: ({ createChartsPage }) => createChartsPage({ root, documentRef, store, route: 'charts' }) }); // v59.64 기술적 분석
   modules.fxbond = createLazyPage({ route: 'fxbond', loader: () => import('../ui/pages/market.js'), factory: ({ createMarketSlicePage }) => createMarketSlicePage({ documentRef, store, route: 'fxbond' }) });
   modules.breadth = createLazyPage({ route: 'breadth', loader: () => import('../ui/pages/market.js'), factory: ({ createMarketSlicePage }) => createMarketSlicePage({ documentRef, store, route: 'breadth' }) });
   modules.themes = createLazyPage({ route: 'themes', loader: () => import('../ui/pages/themes.js'), factory: ({ createThemesPage }) => createThemesPage({ documentRef, store, route: 'themes' }) });

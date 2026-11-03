@@ -106,6 +106,11 @@ export const NEWS_FEEDS = [
   { query: 'bitcoin OR ethereum OR "crypto market" OR stablecoin OR "bitcoin ETF" when:2d', source: 'Google News - Crypto', topic: 'crypto', country: 'global', tier: 2 },
   { query: '"FDA approval" OR "FDA approves" OR biotech stocks OR drugmaker OR GLP-1 OR "Eli Lilly" OR "Novo Nordisk" when:2d', source: 'Google News - Healthcare/Biotech', topic: 'healthcare', country: 'us', tier: 2 },
   { query: '"Bank of Japan" OR Nikkei OR "European Central Bank" OR "Stoxx 600" OR "China stocks" OR "Hang Seng" OR PBOC when:2d', source: 'Google News - Japan/China/Europe', topic: 'macro', country: 'global', tier: 1 },
+  // v59.62 (owner 2026-11-03): the $115B Marvell-Lumentum all-stock deal (11/2) reached no screen. No feed asked for
+  // corporate actions and no rule scored acquire/merger, so a deal headline could only win a seat as generic market news.
+  // The election-sector trade (solar and healthcare names moving on midterm odds) had the same gap. One seat each.
+  { query: 'acquire OR acquisition OR merger OR "all-stock deal" OR takeover OR buyout billion when:2d', source: 'Google News - Deals/M&A', topic: 'equity', country: 'us', tier: 1 },
+  { query: '(midterm OR election OR Democrats OR Republicans) (solar OR "clean energy" OR healthcare OR insurers OR drugmakers OR defense OR banks) stocks when:2d', source: 'Google News - Election sectors', topic: 'equity', country: 'us', tier: 2 },
   // v59.57: an official publisher's own feed goes quiet for days (10/29 FOMC → nothing until after the weekend), which is
   // not a dead feed. quietMaxHours lets the 72h dead-feed gate wait that long while the feed still answers with items.
   { url: 'https://www.federalreserve.gov/feeds/press_all.xml', source: 'Federal Reserve', topic: 'macro', country: 'us', tier: 1, quietMaxHours: 192 },
@@ -123,6 +128,8 @@ const SERVER_NEWS_PRIORITY_RULES = [
   { label: 'deleveraging-positioning', points: 12, re: /\b(deleverag\w*|hedge funds?|margin calls?|forced selling|liquidations?|unwind(?:s|ing)?|crowded trades?|short squeeze|momentum (?:crash|unwind)|risk parity)\b/i },
   { label: 'sovereign-fiscal', points: 10, re: /\b(gilts?|bunds?|jgbs?|sovereign debt|fiscal deficit|debt crisis|bond vigilantes|term premium|(?:french|european|italian|japanese) (?:debt|bonds?))\b/i },
   { label: 'politics-elections', points: 8, re: /\b(midterms?|midterm elections?|government shutdown|debt ceiling)\b/i },
+  // v59.62: a corporate action reprices both sides and its chain (MRVL-LITE moved optical names 8-19% on 11/2).
+  { label: 'corporate-action', points: 12, re: /\b(acquir(?:e|es|ed|ing)|acquisition|merger|takeover|buyout|all-stock|tender offer|spin-?off)\b/i },
   { label: 'earnings-guidance', points: 10, re: /\b(earnings|revenue|eps|guidance|outlook|margins?(?! for error| calls?)|buyback|dividend|preannounces?)\b/i },
   { label: 'analyst-action', points: 8, re: /\b(upgrade|downgrade|price target|(?<!(?:approval|economic|popularity|favorability) )rating|initiates|overweight|underweight|buy rating|sell rating)\b/i },
   // v59.42 coverage pass (476 published rows since 10/20): `won` matched "won't" 3 of 3 times, `rating` an approval or
@@ -424,7 +431,8 @@ export function newsDisplayTopic(title, topic) {
 // screen's labels, semi/credit, so the floor cannot key on topic alone).
 export const NEWS_TIER3_CAP = 12; // of the 40-slot bundle; see selectNewsBundle
 export const NEWS_FEED_FLOORS = Object.freeze([['fxbond', 3], ['credit', 2], ['Google News - AI narrative/Memory', 3], ['Google News - Positioning/Sovereign/Politics', 2],
-  ['energy', 1], ['crypto', 1], ['healthcare', 1], ['Google News - Japan/China/Europe', 2]]); // v59.42 coverage seats
+  ['energy', 1], ['crypto', 1], ['healthcare', 1], ['Google News - Japan/China/Europe', 2],
+  ['Google News - Deals/M&A', 1], ['Google News - Election sectors', 1]]); // v59.42 coverage seats; v59.62 deal and election-sector seats
 
 // 2026-10-19 data audit: 4 of 11 feeds returned nothing usable in a run and nothing recorded which, so a feed that died
 // (a changed URL, a query Google stopped answering) would only show as a slowly thinner bundle. Each run publishes per-feed

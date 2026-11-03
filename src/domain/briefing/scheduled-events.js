@@ -9,12 +9,11 @@
 // Dates are added only from an official source; none is inferred.
 import { isIsoDay } from '../shared/session-date.js';
 export const SCHEDULED_EVENTS = Object.freeze([
-  Object.freeze({ id: 'il-knesset-2026', kind: 'election', atKst: '2026-10-28T05:00:00+09:00', label: '이스라엘 총선 (투표 마감, 출구조사)',
-    why: '연정 구성에 따라 이란·중동 정책 기대가 바뀌어 유가 위험 프리미엄이 움직일 수 있음',
-    source: 'Israel Central Elections Committee (26th Knesset, 2026-10-27)', reviewedAt: '2026-10-24', leadDays: 7, expiresAt: '2026-10-31' }),
   Object.freeze({ id: 'us-midterm-2026', kind: 'election', atKst: '2026-11-04T09:00:00+09:00', label: '미국 중간선거 (11/3, 동부 투표 마감)',
     why: '의회 다수당에 따라 재정·관세·규제 기대와 금리가 바뀔 수 있음. 개표 결과는 11/4 오전부터',
-    source: '2 U.S.C. 7 (U.S. general election, 2026-11-03)', reviewedAt: '2026-10-29', leadDays: 10, expiresAt: '2026-11-10', major: true })
+    source: '2 U.S.C. 7 (U.S. general election, 2026-11-03)', reviewedAt: '2026-10-29', leadDays: 10, expiresAt: '2026-11-10', major: true,
+    // v59.62: the US market day and the 시장 상태 week-ahead line (market-story.js read its own copy of this date before).
+    marketDate: '2026-11-03', storyTitle: '미국 중간선거', storyWhy: '의회 구성이 정해집니다. 결과 전에는 변동성이 커지기 쉽고, 결과 뒤 되돌림이 나오는지 봅니다.' })
 ]);
 
 const DAY = 86400000;

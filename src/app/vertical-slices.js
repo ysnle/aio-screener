@@ -17,7 +17,8 @@ export const VERTICAL_SLICE_CONTRACTS = Object.freeze([
   Object.freeze({ id: 'vs10-guide', order: 10, routes: Object.freeze(['guide']), requiredData: Object.freeze([]), acceptance: ACCEPTANCE }),
   Object.freeze({ id: 'vs11-principles', order: 11, routes: Object.freeze(['principles']), requiredData: Object.freeze([]), acceptance: ACCEPTANCE }),
   Object.freeze({ id: 'vs12-masters', order: 12, routes: Object.freeze(['masters']), requiredData: Object.freeze([]), acceptance: ACCEPTANCE }),
-  Object.freeze({ id: 'vs13-atlas', order: 13, routes: Object.freeze(['atlas']), requiredData: Object.freeze([]), acceptance: ACCEPTANCE })
+  Object.freeze({ id: 'vs13-atlas', order: 13, routes: Object.freeze(['atlas']), requiredData: Object.freeze([]), acceptance: ACCEPTANCE }),
+  Object.freeze({ id: 'vs14-charts', order: 14, routes: Object.freeze(['charts']), requiredData: Object.freeze(['quotes', 'technicals']), acceptance: ACCEPTANCE }) // v59.64 기술적 분석
 ]);
 
 const ROUTE_TO_SLICE = new Map(VERTICAL_SLICE_CONTRACTS.flatMap((slice) => slice.routes.map((route) => [route, slice])));

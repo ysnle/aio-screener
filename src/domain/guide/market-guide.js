@@ -14,6 +14,7 @@
 import { pastEvidence } from '../scenarios/analogs.js';
 import { CHOICES } from '../market/macro-crossroads.js';
 import { scenarioLead } from '../market/scenario-lead.js';
+import { activeScheduledEvents } from '../briefing/scheduled-events.js';
 import { CHOICE_WORDS } from '../content/choice-words.js';
 import { selectLessons, LESSON_KINDS } from './lessons.js';
 import { hasFinalConsonant, withObjectParticle } from '../content/korean-particle.js';
@@ -142,6 +143,11 @@ export function buildMarketGuide({ regime = null, outlook = null, crossroads = n
   const direction = buildDirection(live, watch);
   const flow = outlook?.available ? outlook.items?.find((item) => item.id === outlook.leadId) || null : null;
   const nextEvent = crossroads?.nextEvent || null;
+  // v59.62 (owner 2026-11-03): the fork named the 11/6 jobs report while the 11/3 midterm, a bigger repricing, came first.
+  // A major dated event (scheduled-events.js) that lands before the next macro release is said first; no branch reads it,
+  // so it does not change which release decides a scenario.
+  const firstEvent = activeScheduledEvents({ nowMs, days: 7 }).filter((event) => event.major && event.marketDate && (!nextEvent?.date || event.marketDate <= nextEvent.date))
+    .sort((a, b) => a.marketDate.localeCompare(b.marketDate))[0] || null;
   const decides = nextEvent ? [...live, ...watch].filter((path) => path.triggers.some((t) => t.id === nextEvent.id)).map((path) => path.short) : [];
   const counts = regime.counts || {};
   const situation = [
@@ -149,7 +155,7 @@ export function buildMarketGuide({ regime = null, outlook = null, crossroads = n
     { id: 'flow', label: '지금 흐름', text: flow ? `'${flow.title}' (${flow.fit}) — ${String(flow.posture || '').split(/(?<=니다\.)\s+/)[0]}` : outlook?.headline || '시장 흐름을 판단할 관측이 부족합니다.' },
     { id: 'driver', label: '움직이는 힘', text: leadPath ? `'${leadPath.short}' 쪽 조건이 가장 많이 맞습니다(${leadPath.fit})${leadPath.title.includes(' — ') ? ` — ${leadPath.title.split(' — ')[1]}입니다` : ''}.`
       : tiedPaths.length ? `${tiedNames} 쪽 조건이 같은 수로 맞아(${tiedPaths[0].fit}) 어느 한쪽으로 정하지 않습니다.` : crossroads?.headline || '거시 시나리오 판단을 보류합니다.' },
-    { id: 'next', label: '다음 갈림길', text: nextEvent ? `${nextEvent.when || md(nextEvent.date)} ${nextEvent.name}${decides.length ? ` — '${decides.slice(0, 3).join("', '")}' 쪽을 가릅니다` : ''}.` : crossroads?.available && Array.isArray(crossroads.events) ? '45일 안에 예정된 주요 발표가 없습니다.' : '발표 일정을 확인하지 못했습니다.' }
+    { id: 'next', label: '다음 갈림길', text: `${firstEvent ? `${md(firstEvent.marketDate)} ${firstEvent.storyTitle || firstEvent.label} 결과 → ` : ''}${nextEvent ? `${nextEvent.when || md(nextEvent.date)} ${nextEvent.name}${decides.length ? ` — '${decides.slice(0, 3).join("', '")}' 쪽을 가릅니다` : ''}.` : crossroads?.available && Array.isArray(crossroads.events) ? '45일 안에 예정된 주요 발표가 없습니다.' : '발표 일정을 확인하지 못했습니다.'}` }
   ];
   // v58.63 (architecture audit I01): a live scenario whose past sample ran against its own conclusion (pastConflict) lost
   // that limit whenever other lessons filled the lesson slots. The conflict is not a lesson; it stays beside the

@@ -858,7 +858,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
 // ── vertical-slices.js ───────────────────────────────────────────────────────────────────────
 {
   const audit = auditVerticalSliceContracts(ROUTE_IDS);
-  if (!audit.ok || audit.sliceCount !== 12 || audit.coveredRoutes.length !== ROUTE_IDS.length) fail(`vertical-slices: registry coverage drifted: ${JSON.stringify(audit)}`);
+  if (!audit.ok || audit.sliceCount !== 13 || audit.coveredRoutes.length !== ROUTE_IDS.length) fail(`vertical-slices: registry coverage drifted: ${JSON.stringify(audit)}`);
   if (getVerticalSliceContract('page-theme-detail')?.id !== 'vs04-themes-detail' || getVerticalSliceContract('missing')) fail('vertical-slices: route lookup did not normalize page ids or reject unknown routes');
 }
 
@@ -1414,6 +1414,61 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     const opts = { earnings: [{ symbol: 'BAC', date: '2026-10-14', hour: 'bmo', epsEstimate: 1.16 }, { symbol: 'MU', date: '2026-10-13', hour: 'amc', epsEstimate: 2, epsActual: 2.2 }], names: { BAC: 'Bank of America Corporation', MU: 'Micron Technology, Inc.' }, nowMs: Date.parse('2026-10-14T00:00:00Z') };
     const pick = (title) => earningsContextForHeadline(title, opts)?.symbol || null;
     if (pick('S&P 500 futures quiet as investors await big bank earnings') || pick('Bank of America raises Taiwan Semiconductor target price ahead of earnings') || pick('Micron beats on AI memory') !== 'MU' || pick('Bank of America earnings preview') !== 'BAC') fail('v57.55 review: earnings context must need the full name or ticker, a results word, and not an analyst action');
+    // v59.62: a headline naming two reporters carries both, in headline order (Palantir used to lose to the earlier calendar row).
+    const both = earningsContextForHeadline('Micron and Bank of America shares slide after earnings', opts);
+    // v59.63: the market-day ledger — unusual by its own volatility, a stock tied to its own news or the price it runs on,
+    // a big move with neither kept as unexplained, a group tied through its leaders only, threads over subject/peer links.
+    {
+      const { buildMarketDay } = await load('src/domain/market-day/facts.js');
+      const days = []; for (let d = Date.parse('2026-08-03T12:00:00Z'); days.length < 70; d += 86400000) { const day = new Date(d); if (![0, 6].includes(day.getUTCDay())) days.push(day.toISOString().slice(0, 10)); }
+      const history = days.map((date, i) => ({ date, wti: i === 69 ? 100 * 0.92 : 100 + (i % 2 ? 0.5 : -0.5), spx: 5000 + (i % 2 ? 10 : -10), fieldMeta: { wti: { sessionDate: date }, spx: { sessionDate: date } } }));
+      const nowMs = Date.parse(`${days[69]}T22:00:00Z`);
+      const row = (ret1d, extra = {}) => ({ ret1d, adrPct: 2, dollarVolume30d: 1e9, ...extra });
+      const screener = { factorSessionDateByMarket: { US: days[69] }, data: { OIL1: row(-6), OIL2: row(-5.5), OIL3: row(-5), OIL4: row(-4.8), ACQ: row(-9, { newsMemo: '[11-03] Acquirer to buy Targetco for $10 billion', newsTs: new Date(nowMs - 3600000).toISOString() }), TGT: row(12), MYST: row(8), MEGA: row(-2), OLDN: row(7, { newsMemo: '[10-01] Old story', newsTs: '2026-10-01T00:00:00Z' }) } };
+      const universe = ['OIL1', 'OIL2', 'OIL3', 'OIL4'].map((sym) => ({ sym, name: sym, sector: 'Energy' })).concat([{ sym: 'ACQ', name: 'Acquirer Corp', sector: 'Technology' }, { sym: 'TGT', name: 'Targetco', sector: 'Technology' }, { sym: 'MYST', name: 'Mystery Inc', sector: 'Industrials' }, { sym: 'OLDN', name: 'Oldnews Inc', sector: 'Industrials' }, { sym: 'MEGA', name: 'Megacap Inc', sector: 'Technology' }]);
+      const day = buildMarketDay({ history, screener, universe, themes: [{ id: 'energy', nameKr: '에너지', leaders: ['OIL1', 'OIL2', 'OIL3', 'OIL4'] }], nowMs, indexWeights: [{ sym: 'MEGA', weight: 7 }],
+        news: [{ title: 'Oil prices slump as supply returns', pubDate: new Date(nowMs - 7200000).toISOString(), topic: 'energy', score: 60, link: 'x' },
+          { title: 'Mystery Inc CFO sells $55,794 in stock', pubDate: new Date(nowMs - 3600000).toISOString(), topic: 'equity', score: 70, link: 'y' }] });
+      const fact = (id) => day.facts.find((f) => f.id === id);
+      const wti = fact(`price:wti:${days[69]}`); const spx = fact(`price:spx:${days[69]}`);
+      const by = (sym) => fact(`stock:${sym}:${days[69]}`)?.explainedBy?.join('+') ?? 'absent';
+      const energy = day.facts.find((f) => f.kind === 'group-move' && f.group === 'theme:energy');
+      const mega = fact(`stock:MEGA:${days[69]}`);
+      if (!wti?.unusual || spx?.unusual || wti.rank !== 'lead' || mega?.indexBp !== -14 || day.dropped.noise !== 1 || day.facts.some((f) => /CFO sells/.test(f.title || '')) || by('OIL1') !== 'driver' || by('ACQ') !== 'subject' || by('TGT') !== 'subject' || by('MYST') !== '' || by('OLDN') !== ''
+        || !energy || !day.links.some((l) => l.to === energy.id && l.basis === 'driver') || !day.links.some((l) => l.to === wti.id && l.basis === 'topic')
+        || !day.threads.some((t) => t.facts.includes(`stock:OIL1:${days[69]}`) && t.facts.includes(`stock:OIL2:${days[69]}`))) {
+        fail(`v59.63: market-day ledger rules broke ${JSON.stringify({ wti: wti?.z, spx: spx?.z, OIL1: by('OIL1'), ACQ: by('ACQ'), MYST: by('MYST'), OLDN: by('OLDN'), energy: !!energy })}`);
+      }
+      // v59.64: a 매크로 chapter says what moved today in its own field (the lead gauge and the group it drives); the 기술적 분석
+      // trend words follow where the close sits against the 50/200-day lines, and a stock gets the same words from its distances.
+      const { buildMacroChapters } = await load('src/domain/macro/macro-chapters.js');
+      const oilToday = buildMacroChapters({ history, day }).chapters.find((chapter) => chapter.id === 'oil')?.today;
+      const { trendOf, coreStockRows } = await load('src/domain/technical/market-charts.js');
+      const words = [[110, 100, 90], [95, 100, 90], [85, 100, 90], [95, 90, 100], [105, 90, 100], [85, 90, 100]].map(([close, ma50, ma200]) => trendOf({ close, ma50, ma200, ma50Before: null })).join(',');
+      const stock = coreStockRows({ screener: { data: { NV: { pctSma50: -8.75, pctSma200: -1.03 } } }, indexWeights: [{ sym: 'NV', weight: 7 }] })[0];
+      if (oilToday?.rank !== 'lead' || !/에너지/.test(oilToday.text) || words !== 'up,pullback,breakdown,rebound,recovery,down' || stock?.trend !== 'breakdown') {
+        fail(`v59.64: macro today line / chart trend words broke ${JSON.stringify({ oilToday, words, stock: stock?.trend })}`);
+      }
+    }
+    // v59.62: chart levels — 50-day line, closing high, six-month support, and a double top read at its neck (testing, broken).
+    const { indexLevel, levelsRead } = await load('src/domain/market/index-levels.js');
+    const synth = (tail) => {
+      const values = [...Array.from({ length: 40 }, (_, i) => 100 + i), ...Array.from({ length: 30 }, (_, i) => 139 - i), ...Array.from({ length: 30 }, (_, i) => 110 + i), ...tail];
+      const start = Date.parse('2026-01-05T12:00:00Z'); const rows = []; let day = 0;
+      for (const value of values) { let d; do { d = new Date(start + day++ * 86400000); } while ([0, 6].includes(d.getUTCDay())); const date = d.toISOString().slice(0, 10); rows.push({ date, smh: value, fieldMeta: { smh: { sessionDate: date } } }); }
+      return rows;
+    };
+    const testing = indexLevel(synth(Array.from({ length: 30 }, (_, i) => 139 - i)), 'smh');
+    const broken = indexLevel(synth(Array.from({ length: 34 }, (_, i) => 139 - i)), 'smh');
+    if (testing?.doubleTop?.state !== 'testing' || broken?.doubleTop?.state !== 'broken' || !(broken.fromHighPct < -10) || !(broken.vsMa50Pct < 0)
+      || !/쌍봉이 완성/.test(levelsRead([{ ...broken, label: '반도체(SMH)' }])) || !/쌍봉 완성 여부/.test(levelsRead([{ ...testing, label: '반도체(SMH)' }]))) fail('v59.62: chart levels must read a double top as testing at the neck and broken 1% under it');
+    // v59.62: a major dated event before the next macro release is named first, from the one registry both screens read.
+    const { buildMarketGuide } = await load('src/domain/guide/market-guide.js');
+    const { SCHEDULED_EVENTS: storyEvents } = await load('src/domain/market/market-story.js');
+    const nextRow = (iso) => buildMarketGuide({ regime: { available: true, overall: '혼조', counts: {} }, crossroads: { available: true, events: [], items: [], nextEvent: { id: 'us-nfp', name: '고용보고서', date: '2026-11-06', when: '11/6(금)' } }, nowMs: Date.parse(iso) }).situation.find((row) => row.id === 'next').text;
+    if (!/^11\/3 미국 중간선거 결과 → 11\/6\(금\) 고용보고서/.test(nextRow('2026-11-03T12:00:00Z')) || /중간선거/.test(nextRow('2026-11-05T12:00:00Z'))
+      || !storyEvents.some((event) => event.date === '2026-11-03' && event.title === '미국 중간선거')) fail('v59.62: the next-fork row must name the midterm before the jobs report, and 시장 상태 must read the same registry');
+    if (both?.symbols?.join(',') !== 'MU,BAC' || both.symbol !== 'MU' || !/Micron[\s\S]*Bank of America/.test(both.text)) fail('v59.62: a multi-company earnings headline must carry every named reporter in headline order');
   }
   // v57.55 review (E1-03): a quarterly trend is named only when the last two steps agree.
   {

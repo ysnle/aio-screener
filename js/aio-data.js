@@ -1549,6 +1549,7 @@ var _TG_PAGE_TAGS = {
   'sentiment':   ['macro','credit','kr-market','equity','geo','crypto','flows','insider'],
   'briefing':    ['macro','market-note','credit','geo','semi','equity','kr-market','ai-policy','power','optical','earnings','healthcare','japan','flows','insider'],
   'technical':   ['semi','equity','power','optical','flows','earnings'],
+  'charts':      ['semi','equity','power','optical','flows','earnings','macro'], // v59.64
   'macro':       ['macro','credit','geo','ai-policy','power','japan'],
   'fxbond':      ['macro','credit','geo','power','flows','japan'],
   'fundamental': ['equity','semi','credit','power','optical','ai-policy','kr-market','earnings','healthcare','insider'],

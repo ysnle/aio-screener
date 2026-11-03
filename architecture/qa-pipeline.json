@@ -762,6 +762,7 @@
             ".github/workflows/refresh-data.yml",
             ".github/workflows/refresh-screener.yml",
             ".github/workflows/data-watchdog.yml",
+            ".github/workflows/event-briefs.yml",
             ".github/workflows/ci.yml",
             ".github/workflows/pages-deploy.yml",
             ".gitignore",
@@ -2954,6 +2955,15 @@
       "gates": [
         "data-pipeline",
         "data-plane"
+      ]
+    },
+    {
+      "patterns": [
+        ".github/workflows/event-briefs.yml"
+      ],
+      "groups": [],
+      "gates": [
+        "data-pipeline"
       ]
     },
     {

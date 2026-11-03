@@ -4,6 +4,18 @@ last_verified: 2026-11-03
 confidence: medium
 ---
 
+## v59.64 v59.64 macro assets and 기술적 분석 (2026-11-03)
+
+- [x] QA-DATA-64A: After push and the next refresh-data run, 매크로 chapters show a 오늘 line from market-day.json and 기술적 분석 lists the day's movers under the ten largest weights. verify_by: 2026-11-05
+
+## v59.63 v59.63 market-day ledger (2026-11-03)
+
+- [x] QA-DATA-63A: After push, market-day.json is committed by refresh-data with price, stock-move, group-move and headline facts and at least one thread. verify_by: 2026-11-05
+
+## v59.62 v59.62 market reflection (2026-11-03)
+
+- [x] QA-DATA-62A: After push, event-briefs.json generatedAt advances within the hour and AMD (11/3 amc) gets a brief. verify_by: 2026-11-05
+
 ## v59.61 SEC 원장 저장소 직전 칸 (v59.61) (2026-11-03)
 
 - [x] QA-SEC-STORE-PREVIOUS: v59.61 스크리너 main push 실패 뒤에도 CI가 main이 가리키는 SEC 원장을 data-store 직전 칸에서 복원한다. verify_by: node scripts/ci-sec-store-previous-check.mjs

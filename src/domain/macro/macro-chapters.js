@@ -129,26 +129,106 @@ function rates(macroHistory, events) {
   };
 }
 
-function commodities(history, macroHistory) {
-  const oil = historySpan(history, 'wti'); const gold = historySpan(history, 'gold');
-  if (!oil || !gold) return null;
+// v59.64 (owner 2026-11-03: "금&은/유가/금리/신용 스프레드 등등 … 각각 분석해서 시장 상황들이랑 연결"): oil, metals and the
+// dollar are chapters of their own (oil and gold shared one card, and silver had no reading at all).
+function oil(history, macroHistory) {
+  const wti = historySpan(history, 'wti');
+  if (!wti) return null;
+  const brent = historySpan(history, 'brent');
+  const be = macroChange(macroHistory, 'breakeven10');
+  const read = wti.pct >= 10 ? '유가가 크게 올라 다음 달 헤드라인 물가를 밀어 올리고 소비 여력은 줄입니다'
+    : wti.pct <= -10 ? '유가가 크게 내려 물가 부담은 줄지만, 공급이 아니라 수요가 줄어서라면 경기 둔화 신호입니다'
+      : '유가는 물가 경로를 바꿀 만큼 움직이지 않았습니다';
+  const sameWay = be && Math.sign(be.bp) === Math.sign(wti.pct);
+  const inflation = !be ? '' : Math.abs(be.bp) < 5 ? ' 기대인플레는 크게 움직이지 않아 채권시장은 유가를 일시적으로 봅니다.'
+    : sameWay ? ` 기대인플레도 ${bp(be.bp)} 같은 쪽으로 움직여 채권시장이 유가를 물가에 반영하고 있습니다.`
+      : ` 기대인플레는 반대로 ${bp(be.bp)} 움직여, 채권시장은 유가보다 다른 요인(성장 걱정 등)을 더 크게 봅니다.`;
+  return {
+    id: 'oil', title: '유가 — 물가와 경기 사이', question: '유가가 물가를 밀어 올리나, 경기 둔화를 알리나',
+    viz: { caption: '20거래일 등락 (%)', unit: '%', points: [{ x: 'WTI', value: wti.pct, hot: true }, brent ? { x: '브렌트', value: brent.pct } : null].filter(Boolean) },
+    now: `WTI $${wti.to.toFixed(1)} (${signed(wti.pct, 1)})${brent ? ` · 브렌트 $${brent.to.toFixed(1)} (${signed(brent.pct, 1)})` : ''}`,
+    mean: `${read}.${inflation} 에너지 기업 이익은 유가를 따라가서, 유가가 크게 움직인 날은 에너지 업종이 같이 움직입니다.`,
+    next: '매일 · 산유국 회의, 중동 정세, 미국 원유 재고(매주 수요일)',
+    flip: '유가 급등에 기대인플레가 같이 오르면 물가 시나리오가, 유가 급락에 금리도 같이 내리면 경기 둔화 시나리오가 힘을 얻습니다.',
+    detail: [['WTI 20거래일 전', `$${wti.from.toFixed(1)}`], ['브렌트', brent ? `$${brent.to.toFixed(1)}` : '—'], ['10년 기대인플레', be ? `${be.to.toFixed(2)}% (${bp(be.bp)})` : '—']]
+  };
+}
+
+function metals(history, macroHistory) {
+  const gold = historySpan(history, 'gold');
+  if (!gold) return null;
+  const silver = historySpan(history, 'silver');
   const real = macroChange(macroHistory, 'realYield10'); const dollar = historySpan(history, 'dxy');
   const peak = buildCloseSeries(history, 'gold').slice(-MARKET_WINDOWS.half).reduce((best, row) => (row.value > best.value ? row : best), { date: '', value: -Infinity });
   const fromPeak = (gold.to / peak.value - 1) * 100;
-  const oilRead = oil.pct >= 10 ? '유가가 크게 올라 다음 달 헤드라인 물가는 밀어 올리고 소비 여력은 줄입니다' : oil.pct <= -10 ? '유가가 크게 내려 물가 부담은 줄지만 수요 둔화 신호일 수 있습니다' : '유가는 물가 경로를 바꿀 만큼 움직이지 않았습니다';
-  let goldRead = '금은 실질금리·달러와 크게 어긋나지 않았습니다.';
-  if (gold.pct <= -4 && real && real.bp < -5 && dollar && Math.abs(dollar.pct) < 1.5) goldRead = '금은 실질금리가 내렸고 달러도 그대로인데 빠져, 금리·달러로는 설명되지 않습니다. 많이 오른 자산부터 파는 포지션 정리일 수 있습니다(추정).';
-  else if (gold.pct <= -4 && real && real.bp > 5) goldRead = '금 하락은 실질금리 상승과 같은 방향입니다.';
-  else if (gold.pct >= 4) goldRead = '금 상승은 안전자산 수요나 달러 약세 쪽입니다.';
+  // Gold has no yield: a falling real yield or a weaker dollar lowers what holding it costs. A move against both is
+  // positioning (flows), not rates.
+  let read = '금은 실질금리·달러와 크게 어긋나지 않았습니다.';
+  if (gold.pct <= -4 && real && real.bp < -5 && dollar && Math.abs(dollar.pct) < 1.5) read = '금은 실질금리가 내렸고 달러도 그대로인데 빠져, 금리·달러로는 설명되지 않습니다. 많이 오른 자산부터 파는 포지션 정리일 수 있습니다(추정).';
+  else if (gold.pct <= -4 && real && real.bp > 5) read = '금 하락은 실질금리 상승과 같은 방향입니다. 이자가 없는 금을 들고 있는 비용이 커졌습니다.';
+  else if (gold.pct >= 4 && real && real.bp < 0) read = '금 상승은 실질금리 하락과 같은 방향입니다.';
+  else if (gold.pct >= 4) read = '실질금리가 내리지 않았는데 금이 올라 안전자산 수요나 중앙은행 매수 쪽입니다.';
+  const ratio = silver ? gold.to / silver.to : null;
+  const silverRead = silver ? (silver.pct - gold.pct >= 3 ? ' 은이 금보다 더 올라 산업 수요(경기) 기대가 섞여 있습니다.' : gold.pct - silver.pct >= 3 ? ' 은이 금보다 약해 경기보다 안전자산 쪽 움직임입니다.' : ' 은은 금과 비슷하게 움직였습니다.') : '';
   return {
-    id: 'commodities', title: '원자재 — 유가 · 금', question: '물가와 위험 회피가 어디로 가나',
-    viz: { caption: '20거래일 등락 (%)', unit: '%', points: [{ x: 'WTI', value: oil.pct, hot: true }, { x: '금', value: gold.pct }, dollar ? { x: '달러', value: dollar.pct } : null].filter(Boolean) },
-    now: `WTI $${oil.to.toFixed(1)} (${signed(oil.pct, 1)}) · 금 $${Math.round(gold.to).toLocaleString('en-US')} (${signed(gold.pct, 1)}${fromPeak <= -5 ? `, 고점 대비 ${signed(fromPeak, 1)}` : ''})`,
-    mean: `${oilRead}. ${goldRead}`,
-    next: '매일 · 산유국 회의와 전쟁 관련 뉴스',
-    flip: 'WTI가 더 오르면 물가 시나리오가 올라가고, 금이 실질금리와 다시 같이 움직이면 포지션 정리 국면이 끝난 것입니다.',
-    detail: [['WTI 20거래일 전', `$${oil.from.toFixed(1)}`], ['금 6개월 고점', `$${Math.round(peak.value).toLocaleString('en-US')} (${dayLabel(peak.date).split('(')[0]})`], ['달러 지수 20거래일', dollar ? signed(dollar.pct, 1) : '—'], ['은', '현재 시세만 제공, 추이는 아직 없음']]
+    id: 'metals', title: '금 · 은 — 안전자산인가, 포지션인가', question: '금·은 움직임은 금리 때문인가, 돈의 쏠림 때문인가',
+    viz: { caption: '20거래일 등락 (%)', unit: '%', points: [{ x: '금', value: gold.pct, hot: true }, silver ? { x: '은', value: silver.pct } : null, dollar ? { x: '달러', value: dollar.pct } : null].filter(Boolean) },
+    now: `금 $${Math.round(gold.to).toLocaleString('en-US')} (${signed(gold.pct, 1)}${fromPeak <= -5 ? `, 고점 대비 ${signed(fromPeak, 1)}` : ''})${silver ? ` · 은 $${silver.to.toFixed(2)} (${signed(silver.pct, 1)})` : ''}`,
+    mean: `${read}${silverRead}`,
+    next: '매일 · 실질금리와 달러, 중앙은행 매수 소식',
+    flip: '금이 실질금리와 다시 반대로 움직이면 금리로 설명되는 국면, 금리와 상관없이 크게 빠지면 포지션 정리 국면입니다.',
+    detail: [['금 6개월 고점', `$${Math.round(peak.value).toLocaleString('en-US')} (${dayLabel(peak.date).split('(')[0]})`], ['금/은 비율', ratio ? ratio.toFixed(1) : '—'], ['10년 실질금리 20거래일', real ? bp(real.bp) : '—'], ['달러 지수 20거래일', dollar ? signed(dollar.pct, 1) : '—']]
   };
+}
+
+function dollarChapter(history) {
+  const dxy = historySpan(history, 'dxy');
+  if (!dxy) return null;
+  const jpy = historySpan(history, 'usdjpy'); const krw = historySpan(history, 'usdkrw');
+  // A stronger dollar tightens money outside the US (dollar debt costs more) and weighs on commodities and emerging
+  // markets; a sharp yen rebound (USD/JPY down) is the classic sign of carry trades being closed.
+  const read = dxy.pct >= 2 ? '달러가 강해져 미국 밖의 돈줄이 조여지고, 원자재와 신흥국(한국 포함) 주식에 부담입니다'
+    : dxy.pct <= -2 ? '달러가 약해져 미국 밖 자산과 원자재에 우호적인 쪽입니다' : '달러는 크게 움직이지 않았습니다';
+  const carry = jpy && jpy.pct <= -3 ? ' 엔화가 빠르게 강해져(엔/달러 하락) 낮은 엔화 금리로 빌린 돈이 되돌아가는지(캐리 청산) 봐야 합니다.' : '';
+  const won = krw ? (krw.pct >= 2 ? ` 원/달러가 ${signed(krw.pct, 1)} 올라 원화가 약해졌습니다. 외국인에게는 환차손이라 한국 주식 매도 압력이 됩니다.` : krw.pct <= -2 ? ' 원화가 강해져 외국인 수급에 우호적입니다.' : ' 원화는 안정적입니다.') : '';
+  return {
+    id: 'dollar', title: '달러 · 환율 — 돈줄은 어디로', question: '달러가 세계 돈줄을 조이나, 푸나',
+    viz: { caption: '20거래일 등락 (%)', unit: '%', points: [{ x: '달러지수', value: dxy.pct, hot: true }, jpy ? { x: '엔/달러', value: jpy.pct } : null, krw ? { x: '원/달러', value: krw.pct } : null].filter(Boolean) },
+    now: `달러지수 ${dxy.to.toFixed(2)} (${signed(dxy.pct, 1)})${jpy ? ` · 엔/달러 ${jpy.to.toFixed(1)}` : ''}${krw ? ` · 원/달러 ${Math.round(krw.to).toLocaleString('en-US')}` : ''}`,
+    mean: `${read}.${carry}${won}`,
+    next: '매일 · 미국 금리 발표와 일본은행 회의',
+    flip: '달러가 오르면서 미국 금리도 오르면 긴축 쪽, 달러가 오르는데 금리가 내리면 위험 회피(안전자산 달러) 쪽입니다.',
+    detail: [['달러지수 20거래일 전', dxy.from.toFixed(2)], ['엔/달러 20거래일', jpy ? signed(jpy.pct, 1) : '—'], ['원/달러 20거래일', krw ? signed(krw.pct, 1) : '—']]
+  };
+}
+
+// v59.64: each chapter's "오늘" line from the market-day ledger (src/domain/market-day/facts.js) — the chapter's own
+// gauge that moved most against its usual day, what moved with it (driver links: oil → energy names), and the most
+// material report on the same topic. Nothing is said when the ledger is missing or every gauge moved as usual.
+const CHAPTER_ASSETS = Object.freeze({ inflation: ['breakeven10'], labor: [], rates: ['tnx', 'dgs2', 'realYield10', 'breakeven10'], oil: ['wti', 'brent'],
+  metals: ['gold', 'silver'], dollar: ['dxy', 'usdjpy', 'usdkrw'], credit: ['hyOas', 'igOas', 'cccOas'], growth: ['kospi', 'kosdaq'] });
+const CHAPTER_TOPICS = Object.freeze({ inflation: ['inflation'], labor: ['jobs'], rates: ['rates'], oil: ['energy'], metals: ['metals'], dollar: ['fx'], credit: ['credit'], growth: ['korea'] });
+export function chapterToday(day, chapterId) {
+  const facts = Array.isArray(day?.facts) ? day.facts : [];
+  if (!facts.length) return null;
+  const byId = new Map(facts.map((fact) => [fact.id, fact]));
+  const gauges = facts.filter((fact) => fact.kind === 'price' && (CHAPTER_ASSETS[chapterId] || []).includes(fact.asset)).sort((a, b) => Math.abs(b.z ?? 0) - Math.abs(a.z ?? 0));
+  const lead = gauges[0] && Math.abs(gauges[0].z ?? 0) >= 1.5 ? gauges[0] : null;
+  const unusual = new Set(gauges.filter((fact) => Math.abs(fact.z ?? 0) >= 1.5).map((fact) => fact.id));
+  const moved = [...new Map((day.links || []).filter((link) => unusual.has(link.from) && link.basis === 'driver').map((link) => byId.get(link.to))
+    .filter((fact) => fact?.kind === 'group-move').map((fact) => [fact.label, fact])).values()]
+    // The app's own themes (Korean names) before the sector of the same members.
+    .sort((a, b) => Number(b.group.startsWith('theme:')) - Number(a.group.startsWith('theme:'))).filter((fact, index, list) => fact.group.startsWith('theme:') || !list.some((other) => other.group.startsWith('theme:')));
+  const topics = CHAPTER_TOPICS[chapterId] || [];
+  // The report must be about the chapter by its own words (wordTopics), not only by the feed it came from.
+  const report = facts.filter((fact) => fact.kind === 'headline' && fact.rank !== 'context' && (fact.wordTopics || fact.topics)?.some((topic) => topics.includes(topic)))
+    .sort((a, b) => b.materiality - a.materiality)[0] || null;
+  if (!lead && !report) return null;
+  const size = (fact) => (fact.unit === 'bp' ? bp(fact.change) : signed(fact.change, 1));
+  const parts = [];
+  if (lead) parts.push(`${lead.label} ${size(lead)}, 평소 하루 변동의 ${Math.abs(lead.z).toFixed(1)}배${lead.rank === 'lead' ? '로 오늘 가장 큰 변화 중 하나입니다' : '입니다'}`);
+  if (moved.length) parts.push(`같이 움직인 업종은 ${moved.slice(0, 2).map((group) => `${group.label}(${signed(group.change, 1)})`).join(', ')}입니다`);
+  return { text: `${parts.join('. ')}${parts.length ? '.' : ''}`, report: report ? { title: report.title, date: report.date } : null, rank: lead?.rank || report?.rank || 'minor' };
 }
 
 function credit(macroHistory) {
@@ -158,7 +238,10 @@ function credit(macroHistory) {
   const fci = series(macroHistory, 'financialConditions').at(-1);
   const stress = hy.bp >= 40 || hy.to >= 4.5;
   const tail = ccc && ccc.bp >= 50;
+  // v59.64: +25bp to +40bp in 20 sessions is no longer quiet (HY +34bp read as 조용 on 11/3 while IG widened 4.7 sd in a day).
+  const widening = hy.bp >= 25;
   const mean = stress ? '스프레드가 크게 벌어졌습니다. 주가 조정이 신용 문제로 번지는지 확인해야 합니다.'
+    : widening ? `하이일드가 20거래일 동안 ${bp(hy.bp)} 벌어져 경계 쪽으로 움직이고 있습니다.${tail ? ' 가장 약한 CCC 등급이 더 빠르게 벌어져, 약한 기업부터 자금 조달이 어려워지는 모습입니다.' : ''}`
     : tail ? '전체 하이일드는 조용하지만 가장 약한 CCC 등급이 먼저 벌어지고 있습니다. 위기 신호가 오면 여기서 시작됩니다.'
       : '주가가 움직여도 스프레드가 넓어지지 않아 신용 문제는 아닙니다.';
   return {
@@ -194,8 +277,10 @@ function growthKorea(macroHistory, history, events) {
   };
 }
 
-/** The six chapters; a chapter whose series are missing is left out. */
-export function buildMacroChapters({ macroHistory = null, history = [], events = [] } = {}) {
-  const chapters = [inflation(macroHistory, events), labor(macroHistory, events), rates(macroHistory, events), commodities(history, macroHistory), credit(macroHistory), growthKorea(macroHistory, history, events)].filter(Boolean);
+/** The chapters (v59.64: eight); a chapter whose series are missing is left out. `day` is market-day.json, when loaded. */
+export function buildMacroChapters({ macroHistory = null, history = [], events = [], day = null } = {}) {
+  const chapters = [inflation(macroHistory, events), labor(macroHistory, events), rates(macroHistory, events), credit(macroHistory), oil(history, macroHistory),
+    metals(history, macroHistory), dollarChapter(history), growthKorea(macroHistory, history, events)].filter(Boolean)
+    .map((chapter) => ({ ...chapter, today: chapterToday(day, chapter.id) }));
   return { available: chapters.length > 0, chapters };
 }

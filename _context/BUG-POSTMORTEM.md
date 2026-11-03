@@ -39,6 +39,24 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2218 - v59.62 - A headline naming two reporters showed only the first calendar row (Palantir lost to Apple) (2026-11-03)
+
+- symptom/reproduction: "Apple and Palantir shares slide ... following post-bell earnings" carried only Apple's EPS/revenue line; Palantir's beat (EPS 0.44 vs 0.42, revenue $2.31B vs $2.23B) reached no screen.
+- root_cause: earningsContextForHeadline returned on the first calendar row whose name matched, in calendar order (Apple row 1, Palantir row 141).
+- fix: Every named reporter is collected with its position in the headline, ordered by that position (at most three); the result carries symbols and a joined line, and the news badges use symbols.
+- violated_rule: A selector over many candidates must not return the first match when the input can name several.
+- prevention: ci-esm-core-unit-check asserts a two-company headline yields both, in headline order.
+- verification/residual: The real headline now yields AAPL and PLTR lines; esm core unit check OK.
+
+## P2217 - v59.62 - Event briefs frozen since 10/31: the timestamp-only gate discarded every real change (2026-11-03)
+
+- symptom/reproduction: event-briefs.json stayed at 2026-10-31 12:53Z (59 briefs) through 11/3 although the workflow runs every 20 minutes; PLTR and ON results (11/2) had no brief.
+- root_cause: The commit step skipped a file whose diff lines, minus the generatedAt line, were empty. Since a9825f31 (10-31) the file is one line, so every real change sat on the generatedAt line and was discarded.
+- fix: The workflow compares the parsed JSON without generatedAt (scripts/lib/json-same-except.mjs, HEAD:path against the new file) instead of grepping diff lines.
+- violated_rule: A no-op gate must compare content, not the textual layout of a generated file.
+- prevention: ci-data-pipeline-contract-check fails if the workflow greps diff lines for generatedAt and unit-checks sameExcept (timestamp-only equal, content change different).
+- verification/residual: node scripts/lib/json-same-except.mjs exits 0 on a timestamp-only change and 1 on a real one; data pipeline contract check OK.
+
 ## P2216 - v59.61 - 스크리너가 새 SEC 원장을 발행한 뒤 main push에 실패하면 다음 실행까지 CI가 전체 원장 검사를 건너뜀 (2026-11-03)
 
 - symptom/reproduction: 릴리스 TLA+ 모델에서 HeadVerifiableBetweenRuns·LiveCheckedAgainstFullLedger가 깨졌다. 실제로 실행 38854259134(10-16)와 38241555138(10-12)이 data-store에 새 원장을 올린 뒤 rebase 충돌로 main push에 실패했고, 그동안 main 커밋의 CI는 digest 불일치로 SEC 전체 원장 게이트를 P1757 SKIP으로 통과해 공개됐다.

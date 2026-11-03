@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-route-soak-evidence.v1",
-  "observedAt": "2026-11-02T15:17:40.520Z",
-  "appRevision": "v59.60",
-  "gitHead": "6d29b2e0785bf1c656b228aa8f4427e1d3fdd6da",
+  "observedAt": "2026-11-03T12:44:34.531Z",
+  "appRevision": "v59.64",
+  "gitHead": "8bc67458022e0fc60f674998fc07a3060311fdda",
   "gitClean": false,
   "environment": {
     "browser": "chromium",
@@ -13,19 +13,19 @@
   },
   "command": "node scripts/ci-route-soak-check.mjs",
   "ok": true,
-  "routes": 19,
+  "routes": 20,
   "laps": 3,
   "lapReports": [
     {
       "lap": 1,
       "last": {
-        "route": "screener",
-        "active": "screener",
+        "route": "charts",
+        "active": "charts",
         "visiblePages": [
-          "page-screener"
+          "page-charts"
         ],
-        "marker": "vs05-fundamental-screener",
-        "state": "loaded",
+        "marker": "vs14-charts",
+        "state": "partial",
         "charts": 0,
         "canvases": 1,
         "entityId": null
@@ -36,13 +36,13 @@
     {
       "lap": 2,
       "last": {
-        "route": "screener",
-        "active": "screener",
+        "route": "charts",
+        "active": "charts",
         "visiblePages": [
-          "page-screener"
+          "page-charts"
         ],
-        "marker": "vs05-fundamental-screener",
-        "state": "loaded",
+        "marker": "vs14-charts",
+        "state": "partial",
         "charts": 0,
         "canvases": 1,
         "entityId": null
@@ -53,13 +53,13 @@
     {
       "lap": 3,
       "last": {
-        "route": "screener",
-        "active": "screener",
+        "route": "charts",
+        "active": "charts",
         "visiblePages": [
-          "page-screener"
+          "page-charts"
         ],
-        "marker": "vs05-fundamental-screener",
-        "state": "loaded",
+        "marker": "vs14-charts",
+        "state": "partial",
         "charts": 0,
         "canvases": 1,
         "entityId": null
@@ -73,15 +73,15 @@
     "sequence": [
       {
         "entityId": "AAPL",
-        "mountId": 55
+        "mountId": 58
       },
       {
         "entityId": "MSFT",
-        "mountId": 56
+        "mountId": 59
       },
       {
         "entityId": "AAPL",
-        "mountId": 57
+        "mountId": 60
       }
     ],
     "active": "ticker"

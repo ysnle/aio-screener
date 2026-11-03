@@ -1163,9 +1163,9 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
         && scoreServerNewsItem({ title: 'UAL Stock Quote Price and Forecast | CNN', source: 'CNN', ts: Date.parse('2026-10-15T06:00:00.000Z'), scoringNowMs: Date.parse('2026-10-15T06:30:00.000Z') }).selectionReason === 'not-article-filter',
       priorSessionMoveLines(oilHistory));
     const { marketDriversContext, upcomingPoliticalLine } = await import('./producer/market-narrative.mjs');
-    const electionWeek = marketDriversContext({ history: oilHistory, eventsLine: upcomingPoliticalLine(Date.parse('2026-10-24T02:00:00Z')) });
+    const electionWeek = marketDriversContext({ history: oilHistory, eventsLine: upcomingPoliticalLine(Date.parse('2026-10-29T02:00:00Z')) }); // v59.62: the midterm row (Knesset row expired)
     check('v58.74 an election inside the next week reaches the confirm/deny row; none after it',
-      /- 확인·반증:[^\n]*정치 일정: 10\/28 KST 이스라엘 총선/.test(electionWeek) && upcomingPoliticalLine(Date.parse('2026-11-10T00:00:00Z')) === '', electionWeek.match(/- 확인·반증:[^\n]*/)?.[0] || '');
+      /- 확인·반증:[^\n]*정치 일정: 11\/4 KST 미국 중간선거/.test(electionWeek) && upcomingPoliticalLine(Date.parse('2026-11-10T00:00:00Z')) === '', electionWeek.match(/- 확인·반증:[^\n]*/)?.[0] || '');
     const idle = marketDriversContext({ history: oilHistory });
     check('v58.72 with no market in session the drivers block does not claim the completed session had no intraday move',
       !/장중 큰 움직임 없음/.test(idle) && /장중 큰 움직임이 없었다"고 쓰지 말 것/.test(idle), idle.match(/- 지금:[^\n]*/)?.[0] || idle.slice(0, 300));
@@ -2390,6 +2390,16 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       && screenerRefresh.indexOf('sec-fundamentals-store.mjs guard') < screenerRefresh.indexOf('node scripts/build-sec-runtime-projection.mjs')
       && commitStep.indexOf('sec-fundamentals-store.mjs publish') > 0 && commitStep.indexOf('sec-fundamentals-store.mjs publish') < commitStep.indexOf('git commit -m')
       && commitStep.indexOf('sec-fundamentals-store.mjs publish') < commitStep.indexOf('until git push'));
+  // v59.62: the one-line event-briefs.json put every change on the generatedAt line, and the diff-line grep that skipped
+  // "timestamp only" runs dropped every real brief from 10-31 to 11-03.
+  {
+    const { sameExcept } = await import('./lib/json-same-except.mjs');
+    const briefsWorkflow = read('.github/workflows/event-briefs.yml');
+    check('v59.62 event-briefs skips a timestamp-only run by comparing parsed JSON without generatedAt, never by diff lines',
+      /node scripts\/lib\/json-same-except\.mjs generatedAt /.test(briefsWorkflow) && !/grep -v '"generatedAt"'/.test(briefsWorkflow)
+        && sameExcept({ generatedAt: 'a', briefs: [1] }, { generatedAt: 'b', briefs: [1] }, ['generatedAt'])
+        && !sameExcept({ generatedAt: 'a', briefs: [1] }, { generatedAt: 'b', briefs: [1, 2] }, ['generatedAt']));
+  }
   check('P1757 neither producer stages the SEC ledger on main, it is gitignored, and Pages still excludes it',
     [refresh, screenerRefresh].every((workflow) => !/git add[^\n]*public-data\/sec-fundamentals\.json/.test(workflow) && !/stage_if_exists public-data\/sec-fundamentals\.json/.test(workflow) && !/"\$staged" = "public-data\/sec-fundamentals\.json"/.test(workflow))
       && /^\/?public-data\/sec-fundamentals\.json$/m.test(read('.gitignore'))
@@ -2424,6 +2434,13 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       && score('Gold Price Prediction for Tomorrow: 3 Cues and Key Levels', 'Univest').selectionReason === 'not-article-filter');
   check('v58.24 the two narrative feeds exist and each has a slot floor',
     ['Google News - AI narrative/Memory', 'Google News - Positioning/Sovereign/Politics'].every((name) => ns.NEWS_FEEDS.some((feed) => feed.source === name) && ns.NEWS_FEED_FLOORS.some(([key, floor]) => key === name && floor >= 2)));
+  // v59.63: the market-day ledger is rebuilt every refresh after the scenario state, without network, and committed.
+  check('v59.63 refresh-data builds market-day.json after scenario-state and stages it',
+    /id: market-day[\s\S]{0,200}run: node scripts\/build-market-day\.mjs/.test(refresh) && refresh.indexOf('build-scenario-state.mjs') < refresh.indexOf('build-market-day.mjs')
+      && refresh.includes('stage_if_exists public-data/market-day.json') && !/fetch\(|https?:\/\//.test(readFileSync(new URL('./build-market-day.mjs', import.meta.url), 'utf8')));
+  check('v59.62 the deal and election-sector feeds exist with a seat, and a deal headline scores as a corporate action',
+    ['Google News - Deals/M&A', 'Google News - Election sectors'].every((name) => ns.NEWS_FEEDS.some((feed) => feed.source === name) && ns.NEWS_FEED_FLOORS.some(([key, floor]) => key === name && floor >= 1))
+      && /corporate-action/.test(score('Marvell to acquire Lumentum in $115 billion all-stock deal').selectionReason));
   const va = await import('./lib/market-analysis-validate.mjs');
   const row = (i, topic, feedSource, extra = {}) => ({ title: `headline ${i}`, source: `S${i}`, link: `https://x/${i}`, pubDate: '2026-10-17T20:00:00.000Z', score: 100 - i, topic, feedSource, ...extra });
   // Five Korean and six oil rows outscore the AI-narrative and credit rows; before, the top eight were all Korean/oil.
@@ -2720,6 +2737,16 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
     [{ kind: 'pt', key: 'pt|B|x|2026-10-20', date: '2026-10-20', ptTo: 2 }], { sinceDate: '2026-10-09' });
   check('v58.71 signals merge by key inside the window (new wins, old and unknown kinds drop) and each kind is capped',
     merged.length === 1 && merged[0].ptTo === 2 && Object.values(ts.SIGNAL_LIMITS).every((n) => n > 0 && n <= 240), JSON.stringify(merged));
+  // v59.62: an announced deal is a signal with both tickers; talks and a broker's takeover scenario are not; relays add terms up.
+  const dealA = ts.extractDeals('마벨(Marvell, $MRVL )이 루멘텀( $LITE )을 100% 주식교환 방식으로 인수하는 최종 계약 체결\n루멘텀 1주당 마벨 주식 4.5주 지급\n기업가치 약 1,150억 달러', { ...meta, postId: 'a/1' });
+  const dealB = ts.extractDeals('$MRVL 의 $LITE 인수 발표, 23.9% 프리미엄', { ...meta, postId: 'a/2' });
+  const dealMerged = ts.mergeSignals([], [...dealA, ...dealB]).filter((s) => s.kind === 'deal');
+  check('v59.62 announced deals become signals (both tickers, terms merged across relays); talks and takeover-scenario notes do not',
+    dealA[0]?.acquirer === 'MRVL' && dealA[0].target === 'LITE' && dealA[0].ratio === 4.5 && dealA[0].valueUsd === 115e9 && dealA[0].payment === 'stock'
+      && dealMerged.length === 1 && dealMerged[0].premiumPct === 23.9 && dealMerged[0].ratio === 4.5
+      && ts.extractDeals('마벨 $MRVL , 루멘텀 $LITE 인수 막바지 협상 발표 임박', meta).length === 0
+      && ts.extractDeals('미즈호, $LITE $MRVL 의 인수 가능성 발표', meta).length === 0,
+    JSON.stringify({ dealA, dealMerged }));
   check('v58.71 the producer extracts signals from fresh full text, keeps data posts in the lists, never republishes text, and seeds the window once',
     /extractPostSignals\(\{ id: post, text, datetime: date\.toISOString\(\), localDateKst: kstDate\(date\) \}, UNIVERSE\)/.test(fetchTelegram)
       && /scoreItem\(text, tags, \[\.\.\.tickers, \.\.\.roles\.listTickers, \.\.\.roles\.relatedTickers\], signals\.length > 0\)/.test(fetchTelegram)

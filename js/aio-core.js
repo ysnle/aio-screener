@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v59.61';
+const APP_VERSION = 'v59.64';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -3251,6 +3251,13 @@ var AIO_PAGE_BRIEFS = {
     steps: ['DXY와 USD/KRW로 달러 스트레스 확인', '2Y·10Y·커브로 금리 압박 확인', 'HY/OAS가 벌어지는지 확인'],
     focus: '주식 차트가 좋아도 달러와 금리가 동시에 올라가면 위험자산에는 부담이 되는 조합입니다.',
     links: [['macro','거시'], ['signal','시그널'], ['themes','테마']]
+  },
+  charts: { // v59.64 기술적 분석
+    title: '지수와 대표 종목이 차트에서 어디쯤인지 확인',
+    use: '이동평균선·지지·저항으로 지금 위치를 읽습니다.',
+    steps: ['50일선·200일선 위아래로 추세 확인', '가까운 지지·저항과 쌍봉 확인', '비중 상위 종목과 오늘 움직인 종목 비교'],
+    focus: '추세 이름은 위치를 말할 뿐이며, 지지를 지키는지가 다음 확인점입니다.',
+    links: [['macro','매크로'], ['signal','시장 상태'], ['technical','종목 차트']]
   },
   fundamental: {
     title: '좋은 회사인지보다 지금 가격의 근거가 무엇인지 확인',
@@ -14839,7 +14846,7 @@ function _aioExternalReferenceMap(externalReferences) {
     'home','signal','breadth','sentiment','briefing',
     'technical','macro','fxbond','fundamental','themes',
     'theme-detail','portfolio','ticker','market-news',
-    'principles','masters','atlas','guide','screener'
+    'principles','masters','atlas','guide','screener','charts'
   ];
   var CRITICAL_5 = ROUTE_PAGE_IDS.slice(0, 5);   // P1137/R623: 세 5라우트 그룹은 canonical 목록의 연속 구간이다 — 같은 20개를 다시 적지 않는다.
   var ANALYSIS_5 = ROUTE_PAGE_IDS.slice(5, 10);
@@ -14886,6 +14893,7 @@ function _aioExternalReferenceMap(externalReferences) {
       sentiment: { requiredProducers:['sentiment','vixHistory','hySpread'], optionalProducers:['delayedCboe','surveys'], minCoverage:{ sentiment:50, vixHistory:50, hySpread:50 }, maxAge:{ sentiment:14400000, vixHistory:86400000, hySpread:172800000 }, failureState:'partial', forbiddenClaims:['snapshot-survey-as-current-composite'] },
       briefing: { requiredProducers:['quotes','fred','news','sentiment','breadth'], optionalProducers:['aiNarrative'], minCoverage:{ quotes:80, fred:50, news:50, sentiment:50, breadth:50 }, maxAge:{ quotes:1200000, fred:172800000, news:10800000, sentiment:14400000, breadth:345600000 }, failureState:'partial', forbiddenClaims:['unverified-ai-narrative'] },
       technical: { requiredProducers:['quotes','technicals'], optionalProducers:['breadth','sentiment','krDynamic'], minCoverage:{ quotes:80, technicals:50 }, maxAge:{ quotes:1200000, technicals:3600000, breadth:345600000, sentiment:14400000, krDynamic:86400000 }, failureState:'blocked', forbiddenClaims:['mixed-observation-quote-history'] },
+      charts: { requiredProducers:['quotes','technicals'], optionalProducers:['screenerArtifact','breadth'], minCoverage:{ quotes:80, technicals:50 }, maxAge:{ quotes:1200000, technicals:3600000, screenerArtifact:345600000, breadth:345600000 }, failureState:'partial', forbiddenClaims:['trend-word-as-forecast'] }, // v59.64 기술적 분석
       macro: { requiredProducers:['fred','quotes'], optionalProducers:['bls','bea','treasury','news','krDynamic','krMacro'], minCoverage:{ fred:50, quotes:80 }, maxAge:{ fred:172800000, quotes:1200000, krDynamic:86400000 }, failureState:'partial', forbiddenClaims:['release-date-from-fetch-time','macro-claim-without-period-unit-release'] },
       fxbond: { requiredProducers:['quotes','fred','hySpread'], optionalProducers:['news'], minCoverage:{ quotes:80, fred:50, hySpread:50 }, maxAge:{ quotes:1200000, fred:172800000, hySpread:172800000 }, failureState:'partial', forbiddenClaims:['pair-inversion-or-percent-bp-mix'] },
       fundamental: { requiredProducers:['quotes','news'], optionalProducers:['companyFundamentals','technicals'], minCoverage:{ quotes:80, news:50 }, maxAge:{ quotes:1200000, news:10800000 }, failureState:'partial', forbiddenClaims:['valuation-without-filing-coverage'] },
@@ -15153,7 +15161,7 @@ function _aioExternalReferenceMap(externalReferences) {
     return {
       status: incomplete ? 'fail' : (missingDom.length || derivedDeepAudit.length || derivedSequential.length ? 'warn' : 'ok'),
       routePageCount: n,
-      expectedRoutePageCount: 19,  // P1321: options retired (v53.72 Atlas added → 20 → 19)
+      expectedRoutePageCount: 20,  // P1321: options retired (v53.72 Atlas added → 20 → 19); v59.64 charts → 20
       missingDom: missingDom, missingProfile: missingProfile, missingRefreshMap: missingRefresh,
       missingDeepAudit: missingAudit, missingSequentialRegistry: missingSequential,
       derivedDeepAudit: derivedDeepAudit, derivedSequentialRegistry: derivedSequential,
@@ -16167,7 +16175,7 @@ var breadcrumbMap = {
   briefing: ['오늘','브리핑'], fxbond: ['매크로','금리와 환율'],
   'market-news': ['오늘','뉴스'], signal: ['시장 상태','국면 판정'], breadth: ['시장 상태','시장 폭'], sentiment: ['시장 상태','투자 심리'],
   guide: ['도움말','화면 안내'], principles: ['리서치 라이브러리','개념·분석'], masters: ['리서치 라이브러리','대가 보유 종목'], atlas: ['리서치 라이브러리','산업 지도'],
-  screener: ['스크리너'],
+  screener: ['스크리너'], charts: ['기술적 분석'], // v59.64
   'theme-detail': ['테마와 섹터','테마 상세'],
   // A direct ticker-route visit has no selected symbol yet; do not present a
   // stale-looking placeholder symbol as if it were the current entity.
@@ -16358,6 +16366,7 @@ window.PAGES = {
   'technical':      { label: '차트',            init: null, chatCtx: 'technical' },
   'macro':          { label: '거시 경제',        init: null, chatCtx: 'macro' },
   'fxbond':         { label: '금리와 환율',      init: null, chatCtx: 'fxbond' },
+  'charts':         { label: '기술적 분석',      init: null, chatCtx: 'technical' }, // v59.64
   'fundamental':    { label: '재무 공시',       init: null, chatCtx: 'fundamental', contextScope: 'entity' },
   'themes':         { label: '테마/섹터',        init: null, chatCtx: 'themes' },
   'theme-detail':   { label: '테마 상세',        init: null, chatCtx: 'theme-detail' },

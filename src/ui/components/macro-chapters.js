@@ -1,9 +1,10 @@
-// v59.55 (owner 11/1): 매크로's six chapters (domain/macro/macro-chapters.js), right under the quadrant and the six
+// v59.55 (owner 11/1; eight since v59.64): 매크로's chapters (domain/macro/macro-chapters.js), right under the quadrant and the six
 // factors. Each card is one question: a small two-sided bar picture, the latest numbers, what they mean for stocks, the
 // next release, the condition that changes the read, and one fold with the numbers behind it.
 import { buildMacroChapters } from '../../domain/macro/macro-chapters.js';
 import { markFrame } from './section-frame.js';
 import { el } from './dom.js';
+import { MARKET_DAY } from '../../data/shared-artifacts.js';
 
 function miniBars(doc, viz) {
   const box = el(doc, 'figure', null, 'mx-ch__viz');
@@ -35,12 +36,19 @@ function chapterCard(doc, chapter) {
   const body = el(doc, 'div', null, 'mx-ch__body');
   const text = el(doc, 'div', null, 'mx-ch__text');
   text.append(el(doc, 'p', chapter.now, 'mx-ch__now'), el(doc, 'p', chapter.mean, 'mx-ch__mean'));
+  // v59.64: today's move of this chapter's gauges and what moved with it (market-day ledger).
+  if (chapter.today?.text) {
+    const today = el(doc, 'p', null, `mx-ch__today is-${chapter.today.rank}`);
+    today.append(el(doc, 'strong', '오늘 '), doc.createTextNode(chapter.today.text));
+    text.append(today);
+  }
   body.append(miniBars(doc, chapter.viz), text);
   const next = el(doc, 'dl', null, 'mx-ch__next');
   next.append(el(doc, 'dt', '다음 발표'), el(doc, 'dd', chapter.next), el(doc, 'dt', '바뀌는 조건'), el(doc, 'dd', chapter.flip));
   const fold = el(doc, 'details', null, 'sx-disclosure mx-ch__more');
   const rows = el(doc, 'dl', null, 'mx-ch__detail');
   for (const [label, value] of chapter.detail) rows.append(el(doc, 'dt', label), el(doc, 'dd', value));
+  if (chapter.today?.report) rows.append(el(doc, 'dt', '관련 보도'), el(doc, 'dd', `${chapter.today.report.title} (${chapter.today.report.date.slice(5).replace('-', '/')})`));
   fold.append(el(doc, 'summary', '숫자 더 보기'), rows);
   card.append(head, body, next, fold);
   return card;
@@ -50,9 +58,10 @@ export function renderMacroChapters({ documentRef: doc, root, events = [] }) {
   const top = doc?.querySelector?.('#page-macro .mk-macro-top');
   if (!top) return null;
   let section = doc.getElementById('macro-chapters');
-  const model = buildMacroChapters({ macroHistory: root?._aioMacroHistory || null, history: root?._aioHistory || [], events });
+  const day = root?.[MARKET_DAY.key] || null;
+  const model = buildMacroChapters({ macroHistory: root?._aioMacroHistory || null, history: root?._aioHistory || [], events, day });
   if (!model.available) { section?.remove(); return null; }
-  const key = [root?._aioMacroHistory?.generatedAt, (root?._aioHistory || []).at?.(-1)?.date, events.map((event) => `${event.id}:${event.date}`).join(',')].join('|');
+  const key = [root?._aioMacroHistory?.generatedAt, day?.generatedAt, (root?._aioHistory || []).at?.(-1)?.date, events.map((event) => `${event.id}:${event.date}`).join(',')].join('|');
   if (section?.dataset.signature === key) return section;
   const open = new Set([...(section?.querySelectorAll('.mx-ch__more[open]') || [])].map((node) => node.closest('.mx-ch')?.dataset.chapter));
   if (!section) {
@@ -67,7 +76,7 @@ export function renderMacroChapters({ documentRef: doc, root, events = [] }) {
     if (open.has(chapter.id)) card.querySelector('.mx-ch__more').open = true;
     grid.append(card);
   }
-  const title = el(doc, 'h2', '주제별로 보기 — 물가 · 고용 · 금리 · 원자재 · 신용 · 성장', 'briefing-h2');
+  const title = el(doc, 'h2', '주제별로 보기 — 물가 · 고용 · 금리 · 신용 · 유가 · 금과 은 · 달러 · 성장', 'briefing-h2');
   title.id = 'macro-chapters-title';
   section.replaceChildren(title, grid);
   markFrame(section, 'macro.chapters');

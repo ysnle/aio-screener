@@ -25,6 +25,7 @@ export const PAGE_DATA_TIMELINE_CONTRACTS = Object.freeze({
   briefing: Object.freeze([requirement('news.completedCycle', 30 * HOUR, { cycle: NEWS_CYCLE }), requirement('market.^GSPC', 4 * DAY, { direction: true, marketRevision: true })]),
   'market-news': Object.freeze([requirement('news.completedCycle', 30 * HOUR, { cycle: NEWS_CYCLE }), requirement('market.^GSPC', 4 * DAY, { direction: true, marketRevision: true })]),
   technical: Object.freeze([requirement('technical.history', 4 * DAY), requirement('market.^GSPC', 4 * DAY, { direction: true, marketRevision: true }), requirement('breadth.us', 4 * DAY)]),
+  charts: Object.freeze([requirement('technical.history', 4 * DAY), requirement('market.^GSPC', 4 * DAY, { direction: true, marketRevision: true })]), // v59.64 기술적 분석: index closes
   screener: Object.freeze([
     requirement('screener.snapshot', 4 * DAY),
     requirement('screener.factorCoverage', 4 * DAY),

@@ -521,12 +521,33 @@
       "legacyWriterEvidence": [],
       "notes": "ARX-10/ARX-16: screener.js is the sole visible DOM owner and the native provider/orchestrator owns the canonical screener state and single artifact fetch. Non-route readers use AIO_ARCH.getScreenerRows() through the compatibility boundary; legacy profile/watchlist storage and identity/memo overlays remain as explicit compatibility producers.",
       "chartOwnerEvidence": "v59.54 chart audit (browser probe 2026-11-01): the validation chart (#screener-validation) is SVG drawn by src/ui/components/screener-validation.js."
+    },
+    "charts": {
+      "lifecycleOwner": "native",
+      "rendererOwner": "native",
+      "dataOwner": "native",
+      "chartOwner": "native",
+      "narrativeOwner": "native",
+      "nativeModule": "src/ui/pages/charts.js (createChartsPage) + src/domain/technical/market-charts.js",
+      "loadingStrategy": "route-dynamic-import",
+      "nativePrimarySurface": [
+        "#page-charts #charts-conclusion",
+        "#page-charts #charts-index-grid"
+      ],
+      "nativeSecondarySurface": [
+        "#page-charts #charts-basis",
+        "#page-charts #charts-stock-table"
+      ],
+      "contestedIds": [],
+      "legacyWriterEvidence": [],
+      "notes": "v59.64 (owner 2026-11-03): 기술적 분석 is a screen of its own, like 매크로 — index chart readings (trend against the 50/200-day lines, swing support/resistance, double top) and the core-stock table from the screener's own fields.",
+      "chartOwnerEvidence": "v59.64: the index charts are SVG drawn by src/ui/components/trend-chart.js; a stock opens in the 종목 차트 tab (openMarketChart)."
     }
   },
   "counts": {
-    "totalRoutes": 19,
-    "lifecycleNative": 19,
-    "rendererNative": 19,
+    "totalRoutes": 20,
+    "lifecycleNative": 20,
+    "rendererNative": 20,
     "rendererNativeRoutes": [
       "home",
       "signal",
@@ -546,10 +567,11 @@
       "masters",
       "atlas",
       "guide",
-      "screener"
+      "screener",
+      "charts"
     ],
     "rendererLegacyRoutes": [],
-    "dataNative": 19,
+    "dataNative": 20,
     "dataNativeRoutes": [
       "home",
       "signal",
@@ -569,9 +591,10 @@
       "masters",
       "atlas",
       "guide",
-      "screener"
+      "screener",
+      "charts"
     ],
-    "chartNative": 13,
+    "chartNative": 14,
     "chartNativeRoutes": [
       "home",
       "signal",
@@ -585,10 +608,17 @@
       "themes",
       "theme-detail",
       "ticker",
-      "screener"
+      "screener",
+      "charts"
     ],
-    "narrativeNative": 4,
-    "narrativeNativeRoutes": ["sentiment", "macro", "fxbond", "theme-detail"],
+    "narrativeNative": 5,
+    "narrativeNativeRoutes": [
+      "sentiment",
+      "macro",
+      "fxbond",
+      "theme-detail",
+      "charts"
+    ],
     "lazyLoadedRoutes": [
       "home",
       "signal",
@@ -608,14 +638,16 @@
       "masters",
       "atlas",
       "guide",
-      "screener"
+      "screener",
+      "charts"
     ],
     "fullNativeOwner": [
       "sentiment",
       "principles",
       "masters",
       "atlas",
-      "guide"
+      "guide",
+      "charts"
     ]
   },
   "legacySymbolsMustBeAbsent": {

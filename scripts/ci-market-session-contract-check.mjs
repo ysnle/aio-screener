@@ -157,7 +157,9 @@ check('temporal evidence separates event/observed/collected/published', temporal
   const chuseok2027 = marketStructureEvents({ fomcDecisions: [], nowMs: Date.parse('2027-09-12T00:00:00Z'), days: 5 }).filter((row) => row.id.startsWith('krx-holiday-')).map((row) => row.id);
   const politics = marketStructureEvents({ fomcDecisions: [], nowMs: Date.parse('2026-10-24T02:00:00Z'), days: 7 }).map((row) => row.id);
   const afterVote = marketStructureEvents({ fomcDecisions: [], nowMs: Date.parse('2026-10-29T00:00:00Z'), days: 7 }).map((row) => row.id);
-  check('v58.74 a scheduled election is in the 7-day schedule and leaves it once the polls have closed', politics.includes('il-knesset-2026') && !politics.includes('us-midterm-2026') && !afterVote.includes('il-knesset-2026') && afterVote.includes('us-midterm-2026'), { politics, afterVote });
+  // v59.62: the expired Knesset row is removed (the registry check asked for it); the midterm carries the same three states.
+  const pastVote = marketStructureEvents({ fomcDecisions: [], nowMs: Date.parse('2026-11-04T07:00:00Z'), days: 7 }).map((row) => row.id);
+  check('v58.74 a scheduled election enters the schedule at its lead window and leaves it once the polls have closed', !politics.includes('us-midterm-2026') && afterVote.includes('us-midterm-2026') && !pastVote.includes('us-midterm-2026'), { politics, afterVote, pastVote });
   // v59.42 (owner audit 2026-10-28): the home schedule's 3-day window still lists the 11/3 midterm through its lead window;
   // an entry past its expiry is dropped and reported, and every entry carries its source and review date.
   const { scheduledEventProblems, activeScheduledEvents } = await import('../src/domain/briefing/scheduled-events.js');

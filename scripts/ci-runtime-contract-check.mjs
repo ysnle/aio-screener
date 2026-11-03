@@ -1179,7 +1179,7 @@ check('scheduler owns initial delay and invalidates stale loops across visibilit
   /cfg\.timer = setTimeout\(\(\) => \{[\s\S]{0,220}cfg\._scheduleEpoch !== scheduleEpoch/.test(data)
     && /cfg\._scheduleEpoch = \(cfg\._scheduleEpoch \|\| 0\) \+ 1;[\s\S]{0,120}clearTimeout\(cfg\.timer\)/.test(data)
     && /T1050 scheduler_initial_timer_is_owned_and_epoch_cancelled/.test(tests));
-check('H3-G: route contracts and cell-level data-lineage audit stay executable with zero broken/orphan sink condition', /getPageContractAudit/.test(core) && /expectedRoutePageCount:\s*19/.test(core) && /getDataLineageAudit/.test(core) && /totalOrphans/.test(core));
+check('H3-G: route contracts and cell-level data-lineage audit stay executable with zero broken/orphan sink condition', /getPageContractAudit/.test(core) && /expectedRoutePageCount:\s*20/.test(core) && /getDataLineageAudit/.test(core) && /totalOrphans/.test(core));
 check('headless tests cover H3-F/G boot-queue and route/lineage runtime contracts', /T912/.test(tests) && /T913/.test(tests));
 // v52.58 H3-G/H3-H/H3-I: close the handoff's element-level and human-surface gaps
 // with executable contracts. The handoff calls this a 12-field inventory but lists

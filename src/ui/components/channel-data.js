@@ -2,6 +2,7 @@
 // economic releases against the forecast, target-price and rating actions, quarters against estimates, and the share
 // of leveraged long products in Korean retail net buying of US stocks — read from telegram-digest.json `signals`
 // (scripts/lib/telegram-signals.mjs). One visual (the leverage share by day), one reading, the rows in a fold.
+import { signalLine } from '../../domain/news/channel-lines.js';
 
 const el = (doc, tag, text, className) => {
   const node = doc.createElement(tag);
@@ -36,6 +37,7 @@ export function channelDataModel(signals, { recentDays = 3 } = {}) {
   const actions = list.filter((signal) => signal.kind === 'pt').sort(byDate);
   const reports = list.filter((signal) => signal.kind === 'earnings').sort(byDate);
   const releases = list.filter((signal) => signal.kind === 'macro').sort(byDate);
+  const deals = list.filter((signal) => signal.kind === 'deal').sort(byDate);
   const recentActions = actions.filter(recent);
   const recentReports = reports.filter(recent);
   const missed = (signal) => [signal.revenue, signal.eps].includes('miss');
@@ -43,6 +45,9 @@ export function channelDataModel(signals, { recentDays = 3 } = {}) {
   if (recentActions.length) {
     sentences.push(`${day(since)} 이후 목표주가 상향 ${recentActions.filter((s) => s.direction === 'raise').length}건, 하향 ${recentActions.filter((s) => s.direction === 'cut').length}건${recentReports.length ? `, 실적은 예상 상회 ${recentReports.filter((s) => !missed(s) && [s.revenue, s.eps].includes('beat')).length}곳, 하회 ${recentReports.filter(missed).length}곳` : ''}입니다.`);
   }
+  // v59.62: an announced deal reprices both names and their chain, so the newest one is said on the face.
+  const recentDeals = deals.filter(recent);
+  if (recentDeals.length) sentences.push(`${day(recentDeals[0].date)} ${signalLine(recentDeals[0])}${recentDeals.length > 1 ? ` 외 ${recentDeals.length - 1}건` : ''}.`);
   if (retail[0]) {
     const [now, before] = retail;
     const change = before ? (now.leveragedLongShare > before.leveragedLongShare + 5 ? '늘었습니다' : now.leveragedLongShare < before.leveragedLongShare - 5 ? '줄었습니다' : '비슷합니다') : '';
@@ -51,6 +56,7 @@ export function channelDataModel(signals, { recentDays = 3 } = {}) {
   return {
     latest,
     reading: sentences.join(' '),
+    deals: deals.slice(0, 8).map((s) => `${day(s.date)} ${signalLine(s)}`),
     leverage: retail.slice(0, 8).reverse().map((signal) => ({ date: signal.date, value: signal.leveragedLongShare, top: signal.top?.[0]?.name || '' })),
     releases: releases.slice(0, 6).map((s) => `${day(s.date)} ${s.name} — 실제 ${fmt(s.actual)}${s.unit || ''}, 예상 ${fmt(s.forecast)}${s.unit || ''}${s.previous != null ? `, 이전 ${fmt(s.previous)}${s.unit || ''}` : ''} (${s.actual > s.forecast ? '예상보다 높음' : s.actual < s.forecast ? '예상보다 낮음' : '예상과 같음'})`),
     actions: actions.slice(0, 24).map((s) => `${day(s.date)} ${s.ticker}, ${s.broker || '증권사'}, ${s.ptFrom != null ? `${price(s.ptFrom, s.currency)} → ` : ''}${price(s.ptTo, s.currency)} ${DIRECTION[s.direction] || ''}${s.rating ? `, ${RATING[s.rating]}` : ''}${s.ratingAction ? `, 의견 ${s.ratingAction === 'upgrade' ? '상향' : '하향'}` : ''}`),
@@ -91,8 +97,8 @@ export function renderChannelData(doc, card, signals) {
     container.append(chart);
   }
   const fold = el(doc, 'details', null, 'tg-data-fold');
-  fold.append(el(doc, 'summary', '지표, 목표주가, 실적 자세히'));
-  for (const [title, rows] of [['경제지표 (실제 대 예상)', model.releases], ['목표주가, 투자의견', model.actions], ['실적 (예상 대비)', model.reports]]) {
+  fold.append(el(doc, 'summary', '지표, 인수·합병, 목표주가, 실적 자세히'));
+  for (const [title, rows] of [['경제지표 (실제 대 예상)', model.releases], ['인수·합병 발표', model.deals], ['목표주가, 투자의견', model.actions], ['실적 (예상 대비)', model.reports]]) {
     if (!rows.length) continue;
     fold.append(el(doc, 'div', title, 'tg-data-sub'));
     const ul = el(doc, 'ul', null, 'tg-data-list');

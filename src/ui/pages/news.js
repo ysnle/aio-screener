@@ -283,7 +283,7 @@ function createNewsCard(documentRef, root, item, index) {
   try {
     if (root?._aioEarningsSnapshot && typeof root._aioEarningsContext === 'function') earnings = root._aioEarningsContext(item?.title, { earnings: root._aioEarningsSnapshot.earnings, names: symbolNames(root) });
   } catch (_) { earnings = null; }
-  const tickers = earnings?.symbol ? [earnings.symbol] : extractedTickers;
+  const tickers = earnings?.symbols?.length ? [...earnings.symbols] : earnings?.symbol ? [earnings.symbol] : extractedTickers;
   // P1591 (E05): one badge per company — '$$삼성전자' and '$삼성전자' were the same symbol with a doubled marker.
   const uniqueTickers = resolveNewsIssuers(item, tickers, root?.AIO_TICKER_NAME_REGISTRY?.entries);
   // v57.88 (screen audit): registry topic keys (GE_VRN, TSLA_AUTOPILOT) are not symbols and never become a badge.

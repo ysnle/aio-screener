@@ -57,8 +57,10 @@ jobs:
             if [ -e "$f" ]; then git add -- "$f"; fi
           done
           # A run that only re-checked sources changes generatedAt alone; that file is not committed.
+          # v59.62: compare the parsed files without generatedAt. The file is one line since a9825f31 (10-31), so the
+          # old diff-line grep saw every real change on the generatedAt line and discarded it (briefs frozen at 10-31).
           if ! git diff --staged --quiet -- public-data/event-briefs.json \
-            && [ -z "$(git diff --staged -- public-data/event-briefs.json | grep -E '^[-+][^-+]' | grep -v '"generatedAt"' || true)" ]; then
+            && node scripts/lib/json-same-except.mjs generatedAt "$(git rev-parse HEAD):public-data/event-briefs.json" public-data/event-briefs.json; then
             git restore --staged -- public-data/event-briefs.json
             echo "event-briefs.json: only the timestamp changed"
           fi

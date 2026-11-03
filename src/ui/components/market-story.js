@@ -66,7 +66,19 @@ function questionRow(doc, story) {
 
 function detailFold(doc, story) {
   const fold = el(doc, 'details', null, 'sx-disclosure aio-frame-more mk-story__more');
-  fold.append(el(doc, 'summary', '자세히 — 금리·신용·유가·금·한국 확인과 실적 반응'));
+  fold.append(el(doc, 'summary', `자세히 — ${story.levels ? '차트 위치, ' : ''}금리·신용·유가·금·한국 확인과 실적 반응`));
+  if (story.levels) {
+    fold.append(el(doc, 'h3', '지수는 차트에서 어디쯤인가', 'mk-story__sub'));
+    fold.append(el(doc, 'p', story.levels.read, 'mk-story__read'));
+    const list = el(doc, 'dl', null, 'mk-story__checks');
+    for (const row of story.levels.rows) {
+      const item = el(doc, 'div', null, 'mk-story__check');
+      item.dataset.level = row.id;
+      item.append(el(doc, 'dt', row.label), el(doc, 'dd', row.value, 'mk-story__value'));
+      list.append(item);
+    }
+    fold.append(list);
+  }
   if (story.checks.length) {
     fold.append(el(doc, 'h3', '다른 자산도 같은 이야기를 하나', 'mk-story__sub'));
     const list = el(doc, 'dl', null, 'mk-story__checks');

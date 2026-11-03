@@ -18,6 +18,7 @@ import { renderScenarioOutlookContext } from '../../src/domain/market/scenario-o
 import { renderMacroCrossroadsContext } from '../../src/domain/market/macro-crossroads.js';
 import { renderMarketGuideContext } from '../../src/domain/guide/market-guide.js';
 import { POLITICAL_EVENTS } from '../../src/domain/briefing/schedule.js';
+import { indexLevels, levelValue, levelsRead } from '../../src/domain/market/index-levels.js';
 import { interpretationFromArtifacts, marketAnalysisRegimeInput as regimeInputFromArtifacts } from '../lib/market-interpretation-inputs.mjs'; // owner 2026-10-19: one interpretation pipeline
 import { NEWS_INTRADAY_MAX } from '../lib/news-selection.mjs';
 import { buildMarketAnalysisPrompt, buildMarketAnalysisRetryPrompt, inflationDirectionLine } from '../lib/market-analysis-prompt.mjs';
@@ -176,7 +177,14 @@ export function upcomingPoliticalLine(nowMs = Date.now(), days = 7) {
     .filter((event) => Number.isFinite(event.atMs) && event.atMs >= nowMs && event.atMs <= nowMs + days * 86400000);
   return rows.length ? `정치 일정: ${rows.map((event) => `${mdOf(event.atKst.slice(0, 10))} KST ${event.label}`).join(' / ')}` : '';
 }
-export function marketDriversContext({ history = [], reversal = null, intradayRows = [], earningsLine = '', eventsLine = '' } = {}) {
+// v59.62 (owner 2026-11-03): the reading said nothing about where the indexes sit on their charts (Nasdaq-100 more than
+// 10% off its high, semiconductors 11% under the 50-day line, the July low as support). Rules over the closes only
+// (src/domain/market/index-levels.js); the line names no price target.
+export function chartLevelsLine(history = []) {
+  const levels = indexLevels(history);
+  return levels.length ? `차트 위치: ${levels.map(levelValue).join(' · ')}. ${levelsRead(levels)}` : '';
+}
+export function marketDriversContext({ history = [], reversal = null, intradayRows = [], earningsLine = '', eventsLine = '', levelsLine = '' } = {}) {
   const prior = priorSessionMoveLines(history).replace(/^직전 완료 세션의 큰 움직임: /, '').replace(/ — .*$/, '');
   const kst = (iso) => new Date(Date.parse(iso) + 9 * 3600000).toISOString().slice(11, 16);
   const now = reversal
@@ -187,7 +195,7 @@ export function marketDriversContext({ history = [], reversal = null, intradayRo
     'MARKET_DRIVERS (해석의 뼈대 — 아래 세 칸을 이 순서로 채운다. 숫자는 METRIC_EVIDENCE·REGIME_CONTEXT·KOREA_LARGE_INTRADAY_MOVE와 아래 장중 값만 쓴다):',
     `- 압력: ${prior || '직전 완료 세션의 큰 움직임 없음 — 가장 최근 완료 종가의 변화'} — 이 움직임에 대해 보도된 이유를 서로 다른 것으로 2~3개 쓴다. 이유마다 "10/20 WSJ 보도에 따르면 …"처럼 HEADLINE_CONTEXT 헤드라인의 날짜(M/D, date= 값)와 출처를 같은 문장에 붙이고, 그 이유가 무엇을 거쳐 어느 쪽(반도체·대형 기술주, 유가, 신용 등)에 닿았는지 한 구절로 잇는다.`,
     `- 지금: ${[now, intraday].filter(Boolean).join(' · ') || NO_SESSION_ROW_NOW} — 이 움직임에 대해 보도된 이유를 1~3개, 같은 형식(날짜·출처)으로 쓴다. 장중 움직임의 이유는 08:00 이후 장중 속보(잠정)나 그 직전 미국 장 마감 뒤 헤드라인에서만 고르고 잠정이면 "잠정"을 쓴다. 압력의 이유와 지금의 이유를 한 문장에 섞지 않는다.`,
-    `- 확인·반증: ${[earningsLine || '다음 대형주 실적 일정 미수집', eventsLine].filter(Boolean).join(' / ')} — 지금 움직임이 이어지려면 무엇이 확인돼야 하고(예: 실적과 설비투자 전망이 반도체·대형 기술주로 이어지는지, 유가·신용이 같은 방향인지) 무엇이 나오면 되돌림으로 보는지 쓴다. 매매 지시·목표가 없이.`,
+    `- 확인·반증: ${[earningsLine || '다음 대형주 실적 일정 미수집', eventsLine, levelsLine].filter(Boolean).join(' / ')} — 지금 움직임이 이어지려면 무엇이 확인돼야 하고(예: 실적과 설비투자 전망이 반도체·대형 기술주로 이어지는지, 유가·신용이 같은 방향인지) 무엇이 나오면 되돌림으로 보는지 쓴다. 매매 지시·목표가 없이.`,
     '보도된 이유가 헤드라인에 없으면 지어내지 말고 "보도된 이유 미수집"이라고 쓴다. 헤드라인은 원인을 확정하지 않는다 — 한 가지 해석으로 쓴다.'
   ].join('\n');
 }
@@ -432,7 +440,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
       .map((row) => ({ label: row.label, observedAt: row.observedAt, changePct: changeOf.get(row.evidenceId) }));
     const usCloseDate = buildCloseSeries(historyRows, 'spx').at(-1)?.date || null;
     const usCloseAt = usCloseDate ? `${mdOf(usCloseDate)} 16:00 ET` : null;
-    const driversContext = marketDriversContext({ history: historyRows, reversal, intradayRows, earningsLine: nextEarningsLine(earnings === undefined ? readEarningsCalendar() : earnings, usCloseDate), eventsLine: upcomingPoliticalLine() });
+    const driversContext = marketDriversContext({ history: historyRows, reversal, intradayRows, earningsLine: nextEarningsLine(earnings === undefined ? readEarningsCalendar() : earnings, usCloseDate), eventsLine: upcomingPoliticalLine(), levelsLine: chartLevelsLine(historyRows) });
     const inflationLine = inflationDirectionLine(data?.macro || {}); // v57.75: INFLATION_DIRECTION
     const model = SHARED_AI_MODEL;
     const prompt = buildMarketAnalysisPrompt({ inflationLine, regimeContext, evidenceLines, koreaIntradayLines, intradayLines, usCloseAt, afterHoursLines, earningsLines,

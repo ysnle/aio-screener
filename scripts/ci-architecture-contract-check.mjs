@@ -18,7 +18,7 @@ const golden = JSON.parse(read('architecture/golden-routes.json'));
 const release = JSON.parse(read('architecture/release-manifest.json'));
 const executionPlan = read('_context/ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md');
 const publicManifest = JSON.parse(read('public-artifact-manifest.json'));
-if (!Array.isArray(golden.routes) || golden.routes.length !== 19) fail('golden route count must be 19 (P1321 options retired)');
+if (!Array.isArray(golden.routes) || golden.routes.length !== 20) fail('golden route count must be 20 (P1321 options retired; v59.64 charts)');
 for (const marker of ['## 2. 계층별 현재 상태와 목표', '## 5. 17 route 세부 전환 원장', '## 7. 세션 작업 카드', 'DELETE-LEDGER', 'nativeRendererOwner', '## 9. 전체 재구축 최종 인수 기준']) {
   if (!executionPlan.includes(marker)) fail(`architecture execution plan missing marker: ${marker}`);
 }
@@ -879,7 +879,7 @@ const read = (file) => readFileSync(join(root, file), 'utf8');
 const fail = (message) => { throw new Error(message); };
 
 const audit = auditVerticalSliceContracts(ROUTE_IDS);
-if (!audit.ok || audit.sliceCount !== 12 || audit.coveredRoutes.length !== ROUTE_IDS.length) fail(`vertical slice registry drifted: ${JSON.stringify(audit)}`);
+if (!audit.ok || audit.sliceCount !== 13 || audit.coveredRoutes.length !== ROUTE_IDS.length) fail(`vertical slice registry drifted: ${JSON.stringify(audit)}`);
 if (VERTICAL_SLICE_CONTRACTS.some((slice) => slice.routes.length < 1 || slice.acceptance.length < 13)) fail('vertical slice acceptance contract is incomplete');
 const routeOwners = JSON.parse(read('architecture/route-owners.json'));
 for (const route of ROUTE_IDS) {

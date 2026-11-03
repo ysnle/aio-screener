@@ -5,13 +5,15 @@
 // SCHEDULED_EVENTS.
 import { MOVER_BY_SYMBOL } from '../briefing/market-movers.js';
 import { readNumber } from '../shared/number.js';
+import { SCHEDULED_EVENTS as REGISTRY } from '../briefing/scheduled-events.js';
+import { indexLevels, levelValue, levelsRead } from './index-levels.js';
 
 export const STORY_SESSIONS = 15;
 
-// Dated events no collected calendar carries. Each is a fixed public date.
-export const SCHEDULED_EVENTS = Object.freeze([
-  { date: '2026-11-03', title: '미국 중간선거', why: '의회 구성이 정해집니다. 결과 전에는 변동성이 커지기 쉽고, 결과 뒤 되돌림이 나오는지 봅니다.' }
-].map(Object.freeze));
+// Dated events no collected calendar carries. v59.62: read from the one registry (briefing/scheduled-events.js); this
+// file kept its own copy of the midterm, so a moved or added date had to be written twice.
+export const SCHEDULED_EVENTS = Object.freeze(REGISTRY.filter((event) => event.marketDate && event.storyWhy)
+  .map((event) => Object.freeze({ date: event.marketDate, title: event.storyTitle || event.label, why: event.storyWhy })));
 
 const NON_AI_LAYERS = new Set(['ai-adopter', 'ai-exposed', 'limited']);
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
@@ -260,5 +262,9 @@ export function buildMarketStory({ history = [], macroHistory = null, briefs = n
   story.earnings = [...reported.filter((row) => row.core).slice(0, 8),
     ...reported.filter((row) => !row.core && Math.abs(row.pct) >= 8).sort((a, b) => Math.abs(b.pct) - Math.abs(a.pct)).slice(0, 4)];
   story.week = weekAhead({ calendar, nextEvent, story, nowMs });
+  // v59.62: where the indexes sit on their charts (index-levels.js) — distance from the high, the 50/200-day lines, the
+  // support below and a double top at or through its neck. Not a cross-asset check, so it is its own block.
+  const levels = indexLevels(history);
+  story.levels = levels.length ? { rows: levels.map((level) => ({ id: level.field, label: level.label, value: levelValue(level).replace(`${level.label} `, '') })), read: levelsRead(levels) } : null;
   return story;
 }

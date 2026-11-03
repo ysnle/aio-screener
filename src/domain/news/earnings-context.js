@@ -33,6 +33,10 @@ export function earningsContextForHeadline(title, { earnings = [], names = {}, n
   // "Bank of America raises TSMC's target". The full name (legal suffix dropped) or the ticker must appear, the headline
   // must be about results, and a firm acting as the analyst is not its own earnings story.
   if (!EARNINGS_WORDS.test(text) || ANALYST_ACTION.test(text)) return null;
+  // v59.62: a headline can name several reporters ("Apple and Palantir shares slide … following post-bell earnings").
+  // The first calendar row used to win (Apple, row 1; Palantir, row 141), so Palantir's beat never reached the screen.
+  // Every named reporter now gets its line, in the order the headline names them (at most three).
+  const found = [];
   for (const row of Array.isArray(earnings) ? earnings : []) {
     const name = String(names[row?.symbol] || '');
     const core = name.replace(LEGAL_SUFFIX, ' ').replace(/[\s,.]+$/, '').replace(/\s+/g, ' ').trim();
@@ -40,9 +44,11 @@ export function earningsContextForHeadline(title, { earnings = [], names = {}, n
     const symbol = String(row?.symbol || '');
     const first = core.split(' ')[0];
     const short = core.includes(' ') && first.length >= 4 && !GENERIC_FIRST.test(first) ? first : null; // "Micron beats …" (P1382)
-    const named = [core, short].filter((value) => value && value.length >= 3).some((value) => new RegExp(`(^|[^A-Za-z])${escape(value)}([^A-Za-z]|$)`, 'i').test(text));
-    const tickered = symbol && new RegExp(`(\\$${escape(symbol)}\\b|\\(${escape(symbol)}\\))`).test(text);
-    if (!named && !tickered) continue;
+    const positions = [core, short].filter((value) => value && value.length >= 3)
+      .map((value) => text.search(new RegExp(`(^|[^A-Za-z])${escape(value)}([^A-Za-z]|$)`, 'i')))
+      .concat(symbol ? [text.search(new RegExp(`(\\$${escape(symbol)}\\b|\\(${escape(symbol)}\\))`))] : [])
+      .filter((at) => at >= 0);
+    if (!positions.length) continue;
     const reportedMs = Date.parse(`${row.date}T12:00:00Z`);
     if (!Number.isFinite(reportedMs) || nowMs - reportedMs > windowDays * DAY || reportedMs - nowMs > DAY) continue;
     const parts = [vsLine('EPS', row.epsActual, row.epsEstimate, (v) => v.toFixed(2)), vsLine('매출', row.revenueActual, row.revenueEstimate, money)].filter(Boolean);
@@ -50,7 +56,10 @@ export function earningsContextForHeadline(title, { earnings = [], names = {}, n
     const when = `${Number(row.date.slice(5, 7))}/${Number(row.date.slice(8, 10))}${row.hour === 'amc' ? ' 장 마감 후' : row.hour === 'bmo' ? ' 장 시작 전' : ''}`;
     // P1428 (Codex review): the line names its company — a Nike earnings story tagged with an analyst's
     // firm ($MS) read as Morgan Stanley's results.
-    return Object.freeze({ symbol: row.symbol, name, text: `${name} (${row.symbol}) 실적(${when}), ${parts.join(', ')}`, hasActual: typeof row.epsActual === 'number' || typeof row.revenueActual === 'number', source: 'Finnhub 실적 달력' });
+    if (found.some((hit) => hit.symbol === row.symbol)) continue;
+    found.push({ at: Math.min(...positions), symbol: row.symbol, name, line: `${name} (${row.symbol}) 실적(${when}), ${parts.join(', ')}`, hasActual: typeof row.epsActual === 'number' || typeof row.revenueActual === 'number' });
   }
-  return null;
+  if (!found.length) return null;
+  const hits = found.sort((a, b) => a.at - b.at).slice(0, 3);
+  return Object.freeze({ symbol: hits[0].symbol, symbols: Object.freeze(hits.map((hit) => hit.symbol)), name: hits[0].name, text: hits.map((hit) => hit.line).join(' · '), hasActual: hits.some((hit) => hit.hasActual), source: 'Finnhub 실적 달력' });
 }

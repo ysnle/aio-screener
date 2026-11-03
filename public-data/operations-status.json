@@ -24,7 +24,7 @@
     "UNKNOWN"
   ],
   "generatedAt": "2026-11-03T10:52:00.093Z",
-  "appRevision": "v59.61",
+  "appRevision": "v59.64",
   "dataRevision": "market-snapshot:2026-11-03T10:51:14.404Z:70d096ca",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
   "overall": "OPERATOR_REQUIRED",
@@ -247,7 +247,7 @@
       "status": "UNKNOWN",
       "statusCode": "NOT_OBSERVED",
       "source": "static-pages+service-worker",
-      "revision": "v59.61",
+      "revision": "v59.64",
       "configured": true,
       "observed": "NOT_OBSERVED",
       "lastAttemptAt": null,
@@ -476,17 +476,18 @@
         "public-data/history.json"
       ]
     },
-    "routeCount": 19,
+    "routeCount": 20,
     "rawProducerClaimGate": "not_applicable_for_quote_plane"
   },
   "routes": {
-    "supported": 19,
+    "supported": 20,
     "nativeOwner": [
       "sentiment",
       "principles",
       "masters",
       "atlas",
-      "guide"
+      "guide",
+      "charts"
     ],
     "legacyOwner": 0,
     "nativeLifecycleOwner": [
@@ -508,7 +509,8 @@
       "masters",
       "atlas",
       "guide",
-      "screener"
+      "screener",
+      "charts"
     ],
     "nativeRendererOwner": [
       "home",
@@ -529,7 +531,8 @@
       "masters",
       "atlas",
       "guide",
-      "screener"
+      "screener",
+      "charts"
     ],
     "nativeDataOwner": [
       "home",
@@ -550,7 +553,8 @@
       "masters",
       "atlas",
       "guide",
-      "screener"
+      "screener",
+      "charts"
     ],
     "nativeChartOwner": [
       "home",
@@ -565,13 +569,15 @@
       "themes",
       "theme-detail",
       "ticker",
-      "screener"
+      "screener",
+      "charts"
     ],
     "nativeNarrativeOwner": [
       "sentiment",
       "macro",
       "fxbond",
-      "theme-detail"
+      "theme-detail",
+      "charts"
     ],
     "nativeLazyOwner": [
       "home",
@@ -592,7 +598,8 @@
       "masters",
       "atlas",
       "guide",
-      "screener"
+      "screener",
+      "charts"
     ],
     "observerOwner": 0,
     "cutoverStatus": "MIGRATION_IN_PROGRESS",

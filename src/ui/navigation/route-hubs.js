@@ -1,11 +1,12 @@
-// 2026-10-01 information architecture (AGENTS.md): 19 routes are presented as eight
-// screens. A screen's sub-routes are switched by the in-page tab bar below the topbar;
+// 2026-10-01 information architecture (AGENTS.md): the routes are presented as screens (nine since v59.64). A screen's sub-routes are switched by the in-page tab bar below the topbar;
 // route ids, deep links and page owners stay unchanged until each screen is merged.
 import { readSavedStockSubject, saveStockSubject } from '../../data/stock-subject-store.js';
 export const ROUTE_HUBS = Object.freeze([
   { id: 'today', label: '오늘', routes: [{ id: 'home', label: '요약' }, { id: 'briefing', label: '브리핑' }, { id: 'market-news', label: '뉴스' }] },
   { id: 'market', label: '시장 상태', routes: [{ id: 'signal', label: '국면 판정' }, { id: 'breadth', label: '시장 폭' }, { id: 'sentiment', label: '투자 심리' }] },
   { id: 'macro', label: '매크로', routes: [{ id: 'macro', label: '거시 경제' }, { id: 'fxbond', label: '금리와 환율' }] },
+  // v59.64 (owner 2026-11-03): 기술적 분석 is a screen of its own, like 매크로.
+  { id: 'charts', label: '기술적 분석', routes: [{ id: 'charts', label: '기술적 분석' }] },
   { id: 'themes', label: '테마와 섹터', routes: [{ id: 'themes', label: '테마와 섹터', also: ['theme-detail'] }, { id: 'theme-detail', label: '테마 상세', tab: false }] },
   // P1430: one 종목 screen — 요약 · 차트 · 재무 공시 are three views of the same selected company.
   // v59.55 (flow review): 스크리너 before 종목 — find, then examine; the sidebar, phone tab bar and number keys share it.

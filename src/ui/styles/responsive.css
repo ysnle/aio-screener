@@ -665,6 +665,9 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
 #page-macro .mx-ch__text { display: flex; flex-direction: column; gap: 6px; }
 #page-macro .mx-ch__now { margin: 0; font-size: 14px; font-weight: 700; line-height: 1.5; color: var(--text-primary); font-variant-numeric: tabular-nums; }
 #page-macro .mx-ch__mean { margin: 0; font-size: 13px; line-height: 1.7; color: var(--text-primary); }
+#page-macro .mx-ch__today { margin: 0; padding: 6px 10px; border-left: 3px solid rgba(var(--ink-rgb), 0.18); font-size: 13px; line-height: 1.6; color: var(--text-primary); }
+#page-macro .mx-ch__today.is-lead { border-left-color: var(--accent); }
+#page-macro .mx-ch__today strong { font-weight: 700; color: var(--text-secondary); }
 #page-macro .mx-ch__next { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 4px 10px; margin: 0; padding: 10px 12px; border-radius: 10px; background: var(--sx-ink-a03, rgba(0, 0, 0, 0.03)); font-size: 12px; line-height: 1.55; }
 #page-macro .mx-ch__next dt { font-weight: 700; color: var(--text-secondary); }
 #page-macro .mx-ch__next dd { margin: 0; color: var(--text-primary); }
@@ -706,3 +709,23 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
   #aio-first-visit-disclaimer.is-inline .lu-dc-text { flex: 1 1 0 !important; font-size: 12px; line-height: 1.5; }
   #aio-first-visit-disclaimer.is-inline .lu-dc-btn { flex: 0 0 auto; padding: 0 12px !important; font-size: 12px !important; }
 }
+/* v59.64 기술적 분석: index cards two to a row on wide screens, one on phones; the trend word is a quiet tag, not a grade. */
+#page-charts .charts-lead { margin: 0 0 12px; font-size: 15px; line-height: 1.6; color: var(--text-primary); }
+#page-charts .charts-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+@media (min-width: 1024px) { #page-charts .charts-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+#page-charts .charts-card { background: var(--bg-card); border-radius: 12px; padding: 18px 20px; min-width: 0; }
+#page-charts .charts-card-conclusion { margin: 4px 0 8px; font-size: 14px; line-height: 1.6; color: var(--text-primary); }
+#page-charts .charts-trend { font-size: 13px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
+#page-charts .charts-trend.is-up, #page-charts .charts-trend.is-recovery { color: var(--dir-up); }
+#page-charts .charts-trend.is-breakdown, #page-charts .charts-trend.is-down { color: var(--dir-down); }
+#page-charts .charts-numbers { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 12px; margin: 8px 0 0; font-size: 13px; }
+#page-charts .charts-numbers dt { color: var(--text-secondary); }
+#page-charts .charts-numbers dd { margin: 0; font-variant-numeric: tabular-nums; }
+#page-charts .charts-open, #page-charts .charts-stock { min-height: 32px; padding: 4px 10px; border: 1px solid rgba(var(--ink-rgb), 0.18); border-radius: 8px; background: transparent; color: var(--text-primary); font: inherit; font-size: 13px; cursor: pointer; }
+#page-charts .charts-open { margin-top: 10px; }
+#page-charts .charts-table-wrap { overflow-x: auto; }
+#page-charts .charts-table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+#page-charts .charts-table th, #page-charts .charts-table td { padding: 6px 8px; text-align: right; border-bottom: 1px solid rgba(var(--ink-rgb), 0.08); white-space: nowrap; }
+#page-charts .charts-table th:first-child, #page-charts .charts-table td:first-child, #page-charts .charts-table td:nth-child(2), #page-charts .charts-table th:nth-child(2) { text-align: left; }
+#page-charts .charts-stock-name { margin-left: 8px; color: var(--text-secondary); }
+#page-charts .charts-table-note { margin: 8px 0 0; font-size: 13px; color: var(--text-secondary); }

@@ -2767,10 +2767,10 @@ window.AIO.getAutoDataContinuityAudit = function(opts) {
 window.AIO_PAGE_DECLUTTER_POLICY = {
   priorityRoutes: ['signal','macro','technical','fxbond','guide','principles','masters','atlas','themes','portfolio','screener'],
   intents: {
-    home:'오늘 시장을 열어도 되는지 결정', signal:'진입·보유·축소 중 하나를 선택', breadth:'지수 상승의 참여 폭 확인', sentiment:'심리 과열·공포 확인', briefing:'오늘 행동을 바꿀 뉴스 압축 확인', 'market-news':'가격 영향 뉴스만 분류', technical:'추세 유지·축소·헤지 판단', screener:'후보를 팩터로 좁히기', ticker:'선택 종목 최종 검증', portfolio:'보유 위험과 리밸런싱 확인', themes:'주도 테마와 리더 확인', 'theme-detail':'선택 테마의 리더·리스크 확인', macro:'정책·성장·금리 압력 확인', fxbond:'달러·금리·크레딧 압력 확인', fundamental:'가격에 살 이유와 결측 확인', guide:'사용 루틴과 정책 참고', principles:'금리·산업·병목의 연결 구조 학습', masters:'공개 보유와 데이터 한계 확인', atlas:'AI 원리·산업·시장 연결 구조 학습'
+    home:'오늘 시장을 열어도 되는지 결정', signal:'진입·보유·축소 중 하나를 선택', breadth:'지수 상승의 참여 폭 확인', sentiment:'심리 과열·공포 확인', briefing:'오늘 행동을 바꿀 뉴스 압축 확인', 'market-news':'가격 영향 뉴스만 분류', technical:'추세 유지·축소·헤지 판단', screener:'후보를 팩터로 좁히기', ticker:'선택 종목 최종 검증', portfolio:'보유 위험과 리밸런싱 확인', themes:'주도 테마와 리더 확인', 'theme-detail':'선택 테마의 리더·리스크 확인', macro:'정책·성장·금리 압력 확인', fxbond:'달러·금리·크레딧 압력 확인', fundamental:'가격에 살 이유와 결측 확인', guide:'사용 루틴과 정책 참고', principles:'금리·산업·병목의 연결 구조 학습', masters:'공개 보유와 데이터 한계 확인', atlas:'AI 원리·산업·시장 연결 구조 학습', charts:'지수·대표 종목의 추세 위치 확인'
   },
   scenarios: {
-    home:'첫 진입자는 홈→시그널→포트폴리오', signal:'신규 진입 전 점수·lockout 확인', technical:'티커 입력 후 exit plan 확인', portfolio:'보유 종목 추가 후 집중도 확인', screener:'필터 후 티커 분석으로 이동', guide:'초보자 시작 홈으로 이동', principles:'Tree→Graph→Path로 한 개념씩 연결', masters:'신고주체→원본→분기 비교 순서로 확인', atlas:'기초 원리→산업·가치사슬→근거 자료 순서로 확인'
+    home:'첫 진입자는 홈→시그널→포트폴리오', signal:'신규 진입 전 점수·lockout 확인', technical:'티커 입력 후 exit plan 확인', portfolio:'보유 종목 추가 후 집중도 확인', screener:'필터 후 티커 분석으로 이동', guide:'초보자 시작 홈으로 이동', principles:'Tree→Graph→Path로 한 개념씩 연결', masters:'신고주체→원본→분기 비교 순서로 확인', atlas:'기초 원리→산업·가치사슬→근거 자료 순서로 확인', charts:'지수 카드→차트 읽기→대표 종목 순서로 확인'
   }
 };
 

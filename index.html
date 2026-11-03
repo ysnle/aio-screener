@@ -10,7 +10,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v59.61 — 올인원 투자 터미널</title>
+  <title>AIO Screener v59.64 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 시장 환경 참고 지표, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f4f0e8">
@@ -3547,6 +3547,7 @@ button[data-filter-active="true"] {
         <div class="nav-label">시장</div>
         <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="signal" data-hub="market" data-hub-routes="signal breadth sentiment" data-pass-el="1"><span class="nav-icon"></span><span class="label">시장 상태</span></div>
         <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="macro" data-hub="macro" data-hub-routes="macro fxbond" data-pass-el="1"><span class="nav-icon"></span><span class="label">매크로</span></div>
+        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="charts" data-hub="charts" data-hub-routes="charts" data-pass-el="1"><span class="nav-icon"></span><span class="label">기술적 분석</span></div>
         <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="themes" data-hub="themes" data-hub-routes="themes theme-detail" data-pass-el="1"><span class="nav-icon"></span><span class="label">테마와 섹터</span></div>
       </div>
       <div class="nav-section">
@@ -4343,6 +4344,21 @@ button[data-filter-active="true"] {
   </details>
   <!-- v57.50 I04: 거시 경제 ends with where the same reading continues (macro-board.js renderMacroBoard). -->
   <nav class="flow-next" id="macro-next" aria-label="이어서 볼 곳" data-fold hidden></nav>
+</div>
+  <!-- v59.64 (owner 2026-11-03): 기술적 분석 — index and core-stock chart readings (src/ui/pages/charts.js,
+       src/domain/technical/market-charts.js). -->
+  <div class="page" id="page-charts">
+  <header class="page-head"><div><h1 class="page-title">기술적 분석</h1>
+  <div class="page-subtitle" id="charts-basis">종가 기록을 불러오는 중입니다.</div></div></header>
+  <section class="briefing-block charts-section" id="charts-indexes" aria-labelledby="charts-indexes-title">
+    <h2 class="briefing-h2" id="charts-indexes-title">지수 차트</h2>
+    <p class="charts-lead" id="charts-conclusion"></p>
+    <div class="trend-grid charts-grid" id="charts-index-grid"></div>
+  </section>
+  <section class="briefing-block charts-section" id="charts-stocks" aria-labelledby="charts-stocks-title">
+    <h2 class="briefing-h2" id="charts-stocks-title">대표 종목</h2>
+    <div class="charts-table-wrap" id="charts-stock-table"></div>
+  </section>
 </div>
     <!-- ═══════════════ PAGE: FX·BOND (환율 채권) ═══════════════ -->
 
@@ -6057,12 +6073,12 @@ button[data-filter-active="true"] {
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
   <!-- R622: block A (workspace) runs first in the defer group; kr-data and pages follow it, as when they sat in <head>. -->
-  <script src="./js/aio-workspace.js?v=59.61" defer></script>
-  <script src="./js/aio-kr-data.js?v=59.61" defer></script>
-  <script src="./js/aio-pages.js?v=59.61" defer></script>
-  <script src="./js/aio-core.js?v=59.61" defer></script>
-  <script src="./js/aio-data.js?v=59.61" defer></script>
-  <script src="./js/aio-ui.js?v=59.61" defer></script>
+  <script src="./js/aio-workspace.js?v=59.64" defer></script>
+  <script src="./js/aio-kr-data.js?v=59.64" defer></script>
+  <script src="./js/aio-pages.js?v=59.64" defer></script>
+  <script src="./js/aio-core.js?v=59.64" defer></script>
+  <script src="./js/aio-data.js?v=59.64" defer></script>
+  <script src="./js/aio-ui.js?v=59.64" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
@@ -6113,7 +6129,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      용어 사전 모달(src/ui/knowledge/glossary-modal.js, 호출 시점에만 읽음)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=59.61" defer></script>
+<script src="./js/aio-glossary.js?v=59.64" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->
@@ -6121,7 +6137,7 @@ button[data-filter-active="true"] {
 
 <!-- v58.56 (re-audit #13): R1 release identity moved from the topbar to the page foot — the topbar keeps only what a reader
      uses (quote basis, 도움말, AI). bump-version still patches this element by its id. -->
-<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, 등락 색은 오르면 <span style="color:var(--dir-up)">빨강</span>·내리면 <span style="color:var(--dir-down)">파랑</span>, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <button type="button" data-action="_aioOpenFeedback">오류 신고</button>, <span class="sx-page-foot-version" id="app-version-badge">v59.61</span></p>
+<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, 등락 색은 오르면 <span style="color:var(--dir-up)">빨강</span>·내리면 <span style="color:var(--dir-down)">파랑</span>, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <button type="button" data-action="_aioOpenFeedback">오류 신고</button>, <span class="sx-page-foot-version" id="app-version-badge">v59.64</span></p>
 </div><!-- /content -->
 </div><!-- /main -->
 </div><!-- /app -->

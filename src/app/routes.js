@@ -6,7 +6,7 @@ export const ROUTE_IDS = Object.freeze([
   'home', 'signal', 'breadth', 'sentiment', 'briefing',
   'technical', 'macro', 'fxbond', 'fundamental', 'themes',
   'theme-detail', 'portfolio', 'ticker', 'market-news', 'principles',
-  'masters', 'atlas', 'guide', 'screener'
+  'masters', 'atlas', 'guide', 'screener', 'charts'
 ]);
 
 export function isRouteId(value) {

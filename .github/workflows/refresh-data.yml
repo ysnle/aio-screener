@@ -315,6 +315,13 @@ jobs:
         continue-on-error: true
         run: node scripts/build-scenario-state.mjs
 
+      - name: Build the market-day ledger (v59.63, every refresh)
+        # No network: one ledger of the last day's moves and events from the artifacts above. A failure keeps the previous file.
+        id: market-day
+        if: ${{ !cancelled() && steps.fetch-market.outcome == 'success' }}
+        continue-on-error: true
+        run: node scripts/build-market-day.mjs
+
       - name: Promote one data release revision
         if: ${{ !cancelled() }}
         run: node scripts/sync-data-release-manifests.mjs
@@ -458,6 +465,7 @@ jobs:
           stage_if_exists public-data/today-verdict.json # v58.80 F01: first-paint verdict (build-scenario-state)
           stage_if_exists public-data/scenario-outcomes.json # P1743: long-history branch/theme-stage outcomes (weekly)
           stage_if_exists public-data/scenario-state.json # P1743: per-refresh branches, themes, transitions, scored releases
+          stage_if_exists public-data/market-day.json # v59.63: the last day's moves and events in one linked ledger (build-market-day)
           stage_if_exists public-data/market-temperature.json # v57.54: per-market price temperature (4-hour throttle)
           stage_if_exists public-data/official-references.json # P1734: page-verified official web references
           stage_if_exists public-data/market-snapshot.json

@@ -34,6 +34,13 @@ export function signalLine(signal) {
     const verdict = signal.actual > signal.forecast ? '예상보다 높음' : signal.actual < signal.forecast ? '예상보다 낮음' : '예상과 같음';
     return `${signal.name} 실제 ${fmtNumber(signal.actual)}${unit}, 예상 ${fmtNumber(signal.forecast)}${unit}${signal.previous != null ? `, 이전 ${fmtNumber(signal.previous)}${unit}` : ''} (${verdict})`;
   }
+  if (signal.kind === 'deal') {
+    const terms = [signal.payment === 'stock' ? '주식 교환' : signal.payment === 'cash' ? '현금' : null,
+      signal.ratio != null ? `${signal.target} 1주당 ${signal.acquirer} ${fmtNumber(signal.ratio)}주` : null,
+      Number.isFinite(signal.valueUsd) ? `거래 규모 약 ${fmtNumber(Math.round(signal.valueUsd / 1e8))}억 달러` : null,
+      signal.premiumPct != null ? `프리미엄 ${fmtNumber(signal.premiumPct)}%` : null].filter(Boolean);
+    return `${signal.acquirer}의 ${signal.target} 인수 발표${terms.length ? ` (${terms.join(', ')})` : ''}`;
+  }
   return '';
 }
 
@@ -48,6 +55,8 @@ export function channelLineFor(symbol, post, signals = []) {
   const sym = String(symbol || '').toUpperCase();
   if (!sym || !post) return null;
   const id = String(post.id || '');
-  const hit = (Array.isArray(signals) ? signals : []).find((signal) => String(signal?.post || '') === id && String(signal?.ticker || '').toUpperCase() === sym && signal.kind !== 'retail');
+  // A deal names both sides (v59.62): the target's move is explained by the same line as the acquirer's.
+  const names = (signal) => (Array.isArray(signal?.tickers) ? signal.tickers : [signal?.ticker]).map((t) => String(t || '').toUpperCase());
+  const hit = (Array.isArray(signals) ? signals : []).find((signal) => String(signal?.post || '') === id && names(signal).includes(sym) && signal.kind !== 'retail');
   return hit ? signalLine(hit) : null;
 }

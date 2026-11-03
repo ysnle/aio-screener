@@ -34,7 +34,7 @@ target_version: v57.79
 | C2 작업 공간 사실은 생성되고, 도구는 정본 하나에서 나온다 | 변하는 작업 공간 사실은 생성된 `CURRENT-STATE.md`에서만 읽고, 큰 원장은 검색 전용이다. | R520 | `ci-knowledge-lint-check` 외 3 | 19 (비활성 0) |
 | C3 검증은 실제 결과를 증명한다 | 게이트 PASS는 의미 검토가 아니다. | R219 | `ci-semantic-review-check` 외 4 | 64 (비활성 1) |
 | C4 한 의미에는 한 구현 | 같은 의미의 함수·전역·집합은 한 곳에서만 구현하고 나머지는 그것을 읽는다. | R619 | `ci-structural-check` 외 4 | 42 (비활성 0) |
-| C5 화면은 라우트가 소유한다 | 사용자 화면은 8화면 정보구조(`architecture/route-owners.json`)이고, 각 화면의 마운트·데이터 적재·타이머·리스너·입력 처리는 그 라우트의 owner 하나가 가진다. | R704 | `ci-architecture-contract-check` 외 4 | 50 (비활성 1) |
+| C5 화면은 라우트가 소유한다 | 사용자 화면은 9화면 정보구조(v59.64 기술적 분석 추가)(`architecture/route-owners.json`)이고, 각 화면의 마운트·데이터 적재·타이머·리스너·입력 처리는 그 라우트의 owner 하나가 가진다. | R704 | `ci-architecture-contract-check` 외 4 | 50 (비활성 1) |
 | C6 표시는 기기에 적응하고 접근성을 지킨다 | 데스크톱·휴대폰·아이패드는 같은 라우트·데이터를 쓰고 레이아웃만 적응한다. | R669 | `ci-accessibility-matrix-check` 외 3 | 23 (비활성 4) |
 | C7 읽는 문장은 관측과 근거만 말한다 | 화면 문장은 측정한 조건과 그 근거를 말하고, 등급·검증 안 된 합산·행동 지시·근거 없는 확률·내부 코드·개발자 마커를 쓰지 않는다. | R697 | `ci-rendered-copy-lint-check` 외 2 | 14 (비활성 1) |
 | C8 결측은 값이 아니다 | 없는 관측은 0도, 중립값도, 조건 충족도 아니다. | R628 | `ci-esm-core-unit-check` 외 3 | 22 (비활성 0) |
@@ -307,10 +307,10 @@ Originally (v52.7): a frequency string embedding a required weekday (e.g.
 A task is not complete just because an audit function exists, an object has the expected shape, a coverage percentage is high, or a sidebar row/DOM marker is present. 게이트: `ci-semantic-review-check`, `ci-runtime-contract-check`.
 
 ## R199. Critical-10 content checks must use a full evidence matrix, not representative samples (v49.112 added, P475 root)
-**IA 갱신 (v59.48)**: 제목의 종합 5·Critical-10 페이지 묶음은 8화면 이전 이름이다 — 대상은 지금 8화면(`architecture/route-owners.json`) 전체다.
+**IA 갱신 (v59.48)**: 제목의 종합 5·Critical-10 페이지 묶음은 8화면 이전 이름이다 — 대상은 지금 9화면(`architecture/route-owners.json`) 전체다.
 
 ## R194. Critical-10 refresh success must be followed by DOM binding verification (v49.107 added, P470 root)
-**IA 갱신 (v59.48)**: 제목의 종합 5·Critical-10 페이지 묶음은 8화면 이전 이름이다 — 대상은 지금 8화면(`architecture/route-owners.json`) 전체다.
+**IA 갱신 (v59.48)**: 제목의 종합 5·Critical-10 페이지 묶음은 8화면 이전 이름이다 — 대상은 지금 9화면(`architecture/route-owners.json`) 전체다.
 
 ## R185. 재발방지 audit은 pull이 아닌 push — 지속 운영 중 자동 surfacing 의무 (v49.96 added, P461 root)
 
@@ -474,7 +474,7 @@ Classic (non-module) `<script>` tags share one global scope. 게이트: `ci-stru
 
 ## 원칙 C5 — 화면은 라우트가 소유한다
 
-**불변식**: 사용자 화면은 8화면 정보구조(`architecture/route-owners.json`)이고, 각 화면의 마운트·데이터 적재·타이머·리스너·입력 처리는 그 라우트의 owner 하나가 가진다. 선언된 표면은 실제로 있어야 하고, 기본 경로에는 접힌 잡음·숨은 호출·검증 안 된 블록이 없다.
+**불변식**: 사용자 화면은 9화면 정보구조(`architecture/route-owners.json`)이고, 각 화면의 마운트·데이터 적재·타이머·리스너·입력 처리는 그 라우트의 owner 하나가 가진다. 선언된 표면은 실제로 있어야 하고, 기본 경로에는 접힌 잡음·숨은 호출·검증 안 된 블록이 없다.
 
 **게이트**: `scripts/ci-architecture-contract-check.mjs` · `scripts/ci-architecture-browser-check.mjs` · `scripts/ci-ux-default-path-check.mjs` · `scripts/ci-boot-interaction-check.mjs` · `scripts/ci-vertical-slice-browser-check.mjs`
 
@@ -940,19 +940,19 @@ Event/result narratives are reusable context, not perpetual current signals.
 ## R205. Static market calendars must separate official releases from source-dependent topics (v50.4 added, P480 root)
 
 ## R197. Critical-10 freshness must audit visible market surface, not only refresh schedules (v49.110 added, P473 root)
-**IA 갱신 (v59.48)**: 제목의 종합 5·Critical-10 페이지 묶음은 8화면 이전 이름이다 — 대상은 지금 8화면(`architecture/route-owners.json`) 전체다.
+**IA 갱신 (v59.48)**: 제목의 종합 5·Critical-10 페이지 묶음은 8화면 이전 이름이다 — 대상은 지금 9화면(`architecture/route-owners.json`) 전체다.
 
 ## R190. 보이는 차트/지표/시세/수치/수식/텍스트 표면은 최신화 감사에 자동 편입한다 (v49.103 added, P466 root)
 
 ## R189. 5개 종합 페이지 개별 데이터는 page profile 심볼/태스크 union으로 최신화한다 (v49.102 added, P465 root)
 On entry, each of the 8 screens reloads the latest published artifacts and labels anything stale; it never produces data.
-**IA 갱신 (v59.48)**: 제목의 종합 5·Critical-10 페이지 묶음은 8화면 이전 이름이다 — 대상은 지금 8화면(`architecture/route-owners.json`) 전체다.
+**IA 갱신 (v59.48)**: 제목의 종합 5·Critical-10 페이지 묶음은 8화면 이전 이름이다 — 대상은 지금 9화면(`architecture/route-owners.json`) 전체다.
 
 ## R188. 전체 데이터 최신화 진행률은 중앙 refresh state를 단일 진실 원천으로 표시한다 (v49.101 added, P464 root)
 
 ## R187. 매매 핵심 페이지(종합 5)는 진입 시 stale하면 즉시 재fetch 의무 (v49.98 added, P463 root)
 On entry, each of the 8 screens reloads the latest published artifacts and labels anything stale; it never produces data.
-**IA 갱신 (v59.48)**: 제목의 종합 5·Critical-10 페이지 묶음은 8화면 이전 이름이다 — 대상은 지금 8화면(`architecture/route-owners.json`) 전체다.
+**IA 갱신 (v59.48)**: 제목의 종합 5·Critical-10 페이지 묶음은 8화면 이전 이름이다 — 대상은 지금 9화면(`architecture/route-owners.json`) 전체다.
 
 ## R172. MACRO_CALENDAR auto-advance 의무 (v49.83)
 발표 캘린더 entry는 일자 경과 시 자동 next event compute. `AIO._aioRecomputeMacroCalendar({ dryRun: true })` 사이드바 18축 노출 의무.
@@ -1194,7 +1194,7 @@ Screener, rank, and backtest factors that compare stocks across currencies, nomi
 ## R201. Trading decision logic must pass current evidence gate (v50.1 added, P477 root)
 
 ## R198. Critical-10 page content must be compared with current market reference/regime before being trusted (v49.111 added, P474 root)
-**IA 갱신 (v59.48)**: 제목의 종합 5·Critical-10 페이지 묶음은 8화면 이전 이름이다 — 대상은 지금 8화면(`architecture/route-owners.json`) 전체다.
+**IA 갱신 (v59.48)**: 제목의 종합 5·Critical-10 페이지 묶음은 8화면 이전 이름이다 — 대상은 지금 9화면(`architecture/route-owners.json`) 전체다.
 
 ## R195. Trading-use market data must pass DataTruthGate before decision use (v49.108 added, P471 root)
 

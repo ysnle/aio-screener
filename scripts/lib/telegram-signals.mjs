@@ -295,12 +295,36 @@ export function extractRetailFlows(text, { postId } = {}) {
   return [{ kind: 'retail', key: `retail|${head[4]}|${sessionDate}`, side: head[4] === '순매수' ? 'buy' : 'sell', date: sessionDate, top: rows.slice(0, 10), leveragedLongShare: share((row) => row.leveraged), inverseShare: share((row) => row.inverse), top10Share: share((row) => row.rank <= 10), post: postId || null }];
 }
 
+// v59.62 (owner 2026-11-03): the Marvell-Lumentum all-stock deal (11/2) was in seven channel posts and on no screen,
+// because no signal kind held a corporate action. A deal is kept only once announced (a definitive agreement), with its
+// two written tickers; a report that talks are "임박"/"협상 중" or a broker's "인수 가능성" is not one.
+const DEAL_WORD = /인수|합병|acquir|merger/i;
+const DEAL_DONE = /발표|최종\s*계약|계약(?:을)?\s*체결|인수한다|인수하기로|합의|announce|definitive agreement/i;
+const DEAL_RUMOR = /임박|협상|가능성|검토|추진|보도[:)]|설\s|\brumou?r|\btalks\b|\bnears?\b/i;
+export function extractDeals(text, { universe, date, postId } = {}) {
+  const raw = String(text || '');
+  const head = raw.slice(0, 400);
+  const title = raw.split(/\n/)[0] || '';
+  if (!DEAL_WORD.test(head) || !DEAL_DONE.test(head) || DEAL_RUMOR.test(title)) return [];
+  const tickers = writtenTickers(head, universe);
+  if (tickers.length !== 2) return [];
+  const [acquirer, target] = tickers;
+  const ratio = raw.match(/(?:1\s*주|주식)당[^\d\n]{0,24}(\d+(?:\.\d+)?)\s*주/)?.[1];
+  const eok = raw.match(/(\d[\d,]*(?:\.\d+)?)\s*억\s*달러/)?.[1];
+  const bn = raw.match(/\$\s?(\d+(?:\.\d+)?)\s*(?<![A-Za-z])(?:B|billion|bn)(?![A-Za-z])/i)?.[1];
+  const valueUsd = eok ? num(eok) * 1e8 : bn ? num(bn) * 1e9 : null;
+  const premium = raw.match(/(\d+(?:\.\d+)?)\s*%\s*(?:의\s*)?프리미엄|프리미엄[^\d\n]{0,8}(\d+(?:\.\d+)?)\s*%/);
+  const payment = /주식\s*교환|all-stock|전액\s*주식/i.test(raw) ? 'stock' : /현금/.test(raw) ? 'cash' : null;
+  return [{ kind: 'deal', key: `deal|${acquirer}|${target}`, ticker: acquirer, tickers: [acquirer, target], acquirer, target, payment,
+    ratio: ratio ? Number(ratio) : null, valueUsd: Number.isFinite(valueUsd) ? valueUsd : null, premiumPct: premium ? Number(premium[1] || premium[2]) : null, date: date || null, post: postId || null }];
+}
+
 /** Every signal one post carries. */
 export function extractPostSignals(post, universe) {
   const text = String(post?.text || '');
   if (!text) return [];
   const meta = { universe, date: post.localDateKst || String(post.datetime || '').slice(0, 10) || null, postId: post.id || null };
-  return [...extractAnalystActions(text, meta), ...extractEarnings(text, meta), ...extractMacroReleases(text, meta), ...extractRetailFlows(text, meta)];
+  return [...extractAnalystActions(text, meta), ...extractEarnings(text, meta), ...extractMacroReleases(text, meta), ...extractRetailFlows(text, meta), ...extractDeals(text, meta)];
 }
 
 /** true when a post carries numbers worth keeping in the reading lists (selection floor, not a rank). */
@@ -312,13 +336,15 @@ export function isDataPost(signals) {
  * New signals win over carried ones with the same key; signals older than the window are dropped. Each kind keeps a
  * bounded count, newest first, so the digest cannot grow without limit.
  */
-export const SIGNAL_LIMITS = Object.freeze({ pt: 240, earnings: 120, macro: 60, retail: 10 });
+export const SIGNAL_LIMITS = Object.freeze({ pt: 240, earnings: 120, macro: 60, retail: 10, deal: 30 });
 export function mergeSignals(previous = [], fresh = [], { sinceDate } = {}) {
   const byKey = new Map();
   for (const signal of [...(Array.isArray(previous) ? previous : []), ...fresh]) {
     if (!signal?.key || !SIGNAL_LIMITS[signal.kind]) continue;
     if (sinceDate && String(signal.date || '') < sinceDate) continue;
-    byKey.set(signal.key, signal);
+    // One deal is told across several posts (terms in one, the premium in another): the terms add up, the first date stays.
+    const before = signal.kind === 'deal' ? byKey.get(signal.key) : null;
+    byKey.set(signal.key, before ? Object.fromEntries(Object.entries({ ...before, ...signal }).map(([k, v]) => [k, v ?? before[k] ?? null]).concat([['date', [before.date, signal.date].filter(Boolean).sort()[0] || null]])) : signal);
   }
   // One report relayed on two days or by two channels ("JP모건 SPCX $240 → $500" on 10/21 and 10/22) is one action:
   // the same ticker, broker and prices keep the first date. Without this a tally counted it as two brokers.
