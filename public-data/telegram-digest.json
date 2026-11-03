@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-03T05:21:58.442Z",
-  "attemptedAt": "2026-11-03T05:21:58.442Z",
-  "lastSuccessfulAt": "2026-11-03T05:21:58.442Z",
+  "generatedAt": "2026-11-03T05:51:32.971Z",
+  "attemptedAt": "2026-11-03T05:51:32.971Z",
+  "lastSuccessfulAt": "2026-11-03T05:51:32.971Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-20T05:21:53.143Z",
-  "until": "2026-11-03T05:21:53.143Z",
+  "since": "2026-10-20T05:51:28.144Z",
+  "until": "2026-11-03T05:51:28.144Z",
   "current24hWindow": {
     "start": "2026-11-01T23:00:00.000Z",
     "end": "2026-11-02T23:00:00.000Z",
@@ -80,9 +80,9 @@
       "pages": 0,
       "reachedOlder": false,
       "reachedKnown": false,
-      "count": 115,
+      "count": 111,
       "freshCount": 0,
-      "eligibleTextCount": 108,
+      "eligibleTextCount": 104,
       "selectedCount": 41,
       "error": "first page parsed no posts",
       "lastPostId": 26057
@@ -94,10 +94,10 @@
       "reachedKnown": true,
       "count": 1336,
       "freshCount": 37,
-      "eligibleTextCount": 1277,
+      "eligibleTextCount": 1276,
       "selectedCount": 125,
       "error": null,
-      "lastPostId": 68170
+      "lastPostId": 68172
     },
     {
       "channel": "bornlupin",
@@ -113,74 +113,74 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 657,
-      "freshCount": 33,
-      "eligibleTextCount": 656,
+      "count": 655,
+      "freshCount": 13,
+      "eligibleTextCount": 654,
       "selectedCount": 123,
       "error": null,
       "lastPostId": 71468
     }
   ],
-  "count": 2341,
-  "retainedItemCount": 475,
+  "count": 2335,
+  "retainedItemCount": 461,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2341,
-    "eligibleTextCount": 2274,
-    "mediaOnlyCount": 67,
+    "observedCount": 2335,
+    "eligibleTextCount": 2267,
+    "mediaOnlyCount": 68,
     "mediaAttachedCount": 171,
     "photoPostCount": 148,
     "documentPostCount": 0,
     "imageOnlyCount": 0,
-    "highSignalCount": 423,
-    "broadSignalCount": 908,
+    "highSignalCount": 421,
+    "broadSignalCount": 906,
     "selectedRawCount": 415,
     "selectedEligibleCount": 415,
-    "selectedRawCoveragePct": 18.2,
-    "selectedOfObservedPct": 17.7,
+    "selectedRawCoveragePct": 18.3,
+    "selectedOfObservedPct": 17.8,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "media-only": 68,
     "optical": 44,
-    "semi": 519,
-    "market-note": 828,
-    "macro": 352,
-    "power": 278,
+    "semi": 517,
+    "market-note": 825,
+    "macro": 350,
+    "power": 277,
     "ai-policy": 130,
     "geo": 427,
     "japan": 105,
-    "earnings": 489,
+    "earnings": 487,
     "kr-market": 123,
     "flows": 75,
     "healthcare": 108,
-    "media-only": 67,
-    "equity": 155,
+    "equity": 154,
     "crypto": 4,
     "credit": 110
   },
   "tickerCounts": {
-    "NVDA": 140,
+    "NVDA": 139,
     "AMD": 30,
     "SMCI": 6,
     "MU": 43,
-    "005930.KS": 49,
-    "000660.KS": 76,
+    "005930.KS": 48,
+    "000660.KS": 75,
     "PLTR": 25,
     "AAPL": 21,
-    "GOOG": 131,
+    "GOOG": 130,
     "AMZN": 80,
     "TSLA": 61,
     "AVGO": 22,
     "2454.TW": 4,
     "GS": 2,
     "MS": 6,
-    "TSM": 43,
+    "TSM": 42,
     "STX": 6,
     "INTC": 6,
     "CIEN": 1,
@@ -258,24 +258,24 @@
     "UMC": 1
   },
   "themes": [
-    "Market Notes (828 posts in 14-day research window): 11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000...",
-    "Semiconductors/Memory (519 posts in 14-day research window): 2026년 11월 2일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.76%) 2위: ALPHABET INC CL A...",
-    "Earnings/Corporate (489 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
+    "Market Notes (825 posts in 14-day research window): 11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000...",
+    "Semiconductors/Memory (517 posts in 14-day research window): 2026년 11월 2일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.76%) 2위: ALPHABET INC CL A...",
+    "Earnings/Corporate (487 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
     "Geopolitics (427 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 3일 🇺🇸 아메리카 • 트럼프 대통령은 중간선거 이후 이란에 대한 추가 공습 계획을 부인하며 군사작전 재개를 서두르지 않겠다고 밝혀. 이란이 합의를 원하고 있으며...",
-    "Macro/Rates (352 posts in 14-day research window): 2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,...",
-    "AI Power/Grid (278 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
-    "Equity/Analyst (155 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로...",
+    "Macro/Rates (350 posts in 14-day research window): 2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,...",
+    "AI Power/Grid (277 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
+    "Equity/Analyst (154 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로...",
     "AI Policy/Export Controls (130 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 140,
+      "count": 139,
       "text": "2026년 11월 3일 미국 증시 브리핑 미국 증시는 중간선거를 앞둔 정치적 불확실성과 AI·반도체 중심의 대규모 매도세로 혼조 마감. S&P500 -0.51%, 나스닥 -1.07%, 다우 +0.41%,..."
     },
     {
       "key": "GOOG",
-      "count": 131,
+      "count": 130,
       "text": "2026년 11월 3일 미국 증시 브리핑 미국 증시는 중간선거를 앞둔 정치적 불확실성과 AI·반도체 중심의 대규모 매도세로 혼조 마감. S&P500 -0.51%, 나스닥 -1.07%, 다우 +0.41%,..."
     },
     {
@@ -285,7 +285,7 @@
     },
     {
       "key": "000660.KS",
-      "count": 76,
+      "count": 75,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인..."
     },
     {
@@ -300,7 +300,7 @@
     },
     {
       "key": "005930.KS",
-      "count": 49,
+      "count": 48,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인..."
     },
     {
@@ -310,7 +310,7 @@
     },
     {
       "key": "TSM",
-      "count": 43,
+      "count": 42,
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
@@ -336,7 +336,7 @@
       "topics": [
         "macro"
       ],
-      "count": 352,
+      "count": 350,
       "focus": "2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,..."
     },
     {
@@ -363,7 +363,7 @@
       "topics": [
         "semi"
       ],
-      "count": 519,
+      "count": 517,
       "focus": "2026년 11월 2일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.76%) 2위: ALPHABET INC CL A..."
     },
     {
@@ -381,7 +381,7 @@
       "topics": [
         "power"
       ],
-      "count": 278,
+      "count": 277,
       "focus": "Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을..."
     },
     {
@@ -408,7 +408,7 @@
       "topics": [
         "equity"
       ],
-      "count": 155,
+      "count": 154,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로..."
     },
     {
@@ -426,7 +426,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 489,
+      "count": 487,
       "focus": "마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장...."
     },
     {
@@ -471,7 +471,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 828,
+      "count": 825,
       "focus": "11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000..."
     }
   ],
@@ -1991,12 +1991,13 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": ">>CDS가 짓누르는 채권시장, 나스닥도 부담 가중 •AI관련 채권부담이 점차 커지면서 Nvidia, Amazon, Broadcom의 CDS 프리미엄이 지속적으로 상승. 채권시장의 압박이 커지는 상황에서...",
+      "lead": 2,
       "tickers": [
         "NVDA",
         "AVGO",
         "AMZN"
-      ],
-      "summary": ">>CDS가 짓누르는 채권시장, 나스닥도 부담 가중 •AI관련 채권부담이 점차 커지면서 Nvidia, Amazon, Broadcom의 CDS 프리미엄이 지속적으로 상승. 채권시장의 압박이 커지는 상황에서..."
+      ]
     },
     {
       "id": "bornlupin/20962",
@@ -2095,18 +2096,15 @@
       "datetime": "2026-11-02T23:23:12.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "earnings",
-        "macro",
-        "semi",
-        "flows"
+        "earnings"
       ],
-      "lead": 1,
       "score": 73,
       "hasText": true,
+      "summary": ">>애플 실적 컨퍼런스콜 주요 내용 •실적 및 제품 전략 : 9월 분기 매출 1,145억 달러로 전년비 12% 증가하며 사상 최고치. iPhone Duo, iPhone 18 Pro, 신형 홈 하드웨어,...",
+      "lead": 1,
       "tickers": [
         "AAPL"
-      ],
-      "summary": ">>애플 실적 컨퍼런스콜 주요 내용 •실적 및 제품 전략 : 9월 분기 매출 1,145억 달러로 전년비 12% 증가하며 사상 최고치. iPhone Duo, iPhone 18 Pro, 신형 홈 하드웨어,..."
+      ]
     },
     {
       "id": "bornlupin/20958",
@@ -2133,14 +2131,12 @@
       "datetime": "2026-11-02T23:05:05.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "macro",
-        "geo",
-        "semi"
+        "market-note"
       ],
       "score": 74,
       "hasText": true,
-      "tickers": [],
-      "summary": "• 9월 대만 증시 변동성에도 노동기금·국민연금기금·퇴직연금기금은 9월 한 달간 1,536억 2,000만 대만달러를 벌어들였으며, 1~9월 누적 수익은 2조 9,000억 대만달러를 달성 • 최대 규모인..."
+      "summary": "• 9월 대만 증시 변동성에도 노동기금·국민연금기금·퇴직연금기금은 9월 한 달간 1,536억 2,000만 대만달러를 벌어들였으며, 1~9월 누적 수익은 2조 9,000억 대만달러를 달성 • 최대 규모인...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71439",
@@ -2149,12 +2145,12 @@
       "datetime": "2026-11-02T23:04:29.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "semi",
-        "earnings"
+        "semi"
       ],
-      "lead": 1,
       "score": 78,
       "hasText": true,
+      "summary": ">>AI ASIC 사업 호조에 외국계 증권사, MediaTek 긍정적 전망 (대만공상시보) •MediaTek의 TPU v9 개발이 일정대로 진행되고 두 번째 AI ASIC 고객사 확보도 확인되면서 외국계...",
+      "lead": 1,
       "tickers": [
         "2454.TW",
         "GS",
@@ -2162,8 +2158,7 @@
       ],
       "relatedTickers": [
         "AVGO"
-      ],
-      "summary": ">>AI ASIC 사업 호조에 외국계 증권사, MediaTek 긍정적 전망 (대만공상시보) •MediaTek의 TPU v9 개발이 일정대로 진행되고 두 번째 AI ASIC 고객사 확보도 확인되면서 외국계..."
+      ]
     },
     {
       "id": "HANAchina/71437",
@@ -2172,17 +2167,15 @@
       "datetime": "2026-11-02T23:02:37.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "semi",
-        "earnings",
-        "japan"
+        "semi"
       ],
-      "lead": 1,
       "score": 69,
       "hasText": true,
+      "summary": ">>TSMC 2나노 양산 확대에 대만 반도체 공급망 증설 가속화 (대만공상시보) •TSMC의 2나노 공정 양산 확대로 2027년 N2 계열 생산능력은 올해보다 2배 이상 증가할 전망임. 신주·가오슝 공장...",
+      "lead": 1,
       "tickers": [
         "TSM"
-      ],
-      "summary": ">>TSMC 2나노 양산 확대에 대만 반도체 공급망 증설 가속화 (대만공상시보) •TSMC의 2나노 공정 양산 확대로 2027년 N2 계열 생산능력은 올해보다 2배 이상 증가할 전망임. 신주·가오슝 공장..."
+      ]
     },
     {
       "id": "HANAchina/71435",
@@ -2191,16 +2184,15 @@
       "datetime": "2026-11-02T22:46:56.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "semi",
-        "power"
+        "semi"
       ],
-      "lead": 1,
       "score": 59,
       "hasText": true,
+      "summary": "• 대만 국가과학기술위원회가 TSMC의 차세대 1나노 공정 유치를 대비해 타이난 과학단지 체계 내 대형 신규 단지 개발을 2027년부터 착수할 계획. 부지 및 투자 시점은 TSMC의 최종 확정 필요 • 2나노...",
+      "lead": 1,
       "tickers": [
         "TSM"
-      ],
-      "summary": "• 대만 국가과학기술위원회가 TSMC의 차세대 1나노 공정 유치를 대비해 타이난 과학단지 체계 내 대형 신규 단지 개발을 2027년부터 착수할 계획. 부지 및 투자 시점은 TSMC의 최종 확정 필요 • 2나노..."
+      ]
     },
     {
       "id": "HANAchina/71434",
@@ -2210,11 +2202,8 @@
       "localDateKst": "2026-11-03",
       "tags": [
         "semi",
-        "macro",
-        "crypto",
-        "earnings"
+        "macro"
       ],
-      "lead": 1,
       "score": 80,
       "hasText": true,
       "media": {
@@ -2223,13 +2212,14 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": ">>반도체주가 미국 증시 하락을 주도하면서 나스닥100 기술적 조정 국면 진입. 메모리·광통신주 하락, 유가 급락에 금 가격은 큰 폭 반등 •나스닥100 지수는 10월 고점 대비 10% 이상 하락. Ciena...",
+      "lead": 1,
       "tickers": [
         "AAPL",
         "STX",
         "INTC",
         "CIEN"
-      ],
-      "summary": ">>반도체주가 미국 증시 하락을 주도하면서 나스닥100 기술적 조정 국면 진입. 메모리·광통신주 하락, 유가 급락에 금 가격은 큰 폭 반등 •나스닥100 지수는 10월 고점 대비 10% 이상 하락. Ciena..."
+      ]
     },
     {
       "id": "HANAchina/71433",
@@ -2240,13 +2230,13 @@
       "tags": [
         "earnings"
       ],
-      "lead": 1,
       "score": 64,
       "hasText": true,
+      "summary": ">>Palantir 3분기 매출 두 배 증가, 미국 상업 부문 매출이 처음으로 정부 부문 추월, 연간 실적 전망 대폭 상향 •Palantir의 3분기 매출은 23.13억 달러로 전년 동기 대비 96% 증가하며...",
+      "lead": 1,
       "tickers": [
         "PLTR"
-      ],
-      "summary": ">>Palantir 3분기 매출 두 배 증가, 미국 상업 부문 매출이 처음으로 정부 부문 추월, 연간 실적 전망 대폭 상향 •Palantir의 3분기 매출은 23.13억 달러로 전년 동기 대비 96% 증가하며..."
+      ]
     },
     {
       "id": "insidertracking/68130",
@@ -2721,13 +2711,13 @@
         "ai-policy",
         "earnings"
       ],
-      "lead": 1,
       "score": 59,
       "hasText": true,
+      "summary": ">>Anthropic 3분기 순손실 233억 달러로 전년 동기(121억 달러) 대비 확대됨. 영업손실은 5.67억 달러, 매출은 169.6억 달러로 전년 동기(13.8억 달러) 대비 1,127% 증가...",
+      "lead": 1,
       "tickers": [
         "GOOG"
-      ],
-      "summary": ">>Anthropic 3분기 순손실 233억 달러로 전년 동기(121억 달러) 대비 확대됨. 영업손실은 5.67억 달러, 매출은 169.6억 달러로 전년 동기(13.8억 달러) 대비 1,127% 증가..."
+      ]
     },
     {
       "id": "HANAchina/71427",
@@ -8852,16 +8842,15 @@
       "datetime": "2026-11-02T22:46:56.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "semi",
-        "power"
+        "semi"
       ],
-      "lead": 1,
       "score": 59,
       "hasText": true,
+      "summary": "• 대만 국가과학기술위원회가 TSMC의 차세대 1나노 공정 유치를 대비해 타이난 과학단지 체계 내 대형 신규 단지 개발을 2027년부터 착수할 계획. 부지 및 투자 시점은 TSMC의 최종 확정 필요 • 2나노...",
+      "lead": 1,
       "tickers": [
         "TSM"
-      ],
-      "summary": "• 대만 국가과학기술위원회가 TSMC의 차세대 1나노 공정 유치를 대비해 타이난 과학단지 체계 내 대형 신규 단지 개발을 2027년부터 착수할 계획. 부지 및 투자 시점은 TSMC의 최종 확정 필요 • 2나노..."
+      ]
     },
     {
       "id": "HANAchina/71434",
@@ -8871,11 +8860,8 @@
       "localDateKst": "2026-11-03",
       "tags": [
         "semi",
-        "macro",
-        "crypto",
-        "earnings"
+        "macro"
       ],
-      "lead": 1,
       "score": 80,
       "hasText": true,
       "media": {
@@ -8884,13 +8870,14 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": ">>반도체주가 미국 증시 하락을 주도하면서 나스닥100 기술적 조정 국면 진입. 메모리·광통신주 하락, 유가 급락에 금 가격은 큰 폭 반등 •나스닥100 지수는 10월 고점 대비 10% 이상 하락. Ciena...",
+      "lead": 1,
       "tickers": [
         "AAPL",
         "STX",
         "INTC",
         "CIEN"
-      ],
-      "summary": ">>반도체주가 미국 증시 하락을 주도하면서 나스닥100 기술적 조정 국면 진입. 메모리·광통신주 하락, 유가 급락에 금 가격은 큰 폭 반등 •나스닥100 지수는 10월 고점 대비 10% 이상 하락. Ciena..."
+      ]
     },
     {
       "id": "HANAchina/71433",
@@ -8901,13 +8888,13 @@
       "tags": [
         "earnings"
       ],
-      "lead": 1,
       "score": 64,
       "hasText": true,
+      "summary": ">>Palantir 3분기 매출 두 배 증가, 미국 상업 부문 매출이 처음으로 정부 부문 추월, 연간 실적 전망 대폭 상향 •Palantir의 3분기 매출은 23.13억 달러로 전년 동기 대비 96% 증가하며...",
+      "lead": 1,
       "tickers": [
         "PLTR"
-      ],
-      "summary": ">>Palantir 3분기 매출 두 배 증가, 미국 상업 부문 매출이 처음으로 정부 부문 추월, 연간 실적 전망 대폭 상향 •Palantir의 3분기 매출은 23.13억 달러로 전년 동기 대비 96% 증가하며..."
+      ]
     },
     {
       "id": "insidertracking/68130",
@@ -9382,13 +9369,13 @@
         "ai-policy",
         "earnings"
       ],
-      "lead": 1,
       "score": 59,
       "hasText": true,
+      "summary": ">>Anthropic 3분기 순손실 233억 달러로 전년 동기(121억 달러) 대비 확대됨. 영업손실은 5.67억 달러, 매출은 169.6억 달러로 전년 동기(13.8억 달러) 대비 1,127% 증가...",
+      "lead": 1,
       "tickers": [
         "GOOG"
-      ],
-      "summary": ">>Anthropic 3분기 순손실 233억 달러로 전년 동기(121억 달러) 대비 확대됨. 영업손실은 5.67억 달러, 매출은 169.6억 달러로 전년 동기(13.8억 달러) 대비 1,127% 증가..."
+      ]
     },
     {
       "id": "HANAchina/71427",
@@ -11140,13 +11127,13 @@
       "kind": "earnings",
       "key": "earnings|PLTR|2026-11-03",
       "ticker": "PLTR",
-      "name": ">>Palantir",
-      "quarter": null,
-      "revenue": null,
+      "name": "팔란티어",
+      "quarter": "2026Q3",
+      "revenue": "beat",
       "eps": "beat",
-      "guidance": null,
+      "guidance": "raise",
       "date": "2026-11-03",
-      "post": "HANAchina/71433"
+      "post": "bornlupin/20956"
     },
     {
       "kind": "earnings",
