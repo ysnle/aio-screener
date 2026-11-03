@@ -3,7 +3,7 @@
 // the table below reads the largest S&P 500 weights and the day's material movers from the screener's own fields.
 // Breadth joins only the S&P 500 reading, where it changes what the chart says.
 import { createResourceBag } from '../../app/lifecycle.js';
-import { MARKET_DAY } from '../../data/shared-artifacts.js';
+import { MARKET_DAY, refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { chartsConclusion, coreStockRows, indexChartReadings } from '../../domain/technical/market-charts.js';
 import { signedText } from '../../domain/shared/number.js';
@@ -116,6 +116,7 @@ export function createChartsPage({ root = globalThis, documentRef, store, route 
       bag.add(() => { alive = false; });
       const renderNow = () => { if (alive) render(documentRef, root, store, page); };
       renderNow();
+      refreshSharedArtifact(root, MARKET_DAY).then(({ changed }) => { if (changed) renderNow(); }).catch(() => {});
       const unsubscribe = store && subscribeToSlices(store, ['screener'], renderNow);
       if (unsubscribe) bag.add(unsubscribe);
       // history.json announces itself on window (js/aio-data.js); the server cut on document.

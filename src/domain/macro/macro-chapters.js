@@ -205,7 +205,7 @@ function dollarChapter(history) {
 // v59.64: each chapter's "오늘" line from the market-day ledger (src/domain/market-day/facts.js) — the chapter's own
 // gauge that moved most against its usual day, what moved with it (driver links: oil → energy names), and the most
 // material report on the same topic. Nothing is said when the ledger is missing or every gauge moved as usual.
-const CHAPTER_ASSETS = Object.freeze({ inflation: ['breakeven10'], labor: [], rates: ['tnx', 'dgs2', 'realYield10', 'breakeven10'], oil: ['wti', 'brent'],
+const CHAPTER_ASSETS = Object.freeze({ inflation: ['breakeven10'], labor: [], rates: ['tnx', 'dgs2', 'realYield10'], oil: ['wti', 'brent'],
   metals: ['gold', 'silver'], dollar: ['dxy', 'usdjpy', 'usdkrw'], credit: ['hyOas', 'igOas', 'cccOas'], growth: ['kospi', 'kosdaq'] });
 const CHAPTER_TOPICS = Object.freeze({ inflation: ['inflation'], labor: ['jobs'], rates: ['rates'], oil: ['energy'], metals: ['metals'], dollar: ['fx'], credit: ['credit'], growth: ['korea'] });
 export function chapterToday(day, chapterId) {

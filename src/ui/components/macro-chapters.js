@@ -4,7 +4,7 @@
 import { buildMacroChapters } from '../../domain/macro/macro-chapters.js';
 import { markFrame } from './section-frame.js';
 import { el } from './dom.js';
-import { MARKET_DAY } from '../../data/shared-artifacts.js';
+import { MARKET_DAY, refreshSharedArtifact } from '../../data/shared-artifacts.js';
 
 function miniBars(doc, viz) {
   const box = el(doc, 'figure', null, 'mx-ch__viz');
@@ -59,6 +59,7 @@ export function renderMacroChapters({ documentRef: doc, root, events = [] }) {
   if (!top) return null;
   let section = doc.getElementById('macro-chapters');
   const day = root?.[MARKET_DAY.key] || null;
+  if (root && !day) refreshSharedArtifact(root, MARKET_DAY).then(({ changed }) => { if (changed) renderMacroChapters({ documentRef: doc, root, events }); }).catch(() => {});
   const model = buildMacroChapters({ macroHistory: root?._aioMacroHistory || null, history: root?._aioHistory || [], events, day });
   if (!model.available) { section?.remove(); return null; }
   const key = [root?._aioMacroHistory?.generatedAt, day?.generatedAt, (root?._aioHistory || []).at?.(-1)?.date, events.map((event) => `${event.id}:${event.date}`).join(',')].join('|');
