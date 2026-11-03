@@ -1,6 +1,6 @@
 {
  "schemaVersion": "bigtech-cashflow.v1",
- "generatedAt": "2026-11-03T07:18:50.974Z",
+ "generatedAt": "2026-11-03T19:53:07.683Z",
  "source": "SEC EDGAR companyfacts (10-Q/10-K, us-gaap)",
  "method": "분기 = 10-Q 누계(3·6·9개월)의 차이, 4분기 = 10-K 연간 − 9개월 누계. 설비투자는 현금흐름표의 유형자산 취득(총액), 잉여현금흐름 = 영업현금흐름 − 설비투자. 회사 자체 정의(매각 대금·리스 차감 등)와 다를 수 있음.",
  "unit": "USD",
@@ -10,7 +10,7 @@
    "cik": 789019,
    "nameKo": "마이크로소프트",
    "group": "hyperscaler",
-   "fetchedAt": "2026-11-03T07:18:50.974Z",
+   "fetchedAt": "2026-11-03T19:53:07.683Z",
    "carried": false,
    "status": "ok",
    "quarters": [
@@ -145,7 +145,7 @@
    "cik": 1652044,
    "nameKo": "알파벳",
    "group": "hyperscaler",
-   "fetchedAt": "2026-11-03T07:18:50.974Z",
+   "fetchedAt": "2026-11-03T19:53:07.683Z",
    "carried": false,
    "status": "ok",
    "quarters": [
@@ -280,7 +280,7 @@
    "cik": 1018724,
    "nameKo": "아마존",
    "group": "hyperscaler",
-   "fetchedAt": "2026-11-03T07:18:50.974Z",
+   "fetchedAt": "2026-11-03T19:53:07.683Z",
    "carried": false,
    "status": "ok",
    "quarters": [
@@ -415,7 +415,7 @@
    "cik": 1326801,
    "nameKo": "메타",
    "group": "hyperscaler",
-   "fetchedAt": "2026-11-03T07:18:50.974Z",
+   "fetchedAt": "2026-11-03T19:53:07.683Z",
    "carried": false,
    "status": "ok",
    "quarters": [
@@ -550,7 +550,7 @@
    "cik": 1341439,
    "nameKo": "오라클",
    "group": "hyperscaler",
-   "fetchedAt": "2026-11-03T07:18:50.974Z",
+   "fetchedAt": "2026-11-03T19:53:07.683Z",
    "carried": false,
    "status": "ok",
    "quarters": [
@@ -685,23 +685,10 @@
    "cik": 320193,
    "nameKo": "애플",
    "group": "other",
-   "fetchedAt": "2026-11-03T07:18:50.974Z",
+   "fetchedAt": "2026-11-03T19:53:07.683Z",
    "carried": false,
    "status": "ok",
    "quarters": [
-    {
-     "start": "2024-06-30",
-     "end": "2024-09-28",
-     "ocf": 26811000000,
-     "capex": 2908000000,
-     "fcf": 23903000000,
-     "basis": "fy-minus-9m",
-     "filed": "2025-10-31",
-     "concepts": {
-      "ocf": "NetCashProvidedByUsedInOperatingActivities",
-      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
-     }
-    },
     {
      "start": "2024-09-29",
      "end": "2024-12-28",
@@ -748,7 +735,7 @@
      "capex": 3242000000,
      "fcf": 26486000000,
      "basis": "fy-minus-9m",
-     "filed": "2026-07-31",
+     "filed": "2026-11-03",
      "concepts": {
       "ocf": "NetCashProvidedByUsedInOperatingActivities",
       "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
@@ -792,35 +779,48 @@
       "ocf": "NetCashProvidedByUsedInOperatingActivities",
       "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
      }
+    },
+    {
+     "start": "2026-06-28",
+     "end": "2026-09-26",
+     "ocf": 28101000000,
+     "capex": 2242000000,
+     "fcf": 25859000000,
+     "basis": "fy-minus-9m",
+     "filed": "2026-11-03",
+     "concepts": {
+      "ocf": "NetCashProvidedByUsedInOperatingActivities",
+      "capex": "PaymentsToAcquirePropertyPlantAndEquipment"
+     }
     }
    ],
    "ttm": {
-    "start": "2025-06-29",
-    "end": "2026-06-27",
-    "ocf": 146724000000,
-    "capex": 10041000000,
-    "fcf": 136683000000,
-    "capexToOcfPct": 6.843461192442954,
-    "filed": "2026-07-31"
+    "start": "2025-09-28",
+    "end": "2026-09-26",
+    "ocf": 145097000000,
+    "capex": 9041000000,
+    "fcf": 136056000000,
+    "capexToOcfPct": 6.231004086921163,
+    "filed": "2026-11-03"
    },
    "ttmYearAgo": {
-    "start": "2024-06-30",
-    "end": "2025-06-28",
-    "ocf": 108565000000,
-    "capex": 12381000000,
-    "fcf": 96184000000,
-    "capexToOcfPct": 11.40422788191406,
-    "filed": "2026-07-31"
+    "start": "2024-09-29",
+    "end": "2025-09-27",
+    "ocf": 111482000000,
+    "capex": 12715000000,
+    "fcf": 98767000000,
+    "capexToOcfPct": 11.405428679069267,
+    "filed": "2026-11-03"
    },
-   "capexYoyPct": -18.9,
-   "latestQuarterCapexYoyPct": -29.1
+   "capexYoyPct": -28.9,
+   "latestQuarterCapexYoyPct": -30.8
   },
   {
    "symbol": "NVDA",
    "cik": 1045810,
    "nameKo": "엔비디아",
    "group": "other",
-   "fetchedAt": "2026-11-03T07:18:50.974Z",
+   "fetchedAt": "2026-11-03T19:53:07.683Z",
    "carried": false,
    "status": "ok",
    "quarters": [
@@ -955,7 +955,7 @@
    "cik": 1730168,
    "nameKo": "브로드컴",
    "group": "other",
-   "fetchedAt": "2026-11-03T07:18:50.974Z",
+   "fetchedAt": "2026-11-03T19:53:07.683Z",
    "carried": false,
    "status": "ok",
    "quarters": [
@@ -1090,7 +1090,7 @@
    "cik": 1318605,
    "nameKo": "테슬라",
    "group": "other",
-   "fetchedAt": "2026-11-03T07:18:50.974Z",
+   "fetchedAt": "2026-11-03T19:53:07.683Z",
    "carried": false,
    "status": "ok",
    "quarters": [
