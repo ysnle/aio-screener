@@ -1109,6 +1109,16 @@
           ]
         },
         {
+          "id": "sec-store-previous",
+          "script": "scripts/ci-sec-store-previous-check.mjs",
+          "inputs": [
+            "scripts/sec-fundamentals-store.mjs",
+            "scripts/lib/sec-ledger-store.mjs",
+            "scripts/lib/sec-ledger.mjs",
+            "scripts/ci-sec-store-previous-check.mjs"
+          ]
+        },
+        {
           "id": "candidate-archive",
           "script": "scripts/ci-candidate-archive-check.mjs"
         },

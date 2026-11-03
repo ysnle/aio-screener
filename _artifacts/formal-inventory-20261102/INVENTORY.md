@@ -105,3 +105,10 @@ AI 예산 원장(`ai-ledger-model`), history 세션(`history-session-model`), AI
 4. **수동 새로고침 직전 출발한 요청** — 읽기 → 새 파일 게시 → 수동 새로고침 → 읽기: `clearArtifactCache({abortInFlight:false})`가 보관 사본만 비우고 진행 중 요청은 살려 두어, 새로고침 뒤 읽기가 그 옛 요청에 합류하고 6시간 보관된다. 피해 낮음(요청은 최대 15초 전 출발 — 그 사이 배포가 있어야 함).
 
 모델 밖: D1은 FX·선물(기존 평일 훑기), VIX/TNX/IRX 시간외, 도쿄·홍콩, PRE/POST 표기; C1은 페이지 진입 갱신·지터 값; C3은 무결성·바이트 한도·정체·시간 초과·축출. C2(포트폴리오 다중 탭)·P5·P7·D2~D7·C4~C7은 다음 회차.
+
+## 6. 후속 — 직전 원장 보관 (v59.61, 소유자 선택 2026-11-03)
+
+소유자가 "직전 digest 보관"을 골랐다. `sec-fundamentals-store.mjs publish`는 새 저장소 커밋의 부모 하나에 대체된 원장 트리(부모 없는 복사본)를 둔다 — 사슬은 2단을 넘지 않고, 대체된 트리는 이미 원격에 있어 새로 올리는 blob은 없다. `restore --match-manifest`는 끝 커밋이 main manifest와 다를 때만 depth 2로 한 번 더 받아 부모를 본다(`source: store-previous`).
+
+- 실제 git 재현 `scripts/ci-sec-store-previous-check.mjs`(qa data 그룹 `sec-store-previous`): 원장 1 발행 → main이 1을 가리킴 → 원장 2 발행 → main push 실패 → CI 복원이 원장 1(`store-previous`). v59.60 코드에선 같은 경로가 `source:none`(게이트 SKIP)으로 실패한다. 세 번째 발행 뒤 사슬 2단, 두 발행 전 원장은 복원 불가, 생산자 복원은 최신 원장.
+- TLA+ 갱신(저장소 두 칸): 한 번의 push 실패, 발행~push 사이 다른 작성자 커밋 경로는 닫혔다. 남은 경로는 "발행 성공·push 실패가 두 실행 연속"뿐(최단 8단계). 닫으려면 발행 때 main manifest와 맞는 쪽을 부모로 고르는 분기 + 드물게 88 MB 추가 내려받기가 필요해, 기록상 연속 실패가 없어(10/12, 10/16 단발) 넣지 않았다.

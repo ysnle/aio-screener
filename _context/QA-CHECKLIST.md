@@ -4,6 +4,10 @@ last_verified: 2026-11-03
 confidence: medium
 ---
 
+## v59.61 SEC 원장 저장소 직전 칸 (v59.61) (2026-11-03)
+
+- [x] QA-SEC-STORE-PREVIOUS: v59.61 스크리너 main push 실패 뒤에도 CI가 main이 가리키는 SEC 원장을 data-store 직전 칸에서 복원한다. verify_by: node scripts/ci-sec-store-previous-check.mjs
+
 ## v59.60 형식 검증 회차 (v59.60) (2026-11-03)
 
 - [x] QA-MARKET-SESSION-MODEL: v59.60 시세 세션 분류가 반일장·휴장·KRX 지연 개장·수능 시간에서 장중/확정 종가를 달력대로 나눈다. verify_by: node scripts/ci-market-session-model-check.mjs

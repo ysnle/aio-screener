@@ -39,6 +39,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2216 - v59.61 - 스크리너가 새 SEC 원장을 발행한 뒤 main push에 실패하면 다음 실행까지 CI가 전체 원장 검사를 건너뜀 (2026-11-03)
+
+- symptom/reproduction: 릴리스 TLA+ 모델에서 HeadVerifiableBetweenRuns·LiveCheckedAgainstFullLedger가 깨졌다. 실제로 실행 38854259134(10-16)와 38241555138(10-12)이 data-store에 새 원장을 올린 뒤 rebase 충돌로 main push에 실패했고, 그동안 main 커밋의 CI는 digest 불일치로 SEC 전체 원장 게이트를 P1757 SKIP으로 통과해 공개됐다.
+- root_cause: scripts/sec-fundamentals-store.mjs가 data-store를 부모 없는 한 커밋으로만 유지해, 발행 순서(main보다 먼저, P1757)상 저장소가 main보다 앞서는 창에서 main manifest가 가리키는 원장이 어디에도 없었다.
+- fix: publish가 새 커밋의 부모 하나에 대체된 원장 트리를 부모 없는 복사본으로 둔다(사슬 2단, 새 blob 없음). restore --match-manifest는 끝 커밋이 다를 때만 depth 2로 받아 부모를 확인해 source store-previous로 복원한다. 남은 경로(발행 성공·push 실패가 두 실행 연속)는 문서화.
+- violated_rule: P1757 SEC 원장 저장소
+- prevention: scripts/ci-sec-store-previous-check.mjs(qa data 그룹 sec-store-previous): 실제 스크립트를 임시 git 저장소에 복사해 발행→발행→push 실패→CI 복원을 재현하고, 사슬 2단·두 발행 전 복원 불가·생산자 최신 복원을 확인한다. v59.60 코드에서는 source none으로 실패한다.
+- verification/residual: node scripts/ci-sec-store-previous-check.mjs → {afterFailedPush: store-previous, chain: 2, twoBack: none}; TLA+ 두 칸 모델에서 단일 실패 경로 소멸, 연속 2회 실패만 남음
+
 ## P2215 - v59.60 - Pages 배포 직후 라이브 불변식 검사가 일시 503에 재시도 없이 실패 (2026-11-03)
 
 - symptom/reproduction: 지난 7일 Deploy GitHub Pages 실패 9건이 모두 배포 직후 ci-live-invariant-check가 src/chunks/*.js·public-config.json에서 HTTP 503을 만난 것이었다.

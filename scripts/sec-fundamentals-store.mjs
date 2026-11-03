@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // P1757: keeps the producer-only SEC ledger (public-data/sec-fundamentals.json, ~67 MB) off main's history.
-// The ledger lives on the orphan branch `data-store` as ONE commit that each refresh-screener run force-pushes
+// The ledger lives on the branch `data-store` as one commit that each refresh-screener run force-pushes
 // (no history growth, no Actions-cache eviction risk). v57.90: that commit holds an index plus byte-exact parts of at
 // most 32 MiB (scripts/lib/sec-ledger-store.mjs), because the single blob reached 87.8 MB against GitHub's 100 MB
 // rejection; restore reassembles them (or reads a pre-v57.90 single-file commit) into the same one local file.
@@ -17,7 +17,8 @@
 //       Fails when the ledger holds fewer than 90% of the records main's projection manifest published, so a lost
 //       ledger rebuilt from nothing can never shrink the public projection.
 //   publish [--github-output]
-//       Force-pushes the local ledger as a single parentless commit (index + parts) to data-store (lease-protected),
+//       Force-pushes the local ledger (index + parts) to data-store (lease-protected) as a commit whose one parentless
+//       parent holds the ledger it replaced (v59.61: a digest-matched restore falls back to it),
 //       unless the branch already holds the identical tree. Run it BEFORE pushing main: main's manifest must never name a
 //       digest the store never held.
 import { spawnSync } from 'node:child_process';
@@ -107,6 +108,17 @@ async function restore({ force = false, matchManifest = false } = {}) {
       return { source: 'store', sha256: store.digest, matchesManifest: store.digest === manifestDigest(), commit: git(['rev-parse', STORE_REF]).stdout, layout };
     }
     tried.push(`store:${layout}:${store?.rejected ? `digest-mismatch:${store.digest.slice(0, 12)}` : error ? `invalid:${error}` : 'missing-file'}`);
+    // v59.61: the tip's one parent holds the ledger it replaced. After a publish whose main push failed (or before main's
+    // commit lands) main still names that one, so a digest-matched restore reads it instead of skipping (release TLA+ model).
+    if (matchManifest && store?.rejected && git(['fetch', '--no-tags', '--depth=2', 'origin', `+refs/heads/${SEC_STORE_BRANCH}:${STORE_REF}`]).ok) {
+      const prior = readSecStore((name) => blobAt(`${STORE_REF}^1:${name}`));
+      const previous = accept(prior.buffer, expected);
+      if (previous && !previous.rejected) {
+        writeLedger(previous.buffer);
+        return { source: 'store-previous', sha256: previous.digest, matchesManifest: true, commit: git(['rev-parse', `${STORE_REF}^1`]).stdout, layout: prior.layout };
+      }
+      tried.push(`store-previous:${prior.layout}:${previous?.rejected ? `digest-mismatch:${previous.digest.slice(0, 12)}` : prior.error ? `invalid:${prior.error}` : 'missing'}`);
+    }
   } else tried.push('store:branch-unavailable');
   // A digest-matched restore (CI) reads history only while the store branch does not exist yet; once it does, older
   // history copies can never match a post-migration manifest and each probe would download another ~67 MB blob.
@@ -149,7 +161,15 @@ function publish() {
   if (previousTree && previousTree === tree) return { published: false, reason: 'unchanged', sha256, commit: previousCommit, ...shape };
   const sourceSha = git(['rev-parse', 'HEAD']).stdout || 'unknown';
   const identity = { GIT_AUTHOR_NAME: 'aio-data-bot', GIT_AUTHOR_EMAIL: 'actions@github.com', GIT_COMMITTER_NAME: 'aio-data-bot', GIT_COMMITTER_EMAIL: 'actions@github.com' };
-  const commitResult = spawnSync('git', ['commit-tree', tree, '-m', `data-store: ${SEC_STORE_FILE} sha256=${sha256}`, '-m', `Producer-only SEC ledger (P1757), ${parts} part(s) + ${SEC_STORE_INDEX_FILE} (v57.90). Built on main ${sourceSha}. Single parentless commit, force-pushed each run.`], {
+  // v59.61: keep exactly one previous ledger as the tip's only parent — a parentless copy of the replaced tree, so the
+  // chain never grows and no blob is uploaded twice (the replaced tree is already on the remote).
+  let parentArgs = [];
+  if (previousTree) {
+    const previous = spawnSync('git', ['commit-tree', previousTree, '-m', 'data-store: previous ledger (kept one publish back, v59.61)'], { cwd, encoding: 'utf8', env: { ...process.env, ...identity } });
+    if (previous.status !== 0) throw new Error(`git commit-tree (previous) failed: ${previous.stderr}`);
+    parentArgs = ['-p', previous.stdout.trim()];
+  }
+  const commitResult = spawnSync('git', ['commit-tree', tree, ...parentArgs, '-m', `data-store: ${SEC_STORE_FILE} sha256=${sha256}`, '-m', `Producer-only SEC ledger (P1757), ${parts} part(s) + ${SEC_STORE_INDEX_FILE} (v57.90). Built on main ${sourceSha}. Force-pushed each run; its one parent holds the ledger it replaced (v59.61).`], {
     cwd, encoding: 'utf8', env: { ...process.env, ...identity }
   });
   if (commitResult.status !== 0) throw new Error(`git commit-tree failed: ${commitResult.stderr}`);
