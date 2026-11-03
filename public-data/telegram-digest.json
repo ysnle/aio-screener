@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-03T03:51:53.198Z",
-  "attemptedAt": "2026-11-03T03:51:53.198Z",
-  "lastSuccessfulAt": "2026-11-03T03:51:53.198Z",
+  "generatedAt": "2026-11-03T04:51:39.592Z",
+  "attemptedAt": "2026-11-03T04:51:39.592Z",
+  "lastSuccessfulAt": "2026-11-03T04:51:39.592Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-20T03:51:46.788Z",
-  "until": "2026-11-03T03:51:46.788Z",
+  "since": "2026-10-20T04:51:34.512Z",
+  "until": "2026-11-03T04:51:34.512Z",
   "current24hWindow": {
     "start": "2026-11-01T23:00:00.000Z",
     "end": "2026-11-02T23:00:00.000Z",
@@ -89,12 +89,12 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1335,
-      "freshCount": 39,
-      "eligibleTextCount": 1275,
+      "count": 1334,
+      "freshCount": 20,
+      "eligibleTextCount": 1274,
       "selectedCount": 124,
       "error": null,
       "lastPostId": 68164
@@ -104,12 +104,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 232,
+      "count": 233,
       "freshCount": 39,
-      "eligibleTextCount": 232,
+      "eligibleTextCount": 233,
       "selectedCount": 126,
       "error": null,
-      "lastPostId": 20969
+      "lastPostId": 20970
     },
     {
       "channel": "HANAchina",
@@ -121,11 +121,11 @@
       "eligibleTextCount": 657,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 71465
+      "lastPostId": 71467
     }
   ],
   "count": 2341,
-  "retainedItemCount": 481,
+  "retainedItemCount": 463,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -134,12 +134,12 @@
     "observedCount": 2341,
     "eligibleTextCount": 2273,
     "mediaOnlyCount": 68,
-    "mediaAttachedCount": 166,
-    "photoPostCount": 143,
+    "mediaAttachedCount": 167,
+    "photoPostCount": 144,
     "documentPostCount": 0,
     "imageOnlyCount": 0,
-    "highSignalCount": 422,
-    "broadSignalCount": 905,
+    "highSignalCount": 423,
+    "broadSignalCount": 907,
     "selectedRawCount": 414,
     "selectedEligibleCount": 414,
     "selectedRawCoveragePct": 18.2,
@@ -147,11 +147,11 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 830,
-    "macro": 351,
-    "power": 275,
-    "earnings": 488,
-    "semi": 516,
+    "semi": 518,
+    "macro": 352,
+    "power": 277,
+    "earnings": 490,
+    "market-note": 828,
     "kr-market": 125,
     "flows": 76,
     "geo": 427,
@@ -165,6 +165,9 @@
     "optical": 43
   },
   "tickerCounts": {
+    "MU": 43,
+    "005930.KS": 49,
+    "000660.KS": 76,
     "PLTR": 25,
     "AAPL": 21,
     "GOOG": 131,
@@ -172,8 +175,6 @@
     "TSLA": 61,
     "NVDA": 139,
     "AVGO": 22,
-    "005930.KS": 48,
-    "000660.KS": 75,
     "2454.TW": 4,
     "GS": 2,
     "MS": 6,
@@ -184,7 +185,6 @@
     "AMD": 29,
     "BE": 26,
     "SMCI": 5,
-    "MU": 42,
     "MTCH": 1,
     "ON": 1,
     "BWXT": 1,
@@ -258,12 +258,12 @@
     "UMC": 1
   },
   "themes": [
-    "Market Notes (830 posts in 14-day research window): 11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000...",
-    "Semiconductors/Memory (516 posts in 14-day research window): 2026년 11월 2일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.76%) 2위: ALPHABET INC CL A...",
-    "Earnings/Corporate (488 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
+    "Market Notes (828 posts in 14-day research window): 11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000...",
+    "Semiconductors/Memory (518 posts in 14-day research window): 2026년 11월 2일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.76%) 2위: ALPHABET INC CL A...",
+    "Earnings/Corporate (490 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
     "Geopolitics (427 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 3일 🇺🇸 아메리카 • 트럼프 대통령은 중간선거 이후 이란에 대한 추가 공습 계획을 부인하며 군사작전 재개를 서두르지 않겠다고 밝혀. 이란이 합의를 원하고 있으며...",
-    "Macro/Rates (351 posts in 14-day research window): 2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,...",
-    "AI Power/Grid (275 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
+    "Macro/Rates (352 posts in 14-day research window): 2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,...",
+    "AI Power/Grid (277 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
     "Equity/Analyst (156 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로...",
     "AI Policy/Export Controls (131 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
   ],
@@ -285,7 +285,7 @@
     },
     {
       "key": "000660.KS",
-      "count": 75,
+      "count": 76,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인..."
     },
     {
@@ -300,18 +300,18 @@
     },
     {
       "key": "005930.KS",
-      "count": 48,
+      "count": 49,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인..."
+    },
+    {
+      "key": "MU",
+      "count": 43,
+      "text": "2026년 10월 29일 미국 레딧 베스트 게시물 분석 > NVDA / MU / VRT / ETN / GEV - AI Trade가 물리 인프라로 확장 · 장문 DD 핵심은 “AI가 싸지면 물리 자원이 병목”..."
     },
     {
       "key": "TSM",
       "count": 43,
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
-    },
-    {
-      "key": "MU",
-      "count": 42,
-      "text": "2026년 10월 29일 미국 레딧 베스트 게시물 분석 > NVDA / MU / VRT / ETN / GEV - AI Trade가 물리 인프라로 확장 · 장문 DD 핵심은 “AI가 싸지면 물리 자원이 병목”..."
     },
     {
       "key": "AMD",
@@ -336,7 +336,7 @@
       "topics": [
         "macro"
       ],
-      "count": 351,
+      "count": 352,
       "focus": "2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,..."
     },
     {
@@ -363,7 +363,7 @@
       "topics": [
         "semi"
       ],
-      "count": 516,
+      "count": 518,
       "focus": "2026년 11월 2일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.76%) 2위: ALPHABET INC CL A..."
     },
     {
@@ -381,7 +381,7 @@
       "topics": [
         "power"
       ],
-      "count": 275,
+      "count": 277,
       "focus": "Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을..."
     },
     {
@@ -426,7 +426,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 488,
+      "count": 490,
       "focus": "마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장...."
     },
     {
@@ -471,7 +471,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 830,
+      "count": 828,
       "focus": "11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000..."
     }
   ],
@@ -1723,6 +1723,45 @@
   ],
   "broadItems": [
     {
+      "id": "bornlupin/20970",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20970",
+      "datetime": "2026-11-03T04:44:13.000Z",
+      "localDateKst": "2026-11-03",
+      "tags": [
+        "semi",
+        "macro",
+        "power",
+        "earnings"
+      ],
+      "lead": 1,
+      "score": 89,
+      "hasText": true,
+      "tickers": [
+        "MU",
+        "005930.KS",
+        "000660.KS"
+      ],
+      "summary": "대만 팀그룹: 메모리 공급 부족 2028년 하반기까지 지속 전망 1. 메모리 공급 부족 장기화 - 메모리 수급이 균형을 회복하는 시점은 최소 2028년 하반기로 예상. - 공급 부족이 가장 심각한 시기는..."
+    },
+    {
+      "id": "HANAchina/71467",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71467",
+      "datetime": "2026-11-03T04:23:56.000Z",
+      "localDateKst": "2026-11-03",
+      "tags": [
+        "semi",
+        "macro",
+        "earnings"
+      ],
+      "lead": 1,
+      "score": 64,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>애플 : 메모리 비용 부담이 결국 현실화, AI 시장의 ‘안전지대’에도 균열이 생기나? •애플의 4분기 매출은 전년 대비 11.7% 증가했으며, 판매량 확대보다는 iPhone과 Mac의 가격 인상에 힘입은..."
+    },
+    {
       "id": "HANAchina/71465",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71465",
@@ -1905,14 +1944,13 @@
       "datetime": "2026-11-02T23:52:05.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "equity",
-        "semi"
+        "equity"
       ],
-      "lead": 1,
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": "뱅크오브아메리카(BofA)가 마벨 테크놀로지의 투자 의견을 기존 ‘매수(Buy)’에서 ‘중립(Neutral)’으로 하향 조정하고, 목표주가도 400달러에서 225달러로 인하. 뱅크오브아메리카는 루멘텀과의 전액..."
+      "summary": "뱅크오브아메리카(BofA)가 마벨 테크놀로지의 투자 의견을 기존 ‘매수(Buy)’에서 ‘중립(Neutral)’으로 하향 조정하고, 목표주가도 400달러에서 225달러로 인하. 뱅크오브아메리카는 루멘텀과의 전액...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/20961",
@@ -2141,7 +2179,6 @@
       "localDateKst": "2026-11-03",
       "tags": [
         "macro",
-        "geo",
         "semi",
         "earnings"
       ],
@@ -2153,11 +2190,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "11월 03일 미주인 브리핑 • 나스닥 1.07% 하락 · 다우 0.41% 상승 • 반도체지수 3.3% 하락 · AI 기술주 매도세 • 국제유가 8.03% 하락 · WTI 95.76달러 • 애플 매출...",
       "tickers": [
         "AMD",
         "PLTR"
-      ],
-      "summary": "11월 03일 미주인 브리핑 • 나스닥 1.07% 하락 · 다우 0.41% 상승 • 반도체지수 3.3% 하락 · AI 기술주 매도세 • 국제유가 8.03% 하락 · WTI 95.76달러 • 애플 매출..."
+      ]
     },
     {
       "id": "bornlupin/20957",
@@ -2192,10 +2229,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "블룸에너지와 캘리포니아 리소시스가 캘리포니아에서 1GW 이상의 전력 생산 프로젝트를 추진하기 위한 업무협약(MOU) 체결. 양사는 탄소 포집·저장(CCS) 기술과 결합한 고체산화물 연료전지 프로젝트 개발을...",
+      "lead": 1,
       "tickers": [
         "BE"
-      ],
-      "summary": "블룸에너지와 캘리포니아 리소시스가 캘리포니아에서 1GW 이상의 전력 생산 프로젝트를 추진하기 위한 업무협약(MOU) 체결. 양사는 탄소 포집·저장(CCS) 기술과 결합한 고체산화물 연료전지 프로젝트 개발을..."
+      ]
     },
     {
       "id": "insidertracking/68119",
@@ -2640,11 +2678,11 @@
       "tags": [
         "geo"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>보도: 이란 최고지도자, 정부에 협상 권한 부여 •이란 통신사에 따르면 이란 최고지도자가 정부에 협상을 진행할 권한을 부여 •WTI와 브렌트유는 장중 낙폭이 각 -6.0%로 확대 （来自华尔街见闻）직역"
+      "summary": ">>보도: 이란 최고지도자, 정부에 협상 권한 부여 •이란 통신사에 따르면 이란 최고지도자가 정부에 협상을 진행할 권한을 부여 •WTI와 브렌트유는 장중 낙폭이 각 -6.0%로 확대 （来自华尔街见闻）직역",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/20954",
@@ -2675,17 +2713,16 @@
       "localDateKst": "2026-11-02",
       "tags": [
         "semi",
-        "optical",
-        "power"
+        "optical"
       ],
-      "lead": 2,
       "score": 63,
       "hasText": true,
+      "summary": ">>Marvell, Lumentum 1,150억 달러에 인수…‘칩+광학’ 통합으로 AI 연결 시장 공략 •Marvell이 Lumentum을 주식 교환 방식으로 인수한다고 발표했으며, 거래에 반영된 기업가치는...",
+      "lead": 2,
       "tickers": [
         "MRVL",
         "LITE"
-      ],
-      "summary": ">>Marvell, Lumentum 1,150억 달러에 인수…‘칩+광학’ 통합으로 AI 연결 시장 공략 •Marvell이 Lumentum을 주식 교환 방식으로 인수한다고 발표했으며, 거래에 반영된 기업가치는..."
+      ]
     },
     {
       "id": "HANAchina/71424",
@@ -7215,24 +7252,6 @@
       ]
     },
     {
-      "id": "HANAchina/71129",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71129",
-      "datetime": "2026-10-28T01:56:01.000Z",
-      "localDateKst": "2026-10-28",
-      "tags": [
-        "semi"
-      ],
-      "score": 60,
-      "hasText": true,
-      "summary": ">>알리바바·텐센트·바이트댄스, DRAM 장기 공급계약 체결 추진…중국 클라우드 대기업들, 반도체 공급 확보 가속화 (중국언론 인용) •알리바바, 텐센트, 바이트댄스 등 중국 클라우드 서비스 대기업들이...",
-      "lead": 1,
-      "tickers": [
-        "005930.KS",
-        "000660.KS"
-      ]
-    },
-    {
       "id": "bornlupin/20859",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20859",
@@ -8666,23 +8685,6 @@
       "tickers": []
     },
     {
-      "id": "bornlupin/20778",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20778",
-      "datetime": "2026-10-23T04:20:49.000Z",
-      "localDateKst": "2026-10-23",
-      "tags": [
-        "power",
-        "earnings"
-      ],
-      "score": 57,
-      "hasText": true,
-      "summary": "SK하이퍼, AI 데이터센터 구축 자금 유치 본격화 초기 5GW 구축에 3천500억달러 필요…2027년 첫 매출 창출 목표 SK텔레콤[017670]의 인공지능(AI) 데이터센터 사업개발 전문회사 SK하이퍼가...",
-      "tickers": [
-        "017670.KS"
-      ]
-    },
-    {
       "id": "aetherjapanresearch/25996",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25996",
@@ -8934,7 +8936,6 @@
       "localDateKst": "2026-11-03",
       "tags": [
         "macro",
-        "geo",
         "semi",
         "earnings"
       ],
@@ -8946,11 +8947,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "11월 03일 미주인 브리핑 • 나스닥 1.07% 하락 · 다우 0.41% 상승 • 반도체지수 3.3% 하락 · AI 기술주 매도세 • 국제유가 8.03% 하락 · WTI 95.76달러 • 애플 매출...",
       "tickers": [
         "AMD",
         "PLTR"
-      ],
-      "summary": "11월 03일 미주인 브리핑 • 나스닥 1.07% 하락 · 다우 0.41% 상승 • 반도체지수 3.3% 하락 · AI 기술주 매도세 • 국제유가 8.03% 하락 · WTI 95.76달러 • 애플 매출..."
+      ]
     },
     {
       "id": "bornlupin/20957",
@@ -8985,10 +8986,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "블룸에너지와 캘리포니아 리소시스가 캘리포니아에서 1GW 이상의 전력 생산 프로젝트를 추진하기 위한 업무협약(MOU) 체결. 양사는 탄소 포집·저장(CCS) 기술과 결합한 고체산화물 연료전지 프로젝트 개발을...",
+      "lead": 1,
       "tickers": [
         "BE"
-      ],
-      "summary": "블룸에너지와 캘리포니아 리소시스가 캘리포니아에서 1GW 이상의 전력 생산 프로젝트를 추진하기 위한 업무협약(MOU) 체결. 양사는 탄소 포집·저장(CCS) 기술과 결합한 고체산화물 연료전지 프로젝트 개발을..."
+      ]
     },
     {
       "id": "insidertracking/68119",
@@ -9433,11 +9435,11 @@
       "tags": [
         "geo"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>보도: 이란 최고지도자, 정부에 협상 권한 부여 •이란 통신사에 따르면 이란 최고지도자가 정부에 협상을 진행할 권한을 부여 •WTI와 브렌트유는 장중 낙폭이 각 -6.0%로 확대 （来自华尔街见闻）직역"
+      "summary": ">>보도: 이란 최고지도자, 정부에 협상 권한 부여 •이란 통신사에 따르면 이란 최고지도자가 정부에 협상을 진행할 권한을 부여 •WTI와 브렌트유는 장중 낙폭이 각 -6.0%로 확대 （来自华尔街见闻）직역",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/20954",
@@ -9468,17 +9470,16 @@
       "localDateKst": "2026-11-02",
       "tags": [
         "semi",
-        "optical",
-        "power"
+        "optical"
       ],
-      "lead": 2,
       "score": 63,
       "hasText": true,
+      "summary": ">>Marvell, Lumentum 1,150억 달러에 인수…‘칩+광학’ 통합으로 AI 연결 시장 공략 •Marvell이 Lumentum을 주식 교환 방식으로 인수한다고 발표했으며, 거래에 반영된 기업가치는...",
+      "lead": 2,
       "tickers": [
         "MRVL",
         "LITE"
-      ],
-      "summary": ">>Marvell, Lumentum 1,150억 달러에 인수…‘칩+광학’ 통합으로 AI 연결 시장 공략 •Marvell이 Lumentum을 주식 교환 방식으로 인수한다고 발표했으며, 거래에 반영된 기업가치는..."
+      ]
     },
     {
       "id": "HANAchina/71424",
