@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-03T08:21:42.632Z",
-  "attemptedAt": "2026-11-03T08:21:42.632Z",
-  "lastSuccessfulAt": "2026-11-03T08:21:42.632Z",
+  "generatedAt": "2026-11-03T08:52:06.492Z",
+  "attemptedAt": "2026-11-03T08:52:06.492Z",
+  "lastSuccessfulAt": "2026-11-03T08:52:06.492Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-20T08:21:36.560Z",
-  "until": "2026-11-03T08:21:36.560Z",
+  "since": "2026-10-20T08:51:59.867Z",
+  "until": "2026-11-03T08:51:59.867Z",
   "current24hWindow": {
     "start": "2026-11-01T23:00:00.000Z",
     "end": "2026-11-02T23:00:00.000Z",
@@ -80,24 +80,24 @@
       "pages": 0,
       "reachedOlder": false,
       "reachedKnown": false,
-      "count": 107,
+      "count": 106,
       "freshCount": 0,
-      "eligibleTextCount": 100,
+      "eligibleTextCount": 99,
       "selectedCount": 41,
       "error": "first page parsed no posts",
       "lastPostId": 26057
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1339,
-      "freshCount": 18,
-      "eligibleTextCount": 1277,
+      "count": 1341,
+      "freshCount": 38,
+      "eligibleTextCount": 1279,
       "selectedCount": 125,
       "error": null,
-      "lastPostId": 68182
+      "lastPostId": 68184
     },
     {
       "channel": "bornlupin",
@@ -116,16 +116,16 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 658,
-      "freshCount": 32,
-      "eligibleTextCount": 657,
+      "count": 657,
+      "freshCount": 33,
+      "eligibleTextCount": 656,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 71479
+      "lastPostId": 71480
     }
   ],
   "count": 2335,
-  "retainedItemCount": 456,
+  "retainedItemCount": 475,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -134,12 +134,12 @@
     "observedCount": 2335,
     "eligibleTextCount": 2265,
     "mediaOnlyCount": 70,
-    "mediaAttachedCount": 179,
-    "photoPostCount": 155,
+    "mediaAttachedCount": 181,
+    "photoPostCount": 157,
     "documentPostCount": 0,
     "imageOnlyCount": 0,
     "highSignalCount": 419,
-    "broadSignalCount": 903,
+    "broadSignalCount": 902,
     "selectedRawCount": 415,
     "selectedEligibleCount": 415,
     "selectedRawCoveragePct": 18.3,
@@ -147,24 +147,25 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 822,
+    "market-note": 824,
+    "macro": 351,
+    "semi": 515,
+    "optical": 45,
+    "kr-market": 122,
     "equity": 157,
-    "semi": 516,
-    "earnings": 484,
+    "earnings": 482,
     "geo": 426,
     "power": 278,
     "media-only": 70,
-    "macro": 350,
     "ai-policy": 130,
-    "optical": 44,
-    "japan": 104,
-    "kr-market": 122,
-    "flows": 74,
+    "japan": 102,
+    "flows": 73,
     "healthcare": 107,
     "crypto": 4,
     "credit": 109
   },
   "tickerCounts": {
+    "TSM": 42,
     "GOOG": 130,
     "PLTR": 26,
     "NVDA": 138,
@@ -180,7 +181,6 @@
     "2454.TW": 4,
     "GS": 2,
     "MS": 6,
-    "TSM": 42,
     "STX": 6,
     "INTC": 6,
     "CIEN": 1,
@@ -258,11 +258,11 @@
     "UMC": 1
   },
   "themes": [
-    "Market Notes (822 posts in 14-day research window): 11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000...",
-    "Semiconductors/Memory (516 posts in 14-day research window): 2026년 11월 2일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.76%) 2위: ALPHABET INC CL A...",
-    "Earnings/Corporate (484 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
+    "Market Notes (824 posts in 14-day research window): 11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000...",
+    "Semiconductors/Memory (515 posts in 14-day research window): 2026년 11월 2일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.76%) 2위: ALPHABET INC CL A...",
+    "Earnings/Corporate (482 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
     "Geopolitics (426 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 3일 🇺🇸 아메리카 • 트럼프 대통령은 중간선거 이후 이란에 대한 추가 공습 계획을 부인하며 군사작전 재개를 서두르지 않겠다고 밝혀. 이란이 합의를 원하고 있으며...",
-    "Macro/Rates (350 posts in 14-day research window): 2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,...",
+    "Macro/Rates (351 posts in 14-day research window): 2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,...",
     "AI Power/Grid (278 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
     "Equity/Analyst (157 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로...",
     "AI Policy/Export Controls (130 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
@@ -336,7 +336,7 @@
       "topics": [
         "macro"
       ],
-      "count": 350,
+      "count": 351,
       "focus": "2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,..."
     },
     {
@@ -363,7 +363,7 @@
       "topics": [
         "semi"
       ],
-      "count": 516,
+      "count": 515,
       "focus": "2026년 11월 2일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.76%) 2위: ALPHABET INC CL A..."
     },
     {
@@ -372,7 +372,7 @@
       "topics": [
         "optical"
       ],
-      "count": 44,
+      "count": 45,
       "focus": "StoneX, 루멘텀( $LITE ), 매수 의견으로 커버리지 개시 , 목표주가 $1,200 NPO 수요 가속화 * 루멘텀의 NPO 사업 모멘텀이 강화되면서 2028 회계연도 투자 전망이 앞당겨지고 있음. *..."
     },
     {
@@ -426,7 +426,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 484,
+      "count": 482,
       "focus": "마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장...."
     },
     {
@@ -444,7 +444,7 @@
       "topics": [
         "japan"
       ],
-      "count": 104,
+      "count": 102,
       "focus": "JPM) 일본 퀀트 전략; 바닥은 닛케이평균 62,000선이나 핵심 분기점은 60,980 – 사이버 관련 헤드라인과 AI 피로감이 선별적 퀄리티 그로스에 다시 불을 지피다 내용 요약 10월 22일 닛케이평균은..."
     },
     {
@@ -453,7 +453,7 @@
       "topics": [
         "flows"
       ],
-      "count": 74,
+      "count": 73,
       "focus": "서학개미 순매수 미국 주식 TOP 50 (10월 누적) > 기간: 2026/10/01 ~ 2026/10/30 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -471,7 +471,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 822,
+      "count": 824,
       "focus": "11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000..."
     }
   ],
@@ -1716,6 +1716,31 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71480",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71480",
+      "datetime": "2026-11-03T08:27:22.000Z",
+      "localDateKst": "2026-11-03",
+      "tags": [
+        "macro",
+        "semi",
+        "optical",
+        "kr-market"
+      ],
+      "score": 89,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "TSM"
+      ],
+      "summary": "중화권 마감 시황 (26.11.03, 화) 🇨🇳 중국 본토 증시는 미국 대선 본투표 개시와 앤트로픽의 230억 달러 적자 쇼크로 촉발된 글로벌 AI 인프라 투자 회의론이 확산되며 기술주 중심의 차익실현..."
+    },
+    {
       "id": "insidertracking/68182",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/68182",
@@ -1999,14 +2024,17 @@
       "datetime": "2026-11-03T02:37:03.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "earnings"
+        "macro",
+        "ai-policy",
+        "earnings",
+        "healthcare"
       ],
       "score": 71,
       "hasText": true,
-      "summary": "팔란티어(PLTR) Q3 2026 어닝콜 요약 > 긍정 요인: • 폭발적인 매출 성장. 3분기 매출은 23억1,300만달러로 전년 대비 96%, 전분기 대비 20% 증가. 미국 매출은 19억3,700만달러로...",
       "tickers": [
         "PLTR"
-      ]
+      ],
+      "summary": "팔란티어(PLTR) Q3 2026 어닝콜 요약 > 긍정 요인: • 폭발적인 매출 성장. 3분기 매출은 23억1,300만달러로 전년 대비 96%, 전분기 대비 20% 증가. 미국 매출은 19억3,700만달러로..."
     },
     {
       "id": "insidertracking/68158",
@@ -2015,14 +2043,17 @@
       "datetime": "2026-11-03T02:15:47.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
+        "macro",
+        "semi",
+        "kr-market",
         "earnings"
       ],
       "score": 81,
       "hasText": true,
-      "summary": "애플(AAPL) Q4 2026 어닝콜 요약 > 긍정 요인: • 사상 최대 매출 및 EPS 달성. 4분기 매출은 1,145억달러로 전년 대비 12% 증가. 2026 회계연도 매출은 4,788억달러로 15%,...",
       "tickers": [
         "AAPL"
-      ]
+      ],
+      "summary": "애플(AAPL) Q4 2026 어닝콜 요약 > 긍정 요인: • 사상 최대 매출 및 EPS 달성. 4분기 매출은 1,145억달러로 전년 대비 12% 증가. 2026 회계연도 매출은 4,788억달러로 15%,..."
     },
     {
       "id": "HANAchina/71453",
@@ -7202,21 +7233,6 @@
       "tickers": [
         "TSM"
       ]
-    },
-    {
-      "id": "HANAchina/71140",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71140",
-      "datetime": "2026-10-28T04:49:24.000Z",
-      "localDateKst": "2026-10-28",
-      "tags": [
-        "macro"
-      ],
-      "score": 62,
-      "hasText": true,
-      "summary": ">>JPMorgan: AI가 견인하는 이익 성장이 지속된다면 미국 증시는 10년물 미 국채 금리가 5.5~6.0%까지 상승하는 것을 감내할 수 있음 •JPMorgan은 약 80년간의 역사적 데이터를 바탕으로,...",
-      "lead": 1,
-      "tickers": []
     },
     {
       "id": "bornlupin/20861",
