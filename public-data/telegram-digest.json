@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-04T08:21:48.634Z",
-  "attemptedAt": "2026-11-04T08:21:48.634Z",
-  "lastSuccessfulAt": "2026-11-04T08:21:48.634Z",
+  "generatedAt": "2026-11-04T08:51:33.769Z",
+  "attemptedAt": "2026-11-04T08:51:33.769Z",
+  "lastSuccessfulAt": "2026-11-04T08:51:33.769Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-21T08:21:43.726Z",
-  "until": "2026-11-04T08:21:43.726Z",
+  "since": "2026-10-21T08:51:28.929Z",
+  "until": "2026-11-04T08:51:28.929Z",
   "current24hWindow": {
     "start": "2026-11-02T23:00:00.000Z",
     "end": "2026-11-03T23:00:00.000Z",
@@ -89,15 +89,15 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1368,
-      "freshCount": 18,
-      "eligibleTextCount": 1303,
+      "count": 1369,
+      "freshCount": 38,
+      "eligibleTextCount": 1304,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 68318
+      "lastPostId": 68320
     },
     {
       "channel": "bornlupin",
@@ -116,30 +116,30 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 668,
+      "count": 669,
       "freshCount": 39,
-      "eligibleTextCount": 667,
+      "eligibleTextCount": 668,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 71539
+      "lastPostId": 71541
     }
   ],
-  "count": 2366,
-  "retainedItemCount": 455,
+  "count": 2368,
+  "retainedItemCount": 471,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2366,
-    "eligibleTextCount": 2296,
+    "observedCount": 2368,
+    "eligibleTextCount": 2298,
     "mediaOnlyCount": 70,
-    "mediaAttachedCount": 278,
-    "photoPostCount": 240,
+    "mediaAttachedCount": 279,
+    "photoPostCount": 241,
     "documentPostCount": 1,
     "imageOnlyCount": 1,
-    "highSignalCount": 428,
-    "broadSignalCount": 917,
+    "highSignalCount": 427,
+    "broadSignalCount": 916,
     "selectedRawCount": 408,
     "selectedEligibleCount": 408,
     "selectedRawCoveragePct": 17.8,
@@ -147,26 +147,26 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "market-note": 853,
     "macro": 354,
     "geo": 446,
-    "semi": 512,
+    "semi": 511,
     "optical": 45,
     "power": 268,
-    "kr-market": 122,
-    "market-note": 850,
-    "earnings": 467,
+    "kr-market": 121,
+    "earnings": 466,
     "equity": 154,
     "healthcare": 102,
     "japan": 96,
     "ai-policy": 130,
     "media-only": 70,
-    "flows": 69,
+    "flows": 68,
     "credit": 108,
     "crypto": 5
   },
   "tickerCounts": {
     "AMD": 45,
-    "TSM": 40,
+    "TSM": 39,
     "SMCI": 8,
     "TSLA": 54,
     "NVO": 1,
@@ -265,9 +265,9 @@
     "DELL": 1
   },
   "themes": [
-    "Market Notes (850 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Falcon Guardian에 AI 에이전트의 실행을 중단하고 재시작 및 기업 네트워크 접근을...",
-    "Semiconductors/Memory (512 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
-    "Earnings/Corporate (467 posts in 14-day research window): 알파벳(GOOGL) 2026년 3분기 실적 (시간외 -7.7%) 주당순이익(EPS): 2.12달러 매출: 1,276억 달러 (예상 1,282.2억 달러 하회), 전년 대비 25% 증가 구글 클라우드 매출:...",
+    "Market Notes (853 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Falcon Guardian에 AI 에이전트의 실행을 중단하고 재시작 및 기업 네트워크 접근을...",
+    "Semiconductors/Memory (511 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
+    "Earnings/Corporate (466 posts in 14-day research window): 알파벳(GOOGL) 2026년 3분기 실적 (시간외 -7.7%) 주당순이익(EPS): 2.12달러 매출: 1,276억 달러 (예상 1,282.2억 달러 하회), 전년 대비 25% 증가 구글 클라우드 매출:...",
     "Geopolitics (446 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
     "Macro/Rates (354 posts in 14-day research window): 중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는 6.40% 폭등, 과창50지수는 9.9% 수직 상승하며 상한가에 근접. 양대 시장 거래대금은 2조 519억...",
     "AI Power/Grid (268 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
@@ -316,14 +316,14 @@
       "text": "중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는 6.40% 폭등, 과창50지수는 9.9% 수직 상승하며 상한가에 근접. 양대 시장 거래대금은 2조 519억..."
     },
     {
-      "key": "TSM",
-      "count": 40,
-      "text": "중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는 6.40% 폭등, 과창50지수는 9.9% 수직 상승하며 상한가에 근접. 양대 시장 거래대금은 2조 519억..."
-    },
-    {
       "key": "MU",
       "count": 40,
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
+    },
+    {
+      "key": "TSM",
+      "count": 39,
+      "text": "중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는 6.40% 폭등, 과창50지수는 9.9% 수직 상승하며 상한가에 근접. 양대 시장 거래대금은 2조 519억..."
     },
     {
       "key": "BE",
@@ -370,7 +370,7 @@
       "topics": [
         "semi"
       ],
-      "count": 512,
+      "count": 511,
       "focus": "2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A..."
     },
     {
@@ -406,7 +406,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 122,
+      "count": 121,
       "focus": "Ferrari 2026년 3분기 실적 요약 실적 • 매출 €18.96억, YoY +7%, 환율 제외 +10% • 영업이익 €5.63억, YoY +12%, 환율 제외 +23% • 영업이익률 29.7%, YoY..."
     },
     {
@@ -433,7 +433,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 467,
+      "count": 466,
       "focus": "알파벳(GOOGL) 2026년 3분기 실적 (시간외 -7.7%) 주당순이익(EPS): 2.12달러 매출: 1,276억 달러 (예상 1,282.2억 달러 하회), 전년 대비 25% 증가 구글 클라우드 매출:..."
     },
     {
@@ -460,7 +460,7 @@
       "topics": [
         "flows"
       ],
-      "count": 69,
+      "count": 68,
       "focus": "서학개미 순매수 미국 주식 TOP 50 (10월 누적) > 기간: 2026/10/01 ~ 2026/10/30 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -478,7 +478,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 850,
+      "count": 853,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Falcon Guardian에 AI 에이전트의 실행을 중단하고 재시작 및 기업 네트워크 접근을..."
     }
   ],
@@ -2078,8 +2078,8 @@
       ],
       "score": 57,
       "hasText": true,
-      "summary": "중간선거 공화당 패배 이유 It's the economy, stupid! - 92년 빌 클린턴 캐치프레이즈 MAGA고 나발이고 관세, 전쟁으로 물가 오르는건 못참음",
-      "tickers": []
+      "tickers": [],
+      "summary": "중간선거 공화당 패배 이유 It's the economy, stupid! - 92년 빌 클린턴 캐치프레이즈 MAGA고 나발이고 관세, 전쟁으로 물가 오르는건 못참음"
     },
     {
       "id": "insidertracking/68286",
@@ -2091,6 +2091,7 @@
         "semi",
         "ai-policy"
       ],
+      "lead": 1,
       "score": 61,
       "hasText": true,
       "media": {
@@ -2099,11 +2100,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "엔비디아의 중국 시장용 AI 반도체 현황 • B300/B200: 최첨단 AI 모델 학습용 반도체로, 미국의 수출 통제가 적용돼 중국 내 공급 불가. • H100: 대규모 언어모델(LLM) 학습용 반도체로,...",
-      "lead": 2,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "엔비디아의 중국 시장용 AI 반도체 현황 • B300/B200: 최첨단 AI 모델 학습용 반도체로, 미국의 수출 통제가 적용돼 중국 내 공급 불가. • H100: 대규모 언어모델(LLM) 학습용 반도체로,..."
     },
     {
       "id": "HANAchina/71520",
@@ -2484,13 +2484,13 @@
         "semi",
         "power"
       ],
-      "lead": 3,
       "score": 69,
       "hasText": true,
+      "summary": ">>AMD, Intel과 달리 3분기 매출 45% 증가…데이터센터 매출 97% 성장, 4분기 실적 전망도 상향 •AI 투자심리가 위축되고 Intel이 부진한 4분기 실적 전망으로 주가 급락을 겪은 가운데,...",
+      "lead": 3,
       "tickers": [
         "AMD"
-      ],
-      "summary": ">>AMD, Intel과 달리 3분기 매출 45% 증가…데이터센터 매출 97% 성장, 4분기 실적 전망도 상향 •AI 투자심리가 위축되고 Intel이 부진한 4분기 실적 전망으로 주가 급락을 겪은 가운데,..."
+      ]
     },
     {
       "id": "bornlupin/20986",
@@ -9209,13 +9209,13 @@
         "semi",
         "power"
       ],
-      "lead": 3,
       "score": 69,
       "hasText": true,
+      "summary": ">>AMD, Intel과 달리 3분기 매출 45% 증가…데이터센터 매출 97% 성장, 4분기 실적 전망도 상향 •AI 투자심리가 위축되고 Intel이 부진한 4분기 실적 전망으로 주가 급락을 겪은 가운데,...",
+      "lead": 3,
       "tickers": [
         "AMD"
-      ],
-      "summary": ">>AMD, Intel과 달리 3분기 매출 45% 증가…데이터센터 매출 97% 성장, 4분기 실적 전망도 상향 •AI 투자심리가 위축되고 Intel이 부진한 4분기 실적 전망으로 주가 급락을 겪은 가운데,..."
+      ]
     },
     {
       "id": "bornlupin/20986",
