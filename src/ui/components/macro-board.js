@@ -35,6 +35,7 @@ import { RULES } from '../../domain/rules/thresholds.js';
 import { MACRO_SIGNAL_RULES } from '../../domain/macro/macro-signals.js';
 import { renderIndexEarnings } from './index-earnings.js';
 import { gaugeBar, bandOf, TONE_WORD } from './gauge-bar.js';
+import { historyWaitText, serverDataWaitText } from './data-state.js';
 
 const SVG = 'http://www.w3.org/2000/svg';
 
@@ -756,7 +757,7 @@ export function renderMacroBoard({ documentRef: doc, root }) {
   const { regime, macroRead: read, crossroads } = marketInterpretation(root); // owner 2026-10-19: the shared macro read (same as the branches)
   const basis = doc.getElementById('macro-board-basis');
   if (basis) {
-    basis.textContent = board.available ? macroThroughLine(read, crossroads) || '공식 발표와 미국 종가 기준' : '공식 발표 자료를 불러오는 중입니다.';
+    basis.textContent = board.available ? macroThroughLine(read, crossroads) || '공식 발표와 미국 종가 기준' : serverDataWaitText(root);
     basis.title = '공식 발표와 미국 종가 기준';
   }
   // v59.68: the forward branches (P1742) are on 시장 상태 (market-regime.js renders them into its scenario fold).
@@ -945,7 +946,7 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
     axesHost.replaceChildren(...rows.map((row) => axisCard(doc, row, root)));
   }
   // v59.55: the header says the close like every screen; the curve card's meta already names the Treasury fixing date.
-  set('rates-basis', model.basis ? `${shortDate(model.basis)} 미국 종가 기준` : '종가 기록을 불러오는 중입니다.');
+  set('rates-basis', model.basis ? `${shortDate(model.basis)} 미국 종가 기준` : historyWaitText(root));
 
   // 1. Treasury curve
   set('rates-curve-basis', t.basisLabel || ''); // v57.50 C10: source and date of the curve's levels and changes

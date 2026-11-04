@@ -13,6 +13,7 @@ import { fearGreedBand } from '../../domain/sentiment/metrics.js';
 import { renderKnowledgeArrival, clearKnowledgeArrival } from '../components/knowledge-arrival.js';
 import { renderHomeVix } from '../components/home-vix.js';
 import { readNumber as finite } from '../../domain/shared/number.js';
+import { historyWaitText } from '../components/data-state.js';
 
 
 // RM-01 (2026-07-19): home and technical secondary/chart surfaces remain compatibility
@@ -69,7 +70,7 @@ function renderTechnicalHealth({ documentRef, root }) {
   if (basis) {
     const [, month, day] = String(regime.asOf || '').split('-').map(Number);
     const counts = regime.counts || {};
-    basis.textContent = regime.available ? `${month}/${day} 미국 종가 기준, 양호 ${counts.favorable ?? 0}, 중립 ${counts.neutral ?? 0}, 부담 ${counts.burden ?? 0}${counts.unknown ? `, 확인 불가 ${counts.unknown}` : ''}` : '종가 기록을 불러오는 중입니다.';
+    basis.textContent = regime.available ? `${month}/${day} 미국 종가 기준, 양호 ${counts.favorable ?? 0}, 중립 ${counts.neutral ?? 0}, 부담 ${counts.burden ?? 0}${counts.unknown ? `, 확인 불가 ${counts.unknown}` : ''}` : historyWaitText(root);
   }
   // v59.51 (content audit): the six-axis chips left this page — the one-line verdict links to 시장 상태, which owns them.
   documentRef?.getElementById('tech-regime-summary')?.setAttribute('data-aio-tech-regime-renderer', 'native');

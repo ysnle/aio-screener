@@ -20,6 +20,8 @@ export function collectMarketInputs(root, { now = Date.now() } = {}) {
     hyAsOf: root._hySpreadDate || fieldTs.hySpread || null,
     pcr: finite(putCall?.totalPutCall) ?? finite(snapshot.pcr),
     pcrAsOf: putCall?.asOf || fieldTs.pcr || null,
+    // v59.70: the producer lowered a failed/stale record to reference use (data-refactor allowedUseDegradedBy).
+    pcrDegraded: Array.isArray(putCall?.allowedUseDegradedBy) ? putCall.allowedUseDegradedBy.length > 0 : !!putCall?.allowedUseDegradedBy,
     fg: fg != null ? fg : finite(snapshot.fearGreedValue),
     fgAsOf: fg != null ? fgMetric?.asOf || null : fieldTs.fg || null,
     hyDelta5Bp: finite(snapshot._hySpreadDelta5Bp),

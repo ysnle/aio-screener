@@ -98,8 +98,12 @@ export function installServerDataLoader(window = globalThis) {
       var fetched = await window._aioFetchServerData();
       if (!fetched.ok) {
         if (typeof _aioLog === 'function') _aioLog('warn', 'data', fetched.reason);
+        // v59.70 (ui-states): published so the shell can say the file did not arrive (src/ui/components/data-state.js).
+        _aioServerDataFailed(fetched.reason, fetched.empty ? 'empty' : 'failed');
         return false;
       }
+      window.__aioServerDataLoadState = 'ready';
+      window.__aioServerDataApplied = true;
       var d = fetched.data;
       // P867: data.json can resolve before aio-core exposes DATA_SNAPSHOT on a
       // cold origin. Previously the macro block was then skipped permanently
@@ -309,8 +313,17 @@ export function installServerDataLoader(window = globalThis) {
       return true;
     } catch (e) {
       if (typeof _aioLog === 'function') _aioLog('warn', 'data', 'server data.json 로드 실패(폴백): ' + (e && e.message || e));
+      if (window.__aioServerDataLoadState !== 'ready') _aioServerDataFailed(e && e.message || String(e));
       return false;
     }
+  }
+
+  // v59.70 (ui-states): published so the shell can say the file did not arrive (src/ui/components/data-state.js). A failed
+  // refresh after a good load is not an outage: the applied copy stays on screen with its date.
+  function _aioServerDataFailed(reason, state) {
+    if (window.__aioServerDataApplied) return;
+    window.__aioServerDataLoadState = state === 'empty' ? 'empty' : 'failed'; // empty: answered without a payload
+    try { window.dispatchEvent(new CustomEvent('aio:serverDataFailed', { detail: { reason: reason, state: window.__aioServerDataLoadState } })); } catch (_) {}
   }
 
   window._aioApplyServerTreasuryEvidence = _aioApplyServerTreasuryEvidence;

@@ -21,6 +21,7 @@ import { signedText, directionOf } from '../../domain/shared/number.js';
 import { sectorLabel } from '../../domain/screener/sector-label.js';
 import { breadthScopeOf } from '../../domain/market/screener-breadth.js';
 import { noteFold } from './section-frame.js';
+import { historyWaitText } from './data-state.js';
 
 const WINDOW = 126; // about six months of sessions
 
@@ -196,7 +197,7 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
   // S&P 500 member read joins the participation group's reading below.
   const basisNode = doc.getElementById('breadth-basis');
   if (basisNode) basisNode.title = `${scope.label}의 1년 조정 종가로 계산한 값이며 거래소·지수 공식 통계가 아닙니다`;
-  set('breadth-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준${axis?.basisStatus && axis.basisStatus !== 'aligned' ? `, 시장 폭 ${axis.basis}` : ''}${denominator}` : '종가 기록을 불러오는 중입니다.');
+  set('breadth-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준${axis?.basisStatus && axis.basisStatus !== 'aligned' ? `, 시장 폭 ${axis.basis}` : ''}${denominator}` : historyWaitText(root));
   const state = doc.getElementById('breadth-state');
   const tone = { favorable: 'good', burden: 'warn' }[axis?.state] || 'neutral';
   if (state) { state.textContent = axis?.stateLabel || '판정 대기'; state.className = `regime-state is-${axis?.state || 'unknown'} sx-chip sx-chip--sm sx-chip--${tone}`; }

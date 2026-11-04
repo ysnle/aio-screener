@@ -2,6 +2,7 @@
 // and the app version ride with the text. The AIO Worker keeps notes privately (the repository is public), a few per
 // connection a day; the owner reads them in the connection panel with the operator token, which is not stored.
 import { readFeedback, sendFeedback } from '../../data/feedback.js';
+import { markField, setSubmitState } from './input-check.js';
 
 export const FEEDBACK_MAX_CHARS = 1000;
 const ROUTE_RE = /^[a-z][a-z0-9-]{0,30}(?:\/[A-Za-z0-9.^=-]{1,20})?$/;
@@ -38,12 +39,14 @@ export function openFeedbackDialog({ documentRef: doc, windowRef: win, version =
     const title = el(doc, 'h2', '이상한 점 알려주기'); title.id = 'aio-feedback-title';
     const lede = el(doc, 'p', '지금 보는 화면 이름과 앱 버전만 함께 보냅니다. 이름, 보유 종목, 질문 기록은 보내지 않습니다.', 'aio-feedback-lede');
     const form = el(doc, 'form');
+    form.noValidate = true; // the refusal is written under the field, not in the browser's bubble
     const text = el(doc, 'textarea');
-    text.name = 'text'; text.rows = 4; text.maxLength = FEEDBACK_MAX_CHARS; text.required = true;
+    text.id = 'aio-feedback-text'; text.name = 'text'; text.rows = 4; text.maxLength = FEEDBACK_MAX_CHARS; text.required = true;
     text.setAttribute('aria-label', '무엇이 이상했나요');
     text.placeholder = '무엇이 이상했나요? 예: 차트가 비어 있어요';
     const status = el(doc, 'div', null, 'aio-feedback-status'); status.setAttribute('role', 'status');
-    const send = el(doc, 'button', '보내기'); send.type = 'submit';
+    const send = el(doc, 'button', '보내기'); send.type = 'submit'; send.dataset.status = 'aio-feedback-status';
+    status.id = 'aio-feedback-status';
     const close = el(doc, 'button', '닫기', 'aio-feedback-close'); close.type = 'button';
     const actions = el(doc, 'div', null, 'aio-feedback-actions'); actions.append(send, close);
     form.append(text, status, actions);
@@ -53,16 +56,19 @@ export function openFeedbackDialog({ documentRef: doc, windowRef: win, version =
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
       const body = text.value.trim(), workerUrl = workerTarget(win);
-      if (!body) { status.textContent = '내용을 적어 주세요.'; return; }
-      if (!workerUrl) { status.textContent = RESULT_TEXT.failed; return; }
-      send.disabled = true; status.textContent = '보내는 중';
+      // v59.70 (ui-states): an empty note is refused under the field; the send shows busy, then sent or failed.
+      if (!markField(text, body ? { ok: true } : { ok: false, reason: '내용을 적어 주세요.' }).ok) { text.focus(); return; }
+      if (!workerUrl) { setSubmitState(send, 'fail', RESULT_TEXT.failed); return; }
+      setSubmitState(send, 'busy', '보내는 중');
       const result = await sendFeedback({ fetchImpl: win.fetch.bind(win), workerUrl, appToken: win._aioAppToken?.(), text: body,
         route: feedbackRoute(win.location?.hash), version });
-      send.disabled = false; status.textContent = RESULT_TEXT[result];
+      setSubmitState(send, result === 'sent' ? 'done' : 'fail', RESULT_TEXT[result]);
       if (result === 'sent') text.value = '';
     });
   }
   dialog.querySelector('.aio-feedback-status').textContent = '';
+  dialog.querySelector('.aio-feedback-status').classList.remove('is-done', 'is-fail');
+  markField(dialog.querySelector('textarea'), { ok: true });
   if (!dialog.open) dialog.showModal();
   dialog.querySelector('textarea')?.focus();
   return dialog;

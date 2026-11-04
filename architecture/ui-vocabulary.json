@@ -49,6 +49,14 @@
       "preferred": "칼만 필터(Kalman)",
       "reason": "Technical names are shown in Korean first with the English term in parentheses.",
       "allowedContexts": []
+    },
+    {
+      "id": "how-to-read-heading",
+      "banned": "읽는 법 (how-to-read titles)",
+      "pattern": "읽는\\s*(?:법|방법)|이렇게\\s*읽는다",
+      "preferred": "the subject alone ('수익률 곡선', '전문가 해석'); the method stays inside the fold",
+      "reason": "v59.70 (owner 2026-11-04, no textbook tone): a title that announces how to read the screen is help copy; the number and its state label carry the reading.",
+      "allowedContexts": []
     }
   ]
 }

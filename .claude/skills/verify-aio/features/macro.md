@@ -1,6 +1,6 @@
 # 매크로
 
-거시와 금리 places the economy on a growth/inflation quadrant with the next major release and how macro moves stocks, and shows the Treasury curve, spreads, real rates and the dollar/won/yen on the rates tab.
+매크로 places the economy on a growth/inflation quadrant with the next major release and how macro moves stocks, and shows the Treasury curve, spreads, real rates and the dollar/won/yen on the rates tab.
 
 ## Sub-features
 
@@ -14,7 +14,7 @@
 ## How to get to it (user POV)
 
 - Sidebar 시장 › 매크로.
-- Hub tabs 거시 경제 / 금리와 환율.
+- Hub tabs 개요 / 금리와 환율.
 - Deep links `#macro`, `#fxbond`.
 
 ## Driving it with verify-aio
@@ -23,7 +23,7 @@ Preconditions:
 
 - Doctor OK.
 
-- **Open.** Click sidebar `매크로`. `page-macro` active; tabs exactly `거시 경제,금리와 환율`.
+- **Open.** Click sidebar `매크로`. `page-macro` active; tabs exactly `개요,금리와 환율`.
 - **Next release.** `#macro-board-basis` leaves loading and matches `/다음 주요 발표는/`.
 - **Regime.** `#macro-regime` and `#macro-axes` have children; `#macro-board` has children.
 - **Rates.** Tab `금리와 환율` → `page-fxbond`; open `만기별 금리와 1일·1주 변화`. At least 5 `#rates-yields .rates-yield`, visible text has `%` and `bp`; `#rates-basis` matches `/종가|고시/`.

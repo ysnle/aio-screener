@@ -21,6 +21,8 @@ import { noteFold } from './section-frame.js';
 import { splitReading } from './market-regime.js';
 import { signedText, readNumber as finite } from '../../domain/shared/number.js';
 import { shortDate } from '../../domain/content/date-labels.js';
+import { historyWaitText } from './data-state.js';
+import { freshnessBadge } from './freshness-badge.js';
 
 // AAII published long-run averages (since 1987; https://www.aaii.com/sentimentsurvey): bullish 37.5%, neutral 31.5%, bearish 31.0%.
 const AAII_AVERAGE = Object.freeze({ bull: 37.5, bear: 31.0 });
@@ -80,7 +82,7 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
       note: '1 미만이면 단기 공포가 중기보다 작은 정상 상태, 1을 넘으면 당장의 충격을 크게 반영하는 역전' },
     // v59.51 (content audit): the high-yield spread card left — the same number, verdict (creditState) and six-month chart
     // are the 시장 상태 credit axis; the synthesis above still reads the spread to say whether fear reached credit.
-    { id: 'pcr', title: '풋/콜 비율', value: shown.pcr == null ? '—' : shown.pcr.toFixed(2), basis: alignmentLabel(alignments.pcr), basisStatus: alignments.pcr.status,
+    { id: 'pcr', title: '풋/콜 비율', value: shown.pcr == null ? '—' : shown.pcr.toFixed(2), basis: alignmentLabel(alignments.pcr), basisStatus: alignments.pcr.status, degraded: !!credit.pcrDegraded,
       // T10: the card reads the same RULES edges as the credit axis (1.1 hedging, below 0.7 optimism). D19: level only, neutral tone.
       state: shown.pcr == null ? null : judged(pcr, pcr >= RULES.credit.putCallHedgeAt ? { label: '풋 거래 우세', tone: LEVEL_TONE } : pcr < RULES.credit.putCallOptimismBelow ? { label: '콜 우위 (낙관 쪽)', tone: LEVEL_TONE } : { label: '중립', tone: LEVEL_TONE }),
       change: '', note: `미국 상장 옵션 전체에서 풋옵션 거래가 콜옵션보다 얼마나 많은지 — ${RULES.credit.putCallHedgeAt} 이상 풋 거래 우세, ${RULES.credit.putCallOptimismBelow} 미만 콜 거래 우세. 풋을 사서 대비한 거래인지 팔아서 수익을 낸 거래인지는 이 비율로 구분되지 않습니다` },
@@ -187,7 +189,7 @@ export function renderSentimentBoard({ documentRef: doc, root }) {
   const { inputs, regime } = marketInterpretation(root); // owner 2026-10-19: the shared regime, same as 시장 상태
   const model = buildSentimentModel({ ...inputs, snapshot: root.DATA_SNAPSHOT || {}, macroHistory: root._aioMacroHistory || null });
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
-  set('sentiment-basis', model.asOf ? `${shortDate(model.asOf)} 미국 종가 기준` : '기록을 불러오는 중입니다.');
+  set('sentiment-basis', model.asOf ? `${shortDate(model.asOf)} 미국 종가 기준` : historyWaitText(root));
   // v58.53 개편 v2 (5d): the hero keeps the synthesis's first sentences (the rest folds) beside the F&G position bar.
   // v58.74 (text audit 시장 상태 C4): fear read the contrarian way — the bottom-watch tally the 원칙 card quotes, so a low F&G is
   // not taken as a bottom signal on its own.
@@ -218,7 +220,7 @@ export function renderSentimentBoard({ documentRef: doc, root }) {
     grid.replaceChildren(...model.cards.filter((card) => (kind === 'chart') === !!card.series).map((card) => {
       // v59.51 (content audit): a card that cannot be read today (put/call past its date, excluded from the verdict) and the
       // component ranking (an expert cross-check of F&G) are one closed line — title, value, state — with the rest inside.
-      const folded = card.id === 'composite' || (card.id === 'pcr' && card.basisStatus !== 'aligned');
+      const folded = card.id === 'composite' || (card.id === 'pcr' && (card.basisStatus !== 'aligned' || card.degraded));
       const box = el(doc, folded ? 'details' : 'section', null, 'trend-card');
       box.dataset.metric = card.id;
       if (folded) box.open = wasOpen.has(card.id);
@@ -226,7 +228,8 @@ export function renderSentimentBoard({ documentRef: doc, root }) {
       head.append(el(doc, 'h3', card.title, 'trend-card-title'), el(doc, 'span', card.value, 'trend-card-value'));
       const tags = el(doc, 'div', null, 'trend-card-tags');
       if (card.state) tags.append(el(doc, 'span', card.state.label, `regime-state is-${card.state.tone} sx-chip sx-chip--sm sx-chip--${CHIP_TONE[card.state.tone] || 'neutral'}`));
-      if (card.value !== '—') tags.append(el(doc, 'span', card.basis, 'basis-chip'));
+      // v59.70: a record the producer lowered to reference use reads 참고 beside its date (freshness-badge.js).
+      if (card.value !== '—') tags.append(card.degraded ? freshnessBadge(doc, { state: 'unknown', basisSession: { US: card.basis } }, { degraded: true }) : el(doc, 'span', card.basis, 'basis-chip'));
       if (folded) { const summary = el(doc, 'summary'); summary.append(head, tags); box.append(summary); } else box.append(head, tags);
       if (card.change) box.append(el(doc, 'div', card.change, 'trend-card-change'));
       if (card.series) box.append(createTrendChart(doc, { series: card.series, refLines: card.refLines, format: card.format, label: card.title, domain: card.domain || null, range }));

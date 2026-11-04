@@ -1,0 +1,113 @@
+/* v59.70 (ui-states): the shared interaction states, imported after the screen stylesheets so one rule covers every
+   screen. 1 buttons (hover · pressed · disabled · busy) · 2 fields (error under the field) and submit status ·
+   3 data-card states (src/ui/components/data-state.js) · 4 transitions for layers that open and tabs that switch.
+   Colour changes stay instant (v58.73: transitions move size, position and opacity only); motion is 180ms and off
+   under prefers-reduced-motion. Focus rings come from index.html (*:focus-visible) and are not restated. */
+
+/* ═══ 1. Buttons ═════════════════════════════════════════════════════════ */
+/* Pressed: one step darker than hover, no movement. */
+.sx-btn:active:not(:disabled), .page .aio-btn-table:active:not(:disabled), .topbar .aio-btn-table:active:not(:disabled),
+.aio-btn:active:not(:disabled), .btn-ghost:active:not(:disabled), .sx-row:active, .aio-hub-subject-pick:active,
+.sx-seg > button:active:not(:disabled), .aio-hub-tab:active, .sidebar-action-btn:active, .nav-item:active,
+.aio-feedback-actions button:active:not(:disabled), .empty-state-action:active:not(:disabled) {
+  background: rgba(var(--ink-rgb), 0.12) !important;
+}
+.sx-btn--primary:active:not(:disabled), .page .aio-btn-table.primary:active:not(:disabled), .page .aio-btn-table.is-primary:active:not(:disabled),
+#topbar-ai-btn:active, .aio-feedback-actions button:not(.aio-feedback-close):active:not(:disabled) {
+  background: var(--text-primary) !important; filter: brightness(1.3);
+}
+.aio-hub-subject-pick:hover { background: var(--sx-ink-a08); }
+.page .aio-btn-table.primary:hover:not(:disabled), .page .aio-btn-table.is-primary:hover:not(:disabled) { filter: brightness(1.15); }
+.sx-row:focus-visible, .sx-link:focus-visible { outline: 2px solid var(--text-primary); outline-offset: -2px; border-radius: 8px; }
+.sx-link:active { color: var(--text-primary); text-decoration: underline; }
+
+/* Disabled: one look everywhere — faded, no hover change, not-allowed cursor. */
+.page button:disabled, .page [role="button"][aria-disabled="true"], .topbar button:disabled, #ai-panel button:disabled,
+.aio-feedback button:disabled, .sx-btn:disabled, .sx-btn[aria-disabled="true"] {
+  opacity: 0.45 !important; cursor: not-allowed !important; filter: none !important;
+}
+.page .aio-btn-table:disabled:hover, .sx-btn:disabled:hover { background: var(--sx-ink-a06) !important; }
+/* The toggle pills (.news-sort-btn, also the 섹터 view and tail toggles): a disabled one keeps its rest fill, never the active one,
+   and its aria-disabled twin reads the same (theme-sector request). */
+.news-sort-btn:disabled, .news-sort-btn[aria-disabled="true"] { opacity: 0.45 !important; cursor: not-allowed !important; background: rgba(var(--ink-rgb), 0.08) !important; border-color: rgba(var(--ink-rgb), 0.2) !important; }
+.news-sort-btn:active:not(:disabled):not(.active) { background: rgba(var(--ink-rgb), 0.14); }
+.page .aio-btn-table.primary:disabled:hover, .page .aio-btn-table.is-primary:disabled:hover, .sx-btn--primary:disabled:hover { background: var(--text-primary) !important; }
+
+/* Busy (a submit in flight, setSubmitState 'busy'): stays readable, shows progress instead of the not-allowed cursor. */
+button[aria-busy="true"] { position: relative; opacity: 0.7 !important; cursor: progress !important; }
+/* The spinner sits in the button's own end padding, so the button keeps its width and its neighbours do not move. */
+button[aria-busy="true"]::after {
+  content: ''; position: absolute; right: 3px; top: 50%; width: 9px; height: 9px; margin-top: -6px;
+  border: 1.5px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: aio-state-spin 0.7s linear infinite;
+}
+@keyframes aio-state-spin { to { transform: rotate(360deg); } }
+
+/* ═══ 2. Fields and submit status ════════════════════════════════════════ */
+/* The soft inputs have no border (soft-ui.css), so a refused field is ringed instead; the message sits right under it
+   (input-check.js markField places it after the field or its label). */
+.page input[aria-invalid="true"], .page select[aria-invalid="true"], .page textarea[aria-invalid="true"],
+#ai-panel-inp[aria-invalid="true"], .aio-feedback textarea[aria-invalid="true"], .aio-feedback input[aria-invalid="true"] {
+  box-shadow: 0 0 0 2px var(--data-red) !important;
+}
+.input-check-error { display: block; margin-top: 4px; font-size: 12px; line-height: 1.4; color: var(--data-red); }
+/* In a field row (label over input, the row aligned to its bottom) the message must not lengthen one column: that pushed
+   every other field and the submit button down. It hangs under its field instead, and the row keeps room for it.
+   Stacked layouts (phones) keep it in the flow. */
+@media (min-width: 701px) {
+  .sh-portfolio-entry-part-row > :has(> input + .input-check-error) { position: relative; }
+  .sh-portfolio-entry-part-row > * > .input-check-error { position: absolute; left: 0; top: 100%; width: max-content; max-width: 320px; }
+  .sh-portfolio-entry-part-row:has(> * > .input-check-error) { padding-bottom: 40px; }
+}
+.aio-submit-status { display: inline-flex; align-items: center; min-height: 24px; margin-left: 8px; font-size: 12px; color: var(--text-secondary); }
+.aio-submit-status:empty { display: none; }
+.aio-submit-status.is-done, .aio-feedback-status.is-done { color: var(--data-green); }
+.aio-submit-status.is-fail, .aio-feedback-status.is-fail { color: var(--data-red); }
+
+/* ═══ 3. Data-card states ════════════════════════════════════════════════ */
+/* Loading: grey bars that appear only after 0.4s, so a fast artifact never flashes a skeleton. Empty: one muted line.
+   Error: one line and 다시 시도. */
+.aio-state { display: flex; flex-direction: column; gap: 8px; min-height: 48px; padding: 12px 0; box-sizing: border-box; }
+.aio-state.is-loading { opacity: 0; animation: aio-state-in 1ms linear 400ms forwards; }
+.aio-state__bar { display: block; height: 12px; border-radius: 999px; background: var(--sx-ink-a06); }
+.aio-state__bar:nth-child(1) { width: 72%; }
+.aio-state__bar:nth-child(2) { width: 88%; }
+.aio-state__bar:nth-child(3) { width: 56%; }
+.aio-state__bar:nth-child(4) { width: 80%; }
+.aio-state__bar:nth-child(5) { width: 64%; }
+.aio-state__bar:nth-child(6) { width: 40%; }
+.aio-state.is-empty, .aio-state.is-error { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.aio-state__text { font-size: 14px; line-height: 1.6; color: var(--text-secondary); }
+.aio-state.is-error .aio-state__text { color: var(--text-primary); }
+.aio-state.is-error::before { content: ''; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--data-red); }
+@keyframes aio-state-in { to { opacity: 1; } }
+
+/* ═══ 4. Transitions ═════════════════════════════════════════════════════ */
+/* index.html's reset (* { margin: 0 }) also removed the UA's margin: auto, so a modal <dialog> sat in the top-left corner. */
+dialog:modal { margin: auto; max-height: calc(100dvh - 32px); }
+/* Layers that open (dialogs, popovers, menus, folds) fade and rise 4px; a switched tab's page fades in. */
+@keyframes aio-layer-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes aio-fade-in { from { opacity: 0; } to { opacity: 1; } }
+dialog[open], .aio-feedback[open], #aio-confirm-modal .sh-shell-confirm-modal-panel, #aio-prompt-modal > *,
+.aio-term-popover, .aio-popover, [role="menu"], [role="listbox"]:not(select) {
+  animation: aio-layer-in var(--dur-base) var(--ease-out); /* no fill-mode: a finished animation must leave no stacking context (a fixed sheet inside the page fell under the tab bar) */
+}
+dialog[open]::backdrop { animation: aio-fade-in var(--dur-base) var(--ease-out); }
+.page.active, details[open] > :not(summary) { animation: aio-fade-in var(--dur-base) var(--ease-out); }
+
+@media (prefers-reduced-motion: reduce) {
+  dialog[open], dialog[open]::backdrop, .aio-feedback[open], #aio-confirm-modal .sh-shell-confirm-modal-panel, #aio-prompt-modal > *,
+  .aio-term-popover, .aio-popover, [role="menu"], [role="listbox"]:not(select), .page.active, details[open] > :not(summary) { animation: none; }
+  .aio-state.is-loading { animation: none; opacity: 1; }
+  button[aria-busy="true"]::after { animation: none; }
+}
+
+/* The shell's one line when a core file did not arrive (data-state.js installLoadFailureNotice). */
+.aio-load-failure { clear: both; max-width: 1400px; margin: 0 0 16px; padding: 10px 12px 10px var(--sx-card-pad-x); border-radius: 12px; background: var(--bg-card); min-height: 0; }
+
+/* Freshness badge (freshness-badge.js): the as-of chip with a state dot — current none, late amber, stale amber date chip,
+   unknown muted; 참고 (a record lowered to reference use) leads in the burden colour. */
+.aio-fresh { gap: 6px; }
+.aio-fresh.is-late::before, .aio-fresh.is-stale::before { content: ''; flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--data-amber); }
+.aio-fresh.is-stale { background: var(--sx-warn-bg); color: var(--amber-12); }
+.aio-fresh.is-unknown { color: var(--text-muted); }
+.aio-fresh__ref { font-weight: 700; color: var(--data-amber); }

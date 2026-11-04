@@ -33,6 +33,7 @@
 @import url('./v2-stock.css'); /* v58.53 개편 v2: 종목 · 테마 · 섹터 */
 @import url('./v2-screener.css'); /* v58.53 개편 v2: 스크리너 · 포트폴리오 */
 @import url('./v2-research.css'); /* v58.53 개편 v2: 리서치 · 용어 사전 · 한국 */
+@import url('./ui-states.css'); /* v59.70: shared button, field, data-card and transition states — last so one rule covers every screen */
 /* UI review 2026-10-18: one page header for every screen. The screens had three hand-written variants
    (thin rule 8px, strong rule 20px, no rule — the subtitle then touched the first section's rule), and a
    first section that draws its own top rule doubled the header rule. */

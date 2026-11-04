@@ -1,6 +1,6 @@
 ---
 name: verify-aio
-description: Drive the local AIO Screener web UI like a user (8 screens, glossary, AI panel, shell) with Playwright and capture proof; also checks route-owners surfaces against the live DOM. Use to prove a UI change works in the real app.
+description: Drive the local AIO Screener web UI like a user (9 screens, glossary, AI panel, shell) with Playwright and capture proof; also checks route-owners surfaces against the live DOM. Use to prove a UI change works in the real app.
 ---
 
 ## AIO Skill Operating Contract
@@ -27,7 +27,7 @@ Follow `.claude/skills/_shared/operating-contract.md`; reuse it if already read.
 
 ## Drive
 
-`drive <feature|all> [--viewport desktop|tablet|phone] [--run <id>] [--send-ai]`; `list` prints ids (`ai-panel glossary learn macro market portfolio screener shell stock themes today`).
+`drive <feature|all> [--viewport desktop|tablet|phone] [--run <id>] [--send-ai]`; `list` prints ids (`ai-panel charts glossary learn macro market portfolio screener shell stock themes today`).
 
 - Each feature runs in a fresh Chromium context (service workers blocked, empty storage) that is closed afterwards.
 - Handles are user-facing: sidebar `.nav-item[role=button]` by label, hub tabs `#aio-hub-tabs button.aio-hub-tab` by label, then ids and aria-labels. `--viewport phone` (390x844) and `--viewport tablet` (iPad portrait 820x1180) open the sidebar through the hamburger; desktop and phone runs alone do not certify the iPad layout.

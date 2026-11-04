@@ -70,7 +70,7 @@
       ]
     },
     "signal": {
-      "total": 5259,
+      "total": 5252,
       "secondary": 305,
       "lines": [
         {
@@ -161,7 +161,7 @@
       ]
     },
     "breadth": {
-      "total": 1027,
+      "total": 1028,
       "secondary": 49,
       "lines": [
         {
@@ -285,7 +285,7 @@
       "frames": []
     },
     "briefing": {
-      "total": 1198,
+      "total": 1186,
       "secondary": 45,
       "lines": [
         {
@@ -406,8 +406,8 @@
       ]
     },
     "fxbond": {
-      "total": 1774,
-      "secondary": 165,
+      "total": 1769,
+      "secondary": 160,
       "lines": [
         {
           "chars": 18,
@@ -441,11 +441,6 @@
         },
         {
           "chars": 11,
-          "classes": "rates-guide",
-          "text": "수익률 곡선 읽는 법"
-        },
-        {
-          "chars": 11,
           "classes": "briefing-h2-note briefing-h2 briefing-block rates-block",
           "text": "10/30 종가 기준"
         },
@@ -463,6 +458,11 @@
           "chars": 8,
           "classes": "basis-chip trend-card-tags trend-card",
           "text": "10/30 종가"
+        },
+        {
+          "chars": 6,
+          "classes": "rates-guide",
+          "text": "수익률 곡선"
         },
         {
           "chars": 5,
@@ -626,7 +626,7 @@
       "frames": []
     },
     "market-news": {
-      "total": 3155,
+      "total": 3587,
       "secondary": 288,
       "lines": [
         {
@@ -718,7 +718,7 @@
       "frames": []
     },
     "masters": {
-      "total": 1892,
+      "total": 1893,
       "secondary": 217,
       "lines": [
         {
@@ -727,9 +727,9 @@
           "text": "비교 행 30개(이번 분기 보유 29개, 전량 매도 1개) 중 가치 상위 10개, 변화 있는 행 먼저 30행 모두 보기"
         },
         {
-          "chars": 61,
+          "chars": 64,
           "classes": "masters-holdings-meta masters-filing-dates masters-detail-card rl-main",
-          "text": "보고분기 2026 Q2(2026-06-30), -HR 제출 2026-08-14, 자료 검토 2026-10-26"
+          "text": "보고분기 2026 Q2(2026-06-30), 13F-HR 제출 2026-08-14, 자료 검토 2026-10-26"
         },
         {
           "chars": 54,
@@ -750,11 +750,6 @@
           "chars": 5,
           "classes": "aio-note-fold masters-method-fold masters-holdings-section masters-change-ledger",
           "text": "분류 방법"
-        },
-        {
-          "chars": 3,
-          "classes": "aio-term masters-holdings-meta masters-filing-dates masters-detail-card",
-          "text": "13F"
         }
       ],
       "frames": []

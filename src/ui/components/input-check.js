@@ -37,6 +37,33 @@ export function markField(input, result) {
   return result;
 }
 
+// v59.70 (ui-states): a submit button says what its form is doing — 'busy' disables it and sets aria-busy, 'done' and
+// 'fail' write one line into the form's status node (role=status) and re-enable it, 'idle' clears both. The status node
+// is the button's data-status target, or one created right after the button.
+export function setSubmitState(button, state, message = '') {
+  if (!button) return null;
+  const doc = button.ownerDocument;
+  let status = button.dataset.status ? doc?.getElementById(button.dataset.status) : null;
+  if (!status && doc && state !== 'idle') {
+    status = doc.createElement('span');
+    status.id = `${button.id || 'submit'}-status`;
+    status.className = 'aio-submit-status';
+    status.setAttribute('role', 'status');
+    button.insertAdjacentElement('afterend', status);
+    button.dataset.status = status.id;
+  }
+  const busy = state === 'busy';
+  button.disabled = busy;
+  if (busy) button.setAttribute('aria-busy', 'true');
+  else button.removeAttribute('aria-busy');
+  if (status) {
+    status.classList.toggle('is-done', state === 'done');
+    status.classList.toggle('is-fail', state === 'fail');
+    status.textContent = state === 'idle' ? '' : message;
+  }
+  return status;
+}
+
 // The 과거 성과 시뮬레이션 form (legacy js/aio-workspace.js runPortfolioBacktestLab reads it through window._aioReadBacktestInputs).
 export function readBacktestInputs(doc) {
   const initial = checkNumericField(doc?.getElementById('pf-bt-initial'), { label: '초기 금액', min: 100, max: 1e12 });

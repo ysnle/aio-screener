@@ -25,7 +25,7 @@
 #aio-refresh-progress-layer .lu-rp-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
 #aio-refresh-progress-title { font-size: 12px; font-weight: 800; }
 #aio-refresh-progress-layer .lu-rp-track { height: 4px; background: var(--surface-4,var(--gold-12)); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
-#aio-refresh-progress-bar { height: 100%; width: 0%; background: var(--data-cyan,var(--blue-5)); transition:width 250ms ease-out; }
+#aio-refresh-progress-bar { height: 100%; width: 0%; background: var(--data-cyan,var(--blue-5)); transition:width var(--dur-base) var(--ease-out); }
 #aio-refresh-progress-list { display: grid; gap: 4px; max-height: 190px; overflow: auto; }
 #aio-refresh-progress-layer .lu-rp-state { font-family: var(--font-mono,monospace); }
 /* roadmap 11: the count, current-task line, rows and state colours were inline styles in js/aio-ui.js; src/ui/components/refresh-progress.js sets classes. */

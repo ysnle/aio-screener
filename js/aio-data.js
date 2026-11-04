@@ -3508,9 +3508,7 @@ function _aioRenderPublicReadiness() {
     el.className = 'aio-public-readiness is-' + m.status;
     el.innerHTML =
       '<div class="aio-public-readiness-main">' +
-        '<div class="aio-public-readiness-kicker">Public Status</div>' +
         '<div class="aio-public-readiness-label">' + _aioPublicReadinessEsc(m.label) + '</div>' +
-        '<span>투자 판단 전 데이터 기준 시각과 source 상태를 확인하세요.</span>' +
       '</div>' +
       '<div class="aio-public-readiness-card"><b>버전</b><span id="aio-public-readiness-version">' + _aioPublicReadinessEsc(m.version) + '</span></div>' +
       '<div class="aio-public-readiness-card"><b>데이터</b><span>' + _aioPublicReadinessEsc(m.dataLabel) + '<br>' + _aioPublicReadinessEsc(m.dataStatus) + '</span></div>' +
@@ -3566,17 +3564,19 @@ async function _aioLoadHistory() {
   try {
     var url = './public-data/history.json'; // v57.61 (perf): no ?t= — the no-cache fetch revalidates (304) instead of re-downloading 3MB each hour
     var bp = window.__aioBootPrefetch && window.__aioBootPrefetch.history, pre = bp && !bp.taken ? (bp.taken = true, bp.res) : null; var r = await (pre ? pre.catch(function() { return fetch(url, { cache: 'no-cache' }); }) : fetch(url, { cache: 'no-cache' })); // the <head> boot prefetch (src/data/boot-prefetch.js), once
-    if (!r.ok) return null;
+    if (!r.ok) return _aioHistoryFailed();
     var arr = await r.json();
-    if (!Array.isArray(arr)) return null;
-    window._aioHistory = arr;
+    if (!Array.isArray(arr) || !arr.length) return _aioHistoryFailed(Array.isArray(arr) ? 'empty' : '');
+    window._aioHistory = arr; window.__aioHistoryLoadState = 'ready';
     window._aioHistoryMeta = { days: arr.length, first: arr[0] && arr[0].date, last: arr[arr.length - 1] && arr[arr.length - 1].date, loadedAt: Date.now() };
     try { _aioUpdateVixBadge(_aioLiveVixValue()); } catch (_vixBadgeErr) {}
     try { window.dispatchEvent(new CustomEvent('aio:historyLoaded', { detail: window._aioHistoryMeta })); } catch(_) {}
     if (typeof _aioLog === 'function') _aioLog('info', 'data', 'history.json 로드: ' + arr.length + '일');
     return arr;
-  } catch (e) { return null; }
+  } catch (e) { return _aioHistoryFailed(); }
 }
+// v59.70: failed/empty is published (src/ui/components/data-state.js); a loaded copy on screen is kept, not an outage.
+function _aioHistoryFailed(s) { if (!(window._aioHistory && window._aioHistory.length)) { window.__aioHistoryLoadState = s === 'empty' ? s : 'failed'; try { window.dispatchEvent(new CustomEvent('aio:historyFailed', { detail: { state: window.__aioHistoryLoadState } })); } catch (_) {} } return null; }
 window._aioLoadHistory = _aioLoadHistory;
 
 // field별 [{date, value, observedAt, source}] 시계열 — date는 기존 차트 호환용

@@ -396,7 +396,7 @@ function createValueChainLayers(documentRef, research, registry, selectedDomainI
   });
   block.appendChild(cross);
   // v58.79: the not-a-recommendation line stays; how to use the layers is its hover.
-  block.appendChild(Object.assign(element(documentRef, 'p', 'atlas-layers-note', '기업은 역할 예시, 추천 아님'), { title: '층을 누르면 그 분야 설명이, 티커를 누르면 종목 개요이 열립니다.' }));
+  block.appendChild(Object.assign(element(documentRef, 'p', 'atlas-layers-note', '기업은 역할 예시, 추천 아님'), { title: '층을 누르면 그 분야 설명이, 티커를 누르면 종목 개요가 열립니다.' }));
   return block;
 }
 
@@ -461,7 +461,7 @@ const ATLAS_DOCUMENT_ACTIONS = new Set(['tab', 'section', 'layer', 'module', 'do
 const ATLAS_ROUTE_LABELS = Object.freeze({ principles: '개념·분석', atlas: '산업 지도', masters: '대가 보유 종목', fundamental: '재무 공시', themes: '테마·산업', macro: '매크로', fxbond: '금리와 환율', technical: '종목, 차트' });
 
 const ATLAS_PACKET_DISPLAY = Object.freeze({
-  'ATLAS-00': { title: 'AI 산업 지도 읽는 법', scope: '노드·관계·출처·검토 상태를 읽는 공통 언어' },
+  'ATLAS-00': { title: 'AI 산업 지도 공통 언어', scope: '노드·관계·출처·검토 상태' },
   'ATLAS-01': { title: '공식 출처와 근거 원장', scope: '주장·관찰·기준일·충돌을 분리하는 검증 구조' },
   'ATLAS-02': { title: '클라우드·네오클라우드·자본', scope: '작업 부하·가동률·CAPEX·ROIC·금융 비용' },
   'ATLAS-03': { title: '메모리·파운드리·패키징', scope: 'HBM·공정·수율·첨단 패키징의 공급망' },

@@ -172,7 +172,7 @@ export async function fetchServerData({ fetch = globalThis.fetch, now = () => Da
     .then((early) => (early?.ok ? early : fetch(`./public-data/data.json?t=${minute}`, { cache: 'no-cache' })));
   if (!response.ok) return { ok: false, reason: `data.json HTTP ${response.status}` };
   const data = await response.json();
-  if (!data || !data.meta) return { ok: false, reason: 'invalid data.json payload' };
+  if (!data || !data.meta) return { ok: false, empty: true, reason: 'invalid data.json payload' };
   // The 22-category reconciliation is rebuilt on every server refresh; reloading it with data.json lets the browser
   // see category degradation without a page reload.
   let reconciliationPayload;
