@@ -39,6 +39,7 @@ import { asOfChip, setAsOf } from '../components/section-frame.js';
 import { isoDay, stampDay, latestSessionRows } from '../../domain/shared/session-date.js';
 import { askRow } from '../components/ask-row.js';
 import { applyLegacyThemeDetailAddress, legacyThemeDetailTarget } from '../navigation/theme-detail.js';
+import { NEAR_HIGH_MIN_MEASURED, NEAR_HIGH_PCT, SECTOR_ETF_GICS, sectorNearHigh } from '../../domain/themes/near-high.js';
 
 const finiteOrNull = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
 // Published screener rows by symbol (the store's rows; ETFs included), for the period bars and the member tables.
@@ -131,8 +132,19 @@ function renderRRGStatus({ documentRef, root, store, route }) {
   // chip, and the tail's meaning is the line's hover (the tail control names itself).
   status.textContent = `선도 ${counts.Leading}, 개선 ${counts.Improving}, 약화 ${counts.Weakening}, 후행 ${counts.Lagging}${counts.Border ? `, 기준선 부근 ${counts.Border}` : ''}`;
   status.title = `${rrgTrailLength(root) ? `꼬리 = 최근 ${rrgTrailLength(root)}거래일 경로(작은 점이 시작), 화살표 = 오늘 위치. ` : ''}속이 빈 점 = 놓인 구역과 판정이 다른 섹터(이름 옆에 판정)`;
-  setAsOf(documentRef, documentRef.querySelector?.('#page-themes .v2-themes-rrg > .aio-frame-head'), sessionChipText(close) || '완료 종가', `약 50일 상대강도, ${close ? `${sessionChipText(close)}, 미국` : '완료 종가 기준'}`);
+  writeSectorCardChip(documentRef, root);
   status.style.color = 'var(--text-dim)';
+}
+
+// The card's one date chip follows what the card shows: the 고점 근처 bars read the screener's session; the period bars
+// and the scatter read the rotation artifact's.
+function writeSectorCardChip(documentRef, root) {
+  const head = documentRef?.querySelector?.('#page-themes .v2-themes-rrg > .aio-frame-head');
+  const bars = documentRef?.getElementById?.('sector-perf-bars');
+  const nearSession = bars?.dataset.metric === NEAR_HIGH_TAB[0] && root?._aioThemesVerdictView !== 'rrg' ? bars.dataset.session : '';
+  if (nearSession) { setAsOf(documentRef, head, `${shortSession(nearSession)} 종가`, `S&P 500 구성 종목의 52주 종가 고점 기록, ${shortSession(nearSession)} 미국 종가`); return; }
+  const close = usCloseSession(root);
+  setAsOf(documentRef, head, sessionChipText(close) || '완료 종가', `약 50일 상대강도, ${close ? `${sessionChipText(close)}, 미국` : '완료 종가 기준'}`);
 }
 
 const RRG_TRAILS = Object.freeze([['short', '짧게', 5], ['long', '길게', 10], ['off', '끔', 0]]);
@@ -410,6 +422,7 @@ function syncVerdictView(documentRef, root) {
     button.classList.toggle('active', on);
     button.setAttribute('aria-pressed', String(on));
   });
+  writeSectorCardChip(documentRef, root);
 }
 
 // v59.51 (content audit): 시장 상태's 자금 흐름 named, for the last session, the sub-themes that split inside one theme, the
@@ -493,13 +506,17 @@ function renderKrThemeArtifact({ documentRef, root, store }) {
 }
 
 const SECTOR_PERIODS = Object.freeze([['1d', '1일', 'ret1d'], ['1w', '1주', 'ret5d'], ['1m', '1개월', 'ret1m'], ['3m', '3개월', 'ret3m'], ['6m', '6개월', 'ret6m'], ['12m', '12개월', 'ret12m']]);
+// v59.70 (X bookmarks #2): one metric tab after the periods — each sector's S&P 500 members within 5% of the 52-week
+// closing high (domain/themes/near-high.js). It reads the 11 sectors only, so it is disabled in the other scopes.
+const NEAR_HIGH_TAB = Object.freeze(['near52', '고점 근처']);
 // The period tabs replace the static 1일·1주 pair (index.html #sector-perf-tabs) with native buttons.
-function ensureSectorPeriodTabs(documentRef, root, store, route, mode) {
+function ensureSectorPeriodTabs(documentRef, root, store, route, mode, { nearHighReady = false } = {}) {
   const group = documentRef?.getElementById('sector-perf-tabs');
   if (!group) return;
   if (group.dataset.aioSectorPeriods !== 'native') {
     group.dataset.aioSectorPeriods = 'native';
-    group.replaceChildren(...SECTOR_PERIODS.map(([key, label]) => {
+    group.setAttribute('aria-label', '기간·지표');
+    group.replaceChildren(...[...SECTOR_PERIODS, NEAR_HIGH_TAB].map(([key, label]) => {
       const button = documentRef.createElement('button');
       button.type = 'button';
       button.className = 'news-sort-btn';
@@ -513,6 +530,10 @@ function ensureSectorPeriodTabs(documentRef, root, store, route, mode) {
     const on = button.dataset.period === mode;
     button.classList.toggle('active', on);
     button.setAttribute('aria-pressed', String(on));
+    if (button.dataset.period === NEAR_HIGH_TAB[0]) {
+      button.disabled = !nearHighReady;
+      button.title = nearHighReady ? `S&P 500 구성 종목 중 52주 종가 고점의 ${NEAR_HIGH_PCT}% 안에 있는 종목 비율` : '11섹터 보기에서, S&P 500 구성 종목의 52주 고점 기록이 있을 때';
+    }
   });
 }
 
@@ -591,9 +612,17 @@ function renderThemePerformanceBars({ documentRef, root, store, route }) {
   const hasLong = allItems.some((item) => finite(screenerRows.get(String(item?.symbol || item?.id || '').toUpperCase())?.ret1m) != null);
   // v59.70 (owner: a week over 15 sessions): 1주 first when the rotation artifact carries it, else 1개월, else the day.
   const hasWeek = allItems.some((item) => finite(item?.weeklyPct) != null);
+  const nearHigh = view === 'sectors' ? nearHighOf(store) : null;
+  const nearHighReady = !!nearHigh && Object.values(nearHigh.bySector).some((row) => row.share != null);
+  if (root?._aioSectorPeriod === NEAR_HIGH_TAB[0] && nearHighReady) {
+    ensureSectorPeriodTabs(documentRef, root, store, route, NEAR_HIGH_TAB[0], { nearHighReady });
+    renderNearHighBars(documentRef, root, host, viewItems(allItems, 'sectors'), nearHigh);
+    return;
+  }
   const mode = SECTOR_PERIODS.some(([key]) => key === root?._aioSectorPeriod) ? root._aioSectorPeriod : hasWeek ? '1w' : hasLong ? '1m' : '1d';
   const period = SECTOR_PERIODS.find(([key]) => key === mode);
-  ensureSectorPeriodTabs(documentRef, root, store, route, mode);
+  ensureSectorPeriodTabs(documentRef, root, store, route, mode, { nearHighReady });
+  if (host.dataset.metric) { delete host.dataset.metric; delete host.dataset.session; writeSectorCardChip(documentRef, root); }
   const valueOf = (symbol, item) => {
     if (mode === '1d') return finite(item?.pct);
     if (mode === '1w') return finite(item?.weeklyPct);
@@ -683,6 +712,68 @@ function renderThemePerformanceBars({ documentRef, root, store, route }) {
     line.append(symbol, label, track, value, vsSpy, badge);
     host.appendChild(line);
   });
+}
+
+function nearHighOf(store) {
+  const screener = store?.getState?.()?.screener;
+  const block = screener?.metadata?.indexWeights;
+  if (!Array.isArray(block?.rows)) return null;
+  const session = screener?.metadata?.factorSessionDateByMarket?.US || null;
+  return { ...sectorNearHigh({ weights: block, rows: screener?.rows || [], session }), session };
+}
+
+// The 11 sectors by the share of their S&P 500 members within 5% of the 52-week closing high: a one-sided bar from 0 to
+// 100%, the count beside it, and the hero line naming the ends.
+function renderNearHighBars(documentRef, root, host, items, nearHigh) {
+  host.replaceChildren();
+  host.dataset.metric = NEAR_HIGH_TAB[0];
+  if (nearHigh.session) host.dataset.session = nearHigh.session; else delete host.dataset.session;
+  const session = nearHigh.session; // the screener's US factor session the values were measured on, not the rotation's
+  const rows = items.map((item) => {
+    const symbol = String(item?.symbol || item?.id || '').toUpperCase();
+    const bucket = nearHigh.bySector[SECTOR_ETF_GICS[symbol]] || null;
+    return { symbol, label: themeItemLabel(root, item), bucket, share: bucket?.share ?? null };
+  }).filter((row) => SECTOR_ETF_GICS[row.symbol])
+    .sort((a, b) => (b.share ?? -1) - (a.share ?? -1) || a.symbol.localeCompare(b.symbol));
+  host.title = `S&P 500 구성 종목 중 52주 종가 고점의 ${NEAR_HIGH_PCT}% 안 비율${session ? `, ${shortSession(session)} 종가 기준` : ''}. 오른쪽은 해당 종목 수 / 측정 종목 수, 측정 ${NEAR_HIGH_MIN_MEASURED}종목 미만은 —`;
+  for (const row of rows) {
+    const line = documentRef.createElement('div');
+    line.dataset.themePerformanceRow = row.symbol;
+    line.className = 'thp-perf-row';
+    const symbol = documentRef.createElement('span');
+    symbol.textContent = row.symbol;
+    symbol.className = 'thp-perf-symbol';
+    const label = documentRef.createElement('span');
+    label.textContent = row.label;
+    label.className = 'thp-perf-label';
+    const track = documentRef.createElement('span');
+    track.className = 'thp-perf-track';
+    if (row.share != null) {
+      const bar = documentRef.createElement('span');
+      bar.className = 'thp-perf-bar thp-perf-bar--share';
+      bar.style.width = `${row.share}%`;
+      track.appendChild(bar);
+    }
+    const value = documentRef.createElement('span');
+    value.textContent = row.share == null ? '—' : `${row.share}%`;
+    value.className = 'thp-perf-value';
+    const count = documentRef.createElement('span');
+    count.textContent = row.bucket ? `${row.bucket.near}/${row.bucket.measured}` : '';
+    count.className = 'thp-perf-vs';
+    if (row.bucket) count.title = `${row.label}: 52주 고점 ${NEAR_HIGH_PCT}% 안 ${row.bucket.near}종목 / 측정 ${row.bucket.measured}종목 (구성 ${row.bucket.listed}종목)`;
+    line.setAttribute('aria-label', `${row.label} ${row.share == null ? '측정 부족' : `${row.share}%, ${row.bucket.near}/${row.bucket.measured}종목`}`);
+    line.append(symbol, label, track, value, count);
+    host.appendChild(line);
+  }
+  const read = documentRef.getElementById('rrg-rotation-read');
+  const ranked = rows.filter((row) => row.share != null);
+  if (read && ranked.length >= 6) {
+    const name = (list) => list.map((row) => `${row.label} ${row.share}%`).join(', ');
+    const total = nearHigh.total.share;
+    read.textContent = `${session ? `${shortSession(session)} 종가, ` : ''}52주 고점 ${NEAR_HIGH_PCT}% 안 종목 비율은 ${name(ranked.slice(0, 3))}가 높고 ${name(ranked.slice(-2).reverse())}가 낮습니다${total != null ? `(S&P 500 전체 ${total}%)` : ''}.`;
+    read.dataset.sectorMoves = NEAR_HIGH_TAB[1];
+  }
+  writeSectorCardChip(documentRef, root);
 }
 
 function themeDefinitionOf(root, item) {

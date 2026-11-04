@@ -31,6 +31,8 @@
 .page .thp-perf-bar { height: 12px; min-width: 2px; }
 .page .thp-perf-bar--up { background: var(--dir-up); border-radius: 0 4px 4px 0; }
 .page .thp-perf-bar--down { background: var(--dir-down); border-radius: 4px 0 0 4px; }
+/* v59.70: the 고점 근처 metric is a 0-100% share, one-sided from the left (no zero line, no direction colour). */
+.page .thp-perf-bar--share { background: var(--text-secondary); border-radius: 0 4px 4px 0; }
 .page .thp-perf-value { width: 62px; text-align: right; font-size: var(--fs-base); font-weight: 700; font-family: var(--font-mono); flex-shrink: 0; }
 .page .thp-perf-badge { width: 68px; padding-left: 6px; white-space: nowrap; flex-shrink: 0; font-size: var(--fs-sm); }
 
@@ -328,3 +330,23 @@
 }
 @media (prefers-reduced-motion: reduce) { .tsr-row { transition: none; } .tsr-members { animation: none; } }
 .v2-themes-rrg .sh-themes-rrg-rotation-detail { margin: 4px 0 10px; font-size: var(--fs-sm); line-height: 1.6; color: var(--text-secondary); }
+
+/* v59.70 (X bookmarks #7): AI 공급망 층별 PER — a dot pair per layer on a shared log axis (테마 only). */
+#themes-ai-chain .ai-chain-per__rows { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+#themes-ai-chain .ai-chain-per__row, #themes-ai-chain .ai-chain-per__axis { display: grid; grid-template-columns: minmax(96px, 168px) 1fr 136px; align-items: center; gap: 8px; }
+#themes-ai-chain .ai-chain-per__name { font-size: var(--fs-sm); color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#themes-ai-chain .ai-chain-per__value { font-size: var(--fs-sm); font-family: var(--font-mono); color: var(--text-primary); text-align: right; white-space: nowrap; }
+#themes-ai-chain .ai-chain-per__track { position: relative; height: 14px; min-width: 0; }
+#themes-ai-chain .ai-chain-per__line { position: absolute; top: 6px; height: 2px; background: var(--border); }
+#themes-ai-chain .ai-chain-per__dot { position: absolute; top: 2px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; border: 2px solid var(--text-secondary); box-sizing: border-box; }
+#themes-ai-chain .ai-chain-per__dot--trailing { background: var(--bg-card); }
+#themes-ai-chain .ai-chain-per__dot--forward { background: var(--text-secondary); }
+#themes-ai-chain .ai-chain-per__axis { margin-top: 2px; }
+#themes-ai-chain .ai-chain-per__tick { position: absolute; top: 0; transform: translateX(-50%); font-size: var(--fs-xs); color: var(--text-muted); font-family: var(--font-mono); }
+@media (max-width: 600px) {
+  /* The layer name takes its own line above the dots, so no name is cut. */
+  #themes-ai-chain .ai-chain-per__row, #themes-ai-chain .ai-chain-per__axis { grid-template-columns: 1fr 124px; gap: 2px 8px; }
+  #themes-ai-chain .ai-chain-per__row .ai-chain-per__name { grid-column: 1 / -1; white-space: normal; }
+  #themes-ai-chain .ai-chain-per__axis .ai-chain-per__name { display: none; }
+}
+#themes-ai-chain .ai-chain-per .ai-chain__scale { white-space: normal; }

@@ -42,6 +42,23 @@ export default {
       if (!members) throw new Error('member comparison opened empty');
       return { members, rows: await p.$$eval('#theme-strength-board .tsr-row', (n) => n.length) };
     }],
+    ['섹터 막대 고점 근처 → 1주 복귀, AI 공급망 층별 PER', async (p) => {
+      // v59.70 (X bookmarks #2, #7): the metric tab draws 11 share bars and dates the card chip on the screener session;
+      // 1주 brings the period bars back. The layer PER fold lists the covered layers with two multiples each.
+      await p.click('#sector-perf-tabs button[data-period="near52"]');
+      await p.waitForFunction(() => document.getElementById('sector-perf-bars')?.dataset.metric === 'near52', null, { timeout: 8000 });
+      const shares = await p.$$eval('#sector-perf-bars .thp-perf-bar--share', (n) => n.length);
+      const hero = await p.$eval('#rrg-rotation-read', (n) => n.textContent);
+      if (shares < 6 || !hero.includes('52주 고점')) throw new Error(`고점 근처 drew ${shares} bars, hero ${hero.slice(0, 40)}`);
+      await p.click('#sector-perf-tabs button[data-period="1w"]');
+      await p.waitForFunction(() => !document.getElementById('sector-perf-bars')?.dataset.metric, null, { timeout: 8000 });
+      const fold = p.locator('#themes-ai-chain details.ai-chain-per');
+      await fold.waitFor({ state: 'attached', timeout: 20000 });
+      await fold.locator('summary').click();
+      const layers = await p.$$eval('#themes-ai-chain .ai-chain-per__row', (n) => n.map((row) => row.getAttribute('aria-label')));
+      if (!layers.length || !layers.every((label) => /지난 4분기 [\d.]+배 → 다음 4분기 [\d.]+배/.test(label))) throw new Error(`layer PER rows: ${layers.slice(0, 2).join(' | ')}`);
+      return { shares, layers: layers.length };
+    }],
     ['S&P 500 지도 → 구성 종목 확인', async (p) => {
       // 2026-11-02: #sector-map is an open section; #sector-map-fold now holds only the day's splits and is hidden without them.
       // 2026-10-13: the map paints after the screener rows land; the tile detail line names the member.

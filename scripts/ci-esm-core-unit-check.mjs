@@ -6126,6 +6126,33 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     const tickItem = tickProvider.readCurrent().items.find((item) => item.symbol === 'IGV');
     if (!tickItem || tickItem.rsRatio !== null || tickItem.rsMomentum !== null || tickItem.quadrant !== 'neutral') fail(`v59.70 the themes provider reads the RRG point only from the produced artifact: ${JSON.stringify(tickItem)}`);
   }
+  {
+    // v59.70 (X bookmarks #2): a sector's share of S&P 500 members within 5% of the 52-week closing high counts only
+    // members measured on the bars' session, holds back below ten measured, and maps all 11 sector ETFs.
+    const { sectorNearHigh, SECTOR_ETF_GICS, NEAR_HIGH_MIN_MEASURED } = await load('src/domain/themes/near-high.js');
+    const weights = { rows: [...Array.from({ length: 12 }, (_, i) => [`T${i}`, 'Information Technology', 1]), ...Array.from({ length: 4 }, (_, i) => [`R${i}`, 'Real Estate', 1])] };
+    const rows = [...Array.from({ length: 12 }, (_, i) => ({ sym: `T${i}`, pctFromCloseHigh52w: [-1, -5, -5.1, -20][i % 4], factorSessionDate: i === 11 ? '2026-10-30' : '2026-11-03' })),
+      ...Array.from({ length: 4 }, (_, i) => ({ sym: `R${i}`, pctFromCloseHigh52w: 0, factorSessionDate: '2026-11-03' }))];
+    const near = sectorNearHigh({ weights, rows, session: '2026-11-03' });
+    const tech = near.bySector['Information Technology'];
+    // T0..T10 measured (T11 is another session): within 5% are the -1 and -5 rows → 6 of 11.
+    if (tech?.measured !== 11 || tech.near !== 6 || tech.share !== 55 || near.bySector['Real Estate']?.share !== null || NEAR_HIGH_MIN_MEASURED !== 10) fail(`v59.70 sector near-high share: ${JSON.stringify(near.bySector)}`);
+    if (Object.keys(SECTOR_ETF_GICS).length !== 11 || near.total.listed !== 16) fail('v59.70 the 11 sector ETFs map to GICS sectors and every member is listed');
+    // #7: each layer's trailing and forward PER from the consensus EPS pair only — a member without a positive pair or
+    // a current close is left out, a thinly covered layer is hidden, and the SEC PER on the row is never read.
+    const { layerValuation } = await load('src/domain/themes/layer-valuation.js');
+    const now = Date.parse('2026-11-04T03:00:00Z');
+    const layerThemes = [{ id: 'semiconductor', subThemes: [{ name: 'A', tickers: ['A1', 'A2', 'A3', 'A4'] }, { name: 'B', tickers: ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7'] }] }, { id: 'software', subThemes: [{ name: 'S', tickers: ['A1', 'A2', 'A3'] }] }];
+    const close = (sym, price) => ({ sym, valuationPrice: price, pe: 999, factorSessionDate: '2026-11-03' });
+    const est = (trailing, forward) => ({ asOf: '2026-11-03T22:00:00Z', trailing: { eps: trailing }, fwd: { eps: forward } });
+    const lv = layerValuation({ themes: layerThemes, now,
+      rows: [close('A1', 100), close('A2', 60), close('A3', 40), close('A4', 50), close('B1', 10), close('B2', 10), close('B3', 10)],
+      consensus: { rows: { A1: est(4, 5), A2: est(2, 3), A3: est(1, 2), A4: est(-1, 2), B1: est(1, 1), B2: est(1, 1), B3: est(1, 1) } } });
+    const a = lv.layers.find((layer) => layer.name === 'A');
+    // A: A1 25→20, A2 30→20, A3 40→20 (A4 has a loss) → medians 30 and 20. B: 3 of 7 covered (<50%) → hidden. S is not an AI-chain theme.
+    if (!a || a.trailingPe !== 30 || a.forwardPe !== 20 || a.measured !== 3 || lv.layers.length !== 1 || lv.hidden[0]?.name !== 'B' || lv.hidden[0].measured !== 3) fail(`v59.70 layer PER: ${JSON.stringify(lv)}`);
+    if (layerValuation({ themes: layerThemes, rows: [], consensus: null, now }).available !== false) fail('v59.70 layer PER without the consensus artifact is unavailable, not empty');
+  }
   // v59.70 (theme-sector): 1일 leads the tabs (owner: which theme led the day and the week).
   if (STRENGTH_TABS.join(',') !== 'ret1d,ret5d,ret1m,ret3m' || GROUP_WINDOWS.ret1d !== '1일' || GROUP_WINDOWS.ret10d !== '2주' || GROUP_WINDOWS.ret6m !== '6개월') fail('v59.70 ranking tabs are 1일·1주·1개월·3개월, with 2주 and 6개월 still named');
   {
