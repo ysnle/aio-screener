@@ -43,3 +43,7 @@ Before/after: `_artifacts/wave2-e/screens/review-fixes/{before,after}-{1440,768,
 
 Gate `scripts/ci-research-heading-wording.mjs`: passes now; on HEAD 2bb5fa47 fails with 99 errors (94 notes' '먼저 알아둘 개념', 2 list labels + their h2, the '이 분야를 읽는 핵심은' paragraph). Not covered: the concepts-view lesson aside is not mounted (its '선행 레슨' title is fixed in code; the frame columns cover the shared '쓰인 개념' block). Horizontal page scroll: none at any width (scrollWidth = viewport).
 Not changed: masters overview h2 '돈을 굴리는 방식별로 13F 읽기' (outside the review list and the gate pattern).
+
+## masters.js split (2026-11-04)
+
+1,647 → 931 lines (+ `src/ui/pages/masters-views.js` 727). Evidence: `_artifacts/wave2-e/masters-split-snapshot.mjs`; `masters-split-{before,after}.json` 52 states, 0 changed (before run twice: 0 changed, so the snapshot is deterministic); `screens/masters-split/{before,after}-*.png` 12 pairs byte-identical. Three moved `Number.isFinite(Number(x))` reads became `readNumber` (shared-primitive ratchet refuses moved growth); differs only for null/'' inputs, which the current data does not contain.

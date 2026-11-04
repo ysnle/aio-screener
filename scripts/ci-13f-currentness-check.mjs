@@ -68,7 +68,7 @@ if ((workflow.match(/name: Refresh weekly SEC 13F and daily 13D-G discovery/g) |
   || !/steps\.masters\.outcome == 'success' \|\| steps\.masters\.outcome == 'skipped'/.test(workflow)) {
   fail('P1309/R654/QA-DATA-51 must keep daily ownership-only polling and run full 13F rows during filing-season Mondays, for unconnected HR/HR-A filings, or by explicit dispatch');
 }
-const mastersPage = read('src/ui/pages/masters.js');
+const mastersPage = read('src/ui/pages/masters.js') + read('src/ui/pages/masters-views.js'); // v59.70: view builders split out of the page
 // P1488: the 13D/G list keeps an as-of label ("… 확인 기준") in reader language instead of the artifact wording.
 if (!mastersPage.includes('SEC 발견 artifact 기준일') || !mastersPage.includes('${ownershipAsOf} 확인 기준') || mastersPage.includes('SEC 온라인 현재성 발견')) {
   fail('P1309/R654/QA-DATA-51 must label last published SEC artifacts with an as-of date instead of claiming a fresh online poll');

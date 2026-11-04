@@ -1378,7 +1378,8 @@
             "version.json",
             "index.html",
             ".github/workflows/refresh-data.yml",
-            "src/ui/pages/masters.js"
+            "src/ui/pages/masters.js",
+            "src/ui/pages/masters-views.js"
           ]
         },
         {
@@ -1429,6 +1430,7 @@
         "src/ui/pages/principles.js",
         "src/ui/pages/atlas.js",
         "src/ui/pages/masters.js",
+        "src/ui/pages/masters-views.js",
         "src/ui/knowledge/**",
         "content/research/**",
         "scripts/**",
@@ -1486,6 +1488,7 @@
             "src/ui/pages/principles.js",
             "src/ui/pages/atlas.js",
             "src/ui/pages/masters.js",
+            "src/ui/pages/masters-views.js",
             "src/ui/knowledge/**",
             "content/research/**",
             "scripts/**",
@@ -1512,6 +1515,7 @@
             "src/ui/pages/principles.js",
             "src/ui/pages/atlas.js",
             "src/ui/pages/masters.js",
+            "src/ui/pages/masters-views.js",
             "src/ui/knowledge/**",
             "content/research/**",
             "scripts/**",
@@ -1542,6 +1546,7 @@
             "src/ui/pages/principles.js",
             "src/ui/pages/atlas.js",
             "src/ui/pages/masters.js",
+            "src/ui/pages/masters-views.js",
             "src/ui/knowledge/**",
             "content/research/**",
             "scripts/**",
@@ -1570,6 +1575,7 @@
             "src/ui/pages/principles.js",
             "src/ui/pages/atlas.js",
             "src/ui/pages/masters.js",
+            "src/ui/pages/masters-views.js",
             "src/ui/knowledge/**",
             "content/research/**",
             "scripts/**",
@@ -2627,6 +2633,7 @@
         "src/ui/pages/principles.js",
         "src/ui/pages/atlas.js",
         "src/ui/pages/masters.js",
+        "src/ui/pages/masters-views.js",
         "src/ui/knowledge/**",
         "content/research/**"
       ],
@@ -2769,7 +2776,8 @@
     },
     {
       "patterns": [
-        "src/ui/pages/masters.js"
+        "src/ui/pages/masters.js",
+        "src/ui/pages/masters-views.js"
       ],
       "groups": [
         "data"
