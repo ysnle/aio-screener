@@ -1,15 +1,15 @@
 {
  "schemaVersion": "2.0",
- "generatedAt": "2026-11-04T07:35:18.930Z",
+ "generatedAt": "2026-11-04T07:44:23.397Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
  "allowedUse": "research/reference; normalized annual filing facts, not analyst estimates or live TTM",
  "model": "sec-fy-normalized-v2",
- "eligible": 3878,
+ "eligible": 3879,
  "stored": 3516,
- "attempted": 136,
- "updated": 136,
+ "attempted": 0,
+ "updated": 0,
  "failures": [
   {
    "symbol": "AACI",
@@ -4541,28 +4541,28 @@
  "batchLimit": 600,
  "backfillExtra": 0,
  "unsupportedRecheckPolicy": "SEC_RECHECK_UNSUPPORTED=1 required for explicit recheck; terminal unsupported rows remain auditable and out of normal batches",
- "nextRefreshCandidates": 362,
+ "nextRefreshCandidates": 363,
  "domainReceipt": {
   "schemaVersion": "domain-receipt.v1",
   "domain": "sec-fundamentals",
-  "runId": "gha:41792195117",
-  "attemptedAt": "2026-11-04T07:34:22.336Z",
-  "sourceRevision": "sec-company-tickers:67da093c67735ef6dd1182a5ab95040559c99456a8724b740196b7cd00e75f77",
+  "runId": "gha:41793164520",
+  "attemptedAt": "2026-11-04T07:44:10.997Z",
+  "sourceRevision": "sec-company-tickers:f4a4b46839d1a38065d14ed64c8544a6be245bfd2d855e1bb301addceb4488d8",
   "inputWatermarks": {
-   "universe": "2026-11-04T07:34:20.276Z",
-   "screener": "2026-11-04T07:05:58.206Z",
-   "previousArtifact": "2026-11-03T22:33:35.266Z"
+   "universe": "2026-11-04T07:44:07.975Z",
+   "screener": "2026-11-04T07:39:47.779Z",
+   "previousArtifact": "2026-11-04T07:35:18.930Z"
   },
   "batchLimit": 600,
   "counts": {
-   "eligible": 3878,
-   "attempted": 136,
-   "updated": 136,
-   "retained": 3380,
-   "pendingEligible": 362
+   "eligible": 3879,
+   "attempted": 0,
+   "updated": 0,
+   "retained": 3516,
+   "pendingEligible": 363
   },
   "thisBatch": {
-   "updated": 136,
+   "updated": 0,
    "terminalUnsupported": 0,
    "transientFailed": 0,
    "recorded": 0
@@ -4575,8 +4575,8 @@
   },
   "lastSuccessfulObservation": "2026-11-04T07:34:22.336Z",
   "publication": {
-   "status": "SUCCESS",
-   "reason": "every attempted target was updated",
+   "status": "NOT_ATTEMPTED",
+   "reason": "no target was due in this batch",
    "allowsPartial": true,
    "basis": "per-symbol independent collection; retained eligible rows stay published while rows that lose their period requirements are excluded from analysis",
    "terminalExcludedFromBatchFailures": true,
@@ -319172,7 +319172,7 @@
  "issuerSicPolicy": "SEC submissions sic per issuer; recorded on every submissions read plus a SIC-only pass of up to 800 issuers (missing first, then older than 30 days); a failed read keeps the previous code",
  "issuerSicCoverage": {
   "classified": 3834,
-  "eligible": 3878,
+  "eligible": 3879,
   "passAttempted": 45,
   "passUpdated": 0,
   "passFailed": 0
