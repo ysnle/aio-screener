@@ -12,7 +12,7 @@
   ],
   "boundary": "Search index of learning surfaces; titles and short texts only. Glossary entries are searched in the page itself.",
   "counts": {
-    "frame": 90,
+    "frame": 94,
     "column": 12,
     "principles-lesson": 112,
     "principles-node": 60,
@@ -1987,6 +1987,87 @@
         "params": {
           "mode": "frames",
           "node": "growth-acceleration-peak"
+        }
+      }
+    },
+    {
+      "id": "frame:correction-base-rates",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "조정이 약세장으로 번진 비율과 닮은 경로",
+      "text": "1986년 이후 나스닥이 직전 최고 종가 대비 -7% 넘게 빠진 조정은 40번, 그중 -20% 약세장까지 번진 것은 8번입니다. 2026년 11월 초처럼 고점 뒤 28거래일 안에 -7%가 된 빠른 조정만 세면 32번 중 4번으로 더 낮습니다. \"많이 빠졌으니 바닥\"도…",
+      "group": "차트·셋업 읽기",
+      "keys": [
+        "조정이 얼마나 깊어질지: 사건 정의와 기저율, 닮은 사례",
+        "base-rate",
+        "expected-value"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "correction-base-rates"
+        }
+      }
+    },
+    {
+      "id": "frame:cycle-top-two-clocks",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "사이클 업종 주가 고점의 두 시계",
+      "text": "사이클 업종 주가의 고점을 두고 두 시계가 있습니다. 가속도 시계는 증가율이 오르는 폭이 줄기 시작하면 주가가 먼저 꺾인다고 보고, 부호 시계는 증가율이 플러스인 동안은 이익을 따라 오르고 마이너스로 돌 즈음에 고점이 난다고 봅니다. 둘 중 하나를 미리 정답으로 정하…",
+      "group": "산업별 수익 모델",
+      "keys": [
+        "사이클 업종 고점의 두 시계: 가속도와 부호",
+        "level-vs-change",
+        "cyclical-per"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "cycle-top-two-clocks"
+        }
+      }
+    },
+    {
+      "id": "frame:credit-stress-tiers",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "신용 스트레스가 번지는 세 층",
+      "text": "신용 스트레스는 보통 가장 약한 곳에서 시작합니다. 부채가 많고 현금흐름이 약한 회사, 차환이 필요한 부동산, CCC·B 등급 대출이 먼저 아프고, 하이일드 전체, 마지막으로 투자등급까지 번지면 시장 전체의 신용경색입니다. 스프레드 하나보다 세 층(CCC·하이일드·투…",
+      "group": "통화·신용·물가",
+      "keys": [
+        "신용 스트레스가 어느 층에 있는지: CCC → 하이일드 → 투자등급",
+        "private-credit",
+        "refinancing"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "credit-stress-tiers"
+        }
+      }
+    },
+    {
+      "id": "frame:sell-decision-alternatives",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "매도 뒤 무엇을 들 것인가",
+      "text": "매도는 \"무엇을 그만 들까\"보다 \"그 대신 무엇을 들까\"의 선택입니다. 현금이면 지금 가격에서 남은 하락과 반등 가능성을 견줍니다. 숏이면 하락을 맞히는 것과 숏으로 돈을 버는 것이 다른 능력입니다. 다른 자산이면 위험회피 국면에 평소 낮던 상관이 높아져 리스크가 따…",
+      "group": "가격·기대",
+      "keys": [
+        "팔고 나서 무엇을 들 것인가: 매도는 다음 보유의 선택",
+        "opportunity-cost",
+        "sunk-cost-rebuy",
+        "correlation"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "sell-decision-alternatives"
         }
       }
     },
