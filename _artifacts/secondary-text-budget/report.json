@@ -1,6 +1,6 @@
 {
   "gate": "v58.79 secondary-text-budget",
-  "status": "FAIL",
+  "status": "PASS",
   "ceilings": {
     "home": 186,
     "signal": 355,
@@ -23,40 +23,7 @@
     "screener": 1017,
     "charts": 143
   },
-  "over": [
-    {
-      "route": "theme-detail",
-      "secondary": 60,
-      "ceiling": 33,
-      "lines": [
-        {
-          "chars": 16,
-          "classes": "sx-row__meta sx-row sx-card sx-card--flush v2-themes-top",
-          "text": "S&P 500 1주 -0.6%"
-        },
-        {
-          "chars": 6,
-          "classes": "tp-legend-item tp-legend tp-map-side",
-          "text": "축 범위 밖"
-        },
-        {
-          "chars": 5,
-          "classes": "sector-map-swatch is-d2 sector-map-legend aio-section sector-map aio-frame",
-          "text": "-1.5%"
-        },
-        {
-          "chars": 5,
-          "classes": "sector-map-swatch is-d1 sector-map-legend aio-section sector-map aio-frame",
-          "text": "-0.5%"
-        },
-        {
-          "chars": 5,
-          "classes": "sector-map-swatch is-u1 sector-map-legend aio-section sector-map aio-frame",
-          "text": "+0.5%"
-        }
-      ]
-    }
-  ],
+  "over": [],
   "frameProblems": [],
   "failures": [],
   "routes": {
@@ -637,122 +604,21 @@
       ]
     },
     "theme-detail": {
-      "total": 3379,
-      "secondary": 60,
+      "total": 1455,
+      "secondary": 27,
       "lines": [
         {
-          "chars": 16,
-          "classes": "sx-row__meta sx-row sx-card sx-card--flush v2-themes-top",
-          "text": "S&P 500 1주 -0.6%"
-        },
-        {
-          "chars": 6,
-          "classes": "tp-legend-item tp-legend tp-map-side",
-          "text": "축 범위 밖"
+          "chars": 22,
+          "classes": "thp-perf-basis theme-detail-native-section",
+          "text": "10/30 종가 기준 전체 23종목 보기"
         },
         {
           "chars": 5,
-          "classes": "sector-map-swatch is-d2 sector-map-legend aio-section sector-map aio-frame",
-          "text": "-1.5%"
-        },
-        {
-          "chars": 5,
-          "classes": "sector-map-swatch is-d1 sector-map-legend aio-section sector-map aio-frame",
-          "text": "-0.5%"
-        },
-        {
-          "chars": 5,
-          "classes": "sector-map-swatch is-u1 sector-map-legend aio-section sector-map aio-frame",
-          "text": "+0.5%"
-        },
-        {
-          "chars": 5,
-          "classes": "sector-map-swatch is-u2 sector-map-legend aio-section sector-map aio-frame",
-          "text": "+1.5%"
-        },
-        {
-          "chars": 5,
-          "classes": "tp-legend-item tp-legend tp-map-side",
-          "text": "영향 작음"
-        },
-        {
-          "chars": 3,
-          "classes": "sector-map-swatch is-d3 sector-map-legend aio-section sector-map aio-frame",
-          "text": "-3%"
-        },
-        {
-          "chars": 3,
-          "classes": "sector-map-swatch is-u3 sector-map-legend aio-section sector-map aio-frame",
-          "text": "+3%"
-        },
-        {
-          "chars": 2,
-          "classes": "tp-legend-item tp-legend tp-map-side",
-          "text": "수혜"
-        },
-        {
-          "chars": 2,
-          "classes": "tp-legend-item tp-legend tp-map-side",
-          "text": "부담"
-        },
-        {
-          "chars": 2,
-          "classes": "tp-legend-item tp-legend tp-map-side",
-          "text": "혼재"
+          "classes": "thp-summary-meta thp-summary-title thp-summary-header",
+          "text": ", ITA"
         }
       ],
-      "frames": [
-        {
-          "frame": "themes.rrg",
-          "contract": null,
-          "hasHead": true,
-          "asof": "10/30 종가",
-          "readings": [],
-          "problems": []
-        },
-        {
-          "frame": "themes.sector-map",
-          "contract": null,
-          "hasHead": true,
-          "asof": "10/30 종가",
-          "readings": [],
-          "problems": []
-        },
-        {
-          "frame": "themes.ranking",
-          "contract": null,
-          "hasHead": true,
-          "asof": "10/30 종가",
-          "readings": [],
-          "problems": []
-        },
-        {
-          "frame": "themes.ai-chain",
-          "contract": null,
-          "hasHead": true,
-          "asof": "",
-          "readings": [],
-          "problems": []
-        },
-        {
-          "frame": "themes.capex-flow",
-          "contract": null,
-          "hasHead": true,
-          "asof": "2026-08 인용 자료",
-          "readings": [
-            37
-          ],
-          "problems": []
-        },
-        {
-          "frame": "themes.playbook",
-          "contract": null,
-          "hasHead": true,
-          "asof": "10/30 종가",
-          "readings": [],
-          "problems": []
-        }
-      ]
+      "frames": []
     },
     "portfolio": {
       "total": 278,
@@ -773,7 +639,7 @@
       "frames": []
     },
     "market-news": {
-      "total": 3112,
+      "total": 3542,
       "secondary": 288,
       "lines": [
         {

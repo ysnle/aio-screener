@@ -23,6 +23,7 @@
 import { spawnSync } from 'node:child_process';
 import { chromium } from 'playwright';
 import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { addressThemeDetail } from './lib/theme-detail-address.mjs';
 import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -153,6 +154,7 @@ if (isMain) {
     await page.waitForTimeout(1500);
     const args = { pattern: SECONDARY_TEXT_PATTERN, readingMax: READING_MAX, asofMax: ASOF_MAX, contracts: FRAME_CONTRACTS };
     for (const route of ROUTE_IDS) {
+      if (route === 'theme-detail') await addressThemeDetail(page); // measured on a real detail, not the list (fix-r1-theme)
       await page.evaluate((id) => window.showPage(id, null), route);
       await page.waitForTimeout(900);
       await settle();

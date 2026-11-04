@@ -235,6 +235,12 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
     applyLegacyThemeDetailAddress(root);
     if (root._aioOpenThemeDetailOnThemes != null) moved.push(`classic #theme-detail/${id} -> ${root._aioOpenThemeDetailOnThemes} (want the list)`);
   }
+  // fix-r1-theme: with 테마 already open no mount reads the address; the router's address reader must name the same id
+  // (a pasted old link used to leave the list open with the address unchanged).
+  const { parseRouteDeepLink } = await import('../src/app/router.js');
+  const ids = usThemes.map((theme) => theme.id);
+  for (const id of ids) for (const hash of [`#theme-detail/${id}`, `#theme-detail?theme=${id}`]) if (parseRouteDeepLink(hash, ids)?.themeId !== id) moved.push(`router ${hash}`);
+  for (const id of ['uam', 'space', 'quantum']) if (parseRouteDeepLink(`#theme-detail/${id}`, ids)?.themeId !== null) moved.push(`router #theme-detail/${id} (want the list)`);
   if (usThemes.length < 15 || moved.length) fail(`v59.70 old #theme-detail addresses keep their theme id (${usThemes.length} themes): ${moved.slice(0, 4).join('; ')}`);
 }
 
