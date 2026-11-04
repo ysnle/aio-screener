@@ -83,6 +83,7 @@
 
 스크린샷:
 - 전: `_artifacts/theme-sector/before/` (desktop-top, desktop-full, desktop-dark-*, rrg-*).
+- 최종(1주·R11 분리 데이터): `_artifacts/theme-sector/final2/`
 - 후: `_artifacts/theme-sector/after/`
   - desktop-top, desktop-dark-top, phone-top
   - *-rrg-{sectors,subsectors,all}-r0/r2
@@ -94,10 +95,20 @@
 - R1: 완료(위 3-1).
 - R9 themeMedians: 완료. `src/domain/themes/theme-medians.js` 하나로 5곳을 모았다.
 - R9 above50Pct → `breadthCounts`: data-refactor 브랜치에 있어 통합 때 바꾼다(group-strength.js, kr-themes.js).
-- R11: 보류. 이유 두 가지:
-  1. refresh-data.yml은 명시한 경로만 stage한다. 새 `rotation-detail.json`은 workflow에 `stage_if_exists` 한 줄이 들어가야 커밋된다(actions-reliability 몫).
-  2. trail은 종목·포트폴리오·스크리너의 판정 폭(rrgZone)을, relativeStrength(152KB, 큰 쪽)는 recent-check를 정한다. 테마 화면만 lazy로 받으면 다른 화면의 판정이 달라진다.
-  - 제안: 프로듀서가 `public-data/rotation-detail.json`(trail, relativeStrength)을 쓰고, data.json에는 좌표만 둔다. 로더 하나(`readRotationHistory()`)가 모든 소비자 앞에서 둘을 합친다. workflow에 stage 줄을 추가한다. 세 변경을 한 배치로 넣는다.
+- R11: 완료(커밋 2).
+  - 프로듀서: `scripts/fetch-data.mjs`가 `public-data/rotation-detail.json`(schema `rotation-detail.v1`, 종목마다 sessionDate·trail·relativeStrength)을 data.json보다 먼저 쓴다. data.json의 rotationHistory에는 좌표와 `detailFile`만 남는다. 경로 상수는 `scripts/producer/paths.mjs` `ROTATION_DETAIL_OUT`이다.
+  - 다음 실행의 보존 검사: 이전 data.json에 상세를 다시 합쳐 쓴다.
+  - 브라우저: `src/data/server-data-loader.js`의 로더 하나가 `_serverDataMeta.rotationHistory`에 합친다. 상세가 늦으면 최대 1.5초 기다리고, 그 뒤에 오면 `aio:rotationDetailLoaded`로 테마·종목 화면을 다시 그린다. 같은 세션의 상세만 합친다.
+  - 순수 함수는 `src/domain/themes/rotation-detail.js`에 있다. 공유 산출물 키는 `ROTATION_DETAIL`이다(`src/data/shared-artifacts.js`).
+  - 효과: data.json이 588KB에서 283KB로 줄었다(−52%). rotationHistory는 223KB에서 27KB가 됐고, 상세 파일은 197KB다.
+  - 게이트: `ci-rotation-history-check`가 실제 산출물로 확인한다.
+    - 원본과 분리 후 합친 결과를 읽은 판정이 같다: 좌표, 사분면, settled zone, recent reading, trail 길이, 현재 세션과 한 세션 늦은 경우.
+    - 다른 세션의 상세는 합쳐지지 않는다.
+    - lineage 정책에 `rotation-detail.json`을 등록했다.
+  - 브라우저 검증(분리한 데이터로): 3개 뷰포트에서 RRG 집계와 순위가 분리 전과 같다.
+  - 상세가 404이면 pending 상태로 남고, 좌표는 그대로이며 오류는 없다.
+  - **배포 순서 필수**: `.github/workflows/refresh-data.yml`의 stage 목록에 `stage_if_exists public-data/rotation-detail.json`이 같은 배치로 들어가야 한다(actions-reliability). 빠지면 data.json은 분리된 채 커밋되고 상세 파일은 커밋되지 않는다. 그러면 라이브에서 trail이 사라져 판정 폭이 기본값으로 돌아간다.
+- 기본 기간 1주: 완료. 첫 문장, 섹터 막대, 세부 테마 순위, 세부 테마 상위 제목이 모두 1주다. 막대 기간을 바꾸면 첫 문장도 따라 바뀐다. verify-aio 단계가 세 곳이 같은지 확인한다.
 
 ## 6. 통합 때 연결할 것
 
@@ -116,7 +127,6 @@ ui-states에 요청할 것:
 1. 어느 테마에도 없는 S&P 대형주: AAPL(7.7%), IBM, ACN, MSI. 안은 두 가지다. '기술 하드웨어/IT 서비스' 테마를 새로 만들거나, GICS 'Software & Services'를 근거로 IT 서비스(ACN, IBM, CTSH, IT, EPAM)를 소프트웨어 테마의 세부 테마로 넣는다.
 2. 한국 테마 겹침: UAM·우주가 방산과 5종목을 공유하고, 양자는 통신·포토닉스 종목과 같다. 통합할지, 대표 종목을 다르게 할지 정해야 한다.
 3. NCLD·DRAM은 상장 3~7개월이고 스와프 비중이 크다. 벤치마크로 둘지(지금은 둠), 상장 1년 뒤 넣을지 정해야 한다.
-4. 기간 기본값을 1일로 할지 1주로 할지. 지금은 1일이고, 1일 값이 없으면 1주를 쓴다.
 
 ## 8. 바뀐 파일
 

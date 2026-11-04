@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 export const REPO_ROOT = `${dirname(fileURLToPath(import.meta.url))}/../..`;
 export const OUT = `${REPO_ROOT}/public-data/data.json`;
 export const HIST = `${REPO_ROOT}/public-data/history.json`;
+export const ROTATION_DETAIL_OUT = `${REPO_ROOT}/public-data/rotation-detail.json`; // v59.70 (R11): rotationHistory series
 export const SCENARIO_STATE_OUT = `${REPO_ROOT}/public-data/scenario-state.json`;
 export const SCENARIO_OUTCOMES_OUT = `${REPO_ROOT}/public-data/scenario-outcomes.json`;
 export const MARKET_SNAPSHOT_OUT = `${REPO_ROOT}/public-data/market-snapshot.json`;

@@ -4,6 +4,41 @@
 // src/data/server-data.js fetched it. It still sets the classic script-scope lets _aioServerMacroReady and
 // _aioServerHyReady, which stay declared in js/aio-data.js because initV20DataEngine reads them there; a module
 // resolves those names in the shared global scope. src/app/compatibility-globals.js installs this before DOMContentLoaded.
+import { refreshSharedArtifact, ROTATION_DETAIL } from './shared-artifacts.js';
+import { mergeRotationDetail, rotationDetailPending } from '../domain/themes/rotation-detail.js';
+
+// v59.70 (data audit R11): data.json carries the rotation coordinates and rotation-detail.json the series. The one
+// loader merges them into _serverDataMeta.rotationHistory, so the stock, portfolio, screener and theme readers keep the
+// accessor and the same verdicts. The series load beside data.json; if they arrive later, aio:rotationDetailLoaded
+// asks the screens to repaint.
+const ROTATION_DETAIL_WAIT_MS = 1500;
+function attachRotationDetail(window) {
+  const meta = window._serverDataMeta;
+  if (!rotationDetailPending(meta?.rotationHistory)) return Promise.resolve(false);
+  const apply = (payload) => {
+    const current = window._serverDataMeta;
+    if (!payload || !rotationDetailPending(current?.rotationHistory)) return false;
+    current.rotationHistory = mergeRotationDetail(current.rotationHistory, payload);
+    return true;
+  };
+  if (apply(window[ROTATION_DETAIL.key]) && !window.__aioSharedArtifacts?.[ROTATION_DETAIL.key]?.inFlight) {
+    // A cached copy merged at once; a newer one (after a data refresh) still loads in the background.
+    refreshSharedArtifact(window, ROTATION_DETAIL).then(({ changed, payload }) => { if (changed && payload) notifyRotationDetail(window); });
+    return Promise.resolve(true);
+  }
+  const loading = refreshSharedArtifact(window, ROTATION_DETAIL).then(({ payload }) => apply(payload));
+  const timeout = new Promise((resolve) => setTimeout(() => resolve('late'), ROTATION_DETAIL_WAIT_MS));
+  return Promise.race([loading, timeout]).then((first) => {
+    if (first !== 'late') return first;
+    loading.then((merged) => { if (merged) notifyRotationDetail(window); });
+    return false;
+  });
+}
+function notifyRotationDetail(window) {
+  try { window.dispatchEvent(new CustomEvent('aio:rotationDetailLoaded')); } catch (_) {}
+  try { window.document?.dispatchEvent?.(new CustomEvent('aio:rotationDetailLoaded')); } catch (_) {}
+}
+
 export function installServerDataLoader(window = globalThis) {
   // Server macro artifacts carry the complete official Treasury curve, but the
   // legacy/browser consumers historically only saw the Yahoo/FRED client cache.
@@ -94,6 +129,9 @@ export function installServerDataLoader(window = globalThis) {
 
   async function _aioLoadServerData() {
     try {
+      // v59.70 (R11): once a data.json has announced its series file, each reload fetches it beside data.json; the first
+      // load fetches it only after data.json names it (attachRotationDetail), so an older data.json asks for nothing.
+      if (rotationDetailPending(window._serverDataMeta?.rotationHistory) || window[ROTATION_DETAIL.key]) refreshSharedArtifact(window, ROTATION_DETAIL);
       // Fetch, reconciliation check and market-cycle gate: src/data/server-data.js (bound by the compat bridge).
       var fetched = await window._aioFetchServerData();
       if (!fetched.ok) {
@@ -128,6 +166,7 @@ export function installServerDataLoader(window = globalThis) {
       globalThis._aioServerDataBridgeAttempts = 0;
 
       window._serverDataMeta = window._aioBuildServerDataMeta(d, fetched.reconciliation);
+      await attachRotationDetail(window); // v59.70 (R11): the rotation series join before any screen reads them
       var _serverGeneratedMs = d.meta.generatedAt ? new Date(d.meta.generatedAt).getTime() : NaN;
       var _liveCoreEligible = window._serverDataMeta.liveCoreEligible;
       var ageMin = window._serverDataMeta.ageMin;

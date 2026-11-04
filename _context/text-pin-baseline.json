@@ -3,8 +3,8 @@
   "generatedBy": "scripts/ci-text-pin-ratchet-check.mjs",
   "note": "Per-gate count of product-source text pins. Shrink only; never raise a count or add a file.",
   "files": 33,
-  "totalPins": 2373,
-  "exemptLines": 52,
+  "totalPins": 2367,
+  "exemptLines": 51,
   "counts": {
     "scripts/ci-13f-currentness-check.mjs": 3,
     "scripts/ci-ai-chat-reliability-contract-check.mjs": 55,
@@ -30,14 +30,14 @@
     "scripts/ci-research-flow-contract-check.mjs": 81,
     "scripts/ci-retirement-contract.mjs": 5,
     "scripts/ci-review-integrity-unit-check.mjs": 16,
-    "scripts/ci-runtime-contract-check.mjs": 1349,
+    "scripts/ci-runtime-contract-check.mjs": 1344,
     "scripts/ci-screener-workbench-contract.mjs": 30,
     "scripts/ci-semantic-review-check.mjs": 9,
     "scripts/ci-service-worker-cache-policy-check.mjs": 16,
     "scripts/ci-static-data-contract-check.mjs": 16,
     "scripts/ci-static-db-expiry-check.mjs": 4,
     "scripts/ci-structural-check.mjs": 35,
-    "scripts/ci-ux-default-path-check.mjs": 28,
+    "scripts/ci-ux-default-path-check.mjs": 27,
     "scripts/ci-version-check.mjs": 3
   }
 }

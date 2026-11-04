@@ -25,7 +25,12 @@ export default {
       if (sub === sectors) throw new Error('scope toggle did not change the chip set');
       return { subsectorChips: sub.split(',').length, sectorChips: sectors.split(',').length };
     }],
-    ['세부 테마 순위 1일 → 첫 테마 구성 종목 비교', async (p) => {
+    ['세부 테마 순위 기본 1주 → 1일 → 첫 테마 구성 종목 비교', async (p) => {
+      // v59.70: the ranking, the sector bars and the hero open on the same window (1주).
+      const pressed = await p.$eval('#theme-strength-board .theme-strength-periods button[aria-pressed="true"]', (n) => n.textContent.trim());
+      const bars = await p.$eval('#sector-perf-tabs button[aria-pressed="true"]', (n) => n.textContent.trim());
+      const hero = await p.$eval('#rrg-rotation-read', (n) => n.textContent);
+      if (pressed !== '1주' || bars !== '1주' || !hero.includes('1주,')) throw new Error(`default window differs: ranking ${pressed}, bars ${bars}, hero ${hero.slice(0, 40)}`);
       // v59.70: one ranked bar list per window; a row opens its members (bar, gap to median, equal-weight share).
       const tab = p.locator('#theme-strength-board .theme-strength-periods button', { hasText: '1일' });
       if (await tab.isEnabled()) await tab.click();

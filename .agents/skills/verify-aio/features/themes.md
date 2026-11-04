@@ -27,7 +27,7 @@ Preconditions:
 - **Open.** Click sidebar `테마와 섹터`. `page-themes` active (single-tab hub, no tab bar).
 - **Cards.** `#rrg-quadrant-cards` has children; ≥1 detail chip.
 - **Scope.** Click `세부 업종` pill, then `11섹터`; each becomes `.active` and the chip set differs.
-- **Ranking.** In `#theme-strength-board`, pick `1일`, click the first `.tsr-row`; it turns `aria-expanded=true` and `.tsr-member-table` lists the members.
+- **Ranking.** The ranking, the sector bars (`#sector-perf-tabs`) and the hero `#rrg-rotation-read` open on `1주`. In `#theme-strength-board`, pick `1일`, click the first `.tsr-row`; it turns `aria-expanded=true` and `.tsr-member-table` lists the members.
 - **Detail.** Switch the sector card to `회전` (`#themes-verdict-tabs [data-view=rrg]`; the card opens on `등락`), open `사분면별 섹터` (`#rrg-quadrant-fold > summary`), then click the first detail chip. `#theme-detail-panel` visible, >100 chars; page stays `page-themes`.
 - **Back.** Click `← 테마 목록으로`; the detail closes and the selected chip is inside the viewport again.
 - **To 종목.** Reopen that theme, then click its first visible `showTicker` chip. `page-ticker` active and `#ticker-hero-name` names that symbol.

@@ -418,11 +418,12 @@ export function renderThemeStrength({ documentRef: doc, root, store }) {
   if (!strengthHost && !flowHost) return null;
   const rows = store?.getState?.()?.screener?.rows || [];
   const focusedGroup = strengthHost?.contains(doc.activeElement) ? doc.activeElement?.dataset?.compareGroup : null;
-  // v59.70 (theme-sector): the day leads; the week stands in until the screener publishes one-session returns.
+  // v59.70 (owner: a week over 15 sessions): 1주 leads, the same window as the sector bars and the hero; 1개월 stands in
+  // while the screener carries no five-session returns.
   const chosen = STRENGTH_TABS.includes(root._aioThemeStrengthSort) ? root._aioThemeStrengthSort : null;
   const build = (sortKey) => buildGroupStrength({ themes: root?.THEME_MAP || [], rows, sortKey, benchmark: benchmarkReturns(root?._aioHistory || []) });
-  let model = build(chosen || 'ret1d');
-  if (!chosen && !model.groups.some((group) => group.ret1d != null)) model = build('ret5d');
+  let model = build(chosen || 'ret5d');
+  if (!chosen && !model.groups.some((group) => group.ret5d != null)) model = build('ret1m');
   const rerender = () => renderThemeStrength({ documentRef: doc, root, store });
   if (strengthHost) {
     renderStrength(doc, root, strengthHost, model, basisOf(rows, store?.getState?.()?.screener?.metadata || null, root?._aioHistory || []), (key) => { root._aioThemeStrengthSort = key; rerender(); }, !!root._aioThemeStrengthExpanded, () => { root._aioThemeStrengthExpanded = !root._aioThemeStrengthExpanded; rerender(); }, (id) => { root._aioThemeMemberGroup = root._aioThemeMemberGroup === id ? null : id; rerender(); [...strengthHost.querySelectorAll('[data-compare-group]')].find((button) => button.dataset.compareGroup === id)?.focus(); }, (value) => { root._aioThemeStrengthOrder = value; rerender(); });

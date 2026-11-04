@@ -771,6 +771,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stopMacroUpdated = legacy.on('aio:macroUpdated', syncMarket.sync);
     const stopThemesRefresh = compatibilityEvents.on('aio:refresh:done', syncThemes.sync);
     const stopThemesHistory = legacy.on('aio:themesHistoryLoaded', syncThemes.sync);
+    const stopRotationDetail = legacy.on('aio:rotationDetailLoaded', syncThemes.sync); // v59.70 (R11): series arrived after data.json
     const stopThemeDetail = legacy.on('aio:themeDetailShown', syncThemes.sync);
     const stopEntityRefresh = compatibilityEvents.on('aio:refresh:done', syncEntityForConsumers);
     const stopEntityChanged = legacy.on('aio:entityChanged', syncEntity.sync);
@@ -1046,6 +1047,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopMacroUpdated();
       stopThemesRefresh();
       stopThemesHistory();
+      stopRotationDetail();
       stopThemeDetail();
       stopEntityRefresh();
       stopEntityChanged();

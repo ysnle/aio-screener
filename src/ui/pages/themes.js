@@ -588,9 +588,9 @@ function renderThemePerformanceBars({ documentRef, root, store, route }) {
   const screenerRows = screenerRowMap(store);
   const allItems = selectThemesItems(store?.getState?.() || {});
   const hasLong = allItems.some((item) => finite(screenerRows.get(String(item?.symbol || item?.id || '').toUpperCase())?.ret1m) != null);
-  // v59.70 (owner: which sector led the day and the week): the day first when the session return exists, else 1개월.
-  const hasDay = allItems.some((item) => finite(item?.pct) != null);
-  const mode = SECTOR_PERIODS.some(([key]) => key === root?._aioSectorPeriod) ? root._aioSectorPeriod : hasDay ? '1d' : hasLong ? '1m' : '1d';
+  // v59.70 (owner: a week over 15 sessions): 1주 first when the rotation artifact carries it, else 1개월, else the day.
+  const hasWeek = allItems.some((item) => finite(item?.weeklyPct) != null);
+  const mode = SECTOR_PERIODS.some(([key]) => key === root?._aioSectorPeriod) ? root._aioSectorPeriod : hasWeek ? '1w' : hasLong ? '1m' : '1d';
   const period = SECTOR_PERIODS.find(([key]) => key === mode);
   ensureSectorPeriodTabs(documentRef, root, store, route, mode);
   const valueOf = (symbol, item) => {
@@ -624,6 +624,9 @@ function renderThemePerformanceBars({ documentRef, root, store, route }) {
       return b.pct - a.pct;
     });
   host.replaceChildren();
+  // v59.70: the hero names the 11 sectors' ends over the same period the bars show (default 1주), on every period change.
+  const sectorRows = view === 'sectors' ? rows : viewItems(allItems, 'sectors').map((item) => { const symbol = String(item?.symbol || item?.id || ''); return { label: themeItemLabel(root, item), pct: valueOf(symbol, item) }; });
+  writeSectorHero(documentRef, root, sectorRows, period[1]);
   // v59.51: the bars are the verdict card's second tab, so with no return yet the tab says so instead of hiding a section.
   if (!rows.length || !rows.some((row) => row.pct != null)) {
     const empty = documentRef.createElement('div');
@@ -696,19 +699,23 @@ function resolveThemeDetailId(root, item) {
   return theme?.id ? String(theme.id) : null;
 }
 
-// "11/3 하루 강한 섹터는 …, 약한 섹터는 …입니다. 1주로는 …가 앞섰습니다." — the sector session returns the bars show.
-function sectorMovesRead(root, items) {
-  const rows = (key) => items.map((item) => ({ label: themeItemLabel(root, item), value: finite(item?.[key]) })).filter((row) => row.value != null).sort((a, b) => b.value - a.value);
-  const day = rows('pct');
-  if (day.length < 6) return '';
+// "11/2까지 1주, 강한 섹터는 …, 약한 섹터는 …입니다." — the 11 sectors over the bars' period. Without values the
+// ~50-session rotation reading stays the hero (renderThemes) and its copy under the scatter hides.
+function writeSectorHero(documentRef, root, rows, periodLabel) {
+  const read = documentRef.getElementById('rrg-rotation-read');
+  const detail = documentRef.getElementById('rrg-rotation-detail');
+  if (!read) return;
+  const list = rows.filter((row) => finite(row.pct) != null).sort((a, b) => b.pct - a.pct);
+  if (list.length < 6) { delete read.dataset.sectorMoves; if (detail) detail.hidden = true; return; }
   const close = usCloseSession(root);
-  const list = (part) => part.map((row) => `${row.label} ${signedText(row.value, 1)}%`).join(', ');
-  const up = day.filter((row) => row.value > 0).slice(0, 3), down = day.filter((row) => row.value < 0).slice(-2).reverse();
-  const first = up.length && down.length ? `강한 섹터는 ${list(up)}, 약한 섹터는 ${list(down)}입니다.`
-    : up.length ? `11개 섹터가 대부분 올랐고 ${list(up)}가 앞섰습니다.` : `11개 섹터가 대부분 내렸고 ${list(day.slice(-3).reverse())}가 가장 약했습니다.`;
-  const week = rows('weeklyPct');
-  const weekText = week.length >= 6 ? ` 1주로는 ${list(week.slice(0, 2))}가 앞서고 ${list(week.slice(-1))}가 가장 약했습니다.` : '';
-  return `${close ? `${shortSession(close)} 하루, ` : ''}${first}${weekText}`;
+  const name = (part) => part.map((row) => `${row.label} ${signedText(row.pct, 1)}%`).join(', ');
+  const up = list.filter((row) => row.pct > 0).slice(0, 3), down = list.filter((row) => row.pct < 0).slice(-2).reverse();
+  const body = up.length && down.length ? `강한 섹터는 ${name(up)}, 약한 섹터는 ${name(down)}입니다.`
+    : up.length ? `11개 섹터가 대부분 올랐고 ${name(up)}가 앞섰습니다.` : `11개 섹터가 대부분 내렸고 ${name(list.slice(-3).reverse())}가 가장 약했습니다.`;
+  // 1일·1주 sit on the rotation artifact's session; the longer windows are the screener's own close (no shared date).
+  read.textContent = `${close && (periodLabel === '1일' || periodLabel === '1주') ? `${shortSession(close)}까지 ` : ''}${periodLabel}, ${body}`;
+  read.dataset.sectorMoves = periodLabel;
+  if (detail) detail.hidden = !detail.textContent;
 }
 
 function themeItemLabel(root, item) {
@@ -873,9 +880,8 @@ function renderThemes({ documentRef, root, store, route }) {
   // rotation reading stays the hero, as before.
   const read = documentRef.getElementById('rrg-rotation-read');
   const detail = documentRef.getElementById('rrg-rotation-detail');
-  const moves = sectorMovesRead(root, viewItems(selectThemesItems(store?.getState?.() || {}), 'sectors'));
-  if (read) read.textContent = moves || flow.read;
-  if (detail) { detail.textContent = moves ? flow.read : ''; detail.hidden = !moves; }
+  if (read && !read.dataset.sectorMoves) read.textContent = flow.read; // the bars renderer writes the period line over it
+  if (detail) { detail.textContent = flow.read; detail.hidden = !read?.dataset.sectorMoves; }
   renderNextSteps(documentRef, documentRef.getElementById('themes-next'), flow.next);
 }
 
@@ -1910,7 +1916,7 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         const unsubscribe = store && subscribeToSlices(store, ['themes', 'screener'], renderNow);
         if (unsubscribe) bag.add(unsubscribe);
         const eventTarget = documentRef || root;
-        ['aio:themesViewChanged', 'aio:themesHistoryLoaded', 'aio:historyLoaded', 'aio:refresh:done', 'aio:liveQuotes', 'aio:sectorPerfChanged', 'aio:colorThemeChanged'].forEach((eventName) => {
+        ['aio:themesViewChanged', 'aio:themesHistoryLoaded', 'aio:rotationDetailLoaded', 'aio:historyLoaded', 'aio:refresh:done', 'aio:liveQuotes', 'aio:sectorPerfChanged', 'aio:colorThemeChanged'].forEach((eventName) => {
           eventTarget?.addEventListener?.(eventName, scheduleRender);
           bag.add(() => eventTarget?.removeEventListener?.(eventName, scheduleRender));
         });
