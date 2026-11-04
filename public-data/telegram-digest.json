@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-04T11:21:53.312Z",
-  "attemptedAt": "2026-11-04T11:21:53.312Z",
-  "lastSuccessfulAt": "2026-11-04T11:21:53.312Z",
+  "generatedAt": "2026-11-04T11:51:28.256Z",
+  "attemptedAt": "2026-11-04T11:51:28.256Z",
+  "lastSuccessfulAt": "2026-11-04T11:51:28.256Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-21T11:21:47.701Z",
-  "until": "2026-11-04T11:21:47.701Z",
+  "since": "2026-10-21T11:51:23.648Z",
+  "until": "2026-11-04T11:51:23.648Z",
   "current24hWindow": {
     "start": "2026-11-02T23:00:00.000Z",
     "end": "2026-11-03T23:00:00.000Z",
@@ -92,21 +92,21 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1361,
+      "count": 1363,
       "freshCount": 38,
-      "eligibleTextCount": 1296,
+      "eligibleTextCount": 1298,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 68333
+      "lastPostId": 68337
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 237,
+      "count": 236,
       "freshCount": 20,
-      "eligibleTextCount": 237,
+      "eligibleTextCount": 236,
       "selectedCount": 123,
       "error": null,
       "lastPostId": 21000
@@ -116,30 +116,30 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 672,
+      "count": 676,
       "freshCount": 39,
-      "eligibleTextCount": 671,
+      "eligibleTextCount": 675,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 71548
+      "lastPostId": 71553
     }
   ],
-  "count": 2360,
+  "count": 2365,
   "retainedItemCount": 473,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2360,
-    "eligibleTextCount": 2290,
+    "observedCount": 2365,
+    "eligibleTextCount": 2295,
     "mediaOnlyCount": 70,
-    "mediaAttachedCount": 288,
-    "photoPostCount": 249,
+    "mediaAttachedCount": 291,
+    "photoPostCount": 252,
     "documentPostCount": 1,
     "imageOnlyCount": 1,
-    "highSignalCount": 421,
-    "broadSignalCount": 910,
+    "highSignalCount": 422,
+    "broadSignalCount": 913,
     "selectedRawCount": 408,
     "selectedEligibleCount": 408,
     "selectedRawCoveragePct": 17.8,
@@ -147,17 +147,17 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 852,
-    "kr-market": 123,
-    "geo": 447,
-    "equity": 155,
-    "macro": 352,
-    "earnings": 464,
+    "earnings": 466,
+    "power": 268,
+    "market-note": 853,
+    "macro": 354,
+    "geo": 449,
     "semi": 506,
-    "power": 267,
-    "optical": 44,
-    "healthcare": 101,
-    "japan": 93,
+    "kr-market": 122,
+    "equity": 155,
+    "optical": 43,
+    "healthcare": 100,
+    "japan": 92,
     "ai-policy": 127,
     "media-only": 70,
     "flows": 68,
@@ -165,6 +165,8 @@
     "crypto": 5
   },
   "tickerCounts": {
+    "CVS": 1,
+    "INTC": 8,
     "MSFT": 59,
     "005930.KS": 47,
     "TSLA": 54,
@@ -175,9 +177,8 @@
     "BE": 28,
     "GOOG": 128,
     "COHR": 2,
-    "NVDA": 128,
-    "INTC": 7,
-    "MU": 39,
+    "NVDA": 127,
+    "MU": 38,
     "ORCL": 12,
     "PLTR": 28,
     "AMGN": 1,
@@ -211,7 +212,7 @@
     "BCS": 1,
     "MFG": 1,
     "007660.KS": 1,
-    "009150.KS": 17,
+    "009150.KS": 16,
     "000990.KS": 1,
     "6981.T": 3,
     "META": 11,
@@ -264,12 +265,12 @@
     "WMT": 1
   },
   "themes": [
-    "Market Notes (852 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Falcon Guardian에 AI 에이전트의 실행을 중단하고 재시작 및 기업 네트워크 접근을...",
+    "Market Notes (853 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Falcon Guardian에 AI 에이전트의 실행을 중단하고 재시작 및 기업 네트워크 접근을...",
     "Semiconductors/Memory (506 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
-    "Earnings/Corporate (464 posts in 14-day research window): 알파벳(GOOGL) 2026년 3분기 실적 (시간외 -7.7%) 주당순이익(EPS): 2.12달러 매출: 1,276억 달러 (예상 1,282.2억 달러 하회), 전년 대비 25% 증가 구글 클라우드 매출:...",
-    "Geopolitics (447 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
-    "Macro/Rates (352 posts in 14-day research window): 중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는 6.40% 폭등, 과창50지수는 9.9% 수직 상승하며 상한가에 근접. 양대 시장 거래대금은 2조 519억...",
-    "AI Power/Grid (267 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
+    "Earnings/Corporate (466 posts in 14-day research window): 알파벳(GOOGL) 2026년 3분기 실적 (시간외 -7.7%) 주당순이익(EPS): 2.12달러 매출: 1,276억 달러 (예상 1,282.2억 달러 하회), 전년 대비 25% 증가 구글 클라우드 매출:...",
+    "Geopolitics (449 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
+    "Macro/Rates (354 posts in 14-day research window): 중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는 6.40% 폭등, 과창50지수는 9.9% 수직 상승하며 상한가에 근접. 양대 시장 거래대금은 2조 519억...",
+    "AI Power/Grid (268 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
     "Equity/Analyst (155 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p....",
     "AI Policy/Export Controls (127 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
   ],
@@ -281,7 +282,7 @@
     },
     {
       "key": "NVDA",
-      "count": 128,
+      "count": 127,
       "text": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p...."
     },
     {
@@ -321,7 +322,7 @@
     },
     {
       "key": "MU",
-      "count": 39,
+      "count": 38,
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
@@ -342,7 +343,7 @@
       "topics": [
         "macro"
       ],
-      "count": 352,
+      "count": 354,
       "focus": "중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는 6.40% 폭등, 과창50지수는 9.9% 수직 상승하며 상한가에 근접. 양대 시장 거래대금은 2조 519억..."
     },
     {
@@ -351,7 +352,7 @@
       "topics": [
         "geo"
       ],
-      "count": 447,
+      "count": 449,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격..."
     },
     {
@@ -378,7 +379,7 @@
       "topics": [
         "optical"
       ],
-      "count": 44,
+      "count": 43,
       "focus": "StoneX, 루멘텀( $LITE ), 매수 의견으로 커버리지 개시 , 목표주가 $1,200 NPO 수요 가속화 * 루멘텀의 NPO 사업 모멘텀이 강화되면서 2028 회계연도 투자 전망이 앞당겨지고 있음. *..."
     },
     {
@@ -387,7 +388,7 @@
       "topics": [
         "power"
       ],
-      "count": 267,
+      "count": 268,
       "focus": "Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을..."
     },
     {
@@ -405,7 +406,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 123,
+      "count": 122,
       "focus": "Ferrari 2026년 3분기 실적 요약 실적 • 매출 €18.96억, YoY +7%, 환율 제외 +10% • 영업이익 €5.63억, YoY +12%, 환율 제외 +23% • 영업이익률 29.7%, YoY..."
     },
     {
@@ -432,7 +433,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 464,
+      "count": 466,
       "focus": "알파벳(GOOGL) 2026년 3분기 실적 (시간외 -7.7%) 주당순이익(EPS): 2.12달러 매출: 1,276억 달러 (예상 1,282.2억 달러 하회), 전년 대비 25% 증가 구글 클라우드 매출:..."
     },
     {
@@ -441,7 +442,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 101,
+      "count": 100,
       "focus": ">>미중 상호 기술 수출통제 강화, 글로벌 기술 질서 재편 가속화 (대만공상시보) •중국 상무부와 과기부는 10월 AI·바이오·태양광 등 40개 기술을 수출통제 목록에 추가하는 개정안 발표. 이중 14개는..."
     },
     {
@@ -450,7 +451,7 @@
       "topics": [
         "japan"
       ],
-      "count": 93,
+      "count": 92,
       "focus": "JPM) 일본 퀀트 전략; 바닥은 닛케이평균 62,000선이나 핵심 분기점은 60,980 – 사이버 관련 헤드라인과 AI 피로감이 선별적 퀄리티 그로스에 다시 불을 지피다 내용 요약 10월 22일 닛케이평균은..."
     },
     {
@@ -477,7 +478,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 852,
+      "count": 853,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Falcon Guardian에 AI 에이전트의 실행을 중단하고 재시작 및 기업 네트워크 접근을..."
     }
   ],
@@ -1773,6 +1774,81 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "insidertracking/68337",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68337",
+      "datetime": "2026-11-04T11:47:31.000Z",
+      "localDateKst": "2026-11-04",
+      "tags": [
+        "earnings"
+      ],
+      "lead": 1,
+      "score": 69,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "CVS"
+      ],
+      "summary": "CVS Health 2026년 3분기 실적 요약 실적 • 매출 $1,084억, YoY +5.4%, 예상 $1,046.9억 상회 • 조정 EPS $2.09, YoY +31%, 예상 $1.65 상회 • 조정..."
+    },
+    {
+      "id": "insidertracking/68336",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68336",
+      "datetime": "2026-11-04T11:46:40.000Z",
+      "localDateKst": "2026-11-04",
+      "tags": [
+        "power"
+      ],
+      "score": 52,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "INTC"
+      ],
+      "summary": "인텔이 코어 울트라 200 시리즈 모바일 프로세서 9종에 대한 일반 상용 주문 접수를 2027년 5월부터 중단하고, 같은 해 11월 최종 출하를 진행할 예정. 다만 해당 프로세서의 생산이 완전히 중단되는 것은..."
+    },
+    {
+      "id": "HANAchina/71553",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71553",
+      "datetime": "2026-11-04T11:40:12.000Z",
+      "localDateKst": "2026-11-04",
+      "tags": [
+        "macro",
+        "geo"
+      ],
+      "score": 67,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>인도, 공화당 참패로 무역 압박 완화 기대…새로운 위험도 부상 (대만경제일보) •인도 정부 관계자들은 중간선거에서 민주당이 압승하면서 일부 무역 압박이 완화될 것으로 기대하면서도, 양국 관계의 불확실성이..."
+    },
+    {
+      "id": "HANAchina/71552",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71552",
+      "datetime": "2026-11-04T11:37:41.000Z",
+      "localDateKst": "2026-11-04",
+      "tags": [
+        "macro",
+        "geo"
+      ],
+      "score": 62,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>트럼프가 유권자들에게 참패한 이유는? 공화당 전략가의 한마디가 원인 지적 (대만경제일보) •유권자들은 이번 중간선거를 트럼프 2기 정책에 대한 국민투표로 받아들였으며, 민주당의 압승과 의회 장악으로..."
+    },
     {
       "id": "HANAchina/71544",
       "channel": "HANAchina",
@@ -7046,40 +7122,6 @@
       ]
     },
     {
-      "id": "insidertracking/67879",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67879",
-      "datetime": "2026-10-30T08:01:44.000Z",
-      "localDateKst": "2026-10-30",
-      "tags": [
-        "semi"
-      ],
-      "score": 56,
-      "hasText": true,
-      "summary": "프리마켓 개장 아마존 -7.3% 하락 인텔 -24% 하락 아마존, 인텔 영향으로 반도체 섹터 영향 발생.",
-      "tickers": [
-        "AMZN"
-      ]
-    },
-    {
-      "id": "insidertracking/67875",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67875",
-      "datetime": "2026-10-30T07:42:52.000Z",
-      "localDateKst": "2026-10-30",
-      "tags": [
-        "semi"
-      ],
-      "score": 73,
-      "hasText": true,
-      "summary": "애플의 저장용량 가격 전략에 반격 나선 메모리 반도체 업체들 애플이 아이폰 저장용량 업그레이드를 통해 막대한 이익을 확보해 온 가운데, 메모리 반도체 공급업체들이 가격 협상력을 강화하며 반격에 나섰음. 애플은...",
-      "lead": 1,
-      "tickers": [
-        "005930.KS",
-        "000660.KS"
-      ]
-    },
-    {
       "id": "bornlupin/20898",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20898",
@@ -7388,39 +7430,6 @@
         "GOOG",
         "GOOGL"
       ]
-    },
-    {
-      "id": "HANAchina/71219",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71219",
-      "datetime": "2026-10-29T08:11:49.000Z",
-      "localDateKst": "2026-10-29",
-      "tags": [
-        "earnings"
-      ],
-      "score": 89,
-      "hasText": true,
-      "summary": "중화권 마감 시황 (26.10.29, 목) 🇨🇳 중국 본토 증시는 알파벳의 3분기 실적 부진으로 글로벌 AI 인프라 투자 회의론이 재부각되면서 기술주를 중심으로 급락세를 연출, 창업판지수와 과창50지수는...",
-      "tickers": [
-        "GOOG",
-        "MU",
-        "TSM"
-      ]
-    },
-    {
-      "id": "HANAchina/71211",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71211",
-      "datetime": "2026-10-29T06:36:21.000Z",
-      "localDateKst": "2026-10-29",
-      "tags": [
-        "semi"
-      ],
-      "score": 64,
-      "hasText": true,
-      "summary": ">>AI 반도체 수요 폭발, 원화 분기 절상률 1998년 이후 최고 (중국언론) •반도체 열풍에 힘입어 대규모 달러 자금이 유입되면서 원화 가치가 3분기에 13% 상승. 한국은행의 비둘기파 성향 위원인...",
-      "lead": 1,
-      "tickers": []
     },
     {
       "id": "bornlupin/20886",
@@ -10622,7 +10631,7 @@
   "signalsNote": "Numbers the channels reported (analyst target-price and rating actions, quarters against estimates, economic releases against forecasts, retail net-buy lists). Secondary observations for context and screener conditions; never a measurement of this app.",
   "signalCounts": {
     "pt": 51,
-    "earnings": 52,
+    "earnings": 53,
     "macro": 2,
     "retail": 8,
     "deal": 2
@@ -11425,6 +11434,18 @@
       "guidance": null,
       "date": "2026-11-04",
       "post": "bornlupin/20985"
+    },
+    {
+      "kind": "earnings",
+      "key": "earnings|CVS|2026-11-04",
+      "ticker": "CVS",
+      "name": "CVS Health",
+      "quarter": "2026Q3",
+      "revenue": "beat",
+      "eps": "beat",
+      "guidance": "raise",
+      "date": "2026-11-04",
+      "post": "insidertracking/68337"
     },
     {
       "kind": "earnings",
