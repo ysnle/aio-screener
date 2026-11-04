@@ -7748,10 +7748,6 @@ function refreshHomeDashboard() {
   if (typeof computeTradingScore === 'function') {
     try { window._tradingScore = computeTradingScore().total; } catch(_) {}
   }
-  // P553/R244: "오늘 결론" 헤더(_aioRenderPageDecisionHeader)와 이 게이지가 서로 다른 이벤트
-  // (aio:liveQuotes vs aio:marketStateUpdated)에서 독립 갱신되어 같은 화면에 다른 점수가
-  // 동시에 보이던 문제 — 게이지가 갱신되는 시점에 헤더도 항상 함께 강제 재렌더해 절대 어긋나지 않게 한다.
-  try { if (typeof window._aioRenderPageDecisionHeader === 'function') window._aioRenderPageDecisionHeader('home'); } catch(_) {}
   // v57.50 I16 / v57.77: the retired home trading grid and the S&P 500 distance-from-high risk badge
   // left index.html, and v57.77 deleted their writers. The remaining home sinks are
   // the VIX card (v57.76: the heatmap and the home news list are retired; v59.51 (content audit): the action items and

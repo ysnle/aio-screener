@@ -853,7 +853,6 @@ body { background: var(--bg-base); }
 
 /* v48.62: 페이지 결론 바 — 결론·액션·업데이트 3열 */
 .page-conclusion-bar { display:flex; align-items:stretch; gap:0; background:rgba(var(--ink-rgb),0.03); border:0.5px solid var(--border); border-radius:4px; margin-bottom:12px; overflow:hidden; }
-.has-aio-decision-header .page-conclusion-bar { display:none !important; }
 .pcb-conclusion { flex:2; padding:8px 12px; border-right:0.5px solid var(--border); min-width:0; }
 .pcb-action     { flex:1; padding:8px 12px; border-right:0.5px solid var(--border); min-width:0; }
 .pcb-updated    { width:110px; min-width:80px; padding:8px 12px; }
@@ -2650,24 +2649,9 @@ body.dark-theme .nav-item.active { background: var(--gold-a3) !important; color:
   #aio-boot-loader { animation: none; }
 }
 
-/* v50.73: page-first decision contract + premium imported research board */
-.aio-decision-header {
-  margin: 0 0 12px 0;
-  padding: 14px 16px;
-  border: 0.5px solid rgba(var(--ink-rgb), 0.28);
-  border-radius: 12px;
-  background: linear-gradient(135deg, rgba(var(--ink-rgb), 0.09), var(--black-a11));
-  box-shadow:none;
-}
-.aio-decision-header[data-source-kind="SNAPSHOT"],
-.aio-decision-header[data-source-kind="REFERENCE"] { border-color: rgba(var(--ink-rgb), 0.30); }
-.aio-decision-header[data-source-kind="UNAVAILABLE"] { border-color: var(--gold-7); }
+/* v50.73 source badges; the v59.70 (D2) delete removed the dev-only decision header styles */
 .aio-audit-widget { display:none !important; }
 body.aio-dev-mode .aio-audit-widget { display:block !important; }
-.aio-decision-top { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:10px; }
-.aio-decision-kicker { font-size:12px; font-weight:800; color:var(--accent); letter-spacing:0; text-transform:none; }
-.aio-decision-verdict { margin-top:4px; font-size:18px; font-weight:700; color:var(--text-primary); line-height:1.25; letter-spacing:var(--ls-tight); }
-.aio-decision-meta { display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:6px; min-width:220px; }
 .aio-source-badge, .aio-confidence-badge {
   display:inline-flex; align-items:center; gap:4px;
   padding:3px 8px; border-radius:999px; font-size:12px; font-weight:800;
@@ -2677,7 +2661,6 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
 .aio-source-delayed { color:var(--data-cyan); background:rgba(var(--ink-rgb),0.08); border-color:rgba(var(--ink-rgb),0.28); }
 .aio-source-snapshot, .aio-source-reference { color:var(--data-amber); background:rgba(var(--ink-rgb),0.10); border-color:rgba(var(--ink-rgb),0.30); }
 .aio-source-unavailable { color:var(--data-red); background:var(--gold-4); border-color:var(--gold-7); }
-.aio-decision-foot { margin-top:10px; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; font-size:12px; color:var(--text-muted); }
 .aio-ai-context-btn {
   padding:5px 9px; border-radius:4px;
   border:0.5px solid rgba(var(--ink-rgb),0.35); background:rgba(var(--ink-rgb),0.08);
@@ -2830,25 +2813,6 @@ body {
   color: var(--text-primary) !important;
   letter-spacing: 0 !important;
 }
-.aio-decision-header {
-  border-radius: 8px !important;
-  border: 0.5px solid rgba(var(--ink-rgb),0.22) !important;
-  background: var(--bg-card) !important;
-  box-shadow:none !important;
-}
-.aio-decision-header[data-source-kind="SNAPSHOT"],
-.aio-decision-header[data-source-kind="REFERENCE"] {
-  border-color: rgba(var(--ink-rgb),0.32) !important;
-  background: var(--bg-card) !important;
-}
-.aio-decision-kicker {
-  color: var(--text-secondary) !important;
-  letter-spacing: 0 !important;
-}
-.aio-decision-verdict {
-  font-size: 18px !important;
-  letter-spacing: 0 !important;
-}
 .aio-source-badge,
 .aio-confidence-badge,
 .status-pill,
@@ -2976,10 +2940,6 @@ body.aio-dev-mode .aio-public-readiness { display:grid !important; }
 .aio-public-page-source.is-delayed em { color: var(--data-green); }
 .aio-public-page-source.is-reference em,
 .aio-public-page-source.is-unavailable em { color: var(--data-amber); }
-#kr-integrated-technical .aio-decision-header {
-  margin-top: 0 !important;
-  border-color: rgba(var(--ink-rgb),0.34) !important;
-}
 /* v50.85: page body redesign — decision -> action -> data -> AI, with dense legacy controls folded */
 .aio-action-hub {
   margin:0 0 14px;
@@ -3069,11 +3029,9 @@ body:not(.aio-dev-mode) #page-signal > details:not(.page-sources), /* v59.51 (ru
    ② 공개 경로로 이전: 경기 사이클(리드 판정·재배치 계약)·섹터 퍼포먼스(네이티브 렌더러 계약).
    ③ 개발자 번들로 이전: 세분화 테마 45·한국 28테마 통합 — v52.87 P702 고급 토글 경로 유지(계약 DOM 보존).
    공개 문구는 공개 노출 범위만 약속한다. 구형 일괄 숨김 규칙 자체도 제거했다. */
-body:not(.aio-dev-mode) .page > .aio-decision-header { display:none !important; }
 body:not(.aio-dev-mode) .aio-operator-control,
 body:not(.aio-dev-mode) .page [id^="tg-feed-"]:not(#tg-feed-market-news) { display:none !important; }
-body:not(.aio-dev-mode) #page-home > details.aio-card,
-body:not(.aio-dev-mode) .page.has-aio-decision-header { padding-top:0 !important; }
+body:not(.aio-dev-mode) #page-home > details.aio-card { padding-top:0 !important; }
 
 /* v53.69/P875: the completed 24-hour Telegram lane is a user-facing evidence
    surface, not an operator duplicate.  Keep the public feed compact while

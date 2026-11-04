@@ -266,7 +266,7 @@ export function installServerDataLoader(window = globalThis) {
       _aioServerHyReady = !!(window._serverDataMeta && window._serverDataMeta.hyOAS);
       setTimeout(function() {
         try {
-          if (typeof window._aioRenderAllPageDecisionHeaders === 'function') window._aioRenderAllPageDecisionHeaders();
+          if (typeof window._aioRefreshAllPageSurfaces === 'function') window._aioRefreshAllPageSurfaces();
           window.dispatchEvent(new CustomEvent('aio:sharedMarketCut', { detail: window._serverDataMeta }));
         } catch (_) {}
       }, 0);

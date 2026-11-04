@@ -6600,24 +6600,19 @@
       var modelOk837 = models837.length === pages837.length && models837.every(function(m) {
         return m && m.decision && Array.isArray(m.reasons) && m.reasons.length === 3 && m.action && m.confidence && m.asOf && validKinds837[m.sourceKind];
       });
-      if (typeof window._aioRenderPageDecisionHeader === 'function') window._aioRenderPageDecisionHeader('screener');
-      var screenerHeader837 = document.querySelector('#page-screener .aio-decision-header');
-      var aiBtn837 = screenerHeader837 && screenerHeader837.querySelector('[data-action="_aioAskAiFromPageDecision"][data-arg="screener"]');
       var fomcSnapshot837 = window.DATA_SNAPSHOT && /6\/17/.test(String(window.DATA_SNAPSHOT.fomc || '')) &&
         /^2026-07-28~29$/.test(String(window.DATA_SNAPSHOT.fomcNext || '')) &&
         !/6\/16-17/.test(String(window.DATA_SNAPSHOT.fomcDotPlot || ''));
       var cp2Text837 = document.getElementById('cp2-detail') ? document.getElementById('cp2-detail').textContent : '';
       var domFresh837 = /6\/17|결과/.test(cp2Text837) && !/다음 FOMC|6\/16-17/.test(cp2Text837);
-      t837ok = !!(window.AIO_SOURCE_KIND && modelOk837 && aiBtn837 && fomcSnapshot837 && domFresh837);
-      t837detail = JSON.stringify({ modelOk:modelOk837, aiBtn:!!aiBtn837, fomcSnapshot:fomcSnapshot837, domFresh:domFresh837 });
+      t837ok = !!(window.AIO_SOURCE_KIND && modelOk837 && fomcSnapshot837 && domFresh837);
+      t837detail = JSON.stringify({ modelOk:modelOk837, fomcSnapshot:fomcSnapshot837, domFresh:domFresh837 });
     } catch(e) { t837detail = 'ERR:' + e.message; }
     _assert('T837 event_context_is_not_embedded_as_current', window.AIO_EVENT_RISK_CONTEXT && window.AIO_EVENT_RISK_CONTEXT.available === false && Object.keys(window.AIO_EVENT_FRESHNESS_REGISTRY).every(function(k) { var r = window.AIO_EVENT_FRESHNESS_REGISTRY[k] || {}; return !!r.eventDate && Number.isFinite(Number(r.maxClaimAgeDays)); }), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     // T838: v50.71 residual deep-audit fixes — guide header + screener/ticker AI contexts stay wired.
     var t838ok = false, t838detail = '';
     try {
-      if (typeof window._aioRenderPageDecisionHeader === 'function') window._aioRenderPageDecisionHeader('guide');
-      var guideHeader838 = document.querySelector('#page-guide .aio-decision-header');
       var ctx838 = window.CHAT_CONTEXTS || {};
       var screenerText838 = ctx838.screener && typeof ctx838.screener.system === 'function' ? ctx838.screener.system() : '';
       // P626-followup: ctx.ticker.system()'s opening line was rewritten at some point from
@@ -6633,12 +6628,11 @@
       var screenerMatch838 = /스크리너 후보|단일 종목/.test(screenerText838);
       var tickerMatch838 = /종목 심층 분석 전문가|현재 종목/.test(tickerText838);
       var cp2Clean838 = !/6\/16-17|다음 FOMC/.test(cp2Text838);
-      t838ok = !!(guideHeader838 &&
-        ctx838.screener && ctx838.ticker &&
+      t838ok = !!(ctx838.screener && ctx838.ticker &&
         screenerMatch838 &&
         tickerMatch838 &&
         cp2Clean838);
-      t838detail = JSON.stringify({ guideHeader:!!guideHeader838, screenerCtx:!!ctx838.screener, tickerCtx:!!ctx838.ticker, screenerMatch:screenerMatch838, tickerMatch:tickerMatch838, cp2Clean:cp2Clean838, cp2:cp2Text838 });
+      t838detail = JSON.stringify({ screenerCtx:!!ctx838.screener, tickerCtx:!!ctx838.ticker, screenerMatch:screenerMatch838, tickerMatch:tickerMatch838, cp2Clean:cp2Clean838, cp2:cp2Text838 });
     } catch(e) { t838detail = 'ERR:' + e.message; }
     _assert('T838 page_contexts_are_evidence_first_without_stale_event_copy', ['home','screener','ticker'].every(function(k){ return window.CHAT_CONTEXTS[k] && /현재 검증된 런타임 관측치/.test(window.CHAT_CONTEXTS[k].system()); }), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
@@ -6675,18 +6669,9 @@
       var reg841 = (window.AIO_EVENT_FRESHNESS_REGISTRY || {}).fomc || {};
       var fomcReasonDynamic841 = homeDecision841 && reg841.result &&
         homeDecision841.reasons.some(function(r) { return r && r.indexOf(reg841.result.slice(0, 20)) >= 0; });
-      // FOMC footer가 비관련 페이지(portfolio)에는 없어야 함
-      if (typeof window._aioRenderPageDecisionHeader === 'function') window._aioRenderPageDecisionHeader('portfolio');
-      var portHeader841 = document.querySelector('#page-portfolio .aio-decision-header[data-aio-decision-page="portfolio"]');
-      var noFomcFooter841 = !portHeader841 || !(/6\/17|FOMC/.test((portHeader841.querySelector('.aio-decision-foot') || {}).textContent || ''));
-      // FOMC footer가 관련 페이지(macro)에는 있어야 함
-      if (typeof window._aioRenderPageDecisionHeader === 'function') window._aioRenderPageDecisionHeader('macro');
-      var macroFooter841 = document.querySelector('#page-macro .aio-decision-header .aio-decision-foot');
-      var fomcFooterOnMacro841 = !macroFooter841 || macroFooter841.textContent.length > 5;
-      // _aioRenderAllPageDecisionHeaders가 AIO_ALL_ROUTE_PAGE_IDS를 참조
       var routeIds841 = window.AIO_ALL_ROUTE_PAGE_IDS && window.AIO_ALL_ROUTE_PAGE_IDS.length > 0;
-      t841ok = !!(descriptiveDecision841 && noPrescriptiveAction841 && scoreInDecision841 && validationBlocked841 && fomcReasonDynamic841 && noFomcFooter841 && routeIds841);
-      t841detail = JSON.stringify({ descriptive:descriptiveDecision841, noPrescriptive:noPrescriptiveAction841, score:scoreInDecision841, validationBlocked:validationBlocked841, fomcDynamic:fomcReasonDynamic841, noFomcPortfolio:noFomcFooter841, fomcMacro:fomcFooterOnMacro841, routeIds:routeIds841 });
+      t841ok = !!(descriptiveDecision841 && noPrescriptiveAction841 && scoreInDecision841 && validationBlocked841 && fomcReasonDynamic841 && routeIds841);
+      t841detail = JSON.stringify({ descriptive:descriptiveDecision841, noPrescriptive:noPrescriptiveAction841, score:scoreInDecision841, validationBlocked:validationBlocked841, fomcDynamic:fomcReasonDynamic841, routeIds:routeIds841 });
     } catch(e) { t841detail = 'ERR:' + e.message; }
     _assert('T841 decision_header_works_without_static_event_registry', typeof window._aioBuildPageDecision === 'function' && Object.keys(window.AIO_EVENT_FRESHNESS_REGISTRY).every(function(k) { var r = window.AIO_EVENT_FRESHNESS_REGISTRY[k] || {}; return !!r.eventDate && Number.isFinite(Number(r.maxClaimAgeDays)); }), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
@@ -6709,7 +6694,6 @@
       var audit842 = window.AIO && typeof window.AIO.getUserResearchPipelineAudit === 'function' ? window.AIO.getUserResearchPipelineAudit() : null;
       var ctx842 = typeof window._getImportedResearchContext === 'function' ? window._getImportedResearchContext('screener') : '';
       var noFakeUi842 = !document.querySelector('.aio-premium-board') && !document.querySelector('.aio-research-bridge');
-      if (typeof window._aioRenderPageDecisionHeader === 'function') window._aioRenderPageDecisionHeader('screener');
       var report842 = typeof window._aioCreateVisualReport === 'function' && window._aioCreateVisualReport('screener');
       var canvas842 = document.querySelector('.aio-visual-report[data-report-page="screener"] canvas');
       t842ok = !!(applied842 && audit842 && audit842.sourceKind === 'REFERENCE' && audit842.canPromoteToLive === false &&
@@ -6859,9 +6843,6 @@
       if (readiness && getComputedStyle(readiness).display !== 'none') failures869.push('public-readiness-visible');
       var pulse = document.getElementById('market-pulse-bar');
       if (pulse && getComputedStyle(pulse).display !== 'none') failures869.push('market-pulse-visible');
-      Array.prototype.forEach.call(document.querySelectorAll('.page > .aio-decision-header'), function(el) {
-        if (getComputedStyle(el).display !== 'none') failures869.push('decision-header-visible');
-      });
       var homeDetails = document.querySelectorAll('#page-home > details.aio-card');
       Array.prototype.forEach.call(homeDetails, function(el) {
         if (getComputedStyle(el).display !== 'none') failures869.push('home-details-visible');
@@ -7010,19 +6991,8 @@
       }
     } catch (e871) { _assert('T871 briefing_date_no_future_label_v5240 (EF-04)', false, 'threw: ' + (e871 && e871.message)); }
 
-    // T872 (EF-13): FOMC 이벤트 footnote가 홈 등 소비 페이지에서 asOf 날짜를 병기하는지 (기존엔 macro 캘린더 표만 날짜 표시)
-    try {
-      if (typeof window._aioRenderPageDecisionHeader === 'function' && document.getElementById('page-home')) {
-        window._aioRenderPageDecisionHeader('home');
-        var footEl872 = document.querySelector('#page-home .aio-decision-header[data-aio-decision-page="home"] .aio-decision-foot');
-        var footTxt872 = footEl872 ? footEl872.textContent : '';
-        var fomcReg872 = (window.AIO_EVENT_FRESHNESS_REGISTRY || {}).fomc || {};
-        var hasDate872 = !!fomcReg872.eventDate && footTxt872.indexOf(fomcReg872.eventDate) !== -1;
+    // T872 (EF-13): v59.70 the decision header footer is deleted (D2); the registry contract stays.
     _assert('T872 decision_footer_does_not_expose_embedded_event_date', Object.keys(window.AIO_EVENT_FRESHNESS_REGISTRY).every(function(k) { var r = window.AIO_EVENT_FRESHNESS_REGISTRY[k] || {}; return !!r.eventDate && Number.isFinite(Number(r.maxClaimAgeDays)); }), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
-      } else {
-        _assert('T872 fomc_footnote_asof_exposed_v5240 (EF-13)', false, '_aioRenderPageDecisionHeader or #page-home missing');
-      }
-    } catch (e872) { _assert('T872 fomc_footnote_asof_exposed_v5240 (EF-13)', false, 'threw: ' + (e872 && e872.message)); }
 
     // T873 (EF-02): breadth 표면 3곳(홈 스트립·헤더배지/종합신호·신고저 카드)이 canonical 소스/정직한 상태를 쓰는지
     try {
@@ -7466,8 +7436,8 @@
       JSON.stringify({ status: inventory91 && inventory91.status, total: inventory91 && inventory91.total, incomplete: inventory91 && inventory91.incomplete, orphanSinks: inventory91 && inventory91.orphanSinks, fieldCount: inventory91 && inventory91.fieldCount, sample: sample91 }));
 
     var hierarchy91 = window.AIO && window.AIO.getCritical10ContentHierarchyAudit ? window.AIO.getCritical10ContentHierarchyAudit({ pages:['home'] }) : null;
-    _assert('T915 critical10_first_view_hierarchy_contract (H3-H): conclusion/evidence/action precede detail and developer surfaces stay hidden',
-      !!hierarchy91 && hierarchy91.status !== 'fail' && hierarchy91.pages && hierarchy91.pages[0] && hierarchy91.pages[0].decisionHeader && hierarchy91.pages[0].conclusion && hierarchy91.pages[0].evidenceAndStatus && hierarchy91.pages[0].actionAffordance && hierarchy91.pages[0].developerSurfaceVisible === 0,
+    _assert('T915 critical10_first_view_hierarchy_contract (H3-H): each page has a first visible block and developer surfaces stay hidden (v59.70 decision header deleted)',
+      !!hierarchy91 && hierarchy91.status !== 'fail' && hierarchy91.pages && hierarchy91.pages[0] && hierarchy91.pages[0].pageExists && hierarchy91.pages[0].firstVisibleSelector && hierarchy91.pages[0].developerSurfaceVisible === 0,
       JSON.stringify(hierarchy91));
 
     var a11y91 = window.AIO && window.AIO.getCritical10AccessibilityAudit ? window.AIO.getCritical10AccessibilityAudit({ pages:['home'] }) : null;

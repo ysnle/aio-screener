@@ -86,7 +86,7 @@ const compatRoot = { addEventListener() {} /* v59.22: the proxy registry listens
 (await import('../src/app/compatibility-globals.js')).installCompatibilityGlobals(compatRoot);
 (await import('../src/app/chat-globals.js')).installChatGlobals(compatRoot); // src/app/chat-loader.js installs it with the chat
 const callableRefs = [...new Set([...chat.matchAll(/\b(_aio[A-Za-z0-9_]+)\s*\(/g)].map((m) => m[1]))]
-  .filter((name) => !['_aioSafeMD', '_aioAskAiFromPageDecision'].includes(name));
+  .filter((name) => !['_aioSafeMD'].includes(name));
 for (const name of callableRefs) {
   const existsInRuntime = core.includes(`window.${name}`)
     || runtimeBundle.includes(`window.${name}`)
@@ -185,7 +185,7 @@ check('data pipeline contract gate is wired into CI', qaHas('scripts/ci-data-pip
 check('semantic review gate script exists', exists('scripts/ci-semantic-review-check.mjs'));
 check('workflow compaction gate script exists', exists('scripts/ci-workflow-compaction-check.mjs'));
 check('decision header shows user-facing source label, not raw sourceKind label', /sourceLabelMap/.test(core) && !/sourceKind\s+'\s*\+/.test(core));
-check('legacy conclusion bar is hidden when decision header exists', /has-aio-decision-header\s+\.page-conclusion-bar/.test(html) && /classList\.add\('has-aio-decision-header'\)/.test(core));
+check('v59.70 D2: the dev-only decision header renderer and its CSS stay deleted', !/_aioRenderPageDecisionHeader|aio-decision-header/.test(core) && !/aio-decision-header/.test(html));
 check('audit widget is hidden by default and only shown in dev mode', /\.aio-audit-widget\s*\{\s*display:none\s*!important;?\s*\}/.test(html) && /body\.aio-dev-mode\s+\.aio-audit-widget/.test(html) && /classList\.toggle\('aio-dev-mode'/.test(core));
 check('portfolio blocks unverified ticker before saving', /검증되지 않은 티커라 저장하지 않았습니다/.test(html + workspace) && /if\s*\(!isKnown\)\s*\{[\s\S]*?return;\s*\}[\s\S]*?const positions = getPortfolioData\(\)/.test(html + workspace));
 check('data-action accessibility normalizer is installed', /_aioNormalizeDataActionA11y/.test(core) && /setAttribute\('role', 'button'\)/.test(core) && /setAttribute\('tabindex', '0'\)/.test(core));
@@ -368,7 +368,6 @@ check('chat history is explicit opt-in with redaction and disable-delete semanti
 check('H3-B missing event claims fail closed and cannot drive current decisions', /getEventClaimState/.test(core) && /status: 'MISSING'/.test(core) && /_fomcState\.allowedUse/.test(core) && /T905 missing_event_claim_is_blocked/.test(tests));
 check('H3-C derived decision gate blocks quorum-missing inputs instead of preserving a strong action band', /_scoreBlocked/.test(core) && /decisionBlocked/.test(core) && /핵심 입력 부족/.test(core) && /T906 derived_regime_quorum_gate/.test(tests));
 check('P1755 P1364 market-score verdict/caveat stays on score pages and describes the close-basis model via a path-scoped state read', /_scoreScope = \['home', 'signal', 'sentiment', 'briefing'\]\.indexOf\(pageId\) >= 0/.test(core) && /if \(_scoreBlocked && map\[pageId\] && _scoreScope\)/.test(core) && /if \(_scoreCaveat && _scoreScope\)/.test(core) && /getState\('analysis\.signal\.presentation\.description'\)/.test(core) && /getState\('analysis\.tradingScore'\)/.test(core) && !/AIO_ARCH\.getState\(\)/.test(core) && /판단 보류, 일부 근거 부분 확보/.test(core));
-check('decision header renders page evidence caveat', /aio-decision-caveat/.test(core) && /d\.caveat/.test(core));
 check('high-risk pages are capped below raw LIVE when data is mixed', /technical:\s*\{[\s\S]{0,120}maxSourceKind:\s*'DELAYED'/.test(core) && /'market-news':\s*\{[\s\S]{0,120}maxSourceKind:\s*'DELAYED'/.test(core) && /ticker:\s*\{[\s\S]{0,160}emptyKind:\s*'UNAVAILABLE'/.test(core));
 check('home public readiness audit remains available only in developer mode', /id="aio-public-readiness"/.test(html) && /_aioBuildPublicShareReadiness/.test(data) && /getPublicShareReadiness/.test(data) && /getShareReadinessAudit/.test(core) && /body\.aio-dev-mode \.aio-public-readiness/.test(html) && /classList\.contains\('aio-dev-mode'\)/.test(data));
 check('visible static labels do not overstate live/action state', !/\u25cf\s*LIVE|LIVE RSS|BUY\s*\/\s*LONG|공격적 매매|\(실시간\)|실시간 감지|실시간 수급|FMP 실시간|FINNHUB\s*실시간/.test(visibleHtml));
@@ -721,7 +720,7 @@ check('13 comp routes hide advanced legacy blocks by default and expose them in 
 check('portfolio comp order and CTA-gated entry form are wired', /id="pf-holdings-table-section"/.test(html) && /id="pf-entry-section"/.test(html) && /_aioTogglePortfolioEntry/.test(html));
 check('v57.77 portfolio writerless 리스크 분석 shell and duplicate 자동 진단 widget stay retired', !/id="pf-risk-section"|id="pf-analysis-dashboard"|id="pf-analysis-text"/.test(html)); // text-pin-ok: retirement absence
 check('screener comp default exposes 1M/3M/6M/RSI/vs50MA/trend confidence/VCP fields', /data-scr-sort="ret1m"/.test(html) && /data-scr-sort="ret3m"/.test(html) && /data-scr-sort="ret6m"/.test(html) && /data-scr-sort="pctSma50"/.test(html) && /ret1m/.test(screenerPage) && /ret6m/.test(screenerPage) && /vcpScore/.test(screenerPage));
-check('runtime-injected decision headers stay out of the default surface; the related-news strip is retired (v58.76)', /body:not\(\.aio-dev-mode\) \.page > \.aio-decision-header[\s\S]{0,160}display:none !important/.test(html) && !/aio-page-news-strip/.test(html + core));
+check('the related-news strip is retired (v58.76)', !/aio-page-news-strip/.test(html + core));
 check('home operational details stay collapsed while completed-24h Telegram feeds remain user-visible', /#page-home > details\.aio-card[\s\S]{0,1200}display:none !important/.test(html) && !/body:not\(\.aio-dev-mode\) #tg-feed-signal[\s\S]{0,1600}display:none !important/.test(html) && /body:not\(\.aio-dev-mode\) \.tg-live-feed/.test(html));
 // v58.85: the 한국 거시 badges render from src/ui/components/macro-next-release.js (moved from aio-core.js); v59.51: the header's
 // separate next-release line left — the board header names crossroads.nextEvent (one next-release answer).
@@ -974,8 +973,6 @@ check('empty portfolio hides non-computable panels and exposes one first-positio
 check('briefing and news display titles reject failed or non-Korean cached translations', /!cached\.ko_title \|\| !isKoreanText\(cached\.ko_title\)/.test(data) && !/class="briefing-news-title"/.test(data + core));
 check('headless tests exercise the final human UX state contracts', /_testV5290HumanUXStateContracts/.test(tests) && /T1015/.test(tests) && /T1020/.test(tests));
 // v52.40 (P655): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 1 (EF-01/02/04/13) structural gates
-check('EF-13: FOMC decision-header footnote prefixes the registry eventDate on every consuming page (previously date-less outside macro calendar table)', /_fomcFoot\.eventDate\s*\?\s*_fomcFoot\.eventDate\s*\+/.test(core) && /_fomcAsOfAge/.test(core));
-check('EF-13: FOMC footnote auto-badges past 21 days and collapses past 30 days instead of asserting a dateless "today" frame forever', /_fomcAsOfAge\s*>\s*21/.test(core) && /_fomcTooStale/.test(core));
 check('EF-04: briefing date-line is a named, mockable-`now` renderer instead of an unconditional new Date() write', /window\._aioRenderBriefingDateLine\s*=\s*function\(nowOverride(?:, closeDate)?\)/.test(html) && /_aioRenderBriefingDateLine\?\.\(undefined, closeBasis\(/.test(read('src/ui/pages/news.js')) && /isPreCutoff/.test(html));
 check('EF-02d: breadth 50SMA readout/bar sync is a single shared function called from both the Chart.js-independent snapshot path and updateBreadthBars, not duplicated', !/_aioSyncBreadth50Readout/.test(core + ui + data)); // P1672: readout/bar sinks retired (P1395)
 check('EF-02b: breadth header-badge and diag-signal consume the same canonical consensus object as the signal-page verdict (no independent re-derivation)', !/_aioRenderBreadthConsensus/.test(core)); // P1672: badge sinks retired (P1395)
@@ -1187,7 +1184,7 @@ check('headless tests cover H3-F/G boot-queue and route/lineage runtime contract
 // with executable contracts. The handoff calls this a 12-field inventory but lists
 // 13 required names; the full listed set is intentionally enforced here.
 check('H3-G: element lineage inventory exposes the full listed field set and is attached to the category audit', /getElementLineageInventory/.test(core) && /elementIdOrSelector/.test(core) && /sourceEndpointOrFile/.test(core) && /failureAndFallback/.test(core) && /elementLevel/.test(core));
-check('H3-H: Critical-10 content hierarchy audit requires decision header, evidence/status, action affordance, and hidden developer surfaces', /getCritical10ContentHierarchyAudit/.test(core) && /evidenceAndStatus/.test(core) && /developerSurfaceVisible/.test(core) && /decision-not-first-visible-block/.test(core));
+check('H3-H: Critical-10 content hierarchy audit checks the first visible block and hidden developer surfaces (v59.70: the decision header is deleted)', /getCritical10ContentHierarchyAudit/.test(core) && /first-visible-block-missing/.test(core) && /developerSurfaceVisible/.test(core));
 check('H3-I: Critical-10 accessibility audit covers accessible names, keyboard reachability, positive tabindex, and canvas names', /getCritical10AccessibilityAudit/.test(core) && /nameless-controls/.test(core) && /unfocusable-controls/.test(core) && /positive-tabindex/.test(core) && /unnamed-canvas/.test(core));
 check('headless tests cover H3-G element lineage and H3-H/I surface contracts', /_testV5258HumanSurfaceContracts/.test(tests) && /T914/.test(tests) && /T915/.test(tests) && /T916/.test(tests) && /T917/.test(tests));
 check('H3-F/H3-H v57.60: breadth charts have no legacy fallback renderer (initBreadthPage / _aioBreadthCanvasRender / bpChartInstances retired; market.js owns them)', !/function\s+initBreadthPage|_aioBreadthCanvasRender|bpChartInstances/.test(ui + core + data) && !/Chart\.register/.test(ui) && /T918 breadth_chart_runtime_only_contract/.test(tests));
@@ -1281,7 +1278,7 @@ check('WP-AI4/5: deterministic regression fixtures cover injection, redaction, c
 // v52.80 (WP-AI6/7): automated publish fallback and derived 22-route AI page contracts.
 check('WP-AI6: automated translation/briefing/market-analysis outputs expose structured publish validation and deterministic fallback labels', /validateAIAutomatedPublish/.test(core) && /buildDeterministicEvidenceSummary/.test(core) && /getAIOutputSourceLabel/.test(core) && /publishAudit/.test(chat) && /_aioVerifyServerMarketAnalysis\(d\.marketAnalysis/.test(data) && unverifiedProse.meta.fallback === 'AIO.synthesizeMarketAnalysis');
 check('WP-AI7: the existing AIO_PAGE_CONTRACTS registry projects required/optional/forbidden AI page contracts without a parallel registry', /_aiPageContract/.test(core) && /ai: _aiPageContract/.test(core) && /getPageAIContract/.test(core) && /auditPageAIContracts/.test(core) && /kr-technical/.test(core));
-check('all route contracts and decision headers share one server-authored KST 08:00 market cut', /marketContext:\s*\{/.test(core) && /kst-0800-completed-24h/.test(core) && /getSharedMarketCut/.test(core) && /data-market-cut-start/.test(core) && /independent-page-cycle/.test(core));
+check('all route contracts and decision headers share one server-authored KST 08:00 market cut', /marketContext:\s*\{/.test(core) && /kst-0800-completed-24h/.test(core) && /getSharedMarketCut/.test(core) && /independent-page-cycle/.test(core));
 check('WP-AI6/7: regression fixtures cover structured publish blocking, fallback audit, 22-route coverage, answer modes, and source labels', /_testV5280PublishAndPageContracts/.test(tests) && /T967/.test(tests) && /T968/.test(tests) && /T969/.test(tests) && /T970/.test(tests) && /T971/.test(tests));
 
 // v52.81 (WP-AI8/9/10): SLO/quota operations, golden A/B release gate, and feedback manifest.

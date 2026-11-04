@@ -891,22 +891,18 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     });
     const stopTimelineStore = store.subscribe(() => emitDataTimelineUpdated('store-updated'));
     // P1357: late history/snapshot inputs update the native reference immediately;
-    // re-project shared headers from that same committed analysis revision too.
-    let headerAnalysis = store.getState()?.analysis;
-    let headerProjectionQueued = false;
-    const stopDecisionHeaders = store.subscribe(() => {
+    // re-project the market pulse from that same committed analysis revision too.
+    let pulseAnalysis = store.getState()?.analysis;
+    let pulseProjectionQueued = false;
+    const stopPulseProjection = store.subscribe(() => {
       const analysis = store.getState()?.analysis;
-      if (analysis === headerAnalysis) return;
-      headerAnalysis = analysis;
-      if (headerProjectionQueued) return;
-      headerProjectionQueued = true;
+      if (analysis === pulseAnalysis) return;
+      pulseAnalysis = analysis;
+      if (pulseProjectionQueued) return;
+      pulseProjectionQueued = true;
       queueMicrotask(() => {
-        headerProjectionQueued = false;
-        if (disposed || typeof root._aioRenderPageDecisionHeader !== 'function') return;
-        for (const route of ['home', 'signal', 'briefing']) {
-          if (!documentRef?.getElementById?.(`page-${route}`)) continue;
-          try { root._aioRenderPageDecisionHeader(route); } catch (_) {}
-        }
+        pulseProjectionQueued = false;
+        if (disposed) return;
         try { root.updateMarketPulse?.(); } catch (_) {}
       });
     });
@@ -1083,7 +1079,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopAnalysisSnapshot();
       stopShown();
       stopTimelineStore();
-      stopDecisionHeaders();
+      stopPulseProjection();
       stopHubTabs();
       stopInterpretationStore();
       stopScrollMemory();

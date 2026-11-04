@@ -3374,8 +3374,8 @@ window._aioRenderPageBrief = function(pageId) {
     }
   } catch(_) {}
   window._aioApplyContentSimplification(pageId);
-  if (typeof window._aioRenderPageDecisionHeader === 'function') {
-    window._aioRenderPageDecisionHeader(pageId);
+  if (typeof window._aioRefreshPageSurface === 'function') {
+    window._aioRefreshPageSurface(pageId);
   }
 };
 
@@ -3994,34 +3994,6 @@ window._aioBuildPageDecision = function(pageId) {
   };
 };
 
-window._aioAskAiFromPageDecision = function(pageId) {
-  var d = window._aioBuildPageDecision ? window._aioBuildPageDecision(pageId) : null;
-  var prompt = window.AIO && typeof window.AIO.buildPageDecisionAiPrompt === 'function'
-    ? window.AIO.buildPageDecisionAiPrompt(d)
-    : (d ? (d.title + ': ' + d.decision + '\n근거: ' + d.reasons.join(' / ') + '\n운용 포인트: ' + d.action) : '');
-  var ctxMap = {
-    home:'home', signal:'signal', breadth:'breadth', sentiment:'sentiment', briefing:'briefing',
-    technical:'technical', screener:'screener', ticker:'ticker', portfolio:'portfolio',
-    themes:'themes', 'theme-detail':'theme-detail', macro:'macro', fxbond:'fxbond', fundamental:'fundamental',
-    'market-news':'market-news'
-  };
-  var ctx = ctxMap[pageId] || pageId || 'home';
-  var inp = document.getElementById('ai-panel-inp') || document.getElementById('chat-' + ctx + '-inp');
-  if (inp) {
-    inp.value = prompt;
-    inp.focus();
-  }
-  if (typeof window.openUnifiedAI === 'function') {
-    try { window.openUnifiedAI(ctx); return; } catch(_) {}
-  }
-  if (typeof window.toggleAIPanel === 'function') {
-    try { window.toggleAIPanel(true); return; } catch(_) {}
-  }
-  if (typeof window.chatFromChip === 'function') {
-    try { window.chatFromChip(ctx, prompt); return; } catch(_) {}
-  }
-};
-
 window.AIO_PAGE_ACTION_HUBS = {
   home: {
     title:'시장 Cockpit',
@@ -4203,7 +4175,7 @@ function _aioFoldDensePageControls(pageId) {
   if (firstNode && firstNode.parentNode) {
     firstNode.parentNode.insertBefore(details, firstNode);
   } else {
-    var anchor = page.querySelector('.aio-action-hub') || page.querySelector('.aio-decision-header') || page.firstElementChild;
+    var anchor = page.querySelector('.aio-action-hub') || page.firstElementChild;
     if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(details, anchor.nextSibling);
   }
   nodes.forEach(function(node) {
@@ -5133,8 +5105,8 @@ function _aioSyncPageMarketEpoch(event) {
   });
   var active = document.querySelector('.page.active');
   var activeId = active && String(active.id || '').replace(/^page-/, '');
-  if (activeId && typeof (window._aioRenderPageDecisionHeader) === 'function') {
-    try { window._aioRenderPageDecisionHeader(activeId); } catch(_) {}
+  if (activeId && typeof (window._aioRefreshPageSurface) === 'function') {
+    try { window._aioRefreshPageSurface(activeId); } catch(_) {}
   }
   try { document.dispatchEvent(new CustomEvent('aio:marketEpochUpdated', { detail:{ reason:event && event.type || 'sync', audit:window.AIO.getPageMarketEpochAudit() } })); } catch(_) {}
 }
@@ -5151,84 +5123,16 @@ try {
   });
 } catch(_) {}
 
-window._aioRenderPageDecisionHeader = function(pageId) {
+// v59.70 (D2): the dev-only decision header is deleted. Page show/refresh still stamps the market epoch and
+// re-applies the action hub and dense-control fold, which the header renderer used to run as side effects.
+window._aioRefreshPageSurface = function(pageId) {
   var page = document.getElementById('page-' + pageId);
   if (!page) return null;
-  var d = window._aioBuildPageDecision(pageId);
-  if (!d) return null;
-  var old = page.querySelector('.aio-decision-header[data-aio-decision-page="' + pageId + '"]');
-  if (old) old.remove();
-  var cls = 'aio-source-' + String(d.sourceKind || 'SNAPSHOT').toLowerCase();
-  // FOMC 안내는 관련 페이지에만 표시, 텍스트는 레지스트리에서 읽음
-  var _fomcFooterPages = { home:1, macro:1, fxbond:1, signal:1, briefing:1 };
-  var _fomcFoot = (window.AIO_EVENT_FRESHNESS_REGISTRY || {}).fomc || {};
-  // v52.40 (P655/EF-13): 이 서브텍스트는 홈/시그널/브리핑 등 6개 페이지에서 asOf 없이 노출돼
-  // "데이터: 실시간" 칩 옆에서 오늘 판단처럼 읽혔다 — macro 페이지의 캘린더 표만 날짜를 달고 있었음.
-  // 모든 소비 페이지에 asOf 병기 + 21일 초과 시 경과 배지 + 30일 초과 시 자체 숨김(캐비어트로 폴백)을 통일 적용.
-  var _fomcAsOfAge = null;
-  if (_fomcFoot.eventDate) {
-    var _fomcAgeMs = Date.now() - new Date(_fomcFoot.eventDate + 'T00:00:00+09:00').getTime();
-    if (isFinite(_fomcAgeMs)) _fomcAsOfAge = Math.floor(_fomcAgeMs / 86400000);
-  }
-  var _fomcTooStale = (_fomcAsOfAge != null && _fomcAsOfAge > 30);
-  var _fomcFootNote = (_fomcFooterPages[pageId] && _fomcFoot.result && !_fomcTooStale)
-    ? (_fomcFoot.eventDate ? _fomcFoot.eventDate + ': ' : '') + _aioTruncateAtWord(_fomcFoot.result, 70) +
-      ((_fomcAsOfAge != null && _fomcAsOfAge > 21) ? ' (오래된 컨텍스트, ' + _fomcAsOfAge + '일 경과)' : '')
-    : '';
-  var sourceLabelMap = {
-    LIVE: '데이터: 실시간',
-    DELAYED: '데이터: 지연',
-    SNAPSHOT: '데이터: 스냅샷',
-    REFERENCE: '데이터: 참고',
-    UNAVAILABLE: '데이터: 미수신'
-  };
-  var sourceKind = String(d.sourceKind || 'SNAPSHOT').toUpperCase();
-  var sourceLabel = sourceLabelMap[sourceKind] || '데이터: 확인 필요';
-  if (sourceKind === 'UNAVAILABLE' && d.evidence) {
-    var _evAsOf = String(d.evidence.asOf || '');
-    if (Number(d.evidence.snapshotDom || 0) > 0 || /^20\d\d-/.test(_evAsOf)) sourceLabel = '데이터: 기준 미확인';
-  }
-  var sharedCut = window.AIO && typeof window.AIO.getSharedMarketCut === 'function'
-    ? window.AIO.getSharedMarketCut()
-    : null;
-  var marketEpoch = window.AIO && typeof window.AIO.getPageMarketEpochState === 'function'
-    ? window.AIO.getPageMarketEpochState(pageId)
-    : null;
-  var sharedCutHtml = sharedCut && sharedCut.end
-    ? '<span class="aio-confidence-badge" data-market-cut-status="' + _aioDecisionEsc(sharedCut.status || 'unknown') + '" title="' + _aioDecisionEsc(sharedCut.label || '') + '">' + (sharedCut.usable ? '기준 시각 ' : '기준 시각 지연, ') + _aioDecisionEsc(sharedCut.endLabel) + '</span>'
-    : '<span class="aio-confidence-badge" title="서버 24시간 컷 메타데이터 대기">기준 시각 대기</span>';
-  if (sharedCutHtml && sharedCut && sharedCut.end) {
-    sharedCutHtml = sharedCutHtml.replace(
-      'data-market-cut-status="' + _aioDecisionEsc(sharedCut.status || 'unknown') + '"',
-      'data-market-cut-status="' + _aioDecisionEsc(sharedCut.status || 'unknown') + '" data-market-cut-start="' + _aioDecisionEsc(sharedCut.start || '') + '" data-market-cut-end="' + _aioDecisionEsc(sharedCut.end || '') + '"'
-    );
-  }
-  var marketEpochLabel = !marketEpoch ? '시점 확인 중'
-    : marketEpoch.status === 'CURRENT' ? '시점 일치'
-      : marketEpoch.status === 'PARTIAL' ? '시점 부분 일치'
-        : marketEpoch.status === 'REFERENCE' ? '참고 페이지'
-          : '시점 불일치';
-  var marketEpochHtml = '<span class="aio-confidence-badge" data-market-epoch-status="' + _aioDecisionEsc(marketEpoch && marketEpoch.status || 'BLOCKED') + '" title="' + _aioDecisionEsc(marketEpoch && marketEpoch.blockers && marketEpoch.blockers.join(', ') || marketEpochLabel) + '">' + _aioDecisionEsc(marketEpochLabel) + '</span>';
-  var caveatHtml = d.caveat ? '<span class="aio-decision-caveat">' + _aioDecisionEsc(d.caveat) + '</span>' : '';
-  var html = ''
-    + '  <section class="aio-decision-header" data-aio-decision-page="' + _aioDecisionEsc(pageId) + '" data-source-kind="' + _aioDecisionEsc(sourceKind) + '" data-as-of="' + _aioDecisionEsc(d.asOf || '') + '" data-market-revision="' + _aioDecisionEsc(marketEpoch && marketEpoch.revision || '') + '" data-market-cut-end="' + _aioDecisionEsc(marketEpoch && marketEpoch.cutEnd || '') + '" data-field-timeline-status="' + _aioDecisionEsc(marketEpoch && marketEpoch.fieldTimeline && marketEpoch.fieldTimeline.status || 'REFERENCE') + '" data-field-observation-start="' + _aioDecisionEsc(marketEpoch && marketEpoch.fieldTimeline && marketEpoch.fieldTimeline.observationStart || '') + '" data-field-observation-end="' + _aioDecisionEsc(marketEpoch && marketEpoch.fieldTimeline && marketEpoch.fieldTimeline.observationEnd || '') + '">'
-    + '  <div class="aio-decision-top">'
-    + '    <div><div class="aio-decision-kicker">' + _aioDecisionEsc(d.title) + '</div><div class="aio-decision-verdict">' + _aioDecisionEsc(d.decision) + '</div></div>'
-    + '    <div class="aio-decision-meta"><span class="aio-source-badge ' + cls + '" title="sourceKind: ' + _aioDecisionEsc(sourceKind) + '">' + _aioDecisionEsc(sourceLabel) + '</span>' + (d.referenceSummary ? '<span class="aio-confidence-badge" data-reference-close-basis="true">' + _aioDecisionEsc(d.asOf) + '</span>' : '') + sharedCutHtml + marketEpochHtml + '<span class="aio-confidence-badge">근거 상태 ' + _aioDecisionEsc(d.confidence) + '</span></div>'
-    + '  </div>'
-    + '  <div class="aio-decision-foot">' + (_fomcFootNote ? '<span>' + _aioDecisionEsc(_fomcFootNote) + '</span>' : caveatHtml) + '<button type="button" class="aio-ai-context-btn" data-action="_aioAskAiFromPageDecision" data-arg="' + _aioDecisionEsc(pageId) + '">AI에게 묻기</button></div>'
-    + (_fomcFootNote && caveatHtml ? '<div class="aio-decision-foot aio-decision-evidence-foot">' + caveatHtml + '</div>' : '')
-    + '</section>';
-  var operatorNote = pageId === 'home' ? document.getElementById('home-operator-note') : null;
-  if (operatorNote && operatorNote.parentNode === page) operatorNote.insertAdjacentHTML('afterend', html);
-  else page.insertAdjacentHTML('afterbegin', html);
-  var header = page.querySelector('.aio-decision-header[data-aio-decision-page="' + pageId + '"]');
-  if (header) page.classList.add('has-aio-decision-header');
   try { if (window.AIO.applyPageMarketEpoch) window.AIO.applyPageMarketEpoch(pageId); } catch(_) {}
   if (typeof window._aioApplyPageBodyRedesign === 'function') {
     try { window._aioApplyPageBodyRedesign(pageId); } catch(_) {}
   }
-  return header;
+  return page;
 };
 
 window.AIO.getPageEvidenceCurrentnessAudit = function() {
@@ -5403,7 +5307,7 @@ window._aioCreateVisualReport = function(pageId) {
     + '<div><button type="button" class="aio-ai-context-btn" data-action="_aioDownloadVisualReport" data-arg="' + _aioDecisionEsc(pageId) + '">PNG 다운로드</button></div></div>'
     + '<canvas id="' + _aioDecisionEsc(id) + '" aria-label="AIO visual report"></canvas>'
     + '</section>';
-  var anchor = page.querySelector('.aio-decision-header') || page.firstElementChild;
+  var anchor = page.firstElementChild;
   if (anchor) anchor.insertAdjacentHTML('afterend', html);
   else page.insertAdjacentHTML('afterbegin', html);
   var canvas = document.getElementById(id);
@@ -5429,13 +5333,13 @@ window._aioDownloadVisualReport = function(pageId) {
   return true;
 };
 
-window._aioRenderAllPageDecisionHeaders = function() {
+window._aioRefreshAllPageSurfaces = function() {
   // AIO_ALL_ROUTE_PAGE_IDS 우선 사용 — ROUTE_PAGE_IDS 단일 출처와 동기화
   var ids = (window.AIO_ALL_ROUTE_PAGE_IDS && window.AIO_ALL_ROUTE_PAGE_IDS.length)
     ? window.AIO_ALL_ROUTE_PAGE_IDS
     : ['home','signal','breadth','sentiment','briefing','market-news','technical','screener','ticker','portfolio','themes','theme-detail','macro','fxbond','fundamental','guide'];
   ids.forEach(function(id) {
-    try { window._aioRenderPageDecisionHeader(id); } catch(_) {}
+    try { window._aioRefreshPageSurface(id); } catch(_) {}
   });
 };
 
@@ -5445,26 +5349,26 @@ window._aioRenderAllPageDecisionHeaders = function() {
 if (window._aioPageBus && typeof window._aioPageBus.register === 'function') {
   window._aioPageBus.register('core-page-decision-v5070', 'aio:pageShown', function(e) {
     var id = e && e.detail;
-    if (id) setTimeout(function() { window._aioRenderPageDecisionHeader(id); }, 40);
+    if (id) setTimeout(function() { window._aioRefreshPageSurface(id); }, 40);
   });
   window._aioPageBus.register('core-page-decision-live-v5070', 'aio:liveQuotes', function() {
     setTimeout(function() {
       var active = document.querySelector('.page.active');
       var id = active && active.id ? active.id.replace(/^page-/, '') : 'home';
-      window._aioRenderPageDecisionHeader(id);
+      window._aioRefreshPageSurface(id);
     }, 120);
   });
 }
 
 if (document && document.addEventListener) {
   document.addEventListener('DOMContentLoaded', function() {
-    try { window._aioRenderAllPageDecisionHeaders(); } catch(_) {}
-    setTimeout(function() { try { window._aioRenderAllPageDecisionHeaders(); } catch(_) {} }, 450);
+    try { window._aioRefreshAllPageSurfaces(); } catch(_) {}
+    setTimeout(function() { try { window._aioRefreshAllPageSurfaces(); } catch(_) {} }, 450);
   });
 }
 
 if (document && document.readyState !== 'loading') {
-  try { window._aioRenderAllPageDecisionHeaders(); } catch(_) {}
+  try { window._aioRefreshAllPageSurfaces(); } catch(_) {}
 }
 
 
@@ -10990,12 +10894,10 @@ window.AIO = window.AIO || {};
   window.AIO.getCritical10ContentHierarchyAudit = function(opts) {
     opts = opts || {};
     var pages = opts.pages || window.AIO_CRITICAL_10_PAGE_IDS || DEFAULT_PAGES;
-    var viewportHeight = Number(opts.viewportHeight || (window.innerHeight || 768));
-    var compRoutes = { home:1, signal:1, briefing:1, breadth:1, sentiment:1, technical:1, macro:1, fxbond:1, fundamental:1, themes:1, portfolio:1, 'market-news':1, screener:1 };
+    // v59.70: the dev-only decision header is deleted (D2). The audit now checks the page's own first block.
     var rows = pages.map(function(pageId) {
       var root = document.getElementById('page-' + pageId);
       var blockers = [], warnings = [];
-      var header = root && root.querySelector('.aio-decision-header[data-aio-decision-page="' + pageId + '"]');
       var firstVisible = null;
       if (root) {
         Array.prototype.slice.call(root.children).some(function(child) {
@@ -11004,31 +10906,9 @@ window.AIO = window.AIO || {};
           return true;
         });
       }
-      var headerText = header ? textOf(header, 900) : '';
-      var compHeaderHidden = !!(header && compRoutes[pageId] && isHiddenForRoute(header, root));
-      var headerHasConclusion = !!(header && header.querySelector('.aio-decision-verdict') && textOf(header.querySelector('.aio-decision-verdict')));
-      var headerHasEvidence = !!(header && header.getAttribute('data-source-kind') && header.querySelector('.aio-source-badge,.aio-confidence-badge,.aio-decision-foot'));
-      var headerHasAction = !!(header && header.querySelector('button,[data-action]'));
-      var visibleChildren = root ? Array.prototype.slice.call(root.children).filter(function(child) { return !isHiddenForRoute(child, root); }) : [];
-      var headerIndex = header ? visibleChildren.indexOf(header) : -1;
-      var decisionFirst = compHeaderHidden || !!(header && headerIndex >= 0 && visibleChildren.slice(0, headerIndex).every(function(child) {
-        return child.matches && child.matches('.stale-badge');
-      }));
       var active = activeRouteRoot(root);
-      var viewportPass = null;
-      if (compHeaderHidden) {
-        viewportPass = true;
-      } else if (active && header && header.getBoundingClientRect) {
-        var rect = header.getBoundingClientRect();
-        viewportPass = rect.top >= -4 && rect.top < viewportHeight && rect.bottom <= viewportHeight + 24;
-      }
       if (!root) blockers.push('page-root-missing');
-      if (!header) blockers.push('decision-header-missing');
-      if (header && !headerHasConclusion) blockers.push('conclusion-missing');
-      if (header && !headerHasEvidence) blockers.push('evidence/status-missing');
-      if (header && !headerHasAction) blockers.push('action-affordance-missing');
-      if (header && !decisionFirst) blockers.push('decision-not-first-visible-block');
-      if (active && header && viewportPass === false) blockers.push('decision-not-in-first-viewport');
+      if (root && !firstVisible) blockers.push('first-visible-block-missing');
       var openFundamentals = root ? root.querySelectorAll('details.aio-fund[open]').length : 0;
       var debugVisible = root ? Array.prototype.slice.call(root.querySelectorAll('.aio-audit-widget,.aio-debug,.debug-only,[data-text-role="developer-note"]')).filter(function(el) { return !isHiddenForRoute(el, root); }).length : 0;
       if (openFundamentals) warnings.push('open-fundamentals:' + openFundamentals);
@@ -11037,19 +10917,11 @@ window.AIO = window.AIO || {};
         pageId: pageId,
         active: active,
         pageExists: !!root,
-        decisionHeader: !!header,
-        compHeaderHidden: compHeaderHidden,
-        decisionFirst: decisionFirst,
         firstVisibleSelector: firstVisible ? selectorFor(firstVisible, root) : '',
-        conclusion: headerHasConclusion,
-        evidenceAndStatus: headerHasEvidence,
-        actionAffordance: headerHasAction,
-        viewportPass: viewportPass,
         openFundamentals: openFundamentals,
         developerSurfaceVisible: debugVisible,
         blockers: blockers,
-        warnings: warnings,
-        headerText: headerText.slice(0, 220)
+        warnings: warnings
       };
     });
     var blockers = rows.reduce(function(acc, row) { return acc.concat(row.blockers || []); }, []);
