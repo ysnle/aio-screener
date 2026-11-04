@@ -1,7 +1,7 @@
 {
   "schema": "masters-13f-manager-catalog.v1",
   "status": "METADATA_AND_DISCOVERY_SEPARATED",
-  "reviewedAt": "2026-11-02",
+  "reviewedAt": "2026-11-04",
   "selectionPolicy": "BEGINNER_CORE: keep widely recognizable institutions/funds or major named operators, with SEC traceability where applicable, meaningful scale or educational value, and a teachable strategy. Famous method-only educators may appear in a separately labeled METHOD_ONLY layer; they never create 13F rows. Family filers are aggregated conceptually and not treated as one person portfolio.",
   "sourceBoundary": "SEC EDGAR filing index and SEC structured 13F data are canonical. Telegram/X are discovery-only and never create holdings, weights, or trade labels.",
   "coverage": {
@@ -21,7 +21,7 @@
     "noticeFiled": 1,
     "ownershipEventCount": 321,
     "ownershipManagers": 33,
-    "latestPeriod": "2026-06-30",
+    "latestPeriod": "2026-09-30",
     "staleLastKnownGoodRows": 0,
     "ownershipBlocked": 0
   },
@@ -115,9 +115,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/2012383/000201238326001841/form13fInfoTable.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "citigroup",
@@ -128,25 +128,25 @@
       "status": "VERIFIED_ROWS",
       "priority": 2,
       "cik": "0000831001",
-      "latestAvailablePeriod": "2026-06-30",
+      "latestAvailablePeriod": "2026-09-30",
       "rowStatus": "VERIFIED_ROWS",
       "latestFiling": {
         "form": "13F-HR",
         "baseForm": "13F-HR",
         "isAmendment": false,
-        "accession": "0000831001-26-000040",
-        "filedAt": "2026-08-03",
-        "acceptedAt": "2026-08-03T13:47:56.000Z",
-        "periodOfReport": "2026-06-30",
+        "accession": "0000831001-26-000052",
+        "filedAt": "2026-11-04",
+        "acceptedAt": "2026-11-04T14:39:15.000Z",
+        "periodOfReport": "2026-09-30",
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
-        "indexUrl": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000040/0000831001-26-000040-index.html",
-        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000040/xslForm13F_X02/primary_doc.xml",
-        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000040/xslForm13F_X02/primary_doc.xml",
-        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000040/CITIGROUP_13F_HR_INFOTABLE.xml",
-        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000040/CITIGROUP_13F_HR_INFOTABLE.html"
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000052/0000831001-26-000052-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000052/xslForm13F_X02/primary_doc.xml",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000052/xslForm13F_X02/primary_doc.xml",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000052/CITIGROUP_13F_HR_INFOTABLE.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000052/CITIGROUP_13F_HR_INFOTABLE.html"
       },
-      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000040/0000831001-26-000040-index.html",
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000052/0000831001-26-000052-index.html",
       "institutionalBoundary": "Citigroup Inc.의 신고주체이며 은행·고객·시장조성 관련 포지션을 단일 투자자의 개인 포트폴리오로 해석하지 않습니다.",
       "audienceTier": "BEGINNER_CORE",
       "managerCategory": "INSTITUTIONAL_BENCHMARK",
@@ -181,6 +181,20 @@
         "form": "13F-HR",
         "baseForm": "13F-HR",
         "isAmendment": false,
+        "accession": "0000831001-26-000052",
+        "filedAt": "2026-11-04",
+        "acceptedAt": "2026-11-04T14:39:15.000Z",
+        "periodOfReport": "2026-09-30",
+        "primaryDocument": "xslForm13F_X02/primary_doc.xml",
+        "primaryDocDescription": null,
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000052/0000831001-26-000052-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000052/xslForm13F_X02/primary_doc.xml",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000052/xslForm13F_X02/primary_doc.xml"
+      },
+      "priorFiling": {
+        "form": "13F-HR",
+        "baseForm": "13F-HR",
+        "isAmendment": false,
         "accession": "0000831001-26-000040",
         "filedAt": "2026-08-03",
         "acceptedAt": "2026-08-03T13:47:56.000Z",
@@ -189,28 +203,14 @@
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000040/0000831001-26-000040-index.html",
         "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000040/xslForm13F_X02/primary_doc.xml",
-        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000040/xslForm13F_X02/primary_doc.xml"
-      },
-      "priorFiling": {
-        "form": "13F-HR",
-        "baseForm": "13F-HR",
-        "isAmendment": false,
-        "accession": "0000831001-26-000022",
-        "filedAt": "2026-05-11",
-        "acceptedAt": "2026-05-11T14:14:19.000Z",
-        "periodOfReport": "2026-03-31",
-        "primaryDocument": "xslForm13F_X02/primary_doc.xml",
-        "primaryDocDescription": null,
-        "indexUrl": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000022/0000831001-26-000022-index.html",
-        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000022/xslForm13F_X02/primary_doc.xml",
-        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000022/xslForm13F_X02/primary_doc.xml",
-        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000022/CITIGROUP_13F_HR_INFOTABLE.xml",
-        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000022/CITIGROUP_13F_HR_INFOTABLE.html"
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000040/xslForm13F_X02/primary_doc.xml",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000040/CITIGROUP_13F_HR_INFOTABLE.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000040/CITIGROUP_13F_HR_INFOTABLE.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "goldman-sachs-group",
@@ -303,9 +303,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/886982/000088698226000274/InfoTable_20260513_FinalV.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "jpmorgan-chase",
@@ -398,9 +398,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/19617/000001961726000225/Information_Table_03.31.2026.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "state-street-investment-management",
@@ -491,9 +491,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000315/XML_Infotable.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "vanguard-group",
@@ -593,9 +593,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1680208/000168020826000009/13F_0001680208_20260331_VAM.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "capital-international-investors",
@@ -687,9 +687,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1562230/000156223026000049/form13fInfoTable.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "fidelity-fmr",
@@ -779,9 +779,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/315066/000031506626001390/20260515_FMRLLC.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "t-rowe-price",
@@ -873,9 +873,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/80255/000008025526000381/infotable.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "wellington-management",
@@ -965,9 +965,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/902219/000090221926000209/form13fInfoTable.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "dimensional-fund-advisors",
@@ -977,25 +977,25 @@
       "type": "LIVE_13F",
       "status": "VERIFIED_ROWS",
       "cik": "0000354204",
-      "latestAvailablePeriod": "2026-06-30",
+      "latestAvailablePeriod": "2026-09-30",
       "rowStatus": "VERIFIED_ROWS",
       "latestFiling": {
         "form": "13F-HR",
         "baseForm": "13F-HR",
         "isAmendment": false,
-        "accession": "0000354204-26-000866",
-        "filedAt": "2026-08-11",
-        "acceptedAt": "2026-08-11T17:14:50.000Z",
-        "periodOfReport": "2026-06-30",
+        "accession": "0000354204-26-001096",
+        "filedAt": "2026-11-04",
+        "acceptedAt": "2026-11-04T14:51:22.000Z",
+        "periodOfReport": "2026-09-30",
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
-        "indexUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000866/0000354204-26-000866-index.html",
-        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000866/xslForm13F_X02/primary_doc.xml",
-        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000866/xslForm13F_X02/primary_doc.xml",
-        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000866/2Q2613F.xml",
-        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000866/2Q2613F.html"
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420426001096/0000354204-26-001096-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420426001096/xslForm13F_X02/primary_doc.xml",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/354204/000035420426001096/xslForm13F_X02/primary_doc.xml",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/354204/000035420426001096/3Q13ftest.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/354204/000035420426001096/3Q13ftest.html"
       },
-      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000866/0000354204-26-000866-index.html",
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/354204/000035420426001096/0000354204-26-001096-index.html",
       "audienceTier": "BEGINNER_CORE",
       "managerCategory": "FACTOR_SYSTEMATIC",
       "scaleTier": "LARGE",
@@ -1034,6 +1034,20 @@
         "form": "13F-HR",
         "baseForm": "13F-HR",
         "isAmendment": false,
+        "accession": "0000354204-26-001096",
+        "filedAt": "2026-11-04",
+        "acceptedAt": "2026-11-04T14:51:22.000Z",
+        "periodOfReport": "2026-09-30",
+        "primaryDocument": "xslForm13F_X02/primary_doc.xml",
+        "primaryDocDescription": null,
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420426001096/0000354204-26-001096-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420426001096/xslForm13F_X02/primary_doc.xml",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/354204/000035420426001096/xslForm13F_X02/primary_doc.xml"
+      },
+      "priorFiling": {
+        "form": "13F-HR",
+        "baseForm": "13F-HR",
+        "isAmendment": false,
         "accession": "0000354204-26-000866",
         "filedAt": "2026-08-11",
         "acceptedAt": "2026-08-11T17:14:50.000Z",
@@ -1042,28 +1056,14 @@
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000866/0000354204-26-000866-index.html",
         "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000866/xslForm13F_X02/primary_doc.xml",
-        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000866/xslForm13F_X02/primary_doc.xml"
-      },
-      "priorFiling": {
-        "form": "13F-HR",
-        "baseForm": "13F-HR",
-        "isAmendment": false,
-        "accession": "0000354204-26-000581",
-        "filedAt": "2026-05-07",
-        "acceptedAt": "2026-05-07T18:31:09.000Z",
-        "periodOfReport": "2026-03-31",
-        "primaryDocument": "xslForm13F_X02/primary_doc.xml",
-        "primaryDocDescription": null,
-        "indexUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000581/0000354204-26-000581-index.html",
-        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000581/xslForm13F_X02/primary_doc.xml",
-        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000581/xslForm13F_X02/primary_doc.xml",
-        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000581/1Q202613F.xml",
-        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000581/1Q202613F.html"
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000866/xslForm13F_X02/primary_doc.xml",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000866/2Q2613F.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000866/2Q2613F.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "berkshire-hathaway",
@@ -1155,9 +1155,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526226661/53405.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "soros-fund-management",
@@ -1249,9 +1249,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1029160/000090266426002529/infotable.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "bridgewater-associates",
@@ -1343,9 +1343,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000002/infotable.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "duquesne-family-office",
@@ -1435,9 +1435,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000004/form13f_20260331.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "appaloosa-management",
@@ -1527,9 +1527,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000002/Form13FInfoTable.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "oaktree-capital-management",
@@ -1624,9 +1624,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/949509/000094950926000004/13F_OCMLP_1Q2026.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "citadel-advisors",
@@ -1716,9 +1716,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1423053/000110465926062477/infotable.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "millennium-management",
@@ -1808,9 +1808,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1273087/000127308726000004/MLP_FIling_20260331.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "renaissance-technologies",
@@ -1902,9 +1902,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1037389/000103738926000033/renaissance13Fq12026_holding.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "two-sigma-investments",
@@ -1997,9 +1997,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1179392/000089914026000547/informationtable.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "tudor-investment",
@@ -2089,9 +2089,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/923093/000090266426002516/infotable.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "pershing-square",
@@ -2183,7 +2183,7 @@
       "noticeStatus": "NOTICE_FILED",
       "freshnessStatus": "STALE_REFERENCE",
       "rowFreshnessStatus": "STALE_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "starboard-value",
@@ -2273,9 +2273,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1517137/000092189526001402/infotable.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "trian-fund-management",
@@ -2367,9 +2367,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1345471/000134547126000026/Q12026-tfmlp-info-table.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "valueact-holdings",
@@ -2459,9 +2459,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1418814/000141881426000002/vac13f51526.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "third-point",
@@ -2551,9 +2551,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1040273/000104027326000002/infotable.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "elliott-investment-management",
@@ -2645,9 +2645,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1791786/000101359426000613/form13fInfoTable.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "tci-fund-management",
@@ -2737,9 +2737,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1647251/000164725126000004/Form13fInfoTable.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "viking-global-investors",
@@ -2829,9 +2829,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1103804/000110380426000004/MSFS13F033126.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "tiger-global-management",
@@ -2921,9 +2921,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1167483/000091957426003362/infotable.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "ark-investment-management",
@@ -3013,9 +3013,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1697748/000110465926059240/infotable.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "harvard-management-company",
@@ -3106,9 +3106,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1082621/000119312526226658/53948.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "situational-awareness",
@@ -3199,9 +3199,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/2045724/000204572426000008/salp13fq1xml.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "baupost-group",
@@ -3291,9 +3291,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000007/BGLLCQ12026.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "scion-asset-management",
@@ -3385,7 +3385,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "STALE_REFERENCE",
       "rowFreshnessStatus": "STALE_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "fisher-asset-management",
@@ -3475,9 +3475,9 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/850529/000085052926000004/2026Q113F1.html"
       },
       "noticeStatus": "HOLDINGS_FILED",
-      "freshnessStatus": "CURRENT_REFERENCE",
-      "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-11-02T17:25:35.345Z"
+      "freshnessStatus": "STALE_REFERENCE",
+      "rowFreshnessStatus": "STALE_ROWS",
+      "currentnessCheckedAt": "2026-11-04T15:44:34.754Z"
     },
     {
       "id": "mark-minervini",
@@ -3728,5 +3728,5 @@
       "reason": "The in-app web search returned an internal error and did not expose post content for verification."
     }
   ],
-  "generatedAt": "2026-11-02T17:25:35.345Z"
+  "generatedAt": "2026-11-04T15:44:34.754Z"
 }

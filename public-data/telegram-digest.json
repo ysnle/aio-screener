@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-04T15:21:50.977Z",
-  "attemptedAt": "2026-11-04T15:21:50.977Z",
-  "lastSuccessfulAt": "2026-11-04T15:21:50.977Z",
+  "generatedAt": "2026-11-04T15:43:40.509Z",
+  "attemptedAt": "2026-11-04T15:43:40.509Z",
+  "lastSuccessfulAt": "2026-11-04T15:43:40.509Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-21T15:21:45.088Z",
-  "until": "2026-11-04T15:21:45.088Z",
+  "since": "2026-10-21T15:43:36.052Z",
+  "until": "2026-11-04T15:43:36.052Z",
   "current24hWindow": {
     "start": "2026-11-02T23:00:00.000Z",
     "end": "2026-11-03T23:00:00.000Z",
@@ -113,11 +113,11 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 680,
-      "freshCount": 39,
+      "freshCount": 20,
       "eligibleTextCount": 679,
       "selectedCount": 123,
       "error": null,
@@ -125,7 +125,7 @@
     }
   ],
   "count": 2368,
-  "retainedItemCount": 448,
+  "retainedItemCount": 435,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -1779,7 +1779,7 @@
       "score": 72,
       "hasText": true,
       "tickers": [],
-      "summary": ">>중동 원유 공급 회복, 글로벌 시장 공급 과잉 전환 •JPMorgan은 미국·이스라엘과 이란 간 전쟁으로 차질을 빚었던 글로벌 원유 시장이 9월 하루 110만 배럴, 10월 140만 배럴의 공급 과잉으로..."
+      "summary": ">>중동 원유 공급 회복, 글로벌 시장 공급 과잉 전환 (중국언론) •JPMorgan은 미국·이스라엘과 이란 간 전쟁으로 차질을 빚었던 글로벌 원유 시장이 9월 하루 110만 배럴, 10월 140만 배럴의..."
     },
     {
       "id": "bornlupin/21003",
@@ -2279,15 +2279,14 @@
       "datetime": "2026-11-04T07:09:30.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "power",
-        "equity"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
+      "summary": ">>공화당 중간선거 패배에 머스크의 4억 달러도 무산? 최대 후원자 머스크 입장 표명 •머스크는 2026년 미국 중간선거에서 공화당 후보들을 지원하기 위해 약 5억 달러를 투입했으나, 민주당이 선거에서...",
       "tickers": [
         "TSLA"
-      ],
-      "summary": ">>공화당 중간선거 패배에 머스크의 4억 달러도 무산? 최대 후원자 머스크 입장 표명 •머스크는 2026년 미국 중간선거에서 공화당 후보들을 지원하기 위해 약 5억 달러를 투입했으나, 민주당이 선거에서..."
+      ]
     },
     {
       "id": "insidertracking/68313",
@@ -2322,11 +2321,11 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "•중국증시 '중한(中韩)반도체ETF' 거래대금 260억위으로 역대 최고치 경신"
+      "summary": "•중국증시 '중한(中韩)반도체ETF' 거래대금 260억위으로 역대 최고치 경신",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68310",
@@ -2408,8 +2407,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "•CXMT +8.5% •중국 반도체 과창50지수 +8%"
+      "summary": "•CXMT +8.5% •중국 반도체 과창50지수 +8%",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68304",
@@ -2460,17 +2460,15 @@
       "datetime": "2026-11-04T05:46:08.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "ai-policy",
-        "macro",
-        "semi"
+        "ai-policy"
       ],
-      "lead": 1,
       "score": 78,
       "hasText": true,
+      "summary": ">>SemiAnalysis, AI 연산능력 부족 분석 : OpenAI와 Anthropic이 전 세계 신규 연산능력 선점 •SemiAnalysis는 OpenAI와 Anthropic이 전 세계 신규 연산능력 증설...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>SemiAnalysis, AI 연산능력 부족 분석 : OpenAI와 Anthropic이 전 세계 신규 연산능력 선점 •SemiAnalysis는 OpenAI와 Anthropic이 전 세계 신규 연산능력 증설..."
+      ]
     },
     {
       "id": "HANAchina/71529",
@@ -2479,11 +2477,8 @@
       "datetime": "2026-11-04T04:17:36.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "semi",
-        "geo",
-        "healthcare"
+        "semi"
       ],
-      "lead": 1,
       "score": 75,
       "hasText": true,
       "media": {
@@ -2492,11 +2487,12 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "• 알리바바·텐센트·바이트댄스 등 중국 빅테크들이 주문한 엔비디아 'RTX Pro 5500'은 약 600만 대(총 700억 달러 이상)에 달하지만, 향후 4개월간 실제 인도받을 물량은 수만 대(전체의 약...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "TSM"
-      ],
-      "summary": "• 알리바바·텐센트·바이트댄스 등 중국 빅테크들이 주문한 엔비디아 'RTX Pro 5500'은 약 600만 대(총 700억 달러 이상)에 달하지만, 향후 4개월간 실제 인도받을 물량은 수만 대(전체의 약..."
+      ]
     },
     {
       "id": "insidertracking/68287",
@@ -2546,13 +2542,13 @@
       "tags": [
         "ai-policy"
       ],
-      "lead": 1,
       "score": 54,
       "hasText": true,
+      "summary": ">>OpenAI 고위 임원, ChatGPT 검색량이 구글의 20% 수준에 도달 •OpenAI의 구글 검색 시장 도전이 가시적인 성과를 내기 시작. OpenAI의 소비자용 제품 책임자인 Adam Fry는...",
+      "lead": 1,
       "tickers": [
         "GOOG"
-      ],
-      "summary": ">>OpenAI 고위 임원, ChatGPT 검색량이 구글의 20% 수준에 도달 •OpenAI의 구글 검색 시장 도전이 가시적인 성과를 내기 시작. OpenAI의 소비자용 제품 책임자인 Adam Fry는..."
+      ]
     },
     {
       "id": "HANAchina/71519",
@@ -2563,11 +2559,11 @@
       "tags": [
         "macro"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "•중 10년 국채 금리 1.595% •2025년 1월 이후 최저"
+      "summary": "•중 10년 국채 금리 1.595% •2025년 1월 이후 최저",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68268",
