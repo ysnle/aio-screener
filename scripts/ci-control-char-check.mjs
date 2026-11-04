@@ -17,6 +17,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execSync } from 'node:child_process';
 import { loadAll } from 'js-yaml';
+import { countControlChars } from './lib/control-chars.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (p) => readFileSync(join(root, p), 'utf8');
@@ -26,27 +27,7 @@ const errors = [];
 const warnings = [];
 
 // C0 (tab/lf/cr 제외) + C1 제어문자 범위 — mojibake의 실제 시그니처(U+0080 등)를 잡는다.
-const CONTROL_CODE_RANGES = [
-  [0x00, 0x08],
-  [0x0b, 0x0c],
-  [0x0e, 0x1f],
-  [0x7f, 0x9f],
-];
-
-function isControlCode(code) {
-  for (const [lo, hi] of CONTROL_CODE_RANGES) {
-    if (code >= lo && code <= hi) return true;
-  }
-  return false;
-}
-
-function countControlChars(text) {
-  let n = 0;
-  for (let i = 0; i < text.length; i++) {
-    if (isControlCode(text.charCodeAt(i))) n++;
-  }
-  return n;
-}
+// v59.70: 규칙은 scripts/lib/control-chars.mjs 하나다 (agent-hook post-edit 경고가 같은 규칙을 쓴다).
 
 // ── 1) 워크플로 YAML: 하드 게이트 (baseline 없음, 0건 필수) ─────────────────────
 const workflowFiles = readdirSync(join(root, '.github', 'workflows'))
