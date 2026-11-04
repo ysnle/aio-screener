@@ -1,0 +1,18 @@
+{
+ "version": "v59.70",
+ "date": "2026-11-04",
+ "p": {
+  "title": "옛 #theme-detail/<id> 주소가 어느 테마든 방산을 연다",
+  "symptom": "#theme-detail/software, #theme-detail?theme=photonics 같은 옛 주소로 들어오면 주소가 #themes?theme=defense로 바뀌고 방산 상세가 열렸다.",
+  "root_cause": "두 곳이 주소의 id를 읽지 않았다. js/aio-core.js showPage('theme-detail')는 _currentThemeId 또는 THEME_MAP[0](defense)를 대기 id로 덮어썼고, src/app/bootstrap.js resolveInitialRoute는 '?' 앞만 경로로 잘라 경로형 주소를 놓치고 같은 THEME_MAP[0] 대체를 썼다. 첫 로드에서는 classic showPage가 먼저 돌며 주소를 #themes로 바꾸기 때문에 ESM 쪽 읽기도 닿지 못했다.",
+  "fix": "주소 id 파서를 src/ui/navigation/theme-detail.js legacyThemeDetailTarget 하나로 두고 resolveInitialRoute와 테마 화면 읽기가 함께 쓴다. classic showPage는 같은 규칙의 aioLegacyThemeDetailId를 쓴다. 이름 있는 id가 이기고, THEME_MAP에 없는 id(퇴역한 UAM·우주·양자 포함)는 테마 목록을 연다. THEME_MAP[0] 대체는 지웠다.",
+  "violated_rule": "주소가 주제를 담는다(v57.50 I28) — 주소의 id를 대체값으로 덮지 않는다",
+  "prevention": "ci-esm-core-unit-check 'v59.70 old #theme-detail addresses keep their theme id' — 모든 THEME_MAP id × 세 주소 형식을 ESM과 classic 양쪽에서 검사하고, 퇴역 id는 목록으로 가는지 본다. 옛 bootstrap·aio-core에서 실패한다.",
+  "verification": "브라우저 첫 로드: #theme-detail/software·hardware, ?theme=photonics가 같은 id로(데스크톱·다크·폰), #theme-detail/uam은 목록. 게이트는 옛 bootstrap(경로형 undefined, ?theme= → previous)과 옛 aio-core에서 실패."
+ },
+ "r": null,
+ "changelog": [
+  "**옛 테마 상세 주소 (v59.70):** #theme-detail/<id>·?theme=·?id= 주소가 그 테마를 연다(전에는 모두 방산). 퇴역한 테마의 옛 주소는 테마 목록을 연다."
+ ],
+ "note": "theme-sector: legacy theme-detail link"
+}

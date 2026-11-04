@@ -16480,7 +16480,7 @@ function showPage(id, navEl) {
   if (id !== 'themes' && id !== 'theme-detail') { try { delete window._aioOpenThemeDetailOnThemes; } catch(_) {} }
   // v52.27 P642: theme-detail is an inline panel on #themes, not a separate user route.
   if (id === 'theme-detail') {
-    try { var fallbackTheme = window._currentThemeId || (window.THEME_MAP && window.THEME_MAP[0] && window.THEME_MAP[0].id) || null; if (fallbackTheme) window._aioOpenThemeDetailOnThemes = fallbackTheme; } catch(_) {}
+    try { window._aioThemeDetailHash = String(location.hash || ''); if (!window._aioOpenThemeDetailOnThemes && window._currentThemeId) window._aioOpenThemeDetailOnThemes = window._currentThemeId; } catch(_) {} // v59.70: the address id is read by src/ui/navigation/theme-detail.js, never THEME_MAP[0]
     id = 'themes';
   }
   // v49.58 R106: 페이지 진입 시 ticker-related 마커 자동 sync.

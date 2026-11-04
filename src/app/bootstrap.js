@@ -30,6 +30,7 @@ import { finalizePageDecision } from '../domain/signal/page-decision.js';
 import { installRouteHubTabs, setStockSubject } from '../ui/navigation/route-hubs.js';
 import { registerInterpretationStore } from '../data/selectors/interpretation.js';
 import { installScreenShortcuts } from '../ui/navigation/screen-shortcuts.js';
+import { applyLegacyThemeDetailAddress } from '../ui/navigation/theme-detail.js';
 import { installRouteScrollMemory } from '../ui/navigation/scroll-memory.js';
 import { installShellOverlays } from '../ui/components/shell-overlays.js';
 import { installColorTheme } from '../ui/components/color-theme.js';
@@ -133,14 +134,16 @@ import { NATHAN_FRAMEWORK_PACK, NATHAN_ANALYSIS_PROTOCOL, NATHAN_KNOWLEDGE_ALIAS
 export const ARCHITECTURE_VERSION = 'AR-01~16.v1';
 
 export function resolveInitialRoute({ root = globalThis, hash = root?.location?.hash } = {}) {
-  const rawRoute = String(hash || '').replace(/^#/, '').split('?')[0].trim();
+  const rawRoute = String(hash || '').replace(/^#/, '').split(/[?/]/)[0].trim(); // #ticker/NVDA, #theme-detail/<id> are path forms
   const canonicalRoute = root?.AIO_ROUTE_REGISTRY?.canonical?.[rawRoute]
     || (rawRoute === 'theme-detail' ? 'themes' : rawRoute);
   if (rawRoute === 'theme-detail') {
+    // v59.70: the address's own id wins; a retired or unknown id opens the list. Without an id the current selection
+    // carries over (a knowledge link), never the first theme.
+    if (applyLegacyThemeDetailAddress(root, hash)?.named) return ROUTE_IDS.includes(canonicalRoute) ? canonicalRoute : 'home';
     const themeId = String(
       root?._aioOpenThemeDetailOnThemes
       || root?._currentThemeId
-      || root?.THEME_MAP?.[0]?.id
       || ''
     ).trim();
     if (themeId && !root?._aioOpenThemeDetailOnThemes) {

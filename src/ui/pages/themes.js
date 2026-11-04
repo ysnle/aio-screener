@@ -38,6 +38,7 @@ import { requestConsensusEstimates, CONSENSUS_KEY } from '../../data/consensus-e
 import { asOfChip, setAsOf } from '../components/section-frame.js';
 import { isoDay, stampDay, latestSessionRows } from '../../domain/shared/session-date.js';
 import { askRow } from '../components/ask-row.js';
+import { applyLegacyThemeDetailAddress, legacyThemeDetailTarget } from '../navigation/theme-detail.js';
 
 const finiteOrNull = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
 // Published screener rows by symbol (the store's rows; ETFs included), for the period bars and the member tables.
@@ -723,14 +724,10 @@ function themeItemLabel(root, item) {
   return String(theme?.nameKr || theme?.name || item?.label || item?.symbol || item?.id || '').trim();
 }
 
-function themeDetailDeepLink(hash) {
-  const value = String(hash || '').replace(/^#/, '');
-  if (value !== 'theme-detail' && !/^theme-detail[/?]/.test(value)) return null;
-  const rest = value.slice('theme-detail'.length).replace(/^[/?]+/, '');
-  const themeId = rest ? rest.split('&')[0].split('=').pop() : '';
-  let decoded = themeId;
-  try { decoded = decodeURIComponent(themeId); } catch (_) { decoded = themeId; }
-  return { requested: true, themeId: String(decoded || '').trim() || null };
+function themeDetailDeepLink(hash, root) {
+  // v59.70: one parser with the boot route (src/ui/navigation/theme-detail.js); a retired id opens the plain list.
+  const ids = Array.isArray(root?.THEME_MAP) ? root.THEME_MAP.map((theme) => String(theme?.id || '')) : null;
+  return legacyThemeDetailTarget(hash, ids);
 }
 
 function createChip(documentRef, item, root) {
@@ -2049,6 +2046,7 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         eventTarget?.addEventListener?.('aio:themeDetailClosed', onThemeDetailClosed);
         bag.add(() => eventTarget?.removeEventListener?.('aio:themeDetailShown', onThemeDetailShown));
         bag.add(() => eventTarget?.removeEventListener?.('aio:themeDetailClosed', onThemeDetailClosed));
+        const legacyAddress = applyLegacyThemeDetailAddress(root); // v59.70: an old #theme-detail/<id> keeps its id
         const pendingThemeId = String(root?._aioOpenThemeDetailOnThemes || '').trim();
         if (pendingThemeId) {
           delete root._aioOpenThemeDetailOnThemes;
@@ -2084,10 +2082,10 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           const openTimer = root?.setTimeout?.(() => root.openKrThemeDetail?.(pendingKrThemeId, { settle: true }), 0);
           bag.add(() => root?.clearTimeout?.(openTimer));
         }
-        const deepLink = themeDetailDeepLink(root?.location?.hash);
+        const deepLink = legacyAddress?.named ? { ...legacyAddress, themeId: null } : themeDetailDeepLink(root?.location?.hash, root); // a named id already opened above
         const deepLinkId = String(deepLink?.themeId || '').trim();
         if (deepLinkId) queueMicrotask(() => requestThemeDetail(deepLinkId));
-        if (deepLink?.requested && !store?.getState?.()?.themes?.selectedDetail && detailPanel) {
+        if (deepLink?.requested && !deepLink.unknown && !store?.getState?.()?.themes?.selectedDetail && detailPanel) {
           deepLinkHint = documentRef.createElement('p');
           deepLinkHint.className = 'theme-detail-deep-link-hint';
           deepLinkHint.textContent = deepLinkId

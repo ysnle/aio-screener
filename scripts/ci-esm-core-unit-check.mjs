@@ -207,6 +207,35 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (resolveInitialRoute({ root: routeRoot }) !== 'themes' || routeRoot._aioOpenThemeDetailOnThemes !== 'theme-9') {
     fail('initial route: existing pending theme identity was overwritten');
   }
+  // v59.70: every US theme id survives each old address form (it used to open THEME_MAP[0] = 방산 for all of them), and a
+  // retired Korean id (UAM·우주·양자) opens the plain list.
+  const { loadThemeMaps } = await import('../scripts/build-scenario-state.mjs');
+  const { usThemes } = loadThemeMaps();
+  const moved = [];
+  for (const { id } of usThemes) {
+    for (const hash of [`#theme-detail/${id}`, `#theme-detail?theme=${id}`, `#theme-detail?id=${id}`]) {
+      const root = { location: { hash }, THEME_MAP: usThemes, _currentThemeId: 'previous' };
+      if (resolveInitialRoute({ root }) !== 'themes' || root._aioOpenThemeDetailOnThemes !== id) moved.push(`${hash} -> ${root._aioOpenThemeDetailOnThemes}`);
+    }
+  }
+  for (const id of ['uam', 'space', 'quantum']) {
+    const root = { location: { hash: `#theme-detail/${id}` }, THEME_MAP: usThemes, _currentThemeId: 'previous' };
+    if (resolveInitialRoute({ root }) !== 'themes' || root._aioOpenThemeDetailOnThemes != null) moved.push(`#theme-detail/${id} -> ${root._aioOpenThemeDetailOnThemes} (want the list)`);
+  }
+  // A fresh load runs the classic showPage('theme-detail') first: it rewrites the address to #themes, saves the original
+  // in _aioThemeDetailHash and pends the previous selection; the themes page then applies the saved address.
+  const { applyLegacyThemeDetailAddress } = await import('../src/ui/navigation/theme-detail.js');
+  for (const { id } of usThemes) for (const hash of [`#theme-detail/${id}`, `#theme-detail?theme=${id}`]) {
+    const root = { location: { hash: '#themes' }, _aioThemeDetailHash: hash, _aioOpenThemeDetailOnThemes: 'previous', THEME_MAP: usThemes };
+    applyLegacyThemeDetailAddress(root);
+    if (root._aioOpenThemeDetailOnThemes !== id || '_aioThemeDetailHash' in root) moved.push(`classic ${hash} -> ${root._aioOpenThemeDetailOnThemes}`);
+  }
+  for (const id of ['uam', 'space', 'quantum']) {
+    const root = { location: { hash: '#themes' }, _aioThemeDetailHash: `#theme-detail/${id}`, _aioOpenThemeDetailOnThemes: 'previous', THEME_MAP: usThemes };
+    applyLegacyThemeDetailAddress(root);
+    if (root._aioOpenThemeDetailOnThemes != null) moved.push(`classic #theme-detail/${id} -> ${root._aioOpenThemeDetailOnThemes} (want the list)`);
+  }
+  if (usThemes.length < 15 || moved.length) fail(`v59.70 old #theme-detail addresses keep their theme id (${usThemes.length} themes): ${moved.slice(0, 4).join('; ')}`);
 }
 
 {
