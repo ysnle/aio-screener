@@ -32,7 +32,6 @@ export const TERM_MARKS = Object.freeze([
   ['OAS', 'OAS / HY 스프레드'],
   ['HY', 'HY 스프레드'],
   ['TIPS', 'TIPS (물가연동국채)'],
-  ['풋/콜', 'Put/Call 비율'],
   ['TGA', 'TGA (재무부 일반계정)'],
   ['JOLTS', 'JOLTS (구인·이직 조사)'],
   ['PCE', 'PCE (개인소비지출 · PCE 물가지수)'],

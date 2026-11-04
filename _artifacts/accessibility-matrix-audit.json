@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-11-03T21:41:30.333Z",
+  "observedAt": "2026-11-04T03:54:21.943Z",
   "appRevision": "v59.69",
-  "gitHead": "9a8ab4045ee6d9599a86f4bc443f8d0926356849",
+  "gitHead": "4b213204c11da136a3dd94132f880b20b56e32e8",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -92,8 +92,44 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 5,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "%p",
+          "width": 20,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "bp",
+          "width": 14,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "RSI",
+          "width": 20,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "지수별 가격 온도 (참고) 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "OAS",
+          "width": 23,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
@@ -146,170 +182,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 23,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "연준 목표 범위 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "실효 연방기금금리 (월평균) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "CPI (전년 대비) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "근원 CPI (전년 대비) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "PCE 물가 (전년 대비) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "근원 PCE (전년 대비) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "주거비 CPI (전년 대비) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "주거비 제외 서비스 CPI (전년 대비) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "실업률 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "비농업 고용 증감 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "시간당 임금 (전년 대비) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "경제활동참가율 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "소매판매 (전월 대비) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "주택 착공 (연율) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "건축 허가 (연율) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "기준금리(실효 연방기금금리) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "미국 10년물 금리 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "미국 2년물 금리 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "10년물 − 3개월물 금리차 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "10년 실질금리 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "근원 CPI 전년 대비 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "실업률 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "VIX 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -326,49 +200,14 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 6,
+      "smallTargetExceptionCount": 1,
       "smallTargetExceptions": [
         {
           "id": "",
-          "text": "%p",
-          "width": 17,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "bp",
-          "width": 14,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "PCE",
-          "width": 20,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "WTI",
-          "width": 21,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "ETF",
-          "width": 21,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "OAS",
-          "width": 23,
-          "height": 28,
-          "exception": "wcag-inline-text"
+          "text": "10년 기간 프리미엄 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
         }
       ],
       "skipLink": true,
@@ -912,8 +751,16 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 1,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "SEC",
+          "width": 20,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },

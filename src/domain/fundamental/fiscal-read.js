@@ -175,7 +175,7 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
   const ocf = finite(latest?.operatingCashFlow);
   const capex = finite(latest?.capex);
   if (financial && history.length) {
-    points.push({ id: 'bank', tone: 'neutral', title: '금융사 읽는 법',
+    points.push({ id: 'bank', tone: 'neutral', title: '금융사 재무',
       text: '은행·금융사는 순이자이익과 순이자마진(NIM), 예금 조달 비용, 대손비용, 자본비율(CET1)이 핵심입니다. 이 화면의 공시 수집본에는 이 항목들이 없어 판단하지 않으며, 분기 실적 자료와 10-K·10-Q 원문에서 확인합니다. 아래 영업현금흐름은 예금·대출 변화가 섞여 일반 기업처럼 읽지 않습니다.' });
   }
   if (ocf != null && latest?.netIncome != null && financial) {

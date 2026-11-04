@@ -33,6 +33,7 @@
 @import url('./v2-stock.css'); /* v58.53 개편 v2: 종목 · 테마 · 섹터 */
 @import url('./v2-screener.css'); /* v58.53 개편 v2: 스크리너 · 포트폴리오 */
 @import url('./v2-research.css'); /* v58.53 개편 v2: 리서치 · 용어 사전 · 한국 */
+@import url('./ui-states.css'); /* v59.70: shared button, field, data-card and transition states — last so one rule covers every screen */
 /* UI review 2026-10-18: one page header for every screen. The screens had three hand-written variants
    (thin rule 8px, strong rule 20px, no rule — the subtitle then touched the first section's rule), and a
    first section that draws its own top rule doubled the header rule. */
@@ -548,7 +549,9 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
 /* v59.55 (alignment pass, audits 2 and 4): text on the card text column on every screen. */
 #page-market-news #news-event-briefs { background: var(--bg-card); border-radius: 12px; padding: 20px var(--sx-card-pad-x) 12px; margin: 0 0 16px; }
 #page-breadth .bb-group--participation > :is(h2, h3, p, .sx-card__head, .bb-group__head) { padding-inline: var(--sx-card-pad-x); }
-#sentiment-card-grid:has(> :nth-child(2):last-child) { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+/* v59.70: two cards share a row instead of leaving a third column empty (the value row lost the put/call card); on a phone
+   both rows stay one column, which the unscoped rule overrode for the chart row at 390px. */
+@media (min-width: 744px) { :is(#sentiment-card-grid, #sentiment-mini-grid):has(> :nth-child(2):last-child) { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }
 .page .temp-group { display: flex; flex-direction: column; }
 .page .temp-group-grid { flex: 1; align-items: stretch; }
 .masters-change-counts { display: flex; flex-wrap: wrap; gap: 4px 12px; }

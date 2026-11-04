@@ -15,8 +15,7 @@ function _getImportedResearchContext(ctxId) {
       home:'home', briefing:'home', macro:'macro', fxbond:'fxbond',
       technical:'technical', signal:'technical', screener:'screener',
       ticker:'ticker', fundamental:'fundamental', themes:'themes',
-      'theme-detail':'theme-detail', portfolio:'portfolio',
-      'kr-market':'macro'
+      'theme-detail':'theme-detail', portfolio:'portfolio', charts:'technical'
     };
     var key = map[ctxId] || ctxId;
     var modules = window.AIO_USER_RESEARCH_PAGE_MODULES || {};
@@ -570,7 +569,7 @@ function _aioCreateEvidenceContext(title, focus) {
         lines.push('HARD STOP: 시세 미수신 상태에서는 가격 인용·진입가·목표가 계산을 하지 않습니다.');
       }
       // Codex browser audit H104: market pages hand the model the screen's own close-basis readings first. v57.48 #20: portfolio and research pages too.
-      if (/^(home|briefing|signal|breadth|sentiment|macro|fxbond|themes|market-news|portfolio|principles|atlas|masters)$/.test(String(focus || ''))) {
+      if (/^(home|briefing|signal|breadth|sentiment|macro|fxbond|themes|market-news|portfolio|principles|atlas|masters|charts)$/.test(String(focus || ''))) {
         var screenBasis = typeof window._aioScreenBasisContext === 'function' ? window._aioScreenBasisContext() : '';
         if (screenBasis) liveLines.push(screenBasis, 'Live or intraday values elsewhere in this context may differ from the screen basis; cite the screen basis for current facts, label any live value with its time, and never quote a truncated number.');
       }
@@ -630,8 +629,7 @@ function _aioCanonicalSuppliedMaterialsContext(focus, registry) {
     // market packet while the UI and ESM retriever used the canonical route.
     // P1758/v57.54: `kr-tech`, `kr-themes` and `kr-macro` retired — KR sections render inside technical/themes/macro.
     var routeAliases = {
-      'theme': 'themes',
-      'kr-market': 'macro'
+      'theme': 'themes'
     };
     var routeKey = routeAliases[focus] || focus;
     if (!registry.routeMappings[routeKey]) routeKey = 'market';
@@ -815,6 +813,7 @@ function _aioSuppliedMaterialsContext(focus) {
 
 const CHAT_CONTEXTS = {
   technical:_aioCreateEvidenceContext('AI 기술적 분석가','technical'),
+  charts:_aioCreateEvidenceContext('AI 지수 차트 분석가','charts'), // v59.70: the 기술적 분석 screen had no context, so the panel did nothing there
   macro:_aioCreateEvidenceContext('AI 거시 분석가','macro'),
   fundamental:_aioCreateEvidenceContext('AI 펀더멘털 분석가','fundamental'),
   themes:_aioCreateEvidenceContext('AI 테마 분석가','themes'),
@@ -830,7 +829,8 @@ const CHAT_CONTEXTS = {
   briefing:_aioCreateEvidenceContext('AI 브리핑 분석가','briefing'),
   'market-news':_aioCreateEvidenceContext('AI 뉴스 분석가','market-news'),
   principles:_aioCreateEvidenceContext('AI 시장 원리 학습 분석가','principles'),
-  atlas:_aioCreateEvidenceContext('AI 시대 지식 지도 분석가','atlas')
+  atlas:_aioCreateEvidenceContext('AI 시대 지식 지도 분석가','atlas'),
+  masters:_aioCreateEvidenceContext('AI 대가 보유 종목 분석가','masters') // v59.70: a screen tab without a context left the panel silent
   // v57.54: kr-themes/kr-macro retired like kr-tech (P1758) — no screen opens them; 테마·거시 contexts answer KR sections.
 };
 
@@ -900,7 +900,7 @@ function _aioBeginChatRequest(ctxId, query, options) {
   state._streamStartedAt = run.startedAt;
   var sendButton = document.getElementById('chat-' + ctxId + '-btn');
   sendButton = document.getElementById(buttonId) || sendButton;
-  if (sendButton) sendButton.disabled = true;
+  if (sendButton) { sendButton.disabled = true; if (sendButton.setAttribute) sendButton.setAttribute('aria-busy', 'true'); } // v59.70: shared busy look (ui-states.css)
   if (sendButton && sendButton.parentNode && typeof document.createElement === 'function') {
     var stopButton = document.createElement('button');
     stopButton.type = 'button';
@@ -937,7 +937,7 @@ function _aioReleaseChatRequest(run) {
   state._retryCount = 0;
   state._activeRequest = null;
   var button = document.getElementById(run.buttonId || ('chat-' + run.ctxId + '-btn'));
-  if (button) { button.disabled = false; button.textContent = run.idleLabel || '전송 ▶'; }
+  if (button) { button.disabled = false; if (button.removeAttribute) button.removeAttribute('aria-busy'); button.textContent = run.idleLabel || '전송 ▶'; }
   if (ownsState && window._aioActiveAIQuery === run.query) window._aioActiveAIQuery = null;
 }
 
@@ -1929,7 +1929,7 @@ var AIO_CHAT_PIPELINE_REGISTRY = [
   { key:'marketState', label:'현재 시장 현황', tier:'current', kind:'quant', pages:['home','market-news','briefing'] },
   { key:'quotes', label:'실시간/검증 시세', tier:'current', kind:'quant', pages:['home','technical','signal','fundamental','portfolio'] },
   { key:'technicalOHLCV', label:'차트·기술 지표', tier:'analysis', kind:'quant', pages:['technical','signal'] },
-  { key:'screener', label:'퀀트 스크리너 후보군', tier:'analysis', kind:'quant', pages:['screener','themes'] },
+  { key:'screener', label:'스크리너 후보군', tier:'analysis', kind:'quant', pages:['screener','themes'] },
   { key:'breadthSentiment', label:'시장 폭·심리', tier:'context', kind:'quant', pages:['breadth','sentiment'] },
   { key:'macroRatesFx', label:'거시·금리·환율', tier:'context', kind:'quant', pages:['macro','fxbond'] },
   { key:'userResearchReference', label:'사용자 연구자료, AI 추론·거시 전이', tier:'reference', kind:'qual', pages:['macro','themes','briefing','market-news'] },
@@ -3098,18 +3098,7 @@ function _buildAioIntegratedAnswerContext(ctxId, query, flags) {
     active.forEach(function(key) {
       var row = registry.filter(function(r) { return r.key === key; })[0];
       (row && row.pages || []).forEach(function(p) {
-        if (p === 'technical') pushPage('종목, 차트');
-        else if (p === 'signal') pushPage('시장 상태');
-        else if (p === 'screener') pushPage('퀀트 스크리너');
-        else if (p === 'breadth') pushPage('시장 상태, 시장 폭');
-        else if (p === 'sentiment') pushPage('시장 상태, 투자 심리');
-        else if (p === 'macro') pushPage('매크로');
-        else if (p === 'fxbond') pushPage('거시와 금리 › 금리와 환율');
-        else if (p === 'fundamental') pushPage('종목, 재무 공시');
-        else if (p === 'themes' || p === 'theme-detail') pushPage('테마와 섹터');
-        else if (p === 'portfolio') pushPage('포트폴리오');
-        else if (p === 'market-news' || p === 'briefing') pushPage('오늘, 브리핑·뉴스');
-        else if (p === 'home') pushPage('오늘, 요약');
+        pushPage(_aioRouteName(p === 'theme-detail' ? 'themes' : p)); // v59.70: screen names come from ROUTE_HUBS
       });
     });
     if (nav && nav.target && nav.target !== lowerCtx) pushPage('관련 페이지: ' + nav.label);
@@ -3544,22 +3533,29 @@ function _autoNavigatePage(userQuery, currentCtxId) {
   var q = userQuery.toLowerCase();
   var intent = null;
   // 키워드 패턴 → 페이지 매핑
-  if (/(차트|chart|기술|technical|RSI|MACD|이동평균|MA|Weinstein)/i.test(q)) intent = { page: 'technical', label: '차트 분석', emoji: '' };
-  else if (/(시그널|signal|매매|trade|점수|score|ACTION)/i.test(q)) intent = { page: 'signal', label: '매매 시그널', emoji: '' };
-  else if (/(시장 폭|breadth|McClellan|AD line|NHNL)/i.test(q)) intent = { page: 'breadth', label: '시장 폭', emoji: '' };
-  else if (/(심리|sentiment|VIX|F&G|공포|탐욕|AAII|Put.?Call|PCR)/i.test(q)) intent = { page: 'sentiment', label: '투자 심리', emoji: '' };
-  else if (/(매크로|macro|Fed|CPI|PCE|유가|달러|환율|FOMC|금리)/i.test(q)) intent = { page: 'macro', label: '거시와 금리', emoji: '' };
-  else if (/(외환|FX|채권|bond|10Y|2Y|국채|금리)/i.test(q) && !/(macro|매크로)/i.test(q)) intent = { page: 'fxbond', label: '거시와 금리 › 금리와 환율', emoji: '' };
-  else if (/(기업 분석|fundamental|재무|earnings|EPS|PER|밸류에이션|valuation|owner earnings|moat)/i.test(q)) intent = { page: 'fundamental', label: '종목, 재무 공시', emoji: '' };
-  else if (/(테마|theme|섹터|sector|RRG|rotation)/i.test(q)) intent = { page: 'themes', label: '테마와 섹터', emoji: '' };
-  else if (/(포트폴리오|portfolio|보유|holdings|리밸런싱|rebalancing)/i.test(q)) intent = { page: 'portfolio', label: '포트폴리오', emoji: '' };
-  else if (/(옵션|option|GEX|put|call|delta|gamma|theta|vega)/i.test(q)) intent = { page: 'sentiment', label: '옵션·변동성 지표', emoji: '' }; // P1321: options route retired
-  else if (/(브리핑|briefing|오늘|today|이번 주|this week)/i.test(q)) intent = { page: 'briefing', label: '오늘, 브리핑', emoji: '' };
-  else if (/(뉴스|news|헤드라인|headline)/i.test(q)) intent = { page: 'market-news', label: '오늘, 뉴스', emoji: '' };
-  else if (/(한국|KOSPI|KOSDAQ|KRX|코스피|코스닥|원화|BOK|한은|VKOSPI)/i.test(q)) intent = { page: 'macro', label: '거시와 금리(한국 섹션)', emoji: '' };
+  // v59.70: '차트' about one stock (a ticker, 종목·주가, or asked from a stock tab) opens 종목 › 차트; about the market, 기술적 분석.
+  var stockChart = /^(ticker|technical|fundamental)$/.test(String(currentCtxId || '')) || /(종목|주가|\$[A-Za-z]{1,5}\b|\b[A-Z]{1,5}\b(?![a-z]))/.test(userQuery.replace(/\b(RSI|MACD|MA|ACTION|VIX|AAII|PCR|FX|GEX|EPS|PER|RRG)\b/g, ''));
+  if (/(차트|chart|기술|technical|RSI|MACD|이동평균|\bMA\b|Weinstein)/i.test(q)) intent = { page: stockChart && !/(지수|시장|index|S&P|나스닥|코스피|코스닥|다우|러셀|반도체 지수)/i.test(q) ? 'technical' : 'charts' };
+  else if (/(시그널|signal|매매|trade|점수|score|ACTION)/i.test(q)) intent = { page: 'signal' };
+  else if (/(시장 폭|breadth|McClellan|AD line|NHNL)/i.test(q)) intent = { page: 'breadth' };
+  else if (/(심리|sentiment|VIX|F&G|공포|탐욕|AAII)/i.test(q)) intent = { page: 'sentiment' };
+  else if (/(매크로|macro|Fed|CPI|PCE|유가|달러|환율|FOMC|금리)/i.test(q)) intent = { page: 'macro' };
+  else if (/(외환|FX|채권|bond|10Y|2Y|국채|금리)/i.test(q) && !/(macro|매크로)/i.test(q)) intent = { page: 'fxbond' };
+  else if (/(기업 분석|fundamental|재무|earnings|EPS|PER|밸류에이션|valuation|owner earnings|moat)/i.test(q)) intent = { page: 'fundamental' };
+  else if (/(테마|theme|섹터|sector|RRG|rotation)/i.test(q)) intent = { page: 'themes' };
+  else if (/(포트폴리오|portfolio|보유|holdings|리밸런싱|rebalancing)/i.test(q)) intent = { page: 'portfolio' };
+  else if (/(옵션|option|GEX|put|call|delta|gamma|theta|vega)/i.test(q)) intent = { page: 'sentiment' }; // P1321: options route retired
+  else if (/(브리핑|briefing|오늘|today|이번 주|this week)/i.test(q)) intent = { page: 'briefing' };
+  else if (/(뉴스|news|헤드라인|headline)/i.test(q)) intent = { page: 'market-news' };
+  else if (/(한국|KOSPI|KOSDAQ|KRX|코스피|코스닥|원화|BOK|한은|VKOSPI)/i.test(q)) intent = { page: 'macro' };
   // 현재 컨텍스트와 동일하면 이동 불필요
   if (intent && intent.page === currentCtxId) return null;
+  if (intent) { intent.label = _aioRouteName(intent.page); intent.emoji = ''; }
   return intent;
+}
+// v59.70: a route's screen name from the route registry (src/ui/navigation/route-hubs.js routeLabel via compatibility globals).
+function _aioRouteName(routeId) {
+  return (typeof window._aioRouteLabel === 'function' && window._aioRouteLabel(routeId)) || '';
 }
 window._autoNavigatePage = _autoNavigatePage;
 
@@ -3588,7 +3584,7 @@ function _suggestFollowUpQuestions(ctxId, userQuery, aiResponse, detectedTickers
     suggestions.push('현재 판단을 확인할 공식 지표와 발표 일정을 알려줘');
     suggestions.push('기본 시나리오가 무효화되는 반대 데이터는 무엇인가?');
   } else if (ctxId === 'sentiment') {
-    suggestions.push('VIX·F&G·Put/Call이 서로 엇갈릴 때 어떻게 해석해야 하나?');
+    suggestions.push('VIX·F&G·AAII가 서로 엇갈릴 때 어떻게 해석해야 하나?');
     suggestions.push('현재 심리 판단의 기준시각과 원천을 정리해줘');
     suggestions.push('심리 반전 여부를 확인할 다음 지표는 무엇인가?');
   } else if (ctxId === 'technical') {

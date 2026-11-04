@@ -3,7 +3,7 @@
 // the table below reads the largest S&P 500 weights and the day's material movers from the screener's own fields.
 // Breadth joins only the S&P 500 reading, where it changes what the chart says.
 import { createResourceBag } from '../../app/lifecycle.js';
-import { MARKET_DAY, refreshSharedArtifact } from '../../data/shared-artifacts.js';
+import { MARKET_DAY, refreshSharedArtifact, screenerRowsState } from '../../data/shared-artifacts.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { chartsConclusion, coreStockRows, indexChartReadings } from '../../domain/technical/market-charts.js';
 import { signedText } from '../../domain/shared/number.js';
@@ -12,6 +12,7 @@ import { noteFold } from '../components/section-frame.js';
 import { openMarketChart } from '../components/stock-chart.js';
 import { el } from '../components/dom.js';
 import { shortDate } from '../../domain/content/date-labels.js';
+import { historyWaitText, renderDataState } from '../components/data-state.js';
 
 // The ETF the 종목 차트 tab can open for each index; the Korean indexes have no tradable twin there.
 const CHART_SYMBOL = Object.freeze({ ndx: 'QQQ', spx: 'SPY', smh: 'SMH', rut: 'IWM' });
@@ -99,18 +100,22 @@ function render(documentRef, root, store, page) {
   const readings = indexChartReadings(history);
   const set = (id, text) => { const node = documentRef.getElementById(id); if (node) node.textContent = text; };
   const asOf = readings.map((reading) => reading.asOf).sort().at(-1);
-  set('charts-basis', readings.length ? `${shortDate(asOf)} 종가 · 일봉` : '종가 기록을 불러오는 중입니다.');
+  set('charts-basis', readings.length ? `${shortDate(asOf)} 종가 · 일봉` : historyWaitText(root));
   set('charts-conclusion', chartsConclusion(readings));
   const grid = documentRef.getElementById('charts-index-grid');
   if (grid) {
     const opened = new Set([...grid.querySelectorAll('[data-index] details[open]')].map((node) => node.closest('[data-index]').dataset.index));
-    grid.replaceChildren(...readings.map((reading) => indexCard(documentRef, root, reading)));
+    // v59.70 (ui-states): an empty grid drew nothing at all; it now shows the shared loading or failed state.
+    if (!readings.length) renderDataState(grid, root?.__aioHistoryLoadState === 'failed'
+      ? { state: 'error', text: historyWaitText(root), onRetry: () => root?._aioLoadHistory?.() } : { state: 'loading', lines: 4 });
+    else grid.replaceChildren(...readings.map((reading) => indexCard(documentRef, root, reading)));
     grid.querySelectorAll('[data-index]').forEach((card) => { if (opened.has(card.dataset.index)) card.querySelector('details')?.setAttribute('open', ''); });
   }
   const host = documentRef.getElementById('charts-stock-table');
   if (host) {
     const rows = coreStockRows({ ...screenerOf(root, store), day: root?.[MARKET_DAY.key] || null });
-    host.replaceChildren(rows.length ? stockTable(documentRef, root, rows) : el(documentRef, 'p', '종목 지표를 불러오는 중입니다.', 'briefing-empty'));
+    if (rows.length) host.replaceChildren(stockTable(documentRef, root, rows));
+    else renderDataState(host, screenerRowsState(root) === 'failed' ? { state: 'error', text: '종목 지표를 받지 못했습니다' } : { state: 'loading', lines: 5 });
   }
   page.dataset.aioChartsRendered = String(readings.length);
 }

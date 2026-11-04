@@ -99,14 +99,24 @@ export function markFrame(host, name) {
   return host;
 }
 
+// v59.70 (coverage audit S24): the owner's section shape — one visual, one short reading, at most one fold — as a contract
+// a frame opts into with `contract: 'story'`. The frame wraps its visual in .aio-frame-visual and carries
+// data-frame-contract="story"; scripts/ci-secondary-text-budget-check.mjs fails a story frame without exactly one drawn
+// visual (svg, canvas, img or role=img) and one reading, or with more than one fold. Frames without the contract keep
+// today's rules, so a screen moves onto it one section at a time.
+export const FRAME_CONTRACTS = Object.freeze({ story: Object.freeze({ visuals: 1, readings: 1, folds: 1 }) });
+
 /** A whole frame: head, then the visual, the reading and the fold, in that order. */
-export function frameSection(doc, { tag = 'section', id = '', frame = '', className = '', visual = null, reading = '', more = null, ...head } = {}) {
+export function frameSection(doc, { tag = 'section', id = '', frame = '', className = '', visual = null, reading = '', more = null, contract = '', ...head } = {}) {
   const host = el(doc, tag, null, ['aio-frame', className].filter(Boolean).join(' '));
   if (id) host.id = id;
   if (frame) host.dataset.frame = frame;
+  if (contract && FRAME_CONTRACTS[contract]) host.dataset.frameContract = contract;
   if (head.titleId) host.setAttribute('aria-labelledby', head.titleId);
   host.append(frameHead(doc, head));
-  for (const part of [].concat(visual || [])) if (part) host.append(part);
+  const parts = [].concat(visual || []).filter(Boolean);
+  if (host.dataset.frameContract && parts.length) { const box = el(doc, 'div', null, 'aio-frame-visual'); box.append(...parts); host.append(box); }
+  else for (const part of parts) host.append(part);
   const read = frameReading(doc, reading);
   if (read) host.append(read);
   if (more) host.append(more);

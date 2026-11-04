@@ -285,7 +285,7 @@ function createMastersArrivalContext(documentRef, context, onReturn) {
   block.append(
     element(documentRef, 'span', 'masters-eyebrow', '개념·분석에서 이어 읽기'),
     element(documentRef, 'strong', 'masters-arrival-title', '시장의 기대를 기관의 공개 보유 변화와 대조합니다.'),
-    element(documentRef, 'p', 'masters-catalog-copy', '13F는 분기 말의 지연된 스냅샷입니다. 먼저 같은 보고분기의 신고 수량 변화를 보고, 다음으로 원본 공시와 누락 자산 경계를 확인한 뒤, 이야기에서 세운 가설과 일치하는지 비교하세요.')
+    element(documentRef, 'p', 'masters-catalog-copy', '13F는 분기 말의 지연된 스냅샷입니다.')
   );
   if (context.returnContext?.route) {
     const back = element(documentRef, 'button', 'masters-route-button is-secondary', '읽던 이야기로 돌아가기');

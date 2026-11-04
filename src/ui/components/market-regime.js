@@ -20,6 +20,7 @@ import { markFrame } from './section-frame.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { signedText } from '../../domain/shared/number.js';
 import { withDirectionParticle } from '../../domain/content/korean-particle.js';
+import { historyWaitText } from './data-state.js';
 
 // Live review 2026-10-14 (owner reading standard: 3–5 lines, ~130–230자 per block): a longer reading keeps its first
 // sentences on the face (up to ~200자, cut at a sentence end) and folds the rest under '이어서 읽기'.
@@ -529,7 +530,7 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
   const scenarios = interpretation.scenarios || { available: false };
   const previous = previousRegime({ ...inputs, macroHistory: inputs?.macroHistory || root._aioMacroHistory || null }, regime);
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
-  set('regime-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준, 6개 지표` : '종가 기록을 불러오는 중입니다.');
+  set('regime-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준, 6개 지표` : historyWaitText(root));
   // F01: before the closes load, a verdict the static shell painted from today-verdict.json stays (not '판정 대기').
   const overall = regime.available || !doc.getElementById('home-hero-total')?.dataset?.firstPaint ? set('regime-overall', regime.available ? regime.overall : '판정 대기') : doc.getElementById('regime-overall');
   if (overall) { overall.dataset.overall = regime.overall || ''; overall.setAttribute('aria-label', `미국 시장 판정: ${regime.available ? regime.overall : '판정 대기'}`); } // v57.77 (a11y 2.4.6)
@@ -802,7 +803,7 @@ export function renderHomeRegime({ documentRef: doc, root, store = null }) {
   if (!held) set('home-hero-total', regime.available ? regime.overall : '판정 대기');
   // v58.79 (owner 2026-10-25, layout over captions): the close date is in the page subtitle and the six counts are the
   // axis chips below, so this line speaks only when the verdict is held (why) and stays empty (hidden) otherwise.
-  if (!held) set('home-hero-headline', regime.available ? (regime.holdReason || (regime.overall === '판정 보류' ? `미국 6개 지표 ${summaryLine(regime)}` : '')) : '종가 기록을 불러오는 중입니다.');
+  if (!held) set('home-hero-headline', regime.available ? (regime.holdReason || (regime.overall === '판정 보류' ? `미국 6개 지표 ${summaryLine(regime)}` : '')) : historyWaitText(root));
   // v58.56 (re-audit #2): the hero sentence is the regime's one plain line (heroLine); the full conflict sentences with
   // their numbers and rules move into the 6개 축 근거 fold under the axis chips.
   if (!held) set('home-hero-desc', regime.heroLine || '');

@@ -31,7 +31,7 @@
   --sx-float-shadow: var(--shadow-md);
   --sx-sidebar-bg: var(--gold-2);
   --sx-ease: var(--ease-out, cubic-bezier(0.2, 0.8, 0.2, 1));
-  --sx-dur: 250ms;
+  --sx-dur: var(--dur-base);
 }
 
 /* ═══ 1. Shell ═══════════════════════════════════════════════════════════ */
@@ -247,6 +247,7 @@ details > summary { cursor: pointer; }
 .aio-frame-head { flex-wrap: wrap; row-gap: 6px; }
 .aio-frame-head:has(> .aio-frame-actions) { justify-content: flex-start; } /* the chip sits by the title; actions take the right */
 .aio-frame-head > .sr-only + .aio-asof { margin-left: auto; }
+.aio-frame-visual { min-width: 0; } /* v59.70 (S24): a story frame's one visual; wide charts shrink instead of widening the card */
 .aio-asof { display: inline-flex; align-items: center; min-height: 22px; padding: 0 8px; border-radius: 999px; background: var(--sx-ink-a03); color: var(--text-secondary); font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .aio-asof[title] { cursor: help; }
 .aio-frame-actions { display: inline-flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
@@ -340,7 +341,7 @@ details > summary { cursor: pointer; }
 .sx-sheet {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 260; max-height: 86vh; overflow-y: auto;
   background: var(--bg-card); border-radius: 12px 12px 0 0; padding: 10px 20px max(20px, env(safe-area-inset-bottom, 0px));
-  box-shadow: 0 -8px 40px var(--black-a3); transform: translateY(100%); transition:transform 250ms ease-out;
+  box-shadow: 0 -8px 40px var(--black-a3); transform: translateY(100%); transition:transform var(--dur-base) var(--ease-out);
 }
 .sx-sheet.is-open { transform: translateY(0); }
 .sx-sheet::before { content: ''; display: block; width: 38px; height: 5px; margin: 0 auto 14px; border-radius: 999px; background: rgba(var(--ink-rgb), 0.18); }

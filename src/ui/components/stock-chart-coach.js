@@ -400,7 +400,7 @@ export function priceLevelSection(doc, root, sym, levels, currency, instance, ch
     section.append(toggle);
   }
   const how = el(doc, 'details', null, 'chart-level-definitions');
-  how.append(el(doc, 'summary', '레벨을 찾는 방법과 읽는 법'));
+  how.append(el(doc, 'summary', '레벨 기준'));
   const R = levels.rules;
   [
     `스윙 고점·저점: 좌우 ${R.swingSpan}개 봉보다 높은 고가·낮은 저가, 최근 ${R.lookback}거래일. 50·200일선, 21일 EMA, 20일·${levels.rangeLabel} 고저, 피벗과 마지막 수축 저점도 함께 씁니다.`,

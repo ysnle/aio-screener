@@ -469,8 +469,8 @@ async function addPortfolioPosition() {
   var form = _pfFormSnapshot();
   if (_pfAddRun && _pfAddRun.form === form) return _pfAddRun.done;
   var run = { form: form, done: _pfAddRun ? _pfAddRun.done.catch(function() {}).then(_pfAddOnce) : _pfAddOnce() };
-  _pfAddRun = run;
-  try { return await run.done; } finally { if (_pfAddRun === run) _pfAddRun = null; }
+  _pfAddRun = run; var pfAddBtn = document.querySelector('[data-action="addPortfolioPosition"]'); if (pfAddBtn) pfAddBtn.setAttribute('aria-busy', 'true'); // v59.70: busy, still clickable (P2197)
+  try { return await run.done; } finally { if (_pfAddRun === run) { _pfAddRun = null; if (pfAddBtn) pfAddBtn.removeAttribute('aria-busy'); } }
 }
 async function _pfAddOnce() {
   const pfFormAtSubmit = _pfFormSnapshot();
@@ -480,7 +480,7 @@ async function _pfAddOnce() {
   var pfCheckPending = typeof window._aioReadHoldingInputs === 'function' ? window._aioReadHoldingInputs().catch(function() { return null; }) : Promise.resolve(null); // v58.80 F06/F25: input-check.js checks the values taken now; every field is read before the first await
   // P1176 (22 PFR01): 빈 칸을 0으로 직렬화하면 화면이 '목표 $0.00 · -100%'를 만든다 — 미설정은 null로 남긴다.
   const pfTargetEl = document.getElementById('pf-add-target'), parsedTarget = parseFloat(pfTargetEl.value);
-  if (pfTargetEl.validity?.badInput || (pfTargetEl.value.trim() && !(parsedTarget > 0))) { showToast('목표가는 0보다 큰 숫자로 입력하거나 비워 두세요.'); return; } // v58.82: 말없이 미설정 저장하지 않음
+  if (pfTargetEl.validity?.badInput || (pfTargetEl.value.trim() && !(parsedTarget > 0))) { var pfTgtMsg = '목표가는 0보다 큰 숫자로 입력하거나 비워 두세요.'; showToast(pfTgtMsg); window._aioMarkField?.('pf-add-target', pfTgtMsg); pfTargetEl.focus(); return; } window._aioMarkField?.('pf-add-target'); // v58.82: 말없이 미설정 저장하지 않음
   const target = Number.isFinite(parsedTarget) && parsedTarget > 0 ? parsedTarget : null;
   const memo = (document.getElementById('pf-add-memo').value || '').trim();
   // E3/P1187 (11 P11-02): 원가 통화는 합산의 단위다 — 이 경로에 writer가 없어서 사용자는 통화를

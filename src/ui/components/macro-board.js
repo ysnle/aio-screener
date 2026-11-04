@@ -30,11 +30,13 @@ import { shortDate } from '../../domain/content/date-labels.js';
 import { usWeekendClosed } from '../../domain/market/market-calendar.js';
 import { peopleText, signedText } from '../../domain/shared/number.js';
 import { buildCrossAssetRelations } from '../../domain/macro/cross-asset-relations.js';
+import { dodgeSvgLabels } from './svg-label-dodge.js';
 import { MARKET_WINDOWS } from '../../domain/market/market-windows.js';
 import { RULES } from '../../domain/rules/thresholds.js';
 import { MACRO_SIGNAL_RULES } from '../../domain/macro/macro-signals.js';
 import { renderIndexEarnings } from './index-earnings.js';
 import { gaugeBar, bandOf, TONE_WORD } from './gauge-bar.js';
+import { historyWaitText, serverDataWaitText } from './data-state.js';
 
 const SVG = 'http://www.w3.org/2000/svg';
 
@@ -228,8 +230,11 @@ function axisCard(doc, row, root = null, open = false) {
     const band = bandOf(g);
     if (band && row.state !== 'unknown' && band.tone !== row.state) facts.append(el(doc, 'p', `막대는 ${TONE_WORD[band.tone]} 구간이지만 다른 조건 때문에 ${row.stateLabel}입니다 — 아래 판정 기준 참고.`, 'macro-gauge-note'));
   }
-  if (row.shared) facts.append(el(doc, 'span', '시장 상태와 같은 판정', 'basis-chip'));
-  if (root && SIGNAL_CHART_AXES.has(row.id)) {
+  // v59.70 (quality bar): the link already says "같은 판정"; the chip printed run-on beside it ("…같은 판정시장 상태에서…"),
+  // so it stays only for an axis without the link.
+  const linked = Boolean(root && SIGNAL_CHART_AXES.has(row.id));
+  if (row.shared && !linked) facts.append(el(doc, 'span', '시장 상태와 같은 판정', 'basis-chip'));
+  if (linked) {
     const go = el(doc, 'button', '시장 상태에서 1년 추이와 같은 판정 보기 →', 'flow-next-link');
     go.type = 'button';
     go.addEventListener('click', () => openSignalAxis(doc, root, row.id));
@@ -756,7 +761,7 @@ export function renderMacroBoard({ documentRef: doc, root }) {
   const { regime, macroRead: read, crossroads } = marketInterpretation(root); // owner 2026-10-19: the shared macro read (same as the branches)
   const basis = doc.getElementById('macro-board-basis');
   if (basis) {
-    basis.textContent = board.available ? macroThroughLine(read, crossroads) || '공식 발표와 미국 종가 기준' : '공식 발표 자료를 불러오는 중입니다.';
+    basis.textContent = board.available ? macroThroughLine(read, crossroads) || '공식 발표와 미국 종가 기준' : serverDataWaitText(root);
     basis.title = '공식 발표와 미국 종가 기준';
   }
   // v59.68: the forward branches (P1742) are on 시장 상태 (market-regime.js renders them into its scenario fold).
@@ -886,8 +891,17 @@ function curveSvg(doc, yields, previous = null) {
     // 20년 on 10/30); there the label goes under the point instead.
     const prevY = prevById.has(row.id) ? y(prevById.get(row.id)) : null;
     const below = prevY != null && prevY < y(row.value) && y(row.value) - prevY <= (narrow ? 34 : 22);
-    if (labelled.has(index)) add('text', { x: x(index) + lean.dx, y: below ? y(row.value) + 16 : y(row.value) - 8, 'text-anchor': lean.anchor, class: 'rates-curve-label' }, row.value.toFixed(2));
+    // v59.70 (coverage audit S9): under the point the solid line comes in from the lower neighbour (10년 4.91 and 2년 4.59
+    // sat on it at 390px), so a label placed below leans to the side away from that neighbour.
+    const lowerThan = (other) => other?.value != null && other.value < row.value;
+    // 20년 has 30년's label to its right, so it sits level with its point on the left, above the rising line.
+    const side = !below ? { ...lean, dy: -8 } : edge === ' is-penult' && lowerThan(yields[index - 1]) ? { dx: -8, anchor: 'end', dy: 4 }
+      : edge ? { ...lean, dy: 16 } : lowerThan(yields[index - 1]) ? { dx: 6, anchor: 'start', dy: 16 } : lowerThan(yields[index + 1]) ? { dx: -6, anchor: 'end', dy: 16 } : { ...lean, dy: 16 };
+    if (labelled.has(index)) add('text', { x: x(index) + side.dx, y: y(row.value) + side.dy, 'text-anchor': side.anchor, class: 'rates-curve-label' }, row.value.toFixed(2));
   });
+  // v59.70 (render hotfix): a value label that lands on an axis or tenor label moves vertically clear (svg-label-dodge.js);
+  // on 11/3 the 1개월 4.03 label sat on the 3.9% axis label at every desktop width.
+  if (typeof svg.querySelectorAll === 'function') dodgeSvgLabels({ fixed: [...svg.querySelectorAll('.trend-chart-axis')], movable: [...svg.querySelectorAll('.rates-curve-label')], fontSize: narrow ? 15 : 12 });
   return svg;
 }
 
@@ -945,7 +959,7 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
     axesHost.replaceChildren(...rows.map((row) => axisCard(doc, row, root)));
   }
   // v59.55: the header says the close like every screen; the curve card's meta already names the Treasury fixing date.
-  set('rates-basis', model.basis ? `${shortDate(model.basis)} 미국 종가 기준` : '종가 기록을 불러오는 중입니다.');
+  set('rates-basis', model.basis ? `${shortDate(model.basis)} 미국 종가 기준` : historyWaitText(root));
 
   // 1. Treasury curve
   set('rates-curve-basis', t.basisLabel || ''); // v57.50 C10: source and date of the curve's levels and changes

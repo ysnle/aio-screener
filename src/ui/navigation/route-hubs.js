@@ -21,6 +21,15 @@ export function hubForRoute(routeId) {
   return ROUTE_HUBS.find((hub) => hub.routes.some((route) => route.id === routeId)) || null;
 }
 
+// v59.70: the name a route goes by outside its own screen ('매크로, 금리와 환율', '종목, 차트', '스크리너'); the AI panel's
+// page hints and move suggestions read it here instead of keeping their own copies of screen names.
+export function routeLabel(routeId) {
+  const hub = hubForRoute(routeId);
+  if (!hub) return '';
+  const route = hub.routes.find((entry) => entry.id === routeId);
+  return !route || route.label === hub.label || route.label === '개요' || hub.routes.length === 1 ? hub.label : `${hub.label}, ${route.label}`;
+}
+
 // P1430: the 종목 screen names the company all three tabs are about, and where the user came from.
 const SUBJECT_ORIGINS = Object.freeze({ home: '오늘', briefing: '브리핑', 'market-news': '뉴스', screener: '스크리너', themes: '테마', portfolio: '포트폴리오', masters: '대가 보유 종목', signal: '시장 상태', breadth: '시장 폭', sentiment: '투자 심리' });
 
@@ -53,8 +62,8 @@ function renderSubject(documentRef, nav, subject, root, routeId) {
   // subject line keeps only the way back.
   if (!subject && routeId === 'ticker') return;
   if (!subject) {
-    box.textContent = '종목을 고르면 세 탭이 같은 종목을 보여줍니다';
-    if (routeId !== 'ticker') box.append(' ', pickButton(documentRef, root, '종목 고르기'));
+    // v59.70 (ui-states): the button alone; the sentence explaining the three tabs was help copy.
+    box.append(pickButton(documentRef, root, '종목 고르기'));
     nav.appendChild(box);
     return;
   }

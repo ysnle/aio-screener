@@ -56,11 +56,61 @@ async function runOnce(browser, run) {
   return { run, ok, early, late, earlyQuoteRequests, lateQuoteRequests };
 }
 
+// v59.70 (ui-states): history.json and data.json refused. Before, both loaders returned null without a word and every
+// close-based card said '불러오는 중' for good; now the shell shows one failure line with 다시 시도, the basis lines say
+// the record did not arrive, and a retry that succeeds removes the line.
+async function runCoreFileFailure(browser) {
+  const page = await browser.newPage();
+  let refuse = true;
+  await page.route('**/*', (route) => {
+    const url = route.request().url();
+    if (!url.startsWith(`http://127.0.0.1:${port}/`)) return route.abort();
+    if (refuse && /\/public-data\/(history|data)\.json/.test(url)) return route.abort('failed');
+    return route.continue();
+  });
+  await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await page.waitForFunction(() => typeof window.showPage === 'function', { timeout: 30000 });
+  const notice = await page.waitForSelector('#aio-load-failure .aio-state__retry', { timeout: 20000 }).then(() => true).catch(() => false);
+  const failed = await page.evaluate(() => ({
+    line: document.querySelector('#aio-load-failure .aio-state__text')?.textContent || '',
+    hero: document.getElementById('home-hero-headline')?.textContent?.trim() || '',
+    regime: document.getElementById('regime-basis')?.textContent?.trim() || '',
+  }));
+  refuse = false;
+  await page.click('#aio-load-failure .aio-state__retry');
+  const cleared = await page.waitForFunction(() => !document.getElementById('aio-load-failure'), { timeout: 20000 }).then(() => true).catch(() => false);
+  await page.close();
+  const ok = notice && /받지 못했습니다/.test(failed.line) && failed.hero !== '종가 기록을 불러오는 중입니다.' && failed.regime === '종가 기록을 받지 못했습니다.' && cleared;
+  return { run: 'core-file-failure', ok, notice, failed, cleared };
+}
+
+// v59.70 (ui-states): an empty answer (history.json [] and data.json {}) is the empty state, not an error and not 불러오는 중.
+async function runCoreFileEmpty(browser) {
+  const page = await browser.newPage();
+  await page.route('**/*', (route) => {
+    const url = route.request().url();
+    if (!url.startsWith(`http://127.0.0.1:${port}/`)) return route.abort();
+    if (/\/public-data\/history\.json/.test(url)) return route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+    if (/\/public-data\/data\.json/.test(url)) return route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
+    return route.continue();
+  });
+  await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  const shown = await page.waitForSelector('#aio-load-failure.is-empty', { timeout: 20000 }).then(() => true).catch(() => false);
+  const empty = await page.evaluate(() => ({
+    line: document.querySelector('#aio-load-failure .aio-state__text')?.textContent || '',
+    retry: !!document.querySelector('#aio-load-failure .aio-state__retry'),
+    regime: document.getElementById('regime-basis')?.textContent?.trim() || '',
+  }));
+  await page.close();
+  const ok = shown && /비어 있습니다/.test(empty.line) && !empty.retry && empty.regime === '종가 기록이 없습니다.';
+  return { run: 'core-file-empty', ok, shown, empty };
+}
+
 const server = await startLocalServer(port, { label: 'sa02/server' });
 let browser;
 try {
   browser = await chromium.launch();
-  const results = [await runOnce(browser, 1), await runOnce(browser, 2)];
+  const results = [await runOnce(browser, 1), await runOnce(browser, 2), await runCoreFileFailure(browser), await runCoreFileEmpty(browser)];
   const ok = results.every((result) => result.ok);
   console.log(JSON.stringify({ ok, fixture: 'SA-02 outage-browser-fixture', runs: results }, null, 2));
   if (!ok) process.exitCode = 1;

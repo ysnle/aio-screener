@@ -21,6 +21,7 @@ import { openThemeDetail } from '../navigation/theme-detail.js';
 import { buildOutOfUniverseRead } from '../../domain/entity/out-of-universe-read.js';
 import { fiscalYearLabel } from '../../domain/fundamental/period.js';
 import { signedText as sharedSignedText, usdKoreanText } from '../../domain/shared/number.js';
+import { krFundamentalPoints } from '../../domain/entity/kr-fundamentals.js';
 
 const TICKER_INDEX_REFERENCE_URL = './public-data/masters/ticker-index-reference.json';
 
@@ -143,7 +144,7 @@ function checkTile(doc, { name, tone = 'neutral', chip = null, stale = false, va
   if (detail) tile.append(el(doc, 'span', detail, 'v2-stock-check__detail'));
   return tile;
 }
-function stockChecks(doc, read, sym, fundamentals, fundamentalsState = null) {
+function stockChecks(doc, read, sym, fundamentals, fundamentalsState = null, krCompany = null) {
   const facts = read.facts || {};
   const tone = (id) => read.points.find((point) => point.id === id)?.tone || 'neutral';
   const tiles = [];
@@ -156,8 +157,12 @@ function stockChecks(doc, read, sym, fundamentals, fundamentalsState = null) {
   }
   // 재무: the SEC annual record (US); a KRX listing reads DART; an ETF (no 재무 공시 next step) has no company filings.
   const isFund = !read.next.some((step) => step.route === 'fundamental');
-  if (/\.K[SQ]$/i.test(sym)) tiles.push(checkTile(doc, { name: '재무', chip: 'DART', value: '한국 공시 원문', detail: '주요 계정 수집 전, DART 원문' }));
-  else if (!isFund) {
+  // v59.70 (ui-states): a KRX listing's tile waits for its OpenDART accounts instead of a '수집 전' cell; it appears on its
+  // own once kr-fundamentals carries the company (the company fold re-renders on the same artifact).
+  if (/\.K[SQ]$/i.test(sym)) {
+    const kr = krFundamentalPoints(krCompany);
+    if (kr?.length) tiles.push(checkTile(doc, { name: '재무', chip: 'DART', value: kr[0].text, detail: kr.slice(1, 3).map((point) => `${point.title} ${point.text}`).join(', ') }));
+  } else if (!isFund) {
     const own = fundamentals && String(fundamentals.symbol || sym).toUpperCase() === sym ? fundamentals : null;
     const num = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
     const growth = num(own?.revGrowth), margin = num(own?.margin), roe = num(own?.roe);
@@ -305,7 +310,7 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   // 52-week bar; ② the index comparison and the rest of the reading as two cards; ③ the sentences behind the tiles fold.
   const hero = el(doc, 'div', null, 'sx-card sx-card--hero v2-stock-hero');
   // 2026-10-14 audit #13: the rank moved from this heading into the reading ('순위' point).
-  hero.append(el(doc, 'span', '이 종목의 지금', 'sx-kicker'), el(doc, 'p', `${read.name} — ${read.headline}`, 'briefing-read-headline v2-stock-lede'));
+  hero.append(el(doc, 'p', `${read.name} — ${read.headline}`, 'briefing-read-headline v2-stock-lede'));
   // P1599 (S03): the position and returns below are completed-close figures, not the live quote at the top (which
   // can be '—'). Name that basis once, beside the figures it governs — by its date, not by its collection.
   const basisDate = String(row?.factorSessionDate || row?.priceDate || '').slice(0, 10);
@@ -314,7 +319,7 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   const basisLine = el(doc, 'p', `${basisShort ? `${basisShort} ` : '완료 '}종가 기준${onDemand?.status === 'ready' ? ', 스크리너 랭킹 밖이라 같은 공식으로 따로 계산' : ''}`, 'briefing-footnote sx-meta');
   basisLine.title = '위치·수익률은 완료된 거래일 종가로 계산합니다. 맨 위 현재가와 시점이 다를 수 있습니다.';
   hero.append(basisLine);
-  const checks = stockChecks(doc, read, sym, fundamentals, fundamentalsState);
+  const checks = stockChecks(doc, read, sym, fundamentals, fundamentalsState, root?._aioKrFundamentals?.companies?.[sym] || null);
   if (checks) hero.append(checks);
   // v59.51 (content audit): the 52-week position is the '위치' tile (the separate bar repeated it); the market line and the
   // memo/watch actions (entity.js renderStockLens) close this card.

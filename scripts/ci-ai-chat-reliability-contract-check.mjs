@@ -374,7 +374,29 @@ assert(!source.includes('function _aioChatAbortPromise('));
   assert(chip.includes("getElementById('ai-panel-inp')") && chip.includes('chatSendUnified()') && !chip.includes("'chat-' + ctxId + '-inp'") && !/\bchatSend\(ctxId/.test(chip), 'v57.60 chatFromChip routes to the unified AI panel');
 }
 assert(source.includes('function _aioCanonicalSuppliedMaterialsContext(') && source.includes('var canonicalRegistry = window.AIO && window.AIO.SUPPLIED_MATERIALS_REFERENCE;'));
-assert(source.includes("'kr-market': 'macro'") && !source.includes("'kr-tech'") && !source.includes("'kr-themes':") && !/'kr-macro':\s*(?:'|_aio)/.test(source)); // P1758/v57.54: kr-tech, kr-themes, kr-macro retired
+assert(!source.includes("'kr-market':") && !source.includes("'kr-tech'") && !source.includes("'kr-themes':") && !/'kr-macro':\s*(?:'|_aio)/.test(source)); // P1758/v57.54: kr-tech, kr-themes, kr-macro retired; v59.70: the kr-market alias too
+// v59.70 (coverage audit S20): the AI panel's screen map follows the route registry. Every context, retrieval-map key and
+// move target is a registered route, every screen tab has a context (기술적 분석 and 대가 보유 종목 had none, so the
+// panel did nothing there), and screen names are read from ROUTE_HUBS — no hand-written copies left to go stale
+// ('거시와 금리 › 금리와 환율', '매매 시그널', '퀀트 스크리너').
+{
+  const { ROUTE_IDS } = await import(new URL('../src/app/routes.js', import.meta.url));
+  const { ROUTE_HUBS } = await import(new URL('../src/ui/navigation/route-hubs.js', import.meta.url));
+  const routes = new Set(ROUTE_IDS);
+  const keysOf = (text) => [...text.matchAll(/(?:^|[{,\s])'?([a-z][a-z-]*)'?\s*:/g)].map((m) => m[1]);
+  const contexts = keysOf(section('const CHAT_CONTEXTS = {', '\n};'));
+  const retrieval = keysOf(section('    var map = {', '    };'));
+  const nav = section('function _autoNavigatePage(', 'function _aioRouteName(');
+  const targets = [...nav.matchAll(/page: (?:[^']*\? )?'([a-z-]+)'(?: : '([a-z-]+)')?/g)].flatMap((m) => m.slice(1).filter(Boolean));
+  const unknown = [...contexts, ...retrieval, ...targets].filter((key) => !routes.has(key));
+  assert(!unknown.length, `v59.70 AI panel names unregistered routes: ${[...new Set(unknown)].join(', ')}`);
+  const tabs = ROUTE_HUBS.flatMap((hub) => hub.routes.filter((route) => route.tab !== false).map((route) => route.id));
+  const missing = tabs.filter((id) => !contexts.includes(id));
+  assert(!missing.length, `v59.70 screen tabs without an AI panel context: ${missing.join(', ')}`);
+  assert(targets.includes('charts') && targets.includes('technical'), 'v59.70 차트 questions reach both 기술적 분석 and 종목 › 차트');
+  assert(!/label:\s*'/.test(nav) && !/pushPage\('(?!관련 페이지: )/.test(source), 'v59.70 move labels and page hints come from the route registry (_aioRouteName)');
+  for (const stale of ['거시와 금리', '매매 시그널', '퀀트 스크리너', '거시 경제']) assert(!new RegExp(`'[^'\\n]*${stale}[^'\\n]*'`).test(source), `v59.70 AI panel keeps a retired screen name in a string: ${stale}`);
+}
 assert(source.includes('function _aioWrapChatExternalContext(') && unifiedChat.includes('window._aioWrapChatExternalContext') && unifiedChat.includes("_wrapUnifiedExternal('TECHNICAL_ENRICHMENT'")); // v57.62: per-page caller retired
 assert(unifiedChat.includes('_wrapUnifiedExternal') && unifiedChat.includes("_wrapUnifiedExternal('DEEP_COMPARISON'"));
 // P1756: the first attempt keeps automatic web search; a retry after a timeout/5xx repeats the request without it (each

@@ -12,7 +12,7 @@
 #aio-prompt-ok { padding: 7px 14px; background: rgba(var(--ink-rgb),0.2); border: 0.5px solid var(--data-cyan); color: var(--data-cyan); border-radius: 4px; cursor: pointer; font-weight: 700; }
 
 /* Toast — body; showToast() fades it in by setting style.opacity */
-.aio-toast.wsl-toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--text-primary,var(--gold-12)); color: var(--bg-base,var(--gold-2)); padding: 9px 18px; border-radius: 8px; box-shadow: 0 4px 14px var(--black-a4); max-width: min(560px,calc(100vw - 32px)); font-size: 12px; font-weight: 600; line-height: 1.5; text-align: center; z-index: 99998; pointer-events: none; opacity: 0; transition:opacity 250ms ease-out; }
+.aio-toast.wsl-toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--text-primary,var(--gold-12)); color: var(--bg-base,var(--gold-2)); padding: 9px 18px; border-radius: 8px; box-shadow: 0 4px 14px var(--black-a4); max-width: min(560px,calc(100vw - 32px)); font-size: 12px; font-weight: 600; line-height: 1.5; text-align: center; z-index: 99998; pointer-events: none; opacity: 0; transition:opacity var(--dur-base) var(--ease-out); }
 
 /* Chat history overlay (body) */
 #chat-history-overlay .wsl-ch-tools { display: flex; gap: 6px; }

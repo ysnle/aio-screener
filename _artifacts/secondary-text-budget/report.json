@@ -55,6 +55,7 @@
       "frames": [
         {
           "frame": "home.index-strip",
+          "contract": null,
           "hasHead": true,
           "asof": "10/30 종가",
           "readings": [],
@@ -62,6 +63,7 @@
         },
         {
           "frame": "home.my-names",
+          "contract": null,
           "hasHead": true,
           "asof": "",
           "readings": [],
@@ -137,6 +139,7 @@
       "frames": [
         {
           "frame": "signal.story",
+          "contract": null,
           "hasHead": true,
           "asof": "최근 15거래일",
           "readings": [
@@ -146,6 +149,7 @@
         },
         {
           "frame": "signal.scenarios",
+          "contract": null,
           "hasHead": false,
           "asof": "",
           "readings": [],
@@ -153,6 +157,7 @@
         },
         {
           "frame": "signal.synthesis",
+          "contract": null,
           "hasHead": true,
           "asof": "10/30 종가",
           "readings": [],
@@ -218,8 +223,8 @@
       "frames": []
     },
     "sentiment": {
-      "total": 997,
-      "secondary": 158,
+      "total": 956,
+      "secondary": 141,
       "lines": [
         {
           "chars": 20,
@@ -230,11 +235,6 @@
           "chars": 20,
           "classes": "basis-chip trend-card-tags",
           "text": "10/30 기준, 7개 중 6개 반영"
-        },
-        {
-          "chars": 17,
-          "classes": "basis-chip trend-card-tags",
-          "text": "10/22, 오래됨(판정 제외)"
         },
         {
           "chars": 14,
@@ -280,12 +280,17 @@
           "chars": 5,
           "classes": "basis-chip trend-card-tags trend-card",
           "text": "10/30"
+        },
+        {
+          "chars": 2,
+          "classes": "aio-basis-btn briefing-block market-temperature",
+          "text": "근거"
         }
       ],
       "frames": []
     },
     "briefing": {
-      "total": 1198,
+      "total": 1186,
       "secondary": 45,
       "lines": [
         {
@@ -307,7 +312,7 @@
       "frames": []
     },
     "technical": {
-      "total": 187,
+      "total": 157,
       "secondary": 37,
       "lines": [
         {
@@ -324,7 +329,7 @@
       "frames": []
     },
     "macro": {
-      "total": 4387,
+      "total": 4390,
       "secondary": 245,
       "lines": [
         {
@@ -391,6 +396,7 @@
       "frames": [
         {
           "frame": "macro.recent-releases",
+          "contract": null,
           "hasHead": true,
           "asof": "",
           "readings": [],
@@ -398,6 +404,7 @@
         },
         {
           "frame": "macro.chapters",
+          "contract": null,
           "hasHead": false,
           "asof": "",
           "readings": [],
@@ -406,8 +413,8 @@
       ]
     },
     "fxbond": {
-      "total": 1774,
-      "secondary": 165,
+      "total": 1769,
+      "secondary": 160,
       "lines": [
         {
           "chars": 18,
@@ -441,11 +448,6 @@
         },
         {
           "chars": 11,
-          "classes": "rates-guide",
-          "text": "수익률 곡선 읽는 법"
-        },
-        {
-          "chars": 11,
           "classes": "briefing-h2-note briefing-h2 briefing-block rates-block",
           "text": "10/30 종가 기준"
         },
@@ -463,6 +465,11 @@
           "chars": 8,
           "classes": "basis-chip trend-card-tags trend-card",
           "text": "10/30 종가"
+        },
+        {
+          "chars": 6,
+          "classes": "rates-guide",
+          "text": "수익률 곡선"
         },
         {
           "chars": 5,
@@ -546,6 +553,7 @@
       "frames": [
         {
           "frame": "themes.rrg",
+          "contract": null,
           "hasHead": true,
           "asof": "10/30 종가",
           "readings": [],
@@ -553,6 +561,7 @@
         },
         {
           "frame": "themes.sector-map",
+          "contract": null,
           "hasHead": true,
           "asof": "10/30 종가",
           "readings": [],
@@ -560,6 +569,7 @@
         },
         {
           "frame": "themes.ranking",
+          "contract": null,
           "hasHead": true,
           "asof": "10/30 종가",
           "readings": [],
@@ -567,6 +577,7 @@
         },
         {
           "frame": "themes.ai-chain",
+          "contract": null,
           "hasHead": true,
           "asof": "",
           "readings": [],
@@ -574,6 +585,7 @@
         },
         {
           "frame": "themes.capex-flow",
+          "contract": null,
           "hasHead": true,
           "asof": "2026-08 인용 자료",
           "readings": [
@@ -583,6 +595,7 @@
         },
         {
           "frame": "themes.playbook",
+          "contract": null,
           "hasHead": true,
           "asof": "10/30 종가",
           "readings": [],
@@ -626,7 +639,7 @@
       "frames": []
     },
     "market-news": {
-      "total": 3155,
+      "total": 3585,
       "secondary": 288,
       "lines": [
         {
@@ -693,6 +706,7 @@
       "frames": [
         {
           "frame": "market-news.event-briefs",
+          "contract": null,
           "hasHead": true,
           "asof": "",
           "readings": [],

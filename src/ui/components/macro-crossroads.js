@@ -205,7 +205,7 @@ function auctionBlock(doc, root) {
   const box = el(doc, 'div', null, 'xr-auctions');
   box.append(el(doc, 'p', `국채 입찰: ${payload.summary}`, 'xr-hub-now'));
   const fold = el(doc, 'details', null, 'xr-auctions-fold sx-disclosure');
-  fold.append(el(doc, 'summary', '만기별 최근 입찰 결과와 읽는 법'));
+  fold.append(el(doc, 'summary', '만기별 최근 입찰 결과'));
   const list = el(doc, 'ul', null, 'xr-evidence');
   for (const row of latestByTenor(payload.rows || [])) list.append(el(doc, 'li', auctionLine(row)));
   fold.append(list, el(doc, 'p', AUCTION_METHOD, 'xr-path-evidence'));

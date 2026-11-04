@@ -1,10 +1,14 @@
 // P1427: a threshold gauge — the rule's bands coloured by their effect on stocks, with the current value pinned.
 // v59.55 (C4): its own module, so the 공포·탐욕 band (sentiment-board.js) and the index earnings breadth draw the same SVG
 // gauge without loading the macro board.
+import { signedText } from '../../domain/shared/number.js';
+
 const SVG = 'http://www.w3.org/2000/svg';
 
+// v59.70 (render hotfix): a value that rounds to zero prints without a sign — dxy20 0.03 read '+0.0%' (and -0.03 '-0.0').
 function signedNumber(value, digits) {
-  return `${value < 0 ? '-' : ''}${Math.abs(value).toFixed(digits)}`;
+  const text = Math.abs(value).toFixed(digits);
+  return `${value < 0 && Number(text) !== 0 ? '-' : ''}${text}`;
 }
 
 export const TONE_WORD = Object.freeze({ favorable: '양호', neutral: '중립', burden: '부담' });
@@ -60,7 +64,7 @@ export function gaugeBar(doc, g) {
   add('path', { d: `M${px - 6},4 L${px + 6},4 L${px},14 Z`, class: 'macro-gauge-pin' });
   add('line', { x1: px, x2: px, y1: 14, y2: 26, class: 'macro-gauge-needle' });
   const band = bandOf(g);
-  const valueText = `${g.value > 0 && g.min < 0 ? '+' : ''}${signedNumber(g.value, g.digits)}${g.unit}`;
+  const valueText = g.min < 0 ? signedText(g.value, g.digits, g.unit) : `${signedNumber(g.value, g.digits)}${g.unit}`;
   svg.setAttribute('aria-label', `${g.label}: ${valueText}${band ? `, ${band.name || TONE_WORD[band.tone]} 구간` : ''}${g.clipped ? ' (눈금 밖)' : ''}`);
   const wrap = doc.createElement('div');
   wrap.className = 'macro-gauge-wrap';

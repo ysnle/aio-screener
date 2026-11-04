@@ -1301,7 +1301,7 @@ function renderCustomSummary(documentRef, { scopeRows = [], custom = [], coverag
     bars.append(line);
   }
   nodes.push(bars);
-  nodes.push(make('p', steps.length ? `지금 표에 남는 종목 ${shown}개 — 실행 통과·섹터·검색 같은 다른 필터까지 적용한 수입니다(결과 보기는 실행 통과만을 끄고 전체에서 찾습니다). 겹친 조건은 과거 성과로 검증한 규칙이 아닙니다.` : '조건을 고르면 조건마다 남는 종목 수가 여기에 쌓입니다.', 'sx-meta scr-custom-foot'));
+  if (steps.length) nodes.push(make('p', `지금 표에 남는 종목 ${shown}개 — 실행 통과·섹터·검색 같은 다른 필터까지 적용한 수입니다(결과 보기는 실행 통과만을 끄고 전체에서 찾습니다). 겹친 조건은 과거 성과로 검증한 규칙이 아닙니다.`, 'sx-meta scr-custom-foot'));
   const go = make('button', '결과 보기', 'sx-btn sx-btn--primary scr-custom-go');
   go.type = 'button';
   go.dataset.aioScreenerAction = 'view';
@@ -1421,7 +1421,7 @@ function renderBacktest(documentRef, metadata, root = globalThis, rows = null) {
   if (!hasObservedIC) {
     const message = el('div', '검증 데이터 없음', 'scr-empty-state');
     message.dataset.statusCode = 'NO_BACKTEST_DATA';
-    message.appendChild(el('div', metadata?.detail || '백테스트 artifact가 수신되면 IC와 표본 수를 표시합니다. 현재 0을 관측값으로 해석하지 않습니다.', 'scr-empty-detail'));
+    if (metadata?.detail) message.appendChild(el('div', metadata.detail, 'scr-empty-detail'));
     panel.appendChild(message);
     return;
   }
@@ -1792,7 +1792,7 @@ function renderFilterChips(documentRef) {
   if (!active.length) {
     const empty = documentRef.createElement('span');
     empty.className = 'scr-chip-empty';
-    empty.textContent = '표시 필터 없음 — 표는 전체 범위를 보여줍니다';
+    empty.textContent = '필터 없음';
     container.appendChild(empty);
   } else {
     active.forEach(({ id, label, value }) => {

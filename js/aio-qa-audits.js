@@ -4243,7 +4243,7 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
         { id: 'fxbond-fx-matrix',        order:  2, topic: '환율 — 달러·원화·엔화·10년물 6개월 추이 (#rates-fx-grid) + 그 밖의 통화 EUR/GBP/CNY/AUD (v57.78 갱신)', lines: 'src/ui/components/macro-board.js' },
         { id: 'fxbond-yield-curve',      order:  4, topic: '미 국채 수익률 곡선 + 스프레드 (#rates-curve · #rates-spreads, v57.78 갱신)', lines: 'src/ui/components/macro-board.js' },
         { id: 'fxbond-corp-spread',      order:  5, topic: '실질금리 · 기대인플레이션 · 신용 (#rates-levels, HYG/LQD/JNK 카드 퇴역, v57.78 갱신)', lines: 'src/ui/components/macro-board.js' },
-        { id: 'fxbond-guide',            order: 12, topic: '수익률 곡선 읽는 법 (접힘, details.rates-guide, v57.78 갱신)', lines: 'index.html #page-fxbond' }
+        { id: 'fxbond-guide',            order: 12, topic: '수익률 곡선 (접힘, details.rates-guide, v57.78 갱신)', lines: 'index.html #page-fxbond' }
       ],
       auditStatus: { '최신성':'ok', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
       findings: [

@@ -21,6 +21,7 @@ import { shortDate } from '../../domain/content/date-labels.js';
 export { collectMarketInputs } from '../../data/selectors/market-inputs.js';
 import { marketInterpretation, screenerRowsForRoot } from '../../data/selectors/interpretation.js';
 import { buildEarningsWeek, eventPreviews } from '../../domain/briefing/event-guide.js';
+import { historyWaitText } from './data-state.js';
 
 // Only S&P 500 members: the weekly calendar lists hundreds of micro-caps.
 function universeNames(root) {
@@ -299,7 +300,7 @@ export function renderBriefingRead({ documentRef: doc, root, store = null, nowMs
 
   // 2. Read
   const headline = doc.getElementById('briefing-read-headline');
-  if (headline) headline.textContent = read.available ? (read.headline || '눈에 띄는 신호가 없는 평범한 하루입니다.') : '종가 기록을 불러오는 중입니다.';
+  if (headline) headline.textContent = read.available ? (read.headline || '눈에 띄는 신호가 없는 평범한 하루입니다.') : historyWaitText(root);
   const headlineReading = doc.getElementById('briefing-read-reading');
   if (headlineReading) headlineReading.replaceChildren(...(read.headlineReading ? [el(doc, 'span', '해석', 'briefing-hypothesis-tag'), doc.createTextNode(` ${read.headlineReading}`)] : []));
   const points = doc.getElementById('briefing-read-points');

@@ -1,0 +1,175 @@
+{
+  "gate": "v59.70 entity deep link",
+  "status": "PASS",
+  "results": [
+    {
+      "route": "ticker",
+      "tab": "개요",
+      "sym": "AAPL",
+      "form": "path",
+      "hash": "#ticker/AAPL",
+      "state": {
+        "active": "page-ticker",
+        "tab": "개요",
+        "subject": "",
+        "hash": "#ticker?sym=AAPL"
+      },
+      "problems": []
+    },
+    {
+      "route": "ticker",
+      "tab": "개요",
+      "sym": "AAPL",
+      "form": "query",
+      "hash": "#ticker?sym=AAPL",
+      "state": {
+        "active": "page-ticker",
+        "tab": "개요",
+        "subject": "",
+        "hash": "#ticker?sym=AAPL"
+      },
+      "problems": []
+    },
+    {
+      "route": "ticker",
+      "tab": "개요",
+      "sym": "MSFT",
+      "form": "path",
+      "hash": "#ticker/MSFT",
+      "state": {
+        "active": "page-ticker",
+        "tab": "개요",
+        "subject": "",
+        "hash": "#ticker?sym=MSFT"
+      },
+      "problems": []
+    },
+    {
+      "route": "ticker",
+      "tab": "개요",
+      "sym": "MSFT",
+      "form": "query",
+      "hash": "#ticker?sym=MSFT",
+      "state": {
+        "active": "page-ticker",
+        "tab": "개요",
+        "subject": "",
+        "hash": "#ticker?sym=MSFT"
+      },
+      "problems": []
+    },
+    {
+      "route": "technical",
+      "tab": "차트",
+      "sym": "AAPL",
+      "form": "path",
+      "hash": "#technical/AAPL",
+      "state": {
+        "active": "page-technical",
+        "tab": "차트",
+        "subject": "AAPL",
+        "hash": "#technical?sym=AAPL"
+      },
+      "problems": []
+    },
+    {
+      "route": "technical",
+      "tab": "차트",
+      "sym": "AAPL",
+      "form": "query",
+      "hash": "#technical?sym=AAPL",
+      "state": {
+        "active": "page-technical",
+        "tab": "차트",
+        "subject": "AAPL",
+        "hash": "#technical?sym=AAPL"
+      },
+      "problems": []
+    },
+    {
+      "route": "technical",
+      "tab": "차트",
+      "sym": "MSFT",
+      "form": "path",
+      "hash": "#technical/MSFT",
+      "state": {
+        "active": "page-technical",
+        "tab": "차트",
+        "subject": "MSFT",
+        "hash": "#technical?sym=MSFT"
+      },
+      "problems": []
+    },
+    {
+      "route": "technical",
+      "tab": "차트",
+      "sym": "MSFT",
+      "form": "query",
+      "hash": "#technical?sym=MSFT",
+      "state": {
+        "active": "page-technical",
+        "tab": "차트",
+        "subject": "MSFT",
+        "hash": "#technical?sym=MSFT"
+      },
+      "problems": []
+    },
+    {
+      "route": "fundamental",
+      "tab": "재무 공시",
+      "sym": "AAPL",
+      "form": "path",
+      "hash": "#fundamental/AAPL",
+      "state": {
+        "active": "page-fundamental",
+        "tab": "재무 공시",
+        "subject": "AAPL",
+        "hash": "#fundamental?sym=AAPL"
+      },
+      "problems": []
+    },
+    {
+      "route": "fundamental",
+      "tab": "재무 공시",
+      "sym": "AAPL",
+      "form": "query",
+      "hash": "#fundamental?sym=AAPL",
+      "state": {
+        "active": "page-fundamental",
+        "tab": "재무 공시",
+        "subject": "AAPL",
+        "hash": "#fundamental?sym=AAPL"
+      },
+      "problems": []
+    },
+    {
+      "route": "fundamental",
+      "tab": "재무 공시",
+      "sym": "MSFT",
+      "form": "path",
+      "hash": "#fundamental/MSFT",
+      "state": {
+        "active": "page-fundamental",
+        "tab": "재무 공시",
+        "subject": "MSFT",
+        "hash": "#fundamental?sym=MSFT"
+      },
+      "problems": []
+    },
+    {
+      "route": "fundamental",
+      "tab": "재무 공시",
+      "sym": "MSFT",
+      "form": "query",
+      "hash": "#fundamental?sym=MSFT",
+      "state": {
+        "active": "page-fundamental",
+        "tab": "재무 공시",
+        "subject": "MSFT",
+        "hash": "#fundamental?sym=MSFT"
+      },
+      "problems": []
+    }
+  ],
+  "failures": []
+}

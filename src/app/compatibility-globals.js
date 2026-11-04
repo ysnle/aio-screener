@@ -66,8 +66,10 @@ import { fetchServerData, buildServerDataMeta } from '../data/server-data.js';
 import { takeBootPrefetch } from '../data/boot-prefetch.js';
 import { applyServerMacro } from '../data/server-macro.js';
 import { verifyServerMarketAnalysis } from '../data/server-market-analysis.js';
+import { routeLabel } from '../ui/navigation/route-hubs.js';
 
 export function installCompatibilityGlobals(root = globalThis) {
+  root._aioRouteLabel = routeLabel; // v59.70: screen names for js/aio-chat.js, from ROUTE_HUBS
   const window = root;
   const document = root.document;
   installVaultCrypto(window);
@@ -419,10 +421,13 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
       row.insertAdjacentElement('afterend', hint);
       // v58.63 (architecture audit C01): clearing also retires the pending listing lookup, or a late answer for the
       // cleared query re-attached its candidates under an empty box.
-      const clear = () => { hint.replaceChildren(); delete hint.dataset.listingQuery; };
+      const clear = () => { hint.replaceChildren(); delete hint.dataset.listingQuery; input.removeAttribute('aria-invalid'); };
       input.addEventListener('input', clear);
       document.addEventListener('aio:tickerViewReset', clear);
     }
+    // v59.70 (ui-states): the refused box is ringed like every other refused field; the hint under it says why.
+    input.setAttribute('aria-invalid', 'true');
+    input.setAttribute('aria-describedby', 'ticker-search-hint');
     const query = String(raw || '').trim();
     const picks = searchCandidates(query, { entries: window.AIO_TICKER_NAME_REGISTRY?.entries, krStockDb: window.KR_STOCK_DB, krToYahoo: window.krTickerToYahoo });
     const lead = document.createElement('p');

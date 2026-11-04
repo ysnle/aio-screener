@@ -6326,14 +6326,14 @@
         ctx828.indexOf('Quantitative answer') >= 0 &&
         ctx828.indexOf('Qualitative answer') >= 0 &&
         ctx828.indexOf('Page linkage') >= 0 &&
-        ctx828.indexOf('퀀트 스크리너') >= 0 &&
+        ctx828.indexOf('스크리너') >= 0 && // v59.70: route-registry screen name (was 퀀트 스크리너)
         ctx828.indexOf('종목, 차트') >= 0 && // v58.73 separator; v57.55: current screen names (was 차트·기술 분석)
-        ctx828.indexOf('브리핑·뉴스') >= 0 &&
+        ctx828.indexOf('오늘, 브리핑') >= 0 && // v59.70: route-registry name (was 브리핑·뉴스)
         csSrc828.indexOf('sysPrompt += _buildAioIntegratedAnswerContext(ctxId, q') >= 0);
       t828detail = JSON.stringify({
         pipelineCount: pipe828.length,
         hasIntegratedContext: ctx828.indexOf('AIO Integrated Answer Pipeline v50.60') >= 0,
-        hasScreener: ctx828.indexOf('퀀트 스크리너') >= 0,
+        hasScreener: ctx828.indexOf('스크리너') >= 0,
         wired: csSrc828.indexOf('sysPrompt += _buildAioIntegratedAnswerContext(ctxId, q') >= 0
       });
     } catch(e) { t828detail = 'ERR:' + e.message; }

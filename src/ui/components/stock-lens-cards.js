@@ -214,7 +214,7 @@ export function renderStockStrengths(doc, host, ctx) {
     if (s.strengths.length) { card.append(el(doc, 'p', '강한 점', 'stock-read-vis-title')); const ul = el(doc, 'ul', null, 'stock-read-points'); s.strengths.forEach((fact) => ul.append(factRow(doc, fact, 'favorable'))); card.append(ul); }
     if (s.weaknesses.length) { card.append(el(doc, 'p', '약한 점', 'stock-read-vis-title')); const ul = el(doc, 'ul', null, 'stock-read-points'); s.weaknesses.forEach((fact) => ul.append(factRow(doc, fact, 'burden'))); card.append(ul); }
     card.append(fold(doc, '비교 기준', [['동종', `${ctx.peers.themeName}의 같은 하위 테마 기업부터 테마 대표 기업까지 SEC 연간 공시가 있는 ${s.peers}곳: ${ctx.peers.rows.slice(1).map((row) => row.sym).join(', ')}.`],
-      ['읽는 법', '각 지표에서 동종 안 순위와 중앙값을 사실로 적었습니다. 강점·약점은 중앙값보다 앞·뒤인 지표 중 차이가 큰 순서이며, 등급이나 매수 판단이 아닙니다. Forward PER은 낮을수록 이익 대비 가격 부담이 가벼운 쪽으로 읽습니다.'],
+      ['기준', '각 지표에서 동종 안 순위와 중앙값을 사실로 적었습니다. 강점·약점은 중앙값보다 앞·뒤인 지표 중 차이가 큰 순서이며, 등급이나 매수 판단이 아닙니다. Forward PER은 낮을수록 이익 대비 가격 부담이 가벼운 쪽으로 읽습니다.'],
       ['한계', '회계연도 마감 시점이 회사마다 다르고, 테마는 AIO의 투자 분류라 사업 구성이 같지 않습니다. 재무 공시 화면의 동종 표에서 숫자를 확인합니다.']]));
     pair.append(card);
   }

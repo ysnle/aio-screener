@@ -33,6 +33,7 @@ import { installScreenShortcuts } from '../ui/navigation/screen-shortcuts.js';
 import { installRouteScrollMemory } from '../ui/navigation/scroll-memory.js';
 import { installShellOverlays } from '../ui/components/shell-overlays.js';
 import { installColorTheme } from '../ui/components/color-theme.js';
+import { installLoadFailureNotice } from '../ui/components/data-state.js';
 import { installConnectionPanel } from '../ui/panels/connections.js';
 import { installAskPanel } from '../ui/panels/ask-panel.js';
 import { applyProducedMacroCalendar } from '../data/macro-calendar.js';
@@ -134,7 +135,7 @@ import { NATHAN_FRAMEWORK_PACK, NATHAN_ANALYSIS_PROTOCOL, NATHAN_KNOWLEDGE_ALIAS
 export const ARCHITECTURE_VERSION = 'AR-01~16.v1';
 
 export function resolveInitialRoute({ root = globalThis, hash = root?.location?.hash } = {}) {
-  const rawRoute = String(hash || '').replace(/^#/, '').split('?')[0].trim();
+  const rawRoute = String(hash || '').replace(/^#/, '').split(/[?/]/)[0].trim(); // #ticker/NVDA, #theme-detail/<id> are path forms
   const canonicalRoute = root?.AIO_ROUTE_REGISTRY?.canonical?.[rawRoute]
     || (rawRoute === 'theme-detail' ? 'themes' : rawRoute);
   if (rawRoute === 'theme-detail') {
@@ -668,6 +669,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     let disposed = false;
     const stopInterpretationStore = registerInterpretationStore(root, store); // owner 2026-10-19: one row source for the shared interpretation
     const stopColorTheme = documentRef?.body && root?.getComputedStyle ? installColorTheme(root, documentRef) : () => {};
+    const stopLoadFailureNotice = installLoadFailureNotice(root, documentRef); // v59.70: history.json / data.json did not arrive
     // P1653/P1655: web search is automatic through the shared Worker; drop the old opt-out and retired personal search keys.
     try { ['aio_web_search_enabled', 'aio_google_cse_key', 'aio_google_cse_cx', 'aio_perplexity_key'].forEach((key) => root.localStorage?.removeItem(key)); } catch (_) { /* storage unavailable */ }
     // v57.79: the personal data-provider keys (v57.67) and the personal AI key (P1421) are never read; drop their stored values.
@@ -1027,6 +1029,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       if (disposed) return;
       disposed = true;
       stopColorTheme();
+      stopLoadFailureNotice();
       stopConnectionPanel();
       stopAskPanel();
       stopResponsiveShell();
