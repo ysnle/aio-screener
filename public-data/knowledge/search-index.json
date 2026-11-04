@@ -12,7 +12,7 @@
   ],
   "boundary": "Search index of learning surfaces; titles and short texts only. Glossary entries are searched in the page itself.",
   "counts": {
-    "frame": 90,
+    "frame": 94,
     "column": 12,
     "principles-lesson": 112,
     "principles-node": 60,
@@ -1987,6 +1987,87 @@
         "params": {
           "mode": "frames",
           "node": "growth-acceleration-peak"
+        }
+      }
+    },
+    {
+      "id": "frame:correction-base-rates",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "지수가 고점에서 몇 % 빠졌을 때, 같은 조건의 과거 사례가 몇 번 중 몇 번 더 깊어졌는지 세고, 경로가 닮은 사례를 따로 골라 비교하는 방법",
+      "text": "\"많이 빠졌으니 바닥\"이나 \"차트가 무너졌으니 폭락\"은 둘 다 한 번의 인상입니다. 먼저 사건을 숫자로 정합니다. 예를 들어 \"직전 최고 종가 대비 -7% 이상\"을 조정, \"-20% 이상\"을 약세장으로 정하고, 같은 정의로 과거를 세면 조정 몇 번 중 몇 번이 약세장…",
+      "group": "차트·셋업 읽기",
+      "keys": [
+        "조정이 얼마나 깊어질지: 사건 정의와 기저율, 닮은 사례",
+        "base-rate",
+        "expected-value"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "correction-base-rates"
+        }
+      }
+    },
+    {
+      "id": "frame:cycle-top-two-clocks",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "반도체처럼 큰 사이클 업종에서 주가 고점이 증가율의 가속이 꺾일 때 오는지, 증가율이 마이너스로 돌 때 오는지를 가르고, 선행 PER와 현금흐름으로 같이 확인하는 방법",
+      "text": "사이클 업종 주가의 고점을 두고 두 시계가 있습니다. 가속도 시계는 증가율이 오르는 폭이 줄기 시작하면 주가가 먼저 꺾인다고 보고, 부호 시계는 증가율이 플러스인 동안은 이익을 따라 오르고 마이너스로 돌 즈음에 고점이 난다고 봅니다. 둘 중 하나를 미리 정답으로 정하…",
+      "group": "산업별 수익 모델",
+      "keys": [
+        "사이클 업종 고점의 두 시계: 가속도와 부호",
+        "level-vs-change",
+        "cyclical-per"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "cycle-top-two-clocks"
+        }
+      }
+    },
+    {
+      "id": "frame:credit-stress-tiers",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "금리가 오를 때 신용 문제가 약한 차입자에게 머무는지, 시장 전체로 번지는지를 등급별 스프레드의 순서와 번지는 경로로 읽는 방법",
+      "text": "신용 스트레스는 보통 가장 약한 곳에서 시작합니다. 부채가 많고 현금흐름이 약한 회사, 차환이 필요한 부동산, CCC·B 등급 대출이 먼저 아프고, 하이일드 전체, 마지막으로 투자등급까지 번지면 시장 전체의 신용경색입니다. 그래서 스프레드 하나가 아니라 세 층(CCC…",
+      "group": "통화·신용·물가",
+      "keys": [
+        "신용 스트레스가 어느 층에 있는지: CCC → 하이일드 → 투자등급",
+        "private-credit",
+        "refinancing"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "credit-stress-tiers"
+        }
+      }
+    },
+    {
+      "id": "frame:sell-decision-alternatives",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "매도를 리스크 관리의 끝으로 보지 않고, 매도 뒤 현금·숏·다른 자산 중 무엇을 들지 비교하며, 미리 정한 구간과 사건 뒤 수급 확인으로 판단을 나누는 방법",
+      "text": "매도는 \"무엇을 그만 들 것인가\"가 아니라 \"그 대신 무엇을 들 것인가\"의 선택입니다. 현금을 들면 지금 가격에서 현금이 그 자산보다 나은지(이미 많이 빠졌다면 남은 하락과 반등 가능성을 함께) 따지고, 숏으로 바꾸면 하락을 맞히는 것과 숏으로 돈을 버는 것이 다른 …",
+      "group": "가격·기대",
+      "keys": [
+        "팔고 나서 무엇을 들 것인가: 매도는 다음 보유의 선택",
+        "opportunity-cost",
+        "sunk-cost-rebuy",
+        "correlation"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "sell-decision-alternatives"
         }
       }
     },

@@ -1,0 +1,14 @@
+{
+  "qa": [
+    {
+      "id": "QA-RESEARCH-XBM-20261104",
+      "text": "v59.70: the 2026-11-04 bookmark packet adds four reference frames (correction-base-rates, cycle-top-two-clocks, credit-stress-tiers, sell-decision-alternatives) as lessons on a learning path, cites 17 graded sources with a timeline, reaches the claim ledger and chat retrieval, and stays out of rank/score",
+      "verify_by": "node scripts/ci-esm-core-unit-check.mjs"
+    }
+  ],
+  "qa_section": "X bookmarks 11/04 (v59.70)",
+  "changelog": [
+    "**X 북마크 11/04 반영 (v59.70):** 소유자 북마크 25건(투자 17·에이전트 실무 8)을 본문·이미지 66장·스레드·인용까지 읽고, 판단 틀 4개를 분석 노트로 더함 — 조정 기저율과 닮은 사례, 사이클 고점의 두 시계(가속도·부호, 11/02 틀과의 충돌 정리), 신용 스트레스 층위(CCC → 하이일드 → 투자등급), 매도 뒤 대안. AIO 자료로 신용 세 층 변화·업종별 52주 고점 근처 비율·11/02 지수 등락을 대조. AIO 구조와 21개 영역을 대조(이미 있음 9 · 약함 9 · 충돌 3)하고, 북마크 수치 중 나스닥 조정 기저율(40·8·32·4)은 장기 일봉으로 재현, QQQ 월봉 통계는 정의 혼용(6번 대 21번)으로 판정. 화면·판정 변경 없음, 구현 제안 12건은 `_artifacts/x-bookmarks-20261104/PACKET.md`."
+  ],
+  "note": "X bookmarks 11/04: four reference frames, no screen or verdict change"
+}

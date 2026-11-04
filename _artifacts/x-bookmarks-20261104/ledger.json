@@ -1,0 +1,509 @@
+{
+ "schemaVersion": "x-bookmarks-ledger.v1",
+ "readOn": "2026-11-04",
+ "collectedFrom": "x.com/i/history above the 11/02 read (first stop: 2116903278919512149), owner Chrome; bodies via api.fxtwitter.com/2/thread",
+ "counts": {
+  "bookmarks": 25,
+  "investment": 17,
+  "agentPractice": 8,
+  "statusesRead": 31,
+  "quotedRead": 6,
+  "quotedUnreadSubscriberOnly": 1,
+  "images": 66,
+  "videosThumbOnly": 1
+ },
+ "rows": [
+  {
+   "id": "2117742046299770937",
+   "author": "Trader_Jesse_",
+   "kind": "investment",
+   "class": "기업",
+   "repo": "partial",
+   "usedBy": [
+    "cycle-top-two-clocks"
+   ],
+   "looksAt": "AMD 3Q26 부문별 매출·현금흐름",
+   "says": "데이터센터가 성장 주도, PC도 성장 → 인텔 부진은 인텔 문제",
+   "dataClaims": [
+    [
+     "FCF 감소가 재고·매출채권 증가 때문",
+     "missing",
+     "SEC 수집 항목에 재고·매출채권 없음"
+    ]
+   ],
+   "images": 0,
+   "replies": 0,
+   "quotes": 0
+  },
+  {
+   "id": "2117803780469326271",
+   "author": "fednmad",
+   "kind": "investment",
+   "class": "기업",
+   "repo": "partial",
+   "usedBy": [
+    "cycle-top-two-clocks"
+   ],
+   "looksAt": "아리스타 실적·2027 가이던스",
+   "says": "투자 확대 중에도 49% 영업이익률 유지",
+   "dataClaims": [
+    [
+     "2027 성장 38~40%",
+     "missing",
+     "가이던스는 수집하지 않음"
+    ]
+   ],
+   "images": 1,
+   "replies": 0,
+   "quotes": 0
+  },
+  {
+   "id": "2117559780537422297",
+   "author": "JunDo1050",
+   "kind": "investment",
+   "class": "매크로",
+   "repo": "partial",
+   "usedBy": [
+    "credit-stress-tiers"
+   ],
+   "looksAt": "투자등급 3~5년 스프레드 근사치, 사모신용 등급, 중국 국유기업 신탁 부도",
+   "says": "스트레스는 약한 차입자에 국한, IG 150bp 넘으면 전체 확산",
+   "dataClaims": [
+    [
+     "CCC·HY·IG 순서로 벌어짐",
+     "have",
+     "macro-history 8/04→10/30 CCC +308bp, HY +71bp, IG +16bp"
+    ],
+    [
+     "IG 150bp 기준",
+     "partial",
+     "AIO IG OAS는 1년치뿐이라 장기 범위 판단 불가"
+    ]
+   ],
+   "images": 3,
+   "replies": 2,
+   "quotes": 1
+  },
+  {
+   "id": "2117757214463308287",
+   "author": "GONOGO_Korea",
+   "kind": "investment",
+   "class": "시황",
+   "repo": "partial",
+   "usedBy": [],
+   "looksAt": "AMD 시간외 반응",
+   "says": "AI 전반 시험대 통과",
+   "dataClaims": [],
+   "images": 0,
+   "replies": 28,
+   "quotes": 0
+  },
+  {
+   "id": "2117457360419795357",
+   "author": "yulmu_coffee",
+   "kind": "agentPractice",
+   "class": "-",
+   "repo": "notApplicable",
+   "usedBy": [],
+   "looksAt": "오케스트레이션 세션 도구",
+   "says": "",
+   "dataClaims": [],
+   "images": 2,
+   "replies": 1,
+   "quotes": 1
+  },
+  {
+   "id": "2117623943989465218",
+   "author": "GONOGO_Korea",
+   "kind": "investment",
+   "class": "시황",
+   "repo": "partial",
+   "usedBy": [],
+   "looksAt": "은행 장전 노트",
+   "says": "선거 확률·개별 기업 포인트·TMT 공매도",
+   "dataClaims": [
+    [
+     "TMT 공매도·베타",
+     "missing",
+     "제3자 자료"
+    ]
+   ],
+   "images": 0,
+   "replies": 2,
+   "quotes": 0
+  },
+  {
+   "id": "2117618151991242870",
+   "author": "yulmu_coffee",
+   "kind": "agentPractice",
+   "class": "-",
+   "repo": "notApplicable",
+   "usedBy": [],
+   "looksAt": "한 세션 오케스트레이션 프롬프트",
+   "says": "",
+   "dataClaims": [],
+   "images": 0,
+   "replies": 10,
+   "quotes": 1
+  },
+  {
+   "id": "2117584577040728104",
+   "author": "Macaujeongc",
+   "kind": "investment",
+   "class": "시황",
+   "repo": "reflected",
+   "usedBy": [
+    "correction-base-rates",
+    "sell-decision-alternatives"
+   ],
+   "looksAt": "QQQ 낙폭 구간 + 공포·탐욕 한 자릿수",
+   "says": "미리 정한 구간에서 두 번 분할",
+   "dataClaims": [
+    [
+     "공포·탐욕 19",
+     "have",
+     "AIO 합성 18.95"
+    ]
+   ],
+   "images": 1,
+   "replies": 3,
+   "quotes": 0
+  },
+  {
+   "id": "2117600904811778548",
+   "author": "GONOGO_Korea",
+   "kind": "investment",
+   "class": "시장 구조",
+   "repo": "missing",
+   "usedBy": [],
+   "looksAt": "애널리스트 추천 수 상위 50 표",
+   "says": "참고용",
+   "dataClaims": [
+    [
+     "추천 순위·목표가",
+     "declined",
+     "방법 미공개 제3자 표, AIO는 목표가로 순위 매기지 않음"
+    ]
+   ],
+   "images": 1,
+   "replies": 28,
+   "quotes": 0
+  },
+  {
+   "id": "2117512471930167377",
+   "author": "addyosmani",
+   "kind": "agentPractice",
+   "class": "-",
+   "repo": "notApplicable",
+   "usedBy": [],
+   "looksAt": "에이전트 시대의 비판적 사고(Article)",
+   "says": "",
+   "dataClaims": [],
+   "images": 2,
+   "replies": 313,
+   "quotes": 0
+  },
+  {
+   "id": "2117588511620784340",
+   "author": "Trader_Jesse_",
+   "kind": "investment",
+   "class": "시장 구조",
+   "repo": "missing→frame",
+   "usedBy": [
+    "sell-decision-alternatives"
+   ],
+   "looksAt": "매도 뒤 대안 3가지",
+   "says": "지금 가격에서 무엇을 들지",
+   "dataClaims": [],
+   "images": 0,
+   "replies": 2,
+   "quotes": 0
+  },
+  {
+   "id": "2117561383294587012",
+   "author": "laylaperfume",
+   "kind": "investment",
+   "class": "시황",
+   "repo": "partial",
+   "usedBy": [
+    "correction-base-rates"
+   ],
+   "looksAt": "NQ 200일선·SOXX 비중·AMD 기대치",
+   "says": "기술적 반등, 이벤트 소화 뒤 판단",
+   "dataClaims": [
+    [
+     "SOXX 비중 변화",
+     "missing",
+     "ETF 구성 비중 미수집"
+    ],
+    [
+     "200일선",
+     "have",
+     "차트·추세 칸"
+    ]
+   ],
+   "images": 4,
+   "replies": 32,
+   "quotes": 0
+  },
+  {
+   "id": "2117540898473210128",
+   "author": "RoyPapa5",
+   "kind": "investment",
+   "class": "시장 구조",
+   "repo": "partial",
+   "usedBy": [
+    "cycle-top-two-clocks"
+   ],
+   "looksAt": "AI 밸류체인 6층 후행→선행 PER",
+   "says": "성장 대비 배수 낮음",
+   "dataClaims": [
+    [
+     "층별 선행 PER 순서",
+     "have",
+     "consensus-estimates 선행 EPS로 재계산, 순서 일치(기준 차이로 근사)"
+    ]
+   ],
+   "images": 1,
+   "replies": 4,
+   "quotes": 0
+  },
+  {
+   "id": "2117412265490362789",
+   "author": "lazyalphaio",
+   "kind": "investment",
+   "class": "시황",
+   "repo": "partial",
+   "usedBy": [],
+   "looksAt": "한국장 장중 시황 앱 화면",
+   "says": "화면 참고",
+   "dataClaims": [],
+   "images": 2,
+   "replies": 1,
+   "quotes": 0
+  },
+  {
+   "id": "2117150968441950588",
+   "author": "AlexZio00",
+   "kind": "investment",
+   "class": "기업",
+   "repo": "notApplicable",
+   "usedBy": [],
+   "looksAt": "조선·방산·기계 리포트 표지·목차",
+   "says": "본문 미공유",
+   "dataClaims": [],
+   "images": 3,
+   "replies": 10,
+   "quotes": 0
+  },
+  {
+   "id": "2117382738676482105",
+   "author": "NURadu_",
+   "kind": "investment",
+   "class": "시황",
+   "repo": "reflected",
+   "usedBy": [],
+   "looksAt": "11/02 하락 이유 해부",
+   "says": "이유 끼워 맞추기, 진짜는 수급",
+   "dataClaims": [
+    [
+     "지수 등락",
+     "have",
+     "history 일치"
+    ],
+    [
+     "헤지펀드 순매도",
+     "missing",
+     "제3자"
+    ]
+   ],
+   "images": 0,
+   "replies": 12,
+   "quotes": 0
+  },
+  {
+   "id": "2117388916898832719",
+   "author": "Trader_Jesse_",
+   "kind": "investment",
+   "class": "시장 구조",
+   "repo": "conflict→frame",
+   "usedBy": [
+    "cycle-top-two-clocks"
+   ],
+   "looksAt": "증권사 반도체 2027 전망",
+   "says": "주가 고점은 증가율 마이너스 전환 근처",
+   "dataClaims": [
+    [
+     "11/02 가속도 프레임과 반대",
+     "conflict",
+     "두 시계로 함께 정리"
+    ]
+   ],
+   "images": 0,
+   "replies": 3,
+   "quotes": 0
+  },
+  {
+   "id": "2117362559959621738",
+   "author": "laylaperfume",
+   "kind": "investment",
+   "class": "시사",
+   "repo": "partial",
+   "usedBy": [
+    "sell-decision-alternatives"
+   ],
+   "looksAt": "선거 예측시장·로테이션·유가와 기술주",
+   "says": "결과 뒤 수급 방향 확인",
+   "dataClaims": [
+    [
+     "예측시장 확률",
+     "declined",
+     "이벤트 종료"
+    ],
+    [
+     "유가·금리 하락에도 기술주 약세",
+     "have",
+     "history 11/02"
+    ]
+   ],
+   "images": 4,
+   "replies": 30,
+   "quotes": 1
+  },
+  {
+   "id": "2117281830449942825",
+   "author": "Voxyz_ai",
+   "kind": "agentPractice",
+   "class": "-",
+   "repo": "notApplicable",
+   "usedBy": [],
+   "looksAt": "Linear·Apple Notes 수준 단순화 프롬프트",
+   "says": "소유자 화면 원칙과 같음",
+   "dataClaims": [],
+   "images": 0,
+   "replies": 136,
+   "quotes": 0
+  },
+  {
+   "id": "2117088528534532318",
+   "author": "damipov",
+   "kind": "investment",
+   "class": "시장 구조",
+   "repo": "partial",
+   "usedBy": [
+    "correction-base-rates"
+   ],
+   "looksAt": "조정 기저율·월봉·분배일·섹터별 52주 고점 비율·관찰 종목",
+   "says": "현금 지키며 FTD 대기, 새 돈은 신고가 업종 피벗",
+   "dataClaims": [
+    [
+     "섹터별 52주 고점 5% 안 비율",
+     "have",
+     "스크리너로 재계산: 헬스케어 39%, 기술 5%"
+    ],
+    [
+     "분배일·FTD",
+     "have",
+     "시장 상태 추세 칸"
+    ],
+    [
+     "1986년 이후 7% 조정 40/8, 빠른 조정 32/4",
+     "have",
+     "Yahoo ^IXIC 1986~ 재계산 — 숫자·약세장 고점 날짜 일치"
+    ],
+    [
+     "QQQ 월봉 6번 중 4번",
+     "conflict",
+     "바깥 반전 정의일 때만 6번, 도식의 몸통 장악형 정의면 21번"
+    ]
+   ],
+   "images": 23,
+   "replies": 4,
+   "quotes": 0
+  },
+  {
+   "id": "2117051844723720602",
+   "author": "VDMatos",
+   "kind": "agentPractice",
+   "class": "-",
+   "repo": "notApplicable",
+   "usedBy": [],
+   "looksAt": "게임 제작 실무(TLA+·lint·예산 빌드)",
+   "says": "",
+   "dataClaims": [],
+   "images": 4,
+   "replies": 8,
+   "quotes": 1
+  },
+  {
+   "id": "2117037940031496252",
+   "author": "jarredsumner",
+   "kind": "agentPractice",
+   "class": "-",
+   "repo": "notApplicable",
+   "usedBy": [],
+   "looksAt": "성능 최적화 지시문",
+   "says": "",
+   "dataClaims": [],
+   "images": 0,
+   "replies": 193,
+   "quotes": 0
+  },
+  {
+   "id": "2117033551661023412",
+   "author": "RaoulGMI",
+   "kind": "investment",
+   "class": "매크로",
+   "repo": "partial",
+   "usedBy": [
+    "cycle-top-two-clocks",
+    "credit-stress-tiers"
+   ],
+   "looksAt": "유동성·클라우드 마진·칩 공급·토큰 수요(Article)",
+   "says": "유동성 일시 정지, 사이클은 그대로",
+   "dataClaims": [
+    [
+     "빅테크 현금흐름",
+     "have",
+     "bigtech-cashflow.json"
+    ],
+    [
+     "유동성·토큰 합성 지표",
+     "declined",
+     "작성자 자체 지표"
+    ]
+   ],
+   "images": 11,
+   "replies": 194,
+   "quotes": 0
+  },
+  {
+   "id": "2117692238599709128",
+   "author": "daniel_mac8",
+   "kind": "agentPractice",
+   "class": "-",
+   "repo": "notApplicable",
+   "usedBy": [],
+   "looksAt": "ultrathink + be-ambitious 패턴",
+   "says": "",
+   "dataClaims": [],
+   "images": 1,
+   "replies": 10,
+   "quotes": 1
+  },
+  {
+   "id": "2117658059522949355",
+   "author": "Voxyz_ai",
+   "kind": "agentPractice",
+   "class": "-",
+   "repo": "notApplicable",
+   "usedBy": [],
+   "looksAt": "상태(로딩·빈·오류) 채우기 프롬프트",
+   "says": "",
+   "dataClaims": [],
+   "images": 0,
+   "replies": 3,
+   "quotes": 1
+  }
+ ]
+}

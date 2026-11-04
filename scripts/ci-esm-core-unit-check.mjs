@@ -2423,6 +2423,19 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       || packet02.PACKET_20261102_CLAIMS.some((claim) => !claim.blockedConsumers.includes('rank') || !claim.blockedConsumers.includes('score'))) fail('v59.57 x-bookmarks 2026-11-02 frames must be lessons on a path, cite unique graded sources with a timeline, reach the claim ledger, add up and stay out of rank/score');
     if (top('바닥 확인일 FTD 뒤 주도주 신고가') !== 'supplied-material:claim-20261102-follow-through-day-leaders' || top('횡보장 하락장 쉬는 규칙 신규 매수 잠금') !== 'supplied-material:claim-20261102-regime-fit-pause-rules'
       || top('매출 증가율 가속도 기저효과 반도체 고점') !== 'supplied-material:claim-20261102-growth-acceleration-peak') fail('v59.57 x-bookmarks 2026-11-02 chat retrieval must reach the new frames');
+    // v59.70 x-bookmarks 2026-11-04: the same contract.
+    const packet04 = await load('src/domain/research/packet-20261104-x-bookmarks.js');
+    const ids04 = new Set(packet04.PACKET_20261104_SOURCES.map((row) => row.id));
+    const audit04 = packet04.PACKET_20261104_AUDIT;
+    if (packet04.PACKET_20261104_FRAMES.length !== audit04.framesAdded
+      || packet04.PACKET_20261104_FRAMES.some((frame) => !learning.lessonById(frame.id) || !onPath.has(frame.id) || frame.sourceRefs.some((id) => !ids04.has(id)) || !claimIds.has(`claim-20261104-${frame.id}`))
+      || ids04.size !== packet04.PACKET_20261104_SOURCES.length || [...ids04].some((id) => ids16.has(id) || ids18.has(id) || ids28set.has(id) || ids30set.has(id) || ids01.has(id) || ids02.has(id))
+      || audit04.inScope + audit04.agentPractice + audit04.unrelated !== audit04.newSinceLedger || Object.values(audit04.repoState).reduce((a, b) => a + b, 0) !== audit04.newSinceLedger
+      || packet04.PACKET_20261104_SOURCES.some((row) => !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(row.timeline?.postedAtUtc || '') || !row.timeline.laterOutcome || !grades(row.quality))
+      || packet04.PACKET_20261104_SOURCES.flatMap((row) => row.checks).some((row) => !['VERIFIED', 'CONSISTENT', 'UNVERIFIED'].includes(row.state) || !row.basis)
+      || packet04.PACKET_20261104_CLAIMS.some((claim) => !claim.blockedConsumers.includes('rank') || !claim.blockedConsumers.includes('score'))) fail('v59.70 x-bookmarks 2026-11-04 frames must be lessons on a path, cite unique graded sources with a timeline, reach the claim ledger, add up and stay out of rank/score');
+    if (top('조정 기저율 몇 번 중 몇 번 약세장 닮은 사례') !== 'supplied-material:claim-20261104-correction-base-rates' || top('사이클 고점 가속도 시계 부호 시계 선행 PER') !== 'supplied-material:claim-20261104-cycle-top-two-clocks'
+      || top('신용 스트레스 CCC 하이일드 투자등급 층') !== 'supplied-material:claim-20261104-credit-stress-tiers' || top('팔고 뭐 할 건데 매도 뒤 현금 숏 재진입') !== 'supplied-material:claim-20261104-sell-decision-alternatives') fail('v59.70 x-bookmarks 2026-11-04 chat retrieval must reach the new frames');
   }
 
   // S12: the Korean filing button opens a receipt only when one is published; otherwise the DART search.
