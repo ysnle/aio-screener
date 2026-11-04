@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { loadThemeMaps } from './build-scenario-state.mjs';
 import { buildMarketDay } from '../src/domain/market-day/facts.js';
+import { readHistoryRows } from '../src/domain/market/history-rows.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PD = (file) => path.join(ROOT, 'public-data', file);
@@ -17,7 +18,7 @@ export function marketDayInputs(read = readJson, root = ROOT) {
   const historyRaw = read('history.json');
   const data = read('data.json') || {};
   return {
-    history: Array.isArray(historyRaw) ? historyRaw : historyRaw?.rows || [],
+    history: readHistoryRows(historyRaw),
     screener: read('screener.json'), universe: read('screener-universe.json')?.universe || [],
     news: [...(data.news || []), ...(data.newsIntraday || [])], signals: read('telegram-digest.json')?.signals || [],
     calendar: read('earnings-calendar.json'), briefs: read('event-briefs.json'), macroHistory: read('macro-history.json'),

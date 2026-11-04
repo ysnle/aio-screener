@@ -37,8 +37,8 @@ const SCENARIOS = [
       spxMA: { 50: 5450, 200: 5200 }, spxMATsFreshMs: 0,
       fg: { value: 62, allowedUse: 'decision', status: 'CURRENT' },
       breadth: { available: true, sma20: 71 },
-      pcr: 0.85, hyBp: 290,
-      decisionEvidenceRows: [{ id: 'pcr-putcall', status: 'verified_current' }, { id: 'hy-spread-bp', status: 'verified_current' }],
+      hyBp: 290,
+      decisionEvidenceRows: [{ id: 'hy-spread-bp', status: 'verified_current' }],
       newsSentimentScore: 62, newsRiskImpacts: []
     }
   },
@@ -50,8 +50,8 @@ const SCENARIOS = [
       spxMA: { 50: 4900, 200: 5000 }, spxMATsFreshMs: 0,
       fg: { value: 11, allowedUse: 'decision', status: 'CURRENT' },
       breadth: { available: true, sma20: 14 },
-      pcr: 1.55, hyBp: 540,
-      decisionEvidenceRows: [{ id: 'pcr-putcall', status: 'verified_current' }, { id: 'hy-spread-bp', status: 'verified_current' }],
+      hyBp: 540,
+      decisionEvidenceRows: [{ id: 'hy-spread-bp', status: 'verified_current' }],
       newsSentimentScore: 18, newsRiskImpacts: [{ impact: -6 }, { impact: -4 }]
     }
   },
@@ -62,7 +62,7 @@ const SCENARIOS = [
       liveData: {}, spxMA: null, spxMATsFreshMs: null,
       fg: { value: null, allowedUse: false, status: 'UNAVAILABLE' },
       breadth: { available: false, sma20: null },
-      pcr: null, hyBp: null,
+      hyBp: null,
       decisionEvidenceRows: [],
       newsSentimentScore: 50, newsRiskImpacts: []
     }
@@ -75,7 +75,7 @@ const SCENARIOS = [
       spxMA: null, spxMATsFreshMs: null,
       fg: { value: 48, allowedUse: 'decision', status: 'CURRENT' },
       breadth: { available: false, sma20: null },
-      pcr: null, hyBp: null,
+      hyBp: null,
       decisionEvidenceRows: [],
       newsSentimentScore: 50, newsRiskImpacts: []
     }
@@ -88,8 +88,8 @@ const SCENARIOS = [
       spxMA: { 50: 5250, 200: 5100 }, spxMATsFreshMs: 0,
       fg: { value: 50, allowedUse: 'decision', status: 'CURRENT' },
       breadth: { available: true, sma20: 60 },
-      pcr: 1.0, hyBp: 300,
-      decisionEvidenceRows: [{ id: 'pcr-putcall', status: 'verified_current' }, { id: 'hy-spread-bp', status: 'verified_current' }],
+      hyBp: 300,
+      decisionEvidenceRows: [{ id: 'hy-spread-bp', status: 'verified_current' }],
       newsSentimentScore: 50, newsRiskImpacts: []
     }
   },
@@ -101,8 +101,8 @@ const SCENARIOS = [
       spxMA: { 50: 5400, 200: 5100 }, spxMATsFreshMs: 0,
       fg: { value: 60, allowedUse: 'decision', status: 'CURRENT' },
       breadth: { available: true, sma20: 20 },
-      pcr: 0.9, hyBp: 300,
-      decisionEvidenceRows: [{ id: 'pcr-putcall', status: 'verified_current' }, { id: 'hy-spread-bp', status: 'verified_current' }],
+      hyBp: 300,
+      decisionEvidenceRows: [{ id: 'hy-spread-bp', status: 'verified_current' }],
       newsSentimentScore: 50, newsRiskImpacts: []
     }
   },
@@ -114,8 +114,8 @@ const SCENARIOS = [
       spxMA: { 50: 5100, 200: 5050 }, spxMATsFreshMs: 0,
       fg: { value: 40, allowedUse: 'decision', status: 'CURRENT' },
       breadth: { available: true, sma20: 62 },
-      pcr: 1.05, hyBp: 300,
-      decisionEvidenceRows: [{ id: 'pcr-putcall', status: 'verified_current' }, { id: 'hy-spread-bp', status: 'verified_current' }],
+      hyBp: 300,
+      decisionEvidenceRows: [{ id: 'hy-spread-bp', status: 'verified_current' }],
       newsSentimentScore: 50, newsRiskImpacts: []
     }
   }
@@ -138,7 +138,6 @@ try {
       window._liveData = inputs.liveData;
       window._spxMA = inputs.spxMA;
       window._spxMATs = inputs.spxMATsFreshMs == null ? null : Date.now() - inputs.spxMATsFreshMs;
-      window._putCallRatio = inputs.pcr;
       window._hySpreadBp = inputs.hyBp;
       window.computeNewsSentimentScore = () => ({ score: inputs.newsSentimentScore });
       window.computeNewsRiskSignals = () => inputs.newsRiskImpacts;

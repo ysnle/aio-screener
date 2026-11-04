@@ -11,6 +11,7 @@ import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
 import { finiteNumber as finite } from '../domain/shared/number.js';
 import { resolveHoldingInput } from '../domain/ticker/resolve-name.js';
 import { listingCurrency } from '../domain/portfolio/fx.js';
+import { historyFieldMeta } from '../domain/market/history-meta.js';
 
 // Native runtime readers.  These readers are deliberately kept in the data
 // layer so route providers do not depend on the legacy compatibility facade.
@@ -204,15 +205,6 @@ function fearGreedObservation(root, snapshot = {}) {
     allowedUse: 'reference', allowedUseCeiling: 'reference' };
 }
 
-function putCallObservation(root, snapshot = {}) {
-  const payload = root?._lastPutCallPayload || {};
-  if (finite(payload.totalPutCall) != null) return { value: payload.totalPutCall, observedAt: payload.asOf || payload.tradeDate || null,
-    fetchedAt: payload.fetchedAt || null, source: payload.sourceLabel || payload.source || 'CBOE options volume daily', sourceKind: payload.sourceKind || 'T3_PUBLIC_DELAYED' };
-  if (finite(root?._putCallRatio) != null) return { value: root._putCallRatio, observedAt: null, fetchedAt: null, source: 'runtime:put-call-ratio', sourceKind: 'reference' };
-  return { value: finite(snapshot.pcr), observedAt: snapshot._fieldTs?.pcr || snapshot._snapshotDate || snapshot._updated || null,
-    fetchedAt: null, source: 'DATA_SNAPSHOT:put-call', sourceKind: finite(snapshot.pcr) == null ? 'unavailable' : 'snapshot' };
-}
-
 const SCREENER_FACTOR_FIELD_IDS = Object.freeze([
   'price.ret1m', 'price.ret3m', 'price.ret6m', 'price.volatility', 'price.rsi14',
   'price.pctSma50', 'price.pctSma200', 'technical.kalmanVelocity',
@@ -287,7 +279,6 @@ export function buildRuntimeObservationCatalog({ root = globalThis, state = {}, 
   const catalog = {};
   Object.keys(root?._liveData || {}).forEach((symbol) => { catalog[`market.${symbol}`] = quoteObservation(root, symbol, now); });
   catalog['sentiment.fearGreed'] = fearGreedObservation(root, snapshot);
-  catalog['sentiment.putCall'] = putCallObservation(root, snapshot);
   catalog['sentiment.hySpread'] = hySpreadObservation(root, snapshot);
   const breadth = state?.screener?.metadata?.breadth || root?.AIO_ARCH?.getScreenerState?.('metadata.breadth') || null; // v57.77 perf: path read, no row clone
   for (const market of ['us', 'kr']) {
@@ -484,7 +475,6 @@ function decisionInputs(root, nowMs = Date.now()) {
     spx50ma: null,
     spx200ma: null,
     breadth200: value('breadth200-participation'), // v57.50 C07: legacy key; the value is the 20-day-SMA share
-    pcr: value('pcr-putcall'),
     hyBp: value('hy-spread-bp')
   };
   // MAs are derived evidence, not a free decision grant. Only a producer
@@ -506,7 +496,7 @@ function decisionInputs(root, nowMs = Date.now()) {
   const evidenceKeys = {
     vix: 'vix-price', vvix: 'vvix-price', dxy: 'dxy-dollar', tnx: 'tnx-yield',
     oilPrice: 'oil-price', fg: 'fg-sentiment', spxPrice: 'spx-price',
-    breadth200: 'breadth200-participation', pcr: 'pcr-putcall', hyBp: 'hy-spread-bp'
+    breadth200: 'breadth200-participation', hyBp: 'hy-spread-bp'
   };
   const decisionEvidence = {};
   Object.entries(evidenceKeys).forEach(([key, id]) => {
@@ -529,9 +519,9 @@ function decisionInputs(root, nowMs = Date.now()) {
     tnx: ['tnx', '^TNX'], oilPrice: ['wti', 'CL=F'], spxPrice: ['spx', '^GSPC'],
     // v57.50 C07: the score's participation input is the 20-day-SMA share (the live evidence row and the score bands
     // both mean it); the close path read the history column `breadth200` (200-day share) under the same key.
-    fg: ['fg'], breadth200: ['breadth20'], pcr: ['pcr'], hyBp: ['hySpread'] };
+    fg: ['fg'], breadth200: ['breadth20'], hyBp: ['hySpread'] };
   const snapshot = root?.DATA_SNAPSHOT || {};
-  const daily = { fg: fearGreedObservation(root, snapshot), pcr: putCallObservation(root, snapshot), hyBp: hySpreadObservation(root, snapshot) };
+  const daily = { fg: fearGreedObservation(root, snapshot), hyBp: hySpreadObservation(root, snapshot) };
   // P1388: DXY and WTI trade almost around the clock, so the producer records the last COMPLETED
   // daily bar (stamped with its midnight-ET bar start) on the next row; the 9/30 settlement sits on the
   // 10/1 row. Without this lookup the macro axis and the oil correction were never scored.
@@ -539,14 +529,14 @@ function decisionInputs(root, nowMs = Date.now()) {
   const completedBar = (selectedBasis, key, field) => {
     if (!['dxy', 'oilPrice'].includes(key) || !selectedBasis?.date) return null;
     const item = history.find((row) => row?.date >= selectedBasis.date && finite(row[field]) != null
-      && row.fieldMeta?.[field]?.observationRelation === 'previous-completed-close'
-      && row.fieldMeta[field].observedAtSource === 'provider-previous-close' && (historyFieldSessionDate(row.fieldMeta[field], field) || nyDate(row.fieldMeta[field].observedAt)) === selectedBasis.date);
-    return item ? { ...item.fieldMeta[field], value: item[field], observedAt: selectedBasis.date, valueBasis: 'latest-completed-close', session: 'COMPLETED' } : null;
+      && historyFieldMeta(row, field)?.observationRelation === 'previous-completed-close'
+      && historyFieldMeta(row, field).observedAtSource === 'provider-previous-close' && (historyFieldSessionDate(historyFieldMeta(row, field), field) || nyDate(historyFieldMeta(row, field).observedAt)) === selectedBasis.date);
+    return item ? { ...historyFieldMeta(item, field), value: item[field], observedAt: selectedBasis.date, valueBasis: 'latest-completed-close', session: 'COMPLETED' } : null;
   };
   const pick = (selectedBasis, key, id) => {
     const [field, symbol] = fields[key];
     const row = selectedBasis === basis ? closeRow : history.findLast((item) => item?.date === selectedBasis?.date);
-    const meta = row?.fieldMeta?.[field];
+    const meta = historyFieldMeta(row, field);
     const live = symbol && root?._liveData?.[symbol];
     const envelope = live?.quoteEnvelope || live;
     const historical = meta ? { ...meta, value: row[field], session: meta.observedMarketSession } : null;
@@ -610,7 +600,6 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
     const live = readLive();
     const snapshot = readSnapshot();
     const fg = fearGreedObservation(root, snapshot);
-    const putCall = putCallObservation(root, snapshot);
     const skew = quoteObservation(root, '^SKEW', now());
     const quote = (symbol) => live[symbol] || {};
     const hySpread = hySpreadObservation(root, snapshot);
@@ -635,10 +624,6 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
       vix3m: finite(quote('^VIX3M').price), vix3mObservedAt: observedAt(quote('^VIX3M')),
       vix6m: finite(quote('^VIX6M').price), vix6mObservedAt: observedAt(quote('^VIX6M')),
       skew: Object.freeze(skew),
-      putCall: putCall.value,
-      putCallSourceKind: putCall.sourceKind,
-      putCallSource: putCall.source,
-      putCallObservedAt: putCall.observedAt,
       hySpread: hySpread.value,
       hySpreadSourceKind: hySpread.sourceKind,
       hySpreadSource: hySpread.source,
@@ -669,8 +654,6 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
   const readEntity = () => {
     const id = String(root?._currentTickerId || root?._currentTickerSym || '').trim().toUpperCase() || null;
     const quote = id ? quoteObservation(root, id, now()) : null;
-    const snapshot = readSnapshot();
-    const pcr = putCallObservation(root, snapshot);
     const optionQuote = (symbol) => quoteObservation(root, symbol, now());
     return Object.freeze({
       id,
@@ -679,8 +662,8 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
       history: id ? clone(root?._technicalOHLCV?.[id] || root?._tickerHistory?.[id] || []) : [],
       // Fundamentals are replaced by the SEC provider in createEntityProvider.
       fundamentals: null,
-      options: { vix: optionQuote('^VIX'), pcr, skew: optionQuote('^SKEW') },
-      updatedAt: latestIso([quote?.observedAt, lastSeriesObservedAt(id ? root?._technicalOHLCV?.[id] || root?._tickerHistory?.[id] || [] : []), pcr.observedAt])
+      options: { vix: optionQuote('^VIX'), skew: optionQuote('^SKEW') },
+      updatedAt: latestIso([quote?.observedAt, lastSeriesObservedAt(id ? root?._technicalOHLCV?.[id] || root?._tickerHistory?.[id] || [] : [])])
     });
   };
 

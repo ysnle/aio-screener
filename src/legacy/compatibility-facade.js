@@ -38,7 +38,6 @@ function readLegacy(root) {
   const fgMeta = root?._lastFGMeta || {};
   const fg = finite(canonicalFg?.value) ?? finite(root?._lastFG) ?? finite(snapshot.fg);
   const quote = (symbol) => finite(live[symbol]?.price);
-  const payload = root?._lastPutCallPayload || {};
   const vixHistory = Array.isArray(root?._vixHistory) ? root._vixHistory.slice(-30).map((point) => ({
     date: point?.date || null,
     value: finite(point?.value)
@@ -56,10 +55,6 @@ function readLegacy(root) {
     vix3mObservedAt: readQuoteObservedAt(live, '^VIX3M'),
     vix6m: quote('^VIX6M'),
     vix6mObservedAt: readQuoteObservedAt(live, '^VIX6M'),
-    putCall: finite(root?._putCallRatio) ?? finite(payload.totalPutCall) ?? finite(snapshot.pcr),
-    putCallSourceKind: payload.sourceKind || (root?._putCallRatio != null ? 'delayed' : 'snapshot'),
-    putCallSource: payload.sourceLabel || (root?._putCallRatio != null ? 'CBOE options volume daily' : 'DATA_SNAPSHOT'),
-    putCallObservedAt: payload.asOf || payload.tradeDate || snapshot._snapshotDate || snapshot._updated || null,
     hySpread: finite(root?._hySpreadBp) ?? finite(snapshot.hySpread),
     hySpreadSourceKind: root?._hySpreadBp != null ? 'fred' : 'snapshot',
     hySpreadSource: root?._hySpreadBp != null ? 'FRED BAMLH0A0HYM2' : 'DATA_SNAPSHOT',
@@ -206,18 +201,9 @@ function readEntity(root) {
       sourceKind: value == null ? 'unavailable' : 'live'
     };
   };
-  const pcrPayload = root?._lastPutCallPayload || {};
-  const snapshot = root?.DATA_SNAPSHOT || {};
-  const pcrValue = finite(root?._putCallRatio) ?? finite(pcrPayload.totalPutCall) ?? finite(snapshot.pcr);
   const options = {
     ...(legacyOptions ? clone(legacyOptions) : {}),
     vix: optionQuote('^VIX'),
-    pcr: {
-      value: pcrValue,
-      observedAt: pcrPayload.asOf || pcrPayload.tradeDate || snapshot._snapshotDate || snapshot._updated || null,
-      source: pcrPayload.sourceLabel || (pcrValue == null ? 'unavailable' : 'DATA_SNAPSHOT'),
-      sourceKind: pcrValue == null ? 'unavailable' : (pcrPayload.sourceKind || (root?._putCallRatio != null ? 'delayed' : 'snapshot'))
-    },
     skew: optionQuote('^SKEW')
   };
   return Object.freeze({

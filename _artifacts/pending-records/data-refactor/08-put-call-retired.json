@@ -1,0 +1,14 @@
+{
+  "changelog": [
+    "**Cboe 풋/콜 퇴역 ({VERSION}, 소유자 2026-11-04 '권장안대로 진행'):** Cboe 약관은 사전 서면 동의 없이 통계의 복제·저장·배포를 금지하고 무료 자동 원천이 없어, 수집과 사이트 표시를 멈췄다. fetch-data의 Cboe 요청(mktstat 페이지, 30분마다 403)·브라우저 CDN 요청(fetchPutCall)·Worker/프록시 허용 목록(cdn.cboe.com)을 지웠고, data.json putCall·meta.putCallOk/putCallAsOf·options-put-call 수신 영수증을 더 쓰지 않는다. history.json은 다음 쓰기에서 저장된 pcr 값과 출처를 지운다(RETIRED_HIST_FIELDS). 자체 심리 합성은 6개 구성 요소가 되고(순위를 평균하지 않으므로 재가중 없음, 최소 4개 유지), 신용 축의 '풋/콜 1.1 미만' 조건, 교차 읽기의 풋/콜 문장, 트레이딩 스코어의 풋/콜 절반(trading-score.v6: 위험선호 = HY 스프레드만, 골든 재기준)을 뺐다. 원천 레지스트리·대조 상태의 put-call 범주는 NAAIM처럼 BLOCKED(약관)로 남겨 22개 범주 계약을 유지한다. 게이트: ci-data-audit-contract(Cboe 수집·pcr 저장·점수 입력이 다시 생기면 실패, 신용 상태가 pcr 입력에 따라 바뀌면 실패, 통합 임시 연결 두 줄과 13F 옵션 행 밖의 src/domain 파일이 pcr·putCall을 읽으면 실패), ci-producer-dry-run(data.json에 putCall 없음)."
+  ],
+  "note": "Cboe put/call retired (terms forbid storage/redistribution): collection, history pcr, composite, credit, trading score",
+  "qa_section": "데이터 분배 개편 (data audit 2026-11-04)",
+  "qa": [
+    {
+      "id": "QA-DATA-66F",
+      "text": "After push and the next refresh-data run, public-data/data.json has no putCall block and no meta.putCallOk/putCallAsOf, history.json rows carry no pcr column, the refresh log shows no Cboe request, and the 투자 심리 screen loads without a put/call card.",
+      "verify_by": "2026-11-06"
+    }
+  ]
+}

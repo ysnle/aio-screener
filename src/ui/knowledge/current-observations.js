@@ -66,9 +66,9 @@ const LIVE_ROWS = [
 ];
 
 function latestClose(history, field) {
-  const rows = (Array.isArray(history) ? history : []).filter((row) => typeof row?.[field] === 'number' && row[field] > 0 && row.fieldMeta?.[field]?.observationRelation !== 'carried-forward');
+  const rows = (Array.isArray(history) ? history : []).filter((row) => typeof row?.[field] === 'number' && row[field] > 0 && historyFieldMeta(row, field)?.observationRelation !== 'carried-forward');
   const row = rows.sort((a, b) => String(a.date).localeCompare(String(b.date))).at(-1);
-  return row ? { value: row[field], date: String(row.fieldMeta?.[field]?.observedAt || row.date).slice(0, 10) } : null;
+  return row ? { value: row[field], date: String(historyFieldMeta(row, field)?.observedAt || row.date).slice(0, 10) } : null;
 }
 
 export function liveCurrentObservations(artifact, root) {
@@ -146,3 +146,4 @@ export function validateCurrentObservationsArtifact(artifact) {
 }
 import { applySafeExternalLink } from './safe-external-link.js';
 import { finiteNumber as finite } from '../../domain/shared/number.js';
+import { historyFieldMeta } from '../../domain/market/history-meta.js';

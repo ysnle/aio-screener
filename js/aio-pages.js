@@ -516,7 +516,7 @@ function getThemePerf(theme) {
 // ══════════════════════════════════════════════════════════════════
 //  시장 브레드스 (Market Breadth) — screener compute_breadth 기반
 // ══════════════════════════════════════════════════════════════════
-function calcSectorBreadth(tickers) {
+function calcSectorUpShare(tickers) { // v59.70 R9: was calcSectorBreadth — leaders up today, not moving-average breadth
   // v36.9: 종가 기준 pct 사용 (장중 변동으로 폭 흔들림 방지)
   let ld = window._liveData || {};
   var above = 0, total = 0;
@@ -640,7 +640,7 @@ function showThemeDetail(themeId) {
   // P790: detailed leader cards are owned by the native child surface.
 
   // P789: sub-theme composition and breadth are owned by the native child surface.
-  var breadth = calcSectorBreadth(theme.leaders);
+  var breadth = calcSectorUpShare(theme.leaders);
 
   // P797: all visible theme-detail content is owned by the native child surfaces.
   legacyContainer.replaceChildren();

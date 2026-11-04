@@ -4,11 +4,10 @@
 // each consumer (the receipts, the meta block) restated its own status list, so a reader that changed its success
 // status (AAII 'current-reference', 10/19) was reported as a failed collection on every run. Consumers now ask
 // planeFresh() instead of listing statuses.
-import { FRED_SERIES, fetchAaiiSentiment, fetchBeaPce, fetchBlsSeries, fetchCboePutCall, fetchFearGreed, fetchFredDexkousPublic, fetchFredHyOasPublic, fetchTreasuryYieldCurve } from '../lib/macro-sources.mjs';
+import { FRED_SERIES, fetchAaiiSentiment, fetchBeaPce, fetchBlsSeries, fetchFearGreed, fetchFredDexkousPublic, fetchFredHyOasPublic, fetchTreasuryYieldCurve } from '../lib/macro-sources.mjs';
 import { fetchNews } from '../lib/news-selection.mjs';
 import { SYMBOLS, fetchQuote, mapLimit, fetchCoinGeckoCrossCheck } from './quotes.mjs';
 import { fetchFred } from './fred.mjs';
-import { readNumber } from '../../src/domain/shared/number.js';
 
 // Provider statuses that mean "this run collected the value" (not a carried last-known-good copy).
 export const FRESH_STATUSES = Object.freeze({
@@ -21,9 +20,6 @@ export const FRESH_STATUSES = Object.freeze({
 });
 
 export function planeFresh(id, value) {
-  // v58.77 (pass-2 P2-DATA-06): a retained Cboe value keeps its old fetchedAt and carries failureReason; it is not this
-  // run's collection, so the receipt must not count it as updated.
-  if (id === 'putCall') return !!(value && !value.error && !value.failureReason && value.fetchedAt);
   const statuses = FRESH_STATUSES[id];
   return !!(statuses && value && statuses.includes(value.status));
 }
@@ -43,7 +39,6 @@ export function readPreviousPlanes(previous) {
     fredDexkous: previous && previous.providerCrossChecks && previous.providerCrossChecks.fx && previous.providerCrossChecks.fx.official || null,
     marketSurveys: previous && previous.marketSurveys || null,
     fearGreed: previous && previous.fearGreed || null,
-    putCall: previous && previous.putCall || null,
     news: previous && Array.isArray(previous.news) ? previous.news : null
   };
 }
@@ -67,12 +62,7 @@ export function sourcePlanes({ prior, attemptedAt, env = process.env, blsRelease
     // 2026-10-19: same-cycle articles stay candidates (carriedNewsCandidates).
     { id: 'news', label: 'news', run: () => fetchNews(Date.parse(attemptedAt), { carry: prior.news }),
       fallback: () => (prior.news && prior.news.length ? prior.news : []) },
-    // v58.74 (refresh-data 10/24 01:20Z): a failed Cboe read published totalPutCall null and the static-data contract
-    // refused the whole refresh. A failed read keeps the last value labelled stale-reference (history writes only
-    // current-reference rows), like Fear & Greed.
-    { id: 'putCall', label: 'Put/Call', run: () => fetchCboePutCall().then((value) => (value?.error && readNumber(prior.putCall?.totalPutCall) != null && prior.putCall?.asOf
-      ? { ...prior.putCall, status: 'stale-reference', attemptedAt, failureReason: value.error } : value)),
-      fallback: () => ({ source: 'Cboe Daily Market Statistics', sourceKind: 'unavailable', allowedUse: 'none', fetchedAt: null, attemptedAt, totalPutCall: null, error: 'put-call-plane-failed' }) },
+    // v59.70: the Cboe put/call plane is deleted (owner 11/4: Cboe terms forbid storing and redistributing its statistics).
     { id: 'bls', label: 'BLS', run: () => fetchBlsSeries(prior.bls, { releaseSchedules: blsReleaseSchedules }),
       fallback: () => (prior.bls?.series ? { ...prior.bls, status: 'stale', attemptedAt, failureReason: 'bls-plane-failed' }
         : { status: 'unavailable', ...unavailable, lastSuccessfulAt: null, values: {}, series: {}, failures: [{ metricId: 'batch', reason: 'bls-plane-failed' }] }) },

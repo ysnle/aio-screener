@@ -60,9 +60,9 @@ try {
     check('P715/P719 the published quote contract holds', Array.isArray(data.quotes) && data.quotes.length === 0 && meta.quotesPublished === false);
     // The synthetic charts are not market-shaped, so a few quotes may fail the sanity band; the watchdog floor is 70.
     check('P1256 every quote plane symbol is accounted for', Number(meta.symbolsOk) >= 70 && Number(meta.symbolsOk) + Number(meta.symbolsFail) === meta.domainReceipts?.['market-quotes']?.counts?.eligible, `${meta.symbolsOk}/${meta.symbolsFail}`);
-    for (const key of ['macro', 'fearGreed', 'putCall', 'marketSurveys', 'news', 'newsIntraday', 'providerCrossChecks', 'policyRates', 'rotationHistory']) check(`P1256 data.json keeps ${key}`, key in data);
+    for (const key of ['macro', 'fearGreed', 'marketSurveys', 'news', 'newsIntraday', 'providerCrossChecks', 'policyRates', 'rotationHistory']) check(`P1256 data.json keeps ${key}`, key in data);
     const receipts = meta.domainReceipts || {};
-    for (const domain of ['market-quotes', 'news', 'macro-fred', 'macro-bls', 'macro-bea', 'treasury-curve', 'surveys-aaii', 'options-put-call']) check(`P1256 domain receipt ${domain} is published`, !!receipts[domain]);
+    for (const domain of ['market-quotes', 'news', 'macro-fred', 'macro-bls', 'macro-bea', 'treasury-curve', 'surveys-aaii']) check(`P1256 domain receipt ${domain} is published`, !!receipts[domain]);
     check('P1950 the pinned producer clock stays inside the stored news cycle', !Number.isFinite(cycleEnd) || data.meta?.newsCycleEnd === before.meta.newsCycleEnd, `${data.meta?.newsCycleEnd} vs ${before.meta?.newsCycleEnd} (pinned ${new Date(pinned).toISOString()})`);
     // The carried rows are re-selected under the current rules (fetchNews: a tightened filter or cap still drops them), so
     // the bundle is the previous one or a subset of it, never empty and never a row the previous run did not publish.
@@ -76,9 +76,9 @@ try {
       const expired = carriedNewsCandidates(before.news, getKst0800NewsCycle(nextRefresh + 60000)).length;
       check('P1950 previous articles are candidates inside their cycle and dropped after it', kept === before.news.length && expired === 0, `in-cycle ${kept}/${before.news.length}, expired ${expired}`);
     }
-    // v58.74 (refresh-data 10/24 01:20Z): a failed Cboe read keeps the last put/call value, labelled stale-reference,
-    // instead of publishing null and failing the static-data contract.
-    if (Number.isFinite(Number(before.putCall?.totalPutCall))) check('v58.74 a failed put/call read keeps the last value as stale-reference', data.putCall?.totalPutCall === before.putCall.totalPutCall && data.putCall?.status === 'stale-reference', JSON.stringify(data.putCall || null).slice(0, 300));
+    // v59.70 (owner 11/4): the Cboe put/call block is retired — a dry run publishes no putCall, no meta.putCall* and no
+    // options-put-call receipt even when the previous data.json still carries them.
+    check('v59.70 data.json publishes no Cboe put/call', !('putCall' in data) && !('putCallOk' in meta) && !('putCallAsOf' in meta) && !receipts['options-put-call'], JSON.stringify({ putCall: 'putCall' in data, meta: Object.keys(meta).filter((key) => /putCall/.test(key)) }));
     check('P565 the FRED plane reports its missing key instead of a fresh cycle', meta.fredHasKey === false && meta.fredFetchOk === false);
     // A provider failure either keeps the last verified reading (P1719, with the reason) or publishes the blocked reason.
     check('P1594 the market analysis records why it did not run', (meta.marketAnalysisOk === false && typeof meta.marketAnalysisReason === 'string' && meta.marketAnalysisReason.length > 0) || (meta.marketAnalysisOk === true && typeof meta.marketAnalysisRetained?.reason === 'string'), JSON.stringify({ ok: meta.marketAnalysisOk, reason: meta.marketAnalysisReason, retained: meta.marketAnalysisRetained, ai: meta.aiUsage?.purposes?.['market-analysis'] }));

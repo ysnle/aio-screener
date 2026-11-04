@@ -127,7 +127,7 @@ export function buildScenarioSignals({ read = null, macroHistory = null, history
   const axis = (id) => read?.axes?.find((row) => row.id === id) || null;
   const growth = axis('growth')?.detail || {}, inflation = axis('inflation')?.detail || {}, policy = axis('policy')?.detail || {};
   const close = (field) => buildCloseSeries(history, field);
-  const wti = close('wti'), tnx = close('tnx'), spx = close('spx'), ndx = close('ndx'), dxy = close('dxy'), krw = close('usdkrw'), vix = close('vix'), vix3m = close('vix3m'), smh = close('smh');
+  const wti = close('wti'), tnx = close('tnx'), spx = close('spx'), dxy = close('dxy'), krw = close('usdkrw'), vix = close('vix'), vix3m = close('vix3m'), soxx = close('soxx');
   const mh = (field) => seriesOf(macroHistory, field);
   const ccc = mh('cccOas'), b = mh('bOas');
   const bByDate = new Map(b.map((row) => [row.date, row.value]));
@@ -139,10 +139,11 @@ export function buildScenarioSignals({ read = null, macroHistory = null, history
   const oil20 = pctOver(wti, 20);
   const oilVsYear = wti.length >= 120 ? (last(wti).value / (wti.slice(-250).reduce((sum, p) => sum + p.value, 0) / Math.min(250, wti.length)) - 1) * 100 : null;
   const hy20 = changeOver(hy, 20);
-  // v57.75 (US scenario audit): 10y − 2y paired by date (bear steepening) and Nasdaq-100 against the S&P 500 (AI leadership).
+  // v57.75 (US scenario audit): 10y − 2y paired by date (bear steepening); v59.70 (owner 11/4): SOXX against the S&P 500 is
+  // the AI-leadership measure (it was the Nasdaq-100, with SMH beside it).
   const d2ByDate = new Map(mh('dgs2').map((row) => [row.date, row.value]));
   const curve2s10s = mh('dgs10').filter((row) => d2ByDate.has(row.date)).map((row) => ({ date: row.date, value: row.value - d2ByDate.get(row.date) }));
-  const ndx20 = pctOver(ndx, 20), spx20 = pctOver(spx, 20), smh20 = pctOver(smh, 20);
+  const spx20 = pctOver(spx, 20), soxx20 = pctOver(soxx, 20);
   // Brent beside WTI (buildMacroRead().oil → brentWtiCheck): an abnormal same-day gap is never compared.
   const oilCheck = read?.oil && !read.oil.abnormal ? read.oil : null;
   // v57.81 (audit X4): one Brent/WTI rule for every oil read — a held pair makes every WTI-based condition 확인 불가.
@@ -152,12 +153,12 @@ export function buildScenarioSignals({ read = null, macroHistory = null, history
   const wtiPosition = oilYear.length > 20 ? (last(wti).value - Math.min(...oilYear)) / ((Math.max(...oilYear) - Math.min(...oilYear)) || 1) : null;
   // v57.81 (audit X3): a "rose / widened" condition counts only past 0.5 sd of that series' own n-period changes.
   const spxByDate = new Map(spx.map((row) => [row.date, row.value]));
-  const ndxRatio = ndx.filter((row) => spxByDate.get(row.date)).map((row) => ({ date: row.date, value: row.value / spxByDate.get(row.date) }));
+  const soxxRatio = soxx.filter((row) => spxByDate.get(row.date)).map((row) => ({ date: row.date, value: row.value / spxByDate.get(row.date) }));
   const bands = {
     breakeven20: changeBand(mh('breakeven10'), 20)?.band, termPremium20: changeBand(mh('termPremium10'), 20)?.band,
     curve20: changeBand(mh('t10y3m'), 20)?.band, curve2s10s20: changeBand(curve2s10s, 20)?.band, realYield20: changeBand(mh('realYield10'), 20)?.band,
     hy20: changeBand(hy, 20, { scale: 100 })?.band, cccGap20: changeBand(gap, 20)?.band, tnx20: changeBand(tnx, 20)?.band,
-    nfci4: changeBand(nfci, 4, { window: 52 })?.band, ndxRel20: changeBand(ndxRatio, 20, { kind: 'pct' })?.band
+    nfci4: changeBand(nfci, 4, { window: 52 })?.band, soxxRel20: changeBand(soxxRatio, 20, { kind: 'pct' })?.band
   };
   // v57.81 (audit X1): the shared PCE·CPI direction from the 거시 inflation axis (same flag as the quadrant).
   const inflationDir = inflation.direction || null;
@@ -173,7 +174,7 @@ export function buildScenarioSignals({ read = null, macroHistory = null, history
     cash: last(mh('sofr')), oil20, oilVsYear, brent20: finite(oilCheck?.brent20), brentBasis: oilCheck?.basis || null, oilHeld: oilDiv.held, oilHeldKind: oilDiv.kind, oilHeldText: oilDiv.text, wtiPosition,
     // v57.86 (live review): a held pair still answers a test both 20-session moves pass — only a split answer is 확인 불가.
     oilSurging: oilDiv.held ? (bothOil((v) => v >= RULES.oil.rise20dPct) === true ? true : null) : oil20 == null ? null : oil20 >= RULES.oil.rise20dPct || (oilVsYear != null && oilVsYear >= RULES.oil.aboveYearAvgPct),
-    tnx: last(tnx), tnx20: changeOver(tnx, 20), spx5: pctOver(spx, 5), spx20, ndxRel20: all(ndx20, spx20) ? ndx20 - spx20 : null, smhRel20: all(smh20, spx20) ? smh20 - spx20 : null, dxy20: pctOver(dxy, 20), krw20: pctOver(krw, 20),
+    tnx: last(tnx), tnx20: changeOver(tnx, 20), spx5: pctOver(spx, 5), spx20, soxxRel20: all(soxx20, spx20) ? soxx20 - spx20 : null, dxy20: pctOver(dxy, 20), krw20: pctOver(krw, 20),
     vix: vixLast?.value ?? null, vixRatio: vixLast && vix3mLast && vixLast.date === vix3mLast.date && vix3mLast.value ? vixLast.value / vix3mLast.value : null,
     pricing, mid: finite(policy.mid), lean: pricing == null ? 'unknown' : pricing >= P.pricedMovePp ? 'hike' : pricing <= -P.pricedMovePp ? 'cut' : 'hold',
     credit: axis('credit')?.state || 'unknown', growthState: axis('growth')?.state || 'unknown',
@@ -348,16 +349,16 @@ export const BRANCHES = Object.freeze([
     costly: ['wait', 'defend'],
     explore: [['themes', '테마와 섹터', '경기민감·금융 업종 개선'], ['screener', '스크리너', '이익 추정이 오르는 후보']] },
   // v57.75 (owner 2026-10-15, US thesis; US scenario audit): the AI-capex cycle had no branch — semiconductor, AI infra,
-  // photonics and KR memory were judged only through growth/cyclical tags. Nasdaq-100 against the S&P 500 is the
-  // measured proxy for AI leadership; owner 2026-10-18: semis (SMH) lagging by RULES.leadership.aiLagSemis20dPp also opens it.
+  // photonics and KR memory were judged only through growth/cyclical tags. v59.70 (owner 11/4): SOXX lagging the S&P 500 by
+  // RULES.leadership.aiLagSemis20dPp over 20 sessions is the measured AI-leadership test (the Nasdaq-100 3pp and SMH 8pp lags before).
   // 2026-10-19 screen audit: so does the regime's leadership break — the briefing named the AI-leader correction the central
   // variable while this gate (20-session lags only) stayed shut and the home and AI text led with the 2/4 oil branch.
   { id: 'aibust', shape: 'weakness', axes: ['growth', 'credit'], title: 'AI 투자 꺾임 — 이익과 고용이 함께 식는 시나리오',
-    gate: [0], conditions: [[`나스닥100이 S&P 500보다 20거래일 ${L.aiLagNdx20dPp}%p 이상, 또는 반도체(SMH)가 ${L.aiLagSemis20dPp}%p 이상 뒤처짐, 또는 시장 상태의 주도 영역 이탈 확인 (AI 주도 약화)`, (s) => s.leadershipBreak === true || (has(s.smhRel20) && s.smhRel20 <= -L.aiLagSemis20dPp) || (has(s.ndxRel20) && s.ndxRel20 <= -L.aiLagNdx20dPp) ? true : has(s.ndxRel20) || has(s.smhRel20) || s.leadershipBreak === false ? false : null], ['일자리 3개월 평균이 그 전 3개월보다 적음', (s) => all(s.payroll3, s.payrollPrior3) ? s.payroll3 < s.payrollPrior3 : null], [`하이일드 스프레드 20회 관측 +${RULES.credit.widen20dBp}bp 이상 확대`, (s) => has(s.hy20) ? s.hy20 >= RULES.credit.widen20dBp : null], [`실업수당 청구 4주 평균이 1년 저점보다 ${G.claimsWatchAbovePct}% 이상 높음`, (s) => has(s.claimsUp) ? s.claimsUp >= G.claimsWatchAbovePct : null]],
+    gate: [0], conditions: [[`반도체(SOXX)가 S&P 500보다 20거래일 ${L.aiLagSemis20dPp}%p 이상 뒤처짐, 또는 시장 상태의 주도 영역 이탈 확인 (AI 주도 약화)`, (s) => s.leadershipBreak === true || (has(s.soxxRel20) && s.soxxRel20 <= -L.aiLagSemis20dPp) ? true : has(s.soxxRel20) || s.leadershipBreak === false ? false : null], ['일자리 3개월 평균이 그 전 3개월보다 적음', (s) => all(s.payroll3, s.payrollPrior3) ? s.payroll3 < s.payrollPrior3 : null], [`하이일드 스프레드 20회 관측 +${RULES.credit.widen20dBp}bp 이상 확대`, (s) => has(s.hy20) ? s.hy20 >= RULES.credit.widen20dBp : null], [`실업수당 청구 4주 평균이 1년 저점보다 ${G.claimsWatchAbovePct}% 이상 높음`, (s) => has(s.claimsUp) ? s.claimsUp >= G.claimsWatchAbovePct : null]],
     chain: ['AI 설비투자 기대 후퇴', '반도체·데이터센터 이익 하향', '투자·고용 둔화', '금리 인하 압력 + 신용 스프레드 확대', '정책 대응은 연쇄를 막아도 이익 전망은 못 바꿈'],
     firmer: ['defensive'], weaker: ['aicapex', 'growth', 'liquidity', 'cyclical'], mixed: ['yield'],
     triggers: [['us-nfp', '일자리 5만~7.5만 명 (채용 둔화)', (a) => a.payroll >= 50 && a.payroll < 75]],
-    pricing: deltaPricing('ndxRel20', '나스닥100 − S&P 500 20거래일', '%p', 1, false), pricingInConditions: true, /* v57.84: the pricing series is one of the conditions, so it is not independent confirmation */
+    pricing: deltaPricing('soxxRel20', 'SOXX − S&P 500 20거래일', '%p', 1, false), pricingInConditions: true, /* v57.84: the pricing series is one of the conditions, so it is not independent confirmation */
     choices: { wait: 'AI 투자 기대가 꺾이는 동안 기다리는 비용은 작습니다. 이익 하향은 몇 분기에 걸쳐 확인되는 경향이 있어 서둘러 놓치는 것이 적습니다.', stage: '분할 접근의 비용은 하이일드 스프레드 확대가 멈추고 빅테크 설비투자 지침이 확인되기 전에 큽니다. 그 전의 "싸 보임"은 이익이 더 내려갈 수 있다는 점을 놓칩니다.', hold: '보유는 AI 설비투자에 매출이 직접 걸린 반도체·데이터센터·광통신 비중부터 점검합니다.', defend: '방어 업종이 상대적으로 버팁니다. 다만 금리 민감 배당주는 장기 금리가 함께 오르면 기대만큼 지켜 주지 못합니다.' },
     favored: ['wait', 'defend'], favoredWhy: 'AI 투자 꺾임은 이익 하향이 늦게 끝나는 경향이 있어, 확인 전 진입은 되돌림 폭이 컸던 구간이고 기다림의 비용(현금 이자로 일부 상쇄)은 작습니다.',
     costly: ['stage'],

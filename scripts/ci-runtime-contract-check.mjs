@@ -194,7 +194,7 @@ check('ticker direct search uses the delegated uppercase input handler', /window
 // v57.77: the breadth-*sma bar/label/big writers left with their absent DOM; the snapshot breadth cells still read only current evidence.
 check('P1274 snapshot percentage fields preserve missingness and breadth cells fail closed to current 5/20/50 evidence (v57.77: legacy bar/label writer retired)', !/vvix-pct[^\n]*S\.vvixChg\s*\|\|\s*0/.test(core) && !/skew-pct[^\n]*S\.skewChg\s*\|\|\s*0/.test(core) && /'breadth-20sma':\s*currentBreadth\.available \?/.test(core) && !/\['5sma','20sma','50sma','200sma'\]/.test(core) && !/getElementById\('breadth-' \+ period \+ '-bar'\)/.test(core)); // text-pin-ok: retirement absence
 check('snapshot fallback seeds require a valid producer timestamp and TNX stays source-backed', /const snapTsRaw = S\._updated \|\| S\._marketDataUpdated/.test(core) && /snapshot timestamp unavailable; fallback seed skipped/.test(core) && !/const snapTs = S\._updated \? new Date\(S\._updated\)\.getTime\(\) : Date\.now\(\)/.test(core) && /'\^TNX': \{ price: S\.tnx, pct: S\.tnxPct \}/.test(core) && !/price: 4\.31, pct: \+0\.54/.test(core));
-check('manual CPI next date is consumed only when it is valid and not in the past', /function _aioFutureReferenceDate/.test(core) && /cpiNext: _aioFutureReferenceDate\(AIO_MANUAL_REFERENCE\.usCpiCalendar\.next\)/.test(core) && /\(!DATA_SNAPSHOT\.cpiNext \|\| _t759ValidFutureDate\(DATA_SNAPSHOT\.cpiNext\)\)/.test(tests));
+check('v59.70 R7 the next CPI date comes only from the produced release calendar, and a past date is never consumed', /cpiNext: null,/.test(core) && /S\.cpiNext = \(releases\['us-cpi'\] && releases\['us-cpi'\]\.nextRelease\) \|\| null;/.test(core) && !/usCpiCalendar/.test(core) && /\(!DATA_SNAPSHOT\.cpiNext \|\| _t759ValidFutureDate\(DATA_SNAPSHOT\.cpiNext\)\)/.test(tests));
 check('page decisions fail closed when evidence is unavailable or market epoch is blocked', /var evidenceBlocked = evidence\.sourceKind === 'UNAVAILABLE'/.test(core) && /evidence\.marketEpoch\?\.status === 'BLOCKED'/.test(core) && /d\.decisionBlocked = true/.test(core) && /status: d\.decisionBlocked \? 'blocked' : 'ok'/.test(core));
 // P553: the returned object literal no longer has to sit directly after the `return` keyword
 // (computeTradingScore now builds it into a variable first so it can be cached), so this only
@@ -383,8 +383,8 @@ check('educational copy does not claim unverified win-rate or factor explanatory
   && !/AIO_PAGE_FUNDAMENTALS/.test(ui));
 check('news fallback titles must not expose translation-pending placeholder text', !/return\s+['"`]\[번역 대기\]/.test(data) && !/\[번역 대기\]\s*['"`]\s*\+/.test(data));
 // The options-page put/call detail/description writers (opt-pcr-text / opt-pcr-desc) left with the
-// options route (P1321); the shared ratio and aio:sentimentUpdated event stay.
-check('P1753 put/call raw enum labels stay out and the retired options put/call DOM writers stay gone', !/SNAPSHOT\s*·\s*reference/.test(data) && !/getElementById\('opt-pcr-text'\)|'opt-pcr-desc'/.test(data) && /window\._putCallRatio = pcr;/.test(data));
+// options route (P1321); v59.70 deleted the Cboe ratio reader itself (owner 11/4).
+check('P1753 put/call raw enum labels stay out and the retired options put/call DOM writers stay gone', !/SNAPSHOT\s*·\s*reference/.test(data) && !/getElementById\('opt-pcr-text'\)|'opt-pcr-desc'/.test(data));
 check('public readiness exposes page-level source/asOf matrix with localized labels', /pageEvidenceRows/.test(data) && /weakPages/.test(data) && /aio-public-readiness-pages/.test(data) && /aio-public-page-source/.test(html) && /_aioPublicReadinessSourceText/.test(data) && /_aioPublicReadinessPageText/.test(data) && /시각 확인 중/.test(data));
 check('public readiness must not render raw pageId/sourceKind enum pairs', !/<b>' \+ _aioPublicReadinessEsc\(r\.pageId\)/.test(data) && !/<em>' \+ _aioPublicReadinessEsc\(r\.sourceLabel \|\| r\.sourceKind\)/.test(data) && !/asOf pending/.test(data));
 check('full surface audit must match v50.29 page-brief declutter policy', /pageBriefNotDecluttered/.test(core) && !/briefNotRendered/.test(core));
@@ -1067,7 +1067,7 @@ check('WO-1B: CORS preflight allows the new X-AIO-App-Token header (otherwise br
 // into the shared cross-page decision header, so the screen and the score now read the same
 // provenance object instead of two disconnected ones (WO-6 completion-gate wording, scoped to this
 // slice — see DEFERRED-BLOCKS.md for the literal "every value" remainder that is out of scope here).
-check('WO-6: TRADING_DECISION_CRITICAL_INPUTS covers all 13 computeTradingScore() inputs (previously only 7 of ~13, silently missing F&G/breadth/PCR/HY-spread/AAII/VVIX)', /vvix-price/.test(core) && /fg-sentiment/.test(core) && /breadth200-participation/.test(core) && /pcr-putcall/.test(core) && /hy-spread-bp/.test(core) && /aaii-bearish/.test(core));
+check('WO-6: TRADING_DECISION_CRITICAL_INPUTS covers the computeTradingScore() inputs (previously only 7, silently missing F&G/breadth/HY-spread/AAII/VVIX; v59.70 the put/call input is retired)', /vvix-price/.test(core) && /fg-sentiment/.test(core) && /breadth200-participation/.test(core) && /hy-spread-bp/.test(core) && /aaii-bearish/.test(core));
 check('WO-6: evidence engine has a distinct globalVar-based path for non-quote inputs (F&G/breadth/PCR/HY-spread/AAII are window globals + _markFetch keys, not window._liveData[symbol] quotes)', /function _aioGlobalRuntimeEvidence\(input\)/.test(core) && /function _aioQuoteRuntimeEvidence\(input\)/.test(core));
 check('WO-6: AAII is honestly marked decisionUse=reference (weekly manual snapshot, no live fetch path) so it cannot silently count against the trading-critical-missing gate', /id:'aaii-bearish'[\s\S]{0,200}decisionUse:'reference'/.test(core));
 check('WO-6: fetchHYSpread records into the shared _markFetch freshness registry like its sibling fetch functions (previously only a module-local hyLastFetch invisible to the evidence engine)', /_markFetch\('hySpread'\)/.test(data));
@@ -1512,7 +1512,7 @@ check('P875: quote change/value basis survives snapshot bridge, PriceStore, lega
 check('P1105: the history series feeds the field metadata its chart consumes',
   /valueBasis: meta\.valueBasis \|\| null/.test(data) &&
   /fieldMeta: arr\[i\]\.fieldMeta \|\| null/.test(data) &&
-  /row\.fieldMeta\?\.\[field\]/.test(read('src/domain/market/close-series.js'))); // P1425: close series read per-field metadata (v58.64 DOMAIN #8: moved from briefing/market-read.js)
+  /historyFieldMeta\(row, field\)/.test(read('src/domain/market/close-series.js'))); // P1425: close series read per-field metadata (v58.64 DOMAIN #8: moved from briefing/market-read.js; v59.70 R2: through historyFieldMeta)
 // P1106: the FRED series table declares each series' display unit. Three series
 // were declared twice, so the earlier declaration was silently dead — editing it
 // had no effect. Every series must also declare the unit key explicitly, even

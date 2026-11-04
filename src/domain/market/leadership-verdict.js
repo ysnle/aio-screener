@@ -9,6 +9,7 @@ import { countOpenSessionsBetween } from './market-calendar.js';
 import { shortDate } from '../content/date-labels.js';
 import { RULES } from '../rules/thresholds.js';
 import { signedText } from '../shared/number.js';
+import { historyFieldMeta } from './history-meta.js';
 
 const signed = (value, digits = 1) => value == null || !Number.isFinite(value) ? null : signedText(value, digits, '%');
 const pct = (now, then) => Number.isFinite(now) && Number.isFinite(then) && then !== 0 ? (now / then - 1) * 100 : null;
@@ -26,7 +27,7 @@ export function sessionMove(history, field, through = null) {
 function breadthCount(history, field, basis) {
   const row = (Array.isArray(history) ? history : []).find((item) => item?.date === basis);
   const value = Number(row?.[field]);
-  const eligible = Number(row?.fieldMeta?.[field]?.eligible);
+  const eligible = Number(historyFieldMeta(row, field)?.eligible);
   if (!Number.isFinite(value) || !Number.isFinite(eligible) || eligible <= 0) return null;
   return { value, eligible, share: value / eligible * 100 };
 }
@@ -34,13 +35,14 @@ function breadthCount(history, field, basis) {
 export const LEADERSHIP_STATE_LABELS = Object.freeze({ break: '이탈', weak: '약세', holding: '유지', unknown: '확인 중' });
 
 /**
- * @param {{ history?: object[], leadership?: object, smh?: object|null, basis?: string|null }} input
- *   leadership — market-read leadershipBreakOf result; smh — the SMH series stats (value, d5, ma50, yearMax).
+ * @param {{ history?: object[], leadership?: object, soxx?: object|null, basis?: string|null }} input
+ *   leadership — market-read leadershipBreakOf result; soxx — the SOXX series stats (value, d5, ma50, yearMax), the
+ *   leadership proxy since v59.70 (owner 11/4).
  */
-export function buildLeadershipVerdict({ history = [], leadership = null, smh = null, basis = null } = {}) {
+export function buildLeadershipVerdict({ history = [], leadership = null, soxx = null, basis = null } = {}) {
   if (!leadership?.available) return { available: false, state: 'unknown', label: LEADERSHIP_STATE_LABELS.unknown, line: null, evidence: [] };
   const rule = RULES.leadership;
-  const semis = sessionMove(history, 'smh', basis);
+  const semis = sessionMove(history, 'soxx', basis);
   const ndx = sessionMove(history, 'ndx', basis);
   const shock = (semis?.change != null && semis.change <= -rule.shockSemis1dPct) || (ndx?.change != null && ndx.change <= -rule.shockNdx1dPct);
   const state = leadership.state || 'unknown';
@@ -53,16 +55,16 @@ export function buildLeadershipVerdict({ history = [], leadership = null, smh = 
     return body ? `${name} ${body}` : null;
   };
   const gap = [semis, ndx].find((move) => move?.gapFrom);
-  const semisPosition = smh ? [
-    smh.d5 ? `5거래일 ${signed(pct(smh.value, smh.d5))}` : null,
-    smh.ma50 ? `50일선 대비 ${signed(pct(smh.value, smh.ma50))}` : null,
-    smh.yearMax ? `1년 고점 대비 ${signed(pct(smh.value, smh.yearMax))}` : null
+  const semisPosition = soxx ? [
+    soxx.d5 ? `5거래일 ${signed(pct(soxx.value, soxx.d5))}` : null,
+    soxx.ma50 ? `50일선 대비 ${signed(pct(soxx.value, soxx.ma50))}` : null,
+    soxx.yearMax ? `1년 고점 대비 ${signed(pct(soxx.value, soxx.yearMax))}` : null
   ].filter(Boolean).join(', ') : '';
   const low20 = basis ? breadthCount(history, 'breadthLow20', basis) : null;
   const low63 = basis ? breadthCount(history, 'breadthLow63', basis) : null;
   const evidence = [
-    withName('반도체(SMH)', semis, semisPosition),
-    withName('나스닥 100', ndx, leadership.drop5 != null ? `5거래일 ${signed(leadership.drop5)}` : ''),
+    withName('반도체(SOXX)', semis, semisPosition),
+    withName('나스닥 100', ndx, ''),
     low20 ? `20거래일 종가 신저가 ${low20.value}개(미국 종목의 ${Math.round(low20.share)}%)${low63 ? `, 3개월 신저가 ${low63.value}개` : ''}` : null,
     gap ? `직전 세션 기록이 없어 ${shortDate(gap.date)} 하루 변화는 일부 생략` : null
   ].filter(Boolean);

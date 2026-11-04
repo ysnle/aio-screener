@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "validation-gate-criteria.v2",
+  "note": "v59.70 (data audit R10, owner 2026-11-04): the pass criteria are the seven gate blockers themselves, not tuned numbers. scripts/build-validation-gates.mjs judges each one from the research backtest artifact (public-data/factor-backtest-longrun.json, or the fresh one the research-backtest workflow writes) and writes public-data/screener-validation-gate.json and public-data/model-validation-status.json. A requirement is met only when the artifact carries the evidence named in `evidence`; a status changes only when every required one is met.",
+  "requirements": {
+    "pointInTimeUniverse": { "label": "point-in-time universe", "evidence": "methodology.universeBasis is 'point-in-time' and no methodology.survivorshipBiasCaveat" },
+    "delistingAndCorporateAction": { "label": "delisted names and corporate actions", "evidence": "universe.includesDelisted is true and methodology.corporateActions is 'adjusted'" },
+    "filingAvailableDate": { "label": "fundamentals as of filing availability", "evidence": "methodology.fundamentalsAsOf is 'filing-available-date' and no factor is excluded for look-ahead" },
+    "turnoverModeled": { "label": "turnover", "evidence": "every overallByHorizon entry has a finite turnover" },
+    "transactionCostsModeled": { "label": "transaction costs", "evidence": "methodology.transactionCostBps is a finite number and methodology.returnsNetOfCost is true" },
+    "liquidityCapacityModeled": { "label": "liquidity capacity", "evidence": "methodology.capacity.maxAdvShare is a finite number" },
+    "liveBacktestParity": { "label": "live/backtest parity", "evidence": "methodology.excludedFactors is empty and methodology.regimeWeightsValidated is true" }
+  },
+  "screenerGate": {
+    "gateId": "G-SCR-09",
+    "required": ["pointInTimeUniverse", "delistingAndCorporateAction", "filingAvailableDate", "turnoverModeled", "transactionCostsModeled", "liquidityCapacityModeled", "liveBacktestParity"],
+    "passAllowedUse": "decision-with-validation",
+    "blockedAllowedUse": "research-relative-ranking-only"
+  },
+  "modelValidation": {
+    "required": ["pointInTimeUniverse", "delistingAndCorporateAction", "filingAvailableDate", "turnoverModeled", "transactionCostsModeled", "liquidityCapacityModeled", "liveBacktestParity"],
+    "reported": { "horizon": "fwd21d", "factor": "composite" },
+    "metrics": ["IC", "ICIR", "hitRate", "decileSpread", "drawdown", "confidenceInterval"],
+    "passAllowedUse": "decision-with-validation",
+    "blockedAllowedUse": "research-relative-ranking-only"
+  }
+}

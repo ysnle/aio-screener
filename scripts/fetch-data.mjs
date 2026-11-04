@@ -26,14 +26,15 @@ import { createAiUsage, marketAnalysisOutcome } from './producer/ai-usage.mjs';
 import { sealMarketTimeline, summarizeMarketTimeline } from './lib/market-timeline.mjs';
 import { compareUsdKrwCrossCheck } from './lib/macro-sources.mjs';
 import { deriveCyclePublication } from './lib/news-selection.mjs';
+import { degradePayloadAllowedUse } from '../src/data/contracts/evidence.js';
 import { REPO_ROOT, OUT, HIST, MARKET_SNAPSHOT_OUT, EARNINGS_CALENDAR_OUT, ROTATION_DETAIL_OUT } from './producer/paths.mjs';
 import { splitRotationHistory, mergeRotationDetail } from '../src/domain/themes/rotation-detail.js';
-import { SYMBOLS, fetchHistory, collectVerifiedQuotes } from './producer/quotes.mjs';
+import { SYMBOLS, CORE_SYMBOLS, AUX_SYMBOLS, fetchHistory, collectVerifiedQuotes } from './producer/quotes.mjs';
 import { deriveFredPlane } from './producer/fred.mjs';
 import { updateHistory } from './producer/history.mjs';
 import { SCREENER_OUT, enrichScreener } from './producer/screener.mjs';
 import { enrichScreenerExtended } from './producer/screener-extended.mjs';
-import { writeMacroHistory, MACRO_CALENDAR_OUT, writeMacroCalendar } from './producer/macro-history.mjs';
+import { writeMacroHistory, MACRO_CALENDAR_OUT, MACRO_HISTORY_OUT, writeMacroCalendar } from './producer/macro-history.mjs';
 import { translateHeadlines, genMarketAnalysis, applyMarketAnalysis } from './producer/market-narrative.mjs';
 import { collectAfterHours, nyParts as afterHoursNyParts } from './producer/after-hours.mjs';
 import { readPreviousPlanes, sourcePlanes, collectSourcePlanes } from './producer/source-planes.mjs';
@@ -43,7 +44,7 @@ import { buildCollectionMeta, applySnapshotCycleMeta } from './producer/run-meta
 export { deriveFactorQuality, isSessionComplete, sessionSegmentOfSymbol, listingCurrencyOf } from '../src/domain/screener/price-factors.js';
 export { buildMarketAnalysisEvidence, MARKET_ANALYSIS_CLOSED_SESSIONS, analysisMetricMentions, validateAnalysisMetricMentions, validateAnalysisAdmission, analysisNumberMarkedAsReference, validateMarketAnalysisText, MARKET_ANALYSIS_NEWS_CONTENT_POLICY, isMarketAnalysisNewsEligible, buildMarketAnalysisNewsEvidence, buildMarketAnalysisHeadlineContext, describeMarketAnalysisIssues, MARKET_ANALYSIS_RETAIN_MAX_MS, retainVerifiedMarketAnalysis, reusableMarketAnalysis } from './lib/market-analysis-validate.mjs';
 export { deriveCyclePublication, newsSourceLabel, serverNewsHeadlineMonthStale, scoreServerNewsItem, newsHeadlineSignature, newsSameEvent, cleanNewsTitle, newsKeyEntities, createNewsTopicCap, NEWS_INTRADAY_MAX, NEWS_INTRADAY_POLICY, NEWS_INTRADAY_LABEL, selectNewsIntraday, tickerNewsCoreName, TICKER_NEWS_WORD_SYMBOLS, tickerNewsHeadlineNamesIssuer, TICKER_NEWS_MAX_AGE_MS, selectTickerNewsMemo, TICKER_NEWS_RUN_CAP, TICKER_NEWS_FIXED_HEAD, TICKER_NEWS_ROTATION_SLOT_MS, planTickerNewsTargets, deriveTickerNewsLineage } from './lib/news-selection.mjs';
-export { parseFredHyOasCsv, fetchFredHyOasPublic, parseFredDexkousCsv, fetchFredDexkousPublic, compareUsdKrwCrossCheck, parseTreasuryYieldCurveHtml, parseTreasuryYieldCurveXml, officialTreasuryDeltas, fetchTreasuryYieldCurve, parseAaiiSentimentText, fetchAaiiSentiment, mergeMacroLastKnownGood, parseBeaPceHtml, normalizeBlsSeriesResponse, BLS_RELEASE_SCHEDULE_IDS, blsReleaseCacheBypass, fetchBlsSeries, parseCboePutCallHtml, classifyCboePutCallCurrentness } from './lib/macro-sources.mjs';
+export { parseFredHyOasCsv, fetchFredHyOasPublic, parseFredDexkousCsv, fetchFredDexkousPublic, compareUsdKrwCrossCheck, parseTreasuryYieldCurveHtml, parseTreasuryYieldCurveXml, officialTreasuryDeltas, fetchTreasuryYieldCurve, parseAaiiSentimentText, fetchAaiiSentiment, mergeMacroLastKnownGood, parseBeaPceHtml, normalizeBlsSeriesResponse, BLS_RELEASE_SCHEDULE_IDS, blsReleaseCacheBypass, fetchBlsSeries } from './lib/macro-sources.mjs';
 export { _mean, closesToFactors, backtestFactors, dailyNotionalAverage, fxRateOnOrBefore } from './lib/factors.mjs';
 export { _quoteOk, exchangeLocalDate, fxCloseAtCut, previousCloseBarIndex } from './producer/quotes.mjs';
 export { KR_EXCHANGE_CLOSE_SOURCE, parseKrDailySeries, reconcileKrExchangeCloses, summarizeKrCloseReconciliation } from './producer/kr-exchange.mjs';
@@ -62,10 +63,15 @@ async function writeRotationDetail(rotationHistory) {
   if (detail) await atomicWriteFile(ROTATION_DETAIL_OUT, JSON.stringify(detail));
 }
 
+export const SCORE_BACKTEST_MIN_AGE_HOURS = 20;
+export function scoreBacktestDue(lastBuiltMs, nowMs = Date.now()) {
+  return !Number.isFinite(lastBuiltMs) || lastBuiltMs > nowMs || nowMs - lastBuiltMs >= SCORE_BACKTEST_MIN_AGE_HOURS * 3600000;
+}
+
 async function main() {
   const t0 = Date.now();
   const aiUsage = createAiUsage();
-  console.log(`[fetch-data] ${SYMBOLS.length} 심볼 + FRED + F&G 수집 시작`);
+  console.log(`[fetch-data] ${SYMBOLS.length} 심볼(핵심 ${CORE_SYMBOLS.length}) + FRED + F&G 수집 시작`);
 
   // P1262: `previous` (the whole previous data.json) lives in main scope; the receipts read it outside the read block.
   let previous = null;
@@ -78,6 +84,8 @@ async function main() {
   const generatedAt = attemptedAt;
   // CPI/NFP release dates for the BLS cache bypass, read from the previous calendar artifact before this run rewrites it.
   const blsReleaseSchedules = await readFile(MACRO_CALENDAR_OUT, 'utf8').then((text) => JSON.parse(text)?.schedules || null).catch(() => null);
+  // v59.70 (R7): the published target-upper history dates the latest FOMC decision (policyRates.fed.decision).
+  const fedUpperHistory = await readFile(MACRO_HISTORY_OUT, 'utf8').then((text) => JSON.parse(text)?.series?.fedTargetUpper?.observations || null).catch(() => null);
   // P1358: collect bounded completed-session ETF research once per session.
   // This independent lane reuses the existing free delayed Yahoo path; it
   // publishes only derived rotation/returns, preserving P715 raw-price stripping.
@@ -87,30 +95,34 @@ async function main() {
   const macroCalendarTask = writeMacroCalendar(process.env.FRED_API_KEY).catch((error) => ({ written: false, reason: error?.message || String(error) }));
   // Every source plane runs concurrently under Promise.allSettled; a failed plane publishes its declared fallback.
   const { values: planes } = await collectSourcePlanes(sourcePlanes({ prior, attemptedAt, blsReleaseSchedules }));
-  const { fred: macroRaw, fearGreed, news, putCall, bls, bea, treasury, fredHyOas, cryptoCrossCheck, aaii, fredDexkous } = planes;
+  const { fred: macroRaw, fearGreed, news, bls, bea, treasury, fredHyOas, cryptoCrossCheck, aaii, fredDexkous } = planes;
   // P1720: only a fresh collection carries the intraday slot; a fallback to the previous bundle publishes none.
   const newsIntraday = Array.isArray(news?.intraday) ? news.intraday : [];
   const marketSurveys = buildMarketSurveys(prior.marketSurveys, aaii);
   const macro = mergeMacroPlanes({ macroRaw, previousMacro: prior.macro, bls, bea, treasury, fredHyOas });
-  const quoteRun = await collectVerifiedQuotes(planes.quotes);
+  const verifiedRun = await collectVerifiedQuotes(planes.quotes);
+  // v59.70 (R12): AUX_SYMBOLS reach history.json only (data.quotes is stripped before publishing); every count, receipt,
+  // coverage floor and the market snapshot read the core set, so those artifacts are unchanged by the research columns.
+  const auxSymbolSet = new Set(AUX_SYMBOLS);
+  const isCoreQuote = (q) => !auxSymbolSet.has(q?.symbol || q?.item);
+  const quoteRun = { ...verifiedRun, quotes: verifiedRun.quotes.filter(isCoreQuote), failed: verifiedRun.failed.filter((symbol) => !auxSymbolSet.has(symbol)) };
   const { quotes, failed } = quoteRun;
 
   const fredHasKey = !!process.env.FRED_API_KEY;
   const fred = { hasKey: fredHasKey, ...deriveFredPlane({ configured: fredHasKey, macroRaw, previousMacro: prior.macro, previousMeta: prior.meta, attemptedAt }) };
   const domainReceipts = buildDomainReceipts({
-    previousMeta: prior.meta, attemptedAt, generatedAt, symbolCount: SYMBOLS.length, quotes, failed,
+    previousMeta: prior.meta, attemptedAt, generatedAt, symbolCount: CORE_SYMBOLS.length, quotes, failed,
     news, previousNews: prior.news, fredSeriesIds: fred.expected, fredFetchedKeys: fred.fetched, fredFailedSeries: fred.failed, planes
   });
 
   const data = {
     meta: await buildCollectionMeta({ t0, attemptedAt, generatedAt, previousMeta: prior.meta, quoteRun, domainReceipts, fred, macro, macroRaw, planes, news, newsIntraday, marketSurveys }),
-    quotes,
+    quotes: verifiedRun.quotes,
     macro,
     // P1732: the FOMC target range derived from the FRED bounds above; 'stale' (with reason) unless both bounds
     // share a recent observation date and are 25bp apart.
-    policyRates: { fed: deriveFedPolicyRate(macro, Date.parse(attemptedAt)) },
+    policyRates: { fed: deriveFedPolicyRate(macro, Date.parse(attemptedAt), { upperHistory: fedUpperHistory, fomcDates: blsReleaseSchedules?.['us-fomc'] || null }) },
     fearGreed,
-    putCall,
     providerCrossChecks: { crypto: cryptoCrossCheck },
     // AAII is refreshed server-side from its official public table, with a
     // bounded text-relay fallback when publisher anti-bot policy blocks direct
@@ -133,9 +145,9 @@ async function main() {
 
   // Fail closed before touching the last-known-good public artifact. A transient
   // provider/network outage must never replace data.json with an empty payload.
-  const minimumQuoteCount = Math.ceil(SYMBOLS.length * 0.5);
+  const minimumQuoteCount = Math.ceil(CORE_SYMBOLS.length * 0.5);
   if (quotes.length < minimumQuoteCount) {
-    throw new Error(`CORE_QUOTE_COVERAGE_FAILED:${quotes.length}/${SYMBOLS.length}; existing data.json preserved`);
+    throw new Error(`CORE_QUOTE_COVERAGE_FAILED:${quotes.length}/${CORE_SYMBOLS.length}; existing data.json preserved`);
   }
 
   // AR-07 Batch 0: publish the bounded Tier 0 fallback independently of the
@@ -198,7 +210,7 @@ async function main() {
   aiUsage.note('slot-summary', data.meta.marketTimelineSummary || 'not-due');
   data.meta.aiUsage = aiUsage.receipt();
   console.log(`[fetch-data] market timeline: sealed ${timelineRun.sealed.length ? timelineRun.sealed.join(',') : 'none'}; summary ${data.meta.marketTimelineSummary || 'not-due'}`);
-  applySnapshotCycleMeta(data.meta, { marketSnapshotInfo, marketSnapshotForConsumers, quoteCount: quotes.length, requiredQuoteCount: SYMBOLS.length });
+  applySnapshotCycleMeta(data.meta, { marketSnapshotInfo, marketSnapshotForConsumers, quoteCount: quotes.length, requiredQuoteCount: CORE_SYMBOLS.length });
 
   await mkdir(dirname(OUT), { recursive: true });
   // P715 (사용자 결정 "클라이언트 직접 fetch 전환"): 공개 data.json에서 종목별 시세 재배포를
@@ -207,8 +219,9 @@ async function main() {
   // "수집 파이프라인 건강도" 의미로 유지되어 워치독 floor(<70) 계약이 그대로 동작한다.
   // P719: OUT에 쓰는 모든 경로는 반드시 이 헬퍼를 거친다 — 첫 발행 후 meta 후기록 재기록(아래
   // scrInfo 반영)이 스트립 안 된 원본 `data`를 그대로 써서 P715 계약을 덮어쓴 라이브 사고의 재발 방지.
+  // v59.70 (R5): a record that failed its latest read publishes at most reference use (degradePayloadAllowedUse).
   const toPublicPayload = (d) => ({
-    ...d,
+    ...degradePayloadAllowedUse(d),
     rotationHistory: splitRotationHistory(d.rotationHistory).summary, // v59.70 (R11): series go to rotation-detail.json
     quotes: [],
     meta: { ...d.meta, quotesPublished: false, quotePolicy: 'client-direct-fetch-only(P715)' }
@@ -231,7 +244,7 @@ async function main() {
   const cyclePublication = deriveCyclePublication({
     marketSnapshotPublished: !!marketSnapshotInfo.published,
     quoteCount: quotes.length,
-    requiredQuoteCount: SYMBOLS.length,
+    requiredQuoteCount: CORE_SYMBOLS.length,
     newsCount: data.meta.newsCount,
     historyUpdated: !!histInfo
   });
@@ -244,9 +257,15 @@ async function main() {
   };
   // Phase 3 [C3] P599: computeTradingScore 재구성 검증 하네스 — history.json이 방금 갱신됐으니
   // 그 최신 상태로 재실행(순수 함수, 네트워크 호출 없음, history.json만 읽고 자체 산출물에만 씀).
+  // v59.70 (data audit R4): no screen reads this research history, and its daily forward returns move once a session,
+  // so it is rebuilt at most once per SCORE_BACKTEST_MIN_AGE_HOURS instead of on every 30-minute cycle.
   let scoreBacktestInfo = null;
-  try { scoreBacktestInfo = await runTradingScoreBacktest(HIST, `${REPO_ROOT}/public-data/score-backtest-history.json`); }
-  catch (e) { console.warn('[fetch-data] trading-score backtest 실패(무시):', e && e.message || e); }
+  const scoreBacktestOut = `${REPO_ROOT}/public-data/score-backtest-history.json`;
+  const scoreBacktestAt = await readFile(scoreBacktestOut, 'utf8').then((text) => Date.parse(JSON.parse(text)?.generatedAt || '')).catch(() => NaN);
+  if (scoreBacktestDue(scoreBacktestAt)) {
+    try { scoreBacktestInfo = await runTradingScoreBacktest(HIST, scoreBacktestOut); }
+    catch (e) { console.warn('[fetch-data] trading-score backtest 실패(무시):', e && e.message || e); }
+  } else console.log(`[fetch-data] score backtest: skipped (last build ${new Date(scoreBacktestAt).toISOString()}, < ${SCORE_BACKTEST_MIN_AGE_HOURS}h)`);
   if (scoreBacktestInfo) console.log(`[fetch-data] score backtest: ${scoreBacktestInfo.records.length}건 누적, summary=${JSON.stringify(scoreBacktestInfo.summary)}`);
   // Screener is a separate six-hour workflow. The 30-minute core job never
   // downloads 870 one-year histories or writes screener.json.
@@ -303,7 +322,7 @@ async function main() {
   const fmpSummary = scrInfo && !scrInfo.skipped
     ? `hasKey=${scrInfo.fmpHasKey} ok=${scrInfo.fmpOk} count=${scrInfo.fmpCount || 0}${scrInfo.fmpPlanError ? ' ⚠PLAN_ERROR' : ''}`
     : `hasKey=${!!process.env.FMP_API_KEY} (screener skipped)`;
-  console.log(`[fetch-data] 완료: quotes ${quotes.length}/${SYMBOLS.length} [verify: 1차ok=${quoteRun.verifyStats.pass1} retry=${quoteRun.verifyStats.retried} 복구=${quoteRun.verifyStats.recovered} 최종실패=${failed.length}], macro keys ${Object.keys(macro).length}, F&G ${fearGreed.score ?? 'fail'}, news ${data.meta.newsCount}, history ${histInfo ? histInfo.days + 'd(' + histInfo.upsert + (histInfo.backfilled ? ',+' + histInfo.backfilled + 'bf' : '') + ')' : 'skip'}, fx ${data.providerCrossChecks?.fx?.status || 'n/a'}, screener ${scrInfo ? (scrInfo.skipped ? 'skip(' + scrInfo.count + ')' : scrInfo.count + '/' + scrInfo.universe + (scrInfo.tickerNews != null ? ' tickerNews=' + scrInfo.tickerNews : '')) : 'n/a'}, FMP ${fmpSummary}, ${data.meta.elapsedMs}ms`);
+  console.log(`[fetch-data] 완료: quotes ${quotes.length}/${CORE_SYMBOLS.length} (+aux ${verifiedRun.quotes.length - quotes.length}/${AUX_SYMBOLS.length}) [verify: 1차ok=${quoteRun.verifyStats.pass1} retry=${quoteRun.verifyStats.retried} 복구=${quoteRun.verifyStats.recovered} 최종실패=${failed.length}], macro keys ${Object.keys(macro).length}, F&G ${fearGreed.score ?? 'fail'}, news ${data.meta.newsCount}, history ${histInfo ? histInfo.days + 'd(' + histInfo.upsert + (histInfo.backfilled ? ',+' + histInfo.backfilled + 'bf' : '') + ')' : 'skip'}, fx ${data.providerCrossChecks?.fx?.status || 'n/a'}, screener ${scrInfo ? (scrInfo.skipped ? 'skip(' + scrInfo.count + ')' : scrInfo.count + '/' + scrInfo.universe + (scrInfo.tickerNews != null ? ' tickerNews=' + scrInfo.tickerNews : '')) : 'n/a'}, FMP ${fmpSummary}, ${data.meta.elapsedMs}ms`);
 
 }
 

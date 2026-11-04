@@ -6,14 +6,14 @@
 
 export const RULES = Object.freeze({
   // v57.81 (owner 2026-10-15): a close 0.15% above the 50-day line read 양호. bufferPct is the usual whipsaw filter — within
-  // ±1% of the 50-day line the index is testing the line, not trending. A Nasdaq-100 drop of 3% in five sessions is about
-  // one weekly standard deviation of that index (annual volatility in the low 20s); with the Russell 2000 under its own
-  // 200-day line it means leaders and small caps are falling together, so the S&P 500 alone cannot read 양호.
+  // ±1% of the 50-day line the index is testing the line, not trending. A leadership-proxy drop of leadership.proxyDrop5dPct
+  // in five sessions with the Russell 2000 under its own 200-day line means leaders and small caps are falling together,
+  // so the S&P 500 alone cannot read 양호.
   // Audit 2026-10-17 (owner D2): 양호 is entered at bufferPct above the rising 50-day line and held while the close stays at
   // or above the line plus holdAbovePct (the line itself), the line keeps rising and stays over the 200-day line; the
   // single-session rule flipped 양호/중립 19 times in 97 sessions of 2026-06~10 (9 with the hold).
-  trend: Object.freeze({ maShort: 50, maLong: 200, slopeLookback: 20, bufferPct: 1, holdAbovePct: 0, latchSessions: 60, leaderDrop5dPct: 3 }),
-  // v57.81: leadership break — the leadership proxy (Nasdaq-100) dropped leaderDrop5dPct in five sessions or closed under
+  trend: Object.freeze({ maShort: 50, maLong: 200, slopeLookback: 20, bufferPct: 1, holdAbovePct: 0, latchSessions: 60 }),
+  // v57.81: leadership break — the leadership proxy dropped proxyDrop5dPct in five sessions or closed proxyBufferPct under
   // its 50-day line, AND at least minConfirmations of: new lows above new highs; fewer than 45% of issues advancing on the
   // last session (more decliners than advancers by a margin); O'Neil's 6+ distribution days in 25 sessions (heavy
   // institutional selling); the Russell 2000 under its 200-day line. Conventions, not validated predictors.
@@ -21,10 +21,16 @@ export const RULES = Object.freeze({
   // break holds while the proxy stays weak — single-session counts read 7/23 이탈 → 7/24~28 약세 → 7/29 이탈 in July 2026.
   // Audit 2026-10-17 (owner D1): the advance confirmation is the mean advance ratio over those sessions, not "any one of
   // them" — one session under 45% in five held on 87 of 97 sessions of 2026-06~10 (the mean on 20).
-  // Owner 2026-10-18: AI 투자 꺾임 gate — Nasdaq-100 or semis (SMH) lagging the S&P 500 over 20 sessions. SMH's 20-session
-  // relative move swings ~3x the Nasdaq-100's (sd 8.2 vs 2.7pp, 2025-11~2026-10), so its edge is 8pp against the NDX's 3pp.
-  // v58.68 (owner 2026-10-23): a session is a leaders' 급락일 when SMH closes 4% or more down, or the Nasdaq 100 2.5% or more
-  // (10/22: SMH -6.0%, SOXX -6.8%, Nasdaq 100 -2.9%). It labels the day on the leadership line; it is not an axis.
+  // v59.70 (owner 11/4, "SOXX가 개미 투자자들을 더 대표"): the proxy is SOXX, no longer the Nasdaq-100 (3% / 1%, about one
+  // weekly sd at ~20% annual volatility). Each SOXX edge is the old edge scaled by the volatility ratio (Yahoo daily closes,
+  // 2025-11~2026-11 / 2024-11~2026-11): five-session sd SOXX 6.2 / 5.6% vs NDX 2.8 / 2.8% → proxyDrop5dPct 6; daily sd 3.0 /
+  // 2.7% vs 1.3 / 1.4% → proxyBufferPct 2; SOXX − equal-weight S&P 500 five-session sd 5.9 / 4.9pp vs NDX − RSP 2.5 / 2.2pp →
+  // semisLagRsp5dPp 7 (rotationGapPp 3 × ~2.3).
+  // Owner 2026-10-18: AI 투자 꺾임 gate — semis lagging the S&P 500 over 20 sessions. Against SMH (sd 8.5 / 7.3pp) the edge was
+  // 8pp; SOXX's 20-session relative move swings 1.3x / 1.24x as much (sd 11.0 / 9.0pp), so its edge is 10pp.
+  // v58.68 (owner 2026-10-23): a session is a leaders' 급락일 when SOXX closes 4.5% or more down (SMH 4% × daily sd 3.0 vs
+  // 2.6%), or the Nasdaq 100 2.5% or more (10/22: SMH -6.0%, SOXX -6.8%, Nasdaq 100 -2.9%). It labels the day on the
+  // leadership line; it is not an axis.
   // The money-flow line (leadership-verdict.js buildMarketFlow) calls a session a move into defensives when the defensive
   // sector ETFs (XLP·XLU·XLV) beat the growth ones (XLK·XLC·SMH) by rotationGapPp or more and rose; broadSectorCount of the
   // eleven sectors moving one way is a market-wide day (10/22: defensives +2.2%, growth -3.6%, 6 of 11 up). A sector's
@@ -36,7 +42,7 @@ export const RULES = Object.freeze({
   // follow-through day; a later close under the day-1 close is a failed follow-through. A new lookback closing high ends
   // the episode. Evidence only — no scenario or trend condition reads it.
   rallyAttempt: Object.freeze({ correctionPct: 6, lookbackSessions: 63, minDay: 4, gainPct: 1.25, leaderWindowSessions: 15 }),
-  leadership: Object.freeze({ advanceRatioWeakBelow: 0.45, distributionDaysAt: 6, minConfirmations: 2, confirmWindowSessions: 5, aiLagNdx20dPp: 3, aiLagSemis20dPp: 8, shockSemis1dPct: 4, shockNdx1dPct: 2.5, rotationGapPp: 3, broadSectorCount: 9, splitSidePct: 1, themeSplitPp: 4 }),
+  leadership: Object.freeze({ advanceRatioWeakBelow: 0.45, distributionDaysAt: 6, minConfirmations: 2, confirmWindowSessions: 5, proxyDrop5dPct: 6, proxyBufferPct: 2, semisLagRsp5dPp: 7, aiLagSemis20dPp: 10, shockSemis1dPct: 4.5, shockNdx1dPct: 2.5, rotationGapPp: 3, broadSectorCount: 9, splitSidePct: 1, themeSplitPp: 4 }),
   // v57.81: "회복 중" only when the last session did not give back reversalShare of the window's gain (a 5-day +8pp bounce
   // that lost 4pp on the last close is 되밀림, not recovery); a last-session drop of lastSessionNoticePp or more is named.
   // indexConfirmDeadZonePp: a 20-session participation change inside ±3pp is "거의 변하지 않음", not 넓어짐/줄어듦.
@@ -103,7 +109,9 @@ export const RULES = Object.freeze({
   // v57.81: a 20-session widening reaches 부담 when it is in the top stress20dPct of the series' own 20-session changes (or
   // stress20dMultiple x widen20dBp when the record is shorter than recordMin); it stays 부담 until the 20-session change
   // is back under widen20dBp (hysteresis). HY +40bp in 20 sessions — the 96th percentile — could never reach 부담 before.
-  credit: Object.freeze({ tightBelowBp: 350, stressAtBp: 450, widen5dBp: 25, widenWatch5dBp: 15, calm5dBp: 5, widen20dBp: 25, putCallHedgeAt: 1.1, putCallOptimismBelow: 0.7,
+  credit: Object.freeze({ tightBelowBp: 350, stressAtBp: 450, widen5dBp: 25, widenWatch5dBp: 15, calm5dBp: 5, widen20dBp: 25,
+    // v59.70: kept only for the 풋/콜 card text in sentiment-board.js until ui-states removes the card; no rule reads them.
+    putCallHedgeAt: 1.1, putCallOptimismBelow: 0.7,
     stress20dPct: 90, stress20dMultiple: 2, recordMin: 120, latchSessions: 60,
     // v59.56: the slower split named beside the verdict (not part of it) — HY over 60 FRED observations, and CCC widening
     // that much faster than HY (lower ratings repriced first).
@@ -126,7 +134,8 @@ export const RULES = Object.freeze({
   // that holds a won-strength verdict at 중립).
   fx: Object.freeze({ krwMove20dPct: 2, yenRally20dPct: 3, meanShareOfBar: 0.5, kospiContradict20dPct: 5, krwFlatPct: 0.5 }),
   // v57.81: a Fear & Greed move of namedMovePt or more over one or five sessions is always named beside the 20-session read.
-  sentiment: Object.freeze({ namedMovePt: 10 }),
+  // v59.70: the 심리 row counts composite components at a one-year extreme (ranks, never a mean — D02).
+  sentiment: Object.freeze({ namedMovePt: 10, fearRankAtOrBelow: 20, greedRankAtOrAbove: 80 }),
   // Breakeven (10Y inflation compensation) weekly move used as the chain's inflation-expectation link.
   breakeven: Object.freeze({ move5dBp: 5 }),
   // Sahm (2019): 3-month average unemployment 0.5pp above its prior 12-month low; 0.3 an early watch level.

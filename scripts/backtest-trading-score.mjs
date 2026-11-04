@@ -36,6 +36,7 @@ import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { computeTradingScoreModel } from '../src/domain/signal/trading-score.js';
 import { spearman as spearmanWithMidranks } from './lib/rank-statistics.mjs';
+import { readHistoryRows } from '../src/domain/market/history-rows.js';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 
@@ -140,7 +141,7 @@ export function summarizeTradingScoreBacktest(corr5d = {}, corr21d = {}) {
 }
 
 export async function runBacktest(historyPath, outPath) {
-  const history = JSON.parse(await readFile(historyPath, 'utf8'));
+  const history = readHistoryRows(JSON.parse(await readFile(historyPath, 'utf8')));
   const tradingDays = buildTradingDaySeries(history);
 
   const records = [];

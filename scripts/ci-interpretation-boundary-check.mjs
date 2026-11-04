@@ -10,6 +10,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { INTERPRETATION_STAGES } from '../src/domain/interpretation/market-interpretation.js';
+import { readHistoryRows } from '../src/domain/market/history-rows.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const label = 'v58.31 interpretation boundary';
@@ -70,7 +71,7 @@ const { buildMarketInterpretation } = await import('../src/domain/interpretation
 const { marketInterpretation, registerInterpretationStore } = await import('../src/data/selectors/interpretation.js');
 const artifact = (name) => { try { return JSON.parse(read(`public-data/${name}`)); } catch (_) { return null; } };
 const historyRaw = artifact('history.json');
-const history = Array.isArray(historyRaw) ? historyRaw : historyRaw?.rows || [];
+const history = readHistoryRows(historyRaw);
 const built = buildMarketInterpretation({ market: { history, credit: { hyBp: 315, hyDelta5Bp: -9 }, rates: {}, macroHistory: artifact('macro-history.json') }, previous: artifact('scenario-state.json'), screenerRows: [], themeMaps: { usThemes: [], krThemeMap: {}, labels: {} } });
 assert.ok(built.regime?.available && built.crossroads?.items?.length && built.guide?.available, `${label}: one build yields regime, branches and guide`);
 assert.equal(built.guide.direction.live.length >= 0, true, `${label}: the guide counts the same branches`);

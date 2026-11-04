@@ -633,7 +633,7 @@ window._aioSyncKnowledgeRouteContext = _aioSyncKnowledgeRouteContext;
 
 // Roadmap 11: globalRefresh (the topbar 새로고침 button) moved there too, so one module writes #topbar-refresh-btn. Its
 // fallback branch for a shell without AIO.forceRefreshAllData / AIO.runScheduledRefresh is deleted — both always exist.
-// That branch was the last js/ caller of fetchPutCall (js/aio-data.js); src/app/boot-sequence.js and refresh-scheduler.js call it.
+// That branch was the last js/ caller of fetchPutCall; v59.70 deleted the Cboe reader itself (owner 11/4).
 
 // v30.11: T4 _sentimentAutoInterval 삭제 — REFRESH_SCHEDULE.sentiment(10min)이 FG+PC 담당, HY는 hySpread(6h)로 이관
 // (기존 5분 IIFE 제거 — 중앙 스케줄러 단일 경로화)

@@ -258,18 +258,19 @@ function credit(macroHistory) {
 
 function growthKorea(macroHistory, history, events) {
   const kospi = historySpan(history, 'kospi');
-  const smh = historySpan(history, 'smh');
+  // v59.70 (owner 11/4): US semiconductors are SOXX, as on 무슨 일이 있었나.
+  const semis = historySpan(history, 'soxx');
   const krw = historySpan(history, 'usdkrw');
   const sentiment = series(macroHistory, 'consumerSentiment').at(-1);
   const retail = monthOverMonth(series(macroHistory, 'retailSales').slice(-2)).at(-1);
   if (!kospi && !sentiment) return null;
-  const korea = kospi && smh && Math.abs(kospi.pct - smh.pct) < 4 && Math.abs(smh.pct) >= 5 ? `코스피(${signed(kospi.pct, 1)})가 미국 반도체(${signed(smh.pct, 1)})와 같은 폭으로 움직여, 한국은 AI 반도체 업황에 묶여 있습니다`
+  const korea = kospi && semis && Math.abs(kospi.pct - semis.pct) < 4 && Math.abs(semis.pct) >= 5 ? `코스피(${signed(kospi.pct, 1)})가 미국 반도체(SOXX ${signed(semis.pct, 1)})와 같은 폭으로 움직여, 한국은 AI 반도체 업황에 묶여 있습니다`
     : kospi ? `코스피는 20거래일 ${signed(kospi.pct, 1)}입니다` : '';
   const won = krw ? (Math.abs(krw.pct) < 1.5 ? ' 원화는 안정적입니다.' : krw.pct > 0 ? ' 원화가 약해져 외국인 이탈을 봐야 합니다.' : ' 원화가 강해졌습니다.') : '';
   const next = nextOf(events, ['us-retail']);
   return {
     id: 'growth', title: '성장 · 소비 · 한국', question: '경기가 버티나, 한국은 어디에 묶여 있나',
-    viz: { caption: '20거래일 등락 (%)', unit: '%', points: [kospi ? { x: '코스피', value: kospi.pct, hot: true } : null, smh ? { x: 'SMH', value: smh.pct } : null, krw ? { x: '원/달러', value: krw.pct } : null].filter(Boolean) },
+    viz: { caption: '20거래일 등락 (%)', unit: '%', points: [kospi ? { x: '코스피', value: kospi.pct, hot: true } : null, semis ? { x: 'SOXX', value: semis.pct } : null, krw ? { x: '원/달러', value: krw.pct } : null].filter(Boolean) },
     now: [sentiment ? `소비심리 ${sentiment.value.toFixed(1)}` : null, retail ? `소매판매 ${signed(retail.value, 1)}` : null, kospi ? `코스피 ${signed(kospi.pct, 1)}` : null].filter(Boolean).join(' · '),
     mean: `${sentiment && sentiment.value < 60 ? '소비심리는 낮지만 ' : ''}${retail ? (retail.value >= 0 ? '소비 지출은 아직 꺾이지 않았습니다. ' : '소비 지출이 줄었습니다. ') : ''}${korea}.${won}`,
     next: whenOf(next) || 'ISM 제조업(매월 첫 영업일) · 서비스업(셋째 영업일)',

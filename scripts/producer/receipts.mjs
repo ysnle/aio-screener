@@ -5,11 +5,10 @@
 import { buildDomainReceipt } from '../lib/domain-receipt.mjs';
 import { NEWS_FEEDS } from '../lib/news-selection.mjs';
 import { planeFresh } from './source-planes.mjs';
-import { readNumber } from '../../src/domain/shared/number.js';
 
 export function buildDomainReceipts({ previousMeta, attemptedAt, generatedAt, symbolCount, quotes, failed, news, previousNews,
   fredSeriesIds, fredFetchedKeys, fredFailedSeries, planes }) {
-  const { bls, bea, treasury, aaii, putCall } = planes;
+  const { bls, bea, treasury, aaii } = planes;
   const priorReceipts = (previousMeta && previousMeta.domainReceipts) || {};
   const receiptRunId = `fetch-data:${attemptedAt}`;
   const planeReceipt = (domain, { eligible, attempted, updated, stored, failures = [], note }) => buildDomainReceipt({
@@ -34,7 +33,6 @@ export function buildDomainReceipts({ previousMeta, attemptedAt, generatedAt, sy
   const beaFresh = planeFresh('bea', bea);
   const treasuryFresh = planeFresh('treasury', treasury);
   const aaiiFresh = planeFresh('aaii', aaii);
-  const putCallFresh = planeFresh('putCall', putCall);
   return {
     'market-quotes': planeReceipt('market-quotes', {
       eligible: symbolCount, attempted: symbolCount, updated: quotes.length, stored: quotes.length,
@@ -83,11 +81,6 @@ export function buildDomainReceipts({ previousMeta, attemptedAt, generatedAt, sy
       eligible: 1, attempted: 1, updated: aaiiFresh ? 1 : 0,
       stored: (aaiiFresh || (aaii && aaii.observedAt)) ? 1 : 0,
       failures: aaiiFresh ? [] : failure('aaii-sentiment')
-    }),
-    'options-put-call': planeReceipt('options-put-call', {
-      eligible: 1, attempted: 1, updated: putCallFresh ? 1 : 0,
-      stored: (putCallFresh || readNumber(putCall?.totalPutCall) != null) ? 1 : 0,
-      failures: putCallFresh ? [] : failure('cboe-put-call')
     })
   };
 }

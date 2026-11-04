@@ -224,7 +224,7 @@ window.AIO.getTypedProvenanceAudit = function() {
   var aiPrompt = typeof window.AIO.buildPageDecisionAiPrompt === 'function' ? window.AIO.buildPageDecisionAiPrompt(ui) : '';
   var surfaceIds = [bundle && bundle.bundleId, score && score.provenanceBundle && score.provenanceBundle.bundleId, ui && ui.provenanceBundle && ui.provenanceBundle.bundleId];
   var lineage = typeof window.AIO.getElementLineageInventory === 'function' ? window.AIO.getElementLineageInventory({allRoutes:true, includeItems:false}) : null;
-  var expectedIds = ['spx-price','spy-price','vix-price','tnx-yield','hyg-credit','dxy-dollar','oil-price','vvix-price','fg-sentiment','breadth200-participation','pcr-putcall','hy-spread-bp','aaii-bearish'];
+  var expectedIds = ['spx-price','spy-price','vix-price','tnx-yield','hyg-credit','dxy-dollar','oil-price','vvix-price','fg-sentiment','breadth200-participation','hy-spread-bp','aaii-bearish'];
   var presentIds = bundle ? (bundle.rows || []).map(function(row){ return row.id; }) : [];
   var checks = {
     sameEvidenceIdAcrossUiScoreAi: !!bundle && !!score && !!ui && surfaceIds.every(function(id){ return id === bundle.bundleId; }) && aiPrompt.indexOf('evidenceId: ' + bundle.bundleId) >= 0,
@@ -3038,7 +3038,6 @@ window.AIO.getDataLineageAudit = function() {
       { id:'quotes',     label:'시세 (지수/종목)',  source:'Yahoo v8 chart (query1.finance.yahoo.com)', schedKey:'quotes',     transform:'PriceStore.set 검증',        renderAttr:'data-live-price', tier:'auto' },
       { id:'vix',        label:'VIX',              source:'Yahoo ^VIX 3mo',                            schedKey:'vixHistory', transform:'fetchSentimentHistory',       renderAttr:'data-live-price', tier:'auto' },
       { id:'fearGreed',  label:'F&G (공포탐욕)',    source:'CNN dataviz → CORS_PROXY → snapshot (3단)', schedKey:'sentiment',  transform:'_applyFearGreedScore',       renderAttr:'data-snap',       tier:'auto' },
-      { id:'putCall',    label:'Put/Call',         source:'CBOE cdn (CORS_PROXY 경유)',                 schedKey:'sentiment',  transform:'_applyFearGreedScore',       renderAttr:'data-snap',       tier:'auto' },
       { id:'fred',       label:'FRED 매크로',       source:'api.stlouisfed.org (CORS 친화, 키 필요)',     schedKey:'fred',       transform:'fetchAllFredData',           renderAttr:null,              tier:'auto', needsKey:true },
       { id:'technicals', label:'기술 지표 (SPY)',   source:'fetchTechnicalIndicators',                  schedKey:'technicals', transform:'none (v57.76: SPY indicator writers retired; producer reports skipped)', renderAttr:null, tier:'auto' },
       { id:'hySpread',   label:'HY 스프레드',       source:'FRED BAMLH0A0HYM2 (키 필요)',                schedKey:'hySpread',   transform:'fetchHYSpread',              renderAttr:'data-snap',       tier:'auto', needsKey:true },
@@ -3128,7 +3127,7 @@ window.AIO.getExternalDependencyAudit = function() {
     { id:'kr-eod-reference', current:'Yahoo .KS/.KQ + Naver proxy', state:'free_key_approval_required', target:'krx_eod_adapter', freeAlternatives:['KRX Data Marketplace Open API'], rights:'free non-commercial key still requires approval, attribution, and third-party provision review', cadence:'post-close + correction reconciliation' },
     { id:'kr-realtime-supply-short', current:'Naver investorTrend proxy; short data unavailable', state:'free_equivalent_unavailable', target:'reference_only', freeAlternatives:[], rights:'no confirmed free source with equivalent real-time/redistribution rights', cadence:'official delayed snapshot only when permitted' },
     { id:'breadth', current:'AIO universe adjusted-close aggregation', state:'connected_research_only', target:'point_in_time_universe_breadth', alternatives:['licensed full-universe EOD bars','exchange/vendor breadth series'], rights:'underlying constituent/history rights required', cadence:'daily after all bars settle' },
-    { id:'put-call', current:'Cboe official daily statistics server ingest', state:'connected_delayed', target:'official_cboe_ingest', freeAlternatives:['Cboe Daily Market Statistics'], rights:'free public page with Cboe attribution; website terms still apply', cadence:'30-minute fetch of latest completed daily statistic' },
+    { id:'put-call', current:'retired v59.70 (Cboe terms forbid copying, storing and redistributing without written consent)', state:'free_equivalent_unavailable', target:'licensed_only', freeAlternatives:[], rights:'prior written Cboe consent required', cadence:'none' },
     { id:'survey-sentiment', current:'AAII current public reference + delayed/blocked NAAIM and Investors Intelligence', state:'mixed_public_reference_and_subscriber', target:'publisher_reference_with_rights_boundary', freeAlternatives:['AAII official current weekly public observation','NAAIM official three-month-delayed public reference'], rights:'AAII current public values remain reference-only; NAAIM current/API and Investors Intelligence current values require subscriber/display rights; do not relabel VIX/F&G as these surveys', cadence:'weekly operator research/reference' },
     { id:'news-events', current:'multi-RSS + Finnhub/NewsData optional', state:'connected_with_gap', target:'normalized_news_event_bus', alternatives:['GDELT Event/GKG','licensed news API','issuer/exchange/regulator RSS'], rights:'headline/body copyright and redistribution differ by source', cadence:'5-15 minute ingest + dedupe' },
     { id:'telegram', current:'public web/RSS mirrors with per-channel failure tracking', state:'operator_required', target:'authorized_channel_ingest', alternatives:['Telegram Bot API for managed channels','Telegram MTProto/TDLib user-authorized client','licensed aggregator'], rights:'account authorization, channel rights, platform terms; anonymous scraping is not a durable primary source', cadence:'webhook/update stream + 24h gap reconciliation' },
@@ -3809,12 +3808,6 @@ window.AIO.getOperationalDataContractAudit = function() {
     var gex = document.querySelector('[data-snap="gex-current"], #opt-gex-val');
     if (gex && gex.getAttribute('data-operational-use') !== 'reference-only') {
       issues.push({ type: 'manual-gex-not-reference-only', value: (gex.textContent || '').trim() });
-    }
-    if (window._lastPutCallPayload && window._lastPutCallPayload.metric) {
-      var pcrEval = window.AIO_OPERATIONAL_DATA_CONTRACT.evaluateMetric(window._lastPutCallPayload.metric);
-      if (!pcrEval.allowedUse && /^(live|delayed)$/.test(window._lastPutCallPayload.sourceKind || '')) {
-        issues.push({ type: 'pcr-operational-source-not-usable', reason: pcrEval.reason });
-      }
     }
   } catch(e) {
     issues.push({ type: 'audit-error', message: e && e.message || String(e) });

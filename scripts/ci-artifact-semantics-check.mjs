@@ -60,7 +60,7 @@ const inTransition = (label) => {
 };
 
 const fetchData = readProducerSource();
-const history = readIf('public-data/history.json');
+const history = readHistoryRows(readIf('public-data/history.json'));
 const data = readIf('public-data/data.json');
 const snapshot = readIf('public-data/market-snapshot.json');
 const operations = readIf('public-data/operations-status.json');
@@ -572,3 +572,5 @@ if (errors.length) {
   process.exit(1);
 }
 console.log('Artifact semantics OK: macro freshness, history vintage timestamps, operational vocabulary, narrative evidence lineage, and score reconciliation.');
+
+import { readHistoryRows } from '../src/domain/market/history-rows.js';

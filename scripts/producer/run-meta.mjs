@@ -15,7 +15,7 @@ export function readOfficialReferencesCheckedAt() {
 }
 
 export async function buildCollectionMeta({ t0, attemptedAt, generatedAt, previousMeta, quoteRun, domainReceipts, fred, macro, macroRaw, planes, news, newsIntraday, marketSurveys }) {
-  const { fearGreed, bls, bea, treasury, aaii, fredHyOas, putCall } = planes;
+  const { fearGreed, bls, bea, treasury, aaii, fredHyOas } = planes;
   const macroKeys = Object.keys(macro).filter(k => k[0] !== '_');
   const fearGreedOk = fearGreed?.status !== 'stale-reference'
     && fearGreed?.status !== 'unavailable'
@@ -92,8 +92,6 @@ export async function buildCollectionMeta({ t0, attemptedAt, generatedAt, previo
     serverNewsScored: true,
     newsScoreMin: newsScores.length ? Math.min(...newsScores) : null,
     newsScoreMax: newsScores.length ? Math.max(...newsScores) : null,
-    putCallOk: putCall && Number.isFinite(putCall.totalPutCall),
-    putCallAsOf: putCall && putCall.asOf || null,
     marketSurveysStatus: marketSurveys ? 'web-research-captured-reference' : null,
     marketSurveysCheckedAt: marketSurveys?.checkedAt || null,
     marketSurveysWebResearchCheckedAt: marketSurveys?.webResearchCheckedAt || null,

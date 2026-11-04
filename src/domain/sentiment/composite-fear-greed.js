@@ -4,13 +4,17 @@
 // comparison holds. It is NOT CNN's number: each component is ranked against its own trailing year
 // (percentile, greed = high). v57.50 D02: the ranks are shown side by side; no mean score or band is formed.
 //
-// Inputs are the published artifacts only: public-data/history.json rows (spx, vix, tlt, pcr,
-// advanceRatio, breadthNewHighs/Lows) and public-data/macro-history.json (hyOas, igOas).
+// Inputs are the published artifacts only: public-data/history.json rows (spx, vix, tlt, advanceRatio,
+// breadthNewHighs/Lows) and public-data/macro-history.json (hyOas, igOas).
+// v59.70 (owner 11/4): CNN's put/call component has no counterpart here — the Cboe statistics it needs may not be
+// stored or redistributed under Cboe's terms — so the index has six components. The ranks are never averaged (D02),
+// so no weight moves to the others; MIN_COMPONENTS stays 4 (now four of six).
 
 import { alignInput, buildCloseSeries, closeBasis, isUsable } from '../market/close-series.js';
 import { readNumber as finite } from '../shared/number.js';
 import { isIsoDay } from '../shared/session-date.js';
 import { percentileOf } from '../shared/percentile.js';
+import { historyFieldMeta } from '../market/history-meta.js';
 
 export const COMPOSITE_FEAR_GREED_VERSION = 'aio-sentiment-composite.v1';
 const RANK_WINDOW = 252;
@@ -101,7 +105,7 @@ export function computeCompositeFearGreed({ history = [], macroHistory = null } 
   // stood ~1.7× higher and pulled the latest rank; a row without an eligible count cannot be put on the same scale.
   const rowByDate = new Map((Array.isArray(history) ? history : []).filter((row) => row?.date).map((row) => [row.date, row]));
   const highs = new Map(series(history, 'breadthNewHighs').map((row) => [row.date, row.value]));
-  const metaOf = (date) => rowByDate.get(date)?.fieldMeta?.breadthNewHighs || null;
+  const metaOf = (date) => historyFieldMeta(rowByDate.get(date), 'breadthNewHighs');
   const strengthRaw = series(history, 'breadthNewLows').filter((row) => highs.has(row.date) && finite(metaOf(row.date)?.eligible) > 0);
   const scope = strengthRaw.length ? metaOf(strengthRaw.at(-1).date)?.universeScope ?? null : null;
   const strength = strengthRaw.filter((row) => (metaOf(row.date)?.universeScope ?? null) === scope)
@@ -114,19 +118,14 @@ export function computeCompositeFearGreed({ history = [], macroHistory = null } 
   const slow = emaSeries(centered, 39);
   const breadth = advance.length >= 39 ? advance.slice(38).map((row, index) => ({ date: row.date, value: fast[index + 38] - slow[index + 38] })) : [];
   components.push(component('breadth', '상승 종목 흐름', breadth, { basis: '상승 종목 비율의 19/39일 EMA 차 (종목 수 기준)' }));
-  // 4. Put/call: 5-day average of the Cboe total ratio (high = fear).
-  const pcr = series(history, 'pcr');
-  const pcrValues = pcr.map((row) => row.value);
-  const pcr5 = pcr.map((row, index) => ({ date: row.date, value: sma(pcrValues, index, 5) })).filter((row) => row.value != null);
-  components.push(component('putCall', '풋·콜 비율', pcr5, { invert: true, basis: 'Cboe 총 풋·콜 비율 5일 평균' }));
-  // 5. Volatility: VIX against its 50-day average (high = fear).
+  // 4. Volatility: VIX against its 50-day average (high = fear).
   components.push(component('volatility', '변동성', ratioToAverage(history, 'vix', 50), { invert: true, basis: 'VIX ÷ 50일 평균 − 1' }));
-  // 6. Safe-haven demand: 20-day S&P 500 return minus 20-day TLT return.
+  // 5. Safe-haven demand: 20-day S&P 500 return minus 20-day TLT return.
   const spxReturns = trailingReturns(series(history, 'spx'), 20);
   const tltReturns = trailingReturns(series(history, 'tlt'), 20);
   const safeHaven = [...spxReturns].filter(([date]) => tltReturns.has(date)).map(([date, value]) => ({ date, value: value - tltReturns.get(date) }));
   components.push(component('safeHaven', '안전자산 수요', safeHaven, { basis: 'S&P 500 20일 수익률 − TLT 20일 수익률' }));
-  // 7. Junk-bond demand: high-yield minus investment-grade OAS (high = fear).
+  // 6. Junk-bond demand: high-yield minus investment-grade OAS (high = fear).
   // Until the investment-grade series has a ranking sample, the high-yield OAS level stands in and says so.
   const ig = new Map(macroSeries(macroHistory, 'igOas').map((row) => [row.date, row.value]));
   const hy = macroSeries(macroHistory, 'hyOas');

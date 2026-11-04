@@ -119,7 +119,7 @@ const staleEvents = [...eventRegistry.matchAll(/(\w+):\s*\{[^}]*?eventDate:\s*'(
 check('static-db:events-beyond-interest-window-removed', staleEvents.length === 0, `expired events still registered: ${staleEvents.join(', ')} (R605: remove explicitly in data-refresh)`);
 
 // S5: manual policy references must carry observation + publication + source.
-for (const key of ['fedPolicy', 'bokPolicy', 'krInflation']) {
+for (const key of ['bokPolicy']) { // v59.70 (R7, S7/I10): fedPolicy and krInflation are producer-only now
   const block = core.match(new RegExp(`${key}: Object\\.freeze\\(\\{[\\s\\S]*?\\}\\)`))?.[0] || '';
   check(`static-db:manual-ref-${key}-has-asOf`, /(asOf|observation|publishedAt):/.test(block), `${key} provenance missing`);
   check(`static-db:manual-ref-${key}-has-sourceUrl`, /sourceUrl:\s*'https?:\/\//.test(block), `${key} sourceUrl missing`);

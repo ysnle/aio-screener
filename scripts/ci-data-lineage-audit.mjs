@@ -10,6 +10,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { readHistoryRows } from '../src/domain/market/history-rows.js';
 
 const ROOT = join(fileURLToPath(new URL('..', import.meta.url)));
 const DATA_DIR = join(ROOT, 'public-data');
@@ -122,10 +123,10 @@ const POLICIES = {
   'market-day.json': { kind: 'derived-state', timestamp: ['generatedAt'], maxAgeHours: 48 }, // v59.63: the last day's moves and events, linked (build-market-day, every refresh, no network)
   'today-verdict.json': { kind: 'derived-state', timestamp: ['generatedAt'], maxAgeHours: 48 }, // v58.80 F01: the 오늘 verdict the static shell paints first (build-scenario-state)
   'official-references.json': { kind: 'official-web-reference', timestamp: ['checkedAt'], maxAgeHours: 48 }, // P1734: page-verified KR references (NAAIM retired) (refresh-data, 12h heartbeat)
-  'kr-fundamentals.json': { kind: 'filing-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 14 }, // P1654: OpenDART annual accounts (refresh-screener, weekly; needs DART_API_KEY)
+  'kr-fundamentals.json': { kind: 'filing-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 14 }, // P1654: OpenDART annual accounts; v59.70 owner 2026-11-04: not collected (no key), the producer writes no 0-company file
   'bigtech-cashflow.json': { kind: 'filing-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // v59.56: SEC companyfacts quarterly cash flow, 9 big-tech issuers (refresh-screener, 6-hourly)
   'treasury-auctions.json': { kind: 'filing-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // v59.57: TreasuryDirect note/bond auction results (refresh-screener, 6-hourly)
-  'kr-investor-flows.json': { kind: 'official-market-flow', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // v58.55: BOK ECOS 투자자별 순매수 (refresh-screener, 6-hourly; needs BOK_API_KEY)
+  'kr-investor-flows.json': { kind: 'official-market-flow', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // v58.55 투자자별 순매수; v59.70 Naver Finance (refresh-screener, 6-hourly, no key)
   'tw-monthly-revenue.json': { kind: 'official-filing-monthly', timestamp: ['generatedAt'], maxAgeHours: 24 * 62 }, // v59.56: TWSE 대만 AI 공급망 월매출 (refresh-screener; rewritten only when the month's numbers change)
   'market-snapshot.json': { kind: 'live-core', timestamp: ['generatedAt', 'lastSuccessfulAt', 'attemptedAt'], maxAgeHours: 24 },
   'market-snapshot-status.json': { kind: 'operational-status', timestamp: ['updatedAt', 'lastSuccessfulAt', 'attemptedAt'], maxAgeHours: 24 },
@@ -158,7 +159,7 @@ const POLICIES = {
 
 function extractTimestamp(data, policy) {
   if (policy.custom === 'history-date') {
-    const rows = Array.isArray(data) ? data : Array.isArray(data.history) ? data.history : [];
+    const rows = readHistoryRows(data); // v59.70 R2: v1 or history.v2
     const dated = rows.map(row => row?.date).filter(Boolean).sort();
     return dated.length ? { path: 'last row.date', value: dated.at(-1) } : { path: null, value: null };
   }

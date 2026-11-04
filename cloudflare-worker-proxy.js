@@ -88,8 +88,6 @@ const ALLOWED_DOMAINS = [
   // 환율
   'open.er-api.com',
   'api.exchangerate-api.com',
-  // 옵션
-  'cdn.cboe.com',
   // 번역
   'translate.googleapis.com',
   'translate.google.com',

@@ -51,7 +51,7 @@ export function renderKoreaParticipation({documentRef:doc,root,store=null}) {
 
 // v58.55 개편 v2 (5n) 투자자별 순매수: the latest session's net purchase per investor type (diverging bars on one scale per
 // market, Korean colours: net buying red, net selling blue) and each published series' last 20 sessions with 5-/20-session
-// sums. Source: public-data/kr-investor-flows.json (Bank of Korea ECOS). Until the first collection the card says so.
+// sums. Source: public-data/kr-investor-flows.json (v59.70 Naver Finance, KRX figures). Until the first collection the card says so.
 const KR_FLOW_SOURCE_NOTE = '한국거래소 정보데이터시스템의 투자자별 자료는 거래소의 사전 허락 없이 복제·재배포할 수 없어 쓰지 않습니다.';
 const tone = (value) => value > 0 ? 'kr-up' : value < 0 ? 'kr-down' : '';
 function flowMarket(doc, market) {
@@ -143,9 +143,12 @@ export function renderKrInvestorFlows({ documentRef: doc, root, before = null, n
     return view;
   }
   const latest = view.markets.map((m) => m.date).sort().at(-1);
-  head.append(el(doc, 'span', `${shortDate(latest)}, 한국은행`, 'basis-chip'));
+  // The chip keeps the date only; the source is its hover and the folded 기준 (owner: sources off screen).
+  const chip = el(doc, 'span', `${shortDate(latest)}${view.sourceStale ? ', 지연' : ''}`, 'basis-chip');
+  chip.title = view.sourceChip;
+  head.append(chip);
   host.setAttribute('data-observed-at', latest);
-  host.setAttribute('data-source-kind', 'official-statistics');
+  host.setAttribute('data-source-kind', view.sourceKind);
   const grid = el(doc, 'div', null, 'kr-flows-grid');
   grid.append(...view.markets.map((market) => flowMarket(doc, market)));
   const nodes = [head, grid];
@@ -154,7 +157,7 @@ export function renderKrInvestorFlows({ documentRef: doc, root, before = null, n
   basis.append(el(doc, 'summary', '기준'),
     el(doc, 'p', '순매수는 그날 산 금액에서 판 금액을 뺀 값입니다. +는 순매수(빨강), −는 순매도(파랑)이며, 막대 길이는 같은 시장의 최근 20거래일 가운데 가장 큰 하루와 비교한 크기입니다.'),
     el(doc, 'p', '한국 증시는 외국인 보유 비중이 높아 원화가 약할 때 외국인 순매도가 지수 하락과 함께 나타나는 일이 잦습니다. 하루 수급은 다음 날 방향을 말해 주지 않습니다.'),
-    el(doc, 'p', `출처: ${view.source}, 한국거래소 집계를 한국은행이 게시한 값, 단위 억 원.`),
+    el(doc, 'p', `출처: ${view.source}, 단위 억 원.${view.basis ? ` ${view.basis}.` : ''}`),
     ...(view.missing.length ? [el(doc, 'p', `${view.missing.join('·')} 순매수가 없는 이유: ${KR_FLOW_SOURCE_NOTE}`)] : []));
   nodes.push(basis);
   host.replaceChildren(...nodes);

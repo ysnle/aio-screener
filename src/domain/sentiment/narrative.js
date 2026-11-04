@@ -4,26 +4,7 @@ import { finiteNumber as finite, signedText } from '../shared/number.js';
 
 export const SENTIMENT_NARRATIVE_MODEL_VERSION = 'sentiment-narrative.v1';
 
-// v57.50 D24/C04: one put/call table for the card, the credit axis and this narrative — RULES.credit
-// (1.1 and above heavy hedging, below 0.7 call-heavy); the separate 1.3 / 1.0 / 0.7 and 1.2 / 0.7 edges had no source.
-export function putCallBand(value) {
-  const ratio = finite(value);
-  if (ratio == null || ratio < 0 || ratio > 10) return Object.freeze({ value: null, label: '판정 보류', blocked: true });
-  // v59.43 (X bookmark 2113564247477342603): a volume ratio cannot tell bought puts (hedging) from sold puts (income
-  // selling, which leaves dealers short gamma), so the band names the volume tilt only.
-  if (ratio >= RULES.credit.putCallHedgeAt) return Object.freeze({ value: ratio, label: '풋 거래 비중이 높은 구간(산 풋인지 판 풋인지는 구분 안 됨)', blocked: false });
-  if (ratio < RULES.credit.putCallOptimismBelow) return Object.freeze({ value: ratio, label: '콜 거래 비중이 높은 구간', blocked: false });
-  return Object.freeze({ value: ratio, label: '균형 구간', blocked: false });
-}
-
-export function putCallNeedlePosition(value) {
-  const ratio = finite(value);
-  if (ratio == null) return '판정 보류';
-  if (ratio >= RULES.credit.putCallHedgeAt) return '공포';
-  if (ratio < RULES.credit.putCallOptimismBelow) return '탐욕';
-  return '중립';
-}
-
+// v59.70 (owner 11/4): the put/call bands left with the Cboe source (its terms forbid storing the statistics).
 export function vixBand(value) {
   const vix = finite(value);
   if (vix == null || vix < 0) return Object.freeze({ value: null, label: '판정 보류', blocked: true });
@@ -66,22 +47,15 @@ function metricPresentation({ metricId, value, unit, evidence }) {
 export function deriveSentimentViewModel({ values = {}, evidenceByMetric = {}, revision = null, now = null } = {}) {
   const fg = fearGreedBand(values.fearGreed);
   const term = vixTermStructure({ vix9d: values.vix9d, vix: values.vix, vix3m: values.vix3m, vix6m: values.vix6m });
-  const pc = putCallBand(values.putCall);
   const vix = vixBand(values.vix);
   const spy = spyMoveState(values.spyChg ?? null);
   const trading = tradingScoreLink(values.tradingScoreTotal ?? null);
   const metrics = Object.freeze([
     metricPresentation({ metricId: 'fearGreed', value: fg.score, unit: 'score', evidence: evidenceByMetric.fearGreed || null }),
-    metricPresentation({ metricId: 'vix', value: vix.value, unit: 'index', evidence: evidenceByMetric.vix || null }),
-    metricPresentation({ metricId: 'putCall', value: pc.value, unit: 'ratio', evidence: evidenceByMetric.putCall || null })
+    metricPresentation({ metricId: 'vix', value: vix.value, unit: 'index', evidence: evidenceByMetric.vix || null })
   ]);
   const evidenceIds = (ids) => ids.map((id) => evidenceByMetric[id]?.evidenceId || null).filter(Boolean);
   const narratives = [];
-  if (pc.blocked) {
-    narratives.push(narrative({ claimId: 'sentiment.put-call', inputMetricIds: ['putCall'], inputEvidenceIds: evidenceIds(['putCall']), text: 'P/C 관측 미수신 — 풋·콜 비중 판정 보류.', status: 'withheld' }));
-  } else {
-    narratives.push(narrative({ claimId: 'sentiment.put-call', inputMetricIds: ['putCall'], inputEvidenceIds: evidenceIds(['putCall']), text: `P/C비율 ${pc.value.toFixed(2)} — ${pc.label}.`, status: 'reference' }));
-  }
   if (fg.blocked || term.blocked) {
     narratives.push(narrative({ claimId: 'sentiment.composite', inputMetricIds: ['fearGreed', 'vix', 'vix9d', 'vix3m', 'vix6m'], inputEvidenceIds: evidenceIds(['fearGreed', 'vix']), text: '복합 판단 보류 — F&G 또는 VIX 기간구조 입력 미수신.', status: 'withheld' }));
   } else {
@@ -97,7 +71,7 @@ export function deriveSentimentViewModel({ values = {}, evidenceByMetric = {}, r
   } else {
     narratives.push(narrative({ claimId: 'sentiment.trading-score-link', inputMetricIds: ['tradingScoreTotal'], inputEvidenceIds: [], text: `트레이딩 스코어 ${trading.value}/100 — 참고값이며 진입 허가가 아닙니다.`, status: 'reference' }));
   }
-  const fingerprintSource = JSON.stringify([values.fearGreed ?? null, values.vix9d ?? null, values.vix ?? null, values.vix3m ?? null, values.vix6m ?? null, values.putCall ?? null, values.spyChg ?? null, values.tradingScoreTotal ?? null, now ?? null]);
+  const fingerprintSource = JSON.stringify([values.fearGreed ?? null, values.vix9d ?? null, values.vix ?? null, values.vix3m ?? null, values.vix6m ?? null, values.spyChg ?? null, values.tradingScoreTotal ?? null, now ?? null]);
   let fingerprint = 0;
   for (let index = 0; index < fingerprintSource.length; index += 1) fingerprint = (fingerprint * 31 + fingerprintSource.charCodeAt(index)) >>> 0;
   return Object.freeze({ modelVersion: SENTIMENT_NARRATIVE_MODEL_VERSION, revision: revision || `sentiment:${fingerprint.toString(16)}`, metrics, narratives: Object.freeze(narratives) });

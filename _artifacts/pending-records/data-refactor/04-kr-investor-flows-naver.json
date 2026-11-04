@@ -1,0 +1,14 @@
+{
+  "changelog": [
+    "**한국 투자자별 매매동향 원천 교체 ({VERSION}):** scripts/fetch-kr-investor-flows.mjs가 BOK ECOS 대신 Naver Finance 투자자별 매매동향(한국거래소 집계, KOSPI·KOSDAQ, 억원)을 읽는다. 기존 외국인 키는 그대로 두고 개인·기관을 더했다. 읽기 실패나 0행이면 이전 산출물을 status 'stale'로 유지해 사용 등급이 reference-only로 내려가고(R5), 이전 산출물도 없으면 'unavailable'이다. 휴장일(전부 0)은 행을 만들지 않는다. 한국 참여 카드는 원천 칩에 '지연'을 붙여 stale을 표시한다. 게이트: scripts/ci-korea-participation-fixture.mjs(기록 응답·휴장일·형식 변경·HTML 오류 픽스처). refresh-screener.yml 단계 이름·BOK_API_KEY env 정리는 워크플로 담당이 반영한다(BOK_API_KEY 자체는 Worker 기준금리 릴레이가 계속 쓴다)."
+  ],
+  "note": "kr-investor-flows from Naver (individual/foreign/institution) with stale-keep guard",
+  "qa_section": "데이터 분배 개편 (data audit 2026-11-04)",
+  "qa": [
+    {
+      "id": "QA-DATA-66E",
+      "text": "After push and the next refresh-screener run after 18:00 KST, public-data/kr-investor-flows.json has status ok, source 'Naver Finance 투자자별 매매동향 (한국거래소 집계)' and individual/foreign/institution rows for the latest KRX session, and the 한국 참여 card shows the flow bars again.",
+      "verify_by": "2026-11-06"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "changelog": [
+    "**history.json v2 압축 ({VERSION}):** history.json은 history.v2(필드 사전 + 행별 차이만)로 저장한다. sessionDate·observedAt은 행에 남고, fetchedAt과 lastSuccessfulAt이 같으면 checkedAt 하나로 접고, source·sourceKind·allowedUse·rule·universe·marketSession은 필드 사전의 기본값과 다를 때만 행에 쓴다(실데이터 4.68MB → 3.01MB, 35.6% 감소, 왕복 정확). 모든 읽기(프로듀서·빌더·게이트 20곳, 브라우저 _aioLoadHistory)는 src/domain/market/history-rows.js readHistoryRows() 하나로 펼쳐 v1 행을 받고, v1 배열도 그대로 읽는다. 파일 형태는 다음 refresh-data 실행에서 바뀐다. aio-freshness.v1(public-data/freshness/<workflow>.json)은 복제하지 않는다. 게이트: scripts/ci-history-access-check.mjs(직접 파싱 금지 + 왕복), ci-history-field-time-contract-check(펼친 뒤 모든 행 5개 시간 키)."
+  ],
+  "note": "history.v2 field dictionary + checkedAt; one reader readHistoryRows",
+  "qa_section": "데이터 분배 개편 (data audit 2026-11-04)",
+  "qa": [
+    {
+      "id": "QA-DATA-66D",
+      "text": "After push and the next refresh-data run, public-data/history.json starts with {\"schemaVersion\":\"history.v2\" and is about a third smaller, while the 매크로·시장 charts and the verdict table still draw the same series.",
+      "verify_by": "2026-11-06"
+    }
+  ]
+}

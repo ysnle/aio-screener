@@ -8,6 +8,7 @@ import { historyFieldSessionDate, isHeldHistoryValue } from './history-session.j
 import { krIndexMoveRecord, krIndexMoveText, KR_MONTH_SESSIONS } from './kr-index-record.js';
 import { signedText, finiteNumber as finite } from '../shared/number.js';
 import { isoDay } from '../shared/session-date.js';
+import { historyFieldMeta } from './history-meta.js';
 
 const date = (value) => isoDay(value);
 const count = value => value.toLocaleString('en-US', { maximumFractionDigits: 0 });
@@ -48,7 +49,8 @@ export function buildRegimeAxisHistory(input = {}, { macroHistory = null, regime
   const definitions = {
     trend: [chart('spx', 'S&P 500 종가', '지수 pt', spx, { guide: ma50('spx') }),
       // v57.81: the leadership proxy and the small caps beside the S&P 500 — the trend axis is capped when both break.
-      chart('ndx', '나스닥 100 종가', '지수 pt', daily('ndx'), { guide: ma50('ndx'), note: '주도 대형 기술주의 흐름. 5거래일 3% 이상 하락하면 주도 영역이 약해지는지 확인합니다.' }),
+      // v59.70 (owner 11/4): the proxy is SOXX; the note quotes the rule's own edges.
+      chart('soxx', 'SOXX 종가', 'pt', daily('soxx'), { guide: ma50('soxx'), note: `반도체 주도주의 흐름. 5거래일 ${RULES.leadership.proxyDrop5dPct}% 이상 하락하거나 50일선보다 ${RULES.leadership.proxyBufferPct}% 넘게 아래면 주도 영역이 약해지는지 확인합니다.` }),
       chart('rut', '러셀 2000 종가', '지수 pt', daily('rut'), { note: '중소형주의 흐름. 200일선 아래에 있으면 상승이 대형주 밖으로 퍼지지 못한 상태입니다.' })],
     breadth: [chart('breadth20', '20일선 위 종목 비율 (단기)', '%', daily('breadth20'), { format: percent, refs: [RULES.breadth.weakBelow, RULES.breadth.broadAtLeast], domain: [0, 100], note: '단기 참여도. 50일선 비율보다 먼저 움직여 참여가 넓어지거나 줄어드는 방향을 먼저 보여 줍니다.' }),
       chart('breadth50', '50일선 위 종목 비율', '%', daily('breadth50'), { format: percent, refs: [RULES.breadth.weakBelow, RULES.breadth.broadAtLeast], domain: [0, 100], note: 'S&P 500 구성 종목의 비율(v58.79 전환 전 기록은 AIO 미국 수집 표본), 지수 회사의 공식 통계가 아닙니다.' }),
@@ -117,7 +119,7 @@ export function buildMarketScenarios(input = {}, { regime = buildMarketRegime(in
     { id: 'concentration', title: '소수 종목 주도', confirmed: confirmed(byId.trend?.state === 'favorable' && byId.breadth?.state === 'burden' && calmRisk && leadersHolding),
       interpretation: '이 조건들이 함께 보이면 지수 추세와 표본 종목의 참여도가 갈라진 흐름으로 읽습니다. 일부 종목에 상승이 집중됐을 가능성을 살피되, 실제 지수 구성 종목의 기여도를 확인하기 전에는 대형주가 원인이라고 단정하지 않습니다.',
       conditions: [`S&P 500의 상승 추세가 유지되지만 50일선·200일선 위 비율 중 하나가 ${RULES.breadth.weakBelow}% 미만.`, `신용 지표가 양호(HY ${RULES.credit.tightBelowBp}bp 미만, 5일·20거래일 확대 없음)이고 변동성이 부담 판정이 아닌 상태.`,
-        `주도 영역 유지: 나스닥 100이 5거래일 -${RULES.trend.leaderDrop5dPct}% 이상 밀리거나 50일선 아래로 내려간 상태에서 신저가 우위·상승 종목 비율 ${RULES.leadership.confirmWindowSessions}거래일 평균 ${Math.round(RULES.leadership.advanceRatioWeakBelow * 100)}% 미만·분배일 ${RULES.leadership.distributionDaysAt}일 이상·러셀 2000 200일선 아래 중 ${RULES.leadership.minConfirmations}개 이상이 겹치지 않은 상태.`],
+        `주도 영역 유지: SOXX가 5거래일 -${RULES.leadership.proxyDrop5dPct}% 이상 밀리거나 50일선보다 ${RULES.leadership.proxyBufferPct}% 넘게 아래로 내려간 상태에서 신저가 우위·상승 종목 비율 ${RULES.leadership.confirmWindowSessions}거래일 평균 ${Math.round(RULES.leadership.advanceRatioWeakBelow * 100)}% 미만·분배일 ${RULES.leadership.distributionDaysAt}일 이상·러셀 2000 200일선 아래 중 ${RULES.leadership.minConfirmations}개 이상이 겹치지 않은 상태.`],
       counterEvidence: `참여도 두 비율이 모두 ${RULES.breadth.broadAtLeast}% 이상으로 넓어지면 고른 상승 쪽을 확인합니다. 주도 영역이 꺾이고 신저가·분배일·중소형주 약세가 겹치거나, 지수 추세가 약해지면서 HY·변동성 부담까지 커지면 소수 종목 주도 해석은 약해집니다.`,
       observe: ['지수 고점과 참여 종목 비율 사이의 괴리가 줄어드는지', '기존 주도 종목과 새로 강해지는 종목이 바뀌는지', '신용·변동성이 주가와 다른 경고를 내는지'] },
     { id: 'weakness', title: '동반 약세', confirmed: confirmed(byId.trend?.state === 'burden' && byId.breadth?.state === 'burden' && (byId.credit?.state === 'burden' || byId.volatility?.state === 'burden')),
@@ -176,7 +178,7 @@ function computeKoreaIndexSeries(history, field, completed) {
   const byDate = new Map();
   for (const row of Array.isArray(history) ? history : []) {
     const value = finite(row?.[field]);
-    const meta = row?.fieldMeta?.[field];
+    const meta = historyFieldMeta(row, field);
     if (!(value > 0) || meta?.observationRelation === 'current-session' || meta?.valueBasis === 'current-session') continue;
     // v57.81: a held copy is not a session; a session-dated (or previous-close) value is dated by its own session.
     if (isHeldHistoryValue(meta)) continue;

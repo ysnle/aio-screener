@@ -1,6 +1,8 @@
 import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { collectAnnualOfficialSchedules } from './fetch-fred-calendar-candidates.mjs';
+import { readHistoryRows } from '../src/domain/market/history-rows.js';
+import { sourcePlanes } from './producer/source-planes.mjs';
 
 const read = (file) => fs.readFileSync(file, 'utf8');
 const json = (file) => JSON.parse(read(file));
@@ -15,7 +17,7 @@ const chat = read('js/aio-chat.js');
 const runtime = `${core}\n${dataCode}\n${ui}\n${marketPage}\n${index}\n${chat}\n${read('js/aio-kr-data.js')}`;
 const data = json('public-data/data.json');
 const screener = json('public-data/screener.json');
-const history = json('public-data/history.json');
+const history = readHistoryRows(json('public-data/history.json'));
 const failures = [];
 
 function assert(ok, message) { if (!ok) failures.push(message); }
@@ -52,7 +54,7 @@ const snapshotStart = core.indexOf('const DATA_SNAPSHOT = {');
 const snapshotEnd = core.indexOf('\n};', snapshotStart);
 assert(snapshotStart >= 0 && snapshotEnd > snapshotStart, 'DATA_SNAPSHOT contract block missing');
 const snapshot = snapshotStart >= 0 && snapshotEnd > snapshotStart ? core.slice(snapshotStart, snapshotEnd) : '';
-const volatileKeys = ['spx','nasdaq','dow','rut','vix','vvix','skew','move','tnx','tyx','fvx','irx','dxy','wti','brent','gold','silver','btc','kospi','kosdaq','krw','fg','pcr','aaiiBear','breadth5sma','breadth20sma','breadth50sma','breadth200sma'];
+const volatileKeys = ['spx','nasdaq','dow','rut','vix','vvix','skew','move','tnx','tyx','fvx','irx','dxy','wti','brent','gold','silver','btc','kospi','kosdaq','krw','fg','aaiiBear','breadth5sma','breadth20sma','breadth50sma','breadth200sma'];
 volatileKeys.forEach((key) => assert(new RegExp(`\\b${key}\\s*:\\s*null\\b`).test(snapshot), `volatile DATA_SNAPSHOT field must initialize null: ${key}`));
 
 const prohibited = [
@@ -104,15 +106,8 @@ prohibited.forEach(([pattern, label]) => {
 
 assert(/AIO_MANUAL_REFERENCE/.test(core), 'manual reference registry missing');
 ['source:', 'sourceUrl:', 'asOf:', 'operationalUse:'].forEach((token) => assert(core.includes(token), `manual reference provenance missing ${token}`));
-const krInflationStart = core.indexOf('krInflation: Object.freeze({');
-const krInflationEnd = core.indexOf('\n  }),', krInflationStart);
-const krInflationReference = krInflationStart >= 0 && krInflationEnd > krInflationStart
-  ? core.slice(krInflationStart, krInflationEnd)
-  : '';
-assert(/headline:\s*2\.9\b/.test(krInflationReference), 'KR CPI headline must match the 2026-09 official YoY observation (mods.go.kr 2026-10-02)');
-assert(/core:\s*2\.8\b/.test(krInflationReference) && /coreDefinition:\s*'food-and-energy-excluded'/.test(krInflationReference), 'KR core CPI value and definition must remain coupled');
-assert(/observation:\s*'2026-09'/.test(krInflationReference) && /publishedAt:\s*'2026-10-02'/.test(krInflationReference), 'KR CPI observation month and official publication date are stale');
-assert(/sourceUrl:\s*'https:\/\/mods\.go\.kr\/[^']*list_no=447322/.test(krInflationReference), 'KR CPI official primary-source URL missing');
+// v59.70 (S7/I10): the Korean CPI comes from official-references.json items.krCpi only; the absence of a hand-kept seed is
+// a behaviour check in ci-manual-reference-expiry-check (AIO_MANUAL_REFERENCE has no krInflation).
 assert(/data-operational-use['"],\s*['"]blocked['"]/.test(runtime) || /data-operational-use="blocked"/.test(runtime), 'blocked unavailable-state contract missing');
 
 const macro = data.macro || {};
@@ -122,7 +117,8 @@ const categories = [
   ['market-quotes', historyHas('spx','nasdaq','dow') || data.meta?.quotesPublished === true, 'runtime/history artifact'],
   ['volatility', historyHas('vix'), 'history.json / live quote'],
   ['fear-greed', hasNumber(data.fearGreed?.score), 'server artifact'],
-  ['put-call', hasNumber(data.putCall?.totalPutCall) && !!data.putCall?.asOf, 'Cboe delayed artifact'],
+  // v59.70 (owner 11/4): retired like NAAIM — Cboe terms forbid storing it, so the producer has no put/call plane.
+  ['put-call', !sourcePlanes({ prior: {}, attemptedAt: '2026-11-04T00:00:00Z', env: {} }).some((plane) => plane.id === 'putCall'), 'retired (Cboe terms)'],
   ['aaii', /aaiiBear:null/.test(snapshot), 'explicit unavailable'],
   ['naaim', /naaimExposure:null/.test(snapshot), 'explicit unavailable'],
   ['investors-intelligence', /iiBull:null/.test(snapshot), 'explicit unavailable'],
@@ -134,7 +130,8 @@ const categories = [
   ['cpi-pce', hasNumber(macro.cpi) && hasNumber(macro.pce), 'FRED/BLS artifact'],
   ['employment-wages', hasNumber(macro.unemployment) && hasNumber(macro.usWageGrowth), 'FRED/BLS artifact'],
   ['retail-housing-ism', hasNumber(macro.retailSales) && hasNumber(macro.housingStarts) && /ism-mfg/.test(core), 'artifact + official calendar'],
-  ['central-bank-policy', /fedPolicy:[\s\S]*?sourceUrl:/.test(core) && /bokPolicy:[\s\S]*?sourceUrl:/.test(core), 'official manual reference'],
+  // v59.70 (R7): the Fed range comes from the producer (data.json policyRates.fed); BOK keeps its manual reference.
+  ['central-bank-policy', Number.isFinite(data.policyRates?.fed?.upper) && /bokPolicy:[\s\S]*?sourceUrl:/.test(core), 'producer Fed range + official manual BOK reference'],
   ['macro-calendar', /AIO_MACRO_CALENDAR/.test(core) && /2026-08-12/.test(core) && /2026-08-27/.test(core), 'official release calendar'],
   ['news', (Array.isArray(data.news) && data.news.length > 0)
     || (data.meta?.newsOk === false && data.meta?.newsCount === 0 && Array.isArray(data.news) && data.news.length === 0),

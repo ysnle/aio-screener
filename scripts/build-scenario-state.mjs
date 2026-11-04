@@ -21,6 +21,7 @@ import { choiceName } from '../src/domain/guide/market-guide.js';
 import { withDirectionParticle } from '../src/domain/content/korean-particle.js';
 import { LESSON_BY_ID } from '../src/domain/guide/lessons.js';
 import { scenarioLead } from '../src/domain/market/scenario-lead.js';
+import { readHistoryRows } from '../src/domain/market/history-rows.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PD = (name) => path.join(ROOT, 'public-data', name);
@@ -138,11 +139,12 @@ export function scoreNewReleases(macroHistory, lastScored = {}, at) {
   return { scored, lastScored: next };
 }
 
-export function buildScenarioState({ data = null, history = [], macroHistory = null, calendar = null, screener = null, themeMaps = null, outcomes = null, previous = null, themeBackfill = null, nowMs = Date.now() } = {}) {
+export function buildScenarioState({ data = null, history = [], macroHistory = null, calendar = null, screener = null, themeMaps = null, consensus = null, outcomes = null, previous = null, themeBackfill = null, nowMs = Date.now() } = {}) {
   const at = new Date(nowMs).toISOString();
-  // Owner 2026-10-19: the shared interpretation (the same stages the screens, the AI and the narrative read). The
-  // structure outlook here has no live sector rows (no rotation input), as before.
-  const interpretation = interpretationFromArtifacts({ data, history, macroHistory, calendar, outcomes, previous, screener: screener || {}, themeMaps, nowMs });
+  // Owner 2026-10-19: the shared interpretation (the same stages the screens, the AI and the narrative read).
+  // v59.70 (R8): the shared input builder also carries the sector rotation (data.json) and the index-earnings input, so
+  // the structure outlook and guide here read the same stages as the screens.
+  const interpretation = interpretationFromArtifacts({ data, history, macroHistory, calendar, outcomes, previous, screener: screener || {}, themeMaps, consensus, nowMs });
   const { crossroads, guide } = interpretation;
   if (!crossroads) throw new Error(`[scenario-state] crossroads stage failed: ${interpretation.errors.crossroads || 'no model'}`);
   const playbook = interpretation.playbook || { themes: [], rotation: null, highlights: {} };
@@ -189,10 +191,10 @@ export function todayVerdictFrom(regime, at) {
 
 async function main() {
   const historyRaw = readJson(PD('history.json'));
-  const history = Array.isArray(historyRaw) ? historyRaw : historyRaw?.rows || historyRaw?.history || [];
+  const history = readHistoryRows(historyRaw);
   const payload = buildScenarioState({
     data: readJson(PD('data.json')), history, macroHistory: readJson(PD('macro-history.json')), calendar: readJson(PD('macro-calendar.json')),
-    screener: readJson(PD('screener.json')), themeMaps: loadThemeMaps(ROOT), themeBackfill: readJson(PD('theme-stage-history.json')), outcomes: ((out) => (out?.status === 'current' ? out : null))(readJson(PD('scenario-outcomes.json'))), previous: ((prev) => (prev?.status === 'current' ? prev : null))(readJson(PD('scenario-state.json'))) // a pending placeholder is not a previous state
+    screener: readJson(PD('screener.json')), themeMaps: loadThemeMaps(ROOT), consensus: readJson(PD('consensus-estimates.json')), themeBackfill: readJson(PD('theme-stage-history.json')), outcomes: ((out) => (out?.status === 'current' ? out : null))(readJson(PD('scenario-outcomes.json'))), previous: ((prev) => (prev?.status === 'current' ? prev : null))(readJson(PD('scenario-state.json'))) // a pending placeholder is not a previous state
   });
   if (!payload.crossroads.items.length) { console.warn('[scenario-state] no branches computed — artifact unchanged'); return; }
   await atomicWriteFile(PD('scenario-state.json'), JSON.stringify(payload));

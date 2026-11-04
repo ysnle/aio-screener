@@ -13,10 +13,11 @@ import { spxMovingAveragesFromHistory } from '../src/domain/market/moving-averag
 import { buildRegimeRadar } from '../src/domain/market/regime-radar.js';
 import { buildThemeStageBackfill } from './producer/theme-stage-backfill.mjs';
 import { loadThemeMaps } from './build-scenario-state.mjs';
+import { readHistoryRows } from '../src/domain/market/history-rows.js';
 
 const readJson = (path) => JSON.parse(readFileSync(new URL(path, import.meta.url), 'utf8'));
 const historyFile = readJson('../public-data/history.json');
-const rows = (Array.isArray(historyFile) ? historyFile : historyFile.rows || []).filter((row) => /^\d{4}-\d{2}-\d{2}$/.test(row?.date || ''));
+const rows = readHistoryRows(historyFile).filter((row) => /^\d{4}-\d{2}-\d{2}$/.test(row?.date || ''));
 const macroHistory = readJson('../public-data/macro-history.json');
 const failures = [];
 const notes = [];

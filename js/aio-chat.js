@@ -1865,9 +1865,7 @@ function _fetchDomainContextForChat(ctxId) {
       if (tnx != null || twoY != null) lines.push('• 미 국채: ' + (tnx != null ? '10Y ' + tnx.toFixed(2) + '%' : '') + (twoY != null ? ', 2Y ' + twoY.toFixed(2) + '%' : '') + (spreadBp != null ? ', 2s10s ' + spreadBp + ' (' + spreadBasis + (spread < 0 ? ', 역전' : '') + ')' : ''));
       if (isFinite(hyOasBpChat)) lines.push('• 크레딧(HY OAS): ' + Math.round(hyOasBpChat) + 'bp' + (hyg != null ? ', HYG $' + hyg.toFixed(2) + '(참고 가격)' : ''));
       else if (hyg != null) lines.push('• 크레딧(HYG 가격, OAS 미수신): ' + hyg.toFixed(2) + ' — 절대 스프레드 수준 아님, 방향 참고만');
-      var kr3 = num(pick('krBond3y','kr-bond-3y','krBond3Y')), kr10 = num(pick('krBond10y','kr-bond-10y','krBond10Y'));
-      if (kr3 != null || kr10 != null) lines.push('• 한국 금리(스냅샷): ' + (kr3 != null ? '3Y ' + kr3 + '%' : '') + (kr10 != null ? (kr3 != null ? ', ' : '') + '10Y ' + kr10 + '%' : ''));
-      if (lines.length) { lines.unshift('【외환·채권 도메인 혼합 데이터 (DXY/금리/크레딧 라이브 + KR 금리 스냅샷), ' + timeLabel + '】'); }
+      if (lines.length) { lines.unshift('【외환·채권 도메인 혼합 데이터 (DXY/금리/크레딧 라이브), ' + timeLabel + '】'); }
     } else if (ctxId === 'themes' || ctxId === 'theme-detail') {
       var secNames = { XLK:'기술', XLF:'금융', XLE:'에너지', XLV:'헬스케어', XLI:'산업재', XLY:'임의소비', XLP:'필수소비', XLRE:'부동산', XLB:'소재', XLU:'유틸', XLC:'커뮤니케이션' };
       var rows = Object.keys(secNames).map(function(s) { return { s: s, pct: liveNum(s, 'pct') }; }).filter(function(x) { return x.pct != null; }).sort(function(a, b) { return b.pct - a.pct; });

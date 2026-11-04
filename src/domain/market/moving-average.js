@@ -3,6 +3,7 @@
 // market-environment score was held. Completed daily closes match the close-basis rule (R670), so the
 // history is a valid fallback — never a replacement for a fresher live series.
 import { sessionDateInMarket, isValidMarketDate as validDate } from './session-time.js';
+import { historyFieldMeta } from './history-meta.js';
 
 export function spxMovingAveragesFromHistory(rows, { asOf = null } = {}) {
   if (!Array.isArray(rows)) return null;
@@ -13,7 +14,7 @@ export function spxMovingAveragesFromHistory(rows, { asOf = null } = {}) {
     if (!validDate(row?.date)
       || !['number', 'string'].includes(typeof row.spx) || !String(row.spx).trim()
       || !Number.isFinite(Number(row.spx)) || Number(row.spx) <= 0) continue;
-    const meta = row.fieldMeta?.spx;
+    const meta = historyFieldMeta(row, 'spx');
     let date = row.date;
     if (meta) {
       if (meta.valueBasis !== 'latest-completed-close' && meta.observationRelation !== 'latest-completed-close') continue;

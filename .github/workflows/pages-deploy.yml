@@ -143,8 +143,16 @@ jobs:
           rsync -a src/ "$RUNNER_TEMP/pages-dist/src/"
           # Canonical bulk ledgers stay producer-side until retention-managed object storage is
           # configured. Pages receives only bounded projections and referenced immutable objects.
+          # v59.70 (data audit R4): producer-only inputs and research histories that no browser path reads stay out too.
           rsync -a \
             --exclude 'sec-fundamentals.json' \
+            --exclude 'sec-fundamentals-extended.json' \
+            --exclude 'telegram-observed.json' \
+            --exclude 'screener-extended-universe.json' \
+            --exclude 'score-backtest-history.json' \
+            --exclude 'score-backtest-longrun.json' \
+            --exclude 'operations-slo-window.json' \
+            --exclude 'telegram-reference-window.json' \
             --exclude 'masters/holdings.json' \
             --exclude 'masters/history-holdings.json' \
             --exclude 'masters/issuer-aggregates.json' \

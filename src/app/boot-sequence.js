@@ -3,7 +3,11 @@
 // and the recurring scheduler. The boot-phase object (_aioBootPhase), newsCache and the server-ready lets it reads
 // stay declared in the classic scripts; a module resolves those names in the shared global scope.
 // src/app/compatibility-globals.js installs this before DOMContentLoaded.
+import { readHistoryRows } from '../domain/market/history-rows.js';
+
 export function installBootSequence(window = globalThis) {
+  // v59.70 (R2): js/aio-data.js _aioLoadHistory expands history.json through the one reader.
+  window.__aioReadHistoryRows = readHistoryRows;
   async function initV20DataEngine() {
     // The boot coordinator is the sole owner of the first live-data fetch.
     // Page-on-enter refreshes must not race it with a second provider fan-out.
@@ -69,10 +73,9 @@ export function installBootSequence(window = globalThis) {
     setTimeout(async () => {
       try {
         if (typeof fetchFearGreed === 'function') await fetchFearGreed();
-        if (typeof fetchPutCall === 'function') await fetchPutCall();
         if(typeof _reportApiOk==='function') _reportApiOk('fear-greed','Phase3 성공');
-        if(typeof window._markFetch==='function') { window._markFetch('sentiment'); window._markFetch('fearGreed'); window._markFetch('putCall'); }
-      } catch(e) { showDataError('심리지표', '공포탐욕/풋콜 수신 실패 — 정적 데이터 사용 중', 'warn'); if(typeof _reportApiError==='function') _reportApiError('fear-greed','Phase3 실패'); }
+        if(typeof window._markFetch==='function') { window._markFetch('sentiment'); window._markFetch('fearGreed'); }
+      } catch(e) { showDataError('심리지표', '공포탐욕 수신 실패 — 정적 데이터 사용 중', 'warn'); if(typeof _reportApiError==='function') _reportApiError('fear-greed','Phase3 실패'); }
     }, 3000);
 
     // Phase 4: Heavy APIs (5-15s) — FRED, Breadth, News

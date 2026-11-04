@@ -3,7 +3,7 @@
 // Plain definitions only, like screen-term-additions.js. Owner 2026-10-31 (two layers): after the plain first sentence an
 // entry may carry definitional formulas and naming conventions; never thresholds, probabilities or market figures.
 export const DEFERRED_SCREEN_TERMS = Object.freeze([
-  { term: '주도 영역 (AI·반도체)', alias: '주도 영역 주도 영역 이탈 이탈 리더십 leadership', cat: '기초', def: '지수 상승을 앞에서 끌어 온 종목 묶음입니다. 이 앱에서는 AI·반도체(나스닥 100과 반도체 ETF SMH)를 보며, 이 묶음이 기준선 아래로 밀리고 시장 전반의 확인 신호까지 붙으면 "이탈"이라고 부릅니다.' },
+  { term: '주도 영역 (AI·반도체)', alias: '주도 영역 주도 영역 이탈 이탈 리더십 leadership', cat: '기초', def: '지수 상승을 앞에서 끌어 온 종목 묶음입니다. 이 앱에서는 AI·반도체(반도체 ETF SOXX)를 보며, 이 묶음이 기준선 아래로 밀리고 시장 전반의 확인 신호까지 붙으면 "이탈"이라고 부릅니다.' },
   { term: '매도 소진', alias: '매도 소진 투매 capitulation 셀링 클라이맥스 바닥 확인', cat: '기술적분석', def: '팔 사람이 대부분 팔고 난 흔적입니다. 극단적 공포, 높은 변동성, 줄어드는 신저가 종목 수, 짧은 기간 선 위로 돌아오는 종목 증가 같은 신호를 함께 봅니다. 바닥을 확정하는 신호는 아니며 회복 확인과 같이 읽습니다.' },
   { term: '셋업 (매매 셋업)', alias: '셋업 setup 매매 셋업 패턴', cat: '기술적분석', def: '차트에서 한 가지 매매 아이디어가 성립하는 가격·거래량 배치입니다(예: 베이스 돌파 직전, 이동평균까지의 눌림). 이 앱의 셋업 이름은 지금 모양을 부르는 말이며 매수 신호가 아닙니다.' },
   { term: '피벗 (피벗 가격)', alias: '피벗 pivot 피벗 가격 돌파 기준 가격', cat: '기술적분석', def: '베이스나 수축 구간의 위쪽 경계처럼, 주가가 넘어서면 돌파로 보는 기준 가격입니다. 관찰할 가격대이며 매매 가격 제안이 아닙니다.' },

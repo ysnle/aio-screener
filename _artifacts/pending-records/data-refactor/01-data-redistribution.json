@@ -1,0 +1,24 @@
+{
+  "changelog": [
+    "**데이터 분배 개편 (data audit 2026-11-04, {VERSION}):** _artifacts/data-audit-20261104/REPORT.md의 R2·R3·R4·R7·R8·R9·R10·R12. 매크로 장기 시계열(FRED 53개)은 빈도별 간격과 발표 일정(CPI·PCE·고용·소매·FOMC 09:00 ET)에 맞춰서만 다시 받는다(하루 약 2,500회 → 약 270회). 브라우저가 읽지 않는 프로듀서 전용 파일 7개(sec-fundamentals-extended 10MB, telegram-observed, screener-extended-universe, score-backtest-history/longrun, operations-slo-window, telegram-reference-window)는 Pages 배포에서 빠지고, 점수 백테스트는 20시간에 한 번만 다시 만든다. 연준 정책금리 범위·결정(동결/인하/인상)과 미국 CPI·FOMC 일정의 수기값(AIO_MANUAL_REFERENCE fedPolicy·usCpiCalendar)을 지우고 data.json policyRates.fed(DFEDTARU 이력 + FOMC 일정에서 decision 계산)와 macro-calendar.json만 쓴다(한국은행·한국 CPI는 만료 규칙을 둔 수기값 유지). 시장 상태 해석의 입력은 src/domain/interpretation/inputs.js 하나가 만들고, 프로듀서도 섹터 회전·S&P 500 폭·지수 가중치·컨센서스를 넘겨 AI 해설·scenario-state가 화면과 같은 단계를 읽는다. 이동평균 위 비율은 breadthCounts 하나로 세고, RULES와 다른 레거시 getFGRegime을 지우고 '오늘 오른 비율' 함수를 calcSectorUpShare로 바꿨다. 스크리너 검증 게이트·모델 검증 상태는 architecture/validation-gate-criteria.json의 7개 증거 요건(시점 유니버스·상장폐지/기업행동·공시 시점 재무·회전율·거래비용 차감·수용량·제외 팩터 없음과 국면 가중 검증)을 장기 백테스트 산출물에서 하나씩 판정해 scripts/build-validation-gates.mjs가 계산하고, 7개가 모두 충족될 때만 상태가 바뀐다(지금은 7개 모두 미충족 → BLOCKED, 상대 순위만). ^SOX·^MOVE·^SKEW·^VIX9D를 핵심 커버리지 밖 연구용 열로 history.json에 쌓는다('AI 주도' 판정의 NDX 대리는 그대로, 전환은 소유자 결정). history.json fieldMeta 읽기는 historyFieldMeta() 하나로 모았다. 게이트: scripts/ci-data-audit-contract-check.mjs."
+  ],
+  "note": "data audit redistribution: FRED due, Pages producer-only exclusions, produced Fed decision, one interpretation input builder, breadthCounts, computed validation gates, aux research symbols",
+  "qa_section": "데이터 분배 개편 (data audit 2026-11-04)",
+  "qa": [
+    {
+      "id": "QA-DATA-66A",
+      "text": "After push and the next refresh-data runs, the fetch-data log shows `macro history: … fetched` well below 53 on most cycles (only daily series every 3 h, monthly/weekly every 12 h or after a scheduled release), and macro-history.json series fetchedAt values stop moving every cycle.",
+      "verify_by": "2026-11-06"
+    },
+    {
+      "id": "QA-DATA-66B",
+      "text": "After push and the next Pages deploy, https://ysnle.github.io/aio-screener/public-data/sec-fundamentals-extended.json and telegram-observed.json return 404 while every screen still loads, and data.json policyRates.fed carries decision '동결' with decisionDate 2026-10-28 (until the 12-09 FOMC).",
+      "verify_by": "2026-11-06"
+    },
+    {
+      "id": "QA-DATA-66C",
+      "text": "After push and one full refresh-data cycle at :17/:47 with minute < 30, history.json gains sox/move/skew/vix9d columns (about one year after the aux backfill) without the full backfill running every cycle; meta.symbolCount stays the core count.",
+      "verify_by": "2026-11-07"
+    }
+  ]
+}

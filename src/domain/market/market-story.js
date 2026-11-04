@@ -1,4 +1,4 @@
-// v59.55 (owner 11/1, "결과만 보여주고 있어"): 시장 상태's opening read — what moved over the last 15 US sessions, which
+// v59.55 (owner 11/1, "결과만 보여주고 있어"): 시장 상태's opening read — what moved over the last week of US sessions, which
 // reports moved it, whether rates, credit, oil, gold and Korea confirm the same story, and what in the coming week would
 // change it. Every sentence is chosen by a rule over the closes (history.json), FRED (macro-history.json), the earnings
 // briefs (event-briefs.json) and the earnings calendar; nothing here names a date, a company or a level by hand except
@@ -8,8 +8,17 @@ import { readNumber } from '../shared/number.js';
 import { RULES } from '../rules/thresholds.js';
 import { SCHEDULED_EVENTS as REGISTRY } from '../briefing/scheduled-events.js';
 import { indexLevels, levelValue, levelsRead } from './index-levels.js';
+import { historyFieldMeta } from './history-meta.js';
+import { buildCloseSeries, closeSessionMarket } from './close-series.js';
+import { MARKET_WINDOWS } from './market-windows.js';
 
-export const STORY_SESSIONS = 15;
+// v59.70 (owner 11/4): one week, the same window as the verdict table's 5거래일 전 / 5일 변화 columns. The bars, the lead
+// sentence and every badge below read STORY_SESSIONS; the move thresholds are sized to that window (they were set for 15).
+export const STORY_SESSIONS = MARKET_WINDOWS.week;
+export const STORY_RULE = Object.freeze({
+  flatPct: 1, leaderMovePct: 2, leaderGapPct: 2, // concentration: |move| under flatPct is flat; NDX ±leaderMovePct with RSP leaderGapPct apart is narrow
+  cccTailBp: 25, oilPct: 5, goldPct: 3, koreaSemisPct: 3 // weak CCC tail, oil and gold moves, KOSPI tracking SOXX (the leadership proxy, v59.70)
+});
 
 // Dated events no collected calendar carries. v59.62: read from the one registry (briefing/scheduled-events.js); this
 // file kept its own copy of the midterm, so a moved or added date had to be written twice.
@@ -33,16 +42,19 @@ const bpText = (value) => `${value > 0 ? '+' : ''}${Math.round(value)}bp`;
 // so it is not a session — counting it made "10/12 → 11/2, 15거래일" out of the 14 sessions 10/12 → 10/30.
 function usSessions(history) {
   return (Array.isArray(history) ? history : []).filter((row) => row?.date && weekday(row.date) && readNumber(row.spx) !== null
-    && (!row.fieldMeta?.spx?.sessionDate || row.fieldMeta.spx.sessionDate === row.date));
+    && (!historyFieldMeta(row, 'spx')?.sessionDate || historyFieldMeta(row, 'spx').sessionDate === row.date));
 }
 
-// A field's value on `from` (else the nearest earlier close) and its latest close on or before `to`.
+// A field's close on `from` (else the nearest earlier close) and its latest close on or before `to`.
+// v59.70: read from the session-keyed close series (buildCloseSeries), as the verdict table's 5일 변화 is. The row dates
+// carry a prior close forward (the 11/2 row held the 10/30 Nasdaq-100 and WTI), so a row-date read printed NDX -3.0% and
+// WTI +0.8% for the week the table measured at -4.4% and -6.6%.
 function span(history, field, from, to) {
   let start = null; let end = null;
-  for (const row of history) {
-    if (!row?.date || readNumber(row[field]) === null) continue;
-    if (row.date <= from) start = { date: row.date, value: Number(row[field]) };
-    if (row.date <= to) end = { date: row.date, value: Number(row[field]) };
+  for (const point of buildCloseSeries(history, field, { market: closeSessionMarket(field) || 'US' })) {
+    if (readNumber(point.value) === null) continue;
+    if (point.date <= from) start = { date: point.date, value: Number(point.value) };
+    if (point.date <= to) end = { date: point.date, value: Number(point.value) };
   }
   if (!start || !end || start.date === end.date || !start.value) return null;
   return { from: start.value, to: end.value, fromDate: start.date, toDate: end.date, pct: (end.value / start.value - 1) * 100 };
@@ -61,7 +73,7 @@ function macroSpan(macroHistory, id, from, to) {
 }
 
 const MOVE_ROWS = Object.freeze([
-  ['ndx', '나스닥 100', 'equity'], ['spx', 'S&P 500', 'equity'], ['rsp', '동일가중 S&P 500', 'equity'], ['smh', '반도체 SMH', 'equity'],
+  ['ndx', '나스닥 100', 'equity'], ['spx', 'S&P 500', 'equity'], ['rsp', '동일가중 S&P 500', 'equity'], ['soxx', '반도체 SOXX', 'equity'],
   ['kospi', '코스피', 'equity'], ['kosdaq', '코스닥', 'equity'], ['tlt', '미국 장기 국채', 'other'], ['wti', 'WTI 유가', 'other'],
   ['gold', '금', 'other'], ['btc', '비트코인', 'other']
 ]);
@@ -70,9 +82,10 @@ const MOVE_ROWS = Object.freeze([
 function concentrationOf(m) {
   const ndx = m.ndx?.pct; const rsp = m.rsp?.pct; const spx = m.spx?.pct;
   if (![ndx, rsp, spx].every(Number.isFinite)) return { kind: 'unknown' };
-  if (Math.max(Math.abs(ndx), Math.abs(spx), Math.abs(rsp)) < 2) return { kind: 'flat' };
-  if (ndx <= -3 && rsp - ndx >= 4) return { kind: 'narrow-down' };
-  if (ndx >= 3 && ndx - rsp >= 4) return { kind: 'narrow-up' };
+  const { flatPct, leaderMovePct, leaderGapPct } = STORY_RULE;
+  if (Math.max(Math.abs(ndx), Math.abs(spx), Math.abs(rsp)) < flatPct) return { kind: 'flat' };
+  if (ndx <= -leaderMovePct && rsp - ndx >= leaderGapPct) return { kind: 'narrow-down' };
+  if (ndx >= leaderMovePct && ndx - rsp >= leaderGapPct) return { kind: 'narrow-up' };
   return { kind: spx < 0 ? 'broad-down' : 'broad-up' };
 }
 
@@ -96,9 +109,10 @@ function creditOf(macroHistory, from, to) {
   const hy = macroSpan(macroHistory, 'hyOas', from, to);
   if (!hy) return null;
   const ccc = macroSpan(macroHistory, 'cccOas', from, to);
-  // v59.66: one widening line for every screen (RULES.credit.widen20dBp, as 매크로's 신용 chapter) — +33bp read as
-  // '신용 불안은 아닙니다' here while 매크로 called the same move 경계 쪽.
-  const kind = hy.bp >= 40 || hy.to >= 4.5 ? 'stress' : hy.bp >= RULES.credit.widen20dBp ? 'widening' : ccc && ccc.bp >= 50 ? 'weak-tail' : 'calm';
+  // v59.66: one widening line for every screen — +33bp read as '신용 불안은 아닙니다' here while 매크로 called it 경계 쪽.
+  // v59.70: the five-session lines of the credit axis (RULES.credit.widen5dBp / widenWatch5dBp), matching the week of the table.
+  const C = RULES.credit;
+  const kind = hy.bp >= C.widen5dBp || hy.to * 100 >= C.stressAtBp ? 'stress' : hy.bp >= C.widenWatch5dBp ? 'widening' : ccc && ccc.bp >= STORY_RULE.cccTailBp ? 'weak-tail' : 'calm';
   return { hy, ccc, kind };
 }
 
@@ -141,10 +155,12 @@ function lead({ n, moves, concentration, drivers, rates, credit, asOf = null }) 
   // v59.56 (screen review): the split comes from FRED, a session behind the closes; the span is named when it ends earlier.
   const tenSpan = rates && asOf && rates.ten.toDate < asOf ? `(${dayLabel(rates.ten.toDate).split('(')[0]}까지) ` : '';
   if (rates && rates.kind !== 'flat') tail.push(`10년 금리 ${tenSpan}${bpText(rates.ten.bp)}는 ${RATE_READ[rates.kind]}`);
-  if (credit) tail.push(credit.kind === 'stress' ? `하이일드 스프레드가 ${bpText(credit.hy.bp)} 벌어져 신용 쪽 경계가 필요합니다`
-    : credit.kind === 'widening' ? `하이일드가 ${bpText(credit.hy.bp)} 벌어져 경계 쪽입니다`
-      : credit.kind === 'weak-tail' ? 'CCC 등급이 먼저 벌어지는 중입니다'
-        : `하이일드 스프레드는 ${bpText(credit.hy.bp)}로 신용 불안은 아닙니다`);
+  // v59.70: the ICE spreads post a business day behind the closes too; the span is named the same way.
+  const hySpan = credit && asOf && credit.hy.toDate < asOf ? `(${dayLabel(credit.hy.toDate).split('(')[0]}까지) ` : '';
+  if (credit) tail.push(credit.kind === 'stress' ? `하이일드 스프레드가 ${hySpan}${bpText(credit.hy.bp)} 벌어져 신용 쪽 경계가 필요합니다`
+    : credit.kind === 'widening' ? `하이일드가 ${hySpan}${bpText(credit.hy.bp)} 벌어져 경계 쪽입니다`
+      : credit.kind === 'weak-tail' ? `CCC 등급이 ${hySpan}먼저 벌어지는 중입니다`
+        : `하이일드 스프레드는 ${hySpan}${bpText(credit.hy.bp)}로 신용 불안은 아닙니다`);
   if (tail.length) parts.push(`${tail.join('. ')}.`);
   return parts.join(' ');
 }
@@ -165,7 +181,7 @@ function confirmations({ moves, rates, credit, macroHistory, history, asOf, star
   if (moves.wti) {
     const p = moves.wti.pct;
     rows.push({ id: 'oil', label: '유가', value: `WTI $${moves.wti.from.toFixed(1)} → $${moves.wti.to.toFixed(1)} (${pctText(p)})`,
-      read: p >= 10 ? '물가 경로에 부담입니다. 다음 달 헤드라인 물가에 먼저 들어옵니다.' : p <= -10 ? '물가 부담은 줄지만 수요 둔화 신호일 수 있습니다.' : '물가 경로를 바꿀 만큼 움직이지 않았습니다.' });
+      read: p >= STORY_RULE.oilPct ? '물가 경로에 부담입니다. 다음 달 헤드라인 물가에 먼저 들어옵니다.' : p <= -STORY_RULE.oilPct ? '물가 부담은 줄지만 수요 둔화 신호일 수 있습니다.' : '물가 경로를 바꿀 만큼 움직이지 않았습니다.' });
   }
   if (moves.gold) {
     const peak = history.filter((row) => row?.date && row.date <= asOf && readNumber(row.gold) !== null).slice(-90).reduce((best, row) => (Number(row.gold) > (best?.value ?? -Infinity) ? { date: row.date, value: Number(row.gold) } : best), null);
@@ -174,17 +190,18 @@ function confirmations({ moves, rates, credit, macroHistory, history, asOf, star
     const p = moves.gold.pct;
     const realDown = rates && rates.real.bp < -5;
     let read = '실질금리·달러와 크게 어긋나지 않았습니다.';
-    if (p <= -4 && realDown && dollar && Math.abs(dollar.pct) < 1.5) read = '실질금리가 내렸고 달러도 그대로인데 빠져 금리·달러로는 설명되지 않습니다. 많이 오른 자산부터 파는 포지션 정리일 수 있습니다(추정).';
-    else if (p <= -4 && rates && rates.real.bp > 5) read = '실질금리 상승과 같은 방향의 하락입니다.';
-    else if (p >= 4) read = '주식과 반대로 오르면 안전자산 수요, 같이 오르면 달러 약세 쪽입니다.';
+    const G = STORY_RULE.goldPct;
+    if (p <= -G && realDown && dollar && Math.abs(dollar.pct) < 1.5) read = '실질금리가 내렸고 달러도 그대로인데 빠져 금리·달러로는 설명되지 않습니다. 많이 오른 자산부터 파는 포지션 정리일 수 있습니다(추정).';
+    else if (p <= -G && rates && rates.real.bp > 5) read = '실질금리 상승과 같은 방향의 하락입니다.';
+    else if (p >= G) read = '주식과 반대로 오르면 안전자산 수요, 같이 오르면 달러 약세 쪽입니다.';
     rows.push({ id: 'gold', label: '금', value: `$${Math.round(moves.gold.to).toLocaleString('en-US')} (${pctText(p)}${Number.isFinite(fromPeak) && fromPeak <= -5 ? `, ${dayLabel(peak.date).split('(')[0]} 고점 대비 ${pctText(fromPeak)}` : ''})`, read });
   }
   if (moves.kospi) {
     const krw = span(history, 'usdkrw', start, asOf);
-    const smh = moves.smh?.pct;
+    const soxx = moves.soxx?.pct;
     const parts = [`코스피 ${pctText(moves.kospi.pct)}`, moves.kosdaq ? `코스닥 ${pctText(moves.kosdaq.pct)}` : null, krw ? `원/달러 ${pctText(krw.pct)}` : null].filter(Boolean);
     let read = '미국과 다른 길을 갔습니다. 한국 쪽 요인을 따로 봐야 합니다.';
-    if (Number.isFinite(smh) && Math.abs(moves.kospi.pct - smh) < 4 && Math.abs(smh) >= 5) read = `미국 반도체(SMH ${pctText(smh)})와 같은 크기라 한국 고유 요인보다 반도체 업황이 옮겨 온 모양입니다.`;
+    if (Number.isFinite(soxx) && Math.abs(moves.kospi.pct - soxx) < STORY_RULE.koreaSemisPct && Math.abs(soxx) >= STORY_RULE.koreaSemisPct) read = `미국 반도체(SOXX ${pctText(soxx)})와 같은 크기라 한국 고유 요인보다 반도체 업황이 옮겨 온 모양입니다.`;
     else if (Math.sign(moves.kospi.pct) === Math.sign(moves.spx?.pct || 0)) read = '미국과 같은 방향으로 움직였습니다.';
     if (krw && Math.abs(krw.pct) < 1.5) read += ' 원화는 안정적입니다.';
     else if (krw && krw.pct >= 1.5) read += ' 원화 약세가 함께 와 외국인 이탈 여부를 봐야 합니다.';
@@ -235,8 +252,9 @@ function weekAhead({ calendar, nextEvent, story, nowMs, days = 8 }) {
           : '대형 기술주 쏠림이 이어질지 가르는 실적입니다. 가이던스가 AI 투자 대비 수익에 대한 의문을 키우는지 줄이는지 봅니다.' });
   }
   out.sort((a, b) => a.date.localeCompare(b.date));
-  if (story.credit?.kind !== 'calm' && story.credit) out.push({ kind: 'daily', date: '', when: '매일', title: 'CCC · 하이일드 스프레드', why: '약한 등급부터 계속 벌어지면 주가 조정이 신용 경계로 바뀝니다.' });
-  if (story.moves.wti && story.moves.wti.pct >= 10) out.push({ kind: 'daily', date: '', when: '매일', title: '유가', why: '더 오르면 물가 경로와 금리 인하 기대가 함께 바뀝니다.' });
+  // v59.70 (owner 11/4): a daily item names its last observation — FRED's ICE spreads post a business day behind the closes.
+  if (story.credit?.kind !== 'calm' && story.credit) out.push({ kind: 'daily', date: '', when: '매일', title: `${story.credit.ccc ? 'CCC · ' : ''}하이일드 스프레드 (${dayLabel(story.credit.hy.toDate).split('(')[0]} 관측)`, asOf: story.credit.hy.toDate, why: '약한 등급부터 계속 벌어지면 주가 조정이 신용 경계로 바뀝니다.' });
+  if (story.moves.wti && story.moves.wti.pct >= STORY_RULE.oilPct) out.push({ kind: 'daily', date: '', when: '매일', title: `유가 (${dayLabel(story.moves.wti.toDate).split('(')[0]} 종가)`, asOf: story.moves.wti.toDate, why: '더 오르면 물가 경로와 금리 인하 기대가 함께 바뀝니다.' });
   return out.slice(0, 6);
 }
 

@@ -1,6 +1,6 @@
 import { isoDay } from '../shared/session-date.js';
-// v58.55 개편 v2 (5n) 투자자별 순매수: the read model of public-data/kr-investor-flows.json (scripts/fetch-kr-investor-flows.mjs,
-// Bank of Korea ECOS 802Y001). Each market reads the latest session's net purchase per investor type that the source
+// v58.55 개편 v2 (5n) 투자자별 순매수: the read model of public-data/kr-investor-flows.json (scripts/fetch-kr-investor-flows.mjs;
+// v59.70 Naver Finance investor trend, KRX figures — ECOS published the foreign investors only). Each market reads the latest session's net purchase per investor type that the source
 // publishes, plus the last 20 sessions of each series with 5- and 20-session sums. An investor type the source does not
 // publish is named as missing, never derived (개인 = -(외국인 + 기관) is not an identity: 기타법인 trade too).
 export const KR_INVESTOR_FLOWS = Object.freeze({ key: '_aioKrInvestorFlows', url: './public-data/kr-investor-flows.json', schemas: ['kr-investor-flows.v1'], maxAgeMs: 3 * 60 * 60 * 1000, maxBytes: 256 * 1024 });
@@ -20,7 +20,9 @@ export function buildKrInvestorFlowView(artifact, { nowMs = Date.now(), loadStat
   if (!artifact) return loadState === 'failed' ? { state: 'unavailable', reason: 'fetch-failed' } : { state: 'loading' };
   if (artifact.schemaVersion !== KR_INVESTOR_FLOWS.schemas[0]) return { state: 'unavailable', reason: 'schema' };
   if (artifact.status === 'not-collected') return { state: 'pending', reason: artifact.reason || null };
-  if (artifact.status !== 'ok') return { state: 'unavailable', reason: artifact.status || 'unknown', source: artifact.source || null };
+  // v59.70: 'stale' is the producer's format guard (nothing parsed, previous numbers kept) — shown, marked 지연, reference use.
+  const sourceStale = artifact.status === 'stale';
+  if (artifact.status !== 'ok' && !sourceStale) return { state: 'unavailable', reason: artifact.status || 'unknown', source: artifact.source || null };
   const today = kstToday(nowMs);
   const markets = [];
   for (const [id, label] of MARKETS) {
@@ -41,13 +43,18 @@ export function buildKrInvestorFlowView(artifact, { nowMs = Date.now(), loadStat
     }
     if (!rows.length || !date) continue;
     const ageDays = Math.round((Date.parse(`${today}T00:00:00Z`) - Date.parse(`${date}T00:00:00Z`)) / 86400000);
-    markets.push({ id, label, date, stale: ageDays > STALE_AFTER_DAYS, ageDays, rows, trends });
+    markets.push({ id, label, date, stale: sourceStale || ageDays > STALE_AFTER_DAYS, ageDays, rows, trends });
   }
   if (!markets.length) return { state: 'unavailable', reason: 'no-series', source: artifact.source || null };
   const published = new Set(markets.flatMap((m) => m.rows.map((r) => r.id)));
   return {
     state: 'ok',
-    source: artifact.source || '한국은행 경제통계시스템(ECOS)',
+    source: artifact.source || 'Naver Finance 투자자별 매매동향',
+    sourceChip: /naver/i.test(String(artifact.sourceUrl || artifact.source || '')) ? 'Naver Finance' : '한국은행',
+    sourceKind: artifact.sourceKind === 'T1_OFFICIAL' ? 'official-statistics' : 'public-delayed',
+    basis: artifact.basis || null,
+    allowedUse: artifact.allowedUse || null,
+    sourceStale,
     generatedAt: artifact.generatedAt || null,
     unit: artifact.unit || '억원',
     markets,

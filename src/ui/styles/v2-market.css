@@ -71,6 +71,9 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 .mk-axes__head { padding: 12px 16px 8px; font-size: 12px; color: var(--text-muted); }
 .mk-axes__head > :nth-child(5), .mk-axes__head > :nth-child(6) { text-align: right; }
 #page-signal #regime-board.regime-quality-board { display: flex; flex-direction: column; gap: 0; }
+/* v59.70: 심리 and AI·반도체 집중 sit in the same columns as a second block under a rule — not part of the six. */
+#page-signal #regime-board-watch.regime-quality-board { display: flex; flex-direction: column; gap: 0; margin: 10px 0 0; padding-top: 10px; border-top: 1px solid rgba(var(--ink-rgb), 0.12); }
+#page-signal #regime-board-watch[hidden] { display: none; }
 #page-signal .regime-quality-board > .mk-axis { padding: 0 !important; border-radius: 12px !important; background: transparent !important; }
 #page-signal .regime-quality-board > .mk-axis:hover, #page-signal .regime-quality-board > .mk-axis[open] { background: var(--sx-ink-a03) !important; }
 #page-signal .mk-axis > summary { padding: 14px 16px; font-size: 14px;  }

@@ -47,13 +47,8 @@
           "available": true,
           "sma20": 71
         },
-        "pcr": 0.85,
         "hyBp": 290,
         "decisionEvidenceRows": [
-          {
-            "id": "pcr-putcall",
-            "status": "verified_current"
-          },
           {
             "id": "hy-spread-bp",
             "status": "verified_current"
@@ -63,10 +58,10 @@
         "newsRiskImpacts": []
       },
       "legacyOutput": {
-        "total": 79,
-        "score": 79,
+        "total": 82,
+        "score": 82,
         "volScore": 90,
-        "momScore": 67,
+        "momScore": 80,
         "trendScore": 82,
         "breadthScore": 88,
         "macroScore": 55,
@@ -120,13 +115,8 @@
           "available": true,
           "sma20": 14
         },
-        "pcr": 1.55,
         "hyBp": 540,
         "decisionEvidenceRows": [
-          {
-            "id": "pcr-putcall",
-            "status": "verified_current"
-          },
           {
             "id": "hy-spread-bp",
             "status": "verified_current"
@@ -146,7 +136,7 @@
         "total": 5,
         "score": 5,
         "volScore": 8,
-        "momScore": 25,
+        "momScore": 35,
         "trendScore": 15,
         "breadthScore": 12,
         "macroScore": 10,
@@ -171,7 +161,6 @@
           "available": false,
           "sma20": null
         },
-        "pcr": null,
         "hyBp": null,
         "decisionEvidenceRows": [],
         "newsSentimentScore": 50,
@@ -219,7 +208,6 @@
           "available": false,
           "sma20": null
         },
-        "pcr": null,
         "hyBp": null,
         "decisionEvidenceRows": [],
         "newsSentimentScore": 50,
@@ -288,13 +276,8 @@
           "available": true,
           "sma20": 60
         },
-        "pcr": 1,
         "hyBp": 300,
         "decisionEvidenceRows": [
-          {
-            "id": "pcr-putcall",
-            "status": "verified_current"
-          },
           {
             "id": "hy-spread-bp",
             "status": "verified_current"
@@ -304,10 +287,10 @@
         "newsRiskImpacts": []
       },
       "legacyOutput": {
-        "total": 59,
-        "score": 59,
+        "total": 63,
+        "score": 63,
         "volScore": 54,
-        "momScore": 55,
+        "momScore": 70,
         "trendScore": 59,
         "breadthScore": 72,
         "macroScore": 55,
@@ -361,13 +344,8 @@
           "available": true,
           "sma20": 20
         },
-        "pcr": 0.9,
         "hyBp": 300,
         "decisionEvidenceRows": [
-          {
-            "id": "pcr-putcall",
-            "status": "verified_current"
-          },
           {
             "id": "hy-spread-bp",
             "status": "verified_current"
@@ -377,10 +355,10 @@
         "newsRiskImpacts": []
       },
       "legacyOutput": {
-        "total": 57,
-        "score": 57,
+        "total": 59,
+        "score": 59,
         "volScore": 78,
-        "momScore": 62,
+        "momScore": 70,
         "trendScore": 72,
         "breadthScore": 12,
         "macroScore": 55,
@@ -433,13 +411,8 @@
           "available": true,
           "sma20": 62
         },
-        "pcr": 1.05,
         "hyBp": 300,
         "decisionEvidenceRows": [
-          {
-            "id": "pcr-putcall",
-            "status": "verified_current"
-          },
           {
             "id": "hy-spread-bp",
             "status": "verified_current"
@@ -449,10 +422,10 @@
         "newsRiskImpacts": []
       },
       "legacyOutput": {
-        "total": 49,
-        "score": 49,
+        "total": 53,
+        "score": 53,
         "volScore": 42,
-        "momScore": 55,
+        "momScore": 70,
         "trendScore": 15,
         "breadthScore": 80,
         "macroScore": 55,
@@ -462,6 +435,6 @@
       }
     }
   ],
-  "rebaselinedAt": "2026-10-16T00:43:04.946Z",
-  "rebaselineReason": "v57.83 crash replay: under the 200-day line only the 32/15 trend bands"
+  "rebaselinedAt": "2026-11-04T02:58:11.347Z",
+  "rebaselineReason": "v59.70 trading-score.v6 (owner 11/4): risk-appetite axis = HY spread only; the Cboe put/call input is removed with its source"
 }

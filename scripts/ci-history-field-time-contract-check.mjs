@@ -4,13 +4,14 @@ import { fileURLToPath } from 'node:url';
 import { deriveMarketSession } from './build-market-snapshot.mjs';
 import { readProducerSource } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + the lib modules split out of it
 import { holdRepeatedSessions, continuousReopenPrint, mergeMacroLastKnownGood, normalizeHistoryRows, parseBeaPceHtml, validateMarketAnalysisText, HIST_FIELD_PLAUSIBILITY, histValueWithinPlausibility, parseFredDexkousCsv, compareUsdKrwCrossCheck } from './fetch-data.mjs';
+import { readHistoryRows, compactHistoryRows } from '../src/domain/market/history-rows.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const readJson = (rel) => JSON.parse(fs.readFileSync(path.join(root, rel), 'utf8'));
 const readText = (rel) => fs.readFileSync(path.join(root, rel), 'utf8');
 const fail = (message) => { throw new Error(`[history-field-time-contract] ${message}`); };
 
-const history = readJson('public-data/history.json');
+const history = readHistoryRows(readJson('public-data/history.json'));
 if (!Array.isArray(history) || history.length < 2) fail('history.json must contain at least two rows');
 const fields = ['spx', 'nasdaq', 'dow', 'rut', 'vix', 'vvix', 'tnx', 'dxy', 'wti', 'gold', 'kospi', 'kosdaq', 'btc', 'usdkrw'];
 const errors = [];
@@ -131,6 +132,21 @@ if (numericFieldCount === 0 || observedFieldCount !== numericFieldCount) {
   fail(`${errors.slice(0, 8).join('; ') || 'no numeric fields with complete field-level evidence'}`);
 }
 if (errors.length) fail(errors.slice(0, 12).join('; '));
+// v59.70 (R2): the same five keys after the history.v2 round trip — fetchedAt and lastSuccessfulAt come back from the
+// field's checkedAt, source / sourceKind / allowedUse from the field dictionary — whichever shape the file is stored in.
+{
+  const stored = readJson('public-data/history.json');
+  const v2 = Array.isArray(stored) ? compactHistoryRows(history) : stored;
+  const expanded = readHistoryRows(JSON.parse(JSON.stringify(v2)));
+  let missing = 0;
+  for (const row of expanded) for (const field of fields) {
+    if (typeof row[field] !== 'number' || !Number.isFinite(row[field])) continue;
+    const meta = row.fieldMeta?.[field];
+    if (!meta?.observedAt || !meta.fetchedAt || !meta.lastSuccessfulAt || !meta.source || !meta.sourceKind || !meta.allowedUse) missing += 1;
+  }
+  if (missing) fail(`v59.70 R2 ${missing} field meta(s) lack one of the five keys after the history.v2 round trip`);
+  if (expanded.length !== history.length) fail(`v59.70 R2 history.v2 expands to ${expanded.length} rows, stored ${history.length}`);
+}
 
 const data = readJson('public-data/data.json');
 const beaFixture = parseBeaPceHtml(`
@@ -196,7 +212,7 @@ if (new Set(fixtureColumns).size !== 1) fail(`history row normalization left rag
 if (Object.keys(raggedFixture[1].fieldMeta).length !== 0 || Object.keys(raggedFixture[2].fieldMeta).length !== 0) {
   fail(`history row normalization kept fieldMeta for a null value: ${JSON.stringify(raggedFixture.map((row) => row.fieldMeta))}`);
 }
-if (!fixtureColumns[0].includes('breadth200,') || !fixtureColumns[0].includes('marketSnapshotRevision') || !fixtureColumns[0].includes('spx') || raggedFixture[1].pcr !== null) {
+if (!fixtureColumns[0].includes('breadth200,') || !fixtureColumns[0].includes('marketSnapshotRevision') || !fixtureColumns[0].includes('spx') || raggedFixture[1].breadth20 !== null || 'pcr' in raggedFixture[0] || 'pcr' in raggedFixture[0].fieldMeta) {
   fail(`history row normalization did not fill the shared column set: ${fixtureColumns[0]}`);
 }
 // v57.81: one session is one observation. The 10/12 DXY bar (row 10/12) and the same close read as the previous close

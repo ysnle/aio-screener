@@ -280,19 +280,6 @@ export function installServerDataLoader(window = globalThis) {
           window.DATA_SNAPSHOT._fieldTs.fearGreed = d.fearGreed.asOf || d.meta.generatedAt || new Date().toISOString();
         }
       }
-      // 4) Cboe official daily Put/Call. Server-side collection avoids the
-      // public CORS proxy and is explicitly delayed, never called real-time.
-      if (d.putCall && typeof d.putCall.totalPutCall === 'number' && isFinite(d.putCall.totalPutCall) && typeof _aioUpdatePutCallDom === 'function') {
-        _aioUpdatePutCallDom({
-          totalPutCall: d.putCall.totalPutCall,
-          equityPutCall: d.putCall.equityPutCall,
-          indexPutCall: d.putCall.indexPutCall,
-          sourceKind: 'T1_OFFICIAL',
-          sourceLabel: 'Cboe Daily Market Statistics',
-          asOf: d.putCall.asOf || d.meta.generatedAt
-        });
-        if (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._fieldTs) window.DATA_SNAPSHOT._fieldTs.putCall = d.putCall.asOf || d.meta.generatedAt;
-      }
       // 5) v50.28/WO-6: 서버 뉴스 백스톱 저장 + (클라이언트 뉴스 비었을 때만) 적용 — additive
       if (Array.isArray(d.news) && d.news.length) {
         window._serverNewsBackstop = d.news;

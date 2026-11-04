@@ -54,7 +54,7 @@ const fail = (message) => { throw new Error(`[domain-parity] ${message}`); };
 // smoke guard for that mapping, while the trading-score golden fixtures provide the real formula
 // parity. Do not read this mapping check as an independent signal prediction backtest.
 const inputVersion = 'fixture-input.v1';
-const signalScore = computeTradingScoreModel({ mode: 'swing', vix: 18, vvix: 90, dxy: 100, tnx: 3.5, oilPrice: 80, fg: 50, maCurrent: true, spx200ma: 450, spx50ma: 480, spxPrice: 500, breadthAvailable: true, breadth200: 60, pcr: 1, hyBp: 300, newsSentimentScore: 50, newsRiskSignals: [] });
+const signalScore = computeTradingScoreModel({ mode: 'swing', vix: 18, vvix: 90, dxy: 100, tnx: 3.5, oilPrice: 80, fg: 50, maCurrent: true, spx200ma: 450, spx50ma: 480, spxPrice: 500, breadthAvailable: true, breadth200: 60, hyBp: 300, newsSentimentScore: 50, newsRiskSignals: [] });
 const signal = deriveSignalDecisionFromTradingScore({ score: signalScore, inputVersion });
 if (signal.status === 'blocked' || !signal.modelVersion) fail('PARITY_SIGNAL_BLOCKED');
 
@@ -95,7 +95,6 @@ function resolveTradingScoreInputs(fixtureInputs) {
     vix, vvix, dxy, tnx, oilPrice, fg,
     maCurrent, spx200ma, spx50ma, spxPrice,
     breadthAvailable, breadth200,
-    pcr: verified('pcr-putcall', fixtureInputs.pcr),
     hyBp: verified('hy-spread-bp', fixtureInputs.hyBp),
     newsSentimentScore: fixtureInputs.newsSentimentScore,
     newsRiskSignals: fixtureInputs.newsRiskImpacts

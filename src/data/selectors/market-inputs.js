@@ -1,4 +1,5 @@
 import { readNumber as finite } from '../../domain/shared/number.js';
+import { regimeMarketInput } from '../../domain/interpretation/inputs.js';
 // v57.60: moved from src/ui/components/briefing-read.js (pure data gathering from runtime globals, no DOM) so
 // the AI context, bootstrap and the market boards read it without importing a ui component.
 
@@ -14,12 +15,12 @@ export function collectMarketInputs(root, { now = Date.now() } = {}) {
   let fgMetric = null;
   try { fgMetric = root.AIO?.getCanonicalMetric?.('fg') || null; } catch (_) {}
   const fg = finite(fgMetric?.value);
-  const putCall = root._lastPutCallPayload || null;
+  // v59.70 (R8): the runtime reads below override the published macro block inside the shared builder
+  // (src/domain/interpretation/inputs.js); a runtime value that is missing falls back to the same data.json field the
+  // producers read, so the two adapters differ only where the browser holds a fresher observation.
   const credit = {
     hyBp: finite(root._hySpreadBp) ?? finite(snapshot.hySpread),
     hyAsOf: root._hySpreadDate || fieldTs.hySpread || null,
-    pcr: finite(putCall?.totalPutCall) ?? finite(snapshot.pcr),
-    pcrAsOf: putCall?.asOf || fieldTs.pcr || null,
     fg: fg != null ? fg : finite(snapshot.fearGreedValue),
     fgAsOf: fg != null ? fgMetric?.asOf || null : fieldTs.fg || null,
     hyDelta5Bp: finite(snapshot._hySpreadDelta5Bp),
@@ -39,5 +40,5 @@ export function collectMarketInputs(root, { now = Date.now() } = {}) {
   // v57.59: the narrow-tape read prefers the S&P 500 member segment (same lookup as breadth-board) over the AIO universe.
   // v57.77 perf: a dot-path read snapshots only this segment; the bare call deep-cloned and froze all screener rows.
   const breadthSp500 = root?.AIO_ARCH?.getScreenerState?.('metadata.breadth.segments.sp500') || null;
-  return { history: root._aioHistory || [], credit, rates, now, macroHistory: root._aioMacroHistory || null, breadthSp500 }; // M05: admit only a current basis
+  return regimeMarketInput({ macro: root._aioServerMacro || null, history: root._aioHistory || [], macroHistory: root._aioMacroHistory || null, breadthSp500, credit, rates, nowMs: now }); // M05: admit only a current basis
 }
