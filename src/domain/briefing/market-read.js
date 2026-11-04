@@ -460,8 +460,6 @@ export function alignMarketInputs({ history = [], credit = {}, rates = {}, now =
   const fgLast = fgSeries[fgSeries.length - 1] || null;
   alignments.fg = fgLast ? alignInput(fgLast.date, basis) : alignInput(credit.fgAsOf, basis);
   alignments.hy = alignInput(credit.hyAsOf, basis);
-  // v59.70: an empty alignment until ui-states removes the 풋/콜 card (sentiment-board.js reads .status); delete at integration.
-  alignments.pcr = alignInput(null, basis);
   alignments.rates = alignInput(rates.asOf, basis);
   const take = (value, alignment) => finite(value) != null && isUsable(alignment) ? finite(value) : null;
   const hy20 = finite(credit.hyDelta20Bp) != null ? { value: finite(credit.hyDelta20Bp), date: credit.hyAsOf } : hyDelta20Bp(macroHistory, basis);

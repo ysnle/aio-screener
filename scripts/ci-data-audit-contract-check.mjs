@@ -185,15 +185,15 @@ const calendars = await import('./lib/official-calendars.mjs');
     .filter((rel) => read(rel).split('\n').some((line) => !/^\s*(?:\/\/|\*)/.test(line) && CBOE_CALL.test(line)));
   check('v59.70 Cboe: no code calls Cboe or publishes put/call', hits.length === 0, hits.join(', '));
   // ui-states' 11/4 report: the credit axis, its fields and the cross readings still took put/call. The credit state must not
-  // move with it, and no domain file reads it except the two integration shims (sentiment-board's card) and 13F option rows.
+  // move with it, and no domain file reads it except 13F option rows (the two integration shims left with the card).
   const { creditState } = await import('../src/domain/briefing/market-read.js');
   const calm = { hyBp: 300, hy5: -2, hy20: 5 };
   check('v59.70 Cboe: the credit state ignores a put/call input', JSON.stringify(creditState({ ...calm, pcr: 0.6 })) === JSON.stringify(creditState(calm)) && JSON.stringify(creditState({ ...calm, pcr: 1.4 })) === JSON.stringify(creditState(calm)));
-  const PCR_READ = /\bpcr\b|putCall(?!HedgeAt|OptimismBelow)/;
-  const SHIMS = [/^\s*alignments\.pcr = alignInput\(null, basis\);$/, /^\s*putCallHedgeAt: 1\.1, putCallOptimismBelow: 0\.7,$/, /!row\.putCall/];
+  const PCR_READ = /\bpcr\b|putCall/;
+  const SHIMS = [/!row\.putCall/];
   const domainHits = code('src/domain').flatMap((rel) => read(rel).split('\n').map((line, index) => ({ rel, line, index }))
     .filter(({ line }) => !/^\s*(?:\/\/|\*)/.test(line) && PCR_READ.test(line) && !SHIMS.some((shim) => shim.test(line))).map(({ rel, index }) => `${rel}:${index + 1}`));
-  check('v59.70 Cboe: no domain file reads put/call outside the integration shims', domainHits.length === 0, domainHits.join(', '));
+  check('v59.70 Cboe: no domain file reads put/call outside 13F option rows',domainHits.length === 0, domainHits.join(', '));
 }
 
 // v59.70 (owner 11/4, "SOXX로 하자 … SOXX가 개미 투자자들을 더 대표"): the 'AI 주도' leadership proxy is SOXX, not the

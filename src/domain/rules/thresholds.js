@@ -110,8 +110,6 @@ export const RULES = Object.freeze({
   // stress20dMultiple x widen20dBp when the record is shorter than recordMin); it stays 부담 until the 20-session change
   // is back under widen20dBp (hysteresis). HY +40bp in 20 sessions — the 96th percentile — could never reach 부담 before.
   credit: Object.freeze({ tightBelowBp: 350, stressAtBp: 450, widen5dBp: 25, widenWatch5dBp: 15, calm5dBp: 5, widen20dBp: 25,
-    // v59.70: kept only for the 풋/콜 card text in sentiment-board.js until ui-states removes the card; no rule reads them.
-    putCallHedgeAt: 1.1, putCallOptimismBelow: 0.7,
     stress20dPct: 90, stress20dMultiple: 2, recordMin: 120, latchSessions: 60,
     // v59.56: the slower split named beside the verdict (not part of it) — HY over 60 FRED observations, and CCC widening
     // that much faster than HY (lower ratings repriced first).

@@ -61,7 +61,7 @@ export const ARTIFACT_FRESHNESS = Object.freeze({
   'tw-monthly-revenue.json': auto('refresh-screener.yml', 'scripts/fetch-tw-monthly-revenue.mjs', 6 * 60, 62 * 24 * 60),
   // blockedBy: the refresh path exists but waits on a secret the owner has not added (or decided against); the watchdog
   // names it as a warning instead of failing every run, and the screen shows it as not collected.
-  'kr-investor-flows.json': auto('refresh-screener.yml', 'scripts/fetch-kr-investor-flows.mjs', 6 * 60, 4 * 24 * 60, { blockedBy: 'secret BOK_API_KEY (absent since 10/20; source moving to Naver, data-refactor)' }),
+  'kr-investor-flows.json': auto('refresh-screener.yml', 'scripts/fetch-kr-investor-flows.mjs', 6 * 60, 4 * 24 * 60),
   'kr-fundamentals.json': auto('refresh-screener.yml', 'scripts/fetch-dart-fundamentals.mjs', 7 * 24 * 60, 14 * 24 * 60, { blockedBy: 'secret DART_API_KEY (owner decision 2026-10-14: not registered)' }),
   'breadth-contributors.json': auto('refresh-screener.yml', 'scripts/producer/screener-breadth.mjs', 6 * 60, 8 * 24 * 60),
   'theme-stage-history.json': auto('refresh-screener.yml', 'scripts/build-scenario-state.mjs', 6 * 60, 8 * 24 * 60),

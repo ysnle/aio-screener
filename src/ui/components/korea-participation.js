@@ -5,6 +5,7 @@ import { el } from './dom.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { buildKrInvestorFlowView, formatEok, KR_INVESTOR_FLOWS } from '../../domain/market/kr-investor-flows.js';
 import { shortDate } from '../../domain/content/date-labels.js';
+import { dataState } from './data-state.js';
 // v57.78 perf: an optional `store` supplies the native screener rows in place (same rule as scenario-outlook: a
 // non-empty native set wins, an empty one defers to the bridge, which owns the pre-publication fallback).
 function participationRows(root,store){
@@ -126,22 +127,25 @@ export function renderKrInvestorFlows({ documentRef: doc, root, before = null, n
   if (host.dataset.krFlowsKey === key) return view;
   host.dataset.krFlowsKey = key;
   const head = el(doc, 'div', null, 'kr-flows-head');
-  // v58.56 (re-audit #15): plain words for the reader — what is shown (외국인 순매수), who publishes it (한국은행), and
-  // why 개인·기관 are absent (no public source) — instead of pipeline terms (ECOS, 수집 주기, 출처 항목).
-  const foreignOnly = view.state !== 'ok' || (view.missing.includes('개인') && view.missing.includes('기관'));
+  // v58.56 (re-audit #15): plain words for the reader instead of pipeline terms. v59.70: Naver carries all three investor
+  // types, so the title narrows to 외국인 only when a collection actually lacks 개인 and 기관.
+  const foreignOnly = view.state === 'ok' && view.missing.includes('개인') && view.missing.includes('기관');
   const title = el(doc, 'h3', foreignOnly ? '외국인 순매수' : '투자자별 순매수');
   title.id = 'regime-kr-flows-title';
   head.append(title);
   if (view.state !== 'ok') {
     host.removeAttribute('data-observed-at');
-    const text = view.state === 'loading' ? '외국인 순매수를 불러오는 중입니다.'
-      : view.reason === 'fetch-failed' ? '외국인 순매수를 불러오지 못했습니다. 잠시 뒤 다시 시도합니다.'
-      : '이번에는 한국은행 자료에서 외국인 순매수를 찾지 못해 비워 둡니다.';
     // v58.75 (persona review): before the first collection the card was a heading over an empty slot; it is one line now.
     if (view.state === 'pending') { host.replaceChildren(); return view; }
-    host.replaceChildren(head, el(doc, 'p', text, 'kr-flows-empty'));
+    // v59.70 (integration): the shared loading / error / empty look (data-state.js); the source is Naver now, not 한국은행.
+    const state = view.state === 'loading' ? { state: 'loading', lines: 2 }
+      : view.reason === 'fetch-failed' ? { state: 'error', text: '투자자별 순매수를 불러오지 못했습니다', onRetry: () => renderKrInvestorFlows({ documentRef: doc, root }) }
+      : { state: 'empty', text: '이번 수집에는 투자자별 순매수가 없습니다' };
+    if (view.state === 'loading') host.setAttribute('aria-busy', 'true'); else host.removeAttribute('aria-busy');
+    host.replaceChildren(head, dataState(doc, state));
     return view;
   }
+  host.removeAttribute('aria-busy');
   const latest = view.markets.map((m) => m.date).sort().at(-1);
   // The chip keeps the date only; the source is its hover and the folded 기준 (owner: sources off screen).
   const chip = el(doc, 'span', `${shortDate(latest)}${view.sourceStale ? ', 지연' : ''}`, 'basis-chip');

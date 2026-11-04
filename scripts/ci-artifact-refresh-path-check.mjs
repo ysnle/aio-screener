@@ -102,11 +102,12 @@ check('v59.70 freshnessState grades current, late, stale and unknown', grade(10)
 // The screens' reader grades the same row the same way, and a missing secret reads as blocked, not stale.
 const fakeRoot = {
   _aioFreshness_refresh_data_yml: { artifacts: { 'data.json': { checkedAt: new Date(now - 10 * 60000).toISOString(), expectedEveryMinutes: 30, staleAfterMinutes: 720 } } },
-  _aioFreshness_refresh_screener_yml: { artifacts: { 'kr-investor-flows.json': { checkedAt: '2026-10-20T23:51:53.027Z', expectedEveryMinutes: 360, staleAfterMinutes: 5760 } } },
+  _aioFreshness_refresh_screener_yml: { artifacts: { 'kr-fundamentals.json': { checkedAt: '2026-10-20T23:51:53.027Z', expectedEveryMinutes: 10080, staleAfterMinutes: 20160 } } },
 };
 check('v59.70 readArtifactFreshness reads the workflow ledger the watchdog reads',
   readArtifactFreshness('data.json', { root: fakeRoot, now }).state === 'current'
-  && readArtifactFreshness('kr-investor-flows.json', { root: fakeRoot, now }).state === 'blocked'
+  && readArtifactFreshness('kr-fundamentals.json', { root: fakeRoot, now }).state === 'blocked'
+  && readArtifactFreshness('kr-investor-flows.json', { root: fakeRoot, now }).blockedBy === null
   && readArtifactFreshness('event-briefs.json', { root: fakeRoot, now }).state === 'unknown'
   && readArtifactFreshness('not-registered.json', { root: fakeRoot, now }).state === 'unknown');
 
