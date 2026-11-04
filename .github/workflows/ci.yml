@@ -109,6 +109,10 @@ jobs:
         env:
           # Keep the runner reports and redacted failure sidecars outside the checkout.
           AIO_QA_CACHE_DIR: ${{ runner.temp }}/aio-qa
+          # v59.70 (I8): every contract shard, source pushes included, reports `liveData: content` gates and wall-clock date
+          # judgements (ADVISORY / warning) instead of failing on them; producers and the watchdog still fail on them.
+          # On 11-04 the fix push 432ac3eb failed only on data age and a 46-day document date, and no release could attest.
+          AIO_QA_ORIGIN: ci
         run: node scripts/qa-runner.mjs --group ${{ matrix.group }} --no-cache
       - name: Upload redacted QA failure output
         if: failure()

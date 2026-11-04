@@ -42,6 +42,10 @@ jobs:
         with:
           node-version: '24'
 
+      - name: Mark the run start for the freshness ledger (v59.70)
+        # Files this run writes are newer than this mark; the ledger tells them from the checked-out copies by mtime.
+        run: sleep 1 && echo "AIO_RUN_STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)" >> "$GITHUB_ENV"
+
       - name: Require SEC provisioning before the SEC lanes
         env:
           SEC_UA: ${{ vars.SEC_USER_AGENT }}
@@ -89,14 +93,12 @@ jobs:
           if [ -z "${DART_API_KEY}" ]; then echo "::notice::DART_API_KEY is not set (owner decision 2026-10-14: not registered) — Korean fundamentals are not collected"; fi
           node scripts/fetch-dart-fundamentals.mjs
 
-      - name: Refresh Korean investor-type net buying (BOK ECOS, daily)
-        env:
-          BOK_API_KEY: ${{ secrets.BOK_API_KEY }}
+      - name: Refresh Korean investor-type net buying (Naver, daily)
         run: |
           set -euo pipefail
-          # v58.55: 코스피·코스닥 투자자별 순매수 from ECOS 802Y001 (the Worker relay's BOK secret). Without the key the
-          # script exits 0 and keeps the artifact; the card on 시장 상태 then says 수집 전.
-          if [ -z "${BOK_API_KEY}" ]; then echo "::notice::BOK_API_KEY is not set — Korean investor-type net buying is not collected"; fi
+          # v59.70 (data-refactor): 코스피·코스닥 투자자별 순매수 from Naver, keyless. The BOK_API_KEY secret stays for the
+          # Worker's BOK/KOSIS relay (policy rate); this step no longer reads it. On a fetch failure the script exits 0
+          # and keeps the artifact; the card on 시장 상태 then says 수집 전.
           node scripts/fetch-kr-investor-flows.mjs
 
       - name: Refresh Taiwan AI supply-chain monthly revenue (TWSE OpenAPI, no key)
@@ -186,6 +188,11 @@ jobs:
           node scripts/ci-page-data-timeline-contract-check.mjs
           node scripts/ci-candidate-archive-check.mjs # P1465
 
+      - name: Write the freshness ledger (v59.70)
+        # One record per artifact this job owns (producedAt, checkedAt, basis session, cadence); written before the gates
+        # so the validated candidate includes it.
+        run: node scripts/write-freshness-ledger.mjs --workflow refresh-screener.yml --run-started "$AIO_RUN_STARTED_AT"
+
       # The screener refresh owns SEC fundamentals, factor rows and their
       # reconciliation only.  Market-survey/news freshness (notably AAII) is
       # produced by refresh-data; running its web-research/data-cycle gates
@@ -241,13 +248,14 @@ jobs:
           # P1757: public-data/sec-fundamentals.json is gitignored and published to the data-store branch below.
           git add -- public-data/screener.json public-data/sec-fundamentals-summary.json public-data/sec-fundamentals-summary.manifest.json public-data/screener-validation-gate.json public-data/reconciliation-status.json public-data/operations-status.json public-data/history.json public-config.json architecture/public-readiness.json
           stage_if_exists public-data/earnings-calendar.json
+          stage_if_exists public-data/freshness/refresh-screener.json # v59.70: per-artifact producedAt/checkedAt ledger
           stage_if_exists public-data/bigtech-cashflow.json # v59.56: SEC quarterly cash flow, big tech
           stage_if_exists public-data/treasury-auctions.json # v59.57: TreasuryDirect coupon auction results
           stage_if_exists public-data/sp500-weights.json # 2026-10-13: S&P 500 sector map weights
           stage_if_exists public-data/us-listings.json # v57.81: official US exchange listing (daily)
           stage_if_exists public-data/consensus-estimates.json # v57.54: Forward PER consensus (reference)
           stage_if_exists public-data/kr-fundamentals.json # P1654: OpenDART Korean fundamentals
-          stage_if_exists public-data/kr-investor-flows.json # v58.55: BOK ECOS investor-type net buying
+          stage_if_exists public-data/kr-investor-flows.json # v59.70: Naver investor-type net buying (was BOK ECOS, v58.55)
           stage_if_exists public-data/tw-monthly-revenue.json # v59.56: TWSE Taiwan AI supply-chain monthly revenue
           stage_if_exists public-data/backtest-history.json
           stage_if_exists public-data/breadth-contributors.json # P1416: breadth drilldown

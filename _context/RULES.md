@@ -856,7 +856,7 @@ A complete weekend/holiday market cycle does not waive the live artifact's wall-
 **Superseded by R641 (v57.79)**: R641 applies the same no-closure-grace live-core boundary to browser decisions and operations status.
 
 ## R634. live-core 신선도 감사에는 stale 데이터를 통과시키는 실행 모드가 없어야 한다 (v56.56, P1283)
-`data.json`·`market-snapshot.json` freshness는 실제 사용·배포 주장의 일부다. CLI 인수, 환경변수, qa-runner 옵션 또는 attestation caller가 live-core SLA 초과를 `WARN`으로 낮추어서는 안 된다. 게이트: `ci-data-lineage-audit`, `ci-data-pipeline-contract-check`.
+`data.json`·`market-snapshot.json` freshness는 실제 사용·배포 주장의 일부다. 감사 스크립트 자체에는 SLA 초과를 `WARN`으로 낮추는 CLI 인수·환경변수·시계 주입이 없다. 프로듀서의 push 전 실행, 로컬 실행, watchdog twin에서 SLA 초과는 항상 `FAIL`이다. v59.70(소유자 2026-11-04): ci.yml contract 샤드(`AIO_QA_ORIGIN=ci`, 소스 push 포함)에서만 qa-runner가 `liveData: content` 게이트의 실패를 `ADVISORY`로 보고하고, knowledge-lint의 날짜 ratchet(P1125)은 경고로 보고한다. 11-04에 데이터 평면을 고친 소스 push가 데이터 나이와 문서 날짜만으로 red가 되어, 그 위의 어떤 릴리스도 attest되지 못하는 교착이 있었기 때문이다. 코드 원인(제어문자·YAML·코드 계약)은 CI에서도 계속 막는다. 게이트: `ci-data-lineage-audit`, `ci-data-pipeline-contract-check`, `ci-refresh-origin-live-data-check`.
 
 ## R608. 캐시 폴백은 읽기 시점에 스스로 나이를 판정한다 (v54.99, P1086)
 캐시 TTL을 쓰기 시점 정리로만 강제하지 않는다. 폴백 읽기 경로는 캐시 항목의 나이를 판정해 상한을 넘긴 항목을 "현재 값"으로 반환하지 않고, 오래된 응답임을 응답 본문에서 구분 가능하게 표시한다. 게이트: `ci-service-worker-cache-policy-check`.

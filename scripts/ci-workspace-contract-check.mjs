@@ -88,6 +88,25 @@ check('guard allows a single-path checkout (P1340)', !/deny/.test(runHook('guard
 let dangerousOutput = {};
 try { dangerousOutput = JSON.parse(dangerousHook.stdout || '{}'); } catch { dangerousOutput = {}; }
 check('destructive command hook fixture returns documented deny output', dangerousHook.status === 0 && dangerousOutput.hookSpecificOutput?.hookEventName === 'PreToolUse' && dangerousOutput.hookSpecificOutput?.permissionDecision === 'deny');
+// v59.70 (owner 2026-11-04): post-edit warns, never blocks, on a control character in the edited file, using the one rule
+// ci-control-char-check uses (scripts/lib/control-chars.mjs).
+{
+  const { mkdtempSync, writeFileSync, rmSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const dir = mkdtempSync(join(tmpdir(), 'aio-hook-'));
+  try {
+    const dirty = join(dir, 'dirty.js');
+    const clean = join(dir, 'clean.js');
+    writeFileSync(dirty, `const re = /${String.fromCharCode(8)}cut${String.fromCharCode(8)}/;\n`);
+    writeFileSync(clean, 'const re = /\\bcut\\b/;\t\r\n');
+    const warned = runHook('post-edit', { cwd: root, hook_event_name: 'PostToolUse', tool_input: { file_path: dirty } });
+    const quiet = runHook('post-edit', { cwd: root, hook_event_name: 'PostToolUse', tool_input: { file_path: clean } });
+    check('v59.70 post-edit warns on a U+0008 in the edited file and does not block', warned.status === 0 && /control-character warning[^"]*line 1 U\+0008/.test(warned.stdout || '') && !/"deny"|"block"/.test(warned.stdout || ''), warned.stdout || warned.stderr);
+    check('v59.70 post-edit stays silent on tab/CR/LF and a written \\b', quiet.status === 0 && quiet.stdout === '', quiet.stdout);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+  check('v59.70 the hook and the gate share one control-character rule', hookScript.includes("import('./lib/control-chars.mjs')")
+    && read('scripts/ci-control-char-check.mjs').includes("from './lib/control-chars.mjs'") && !/function isControlCode/.test(read('scripts/ci-control-char-check.mjs')));
+}
 const archiveHook = runHook('guard-edit', { cwd: root, hook_event_name: 'PreToolUse', tool_input: { command: '*** Update File: _archive/evidence.md' } });
 let archiveOutput = {};
 try { archiveOutput = JSON.parse(archiveHook.stdout || '{}'); } catch { archiveOutput = {}; }

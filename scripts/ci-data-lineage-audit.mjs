@@ -107,9 +107,11 @@ const POLICIES = {
   // seasons are expected — the bound is one quarter.
   'event-briefs.json': { kind: 'event-brief-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 100 },
   'kr-index-weights.json': { kind: 'index-weight-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 8 }, // v59.42: KOSPI/KOSDAQ weight proxies after each KRX close (event-briefs.yml; + holiday tolerance)
-  'factor-backtest-longrun.json': { kind: 'research-horizon', timestamp: ['generatedAt', 'meta.generatedAt'] },
+  // v59.70: promoted by hand from research-backtest.yml (manual dispatch, no commit); it had no bound at all (2026-07-10).
+  'factor-backtest-longrun.json': { kind: 'research-horizon', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 24 * 120 },
   'history.json': { kind: 'daily-history', custom: 'history-date', maxAgeHours: 24 * 3 },
   'macro-history.json': { kind: 'official-macro-history', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // P1426: FRED observations behind the 거시 direction reads (refresh-data)
+  'rotation-detail.json': { kind: 'derived-state', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // v59.70 (R11): rotationHistory series beside data.json (refresh-data; recomputed after each US close)
   'macro-calendar.json': { kind: 'official-calendar-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // P1654: FRED release dates (refresh-data)
   'sp500-weights.json': { kind: 'index-weight-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 8 }, // 2026-10-13: IVV holdings weights for the S&P 500 sector map (refresh-screener)
   'us-listings.json': { kind: 'exchange-listing-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // v57.81: Nasdaq Trader symbol directory, daily in refresh-screener (+ weekend/holiday tolerance)
@@ -170,11 +172,31 @@ function extractTimestamp(data, policy) {
   return firstPresent(data, policy.timestamp ?? []);
 }
 
-function evaluateArtifact(name, data, { now = NOW } = {}) {
+// v59.70: a derived artifact whose content did not change keeps its published bytes (and generatedAt); the producing run
+// records that it confirmed it in public-data/freshness/<workflow>.json. The confirmation counts as the freshness clock
+// only for the exact content it describes (ledger producedAt == the artifact's own clock), never for a newer or older copy.
+function readFreshnessLedgers(dir = join(DATA_DIR, 'freshness')) {
+  const rows = {};
+  if (!existsSync(dir)) return rows;
+  for (const file of readdirSync(dir).filter((entry) => entry.endsWith('.json'))) {
+    try { Object.assign(rows, JSON.parse(readFileSync(join(dir, file), 'utf8')).artifacts || {}); } catch { /* an unreadable ledger confirms nothing */ }
+  }
+  return rows;
+}
+const FRESHNESS_ROWS = readFreshnessLedgers();
+
+export function confirmedTimestamp(timestamp, ledgerRow) {
+  const own = parseDate(timestamp.value);
+  const confirmed = parseDate(ledgerRow?.checkedAt);
+  const describes = own && parseDate(ledgerRow?.producedAt)?.getTime() === own.getTime();
+  return describes && confirmed && confirmed.getTime() > own.getTime() ? { path: `freshness.checkedAt (content of ${timestamp.path})`, value: ledgerRow.checkedAt } : timestamp;
+}
+
+function evaluateArtifact(name, data, { now = NOW, ledgerRow = FRESHNESS_ROWS[name] } = {}) {
   const policy = POLICIES[name];
   if (!policy) return { artifact: name, policy: 'unregistered', status: 'FAIL', checks: [fail('tracked artifact has no lineage policy')] };
 
-  const timestamp = extractTimestamp(data, policy);
+  const timestamp = confirmedTimestamp(extractTimestamp(data, policy), ledgerRow);
   const date = parseDate(timestamp.value);
   const results = [];
   const age = date ? ageDetail(date, now) : null;
@@ -249,6 +271,15 @@ function evaluateArtifact(name, data, { now = NOW } = {}) {
 
 function runContractSelfTests() {
   const weekendNow = new Date('2026-09-05T12:00:00Z');
+  {
+    const verdict = { generatedAt: '2026-09-01T00:00:00Z' };
+    const confirmed = evaluateArtifact('today-verdict.json', verdict, { now: weekendNow, ledgerRow: { producedAt: '2026-09-01T00:00:00Z', checkedAt: '2026-09-05T11:30:00Z' } });
+    const otherContent = evaluateArtifact('today-verdict.json', verdict, { now: weekendNow, ledgerRow: { producedAt: '2026-08-31T00:00:00Z', checkedAt: '2026-09-05T11:30:00Z' } });
+    const unconfirmed = evaluateArtifact('today-verdict.json', verdict, { now: weekendNow, ledgerRow: null });
+    if (confirmed.status !== 'PASS' || otherContent.status === 'PASS' || unconfirmed.status === 'PASS') {
+      throw new Error(`self-test: v59.70 freshness confirmation drifted (confirmed=${confirmed.status} other=${otherContent.status} none=${unconfirmed.status})`);
+    }
+  }
   const fixture = { meta: { generatedAt: '2026-07-15T00:00:00Z', releaseAt: '2026-07-01T00:00:00Z' } };
   const selected = extractTimestamp(fixture, POLICIES['data.json']);
   if (selected.path !== 'meta.generatedAt') throw new Error('self-test: generatedAt selector drifted');

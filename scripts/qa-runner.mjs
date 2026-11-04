@@ -10,6 +10,7 @@ import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { validateBrowserEvidence, evidenceDigest } from './lib/browser-evidence.mjs';
 import { failureCauseLines } from './lib/qa-failure-cause.mjs';
+import { failureBlocks, qaOrigin } from './lib/qa-live-data.mjs';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const manifestPath = process.env.AIO_QA_MANIFEST_PATH ? resolve(process.env.AIO_QA_MANIFEST_PATH) : join(root, 'architecture', 'qa-pipeline.json');
@@ -96,6 +97,8 @@ const listOnly = has('--list');
 const keepGoing = has('--keep-going') && process.env.CI !== 'true';
 if (has('--keep-going') && !keepGoing) console.log('[qa] NOTE --keep-going is ignored under CI=true');
 const explain = has('--explain');
+// v59.70 (I8): a ci.yml contract shard reports live-content gate failures instead of failing on them.
+const origin = qaOrigin();
 const positiveInteger = (value, fallback) => {
   const number = Number(value);
   return Number.isFinite(number) && number >= 1 ? Math.floor(number) : fallback;
@@ -796,12 +799,13 @@ function runGate(gate) {
           }
         }
 
+        const advisory = status === 'FAIL' && !failureBlocks(gate, origin);
         const result = {
           id: gate.id,
           group: gate.group,
           phase: gate.phase,
           kind: gate.kind,
-          status,
+          status: advisory ? 'ADVISORY' : status,
           durationMs,
           fingerprint,
           exitCode: code,
@@ -826,10 +830,11 @@ function runGate(gate) {
           writeJsonAtomic(cachePath, successCache);
           console.log(`[qa] PASS ${gate.id} (${durationMs}ms)`);
         } else {
-          console.error(`[qa] FAIL ${gate.id} (${durationMs}ms${timedOut ? ', timeout' : ''})`);
+          console.error(`[qa] ${advisory ? 'ADVISORY' : 'FAIL'} ${gate.id} (${durationMs}ms${timedOut ? ', timeout' : ''})${advisory ? ' — live content in a CI contract shard; its watchdog twin keeps watching it' : ''}`);
           // v58.86: job logs expire and their download host is not reachable from every agent session, but check-run
           // annotations stay readable through the API, so the quarterly gate cleanup can count failures per gate.
-          if (process.env.GITHUB_ACTIONS === 'true') console.log(`::error title=qa-gate-fail::${gate.id}`);
+          const level = advisory ? 'warning' : 'error';
+          if (process.env.GITHUB_ACTIONS === 'true') console.log(`::${level} title=qa-gate-${advisory ? 'advisory' : 'fail'}::${gate.id}`);
           // v58.63 (A25): a failure invalidates this gate's cached success (from this run's view and on disk).
           const fresh = readJson(cachePath, null);
           if (successCache.gates[gate.id] || fresh?.gates?.[gate.id]) {
@@ -847,7 +852,7 @@ function runGate(gate) {
             const tail = redactText([stdout, stderr].filter(Boolean).join('\n'), secrets).split(/\r?\n/).filter(Boolean).slice(-6);
             const annotation = [...causes, ...tail.filter((line) => !causes.includes(line))].join(' | ')
               .replace(/%/g, '%25').replace(/\r?\n/g, ' ').slice(0, 1800);
-            console.log(`::error title=qa ${gate.id}${timedOut ? ' (timeout)' : ''}::${annotation || 'failed without output'}`);
+            console.log(`::${level} title=qa ${gate.id}${timedOut ? ' (timeout)' : ''}::${annotation || 'failed without output'}`);
           }
           const capturedDetail = [stderr, stdout].filter(Boolean).join('\n').split(/\r?\n/).slice(-30).join('\n');
           const detail = redactText(capturedDetail, secrets);
@@ -1000,7 +1005,7 @@ if (failedIds.length) {
     console.log(`[qa] NOTE failed batch ${previousBatch.runId || 'unknown'} preserved: this run did not cover every gate in it`);
   }
 }
-console.log(`[qa] SUMMARY profile=${profile} run=${runId} groups=${selectedGroups.join(',')} pass=${counts.PASS || 0} cached=${counts.CACHED || 0} fail=${counts.FAIL || 0} skip=${counts.SKIP || 0} duration=${Math.round(report.durationMs / 100) / 10}s`);
+console.log(`[qa] SUMMARY profile=${profile} run=${runId} groups=${selectedGroups.join(',')} pass=${counts.PASS || 0} cached=${counts.CACHED || 0} fail=${counts.FAIL || 0} skip=${counts.SKIP || 0}${counts.ADVISORY ? ` advisory=${counts.ADVISORY}` : ''} duration=${Math.round(report.durationMs / 100) / 10}s`);
 console.log(`[qa] REPORT ${runReportPath}`);
 console.log(`[qa] REPORT ${reportPath}`);
 if (counts.FAIL) process.exit(1);

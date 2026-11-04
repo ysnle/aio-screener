@@ -319,7 +319,7 @@ const periodLabel = (period) => { const text = String(period || ''); const m = /
 const recordText = (text) => String(text ?? '').replace(/('[^']+'|[가-힣A-Za-z0-9]+)\(으\)로/g, (match, word) => withDirectionParticle(word)).replace(/−(?=\d)/g, '-');
 /** P1743: what the automated record saw change — branch lead/alt shifts, condition flips, and scored releases. */
 // v59.51 (content audit): the record is reference for a returning reader — one closed line on the face.
-function changeLog(doc, state, open = false) {
+function changeLog(doc, state, open = false, checkedAt = null) {
   const transitions = macroTransitions(state).slice(-6).reverse(); // v59.51 (area H): macro events only
   const scored = (state?.eventOutcomes || []).slice(-6).reverse();
   if (!transitions.length && !scored.length) return null;
@@ -341,7 +341,9 @@ function changeLog(doc, state, open = false) {
     box.append(list);
   }
   // v58.79: the "recomputed every refresh" caption became the fold's hover.
-  box.title = `데이터 갱신마다 자동으로 다시 계산해 기록합니다${state?.generatedAt ? `(마지막 계산 ${shortDate(state.generatedAt)})` : ''}`;
+  // v59.70: an unchanged state keeps its published bytes, so the producer ledger's checkedAt is the last recomputation.
+  const computedAt = checkedAt || state?.generatedAt;
+  box.title = `데이터 갱신마다 자동으로 다시 계산해 기록합니다${computedAt ? `(마지막 계산 ${shortDate(computedAt)})` : ''}`;
   return box;
 }
 
@@ -379,7 +381,7 @@ export function renderMacroCrossroads({ documentRef: doc, root, regime = null, h
   // v57.79 (UI review): the heading says what the list is (ordered by conditions met), not how to use it.
   const mapHead = el(doc, 'h3', `시나리오 ${model.items.length}개 — 조건 충족 순`, 'xr-h3');
   // v58.79: the closing "세부 종목 선택은 …" caption left; the screen names no price, size or timing by construction (R724).
-  target.replaceChildren(el(doc, 'p', model.headline, 'xr-lead'), timeline(doc, model), rateHub(doc, model, pathsOpen, root), mapHead, branchMap(doc, root, model, openIds, { restOpen }), ...[changeLog(doc, root?.[SCENARIO_STATE.key], changesOpen)].filter(Boolean));
+  target.replaceChildren(el(doc, 'p', model.headline, 'xr-lead'), timeline(doc, model), rateHub(doc, model, pathsOpen, root), mapHead, branchMap(doc, root, model, openIds, { restOpen }), ...[changeLog(doc, root?.[SCENARIO_STATE.key], changesOpen, root?._aioArtifactFreshness?.('scenario-state.json')?.checkedAt)].filter(Boolean));
   target.dataset.aioCrossroads = 'native';
   if (focused) target.querySelector(`.xr-branch[data-branch="${focused}"] > summary`)?.focus?.({ preventScroll: true }); // a repaint keeps keyboard focus
   return model;

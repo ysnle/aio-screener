@@ -127,6 +127,7 @@ import { portfolioStressHtml } from '../ui/panels/portfolio-stress.js';
 import { SUPPLIED_MATERIAL_CLAIM_IDS } from '../domain/research/reference-index.js';
 import { loadResearchCorpus } from '../domain/research/corpus-loader.js';
 import { createCriticalDataGate, ROWS_FIRST_ROUTES } from './critical-data-gate.js';
+import { loadFreshnessLedgers, readArtifactFreshness } from '../data/freshness.js';
 import { NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS } from '../domain/research/nathan-frameworks.js';
 import { NATHAN_FRAMEWORK_PACK, NATHAN_ANALYSIS_PROTOCOL, NATHAN_KNOWLEDGE_ALIASES } from '../domain/knowledge/nathan-framework-pack.js';
 
@@ -269,6 +270,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     return `${count ? text.slice(0, -count.length) : text} · 한국 ${label} 마감${count}`;
   };
   root._aioRegimePulse = () => regimePulse(root._aioMarketRegimeSummary()); // v58.52: the top pulse bar's verdict
+  root._aioArtifactFreshness = (file) => readArtifactFreshness(file, { root, now: clock.now() }); // v59.70: one reader for every freshness badge
   // v58.80 (first-users F08): the producer's sentence is the day's question (owner 2026-10-15), shown as 오늘의 질문.
   // v59.51: it sits inside the home verdict card, which carries the verdict it questions, so it repeats no verdict.
   // The Korean close label needs the daily record, which loads after the first top-bar render.
@@ -763,7 +765,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
         Promise.resolve().then(() => syncEntityForConsumers()),
         Promise.resolve().then(() => syncPortfolio.sync()),
         Promise.resolve().then(() => syncScreenerAfterCriticalData()),
-        Promise.resolve().then(() => syncAnalysis.sync())
+        Promise.resolve().then(() => syncAnalysis.sync()),
+        Promise.resolve().then(() => loadFreshnessLedgers(root)) // v59.70: the producer ledgers behind every freshness badge
       ]);
       if (!disposed) emitDataTimelineUpdated('server-data');
     }, { isActive: () => !disposed });

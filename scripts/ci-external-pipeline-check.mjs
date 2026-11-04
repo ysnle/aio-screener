@@ -2,6 +2,7 @@ import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { isTrustedDeploymentRun, resolveProvenanceRun } from './deployment-provenance.mjs';
+import { ARTIFACT_FRESHNESS, freshnessLedgerPath, freshnessState } from '../src/data/contracts/artifact-freshness.js';
 import { summarizeOperationalChecks, marketAnalysisDiagnostic, workflowCadence, CADENCE_EVENTS, WATCHDOG_THRESHOLDS, operationalSummary, dataSourceWarnings, deadNewsFeeds } from './lib/operational-health.mjs';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
@@ -76,7 +77,35 @@ async function observeOnce() {
     // v57.88: a run cancelled by concurrency (cancel-in-progress on a newer push) is superseded, not a verdict — the same rule as P1598.
     return [id, { latest: runs[0] || null, completed: runs.find((run) => run.status === 'completed' && run.conclusion !== 'skipped' && run.conclusion !== 'cancelled') || null, runs }];
   }));
-  const [pages, proxy, fast, github] = await Promise.allSettled([pagesPromise, proxyPromise, fastPromise, githubPromise]);
+  // v59.70: the single watch path. Every artifact a screen reads has a row in its workflow's live freshness ledger; the
+  // screens grade the same row with the same freshnessState(), so the watchdog and the badge cannot disagree.
+  const ledgerWorkflows = [...new Set(Object.values(ARTIFACT_FRESHNESS).filter((entry) => entry.ledger !== false).map((entry) => entry.workflow))];
+  const freshnessPromise = Promise.allSettled(ledgerWorkflows.map((workflow) => fetchJson(`${pagesBase}/${freshnessLedgerPath(workflow)}`)));
+  const [pages, proxy, fast, github, freshness] = await Promise.allSettled([pagesPromise, proxyPromise, fastPromise, githubPromise, freshnessPromise]);
+  if (mode !== 'refresh-deploy' && freshness.status === 'fulfilled') {
+    const nowMs = Date.now();
+    result.freshness = {};
+    freshness.value.forEach((entry, index) => {
+      const workflow = ledgerWorkflows[index];
+      if (entry.status !== 'fulfilled') {
+        // A ledger that is not live yet (before the first v59.70 refresh) is named, not failed.
+        check(`freshness-ledger-${workflow} (v59.70)`, false, entry.reason?.message || 'ledger unavailable', 'warning');
+        return;
+      }
+      const rows = entry.value.body?.artifacts || {};
+      const graded = Object.entries(ARTIFACT_FRESHNESS)
+        .filter(([, spec]) => spec.workflow === workflow && spec.ledger !== false)
+        .map(([file]) => [file, rows[file] ? freshnessState(rows[file], nowMs) : 'unknown', rows[file]]);
+      result.freshness[workflow] = Object.fromEntries(graded.map(([file, state]) => [file, state]));
+      const blocked = graded.filter(([file, state]) => ARTIFACT_FRESHNESS[file].blockedBy && state !== 'current');
+      const stale = graded.filter(([file, state]) => (state === 'stale' || state === 'unknown') && !ARTIFACT_FRESHNESS[file].blockedBy);
+      if (blocked.length) check(`freshness-${workflow}-blocked (v59.70)`, false, blocked.map(([file]) => `${file}: ${ARTIFACT_FRESHNESS[file].blockedBy}`).join('; '), 'warning');
+      const late = graded.filter(([file, state]) => state === 'late' && !ARTIFACT_FRESHNESS[file].blockedBy);
+      const describe = (rows) => rows.map(([file, state, row]) => `${file}=${state} checkedAt=${row?.checkedAt || 'none'} producer=${row?.producer || ARTIFACT_FRESHNESS[file].producer}`).join('; ');
+      check(`freshness-${workflow} (v59.70)`, stale.length === 0, stale.length ? describe(stale) : `${graded.length} artifacts inside staleAfterMinutes`, mode === 'release' ? 'warning' : 'error');
+      if (late.length) check(`freshness-${workflow}-late (v59.70)`, false, describe(late), 'warning');
+    });
+  }
 
   if (pages.status === 'fulfilled') {
     const [version, deployment, config, data, screener, telegram, snapshot, operations, reconciliation] = pages.value.map((entry, index) => {

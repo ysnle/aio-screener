@@ -140,7 +140,26 @@ if (mode === 'session-start') {
 if (mode === 'post-edit') {
   const touchesWorkspace = /(AGENTS\.md|CLAUDE\.md|_context|\.claude|\.codex|\.agents|\.github[\\/]workflows|scripts[\\/](?:ci-|generate-workspace|sync-agent|agent-hook))/.test(editText);
   const touchesVersion = /(index\.html|version\.json|sw\.js|js[\\/]aio-core\.js|CHANGELOG\.md)/.test(editText);
-  if (touchesWorkspace || touchesVersion) emit({ systemMessage: 'AIO closeout reminder: run qa-runner.mjs affected with the task session or explicit owned files after the edit batch. Intermediate edit state is allowed; reuse matching PASS evidence.' });
+  // v59.70 (owner 2026-11-04): advisory only — a control character in the edited file is reported, never blocked. A
+  // heredoc ate `\b` into U+0008 in reaction-read.js (v59.69) and CI preflight held every release until it was found.
+  const controlWarnings = [];
+  const { controlCharSites } = await import('./lib/control-chars.mjs');
+  for (const target of editTargets.split('\n').filter(Boolean)) {
+    const file = resolve(root, target);
+    try {
+      if (!existsSync(file) || statSync(file).size > 8 * 1024 * 1024) continue;
+      const sites = controlCharSites(readFileSync(file, 'utf8'));
+      const shown = relative(root, file);
+      if (sites.length) controlWarnings.push(`${shown && !shown.startsWith('..') ? shown : file}:${sites.map((site) => `line ${site.line} ${site.code}`).join(', ')}`);
+    } catch { /* unreadable target: nothing to report */ }
+  }
+  const messages = [];
+  if (controlWarnings.length) messages.push(`AIO control-character warning (same rule as ci-control-char-check; a regex \\b written through a shell heredoc becomes U+0008): ${controlWarnings.join('; ')}. Fix with the Edit tool, then node --check.`);
+  if (touchesWorkspace || touchesVersion) messages.push('AIO closeout reminder: run qa-runner.mjs affected with the task session or explicit owned files after the edit batch. Intermediate edit state is allowed; reuse matching PASS evidence.');
+  if (messages.length) emit({
+    systemMessage: messages.join(' '),
+    ...(controlWarnings.length ? { hookSpecificOutput: { hookEventName: 'PostToolUse', additionalContext: messages[0] } } : {})
+  });
   process.exit(0);
 }
 

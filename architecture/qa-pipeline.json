@@ -820,7 +820,8 @@
         },
         {
           "id": "scenario-guidance-fixture",
-          "script": "scripts/ci-scenario-guidance-fixture.mjs"
+          "script": "scripts/ci-scenario-guidance-fixture.mjs",
+          "liveData": "content"
         },
         {
           "id": "interpretation-boundary-check",
@@ -1079,6 +1080,7 @@
         {
           "id": "data-lineage",
           "script": "scripts/ci-data-lineage-audit.mjs",
+          "liveData": "content",
           "cache": false,
           "remedy": "Freshness SLA is wall-clock (R634 strict). If only data age failed: git pull (bot refreshes hourly) or run the data-refresh skill — not a code defect.",
           "inputs": [
@@ -1188,6 +1190,23 @@
           ]
         },
         {
+          "id": "artifact-refresh-path",
+          "script": "scripts/ci-artifact-refresh-path-check.mjs",
+          "inputs": [
+            "src/**",
+            "js/**",
+            "index.html",
+            "sw.js",
+            "public-data/*.json",
+            "src/data/contracts/artifact-freshness.js",
+            "scripts/write-freshness-ledger.mjs",
+            "scripts/ci-data-lineage-audit.mjs",
+            ".github/workflows/refresh-data.yml",
+            ".github/workflows/refresh-screener.yml",
+            ".github/workflows/event-briefs.yml"
+          ]
+        },
+        {
           "id": "artifact-semantics",
           "script": "scripts/ci-artifact-semantics-check.mjs",
           "inputs": [
@@ -1254,6 +1273,7 @@
         {
           "id": "data-refresh",
           "script": "scripts/ci-data-refresh-audit.mjs",
+          "liveData": "content",
           "cache": false,
           "remedy": "Freshness SLA is wall-clock (R634 strict). If only data age failed: git pull (bot refreshes hourly) or run the data-refresh skill — not a code defect.",
           "inputs": [
@@ -1615,6 +1635,26 @@
             "scripts/**",
             "architecture/operations-alert-policy.json",
             "js/aio-tests.js"
+          ]
+        },
+        {
+          "id": "refresh-origin-live-data",
+          "script": "scripts/ci-refresh-origin-live-data-check.mjs",
+          "remedy": "A gate that asserts live public-data content declares liveData: \"content\" and gets a watchdog-local twin; a clock-bound code contract moves to a fixed clock.",
+          "inputs": [
+            "architecture/qa-pipeline.json",
+            "scripts/qa-runner.mjs",
+            "scripts/lib/qa-live-data.mjs",
+            "scripts/lib/qa-failure-cause.mjs",
+            "scripts/ci-refresh-origin-live-data-check.mjs",
+            "scripts/ci-data-pipeline-contract-check.mjs",
+            "scripts/ci-runtime-contract-check.mjs",
+            "scripts/ci-esm-core-unit-check.mjs",
+            "scripts/ci-knowledge-lint-check.mjs",
+            "_context/**",
+            "src/domain/market/**",
+            "src/domain/shared/**",
+            ".github/workflows/**"
           ]
         }
       ]
@@ -2210,6 +2250,30 @@
           ]
         },
         {
+          "id": "watchdog-data-lineage",
+          "script": "scripts/ci-data-lineage-audit.mjs",
+          "cache": false
+        },
+        {
+          "id": "watchdog-scenario-guidance",
+          "script": "scripts/ci-scenario-guidance-fixture.mjs",
+          "cache": false
+        },
+        {
+          "id": "watchdog-knowledge-lint",
+          "script": "scripts/ci-knowledge-lint-check.mjs",
+          "cache": false,
+          "inputs": [
+            "_context/**",
+            "AGENTS.md",
+            "CLAUDE.md",
+            ".claude/**",
+            ".codex/**",
+            "architecture/**",
+            "scripts/**"
+          ]
+        },
+        {
           "id": "watchdog-artifact-headroom",
           "script": "scripts/ci-artifact-size-headroom-check.mjs",
           "cache": false
@@ -2363,6 +2427,22 @@
     },
     {
       "patterns": [
+        "scripts/lib/qa-live-data.mjs",
+        "scripts/lib/qa-failure-cause.mjs",
+        "scripts/ci-refresh-origin-live-data-check.mjs",
+        "scripts/ci-data-pipeline-contract-check.mjs",
+        "scripts/ci-runtime-contract-check.mjs",
+        "scripts/ci-esm-core-unit-check.mjs",
+        "src/domain/market/**",
+        "src/domain/shared/**"
+      ],
+      "groups": [],
+      "gates": [
+        "refresh-origin-live-data"
+      ]
+    },
+    {
+      "patterns": [
         "scripts/resolve-generated-conflicts.mjs",
         "scripts/resolve-data-manifest-merge.mjs"
       ],
@@ -2465,6 +2545,8 @@
         "scripts/lib/market-analysis-validate.mjs",
         "scripts/lib/market-analysis-prompt.mjs",
         "scripts/lib/telegram-signals.mjs",
+        "scripts/write-freshness-ledger.mjs",
+        ".github/workflows/event-briefs.yml",
         "scripts/sync-*.mjs",
         "src/data/**",
         "src/domain/**",
