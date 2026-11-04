@@ -2007,10 +2007,14 @@ check('app applies quotes, macro, F&G, news, telegram, LLM, and native screener 
 // 2026-10-17: the coverage/age gate lives in src/domain/market/screener-breadth.js, which every breadth reader asks.
 {
   const { readScreenerBreadth } = await import('../src/domain/market/screener-breadth.js');
-  const us = (extra) => ({ schemaVersion: '1.0', source: 'fixture', segments: { us: { above5: 40, above20: 35, above50: 36, above200: 52, advanceRatio: 0.6, coveragePct: 97, eligible: 700, observedAt: new Date(Date.now() - 3600000).toISOString(), ...extra } } });
+  // v59.70 (I8): a fixed Wednesday clock. On the wall clock the 97 h row read as current on Tuesdays 05-09Z (a pre-open
+  // Friday observation counts as Friday's session, one behind Monday, inside the 12 h grace), so CI on 11-03 data
+  // commits failed nine times in a row and held every later release UNATTESTED.
+  const now = Date.parse('2026-10-14T23:00:00Z');
+  const us = (extra) => ({ schemaVersion: '1.0', source: 'fixture', segments: { us: { above5: 40, above20: 35, above50: 36, above200: 52, advanceRatio: 0.6, coveragePct: 97, eligible: 700, observedAt: new Date(now - 3600000).toISOString(), ...extra } } });
   check('app gates and applies screener breadth with observation time and coverage', /_aioApplyScreenerBreadth/.test(data) && /breadthScreener/.test(data)
-    && readScreenerBreadth(us({})).us !== null && readScreenerBreadth(us({ coveragePct: 84 })).us === null
-    && readScreenerBreadth(us({ observedAt: new Date(Date.now() - 97 * 3600000).toISOString() })).us === null);
+    && readScreenerBreadth(us({}), now).us !== null && readScreenerBreadth(us({ coveragePct: 84 }), now).us === null
+    && readScreenerBreadth(us({ observedAt: new Date(now - 97 * 3600000).toISOString() }), now).us === null);
 }
 check('v57.78: quant readiness audit had no production caller and stays retired (research-only ranking contract is enforced by validate-screener-artifact)', !/getQuantReadinessAudit/.test(data)); // text-pin-ok: retirement absence
 check('native screener only admits versioned log-scale Kalman fields and preserves stale backtest disclosure', /factor\.kalmanScale/.test(screenerProvider) && /kalmanVelConf/.test(screenerProvider) && /kalmanInnovZ/.test(screenerProvider) && /backtest:\s*artifact\.backtest/.test(screenerProvider) && !/function _aioScreenerFactorBacktest/.test(data)); // v59.42: the legacy old-scale withholding left with its only reader (the deleted factor-backtest diagram); the producer writes log_pct_day (scripts/lib/factors.mjs)

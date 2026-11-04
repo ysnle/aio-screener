@@ -111,6 +111,7 @@ const POLICIES = {
   'factor-backtest-longrun.json': { kind: 'research-horizon', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 24 * 120 },
   'history.json': { kind: 'daily-history', custom: 'history-date', maxAgeHours: 24 * 3 },
   'macro-history.json': { kind: 'official-macro-history', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // P1426: FRED observations behind the 거시 direction reads (refresh-data)
+  'rotation-detail.json': { kind: 'derived-state', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // v59.70 (R11): rotationHistory series beside data.json (refresh-data; recomputed after each US close)
   'macro-calendar.json': { kind: 'official-calendar-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // P1654: FRED release dates (refresh-data)
   'sp500-weights.json': { kind: 'index-weight-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 8 }, // 2026-10-13: IVV holdings weights for the S&P 500 sector map (refresh-screener)
   'us-listings.json': { kind: 'exchange-listing-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // v57.81: Nasdaq Trader symbol directory, daily in refresh-screener (+ weekend/holiday tolerance)

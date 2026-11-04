@@ -34,6 +34,8 @@ export const ARTIFACT_FRESHNESS = Object.freeze({
   'history.json': auto('refresh-data.yml', 'scripts/producer/history.mjs', 30, 3 * 24 * 60, { timestamp: ['-1.date'], basis: [['US', '-1.date']] }),
   'market-snapshot.json': auto('refresh-data.yml', 'scripts/fetch-data.mjs', 30, 24 * 60, { timestamp: ['lastSuccessfulAt', 'generatedAt'] }),
   'macro-history.json': auto('refresh-data.yml', 'scripts/producer/macro-history.mjs', 30, 4 * 24 * 60, { ...DERIVED, volatileKeys: ['generatedAt', 'long.generatedAt'] }),
+  // v59.70 (R11, theme-sector): the rotationHistory series beside data.json; the browser joins it by session, not clock.
+  'rotation-detail.json': auto('refresh-data.yml', 'scripts/fetch-data.mjs', 30, 4 * 24 * 60, DERIVED),
   'macro-calendar.json': auto('refresh-data.yml', 'scripts/fetch-data.mjs', 30, 4 * 24 * 60, DERIVED),
   'telegram-digest.json': auto('refresh-data.yml', 'scripts/fetch-telegram-digest.mjs', 30, 12 * 60, { timestamp: ['generatedAt', 'lastSuccessfulAt'] }),
   'official-references.json': auto('refresh-data.yml', 'scripts/refresh-web-research.mjs', 12 * 60, 48 * 60, { timestamp: ['checkedAt'] }),

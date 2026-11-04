@@ -469,6 +469,7 @@ jobs:
             fi
           }
           git add -- public-data/data.json public-data/history.json
+          stage_if_exists public-data/rotation-detail.json # v59.70 (R11): rotationHistory series split from data.json; same commit or live trails vanish
           stage_if_exists public-data/macro-history.json # P1426: 거시 direction reads
           stage_if_exists public-data/macro-calendar.json # P1654: FRED release schedule
           stage_if_exists public-data/stress-outcomes.json # P1661: VIX-band forward outcomes

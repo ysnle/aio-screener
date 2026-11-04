@@ -109,6 +109,9 @@ jobs:
         env:
           # Keep the runner reports and redacted failure sidecars outside the checkout.
           AIO_QA_CACHE_DIR: ${{ runner.temp }}/aio-qa
+          # v59.70 (I8): on a refresh origin a `liveData: content` gate reports (ADVISORY) instead of failing; its code
+          # passed the parent's push CI (attest guard) and its watchdog twin keeps watching the live content.
+          AIO_QA_ORIGIN: ${{ needs.preflight.outputs.reduced_scope == 'true' && 'refresh' || 'source' }}
         run: node scripts/qa-runner.mjs --group ${{ matrix.group }} --no-cache
       - name: Upload redacted QA failure output
         if: failure()
