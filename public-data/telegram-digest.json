@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-04T08:51:33.769Z",
-  "attemptedAt": "2026-11-04T08:51:33.769Z",
-  "lastSuccessfulAt": "2026-11-04T08:51:33.769Z",
+  "generatedAt": "2026-11-04T09:22:39.413Z",
+  "attemptedAt": "2026-11-04T09:22:39.413Z",
+  "lastSuccessfulAt": "2026-11-04T09:22:39.413Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-21T08:51:28.929Z",
-  "until": "2026-11-04T08:51:28.929Z",
+  "since": "2026-10-21T09:22:35.916Z",
+  "until": "2026-11-04T09:22:35.916Z",
   "current24hWindow": {
     "start": "2026-11-02T23:00:00.000Z",
     "end": "2026-11-03T23:00:00.000Z",
@@ -92,12 +92,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1369,
+      "count": 1370,
       "freshCount": 38,
-      "eligibleTextCount": 1304,
+      "eligibleTextCount": 1305,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 68320
+      "lastPostId": 68324
     },
     {
       "channel": "bornlupin",
@@ -113,33 +113,33 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 669,
-      "freshCount": 39,
-      "eligibleTextCount": 668,
+      "count": 667,
+      "freshCount": 19,
+      "eligibleTextCount": 666,
       "selectedCount": 123,
       "error": null,
       "lastPostId": 71541
     }
   ],
-  "count": 2368,
-  "retainedItemCount": 471,
+  "count": 2367,
+  "retainedItemCount": 459,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2368,
-    "eligibleTextCount": 2298,
+    "observedCount": 2367,
+    "eligibleTextCount": 2297,
     "mediaOnlyCount": 70,
-    "mediaAttachedCount": 279,
-    "photoPostCount": 241,
+    "mediaAttachedCount": 281,
+    "photoPostCount": 243,
     "documentPostCount": 1,
     "imageOnlyCount": 1,
-    "highSignalCount": 427,
-    "broadSignalCount": 916,
+    "highSignalCount": 425,
+    "broadSignalCount": 914,
     "selectedRawCount": 408,
     "selectedEligibleCount": 408,
     "selectedRawCoveragePct": 17.8,
@@ -147,17 +147,17 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 853,
-    "macro": 354,
-    "geo": 446,
     "semi": 511,
+    "market-note": 853,
+    "kr-market": 122,
+    "macro": 353,
+    "geo": 446,
     "optical": 45,
     "power": 268,
-    "kr-market": 121,
-    "earnings": 466,
+    "earnings": 465,
     "equity": 154,
     "healthcare": 102,
-    "japan": 96,
+    "japan": 95,
     "ai-policy": 130,
     "media-only": 70,
     "flows": 68,
@@ -165,13 +165,14 @@
     "crypto": 5
   },
   "tickerCounts": {
+    "005930.KS": 47,
+    "TSLA": 55,
     "AMD": 45,
     "TSM": 39,
     "SMCI": 8,
-    "TSLA": 54,
     "NVO": 1,
     "BE": 28,
-    "GOOG": 130,
+    "GOOG": 129,
     "COHR": 2,
     "NVDA": 133,
     "INTC": 7,
@@ -184,7 +185,7 @@
     "BKNG": 1,
     "CPNG": 1,
     "AMZN": 77,
-    "000660.KS": 77,
+    "000660.KS": 76,
     "YUM": 1,
     "NVS": 1,
     "RACE": 1,
@@ -193,7 +194,6 @@
     "STX": 7,
     "285A.T": 8,
     "PFE": 1,
-    "005930.KS": 47,
     "AAPL": 21,
     "AVGO": 21,
     "2454.TW": 3,
@@ -267,9 +267,9 @@
   "themes": [
     "Market Notes (853 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Falcon Guardian에 AI 에이전트의 실행을 중단하고 재시작 및 기업 네트워크 접근을...",
     "Semiconductors/Memory (511 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
-    "Earnings/Corporate (466 posts in 14-day research window): 알파벳(GOOGL) 2026년 3분기 실적 (시간외 -7.7%) 주당순이익(EPS): 2.12달러 매출: 1,276억 달러 (예상 1,282.2억 달러 하회), 전년 대비 25% 증가 구글 클라우드 매출:...",
+    "Earnings/Corporate (465 posts in 14-day research window): 알파벳(GOOGL) 2026년 3분기 실적 (시간외 -7.7%) 주당순이익(EPS): 2.12달러 매출: 1,276억 달러 (예상 1,282.2억 달러 하회), 전년 대비 25% 증가 구글 클라우드 매출:...",
     "Geopolitics (446 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
-    "Macro/Rates (354 posts in 14-day research window): 중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는 6.40% 폭등, 과창50지수는 9.9% 수직 상승하며 상한가에 근접. 양대 시장 거래대금은 2조 519억...",
+    "Macro/Rates (353 posts in 14-day research window): 중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는 6.40% 폭등, 과창50지수는 9.9% 수직 상승하며 상한가에 근접. 양대 시장 거래대금은 2조 519억...",
     "AI Power/Grid (268 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
     "Equity/Analyst (154 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p....",
     "AI Policy/Export Controls (130 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
@@ -282,7 +282,7 @@
     },
     {
       "key": "GOOG",
-      "count": 130,
+      "count": 129,
       "text": "2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%, 나스닥100 선물 -0.47%, 러셀2000 선물 -0.06% 기록. 나스닥100 선물은 장중 2% 이상..."
     },
     {
@@ -292,7 +292,7 @@
     },
     {
       "key": "000660.KS",
-      "count": 77,
+      "count": 76,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Falcon Guardian에 AI 에이전트의 실행을 중단하고 재시작 및 기업 네트워크 접근을..."
     },
     {
@@ -302,7 +302,7 @@
     },
     {
       "key": "TSLA",
-      "count": 54,
+      "count": 55,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로..."
     },
     {
@@ -343,7 +343,7 @@
       "topics": [
         "macro"
       ],
-      "count": 354,
+      "count": 353,
       "focus": "중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는 6.40% 폭등, 과창50지수는 9.9% 수직 상승하며 상한가에 근접. 양대 시장 거래대금은 2조 519억..."
     },
     {
@@ -406,7 +406,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 121,
+      "count": 122,
       "focus": "Ferrari 2026년 3분기 실적 요약 실적 • 매출 €18.96억, YoY +7%, 환율 제외 +10% • 영업이익 €5.63억, YoY +12%, 환율 제외 +23% • 영업이익률 29.7%, YoY..."
     },
     {
@@ -433,7 +433,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 466,
+      "count": 465,
       "focus": "알파벳(GOOGL) 2026년 3분기 실적 (시간외 -7.7%) 주당순이익(EPS): 2.12달러 매출: 1,276억 달러 (예상 1,282.2억 달러 하회), 전년 대비 25% 증가 구글 클라우드 매출:..."
     },
     {
@@ -451,7 +451,7 @@
       "topics": [
         "japan"
       ],
-      "count": 96,
+      "count": 95,
       "focus": "JPM) 일본 퀀트 전략; 바닥은 닛케이평균 62,000선이나 핵심 분기점은 60,980 – 사이버 관련 헤드라인과 AI 피로감이 선별적 퀄리티 그로스에 다시 불을 지피다 내용 요약 10월 22일 닛케이평균은..."
     },
     {
@@ -1775,6 +1775,38 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/68324",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68324",
+      "datetime": "2026-11-04T09:06:22.000Z",
+      "localDateKst": "2026-11-04",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "005930.KS"
+      ],
+      "summary": "삼성전자가 기흥에 2나노·4나노 파운드리 팹을 짓는다고 합니다 HBM 베이스다이 생산 전용이랍니다. HBM4부터 4E, HBM5까지 대응할 계획 기흥 재건 프로젝트명이 그리스 신화의 기회의 신을 뜻하는..."
+    },
+    {
+      "id": "insidertracking/68321",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68321",
+      "datetime": "2026-11-04T09:00:22.000Z",
+      "localDateKst": "2026-11-04",
+      "tags": [
+        "macro"
+      ],
+      "lead": 1,
+      "score": 52,
+      "hasText": true,
+      "tickers": [],
+      "summary": "Fed Rates Outlook 2026 2 hikes: 64.1% probability Upcoming Fed Decisions December : 25 bps hike (77.5%) January : No..."
+    },
+    {
       "id": "HANAchina/71539",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71539",
@@ -2114,13 +2146,13 @@
       "tags": [
         "ai-policy"
       ],
-      "lead": 1,
       "score": 54,
       "hasText": true,
+      "summary": ">>OpenAI 고위 임원, ChatGPT 검색량이 구글의 20% 수준에 도달 •OpenAI의 구글 검색 시장 도전이 가시적인 성과를 내기 시작. OpenAI의 소비자용 제품 책임자인 Adam Fry는...",
+      "lead": 1,
       "tickers": [
         "GOOG"
-      ],
-      "summary": ">>OpenAI 고위 임원, ChatGPT 검색량이 구글의 20% 수준에 도달 •OpenAI의 구글 검색 시장 도전이 가시적인 성과를 내기 시작. OpenAI의 소비자용 제품 책임자인 Adam Fry는..."
+      ]
     },
     {
       "id": "HANAchina/71519",
@@ -2131,11 +2163,11 @@
       "tags": [
         "macro"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "•중 10년 국채 금리 1.595% •2025년 1월 이후 최저"
+      "summary": "•중 10년 국채 금리 1.595% •2025년 1월 이후 최저",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68268",
@@ -2247,13 +2279,12 @@
       "datetime": "2026-11-04T00:39:43.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "macro",
-        "flows"
+        "market-note"
       ],
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>중신증권 : 2027년 리튬배터리 산업 전반의 업황 개선 전망 •중신증권(CITIC)은 2027년 리튬배터리 산업 전반의 업황이 개선될 것으로 전망 •수요 측면에서는 중국의 차량당 배터리 탑재량 및 순수..."
+      "summary": ">>중신증권 : 2027년 리튬배터리 산업 전반의 업황 개선 전망 •중신증권(CITIC)은 2027년 리튬배터리 산업 전반의 업황이 개선될 것으로 전망 •수요 측면에서는 중국의 차량당 배터리 탑재량 및 순수...",
+      "tickers": []
     },
     {
       "id": "bornlupin/20994",
@@ -2345,16 +2376,15 @@
       "localDateKst": "2026-11-04",
       "tags": [
         "macro",
-        "semi",
-        "earnings"
+        "semi"
       ],
-      "lead": 2,
       "score": 68,
       "hasText": true,
+      "summary": "• 글로벌웨이퍼스가 발행하는 5억 달러 규모의 10년 만기 사모 전환사채(CB, 금리 0.5%)를 마이크론이 전액 인수하여 텍사스 12인치 공장 증설 지원 및 10년 장기 공급 체결 • 증설분을 제외한 현재...",
+      "lead": 2,
       "tickers": [
         "MU"
-      ],
-      "summary": "• 글로벌웨이퍼스가 발행하는 5억 달러 규모의 10년 만기 사모 전환사채(CB, 금리 0.5%)를 마이크론이 전액 인수하여 텍사스 12인치 공장 증설 지원 및 10년 장기 공급 체결 • 증설분을 제외한 현재..."
+      ]
     },
     {
       "id": "bornlupin/20988",
@@ -2407,13 +2437,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": "• TSMC가 중부과학단지(중커)에 1.4나노 공정을 구축하고 후공정 업체 실리콘웨어(SPIL)가 얼린·윈린 투자를 확대하면서, 타이중-장화-윈린을 잇는 첨단 제조 및 패키징 클러스터가 형성 • AI·HPC...",
+      "lead": 1,
       "tickers": [
         "TSM"
-      ],
-      "summary": "• TSMC가 중부과학단지(중커)에 1.4나노 공정을 구축하고 후공정 업체 실리콘웨어(SPIL)가 얼린·윈린 투자를 확대하면서, 타이중-장화-윈린을 잇는 첨단 제조 및 패키징 클러스터가 형성 • AI·HPC..."
+      ]
     },
     {
       "id": "HANAchina/71504",
@@ -2422,16 +2452,14 @@
       "datetime": "2026-11-03T23:13:52.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "semi",
-        "power",
-        "earnings"
+        "market-note"
       ],
       "score": 64,
       "hasText": true,
+      "summary": "• 삼성이 8인치 파운드리 신규 수주를 중단하고 2030년 완전 철수를 추진함에 따라 발생하는 대규모 외주 및 고객사 이탈 물량을 UMC가 흡수할 전망 • UMC는 삼성 시스템LSI와 8인치 공정뿐 아니라...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "• 삼성이 8인치 파운드리 신규 수주를 중단하고 2030년 완전 철수를 추진함에 따라 발생하는 대규모 외주 및 고객사 이탈 물량을 UMC가 흡수할 전망 • UMC는 삼성 시스템LSI와 8인치 공정뿐 아니라..."
+      ]
     },
     {
       "id": "HANAchina/71501",
@@ -2440,7 +2468,7 @@
       "datetime": "2026-11-03T22:51:50.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "kr-market"
+        "market-note"
       ],
       "score": 53,
       "hasText": true,
@@ -2455,8 +2483,8 @@
           }
         ]
       },
-      "tickers": [],
-      "summary": ">>(중문 리포트 추천) 중국 전고체 배터리 : 반고체에서 전고체로의 양산 전환과 소재·장비 공급망 변화 (Caida Securities, 11/02) •기존 액체 리튬이온 배터리의 에너지밀도와 안전성 한계로..."
+      "summary": ">>(중문 리포트 추천) 중국 전고체 배터리 : 반고체에서 전고체로의 양산 전환과 소재·장비 공급망 변화 (Caida Securities, 11/02) •기존 액체 리튬이온 배터리의 에너지밀도와 안전성 한계로...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71500",
@@ -2467,11 +2495,11 @@
       "tags": [
         "credit"
       ],
-      "lead": 1,
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>AI 군비 경쟁으로 자금조달 비용 상승…미국 기술기업의 자금조달 프리미엄, 2003년 이후 최고치 •미국 투자등급 기술기업의 평균 채권 조달 비용이 미국 전체 시장 대비 2003년 이후 가장 높은..."
+      "summary": ">>AI 군비 경쟁으로 자금조달 비용 상승…미국 기술기업의 자금조달 프리미엄, 2003년 이후 최고치 •미국 투자등급 기술기업의 평균 채권 조달 비용이 미국 전체 시장 대비 2003년 이후 가장 높은...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71498",
@@ -7064,40 +7092,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/67864",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67864",
-      "datetime": "2026-10-30T05:07:54.000Z",
-      "localDateKst": "2026-10-30",
-      "tags": [
-        "earnings"
-      ],
-      "score": 91,
-      "hasText": true,
-      "summary": "2026년 10월 30일 미국 증시 프리마켓 브리핑 미국 증시 선물은 아마존과 인텔의 실적 발표 이후 급락 여파로 기술주 중심의 하락세 확대. 나스닥100 선물 -1.84%, S&P500 선물 -0.88%,...",
-      "lead": 1,
-      "tickers": [
-        "AMZN"
-      ]
-    },
-    {
-      "id": "insidertracking/67861",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67861",
-      "datetime": "2026-10-30T05:00:58.000Z",
-      "localDateKst": "2026-10-30",
-      "tags": [
-        "geo"
-      ],
-      "score": 95,
-      "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 30일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 미국 중부사령부 사령관은 트럼프 대통령에게 이란에 대한 군사작전 선택지를 보고. 미 국방부는 중동 지역...",
-      "tickers": [
-        "NVDA",
-        "000660.KS"
-      ]
-    },
-    {
       "id": "HANAchina/71254",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71254",
@@ -9165,7 +9159,7 @@
       "datetime": "2026-11-03T22:51:50.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "kr-market"
+        "market-note"
       ],
       "score": 53,
       "hasText": true,
@@ -9180,8 +9174,8 @@
           }
         ]
       },
-      "tickers": [],
-      "summary": ">>(중문 리포트 추천) 중국 전고체 배터리 : 반고체에서 전고체로의 양산 전환과 소재·장비 공급망 변화 (Caida Securities, 11/02) •기존 액체 리튬이온 배터리의 에너지밀도와 안전성 한계로..."
+      "summary": ">>(중문 리포트 추천) 중국 전고체 배터리 : 반고체에서 전고체로의 양산 전환과 소재·장비 공급망 변화 (Caida Securities, 11/02) •기존 액체 리튬이온 배터리의 에너지밀도와 안전성 한계로...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71500",
@@ -9192,11 +9186,11 @@
       "tags": [
         "credit"
       ],
-      "lead": 1,
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>AI 군비 경쟁으로 자금조달 비용 상승…미국 기술기업의 자금조달 프리미엄, 2003년 이후 최고치 •미국 투자등급 기술기업의 평균 채권 조달 비용이 미국 전체 시장 대비 2003년 이후 가장 높은..."
+      "summary": ">>AI 군비 경쟁으로 자금조달 비용 상승…미국 기술기업의 자금조달 프리미엄, 2003년 이후 최고치 •미국 투자등급 기술기업의 평균 채권 조달 비용이 미국 전체 시장 대비 2003년 이후 가장 높은...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71498",
