@@ -332,7 +332,11 @@ export function renderIndustryPage(doc, { root, state, data, labels, parts, onLo
         article.appendChild(el(doc, 'p', 'af-lead', text.lead));
         const map = domainMap(doc, domain, labels, parts);
         if (map) article.appendChild(map);
-        article.appendChild(prose(doc, text.body));
+        // Screen review #19 (2026-11-04): the face is the lead and the sub-area map; the longer analysis of how money
+        // and constraints move through the field is kept whole in a fold below them.
+        const analysis = el(doc, 'details', 'af-basis af-domain-analysis');
+        analysis.append(el(doc, 'summary', null, '분야 분석'), prose(doc, text.body));
+        article.appendChild(analysis);
         article.append(el(doc, 'h3', 'af-section', '자주 빗나가는 해석'), el(doc, 'p', 'af-twist', text.twist));
         const basis = industryBasis(doc, parts.basis?.(domain));
         if (basis) article.appendChild(basis);

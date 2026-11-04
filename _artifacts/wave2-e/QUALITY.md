@@ -30,3 +30,16 @@ Screens: `_artifacts/wave2-e/screens/`.
 Not checked: AI panel answers (the local Worker is not connected); the catalog-failure notice in a real browser; arrival-context edits on screen (they need a cross-route handoff; checked in source only).
 
 X bookmark frames (4): still on 개념·분석 → 분석 노트; titles one line at 1440 and 768; search reaches them via the generated index (the index already carried every frame, so dropping the learning-core merge in knowledge-search removed nothing).
+
+## Screen review 19 / 28 / 30 (2026-11-04)
+
+Before/after: `_artifacts/wave2-e/screens/review-fixes/{before,after}-{1440,768,390}-{light,dark}-{atlas-domain,principles-frame,principles-hub,masters-bars}.png` (24 + 24, `capture-review-fixes.mjs`).
+
+| # | Before | After |
+|---|---|---|
+| 19 | '먼저 알아둘 개념'(노트·레슨 옆 칸), '먼저 알아둘 레슨', 노트 목록 '…매도가 끝나 가는지를 읽는 방법', '…국면을 읽는 방법', 분야 개요 '이 분야를 읽는 핵심은' | '쓰인 개념', '선행 레슨', 주제 앞 명사형 제목 2편, '핵심은'. 분야 개요 긴 분석 문단 = '분야 분석' 접기(삭제 없음) |
+| 28 | 'AXP, American Expres…' 잘림 | 티커만(AAPL·AXP·GOOGL·GOOG); 이름은 title·aria-label |
+| 30 | 휴대폰에서 둘째 카드가 오른쪽에 잘려 보이고 표시 없음 | 같은 가로 넘김 + 아래 점 3개(현재 카드 표시). 768/1440은 기존 격자 그대로 |
+
+Gate `scripts/ci-research-heading-wording.mjs`: passes now; on HEAD 2bb5fa47 fails with 99 errors (94 notes' '먼저 알아둘 개념', 2 list labels + their h2, the '이 분야를 읽는 핵심은' paragraph). Not covered: the concepts-view lesson aside is not mounted (its '선행 레슨' title is fixed in code; the frame columns cover the shared '쓰인 개념' block). Horizontal page scroll: none at any width (scrollWidth = viewport).
+Not changed: masters overview h2 '돈을 굴리는 방식별로 13F 읽기' (outside the review list and the gate pattern).

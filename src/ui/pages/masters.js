@@ -967,7 +967,10 @@ function createTopWeightBars(documentRef, manager, holdingMeta, rows, withheld, 
   // v57.92: the full class title ("CAP STK CL A") was cut by the label ellipsis on a tablet, so both Alphabet rows read
   // "ALPHABET INC · CAP STK…"; the class letter is kept short ("A주") so the part that tells them apart stays visible.
   const classTag = (title) => shareClassTag(title) || title;
-  const weights = top.map((row) => ({ label: repeated.has(baseLabel(row)) && row.titleOfClass ? `${baseLabel(row)}, ${classTag(row.titleOfClass)}` : baseLabel(row), fullLabel: repeated.has(baseLabel(row)) && row.titleOfClass ? `${baseLabel(row)}, ${row.titleOfClass}` : baseLabel(row), pct: Number(row.value) / total * 100 }));
+  // Screen review #28 (2026-11-04): on a phone the name after the ticker was cut ('AXP, American Expres…'); the bar
+  // shows the ticker alone (class letter and put/call kept) and the full name moves to the hover title and aria-label.
+  const tickerLabel = (row) => { const ticker = lookup.tickerOf(row); if (!ticker) return null; const tag = repeated.has(baseLabel(row)) && row.titleOfClass ? ` ${classTag(row.titleOfClass)}` : ''; return `${ticker}${tag}${row.putCall ? ` ${row.putCall}` : ''}`; };
+  const weights = top.map((row) => ({ label: tickerLabel(row) || (repeated.has(baseLabel(row)) && row.titleOfClass ? `${baseLabel(row)}, ${classTag(row.titleOfClass)}` : baseLabel(row)), fullLabel: repeated.has(baseLabel(row)) && row.titleOfClass ? `${baseLabel(row)}, ${row.titleOfClass}` : baseLabel(row), pct: Number(row.value) / total * 100 }));
   const max = Math.max(...weights.map((item) => item.pct));
   const sum = weights.reduce((acc, item) => acc + item.pct, 0);
   const section = element(documentRef, 'section', 'masters-weight-bars');
@@ -977,7 +980,7 @@ function createTopWeightBars(documentRef, manager, holdingMeta, rows, withheld, 
   );
   const bars = element(documentRef, 'div', 'af-bars');
   bars.setAttribute('role', 'img');
-  bars.setAttribute('aria-label', `${manager.name} 상위 보유 비중: ${weights.map((item) => `${item.label} ${item.pct.toFixed(1)}%`).join(', ')}`);
+  bars.setAttribute('aria-label', `${manager.name} 상위 보유 비중: ${weights.map((item) => `${item.fullLabel} ${item.pct.toFixed(1)}%`).join(', ')}`);
   weights.forEach((item) => {
     const row = element(documentRef, 'div', 'af-bar-row');
     const label = element(documentRef, 'span', 'af-bar-label', item.label);
