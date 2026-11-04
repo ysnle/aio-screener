@@ -320,7 +320,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   if (first === '__slow__') {
     set('stock-chart-status', `${sym} 시세 응답이 늦어 계속 시도 중입니다`);
     if (!root.__aioStockChartInstance || otherSymbolShown) setChartEmpty(doc, true);
-    panel.replaceChildren(emptyState(doc, { title: `${sym} 시세를 아직 받아오지 못했습니다`, reason: '시세 제공처나 AIO 시세 서버 응답이 늦어지고 있습니다.', next: '응답이 오면 차트가 나타납니다 — 기다리거나 다시 시도하세요.', action: { label: '다시 시도', onClick: () => renderStockChart({ documentRef: doc, root, symbol: sym }) } }));
+    panel.replaceChildren(emptyState(doc, { title: `${sym} 시세를 아직 받아오지 못했습니다`, reason: '시세 제공처나 AIO 시세 서버 응답이 늦어지고 있습니다.', next: '응답이 오면 차트가 나타납니다.', action: { label: '다시 시도', onClick: () => renderStockChart({ documentRef: doc, root, symbol: sym }) } }));
   }
   const payload = await pending;
   if (ticket !== root.__aioStockChartTicket) return null;

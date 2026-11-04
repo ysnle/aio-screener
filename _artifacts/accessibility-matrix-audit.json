@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-11-04T03:24:52.467Z",
+  "observedAt": "2026-11-04T03:54:21.943Z",
   "appRevision": "v59.69",
-  "gitHead": "be797a9ef12a345b3e96114ab42fb292cce37550",
+  "gitHead": "4b213204c11da136a3dd94132f880b20b56e32e8",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -65,7 +65,7 @@
       "routeId": "breadth",
       "active": true,
       "nameless": [],
-      "selectCount": 0,
+      "selectCount": 2,
       "selectsWithoutName": [],
       "positiveTabindex": [],
       "canvasCount": 0,
@@ -200,49 +200,14 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 6,
+      "smallTargetExceptionCount": 1,
       "smallTargetExceptions": [
         {
           "id": "",
-          "text": "%p",
-          "width": 17,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "bp",
-          "width": 14,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "PCE",
-          "width": 20,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "WTI",
-          "width": 21,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "ETF",
-          "width": 21,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "OAS",
-          "width": 23,
-          "height": 28,
-          "exception": "wcag-inline-text"
+          "text": "10년 기간 프리미엄 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
         }
       ],
       "skipLink": true,
@@ -261,23 +226,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 2,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "SEC",
-          "width": 20,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "EPS",
-          "width": 19,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -288,7 +238,7 @@
       "selectCount": 0,
       "selectsWithoutName": [],
       "positiveTabindex": [],
-      "canvasCount": 0,
+      "canvasCount": 1,
       "unnamedCanvas": [],
       "fontUnder10Count": 0,
       "fontUnder10": [],
@@ -801,8 +751,16 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 1,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "SEC",
+          "width": 20,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },

@@ -230,8 +230,11 @@ function axisCard(doc, row, root = null, open = false) {
     const band = bandOf(g);
     if (band && row.state !== 'unknown' && band.tone !== row.state) facts.append(el(doc, 'p', `막대는 ${TONE_WORD[band.tone]} 구간이지만 다른 조건 때문에 ${row.stateLabel}입니다 — 아래 판정 기준 참고.`, 'macro-gauge-note'));
   }
-  if (row.shared) facts.append(el(doc, 'span', '시장 상태와 같은 판정', 'basis-chip'));
-  if (root && SIGNAL_CHART_AXES.has(row.id)) {
+  // v59.70 (quality bar): the link already says "같은 판정"; the chip printed run-on beside it ("…같은 판정시장 상태에서…"),
+  // so it stays only for an axis without the link.
+  const linked = Boolean(root && SIGNAL_CHART_AXES.has(row.id));
+  if (row.shared && !linked) facts.append(el(doc, 'span', '시장 상태와 같은 판정', 'basis-chip'));
+  if (linked) {
     const go = el(doc, 'button', '시장 상태에서 1년 추이와 같은 판정 보기 →', 'flow-next-link');
     go.type = 'button';
     go.addEventListener('click', () => openSignalAxis(doc, root, row.id));
