@@ -284,7 +284,7 @@ function domainMap(doc, domain, labels, parts) {
   if (nodes.length < 2) return null;
   const figure = el(doc, 'figure', 'af-domain-map');
   figure.setAttribute('aria-label', `${labels.domain(domain)} 세부 영역 지도`);
-  figure.appendChild(el(doc, 'figcaption', 'af-domain-map-title', '이 분야를 읽는 순서'));
+  figure.appendChild(el(doc, 'figcaption', 'af-domain-map-title', '세부 영역'));
   const list = el(doc, 'ol', 'af-domain-map-list');
   nodes.forEach((node, index) => {
     const item = el(doc, 'li', 'af-domain-map-item');

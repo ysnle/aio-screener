@@ -383,7 +383,7 @@ function createAtlasArrivalContext(documentRef, context, onReturn) {
   block.append(
     element(documentRef, 'span', 'atlas-learning-column-label', '개념·분석에서 이어 읽기'),
     element(documentRef, 'h2', 'atlas-section-title', `${withDirectionParticle(TAXONOMY_NODE_LABELS[nodeId] || 'AI 가치사슬')} 연결했습니다.`),
-    element(documentRef, 'p', 'atlas-card-copy', `앞 장의 질문을 ${ARRIVAL_METRIC_LABELS[context.metric] || '산업 전달 경로'} 관점에서 이어갑니다. 관찰 기간은 ${ARRIVAL_TIMEFRAME_LABELS[context.timeframe] || '별도 확인'}이며, 아래에서 상류 병목이 제품·기업·현금흐름으로 전달되는 순서를 확인하세요.`)
+    element(documentRef, 'p', 'atlas-card-copy', `${ARRIVAL_METRIC_LABELS[context.metric] || '산업 전달 경로'} 관점, 관찰 기간 ${ARRIVAL_TIMEFRAME_LABELS[context.timeframe] || '별도 확인'}`)
   );
   if (context.returnContext?.route) {
     const back = element(documentRef, 'button', 'atlas-route-button is-secondary', '읽던 이야기로 돌아가기');

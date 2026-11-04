@@ -127,8 +127,8 @@ function createPrinciplesArrivalContext(documentRef, context, onReturn) {
   block.append(
     element(documentRef, 'span', 'principles-narrative-overline', arrivalLabel),
     element(documentRef, 'p', 'principles-exploration-copy', fromInstitutionalDisclosure
-      ? '기관의 분기 보유 변화가 실제 매매의 전부는 아니라는 경계를 확인했습니다. 이제 그 흔적이 시장의 기대와 가격 형성에서 어떤 의미를 갖는지 다시 연결합니다.'
-      : '전문 화면에서 확인한 숫자를 경제의 원인·전달 경로·반대 시나리오와 다시 연결합니다.')
+      ? '13F 보유 변화 → 시장의 기대와 가격 형성'
+      : '전문 화면의 숫자 → 원인·전달 경로·반대 시나리오')
   );
   if (context.returnContext?.route) {
     const back = button(documentRef, 'principles-route-button is-secondary', fromInstitutionalDisclosure ? '대가 보유 종목으로 돌아가기' : '보던 화면으로 돌아가기');
