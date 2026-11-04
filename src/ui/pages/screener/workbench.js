@@ -4,9 +4,8 @@ import { readMarketRegime } from '../../components/market-regime.js';
 import { selectScreenerState } from '../../../state/selectors/screener.js';
 import { createSavedScreen, exportSavedScreen, importSavedScreen } from '../../../domain/screener/saved-screens.js';
 import { createScreenDefinition } from '../../../data/contracts/screener.js';
-import { withTopicParticle } from '../../../domain/content/korean-particle.js';
 import { finiteNumber as finite } from '../../../domain/shared/number.js';
-import { renderBuilderConditions, renderFilterChips } from './filters.js';
+import { renderFilterChips } from './filters.js';
 import { BUILDER_FIELDS, FILTER_LABELS, PRESET_SHORT_LABELS, RUN_CONDITION_FIELDS, SCREENER_COLUMN_REGISTRY, scopedRows, selectedValue } from './model.js';
 // v58.75 (teach-and-check D5): one folded block under the screen buttons — why this screen's condition is used, where it
 // tends to work and not, its common failure, the columns that show it (their header hints carry the formulas), and one
@@ -223,8 +222,8 @@ export function createWorkbenchController(ctx) {
            ctx.activeScreenId = ctx.activeDefinition.screenId;
          }
          ctx.syncDefinitionEditor();
-         renderBuilderConditions(documentRef, ctx.readBuilderConditions());
-         renderFilterChips(documentRef);
+         // v59.70 (S12): the chosen 조건 화면 leads the chip row under the bar.
+         { const screenId = ctx.activeScreenId || ctx.activeDefinition?.screenId; renderFilterChips(documentRef, { screen: { label: screens.find((screen) => screen.definition.screenId === screenId)?.label || '' } }); }
          ctx.syncColumnControls();
          const readiness = ctx.activeResult?.readiness || state.readiness;
          const collectedCount = Number.isFinite(state?.metadata?.artifactRows) ? state.metadata.artifactRows : null;
@@ -252,42 +251,6 @@ export function createWorkbenchController(ctx) {
          const next = [...current.filter((screen) => screen.definition?.screenId !== saved.definition.screenId), saved];
          workbench.setSavedScreens(next);
          if (ctx.workbenchStatus) ctx.workbenchStatus.textContent = `이번 세션에 조건 저장, ${saved.label}, 영구 보관은 실행 입력 보관 또는 JSON 내보내기`;
-       };
-       // P1592 (F11): the value hint follows the chosen field — a fixed 'Technology, 70, 40' offered 70 for
-       // a percentile select that only accepts its listed steps.
-       ctx.syncBuilderHint = () => {
-         const field = documentRef.getElementById('scr-builder-field');
-         const value = documentRef.getElementById('scr-builder-value');
-         const definition = BUILDER_FIELDS.find((item) => item.value === field?.value);
-         if (!definition || !value) return;
-         const target = documentRef.getElementById(definition.target);
-         const options = target?.options ? Array.prototype.slice.call(target.options).map((option) => option.value).filter((optionValue) => optionValue && optionValue !== '0') : null;
-         value.placeholder = options?.length
-           ? `허용값: ${options.slice(0, 6).join(', ')}${options.length > 6 ? ' …' : ''}`
-           : ({ sector: '섹터 이름 (예: Technology)', setup: '구조·근거 이름', rank: '허용값: 40, 50, 65, 80', rsi: 'RSI 하한 (예: 40)', momentum: '3개월 수익률 하한 % (예: 10)', query: '티커 또는 이름' }[definition.value] || '값');
-       };
-       ctx.syncBuilderHint();
-       ctx.readVisualCondition = () => {
-         const field = documentRef.getElementById('scr-builder-field');
-         const value = documentRef.getElementById('scr-builder-value');
-         const definition = BUILDER_FIELDS.find((item) => item.value === field?.value);
-         const raw = value?.value?.trim();
-         if (!definition || !raw) return null;
-         // LC-65: 허용 범위 밖 입력을 조용히 버리지 않는다 — 셀렉트는 허용값 목록과 함께
-         // 명시적으로 거부하고, 숫자 필드는 숫자 검증을 같은 parser로 통과한다.
-         const target = documentRef.getElementById(definition.target);
-         if (target && target.options) {
-           const allowed = Array.prototype.slice.call(target.options).map((option) => option.value).filter((optionValue) => optionValue && optionValue !== '0');
-           const matched = allowed.find((optionValue) => optionValue.toLowerCase() === raw.toLowerCase());
-           if (!matched) return { error: `“${raw}”는 지원하지 않는 값입니다 — 허용값: ${allowed.join(', ')}` };
-           return { field: definition.value, label: definition.label, value: matched, target: definition.target };
-         }
-         if (RUN_CONDITION_FIELDS.includes(definition.value)) {
-           const numeric = Number(raw);
-           if (!Number.isFinite(numeric)) return { error: `“${raw}”는 숫자가 아닙니다 — ${withTopicParticle(definition.label)} 숫자만 허용합니다` };
-           if (numeric < 0) return { error: `“${raw}”는 허용 범위 밖입니다 — ${withTopicParticle(definition.label)} 0 이상만 허용합니다` };
-         }
-         return { field: definition.value, label: definition.label, value: raw, target: definition.target };
        };
        ctx.buildVisualDefinition = () => {
          if (!ctx.activeDefinition) return null;
@@ -338,15 +301,6 @@ export function createWorkbenchController(ctx) {
          documentRef.getElementById('scr-order').value = 'screenRank';
          ctx.syncDefinitionEditor(); ctx.renderWorkbench(); ctx.renderNow();
        };
-       // LC-65: 키보드 Enter도 클릭과 같은 parser/validator를 통과한다.
-       const onBuilderKeydown = (event) => {
-         if (event.key !== 'Enter') return;
-         if (!event.target.matches?.('#scr-builder-value, #scr-builder-field')) return;
-         event.preventDefault();
-         const add = event.target.closest?.('#page-screener')?.querySelector('[data-aio-screener-action="add-builder-condition"]');
-         add?.click();
-       };
-  ctx.renderBuilderChips = () => renderBuilderConditions(documentRef, ctx.readBuilderConditions());
   ctx.syncPreviewStatus = (preview) => {
          // P1165 (12 U01): 실행 전 상태 줄도 선택한 정의의 미리보기를 인용한다 — 파이프라인 기본
          // 수치를 '선택한 정의의 통과'로 읽히게 두지 않는다. 실행하면 activeResult가 대신한다.
@@ -357,8 +311,6 @@ export function createWorkbenchController(ctx) {
            ctx.workbenchStatus.title = `${preview.definition?.screenId || '—'}, ${String(preview.definition?.definitionHash || '').slice(0, 8)}, 조건 실행을 누르면 이 입력으로 고정합니다`;
          }
   };
-  page.addEventListener('keydown', onBuilderKeydown);
-  bag.add(() => page.removeEventListener('keydown', onBuilderKeydown));
   ctx.actions.push((action, argument, actionNode) => {
     if (action === 'screen-preset' || action === 'screen-select') {
            ctx.selectDefinition(argument);
@@ -378,7 +330,6 @@ export function createWorkbenchController(ctx) {
              const visualDefinition = ctx.buildVisualDefinition();
              if (!visualDefinition) throw new Error('SCREEN_DRAFT_EMPTY');
              ctx.runDefinition(visualDefinition);
-             if (ctx.workbenchStatus && ctx.readBuilderConditions().some((condition) => ['query', 'setup', 'sector'].includes(condition.field))) ctx.workbenchStatus.textContent += ', 검색/구조/섹터는 현재 표 필터이며 저장 실행 조건에는 포함되지 않음';
            } catch (error) {
              if (ctx.workbenchStatus) ctx.workbenchStatus.textContent = '실행할 수 없습니다, 조건을 확인하세요.';
              const detail = documentRef.getElementById('scr-definition-error-detail');
@@ -418,43 +369,12 @@ export function createWorkbenchController(ctx) {
            ctx.syncDefinitionEditor();
            documentRef.getElementById('scr-developer-drawer')?.setAttribute('open', '');
            if (ctx.workbenchStatus) ctx.workbenchStatus.textContent = '개발자 영역에 ScreenDefinition을 내보냈습니다.';
-    } else if (action === 'add-builder-condition') {
-           const valueInput = documentRef.getElementById('scr-builder-value');
-           const condition = ctx.readVisualCondition();
-           if (condition && condition.error) {
-             // LC-65: 무효 입력은 필드·상태줄·접근성을 함께 물린다 — 이전 preview/run이
-             // 그대로 남아 "95를 실행했다"고 읽히지 않도록 명시적으로 거부한다.
-             if (ctx.workbenchStatus) ctx.workbenchStatus.textContent = condition.error;
-             if (valueInput) { valueInput.setAttribute('aria-invalid', 'true'); valueInput.focus(); }
-             return;
-           }
-           if (!condition) {
-             if (ctx.workbenchStatus) ctx.workbenchStatus.textContent = '조건을 선택하고 값을 입력하세요.';
-             return;
-           }
-           if (valueInput) valueInput.removeAttribute('aria-invalid');
-           const target = documentRef.getElementById(condition.target);
-           if (target) target.value = condition.value;
-           if (ctx.workbenchStatus) {
-             ctx.workbenchStatus.textContent = RUN_CONDITION_FIELDS.includes(condition.field)
-               ? `${condition.label}: ${condition.value} — 실행 조건으로 추가됨 (실행 정의 변경, 미리보기 갱신)`
-               : `${condition.label}: ${condition.value} — 표시 필터로만 적용 (표 범위만, 실행 정의 미포함)`;
-           }
-           ctx.renderNow();
-    } else if (action === 'remove-builder-condition') {
-           const condition = ctx.readBuilderConditions()[Number(argument)];
-           const target = condition && documentRef.getElementById(condition.target);
-           if (target) target.value = condition.field === 'rank' ? '0' : '';
-           visibleLimit.value = 12;
-           ctx.renderNow();
     } else return false;
     return true;
   });
   ctx.inputs.push((event) => {
     if (event.target.matches?.('#scr-screen-select')) {
            ctx.selectDefinition(event.target.value);
-    } else if (event.target.matches?.('#scr-builder-field')) {
-           ctx.syncBuilderHint();
     } else return false;
     return true;
   });

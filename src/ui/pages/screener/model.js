@@ -170,15 +170,15 @@ export const PRESET_SHORT_LABELS = Object.freeze({ 'preset-balanced': '균형', 
 export const FILTER_LABELS = Object.freeze({
   'scr-market': '지수',
   'scr-sector': '섹터',
-  'scr-cap': '시총',
-  'scr-text-search': '검색',
+  'scr-cap': '시가총액',
+  'scr-text-search': '표에서 찾기',
   'scr-setup': '차트 패턴',
-  'scr-min-rank': '최소 백분위',
+  'scr-min-rank': '백분위 하한',
   'scr-rsi-min': 'RSI 하한',
   'scr-rsi-max': 'RSI 상한',
   'scr-min-mom': '3개월 수익률 하한',
-  'scr-watchlist-only': '워치리스트',
-  'scr-passed-only': '실행 통과만'
+  'scr-watchlist-only': '관심 종목만',
+  'scr-passed-only': '조건 통과만'
 });
 
 export const BUILDER_FIELDS = Object.freeze([

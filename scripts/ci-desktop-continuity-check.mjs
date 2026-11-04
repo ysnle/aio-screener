@@ -253,8 +253,8 @@ const prunedCount = prunedNote ? String(prunedNote.textContent || '').split(':')
 assert(compareTable.children[1].children.length >= 1, 'comparison contains actual metric rows, not only ticker chips');
 assert.equal(compareTable.children[1].children.length + prunedCount, 8, 'every compared metric is either a row or named in the pruned note');
 assert(compareTable.textContent.includes('90') && compareTable.textContent.includes('60'));
-// The 위험 column view shows 시총; a KRW cap without a USD conversion keeps its basis note, a BLOCKED one shows nothing.
-pressAction('column-preset', 'risk');
+// The 저리스크 보기 shows 시총 (v59.70: 보기 sets the weights and the columns together); a KRW cap without a USD conversion keeps its basis note, a BLOCKED one shows nothing.
+pressAction('profile', 'lowrisk');
 const resultRows = screenerDoc.getElementById('screener-results-body').children;
 const rowFor = (symbol) => resultRows.find((tr) => tr.textContent.includes(symbol));
 const capColumn = rowFor('KRCAP').children.findIndex((td) => td.textContent.includes('KRW 200.0T'));

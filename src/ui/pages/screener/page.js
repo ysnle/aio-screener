@@ -7,6 +7,7 @@ import { renderKnowledgeArrival } from '../../components/knowledge-arrival.js';
 import { selectScreenerState } from '../../../state/selectors/screener.js';
 import { subscribeToSlices } from '../../../state/memoize.js';
 import { refreshSharedArtifact, SCENARIO_STATE } from '../../../data/shared-artifacts.js';
+import { readUniverseScope } from '../../../data/screener-extended.js';
 import { mergeThemeAliases, SCREENER_COLUMN_REGISTRY } from './model.js';
 import { syncRankFilterLabels, installCustomConditions, createFiltersController } from './filters.js';
 import { render, createQuoteRequester } from './table.js';
@@ -115,9 +116,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
         const whyFocus = ctx.whyDrawerNode?.contains(documentRef.activeElement) ? documentRef.activeElement : null;
         const preview = ctx.ensurePreview();
         ctx.syncColumnControls();
-        ctx.syncBuilderHint();
-        ctx.renderBuilderChips();
-        const renderArgs = { documentRef, root, store, readLiveData: ctx.liveReader, readWatchlist: ctx.watchlistReader, readAliases: ctx.aliasReader, sortState: ctx.sortState, visibleLimit: ctx.visibleLimit, onExplain: ctx.explainRow, onCompare: (row) => ctx.toggleCompare(row?.sym || row?.symbol), onVisibleSymbols: ctx.requestVisibleQuotes, selectedSymbols: ctx.selectedSymbols, compareSymbols: ctx.compareSymbols, columnPreset: ctx.columnState.preset, customColumns: ctx.columnState.custom, onWatchlistToggle: (symbol) => { (onWatchlistToggle || root?._aioWLToggle)?.(symbol); ctx.rerender(); ctx.syncWhyWatchlist(ctx.activeRow?.sym || ctx.activeRow?.symbol || ''); }, rowsOverride: ctx.activeRows || preview?.rows || null, workbenchResult: ctx.activeResult, previewResult: preview, onDataChange: () => ctx.renderNow() };
+        const renderArgs = { documentRef, root, store, readLiveData: ctx.liveReader, readWatchlist: ctx.watchlistReader, readAliases: ctx.aliasReader, sortState: ctx.sortState, visibleLimit: ctx.visibleLimit, onExplain: ctx.explainRow, onCompare: (row) => ctx.toggleCompare(row?.sym || row?.symbol), onVisibleSymbols: ctx.requestVisibleQuotes, selectedSymbols: ctx.selectedSymbols, compareSymbols: ctx.compareSymbols, columnPreset: ctx.columnState.preset, customColumns: ctx.columnState.custom, onWatchlistToggle: (symbol) => { (onWatchlistToggle || root?._aioWLToggle)?.(symbol); ctx.rerender(); ctx.syncWhyWatchlist(ctx.activeRow?.sym || ctx.activeRow?.symbol || ''); }, rowsOverride: ctx.activeRows || preview?.rows || null, workbenchResult: ctx.activeResult, previewResult: preview, onDataChange: () => ctx.renderNow(), onRetry: () => { Promise.resolve(onUniverseScopeChange?.(readUniverseScope(root))).catch(() => {}); } };
         render(renderArgs);
         const released = ctx.refreshInspector();
         // 개편 v2 (3c): the first wide render selects the first row for the inspector, then marks it in the table once.
@@ -153,10 +152,6 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
         }
         const action = actionNode.dataset.aioScreenerAction;
         const argument = actionNode.dataset.aioScreenerArg;
-        if (action === 'open-filters') { ctx.setFilterSheet(true); return; }
-        if (action === 'close-filters') { ctx.setFilterSheet(false); return; }
-        // A control in the sheet that leaves the 순위 view closes the sheet first.
-        if ((action === 'view' || action === 'tab') && ctx.filterSheet?.contains(actionNode)) ctx.setFilterSheet(false, { returnFocus: false });
         if (action === 'load-more') { ctx.visibleLimit.value += 12; ctx.renderNow(); return; }
         for (const handle of ctx.actions) if (handle(action, argument, actionNode)) return;
       };
