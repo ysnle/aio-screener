@@ -11,7 +11,9 @@ import { isIsoDay } from '../shared/session-date.js';
 // v58.75 (persona review): v2 = members pooled once per theme (v58.74). scenario-state.json stamps the version it was built
 // with, so a state written by the older group-median rule (crypto -25.1% there, -44.7% pooled) is never shown beside it.
 // v59.45: defined here (theme-playbook.js re-exports it) so the stage reader checks the same version without an import cycle.
-export const THEME_PLAYBOOK_VERSION = 'theme-playbook.v2';
+// v59.70: v3 = the 2026-11-04 theme membership (하드웨어·기기, IT 서비스, +HONA·OKTA·EXEL·UTHR; KR UAM·우주·양자 retired), so
+// a state built on the old members (software -5.1% there, -4.0% now) waits for the next refresh's rebuild.
+export const THEME_PLAYBOOK_VERSION = 'theme-playbook.v3';
 
 // v57.81 (audit): the producer writes status 'current' (scripts/build-scenario-state.mjs) while the readers required 'ok',
 // so the stage chips never rendered. One constant for the writer and every reader.

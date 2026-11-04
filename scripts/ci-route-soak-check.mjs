@@ -3,6 +3,7 @@
 // provider SLOs or a deployed Pages revision.
 import { chromium } from 'playwright';
 import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { addressThemeDetail } from './lib/theme-detail-address.mjs';
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -48,6 +49,7 @@ try {
     const lapRows = [];
     for (const route of ROUTES) {
       const target = canonical(route);
+      if (route === 'theme-detail') await addressThemeDetail(page); // a detail needs a theme id (fix-r1-theme)
       await page.evaluate((id) => window.AIO_ARCH.navigate(id), route);
       await page.waitForFunction((id) => document.getElementById(`page-${id}`)?.dataset.aioArchitectureRoute === id, target, { timeout: 15000 });
       if (route === 'theme-detail') await page.waitForFunction(() => document.getElementById('theme-detail-panel')?.style.display !== 'none', { timeout: 10000 });

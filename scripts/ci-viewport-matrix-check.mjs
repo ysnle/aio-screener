@@ -7,6 +7,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DESKTOP_QA_VIEWPORTS } from './desktop-qa-config.mjs';
 import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { addressThemeDetail } from './lib/theme-detail-address.mjs';
 import { ROUTE_IDS } from '../src/app/routes.js';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
@@ -28,6 +29,7 @@ const VIEWPORTS = DESKTOP_QA_VIEWPORTS
 if (!VIEWPORTS.length) throw new Error('AIO_VIEWPORT_NAMES did not match a known viewport');
 
 async function activateRoute(page, routeId) {
+  if (routeId === 'theme-detail') await addressThemeDetail(page); // a detail needs a theme id (fix-r1-theme)
   return page.evaluate((id) => {
     const targetPageId = id === 'theme-detail' ? 'themes' : id;
     const targetPage = document.getElementById('page-' + targetPageId);

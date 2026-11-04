@@ -112,6 +112,9 @@ try {
   await page.locator('#page-briefing [data-research-snapshots=briefing] > summary').click();
   await capture({ stepId: 'briefing-local-archive-empty', route: 'briefing', stateId: 'archive-empty', action: { type: 'disclose', target: 'local briefing archive' }, locator: '#page-briefing [data-research-snapshots=briefing]', expected: 'only explicitly saved reports, no fabricated past briefings', actual: 'empty isolated archive' });
   await page.evaluate(() => window.showPage('themes'));
+  // v59.70: the sector card opens on its 등락 bars; the sector chips (detail triggers) are the 회전 view's.
+  const rotationTab = page.locator('#themes-verdict-tabs [data-view="rrg"]');
+  if (await rotationTab.count()) await rotationTab.click();
   // v57.54: while the sector-rotation artifact lags the latest close its quadrant chips are hidden; the theme playbook's
   // detail buttons (data-theme-id) are then the visible triggers. Either kind is a detail trigger (themes.js rule).
   const TRIGGERS = '#page-themes [data-action=showThemeDetail]:visible, #page-themes button[data-theme-id]:visible';
