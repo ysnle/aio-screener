@@ -97,7 +97,7 @@ const listOnly = has('--list');
 const keepGoing = has('--keep-going') && process.env.CI !== 'true';
 if (has('--keep-going') && !keepGoing) console.log('[qa] NOTE --keep-going is ignored under CI=true');
 const explain = has('--explain');
-// v59.70 (I8): a refresh-origin CI shard reports live-content gate failures instead of failing on them.
+// v59.70 (I8): a ci.yml contract shard reports live-content gate failures instead of failing on them.
 const origin = qaOrigin();
 const positiveInteger = (value, fallback) => {
   const number = Number(value);
@@ -830,7 +830,7 @@ function runGate(gate) {
           writeJsonAtomic(cachePath, successCache);
           console.log(`[qa] PASS ${gate.id} (${durationMs}ms)`);
         } else {
-          console.error(`[qa] ${advisory ? 'ADVISORY' : 'FAIL'} ${gate.id} (${durationMs}ms${timedOut ? ', timeout' : ''})${advisory ? ' — live content on a refresh origin; its watchdog twin keeps watching it' : ''}`);
+          console.error(`[qa] ${advisory ? 'ADVISORY' : 'FAIL'} ${gate.id} (${durationMs}ms${timedOut ? ', timeout' : ''})${advisory ? ' — live content in a CI contract shard; its watchdog twin keeps watching it' : ''}`);
           // v58.86: job logs expire and their download host is not reachable from every agent session, but check-run
           // annotations stay readable through the API, so the quarterly gate cleanup can count failures per gate.
           const level = advisory ? 'warning' : 'error';

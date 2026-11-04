@@ -1,18 +1,19 @@
 #!/usr/bin/env node
-// v59.70 (I8, coverage audit top item; actions-reliability ledger class B): CI on a refresh commit (only generated data
-// changed, on a source commit whose full push CI passed) failed on what the live data said, and every later data commit
-// stayed UNATTESTED. 35 refresh-origin CI failures 10-28..11-04, each resolved below. A gate that asserts live content
-// declares `liveData: "content"`: on a refresh origin it reports (ADVISORY) and a watchdog twin keeps watching it; a
-// clock-bound code contract runs on a fixed clock instead. The replay runs the real qa-runner on a one-gate manifest: the
-// old configuration (no declaration) fails the refresh shard, the new one passes it, and a source push still fails.
+// v59.70 (I8, coverage audit top item; actions-reliability ledger class B): CI failed on what the live data and the
+// calendar said, not on the code. 35 refresh-origin CI runs failed 10-28..11-04 and every later data commit stayed
+// UNATTESTED; on 11-04 the source push that fixed the data plane (432ac3eb) failed only because data.json was 13.6 h old
+// and CODE-MAP had turned 46 days, so no release on top of it could attest (deadlock). Owner 2026-11-04 (this session):
+// every ci.yml contract shard runs with AIO_QA_ORIGIN=ci; there a `liveData: "content"` gate reports (ADVISORY) and the
+// knowledge-lint date ratchet warns, while producers, local runs and the watchdog twins still fail on them. Source
+// defects declare nothing and keep blocking. The replays run the real qa-runner and the real knowledge-lint.
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { LIVE_DATA_KINDS, REFRESH_ORIGIN, failureBlocks, qaOrigin } from './lib/qa-live-data.mjs';
+import { CI_ORIGIN, LIVE_DATA_KINDS, clockJudgementBlocks, failureBlocks, qaOrigin } from './lib/qa-live-data.mjs';
 
-if (process.argv.includes('--fixture-fail')) { console.error('fixture: live content assertion failed'); process.exit(1); }
+if (process.argv.includes('--fixture-fail')) { console.error('fixture: assertion failed'); process.exit(1); }
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const read = (file) => readFileSync(join(root, file), 'utf8');
@@ -30,17 +31,25 @@ for (const gate of gates) {
     check(`v59.70 ${gate.id} declares liveData only in a contract group`, CONTRACT_GROUPS.includes(gate.group), gate.group);
     check(`v59.70 ${gate.id} (liveData) has a watchdog-local twin running ${gate.script}`, watchdogScripts.has(gate.script));
   }
-  for (const origin of ['source', REFRESH_ORIGIN]) {
-    const expected = !(origin === REFRESH_ORIGIN && gate.liveData === 'content');
+  for (const origin of ['source', CI_ORIGIN]) {
+    const expected = !(origin === CI_ORIGIN && gate.liveData === 'content');
     check(`v59.70 ${gate.id} on ${origin} ${expected ? 'blocks' : 'reports'}`, failureBlocks(gate, origin) === expected);
   }
 }
-check('v59.70 only AIO_QA_ORIGIN=refresh selects the refresh origin', qaOrigin({ AIO_QA_ORIGIN: 'refresh' }) === REFRESH_ORIGIN
-  && qaOrigin({}) === 'source' && qaOrigin({ AIO_QA_ORIGIN: 'Refresh' }) === 'source' && qaOrigin({ AIO_QA_ORIGIN: 'source' }) === 'source');
+check('v59.70 only AIO_QA_ORIGIN=ci selects the CI origin', qaOrigin({ AIO_QA_ORIGIN: 'ci' }) === CI_ORIGIN
+  && qaOrigin({}) === 'source' && qaOrigin({ AIO_QA_ORIGIN: 'CI' }) === 'source' && qaOrigin({ AIO_QA_ORIGIN: 'refresh' }) === 'source');
+check('v59.70 a wall-clock date judgement blocks everywhere except a CI contract shard', clockJudgementBlocks({}) === true && clockJudgementBlocks({ AIO_QA_ORIGIN: 'ci' }) === false);
+// Safety: the source-defect gates never declare liveData, so a control character, bad YAML or syntax still blocks CI.
+for (const id of ['workflow-yaml', 'syntax', 'generated-state', 'qa-pipeline-contract', 'workspace-contract', 'knowledge-lint']) {
+  const gate = gates.find((item) => item.id === id);
+  check(`v59.70 source-defect gate ${id} stays blocking in CI`, gate && failureBlocks(gate, CI_ORIGIN) === true, gate ? '' : 'missing');
+}
+check('v59.70 knowledge-lint has a watchdog twin (its date ratchet blocks there)', watchdogScripts.has('scripts/ci-knowledge-lint-check.mjs'));
 
-// 2. The 7-day refresh-origin failure ledger (gh run list/view, ci.yml workflow_dispatch, 10-28..11-04). Every row resolved.
+// 2. The failure ledger (gh run list/view). Every row resolved.
 const byId = new Map(gates.map((gate) => [gate.id, gate]));
 const LEDGER = [
+  // refresh-origin CI, ci.yml workflow_dispatch, 10-28..11-04: 35 runs, 49 gate failures
   { gate: 'esm-core', runs: 10, cause: 'news audit aged rows on the wall clock (10-29/10-30 21-23Z)', resolution: 'fixed-clock', proof: ['scripts/ci-esm-core-unit-check.mjs', 'for (const fixedNow of ['] },
   { gate: 'runtime', runs: 9, cause: 'LIVE3-03 20SMA breadth fixture on the wall clock (11-03 05-09Z)', resolution: 'fixed-clock', proof: ['scripts/ci-runtime-contract-check.mjs', 'readScreenerBreadth(breadthFixture({}), BREADTH_FIXTURE_NOW)'] },
   { gate: 'data-pipeline', runs: 9, cause: 'screener breadth 97 h row on the wall clock (11-03 05-09Z)', resolution: 'fixed-clock', proof: ['scripts/ci-data-pipeline-contract-check.mjs', 'readScreenerBreadth(us({ observedAt: new Date(now - 97 * 3600000).toISOString() }), now)'] },
@@ -51,27 +60,36 @@ const LEDGER = [
   { gate: 'browser-secondary-text-budget', runs: 2, cause: 'home text budget on event-brief text', resolution: 'browser-scope' },
   { gate: 'screener-extended', runs: 2, cause: 'not retrievable (10-30 logs carry no failing line)', resolution: 'unresolved-blocking' },
 ];
+const SOURCE_PUSH_LEDGER = [
+  // 432ac3eb push CI 41761300575 (11-04 02:31Z): the deadlock
+  { gate: 'data-lineage', cause: 'data.json 13.6 h old > 12 h SLA (the data plane had been stopped)', resolution: 'liveData' },
+  { gate: 'data-refresh', cause: 'the same data age', resolution: 'liveData' },
+  { gate: 'knowledge-lint', cause: 'P1125: CODE-MAP last_verified 46 d > 45 d', resolution: 'clock-judgement' },
+];
 // 35 failed runs carried 49 gate failures (runtime + data-pipeline together 9 times, data-refresh with data-lineage 2
 // and with scenario-guidance 4).
 check('v59.70 the ledger holds all 49 gate failures of the 35 refresh-origin CI runs', LEDGER.reduce((sum, row) => sum + row.runs, 0) === 49);
 const ci = read('.github/workflows/ci.yml');
-for (const row of LEDGER) {
+for (const row of [...LEDGER, ...SOURCE_PUSH_LEDGER]) {
   const gate = byId.get(row.gate);
   if (!gate) { check(`v59.70 ledger gate ${row.gate} exists`, false); continue; }
   if (row.resolution === 'liveData') {
-    // Old configuration: the gate as it was, without the declaration, fails a refresh shard. New: it reports.
+    // Old configuration: the gate as it was, without the declaration, fails a CI shard. New: it reports there.
     const old = { ...gate }; delete old.liveData;
-    check(`v59.70 ${row.gate}: old config red on a refresh origin, new config green, source push still red`,
-      failureBlocks(old, REFRESH_ORIGIN) === true && failureBlocks(gate, REFRESH_ORIGIN) === false && failureBlocks(gate, 'source') === true, row.cause);
+    check(`v59.70 ${row.gate}: old config red in CI, new config green in CI, still red locally/watchdog`,
+      failureBlocks(old, CI_ORIGIN) === true && failureBlocks(gate, CI_ORIGIN) === false && failureBlocks(gate, 'source') === true, row.cause);
   } else if (row.resolution === 'fixed-clock') {
     check(`v59.70 ${row.gate}: the clock-bound fixture runs on a fixed clock`, read(row.proof[0]).includes(row.proof[1]), row.proof.join(' :: '));
     check(`v59.70 ${row.gate} stays a blocking code contract`, gate.liveData === undefined);
+  } else if (row.resolution === 'clock-judgement') {
+    check(`v59.70 ${row.gate}: the gate stays blocking; only its date judgement warns in CI`, gate.liveData === undefined
+      && read('scripts/ci-knowledge-lint-check.mjs').includes('(clockJudgementBlocks() ? check : warn)(`P1125'));
   } else if (row.resolution === 'source-defect') {
-    check(`v59.70 ${row.gate}: a source defect still blocks a refresh origin`, failureBlocks(gate, REFRESH_ORIGIN) === true);
+    check(`v59.70 ${row.gate}: a source defect still blocks CI`, failureBlocks(gate, CI_ORIGIN) === true);
   } else if (row.resolution === 'browser-scope') {
     check(`v59.70 ${row.gate}: browser shards do not run on a refresh origin`, gate.group.startsWith('browser') && ci.includes("if: needs.preflight.outputs.reduced_scope != 'true'"));
   } else {
-    check(`v59.70 ${row.gate}: an unexplained failure stays blocking`, failureBlocks(gate, REFRESH_ORIGIN) === true);
+    check(`v59.70 ${row.gate}: an unexplained failure stays blocking`, failureBlocks(gate, CI_ORIGIN) === true);
   }
 }
 // The breadth fixture really was clock-bound: on the 11-03 06:00Z wall clock the old 97 h assertion failed.
@@ -83,13 +101,14 @@ for (const row of LEDGER) {
   check('v59.70 the old breadth assertion fails on the 11-03 06:00Z clock and the fixed clock passes', !oldAt(Date.parse('2026-11-03T06:00:00Z')) && oldAt(fixedNow));
 }
 
-// 3. Wiring: CI contract shards pass the origin; producers and the watchdog never do (they must still fail closed).
-check('v59.70 ci.yml contract shards pass AIO_QA_ORIGIN from the resolved scope', ci.includes("AIO_QA_ORIGIN: ${{ needs.preflight.outputs.reduced_scope == 'true' && 'refresh' || 'source' }}"));
+// 3. Wiring: every CI contract shard passes the origin; producers and the watchdog never do (they must still fail closed).
+check('v59.70 ci.yml contract shards run with AIO_QA_ORIGIN=ci (source pushes included)', /\n\s+AIO_QA_ORIGIN: ci\n\s+run: node scripts\/qa-runner\.mjs --group \$\{\{ matrix\.group \}\} --no-cache/.test(ci)
+  && (ci.match(/AIO_QA_ORIGIN/g) || []).length === 1);
 for (const workflow of ['refresh-data.yml', 'refresh-screener.yml', 'event-briefs.yml', 'data-watchdog.yml', 'pages-deploy.yml']) {
   check(`v59.70 ${workflow} does not set AIO_QA_ORIGIN`, !read(`.github/workflows/${workflow}`).includes('AIO_QA_ORIGIN'));
 }
 
-// 4. Replay through the real runner: one failing gate, three configurations.
+// 4. Replay through the real runner: a live-content gate and a source-defect gate, old and new configuration.
 const replay = (gate, origin) => {
   const dir = mkdtempSync(join(tmpdir(), 'aio-live-data-'));
   try {
@@ -104,17 +123,33 @@ const replay = (gate, origin) => {
   } finally { rmSync(dir, { recursive: true, force: true }); }
 };
 const failing = { id: 'live-content-fixture', script: 'scripts/ci-refresh-origin-live-data-check.mjs', args: ['--fixture-fail'] };
-const oldRefresh = replay(failing, REFRESH_ORIGIN);
-const newRefresh = replay({ ...failing, liveData: 'content' }, REFRESH_ORIGIN);
-const newSource = replay({ ...failing, liveData: 'content' }, null);
-check('v59.70 replay: old config fails the refresh shard', oldRefresh.status === 1 && /\[qa\] FAIL live-content-fixture/.test(oldRefresh.out), oldRefresh.out.slice(-400));
-check('v59.70 replay: new config passes the refresh shard and reports ADVISORY', newRefresh.status === 0 && /\[qa\] ADVISORY live-content-fixture/.test(newRefresh.out) && /advisory=1/.test(newRefresh.out), newRefresh.out.slice(-400));
-check('v59.70 replay: new config still fails a source push', newSource.status === 1 && /\[qa\] FAIL live-content-fixture/.test(newSource.out), newSource.out.slice(-400));
+const oldCi = replay(failing, CI_ORIGIN);
+const newCi = replay({ ...failing, liveData: 'content' }, CI_ORIGIN);
+const newLocal = replay({ ...failing, liveData: 'content' }, null);
+const defectCi = replay({ ...failing, id: 'source-defect-fixture' }, CI_ORIGIN);
+check('v59.70 replay: old config fails the CI shard', oldCi.status === 1 && /\[qa\] FAIL live-content-fixture/.test(oldCi.out), oldCi.out.slice(-400));
+check('v59.70 replay: new config passes the CI shard and reports ADVISORY', newCi.status === 0 && /\[qa\] ADVISORY live-content-fixture/.test(newCi.out) && /advisory=1/.test(newCi.out), newCi.out.slice(-400));
+check('v59.70 replay: new config still fails locally (producer pre-push, watchdog)', newLocal.status === 1 && /\[qa\] FAIL live-content-fixture/.test(newLocal.out), newLocal.out.slice(-400));
+check('v59.70 replay: a source-defect gate still fails the CI shard', defectCi.status === 1 && /\[qa\] FAIL source-defect-fixture/.test(defectCi.out), defectCi.out.slice(-400));
+
+// 5. The calendar deadlock through the real knowledge-lint: a clock 300 days on makes documents stale. Old behaviour (any
+// origin but CI) fails on P1125; in a CI contract shard the same tree passes with the ratchet as a warning.
+const lint = (origin) => {
+  const env = { ...process.env, AIO_KNOWLEDGE_LINT_NOW: new Date(Date.now() + 300 * 86400000).toISOString() };
+  delete env.AIO_QA_ORIGIN;
+  if (origin) env.AIO_QA_ORIGIN = origin;
+  const run = spawnSync(process.execPath, ['scripts/ci-knowledge-lint-check.mjs'], { cwd: root, env, encoding: 'utf8' });
+  return { status: run.status, out: `${run.stdout}\n${run.stderr}` };
+};
+const lintSource = lint(null);
+const lintCi = lint(CI_ORIGIN);
+check('v59.70 calendar replay: knowledge-lint fails on P1125 outside CI (watchdog twin, local)', lintSource.status === 1 && /Knowledge lint check failed:[\s\S]*P1125 stale document set does not grow/.test(lintSource.out), lintSource.out.slice(-400));
+check('v59.70 calendar replay: the same tree passes in a CI shard with P1125 as a warning', lintCi.status === 0 && /Knowledge lint warnings:[\s\S]*P1125 stale document set does not grow/.test(lintCi.out), lintCi.out.slice(-400));
 
 if (errors.length) {
-  console.error('Refresh-origin live-data check failed:');
+  console.error('CI live-data check failed:');
   for (const error of errors) console.error(` - ${error}`);
   process.exit(1);
 }
 const declared = gates.filter((gate) => gate.liveData).map((gate) => gate.id);
-console.log(`Refresh-origin live-data OK: ${gates.length} gates x 2 origins; ${declared.length} live-content gates report on a refresh origin (${declared.join(', ')}) with watchdog twins; ${LEDGER.length} ledger causes resolved; runner replay old=red new=green source=red.`);
+console.log(`CI live-data OK: ${gates.length} gates x 2 origins; ${declared.length} live-content gates report in CI (${declared.join(', ')}) with watchdog twins; knowledge-lint date ratchet warns in CI and blocks in its twin; ${LEDGER.length + SOURCE_PUSH_LEDGER.length} ledger causes resolved; replays: live old=red new=green local=red, source defect=red, calendar source=red ci=green.`);

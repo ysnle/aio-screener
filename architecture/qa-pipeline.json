@@ -1650,6 +1650,8 @@
             "scripts/ci-data-pipeline-contract-check.mjs",
             "scripts/ci-runtime-contract-check.mjs",
             "scripts/ci-esm-core-unit-check.mjs",
+            "scripts/ci-knowledge-lint-check.mjs",
+            "_context/**",
             "src/domain/market/**",
             "src/domain/shared/**",
             ".github/workflows/**"
@@ -2256,6 +2258,20 @@
           "id": "watchdog-scenario-guidance",
           "script": "scripts/ci-scenario-guidance-fixture.mjs",
           "cache": false
+        },
+        {
+          "id": "watchdog-knowledge-lint",
+          "script": "scripts/ci-knowledge-lint-check.mjs",
+          "cache": false,
+          "inputs": [
+            "_context/**",
+            "AGENTS.md",
+            "CLAUDE.md",
+            ".claude/**",
+            ".codex/**",
+            "architecture/**",
+            "scripts/**"
+          ]
         },
         {
           "id": "watchdog-artifact-headroom",

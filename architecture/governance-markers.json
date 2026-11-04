@@ -48,6 +48,13 @@
       "summary": "Agent hooks block destructive commands and give advisory checks only; no hook commits, pushes or deploys.",
       "rules": ["R521"],
       "enforcedBy": ["scripts/ci-workspace-contract-check.mjs"]
+    },
+    {
+      "id": "live-freshness-blocks-producers-and-watchdog",
+      "summary": "Data age and document dates are calendar facts: they fail producer pre-push runs, local runs and the watchdog twins, and only report (ADVISORY / warning) in ci.yml contract shards (AIO_QA_ORIGIN=ci), so a source push cannot deadlock on the clock. Source defects block CI everywhere.",
+      "rules": ["R634"],
+      "release": "v59.70",
+      "enforcedBy": ["scripts/ci-refresh-origin-live-data-check.mjs", "scripts/ci-data-lineage-audit.mjs", "scripts/ci-knowledge-lint-check.mjs"]
     }
   ]
 }
