@@ -21,7 +21,7 @@ const FAMILIES = Object.freeze([
   { id: 'metals', name: '금과 은', assets: ['gold', 'silver'], up: '상승', down: '하락', topics: ['metals'] },
   { id: 'vol', name: '변동성', assets: ['vix'], up: '확대', down: '진정', topics: [] },
   { id: 'crypto', name: '비트코인', assets: ['btc'], up: '상승', down: '하락', topics: ['crypto'] },
-  { id: 'us', name: '미국 지수', assets: ['spx', 'ndx', 'smh', 'rut', 'rsp'], up: '상승', down: '하락' },
+  { id: 'us', name: '미국 지수', assets: ['spx', 'ndx', 'soxx', 'rut', 'rsp'], up: '상승', down: '하락' },
   { id: 'kr', name: '한국 증시', assets: ['kospi', 'kosdaq'], up: '상승', down: '하락' }
 ]);
 const FAMILY_OF = new Map(FAMILIES.flatMap((family) => family.assets.map((asset) => [asset, family])));
@@ -41,7 +41,7 @@ const evidenceOf = (fact) => ({ title: fact.titleKo || fact.title, original: fac
 /** The opening line: both markets' indexes, with the equal-weight S&P 500 read against the index (who carried the move). */
 export function indexLine(facts) {
   const price = (asset) => facts.find((fact) => fact.kind === 'price' && fact.asset === asset);
-  const us = ['spx', 'ndx', 'smh'].map(price).filter(Boolean);
+  const us = ['spx', 'ndx', 'soxx'].map(price).filter(Boolean);
   const kr = ['kospi', 'kosdaq'].map(price).filter(Boolean);
   const parts = [];
   if (us.length) parts.push(`미국은 ${us.map((fact) => `${fact.label} ${pct(fact.change)}`).join(', ')}`);

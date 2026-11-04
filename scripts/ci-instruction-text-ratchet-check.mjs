@@ -14,7 +14,7 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { instructionIssues } from './lib/instruction-text-scan.mjs';
+import { instructionIssues, howToReadIssues } from './lib/instruction-text-scan.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const BASELINE_PATH = 'architecture/instruction-text-baseline.json';
@@ -45,6 +45,19 @@ const details = {};
 for (const file of walk('src').sort()) {
   const issues = instructionIssues(readFileSync(join(root, file), 'utf8'));
   if (issues.length) { counts[file] = issues.length; details[file] = issues; }
+}
+// v59.70 (PLAN S13/S15): no visible '읽는 법 / 보는 법 / 먼저 … 확인하세요' text. The remaining cases belong to other screens
+// (two knowledge-page sentences, one guide AI chip) and may only go away; quoted source titles (src/domain/research) are
+// data, not screen text.
+const HOW_TO_READ_ALLOWED = Object.freeze({ 'src/ui/knowledge/current-observations.js': 1, 'src/ui/knowledge/lesson.js': 1, 'src/ai/context/panel-contexts.js': 1 });
+if (howToReadIssues("const t = '이 기업을 보는 법';").length !== 1 || howToReadIssues("const t = '이 기업을 보는 렌즈';").length !== 0) {
+  console.error('FAIL how-to-read scanner self-test'); process.exit(1);
+}
+const howTo = walk('src').filter((file) => !file.startsWith('src/domain/research/')).sort().map((file) => [file, howToReadIssues(readFileSync(join(root, file), 'utf8'))])
+  .filter(([file, issues]) => issues.length > (HOW_TO_READ_ALLOWED[file] || 0));
+if (howTo.length) {
+  for (const [file, issues] of howTo) console.error(`FAIL v59.70 how-to-read text in ${file}: ${issues.map((item) => `"${item.text}"`).join('; ')} — state the number and its label; no reading lessons on screen`);
+  process.exit(1);
 }
 const total = Object.values(counts).reduce((sum, n) => sum + n, 0);
 const prior = existsSync(join(root, BASELINE_PATH)) ? JSON.parse(readFileSync(join(root, BASELINE_PATH), 'utf8')) : null;

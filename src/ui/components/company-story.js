@@ -143,9 +143,11 @@ export function renderCompanyStory(doc, host, { profile, earnings = [], peers = 
   nodes.push(el(doc, 'p', profile.oneLine, 'company-story-one'));
   if (freshness.state === 'stale') nodes.push(el(doc, 'p', `${mdOf(freshness.newReport)} 새 실적이 나왔습니다. 사업 구조·경쟁 설명은 그대로 쓰되, 실적·가이던스 숫자는 그 전 보고서 기준이니 새 숫자는 '최근 실적 발표 요약'에서 보세요.`, 'company-story-stale'));
 
+  // v59.70 (PLAN S13 ③): 회사 이야기 is the overview's third section and a fold — the one line stays on the face, the
+  // money-flow visual opens first inside it.
   const flow = moneyFlow(doc, profile);
-  if (flow) nodes.push(el(doc, 'h3', '돈이 들어오는 길', 'company-story-h3'), flow);
-  const more = fold(doc, '회사 이야기 자세히 — 숫자, 사업 구조, 실적, AI 위치, 경쟁, 전략, 확인법', 'company-story-more');
+  const more = fold(doc, '회사 이야기 — 돈이 들어오는 길, 숫자, 사업 구조, 실적, AI 위치, 경쟁, 전략', 'company-story-more');
+  if (flow) more.append(el(doc, 'h3', '돈이 들어오는 길', 'company-story-h3'), flow);
   const meta = [ai.layer && layerLabel(ai.layer) ? `AI 밸류체인: ${layerLabel(ai.layer)}` : null,
     freshness.researchedAt ? `${mdOf(freshness.researchedAt)} 조사` : null, e.period ? `${e.period} 실적 기준` : null].filter(Boolean).join(', ');
   if (meta) more.append(el(doc, 'p', meta, 'company-story-meta'));

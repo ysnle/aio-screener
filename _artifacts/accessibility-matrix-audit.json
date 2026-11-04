@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-11-04T04:31:10.256Z",
+  "observedAt": "2026-11-04T05:52:27.937Z",
   "appRevision": "v59.69",
-  "gitHead": "8285c4d1ea282389621b6fe71a78bccc9f5ceca0",
+  "gitHead": "140ba22c89369a8458e0a0bf3176769a11ff8e72",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -65,7 +65,7 @@
       "routeId": "breadth",
       "active": true,
       "nameless": [],
-      "selectCount": 2,
+      "selectCount": 0,
       "selectsWithoutName": [],
       "positiveTabindex": [],
       "canvasCount": 0,
@@ -110,16 +110,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 1,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "OAS",
-          "width": 23,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -154,170 +146,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 23,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "연준 목표 범위 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "실효 연방기금금리 (월평균) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "CPI (전년 대비) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "근원 CPI (전년 대비) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "PCE 물가 (전년 대비) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "근원 PCE (전년 대비) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "주거비 CPI (전년 대비) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "주거비 제외 서비스 CPI (전년 대비) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "실업률 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "비농업 고용 증감 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "시간당 임금 (전년 대비) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "경제활동참가율 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "소매판매 (전월 대비) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "주택 착공 (연율) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "건축 허가 (연율) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "기준금리(실효 연방기금금리) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "미국 10년물 금리 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "미국 2년물 금리 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "10년물 − 3개월물 금리차 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "10년 실질금리 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "근원 CPI 전년 대비 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "실업률 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "VIX 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -352,6 +182,13 @@
         },
         {
           "id": "",
+          "text": "10년 기간 프리미엄 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
           "text": "PCE",
           "width": 20,
           "height": 28,
@@ -360,13 +197,6 @@
         {
           "id": "",
           "text": "WTI",
-          "width": 21,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "ETF",
           "width": 21,
           "height": 28,
           "exception": "wcag-inline-text"
@@ -395,8 +225,23 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 2,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "SEC",
+          "width": 20,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "EPS",
+          "width": 19,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
@@ -431,8 +276,15 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 2,
+      "smallTargetExceptionCount": 3,
       "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "%p",
+          "width": 20,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
         {
           "id": "",
           "text": "ETF",
@@ -455,7 +307,7 @@
       "routeId": "portfolio",
       "active": true,
       "nameless": [],
-      "selectCount": 3,
+      "selectCount": 5,
       "selectsWithoutName": [],
       "positiveTabindex": [],
       "canvasCount": 0,
@@ -482,8 +334,23 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 2,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "SEC",
+          "width": 20,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "EPS",
+          "width": 19,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
@@ -873,8 +740,23 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 2,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "13F",
+          "width": 19,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "SEC",
+          "width": 20,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },

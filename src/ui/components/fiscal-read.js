@@ -2,7 +2,7 @@
 // and the connected reading (growth → profitability → earnings vs price → price vs results).
 import { buildFiscalRead, formatUsdShort, reconcileFiscalHistory, shareSplitBreaks, isLendingFinancial } from '../../domain/fundamental/fiscal-read.js';
 import { buildPeerRead } from '../../domain/fundamental/peer-read.js';
-import { buildQuarterRead, parseQuarterHistory } from '../../domain/fundamental/quarter-read.js';
+import { buildQuarterRead, buildWorkingCapitalRead, parseQuarterHistory } from '../../domain/fundamental/quarter-read.js';
 import { renderNextSteps } from './page-flow.js';
 import { emptyState } from './empty-state.js';
 import { loadJsonArtifact, stableFetcher } from '../../data/artifact-cache.js';
@@ -347,6 +347,52 @@ export function dartLink(doc, company) {
   return link;
 }
 
+// v59.70 (X bookmarks #8): quarter-end inventory and trade receivables beside the cash-flow card — the working capital
+// that can take a free-cash-flow quarter down while revenue grows. One bar pair per quarter (the step's change).
+const fiscalQuarterLabel = (periodEnd) => `${String(periodEnd).slice(2, 4)}.${String(periodEnd).slice(5, 7)}`;
+function workingCapitalCard(doc, quarters) {
+  const read = buildWorkingCapitalRead(quarters);
+  if (!read.available) return null;
+  const card = el(doc, 'div', null, 'sx-card v2-fiscal-wc');
+  card.dataset.sectionVisual = 'working-capital';
+  const head = el(doc, 'div', null, 'sx-card__head');
+  head.append(el(doc, 'h3', '재고와 매출채권', 'sx-card__title'), el(doc, 'span', `분기 말 ${read.latest.periodEnd}`, 'sx-card__meta'));
+  card.append(head, el(doc, 'p', read.headline, 'v2-analysis-lede'));
+  const steps = read.rows.filter((row) => row.inventoryPct != null || row.receivablesPct != null);
+  const top = Math.max(1, ...steps.flatMap((row) => [row.inventoryPct, row.receivablesPct]).filter(Number.isFinite).map(Math.abs));
+  const chart = el(doc, 'div', null, 'v2-fiscal-wc__bars');
+  chart.setAttribute('role', 'img');
+  const pctText = (value) => (value == null ? '없음' : signedText(value, 1, '%'));
+  chart.setAttribute('aria-label', `직전 분기 대비 재고·매출채권 변화, ${steps.map((row) => `${row.periodEnd.slice(0, 7)} 재고 ${pctText(row.inventoryPct)}, 매출채권 ${pctText(row.receivablesPct)}`).join('; ')}`);
+  for (const row of steps) {
+    const col = el(doc, 'div', null, 'v2-fiscal-wc__col');
+    const pair = el(doc, 'div', null, 'v2-fiscal-wc__pair');
+    for (const [key, cls] of [['inventoryPct', 'is-inventory'], ['receivablesPct', 'is-receivables']]) {
+      const value = row[key];
+      const bar = el(doc, 'span', null, `v2-fiscal-wc__bar ${cls}${value < 0 ? ' is-neg' : ''}`);
+      bar.style.height = `${value == null ? 0 : Math.max(3, Math.abs(value) / top * 100).toFixed(1)}%`;
+      bar.title = `${row.periodEnd.slice(0, 7)} ${cls === 'is-inventory' ? '재고' : '매출채권'} ${pctText(value)}`;
+      pair.append(bar);
+    }
+    col.append(pair, el(doc, 'span', fiscalQuarterLabel(row.periodEnd), 'v2-fiscal-wc__label'));
+    chart.append(col);
+  }
+  const legend = el(doc, 'p', null, 'v2-fiscal-wc__legend');
+  legend.append(el(doc, 'span', '재고', 'v2-fiscal-wc__key is-inventory'), el(doc, 'span', '매출채권', 'v2-fiscal-wc__key is-receivables'), el(doc, 'span', '직전 분기 대비, 옅은 막대는 감소'));
+  card.append(chart, legend);
+  return card;
+}
+
+// v59.70 (PLAN S15): the page is three sections — ① revenue and margin trend, ② cash flow and accruals, ③ the SEC annual
+// summary (a fold). Each visual section carries its chart; the expert cards fold inside the section they belong to.
+function fiscalSection(doc, id, title) {
+  const box = el(doc, 'section', null, 'fiscal-section');
+  box.dataset.entitySection = id;
+  box.setAttribute('aria-label', title);
+  box.append(el(doc, 'h3', title, 'fiscal-section__title'));
+  return box;
+}
+
 function sourceLink(doc, fundamentals, { filings = false } = {}) {
   const cik = String(fundamentals?.cik || '');
   const href = filings ? /^\d{1,10}$/.test(cik) && Number(cik) > 0 ? `https://www.sec.gov/edgar/browse/?CIK=${Number(cik)}&owner=exclude` : null
@@ -421,6 +467,8 @@ export function renderFiscalRead({ documentRef: doc, root, state, close }) {
   const consensusPoint = buildConsensusPoint(row, consensusRowFor(root, symbol));
   // Quote ticks re-render the page; the folds the reader opened stay open (matched by their summary text).
   const openFolds = sameSymbol ? new Set([...host.querySelectorAll('details[open] > summary')].map((node) => node.textContent)) : new Set();
+  // The raw SEC report fold (index.html, written by entity.js renderFundamentalReport) lives in section ③; kept across repaints.
+  const rawReport = doc.getElementById('fund-native-sec-report');
   host.replaceChildren(el(doc, 'h2', '재무 흐름', 'briefing-h2'));
   if (!read.available) {
     // 2026-10-13 review S12: a KRX listing is read from Korean filings (DART), not as "SEC 미수신".
@@ -451,8 +499,11 @@ export function renderFiscalRead({ documentRef: doc, root, state, close }) {
     const extra = analysis ? analysis.fiscalExtras(doc, { root, symbol, quarters: quarterText ? parseQuarterHistory(quarterText) : [], history: read.history, consensus: consensusRowFor(root, symbol), calendar: root?.[EARNINGS_CALENDAR.key], calendarState: sharedArtifactState(root, EARNINGS_CALENDAR.key), rows, fundamentals, series: !!series, financial: read.points.some((point) => point.id === 'bank') }) : null;
     if (extra) hero.append(...extra.hero);
     hero.append(basis);
-    host.append(hero);
+    const trend = fiscalSection(doc, 'trend', '매출과 이익률 추세');
+    trend.append(hero);
+    host.append(trend);
     const chartCard = el(doc, 'div', null, 'sx-card v2-fiscal-chart');
+    chartCard.dataset.sectionVisual = 'revenue-income';
     const chartHead = el(doc, 'div', null, 'sx-card__head');
     chartHead.append(el(doc, 'h3', '매출과 순이익', 'sx-card__title'));
     chartCard.append(chartHead);
@@ -492,19 +543,15 @@ export function renderFiscalRead({ documentRef: doc, root, state, close }) {
       chartCard.append(quarterBox);
       show(view);
     }
-    const pair = el(doc, 'div', null, 'v2-fiscal-pair');
-    const quality = earningsQualityCard(doc, read, analysis);
-    pair.append(chartCard, ...(quality ? [quality] : []));
-    host.append(pair);
-    // v58.75: margin ladder · net cash · capital return, EPS against consensus stay on the face; the business lens table
-    // and R&D ÷ revenue (v58.55, US filers with a fiscal series) are expert detail and fold together.
+    trend.append(chartCard);
+    // v59.70 (S15 ①): the margin ladder, EPS against consensus, the business lens and R&D ÷ revenue fold under the trend.
     const lens = (extra?.cards || []).find((card) => card.dataset?.analysis === 'lens') || null;
-    if (extra) host.append(...extra.cards.filter((card) => card !== lens));
     const rd = series && analysis ? analysis.rdCard(doc, read.history) : null;
-    if (lens || rd) {
+    const trendCards = [...(extra?.cards || []).filter((card) => card !== lens), lens, rd].filter(Boolean);
+    if (trendCards.length) {
       const fold = el(doc, 'details', null, 'sx-disclosure fiscal-expert-fold');
-      fold.append(el(doc, 'summary', `업종 렌즈와 연구개발 — ${[lens ? '업종별로 추적할 지표' : null, rd ? 'R&D ÷ 매출' : null].filter(Boolean).join(', ')}`), ...[lens, rd].filter(Boolean));
-      host.append(fold);
+      fold.append(el(doc, 'summary', '이익률 단계, 예상 대비 실적, 업종 렌즈'), ...trendCards);
+      trend.append(fold);
     }
     // Codex browser audit H35: "최신" annual data is not the latest company state. Without quarters the gap after
     // the fiscal year end is named, so an old 10-K is not read as the current quarter.
@@ -512,11 +559,21 @@ export function renderFiscalRead({ documentRef: doc, root, state, close }) {
       const missing = el(doc, 'p', `분기 실적 자료 없음, 위 연간 숫자는 ${read.latest.periodEnd}까지입니다.`, 'fiscal-missing-period');
       const quarterSource = sourceLink(doc, fundamentals, { filings: true });
       if (quarterSource) missing.append(doc.createTextNode(' '), quarterSource);
-      host.append(missing);
+      trend.append(missing);
     }
+    // v59.70 (S15 ②): cash against earnings (accruals) and the working capital behind a cash swing; the reverse DCF and the
+    // DuPont split stay in this section's 투자 논지 틀 fold (the same deferred analysis chunk).
+    const cash = fiscalSection(doc, 'cash', '현금흐름과 발생액');
+    const quality = earningsQualityCard(doc, read, analysis);
+    if (quality) quality.dataset.sectionVisual = 'accruals';
+    const working = quarterText ? workingCapitalCard(doc, parseQuarterHistory(quarterText)) : null;
+    const cashPair = el(doc, 'div', null, 'v2-fiscal-pair');
+    const cashCards = [quality, working].filter(Boolean);
+    cashPair.append(...cashCards);
+    if (cashCards.length) cash.append(cashPair);
     // v59.51 (two layers): the sentence reading of the filings is the expert layer — one closed fold.
-    const readingCard = el(doc, 'details', null, 'sx-card sx-disclosure v2-fiscal-reading');
-    const readingHead = el(doc, 'summary', '공시를 문장으로 읽기 — 성장, 수익성, 현금, 부채, 주식 수');
+    const readingCard = el(doc, 'div', null, 'v2-fiscal-reading');
+    const readingHead = el(doc, 'h4', '공시를 문장으로 읽기', 'fiscal-section__sub');
     const list = el(doc, 'ul', null, 'stock-read-points');
     for (const point of consensusPoint ? [...read.points, consensusPoint] : read.points) {
       const li = el(doc, 'li', null, `stock-read-point is-${point.tone}`);
@@ -540,19 +597,29 @@ export function renderFiscalRead({ documentRef: doc, root, state, close }) {
     if (thesis || pairNode) {
       const fold = el(doc, 'details', null, 'sx-disclosure fiscal-thesis-fold');
       fold.append(el(doc, 'summary', '투자 논지 틀 — 가격이 가정한 성장(역 DCF), 수익성 구조(듀폰), 맞으려면과 깨지는 신호'), ...[pairNode, thesis].filter(Boolean));
-      after.splice(thesis ? after.indexOf(thesis) : 0, thesis ? 1 : 0, fold);
+      cash.append(fold);
     }
-    host.append(readingCard, ...after);
+    if (cashCards.length || thesis || pairNode) host.append(cash);
+    // v59.70 (S15 ③): the SEC annual summary is one fold — the sentence reading, the environments, same-theme and sector
+    // peers — with the raw filing fields (#fund-native-sec-report, written by entity.js) under it.
+    const sec = fiscalSection(doc, 'sec', 'SEC 연간 요약');
+    const secFold = el(doc, 'details', null, 'sx-disclosure fiscal-sec-fold');
+    secFold.append(el(doc, 'summary', '공시 문장, 유리·불리 환경, 동종 비교'), readingCard, ...after.filter((card) => card !== thesis));
     // v58.75 (persona review): same-theme companies by name first; the broad-sector percentile folds under it.
     const themePeers = extra?.themePeers || null;
-    if (themePeers) host.append(themePeers);
+    if (themePeers) secFold.append(themePeers);
     const peerBox = peerSection(doc, root, symbol, row, rows, fundamentals);
     if (peerBox && themePeers) {
       const fold = el(doc, 'details', null, 'fiscal-method-details fiscal-peer-fold');
       fold.append(el(doc, 'summary', `넓은 섹터 안 위치 보기, ${sectorLabel(row.sector)}`), ...[...peerBox.children]);
-      host.append(fold);
-    } else if (peerBox) { peerBox.classList.add('sx-card'); host.append(peerBox); }
+      secFold.append(fold);
+    } else if (peerBox) { peerBox.classList.add('sx-card'); secFold.append(peerBox); }
+    sec.append(secFold);
+    if (rawReport) sec.append(rawReport);
+    host.append(sec);
   }
+  // Without a reading (loading, KRX, no record) the raw report fold goes back under the host, where index.html put it.
+  if (rawReport && rawReport.parentElement !== host && !host.contains?.(rawReport)) host.after(rawReport);
   host.querySelectorAll('details > summary').forEach((summary) => { if (openFolds.has(summary.textContent)) summary.parentElement.open = true; });
   // The 요약 · 차트 tabs sit above the page; the next links name only other screens.
   renderNextSteps(doc, next, [

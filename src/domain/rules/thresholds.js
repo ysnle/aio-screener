@@ -32,7 +32,7 @@ export const RULES = Object.freeze({
   // 2.6%), or the Nasdaq 100 2.5% or more (10/22: SMH -6.0%, SOXX -6.8%, Nasdaq 100 -2.9%). It labels the day on the
   // leadership line; it is not an axis.
   // The money-flow line (leadership-verdict.js buildMarketFlow) calls a session a move into defensives when the defensive
-  // sector ETFs (XLP·XLU·XLV) beat the growth ones (XLK·XLC·SMH) by rotationGapPp or more and rose; broadSectorCount of the
+  // sector ETFs (XLP·XLU·XLV) beat the growth ones (XLK·XLC·SOXX) by rotationGapPp or more and rose; broadSectorCount of the
   // eleven sectors moving one way is a market-wide day (10/22: defensives +2.2%, growth -3.6%, 6 of 11 up). A sector's
   // sub-themes split when one rose splitSidePct or more, another fell as much, and they are themeSplitPp apart (10/22:
   // regulated utilities +2.6% vs nuclear/independent power -5.4%).

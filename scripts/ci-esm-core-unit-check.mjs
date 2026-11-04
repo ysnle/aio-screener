@@ -1525,7 +1525,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       // v59.69: why a stock moved after its report — a beat with a weak outlook reads as guidance (mixed numbers are not the
       // cause), a move matched by its group is the market's, a +40% run-up into a beat that fell is priced in.
       const { reactionRead } = await load('src/domain/briefing/reaction-read.js');
-      const rh = [{ date: '2026-10-29', smh: 100, spx: 100 }, { date: '2026-10-30', smh: 93, spx: 99.7 }];
+      const rh = [{ date: '2026-10-29', soxx: 100, spx: 100 }, { date: '2026-10-30', soxx: 93, spx: 99.7 }];
       const fig = (metric, surprisePct, extra = {}) => ({ metric, estimate: { surprisePct, ...extra } });
       const reaction = (pct, latestDate = '2026-10-30') => ({ baseDate: '2026-10-29', firstDate: '2026-10-30', firstPct: pct, latestDate, latestPct: pct });
       const intc = reactionRead({ layer: 'ai-core', figures: [fig('revenue', -1.7), fig('eps_diluted', 30, { actualBasis: 'adjusted' })], guidance: [], reasons: { points: [{ text: '다음 분기 매출·이익 전망이 시장 예상에 못 미쳐 우려를 키웠다.' }] }, reaction: reaction(-28.6) }, { history: rh });
@@ -3294,8 +3294,11 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     fail('P1182/22:PFR10 the panel must read weights through the frozen composition snapshot');
   }
   const e4HtmlSource = readFileSync(path.join(root, 'index.html'), 'utf8');
-  if (!/지금 구성을 과거에도 들고 있었다고 가정한 참고 그래프/.test(e4HtmlSource) || !/단순 추정/.test(e4HtmlSource) || !/배당·분할 미반영/.test(e4HtmlSource)) {
-    fail('P1182/22:PFR04 the benchmark chart must disclose retrospective basis, raw close and linear interpolation');
+  // v59.70 (S16): the chart is native (portfolio-value-trend.js) on adjusted closes at six fixed windows — no raw close, no
+  // interpolation — and discloses the held-fixed composition and the basis under the line.
+  const e4TrendSource = readFileSync(path.join(root, 'src/ui/components/portfolio-value-trend.js'), 'utf8');
+  if (!/지금 비중을 그대로 들고 있었다고 본 값이라 계좌 수익률과 다릅니다/.test(e4TrendSource) || !/수정 종가\(배당 포함\)/.test(e4TrendSource)) {
+    fail('P1182/22:PFR04 v59.70 the benchmark chart must disclose the retrospective (held-fixed) basis and its adjusted-close basis');
   }
   if (!/TWR\/MWR/.test(e4HtmlSource) || !/원장/.test(e4HtmlSource)) {
     fail('P1182/account-performance the risk surface must state the ledger hold before any computation runs');
@@ -6085,7 +6088,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   // v58.78 (owner 2026-10-25): 오늘 opens with the four index ETFs' last regular session — change from the previous close,
   // an open/closed flag from the trading period, and nothing drawn from an empty payload.
   const { sessionModel, INDEX_STRIP } = await load('src/ui/components/home-index-strip.js');
-  if (INDEX_STRIP.map((row) => row.sym).join(',') !== 'SPY,QQQ,SMH,IWM') fail('v58.78 index strip: SPY, QQQ, SMH (v58.80 run-5: one semiconductor gauge app-wide), IWM in that order');
+  if (INDEX_STRIP.map((row) => row.sym).join(',') !== 'SPY,QQQ,SOXX,IWM') fail('v59.70 index strip: SPY, QQQ, SOXX (one semiconductor gauge app-wide, the leadership proxy), IWM in that order');
   const start = 1792762200; // 2026-10-23 09:30 New York
   const payload = { timestamps: [start, start + 300, start + 600], opens: [100, 101, null], highs: [102, 103, 104], lows: [99, 100, 101], closes: [101, 102, 103],
     meta: { chartPreviousClose: 100, currentTradingPeriod: { regular: { start, end: start + 23400 } } } };

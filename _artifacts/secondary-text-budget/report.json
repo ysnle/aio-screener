@@ -55,13 +55,45 @@
           "text": "+0.5%"
         }
       ]
+    },
+    {
+      "route": "market-news",
+      "secondary": 351,
+      "ceiling": 299,
+      "lines": [
+        {
+          "chars": 63,
+          "classes": "event-briefs__flows-note event-briefs__flows",
+          "text": "추정치를 넘긴 실적 19건 중 9건(47%)이 다음 거래일에 내렸습니다. 전체 실적 28건에서는 16건(57%)."
+        },
+        {
+          "chars": 32,
+          "classes": "page-subtitle  page-head",
+          "text": "10/30 08:00 ~ 10/31 08:00 KST 기사"
+        },
+        {
+          "chars": 21,
+          "classes": "news-item-meta news-item-body news-item-card",
+          "text": "EnergyNow.com, 11시간 전"
+        },
+        {
+          "chars": 20,
+          "classes": "market-slot-meta market-slot-head market-slot",
+          "text": "헤드라인 6건, 원/달러 +0.12%"
+        },
+        {
+          "chars": 20,
+          "classes": "market-slot-meta market-slot-head market-slot",
+          "text": "헤드라인 6건, 비트코인 +0.77%"
+        }
+      ]
     }
   ],
   "frameProblems": [],
   "failures": [],
   "routes": {
     "home": {
-      "total": 418,
+      "total": 404,
       "secondary": 84,
       "lines": [
         {
@@ -105,7 +137,7 @@
       ]
     },
     "signal": {
-      "total": 5055,
+      "total": 5054,
       "secondary": 305,
       "lines": [
         {
@@ -362,7 +394,7 @@
       "frames": []
     },
     "macro": {
-      "total": 4343,
+      "total": 4365,
       "secondary": 252,
       "lines": [
         {
@@ -446,7 +478,7 @@
       ]
     },
     "fxbond": {
-      "total": 1769,
+      "total": 1723,
       "secondary": 160,
       "lines": [
         {
@@ -755,15 +787,9 @@
       ]
     },
     "portfolio": {
-      "total": 278,
-      "secondary": 2,
-      "lines": [
-        {
-          "chars": 2,
-          "classes": "sh-portfolio-toggle pf-privacy sh-portfolio-fold page-subtitle",
-          "text": "보안"
-        }
-      ],
+      "total": 137,
+      "secondary": 0,
+      "lines": [],
       "frames": []
     },
     "ticker": {
@@ -773,9 +799,14 @@
       "frames": []
     },
     "market-news": {
-      "total": 3112,
-      "secondary": 288,
+      "total": 3168,
+      "secondary": 351,
       "lines": [
+        {
+          "chars": 63,
+          "classes": "event-briefs__flows-note event-briefs__flows",
+          "text": "추정치를 넘긴 실적 19건 중 9건(47%)이 다음 거래일에 내렸습니다. 전체 실적 28건에서는 16건(57%)."
+        },
         {
           "chars": 32,
           "classes": "page-subtitle  page-head",
@@ -830,11 +861,6 @@
           "chars": 17,
           "classes": "news-item-meta news-item-body news-item-card",
           "text": "Bloomberg, 12시간 전"
-        },
-        {
-          "chars": 15,
-          "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Reuters, 11시간 전"
         }
       ],
       "frames": [
@@ -1039,18 +1065,13 @@
       "frames": []
     },
     "charts": {
-      "total": 975,
-      "secondary": 43,
+      "total": 893,
+      "secondary": 38,
       "lines": [
         {
           "chars": 13,
           "classes": "page-subtitle  page-head",
           "text": "10/30 종가 · 일봉"
-        },
-        {
-          "chars": 5,
-          "classes": "aio-note-fold trend-card charts-card",
-          "text": "차트 읽기"
         },
         {
           "chars": 5,

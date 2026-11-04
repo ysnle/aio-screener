@@ -3670,8 +3670,7 @@ window.AIO.getDataPipelineAudit = function() {
   var requiredFns = [
     'fetchWithTimeout', 'fetchViaProxy', 'fetchLiveQuotes', 'applyLiveQuotes',
     'applyDataSnapshot', 'fetchAllNews', // v57.77: renderFeed does not exist; v57.79: the renderHomeFeed no-op stub was removed
-    'renderBriefingFeed', 'computeTradingScore',
-    'updateBenchmarkChart'
+    'renderBriefingFeed', 'computeTradingScore' // v59.70: updateBenchmarkChart retired (native 포트폴리오 ① chart)
   ];
   var missingFns = requiredFns.filter(function(name) { return !exists(name); });
   var freshness = null;

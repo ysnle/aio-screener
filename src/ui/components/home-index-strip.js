@@ -1,5 +1,5 @@
 // Owner 2026-10-25: 오늘 opens with how the four US index ETFs moved through the last New York regular session, before
-// any reading — S&P 500 (SPY), Nasdaq 100 (QQQ), semiconductors (SMH), Russell 2000 (IWM). Each card is the session's
+// any reading — S&P 500 (SPY), Nasdaq 100 (QQQ), semiconductors (SOXX), Russell 2000 (IWM). Each card is the session's
 // 5-minute candles against the previous close, with the change from that close. The bars are fetched on the client
 // through the app's Yahoo chart path (window._fetchYahooChartData), so nothing here is a producer artifact; while the
 // session is open the strip re-reads every five minutes. A card opens that ETF on the 차트 screen.
@@ -14,12 +14,13 @@ const toneOf = (pct) => (pct == null || !Number.isFinite(Number(pct)) || Math.ab
 // v58.80 (first-users F04): `close` is the published daily close a card falls back to when the 5-minute bars cannot be
 // read — every first-time user met four empty grey boxes saying "분봉 수신 실패" at the top of 오늘.
 export const INDEX_STRIP = Object.freeze([
-  // closeChart: what a fallback card opens — SMH itself, or the ETF that tracks the index (the card says so; run-2 R2-2).
+  // closeChart: what a fallback card opens — SOXX itself, or the ETF that tracks the index (the card says so; run-2 R2-2).
   Object.freeze({ sym: 'SPY', label: 'S&P 500', close: 'spx', closeSym: '지수', closeLabel: 'S&P 500 지수', closeChart: 'SPY' }),
   Object.freeze({ sym: 'QQQ', label: '나스닥 100', close: 'ndx', closeSym: '지수', closeLabel: '나스닥 100 지수', closeChart: 'QQQ' }),
   // v58.80 run-5 (breaker #2, owner-delegated): the semiconductor card read SOXX live and SMH on the close fallback, under a
-  // reading that says 반도체(SMH) — one card, two funds by network luck. It is SMH, the app's one semiconductor gauge.
-  Object.freeze({ sym: 'SMH', label: '반도체', close: 'smh', closeSym: 'SMH', closeLabel: '반도체 ETF(SMH)', closeChart: 'SMH' }),
+  // reading that says 반도체(SMH) — one card, two funds by network luck. One fund: v59.70 (owner 11/4) made it SOXX, the
+  // leadership proxy the verdict reads, so the card and 시장 상태 name the same fund.
+  Object.freeze({ sym: 'SOXX', label: '반도체', close: 'soxx', closeSym: 'SOXX', closeLabel: '반도체 ETF(SOXX)', closeChart: 'SOXX' }),
   Object.freeze({ sym: 'IWM', label: '러셀 2000', close: 'rut', closeSym: '지수', closeLabel: '러셀 2000 지수', closeChart: 'IWM' })
 ]);
 const REFRESH_MS = 5 * 60 * 1000;
@@ -104,7 +105,7 @@ function card(doc, root, spec, model, failed) {
   const node = el(doc, 'button', null, 'home-index-card');
   node.type = 'button';
   const close = model ? null : closeFallback(root?._aioHistory, spec);
-  // First-users run 4: the tag and click follow the value shown (intraday ETF, or the close's index/SMH; none while empty).
+  // First-users run 4: the tag and click follow the value shown (intraday ETF, or the close's index/SOXX; none while empty).
   const shown = model ? spec.sym : close ? spec.closeChart || spec.sym : spec.sym;
   node.dataset.sym = shown;
   node.addEventListener('click', () => root.aioOpenMarketChart?.(shown));

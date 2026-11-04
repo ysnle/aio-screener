@@ -1,0 +1,29 @@
+{
+  "qa": [
+    {
+      "id": "QA-DATA-CREDIT-RANGE",
+      "text": "v59.70 (X bookmarks #4): after the next refresh, macro-history.json hyOas/igOas/cccOas carry about 790 observations from 2023-11, and the 매크로 신용 장 fold reads '2023년 11월 이후 기록의 N% 위치' with three band rows",
+      "verify_by": "2026-11-06"
+    },
+    {
+      "id": "QA-DATA-CORRECTION-RATES",
+      "text": "v59.70 (X bookmarks #1): after the next scenario-outcomes run, scenario-outcomes.json corrections reads n 40, bear 8, fastN 32, fastBear 4 from 1986, and 시장 상태's 추세 row shows the 40-dot line with its definition",
+      "verify_by": "2026-11-11"
+    },
+    {
+      "id": "QA-DATA-EVENT-FLOWS",
+      "text": "v59.70 (X bookmarks #6): after the next refresh, history.json has xlp/xlu/xlv columns, and two sessions after a lead release 뉴스 주요 발표 요약 shows '발표 뒤 돈의 방향' with three bars",
+      "verify_by": "2026-11-07"
+    },
+    {
+      "id": "QA-DATA-WORKING-CAPITAL",
+      "text": "v59.70 (X bookmarks #8): after the SEC normalizer re-reads issuers (sec-normalizer.2026-11-04), sec-fiscal-history.json quarters rows carry six columns and 재무 공시 ② shows 재고와 매출채권 for AMD",
+      "verify_by": "2026-11-13"
+    }
+  ],
+  "qa_section": "Wave 2 D: entity, portfolio and data follow-ups (v59.70)",
+  "changelog": [
+    "**X 북마크 데이터 후속 (11/04 패킷 §4, {VERSION}):** #1 조정 깊이 기저율 — scenario-outcomes가 1986년부터 ^IXIC 일봉으로 7% 조정 사건을 세어(40번 중 8번 약세장, 빠른 조정 32번 중 4번, 패킷 재계산과 약세장 고점 8개 날짜까지 일치) 시장 상태 추세 칸에 '몇 번 중 몇 번'과 정의만 보인다(판정 점수에는 넣지 않음). #4 신용 장기 범위 — 하이일드·투자등급·CCC OAS를 FRED가 주는 약 3년(800개)까지 쌓고 매크로 신용 장 접기에 층별 10~90% 분위 띠·중앙값·현재 점을 그린다(고정 150bp 선은 쓰지 않음). #6 사건 뒤 수급 세 갈래 — XLP·XLU·XLV 종가를 history에 쌓고, 뉴스 주요 발표 요약에 대표 발표 뒤 2~3거래일의 기술·방어 업종·동일가중·소형 상대 수익률과 '기술로 복귀 / 방어 지속 / 전체 확산'을 보인다. #8 분기 재고·매출채권 — SEC 정규화가 10-Q/10-K 분기 말 InventoryNet·AccountsReceivableNetCurrent를 모으고 분기 이력에 두 열을 더해 재무 공시 ②에 직전 분기 대비 증감 막대를 그린다(정규화 버전 2026-11-04로 다시 읽기). #11 호재 무반응 — 추정치를 넘긴 실적 중 다음 거래일에 내린 비율을 전체 실적 비율 옆에 적는다. 게이트: scripts/ci-data-audit-contract-check.mjs."
+  ],
+  "note": "wave2-d: X bookmark data follow-ups #1 #4 #6 #8 #11"
+}

@@ -136,3 +136,45 @@ input[aria-invalid="true"] { border-color: var(--data-red); }
 @media (hover: none) and (pointer: coarse) { #sidebar-kbd-btn { display: none; } } /* no keyboard shortcuts on a phone */
 /* v58.80 run-5 (phone #9): the row just added is marked for a moment after the page scrolls to it. */
 #page-portfolio tr.is-just-added > td { background: var(--surface-2, rgba(0, 0, 0, 0.05)); transition: background 0.6s; }
+
+/* v59.70 (S16): the first screen is three sections — ① 지금 구성과 S&P 500 (native trend chart), ② 보유 종목 (table and
+   its reading), ③ 노출 (one stacked sector bar) — then the three folds 기록 · 점검 · 설정. #pf-main orders its children
+   (index.html: every child order 90; v2-screener.css: entry -8, holdings -7). */
+#page-portfolio #pf-main > #pf-value-trend { order: -7 !important; }
+#page-portfolio #pf-main > #pf-read { order: -7 !important; }
+#page-portfolio #pf-main > #pf-exposure-bar { order: -7 !important; }
+#page-portfolio #pf-main > .pf-first { box-sizing: border-box; min-width: 0; max-width: 100%; margin: 0 0 16px; padding: 18px 20px; border-radius: 12px; background: var(--bg-card); }
+#page-portfolio .pf-first-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+#page-portfolio .pf-first-head .briefing-h2 { margin: 0; }
+#page-portfolio .pf-trend-body { min-height: 120px; }
+#page-portfolio .pf-trend-body .trend-chart-wrap { width: 100%; }
+#page-portfolio .pf-trend-body .trend-chart { width: 100%; height: auto; }
+#page-portfolio .pf-trend-lead { margin: 0 0 8px; font-size: 14px; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+#page-portfolio .pf-trend-part { white-space: nowrap; }
+#page-portfolio .pf-trend-lead b.is-up { color: var(--dir-up); }
+#page-portfolio .pf-trend-lead b.is-down { color: var(--dir-down); }
+#page-portfolio .pf-trend-note { margin: 6px 0 0; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
+#page-portfolio .pf-value-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 6px; font-size: 12px; color: var(--text-secondary); }
+#page-portfolio .pf-value-legend svg { margin-right: 6px; vertical-align: middle; }
+#page-portfolio .pf-exposure-lead { margin: 0 0 10px; font-size: 14px; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+#page-portfolio .pf-exposure-track { display: flex; height: 14px; border-radius: 7px; overflow: hidden; background: rgba(var(--ink-rgb), 0.06); }
+#page-portfolio .pf-exposure-seg { display: block; height: 100%; min-width: 2px; box-shadow: inset -1px 0 0 var(--bg-card); }
+#page-portfolio .pf-exposure-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 10px 0 0; padding: 0; list-style: none; font-size: 12px; }
+#page-portfolio .pf-exposure-key { display: inline-flex; align-items: center; gap: 6px; color: var(--text-secondary); }
+#page-portfolio .pf-exposure-key b { color: var(--text-primary); font-variant-numeric: tabular-nums; }
+#page-portfolio .pf-exposure-swatch { width: 10px; height: 10px; border-radius: 2px; }
+#page-portfolio :is(.pf-exposure-seg, .pf-exposure-swatch).is-s1 { background: rgba(var(--ink-rgb), 0.82); }
+#page-portfolio :is(.pf-exposure-seg, .pf-exposure-swatch).is-s2 { background: rgba(var(--ink-rgb), 0.62); }
+#page-portfolio :is(.pf-exposure-seg, .pf-exposure-swatch).is-s3 { background: rgba(var(--ink-rgb), 0.45); }
+#page-portfolio :is(.pf-exposure-seg, .pf-exposure-swatch).is-s4 { background: rgba(var(--ink-rgb), 0.32); }
+#page-portfolio :is(.pf-exposure-seg, .pf-exposure-swatch).is-s5 { background: rgba(var(--ink-rgb), 0.22); }
+#page-portfolio :is(.pf-exposure-seg, .pf-exposure-swatch).is-other { background: rgba(var(--ink-rgb), 0.12); }
+/* Inside a fold each former fold is a titled part. */
+#page-portfolio .pf-fold-part { margin: 0 0 20px; }
+#page-portfolio .pf-fold-part + .pf-fold-part { padding-top: 16px; border-top: 0.5px solid var(--border); }
+#page-portfolio .pf-fold-h { margin: 0 0 8px; font-size: 14px; font-weight: 700; color: var(--text-primary); }
+@media (max-width: 600px) {
+  #page-portfolio #pf-main > .pf-first { padding: 14px 16px; }
+}
+/* The fold class sets display: block, which overrode [hidden] (an empty book showed 기록 and 점검 with nothing inside). */
+#page-portfolio #pf-main > :is(details, section)[hidden] { display: none !important; }

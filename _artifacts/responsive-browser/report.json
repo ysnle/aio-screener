@@ -4,23 +4,23 @@
   "status": "PASS",
   "observations": [
     {
-      "viewport": "phone390",
-      "route": "home",
-      "active": "page-home",
-      "width": 358,
-      "docOverflow": 0,
-      "clipped": [],
-      "textLength": 892,
-      "zeroCharts": []
-    },
-    {
       "viewport": "tablet768",
       "route": "home",
       "active": "page-home",
       "width": 720,
       "docOverflow": 0,
       "clipped": [],
-      "textLength": 892,
+      "textLength": 457,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "phone390",
+      "route": "home",
+      "active": "page-home",
+      "width": 358,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 876,
       "zeroCharts": []
     },
     {
@@ -30,7 +30,7 @@
       "width": 924,
       "docOverflow": 0,
       "clipped": [],
-      "textLength": 892,
+      "textLength": 876,
       "zeroCharts": []
     },
     {
@@ -40,7 +40,17 @@
       "width": 768,
       "docOverflow": 0,
       "clipped": [],
-      "textLength": 892,
+      "textLength": 876,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet768",
+      "route": "signal",
+      "active": "page-signal",
+      "width": 720,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 1430,
       "zeroCharts": []
     },
     {
@@ -54,26 +64,6 @@
       "zeroCharts": []
     },
     {
-      "viewport": "tablet768",
-      "route": "signal",
-      "active": "page-signal",
-      "width": 720,
-      "docOverflow": 0,
-      "clipped": [],
-      "textLength": 1430,
-      "zeroCharts": []
-    },
-    {
-      "viewport": "tablet1180",
-      "route": "signal",
-      "active": "page-signal",
-      "width": 924,
-      "docOverflow": 0,
-      "clipped": [],
-      "textLength": 1430,
-      "zeroCharts": []
-    },
-    {
       "viewport": "tablet1024",
       "route": "signal",
       "active": "page-signal",
@@ -85,22 +75,12 @@
     },
     {
       "viewport": "tablet1180",
-      "route": "breadth",
-      "active": "page-breadth",
+      "route": "signal",
+      "active": "page-signal",
       "width": 924,
       "docOverflow": 0,
       "clipped": [],
-      "textLength": 44,
-      "zeroCharts": []
-    },
-    {
-      "viewport": "tablet1024",
-      "route": "breadth",
-      "active": "page-breadth",
-      "width": 768,
-      "docOverflow": 0,
-      "clipped": [],
-      "textLength": 44,
+      "textLength": 1430,
       "zeroCharts": []
     },
     {
@@ -115,12 +95,12 @@
     },
     {
       "viewport": "tablet1180",
-      "route": "sentiment",
-      "active": "page-sentiment",
+      "route": "breadth",
+      "active": "page-breadth",
       "width": 924,
       "docOverflow": 0,
       "clipped": [],
-      "textLength": 1026,
+      "textLength": 44,
       "zeroCharts": []
     },
     {
@@ -135,12 +115,12 @@
     },
     {
       "viewport": "tablet1024",
-      "route": "sentiment",
-      "active": "page-sentiment",
+      "route": "breadth",
+      "active": "page-breadth",
       "width": 768,
       "docOverflow": 0,
       "clipped": [],
-      "textLength": 1026,
+      "textLength": 44,
       "zeroCharts": []
     },
     {
@@ -154,6 +134,26 @@
       "zeroCharts": []
     },
     {
+      "viewport": "tablet1180",
+      "route": "sentiment",
+      "active": "page-sentiment",
+      "width": 924,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 1026,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1024",
+      "route": "sentiment",
+      "active": "page-sentiment",
+      "width": 768,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 1026,
+      "zeroCharts": []
+    },
+    {
       "viewport": "phone390",
       "route": "sentiment",
       "active": "page-sentiment",
@@ -161,6 +161,16 @@
       "docOverflow": 0,
       "clipped": [],
       "textLength": 1026,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet768",
+      "route": "briefing",
+      "active": "page-briefing",
+      "width": 720,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 115,
       "zeroCharts": []
     },
     {
@@ -184,36 +194,6 @@
       "zeroCharts": []
     },
     {
-      "viewport": "tablet1180",
-      "route": "technical",
-      "active": "page-technical",
-      "width": 924,
-      "docOverflow": 0,
-      "clipped": [],
-      "textLength": 168,
-      "zeroCharts": []
-    },
-    {
-      "viewport": "tablet1024",
-      "route": "technical",
-      "active": "page-technical",
-      "width": 768,
-      "docOverflow": 0,
-      "clipped": [],
-      "textLength": 168,
-      "zeroCharts": []
-    },
-    {
-      "viewport": "tablet768",
-      "route": "briefing",
-      "active": "page-briefing",
-      "width": 720,
-      "docOverflow": 0,
-      "clipped": [],
-      "textLength": 115,
-      "zeroCharts": []
-    },
-    {
       "viewport": "phone390",
       "route": "briefing",
       "active": "page-briefing",
@@ -224,10 +204,70 @@
       "zeroCharts": []
     },
     {
+      "viewport": "tablet768",
+      "route": "technical",
+      "active": "page-technical",
+      "width": 720,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 168,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1180",
+      "route": "technical",
+      "active": "page-technical",
+      "width": 924,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 168,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1024",
+      "route": "technical",
+      "active": "page-technical",
+      "width": 768,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 168,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "phone390",
+      "route": "technical",
+      "active": "page-technical",
+      "width": 358,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 168,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet768",
+      "route": "macro",
+      "active": "page-macro",
+      "width": 720,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 179,
+      "zeroCharts": []
+    },
+    {
       "viewport": "tablet1180",
       "route": "macro",
       "active": "page-macro",
       "width": 924,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 179,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "phone390",
+      "route": "macro",
+      "active": "page-macro",
+      "width": 358,
       "docOverflow": 0,
       "clipped": [],
       "textLength": 179,
@@ -245,22 +285,12 @@
     },
     {
       "viewport": "tablet768",
-      "route": "technical",
-      "active": "page-technical",
+      "route": "fxbond",
+      "active": "page-fxbond",
       "width": 720,
       "docOverflow": 0,
       "clipped": [],
-      "textLength": 168,
-      "zeroCharts": []
-    },
-    {
-      "viewport": "phone390",
-      "route": "technical",
-      "active": "page-technical",
-      "width": 358,
-      "docOverflow": 0,
-      "clipped": [],
-      "textLength": 168,
+      "textLength": 1695,
       "zeroCharts": []
     },
     {
@@ -270,27 +300,17 @@
       "width": 924,
       "docOverflow": 0,
       "clipped": [],
-      "textLength": 1743,
+      "textLength": 1554,
       "zeroCharts": []
     },
     {
       "viewport": "tablet768",
-      "route": "macro",
-      "active": "page-macro",
+      "route": "fundamental",
+      "active": "page-fundamental",
       "width": 720,
       "docOverflow": 0,
       "clipped": [],
-      "textLength": 179,
-      "zeroCharts": []
-    },
-    {
-      "viewport": "phone390",
-      "route": "macro",
-      "active": "page-macro",
-      "width": 358,
-      "docOverflow": 0,
-      "clipped": [],
-      "textLength": 179,
+      "textLength": 38,
       "zeroCharts": []
     },
     {
@@ -300,27 +320,7 @@
       "width": 768,
       "docOverflow": 0,
       "clipped": [],
-      "textLength": 2011,
-      "zeroCharts": []
-    },
-    {
-      "viewport": "tablet768",
-      "route": "fxbond",
-      "active": "page-fxbond",
-      "width": 720,
-      "docOverflow": 0,
-      "clipped": [],
-      "textLength": 2011,
-      "zeroCharts": []
-    },
-    {
-      "viewport": "phone390",
-      "route": "fxbond",
-      "active": "page-fxbond",
-      "width": 358,
-      "docOverflow": 0,
-      "clipped": [],
-      "textLength": 1551,
+      "textLength": 1698,
       "zeroCharts": []
     },
     {
@@ -334,20 +334,20 @@
       "zeroCharts": []
     },
     {
+      "viewport": "phone390",
+      "route": "fxbond",
+      "active": "page-fxbond",
+      "width": 358,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 1647,
+      "zeroCharts": []
+    },
+    {
       "viewport": "tablet1024",
       "route": "fundamental",
       "active": "page-fundamental",
       "width": 768,
-      "docOverflow": 0,
-      "clipped": [],
-      "textLength": 38,
-      "zeroCharts": []
-    },
-    {
-      "viewport": "tablet768",
-      "route": "fundamental",
-      "active": "page-fundamental",
-      "width": 720,
       "docOverflow": 0,
       "clipped": [],
       "textLength": 38,
@@ -374,16 +374,6 @@
       "zeroCharts": []
     },
     {
-      "viewport": "tablet1024",
-      "route": "themes",
-      "active": "page-themes",
-      "width": 768,
-      "docOverflow": 0,
-      "clipped": [],
-      "textLength": 2585,
-      "zeroCharts": []
-    },
-    {
       "viewport": "tablet768",
       "route": "themes",
       "active": "page-themes",
@@ -394,6 +384,16 @@
       "zeroCharts": []
     },
     {
+      "viewport": "tablet1024",
+      "route": "themes",
+      "active": "page-themes",
+      "width": 768,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 2585,
+      "zeroCharts": []
+    },
+    {
       "viewport": "phone390",
       "route": "themes",
       "active": "page-themes",
@@ -401,36 +401,6 @@
       "docOverflow": 0,
       "clipped": [],
       "textLength": 2266,
-      "zeroCharts": []
-    },
-    {
-      "viewport": "tablet1180",
-      "route": "theme-detail",
-      "active": "page-themes",
-      "width": 924,
-      "docOverflow": 0,
-      "clipped": [],
-      "textLength": 3340,
-      "zeroCharts": []
-    },
-    {
-      "viewport": "phone390",
-      "route": "theme-detail",
-      "active": "page-themes",
-      "width": 358,
-      "docOverflow": 0,
-      "clipped": [],
-      "textLength": 2266,
-      "zeroCharts": []
-    },
-    {
-      "viewport": "tablet1024",
-      "route": "theme-detail",
-      "active": "page-themes",
-      "width": 768,
-      "docOverflow": 0,
-      "clipped": [],
-      "textLength": 3133,
       "zeroCharts": []
     },
     {
@@ -445,22 +415,12 @@
     },
     {
       "viewport": "tablet1180",
-      "route": "portfolio",
-      "active": "page-portfolio",
+      "route": "theme-detail",
+      "active": "page-themes",
       "width": 924,
       "docOverflow": 0,
       "clipped": [],
-      "textLength": 195,
-      "zeroCharts": []
-    },
-    {
-      "viewport": "tablet1024",
-      "route": "portfolio",
-      "active": "page-portfolio",
-      "width": 768,
-      "docOverflow": 0,
-      "clipped": [],
-      "textLength": 195,
+      "textLength": 3340,
       "zeroCharts": []
     },
     {
@@ -470,7 +430,37 @@
       "width": 720,
       "docOverflow": 0,
       "clipped": [],
-      "textLength": 195,
+      "textLength": 148,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1024",
+      "route": "theme-detail",
+      "active": "page-themes",
+      "width": 768,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 3133,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet768",
+      "route": "ticker",
+      "active": "page-ticker",
+      "width": 720,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 180,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1180",
+      "route": "portfolio",
+      "active": "page-portfolio",
+      "width": 924,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 148,
       "zeroCharts": []
     },
     {
@@ -484,6 +474,26 @@
       "zeroCharts": []
     },
     {
+      "viewport": "phone390",
+      "route": "theme-detail",
+      "active": "page-themes",
+      "width": 358,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 2814,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1024",
+      "route": "portfolio",
+      "active": "page-portfolio",
+      "width": 768,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 285,
+      "zeroCharts": []
+    },
+    {
       "viewport": "tablet1024",
       "route": "ticker",
       "active": "page-ticker",
@@ -495,12 +505,12 @@
     },
     {
       "viewport": "tablet768",
-      "route": "ticker",
-      "active": "page-ticker",
+      "route": "market-news",
+      "active": "page-market-news",
       "width": 720,
       "docOverflow": 0,
       "clipped": [],
-      "textLength": 180,
+      "textLength": 173,
       "zeroCharts": []
     },
     {
@@ -510,7 +520,17 @@
       "width": 358,
       "docOverflow": 0,
       "clipped": [],
-      "textLength": 195,
+      "textLength": 230,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet768",
+      "route": "principles",
+      "active": "page-principles",
+      "width": 720,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 1874,
       "zeroCharts": []
     },
     {
@@ -530,7 +550,17 @@
       "width": 924,
       "docOverflow": 0,
       "clipped": [],
-      "textLength": 1614,
+      "textLength": 173,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet768",
+      "route": "masters",
+      "active": "page-masters",
+      "width": 720,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 2084,
       "zeroCharts": []
     },
     {
@@ -540,17 +570,17 @@
       "width": 768,
       "docOverflow": 0,
       "clipped": [],
-      "textLength": 1614,
+      "textLength": 173,
       "zeroCharts": []
     },
     {
       "viewport": "tablet768",
-      "route": "market-news",
-      "active": "page-market-news",
+      "route": "atlas",
+      "active": "page-atlas",
       "width": 720,
       "docOverflow": 0,
       "clipped": [],
-      "textLength": 1614,
+      "textLength": 1695,
       "zeroCharts": []
     },
     {
@@ -558,76 +588,36 @@
       "route": "principles",
       "active": "page-principles",
       "width": 924,
-      "docOverflow": 0,
-      "clipped": [],
-      "textLength": 1874,
-      "zeroCharts": []
-    },
-    {
-      "viewport": "tablet1024",
-      "route": "principles",
-      "active": "page-principles",
-      "width": 768,
-      "docOverflow": 0,
-      "clipped": [],
-      "textLength": 1874,
-      "zeroCharts": []
-    },
-    {
-      "viewport": "tablet768",
-      "route": "principles",
-      "active": "page-principles",
-      "width": 720,
       "docOverflow": 0,
       "clipped": [],
       "textLength": 1781,
       "zeroCharts": []
     },
     {
-      "viewport": "tablet1180",
-      "route": "masters",
-      "active": "page-masters",
-      "width": 924,
-      "docOverflow": 0,
-      "clipped": [],
-      "textLength": 2084,
-      "zeroCharts": []
-    },
-    {
       "viewport": "phone390",
       "route": "market-news",
       "active": "page-market-news",
       "width": 358,
       "docOverflow": 0,
       "clipped": [],
-      "textLength": 120,
-      "zeroCharts": []
-    },
-    {
-      "viewport": "tablet1024",
-      "route": "masters",
-      "active": "page-masters",
-      "width": 768,
-      "docOverflow": 0,
-      "clipped": [],
-      "textLength": 2084,
-      "zeroCharts": []
-    },
-    {
-      "viewport": "tablet1180",
-      "route": "atlas",
-      "active": "page-atlas",
-      "width": 924,
-      "docOverflow": 0,
-      "clipped": [],
-      "textLength": 1695,
+      "textLength": 173,
       "zeroCharts": []
     },
     {
       "viewport": "tablet768",
+      "route": "guide",
+      "active": "page-guide",
+      "width": 720,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 164,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1180",
       "route": "masters",
       "active": "page-masters",
-      "width": 720,
+      "width": 924,
       "docOverflow": 0,
       "clipped": [],
       "textLength": 2084,
@@ -635,42 +625,12 @@
     },
     {
       "viewport": "tablet1024",
-      "route": "atlas",
-      "active": "page-atlas",
+      "route": "principles",
+      "active": "page-principles",
       "width": 768,
       "docOverflow": 0,
       "clipped": [],
-      "textLength": 1695,
-      "zeroCharts": []
-    },
-    {
-      "viewport": "tablet1180",
-      "route": "guide",
-      "active": "page-guide",
-      "width": 924,
-      "docOverflow": 0,
-      "clipped": [],
-      "textLength": 164,
-      "zeroCharts": []
-    },
-    {
-      "viewport": "tablet768",
-      "route": "atlas",
-      "active": "page-atlas",
-      "width": 720,
-      "docOverflow": 0,
-      "clipped": [],
-      "textLength": 1695,
-      "zeroCharts": []
-    },
-    {
-      "viewport": "tablet1024",
-      "route": "guide",
-      "active": "page-guide",
-      "width": 768,
-      "docOverflow": 0,
-      "clipped": [],
-      "textLength": 164,
+      "textLength": 1781,
       "zeroCharts": []
     },
     {
@@ -684,13 +644,23 @@
       "zeroCharts": []
     },
     {
-      "viewport": "tablet768",
-      "route": "guide",
-      "active": "page-guide",
-      "width": 720,
+      "viewport": "tablet1180",
+      "route": "atlas",
+      "active": "page-atlas",
+      "width": 924,
       "docOverflow": 0,
       "clipped": [],
-      "textLength": 164,
+      "textLength": 1695,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1024",
+      "route": "masters",
+      "active": "page-masters",
+      "width": 768,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 2084,
       "zeroCharts": []
     },
     {
@@ -704,6 +674,26 @@
       "zeroCharts": []
     },
     {
+      "viewport": "tablet1180",
+      "route": "guide",
+      "active": "page-guide",
+      "width": 924,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 164,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1024",
+      "route": "atlas",
+      "active": "page-atlas",
+      "width": 768,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 1695,
+      "zeroCharts": []
+    },
+    {
       "viewport": "phone390",
       "route": "atlas",
       "active": "page-atlas",
@@ -711,6 +701,16 @@
       "docOverflow": 0,
       "clipped": [],
       "textLength": 1695,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1024",
+      "route": "guide",
+      "active": "page-guide",
+      "width": 768,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 164,
       "zeroCharts": []
     },
     {
@@ -724,26 +724,6 @@
       "zeroCharts": []
     },
     {
-      "viewport": "tablet1180",
-      "route": "screener",
-      "active": "page-screener",
-      "width": 924,
-      "docOverflow": 0,
-      "clipped": [],
-      "textLength": 302,
-      "zeroCharts": []
-    },
-    {
-      "viewport": "tablet1024",
-      "route": "screener",
-      "active": "page-screener",
-      "width": 768,
-      "docOverflow": 0,
-      "clipped": [],
-      "textLength": 302,
-      "zeroCharts": []
-    },
-    {
       "viewport": "tablet768",
       "route": "screener",
       "active": "page-screener",
@@ -754,33 +734,43 @@
       "zeroCharts": []
     },
     {
-      "viewport": "tablet1180",
-      "route": "charts",
-      "active": "page-charts",
-      "width": 924,
-      "docOverflow": 0,
-      "clipped": [],
-      "textLength": 1375,
-      "zeroCharts": []
-    },
-    {
-      "viewport": "tablet1024",
-      "route": "charts",
-      "active": "page-charts",
-      "width": 768,
-      "docOverflow": 0,
-      "clipped": [],
-      "textLength": 1375,
-      "zeroCharts": []
-    },
-    {
       "viewport": "tablet768",
       "route": "charts",
       "active": "page-charts",
       "width": 720,
       "docOverflow": 0,
       "clipped": [],
-      "textLength": 1375,
+      "textLength": 1259,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1180",
+      "route": "screener",
+      "active": "page-screener",
+      "width": 924,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 302,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1180",
+      "route": "charts",
+      "active": "page-charts",
+      "width": 924,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 1259,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1024",
+      "route": "screener",
+      "active": "page-screener",
+      "width": 768,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 302,
       "zeroCharts": []
     },
     {
@@ -794,13 +784,23 @@
       "zeroCharts": []
     },
     {
+      "viewport": "tablet1024",
+      "route": "charts",
+      "active": "page-charts",
+      "width": 768,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 1259,
+      "zeroCharts": []
+    },
+    {
       "viewport": "phone390",
       "route": "charts",
       "active": "page-charts",
       "width": 358,
       "docOverflow": 0,
       "clipped": [],
-      "textLength": 1375,
+      "textLength": 1259,
       "zeroCharts": []
     }
   ],

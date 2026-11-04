@@ -15,7 +15,7 @@ import { shortDate } from '../../domain/content/date-labels.js';
 import { historyWaitText, renderDataState } from '../components/data-state.js';
 
 // The ETF the 종목 차트 tab can open for each index; the Korean indexes have no tradable twin there.
-const CHART_SYMBOL = Object.freeze({ ndx: 'QQQ', spx: 'SPY', smh: 'SMH', rut: 'IWM' });
+const CHART_SYMBOL = Object.freeze({ ndx: 'QQQ', spx: 'SPY', soxx: 'SOXX', rut: 'IWM' });
 
 // The screener carries the S&P 500 weights column-encoded ({columns, rows}); the published file carries objects.
 function weightRows(meta) {

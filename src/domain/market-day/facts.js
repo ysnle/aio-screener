@@ -19,7 +19,7 @@ const DAY = 24 * HOUR;
 // Prices and levels read from history.json (session-keyed closes). `unit` bp means the field is a yield in percent.
 export const ASSETS = Object.freeze([
   ['spx', 'S&P 500', 'index', ['equity-us']], ['ndx', '나스닥100', 'index', ['equity-us', 'ai-semis']],
-  ['smh', '반도체(SMH)', 'index', ['ai-semis']], ['rut', '러셀2000', 'index', ['equity-us', 'small-caps']],
+  ['soxx', '반도체(SOXX)', 'index', ['ai-semis']], ['rut', '러셀2000', 'index', ['equity-us', 'small-caps']],
   ['rsp', 'S&P 500 동일가중', 'index', ['equity-us', 'breadth']], ['kospi', '코스피', 'index', ['korea']],
   ['kosdaq', '코스닥', 'index', ['korea']], ['vix', 'VIX', 'volatility', ['volatility']],
   ['tnx', '미국 10년 금리', 'rate', ['rates'], 'bp'], ['dxy', '달러지수', 'fx', ['fx']], ['usdkrw', '원/달러', 'fx', ['fx', 'korea']],
@@ -251,7 +251,7 @@ function briefFacts(briefs, nowMs) {
 
 // The price a group's earnings depend on (theme ids of js/aio-pages.js THEME_MAP, sectors of screener-universe.json).
 // Rates-sensitive groups are left out: utilities and real estate fall with higher yields, so their sign is reversed.
-export const GROUP_DRIVERS = Object.freeze({ 'theme:energy': 'wti', 'sector:Energy': 'wti', 'theme:crypto': 'btc', 'theme:semiconductor': 'smh', 'theme:photonics': 'smh', 'theme:ai_infra': 'smh' });
+export const GROUP_DRIVERS = Object.freeze({ 'theme:energy': 'wti', 'sector:Energy': 'wti', 'theme:crypto': 'btc', 'theme:semiconductor': 'soxx', 'theme:photonics': 'soxx', 'theme:ai_infra': 'soxx' });
 
 const MOVE_KINDS = new Set(['price', 'stock-move', 'group-move']);
 const CAUSE_KINDS = new Set(['headline', 'earnings', 'brief', 'deal', 'analyst', 'release', 'event']);

@@ -293,6 +293,36 @@
           ]
         },
         {
+          "id": "portfolio-native-chart",
+          "script": "scripts/ci-portfolio-native-chart-check.mjs",
+          "inputs": [
+            "index.html",
+            "js/aio-ui.js",
+            "architecture/route-owners.json",
+            "src/ui/pages/portfolio.js",
+            "src/ui/components/portfolio-*.js",
+            "src/domain/portfolio/**",
+            "scripts/ci-portfolio-native-chart-check.mjs"
+          ]
+        },
+        {
+          "id": "section-visual-contract",
+          "script": "scripts/ci-section-visual-contract.mjs",
+          "inputs": [
+            "index.html",
+            "src/ui/pages/entity.js",
+            "src/ui/components/fiscal-read.js",
+            "src/ui/components/stock-lens-cards.js",
+            "src/ui/components/company-story.js",
+            "src/ui/components/fundamental-analysis-*.js",
+            "src/domain/entity/**",
+            "src/domain/fundamental/**",
+            "src/domain/briefing/day-account.js",
+            "scripts/lib/fake-dom.mjs",
+            "scripts/ci-section-visual-contract.mjs"
+          ]
+        },
+        {
           "id": "native-decision",
           "script": "scripts/ci-native-decision-evidence-check.mjs",
           "inputs": [
@@ -947,7 +977,15 @@
             "scripts/fetch-kr-investor-flows.mjs",
             ".github/workflows/pages-deploy.yml",
             "index.html",
-            "sw.js"
+            "sw.js",
+            "scripts/build-scenario-outcomes.mjs",
+            "src/domain/briefing/**",
+            "src/domain/macro/**",
+            "src/domain/market/**",
+            "src/domain/market-day/**",
+            "src/domain/scenarios/correction-base-rates.js",
+            "src/domain/technical/market-charts.js",
+            "src/ui/**"
           ]
         },
         {
@@ -2879,6 +2917,7 @@
         "scripts/lib/official-calendars.mjs",
         "scripts/lib/market-interpretation-inputs.mjs",
         "scripts/build-validation-gates.mjs",
+        "scripts/build-scenario-outcomes.mjs",
         "js/aio-pages.js",
         "architecture/validation-gate-criteria.json"
       ],

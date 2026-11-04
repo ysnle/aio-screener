@@ -8,7 +8,7 @@ import { readNumber } from '../shared/number.js';
 import { withTopicParticle } from '../content/korean-particle.js';
 import { historyFieldMeta } from './history-meta.js';
 
-export const LEVEL_FIELDS = Object.freeze([['ndx', '나스닥100'], ['smh', '반도체(SMH)'], ['spx', 'S&P 500']]);
+export const LEVEL_FIELDS = Object.freeze([['ndx', '나스닥100'], ['soxx', '반도체(SOXX)'], ['spx', 'S&P 500']]);
 
 const weekday = (date) => { const day = new Date(`${date}T12:00:00Z`).getUTCDay(); return day >= 1 && day <= 5; };
 const mean = (values) => values.reduce((sum, value) => sum + value, 0) / values.length;
@@ -95,14 +95,14 @@ export function levelsRead(levels) {
   const support = lead.support ? ` 최근 6개월 가장 낮은 종가는 ${md(lead.support.date)} ${Math.round(lead.support.value).toLocaleString('en-US')}로 지금보다 ${Math.abs(lead.support.abovePct).toFixed(1)}% 아래입니다. 그 아래로 내려가면 저점이 낮아지는 흐름이 됩니다.` : '';
   // The pattern line prefers a broken top, then the semiconductor index (the owner's question), then the others; a neck
   // that is the lead's own support is said once.
-  const order = (level) => (level.doubleTop?.state === 'broken' ? 0 : level.field === 'smh' ? 1 : 2);
+  const order = (level) => (level.doubleTop?.state === 'broken' ? 0 : level.field === 'soxx' ? 1 : 2);
   const top = levels.filter((level) => level.doubleTop).sort((a, b) => order(a) - order(b))[0];
   const t = top?.doubleTop;
   const neck = t ? `${md(t.first.date)}·${md(t.second.date)} 두 고점 사이 저점(${md(t.neck.date)} ${Math.round(t.neck.value).toLocaleString('en-US')})` : '';
   const pattern = !t ? '' : t.state === 'broken'
     ? ` ${withTopicParticle(top.label)} ${neck} 아래로 ${Math.abs(t.vsNeckPct).toFixed(1)}% 내려와 쌍봉이 완성된 모양입니다.`
     : ` ${withTopicParticle(top.label)} ${neck}${t.vsNeckPct >= 0 ? `보다 ${t.vsNeckPct.toFixed(1)}% 위` : ' 바로 아래'}에 있어, 이 저점을 지키는지가 쌍봉 완성 여부를 가릅니다.`;
-  const semis = levels.find((level) => level.field === 'smh');
+  const semis = levels.find((level) => level.field === 'soxx');
   const weakSemis = semis && semis !== lead && semis.vsMa50Pct != null && lead.vsMa50Pct != null && semis.vsMa50Pct < lead.vsMa50Pct - 3
     ? ` ${withTopicParticle(semis.label)} 50일선보다 ${Math.abs(semis.vsMa50Pct).toFixed(1)}% 아래로 지수보다 훨씬 약합니다.` : '';
   const ownSupport = t && top === lead && lead.support && t.neck.date === lead.support.date;

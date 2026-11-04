@@ -3,6 +3,7 @@
 import { renderHomeGuide } from './market-guide.js';
 import { AXIS_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
 import { renderStressOutcomes } from './stress-outcomes.js';
+import { renderCorrectionBaseRate } from './correction-base-rate.js';
 import { deepDiveLinks } from './deep-dive.js';
 import { alignInput, buildCloseSeries, closeBasis, isUsable, koreaMoveRecord, koreaRecordText, KR_SHOCK_TAIL_PCT, sessionPointBack } from '../../domain/briefing/market-read.js';
 import { previousRegime } from '../../domain/briefing/daily-diff.js';
@@ -346,6 +347,8 @@ function axisRow(doc, root, row, { history, scenarios, previous, inputs, asOf, o
   const chart = chartPanel(doc, history.axes[row.id] || [], history.range);
   if (chart) detail.append(chart);
   const facts = el(doc, 'div', null, 'mk-axis__facts');
+  // v59.70 (X bookmarks #1): Nasdaq 7% corrections since 1986 and how many became bear markets — context, not an input.
+  if (row.id === 'trend') renderCorrectionBaseRate({ documentRef: doc, root, host: facts, onLoad: () => renderRegimePage({ documentRef: doc, root }) });
   if (row.evidence.length) { const list = el(doc, 'dl', null, 'regime-evidence'); for (const [label, value] of row.evidence) list.append(el(doc, 'dt', label), el(doc, 'dd', value)); facts.append(list); }
   if (row.flip) {
     const changes = el(doc, 'div', null, 'regime-axis-observe');
