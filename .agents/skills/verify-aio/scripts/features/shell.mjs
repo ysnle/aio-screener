@@ -10,10 +10,45 @@ export default {
       ...(await (async () => { await p.click('#topbar-help-btn'); return expectActive(p, 'page-guide'); })()),
       ...(await expectCount(p, '#page-guide > details.aio-guide-chapter', 3)) // v59.51: help has three chapters; screen cards retired
     })],
-    ['설명서 검색 → 결과', async (p) => {
-      await p.fill('#guide-search-input', '시장 폭');
-      await p.press('#guide-search-input', 'Enter');
-      return expectText(p, '#guide-search-result', { pattern: /시장 폭/ });
+    // v59.70 (wave2-f S23, D4): one command search — 도움말 is its scope; Ctrl+K opens it on every screen.
+    ['설명서 검색 → 문단으로 이동', async (p) => {
+      await p.click('#guide-search-open');
+      await p.waitForSelector('#aio-command-search[open]', { timeout: 5000 });
+      await p.fill('#aio-command-input', '시장 폭');
+      await p.locator('#aio-command-results [role="option"][data-kind="guide"]').first().waitFor({ timeout: 5000 });
+      await p.press('#aio-command-input', 'Enter');
+      await p.waitForFunction(() => { const el = document.activeElement; return el && el.id !== 'page-guide' && document.getElementById('page-guide')?.contains(el) && /시장 폭/.test(el.textContent || ''); }, null, { timeout: 5000 });
+      return { focused: await p.evaluate(() => document.activeElement.textContent.trim().slice(0, 60)) };
+    }],
+    ['Ctrl+K → NVDA → 종목 개요', async (p) => {
+      await p.keyboard.press('Control+k');
+      await p.waitForSelector('#aio-command-search[open]', { timeout: 5000 });
+      await p.keyboard.type('NVDA');
+      await p.locator('#aio-command-results [role="option"]', { hasText: 'NVDA' }).first().waitFor({ timeout: 5000 });
+      await p.keyboard.press('Enter');
+      const r = await expectActive(p, 'page-ticker', 15000);
+      await p.waitForFunction(() => window._currentTickerId === 'NVDA', null, { timeout: 10000 });
+      return { ...r, subject: 'NVDA' };
+    }],
+    ['시장 폭 → 화면 이동', async (p) => {
+      await p.keyboard.press('Control+k');
+      await p.click('#aio-command-search [data-cmd-scope="screen"]');
+      await p.fill('#aio-command-input', '시장 폭');
+      await p.locator('#aio-command-results [role="option"][data-kind="screen"]').first().waitFor({ timeout: 5000 });
+      await p.press('#aio-command-input', 'Enter');
+      return expectActive(p, 'page-breadth', 15000);
+    }],
+    ['하이일드 → 용어', async (p) => {
+      await p.keyboard.press('Control+k');
+      await p.click('#aio-command-search [data-cmd-scope="term"]');
+      await p.fill('#aio-command-input', '하이일드');
+      await p.locator('#aio-command-results [role="option"][data-kind="term"]').first().waitFor({ timeout: 5000 });
+      await p.press('#aio-command-input', 'Enter');
+      await p.waitForFunction(() => /하이일드/.test(document.querySelector('#glossary-body details[open] .aio-glossary-term')?.textContent || ''), null, { timeout: 8000 });
+      const term = await p.evaluate(() => document.querySelector('#glossary-body details[open] .aio-glossary-term').textContent);
+      await p.keyboard.press('Escape');
+      await p.waitForSelector('#glossary-modal', { state: 'hidden', timeout: 5000 });
+      return { term };
     }],
     ['사이드바 테마 전환 → 라벨이 다음 동작을 가리킴', async (p) => {
       const before = await isDark(p);

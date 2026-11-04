@@ -1077,7 +1077,7 @@ body {
 .regime-read { font-size: 12px; line-height: 1.7; color: var(--text-secondary); margin: 0 0 6px; }
 .regime-flip { font-size: 12px; color: var(--text-muted); margin: 0; }
 /* P1505: 종목 page before a symbol is chosen — search only, no empty price/chart/factor shells */
-#page-ticker.is-empty #ticker-back-btn-main, #page-ticker.is-empty #ticker-hero-price, #page-ticker.is-empty #ticker-hero-chg, #page-ticker.is-empty #ticker-hero-pnl, #page-ticker.is-empty #ticker-read, #page-ticker.is-empty > .aio-section:not(:first-of-type):not(:has(#ticker-direct-search)), #page-ticker.is-empty #ticker-next { display:none; }
+#page-ticker.is-empty #ticker-back-btn-main, #page-ticker.is-empty #ticker-hero-price, #page-ticker.is-empty #ticker-hero-chg, #page-ticker.is-empty #ticker-hero-pnl, #page-ticker.is-empty #ticker-read, #page-ticker.is-empty > .aio-section:not(:first-of-type):not(:has(#ticker-search-open)), #page-ticker.is-empty #ticker-next { display:none; }
 /* P1505: 20-session line under each home KPI */
 /* P1599 (H03/F51): cards are columns and the trend sits at the bottom, so a two-line note no longer shifts one sparkline. */
 #home-kpi-strip > .is-interactive { display:flex; flex-direction:column; }
@@ -1287,10 +1287,8 @@ body {
 /* P1428: 사용 설명서 */
 .guide-nav { background: var(--surface-1, var(--bg-card)); border: 0.5px solid var(--border); border-radius: 8px; padding: 10px 12px; margin: 0 0 18px; display: flex; flex-direction: column; gap: 8px; }
 .guide-search { display: flex; gap: 8px; }
-.guide-search input { flex: 1; min-width: 200px; padding: 6px 10px; border: 0.5px solid var(--border); border-radius: 4px; background: var(--bg-card); color: var(--text-primary); font: inherit; font-size: 12px; }
 .guide-jumps { display: flex; gap: 6px; flex-wrap: wrap; }
 .guide-jumps .aio-btn-table, .guide-screen-tabs .aio-btn-table { font-size: 12px; padding: 4px 10px; min-height: 28px; /* P1428: CI viewport rounds 24px to 23.9 — keep the 24px target floor with margin */ }
-.guide-search-result { padding: 8px 10px; background: var(--surface-2, var(--bg-card)); border-radius: 4px; font-size: 12px; color: var(--text-muted); }
 .guide-block { margin-bottom: 22px; }
 .guide-screen-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
 .guide-screen { border: 0.5px solid var(--border); border-radius: 8px; padding: 12px 14px; background: var(--bg-card); display: flex; flex-direction: column; gap: 6px; }
@@ -3724,6 +3722,8 @@ button[data-filter-active="true"] {
           </span>
           <span id="live-quote-ts" data-basis-zone class="sh-shell-topbar-live-quote-tone">연결 중...</span>
           <!-- v48.43: AI 분석가 버튼 -->
+          <!-- v59.70 (wave2-f S23): one command search for stocks, screens, terms and the guide (Ctrl+K). -->
+          <button id="topbar-search-btn" type="button" class="aio-btn-table aio-cmd-trigger" data-action="_aioOpenCommandSearch" aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K" aria-label="검색" title="종목, 화면, 용어 검색 (Ctrl+K)"><span class="aio-cmd-trigger__label">검색</span><kbd class="aio-cmd-trigger__key" aria-hidden="true">Ctrl K</kbd></button>
           <button id="topbar-help-btn" class="aio-btn-table" data-action="showPage" data-arg="guide" title="도움말, 화면 안내와 판정 기준">도움말</button>
           <button id="topbar-ai-btn" class="aio-btn-table" data-action="toggleAIPanel" aria-label="AI 도우미 열기/닫기" aria-expanded="false" aria-controls="ai-panel" title="AI 도우미, 교육/리서치 보조 사이드바">AI 도우미</button>
           <!-- v48.43: 새로고침 (primary 강조) -->
@@ -5230,10 +5230,8 @@ button[data-filter-active="true"] {
     <div class="aio-section">
     <div class="aio-section-hd"><h2 class="aio-section-label sh-flush">종목 검색</h2></div>
     <div class="v2-stock-search">
-      <input id="ticker-direct-search" type="text" placeholder="회사 이름이나 기호 (예: 애플, NVDA)" aria-label="종목 검색: 회사 이름이나 종목 기호(티커)"
-        data-on-enter="tickerDirectSearchFromInput"
-        data-on-input="_aioUppercaseInput"/>
-      <button class="btn-accent --blue sh-ticker-btn" data-action="tickerDirectSearchFromInput">분석 →</button>
+      <!-- v59.70 (wave2-f S23): the stock box is the command search's 종목 scope. -->
+      <button id="ticker-search-open" type="button" aria-label="종목 검색" class="aio-cmd-field" data-action="_aioOpenCommandSearch" data-arg="stock" aria-haspopup="dialog"><span class="aio-cmd-field__text">회사 이름이나 기호 (예: 애플, NVDA)</span><kbd class="aio-cmd-trigger__key" aria-hidden="true">Ctrl K</kbd></button>
       <div class="sh-wrap-row">
         <button type="button" class="q-chip sh-clickable" data-action="showTicker" data-arg="NVDA">NVDA</button>
         <button type="button" class="q-chip sh-clickable" data-action="showTicker" data-arg="AAPL">AAPL</button>
@@ -5774,7 +5772,7 @@ button[data-filter-active="true"] {
        The reading-order steps and the menu map were how-to text repeating the navigation; the setup-method summary
        repeated the research library (masters/principles). -->
   <div class="guide-nav">
-    <div class="guide-search"><input id="guide-search-input" type="search" placeholder="검색 (예: 시장 폭, 하이일드, 상위 N%)" aria-label="설명서 검색"><button data-action="_aioGuideSearchTrigger" class="aio-btn-table primary">검색</button></div>
+    <div class="guide-search"><button id="guide-search-open" type="button" aria-label="도움말 검색" class="aio-cmd-field" data-action="_aioOpenCommandSearch" data-arg="guide" aria-haspopup="dialog"><span class="aio-cmd-field__text">도움말 검색</span></button></div>
     <div class="guide-jumps">
       <button data-action="_aioGuideJump" data-arg="guide-methodology" class="aio-btn-table">판정 기준표</button>
       <button data-action="_aioGuideJump" data-arg="guide-api" class="aio-btn-table">데이터 출처</button>
@@ -5782,7 +5780,6 @@ button[data-filter-active="true"] {
       <button data-action="_aioGuideJump" data-arg="guide-faq" class="aio-btn-table">자주 묻는 질문</button>
       <button data-action="openGlossary" class="aio-btn-table">용어 사전</button>
     </div>
-    <div id="guide-search-result" class="guide-search-result" style="display:none;"></div>
   </div>
     <div class="aio-section" id="guide-rules">
     <div class="aio-section-hd"><span class="aio-section-label">판정 기준표, 시장 상태·심리·거시·금리·환율 공통 기준</span></div>
@@ -6084,7 +6081,8 @@ button[data-filter-active="true"] {
   <div id="kbd-shortcuts-inner">
     <h2 class="sh-shell-kbd-shortcuts-tone">키보드 단축키</h2>
     <div class="kbd-row"><span class="kbd-key">?</span><span class="kbd-desc">단축키 도움말 열기/닫기</span></div>
-    <div class="kbd-row"><span class="kbd-key">Ctrl+K</span><span class="kbd-desc">현재 화면 검색창 (없으면 용어 사전)</span></div>
+    <div class="kbd-row"><span class="kbd-key">Ctrl+K</span><span class="kbd-desc">검색 (종목, 화면, 용어)</span></div>
+    <div class="kbd-row"><span class="kbd-key">/</span><span class="kbd-desc">표에서 찾기 (스크리너)</span></div>
     <div class="kbd-row"><span class="kbd-key">Esc</span><span class="kbd-desc">모달/메뉴 닫기</span></div>
     <!-- v57.54: 1..8 rows are drawn from ROUTE_HUBS by src/ui/navigation/screen-shortcuts.js (the key handler reads the same table). -->
     <div id="kbd-screen-rows"></div>
@@ -6102,7 +6100,7 @@ button[data-filter-active="true"] {
         <h2 class="sh-shell-glossary-modal-big">용어 사전</h2>
         <button data-action="_aioCloseGlossary" aria-label="용어 사전 닫기" title="닫기" class="sh-shell-glossary-modal-btn">&times;</button>
       </div>
-      <input id="glossary-search" type="text" aria-label="투자 용어 검색" placeholder="용어 검색..." data-on-input="_aioFilterGlossary" class="sh-shell-glossary-search-field">
+      <button id="glossary-search-open" type="button" aria-label="용어 검색" class="aio-cmd-field sh-shell-glossary-search-field" data-action="_aioOpenCommandSearch" data-arg="term" aria-haspopup="dialog"><span class="aio-cmd-field__text">용어 검색 (예: 하이일드)</span></button>
       <div id="glossary-cats" class="sh-shell-glossary-cats-row"></div>
     </div>
     <div id="glossary-body" class="sh-shell-glossary-body-grow"></div>

@@ -190,15 +190,19 @@ try {
         const lists = JSON.parse(localStorage.getItem('aio_watchlists') || '[]');
         window.showPage('ticker');
         const before = window._currentTickerId || null;
-        const input = document.getElementById('ticker-direct-search');
-        if (input) input.value = 'ZZZZ';
-        window.tickerDirectSearchFromInput?.();
+        // v59.70 (wave2-f S23): the typed symbol goes through the command search's 종목 scope and its listing check.
+        await window._aioOpenCommandSearch({ scope: 'stock', query: 'ZZZZ' });
+        const input = document.getElementById('aio-command-input');
+        await window._aioCommandSearch.run('ZZZZ');
+        input?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
         await new Promise((r) => setTimeout(r, 1500));
-        return { lists: lists.map((l) => ({ name: l.name, syms: (l.tickers || []).map((t) => t.sym) })), hasInput: !!input, before, after: window._currentTickerId || null };
+        const status = document.getElementById('aio-command-status')?.textContent || '';
+        window._aioCommandSearch.close();
+        return { lists: lists.map((l) => ({ name: l.name, syms: (l.tickers || []).map((t) => t.sym) })), hasInput: !!input, refused: /목록에 없는/.test(status), before, after: window._currentTickerId || null };
       });
       observations.push({ label, firstUse });
       check(firstUse.lists.length === 1 && firstUse.lists[0].name === '관심 종목' && firstUse.lists[0].syms.join() === 'MLI', `${label}: watchlist add with no list must create "관심 종목" (P2070)`, firstUse);
-      check(firstUse.hasInput && firstUse.after !== 'ZZZZ' && firstUse.after === firstUse.before, `${label}: a typed unlisted symbol must not open a stock page (P2069)`, firstUse);
+      check(firstUse.hasInput && firstUse.refused && firstUse.after !== 'ZZZZ' && firstUse.after === firstUse.before, `${label}: a typed unlisted symbol must not open a stock page (P2069)`, firstUse);
 
       // 6. Portfolio: an out-of-universe holding joins the analytics rows with its own on-demand row.
       await page.evaluate(() => window.savePortfolioData([{ sym: 'UFPT', qty: 10, cost: 150 }, { sym: 'HALO', qty: 20, cost: 40 }]));

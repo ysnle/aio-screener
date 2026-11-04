@@ -81,13 +81,16 @@ try {
   for (const [name, ok] of Object.entries(temperatureFixture)) check(`v59.53 temperature presentation ${name}`, ok);
   await page.evaluate(() => window.showPage('guide', null));
   await page.waitForFunction(() => document.querySelector('#page-guide')?.dataset.aioArchitectureRenderer === 'native');
-  await page.locator('#guide-search-input').fill('판정');
-  await page.locator('#guide-search-input').press('Enter');
-  const first = page.locator('#guide-search-result [data-guide-target]').first();
+  // v59.70 (wave2-f S23): the guide is searched through the command search's 도움말 scope; a pick focuses the paragraph.
+  await page.evaluate(() => window._aioOpenCommandSearch({ scope: 'guide' }).then(() => true));
+  await page.locator('#aio-command-input').fill('판정');
+  const first = page.locator('#aio-command-results [role="option"][data-kind="guide"]').first();
+  await first.waitFor({ timeout: 5000 }).catch(() => {});
   check('guide results', await first.count() > 0);
-  const target = await first.getAttribute('data-guide-target');
   await first.click({ force: true });
-  check('guide focused paragraph', await page.evaluate(id => document.activeElement?.id === id && id !== 'page-guide', target));
+  const focusedInGuide = () => { const el = document.activeElement; return Boolean(el?.id && el.id !== 'page-guide' && document.getElementById('page-guide')?.contains(el)); };
+  await page.waitForFunction(focusedInGuide, null, { timeout: 3000 }).catch(() => {});
+  check('guide focused paragraph', await page.evaluate(() => { const el = document.activeElement; return Boolean(el?.id && el.id !== 'page-guide' && document.getElementById('page-guide')?.contains(el)) && document.getElementById('aio-command-search')?.open === false; }));
   // v59.51 (content audit): the guide's screen cards (#guide-screen-cards) are retired — the menu itself names the 8 screens;
   // the guide is three folded chapters (판정 기준표, 읽는 법, 데이터) under the hero.
   check('v59.51 (content audit) guide has no screen cards and three folded chapters (P1428 successor)', await page.locator('#guide-screen-cards').count() === 0 && await page.locator('#guide-score-components').count() === 0 && await page.locator('#page-guide > .aio-guide-chapter').count() === 3);

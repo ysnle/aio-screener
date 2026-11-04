@@ -288,9 +288,7 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
       row.addEventListener('click', () => {
         results.hidden = true; input.value = '';
         if (item.glossaryTerm) {
-          root.openGlossary?.();
-          const field = doc.getElementById('glossary-search');
-          if (field) { field.value = item.glossaryTerm; field.dispatchEvent(new Event('input', { bubbles: true })); }
+          root.openGlossary?.(item.glossaryTerm); // v59.70: the glossary opens on the term (its search box left for the command search)
           return;
         }
         openResearchRoute(root, item.route, { currentPage: route, onLocal });

@@ -4,11 +4,11 @@
 
 ## Sub-features
 
-- `stock-search` — `#ticker-direct-search` + Enter or `분석 →`; quick chips (NVDA, AAPL, MSFT, 삼성전자). `005930` / `삼성전자` normalize to `005930.KS`.
+- `stock-search` — v59.70 (D4): `#ticker-search-open` (and the hub's `종목 고르기`/`다른 종목`) opens the command search's 종목 scope: registry and KRX names as you type, US listing names from the third Latin letter, the typed symbol as a `data-kind=typed` row checked against the listing; Enter opens the first row. Quick chips (NVDA, AAPL, MSFT, 삼성전자) stay. `005930` / `삼성전자` resolve to `005930.KS`. From 차트 or 재무 공시 the pick keeps that tab.
 - `stock-summary` — hero `#ticker-hero-name`, `#ticker-hero-fullname`, `#ticker-hero-price` (number or `—`), basis line `#ticker-summary-price-basis` that explains a missing price.
 - `stock-chart` — 차트 tab's visible chart is the stock-chart component: `#stock-chart-form` / `#stock-chart-input`, title `#stock-chart-title` = `<SYM> 일봉`. The legacy folds below it (incl. `#deep-analysis-section`) are hidden outside `body.aio-dev-mode` (P702) — never drive them.
 - `stock-subject` — `#aio-hub-tabs .aio-hub-subject strong` = the symbol on all three tabs.
-- `stock-invalid` — input failing `^[A-Z0-9.-]{1,12}$` shows the persistent `#ticker-search-hint` (role=status, "…정확히 일치하는 종목이 없습니다" with candidates) and the subject stays; a well-formed unknown (e.g. `ZZZZ`) opens with `시세 수신 대기`.
+- `stock-invalid` — text matching nothing shows `‘…’ 검색 결과가 없습니다`; a well-formed symbol the listing refuses (e.g. `ZZZZQ`) stays in the dialog with `#aio-command-status` "…목록에 없는 기호입니다"; the subject stays. A `showTicker` call with a name or a refused deep link still writes `#ticker-search-hint` (role=status, with candidates) under the 종목 search button.
 
 ## How to get to it (user POV)
 
@@ -23,12 +23,12 @@ Preconditions:
 - Doctor OK.
 
 - **Open.** Click sidebar `종목`. `page-ticker`; tabs exactly `개요,차트,재무 공시`.
-- **Search.** Fill `NVDA`, Enter. Subject `NVDA`; price is a number or `—`; when `—`, `#ticker-summary-price-basis` is non-empty.
+- **Search.** Click `#ticker-search-open`, fill `NVDA` in `#aio-command-input`, Enter. Subject `NVDA`; price is a number or `—`; when `—`, `#ticker-summary-price-basis` is non-empty.
 - **Chart / filings.** Tabs `차트` → `page-technical`, `재무 공시` → `page-fundamental`; subject stays `NVDA` (failure if lost). Tab `개요` returns to the same hero.
 - **Chart follows the company.** On 차트, `#stock-chart-title` starts with `NVDA` (failure if it stayed on SPY or the previous company).
-- **Korean name.** Fill `삼성전자`, Enter. Subject `005930.KS`; hero name contains `삼성전자`.
-- **Korean candidate.** Fill `애플` (no Enter), click the `#ticker-suggest` button. Subject `AAPL`; the 재무 tile leaves '불러오는 중' within 4 s (P2088/R728: late repaints use the latest state).
-- **Invalid.** Fill `!!`, Enter. `#ticker-search-hint[role=status]` names the miss; the subject is unchanged.
+- **Korean name.** Same box, fill `삼성전자`, Enter. Subject `005930.KS`; hero name contains `삼성전자`.
+- **Korean candidate.** Fill `애플` (no Enter), click the `AAPL` row in `#aio-command-results`. Subject `AAPL`; the 재무 tile leaves '불러오는 중' within 4 s (P2088/R728: late repaints use the latest state).
+- **Invalid.** Fill `!!`, Enter: `검색 결과가 없습니다`. Fill `ZZZZQ`, Enter: the status line refuses it. Esc; the subject is unchanged.
 - **Proof.** `drive stock` evidence; `report.json` records `priceState`.
 
 ## Gotchas

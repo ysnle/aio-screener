@@ -42,15 +42,17 @@ export function readStockSubject(root) {
 }
 
 // 2026-10-18 UI review: 차트 had no way to pick a company and 재무 공시's own box only looked separate; one
-// control on the hub line opens the 요약 search, which already sets the company for all three tabs.
+// control on the hub line opens the 요약 search, which already sets the company for all three tabs. v59.70 (wave2-f S23):
+// it opens the command search's 종목 scope where the reader is; from 차트 or 재무 공시 the pick keeps that tab.
 function pickButton(documentRef, root, label) {
   const pick = documentRef.createElement('button');
   pick.type = 'button';
   pick.className = 'aio-hub-subject-pick';
   pick.textContent = label;
+  pick.setAttribute('aria-haspopup', 'dialog');
   pick.addEventListener('click', () => {
+    if (typeof root?._aioOpenCommandSearch === 'function' && root._aioOpenCommandSearch({ scope: 'stock' })) return;
     root?.showPage?.('ticker');
-    root?.setTimeout?.(() => documentRef.getElementById('ticker-direct-search')?.focus(), 60);
   });
   return pick;
 }

@@ -19,3 +19,74 @@ body.aio-disclaimer-open .content { padding-bottom: calc(var(--aio-disclaimer-h,
 body.aio-disclaimer-open .sidebar { padding-bottom: var(--aio-disclaimer-h, 0px); }
 body.aio-disclaimer-open #scroll-top-btn { bottom: calc(var(--aio-disclaimer-h, 0px) + 16px); }
 body.aio-disclaimer-open .aio-toast { bottom: calc(var(--aio-disclaimer-h, 0px) + 16px) !important; }
+
+/* v59.70 (wave2-f S23, D4): the command search (#aio-command-search, src/ui/navigation/command-search.js). A panel near the
+   top on wide screens, a full-screen sheet on phones; colours are theme tokens, so the dark theme follows. */
+.aio-cmd { width: min(640px, calc(100vw - 32px)); margin: 12vh auto auto; padding: 0; border: 0.5px solid var(--border-strong, var(--border)); border-radius: 12px; background: var(--bg-card); color: var(--text-primary); box-shadow: var(--shadow-modal); overflow: hidden; }
+.aio-cmd::backdrop { background: var(--black-a5, rgba(0, 0, 0, .35)); }
+dialog.aio-cmd:modal { margin: 12vh auto auto; max-height: min(560px, 76vh); }
+.aio-cmd__panel { display: flex; flex-direction: column; max-height: inherit; min-height: 0; }
+.aio-cmd__bar { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 0.5px solid var(--border); }
+.aio-cmd__input { flex: 1 1 auto; min-width: 0; height: 40px; padding: 0 10px; border: 0.5px solid var(--border); border-radius: 8px; background: var(--bg-surface); color: var(--text-primary); font: inherit; font-size: 15px; }
+.aio-cmd__input::placeholder { color: var(--text-muted); }
+.aio-cmd__input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.aio-cmd__input::-webkit-search-cancel-button { cursor: pointer; }
+.aio-cmd__close { flex: 0 0 auto; height: 40px; padding: 0 12px; border: 0.5px solid var(--border); border-radius: 8px; background: transparent; color: var(--text-secondary); font: inherit; font-size: 13px; cursor: pointer; }
+.aio-cmd__close:hover { background: var(--bg-hover); color: var(--text-primary); }
+.aio-cmd__scopes { display: flex; gap: 6px; padding: 8px 12px; overflow-x: auto; scrollbar-width: none; border-bottom: 0.5px solid var(--border); }
+.aio-cmd__scope { flex: 0 0 auto; min-height: 30px; padding: 0 12px; border: 0.5px solid var(--border); border-radius: 999px; background: transparent; color: var(--text-secondary); font: inherit; font-size: 12px; cursor: pointer; transition: background var(--dur-fast, .12s) ease, color var(--dur-fast, .12s) ease; }
+.aio-cmd__scope:hover { background: var(--bg-hover); color: var(--text-primary); }
+.aio-cmd__scope[aria-pressed="true"] { background: var(--text-primary); border-color: var(--text-primary); color: var(--bg-card); }
+.aio-cmd__scope:focus-visible, .aio-cmd__close:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.aio-cmd__results { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 4px 6px 8px; }
+.aio-cmd__group + .aio-cmd__group { margin-top: 4px; }
+.aio-cmd__group-title { padding: 8px 8px 4px; font-size: var(--fs-min, 12px); font-weight: 600; letter-spacing: .02em; color: var(--text-muted); }
+.aio-cmd__option { display: flex; flex-direction: column; justify-content: center; gap: 2px; min-height: 40px; padding: 8px 10px; border-radius: 8px; cursor: pointer; color: var(--text-primary); }
+.aio-cmd__option[aria-selected="true"] { background: var(--bg-hover); box-shadow: inset 2px 0 0 var(--accent); }
+.aio-cmd__option:active { background: var(--accent-soft, var(--bg-hover)); }
+.aio-cmd__option[aria-busy="true"] { opacity: .7; cursor: progress; }
+.aio-cmd__option[aria-disabled="true"] { opacity: .55; cursor: not-allowed; box-shadow: none; }
+.aio-cmd__label { min-width: 0; font-size: 14px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.aio-cmd__meta { min-width: 0; font-size: 12px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.aio-cmd__option[data-kind="stock"] .aio-cmd__meta, .aio-cmd__option[data-kind="typed"] .aio-cmd__meta { font-family: var(--font-mono); }
+.aio-cmd__slot { padding: 4px 8px; }
+.aio-cmd__foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px; border-top: 0.5px solid var(--border); font-size: var(--fs-min, 12px); color: var(--text-muted); }
+.aio-cmd__status { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.aio-cmd__keys { flex: 0 0 auto; }
+
+/* Triggers: the topbar 검색 button and the field-shaped buttons on 종목, 도움말 and 용어 사전. */
+.aio-cmd-trigger { display: inline-flex; align-items: center; gap: 6px; }
+.aio-cmd-trigger__key { padding: 1px 5px; border: 0.5px solid var(--border); border-radius: 4px; font-family: var(--font-mono); font-size: var(--fs-min, 12px); line-height: 1.3; color: var(--text-muted); background: transparent; }
+.aio-cmd-field { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-height: 40px; padding: 0 12px; border: 0.5px solid var(--border); border-radius: 8px; background: var(--bg-surface); color: var(--text-muted); font: inherit; font-size: 13px; text-align: left; cursor: text; transition: border-color var(--dur-fast, .12s) ease; }
+.aio-cmd-field:hover { border-color: var(--border-strong, var(--text-muted)); color: var(--text-secondary); }
+.aio-cmd-field:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.aio-cmd-field__text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#page-ticker .v2-stock-search > .aio-cmd-field { flex: 1 1 280px; max-width: 520px; }
+.guide-search > .aio-cmd-field { max-width: 420px; }
+
+@media (max-width: 700px) {
+  /* Phones: a full-screen sheet, the input at 16px so iOS does not zoom, and no key legend. */
+  .aio-cmd, dialog.aio-cmd:modal { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; margin: 0; border: 0; border-radius: 0; }
+  .aio-cmd__panel { height: 100%; }
+  .aio-cmd__bar { padding: calc(env(safe-area-inset-top, 0px) + 10px) 12px 10px; }
+  .aio-cmd__input { font-size: 16px; height: 44px; }
+  .aio-cmd__close { height: 44px; }
+  .aio-cmd__option { min-height: 44px; }
+  .aio-cmd__keys { display: none; }
+  .aio-cmd__foot { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px); }
+  /* The topbar keeps one row: the 검색 button is its magnifier only (aria-label 검색). */
+  /* The phone topbar is a grid (responsive.css, soft-ui.css: badge, time, 도움말, AI); the search button takes a column
+     beside 도움말 instead of falling to a second row. */
+  body .topbar .topbar-actions-right { grid-template-columns: auto minmax(0, 1fr) auto auto auto; }
+  body .topbar #topbar-search-btn { grid-column: 3; grid-row: 1; min-height: 44px; padding-inline: 10px !important; }
+  body .topbar #topbar-help-btn { grid-column: 4; }
+  body .topbar #topbar-ai-btn { grid-column: 5; }
+  #topbar-search-btn .aio-cmd-trigger__label { display: none; }
+}
+/* Below 1100px the topbar buttons are 44px tall (responsive.css, 도움말 and AI 도우미); 검색 matches them. */
+@media (max-width: 1100px) { #topbar-search-btn { min-height: 44px; } }
+/* Touch screens have no Ctrl key to press. */
+@media (hover: none) and (pointer: coarse) { .aio-cmd-trigger__key, .aio-cmd__keys { display: none; } }
+/* The magnifier is a mask in the text colour, so it follows the theme. */
+#topbar-search-btn::before { content: ''; flex: 0 0 auto; width: 14px; height: 14px; background: currentColor; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='7' cy='7' r='4.5' fill='none' stroke='black' stroke-width='1.6'/%3E%3Cpath d='M10.4 10.4 14 14' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='7' cy='7' r='4.5' fill='none' stroke='black' stroke-width='1.6'/%3E%3Cpath d='M10.4 10.4 14 14' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat; }
+@media (prefers-reduced-motion: reduce) { .aio-cmd__scope, .aio-cmd-field { transition: none; } }

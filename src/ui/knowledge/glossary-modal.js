@@ -34,6 +34,7 @@ function searchRank(entry, query) {
 export function createGlossaryModal({ root = globalThis, documentRef = root.document } = {}) {
   let category = 'all';
   let previousFocus = null;
+  let shownQuery = ''; // v59.70: the term the command search opened the modal on (the modal has no search box of its own)
   const entries = () => (Array.isArray(root.GLOSSARY) ? root.GLOSSARY : []);
   const esc = (value) => (typeof root.escHtml === 'function' ? root.escHtml(value) : String(value));
 
@@ -82,7 +83,8 @@ export function createGlossaryModal({ root = globalThis, documentRef = root.docu
   }
 
   function renderItems(query) {
-    const q = (query || '').toLowerCase().trim();
+    shownQuery = String(query || '').trim();
+    const q = shownQuery.toLowerCase();
     const matches = (g) => !q
       || g.term.toLowerCase().indexOf(q) !== -1
       || Boolean(g.alias && g.alias.toLowerCase().indexOf(q) !== -1)
@@ -108,6 +110,8 @@ export function createGlossaryModal({ root = globalThis, documentRef = root.docu
       }
     }
     let html = scopeNote ? `<div role="status" class="lu-gl-scope">${esc(scopeNote)}</div>` : '';
+    // v59.70: a list narrowed to one searched term has one way back to the whole list.
+    if (q) html += `<div class="lu-gl-scope"><button type="button" class="lu-gl-route" data-action="_aioGlossaryShowAll">전체 용어 보기</button></div>`;
     if (filtered.length === 0) html += '<div class="lu-gl-empty">검색 결과가 없습니다</div>';
     else filtered.forEach((g, index) => { html += entryHtml(g, Boolean(q) && index === 0); });
     const body = documentRef.getElementById('glossary-body');
@@ -135,30 +139,29 @@ export function createGlossaryModal({ root = globalThis, documentRef = root.docu
     if (focusTarget && documentRef.contains(focusTarget) && !focusTarget.disabled) { try { focusTarget.focus(); } catch (_) { /* detached */ } }
   }
 
-  function open() {
+  // v59.70 (wave2-f S23): open(term) shows that term's entry open (a term mark, a research result or the command search);
+  // open() the whole list. Searching is the command search's '용어' scope (the 검색 button in the head).
+  function open(term = '') {
     const modal = documentRef.getElementById('glossary-modal');
     if (!modal) return;
     const active = documentRef.activeElement;
-    previousFocus = active && active !== documentRef.body ? active : null;
+    if (modal.style.display === 'none') previousFocus = active && active !== documentRef.body ? active : null;
     if (modal._aioTrapCleanup) modal._aioTrapCleanup();
     modal.style.display = '';
-    const searchInput = documentRef.getElementById('glossary-search');
-    if (searchInput) searchInput.value = '';
     category = 'all';
     renderCats();
-    renderItems('');
+    renderItems(typeof term === 'string' ? term.replace(/\s*\(.*$/, '') : '');
     const title = documentRef.querySelector('#glossary-modal h2');
     if (title) title.textContent = `투자 용어 사전, ${entries().length}개`;
     modal._aioTrapCleanup = typeof root._aioModalTrap === 'function' ? root._aioModalTrap(modal, close) : null;
-    // run-3 phone #21: on touch the keyboard covered half the list.
-    if (searchInput && !(root.matchMedia && root.matchMedia('(pointer: coarse)').matches)) searchInput.focus();
+    const first = shownQuery ? documentRef.querySelector('#glossary-body details[open] > summary') : documentRef.getElementById('glossary-search-open');
+    try { (first || documentRef.querySelector('#glossary-modal button'))?.focus(); } catch (_) { /* detached */ }
   }
 
   function selectCategory(cat) {
     category = cat;
     renderCats();
-    const search = documentRef.getElementById('glossary-search');
-    renderItems(search ? search.value : '');
+    renderItems(shownQuery);
   }
 
   // The Escape key (js/aio-ui.js) closes the glossary first when it is showing.
@@ -182,7 +185,7 @@ export function installGlossaryModal(root, documentRef) {
   root.renderGlossaryItems = modal.renderItems;
   root.filterGlossary = (value) => modal.renderItems(value);
   root._aioGlossaryCat = modal.selectCategory;
-  root._aioFilterGlossary = (el) => modal.renderItems(el ? el.value : '');
-  if (root._aioGlossaryPending) { root._aioGlossaryPending = false; modal.open(); }
+  root._aioGlossaryShowAll = () => modal.renderItems('');
+  if (root._aioGlossaryPending) { const term = root._aioGlossaryPending; root._aioGlossaryPending = false; modal.open(typeof term === 'string' ? term : ''); }
   return modal;
 }

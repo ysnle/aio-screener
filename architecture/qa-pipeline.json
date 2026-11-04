@@ -403,6 +403,11 @@
           "script": "scripts/ci-market-session-contract-check.mjs"
         },
         {
+          "id": "search-surface",
+          "script": "scripts/ci-search-surface-contract.mjs",
+          "remedy": "v59.70 (wave2-f S23, D4): one command search (#aio-command-input) plus the screener table filter; a new search box joins the command search as a scope, and a new shortcut needs its own row in SHELL_KEY_BINDINGS"
+        },
+        {
           "id": "event-briefs",
           "script": "scripts/ci-event-briefs-check.mjs",
           "remedy": "v59.42 event briefs: the producer runs on scripts/fixtures/event-briefs only; a dropped-figure or basis failure means a number now reaches a brief without being in its fetched source"

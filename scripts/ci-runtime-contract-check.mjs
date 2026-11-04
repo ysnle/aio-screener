@@ -190,7 +190,7 @@ check('audit widget is hidden by default and only shown in dev mode', /\.aio-aud
 check('portfolio blocks unverified ticker before saving', /검증되지 않은 티커라 저장하지 않았습니다/.test(html + workspace) && /if\s*\(!isKnown\)\s*\{[\s\S]*?return;\s*\}[\s\S]*?const positions = getPortfolioData\(\)/.test(html + workspace));
 check('data-action accessibility normalizer is installed', /_aioNormalizeDataActionA11y/.test(core) && /setAttribute\('role', 'button'\)/.test(core) && /setAttribute\('tabindex', '0'\)/.test(core));
 check('data-on-change/input delegation reports missing and throwing handlers', /data-on-change/.test(core) && /data-on-input/.test(core) && /missing data-on-change handler/.test(core) && /data-on-change failed/.test(core) && /missing data-on-input handler/.test(core) && /data-on-input failed/.test(core) && /showDataError\('입력 처리'/.test(core));
-check('ticker direct search uses the delegated uppercase input handler', /window\._aioUppercaseInput\s*=/.test(core) && /id="ticker-direct-search"[\s\S]{0,600}data-on-input="_aioUppercaseInput"/.test(html) && !/id="ticker-direct-search"[\s\S]{0,600}\boninput\s*=/.test(html));
+check('v59.70 the 종목 search is the command search button (no ticker input of its own) and the uppercase helper stays delegated', /window\._aioUppercaseInput\s*=/.test(core) && /id="ticker-search-open"[^>]*data-action="_aioOpenCommandSearch"[^>]*data-arg="stock"/.test(html) && !/id="ticker-direct-search"/.test(html));
 // v57.77: the breadth-*sma bar/label/big writers left with their absent DOM; the snapshot breadth cells still read only current evidence.
 check('P1274 snapshot percentage fields preserve missingness and breadth cells fail closed to current 5/20/50 evidence (v57.77: legacy bar/label writer retired)', !/vvix-pct[^\n]*S\.vvixChg\s*\|\|\s*0/.test(core) && !/skew-pct[^\n]*S\.skewChg\s*\|\|\s*0/.test(core) && /'breadth-20sma':\s*currentBreadth\.available \?/.test(core) && !/\['5sma','20sma','50sma','200sma'\]/.test(core) && !/getElementById\('breadth-' \+ period \+ '-bar'\)/.test(core)); // text-pin-ok: retirement absence
 check('snapshot fallback seeds require a valid producer timestamp and TNX stays source-backed', /const snapTsRaw = S\._updated \|\| S\._marketDataUpdated/.test(core) && /snapshot timestamp unavailable; fallback seed skipped/.test(core) && !/const snapTs = S\._updated \? new Date\(S\._updated\)\.getTime\(\) : Date\.now\(\)/.test(core) && /'\^TNX': \{ price: S\.tnx, pct: S\.tnxPct \}/.test(core) && !/price: 4\.31, pct: \+0\.54/.test(core));
@@ -879,13 +879,13 @@ check('guide chapters and KR secondary groups are explicit progressive-disclosur
 const glossaryProbe = await (async () => {
   // v59.59 roadmap 11: the glossary modal moved from js/aio-ui.js and js/aio-core.js to src/ui/knowledge/glossary-modal.js.
   const { createGlossaryModal } = await import('../src/ui/knowledge/glossary-modal.js');
-  const els = { 'glossary-modal': { style: { display: 'none' } }, 'glossary-search': { value: 'x', focus() {} }, 'glossary-cats': { innerHTML: '' }, 'glossary-body': { innerHTML: '', addEventListener() {} } };
+  const els = { 'glossary-modal': { style: { display: 'none' } }, 'glossary-search-open': { focus() {} }, 'glossary-cats': { innerHTML: '' }, 'glossary-body': { innerHTML: '', addEventListener() {} } };
   const title = { textContent: '' };
   const documentRef = { getElementById: (id) => els[id] || null, querySelector: (sel) => (sel === '#glossary-modal h2' ? title : null), activeElement: null, body: {}, contains: () => false };
   const root = { GLOSSARY: [{ term: 'PER', cat: '기초', def: '주가 ÷ 주당순이익' }, { term: 'RRG', cat: '기술', def: '상대 회전 그래프' }], escHtml: (v) => String(v) };
   const modal = createGlossaryModal({ root, documentRef });
   modal.open();
-  const opened = els['glossary-modal'].style.display === '' && els['glossary-search'].value === '' && title.textContent === '투자 용어 사전, 2개';
+  const opened = els['glossary-modal'].style.display === '' && !/전체 용어 보기/.test(els['glossary-body'].innerHTML) && title.textContent === '투자 용어 사전, 2개';
   const rows = (els['glossary-body'].innerHTML.match(/class="aio-glossary-item"/g) || []).length === 2 && /class="aio-glossary-term">RRG</.test(els['glossary-body'].innerHTML);
   modal.selectCategory('기초·회계');
   modal.renderItems('RRG');
@@ -1386,20 +1386,27 @@ check('P1315 signal weight legend uses the canonical 심리 component (F&G + put
 const ctrlKProbe = await (async () => {
   // v59.59 roadmap 11: the keydown shortcuts moved from js/aio-ui.js to src/ui/navigation/screen-shortcuts.js.
   const { handleShortcutKey } = await import('../src/ui/navigation/screen-shortcuts.js');
-  let asked = null; let focused = false; let opened = 0;
+  // v59.70 (wave2-f S23, D4): Ctrl/⌘K opens the command search everywhere (inside inputs too); "/" focuses the screener's
+  // table filter when it is on screen, else opens the command search; an IME-composing key and typing are ignored.
+  let asked = null; let focused = false; let opened = 0; let searchOpen = false;
   const box = { offsetParent: {}, focus() { focused = true; } };
-  const page = { querySelector: (sel) => { asked = sel; return box; } };
-  const documentRef = { querySelector: (sel) => (sel === '.page.active' ? page : null), getElementById: () => null };
-  const root = { openGlossary: () => { opened += 1; }, setTimeout: () => {} };
+  const documentRef = { querySelector: (sel) => { asked = sel; return sel === '.page.active #scr-text-search' ? box : null; }, getElementById: () => null };
+  const root = { _aioOpenCommandSearch: () => { opened += 1; return true; }, _aioCommandSearchIsOpen: () => searchOpen, setTimeout: () => {} };
   const help = { open() {}, close() {}, isOpen: () => false };
   const key = (extra) => ({ key: 'k', ctrlKey: true, target: { tagName: 'INPUT' }, preventDefault() {}, ...extra });
   const first = handleShortcutKey(key(), { root, documentRef, help });
+  const caps = handleShortcutKey(key({ key: 'K', ctrlKey: false, metaKey: true }), { root, documentRef, help });
+  const slash = handleShortcutKey({ key: '/', target: { tagName: 'BODY' }, preventDefault() {} }, { root, documentRef, help });
   box.offsetParent = null;
-  const second = handleShortcutKey(key(), { root, documentRef, help });
+  const slashNoTable = handleShortcutKey({ key: '/', target: { tagName: 'BODY' }, preventDefault() {} }, { root, documentRef, help });
+  const composing = handleShortcutKey(key({ isComposing: true }), { root, documentRef, help });
+  searchOpen = true;
+  const insideDialog = handleShortcutKey({ key: '1', target: { tagName: 'BODY' }, preventDefault() {} }, { root, documentRef, help });
   const typedOne = handleShortcutKey({ key: '1', target: { tagName: 'INPUT' }, preventDefault() {} }, { root, documentRef, help });
-  return first === 'search' && focused && asked === '#scr-text-search, #ticker-direct-search, #guide-search-input' && second === 'glossary-open' && opened === 1 && typedOne === null;
+  return first === 'command-search' && caps === 'command-search' && slash === 'table-filter' && focused && asked === '.page.active #scr-text-search'
+    && slashNoTable === 'command-search' && opened === 3 && composing === null && insideDialog === null && typedOne === null;
 })();
-check('P1315 Ctrl+K targets real page search inputs (the .search-bar selector never existed), falls back to 용어 사전, and screen keys ignore typing (v59.59 probe)', ctrlKProbe && !/<span class="kbd-desc">한국장<\/span>/.test(html));
+check('P1315 v59.70 Ctrl/⌘K opens the command search, "/" focuses the table filter (command search without one), IME and typing are ignored (probe)', ctrlKProbe && !/<span class="kbd-desc">한국장<\/span>/.test(html));
 check('P1315 KOSPI sell tax states securities-transaction tax plus rural special tax; Piotroski is dated 2000 with 8-9/0-2 original bins', /농어촌특별세 0\.15%가 더해져 합계 0\.20%/.test(glossary) && /Piotroski\(2000\)/.test(glossary) && !/Piotroski\(1998\)/.test(glossary) && /8~9점을 강한 그룹/.test(glossary));
 check('QA-GLOSSARY-SWEEP/P1261 unattributed aphorism and sourced superlative stay unasserted', !/— 아인슈타인\./.test(glossary) && !/역사상 가장 강력한 주가 부양 수단/.test(glossary) && /출처가 확정된 문헌이 없어/.test(glossary));
 check('LIVE3-09: quote producers preserve exchange observation time separately from file freshness', /regularMarketTime/.test(fetchData) && /marketState/.test(fetchData) && /exchangeTimezoneName/.test(fetchData) && /window\._liveData\[q\.symbol\]\.observedAt/.test(data));

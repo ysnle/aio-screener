@@ -17,30 +17,13 @@ function openAncestors(element) {
   }
 }
 
-function createResultItem(documentRef, match, index, onJump) {
-  const button = documentRef.createElement('button');
-  button.type = 'button';
-  button.dataset.guideTarget = match.element.id;
-  button.className = 'gd-hit'; // src/ui/styles/guide-page.css
-  const label = documentRef.createElement('strong');
-  label.style.color = 'var(--data-cyan)';
-  label.textContent = match.label || `검색 결과 ${index + 1}`;
-  const excerpt = documentRef.createElement('span');
-  excerpt.className = 'gd-hit-excerpt';
-  excerpt.textContent = `${match.text}...`;
-  button.append(label, excerpt);
-  button.addEventListener('click', () => onJump(match.element.id));
-  return button;
-}
-
-function searchGuide(documentRef, guidePage, result, keyword, onJump) {
-  if (!result) return;
+// v59.70 (wave2-f S23): the guide's own search box left for the one command search (src/ui/navigation/command-search.js),
+// which lists guide paragraphs as one of its groups. The walk that found them stays here, beside the page it reads.
+/** Up to `limit` guide paragraphs containing `keyword`: { id, label, text } (each paragraph gets an id to jump to). */
+export function findGuideMatches(documentRef, keyword, limit = 10) {
+  const guidePage = documentRef?.getElementById?.('page-guide');
   const normalized = String(keyword || '').trim().toLowerCase();
-  result.replaceChildren();
-  if (!normalized) {
-    result.style.display = 'none';
-    return;
-  }
+  if (!guidePage || normalized.length < 2) return [];
   const matches = [];
   const seen = new Set();
   const walker = documentRef.createTreeWalker(guidePage, 4);
@@ -49,7 +32,7 @@ function searchGuide(documentRef, guidePage, result, keyword, onJump) {
   while ((node = walker.nextNode())) {
     const text = String(node.nodeValue || '').trim();
     if (text.length <= 2 || !text.toLowerCase().includes(normalized)) continue;
-    if (result.contains(node) || node.parentElement?.closest?.('script, style, template, [hidden], [aria-hidden="true"]')) continue;
+    if (node.parentElement?.closest?.('script, style, template, [hidden], [aria-hidden="true"]')) continue;
     // Match the paragraph rather than jumping to the whole page's nearest id.
     const element = node.parentElement?.closest?.('p, li, td, dd, dt, h2, h3, h4') || node.parentElement;
     if (!element || seen.has(element)) continue;
@@ -61,22 +44,25 @@ function searchGuide(documentRef, guidePage, result, keyword, onJump) {
     const container = element.closest?.('.explain-section, .aio-explain, section, article') || element;
     const labelElement = container.querySelector?.('.explain-label, .aio-explain-trigger-label span:last-child, h2, h3');
     const offset = Math.max(0, text.toLowerCase().indexOf(normalized) - 25);
-    matches.push({ element, label: labelElement?.textContent?.trim()?.slice(0, 60) || '', text: text.slice(offset, offset + 100) });
-    if (matches.length >= 10) break;
+    matches.push({ id: element.id, label: labelElement?.textContent?.trim()?.slice(0, 60) || '도움말', text: text.slice(offset, offset + 100) });
+    if (matches.length >= limit) break;
   }
-  if (!matches.length) {
-    const empty = documentRef.createElement('span');
-    empty.style.color = 'var(--data-amber)';
-    empty.textContent = `“${keyword}” 검색 결과가 없습니다.`;
-    result.appendChild(empty);
-  } else {
-    const summary = documentRef.createElement('strong');
-    summary.style.color = 'var(--data-green)';
-    summary.textContent = `${matches.length === 10 ? '최대 ' : ''}${matches.length}건, 선택하면 해당 내용으로 이동합니다.`;
-    result.appendChild(summary);
-    matches.forEach((match, index) => result.appendChild(createResultItem(documentRef, match, index, onJump)));
+  return matches;
+}
+
+/** Opens the folds around a guide element, scrolls to it and moves focus there. */
+export function jumpToGuide(documentRef, targetId) {
+  const target = documentRef?.getElementById?.(targetId);
+  if (!target) return false;
+  openAncestors(target);
+  target.classList?.add('is-open');
+  target.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
+  if (!target.hasAttribute('tabindex')) {
+    target.setAttribute('tabindex', '-1');
+    target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true });
   }
-  result.style.display = 'block';
+  target.focus?.({ preventScroll: true });
+  return true;
 }
 
 // P1428 + owner 2026-10-04: the guide's judgement section is the rule table itself, generated from the
@@ -124,16 +110,12 @@ function renderRulesTable(documentRef) {
   }));
 }
 
-export function createGuidePage({ documentRef } = {}) {
+export function createGuidePage({ documentRef, root = documentRef?.defaultView || globalThis } = {}) {
   return {
     route: 'guide',
     mount() {
       const bag = createResourceBag();
       const guidePage = documentRef?.getElementById('page-guide');
-      const input = documentRef?.getElementById('guide-search-input');
-      const result = documentRef?.getElementById('guide-search-result');
-      result?.setAttribute('role', 'status');
-      result?.setAttribute('aria-live', 'polite');
       if (!guidePage) return () => bag.dispose();
       organizeGuideChapters(documentRef, guidePage);
       renderRulesTable(documentRef);
@@ -150,33 +132,16 @@ export function createGuidePage({ documentRef } = {}) {
         capabilityStatus.hidden = capabilityAudit.ok;
         capabilityStatus.textContent = capabilityAudit.ok ? '' : `안내 문구 점검 필요, ${capabilityAudit.issues.length}건`;
       }
-      const jump = (targetId) => {
-        const target = documentRef.getElementById(targetId);
-        if (!target) return searchGuide(documentRef, guidePage, result, String(targetId || '').replace(/^guide-/, ''), jump);
-        openAncestors(target);
-        target.classList?.add('is-open');
-        target.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
-        if (!target.hasAttribute('tabindex')) {
-          target.setAttribute('tabindex', '-1');
-          target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true });
-        }
-        target.focus?.({ preventScroll: true });
-      };
-      const onSearch = () => searchGuide(documentRef, guidePage, result, input?.value, jump);
+      // A jump button whose section is not on the page opens the command search on its name instead.
+      const jump = (targetId) => jumpToGuide(documentRef, targetId) || root?._aioOpenCommandSearch?.({ scope: 'guide', query: String(targetId || '').replace(/^guide-/, '') });
       const onTriggerClick = (event) => {
         const action = closestAction(event.target, '[data-action]');
-        if (!action || !guidePage.contains(action)) return;
-        const name = action.getAttribute('data-action');
-        if (name !== '_aioGuideSearchTrigger' && name !== '_aioGuideJump') return;
+        if (!action || !guidePage.contains(action) || action.getAttribute('data-action') !== '_aioGuideJump') return;
         event.preventDefault();
         event.stopPropagation();
-        if (name === '_aioGuideSearchTrigger') onSearch();
-        else jump(action.getAttribute('data-arg'));
+        jump(action.getAttribute('data-arg'));
       };
-      const onInputKeydown = (event) => { if (event.key === 'Enter') onSearch(); };
-      input?.addEventListener('keydown', onInputKeydown);
       guidePage.addEventListener('click', onTriggerClick);
-      bag.add(() => input?.removeEventListener('keydown', onInputKeydown));
       bag.add(() => guidePage.removeEventListener('click', onTriggerClick));
       bag.add(() => {
         if (guidePage.dataset.aioArchitectureRoute === 'guide') delete guidePage.dataset.aioArchitectureRoute;
