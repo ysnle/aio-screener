@@ -1,3 +1,4 @@
+import { readScreenerPageSource } from './lib/screener-page-source.mjs'; // v59.70 (S12): the page is split under src/ui/pages/screener/
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -286,7 +287,7 @@ const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa
 const data = read('js/aio-data.js') + '\n' + read('src/data/server-data-loader.js') + '\n' + read('src/data/public-readiness.js') + '\n' + read('src/domain/news/selection.js') + '\n' + read('src/app/news-selection-entry-points.js') /* v59.42: news scoring and selection moved to src */; // v59.34/v59.35: the server data loader and the public readiness model moved to src
 const chat = read('js/aio-chat.js');
 const tests = read('js/aio-tests.js');
-const screenerPage = read('src/ui/pages/screener.js');
+const screenerPage = readScreenerPageSource();
 const screenerProvider = read('src/data/providers/screener.js');
 const newsPage = read('src/ui/pages/news.js');
 const marketPage = read('src/ui/pages/market.js');
@@ -2188,7 +2189,7 @@ const producerSource = readProducerSource();
 for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionDateByMarket', 'factorBarStartByMarket', "factorTimeBasis: 'bar-start'", 'factorScopesByMarket', 'factorComputedAt']) {
   check(`P1170 D04 the factor producer publishes ${token}`, producerSource.includes(token));
 }
-const screenerPageSource = read('src/ui/pages/screener.js');
+const screenerPageSource = readScreenerPageSource();
 check('P1170 D04 the screener reads the session date instead of presenting the bar start as an observation',
   screenerPageSource.includes('factorSessionDate') && /관측시각 아님|관측시각이 아닙니다/.test(screenerPageSource));
 

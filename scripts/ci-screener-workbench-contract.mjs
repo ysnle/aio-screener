@@ -1,3 +1,4 @@
+import { readScreenerPageSource } from './lib/screener-page-source.mjs'; // v59.70 (S12): the page is split under src/ui/pages/screener/
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -304,7 +305,7 @@ async function run() {
   const provider = fs.readFileSync(path.join(root, 'src/data/providers/screener.js'), 'utf8');
   assert(contextCatalog.documents?.some((doc) => doc.path === '_context/SCREENER-OPEN-SOURCE-BENCHMARK-AND-REBUILD-HANDOFF-2026-08-12.md' && ['targeted', 'explicit-only'].includes(doc.readPolicy)), 'G-SCR-DOCS: handoff remains catalogued (v59.59: explicit-only once superseded by the 09-27 audit)');
   assert(page.includes('scr-definition-editor') && page.includes('scr-readiness-preview') && page.includes('scr-run-history') && page.includes('scr-outcome-lab'), 'G-SCR-UI: workbench adapter controls are present');
-  const screenerUi = fs.readFileSync(path.join(root, 'src/ui/pages/screener.js'), 'utf8');
+  const screenerUi = readScreenerPageSource();
   const screenerOrchestrator = fs.readFileSync(path.join(root, 'src/data/orchestrators/screener.js'), 'utf8');
   assert(provider.includes('buildFieldReadiness') && provider.includes('fieldObservations'), 'G-SCR-PIPELINE: provider emits field-level readiness and observations');
   assert(provider.includes('rightsByField') && provider.includes('resolveFieldRights') && provider.includes('sourceKindByField'), 'G-SCR-RIGHTS: provider resolves explicit rights/source kind per field before readiness');

@@ -3,6 +3,7 @@
 // v59.48: the native pages are mounted through their exported factories against scripts/lib/fake-dom.mjs, instead of
 // slicing function bodies out of src/ui/pages/*.js into a vm (a helper moving behind an import broke every slice).
 import assert from 'node:assert/strict';
+import { readScreenerPageSource } from './lib/screener-page-source.mjs'; // v59.70 (S12): the page is split under src/ui/pages/screener/
 import { readFileSync, existsSync } from 'node:fs';
 import vm from 'node:vm';
 import { ROUTE_IDS } from '../src/app/routes.js';
@@ -220,7 +221,7 @@ assert(!read('index.html').includes('id="ticker-m-mcap"') && !read('index.html')
 assert(!read('js/aio-core.js').includes('_tickerGapIds'), 'dead panel writer retired with its DOM');
 assert(!read('src/app/bootstrap.js').includes('screener:return-context'), 'write-only storage retired');
 
-const screenerSource = read('src/ui/pages/screener.js');
+const screenerSource = readScreenerPageSource();
 // The screener page mounted on the shell's ids, so its create-if-missing paths run as they do in the browser.
 const KRW_CAP = { value: 200000000000000, currency: 'KRW', source: 'fixture', observedAt: '2026-08-31' };
 const screenerStore = createStore({ initialState: { screener: { rows: [...rows,
