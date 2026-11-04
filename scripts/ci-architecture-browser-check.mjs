@@ -168,7 +168,7 @@ try {
     cards: document.querySelectorAll('#page-sentiment .trend-card').length,
     badge: !!document.getElementById('sent-overall-badge')
   }));
-  if (sentimentRoute.active !== 'sentiment' || sentimentRoute.storeRoute !== 'sentiment' || !['blocked', 'observed'].includes(sentimentRoute.state) || sentimentRoute.renderer !== 'native' || sentimentRoute.boardRenderer !== 'native' || sentimentRoute.cards !== 5 || sentimentRoute.badge) throw new Error(`sentiment lifecycle failed (P1586 + v59.51: four published-source cards + the self-computed composite; high yield lives on the credit board): ${JSON.stringify(sentimentRoute)}`);
+  if (sentimentRoute.active !== 'sentiment' || sentimentRoute.storeRoute !== 'sentiment' || !['blocked', 'observed'].includes(sentimentRoute.state) || sentimentRoute.renderer !== 'native' || sentimentRoute.boardRenderer !== 'native' || sentimentRoute.cards !== 4 || sentimentRoute.badge) throw new Error(`sentiment lifecycle failed (P1586 + v59.51 + v59.70: three published-source cards (put/call retired) + the self-computed composite; high yield lives on the credit board): ${JSON.stringify(sentimentRoute)}`);
 
   // P1425: the shell no longer prints snapshot-date rows (the fxbond 기준일 row left with the rebuild);
   // the binding is exercised on its own fixture sinks.

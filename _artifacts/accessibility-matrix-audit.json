@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-11-04T02:01:04.959Z",
+  "observedAt": "2026-11-04T03:03:48.505Z",
   "appRevision": "v59.69",
-  "gitHead": "97c58be90aa840ca542d98e25b4ce2500c57cccc",
+  "gitHead": "c6191ee5ecd8d525ffefccb9c79d061c810955b2",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -41,8 +41,23 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 2,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "VIX",
+          "width": 18,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "OAS",
+          "width": 23,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
@@ -50,7 +65,7 @@
       "routeId": "breadth",
       "active": true,
       "nameless": [],
-      "selectCount": 0,
+      "selectCount": 2,
       "selectsWithoutName": [],
       "positiveTabindex": [],
       "canvasCount": 0,
@@ -59,16 +74,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 1,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "ETF",
-          "width": 18,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -85,8 +92,44 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 5,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "%p",
+          "width": 20,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "bp",
+          "width": 14,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "RSI",
+          "width": 20,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "지수별 가격 온도 (참고) 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "OAS",
+          "width": 23,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
@@ -157,8 +200,16 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 1,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "OAS",
+          "width": 23,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
@@ -175,8 +226,23 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 2,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "SEC",
+          "width": 20,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "EPS",
+          "width": 19,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
@@ -211,16 +277,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 1,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "%p",
-          "width": 20,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -228,7 +286,7 @@
       "routeId": "portfolio",
       "active": true,
       "nameless": [],
-      "selectCount": 6,
+      "selectCount": 3,
       "selectsWithoutName": [],
       "positiveTabindex": [],
       "canvasCount": 0,
@@ -255,8 +313,23 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 2,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "SEC",
+          "width": 20,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "EPS",
+          "width": 19,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
@@ -273,565 +346,341 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 169,
+      "smallTargetExceptionCount": 48,
       "smallTargetExceptions": [
         {
           "id": "",
-          "text": "SEC 8-K EX-99.1",
-          "width": 85,
+          "text": "미국의 이란 공습으로 공급 우려가 되살아나며 유가 반등",
+          "width": 299,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 1",
-          "width": 88,
+          "text": "아람코의 수익은 9% 증가했다. 정제와 유가가 수익을 견인했다.",
+          "width": 333,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 2",
-          "width": 88,
+          "text": "코스피, 美기술주 하락 영향에 3.6% 급락…코스닥도 4%↓(종합)",
+          "width": 326,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 3",
-          "width": 88,
+          "text": "[환율마감] 원·달러 찔끔 하락, 미 중간선거 결과 대기",
+          "width": 275,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "SEC 8-K EX-99.1",
-          "width": 85,
+          "text": "AI 수익성 우려에 짓눌린 증시, 美중간선거 시나리오별 영향은?(종합)",
+          "width": 361,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 1",
-          "width": 88,
+          "text": "Nvidia 주식과 2개의 미국 성장 주식이 국채 수익률 재설정에 직면하다",
+          "width": 370,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 2",
-          "width": 88,
+          "text": "Anthropic 매출 170억 달러에 근접, IPO 임박",
+          "width": 233,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 3",
-          "width": 88,
+          "text": "나스닥 하락으로 아시아 시장 개장 어둡게, 이란으로 인한 원유 가격 하락: 시장 요약",
+          "width": 441,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "콜 보도 기사 1",
-          "width": 76,
+          "text": "AI 수익성 우려에 짓눌린 증시, 美중간선거 시나리오별 영향은?",
+          "width": 330,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "콜 보도 기사 2",
-          "width": 76,
+          "text": "오일 가격 하락으로 달러 압박, 호주 금리 결정 기다림",
+          "width": 281,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "SEC 8-K EX-99.1",
-          "width": 85,
+          "text": "코스피, 美기술주 급락에 장 초반 3%대 하락…코스닥도 2%대↓(종합)",
+          "width": 356,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 1",
-          "width": 88,
+          "text": "국제유가 급락에도 외국인 매도 경계…환율 1340원대 등락[외환브리핑]",
+          "width": 374,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 2",
-          "width": 88,
+          "text": "이란 평화 노력으로 공급 우려 완화에 원유 선물 급락",
+          "width": 278,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "SEC 8-K EX-99.1",
-          "width": 85,
+          "text": "[속보] 미·이란 협상 기대에 국제유가 7%대 급락…WTI 96달러선",
+          "width": 332,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 1",
-          "width": 88,
+          "text": "원유 가격 하락으로 AI 주도 매도 완화에 미국 주식 선물 상승",
+          "width": 320,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 2",
-          "width": 88,
+          "text": "상장 앞둔 앤트로픽, 분기손실 65%↓…AI투자에 1천200조원 약정",
+          "width": 336,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 3",
-          "width": 88,
+          "text": "미국 재무부, 유럽 국채 수익률은 하락한 유가로 떨어지다",
+          "width": 302,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "SEC 8-K EX-99.1",
-          "width": 85,
+          "text": "CrowdStrike는 업그레이드를 받았고, 애플 실적 발표 이전에 짐 크라머의 조언",
+          "width": 408,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 1",
-          "width": 88,
+          "text": "대형 IPO 앞두고 Anthropic 분기 손실 축소, 매출 급증",
+          "width": 280,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 2",
-          "width": 88,
+          "text": "모닝 콜 시트: 기술주 매도세, AI 지출 위험과 연준 금리 전망",
+          "width": 313,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 3",
-          "width": 88,
+          "text": "뉴욕증시, 미-이란 합의 기대감에 상승 출발",
+          "width": 228,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "SEC 8-K EX-99.1",
-          "width": 85,
+          "text": "앤스로픽 매출, 대형 IPO 앞두고 거의 170억 달러 기록",
+          "width": 283,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 1",
-          "width": 88,
+          "text": "앤트로픽, 美IPO로 日서만 4조7천억원 조달…해외기업 역대 최대",
+          "width": 339,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 2",
-          "width": 88,
+          "text": "미국 재무부, 유럽 국채 수익률은 하락한 유가로 떨어지다",
+          "width": 302,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "SEC 8-K EX-99.1",
-          "width": 85,
+          "text": "애경산업, 3분기 영업손실 33억원…매출은 3분기 기준 최대",
+          "width": 309,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 1",
-          "width": 88,
+          "text": "호르무즈 공격에도 불구하고 중간 선거 이전에 원유 가격이 하락",
+          "width": 338,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 2",
-          "width": 88,
+          "text": "달러 약세에도 원/달러 환율 9.5원 급등…외국인 달러 매수세 - 머니투데이",
+          "width": 387,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 3",
-          "width": 88,
+          "text": "일본 주식, 기술 매도에 하락, 기옥시아의 이익 전망",
+          "width": 268,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "SEC 8-K EX-99",
-          "width": 76,
+          "text": "[표] 코스닥 외국인 순매수도 상위종목(2일)",
+          "width": 226,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 1",
-          "width": 88,
+          "text": "일본은행, 인플레이션 목표 주변 고정 진전을 알리다",
+          "width": 274,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 2",
-          "width": 88,
+          "text": "OpenAI, 반도체 파트너십 강화하는 가운데 Sam Altman 깜짝 방한",
+          "width": 346,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 3",
-          "width": 88,
+          "text": "코스피, 상승 전환해 1%대 강세…삼전닉스도 반등(종합)",
+          "width": 291,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "SEC 8-K EX-99.1",
-          "width": 85,
+          "text": "혼조세 보인 한 주 뒤 MU, SNDK, DRAM 야간 거래서 소폭 상승…신중한 메모리 전망에 일본 키옥시아",
+          "width": 558,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "SEC 8-K EX-99.1",
-          "width": 85,
+          "text": "호르무즈 공격에도 불구하고 중간 선거 이전에 원유 가격이 하락",
+          "width": 338,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "SEC 8-K EX-99.1",
-          "width": 85,
+          "text": "BNK證 “반도체 빼면 영업이익 감소…코스피 실적 양극화”",
+          "width": 300,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 1",
-          "width": 88,
+          "text": "코스피 16% 급락하자 美주식으로…'서학개미' 순매수 연중 최대",
+          "width": 333,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 2",
-          "width": 88,
+          "text": "2026년 11월 비트코인 가격 예측",
+          "width": 172,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 3",
-          "width": 88,
+          "text": "중동 및 우크라이나-러시아 충돌로 공급 우려가 고조되며 원유 가격 상승",
+          "width": 382,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "SEC 6-K EX-99.1",
-          "width": 85,
+          "text": "메모리 부족으로 CXMT가 중국의 칩 챔피언으로 자리 잡다",
+          "width": 307,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 1",
-          "width": 88,
+          "text": "원유, 인플레이션, 연준 리스크... 왜 마이크로스트래티지리는 지금도 더 많은 비트코인을 원하는가?",
+          "width": 519,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 2",
-          "width": 88,
+          "text": "과거 한 달 동안 기름, AI, 채권 거래 모든 것이 달라짐",
+          "width": 277,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "SEC 8-K EX-99.1",
-          "width": 85,
+          "text": "미국 기후 전쟁에서 천연 가스를 구입할 권리에 대한 콜로라도 주 투표",
+          "width": 369,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 1",
-          "width": 88,
+          "text": "마이크 윌슨, 중간 선거 결과와 상관없이 주식 하락 매수해야 한다",
+          "width": 344,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 2",
-          "width": 88,
+          "text": "메모리 부족으로 CXMT가 중국의 칩 챔피언으로 자리 잡다",
+          "width": 307,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 3",
-          "width": 88,
+          "text": "아마존·인텔 실적에 AI 매도세 심화되며 미국 주가 하락",
+          "width": 289,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "SEC 6-K EX-99.1",
-          "width": 85,
+          "text": "Alphabet, AI 지출 계속 늘릴 것이라고 밝혀…2030년까지 매수해 보유할 데이터센터 주식 2종목",
+          "width": 499,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 1",
-          "width": 88,
+          "text": "‘반도체 3배’ 베팅한 서학개미, 10월 29억弗 쓸어담아",
+          "width": 276,
           "height": 16,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
-          "text": "반응 이유 기사 2",
-          "width": 88,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "반응 이유 기사 3",
-          "width": 88,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "SEC 8-K EX-99.1",
-          "width": 85,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "반응 이유 기사 1",
-          "width": 88,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "반응 이유 기사 2",
-          "width": 88,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "반응 이유 기사 3",
-          "width": 88,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "SEC 8-K EX-99.1",
-          "width": 85,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "반응 이유 기사 1",
-          "width": 88,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "반응 이유 기사 2",
-          "width": 88,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "반응 이유 기사 3",
-          "width": 88,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "SEC 8-K EX-99.1",
-          "width": 85,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "반응 이유 기사 1",
-          "width": 88,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "반응 이유 기사 2",
-          "width": 88,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "반응 이유 기사 3",
-          "width": 88,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "SEC 8-K EX-99.1",
-          "width": 85,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "반응 이유 기사 1",
-          "width": 88,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "반응 이유 기사 2",
-          "width": 88,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "반응 이유 기사 3",
-          "width": 88,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "SEC 8-K EX-99.1",
-          "width": 85,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "SEC 8-K EX-99.1",
-          "width": 85,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "SEC 8-K EX-99.1",
-          "width": 85,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "SEC 8-K EX-99.1",
-          "width": 85,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "SEC 8-K EX-99.1",
-          "width": 85,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "SEC 8-K EX-99.1",
-          "width": 85,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "반응 이유 기사 1",
-          "width": 88,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "반응 이유 기사 2",
-          "width": 88,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "반응 이유 기사 3",
-          "width": 88,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "반응 이유 기사 4",
-          "width": 88,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "SEC 8-K EX-99.1",
-          "width": 85,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "반응 이유 기사 1",
-          "width": 88,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "반응 이유 기사 2",
-          "width": 88,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "반응 이유 기사 3",
-          "width": 88,
-          "height": 16,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "콜 보도 기사 1",
-          "width": 76,
+          "text": "환율이 바꾼 외인 눈높이…6500선도 높다",
+          "width": 216,
           "height": 16,
           "exception": "wcag-inline-text"
         }
@@ -852,16 +701,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 1,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "%p",
-          "width": 20,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -940,16 +781,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 1,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "SEC",
-          "width": 20,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },

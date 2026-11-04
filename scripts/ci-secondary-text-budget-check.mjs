@@ -27,7 +27,7 @@ import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ROUTE_IDS } from '../src/app/routes.js';
-import { SECONDARY_TEXT_PATTERN, READING_MAX, ASOF_MAX } from '../src/ui/components/section-frame.js';
+import { SECONDARY_TEXT_PATTERN, READING_MAX, ASOF_MAX, FRAME_CONTRACTS } from '../src/ui/components/section-frame.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.CI_TEXT_BUDGET_PORT || 8954);
@@ -67,7 +67,7 @@ const CONTENT_TYPES = { json: 'application/json', csv: 'text/csv', txt: 'text/pl
 mkdirSync(out, { recursive: true });
 
 // Runs in the page: secondary characters and frame contract for the active route.
-function measure({ pattern, readingMax, asofMax }) {
+function measure({ pattern, readingMax, asofMax, contracts }) {
   const secondary = new RegExp(pattern, 'i');
   const page = document.querySelector('.page.active');
   if (!page) return null;
@@ -99,7 +99,17 @@ function measure({ pattern, readingMax, asofMax }) {
     if (asof.length > asofMax) problems.push(`as-of chip ${asof.length} chars`);
     if (readings.length > 1) problems.push(`${readings.length} readings`);
     if (readings.some((n) => n > readingMax)) problems.push(`reading ${Math.max(...readings)} chars`);
-    return { frame: frame.dataset.frame, hasHead: !!head, asof, readings, problems };
+    // v59.70 (S24): a story frame holds exactly one drawn visual and one reading, and at most one fold.
+    const contract = contracts[frame.dataset.frameContract];
+    if (contract) {
+      const own = (node) => node.closest('[data-frame]') === frame;
+      const visuals = [...frame.querySelectorAll('.aio-frame-visual')].filter(own).filter((box) => box.querySelector('svg,canvas,img,[role=img]'));
+      const folds = [...frame.querySelectorAll('details')].filter(own).filter((node) => !node.parentElement.closest('details'));
+      if (visuals.length !== contract.visuals) problems.push(`story: ${visuals.length} visuals`);
+      if (readings.length !== contract.readings) problems.push(`story: ${readings.length} readings`);
+      if (folds.length > contract.folds) problems.push(`story: ${folds.length} folds`);
+    }
+    return { frame: frame.dataset.frame, contract: frame.dataset.frameContract || null, hasHead: !!head, asof, readings, problems };
   });
   return { total, secondary: lines.reduce((sum, line) => sum + line.text.length, 0), lines: lines.sort((a, b) => b.text.length - a.text.length).slice(0, 12).map((line) => ({ chars: line.text.length, classes: line.classes, text: line.text.slice(0, 160) })), frames };
 }
@@ -141,7 +151,7 @@ if (isMain) {
     await page.goto(`${base}/index.html#home`, { waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => typeof window.showPage === 'function' && document.querySelector('.page.active'), { timeout: 30000 });
     await page.waitForTimeout(1500);
-    const args = { pattern: SECONDARY_TEXT_PATTERN, readingMax: READING_MAX, asofMax: ASOF_MAX };
+    const args = { pattern: SECONDARY_TEXT_PATTERN, readingMax: READING_MAX, asofMax: ASOF_MAX, contracts: FRAME_CONTRACTS };
     for (const route of ROUTE_IDS) {
       await page.evaluate((id) => window.showPage(id, null), route);
       await page.waitForTimeout(900);
@@ -157,12 +167,18 @@ if (isMain) {
       host.dataset.frame = 'canary.frame';
       host.innerHTML = `<div class="sx-card__head aio-frame-head"><h2 class="sx-card__title">제목</h2><span class="sx-card__meta">기준 설명 한 줄</span><span class="aio-asof">${'가'.repeat(40)}</span></div><p class="aio-frame-reading">${'나'.repeat(300)}</p><p class="aio-frame-reading">다</p><p class="canary-basis">${'라'.repeat(50)}</p>`;
       document.querySelector('.page.active').appendChild(host);
+      // v59.70 (S24): a story frame with no drawn visual and two folds must trip the story contract.
+      const story = document.createElement('section');
+      story.dataset.frame = 'canary.story';
+      story.dataset.frameContract = 'story';
+      story.innerHTML = '<div class="sx-card__head aio-frame-head"><h2 class="sx-card__title">제목</h2></div><div class="aio-frame-visual"><p>그림 없음</p></div><p class="aio-frame-reading">해석</p><details><summary>a</summary></details><details><summary>b</summary></details>';
+      host.after(story);
     });
     const after = await page.evaluate(measure, args);
-    await page.evaluate(() => document.getElementById('text-budget-canary')?.remove());
-    const canary = { problems: after.frames.find((frame) => frame.frame === 'canary.frame')?.problems || [], added: after.secondary - before.secondary };
+    await page.evaluate(() => { document.getElementById('text-budget-canary')?.remove(); document.querySelector('[data-frame="canary.story"]')?.remove(); });
+    const canary = { problems: after.frames.find((frame) => frame.frame === 'canary.frame')?.problems || [], story: after.frames.find((frame) => frame.frame === 'canary.story')?.problems || [], added: after.secondary - before.secondary };
     const expected = ['head holds', 'as-of chip', 'readings', 'reading 300'];
-    const missing = expected.filter((word) => !canary.problems.some((problem) => problem.includes(word)));
+    const missing = [...expected.filter((word) => !canary.problems.some((problem) => problem.includes(word))), ...['story: 0 visuals', 'story: 2 folds'].filter((word) => !canary.story.includes(word))];
     if (missing.length || canary.added < 50) failures.push({ message: 'secondary text budget canary failed (v58.79)', detail: { canary, missing } });
     await page.close();
   } catch (error) { failures.push({ message: error.message, stack: error.stack }); }
@@ -208,5 +224,6 @@ if (isMain) {
     process.exit(1);
   }
   const frames = ROUTE_IDS.reduce((sum, route) => sum + (results[route]?.frames.length || 0), 0);
-  console.log(`v58.79 secondary text budget PASS: ${ROUTE_IDS.length} routes within ceilings, ${frames} frame(s) keep the contract (${summary}).`);
+  const stories = ROUTE_IDS.reduce((sum, route) => sum + (results[route]?.frames.filter((frame) => frame.contract).length || 0), 0);
+  console.log(`v58.79 secondary text budget PASS: ${ROUTE_IDS.length} routes within ceilings, ${frames} frame(s) keep the contract, ${stories} story frame(s) (v59.70) (${summary}).`);
 }

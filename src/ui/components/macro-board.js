@@ -887,7 +887,13 @@ function curveSvg(doc, yields, previous = null) {
     // 20년 on 10/30); there the label goes under the point instead.
     const prevY = prevById.has(row.id) ? y(prevById.get(row.id)) : null;
     const below = prevY != null && prevY < y(row.value) && y(row.value) - prevY <= (narrow ? 34 : 22);
-    if (labelled.has(index)) add('text', { x: x(index) + lean.dx, y: below ? y(row.value) + 16 : y(row.value) - 8, 'text-anchor': lean.anchor, class: 'rates-curve-label' }, row.value.toFixed(2));
+    // v59.70 (coverage audit S9): under the point the solid line comes in from the lower neighbour (10년 4.91 and 2년 4.59
+    // sat on it at 390px), so a label placed below leans to the side away from that neighbour.
+    const lowerThan = (other) => other?.value != null && other.value < row.value;
+    // 20년 has 30년's label to its right, so it sits level with its point on the left, above the rising line.
+    const side = !below ? { ...lean, dy: -8 } : edge === ' is-penult' && lowerThan(yields[index - 1]) ? { dx: -8, anchor: 'end', dy: 4 }
+      : edge ? { ...lean, dy: 16 } : lowerThan(yields[index - 1]) ? { dx: 6, anchor: 'start', dy: 16 } : lowerThan(yields[index + 1]) ? { dx: -6, anchor: 'end', dy: 16 } : { ...lean, dy: 16 };
+    if (labelled.has(index)) add('text', { x: x(index) + side.dx, y: y(row.value) + side.dy, 'text-anchor': side.anchor, class: 'rates-curve-label' }, row.value.toFixed(2));
   });
   return svg;
 }

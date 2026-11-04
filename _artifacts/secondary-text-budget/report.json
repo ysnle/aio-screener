@@ -55,6 +55,7 @@
       "frames": [
         {
           "frame": "home.index-strip",
+          "contract": null,
           "hasHead": true,
           "asof": "10/30 종가",
           "readings": [],
@@ -62,6 +63,7 @@
         },
         {
           "frame": "home.my-names",
+          "contract": null,
           "hasHead": true,
           "asof": "",
           "readings": [],
@@ -70,7 +72,7 @@
       ]
     },
     "signal": {
-      "total": 5252,
+      "total": 5242,
       "secondary": 305,
       "lines": [
         {
@@ -137,6 +139,7 @@
       "frames": [
         {
           "frame": "signal.story",
+          "contract": null,
           "hasHead": true,
           "asof": "최근 15거래일",
           "readings": [
@@ -146,6 +149,7 @@
         },
         {
           "frame": "signal.scenarios",
+          "contract": null,
           "hasHead": false,
           "asof": "",
           "readings": [],
@@ -153,6 +157,7 @@
         },
         {
           "frame": "signal.synthesis",
+          "contract": null,
           "hasHead": true,
           "asof": "10/30 종가",
           "readings": [],
@@ -218,8 +223,8 @@
       "frames": []
     },
     "sentiment": {
-      "total": 997,
-      "secondary": 158,
+      "total": 956,
+      "secondary": 141,
       "lines": [
         {
           "chars": 20,
@@ -230,11 +235,6 @@
           "chars": 20,
           "classes": "basis-chip trend-card-tags",
           "text": "10/30 기준, 7개 중 6개 반영"
-        },
-        {
-          "chars": 17,
-          "classes": "basis-chip trend-card-tags",
-          "text": "10/22, 오래됨(판정 제외)"
         },
         {
           "chars": 14,
@@ -280,6 +280,11 @@
           "chars": 5,
           "classes": "basis-chip trend-card-tags trend-card",
           "text": "10/30"
+        },
+        {
+          "chars": 2,
+          "classes": "aio-basis-btn briefing-block market-temperature",
+          "text": "근거"
         }
       ],
       "frames": []
@@ -307,7 +312,7 @@
       "frames": []
     },
     "technical": {
-      "total": 187,
+      "total": 157,
       "secondary": 37,
       "lines": [
         {
@@ -324,7 +329,7 @@
       "frames": []
     },
     "macro": {
-      "total": 4387,
+      "total": 4390,
       "secondary": 245,
       "lines": [
         {
@@ -391,6 +396,7 @@
       "frames": [
         {
           "frame": "macro.recent-releases",
+          "contract": null,
           "hasHead": true,
           "asof": "",
           "readings": [],
@@ -398,6 +404,7 @@
         },
         {
           "frame": "macro.chapters",
+          "contract": null,
           "hasHead": false,
           "asof": "",
           "readings": [],
@@ -546,6 +553,7 @@
       "frames": [
         {
           "frame": "themes.rrg",
+          "contract": null,
           "hasHead": true,
           "asof": "10/30 종가",
           "readings": [],
@@ -553,6 +561,7 @@
         },
         {
           "frame": "themes.sector-map",
+          "contract": null,
           "hasHead": true,
           "asof": "10/30 종가",
           "readings": [],
@@ -560,6 +569,7 @@
         },
         {
           "frame": "themes.ranking",
+          "contract": null,
           "hasHead": true,
           "asof": "10/30 종가",
           "readings": [],
@@ -567,6 +577,7 @@
         },
         {
           "frame": "themes.ai-chain",
+          "contract": null,
           "hasHead": true,
           "asof": "",
           "readings": [],
@@ -574,6 +585,7 @@
         },
         {
           "frame": "themes.capex-flow",
+          "contract": null,
           "hasHead": true,
           "asof": "2026-08 인용 자료",
           "readings": [
@@ -583,6 +595,7 @@
         },
         {
           "frame": "themes.playbook",
+          "contract": null,
           "hasHead": true,
           "asof": "10/30 종가",
           "readings": [],
@@ -626,7 +639,7 @@
       "frames": []
     },
     "market-news": {
-      "total": 3587,
+      "total": 3585,
       "secondary": 288,
       "lines": [
         {
@@ -693,6 +706,7 @@
       "frames": [
         {
           "frame": "market-news.event-briefs",
+          "contract": null,
           "hasHead": true,
           "asof": "",
           "readings": [],
@@ -718,7 +732,7 @@
       "frames": []
     },
     "masters": {
-      "total": 1893,
+      "total": 1892,
       "secondary": 217,
       "lines": [
         {
@@ -727,9 +741,9 @@
           "text": "비교 행 30개(이번 분기 보유 29개, 전량 매도 1개) 중 가치 상위 10개, 변화 있는 행 먼저 30행 모두 보기"
         },
         {
-          "chars": 64,
+          "chars": 61,
           "classes": "masters-holdings-meta masters-filing-dates masters-detail-card rl-main",
-          "text": "보고분기 2026 Q2(2026-06-30), 13F-HR 제출 2026-08-14, 자료 검토 2026-10-26"
+          "text": "보고분기 2026 Q2(2026-06-30), -HR 제출 2026-08-14, 자료 검토 2026-10-26"
         },
         {
           "chars": 54,
@@ -750,6 +764,11 @@
           "chars": 5,
           "classes": "aio-note-fold masters-method-fold masters-holdings-section masters-change-ledger",
           "text": "분류 방법"
+        },
+        {
+          "chars": 3,
+          "classes": "aio-term masters-holdings-meta masters-filing-dates masters-detail-card",
+          "text": "13F"
         }
       ],
       "frames": []

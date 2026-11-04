@@ -22,7 +22,6 @@ import { splitReading } from './market-regime.js';
 import { signedText, readNumber as finite } from '../../domain/shared/number.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { historyWaitText } from './data-state.js';
-import { freshnessBadge } from './freshness-badge.js';
 
 // AAII published long-run averages (since 1987; https://www.aaii.com/sentimentsurvey): bullish 37.5%, neutral 31.5%, bearish 31.0%.
 const AAII_AVERAGE = Object.freeze({ bull: 37.5, bear: 31.0 });
@@ -57,13 +56,12 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   const shown = {
     fg: fgSeries.length ? fgSeries[fgSeries.length - 1].value : finite(credit.fg),
     ratio: ratioLast?.value ?? null,
-    pcr: finite(credit.pcr),
     bear: finite(snapshot.aaiiBear), bull: finite(snapshot.aaiiBull)
   };
   const fg = c.fg;
   const ratio = isUsable(ratioAlign) ? shown.ratio : null;
   const { hyBp, hy5, hy20, pcr, hy20Stress } = c;
-  const credit_ = creditState({ hyBp, hy5, hy20, pcr, hy20Stress }); // v57.81: the same 20-session record test as the axis
+  const credit_ = creditState({ hyBp, hy5, hy20, pcr, hy20Stress }); // v57.81: the same 20-session record test as the axis (v59.70: pcr is a verdict input only, never shown)
   const bear = isUsable(aaiiAlign) ? shown.bear : null;
   const bull = bear == null ? null : shown.bull;
   const judged = (value, state) => value == null ? (state === undefined ? null : EXCLUDED) : state;
@@ -75,17 +73,14 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
       // P1508: the change is taken between the shown whole numbers (43 → 47 reads +4), the same rule as the home card;
       // rounding the raw difference gave +3 on one screen and +4 on the other for the same day.
       change: fgChange ? `${fgChange} (확정 종가 기준)` : '',
-      note: 'VIX·풋콜·정크본드 수요·시장 폭·모멘텀 등 7개 지표를 합친 지수 — 다른 지표와 겹치므로 단독 판단에 쓰지 않음' },
+      note: 'VIX·정크본드 수요·시장 폭·모멘텀 등 7개 지표를 합친 지수 — 다른 지표와 겹치므로 단독 판단에 쓰지 않음' },
     { id: 'term', title: '단기 불안 비율 (VIX ÷ 3개월 VIX)', value: shown.ratio == null ? '—' : shown.ratio.toFixed(2), basis: alignmentLabel(ratioAlign), basisStatus: ratioAlign.status,
       state: shown.ratio == null ? null : judged(ratio, ratio >= RULES.volatility.invertedRatioAt ? { label: '역전, 단기 불안', tone: 'burden' } : ratio >= RULES.volatility.calmRatioBelow ? { label: '평탄', tone: 'neutral' } : { label: '정상', tone: 'favorable' }),
       series: ratioSeries, refLines: [RULES.volatility.invertedRatioAt], format: (value) => value.toFixed(2), change: [seriesChange(ratioSeries, 5, '', 2) ? `5일 ${seriesChange(ratioSeries, 5, '', 2)}` : '', impliedDaily].filter(Boolean).join(', '),
       note: '1 미만이면 단기 공포가 중기보다 작은 정상 상태, 1을 넘으면 당장의 충격을 크게 반영하는 역전' },
     // v59.51 (content audit): the high-yield spread card left — the same number, verdict (creditState) and six-month chart
     // are the 시장 상태 credit axis; the synthesis above still reads the spread to say whether fear reached credit.
-    { id: 'pcr', title: '풋/콜 비율', value: shown.pcr == null ? '—' : shown.pcr.toFixed(2), basis: alignmentLabel(alignments.pcr), basisStatus: alignments.pcr.status, degraded: !!credit.pcrDegraded,
-      // T10: the card reads the same RULES edges as the credit axis (1.1 hedging, below 0.7 optimism). D19: level only, neutral tone.
-      state: shown.pcr == null ? null : judged(pcr, pcr >= RULES.credit.putCallHedgeAt ? { label: '풋 거래 우세', tone: LEVEL_TONE } : pcr < RULES.credit.putCallOptimismBelow ? { label: '콜 우위 (낙관 쪽)', tone: LEVEL_TONE } : { label: '중립', tone: LEVEL_TONE }),
-      change: '', note: `미국 상장 옵션 전체에서 풋옵션 거래가 콜옵션보다 얼마나 많은지 — ${RULES.credit.putCallHedgeAt} 이상 풋 거래 우세, ${RULES.credit.putCallOptimismBelow} 미만 콜 거래 우세. 풋을 사서 대비한 거래인지 팔아서 수익을 낸 거래인지는 이 비율로 구분되지 않습니다` },
+    // v59.70 (owner 2026-11-04): the put/call card left — Cboe's terms allow neither automated collection nor republication.
     { id: 'aaii', title: 'AAII 개인 설문', value: shown.bear == null ? '—' : `약세 ${shown.bear.toFixed(1)}%`, basis: credit.aaiiAsOf ? `주간 설문, ${alignmentLabel(aaiiAlign)}` : '미수신', basisStatus: isUsable(aaiiAlign) ? 'aligned' : aaiiAlign.status,
       // v57.50 D24/C04: no sourced 45% '비관' cut-off exists, so the state is the distance from AAII's published long-run average.
       state: shown.bear == null ? null : judged(bear, { label: `약세 장기 평균 대비 ${signedPp(bear - AAII_AVERAGE.bear)}`, tone: LEVEL_TONE }),
@@ -104,9 +99,7 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   // (the old 45% was unsourced), so only the F&G band (CNN's published edges) names fear; AAII is read against its average.
   const fgFear = Boolean(fgBand && fgBand.label.includes('공포'));
   const fearful = fgFear;
-  // P1428: greed needs a measured put/call; a missing one is '미확인', never 'low hedging'.
   const greedy = fg != null && fg > RULES.fearGreed.extremeGreedAbove;
-  const hedgeLow = pcr != null && pcr < RULES.credit.putCallOptimismBelow;
   const creditKnown = hyBp != null;
   // v57.50 C02: calm/stress come from the one creditState() (market-read) — no second set of edges here.
   const creditCalm = credit_ === 'favorable';
@@ -125,7 +118,7 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
       '비관이 심리 지표를 넘어 자금 시장으로 퍼지는 모습입니다.'].filter(Boolean).join(' ');
   else if (fearful && creditKnown && volKnown) synthesis = `${fearSource}는 비관 쪽이고 신용 스프레드(${Math.round(hyBp)}bp${hy20 != null ? `, 20거래일 ${hy20 >= 0 ? '+' : ''}${Math.round(hy20)}bp` : ''})는 중립(양호 조건 미충족)입니다 — 비관이 신용으로 번지는지 확인할 단계입니다.`;
   else if (fearful) synthesis =`${fearSource}는 비관 쪽이지만 ${[!creditKnown ? '신용 스프레드' : null, !volKnown ? '변동성 구조' : null].filter(Boolean).join('·')} 자료가 기준일에 없어 비관이 번졌는지 확인하지 못했습니다.`;
-  else if (greedy) synthesis = hedgeLow ? `낙관이 강하고(F&G ${Math.round(fg)}) 콜 거래 비중이 높습니다(풋/콜 ${pcr.toFixed(2)}) — 옵션 거래까지 낙관 쪽으로 기운 상태입니다.` : `낙관이 강합니다(F&G ${Math.round(fg)}). 풋/콜 비율이 ${pcr == null ? '없어 옵션 거래의 기울기는 확인하지 못했습니다' : `${pcr.toFixed(2)}로 콜 거래 쪽으로 기울지는 않았습니다`}.`;
+  else if (greedy) synthesis = `낙관이 강합니다(F&G ${Math.round(fg)}).`;
   else if (fgBand) synthesis = `F&G는 ${Math.round(fg)}(${fgBand.label}) — 한쪽으로 치우치지 않은 상태입니다.`;
   else synthesis = 'F&G가 기준일에 없어 가격 쪽 심리는 판단하지 않고, 개인 설문만 아래에 적습니다.';
   // Audit 2026-10-14: the summary carries the direction of the mood (F&G over 20 sessions), and the AAII reading joins the
@@ -180,7 +173,7 @@ function compositeCard(composite) {
     // P1593 (F97): every component is named, including the ones without data, so a partial set is not read as CNN's seven.
     // v57.77: one line on the card; how the percentiles are built and when the card is withheld sit in the fold (rules).
     note: `${spreadLine ? `${spreadLine}, ` : ''}${composite.componentsReady ?? 7}개 요소의 1년 백분위를 나란히 놓은 참고값으로, 공포·탐욕 지수 값과 다릅니다`,
-    rules: '요소마다 최근 1년 백분위로 바꾸며 높을수록 낙관 쪽입니다(변동성·풋/콜·정크본드는 뒤집어 계산). 한 점수로 평균하거나 공포·탐욕 구간을 붙이지 않고, 계산되는 요소가 4개 미만이면 표시하지 않습니다.'
+    rules: '요소마다 최근 1년 백분위로 바꾸며 높을수록 낙관 쪽입니다(높을수록 불안한 변동성·정크본드 같은 요소는 뒤집어 계산). 한 점수로 평균하거나 공포·탐욕 구간을 붙이지 않고, 계산되는 요소가 4개 미만이면 표시하지 않습니다.'
   };
 }
 export function renderSentimentBoard({ documentRef: doc, root }) {
@@ -218,9 +211,9 @@ export function renderSentimentBoard({ documentRef: doc, root }) {
     if (!grid) continue;
     const wasOpen = new Set([...grid.querySelectorAll('details.trend-card[open]')].map((node) => node.dataset.metric));
     grid.replaceChildren(...model.cards.filter((card) => (kind === 'chart') === !!card.series).map((card) => {
-      // v59.51 (content audit): a card that cannot be read today (put/call past its date, excluded from the verdict) and the
-      // component ranking (an expert cross-check of F&G) are one closed line — title, value, state — with the rest inside.
-      const folded = card.id === 'composite' || (card.id === 'pcr' && (card.basisStatus !== 'aligned' || card.degraded));
+      // v59.51 (content audit): the component ranking (an expert cross-check of F&G) is one closed line — title, value,
+      // state — with the rest inside.
+      const folded = card.id === 'composite';
       const box = el(doc, folded ? 'details' : 'section', null, 'trend-card');
       box.dataset.metric = card.id;
       if (folded) box.open = wasOpen.has(card.id);
@@ -228,8 +221,7 @@ export function renderSentimentBoard({ documentRef: doc, root }) {
       head.append(el(doc, 'h3', card.title, 'trend-card-title'), el(doc, 'span', card.value, 'trend-card-value'));
       const tags = el(doc, 'div', null, 'trend-card-tags');
       if (card.state) tags.append(el(doc, 'span', card.state.label, `regime-state is-${card.state.tone} sx-chip sx-chip--sm sx-chip--${CHIP_TONE[card.state.tone] || 'neutral'}`));
-      // v59.70: a record the producer lowered to reference use reads 참고 beside its date (freshness-badge.js).
-      if (card.value !== '—') tags.append(card.degraded ? freshnessBadge(doc, { state: 'unknown', basisSession: { US: card.basis } }, { degraded: true }) : el(doc, 'span', card.basis, 'basis-chip'));
+      if (card.value !== '—') tags.append(el(doc, 'span', card.basis, 'basis-chip'));
       if (folded) { const summary = el(doc, 'summary'); summary.append(head, tags); box.append(summary); } else box.append(head, tags);
       if (card.change) box.append(el(doc, 'div', card.change, 'trend-card-change'));
       if (card.series) box.append(createTrendChart(doc, { series: card.series, refLines: card.refLines, format: card.format, label: card.title, domain: card.domain || null, range }));

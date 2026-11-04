@@ -247,6 +247,7 @@ details > summary { cursor: pointer; }
 .aio-frame-head { flex-wrap: wrap; row-gap: 6px; }
 .aio-frame-head:has(> .aio-frame-actions) { justify-content: flex-start; } /* the chip sits by the title; actions take the right */
 .aio-frame-head > .sr-only + .aio-asof { margin-left: auto; }
+.aio-frame-visual { min-width: 0; } /* v59.70 (S24): a story frame's one visual; wide charts shrink instead of widening the card */
 .aio-asof { display: inline-flex; align-items: center; min-height: 22px; padding: 0 8px; border-radius: 999px; background: var(--sx-ink-a03); color: var(--text-secondary); font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .aio-asof[title] { cursor: help; }
 .aio-frame-actions { display: inline-flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }

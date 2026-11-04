@@ -3538,7 +3538,7 @@ function _autoNavigatePage(userQuery, currentCtxId) {
   if (/(차트|chart|기술|technical|RSI|MACD|이동평균|\bMA\b|Weinstein)/i.test(q)) intent = { page: stockChart && !/(지수|시장|index|S&P|나스닥|코스피|코스닥|다우|러셀|반도체 지수)/i.test(q) ? 'technical' : 'charts' };
   else if (/(시그널|signal|매매|trade|점수|score|ACTION)/i.test(q)) intent = { page: 'signal' };
   else if (/(시장 폭|breadth|McClellan|AD line|NHNL)/i.test(q)) intent = { page: 'breadth' };
-  else if (/(심리|sentiment|VIX|F&G|공포|탐욕|AAII|Put.?Call|PCR)/i.test(q)) intent = { page: 'sentiment' };
+  else if (/(심리|sentiment|VIX|F&G|공포|탐욕|AAII)/i.test(q)) intent = { page: 'sentiment' };
   else if (/(매크로|macro|Fed|CPI|PCE|유가|달러|환율|FOMC|금리)/i.test(q)) intent = { page: 'macro' };
   else if (/(외환|FX|채권|bond|10Y|2Y|국채|금리)/i.test(q) && !/(macro|매크로)/i.test(q)) intent = { page: 'fxbond' };
   else if (/(기업 분석|fundamental|재무|earnings|EPS|PER|밸류에이션|valuation|owner earnings|moat)/i.test(q)) intent = { page: 'fundamental' };
@@ -3584,7 +3584,7 @@ function _suggestFollowUpQuestions(ctxId, userQuery, aiResponse, detectedTickers
     suggestions.push('현재 판단을 확인할 공식 지표와 발표 일정을 알려줘');
     suggestions.push('기본 시나리오가 무효화되는 반대 데이터는 무엇인가?');
   } else if (ctxId === 'sentiment') {
-    suggestions.push('VIX·F&G·Put/Call이 서로 엇갈릴 때 어떻게 해석해야 하나?');
+    suggestions.push('VIX·F&G·AAII가 서로 엇갈릴 때 어떻게 해석해야 하나?');
     suggestions.push('현재 심리 판단의 기준시각과 원천을 정리해줘');
     suggestions.push('심리 반전 여부를 확인할 다음 지표는 무엇인가?');
   } else if (ctxId === 'technical') {

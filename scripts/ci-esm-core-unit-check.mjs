@@ -6129,6 +6129,11 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (!/sr-only/.test(frame.frameHead(doc, { title: '지수 하루 흐름', hiddenTitle: true }).children[0].className)) fail('v58.79 a hidden frame title stays for screen readers');
   const section = frame.frameSection(doc, { frame: 'home.test', title: 'T', titleId: 't', reading: '읽기' });
   if (section.dataset.frame !== 'home.test' || section.attrs['aria-labelledby'] !== 't' || section.children[1]?.className !== 'aio-frame-reading') fail('v58.79 frameSection: data-frame name, labelled by its title, reading after the head');
+  // v59.70 (S24): a story frame wraps its visual in .aio-frame-visual and names its contract; an unknown contract is ignored.
+  const story = frame.frameSection(doc, { frame: 'home.story', title: 'T', contract: 'story', visual: node('svg'), reading: '읽기' });
+  if (story.dataset.frameContract !== 'story' || story.children[1]?.className !== 'aio-frame-visual' || story.children[1].children[0]?.tag !== 'svg' || story.children[2]?.className !== 'aio-frame-reading'
+    || frame.frameSection(doc, { title: 'T', contract: 'poster' }).dataset.frameContract !== undefined || frame.FRAME_CONTRACTS.story.visuals !== 1)
+    fail('v59.70 story frame: head, one wrapped visual, one reading; only a known contract is named');
   const { headroom } = await import(pathToFileURL(path.join(root, 'scripts/ci-secondary-text-budget-check.mjs')).href);
   if (headroom(0) !== 40 || headroom(1000) !== 1140) fail('v58.79 budget headroom is 10% + 40 characters');
   // v59.51 (content audit): the quote heading and its state chip (HOME_QUOTE_HEADINGS) are retired with the KPI strip; the

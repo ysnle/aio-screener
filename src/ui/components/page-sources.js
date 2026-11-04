@@ -23,7 +23,6 @@ export const PAGE_SOURCES = Object.freeze({
   sentiment: [
     '공포·탐욕 지수: CNN Fear & Greed Index',
     '변동성 구조: Cboe VIX·VIX3M 일별 종가 (Yahoo Finance)',
-    '풋/콜 비율: Cboe 일별 시장 통계 (전체 옵션)',
     '고위험 회사채 금리차: ICE BofA 하이일드 OAS (FRED)',
     'AAII 개인 설문: 미국 개인투자자협회(AAII) 주간 설문, 장기 평균은 AAII 공표값(1987년 이후)',
     '공포·탐욕 구성 요소 순위: 위 공개 자료로 자체 계산'
