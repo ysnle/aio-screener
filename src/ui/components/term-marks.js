@@ -193,6 +193,7 @@ export function installTermMarks(documentRef, { root = globalThis } = {}) {
   const activePage = () => documentRef.querySelector('.page.active');
   const run = () => { timer = null; try { markTerms(activePage(), root.GLOSSARY, documentRef); } catch (_) { /* reading text only */ } };
   const schedule = () => { if (!timer) timer = setTimeout(run, 700); };
+  documentRef.addEventListener('aio:glossaryReady', schedule); // v59.70 P3: GLOSSARY arrives after boot
   // While a popover is open the back-to-top button (bottom-right, fixed) is hidden so it cannot sit on top of it.
   // v57.61 WCAG 2.4.3: when focus was inside the popover, closing it (Escape, scroll) returns focus to the term.
   const close = ({ restore = true } = {}) => {

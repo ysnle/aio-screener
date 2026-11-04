@@ -685,6 +685,11 @@
           "script": "scripts/ci-structural-check.mjs"
         },
         {
+          "id": "qa-surface-boundary",
+          "script": "scripts/ci-qa-surface-boundary-check.mjs",
+          "remedy": "v59.70 P2: an audit only QA entry points call goes in js/aio-qa-audits.js (loaded by AIO.loadQaAudits()); the allowlist only shrinks"
+        },
+        {
           "id": "default-ux",
           "script": "scripts/ci-ux-default-path-check.mjs"
         },

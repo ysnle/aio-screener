@@ -6071,9 +6071,7 @@ button[data-filter-active="true"] {
 
 <!-- 2026-10-01: duplicate small risk banner removed; the sticky 투자 면책 고지 is the single disclaimer -->
 
-<!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
-     용어 사전 모달(src/ui/knowledge/glossary-modal.js, 호출 시점에만 읽음)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=59.69" defer></script>
+<!-- v59.70 P3: js/aio-glossary.js loads after boot from src/app/classic-loader.js (AIO.loadGlossary). -->
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->

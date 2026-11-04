@@ -175,7 +175,10 @@ export function createGlossaryModal({ root = globalThis, documentRef = root.docu
 // they loaded (root._aioGlossaryPending, set by the stub in src/app/compatibility-globals.js) is shown now.
 export function installGlossaryModal(root, documentRef) {
   const modal = createGlossaryModal({ root, documentRef });
-  root.openGlossary = modal.open;
+  // v59.70 P3: an open before js/aio-glossary.js has arrived waits for it instead of showing an empty list.
+  root.openGlossary = (...args) => (Array.isArray(root.GLOSSARY) || typeof root.AIO?.loadGlossary !== 'function'
+    ? modal.open(...args)
+    : root.AIO.loadGlossary().then(() => modal.open(...args), () => modal.open(...args)));
   root._aioCloseGlossary = modal.close;
   root._aioGlossaryIsOpen = modal.isOpen;
   root.renderGlossaryCats = modal.renderCats;

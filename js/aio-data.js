@@ -1788,12 +1788,16 @@ function _aioRenderTelegramFeedHtml(pageId) {
   } catch(_) { return ''; }
 }
 
+function _aioTelegramFeedDevMode() {
+  return !!(document.body && document.body.classList.contains('aio-dev-mode'));
+}
+
 function _aioInjectTelegramFeed(pageId) {
   try {
     var el = document.getElementById('tg-feed-' + pageId);
     if (!el) return;
-    if (!document.body.classList.contains('aio-dev-mode')) { // v59.55 (owner 11/1): post text is dev-only; 뉴스 shows extracted facts (channel-data.js)
-      el.replaceChildren();
+    if (!_aioTelegramFeedDevMode()) { // v59.55 (owner 11/1): post text is dev-only; 뉴스 shows extracted facts (channel-data.js)
+      if (el.firstChild) el.replaceChildren(); // v59.70 L2: the public path writes nothing into the empty containers
       return;
     }
     var html = _aioRenderTelegramFeedHtml(pageId);
@@ -1802,6 +1806,7 @@ function _aioInjectTelegramFeed(pageId) {
 }
 
 function _aioInjectAllTelegramFeeds() {
+  if (!_aioTelegramFeedDevMode()) return; // v59.70 L2: the public path never builds post HTML
   Object.keys(_TG_PAGE_TAGS).forEach(_aioInjectTelegramFeed);
 }
 
@@ -3214,62 +3219,7 @@ function _aioLoadOfficialReferences() {
 }
 
 // v51.18: 운영자 노트 — public-data/operator-note.json 로드 + 홈 카드 렌더
-function _aioIsOperatorNotePlaceholder(note) {
-  try {
-    var title = String((note && note.title) || '');
-    var body = String((note && note.body) || '');
-    return /제목을 여기에 작성하세요|운영자 노트 — 제목/.test(title) ||
-           /여기에 본문을 작성하세요|예시: 나스닥 RSI/.test(body);
-  } catch(_) { return true; }
-}
-async function _aioLoadOperatorNote() {
-  try {
-    var url = './public-data/operator-note.json'; // v57.61 (perf): no-cache revalidation, no buster
-    var r = await fetch(url, { cache: 'no-cache' });
-    if (!r.ok) return;
-    var d = await r.json();
-    var _noteAgeDays = (Date.now() - Date.parse(String((d && d.updated) || '') + 'T00:00:00+09:00')) / 86400000; if (d && d.visible !== false && !_aioIsOperatorNotePlaceholder(d) && Number.isFinite(_noteAgeDays) && _noteAgeDays <= 14) { // P1652: a dated note is hidden (and kept out of AI context) after 14 days
-      window._aioOperatorNote = d;
-      if (typeof _aioRenderOperatorNote === 'function') _aioRenderOperatorNote();
-    } else {
-      window._aioOperatorNote = null;
-      if (typeof _aioRenderOperatorNote === 'function') _aioRenderOperatorNote();
-    }
-  } catch(_) {}
-}
-window._aioLoadOperatorNote = _aioLoadOperatorNote;
-
-// P569/R260: this was defined 3 times in this file (v-baseline, v51.40, v51.43) — only the
-// last definition below ever took effect (each `function` redeclaration + `window.x =`
-// silently overwrote the previous one), so the two earlier ~25-line copies were fully dead:
-// any future fix applied to them would compile fine and have zero effect. Removed rather than
-// left as unreachable code.
-// v57.71 (owner 2026-10-15): the operator note becomes "오늘의 한 문장" — one sentence that names the day's market
-// tension. The producer writes it once per 08:00 KST day (data.json marketAnalysis.sentence); an operator line in
-// operator-note.json (`sentence`, `updated` = that day) takes its place. Older than the previous day, nothing shows.
-function _aioRenderOperatorNote() {
-  var el = document.getElementById('home-operator-note');
-  if (!el) return;
-  var day = new Date(Date.now() + 3600000).toISOString().slice(0, 10);
-  var yesterday = new Date(Date.now() + 3600000 - 86400000).toISOString().slice(0, 10);
-  var note = window._aioOperatorNote;
-  var manual = note && note.visible !== false && !_aioIsOperatorNotePlaceholder(note) && note.sentence && note.updated === day
-    ? { text: String(note.sentence), day: note.updated, by: '운영자' } : null;
-  var produced = window._aioMarketSentence;
-  var line = manual || (produced && produced.text && (produced.day === day || produced.day === yesterday) ? { text: String(produced.text), day: produced.day, by: null } : null);
-  if (!line) { el.style.display = 'none'; el.innerHTML = ''; return; }
-  var md = Number(line.day.slice(5, 7)) + '/' + Number(line.day.slice(8, 10));
-  el.innerHTML =
-    '<div class="aio-operator-note-card aio-operator-note-priority aio-market-sentence" data-source-kind="REFERENCE" data-operational-use="reference-only" data-sentence-day="' + escHtml(line.day) + '">' +
-      '<div class="aio-operator-note-meta">' +
-        '<span class="aio-operator-note-kicker">오늘의 질문</span>' +
-        '<span class="aio-operator-note-date">' + escHtml(md) + ' 작성' + (line.by ? ', ' + escHtml(line.by) : '') + '</span>' + // v58.80 (first-users run-4): the writing day, not the close it reads
-      '</div>' +
-      '<div class="aio-operator-note-title">' + escHtml(line.text) + '</div>' + // v59.51: the note sits inside the home verdict card, which already leads with the verdict it questions
-    '</div>';
-  el.style.display = 'block';
-}
-window._aioRenderOperatorNote = _aioRenderOperatorNote;
+// v59.70 L3: the operator-note loader and the 오늘의 질문 renderer moved unchanged to src/ui/components/home-status-surface.js.
 
 // P1268: this compatibility producer keeps returning the legacy score projection for charts and
 // signal consumers, while the native news route is the sole owner of the visible summary sinks.
@@ -3373,44 +3323,7 @@ if (typeof window !== 'undefined') {
   setTimeout(function() { try { _aioApplyNewsBackstop(false); } catch(_) {} }, 12000);
 }
 
-// v50.24/WO-4: 서버 데이터 나이를 topbar 배지로 표면화 — 사용자가 "지금 보는 데이터가 N분 전 것"을
-// 항상 알 수 있게. 60분+ amber, 180분+ red. ageMin은 _serverDataMeta.generatedAt 기준으로 매번 재계산
-// (배지 갱신 타이머가 1분마다 호출해도 나이가 정확히 카운트업되도록).
-function _aioRenderServerDataAge() {
-  try {
-    var el = document.getElementById('server-data-age');
-    if (!el) return;
-    var meta = window._serverDataMeta;
-    if (!meta || !meta.generatedAt) { el.style.display = 'none'; return; }
-    var generatedMs = new Date(meta.generatedAt).getTime();
-    if (!isFinite(generatedMs)) { el.style.display = 'none'; return; }
-    var age = Math.max(0, Math.round((Date.now() - generatedMs) / 60000));
-    // KST 시각 포맷 (UTC+9)
-    var d = new Date(new Date(meta.generatedAt).getTime() + 9 * 3600000);
-    var kst = (d.getUTCMonth()+1) + '-' + String(d.getUTCDate()).padStart(2,'0')
-            + ' ' + String(d.getUTCHours()).padStart(2,'0') + ':' + String(d.getUTCMinutes()).padStart(2,'0') + ' KST';
-    var txt, cls, title;
-    if (meta.marketCyclePublished !== true) {
-      txt = '' + kst + ' 시도';
-      cls = 'fb-static';
-      title = '최근 서버 시도는 시장 스냅샷으로 발행되지 않았습니다. 현재 시세는 마지막 성공본(LKG) 참고자료일 수 있습니다.\n'
-        + kst + ' | cycle=' + (meta.cycleStatus || 'unknown');
-    } else if (age < 60)       { txt = '' + kst + ' 갱신'; cls = 'fb-live';   title = '서버(GitHub Actions)가 ' + age + '분 전 수집한 데이터 — 신선\n' + kst + ' | 시세 ' + (meta.symbolsOk||'?') + '개'; }
-    else if (age < 180) { txt = '' + kst + ' 갱신'; cls = 'fb-static'; title = '서버 데이터 ' + age + '분 경과 (자동 갱신 대기)\n' + kst + ' | 시세 ' + (meta.symbolsOk||'?') + '개'; }
-    else {
-      var h = Math.floor(age / 60);
-      txt = '' + kst + ' (' + h + 'h 전)'; cls = 'fb-stale';
-      title = '서버 데이터 ' + h + '시간 경과 — GitHub Actions cron이 지연/중단됐을 수 있음\n' + kst;
-    }
-    el.textContent = txt;
-    el.className = 'freshness-badge ' + cls;
-    el.style.display = '';
-    el.title = title;
-    el.setAttribute('data-server-age-min', String(age));
-    if (typeof _aioSchedulePublicReadiness === 'function') _aioSchedulePublicReadiness(250);
-  } catch(_) {}
-}
-window._aioRenderServerDataAge = _aioRenderServerDataAge;
+// v59.70 L3: the server data age badge (_aioRenderServerDataAge) moved unchanged to src/ui/components/home-status-surface.js.
 
 // v51.65: 파이프라인 상태 배너 — marketAnalysisOk/fmpOk/fredOk 기반으로 경고 표시
 // 이슈가 없으면 숨김 유지 (R234 — 기본값 hidden)
@@ -5038,36 +4951,7 @@ function _aioNewsProgress(state) {
 }
 // v58.92: window.AIO.getNewsSurfaceControls and the chip/sort handlers are installed by src/app/compatibility-globals.js.
 window._aioNewsCacheSize = function() { return newsCache.length; };
-window.AIO.getTelegramPageCoverageAudit = function() {
-  var digest = window.AIO_TELEGRAM_WEEKLY_DIGEST || {};
-  var pageMap = digest.pageMap || {};
-  var items = Array.isArray(digest.rawCurrent24hItems) ? digest.rawCurrent24hItems : [];
-  var digestAgeHours = digest.asOf ? (Date.now() - new Date(digest.asOf).getTime()) / 3600000 : Infinity;
-  var currentWindow = digest.current24hWindow || null;
-  var required = Array.isArray(window.AIO_ALL_ROUTE_PAGE_IDS) && window.AIO_ALL_ROUTE_PAGE_IDS.length
-    ? window.AIO_ALL_ROUTE_PAGE_IDS.slice()
-    : ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes','theme-detail','portfolio','ticker','market-news','screener','principles','masters','atlas','guide'];
-  var routes = {};
-  required.forEach(function(pageId) {
-    var tags = Array.isArray(_TG_PAGE_TAGS[pageId]) ? _TG_PAGE_TAGS[pageId] : [];
-    var mapped = Array.isArray(pageMap[pageId]) ? pageMap[pageId] : [];
-    var matched = tags.length ? items.filter(function(it) {
-      return it && Array.isArray(it.tags) && it.tags.some(function(t) { return tags.indexOf(t) >= 0; });
-    }).length : 0;
-    routes[pageId] = {
-      mapped: Array.isArray(pageMap[pageId]),
-      tagCount: tags.length,
-      selectedItemCount: matched,
-      consumer: pageId === 'guide' ? 'not-applicable-guide'
-        : (['portfolio','ticker','screener'].indexOf(pageId) >= 0 ? 'ticker-memo-and-chat' : 'page-feed-and-chat')
-    };
-  });
-  var missing = required.filter(function(pageId) { return !Array.isArray(pageMap[pageId]); });
-  var narrativeCurrent = !!(digest.dynamicDigestLoaded && Array.isArray(digest.themes) && digest.themes.length && Object.keys(pageMap).length >= required.length);
-  var sourceCycleFresh = isFinite(digestAgeHours) && digestAgeHours <= 12;
-  var currentLaneReady = !!(currentWindow && currentWindow.start && currentWindow.end && sourceCycleFresh);
-  return { status:missing.length || !narrativeCurrent || !currentLaneReady ? 'DEGRADED' : 'OK', requiredPageCount:required.length, mappedPageCount:required.length - missing.length, missingPages:missing, dynamicNarrative:narrativeCurrent, currentLaneReady:currentLaneReady, current24hCount:items.length, digestAgeHours:isFinite(digestAgeHours) ? Math.round(digestAgeHours * 10) / 10 : null, routes:routes };
-};
+// v59.70 P2: window.AIO.getTelegramPageCoverageAudit moved to js/aio-qa-audits.js (QA-only callers).
 
 // ── RSS 파싱 ─────────────────────────────────────────────────────
 

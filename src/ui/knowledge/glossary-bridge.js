@@ -94,8 +94,14 @@ function routeUrl(root, route) {
 export function installGlossaryBridge({ root = globalThis, documentRef = root.document } = {}) {
   if (!documentRef || root._aioGlossaryBridgeInstalled) return;
   root._aioGlossaryBridgeInstalled = true;
-  try { if (Array.isArray(root.GLOSSARY)) { root._aioGlossaryScreenTerms = appendScreenTerms(root.GLOSSARY); root._aioGlossaryConceptMerge = mergeConceptCore(root.GLOSSARY); } } catch (_) { /* legacy glossary absent */ }
-  import('../../domain/knowledge/deferred-screen-terms.js').then(({ DEFERRED_SCREEN_TERMS }) => { if (Array.isArray(root.GLOSSARY)) appendScreenTerms(root.GLOSSARY, DEFERRED_SCREEN_TERMS); }).catch(() => {}); // v58.80 run-5 terms, after boot
+  // v59.70 P3: js/aio-glossary.js loads after boot (src/app/classic-loader.js), so the merge runs when GLOSSARY arrives.
+  root._aioGlossaryAugment = () => {
+    if (!Array.isArray(root.GLOSSARY) || root._aioGlossaryAugmented) return;
+    root._aioGlossaryAugmented = true;
+    try { root._aioGlossaryScreenTerms = appendScreenTerms(root.GLOSSARY); root._aioGlossaryConceptMerge = mergeConceptCore(root.GLOSSARY); } catch (_) { /* legacy glossary absent */ }
+    import('../../domain/knowledge/deferred-screen-terms.js').then(({ DEFERRED_SCREEN_TERMS }) => { if (Array.isArray(root.GLOSSARY)) appendScreenTerms(root.GLOSSARY, DEFERRED_SCREEN_TERMS); }).catch(() => {}); // v58.80 run-5 terms, after boot
+  };
+  root._aioGlossaryAugment();
   // The classic renderer (js/aio-ui.js renderGlossaryItems) lays each entry out from these parts.
   root._aioGlossaryEntryParts = (entry) => glossaryEntryParts(entry, root.GLOSSARY_FIGURE_SOURCES || null);
   // Its "이 개념이 쓰이는 화면" buttons (data-action) close the glossary, then open the screen or the concept document.
