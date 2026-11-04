@@ -4,9 +4,9 @@
 // builder runs before layout): a label that hits a fixed one (an axis or tick label) or one already settled moves just
 // clear of it, away from the side it hit, at most `maxSteps` times. Charts call it once after drawing their labels.
 
-// Em widths: Hangul is about one em, digits and Latin about 0.58, punctuation narrower.
+// Em widths: Hangul is about one em, '%' 0.85, digits and Latin about 0.58, other punctuation narrower.
 function textWidth(text, fontSize) {
-  return [...String(text || '')].reduce((sum, ch) => sum + fontSize * (/[ㄱ-힝]/.test(ch) ? 1 : /[.,:%·]/.test(ch) ? 0.35 : 0.58), 0);
+  return [...String(text || '')].reduce((sum, ch) => sum + fontSize * (/[ㄱ-힝]/.test(ch) ? 1 : ch === '%' ? 0.85 : /[.,:·]/.test(ch) ? 0.35 : 0.58), 0);
 }
 
 /** The estimated box of an SVG <text> at its x/y attributes and text-anchor. */
@@ -16,7 +16,8 @@ export function labelBox(node, fontSize) {
   const width = textWidth(node.textContent, fontSize);
   const anchor = node.getAttribute('text-anchor') || 'start';
   const left = anchor === 'middle' ? x - width / 2 : anchor === 'end' ? x - width : x;
-  return { left, right: left + width, top: y - fontSize * 0.85, bottom: y + fontSize * 0.25 };
+  // The vertical extent follows getBBox (the font's full ascent and descent), which ci-viewport-matrix-check measures.
+  return { left, right: left + width, top: y - fontSize * 0.95, bottom: y + fontSize * 0.3 };
 }
 
 export function boxesOverlap(a, b) {
@@ -27,7 +28,7 @@ export function boxesOverlap(a, b) {
  * Moves each `movable` label (in order) vertically off any `fixed` label and any movable label settled before it.
  * Returns the number of labels moved. A builder without a DOM (unit-test documents) is left as drawn.
  */
-export function dodgeSvgLabels({ fixed = [], movable = [], fontSize = 12, gap = 1, maxSteps = 3 } = {}) {
+export function dodgeSvgLabels({ fixed = [], movable = [], fontSize = 12, gap = 2, maxSteps = 3 } = {}) {
   const usable = (node) => node && typeof node.getAttribute === 'function' && typeof node.setAttribute === 'function';
   if (![...fixed, ...movable].every(usable)) return 0;
   const settled = fixed.map((node) => labelBox(node, fontSize));

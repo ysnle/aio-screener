@@ -28,13 +28,13 @@ const texts = (wrap) => ({ caption: wrap.children.find((child) => child.classNam
 // (1) Signed scale (min < 0): zero after rounding has no sign; a value that rounds away from zero keeps it.
 for (const [value, shown] of [[0.04, '0.0%'], [-0.04, '0.0%'], [0.03, '0.0%'], [0.05, '+0.1%'], [-0.05, '-0.1%'], [0, '0.0%'], [1.24, '+1.2%']]) {
   const { caption, aria } = texts(gauge(value, -3));
-  check(caption === `달러 지수 20일 변화, ${shown}`, `gauge ${value}: caption '${caption}', want '${shown}'`);
-  check(aria.startsWith(`달러 지수 20일 변화: ${shown},`), `gauge ${value}: aria-label '${aria}', want '${shown}'`);
+  check(caption === `달러 지수 20일 변화, ${shown}`, `v59.70 gauge ${value}: caption '${caption}', want '${shown}'`);
+  check(aria.startsWith(`달러 지수 20일 변화: ${shown},`), `v59.70 gauge ${value}: aria-label '${aria}', want '${shown}'`);
 }
 // Unsigned scale (min >= 0): no '+', and a tiny negative reading is not '-0.0'.
 for (const [value, shown] of [[0.04, '0.0%'], [-0.04, '0.0%'], [2.5, '2.5%']]) {
   const { caption } = texts(gauge(value, 0));
-  check(caption === `달러 지수 20일 변화, ${shown}`, `unsigned gauge ${value}: caption '${caption}', want '${shown}'`);
+  check(caption === `달러 지수 20일 변화, ${shown}`, `v59.70 unsigned gauge ${value}: caption '${caption}', want '${shown}'`);
 }
 
 // (2) Label dodge. A label at x/y with an anchor, 12-unit type.
@@ -42,19 +42,19 @@ const label = (text, x, y, anchor = 'middle') => { const t = node('text'); t.tex
 const clear = (all) => all.every((a, i) => all.every((b, j) => i === j || !boxesOverlap(labelBox(a, 12), labelBox(b, 12))));
 // Two value labels with no value difference, at the same point.
 const twins = [label('4.03', 54, 120), label('4.03', 54, 120)];
-check(dodgeSvgLabels({ movable: twins }) === 1 && clear(twins), `equal values: ${twins.map((t) => t.getAttribute('y')).join(', ')} still overlap`);
+check(dodgeSvgLabels({ movable: twins }) === 1 && clear(twins), `v59.70 equal values: ${twins.map((t) => t.getAttribute('y')).join(', ')} still overlap`);
 // The 11/3 rates curve: the 1개월 value label above its point on the 3.9% axis label, the 1개월 tenor label below.
 const axis = label('3.9%', 48, 122, 'end');
 const tenor = label('1개월', 54, 144);
 const value = label('4.03', 54, 118);
-check(boxesOverlap(labelBox(value, 12), labelBox(axis, 12)), 'fixture: the value label starts on the axis label');
+check(boxesOverlap(labelBox(value, 12), labelBox(axis, 12)), 'v59.70 fixture: the value label starts on the axis label');
 dodgeSvgLabels({ fixed: [axis, tenor], movable: [value] });
-check(clear([axis, tenor, value]), `rates curve: 4.03 at y=${value.getAttribute('y')} still meets 3.9% or 1개월`);
-check(Math.abs(Number(value.getAttribute('y')) - 118) < 30, `rates curve: 4.03 moved ${Number(value.getAttribute('y')) - 118} units, more than it needs`);
+check(clear([axis, tenor, value]), `v59.70 rates curve: 4.03 at y=${value.getAttribute('y')} still meets 3.9% or 1개월`);
+check(Math.abs(Number(value.getAttribute('y')) - 118) < 30, `v59.70 rates curve: 4.03 moved ${Number(value.getAttribute('y')) - 118} units, more than it needs`);
 // A label already clear is not moved; a document without attributes (unit-test fakes) is left as drawn.
 const lone = label('5.32', 300, 40);
-check(dodgeSvgLabels({ fixed: [axis], movable: [lone] }) === 0 && lone.getAttribute('y') === '40', 'a clear label stays');
-check(dodgeSvgLabels({ movable: [{ textContent: 'x' }] }) === 0, 'a node without attributes is skipped');
+check(dodgeSvgLabels({ fixed: [axis], movable: [lone] }) === 0 && lone.getAttribute('y') === '40', 'v59.70 a clear label stays');
+check(dodgeSvgLabels({ movable: [{ textContent: 'x' }] }) === 0, 'v59.70 a node without attributes is skipped');
 
 if (failures.length) {
   console.error(`v59.70 render boundary fixture FAIL (${failures.length}):`);

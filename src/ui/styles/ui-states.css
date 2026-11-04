@@ -111,3 +111,7 @@ dialog[open]::backdrop { animation: aio-fade-in var(--dur-base) var(--ease-out);
 .aio-fresh.is-stale { background: var(--sx-warn-bg); color: var(--amber-12); }
 .aio-fresh.is-unknown { color: var(--text-muted); }
 .aio-fresh__ref { font-weight: 700; color: var(--data-amber); }
+
+/* v59.70 (quality bar): a curve value label that the line or the dashed month-ago curve runs through stays legible —
+   a card-coloured halo behind the glyphs (paint-order keeps the fill on top). */
+.rates-curve .rates-curve-label { paint-order: stroke; stroke: var(--bg-card); stroke-width: 3px; stroke-linejoin: round; }
