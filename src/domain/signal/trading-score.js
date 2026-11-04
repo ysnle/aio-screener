@@ -9,7 +9,7 @@
 import { RULES } from '../rules/thresholds.js';
 
 // v5 (v57.83, R707): the trend component uses the market read's 1% noise buffer around the 50-day line.
-export const TRADING_SCORE_MODEL_VERSION = 'trading-score.v5';
+export const TRADING_SCORE_MODEL_VERSION = 'trading-score.v6';
 export const SIGNAL_DECISION_MODEL_VERSION = 'signal-from-trading-score.v1';
 export const SIGNAL_PRESENTATION_MODEL_VERSION = 'signal-presentation.v2';
 
@@ -71,7 +71,6 @@ export function deriveTradingScoreComponents(score = {}) {
  * @param {boolean} input.breadthAvailable
  * @param {number|null} input.breadth20  % of AIO US stocks above their 20-SMA, when breadthAvailable
  * @param {number|null} input.breadth200 legacy name of the same 20-SMA share (kept for older callers)
- * @param {number|null} input.pcr        put/call ratio, already evidence-gated
  * @param {number|null} input.hyBp       FRED HY OAS in bp, already evidence-gated
  * @param {number|null} input.newsSentimentScore  null means "skip the news sentiment adjustment"
  *   (matches the legacy try/catch: if gathering it threw, no adjustment was applied)
@@ -113,7 +112,6 @@ export function computeTradingScoreModel(input = {}) {
   const spx200ma = decisionValue('spx200ma', input.spx200ma, Number.MIN_VALUE, Number.MAX_VALUE);
   const spx50ma = decisionValue('spx50ma', input.spx50ma, Number.MIN_VALUE, Number.MAX_VALUE);
   const spxPrice = decisionValue('spxPrice', input.spxPrice, Number.MIN_VALUE, Number.MAX_VALUE);
-  const pcr = decisionValue('pcr', input.pcr, 0, 10);
   const hyBp = decisionValue('hyBp', input.hyBp, 0, 10_000);
   // v57.50 C07: this input is the share of AIO US stocks above their 20-day SMA (the bands below were set for it).
   // `breadth200` is the legacy evidence key kept for the decision-evidence contract; `breadth20` is the accurate name.
@@ -142,14 +140,10 @@ export function computeTradingScoreModel(input = {}) {
     if (vix >= 18 && vix < 30) volScore = Math.min(100, volScore + 12);
   }
 
-  // 2. Risk-appetite Score (25%) — P1388 (v4): CBOE put/call hedging demand and HY credit spread.
-  // CNN Fear & Greed already blends VIX, put/call, junk-bond demand, breadth and momentum, so
-  // using it here counted VIX twice (volatility axis) and put/call three times (plus the old PCR
-  // correction). F&G is still shown on its own; it no longer enters the composite.
-  const pcrScore = pcr == null ? null : pcr < 0.7 ? 75 : pcr < 0.85 ? 66 : pcr < 1.0 ? 54 : pcr < 1.15 ? 40 : pcr < 1.3 ? 28 : 15;
-  const creditScore = hyBp == null ? null : hyBp < 300 ? 80 : hyBp < 350 ? 70 : hyBp < 450 ? 55 : hyBp < 550 ? 35 : hyBp < 700 ? 20 : 8;
-  const appetiteParts = [pcrScore, creditScore].filter((part) => part != null);
-  let momScore = appetiteParts.length ? Math.round(appetiteParts.reduce((sum, part) => sum + part, 0) / appetiteParts.length) : null;
+  // 2. Risk-appetite Score (25%) — the HY credit spread. P1388 (v4): CNN Fear & Greed already blends VIX, junk-bond
+  // demand, breadth and momentum, so it is shown on its own and does not enter the composite. v59.70 (trading-score.v6,
+  // owner 11/4): the Cboe put/call half is removed with its source (Cboe terms forbid storing the statistics).
+  let momScore = hyBp == null ? null : hyBp < 300 ? 80 : hyBp < 350 ? 70 : hyBp < 450 ? 55 : hyBp < 550 ? 35 : hyBp < 700 ? 20 : 8;
 
   // 3. Trend Score (20%) — SPX vs estimated MAs (종가 기준)
   // v57.83 (R707, trading-score.v5): a close 0.15% above the 50-day line scored as "above" while the market read already
@@ -265,11 +259,9 @@ export function computeTradingScoreModel(input = {}) {
     volScore, momScore, trendScore, breadthScore, macroScore,
     componentCoveragePct: availableWeight,
     componentMissing: Object.freeze(componentMissing),
-    // P1554: the appetite axis is a mean of two readings (put/call, HY spread). With one of them missing the axis is a single
-    // reading standing in for two, which is a partial score even though the axis itself counts as present.
-    partial: availableWeight < 100 || (momScore != null && appetiteParts.length < 2),
+    partial: availableWeight < 100,
     // P1349: base-axis coverage does not certify the optional stress corrections.
-    missingOptionalInputs: Object.freeze(Object.entries({ vvix, oilPrice, pcr, hyBp }).filter(([, value]) => value == null).map(([key]) => key)),
+    missingOptionalInputs: Object.freeze(Object.entries({ vvix, oilPrice, hyBp }).filter(([, value]) => value == null).map(([key]) => key)),
     decisionBlocked: hasDecisionEvidence && total == null,
     decisionCoverageThreshold,
     rawCompositeScore,
@@ -357,7 +349,7 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
   const total = finiteNumber(score?.total ?? score?.score);
   const missing = Array.isArray(score?.componentMissing) ? score.componentMissing.slice() : [];
   const components = deriveTradingScoreComponents(score);
-  const optionalLabels = { vvix: 'VVIX', pcr: 'Put/Call', hyBp: '하이일드 스프레드', oilPrice: 'WTI' };
+  const optionalLabels = { vvix: 'VVIX', hyBp: '하이일드 스프레드', oilPrice: 'WTI' };
   const optionalMissing = Array.isArray(score.missingOptionalInputs) ? score.missingOptionalInputs : [];
   const optionalText = optionalMissing.length ? ` 보조 입력 미수신: ${optionalMissing.map(key => optionalLabels[key] || key).join(', ')}.` : '';
   // P1118: the published total is not the weighted component sum — post-composite

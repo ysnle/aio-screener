@@ -144,7 +144,7 @@ export const PACKET_20261028_FRAMES = Object.freeze([
     ],
     reverse: '풋/콜 비율이 극단적으로 높을 때 역발상 반등이 자주 나왔다는 관찰도 있습니다. 이는 산 풋이 많았던 시기의 이야기이고, 같은 숫자가 판 풋으로 쌓였다면 반대로 하락이 커질 수 있어 비율만으로는 어느 쪽인지 정할 수 없습니다. 거래 방향을 보려면 체결 방향 자료나 딜러 감마 추정이 필요한데, AIO는 그 자료를 받지 않습니다.',
     channels: ['현금'], variables: ['풋/콜 비율', '풋 매수·매도 체결 방향', '딜러 감마 추정', '내재변동성', '증거금 요구', '레버리지 ETF 노출', '자사주 매입 창'],
-    indicators: [{ label: '풋/콜 비율과 VIX 기간구조', route: 'sentiment', routeLabel: '투자 심리' }],
+    indicators: [{ label: 'VIX 기간구조', route: 'sentiment', routeLabel: '투자 심리' }],
     shift: '높은 풋/콜 비율을 곧 보험 수요·공포로 읽던 모델에서, 거래 비중과 방향을 분리하고 판 풋의 숏감마 노출과 지지 매수의 유무로 하락의 성격을 판정하는 모델로 전환', inputs: ['put/call ratio', 'trade direction', 'dealer gamma estimate', 'implied volatility', 'margin requirement', 'leveraged ETF exposure', 'buyback window'],
     chart: '풋/콜 비율과 VIX를 같은 기간 축에, 급락일 표시와 그날의 체결 방향(있을 때)', counterclaim: '극단적 풋/콜 비율 뒤 역발상 반등이 잦았다는 과거 관찰 — 다만 산 풋 중심이던 시기의 표본', concepts: ['level-vs-change', 'expected-value'] },
 

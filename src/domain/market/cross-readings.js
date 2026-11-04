@@ -56,17 +56,16 @@ function trendAndBreadth(history) {
 
 function volatilityAndSentiment(history, day) {
   const vix = lastValue(history, 'vix'); const vix3m = lastValue(history, 'vix3m');
-  const fg = lastValue(history, 'fg'); const pcr = lastValue(history, 'pcr');
+  const fg = lastValue(history, 'fg');
   if (vix === null) return null;
   const inverted = vix3m !== null && vix > vix3m;
-  const numbers = [`VIX ${vix.toFixed(1)}${inverted ? '(3개월물보다 높아 단기 불안이 큰 상태)' : ''}`, fg !== null ? `공포·탐욕 지수 ${Math.round(fg)}` : null, pcr !== null ? `풋/콜 비율 ${pcr.toFixed(2)}` : null].filter(Boolean);
+  const numbers = [`VIX ${vix.toFixed(1)}${inverted ? '(3개월물보다 높아 단기 불안이 큰 상태)' : ''}`, fg !== null ? `공포·탐욕 지수 ${Math.round(fg)}` : null].filter(Boolean);
   const stressed = inverted || vix >= 25;
   const fearful = fg !== null && fg <= 25;
-  const hedged = pcr !== null && pcr >= RULES.credit.putCallHedgeAt;
   let read;
-  if (stressed && fearful && hedged) read = '지수 불안과 심리 공포, 하락 대비가 함께 높습니다. 과거에는 이런 겹침 뒤 반등이 자주 나왔지만, 신용 스프레드가 같이 벌어지면 예외입니다.';
+  if (stressed && fearful) read = '지수 불안과 심리 공포가 함께 높습니다. 과거에는 이런 겹침 뒤 반등이 자주 나왔지만, 신용 스프레드가 같이 벌어지면 예외입니다.';
   else if (stressed) read = '지수 변동성은 커졌지만 심리 지표는 아직 극단 공포가 아닙니다. 투매형 바닥 신호로 보기는 이릅니다.';
-  else if (fearful) read = `심리 지수는 극단 공포 쪽인데 VIX${pcr !== null ? '와 풋/콜 비율' : ''}은 큰 하락 대비를 보이지 않습니다. 겁은 났지만 투매는 아닌 상태라, 공포만으로 바닥이라고 보기는 어렵습니다.`;
+  else if (fearful) read = `심리 지수는 극단 공포 쪽인데 VIX는 큰 하락 대비를 보이지 않습니다. 겁은 났지만 투매는 아닌 상태라, 공포만으로 바닥이라고 보기는 어렵습니다.`;
   else if (fg !== null && fg >= 75) read = '변동성은 낮고 심리는 과열 쪽입니다. 작은 악재에도 흔들리기 쉬운 자리입니다.';
   else read = '변동성과 심리 모두 중간 범위라, 어느 한쪽으로 치우친 신호는 없습니다.';
   const retail = (day?.facts || []).find((fact) => fact.kind === 'positioning' && fact.side === 'buy' && Number.isFinite(fact.leveragedLongShare));

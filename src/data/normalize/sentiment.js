@@ -7,7 +7,6 @@ const SENTIMENT_FIELDS = Object.freeze([
   { metric: 'vix', unit: 'index', sourceKind: 'legacy-runtime', observedAt: 'vixObservedAt', maxAgeMs: 120_000 },
   { metric: 'vix3m', unit: 'index', sourceKind: 'legacy-runtime', observedAt: 'vix3mObservedAt', maxAgeMs: 120_000 },
   { metric: 'vix6m', unit: 'index', sourceKind: 'legacy-runtime', observedAt: 'vix6mObservedAt', maxAgeMs: 120_000 },
-  { metric: 'putCall', unit: 'ratio', sourceKind: 'legacy-projection', observedAt: 'putCallObservedAt', maxAgeMs: 172_800_000, maxUsSessions: 0 },
   { metric: 'hySpread', unit: 'bp', sourceKind: 'legacy-projection', observedAt: 'hySpreadDate', maxAgeMs: 172_800_000, maxUsSessions: 1 },
   { metric: 'aaiiBear', unit: 'percent', sourceKind: 'snapshot', observedAt: 'aaiiObservedAt', maxAgeMs: null },
   { metric: 'aaiiBull', unit: 'percent', sourceKind: 'snapshot', observedAt: 'aaiiObservedAt', maxAgeMs: null }

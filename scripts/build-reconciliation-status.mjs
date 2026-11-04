@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { createReconciliationStatus, validateReconciliationStatus } from '../src/data/contracts/reconciliation.js';
 import { CRITICAL_DATA_GAP_REGISTRY, DATA_SOURCE_REGISTRY, sourceContractFor } from '../src/data/contracts/source-registry.js';
+import { readHistoryRows } from '../src/domain/market/history-rows.js';
 
 export const RECONCILIATION_STATUS_OUT = new URL('../public-data/reconciliation-status.json', import.meta.url);
 
@@ -169,7 +170,6 @@ export function buildReconciliationStatus({ data = {}, marketSnapshot = {}, scre
     ? currentNews.filter((row) => row?.source && row?.link && (row?.eventTime || row?.pubDate)).length / currentNews.length
     : 0;
   const fullContentCoverage = currentNews.some((row) => row?.contentDepth && row.contentDepth !== 'headline-only');
-  const putCallObservedAt = data?.putCall?.asOf || data?.meta?.putCallAsOf;
   const fgObservedAt = data?.fearGreed?.asOf;
   const surveys = data?.marketSurveys || {};
   const aaii = surveys?.aaii || null;
@@ -204,11 +204,11 @@ export function buildReconciliationStatus({ data = {}, marketSnapshot = {}, scre
       evidenceCheck('history-minimum-60', historyCoverage(history, 'fg', 60), 'public-data/history.json', latestHistory?.date)
     ], { gate: 'current-source-history' }),
 
+    // v59.70 (owner 11/4): put/call is retired (Cboe terms forbid storing and redistributing); the category stays BLOCKED
+    // like NAAIM so the 22-category contract does not shift.
     categoryDefinition('put-call', [
-      evidenceCheck('total-put-call-present', finite(data?.putCall?.totalPutCall), 'public-data/data.json', putCallObservedAt),
-      evidenceCheck('daily-observation-current', fresh(putCallObservedAt, 4 * DAY, nowMs), 'public-data/data.json', putCallObservedAt),
-      evidenceCheck('cboe-source-and-delay-policy', /cboe/i.test(String(data?.putCall?.source || '')) && !!data?.putCall?.allowedUse, 'public-data/data.json', data?.putCall?.fetchedAt)
-    ], { gate: 'cboe-delayed-lineage' }),
+      evidenceCheck('redistribution-rights', false, 'operator/provider-contract', null, 'Cboe statistics need prior written consent to copy, store or redistribute.')
+    ], { gate: 'retired-terms', policyBlocked: true, rights: 'OPERATOR_REQUIRED', blockedReason: 'Put/call retired: Cboe terms forbid storing and redistributing its statistics; nothing is collected.' }),
 
     categoryDefinition('aaii', [
       evidenceCheck('public-web-current-reference', aaiiFresh, 'public-data/data.json', aaii?.observedAt, 'AAII weekly public observation is retained as reference-only.'),
@@ -411,7 +411,7 @@ export async function writeReconciliationStatus(input = {}) {
     data: input.data ?? await readJson(INPUT_PATHS.data, {}),
     marketSnapshot: input.marketSnapshot ?? await readJson(INPUT_PATHS.marketSnapshot, {}),
     screener: input.screener ?? await readJson(INPUT_PATHS.screener, {}),
-    history: input.history ?? await readJson(INPUT_PATHS.history, []),
+    history: input.history ?? readHistoryRows(await readJson(INPUT_PATHS.history, [])),
     now: input.now || new Date().toISOString()
   };
   const status = buildReconciliationStatus(resolved);

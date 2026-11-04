@@ -1,5 +1,6 @@
 // P1620: one completed session and one history producer; never combine snapshot counts with history ratios.
 import { buildCloseSeries, closeBasis } from './close-series.js';
+import { historyFieldMeta } from './history-meta.js';
 
 // v57.54: breadth comes from the screener lane, which can land hours after the S&P 500 close. Rather than blank the
 // cards in that window (and fail the same-session gate in CI, holding deploys), the previous session is shown — still
@@ -19,7 +20,7 @@ export function buildBreadthSnapshot(history = []) {
 function snapshotAt(history, asOf) {
   const point = (field) => buildCloseSeries(history, field, { through: asOf, includeProvenance: true }).findLast((row) => row.date === asOf);
   const row = [...history].reverse().find((entry) => entry?.date === asOf);
-  const meta = (field) => row?.fieldMeta?.[field] || {};
+  const meta = (field) => historyFieldMeta(row, field) || {};
   const cards = [];
   const add = (id, title, first, second, share, field, detail) => cards.push({ id, title, first, second, share, eligible: meta(field).eligible ?? null, universe: meta(field).universe ?? null, detail });
   const advance = point('advanceRatio');

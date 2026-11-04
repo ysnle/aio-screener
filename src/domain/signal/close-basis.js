@@ -12,7 +12,7 @@ import { latestCompletedUsSession, nyParts } from '../market/market-calendar.js'
 import { isValidMarketDate } from '../market/session-time.js';
 
 export const CLOSE_BASIS_QUOTE_KEYS = Object.freeze(['vix', 'vvix', 'dxy', 'tnx', 'oilPrice', 'spxPrice']);
-export const CLOSE_BASIS_DAILY_KEYS = Object.freeze(['fg', 'pcr', 'hyBp', 'breadth200']);
+export const CLOSE_BASIS_DAILY_KEYS = Object.freeze(['fg', 'hyBp', 'breadth200']);
 
 const DATE_ONLY = /^(\d{4}-\d{2}-\d{2})(?:T00:00(?::00(?:\.000)?)?Z?)?$/;
 

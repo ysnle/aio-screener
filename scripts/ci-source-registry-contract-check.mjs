@@ -7,11 +7,12 @@ import {
   SOURCE_REGISTRY_CATEGORY_IDS
 } from '../src/data/contracts/source-registry.js';
 import { canonicalSourceTier } from '../src/data/contracts/source-kind.js';
+import { readHistoryRows } from '../src/domain/market/history-rows.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (relativePath) => fs.readFileSync(path.join(root, relativePath), 'utf8');
 const reconciliation = JSON.parse(read('public-data/reconciliation-status.json'));
-const history = JSON.parse(read('public-data/history.json'));
+const history = readHistoryRows(JSON.parse(read('public-data/history.json')));
 const fail = (message) => { throw new Error(`[source-registry-contract] ${message}`); };
 
 for (const forbidden of ['verified-current', 'official', 'primary', 'live', 'fresh']) {

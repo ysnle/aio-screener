@@ -6,6 +6,7 @@
 // an index.
 import { readNumber } from '../shared/number.js';
 import { withTopicParticle } from '../content/korean-particle.js';
+import { historyFieldMeta } from './history-meta.js';
 
 export const LEVEL_FIELDS = Object.freeze([['ndx', '나스닥100'], ['smh', '반도체(SMH)'], ['spx', 'S&P 500']]);
 
@@ -21,7 +22,7 @@ export function sessionCloses(history, field) {
   const bySession = new Map();
   for (const row of Array.isArray(history) ? history : []) {
     const value = readNumber(row?.[field]);
-    const session = row?.fieldMeta?.[field]?.sessionDate || row?.date;
+    const session = historyFieldMeta(row, field)?.sessionDate || row?.date;
     if (!session || value === null || !weekday(session)) continue;
     bySession.set(session, { date: session, value });
   }

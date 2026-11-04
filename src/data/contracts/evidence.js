@@ -112,6 +112,42 @@ export function allowedUseForStatus(status) {
 
 const ALLOWED_USE_RANK = Object.freeze({ none: 0, reference: 1, decision: 2 });
 
+// v59.70 (data audit R5): one producer-side rule for a published record that failed its latest read. A record whose
+// status says the value was not refreshed (stale, retained after a failure, blocked, unavailable) cannot keep a
+// decision-grade allowedUse: Cboe put/call stayed 'decision-with-daily-delay' for 13 days of HTTP 403. The declared
+// use is lowered to 'reference-only' and the original is kept beside it. Current statuses ('ok', 'CURRENT',
+// 'observed', 'cached-fresh', 'current-reference') are left alone; so is any use that is already reference or none.
+export const DEGRADED_RECORD_STATUS_RE = /\b(?:stale|retain(?:ed)?|fail(?:ed|ure)?|error|block(?:ed)?|unavailable|missing|not-collected|expired)\b/i;
+// v59.70 (actions-reliability): one freshness model. A record is judged by its own `status`; a record without one follows
+// its file's aio-freshness.v1 `state` (public-data/freshness/<workflow>.json, passed in as `fileState`). The ceiling is
+// recomputed on every run from the declared use: a record carried from the previous artifact (allowedUseDeclared set)
+// starts again from what its producer declared, so a recovered source returns to decision use.
+export function degradeAllowedUseOnStatus(record, { fileState = null } = {}) {
+  if (!record || typeof record !== 'object' || Array.isArray(record)) return record;
+  const { allowedUseDeclared, allowedUseDegradedBy, ...rest } = record;
+  const base = allowedUseDeclared != null ? { ...rest, allowedUse: allowedUseDeclared } : record;
+  const status = typeof record.status === 'string' ? record.status : typeof fileState === 'string' ? fileState : null;
+  const source = typeof record.status === 'string' ? 'status' : 'file-freshness';
+  if (status == null || !DEGRADED_RECORD_STATUS_RE.test(status)) return base;
+  if (base.allowedUse == null || normalizeAllowedUse(base.allowedUse, 'none') !== 'decision') return base;
+  return { ...base, allowedUse: 'reference-only', allowedUseDeclared: base.allowedUse, allowedUseDegradedBy: `${source}:${status}` };
+}
+// The payload's own records and the records one level below them (data.fearGreed, data.marketSurveys.aaii, ...).
+export function degradePayloadAllowedUse(payload, { fileState = null } = {}) {
+  if (!payload || typeof payload !== 'object') return payload;
+  const out = Array.isArray(payload) ? payload : { ...payload };
+  for (const [key, value] of Object.entries(out)) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) continue;
+    let next = degradeAllowedUseOnStatus(value, { fileState });
+    for (const [childKey, child] of Object.entries(next)) {
+      const degraded = degradeAllowedUseOnStatus(child, { fileState });
+      if (degraded !== child) next = { ...next, [childKey]: degraded };
+    }
+    out[key] = next;
+  }
+  return out;
+}
+
 function immutableCopy(value, ancestors = new WeakSet()) {
   if (!value || typeof value !== 'object') return value;
   if (ancestors.has(value)) throw new TypeError('CYCLIC_EVIDENCE_METADATA');

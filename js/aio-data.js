@@ -3567,7 +3567,7 @@ async function _aioLoadHistory() {
     var url = './public-data/history.json'; // v57.61 (perf): no ?t= — the no-cache fetch revalidates (304) instead of re-downloading 3MB each hour
     var bp = window.__aioBootPrefetch && window.__aioBootPrefetch.history, pre = bp && !bp.taken ? (bp.taken = true, bp.res) : null; var r = await (pre ? pre.catch(function() { return fetch(url, { cache: 'no-cache' }); }) : fetch(url, { cache: 'no-cache' })); // the <head> boot prefetch (src/data/boot-prefetch.js), once
     if (!r.ok) return null;
-    var arr = await r.json();
+    var arr = await r.json(); if (typeof window.__aioReadHistoryRows === 'function') arr = window.__aioReadHistoryRows(arr); // v59.70 R2: v1 or history.v2 → rows (src/domain/market/history-rows.js)
     if (!Array.isArray(arr)) return null;
     window._aioHistory = arr;
     window._aioHistoryMeta = { days: arr.length, first: arr[0] && arr[0].date, last: arr[arr.length - 1] && arr[arr.length - 1].date, loadedAt: Date.now() };
@@ -7965,129 +7965,8 @@ async function autoUpdateMA() {
 setTimeout(autoUpdateMA, 5000);
 
 // ── HY Credit Spread auto-fetch via FRED (free, no API key needed) ───
-function _aioPickNumber(row, keys) {
-  row = row || {};
-  for (var i = 0; i < keys.length; i++) {
-    var raw = row[keys[i]];
-    if (raw == null || raw === '') continue;
-    var n = Number(String(raw).replace(/,/g, ''));
-    if (isFinite(n)) return n;
-  }
-  return null;
-}
-
-function _aioPutCallTone(pcr) {
-  if (pcr >= 1.2) return { color: 'var(--data-red)', label: '방어 심리 우세', narrative: '풋 수요가 강해 단기 위험 회피가 우세합니다.' };
-  if (pcr >= 0.9) return { color: 'var(--data-amber)', label: '중립 상단', narrative: '중립권 상단으로 약간의 방어 포지셔닝이 섞여 있습니다.' };
-  if (pcr >= 0.7) return { color: 'var(--data-green)', label: '중립 범위', narrative: '콜/풋 수요가 균형권에 있어 방향성 과열 신호는 제한적입니다.' };
-  return { color: 'var(--data-cyan)', label: '콜 수요 우세', narrative: '콜 선호가 강해 위험 선호 또는 단기 낙관이 우세합니다.' };
-}
-
-function _aioUpdatePutCallDom(payload) {
-  payload = payload || {};
-  var pcr = Number(payload.totalPutCall);
-  if (!isFinite(pcr)) return false;
-  var tone = _aioPutCallTone(pcr);
-  var sourceKind = payload.sourceKind || 'snapshot';
-  var sourceLabel = payload.sourceLabel || (sourceKind === 'live' ? 'CBOE' : 'DATA_SNAPSHOT');
-  var asOf = payload.asOf || new Date().toISOString();
-  var metric = window.AIO && window.AIO.makeOperationalMetric
-    ? window.AIO.makeOperationalMetric('putCallRatioTotal', pcr, sourceKind, asOf, sourceLabel, { domain: 'options' })
-    : { name: 'putCallRatioTotal', value: pcr, sourceKind: sourceKind, sourceLabel: sourceLabel, ts: asOf, allowedUse: sourceKind === 'live' };
-
-  // P1754: the PCR DOM writers (macro regime cell, live-price PCR spans) had no targets left; the payload below feeds state only.
-  if (typeof DATA_SNAPSHOT !== 'undefined') {
-    DATA_SNAPSHOT.pcr = pcr;
-    // The observed Cboe equity/index ratios are authoritative whenever the
-    // producer supplies them. Previously only `pcr` was stored, so the OPEX/Gamma
-    // panel always fell back to a total-derived estimate and displayed 1.10 for
-    // an observed 0.96 (P1074).
-    var observedEquity = Number(payload.equityPutCall);
-    var observedIndex = Number(payload.indexPutCall);
-    if (isFinite(observedEquity)) DATA_SNAPSHOT.equityPutCall = observedEquity;
-    if (isFinite(observedIndex)) DATA_SNAPSHOT.indexPutCall = observedIndex;
-  }
-  window._putCallRatio = pcr;
-  window._lastPutCallPayload = Object.assign({}, payload, {
-    totalPutCall: pcr,
-    sourceKind: sourceKind,
-    sourceLabel: sourceLabel,
-    metric: metric,
-    tone: tone
-  });
-  try {
-    if (window.AIO_ARCH && typeof window.AIO_ARCH.ingestSentiment === 'function') {
-      window.AIO_ARCH.ingestSentiment({
-        putCall: pcr,
-        putCallSourceKind: sourceKind,
-        putCallSource: sourceLabel,
-        putCallObservedAt: asOf,
-        now: new Date().toISOString()
-      });
-    }
-  } catch (_) {}
-
-  document.dispatchEvent(new CustomEvent('aio:sentimentUpdated', { detail: { metric: 'putCall', sourceKind: sourceKind, sourceLabel: sourceLabel } }));
-  return true;
-}
-
-async function fetchPutCall() {
-  var serverPayload = window._lastPutCallPayload;
-  if (serverPayload && serverPayload.sourceLabel === 'Cboe Daily Market Statistics' && serverPayload.asOf) {
-    var serverAgeDays = (Date.now() - new Date(serverPayload.asOf).getTime()) / 86400000;
-    if (serverAgeDays >= -1 && serverAgeDays <= 4) return true;
-  }
-  const cboeUrl = 'https://cdn.cboe.com/api/global/us_options_volume/options_volume.json';
-  try {
-    // P1142: 정의 없는 CORS_PROXY 참조(ReferenceError → catch 흡수)로 서버 스냅샷이 없을 때의
-    // 브라우저 CBOE 라이브 수집이 매 주기 조용히 실패했다. 레지스트리 fetchViaProxy로 부활.
-    const resp = await fetchViaProxy(cboeUrl, 8000);
-    if (!resp || !resp.ok) throw new Error('CBOE proxy status ' + (resp && resp.status));
-    const w = await resp.json();
-    var raw;
-    try { raw = typeof w.contents === 'string' ? JSON.parse(w.contents || '{}') : w; } catch(pe) { raw = {}; }
-    const rows = raw.data || raw.results || [];
-    if (rows.length > 0) {
-      const latest = rows[rows.length - 1];
-      const pcr = _aioPickNumber(latest, ['total_pcr', 'totalPcr', 'totalPCR', 'total_put_call_ratio', 'put_call_ratio', 'pcr_total', 'pcr_vol']);
-      if (pcr != null) {
-        _aioUpdatePutCallDom({
-          totalPutCall: pcr,
-          equityPutCall: _aioPickNumber(latest, ['equity_pcr', 'equityPcr', 'equityPCR', 'equity_put_call_ratio', 'pcr_equity']),
-          sourceKind: 'T3_PUBLIC_DELAYED',
-          sourceLabel: 'CBOE options volume daily',
-          asOf: latest.date || latest.tradeDate || latest.trade_date || latest.bizdate || new Date().toISOString()
-        });
-        return true;
-      }
-    }
-    throw new Error('no pcr data');
-  } catch(e) {
-    // A failed legacy CDN/proxy request must not overwrite a fresher official
-    // server snapshot already applied from data.json.
-    if (window._lastPutCallPayload && window._lastPutCallPayload.sourceLabel === 'Cboe Daily Market Statistics') return true;
-    var snap = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.pcr != null && DATA_SNAPSHOT.pcr !== '') ? Number(DATA_SNAPSHOT.pcr) : NaN;
-    if (isFinite(snap)) {
-      _aioUpdatePutCallDom({
-        totalPutCall: snap,
-        sourceKind: 'snapshot',
-        sourceLabel: 'DATA_SNAPSHOT',
-        asOf: (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._snapshotDate) || new Date().toISOString(),
-        staleReason: e && e.message || 'CBOE unavailable'
-      });
-    }
-    if (window.AIO && window.AIO.recordDataQualityIssue) {
-      window.AIO.recordDataQualityIssue({
-        source: 'CBOE put/call',
-        severity: 'warn',
-        message: 'Put/Call ratio live fetch failed; operational use downgraded to snapshot',
-        error: e && e.message || String(e)
-      });
-    }
-    return false;
-  }
-}
-
+// v59.70 (owner 11/4): the Cboe put/call reader (_aioUpdatePutCallDom, fetchPutCall) is deleted — Cboe's terms forbid
+// storing and redistributing its statistics.
 let hyLastFetch = 0;
 async function fetchHYSpread() {
   const CACHE_MS = 6 * 60 * 60 * 1000; // 6-hour cache (FRED updates daily)

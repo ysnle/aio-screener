@@ -6,6 +6,7 @@ import { readRowNumber } from '../../data/contracts/screener.js';
 import { KR_THEME_LABELS } from '../themes/kr-themes.js';
 import { finiteNumber as finite } from '../shared/number.js';
 import { latestSessionRows } from '../shared/session-date.js';
+import { breadthCounts } from './breadth.js';
 // v59.46: the local contract read moved into the contract (readRowNumber); same display purpose.
 const read = (row, key) => readRowNumber(row, key);
 export function koreanThemeGroups(map = {}, rows = []) {
@@ -67,8 +68,7 @@ export function buildKoreaParticipation({ rows=[], themes={}, nowMs=Date.now(), 
   const population=marketRows(rows,'KR'), latest=latestCompletedKrSession(nowMs);
   const valid=population.filter(row => row.factorSessionDate <= latest?.date && resolveMarketCalendarSession({market:'KR',date:row.factorSessionDate}).status==='open');
   const { basis: date, rows: observed } = latestSessionRows(valid);
-  const ratio=key => { const values=observed.map(row=>read(row,key)).filter(v=>v!=null); return {count:values.length, above:values.filter(v=>v>0).length, pct:values.length ? values.filter(v=>v>0).length/values.length*100 : null}; };
-  const breadth50=ratio('pctSma50'), breadth200=ratio('pctSma200');
+  const breadth50=breadthCounts(observed,'pctSma50',read), breadth200=breadthCounts(observed,'pctSma200',read); // v59.70 R9: one counter
   const returns=Object.fromEntries(['ret1m','ret3m'].map(key=>[key,median(observed.map(row=>read(row,key)).filter(v=>v!=null))]));
   const typed=observed.map(row=>({...row,...Object.fromEntries(['ret1m','ret3m','ret6m','pctSma50'].map(key=>[key,read(row,key)]))}));
   const groups=buildGroupStrength({rows:typed,themes:koreanThemeGroups(themes,typed),market:'KR'}).groups.filter(g=>g.ret3m!=null).slice(0,5);

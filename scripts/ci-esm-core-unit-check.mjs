@@ -867,23 +867,22 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const { computeTradingScoreModel } = await load('src/domain/signal/trading-score.js');
   const decision = (value) => ({ value, status: 'live', allowedUse: 'decision' });
   const reference = (value) => ({ value, status: 'snapshot', allowedUse: 'reference' });
-  const full = { vix: decision(18), vvix: decision(90), dxy: decision(100), tnx: decision(3.5), oilPrice: decision(80), fg: decision(50), spx200ma: decision(450), spx50ma: decision(480), spxPrice: decision(500), breadth200: decision(60), pcr: decision(1), hyBp: decision(300) };
+  const full = { vix: decision(18), vvix: decision(90), dxy: decision(100), tnx: decision(3.5), oilPrice: decision(80), fg: decision(50), spx200ma: decision(450), spx50ma: decision(480), spxPrice: decision(500), breadth200: decision(60), hyBp: decision(300) };
   const valid = computeTradingScoreModel({ decisionEvidence: full });
   if (valid.total == null || valid.decisionBlocked || valid.componentCoveragePct !== 100) fail(`truth-boundary: full decision evidence should produce a current score: ${JSON.stringify(valid)}`);
-  // P1388 (v4): the risk-appetite axis reads put/call + HY; reference-only values must not drive it.
-  const blocked = computeTradingScoreModel({ decisionEvidence: { ...full, pcr: reference(1), hyBp: reference(300) } });
-  if (blocked.total !== null || !blocked.decisionBlocked || !blocked.componentMissing.includes('momentum')) fail(`truth-boundary: reference put/call + HY must not drive Trading Score: ${JSON.stringify(blocked)}`);
+  // P1388 / v59.70 (v6): the risk-appetite axis reads the HY spread; a reference-only value must not drive it.
+  const blocked = computeTradingScoreModel({ decisionEvidence: { ...full, hyBp: reference(300) } });
+  if (blocked.total !== null || !blocked.decisionBlocked || !blocked.componentMissing.includes('momentum')) fail(`truth-boundary: a reference HY spread must not drive Trading Score: ${JSON.stringify(blocked)}`);
   const fgIgnored = computeTradingScoreModel({ decisionEvidence: { ...full, fg: decision(5) } });
   if (fgIgnored.total !== valid.total) fail(`P1388: F&G must not enter the composite (it already contains VIX and put/call): ${fgIgnored.total} vs ${valid.total}`);
   const newsBypass = computeTradingScoreModel({ decisionEvidence: full, newsSentimentScore: 100, newsRiskSignals: [{ impact: 30 }] });
   if (newsBypass.total !== valid.total || newsBypass.newsAdjustmentApplied) fail(`truth-boundary: raw news heuristic bypassed decision evidence: ${JSON.stringify(newsBypass)}`);
   const newsReference = computeTradingScoreModel({ decisionEvidence: { ...full, newsSentimentScore: reference(100), newsRiskSignals: reference([{ impact: 30 }]) }, newsSentimentScore: 100, newsRiskSignals: [{ impact: 30 }] });
   if (newsReference.total !== valid.total || newsReference.newsAdjustmentApplied) fail(`truth-boundary: reference-only news heuristic changed a decision score: ${JSON.stringify(newsReference)}`);
-  // P1554: the risk-appetite axis averages put/call and the HY spread; with one reading missing the axis is one reading standing in
-  // for two, so the score is partial (asterisk) even though the axis counts as present.
-  const { pcr: _droppedPcr, ...withoutPcr } = full;
-  const onePart = computeTradingScoreModel({ decisionEvidence: withoutPcr });
-  if (valid.partial !== false || onePart.total == null || onePart.partial !== true || onePart.componentMissing.includes('momentum')) fail(`P1554: a single appetite reading must make the score partial without dropping the axis: ${JSON.stringify({ valid: valid.partial, onePart: onePart.partial, missing: onePart.componentMissing })}`);
+  // v59.70 (trading-score.v6, owner 11/4): the Cboe put/call input is gone — a put/call value passed in changes nothing, the
+  // HY spread alone is a complete appetite axis, and no optional-input list names put/call.
+  const withPcr = computeTradingScoreModel({ decisionEvidence: { ...full, pcr: decision(2) }, pcr: 2 });
+  if (withPcr.total !== valid.total || withPcr.momScore !== valid.momScore || valid.partial !== false || valid.missingOptionalInputs.includes('pcr')) fail(`v59.70 trading score ignores put/call: ${JSON.stringify({ valid: valid.total, withPcr: withPcr.total, partial: valid.partial, optional: valid.missingOptionalInputs })}`);
 }
 
 // ── compatibility-facade.js ──────────────────────────────────────────────────────────────────
@@ -1298,7 +1297,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
 // ── domain/signal/trading-score.js: signal envelope ──────────────────────────────────────────
 {
   const { computeTradingScoreModel, deriveSignalDecisionFromTradingScore, deriveTradingScoreDecisionPresentation, SIGNAL_PRESENTATION_MODEL_VERSION } = await load('src/domain/signal/trading-score.js');
-  const score = computeTradingScoreModel({ mode: 'swing', vix: 18, vvix: 90, dxy: 100, tnx: 3.5, oilPrice: 80, fg: 50, maCurrent: true, spx200ma: 450, spx50ma: 480, spxPrice: 500, breadthAvailable: true, breadth200: 60, pcr: 1, hyBp: 300, newsSentimentScore: 50, newsRiskSignals: [] });
+  const score = computeTradingScoreModel({ mode: 'swing', vix: 18, vvix: 90, dxy: 100, tnx: 3.5, oilPrice: 80, fg: 50, maCurrent: true, spx200ma: 450, spx50ma: 480, spxPrice: 500, breadthAvailable: true, breadth200: 60, hyBp: 300, newsSentimentScore: 50, newsRiskSignals: [] });
   const signal = deriveSignalDecisionFromTradingScore({ score, inputVersion: 'unit.v1' });
   if (signal.modelVersion !== 'signal-from-trading-score.v1' || signal.score !== score.total || signal.action !== 'NO_ACTION' || signal.status !== 'reference-only' || signal.decisionEligible !== false || signal.predictiveValidation !== 'not-established') fail(`signal: unvalidated score must remain descriptive/reference-only, got ${JSON.stringify(signal)}`);
   if (signal.presentation?.modelVersion !== SIGNAL_PRESENTATION_MODEL_VERSION || signal.presentation?.status !== 'reference-only' || signal.presentation?.action !== 'NO_ACTION' || signal.presentation?.decisionEligible !== false || signal.presentation?.predictiveValidation !== 'not-established') fail(`signal: non-predictive presentation envelope drifted, got ${JSON.stringify(signal.presentation)}`);
@@ -1318,7 +1317,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     if (basis?.date !== '2026-09-28' || basis.previousDate !== '2026-09-25' || new Date(basis.closeMs).toISOString() !== '2026-09-28T20:00:00.000Z' || basis.inSession) fail(`close basis: wrong latest session ${JSON.stringify(basis)} (P1328)`);
     if (describeCloseBasis(basis) !== '9/28 미국 정규장 종가 기준') fail('close basis: label drifted (P1328)');
     const verdict = (key, observedAt) => evaluateCloseBasisInput({ key, value: 1, observedAt, valueBasis: 'latest-completed-close', basis, nowMs: now }).ok;
-    const expectations = [['spxPrice', '2026-09-28T20:00:00Z', true], ['tnx', '2026-09-28T18:59:52Z', true], ['dxy', '2026-09-29T01:48:32Z', false], ['spxPrice', '2026-09-28T15:00:00Z', false], ['fg', '2026-09-28T23:59:50Z', true], ['pcr', '2026-09-25', true], ['pcr', '2026-09-24', false], ['hyBp', null, false]];
+    const expectations = [['spxPrice', '2026-09-28T20:00:00Z', true], ['tnx', '2026-09-28T18:59:52Z', true], ['dxy', '2026-09-29T01:48:32Z', false], ['spxPrice', '2026-09-28T15:00:00Z', false], ['fg', '2026-09-28T23:59:50Z', true], ['hyBp', '2026-09-25', true], ['hyBp', '2026-09-24', false], ['hyBp', null, false]];
     for (const [key, observedAt, expected] of expectations) if (verdict(key, observedAt) !== expected) fail(`close basis: ${key} @ ${observedAt} expected ${expected} (P1328)`);
     // P1345: the next session and continuous-market post-close values are not the prior US close.
     const intradayNow = Date.parse('2026-09-30T14:00:00Z');
@@ -1327,14 +1326,14 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       || evaluateCloseBasisInput({ key: 'dxy', value: 101, observedAt: '2026-09-29T23:30:00Z', session: 'DELAYED_IN_SESSION', valueBasis: 'provider-current-value', basis: priorBasis, nowMs: intradayNow }).ok
       || describeCloseBasis(priorBasis) !== '9/29 미국 정규장 종가 기준') fail('P1345: live values changed the fixed completed-close basis');
     if (!evaluateCloseBasisInput({ key: 'spxPrice', value: 500, observedAt: '2026-09-28T20:36:11Z', session: 'MARKET_CLOSED', valueBasis: 'provider-current-value', basis, nowMs: now }).ok) fail('P1345: provider-confirmed closed SPX was rejected');
-    if (evaluateCloseBasisInput({ key: 'pcr', value: 1, observedAt: '2026-02-30', basis: { date: '2026-03-02', previousDate: '2026-02-27' }, nowMs: Date.parse('2026-03-03T00:00Z') }).ok) fail('P1349: impossible calendar date was normalized into valid evidence');
+    if (evaluateCloseBasisInput({ key: 'hyBp', value: 1, observedAt: '2026-02-30', basis: { date: '2026-03-02', previousDate: '2026-02-27' }, nowMs: Date.parse('2026-03-03T00:00Z') }).ok) fail('P1349: impossible calendar date was normalized into valid evidence');
     if (evaluateCloseBasisInput({ key: 'spxPrice', value: 500, observedAt: '2026-09-28', session: 'CURRENT_SESSION', valueBasis: 'latest-completed-close', basis, nowMs: now }).ok
       || evaluateCloseBasisInput({ key: 'spxPrice', value: true, observedAt: '2026-09-28T20:00:00Z', basis, nowMs: now }).ok) fail('P1345: contradictory session or nonnumeric close accepted');
     if (resolveCloseBasis(Date.parse('2026-09-07T15:00:00Z'))?.date !== '2026-09-04') fail('close basis: Labor Day must fall back to the prior session (P1328)');
     if (new Date(resolveCloseBasis(Date.parse('2026-11-27T19:00:00Z')).closeMs).toISOString() !== '2026-11-27T18:00:00.000Z') fail('close basis: half-day close must be 13:00 ET (P1328)');
     if (resolveCloseBasis(Date.parse('2031-03-03T15:00:00Z')) !== null) fail('close basis: unknown calendar year must fail closed (P1328)');
     const closeEv = (value) => ({ value, status: 'session_close', allowedUse: 'close-basis' });
-    const closed = computeTradingScoreModel({ mode: 'swing', decisionEvidence: { vix: closeEv(16), dxy: closeEv(101), tnx: closeEv(4.2), fg: closeEv(34), pcr: closeEv(0.8), spxPrice: closeEv(500), spx50ma: closeEv(480), spx200ma: closeEv(450) }, closeBasis: { ...basis, label: describeCloseBasis(basis) }, decisionEligible: true, predictiveValidation: 'established' });
+    const closed = computeTradingScoreModel({ mode: 'swing', decisionEvidence: { vix: closeEv(16), dxy: closeEv(101), tnx: closeEv(4.2), fg: closeEv(34), hyBp: closeEv(320), spxPrice: closeEv(500), spx50ma: closeEv(480), spx200ma: closeEv(450) }, closeBasis: { ...basis, label: describeCloseBasis(basis) }, decisionEligible: true, predictiveValidation: 'established' });
     if (closed.total == null || closed.closeBasis?.label !== '9/28 미국 정규장 종가 기준' || closed.decisionEligible !== false || !closed.componentMissing.includes('breadth') || closed.componentMissing.includes('macro')) fail(`close basis: score must compute on the close basis, stay non-decision and not need VVIX ${JSON.stringify({ total: closed.total, basis: closed.closeBasis, eligible: closed.decisionEligible, missing: closed.componentMissing })} (P1328)`);
     const snapshotOnly = computeTradingScoreModel({ decisionEvidence: { vix: { value: 16, status: 'snapshot', allowedUse: 'reference' } } });
     if (snapshotOnly.volScore !== null) fail('close basis: a reference/snapshot value without the close-basis marker must stay out (P1328)');
@@ -1404,8 +1403,8 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   }
   // P1346/QA-UX-11: the briefing decision-summary assertions retired with the module (P1727, zero product consumers).
   {
-    const completeBase = computeTradingScoreModel({ vix: 18, pcr: 1, dxy: 100, tnx: 3.5, maCurrent: true, spxPrice: 500, spx50ma: 480, spx200ma: 450, breadthAvailable: true, breadth200: 60 });
-    if (completeBase.componentCoveragePct !== 100 || completeBase.missingOptionalInputs.length !== 3
+    const completeBase = computeTradingScoreModel({ vix: 18, hyBp: 300, dxy: 100, tnx: 3.5, maCurrent: true, spxPrice: 500, spx50ma: 480, spx200ma: 450, breadthAvailable: true, breadth200: 60 });
+    if (completeBase.componentCoveragePct !== 100 || completeBase.missingOptionalInputs.length !== 2
       || !/보조 입력 미수신/.test(deriveTradingScoreDecisionPresentation({ score: completeBase }).description)) fail('P1349: base-axis coverage hid missing optional risk observations');
   }
   // v57.55 review (S2-F3): an earnings line attaches only to a results story about that company.
@@ -1481,7 +1480,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       // a day as large as a week is read on the day.
       const { crossReadings } = await load('src/domain/market/cross-readings.js');
       const cdays = []; for (let d = Date.parse('2026-06-01T12:00:00Z'); cdays.length < 80; d += 86400000) { const day = new Date(d); if (![0, 6].includes(day.getUTCDay())) cdays.push(day.toISOString().slice(0, 10)); }
-      const chist = cdays.map((date, i) => ({ date, spx: i < 79 ? 5000 : 4800, rsp: 100 + i * 0.2, breadth50: 68, vix: 21, vix3m: 22, fg: 19, pcr: 0.9, tnx: 4.9 - i * 0.02, kospi: i < 79 ? 5000 : 4800, usdkrw: i < 79 ? 1400 : 1410 }));
+      const chist = cdays.map((date, i) => ({ date, spx: i < 79 ? 5000 : 4800, rsp: 100 + i * 0.2, breadth50: 68, vix: 21, vix3m: 22, fg: 19, tnx: 4.9 - i * 0.02, kospi: i < 79 ? 5000 : 4800, usdkrw: i < 79 ? 1400 : 1410 }));
       const chy = { series: { hyOas: { observations: cdays.map((date, i) => [date, 3 + i * 0.02]) } } };
       const pairs = Object.fromEntries(crossReadings({ history: chist, macroHistory: chy, day: null }).map((row) => [row.id, row.text]));
       if (!/68%는 아직 50일선 위/.test(pairs['trend-breadth'] || '') || !/투매는 아닌/.test(pairs['volatility-sentiment'] || '') || !/성장 걱정형/.test(pairs['rates-credit'] || '') || !/코스피 하루 -4\.0%/.test(pairs['korea-won'] || '')) {
@@ -1603,7 +1602,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     const results = [openThemeDetail(shell, 'defense', { symbol: '012450.KS' }), openThemeDetail(shell, 'defense', { symbol: 'LMT' }), openThemeDetail(shell, 'gone', { market: 'KR' }), openThemeDetail({}, 'semi', { symbol: '005930.KS' })];
     if (opened.join() !== 'KR:defense,US:defense,KR:gone' || results.join() !== 'true,true,false,false') fail(`kr themes: theme links must open the listing market's theme detail, got ${opened.join()} / ${results.join()}`);
   }
-  const invalidScore = computeTradingScoreModel({ mode: 'swing', vix: -10, vvix: 0, dxy: 10, tnx: -1, oilPrice: -5, fg: 101, maCurrent: true, spx200ma: -1, spx50ma: 0, spxPrice: -10, breadthAvailable: true, breadth200: 150, pcr: -1, hyBp: -2, newsSentimentScore: 101, newsRiskSignals: [{ impact: 'bad' }] });
+  const invalidScore = computeTradingScoreModel({ mode: 'swing', vix: -10, vvix: 0, dxy: 10, tnx: -1, oilPrice: -5, fg: 101, maCurrent: true, spx200ma: -1, spx50ma: 0, spxPrice: -10, breadthAvailable: true, breadth200: 150, hyBp: -2, newsSentimentScore: 101, newsRiskSignals: [{ impact: 'bad' }] });
   {
     // v57.83 trading-score.v5 (R707): within ±1% of the 50-day line the trend component is 59 (between above 68 and
     // below 50); 1% clear above is 68, 2% above 82.
@@ -1611,7 +1610,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     const got = [0.15, -0.5, 1.0, 1.5, 2.5, -1.5].map(trendAt);
     if (JSON.stringify(got) !== JSON.stringify([59, 59, 68, 68, 82, 50])) fail(`v57.83 the trend component keeps the 1% buffer around the 50-day line, got ${JSON.stringify(got)}`);
   }
-  if (invalidScore.total !== null || invalidScore.modelVersion !== 'trading-score.v5' || !Object.isFrozen(invalidScore) || !Object.isFrozen(invalidScore.componentMissing)) fail(`signal: out-of-domain inputs must fail closed in an immutable v4 result, got ${JSON.stringify(invalidScore)}`);
+  if (invalidScore.total !== null || invalidScore.modelVersion !== 'trading-score.v6' || !Object.isFrozen(invalidScore) || !Object.isFrozen(invalidScore.componentMissing)) fail(`signal: out-of-domain inputs must fail closed in an immutable v4 result, got ${JSON.stringify(invalidScore)}`);
 }
 
 // ── E2/LC-26 (P1214): the signal score mode is one revision consumed by both readers ───────────
@@ -1978,14 +1977,11 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
 // together. Missing P/C withholds, missing SPY never becomes 0% flat, and a missing
 // trading score withholds while a valid 0 stays 0.
 {
-  const { deriveSentimentViewModel, putCallBand, putCallNeedlePosition, spyMoveState, tradingScoreLink } = await load('src/domain/sentiment/narrative.js');
+  const narrativeModule = await load('src/domain/sentiment/narrative.js');
+  const { deriveSentimentViewModel, spyMoveState, tradingScoreLink } = narrativeModule;
+  // v59.70 (owner 11/4): the Cboe put/call band, metric and narrative are gone with the source.
   const observed = deriveSentimentViewModel({ values: { fearGreed: 42, vix9d: 18, vix: 17, vix3m: 20, vix6m: 22, putCall: 0.79, spyChg: 0.4, tradingScoreTotal: 55 }, evidenceByMetric: {}, revision: null, now: '2026-09-19T00:00:00Z' });
-  const pcNarrative = observed.narratives.find((row) => row.claimId === 'sentiment.put-call');
-  if (!/0\.79/.test(pcNarrative?.text || '') || !/균형 구간/.test(pcNarrative?.text || '') || putCallNeedlePosition(0.79) !== '중립') fail(`W01/P1143 sentiment ViewModel: 0.79 must render the same band in card and narrative, got ${JSON.stringify(pcNarrative)}`);
-  const moved = deriveSentimentViewModel({ values: { fearGreed: 42, vix9d: 18, vix: 17, vix3m: 20, vix6m: 22, putCall: 1.21, spyChg: 0.4, tradingScoreTotal: 55 }, evidenceByMetric: {}, revision: null, now: '2026-09-19T00:00:00Z' });
-  if (moved.revision === observed.revision || !/1\.21/.test(moved.narratives.find((row) => row.claimId === 'sentiment.put-call')?.text || '')) fail('W01/P1143 sentiment ViewModel: a new 1.21 observation must move card and narrative to one new revision');
-  const missingPc = deriveSentimentViewModel({ values: { fearGreed: 42, vix9d: 18, vix: 17, vix3m: 20, vix6m: 22, putCall: null }, evidenceByMetric: {}, revision: null, now: '2026-09-19T00:00:00Z' });
-  const missingPcNarrative = missingPc.narratives.find((row) => row.claimId === 'sentiment.put-call');
+  if ('putCallBand' in narrativeModule || 'putCallNeedlePosition' in narrativeModule || observed.metrics.some((row) => row.metricId === 'putCall') || observed.narratives.some((row) => row.claimId === 'sentiment.put-call')) fail('v59.70 the sentiment view model carries no put/call metric, band or narrative');
   {
     // v59.43: a 5-session 10-year drop with HY OAS widening by the watch amount is a flight to safety, not a supportive rate move.
     const { defensiveYieldDrop } = await load('src/domain/market/regime-radar.js');
@@ -1995,9 +1991,6 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     const rising = defensiveYieldDrop([{ date: '2026-10-20', value: 4.9 }, { date: '2026-10-27', value: 5.0 }], [{ date: '2026-10-20', value: 300 }, { date: '2026-10-27', value: 330 }], '2026-10-27', '2026-10-20');
     if (wide?.yieldBp !== -11 || wide?.oasBp !== 20 || calm !== null || rising !== null) fail(`v59.43 defensive yield drop: got ${JSON.stringify({ wide, calm, rising })}`);
   }
-  // v59.43 P2134: a put/call volume ratio cannot tell bought from sold puts, so the band never claims hedging demand.
-  if (/하락 대비 수요|헤지 수요/.test(putCallBand(1.21)?.label || '') || !/풋 거래/.test(putCallBand(1.21)?.label || '')) fail(`P2134 put/call band must name the volume tilt only, got ${putCallBand(1.21)?.label}`);
-  if (putCallBand(null)?.blocked !== true || putCallNeedlePosition(null) !== '판정 보류' || missingPcNarrative?.status !== 'withheld') fail(`W01/P1143 sentiment ViewModel: missing P/C must withhold, got ${JSON.stringify(missingPcNarrative)}`);
   const missingSpy = deriveSentimentViewModel({ values: { fearGreed: 42, vix: 17, spyChg: null }, evidenceByMetric: {}, revision: null, now: '2026-09-19T00:00:00Z' });
   if (spyMoveState(null)?.state !== 'missing' || spyMoveState(0)?.state !== 'observed' || missingSpy.narratives.find((row) => row.claimId === 'sentiment.spy-vix-divergence')?.status !== 'withheld') fail('W01/P1143 sentiment ViewModel: missing SPY move must stay missing, never 0% flat');
   if (tradingScoreLink(null)?.state !== 'withheld' || tradingScoreLink(0)?.state !== 'observed' || tradingScoreLink(0)?.value !== 0) fail('W01/P1143 sentiment ViewModel: trading-score null must withhold while a valid 0 stays 0');
@@ -4103,7 +4096,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       _aioHistory: Array.from({ length: 200 }, (_, i) => ({ date: new Date(Date.parse('2026-09-29T00:00:00Z') - (199-i)*86400000).toISOString().slice(0,10), spx: 7000 })),
       setTimeout: (task, delay) => { const id = ++nextTimer; timers.set(id, { task, delay }); return id; },
       clearTimeout: (id) => timers.delete(id),
-      AIO: { getTradingDecisionInputEvidence: () => ({ rows: [['dxy-dollar',101],['tnx-yield',4.2],['fg-sentiment',34],['pcr-putcall',0.9]]
+      AIO: { getTradingDecisionInputEvidence: () => ({ rows: [['dxy-dollar',101],['tnx-yield',4.2],['fg-sentiment',34],['hy-spread-bp',320]]
         .map(([id,value]) => ({ id, value, observedAt, source: 'P1345-fixture' })) }) } });
     runtimeRoot.document = runtimeRoot;
     if (withBridge) runtimeRoot._aioSetLiveData = (symbol, quote) => { runtimeRoot._liveData[symbol] = quote; return true; };
@@ -4439,11 +4432,12 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
 {
   const { buildLeadershipVerdict } = await import(pathToFileURL(path.join(root, 'src/domain/market/leadership-verdict.js')).href);
   const leadership = { available: true, state: 'break', drop5: -4.1 };
-  const rows = [{ date: '2026-10-20', smh: 400, ndx: 25000 }, { date: '2026-10-21', smh: 400, ndx: 25000 }, { date: '2026-10-22', smh: 376, ndx: 24350, breadthLow20: 189, fieldMeta: { breadthLow20: { eligible: 900 } } }];
+  // v59.70: the semiconductor line is SOXX, the leadership proxy (its 급락일 edge is 4.5%).
+  const rows = [{ date: '2026-10-20', soxx: 400, ndx: 25000 }, { date: '2026-10-21', soxx: 400, ndx: 25000 }, { date: '2026-10-22', soxx: 376, ndx: 24350, breadthLow20: 189, fieldMeta: { breadthLow20: { eligible: 900 } } }];
   const day = buildLeadershipVerdict({ history: rows, leadership, basis: '2026-10-22' });
   const gapped = buildLeadershipVerdict({ history: rows.filter((row) => row.date !== '2026-10-21'), leadership, basis: '2026-10-22' });
   const none = buildLeadershipVerdict({ history: rows, leadership: { available: false } });
-  if (!day.shock || day.label !== '이탈, 급락일' || Math.round(day.semis1d) !== -6 || day.low20 !== 189 || !/20거래일 종가 신저가 189개\(미국 종목의 21%\)/.test(day.line) || !/ \/ 나스닥 100/.test(day.line)
+  if (!day.shock || day.label !== '이탈, 급락일' || Math.round(day.semis1d) !== -6 || day.low20 !== 189 || !/20거래일 종가 신저가 189개\(미국 종목의 21%\)/.test(day.line) || !/ \/ 나스닥 100/.test(day.line) || !/^반도체\(SOXX\) 10\/22 -6\.0%/.test(day.line)
     || gapped.semis1d !== null || gapped.shock || !/하루 변화는 일부 생략/.test(gapped.line) || none.available)
     fail(`v58.68 leadership verdict wrong: ${JSON.stringify({ day: [day.label, day.semis1d, day.line], gapped: [gapped.label, gapped.semis1d, gapped.line], none: none.available })}`);
 }
@@ -4512,9 +4506,10 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const weekLine = earningsLine({ earnings: [['KO', '2026-10-27', 'bmo', 0.56], ['V', '2026-10-27', 'amc', 1.07], ['MSFT', '2026-10-28', 'amc', 5.85], ['GOOGL', '2026-10-28', 'amc', 2.88], ['AMZN', '2026-10-29', 'amc', 3.9]].map(([symbol, date, hour, indexWeight]) => ({ symbol, date, hour, indexWeight }) ) }, '2026-10-23');
   if (!/^다음 대형주 실적\(10\/27, 미국 시각\): 장 전 KO \/ 장 마감 후 V \/ 이어서 비중이 큰 실적\(미국 시각\): 10\/28 장 마감 후 MSFT, 10\/28 장 마감 후 GOOGL, 10\/29 장 마감 후 AMZN$/.test(weekLine)) fail(`v58.74 the week's heaviest reports follow the next session: ${weekLine}`);
   const { priorSessionMoveLines } = await import('./fetch-data.mjs');
-  const us = priorSessionMoveLines([['2026-10-20', 546.36, 7712], ['2026-10-21', 557, 7757], ['2026-10-22', 523.35, 7663]].map(([date, smh, spx]) => ({ date, smh, spx })));
-  const gapped = priorSessionMoveLines([['2026-10-20', 557], ['2026-10-22', 523.35]].map(([date, smh]) => ({ date, smh })));
-  if (!/^직전 완료 세션의 큰 움직임: 반도체\(SMH\) 10\/22 종가 -6\.04%/.test(us) || gapped)
+  // v59.70: the semiconductor line is SOXX (the leadership proxy).
+  const us = priorSessionMoveLines([['2026-10-20', 546.36, 7712], ['2026-10-21', 557, 7757], ['2026-10-22', 523.35, 7663]].map(([date, soxx, spx]) => ({ date, soxx, spx })));
+  const gapped = priorSessionMoveLines([['2026-10-20', 557], ['2026-10-22', 523.35]].map(([date, soxx]) => ({ date, soxx })));
+  if (!/^직전 완료 세션의 큰 움직임: 반도체\(SOXX\) 10\/22 종가 -6\.04%/.test(us) || gapped)
     fail(`v58.68 US-first prior-session lines wrong: ${JSON.stringify({ us, gapped })}`);
   // v59.24: WTI's last close (10/23) behind the latest S&P 500 close (10/26) is not the prior session's move
   const staleOil = priorSessionMoveLines([['2026-10-22', 99.47, 7650], ['2026-10-23', 103.27, 7623.68], ['2026-10-26', null, 7676.77]].map(([date, wti, spx]) => ({ date, wti, spx })));

@@ -8,6 +8,7 @@ import { historyFieldSessionDate } from './history-session.js';
 import { readNumber as finite } from '../shared/number.js';
 import { isoDay, stampDay } from '../shared/session-date.js';
 import { percentileOf } from '../shared/percentile.js';
+import { historyFieldMeta } from './history-meta.js';
 
 // v59.46: `finite` is the shared reader (Number(null)/'' /booleans are missing, not 0); kept as a named export for the
 // modules that import it from here or from briefing/market-read.js.
@@ -115,7 +116,7 @@ function computeCloseSeries(history, field, { through, includeProvenance, market
   for (const row of rows) {
     const value = finite(row?.[field]);
     if (value == null || (value <= 0 && !/^(breadth|advance|distribution)/.test(field))) continue; // a 0 yield/price is a producer gap, not a close (a 0 count is real)
-    const meta = row.fieldMeta?.[field];
+    const meta = historyFieldMeta(row, field);
     if (meta?.observationRelation === 'carried-forward') continue;
     // v57.70: a previous close stamped at the next bar's 00:00 ET boundary carries its own session date.
     // v57.81: rows written before v57.70 carry none — their previous close is dated from its bar stamp and fetch time

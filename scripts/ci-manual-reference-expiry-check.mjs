@@ -93,30 +93,26 @@ for (const item of audit.items) {
 // ── Fixtures: the same evaluator, synthetic clocks and artifacts ─────────────
 const fixture = (overrides) => W.__evaluate(inputFor(overrides));
 const byId = (result, id) => result.items.find((item) => item.id === id) || {};
-const fedNext = W.AIO_MANUAL_REFERENCE.fedPolicy.next;
 const dayAfter = (iso, days) => new Date(Date.parse(`${iso}T00:00:00Z`) + days * 86400000).toISOString().slice(0, 10);
 const kstNoon = (iso) => Date.parse(`${iso}T03:00:00Z`);
-check('P1736 fixture: manual Fed range is current on its decision day',
-  ['current', 'due'].includes(byId(fixture({ now: kstNoon(W.AIO_MANUAL_REFERENCE.fedPolicy.asOf), produced: {} }), 'fedPolicy').status));
-check('P1736 fixture: manual Fed range is still current through the grace day after the next meeting',
-  byId(fixture({ now: kstNoon(dayAfter(fedNext, 1)), produced: {} }), 'fedPolicy').held === false);
-check('P1736 fixture: manual Fed range is held two days after the next meeting',
-  byId(fixture({ now: kstNoon(dayAfter(fedNext, 2)), produced: {} }), 'fedPolicy').held === true);
-check('P1737 fixture: a current producer range supersedes the expired manual one',
-  byId(fixture({ now: kstNoon(dayAfter(fedNext, 30)), produced: W.__normalize({}, { policyRates: { fed: { lower: 3.75, upper: 4, asOf: dayAfter(fedNext, 29), status: 'current' } } }) }), 'fedPolicy').status === 'superseded');
-check('P1737 fixture: a stale producer range does not supersede (manual value keeps its own window)',
-  byId(fixture({ now: kstNoon(dayAfter(fedNext, 30)), produced: W.__normalize({}, { policyRates: { fed: { lower: 3.75, upper: 4, asOf: '2026-01-01', status: 'stale' } } }) }), 'fedPolicy').held === true);
+// v59.70 (data audit R7): the Fed range/decision and the US CPI date have no manual copy left — the producer artifacts
+// are their only source, so no expiry item may exist for them and the normalizer must carry the produced decision.
+check('v59.70 R7 no manual Fed range or US CPI date remains (producer artifacts only)',
+  !('fedPolicy' in W.AIO_MANUAL_REFERENCE) && !('usCpiCalendar' in W.AIO_MANUAL_REFERENCE) && !ids.has('fedPolicy') && !ids.has('usCpiCalendar'));
+const producedFed = W.__normalize({}, { policyRates: { fed: { lower: 3.75, upper: 4, asOf: '2026-11-02', status: 'current', decision: '동결', decisionDate: '2026-10-28' } } }).fedPolicy;
+check('v59.70 R7 the produced Fed range carries the FOMC decision word and date', producedFed?.decision === '동결' && producedFed?.decisionDate === '2026-10-28' && producedFed?.value === '3.75-4.00', JSON.stringify(producedFed));
 const refs = (status) => ({ officialReferences: { schemaVersion: 'official-web-references.v2', items: {
   bokBaseRate: { value: 3, unit: '%', effectiveDate: '2026-10-22', nextMeeting: '2026-11-26', status },
   krCpi: { yoy: 2.4, period: '2026-10', publishedAt: '2026-11-03', status },
   krExports: { exportsYoyPct: 5, exportsBillionUsd: 60, period: '2026-10', periodLabel: '2026년 10월', publishedAt: '2026-11-01', status } } } });
 const verifiedLater = fixture({ now: kstNoon('2026-11-10'), produced: W.__normalize({}, refs('verified')) });
-check('P1737 fixture: verified BOK/KR CPI/exports supersede the manual or data.json copies',
-  ['bokPolicy', 'krInflation', 'krExports'].every((id) => byId(verifiedLater, id).status === 'superseded'), JSON.stringify(verifiedLater.items.map((item) => [item.id, item.status])));
+check('P1737 fixture: verified BOK/exports supersede the manual or data.json copies',
+  ['bokPolicy', 'krExports'].every((id) => byId(verifiedLater, id).status === 'superseded'), JSON.stringify(verifiedLater.items.map((item) => [item.id, item.status])));
+check('v59.70 S7/I10 no manual KR CPI item remains (the official-reference producer is its only source)', !('krInflation' in W.AIO_MANUAL_REFERENCE) && !verifiedLater.items.some((item) => item.id === 'krInflation'));
 // v58.74: the clock follows the manual BOK meeting (past its grace) so a recorded decision does not move the fixture.
 const unverifiedLater = fixture({ now: kstNoon(dayAfter(W.AIO_MANUAL_REFERENCE.bokPolicy.next, 3)), produced: W.__normalize({}, refs('unverified')) });
 check('P1737 fixture: unverified artifact values never supersede; the expired manual values are held (v58.74: clock past the manual BOK meeting)',
-  byId(unverifiedLater, 'bokPolicy').held === true && byId(unverifiedLater, 'krInflation').held === true);
+  byId(unverifiedLater, 'bokPolicy').held === true);
 const neverVerified = fixture({ serverMeta: {}, produced: W.__normalize({}, { officialReferences: { items: { krExports: { exportsBillionUsd: null, exportsYoyPct: null, publishedAt: null, status: 'unverified', reason: 'value-not-on-page' } } } }) });
 check('P1736 fixture: an export item the lane never verified stays listed as unverified and held (the issue does not close)',
   byId(neverVerified, 'krExports').status === 'unverified' && byId(neverVerified, 'krExports').held === true && neverVerified.expired.includes('krExports'), JSON.stringify(byId(neverVerified, 'krExports')));
@@ -147,7 +143,7 @@ check('P1736 fixture: the holiday tables enter review 61 days before the last re
 // ── Consumer wiring ─────────────────────────────────────────────────────────
 const ui = read('js/aio-ui.js');
 const dataJs = read('js/aio-data.js') + '\n' + read('src/data/server-data-loader.js'); // v59.34: the server data loader moved to src
-check('P1736 applyDataSnapshot holds expired BOK/KR CPI values as 기한 지남', /'bok-rate':\s*refHeld\('bokPolicy'/.test(core) && /'kr-cpi':\s*refHeld\('krInflation'/.test(core) && /'kr-cpi-yoy':\s*refHeld\('krInflation'/.test(core));
+check('P1736 applyDataSnapshot holds an expired BOK value as 기한 지남', /'bok-rate':\s*refHeld\('bokPolicy'/.test(core));
 check('P1737 v57.60 fed-target fallback and the CP2 text writer use AIO.getFedPolicyRange (the retired cp2-detail DOM sink stays gone)', /'fed-target':[^\n]*_fedRange/.test(core) && !/getElementById\('cp2-detail'\)/.test(core) && /function getCP2Text\(\)[\s\S]{0,700}getFedPolicyRange\(\)/.test(core));
 // v59.68: 오늘's next-event row (daily-loop.js) is retired; 브리핑 and 시장 상태 keep the Fed-range read.
 for (const file of ['src/ui/components/briefing-read.js', 'src/ui/pages/market.js']) check(`P1737 ${file} reads the Fed range through AIO.getFedPolicyRange`, /getFedPolicyRange/.test(read(file)));

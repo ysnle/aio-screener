@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { runInNewContext } from 'node:vm';
 import { readProducerSource } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + the lib modules split out of it
-import { backtestFactors, classifyCboePutCallCurrentness, deriveCyclePublication, deriveFactorQuality, deriveTickerNewsLineage, writeMacroCalendar } from './fetch-data.mjs';
+import { backtestFactors, deriveCyclePublication, deriveFactorQuality, deriveTickerNewsLineage, writeMacroCalendar } from './fetch-data.mjs';
 import { FOMC_RECHECK_MS, buildIsmRuleEvents, deriveFedPolicyRate, parseFomcCalendarHtml, selectFomcMeetings } from './lib/official-calendars.mjs';
 import { factorScopesByMarket, marketOfSymbol, sessionDateInMarket, timeZoneForMarket } from '../src/domain/market/session-time.js';
 import { FACTOR_FRESHNESS_MS } from '../src/domain/screener/factor-ranks.js';
@@ -273,11 +273,7 @@ const fetchData = readProducerSource();
       JSON.stringify({ cached: cached.status }));
   }
   check('P1576: an in-session quote without a previous close is never written to history as a completed close', /bySym\[q\.symbol\] = usePreviousClose \? previousClose : \(isOpenPoint \|\| preOpenPrint\) \? null : q\.regularMarketPrice;/.test(fetchData));
-  check('P1573: Cboe put/call is current only within one session of the latest completed close',
-    classifyCboePutCallCurrentness('2026-10-09', now) === 'current-reference'
-      && classifyCboePutCallCurrentness('2026-10-08', now) === 'current-reference'
-      && classifyCboePutCallCurrentness('2026-10-07', now) === 'stale-reference'
-      && classifyCboePutCallCurrentness(null, now) === 'stale-reference');
+  // v59.70: the P1573 Cboe currentness check left with the Cboe reader (ci-data-audit-contract holds its absence).
 }
 {
   const beaCatch = fetchData.slice(fetchData.indexOf('async function fetchBeaPce('), fetchData.indexOf('async function fetchBeaPce(') + 1600);
@@ -505,8 +501,6 @@ check('page evidence is fail-closed by shared market epoch and revision state', 
 check('fetch-data exposes an isolated screener-only refresh path', /SCREENER_ONLY/.test(fetchData) && /export async function enrichScreener/.test(fetchData));
   check('screener rows retain per-symbol observation/source/use lineage', /f\.observedAt\s*=\s*r\.observedAt/.test(fetchData) && /f\.sourceKind\s*=\s*'T3_PUBLIC_DELAYED'/.test(fetchData) && /f\.allowedUse\s*=\s*'research-relative-ranking-only'/.test(fetchData));
 check('ticker news keeps publication and fetch timestamps separate and provider prioritizes explicit lineage', /deriveTickerNewsLineage/.test(fetchData) && /newsObservedAt\s*=\s*lineage\.newsObservedAt/.test(fetchData) && /newsFetchedAt\s*=\s*lineage\.newsFetchedAt/.test(fetchData) && !/newsTs\s*=\s*Date\.now\(\)/.test(fetchData) && /newsObservedAt:\s*newsObservedAt/.test(screenerProvider) && /newsFetchedAt:\s*newsFetchedAt/.test(screenerProvider));
-check('core refresh ingests official delayed Cboe statistics without a public CORS proxy', /parseCboePutCallHtml/.test(fetchData) && /Cboe Daily Market Statistics/.test(fetchData) && /sourceKind:\s*'T3_PUBLIC_DELAYED'/.test(fetchData) && /fetchCboePutCall\(\)/.test(fetchData));
-check('client applies server Cboe data first and protects it from failed legacy proxy fallback', /d\.putCall\.totalPutCall/.test(data) && /sourceLabel:\s*'Cboe Daily Market Statistics'/.test(data) && /must not overwrite a fresher official/.test(data));
 // v57.76: the personal-FRED-key retry after a server FRED failure was removed with the retired personal keys.
 {
   const shared = serverMetaFixture({ newsCycleStart: 'n0', marketSnapshotRevision: 'm0', cycleManifestRevision: 'c0', marketCycleFreshnessSlaHours: 48 });
@@ -1121,7 +1115,13 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     .replace('완료 종가에서 코스피(10/15) -7.56%', '완료 종가에서 코스피(10/15) -7.56%(중심 흐름은 아직 정하기 이릅니다)');
   // v57.86: the producer is handed the history as it stood at 06:52 (rows through 10/15, whose US fields repeat the 10/14
   // closes) — reading today's published file broke this dated check once a 10/16 row with that day's KOSPI close landed.
-  const published = JSON.parse(readFileSync(new URL('../public-data/history.json', import.meta.url), 'utf8'));
+  const published = readHistoryRows(JSON.parse(readFileSync(new URL('../public-data/history.json', import.meta.url), 'utf8')));
+  // v59.70: the US semiconductor line is SOXX; sessions without a soxx column read the dated Yahoo closes the crash replay uses.
+  const soxxFixture = JSON.parse(readFileSync(new URL('../architecture/fixtures/soxx-daily-closes.json', import.meta.url), 'utf8')).closes;
+  for (const row of published) {
+    const meta = row.fieldMeta?.spx, session = meta?.sessionDate || row.date;
+    if (!Number.isFinite(row.soxx) && meta && Number.isFinite(row.spx) && Number.isFinite(soxxFixture[session])) { row.soxx = soxxFixture[session]; row.fieldMeta = { ...row.fieldMeta, soxx: { ...meta } }; }
+  }
   const r14 = published.find((row) => row.date === '2026-10-14'), r15 = published.find((row) => row.date === '2026-10-15');
   const at0652 = r14 && r15 ? [...published.filter((row) => row.date < '2026-10-15'), { ...r14, date: '2026-10-15', cycleEnd: '2026-10-14T23:00:00.000Z', kospi: r15.kospi, kosdaq: r15.kosdaq, fieldMeta: { ...(r14.fieldMeta || {}), kospi: r15.fieldMeta?.kospi, kosdaq: r15.fieldMeta?.kosdaq } }] : null;
   try { promptRun = await genMarketAnalysis(data, closedSnapshot, { request: stub([dated0652]), nowMs: Date.parse('2026-10-15T06:52:00.000Z'), history: at0652 }); } finally { console.warn = warn; }
@@ -1140,8 +1140,8 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     const crashTitle = '코스피 7% 폭락…사이드카 발동';
     const ranked = krIndexStoryFirst([{ title: '증시 폭락에 원·달러 환율 급등' }, { title: crashTitle }]);
     check('v57.87 a large completed close reaches the prompt dated and must be named; the KOSPI move headline takes the first Korean slot',
-      // v58.68: US lines (here SMH's 5-session -9.7%) come first; the KOSPI close still follows on the same line.
-      /직전 완료 세션의 큰 움직임: 반도체\(SMH\) [^\n]* · 코스피 10\/15 종가 -7\.5\d%/.test(ctx) && !priorSessionMoveIssues(dated0652, { context: ctx }).length
+      // v58.68: US lines (here SOXX's 5-session move, v59.70) come first; the KOSPI close still follows on the same line.
+      /직전 완료 세션의 큰 움직임: 반도체\(SOXX\) [^\n]* · 코스피 10\/15 종가 -7\.5\d%/.test(ctx) && !priorSessionMoveIssues(dated0652, { context: ctx }).length
         && priorSessionMoveIssues('코스피 장중 13:05 KST 기준 +3.2% 반등', { context: ctx }).includes('prior-session-move-omitted')
         && ranked[0].title === crashTitle && /ko-index-move\+14/.test(scoreServerNewsItem({ title: crashTitle, source: '연합뉴스', ts: Date.parse('2026-10-15T06:00:00.000Z'), scoringNowMs: Date.parse('2026-10-15T06:30:00.000Z') }).selectionReason),
       JSON.stringify({ line: ctx.match(/직전 완료 세션[^\n]*/)?.[0] || null, ranked: ranked.map((row) => row.title) }));
@@ -1705,17 +1705,6 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     detail = JSON.stringify({ before, after });
   } catch (error) { detail = error.message; }
   check('SEC PIT selector excludes future amendments and never backfills current price without an as-of price', ok, detail.slice(0, 1000));
-}
-{
-  let ok = false;
-  let detail = '';
-  try {
-    const { parseCboePutCallHtml } = await import('./fetch-data.mjs');
-    const row = parseCboePutCallHtml('{\\"name\\":\\"TOTAL PUT/CALL RATIO\\",\\"value\\":\\"0.93\\"},{\\"name\\":\\"INDEX PUT/CALL RATIO\\",\\"value\\":\\"1.01\\"},{\\"name\\":\\"EQUITY PUT/CALL RATIO\\",\\"value\\":\\"0.62\\"},{\\"selectedDate\\":\\"2026-07-14\\"}');
-    ok = row && row.totalPutCall === 0.93 && row.indexPutCall === 1.01 && row.equityPutCall === 0.62 && row.asOf === '2026-07-14' && row.sourceKind === 'T3_PUBLIC_DELAYED';
-    detail = JSON.stringify(row);
-  } catch (error) { detail = error.message; }
-  check('Cboe official page parser binds total/equity/index ratios to selected trading date', ok, detail);
 }
 {
   let detail = '';
@@ -2333,7 +2322,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       && fed({ _asOf_fedTargetLower: '2026-10-01', _asOf_fedTargetUpper: '2026-10-01' }).status === 'stale'
       && fed({ fedTargetLower: null }).status === 'stale');
   check('P1732 the producer publishes data.policyRates.fed from the merged macro block',
-    /policyRates: \{ fed: deriveFedPolicyRate\(macro, Date\.parse\(attemptedAt\)\) \}/.test(readProducerSource()));
+    /policyRates: \{ fed: deriveFedPolicyRate\(macro, Date\.parse\(attemptedAt\)(?:, \{[^}]*\})?\) \}/.test(readProducerSource())); // v59.70 R7: + FOMC decision inputs
 }
 
 // P1757 (owner decision 2026-10-14): weekend cadence + producer-only SEC ledger.
@@ -2951,3 +2940,5 @@ if (errors.length) {
 }
 
 console.log('Data pipeline contract check OK: Actions -> public-data -> runtime audit -> chat/memo consumers are structurally wired.');
+
+import { readHistoryRows } from '../src/domain/market/history-rows.js';

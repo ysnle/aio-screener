@@ -28,7 +28,7 @@
   "failures": [],
   "routes": {
     "home": {
-      "total": 422,
+      "total": 418,
       "secondary": 84,
       "lines": [
         {
@@ -70,7 +70,7 @@
       ]
     },
     "signal": {
-      "total": 5259,
+      "total": 5055,
       "secondary": 305,
       "lines": [
         {
@@ -105,11 +105,6 @@
         },
         {
           "chars": 16,
-          "classes": "is-burden mk-tally__legend mk-tally",
-          "text": "부담 2(추세·달러와 원자재)"
-        },
-        {
-          "chars": 16,
           "classes": "mk-axis__dist-basis mk-axis__dist mk-axis__row",
           "text": "3개월 VIX 역전 20.78"
         },
@@ -132,15 +127,20 @@
           "chars": 14,
           "classes": "regime-radar-legend",
           "text": "20거래일 전 (10/2)"
+        },
+        {
+          "chars": 13,
+          "classes": "is-burden mk-tally__legend mk-tally",
+          "text": "부담 1(달러와 원자재)"
         }
       ],
       "frames": [
         {
           "frame": "signal.story",
           "hasHead": true,
-          "asof": "최근 15거래일",
+          "asof": "최근 5거래일",
           "readings": [
-            230
+            125
           ],
           "problems": []
         },
@@ -161,7 +161,7 @@
       ]
     },
     "breadth": {
-      "total": 1027,
+      "total": 944,
       "secondary": 49,
       "lines": [
         {
@@ -218,8 +218,8 @@
       "frames": []
     },
     "sentiment": {
-      "total": 997,
-      "secondary": 158,
+      "total": 972,
+      "secondary": 141,
       "lines": [
         {
           "chars": 20,
@@ -229,12 +229,7 @@
         {
           "chars": 20,
           "classes": "basis-chip trend-card-tags",
-          "text": "10/30 기준, 7개 중 6개 반영"
-        },
-        {
-          "chars": 17,
-          "classes": "basis-chip trend-card-tags",
-          "text": "10/22, 오래됨(판정 제외)"
+          "text": "10/30 기준, 6개 중 6개 반영"
         },
         {
           "chars": 14,
@@ -280,12 +275,17 @@
           "chars": 5,
           "classes": "basis-chip trend-card-tags trend-card",
           "text": "10/30"
+        },
+        {
+          "chars": 2,
+          "classes": "aio-basis-btn briefing-block market-temperature",
+          "text": "근거"
         }
       ],
       "frames": []
     },
     "briefing": {
-      "total": 1198,
+      "total": 1085,
       "secondary": 45,
       "lines": [
         {
@@ -307,13 +307,13 @@
       "frames": []
     },
     "technical": {
-      "total": 187,
+      "total": 190,
       "secondary": 37,
       "lines": [
         {
           "chars": 32,
           "classes": "theme-strength-basis tech-regime-head aio-section tech-regime",
-          "text": "10/30 미국 종가 기준, 양호 3, 중립 1, 부담 2"
+          "text": "10/30 미국 종가 기준, 양호 3, 중립 2, 부담 1"
         },
         {
           "chars": 5,
@@ -324,13 +324,13 @@
       "frames": []
     },
     "macro": {
-      "total": 4387,
-      "secondary": 245,
+      "total": 4346,
+      "secondary": 252,
       "lines": [
         {
-          "chars": 93,
+          "chars": 100,
           "classes": "page-subtitle  page-head",
-          "text": "거시 6요인 중 부담은 3개(물가, 통화정책, 유가·달러)이고, 성장·물가 국면은 방향 보류입니다. 다음 주요 발표는 11/6(금) 22:30 KST 고용보고서입니다."
+          "text": "거시 6요인 중 부담은 3개(물가, 통화정책, 유가·달러)이고, 성장·물가 국면은 방향 보류입니다. 다음 주요 발표는 11/10(화) 22:30 KST CPI (소비자물가)입니다."
         },
         {
           "chars": 22,
@@ -479,7 +479,7 @@
       "frames": []
     },
     "themes": {
-      "total": 3885,
+      "total": 3848,
       "secondary": 70,
       "lines": [
         {
@@ -591,7 +591,7 @@
       ]
     },
     "theme-detail": {
-      "total": 1499,
+      "total": 1453,
       "secondary": 27,
       "lines": [
         {
@@ -626,7 +626,7 @@
       "frames": []
     },
     "market-news": {
-      "total": 3155,
+      "total": 3112,
       "secondary": 288,
       "lines": [
         {

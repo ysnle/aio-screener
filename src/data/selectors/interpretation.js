@@ -5,6 +5,7 @@ import { collectMarketInputs } from './market-inputs.js';
 import { buildMarketInterpretation } from '../../domain/interpretation/market-interpretation.js';
 import { SCENARIO_OUTCOMES, SCENARIO_STATE } from '../shared-artifacts.js';
 import { CONSENSUS_KEY } from '../consensus-estimates.js';
+import { indexEarningsInput, interpretationInput } from '../../domain/interpretation/inputs.js';
 
 // The native store, registered once by bootstrap, so every caller reads the same typed rows in place (v57.77 perf: the
 // legacy bridge snapshots them). A caller may still pass its own store (fixtures, the AI's row view). An empty native
@@ -38,13 +39,12 @@ export function themeMapsForRoot(root) {
 export function indexEarningsInputForRoot(root, store = null) {
   let weights = null;
   try { weights = storeFor(root, store)?.getState?.()?.screener?.metadata?.indexWeights || null; } catch (_) { weights = null; }
-  const macro = root?._aioServerMacro || {};
-  return { weights, consensus: root?.[CONSENSUS_KEY] || null, realYield10: macro.realYield10 ?? null, realYieldAsOf: macro._asOf_realYield10 || null };
+  return indexEarningsInput({ weights, consensus: root?.[CONSENSUS_KEY] || null, macro: root?._aioServerMacro || null });
 }
 
-/** Every input the pipeline reads, from the runtime artifacts already loaded on `root`. */
+/** Every input the pipeline reads, from the runtime artifacts already loaded on `root` (v59.70 R8: one builder). */
 export function collectInterpretationInputs(root, { store = null, nowMs = Date.now() } = {}) {
-  return {
+  return interpretationInput({
     market: collectMarketInputs(root, { now: nowMs }),
     macro: root?._aioServerMacro || null,
     calendar: { releases: root?.AIO_MACRO_CALENDAR?.releases || {}, schedules: root?.AIO_MACRO_OFFICIAL_SCHEDULES || {} },
@@ -55,7 +55,7 @@ export function collectInterpretationInputs(root, { store = null, nowMs = Date.n
     rotationHistory: root?._serverDataMeta?.rotationHistory || null,
     indexEarnings: indexEarningsInputForRoot(root, store),
     nowMs
-  };
+  });
 }
 
 // The cached result is reused while every input is the same object (artifacts are replaced, never mutated, when they

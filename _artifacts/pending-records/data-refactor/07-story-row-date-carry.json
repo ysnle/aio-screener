@@ -1,0 +1,16 @@
+{
+  "p": {
+    "title": "시장 이야기가 이월된 행 값을 그 날 종가로 읽음",
+    "symptom": "11/2 행에 10/30 NDX·WTI 값이 이월돼 있어 '무슨 일이 있었나'가 NDX -3.0%, WTI +0.8%로 읽었다(세션 종가 기준 -4.4%, -6.6%).",
+    "root_cause": "src/domain/market/market-story.js span()이 history 행의 날짜별 값을 그대로 썼다. 행 날짜와 그 필드의 마감 세션이 다를 때 이월값이 새 관측처럼 계산됐다.",
+    "fix": "span()이 buildCloseSeries(history, field, {market: closeSessionMarket(field)})로 세션 키 종가 계열을 읽는다.",
+    "violated_rule": "종가 기준 점수 / 시점 일치(관측일과 행 날짜를 구분)",
+    "prevention": "scripts/ci-data-audit-contract-check.mjs: 행마다 직전 세션 종가(session-dated)를 실은 픽스처에서 NDX 5일 변화의 asOf·값이 세션 종가 계열과 같아야 한다(HEAD 코드는 실패).",
+    "verification": "로컬 history.json에서 NDX 5일 -4.4%, WTI -6.6%로 판정 표 5일 열과 일치."
+  },
+  "r": null,
+  "changelog": [
+    "**시장 이야기 이월값 ({P}, {VERSION}):** '무슨 일이 있었나'가 행 날짜에 이월된 값 대신 필드별 세션 종가 계열로 변화를 계산한다(11/2 NDX -3.0% → -4.4%, WTI +0.8% → -6.6%)."
+  ],
+  "note": "market-story span reads session-keyed closes"
+}

@@ -4,6 +4,7 @@
 // screener metadata. It is an AIO screener-universe measurement, not official exchange breadth.
 import { FRESHNESS_POLICY } from '../shared/freshness-policy.js';
 import { isSessionCurrent } from './market-calendar.js';
+import { historyFieldMeta } from './history-meta.js';
 
 const VALUE_KEYS = ['above5', 'above20', 'above50', 'above200', 'advanceRatio'];
 const MAX_AGE_HOURS = FRESHNESS_POLICY.factorSessionMs / 3600000;
@@ -38,7 +39,7 @@ export function breadthScopeOf(history, field = 'breadth50') {
   const rows = Array.isArray(history) ? history : [];
   for (let i = rows.length - 1; i >= 0; i -= 1) {
     if (rows[i]?.[field] == null) continue;
-    const meta = rows[i].fieldMeta?.[field] || {};
+    const meta = historyFieldMeta(rows[i], field) || {};
     const sp500 = meta.universeScope === SP500_BREADTH_SCOPE;
     return { sp500, label: sp500 ? 'S&P 500 구성 종목' : 'AIO 미국 관찰 종목', eligible: Number.isFinite(Number(meta.eligible)) ? Number(meta.eligible) : null, date: rows[i].date };
   }

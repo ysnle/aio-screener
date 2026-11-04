@@ -11,8 +11,8 @@ for (let instant = Date.parse('2025-10-01T12:00:00Z'); instant <= Date.parse('20
   const current = new Date(instant), date = current.toISOString().slice(0, 10), weekday = current.getUTCDay();
   if (weekday !== 0 && weekday !== 6 && resolveMarketCalendarSession({ market: 'US', date }).status !== 'closed') dates.push(date);
 }
-// v57.81: the Nasdaq-100 is the leadership proxy 소수 종목 주도 now needs (a missing proxy is 확인 불가, never holding).
-const history = dates.map((date, index) => ({ date, spx: 6000 + index * 6, nasdaq: 22000 + index * 20, ndx: 20000 + index * 20, vix: 14, vix3m: 17,
+// v57.81 · v59.70: SOXX is the leadership proxy 소수 종목 주도 now needs (a missing proxy is 확인 불가, never holding).
+const history = dates.map((date, index) => ({ date, spx: 6000 + index * 6, nasdaq: 22000 + index * 20, ndx: 20000 + index * 20, soxx: 250 + index * 0.4, vix: 14, vix3m: 17,
   breadth50: 65, breadth200: 68, advanceRatio: .58, tnx: 4.1, wti: 80, dxy: 100, gold: 2000 }));
 const asOf = history.at(-1).date;
 const input = { history, credit: { hyBp: 300, hyAsOf: asOf, hyDelta5Bp: -10, pcr: .9, pcrAsOf: asOf },

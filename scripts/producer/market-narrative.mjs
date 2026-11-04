@@ -2,7 +2,7 @@
 // Split out of scripts/fetch-data.mjs (pipeline redesign, 2026-10-19); fetch-data.mjs keeps the run order and re-exports
 // every name it exported before.
 import { readFile } from 'node:fs/promises';
-import { readFileSync } from 'node:fs';
+import { readFileSync, statSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { RULES } from '../../src/domain/rules/thresholds.js';
 import { SHARED_AI_MODEL, requestSharedAnalysis, resolveSharedAiConfig } from '../lib/ai-shared-analysis.mjs';
@@ -29,6 +29,7 @@ import { HIST, SCENARIO_STATE_OUT, SCENARIO_OUTCOMES_OUT, EARNINGS_CALENDAR_OUT,
 const SCREENER_OUT = `${REPO_ROOT}/public-data/screener.json`;
 import { MACRO_HISTORY_OUT, MACRO_CALENDAR_OUT } from './macro-history.mjs';
 import { readNumber } from '../../src/domain/shared/number.js';
+import { readHistoryRows as expandHistoryRows } from '../../src/domain/market/history-rows.js';
 
 // v57.81: plain Korean values with their session ("10/14 종가"), never "SPX=… (ISO)"; the last verified reading rides along
 // as `lastVerified` so the next run can still keep it (retainVerifiedMarketAnalysis).
@@ -53,6 +54,19 @@ export function marketAnalysisRegimeInput(data, history = [], macroHistory = rea
   return regimeInputFromArtifacts(data, history, macroHistory); // owner 2026-10-19: moved to scripts/lib/market-interpretation-inputs.mjs
 }
 
+// v59.70 (R8): the screener (several MB), theme maps and consensus are read once per file version, not on every call.
+const FILE_MEMO = new Map();
+function readJsonOnce(file, load = () => JSON.parse(readFileSync(file, 'utf8'))) {
+  let version = null;
+  try { version = statSync(file).mtimeMs; } catch (_) { return null; }
+  const held = FILE_MEMO.get(file);
+  if (held && held.version === version) return held.value;
+  let value = null;
+  try { value = load(); } catch (_) {}
+  FILE_MEMO.set(file, { version, value });
+  return value;
+}
+
 export function buildMarketAnalysisRegimeContext(data, history = []) {
   try {
     // Owner 2026-10-19: one shared interpretation (scripts/lib/market-interpretation-inputs.mjs), the same stages the
@@ -60,14 +74,17 @@ export function buildMarketAnalysisRegimeContext(data, history = []) {
     const input = marketAnalysisRegimeInput(data, history);
     const readJson = (file) => { try { return JSON.parse(readFileSync(file, 'utf8')); } catch (_) { return null; } };
     const state = readJson(SCENARIO_STATE_OUT);
-    const interpretation = interpretationFromArtifacts({ data, history, macroHistory: input.macroHistory, calendar: readJson(MACRO_CALENDAR_OUT), outcomes: readJson(SCENARIO_OUTCOMES_OUT), previous: state, nowMs: input.now });
+    // v59.70 (R8): the same screener (S&P 500 breadth, index weights, theme stages) and consensus inputs as the screens.
+    const interpretation = interpretationFromArtifacts({ data, history, macroHistory: input.macroHistory, calendar: readJson(MACRO_CALENDAR_OUT), outcomes: readJson(SCENARIO_OUTCOMES_OUT), previous: state,
+      screener: readJsonOnce(SCREENER_OUT), themeMaps: readJsonOnce(`${REPO_ROOT}/js/aio-pages.js`, () => loadThemeMaps(REPO_ROOT)),
+      consensus: readJsonOnce(`${REPO_ROOT}/public-data/consensus-estimates.json`), nowMs: input.now });
     const { regime, scenarios, outlook } = interpretation;
     if (!regime?.available) return '';
     const axes = (regime.axes || []).map((axis) => `${axis.label || axis.id}: ${axis.state}${axis.read ? ` — ${axis.read}` : ''}`).join('\n');
-    // v57.81 (owner 2026-10-15): the trend state with the Nasdaq-100 / Russell 2000 evidence rows and the leadership-break
+    // v57.81 (owner 2026-10-15): the trend state with the SOXX (v59.70 proxy) / Russell 2000 evidence rows and the leadership-break
     // flag travel as their own lines, so the narrative cannot call the trend 양호 or say semis lead while the flag is on.
     const trend = (regime.axes || []).find((axis) => axis.id === 'trend');
-    const trendLine = trend ? `추세 판정: ${trend.stateLabel || trend.state}${trend.testing ? ' (50일선 시험 구간)' : ''}${trend.capped ? ' (나스닥 100·러셀 2000 동반 약세로 중립 상한)' : ''} · 근거: ${(trend.evidence || []).map(([label, value]) => `${label} ${value}`).join('; ')}` : '';
+    const trendLine = trend ? `추세 판정: ${trend.stateLabel || trend.state}${trend.testing ? ' (50일선 시험 구간)' : ''}${trend.capped ? ' (SOXX·러셀 2000 동반 약세로 중립 상한)' : ''} · 근거: ${(trend.evidence || []).map(([label, value]) => `${label} ${value}`).join('; ')}` : '';
     const leadership = regime.leadership;
     const leadershipLine = leadership?.break ? `주도 영역 이탈(leadershipBreak): 예 — ${leadership.summary}. 반도체·AI가 지금도 주도한다고 쓰지 말고, 최근 하락을 함께 적을 것.`
       // v57.83: leaders weak without market-wide confirmation is not "아니오" — the narrative must not say they still lead.
@@ -76,8 +93,8 @@ export function buildMarketAnalysisRegimeContext(data, history = []) {
     const conflicts = (regime.conflicts || []).length ? `엇갈리는 신호: ${regime.conflicts.join(' ')}` : '';
     // Owner 2026-10-18: the semiconductor drawdown travels on its own line so the day's tension is weighed against oil and
     // rates by the size of the move, not by how many headlines a topic got.
-    const smhRow = (trend?.evidence || []).find(([label]) => label === '반도체 (SMH)');
-    const semisLine = smhRow ? `반도체·AI 주도주: SMH ${smhRow[1]} — 오늘의 긴장을 고를 때 이 하락폭을 유가·금리 변화와 같은 기준(움직임의 크기와 판정 변화)으로 비교할 것.` : '';
+    const semisRow = (trend?.evidence || []).find(([label]) => label === '반도체 (SOXX)');
+    const semisLine = semisRow ? `반도체·AI 주도주: SOXX ${semisRow[1]} — 오늘의 긴장을 고를 때 이 하락폭을 유가·금리 변화와 같은 기준(움직임의 크기와 판정 변화)으로 비교할 것.` : '';
     // v57.81: the validator rejects a Korea-vs-US sentence without both session dates when they differ; the packet says so.
     const krDate = buildCloseSeries(input.history, 'kospi').at(-1)?.date || null;
     const sessions = krDate && regime.asOf && krDate !== regime.asOf ? `세션 기준일: 미국 ${regime.asOf.slice(5).replace('-', '/').replace(/^0/, '').replace('/0', '/')} · 한국 ${krDate.slice(5).replace('-', '/').replace(/^0/, '').replace('/0', '/')} — 두 시장을 한 문장에서 함께 말하면 두 날짜(M/D)를 모두 적을 것.` : '';
@@ -120,7 +137,7 @@ export function priorSessionMoveLines(history = []) {
   const lines = [];
   // WTI too (10/16 audit): its in-session row is dropped from METRIC_EVIDENCE, so a +3% oil close never reached the prompt.
   // v58.68 (owner 2026-10-23, US first): the 10/22 reading opened with KOSPI and never named the Nasdaq 100 or the
-  // semiconductor drop. The US lines come first, the Nasdaq 100 and SMH join at the leadership 급락일 edges, and a US
+  // semiconductor drop. The US lines come first, the Nasdaq 100 and SOXX join at the leadership 급락일 edges, and a US
   // one-session change is written only across consecutive sessions (a missing 10/21 row made 10/20→10/22 look like a day).
   const L = RULES.leadership;
   // v58.71 (pipeline audit): KOSPI is checked on the KRX calendar and WTI on the US one (CME follows US holidays), and a
@@ -129,7 +146,7 @@ export function priorSessionMoveLines(history = []) {
   // until the bar rolls, so the 08:00 KST reading opened with "WTI 10/23 종가 +3.82%" while oil had settled -1.46% on 10/26.
   // A US line whose last close is older than the latest S&P 500 close is not the 직전 완료 세션 and is left out.
   const usLatest = buildCloseSeries(history, 'spx').filter((point) => Number(point?.value) > 0).at(-1)?.date || null;
-  for (const [field, label, edge, market] of [['spx', 'S&P 500', PRIOR_SESSION_MOVE_1D_PCT, 'US'], ['ndx', '나스닥 100', L.shockNdx1dPct, 'US'], ['smh', '반도체(SMH)', L.shockSemis1dPct, 'US'], ['kospi', '코스피', PRIOR_SESSION_MOVE_1D_PCT, 'KR'], ['wti', 'WTI', PRIOR_SESSION_MOVE_1D_PCT, 'US']]) {
+  for (const [field, label, edge, market] of [['spx', 'S&P 500', PRIOR_SESSION_MOVE_1D_PCT, 'US'], ['ndx', '나스닥 100', L.shockNdx1dPct, 'US'], ['soxx', '반도체(SOXX)', L.shockSemis1dPct, 'US'], ['kospi', '코스피', PRIOR_SESSION_MOVE_1D_PCT, 'KR'], ['wti', 'WTI', PRIOR_SESSION_MOVE_1D_PCT, 'US']]) {
     const series = buildCloseSeries(history, field).filter((point) => Number(point?.value) > 0);
     if (series.length < 2) continue;
     const last = series.at(-1), prior = series.at(-2), back5 = series.length >= 6 ? series.at(-6) : null;
@@ -237,8 +254,7 @@ export function scenarioStateThemeLines(state) {
 
 async function readHistoryRows() {
   try {
-    const parsed = JSON.parse(await readFile(HIST, 'utf8'));
-    return Array.isArray(parsed) ? parsed : Array.isArray(parsed?.rows) ? parsed.rows : Array.isArray(parsed?.history) ? parsed.history : [];
+    return expandHistoryRows(JSON.parse(await readFile(HIST, 'utf8'))); // v59.70 R2
   } catch (_) { return []; }
 }
 

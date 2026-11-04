@@ -19,10 +19,12 @@ const DAY_MS = 86400000;
 // v58.64 (DOMAIN #8): the close series lives in domain/market/close-series.js; these names stay exported from here.
 import { finite, closeSessionMarket, isCloseSessionDate, buildCloseSeries, closeBasis, alignInput, isUsable, alignmentLabel, sessionPointBack, RECORD_FULL_YEAR, recordPercentile } from '../market/close-series.js';
 import { buildLeadershipVerdict } from '../market/leadership-verdict.js';
+import { MARKET_WINDOWS } from '../market/market-windows.js';
 import { signedText } from '../shared/number.js';
 import { withSubjectParticle } from '../content/korean-particle.js';
 import { breadthScopeOf } from '../market/screener-breadth.js';
 import { isIsoDay } from '../shared/session-date.js';
+import { computeCompositeFearGreed } from '../sentiment/composite-fear-greed.js';
 import { fearGreedBand } from '../sentiment/metrics.js'; // v58.69: F&G 20 is 극단 공포 (CNN bands), not 공포
 export { closeSessionMarket, isCloseSessionDate, buildCloseSeries, closeBasis, alignInput, isUsable, alignmentLabel, sessionPointBack, RECORD_FULL_YEAR, recordPercentile };
 
@@ -94,13 +96,15 @@ export function movingAverageStructure(stat) {
 
 const SERIES_FIELDS = ['spx', 'nasdaq', 'ndx', 'rut', 'smh', 'vix', 'vix3m', 'tnx', 'dxy', 'wti', 'gold', 'kospi', 'usdkrw', 'usdjpy', 'breadth50', 'breadth20', 'breadth200', 'advanceRatio',
   // P1416: leadership and index-confirmation evidence (src/domain/market/breadth-signals.js).
-  'breadth40', 'breadthNewHighs', 'breadthNewLows', 'breadthUp4', 'breadthDown4', 'distributionDays'];
+  'breadth40', 'breadthNewHighs', 'breadthNewLows', 'breadthUp4', 'breadthDown4', 'distributionDays',
+  // v59.70 (owner 11/4): SOXX, the leadership proxy, and the equal-weight S&P 500 of the AI·반도체 집중 row.
+  'soxx', 'rsp'];
 
 /**
  * The input contract shared by the briefing read, the regime board and the sentiment board.
  * @param {object} input
  * @param {Array} input.history  public-data/history.json rows
- * @param {object} [input.credit] { hyBp, hyDelta5Bp, hyAsOf, pcr, pcrAsOf, fg, fgAsOf }
+ * @param {object} [input.credit] { hyBp, hyDelta5Bp, hyAsOf, fg, fgAsOf }
  * @param {object} [input.rates] FRED one-week changes in percent plus asOf
  */
 // P1651: a Korean index close belongs to its own KRX session (P1628). Capping it at the US basis showed the 10/8 KOSPI
@@ -363,14 +367,15 @@ export function creditDispersion(macroHistory, through = null) {
 }
 
 // v57.50 C01/C02/D01: one credit judgement for every surface (market-state axis, briefing, scenarios, sentiment).
-// 'favorable' = low level, not widening over 5 days or 20 sessions, no heavy hedging; 'burden' = stress level or a
+// 'favorable' = low level, not widening over 5 days or 20 sessions; 'burden' = stress level or a
 // fast 5-day widening, or (v57.81) a 20-session widening in the top of its own record (hy20Stress, with hysteresis);
 // everything else is 'neutral'. Callers must not re-derive "calm" from the level alone.
-export function creditState({ hyBp = null, hy5 = null, hy20 = null, pcr = null, hy20Stress = false } = {}) {
+// v59.70 (owner 11/4): the Cboe put/call condition is gone with its source (Cboe terms forbid storing it).
+export function creditState({ hyBp = null, hy5 = null, hy20 = null, hy20Stress = false } = {}) {
   if (finite(hyBp) == null) return 'unknown';
   if (hyBp >= RULES.credit.stressAtBp || (hy5 != null && hy5 >= RULES.credit.widen5dBp) || hy20Stress) return 'burden';
   const widening20 = hy20 != null && hy20 >= RULES.credit.widen20dBp;
-  if (hyBp < RULES.credit.tightBelowBp && hy5 != null && hy5 <= RULES.credit.calm5dBp && !widening20 /* v57.84: 0 sat inside the 5-day noise (IQR -6~+6bp) */ && (pcr == null || pcr < RULES.credit.putCallHedgeAt)) return 'favorable';
+  if (hyBp < RULES.credit.tightBelowBp && hy5 != null && hy5 <= RULES.credit.calm5dBp && !widening20 /* v57.84: 0 sat inside the 5-day noise (IQR -6~+6bp) */) return 'favorable';
   return 'neutral';
 }
 
@@ -455,7 +460,8 @@ export function alignMarketInputs({ history = [], credit = {}, rates = {}, now =
   const fgLast = fgSeries[fgSeries.length - 1] || null;
   alignments.fg = fgLast ? alignInput(fgLast.date, basis) : alignInput(credit.fgAsOf, basis);
   alignments.hy = alignInput(credit.hyAsOf, basis);
-  alignments.pcr = alignInput(credit.pcrAsOf, basis);
+  // v59.70: an empty alignment until ui-states removes the 풋/콜 card (sentiment-board.js reads .status); delete at integration.
+  alignments.pcr = alignInput(null, basis);
   alignments.rates = alignInput(rates.asOf, basis);
   const take = (value, alignment) => finite(value) != null && isUsable(alignment) ? finite(value) : null;
   const hy20 = finite(credit.hyDelta20Bp) != null ? { value: finite(credit.hyDelta20Bp), date: credit.hyAsOf } : hyDelta20Bp(macroHistory, basis);
@@ -466,7 +472,6 @@ export function alignMarketInputs({ history = [], credit = {}, rates = {}, now =
     hy20: hy20 && isUsable(alignInput(hy20.date, basis)) ? hy20.value : null,
     // v57.81: the 20-session widening against its own record (hysteresis); without a record only the 2 x line enters.
     hy20Record: hyRecord && isUsable(alignInput(hyRecord.date, basis)) ? hyRecord : null,
-    pcr: take(credit.pcr, alignments.pcr),
     fg: isUsable(alignments.fg) ? (fgLast ? fgLast.value : finite(credit.fg)) : null
   };
   // v57.81: 20-session stress needs the current change at the widen20dBp line and either the latched record state or,
@@ -502,7 +507,7 @@ export function buildMarketRead(input = {}) {
   const { basis, s, c, r } = alignMarketInputs(input);
   const spx = s.spx;
   if (!spx) return { available: false, reason: 'history-missing', statements: [], drivers: [] };
-  const { hyBp, pcr, fg } = c;
+  const { hyBp, fg } = c;
   const statements = [];
   const B = RULES.briefing;
   // text = what the numbers show; reading = the interpretation, worded as a hypothesis.
@@ -517,7 +522,7 @@ export function buildMarketRead(input = {}) {
   const tnx20 = tnx ? bp(tnx.value, tnx.d20) : null;
   const real5 = r.realYield10Delta5 == null ? null : r.realYield10Delta5 * 100;
   const bei5 = r.breakeven10Delta5 == null ? null : r.breakeven10Delta5 * 100;
-  // Owner 2026-10-18: the briefing reads the same leadership test as 시장 상태 — the week the Nasdaq-100 and semiconductors
+  // Owner 2026-10-18: the briefing reads the same leadership test as 시장 상태 — the week the leaders and semiconductors
   // broke, the briefing led with F&G and VIX and called one day's new-high count broadening.
   const leaders = leadershipBreakOf(s, basis, input.history);
 
@@ -627,17 +632,17 @@ export function buildMarketRead(input = {}) {
   // C25: this series is the Nasdaq Composite; the home KPI cell is the Nasdaq-100 — each names its own index.
   if (ndx20 != null && spx20 != null && Math.abs(ndx20 - spx20) >= B.techGap20dPp) add(ndx20 > spx20 ? 'tech-leads' : 'tech-lags', 50, `나스닥 종합 20일 ${signed(ndx20)}${win20(s.nasdaq) === win20(spx) ? '' : win20(s.nasdaq)}, S&P 500 ${signed(spx20)}${win20(spx)} — ${ndx20 > spx20 ? '기술주가 상승을 주도합니다' : '기술주가 시장보다 약합니다'}.`, 'index');
   if (leaders.break || leaders.state === 'weak') {
-    const smh = s.smh, smh5 = smh ? pct(smh.value, smh.d5) : null, smhHigh = smh?.yearMax ? pct(smh.value, smh.yearMax) : null;
+    const soxx = leaders.proxyStat, soxxHigh = leaders.offHigh;
     const n = leaders.confirmations.length;
     // v59.56 (screen review, 10/30): the 5-session figures hid the last session's larger fall (S&P 500 -1.8% that day,
     // -0.6% over 5). When one session moved the index more than the whole five did, that session leads the sentence.
     const spx1 = pct(spx.value, spx.d1), ndx1 = s.ndx ? pct(s.ndx.value, s.ndx.d1) : null;
     const dayLead = spx1 != null && Math.abs(spx1) >= B.derisk1dPct && (spx5 == null || Math.abs(spx1) > Math.abs(spx5))
       ? `${shortDate(spx.date)} 하루 S&P 500 ${signed(spx1)}${ndx1 != null ? `, 나스닥 100 ${signed(ndx1)}` : ''}. ` : '';
-    add('leadership-break', leaders.break ? 86 : 72, `${dayLead}5거래일 기준 나스닥 100 ${signed(leaders.drop5)}${smh5 != null ? `, 반도체(SMH) ${signed(smh5)}${smhHigh != null ? `(1년 고점 대비 ${signed(smhHigh)})` : ''}` : ''}, S&P 500 ${signed(spx5)}.`, 'index', {
-      reading: leaders.break ? `AI·반도체 주도 영역이 꺾였고 시장 전반의 확인 신호도 ${n}개 중 ${leaders.met}개가 겹쳐, 주도주 조정이 지금 시장의 중심 변수입니다.${Number.isFinite(leaders.ndx?.ma50 ?? s.ndx?.ma50) ? ` 나스닥 100이 50일선(${fmt(leaders.ndx?.ma50 ?? s.ndx?.ma50, 0)})을 되찾고 5거래일 낙폭이 ${RULES.trend.leaderDrop5dPct}% 안이면 이 판단은 풀립니다.` : ''}`
+    add('leadership-break', leaders.break ? 86 : 72, `${dayLead}5거래일 기준 SOXX ${signed(leaders.drop5)}${soxxHigh != null ? `(1년 고점 대비 ${signed(soxxHigh)})` : ''}, S&P 500 ${signed(spx5)}.`, 'index', {
+      reading: leaders.break ? `AI·반도체 주도 영역이 꺾였고 시장 전반의 확인 신호도 ${n}개 중 ${leaders.met}개가 겹쳐, 주도주 조정이 지금 시장의 중심 변수입니다.${Number.isFinite(soxx?.ma50) ? ` SOXX가 50일선(${fmt(soxx.ma50, 0)})을 되찾고 5거래일 낙폭이 ${RULES.leadership.proxyDrop5dPct}% 안이면 이 판단은 풀립니다.` : ''}`
         : `AI·반도체 주도 영역이 약해졌지만 시장 전반의 확인 신호는 ${n}개 중 ${leaders.met}개라 아직 동반 약세로 번지지 않았습니다.`,
-      check: `${smh ? '나스닥 100과 SMH가' : '나스닥 100이'} 50일선(나스닥 100 ${fmt(leaders.ndx?.ma50 ?? s.ndx?.ma50, 0)}${smh?.ma50 != null ? `, SMH ${fmt(smh.ma50, 0)}` : ''})을 되찾는지` });
+      check: `SOXX가 50일선(${fmt(soxx?.ma50, 0)})을 되찾는지` });
   }
   const bottom = bottomWatchOf({ s, c, input, basis });
   if (bottom && (bottom.exhaustionMet >= 2 || bottom.confirmationMet >= 2)) add('bottom-watch', 64, bottom.text, 'risk');
@@ -687,7 +692,7 @@ export function buildMarketRead(input = {}) {
     add('fear-without-credit-stress', 80, `공포·탐욕 ${fmt(fg, 0)}(${fearGreedBand(fg).label})인데 하이일드 스프레드 ${fmt(hyBp, 0)}bp·VIX ${fmt(vix.value)}는 경계선 아래입니다${hyWeek != null ? ` (하이일드 5일 ${signed(hyWeek, 0, 'bp')}${c.hy20 != null ? `, 20거래일 ${signed(c.hy20, 0, 'bp')}` : ''})` : ''}.`, 'risk', {
       reading: widening || widening20
         ? `아직 ${RULES.credit.tightBelowBp}bp 아래지만 ${widening ? `5일 ${signed(hyWeek, 0, 'bp')}` : `20거래일 ${signed(c.hy20, 0, 'bp')}`} 확대됐습니다 — 공포가 신용으로 번지지 않았다고 말하려면 확대가 멈추는지 확인이 필요합니다.`
-        : creditState({ hyBp, hy5: hyWeek, hy20: c.hy20, pcr: c.pcr, hy20Stress: c.hy20Stress }) === 'favorable' ? '공포가 아직 신용 시장으로 번지지 않았습니다.' : `아직 ${RULES.credit.tightBelowBp}bp 아래지만 5일 변화가 줄지 않아 신용 판정이 양호는 아닙니다 — 번지는지 확인할 단계입니다.`, /* v57.84: 'not spread' only when the shared credit verdict is 양호 */
+        : creditState({ hyBp, hy5: hyWeek, hy20: c.hy20, hy20Stress: c.hy20Stress }) === 'favorable' ? '공포가 아직 신용 시장으로 번지지 않았습니다.' : `아직 ${RULES.credit.tightBelowBp}bp 아래지만 5일 변화가 줄지 않아 신용 판정이 양호는 아닙니다 — 번지는지 확인할 단계입니다.`, /* v57.84: 'not spread' only when the shared credit verdict is 양호 */
       check: `하이일드 스프레드가 ${RULES.credit.tightBelowBp}bp 위로 올라서는지(현재 ${fmt(hyBp, 0)}bp, 올라서면 양호 조건 상실), 5일 확대가 멈추는지(현재 ${hyWeek == null ? '—' : signed(hyWeek, 0, 'bp')})`
     });
   } else if (fg != null && fg > RULES.fearGreed.extremeGreedAbove && vix && vix.value < RULES.volatility.complacentBelow) {
@@ -781,13 +786,13 @@ export function buildMarketRead(input = {}) {
     { id: 'index', title: '지수, 시장 폭', values: [['S&P 500', level('S&P 500', spx)], ['나스닥 종합', level('나스닥 종합', s.nasdaq)], ['50일선 위 종목', b50 == null ? null : `${fmt(b50, 0)}%`]], context: ma(spx, 'S&P 500'), reads: restFor('index') },
     { id: 'rates', title: '금리, 달러', values: [['미 10년물', level('미 10년물', tnx, 2, '%')], ['달러 지수', level('달러 지수', s.dxy)]], context: null, reads: restFor('rates') },
     { id: 'commodities', title: '원자재', values: [['WTI', level('WTI', s.wti)], ['금', level('금', s.gold, 0)]], context: null, reads: restFor('commodities') },
-    { id: 'risk', title: '변동성, 위험선호', values: [['VIX', vix ? `${fmt(vix.value)} (5일 ${signed(vix5, 0)})` : null], ['하이일드 스프레드', hyBp == null ? null : `${fmt(hyBp, 0)}bp`], ['풋/콜', pcr == null ? null : fmt(pcr)], ['F&G', fg == null ? null : fmt(fg, 0)]], context: null, reads: restFor('risk') },
+    { id: 'risk', title: '변동성, 위험선호', values: [['VIX', vix ? `${fmt(vix.value)} (5일 ${signed(vix5, 0)})` : null], ['하이일드 스프레드', hyBp == null ? null : `${fmt(hyBp, 0)}bp`], ['F&G', fg == null ? null : fmt(fg, 0)]], context: null, reads: restFor('risk') },
     { id: 'korea', title: '한국', values: [['코스피', level('코스피', s.kospi)], ['원/달러', level('원/달러', s.usdkrw, 1)]], context: null, reads: restFor('korea') }
   ].map((row) => ({ ...row, values: row.values.filter(([, value]) => value) }));
   const headline = statements[0] || null;
   // P1602: archive values and provenance come from the same filtered observations as the screen.
   const factFields = { 'S&P 500': 'spx', '나스닥 종합': 'nasdaq', '미 10년물': 'tnx', '달러 지수': 'dxy', 'WTI': 'wti', '금': 'gold', '코스피': 'kospi', '원/달러': 'usdkrw', '50일선 위 종목': 'breadth50', VIX: 'vix', 'F&G': 'fg' };
-  const creditFields = { '하이일드 스프레드': 'hy', '풋/콜': 'pcr', 'F&G': 'fg' };
+  const creditFields = { '하이일드 스프레드': 'hy', 'F&G': 'fg' };
   const facts = drivers.flatMap((driver) => driver.values.map(([label, value]) => {
     const field = factFields[label];
     const point = field ? buildCloseSeries(input.history, field, { through: KR_SESSION_FIELDS.has(field) ? (krSessionThrough(input.now ?? Date.now()) || basis) : basis, includeProvenance: true }).at(-1) : null;
@@ -819,9 +824,9 @@ export function buildMarketRead(input = {}) {
 const STATE_LABELS = Object.freeze({ favorable: '양호', neutral: '중립', burden: '부담', unknown: '확인 불가' });
 export const MIN_KNOWN_AXES = 4; // of the six US axes, before an overall label is shown
 
-// v57.81 (owner 2026-10-15): "소수 종목 주도" assumed the leaders were still holding. The leadership proxy is the
-// Nasdaq-100 (the history has no semiconductor series). A break needs the proxy weakening (5-session drop of
-// RULES.trend.leaderDrop5dPct or a close under its 50-day line) AND at least RULES.leadership.minConfirmations market-wide
+// v57.81 (owner 2026-10-15): "소수 종목 주도" assumed the leaders were still holding. v59.70 (owner 11/4): the leadership
+// proxy is SOXX (it was the Nasdaq-100). A break needs the proxy weakening (5-session drop of
+// RULES.leadership.proxyDrop5dPct or a close RULES.leadership.proxyBufferPct under its 50-day line) AND at least RULES.leadership.minConfirmations market-wide
 // confirmations; the session counts (new highs/lows, advancers, distribution days) count only on the basis close.
 // state: 'break' | 'weak' | 'holding' | 'unknown' (missing inputs could still decide it — never read as holding).
 // v57.83 crash replay (owner 2026-10-16: "지수는 덜 빠져도 AI·반도체는 많이 빠졌다"): on 2026-07-28 the Nasdaq-100 was 9.5%
@@ -832,10 +837,10 @@ export const MIN_KNOWN_AXES = 4; // of the six US axes, before an overall label 
 // v57.94 (owner 2026-10-17, July 2026 replay): the confirmations are single-session counts, so the state flickered
 // 7/23 이탈 → 7/24~28 약세 → 7/29 이탈 while the Nasdaq-100 kept falling. With the history, a confirmation counts when it
 // held on any of the last RULES.leadership.confirmWindowSessions sessions, and a break holds while the proxy stays weak
-// (hysteresis, R707); without the history (fixtures) the reading is the single session's. SMH stays reference-only — as a
-// proxy it read 이탈 through the +8% rebound week of 8/5~8/10.
+// (hysteresis, R707); without the history (fixtures) the reading is the single session's. An SMH proxy on the Nasdaq-100's
+// 3% / 1% edges read 이탈 through the +8% rebound week of 8/5~8/10; SOXX uses its own volatility-scaled edges (RULES).
 // Owner 2026-10-18: 바닥 확인 조건 — exhaustion (extreme fear, volatility capitulation, new lows shrinking after an
-// extreme, short-term participation rebounding) and confirmation (the Nasdaq-100 and semiconductors back over their
+// extreme, short-term participation rebounding) and confirmation (the Nasdaq-100 and SOXX back over their
 // 50-day lines, an up-thrust session, credit widening paused). Each item is null when its input is missing.
 export function bottomWatchOf({ s = {}, c = {}, input = {}, basis = null } = {}) {
   const W = RULES.bottomWatch, V = RULES.volatility;
@@ -864,7 +869,7 @@ export function bottomWatchOf({ s = {}, c = {}, input = {}, basis = null } = {})
   ];
   const confirmation = [
     item('나스닥 100이 50일선 위', above50(on(s.ndx)), s.ndx?.ma50 != null ? `나스닥 100 50일선 ${signed(pct(s.ndx.value, s.ndx.ma50))}` : null),
-    item('반도체(SMH)가 50일선 위', above50(on(s.smh)), s.smh?.ma50 != null ? `SMH 50일선 ${signed(pct(s.smh.value, s.smh.ma50))}` : null),
+    item('SOXX가 50일선 위', above50(on(s.soxx)), s.soxx?.ma50 != null ? `SOXX 50일선 ${signed(pct(s.soxx.value, s.soxx.ma50))}` : null),
     item(`마감일 거래량 늘며 4% 이상 오른 종목이 내린 종목의 ${W.thrustRatio}배 이상`, up4 && down4 ? up4.value > 0 && up4.value >= down4.value * W.thrustRatio : null, up4 && down4 ? `4% 상승 ${fmt(up4.value, 0)} / 하락 ${fmt(down4.value, 0)}` : null),
     item('하이일드 스프레드 5일 확대 멈춤', c.hy5 == null ? null : c.hy5 <= 0, c.hy5 == null ? null : `하이일드 5일 ${signed(c.hy5, 0, 'bp')}`)
   ];
@@ -888,13 +893,13 @@ export function bottomWatchOf({ s = {}, c = {}, input = {}, basis = null } = {})
 
 function leadershipSessionOf(s = {}, basis = null) {
   const rule = RULES.leadership;
-  const ndx = s?.ndx;
-  if (!ndx || ndx.ma50 == null) return null;
+  const proxy = s?.soxx;
+  if (!proxy || proxy.ma50 == null) return null;
   const onBasis = (stat) => stat && (!basis || stat.date === basis) ? stat : null;
-  const drop5 = pct(ndx.value, ndx.d5);
-  const belowMa50 = ndx.value < ndx.ma50 * (1 - RULES.trend.bufferPct / 100);
-  const offHigh = ndx.yearMax ? pct(ndx.value, ndx.yearMax) : null;
-  const proxyWeak = (drop5 != null && drop5 <= -RULES.trend.leaderDrop5dPct) || belowMa50;
+  const drop5 = pct(proxy.value, proxy.d5);
+  const belowMa50 = proxy.value < proxy.ma50 * (1 - rule.proxyBufferPct / 100);
+  const offHigh = proxy.yearMax ? pct(proxy.value, proxy.yearMax) : null;
+  const proxyWeak = (drop5 != null && drop5 <= -rule.proxyDrop5dPct) || belowMa50;
   const highs = onBasis(s.breadthNewHighs), lows = onBasis(s.breadthNewLows), adv = onBasis(s.advanceRatio), dist = onBasis(s.distributionDays), rut = s.rut;
   const advRatio = adv ? (adv.value > 1 ? adv.value / 100 : adv.value) : null;
   const confirmations = [
@@ -903,15 +908,15 @@ function leadershipSessionOf(s = {}, basis = null) {
     { id: 'distribution', label: `S&P 500 분배일 ${rule.distributionDaysAt}회 이상`, ok: dist ? dist.value >= rule.distributionDaysAt : null, value: dist ? `S&P 500 분배일 ${fmt(dist.value, 0)}회` : null, count: dist ? dist.value : null },
     { id: 'smallcaps', label: '러셀 2000이 200일선 아래', ok: rut?.ma200 != null ? rut.value < rut.ma200 : null, value: rut?.ma200 != null ? `러셀 2000 200일선 대비 ${signed(pct(rut.value, rut.ma200))}` : null }
   ];
-  return { date: ndx.date, ndx, drop5, belowMa50, offHigh, proxyWeak, confirmations };
+  return { date: proxy.date, proxyStat: proxy, drop5, belowMa50, offHigh, proxyWeak, confirmations };
 }
 
 // Sessions before `through`, oldest first: the run of weak-proxy sessions just before it plus the window ahead of that run.
-const LEADERSHIP_FIELDS = Object.freeze(['ndx', 'rut', 'breadthNewHighs', 'breadthNewLows', 'advanceRatio', 'distributionDays']);
+const LEADERSHIP_FIELDS = Object.freeze(['soxx', 'rut', 'breadthNewHighs', 'breadthNewLows', 'advanceRatio', 'distributionDays']);
 const LEADERSHIP_HOLD_MAX_SESSIONS = 260;
 function leadershipPriorSessions(history, through, { window, run }) {
   const series = Object.fromEntries(LEADERSHIP_FIELDS.map((field) => [field, buildCloseSeries(history, field, { through })]));
-  const dates = series.ndx.map((point) => point.date).filter((date) => date < through);
+  const dates = series.soxx.map((point) => point.date).filter((date) => date < through);
   const readingOn = (date) => {
     const at = {};
     for (const field of LEADERSHIP_FIELDS) {
@@ -969,7 +974,7 @@ function windowedConfirmations(seq, k, window) {
 export function leadershipBreakOf(s = {}, basis = null, history = null) {
   const rule = RULES.leadership;
   const today = leadershipSessionOf(s, basis);
-  if (!today) return { available: false, break: false, state: 'unknown', proxy: 'ndx', proxyLabel: '나스닥 100', proxyWeak: null, drop5: null, belowMa50: null, confirmations: [], met: 0, known: 0, need: rule.minConfirmations };
+  if (!today) return { available: false, break: false, state: 'unknown', proxy: 'soxx', proxyLabel: 'SOXX', proxyWeak: null, drop5: null, belowMa50: null, confirmations: [], met: 0, known: 0, need: rule.minConfirmations };
   const window = Array.isArray(history) && history.length ? rule.confirmWindowSessions : 1;
   const seq = [...(window > 1 ? leadershipPriorSessions(history, today.date, { window, run: today.proxyWeak }) : []), today];
   let heldSince = null, confirmations = today.confirmations;
@@ -978,19 +983,19 @@ export function leadershipBreakOf(s = {}, basis = null, history = null) {
     if (!seq[k].proxyWeak) { heldSince = null; continue; }
     if (!heldSince && confirmations.filter((item) => item.ok === true).length >= rule.minConfirmations) heldSince = seq[k].date;
   }
-  const { proxyWeak, drop5, belowMa50, offHigh, ndx } = today;
+  const { proxyWeak, drop5, belowMa50, offHigh, proxyStat } = today;
   const met = confirmations.filter((item) => item.ok === true).length;
   const known = confirmations.filter((item) => item.ok != null).length;
   const broken = proxyWeak && heldSince != null;
   const held = broken && met < rule.minConfirmations;
   const undecided = proxyWeak && !broken && met + (confirmations.length - known) >= rule.minConfirmations;
-  const proxyText = `나스닥 100 5거래일 ${signed(drop5)}${belowMa50 ? `, 50일선 대비 ${signed(pct(ndx.value, ndx.ma50))}` : ''}${proxyWeak && offHigh != null ? `, 1년 고점 대비 ${signed(offHigh)}` : ''}`;
+  const proxyText = `SOXX 5거래일 ${signed(drop5)}${belowMa50 ? `, 50일선 대비 ${signed(pct(proxyStat.value, proxyStat.ma50))}` : ''}${proxyWeak && offHigh != null ? `, 1년 고점 대비 ${signed(offHigh)}` : ''}`;
   // v58.74 (audit): a confirmation held earlier in the window says so — "S&P 500 분배일 6일(10/19)" read as a second current count beside 5.
   // v59.56: no parenthesis here — the summary itself is quoted inside one ("…-0.5%(10/26 기록, 최근 5거래일 안))").
   const seenText = (item) => item.date && item.date !== today.date ? `${item.value} ${shortDate(item.date)} 기록·최근 ${rule.confirmWindowSessions ?? 5}거래일 안` : item.value;
-  return { available: true, break: broken, state: broken ? 'break' : undecided ? 'unknown' : proxyWeak ? 'weak' : 'holding', proxy: 'ndx', proxyLabel: '나스닥 100',
+  return { available: true, break: broken, state: broken ? 'break' : undecided ? 'unknown' : proxyWeak ? 'weak' : 'holding', proxy: 'soxx', proxyLabel: 'SOXX', proxyStat,
     proxyWeak, drop5, belowMa50, offHigh, date: today.date, confirmations, met, known, need: rule.minConfirmations, window, heldSince: broken ? heldSince : null, held,
-    summary: [proxyText, ...confirmations.filter((item) => item.ok).map(seenText), held ? `${shortDate(heldSince)} 이탈 판정 후 나스닥 100 약세 지속` : null].filter(Boolean).join(', ') };
+    summary: [proxyText, ...confirmations.filter((item) => item.ok).map(seenText), held ? `${shortDate(heldSince)} 이탈 판정 후 SOXX 약세 지속` : null].filter(Boolean).join(', ') };
 }
 
 // v57.81: one evidence line per index — level, distance to its own 50/200-day lines and to its one-year high.
@@ -1022,7 +1027,8 @@ export function buildMarketRegime(input = {}) {
   // v57.81 (owner 2026-10-15): 양호 needs the close at least RULES.trend.bufferPct above a rising 50-day line (a 0.15%
   // margin read 양호 while the leaders fell 3.9% in a week); inside ±bufferPct the index is testing the line (중립). The axis
   // stays S&P 500-based, but the Nasdaq-100 and Russell 2000 are shown beside it, and when the small caps are under their
-  // 200-day line while the Nasdaq-100 fell RULES.trend.leaderDrop5dPct in five sessions the state is capped at 중립.
+  // 200-day line while the leadership proxy (SOXX, v59.70) fell RULES.leadership.proxyDrop5dPct in five sessions the state
+  // is capped at 중립.
   const leadership = leadershipBreakOf(s, basis, input.history);
   let trendCap = null;
   {
@@ -1039,13 +1045,14 @@ export function buildMarketRegime(input = {}) {
     // plus holdAbovePct with the line rising over the 200-day line — the same hysteresis as the rates and credit axes (R707).
     // A session the leadership cap below held at 중립 ends the hold too: 10/14 (capped) → 10/15 at +0.5% must not read 양호.
     const { holdAbovePct, latchSessions } = RULES.trend;
-    const ndxSeries = buildCloseSeries(input.history, 'ndx', { through: basis });
+    const leaderDrop = RULES.leadership.proxyDrop5dPct;
+    const proxySeries = buildCloseSeries(input.history, 'soxx', { through: basis });
     const rutSeries = buildCloseSeries(input.history, 'rut', { through: basis });
     const cappedOn = (date) => {
-      const ndxAt = stats(ndxSeries.filter((point) => point.date <= date));
+      const proxyAt = stats(proxySeries.filter((point) => point.date <= date));
       const rutAt = stats(rutSeries.filter((point) => point.date <= date));
-      const drop = ndxAt?.date === date ? pct(ndxAt.value, ndxAt.d5) : null;
-      return rutAt?.ma200 != null && rutAt.value < rutAt.ma200 && drop != null && drop <= -RULES.trend.leaderDrop5dPct;
+      const drop = proxyAt?.date === date ? pct(proxyAt.value, proxyAt.d5) : null;
+      return rutAt?.ma200 != null && rutAt.value < rutAt.ma200 && drop != null && drop <= -leaderDrop;
     };
     const daily = series.slice(-latchSessions).map((point, index, list) => {
       const upto = series.length - list.length + index + 1;
@@ -1061,10 +1068,11 @@ export function buildMarketRegime(input = {}) {
     });
     const trendLatch = latchedState(daily, (point) => point.gap != null && point.gap >= buffer && point.up && !point.capped,
       (point) => point.gap == null || point.gap < holdAbovePct || !point.up || point.capped);
-    const ndx = s.ndx, rut = s.rut;
+    const ndx = s.ndx, rut = s.rut, soxx = s.soxx;
     const ndx5 = ndx ? pct(ndx.value, ndx.d5) : null;
+    const soxx5 = soxx ? pct(soxx.value, soxx.d5) : null;
     const smallBelow200 = rut?.ma200 != null && rut.value < rut.ma200;
-    const leadersFalling = ndx5 != null && ndx5 <= -RULES.trend.leaderDrop5dPct;
+    const leadersFalling = soxx5 != null && soxx5 <= -leaderDrop;
     const latchOn = trendLatch.on && daily.at(-1)?.date === spx.date;
     // v58.55: the rule as a function of the S&P 500 close (today's lines held), so 판단이 바뀌는 조건 can ask it where the
     // state changes. `assume` forces a condition no close can change (50일선 방향 · 50/200 배열 · 주도주 cap) to hold.
@@ -1077,7 +1085,7 @@ export function buildMarketRegime(input = {}) {
       // Audit 2026-10-17 (owner D2): the 200-day line gets the same ±bufferPct band — a close 0.1% under it was 부담.
       const u200 = g200 != null && g200 <= -buffer;
       if (st !== 'favorable' && (u200 || (g50 <= -buffer && !up50))) st = 'burden';
-      // Owner 2026-10-18: S&P 500 under its 50-day line while the leadership break is confirmed (Nasdaq-100 weak plus
+      // Owner 2026-10-18: S&P 500 under its 50-day line while the leadership break is confirmed (the proxy weak plus
       // RULES.leadership.minConfirmations market-wide signals) is a weakening trend, not a test of the line — the ±bufferPct
       // band absorbs one index's noise, and the break already needs several independent confirmations.
       const lbu = st === 'neutral' && g50 != null && g50 < 0 && !!leadership.break;
@@ -1093,7 +1101,7 @@ export function buildMarketRegime(input = {}) {
     let state = today.state;
     const gap200 = pct(spx.value, spx.ma200);
     const under200 = !!today.under200, leaderBreakUnder50 = !!today.leaderBreakUnder50, trendHeld = !!today.trendHeld, capped = !!today.capped;
-    trendCap = capped ? { ndx5, rutVs200: pct(rut.value, rut.ma200), date: spx.date } : null;
+    trendCap = capped ? { soxx5, rutVs200: pct(rut.value, rut.ma200), date: spx.date } : null;
     const spxShow = (at, current) => [pct(at, current), '%', 1];
     const spxPoint = (at, name) => ({ at, subject: 'S&P 500이', mark: `${fmt(at, 0)}(${name})`, short: `${name} ${fmt(at, 0)}`, close: true, show: spxShow });
     const trendDistance = state === 'unknown' ? null : flipDistanceSearch({
@@ -1109,17 +1117,17 @@ export function buildMarketRegime(input = {}) {
       assumptions: [
         { key: 'rising', label: '50일선 상승 전환', holds: !!rising },
         { key: 'over200', label: '50일선이 200일선 위로', holds: spx.ma50 > spx.ma200 },
-        { key: 'uncapped', label: `러셀 2000 200일선 회복 또는 나스닥 100 5거래일 낙폭 ${RULES.trend.leaderDrop5dPct}% 이내`, holds: !(smallBelow200 && leadersFalling) }
+        { key: 'uncapped', label: `러셀 2000 200일선 회복 또는 SOXX 5거래일 낙폭 ${leaderDrop}% 이내`, holds: !(smallBelow200 && leadersFalling) }
       ]
     });
-    const capRead = capped ? ` 나스닥 100이 5거래일 ${signed(ndx5)} 밀렸고 러셀 2000은 200일선 아래(${signed(trendCap.rutVs200)})라, 주도 대형주와 중소형주가 함께 약해지는 중입니다 — S&P 500 하나만 보고 추세가 양호하다고 읽지 않습니다.` : '';
+    const capRead = capped ? ` SOXX가 5거래일 ${signed(soxx5)} 밀렸고 러셀 2000은 200일선 아래(${signed(trendCap.rutVs200)})라, 주도 대형주와 중소형주가 함께 약해지는 중입니다 — S&P 500 하나만 보고 추세가 양호하다고 읽지 않습니다.` : '';
     const nd20 = s.nasdaq ? pct(s.nasdaq.value, s.nasdaq.d20) : null;
     const structure = movingAverageStructure(spx);
     const horizon = structure.short && structure.long
       ? ` 단기(5·10·20일)는 ${structure.shortLabel}, 장기(20·50·100·200일)는 ${structure.longLabel}${structure.short !== structure.long ? ' — 두 기간의 방향이 달라 단기 흐름이 장기 추세로 이어지는지 확인할 구간입니다' : ''}.` : '';
     const baseRead = state === 'favorable' ? `지수가 오르는 50일선보다 ${signed(gap50)} 위에 있고 50일선이 200일선 위 — 상승 추세가 유지되고 있습니다.${trendHeld ? ` 양호 판정은 ${shortDate(trendLatch.since)}부터 이어지고 있으며, 50일선 아래로 마감하기 전까지 유지합니다.` : ''}`
       : state === 'burden' ? (under200 ? `S&P 500이 200일선보다 ${signed(gap200)} 아래 — 장기 추세가 꺾였습니다.`
-        : leaderBreakUnder50 ? `S&P 500이 50일선보다 ${fmt(Math.abs(gap50), 1)}% 아래로 마감했고, 주도 영역도 이탈(나스닥 100 5거래일 ${signed(leadership.drop5)}, 확인 ${leadership.met}/${leadership.confirmations.length})해 지수를 받치던 축이 함께 약해졌습니다 — 50일선 근처의 일시적 시험이 아니라 추세 약화로 봅니다.`
+        : leaderBreakUnder50 ? `S&P 500이 50일선보다 ${fmt(Math.abs(gap50), 1)}% 아래로 마감했고, 주도 영역도 이탈(SOXX 5거래일 ${signed(leadership.drop5)}, 확인 ${leadership.met}/${leadership.confirmations.length})해 지수를 받치던 축이 함께 약해졌습니다 — 50일선 근처의 일시적 시험이 아니라 추세 약화로 봅니다.`
           : 'S&P 500이 하락하는 50일선 아래 — 단기 추세가 약해졌습니다.')
         : state === 'unknown' ? '이동평균 계산에 필요한 종가 기록(200거래일 이상)이 부족합니다.'
           // T21: 중립 covers several shapes; each is named instead of a blanket "추세는 유지되지만".
@@ -1132,10 +1140,10 @@ export function buildMarketRegime(input = {}) {
     const read = baseRead + capRead + horizon;
     const up = spx.ma50 != null ? spx.ma50 * (1 + buffer / 100) : null;
     const down = spx.ma50 != null ? spx.ma50 * (1 - buffer / 100) : null;
-    const capFlip = capped ? ` (러셀 2000이 200일선을 되찾거나 나스닥 100의 5거래일 낙폭이 ${RULES.trend.leaderDrop5dPct}% 안으로 줄어야 함)` : '';
+    const capFlip = capped ? ` (러셀 2000이 200일선을 되찾거나 SOXX의 5거래일 낙폭이 ${leaderDrop}% 안으로 줄어야 함)` : '';
     const flip = state === 'unknown' ? null
       : state === 'favorable' ? `S&P 500이 50일선(${fmt(spx.ma50 * (1 + holdAbovePct / 100), 0)}) 아래로 마감하거나 50일선이 꺾이면 중립, 200일선-${buffer}%(${fmt(spx.ma200 * (1 - buffer / 100), 0)}) 아래면 부담`
-        : state === 'burden' ? (leaderBreakUnder50 ? `S&P 500이 50일선(${fmt(spx.ma50, 0)}) 위로 마감하거나 주도 영역 이탈이 풀리면(나스닥 100이 50일선을 되찾고 5거래일 낙폭이 ${RULES.trend.leaderDrop5dPct}% 안) 중립으로 바뀜`
+        : state === 'burden' ? (leaderBreakUnder50 ? `S&P 500이 50일선(${fmt(spx.ma50, 0)}) 위로 마감하거나 주도 영역 이탈이 풀리면(SOXX가 50일선을 되찾고 5거래일 낙폭이 ${RULES.leadership.proxyDrop5dPct}% 안) 중립으로 바뀜`
           : `S&P 500이 200일선-${buffer}%(${fmt(spx.ma200 * (1 - buffer / 100), 0)}) 위로 올라오고 하락하는 50일선보다 ${buffer}% 넘게 아래가 아니면 중립으로 바뀜`)
           : `S&P 500이 상승하는 50일선보다 ${buffer}% 이상 위(${fmt(up, 0)} 이상)에서 마감하고 50일선이 200일선 위면 양호${capFlip}, 200일선보다 ${buffer}% 넘게 아래(${fmt(spx.ma200 * (1 - buffer / 100), 0)} 미만)이거나 하락하는 50일선보다 ${buffer}% 넘게 아래(${fmt(down, 0)} 미만)면 부담${leadership.break && gap50 != null && gap50 >= 0 ? `, 주도 영역 이탈이 확인된 동안은 50일선(${fmt(spx.ma50, 0)}) 아래로 마감하기만 해도 부담` : ''}`; // v58.55: the leadership-break path the rule applies is named
     const rows = [
@@ -1146,11 +1154,11 @@ export function buildMarketRegime(input = {}) {
       ['50일선 / 200일선', spx.ma50 != null && spx.ma200 != null ? `${fmt(spx.ma50, 0)} / ${fmt(spx.ma200, 0)}` : null, alignments.spx],
       ['50일선 방향', rising == null ? null : rising ? '상승' : '하락', alignments.spx],
       ['1년 고점 대비', fromHigh == null ? null : signed(fromHigh), alignments.spx],
-      // v57.81: the leadership proxy and the small caps against their own lines, each dated by its own close.
+      // v57.81: the leaders and the small caps against their own lines, each dated by its own close.
       ['나스닥 100', indexPositionText(ndx, ndx5 == null ? '' : `5거래일 ${signed(ndx5)}`), alignments.ndx],
       ['러셀 2000', indexPositionText(rut, rut ? `5거래일 ${signed(pct(rut.value, rut.d5))}` : ''), alignments.rut],
-      // Owner 2026-10-18: semiconductors beside the leadership proxy — evidence only (the SMH review kept it out of the break rule).
-      ['반도체 (SMH)', indexPositionText(s.smh, s.smh ? `5거래일 ${signed(pct(s.smh.value, s.smh.d5))}` : ''), alignments.smh],
+      // v59.70 (owner 11/4): SOXX is the leadership proxy the trend cap reads.
+      ['반도체 (SOXX)', indexPositionText(soxx, soxx5 == null ? '' : `5거래일 ${signed(soxx5)}`), alignments.soxx],
       ['나스닥 종합 20일', nd20 == null ? null : signed(nd20), alignments.nasdaq],
       // P1416: O'Neil distribution days — evidence only; the trend rule is unchanged.
       ['분배일 (최근 25거래일)', s.distributionDays ? `${fmt(s.distributionDays.value, 0)}회` : null, alignments.distributionDays]
@@ -1219,7 +1227,7 @@ export function buildMarketRegime(input = {}) {
     const read = (state === 'favorable' ? `50일선·200일선 위 종목이 모두 ${B.broadAtLeast}% 이상 — 중기 참여는 넓습니다(하루·5일 등락 종목 수는 따로 봅니다).`
       : breadthHeld ? `50일선 위 종목 비율이 ${shortDate(breadthLatch.since)}부터 ${B.weakBelow}% 아래에 머물다 ${fmt(b50, 0)}%로 올라왔지만, ${B.holdExitAt}% 위로 회복하기 전까지는 참여가 좁은 상태(부담)로 봅니다.`
       // v57.81: while the leadership break holds, the narrow tape is not "the index leaning on a few leaders" — they are falling too.
-      : state === 'burden' ? (narrow && leadership.break ? `지수는 고점권(${signed(fromHigh)})이지만 ${narrowWho} 좁은 장세에서, 최근에는 주도 영역(${leadership.drop5 != null && leadership.drop5 <= -RULES.trend.leaderDrop5dPct ? `나스닥 100 5거래일 ${signed(leadership.drop5)}` : '나스닥 100 50일선 아래'})까지 밀려 소수 종목이 지수를 받치는 힘도 약해지고 있습니다.`
+      : state === 'burden' ? (narrow && leadership.break ? `지수는 고점권(${signed(fromHigh)})이지만 ${narrowWho} 좁은 장세에서, 최근에는 주도 영역(${leadership.drop5 != null && leadership.drop5 <= -RULES.leadership.proxyDrop5dPct ? `SOXX 5거래일 ${signed(leadership.drop5)}` : 'SOXX 50일선 아래'})까지 밀려 소수 종목이 지수를 받치는 힘도 약해지고 있습니다.`
         : narrow ? `지수는 고점권(${signed(fromHigh)})인데 ${narrowWho} 좁은 장세 — 지수가 소수 대형주에 기대고 있을 수 있습니다(어느 종목이 끌어올렸는지는 테마 화면의 S&P 500 지도에서 확인).` : '약세가 시장 전반에 퍼져 있습니다.')
         : state === 'unknown' ? staleRead('시장 폭', alignments.breadth50) : '참여 종목 비율이 중간 — 확산도 위축도 뚜렷하지 않습니다.') + partial + recordRead
       // P1633: the 20-day ratio moves first; a gap to the 50-day ratio says which way participation is turning.
@@ -1389,19 +1397,19 @@ export function buildMarketRegime(input = {}) {
   }
   // 5. Credit & risk appetite — the funding market and hedging demand. Calm needs the direction too.
   {
-    const { hyBp, hy5, hy20, pcr } = c;
+    const { hyBp, hy5, hy20 } = c;
     const widening20 = hy20 != null && hy20 >= RULES.credit.widen20dBp;
     const month = hy20 == null ? '' : `, 20거래일 ${signed(hy20, 0, 'bp')}`;
-    const state = creditState({ hyBp, hy5, hy20, pcr, hy20Stress: c.hy20Stress });
+    const state = creditState({ hyBp, hy5, hy20, hy20Stress: c.hy20Stress });
     // v58.55: creditState on a hypothetical spread (the 5/20-session bases held; the 20-session stress keeps its latch:
     // once on it holds while the change stays at widen20dBp, otherwise it enters at the record line), for 판단이 바뀌는 조건.
     const C = RULES.credit;
     const base5 = hy5 == null ? null : hyBp - hy5, base20 = hy20 == null ? null : hyBp - hy20;
     const stressAt = (change) => change != null && change >= C.widen20dBp
       && (c.hy20Record ? (c.hy20Record.stress || change >= c.hy20Record.enterBp) : change >= C.stress20dMultiple * C.widen20dBp);
-    const creditAt = (level, assume = new Set()) => {
+    const creditAt = (level) => {
       const d5 = base5 == null ? null : level - base5, d20 = base20 == null ? null : level - base20;
-      return creditState({ hyBp: level, hy5: d5, hy20: d20, pcr: assume.has('pcr') ? null : pcr, hy20Stress: stressAt(d20) });
+      return creditState({ hyBp: level, hy5: d5, hy20: d20, hy20Stress: stressAt(d20) });
     };
     const hyPoint = (at, mark, short) => ({ at, subject: '하이일드 스프레드가', mark, short, show: (to, current) => [to - current, 'bp', 0] });
     const enter20 = c.hy20Record ? c.hy20Record.enterBp : C.stress20dMultiple * C.widen20dBp;
@@ -1412,7 +1420,7 @@ export function buildMarketRegime(input = {}) {
       if (value != null && (!basis || date <= basis)) hySeries.push({ date, value: value * 100 });
     }
     const creditDistance = state === 'unknown' ? null : flipDistanceSearch({
-      state, stateAt: (values, assume) => creditAt(values.hy, assume),
+      state, stateAt: (values) => creditAt(values.hy),
       levers: [{ key: 'hy', current: hyBp, typical: typicalDailyMove(hySeries.sort((a, b) => a.date.localeCompare(b.date))), points: [
         hyPoint(C.stressAtBp, `${C.stressAtBp}bp`, `${C.stressAtBp}bp`),
         hyPoint(C.tightBelowBp, `${C.tightBelowBp}bp`, `${C.tightBelowBp}bp`),
@@ -1420,8 +1428,7 @@ export function buildMarketRegime(input = {}) {
           hyPoint(base5 + C.calm5dBp, `${fmt(base5 + C.calm5dBp, 0)}bp(5거래일 +${C.calm5dBp}bp)`, `5일 +${C.calm5dBp}bp, ${fmt(base5 + C.calm5dBp, 0)}bp`)] : []),
         ...(base20 != null ? [hyPoint(base20 + C.widen20dBp, `${fmt(base20 + C.widen20dBp, 0)}bp(20거래일 +${C.widen20dBp}bp)`, `20일 +${C.widen20dBp}bp, ${fmt(base20 + C.widen20dBp, 0)}bp`),
           hyPoint(base20 + enter20, `${fmt(base20 + enter20, 0)}bp(20거래일 +${fmt(enter20, 0)}bp${c.hy20Record ? ', 자체 기록 상위 ' + (100 - C.stress20dPct) + '%' : ''})`, `20일 +${fmt(enter20, 0)}bp, ${fmt(base20 + enter20, 0)}bp`)] : [])
-      ] }],
-      assumptions: [{ key: 'pcr', label: `풋/콜 ${C.putCallHedgeAt} 미만`, holds: !(pcr != null && pcr >= C.putCallHedgeAt) }]
+      ] }]
     });
     const rec = c.hy20Record;
     const stress20 = state === 'burden' && hyBp < RULES.credit.stressAtBp && !(hy5 != null && hy5 >= RULES.credit.widen5dBp) && c.hy20Stress;
@@ -1438,7 +1445,7 @@ export function buildMarketRegime(input = {}) {
         : `수준(${fmt(hyBp, 0)}bp)은 ${RULES.credit.stressAtBp}bp 아래지만 5일 동안 ${signed(hy5, 0, 'bp')} 빠르게 넓어졌습니다 — 수준보다 확대 속도가 부담입니다.`)
         : state === 'unknown' ? staleRead('신용 스프레드', alignments.hy)
           : widening20 ? `수준(${fmt(hyBp, 0)}bp)은 ${RULES.credit.stressAtBp}bp 아래지만 20거래일 동안 ${signed(hy20, 0, 'bp')} 넓어졌습니다${hy5 != null ? `(최근 5일 ${signed(hy5, 0, 'bp')})` : ''} — 한 달째 확대라 안정으로 보지 않습니다.`
-            : hy5 == null && hyBp < RULES.credit.tightBelowBp ? '스프레드 수준은 낮지만 5일 변화가 없어 방향을 확인하지 못했습니다.' : `신용은 크게 나쁘지 않지만 스프레드 수준·방향이나 풋 거래 비중이 경계선입니다(하이일드 ${fmt(hyBp, 0)}bp, 5일 ${signed(hy5, 0, 'bp')}${month}).`;
+            : hy5 == null && hyBp < RULES.credit.tightBelowBp ? '스프레드 수준은 낮지만 5일 변화가 없어 방향을 확인하지 못했습니다.' : `신용은 크게 나쁘지 않지만 스프레드 수준·방향이 경계선입니다(하이일드 ${fmt(hyBp, 0)}bp, 5일 ${signed(hy5, 0, 'bp')}${month}).`;
     // v59.56 (X bookmarks 11/01): HY 326bp read 양호 on 10/30 while it sat 55bp above 60 sessions earlier, CCC had widened
     // 300bp+ and investment grade barely moved — the split the authors read as "borrowers being repriced, not AI as a whole".
     // The verdict rule is unchanged (owner decision pending); the read names the slower, lower-rated widening beside it.
@@ -1446,14 +1453,13 @@ export function buildMarketRegime(input = {}) {
     const dispersionText = dispersion && state !== 'burden' && state !== 'unknown' ? ` 다만 ${dispersion.text}` : '';
     const flip = state === 'unknown' ? null
       : state === 'burden' ? `하이일드 스프레드가 ${RULES.credit.stressAtBp}bp 아래이고 5일 확대가 +${RULES.credit.widen5dBp}bp 미만이며 20거래일 확대가 +${RULES.credit.widen20dBp}bp 아래로 줄면 중립, 그때 5일 확대도 멈추고 수준이 ${RULES.credit.tightBelowBp}bp 미만이면 바로 양호로 바뀜`
-        : state === 'favorable' ? `하이일드 스프레드 ${RULES.credit.tightBelowBp}bp 이상, 5일 확대, 20거래일 +${RULES.credit.widen20dBp}bp 이상 확대, 풋/콜 ${RULES.credit.putCallHedgeAt} 이상 중 하나면 중립, ${RULES.credit.stressAtBp}bp 이상, 5일 +${RULES.credit.widen5dBp}bp 확대, 20거래일 확대가 자체 기록 상위 ${100 - RULES.credit.stress20dPct}% 중 하나면 부담`
-          : `하이일드 스프레드 ${RULES.credit.tightBelowBp}bp 미만에 5일 축소·보합, 20거래일 확대 +${RULES.credit.widen20dBp}bp 미만, 풋/콜 ${RULES.credit.putCallHedgeAt} 미만이면 양호, ${RULES.credit.stressAtBp}bp 이상, 5일 +${RULES.credit.widen5dBp}bp 확대, 20거래일 확대가 자체 기록 상위 ${100 - RULES.credit.stress20dPct}% 중 하나면 부담`;
+        : state === 'favorable' ? `하이일드 스프레드 ${RULES.credit.tightBelowBp}bp 이상, 5일 확대, 20거래일 +${RULES.credit.widen20dBp}bp 이상 확대 중 하나면 중립, ${RULES.credit.stressAtBp}bp 이상, 5일 +${RULES.credit.widen5dBp}bp 확대, 20거래일 확대가 자체 기록 상위 ${100 - RULES.credit.stress20dPct}% 중 하나면 부담`
+          : `하이일드 스프레드 ${RULES.credit.tightBelowBp}bp 미만에 5일 축소·보합, 20거래일 확대 +${RULES.credit.widen20dBp}bp 미만이면 양호, ${RULES.credit.stressAtBp}bp 이상, 5일 +${RULES.credit.widen5dBp}bp 확대, 20거래일 확대가 자체 기록 상위 ${100 - RULES.credit.stress20dPct}% 중 하나면 부담`;
     axes.push(axis('credit', '신용과 위험선호', state, [
       ['하이일드 스프레드', hyBp == null ? null : `${fmt(hyBp, 0)}bp${hy5 != null ? ` (5거래일 ${signed(hy5, 0, 'bp')}${month})` : ''}`],
-      ['풋/콜 비율', pcr == null ? null : fmt(pcr)],
       ['공포·탐욕 (참고)', c.fg == null ? null : fmt(c.fg, 0)],
       ['석 달 변화 (하이일드 / CCC / 투자등급)', dispersion ? dispersion.row : null],
-    ], read + dispersionText, flip, alignments.hy, [alignments.hy, alignments.pcr, alignments.fg, alignments.hy]));
+    ], read + dispersionText, flip, alignments.hy, [alignments.hy, alignments.fg, alignments.hy]));
     if (dispersion) axes[axes.length - 1].dispersion = dispersion;
     // D01: scenario checks say why a non-favorable credit state is not "안정" (widening vs a borderline level).
     axes[axes.length - 1].widening = widening20 || (hy5 != null && hy5 > 0);
@@ -1585,6 +1591,8 @@ export function buildMarketRegime(input = {}) {
     for (const row of axes) if (row.id === 'volatility') row.read += note;
   }
 
+  const watchAxes = [sentimentAxis(input, basis, axis), leadershipAxis({ s, basis, leadership, axis, alignments, history: input.history })];
+
   const us = axes.filter((row) => row.id !== 'korea');
   const known = us.filter((row) => row.state !== 'unknown');
   const count = (state) => known.filter((row) => row.state === state).length;
@@ -1656,9 +1664,103 @@ export function buildMarketRegime(input = {}) {
     leadership,
     leadershipBreak: !!leadership.break,
     // v58.68 (owner 2026-10-23): the AI·semiconductor leaders' own line beside the six-axis verdict.
-    leadershipVerdict: buildLeadershipVerdict({ history: input.history, leadership, smh: s.smh, basis }),
+    leadershipVerdict: buildLeadershipVerdict({ history: input.history, leadership, soxx: s.soxx, basis }),
     trendCap,
     bottomWatch,
-    axes
+    axes,
+    // v59.70 (owner 11/4): two rows beside the six axes, in the same table columns. Neither enters `counts`: 심리 is
+    // descriptive (D02 keeps a mean rank out of any grade) and AI·반도체 reaches `overall` only through leadershipCap.
+    watchAxes
   };
+}
+
+const MARKET_WEEK = MARKET_WINDOWS.week; // the table's 5거래일 전 column
+const LEADERSHIP_WORDS = Object.freeze({ break: '이탈', weak: '약세', holding: '유지', unknown: '확인 중' });
+
+// v59.70 (owner 11/4): 심리 — the composite's one-year ranks (computeCompositeFearGreed), counted, never averaged (D02).
+// A component counts only while its own status is 'ok' (R5: a stale or thin input is reference, not judgement).
+export function sentimentReadOf(history = [], macroHistory = null) {
+  const composite = computeCompositeFearGreed({ history, macroHistory });
+  const S = RULES.sentiment;
+  const ready = composite.components.filter((row) => row.status === 'ok' && Number.isFinite(row.score));
+  const fear = ready.filter((row) => row.score <= S.fearRankAtOrBelow);
+  const greed = ready.filter((row) => row.score >= S.greedRankAtOrAbove);
+  const shown = composite.status !== 'withheld';
+  const state = !shown ? 'unknown' : fear.length * 2 > ready.length ? 'burden' : 'neutral';
+  return { composite, ready, fear, greed, state, overheated: shown && greed.length * 2 > ready.length };
+}
+
+function sentimentAxis(input, basis, axis) {
+  const S = RULES.sentiment;
+  const now = sentimentReadOf(input.history, input.macroHistory);
+  const target = buildCloseSeries(input.history, 'spx', { through: basis }).at(-1 - MARKET_WEEK)?.date;
+  const then = target ? sentimentReadOf((input.history || []).filter((row) => row?.date && row.date <= target), input.macroHistory) : null;
+  const { composite, ready, fear, greed, state } = now;
+  const left = composite.components.filter((row) => row.status !== 'ok');
+  const names = (rows) => rows.map((row) => `${row.label} ${Math.round(row.score)}`).join(', ');
+  const read = state === 'unknown' ? `구성 요소 ${composite.componentsReady}/${composite.componentsTotal}개만 현재 관측이라 판정하지 않습니다(최소 4개).`
+    : state === 'burden' ? `공포 쪽 — 현재 관측 ${ready.length}개 중 ${fear.length}개가 최근 1년 하위 ${S.fearRankAtOrBelow}% 안입니다(${names(fear)}). 투매 뒤 되돌림이 자주 나오는 자리지만 바닥 신호는 아닙니다.`
+      : now.overheated ? `과열 쪽 — 현재 관측 ${ready.length}개 중 ${greed.length}개가 최근 1년 상위 ${100 - S.greedRankAtOrAbove}% 안입니다(${names(greed)}).`
+        : `한쪽으로 쏠리지 않았습니다 — 현재 관측 ${ready.length}개 중 공포 쪽 ${fear.length}개, 과열 쪽 ${greed.length}개입니다.`;
+  const row = axis('sentiment', '심리', state, [
+    ...composite.components.map((item) => [item.label, item.status === 'ok' ? `${Math.round(item.score)} (1년 백분위)` : item.status === 'stale' ? '기준일과 달라 참고만' : '자료 부족']),
+    ['판정에 쓴 구성 요소', `${ready.length}/${composite.componentsTotal}${left.length ? ` (제외: ${left.map((item) => item.label).join(', ')})` : ''}`]
+  ], read, state === 'unknown' ? null : `현재 관측 구성 요소의 절반 넘게 1년 하위 ${S.fearRankAtOrBelow}% 안이면 부담(공포 쪽), 아니면 중립. 평균 점수는 만들지 않습니다.`, null);
+  row.watch = true;
+  row.weight = 'none';
+  row.faceValue = state === 'unknown' ? null : `공포 쪽 ${fear.length}/${ready.length}`;
+  row.change5 = then && then.state !== 'unknown' && state !== 'unknown' ? `${then.fear.length} → ${fear.length}` : null;
+  return row;
+}
+
+// v59.70 (owner 11/4, "시장 폭 양호, 금리 양호인데 반도체 -14%"): AI·반도체 집중 — the leadership test the overall label
+// already caps on (leadershipCap), on its proxy SOXX (owner 11/4, it was the Nasdaq-100), plus SOXX against the
+// equal-weight S&P 500 over five sessions. ^SOX stays a data-only history column.
+function leadershipAxis({ s, basis, leadership, axis, alignments, history }) {
+  const semis = s.soxx;
+  const ticker = 'SOXX';
+  const semisLabel = '반도체 (SOXX)';
+  const drop = RULES.leadership.proxyDrop5dPct;
+  const lagPp = RULES.leadership.semisLagRsp5dPp;
+  const semis5 = semis?.d5 ? pct(semis.value, semis.d5) : null;
+  const rsp5 = s.rsp?.d5 ? pct(s.rsp.value, s.rsp.d5) : null;
+  const gap5 = semis5 != null && rsp5 != null ? semis5 - rsp5 : null;
+  const leadersWeak = !!leadership?.break || leadership?.state === 'weak';
+  const stateAt = (price) => {
+    if (!leadership?.available || leadership.state === 'unknown' || !semis || !Number.isFinite(price)) return 'unknown';
+    if (leadersWeak) return 'burden';
+    if (semis.ma50 != null && price < semis.ma50 && semis.d5 && pct(price, semis.d5) <= -drop) return 'burden';
+    const gapAt = semis.d5 && rsp5 != null ? pct(price, semis.d5) - rsp5 : null;
+    return semis.ma50 != null && price >= semis.ma50 && (gapAt == null || gapAt > -lagPp) ? 'favorable' : 'neutral';
+  };
+  const state = stateAt(semis?.value);
+  const leaderText = leadership?.available ? `${LEADERSHIP_WORDS[leadership.state] || '확인 중'}${leadership.break ? ` (확인 ${leadership.met}/${leadership.confirmations.length})` : ''}` : null;
+  const narrow = gap5 != null && gap5 <= -lagPp ? `. 같은 5거래일 동일가중 S&P 500은 ${signed(rsp5)}라 하락이 반도체에 몰렸습니다` : '';
+  const read = state === 'unknown' ? '주도주 판정이나 반도체 종가가 기준일에 없어 판정하지 않습니다.'
+    : state === 'burden' ? `${leadersWeak ? `${semisLabel}가 5거래일 ${signed(semis5)}로 주도주 ${LEADERSHIP_WORDS[leadership.state]} 판정입니다` : `${semisLabel}가 5거래일 ${signed(semis5)}로 50일선 아래입니다`}${narrow} — 시장 폭·금리가 양호해도 AI·반도체 비중이 큰 포트폴리오는 손실이 날 수 있는 구간입니다.`
+      : state === 'favorable' ? `${semisLabel}가 50일선 위이고 동일가중 S&P 500보다 크게 뒤처지지 않았습니다.`
+        : `${semisLabel}가 50일선 아래이거나 동일가중보다 ${lagPp}%p 넘게 뒤처졌지만, 부담 기준에는 닿지 않았습니다.`;
+  const flip = state === 'unknown' ? null
+    : `${ticker} 주도주 약세·이탈, 또는 ${ticker}가 50일선 아래에서 5거래일 -${drop}% 이하면 부담. 둘 다 아니고 ${ticker}가 50일선 위, 동일가중보다 ${lagPp}%p 넘게 뒤처지지 않으면 양호. 종합 판정에는 주도주 약세·이탈일 때 '양호 우세·다소 양호'를 '혼조'로 낮추는 데만 들어갑니다.`;
+  const semisAlign = alignments.soxx;
+  const row = axis('leadership', 'AI·반도체 집중', state, [
+    [semisLabel, semis ? `${fmt(semis.value, 0)} (5거래일 ${signed(semis5)}${semis.ma50 ? `, 50일선 ${signed(pct(semis.value, semis.ma50))}` : ''}${semis.yearMax ? `, 1년 고점 대비 ${signed(pct(semis.value, semis.yearMax))}` : ''})` : null],
+    ['SOXX − 동일가중 S&P 500 (5거래일)', gap5 == null ? null : `${signed(gap5)}p (SOXX ${signed(semis5)}, 동일가중 ${signed(rsp5)})`],
+    ['주도주 판정 (SOXX 기준)', leaderText]
+  ], read, flip, semisAlign, [semisAlign, alignments.rsp, semisAlign]);
+  if (state !== 'unknown') {
+    const show = (at, current) => [pct(at, current), '%', 1];
+    const point = (at, name) => ({ at, subject: `${ticker}가`, mark: `${fmt(at, 0)}(${name})`, short: `${name} ${fmt(at, 0)}`, close: true, show });
+    attachDistance(row, flipDistanceSearch({ state, stateAt: (values) => stateAt(values.semis), levers: [{ key: 'semis', current: semis.value,
+      typical: typicalDailyMove(buildCloseSeries(history, 'soxx', { through: basis })), points: [
+        ...(semis.ma50 != null ? [point(semis.ma50, '50일선')] : []),
+        ...(semis.d5 ? [point(semis.d5 * (1 - drop / 100), `5거래일 -${drop}%`)] : [])
+      ] }] }));
+  }
+  row.watch = true;
+  row.weight = 'leadership-cap';
+  // The level beside the 5-session change column (the row's change5), so the two cells do not repeat one number.
+  row.faceValue = semis?.ma50 ? `${ticker} 50일선 대비 ${signed(pct(semis.value, semis.ma50))}` : null;
+  row.change5 = semis5 == null ? null : signed(semis5);
+  return row;
 }

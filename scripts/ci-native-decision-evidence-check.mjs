@@ -9,7 +9,7 @@ const ids = [
   ['vix-price', 'vix', 18], ['vvix-price', 'vvix', 95], ['dxy-dollar', 'dxy', 104],
   ['tnx-yield', 'tnx', 4.1], ['oil-price', 'oilPrice', 80], ['fg-sentiment', 'fg', 55],
   ['spx-price', 'spxPrice', 5000], ['breadth200-participation', 'breadth200', 60],
-  ['pcr-putcall', 'pcr', 0.9], ['hy-spread-bp', 'hyBp', 320]
+  ['hy-spread-bp', 'hyBp', 320]
 ];
 
 function rows(status) {
@@ -35,7 +35,7 @@ function rows(status) {
 }
 
 const base = {
-  DATA_SNAPSHOT: { spx: 5000, vix: 18, vvix: 95, dxy: 104, tnx: 4.1, wti: 80, fg: 55, pcr: 0.9, hySpread: 320 },
+  DATA_SNAPSHOT: { spx: 5000, vix: 18, vvix: 95, dxy: 104, tnx: 4.1, wti: 80, fg: 55, hySpread: 320 },
   _liveData: {},
   _spxMA: { 50: 4900, 200: 4600 },
   _spxMATs: Date.parse('2026-07-30T00:00:00.000Z'),
@@ -114,7 +114,7 @@ assert.equal(undatedNews.label, '데이터 부족');
 const fallbackRoot = {
   AIO: { getCanonicalMetric: () => ({ value: null, source: 'empty-canonical', observedAt: '2026-08-31' }) },
   DATA_SNAPSHOT: { fg: 42, pcr: 0.8, _snapshotDate: '2026-08-01' },
-  _lastPutCallPayload: { totalPutCall: null, source: 'empty-pcr', asOf: '2026-08-31' },
+  _lastPutCallPayload: { totalPutCall: 0.9, source: 'retired-pcr', asOf: '2026-08-31' },
   _liveData: { '^VIX': { price: 20, source: 'snapshot:fixture', sourceKind: 'T4_REFERENCE', observedAt: '2026-08-01' } }
 };
 const fallbackReader = createRuntimeReaders({ root: fallbackRoot });
@@ -122,16 +122,15 @@ const sentimentFallback = fallbackReader.readSentiment();
 assert.equal(sentimentFallback.fearGreed, 42);
 assert.equal(sentimentFallback.fearGreedSource, 'DATA_SNAPSHOT:fear-greed');
 assert.equal(sentimentFallback.fearGreedObservedAt, '2026-08-01');
-assert.equal(sentimentFallback.putCall, 0.8);
-assert.equal(sentimentFallback.putCallObservedAt, '2026-08-01');
+// v59.70 (owner 11/4): the Cboe put/call reads are gone; a leftover runtime value or snapshot field is not projected.
+assert.ok(!('putCall' in sentimentFallback) && !('putCallObservedAt' in sentimentFallback), 'v59.70 readSentiment projects no put/call');
+assert.ok(!('pcr' in fallbackReader.readEntity().options), 'v59.70 readEntity options carry no put/call');
+assert.ok(!('sentiment.putCall' in fallbackReader.readObservationCatalog()), 'v59.70 the observation catalog has no put/call');
 assert.equal(fallbackReader.readEntity().options.vix.sourceKind, 'T4_REFERENCE');
 assert.equal(fallbackReader.readObservationCatalog()['sentiment.fearGreed'].observedAt, '2026-08-01');
-fallbackRoot._lastPutCallPayload = { totalPutCall: 0, source: 'current-pcr', asOf: '2026-08-31' };
 fallbackRoot.AIO.getCanonicalMetric = () => ({ value: 0, source: 'current-fg', observedAt: '2026-08-31' });
 assert.equal(fallbackReader.readSentiment().fearGreed, 0);
 assert.equal(fallbackReader.readSentiment().fearGreedSource, 'current-fg');
-assert.equal(fallbackReader.readEntity().options.pcr.value, 0);
-assert.equal(fallbackReader.readEntity().options.pcr.source, 'current-pcr');
 fallbackRoot.AIO.getCanonicalMetric = () => { throw new Error('fixture canonical reader failure'); };
 assert.equal(fallbackReader.readSentiment().fearGreed, 42, 'optional canonical reader failure must preserve the snapshot fallback');
 

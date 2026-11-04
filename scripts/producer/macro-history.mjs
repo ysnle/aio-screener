@@ -6,6 +6,7 @@ import { atomicWriteFile } from '../lib/atomic-write.mjs';
 import { buildIsmRuleEvents, buildMacroCalendarPayload, resolveFomcSchedule } from '../lib/official-calendars.mjs';
 import { fetchJSON, _fetchRss } from '../lib/producer-http.mjs';
 import { REPO_ROOT } from './paths.mjs';
+import { isIsoDay } from '../../src/domain/shared/session-date.js';
 
 // P1426 (owner review 2026-10-03): the 거시 screen needs direction, not just the latest print — the
 // three-month pace of inflation, the Sahm-rule unemployment gap, the payroll trend, weekly claims and
@@ -141,13 +142,68 @@ export function macroHistoryUrl(spec, key, nowMs = Date.now()) {
   return `https://api.stlouisfed.org/fred/series/observations?series_id=${spec.id}&api_key=${key}&file_type=json&sort_order=desc&limit=${spec.limit}${end}`;
 }
 
-export async function writeMacroHistory(key, { fetchFn = fetchJSON, nowMs = Date.now() } = {}) {
+// v59.70 (data audit R3): every 30-minute cycle used to refetch all 53 series (~2,500 FRED calls a day) although FRED
+// publishes a daily series once a day and a monthly one once a month. A series is refetched when its last fetch is
+// older than the interval of its frequency, or when a scheduled release of its calendar (macro-calendar.json
+// `schedules`) has become due since that fetch, so a CPI or payroll print reaches the trend the same cycle the
+// headline card (data.json macro, fetched every run) shows it.
+export const MACRO_HISTORY_MIN_AGE_HOURS = Object.freeze({ daily: 3, weekly: 12, monthly: 12, quarterly: 12, 'sep-release': 12 });
+// FRED posts BLS/BEA/Census releases at 08:30 ET; the 30-minute margin covers its ingest.
+export const MACRO_RELEASE_DUE_ET = '09:00';
+export const MACRO_HISTORY_RELEASE_CALENDAR = Object.freeze({
+  CPIAUCSL: 'us-cpi', CPILFESL: 'us-cpi', CPIAUCNS: 'us-cpi', CPILFENS: 'us-cpi', CUSR0000SAH1: 'us-cpi', CUSR0000SASL2RS: 'us-cpi',
+  PCEPI: 'us-pce', PCEPILFE: 'us-pce',
+  UNRATE: 'us-nfp', PAYEMS: 'us-nfp', CES0500000003: 'us-nfp',
+  RSAFS: 'us-retail',
+  DFEDTARU: 'us-fed-rate', DFEDTARL: 'us-fed-rate', FEDTARMDLR: 'us-fomc'
+});
+
+// The latest release instant of `calendarId` at or before nowMs (release day 09:00 America/New_York), or NaN.
+export function latestReleaseDueMs(schedules, calendarId, nowMs) {
+  const dates = Array.isArray(schedules?.[calendarId]) ? schedules[calendarId] : [];
+  let latest = NaN;
+  for (const date of dates) {
+    const due = nyWallInstant(date, MACRO_RELEASE_DUE_ET);
+    if (Number.isFinite(due) && due <= nowMs && !(due <= latest)) latest = due;
+  }
+  return latest;
+}
+
+function nyWallInstant(date, hhmm) {
+  if (!isIsoDay(date)) return NaN;
+  const target = Date.parse(`${date}T${hhmm}:00Z`);
+  const fmt = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+  let guess = target;
+  for (let i = 0; i < 2; i += 1) {
+    const p = Object.fromEntries(fmt.formatToParts(new Date(guess)).map((part) => [part.type, part.value]));
+    guess -= Date.parse(`${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}:00Z`) - target;
+  }
+  return guess;
+}
+
+/** Whether one series should be fetched this run, given its previously published entry. */
+export function macroSeriesDue(spec, kept, { nowMs = Date.now(), schedules = null } = {}) {
+  const lastMs = Date.parse(kept?.fetchedAt || '');
+  if (!kept?.observations?.length || kept.stale || !Number.isFinite(lastMs) || lastMs > nowMs) return true;
+  const minAgeHours = MACRO_HISTORY_MIN_AGE_HOURS[spec.frequency] ?? 3;
+  if (nowMs - lastMs >= minAgeHours * 3600000) return true;
+  const calendarId = MACRO_HISTORY_RELEASE_CALENDAR[spec.id];
+  const releaseMs = calendarId ? latestReleaseDueMs(schedules, calendarId, nowMs) : NaN;
+  return Number.isFinite(releaseMs) && lastMs < releaseMs;
+}
+
+export async function writeMacroHistory(key, { fetchFn = fetchJSON, nowMs = Date.now(), schedules: givenSchedules } = {}) {
   let previous = null;
   try { previous = JSON.parse(await readFile(MACRO_HISTORY_OUT, 'utf8')); } catch { /* first producer run */ }
   if (!key) return { written: false, reason: 'api-key-not-configured' };
+  const schedules = givenSchedules !== undefined ? givenSchedules
+    : await readFile(MACRO_CALENDAR_OUT, 'utf8').then((text) => JSON.parse(text)?.schedules || null).catch(() => null);
   const series = {};
   const failed = [];
+  const kept = [];
   for (const [field, spec] of Object.entries(MACRO_HISTORY_SERIES)) {
+    const prior = previous?.series?.[field];
+    if (prior?.id === spec.id && !macroSeriesDue(spec, prior, { nowMs, schedules })) { series[field] = prior; kept.push(field); continue; }
     const url = macroHistoryUrl(spec, key, nowMs);
     try {
       const observations = parseFredObservations(await fetchFn(url));
@@ -173,7 +229,7 @@ export async function writeMacroHistory(key, { fetchFn = fetchJSON, nowMs = Date
     long: await collectMacroLongHistory(key, previous?.long || null, { fetchFn, nowMs }).catch(() => previous?.long || null)
   };
   await atomicWriteFile(MACRO_HISTORY_OUT, JSON.stringify(payload));
-  return { written: true, series: Object.keys(series).length, failed };
+  return { written: true, series: Object.keys(series).length, fetched: Object.keys(series).length - kept.length, kept: kept.length, failed };
 }
 
 // P1654: the release dates of the four FRED-published indicators the calendar shows. The browser calendar was a

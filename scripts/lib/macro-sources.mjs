@@ -1,10 +1,9 @@
 // Official/public macro sources split out of scripts/fetch-data.mjs (v57.62): FRED public CSV (HY OAS, DEXKOUS),
-// Treasury yield curve, AAII sentiment, BEA PCE, CNN Fear & Greed, BLS (incl. v57.59 release-day cache bypass)
-// and Cboe put/call. Parsers are pure; fetchers take the previous artifact block and return last-known-good
+// Treasury yield curve, AAII sentiment, BEA PCE, CNN Fear & Greed and BLS (incl. v57.59 release-day cache bypass).
+// v59.70: the Cboe put/call reader is deleted (owner 11/4: Cboe terms forbid storing and redistributing). Parsers are pure; fetchers take the previous artifact block and return last-known-good
 // evidence. fetch-data.mjs imports and re-exports them.
 import { round } from './producer-math.mjs';
 import { UA, fetchJSON, _fetchRss } from './producer-http.mjs';
-import { latestCompletedUsSession } from '../../src/ai/time/market-session.js';
 import { readNumber } from '../../src/domain/shared/number.js';
 
 // FRED 시리즈 (YoY 또는 레벨). PAYEMS는 MoM 차이(천명) = NFP.
@@ -864,54 +863,4 @@ export async function fetchBlsSeries(previous = null, { releaseSchedules = null,
   }
 }
 
-// ── Cboe official daily Put/Call statistics ──
-// The legacy CDN JSON currently returns AccessDenied to server/browser callers.
-// Cboe's official daily statistics page embeds the same ratios and selected
-// trading date in its server-rendered payload, so Actions can ingest it without
-// a public CORS proxy. This is delayed daily volume, never labelled real-time.
-export function parseCboePutCallHtml(html) {
-  const normalized = String(html || '').replace(/\\"/g, '"');
-  const pick = (label) => {
-    const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const match = normalized.match(new RegExp('"name"\\s*:\\s*"' + escaped + '"\\s*,\\s*"value"\\s*:\\s*"([0-9.]+)"', 'i'));
-    const value = match ? Number(match[1]) : null;
-    return Number.isFinite(value) ? value : null;
-  };
-  const selectedDate = (normalized.match(/"selectedDate"\s*:\s*"(\d{4}-\d{2}-\d{2})"/) || [])[1] || null;
-  const totalPutCall = pick('TOTAL PUT/CALL RATIO');
-  if (!Number.isFinite(totalPutCall) || !selectedDate) return null;
-  return {
-    totalPutCall,
-    indexPutCall: pick('INDEX PUT/CALL RATIO'),
-    equityPutCall: pick('EQUITY PUT/CALL RATIO'),
-    asOf: selectedDate,
-    fetchedAt: new Date().toISOString(),
-    source: 'Cboe Daily Market Statistics',
-    sourceUrl: 'https://www.cboe.com/data/mktstat.aspx',
-    sourceKind: 'T3_PUBLIC_DELAYED',
-    allowedUse: 'decision-with-daily-delay'
-  };
-}
-
-// P1573: Cboe posts a session's ratios after the close, so the page may lag one session.
-// Anything older than the session before the latest completed US close is stale, not current.
-export function classifyCboePutCallCurrentness(asOf, now = Date.now()) {
-  const session = latestCompletedUsSession(now);
-  if (!asOf || !session) return 'stale-reference';
-  const oldestCurrent = session.previousDate || session.date;
-  return asOf >= oldestCurrent ? 'current-reference' : 'stale-reference';
-}
-
-export async function fetchCboePutCall() {
-  const attemptedAt = new Date().toISOString();
-  try {
-    const html = await _fetchRss('https://www.cboe.com/data/mktstat.aspx', 18000);
-    const parsed = parseCboePutCallHtml(html);
-    if (!parsed) throw new Error('official page did not contain ratio/date contract');
-    return { ...parsed, attemptedAt, status: classifyCboePutCallCurrentness(parsed.asOf) };
-  } catch (error) {
-    console.warn('[fetch-data] Cboe Put/Call 수집 실패:', error && error.message || error);
-    return { source: 'Cboe Daily Market Statistics', sourceKind: 'unavailable', allowedUse: 'none', fetchedAt: null, attemptedAt, status: 'unavailable', totalPutCall: null, error: String(error && error.message || error) };
-  }
-}
 

@@ -14,6 +14,7 @@ import { computeTradingScoreModel } from '../src/domain/signal/trading-score.js'
 import { buildMarketTemperature } from '../src/domain/sentiment/market-temperature.js';
 import { openSessionDatesBetween } from '../src/domain/market/market-calendar.js';
 import { RULES } from '../src/domain/rules/thresholds.js';
+import { readHistoryRows } from '../src/domain/market/history-rows.js';
 
 // [date, S&P 500 close, VIX close, HY OAS bp]
 const WINDOWS = [
@@ -187,14 +188,26 @@ for (const [w, window] of WINDOWS.entries()) {
 // Real 2026 windows, replayed day by day from the published history.json + macro-history.json (no synthetic path).
 // - 2026-02..03: S&P 500 -9.1%, Nasdaq-100 -11.8%, VIX 31 on 3/27. history.json starts 2025-08-22, so the 200-day line —
 //   and with it the trend axis — is not computable from this file before 2026-06; the replay says so instead of guessing.
-// - 2026-07: the S&P 500 fell at most 4.5% while the Nasdaq-100 (the leadership proxy; SMH is reference-only) fell
-//   11.3% from 6/2 to 7/29 (owner 2026-10-16: "지수는 덜 빠져도 AI·반도체는 많이 빠졌다"). A leadership
+// - 2026-07: the S&P 500 fell at most 4.5% while the Nasdaq-100 fell 11.3% from 6/2 to 7/29 (owner 2026-10-16: "지수는 덜 빠져도 AI·반도체는 많이 빠졌다"). A leadership
 //   state of 'holding' then told the AI packet "주도 영역 이탈: 아니오".
 // - 2026-10-12..15: the v57.81 rule changes came from this week (0.15% over the 50-day line and VIX 16.87 after +11.9%
 //   in five sessions both read 양호 on 10/14).
 {
-  const history = JSON.parse(readFileSync(new URL('../public-data/history.json', import.meta.url), 'utf8'));
+  const history = readHistoryRows(JSON.parse(readFileSync(new URL('../public-data/history.json', import.meta.url), 'utf8')));
   const rows = Array.isArray(history) ? history : history.rows || [];
+  // v59.70 (owner 11/4): the leadership proxy is SOXX. Until history.json carries its own soxx column (the next refresh
+  // backfills a year), a session without one reads the dated Yahoo closes in architecture/fixtures/soxx-daily-closes.json.
+  const soxxFixture = JSON.parse(readFileSync(new URL('../architecture/fixtures/soxx-daily-closes.json', import.meta.url), 'utf8')).closes;
+  let soxxFromFixture = 0;
+  for (const row of rows) {
+    const meta = row.fieldMeta?.spx;
+    const session = meta?.sessionDate || row.date;
+    if (Number.isFinite(row.soxx) || !meta || !Number.isFinite(row.spx) || !Number.isFinite(soxxFixture[session])) continue;
+    row.soxx = soxxFixture[session];
+    row.fieldMeta = { ...row.fieldMeta, soxx: { ...meta, symbol: 'SOXX', source: 'fixture' } };
+    soxxFromFixture += 1;
+  }
+  summary.push(`SOXX: history.json ${rows.filter((row) => Number.isFinite(row.soxx)).length - soxxFromFixture}개 세션, 고정 기록 ${soxxFromFixture}개 세션`);
   const macroHistory = JSON.parse(readFileSync(new URL('../public-data/macro-history.json', import.meta.url), 'utf8'));
   const hy = macroHistory.series?.hyOas?.observations || [];
   const realAt = (date) => {
@@ -206,7 +219,7 @@ for (const [w, window] of WINDOWS.entries()) {
     const regime = buildMarketRegime({ history: hist, credit, rates: {}, macroHistory, now: Date.parse(`${date}T22:00:00Z`) });
     return { date, row: hist.at(-1), credit, regime, states: Object.fromEntries(regime.axes.map((axis) => [axis.id, axis.state])), leadership: regime.leadership || {} };
   };
-  const sessions = (from, to) => rows.filter((row) => row.date >= from && row.date <= to && Number.isFinite(row.spx) && Number.isFinite(row.ndx)).map((row) => row.date);
+  const sessions = (from, to) => rows.filter((row) => row.date >= from && row.date <= to && Number.isFinite(row.spx) && Number.isFinite(row.soxx)).map((row) => row.date);
   const need = (date, label) => { const read = realAt(date); if (!read) failures.push(`${label} ${date}: history.json has no close`); return read; };
   const line = (read, extra = '') => `${read.date} ${['trend', 'breadth', 'volatility', 'credit'].map((id) => `${id}:${read.states[id]}`).join(' ')} leaders:${read.leadership.state}${extra}`;
 
@@ -220,10 +233,10 @@ for (const [w, window] of WINDOWS.entries()) {
       if (Number.isFinite(row.vix) && row.vix >= RULES.volatility.stressAt && states.volatility !== 'unknown') check(states.volatility === 'burden', `${where}: VIX ${row.vix}인데 변동성 ${states.volatility}`);
       if (credit.hyBp >= RULES.credit.stressAtBp && states.credit !== 'unknown') check(states.credit === 'burden', `${where}: HY ${credit.hyBp.toFixed(0)}bp인데 신용 ${states.credit}`);
       // A leadership proxy clearly under its 50-day line is never 'holding' (v57.83).
-      if (leadership.belowMa50) check(leadership.state !== 'holding', `${where}: 나스닥 100이 50일선 아래(${leadership.summary})인데 주도 영역 유지`);
+      if (leadership.belowMa50) check(leadership.state !== 'holding', `v59.70 ${where}: SOXX가 50일선 아래(${leadership.summary})인데 주도 영역 유지`);
       if (leadership.state === 'break') check(leadership.proxyWeak === true, `${where}: 주도주 약세 없이 이탈 판정`);
       // v57.94: a break holds while the proxy stays weak (7/23 이탈 -> 7/24 약세 -> 7/29 이탈 was single-session counts).
-      if (previous?.break && leadership.proxyWeak) check(leadership.break, `${where}: 전날 이탈·나스닥 100 약세 지속인데 ${leadership.state} (${leadership.summary})`);
+      if (previous?.break && leadership.proxyWeak) check(leadership.break, `v59.70 ${where}: 전날 이탈·SOXX 약세 지속인데 ${leadership.state} (${leadership.summary})`);
       previous = leadership;
     }
   }
@@ -233,14 +246,14 @@ for (const [w, window] of WINDOWS.entries()) {
   if (mar27) {
     check(!['trend', 'breadth', 'volatility'].some((id) => mar27.states[id] === 'favorable'), `2026-03-27: 급락일에 양호 판정 ${line(mar27)}`);
     check(mar27.states.volatility === 'burden' && mar27.states.breadth === 'burden', `2026-03-27: 변동성·시장 폭 부담이어야 함 ${line(mar27)}`);
-    check(mar27.leadership.state !== 'holding', `2026-03-27: 나스닥 100 -11.4%인데 주도 영역 유지`);
+    check(mar27.leadership.state !== 'holding', `v59.70 2026-03-27: 반도체 급락 바닥인데 주도 영역 유지 (${mar27.leadership.summary})`);
     summary.push(line(mar27, mar27.states.trend === 'unknown' ? ' (추세: history.json 200거래일 미만)' : ''));
   }
   // 2026-07: the AI/semis decline under a steady index.
   for (const date of ['2026-07-28', '2026-07-29']) {
     const read = need(date, '2026-07');
     if (!read) continue;
-    check(read.leadership.state === 'weak' || read.leadership.state === 'break', `${date}: 나스닥 100 1년 고점 대비 ${read.leadership.offHigh?.toFixed(1)}%인데 주도 영역 ${read.leadership.state}`);
+    check(read.leadership.state === 'weak' || read.leadership.state === 'break', `v59.70 ${date}: SOXX 1년 고점 대비 ${read.leadership.offHigh?.toFixed(1)}%인데 주도 영역 ${read.leadership.state}`);
     check(read.regime.conflicts.some((text) => /주도주 약세|주도 영역이 꺾이는/.test(text)), `${date}: 엇갈리는 신호에 주도주 약세가 없음`);
     // v58.56 (re-audit #2): the 오늘 hero is one plain sentence — no rule brackets, no counts, at most ~45 characters; the
     // numbers stay in conflicts (the 6개 축 근거 fold).
@@ -249,7 +262,7 @@ for (const [w, window] of WINDOWS.entries()) {
     if (date === '2026-07-29') check(read.states.trend !== 'favorable', `${date}: S&P 500 50일선 -2.0%인데 추세 양호`);
     // v59.44 (owner 2026-10-30): with the leaders weak or broken the headline is never favourable.
     check(!['양호 우세', '다소 양호'].includes(read.regime.overall) && (!read.regime.leadershipCap || read.regime.overall === '혼조'), `v59.44 ${date}: 주도주 약세인데 전체 판정 ${read.regime.overall}`);
-    summary.push(line(read, ` ndx/high:${read.leadership.offHigh?.toFixed(1)}%`));
+    summary.push(line(read, ` soxx/high:${read.leadership.offHigh?.toFixed(1)}%`));
   }
   // v57.94: with the 5-session confirmation window the July break read from 7/17 (Nasdaq-100 -4.1% in five sessions, 상승
   // 종목 32% that day and 분배일 6 on 7/13). Audit 2026-10-17 (owner D1): the advance confirmation is the 5-session mean, so
@@ -258,11 +271,15 @@ for (const [w, window] of WINDOWS.entries()) {
     const read = realAt(date);
     check(read.leadership.break, `${date}: 7월 주도주 하락 구간인데 주도 영역 ${read.leadership.state} (${read.leadership.summary})`);
   }
-  const aug4 = need('2026-08-04', '2026-07');
-  if (aug4) check(!aug4.leadership.break, `2026-08-04: 나스닥 100이 50일선을 되찾았는데 이탈 유지 (${aug4.leadership.summary})`);
-  // 2026-08-06: Nasdaq-100 at its 50-day line (-0.0%) in a +4.5% week — inside the 1% buffer, not a break.
-  const aug6 = need('2026-08-06', '2026-07');
-  if (aug6) { check(!aug6.leadership.break, `2026-08-06: 50일선 ±1% 안 반등 주간에 주도 영역 이탈 (${aug6.leadership.summary})`); summary.push(line(aug6)); }
+  // v59.70 (SOXX proxy): the Nasdaq-100 regained its 50-day line on 8/4, SOXX did not — it stayed 4.5~6.1% under it through
+  // the +10% rebound week, so the break holds on the buffer rule (8/4, 8/6) and ends on 8/17, the first close back within
+  // proxyBufferPct of the line. (On the Nasdaq-100 the break ended 8/4.)
+  for (const date of ['2026-08-04', '2026-08-06']) {
+    const read = need(date, '2026-07');
+    if (read) { check(read.leadership.break && read.leadership.belowMa50, `v59.70 ${date}: SOXX가 50일선 ${RULES.leadership.proxyBufferPct}% 넘게 아래인데 이탈이 풀림 (${read.leadership.summary})`); summary.push(line(read)); }
+  }
+  const aug17 = need('2026-08-17', '2026-07');
+  if (aug17) check(!aug17.leadership.break && !aug17.leadership.belowMa50, `v59.70 2026-08-17: SOXX가 50일선 ${RULES.leadership.proxyBufferPct}% 안으로 돌아왔는데 이탈 유지 (${aug17.leadership.summary})`);
 
   // SMH (semiconductors) joined history.json in v57.83. Report-only: no judgement reads it — v57.94 compared it as a second
   // proxy and it read 이탈 through the +8% rebound week of 8/5~8/10 — so its drawdown is evidence for the owner, not a gate.

@@ -2131,12 +2131,6 @@ window._aioRenderSnapshotDates = function() {
       'jensen-interview': staticDates.jensenInterview || null,
       'tnx-2y': staticDates.tnx2y || snap._fieldTs?.macro_dgs2 || (window?._serverMacroEvidence?.dgs2?.observedAt || null),
       'option-snapshot': staticDates.optionSnapshot || null,
-      'kr-credit': staticDates.krCredit || null,
-      'kr-deposit': staticDates.krDeposit || null,
-      'kr-52w-high': staticDates.krBreadthReference || null,
-      'kr-52w-low': staticDates.krBreadthReference || null,
-      'kr-advance': staticDates.krBreadthReference || null,
-      'kr-decline': staticDates.krBreadthReference || null,
       'kr-issues': staticDates.krIssues || staticDates.krMarket || null
     };
     var writeDateBindings = function() {
@@ -2180,18 +2174,7 @@ window._aioRenderSnapshotDates = function() {
       if (!el.getAttribute('data-source-label')) el.setAttribute('data-source-label', 'DATA_SNAPSHOT:' + key);
       if (!el.title) el.title = d ? ('정적 참고값 기준일 ' + d + ', 실시간 갱신 전 참고용') : '정적 참고값, 실시간 갱신 전 참고용';
     });
-    // KR 카드 stale-days span 갱신 — kr-* 5개 ID에 _aioStaleDaysLabel 호출
-    if (typeof window._aioStaleDaysLabel === 'function') {
-      ['kr-credit','kr-deposit','kr-52w-high','kr-52w-low','kr-advance'].forEach(function(k) {
-        var d = dateByKey[k];
-        if (!d) return;
-        var el = document.getElementById(k + '-stale-days');
-        if (!el) return;
-        var lbl = window._aioStaleDaysLabel(d, { warnDays: 5, staleDays: 14 });
-        el.textContent = lbl.text;
-        el.style.color = lbl.color;
-      });
-    }
+    // v59.70 (S7/I10): the KR stale-day labels left with the five Korean cells they labelled (no source).
   } catch(e) {
     if (window._aioLog) window._aioLog('warn', 'render', 'snapshotDates render error: ' + (e && e.message || e));
   }
@@ -3615,7 +3598,7 @@ window.AIO_PAGE_EVIDENCE_CONTRACT = {
   home: { caveat: '시장 판단은 가격, 심리, 뉴스 신선도를 함께 확인합니다.' },
   signal: { caveat: '직전 미국장 종가의 시장 환경을 참고합니다. 점수는 매수 가능 여부나 비중을 결정하지 않습니다.' },
   breadth: { maxSourceKind: 'SNAPSHOT', caveat: 'Breadth는 스냅샷/계산 지표가 섞여 있어 방향성 참고로 낮춰 해석합니다.' },
-  sentiment: { maxSourceKind: 'SNAPSHOT', caveat: 'F&G/VIX는 현재성 우선, AAII/PutCall류는 발표 주기 차이를 감안합니다.' },
+  sentiment: { maxSourceKind: 'SNAPSHOT', caveat: 'F&G/VIX는 현재성 우선, AAII는 발표 주기 차이를 감안합니다.' },
   briefing: { maxSourceKind: 'DELAYED', caveat: '브리핑은 08:00 KST 완료 24h 뉴스와 캐시 지표를 요약합니다.' },
   'market-news': { maxSourceKind: 'DELAYED', caveat: '뉴스는 08:00 KST 완료 24h 구간 기준이며 미검증/2차 소스는 매매 근거에서 제외합니다.' },
   technical: { maxSourceKind: 'DELAYED', caveat: '기술 점수는 실시간 가격과 저장된 보조지표를 함께 씁니다. 단독 매수 신호가 아닙니다.' },
@@ -3815,7 +3798,7 @@ function _aioDefaultDecision(pageId) {
     sentiment: {
       title: '심리 결론',
       decision: _sc == null ? '판단 보류, 심리 입력 부족' : _sc >= 60 ? '공포 완화, 과열 아님' : _sc >= 45 ? '혼합 심리, 신호 엇갈림' : '공포 심화, 방어 조건 점검',
-      reasons: ['F&G ' + (_aioStrictFinite(snap.fg) != null ? _aioStrictFinite(snap.fg) : '미수신') + ', ' + vixTxt, 'AAII/PutCall은 보조 확인 지표로만 사용', 'SNAPSHOT 값은 신뢰도 감점 후 결론에 반영'],
+      reasons: ['F&G ' + (_aioStrictFinite(snap.fg) != null ? _aioStrictFinite(snap.fg) : '미수신') + ', ' + vixTxt, 'AAII는 보조 확인 지표로만 사용', 'SNAPSHOT 값은 신뢰도 감점 후 결론에 반영'],
       action: '공포·과열 구간에서 역사적으로 어떤 반응이 있었는지는 참고용이며, 심리 지표만으로 매수·매도를 정하지 않습니다.'
     },
     briefing: {
@@ -6941,14 +6924,7 @@ window.AIO.getStaticSeedFallbackAudit = function() {
     'krw-full': 'krw',
     'vkospi-chg': 'vkospiPct',
     'skew-pct': 'skewChg',
-    'kr-credit': 'krCreditBalance',
-    'kr-semi-export-yoy-label': 'krSemiExport',
-    'kr-cpi-yoy': 'krCpi', 'kr-cpi-read': 'krCpi', // v58.74: the target-gap sentence reads the same CPI seed
-    'kr-ppi-yoy': 'krPpi',
-    'kr-manuf-pmi': 'krManufPmi',
-    'kr-gdp-qoq': 'krGdp',
-    'kr-semi-export-feb': 'krSemiExport',
-    'kr-semi-export-yoy': 'krSemiExport'
+    'kr-cpi-yoy': 'krCpi', 'kr-cpi-read': 'krCpi' // v58.74: the target-gap sentence reads the same CPI value
   };
   // 시드 인정 키: DS[key] / DS[toCamel(key)] / DS[toSnakeUnderscore(key)] / DS[aliasMap[key]] / _fallback
   function hasSeed(key) {
@@ -9486,9 +9462,7 @@ window.AIO.getSnapshotDateSourceAudit = function() {
       var hasRegistry = !!(window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._staticDates && (
         key === 'cp-narrative' || key === 'tnx-2y' ||
         key === 'briefing-archive' || key === 'jensen-interview' ||
-        key === 'option-snapshot' || key === 'kr-credit' || key === 'kr-deposit' ||
-        key === 'kr-52w-high' || key === 'kr-52w-low' || key === 'kr-advance' ||
-        key === 'kr-decline' || key === 'kr-issues'
+        key === 'option-snapshot' || key === 'kr-issues'
       ));
       items.push({ key: key, value: val, explicit: explicit, registered: hasRegistry });
       if (key === 'option-snapshot' && val === (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._snapshotDate)) {
@@ -10011,7 +9985,7 @@ function _aioTaskAgeMs(taskKey) {
   var keys = {
     quotes: ['quote','liveQuotes','quotes'],
     news: ['news'],
-    sentiment: ['fearGreed','putCall','sentiment'],
+    sentiment: ['fearGreed','sentiment'],
     breadth: ['breadth'],
     fred: ['fred','macro'],
     technicals: ['technical','technicals'],
@@ -12916,31 +12890,16 @@ window._aioStockStaleInfo = function(sym) {
 // ─────────────────────────────────────────────────────────────────
 // Volatile observations are never committed here. Runtime producers populate
 // this schema; missing or stale producers must render unavailable.
+// v59.70 (data audit R7): the Fed range, its last decision (policyRates.fed: FRED DFEDTARL/U + the FOMC calendar) and the
+// US CPI and FOMC dates (macro-calendar.json) come from producer artifacts only; their hand-kept copies were removed.
+// v59.70 (S7/I10): the Korean CPI seed is removed too — official-references.json items.krCpi (mods.go.kr) is its only
+// source. The BOK policy rate stays here, with its expiry rule, until a producer publishes it as verified.
 const AIO_MANUAL_REFERENCE = Object.freeze({
-  fedPolicy: Object.freeze({
-    value: '3.75-4.00', status: '동결', asOf: '2026-10-28', next: '2026-12-09',
-    source: 'Federal Reserve', sourceKind: 'official-primary',
-    sourceUrl: 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm',
-    operationalUse: 'reference-only'
-  }),
   bokPolicy: Object.freeze({
     value: 3.00, status: '동결', asOf: '2026-10-22', next: '2026-11-26',
     source: 'Bank of Korea', sourceKind: 'official-primary',
     sourceUrl: 'https://www.bok.or.kr/portal/singl/baseRate/list.do?menuNo=200643',
     operationalUse: 'reference-only'
-  }),
-  krInflation: Object.freeze({
-    // P953 데이터 정직화: 국가데이터처 공식 발표의 관측월·발표일·근원 정의를 함께 고정한다.
-    headline: 2.9, core: 2.8, coreDefinition: 'food-and-energy-excluded',
-    observation: '2026-09', publishedAt: '2026-10-02',
-    source: 'Ministry of Data and Statistics (Korea)', sourceKind: 'official-primary',
-    sourceUrl: 'https://mods.go.kr/board.es?mid=a10301010000&bid=213&list_no=447322&act=view&mainXml=Y',
-    operationalUse: 'reference-only'
-  }),
-  usCpiCalendar: Object.freeze({
-    next: '2026-10-14T08:30:00-04:00', asOf: '2026-10-10', // bls.gov/schedule/2026/10_sched.htm
-    source: 'U.S. Bureau of Labor Statistics', sourceKind: 'official-primary',
-    sourceUrl: 'https://www.bls.gov/cpi/', operationalUse: 'calendar-only'
   })
 });
 
@@ -12971,25 +12930,25 @@ const DATA_SNAPSHOT = {
   _fieldTs: {
     prices: null, fearGreed: null, macro_fred: null, macro_bls: null,
     screener: null, serverData: null, breadth_screener: null,
-    fed_rate: AIO_MANUAL_REFERENCE.fedPolicy.asOf,
+    fed_rate: null,
     bok_rate: AIO_MANUAL_REFERENCE.bokPolicy.asOf,
-    kr_cpi: AIO_MANUAL_REFERENCE.krInflation.publishedAt
+    kr_cpi: null
   },
   _note: '변동 데이터는 런타임 생산자에서만 채웁니다. 미수신 값은 표시·판정을 보류합니다.',
 
   // Official manual references: display/calendar context only.
-  fedRate: AIO_MANUAL_REFERENCE.fedPolicy.value,
-  fedStatus: AIO_MANUAL_REFERENCE.fedPolicy.status,
+  fedRate: null,
+  fedStatus: null,
   ecbRate: null,
   ecbStatus: null,
   fomc: null,
-  fomcNext: AIO_MANUAL_REFERENCE.fedPolicy.next,
+  fomcNext: null,
   bokRate: AIO_MANUAL_REFERENCE.bokPolicy.value,
   bokStatus: AIO_MANUAL_REFERENCE.bokPolicy.status,
   bokNext: AIO_MANUAL_REFERENCE.bokPolicy.next,
-  krCpi: AIO_MANUAL_REFERENCE.krInflation.headline,
-  krCoreCpi: AIO_MANUAL_REFERENCE.krInflation.core,
-  cpiNext: _aioFutureReferenceDate(AIO_MANUAL_REFERENCE.usCpiCalendar.next),
+  krCpi: null,
+  krCoreCpi: null,
+  cpiNext: null,
 
   // Runtime-populated volatile fields. Explicit nulls prevent zero coercion.
   spx:null, spxPct:null, spxATH:null, nasdaq:null, nasdaqPct:null,
@@ -13010,16 +12969,12 @@ const DATA_SNAPSHOT = {
   nfp:null, usNfp:null, usUnemploy:null, usWageGrowth:null,
   retailSales:null, housingStarts:null, consConf:null, ismPmi:null, ismSvc:null,
   fg:null, fgLabel:null, fg_categories:null, fg_indicators:null, fg_extended:null,
-  pcr:null, equityPutCall:null, indexPutCall:null,
   aaiiBear:null, aaiiBull:null, aaiiNeutral:null,
   naaimExposure:null, iiBull:null, iiBear:null, iiCorrection:null,
   breadth5sma:null, breadth20sma:null, breadth50sma:null, breadth200sma:null,
-  krBond3y:null, krBond10y:null, krCd91:null, krUnemploy:null, krPpi:null,
-  krManufPmi:null, krManufPmiPrev:null, krGdp:null, krGdpYoy:null,
-  krExport:null, krExportReference:null, krImport:null, krSemiExport:null, krCreditBalance:null,
-  krDeposit:null, krShortSelling:null, krForeignNet:null,
-  krAdvance:null, krDecline:null, kr52wHigh:null, kr52wLow:null,
-  krServicePrice:null, krServicePmi:null, gexCurrent:null,
+  // v59.70 (S7/I10, owner: US first, no widget without a source): the Korean rates, CD91, government bonds, PMI, GDP,
+  // PPI, unemployment, credit/deposit, short-selling and KR breadth fields had no producer and are removed, not hidden.
+  krExportReference:null, gexCurrent:null,
   _fallback: {}
 };
 
@@ -13035,10 +12990,7 @@ window.AIO_MANUAL_REFERENCE = AIO_MANUAL_REFERENCE;
 // (scripts/ci-manual-reference-expiry-check.mjs evaluates this same block). P1737: a producer artifact whose status is
 // current/verified supersedes the manual value; otherwise the manual value stays on screen with its dates.
 var AIO_MANUAL_REFERENCE_EXPIRY_RULES = Object.freeze({
-  fedPolicy: Object.freeze({ label: '연준 정책금리 범위', where: 'js/aio-core.js AIO_MANUAL_REFERENCE.fedPolicy', graceDays: 1, producer: 'public-data/data.json policyRates.fed', screen: '정책금리 범위(대체 표시·일정의 현재 범위·CP2)를 기한 지남으로 보류' }),
   bokPolicy: Object.freeze({ label: '한국은행 기준금리', where: 'js/aio-core.js AIO_MANUAL_REFERENCE.bokPolicy', graceDays: 1, producer: 'public-data/official-references.json items.bokBaseRate', screen: '기준금리 값·결정 방향을 기한 지남으로 보류, 다음 회의일은 공식 일정에서 계속 표시' }),
-  krInflation: Object.freeze({ label: '한국 소비자물가', where: 'js/aio-core.js AIO_MANUAL_REFERENCE.krInflation', maxAgeDays: 35, producer: 'public-data/official-references.json items.krCpi', screen: '한국 CPI 값을 기한 지남으로 보류' }),
-  usCpiCalendar: Object.freeze({ label: '미국 CPI 다음 발표일', where: 'js/aio-core.js AIO_MANUAL_REFERENCE.usCpiCalendar', graceDays: 0, producer: 'public-data/macro-calendar.json schedules.us-cpi', screen: '다음 CPI 일정을 공표 일정표에서 표시하고, 없으면 비움' }),
   fomcEvent: Object.freeze({ label: 'FOMC 결정 결과 서술', where: 'js/aio-core.js AIO_EVENT_FRESHNESS_REGISTRY.fomc', producer: null, screen: '결정 결과를 과거 참고로만 표시(현재 판단 문구 차단, getEventClaimState)' }),
   // NAAIM retired from the screen (2026-10-13: the official page shows only an undated, three-month-delayed number that
   // cannot be verified against its page), so it carries no expiry item.
@@ -13082,14 +13034,7 @@ function _aioEvaluateManualReferences(input) {
       expiresAt: expiresAt, reviewFrom: reviewFrom, status: status, held: status === 'expired' || status === 'invalid' || status === 'unverified', screen: rule.screen, producer: rule.producer || null,
       producedAsOf: superseded ? _aioRefDate(replacement.asOf) : null });
   }
-  var cpiRow = (Array.isArray(schedules['us-cpi']) ? schedules['us-cpi'] : []).map(_aioRefDate).filter(Boolean).sort();
-  var cpiFuture = cpiRow.filter(function(date) { return date >= today; })[0] || null;
-  // DATA_SNAPSHOT.cpiNext follows the us-cpi schedule row, which carries its own expiry item below.
-  if (cpiFuture && !produced.usCpiCalendar) produced.usCpiCalendar = { status: 'current', asOf: producedAt['us-cpi'] || scheduleAsOf['us-cpi'] || null };
-  if (manual.fedPolicy) add('fedPolicy', R.fedPolicy, { asOf: manual.fedPolicy.asOf, nextExpectedAt: manual.fedPolicy.next });
   if (manual.bokPolicy) add('bokPolicy', R.bokPolicy, { asOf: manual.bokPolicy.asOf, nextExpectedAt: manual.bokPolicy.next });
-  if (manual.krInflation) add('krInflation', R.krInflation, { asOf: manual.krInflation.publishedAt });
-  if (manual.usCpiCalendar) add('usCpiCalendar', R.usCpiCalendar, { asOf: manual.usCpiCalendar.asOf, nextExpectedAt: manual.usCpiCalendar.next });
   var fomcEvent = (input.eventRegistry || {}).fomc;
   if (fomcEvent) add('fomcEvent', R.fomcEvent, { asOf: fomcEvent.eventDate, maxAgeDays: fomcEvent.maxClaimAgeDays });
   var meta = input.serverMeta || {};
@@ -13130,7 +13075,8 @@ function _aioNormalizeProducedReferences(previous, input) {
     var fed = input.policyRates && input.policyRates.fed;
     var lower = _aioRefNumber(fed && fed.lower), upper = _aioRefNumber(fed && fed.upper);
     P.fedPolicy = fed && lower != null && upper != null && upper > lower
-      ? { status: String(fed.status || 'unavailable'), value: lower.toFixed(2) + '-' + upper.toFixed(2), lower: lower, upper: upper, asOf: _aioRefDate(fed.asOf), reason: fed.reason || null }
+      ? { status: String(fed.status || 'unavailable'), value: lower.toFixed(2) + '-' + upper.toFixed(2), lower: lower, upper: upper, asOf: _aioRefDate(fed.asOf), reason: fed.reason || null,
+          decision: typeof fed.decision === 'string' ? fed.decision : null, decisionDate: _aioRefDate(fed.decisionDate) }
       : null;
   }
   var refs = input.officialReferences;
@@ -13184,9 +13130,8 @@ window.AIO.getFedPolicyRange = function(now) {
   if (typeof snap.fedTargetLower === 'number' && typeof snap.fedTargetUpper === 'number' && isFinite(snap.fedTargetLower) && isFinite(snap.fedTargetUpper)) {
     return { range: snap.fedTargetLower.toFixed(2) + '-' + snap.fedTargetUpper.toFixed(2) + '%', lower: snap.fedTargetLower, upper: snap.fedTargetUpper, asOf: (snap._fieldTs && (snap._fieldTs.macro_fedTargetLower || snap._fieldTs.macro_fred)) || null, origin: 'fred-snapshot', held: false };
   }
-  var state = window.AIO.getManualReferenceState('fedPolicy', now) || {};
-  var manual = AIO_MANUAL_REFERENCE.fedPolicy;
-  return { range: state.held ? null : manual.value + '%', asOf: manual.asOf, expiresAt: state.expiresAt || null, origin: 'manual', held: !!state.held };
+  // v59.70 (R7): no hand-kept range behind the producer any more; without a current producer or FRED bounds it is held.
+  return { range: null, asOf: produced && produced.asOf || null, origin: 'none', held: true };
 };
 // Projects the effective reference values (produced -> manual within its window -> held) into DATA_SNAPSHOT.
 window.AIO.applyManualReferenceState = function(now) {
@@ -13201,13 +13146,14 @@ window.AIO.applyManualReferenceState = function(now) {
   S._fieldTs = S._fieldTs || {};
   var releases = (window.AIO_MACRO_CALENDAR && window.AIO_MACRO_CALENDAR.releases) || {};
   var held = function(id) { return !!(state[id] && state[id].held); };
-  // Fed: DATA_SNAPSHOT.fedRate is replaced by the FRED effective rate once data.json loads; only the manual string is held.
+  // Fed: DATA_SNAPSHOT.fedRate is replaced by the FRED effective rate once data.json loads; until then the producer's
+  // range fills it. v59.70 (R7): the decision word is the producer's (policyRates.fed.decision), never a manual string.
   var fed = window.AIO.getFedPolicyRange(now);
-  if (S.fedRate === M.fedPolicy.value) {
-    if (fed.origin === 'produced') { S.fedRate = fed.range.replace('%', ''); S.fedStatus = fed.range === M.fedPolicy.value + '%' ? M.fedPolicy.status : null; S._fieldTs.fed_rate = fed.asOf; }
-    else if (fed.origin === 'manual' && fed.held) { S.fedRate = null; S.fedStatus = null; }
-  }
-  S.fomcNext = (releases['us-fomc'] && releases['us-fomc'].nextRelease) || _aioFutureReferenceDate(M.fedPolicy.next);
+  if (fed.origin === 'produced') {
+    if (S.fedRate == null) { S.fedRate = fed.range.replace('%', ''); S._fieldTs.fed_rate = fed.asOf; }
+    S.fedStatus = (P.fedPolicy && P.fedPolicy.decision) || null;
+  } else if (fed.held) S.fedStatus = null;
+  S.fomcNext = (releases['us-fomc'] && releases['us-fomc'].nextRelease) || null;
   var bok = P.bokPolicy && P.bokPolicy.status === 'verified' ? P.bokPolicy : null;
   if (bok) {
     S.bokRate = bok.value;
@@ -13219,11 +13165,10 @@ window.AIO.applyManualReferenceState = function(now) {
   var cpi = P.krInflation && P.krInflation.status === 'verified' ? P.krInflation : null;
   if (cpi) {
     S.krCpi = cpi.headline;
-    S.krCoreCpi = cpi.core != null ? cpi.core : (cpi.observation && cpi.observation === M.krInflation.observation ? M.krInflation.core : null);
+    S.krCoreCpi = cpi.core != null ? cpi.core : null;
     S._fieldTs.kr_cpi = cpi.asOf;
-  } else if (held('krInflation')) { S.krCpi = null; S.krCoreCpi = null; }
-  else { S.krCpi = M.krInflation.headline; S.krCoreCpi = M.krInflation.core; S._fieldTs.kr_cpi = M.krInflation.publishedAt; }
-  S.cpiNext = (releases['us-cpi'] && releases['us-cpi'].nextRelease) || _aioFutureReferenceDate(M.usCpiCalendar.next);
+  } else { S.krCpi = null; S.krCoreCpi = null; S._fieldTs.kr_cpi = null; } // v59.70: no verified release, no number
+  S.cpiNext = (releases['us-cpi'] && releases['us-cpi'].nextRelease) || null;
   if (P.krExports && P.krExports.status === 'verified') { S.krExportReference = P.krExports; S._fieldTs.krExportReference = P.krExports.asOf; }
   return audit;
 };
@@ -13324,7 +13269,8 @@ const NARRATIVE_ENGINE = (function() {
   function getSKEWRegime(v) { return regime(v, [[125,'low','낮음','#3dd68c',25],[140,'normal','보통','#ffa057',55],[Infinity,'high','높음','#ec5d5e',85]]); }
   function getMOVERegime(v) { return regime(v, [[80,'low','낮음','#3dd68c',25],[120,'normal','보통','#ffa057',55],[Infinity,'high','높음','#ec5d5e',85]]); }
   function getVVIXRegime(v) { return regime(v, [[85,'low','낮음','#3dd68c',25],[105,'normal','보통','#ffa057',55],[Infinity,'high','높음','#ec5d5e',85]]); }
-  function getFGRegime(v) { return regime(v, [[25,'fear','공포','#ec5d5e',25],[55,'neutral','중립','#ffa057',50],[75,'greed','탐욕','#ffa057',70],[Infinity,'extreme','극단 탐욕','#ec5d5e',90]]); }
+  // v59.70 (data audit R9): getFGRegime (25-55 '중립') was removed — it had no caller and disagreed with RULES.fearGreed
+  // (src/domain/rules/thresholds.js, under 45 = fear), the one Fear & Greed band (src/domain/sentiment/metrics.js fearGreedBand).
   function getBreadthRegime(v) { return regime(v, [[40,'weak','공포 영역','#ec5d5e',25],[55,'mixed','혼조','#ffa057',45],[70,'healthy','양호','#3dd68c',70],[Infinity,'broad','광범위','#3dd68c',90]]); }
   function getInsiderRegime(v) { return regime(v, [[20,'selling','매도 우위','#ec5d5e',25],[50,'neutral','중립','#ffa057',50],[Infinity,'buying','매수 우위','#3dd68c',80]]); }
 
@@ -13391,7 +13337,7 @@ const NARRATIVE_ENGINE = (function() {
   function clearSnapshot() { try { delete window._DS_OVERRIDE; } catch(_) {} }
   return {
     getSKEWRegime:getSKEWRegime, getMOVERegime:getMOVERegime, getVVIXRegime:getVVIXRegime,
-    getFGRegime:getFGRegime, getBreadthRegime:getBreadthRegime, getInsiderRegime:getInsiderRegime,
+    getBreadthRegime:getBreadthRegime, getInsiderRegime:getInsiderRegime,
     setSnapshot:setSnapshot, clearSnapshot:clearSnapshot,
     checkDistributionDiagnosis:checkDistributionDiagnosis, getFGInternalStructureText:getFGInternalStructureText,
     getDistributionDiagnosisText:getDistributionDiagnosisText, getCP1Text:getCP1Text, getCP2Text:getCP2Text,
@@ -13726,8 +13672,7 @@ function applyDataSnapshot() {
       'bok-status':    S.bokStatus ? S.bokStatus + (_bokBasis ? ' (' + Number(_bokBasis.slice(5, 7)) + '/' + Number(_bokBasis.slice(8, 10)) + ' 결정)' : '') : '—',
       'bok-next':      S.bokNext || '—',
       'kr-bond-10y':   '—', // current official observation required
-      'kr-cpi':        refHeld('krInflation', S.krCpi) ? '기한 지남' : unit(S.krCpi, 1, '%'),
-      'kr-gdp':        signed(S.krGdp, 1, '%'),
+      'kr-cpi':        unit(S.krCpi, 1, '%'),
       // v42.4: macro 페이지 소비·고용·주택 카드 매핑 누락 수정 (A-3)
       'retail-sales':  signed(S.retailSales, 1, '%'),
       'wage-growth':   unit(S.usWageGrowth, 1, '%'),
@@ -13741,7 +13686,6 @@ function applyDataSnapshot() {
       'vvix-pct':      _snap.pct(S.vvixChg),
       'skew':          '—', // current ^SKEW observation required
       'skew-pct':      _snap.pct(S.skewChg),
-      'pcr':           _snap.fixed(S.putCallRatio || S.pcr, 2),
       // v52.16 P5m/P618: HY 스프레드 HTML 하드코딩(289bp)이 DATA_SNAPSHOT.hySpread(275bp)와
       // applyDataSnapshot()에 배선이 없어 서로 다른 값으로 독립 표류하던 문제 — 매핑 추가.
       'hy-spread':     _snap.fixed(S.hySpread, 0) + ' bps',
@@ -13778,33 +13722,17 @@ function applyDataSnapshot() {
       'breadth-20sma': currentBreadth.available ? _snap.fixed(currentBreadth.sma20, 0) + '%' : '—',
       'breadth-50sma': currentBreadth.available ? _snap.fixed(currentBreadth.sma50, 0) + '%' : '—',
       // v50.6: breadth-200sma 매핑 제거 (시장 폭은 5/20/50일선만)
-      // 한국 매크로 추가 (Agent P1-22)
-      'kr-ppi':        '—',
-      'kr-pmi':        unit(S.krPmi, 1),
       'kr-export-reference': (_refState.krExports && _refState.krExports.held && !(S.krExportReference && S.krExportReference.status === 'verified')) ? (_refState.krExports.status === 'unverified' ? '발표 대기' : '갱신 기한 지남')
         : (S.krExportReference && S.krExportReference.status !== 'stale-reference' && isFinite(Number(S.krExportReference.exportsBillionUsd)))
         // v58.74 (text audit #23): Korean units and words; a same-period comparison this large is mostly the calendar (holidays,
         // working days), so it says so instead of reading as demand.
         ? '수출(' + String(S.krExportReference.periodLabel || '공식 잠정치').replace(/^\d{4}-(\d{2})-(\d{2})~(\d{2})$/, function (m, mo, d1, d2) { return Number(mo) + '/' + Number(d1) + '~' + Number(d2); }) + ' 잠정) ' + Math.round(Number(S.krExportReference.exportsBillionUsd) * 10).toLocaleString('ko-KR') + '억 달러, 전년 같은 기간 대비 ' + (Number(S.krExportReference.exportsYoyPct) > 0 ? '+' : '') + Number(S.krExportReference.exportsYoyPct).toFixed(1) + '%' + (Math.abs(Number(S.krExportReference.exportsYoyPct)) >= 30 ? '(같은 날짜 구간 비교라 명절·조업일수 차이가 크게 섞일 수 있습니다)' : '')
         : '발표 대기',
-      'kr-import':     unit(S.krImport, 1),
-      'kr-credit':     unit(S.krCreditBalance, 1, '조원'),
-      'kr-deposit':    unit(S.krDeposit, 1, '조원'),
-      'kr-short':      unit(S.krShortSelling, 2, '%'),
-      'kr-foreign-net':unit(S.krForeignNet, 0, '억원'),
-      // v48.14: 한국 시장 추가 지표 (Agent P1-20)
-      'kr-52w-high':   unit(S.kr52wHigh, 0, '개'),
-      'kr-52w-low':    unit(S.kr52wLow, 0, '개'),
-      'kr-advance':    unit(S.krAdvance, 0, '개'),
-      'kr-decline':    unit(S.krDecline, 0, '개'),
       // v48.15: kr-macro 페이지 세부 지표 data-snap 바인딩 (텍스트-B)
-      'kr-cpi-yoy':    refHeld('krInflation', S.krCpi) ? '기한 지남' : signed(S.krCpi, 1, '%'),
+      'kr-cpi-yoy':    signed(S.krCpi, 1, '%'),
       // v58.74 (text audit #24): the KR CPI block reads its own number against the 2% target instead of a fixed caveat.
-      'kr-cpi-read':   refHeld('krInflation', S.krCpi) || !_snap.valid(S.krCpi) ? '공식 물가 발표 전이라 목표 대비 위치는 보류합니다.'
+      'kr-cpi-read':   !_snap.valid(S.krCpi) ? '공식 물가 발표 전이라 목표 대비 위치는 보류합니다.'
         : (Math.abs(Number(S.krCpi) - 2) < 0.05 ? '물가가 한국은행 목표 2%와 같은 수준입니다.' : '물가가 한국은행 목표 2%보다 ' + Math.abs(Number(S.krCpi) - 2).toFixed(1) + '%p ' + (Number(S.krCpi) > 2 ? '높습니다.' : '낮습니다.')),
-      'kr-ppi-yoy':    '—',
-      'kr-manuf-pmi':  _snap.fixed(S.krManufPmi, 1),
-      'kr-gdp-qoq':    signed(S.krGdp, 1, '%'),
       'gex-current':      signed(S.gexCurrent, 1, 'B'),
       // US 매크로 인플레·고용: runtime producer가 채운 값만 표시한다.
       'cpi':           unit(S.cpi, 1, '%'),
@@ -13830,7 +13758,7 @@ function applyDataSnapshot() {
     });
     if (_snapFailed > 0 && typeof _aioLog === 'function') _aioLog('warn', 'snap', 'applyDataSnapshot: ' + _snapFailed + ' key(s) failed / ' + _snapApplied + ' applied');
     // P1736: the reference date and window of a manual value sit in its hover; the reference state is on the element.
-    [['bok-rate', 'bokPolicy'], ['bok-status', 'bokPolicy'], ['kr-cpi', 'krInflation'], ['kr-cpi-yoy', 'krInflation']].forEach(function(pair) {
+    [['bok-rate', 'bokPolicy'], ['bok-status', 'bokPolicy']].forEach(function(pair) {
       var item = _refState[pair[1]];
       if (!item) return;
       document.querySelectorAll('[data-snap="' + pair[0] + '"]').forEach(function(el) {
@@ -15224,7 +15152,7 @@ function _aioExternalReferenceMap(externalReferences) {
     formulas: {
       marketRegimeScore:{pages:['home','signal','briefing'],inputs:['SPY.pct','QQQ.pct','^VIX.price','^TNX.price'],output:'riskTone'},
       breadthConsensus:{pages:['breadth','signal'],inputs:['advanceDecline','ma50','ma200','newHighLow'],output:'breadthState'},
-      sentimentComposite:{pages:['sentiment','signal'],inputs:['VIX','putCall','fearGreed','hySpread'],output:'sentimentScore'},
+      sentimentComposite:{pages:['sentiment','signal'],inputs:['VIX','fearGreed','hySpread'],output:'sentimentScore'},
       technicalComposite:{pages:['technical','ticker'],inputs:['rsi','macd','maTrend','volume'],output:'technicalGrade'},
       macroStress:{pages:['macro','fxbond'],inputs:['rates','dollar','credit','oil','gold'],output:'macroRisk'},
       portfolioRisk:{pages:['portfolio'],inputs:['weights','beta','volatility','drawdown'],output:'portfolioRiskScore'},
@@ -15755,7 +15683,6 @@ function _aioExternalReferenceMap(externalReferences) {
     // generic `breadth` refresh updates proxies/top-gainers, not % above 20SMA itself.
     // Therefore it cannot be used as freshness evidence for this value-specific input.
     { id:'breadth200-participation', globalVar:'_breadth200', fetchKey:'breadthScreener', snapshotKey:null, label:'AIO 미국 유니버스 20SMA 상회 비율', family:'breadth', maxAgeMin:5760, decisionUse:'trading' },
-    { id:'pcr-putcall', globalVar:'_putCallRatio', fetchKey:'putCall', snapshotKey:'pcr', label:'Put/Call ratio', family:'sentiment', maxAgeMin:240, decisionUse:'trading' },
     { id:'hy-spread-bp', globalVar:'_hySpreadBp', fetchKey:'hySpread', snapshotKey:'hySpread', label:'HY spread (bp)', family:'credit', maxAgeMin:1440, decisionUse:'trading' },
     // AAII는 서버-side 주간 자동 갱신 reference(aio-ui.js data-source-kind="snapshot"과 동일 취급)다.
     // 클라이언트 실시간 fetchKey는 없으므로 항상 snapshot_reference이며 trading 게이트에서 제외한다.
@@ -15861,23 +15788,7 @@ function _aioExternalReferenceMap(externalReferences) {
     var raw = currentBreadth ? (currentBreadth.available ? currentBreadth.sma20 : null) : window[input.globalVar];
     var rawValue = _aioStrictFinite(raw);
     var evidence = null;
-    if (input && input.id === 'pcr-putcall') {
-      var pcrPayload = window._lastPutCallPayload || {};
-      var pcrMetric = pcrPayload.metric || null;
-      evidence = {
-        value: pcrMetric && pcrMetric.value != null ? pcrMetric.value : pcrPayload.totalPutCall,
-        source: pcrMetric && (pcrMetric.sourceLabel || pcrMetric.source) || pcrPayload.sourceLabel || null,
-        sourceKind: pcrMetric && (pcrMetric.sourceKind || pcrMetric.source) || pcrPayload.sourceKind || null,
-        sourceTier: pcrMetric && pcrMetric.sourceTier || pcrPayload.sourceTier || null,
-        rightsId: pcrMetric && pcrMetric.rightsId || pcrPayload.rightsId || null,
-        revisionId: pcrMetric && (pcrMetric.revisionId || pcrMetric.revision) || pcrPayload.revisionId || null,
-        allowedUseCeiling: pcrMetric && pcrMetric.allowedUseCeiling || pcrPayload.allowedUseCeiling || null,
-        allowedUse: pcrMetric && (pcrMetric.allowedUse != null ? pcrMetric.allowedUse : pcrMetric.decisionUse),
-        observedAt: pcrPayload.asOf || (pcrMetric && pcrMetric.ts) || null,
-        freshnessMs: pcrMetric && pcrMetric.freshnessMs || pcrPayload.freshnessMs || null,
-        quality: pcrMetric && (pcrMetric.quality || pcrMetric.contract) || pcrPayload.quality || null
-      };
-    } else if (input && input.id === 'breadth200-participation') {
+    if (input && input.id === 'breadth200-participation') {
       var breadthRead = typeof window._aioScreenerBreadth === 'function' ? window._aioScreenerBreadth() : null;
       var breadthState = (breadthRead && breadthRead.state) || {}, breadthData = (breadthRead && breadthRead.us) || {};
       evidence = {

@@ -57,7 +57,6 @@ export function installProxyTransport(window = globalThis) {
     'api.fear-and-greed.com', 'production.dataviz.cnn.io', 'api.alternative.me',
     'api.coingecko.com',
     'open.er-api.com', 'api.exchangerate-api.com',
-    'cdn.cboe.com',
     'translate.googleapis.com', 'translate.google.com'
   ];
   function _aioSharedWorkerRelays(url) {

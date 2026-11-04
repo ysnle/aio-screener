@@ -1,0 +1,16 @@
+{
+  "p": {
+    "title": "실패한 원천 레코드가 판단용 사용 등급을 그대로 발행",
+    "symptom": "Cboe 풋/콜 비율이 HTTP 403으로 13일째 갱신되지 않아 status 'stale-reference'(asOf 2026-10-22)인데, data.json putCall.allowedUse는 'decision-with-daily-delay'(evidence 계약상 decision)로 남아 있었다.",
+    "root_cause": "allowedUse를 원천 선언에서 그대로 복사했고, 최신 읽기가 실패해 이전 값을 유지할 때 사용 등급을 낮추는 공통 규칙이 없었다(각 레인이 status만 바꿨다).",
+    "fix": "src/data/contracts/evidence.js degradeAllowedUseOnStatus/degradePayloadAllowedUse: status가 stale·retain·fail·error·block·unavailable·missing·not-collected·expired 계열이고 allowedUse가 decision급이면 'reference-only'로 낮추고 원래 값은 allowedUseDeclared에, 이유는 allowedUseDegradedBy에 남긴다. fetch-data toPublicPayload가 data.json 최상위와 한 단계 아래 레코드에 적용한다. 매 실행마다 allowedUseDeclared(없으면 현재 allowedUse)에서 다시 계산해 이전 실행의 강등을 물려받지 않고(회복 시 선언값 복귀), 자기 status가 없는 레코드는 파일의 aio-freshness.v1 상태(fileState)를 따른다. 자기 status가 있으면 그것이 우선한다.",
+    "violated_rule": "AGENTS: 원천 없는 판단 금지 / evidence 계약(freshness가 decision을 승격하지 못하고 강등만 한다)",
+    "prevention": "scripts/ci-data-audit-contract-check.mjs R5: stale 레코드는 reference-only, current 레코드는 선언 유지, 한 단계 아래 레코드도 강등, fetch-data가 규칙을 거쳐 발행. 회복(stale → ok 다음 실행에서 decision 복귀), 이중 강등 없음, 자기 status 없는 레코드의 fileState stale/fresh, 자기 status 우선을 픽스처로 검사.",
+    "verification": "현재 data.json에 적용하면 putCall 하나만 바뀐다(allowedUse reference-only, allowedUseDeclared decision-with-daily-delay). 심리 합성 점수는 풋/콜 이력이 부족해 처음부터 '자료 부족'으로 빠지고, 7개 중 4개가 정상이라 'partial'로 표시된다."
+  },
+  "r": null,
+  "changelog": [
+    "**실패 레코드 사용 등급 상한 ({P}, {VERSION}):** 최신 읽기에 실패한 data.json 레코드(stale·unavailable 등)는 판단용 allowedUse를 'reference-only'로 낮춰 발행한다. 매 실행 선언값에서 다시 계산하므로 원천이 회복되면 다음 실행에서 판단용으로 돌아오고, 자기 상태가 없는 레코드는 파일 신선도(aio-freshness.v1)를 따른다. 13일 묵은 Cboe 풋/콜이 'decision-with-daily-delay'로 남아 있던 문제(data audit R5)."
+  ],
+  "note": "stale record allowedUse ceiling (R5)"
+}

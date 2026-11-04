@@ -14,12 +14,12 @@
     "UNKNOWN"
   ],
   "generatedAt": "2026-11-03T22:32:14.290Z",
-  "revision": "reconciliation:market-snapshot:2026-11-03T12:55:11.996Z:16602032:164875f4",
+  "revision": "reconciliation:market-snapshot:2026-11-03T12:55:11.996Z:16602032:ba43f704",
   "overall": "PARTIAL",
   "counts": {
-    "PARTIAL": 14,
+    "PARTIAL": 13,
     "MATCH": 5,
-    "BLOCKED": 3
+    "BLOCKED": 4
   },
   "categories": [
     {
@@ -257,67 +257,54 @@
     },
     {
       "categoryId": "put-call",
-      "status": "PARTIAL",
-      "sourceClass": "PARTIAL",
-      "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: daily-observation-current.",
+      "status": "BLOCKED",
+      "sourceClass": "UNAVAILABLE",
+      "reason": "Put/call retired: Cboe terms forbid storing and redistributing its statistics; nothing is collected. Missing: redistribution-rights.",
       "marketSnapshotRevision": "market-snapshot:2026-11-03T12:55:11.996Z:16602032",
       "checkedAt": "2026-11-03T22:32:14.290Z",
       "refresh": {
         "cadence": "daily",
-        "mode": "scheduled",
+        "mode": "retired-terms",
         "dailyAuditRequired": true,
-        "producer": "scripts/fetch-data.mjs",
+        "producer": "none (retired 2026-11-04)",
         "artifacts": [
-          "public-data/data.json"
+          "public-data/reconciliation-status.json"
         ],
         "consumers": [
-          "sentiment",
-          "briefing"
+          "sentiment"
         ]
       },
       "origins": [
         {
           "id": "cboe-daily-statistics",
           "authority": "official-exchange",
-          "sourceKind": "T1_OFFICIAL",
-          "access": "public-web-terms-apply",
+          "sourceKind": "licensed",
+          "access": "written-consent-required",
           "url": "https://www.cboe.com/us/options/market_statistics/daily/",
           "fields": [
-            "totalPutCall",
-            "equityPutCall",
-            "indexPutCall"
+            "totalPutCall"
           ]
         }
       ],
-      "structuralLimit": null,
+      "structuralLimit": {
+        "kind": "publisher-terms-forbid-storage-and-redistribution",
+        "reason": "Cboe terms forbid copying, storing and redistributing its market statistics without prior written consent; no free automated source exists.",
+        "remediation": "Collect nothing; a licensed Cboe data agreement is the only way back."
+      },
       "evidence": {
-        "observed": 2,
-        "required": 3,
-        "gate": "cboe-delayed-lineage",
-        "rights": "REVIEW_REQUIRED",
+        "observed": 0,
+        "required": 1,
+        "gate": "retired-terms",
+        "rights": "OPERATOR_REQUIRED",
         "sourceRevision": "market-snapshot:2026-11-03T12:55:11.996Z:16602032",
         "promotable": false,
         "checks": [
           {
-            "id": "total-put-call-present",
-            "status": "PASS",
-            "sourceArtifact": "public-data/data.json",
-            "observedAt": "2026-10-22",
-            "detail": null
-          },
-          {
-            "id": "daily-observation-current",
+            "id": "redistribution-rights",
             "status": "FAIL",
-            "sourceArtifact": "public-data/data.json",
-            "observedAt": "2026-10-22",
-            "detail": null
-          },
-          {
-            "id": "cboe-source-and-delay-policy",
-            "status": "PASS",
-            "sourceArtifact": "public-data/data.json",
-            "observedAt": "2026-10-24T00:21:15.533Z",
-            "detail": null
+            "sourceArtifact": "operator/provider-contract",
+            "observedAt": null,
+            "detail": "Cboe statistics need prior written consent to copy, store or redistribute."
           }
         ]
       }
@@ -1810,7 +1797,6 @@
     ],
     "partialCategories": [
       "market-quotes",
-      "put-call",
       "aaii",
       "us-breadth",
       "kr-breadth",
@@ -1825,11 +1811,13 @@
       "crypto"
     ],
     "operatorRequiredCategories": [
+      "put-call",
       "naaim",
       "investors-intelligence",
       "kr-macro-vkospi-supply"
     ],
     "policyBlockedCategories": [
+      "put-call",
       "naaim",
       "investors-intelligence",
       "kr-macro-vkospi-supply"

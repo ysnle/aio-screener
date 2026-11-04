@@ -131,8 +131,6 @@ export function buildServerDataMeta(d, { reconciliation, now = Date.now() } = {}
     cycleManifestRevision: m.cycleManifestRevision || null,
     cycleManifestAttemptRevision: m.cycleManifestAttemptRevision || null,
     cycleComponents: m.cycleComponents || null,
-    putCallOk: !!m.putCallOk,
-    putCallAsOf: m.putCallAsOf || d.putCall?.asOf || null,
     // v52.75/WP-AI0: generation success is not semantic verification; the raw LLM marketAnalysis stays blocked until
     // the producer emits an explicit semantic-gate pass.
     marketAnalysisSemanticOk: m.marketAnalysisSemanticOk === true,

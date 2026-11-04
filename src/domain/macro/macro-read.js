@@ -343,7 +343,7 @@ function sharedGauges({ macro, rateFx, regime }) {
   const creditBy20 = cause.primary === 'wide20' && finite(rateFx?.hy20Record?.value) != null;
   // v57.50 (W1 request): a level under the tight cut is drawn favourable only when creditState() says so (5-day not
   // widening, no 20-session widening, no heavy hedging) — otherwise that band is neutral, as on the 시장 상태 axis.
-  const creditVerdict = stateOf('credit') !== 'unknown' ? stateOf('credit') : creditState({ hyBp, hy5, hy20: rateFx?.hy20 ?? null, pcr: null }); // hy20: macro-history 20-session change
+  const creditVerdict = stateOf('credit') !== 'unknown' ? stateOf('credit') : creditState({ hyBp, hy5, hy20: rateFx?.hy20 ?? null }); // hy20: macro-history 20-session change
   const lowTone = creditVerdict === 'favorable' ? 'favorable' : 'neutral';
   const record20 = rateFx?.hy20Record;
   const credit = creditBy20
@@ -510,7 +510,7 @@ function buildChain({ macro, regime, rateFx, oil = null, mh = null }) {
   const hy5 = finite(macro.hyOASDelta5);
   // v57.50 (coordinator rule): "안정" is said only when creditState() is favorable — the same verdict as the 시장 상태 credit
   // axis. A small 5-day move alone is not calm (the level or a 20-session widening can still hold the axis at 중립/부담).
-  const creditVerdict = axisById.credit?.state || creditState({ hyBp: finite(macro.hyOAS) == null ? null : finite(macro.hyOAS) * 100, hy5: hy5 == null ? null : hy5 * 100, hy20: hyDelta20Bp(mh)?.value ?? null, pcr: null });
+  const creditVerdict = axisById.credit?.state || creditState({ hyBp: finite(macro.hyOAS) == null ? null : finite(macro.hyOAS) * 100, hy5: hy5 == null ? null : hy5 * 100, hy20: hyDelta20Bp(mh)?.value ?? null });
   // Codex audit F06: a 부담 names the input that decided it (level / 5-session / 20-session record), never a fixed "수준".
   const hyBpNow = finite(macro.hyOAS) == null ? null : finite(macro.hyOAS) * 100;
   const record20 = mh ? hyWidening20Record(mh) : null;

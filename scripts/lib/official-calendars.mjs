@@ -246,7 +246,26 @@ export function buildMacroCalendarPayload({ nowMs = Date.now(), fredSchedules = 
 // current only when both bounds are finite, observed on the same date, exactly 25bp apart and no older than
 // FED_POLICY_RATE_MAX_AGE_DAYS; anything else is published as stale with the reason (consumers then show the
 // previous reference with its date instead of a current-looking value).
-export function deriveFedPolicyRate(macro = {}, nowMs = Date.now()) {
+// v59.70 (data audit R7): the latest FOMC decision read from the target's own history, so the screen's '동결/인하/인상'
+// no longer comes from a hand-kept string. `upperHistory` is macro-history.json series.fedTargetUpper.observations
+// ([date, value] rows), `fomcDates` the decision days (macro-calendar.json schedules['us-fomc']). The decision is the
+// target upper bound on/after the latest decision day on or before `asOf` against the last observation before it.
+export function deriveFedDecision({ upper = null, asOf = null, upperHistory = null, fomcDates = null } = {}) {
+  const value = readNumber(upper);
+  const through = isoDate(asOf);
+  const days = (Array.isArray(fomcDates) ? fomcDates : []).map(isoDate).filter((day) => day && through && day <= through).sort();
+  const decisionDay = days.at(-1) || null;
+  if (value == null || !decisionDay) return null;
+  const before = (Array.isArray(upperHistory) ? upperHistory : [])
+    .map((row) => (Array.isArray(row) ? { date: isoDate(row[0]), value: readNumber(row[1]) } : { date: isoDate(row?.date), value: readNumber(row?.value) }))
+    .filter((row) => row.date && row.value != null && row.date < decisionDay)
+    .sort((a, b) => a.date.localeCompare(b.date)).at(-1);
+  if (!before) return null;
+  const change = Math.round((value - before.value) * 100) / 100;
+  return { decision: change > 0 ? '인상' : change < 0 ? '인하' : '동결', decisionDate: decisionDay, changePp: change, previousUpper: before.value };
+}
+
+export function deriveFedPolicyRate(macro = {}, nowMs = Date.now(), { upperHistory = null, fomcDates = null } = {}) {
   const num = readNumber;
   const lower = num(macro?.fedTargetLower);
   const upper = num(macro?.fedTargetUpper);
@@ -259,5 +278,6 @@ export function deriveFedPolicyRate(macro = {}, nowMs = Date.now()) {
   else if (asOfLower !== asOfUpper) reason = `observation-date-mismatch:${asOfLower}/${asOfUpper}`;
   else if (Math.abs(upper - lower - 0.25) > 1e-9) reason = `range-width-unexpected:${lower}-${upper}`;
   else if ((nowMs - Date.parse(`${asOf}T00:00:00Z`)) / DAY_MS > FED_POLICY_RATE_MAX_AGE_DAYS) reason = `older-than-${FED_POLICY_RATE_MAX_AGE_DAYS}d`;
-  return { lower, upper, asOf, source: FED_POLICY_RATE_SOURCE, status: reason ? 'stale' : 'current', reason };
+  const decision = reason ? null : deriveFedDecision({ upper, asOf, upperHistory, fomcDates });
+  return { lower, upper, asOf, source: FED_POLICY_RATE_SOURCE, status: reason ? 'stale' : 'current', reason, ...(decision ? decision : {}) };
 }

@@ -12,6 +12,7 @@ import { compareUsdKrwCrossCheck } from '../lib/macro-sources.mjs';
 import { HIST } from './paths.mjs';
 import { mapLimit, fetchHistory, fetchHourlySessionClose } from './quotes.mjs';
 import { readNumber } from '../../src/domain/shared/number.js';
+import { readHistoryRows, compactHistoryRows } from '../../src/domain/market/history-rows.js';
 
 // history.json 레코드 필드 ↔ Yahoo 심볼 매핑 (백필 대상). F&G/IV는 과거 무료 소스 없어 제외(해당 일자 null).
 const HIST_SYMBOLS = {
@@ -35,13 +36,18 @@ const HIST_SYMBOLS = {
   // SYMBOLS, gets a daily close column so a semiconductor drawdown under a steady index (2026-02~03, 2026-07) is on record.
   // The <60-observation rule backfills one year on the next run. Nothing reads it for a judgement yet.
   'SMH': 'smh',
+  // v59.70 (owner 11/4): SOXX is the 'AI 주도' leadership proxy (market-read leadershipBreakOf). A core column, so the thin-
+  // field rule (<60 observations) runs the full one-year daily backfill on the next run.
+  'SOXX': 'soxx',
   // Audit 2026-10-17 (owner D5): the equal-weight S&P 500 ETF, already in SYMBOLS, is the US theme stage's benchmark.
   'RSP': 'rsp',
   // v59.55 (owner 11/1, 매크로 원자재 장): COMEX silver futures, already a live quote, get a completed-close column beside
   // gold so the gold/silver ratio and silver's drawdown have a record. The <60-observation rule backfills one year.
   'SI=F': 'silver',
+  // v59.70 (data audit R12): non-core research columns (quotes.mjs AUX_SYMBOLS); nothing reads them for a judgement yet.
+  '^SOX': 'sox', '^MOVE': 'move', '^SKEW': 'skew', '^VIX9D': 'vix9d',
 };
-const HIST_FIELDS = ['spx','nasdaq','ndx','dow','rut','vix','vix3m','vvix','tnx','dxy','wti','brent','gold','silver','kospi','kosdaq','btc','usdkrw','usdjpy','tlt','smh','rsp','fg'];
+const HIST_FIELDS = ['spx','nasdaq','ndx','dow','rut','vix','vix3m','vvix','tnx','dxy','wti','brent','gold','silver','kospi','kosdaq','btc','usdkrw','usdjpy','tlt','smh','soxx','rsp','sox','move','skew','vix9d','fg'];
 // P1246 (data-refresh: 품질 경계): 히스토리 시장 필드의 **단일** 타당 범위 선언. producer가 이 범위를
 // 벗어난 값을 관측으로 승격하지 않고(null + fieldMeta 없음 = P1101의 무관측 표기), 게이트가 같은 선언을
 // 가져와 아티팩트를 검사한다 — 선언과 집행이 서로 다른 리터럴을 들고 어긋나는 경로를 만들지 않는다.
@@ -55,8 +61,10 @@ export const HIST_FIELD_PLAUSIBILITY = Object.freeze({
   usdjpy: [50, 400],
   tlt: [20, 400],
   smh: [20, 2000],
+  soxx: [20, 2000],
   rsp: [20, 2000],
   silver: [1, 500],
+  sox: [100, 50000], move: [20, 400], skew: [90, 200], vix9d: [5, 200],
 });
 export function histValueWithinPlausibility(field, value) {
   const range = HIST_FIELD_PLAUSIBILITY[field];
@@ -70,8 +78,10 @@ const HIST_MARKET_FIELDS = HIST_FIELDS.filter(field => field !== 'fg');
 // different key sets and a one-row breadth lag was indistinguishable from
 // "unavailable" (P1101). Both lanes now publish every column; absence is null.
 const HIST_BREADTH_FIELDS = ['breadth20','breadth50','breadth200','advanceRatio','advanceDecline','breadth40','breadthUp4','breadthDown4','breadthNewHighs','breadthNewLows','breadthLow20','breadthLow63','distributionDays','rallyPhase','rallyDay','followThroughDay']; // P1416 · v58.68 recent closing lows · v59.57 follow-through day
-const HIST_SENTIMENT_FIELDS = ['pcr']; // P1586 put/call accumulates only on Cboe trading dates; every other row carries null
-const HIST_ALL_FIELDS = [...HIST_FIELDS, ...HIST_BREADTH_FIELDS, ...HIST_SENTIMENT_FIELDS];
+const HIST_ALL_FIELDS = [...HIST_FIELDS, ...HIST_BREADTH_FIELDS];
+// v59.70 (owner 11/4): the Cboe put/call column (P1586 'pcr') is retired — Cboe's terms forbid storing and
+// redistributing its statistics — and every write removes the stored values with their provenance.
+export const RETIRED_HIST_FIELDS = Object.freeze(['pcr']);
 // Per-row cycle metadata. Rows seeded by the historical backfill never carried
 // it, so the column set differed by row; null records "not recorded" instead.
 const HIST_ROW_META = ['seriesMode','cycleEnd','marketSnapshotRevision'];
@@ -84,6 +94,7 @@ export function normalizeHistoryRows(hist) {
     if (!row || typeof row !== 'object') continue;
     if (!row.fieldMeta || typeof row.fieldMeta !== 'object') row.fieldMeta = {};
     for (const key of HIST_ROW_META) if (row[key] === undefined) row[key] = null;
+    for (const field of RETIRED_HIST_FIELDS) { delete row[field]; delete row.fieldMeta[field]; }
     for (const field of HIST_ALL_FIELDS) {
       if (row[field] === undefined) row[field] = null;
       if (readNumber(row[field]) == null) delete row.fieldMeta[field];
@@ -120,9 +131,14 @@ export function missingRecentUsSessions(hist, nowMs = Date.now(), lookbackDays =
   return missing.sort();
 }
 
-async function backfillHistory(hist) {
+// v59.70 (R12): the research columns of quotes.mjs AUX_SYMBOLS. Their thin history never triggers the full backfill
+// (all ~30 symbols); they backfill on their own, once an hour at most (minute < 30), so a series the provider does not
+// serve costs four requests an hour instead of a full refetch every cycle.
+const AUX_HIST_SYMBOLS = Object.freeze(['^SOX', '^MOVE', '^SKEW', '^VIX9D']);
+const AUX_HIST_FIELDS = new Set(AUX_HIST_SYMBOLS.map((sym) => HIST_SYMBOLS[sym]));
+
+async function backfillHistory(hist, syms = Object.keys(HIST_SYMBOLS)) {
   const byDate = {};
-  const syms = Object.keys(HIST_SYMBOLS);
   const results = await mapLimit(syms, 4, async (sym) => ({ sym, rows: await fetchHistory(sym, '1y') }));
   for (const r of results) {
     if (!r || r.__error || !Array.isArray(r.rows)) continue;
@@ -497,7 +513,7 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
       fieldMeta,
     };
     let hist = [];
-    try { const raw = JSON.parse(await readFile(HIST, 'utf8')); if (Array.isArray(raw)) hist = raw; } catch { /* 최초 실행 */ }
+    try { hist = readHistoryRows(JSON.parse(await readFile(HIST, 'utf8'))); } catch { /* 최초 실행 */ } // v59.70 R2: v1 or history.v2
     // CNN publishes a dated historical series in the same response as the
     // current Fear & Greed value. Backfill those observations with their real
     // dates instead of waiting 60 future refresh cycles or inventing history.
@@ -517,14 +533,6 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
         allowedUse: 'reference-history'
       };
     }
-    // P1586: the Cboe total put/call ratio accumulates one point per trading date (the page's own date,
-    // never the fetch day) so the self-computed sentiment index can average five sessions.
-    if (data.putCall?.status === 'current-reference' && /^\d{4}-\d{2}-\d{2}$/.test(String(data.putCall.asOf || '')) && readNumber(data.putCall.totalPutCall) != null) {
-      let row = hist.find((item) => item?.date === data.putCall.asOf);
-      if (!row) { row = { date: data.putCall.asOf, fieldMeta: {} }; hist.push(row); }
-      row.pcr = Number(data.putCall.totalPutCall);
-      row.fieldMeta = { ...(row.fieldMeta || {}), pcr: { observedAt: data.putCall.asOf, fetchedAt, lastSuccessfulAt: fetchedAt, source: 'Cboe Daily Market Statistics', sourceKind: 'T3_PUBLIC_DELAYED', allowedUse: 'reference-history' } };
-    }
     // `fieldMeta.fg` cites the CNN historical graph, so the row value must be
     // that series' point for the day. The headline `fearGreed.score` is rounded
     // separately, and spreading it over the row published 26 beside provenance
@@ -534,11 +542,15 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
     // v50.52 B4: 최초/얇을 때(또는 BACKFILL=1) 6개월 일별 종가로 과거 시드 — 차트 대기 제거(멱등).
     let backfilled = 0;
     const needsFieldMeta = hist.some(row => HIST_MARKET_FIELDS.some(field => typeof row?.[field] === 'number' && !row?.fieldMeta?.[field]?.observedAt));
-    const needsFieldBackfill = HIST_MARKET_FIELDS.some((field) => hist.filter((row) => typeof row?.[field] === 'number' && Number.isFinite(row[field])).length < 60);
+    const thinField = (field) => hist.filter((row) => typeof row?.[field] === 'number' && Number.isFinite(row[field])).length < 60;
+    const needsFieldBackfill = HIST_MARKET_FIELDS.some((field) => !AUX_HIST_FIELDS.has(field) && thinField(field));
+    const thinAux = AUX_HIST_SYMBOLS.filter((sym) => thinField(HIST_SYMBOLS[sym]));
     const missingSessions = missingRecentUsSessions(hist);
     if (missingSessions.length) console.log(`[fetch-data] 최근 미국 거래일 종가 누락 ${missingSessions.join(',')} — 일봉 백필 실행`);
     if (hist.length < 60 || process.env.BACKFILL === '1' || needsFieldMeta || needsFieldBackfill || missingSessions.length) {
       try { const bf = await backfillHistory(hist); hist = bf.hist; backfilled = bf.added; } catch (e) { console.warn('[fetch-data] backfill 실패(무시):', e && e.message || e); }
+    } else if (thinAux.length && new Date(fetchedAt).getUTCMinutes() < 30) {
+      try { const bf = await backfillHistory(hist, thinAux); hist = bf.hist; backfilled = bf.added; console.log(`[fetch-data] aux history backfill ${thinAux.join(',')}: +${bf.added}`); } catch (e) { console.warn('[fetch-data] aux backfill 실패(무시):', e && e.message || e); }
     }
     hist = carryForwardHistoryEvidence(hist);
     const displaced = keepDisplacedSessions(hist, today, rec);
@@ -550,7 +562,7 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
     if (held.held.length || held.revised.length) console.log(`[fetch-data] history: 같은 세션 반복 ${held.held.length}건 보류 표시, 재조회 갱신 ${held.revised.length}건`);
     hist.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
     if (hist.length > 420) hist = hist.slice(hist.length - 420);  // 14개월 cap
-    await atomicWriteFile(HIST, JSON.stringify(normalizeHistoryRows(hist)));
+    await atomicWriteFile(HIST, JSON.stringify(compactHistoryRows(normalizeHistoryRows(hist)))); // v59.70 R2: history.v2
     // P1246: 이번 실행이 실제로 기록한 USD/KRW 확정 종가. FRED DEXKOUS 교차검증이 이 값을 기준으로
     // 삼는다 — 아티팩트가 실제로 담은 값이어야 검증이 의미를 갖는다. 없으면 null로 남겨 교차검증이
     // "판정 불가"를 말하게 한다(값을 지어내지 않는다).

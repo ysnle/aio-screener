@@ -917,6 +917,34 @@
           ]
         },
         {
+          "id": "data-audit-contract",
+          "script": "scripts/ci-data-audit-contract-check.mjs",
+          "inputs": [
+            "scripts/fetch-data.mjs",
+            "scripts/producer/**",
+            "scripts/lib/official-calendars.mjs",
+            "scripts/lib/market-interpretation-inputs.mjs",
+            "scripts/build-validation-gates.mjs",
+            "src/data/contracts/evidence.js",
+            "src/data/selectors/**",
+            "src/domain/interpretation/**",
+            "src/domain/market/breadth.js",
+            "src/domain/market/korea-participation.js",
+            "js/aio-core.js",
+            "js/aio-pages.js",
+            "architecture/validation-gate-criteria.json",
+            "public-data/screener-validation-gate.json",
+            "public-data/model-validation-status.json",
+            "public-data/factor-backtest-longrun.json",
+            "public-artifact-manifest.json",
+            "scripts/fetch-dart-fundamentals.mjs",
+            "scripts/fetch-kr-investor-flows.mjs",
+            ".github/workflows/pages-deploy.yml",
+            "index.html",
+            "sw.js"
+          ]
+        },
+        {
           "id": "screener-workbench",
           "script": "scripts/ci-screener-workbench-contract.mjs"
         },
@@ -961,6 +989,17 @@
         {
           "id": "history-time",
           "script": "scripts/ci-history-field-time-contract-check.mjs"
+        },
+        {
+          "id": "history-access",
+          "script": "scripts/ci-history-access-check.mjs",
+          "inputs": [
+            "src/domain/market/history-rows.js",
+            "scripts/**",
+            "src/**",
+            "js/aio-data.js",
+            "public-data/history.json"
+          ]
         },
         {
           "id": "history-session-model",
@@ -2737,6 +2776,21 @@
     },
     {
       "patterns": [
+        "scripts/lib/official-calendars.mjs",
+        "scripts/lib/market-interpretation-inputs.mjs",
+        "scripts/build-validation-gates.mjs",
+        "js/aio-pages.js",
+        "architecture/validation-gate-criteria.json"
+      ],
+      "groups": [
+        "data"
+      ],
+      "gates": [
+        "data-audit-contract"
+      ]
+    },
+    {
+      "patterns": [
         "scripts/ci-knowledge-generated-parity-check.mjs",
         "scripts/lib/atomic-write.mjs",
         "scripts/lib/13f-semantic-hash.mjs",
@@ -2758,6 +2812,7 @@
         "src/platform/storage.js",
         "src/ui/navigation/route-hubs.js",
         "src/data/stock-subject-store.js",
+        "src/domain/market/history-meta.js",
         ".github/workflows/knowledge-build-candidate.yml"
       ],
       "groups": [

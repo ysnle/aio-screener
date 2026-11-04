@@ -36,9 +36,12 @@ export const DATA_SOURCE_REGISTRY = Object.freeze({
     origins: [{ id: 'cnn-fear-greed', authority: 'publisher', sourceKind: 'secondary-index', access: 'public-web', url: 'https://www.cnn.com/markets/fear-and-greed', fields: ['score', 'rating', 'daily-history'] }],
     structuralLimit: { kind: 'publisher-methodology-and-rights', reason: 'CNN is the index publisher but the web feed is not an exchange or regulator API.', remediation: 'Preserve CNN attribution and reference-only decision use unless a licensed contract is obtained.' }
   }),
+  // v59.70 (owner 11/4): retired like NAAIM (P1737) — Cboe's terms forbid copying, storing and redistributing its statistics
+  // without prior written consent, and no free automated source exists. The category stays BLOCKED (22-category contract).
   'put-call': entry({
-    cadence: 'daily', refreshMode: 'scheduled', producer: 'scripts/fetch-data.mjs', artifacts: ['public-data/data.json'], consumers: ['sentiment', 'briefing'],
-    origins: [{ id: 'cboe-daily-statistics', authority: 'official-exchange', sourceKind: 'T1_OFFICIAL', access: 'public-web-terms-apply', url: 'https://www.cboe.com/us/options/market_statistics/daily/', fields: ['totalPutCall', 'equityPutCall', 'indexPutCall'] }], structuralLimit: null
+    cadence: 'daily', refreshMode: 'retired-terms', producer: 'none (retired 2026-11-04)', artifacts: ['public-data/reconciliation-status.json'], consumers: ['sentiment'],
+    origins: [{ id: 'cboe-daily-statistics', authority: 'official-exchange', sourceKind: 'licensed', access: 'written-consent-required', url: 'https://www.cboe.com/us/options/market_statistics/daily/', fields: ['totalPutCall'] }],
+    structuralLimit: { kind: 'publisher-terms-forbid-storage-and-redistribution', reason: 'Cboe terms forbid copying, storing and redistributing its market statistics without prior written consent; no free automated source exists.', remediation: 'Collect nothing; a licensed Cboe data agreement is the only way back.' }
   }),
   aaii: entry({
     cadence: 'weekly', refreshMode: 'scheduled', producer: 'scripts/fetch-data.mjs:fetchAaiiSentiment', artifacts: ['public-data/data.json', 'public-data/structural-data-research.json', 'public-data/reconciliation-status.json'], consumers: ['sentiment'],

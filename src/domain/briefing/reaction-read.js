@@ -16,7 +16,7 @@ const GUIDE_STRONG = /(?:전망|가이던스|guidance|outlook)[^.]{0,40}(?:상�
 const REASON_CLASSES = Object.freeze([
   { id: 'spend', label: '투자·비용 부담', re: /(?:설비투자|투자 확대|대규모 투자|지출|비용|현금흐름|마진|총마진|이익률)[^.]{0,30}(?:부담|압박|우려|악화|줄|낮|적자|하락|회수)/ },
   { id: 'execution', label: '실행·공급 차질', re: /(?:생산|공급|정비|가동|출하|지연|차질|중단|제약)[^.]{0,30}(?:차질|지연|중단|줄|감소|제약|우려|부진)|(?:차질|지연|중단)/ },
-  { id: 'management', label: '경영진 신뢰', re: /(?:경영진|CEO|최고경영자|최고재무|CFO)[^.]{0,40}(?:의문|회의|신뢰|불확실|사임|교체|해명|잠재우지 못|설득)/ },
+  { id: 'management', label: '경영진 신뢰', re: /(?:경영진|\bCEO\b|최고경영자|최고재무|\bCFO\b)[^.]{0,40}(?:의문|회의|신뢰|불확실|사임|교체|해명|잠재우지 못|설득)/ },
   { id: 'priced', label: '기대 선반영', re: /(?:높은 기대|기대가 컸|눈높이|선반영|이미 반영|기대치가 높|밸류에이션 부담)/ }
 ]);
 
@@ -34,10 +34,10 @@ export function resultVerdict(figures = []) {
 /** Raised, weak or none: the release's own guidance rows first, then what the reports said about the outlook. */
 export function guidanceTone(brief) {
   const own = (brief?.guidance || []).map((row) => `${row.label || ''} ${row.text || ''}`).join(' ');
-  if (/하향|낮춰|낮췄|lowered|cut/i.test(own)) return 'weak';
+  if (/하향|낮춰|낮췄|\blowered\b|\bcut\b/i.test(own)) return 'weak';
   const reported = (brief?.reasons?.points || []).map((point) => point.text).join(' ');
   if (GUIDE_WEAK.test(reported)) return 'weak';
-  if (/상향|높여|높였|raised/i.test(own) || GUIDE_STRONG.test(reported)) return 'raised';
+  if (/상향|높여|높였|\braised\b/i.test(own) || GUIDE_STRONG.test(reported)) return 'raised';
   return own ? 'given' : null;
 }
 

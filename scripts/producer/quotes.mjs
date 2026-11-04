@@ -6,7 +6,7 @@ import { dailyRowsFromYahooChart } from '../../src/domain/screener/price-factors
 import { fetchJSON } from '../lib/producer-http.mjs';
 
 // ── 수집 심볼 (v1 핵심셋). 더 넣으려면 배열에 추가만 하면 됨 (배치 처리 자동) ──
-export const SYMBOLS = [
+export const CORE_SYMBOLS = [
   // 미국·글로벌 지수
   '^GSPC','^IXIC','^NDX','^DJI','^RUT','^VIX','^VIX3M','^VVIX','^FTSE','^N225','^HSI',
   // 금리 (Yahoo: ^TNX=10Y, ^TYX=30Y, ^FVX=5Y, ^IRX=13주)
@@ -16,7 +16,7 @@ export const SYMBOLS = [
   // 미국 지수 선물 (2026-10-21: 시황 해석의 증거 계층 — market-snapshot evidenceQuotes. 공개 시세 평면이 아니다, P715)
   'ES=F','NQ=F',
   // 신용·핵심 ETF (breadth/리스크 입력)
-  'HYG','LQD','TLT','SPY','QQQ','IWM','RSP','DIA','SMH','XLK','XLF','XLE','XLV','XLI','XLY','XLP','XLU','XLRE','XLB','XLC',
+  'HYG','LQD','TLT','SPY','QQQ','IWM','RSP','DIA','SMH','SOXX','XLK','XLF','XLE','XLV','XLI','XLY','XLP','XLU','XLRE','XLB','XLC',
   // 한국 지수
   '^KS11','^KQ11',
   // 크립토
@@ -26,6 +26,12 @@ export const SYMBOLS = [
   // 한국 대표주
   '005930.KS','000660.KS','005380.KS','035420.KS','373220.KS','105560.KS','207940.KS',
 ];
+// v59.70 (data audit R12): non-core research columns — the semiconductor index (data only; the 'AI 주도' read uses
+// SOXX, a core symbol), the Treasury volatility index, Cboe SKEW and 9-day VIX. They are fetched
+// with the core set but never count toward the core coverage floor (fetch-data CORE_QUOTE_COVERAGE, meta.symbolCount),
+// so a provider gap on one of them cannot fail or degrade a refresh; history.json keeps their completed closes.
+export const AUX_SYMBOLS = Object.freeze(['^SOX', '^MOVE', '^SKEW', '^VIX9D']);
+export const SYMBOLS = [...CORE_SYMBOLS, ...AUX_SYMBOLS];
 
 // v50.24/WO-1: Yahoo는 두 호스트(query1/query2)를 운영하고 차단/레이트리밋이 호스트마다 다르게
 // 걸리는 경우가 잦다. GitHub Actions 러너 IP가 한 호스트에서 막혀도 다른 호스트로 폴백 → 전량 실패
@@ -370,7 +376,7 @@ export function _quoteOk(q) {
 // ETF, SYMBOLS 배열의 "breadth/리스크 입력" 블록과 동일)으로만 스코프를 한정한다.
 // 지수/선물/FX/KR 확장은 실제 유효 키로 심볼 표기를 실측 검증한 뒤 별도로 진행할 것.
 export const TWELVE_DATA_ETF_FALLBACK_SYMBOLS = new Set([
-  'HYG','LQD','TLT','SPY','QQQ','IWM','RSP','DIA','SMH',
+  'HYG','LQD','TLT','SPY','QQQ','IWM','RSP','DIA','SMH','SOXX',
   'XLK','XLF','XLE','XLV','XLI','XLY','XLP','XLU','XLRE','XLB','XLC',
 ]);
 

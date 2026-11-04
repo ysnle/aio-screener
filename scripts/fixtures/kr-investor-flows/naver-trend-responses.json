@@ -1,0 +1,9 @@
+{
+  "note": "v59.70: Naver m.stock.naver.com/api/index/{KOSPI|KOSDAQ}/trend?bizdate= responses as observed 2026-11-04 (values 억원). closed: a non-session date answers all zeros. changed: a format change (renamed field) the parser must reject.",
+  "kospi-20261030": { "bizdate": "20261030", "personalValue": "+6,028", "foreignValue": "-16,149", "institutionalValue": "+7,540" },
+  "kospi-20261103": { "bizdate": "20261103", "personalValue": "+16,388", "foreignValue": "-15,086", "institutionalValue": "-4,941" },
+  "kosdaq-20261103": { "bizdate": "20261103", "personalValue": "+567", "foreignValue": "-162", "institutionalValue": "-191" },
+  "closed-20261101": { "bizdate": "20261101", "personalValue": "0", "foreignValue": "0", "institutionalValue": "0" },
+  "changed-20261103": { "bizdate": "20261103", "individual": "+16,388", "foreign": "-15,086", "institution": "-4,941" },
+  "html-error": "<!doctype html><html lang=\"ko\"><title>Npay 증권</title></html>"
+}

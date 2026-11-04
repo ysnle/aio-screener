@@ -668,28 +668,8 @@ function renderCommodities(doc, root, oil = null) {
   );
 }
 
-// v58.75 (persona review): no producer publishes Korea's manufacturing PMI or quarterly GDP (DATA_SNAPSHOT keeps them
-// null), so the 경기지표 card showed two '—' rows whenever the export reference made it visible. A row still on '—'
-// is hidden and the card names what is not collected in one line; a value that arrives later shows its row again.
-const KR_UNCOLLECTED = Object.freeze([['kr-manuf-pmi', '제조업 PMI'], ['kr-gdp-qoq', 'GDP 성장률(전분기 대비)']]);
-function syncUncollectedKorea(doc) {
-  const missing = [];
-  let card = null;
-  for (const [snap, label] of KR_UNCOLLECTED) {
-    const cell = doc.querySelector(`#kr-integrated-macro [data-snap="${snap}"]`);
-    if (!cell) continue;
-    card = card || cell.closest('.aio-widget');
-    const empty = /^(—|-|.*미수신)?$/.test(String(cell.textContent || '').trim());
-    const row = cell.parentElement;
-    if (row) row.hidden = empty;
-    if (empty) missing.push(label);
-  }
-  if (!card) return;
-  let note = card.querySelector('.kr-uncollected-note');
-  if (!missing.length) { note?.remove(); return; }
-  if (!note) { note = el(doc, 'p', null, 'sh-muted-note kr-uncollected-note'); card.querySelector('.widget-title')?.after(note); }
-  note.textContent = `아직 수집하지 않는 자료: 한국 ${missing.join(', ')}`;
-}
+// v59.70 (S7/I10): the Korean manufacturing PMI and GDP rows (no producer) are removed from the card, so the
+// v58.75 hide-and-name step for them is gone with them.
 
 // Expert review M11: the 한국 시장 fold's 1-year range and 3-month move of the won, from the completed-close history.
 function renderKoreaWon(doc, root) {
@@ -810,7 +790,6 @@ export function renderMacroBoard({ documentRef: doc, root }) {
   }
   renderCommodities(doc, root, read.oil);
   renderKoreaWon(doc, root);
-  syncUncollectedKorea(doc);
   // v59.55 (owner 11/1): the six chapters (물가 · 고용 · 금리 · 원자재 · 신용 · 성장) under the quadrant, a lazy chunk.
   import('./macro-chapters.js').then(({ renderMacroChapters }) => renderMacroChapters({ documentRef: doc, root, events: latestMarketInterpretation(root)?.events || [] })).catch(() => {});
   renderNextSteps(doc, doc.getElementById('macro-next'), macroNextSteps(read)); // v57.50 I04

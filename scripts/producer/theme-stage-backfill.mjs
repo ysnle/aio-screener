@@ -16,6 +16,7 @@ import { buildThemePlaybook } from '../../src/domain/scenarios/theme-playbook.js
 import { THEME_STAGE_RULE } from '../../src/domain/scenarios/analogs.js';
 import { loadThemeMaps } from '../build-scenario-state.mjs';
 import { REPO_ROOT } from './paths.mjs';
+import { readHistoryRows } from '../../src/domain/market/history-rows.js';
 
 export const THEME_STAGE_HISTORY_SCHEMA = 'theme-stage-history.v1';
 export const THEME_STAGE_BACKFILL_SESSIONS = 120;
@@ -83,7 +84,7 @@ export function buildThemeStageBackfill({ results = [], themeMaps = null, histor
 
 export async function writeThemeStageBackfill(results, nowMs = Date.now()) {
   let history = [];
-  try { const raw = JSON.parse(await readFile(`${REPO_ROOT}/public-data/history.json`, 'utf8')); history = Array.isArray(raw) ? raw : raw?.rows || []; } catch { /* no benchmark windows: the playbook holds every stage */ }
+  try { history = readHistoryRows(JSON.parse(await readFile(`${REPO_ROOT}/public-data/history.json`, 'utf8'))); } catch { /* no benchmark windows: the playbook holds every stage */ }
   const payload = buildThemeStageBackfill({ results, themeMaps: loadThemeMaps(REPO_ROOT), history, nowMs });
   if (!payload.sessions) { console.warn('[theme-stage-backfill] no sessions recomputed — artifact unchanged'); return null; }
   await atomicWriteFile(OUT, JSON.stringify(payload));

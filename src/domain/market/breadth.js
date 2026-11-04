@@ -36,3 +36,12 @@ export function classifyBreadthParticipation({ sma20 = null, sma50 = null, sma20
     inputs: Object.freeze({ sma20: s20, sma50: s50, sma20Delta: d20, sma5Delta: d5 })
   });
 }
+
+// v59.70 (data audit R9): the one "share of rows above a moving average" counter for screener rows in the browser.
+// `read(row, field)` returns the row's distance from the average (pctSma50, pctSma200, ...); a row without a value is
+// outside the denominator. The theme and Korea readers each counted this inline.
+export function breadthCounts(rows = [], field = 'pctSma50', read = (row, key) => finite(row?.[key])) {
+  const values = (Array.isArray(rows) ? rows : []).map((row) => read(row, field)).filter((value) => value != null);
+  const above = values.filter((value) => value > 0).length;
+  return { count: values.length, above, pct: values.length ? above / values.length * 100 : null };
+}

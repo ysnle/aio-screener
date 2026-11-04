@@ -3317,10 +3317,10 @@
     _assert('T675 data_lineage_audit_defined_v4989: AIO.getDataLineageAudit fn 정의',
       window.AIO && typeof window.AIO.getDataLineageAudit === 'function',
       typeof (window.AIO && window.AIO.getDataLineageAudit));
-    // T676: lineage 13종 + 끊김(broken) 0건 (gap/manual은 의도된 계층)
+    // T676: lineage 12종 + 끊김(broken) 0건 (gap/manual은 의도된 계층; v59.70 Cboe 풋/콜 행 퇴역)
     var dl = window.AIO && window.AIO.getDataLineageAudit && window.AIO.getDataLineageAudit();
-    _assert('T676 data_lineage_no_broken_v4989: lineage rows >= 13 + broken === 0 (gap/manual은 정상)',
-      dl && Array.isArray(dl.rows) && dl.rows.length >= 13 && dl.broken === 0,
+    _assert('T676 data_lineage_no_broken_v4989: lineage rows >= 12 + broken === 0 (gap/manual은 정상, v59.70 putCall 행 없음)',
+      dl && Array.isArray(dl.rows) && dl.rows.length >= 12 && !dl.rows.some(function(r){ return r.id === 'putCall'; }) && dl.broken === 0,
       dl ? 'total=' + dl.total + ' connected=' + dl.connected + ' broken=' + dl.broken + ' gap=' + dl.gap + ' manual=' + dl.manual : 'no audit');
     // T677: breadth/staticMacro 모두 scheduled producer에 연결됨 (v54.63 공식 macro 자동화 반영)
     var breadthRow = dl && dl.rows && dl.rows.filter(function(r){ return r.id === 'breadth'; })[0];
@@ -3359,32 +3359,13 @@
     var daxOk = ds2.dax >= 24000;                                          // DAX 사상최고권 (23200 stale 제외)
     var bojOk = ds2.bojRate >= 0.75;                                       // BOJ 인상 반영
     _assert('T683 offline_market_values_remain_unavailable', [DATA_SNAPSHOT.vkospi,DATA_SNAPSHOT.vix,DATA_SNAPSHOT.dax].every(function(v){ return v == null || Number.isFinite(Number(v)); }), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
-    // T684: KR 2차 거시지표 sanity band + 공식 CPI 의미·최신성 계약.
-    // P626-followup: krManufPmi's own sub-check pinned ">53" (April's specific 53.6 print) rather
-    // than the actual meaningful economic threshold — PMI readings legitimately move month to
-    // month (now 52.1), so ">53" was never going to hold as a permanent invariant. ">50" is the
-    // real, conventionally-meaningful expansion/contraction boundary this check was trying to
-    // express ("still showing expansion, not regressed to a contractionary stale value") —
-    // asserting that structural property instead of one month's specific print.
-    var krCpiOk  = ds2.krCpi  >= 0 && ds2.krCpi  <= 6;       // 한국 CPI 정상범위
-    var krPmiOk  = ds2.krManufPmi >= 40 && ds2.krManufPmi <= 60 && ds2.krManufPmi > 50; // PMI 확장 국면(50 초과) 유지
-    var krPpiOk  = ds2.krPpi  >= 5 && ds2.krPpi  <= 10;      // 이란 유가 충격 반영 (1.5 평시값 stale 제외)
-    var krCrOk   = ds2.krCreditBalance >= 30;                // record 빚투 36조 (19.2 stale 제외)
-    var krInflationRef = window.AIO_MANUAL_REFERENCE && window.AIO_MANUAL_REFERENCE.krInflation;
-    // P1736/P1737: the snapshot carries the effective value — the verified artifact, the manual value inside its window,
-    // or null once the manual value expired; never the manual value past its window.
-    var krInflationState = DATA_SNAPSHOT._manualReferenceState && DATA_SNAPSHOT._manualReferenceState.krInflation;
-    var krInflationEffectiveOk = !krInflationState ? false
-      : krInflationState.status === 'superseded' ? Number.isFinite(DATA_SNAPSHOT.krCpi)
-      : krInflationState.held ? DATA_SNAPSHOT.krCpi == null && DATA_SNAPSHOT.krCoreCpi == null
-      : DATA_SNAPSHOT.krCpi === krInflationRef.headline && DATA_SNAPSHOT.krCoreCpi === krInflationRef.core;
-    var krInflationContractOk = krInflationEffectiveOk
-      && krInflationRef && krInflationRef.observation === '2026-09'
-      && krInflationRef.publishedAt === '2026-10-02'
-      && krInflationRef.coreDefinition === 'food-and-energy-excluded'
-      && /mods\.go\.kr/.test(krInflationRef.sourceUrl || '')
-      && krInflationRef.operationalUse === 'reference-only';
-    _assert('T684 kr_secondary_macro_official_reference_and_missing_values_contract', krInflationContractOk && DATA_SNAPSHOT.krManufPmi == null && DATA_SNAPSHOT.krPpi == null, 'reference=' + JSON.stringify(krInflationRef || null) + ' policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
+    // T684 (v59.70, S7/I10): the Korean CPI seed is gone — the value is the verified official-reference item or null —
+    // and the Korean PMI/PPI/GDP/credit fields with no producer are not in the snapshot at all.
+    var krRef = window.AIO_PRODUCED_REFERENCES && window.AIO_PRODUCED_REFERENCES.krInflation;
+    var krCpiOk = krRef && krRef.status === 'verified' ? DATA_SNAPSHOT.krCpi === krRef.headline : DATA_SNAPSHOT.krCpi == null;
+    var noSeed = !(window.AIO_MANUAL_REFERENCE && window.AIO_MANUAL_REFERENCE.krInflation);
+    var gone = ['krManufPmi', 'krPpi', 'krGdp', 'krCreditBalance', 'krBond3y', 'krCd91'].every(function(key) { return !(key in DATA_SNAPSHOT); });
+    _assert('T684 kr_secondary_macro_official_reference_and_missing_values_contract', krCpiOk && noSeed && gone, 'reference=' + JSON.stringify(krRef || null) + ' krCpi=' + DATA_SNAPSHOT.krCpi);
     // T685: US 2차 거시지표 sanity band (stale 값 재발 방지).
     // P626-followup: ismPrice's own sub-check pinned ">=80" (the specific print when this was
     // written) rather than a genuine sanity floor — ISM Prices Paid is a real, volatile
@@ -7322,14 +7303,14 @@
   //   _aioDefaultDecision 내부 병합 로직은 B8/WO-1A와 동일한 이유(비동기·전역 의존)로 소스 계약 검증.
   // ══════════════════════════════════════════════════════════════════════
   function _testV5249ScoreProvenance() {
-    // T896: getTradingDecisionInputEvidence()가 13개 입력(기존 7 + 신규 6)을 모두 추적하는지
+    // T896: getTradingDecisionInputEvidence()가 12개 입력(기존 7 + 신규 5)을 모두 추적하는지 (v59.70: PCR 입력 퇴역)
     if (window.AIO && typeof window.AIO.getTradingDecisionInputEvidence === 'function') {
       var ev896 = window.AIO.getTradingDecisionInputEvidence();
       var ids896 = (ev896 && Array.isArray(ev896.rows)) ? ev896.rows.map(function(r) { return r.id; }) : [];
-      var newIds896 = ['vvix-price', 'fg-sentiment', 'breadth200-participation', 'pcr-putcall', 'hy-spread-bp', 'aaii-bearish'];
+      var newIds896 = ['vvix-price', 'fg-sentiment', 'breadth200-participation', 'hy-spread-bp', 'aaii-bearish'];
       var hasAllNew896 = newIds896.every(function(id) { return ids896.indexOf(id) >= 0; });
-      _assert('T896 score_evidence_covers_13_inputs (WO-6): getTradingDecisionInputEvidence가 신규 6개 입력(VVIX/F&G/breadth200/PCR/HY스프레드/AAII)을 모두 추적, total=13',
-        hasAllNew896 && ev896.total === 13, 'total=' + (ev896 && ev896.total) + ' ids=' + ids896.join(','));
+      _assert('T896 score_evidence_covers_13_inputs (WO-6, v59.70): getTradingDecisionInputEvidence가 신규 5개 입력(VVIX/F&G/breadth200/HY스프레드/AAII)을 모두 추적하고 퇴역한 PCR은 없음, total=12',
+        hasAllNew896 && ids896.indexOf('pcr-putcall') < 0 && ev896.total === 12, 'total=' + (ev896 && ev896.total) + ' ids=' + ids896.join(','));
     } else {
       _assert('T896 score_evidence_covers_13_inputs (WO-6): getTradingDecisionInputEvidence 미존재', false);
     }

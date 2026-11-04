@@ -2,6 +2,7 @@
 // Scenario guidance and the shared market guide. v58.86 gate consolidation: the sections below were separate gates until v58.86. They check one subject, so one gate
 // runs them in order; every section runs even when an earlier one fails, and the failure names the section.
 import { runSections } from './lib/gate-sections.mjs';
+import { readHistoryRows } from '../src/domain/market/history-rows.js';
 
 await runSections('scenario-guidance-fixture', [
 // ── section scenario-guidance (was ci-scenario-guidance-fixture.mjs) ──
@@ -20,7 +21,7 @@ const { liveCurrentObservations } = await import('../src/ui/knowledge/current-ob
 assert.equal(movingAverageStructure({ value: 110, ma5: 108, ma10: 106, ma20: 104, ma50: 100, ma100: 96, ma200: 90 }).shortLabel, '정배열');
 assert.equal(movingAverageStructure({ value: 80, ma5: 84, ma10: 88, ma20: 92, ma50: 96, ma100: 100, ma200: 104 }).longLabel, '역배열');
 
-const history = JSON.parse(readFileSync(new URL('../public-data/history.json', import.meta.url), 'utf8'));
+const history = readHistoryRows(JSON.parse(readFileSync(new URL('../public-data/history.json', import.meta.url), 'utf8')));
 const rows = Array.isArray(history) ? history : history.rows || [];
 const input = { history: rows, credit: { hyBp: 315, hyDelta5Bp: -9 }, rates: {} };
 const regime = buildMarketRegime(input);
@@ -249,17 +250,18 @@ console.log('scenario guidance fixture (basis card): PASS');
   const easing = BRANCHES.find((branch) => branch.id === 'softland').conditions[0][1];
   assert.equal(easing({ corePace: 2.5, coreYoy: 3, coreCpiPace: 3.6, coreCpiYoy: 2.6 }), false, 'v57.69 a hot core CPI pace is not disinflation');
   assert.equal(easing({ corePace: 2.5, coreYoy: 3, coreCpiPace: null, coreCpiYoy: null }), true, 'v57.69 PCE alone still counts when CPI is unavailable');
-  // P1928 (v58.26): the AI 투자 꺾임 gate also opens on semis (SMH) lagging the S&P 500, not only the Nasdaq-100.
+  // P1928 (v58.26) · v59.70 (owner 11/4): the AI 투자 꺾임 gate opens on SOXX lagging the S&P 500 by 10pp over 20 sessions
+  // (SMH's 8pp scaled by SOXX's 1.3x relative swing); the Nasdaq-100 arm is gone.
   const aiLag = BRANCHES.find((branch) => branch.id === 'aibust').conditions[0][1];
-  assert.equal(aiLag({ ndxRel20: -1, smhRel20: -9 }), true, 'P1928 SMH 9pp behind the S&P 500 over 20 sessions opens the AI 투자 꺾임 gate');
-  assert.equal(aiLag({ ndxRel20: -1, smhRel20: -2 }), false, 'P1928 small NDX and SMH lags keep the gate closed');
-  assert.equal(aiLag({ ndxRel20: null, smhRel20: null }), null, 'P1928 with neither series the gate is 확인 불가');
+  assert.equal(aiLag({ soxxRel20: -10.5 }), true, 'v59.70 SOXX 10.5pp behind the S&P 500 over 20 sessions opens the AI 투자 꺾임 gate');
+  assert.equal(aiLag({ soxxRel20: -9, ndxRel20: -4, smhRel20: -9 }), false, 'v59.70 a 9pp SOXX lag keeps it closed, whatever the Nasdaq-100 and SMH did');
+  assert.equal(aiLag({ soxxRel20: null }), null, 'P1928 without the SOXX series the gate is 확인 불가');
   // Screen audit 2026-10-19: the regime's leadership break opens it too, so the scenario card cannot lead with oil (2/4)
-  // while 오늘 and 브리핑 name the AI-leader correction (10/16: SMH -5.9pp over 20 sessions, under the 8pp lag).
-  assert.equal(aiLag({ ndxRel20: -1.7, smhRel20: -5.9, leadershipBreak: true }), true, '2026-10-19 the regime leadership break opens the AI 투자 꺾임 gate');
-  assert.equal(aiLag({ ndxRel20: -1.7, smhRel20: -5.9, leadershipBreak: false }), false, '2026-10-19 no break and small lags keep it closed');
-  assert.equal(aiLag({ ndxRel20: null, smhRel20: null, leadershipBreak: false }), false, '2026-10-19 a measured holding leadership answers the gate when the lags are missing');
-  const oct16 = { ndxRel20: -1.7, smhRel20: -5.9, leadershipBreak: true, payroll3: 51, payrollPrior3: 80, hy20: 53, oilSurging: true, sentimentRank: { percentile: 13, month: '8월', value: 51.7 }, wtiPosition: 0.8 };
+  // while 오늘 and 브리핑 name the AI-leader correction (10/16: SOXX -7.6pp over 20 sessions, under the 10pp lag).
+  assert.equal(aiLag({ soxxRel20: -7.6, leadershipBreak: true }), true, '2026-10-19 the regime leadership break opens the AI 투자 꺾임 gate');
+  assert.equal(aiLag({ soxxRel20: -7.6, leadershipBreak: false }), false, 'v59.70 2026-10-19 no break and a small SOXX lag keep it closed');
+  assert.equal(aiLag({ soxxRel20: null, leadershipBreak: false }), false, 'v59.70 2026-10-19 a measured holding leadership answers the gate when the SOXX lag is missing');
+  const oct16 = { soxxRel20: -7.6, leadershipBreak: true, payroll3: 51, payrollPrior3: 80, hy20: 53, oilSurging: true, sentimentRank: { percentile: 13, month: '8월', value: 51.7 }, wtiPosition: 0.8 };
   assert.equal(buildMacroCrossroads({ signals: oct16 }).leadId, 'aibust', '2026-10-19 with the leadership break the 10/16 tape leads with AI 투자 꺾임, not 유가 충격');
   // Audit 4: a past sample pointing opposite to the favoured choice carries one bridging sentence (no invented %).
   const bridged = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { sourceLabel: '장기 일봉 기록', branches: { reheat: { n: 20, up: 19, median: 1.2, from: '1990-01-02', to: '2026-10-09', horizon: 20, baseUpPct: 64 } } } }).items.find((item) => item.id === 'reheat');
@@ -458,16 +460,19 @@ console.log('scenario guidance fixture (basis card): PASS');
     if (weekday !== 0 && weekday !== 6 && resolveMarketCalendarSession({ market: 'US', date }).status !== 'closed') days.push(date);
   }
   const n = days.length;
-  // spxGap: the last close's distance above its own 50-day average; ndxDrop5: the last five sessions' Nasdaq-100 move.
-  const make = ({ spxGap, ndxDrop5, rutBelow200, breadth50, breadth200, adv, highs, lows, dist }) => {
+  // spxGap: the last close's distance above its own 50-day average; soxxDrop5: the last five sessions' SOXX move (the
+  // leadership proxy since v59.70; each case's drop is twice its old Nasdaq-100 move, the edge went 3% → 6%).
+  const make = ({ spxGap, soxxDrop5, rutBelow200, breadth50, breadth200, adv, highs, lows, dist }) => {
     const spx = days.map((_, i) => 6000 + i * 6);
     const sum49 = spx.slice(n - 50, n - 1).reduce((a, b) => a + b, 0);
     spx[n - 1] = (1 + spxGap / 100) * sum49 / (50 - (1 + spxGap / 100));
     const ndx = days.map((_, i) => 20000 + i * 30);
     const base = ndx[n - 6];
-    for (let k = 1; k <= 5; k += 1) ndx[n - 6 + k] = base * (1 + ndxDrop5 / 100 * k / 5);
+    const soxx = days.map((_, i) => 200 + i * 0.4);
+    const soxxBase = soxx[n - 6];
+    for (let k = 1; k <= 5; k += 1) soxx[n - 6 + k] = soxxBase * (1 + soxxDrop5 / 100 * k / 5);
     const rut = days.map((_, i) => rutBelow200 ? (i < n - 40 ? 2800 : 2800 - (i - (n - 40)) * 3) : 2000 + i * 3);
-    return days.map((date, i) => ({ date, spx: spx[i], ndx: ndx[i], nasdaq: ndx[i] * 0.9, rut: rut[i], vix: 16.87, vix3m: 19.5, tnx: 4.1, wti: 80, dxy: 100, gold: 2000,
+    return days.map((date, i) => ({ date, spx: spx[i], ndx: ndx[i], soxx: soxx[i], nasdaq: ndx[i] * 0.9, rut: rut[i], vix: 16.87, vix3m: 19.5, tnx: 4.1, wti: 80, dxy: 100, gold: 2000,
       breadth50, breadth200, breadth20: breadth50 + 10, advanceRatio: i >= n - 5 ? adv : 0.55 /* audit 2026-10-17 D1: the advance confirmation is the 5-session mean */, breadthNewHighs: highs, breadthNewLows: lows, distributionDays: dist }));
   };
   const asOf = days[n - 1];
@@ -480,12 +485,12 @@ console.log('scenario guidance fixture (basis card): PASS');
   };
 
   // 10/14 shape (HY 316bp, +13bp in five sessions, +40bp in twenty: credit 중립).
-  const oct14 = run(make({ spxGap: 0.15, ndxDrop5: -3.9, rutBelow200: true, breadth50: 33.6, breadth200: 48.9, adv: 0.39, highs: 28, lows: 40, dist: 7 }), { hyBp: 316, hyAsOf: asOf, hyDelta5Bp: 13, hyDelta20Bp: 40 });
+  const oct14 = run(make({ spxGap: 0.15, soxxDrop5: -7.8, rutBelow200: true, breadth50: 33.6, breadth200: 48.9, adv: 0.39, highs: 28, lows: 40, dist: 7 }), { hyBp: 316, hyAsOf: asOf, hyDelta5Bp: 13, hyDelta20Bp: 40 });
   assert.equal(oct14.trend.state, 'neutral', `v57.81 a close 0.15% over the 50-day line is 중립, not 양호 (${oct14.trend.read})`);
   assert.ok(oct14.trend.testing && /50일선보다 0\.\d% 위 — 50일선 근처에서 버티는 구간/.test(oct14.trend.read), 'v57.81 inside ±1% the trend read says the index is testing the 50-day line');
-  assert.ok(oct14.trend.capped && /나스닥 100이 5거래일 -3\.9%/.test(oct14.trend.read) && /러셀 2000은 200일선 아래/.test(oct14.trend.read), `v57.81 the cross-index cap is named in plain Korean (${oct14.trend.read})`);
+  assert.ok(oct14.trend.capped && /SOXX가 5거래일 -7\.8%/.test(oct14.trend.read) && /러셀 2000은 200일선 아래/.test(oct14.trend.read), `v57.81 the cross-index cap is named in plain Korean (${oct14.trend.read})`);
   const labels = oct14.trend.evidence.map(([label]) => label);
-  assert.ok(labels.includes('나스닥 100') && labels.includes('러셀 2000') && labels.includes('50일선 대비'), `v57.81 trend evidence carries the Nasdaq-100 and Russell 2000 rows (${labels})`);
+  assert.ok(labels.includes('나스닥 100') && labels.includes('반도체 (SOXX)') && labels.includes('러셀 2000') && labels.includes('50일선 대비'), `v57.81 trend evidence carries the Nasdaq-100, SOXX and Russell 2000 rows (${labels})`);
   assert.match(oct14.trend.evidence.find(([label]) => label === '러셀 2000')[1], /50일선 -\d+\.\d%, 200일선 -\d+\.\d%, 1년 고점 대비 -\d+\.\d%/, 'v57.81 the Russell 2000 row shows its 50/200-day and one-year-high distances');
   assert.equal(oct14.regime.leadershipBreak, true, 'v57.81 leaders -3.9% with four market-wide confirmations is a leadership break');
   assert.equal(oct14.regime.leadership.met, 4);
@@ -498,13 +503,13 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.equal(oct14.scenarios.scenarios.find((item) => item.id === 'concentration').confirmed, false, 'v57.81 소수 종목 주도 is not confirmed during a leadership break');
   assert.notEqual(oct14.outlook.leadId, 'concentration', 'v57.81 소수 종목 주도 is not the selected flow on 10/14 numbers');
   // Audit 2026-10-17 (owner D2): after weeks above +1%, a close +0.5% over the rising 50-day line holds 양호; under the line it is 중립.
-  const calmShape = { ndxDrop5: 0.5, rutBelow200: false, breadth50: 62, breadth200: 64, adv: 0.55, highs: 40, lows: 10, dist: 2 };
+  const calmShape = { soxxDrop5: 1, rutBelow200: false, breadth50: 62, breadth200: 64, adv: 0.55, highs: 40, lows: 10, dist: 2 };
   const held = run(make({ ...calmShape, spxGap: 0.5 }));
   assert.equal(held.trend.state, 'favorable', `D2 +0.5% after a +1% run holds 양호 (${held.trend.read})`);
   assert.match(held.trend.read, /50일선 아래로 마감하기 전까지 유지/, 'D2 the held 양호 says what ends it');
   assert.equal(run(make({ ...calmShape, spxGap: -0.3 })).trend.state, 'neutral', 'D2 a close under the 50-day line ends the hold');
   // D1: one weak session in five no longer confirms — the 5-session mean of 0.55 x4 and 0.39 is 0.52.
-  const oneWeak = make({ spxGap: 0.15, ndxDrop5: -3.9, rutBelow200: true, breadth50: 33.6, breadth200: 48.9, adv: 0.39, highs: 28, lows: 40, dist: 7 }).map((row, i, rows) => i >= rows.length - 5 && i < rows.length - 1 ? { ...row, advanceRatio: 0.55 } : row);
+  const oneWeak = make({ spxGap: 0.15, soxxDrop5: -7.8, rutBelow200: true, breadth50: 33.6, breadth200: 48.9, adv: 0.39, highs: 28, lows: 40, dist: 7 }).map((row, i, rows) => i >= rows.length - 5 && i < rows.length - 1 ? { ...row, advanceRatio: 0.55 } : row);
   const advance = run(oneWeak, { hyBp: 316, hyAsOf: asOf, hyDelta5Bp: 13, hyDelta20Bp: 40 }).regime.leadership.confirmations.find((item) => item.id === 'advance');
   assert.equal(advance.ok, false, `D1 one session under 45% in five is not the advance confirmation (${advance.value})`);
   assert.match(advance.value, /5거래일 평균 51\.8%/, 'D1 the confirmation names the 5-session mean');
@@ -519,42 +524,42 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.match(context, /주도 영역 이탈\(leadershipBreak\): 예/, 'v57.81 the AI scenario context carries the leadership-break flag');
   // The AI narrative: "semis lead" while the flag is on is rejected unless the sentence names the recent drop.
   assert.deepEqual(leadershipClaimIssues('미국은 인공지능 인프라·반도체가 거시 부담에도 주도했습니다.', { context }), ['leadership-claim-during-break'], 'v57.81 the 10/15 sentence is rejected under the flag');
-  assert.deepEqual(leadershipClaimIssues('반도체가 그동안 주도했지만 나스닥 100은 5거래일 -3.9% 밀렸습니다.', { context }), [], 'v57.81 naming the drop passes');
+  assert.deepEqual(leadershipClaimIssues('반도체가 그동안 주도했지만 SOXX는 5거래일 -7.8% 밀렸습니다.', { context }), [], 'v57.81 naming the drop passes');
   assert.deepEqual(leadershipClaimIssues('반도체가 다시 주도하는지 다음 종가에서 확인합니다.', { context }), [], 'v57.81 a conditional is not a claim');
   assert.deepEqual(leadershipClaimIssues('미국은 인공지능 인프라·반도체가 주도했습니다.', { context: '주도 영역 이탈(leadershipBreak): 아니오.' }), [], 'v57.81 without the flag the rule is silent');
 
   // The cap alone: S&P 500 3% over its rising 50-day line, but leaders -4% in five sessions and small caps under the 200-day line.
-  const capped = run(make({ spxGap: 3, ndxDrop5: -4, rutBelow200: true, breadth50: 45, breadth200: 52, adv: 0.5, highs: 30, lows: 20, dist: 4 }));
+  const capped = run(make({ spxGap: 3, soxxDrop5: -8, rutBelow200: true, breadth50: 45, breadth200: 52, adv: 0.5, highs: 30, lows: 20, dist: 4 }));
   assert.ok(capped.trend.state === 'neutral' && capped.trend.capped && !capped.trend.testing, 'v57.81 the Nasdaq-100 / Russell 2000 cap holds the trend at 중립 above the buffer');
 
   // Clean uptrend: S&P 500 3% over a rising 50-day line, broad participation, leaders rising.
-  const clean = run(make({ spxGap: 3, ndxDrop5: 1.5, rutBelow200: false, breadth50: 66, breadth200: 70, adv: 0.62, highs: 80, lows: 5, dist: 2 }));
+  const clean = run(make({ spxGap: 3, soxxDrop5: 3, rutBelow200: false, breadth50: 66, breadth200: 70, adv: 0.62, highs: 80, lows: 5, dist: 2 }));
   assert.equal(clean.trend.state, 'favorable', `v57.81 a clean uptrend stays 양호 (${clean.trend.read})`);
   assert.ok(clean.regime.leadership.state === 'holding' && !clean.regime.leadershipBreak);
   assert.ok(clean.scenarios.scenarios.find((item) => item.id === 'expansion').confirmed && clean.outlook.leadId === 'expansion', 'v57.81 a clean uptrend stays 고른 상승');
 
   // Narrow but intact leadership: Nasdaq-100 rising, breadth weak, no new-low excess.
-  const narrow = run(make({ spxGap: 3, ndxDrop5: 1.2, rutBelow200: false, breadth50: 34, breadth200: 38, adv: 0.52, highs: 40, lows: 12, dist: 3 }));
+  const narrow = run(make({ spxGap: 3, soxxDrop5: 2.4, rutBelow200: false, breadth50: 34, breadth200: 38, adv: 0.52, highs: 40, lows: 12, dist: 3 }));
   assert.equal(narrow.trend.state, 'favorable');
   assert.ok(narrow.regime.leadership.state === 'holding' && narrow.scenarios.scenarios.find((item) => item.id === 'concentration').confirmed && narrow.outlook.leadId === 'concentration', 'v57.81 narrow but intact leadership stays 소수 종목 주도');
   assert.ok(!narrow.outlook.items.some((item) => item.transition), 'v57.81 no transition without a break');
 
   // A single bad week in the leaders with no market-wide confirmation is not a break.
-  const oneWeek = run(make({ spxGap: 3, ndxDrop5: -3.5, rutBelow200: false, breadth50: 34, breadth200: 38, adv: 0.5, highs: 40, lows: 12, dist: 3 }));
+  const oneWeek = run(make({ spxGap: 3, soxxDrop5: -7, rutBelow200: false, breadth50: 34, breadth200: 38, adv: 0.5, highs: 40, lows: 12, dist: 3 }));
   assert.ok(oneWeek.regime.leadership.proxyWeak && !oneWeek.regime.leadershipBreak, 'v57.81 the leaders falling alone (0 of 4 confirmations) is not a leadership break');
   assert.equal(leadershipBreakOf({}, asOf).state, 'unknown', 'v57.81 a missing proxy is 확인 불가, never holding');
   // v57.83 crash replay (2026-07-28: Nasdaq-100 -9.5% from its high read 'holding'): weak leaders without the confirmations
   // are 'weak', which the scenario cards, the AI packet and the claim validator all treat as not holding.
   assert.equal(oneWeek.regime.leadership.state, 'weak', 'v57.83 the leaders falling alone read 주도주 약세, not 유지');
-  assert.ok(oneWeek.regime.conflicts.some((text) => /^주도주 약세 — 나스닥 100 5거래일 -3\.5%/.test(text)), 'v57.83 the weak leaders are named among the conflicts');
+  assert.ok(oneWeek.regime.conflicts.some((text) => /^주도주 약세 — SOXX 5거래일 -7\.0%/.test(text)), 'v57.83 the weak leaders are named among the conflicts');
   const weakContext = renderMarketScenarioContext(oneWeek.input, { regime: oneWeek.regime });
   assert.match(weakContext, /주도 영역 이탈\(leadershipBreak\): 확산 미확인/, 'v57.83 the AI scenario context does not say 아니오 for weak leaders');
   assert.deepEqual(leadershipClaimIssues('반도체가 시장을 주도했습니다.', { context: weakContext }), ['leadership-claim-during-break'], 'v57.83 "semis lead" is rejected while the leaders are weak');
   assert.notEqual(oneWeek.scenarios.scenarios.find((item) => item.id === 'concentration').confirmed, true, 'v57.83 소수 종목 주도 is not confirmed with weak leaders');
-  // R707: "under the 50-day line" needs the 1% buffer (2026-08-06 read a break at -0.0% in a +4.5% week).
-  const atLine = { ndx: { value: 99.5, ma50: 100, d5: 95, yearMax: 104, date: asOf } };
-  assert.ok(!leadershipBreakOf(atLine, asOf).belowMa50 && leadershipBreakOf(atLine, asOf).state === 'holding', 'v57.83 0.5% under the 50-day line is inside the buffer');
-  const under = { ndx: { value: 95, ma50: 100, d5: 96, yearMax: 105, date: asOf } };
+  // R707: "under the 50-day line" needs the buffer (2026-08-06 read a break at -0.0% in a +4.5% week); SOXX's is 2%.
+  const atLine = { soxx: { value: 98.5, ma50: 100, d5: 95, yearMax: 104, date: asOf } };
+  assert.ok(!leadershipBreakOf(atLine, asOf).belowMa50 && leadershipBreakOf(atLine, asOf).state === 'holding', 'v59.70 1.5% under the 50-day line is inside the SOXX buffer');
+  const under = { soxx: { value: 95, ma50: 100, d5: 96, yearMax: 105, date: asOf } };
   assert.ok(leadershipBreakOf(under, asOf).belowMa50 && leadershipBreakOf(under, asOf).state !== 'holding' && /1년 고점 대비 -9\.5%/.test(leadershipBreakOf(under, asOf).summary), 'v57.83 5% under the line is weak and names the drawdown');
   console.log('scenario guidance fixture (v57.81 trend buffer, cross-index cap, leadership break, transition, AI claim rule): PASS');
 }
@@ -1114,7 +1119,7 @@ assert.match(d.costIfWrong[0].text, /w:wait/, `${label}: the opportunity cost qu
 assert.equal(buildDirection([], []).robust, null, `${label}: no live branch means no tally winner`);
 
 // End to end on the published artifacts: a guide is built, its lessons belong to today's state, the AI block holds the boundary.
-const history = JSON.parse(readFileSync(new URL('../public-data/history.json', import.meta.url), 'utf8'));
+const history = readHistoryRows(JSON.parse(readFileSync(new URL('../public-data/history.json', import.meta.url), 'utf8')));
 const rows = Array.isArray(history) ? history : history.rows || [];
 const { buildMarketRegime } = await import('../src/domain/briefing/market-read.js');
 const regime = buildMarketRegime({ history: rows, credit: { hyBp: 315, hyDelta5Bp: -9 }, rates: {} });
