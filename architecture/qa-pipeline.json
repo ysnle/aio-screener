@@ -1446,6 +1446,7 @@
           "script": "scripts/ci-research-content-source.mjs",
           "inputs": [
             "content/research/**",
+            "public-data/knowledge/search-index.json",
             "public-data/principles/**",
             "public-data/atlas/**",
             "src/ui/pages/principles.js",

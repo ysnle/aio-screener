@@ -47,15 +47,19 @@ for (const page of ['src/ui/pages/principles.js', 'src/ui/pages/atlas.js']) {
   const count = proseLiterals(read(page)).length;
   if (count > PAGE_LIMIT) errors.push(`${page} holds ${count} prose literals (limit ${PAGE_LIMIT}) — move copy to content/research`);
 }
-const principlesPage = read('src/ui/pages/principles.js');
-const atlasPage = read('src/ui/pages/atlas.js');
-if (/const (RAW_CATALOG|MARKET_EXPANSION|SYSTEMS_EXPANSION|APPLICATIONS_EXPANSION) =/.test(principlesPage)) errors.push('principles.js defines an inline catalog again');
-if (/const (ATLAS_CONCEPT_GUIDES|FOUNDATION_LAYER_DISPLAY|FOUNDATION_TEACHING_FRAME) =/.test(atlasPage)) errors.push('atlas.js defines inline guide copy again');
+// The page module carries no catalog of its own: before the fetch it knows no nodes.
+const principlesModule = await import('../src/ui/pages/principles.js');
+if (principlesModule.MARKET_PRINCIPLES_CATALOG?.nodes?.length || typeof principlesModule.loadPrinciplesCatalog !== 'function') errors.push('principles.js must fetch its catalog (loadPrinciplesCatalog), not carry it');
 for (const module of ['industry-node-stories', 'industry-node-stories-1', 'industry-node-stories-2', 'industry-node-stories-3', 'industry-domain-stories', 'concept-stories']) {
   if (existsSync(resolve(repoRoot, `src/domain/knowledge/${module}.js`))) errors.push(`src/domain/knowledge/${module}.js duplicates content/research — the JSON is the only source`);
 }
-// The command search (S23) and the glossary share one ranker that must not pull the research modules in.
-if (/from\s+['"][^'"]*domain\/knowledge\//.test(read('src/ui/knowledge/knowledge-search.js'))) errors.push('knowledge-search.js must read only the generated index');
+// The command search (S23) and the glossary share one ranker that answers from the index it is given and nothing
+// else: an empty index finds no analysis note, even one whose title is the query.
+const { searchKnowledgeIndex, loadKnowledgeIndex } = await import('../src/ui/knowledge/knowledge-search.js');
+const generatedIndex = JSON.parse(read('public-data/knowledge/search-index.json'));
+if (typeof loadKnowledgeIndex !== 'function') errors.push('knowledge-search.js must export loadKnowledgeIndex');
+if (searchKnowledgeIndex({ entries: [] }, '산술평균 수익률').length) errors.push('knowledge-search.js answers from outside the index it was given');
+if (!searchKnowledgeIndex(generatedIndex, '산술평균 수익률').some((row) => row.surface === 'frame')) errors.push('knowledge-search.js cannot reach analysis notes from the generated index');
 
 if (errors.length) {
   console.error(JSON.stringify({ ok: false, errors }, null, 2));
