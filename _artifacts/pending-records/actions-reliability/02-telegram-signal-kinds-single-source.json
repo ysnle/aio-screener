@@ -1,0 +1,28 @@
+{
+  "p": {
+    "title": "The Telegram signal kind list in the semantics gate was a copy and refused the 'deal' kind",
+    "symptom": "From 11/03 13:50Z every Refresh market data run (25 in a row through 11/04 00:20Z) failed artifact-semantics with 'telegram signals carry known kinds and no post text: deal|CRWD|MSFT deal|MRVL|LITE'. No market, news or Telegram data reached main; live data.json was 11+ hours old.",
+    "root_cause": "v59.62-64 added a 'deal' extractor to scripts/lib/telegram-signals.mjs (with a SIGNAL_LIMITS entry), but ci-artifact-semantics-check.mjs kept its own hardcoded list ['pt','earnings','macro','retail']. The first real deal post produced a valid signal the gate did not know, and the digest is not a degradable lane, so the whole refresh was refused.",
+    "fix": "The gate imports SIGNAL_LIMITS and accepts exactly its keys. A new check reads every `kind: '...'` literal in telegram-signals.mjs and requires a SIGNAL_LIMITS entry for each, so a new extractor without a limit fails in the producer's own source, not on the first live post.",
+    "violated_rule": "One vocabulary, one source (closed-vocabulary copies drift)",
+    "prevention": "{R}: the semantics check derives the kind set from the producer module and checks producer literals against it; there is no second list to update.",
+    "verification": "public-data/telegram-digest.json with a deal signal appended: HEAD check fails with the 11/03 message; the new check passes. Without the deal signal both pass."
+  },
+  "r": {
+    "title": "Telegram signal kinds come from the producer module",
+    "rule": "ci-artifact-semantics-check.mjs accepts the Telegram signal kinds Object.keys(SIGNAL_LIMITS) from scripts/lib/telegram-signals.mjs, and every kind literal the extractors emit must be a SIGNAL_LIMITS key.",
+    "validation": "node scripts/ci-artifact-semantics-check.mjs"
+  },
+  "qa": [
+    {
+      "id": "QA-OPS-TELEGRAM-KINDS",
+      "text": "v59.70: a new Telegram signal kind with a SIGNAL_LIMITS entry passes artifact-semantics; a kind literal without one fails it",
+      "verify_by": "node scripts/ci-artifact-semantics-check.mjs"
+    }
+  ],
+  "qa_section": "Actions reliability (v59.70)",
+  "changelog": [
+    "**Telegram deal signals unblock the refresh (v59.70, {P}/{R}):** the data gate kept its own copy of the signal kinds and refused every refresh after the first acquisition post (11/03 13:50Z~, 25 runs). It now reads the producer's list."
+  ],
+  "note": "Actions reliability: Telegram signal kinds single source"
+}

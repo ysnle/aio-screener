@@ -793,12 +793,34 @@ const sourceChecks = {
 const unknownSessions = (snapshot.quotes || []).filter((row) => !row.session || row.session === 'UNKNOWN');
 const dynamicOk = Object.values(sourceChecks).every(Boolean);
 const auditState = Object.fromEntries(rows.map((row) => [row.id, row.status]));
-const policyStateOk = auditState.B1 === 'OK'
-  && auditState.B2 === 'BLOCKED'
-  && auditState.B3 === 'BLOCKED'
-  && auditState.C4 === 'DYNAMIC';
-const structuralOk = rows.length === 22 && snapshotReadyForPromotion && auditState.A1 === 'OK' && Number(snapshot.coverage?.observed) >= Number(snapshot.coverage?.required) && unknownSessions.length === 0 && policyStateOk
-  && fomcRegistryAligned && bokPolicyEvidence.valid && auditState.E3 === 'OK' && auditState.E4 === 'OK';
+// v59.70 (Actions failure ledger 10/28~11/04): a weekly survey or a hand-kept event value that had aged used to refuse the
+// whole refresh — E3 after the 10/28 FOMC meeting (30 runs, ~14 h) and B1 when the AAII page did not parse (9 runs). The
+// refusal never made those values fresher; it froze every price beside them. Only the rows below block publication; the
+// reference rows block only under --reference-strict (the watchdog), which keeps them red until someone records them.
+const BLOCKING_ROW_STATES = Object.freeze({ A1: 'OK', B2: 'BLOCKED', B3: 'BLOCKED', C4: 'DYNAMIC' });
+const REFERENCE_ROW_IDS = Object.freeze(['B1', 'E3', 'E4']);
+function publicationVerdict(state, { strict = false } = {}) {
+  const blockingOk = Object.entries(BLOCKING_ROW_STATES).every(([id, expected]) => state[id] === expected);
+  const referenceStale = REFERENCE_ROW_IDS.filter((id) => state[id] !== 'OK');
+  return { publish: blockingOk && (!strict || referenceStale.length === 0), referenceStale };
+}
+// Exhaustive fixture: every row in every status. A reference or advisory row never decides publication by default.
+{
+  const ids = ['A1', 'A2', 'A3', 'B1', 'B2', 'B3', 'B4', 'C1', 'C2', 'C3', 'C4', 'D1', 'D2', 'D3', 'E1', 'E2', 'E3', 'E4', 'F1', 'G1', 'G2', 'G3'];
+  const healthy = Object.fromEntries(ids.map((id) => [id, BLOCKING_ROW_STATES[id] || 'OK']));
+  for (const id of ids) for (const status of ['OK', 'STALE', 'CRITICAL', 'BLOCKED', 'SKIPPED', 'INVALID', 'FUTURE', 'DYNAMIC']) {
+    const state = { ...healthy, [id]: status };
+    const expected = !(id in BLOCKING_ROW_STATES) || status === BLOCKING_ROW_STATES[id];
+    const strictExpected = expected && (!REFERENCE_ROW_IDS.includes(id) || status === 'OK');
+    if (publicationVerdict(state).publish !== expected || publicationVerdict(state, { strict: true }).publish !== strictExpected) {
+      throw new Error(`publication verdict regression: ${id}=${status} default=${publicationVerdict(state).publish} strict=${publicationVerdict(state, { strict: true }).publish}`);
+    }
+  }
+}
+const referenceStrict = process.argv.includes('--reference-strict');
+const verdict = publicationVerdict(auditState, { strict: referenceStrict });
+const structuralOk = rows.length === 22 && snapshotReadyForPromotion && auditState.A1 === 'OK' && Number(snapshot.coverage?.observed) >= Number(snapshot.coverage?.required) && unknownSessions.length === 0
+  && fomcRegistryAligned && bokPolicyEvidence.valid && verdict.publish;
 
 console.log('| # | Category | Observed | Age(d) | Cadence | Status | Detail |');
 console.log('|---|---|---|---:|---|---|---|');
@@ -808,6 +830,13 @@ if (bokPolicyEvidence.warnings.length) console.log(`WARN | BOK policy: ${bokPoli
 // P1276: retain useful rejected-row context while keeping provider-derived error text bounded and redacted.
 const snapshotErrorSummary = summarizeSnapshotErrors(snapshotStatus.errors);
 console.log(`D1-structural | ${structuralOk ? 'yes' : 'no'} | rows=${rows.length} unknownSessions=${unknownSessions.length} tier0=${snapshot.coverage?.observed}/${snapshot.coverage?.required} snapshotFreshness=${classifySnapshotFreshness(snapshotAudit.publishedAt, now)} attempt=${snapshotStatus.attemptStatus || 'unknown'} snapshotErrors=${JSON.stringify(snapshotErrorSummary)} policyStates=${JSON.stringify({ A1: auditState.A1, B1: auditState.B1, B2: auditState.B2, B3: auditState.B3, C4: auditState.C4, E3: auditState.E3, E4: auditState.E4 })}`);
+
+if (verdict.referenceStale.length) {
+  const stale = verdict.referenceStale.map((id) => `${id}=${auditState[id]}`).join(', ');
+  console.log(referenceStrict
+    ? `D1-reference | FAIL | ${stale} — record the value (AAII weekly survey, FOMC result, policy rate); publication is not refused for it`
+    : `::warning::D1-reference | ${stale} is published as-is and shown with its own date; the watchdog stays red until it is recorded`);
+}
 
 // 2026-10-19 cadence: the six-hour market slots are judged against the artifact's own clock (scripts/lib/market-timeline.mjs).
 const { auditMarketTimeline } = await import('./lib/market-timeline.mjs');

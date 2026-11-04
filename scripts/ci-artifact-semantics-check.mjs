@@ -25,6 +25,7 @@ import { readProducerSource } from './lib/producer-source.mjs'; // v57.62: fetch
 import { snapshotEvidenceRows } from './lib/market-analysis-validate.mjs';
 import { NEWS_INTRADAY_MAX } from '../src/domain/news/stories.js';
 import { readLaneQuarantine } from './lib/lane-quarantine.mjs'; // P1982: one limit for producer, page, AI and this check
+import { SIGNAL_LIMITS } from './lib/telegram-signals.mjs'; // v59.70: the producer's kind list, not a copy
 
 const read = (path) => readFileSync(path, 'utf8');
 const json = (path) => JSON.parse(read(path).replace(/^\uFEFF/, ''));
@@ -441,7 +442,12 @@ if (telegram?.coverage) {
 // v58.71: digest `signals` are numbers read from the posts, never the post text (P715); each has a known kind and key.
 if (Array.isArray(telegram?.signals)) {
   const longest = (value) => (typeof value === 'string' ? value.length : value && typeof value === 'object' ? Math.max(0, ...Object.values(value).map(longest)) : 0);
-  const bad = telegram.signals.filter((signal) => !['pt', 'earnings', 'macro', 'retail'].includes(signal?.kind) || !signal.key || longest(signal) > 160);
+  // v59.70: this list was a copy; v59.62 added the 'deal' kind to the producer and the copy refused 25 refreshes in a row
+  // (11/03 13:50Z~). The kinds are the producer's SIGNAL_LIMITS keys, and every kind the extractors emit must have a limit.
+  const knownKinds = new Set(Object.keys(SIGNAL_LIMITS));
+  const emittedKinds = [...readFileSync('scripts/lib/telegram-signals.mjs', 'utf8').matchAll(/\bkind: '([a-z-]+)'/g)].map((match) => match[1]);
+  check('v59.70 every telegram signal kind the producer emits has a SIGNAL_LIMITS entry', emittedKinds.length > 0 && emittedKinds.every((kind) => knownKinds.has(kind)), emittedKinds.filter((kind) => !knownKinds.has(kind)).join(' ') || 'no kind literal found');
+  const bad = telegram.signals.filter((signal) => !knownKinds.has(signal?.kind) || !signal.key || longest(signal) > 160);
   check('v58.71 telegram signals carry known kinds and no post text', bad.length === 0, bad.slice(0, 3).map((signal) => signal?.key || signal?.kind).join(' '));
 }
 

@@ -93,10 +93,14 @@ async function observeOnce() {
     check('pages-version-config', version?.version && config?.appRevision === version.version, `version=${version?.version || 'missing'} config=${config?.appRevision || 'missing'}`);
     check('pages-repository-revision', version?.version === localVersion, `live=${version?.version || 'missing'} local=${localVersion}`);
     if (mode !== 'refresh-deploy') {
-      check('pages-data-freshness', Number.isFinite(dataAge) && dataAge <= maxAgeMinutes, `age=${dataAge}m max=${maxAgeMinutes}m`);
+      // v59.70: a source release ships the data of its attested SHA; whether the producers have kept that data current is
+      // the watchdog's verdict. As release errors, a stalled producer also failed every code deploy (11/01~11/03: 13 of 14
+      // red Pages runs), and the failed deploy run then failed the watchdog's provenance check as well.
+      const dataPlaneSeverity = mode === 'release' ? 'warning' : 'error';
+      check('pages-data-freshness', Number.isFinite(dataAge) && dataAge <= maxAgeMinutes, `age=${dataAge}m max=${maxAgeMinutes}m`, dataPlaneSeverity);
       check('pages-data-quality', Number(data?.meta?.symbolsOk) >= WATCHDOG_THRESHOLDS.minSymbolsOk && data?.meta?.newsOk === true && Number(data?.meta?.newsCount) >= WATCHDOG_THRESHOLDS.minNewsCount, `symbols=${data?.meta?.symbolsOk || 0} news=${data?.meta?.newsCount || 0}`);
-      check('pages-screener-freshness', Number.isFinite(screenerAge) && screenerAge <= WATCHDOG_THRESHOLDS.screenerMaxAgeMinutes && Number(screener?.ok) > 0 && Number(screener?.universe) >= Number(screener?.ok), `age=${screenerAge}m ok=${screener?.ok || 0}/${screener?.universe || 0}`);
-      check('pages-telegram-freshness', Number.isFinite(telegramAge) && telegramAge <= maxAgeMinutes, `age=${telegramAge}m max=${maxAgeMinutes}m`);
+      check('pages-screener-freshness', Number.isFinite(screenerAge) && screenerAge <= WATCHDOG_THRESHOLDS.screenerMaxAgeMinutes && Number(screener?.ok) > 0 && Number(screener?.universe) >= Number(screener?.ok), `age=${screenerAge}m ok=${screener?.ok || 0}/${screener?.universe || 0}`, dataPlaneSeverity);
+      check('pages-telegram-freshness', Number.isFinite(telegramAge) && telegramAge <= maxAgeMinutes, `age=${telegramAge}m max=${maxAgeMinutes}m`, dataPlaneSeverity);
       check('pages-market-snapshot', snapshot?.status === 'published' && snapshot?.coverage?.tier0Required === 16 && snapshot?.coverage?.tier0Observed === 16, `status=${snapshot?.status} coverage=${snapshot?.coverage?.tier0Observed}/${snapshot?.coverage?.tier0Required}`);
       check('pages-operations', !!operations?.generatedAt && !!operations?.planes?.durable?.status && operations?.reconciliation?.categoryCount === 22, `overall=${operations?.overall || 'missing'}`);
       check('pages-reconciliation', reconciliation?.categories?.length === 22 && !!reconciliation?.revision, `categories=${reconciliation?.categories?.length || 0}`);
@@ -112,7 +116,7 @@ async function observeOnce() {
       if (!data?.meta?.marketAnalysisOk) result.warnings.push(`live LLM market analysis blocked: ${marketAnalysisDiagnostic(data)}; typed fallback is active`);
       result.warnings.push(...dataSourceWarnings(data));
       const deadFeeds = deadNewsFeeds(data);
-      check('pages-news-feeds-alive (v58.29)', deadFeeds.length === 0, deadFeeds.length ? `no usable item for 72h+: ${deadFeeds.join(', ')}` : 'every news feed produced a current item within 72h');
+      check('pages-news-feeds-alive (v58.29)', deadFeeds.length === 0, deadFeeds.length ? `no usable item for 72h+: ${deadFeeds.join(', ')}` : 'every news feed produced a current item within 72h', dataPlaneSeverity);
     }
   } else {
     check('pages-fetch', false, pages.reason?.message || String(pages.reason));
@@ -196,7 +200,11 @@ async function observeOnce() {
             const run = await resolveProvenanceRun(runs, id, readExact);
             const currentRelease = name === 'Deploy GitHub Pages' && mode === 'release'
               && String(id) === String(process.env.GITHUB_RUN_ID || '');
-            check(key, isTrustedDeploymentRun(run, { repository: 'ysnle/aio-screener', name, sha: result.pages.sourceSha, runId: id, allowInProgress: currentRelease }),
+            // v59.70: deployment.json goes live when the deploy step ends, minutes before that run finishes verifying it.
+            // A watchdog woken in that window saw status=in_progress and went red (22 of 163 red runs 10/28~11/04); the
+            // identity checks stay, and a run that then fails its verification is caught as completed=failure next time.
+            const deployInFlight = name === 'Deploy GitHub Pages' && mode === 'watchdog';
+            check(key, isTrustedDeploymentRun(run, { repository: 'ysnle/aio-screener', name, sha: result.pages.sourceSha, runId: id, allowInProgress: currentRelease || deployInFlight }),
               `run=${id} sha=${run?.head_sha || 'missing'} conclusion=${run?.conclusion || 'missing'} status=${run?.status || 'missing'}`);
           } catch (error) {
             check(key, false, `verification-unavailable run=${id}: ${error.message}`);

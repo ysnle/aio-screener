@@ -1332,10 +1332,13 @@ check('WP-AI19/20: shared pipeline carries tool and rights audits and denies mut
 check('LIVE3-01: stored API secrets never re-enter DOM values or reveal partial key fragments', /el\.value = '••••••••'/.test(ui + core) && !/el\.value = saved/.test(ui) && !/inp\.value = key;\s*\/\/ 실제 키 표시/.test(html) && !/slice\(0, 8\) \+ '\.\.\.' \+/.test(html + core));
 check('LIVE3-02: early snapshot-date rendering uses the post-initialization window bridge and avoids DATA_SNAPSHOT TDZ', /var snap = window\.DATA_SNAPSHOT \|\| null/.test(core));
 const { readScreenerBreadth } = await import('../src/domain/market/screener-breadth.js');
-const breadthFixture = (us) => ({ schemaVersion: '1.0', source: 'fixture', segments: { us: { above5: 40, above20: 35, above50: 36, above200: 52, advanceRatio: 0.6, coveragePct: 97, eligible: 700, observedAt: new Date(Date.now() - 86400000).toISOString(), ...us } } });
-const screenerBreadthFailsClosed = readScreenerBreadth(breadthFixture({})).us?.sma20 === 35
-  && readScreenerBreadth(breadthFixture({ coveragePct: 84 })).us === null
-  && readScreenerBreadth(breadthFixture({ observedAt: new Date(Date.now() - 97 * 3600000).toISOString() })).us === null;
+const breadthFixture = (us) => ({ schemaVersion: '1.0', source: 'fixture', segments: { us: { above5: 40, above20: 35, above50: 36, above200: 52, advanceRatio: 0.6, coveragePct: 97, eligible: 700, observedAt: '2026-10-14T20:30:00.000Z', ...us } } });
+// v59.70: the fixture ran on the wall clock ("a day ago" is not the latest close at every hour), so this check failed the
+// bot's data-commit CI 9 times on 11/03 05:22-08:53Z and those commits never deployed. Pinned: Thu 11:00 KST after the 10/14 US close.
+const BREADTH_FIXTURE_NOW = Date.parse('2026-10-15T02:00:00.000Z');
+const screenerBreadthFailsClosed = readScreenerBreadth(breadthFixture({}), BREADTH_FIXTURE_NOW).us?.sma20 === 35
+  && readScreenerBreadth(breadthFixture({ coveragePct: 84 }), BREADTH_FIXTURE_NOW).us === null
+  && readScreenerBreadth(breadthFixture({ observedAt: new Date(BREADTH_FIXTURE_NOW - 97 * 3600000).toISOString() }), BREADTH_FIXTURE_NOW).us === null;
 check('LIVE3-03: 20SMA breadth uses its value-specific server observation timestamp and fails closed', /id:'breadth200-participation', globalVar:'_breadth200', fetchKey:'breadthScreener'/.test(core) && /_aioApplyScreenerBreadth/.test(data) && screenerBreadthFailsClosed && /getCurrentBreadthEvidence/.test(core) && /snapshotKey:null/.test(core));
 check('v59.42 the service-worker version reply (runs while the module graph may still be loading) calls the src-installed updateDataStatus only after checking it exists', (() => { const sw = (data.match(/function _querySWVersion\(\)[\s\S]*?\n\}/) || [''])[0]; return /typeof window\.updateDataStatus === 'function'\) window\.updateDataStatus\(\)/.test(sw) && !/[^.]\bupdateDataStatus\(\);/.test(sw.replace(/typeof window\.updateDataStatus[^\n]*/, '')); })());
 check('LIVE3-04 v59.42: no Yahoo quote is written into an official FRED slot (the _syncYahooToFred bridge is retired)', !/function _syncYahooToFred|_syncYahooToFred\(\);|_YAHOO_FRED_MAP\s*=|'yahoo-realtime:'|'yahoo-calc:\^TNX/.test(data + core));

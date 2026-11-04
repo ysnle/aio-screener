@@ -1,0 +1,28 @@
+{
+  "p": {
+    "title": "A weekly survey or hand-kept event value that aged refused the whole market refresh",
+    "symptom": "Refresh market data failed 38 times in 7 days at the data-refresh gate: 30 runs in a row on 10/29 00:20-13:50Z (E3 FOMC calendar STALE after the 10/28 meeting, ~14 h with no price, news or Telegram update) and 8 on 11/02 08:20-11:50Z plus 11/03 17:20Z (B1 AAII BLOCKED when the weekly page did not parse). Each refusal also turned the watchdog red (34 watchdog-data-refresh failures).",
+    "root_cause": "ci-data-refresh-audit.mjs folded B1, E3 and E4 into structuralOk, which decides whether the producer may publish. P1556 had already given BOK a 14-day grace for the same reason, one value at a time; FOMC and AAII had none. A refusal never made the reference value fresher: the frozen data.json kept the same stale value and froze every price beside it.",
+    "fix": "Only BLOCKING_ROW_STATES (A1 OK, B2/B3 BLOCKED, C4 DYNAMIC) plus the structural checks (22 rows, snapshot promotion, tier-0 coverage, sessions, FOMC registry alignment, BOK evidence) decide publication. B1/E3/E4 not OK prints a ::warning:: and publishes; --reference-strict (watchdog-data-refresh in qa-pipeline.json) keeps them red so the watchdog still names them until recorded.",
+    "violated_rule": "AGENTS lane-quarantine decision (owner 2026-10-23): one auxiliary check must not refuse the whole refresh",
+    "prevention": "{R}: publicationVerdict() runs an exhaustive in-file fixture — every one of the 22 rows in each of 8 statuses, default and strict — and throws if a reference or advisory row decides publication by default, or if a blocking row stops blocking. The old structuralOk fails it (B1=BLOCKED refuses).",
+    "verification": "With Date.now pinned to 2026-11-03T15:00Z and data.marketSurveys.aaii.status='unavailable': HEAD audit exit 1 (D1-structural no); new audit exit 0 with D1-reference warning; new audit --reference-strict exit 1. Healthy data: both exit 0."
+  },
+  "r": {
+    "title": "Reference rows never refuse the market publish",
+    "rule": "In ci-data-refresh-audit.mjs only BLOCKING_ROW_STATES and the structural checks decide the producer's publish. A hand-kept or weekly reference row (B1, E3, E4) that is not OK is published with its own date and a warning; the watchdog runs the audit with --reference-strict and stays red for it.",
+    "validation": "node scripts/ci-data-refresh-audit.mjs (the exhaustive publicationVerdict fixture runs first and throws on regression)"
+  },
+  "qa": [
+    {
+      "id": "QA-OPS-REFERENCE-ROWS",
+      "text": "v59.70: a stale AAII/FOMC/policy-rate row publishes the refresh with a D1-reference warning and keeps the watchdog red; it never refuses the producer's commit",
+      "verify_by": "node scripts/ci-data-refresh-audit.mjs"
+    }
+  ],
+  "qa_section": "Actions reliability (v59.70)",
+  "changelog": [
+    "**Reference rows no longer stop the data (v59.70, {P}/{R}):** a weekly AAII survey or a FOMC result nobody had recorded yet refused every refresh (10/29 30 runs, 11/02 8 runs). They are now published with their own date and a warning; the watchdog still stays red until they are recorded."
+  ],
+  "note": "Actions reliability: reference rows never refuse the market publish"
+}

@@ -1209,6 +1209,7 @@
             "scripts/lib/factors.mjs",
             "scripts/lib/market-analysis-validate.mjs",
             "scripts/lib/market-analysis-prompt.mjs",
+            "scripts/lib/telegram-signals.mjs",
             "scripts/build-operations-status.mjs",
             "architecture/fixtures/trading-score-golden.json"
           ]
@@ -2189,6 +2190,9 @@
         {
           "id": "watchdog-data-refresh",
           "script": "scripts/ci-data-refresh-audit.mjs",
+          "args": [
+            "--reference-strict"
+          ],
           "cache": false,
           "inputs": [
             "public-data/**",
@@ -2460,6 +2464,7 @@
         "scripts/lib/factors.mjs",
         "scripts/lib/market-analysis-validate.mjs",
         "scripts/lib/market-analysis-prompt.mjs",
+        "scripts/lib/telegram-signals.mjs",
         "scripts/sync-*.mjs",
         "src/data/**",
         "src/domain/**",
