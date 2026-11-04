@@ -8,6 +8,7 @@ await runSections('scenario-guidance-fixture', [
 ['scenario-guidance', async () => {
 const { default: assert } = await import('node:assert/strict');
 const { readFileSync } = await import('node:fs');
+const { default: vm } = await import('node:vm');
 const { buildMarketRegime, movingAverageStructure } = await import('../src/domain/briefing/market-read.js');
 const { buildMarketScenarios } = await import('../src/domain/market/regime-scenarios.js');
 const { buildScenarioOutlook, renderScenarioOutlookContext } = await import('../src/domain/market/scenario-outlook.js');
@@ -195,6 +196,38 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.ok(maps.usThemes.length >= 15 && Object.keys(maps.krThemeMap).length >= 20, 'P1743: theme maps load from the classic scripts');
   for (const theme of maps.usThemes) assert.ok(US_THEME_PROFILES[theme.id]?.tags?.length && US_THEME_PROFILES[theme.id].breaks?.length, `P1743: US theme ${theme.id} has tags and break conditions`);
   for (const id of Object.keys(maps.krThemeMap)) assert.ok(KR_THEME_PROFILES[id]?.tags?.length && KR_THEME_PROFILES[id].breaks?.length, `P1743: KR theme ${id} has tags and break conditions`);
+  {
+    // v59.70 (owner theme decisions): AAPL·MSI·HPQ sit in 하드웨어·기기, IBM·ACN in 소프트웨어 > IT 서비스, and the server OEMs
+    // stay only in ai_infra; the six Korean defense names sit in one theme each, and no KR theme is below its member floor.
+    const subOf = (themeId, name) => maps.usThemes.find((theme) => theme.id === themeId)?.subThemes?.find((sub) => sub.name === name)?.tickers || [];
+    const hardware = maps.usThemes.find((theme) => theme.id === 'hardware');
+    const hardwareTickers = (hardware?.subThemes || []).flatMap((sub) => sub.tickers);
+    assert.ok(['AAPL', 'MSI', 'HPQ'].every((symbol) => hardwareTickers.includes(symbol)), 'v59.70 AAPL·MSI·HPQ are in 하드웨어·기기');
+    assert.ok(!['DELL', 'HPE', 'SMCI', 'STX', 'WDC', 'NTAP'].some((symbol) => hardwareTickers.includes(symbol)), 'v59.70 hardware does not repeat ai_infra/반도체 members');
+    assert.ok(['IBM', 'ACN'].every((symbol) => subOf('software', 'IT 서비스').includes(symbol)), 'v59.70 IBM·ACN are in 소프트웨어 > IT 서비스');
+    const { KR_THEME_MIN_COVERED } = await import('../src/domain/themes/kr-themes.js');
+    for (const id of ['quantum', 'uam', 'space']) assert.ok(!(id in maps.krThemeMap), `v59.70 KR theme ${id} retired (no member whose main business it is)`);
+    for (const [id, rows] of Object.entries(maps.krThemeMap)) assert.ok(rows.length >= KR_THEME_MIN_COVERED, `v59.70 KR theme ${id} lists at least ${KR_THEME_MIN_COVERED} members`);
+    for (const code of ['012450', '047810', '064350', '272210', '079550', '000880']) {
+      const homes = Object.entries(maps.krThemeMap).filter(([, rows]) => rows.some((row) => row.code === code)).map(([id]) => id);
+      assert.deepEqual(homes, ['defense'], `v59.70 ${code} sits only in defense (${homes.join(',')})`);
+    }
+    // DRAM·NCLD: visible references, never a verdict name or a representative ETF.
+    const pages = readFileSync(new URL('../js/aio-pages.js', import.meta.url), 'utf8');
+    const literalOf = (head) => { const start = pages.indexOf(head); return vm.runInNewContext(`(${pages.slice(start + head.length - 1, pages.indexOf('\n];', start) + 2)})`, {}, { timeout: 1000 }); };
+    const subsectors = literalOf('var RRG_SUBSECTORS = [');
+    const reference = { DRAM: 'SOXX', NCLD: 'SKYY' };
+    for (const [symbol, benchmark] of Object.entries(reference)) {
+      const row = subsectors.find((item) => item.sym === symbol);
+      assert.ok(row?.referenceOnly === true && row.benchmark === benchmark, `v59.70 ${symbol} is a reference row benchmarked to ${benchmark}`);
+    }
+    const etfFields = [...maps.usThemes.flatMap((theme) => [theme.etf, ...(theme.subThemes || []).map((sub) => sub.etf)]), ...literalOf('var SUB_THEMES = [').map((theme) => theme.etf)];
+    assert.ok(!etfFields.some((etf) => etf in reference), 'v59.70 no theme names DRAM/NCLD as its ETF');
+    assert.ok(!/us:\s*'(DRAM|NCLD)'/.test(readFileSync(new URL('../js/aio-kr-data.js', import.meta.url), 'utf8')), 'v59.70 no KR theme links to DRAM/NCLD');
+    const { rotationFlow } = await import('../src/domain/market/page-flow.js');
+    const flow = rotationFlow({ groups: { Leading: [{ symbol: 'DRAM', label: '메모리(참고)', referenceOnly: true }, { symbol: 'XLK', label: '기술' }], Improving: [], Weakening: [], Lagging: [{ symbol: 'NCLD', label: 'GPU 클라우드(참고)', referenceOnly: true }, { symbol: 'XLE', label: '에너지' }] } });
+    assert.ok(!/메모리|GPU 클라우드|DRAM|NCLD/.test(flow.read), `v59.70 reference rows stay out of the rotation verdict: ${flow.read}`);
+  }
   const macroHistory = JSON.parse(readFileSync(new URL('../public-data/macro-history.json', import.meta.url), 'utf8'));
   const data = JSON.parse(readFileSync(new URL('../public-data/data.json', import.meta.url), 'utf8'));
   const read = buildMacroRead({ macro: data.macro, macroHistory, history: rows });

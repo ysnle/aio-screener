@@ -223,8 +223,10 @@ var RRG_SUBSECTORS = [
   { sym:'JETS',name:'항공', color:'#544f46', emoji:'' }, { sym:'COPX',name:'구리 광산', color:'#2f7c57', emoji:'' }, { sym:'KWEB',name:'중국 인터넷', color:'#b54548', emoji:'' },
   // v59.70 (theme-sector): issuer-verified theme benchmarks (iShares, Roundhill, First Trust, Global X, VanEck, State Street,
   // Invesco pages, 2026-11-04). NCLD is GPU "neocloud" hosts (not broad cloud: SKYY), launched 2026-08; DRAM launched 2026-04.
-  { sym:'SOXX',name:'반도체 30', color:'var(--data-purple)', emoji:'' }, { sym:'DRAM',name:'메모리', color:'var(--data-purple)', emoji:'' },
-  { sym:'SKYY',name:'클라우드', color:'#b54548', emoji:'' }, { sym:'NCLD',name:'GPU 클라우드', color:'#b54548', emoji:'' },
+  // Owner (v59.70): DRAM·NCLD stay on the bars and the scatter as references only — the benchmark is SOXX (memory/semis) and
+  // SKYY (cloud), and referenceOnly rows never enter the rotation verdict (rotationFlow) or a theme's representative ETF.
+  { sym:'SOXX',name:'반도체 30', color:'var(--data-purple)', emoji:'' }, { sym:'DRAM',name:'메모리(참고)', color:'var(--data-purple)', emoji:'', referenceOnly:true, benchmark:'SOXX' },
+  { sym:'SKYY',name:'클라우드', color:'#b54548', emoji:'' }, { sym:'NCLD',name:'GPU 클라우드(참고)', color:'#b54548', emoji:'', referenceOnly:true, benchmark:'SKYY' },
   { sym:'DTCR',name:'데이터센터', color:'#1b1a17', emoji:'' }, { sym:'GRID',name:'전력망', color:'#2f7c57', emoji:'' }, { sym:'NLR',name:'원전', color:'#2f7c57', emoji:'' },
   { sym:'IAI',name:'증권·거래소', color:'#978365', emoji:'' }, { sym:'KIE',name:'보험', color:'#978365', emoji:'' }, { sym:'PEJ',name:'레저', color:'#544f46', emoji:'' },
   { sym:'EWY',name:'한국', color:'#1b1a17', emoji:'' },
@@ -236,7 +238,7 @@ var THEME_MEMBERSHIP_POLICY = Object.freeze({
   version:'theme-membership.v2',
   source:'AIO curated taxonomy',
   sourceKind:'REFERENCE',
-  observedAt:'2026-11-04', // v59.70: HONA·OKTA·EXEL·UTHR added from issuer ETF top holdings
+  observedAt:'2026-11-04', // v59.70: HONA·OKTA·EXEL·UTHR added from issuer ETF top holdings; 하드웨어·기기 + IT 서비스 from XLK holdings
   allowedUse:'reference',
   status:'reviewed',
   note:'구성 종목은 산업·사업 모델 기준의 편집 분류(2026-11-04 검토)이며 공식 지수 구성이 아닙니다. 테마 수익률은 동일가중·중앙값으로 계산합니다.'
@@ -302,7 +304,7 @@ var THEME_MAP = [
       { name:'IP·인터페이스/FPGA·타이밍', tickers:['RMBS','LSCC','SITM','CEVA','AMBA'] }
     ] },
   { id:'software', nameKr:'소프트웨어/클라우드', emoji:'', color:'#b54548', etf:'IGV', etfName:'iShares Software',
-    leaders:['MSFT','AMZN','ORCL','GOOGL','PANW','CRM','PLTR','NOW','FTNT','CRWD','ADBE','SNPS','CDNS','INTU','SNOW','SHOP','APP','ADSK','MDB','NET','WDAY','DDOG','ZS','TEAM','TTD','ESTC','AI','S','RBRK','PATH','APPN','PEGA','OKTA'], leaderHighlight:['MSFT','AMZN','ORCL','GOOGL'],
+    leaders:['MSFT','AMZN','ORCL','GOOGL','PANW','CRM','PLTR','NOW','FTNT','CRWD','ADBE','SNPS','CDNS','INTU','SNOW','SHOP','APP','ADSK','MDB','NET','WDAY','DDOG','ZS','TEAM','TTD','ESTC','AI','S','RBRK','PATH','APPN','PEGA','OKTA','IBM','ACN','CTSH','IT','EPAM'], leaderHighlight:['MSFT','AMZN','ORCL','GOOGL'],
     subThemes:[
       { name:'엔터프라이즈 SaaS', tickers:['ORCL','CRM','NOW','INTU','ADBE','WDAY','TEAM'] },
       { name:'사이버보안', tickers:['PANW','CRWD','FTNT','ZS','NET','S','RBRK','OKTA'] }, // v59.70: OKTA = HACK top 10 (Amplify, 2026-11-03)
@@ -310,7 +312,17 @@ var THEME_MAP = [
       { name:'광고/커머스 소프트웨어', tickers:['APP','SHOP','TTD'] },
       { name:'설계 소프트웨어(EDA·CAD)', tickers:['SNPS','CDNS','ADSK'] },
       { name:'클라우드 인프라', tickers:['MSFT','AMZN','GOOGL'] },
-      { name:'업무 자동화 소프트웨어', tickers:['PATH','APPN','PEGA'] }
+      { name:'업무 자동화 소프트웨어', tickers:['PATH','APPN','PEGA'] },
+      { name:'IT 서비스', tickers:['IBM','ACN','CTSH','IT','EPAM'] } // v59.70 (owner): GICS IT 서비스; IBM 1.51%·ACN 1.02%·CTSH·IT = XLK holdings (State Street, 2026-11-02)
+    ] },
+  // v59.70 (owner): AAPL·MSI·HPQ were in no US theme. Members = XLK holdings (State Street, 2026-11-02): AAPL 15.50%,
+  // MSI 0.51%, TEL 0.40%, TDY 0.19%, HPQ 0.17%, ZBRA 0.11%, TRMB 0.10%. DELL·HPE·SMCI stay in ai_infra 서버/HW,
+  // STX·WDC·NTAP in 반도체 메모리/스토리지, GLW in 광통신, KEYS in 로보틱스. No single ETF fits, so it is a composite.
+  { id:'hardware', nameKr:'하드웨어·기기', emoji:'', color:'#544f46', etf:null, etfName:'(커스텀 합산)', isComposite: true,
+    leaders:['AAPL','MSI','TEL','TDY','HPQ','ZBRA','TRMB'], leaderHighlight:['AAPL','MSI','TEL','HPQ'],
+    subThemes:[
+      { name:'기기·통신 장비', tickers:['AAPL','HPQ','MSI'] }, // MSI = 공공 안전 무전·통신 장비
+      { name:'전자 부품·계측', tickers:['TEL','TDY','ZBRA','TRMB'] }
     ] },
   { id:'industrials', nameKr:'산업재', emoji:'', color:'var(--data-cyan)', etf:'XLI', etfName:'Industrials',
     leaders:['CAT','GEV','DE','UNP','ETN','HON','PH','ADP','TT','PWR','JCI','EMR','CSX','MMM','WM','CTAS','ITW','NSC','FDX','UPS','RSG','URI','GWW','FAST','PCAR','AME','WAB','CARR','PAYX','CPRT','HUBB','JBHT','NDSN','ODFL','GNRC','LII','WSO','WCN'], leaderHighlight:['CAT','GEV','DE','UNP'],

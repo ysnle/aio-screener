@@ -122,11 +122,18 @@ ui-states에 요청할 것:
 - `.news-sort-btn:disabled` 스타일(현재 공용 규칙이 없다).
 - `--surface-3` 토큰 확인.
 
-## 7. 소유자 결정이 필요한 항목
+## 7. 소유자 결정 반영 (원문 "권고안대로", 2026-11-04)
 
-1. 어느 테마에도 없는 S&P 대형주: AAPL(7.7%), IBM, ACN, MSI. 안은 두 가지다. '기술 하드웨어/IT 서비스' 테마를 새로 만들거나, GICS 'Software & Services'를 근거로 IT 서비스(ACN, IBM, CTSH, IT, EPAM)를 소프트웨어 테마의 세부 테마로 넣는다.
-2. 한국 테마 겹침: UAM·우주가 방산과 5종목을 공유하고, 양자는 통신·포토닉스 종목과 같다. 통합할지, 대표 종목을 다르게 할지 정해야 한다.
-3. NCLD·DRAM은 상장 3~7개월이고 스와프 비중이 크다. 벤치마크로 둘지(지금은 둠), 상장 1년 뒤 넣을지 정해야 한다.
+1. **하드웨어·기기 (새 미국 테마, 커스텀 합산).** 기기·통신 장비는 AAPL·HPQ·MSI, 전자 부품·계측은 TEL·TDY·ZBRA·TRMB다. 근거는 XLK 보유 종목(State Street, 11/2 기준): AAPL 15.50%, MSI 0.51%, TEL 0.40%, TDY 0.19%, HPQ 0.17%, ZBRA 0.11%, TRMB 0.10%. MSI(공공 안전 무전·통신 장비)는 맞는 기존 테마가 없다. 통신(XLC)은 통신 서비스이고, AI 인프라 네트워킹은 데이터센터 장비라 이 테마에 넣었다. 중복은 없다. DELL·HPE·SMCI는 AI 인프라 서버/HW, STX·WDC·NTAP은 반도체 메모리/스토리지, GLW는 광통신, KEYS는 로보틱스에 남는다. 노출 프로필(`exposures.js`)·리서치 연결·종목 렌즈(`stock-lens.js` hardware)를 같은 id로 이었다.
+2. **IT 서비스 (소프트웨어 아래 세부 테마).** IBM·ACN·CTSH·IT·EPAM. XLK 비중은 IBM 1.51%, ACN 1.02%, CTSH 0.19%, IT 0.09%이고, EPAM은 GICS IT 서비스다. 다섯 종목 모두 스크리너 행이 있다.
+3. **한국 겹침.** 한화에어로스페이스·KAI·현대로템·한화시스템·LIG·한화는 주력 사업 기준으로 'K-방산 / 항공우주'에만 둔다. 이들을 빼면 UAM에는 한화엔진(선박 엔진)과 효성중공업(전력기기), 우주에는 효성중공업만 남는다. 주력 사업이 그 테마인 종목이 없어서 양자와 같은 최소 종목 기준(3)으로 세 테마를 퇴역했다(28→25). 양자 5종목(SKT·KT·쏠리드·KMW·RFHIC)은 모두 주력이 통신·통신장비다. 섹터 필터, 표시 순서, 이름표, KR 노출 프로필, `kr-themes.js` 라벨, 종목 DB 테마 태그에서 함께 지웠다. 미국 SUB_THEMES의 양자컴퓨팅과 뉴스 주제 키 quantum·space는 한국 테마가 아니라서 그대로 둔다. 지식 원장(KB 214행)의 '양자'는 Atlas 영역 이름이라 손대지 않았다.
+4. **DRAM·NCLD는 참고용.** 정의에 `referenceOnly:true`, `benchmark:'SOXX'`(DRAM) / `'SKYY'`(NCLD)를 적었다. 막대와 산점도에는 '메모리(참고)', 'GPU 클라우드(참고)'로 남는다. `rotationFlow`는 참고 행을 선도·후행 이름과 개수에서 뺀다. THEME_MAP, 세부 테마, SUB_THEMES, 한국 테마 연결 어디에도 두 종목이 대표 ETF로 쓰이지 않는다. 반도체 테마 ETF는 SMH 그대로다. 메모리 세부 테마는 ETF 없이 가중 합산을 그대로 쓴다(SOXX로 바꾸면 화면 수치 원천이 바뀌므로 바꾸지 않았다).
+
+게이트(`scripts/ci-scenario-guidance-fixture.mjs`, v59.70 블록)는 옛 코드에서 실패한다. 옛 HEAD 전체에서는 'AAPL·MSI·HPQ are in 하드웨어·기기'에서, 새 미국 지도와 옛 한국 지도에서는 'KR theme quantum retired'에서, 새 정의와 옛 `page-flow.js`에서는 'reference rows stay out of the rotation verdict'에서 실패한다(옛 문장: "선도 메모리(참고)·기술").
+
+화면 증거는 `_artifacts/theme-sector/decisions/`에 있다(desktop, desktop-dark, phone). 하드웨어 상세, 세부 테마 순위(IT 서비스 39위, 전자 부품·계측 41위, 기기·통신 장비는 표본 3종목 참고), RRG 3회 왕복(오류 0, 분포 안정), 테마 시나리오(미국 19 / 한국 25)를 담았다. verify-aio themes는 desktop·phone 9/9 PASS다.
+
+후속: 옛 `#theme-detail/<id>` 주소는 어느 테마든 `#themes?theme=defense`로 바뀐다(software도 같다). 내 변경 전부터 있던 동작이라 손대지 않았다.
 
 ## 8. 바뀐 파일
 
@@ -145,6 +152,9 @@ ui-states에 요청할 것:
 - 게이트: `scripts/ci-{esm-core-unit,runtime-contract,scenario-guidance-fixture}-check`
 - verify-aio: `features/themes.md`, `scripts/features/themes.mjs`
 - `_context/CURRENT-STATE.md`(생성물)
+- R11: `scripts/fetch-data.mjs`, `scripts/producer/paths.mjs`, `src/data/{server-data-loader,shared-artifacts}.js`, `src/domain/themes/rotation-detail.js`*, `src/ui/pages/entity.js`, `scripts/ci-{rotation-history,data-lineage-audit}`
+- 소유자 결정: `js/aio-kr-data.js`, `src/domain/market/page-flow.js`, `src/domain/scenarios/exposures.js`, `src/domain/knowledge/theme-research-links.js`, `src/domain/fundamental/stock-lens.js`
+- 기록: `_artifacts/pending-records/theme-sector/01~10`
 - cherry-pick 97c58be9 (reaction-read.js 제어문자)
 
 (*는 새 파일)

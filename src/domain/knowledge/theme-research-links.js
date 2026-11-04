@@ -7,6 +7,7 @@ export const THEME_RESEARCH = Object.freeze({
   ai_infra: { notes: ['capex-roic', 'tech-vs-profit'], domain: 'domain-aidc-cooling' },
   photonics: { notes: ['memory-optics'], domain: 'domain-network-photonics' },
   software: { notes: ['software'], domain: 'domain-ai-applications' },
+  hardware: { notes: ['tech-vs-profit'] },
   comm: { notes: ['software', 'expectations'] },
   healthcare: { notes: ['biotech', 'insurance'] },
   financials: { notes: ['bank', 'insurance', 'credit-money'], domain: 'domain-capital-markets-company-map' },

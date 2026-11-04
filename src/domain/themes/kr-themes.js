@@ -37,10 +37,7 @@ export const KR_THEME_LABELS = Object.freeze({
   energy_kr: '에너지 / 정유',
   photonics_kr: '광통신 / 포토닉스',
   wind_solar: '풍력 / 태양광 / 신재생',
-  quantum: '양자컴퓨팅 / 양자암호',
-  uam: 'UAM / 도심항공',
-  hydrogen: '수소에너지',
-  space: '우주항공 / 위성'
+  hydrogen: '수소에너지'
 });
 
 export function krThemeLabel(themeId) {

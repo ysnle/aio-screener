@@ -138,6 +138,7 @@ export function createThemesProvider({
           changeBasis: closePct != null ? produced?.changeBasis || 'unknown' : 'unknown',
           directionCompatible: closePct != null,
           lagging: produced?.lagging === true,
+          ...(item?.referenceOnly === true ? { referenceOnly: true, benchmark: item.benchmark || null } : {}),
           rotationSource: produced ? `produced-rrg:${produced.revision}` : 'unavailable'
         };
       });

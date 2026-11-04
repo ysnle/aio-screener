@@ -82,8 +82,8 @@ window.AIO.evaluateKrThemeQuoteCoverage = function(ld, themeMap) {
 
 // v35.5: 섹터 카테고리 필터
 var _KR_SECTOR_MAP = {
-  'tech':     ['semi','ai-sw','robot','photonics_kr','quantum'],
-  'industry': ['defense','shipbuilding','power-grid','nuclear','battery','auto','construction','steel_chem','logistics','energy_kr','wind_solar','hydrogen','uam','space'],
+  'tech':     ['semi','ai-sw','robot','photonics_kr'],
+  'industry': ['defense','shipbuilding','power-grid','nuclear','battery','auto','construction','steel_chem','logistics','energy_kr','wind_solar','hydrogen'],
   'consumer': ['bio','kbeauty','kcontent','kfood','crypto','retail','medtech_kr'],
   'finance':  ['finance','telecom']
 };
@@ -250,14 +250,11 @@ function renderKrThemeCardsFromMap() {
     'energy_kr':    {emoji:'',name:'에너지 / 정유',bg:'rgba(47,124,87,0.12)'},
     'photonics_kr': {emoji:'',name:'광통신 / 포토닉스',bg:'rgba(var(--ink-rgb),0.12)'},
     'wind_solar':   {emoji:'',name:'풍력 / 태양광 / 신재생',bg:'rgba(47,124,87,0.12)'},
-    'quantum':      {emoji:'',name:'양자컴퓨팅 / 양자암호',bg:'rgba(var(--ink-rgb),0.12)'},
-    'uam':          {emoji:'',name:'UAM / 도심항공',bg:'rgba(var(--ink-rgb),0.12)'},
-    'hydrogen':     {emoji:'',name:'수소에너지',bg:'rgba(var(--ink-rgb),0.12)'},
-    'space':        {emoji:'',name:'우주항공 / 위성',bg:'rgba(181,69,72,0.12)'}
+    'hydrogen':     {emoji:'',name:'수소에너지',bg:'rgba(var(--ink-rgb),0.12)'}
   };
 
   // 테마 순서 (사용자에게 보이는 순서)
-  var ORDER = ['defense','semi','shipbuilding','ai-sw','power-grid','nuclear','battery','bio','kbeauty','kcontent','auto','robot','finance','kfood','crypto','telecom','construction','retail','steel_chem','logistics','medtech_kr','energy_kr','photonics_kr','wind_solar','quantum','uam','hydrogen','space'];
+  var ORDER = ['defense','semi','shipbuilding','ai-sw','power-grid','nuclear','battery','bio','kbeauty','kcontent','auto','robot','finance','kfood','crypto','telecom','construction','retail','steel_chem','logistics','medtech_kr','energy_kr','photonics_kr','wind_solar','hydrogen'];
 
   var html = '';
   ORDER.forEach(function(tid) {
@@ -863,14 +860,14 @@ var KR_STOCK_DB = {
   // ════════ v35.8 신규: 의료기기/디지털헬스 재구성 ════════
   '000250': {name:'삼천당제약', sector:'GLP-1 제약', themes:['medtech_kr']}, // 2026-10-13: was keyed 047820 (초록뱀미디어 in KIND)
   '018670': {name:'SK가스', sector:'에너지', themes:['energy_kr']},
-  // ════════ v41.9 신규: 신재생/양자/UAM/수소/우주 테마 종목 ════════
+  // ════════ v41.9 신규: 신재생/수소 테마 종목 (양자·UAM·우주는 v59.70 퇴역) ════════
   '112610': {name:'씨에스윈드', sector:'풍력타워', themes:['wind_solar']},
   '336260': {name:'두산퓨얼셀', sector:'연료전지', themes:['wind_solar','hydrogen']},
   '017390': {name:'서울도시가스', sector:'가스유틸리티', themes:['wind_solar','hydrogen']},
   '003830': {name:'대한화섬', sector:'신재생', themes:['wind_solar']},
-  '050890': {name:'쏠리드', sector:'광중계기', themes:['photonics_kr','quantum']},
-  '032500': {name:'케이엠더블유', sector:'통신장비', themes:['photonics_kr','quantum']},
-  '218410': {name:'RFHIC', sector:'RF반도체', themes:['photonics_kr','quantum']},
+  '050890': {name:'쏠리드', sector:'광중계기', themes:['photonics_kr']},
+  '032500': {name:'케이엠더블유', sector:'통신장비', themes:['photonics_kr']},
+  '218410': {name:'RFHIC', sector:'RF반도체', themes:['photonics_kr']},
   '138080': {name:'오이솔루션', sector:'광모듈', themes:['photonics_kr']},
   // v46.10: KR_THEME_MAP 누락 종목 보충 (8건)
   '007310': {name:'오뚜기', sector:'식품', themes:['kfood']},
@@ -896,6 +893,9 @@ var KR_THEME_MAP = {
     {code:'064350'}, // 현대로템 (전차/철도)
     {code:'272210'}, // 한화시스템 (C4I/레이더)
     {code:'000880'},  // 한화 (방산 지주)
+    // v59.70 (owner): 한화에어로·KAI·현대로템·한화시스템·LIG·한화는 주력 사업(방산) 기준으로 여기에만 둔다.
+    // 우주·UAM 테마는 이들을 빼면 주력 사업이 우주·UAM인 종목이 남지 않아(효성중공업=전력기기, 한화엔진=선박 엔진) 퇴역,
+    // 양자는 5종목 모두 주력이 통신·통신장비라 퇴역했다.
     {code:'103140'}   // 풍산 (탄약 독점)
   ],
   'semi': [
@@ -1104,21 +1104,6 @@ var KR_THEME_MAP = {
     {code:'017390'}, // 서울도시가스 (수소충전 인프라)
     {code:'003830'}  // 대한화섬 (풍력발전단지 개발)
   ],
-  'quantum': [
-    {code:'017670'}, // SK텔레콤 (IDQ 양자암호 자회사, 양자통신 대장)
-    {code:'030200'}, // KT (양자암호통신 실증, 통신인프라)
-    {code:'050890'}, // 쏠리드 (양자통신 광중계기 인프라)
-    {code:'032500'}, // 케이엠더블유 (양자/5G 통신장비)
-    {code:'218410'}  // RFHIC (양자/광 RF 반도체)
-  ],
-  'uam': [
-    {code:'272210'}, // 한화시스템 (버티포트/항공전자, UAM 대장)
-    {code:'012450'}, // 한화에어로스페이스 (eVTOL 엔진/전장)
-    {code:'047810'}, // KAI (KF-21/항공, UAM 기체)
-    {code:'064350'}, // 현대로템 (PBV/무인기)
-    {code:'082740'}, // 한화엔진 (eVTOL 동력)
-    {code:'298040'}  // 효성중공업 (UAM 충전 인프라)
-  ],
   'hydrogen': [
     {code:'009830'}, // 한화솔루션 (수소 그린수소 대장)
     {code:'336260'}, // 두산퓨얼셀 (수소연료전지 발전 1위)
@@ -1128,15 +1113,6 @@ var KR_THEME_MAP = {
     {code:'003490'},  // 대한항공 (수소항공기 연구)
     {code:'017390'},  // 서울도시가스 (수소충전 인프라)
     {code:'005380'}   // 현대차 (수소차 NEXO, 수소 상용차)
-  ],
-  'space': [
-    {code:'012450'}, // 한화에어로스페이스 (누리호 엔진, 대장)
-    {code:'047810'}, // KAI (위성/항공기)
-    {code:'272210'}, // 한화시스템 (위성통신/SAR)
-    {code:'064350'}, // 현대로템 (발사대/지상장비)
-    {code:'079550'}, // LIG디펜스앤에어로스페이스 (위성탑재체/유도무기)
-    {code:'298040'},  // 효성중공업 (발사체 부품)
-    {code:'000880'}   // 한화 (그룹 우주사업 지주)
   ]
 };
 

@@ -69,7 +69,7 @@ export const STOCK_LENSES = Object.freeze({
       M('fcfMargin', '이익이 현금으로 들어오는지입니다.'), M('leverage', '부채가 자기자본 대비 얼마나 큰지입니다.')] }
 });
 
-const THEME_LENS = Object.freeze({ semiconductor: 'semis', photonics: 'semis', software: 'software', comm: 'internet', ai_infra: 'hardware', energy: 'energy', financials: 'financials',
+const THEME_LENS = Object.freeze({ semiconductor: 'semis', photonics: 'semis', software: 'software', comm: 'internet', ai_infra: 'hardware', hardware: 'hardware', energy: 'energy', financials: 'financials',
   healthcare: 'healthcare', staples: 'staples', consumer_disc: 'consumer', industrials: 'industrials', defense: 'industrials', robotics: 'industrials', materials: 'industrials',
   utilities: 'utilities', reits: 'reits', semi: 'semis', 'ai-sw': 'software', 'power-grid': 'industrials', bio: 'healthcare', finance: 'financials', energy_kr: 'energy',
   shipbuilding: 'industrials', construction: 'industrials', kfood: 'staples', retail: 'consumer', auto: 'consumer', telecom: 'utilities' });
