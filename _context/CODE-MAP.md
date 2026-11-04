@@ -1,6 +1,6 @@
 ---
-verified_by: historical navigation map; current sizes and versions belong to generated CURRENT-STATE.md
-last_verified: 2026-09-19
+verified_by: historical navigation map; current sizes and versions belong to generated CURRENT-STATE.md. 2026-11-04 rescan (grep -n on origin/main 432ac3eb) covers the v59.69 shell boundaries, the 20 route DOM starts, the 20-route table and the current runtime anchors, and checks that every referenced repo path exists (8 removed paths marked); other line tables are dated history.
+last_verified: 2026-11-04
 confidence: high
 auto_refresh: true
 target_version: version.json
@@ -49,7 +49,7 @@ current_checkpoint: P963 correlated public-AI browser request plus ticker empty-
 | `src/ai/entity/resolver.js` | 51 | AIQ-1 entity alias/ticker resolution |
 | `src/ai/time/market-session.js` | 132 | AIQ-1 current-question market session evidence (the pure calendar names are re-exported from the domain module) |
 | `src/domain/market/market-calendar.js` | 210 | pure NYSE/KRX calendar: registered holidays and half-days, latest completed US/KR session (`eodConfirmed`), holiday-aware session counts; imports nothing |
-| `src/ai/evidence/graph.js` | 28 | AIQ-2 evidence graph/completeness boundary |
+| `src/ai/evidence/graph.js` | 28 | AIQ-2 evidence graph/completeness boundary (파일 없음 — 2026-11-04 재스캔) |
 | `src/ai/analysis/causal.js` | 24 | AIQ-4 temporal/cross-asset causal attribution primitive |
 | `src/ai/policy/suitability.js` | 10 | AIQ-2 action/suitability permission boundary |
 | `src/ai/orchestrator/question-planner.js` | 72 | AIQ-1 typed intent/entity/time/evidence plan |
@@ -62,7 +62,7 @@ current_checkpoint: P963 correlated public-AI browser request plus ticker empty-
 | `src/ai/analysis/technical.js` | 27 | AIQ-4 technical condition engine |
 | `src/ai/analysis/macro-fx.js` | 22 | AIQ-4 macro/FX transmission engine |
 | `src/ai/analysis/registry.js` | 20 | AIQ-4 intent-to-domain analysis registry |
-| `src/ai/operations/control-plane.js` | 20 | AIQ-6 canary/feedback/drift/rollback contract |
+| `src/ai/operations/control-plane.js` | 20 | AIQ-6 canary/feedback/drift/rollback contract (파일 없음 — 2026-11-04 재스캔) |
 
 > The historical v52.66 table below is retained for audit context. Use this current
 > file-size table first, then confirm any detailed line anchor with `rg -n` before editing.
@@ -165,63 +165,67 @@ benchmark-relative-strength remains visible as missing evidence.
 | ARX-02 data writer | `src/data/providers/sentiment.js`, `src/data/normalize/sentiment.js`, `src/data/orchestrators/sentiment.js` | provider → normalize → freshness/evidence → state command |
 | AR-09 boundary | `src/legacy/compatibility-facade.js`, `src/app/bootstrap.js`, `scripts/ci-architecture-browser-check.mjs` | typed navigation facade and lifecycle ownership during migration |
 
-## v53.8 authoritative rescan (2026-07-18)
+## v59.69 rescan (2026-11-04, origin/main 432ac3eb)
 
-The tables in this subsection supersede older detailed line snapshots retained below for audit history.
+The three tables below were re-measured with `grep -n` against the files on 2026-11-04 (index.html 6,239 lines). They
+supersede the v53.8 rescan (2026-07-18, index.html 28,618 lines), whose ranges were all off after the inline blocks moved
+to `js/*` and `src/**`. Older detailed line snapshots further down stay as audit history and are not current.
 
 ### Shell/script boundaries
 
 | Range | Content |
 |------:|---------|
-| 46~5261 | main CSS |
-| 5262~12128 | body shell + 17 route DOM (inline islands 5272~5304, 7071~7092, 8098~8104) |
-| 12129~12133 | Chart.js, DOMPurify, Lightweight Charts CDN |
-| 12134~12204 | CDN failure fallback |
-| 12211~12213 | `aio-core/data/ui` defer loaders (`?v=53.8`) |
-| 12216~14717 | inline runtime |
-| 14719 | `js/aio-chat.js?v=53.8` defer loader |
-| 14721~16345, 16347~20041, 20042~24269, 24312~24510 | inline runtime blocks |
-| 24521 | `js/aio-glossary.js?v=53.8` defer loader |
-| 24524~27574 | inline runtime/SW registration |
-| 27612~27643 | footer support CSS |
-| 27648~28366 | final inline runtime |
+| 8, 38 | first-paint `data.json`/`history.json` preload and connection-aware font loader |
+| 39~3446 | main CSS |
+| 3448~6050 | body shell + 20 route DOM (inline islands 3457~3522, 3763, 3874, 3975~3996) |
+| 6051 | DOMPurify CDN |
+| 6052~6073 | CDN failure fallback |
+| 6081~6086 | `aio-workspace/kr-data/pages/core/data/ui` defer loaders (`?v=59.69`) |
+| 6137 | `js/aio-glossary.js` defer loader (`js/aio-chat.js` loads on demand through `src/app/chat-loader.js`, v59.16) |
+| 6183~6226 | footer support CSS |
+| 6236 | `src/app/bootstrap.js` (native ESM entry) |
 
-### Active route DOM starts (17)
+### Active route DOM starts (20)
 
 | id | line |
 |----|-----:|
-| `page-home` | 5635 |
-| `page-signal` | 6280 |
-| `page-breadth` | 6294 |
-| `page-sentiment` | 6309 |
-| `page-briefing` | 6324 |
-| `page-technical` | 6391 |
-| `page-macro` | 6998 |
-| `page-fxbond` | 7321 |
-| `page-fundamental` | 7361 |
-| `page-themes` | 7690 |
-| `page-theme-detail` | 7969 |
-| `page-portfolio` | 8096 |
-| `page-ticker` | 8684 |
-| `page-market-news` | 8917 |
-| `page-options` (retired v56.79) | 11183 |
-| `page-screener` | 9049 |
-| `page-guide` | 9425 |
+| `page-home` | 3766 |
+| `page-signal` | 3849 |
+| `page-breadth` | 3923 |
+| `page-sentiment` | 3941 |
+| `page-briefing` | 3961 |
+| `page-technical` | 4046 |
+| `page-macro` | 4156 |
+| `page-charts` | 4355 |
+| `page-fxbond` | 4370 |
+| `page-fundamental` | 4435 |
+| `page-themes` | 4492 |
+| `page-theme-detail` | 4689 |
+| `page-portfolio` | 4691 |
+| `page-ticker` | 5199 |
+| `page-market-news` | 5275 |
+| `page-screener` | 5397 |
+| `page-principles` | 5759 |
+| `page-masters` | 5767 |
+| `page-atlas` | 5775 |
+| `page-guide` | 5782 |
+
+`page-options` has no DOM (retired v56.79; `#options` is a sentiment alias). Route authority: `src/app/routes.js` `ROUTE_IDS` (20).
 
 ### Current high-value runtime anchors
 
 | Symbol | Location |
 |--------|----------|
 | `APP_VERSION` | `js/aio-core.js:2` |
-| `AIO_MANUAL_REFERENCE` / `DATA_SNAPSHOT` | `js/aio-core.js:20784` / `20813` |
-| `applyDataSnapshot` | `js/aio-core.js:21329` |
-| `computeTradingScore` | `js/aio-core.js:21824` |
-| `AIO_PAGE_CONTRACTS` materialization | `js/aio-core.js:23547` |
-| `destroyPageCharts` / `showPage` | `js/aio-core.js:24983` / `25758` |
-| `fetchLiveQuotes` / `applyLiveQuotes` | `js/aio-data.js:13732` / `15186` |
-| `_aioApplyNativeScreenerState` | `js/aio-data.js:4864` (`_aioComputeFactorRanks` 퇴역 2026-10-17 — native orchestrator가 유일한 랭킹) |
-| native sentiment page (legacy `initBreadthPage` 삭제 v57.60) | `src/ui/pages/sentiment.js:243` |
-| `CHAT_CONTEXTS` / `chatSendUnified` (per-page `chatSend` 삭제 v57.62) | `js/aio-chat.js` |
+| `AIO_MANUAL_REFERENCE` / `DATA_SNAPSHOT` | `js/aio-core.js:12919` / `12959` |
+| `applyDataSnapshot` | `js/aio-core.js:13691` |
+| `computeTradingScore` | `src/app/score-entry-points.js:41` (installed as a global; no longer defined in `js/aio-core.js`) |
+| `AIO_PAGE_CONTRACTS` materialization | `js/aio-core.js:15019` (`_buildContracts` 15005) |
+| `destroyPageCharts` / `showPage` | `js/aio-core.js:16237` / `16462` |
+| `fetchLiveQuotes` / `applyLiveQuotes` | `js/aio-data.js:5825` / `7106` |
+| `_aioApplyNativeScreenerState` | `js/aio-data.js:3046` (`_aioComputeFactorRanks` 퇴역 2026-10-17 — native orchestrator가 유일한 랭킹) |
+| native sentiment page (legacy `initBreadthPage` 삭제 v57.60) | `src/ui/pages/sentiment.js:21` (`createSentimentPage`) |
+| `CHAT_CONTEXTS` / `chatSendUnified` (per-page `chatSend` 삭제 v57.62) | `js/aio-chat.js:816` / `3941` |
 
 > 목적: 현재 모듈화된 AIO 코드를 전체 재읽기 없이 부분 탐색하기 위한 line 범위 맵.
 > 원칙: 작업 전 이 파일에서 담당 파일과 범위를 찾고, 실제 수정 전 `grep -n`/부분 Read로 한 번 더 확인한다.
@@ -251,7 +255,7 @@ Producer: `scripts/fetch-data.mjs` is the run order only (`main()` + the lane sw
 
 ## v57.60 structure pass (2026-10-14)
 
-Shared modules (import these instead of re-declaring): `src/ui/components/dom.js` (`el(doc, tag, text, className)`), `src/domain/content/date-labels.js` (`shortDate`), `src/domain/shared/number.js` (`finiteNumber`, no coercion), `src/data/selectors/market-inputs.js` (`collectMarketInputs`; re-exported by `briefing-read.js`). Split-outs: `src/domain/portfolio/return-stats.js` (backtest statistics), `src/ui/components/ai-infrastructure-lens.js` (themes), `src/domain/masters/holdings-format.js` (masters registry/formatters). Tooling: `scripts/lib/browser-gate.mjs` (`startLocalServer`, `closeAll`, `withBrowserGate`); `qa-pipeline.json` gate `weight`. Removed from legacy js: breadth DOM cluster (`updateBreadthBars`, `initBreadthPage`, McClellan UI, `_aioBreadthCanvasRender`), dead VIX/news-sentiment/conclusion/options/FRED sinks; `AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY` lives in `js/aio-qa-audits.js`. Line numbers in the older sections below are historical.
+Shared modules (import these instead of re-declaring): `src/ui/components/dom.js` (`el(doc, tag, text, className)`), `src/domain/content/date-labels.js` (`shortDate`), `src/domain/shared/number.js` (`finiteNumber`, no coercion), `src/data/selectors/market-inputs.js` (`collectMarketInputs`; re-exported by `briefing-read.js`). Split-outs: `src/domain/portfolio/return-stats.js` (backtest statistics), `src/ui/components/ai-infrastructure-lens.js` (themes; 삭제 v58.76–77, 54bc802b), `src/domain/masters/holdings-format.js` (masters registry/formatters). Tooling: `scripts/lib/browser-gate.mjs` (`startLocalServer`, `closeAll`, `withBrowserGate`); `qa-pipeline.json` gate `weight`. Removed from legacy js: breadth DOM cluster (`updateBreadthBars`, `initBreadthPage`, McClellan UI, `_aioBreadthCanvasRender`), dead VIX/news-sentiment/conclusion/options/FRED sinks; `AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY` lives in `js/aio-qa-audits.js`. Line numbers in the older sections below are historical.
 
 ## 1. 현재 파일 구조
 
@@ -308,32 +312,11 @@ Shared modules (import these instead of re-declaring): `src/ui/components/dom.js
 > 모든 inline 클래식 블록은 `defer`보다 **먼저** 실행된다(파싱 시점). 테스트 번들은
 > HTML·Pages artifact·service worker에 포함하지 않는다.
 > 정확한 재탐색은 `rg -n "<script|</script>|<style|</style>" index.html`을 사용한다.
-> 아래 line은 2026-09-19 측정값이며, 수정 전에는 항상 `rg -n`으로 확인한다.
+> 수정 전에는 항상 `rg -n`으로 확인한다.
 
 ### 20개 route 페이지 DOM 시작점
 
-| 페이지 | id | 시작 line |
-|--------|----|----------:|
-| 홈 대시보드 | `page-home` | 6,367 |
-| 매매 시그널 | `page-signal` | 6,280 |
-| 시장 폭 | `page-breadth` | 6,294 |
-| 투자 심리 | `page-sentiment` | 6,309 |
-| 데일리 브리핑 | `page-briefing` | 6,324 |
-| 차트·기술 | `page-technical` | 6,391 |
-| 거시 경제 | `page-macro` | 6,998 |
-| 금리 · 환율 | `page-fxbond` | 7,321 |
-| 기업 분석 | `page-fundamental` | 7,361 |
-| 테마/섹터 | `page-themes` | 7,690 |
-| 테마 상세 | `page-theme-detail` | 7,969 |
-| 포트폴리오 | `page-portfolio` | 8,096 |
-| 티커 상세 | `page-ticker` | 8,684 |
-| 시장 뉴스 | `page-market-news` | 8,917 |
-| 옵션 분석(v56.79 퇴역 — 셸 삭제, `#options`는 sentiment alias) | `page-options` | 11,915 |
-| 퀀트 스크리너 | `page-screener` | 9,049 |
-| 시장 원리 | `page-principles` | 9,368 |
-| 대가의 포트폴리오 | `page-masters` | 9,389 |
-| AI 시대 지식 지도 | `page-atlas` | 9,407 |
-| 사용 설명서 | `page-guide` | 9,425 |
+2026-11-04 실측값은 위 "v59.69 rescan" 절의 "Active route DOM starts (20)" 표 하나에만 둔다(같은 표가 두 곳에 있어 한쪽만 낡았다). `page-charts`(기술적 분석, v59.64)가 들어왔고 `page-options`는 DOM이 없다.
 
 > 한국 5라우트(`page-kr-*`)는 v53.7/P725에서 퇴역해 **DOM이 0개**다(`AIO_ROUTE_REGISTRY`
 > `REMOVED`). `principles`·`masters`·`atlas`·`guide`는 정적 shell(hero + `data-*-content`
