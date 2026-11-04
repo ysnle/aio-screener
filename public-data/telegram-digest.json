@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-04T20:21:51.259Z",
-  "attemptedAt": "2026-11-04T20:21:51.259Z",
-  "lastSuccessfulAt": "2026-11-04T20:21:51.259Z",
+  "generatedAt": "2026-11-04T20:52:01.765Z",
+  "attemptedAt": "2026-11-04T20:52:01.765Z",
+  "lastSuccessfulAt": "2026-11-04T20:52:01.765Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-21T20:21:47.104Z",
-  "until": "2026-11-04T20:21:47.104Z",
+  "since": "2026-10-21T20:51:57.293Z",
+  "until": "2026-11-04T20:51:57.293Z",
   "current24hWindow": {
     "start": "2026-11-02T23:00:00.000Z",
     "end": "2026-11-03T23:00:00.000Z",
@@ -92,9 +92,9 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1347,
+      "count": 1335,
       "freshCount": 19,
-      "eligibleTextCount": 1282,
+      "eligibleTextCount": 1270,
       "selectedCount": 121,
       "error": null,
       "lastPostId": 68352
@@ -104,9 +104,9 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 235,
+      "count": 234,
       "freshCount": 20,
-      "eligibleTextCount": 235,
+      "eligibleTextCount": 234,
       "selectedCount": 123,
       "error": null,
       "lastPostId": 21003
@@ -124,51 +124,51 @@
       "lastPostId": 71559
     }
   ],
-  "count": 2350,
+  "count": 2337,
   "retainedItemCount": 435,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2350,
-    "eligibleTextCount": 2280,
+    "observedCount": 2337,
+    "eligibleTextCount": 2267,
     "mediaOnlyCount": 70,
     "mediaAttachedCount": 303,
     "photoPostCount": 264,
     "documentPostCount": 1,
     "imageOnlyCount": 1,
-    "highSignalCount": 413,
-    "broadSignalCount": 903,
+    "highSignalCount": 410,
+    "broadSignalCount": 897,
     "selectedRawCount": 408,
     "selectedEligibleCount": 408,
-    "selectedRawCoveragePct": 17.9,
-    "selectedOfObservedPct": 17.4,
+    "selectedRawCoveragePct": 18,
+    "selectedOfObservedPct": 17.5,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "geo": 446,
-    "macro": 354,
-    "power": 265,
-    "market-note": 853,
-    "semi": 499,
-    "earnings": 457,
+    "geo": 441,
+    "macro": 350,
+    "power": 262,
+    "market-note": 850,
+    "semi": 496,
+    "earnings": 453,
     "optical": 40,
-    "japan": 88,
+    "japan": 87,
     "kr-market": 121,
     "equity": 148,
-    "healthcare": 90,
+    "healthcare": 88,
     "ai-policy": 118,
     "media-only": 70,
     "flows": 66,
-    "credit": 103,
+    "credit": 101,
     "crypto": 4
   },
   "tickerCounts": {
-    "GOOG": 124,
+    "GOOG": 123,
     "GOOGL": 8,
     "005930.KS": 47,
-    "000660.KS": 76,
+    "000660.KS": 75,
     "AMD": 47,
     "TSM": 40,
     "ORCL": 12,
@@ -177,15 +177,15 @@
     "MRVL": 15,
     "MPWR": 1,
     "GFS": 1,
-    "TSLA": 50,
-    "BE": 29,
+    "TSLA": 47,
+    "BE": 27,
     "CVS": 1,
     "INTC": 8,
     "MSFT": 57,
     "SMCI": 6,
     "NVO": 1,
     "COHR": 2,
-    "NVDA": 120,
+    "NVDA": 119,
     "MU": 36,
     "AMGN": 1,
     "DUOL": 1,
@@ -268,24 +268,24 @@
     "WMT": 1
   },
   "themes": [
-    "Market Notes (853 posts in 14-day research window): 2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,...",
-    "Semiconductors/Memory (499 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
-    "Earnings/Corporate (457 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS EPS -$0.49, 전년 동기 $0.44 • IFRS 순손실 $2.7억, 전년 동기 순이익 $2.49억...",
-    "Geopolitics (446 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
-    "Macro/Rates (354 posts in 14-day research window): 중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는 6.40% 폭등, 과창50지수는 9.9% 수직 상승하며 상한가에 근접. 양대 시장 거래대금은 2조 519억...",
-    "AI Power/Grid (265 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
+    "Market Notes (850 posts in 14-day research window): 2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,...",
+    "Semiconductors/Memory (496 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
+    "Earnings/Corporate (453 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS EPS -$0.49, 전년 동기 $0.44 • IFRS 순손실 $2.7억, 전년 동기 순이익 $2.49억...",
+    "Geopolitics (441 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
+    "Macro/Rates (350 posts in 14-day research window): 중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는 6.40% 폭등, 과창50지수는 9.9% 수직 상승하며 상한가에 근접. 양대 시장 거래대금은 2조 519억...",
+    "AI Power/Grid (262 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
     "Equity/Analyst (148 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p....",
     "Korea Market (121 posts in 14-day research window): Ferrari 2026년 3분기 실적 요약 실적 • 매출 €18.96억, YoY +7%, 환율 제외 +10% • 영업이익 €5.63억, YoY +12%, 환율 제외 +23% • 영업이익률 29.7%, YoY..."
   ],
   "catalysts": [
     {
       "key": "GOOG",
-      "count": 124,
+      "count": 123,
       "text": "2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,..."
     },
     {
       "key": "NVDA",
-      "count": 120,
+      "count": 119,
       "text": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p...."
     },
     {
@@ -295,18 +295,13 @@
     },
     {
       "key": "000660.KS",
-      "count": 76,
+      "count": 75,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Falcon Guardian에 AI 에이전트의 실행을 중단하고 재시작 및 기업 네트워크 접근을..."
     },
     {
       "key": "MSFT",
       "count": 57,
       "text": "AMD 2026년 3분기 실적 요약 실적 • 매출 $133.77억, YoY +45%, QoQ +16%, 분기 사상 최고 • GAAP 매출총이익 $72.10억, YoY +51%, QoQ +16% • GAAP..."
-    },
-    {
-      "key": "TSLA",
-      "count": 50,
-      "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로..."
     },
     {
       "key": "005930.KS",
@@ -317,6 +312,11 @@
       "key": "AMD",
       "count": 47,
       "text": "중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는 6.40% 폭등, 과창50지수는 9.9% 수직 상승하며 상한가에 근접. 양대 시장 거래대금은 2조 519억..."
+    },
+    {
+      "key": "TSLA",
+      "count": 47,
+      "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로..."
     },
     {
       "key": "TSM",
@@ -335,7 +335,7 @@
     },
     {
       "key": "BE",
-      "count": 29,
+      "count": 27,
       "text": "민주당 블루웨이브와 AI 투자 1. 민주당이 연방 상원(52~54석)과 하원(약 250석), 그리고 텍사스 주지사까지 승리했지만, 미국 AI 투자가 정체될 가능성은 낮음 2. 미국의 AI 주도권 유지에는 양당의 공감대가 있으며 , 상원 60석 미달과 트럼프 대통령의 거부권 유지로 연방 차원의 데이터센터 건설..."
     }
   ],
@@ -346,7 +346,7 @@
       "topics": [
         "macro"
       ],
-      "count": 354,
+      "count": 350,
       "focus": "중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는 6.40% 폭등, 과창50지수는 9.9% 수직 상승하며 상한가에 근접. 양대 시장 거래대금은 2조 519억..."
     },
     {
@@ -355,7 +355,7 @@
       "topics": [
         "geo"
       ],
-      "count": 446,
+      "count": 441,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격..."
     },
     {
@@ -364,7 +364,7 @@
       "topics": [
         "credit"
       ],
-      "count": 103,
+      "count": 101,
       "focus": "11월 04일 미주인 브리핑 • 나스닥 0.83% 상승 · 엔비디아 시총 5조 달러 회복 • AMD 데이터센터 매출 97% 급증 · 시간 외 6% 상승 • 메타 대규모 회사채 발행 추진 · AI 투자 확대 •..."
     },
     {
@@ -373,7 +373,7 @@
       "topics": [
         "semi"
       ],
-      "count": 499,
+      "count": 496,
       "focus": "2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A..."
     },
     {
@@ -391,7 +391,7 @@
       "topics": [
         "power"
       ],
-      "count": 265,
+      "count": 262,
       "focus": "Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을..."
     },
     {
@@ -436,7 +436,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 457,
+      "count": 453,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS EPS -$0.49, 전년 동기 $0.44 • IFRS 순손실 $2.7억, 전년 동기 순이익 $2.49억..."
     },
     {
@@ -445,7 +445,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 90,
+      "count": 88,
       "focus": ">>미중 상호 기술 수출통제 강화, 글로벌 기술 질서 재편 가속화 (대만공상시보) •중국 상무부와 과기부는 10월 AI·바이오·태양광 등 40개 기술을 수출통제 목록에 추가하는 개정안 발표. 이중 14개는..."
     },
     {
@@ -454,7 +454,7 @@
       "topics": [
         "japan"
       ],
-      "count": 88,
+      "count": 87,
       "focus": "JPM) 일본 퀀트 전략; 바닥은 닛케이평균 62,000선이나 핵심 분기점은 60,980 – 사이버 관련 헤드라인과 AI 피로감이 선별적 퀄리티 그로스에 다시 불을 지피다 내용 요약 10월 22일 닛케이평균은..."
     },
     {
@@ -481,7 +481,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 853,
+      "count": 850,
       "focus": "2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,..."
     }
   ],
