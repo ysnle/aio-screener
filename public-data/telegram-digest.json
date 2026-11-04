@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-04T22:21:48.539Z",
-  "attemptedAt": "2026-11-04T22:21:48.539Z",
-  "lastSuccessfulAt": "2026-11-04T22:21:48.539Z",
+  "generatedAt": "2026-11-04T22:51:55.660Z",
+  "attemptedAt": "2026-11-04T22:51:55.660Z",
+  "lastSuccessfulAt": "2026-11-04T22:51:55.660Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-21T22:21:44.586Z",
-  "until": "2026-11-04T22:21:44.586Z",
+  "since": "2026-10-21T22:51:50.690Z",
+  "until": "2026-11-04T22:51:50.690Z",
   "current24hWindow": {
     "start": "2026-11-02T23:00:00.000Z",
     "end": "2026-11-03T23:00:00.000Z",
@@ -89,15 +89,15 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1365,
-      "freshCount": 18,
+      "count": 1364,
+      "freshCount": 37,
       "eligibleTextCount": 1299,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 68393
+      "lastPostId": 68394
     },
     {
       "channel": "bornlupin",
@@ -113,27 +113,27 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 680,
-      "freshCount": 20,
-      "eligibleTextCount": 679,
+      "count": 682,
+      "freshCount": 39,
+      "eligibleTextCount": 681,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 71559
+      "lastPostId": 71562
     }
   ],
-  "count": 2365,
-  "retainedItemCount": 444,
+  "count": 2366,
+  "retainedItemCount": 467,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2365,
-    "eligibleTextCount": 2294,
-    "mediaOnlyCount": 71,
+    "observedCount": 2366,
+    "eligibleTextCount": 2296,
+    "mediaOnlyCount": 70,
     "mediaAttachedCount": 327,
     "photoPostCount": 283,
     "documentPostCount": 1,
@@ -147,18 +147,18 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 861,
+    "market-note": 862,
+    "macro": 358,
+    "ai-policy": 118,
     "earnings": 458,
-    "semi": 500,
-    "macro": 357,
+    "semi": 499,
     "geo": 446,
-    "power": 267,
-    "media-only": 71,
+    "power": 266,
+    "media-only": 70,
     "flows": 67,
     "kr-market": 124,
     "equity": 148,
     "healthcare": 90,
-    "ai-policy": 117,
     "credit": 102,
     "optical": 40,
     "japan": 87,
@@ -177,20 +177,20 @@
     "005930.KS": 47,
     "000660.KS": 75,
     "AMD": 47,
-    "TSM": 40,
+    "TSM": 39,
     "ORCL": 12,
     "PLTR": 28,
     "SN": 1,
     "MRVL": 15,
     "MPWR": 1,
     "GFS": 1,
-    "TSLA": 46,
+    "TSLA": 45,
     "BE": 27,
     "CVS": 1,
     "INTC": 8,
     "SMCI": 6,
     "NVO": 1,
-    "NVDA": 118,
+    "NVDA": 117,
     "AMGN": 1,
     "DUOL": 1,
     "BKNG": 1,
@@ -270,12 +270,12 @@
     "WMT": 1
   },
   "themes": [
-    "Market Notes (861 posts in 14-day research window): 2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,...",
-    "Semiconductors/Memory (500 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
+    "Market Notes (862 posts in 14-day research window): 2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,...",
+    "Semiconductors/Memory (499 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
     "Earnings/Corporate (458 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
     "Geopolitics (446 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
-    "Macro/Rates (357 posts in 14-day research window): 2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,...",
-    "AI Power/Grid (267 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 2027~2028년 말레이시아에 총 150억 달러를 투자해 데이터센터 캠퍼스와 청정에너지, 수자원 안보,...",
+    "Macro/Rates (358 posts in 14-day research window): 중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는 6.40% 폭등, 과창50지수는 9.9% 수직 상승하며 상한가에 근접. 양대 시장 거래대금은 2조 519억...",
+    "AI Power/Grid (266 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 2027~2028년 말레이시아에 총 150억 달러를 투자해 데이터센터 캠퍼스와 청정에너지, 수자원 안보,...",
     "Equity/Analyst (148 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p....",
     "Korea Market (124 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
   ],
@@ -287,7 +287,7 @@
     },
     {
       "key": "NVDA",
-      "count": 118,
+      "count": 117,
       "text": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p...."
     },
     {
@@ -317,12 +317,12 @@
     },
     {
       "key": "TSLA",
-      "count": 46,
+      "count": 45,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로..."
     },
     {
       "key": "TSM",
-      "count": 40,
+      "count": 39,
       "text": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -348,8 +348,8 @@
       "topics": [
         "macro"
       ],
-      "count": 357,
-      "focus": "2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,..."
+      "count": 358,
+      "focus": "중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는 6.40% 폭등, 과창50지수는 9.9% 수직 상승하며 상한가에 근접. 양대 시장 거래대금은 2조 519억..."
     },
     {
       "id": "geo",
@@ -367,7 +367,7 @@
         "credit"
       ],
       "count": 102,
-      "focus": "11월 04일 미주인 브리핑 • 나스닥 0.83% 상승 · 엔비디아 시총 5조 달러 회복 • AMD 데이터센터 매출 97% 급증 · 시간 외 6% 상승 • 메타 대규모 회사채 발행 추진 · AI 투자 확대 •..."
+      "focus": "2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%, 나스닥은 1.44%, 러셀2000은 1.51% 상승. 다우지수는 5만3,356선에 도달했으며,..."
     },
     {
       "id": "semi",
@@ -375,7 +375,7 @@
       "topics": [
         "semi"
       ],
-      "count": 500,
+      "count": 499,
       "focus": "2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A..."
     },
     {
@@ -393,7 +393,7 @@
       "topics": [
         "power"
       ],
-      "count": 267,
+      "count": 266,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 2027~2028년 말레이시아에 총 150억 달러를 투자해 데이터센터 캠퍼스와 청정에너지, 수자원 안보,..."
     },
     {
@@ -402,7 +402,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 117,
+      "count": 118,
       "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
@@ -483,7 +483,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 861,
+      "count": 862,
       "focus": "2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,..."
     }
   ],
@@ -743,7 +743,10 @@
       "datetime": "2026-11-04T21:11:05.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "macro"
+        "credit",
+        "macro",
+        "geo",
+        "semi"
       ],
       "score": 100,
       "hasText": true,
@@ -753,8 +756,6 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,...",
-      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -764,7 +765,8 @@
         "AVGO",
         "AMZN",
         "MU"
-      ]
+      ],
+      "summary": "2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,..."
     },
     {
       "id": "insidertracking/68345",
@@ -1777,6 +1779,20 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71561",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71561",
+      "datetime": "2026-11-04T22:27:23.000Z",
+      "localDateKst": "2026-11-05",
+      "tags": [
+        "ai-policy"
+      ],
+      "score": 50,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>유니트리 왕싱싱: 2027년 로봇 산업 임계점 도달 가능성, 관건은 ‘마지막 몇 밀리미터’ •유니트리 왕싱싱 CEO는 2027년이 로봇 산업의 임계점이 될 가능성이 높으며, 당시 로봇이 낯선 환경의..."
+    },
+    {
       "id": "bornlupin/21004",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21004",
@@ -1835,11 +1851,11 @@
       "datetime": "2026-11-04T21:22:53.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "market-note"
+        "equity",
+        "healthcare"
       ],
       "score": 60,
       "hasText": true,
-      "summary": "52주 신고가 (시총 $1B 이상) 금융 · AerCap Holdings · AGNC Investment · Arch Capital Group · Arthur J. Gallagher & Co. ·...",
       "tickers": [],
       "listTickers": [
         "AAPL",
@@ -1862,7 +1878,8 @@
         "CTAS",
         "MCK",
         "ECL"
-      ]
+      ],
+      "summary": "52주 신고가 (시총 $1B 이상) 금융 · AerCap Holdings · AGNC Investment · Arch Capital Group · Arthur J. Gallagher & Co. ·..."
     },
     {
       "id": "insidertracking/68366",
@@ -1871,13 +1888,14 @@
       "datetime": "2026-11-04T21:17:03.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
+        "macro",
         "kr-market",
         "earnings"
       ],
       "score": 65,
       "hasText": true,
-      "summary": "맥도날드(MCD) Q3 2026 어닝콜 요약 > 긍정 요인: • 글로벌 매출 성장 및 높은 수익성 유지. 3분기 글로벌 동일매장 매출은 전년 대비 1.5%, 전체 시스템 매출은 고정환율 기준 4% 증가. 조정...",
-      "tickers": []
+      "tickers": [],
+      "summary": "맥도날드(MCD) Q3 2026 어닝콜 요약 > 긍정 요인: • 글로벌 매출 성장 및 높은 수익성 유지. 3분기 글로벌 동일매장 매출은 전년 대비 1.5%, 전체 시스템 매출은 고정환율 기준 4% 증가. 조정..."
     },
     {
       "id": "insidertracking/68364",
@@ -1888,6 +1906,7 @@
       "tags": [
         "earnings"
       ],
+      "lead": 1,
       "score": 59,
       "hasText": true,
       "media": {
@@ -1896,10 +1915,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "Arm Holdings 2027 회계연도 2분기 실적 요약 실적 • 로열티 매출 $7.73억, 예상 $7.07억 상회 • 라이선스 및 기타 매출 $7.73억, 예상 $6.68억 상회 • 연환산...",
       "tickers": [
         "ARM"
-      ]
+      ],
+      "summary": "Arm Holdings 2027 회계연도 2분기 실적 요약 실적 • 로열티 매출 $7.73억, 예상 $7.07억 상회 • 라이선스 및 기타 매출 $7.73억, 예상 $6.68억 상회 • 연환산..."
     },
     {
       "id": "insidertracking/68363",
@@ -1910,6 +1929,7 @@
       "tags": [
         "earnings"
       ],
+      "lead": 1,
       "score": 67,
       "hasText": true,
       "media": {
@@ -1918,10 +1938,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "Qualcomm 2026 회계연도 4분기 실적 요약 실적 • 조정 매출 $104.4억, 예상 $101.2억 상회 • 조정 EPS $2.17, 예상 $2.16 상회 2026 회계연도 연간 •...",
       "tickers": [
         "QCOM"
-      ]
+      ],
+      "summary": "Qualcomm 2026 회계연도 4분기 실적 요약 실적 • 조정 매출 $104.4억, 예상 $101.2억 상회 • 조정 EPS $2.17, 예상 $2.16 상회 2026 회계연도 연간 •..."
     },
     {
       "id": "insidertracking/68362",
@@ -1930,8 +1950,10 @@
       "datetime": "2026-11-04T21:12:45.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "earnings"
+        "earnings",
+        "power"
       ],
+      "lead": 1,
       "score": 77,
       "hasText": true,
       "media": {
@@ -1940,10 +1962,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "Coherent 2027 회계연도 1분기 실적 요약 실적 • 매출 $23.7억, YoY +50%, QoQ +15.9%, 예상 $23억 상회 • GAAP EPS $1.90, 전년 동기 $1.19 • 조정 EPS...",
       "tickers": [
         "COHR"
-      ]
+      ],
+      "summary": "Coherent 2027 회계연도 1분기 실적 요약 실적 • 매출 $23.7억, YoY +50%, QoQ +15.9%, 예상 $23억 상회 • GAAP EPS $1.90, 전년 동기 $1.19 • 조정 EPS..."
     },
     {
       "id": "insidertracking/68361",
@@ -1953,7 +1975,9 @@
       "localDateKst": "2026-11-05",
       "tags": [
         "semi",
-        "power"
+        "power",
+        "ai-policy",
+        "healthcare"
       ],
       "score": 83,
       "hasText": true,
@@ -1963,11 +1987,11 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) 반도체 · 데이터센터 · 광통신 • 라이엇 플랫폼스 (RIOT) — 코르시카나 캠퍼스 전체를 대상으로 선도적 Frontier AI Lab과 15년간 910MW 규모의...",
       "tickers": [
         "AAPL",
         "GOOG"
-      ]
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) 반도체 · 데이터센터 · 광통신 • 라이엇 플랫폼스 (RIOT) — 코르시카나 캠퍼스 전체를 대상으로 선도적 Frontier AI Lab과 15년간 910MW 규모의..."
     },
     {
       "id": "insidertracking/68360",
@@ -1976,7 +2000,10 @@
       "datetime": "2026-11-04T21:11:05.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "macro"
+        "credit",
+        "macro",
+        "geo",
+        "semi"
       ],
       "score": 100,
       "hasText": true,
@@ -1986,8 +2013,6 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,...",
-      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -1997,7 +2022,8 @@
         "AVGO",
         "AMZN",
         "MU"
-      ]
+      ],
+      "summary": "2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,..."
     },
     {
       "id": "insidertracking/68357",
@@ -2006,7 +2032,7 @@
       "datetime": "2026-11-04T21:08:49.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "market-note"
+        "macro"
       ],
       "score": 52,
       "hasText": true,
@@ -2016,8 +2042,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "2026년 11월 5일 미장 마감 S&P 500 - 7,688.62 +1.58% 다우 30 - 53,356.12 +3.03% 나스닥 - 25,736.51 +1.44% 러셀 2000 - 2,854.83...",
-      "tickers": []
+      "tickers": [],
+      "summary": "2026년 11월 5일 미장 마감 S&P 500 - 7,688.62 +1.58% 다우 30 - 53,356.12 +3.03% 나스닥 - 25,736.51 +1.44% 러셀 2000 - 2,854.83..."
     },
     {
       "id": "insidertracking/68355",
@@ -2026,6 +2052,7 @@
       "datetime": "2026-11-04T21:04:20.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
+        "macro",
         "geo"
       ],
       "score": 67,
@@ -2036,8 +2063,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 5일 트럼프·중간선거 패배 관련 발언 · 트럼프 “공화당의 선거 패배가 이란 전쟁 때문이라는 것은 대체로 사실” · 트럼프 “이란 전쟁은 그만한...",
-      "tickers": []
+      "tickers": [],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 5일 트럼프·중간선거 패배 관련 발언 · 트럼프 “공화당의 선거 패배가 이란 전쟁 때문이라는 것은 대체로 사실” · 트럼프 “이란 전쟁은 그만한..."
     },
     {
       "id": "insidertracking/68354",
@@ -2046,7 +2073,10 @@
       "datetime": "2026-11-04T21:03:08.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "geo"
+        "macro",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 87,
       "hasText": true,
@@ -2056,8 +2086,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 5일 🇺🇸 아메리카 • 트럼프 대통령은 공화당의 중간선거 패배에 이란 전쟁이 영향을 미쳤다는 점을 인정하면서도 이란의 핵무기 보유를 막기 위한 불가피한 선택이었다고...",
-      "tickers": []
+      "tickers": [],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 5일 🇺🇸 아메리카 • 트럼프 대통령은 공화당의 중간선거 패배에 이란 전쟁이 영향을 미쳤다는 점을 인정하면서도 이란의 핵무기 보유를 막기 위한 불가피한 선택이었다고..."
     },
     {
       "id": "HANAchina/71559",
@@ -2556,14 +2586,15 @@
       "datetime": "2026-11-04T07:09:30.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "market-note"
+        "power",
+        "equity"
       ],
       "score": 52,
       "hasText": true,
-      "summary": ">>공화당 중간선거 패배에 머스크의 4억 달러도 무산? 최대 후원자 머스크 입장 표명 •머스크는 2026년 미국 중간선거에서 공화당 후보들을 지원하기 위해 약 5억 달러를 투입했으나, 민주당이 선거에서...",
       "tickers": [
         "TSLA"
-      ]
+      ],
+      "summary": ">>공화당 중간선거 패배에 머스크의 4억 달러도 무산? 최대 후원자 머스크 입장 표명 •머스크는 2026년 미국 중간선거에서 공화당 후보들을 지원하기 위해 약 5억 달러를 투입했으나, 민주당이 선거에서..."
     },
     {
       "id": "insidertracking/68313",
@@ -2598,11 +2629,11 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": "•중국증시 '중한(中韩)반도체ETF' 거래대금 260억위으로 역대 최고치 경신",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "•중국증시 '중한(中韩)반도체ETF' 거래대금 260억위으로 역대 최고치 경신"
     },
     {
       "id": "insidertracking/68310",
@@ -2684,9 +2715,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "•CXMT +8.5% •중국 반도체 과창50지수 +8%",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "•CXMT +8.5% •중국 반도체 과창50지수 +8%"
     },
     {
       "id": "insidertracking/68304",
@@ -2737,15 +2767,17 @@
       "datetime": "2026-11-04T05:46:08.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "ai-policy"
+        "ai-policy",
+        "macro",
+        "semi"
       ],
+      "lead": 1,
       "score": 78,
       "hasText": true,
-      "summary": ">>SemiAnalysis, AI 연산능력 부족 분석 : OpenAI와 Anthropic이 전 세계 신규 연산능력 선점 •SemiAnalysis는 OpenAI와 Anthropic이 전 세계 신규 연산능력 증설...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>SemiAnalysis, AI 연산능력 부족 분석 : OpenAI와 Anthropic이 전 세계 신규 연산능력 선점 •SemiAnalysis는 OpenAI와 Anthropic이 전 세계 신규 연산능력 증설..."
     },
     {
       "id": "HANAchina/71529",
@@ -2754,8 +2786,11 @@
       "datetime": "2026-11-04T04:17:36.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "semi"
+        "semi",
+        "geo",
+        "healthcare"
       ],
+      "lead": 1,
       "score": 75,
       "hasText": true,
       "media": {
@@ -2764,12 +2799,11 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "• 알리바바·텐센트·바이트댄스 등 중국 빅테크들이 주문한 엔비디아 'RTX Pro 5500'은 약 600만 대(총 700억 달러 이상)에 달하지만, 향후 4개월간 실제 인도받을 물량은 수만 대(전체의 약...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "TSM"
-      ]
+      ],
+      "summary": "• 알리바바·텐센트·바이트댄스 등 중국 빅테크들이 주문한 엔비디아 'RTX Pro 5500'은 약 600만 대(총 700억 달러 이상)에 달하지만, 향후 4개월간 실제 인도받을 물량은 수만 대(전체의 약..."
     },
     {
       "id": "insidertracking/68287",
@@ -7545,21 +7579,6 @@
         "GOOG",
         "AMZN"
       ]
-    },
-    {
-      "id": "HANAchina/71229",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71229",
-      "datetime": "2026-10-29T13:03:15.000Z",
-      "localDateKst": "2026-10-29",
-      "tags": [
-        "macro"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": ">>닉 티미라오스 “근원 상품 가격이 계속 상승한다면 서비스 가격은 더 큰 폭으로 둔화해야” •닉 티미라오스는 9월 주거비를 제외한 근원 PCE 서비스 가격이 0.37% 상승하면서 12개월 기준 상승률이...",
-      "lead": 1,
-      "tickers": []
     },
     {
       "id": "bornlupin/20886",
