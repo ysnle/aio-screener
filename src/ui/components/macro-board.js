@@ -30,6 +30,7 @@ import { shortDate } from '../../domain/content/date-labels.js';
 import { usWeekendClosed } from '../../domain/market/market-calendar.js';
 import { peopleText, signedText } from '../../domain/shared/number.js';
 import { buildCrossAssetRelations } from '../../domain/macro/cross-asset-relations.js';
+import { dodgeSvgLabels } from './svg-label-dodge.js';
 import { MARKET_WINDOWS } from '../../domain/market/market-windows.js';
 import { RULES } from '../../domain/rules/thresholds.js';
 import { MACRO_SIGNAL_RULES } from '../../domain/macro/macro-signals.js';
@@ -895,6 +896,9 @@ function curveSvg(doc, yields, previous = null) {
       : edge ? { ...lean, dy: 16 } : lowerThan(yields[index - 1]) ? { dx: 6, anchor: 'start', dy: 16 } : lowerThan(yields[index + 1]) ? { dx: -6, anchor: 'end', dy: 16 } : { ...lean, dy: 16 };
     if (labelled.has(index)) add('text', { x: x(index) + side.dx, y: y(row.value) + side.dy, 'text-anchor': side.anchor, class: 'rates-curve-label' }, row.value.toFixed(2));
   });
+  // v59.70 (render hotfix): a value label that lands on an axis or tenor label moves vertically clear (svg-label-dodge.js);
+  // on 11/3 the 1개월 4.03 label sat on the 3.9% axis label at every desktop width.
+  if (typeof svg.querySelectorAll === 'function') dodgeSvgLabels({ fixed: [...svg.querySelectorAll('.trend-chart-axis')], movable: [...svg.querySelectorAll('.rates-curve-label')], fontSize: narrow ? 15 : 12 });
   return svg;
 }
 

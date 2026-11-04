@@ -455,6 +455,11 @@
           "script": "scripts/ci-esm-core-unit-check.mjs"
         },
         {
+          "id": "render-boundary",
+          "script": "scripts/ci-render-boundary-fixture.mjs",
+          "remedy": "v59.70: a gauge value that rounds to zero prints no sign (src/ui/components/gauge-bar.js uses signedText); SVG labels that would overlap call dodgeSvgLabels (src/ui/components/svg-label-dodge.js) after drawing"
+        },
+        {
           "id": "quant-reference",
           "script": "scripts/ci-quant-reference-check.mjs",
           "remedy": "each failing case names its formula and reference source; fix the module, not the expected value",

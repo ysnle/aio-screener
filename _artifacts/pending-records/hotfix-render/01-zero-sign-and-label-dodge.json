@@ -1,0 +1,15 @@
+{
+  "p": {
+    "title": "라이브 데이터 02:54Z에서 게이지 '+0.0%'와 국채 곡선 라벨 겹침 — push CI browser-surface·viewport 실패",
+    "symptom": "달러 지수 20일 변화 0.03이 게이지 캡션·aria-label에 '+0.0%'로 나와 browser-rendered-copy-lint가 실패했고, 1개월 금리 4.03이 축 하단 3.9% 바로 위라 값 라벨이 축 라벨에 겹쳐 ci-viewport-matrix가 desktop1280/1440/1920 모두 'svg text overlaps 1'로 실패했다.",
+    "root_cause": "gauge-bar.js valueText가 부호를 값의 부호로 붙여 반올림해 0이 된 값에도 '+'/'-'를 남겼다(공용 signedText 규칙을 쓰지 않음). 국채 곡선은 값 라벨끼리의 간격만 보고 축·눈금 라벨과의 충돌은 보지 않았다.",
+    "fix": "게이지는 부호 있는 눈금에서 signedText, 부호 없는 눈금에서도 반올림 0은 부호 없음. 공용 src/ui/components/svg-label-dodge.js dodgeSvgLabels가 겹칠 라벨을 위·아래 중 덜 움직이는 쪽으로 세로로 비키고, 국채 곡선이 그리기 뒤 한 번 호출한다.",
+    "violated_rule": "반올림해 0인 변화는 부호도 색도 없다(signedText 규칙, v58.80 R2-27). 차트 텍스트는 서로 겹치지 않는다(viewport matrix).",
+    "prevention": "scripts/ci-render-boundary-fixture.mjs(core): 게이지 0.04·-0.04·0.03·0.05·-0.05·0 캡션과 aria-label, 부호 없는 눈금 -0.04, 값 차이 0 라벨 두 개, 축 하단 라벨 사례. 옛 gauge-bar로 7건 실패, 회피 모듈 없으면 import 실패.",
+    "verification": "hotfix 트리(origin/main 389806b6)에서 현재 데이터로 fxbond 'svg text overlaps' 1→0(1280/1440/1920/768/390), 매크로 게이지 캡션 '달러 지수 20일 변화, 0.0%'."
+  },
+  "changelog": [
+    "**렌더 핫픽스 ({VERSION}):** 반올림해 0인 게이지 값이 '+0.0%'로 보이던 것과 국채 곡선 1개월 값 라벨이 축 라벨에 겹치던 것을 고쳤다. 겹칠 SVG 라벨을 세로로 비키는 공용 `dodgeSvgLabels`와 경계값 fixture 게이트를 더했다."
+  ],
+  "note": "hotfix-render-20261104 (orchestrator 2026-11-04). Same bytes on claude/ui-states-f0308e."
+}
