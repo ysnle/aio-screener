@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-04T20:52:01.765Z",
-  "attemptedAt": "2026-11-04T20:52:01.765Z",
-  "lastSuccessfulAt": "2026-11-04T20:52:01.765Z",
+  "generatedAt": "2026-11-04T21:21:54.555Z",
+  "attemptedAt": "2026-11-04T21:21:54.555Z",
+  "lastSuccessfulAt": "2026-11-04T21:21:54.555Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-21T20:51:57.293Z",
-  "until": "2026-11-04T20:51:57.293Z",
+  "since": "2026-10-21T21:21:50.523Z",
+  "until": "2026-11-04T21:21:50.523Z",
   "current24hWindow": {
     "start": "2026-11-02T23:00:00.000Z",
     "end": "2026-11-03T23:00:00.000Z",
@@ -89,24 +89,24 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1335,
-      "freshCount": 19,
-      "eligibleTextCount": 1270,
-      "selectedCount": 121,
+      "count": 1350,
+      "freshCount": 39,
+      "eligibleTextCount": 1285,
+      "selectedCount": 123,
       "error": null,
-      "lastPostId": 68352
+      "lastPostId": 68368
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 234,
+      "count": 232,
       "freshCount": 20,
-      "eligibleTextCount": 234,
+      "eligibleTextCount": 232,
       "selectedCount": 123,
       "error": null,
       "lastPostId": 21003
@@ -124,55 +124,59 @@
       "lastPostId": 71559
     }
   ],
-  "count": 2337,
-  "retainedItemCount": 435,
+  "count": 2350,
+  "retainedItemCount": 454,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2337,
-    "eligibleTextCount": 2267,
+    "observedCount": 2350,
+    "eligibleTextCount": 2280,
     "mediaOnlyCount": 70,
-    "mediaAttachedCount": 303,
-    "photoPostCount": 264,
+    "mediaAttachedCount": 316,
+    "photoPostCount": 277,
     "documentPostCount": 1,
     "imageOnlyCount": 1,
-    "highSignalCount": 410,
-    "broadSignalCount": 897,
-    "selectedRawCount": 408,
-    "selectedEligibleCount": 408,
+    "highSignalCount": 416,
+    "broadSignalCount": 904,
+    "selectedRawCount": 410,
+    "selectedEligibleCount": 410,
     "selectedRawCoveragePct": 18,
-    "selectedOfObservedPct": 17.5,
+    "selectedOfObservedPct": 17.4,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "geo": 441,
-    "macro": 350,
-    "power": 262,
-    "market-note": 850,
-    "semi": 496,
-    "earnings": 453,
+    "market-note": 854,
+    "macro": 355,
+    "kr-market": 123,
+    "earnings": 457,
+    "power": 265,
+    "semi": 498,
+    "ai-policy": 117,
+    "healthcare": 89,
+    "credit": 102,
+    "geo": 444,
     "optical": 40,
     "japan": 87,
-    "kr-market": 121,
-    "equity": 148,
-    "healthcare": 88,
-    "ai-policy": 118,
+    "equity": 147,
     "media-only": 70,
     "flows": 66,
-    "credit": 101,
     "crypto": 4
   },
   "tickerCounts": {
-    "GOOG": 123,
+    "ARM": 1,
+    "QCOM": 1,
+    "COHR": 3,
+    "AAPL": 21,
+    "GOOG": 124,
     "GOOGL": 8,
     "005930.KS": 47,
     "000660.KS": 75,
     "AMD": 47,
     "TSM": 40,
     "ORCL": 12,
-    "PLTR": 29,
+    "PLTR": 28,
     "SN": 1,
     "MRVL": 15,
     "MPWR": 1,
@@ -184,8 +188,7 @@
     "MSFT": 57,
     "SMCI": 6,
     "NVO": 1,
-    "COHR": 2,
-    "NVDA": 119,
+    "NVDA": 118,
     "MU": 36,
     "AMGN": 1,
     "DUOL": 1,
@@ -200,7 +203,6 @@
     "STX": 7,
     "285A.T": 8,
     "PFE": 1,
-    "AAPL": 20,
     "AVGO": 21,
     "2454.TW": 3,
     "GS": 2,
@@ -268,24 +270,24 @@
     "WMT": 1
   },
   "themes": [
-    "Market Notes (850 posts in 14-day research window): 2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,...",
-    "Semiconductors/Memory (496 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
-    "Earnings/Corporate (453 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS EPS -$0.49, 전년 동기 $0.44 • IFRS 순손실 $2.7억, 전년 동기 순이익 $2.49억...",
-    "Geopolitics (441 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
-    "Macro/Rates (350 posts in 14-day research window): 중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는 6.40% 폭등, 과창50지수는 9.9% 수직 상승하며 상한가에 근접. 양대 시장 거래대금은 2조 519억...",
-    "AI Power/Grid (262 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
-    "Equity/Analyst (148 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p....",
-    "Korea Market (121 posts in 14-day research window): Ferrari 2026년 3분기 실적 요약 실적 • 매출 €18.96억, YoY +7%, 환율 제외 +10% • 영업이익 €5.63억, YoY +12%, 환율 제외 +23% • 영업이익률 29.7%, YoY..."
+    "Market Notes (854 posts in 14-day research window): 2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,...",
+    "Semiconductors/Memory (498 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
+    "Earnings/Corporate (457 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS EPS -$0.49, 전년 동기 $0.44 • IFRS 순손실 $2.7억, 전년 동기 순이익 $2.49억...",
+    "Geopolitics (444 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
+    "Macro/Rates (355 posts in 14-day research window): 중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는 6.40% 폭등, 과창50지수는 9.9% 수직 상승하며 상한가에 근접. 양대 시장 거래대금은 2조 519억...",
+    "AI Power/Grid (265 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
+    "Equity/Analyst (147 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p....",
+    "Korea Market (123 posts in 14-day research window): Ferrari 2026년 3분기 실적 요약 실적 • 매출 €18.96억, YoY +7%, 환율 제외 +10% • 영업이익 €5.63억, YoY +12%, 환율 제외 +23% • 영업이익률 29.7%, YoY..."
   ],
   "catalysts": [
     {
       "key": "GOOG",
-      "count": 123,
+      "count": 124,
       "text": "2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,..."
     },
     {
       "key": "NVDA",
-      "count": 119,
+      "count": 118,
       "text": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p...."
     },
     {
@@ -330,7 +332,7 @@
     },
     {
       "key": "PLTR",
-      "count": 29,
+      "count": 28,
       "text": "11월 04일 미주인 브리핑 • 나스닥 0.83% 상승 · 엔비디아 시총 5조 달러 회복 • AMD 데이터센터 매출 97% 급증 · 시간 외 6% 상승 • 메타 대규모 회사채 발행 추진 · AI 투자 확대 •..."
     },
     {
@@ -346,7 +348,7 @@
       "topics": [
         "macro"
       ],
-      "count": 350,
+      "count": 355,
       "focus": "중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는 6.40% 폭등, 과창50지수는 9.9% 수직 상승하며 상한가에 근접. 양대 시장 거래대금은 2조 519억..."
     },
     {
@@ -355,7 +357,7 @@
       "topics": [
         "geo"
       ],
-      "count": 441,
+      "count": 444,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격..."
     },
     {
@@ -364,8 +366,8 @@
       "topics": [
         "credit"
       ],
-      "count": 101,
-      "focus": "11월 04일 미주인 브리핑 • 나스닥 0.83% 상승 · 엔비디아 시총 5조 달러 회복 • AMD 데이터센터 매출 97% 급증 · 시간 외 6% 상승 • 메타 대규모 회사채 발행 추진 · AI 투자 확대 •..."
+      "count": 102,
+      "focus": "2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%, 나스닥은 1.44%, 러셀2000은 1.51% 상승. 다우지수는 5만3,356선에 도달했으며,..."
     },
     {
       "id": "semi",
@@ -373,7 +375,7 @@
       "topics": [
         "semi"
       ],
-      "count": 496,
+      "count": 498,
       "focus": "2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A..."
     },
     {
@@ -391,7 +393,7 @@
       "topics": [
         "power"
       ],
-      "count": 262,
+      "count": 265,
       "focus": "Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을..."
     },
     {
@@ -400,7 +402,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 118,
+      "count": 117,
       "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
@@ -409,7 +411,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 121,
+      "count": 123,
       "focus": "Ferrari 2026년 3분기 실적 요약 실적 • 매출 €18.96억, YoY +7%, 환율 제외 +10% • 영업이익 €5.63억, YoY +12%, 환율 제외 +23% • 영업이익률 29.7%, YoY..."
     },
     {
@@ -418,7 +420,7 @@
       "topics": [
         "equity"
       ],
-      "count": 148,
+      "count": 147,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p...."
     },
     {
@@ -436,7 +438,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 453,
+      "count": 457,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS EPS -$0.49, 전년 동기 $0.44 • IFRS 순손실 $2.7억, 전년 동기 순이익 $2.49억..."
     },
     {
@@ -445,7 +447,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 88,
+      "count": 89,
       "focus": ">>미중 상호 기술 수출통제 강화, 글로벌 기술 질서 재편 가속화 (대만공상시보) •중국 상무부와 과기부는 10월 AI·바이오·태양광 등 40개 기술을 수출통제 목록에 추가하는 개정안 발표. 이중 14개는..."
     },
     {
@@ -481,7 +483,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 850,
+      "count": 854,
       "focus": "2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,..."
     }
   ],
@@ -734,6 +736,38 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "insidertracking/68360",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68360",
+      "datetime": "2026-11-04T21:11:05.000Z",
+      "localDateKst": "2026-11-05",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi"
+      ],
+      "score": 100,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "listTickers": [
+        "NVDA",
+        "TSLA",
+        "MSFT",
+        "GOOG",
+        "AVGO",
+        "AMZN",
+        "MU"
+      ],
+      "summary": "2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,..."
+    },
     {
       "id": "insidertracking/68345",
       "channel": "insidertracking",
@@ -1398,23 +1432,6 @@
       ]
     },
     {
-      "id": "insidertracking/67903",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67903",
-      "datetime": "2026-10-30T22:29:34.000Z",
-      "localDateKst": "2026-10-31",
-      "tags": [
-        "geo"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 31일 🇺🇸 아메리카 • 트럼프 대통령은 이란과 협상이 진행 중이라고 밝혀. 다만 미국 정부는 이란에 대한 경제 봉쇄와 추가 제재를 검토 중이며, 중간선거 직후...",
-      "lead": 1,
-      "tickers": [
-        "AMZN"
-      ]
-    },
-    {
       "id": "bornlupin/20885",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20885",
@@ -1765,6 +1782,214 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "insidertracking/68366",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68366",
+      "datetime": "2026-11-04T21:17:03.000Z",
+      "localDateKst": "2026-11-05",
+      "tags": [
+        "macro",
+        "kr-market",
+        "earnings"
+      ],
+      "score": 65,
+      "hasText": true,
+      "tickers": [],
+      "summary": "맥도날드(MCD) Q3 2026 어닝콜 요약 > 긍정 요인: • 글로벌 매출 성장 및 높은 수익성 유지. 3분기 글로벌 동일매장 매출은 전년 대비 1.5%, 전체 시스템 매출은 고정환율 기준 4% 증가. 조정..."
+    },
+    {
+      "id": "insidertracking/68364",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68364",
+      "datetime": "2026-11-04T21:14:38.000Z",
+      "localDateKst": "2026-11-05",
+      "tags": [
+        "earnings"
+      ],
+      "lead": 1,
+      "score": 59,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "ARM"
+      ],
+      "summary": "Arm Holdings 2027 회계연도 2분기 실적 요약 실적 • 로열티 매출 $7.73억, 예상 $7.07억 상회 • 라이선스 및 기타 매출 $7.73억, 예상 $6.68억 상회 • 연환산..."
+    },
+    {
+      "id": "insidertracking/68363",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68363",
+      "datetime": "2026-11-04T21:14:12.000Z",
+      "localDateKst": "2026-11-05",
+      "tags": [
+        "earnings"
+      ],
+      "lead": 1,
+      "score": 67,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "QCOM"
+      ],
+      "summary": "Qualcomm 2026 회계연도 4분기 실적 요약 실적 • 조정 매출 $104.4억, 예상 $101.2억 상회 • 조정 EPS $2.17, 예상 $2.16 상회 2026 회계연도 연간 •..."
+    },
+    {
+      "id": "insidertracking/68362",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68362",
+      "datetime": "2026-11-04T21:12:45.000Z",
+      "localDateKst": "2026-11-05",
+      "tags": [
+        "earnings",
+        "power"
+      ],
+      "lead": 1,
+      "score": 77,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "COHR"
+      ],
+      "summary": "Coherent 2027 회계연도 1분기 실적 요약 실적 • 매출 $23.7억, YoY +50%, QoQ +15.9%, 예상 $23억 상회 • GAAP EPS $1.90, 전년 동기 $1.19 • 조정 EPS..."
+    },
+    {
+      "id": "insidertracking/68361",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68361",
+      "datetime": "2026-11-04T21:11:56.000Z",
+      "localDateKst": "2026-11-05",
+      "tags": [
+        "semi",
+        "power",
+        "ai-policy",
+        "healthcare"
+      ],
+      "score": 83,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "AAPL",
+        "GOOG"
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) 반도체 · 데이터센터 · 광통신 • 라이엇 플랫폼스 (RIOT) — 코르시카나 캠퍼스 전체를 대상으로 선도적 Frontier AI Lab과 15년간 910MW 규모의..."
+    },
+    {
+      "id": "insidertracking/68360",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68360",
+      "datetime": "2026-11-04T21:11:05.000Z",
+      "localDateKst": "2026-11-05",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi"
+      ],
+      "score": 100,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "listTickers": [
+        "NVDA",
+        "TSLA",
+        "MSFT",
+        "GOOG",
+        "AVGO",
+        "AMZN",
+        "MU"
+      ],
+      "summary": "2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,..."
+    },
+    {
+      "id": "insidertracking/68357",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68357",
+      "datetime": "2026-11-04T21:08:49.000Z",
+      "localDateKst": "2026-11-05",
+      "tags": [
+        "macro"
+      ],
+      "score": 52,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": "2026년 11월 5일 미장 마감 S&P 500 - 7,688.62 +1.58% 다우 30 - 53,356.12 +3.03% 나스닥 - 25,736.51 +1.44% 러셀 2000 - 2,854.83..."
+    },
+    {
+      "id": "insidertracking/68355",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68355",
+      "datetime": "2026-11-04T21:04:20.000Z",
+      "localDateKst": "2026-11-05",
+      "tags": [
+        "macro",
+        "geo"
+      ],
+      "score": 67,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 5일 트럼프·중간선거 패배 관련 발언 · 트럼프 “공화당의 선거 패배가 이란 전쟁 때문이라는 것은 대체로 사실” · 트럼프 “이란 전쟁은 그만한..."
+    },
+    {
+      "id": "insidertracking/68354",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68354",
+      "datetime": "2026-11-04T21:03:08.000Z",
+      "localDateKst": "2026-11-05",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power"
+      ],
+      "score": 87,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 5일 🇺🇸 아메리카 • 트럼프 대통령은 공화당의 중간선거 패배에 이란 전쟁이 영향을 미쳤다는 점을 인정하면서도 이란의 핵무기 보유를 막기 위한 불가피한 선택이었다고..."
+    },
     {
       "id": "HANAchina/71559",
       "channel": "HANAchina",
@@ -2175,13 +2400,13 @@
       "tags": [
         "power"
       ],
+      "lead": 1,
       "score": 57,
       "hasText": true,
-      "summary": "텍사스 중간선거 결과로 신규 데이터센터 건설 지연 위험 확대. 텍사스 데이터센터 산업에는 연방 상원 의석의 정당 교체보다 지나 히노호사의 주지사 선거 승리가 더 큰 영향을 미칠 전망. 퇴임을 앞둔 그레그 애벗...",
-      "lead": 1,
       "tickers": [
         "MSFT"
-      ]
+      ],
+      "summary": "텍사스 중간선거 결과로 신규 데이터센터 건설 지연 위험 확대. 텍사스 데이터센터 산업에는 연방 상원 의석의 정당 교체보다 지나 히노호사의 주지사 선거 승리가 더 큰 영향을 미칠 전망. 퇴임을 앞둔 그레그 애벗..."
     },
     {
       "id": "insidertracking/68324",
@@ -6980,198 +7205,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/67916",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67916",
-      "datetime": "2026-10-30T22:54:19.000Z",
-      "localDateKst": "2026-10-31",
-      "tags": [
-        "market-note"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": "차주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 11월 2일 월요일 23:45 – 제조업 구매관리자지수 (10월) 2026년 11월 3일 화요일 00:00 – ISM 제조업구매자지수 (10월)...",
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/67915",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67915",
-      "datetime": "2026-10-30T22:52:20.000Z",
-      "localDateKst": "2026-10-31",
-      "tags": [
-        "semi",
-        "earnings"
-      ],
-      "score": 59,
-      "hasText": true,
-      "summary": "차주 실적 발표 리스트 월요일: 에스티로더, TEMPUS AI, 매리어트 호텔, 애플, 팔란티어, 매치그룹 화요일: 쇼피파이, 화이자, AMD, 레이도스, 페라리, AMD, 쿠팡, 슈퍼마이크로 컴퓨터,...",
-      "tickers": [
-        "AMD",
-        "PLTR",
-        "TEM"
-      ]
-    },
-    {
-      "id": "insidertracking/67914",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67914",
-      "datetime": "2026-10-30T22:47:25.000Z",
-      "localDateKst": "2026-10-31",
-      "tags": [
-        "flows",
-        "semi"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "서학개미 순매수 미국 주식 TOP 50 (10월 누적) > 기간: 2026/10/01 ~ 2026/10/30 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
-      "lead": 1,
-      "tickers": [],
-      "listTickers": [
-        "NVDA",
-        "AMD",
-        "GOOG",
-        "TSM",
-        "LITE",
-        "BE",
-        "RKLB",
-        "GOOGL",
-        "MRK",
-        "TMO",
-        "GS",
-        "CRWD",
-        "NKE",
-        "IONQ",
-        "SMR",
-        "CLS",
-        "HOOD",
-        "SHOP",
-        "O",
-        "TEAM"
-      ]
-    },
-    {
-      "id": "insidertracking/67912",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67912",
-      "datetime": "2026-10-30T22:42:57.000Z",
-      "localDateKst": "2026-10-31",
-      "tags": [
-        "earnings"
-      ],
-      "score": 67,
-      "hasText": true,
-      "summary": "엑슨모빌(XOM) Q3 2026 어닝콜 요약 > 긍정 요인: • 강력한 실적 및 현금창출력. 3분기 GAAP 순이익은 154억달러, 영업현금흐름은 257억달러 기록. 분기 중 70억달러를 투자하고 94억달러를...",
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/67911",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67911",
-      "datetime": "2026-10-30T22:41:50.000Z",
-      "localDateKst": "2026-10-31",
-      "tags": [
-        "market-note"
-      ],
-      "score": 67,
-      "hasText": true,
-      "summary": "셰브론(CVX) Q3 2026 어닝콜 요약 > 긍정 요인: • 강력한 현금창출력 및 수익성. 3분기 GAAP 순이익은 99억달러, 조정 순이익은 104억달러 기록. 운전자본 변동 제외 영업현금흐름은...",
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/67910",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67910",
-      "datetime": "2026-10-30T22:40:00.000Z",
-      "localDateKst": "2026-10-31",
-      "tags": [
-        "healthcare"
-      ],
-      "score": 60,
-      "hasText": true,
-      "summary": "52주 신고가 (시총 $1B 이상) 헬스케어 · AbbVie · Addus HomeCare · Amgen · Amneal Pharmaceuticals · Bausch Health Companies ·...",
-      "tickers": [],
-      "listTickers": [
-        "LLY",
-        "V",
-        "XOM",
-        "MA",
-        "JNJ",
-        "ABBV",
-        "CVX",
-        "KO",
-        "AMGN",
-        "PFE",
-        "COP",
-        "GILD",
-        "REGN",
-        "TRGP",
-        "URI",
-        "PM",
-        "EOG",
-        "MSI",
-        "ROP",
-        "MO"
-      ]
-    },
-    {
-      "id": "insidertracking/67908",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67908",
-      "datetime": "2026-10-30T22:38:18.000Z",
-      "localDateKst": "2026-10-31",
-      "tags": [
-        "market-note"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — AI 인프라 투자 자금 조달을 위해 약 800억 달러 규모의 공급업체 대출 프로그램을 활용할 계획인 것으로...",
-      "tickers": [
-        "GOOG",
-        "AMZN",
-        "MRVL",
-        "LITE"
-      ],
-      "relatedTickers": [
-        "AVGO"
-      ]
-    },
-    {
-      "id": "insidertracking/67907",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67907",
-      "datetime": "2026-10-30T22:37:11.000Z",
-      "localDateKst": "2026-10-31",
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,...",
-      "lead": 2,
-      "tickers": [
-        "NVDA",
-        "AMD",
-        "AAPL",
-        "AMZN"
-      ]
-    },
-    {
-      "id": "insidertracking/67905",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67905",
-      "datetime": "2026-10-30T22:32:59.000Z",
-      "localDateKst": "2026-10-31",
-      "tags": [
-        "market-note"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": "2026년 10월 31일 미장 마감 S&P 500 - 7,580.07 -1.82% 다우 30 - 51,770.31 -1.09% 나스닥 - 25,437.00 -2.86% 러셀 2000 - 2,811.84...",
-      "tickers": []
-    },
-    {
       "id": "HANAchina/71273",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71273",
@@ -10672,7 +10705,7 @@
   "signalsNote": "Numbers the channels reported (analyst target-price and rating actions, quarters against estimates, economic releases against forecasts, retail net-buy lists). Secondary observations for context and screener conditions; never a measurement of this app.",
   "signalCounts": {
     "pt": 46,
-    "earnings": 55,
+    "earnings": 58,
     "macro": 2,
     "retail": 7,
     "deal": 2
@@ -11321,6 +11354,42 @@
       "ratingAction": null,
       "date": "2026-10-22",
       "post": "bornlupin/20768"
+    },
+    {
+      "kind": "earnings",
+      "key": "earnings|COHR|2026-11-05",
+      "ticker": "COHR",
+      "name": "Coherent 2027 회계연도",
+      "quarter": null,
+      "revenue": "beat",
+      "eps": "beat",
+      "guidance": null,
+      "date": "2026-11-05",
+      "post": "insidertracking/68362"
+    },
+    {
+      "kind": "earnings",
+      "key": "earnings|QCOM|2026-11-05",
+      "ticker": "QCOM",
+      "name": "Qualcomm 2026 회계연도",
+      "quarter": null,
+      "revenue": "beat",
+      "eps": "beat",
+      "guidance": null,
+      "date": "2026-11-05",
+      "post": "insidertracking/68363"
+    },
+    {
+      "kind": "earnings",
+      "key": "earnings|Arm Holdings 2027 회계연도|2026-11-05",
+      "ticker": null,
+      "name": "Arm Holdings 2027 회계연도",
+      "quarter": null,
+      "revenue": "beat",
+      "eps": null,
+      "guidance": null,
+      "date": "2026-11-05",
+      "post": "insidertracking/68364"
     },
     {
       "kind": "earnings",
