@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-04T23:22:18.660Z",
-  "attemptedAt": "2026-11-04T23:22:18.660Z",
-  "lastSuccessfulAt": "2026-11-04T23:22:18.660Z",
+  "generatedAt": "2026-11-04T23:51:53.453Z",
+  "attemptedAt": "2026-11-04T23:51:53.453Z",
+  "lastSuccessfulAt": "2026-11-04T23:51:53.453Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-21T23:22:13.336Z",
-  "until": "2026-11-04T23:22:13.336Z",
+  "since": "2026-10-21T23:51:47.293Z",
+  "until": "2026-11-04T23:51:47.293Z",
   "current24hWindow": {
     "start": "2026-11-03T23:00:00.000Z",
     "end": "2026-11-04T23:00:00.000Z",
@@ -92,72 +92,72 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1360,
+      "count": 1362,
       "freshCount": 38,
-      "eligibleTextCount": 1295,
+      "eligibleTextCount": 1296,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 68395
+      "lastPostId": 68400
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 232,
+      "count": 231,
       "freshCount": 20,
-      "eligibleTextCount": 232,
-      "selectedCount": 123,
+      "eligibleTextCount": 231,
+      "selectedCount": 122,
       "error": null,
       "lastPostId": 21004
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 677,
-      "freshCount": 20,
-      "eligibleTextCount": 676,
+      "count": 683,
+      "freshCount": 40,
+      "eligibleTextCount": 682,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 71562
+      "lastPostId": 71568
     }
   ],
-  "count": 2354,
-  "retainedItemCount": 455,
+  "count": 2361,
+  "retainedItemCount": 470,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2354,
-    "eligibleTextCount": 2284,
-    "mediaOnlyCount": 70,
-    "mediaAttachedCount": 327,
-    "photoPostCount": 283,
+    "observedCount": 2361,
+    "eligibleTextCount": 2290,
+    "mediaOnlyCount": 71,
+    "mediaAttachedCount": 330,
+    "photoPostCount": 286,
     "documentPostCount": 1,
     "imageOnlyCount": 1,
-    "highSignalCount": 414,
-    "broadSignalCount": 900,
-    "selectedRawCount": 410,
-    "selectedEligibleCount": 410,
-    "selectedRawCoveragePct": 18,
-    "selectedOfObservedPct": 17.4,
+    "highSignalCount": 413,
+    "broadSignalCount": 901,
+    "selectedRawCount": 409,
+    "selectedEligibleCount": 409,
+    "selectedRawCoveragePct": 17.9,
+    "selectedOfObservedPct": 17.3,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 861,
-    "macro": 357,
-    "ai-policy": 115,
-    "earnings": 455,
+    "market-note": 865,
+    "equity": 147,
+    "media-only": 71,
+    "power": 266,
+    "earnings": 454,
     "semi": 494,
+    "macro": 356,
+    "ai-policy": 115,
     "geo": 442,
-    "power": 264,
-    "media-only": 70,
     "flows": 67,
     "kr-market": 124,
-    "equity": 145,
     "healthcare": 88,
     "credit": 102,
     "optical": 39,
@@ -165,8 +165,8 @@
     "crypto": 4
   },
   "tickerCounts": {
+    "AMZN": 79,
     "MSFT": 59,
-    "AMZN": 78,
     "MU": 35,
     "ARM": 1,
     "QCOM": 1,
@@ -184,13 +184,13 @@
     "MRVL": 15,
     "MPWR": 1,
     "GFS": 1,
-    "TSLA": 44,
-    "BE": 27,
+    "TSLA": 43,
+    "BE": 26,
     "CVS": 1,
     "INTC": 8,
     "SMCI": 6,
     "NVO": 1,
-    "NVDA": 116,
+    "NVDA": 115,
     "AMGN": 1,
     "DUOL": 1,
     "BKNG": 1,
@@ -206,7 +206,7 @@
     "AVGO": 21,
     "2454.TW": 3,
     "GS": 2,
-    "MS": 6,
+    "MS": 5,
     "CIEN": 1,
     "MTCH": 1,
     "ON": 1,
@@ -250,7 +250,7 @@
     "CEG": 1,
     "218410.KQ": 1,
     "SHOP": 4,
-    "DB": 2,
+    "DB": 1,
     "PANW": 1,
     "EQIX": 1,
     "FCEL": 1,
@@ -269,13 +269,13 @@
     "PINS": 1
   },
   "themes": [
-    "Market Notes (861 posts in 14-day research window): 2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,...",
+    "Market Notes (865 posts in 14-day research window): 2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,...",
     "Semiconductors/Memory (494 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
-    "Earnings/Corporate (455 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
+    "Earnings/Corporate (454 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
     "Geopolitics (442 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
-    "Macro/Rates (357 posts in 14-day research window): 중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는...",
-    "AI Power/Grid (264 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 2027~2028년 말레이시아에 총 150억 달러를 투자해 데이터센터 캠퍼스와 청정에너지, 수자원 안보,...",
-    "Equity/Analyst (145 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p....",
+    "Macro/Rates (356 posts in 14-day research window): 중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는 6.40% 폭등, 과창50지수는 9.9% 수직 상승하며 상한가에 근접. 양대 시장 거래대금은 2조 519억...",
+    "AI Power/Grid (266 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 2027~2028년 말레이시아에 총 150억 달러를 투자해 데이터센터 캠퍼스와 청정에너지, 수자원 안보,...",
+    "Equity/Analyst (147 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p....",
     "Korea Market (124 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
   ],
   "catalysts": [
@@ -286,12 +286,12 @@
     },
     {
       "key": "NVDA",
-      "count": 116,
+      "count": 115,
       "text": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p...."
     },
     {
       "key": "AMZN",
-      "count": 78,
+      "count": 79,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Falcon Guardian에 AI 에이전트의 실행을 중단하고 재시작 및 기업 네트워크 접근을..."
     },
     {
@@ -312,11 +312,11 @@
     {
       "key": "AMD",
       "count": 47,
-      "text": "중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는..."
+      "text": "중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는 6.40% 폭등, 과창50지수는 9.9% 수직 상승하며 상한가에 근접. 양대 시장 거래대금은 2조 519억..."
     },
     {
       "key": "TSLA",
-      "count": 44,
+      "count": 43,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로..."
     },
     {
@@ -336,7 +336,7 @@
     },
     {
       "key": "BE",
-      "count": 27,
+      "count": 26,
       "text": "민주당 블루웨이브와 AI 투자 1. 민주당이 연방 상원(52~54석)과 하원(약 250석), 그리고 텍사스 주지사까지 승리했지만, 미국 AI 투자가 정체될 가능성은 낮음 2. 미국의 AI 주도권 유지에는 양당의 공감대가 있으며 , 상원 60석 미달과 트럼프 대통령의 거부권 유지로 연방 차원의 데이터센터 건설..."
     }
   ],
@@ -347,8 +347,8 @@
       "topics": [
         "macro"
       ],
-      "count": 357,
-      "focus": "중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는..."
+      "count": 356,
+      "focus": "중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는 6.40% 폭등, 과창50지수는 9.9% 수직 상승하며 상한가에 근접. 양대 시장 거래대금은 2조 519억..."
     },
     {
       "id": "geo",
@@ -392,7 +392,7 @@
       "topics": [
         "power"
       ],
-      "count": 264,
+      "count": 266,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 2027~2028년 말레이시아에 총 150억 달러를 투자해 데이터센터 캠퍼스와 청정에너지, 수자원 안보,..."
     },
     {
@@ -419,7 +419,7 @@
       "topics": [
         "equity"
       ],
-      "count": 145,
+      "count": 147,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p...."
     },
     {
@@ -437,7 +437,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 455,
+      "count": 454,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -482,7 +482,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 861,
+      "count": 865,
       "focus": "2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,..."
     }
   ],
@@ -800,7 +800,9 @@
       "localDateKst": "2026-11-04",
       "tags": [
         "macro",
-        "semi"
+        "geo",
+        "semi",
+        "optical"
       ],
       "score": 100,
       "hasText": true,
@@ -810,13 +812,12 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는...",
-      "lead": 2,
       "tickers": [
         "AMD",
         "TSM",
         "SMCI"
-      ]
+      ],
+      "summary": "중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는..."
     },
     {
       "id": "bornlupin/20999",
@@ -1756,26 +1757,60 @@
       ]
     },
     {
-      "id": "bornlupin/20760",
+      "id": "bornlupin/20867",
       "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20760",
-      "datetime": "2026-10-21T23:23:32.000Z",
-      "localDateKst": "2026-10-22",
+      "url": "https://t.me/bornlupin/20867",
+      "datetime": "2026-10-28T13:08:25.000Z",
+      "localDateKst": "2026-10-28",
       "tags": [
-        "market-note"
+        "semi",
+        "equity",
+        "earnings"
       ],
-      "score": 100,
+      "score": 99,
       "hasText": true,
-      "summary": "테슬라 ( $TSLA ) 2026년 3분기 어닝콜 Q&A세션 Q. 사이버캡의 오스틴 외 지역 확장 계획과 규제 승인 경로는? A (아쇼크 엘루스와미): 기존 차량(모델 3·Y 등)의 데이터 학습 덕분에 적은...",
+      "summary": "씨티(Citi), SK하이닉스, 투자의견 매수(Buy), 목표주가 300만원 1. 3분기 실적: 메모리 가격 상승과 고부가 제품 확대 영업이익 83.3조원(+38% QoQ, +632% YoY) 영업이익률...",
+      "lead": 2,
       "tickers": [
-        "NVDA",
-        "TSLA",
-        "MS",
-        "DB"
+        "000660.KS"
       ]
     }
   ],
   "broadItems": [
+    {
+      "id": "HANAchina/71566",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71566",
+      "datetime": "2026-11-04T23:31:33.000Z",
+      "localDateKst": "2026-11-05",
+      "tags": [
+        "power"
+      ],
+      "lead": 1,
+      "score": 53,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>골드만삭스: 민주당 승리로 미국 데이터센터 프로젝트 단기 승인 중단 가능성, 신규 생산능력의 약 45%가 잠재적인 영향 •골드만삭스는 민주당이 미국 의회 상·하원 주도권을 확보하더라도 연방정부가 AI 및..."
+    },
+    {
+      "id": "HANAchina/71563",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71563",
+      "datetime": "2026-11-04T23:26:56.000Z",
+      "localDateKst": "2026-11-05",
+      "tags": [
+        "earnings",
+        "power",
+        "semi"
+      ],
+      "lead": 2,
+      "score": 64,
+      "hasText": true,
+      "tickers": [
+        "AMZN"
+      ],
+      "summary": ">>퀄컴 4분기 실적 예상 상회했지만 이익 가이던스는 부진, 스마트폰 사업 부담·데이터센터 전환 가속 •퀄컴은 4분기 실적을 발표, 비GAAP 매출은 104억4,200만달러, 주당순이익은 2.17달러로 시장..."
+    },
     {
       "id": "HANAchina/71561",
       "channel": "HANAchina",
@@ -2030,7 +2065,7 @@
       "datetime": "2026-11-04T21:08:49.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
@@ -2040,8 +2075,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "2026년 11월 5일 미장 마감 S&P 500 - 7,688.62 +1.58% 다우 30 - 53,356.12 +3.03% 나스닥 - 25,736.51 +1.44% 러셀 2000 - 2,854.83..."
+      "summary": "2026년 11월 5일 미장 마감 S&P 500 - 7,688.62 +1.58% 다우 30 - 53,356.12 +3.03% 나스닥 - 25,736.51 +1.44% 러셀 2000 - 2,854.83...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68355",
@@ -2050,7 +2085,6 @@
       "datetime": "2026-11-04T21:04:20.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "macro",
         "geo"
       ],
       "score": 67,
@@ -2061,8 +2095,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 5일 트럼프·중간선거 패배 관련 발언 · 트럼프 “공화당의 선거 패배가 이란 전쟁 때문이라는 것은 대체로 사실” · 트럼프 “이란 전쟁은 그만한..."
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 5일 트럼프·중간선거 패배 관련 발언 · 트럼프 “공화당의 선거 패배가 이란 전쟁 때문이라는 것은 대체로 사실” · 트럼프 “이란 전쟁은 그만한...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68354",
@@ -2071,10 +2105,7 @@
       "datetime": "2026-11-04T21:03:08.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power"
+        "geo"
       ],
       "score": 87,
       "hasText": true,
@@ -2084,8 +2115,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 5일 🇺🇸 아메리카 • 트럼프 대통령은 공화당의 중간선거 패배에 이란 전쟁이 영향을 미쳤다는 점을 인정하면서도 이란의 핵무기 보유를 막기 위한 불가피한 선택이었다고..."
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 5일 🇺🇸 아메리카 • 트럼프 대통령은 공화당의 중간선거 패배에 이란 전쟁이 영향을 미쳤다는 점을 인정하면서도 이란의 핵무기 보유를 막기 위한 불가피한 선택이었다고...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71559",
@@ -2527,7 +2558,9 @@
       "localDateKst": "2026-11-04",
       "tags": [
         "macro",
-        "semi"
+        "geo",
+        "semi",
+        "optical"
       ],
       "score": 100,
       "hasText": true,
@@ -2537,13 +2570,12 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는...",
-      "lead": 2,
       "tickers": [
         "AMD",
         "TSM",
         "SMCI"
-      ]
+      ],
+      "summary": "중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는..."
     },
     {
       "id": "HANAchina/71538",
@@ -2552,12 +2584,15 @@
       "datetime": "2026-11-04T08:04:40.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "power",
+        "kr-market"
       ],
       "score": 83,
       "hasText": true,
-      "summary": ">>민주당 중간선거 압승에 글로벌 증시 급락 후 반등, 금·은 상승…시장은 무엇을 반영하고 있나? (중국언론) •민주당의 중간선거 압승으로 미국 의회 권력이 재편되면서 글로벌 금융시장이 급격한 변동성을 보임....",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>민주당 중간선거 압승에 글로벌 증시 급락 후 반등, 금·은 상승…시장은 무엇을 반영하고 있나? (중국언론) •민주당의 중간선거 압승으로 미국 의회 권력이 재편되면서 글로벌 금융시장이 급격한 변동성을 보임...."
     },
     {
       "id": "insidertracking/68318",
@@ -2580,14 +2615,15 @@
       "datetime": "2026-11-04T07:09:30.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "market-note"
+        "power",
+        "equity"
       ],
       "score": 52,
       "hasText": true,
-      "summary": ">>공화당 중간선거 패배에 머스크의 4억 달러도 무산? 최대 후원자 머스크 입장 표명 •머스크는 2026년 미국 중간선거에서 공화당 후보들을 지원하기 위해 약 5억 달러를 투입했으나, 민주당이 선거에서...",
       "tickers": [
         "TSLA"
-      ]
+      ],
+      "summary": ">>공화당 중간선거 패배에 머스크의 4억 달러도 무산? 최대 후원자 머스크 입장 표명 •머스크는 2026년 미국 중간선거에서 공화당 후보들을 지원하기 위해 약 5억 달러를 투입했으나, 민주당이 선거에서..."
     },
     {
       "id": "insidertracking/68313",
@@ -2622,11 +2658,11 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": "•중국증시 '중한(中韩)반도체ETF' 거래대금 260억위으로 역대 최고치 경신",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "•중국증시 '중한(中韩)반도체ETF' 거래대금 260억위으로 역대 최고치 경신"
     },
     {
       "id": "insidertracking/68310",
@@ -2708,9 +2744,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "•CXMT +8.5% •중국 반도체 과창50지수 +8%",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "•CXMT +8.5% •중국 반도체 과창50지수 +8%"
     },
     {
       "id": "insidertracking/68304",
@@ -2761,15 +2796,17 @@
       "datetime": "2026-11-04T05:46:08.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "ai-policy"
+        "ai-policy",
+        "macro",
+        "semi"
       ],
+      "lead": 1,
       "score": 78,
       "hasText": true,
-      "summary": ">>SemiAnalysis, AI 연산능력 부족 분석 : OpenAI와 Anthropic이 전 세계 신규 연산능력 선점 •SemiAnalysis는 OpenAI와 Anthropic이 전 세계 신규 연산능력 증설...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>SemiAnalysis, AI 연산능력 부족 분석 : OpenAI와 Anthropic이 전 세계 신규 연산능력 선점 •SemiAnalysis는 OpenAI와 Anthropic이 전 세계 신규 연산능력 증설..."
     },
     {
       "id": "HANAchina/71529",
@@ -2778,8 +2815,11 @@
       "datetime": "2026-11-04T04:17:36.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "semi"
+        "semi",
+        "geo",
+        "healthcare"
       ],
+      "lead": 1,
       "score": 75,
       "hasText": true,
       "media": {
@@ -2788,12 +2828,11 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "• 알리바바·텐센트·바이트댄스 등 중국 빅테크들이 주문한 엔비디아 'RTX Pro 5500'은 약 600만 대(총 700억 달러 이상)에 달하지만, 향후 4개월간 실제 인도받을 물량은 수만 대(전체의 약...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "TSM"
-      ]
+      ],
+      "summary": "• 알리바바·텐센트·바이트댄스 등 중국 빅테크들이 주문한 엔비디아 'RTX Pro 5500'은 약 600만 대(총 700억 달러 이상)에 달하지만, 향후 4개월간 실제 인도받을 물량은 수만 대(전체의 약..."
     },
     {
       "id": "insidertracking/68287",
@@ -7500,24 +7539,6 @@
       ]
     },
     {
-      "id": "HANAchina/71236",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71236",
-      "datetime": "2026-10-29T21:44:30.000Z",
-      "localDateKst": "2026-10-30",
-      "tags": [
-        "earnings",
-        "power"
-      ],
-      "score": 64,
-      "hasText": true,
-      "summary": ">>SanDisk, 2027회계연도 1분기 매출 전년비 378% 급증…2분기 매출 전망도 예상 상회, 데이터센터가 내년 성장 핵심 •SanDisk의 2027회계연도 1분기 매출은 110억 3,100만 달러로...",
-      "lead": 2,
-      "tickers": [
-        "SNDK"
-      ]
-    },
-    {
       "id": "bornlupin/20890",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20890",
@@ -7546,27 +7567,6 @@
       "hasText": true,
       "summary": "아마존(AMZN) 2026년 3분기 실적 (시간외 -6%) 매출: 2,019억 달러 (예상 2,023억 달러), 전년 대비 12% 증가 주당순이익(EPS): 1.89달러 (예상 1.96달러), 앤트로픽 관련...",
       "tickers": [
-        "AMZN"
-      ]
-    },
-    {
-      "id": "HANAchina/71230",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71230",
-      "datetime": "2026-10-29T15:34:08.000Z",
-      "localDateKst": "2026-10-30",
-      "tags": [
-        "semi",
-        "power"
-      ],
-      "score": 76,
-      "hasText": true,
-      "summary": ">>20년간 가격 인하 압박을 받아온 메모리 업체들, AI를 통해 Apple에 ‘복수’ •AI 데이터센터 수요 급증으로 메모리 가격이 상승하면서 Apple과 공급업체 간 협상력이 역전되고 있음. 과거...",
-      "lead": 2,
-      "tickers": [
-        "AAPL",
-        "MSFT",
-        "GOOG",
         "AMZN"
       ]
     },
@@ -9486,7 +9486,7 @@
       "datetime": "2026-11-04T21:08:49.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
@@ -9496,8 +9496,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "2026년 11월 5일 미장 마감 S&P 500 - 7,688.62 +1.58% 다우 30 - 53,356.12 +3.03% 나스닥 - 25,736.51 +1.44% 러셀 2000 - 2,854.83..."
+      "summary": "2026년 11월 5일 미장 마감 S&P 500 - 7,688.62 +1.58% 다우 30 - 53,356.12 +3.03% 나스닥 - 25,736.51 +1.44% 러셀 2000 - 2,854.83...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68355",
@@ -9506,7 +9506,6 @@
       "datetime": "2026-11-04T21:04:20.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "macro",
         "geo"
       ],
       "score": 67,
@@ -9517,8 +9516,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 5일 트럼프·중간선거 패배 관련 발언 · 트럼프 “공화당의 선거 패배가 이란 전쟁 때문이라는 것은 대체로 사실” · 트럼프 “이란 전쟁은 그만한..."
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 5일 트럼프·중간선거 패배 관련 발언 · 트럼프 “공화당의 선거 패배가 이란 전쟁 때문이라는 것은 대체로 사실” · 트럼프 “이란 전쟁은 그만한...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68354",
@@ -9527,10 +9526,7 @@
       "datetime": "2026-11-04T21:03:08.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power"
+        "geo"
       ],
       "score": 87,
       "hasText": true,
@@ -9540,8 +9536,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 5일 🇺🇸 아메리카 • 트럼프 대통령은 공화당의 중간선거 패배에 이란 전쟁이 영향을 미쳤다는 점을 인정하면서도 이란의 핵무기 보유를 막기 위한 불가피한 선택이었다고..."
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 5일 🇺🇸 아메리카 • 트럼프 대통령은 공화당의 중간선거 패배에 이란 전쟁이 영향을 미쳤다는 점을 인정하면서도 이란의 핵무기 보유를 막기 위한 불가피한 선택이었다고...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71559",
@@ -9983,7 +9979,9 @@
       "localDateKst": "2026-11-04",
       "tags": [
         "macro",
-        "semi"
+        "geo",
+        "semi",
+        "optical"
       ],
       "score": 100,
       "hasText": true,
@@ -9993,13 +9991,12 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는...",
-      "lead": 2,
       "tickers": [
         "AMD",
         "TSM",
         "SMCI"
-      ]
+      ],
+      "summary": "중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는..."
     },
     {
       "id": "HANAchina/71538",
@@ -10008,12 +10005,15 @@
       "datetime": "2026-11-04T08:04:40.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "power",
+        "kr-market"
       ],
       "score": 83,
       "hasText": true,
-      "summary": ">>민주당 중간선거 압승에 글로벌 증시 급락 후 반등, 금·은 상승…시장은 무엇을 반영하고 있나? (중국언론) •민주당의 중간선거 압승으로 미국 의회 권력이 재편되면서 글로벌 금융시장이 급격한 변동성을 보임....",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>민주당 중간선거 압승에 글로벌 증시 급락 후 반등, 금·은 상승…시장은 무엇을 반영하고 있나? (중국언론) •민주당의 중간선거 압승으로 미국 의회 권력이 재편되면서 글로벌 금융시장이 급격한 변동성을 보임...."
     },
     {
       "id": "insidertracking/68318",
@@ -10036,14 +10036,15 @@
       "datetime": "2026-11-04T07:09:30.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "market-note"
+        "power",
+        "equity"
       ],
       "score": 52,
       "hasText": true,
-      "summary": ">>공화당 중간선거 패배에 머스크의 4억 달러도 무산? 최대 후원자 머스크 입장 표명 •머스크는 2026년 미국 중간선거에서 공화당 후보들을 지원하기 위해 약 5억 달러를 투입했으나, 민주당이 선거에서...",
       "tickers": [
         "TSLA"
-      ]
+      ],
+      "summary": ">>공화당 중간선거 패배에 머스크의 4억 달러도 무산? 최대 후원자 머스크 입장 표명 •머스크는 2026년 미국 중간선거에서 공화당 후보들을 지원하기 위해 약 5억 달러를 투입했으나, 민주당이 선거에서..."
     },
     {
       "id": "insidertracking/68313",
@@ -10078,11 +10079,11 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": "•중국증시 '중한(中韩)반도체ETF' 거래대금 260억위으로 역대 최고치 경신",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "•중국증시 '중한(中韩)반도체ETF' 거래대금 260억위으로 역대 최고치 경신"
     },
     {
       "id": "insidertracking/68310",
@@ -10164,9 +10165,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "•CXMT +8.5% •중국 반도체 과창50지수 +8%",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "•CXMT +8.5% •중국 반도체 과창50지수 +8%"
     },
     {
       "id": "insidertracking/68304",
@@ -10217,15 +10217,17 @@
       "datetime": "2026-11-04T05:46:08.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "ai-policy"
+        "ai-policy",
+        "macro",
+        "semi"
       ],
+      "lead": 1,
       "score": 78,
       "hasText": true,
-      "summary": ">>SemiAnalysis, AI 연산능력 부족 분석 : OpenAI와 Anthropic이 전 세계 신규 연산능력 선점 •SemiAnalysis는 OpenAI와 Anthropic이 전 세계 신규 연산능력 증설...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>SemiAnalysis, AI 연산능력 부족 분석 : OpenAI와 Anthropic이 전 세계 신규 연산능력 선점 •SemiAnalysis는 OpenAI와 Anthropic이 전 세계 신규 연산능력 증설..."
     },
     {
       "id": "HANAchina/71529",
@@ -10234,8 +10236,11 @@
       "datetime": "2026-11-04T04:17:36.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "semi"
+        "semi",
+        "geo",
+        "healthcare"
       ],
+      "lead": 1,
       "score": 75,
       "hasText": true,
       "media": {
@@ -10244,12 +10249,11 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "• 알리바바·텐센트·바이트댄스 등 중국 빅테크들이 주문한 엔비디아 'RTX Pro 5500'은 약 600만 대(총 700억 달러 이상)에 달하지만, 향후 4개월간 실제 인도받을 물량은 수만 대(전체의 약...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "TSM"
-      ]
+      ],
+      "summary": "• 알리바바·텐센트·바이트댄스 등 중국 빅테크들이 주문한 엔비디아 'RTX Pro 5500'은 약 600만 대(총 700억 달러 이상)에 달하지만, 향후 4개월간 실제 인도받을 물량은 수만 대(전체의 약..."
     },
     {
       "id": "insidertracking/68287",
