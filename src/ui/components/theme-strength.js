@@ -7,6 +7,7 @@ import { buildGroupStrength, directionLabel, GROUP_WINDOWS, STRENGTH_TABS } from
 import { latestCompletedUsSession } from '../../domain/market/market-calendar.js';
 import { AI_CAPEX_FLOW, AI_BOTTLENECK_LEAD_TIMES } from '../../domain/themes/ai-capex-flow.js';
 import { el } from './dom.js';
+import { sessionChipText } from './session-lag.js';
 import { asOfChip, closeChipText, markFrame } from './section-frame.js';
 import { attachScrollCue } from './scroll-cue.js';
 import { shortDate } from '../../domain/content/date-labels.js';
@@ -15,7 +16,7 @@ import { screenerRowsState } from '../../data/shared-artifacts.js';
 import { dataStateText } from '../../domain/content/data-state.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
 
-const SESSIONS = Object.freeze({ ret5d: 5, ret10d: 10, ret1m: 21, ret3m: 63, ret6m: 126 });
+const SESSIONS = Object.freeze({ ret1d: 1, ret5d: 5, ret10d: 10, ret1m: 21, ret3m: 63, ret6m: 126 });
 // Audit 19: rank movement words, kept apart from the playbook's stage words (주도·조정·반등·약세).
 const DIRECTION = Object.freeze({ improving: ['최근 강해짐', 'favorable'], steady: ['큰 변화 없음', 'neutral'], weakening: ['최근 식음', 'burden'] });
 
@@ -45,8 +46,8 @@ export function basisOf(rows, metadata = null, history = []) {
       // X03 (2026-10-13): the date alone does not say whether the ranking may be read as today's leaders.
       const expected = latestCompletedUsSession(Date.now(), { requirePrevious: false })?.date || null;
       return expected && us < expected
-        ? { label: `${shortDate(us)} 미국 종가 기준(최신 거래일 ${shortDate(expected)} 반영 전 — 지금의 주도가 아닌 기준일 참고 순위)`, stale: true }
-        : { label: `${shortDate(us)} 미국 종가 기준` };
+        ? { label: `${shortDate(us)} 미국 종가 기준(최신 거래일 ${shortDate(expected)} 반영 전 — 지금의 주도가 아닌 기준일 참고 순위)`, stale: true, chip: sessionChipText(us, expected) }
+        : { label: `${shortDate(us)} 미국 종가 기준`, chip: sessionChipText(us, '') };
     }
   }
   // Without per-market dates, the completed US close of the shared history is the basis (the same date the
@@ -57,86 +58,86 @@ export function basisOf(rows, metadata = null, history = []) {
   return dates.length ? { label: `${shortDate(dates[dates.length - 1])} 종가 기준` } : null;
 }
 
-function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggle, onCompare, onOrder) {
-  host.replaceChildren();
-  // v58.79 section frame: title, the close as its chip (the full basis is the chip's hover and the 순위 기준 fold),
-  // and the order/period controls as the frame's actions.
-  const head = el(doc, 'div', null, 'theme-strength-head aio-frame-head');
-  markFrame(host, 'themes.ranking');
-  head.append(el(doc, 'h2', '미국 세부 테마 상대강도 순위', 'briefing-h2'));
-  const controls = el(doc, 'div', null, 'theme-strength-controls aio-frame-actions');
-  // v58.78 (owner 2026-10-25): the order flips to read the weakest first; ranks keep their numbers.
-  const weakestFirst = root._aioThemeStrengthOrder === 'asc';
-  const order = el(doc, 'div', null, 'theme-strength-order');
-  order.setAttribute('role', 'group');
-  order.setAttribute('aria-label', '정렬 방향');
-  for (const [value, label] of [['desc', '강한 순'], ['asc', '약한 순']]) {
-    const button = el(doc, 'button', label, `theme-strength-tab${(value === 'asc') === weakestFirst ? ' is-active' : ''}`);
-    button.type = 'button';
-    button.setAttribute('aria-pressed', String((value === 'asc') === weakestFirst));
-    button.addEventListener('click', () => onOrder?.(value));
-    order.append(button);
+// v59.70 (theme-sector, owner: "which theme led the day and the week, at a glance"): the face is one ranked bar list for
+// the chosen window (1일·1주·1개월·3개월). A row opens its members: each member's bar, its gap to the sub-theme median and
+// its share of the equal-weight average (return ÷ measured members). The multi-column table moved into a fold.
+const dirClass = (value) => ({ up: ' is-up', down: ' is-down' }[directionOf(value)] || '');
+function rankBar(doc, value, max) {
+  const track = el(doc, 'span', null, 'tsr-track');
+  track.append(el(doc, 'span', null, 'tsr-zero'));
+  if (value != null) {
+    const bar = el(doc, 'span', null, `tsr-bar${dirClass(value)}`);
+    const width = `${Math.min(50, Math.abs(value) / max * 50).toFixed(1)}%`;
+    bar.style.width = width;
+    bar.style.left = value >= 0 ? '50%' : `calc(50% - ${width})`;
+    track.append(bar);
   }
-  const periods = el(doc, 'div', null, 'theme-strength-periods');
-  periods.setAttribute('role', 'group');
-  periods.setAttribute('aria-label', '순위 기간');
-  controls.append(order, periods);
-  for (const key of STRENGTH_TABS) {
-    const label = GROUP_WINDOWS[key];
-    const button = el(doc, 'button', label, `theme-strength-tab${model.sortKey === key ? ' is-active' : ''}`);
-    button.type = 'button';
-    button.setAttribute('aria-pressed', model.sortKey === key ? 'true' : 'false');
-    button.addEventListener('click', () => onSort(key));
-    periods.append(button);
+  return track;
+}
+
+function memberPanel(doc, root, group, model) {
+  const key = model.sortKey;
+  const panel = el(doc, 'div', null, 'tsr-members');
+  const measured = group.rankedMembers.filter((member) => member.included && member[key] != null);
+  const mean = measured.length ? measured.reduce((sum, member) => sum + member[key], 0) / measured.length : null;
+  panel.append(el(doc, 'p', `${model.windowLabel} 중앙값 ${pct(group[key])}, 동일가중 평균 ${pct(mean)}, 수익률 ${measured.length}/${group.listed}종목${group.basis ? `, ${shortDate(group.basis)} 종가` : ''}`, 'tsr-members__lead'));
+  const max = Math.max(0.5, ...measured.map((member) => Math.abs(member[key])));
+  const table = el(doc, 'table', null, 'theme-member-table tsr-member-table');
+  const head = el(doc, 'thead'), hr = el(doc, 'tr');
+  for (const [label, title] of [['종목'], [model.windowLabel], [''], ['중앙값 대비', '이 종목 수익률 − 세부 테마 중앙값'], ['기여', '동일가중 평균에서 이 종목의 몫 = 수익률 ÷ 수익률이 있는 종목 수']]) {
+    const th = el(doc, 'th', label);
+    if (title) th.title = title;
+    hr.append(th);
   }
-  const basisText = `${basis ? basis.label : '스크리너 수익률 수신 대기'}, 구성 종목 ${model.windowLabel} 수익률의 중앙값으로 순위(${weakestFirst ? '약한 순' : '강한 순'}), S&P 500 ${model.windowLabel} ${pct(model.benchmark)}, 1주 = 최근 5거래일, 2주 = 최근 10거래일${model.groups.some((group) => group.ret10d != null) ? '' : '(다음 데이터 갱신부터 표시)'}, 순위 변화: 1개월 순위가 3개월 순위보다 크게 오르면 '최근 강해짐', 크게 밀리면 '최근 식음'`;
-  if (basis) head.append(asOfChip(doc, basis.stale ? '기준일 참고' : closeChipText(basis.label), basisText));
-  head.append(controls);
-  host.append(head);
-  // P1431: what the order says, beyond the order — momentum moving and leaders cooling.
-  // P1681 (X03 follow-up): on a stale basis the table stays as a dated reference, but the "now leading/improving"
-  // reading is held — the same admission the US screener applies when it holds its ranks.
-  const lead = basis?.stale ? '최신 거래일 종가가 아직 반영되지 않아 지금의 주도·개선 판단은 보류합니다. 아래 순위와 방향은 기준일 시점의 참고 값입니다.' : themeStrengthLead(model, { stages: root?.__aioThemePlaybook?.themes || null });
-  if (lead) host.append(sectionLead(doc, lead));
-  if (!model.groups.length) { const load = screenerRowsState(root); host.append(el(doc, 'p', load === 'ready' ? '이 보기에서 비교할 테마 수익률이 없습니다.' : `${dataStateText(load, '스크리너 수익률')}.`, 'briefing-empty')); return; } // v58.80 bundle 3
+  head.append(hr);
+  const body = el(doc, 'tbody');
+  for (const member of group.rankedMembers) {
+    const tr = el(doc, 'tr');
+    const value = member.included ? member[key] : null;
+    const symbol = el(doc, 'td'), button = el(doc, 'button', member.sym, 'breadth-drill-symbol');
+    button.type = 'button';
+    button.title = member.name || member.sym;
+    button.addEventListener('click', () => root?.showTicker?.(member.sym));
+    symbol.append(button);
+    const bar = el(doc, 'td', null, 'tsr-member-bar');
+    bar.append(rankBar(doc, value, max));
+    tr.append(symbol, el(doc, 'td', value == null ? '—' : pct(value), `is-num${dirClass(value)}`), bar);
+    const gap = value != null && group.comparisonAligned && group[key] != null ? value - group[key] : null;
+    tr.append(el(doc, 'td', gap == null ? '—' : `${pct(gap)}p`, `is-num${dirClass(gap)}`));
+    const share = value != null && measured.length ? value / measured.length : null;
+    tr.append(el(doc, 'td', share == null ? '—' : `${pct(share, 2)}p`, `is-num${dirClass(share)}`));
+    body.append(tr);
+  }
+  table.append(head, body);
+  panel.append(table);
+  return panel;
+}
+
+function detailTable(doc, root, model, ordered) {
   const table = el(doc, 'table', null, 'theme-strength-table');
   const thead = el(doc, 'thead');
   const hr = el(doc, 'tr');
   // v57.55 review (S2/E3): without the S&P 500 return every 'S&P 대비' cell was '—'; the column is left out until it has values.
   const showVs = model.groups.some((group) => Number.isFinite(group.vsBenchmark));
-  // v57.81 (audit): the 1주 column (5-session median) sits beside the month so a rank gain during a sharp week shows.
-  const labels = ['순위', '세부 테마', '1주', '2주', '1개월', '3개월', ...(showVs ? ['S&P 대비'] : []), '50일선 위', '순위 변화(3개월→1개월)', '구성 종목 전체'];
+  const labels = ['순위', '세부 테마', '1일', '1주', '2주', '1개월', '3개월', ...(showVs ? ['S&P 대비'] : []), '50일선 위', '순위 변화(3개월→1개월)', '구성 종목 전체'];
   labels.forEach((label) => hr.append(el(doc, 'th', label)));
   thead.append(hr);
   const tbody = el(doc, 'tbody');
-  // Ranked rows flip with the order; reference rows (small samples, no rank) stay after them either way.
-  const ranked = model.groups.filter((group) => group.rank != null);
-  const ordered = [...(weakestFirst ? [...ranked].reverse() : ranked), ...model.groups.filter((group) => group.rank == null)];
-  // v59.55 (visual audit): ten rows on the face — the five-row summary above already leads, the rest open with 전체 보기.
-  const visible = expanded ? ordered : ordered.slice(0, 10);
-  for (const group of visible) {
+  for (const group of ordered) {
     const tr = el(doc, 'tr');
     tr.dataset.group = group.id;
     // v57.50 D15: a group with fewer than 4 measured members is a reference row, not a ranked one.
     tr.append(el(doc, 'td', group.rank == null ? (group.smallSample ? '참고' : '—') : String(group.rank), 'is-rank'));
     const nameCell = el(doc, 'td');
     nameCell.append(el(doc, 'span', group.name, 'theme-strength-name'), el(doc, 'span', ` ${group.themeName}, ${group.listed}종목${group.members !== group.listed ? ` (수익률 ${group.members}개)` : ''}${group.smallSample ? `, 표본 ${group.members}종목, 참고` : ''}`, 'theme-strength-theme'));
-    // v57.79 (375 review): the full-width '종목끼리 비교' button wrapped under the name and doubled every row's height;
-    // a compact inline '비교' keeps the row one line taller at most, and its accessible name keeps the full action.
-    const compare = el(doc, 'button', '비교', 'theme-strength-compare'); compare.type = 'button';
-    compare.setAttribute('aria-label', `${group.name} 구성 종목끼리 비교`);
-    compare.dataset.compareGroup = group.id;
-    if (root._aioThemeMemberGroup === group.id) compare.setAttribute('aria-controls', `theme-members-${visible.indexOf(group)}`);
-    compare.setAttribute('aria-expanded', String(root._aioThemeMemberGroup === group.id));
-    compare.addEventListener('click', () => onCompare(group.id)); nameCell.append(compare);
     tr.append(nameCell);
-    // v57.81: a week that fell beyond the group's typical weekly move (group.recent, recent-check.js) is said in the title.
-    const week = el(doc, 'td', pct(group.ret5d ?? null), `is-num${group.ret5d == null ? '' : ({ up: ' is-up', down: ' is-down' }[directionOf(group.ret5d)] || '')}`);
-    if (group.recent?.broken) { week.title = '평소 1주 움직임의 2배를 넘는 하락'; week.dataset.recentBreak = 'true'; }
-    if (model.sortKey === 'ret5d') week.classList.add('is-sorted');
-    tr.append(week);
-    for (const key of ['ret10d', 'ret1m', 'ret3m']) tr.append(el(doc, 'td', pct(group[key]), `is-num${key === model.sortKey ? ' is-sorted' : ''}${group[key] == null ? '' : ({ up: ' is-up', down: ' is-down' }[directionOf(group[key])] || '')}${key === 'ret3m' ? ' is-quiet' : ''}`));
-    if (showVs) tr.append(el(doc, 'td', group.vsBenchmark == null ? '—' : `${pct(group.vsBenchmark)}p`, `is-num${({ up: ' is-up', down: ' is-down' }[directionOf(group.vsBenchmark)] || '')}`));
+    for (const key of ['ret1d', 'ret5d', 'ret10d', 'ret1m', 'ret3m']) {
+      const cell = el(doc, 'td', pct(group[key] ?? null), `is-num${key === model.sortKey ? ' is-sorted' : ''}${dirClass(group[key])}${key === 'ret3m' ? ' is-quiet' : ''}`);
+      // v57.81: a week that fell beyond the group's typical weekly move (group.recent, recent-check.js) is said in the title.
+      if (key === 'ret5d' && group.recent?.broken) { cell.title = '평소 1주 움직임의 2배를 넘는 하락'; cell.dataset.recentBreak = 'true'; }
+      tr.append(cell);
+    }
+    if (showVs) tr.append(el(doc, 'td', group.vsBenchmark == null ? '—' : `${pct(group.vsBenchmark)}p`, `is-num${dirClass(group.vsBenchmark)}`));
     tr.append(el(doc, 'td', group.above50Pct == null ? '—' : `${group.above50Pct}%`, 'is-num'));
     const dir = DIRECTION[group.direction];
     const dirCell = el(doc, 'td');
@@ -156,52 +157,103 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
     // v57.91 (phone audit): under 600px each row becomes a card (responsive.css); every value carries its column name.
     [...tr.children].forEach((cell, index) => { if (labels[index]) cell.dataset.label = labels[index].replace('(3개월→1개월)', ''); });
     tbody.append(tr);
-    if (root._aioThemeMemberGroup === group.id) {
-      const detailRow = el(doc, 'tr'), detailCell = el(doc, 'td'); detailCell.colSpan = showVs ? 10 : 9; detailCell.className = 'theme-member-detail'; detailRow.id = `theme-members-${visible.indexOf(group)}`;
-      detailCell.append(el(doc, 'p', `${group.name} 안의 ${model.windowLabel} 수익률 비교, ${group.basis ? `${group.basis} 종가 기준` : '기준일 불일치/미확인으로 순위·중앙값 비교 보류'}, 선두는 이 기간 수익률 순위입니다.`, 'theme-strength-basis'));
-      const available = group.rankedMembers.filter((member) => member.rank != null);
-      if (available.length) {
-        const leaders = available.filter((member) => member.rank === 1).map((member) => member.sym).join(', ');
-        const tail = available.filter((member) => member[model.sortKey] === available.at(-1)[model.sortKey]).map((member) => member.sym).join(', ');
-        detailCell.append(el(doc, 'p', `${model.windowLabel} 선두 ${leaders}, 후행 ${tail}, 수익률 표본 ${available.length}/${group.listed}개`, 'theme-strength-basis'));
-      }
-      const memberTable = el(doc, 'table', null, 'theme-member-table'), memberHead = el(doc, 'thead'), heading = el(doc, 'tr');
-      ['그룹 내 순위', '종목', '종가 기준일', '1개월', '3개월', '6개월', 'S&P 대비', '테마 중앙값 대비', '50일선 거리'].forEach((label) => heading.append(el(doc, 'th', label)));
-      memberHead.append(heading); const memberBody = el(doc, 'tbody');
-      for (const member of group.rankedMembers) {
-        const row = el(doc, 'tr'); row.append(el(doc, 'td', member.rank == null ? member[model.sortKey] == null ? '자료 없음' : '비교 보류' : String(member.rank)));
-        const cell = el(doc, 'td'), button = el(doc, 'button', member.sym, 'breadth-drill-symbol'); button.type = 'button'; button.title = member.name;
-        button.addEventListener('click', () => root?.showTicker?.(member.sym)); cell.append(button); row.append(cell);
-        row.append(el(doc, 'td', member.basis || '미확인'));
-        for (const key of ['ret1m', 'ret3m', 'ret6m']) row.append(el(doc, 'td', pct(member[key]), 'is-num'));
-        row.append(el(doc, 'td', member.vsBenchmark == null ? '—' : `${pct(member.vsBenchmark)}p`, 'is-num'));
-        row.append(el(doc, 'td', !group.comparisonAligned || member[model.sortKey] == null ? '—' : `${pct(member[model.sortKey] - group[model.sortKey])}p`, 'is-num'));
-        row.append(el(doc, 'td', pct(member.pctSma50), 'is-num')); memberBody.append(row);
-      }
-      memberTable.append(memberHead, memberBody); detailCell.append(memberTable); detailRow.append(detailCell); tbody.append(detailRow);
-    }
   }
   table.append(thead, tbody);
-  const scroll = el(doc, 'div', null, 'aio-table-scroll'); // v57.55 cleanup: on a phone the 9-column table ran past the screen with no way to scroll
+  const scroll = el(doc, 'div', null, 'aio-table-scroll'); // v57.55 cleanup: on a phone the table ran past the screen with no way to scroll
   scroll.append(table);
-  // v57.79 (375 review): the 6개월 column was cut at the screen edge with nothing saying the table scrolls. A shaded edge
-  // appears on whichever side has more columns, and the region is a keyboard stop with its own name.
   scroll.setAttribute('role', 'region');
   scroll.setAttribute('aria-label', '세부 테마 상대강도 순위 표, 가로 스크롤');
   scroll.tabIndex = 0;
   const frame = el(doc, 'div', null, 'theme-strength-scroll');
   frame.append(scroll);
-  host._aioScrollEdges?.disconnect?.();
-  host.append(frame);
-  host._aioScrollEdges = attachScrollCue(scroll, { frame, root }); // v57.81: shared helper (scroll-cue.js)
+  return { frame, scroll };
+}
+
+function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggle, onCompare, onOrder) {
+  const tableFold = host.querySelector(':scope > .theme-strength-table-fold');
+  const tableOpen = !!tableFold?.open;
+  host.replaceChildren();
+  // v58.79 section frame: title, the close as its chip (the full basis is the chip's hover), the period/order controls.
+  const head = el(doc, 'div', null, 'theme-strength-head aio-frame-head');
+  markFrame(host, 'themes.ranking');
+  head.append(el(doc, 'h2', '세부 테마 순위', 'briefing-h2'));
+  const controls = el(doc, 'div', null, 'theme-strength-controls aio-frame-actions');
+  // v58.78 (owner 2026-10-25): the order flips to read the weakest first; ranks keep their numbers.
+  const weakestFirst = root._aioThemeStrengthOrder === 'asc';
+  const tabs = (label, entries, active, onPick) => {
+    const group = el(doc, 'div', null, 'theme-strength-periods');
+    group.setAttribute('role', 'group');
+    group.setAttribute('aria-label', label);
+    for (const [value, text, disabled] of entries) {
+      const button = el(doc, 'button', text, `news-sort-btn theme-strength-tab${value === active ? ' is-active active' : ''}`);
+      button.type = 'button';
+      button.setAttribute('aria-pressed', String(value === active));
+      if (disabled) { button.disabled = true; button.title = '이 기간 수익률이 아직 없습니다'; }
+      button.addEventListener('click', () => onPick(value));
+      group.append(button);
+    }
+    return group;
+  };
+  const hasKey = (key) => model.groups.some((group) => group[key] != null) || key === model.sortKey;
+  controls.append(tabs('순위 기간', STRENGTH_TABS.map((key) => [key, GROUP_WINDOWS[key], !hasKey(key)]), model.sortKey, onSort),
+    tabs('정렬 방향', [['desc', '강한 순'], ['asc', '약한 순']], weakestFirst ? 'asc' : 'desc', onOrder));
+  const basisText = `${basis ? basis.label : '스크리너 수익률 수신 대기'}, 구성 종목 ${model.windowLabel} 수익률의 중앙값으로 순위(${weakestFirst ? '약한 순' : '강한 순'}), S&P 500 ${model.windowLabel} ${pct(model.benchmark)}`;
+  if (basis) head.append(asOfChip(doc, basis.chip || closeChipText(basis.label), basisText)); // v59.70: one lag label (session-lag.js)
+  head.append(controls);
+  host.append(head);
+  // P1681 (X03 follow-up): on a stale basis the list stays as a dated reference and the "now leading" reading is held.
+  const lead = basis?.stale ? '최신 거래일 종가가 아직 반영되지 않아 지금의 주도·개선 판단은 보류합니다. 아래 순위는 기준일 시점의 참고 값입니다.' : themeStrengthLead(model, { stages: root?.__aioThemePlaybook?.themes || null });
+  if (lead) host.append(sectionLead(doc, lead));
+  if (!model.groups.length) { const load = screenerRowsState(root); host.append(el(doc, 'p', load === 'ready' ? '이 보기에서 비교할 테마 수익률이 없습니다.' : `${dataStateText(load, '스크리너 수익률')}.`, 'briefing-empty')); return; } // v58.80 bundle 3
+  // Ranked rows flip with the order; reference rows (small samples, no rank) stay after them either way.
+  const ranked = model.groups.filter((group) => group.rank != null);
+  const ordered = [...(weakestFirst ? [...ranked].reverse() : ranked), ...model.groups.filter((group) => group.rank == null)];
+  const visible = expanded ? ordered : ordered.slice(0, 10);
+  const key = model.sortKey;
+  const max = Math.max(0.5, ...visible.map((group) => Math.abs(group[key] ?? 0)));
+  const list = el(doc, 'ol', null, 'tsr-list');
+  list.setAttribute('aria-label', `세부 테마 ${model.windowLabel} 수익률 순위`);
+  visible.forEach((group, index) => {
+    const li = el(doc, 'li', null, 'tsr-item');
+    li.dataset.group = group.id;
+    const open = root._aioThemeMemberGroup === group.id;
+    const row = el(doc, 'button', null, 'tsr-row');
+    row.type = 'button';
+    row.dataset.compareGroup = group.id;
+    row.setAttribute('aria-expanded', String(open));
+    row.setAttribute('aria-label', `${group.rank ?? '참고'} ${group.name}, ${group.themeName}, ${model.windowLabel} ${pct(group[key] ?? null)}, 구성 종목 비교 ${open ? '닫기' : '열기'}`);
+    const name = el(doc, 'span', null, 'tsr-name');
+    name.append(el(doc, 'b', group.name), el(doc, 'span', `${group.themeName}, ${group.listed}종목`, 'tsr-theme'));
+    row.append(el(doc, 'span', group.rank == null ? '참고' : String(group.rank), 'tsr-rank'), name, rankBar(doc, group[key] ?? null, max),
+      el(doc, 'span', pct(group[key] ?? null), `tsr-value${dirClass(group[key])}`));
+    row.addEventListener('click', () => onCompare(group.id));
+    li.append(row);
+    if (open) {
+      const panel = memberPanel(doc, root, group, model);
+      panel.id = `theme-members-${index}`;
+      row.setAttribute('aria-controls', panel.id);
+      li.append(panel);
+    }
+    list.append(li);
+  });
+  host.append(list);
   const footer = el(doc, 'div', null, 'theme-strength-footer');
   if (model.groups.length > 10) {
-    const more = el(doc, 'button', expanded ? (weakestFirst ? '하위 10개만 보기' : '상위 10개만 보기') : `전체 ${model.groups.length}개 보기`, 'theme-strength-more');
+    const more = el(doc, 'button', expanded ? (weakestFirst ? '하위 10개만' : '상위 10개만') : `전체 ${model.groups.length}개`, 'news-sort-btn theme-strength-more');
     more.type = 'button';
     more.addEventListener('click', onToggle);
     footer.append(more);
   }
   host.append(footer);
+  // The full multi-window table is fold depth (expert view): every window, S&P gap, 50일선, rank movement, constituents.
+  const fold = el(doc, 'details', null, 'sx-disclosure theme-strength-table-fold');
+  fold.open = tableOpen;
+  fold.append(el(doc, 'summary', '기간별 표와 순위 변화'));
+  const { frame, scroll } = detailTable(doc, root, model, ordered);
+  host._aioScrollEdges?.disconnect?.();
+  fold.append(frame);
+  host.append(fold);
+  host._aioScrollEdges = attachScrollCue(scroll, { frame, root }); // v57.81: shared helper (scroll-cue.js)
   // v59.55 (alignment pass): why some sub-themes have no rank is fold depth, not a face footnote.
   const reference = model.groups.filter((group) => group.smallSample).length;
   if (model.excluded.length || reference) {
@@ -232,11 +284,12 @@ function renderTopSubthemes(doc, host, model, basis) {
   if (!top.length) return;
   const head = el(doc, 'div', null, 'sx-card__head');
   // v58.79: the order is visible (rank numbers); "N 중앙값 순" became the title's hover.
-  const title = el(doc, 'h3', '세부 테마 상위', 'sx-card__title');
+  const title = el(doc, 'h3', `세부 테마 상위, ${model.windowLabel}`, 'sx-card__title');
   title.title = `구성 종목 ${model.windowLabel} 수익률 중앙값 순`;
   head.append(title);
+  // v59.70: a stale basis is a short chip (the full sentence is its hover), not a banner over the list.
+  if (basis?.stale) { const chip = el(doc, 'span', basis.chip, 'sx-chip sx-chip--date v2-themes-top__stale'); chip.title = basis.label; head.append(chip); }
   host.append(head);
-  if (basis?.stale) host.append(el(doc, 'p', basis.label, 'sx-chip sx-chip--date v2-themes-top__stale'));
   const list = el(doc, 'ol', null, 'v2-themes-top__list');
   for (const group of top) {
     const li = el(doc, 'li', null, 'v2-themes-top__row');
@@ -365,8 +418,11 @@ export function renderThemeStrength({ documentRef: doc, root, store }) {
   if (!strengthHost && !flowHost) return null;
   const rows = store?.getState?.()?.screener?.rows || [];
   const focusedGroup = strengthHost?.contains(doc.activeElement) ? doc.activeElement?.dataset?.compareGroup : null;
-  const sortKey = STRENGTH_TABS.includes(root._aioThemeStrengthSort) ? root._aioThemeStrengthSort : 'ret1m';
-  const model = buildGroupStrength({ themes: root?.THEME_MAP || [], rows, sortKey, benchmark: benchmarkReturns(root?._aioHistory || []) });
+  // v59.70 (theme-sector): the day leads; the week stands in until the screener publishes one-session returns.
+  const chosen = STRENGTH_TABS.includes(root._aioThemeStrengthSort) ? root._aioThemeStrengthSort : null;
+  const build = (sortKey) => buildGroupStrength({ themes: root?.THEME_MAP || [], rows, sortKey, benchmark: benchmarkReturns(root?._aioHistory || []) });
+  let model = build(chosen || 'ret1d');
+  if (!chosen && !model.groups.some((group) => group.ret1d != null)) model = build('ret5d');
   const rerender = () => renderThemeStrength({ documentRef: doc, root, store });
   if (strengthHost) {
     renderStrength(doc, root, strengthHost, model, basisOf(rows, store?.getState?.()?.screener?.metadata || null, root?._aioHistory || []), (key) => { root._aioThemeStrengthSort = key; rerender(); }, !!root._aioThemeStrengthExpanded, () => { root._aioThemeStrengthExpanded = !root._aioThemeStrengthExpanded; rerender(); }, (id) => { root._aioThemeMemberGroup = root._aioThemeMemberGroup === id ? null : id; rerender(); [...strengthHost.querySelectorAll('[data-compare-group]')].find((button) => button.dataset.compareGroup === id)?.focus(); }, (value) => { root._aioThemeStrengthOrder = value; rerender(); });

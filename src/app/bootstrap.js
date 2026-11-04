@@ -382,7 +382,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   const syncThemes = createThemesOrchestrator({
     provider: createThemesProvider({
       readLiveData: () => root?._liveData || {},
-      readHistory: () => root?._priceHistory || {},
+      // v59.70 (data audit R1): no readHistory — the RRG point comes only from the produced rotation artifact.
       readRotationHistory: () => root?._serverDataMeta?.rotationHistory || null,
       readWeeklyPerf: () => root?._sectorWeeklyCache || {},
       readDefinitions: () => ({

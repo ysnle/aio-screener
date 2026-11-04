@@ -3,7 +3,7 @@
 import { latestCompletedUsSession, nyParts, resolveMarketCalendarSession } from '../../src/ai/time/market-session.js';
 import { computeRelativeRotation, relativeRotationTrail, RRG_WINDOW_SESSIONS } from '../../src/domain/themes/rrg.js';
 
-export const ROTATION_SYMBOLS = Object.freeze(['XLK','XLF','XLE','XLV','XLI','XLY','XLP','XLRE','XLB','XLU','XLC','SMH','IGV','XBI','ITA','OIH','AMLP','URA','XOP','HACK','GDX','BOTZ','ICLN','LIT','KRE','ITB','XRT','IYT','JETS','COPX','KWEB']);
+export const ROTATION_SYMBOLS = Object.freeze(['XLK','XLF','XLE','XLV','XLI','XLY','XLP','XLRE','XLB','XLU','XLC','SMH','IGV','XBI','ITA','OIH','AMLP','URA','XOP','HACK','GDX','BOTZ','ICLN','LIT','KRE','ITB','XRT','IYT','JETS','COPX','KWEB','SOXX','DRAM','SKYY','NCLD','DTCR','GRID','NLR','IAI','KIE','PEJ','EWY']); // v59.70: +11 issuer-verified theme ETFs
 const CONTRACT = Object.freeze({ schemaVersion: 'rotation-history.v1', modelVersion: 'rrg.v3', benchmark: 'SPY', timeframe: '1d', priceBasis: 'adjusted-close', source: 'Yahoo chart completed daily history', sourceKind: 'T3_PUBLIC_DELAYED', allowedUse: 'research-reference-only', allowedUseCeiling: 'reference', rightsStatus: 'REVIEW_REQUIRED', decisionUse: false, completionGraceMinutes: 5 });
 const validDate = value => {
   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;

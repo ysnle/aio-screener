@@ -340,6 +340,16 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.deepEqual(deepPlay.themes[0].favored, ['wait'], 'P1743: a drop that took back over half the prior gain is not read as a pause to stage into');
   assert.equal(deepPlay.highlights.structuralPullbacks.length, 0, 'P1743: a deep drop is not surfaced as a structural pullback');
   assert.ok(!playbook.themes.some((row) => row.id === 'stale'), 'P1743: a theme off the latest session is not read as current');
+  {
+    // v59.70 (theme-sector): between the US close and the screener refresh every group is current:false on one basis — the
+    // rows stay as a dated reference (lagging.US), no US theme is highlighted as leading, and an older group still drops out.
+    const lagGroups = groups.map((g) => ({ ...g, current: false }));
+    const lagged = buildThemePlaybook({ usGroups: lagGroups, crossroads: fakeCross, credit: 'favorable', benchmarks: { US: flatBench('2026-10-12') } });
+    assert.ok(lagged.themes.some((row) => row.market === 'US') && lagged.lagging?.US === true, 'v59.70 a lagging US basis keeps the US rows, flagged');
+    assert.ok(!lagged.themes.some((row) => row.id === 'stale'), 'v59.70 a group behind its peers still drops out');
+    assert.ok(Object.values(lagged.highlights).every((list) => !list.some((row) => row.market === 'US')), 'v59.70 no US theme is highlighted on a lagging basis');
+    assert.equal(playbook.lagging?.US, false, 'v59.70 a current basis is not flagged');
+  }
   assert.ok(!playbook.themes.some((row) => row.id === 'shipbuilding'), 'P1743: a KR theme with fewer than three priced members is not read');
   assert.ok(playbook.highlights.structuralPullbacks.some((row) => row.id === 'semiconductor'), 'P1743: structural pullbacks are surfaced generically');
   assert.equal(playbook.themes.find((row) => row.id === 'energy').favored[0], 'wait', 'P1743: weak × headwind favours waiting');

@@ -2,8 +2,13 @@ import { latestCompletedUsSession } from '../market/market-calendar.js';
 import { isFiniteNumber as finite } from '../shared/number.js';
 
 // P1358: consume durable derived evidence; do not fabricate price histories.
-export function selectProducedRotation(artifact, symbol, nowMs = Date.now()) {
-  const basis = latestCompletedUsSession(Number(nowMs) - 5 * 60000);
+// v59.70 (theme-sector): `lagSessions: 1` admits the artifact of the session before the latest completed one, flagged
+// `lagging`, for the 테마 screen only — between the US close and the next refresh every row was dropped and the screen
+// re-derived the scatter from session ticks (every 세부 업종 ETF landed on one point). Other readers keep the strict check.
+export function selectProducedRotation(artifact, symbol, nowMs = Date.now(), { lagSessions = 0 } = {}) {
+  const latest = latestCompletedUsSession(Number(nowMs) - 5 * 60000);
+  const previous = lagSessions > 0 && latest ? latestCompletedUsSession(latest.closeMs - 1) : null;
+  const basis = latest && artifact?.latestCompletedSession !== latest.date && previous?.date === artifact?.latestCompletedSession ? previous : latest;
   const row = artifact?.items?.[symbol];
   if (artifact?.schemaVersion !== 'rotation-history.v1' || artifact.modelVersion !== 'rrg.v3'
     || artifact.benchmark !== 'SPY' || artifact.timeframe !== '1d' || artifact.priceBasis !== 'adjusted-close'
@@ -16,7 +21,7 @@ export function selectProducedRotation(artifact, symbol, nowMs = Date.now()) {
     || Date.parse(row.observedAt) !== basis.closeMs || !Number.isFinite(Date.parse(row.fetchedAt)) || Date.parse(row.fetchedAt) > Number(nowMs)) return null;
   const quadrant = row.rsRatio >= 100 ? row.rsMomentum >= 100 ? 'Leading' : 'Weakening' : row.rsMomentum >= 100 ? 'Improving' : 'Lagging';
   if (row.quadrant !== quadrant) return null;
-  return Object.freeze({ ...row, source: 'Yahoo daily adjusted-close, SPY aligned research reference', sourceKind: artifact.sourceKind,
+  return Object.freeze({ ...row, lagging: basis !== latest, source: 'Yahoo daily adjusted-close, SPY aligned research reference', sourceKind: artifact.sourceKind,
     revision: `${artifact.modelVersion}:${row.sessionDate}`, changeBasis: row.performanceBasis, allowedUse: 'reference', decisionEligible: false });
 }
 

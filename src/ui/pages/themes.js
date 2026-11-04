@@ -21,6 +21,7 @@ import { buildCloseSeries } from '../../domain/market/close-series.js';
 import { buildThemeFlow } from '../../domain/market/market-flow.js';
 import { selectProducedRotation } from '../../domain/themes/produced-rotation.js';
 import { rrgAxisDomain, RRG_DEFINITION, RRG_QUADRANT_READS, RRG_QUADRANT_WORDS } from '../../domain/themes/rrg.js';
+import { sessionChipText } from '../components/session-lag.js';
 import { rrgRecentReading, RRG_NEUTRAL_BAND } from '../../domain/themes/recent-check.js';
 import { benchmarkReturns, basisOf } from '../components/theme-strength.js';
 import { readMarketRegime } from '../components/market-regime.js';
@@ -55,10 +56,12 @@ const QUADRANTS = Object.freeze([
   { key: 'Border', label: '기준선 부근', note: `두 축 중 하나가 100에 그 섹터의 평소 5거래일 움직임만큼 가까워 사분면을 정하지 않음(움직임 기록이 없으면 ±${RRG_NEUTRAL_BAND}). 한 번 정한 사분면은 반대쪽으로 그 폭의 절반을 넘어야 바뀜. 속이 빈 점은 놓인 구역과 판정이 다른 섹터로, 이름 옆에 판정을 적음`, optional: true }
 ]);
 
+// v59.70: the screen reads the previous session's artifact (flagged lagging) until the refresh lands, never session ticks.
+const RRG_LAG = Object.freeze({ lagSessions: 1 });
 // v57.81: the banded zone and the five-session relative-strength check of one item, from the session-checked artifact row.
 function readingOf(root, item) {
   const symbol = String(item?.symbol || item?.id || '');
-  const produced = symbol ? selectProducedRotation(root?._serverDataMeta?.rotationHistory, symbol, Date.now()) : null;
+  const produced = symbol ? selectProducedRotation(root?._serverDataMeta?.rotationHistory, symbol, Date.now(), RRG_LAG) : null;
   // v57.84: the produced 20-session trail sizes the band and carries hysteresis (recent-check.js rrgZone).
   return rrgRecentReading({ ...item, trail: produced?.trail || item?.trail || null }, produced?.relativeStrength || null);
 }
@@ -87,6 +90,7 @@ function usCloseSession(root) {
   const basis = String(root?._serverDataMeta?.rotationHistory?.latestCompletedSession || '');
   return isoDay(basis) || '';
 }
+
 
 function krCloseSession(rows = []) {
   const dates = (rows || [])
@@ -126,7 +130,7 @@ function renderRRGStatus({ documentRef, root, store, route }) {
   // chip, and the tail's meaning is the line's hover (the tail control names itself).
   status.textContent = `선도 ${counts.Leading}, 개선 ${counts.Improving}, 약화 ${counts.Weakening}, 후행 ${counts.Lagging}${counts.Border ? `, 기준선 부근 ${counts.Border}` : ''}`;
   status.title = `${rrgTrailLength(root) ? `꼬리 = 최근 ${rrgTrailLength(root)}거래일 경로(작은 점이 시작), 화살표 = 오늘 위치. ` : ''}속이 빈 점 = 놓인 구역과 판정이 다른 섹터(이름 옆에 판정)`;
-  setAsOf(documentRef, documentRef.querySelector?.('#page-themes .v2-themes-rrg > .aio-frame-head'), close ? `${shortSession(close)} 종가` : '완료 종가', `약 50일 상대강도, ${close ? `${shortSession(close)} 미국 종가 기준` : '완료 종가 기준'}`);
+  setAsOf(documentRef, documentRef.querySelector?.('#page-themes .v2-themes-rrg > .aio-frame-head'), sessionChipText(close) || '완료 종가', `약 50일 상대강도, ${close ? `${sessionChipText(close)}, 미국` : '완료 종가 기준'}`);
   status.style.color = 'var(--text-dim)';
 }
 
@@ -215,7 +219,7 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
   if (trailLength) {
     for (const item of validItems) {
       const symbol = String(item?.symbol || item?.id || '');
-      const produced = symbol ? selectProducedRotation(root?._serverDataMeta?.rotationHistory, symbol, Date.now()) : null;
+      const produced = symbol ? selectProducedRotation(root?._serverDataMeta?.rotationHistory, symbol, Date.now(), RRG_LAG) : null;
       const points = (produced?.trail || []).filter((point) => point?.sessionDate && point.sessionDate < produced.sessionDate
         && finite(point.rsRatio) != null && finite(point.rsMomentum) != null).slice(-trailLength);
       if (points.length) trails.set(item, points);
@@ -397,7 +401,8 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
 function syncVerdictView(documentRef, root) {
   const card = documentRef?.querySelector?.('#themes-verdict .v2-themes-rrg');
   if (!card) return;
-  const view = root?._aioThemesVerdictView === 'bars' ? 'bars' : 'rrg';
+  // v59.70 (theme-sector): the period bars are the default view (which sector led the day or week); the scatter is second.
+  const view = root?._aioThemesVerdictView === 'rrg' ? 'rrg' : 'bars';
   card.dataset.view = view;
   documentRef.querySelectorAll('#themes-verdict-tabs [data-view]').forEach((button) => {
     const on = button.dataset.view === view;
@@ -576,15 +581,16 @@ function renderThemePerformanceBars({ documentRef, root, store, route }) {
   const host = documentRef?.getElementById('sector-perf-bars');
   if (!host) return;
   host.dataset.aioThemePerformanceBarsRenderer = 'native';
-  const view = root?._sectorPerfView === 'all' ? 'all' : 'sectors';
+  const view = activeView(root); // v59.70: the card's one scope control (11섹터 · 세부 업종 · 전체) drives the bars too
   // v58.75 (persona review): Koyfin/Finviz-style period tabs. 1일·1주 stay the rotation artifact's session returns
   // (dailyPct/weeklyPct); 1·3·6·12개월 are the published screener's ETF returns (ret1m…ret12m). Each bar carries its gap to
   // SPY over the same window; an ETF the screener does not carry reads '—'. No YTD field is published, so no YTD tab.
   const screenerRows = screenerRowMap(store);
   const allItems = selectThemesItems(store?.getState?.() || {});
   const hasLong = allItems.some((item) => finite(screenerRows.get(String(item?.symbol || item?.id || '').toUpperCase())?.ret1m) != null);
-  // 1개월 first (the S&P 500 map right below already shows the day), the day when no screener return has arrived.
-  const mode = SECTOR_PERIODS.some(([key]) => key === root?._aioSectorPeriod) ? root._aioSectorPeriod : hasLong ? '1m' : '1d';
+  // v59.70 (owner: which sector led the day and the week): the day first when the session return exists, else 1개월.
+  const hasDay = allItems.some((item) => finite(item?.pct) != null);
+  const mode = SECTOR_PERIODS.some(([key]) => key === root?._aioSectorPeriod) ? root._aioSectorPeriod : hasDay ? '1d' : hasLong ? '1m' : '1d';
   const period = SECTOR_PERIODS.find(([key]) => key === mode);
   ensureSectorPeriodTabs(documentRef, root, store, route, mode);
   const valueOf = (symbol, item) => {
@@ -688,6 +694,21 @@ function themeDefinitionOf(root, item) {
 function resolveThemeDetailId(root, item) {
   const theme = themeDefinitionOf(root, item);
   return theme?.id ? String(theme.id) : null;
+}
+
+// "11/3 하루 강한 섹터는 …, 약한 섹터는 …입니다. 1주로는 …가 앞섰습니다." — the sector session returns the bars show.
+function sectorMovesRead(root, items) {
+  const rows = (key) => items.map((item) => ({ label: themeItemLabel(root, item), value: finite(item?.[key]) })).filter((row) => row.value != null).sort((a, b) => b.value - a.value);
+  const day = rows('pct');
+  if (day.length < 6) return '';
+  const close = usCloseSession(root);
+  const list = (part) => part.map((row) => `${row.label} ${signedText(row.value, 1)}%`).join(', ');
+  const up = day.filter((row) => row.value > 0).slice(0, 3), down = day.filter((row) => row.value < 0).slice(-2).reverse();
+  const first = up.length && down.length ? `강한 섹터는 ${list(up)}, 약한 섹터는 ${list(down)}입니다.`
+    : up.length ? `11개 섹터가 대부분 올랐고 ${list(up)}가 앞섰습니다.` : `11개 섹터가 대부분 내렸고 ${list(day.slice(-3).reverse())}가 가장 약했습니다.`;
+  const week = rows('weeklyPct');
+  const weekText = week.length >= 6 ? ` 1주로는 ${list(week.slice(0, 2))}가 앞서고 ${list(week.slice(-1))}가 가장 약했습니다.` : '';
+  return `${close ? `${shortSession(close)} 하루, ` : ''}${first}${weekText}`;
 }
 
 function themeItemLabel(root, item) {
@@ -806,9 +827,7 @@ function renderThemes({ documentRef, root, store, route }) {
     if (foldSummary) foldSummary.textContent = '섹터 목록, 상대강도 판정 전';
     if (fold && !fold.dataset.aioAutoOpened) { fold.open = true; fold.dataset.aioAutoOpened = 'true'; }
     appendUnclassified();
-    const anyJudged = viewItems(selectThemesItems(store?.getState?.() || {}), 'all')
-      .some((item) => QUADRANTS.some((q) => q.key === String(item?.quadrant || '')) && finite(item?.rsRatio) != null && finite(item?.rsMomentum) != null);
-    if (viewTabs) viewTabs.hidden = !anyJudged;
+    if (viewTabs) viewTabs.hidden = false; // v59.70: the scope also drives the bars, so it stays without a judged sector
     const read = documentRef.getElementById('rrg-rotation-read');
     const close = usCloseSession(root);
     if (read) read.textContent = `섹터 회전은 최신 확정 종가의 상대강도 기록이 들어오면 표시합니다${close ? ` (지금 기록은 ${shortSession(close)} 종가까지)` : ''} — 그 전에는 아래 S&P 500 지도와 세부 테마 순위로 읽습니다.`;
@@ -849,8 +868,14 @@ function renderThemes({ documentRef, root, store, route }) {
   let revisions = null;
   try { revisions = marketInterpretation(root, { store }).indexEarnings?.sectors || null; } catch (_) { revisions = null; }
   const flow = rotationFlow({ groups: Object.fromEntries(groups), regime: readMarketRegime(root), revisions });
+  // v59.70 (theme-sector, owner: "which sector led the day and the week"): the hero names the day's and the week's ends
+  // of the 11 sectors; the ~50-session rotation reading sits under the scatter (회전 view). Without session returns the
+  // rotation reading stays the hero, as before.
   const read = documentRef.getElementById('rrg-rotation-read');
-  if (read) read.textContent = flow.read;
+  const detail = documentRef.getElementById('rrg-rotation-detail');
+  const moves = sectorMovesRead(root, viewItems(selectThemesItems(store?.getState?.() || {}), 'sectors'));
+  if (read) read.textContent = moves || flow.read;
+  if (detail) { detail.textContent = moves ? flow.read : ''; detail.hidden = !moves; }
   renderNextSteps(documentRef, documentRef.getElementById('themes-next'), flow.next);
 }
 
@@ -1792,6 +1817,8 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           if (!view) return;
           root._aioThemesVerdictView = view;
           syncVerdictView(documentRef, root);
+          // v59.70: the scatter was sized while hidden; redraw it at the visible frame width.
+          if (view === 'rrg') { renderRRGStatus({ documentRef, root, store, route }); renderRRGCanvas({ documentRef, root, store, route }); }
         };
         verdictTabs?.addEventListener('click', onVerdictTab);
         bag.add(() => verdictTabs?.removeEventListener('click', onVerdictTab));

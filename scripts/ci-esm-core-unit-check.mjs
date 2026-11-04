@@ -6074,7 +6074,36 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   // v58.78 (owner 2026-10-25): the theme ranking reads 1주·2주·1개월 — the 1주 tab ranks by the members' five-session
   // median, 2주 is the ten-session median, and 6개월 stays a valid key for the other readers.
   const { buildGroupStrength, STRENGTH_TABS, GROUP_WINDOWS } = await load('src/domain/themes/group-strength.js');
-  if (STRENGTH_TABS.join(',') !== 'ret5d,ret1m,ret3m' || GROUP_WINDOWS.ret10d !== '2주' || GROUP_WINDOWS.ret6m !== '6개월') fail('v58.78 ranking tabs are 1주·1개월·3개월, with 2주 and 6개월 still named');
+  {
+    // v59.70 (theme-sector): the 테마 screen reads the previous session's rotation artifact (lagging), never two sessions back,
+    // and the strict readers keep refusing it.
+    const { selectProducedRotation } = await load('src/domain/themes/produced-rotation.js');
+    const art = { schemaVersion: 'rotation-history.v1', modelVersion: 'rrg.v3', benchmark: 'SPY', timeframe: '1d', priceBasis: 'adjusted-close', decisionUse: false, allowedUseCeiling: 'reference', sourceKind: 'T3_PUBLIC_DELAYED', latestCompletedSession: '2026-11-02',
+      items: { IGV: { status: 'CURRENT', sessionDate: '2026-11-02', rsRatio: 97.1, rsMomentum: 96.9, quadrant: 'Lagging', dailyPct: 0.5, weeklyPct: -1, alignedSessionCount: 60, observedAt: '2026-11-02T21:00:00.000Z', fetchedAt: '2026-11-02T23:00:00.000Z' } } };
+    const oneLate = Date.parse('2026-11-04T00:58:00Z'), twoLate = Date.parse('2026-11-05T00:58:00Z');
+    if (selectProducedRotation(art, 'IGV', oneLate) !== null) fail('v59.70 strict readers refuse a one-session-old rotation artifact');
+    if (selectProducedRotation(art, 'IGV', oneLate, { lagSessions: 1 })?.lagging !== true) fail('v59.70 the 테마 screen reads a one-session-old artifact, flagged lagging');
+    if (selectProducedRotation(art, 'IGV', twoLate, { lagSessions: 1 }) !== null) fail('v59.70 two sessions late is refused even with lagSessions 1');
+    if (selectProducedRotation(art, 'IGV', Date.parse('2026-11-03T12:00:00Z'), { lagSessions: 1 })?.lagging !== false) fail('v59.70 a current artifact is not flagged lagging');
+    // v59.70 (data audit R9, D4): one theme median for the five theme readers (finite values only, optional minimum count).
+    const { median: themeMedian, themeMedians } = await load('src/domain/themes/theme-medians.js');
+    if (themeMedian([3, null, 1, NaN, 2]) !== 2 || themeMedian([1, 2], { minCount: 3 }) !== null || themeMedians([{ a: 1 }, { a: 3 }], ['a']).a !== 2) fail('v59.70 themeMedians: finite values only, min count, per-field');
+    // v59.70 (data audit R1): no browser recompute — flat session ticks and a definition's own rsRatio/quadrant never
+    // become a point; without a produced row the item has no coordinates (every 세부 업종 ETF once landed on one point).
+    const { createThemesProvider } = await load('src/data/providers/themes.js');
+    const spyDaily = Array.from({ length: 100 }, (_, i) => 600 + i);
+    const tickProvider = createThemesProvider({ readLiveData: () => ({ SPY: { price: 699 }, IGV: { price: 95 } }), readHistory: () => ({ SPY: spyDaily, IGV: Array(40).fill(95) }),
+      readRotationHistory: () => null, readDefinitions: () => ({ subsectors: [{ sym: 'IGV', name: '소프트웨어', rsRatio: 101.7, rsMomentum: 101.8, quadrant: 'Leading' }] }) });
+    const tickItem = tickProvider.readCurrent().items.find((item) => item.symbol === 'IGV');
+    if (!tickItem || tickItem.rsRatio !== null || tickItem.rsMomentum !== null || tickItem.quadrant !== 'neutral') fail(`v59.70 the themes provider reads the RRG point only from the produced artifact: ${JSON.stringify(tickItem)}`);
+  }
+  // v59.70 (theme-sector): 1일 leads the tabs (owner: which theme led the day and the week).
+  if (STRENGTH_TABS.join(',') !== 'ret1d,ret5d,ret1m,ret3m' || GROUP_WINDOWS.ret1d !== '1일' || GROUP_WINDOWS.ret10d !== '2주' || GROUP_WINDOWS.ret6m !== '6개월') fail('v59.70 ranking tabs are 1일·1주·1개월·3개월, with 2주 and 6개월 still named');
+  {
+    const dayThemes = [{ id: 'd', nameKr: 'D', subThemes: [{ name: 'X', tickers: ['X1', 'X2', 'X3'] }] }];
+    const day = buildGroupStrength({ themes: dayThemes, rows: ['X1', 'X2', 'X3'].map((sym, i) => ({ sym, ret1d: [1, -2, 3][i], ret1m: 1, factorSessionDate: '2026-11-03' })), sortKey: 'ret1d' });
+    if (day.windowLabel !== '1일' || day.groups[0].ret1d !== 1 || day.groups[0].rankedMembers[0].sym !== 'X3') fail(`v59.70 the 1일 tab ranks by the one-session median: ${JSON.stringify(day.groups[0])}`);
+  }
   const themes = [{ id: 't', nameKr: 'T', subThemes: [{ name: 'A', tickers: ['A1', 'A2', 'A3'] }, { name: 'B', tickers: ['B1', 'B2', 'B3'] }] }];
   const row = (sym, ret5d, ret10d, ret1m) => ({ sym, ret5d, ret10d, ret1m, ret3m: ret1m, ret6m: ret1m, pctSma50: 1, factorSessionDate: '2026-10-23' });
   const rows = [row('A1', 5, 6, -1), row('A2', 4, 7, -2), row('A3', 6, 8, -3), row('B1', -1, -2, 9), row('B2', -2, -3, 8), row('B3', -3, -4, 7)];

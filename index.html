@@ -4498,14 +4498,7 @@ button[data-filter-active="true"] {
       <h1 class="page-title">테마와 섹터</h1>
       <div class="page-subtitle"></div>
     </div>
-    <div class="sh-themes-row">
-      <div id="rrg-view-tabs" role="group" aria-label="산점도 범위">
-        <span data-action="setRRGView" data-arg="sectors" data-pass-el="1" class="is-interactive news-sort-btn active rrg-view-pill">11섹터</span>
-        <span data-action="setRRGView" data-arg="subsectors" data-pass-el="1" class="is-interactive news-sort-btn rrg-view-pill">세부 업종</span>
-        <span data-action="setRRGView" data-arg="all" data-pass-el="1" class="is-interactive news-sort-btn rrg-view-pill">전체</span>
-      </div>
-      <!-- v59.51 (content audit): the quadrant-count pill left — the line above the scatter carries the same counts. -->
-    </div>
+    <!-- v59.70 (theme-sector): the scope pills moved into the sector card; one control drives the bars and the scatter. -->
   </div>
 
   <!-- P1431: 페이지 결론 — 네 사분면을 한 문장으로 읽고 시장 상태의 시장 폭과 잇는다(아래 섹션들이 근거). -->
@@ -4518,28 +4511,31 @@ button[data-filter-active="true"] {
     </div>
     <div class="v2-themes-grid">
       <!-- v59.51 (content audit): the sector period bars are the verdict card's second tab (was a section of its own under it). -->
-      <div class="sx-card v2-themes-rrg aio-frame" data-frame="themes.rrg" data-view="rrg">
+      <div class="sx-card v2-themes-rrg aio-frame" data-frame="themes.rrg" data-view="bars">
         <div class="sx-card__head aio-frame-head"><h3 class="sx-card__title">섹터 상대강도</h3>
           <div id="themes-verdict-tabs" class="aio-frame-actions" role="group" aria-label="보기">
-            <button type="button" class="news-sort-btn active" data-view="rrg" aria-pressed="true">회전 그래프</button>
-            <button type="button" class="news-sort-btn" data-view="bars" aria-pressed="false">기간별 등락</button>
+            <button type="button" class="news-sort-btn active" data-view="bars" aria-pressed="true">등락</button>
+            <button type="button" class="news-sort-btn" data-view="rrg" aria-pressed="false">회전</button>
           </div>
         </div>
-        <div id="sector-perf-panel">
-          <div class="sh-themes-row-wrap">
-            <div id="sector-perf-view-tabs" role="group" aria-label="막대 범위">
-              <button class="news-sort-btn active" data-action="setSectorPerfView" data-arg="sectors" data-pass-el="1">11섹터</button>
-              <button class="news-sort-btn" data-action="setSectorPerfView" data-arg="all" data-pass-el="1">+세부 업종</button>
-            </div>
-            <!-- v58.95: src/ui/pages/themes.js fills the period buttons (1일·1주·1·3·6·12개월). -->
-            <div id="sector-perf-tabs" role="group" aria-label="기간"></div>
+        <!-- v59.70 (theme-sector): bars are the default view; scope (both views) and period (bars) share one row. -->
+        <div class="sh-themes-row-wrap v2-themes-controls">
+          <div id="rrg-view-tabs" role="group" aria-label="범위">
+            <button type="button" data-action="setRRGView" data-arg="sectors" data-pass-el="1" class="news-sort-btn active rrg-view-pill" aria-pressed="true">11섹터</button>
+            <button type="button" data-action="setRRGView" data-arg="subsectors" data-pass-el="1" class="news-sort-btn rrg-view-pill" aria-pressed="false">세부 업종</button>
+            <button type="button" data-action="setRRGView" data-arg="all" data-pass-el="1" class="news-sort-btn rrg-view-pill" aria-pressed="false">전체</button>
           </div>
+          <!-- v58.95: src/ui/pages/themes.js fills the period buttons (1일·1주·1·3·6·12개월). -->
+          <div id="sector-perf-tabs" role="group" aria-label="기간"></div>
+        </div>
+        <div id="sector-perf-panel">
           <div id="sector-perf-bars" class="sh-themes-sector-perf-stack"></div>
         </div>
         <div id="rrg-chart-block">
           <div id="rrg-chart-status" class="sh-themes-rrg-plot-text">상대강도 기록 확인 중</div>
+          <p id="rrg-rotation-detail" class="theme-strength-basis sh-themes-rrg-rotation-detail" hidden></p>
           <div id="rrg-canvas-frame" class="sh-themes-rrg-canvas-panel">
-            <canvas id="rrg-canvas" role="img" aria-label="섹터 상대강도 산점도 — 가로축 시장 대비 상대강도, 세로축 상대강도 변화 속도. 사분면별 섹터 목록은 아래 접힌 칸에 있습니다." aria-describedby="rrg-chart-status rrg-rotation-read" width="900" height="480" style="display:block;width:100%;"></canvas>
+            <canvas id="rrg-canvas" role="img" aria-label="섹터 상대강도 산점도 — 가로축 시장 대비 상대강도, 세로축 상대강도 변화 속도. 사분면별 섹터 목록은 아래 접힌 칸에 있습니다." aria-describedby="rrg-chart-status rrg-rotation-detail" width="900" height="480" style="display:block;width:100%;"></canvas>
           </div>
         </div>
         <details id="rrg-quadrant-fold" class="sh-themes-rrg-quadrant-fold">

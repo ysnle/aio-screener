@@ -776,7 +776,7 @@ const rrgViewProbe = await (async () => {
   const { setRRGView } = await import('../src/ui/components/rrg-view.js');
   const events = []; const root = {}; const pill = { classList: { add: () => events.push('active') } };
   setRRGView('subsectors', pill, { root, documentRef: { querySelectorAll: () => [], dispatchEvent: (e) => events.push(e.type) } });
-  return root._rrgViewMode === 'subsectors' && events.join() === 'active,aio:themesViewChanged';
+  return root._rrgViewMode === 'subsectors' && root._sectorPerfView === 'all' && events.join() === 'active,aio:themesViewChanged'; // v59.70: one scope for bars and scatter
 })();
 check('v58.97 the RRG view pills set the shared view and ask themes.js to repaint the scatter', rrgViewProbe);
 const krMoreProbe = await (async () => {

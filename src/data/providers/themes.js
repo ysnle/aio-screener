@@ -1,4 +1,3 @@
-import { computeRelativeRotation } from '../../domain/themes/rrg.js';
 import { selectProducedRotation } from '../../domain/themes/produced-rotation.js';
 import { finiteNumber as finite } from '../../domain/shared/number.js';
 
@@ -94,7 +93,6 @@ export function createThemesProvider({
         });
       }
       const live = readLiveData() || {};
-      const historyBySymbol = readHistory() || {};
       const producedArtifact = readRotationHistory();
       const observationNow = typeof now() === 'number' ? now() : Date.parse(now());
       const definitions = asDefinitions(readDefinitions());
@@ -110,14 +108,11 @@ export function createThemesProvider({
         return true;
       }).map((item) => {
         const symbol = String(item?.sym || item?.symbol || item?.id || '');
-        const rotation = computeRelativeRotation({
-          history: historyBySymbol[symbol] || null,
-          benchmarkHistory: historyBySymbol.SPY || null,
-          hasQuote: !!live[symbol],
-          hasBenchmarkQuote: !!live.SPY
-        });
+        // v59.70 (data audit R1): the point comes only from the produced artifact (current, or the previous session
+        // flagged lagging). The browser recompute and the definition defaults are gone — session ticks put every 세부 업종
+        // ETF on one point, and a definition's own rsRatio/quadrant could contradict the artifact.
         const currentQuote = runtimeQuote(live, symbol);
-        const produced = selectProducedRotation(producedArtifact, symbol, observationNow);
+        const produced = selectProducedRotation(producedArtifact, symbol, observationNow, { lagSessions: 1 });
         // v57.50 C21/C22: the sector bars and summary are labelled "<date> 미국 종가 기준", so the 1-day and 1-week
         // returns come only from the session-checked completed-close artifact. The live quote (intraday pct) and the
         // legacy 5-day cache (today's open→close first) no longer stand in under a close label; the live move is kept
@@ -131,9 +126,9 @@ export function createThemesProvider({
           pct: closePct,
           livePct: finite(currentQuote.pct),
           weeklyPct: finite(produced?.weeklyPct),
-          rsRatio: finite(produced?.rsRatio ?? rotation?.rsRatio ?? item?.rsRatio),
-          rsMomentum: finite(produced?.rsMomentum ?? rotation?.rsMom ?? item?.rsMomentum),
-          quadrant: produced?.quadrant || rotation?.quadrant || item?.quadrant || 'neutral',
+          rsRatio: finite(produced?.rsRatio),
+          rsMomentum: finite(produced?.rsMomentum),
+          quadrant: produced?.quadrant || 'neutral',
           view: item?.view || 'sectors',
           source: closePct != null ? produced?.source : currentQuote.source,
           sourceKind: closePct != null ? produced?.sourceKind || 'unavailable' : 'unavailable',
@@ -142,7 +137,8 @@ export function createThemesProvider({
           revision: produced?.revision || currentQuote.revision,
           changeBasis: closePct != null ? produced?.changeBasis || 'unknown' : 'unknown',
           directionCompatible: closePct != null,
-          rotationSource: rotation?.modelVersion ? `native-rrg:${rotation.modelVersion}` : (item?.source || 'native-rrg')
+          lagging: produced?.lagging === true,
+          rotationSource: produced ? `produced-rrg:${produced.revision}` : 'unavailable'
         };
       });
 

@@ -6,6 +6,7 @@
 // note. One visual (the momentum map: 6-month trend × 1-month move, coloured by the macro wind), a short reading (where
 // strength moved and which combinations stand out), then folded per-stage cards with each theme's choices, opportunity
 // cost, evidence lines, structural hypothesis and what would break it. Stock selection stays on 테마 상세 and 스크리너.
+import { sessionChipText } from './session-lag.js';
 import { THEME_STATES } from '../../domain/scenarios/analogs.js';
 import { relativeBand, rrgRecentReading } from '../../domain/themes/recent-check.js';
 import { selectProducedRotation } from '../../domain/themes/produced-rotation.js';
@@ -473,7 +474,7 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
     const section = el(doc, 'section', null, 'aio-section tp-section');
     section.setAttribute('aria-labelledby', 'theme-playbook-title');
     // v58.79 section frame: title + close-date chip (the basis sentence is the chip's hover and the rules fold's first line).
-    const title = frameHead(doc, { title: '테마 시나리오 — 단계와 거시 영향', titleId: 'theme-playbook-title', titleClass: 'briefing-h2' });
+    const title = frameHead(doc, { title: '테마 시나리오', titleId: 'theme-playbook-title', titleClass: 'briefing-h2' });
     markFrame(section, 'themes.playbook');
     host = el(doc, 'div');
     host.id = 'theme-playbook';
@@ -499,13 +500,14 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   // v57.81 (audit): no action suggestion in the reading ("분할 접근의 부담이 비교적 작은 경우" was one), and leaders are
   // only those that pass the index-relative, confirmed stage — each named with its last five sessions.
   if (h.structuralPullbacks.length) reading.push(`긴 추세는 지수보다 앞서 있는데 최근 1개월 뒤처졌고 중심 시나리오에서 역풍이 아닌 테마: ${h.structuralPullbacks.slice(0, 6).map((row) => `${mkt(row)} ${row.label}(${pct(row.ret1m)})`).join(', ')} — 핵심 논리가 깨지는 신호가 없는지 함께 봅니다.`);
-  if (h.headwindLeaders.length) reading.push(`거시 부담에도 주도하는 테마(6개월·1개월 지수 대비, 최근 5거래일 확인): ${h.headwindLeaders.slice(0, 4).map((row) => `${mkt(row)} ${row.label}${row.ret5d != null ? `(5거래일 ${pct(row.ret5d)})` : ''}`).join(', ')} — 업종 고유 동력(실적·구조 수요)이 있는지 확인이 필요합니다.`);
-  if (h.tailwindLaggards.length) reading.push(`거시 수혜에도 약세인 테마: ${h.tailwindLaggards.slice(0, 4).map((row) => `${mkt(row)} ${row.label}`).join(', ')} — 업종 고유의 문제가 있는지 먼저 봅니다.`);
+  if (h.headwindLeaders.length) reading.push(`매크로 부담에도 주도하는 테마(6개월·1개월 지수 대비, 최근 5거래일 확인): ${h.headwindLeaders.slice(0, 4).map((row) => `${mkt(row)} ${row.label}${row.ret5d != null ? `(5거래일 ${pct(row.ret5d)})` : ''}`).join(', ')} — 업종 고유 동력(실적·구조 수요)이 있는지 확인이 필요합니다.`);
+  if (h.tailwindLaggards.length) reading.push(`매크로 수혜에도 약세인 테마: ${h.tailwindLaggards.slice(0, 4).map((row) => `${mkt(row)} ${row.label}`).join(', ')} — 업종 고유의 문제가 있는지 먼저 봅니다.`);
   const creditEntry = playbook.themes.flatMap((row) => row.basisText || []).find((text) => text.startsWith(CREDIT_CONDITION));
   const benchText = ['US', 'KR'].map((market) => playbook.benchmarks?.[market]).filter((b) => b && (b.ret1m != null || b.ret3m != null || b.ret6m != null))
     .map((b) => `${b.name} ${[b.field === 'kospi' || b.name === '코스피' ? (b.ret3m != null ? `3개월 ${pct(b.ret3m)}` : null) : (b.ret6m != null ? `6개월 ${pct(b.ret6m)}` : null), b.ret1m != null ? `1개월 ${pct(b.ret1m)}` : null].filter(Boolean).join(', ')}`).join(', ');
   const basis = el(doc, 'p', `${playbook.asOfText || `${playbook.asOf ? `${playbook.asOf} ` : ''}확정 종가`}, 테마 ${playbook.themes.length}개${playbook.rotation?.market === '한국' ? ' (미국 테마 수익률을 받기 전이라 한국만)' : ''}, ${scenario.state === 'tie' ? `중심 시나리오 ${scenario.names.join('·')} 동률 기준(동률이면 수혜·부담은 동률인 시나리오 모두에서 같을 때만 정하고, 다르면 혼재)` : scenario.items.length ? `중심 시나리오 ${scenario.names[0]} 기준` : '중심 시나리오 미정'}. 단계는 긴 추세(미국 6개월, 한국 3개월)와 1개월을 같은 기간 지수와 비교해 정합니다${benchText ? `(같은 기간 ${benchText})` : ''}.${creditEntry ? ` 신용 조건은 시장 전체에 하나라 모든 테마에 같게 적용됩니다: ${creditEntry}.` : ''}`, 'xr-basis');
-  setAsOf(doc, host.parentElement?.querySelector(':scope > .aio-frame-head'), closeChipText(playbook.asOfText || (playbook.asOf ? `${playbook.asOf} 확정 종가` : '')), basis.textContent);
+  // v59.70: a US basis behind the latest session reads as a dated reference (the chip says 반영 전).
+  setAsOf(doc, host.parentElement?.querySelector(':scope > .aio-frame-head'), playbook.lagging?.US ? `미국 ${sessionChipText(playbook.asOfByMarket?.US)}` : closeChipText(playbook.asOfText || (playbook.asOf ? `${playbook.asOf} 확정 종가` : '')), basis.textContent);
   const rulesFold = el(doc, 'details', null, 'tp-rules');
   rulesFold.append(el(doc, 'summary', '기준과 판정 규칙'), basis, el(doc, 'p', `단계는 6개월(한국 3개월)·1개월 수익률을 같은 기간 지수(미국 S&P 500 동일가중 — 기록이 없으면 S&P 500, 한국 코스피)와 비교해 정하고(1개월 ±${relativeBand('ret1m')}%p, 6개월 ±${relativeBand('ret6m')}%p 안의 차이는 앞선 것으로 보지 않음), 최근 5거래일이 평소 1주 움직임의 2배를 넘게 반대로 움직이면 1개월 판정을 보류합니다. 수혜·부담은 테마 성격이 중심 시나리오에 유리한지 불리한지로 정합니다. 확률 숫자·가격·종목 지시는 쓰지 않습니다. 레버리지·포지션 쏠림을 직접 재는 자료는 없어 가격 단서(1개월 낙폭·50일선 위 비율)로만 봅니다.`, 'xr-basis'),
     el(doc, 'p', `조건 충족 수의 조건: 긴 추세 앞섬(긴 추세 중앙값이 같은 기간 지수보다 밴드 넘게 높음), 조정이 무너지지 않음(50일선 위 종목 ${ABOVE50_FLOOR}% 이상), 중심 시나리오에서 수혜 또는 중립, 신용 안정(신용 지표 양호, 시장 전체에 하나). 추세 속 조정은 조정 깊이(1개월 지수 대비 낙폭이 그 전까지 앞선 폭의 절반 이하)를 더 봅니다. 주도 지속은 50일선 위 비율이 ${ABOVE50_FLOOR}% 이상이거나 조건 ${LEAD_CONFIRM_MET}개 이상이어야 유지됩니다.`, 'xr-basis'));
@@ -515,7 +517,9 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   pick.setAttribute('aria-live', 'polite');
   pick.hidden = true;
   const onPick = (text) => { pick.textContent = text; pick.hidden = false; };
-  const mapMarket = root._aioTpMapMarket === 'KR' && playbook.themes.some((row) => row.market === 'KR') ? 'KR' : 'US';
+  // v59.70: the map opens on a market that has themes (미국 0 drew an empty map while 한국 had 28).
+  const hasUs = playbook.themes.some((row) => row.market === 'US'), hasKr = playbook.themes.some((row) => row.market === 'KR');
+  const mapMarket = hasKr && (root._aioTpMapMarket === 'KR' || !hasUs) ? 'KR' : 'US';
   const mapThemes = playbook.themes.filter((row) => row.market === mapMarket);
   const marketTabs = el(doc, 'div', null, 'tp-map-tabs');
   marketTabs.setAttribute('role', 'group');

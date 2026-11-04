@@ -1,3 +1,4 @@
+import { median as sharedMedian } from './theme-medians.js';
 import { heavyweightsOf, heavyweightLine } from './group-strength.js';
 import { signedText } from '../shared/number.js';
 import { isoDay, latestSessionRows } from '../shared/session-date.js';
@@ -72,7 +73,7 @@ export function krThemeArtifactRead({ themeMap = {}, rows = [] } = {}) {
   // KR close among the rows and when not marked stale; each figure needs KR_THEME_MIN_COVERED members that carry it.
   const sessionOf = (row) => isoDay(row?.factorSessionDate);
   const latest = latestSessionRows((rows || []).filter((row) => /\.(KS|KQ)$/i.test(String(row?.sym || '')))).basis;
-  const median = (values) => { const list = values.filter((v) => Number.isFinite(v)).sort((a, b) => a - b); if (list.length < KR_THEME_MIN_COVERED) return null; const mid = Math.floor(list.length / 2); return list.length % 2 ? list[mid] : (list[mid - 1] + list[mid]) / 2; };
+  const median = (values) => sharedMedian(values, { minCount: KR_THEME_MIN_COVERED }); // v59.70 (R9): theme-medians.js
   const themes = Object.entries(themeMap || {}).map(([id, members]) => {
     const found = (Array.isArray(members) ? members : []).map((member) => bySymbol.get(`${member.code}.KS`) || bySymbol.get(`${member.code}.KQ`)).filter(Boolean);
     const current = found.filter((row) => latest && sessionOf(row) === latest && row?.factorQuality?.stale !== true);
