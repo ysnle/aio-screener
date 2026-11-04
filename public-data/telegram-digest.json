@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-04T12:21:55.815Z",
-  "attemptedAt": "2026-11-04T12:21:55.815Z",
-  "lastSuccessfulAt": "2026-11-04T12:21:55.815Z",
+  "generatedAt": "2026-11-04T12:51:41.820Z",
+  "attemptedAt": "2026-11-04T12:51:41.820Z",
+  "lastSuccessfulAt": "2026-11-04T12:51:41.820Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-21T12:21:48.769Z",
-  "until": "2026-11-04T12:21:48.769Z",
+  "since": "2026-10-21T12:51:36.649Z",
+  "until": "2026-11-04T12:51:36.649Z",
   "current24hWindow": {
     "start": "2026-11-02T23:00:00.000Z",
     "end": "2026-11-03T23:00:00.000Z",
@@ -92,20 +92,20 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1366,
+      "count": 1364,
       "freshCount": 39,
-      "eligibleTextCount": 1301,
+      "eligibleTextCount": 1299,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 68348
+      "lastPostId": 68352
     },
     {
       "channel": "bornlupin",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 236,
-      "freshCount": 39,
+      "freshCount": 20,
       "eligibleTextCount": 236,
       "selectedCount": 123,
       "error": null,
@@ -116,16 +116,16 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 676,
+      "count": 678,
       "freshCount": 39,
-      "eligibleTextCount": 675,
+      "eligibleTextCount": 677,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 71554
+      "lastPostId": 71556
     }
   ],
   "count": 2366,
-  "retainedItemCount": 487,
+  "retainedItemCount": 464,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -134,8 +134,8 @@
     "observedCount": 2366,
     "eligibleTextCount": 2296,
     "mediaOnlyCount": 70,
-    "mediaAttachedCount": 300,
-    "photoPostCount": 261,
+    "mediaAttachedCount": 303,
+    "photoPostCount": 264,
     "documentPostCount": 1,
     "imageOnlyCount": 1,
     "highSignalCount": 421,
@@ -147,16 +147,16 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "macro": 358,
-    "geo": 449,
-    "power": 266,
-    "japan": 90,
-    "earnings": 468,
-    "kr-market": 124,
-    "semi": 502,
-    "optical": 42,
-    "equity": 153,
     "market-note": 855,
+    "semi": 503,
+    "power": 267,
+    "earnings": 467,
+    "macro": 359,
+    "optical": 42,
+    "geo": 448,
+    "japan": 90,
+    "kr-market": 124,
+    "equity": 152,
     "healthcare": 95,
     "ai-policy": 122,
     "media-only": 70,
@@ -165,32 +165,32 @@
     "crypto": 5
   },
   "tickerCounts": {
-    "GOOG": 127,
+    "005930.KS": 47,
+    "000660.KS": 76,
+    "AMD": 47,
+    "GOOG": 128,
+    "TSM": 40,
+    "ORCL": 12,
+    "PLTR": 30,
     "SN": 1,
-    "TSM": 39,
     "MRVL": 15,
     "MPWR": 1,
     "GFS": 1,
-    "AMD": 46,
-    "PLTR": 29,
-    "TSLA": 53,
+    "TSLA": 52,
     "BE": 29,
     "CVS": 1,
     "INTC": 8,
     "MSFT": 58,
-    "005930.KS": 46,
     "SMCI": 7,
     "NVO": 1,
     "COHR": 2,
     "NVDA": 122,
     "MU": 36,
-    "ORCL": 11,
     "AMGN": 1,
     "DUOL": 1,
     "BKNG": 1,
     "CPNG": 1,
     "AMZN": 77,
-    "000660.KS": 75,
     "YUM": 1,
     "NVS": 1,
     "RACE": 1,
@@ -268,20 +268,20 @@
     "WMT": 1
   },
   "themes": [
-    "Market Notes (855 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Falcon Guardian에 AI 에이전트의 실행을 중단하고 재시작 및 기업 네트워크 접근을...",
-    "Semiconductors/Memory (502 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
-    "Earnings/Corporate (468 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS EPS -$0.49, 전년 동기 $0.44 • IFRS 순손실 $2.7억, 전년 동기 순이익 $2.49억...",
-    "Geopolitics (449 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
-    "Macro/Rates (358 posts in 14-day research window): 중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는 6.40% 폭등, 과창50지수는 9.9% 수직 상승하며 상한가에 근접. 양대 시장 거래대금은 2조 519억...",
-    "AI Power/Grid (266 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
-    "Equity/Analyst (153 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p....",
+    "Market Notes (855 posts in 14-day research window): 2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,...",
+    "Semiconductors/Memory (503 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
+    "Earnings/Corporate (467 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS EPS -$0.49, 전년 동기 $0.44 • IFRS 순손실 $2.7억, 전년 동기 순이익 $2.49억...",
+    "Geopolitics (448 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
+    "Macro/Rates (359 posts in 14-day research window): 중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는 6.40% 폭등, 과창50지수는 9.9% 수직 상승하며 상한가에 근접. 양대 시장 거래대금은 2조 519억...",
+    "AI Power/Grid (267 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
+    "Equity/Analyst (152 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p....",
     "Korea Market (124 posts in 14-day research window): Ferrari 2026년 3분기 실적 요약 실적 • 매출 €18.96억, YoY +7%, 환율 제외 +10% • 영업이익 €5.63억, YoY +12%, 환율 제외 +23% • 영업이익률 29.7%, YoY..."
   ],
   "catalysts": [
     {
       "key": "GOOG",
-      "count": 127,
-      "text": "2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%, 나스닥100 선물 -0.47%, 러셀2000 선물 -0.06% 기록. 나스닥100 선물은 장중 2% 이상..."
+      "count": 128,
+      "text": "2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,..."
     },
     {
       "key": "NVDA",
@@ -295,7 +295,7 @@
     },
     {
       "key": "000660.KS",
-      "count": 75,
+      "count": 76,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Falcon Guardian에 AI 에이전트의 실행을 중단하고 재시작 및 기업 네트워크 접근을..."
     },
     {
@@ -305,22 +305,22 @@
     },
     {
       "key": "TSLA",
-      "count": 53,
+      "count": 52,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로..."
     },
     {
-      "key": "AMD",
-      "count": 46,
-      "text": "중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는 6.40% 폭등, 과창50지수는 9.9% 수직 상승하며 상한가에 근접. 양대 시장 거래대금은 2조 519억..."
-    },
-    {
       "key": "005930.KS",
-      "count": 46,
+      "count": 47,
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
+      "key": "AMD",
+      "count": 47,
+      "text": "중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는 6.40% 폭등, 과창50지수는 9.9% 수직 상승하며 상한가에 근접. 양대 시장 거래대금은 2조 519억..."
+    },
+    {
       "key": "TSM",
-      "count": 39,
+      "count": 40,
       "text": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS EPS -$0.49, 전년 동기 $0.44 • IFRS 순손실 $2.7억, 전년 동기 순이익 $2.49억..."
     },
     {
@@ -330,7 +330,7 @@
     },
     {
       "key": "PLTR",
-      "count": 29,
+      "count": 30,
       "text": "11월 04일 미주인 브리핑 • 나스닥 0.83% 상승 · 엔비디아 시총 5조 달러 회복 • AMD 데이터센터 매출 97% 급증 · 시간 외 6% 상승 • 메타 대규모 회사채 발행 추진 · AI 투자 확대 •..."
     },
     {
@@ -346,7 +346,7 @@
       "topics": [
         "macro"
       ],
-      "count": 358,
+      "count": 359,
       "focus": "중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는 6.40% 폭등, 과창50지수는 9.9% 수직 상승하며 상한가에 근접. 양대 시장 거래대금은 2조 519억..."
     },
     {
@@ -355,7 +355,7 @@
       "topics": [
         "geo"
       ],
-      "count": 449,
+      "count": 448,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격..."
     },
     {
@@ -373,7 +373,7 @@
       "topics": [
         "semi"
       ],
-      "count": 502,
+      "count": 503,
       "focus": "2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A..."
     },
     {
@@ -391,7 +391,7 @@
       "topics": [
         "power"
       ],
-      "count": 266,
+      "count": 267,
       "focus": "Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을..."
     },
     {
@@ -418,7 +418,7 @@
       "topics": [
         "equity"
       ],
-      "count": 153,
+      "count": 152,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p...."
     },
     {
@@ -436,7 +436,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 468,
+      "count": 467,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS EPS -$0.49, 전년 동기 $0.44 • IFRS 순손실 $2.7억, 전년 동기 순이익 $2.49억..."
     },
     {
@@ -482,7 +482,7 @@
         "market-note"
       ],
       "count": 855,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Falcon Guardian에 AI 에이전트의 실행을 중단하고 재시작 및 기업 네트워크 접근을..."
+      "focus": "2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,..."
     }
   ],
   "pageMap": {
@@ -816,10 +816,7 @@
       "datetime": "2026-11-04T05:54:49.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "optical"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
@@ -829,11 +826,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,...",
       "tickers": [
         "GOOG",
         "COHR"
-      ],
-      "summary": "2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,..."
+      ]
     },
     {
       "id": "bornlupin/20990",
@@ -1769,6 +1766,54 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71555",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71555",
+      "datetime": "2026-11-04T12:34:55.000Z",
+      "localDateKst": "2026-11-04",
+      "tags": [
+        "semi",
+        "power"
+      ],
+      "lead": 2,
+      "score": 63,
+      "hasText": true,
+      "tickers": [
+        "005930.KS",
+        "000660.KS"
+      ],
+      "summary": ">>트럼프 중간선거 패배 이후 데이터센터 규제 강화 움직임 부상 : 아시아 반도체 부담, 한국 태양광 수혜 (중국언론) •민주당이 미국 중간선거에서 압승하면서 데이터센터 규제 강화 가능성이 제기되고 있음...."
+    },
+    {
+      "id": "insidertracking/68349",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68349",
+      "datetime": "2026-11-04T12:21:34.000Z",
+      "localDateKst": "2026-11-04",
+      "tags": [
+        "macro",
+        "semi",
+        "optical",
+        "power"
+      ],
+      "score": 97,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "AMD",
+        "GOOG",
+        "TSM",
+        "ORCL",
+        "PLTR"
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 2027~2028년 말레이시아에 총 150억 달러를 투자해 데이터센터 캠퍼스와 청정에너지, 수자원 안보,..."
+    },
+    {
       "id": "insidertracking/68348",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/68348",
@@ -2299,10 +2344,7 @@
       "datetime": "2026-11-04T05:54:49.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "optical"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
@@ -2312,11 +2354,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,...",
       "tickers": [
         "GOOG",
         "COHR"
-      ],
-      "summary": "2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,..."
+      ]
     },
     {
       "id": "HANAchina/71533",
@@ -2606,13 +2648,12 @@
       "datetime": "2026-11-04T00:39:43.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "macro",
-        "flows"
+        "market-note"
       ],
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>중신증권 : 2027년 리튬배터리 산업 전반의 업황 개선 전망 •중신증권(CITIC)은 2027년 리튬배터리 산업 전반의 업황이 개선될 것으로 전망 •수요 측면에서는 중국의 차량당 배터리 탑재량 및 순수..."
+      "summary": ">>중신증권 : 2027년 리튬배터리 산업 전반의 업황 개선 전망 •중신증권(CITIC)은 2027년 리튬배터리 산업 전반의 업황이 개선될 것으로 전망 •수요 측면에서는 중국의 차량당 배터리 탑재량 및 순수...",
+      "tickers": []
     },
     {
       "id": "bornlupin/20994",
@@ -3385,10 +3426,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "SK하이닉스, 펭귄 솔루션스(Penguin Solutions) 지분 9.1% 보유 공시",
       "tickers": [
         "000660.KS"
-      ],
-      "summary": "SK하이닉스, 펭귄 솔루션스(Penguin Solutions) 지분 9.1% 보유 공시"
+      ]
     },
     {
       "id": "bornlupin/20976",
@@ -3397,13 +3438,11 @@
       "datetime": "2026-11-03T13:19:28.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "semi",
-        "power",
-        "ai-policy",
-        "equity"
+        "semi"
       ],
       "score": 95,
       "hasText": true,
+      "summary": "앤트로픽, AI 붐의 가장 중요한 자원 확보를 위한 치열한 경쟁 - NYT 1. 앤트로픽, 2045년까지 8,954억 달러 컴퓨팅 투자 약정 - 앤트로픽은 2045년까지 컴퓨팅 자원과 AI 반도체 확보를 위해...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -3414,8 +3453,7 @@
         "AMZN",
         "WULF",
         "HUT"
-      ],
-      "summary": "앤트로픽, AI 붐의 가장 중요한 자원 확보를 위한 치열한 경쟁 - NYT 1. 앤트로픽, 2045년까지 8,954억 달러 컴퓨팅 투자 약정 - 앤트로픽은 2045년까지 컴퓨팅 자원과 AI 반도체 확보를 위해..."
+      ]
     },
     {
       "id": "insidertracking/68206",
@@ -3719,14 +3757,14 @@
       "datetime": "2026-11-03T10:10:19.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "earnings"
+        "market-note"
       ],
       "score": 69,
       "hasText": true,
+      "summary": "파이퍼 샌들러(Piper Sandler), 팔란티어( $PLTR ) , 목표주가를 231달러에서 235달러로 상향 , ‘비중확대’ 투자의견을 유지 “ 팔란티어의 미국 상업 부문(US Commercial) 분기...",
       "tickers": [
         "PLTR"
-      ],
-      "summary": "파이퍼 샌들러(Piper Sandler), 팔란티어( $PLTR ) , 목표주가를 231달러에서 235달러로 상향 , ‘비중확대’ 투자의견을 유지 “ 팔란티어의 미국 상업 부문(US Commercial) 분기..."
+      ]
     },
     {
       "id": "HANAchina/71482",
@@ -3929,19 +3967,17 @@
       "localDateKst": "2026-11-03",
       "tags": [
         "semi",
-        "macro",
-        "power",
-        "earnings"
+        "flows"
       ],
-      "lead": 1,
       "score": 89,
       "hasText": true,
+      "summary": "대만 팀그룹: 메모리 공급 부족 2028년 하반기까지 지속 전망 1. 메모리 공급 부족 장기화 - 메모리 수급이 균형을 회복하는 시점은 최소 2028년 하반기로 예상. - 공급 부족이 가장 심각한 시기는...",
+      "lead": 1,
       "tickers": [
         "MU",
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": "대만 팀그룹: 메모리 공급 부족 2028년 하반기까지 지속 전망 1. 메모리 공급 부족 장기화 - 메모리 수급이 균형을 회복하는 시점은 최소 2028년 하반기로 예상. - 공급 부족이 가장 심각한 시기는..."
+      ]
     },
     {
       "id": "HANAchina/71467",
@@ -7110,20 +7146,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/67904",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67904",
-      "datetime": "2026-10-30T22:30:39.000Z",
-      "localDateKst": "2026-10-31",
-      "tags": [
-        "geo"
-      ],
-      "score": 50,
-      "hasText": true,
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 10월 31일 트럼프·이란 관련 발언 · 트럼프 “이란과 협상이 진행 중” 발언 · 트럼프 “솔직히 우리에게는 시간이 있다” 강조 · 미국 고위급 회의에서...",
-      "tickers": []
-    },
-    {
       "id": "HANAchina/71273",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71273",
@@ -7491,25 +7513,6 @@
       "summary": ">>AI로 급등한 구리 가격, 실제 수급 검증에 직면 •AI 인프라 열풍으로 구리 가격이 사상 최고치에 근접했지만, 펀더멘털에 대한 의구심 확대. Macquarie는 구리 가격이 공급 여건이 뒷받침하는 수준을...",
       "lead": 1,
       "tickers": []
-    },
-    {
-      "id": "HANAchina/71224",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71224",
-      "datetime": "2026-10-29T11:20:46.000Z",
-      "localDateKst": "2026-10-29",
-      "tags": [
-        "earnings",
-        "kr-market"
-      ],
-      "score": 66,
-      "hasText": true,
-      "summary": ">>실적 발표 후 골드만삭스와 JPMorgan, 모두 Alphabet 목표주가 하향 본문 : Alphabet의 3분기 검색 매출이 시장 예상치를 밑돈 데다 환율 역풍과 높은 자본지출 부담이 겹치면서...",
-      "lead": 1,
-      "tickers": [
-        "GOOG",
-        "GOOGL"
-      ]
     },
     {
       "id": "bornlupin/20886",
@@ -9803,10 +9806,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "SK하이닉스, 펭귄 솔루션스(Penguin Solutions) 지분 9.1% 보유 공시",
       "tickers": [
         "000660.KS"
-      ],
-      "summary": "SK하이닉스, 펭귄 솔루션스(Penguin Solutions) 지분 9.1% 보유 공시"
+      ]
     },
     {
       "id": "bornlupin/20976",
@@ -9815,13 +9818,11 @@
       "datetime": "2026-11-03T13:19:28.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "semi",
-        "power",
-        "ai-policy",
-        "equity"
+        "semi"
       ],
       "score": 95,
       "hasText": true,
+      "summary": "앤트로픽, AI 붐의 가장 중요한 자원 확보를 위한 치열한 경쟁 - NYT 1. 앤트로픽, 2045년까지 8,954억 달러 컴퓨팅 투자 약정 - 앤트로픽은 2045년까지 컴퓨팅 자원과 AI 반도체 확보를 위해...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -9832,8 +9833,7 @@
         "AMZN",
         "WULF",
         "HUT"
-      ],
-      "summary": "앤트로픽, AI 붐의 가장 중요한 자원 확보를 위한 치열한 경쟁 - NYT 1. 앤트로픽, 2045년까지 8,954억 달러 컴퓨팅 투자 약정 - 앤트로픽은 2045년까지 컴퓨팅 자원과 AI 반도체 확보를 위해..."
+      ]
     },
     {
       "id": "insidertracking/68206",
@@ -10117,14 +10117,14 @@
       "datetime": "2026-11-03T10:10:19.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "earnings"
+        "market-note"
       ],
       "score": 69,
       "hasText": true,
+      "summary": "파이퍼 샌들러(Piper Sandler), 팔란티어( $PLTR ) , 목표주가를 231달러에서 235달러로 상향 , ‘비중확대’ 투자의견을 유지 “ 팔란티어의 미국 상업 부문(US Commercial) 분기...",
       "tickers": [
         "PLTR"
-      ],
-      "summary": "파이퍼 샌들러(Piper Sandler), 팔란티어( $PLTR ) , 목표주가를 231달러에서 235달러로 상향 , ‘비중확대’ 투자의견을 유지 “ 팔란티어의 미국 상업 부문(US Commercial) 분기..."
+      ]
     },
     {
       "id": "HANAchina/71482",
@@ -10327,19 +10327,17 @@
       "localDateKst": "2026-11-03",
       "tags": [
         "semi",
-        "macro",
-        "power",
-        "earnings"
+        "flows"
       ],
-      "lead": 1,
       "score": 89,
       "hasText": true,
+      "summary": "대만 팀그룹: 메모리 공급 부족 2028년 하반기까지 지속 전망 1. 메모리 공급 부족 장기화 - 메모리 수급이 균형을 회복하는 시점은 최소 2028년 하반기로 예상. - 공급 부족이 가장 심각한 시기는...",
+      "lead": 1,
       "tickers": [
         "MU",
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": "대만 팀그룹: 메모리 공급 부족 2028년 하반기까지 지속 전망 1. 메모리 공급 부족 장기화 - 메모리 수급이 균형을 회복하는 시점은 최소 2028년 하반기로 예상. - 공급 부족이 가장 심각한 시기는..."
+      ]
     },
     {
       "id": "HANAchina/71467",
