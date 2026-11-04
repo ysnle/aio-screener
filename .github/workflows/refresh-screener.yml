@@ -42,6 +42,10 @@ jobs:
         with:
           node-version: '24'
 
+      - name: Mark the run start for the freshness ledger (v59.70)
+        # Files this run writes are newer than this mark; the ledger tells them from the checked-out copies by mtime.
+        run: sleep 1 && echo "AIO_RUN_STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)" >> "$GITHUB_ENV"
+
       - name: Require SEC provisioning before the SEC lanes
         env:
           SEC_UA: ${{ vars.SEC_USER_AGENT }}
@@ -186,6 +190,11 @@ jobs:
           node scripts/ci-page-data-timeline-contract-check.mjs
           node scripts/ci-candidate-archive-check.mjs # P1465
 
+      - name: Write the freshness ledger (v59.70)
+        # One record per artifact this job owns (producedAt, checkedAt, basis session, cadence); written before the gates
+        # so the validated candidate includes it.
+        run: node scripts/write-freshness-ledger.mjs --workflow refresh-screener.yml --run-started "$AIO_RUN_STARTED_AT"
+
       # The screener refresh owns SEC fundamentals, factor rows and their
       # reconciliation only.  Market-survey/news freshness (notably AAII) is
       # produced by refresh-data; running its web-research/data-cycle gates
@@ -241,6 +250,7 @@ jobs:
           # P1757: public-data/sec-fundamentals.json is gitignored and published to the data-store branch below.
           git add -- public-data/screener.json public-data/sec-fundamentals-summary.json public-data/sec-fundamentals-summary.manifest.json public-data/screener-validation-gate.json public-data/reconciliation-status.json public-data/operations-status.json public-data/history.json public-config.json architecture/public-readiness.json
           stage_if_exists public-data/earnings-calendar.json
+          stage_if_exists public-data/freshness/refresh-screener.json # v59.70: per-artifact producedAt/checkedAt ledger
           stage_if_exists public-data/bigtech-cashflow.json # v59.56: SEC quarterly cash flow, big tech
           stage_if_exists public-data/treasury-auctions.json # v59.57: TreasuryDirect coupon auction results
           stage_if_exists public-data/sp500-weights.json # 2026-10-13: S&P 500 sector map weights

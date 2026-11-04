@@ -1188,6 +1188,23 @@
           ]
         },
         {
+          "id": "artifact-refresh-path",
+          "script": "scripts/ci-artifact-refresh-path-check.mjs",
+          "inputs": [
+            "src/**",
+            "js/**",
+            "index.html",
+            "sw.js",
+            "public-data/*.json",
+            "src/data/contracts/artifact-freshness.js",
+            "scripts/write-freshness-ledger.mjs",
+            "scripts/ci-data-lineage-audit.mjs",
+            ".github/workflows/refresh-data.yml",
+            ".github/workflows/refresh-screener.yml",
+            ".github/workflows/event-briefs.yml"
+          ]
+        },
+        {
           "id": "artifact-semantics",
           "script": "scripts/ci-artifact-semantics-check.mjs",
           "inputs": [
@@ -2465,6 +2482,8 @@
         "scripts/lib/market-analysis-validate.mjs",
         "scripts/lib/market-analysis-prompt.mjs",
         "scripts/lib/telegram-signals.mjs",
+        "scripts/write-freshness-ledger.mjs",
+        ".github/workflows/event-briefs.yml",
         "scripts/sync-*.mjs",
         "src/data/**",
         "src/domain/**",

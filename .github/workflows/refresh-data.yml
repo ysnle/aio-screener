@@ -92,6 +92,10 @@ jobs:
         with:
           node-version: '24'
 
+      - name: Mark the run start for the freshness ledger (v59.70)
+        # Files this run writes are newer than this mark; the ledger tells them from the checked-out copies by mtime.
+        run: sleep 1 && echo "AIO_RUN_STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)" >> "$GITHUB_ENV"
+
       # v59.27: the 7/30-day run evidence used to live only in watchdog artifacts, so the committed window stayed a
       # template and the fast-quote soak read 0 days forever. The producer now refreshes it (every 6 h) before
       # operations-status reads it; a failed collection keeps the previous file and never blocks the data cycle.
@@ -322,6 +326,12 @@ jobs:
         continue-on-error: true
         run: node scripts/build-market-day.mjs
 
+      - name: Write the freshness ledger (v59.70)
+        # One record per artifact this workflow owns: producedAt, checkedAt, basis session, cadence. A timestamp-only rewrite
+        # of a derived artifact is put back to the published bytes here, before the gates and the release-manifest sync.
+        if: ${{ !cancelled() }}
+        run: node scripts/write-freshness-ledger.mjs --workflow refresh-data.yml --run-started "$AIO_RUN_STARTED_AT"
+
       - name: Promote one data release revision
         if: ${{ !cancelled() }}
         run: node scripts/sync-data-release-manifests.mjs
@@ -472,6 +482,7 @@ jobs:
           stage_if_exists public-data/market-snapshot-status.json
           stage_if_exists public-data/operations-status.json
           stage_if_exists public-data/operations-slo-window.json # v59.27: rolling 7/30-day run evidence (6-hour throttle)
+          stage_if_exists public-data/freshness/refresh-data.json # v59.70: per-artifact producedAt/checkedAt ledger
           stage_if_exists public-config.json
           stage_if_exists public-data/reconciliation-status.json
           stage_if_exists public-data/screener.json
