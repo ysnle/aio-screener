@@ -11,7 +11,9 @@ const atlas = read('src/ui/pages/atlas.js');
 const industryView = read('src/ui/knowledge/industry-view.js');
 const routeHubs = read('src/ui/navigation/route-hubs.js');
 const { FOUNDATION_STORIES, FOUNDATION_HIDDEN_MODULES } = await import('../src/domain/knowledge/foundation-stories.js');
-const { INDUSTRY_NODE_STORIES, INDUSTRY_DOMAIN_STORIES } = await import('../src/domain/knowledge/industry-node-stories.js');
+const { readAtlasCopySource, readIndustryStories } = await import('./lib/research-content.mjs');
+const { INDUSTRY_NODE_STORIES, INDUSTRY_DOMAIN_STORIES } = readIndustryStories();
+const atlasCopy = readAtlasCopySource();
 const capabilityLoader = read('src/ui/knowledge/capability-loader.js');
 const suppliedMaterials = read('src/domain/research/supplied-materials.js');
 const principles = read('src/ui/pages/principles.js');
@@ -49,7 +51,7 @@ const required = [
   ['bootstrap mount', bootstrap.includes("modules.atlas")],
   ['index page', index.includes('id="page-atlas"')],
   ['index content sink', index.includes('data-atlas-content')],
-  ['Korean industry-map name', routeHubs.includes("{ id: 'atlas', label: '산업 지도' }") && core.includes("label: '산업 지도'") && principles.includes("routeLabel: '산업 지도 열기'") && !/AI 시대 지식 지도/.test(index + core + principles + atlas) && !index.includes('>AI Era Atlas</') && !core.includes("label: 'AI Era Atlas'")],
+  ['Korean industry-map name', routeHubs.includes("{ id: 'atlas', label: '산업 지도' }") && core.includes("label: '산업 지도'") && read('content/research/principles/catalog.json').includes('"routeLabel": "산업 지도 열기"') && !/AI 시대 지식 지도/.test(index + core + principles + atlas) && !index.includes('>AI Era Atlas</') && !core.includes("label: 'AI Era Atlas'")],
   ['factory', atlas.includes('export function createAtlasPage')],
   ['reference-connected state', atlas.includes("DESIGN_ONLY") && data.status === 'REFERENCE_CONNECTED' && data.researchArtifact === 'public-data/atlas/source-packets.json'],
   ['telegram discovery boundary', atlas.includes('discovery only') && data.telegram.role === 'DISCOVERY'],
@@ -72,7 +74,7 @@ if (/^import\s+\{[^\n]*createAtlasPage[^\n]*from\s+['"]\.\.\/ui\/pages\/atlas\.j
 required.forEach(([label, ok]) => { if (!ok) errors.push(label); });
 if (data.packets !== 11 || data.reviewedNodes !== 0 || data.candidateNodes !== 12 || data.taxonomyDomains !== 19 || data.taxonomyNodes !== 95 || data.evidenceClaims !== 14 || data.primarySources !== 23 || data.foundationLayers !== 7 || data.foundationModules !== 48) errors.push('reference data counts');
 if (!atlas.includes('renderIndustryPage') || !atlas.includes('RESEARCH_URL') || !atlas.includes('FOUNDATIONS_URL') || !atlas.includes('FOUNDATIONS_LESSONS_URL') || !atlas.includes('DOMAIN_GUIDES_URL') || !atlas.includes('createDomainGuide') || !industryView.includes('createResearchShell')) errors.push('research view connection');
-if (!atlas.includes('ATLAS_CONCEPT_GUIDES') || !atlas.includes("import('../../domain/knowledge/industry-node-stories.js')") || !industryView.includes('foundationStory(state.selectedModuleId)') || !industryView.includes("'산업 지도'") || !industryView.includes("'AI 기초'") || !atlas.includes("F0: { title: '문제·학습·시스템의 공통 언어'") || !atlas.includes('discovery only')) errors.push('user-facing atlas explanations, complete foundation layers, or discovery boundary');
+if (!atlas.includes('ATLAS_CONCEPT_GUIDES') || !atlas.includes('loadJsonArtifact(stableFetcher(root), INDUSTRY_STORIES_URL') || !industryView.includes('foundationStory(state.selectedModuleId)') || !industryView.includes("'산업 지도'") || !industryView.includes("'AI 기초'") || atlasCopy.FOUNDATION_LAYER_DISPLAY?.F0?.title !== '문제·학습·시스템의 공통 언어' || !atlas.includes('discovery only')) errors.push('user-facing atlas explanations, complete foundation layers, or discovery boundary');
 if (foundations.status !== 'REFERENCE_CONNECTED' || foundations.layers.length !== 7 || foundations.moduleIndex.length !== 48 || foundations.publication !== 'EDUCATIONAL_REFERENCE_ONLY' || foundations.lessonContract?.visualizationStatus !== 'CONCEPT_FRAME_CONNECTED' || foundations.lessonContract?.shortFormStatus !== 'AUTHORED_REFERENCE_CONNECTED' || foundations.lessonContract?.shortFormArtifact !== 'public-data/atlas/foundation-lessons.json' || foundations.lessonContract?.longFormStatus !== 'AUTHORED_REFERENCE_CONNECTED') errors.push('curriculum artifact counts or publication boundary');
 if (data.foundationLessonArtifact !== 'public-data/atlas/foundation-lessons.json' || data.authoredFoundationLessons !== 48 || foundationLessons.status !== 'REFERENCE_CONNECTED' || foundationLessons.publication !== 'EDUCATIONAL_REFERENCE_ONLY' || foundationLessons.shortFormStatus !== 'AUTHORED_REFERENCE_CONNECTED' || ![SOURCE_PRESERVED_STATUS, SEMANTIC_REFERENCE_STATUS].includes(foundationLessons.longFormStatus) || foundationAuthoringContract.mode !== foundationLessons.longFormStatus || foundationLessons.lessons.length !== 48 || foundationLessons.authoringContract?.coverage !== '48/48 modules have an authored definition, mechanism, example, failure boundary, question, visualization and direct sourceIds linkage; sourceCoverage remains a compatibility audit map' || Object.keys(foundationLessons.sourceCoverage || {}).length !== 18 || foundationLessons.sourceCatalog?.length !== 5) errors.push('authored foundation lesson artifact counts or publication boundary');
 if (foundationAuthoringContract.failures.length) errors.push(`foundation authoring contract: ${foundationAuthoringContract.failures.join('; ')}`);
@@ -149,7 +151,7 @@ const relationshipDepthChecks = [
   ['CPO link budget', relationshipNode('cpo-supply-map', 'inp-laser')?.metrics?.includes('광 연결 손실 여유')]
 ];
 for (const [name, ok] of relationshipDepthChecks) if (!ok) errors.push(`relationship academic depth: ${name}`);
-const hasGuide = (id) => atlas.includes(`'${id}': { definition`) || atlas.includes(`  ${id}: { definition`);
+const hasGuide = (id) => Boolean(atlasCopy.ATLAS_CONCEPT_GUIDES?.[id]?.definition);
 const hasReading = (id) => Boolean(INDUSTRY_NODE_STORIES[id]);
 const hasFoundationReading = (id) => Boolean(FOUNDATION_STORIES[id]) || FOUNDATION_HIDDEN_MODULES.includes(id);
 const taxonomyNodeIds = research.taxonomyDomains.flatMap((domain) => domain.nodes || []).map((node) => node.id);

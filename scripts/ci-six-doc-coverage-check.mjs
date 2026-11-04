@@ -18,7 +18,6 @@ const read = (relativePath) => fs.readFileSync(path.join(root, relativePath), 'u
 const json = (relativePath) => JSON.parse(read(relativePath));
 const count = (text, pattern) => text.match(pattern)?.length || 0;
 
-const principlesSource = read('src/ui/pages/principles.js');
 const principlesChapters = json('public-data/principles/chapters.json');
 const atlasIndex = json('public-data/atlas/index.json');
 const research = json('public-data/atlas/source-packets.json');
@@ -45,10 +44,13 @@ const authoringContracts = {
   atlas: validateKnowledgeAuthoringCorpus({ surface: 'atlas-foundations', artifact: foundationLessons, articles: (knowledgeArticles.articles || []).filter((article) => article.surface === 'atlas-foundations') })
 };
 
-const principlesNodes = count(principlesSource, /Object\.freeze\(\{ id: '[^']+', type:/g);
-const principlesLessons = count(principlesSource, /Object\.freeze\(\{ id: '[^']+', title: '[^']+', level:/g);
-const principlesPaths = count(principlesSource, /Object\.freeze\(\{ id: '[^']+', title: '[^']+', description:/g);
-const principlesEdges = count(principlesSource, /Object\.freeze\(\{ from: '[^']+', to:/g);
+// S17 (D8): the concept-map catalog lives in content/research/principles/catalog.json.
+const principlesCatalogParts = JSON.parse(read('content/research/principles/catalog.json')).parts;
+const catalogCount = (key) => principlesCatalogParts.reduce((sum, part) => sum + part[key].length, 0);
+const principlesNodes = catalogCount('nodes');
+const principlesLessons = catalogCount('lessons');
+const principlesPaths = catalogCount('paths');
+const principlesEdges = catalogCount('edges');
 
 const checks = [
   ...sourceDocs.map((file) => ({ check: `source exists: ${file}`, pass: fs.existsSync(path.join(root, file)) })),

@@ -3,7 +3,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { MARKET_PRINCIPLES_CATALOG } from '../src/ui/pages/principles.js';
+import { readPrinciplesCatalogSource } from './lib/research-content.mjs';
+const MARKET_PRINCIPLES_CATALOG = readPrinciplesCatalogSource();
 import { atomicWriteJsonSync } from './lib/atomic-write.mjs';
 import { ROUTE_IDS } from '../src/app/routes.js';
 

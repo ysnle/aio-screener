@@ -13,6 +13,7 @@ import { lessonById, PATHS, FRAME_VARIABLES } from '../src/domain/knowledge/lear
 import { createAIKnowledgeIndex } from '../src/ai/retrieval/knowledge.js';
 import { SUPPLIED_MATERIALS_REFERENCE } from '../src/domain/research/supplied-materials.js';
 import { searchKnowledgeIndex } from '../src/ui/knowledge/knowledge-search.js';
+const generatedSearchIndex = JSON.parse(readFileSync(new URL('../public-data/knowledge/search-index.json', import.meta.url), 'utf8'));
 const reasoningIndex = createAIKnowledgeIndex([], { suppliedMaterials: SUPPLIED_MATERIALS_REFERENCE });
 
 // P1605: every promoted frame must have a real source, note, learning path and retrieval consumer.
@@ -23,7 +24,7 @@ for (const claim of PACKET_20261011_CLAIMS) {
   assert.ok(claim.blockedConsumers.includes('score') && claim.blockedConsumers.includes('rank') && claim.currentnessBoundary.includes('REFERENCE'), 'P1605: reference cannot become score/rank/current data');
   const article = reasoningIndex.find((row) => row.articleId === `supplied-material:${claim.id}`);
   assert.ok(article?.publication === 'EDUCATIONAL_REFERENCE_ONLY' && article.sources?.length && article.reviewedAt === '2026-10-11', 'P1605: AI index preserves reference publication, source and actual observation date');
-  assert.ok(searchKnowledgeIndex(null, lessonById(id).issue).some((row) => row.route.params.node === id), 'P1606: canonical note is searchable before generated index publication');
+  assert.ok(searchKnowledgeIndex(generatedSearchIndex, lessonById(id).issue).some((row) => row.route.params.node === id), 'P1606: canonical note is searchable from the parity-gated generated index');
 }
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.AIO_THEME_TEST_PORT || 8946), base = `http://127.0.0.1:${port}/`;

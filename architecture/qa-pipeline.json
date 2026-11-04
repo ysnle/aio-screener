@@ -1430,6 +1430,7 @@
         "src/ui/pages/atlas.js",
         "src/ui/pages/masters.js",
         "src/ui/knowledge/**",
+        "content/research/**",
         "scripts/**",
         ".github/workflows/knowledge-build-candidate.yml",
         "_context/**"
@@ -1439,6 +1440,24 @@
           "id": "knowledge-generated-parity",
           "script": "scripts/ci-knowledge-generated-parity-check.mjs",
           "timeoutMs": 180000
+        },
+        {
+          "id": "research-content-source",
+          "script": "scripts/ci-research-content-source.mjs",
+          "inputs": [
+            "content/research/**",
+            "public-data/principles/**",
+            "public-data/atlas/**",
+            "src/ui/pages/principles.js",
+            "src/ui/pages/atlas.js",
+            "src/ui/knowledge/knowledge-search.js",
+            "src/domain/knowledge/**",
+            "scripts/lib/research-content.mjs",
+            "scripts/lib/research-content-fingerprint.mjs",
+            "scripts/build-research-content.mjs",
+            "scripts/ci-research-content-source.mjs",
+            "architecture/research-content-baseline.json"
+          ]
         },
         {
           "id": "knowledge-corpus",
@@ -1453,6 +1472,7 @@
             "src/ui/pages/atlas.js",
             "src/ui/pages/masters.js",
             "src/ui/knowledge/**",
+            "content/research/**",
             "scripts/**",
             ".github/workflows/knowledge-build-candidate.yml",
             "_context/**",
@@ -1478,6 +1498,7 @@
             "src/ui/pages/atlas.js",
             "src/ui/pages/masters.js",
             "src/ui/knowledge/**",
+            "content/research/**",
             "scripts/**",
             ".github/workflows/knowledge-build-candidate.yml",
             "_context/**",
@@ -1507,6 +1528,7 @@
             "src/ui/pages/atlas.js",
             "src/ui/pages/masters.js",
             "src/ui/knowledge/**",
+            "content/research/**",
             "scripts/**",
             ".github/workflows/knowledge-build-candidate.yml",
             "_context/**",
@@ -1534,6 +1556,7 @@
             "src/ui/pages/atlas.js",
             "src/ui/pages/masters.js",
             "src/ui/knowledge/**",
+            "content/research/**",
             "scripts/**",
             ".github/workflows/knowledge-build-candidate.yml",
             "_context/**",
@@ -2367,6 +2390,19 @@
   "impactRules": [
     {
       "patterns": [
+        "content/research/**",
+        "architecture/research-content-baseline.json",
+        "scripts/lib/research-content.mjs",
+        "scripts/lib/research-content-fingerprint.mjs",
+        "scripts/build-research-content.mjs",
+        "scripts/ci-research-content-source.mjs"
+      ],
+      "groups": [
+        "knowledge"
+      ]
+    },
+    {
+      "patterns": [
         "index.html",
         "js/aio-ui.js",
         "js/aio-core.js",
@@ -2573,7 +2609,8 @@
         "src/ui/pages/principles.js",
         "src/ui/pages/atlas.js",
         "src/ui/pages/masters.js",
-        "src/ui/knowledge/**"
+        "src/ui/knowledge/**",
+        "content/research/**"
       ],
       "groups": [
         "knowledge",
@@ -2896,6 +2933,9 @@
         "scripts/lib/13f-semantic-hash.mjs",
         "scripts/build-13f-issuer-aggregates.mjs",
         "scripts/lib/principles-stories*.mjs",
+        "scripts/lib/research-content.mjs",
+        "scripts/build-research-content.mjs",
+        "content/research/**",
         "scripts/lib/principles-worked*.mjs",
         "scripts/lib/knowledge-authoring-contract.mjs",
         "src/app/knowledge-learning-state.js",
