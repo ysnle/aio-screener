@@ -8,8 +8,8 @@
   ],
   "totals": {
     "localFinite": 2,
-    "dateRegex": 44,
-    "rawRowRead": 92,
+    "dateRegex": 41,
+    "rawRowRead": 90,
     "nullAsZero": 76
   },
   "counts": {
@@ -81,13 +81,7 @@
     },
     "scripts/lib/macro-sources.mjs": {
       "localFinite": 0,
-      "dateRegex": 6,
-      "rawRowRead": 0,
-      "nullAsZero": 0
-    },
-    "scripts/lib/market-interpretation-inputs.mjs": {
-      "localFinite": 0,
-      "dateRegex": 1,
+      "dateRegex": 5,
       "rawRowRead": 0,
       "nullAsZero": 0
     },
@@ -135,7 +129,7 @@
     },
     "scripts/producer/history.mjs": {
       "localFinite": 0,
-      "dateRegex": 6,
+      "dateRegex": 5,
       "rawRowRead": 0,
       "nullAsZero": 0
     },
@@ -517,12 +511,6 @@
       "rawRowRead": 1,
       "nullAsZero": 1
     },
-    "src/ui/components/macro-crossroads.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 1,
-      "nullAsZero": 0
-    },
     "src/ui/components/portfolio-checklist.js": {
       "localFinite": 0,
       "dateRegex": 0,
@@ -557,12 +545,6 @@
       "localFinite": 0,
       "dateRegex": 0,
       "rawRowRead": 23,
-      "nullAsZero": 0
-    },
-    "src/ui/components/theme-strength.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 1,
       "nullAsZero": 0
     },
     "src/ui/knowledge/theme-stage-links.js": {

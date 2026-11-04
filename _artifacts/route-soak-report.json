@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-route-soak-evidence.v1",
-  "observedAt": "2026-11-04T04:01:35.608Z",
+  "observedAt": "2026-11-04T04:27:29.922Z",
   "appRevision": "v59.69",
-  "gitHead": "a4b1b481946a0f976388099ec0b1e6eece1a67bc",
+  "gitHead": "8285c4d1ea282389621b6fe71a78bccc9f5ceca0",
   "gitClean": false,
   "environment": {
     "browser": "chromium",
@@ -12,78 +12,12 @@
     "viewport": "1440x1000"
   },
   "command": "node scripts/ci-route-soak-check.mjs",
-  "ok": true,
+  "ok": false,
   "routes": 20,
   "laps": 3,
-  "lapReports": [
-    {
-      "lap": 1,
-      "last": {
-        "route": "charts",
-        "active": "charts",
-        "visiblePages": [
-          "page-charts"
-        ],
-        "marker": "vs14-charts",
-        "state": "partial",
-        "charts": 0,
-        "canvases": 1,
-        "entityId": null
-      },
-      "maxCharts": 0,
-      "maxCanvases": 1
-    },
-    {
-      "lap": 2,
-      "last": {
-        "route": "charts",
-        "active": "charts",
-        "visiblePages": [
-          "page-charts"
-        ],
-        "marker": "vs14-charts",
-        "state": "partial",
-        "charts": 0,
-        "canvases": 1,
-        "entityId": null
-      },
-      "maxCharts": 0,
-      "maxCanvases": 1
-    },
-    {
-      "lap": 3,
-      "last": {
-        "route": "charts",
-        "active": "charts",
-        "visiblePages": [
-          "page-charts"
-        ],
-        "marker": "vs14-charts",
-        "state": "partial",
-        "charts": 0,
-        "canvases": 1,
-        "entityId": null
-      },
-      "maxCharts": 0,
-      "maxCanvases": 1
-    }
+  "lapReports": [],
+  "errors": [
+    "page.waitForFunction: Timeout 30000ms exceeded.\n    at C:\\Projects\\AIO\\.claude\\worktrees\\integration-20261104\\scripts\\ci-route-soak-check.mjs:53:48"
   ],
-  "errors": [],
-  "entityRoundTrip": {
-    "sequence": [
-      {
-        "entityId": "AAPL",
-        "mountId": 58
-      },
-      {
-        "entityId": "MSFT",
-        "mountId": 59
-      },
-      {
-        "entityId": "AAPL",
-        "mountId": 60
-      }
-    ],
-    "active": "ticker"
-  }
+  "entityRoundTrip": null
 }
