@@ -7,6 +7,8 @@ import { frameHead, markFrame } from './section-frame.js';
 import { aiChainFlow, defensiveContrast } from '../../domain/briefing/ai-chain-flow.js';
 import { buildTwRevenueView, signedPct, TW_MONTHLY_REVENUE } from '../../domain/briefing/tw-monthly-revenue.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
+import { CONSENSUS_KEY, requestConsensusEstimates } from '../../data/consensus-estimates.js';
+import { layerValuation, LAYER_PER_MIN_COVERAGE, LAYER_PER_MIN_MEASURED } from '../../domain/themes/layer-valuation.js';
 
 // Rounded first, so a move under 0.05% reads 0.0% and is flat, never "+0.0%" or "-0.0%".
 const tenth = (value) => (value == null ? null : Math.round(value * 10) / 10 || 0);
@@ -24,7 +26,7 @@ function sessionLabel(root) {
 export function paintThemesAiChain(doc, root) {
   const page = doc?.getElementById('page-themes');
   if (!page) return null;
-  return paintAiChain(doc, root, { id: 'themes-ai-chain', frame: 'themes.ai-chain', className: 'aio-section ai-chain', more: false, place: (host) => {
+  return paintAiChain(doc, root, { id: 'themes-ai-chain', frame: 'themes.ai-chain', className: 'aio-section ai-chain', more: false, valuation: true, place: (host) => {
     host.id = 'themes-ai-chain';
     const head = page.querySelector(':scope > .page-head');
     if (head) head.insertAdjacentElement('afterend', host); else page.prepend(host);
@@ -56,7 +58,61 @@ function twRevenue(doc, root, id, repaint) {
   return { face, fold };
 }
 
-function paintAiChain(doc, root, { id, frame, className, more: withLink, place, limit = Infinity }) {
+// v59.70 (X bookmarks 11/4 #7): each layer's median PER on last-four-quarter → next-four-quarter consensus EPS, one dot
+// pair per layer on a shared log axis. A layer under its coverage rule is left out and named in the hover.
+const PER_TICKS = Object.freeze([5, 10, 20, 50, 100, 200]);
+function layerPerFold(doc, root, repaint) {
+  const consensus = root?.[CONSENSUS_KEY] || null;
+  if (!consensus) { requestConsensusEstimates(root, repaint); return null; }
+  const view = layerValuation({ themes: root?.THEME_MAP || [], rows: root?.AIO_ARCH?.getScreenerState?.('rows') || [], consensus });
+  if (!view.layers.length) return null;
+  const values = view.layers.flatMap((layer) => [layer.trailingPe, layer.forwardPe]);
+  const lo = Math.log10(Math.max(1, Math.min(...values) * 0.85));
+  const hi = Math.log10(Math.max(...values) * 1.15);
+  const at = (value) => `${((Math.log10(value) - lo) / (hi - lo) * 100).toFixed(2)}%`;
+  const times = (value) => `${value.toFixed(1)}배`;
+  const fold = el(doc, 'details', null, 'ai-chain__members ai-chain-per');
+  fold.append(el(doc, 'summary', '층별 PER, 지난 4분기에서 다음 4분기로'));
+  const list = el(doc, 'ul', null, 'ai-chain-per__rows');
+  list.setAttribute('aria-label', `층별 PER 중앙값, 지난 4분기 컨센서스 EPS 기준과 다음 4분기 기준, 로그 축`);
+  for (const layer of view.layers) {
+    const li = el(doc, 'li', null, 'ai-chain-per__row');
+    const track = el(doc, 'span', null, 'ai-chain-per__track');
+    const [left, right] = [layer.trailingPe, layer.forwardPe].sort((a, b) => a - b);
+    const line = el(doc, 'span', null, 'ai-chain-per__line');
+    line.style.left = at(left);
+    line.style.width = `calc(${at(right)} - ${at(left)})`;
+    const trailing = el(doc, 'span', null, 'ai-chain-per__dot ai-chain-per__dot--trailing');
+    trailing.style.left = at(layer.trailingPe);
+    const forward = el(doc, 'span', null, 'ai-chain-per__dot ai-chain-per__dot--forward');
+    forward.style.left = at(layer.forwardPe);
+    track.append(line, trailing, forward);
+    const label = `${layer.name}: 지난 4분기 ${times(layer.trailingPe)} → 다음 4분기 ${times(layer.forwardPe)}, ${layer.measured}/${layer.listed}종목`;
+    li.title = `${label} (${layer.members.map((m) => `${m.sym} ${times(m.trailingPe)}→${times(m.forwardPe)}`).join(', ')})`;
+    li.setAttribute('aria-label', label);
+    li.append(el(doc, 'span', layer.name, 'ai-chain-per__name'), track, el(doc, 'span', `${times(layer.trailingPe)} → ${times(layer.forwardPe)}`, 'ai-chain-per__value'));
+    list.append(li);
+  }
+  const axis = el(doc, 'div', null, 'ai-chain-per__axis');
+  axis.setAttribute('aria-hidden', 'true');
+  const axisTrack = el(doc, 'span', null, 'ai-chain-per__track');
+  for (const tick of PER_TICKS) {
+    if (Math.log10(tick) < lo || Math.log10(tick) > hi) continue;
+    const mark = el(doc, 'span', `${tick}`, 'ai-chain-per__tick');
+    mark.style.left = at(tick);
+    axisTrack.append(mark);
+  }
+  axis.append(el(doc, 'span', '', 'ai-chain-per__name'), axisTrack, el(doc, 'span', '배', 'ai-chain-per__value'));
+  const day = String(view.asOf || '').slice(5, 10).split('-').map(Number);
+  const legend = el(doc, 'p', `빈 점 지난 4분기 · 찬 점 다음 4분기 · 컨센서스 EPS${day[0] && day[1] ? ` ${day[0]}/${day[1]}` : ''} · 로그 축`, 'ai-chain__scale');
+  if (view.hidden.length) {
+    legend.title = `표시하지 않은 층(양의 EPS 두 기간과 종가가 있는 종목이 ${LAYER_PER_MIN_MEASURED}개 미만이거나 상장 종목의 ${Math.round(LAYER_PER_MIN_COVERAGE * 100)}% 미만): ${view.hidden.map((layer) => `${layer.name} ${layer.measured}/${layer.listed}`).join(', ')}`;
+  }
+  fold.append(legend, list, axis);
+  return fold;
+}
+
+function paintAiChain(doc, root, { id, frame, className, more: withLink, place, limit = Infinity, valuation = false }) {
   const rows = root?.AIO_ARCH?.getScreenerState?.('rows') || [];
   // v59.45 (P21-CHAIN-01): the medians use the same session the label prints.
   const session = root?.AIO_ARCH?.getScreenerState?.('metadata.factorSessionDateByMarket')?.US || null;
@@ -99,7 +155,7 @@ function paintAiChain(doc, root, { id, frame, className, more: withLink, place, 
   const fullReading = contrast ? `${flow.reading} ${contrast}` : flow.reading;
   // Face: the reading's first sentence (the count of groups that fell); the full reading leads the fold.
   const faceReading = Number.isFinite(limit) ? (String(flow.reading).match(/^.*?다\.(?=\s|$)/)?.[0] || flow.reading) : fullReading;
-  const wasOpen = !!host.querySelector(':scope > details')?.open;
+  const wasOpen = !!host.querySelector(':scope > details:not(.ai-chain-per)')?.open;
   const fold = el(doc, 'details', null, 'ai-chain__members');
   fold.open = wasOpen;
   fold.append(el(doc, 'summary', Number.isFinite(limit) ? `전체 ${flow.groups.length}개 묶음과 종목` : '묶음별 종목 보기'));
@@ -110,6 +166,8 @@ function paintAiChain(doc, root, { id, frame, className, more: withLink, place, 
   // Taiwan's monthly revenue opens the member lists: a short block, read before the long US lists.
   const tw = twRevenue(doc, root, id, () => paintAiChain(doc, root, { id, frame, className, more: withLink, place, limit }));
   if (tw) fold.append(...tw.fold);
+  const perFold = valuation ? layerPerFold(doc, root, () => paintAiChain(doc, root, { id, frame, className, more: withLink, place, limit, valuation })) : null;
+  if (perFold) perFold.open = !!host.querySelector(':scope > details.ai-chain-per')?.open;
   if (!Number.isFinite(limit)) fold.append(el(doc, 'p', '종목 옆 숫자는 한 달 수익률, 괄호 안은 지난 거래일입니다.', 'ai-chain__member-list'));
   for (const group of flow.groups) {
     fold.append(el(doc, 'p', group.name, 'event-brief__sub'),
@@ -119,7 +177,7 @@ function paintAiChain(doc, root, { id, frame, className, more: withLink, place, 
   more.type = 'button';
   more.dataset.action = 'showPage';
   more.dataset.arg = 'themes';
-  host.replaceChildren(head, el(doc, 'p', faceReading, 'ai-chain__reading'), legend, chart, ...(tw ? [tw.face] : []), fold, ...(withLink ? [more] : []));
+  host.replaceChildren(head, el(doc, 'p', faceReading, 'ai-chain__reading'), legend, chart, ...(tw ? [tw.face] : []), fold, ...(perFold ? [perFold] : []), ...(withLink ? [more] : []));
   host.hidden = false;
   return flow;
 }

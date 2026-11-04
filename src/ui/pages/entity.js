@@ -846,7 +846,7 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
           bag.add(() => clearTimeout(timer));
         }
       }
-      ['aio:liveQuotes', 'aio:refresh:done', 'aio:sentimentUpdated', 'aio:serverDataLoaded', 'aio:entityChanged'].forEach((eventName) => {
+      ['aio:liveQuotes', 'aio:refresh:done', 'aio:sentimentUpdated', 'aio:serverDataLoaded', 'aio:rotationDetailLoaded', 'aio:entityChanged'].forEach((eventName) => {
         eventTarget?.addEventListener?.(eventName, refresh);
         bag.add(() => eventTarget?.removeEventListener?.(eventName, refresh));
       });

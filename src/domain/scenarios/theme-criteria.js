@@ -3,6 +3,7 @@
 // functions over the playbook row, published screener rows, the consensus and earnings-calendar artifacts, the market
 // regime and the crossroads registry. The result is a count of criteria met with the values behind it — never a
 // probability, grade or instruction; a check whose data is missing stays null ('미확인').
+import { median } from '../themes/theme-medians.js'; // v59.70 (R9)
 import { finiteNumber as finite, signedText } from '../shared/number.js';
 import { windFor, WIND_LABELS, EXPOSURE_TAGS } from './exposures.js';
 import { ABOVE50_FLOOR } from './theme-playbook.js';
@@ -26,12 +27,6 @@ export const THEME_CRITERIA_RULES = Object.freeze({
 });
 const R = THEME_CRITERIA_RULES;
 
-const median = (values) => {
-  const list = values.filter((value) => finite(value) != null).sort((a, b) => a - b);
-  if (!list.length) return null;
-  const mid = Math.floor(list.length / 2);
-  return list.length % 2 ? list[mid] : (list[mid - 1] + list[mid]) / 2;
-};
 const pct = (value, digits = 1) => (finite(value) == null ? '—' : `${signedText(value, digits)}%`);
 const md = (iso) => (hasLeadingIsoDay(String(iso || '')) ? `${Number(iso.slice(5, 7))}/${Number(iso.slice(8, 10))}` : '');
 const shortTitle = (title) => String(title || '').split(' — ')[0];

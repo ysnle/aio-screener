@@ -241,7 +241,10 @@ export const SECTOR_ETF_SCREENER_SECTOR = Object.freeze({
   XLE: 'Energy', XLI: 'Industrials', XLU: 'Utilities', XLB: 'Materials', XLRE: 'Real Estate'
 });
 
-export function rotationFlow({ groups = {}, regime = null, revisions = null } = {}) {
+export function rotationFlow({ groups: allGroups = {}, regime = null, revisions = null } = {}) {
+  // v59.70 (owner): a reference-only ETF (DRAM, NCLD: a few months listed, swap-heavy) stays on the scatter but is never a
+  // named leader, laggard or count in the verdict; its theme's benchmark (SOXX, SKYY) carries the reading.
+  const groups = Object.fromEntries(Object.entries(allGroups).map(([key, list]) => [key, (list || []).filter((item) => item?.referenceOnly !== true)]));
   const names = (key) => (groups[key] || []).map(sectorName);
   const total = Object.keys(QUADRANT_WORDS).reduce((sum, key) => sum + (groups[key] || []).length, 0);
   if (!total) return { read: '상대강도·모멘텀 기록이 없어 섹터 회전을 읽지 못했습니다.', next: [] };

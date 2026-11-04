@@ -130,4 +130,33 @@ const definitions=await readFile(new URL('../js/aio-pages.js',import.meta.url),'
 const definitionBlock=definitions.slice(definitions.indexOf('var RRG_SECTORS'),definitions.indexOf('// ── 종합 테마 맵'));
 const actualSymbols=[...definitionBlock.matchAll(/sym:\s*'([^']+)'/g)].map(match=>match[1]);
 assert.deepEqual([...ROTATION_SYMBOLS].sort(),actualSymbols.sort(),'P1358 producer coverage follows actual configured sector and subsector ETF set');
+// v59.70 (data audit R11): data.json keeps the coordinates and rotation-detail.json the series. Through every reader
+// (produced row, current rotation items, settled zone, recent reading) the split-then-merged artifact reads exactly as
+// the full one did; the summary alone is marked pending, and a detail copy from another session never joins.
+{
+  const { splitRotationHistory, mergeRotationDetail, rotationDetailPending } = await import('../src/domain/themes/rotation-detail.js');
+  const { selectProducedRotation, currentRotationItems } = await import('../src/domain/themes/produced-rotation.js');
+  const { rrgSettledQuadrant, rrgRecentReading } = await import('../src/domain/themes/recent-check.js');
+  const published = JSON.parse(await readFile(new URL('../public-data/data.json', import.meta.url), 'utf8')).rotationHistory;
+  let full = published;
+  if (rotationDetailPending(published)) full = mergeRotationDetail(published, JSON.parse(await readFile(new URL('../public-data/rotation-detail.json', import.meta.url), 'utf8')));
+  assert.ok(full?.items && Object.values(full.items).some((row) => Array.isArray(row.relativeStrength) && Array.isArray(row.trail)), 'v59.70 the published rotation artifact carries its series (inline or in rotation-detail.json)');
+  const { summary, detail } = splitRotationHistory(full);
+  assert.ok(Object.values(summary.items).every((row) => !('trail' in row) && !('relativeStrength' in row)) && rotationDetailPending(summary), 'v59.70 data.json carries no rotation series and says they are pending');
+  const merged = mergeRotationDetail(summary, detail);
+  assert.equal(rotationDetailPending(merged), false, 'v59.70 a same-session detail completes the artifact');
+  const close = Object.values(full.items).map((row) => Date.parse(row.observedAt)).filter(Number.isFinite).sort().at(-1);
+  for (const at of [close + 2 * 3600000, close + 26 * 3600000]) {
+    const opts = at > close + 24 * 3600000 ? { lagSessions: 1 } : {};
+    const verdict = (artifact) => Object.keys(full.items).map((symbol) => {
+      const row = selectProducedRotation(artifact, symbol, at, opts);
+      return row ? [symbol, row.rsRatio, row.rsMomentum, row.quadrant, rrgSettledQuadrant(row), rrgRecentReading(row, row.relativeStrength || null)?.label || null, (row.trail || []).length] : [symbol, null];
+    });
+    assert.deepEqual(verdict(merged), verdict(full), `v59.70 split + merge reads the same RRG verdicts (${new Date(at).toISOString()})`);
+  }
+  assert.deepEqual(Object.keys(currentRotationItems(merged, close + 2 * 3600000)), Object.keys(currentRotationItems(full, close + 2 * 3600000)), 'v59.70 the same current rotation rows');
+  const otherSession = { ...detail, items: Object.fromEntries(Object.entries(detail.items).map(([symbol, row]) => [symbol, { ...row, sessionDate: '1999-01-04' }])) };
+  const mismatched = mergeRotationDetail(summary, otherSession);
+  assert.ok(rotationDetailPending(mismatched) && Object.values(mismatched.items).every((row) => !('trail' in row)), 'v59.70 a detail copy from another session never joins and the artifact stays pending');
+}
 console.log('[rotation-history] P1358 PASS: alignment, completed sessions, input contracts, raw-price ceiling, retention, cache and mock collection (' + ROTATION_SYMBOLS.length + ' ETFs; no network/write)');

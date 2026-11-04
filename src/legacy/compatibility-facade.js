@@ -1,3 +1,4 @@
+import { selectProducedRotation } from '../domain/themes/produced-rotation.js';
 import { SCREENER_ROW_INTENT, resolveScreenerRows } from '../data/screener-row-policy.js';
 import { createRuntimeReaders } from '../data/runtime-readers.js';
 import { finiteNumber as finite } from '../domain/shared/number.js';
@@ -102,31 +103,19 @@ function readThemes(root) {
     return true;
   }).map((item) => {
     const symbol = String(item?.sym || item?.symbol || item?.id || '');
-    const history = root?._priceHistory?.[symbol] || null;
-    const benchmarkHistory = root?._priceHistory?.SPY || null;
-    const rotation = typeof root?.AIO_ARCH?.computeRelativeRotation === 'function'
-      ? root.AIO_ARCH.computeRelativeRotation({
-          history,
-          benchmarkHistory,
-          hasQuote: !!live[symbol],
-          hasBenchmarkQuote: !!live.SPY
-        })
-      : null;
-    const dailyPct = live[symbol]?.pct ?? (
-      Array.isArray(history) && history.length > 1 && Number(history[history.length - 2]) > 0
-        ? ((Number(history[history.length - 1]) / Number(history[history.length - 2])) - 1) * 100
-        : null
-    );
+    // v59.70 (data audit R1): the facade reads the produced rotation artifact like the native provider; no browser recompute.
+    const produced = selectProducedRotation(root?._serverDataMeta?.rotationHistory, symbol, Date.now(), { lagSessions: 1 });
+    const dailyPct = live[symbol]?.pct ?? null;
     return {
       id: String(item?.id || symbol),
       symbol,
       label: item?.name || item?.label || symbol,
       pct: finite(dailyPct),
-      rsRatio: finite(rotation?.rsRatio ?? item?.rsRatio),
-      rsMomentum: finite(rotation?.rsMom ?? item?.rsMomentum),
-      quadrant: rotation?.quadrant || item?.quadrant || 'neutral',
+      rsRatio: finite(produced?.rsRatio),
+      rsMomentum: finite(produced?.rsMomentum),
+      quadrant: produced?.quadrant || 'neutral',
       view: item?.view || 'sectors',
-      source: rotation?.modelVersion ? `legacy-rrg:${rotation.modelVersion}` : (item?.source || 'legacy-rrg')
+      source: produced ? `produced-rrg:${produced.revision}` : 'unavailable'
     };
   });
   const selectedId = root?._currentThemeId || null;

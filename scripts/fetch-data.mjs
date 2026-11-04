@@ -26,7 +26,8 @@ import { createAiUsage, marketAnalysisOutcome } from './producer/ai-usage.mjs';
 import { sealMarketTimeline, summarizeMarketTimeline } from './lib/market-timeline.mjs';
 import { compareUsdKrwCrossCheck } from './lib/macro-sources.mjs';
 import { deriveCyclePublication } from './lib/news-selection.mjs';
-import { REPO_ROOT, OUT, HIST, MARKET_SNAPSHOT_OUT, EARNINGS_CALENDAR_OUT } from './producer/paths.mjs';
+import { REPO_ROOT, OUT, HIST, MARKET_SNAPSHOT_OUT, EARNINGS_CALENDAR_OUT, ROTATION_DETAIL_OUT } from './producer/paths.mjs';
+import { splitRotationHistory, mergeRotationDetail } from '../src/domain/themes/rotation-detail.js';
 import { SYMBOLS, fetchHistory, collectVerifiedQuotes } from './producer/quotes.mjs';
 import { deriveFredPlane } from './producer/fred.mjs';
 import { updateHistory } from './producer/history.mjs';
@@ -54,6 +55,13 @@ export { MACRO_CALENDAR_RELEASES, MACRO_HISTORY_SERIES, MACRO_LONG_SERIES, colle
 export { HEADLINE_TRANSLATION_MAX, PRIOR_SESSION_MOVE_1D_PCT, PRIOR_SESSION_MOVE_5D_PCT, buildMarketAnalysisRegimeContext, genMarketAnalysis, isCleanKoreanTitle, marketAnalysisCrossroadsContext, marketAnalysisRegimeInput, priorSessionMoveLines, scenarioStateThemeLines, translateHeadlines } from './producer/market-narrative.mjs';
 
 
+// v59.70 (data audit R11): the 100-session relative-strength lines and the 20-point trails, written before data.json
+// so a reader never finds coordinates whose series are older. The browser loader merges them back.
+async function writeRotationDetail(rotationHistory) {
+  const { detail } = splitRotationHistory(rotationHistory);
+  if (detail) await atomicWriteFile(ROTATION_DETAIL_OUT, JSON.stringify(detail));
+}
+
 async function main() {
   const t0 = Date.now();
   const aiUsage = createAiUsage();
@@ -62,6 +70,8 @@ async function main() {
   // P1262: `previous` (the whole previous data.json) lives in main scope; the receipts read it outside the read block.
   let previous = null;
   try { previous = JSON.parse(await readFile(OUT, 'utf8')); } catch (_) {}
+  // v59.70 (R11): the previous rotation series live in rotation-detail.json; retention checks need them back on the rows.
+  if (previous?.rotationHistory) { try { previous.rotationHistory = mergeRotationDetail(previous.rotationHistory, JSON.parse(await readFile(ROTATION_DETAIL_OUT, 'utf8'))); } catch (_) {} }
   const prior = readPreviousPlanes(previous);
 
   const attemptedAt = new Date().toISOString();
@@ -199,10 +209,12 @@ async function main() {
   // scrInfo 반영)이 스트립 안 된 원본 `data`를 그대로 써서 P715 계약을 덮어쓴 라이브 사고의 재발 방지.
   const toPublicPayload = (d) => ({
     ...d,
+    rotationHistory: splitRotationHistory(d.rotationHistory).summary, // v59.70 (R11): series go to rotation-detail.json
     quotes: [],
     meta: { ...d.meta, quotesPublished: false, quotePolicy: 'client-direct-fetch-only(P715)' }
   });
   data.rotationHistory = await rotationHistoryTask;
+  await writeRotationDetail(data.rotationHistory);
   await atomicWriteFile(OUT, JSON.stringify(toPublicPayload(data), null, 1));
   const macroHistoryInfo = await macroHistoryTask;
   const macroCalendarInfo = await macroCalendarTask;

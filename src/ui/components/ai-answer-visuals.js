@@ -200,7 +200,7 @@ async function buildThemesVisual({ documentRef: doc, root }) {
   const { playbook } = themePlaybookForRoot(root, store);
   if (!playbook?.available) return null;
   const pct = (value) => `${signedText(value, 1)}%`;
-  const { figure, body } = frame(doc, '테마 단계와 거시 영향 (모든 테마, 같은 규칙)',
+  const { figure, body } = frame(doc, '테마 단계와 매크로 영향 (모든 테마, 같은 규칙)',
     `${esc(playbook.asOf || '')} 확정 종가, 긴 추세(미국 6개월, 한국 3개월)와 1개월 움직임, 색은 중심 시나리오 기준 수혜(초록)·부담(빨강).`);
   body.innerHTML = `<div class="aav-stages">${Object.keys(THEME_STATES).map((stage) => {
     const list = playbook.themes.filter((row) => row.state === stage).sort((a, b) => b.ret1m - a.ret1m);

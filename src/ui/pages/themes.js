@@ -21,6 +21,7 @@ import { buildCloseSeries } from '../../domain/market/close-series.js';
 import { buildThemeFlow } from '../../domain/market/market-flow.js';
 import { selectProducedRotation } from '../../domain/themes/produced-rotation.js';
 import { rrgAxisDomain, RRG_DEFINITION, RRG_QUADRANT_READS, RRG_QUADRANT_WORDS } from '../../domain/themes/rrg.js';
+import { sessionChipText } from '../components/session-lag.js';
 import { rrgRecentReading, RRG_NEUTRAL_BAND } from '../../domain/themes/recent-check.js';
 import { benchmarkReturns, basisOf } from '../components/theme-strength.js';
 import { readMarketRegime } from '../components/market-regime.js';
@@ -37,6 +38,8 @@ import { requestConsensusEstimates, CONSENSUS_KEY } from '../../data/consensus-e
 import { asOfChip, setAsOf } from '../components/section-frame.js';
 import { isoDay, stampDay, latestSessionRows } from '../../domain/shared/session-date.js';
 import { askRow } from '../components/ask-row.js';
+import { applyLegacyThemeDetailAddress, legacyThemeDetailTarget } from '../navigation/theme-detail.js';
+import { NEAR_HIGH_MIN_MEASURED, NEAR_HIGH_PCT, SECTOR_ETF_GICS, sectorNearHigh } from '../../domain/themes/near-high.js';
 
 const finiteOrNull = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
 // Published screener rows by symbol (the store's rows; ETFs included), for the period bars and the member tables.
@@ -55,10 +58,12 @@ const QUADRANTS = Object.freeze([
   { key: 'Border', label: '기준선 부근', note: `두 축 중 하나가 100에 그 섹터의 평소 5거래일 움직임만큼 가까워 사분면을 정하지 않음(움직임 기록이 없으면 ±${RRG_NEUTRAL_BAND}). 한 번 정한 사분면은 반대쪽으로 그 폭의 절반을 넘어야 바뀜. 속이 빈 점은 놓인 구역과 판정이 다른 섹터로, 이름 옆에 판정을 적음`, optional: true }
 ]);
 
+// v59.70: the screen reads the previous session's artifact (flagged lagging) until the refresh lands, never session ticks.
+const RRG_LAG = Object.freeze({ lagSessions: 1 });
 // v57.81: the banded zone and the five-session relative-strength check of one item, from the session-checked artifact row.
 function readingOf(root, item) {
   const symbol = String(item?.symbol || item?.id || '');
-  const produced = symbol ? selectProducedRotation(root?._serverDataMeta?.rotationHistory, symbol, Date.now()) : null;
+  const produced = symbol ? selectProducedRotation(root?._serverDataMeta?.rotationHistory, symbol, Date.now(), RRG_LAG) : null;
   // v57.84: the produced 20-session trail sizes the band and carries hysteresis (recent-check.js rrgZone).
   return rrgRecentReading({ ...item, trail: produced?.trail || item?.trail || null }, produced?.relativeStrength || null);
 }
@@ -87,6 +92,7 @@ function usCloseSession(root) {
   const basis = String(root?._serverDataMeta?.rotationHistory?.latestCompletedSession || '');
   return isoDay(basis) || '';
 }
+
 
 function krCloseSession(rows = []) {
   const dates = (rows || [])
@@ -126,8 +132,19 @@ function renderRRGStatus({ documentRef, root, store, route }) {
   // chip, and the tail's meaning is the line's hover (the tail control names itself).
   status.textContent = `선도 ${counts.Leading}, 개선 ${counts.Improving}, 약화 ${counts.Weakening}, 후행 ${counts.Lagging}${counts.Border ? `, 기준선 부근 ${counts.Border}` : ''}`;
   status.title = `${rrgTrailLength(root) ? `꼬리 = 최근 ${rrgTrailLength(root)}거래일 경로(작은 점이 시작), 화살표 = 오늘 위치. ` : ''}속이 빈 점 = 놓인 구역과 판정이 다른 섹터(이름 옆에 판정)`;
-  setAsOf(documentRef, documentRef.querySelector?.('#page-themes .v2-themes-rrg > .aio-frame-head'), close ? `${shortSession(close)} 종가` : '완료 종가', `약 50일 상대강도, ${close ? `${shortSession(close)} 미국 종가 기준` : '완료 종가 기준'}`);
+  writeSectorCardChip(documentRef, root);
   status.style.color = 'var(--text-dim)';
+}
+
+// The card's one date chip follows what the card shows: the 고점 근처 bars read the screener's session; the period bars
+// and the scatter read the rotation artifact's.
+function writeSectorCardChip(documentRef, root) {
+  const head = documentRef?.querySelector?.('#page-themes .v2-themes-rrg > .aio-frame-head');
+  const bars = documentRef?.getElementById?.('sector-perf-bars');
+  const nearSession = bars?.dataset.metric === NEAR_HIGH_TAB[0] && root?._aioThemesVerdictView !== 'rrg' ? bars.dataset.session : '';
+  if (nearSession) { setAsOf(documentRef, head, `${shortSession(nearSession)} 종가`, `S&P 500 구성 종목의 52주 종가 고점 기록, ${shortSession(nearSession)} 미국 종가`); return; }
+  const close = usCloseSession(root);
+  setAsOf(documentRef, head, sessionChipText(close) || '완료 종가', `약 50일 상대강도, ${close ? `${sessionChipText(close)}, 미국` : '완료 종가 기준'}`);
 }
 
 const RRG_TRAILS = Object.freeze([['short', '짧게', 5], ['long', '길게', 10], ['off', '끔', 0]]);
@@ -215,7 +232,7 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
   if (trailLength) {
     for (const item of validItems) {
       const symbol = String(item?.symbol || item?.id || '');
-      const produced = symbol ? selectProducedRotation(root?._serverDataMeta?.rotationHistory, symbol, Date.now()) : null;
+      const produced = symbol ? selectProducedRotation(root?._serverDataMeta?.rotationHistory, symbol, Date.now(), RRG_LAG) : null;
       const points = (produced?.trail || []).filter((point) => point?.sessionDate && point.sessionDate < produced.sessionDate
         && finite(point.rsRatio) != null && finite(point.rsMomentum) != null).slice(-trailLength);
       if (points.length) trails.set(item, points);
@@ -397,13 +414,15 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
 function syncVerdictView(documentRef, root) {
   const card = documentRef?.querySelector?.('#themes-verdict .v2-themes-rrg');
   if (!card) return;
-  const view = root?._aioThemesVerdictView === 'bars' ? 'bars' : 'rrg';
+  // v59.70 (theme-sector): the period bars are the default view (which sector led the day or week); the scatter is second.
+  const view = root?._aioThemesVerdictView === 'rrg' ? 'rrg' : 'bars';
   card.dataset.view = view;
   documentRef.querySelectorAll('#themes-verdict-tabs [data-view]').forEach((button) => {
     const on = button.dataset.view === view;
     button.classList.toggle('active', on);
     button.setAttribute('aria-pressed', String(on));
   });
+  writeSectorCardChip(documentRef, root);
 }
 
 // v59.51 (content audit): 시장 상태's 자금 흐름 named, for the last session, the sub-themes that split inside one theme, the
@@ -487,13 +506,17 @@ function renderKrThemeArtifact({ documentRef, root, store }) {
 }
 
 const SECTOR_PERIODS = Object.freeze([['1d', '1일', 'ret1d'], ['1w', '1주', 'ret5d'], ['1m', '1개월', 'ret1m'], ['3m', '3개월', 'ret3m'], ['6m', '6개월', 'ret6m'], ['12m', '12개월', 'ret12m']]);
+// v59.70 (X bookmarks #2): one metric tab after the periods — each sector's S&P 500 members within 5% of the 52-week
+// closing high (domain/themes/near-high.js). It reads the 11 sectors only, so it is disabled in the other scopes.
+const NEAR_HIGH_TAB = Object.freeze(['near52', '고점 근처']);
 // The period tabs replace the static 1일·1주 pair (index.html #sector-perf-tabs) with native buttons.
-function ensureSectorPeriodTabs(documentRef, root, store, route, mode) {
+function ensureSectorPeriodTabs(documentRef, root, store, route, mode, { nearHighReady = false } = {}) {
   const group = documentRef?.getElementById('sector-perf-tabs');
   if (!group) return;
   if (group.dataset.aioSectorPeriods !== 'native') {
     group.dataset.aioSectorPeriods = 'native';
-    group.replaceChildren(...SECTOR_PERIODS.map(([key, label]) => {
+    group.setAttribute('aria-label', '기간·지표');
+    group.replaceChildren(...[...SECTOR_PERIODS, NEAR_HIGH_TAB].map(([key, label]) => {
       const button = documentRef.createElement('button');
       button.type = 'button';
       button.className = 'news-sort-btn';
@@ -507,6 +530,10 @@ function ensureSectorPeriodTabs(documentRef, root, store, route, mode) {
     const on = button.dataset.period === mode;
     button.classList.toggle('active', on);
     button.setAttribute('aria-pressed', String(on));
+    if (button.dataset.period === NEAR_HIGH_TAB[0]) {
+      button.disabled = !nearHighReady;
+      button.title = nearHighReady ? `S&P 500 구성 종목 중 52주 종가 고점의 ${NEAR_HIGH_PCT}% 안에 있는 종목 비율` : '11섹터 보기에서, S&P 500 구성 종목의 52주 고점 기록이 있을 때';
+    }
   });
 }
 
@@ -576,17 +603,26 @@ function renderThemePerformanceBars({ documentRef, root, store, route }) {
   const host = documentRef?.getElementById('sector-perf-bars');
   if (!host) return;
   host.dataset.aioThemePerformanceBarsRenderer = 'native';
-  const view = root?._sectorPerfView === 'all' ? 'all' : 'sectors';
+  const view = activeView(root); // v59.70: the card's one scope control (11섹터 · 세부 업종 · 전체) drives the bars too
   // v58.75 (persona review): Koyfin/Finviz-style period tabs. 1일·1주 stay the rotation artifact's session returns
   // (dailyPct/weeklyPct); 1·3·6·12개월 are the published screener's ETF returns (ret1m…ret12m). Each bar carries its gap to
   // SPY over the same window; an ETF the screener does not carry reads '—'. No YTD field is published, so no YTD tab.
   const screenerRows = screenerRowMap(store);
   const allItems = selectThemesItems(store?.getState?.() || {});
   const hasLong = allItems.some((item) => finite(screenerRows.get(String(item?.symbol || item?.id || '').toUpperCase())?.ret1m) != null);
-  // 1개월 first (the S&P 500 map right below already shows the day), the day when no screener return has arrived.
-  const mode = SECTOR_PERIODS.some(([key]) => key === root?._aioSectorPeriod) ? root._aioSectorPeriod : hasLong ? '1m' : '1d';
+  // v59.70 (owner: a week over 15 sessions): 1주 first when the rotation artifact carries it, else 1개월, else the day.
+  const hasWeek = allItems.some((item) => finite(item?.weeklyPct) != null);
+  const nearHigh = view === 'sectors' ? nearHighOf(store) : null;
+  const nearHighReady = !!nearHigh && Object.values(nearHigh.bySector).some((row) => row.share != null);
+  if (root?._aioSectorPeriod === NEAR_HIGH_TAB[0] && nearHighReady) {
+    ensureSectorPeriodTabs(documentRef, root, store, route, NEAR_HIGH_TAB[0], { nearHighReady });
+    renderNearHighBars(documentRef, root, host, viewItems(allItems, 'sectors'), nearHigh);
+    return;
+  }
+  const mode = SECTOR_PERIODS.some(([key]) => key === root?._aioSectorPeriod) ? root._aioSectorPeriod : hasWeek ? '1w' : hasLong ? '1m' : '1d';
   const period = SECTOR_PERIODS.find(([key]) => key === mode);
-  ensureSectorPeriodTabs(documentRef, root, store, route, mode);
+  ensureSectorPeriodTabs(documentRef, root, store, route, mode, { nearHighReady });
+  if (host.dataset.metric) { delete host.dataset.metric; delete host.dataset.session; writeSectorCardChip(documentRef, root); }
   const valueOf = (symbol, item) => {
     if (mode === '1d') return finite(item?.pct);
     if (mode === '1w') return finite(item?.weeklyPct);
@@ -618,6 +654,9 @@ function renderThemePerformanceBars({ documentRef, root, store, route }) {
       return b.pct - a.pct;
     });
   host.replaceChildren();
+  // v59.70: the hero names the 11 sectors' ends over the same period the bars show (default 1주), on every period change.
+  const sectorRows = view === 'sectors' ? rows : viewItems(allItems, 'sectors').map((item) => { const symbol = String(item?.symbol || item?.id || ''); return { label: themeItemLabel(root, item), pct: valueOf(symbol, item) }; });
+  writeSectorHero(documentRef, root, sectorRows, period[1]);
   // v59.51: the bars are the verdict card's second tab, so with no return yet the tab says so instead of hiding a section.
   if (!rows.length || !rows.some((row) => row.pct != null)) {
     const empty = documentRef.createElement('div');
@@ -675,6 +714,68 @@ function renderThemePerformanceBars({ documentRef, root, store, route }) {
   });
 }
 
+function nearHighOf(store) {
+  const screener = store?.getState?.()?.screener;
+  const block = screener?.metadata?.indexWeights;
+  if (!Array.isArray(block?.rows)) return null;
+  const session = screener?.metadata?.factorSessionDateByMarket?.US || null;
+  return { ...sectorNearHigh({ weights: block, rows: screener?.rows || [], session }), session };
+}
+
+// The 11 sectors by the share of their S&P 500 members within 5% of the 52-week closing high: a one-sided bar from 0 to
+// 100%, the count beside it, and the hero line naming the ends.
+function renderNearHighBars(documentRef, root, host, items, nearHigh) {
+  host.replaceChildren();
+  host.dataset.metric = NEAR_HIGH_TAB[0];
+  if (nearHigh.session) host.dataset.session = nearHigh.session; else delete host.dataset.session;
+  const session = nearHigh.session; // the screener's US factor session the values were measured on, not the rotation's
+  const rows = items.map((item) => {
+    const symbol = String(item?.symbol || item?.id || '').toUpperCase();
+    const bucket = nearHigh.bySector[SECTOR_ETF_GICS[symbol]] || null;
+    return { symbol, label: themeItemLabel(root, item), bucket, share: bucket?.share ?? null };
+  }).filter((row) => SECTOR_ETF_GICS[row.symbol])
+    .sort((a, b) => (b.share ?? -1) - (a.share ?? -1) || a.symbol.localeCompare(b.symbol));
+  host.title = `S&P 500 구성 종목 중 52주 종가 고점의 ${NEAR_HIGH_PCT}% 안 비율${session ? `, ${shortSession(session)} 종가 기준` : ''}. 오른쪽은 해당 종목 수 / 측정 종목 수, 측정 ${NEAR_HIGH_MIN_MEASURED}종목 미만은 —`;
+  for (const row of rows) {
+    const line = documentRef.createElement('div');
+    line.dataset.themePerformanceRow = row.symbol;
+    line.className = 'thp-perf-row';
+    const symbol = documentRef.createElement('span');
+    symbol.textContent = row.symbol;
+    symbol.className = 'thp-perf-symbol';
+    const label = documentRef.createElement('span');
+    label.textContent = row.label;
+    label.className = 'thp-perf-label';
+    const track = documentRef.createElement('span');
+    track.className = 'thp-perf-track';
+    if (row.share != null) {
+      const bar = documentRef.createElement('span');
+      bar.className = 'thp-perf-bar thp-perf-bar--share';
+      bar.style.width = `${row.share}%`;
+      track.appendChild(bar);
+    }
+    const value = documentRef.createElement('span');
+    value.textContent = row.share == null ? '—' : `${row.share}%`;
+    value.className = 'thp-perf-value';
+    const count = documentRef.createElement('span');
+    count.textContent = row.bucket ? `${row.bucket.near}/${row.bucket.measured}` : '';
+    count.className = 'thp-perf-vs';
+    if (row.bucket) count.title = `${row.label}: 52주 고점 ${NEAR_HIGH_PCT}% 안 ${row.bucket.near}종목 / 측정 ${row.bucket.measured}종목 (구성 ${row.bucket.listed}종목)`;
+    line.setAttribute('aria-label', `${row.label} ${row.share == null ? '측정 부족' : `${row.share}%, ${row.bucket.near}/${row.bucket.measured}종목`}`);
+    line.append(symbol, label, track, value, count);
+    host.appendChild(line);
+  }
+  const read = documentRef.getElementById('rrg-rotation-read');
+  const ranked = rows.filter((row) => row.share != null);
+  if (read && ranked.length >= 6) {
+    const name = (list) => list.map((row) => `${row.label} ${row.share}%`).join(', ');
+    const total = nearHigh.total.share;
+    read.textContent = `${session ? `${shortSession(session)} 종가, ` : ''}52주 고점 ${NEAR_HIGH_PCT}% 안 종목 비율은 ${name(ranked.slice(0, 3))}가 높고 ${name(ranked.slice(-2).reverse())}가 낮습니다${total != null ? `(S&P 500 전체 ${total}%)` : ''}.`;
+    read.dataset.sectorMoves = NEAR_HIGH_TAB[1];
+  }
+  writeSectorCardChip(documentRef, root);
+}
+
 function themeDefinitionOf(root, item) {
   const symbol = String(item?.symbol || item?.id || '').trim().toUpperCase();
   const catalog = Array.isArray(root?.THEME_MAP) ? root.THEME_MAP : [];
@@ -690,19 +791,34 @@ function resolveThemeDetailId(root, item) {
   return theme?.id ? String(theme.id) : null;
 }
 
+// "11/2까지 1주, 강한 섹터는 …, 약한 섹터는 …입니다." — the 11 sectors over the bars' period. Without values the
+// ~50-session rotation reading stays the hero (renderThemes) and its copy under the scatter hides.
+function writeSectorHero(documentRef, root, rows, periodLabel) {
+  const read = documentRef.getElementById('rrg-rotation-read');
+  const detail = documentRef.getElementById('rrg-rotation-detail');
+  if (!read) return;
+  const list = rows.filter((row) => finite(row.pct) != null).sort((a, b) => b.pct - a.pct);
+  if (list.length < 6) { delete read.dataset.sectorMoves; if (detail) detail.hidden = true; return; }
+  const close = usCloseSession(root);
+  const name = (part) => part.map((row) => `${row.label} ${signedText(row.pct, 1)}%`).join(', ');
+  const up = list.filter((row) => row.pct > 0).slice(0, 3), down = list.filter((row) => row.pct < 0).slice(-2).reverse();
+  const body = up.length && down.length ? `강한 섹터는 ${name(up)}, 약한 섹터는 ${name(down)}입니다.`
+    : up.length ? `11개 섹터가 대부분 올랐고 ${name(up)}가 앞섰습니다.` : `11개 섹터가 대부분 내렸고 ${name(list.slice(-3).reverse())}가 가장 약했습니다.`;
+  // 1일·1주 sit on the rotation artifact's session; the longer windows are the screener's own close (no shared date).
+  read.textContent = `${close && (periodLabel === '1일' || periodLabel === '1주') ? `${shortSession(close)}까지 ` : ''}${periodLabel}, ${body}`;
+  read.dataset.sectorMoves = periodLabel;
+  if (detail) detail.hidden = !detail.textContent;
+}
+
 function themeItemLabel(root, item) {
   const theme = themeDefinitionOf(root, item);
   return String(theme?.nameKr || theme?.name || item?.label || item?.symbol || item?.id || '').trim();
 }
 
-function themeDetailDeepLink(hash) {
-  const value = String(hash || '').replace(/^#/, '');
-  if (value !== 'theme-detail' && !/^theme-detail[/?]/.test(value)) return null;
-  const rest = value.slice('theme-detail'.length).replace(/^[/?]+/, '');
-  const themeId = rest ? rest.split('&')[0].split('=').pop() : '';
-  let decoded = themeId;
-  try { decoded = decodeURIComponent(themeId); } catch (_) { decoded = themeId; }
-  return { requested: true, themeId: String(decoded || '').trim() || null };
+function themeDetailDeepLink(hash, root) {
+  // v59.70: one parser with the boot route (src/ui/navigation/theme-detail.js); a retired id opens the plain list.
+  const ids = Array.isArray(root?.THEME_MAP) ? root.THEME_MAP.map((theme) => String(theme?.id || '')) : null;
+  return legacyThemeDetailTarget(hash, ids);
 }
 
 function createChip(documentRef, item, root) {
@@ -806,9 +922,7 @@ function renderThemes({ documentRef, root, store, route }) {
     if (foldSummary) foldSummary.textContent = '섹터 목록, 상대강도 판정 전';
     if (fold && !fold.dataset.aioAutoOpened) { fold.open = true; fold.dataset.aioAutoOpened = 'true'; }
     appendUnclassified();
-    const anyJudged = viewItems(selectThemesItems(store?.getState?.() || {}), 'all')
-      .some((item) => QUADRANTS.some((q) => q.key === String(item?.quadrant || '')) && finite(item?.rsRatio) != null && finite(item?.rsMomentum) != null);
-    if (viewTabs) viewTabs.hidden = !anyJudged;
+    if (viewTabs) viewTabs.hidden = false; // v59.70: the scope also drives the bars, so it stays without a judged sector
     const read = documentRef.getElementById('rrg-rotation-read');
     const close = usCloseSession(root);
     if (read) read.textContent = `섹터 회전은 최신 확정 종가의 상대강도 기록이 들어오면 표시합니다${close ? ` (지금 기록은 ${shortSession(close)} 종가까지)` : ''} — 그 전에는 아래 S&P 500 지도와 세부 테마 순위로 읽습니다.`;
@@ -849,8 +963,13 @@ function renderThemes({ documentRef, root, store, route }) {
   let revisions = null;
   try { revisions = marketInterpretation(root, { store }).indexEarnings?.sectors || null; } catch (_) { revisions = null; }
   const flow = rotationFlow({ groups: Object.fromEntries(groups), regime: readMarketRegime(root), revisions });
+  // v59.70 (theme-sector, owner: "which sector led the day and the week"): the hero names the day's and the week's ends
+  // of the 11 sectors; the ~50-session rotation reading sits under the scatter (회전 view). Without session returns the
+  // rotation reading stays the hero, as before.
   const read = documentRef.getElementById('rrg-rotation-read');
-  if (read) read.textContent = flow.read;
+  const detail = documentRef.getElementById('rrg-rotation-detail');
+  if (read && !read.dataset.sectorMoves) read.textContent = flow.read; // the bars renderer writes the period line over it
+  if (detail) { detail.textContent = flow.read; detail.hidden = !read?.dataset.sectorMoves; }
   renderNextSteps(documentRef, documentRef.getElementById('themes-next'), flow.next);
 }
 
@@ -1792,6 +1911,8 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           if (!view) return;
           root._aioThemesVerdictView = view;
           syncVerdictView(documentRef, root);
+          // v59.70: the scatter was sized while hidden; redraw it at the visible frame width.
+          if (view === 'rrg') { renderRRGStatus({ documentRef, root, store, route }); renderRRGCanvas({ documentRef, root, store, route }); }
         };
         verdictTabs?.addEventListener('click', onVerdictTab);
         bag.add(() => verdictTabs?.removeEventListener('click', onVerdictTab));
@@ -1883,7 +2004,7 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         const unsubscribe = store && subscribeToSlices(store, ['themes', 'screener'], renderNow);
         if (unsubscribe) bag.add(unsubscribe);
         const eventTarget = documentRef || root;
-        ['aio:themesViewChanged', 'aio:themesHistoryLoaded', 'aio:historyLoaded', 'aio:refresh:done', 'aio:liveQuotes', 'aio:sectorPerfChanged', 'aio:colorThemeChanged'].forEach((eventName) => {
+        ['aio:themesViewChanged', 'aio:themesHistoryLoaded', 'aio:rotationDetailLoaded', 'aio:historyLoaded', 'aio:refresh:done', 'aio:liveQuotes', 'aio:sectorPerfChanged', 'aio:colorThemeChanged'].forEach((eventName) => {
           eventTarget?.addEventListener?.(eventName, scheduleRender);
           bag.add(() => eventTarget?.removeEventListener?.(eventName, scheduleRender));
         });
@@ -2016,6 +2137,7 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         eventTarget?.addEventListener?.('aio:themeDetailClosed', onThemeDetailClosed);
         bag.add(() => eventTarget?.removeEventListener?.('aio:themeDetailShown', onThemeDetailShown));
         bag.add(() => eventTarget?.removeEventListener?.('aio:themeDetailClosed', onThemeDetailClosed));
+        const legacyAddress = applyLegacyThemeDetailAddress(root); // v59.70: an old #theme-detail/<id> keeps its id
         const pendingThemeId = String(root?._aioOpenThemeDetailOnThemes || '').trim();
         if (pendingThemeId) {
           delete root._aioOpenThemeDetailOnThemes;
@@ -2051,10 +2173,10 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           const openTimer = root?.setTimeout?.(() => root.openKrThemeDetail?.(pendingKrThemeId, { settle: true }), 0);
           bag.add(() => root?.clearTimeout?.(openTimer));
         }
-        const deepLink = themeDetailDeepLink(root?.location?.hash);
+        const deepLink = legacyAddress?.named ? { ...legacyAddress, themeId: null } : themeDetailDeepLink(root?.location?.hash, root); // a named id already opened above
         const deepLinkId = String(deepLink?.themeId || '').trim();
         if (deepLinkId) queueMicrotask(() => requestThemeDetail(deepLinkId));
-        if (deepLink?.requested && !store?.getState?.()?.themes?.selectedDetail && detailPanel) {
+        if (deepLink?.requested && !deepLink.unknown && !store?.getState?.()?.themes?.selectedDetail && detailPanel) {
           deepLinkHint = documentRef.createElement('p');
           deepLinkHint.className = 'theme-detail-deep-link-hint';
           deepLinkHint.textContent = deepLinkId

@@ -3,6 +3,7 @@
 // AI-infrastructure and photonics themes; each is the median of its US members' returns from the screener rows (the
 // same closes the screener ranks). Observed returns only — no label of what the move means.
 
+import { median as sharedMedian } from '../themes/theme-medians.js';
 import { selectProducedRotation } from '../themes/produced-rotation.js';
 import { readNumber as finite } from '../shared/number.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
@@ -13,11 +14,10 @@ export const AI_CHAIN_MIN_MEMBERS = 3;
 // v59.46 boundary contract: the medians take the 1-month return the screener readiness contract allows in a calculation.
 const ret1m = (row) => readRowNumber(row, 'ret1m', 'calculation');
 
+// v59.70 (R9): the shared theme median (theme-medians.js), kept at one decimal as this reading prints it.
 function median(values) {
-  const list = values.map(finite).filter((value) => value != null).sort((a, b) => a - b);
-  if (!list.length) return null;
-  const mid = Math.floor(list.length / 2);
-  return Math.round((list.length % 2 ? list[mid] : (list[mid - 1] + list[mid]) / 2) * 10) / 10;
+  const value = sharedMedian(values);
+  return value == null ? null : Math.round(value * 10) / 10;
 }
 const signed = (value) => `${value > 0 ? '+' : ''}${value.toFixed(1)}%`;
 

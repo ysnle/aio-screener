@@ -221,6 +221,15 @@ var RRG_SUBSECTORS = [
   { sym:'LIT', name:'리튬/배터리',color:'#b54548', emoji:'' },
   { sym:'KRE', name:'지역은행', color:'#978365', emoji:'' }, { sym:'ITB', name:'주택건설', color:'#544f46', emoji:'' }, { sym:'XRT', name:'소매', color:'#b54548', emoji:'' }, { sym:'IYT', name:'운송', color:'#1b1a17', emoji:'' }, // P1590: core industry groups (CIBR duplicated HACK)
   { sym:'JETS',name:'항공', color:'#544f46', emoji:'' }, { sym:'COPX',name:'구리 광산', color:'#2f7c57', emoji:'' }, { sym:'KWEB',name:'중국 인터넷', color:'#b54548', emoji:'' },
+  // v59.70 (theme-sector): issuer-verified theme benchmarks (iShares, Roundhill, First Trust, Global X, VanEck, State Street,
+  // Invesco pages, 2026-11-04). NCLD is GPU "neocloud" hosts (not broad cloud: SKYY), launched 2026-08; DRAM launched 2026-04.
+  // Owner (v59.70): DRAM·NCLD stay on the bars and the scatter as references only — the benchmark is SOXX (memory/semis) and
+  // SKYY (cloud), and referenceOnly rows never enter the rotation verdict (rotationFlow) or a theme's representative ETF.
+  { sym:'SOXX',name:'반도체 30', color:'var(--data-purple)', emoji:'' }, { sym:'DRAM',name:'메모리(참고)', color:'var(--data-purple)', emoji:'', referenceOnly:true, benchmark:'SOXX' },
+  { sym:'SKYY',name:'클라우드', color:'#b54548', emoji:'' }, { sym:'NCLD',name:'GPU 클라우드(참고)', color:'#b54548', emoji:'', referenceOnly:true, benchmark:'SKYY' },
+  { sym:'DTCR',name:'데이터센터', color:'#1b1a17', emoji:'' }, { sym:'GRID',name:'전력망', color:'#2f7c57', emoji:'' }, { sym:'NLR',name:'원전', color:'#2f7c57', emoji:'' },
+  { sym:'IAI',name:'증권·거래소', color:'#978365', emoji:'' }, { sym:'KIE',name:'보험', color:'#978365', emoji:'' }, { sym:'PEJ',name:'레저', color:'#544f46', emoji:'' },
+  { sym:'EWY',name:'한국', color:'#1b1a17', emoji:'' },
 ];
 
 // ── 종합 테마 맵 (screener_pro.py SECTOR_LEADERS 기반 + 확장) ────
@@ -229,19 +238,19 @@ var THEME_MEMBERSHIP_POLICY = Object.freeze({
   version:'theme-membership.v2',
   source:'AIO curated taxonomy',
   sourceKind:'REFERENCE',
-  observedAt:'2026-10-13',
+  observedAt:'2026-11-04', // v59.70: HONA·OKTA·EXEL·UTHR added from issuer ETF top holdings; 하드웨어·기기 + IT 서비스 from XLK holdings
   allowedUse:'reference',
   status:'reviewed',
-  note:'구성 종목은 산업·사업 모델 기준의 편집 분류(2026-10-13 검토)이며 공식 지수 구성이 아닙니다. 테마 수익률은 동일가중·중앙값으로 계산합니다.'
+  note:'구성 종목은 산업·사업 모델 기준의 편집 분류(2026-11-04 검토)이며 공식 지수 구성이 아닙니다. 테마 수익률은 동일가중·중앙값으로 계산합니다.'
 });
 window.THEME_MEMBERSHIP_POLICY = THEME_MEMBERSHIP_POLICY;
 var THEME_MAP = [
   { id:'defense', nameKr:'방산/항공우주', emoji:'', color:'#2f7c57', etf:'ITA', etfName:'iShares Defense',
-    leaders:['GE','RTX','PLTR','BA','LMT','HWM','GD','NOC','TDG','RKLB','LHX','AXON','ASTS','LDOS','TXT','HII','HEI','RDW','IRDM','LUNR','KTOS','AVAV'], leaderHighlight:['GE','RTX','PLTR','BA'],
+    leaders:['GE','RTX','PLTR','BA','LMT','HWM','GD','NOC','TDG','RKLB','LHX','AXON','ASTS','LDOS','TXT','HII','HEI','RDW','IRDM','LUNR','KTOS','AVAV','HONA'], leaderHighlight:['GE','RTX','PLTR','BA'],
     subThemes:[
       { name:'방산 프라임', tickers:['LMT','RTX','NOC','GD','HII','LHX'] },
       { name:'우주/위성', tickers:['RKLB','ASTS','LUNR','RDW','IRDM'] },
-      { name:'항공기/부품', tickers:['BA','GE','HWM','TDG','HEI','TXT'] },
+      { name:'항공기/부품', tickers:['BA','GE','HWM','TDG','HEI','TXT','HONA'] }, // v59.70: HONA = ITA top 10 (iShares, 2026-11-02)
       { name:'방산 기술/드론', tickers:['PLTR','AXON','LDOS','KTOS','AVAV'] }
     ] },
   { id:'staples', nameKr:'필수소비재', emoji:'', color:'#1b1a17', etf:'XLP', etfName:'Consumer Staples',
@@ -254,10 +263,10 @@ var THEME_MAP = [
       { name:'담배', tickers:['PM','MO','BTI'] }
     ] },
   { id:'healthcare', nameKr:'헬스케어', emoji:'', color:'#1b1a17', etf:'XLV', etfName:'Healthcare',
-    leaders:['LLY','JNJ','ABBV','MRK','UNH','TMO','AMGN','GILD','ABT','PFE','DHR','ISRG','MRNA','VRTX','BMY','MDT','MCK','CVS','SYK','HCA','ELV','CI','REGN','BSX','COR','CAH','BDX','EW','A','HUM','VEEV','WAT','IDXX','RMD','DXCM','BIIB','ZTS','ALNY','GEHC','NVO','TEM','AZN','NVS','CNC','DVA','ARGX','HIMS','VKTX','UHS','THC'], leaderHighlight:['LLY','JNJ','ABBV','MRK'],
+    leaders:['LLY','JNJ','ABBV','MRK','UNH','TMO','AMGN','GILD','ABT','PFE','DHR','ISRG','MRNA','VRTX','BMY','MDT','MCK','CVS','SYK','HCA','ELV','CI','REGN','BSX','COR','CAH','BDX','EW','A','HUM','VEEV','WAT','IDXX','RMD','DXCM','BIIB','ZTS','ALNY','GEHC','NVO','TEM','AZN','NVS','CNC','DVA','ARGX','HIMS','VKTX','UHS','THC','EXEL','UTHR'], leaderHighlight:['LLY','JNJ','ABBV','MRK'],
     subThemes:[
       { name:'대형 제약', tickers:['LLY','JNJ','MRK','PFE','ABBV','BMY','NVO','AZN','NVS','ZTS'] },
-      { name:'바이오텍', tickers:['VRTX','REGN','AMGN','GILD','MRNA','BIIB','ALNY','ARGX','VKTX'] },
+      { name:'바이오텍', tickers:['VRTX','REGN','AMGN','GILD','MRNA','BIIB','ALNY','ARGX','VKTX','EXEL','UTHR'] }, // v59.70: EXEL·UTHR = XBI top 10 (State Street, 2026-11-02)
       { name:'디지털 헬스/의료 데이터', tickers:['VEEV','HIMS','TEM'] },
       { name:'관리의료/보험', tickers:['UNH','ELV','CI','CVS','HUM','CNC'] },
       { name:'의료기기', tickers:['ISRG','ABT','SYK','BSX','MDT','EW','BDX','DXCM','RMD','GEHC'] },
@@ -295,15 +304,25 @@ var THEME_MAP = [
       { name:'IP·인터페이스/FPGA·타이밍', tickers:['RMBS','LSCC','SITM','CEVA','AMBA'] }
     ] },
   { id:'software', nameKr:'소프트웨어/클라우드', emoji:'', color:'#b54548', etf:'IGV', etfName:'iShares Software',
-    leaders:['MSFT','AMZN','ORCL','GOOGL','PANW','CRM','PLTR','NOW','FTNT','CRWD','ADBE','SNPS','CDNS','INTU','SNOW','SHOP','APP','ADSK','MDB','NET','WDAY','DDOG','ZS','TEAM','TTD','ESTC','AI','S','RBRK','PATH','APPN','PEGA'], leaderHighlight:['MSFT','AMZN','ORCL','GOOGL'],
+    leaders:['MSFT','AMZN','ORCL','GOOGL','PANW','CRM','PLTR','NOW','FTNT','CRWD','ADBE','SNPS','CDNS','INTU','SNOW','SHOP','APP','ADSK','MDB','NET','WDAY','DDOG','ZS','TEAM','TTD','ESTC','AI','S','RBRK','PATH','APPN','PEGA','OKTA','IBM','ACN','CTSH','IT','EPAM'], leaderHighlight:['MSFT','AMZN','ORCL','GOOGL'],
     subThemes:[
       { name:'엔터프라이즈 SaaS', tickers:['ORCL','CRM','NOW','INTU','ADBE','WDAY','TEAM'] },
-      { name:'사이버보안', tickers:['PANW','CRWD','FTNT','ZS','NET','S','RBRK'] },
+      { name:'사이버보안', tickers:['PANW','CRWD','FTNT','ZS','NET','S','RBRK','OKTA'] }, // v59.70: OKTA = HACK top 10 (Amplify, 2026-11-03)
       { name:'데이터/AI 플랫폼', tickers:['PLTR','SNOW','DDOG','MDB','ESTC','AI'] },
       { name:'광고/커머스 소프트웨어', tickers:['APP','SHOP','TTD'] },
       { name:'설계 소프트웨어(EDA·CAD)', tickers:['SNPS','CDNS','ADSK'] },
       { name:'클라우드 인프라', tickers:['MSFT','AMZN','GOOGL'] },
-      { name:'업무 자동화 소프트웨어', tickers:['PATH','APPN','PEGA'] }
+      { name:'업무 자동화 소프트웨어', tickers:['PATH','APPN','PEGA'] },
+      { name:'IT 서비스', tickers:['IBM','ACN','CTSH','IT','EPAM'] } // v59.70 (owner): GICS IT 서비스; IBM 1.51%·ACN 1.02%·CTSH·IT = XLK holdings (State Street, 2026-11-02)
+    ] },
+  // v59.70 (owner): AAPL·MSI·HPQ were in no US theme. Members = XLK holdings (State Street, 2026-11-02): AAPL 15.50%,
+  // MSI 0.51%, TEL 0.40%, TDY 0.19%, HPQ 0.17%, ZBRA 0.11%, TRMB 0.10%. DELL·HPE·SMCI stay in ai_infra 서버/HW,
+  // STX·WDC·NTAP in 반도체 메모리/스토리지, GLW in 광통신, KEYS in 로보틱스. No single ETF fits, so it is a composite.
+  { id:'hardware', nameKr:'하드웨어·기기', emoji:'', color:'#544f46', etf:null, etfName:'(커스텀 합산)', isComposite: true,
+    leaders:['AAPL','MSI','TEL','TDY','HPQ','ZBRA','TRMB'], leaderHighlight:['AAPL','MSI','TEL','HPQ'],
+    subThemes:[
+      { name:'기기·통신 장비', tickers:['AAPL','HPQ','MSI'] }, // MSI = 공공 안전 무전·통신 장비
+      { name:'전자 부품·계측', tickers:['TEL','TDY','ZBRA','TRMB'] }
     ] },
   { id:'industrials', nameKr:'산업재', emoji:'', color:'var(--data-cyan)', etf:'XLI', etfName:'Industrials',
     leaders:['CAT','GEV','DE','UNP','ETN','HON','PH','ADP','TT','PWR','JCI','EMR','CSX','MMM','WM','CTAS','ITW','NSC','FDX','UPS','RSG','URI','GWW','FAST','PCAR','AME','WAB','CARR','PAYX','CPRT','HUBB','JBHT','NDSN','ODFL','GNRC','LII','WSO','WCN'], leaderHighlight:['CAT','GEV','DE','UNP'],
@@ -423,9 +442,6 @@ var ALL_RRG_ETFS = RRG_SECTORS.concat(RRG_SUBSECTORS);
 
 // 히스토리컬 가격 데이터 저장소 (심볼별)
 var _priceHistory = {};
-// P721: 심볼별 히스토리 종류 마커 — true면 실제 일봉 종가 시계열(hydrateRRGDailyHistory가 채움).
-// collectPriceHistory의 세션 내 틱 push가 일봉 시계열을 밀어내며 오염시키는 것을 차단한다.
-var _priceHistoryDaily = {};
 
 // v59.42: calcLiveRS (a wrapper over AIO_ARCH.computeRelativeRotation) is deleted; nothing called it. The themes route
 // reads src/domain/themes/rrg.js through bootstrap (RM-03 item 2).
@@ -708,8 +724,6 @@ function collectPriceHistory() {
   Object.keys(ld).forEach(function(sym) {
     var d = ld[sym];
     if (!d || !d.price) return;
-    // P721: 일봉 시계열로 수화된 심볼은 틱 push로 오염시키지 않는다(혼합 금지 — R14 계열).
-    if (_priceHistoryDaily[sym]) return;
     if (!_priceHistory[sym]) _priceHistory[sym] = [];
     _priceHistory[sym].push(d.price);
     // 최대 100개 유지
@@ -717,60 +731,8 @@ function collectPriceHistory() {
   });
 }
 
-// ── P721: RRG 일봉 종가 수화 ─────────────────────────────────────
-// 왜: RRG(calcLiveRS)가 세션 내 30초 틱 누적(_priceHistory, >20 샘플 필요)에 의존해
-//     새로 접속한 모든 방문자에게 "판정 보류 · 근거 0/11"로 영구 공백이었다(라이브 실측).
-//     방법론적으로도 RRG는 일봉/주봉 종가 기반(13wk MA) 지표다. 기존 검증된 클라 경로
-//     (fetchViaProxy + _parseYFChartResponse, fetchSentimentHistory와 동일 패턴)로
-//     11섹터+SPY의 실제 6개월 일봉 종가를 받아 채운다. 실패 심볼은 채우지 않는다(추측 금지)
-//     — 그 심볼은 기존과 동일하게 판정 보류로 남는다. 서브섹터 뷰는 요청 예산상 이번 범위 밖
-//     (기존 틱 경로 유지, 보류 라벨 정직 표시 유지).
-var _rrgDailyHydratedAt = 0;
-var _rrgDailyHydrating = false;
-async function hydrateRRGDailyHistory() {
-  if (_rrgDailyHydrating) return;
-  if (Date.now() - _rrgDailyHydratedAt < 6 * 3600 * 1000) return; // 6h 내 재수화 불필요(일봉)
-  _rrgDailyHydrating = true;
-  try {
-    // SPY(분모)를 1차 배치에 포함 — SPY 없이는 어떤 섹터도 판정 불가
-    var syms = ['SPY'].concat(RRG_SECTORS.map(function(s){ return s.sym; }));
-    var okCount = 0;
-    var rerender = function() {
-      var tp = document.getElementById('page-themes');
-      if (!tp || !tp.classList.contains('active')) return;
-      try { document.dispatchEvent(new CustomEvent('aio:themesViewChanged')); } catch(_e) {}
-    };
-    // 동시 3개 제한 — 프록시/Yahoo 부하 억제. 배치마다 점진 재렌더(부분 실패에도 확보분은 표시).
-    for (var i = 0; i < syms.length; i += 3) {
-      var batchOk = 0;
-      var batch = syms.slice(i, i + 3).map(async function(sym) {
-        try {
-          var url = 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(sym) + '?interval=1d&range=6mo';
-          var r = await fetchViaProxy(url, 8000);
-          var raw = await r.text();
-          if (raw.trimStart().startsWith('<')) return; // HTML 에러페이지 (유령 데이터 방지)
-          var data; try { data = JSON.parse(raw); } catch(_e) { return; }
-          if (data && data.contents) { try { data = JSON.parse(data.contents); } catch(_e) {} } // allorigins 래퍼
-          var parsed = _parseYFChartResponse(data);
-          if (parsed && parsed.closes && parsed.closes.length >= 30) {
-            _priceHistory[sym] = parsed.closes.slice(-100);
-            _priceHistoryDaily[sym] = true;
-            okCount++; batchOk++;
-          }
-        } catch(_e) { /* 해당 심볼만 보류 유지 */ }
-      });
-      await Promise.all(batch);
-      if (batchOk > 0 && _priceHistoryDaily['SPY']) {
-        rerender();
-        try { document.dispatchEvent(new CustomEvent('aio:themesHistoryLoaded', { detail: { source: 'yahoo-1d', count: okCount } })); } catch(_e) {}
-      }
-    }
-    if (okCount > 0) _rrgDailyHydratedAt = Date.now();
-  } finally {
-    _rrgDailyHydrating = false;
-  }
-}
-window.hydrateRRGDailyHistory = hydrateRRGDailyHistory;
+// v59.70 (data audit R1): hydrateRRGDailyHistory (P721) is gone — the RRG point comes only from the produced rotation
+// artifact (data.json rotationHistory), so the per-visit Yahoo daily fetch for 11 sectors + SPY fed nothing.
 
 // ═══════════════════════════════════════════════════════════════
 //  세분화 테마 (Sub-Themes) — 시장 핵심 트렌드 & 대장주
@@ -910,8 +872,6 @@ var KR_THEME_NARRATIVES = Object.freeze({});
 document.addEventListener('DOMContentLoaded', function() {
 _aioPageBus.register('html-themes-shown', 'aio:pageShown', function(e) {
   if (e.detail === 'themes') {
-    // P721: 실제 일봉 종가로 RRG 근거 수화 (완료 시 스스로 재렌더, 실패 심볼은 보류 유지)
-    try { hydrateRRGDailyHistory(); } catch(_e) {}
     setTimeout(function() {
       document.dispatchEvent(new CustomEvent('aio:themesViewChanged'));
       // v45.5: 1주 캐시 백그라운드 프리페치 (사용자가 1주 탭 클릭 시 즉각 표시)

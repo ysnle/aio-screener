@@ -10,6 +10,7 @@
 //              is read against its own break conditions
 // Rotation is read from all themes at once: which exposure tags gained and lost over the month.
 // No price, size, timing or named stock; stock-level selection stays on the theme, chart, company and screener screens.
+import { median } from '../themes/theme-medians.js'; // v59.70 (R9)
 import { CHOICE_WORDS } from '../content/choice-words.js';
 import { creditStable } from '../interpretation/concepts.js';
 import { withSubjectParticle, withDirectionParticle } from '../content/korean-particle.js';
@@ -23,7 +24,6 @@ import { signedText, finiteNumber as finite } from '../shared/number.js';
 // v58.75: the playbook version lives in theme-stage.js (v59.45), re-exported here for every existing import.
 import { THEME_PLAYBOOK_VERSION, SCENARIO_STATE_CURRENT, scenarioBasisCurrent } from './theme-stage.js';
 export { THEME_PLAYBOOK_VERSION };
-const median = (values) => { const list = values.filter((v) => finite(v) != null).sort((a, b) => a - b); if (!list.length) return null; const m = Math.floor(list.length / 2); return list.length % 2 ? list[m] : (list[m - 1] + list[m]) / 2; };
 const pct = (value) => value == null ? '—' : `${signedText(value, 1)}%`;
 const marketWord = (row) => (row.market === 'KR' ? '한국' : '미국');
 const shortDay = (date) => { const [, m, d] = String(date || '').split('-').map(Number); return m && d ? `${m}/${d}` : ''; };
@@ -230,8 +230,13 @@ function themeRow({ market, id, label, ret1m, ret3m, ret6m, ret5d = null, vol = 
  */
 export function buildThemePlaybook({ usGroups = [], krThemes = [], crossroads = null, credit = null, outcomes = null, labels = {}, history = null, benchmarks: given = null } = {}) {
   const byTheme = new Map();
+  // v59.70 (theme-sector): groups on the newest basis among them are read even before the latest session lands
+  // (group.current false only for that lag) and the playbook says so (lagging.US). Dropping them left 미국 0 every
+  // evening between the US close and the screener refresh. A group behind its peers is still left out.
+  const newestUs = usGroups.map((group) => (group?.themeId ? group.basis : null)).filter(Boolean).sort().at(-1) || null;
+  const usLagging = usGroups.some((group) => group?.themeId && group.basis === newestUs && group.current === false);
   for (const group of usGroups) {
-    if (!group?.themeId || group.current === false) continue;
+    if (!group?.themeId || (group.current === false && !(usLagging && group.basis === newestUs))) continue;
     if (!byTheme.has(group.themeId)) byTheme.set(group.themeId, []);
     byTheme.get(group.themeId).push(group);
   }
@@ -297,9 +302,11 @@ export function buildThemePlaybook({ usGroups = [], krThemes = [], crossroads = 
     headwindLeaders: rows.filter((row) => row.state === 'leading' && row.wind.lead === 'head'),
     tailwindLaggards: rows.filter((row) => row.state === 'weak' && row.wind.lead === 'tail')
   };
+  // P1681 parity: on a lagging US basis the rows stay as a dated reference, but no US theme is named as leading now.
+  if (usLagging) for (const key of Object.keys(highlights)) highlights[key] = highlights[key].filter((row) => row.market !== 'US');
   const asOfByMarket = { US: usBasis, KR: krBasis };
   return { available: rows.length > 0, version: THEME_PLAYBOOK_VERSION, themes: rows, rotation, highlights, benchmarks,
-    asOf: usBasis || krBasis || null, asOfByMarket, asOfText: basisText(asOfByMarket) };
+    asOf: usBasis || krBasis || null, asOfByMarket, asOfText: basisText(asOfByMarket), lagging: { US: usLagging && rows.some((row) => row.market === 'US') } };
 }
 
 /**

@@ -207,6 +207,35 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (resolveInitialRoute({ root: routeRoot }) !== 'themes' || routeRoot._aioOpenThemeDetailOnThemes !== 'theme-9') {
     fail('initial route: existing pending theme identity was overwritten');
   }
+  // v59.70: every US theme id survives each old address form (it used to open THEME_MAP[0] = 방산 for all of them), and a
+  // retired Korean id (UAM·우주·양자) opens the plain list.
+  const { loadThemeMaps } = await import('../scripts/build-scenario-state.mjs');
+  const { usThemes } = loadThemeMaps();
+  const moved = [];
+  for (const { id } of usThemes) {
+    for (const hash of [`#theme-detail/${id}`, `#theme-detail?theme=${id}`, `#theme-detail?id=${id}`]) {
+      const root = { location: { hash }, THEME_MAP: usThemes, _currentThemeId: 'previous' };
+      if (resolveInitialRoute({ root }) !== 'themes' || root._aioOpenThemeDetailOnThemes !== id) moved.push(`${hash} -> ${root._aioOpenThemeDetailOnThemes}`);
+    }
+  }
+  for (const id of ['uam', 'space', 'quantum']) {
+    const root = { location: { hash: `#theme-detail/${id}` }, THEME_MAP: usThemes, _currentThemeId: 'previous' };
+    if (resolveInitialRoute({ root }) !== 'themes' || root._aioOpenThemeDetailOnThemes != null) moved.push(`#theme-detail/${id} -> ${root._aioOpenThemeDetailOnThemes} (want the list)`);
+  }
+  // A fresh load runs the classic showPage('theme-detail') first: it rewrites the address to #themes, saves the original
+  // in _aioThemeDetailHash and pends the previous selection; the themes page then applies the saved address.
+  const { applyLegacyThemeDetailAddress } = await import('../src/ui/navigation/theme-detail.js');
+  for (const { id } of usThemes) for (const hash of [`#theme-detail/${id}`, `#theme-detail?theme=${id}`]) {
+    const root = { location: { hash: '#themes' }, _aioThemeDetailHash: hash, _aioOpenThemeDetailOnThemes: 'previous', THEME_MAP: usThemes };
+    applyLegacyThemeDetailAddress(root);
+    if (root._aioOpenThemeDetailOnThemes !== id || '_aioThemeDetailHash' in root) moved.push(`classic ${hash} -> ${root._aioOpenThemeDetailOnThemes}`);
+  }
+  for (const id of ['uam', 'space', 'quantum']) {
+    const root = { location: { hash: '#themes' }, _aioThemeDetailHash: `#theme-detail/${id}`, _aioOpenThemeDetailOnThemes: 'previous', THEME_MAP: usThemes };
+    applyLegacyThemeDetailAddress(root);
+    if (root._aioOpenThemeDetailOnThemes != null) moved.push(`classic #theme-detail/${id} -> ${root._aioOpenThemeDetailOnThemes} (want the list)`);
+  }
+  if (usThemes.length < 15 || moved.length) fail(`v59.70 old #theme-detail addresses keep their theme id (${usThemes.length} themes): ${moved.slice(0, 4).join('; ')}`);
 }
 
 {
@@ -6074,7 +6103,63 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   // v58.78 (owner 2026-10-25): the theme ranking reads 1주·2주·1개월 — the 1주 tab ranks by the members' five-session
   // median, 2주 is the ten-session median, and 6개월 stays a valid key for the other readers.
   const { buildGroupStrength, STRENGTH_TABS, GROUP_WINDOWS } = await load('src/domain/themes/group-strength.js');
-  if (STRENGTH_TABS.join(',') !== 'ret5d,ret1m,ret3m' || GROUP_WINDOWS.ret10d !== '2주' || GROUP_WINDOWS.ret6m !== '6개월') fail('v58.78 ranking tabs are 1주·1개월·3개월, with 2주 and 6개월 still named');
+  {
+    // v59.70 (theme-sector): the 테마 screen reads the previous session's rotation artifact (lagging), never two sessions back,
+    // and the strict readers keep refusing it.
+    const { selectProducedRotation } = await load('src/domain/themes/produced-rotation.js');
+    const art = { schemaVersion: 'rotation-history.v1', modelVersion: 'rrg.v3', benchmark: 'SPY', timeframe: '1d', priceBasis: 'adjusted-close', decisionUse: false, allowedUseCeiling: 'reference', sourceKind: 'T3_PUBLIC_DELAYED', latestCompletedSession: '2026-11-02',
+      items: { IGV: { status: 'CURRENT', sessionDate: '2026-11-02', rsRatio: 97.1, rsMomentum: 96.9, quadrant: 'Lagging', dailyPct: 0.5, weeklyPct: -1, alignedSessionCount: 60, observedAt: '2026-11-02T21:00:00.000Z', fetchedAt: '2026-11-02T23:00:00.000Z' } } };
+    const oneLate = Date.parse('2026-11-04T00:58:00Z'), twoLate = Date.parse('2026-11-05T00:58:00Z');
+    if (selectProducedRotation(art, 'IGV', oneLate) !== null) fail('v59.70 strict readers refuse a one-session-old rotation artifact');
+    if (selectProducedRotation(art, 'IGV', oneLate, { lagSessions: 1 })?.lagging !== true) fail('v59.70 the 테마 screen reads a one-session-old artifact, flagged lagging');
+    if (selectProducedRotation(art, 'IGV', twoLate, { lagSessions: 1 }) !== null) fail('v59.70 two sessions late is refused even with lagSessions 1');
+    if (selectProducedRotation(art, 'IGV', Date.parse('2026-11-03T12:00:00Z'), { lagSessions: 1 })?.lagging !== false) fail('v59.70 a current artifact is not flagged lagging');
+    // v59.70 (data audit R9, D4): one theme median for the five theme readers (finite values only, optional minimum count).
+    const { median: themeMedian, themeMedians } = await load('src/domain/themes/theme-medians.js');
+    if (themeMedian([3, null, 1, NaN, 2]) !== 2 || themeMedian([1, 2], { minCount: 3 }) !== null || themeMedians([{ a: 1 }, { a: 3 }], ['a']).a !== 2) fail('v59.70 themeMedians: finite values only, min count, per-field');
+    // v59.70 (data audit R1): no browser recompute — flat session ticks and a definition's own rsRatio/quadrant never
+    // become a point; without a produced row the item has no coordinates (every 세부 업종 ETF once landed on one point).
+    const { createThemesProvider } = await load('src/data/providers/themes.js');
+    const spyDaily = Array.from({ length: 100 }, (_, i) => 600 + i);
+    const tickProvider = createThemesProvider({ readLiveData: () => ({ SPY: { price: 699 }, IGV: { price: 95 } }), readHistory: () => ({ SPY: spyDaily, IGV: Array(40).fill(95) }),
+      readRotationHistory: () => null, readDefinitions: () => ({ subsectors: [{ sym: 'IGV', name: '소프트웨어', rsRatio: 101.7, rsMomentum: 101.8, quadrant: 'Leading' }] }) });
+    const tickItem = tickProvider.readCurrent().items.find((item) => item.symbol === 'IGV');
+    if (!tickItem || tickItem.rsRatio !== null || tickItem.rsMomentum !== null || tickItem.quadrant !== 'neutral') fail(`v59.70 the themes provider reads the RRG point only from the produced artifact: ${JSON.stringify(tickItem)}`);
+  }
+  {
+    // v59.70 (X bookmarks #2): a sector's share of S&P 500 members within 5% of the 52-week closing high counts only
+    // members measured on the bars' session, holds back below ten measured, and maps all 11 sector ETFs.
+    const { sectorNearHigh, SECTOR_ETF_GICS, NEAR_HIGH_MIN_MEASURED } = await load('src/domain/themes/near-high.js');
+    const weights = { rows: [...Array.from({ length: 12 }, (_, i) => [`T${i}`, 'Information Technology', 1]), ...Array.from({ length: 4 }, (_, i) => [`R${i}`, 'Real Estate', 1])] };
+    const rows = [...Array.from({ length: 12 }, (_, i) => ({ sym: `T${i}`, pctFromCloseHigh52w: [-1, -5, -5.1, -20][i % 4], factorSessionDate: i === 11 ? '2026-10-30' : '2026-11-03' })),
+      ...Array.from({ length: 4 }, (_, i) => ({ sym: `R${i}`, pctFromCloseHigh52w: 0, factorSessionDate: '2026-11-03' }))];
+    const near = sectorNearHigh({ weights, rows, session: '2026-11-03' });
+    const tech = near.bySector['Information Technology'];
+    // T0..T10 measured (T11 is another session): within 5% are the -1 and -5 rows → 6 of 11.
+    if (tech?.measured !== 11 || tech.near !== 6 || tech.share !== 55 || near.bySector['Real Estate']?.share !== null || NEAR_HIGH_MIN_MEASURED !== 10) fail(`v59.70 sector near-high share: ${JSON.stringify(near.bySector)}`);
+    if (Object.keys(SECTOR_ETF_GICS).length !== 11 || near.total.listed !== 16) fail('v59.70 the 11 sector ETFs map to GICS sectors and every member is listed');
+    // #7: each layer's trailing and forward PER from the consensus EPS pair only — a member without a positive pair or
+    // a current close is left out, a thinly covered layer is hidden, and the SEC PER on the row is never read.
+    const { layerValuation } = await load('src/domain/themes/layer-valuation.js');
+    const now = Date.parse('2026-11-04T03:00:00Z');
+    const layerThemes = [{ id: 'semiconductor', subThemes: [{ name: 'A', tickers: ['A1', 'A2', 'A3', 'A4'] }, { name: 'B', tickers: ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7'] }] }, { id: 'software', subThemes: [{ name: 'S', tickers: ['A1', 'A2', 'A3'] }] }];
+    const close = (sym, price) => ({ sym, valuationPrice: price, pe: 999, factorSessionDate: '2026-11-03' });
+    const est = (trailing, forward) => ({ asOf: '2026-11-03T22:00:00Z', trailing: { eps: trailing }, fwd: { eps: forward } });
+    const lv = layerValuation({ themes: layerThemes, now,
+      rows: [close('A1', 100), close('A2', 60), close('A3', 40), close('A4', 50), close('B1', 10), close('B2', 10), close('B3', 10)],
+      consensus: { rows: { A1: est(4, 5), A2: est(2, 3), A3: est(1, 2), A4: est(-1, 2), B1: est(1, 1), B2: est(1, 1), B3: est(1, 1) } } });
+    const a = lv.layers.find((layer) => layer.name === 'A');
+    // A: A1 25→20, A2 30→20, A3 40→20 (A4 has a loss) → medians 30 and 20. B: 3 of 7 covered (<50%) → hidden. S is not an AI-chain theme.
+    if (!a || a.trailingPe !== 30 || a.forwardPe !== 20 || a.measured !== 3 || lv.layers.length !== 1 || lv.hidden[0]?.name !== 'B' || lv.hidden[0].measured !== 3) fail(`v59.70 layer PER: ${JSON.stringify(lv)}`);
+    if (layerValuation({ themes: layerThemes, rows: [], consensus: null, now }).available !== false) fail('v59.70 layer PER without the consensus artifact is unavailable, not empty');
+  }
+  // v59.70 (theme-sector): 1일 leads the tabs (owner: which theme led the day and the week).
+  if (STRENGTH_TABS.join(',') !== 'ret1d,ret5d,ret1m,ret3m' || GROUP_WINDOWS.ret1d !== '1일' || GROUP_WINDOWS.ret10d !== '2주' || GROUP_WINDOWS.ret6m !== '6개월') fail('v59.70 ranking tabs are 1일·1주·1개월·3개월, with 2주 and 6개월 still named');
+  {
+    const dayThemes = [{ id: 'd', nameKr: 'D', subThemes: [{ name: 'X', tickers: ['X1', 'X2', 'X3'] }] }];
+    const day = buildGroupStrength({ themes: dayThemes, rows: ['X1', 'X2', 'X3'].map((sym, i) => ({ sym, ret1d: [1, -2, 3][i], ret1m: 1, factorSessionDate: '2026-11-03' })), sortKey: 'ret1d' });
+    if (day.windowLabel !== '1일' || day.groups[0].ret1d !== 1 || day.groups[0].rankedMembers[0].sym !== 'X3') fail(`v59.70 the 1일 tab ranks by the one-session median: ${JSON.stringify(day.groups[0])}`);
+  }
   const themes = [{ id: 't', nameKr: 'T', subThemes: [{ name: 'A', tickers: ['A1', 'A2', 'A3'] }, { name: 'B', tickers: ['B1', 'B2', 'B3'] }] }];
   const row = (sym, ret5d, ret10d, ret1m) => ({ sym, ret5d, ret10d, ret1m, ret3m: ret1m, ret6m: ret1m, pctSma50: 1, factorSessionDate: '2026-10-23' });
   const rows = [row('A1', 5, 6, -1), row('A2', 4, 7, -2), row('A3', 6, 8, -3), row('B1', -1, -2, 9), row('B2', -2, -3, 8), row('B3', -3, -4, 7)];

@@ -1,0 +1,18 @@
+{
+ "version": "v59.70",
+ "date": "2026-11-04",
+ "p": {
+  "title": "테마 RRG: 산출물이 한 세션 늦으면 세부 업종 ETF가 한 점에 겹침",
+  "symptom": "11/3 마감 뒤 세부 업종·전체 보기에서 IGV·XBI·ITA·OIH·AMLP·GDX·URA·XOP·ICLN·KRE 등이 약 101.7, 101.8 한 좌표에 겹쳐 라벨이 방사형으로 뭉치고 '선도 20, 개선 0, 약화 0, 후행 0'으로 읽혔다.",
+  "root_cause": "selectProducedRotation이 rotationHistory(11/2)를 최신 완료 세션(11/3)과 다르다며 전부 버리자, themes provider가 computeRelativeRotation으로 root._priceHistory를 다시 계산했다. 11섹터와 SPY는 일봉으로 수화되지만 세부 업종은 30초 세션 틱(마감 뒤 같은 가격의 반복)이었고, 상수 가격 ÷ SPY 일봉의 정규화 비율은 가격과 무관하게 같아 모든 ETF가 같은 점이 됐다.",
+  "fix": "selectProducedRotation에 lagSessions 옵션을 두어 테마 화면(provider·compatibility-facade·themes.js)이 한 세션 전 산출물을 lagging 표시와 함께 읽고(칩 '11/2 종가 기준, 11/3 반영 전', session-lag.js 하나로 세 화면 공용), 클라이언트 RRG 재계산(computeRelativeRotation over _priceHistory)과 정의 기본값(item.rsRatio·item.quadrant) 대체, 그 입력이던 P721 hydrateRRGDailyHistory를 지웠다(데이터 감사 R1). 다른 화면의 엄격한 세션 검사는 그대로.",
+  "violated_rule": "R14 계열 — 세션 틱과 일봉 시계열을 한 계산에 섞지 않는다",
+  "prevention": "v59.70 assertion: themes provider에 computeRelativeRotation·item?.rsRatio·item?.quadrant가 없다; 한 세션 늦은 산출물은 lagSessions:1에서만 lagging으로 읽히고 두 세션 늦으면 거부된다.",
+  "verification": "node 재현: 상수 틱 이력 3개(95.1/101.4/210.2)가 모두 96.521/98.426로 같은 점; 수정 후 IGV 97.10/96.97 lagging=true, 11/5 기준 null. 브라우저 보기 전환 3회 왕복 스크린샷."
+ },
+ "r": null,
+ "changelog": [
+  "**테마 RRG 겹침 (P{P}):** 산출물이 한 세션 늦을 때 세션 틱으로 다시 계산하던 대체 경로를 없애고, 전 세션 산출물을 '반영 전' 표시로 읽는다."
+ ],
+ "note": "theme-sector: RRG lag fallback"
+}

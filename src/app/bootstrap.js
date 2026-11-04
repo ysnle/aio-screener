@@ -30,6 +30,7 @@ import { finalizePageDecision } from '../domain/signal/page-decision.js';
 import { installRouteHubTabs, setStockSubject } from '../ui/navigation/route-hubs.js';
 import { registerInterpretationStore } from '../data/selectors/interpretation.js';
 import { installScreenShortcuts } from '../ui/navigation/screen-shortcuts.js';
+import { applyLegacyThemeDetailAddress } from '../ui/navigation/theme-detail.js';
 import { installRouteScrollMemory } from '../ui/navigation/scroll-memory.js';
 import { installShellOverlays } from '../ui/components/shell-overlays.js';
 import { installColorTheme } from '../ui/components/color-theme.js';
@@ -139,10 +140,12 @@ export function resolveInitialRoute({ root = globalThis, hash = root?.location?.
   const canonicalRoute = root?.AIO_ROUTE_REGISTRY?.canonical?.[rawRoute]
     || (rawRoute === 'theme-detail' ? 'themes' : rawRoute);
   if (rawRoute === 'theme-detail') {
+    // v59.70: the address's own id wins; a retired or unknown id opens the list. Without an id the current selection
+    // carries over (a knowledge link), never the first theme.
+    if (applyLegacyThemeDetailAddress(root, hash)?.named) return ROUTE_IDS.includes(canonicalRoute) ? canonicalRoute : 'home';
     const themeId = String(
       root?._aioOpenThemeDetailOnThemes
       || root?._currentThemeId
-      || root?.THEME_MAP?.[0]?.id
       || ''
     ).trim();
     if (themeId && !root?._aioOpenThemeDetailOnThemes) {
@@ -385,7 +388,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   const syncThemes = createThemesOrchestrator({
     provider: createThemesProvider({
       readLiveData: () => root?._liveData || {},
-      readHistory: () => root?._priceHistory || {},
+      // v59.70 (data audit R1): no readHistory — the RRG point comes only from the produced rotation artifact.
       readRotationHistory: () => root?._serverDataMeta?.rotationHistory || null,
       readWeeklyPerf: () => root?._sectorWeeklyCache || {},
       readDefinitions: () => ({
@@ -776,6 +779,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stopMacroUpdated = legacy.on('aio:macroUpdated', syncMarket.sync);
     const stopThemesRefresh = compatibilityEvents.on('aio:refresh:done', syncThemes.sync);
     const stopThemesHistory = legacy.on('aio:themesHistoryLoaded', syncThemes.sync);
+    const stopRotationDetail = legacy.on('aio:rotationDetailLoaded', syncThemes.sync); // v59.70 (R11): series arrived after data.json
     const stopThemeDetail = legacy.on('aio:themeDetailShown', syncThemes.sync);
     const stopEntityRefresh = compatibilityEvents.on('aio:refresh:done', syncEntityForConsumers);
     const stopEntityChanged = legacy.on('aio:entityChanged', syncEntity.sync);
@@ -1052,6 +1056,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopMacroUpdated();
       stopThemesRefresh();
       stopThemesHistory();
+      stopRotationDetail();
       stopThemeDetail();
       stopEntityRefresh();
       stopEntityChanged();
