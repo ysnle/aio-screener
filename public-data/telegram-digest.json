@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-04T03:51:55.480Z",
-  "attemptedAt": "2026-11-04T03:51:55.480Z",
-  "lastSuccessfulAt": "2026-11-04T03:51:55.480Z",
+  "generatedAt": "2026-11-04T04:21:52.435Z",
+  "attemptedAt": "2026-11-04T04:21:52.435Z",
+  "lastSuccessfulAt": "2026-11-04T04:21:52.435Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-21T03:51:50.347Z",
-  "until": "2026-11-04T03:51:50.347Z",
+  "since": "2026-10-21T04:21:46.223Z",
+  "until": "2026-11-04T04:21:46.223Z",
   "current24hWindow": {
     "start": "2026-11-02T23:00:00.000Z",
     "end": "2026-11-03T23:00:00.000Z",
@@ -80,9 +80,9 @@
       "pages": 0,
       "reachedOlder": false,
       "reachedKnown": false,
-      "count": 101,
+      "count": 98,
       "freshCount": 0,
-      "eligibleTextCount": 95,
+      "eligibleTextCount": 92,
       "selectedCount": 41,
       "error": "first page parsed no posts",
       "lastPostId": 26057
@@ -92,12 +92,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1353,
+      "count": 1358,
       "freshCount": 40,
-      "eligibleTextCount": 1289,
-      "selectedCount": 121,
+      "eligibleTextCount": 1294,
+      "selectedCount": 122,
       "error": null,
-      "lastPostId": 68282
+      "lastPostId": 68291
     },
     {
       "channel": "bornlupin",
@@ -113,51 +113,51 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 655,
-      "freshCount": 20,
-      "eligibleTextCount": 654,
+      "count": 662,
+      "freshCount": 39,
+      "eligibleTextCount": 661,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 71520
+      "lastPostId": 71529
     }
   ],
-  "count": 2345,
-  "retainedItemCount": 465,
+  "count": 2354,
+  "retainedItemCount": 478,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2345,
-    "eligibleTextCount": 2274,
+    "observedCount": 2354,
+    "eligibleTextCount": 2283,
     "mediaOnlyCount": 71,
-    "mediaAttachedCount": 249,
-    "photoPostCount": 216,
+    "mediaAttachedCount": 257,
+    "photoPostCount": 224,
     "documentPostCount": 1,
-    "imageOnlyCount": 0,
+    "imageOnlyCount": 1,
     "highSignalCount": 425,
-    "broadSignalCount": 908,
-    "selectedRawCount": 410,
-    "selectedEligibleCount": 410,
+    "broadSignalCount": 909,
+    "selectedRawCount": 411,
+    "selectedEligibleCount": 411,
     "selectedRawCoveragePct": 18,
     "selectedOfObservedPct": 17.5,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 839,
+    "market-note": 849,
+    "semi": 508,
     "geo": 438,
-    "ai-policy": 128,
+    "healthcare": 103,
+    "media-only": 71,
     "macro": 348,
-    "earnings": 470,
-    "power": 272,
-    "semi": 507,
+    "ai-policy": 129,
+    "earnings": 469,
+    "power": 270,
     "kr-market": 123,
     "flows": 69,
-    "media-only": 71,
-    "healthcare": 103,
     "equity": 155,
     "credit": 108,
     "japan": 97,
@@ -165,16 +165,16 @@
     "optical": 43
   },
   "tickerCounts": {
+    "NVDA": 133,
+    "TSM": 39,
     "GOOG": 129,
     "TSLA": 54,
     "AMD": 44,
     "SMCI": 8,
-    "NVDA": 131,
     "INTC": 7,
     "MU": 40,
     "MSFT": 59,
     "ORCL": 12,
-    "TSM": 38,
     "PLTR": 28,
     "AMGN": 1,
     "DUOL": 1,
@@ -264,19 +264,19 @@
     "DELL": 1
   },
   "themes": [
-    "Market Notes (839 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Falcon Guardian에 AI 에이전트의 실행을 중단하고 재시작 및 기업 네트워크 접근을...",
-    "Semiconductors/Memory (507 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
-    "Earnings/Corporate (470 posts in 14-day research window): 알파벳(GOOGL) 2026년 3분기 실적 (시간외 -7.7%) 주당순이익(EPS): 2.12달러 매출: 1,276억 달러 (예상 1,282.2억 달러 하회), 전년 대비 25% 증가 구글 클라우드 매출:...",
+    "Market Notes (849 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Falcon Guardian에 AI 에이전트의 실행을 중단하고 재시작 및 기업 네트워크 접근을...",
+    "Semiconductors/Memory (508 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
+    "Earnings/Corporate (469 posts in 14-day research window): 알파벳(GOOGL) 2026년 3분기 실적 (시간외 -7.7%) 주당순이익(EPS): 2.12달러 매출: 1,276억 달러 (예상 1,282.2억 달러 하회), 전년 대비 25% 증가 구글 클라우드 매출:...",
     "Geopolitics (438 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
     "Macro/Rates (348 posts in 14-day research window): 2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%,...",
-    "AI Power/Grid (272 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
+    "AI Power/Grid (270 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
     "Equity/Analyst (155 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p....",
-    "AI Policy/Export Controls (128 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
+    "AI Policy/Export Controls (129 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 131,
+      "count": 133,
       "text": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p...."
     },
     {
@@ -321,7 +321,7 @@
     },
     {
       "key": "TSM",
-      "count": 38,
+      "count": 39,
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
@@ -369,7 +369,7 @@
       "topics": [
         "semi"
       ],
-      "count": 507,
+      "count": 508,
       "focus": "2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A..."
     },
     {
@@ -387,7 +387,7 @@
       "topics": [
         "power"
       ],
-      "count": 272,
+      "count": 270,
       "focus": "Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을..."
     },
     {
@@ -396,7 +396,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 128,
+      "count": 129,
       "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
@@ -432,7 +432,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 470,
+      "count": 469,
       "focus": "알파벳(GOOGL) 2026년 3분기 실적 (시간외 -7.7%) 주당순이익(EPS): 2.12달러 매출: 1,276억 달러 (예상 1,282.2억 달러 하회), 전년 대비 25% 증가 구글 클라우드 매출:..."
     },
     {
@@ -477,7 +477,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 839,
+      "count": 849,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Falcon Guardian에 AI 에이전트의 실행을 중단하고 재시작 및 기업 네트워크 접근을..."
     }
   ],
@@ -1761,6 +1761,71 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71529",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71529",
+      "datetime": "2026-11-04T04:17:36.000Z",
+      "localDateKst": "2026-11-04",
+      "tags": [
+        "semi",
+        "geo",
+        "healthcare"
+      ],
+      "lead": 1,
+      "score": 75,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA",
+        "TSM"
+      ],
+      "summary": "• 알리바바·텐센트·바이트댄스 등 중국 빅테크들이 주문한 엔비디아 'RTX Pro 5500'은 약 600만 대(총 700억 달러 이상)에 달하지만, 향후 4개월간 실제 인도받을 물량은 수만 대(전체의 약..."
+    },
+    {
+      "id": "insidertracking/68287",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68287",
+      "datetime": "2026-11-04T03:55:27.000Z",
+      "localDateKst": "2026-11-04",
+      "tags": [
+        "macro",
+        "geo"
+      ],
+      "score": 57,
+      "hasText": true,
+      "tickers": [],
+      "summary": "중간선거 공화당 패배 이유 It's the economy, stupid! - 92년 빌 클린턴 캐치프레이즈 MAGA고 나발이고 관세, 전쟁으로 물가 오르는건 못참음"
+    },
+    {
+      "id": "insidertracking/68286",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68286",
+      "datetime": "2026-11-04T03:53:10.000Z",
+      "localDateKst": "2026-11-04",
+      "tags": [
+        "semi",
+        "ai-policy"
+      ],
+      "lead": 1,
+      "score": 61,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "엔비디아의 중국 시장용 AI 반도체 현황 • B300/B200: 최첨단 AI 모델 학습용 반도체로, 미국의 수출 통제가 적용돼 중국 내 공급 불가. • H100: 대규모 언어모델(LLM) 학습용 반도체로,..."
+    },
+    {
       "id": "HANAchina/71520",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71520",
@@ -2144,13 +2209,13 @@
         "semi",
         "power"
       ],
+      "lead": 3,
       "score": 69,
       "hasText": true,
-      "summary": ">>AMD, Intel과 달리 3분기 매출 45% 증가…데이터센터 매출 97% 성장, 4분기 실적 전망도 상향 •AI 투자심리가 위축되고 Intel이 부진한 4분기 실적 전망으로 주가 급락을 겪은 가운데,...",
-      "lead": 3,
       "tickers": [
         "AMD"
-      ]
+      ],
+      "summary": ">>AMD, Intel과 달리 3분기 매출 45% 증가…데이터센터 매출 97% 성장, 4분기 실적 전망도 상향 •AI 투자심리가 위축되고 Intel이 부진한 4분기 실적 전망으로 주가 급락을 겪은 가운데,..."
     },
     {
       "id": "bornlupin/20986",
@@ -2663,14 +2728,14 @@
         "ai-policy",
         "equity"
       ],
+      "lead": 3,
       "score": 70,
       "hasText": true,
-      "summary": ">>Anthropic, IPO 투자자들에게 Claude의 반도체 설계 역량 강조（The Information） •Anthropic의 AI 모델은 심각한 사이버 보안 취약점을 발견하고 소프트웨어 프로그래밍...",
-      "lead": 3,
       "tickers": [
         "NVDA",
         "AMD"
-      ]
+      ],
+      "summary": ">>Anthropic, IPO 투자자들에게 Claude의 반도체 설계 역량 강조（The Information） •Anthropic의 AI 모델은 심각한 사이버 보안 취약점을 발견하고 소프트웨어 프로그래밍..."
     },
     {
       "id": "bornlupin/20978",
@@ -2769,12 +2834,12 @@
       "datetime": "2026-11-03T12:40:09.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
+        "semi",
+        "optical",
         "equity"
       ],
       "score": 90,
       "hasText": true,
-      "summary": ">>Morgan Stanley, 미국 대형 CSP의 2027년 자본지출 낙관…대만 공급망 15개 종목 선호 (대만경제일보) •Morgan Stanley는 Microsoft, Google, Meta,...",
-      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -2783,7 +2848,8 @@
         "GOOG",
         "AMZN",
         "MS"
-      ]
+      ],
+      "summary": ">>Morgan Stanley, 미국 대형 CSP의 2027년 자본지출 낙관…대만 공급망 15개 종목 선호 (대만경제일보) •Morgan Stanley는 Microsoft, Google, Meta,..."
     },
     {
       "id": "insidertracking/68202",
@@ -2817,11 +2883,11 @@
       "tags": [
         "geo"
       ],
+      "lead": 1,
       "score": 50,
       "hasText": true,
-      "summary": "•이란 대통령은 최고지도자가 협상 불가 사안에 대해서도 협상을 진행하는 것을 허용했다고 밝힘 •브렌트유는 배럴당 105달러 아래로 하락해 104.99달러를 기록, 장중 상승률은 0.24%로 축소",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "•이란 대통령은 최고지도자가 협상 불가 사안에 대해서도 협상을 진행하는 것을 허용했다고 밝힘 •브렌트유는 배럴당 105달러 아래로 하락해 104.99달러를 기록, 장중 상승률은 0.24%로 축소"
     },
     {
       "id": "insidertracking/68196",
@@ -2853,17 +2919,18 @@
       "datetime": "2026-11-03T12:08:43.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "market-note"
+        "semi",
+        "flows"
       ],
       "score": 73,
       "hasText": true,
-      "summary": ">>중국 저장장치·AI 서버 업체 Sharetronic Data Technology(Xiechuang Data): DDR 공급 부족 심화, 최근 가격 30% 인상 제시가 수용됨 •11월 3일,...",
       "tickers": [
         "SNDK",
         "WDC",
         "STX",
         "285A.T"
-      ]
+      ],
+      "summary": ">>중국 저장장치·AI 서버 업체 Sharetronic Data Technology(Xiechuang Data): DDR 공급 부족 심화, 최근 가격 30% 인상 제시가 수용됨 •11월 3일,..."
     },
     {
       "id": "insidertracking/68193",
@@ -2888,11 +2955,11 @@
       "tags": [
         "macro"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": ">>세계금협회, 올해 금 투자 수요 증가 전망 200톤으로 하향…중앙은행 금 매입 가속화, ETF 보유량 사상 최고치 •세계금협회는 2026년 글로벌 금 투자 수요 증가 전망을 200톤으로 하향 조정. 금...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>세계금협회, 올해 금 투자 수요 증가 전망 200톤으로 하향…중앙은행 금 매입 가속화, ETF 보유량 사상 최고치 •세계금협회는 2026년 글로벌 금 투자 수요 증가 전망을 200톤으로 하향 조정. 금..."
     },
     {
       "id": "insidertracking/68192",
@@ -6999,61 +7066,6 @@
       ]
     },
     {
-      "id": "insidertracking/67822",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67822",
-      "datetime": "2026-10-29T21:22:27.000Z",
-      "localDateKst": "2026-10-30",
-      "tags": [
-        "market-note"
-      ],
-      "score": 78,
-      "hasText": true,
-      "summary": "10월 30일 미주인 브리핑 • 나스닥 1.38% 하락 · 러셀 2000 1.01% 상승 • 구글 13% 급락 · 시총 약 4,790억 달러 증발 • 인텔 시간외 16% 급락 • 아마존 AWS 39% 성장 ·...",
-      "tickers": [
-        "GOOG",
-        "AMZN"
-      ]
-    },
-    {
-      "id": "insidertracking/67808",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67808",
-      "datetime": "2026-10-29T21:00:59.000Z",
-      "localDateKst": "2026-10-30",
-      "tags": [
-        "semi",
-        "optical",
-        "flows"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "2026년 10월 29일 서학개미 순매수 미국 주식 TOP 50 1위: MICRON TECHNOLOGY INC (15.96%) 2위: LUMENTUM HOLDINGS INC SOFF 39520207144...",
-      "tickers": [],
-      "listTickers": [
-        "NVDA",
-        "AMD",
-        "GOOG",
-        "META",
-        "AVGO",
-        "AMZN",
-        "MU",
-        "MRVL",
-        "LITE",
-        "AAOI",
-        "BE",
-        "SNDK",
-        "STX",
-        "000660.KS",
-        "GOOGL",
-        "INTC",
-        "PANW",
-        "CRWD",
-        "BA",
-        "CRDO"
-      ]
-    },
-    {
       "id": "bornlupin/20890",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20890",
@@ -7487,20 +7499,6 @@
         "AVGO",
         "ORCL"
       ]
-    },
-    {
-      "id": "HANAchina/71185",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71185",
-      "datetime": "2026-10-28T23:23:57.000Z",
-      "localDateKst": "2026-10-29",
-      "tags": [
-        "market-note"
-      ],
-      "score": 50,
-      "hasText": true,
-      "summary": ">>미국 원유 재고 4주 연속 감소, 수출 급증… 정제유 재고 감소폭 예상 상회 •미국 EIA에 따르면 10월 23일로 끝난 주간 상업용 원유 재고는 190만 배럴 감소함. 시장에서는 1만5,000배럴...",
-      "tickers": []
     },
     {
       "id": "bornlupin/20873",
@@ -9141,13 +9139,13 @@
         "semi",
         "power"
       ],
+      "lead": 3,
       "score": 69,
       "hasText": true,
-      "summary": ">>AMD, Intel과 달리 3분기 매출 45% 증가…데이터센터 매출 97% 성장, 4분기 실적 전망도 상향 •AI 투자심리가 위축되고 Intel이 부진한 4분기 실적 전망으로 주가 급락을 겪은 가운데,...",
-      "lead": 3,
       "tickers": [
         "AMD"
-      ]
+      ],
+      "summary": ">>AMD, Intel과 달리 3분기 매출 45% 증가…데이터센터 매출 97% 성장, 4분기 실적 전망도 상향 •AI 투자심리가 위축되고 Intel이 부진한 4분기 실적 전망으로 주가 급락을 겪은 가운데,..."
     },
     {
       "id": "bornlupin/20986",
@@ -9660,14 +9658,14 @@
         "ai-policy",
         "equity"
       ],
+      "lead": 3,
       "score": 70,
       "hasText": true,
-      "summary": ">>Anthropic, IPO 투자자들에게 Claude의 반도체 설계 역량 강조（The Information） •Anthropic의 AI 모델은 심각한 사이버 보안 취약점을 발견하고 소프트웨어 프로그래밍...",
-      "lead": 3,
       "tickers": [
         "NVDA",
         "AMD"
-      ]
+      ],
+      "summary": ">>Anthropic, IPO 투자자들에게 Claude의 반도체 설계 역량 강조（The Information） •Anthropic의 AI 모델은 심각한 사이버 보안 취약점을 발견하고 소프트웨어 프로그래밍..."
     },
     {
       "id": "bornlupin/20978",
@@ -9746,12 +9744,12 @@
       "datetime": "2026-11-03T12:40:09.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
+        "semi",
+        "optical",
         "equity"
       ],
       "score": 90,
       "hasText": true,
-      "summary": ">>Morgan Stanley, 미국 대형 CSP의 2027년 자본지출 낙관…대만 공급망 15개 종목 선호 (대만경제일보) •Morgan Stanley는 Microsoft, Google, Meta,...",
-      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -9760,7 +9758,8 @@
         "GOOG",
         "AMZN",
         "MS"
-      ]
+      ],
+      "summary": ">>Morgan Stanley, 미국 대형 CSP의 2027년 자본지출 낙관…대만 공급망 15개 종목 선호 (대만경제일보) •Morgan Stanley는 Microsoft, Google, Meta,..."
     },
     {
       "id": "insidertracking/68202",
@@ -9794,11 +9793,11 @@
       "tags": [
         "geo"
       ],
+      "lead": 1,
       "score": 50,
       "hasText": true,
-      "summary": "•이란 대통령은 최고지도자가 협상 불가 사안에 대해서도 협상을 진행하는 것을 허용했다고 밝힘 •브렌트유는 배럴당 105달러 아래로 하락해 104.99달러를 기록, 장중 상승률은 0.24%로 축소",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "•이란 대통령은 최고지도자가 협상 불가 사안에 대해서도 협상을 진행하는 것을 허용했다고 밝힘 •브렌트유는 배럴당 105달러 아래로 하락해 104.99달러를 기록, 장중 상승률은 0.24%로 축소"
     },
     {
       "id": "insidertracking/68196",
@@ -9830,17 +9829,18 @@
       "datetime": "2026-11-03T12:08:43.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "market-note"
+        "semi",
+        "flows"
       ],
       "score": 73,
       "hasText": true,
-      "summary": ">>중국 저장장치·AI 서버 업체 Sharetronic Data Technology(Xiechuang Data): DDR 공급 부족 심화, 최근 가격 30% 인상 제시가 수용됨 •11월 3일,...",
       "tickers": [
         "SNDK",
         "WDC",
         "STX",
         "285A.T"
-      ]
+      ],
+      "summary": ">>중국 저장장치·AI 서버 업체 Sharetronic Data Technology(Xiechuang Data): DDR 공급 부족 심화, 최근 가격 30% 인상 제시가 수용됨 •11월 3일,..."
     },
     {
       "id": "insidertracking/68193",
@@ -9865,11 +9865,11 @@
       "tags": [
         "macro"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": ">>세계금협회, 올해 금 투자 수요 증가 전망 200톤으로 하향…중앙은행 금 매입 가속화, ETF 보유량 사상 최고치 •세계금협회는 2026년 글로벌 금 투자 수요 증가 전망을 200톤으로 하향 조정. 금...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>세계금협회, 올해 금 투자 수요 증가 전망 200톤으로 하향…중앙은행 금 매입 가속화, ETF 보유량 사상 최고치 •세계금협회는 2026년 글로벌 금 투자 수요 증가 전망을 200톤으로 하향 조정. 금..."
     },
     {
       "id": "insidertracking/68192",
