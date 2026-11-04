@@ -135,7 +135,7 @@ export function createInspectorController(ctx) {
          // Review fix: the same guard as the table's 전체 순위 column (held ranking or a row that did not pass shows no order).
          const rankHoldNow = marketRankingMetadata(inspectState.metadata, rowMarket)?.available === false || !!root?._aioRankingHold;
          const ordinalForLine = rankHoldNow || row.screenStatus !== 'passed' ? null : finite(row.screenRank);
-         setText('scr-why-rankline', ordinalForLine == null ? '순위 계산 보류' : `전체 ${ordinalForLine}위 / ${rankedInMarket || '—'}`);
+         setText('scr-why-rankline', ordinalForLine == null ? '순위 계산 보류' : rankedInMarket ? `순위 매긴 ${rankedInMarket}종목 중 ${ordinalForLine}위` : `전체 ${ordinalForLine}위`);
          const inspectLive = liveRow(row, liveReader);
          const inspectPrice = finite(inspectLive.price);
          setText('scr-why-price', inspectPrice == null ? '—' : formatScreenerPrice(inspectPrice, String(row.instrumentRef?.currency || row.currency || '').trim().toUpperCase() || null));

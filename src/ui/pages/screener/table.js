@@ -1015,7 +1015,11 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
   const previewConditions = preview?.definition ? describeFilterAst(preview.definition) : null;
   // 개편 v2 (3c): the kicker states the collected and computable counts once, before the close basis.
   const kickerCounts = documentRef.getElementById('scr-kicker-counts');
-  if (kickerCounts) kickerCounts.textContent = state?.status === 'unavailable' || !allRows.length ? '' : `${allRows.length}종목 중 ${readyCount}종목 계산`;
+  // v59.70 (screen review 16): the kicker, the status line and the drawer's '전체 N위 / M' used four totals with no link
+  // between them. The kicker names the chain (collected → computed → ranked), the drawer reads against the same ranked
+  // count, and the status line's 조건 통과 is the subset of that.
+  const rankedRows = scopedRows(currentState?.rows || rows, listingMarket).filter((row) => finite(row?.screenRank) != null).length; // the drawer's source
+  if (kickerCounts) kickerCounts.textContent = state?.status === 'unavailable' || !allRows.length ? '' : `${allRows.length}종목 중 ${readyCount}종목 계산, ${rankedRows}종목 순위`;
   // P1167 (15 D05): 정적 유니버스가 MIC·assetType을 발행하지 않으면 식별 미확인 행이 남는다. 가격 조회
   // 성공과 식별 metadata 확인을 같은 것으로 읽지 않도록 미확인 수와 누락 필드를 함께 표시한다.
   // v58.74 (owner decision INTL, resolved on the recommended option): Tokyo/Taiwan listings stay in the table for their

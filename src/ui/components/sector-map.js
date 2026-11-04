@@ -109,7 +109,14 @@ export function renderSectorMap({ documentRef: doc, root, store }) {
     for (const sector of sectors) {
       const box = el(doc, 'div', null, 'sector-map-sector');
       Object.assign(box.style, { left: `${sector.x}px`, top: `${sector.y}px`, width: `${sector.w}px`, height: `${sector.h}px` });
-      if (sector.showHeader) box.append(el(doc, 'span', `${sector.label} ${signed(sector.ret, 1)}`, 'sector-map-sector-label'));
+      // v59.70 (screen review 24): a narrow sector cut '산업재 +0…' with an ellipsis. The header shows the longest of
+      // name + change, name, change that fits (12px bold, 8px inset); the full text stays in the hover.
+      if (sector.showHeader) {
+        const full = `${sector.label} ${signed(sector.ret, 1)}`;
+        const fits = [full, sector.label, signed(sector.ret, 1)].find((text) => labelWidth(text, 12.5) <= sector.w - 8);
+        if (fits) { const head = el(doc, 'span', fits, 'sector-map-sector-label'); head.title = full; box.append(head); }
+        else box.title = full;
+      }
       nodes.push(box);
     }
     let selected = null;
