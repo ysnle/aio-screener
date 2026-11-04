@@ -2028,6 +2028,13 @@
           "script": "scripts/ci-out-of-universe-ticker-browser-check.mjs",
           "timeoutMs": 300000,
           "weight": 1
+        },
+        {
+          "id": "browser-entity-deep-link",
+          "script": "scripts/ci-entity-deep-link-browser-check.mjs",
+          "timeoutMs": 240000,
+          "weight": 1,
+          "remedy": "v59.70: a 종목 deep link (#technical/AAPL, #fundamental?sym=MSFT) must open that company on that hub tab; the boot route (src/app/bootstrap.js resolveInitialRoute) and the router (parseRouteDeepLink) read the same path and query forms"
         }
       ]
     },
@@ -2511,7 +2518,8 @@
         "browser-responsive",
         "browser-entity-quality",
         "browser-touch-ergonomics",
-        "browser-out-of-universe-ticker"
+        "browser-out-of-universe-ticker",
+        "browser-entity-deep-link"
       ]
     },
     {

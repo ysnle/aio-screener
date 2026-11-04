@@ -6134,6 +6134,21 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (story.dataset.frameContract !== 'story' || story.children[1]?.className !== 'aio-frame-visual' || story.children[1].children[0]?.tag !== 'svg' || story.children[2]?.className !== 'aio-frame-reading'
     || frame.frameSection(doc, { title: 'T', contract: 'poster' }).dataset.frameContract !== undefined || frame.FRAME_CONTRACTS.story.visuals !== 1)
     fail('v59.70 story frame: head, one wrapped visual, one reading; only a known contract is named');
+  // v59.70 (ui-states follow-up): the boot route of every route in every address form. #technical/AAPL booted on home
+  // (the 오늘 hub tabs over the 차트 page) because the route was cut only at '?'. Browser half:
+  // scripts/ci-entity-deep-link-browser-check.mjs.
+  const { ROUTE_IDS: bootRoutes } = await load('src/app/routes.js');
+  const { parseRouteDeepLink } = await load('src/app/router.js');
+  const bootMisses = [];
+  for (const routeId of bootRoutes) {
+    for (const hash of [`#${routeId}`, `#${routeId}?sym=AAPL`, `#${routeId}/AAPL`]) {
+      const booted = resolveInitialRoute({ root: {}, hash });
+      if (routeId !== 'theme-detail' && booted !== routeId) bootMisses.push(`${hash} -> ${booted}`);
+      const link = parseRouteDeepLink(hash);
+      if (['ticker', 'technical', 'fundamental'].includes(routeId) && hash !== `#${routeId}` && link?.entityId !== 'AAPL') bootMisses.push(`${hash} entity ${link?.entityId}`);
+    }
+  }
+  if (bootMisses.length) fail(`v59.70 every route boots on itself in bare, query and path form: ${bootMisses.join(', ')}`);
   const { headroom } = await import(pathToFileURL(path.join(root, 'scripts/ci-secondary-text-budget-check.mjs')).href);
   if (headroom(0) !== 40 || headroom(1000) !== 1140) fail('v58.79 budget headroom is 10% + 40 characters');
   // v59.51 (content audit): the quote heading and its state chip (HOME_QUOTE_HEADINGS) are retired with the KPI strip; the

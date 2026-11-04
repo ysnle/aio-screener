@@ -134,7 +134,7 @@ import { NATHAN_FRAMEWORK_PACK, NATHAN_ANALYSIS_PROTOCOL, NATHAN_KNOWLEDGE_ALIAS
 export const ARCHITECTURE_VERSION = 'AR-01~16.v1';
 
 export function resolveInitialRoute({ root = globalThis, hash = root?.location?.hash } = {}) {
-  const rawRoute = String(hash || '').replace(/^#/, '').split('?')[0].trim();
+  const rawRoute = String(hash || '').replace(/^#/, '').split(/[?/]/)[0].trim(); // #ticker/NVDA, #theme-detail/<id> are path forms
   const canonicalRoute = root?.AIO_ROUTE_REGISTRY?.canonical?.[rawRoute]
     || (rawRoute === 'theme-detail' ? 'themes' : rawRoute);
   if (rawRoute === 'theme-detail') {
