@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-05T01:21:56.694Z",
-  "attemptedAt": "2026-11-05T01:21:56.694Z",
-  "lastSuccessfulAt": "2026-11-05T01:21:56.694Z",
+  "generatedAt": "2026-11-05T01:51:45.434Z",
+  "attemptedAt": "2026-11-05T01:51:45.434Z",
+  "lastSuccessfulAt": "2026-11-05T01:51:45.434Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-22T01:21:51.042Z",
-  "until": "2026-11-05T01:21:51.042Z",
+  "since": "2026-10-22T01:51:39.315Z",
+  "until": "2026-11-05T01:51:39.315Z",
   "current24hWindow": {
     "start": "2026-11-03T23:00:00.000Z",
     "end": "2026-11-04T23:00:00.000Z",
@@ -80,33 +80,33 @@
       "pages": 0,
       "reachedOlder": false,
       "reachedKnown": false,
-      "count": 78,
+      "count": 77,
       "freshCount": 0,
-      "eligibleTextCount": 74,
+      "eligibleTextCount": 73,
       "selectedCount": 41,
       "error": "first page parsed no posts",
       "lastPostId": 26057
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1353,
-      "freshCount": 20,
-      "eligibleTextCount": 1287,
+      "count": 1354,
+      "freshCount": 38,
+      "eligibleTextCount": 1288,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 68407
+      "lastPostId": 68408
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 232,
+      "count": 231,
       "freshCount": 20,
-      "eligibleTextCount": 232,
+      "eligibleTextCount": 231,
       "selectedCount": 123,
       "error": null,
       "lastPostId": 21006
@@ -116,61 +116,61 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 679,
+      "count": 681,
       "freshCount": 40,
-      "eligibleTextCount": 678,
+      "eligibleTextCount": 680,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 71571
+      "lastPostId": 71574
     }
   ],
-  "count": 2342,
-  "retainedItemCount": 459,
+  "count": 2343,
+  "retainedItemCount": 475,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2342,
-    "eligibleTextCount": 2271,
+    "observedCount": 2343,
+    "eligibleTextCount": 2272,
     "mediaOnlyCount": 71,
-    "mediaAttachedCount": 337,
-    "photoPostCount": 291,
+    "mediaAttachedCount": 339,
+    "photoPostCount": 293,
     "documentPostCount": 1,
     "imageOnlyCount": 1,
-    "highSignalCount": 406,
-    "broadSignalCount": 889,
+    "highSignalCount": 405,
+    "broadSignalCount": 888,
     "selectedRawCount": 410,
     "selectedEligibleCount": 410,
-    "selectedRawCoveragePct": 18.1,
+    "selectedRawCoveragePct": 18,
     "selectedOfObservedPct": 17.5,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "macro": 352,
-    "market-note": 860,
-    "earnings": 446,
-    "flows": 68,
-    "semi": 491,
-    "power": 261,
+    "market-note": 861,
+    "macro": 353,
+    "power": 262,
+    "earnings": 445,
+    "flows": 67,
+    "semi": 489,
     "equity": 143,
     "credit": 100,
     "media-only": 71,
     "ai-policy": 112,
     "geo": 440,
     "kr-market": 122,
-    "healthcare": 83,
-    "optical": 39,
+    "healthcare": 82,
+    "optical": 38,
     "japan": 86,
     "crypto": 4
   },
   "tickerCounts": {
     "AMD": 49,
-    "MU": 36,
-    "TSM": 39,
+    "MU": 34,
+    "TSM": 38,
     "005930.KS": 48,
     "000660.KS": 76,
-    "NVDA": 116,
+    "NVDA": 114,
     "TSLA": 41,
     "GOOG": 123,
     "AMZN": 78,
@@ -217,7 +217,7 @@
     "BCS": 1,
     "MFG": 1,
     "007660.KS": 1,
-    "009150.KS": 12,
+    "009150.KS": 10,
     "000990.KS": 1,
     "6981.T": 3,
     "META": 7,
@@ -269,12 +269,12 @@
     "PINS": 1
   },
   "themes": [
-    "Market Notes (860 posts in 14-day research window): 2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,...",
-    "Semiconductors/Memory (491 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
-    "Earnings/Corporate (446 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
+    "Market Notes (861 posts in 14-day research window): 2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,...",
+    "Semiconductors/Memory (489 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
+    "Earnings/Corporate (445 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
     "Geopolitics (440 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
-    "Macro/Rates (352 posts in 14-day research window): 2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,...",
-    "AI Power/Grid (261 posts in 14-day research window): 시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준....",
+    "Macro/Rates (353 posts in 14-day research window): 2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,...",
+    "AI Power/Grid (262 posts in 14-day research window): 시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준....",
     "Equity/Analyst (143 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p....",
     "Korea Market (122 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
   ],
@@ -286,7 +286,7 @@
     },
     {
       "key": "NVDA",
-      "count": 116,
+      "count": 114,
       "text": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p...."
     },
     {
@@ -321,12 +321,12 @@
     },
     {
       "key": "TSM",
-      "count": 39,
+      "count": 38,
       "text": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
       "key": "MU",
-      "count": 36,
+      "count": 34,
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
@@ -347,7 +347,7 @@
       "topics": [
         "macro"
       ],
-      "count": 352,
+      "count": 353,
       "focus": "2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,..."
     },
     {
@@ -374,7 +374,7 @@
       "topics": [
         "semi"
       ],
-      "count": 491,
+      "count": 489,
       "focus": "2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A..."
     },
     {
@@ -383,7 +383,7 @@
       "topics": [
         "optical"
       ],
-      "count": 39,
+      "count": 38,
       "focus": "StoneX, 루멘텀( $LITE ), 매수 의견으로 커버리지 개시 , 목표주가 $1,200 NPO 수요 가속화 * 루멘텀의 NPO 사업 모멘텀이 강화되면서 2028 회계연도 투자 전망이 앞당겨지고 있음. *..."
     },
     {
@@ -392,7 +392,7 @@
       "topics": [
         "power"
       ],
-      "count": 261,
+      "count": 262,
       "focus": "시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준...."
     },
     {
@@ -437,7 +437,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 446,
+      "count": 445,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -446,7 +446,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 83,
+      "count": 82,
       "focus": ">>미중 상호 기술 수출통제 강화, 글로벌 기술 질서 재편 가속화 (대만공상시보) •중국 상무부와 과기부는 10월 AI·바이오·태양광 등 40개 기술을 수출통제 목록에 추가하는 개정안 발표. 이중 14개는..."
     },
     {
@@ -464,7 +464,7 @@
       "topics": [
         "flows"
       ],
-      "count": 68,
+      "count": 67,
       "focus": "서학개미 순매수 미국 주식 TOP 50 (10월 누적) > 기간: 2026/10/01 ~ 2026/10/30 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -482,7 +482,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 860,
+      "count": 861,
       "focus": "2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,..."
     }
   ],
@@ -1776,6 +1776,20 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71573",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71573",
+      "datetime": "2026-11-05T01:36:05.000Z",
+      "localDateKst": "2026-11-05",
+      "tags": [
+        "macro"
+      ],
+      "score": 52,
+      "hasText": true,
+      "tickers": [],
+      "summary": "• 미국 중간선거에서 민주당이 상·하원 양원을 장악함에 따라, 대만 정부는 정세를 면밀히 분석하며 향후 정책 변화에 대비 . 대만 외교부는 초당적 교류 원칙을 바탕으로 안보, 경제·통상, 과학기술 등 전..."
+    },
+    {
       "id": "bornlupin/21006",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21006",
@@ -1945,11 +1959,11 @@
       "tags": [
         "geo"
       ],
+      "lead": 1,
       "score": 50,
       "hasText": true,
-      "summary": "이란 지도부가 트럼프 대통령과 미국을 향해 잇따라 조롱성 발언을 내놓음. • 이란 최고지도자 모즈타바 하메네이: “미국의 붕괴 과정이 가속화되고 있습니다.” • 이란 최고국가안보회의 사무총장 모흐센 레자이...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "이란 지도부가 트럼프 대통령과 미국을 향해 잇따라 조롱성 발언을 내놓음. • 이란 최고지도자 모즈타바 하메네이: “미국의 붕괴 과정이 가속화되고 있습니다.” • 이란 최고국가안보회의 사무총장 모흐센 레자이..."
     },
     {
       "id": "insidertracking/68369",
@@ -1958,11 +1972,11 @@
       "datetime": "2026-11-04T21:22:53.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "market-note"
+        "equity",
+        "healthcare"
       ],
       "score": 60,
       "hasText": true,
-      "summary": "52주 신고가 (시총 $1B 이상) 금융 · AerCap Holdings · AGNC Investment · Arch Capital Group · Arthur J. Gallagher & Co. ·...",
       "tickers": [],
       "listTickers": [
         "AAPL",
@@ -1985,7 +1999,8 @@
         "CTAS",
         "MCK",
         "ECL"
-      ]
+      ],
+      "summary": "52주 신고가 (시총 $1B 이상) 금융 · AerCap Holdings · AGNC Investment · Arch Capital Group · Arthur J. Gallagher & Co. ·..."
     },
     {
       "id": "insidertracking/68366",
@@ -1994,13 +2009,14 @@
       "datetime": "2026-11-04T21:17:03.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
+        "macro",
         "kr-market",
         "earnings"
       ],
       "score": 65,
       "hasText": true,
-      "summary": "맥도날드(MCD) Q3 2026 어닝콜 요약 > 긍정 요인: • 글로벌 매출 성장 및 높은 수익성 유지. 3분기 글로벌 동일매장 매출은 전년 대비 1.5%, 전체 시스템 매출은 고정환율 기준 4% 증가. 조정...",
-      "tickers": []
+      "tickers": [],
+      "summary": "맥도날드(MCD) Q3 2026 어닝콜 요약 > 긍정 요인: • 글로벌 매출 성장 및 높은 수익성 유지. 3분기 글로벌 동일매장 매출은 전년 대비 1.5%, 전체 시스템 매출은 고정환율 기준 4% 증가. 조정..."
     },
     {
       "id": "insidertracking/68364",
@@ -2860,17 +2876,15 @@
       "datetime": "2026-11-04T05:46:08.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "ai-policy",
-        "macro",
-        "semi"
+        "ai-policy"
       ],
-      "lead": 1,
       "score": 78,
       "hasText": true,
+      "summary": ">>SemiAnalysis, AI 연산능력 부족 분석 : OpenAI와 Anthropic이 전 세계 신규 연산능력 선점 •SemiAnalysis는 OpenAI와 Anthropic이 전 세계 신규 연산능력 증설...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>SemiAnalysis, AI 연산능력 부족 분석 : OpenAI와 Anthropic이 전 세계 신규 연산능력 선점 •SemiAnalysis는 OpenAI와 Anthropic이 전 세계 신규 연산능력 증설..."
+      ]
     },
     {
       "id": "HANAchina/71529",
@@ -7568,23 +7582,6 @@
       "tickers": []
     },
     {
-      "id": "HANAchina/71237",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71237",
-      "datetime": "2026-10-29T22:43:58.000Z",
-      "localDateKst": "2026-10-30",
-      "tags": [
-        "semi"
-      ],
-      "score": 56,
-      "hasText": true,
-      "summary": "• AUO는 중부과학단지 내 L7 공장(7.5세대)과 L5C 공장(5세대)을 TSMC에 388억 대만달러에 매각할 계획이며, 예상 처분이익은 약 185억 대만달러. 이번 거래를 끝으로 자산 유동화 작업을...",
-      "lead": 1,
-      "tickers": [
-        "TSM"
-      ]
-    },
-    {
       "id": "bornlupin/20890",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20890",
@@ -9300,11 +9297,11 @@
       "tags": [
         "geo"
       ],
+      "lead": 1,
       "score": 50,
       "hasText": true,
-      "summary": "이란 지도부가 트럼프 대통령과 미국을 향해 잇따라 조롱성 발언을 내놓음. • 이란 최고지도자 모즈타바 하메네이: “미국의 붕괴 과정이 가속화되고 있습니다.” • 이란 최고국가안보회의 사무총장 모흐센 레자이...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "이란 지도부가 트럼프 대통령과 미국을 향해 잇따라 조롱성 발언을 내놓음. • 이란 최고지도자 모즈타바 하메네이: “미국의 붕괴 과정이 가속화되고 있습니다.” • 이란 최고국가안보회의 사무총장 모흐센 레자이..."
     },
     {
       "id": "insidertracking/68369",
@@ -9313,11 +9310,11 @@
       "datetime": "2026-11-04T21:22:53.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "market-note"
+        "equity",
+        "healthcare"
       ],
       "score": 60,
       "hasText": true,
-      "summary": "52주 신고가 (시총 $1B 이상) 금융 · AerCap Holdings · AGNC Investment · Arch Capital Group · Arthur J. Gallagher & Co. ·...",
       "tickers": [],
       "listTickers": [
         "AAPL",
@@ -9340,7 +9337,8 @@
         "CTAS",
         "MCK",
         "ECL"
-      ]
+      ],
+      "summary": "52주 신고가 (시총 $1B 이상) 금융 · AerCap Holdings · AGNC Investment · Arch Capital Group · Arthur J. Gallagher & Co. ·..."
     },
     {
       "id": "insidertracking/68366",
@@ -9349,13 +9347,14 @@
       "datetime": "2026-11-04T21:17:03.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
+        "macro",
         "kr-market",
         "earnings"
       ],
       "score": 65,
       "hasText": true,
-      "summary": "맥도날드(MCD) Q3 2026 어닝콜 요약 > 긍정 요인: • 글로벌 매출 성장 및 높은 수익성 유지. 3분기 글로벌 동일매장 매출은 전년 대비 1.5%, 전체 시스템 매출은 고정환율 기준 4% 증가. 조정...",
-      "tickers": []
+      "tickers": [],
+      "summary": "맥도날드(MCD) Q3 2026 어닝콜 요약 > 긍정 요인: • 글로벌 매출 성장 및 높은 수익성 유지. 3분기 글로벌 동일매장 매출은 전년 대비 1.5%, 전체 시스템 매출은 고정환율 기준 4% 증가. 조정..."
     },
     {
       "id": "insidertracking/68364",
@@ -10215,17 +10214,15 @@
       "datetime": "2026-11-04T05:46:08.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "ai-policy",
-        "macro",
-        "semi"
+        "ai-policy"
       ],
-      "lead": 1,
       "score": 78,
       "hasText": true,
+      "summary": ">>SemiAnalysis, AI 연산능력 부족 분석 : OpenAI와 Anthropic이 전 세계 신규 연산능력 선점 •SemiAnalysis는 OpenAI와 Anthropic이 전 세계 신규 연산능력 증설...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>SemiAnalysis, AI 연산능력 부족 분석 : OpenAI와 Anthropic이 전 세계 신규 연산능력 선점 •SemiAnalysis는 OpenAI와 Anthropic이 전 세계 신규 연산능력 증설..."
+      ]
     },
     {
       "id": "HANAchina/71529",
