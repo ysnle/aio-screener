@@ -1,0 +1,11 @@
+{
+ "version": "v59.70",
+ "date": "2026-11-06",
+ "p": null,
+ "r": null,
+ "changelog": [
+  "**테마 화면 모듈 나누기 (v59.70):** src/ui/pages/themes.js(2,210줄)를 생명주기만 남긴 파사드(376줄)와 src/ui/pages/themes/의 shared(12)·rrg(388)·sectors(568)·detail(900)로 나눴다. 코드 줄은 그대로 옮겼고(원본의 빈 줄 아닌 2,103줄이 모두 한 번씩, 추가는 모듈 머리 주석과 import뿐), 바깥 export(createThemesPage, themeDayLine)는 같다. 소스를 읽는 게이트 5개는 scripts/lib/themes-page-source.mjs로 페이지 전체를 읽는다.",
+  "**게이트 (v59.70):** ci-decomp-hotspot-check의 pageModuleCeilings에 src/ui/pages/themes/ 각 1,200줄과 themes.js 400줄을 더했다(나누기 전 2,210줄에서 실패). 나누기 전후 같은 경로(로드, 기간 탭 4개, 등락·회전 보기, 3회 왕복, 상세 열기)를 데스크톱·휴대폰에서 돌려 58개 상태 중 57개 DOM이 같고(다른 1개는 첫 준비 바퀴), 3회 왕복은 전후 모두 같으며, 테마·상세 스크린샷 4장은 바이트 단위로 같다(_artifacts/wave2-c/themes-split)."
+ ],
+ "note": "wave2-c: themes.js split; a missed import (sectorNearHigh behind a spread) silently failed the lazy route during the split — caught by the browser gates, fixed before commit"
+}

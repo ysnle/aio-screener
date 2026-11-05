@@ -76,9 +76,11 @@
   "pageModuleCeilings": {
     "note": "v59.70 (S12): a split page keeps every module under a fixed bound and its lifecycle file small, so the split cannot re-grow into one file. A directory entry bounds each .js file inside it; a file entry bounds one file.",
     "directories": {
-      "src/ui/pages/screener/": 1200
+      "src/ui/pages/screener/": 1200,
+      "src/ui/pages/themes/": 1200
     },
     "files": {
+      "src/ui/pages/themes.js": 400,
       "src/ui/pages/screener/page.js": 400,
       "src/ui/pages/screener.js": 40
     }

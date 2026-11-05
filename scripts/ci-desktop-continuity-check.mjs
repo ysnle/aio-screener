@@ -2,6 +2,7 @@
 // Offline renderer contracts, not browser/user-experience certification.
 // v59.48: the native pages are mounted through their exported factories against scripts/lib/fake-dom.mjs, instead of
 // slicing function bodies out of src/ui/pages/*.js into a vm (a helper moving behind an import broke every slice).
+import { readThemesPageSource } from './lib/themes-page-source.mjs';
 import assert from 'node:assert/strict';
 import { readScreenerPageSource } from './lib/screener-page-source.mjs'; // v59.70 (S12): the page is split under src/ui/pages/screener/
 import { readFileSync, existsSync } from 'node:fs';
@@ -72,7 +73,7 @@ for (const value of [null, '', undefined, false]) assert.equal(readNumber(value)
 assert(source.includes('renderMacro(documentRef, root, page)') && source.includes('renderMacroBoard({ documentRef, root })')); // P1425
 assert(!source.includes('renderMacroTransmissionLens')); // P1426: lens retired; macro-board.js renders through documentRef only
 assert(!/\bdocument\.createElement/.test(read('src/ui/components/macro-board.js')));
-const themes = read('src/ui/pages/themes.js');
+const themes = readThemesPageSource(); // v59.70: the page is split under src/ui/pages/themes/
 assert(!/비중 유지|진입 후보|익절 검토|회피/.test(themes)); // v58.76: the AI-infrastructure lens is retired
 assert(themes.includes('appendUnclassified()'));
 assert(read('src/ui/pages/principles.js').includes('principles-graph-node-list principles-sr-only'));

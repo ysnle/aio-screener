@@ -1,3 +1,4 @@
+import { readThemesPageSource } from './lib/themes-page-source.mjs';
 import { readScreenerPageSource } from './lib/screener-page-source.mjs'; // v59.70 (S12): the page is split under src/ui/pages/screener/
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -44,7 +45,7 @@ const newsPage = read('src/ui/pages/news.js');
 const newsScoring = read('src/domain/news/scoring.js');
 const routeOwners = JSON.parse(read('architecture/route-owners.json'));
 const sentimentDomain = read('src/domain/sentiment/metrics.js');
-const themesPage = read('src/ui/pages/themes.js');
+const themesPage = readThemesPageSource(); // v59.70: the page is split under src/ui/pages/themes/
 const atlasPage = read('src/ui/pages/atlas.js');
 const mastersPage = read('src/ui/pages/masters.js');
 const marketPage = read('src/ui/pages/market.js');
