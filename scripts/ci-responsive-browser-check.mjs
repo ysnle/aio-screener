@@ -3,14 +3,14 @@
 import { chromium } from 'playwright';
 import { mkdirSync, readFileSync } from 'node:fs';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ROUTE_IDS } from '../src/app/routes.js';
 import { RESPONSIVE_QA_VIEWPORTS } from './desktop-qa-config.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.CI_RESPONSIVE_PORT || 8934);
+const port = (Number(process.env.CI_RESPONSIVE_PORT) || await freePort());
 const base = `http://127.0.0.1:${port}`;
 const out = resolve(root, '_artifacts', 'responsive-browser');
 const isolatedInjection = process.env.AIO_RESPONSIVE_INJECT === '1';

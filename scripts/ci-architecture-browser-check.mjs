@@ -1,5 +1,5 @@
 import { chromium } from 'playwright';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { ROUTE_IDS } from '../src/app/routes.js';
@@ -16,7 +16,7 @@ const NON_TIER_CHART_KINDS = new Set(['unavailable', 'live', 'derived']);
 const chartKindAllowed = (kind) => NON_TIER_CHART_KINDS.has(String(kind || '').trim().toLowerCase()) || isRecognizedSourceKind(kind);
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.AIO_ARCH_TEST_PORT || 8897);
+const port = (Number(process.env.AIO_ARCH_TEST_PORT) || await freePort());
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 
 const server = await startLocalServer(port, { label: 'architecture-browser/server' });

@@ -1,10 +1,10 @@
 import { chromium } from 'playwright';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.AIO_SA02_PORT || 8915);
+const port = (Number(process.env.AIO_SA02_PORT) || await freePort());
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 
 async function runOnce(browser, run) {

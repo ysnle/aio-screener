@@ -408,6 +408,8 @@ export function exposeArchitecture(root, api, { immutableState = false } = {}) {
       ingestSentiment: api.ingestSentiment,
        getAIContext: api.getAIContext,
        getAIOrchestrator: api.getAIOrchestrator,
+       // v59.70 (2nd batch A, P4): the orchestrator loads with the AI panel (src/app/chat-loader.js `alongside`).
+       loadAIOrchestrator: api.loadAIOrchestrator,
        planAIQuestion: api.planAIQuestion,
        classifyAIConduct: api.classifyAIConduct,
        buildScopedConductFallback: api.buildScopedConductFallback,

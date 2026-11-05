@@ -90,8 +90,7 @@ import { installTermMarks } from '../ui/components/term-marks.js';
 import { installValueBasis } from '../ui/components/value-basis.js';
 import { buildEvidenceContext } from '../ai/context-builder.js';
 import { createEvidenceRetriever } from '../ai/retrieval/evidence.js';
-import { createAIKnowledgeRetriever } from '../ai/retrieval/knowledge.js';
-import { createAIAnswerOrchestrator } from '../ai/orchestrator/answer-orchestrator.js';
+// createAIAnswerOrchestrator (../ai/orchestrator/answer-orchestrator.js) loads with the AI panel (v59.70 P4, below).
 import { createEvidenceDocument, evaluateResearchEvidenceFloor, normalizeResearchExecutionResult } from '../ai/research/evidence.js';
 import { createLazyPage, createRouteRegistry, createLifecycleRouter } from './router.js';
 
@@ -104,11 +103,23 @@ if (typeof window !== 'undefined') {
 installChatLoader(window, document, { onLoaded: () => {
   try { installPanelContexts(window); } catch (_) { /* masters/guide keep the disabled panel */ }
   try { installChatSessions(window, document, { storage: (() => { try { return window.localStorage; } catch (_) { return null; } })() }); } catch (_) { /* the panel keeps working without saved conversations */ }
-} });
-// Owner 2026-10-25: the 맞춤 profile and the touch chip fold load after boot (outside the boot module budget). Until the
-// profile module has loaded, a question carries the unset-profile line.
-import('../ui/components/ai-profile.js').then(({ installAIProfile }) => installAIProfile(window, document, { storage: (() => { try { return window.localStorage; } catch (_) { return null; } })() })).catch(() => { /* answers fall back to the unset-profile line */ });
-import('../ui/components/ai-chip-fold.js').then(({ installAIChipFold }) => installAIChipFold(window, document)).catch(() => { /* the chips stay open */ });
+}, alongside: () => Promise.all([
+  // v59.70 (P4): the answer orchestrator the panel dispatches through. An automated browser loads the panel at boot,
+  // before createAIOArchitecture has installed AIO_ARCH, so this waits for it (20 s at most).
+  new Promise((resolveArchitecture) => {
+    const started = Date.now();
+    const tick = () => {
+      if (typeof window.AIO_ARCH?.loadAIOrchestrator === 'function') resolveArchitecture(window.AIO_ARCH.loadAIOrchestrator());
+      else if (Date.now() - started > 20000) resolveArchitecture(null);
+      else setTimeout(tick, 50);
+    };
+    tick();
+  }).catch(() => { /* the panel reports the failed dispatch */ }),
+  // Owner 2026-10-25: the 맞춤 profile and the touch chip fold live in the panel, outside the boot module budget. v59.70 (D1):
+  // they load with the panel script, and the queued calls replay after them, so the first question carries the profile.
+  import('../ui/components/ai-profile.js').then(({ installAIProfile }) => installAIProfile(window, document, { storage: (() => { try { return window.localStorage; } catch (_) { return null; } })() })).catch(() => { /* answers fall back to the unset-profile line */ }),
+  import('../ui/components/ai-chip-fold.js').then(({ installAIChipFold }) => installAIChipFold(window, document)).catch(() => { /* the chips stay open */ })
+]) });
 }
 import { createInitialAnalysisState, analysisReducer, ANALYSIS_DATA_CLEAR, ANALYSIS_DATA_SET } from '../state/slices/analysis.js';
 import { createAnalysisCommands } from './commands/analysis.js';
@@ -328,12 +339,23 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   // remains REFERENCE, separate from current market evidence.
   // The supplied-materials corpus is a lazy chunk (corpus-loader.js); the retriever awaits it with the index.
   const loadSuppliedMaterials = () => loadResearchCorpus().then((corpus) => corpus.SUPPLIED_MATERIALS_REFERENCE);
-  const aiKnowledgeRetriever = createAIKnowledgeRetriever({ fetchImpl, suppliedMaterials: loadSuppliedMaterials });
   // AIQ-0/AIQ-1: the legacy chat surfaces remain UI adapters, while planning and
   // dispatch ownership lives in one ESM orchestrator. This is deliberately created
   // beside the canonical evidence store so future tool adapters can consume the same
   // state without creating a second chat path.
-  const aiOrchestrator = createAIAnswerOrchestrator({ root, now: () => clock.now(), knowledgeRetriever: aiKnowledgeRetriever, beforeDispatch: () => root?.AIO?.ensureResearchCorpus?.() });
+  // v59.70 (2nd batch A, P4): the orchestrator (planning, research, answer publication) loads with the AI panel
+  // (chat-loader.js `alongside` calls AIO_ARCH.loadAIOrchestrator), outside the boot module set. Until then the
+  // facades below answer null; the panel's queued calls replay only after it is ready.
+  let aiOrchestrator = null;
+  let aiOrchestratorPending = null;
+  const loadAIOrchestrator = () => aiOrchestratorPending || (aiOrchestratorPending = Promise.all([
+    import('../ai/orchestrator/answer-orchestrator.js'),
+    import('../ai/retrieval/knowledge.js')
+  ]).then(([{ createAIAnswerOrchestrator }, { createAIKnowledgeRetriever }]) => {
+    const knowledgeRetriever = createAIKnowledgeRetriever({ fetchImpl, suppliedMaterials: loadSuppliedMaterials });
+    aiOrchestrator = createAIAnswerOrchestrator({ root, now: () => clock.now(), knowledgeRetriever, beforeDispatch: () => root?.AIO?.ensureResearchCorpus?.() });
+    return aiOrchestrator;
+  }).catch((error) => { aiOrchestratorPending = null; throw error; }));
 
   function ingestSnapshotEvidence(snapshot) {
     snapshotEvidence.clear();
@@ -719,11 +741,9 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       () => syncPortfolio.sync(),
       // Server hydration commonly finishes before the staged startup reaches
       // this task. Do not rebuild and refetch that same universe a second time.
-      () => store.getState()?.screener?.rows?.length ? null : syncScreenerAfterCriticalData(),
-      // Reference corpus for AI answers, prefetched last so it never competes with first paint. v58.80 (first-users bundle 4):
-      // on a slow or data-saving connection it would still share the line with screener.json, so it waits for the first
-      // question instead (the AI dispatch awaits it either way).
-      () => (root?.navigator?.connection?.saveData || /(^|-)(2g|3g)$/.test(root?.navigator?.connection?.effectiveType || '') ? null : root?.AIO?.ensureResearchCorpus?.())
+      () => store.getState()?.screener?.rows?.length ? null : syncScreenerAfterCriticalData()
+      // v59.70 (owner D1): the AI reference corpus is no longer prefetched here; chat-loader.js asks for it when a pointer
+      // or focus reaches an AI control, and the AI dispatch awaits it either way.
     ];
     let deferredStartupIndex = 0;
     const runDeferredStartupSync = () => {
@@ -1147,17 +1167,18 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     ingestSentiment,
     getAIContext: (metrics = ['fearGreed', 'vix']) => buildEvidenceContext({ evidenceStore, metrics, retriever: aiRetriever })
     ,getAIOrchestrator: () => aiOrchestrator
-    ,planAIQuestion: (input = {}) => aiOrchestrator.plan(input)
-     ,executeAIQuestion: (input = {}) => aiOrchestrator.execute(input)
-      ,analyzeAIQuestion: (questionPlan, inputs = {}) => aiOrchestrator.analyze(questionPlan, inputs)
-      ,validateAIResearch: (questionPlan = null) => aiOrchestrator.validateResearch(questionPlan || aiOrchestrator.getLastPlan())
-      ,getAIResearchCapability: (input = {}) => aiOrchestrator.getResearchCapability(input)
-      ,validateAIResearchCapability: (capability = null) => aiOrchestrator.validateResearchCapability(capability)
+    ,loadAIOrchestrator
+    ,planAIQuestion: (input = {}) => aiOrchestrator ? aiOrchestrator.plan(input) : null
+     ,executeAIQuestion: (input = {}) => (aiOrchestrator ? Promise.resolve(aiOrchestrator) : loadAIOrchestrator()).then((orchestrator) => orchestrator.execute(input))
+      ,analyzeAIQuestion: (questionPlan, inputs = {}) => aiOrchestrator ? aiOrchestrator.analyze(questionPlan, inputs) : null
+      ,validateAIResearch: (questionPlan = null) => aiOrchestrator ? aiOrchestrator.validateResearch(questionPlan || aiOrchestrator.getLastPlan()) : null
+      ,getAIResearchCapability: (input = {}) => aiOrchestrator ? aiOrchestrator.getResearchCapability(input) : null
+      ,validateAIResearchCapability: (capability = null) => aiOrchestrator ? aiOrchestrator.validateResearchCapability(capability) : null
       ,createAIResearchEvidenceDocument: (input = {}) => createEvidenceDocument(input)
       ,normalizeAIResearchExecutionResult: (result = {}) => normalizeResearchExecutionResult(result)
       ,evaluateAIResearchEvidenceFloor: (input = {}) => evaluateResearchEvidenceFloor(input)
-      ,parseAIAnswerPlan: (text, options = {}) => aiOrchestrator.parseAnswerPlanText(text, options)
-       ,renderAIAnswerPlan: (plan, options = {}) => aiOrchestrator.renderAnswerPlan(plan, options)
+      ,parseAIAnswerPlan: (text, options = {}) => aiOrchestrator ? aiOrchestrator.parseAnswerPlanText(text, options) : null
+       ,renderAIAnswerPlan: (plan, options = {}) => aiOrchestrator ? aiOrchestrator.renderAnswerPlan(plan, options) : ''
       ,classifyAIConduct
       ,buildScopedConductFallback
       ,getAIConductPolicy

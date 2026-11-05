@@ -8,7 +8,7 @@ import path from 'node:path';
 import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import * as esbuild from 'esbuild';
-import { esmBundleOptions, bootOutputs } from './lib/pages-bundle-config.mjs';
+import { esmBundleOptions, bootOutputs, CLASSIC_BOOT_SCRIPTS, GLOBAL_SCRIPTS, GLOBAL_TARGET, PAGES_ROOT_FILES, PAGES_DATA_EXCLUDES } from './lib/pages-bundle-config.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const budget = JSON.parse(fs.readFileSync(path.join(root, 'architecture/boot-budget.json'), 'utf8'));
@@ -34,7 +34,38 @@ try {
   const { rawBytes, gzipBytes } = budget.bootModuleBudget;
   if (raw > rawBytes) failures.push(`boot module set is ${raw} raw bytes, budget ${rawBytes}`);
   if (gzip > gzipBytes) failures.push(`boot module set is ${gzip} gzip bytes, budget ${gzipBytes}`);
-  const summary = { ok: failures.length === 0, bootFiles: boot.length, rawBytes: raw, gzipBytes: gzip, budget: { rawBytes, gzipBytes }, failures };
+  // v59.70 (2nd batch A, P0): the classic boot scripts, minified one by one as the deploy ships them, had no byte budget.
+  const classic = { rawBytes: 0, gzipBytes: 0, files: {} };
+  for (const file of CLASSIC_BOOT_SCRIPTS) {
+    const { code } = await esbuild.transform(fs.readFileSync(path.join(root, file), 'utf8'), { loader: 'js', minify: true, charset: 'utf8', legalComments: 'none', target: GLOBAL_TARGET, logLevel: 'error' });
+    const bytes = Buffer.from(code);
+    const size = { rawBytes: bytes.length, gzipBytes: zlib.gzipSync(bytes, { level: 9 }).length };
+    classic.files[file] = size;
+    classic.rawBytes += size.rawBytes;
+    classic.gzipBytes += size.gzipBytes;
+  }
+  const classicBudget = budget.classicBootBudget || {};
+  if (!(classicBudget.rawBytes > 0 && classicBudget.gzipBytes > 0)) failures.push('architecture/boot-budget.json has no classicBootBudget rawBytes/gzipBytes');
+  else {
+    if (classic.rawBytes > classicBudget.rawBytes) failures.push(`classic boot scripts are ${classic.rawBytes} raw bytes minified, budget ${classicBudget.rawBytes}`);
+    if (classic.gzipBytes > classicBudget.gzipBytes) failures.push(`classic boot scripts are ${classic.gzipBytes} gzip bytes minified, budget ${classicBudget.gzipBytes}`);
+  }
+  // The measured layout is the deploy's only while the workflow copies what pages-bundle-config.mjs lists.
+  const deploy = fs.readFileSync(path.join(root, '.github/workflows/pages-deploy.yml'), 'utf8');
+  const rootCopy = /^\s*cp ((?:[\w.-]+ )+)"\$RUNNER_TEMP\/pages-dist\/"$/m.exec(deploy)?.[1].trim().split(/\s+/) || [];
+  const jsCopy = /^\s*cp ((?:js\/[\w.-]+ )+)"\$RUNNER_TEMP\/pages-dist\/js\/"$/m.exec(deploy)?.[1].trim().split(/\s+/) || [];
+  const excludes = [...deploy.matchAll(/--exclude '([^']+)'/g)].map((match) => match[1]);
+  const same = (left, right) => left.length === right.length && [...left].sort().join('|') === [...right].sort().join('|');
+  if (!same(rootCopy, PAGES_ROOT_FILES)) failures.push(`pages-deploy.yml root files [${rootCopy.join(', ')}] differ from PAGES_ROOT_FILES`);
+  if (!same(jsCopy, GLOBAL_SCRIPTS)) failures.push(`pages-deploy.yml classic scripts [${jsCopy.join(', ')}] differ from GLOBAL_SCRIPTS`);
+  if (!same(excludes, PAGES_DATA_EXCLUDES)) failures.push(`pages-deploy.yml public-data excludes [${excludes.join(', ')}] differ from PAGES_DATA_EXCLUDES`);
+  // `--inputs N` lists the N source modules that put the most bytes into the boot set (what to move behind import()).
+  const inputsArg = process.argv.indexOf('--inputs');
+  if (inputsArg >= 0) {
+    const rows = boot.flatMap((file) => Object.entries(build.metafile.outputs[file].inputs).map(([input, info]) => [info.bytesInOutput, input]));
+    console.error(rows.sort((a, b) => b[0] - a[0]).slice(0, Number(process.argv[inputsArg + 1]) || 40).map(([bytes, input]) => `${String(bytes).padStart(8)}  ${input}`).join('\n'));
+  }
+  const summary = { ok: failures.length === 0, bootFiles: boot.length, rawBytes: raw, gzipBytes: gzip, budget: { rawBytes, gzipBytes }, classicBoot: { ...classic, budget: classicBudget }, failures };
   console.log(JSON.stringify(summary, null, 2));
 } finally {
   fs.rmSync(outdir, { recursive: true, force: true });

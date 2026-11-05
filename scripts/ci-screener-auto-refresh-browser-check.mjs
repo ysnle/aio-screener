@@ -1,11 +1,11 @@
 import { chromium } from 'playwright';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.AIO_SCREENER_AUTO_TEST_PORT || 8913);
+const port = (Number(process.env.AIO_SCREENER_AUTO_TEST_PORT) || await freePort());
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 
 const server = await startLocalServer(port, { label: 'screener-auto/server' });

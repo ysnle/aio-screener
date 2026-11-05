@@ -5,7 +5,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { resolve, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { createBrowserEvidence, addBrowserEvidenceStep, evidenceDigest, validateBrowserEvidence } from './lib/browser-evidence.mjs';
 import { PACKET_20261011_CLAIMS, PACKET_20261011_LESSONS } from '../src/domain/research/packet-20261011.js';
 import { getSuppliedMaterialClaims } from '../src/domain/research/supplied-materials.js';
@@ -26,7 +26,7 @@ for (const claim of PACKET_20261011_CLAIMS) {
   assert.ok(searchKnowledgeIndex(null, lessonById(id).issue).some((row) => row.route.params.node === id), 'P1606: canonical note is searchable before generated index publication');
 }
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.AIO_THEME_TEST_PORT || 8946), base = `http://127.0.0.1:${port}/`;
+const port = (Number(process.env.AIO_THEME_TEST_PORT) || await freePort()), base = `http://127.0.0.1:${port}/`;
 const runId = process.env.AIO_QA_RUN_ID || `theme-research-${Date.now()}`;
 const output = process.env.AIO_QA_EVIDENCE_PATH || resolve(root, '.cache/aio-qa/runs', runId, 'theme-research/evidence.json');
 mkdirSync(dirname(output), { recursive: true });

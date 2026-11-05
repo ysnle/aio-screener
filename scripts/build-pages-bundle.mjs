@@ -1,7 +1,7 @@
 // Pages deploy-time bundle/minify step. It rewrites a staged Pages directory in place and never touches the
 // repository layout: CI, local serving and every source gate keep reading the unbundled js/ and src/ files.
 //
-//   node scripts/build-pages-bundle.mjs <staged-pages-dir> [--manifest <out.json>]
+//   node scripts/build-pages-bundle.mjs <staged-pages-dir> [--manifest <out.json>] [--inputs <chunk-inputs.json>]
 //
 // - js/aio-*.js classic scripts: each file is minified on its own (no bundling, no format wrapper), so their
 //   shared global scope, defer order and every top-level name stay exactly as authored. The build fails if any
@@ -150,6 +150,10 @@ const manifest = {
   files: Object.fromEntries(builtFiles.map((file) => [file, sha256(fs.readFileSync(path.join(dist, file)))]))
 };
 if (manifestPath) fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
+// v59.70 (2nd batch A, P0): which source modules each shipped chunk carries, for the boot measurement
+// (scripts/ci-boot-interaction-check.mjs names the AI corpus and panel chunks by their inputs, not by hashed names).
+const inputsIndex = args.indexOf('--inputs');
+if (inputsIndex >= 0) fs.writeFileSync(args[inputsIndex + 1], JSON.stringify(Object.fromEntries(Object.entries(outputs).filter(([file]) => file.endsWith('.js')).map(([file, value]) => [file, Object.keys(value.inputs || {}).sort()])), null, 2) + '\n');
 
 const after = {
   globals: sizeOf(GLOBAL_SCRIPTS.map((file) => path.join(dist, file))),

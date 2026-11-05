@@ -1,5 +1,5 @@
 import { chromium } from 'playwright';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 // carries the style frame, peers and the ticker reverse lookup. The data-state datasets, deferred shard loading,
 // fail-closed value reconciliation and the lookup's explicit error/retry state are the behaviours pinned here.
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.AIO_MASTERS_PORT || 8905);
+const port = (Number(process.env.AIO_MASTERS_PORT) || await freePort());
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 
 async function openMasters(page) {
