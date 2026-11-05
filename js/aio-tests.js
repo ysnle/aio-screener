@@ -6943,8 +6943,9 @@
 
     var pfMain1019 = document.getElementById('pf-main');
     // v59.51 (content audit): pf-allocation-section is retired. The holdings table cannot stand in (the empty-state CTA lives
-    // in its tbody); the first calculation-only section is the benchmark comparison, which renderPortfolio hides when empty.
-    var pfRisk1019 = document.getElementById('pf-benchmark-section');
+    // in its tbody); the first calculation-only section is the risk panel, which renderPortfolio hides when empty
+    // (v59.70: the benchmark comparison section left with the native portfolio chart).
+    var pfRisk1019 = document.getElementById('pf-risk-panel');
     var pfEmpty1019 = document.querySelector('#pf-positions-tbody .pf-empty-state');
     var empty1019 = !pfMain1019 || !pfMain1019.classList.contains('is-empty') || (!!pfEmpty1019 && pfRisk1019 && getComputedStyle(pfRisk1019).display === 'none');
     _assert('T1019 portfolio_empty_state_hierarchy: 빈 포트폴리오는 추가 CTA만 우선하고 계산 불가능한 리스크 카드를 숨긴다', empty1019,
