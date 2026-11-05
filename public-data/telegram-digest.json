@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-05T20:28:44.354Z",
-  "attemptedAt": "2026-11-05T20:28:44.354Z",
-  "lastSuccessfulAt": "2026-11-05T20:28:44.354Z",
+  "generatedAt": "2026-11-05T20:51:53.867Z",
+  "attemptedAt": "2026-11-05T20:51:53.867Z",
+  "lastSuccessfulAt": "2026-11-05T20:51:53.867Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-22T20:28:39.028Z",
-  "until": "2026-11-05T20:28:39.028Z",
+  "since": "2026-10-22T20:51:48.660Z",
+  "until": "2026-11-05T20:51:48.660Z",
   "current24hWindow": {
     "start": "2026-11-03T23:00:00.000Z",
     "end": "2026-11-04T23:00:00.000Z",
@@ -92,9 +92,9 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1346,
+      "count": 1329,
       "freshCount": 19,
-      "eligibleTextCount": 1282,
+      "eligibleTextCount": 1266,
       "selectedCount": 123,
       "error": null,
       "lastPostId": 68465
@@ -113,63 +113,63 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 680,
-      "freshCount": 20,
-      "eligibleTextCount": 679,
+      "count": 682,
+      "freshCount": 40,
+      "eligibleTextCount": 681,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 71608
+      "lastPostId": 71610
     }
   ],
-  "count": 2328,
-  "retainedItemCount": 428,
+  "count": 2313,
+  "retainedItemCount": 442,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2328,
-    "eligibleTextCount": 2259,
-    "mediaOnlyCount": 69,
+    "observedCount": 2313,
+    "eligibleTextCount": 2245,
+    "mediaOnlyCount": 68,
     "mediaAttachedCount": 378,
     "photoPostCount": 328,
     "documentPostCount": 1,
     "imageOnlyCount": 1,
-    "highSignalCount": 400,
-    "broadSignalCount": 869,
+    "highSignalCount": 398,
+    "broadSignalCount": 864,
     "selectedRawCount": 402,
     "selectedEligibleCount": 402,
-    "selectedRawCoveragePct": 17.8,
-    "selectedOfObservedPct": 17.3,
+    "selectedRawCoveragePct": 17.9,
+    "selectedOfObservedPct": 17.4,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "credit": 97,
-    "macro": 351,
-    "earnings": 426,
-    "semi": 486,
-    "power": 268,
+    "semi": 484,
+    "market-note": 852,
+    "credit": 96,
+    "macro": 347,
+    "earnings": 425,
+    "power": 266,
     "ai-policy": 112,
-    "geo": 439,
-    "market-note": 855,
-    "media-only": 69,
+    "geo": 434,
+    "media-only": 68,
     "optical": 38,
-    "kr-market": 120,
-    "flows": 69,
+    "kr-market": 119,
+    "flows": 68,
     "japan": 82,
-    "equity": 129,
-    "healthcare": 76,
+    "equity": 128,
+    "healthcare": 75,
     "crypto": 4
   },
   "tickerCounts": {
+    "NVDA": 110,
     "AAPL": 22,
     "GS": 3,
     "DB": 2,
-    "NVDA": 110,
-    "TSLA": 31,
+    "TSLA": 30,
     "GOOG": 119,
     "AMZN": 79,
     "MU": 35,
@@ -177,7 +177,7 @@
     "005930.KS": 51,
     "000660.KS": 78,
     "BCS": 2,
-    "TSM": 37,
+    "TSM": 36,
     "2454.TW": 4,
     "285A.T": 9,
     "IONQ": 1,
@@ -219,7 +219,7 @@
     "T": 6,
     "MFG": 1,
     "007660.KS": 1,
-    "009150.KS": 8,
+    "009150.KS": 7,
     "000990.KS": 1,
     "6981.T": 3,
     "META": 4,
@@ -269,14 +269,14 @@
     "SPOT": 1
   },
   "themes": [
-    "Market Notes (855 posts in 14-day research window): 2026년 11월 5일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심의 매도 압력이 확대되며 혼조세. 한국시간 오후 1시 55분 기준 나스닥100 선물은 1.08% 하락, S&P500 선물은...",
-    "Semiconductors/Memory (486 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
-    "Geopolitics (439 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
-    "Earnings/Corporate (426 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
-    "Macro/Rates (351 posts in 14-day research window): 2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,...",
-    "AI Power/Grid (268 posts in 14-day research window): 시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준....",
-    "Equity/Analyst (129 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
-    "Korea Market (120 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
+    "Market Notes (852 posts in 14-day research window): 2026년 11월 5일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심의 매도 압력이 확대되며 혼조세. 한국시간 오후 1시 55분 기준 나스닥100 선물은 1.08% 하락, S&P500 선물은...",
+    "Semiconductors/Memory (484 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
+    "Geopolitics (434 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
+    "Earnings/Corporate (425 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
+    "Macro/Rates (347 posts in 14-day research window): 2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,...",
+    "AI Power/Grid (266 posts in 14-day research window): 시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준....",
+    "Equity/Analyst (128 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
+    "Korea Market (119 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
   ],
   "catalysts": [
     {
@@ -316,7 +316,7 @@
     },
     {
       "key": "TSM",
-      "count": 37,
+      "count": 36,
       "text": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -326,7 +326,7 @@
     },
     {
       "key": "TSLA",
-      "count": 31,
+      "count": 30,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로..."
     },
     {
@@ -347,7 +347,7 @@
       "topics": [
         "macro"
       ],
-      "count": 351,
+      "count": 347,
       "focus": "2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,..."
     },
     {
@@ -356,7 +356,7 @@
       "topics": [
         "geo"
       ],
-      "count": 439,
+      "count": 434,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격..."
     },
     {
@@ -365,7 +365,7 @@
       "topics": [
         "credit"
       ],
-      "count": 97,
+      "count": 96,
       "focus": "11월 04일 미주인 브리핑 • 나스닥 0.83% 상승 · 엔비디아 시총 5조 달러 회복 • AMD 데이터센터 매출 97% 급증 · 시간 외 6% 상승 • 메타 대규모 회사채 발행 추진 · AI 투자 확대 •..."
     },
     {
@@ -374,7 +374,7 @@
       "topics": [
         "semi"
       ],
-      "count": 486,
+      "count": 484,
       "focus": "2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A..."
     },
     {
@@ -392,7 +392,7 @@
       "topics": [
         "power"
       ],
-      "count": 268,
+      "count": 266,
       "focus": "시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준...."
     },
     {
@@ -410,7 +410,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 120,
+      "count": 119,
       "focus": "SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
     },
     {
@@ -419,7 +419,7 @@
       "topics": [
         "equity"
       ],
-      "count": 129,
+      "count": 128,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
@@ -437,7 +437,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 426,
+      "count": 425,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -446,7 +446,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 76,
+      "count": 75,
       "focus": ">>미중 상호 기술 수출통제 강화, 글로벌 기술 질서 재편 가속화 (대만공상시보) •중국 상무부와 과기부는 10월 AI·바이오·태양광 등 40개 기술을 수출통제 목록에 추가하는 개정안 발표. 이중 14개는..."
     },
     {
@@ -464,7 +464,7 @@
       "topics": [
         "flows"
       ],
-      "count": 69,
+      "count": 68,
       "focus": "서학개미 순매수 미국 주식 TOP 50 (10월 누적) > 기간: 2026/10/01 ~ 2026/10/30 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -482,7 +482,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 855,
+      "count": 852,
       "focus": "2026년 11월 5일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심의 매도 압력이 확대되며 혼조세. 한국시간 오후 1시 55분 기준 나스닥100 선물은 1.08% 하락, S&P500 선물은..."
     }
   ],
@@ -1781,6 +1781,23 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71610",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71610",
+      "datetime": "2026-11-05T20:34:50.000Z",
+      "localDateKst": "2026-11-06",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 56,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": ">>Nvidia, AI 메모리 풀스택 협업 설계 공개…HBM 용량 3% 증가로 Agent 처리량/달러 최대 30배 향상 •Nvidia는 대규모 모델과 Agent 확산으로 메모리 부담이 커지고 있어 단순한..."
+    },
+    {
       "id": "HANAchina/71608",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71608",
@@ -2204,7 +2221,10 @@
       "datetime": "2026-11-05T06:34:43.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "semi"
+        "macro",
+        "semi",
+        "power",
+        "flows"
       ],
       "score": 77,
       "hasText": true,
@@ -2214,9 +2234,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": ">>홍콩 증시 강세 배경 •항셍테크 +5.19% 기록중 •항셍테크 구성상위 CSP, 경기소비, SW, 전기차, 미디어, 엔터 상위 •홍콩증시는 2026년 시가총액 구성상(전방산업•소비재) 아시아 반도체...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>홍콩 증시 강세 배경 •항셍테크 +5.19% 기록중 •항셍테크 구성상위 CSP, 경기소비, SW, 전기차, 미디어, 엔터 상위 •홍콩증시는 2026년 시가총액 구성상(전방산업•소비재) 아시아 반도체..."
     },
     {
       "id": "bornlupin/21013",
@@ -2353,13 +2372,14 @@
       "datetime": "2026-11-05T03:19:41.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "macro"
+        "macro",
+        "geo"
       ],
+      "lead": 1,
       "score": 67,
       "hasText": true,
-      "summary": ">>(요약) 유가에 설상가상! 휴전 기대에 이어 글로벌 원유 공급 과잉 압력도 부각 •JPMorgan은 글로벌 석유시장이 다시 공급 과잉 상태로 돌아왔다고 전망. 10월 공급 과잉 규모는 하루 140만 배럴로...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>(요약) 유가에 설상가상! 휴전 기대에 이어 글로벌 원유 공급 과잉 압력도 부각 •JPMorgan은 글로벌 석유시장이 다시 공급 과잉 상태로 돌아왔다고 전망. 10월 공급 과잉 규모는 하루 140만 배럴로..."
     },
     {
       "id": "HANAchina/71581",
@@ -2368,13 +2388,16 @@
       "datetime": "2026-11-05T03:18:22.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "japan"
+        "japan",
+        "semi",
+        "power",
+        "kr-market"
       ],
+      "lead": 1,
       "score": 68,
       "hasText": true,
-      "summary": ">>미국 중간선거 ‘승자와 패자’ 뚜렷해져: AI 하드웨어 급락, 한국·일본 급락 주도, 홍콩·A주 동반 급등, 항셍테크·창업판 상승 (중국언론) •미국 중간선거에서 민주당이 압승하면서 AI 규제 강화에 대한...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>미국 중간선거 ‘승자와 패자’ 뚜렷해져: AI 하드웨어 급락, 한국·일본 급락 주도, 홍콩·A주 동반 급등, 항셍테크·창업판 상승 (중국언론) •미국 중간선거에서 민주당이 압승하면서 AI 규제 강화에 대한..."
     },
     {
       "id": "HANAchina/71579",
@@ -2385,11 +2408,11 @@
       "tags": [
         "power"
       ],
+      "lead": 1,
       "score": 58,
       "hasText": true,
-      "summary": ">>중간선거 후 데이터센터 가격 결정 논리 변화! 무질서한 증설과 작별, 성장 경쟁에서 희소성 경쟁으로 (JPMorgan) •JPMorgan은 미국 중간선거 이후 데이터센터 산업의 가격 결정 논리가 조용히...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>중간선거 후 데이터센터 가격 결정 논리 변화! 무질서한 증설과 작별, 성장 경쟁에서 희소성 경쟁으로 (JPMorgan) •JPMorgan은 미국 중간선거 이후 데이터센터 산업의 가격 결정 논리가 조용히..."
     },
     {
       "id": "bornlupin/21009",
@@ -2483,9 +2506,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "•홍콩 증시 주요 대형지수 급등 •홍콩 대내외 악재 단기 완화 기대감 •전방 산업•소비재 많은 항셍테크 최상위 •홍콩CSP, SW바이오테크, 소비재, 전기차 등 전방 산업 중심 강세 •한편, 본토 반도체...",
-      "lead": 2,
-      "tickers": []
+      "tickers": [],
+      "summary": "•홍콩 증시 주요 대형지수 급등 •홍콩 대내외 악재 단기 완화 기대감 •전방 산업•소비재 많은 항셍테크 최상위 •홍콩CSP, SW바이오테크, 소비재, 전기차 등 전방 산업 중심 강세 •한편, 본토 반도체..."
     },
     {
       "id": "bornlupin/21007",
@@ -2516,12 +2538,12 @@
       "datetime": "2026-11-05T01:36:05.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "market-note"
+        "macro"
       ],
       "score": 52,
       "hasText": true,
-      "summary": "• 미국 중간선거에서 민주당이 상·하원 양원을 장악함에 따라, 대만 정부는 정세를 면밀히 분석하며 향후 정책 변화에 대비 . 대만 외교부는 초당적 교류 원칙을 바탕으로 안보, 경제·통상, 과학기술 등 전...",
-      "tickers": []
+      "tickers": [],
+      "summary": "• 미국 중간선거에서 민주당이 상·하원 양원을 장악함에 따라, 대만 정부는 정세를 면밀히 분석하며 향후 정책 변화에 대비 . 대만 외교부는 초당적 교류 원칙을 바탕으로 안보, 경제·통상, 과학기술 등 전..."
     },
     {
       "id": "bornlupin/21006",
@@ -7726,30 +7748,6 @@
         "PLTR",
         "SMCI",
         "ROKU"
-      ]
-    },
-    {
-      "id": "HANAchina/71280",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71280",
-      "datetime": "2026-10-30T23:07:27.000Z",
-      "localDateKst": "2026-10-31",
-      "tags": [
-        "earnings",
-        "semi"
-      ],
-      "score": 77,
-      "hasText": true,
-      "summary": ">>AI 투자 수익성에 대한 의구심 확대…Intel 장중 30% 폭락, 반도체지수 8% 하락 (중국언론) •실적에 대한 시장의 관용이 줄어들면서 성장 기대에 미치지 못하는 기업에 대한 매도 압력이 커지고...",
-      "lead": 2,
-      "tickers": [],
-      "listTickers": [
-        "NVDA",
-        "AMD",
-        "GOOG",
-        "AMZN",
-        "SNDK",
-        "INTC"
       ]
     },
     {
