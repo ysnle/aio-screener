@@ -1,6 +1,6 @@
 {
  "schemaVersion": "2.0",
- "generatedAt": "2026-11-05T07:34:05.920Z",
+ "generatedAt": "2026-11-05T07:48:09.128Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
@@ -8,8 +8,8 @@
  "model": "sec-fy-normalized-v2",
  "eligible": 3877,
  "stored": 3515,
- "attempted": 254,
- "updated": 253,
+ "attempted": 0,
+ "updated": 0,
  "failures": [
   {
    "symbol": "AACI",
@@ -4397,6 +4397,7 @@
   "MYX",
   "NANO",
   "NARA",
+  "NAVI",
   "NCNA",
   "NCO",
   "NEXM",
@@ -4529,8 +4530,7 @@
   "YMAT",
   "YSS",
   "YSWY",
-  "ZKP",
-  "NAVI"
+  "ZKP"
  ],
  "retryableFailures": [
   "AYA",
@@ -4557,27 +4557,27 @@
  "domainReceipt": {
   "schemaVersion": "domain-receipt.v1",
   "domain": "sec-fundamentals",
-  "runId": "gha:41987160957",
-  "attemptedAt": "2026-11-05T07:32:06.241Z",
+  "runId": "gha:41988682012",
+  "attemptedAt": "2026-11-05T07:47:56.584Z",
   "sourceRevision": "sec-company-tickers:224330f2c44f5d173395e427dbac3c6981acdb1f57e3658832d315c3e96f6522",
   "inputWatermarks": {
-   "universe": "2026-11-05T07:32:04.207Z",
-   "screener": "2026-11-05T07:31:23.296Z",
-   "previousArtifact": "2026-11-05T02:05:46.393Z"
+   "universe": "2026-11-05T07:47:54.360Z",
+   "screener": "2026-11-05T07:47:09.028Z",
+   "previousArtifact": "2026-11-05T07:34:05.920Z"
   },
   "batchLimit": 600,
   "counts": {
    "eligible": 3877,
-   "attempted": 254,
-   "updated": 253,
-   "retained": 3262,
+   "attempted": 0,
+   "updated": 0,
+   "retained": 3515,
    "pendingEligible": 362
   },
   "thisBatch": {
-   "updated": 253,
-   "terminalUnsupported": 1,
+   "updated": 0,
+   "terminalUnsupported": 0,
    "transientFailed": 0,
-   "recorded": 1
+   "recorded": 0
   },
   "ledger": {
    "total": 364,
@@ -4587,8 +4587,8 @@
   },
   "lastSuccessfulObservation": "2026-11-05T07:32:06.241Z",
   "publication": {
-   "status": "PARTIAL",
-   "reason": "some attempted targets were not updated",
+   "status": "NOT_ATTEMPTED",
+   "reason": "no target was due in this batch",
    "allowsPartial": true,
    "basis": "per-symbol independent collection; retained eligible rows stay published while rows that lose their period requirements are excluded from analysis",
    "terminalExcludedFromBatchFailures": true,
@@ -319042,7 +319042,7 @@
  "issuerSicCoverage": {
   "classified": 3832,
   "eligible": 3877,
-  "passAttempted": 41,
+  "passAttempted": 45,
   "passUpdated": 0,
   "passFailed": 0
  },
