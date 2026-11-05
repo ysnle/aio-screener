@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-05T05:21:37.341Z",
-  "attemptedAt": "2026-11-05T05:21:37.341Z",
-  "lastSuccessfulAt": "2026-11-05T05:21:37.341Z",
+  "generatedAt": "2026-11-05T05:51:53.673Z",
+  "attemptedAt": "2026-11-05T05:51:53.673Z",
+  "lastSuccessfulAt": "2026-11-05T05:51:53.673Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-22T05:21:30.058Z",
-  "until": "2026-11-05T05:21:30.058Z",
+  "since": "2026-10-22T05:51:49.217Z",
+  "until": "2026-11-05T05:51:49.217Z",
   "current24hWindow": {
     "start": "2026-11-03T23:00:00.000Z",
     "end": "2026-11-04T23:00:00.000Z",
@@ -92,20 +92,20 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1358,
-      "freshCount": 37,
-      "eligibleTextCount": 1291,
+      "count": 1360,
+      "freshCount": 38,
+      "eligibleTextCount": 1294,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 68423
+      "lastPostId": 68428
     },
     {
       "channel": "bornlupin",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 238,
-      "freshCount": 40,
+      "freshCount": 20,
       "eligibleTextCount": 238,
       "selectedCount": 124,
       "error": null,
@@ -113,33 +113,33 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 681,
-      "freshCount": 40,
-      "eligibleTextCount": 680,
+      "count": 678,
+      "freshCount": 20,
+      "eligibleTextCount": 677,
       "selectedCount": 123,
       "error": null,
       "lastPostId": 71585
     }
   ],
-  "count": 2351,
-  "retainedItemCount": 486,
+  "count": 2350,
+  "retainedItemCount": 460,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2351,
+    "observedCount": 2350,
     "eligibleTextCount": 2279,
-    "mediaOnlyCount": 72,
+    "mediaOnlyCount": 71,
     "mediaAttachedCount": 349,
     "photoPostCount": 303,
     "documentPostCount": 1,
     "imageOnlyCount": 1,
-    "highSignalCount": 413,
-    "broadSignalCount": 894,
+    "highSignalCount": 412,
+    "broadSignalCount": 892,
     "selectedRawCount": 410,
     "selectedEligibleCount": 410,
     "selectedRawCoveragePct": 18,
@@ -147,21 +147,21 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "semi": 496,
-    "kr-market": 122,
-    "earnings": 446,
-    "flows": 68,
+    "geo": 445,
     "market-note": 859,
+    "semi": 495,
+    "kr-market": 122,
+    "earnings": 445,
+    "flows": 68,
     "power": 268,
-    "credit": 101,
+    "credit": 99,
     "macro": 352,
-    "geo": 443,
     "japan": 88,
     "equity": 144,
     "ai-policy": 112,
     "optical": 38,
     "healthcare": 82,
-    "media-only": 72,
+    "media-only": 71,
     "crypto": 4
   },
   "tickerCounts": {
@@ -171,7 +171,7 @@
     "000660.KS": 77,
     "COHR": 4,
     "AMZN": 78,
-    "NVDA": 113,
+    "NVDA": 112,
     "AMD": 49,
     "MU": 34,
     "TSM": 38,
@@ -240,7 +240,7 @@
     "V": 1,
     "HOOD": 1,
     "005940.KS": 2,
-    "CRWV": 5,
+    "CRWV": 4,
     "MRNA": 1,
     "RDDT": 2,
     "FDX": 1,
@@ -271,12 +271,12 @@
   },
   "themes": [
     "Market Notes (859 posts in 14-day research window): 2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,...",
-    "Semiconductors/Memory (496 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
-    "Earnings/Corporate (446 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
-    "Geopolitics (443 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
+    "Semiconductors/Memory (495 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
+    "Geopolitics (445 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
+    "Earnings/Corporate (445 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
     "Macro/Rates (352 posts in 14-day research window): 2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,...",
     "AI Power/Grid (268 posts in 14-day research window): 시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준....",
-    "Equity/Analyst (144 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p....",
+    "Equity/Analyst (144 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "Korea Market (122 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
   ],
   "catalysts": [
@@ -287,8 +287,8 @@
     },
     {
       "key": "NVDA",
-      "count": 113,
-      "text": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p...."
+      "count": 112,
+      "text": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
       "key": "AMZN",
@@ -357,7 +357,7 @@
       "topics": [
         "geo"
       ],
-      "count": 443,
+      "count": 445,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격..."
     },
     {
@@ -366,7 +366,7 @@
       "topics": [
         "credit"
       ],
-      "count": 101,
+      "count": 99,
       "focus": "2026년 11월 5일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심의 매도 압력이 확대되며 혼조세. 한국시간 오후 1시 55분 기준 나스닥100 선물은 1.08% 하락, S&P500 선물은 0.20% 하락한 반면 다우 선물은 0.33% 상승. VIX 지수는 17.98로 1.34% 상승. AI 관련..."
     },
     {
@@ -375,7 +375,7 @@
       "topics": [
         "semi"
       ],
-      "count": 496,
+      "count": 495,
       "focus": "2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A..."
     },
     {
@@ -421,7 +421,7 @@
         "equity"
       ],
       "count": 144,
-      "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p...."
+      "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
       "id": "crypto",
@@ -438,7 +438,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 446,
+      "count": 445,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -892,20 +892,18 @@
       "localDateKst": "2026-11-04",
       "tags": [
         "equity",
-        "credit",
-        "geo",
-        "semi"
+        "earnings"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
+      "summary": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "AMD",
         "SMCI",
         "INTC"
-      ],
-      "summary": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
+      ]
     },
     {
       "id": "insidertracking/68237",
@@ -2191,16 +2189,15 @@
       "localDateKst": "2026-11-05",
       "tags": [
         "earnings",
-        "power",
-        "semi"
+        "power"
       ],
-      "lead": 2,
       "score": 64,
       "hasText": true,
+      "summary": ">>퀄컴 4분기 실적 예상 상회했지만 이익 가이던스는 부진, 스마트폰 사업 부담·데이터센터 전환 가속 •퀄컴은 4분기 실적을 발표, 비GAAP 매출은 104억4,200만달러, 주당순이익은 2.17달러로 시장...",
+      "lead": 2,
       "tickers": [
         "AMZN"
-      ],
-      "summary": ">>퀄컴 4분기 실적 예상 상회했지만 이익 가이던스는 부진, 스마트폰 사업 부담·데이터센터 전환 가속 •퀄컴은 4분기 실적을 발표, 비GAAP 매출은 104억4,200만달러, 주당순이익은 2.17달러로 시장..."
+      ]
     },
     {
       "id": "HANAchina/71561",
@@ -2209,12 +2206,12 @@
       "datetime": "2026-11-04T22:27:23.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "ai-policy"
+        "market-note"
       ],
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>유니트리 왕싱싱: 2027년 로봇 산업 임계점 도달 가능성, 관건은 ‘마지막 몇 밀리미터’ •유니트리 왕싱싱 CEO는 2027년이 로봇 산업의 임계점이 될 가능성이 높으며, 당시 로봇이 낯선 환경의..."
+      "summary": ">>유니트리 왕싱싱: 2027년 로봇 산업 임계점 도달 가능성, 관건은 ‘마지막 몇 밀리미터’ •유니트리 왕싱싱 CEO는 2027년이 로봇 산업의 임계점이 될 가능성이 높으며, 당시 로봇이 낯선 환경의...",
+      "tickers": []
     },
     {
       "id": "bornlupin/21004",
@@ -2506,14 +2503,13 @@
       "datetime": "2026-11-04T15:00:53.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "geo",
-        "macro"
+        "geo"
       ],
-      "lead": 1,
       "score": 72,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>중동 원유 공급 회복, 글로벌 시장 공급 과잉 전환 (중국언론) •JPMorgan은 미국·이스라엘과 이란 간 전쟁으로 차질을 빚었던 글로벌 원유 시장이 9월 하루 110만 배럴, 10월 140만 배럴의..."
+      "summary": ">>중동 원유 공급 회복, 글로벌 시장 공급 과잉 전환 (중국언론) •JPMorgan은 미국·이스라엘과 이란 간 전쟁으로 차질을 빚었던 글로벌 원유 시장이 9월 하루 110만 배럴, 10월 140만 배럴의...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/21003",
@@ -2543,14 +2539,14 @@
         "semi",
         "power"
       ],
-      "lead": 2,
       "score": 63,
       "hasText": true,
+      "summary": ">>트럼프 중간선거 패배 이후 데이터센터 규제 강화 움직임 부상 : 아시아 반도체 부담, 한국 태양광 수혜 (중국언론) •민주당이 미국 중간선거에서 압승하면서 데이터센터 규제 강화 가능성이 제기되고 있음....",
+      "lead": 2,
       "tickers": [
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": ">>트럼프 중간선거 패배 이후 데이터센터 규제 강화 움직임 부상 : 아시아 반도체 부담, 한국 태양광 수혜 (중국언론) •민주당이 미국 중간선거에서 압승하면서 데이터센터 규제 강화 가능성이 제기되고 있음...."
+      ]
     },
     {
       "id": "insidertracking/68349",
@@ -2651,13 +2647,12 @@
       "datetime": "2026-11-04T12:06:07.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "macro",
-        "geo"
+        "market-note"
       ],
       "score": 67,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>미국 중간선거 : 텍사스, 30년 만에 첫 정권 교체…트럼프·머스크·공화당에 타격을 준 이유 (대만경제일보 인용) •민주당은 30여 년 동안 여러 차례 텍사스 선거에서 승리를 시도했으나 번번이 실패했고,..."
+      "summary": ">>미국 중간선거 : 텍사스, 30년 만에 첫 정권 교체…트럼프·머스크·공화당에 타격을 준 이유 (대만경제일보 인용) •민주당은 30여 년 동안 여러 차례 텍사스 선거에서 승리를 시도했으나 번번이 실패했고,...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68345",
@@ -2828,13 +2823,12 @@
       "datetime": "2026-11-04T11:40:12.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "macro",
-        "geo"
+        "market-note"
       ],
       "score": 67,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>인도, 공화당 참패로 무역 압박 완화 기대…새로운 위험도 부상 (대만경제일보) •인도 정부 관계자들은 중간선거에서 민주당이 압승하면서 일부 무역 압박이 완화될 것으로 기대하면서도, 양국 관계의 불확실성이..."
+      "summary": ">>인도, 공화당 참패로 무역 압박 완화 기대…새로운 위험도 부상 (대만경제일보) •인도 정부 관계자들은 중간선거에서 민주당이 압승하면서 일부 무역 압박이 완화될 것으로 기대하면서도, 양국 관계의 불확실성이...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71552",
@@ -2843,13 +2837,12 @@
       "datetime": "2026-11-04T11:37:41.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "macro",
-        "geo"
+        "market-note"
       ],
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>트럼프가 유권자들에게 참패한 이유는? 공화당 전략가의 한마디가 원인 지적 (대만경제일보) •유권자들은 이번 중간선거를 트럼프 2기 정책에 대한 국민투표로 받아들였으며, 민주당의 압승과 의회 장악으로..."
+      "summary": ">>트럼프가 유권자들에게 참패한 이유는? 공화당 전략가의 한마디가 원인 지적 (대만경제일보) •유권자들은 이번 중간선거를 트럼프 2기 정책에 대한 국민투표로 받아들였으며, 민주당의 압승과 의회 장악으로...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71544",
@@ -2858,15 +2851,13 @@
       "datetime": "2026-11-04T09:49:06.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "equity",
-        "macro",
-        "earnings"
+        "equity"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>Meta, 첫 유로화 채권 발행 추진 •Meta는 화요일 150억 달러 규모의 달러화 채권 발행을 완료한 데 이어, 첫 유로화 채권 발행을 위한 수요예측에 착수. 이번 유로화 채권은 총 6개 트랜치로..."
+      "summary": ">>Meta, 첫 유로화 채권 발행 추진 •Meta는 화요일 150억 달러 규모의 달러화 채권 발행을 완료한 데 이어, 첫 유로화 채권 발행을 위한 수요예측에 착수. 이번 유로화 채권은 총 6개 트랜치로...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71542",
@@ -3422,18 +3413,16 @@
       "datetime": "2026-11-03T23:50:14.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "equity",
-        "semi",
-        "power",
-        "earnings"
+        "earnings",
+        "equity"
       ],
-      "lead": 1,
       "score": 59,
       "hasText": true,
+      "summary": "슈퍼마이크로 $SMCI 어닝콜 핵심 ① AI 인프라 수요가 매우 강력하며 공급을 크게 초과하고 있으며, 연간 매출 전망을 720억~820억 달러로 상향. 연간 매출 가이던스 720억~820억 달러도 매우...",
+      "lead": 2,
       "tickers": [
         "SMCI"
-      ],
-      "summary": "슈퍼마이크로 $SMCI 어닝콜 핵심 ① AI 인프라 수요가 매우 강력하며 공급을 크게 초과하고 있으며, 연간 매출 전망을 720억~820억 달러로 상향. 연간 매출 가이던스 720억~820억 달러도 매우..."
+      ]
     },
     {
       "id": "bornlupin/20990",
@@ -3443,20 +3432,18 @@
       "localDateKst": "2026-11-04",
       "tags": [
         "equity",
-        "credit",
-        "geo",
-        "semi"
+        "earnings"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
+      "summary": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "AMD",
         "SMCI",
         "INTC"
-      ],
-      "summary": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
+      ]
     },
     {
       "id": "bornlupin/20989",
@@ -3468,13 +3455,13 @@
         "semi",
         "power"
       ],
-      "lead": 1,
       "score": 79,
       "hasText": true,
+      "summary": "AMD Q3 2026 어닝콜 Q&A 중 Q. 2027년 약 3GW 규모의 AMD GPU 배치를 위한 고객들의 자금·토지·전력·데이터센터 인프라가 충분히 준비되어 있는가? 비벡 아리아(BofA): \"최근...",
+      "lead": 1,
       "tickers": [
         "AMD"
-      ],
-      "summary": "AMD Q3 2026 어닝콜 Q&A 중 Q. 2027년 약 3GW 규모의 AMD GPU 배치를 위한 고객들의 자금·토지·전력·데이터센터 인프라가 충분히 준비되어 있는가? 비벡 아리아(BofA): \"최근..."
+      ]
     },
     {
       "id": "HANAchina/71506",
@@ -3501,18 +3488,15 @@
       "datetime": "2026-11-03T23:28:58.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "semi",
-        "macro",
-        "power",
-        "earnings"
+        "semi"
       ],
-      "lead": 1,
       "score": 81,
       "hasText": true,
+      "summary": "AMD Q3 2026 어닝콜 중 메모리 관련 리사 수 CEO · 진 후 CFO 1. HBM 가격 상승과 고객 비용 분담 Q. HBM 가격 상승이 Instinct GPU 사업에 미치는 영향은? GPU 가격에...",
+      "lead": 1,
       "tickers": [
         "AMD"
-      ],
-      "summary": "AMD Q3 2026 어닝콜 중 메모리 관련 리사 수 CEO · 진 후 CFO 1. HBM 가격 상승과 고객 비용 분담 Q. HBM 가격 상승이 Instinct GPU 사업에 미치는 영향은? GPU 가격에..."
+      ]
     },
     {
       "id": "bornlupin/20987",
@@ -3522,19 +3506,17 @@
       "localDateKst": "2026-11-04",
       "tags": [
         "semi",
-        "power",
-        "ai-policy",
-        "equity"
+        "earnings"
       ],
-      "lead": 1,
       "score": 87,
       "hasText": true,
+      "summary": "AMD 2026년 3분기 어닝콜 1. 3분기 실적: 사상 최대 매출과 이익 - 매출 134억 달러(+45% YoY, +16% QoQ) - Non-GAAP EPS 2.09달러(+74% YoY) - 매출총이익률...",
+      "lead": 1,
       "tickers": [
         "AMD",
         "MSFT",
         "ORCL"
-      ],
-      "summary": "AMD 2026년 3분기 어닝콜 1. 3분기 실적: 사상 최대 매출과 이익 - 매출 134억 달러(+45% YoY, +16% QoQ) - Non-GAAP EPS 2.09달러(+74% YoY) - 매출총이익률..."
+      ]
     },
     {
       "id": "HANAchina/71505",
@@ -3639,13 +3621,13 @@
         "semi",
         "power"
       ],
-      "lead": 2,
       "score": 69,
       "hasText": true,
+      "summary": "AMD 리사 수 CEO “2027년 매출이 전년 대비 80% 이상 성장할 것으로 예상합니다.” 이는 AMD가 지난해 11월 제시한 장기 매출 성장률 목표의 두 배를 넘는 수준 입니다. - 데이터센터 매출...",
+      "lead": 2,
       "tickers": [
         "AMD"
-      ],
-      "summary": "AMD 리사 수 CEO “2027년 매출이 전년 대비 80% 이상 성장할 것으로 예상합니다.” 이는 AMD가 지난해 11월 제시한 장기 매출 성장률 목표의 두 배를 넘는 수준 입니다. - 데이터센터 매출..."
+      ]
     },
     {
       "id": "bornlupin/20985",
@@ -3654,14 +3636,12 @@
       "datetime": "2026-11-03T22:19:15.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "earnings",
-        "equity"
+        "earnings"
       ],
-      "lead": 1,
       "score": 65,
       "hasText": true,
-      "tickers": [],
-      "summary": "아리스타 네트웍스 (ANET) 2026년 3분기 실적 (시간외 +13%) * 매출: 36억 6,000만 달러 (예상치 33억 3,000만 달러 상회), 전년 동기 대비 58.5% 증가 * 조정..."
+      "summary": "아리스타 네트웍스 (ANET) 2026년 3분기 실적 (시간외 +13%) * 매출: 36억 6,000만 달러 (예상치 33억 3,000만 달러 상회), 전년 동기 대비 58.5% 증가 * 조정...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68237",
@@ -3726,17 +3706,15 @@
       "datetime": "2026-11-03T21:25:45.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "earnings",
         "equity",
-        "power"
+        "earnings"
       ],
-      "lead": 2,
       "score": 77,
       "hasText": true,
+      "summary": "슈퍼마이크로 $SMCI 2027 회계연도 1분기 실적 (시간외 +5%) 매출: 199억 달러; 전년 동기 대비 +298% 조정 주당순이익(EPS): 1.81달러 (예상치 1.62달러 상회); 전년 동기 대비...",
       "tickers": [
         "SMCI"
-      ],
-      "summary": "슈퍼마이크로 $SMCI 2027 회계연도 1분기 실적 (시간외 +5%) 매출: 199억 달러; 전년 동기 대비 +298% 조정 주당순이익(EPS): 1.81달러 (예상치 1.62달러 상회); 전년 동기 대비..."
+      ]
     },
     {
       "id": "insidertracking/68225",
@@ -3862,17 +3840,16 @@
       "localDateKst": "2026-11-04",
       "tags": [
         "earnings",
-        "semi",
-        "power"
+        "semi"
       ],
-      "lead": 2,
       "score": 73,
       "hasText": true,
+      "summary": "AMD 2026년 3분기 실적 (시간외 +6%) 매출: 134억 달러, 예상치 130.9억 달러. 전년 동기 대비 45% 증가 조정 주당순이익(EPS): 2.09달러, 예상치 1.95달러. 전년 동기 대비...",
+      "lead": 2,
       "tickers": [
         "AMD",
         "MSFT"
-      ],
-      "summary": "AMD 2026년 3분기 실적 (시간외 +6%) 매출: 134억 달러, 예상치 130.9억 달러. 전년 동기 대비 45% 증가 조정 주당순이익(EPS): 2.09달러, 예상치 1.95달러. 전년 동기 대비..."
+      ]
     },
     {
       "id": "insidertracking/68220",
@@ -4165,10 +4142,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "SK하이닉스, 펭귄 솔루션스(Penguin Solutions) 지분 9.1% 보유 공시",
       "tickers": [
         "000660.KS"
-      ],
-      "summary": "SK하이닉스, 펭귄 솔루션스(Penguin Solutions) 지분 9.1% 보유 공시"
+      ]
     },
     {
       "id": "bornlupin/20976",
@@ -4177,13 +4154,11 @@
       "datetime": "2026-11-03T13:19:28.000Z",
       "localDateKst": "2026-11-03",
       "tags": [
-        "semi",
-        "power",
-        "ai-policy",
-        "equity"
+        "semi"
       ],
       "score": 95,
       "hasText": true,
+      "summary": "앤트로픽, AI 붐의 가장 중요한 자원 확보를 위한 치열한 경쟁 - NYT 1. 앤트로픽, 2045년까지 8,954억 달러 컴퓨팅 투자 약정 - 앤트로픽은 2045년까지 컴퓨팅 자원과 AI 반도체 확보를 위해...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -4194,8 +4169,7 @@
         "AMZN",
         "WULF",
         "HUT"
-      ],
-      "summary": "앤트로픽, AI 붐의 가장 중요한 자원 확보를 위한 치열한 경쟁 - NYT 1. 앤트로픽, 2045년까지 8,954억 달러 컴퓨팅 투자 약정 - 앤트로픽은 2045년까지 컴퓨팅 자원과 AI 반도체 확보를 위해..."
+      ]
     },
     {
       "id": "insidertracking/68206",
@@ -9282,12 +9256,12 @@
       "datetime": "2026-11-04T22:27:23.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "ai-policy"
+        "market-note"
       ],
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>유니트리 왕싱싱: 2027년 로봇 산업 임계점 도달 가능성, 관건은 ‘마지막 몇 밀리미터’ •유니트리 왕싱싱 CEO는 2027년이 로봇 산업의 임계점이 될 가능성이 높으며, 당시 로봇이 낯선 환경의..."
+      "summary": ">>유니트리 왕싱싱: 2027년 로봇 산업 임계점 도달 가능성, 관건은 ‘마지막 몇 밀리미터’ •유니트리 왕싱싱 CEO는 2027년이 로봇 산업의 임계점이 될 가능성이 높으며, 당시 로봇이 낯선 환경의...",
+      "tickers": []
     },
     {
       "id": "bornlupin/21004",
@@ -9579,14 +9553,13 @@
       "datetime": "2026-11-04T15:00:53.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "geo",
-        "macro"
+        "geo"
       ],
-      "lead": 1,
       "score": 72,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>중동 원유 공급 회복, 글로벌 시장 공급 과잉 전환 (중국언론) •JPMorgan은 미국·이스라엘과 이란 간 전쟁으로 차질을 빚었던 글로벌 원유 시장이 9월 하루 110만 배럴, 10월 140만 배럴의..."
+      "summary": ">>중동 원유 공급 회복, 글로벌 시장 공급 과잉 전환 (중국언론) •JPMorgan은 미국·이스라엘과 이란 간 전쟁으로 차질을 빚었던 글로벌 원유 시장이 9월 하루 110만 배럴, 10월 140만 배럴의...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/21003",
@@ -9616,14 +9589,14 @@
         "semi",
         "power"
       ],
-      "lead": 2,
       "score": 63,
       "hasText": true,
+      "summary": ">>트럼프 중간선거 패배 이후 데이터센터 규제 강화 움직임 부상 : 아시아 반도체 부담, 한국 태양광 수혜 (중국언론) •민주당이 미국 중간선거에서 압승하면서 데이터센터 규제 강화 가능성이 제기되고 있음....",
+      "lead": 2,
       "tickers": [
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": ">>트럼프 중간선거 패배 이후 데이터센터 규제 강화 움직임 부상 : 아시아 반도체 부담, 한국 태양광 수혜 (중국언론) •민주당이 미국 중간선거에서 압승하면서 데이터센터 규제 강화 가능성이 제기되고 있음...."
+      ]
     },
     {
       "id": "insidertracking/68349",
@@ -9724,13 +9697,12 @@
       "datetime": "2026-11-04T12:06:07.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "macro",
-        "geo"
+        "market-note"
       ],
       "score": 67,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>미국 중간선거 : 텍사스, 30년 만에 첫 정권 교체…트럼프·머스크·공화당에 타격을 준 이유 (대만경제일보 인용) •민주당은 30여 년 동안 여러 차례 텍사스 선거에서 승리를 시도했으나 번번이 실패했고,..."
+      "summary": ">>미국 중간선거 : 텍사스, 30년 만에 첫 정권 교체…트럼프·머스크·공화당에 타격을 준 이유 (대만경제일보 인용) •민주당은 30여 년 동안 여러 차례 텍사스 선거에서 승리를 시도했으나 번번이 실패했고,...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68345",
@@ -9901,13 +9873,12 @@
       "datetime": "2026-11-04T11:40:12.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "macro",
-        "geo"
+        "market-note"
       ],
       "score": 67,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>인도, 공화당 참패로 무역 압박 완화 기대…새로운 위험도 부상 (대만경제일보) •인도 정부 관계자들은 중간선거에서 민주당이 압승하면서 일부 무역 압박이 완화될 것으로 기대하면서도, 양국 관계의 불확실성이..."
+      "summary": ">>인도, 공화당 참패로 무역 압박 완화 기대…새로운 위험도 부상 (대만경제일보) •인도 정부 관계자들은 중간선거에서 민주당이 압승하면서 일부 무역 압박이 완화될 것으로 기대하면서도, 양국 관계의 불확실성이...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71552",
@@ -9916,13 +9887,12 @@
       "datetime": "2026-11-04T11:37:41.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "macro",
-        "geo"
+        "market-note"
       ],
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>트럼프가 유권자들에게 참패한 이유는? 공화당 전략가의 한마디가 원인 지적 (대만경제일보) •유권자들은 이번 중간선거를 트럼프 2기 정책에 대한 국민투표로 받아들였으며, 민주당의 압승과 의회 장악으로..."
+      "summary": ">>트럼프가 유권자들에게 참패한 이유는? 공화당 전략가의 한마디가 원인 지적 (대만경제일보) •유권자들은 이번 중간선거를 트럼프 2기 정책에 대한 국민투표로 받아들였으며, 민주당의 압승과 의회 장악으로...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71544",
@@ -9931,15 +9901,13 @@
       "datetime": "2026-11-04T09:49:06.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "equity",
-        "macro",
-        "earnings"
+        "equity"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>Meta, 첫 유로화 채권 발행 추진 •Meta는 화요일 150억 달러 규모의 달러화 채권 발행을 완료한 데 이어, 첫 유로화 채권 발행을 위한 수요예측에 착수. 이번 유로화 채권은 총 6개 트랜치로..."
+      "summary": ">>Meta, 첫 유로화 채권 발행 추진 •Meta는 화요일 150억 달러 규모의 달러화 채권 발행을 완료한 데 이어, 첫 유로화 채권 발행을 위한 수요예측에 착수. 이번 유로화 채권은 총 6개 트랜치로...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71542",
@@ -10495,18 +10463,16 @@
       "datetime": "2026-11-03T23:50:14.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "equity",
-        "semi",
-        "power",
-        "earnings"
+        "earnings",
+        "equity"
       ],
-      "lead": 1,
       "score": 59,
       "hasText": true,
+      "summary": "슈퍼마이크로 $SMCI 어닝콜 핵심 ① AI 인프라 수요가 매우 강력하며 공급을 크게 초과하고 있으며, 연간 매출 전망을 720억~820억 달러로 상향. 연간 매출 가이던스 720억~820억 달러도 매우...",
+      "lead": 2,
       "tickers": [
         "SMCI"
-      ],
-      "summary": "슈퍼마이크로 $SMCI 어닝콜 핵심 ① AI 인프라 수요가 매우 강력하며 공급을 크게 초과하고 있으며, 연간 매출 전망을 720억~820억 달러로 상향. 연간 매출 가이던스 720억~820억 달러도 매우..."
+      ]
     },
     {
       "id": "bornlupin/20990",
@@ -10516,20 +10482,18 @@
       "localDateKst": "2026-11-04",
       "tags": [
         "equity",
-        "credit",
-        "geo",
-        "semi"
+        "earnings"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
+      "summary": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "AMD",
         "SMCI",
         "INTC"
-      ],
-      "summary": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
+      ]
     },
     {
       "id": "bornlupin/20989",
@@ -10541,13 +10505,13 @@
         "semi",
         "power"
       ],
-      "lead": 1,
       "score": 79,
       "hasText": true,
+      "summary": "AMD Q3 2026 어닝콜 Q&A 중 Q. 2027년 약 3GW 규모의 AMD GPU 배치를 위한 고객들의 자금·토지·전력·데이터센터 인프라가 충분히 준비되어 있는가? 비벡 아리아(BofA): \"최근...",
+      "lead": 1,
       "tickers": [
         "AMD"
-      ],
-      "summary": "AMD Q3 2026 어닝콜 Q&A 중 Q. 2027년 약 3GW 규모의 AMD GPU 배치를 위한 고객들의 자금·토지·전력·데이터센터 인프라가 충분히 준비되어 있는가? 비벡 아리아(BofA): \"최근..."
+      ]
     },
     {
       "id": "HANAchina/71506",
@@ -10574,18 +10538,15 @@
       "datetime": "2026-11-03T23:28:58.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "semi",
-        "macro",
-        "power",
-        "earnings"
+        "semi"
       ],
-      "lead": 1,
       "score": 81,
       "hasText": true,
+      "summary": "AMD Q3 2026 어닝콜 중 메모리 관련 리사 수 CEO · 진 후 CFO 1. HBM 가격 상승과 고객 비용 분담 Q. HBM 가격 상승이 Instinct GPU 사업에 미치는 영향은? GPU 가격에...",
+      "lead": 1,
       "tickers": [
         "AMD"
-      ],
-      "summary": "AMD Q3 2026 어닝콜 중 메모리 관련 리사 수 CEO · 진 후 CFO 1. HBM 가격 상승과 고객 비용 분담 Q. HBM 가격 상승이 Instinct GPU 사업에 미치는 영향은? GPU 가격에..."
+      ]
     },
     {
       "id": "bornlupin/20987",
@@ -10595,19 +10556,17 @@
       "localDateKst": "2026-11-04",
       "tags": [
         "semi",
-        "power",
-        "ai-policy",
-        "equity"
+        "earnings"
       ],
-      "lead": 1,
       "score": 87,
       "hasText": true,
+      "summary": "AMD 2026년 3분기 어닝콜 1. 3분기 실적: 사상 최대 매출과 이익 - 매출 134억 달러(+45% YoY, +16% QoQ) - Non-GAAP EPS 2.09달러(+74% YoY) - 매출총이익률...",
+      "lead": 1,
       "tickers": [
         "AMD",
         "MSFT",
         "ORCL"
-      ],
-      "summary": "AMD 2026년 3분기 어닝콜 1. 3분기 실적: 사상 최대 매출과 이익 - 매출 134억 달러(+45% YoY, +16% QoQ) - Non-GAAP EPS 2.09달러(+74% YoY) - 매출총이익률..."
+      ]
     },
     {
       "id": "HANAchina/71505",
