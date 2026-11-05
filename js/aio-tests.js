@@ -6943,8 +6943,7 @@
 
     var pfMain1019 = document.getElementById('pf-main');
     // v59.51 (content audit): pf-allocation-section is retired. The holdings table cannot stand in (the empty-state CTA lives
-    // in its tbody); the first calculation-only section is the risk panel, which renderPortfolio hides when empty
-    // (v59.70: the benchmark comparison section left with the native portfolio chart).
+    // in its tbody); the first calculation-only section is the risk panel (v59.70: the benchmark section left), hidden when empty.
     var pfRisk1019 = document.getElementById('pf-risk-panel');
     var pfEmpty1019 = document.querySelector('#pf-positions-tbody .pf-empty-state');
     var empty1019 = !pfMain1019 || !pfMain1019.classList.contains('is-empty') || (!!pfEmpty1019 && pfRisk1019 && getComputedStyle(pfRisk1019).display === 'none');
