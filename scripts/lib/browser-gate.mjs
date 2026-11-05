@@ -12,6 +12,13 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 // v59.70 (2nd batch A): a free port from the OS for a gate that needs its URL before the server starts. Fixed ports
 // (8938 and the like) made parallel sessions' gates fail each other with EADDRINUSE; ci-qa-pipeline-contract-check
 // fails when a fixed port literal comes back.
+// v59.70 (wave 2 A′): the page clock of a pinned-data run (AIO_BROWSER_CLOCK_AT, start-local-node.mjs). A gate that builds
+// time-based fixtures in Node uses this, so its series end where the page thinks today is.
+export function gateNowMs() {
+  const at = Date.parse(process.env.AIO_BROWSER_CLOCK_AT || '');
+  return Number.isFinite(at) ? at : Date.now();
+}
+
 export function freePort() {
   return new Promise((resolvePort, reject) => {
     const probe = createServer();

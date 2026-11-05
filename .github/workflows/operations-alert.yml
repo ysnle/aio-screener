@@ -4,7 +4,7 @@ name: Operations failure escalation
 # deduplicated recovery loop without editing source, dispatching work, or deploying.
 on:
   workflow_run:
-    workflows: ['CI', 'Deploy GitHub Pages', 'Data freshness watchdog', 'Knowledge base lint', 'Refresh market data', 'Refresh screener and SEC fundamentals', 'Deploy AI proxy', 'Deploy fast data plane']
+    workflows: ['CI', 'Deploy GitHub Pages', 'Data freshness watchdog', 'Knowledge base lint', 'Refresh market data', 'Refresh screener and SEC fundamentals', 'Deploy AI proxy', 'Deploy fast data plane', 'Browser live-data watchdog']
     types: [completed]
 
 permissions:
