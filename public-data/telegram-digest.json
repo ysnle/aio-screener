@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-05T09:51:55.164Z",
-  "attemptedAt": "2026-11-05T09:51:55.164Z",
-  "lastSuccessfulAt": "2026-11-05T09:51:55.164Z",
+  "generatedAt": "2026-11-05T09:57:17.251Z",
+  "attemptedAt": "2026-11-05T09:57:17.251Z",
+  "lastSuccessfulAt": "2026-11-05T09:57:17.251Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-22T09:51:50.303Z",
-  "until": "2026-11-05T09:51:50.303Z",
+  "since": "2026-10-22T09:57:14.278Z",
+  "until": "2026-11-05T09:57:14.278Z",
   "current24hWindow": {
     "start": "2026-11-03T23:00:00.000Z",
     "end": "2026-11-04T23:00:00.000Z",
@@ -89,11 +89,11 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 1360,
-      "freshCount": 38,
+      "freshCount": 18,
       "eligibleTextCount": 1295,
       "selectedCount": 123,
       "error": null,
@@ -113,11 +113,11 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 674,
-      "freshCount": 40,
+      "freshCount": 20,
       "eligibleTextCount": 673,
       "selectedCount": 123,
       "error": null,
@@ -125,7 +125,7 @@
     }
   ],
   "count": 2348,
-  "retainedItemCount": 473,
+  "retainedItemCount": 442,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -385,7 +385,7 @@
         "optical"
       ],
       "count": 38,
-      "focus": "코히런트(COHR) Q1 2027 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 수익성 개선. 1분기 매출은 23억7,000만달러로 프로포마 기준 전년 대비 56%, 전분기 대비 16% 증가. 비GAAP EPS는 2.09달러로 전년 대비 80% 급증하며 강력한 실적 성장 달성. • 대규모 수주잔고 및 장기..."
+      "focus": "StoneX, 루멘텀( $LITE ), 매수 의견으로 커버리지 개시 , 목표주가 $1,200 NPO 수요 가속화 * 루멘텀의 NPO 사업 모멘텀이 강화되면서 2028 회계연도 투자 전망이 앞당겨지고 있음. *..."
     },
     {
       "id": "power",
@@ -2058,12 +2058,12 @@
       "datetime": "2026-11-05T03:24:20.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "geo"
+        "market-note"
       ],
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": "월스트리트저널에 따르면 예멘 후티 반군이 사우디아라비아에 휴전 협상 대가로 510억 달러를 요구했다는 보도. 11월 5일 보도에 따르면 후티 반군이 홍해에서 사우디아라비아 유조선을 공격하고 전략적 요충지인..."
+      "summary": "월스트리트저널에 따르면 예멘 후티 반군이 사우디아라비아에 휴전 협상 대가로 510억 달러를 요구했다는 보도. 11월 5일 보도에 따르면 후티 반군이 홍해에서 사우디아라비아 유조선을 공격하고 전략적 요충지인...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71582",
@@ -2142,18 +2142,16 @@
       "datetime": "2026-11-05T02:41:01.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "optical",
-        "credit",
-        "power",
-        "earnings"
+        "earnings",
+        "optical"
       ],
-      "lead": 1,
       "score": 87,
       "hasText": true,
+      "summary": "코히런트(COHR) Q1 2027 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 수익성 개선. 1분기 매출은 23억7,000만달러로 프로포마 기준 전년 대비 56%, 전분기 대비 16% 증가. 비GAAP...",
+      "lead": 2,
       "tickers": [
         "COHR"
-      ],
-      "summary": "코히런트(COHR) Q1 2027 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 수익성 개선. 1분기 매출은 23억7,000만달러로 프로포마 기준 전년 대비 56%, 전분기 대비 16% 증가. 비GAAP..."
+      ]
     },
     {
       "id": "insidertracking/68413",
@@ -2162,17 +2160,15 @@
       "datetime": "2026-11-05T02:39:15.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "semi",
-        "power",
-        "equity",
         "earnings"
       ],
       "score": 69,
       "hasText": true,
+      "summary": "퀄컴(QCOM) Q4 2026 어닝콜 요약 긍정 요인: • 견조한 실적 및 가이던스 달성. 4분기 비GAAP 매출은 104억달러, EPS는 2.17달러 기록. QCT 매출은 90억달러로 모두 가이던스 상단에...",
+      "lead": 1,
       "tickers": [
         "AMZN"
-      ],
-      "summary": "퀄컴(QCOM) Q4 2026 어닝콜 요약 긍정 요인: • 견조한 실적 및 가이던스 달성. 4분기 비GAAP 매출은 104억달러, EPS는 2.17달러 기록. QCT 매출은 90억달러로 모두 가이던스 상단에..."
+      ]
     },
     {
       "id": "bornlupin/21008",
@@ -2210,8 +2206,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "•홍콩 증시 주요 대형지수 급등 •홍콩 대내외 악재 단기 완화 기대감 •전방 산업•소비재 많은 항셍테크 최상위 •홍콩CSP, SW바이오테크, 소비재, 전기차 등 전방 산업 중심 강세 •한편, 본토 반도체..."
+      "summary": "•홍콩 증시 주요 대형지수 급등 •홍콩 대내외 악재 단기 완화 기대감 •전방 산업•소비재 많은 항셍테크 최상위 •홍콩CSP, SW바이오테크, 소비재, 전기차 등 전방 산업 중심 강세 •한편, 본토 반도체...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "bornlupin/21007",
@@ -2242,12 +2239,12 @@
       "datetime": "2026-11-05T01:36:05.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "• 미국 중간선거에서 민주당이 상·하원 양원을 장악함에 따라, 대만 정부는 정세를 면밀히 분석하며 향후 정책 변화에 대비 . 대만 외교부는 초당적 교류 원칙을 바탕으로 안보, 경제·통상, 과학기술 등 전..."
+      "summary": "• 미국 중간선거에서 민주당이 상·하원 양원을 장악함에 따라, 대만 정부는 정세를 면밀히 분석하며 향후 정책 변화에 대비 . 대만 외교부는 초당적 교류 원칙을 바탕으로 안보, 경제·통상, 과학기술 등 전...",
+      "tickers": []
     },
     {
       "id": "bornlupin/21006",
@@ -2307,7 +2304,6 @@
         "macro",
         "semi"
       ],
-      "lead": 2,
       "score": 79,
       "hasText": true,
       "media": {
@@ -2316,14 +2312,14 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "미국 레딧 관심도 마이크론, 구글, AMD, 유가, 애플, 테슬라, 엔비디아",
       "tickers": [
         "NVDA",
         "AMD",
         "TSLA",
         "GOOG",
         "MU"
-      ],
-      "summary": "미국 레딧 관심도 마이크론, 구글, AMD, 유가, 애플, 테슬라, 엔비디아"
+      ]
     },
     {
       "id": "HANAchina/71566",
@@ -2334,11 +2330,11 @@
       "tags": [
         "power"
       ],
-      "lead": 1,
       "score": 53,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>골드만삭스: 민주당 승리로 미국 데이터센터 프로젝트 단기 승인 중단 가능성, 신규 생산능력의 약 45%가 잠재적인 영향 •골드만삭스는 민주당이 미국 의회 상·하원 주도권을 확보하더라도 연방정부가 AI 및..."
+      "summary": ">>골드만삭스: 민주당 승리로 미국 데이터센터 프로젝트 단기 승인 중단 가능성, 신규 생산능력의 약 45%가 잠재적인 영향 •골드만삭스는 민주당이 미국 의회 상·하원 주도권을 확보하더라도 연방정부가 AI 및...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71563",
@@ -2348,16 +2344,15 @@
       "localDateKst": "2026-11-05",
       "tags": [
         "earnings",
-        "power",
-        "semi"
+        "power"
       ],
-      "lead": 2,
       "score": 64,
       "hasText": true,
+      "summary": ">>퀄컴 4분기 실적 예상 상회했지만 이익 가이던스는 부진, 스마트폰 사업 부담·데이터센터 전환 가속 •퀄컴은 4분기 실적을 발표, 비GAAP 매출은 104억4,200만달러, 주당순이익은 2.17달러로 시장...",
+      "lead": 2,
       "tickers": [
         "AMZN"
-      ],
-      "summary": ">>퀄컴 4분기 실적 예상 상회했지만 이익 가이던스는 부진, 스마트폰 사업 부담·데이터센터 전환 가속 •퀄컴은 4분기 실적을 발표, 비GAAP 매출은 104억4,200만달러, 주당순이익은 2.17달러로 시장..."
+      ]
     },
     {
       "id": "HANAchina/71561",
@@ -2366,12 +2361,12 @@
       "datetime": "2026-11-04T22:27:23.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "ai-policy"
+        "market-note"
       ],
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>유니트리 왕싱싱: 2027년 로봇 산업 임계점 도달 가능성, 관건은 ‘마지막 몇 밀리미터’ •유니트리 왕싱싱 CEO는 2027년이 로봇 산업의 임계점이 될 가능성이 높으며, 당시 로봇이 낯선 환경의..."
+      "summary": ">>유니트리 왕싱싱: 2027년 로봇 산업 임계점 도달 가능성, 관건은 ‘마지막 몇 밀리미터’ •유니트리 왕싱싱 CEO는 2027년이 로봇 산업의 임계점이 될 가능성이 높으며, 당시 로봇이 낯선 환경의...",
+      "tickers": []
     },
     {
       "id": "bornlupin/21004",
@@ -2660,14 +2655,13 @@
       "datetime": "2026-11-04T15:00:53.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "geo",
-        "macro"
+        "geo"
       ],
-      "lead": 1,
       "score": 72,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>중동 원유 공급 회복, 글로벌 시장 공급 과잉 전환 (중국언론) •JPMorgan은 미국·이스라엘과 이란 간 전쟁으로 차질을 빚었던 글로벌 원유 시장이 9월 하루 110만 배럴, 10월 140만 배럴의..."
+      "summary": ">>중동 원유 공급 회복, 글로벌 시장 공급 과잉 전환 (중국언론) •JPMorgan은 미국·이스라엘과 이란 간 전쟁으로 차질을 빚었던 글로벌 원유 시장이 9월 하루 110만 배럴, 10월 140만 배럴의...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/21003",
@@ -9299,12 +9293,12 @@
       "datetime": "2026-11-04T22:27:23.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "ai-policy"
+        "market-note"
       ],
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>유니트리 왕싱싱: 2027년 로봇 산업 임계점 도달 가능성, 관건은 ‘마지막 몇 밀리미터’ •유니트리 왕싱싱 CEO는 2027년이 로봇 산업의 임계점이 될 가능성이 높으며, 당시 로봇이 낯선 환경의..."
+      "summary": ">>유니트리 왕싱싱: 2027년 로봇 산업 임계점 도달 가능성, 관건은 ‘마지막 몇 밀리미터’ •유니트리 왕싱싱 CEO는 2027년이 로봇 산업의 임계점이 될 가능성이 높으며, 당시 로봇이 낯선 환경의...",
+      "tickers": []
     },
     {
       "id": "bornlupin/21004",
@@ -9593,14 +9587,13 @@
       "datetime": "2026-11-04T15:00:53.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "geo",
-        "macro"
+        "geo"
       ],
-      "lead": 1,
       "score": 72,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>중동 원유 공급 회복, 글로벌 시장 공급 과잉 전환 (중국언론) •JPMorgan은 미국·이스라엘과 이란 간 전쟁으로 차질을 빚었던 글로벌 원유 시장이 9월 하루 110만 배럴, 10월 140만 배럴의..."
+      "summary": ">>중동 원유 공급 회복, 글로벌 시장 공급 과잉 전환 (중국언론) •JPMorgan은 미국·이스라엘과 이란 간 전쟁으로 차질을 빚었던 글로벌 원유 시장이 9월 하루 110만 배럴, 10월 140만 배럴의...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/21003",
