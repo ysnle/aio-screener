@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-05T06:21:37.158Z",
-  "attemptedAt": "2026-11-05T06:21:37.158Z",
-  "lastSuccessfulAt": "2026-11-05T06:21:37.158Z",
+  "generatedAt": "2026-11-05T06:51:55.169Z",
+  "attemptedAt": "2026-11-05T06:51:55.169Z",
+  "lastSuccessfulAt": "2026-11-05T06:51:55.169Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-22T06:21:31.723Z",
-  "until": "2026-11-05T06:21:31.723Z",
+  "since": "2026-10-22T06:51:50.949Z",
+  "until": "2026-11-05T06:51:50.949Z",
   "current24hWindow": {
     "start": "2026-11-03T23:00:00.000Z",
     "end": "2026-11-04T23:00:00.000Z",
@@ -97,7 +97,7 @@
       "eligibleTextCount": 1294,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 68430
+      "lastPostId": 68433
     },
     {
       "channel": "bornlupin",
@@ -113,19 +113,19 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 674,
-      "freshCount": 20,
+      "freshCount": 40,
       "eligibleTextCount": 673,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 71585
+      "lastPostId": 71587
     }
   ],
   "count": 2346,
-  "retainedItemCount": 460,
+  "retainedItemCount": 474,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -134,8 +134,8 @@
     "observedCount": 2346,
     "eligibleTextCount": 2275,
     "mediaOnlyCount": 71,
-    "mediaAttachedCount": 350,
-    "photoPostCount": 303,
+    "mediaAttachedCount": 352,
+    "photoPostCount": 305,
     "documentPostCount": 1,
     "imageOnlyCount": 1,
     "highSignalCount": 411,
@@ -147,15 +147,15 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 859,
+    "earnings": 446,
     "geo": 444,
-    "semi": 493,
-    "kr-market": 122,
-    "earnings": 444,
-    "flows": 68,
-    "power": 267,
+    "macro": 353,
+    "semi": 494,
+    "power": 268,
+    "flows": 69,
+    "market-note": 856,
+    "kr-market": 121,
     "credit": 99,
-    "macro": 352,
     "japan": 88,
     "equity": 143,
     "ai-policy": 112,
@@ -270,14 +270,14 @@
     "PINS": 1
   },
   "themes": [
-    "Market Notes (859 posts in 14-day research window): 2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,...",
-    "Semiconductors/Memory (493 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
+    "Market Notes (856 posts in 14-day research window): 2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,...",
+    "Semiconductors/Memory (494 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
+    "Earnings/Corporate (446 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
     "Geopolitics (444 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
-    "Earnings/Corporate (444 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
-    "Macro/Rates (352 posts in 14-day research window): 2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,...",
-    "AI Power/Grid (267 posts in 14-day research window): 시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준....",
+    "Macro/Rates (353 posts in 14-day research window): 2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,...",
+    "AI Power/Grid (268 posts in 14-day research window): 시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준....",
     "Equity/Analyst (143 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
-    "Korea Market (122 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
+    "Korea Market (121 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
   ],
   "catalysts": [
     {
@@ -348,7 +348,7 @@
       "topics": [
         "macro"
       ],
-      "count": 352,
+      "count": 353,
       "focus": "2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,..."
     },
     {
@@ -375,7 +375,7 @@
       "topics": [
         "semi"
       ],
-      "count": 493,
+      "count": 494,
       "focus": "2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A..."
     },
     {
@@ -393,7 +393,7 @@
       "topics": [
         "power"
       ],
-      "count": 267,
+      "count": 268,
       "focus": "시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준...."
     },
     {
@@ -411,7 +411,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 122,
+      "count": 121,
       "focus": "SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
     },
     {
@@ -438,7 +438,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 444,
+      "count": 446,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -465,7 +465,7 @@
       "topics": [
         "flows"
       ],
-      "count": 68,
+      "count": 69,
       "focus": "서학개미 순매수 미국 주식 TOP 50 (10월 누적) > 기간: 2026/10/01 ~ 2026/10/30 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -483,7 +483,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 859,
+      "count": 856,
       "focus": "2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,..."
     }
   ],
@@ -1773,6 +1773,29 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71586",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71586",
+      "datetime": "2026-11-05T06:34:43.000Z",
+      "localDateKst": "2026-11-05",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "flows"
+      ],
+      "score": 77,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": ">>홍콩 증시 강세 배경 •항셍테크 +5.19% 기록중 •항셍테크 구성상위 CSP, 경기소비, SW, 전기차, 미디어, 엔터 상위 •홍콩증시는 2026년 시가총액 구성상(전방산업•소비재) 아시아 반도체..."
+    },
+    {
       "id": "bornlupin/21013",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21013",
@@ -2189,15 +2212,16 @@
       "localDateKst": "2026-11-05",
       "tags": [
         "earnings",
-        "power"
+        "power",
+        "semi"
       ],
+      "lead": 2,
       "score": 64,
       "hasText": true,
-      "summary": ">>퀄컴 4분기 실적 예상 상회했지만 이익 가이던스는 부진, 스마트폰 사업 부담·데이터센터 전환 가속 •퀄컴은 4분기 실적을 발표, 비GAAP 매출은 104억4,200만달러, 주당순이익은 2.17달러로 시장...",
-      "lead": 2,
       "tickers": [
         "AMZN"
-      ]
+      ],
+      "summary": ">>퀄컴 4분기 실적 예상 상회했지만 이익 가이던스는 부진, 스마트폰 사업 부담·데이터센터 전환 가속 •퀄컴은 4분기 실적을 발표, 비GAAP 매출은 104억4,200만달러, 주당순이익은 2.17달러로 시장..."
     },
     {
       "id": "HANAchina/71561",
@@ -2206,12 +2230,12 @@
       "datetime": "2026-11-04T22:27:23.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "market-note"
+        "ai-policy"
       ],
       "score": 50,
       "hasText": true,
-      "summary": ">>유니트리 왕싱싱: 2027년 로봇 산업 임계점 도달 가능성, 관건은 ‘마지막 몇 밀리미터’ •유니트리 왕싱싱 CEO는 2027년이 로봇 산업의 임계점이 될 가능성이 높으며, 당시 로봇이 낯선 환경의...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>유니트리 왕싱싱: 2027년 로봇 산업 임계점 도달 가능성, 관건은 ‘마지막 몇 밀리미터’ •유니트리 왕싱싱 CEO는 2027년이 로봇 산업의 임계점이 될 가능성이 높으며, 당시 로봇이 낯선 환경의..."
     },
     {
       "id": "bornlupin/21004",
@@ -2236,19 +2260,16 @@
       "datetime": "2026-11-04T21:53:13.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power"
+        "macro"
       ],
       "score": 94,
       "hasText": true,
+      "summary": "11월 05일 미주인 브리핑 • 다우 3.03% 상승 · S&P500 1.58% 상승 • 민주당 상·하원 장악 · 트럼프 관세 정책 유지 • 국제유가 7.60% 급락 · 10년물 국채금리 4.894% •...",
       "tickers": [
         "MSFT",
         "AMZN",
         "MU"
-      ],
-      "summary": "11월 05일 미주인 브리핑 • 다우 3.03% 상승 · S&P500 1.58% 상승 • 민주당 상·하원 장악 · 트럼프 관세 정책 유지 • 국제유가 7.60% 급락 · 10년물 국채금리 4.894% •..."
+      ]
     },
     {
       "id": "insidertracking/68377",
@@ -2503,13 +2524,14 @@
       "datetime": "2026-11-04T15:00:53.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "geo"
+        "geo",
+        "macro"
       ],
+      "lead": 1,
       "score": 72,
       "hasText": true,
-      "summary": ">>중동 원유 공급 회복, 글로벌 시장 공급 과잉 전환 (중국언론) •JPMorgan은 미국·이스라엘과 이란 간 전쟁으로 차질을 빚었던 글로벌 원유 시장이 9월 하루 110만 배럴, 10월 140만 배럴의...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>중동 원유 공급 회복, 글로벌 시장 공급 과잉 전환 (중국언론) •JPMorgan은 미국·이스라엘과 이란 간 전쟁으로 차질을 빚었던 글로벌 원유 시장이 9월 하루 110만 배럴, 10월 140만 배럴의..."
     },
     {
       "id": "bornlupin/21003",
@@ -2539,14 +2561,14 @@
         "semi",
         "power"
       ],
+      "lead": 2,
       "score": 63,
       "hasText": true,
-      "summary": ">>트럼프 중간선거 패배 이후 데이터센터 규제 강화 움직임 부상 : 아시아 반도체 부담, 한국 태양광 수혜 (중국언론) •민주당이 미국 중간선거에서 압승하면서 데이터센터 규제 강화 가능성이 제기되고 있음....",
-      "lead": 2,
       "tickers": [
         "005930.KS",
         "000660.KS"
-      ]
+      ],
+      "summary": ">>트럼프 중간선거 패배 이후 데이터센터 규제 강화 움직임 부상 : 아시아 반도체 부담, 한국 태양광 수혜 (중국언론) •민주당이 미국 중간선거에서 압승하면서 데이터센터 규제 강화 가능성이 제기되고 있음...."
     },
     {
       "id": "insidertracking/68349",
@@ -2647,12 +2669,13 @@
       "datetime": "2026-11-04T12:06:07.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "market-note"
+        "macro",
+        "geo"
       ],
       "score": 67,
       "hasText": true,
-      "summary": ">>미국 중간선거 : 텍사스, 30년 만에 첫 정권 교체…트럼프·머스크·공화당에 타격을 준 이유 (대만경제일보 인용) •민주당은 30여 년 동안 여러 차례 텍사스 선거에서 승리를 시도했으나 번번이 실패했고,...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>미국 중간선거 : 텍사스, 30년 만에 첫 정권 교체…트럼프·머스크·공화당에 타격을 준 이유 (대만경제일보 인용) •민주당은 30여 년 동안 여러 차례 텍사스 선거에서 승리를 시도했으나 번번이 실패했고,..."
     },
     {
       "id": "insidertracking/68345",
@@ -2823,12 +2846,13 @@
       "datetime": "2026-11-04T11:40:12.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "market-note"
+        "macro",
+        "geo"
       ],
       "score": 67,
       "hasText": true,
-      "summary": ">>인도, 공화당 참패로 무역 압박 완화 기대…새로운 위험도 부상 (대만경제일보) •인도 정부 관계자들은 중간선거에서 민주당이 압승하면서 일부 무역 압박이 완화될 것으로 기대하면서도, 양국 관계의 불확실성이...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>인도, 공화당 참패로 무역 압박 완화 기대…새로운 위험도 부상 (대만경제일보) •인도 정부 관계자들은 중간선거에서 민주당이 압승하면서 일부 무역 압박이 완화될 것으로 기대하면서도, 양국 관계의 불확실성이..."
     },
     {
       "id": "HANAchina/71552",
@@ -2837,12 +2861,13 @@
       "datetime": "2026-11-04T11:37:41.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "market-note"
+        "macro",
+        "geo"
       ],
       "score": 62,
       "hasText": true,
-      "summary": ">>트럼프가 유권자들에게 참패한 이유는? 공화당 전략가의 한마디가 원인 지적 (대만경제일보) •유권자들은 이번 중간선거를 트럼프 2기 정책에 대한 국민투표로 받아들였으며, 민주당의 압승과 의회 장악으로...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>트럼프가 유권자들에게 참패한 이유는? 공화당 전략가의 한마디가 원인 지적 (대만경제일보) •유권자들은 이번 중간선거를 트럼프 2기 정책에 대한 국민투표로 받아들였으며, 민주당의 압승과 의회 장악으로..."
     },
     {
       "id": "HANAchina/71544",
@@ -7660,21 +7685,6 @@
       "tickers": []
     },
     {
-      "id": "HANAchina/71254",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71254",
-      "datetime": "2026-10-30T03:23:49.000Z",
-      "localDateKst": "2026-10-30",
-      "tags": [
-        "macro"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": "•BOJ : 기준금리 1.25% 동결(8:1). 다카타 위원은 1.5% 인상 주장. 근원 인플레이션은 물가 목표 수준에 도달, 중장기 기대인플레이션은 2% 수준 •금융환경은 여전히 완화적이며, 경제·물가...",
-      "lead": 1,
-      "tickers": []
-    },
-    {
       "id": "bornlupin/20893",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20893",
@@ -9256,12 +9266,12 @@
       "datetime": "2026-11-04T22:27:23.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "market-note"
+        "ai-policy"
       ],
       "score": 50,
       "hasText": true,
-      "summary": ">>유니트리 왕싱싱: 2027년 로봇 산업 임계점 도달 가능성, 관건은 ‘마지막 몇 밀리미터’ •유니트리 왕싱싱 CEO는 2027년이 로봇 산업의 임계점이 될 가능성이 높으며, 당시 로봇이 낯선 환경의...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>유니트리 왕싱싱: 2027년 로봇 산업 임계점 도달 가능성, 관건은 ‘마지막 몇 밀리미터’ •유니트리 왕싱싱 CEO는 2027년이 로봇 산업의 임계점이 될 가능성이 높으며, 당시 로봇이 낯선 환경의..."
     },
     {
       "id": "bornlupin/21004",
@@ -9286,19 +9296,16 @@
       "datetime": "2026-11-04T21:53:13.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power"
+        "macro"
       ],
       "score": 94,
       "hasText": true,
+      "summary": "11월 05일 미주인 브리핑 • 다우 3.03% 상승 · S&P500 1.58% 상승 • 민주당 상·하원 장악 · 트럼프 관세 정책 유지 • 국제유가 7.60% 급락 · 10년물 국채금리 4.894% •...",
       "tickers": [
         "MSFT",
         "AMZN",
         "MU"
-      ],
-      "summary": "11월 05일 미주인 브리핑 • 다우 3.03% 상승 · S&P500 1.58% 상승 • 민주당 상·하원 장악 · 트럼프 관세 정책 유지 • 국제유가 7.60% 급락 · 10년물 국채금리 4.894% •..."
+      ]
     },
     {
       "id": "insidertracking/68377",
@@ -9553,13 +9560,14 @@
       "datetime": "2026-11-04T15:00:53.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "geo"
+        "geo",
+        "macro"
       ],
+      "lead": 1,
       "score": 72,
       "hasText": true,
-      "summary": ">>중동 원유 공급 회복, 글로벌 시장 공급 과잉 전환 (중국언론) •JPMorgan은 미국·이스라엘과 이란 간 전쟁으로 차질을 빚었던 글로벌 원유 시장이 9월 하루 110만 배럴, 10월 140만 배럴의...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>중동 원유 공급 회복, 글로벌 시장 공급 과잉 전환 (중국언론) •JPMorgan은 미국·이스라엘과 이란 간 전쟁으로 차질을 빚었던 글로벌 원유 시장이 9월 하루 110만 배럴, 10월 140만 배럴의..."
     },
     {
       "id": "bornlupin/21003",
@@ -9589,14 +9597,14 @@
         "semi",
         "power"
       ],
+      "lead": 2,
       "score": 63,
       "hasText": true,
-      "summary": ">>트럼프 중간선거 패배 이후 데이터센터 규제 강화 움직임 부상 : 아시아 반도체 부담, 한국 태양광 수혜 (중국언론) •민주당이 미국 중간선거에서 압승하면서 데이터센터 규제 강화 가능성이 제기되고 있음....",
-      "lead": 2,
       "tickers": [
         "005930.KS",
         "000660.KS"
-      ]
+      ],
+      "summary": ">>트럼프 중간선거 패배 이후 데이터센터 규제 강화 움직임 부상 : 아시아 반도체 부담, 한국 태양광 수혜 (중국언론) •민주당이 미국 중간선거에서 압승하면서 데이터센터 규제 강화 가능성이 제기되고 있음...."
     },
     {
       "id": "insidertracking/68349",
@@ -9697,12 +9705,13 @@
       "datetime": "2026-11-04T12:06:07.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "market-note"
+        "macro",
+        "geo"
       ],
       "score": 67,
       "hasText": true,
-      "summary": ">>미국 중간선거 : 텍사스, 30년 만에 첫 정권 교체…트럼프·머스크·공화당에 타격을 준 이유 (대만경제일보 인용) •민주당은 30여 년 동안 여러 차례 텍사스 선거에서 승리를 시도했으나 번번이 실패했고,...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>미국 중간선거 : 텍사스, 30년 만에 첫 정권 교체…트럼프·머스크·공화당에 타격을 준 이유 (대만경제일보 인용) •민주당은 30여 년 동안 여러 차례 텍사스 선거에서 승리를 시도했으나 번번이 실패했고,..."
     },
     {
       "id": "insidertracking/68345",
@@ -9873,12 +9882,13 @@
       "datetime": "2026-11-04T11:40:12.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "market-note"
+        "macro",
+        "geo"
       ],
       "score": 67,
       "hasText": true,
-      "summary": ">>인도, 공화당 참패로 무역 압박 완화 기대…새로운 위험도 부상 (대만경제일보) •인도 정부 관계자들은 중간선거에서 민주당이 압승하면서 일부 무역 압박이 완화될 것으로 기대하면서도, 양국 관계의 불확실성이...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>인도, 공화당 참패로 무역 압박 완화 기대…새로운 위험도 부상 (대만경제일보) •인도 정부 관계자들은 중간선거에서 민주당이 압승하면서 일부 무역 압박이 완화될 것으로 기대하면서도, 양국 관계의 불확실성이..."
     },
     {
       "id": "HANAchina/71552",
@@ -9887,12 +9897,13 @@
       "datetime": "2026-11-04T11:37:41.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "market-note"
+        "macro",
+        "geo"
       ],
       "score": 62,
       "hasText": true,
-      "summary": ">>트럼프가 유권자들에게 참패한 이유는? 공화당 전략가의 한마디가 원인 지적 (대만경제일보) •유권자들은 이번 중간선거를 트럼프 2기 정책에 대한 국민투표로 받아들였으며, 민주당의 압승과 의회 장악으로...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>트럼프가 유권자들에게 참패한 이유는? 공화당 전략가의 한마디가 원인 지적 (대만경제일보) •유권자들은 이번 중간선거를 트럼프 2기 정책에 대한 국민투표로 받아들였으며, 민주당의 압승과 의회 장악으로..."
     },
     {
       "id": "HANAchina/71544",
