@@ -1,6 +1,6 @@
 {
  "schemaVersion": "2.0",
- "generatedAt": "2026-11-04T22:33:58.407Z",
+ "generatedAt": "2026-11-05T02:05:46.393Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
@@ -8,7 +8,7 @@
  "model": "sec-fy-normalized-v2",
  "eligible": 3877,
  "stored": 3515,
- "attempted": 14,
+ "attempted": 0,
  "updated": 0,
  "failures": [
   {
@@ -4545,18 +4545,18 @@
  "domainReceipt": {
   "schemaVersion": "domain-receipt.v1",
   "domain": "sec-fundamentals",
-  "runId": "gha:41925176214",
-  "attemptedAt": "2026-11-04T22:33:36.681Z",
+  "runId": "gha:41952192510",
+  "attemptedAt": "2026-11-05T02:05:27.678Z",
   "sourceRevision": "sec-company-tickers:224330f2c44f5d173395e427dbac3c6981acdb1f57e3658832d315c3e96f6522",
   "inputWatermarks": {
-   "universe": "2026-11-04T22:33:35.500Z",
+   "universe": "2026-11-05T02:05:24.651Z",
    "screener": "2026-11-04T22:32:49.991Z",
-   "previousArtifact": "2026-11-04T07:44:23.397Z"
+   "previousArtifact": "2026-11-04T22:33:58.407Z"
   },
   "batchLimit": 600,
   "counts": {
    "eligible": 3877,
-   "attempted": 14,
+   "attempted": 0,
    "updated": 0,
    "retained": 3515,
    "pendingEligible": 362
@@ -4564,8 +4564,8 @@
   "thisBatch": {
    "updated": 0,
    "terminalUnsupported": 0,
-   "transientFailed": 14,
-   "recorded": 14
+   "transientFailed": 0,
+   "recorded": 0
   },
   "ledger": {
    "total": 363,
@@ -4575,8 +4575,8 @@
   },
   "lastSuccessfulObservation": "2026-11-04T07:34:22.336Z",
   "publication": {
-   "status": "NO_REFRESH_RETAINED",
-   "reason": "every attempted target failed; previously stored rows stay published",
+   "status": "NOT_ATTEMPTED",
+   "reason": "no target was due in this batch",
    "allowsPartial": true,
    "basis": "per-symbol independent collection; retained eligible rows stay published while rows that lose their period requirements are excluded from analysis",
    "terminalExcludedFromBatchFailures": true,
@@ -319085,7 +319085,7 @@
  "issuerSicCoverage": {
   "classified": 3832,
   "eligible": 3877,
-  "passAttempted": 41,
+  "passAttempted": 45,
   "passUpdated": 0,
   "passFailed": 0
  },
