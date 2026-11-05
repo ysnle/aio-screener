@@ -25,7 +25,7 @@
 ## 기록은 스크립트로
 
 - 버전: `node scripts/bump-version.mjs <버전>`
-- 결함·기능 기록: `node scripts/record-fix.mjs <entry.json>` (병렬 작업은 `_artifacts/pending-records/<스레드>/`에 두고 통합 때 `node scripts/apply-pending-records.mjs`)
+- 결함·기능 기록: `node scripts/record-fix.mjs <entry.json>` (병렬 작업은 `_artifacts/pending-records/<스레드>/`에 두고 통합 때 `node scripts/apply-pending-records.mjs --dry-run`으로 확인한 뒤 `--apply`로 기록)
 - 작업 공간 상태: `node scripts/generate-workspace-state.mjs --write`
 - 로컬 검증: `npm run qa` (변경 영향 기반)
 

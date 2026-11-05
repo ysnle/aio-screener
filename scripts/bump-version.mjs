@@ -34,6 +34,7 @@ import { execFileSync } from 'child_process';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { alignGeneratedVersion, GENERATED_VERSION_FILES } from './lib/align-generated-version.mjs';
+import { parseCliArgs, CliArgsError } from './lib/cli-args.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
@@ -82,13 +83,19 @@ function canonicalizeVersion(raw) {
     : `v${parsed.major}.${String(parsed.patch).padStart(2, '0')}`;
 }
 
-const newVerInput = process.argv[2];
+// v59.70: an unknown argument fails before any file is touched, and --help only prints (scripts/lib/cli-args.mjs).
+const USAGE = '사용법: node scripts/bump-version.mjs <버전> [--resume-from <이전 버전>] [--align-generated]  (예: v51.65)';
+let cli;
+try { cli = parseCliArgs(process.argv.slice(2), { usage: USAGE, flags: ['--align-generated'], options: ['--resume-from'], positional: { max: 1 } }); }
+catch (error) { if (error instanceof CliArgsError) { console.error(error.message); process.exit(2); } throw error; }
+if (cli.help) { console.log(USAGE); process.exit(0); }
+const newVerInput = cli.positional[0];
 const parsedNewVersion = newVerInput ? parseVersion(newVerInput) : null;
 const newVer = parsedNewVersion ? canonicalizeVersion(newVerInput) : null;
 // Recover a partially written bump without rolling back user edits or advancing
 // the version again. Usage: bump-version.mjs v54.68 --resume-from v54.67
-const resumeIndex = process.argv.indexOf('--resume-from');
-const resumeFrom = resumeIndex >= 0 ? canonicalizeVersion(process.argv[resumeIndex + 1] || '') : null;
+const resumeIndex = '--resume-from' in cli.options ? 0 : -1;
+const resumeFrom = resumeIndex >= 0 ? canonicalizeVersion(cli.options['--resume-from'] || '') : null;
 if (resumeIndex >= 0 && !resumeFrom) {
   console.error('Invalid --resume-from version');
   process.exit(1);
@@ -128,7 +135,7 @@ try {
 }
 
 // P1355: align only incoming producer metadata to this already-versioned local app.
-if (process.argv.includes('--align-generated')) {
+if (cli.flags.has('--align-generated')) {
   try {
     if (resumeFrom || prevVer !== newVer) throw new Error('--align-generated requires the existing current version, without --resume-from');
     const documents = Object.fromEntries(GENERATED_VERSION_FILES.map((path) => [path, JSON.parse(read(path))]));

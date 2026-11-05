@@ -344,6 +344,33 @@ try {
     const ids = [...dry.stdout.matchAll(/ok .* P(\d+)/g)].map((m) => Number(m[1]));
     check('v59.56 two threads\' pending entries get consecutive P ids in one dry run', dry.status === 0 && ids.length === 2 && ids[1] === ids[0] + 1, `${dry.stdout}${dry.stderr}`);
   }
+  // v59.70 (2026-11-04 incident): `apply-pending-records.mjs --help` ignored the unknown flag and applied — v59.70 bump,
+  // every thread's entries recorded, pending files deleted. Each writer runs here from a sandbox copy (its root is the
+  // sandbox, so an old script that still writes cannot touch this repository): --help prints the usage and exits 0, an
+  // unknown flag exits non-zero, apply-pending-records without --dry-run/--apply refuses, and nothing in the sandbox changes.
+  {
+    const sandbox = mkdtempSync(join(tmpdir(), 'aio-writer-args-'));
+    tmpRoots.push(sandbox);
+    for (const rel of ['scripts/apply-pending-records.mjs', 'scripts/record-fix.mjs', 'scripts/bump-version.mjs', 'scripts/lib/cli-args.mjs', 'scripts/lib/align-generated-version.mjs', 'version.json']) {
+      if (!existsSync(join(repo, rel))) continue;
+      mkdirSync(dirname(join(sandbox, rel)), { recursive: true });
+      cpSync(join(repo, rel), join(sandbox, rel));
+    }
+    mkdirSync(join(sandbox, '_artifacts/pending-records/fixture'), { recursive: true });
+    writeFileSync(join(sandbox, '_artifacts/pending-records/fixture/01.json'), JSON.stringify({ title: 'sandbox entry', changelog: ['x'] }));
+    const snapshot = () => JSON.stringify(['version.json', '_artifacts/pending-records/fixture/01.json'].map((rel) => existsSync(join(sandbox, rel)) ? sha(readFileSync(join(sandbox, rel))) : 'missing'));
+    const before = snapshot();
+    const call = (script, args) => spawnSync(process.execPath, [join(sandbox, 'scripts', script), ...args], { cwd: sandbox, encoding: 'utf8', timeout: 30000 });
+    for (const script of ['apply-pending-records.mjs', 'record-fix.mjs', 'bump-version.mjs']) {
+      const help = call(script, ['--help']);
+      check(`v59.70 ${script} --help prints the usage and exits 0`, help.status === 0 && /usage|사용법/i.test(help.stdout), `${help.status} ${help.stdout}${help.stderr}`.slice(0, 400));
+      const unknown = call(script, ['--bogus-flag']);
+      check(`v59.70 ${script} refuses an unknown argument`, unknown.status !== 0 && /unknown argument --bogus-flag/.test(unknown.stderr), `${unknown.status} ${unknown.stdout}${unknown.stderr}`.slice(0, 400));
+    }
+    const bare = call('apply-pending-records.mjs', []);
+    check('v59.70 apply-pending-records writes only with --apply (no flag refuses)', bare.status !== 0 && /--dry-run or --apply/.test(bare.stderr), `${bare.status} ${bare.stdout}${bare.stderr}`.slice(0, 400));
+    check('v59.70 the writer argument checks changed nothing in the sandbox', snapshot() === before, before);
+  }
 } finally {
   for (const dir of tmpRoots) rmSync(dir, { recursive: true, force: true });
 }
