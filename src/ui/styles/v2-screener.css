@@ -233,7 +233,7 @@ body:not(.aio-dev-mode) #page-screener .scr-dev-only { display: none !important;
 #page-screener .scr-more-rows { margin: 12px 0 16px; border-radius: 12px; background: var(--bg-card); box-shadow:none; overflow: hidden; }
 #page-screener .scr-more-rows .sx-row:first-child { border-top: 0; }
 #page-screener .scr-more-rows .sx-row { padding: 14px 22px; min-height: 48px; }
-#page-screener .scr-workbench-advanced > summary, #page-screener .scr-data-status > summary { padding: 8px 0 8px var(--sx-card-pad-x); }
+#page-screener .scr-data-status > summary { padding: 8px 0 8px var(--sx-card-pad-x); }
 #page-screener .scr-fmp-status { display: none; flex-wrap: wrap; gap: 4px; align-items: center; margin: 6px 0; font-size: 12px; color: var(--text-secondary); }
 #page-screener .scr-profile-btn { min-height: 30px; padding: 0 12px; border: 0; border-radius: 999px; background: var(--sx-ink-a06); color: var(--text-primary); font-size: 12px; }
 #page-screener .scr-profile-btn.active { background: var(--text-primary); color: var(--bg-base); }
