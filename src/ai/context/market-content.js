@@ -32,6 +32,9 @@ export function buildQuestionDomainContext({ ctxId, query = '', root = {}, readD
   // v57.61: the screener's 맞춤 조건 decide which rows the table shows; without them the AI judged a different list.
   const custom = ctxId === 'screener' ? parseConditionValue(root.document?.getElementById?.('scr-custom-conditions')?.value).map(conditionLabel).filter(Boolean) : [];
   if (custom.length) parts.push(`스크리너 화면에 적용된 맞춤 조건(모두 만족하는 종목만 표에 남음, 매매 신호 아님): ${custom.join(' · ')}`);
+  // v59.70 (S12, owner D3): the AI panel is where screener conditions are made. When the reader asks for a screen, the
+  // answer's last line names it in the condition words the app reads; the panel turns that line into the 적용 card.
+  if (ctxId === 'screener' || /(?:종목|주식|스크린|조건)[^?\n]{0,40}(?:찾|골라|추려|걸러|뽑)/.test(text)) parts.push("스크리너 조건 줄: 사용자가 조건으로 종목을 찾아 달라고 하면 답의 마지막 줄을 '스크리너 조건: '으로 시작해 쉼표로 적는다. 쓸 수 있는 표현만 쓴다 — RSI 50 이상, RSI 30 이하, PER 20 이하, Forward PER 25 이하, PBR 3 이하, ROE 15% 이상, 순이익률 10% 이상, 매출 성장률 10% 이상, 1개월 수익률 10% 이상, 3개월 수익률 20% 이상, 52주 신고가, 52주 고점 대비 5% 이내, 단기 정배열, 중기 정배열, VCP 수렴, VCP 돌파, 거래량 1.5배 이상, 거래대금 20백만 이상. '또는'과 반대 방향(PER 이상)은 쓰지 않는다. 조건 요청이 아니면 이 줄을 쓰지 않는다.");
   // v57.77 perf: rows only, through the shared row snapshot (the bare getScreenerState() call cloned the whole slice again).
   const screenerRows = root.AIO_ARCH?.getScreenerRows?.();
   const facts = buildMarketContentContext({ query: text, history: root._aioHistory || [], themes: root.THEME_MAP || [], rows: screenerRows || root.SCREENER_DB || [] });

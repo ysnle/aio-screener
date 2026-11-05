@@ -224,7 +224,8 @@ export function renderFilterChips(documentRef, { screen = null } = {}) {
   if (container.dataset.chipSignature !== signature) {
     const active = documentRef.activeElement;
     const focusArg = active && container.contains(active) ? active.dataset.aioScreenerArg : null;
-    container.replaceChildren(...chips);
+    // The 맞춤 조건 chip list lives in the same row (installCustomConditions moved it here); a rebuild keeps it last.
+    container.replaceChildren(...chips, ...container.querySelectorAll(':scope > .scr-custom-list'));
     container.dataset.chipSignature = signature;
     if (focusArg) [...container.children].find((chip) => chip.dataset.aioScreenerArg === focusArg)?.focus?.({ preventScroll: true });
   }

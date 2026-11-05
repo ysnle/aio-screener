@@ -479,3 +479,13 @@ body.dark-theme #page-screener .scr-chip-select.is-set { color: var(--bg-base) !
 @media (min-width: 1024px) and (max-width: 1279px) {
   #page-screener :is(th, td)[data-column-key="range52"] { display: none; }
 }
+/* v59.70 (D3): the 스크리너 조건 card under an AI answer — the conditions the app read and 스크리너에 적용. */
+.aio-answer-screen { margin: 8px 0; padding: 10px 12px; border: 1px solid var(--border-subtle); border-radius: 10px; background: var(--bg-card); }
+.aio-answer-screen-head { margin: 0 0 6px; font-size: 13px; font-weight: 700; color: var(--text-primary); }
+.aio-answer-screen-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px; padding: 0; list-style: none; }
+.aio-answer-screen-list li { padding: 3px 10px; border-radius: 999px; background: var(--bg-surface); color: var(--text-primary); font-size: 12px; overflow-wrap: anywhere; }
+.aio-answer-screen-note { margin: 6px 0 0; font-size: 12px; line-height: 1.5; color: var(--text-secondary); }
+.aio-answer-screen-note.is-error { color: var(--text-primary); }
+.aio-answer-screen-apply { min-height: 36px; }
+.aio-answer-screen-apply:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; }
+@media (pointer: coarse) { .aio-answer-screen-apply { min-height: 44px; } }
