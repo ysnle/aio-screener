@@ -382,7 +382,22 @@ export function estimateAiCostUsd({ inputTokens = 0, outputTokens = 0, searchCal
 
 // ---- selectors for 오늘 and 종목 --------------------------------------------------------------------------------------
 const DAY = 86400000;
-const briefsOf = (artifact) => (artifact?.schemaVersion === EVENT_BRIEFS_SCHEMA && Array.isArray(artifact.briefs) ? artifact.briefs : []);
+// v59.70 (screen review 31): the trademark, registered and service-mark signs (U+2122, U+00AE, U+2120) of a company's
+// release ('Scorpio', 'PCIe' in the 11/3 briefs) fall in Extended_Pictographic and can
+// draw as emoji glyphs; the producer drops them from every shown field, and a brief written before that is read the same way.
+const TRADE_MARKS = /[\u2122\u00AE\u2120]/g;
+export function withoutTradeMarks(value) {
+  if (typeof value === 'string') return value.replace(TRADE_MARKS, '');
+  if (Array.isArray(value)) return value.map(withoutTradeMarks);
+  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, withoutTradeMarks(item)]));
+  return value;
+}
+const shownBriefs = new WeakMap();
+const briefsOf = (artifact) => {
+  if (!(artifact?.schemaVersion === EVENT_BRIEFS_SCHEMA && Array.isArray(artifact.briefs))) return [];
+  if (!shownBriefs.has(artifact.briefs)) shownBriefs.set(artifact.briefs, artifact.briefs.map(({ checkText, ...brief }) => ({ ...withoutTradeMarks(brief), ...(checkText ? { checkText } : {}) })));
+  return shownBriefs.get(artifact.briefs);
+};
 const publishedMs = (brief) => Date.parse(brief?.publishedAt || brief?.eventDate || '') || 0;
 
 /** The briefs 오늘 lists: published within `days`, newest first. */

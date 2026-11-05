@@ -323,6 +323,31 @@
           ]
         },
         {
+          "id": "metric-consistency",
+          "script": "scripts/ci-metric-consistency-check.mjs",
+          "inputs": [
+            "src/domain/**",
+            "src/ui/components/home-day.js",
+            "public-data/history.json",
+            "public-data/macro-history.json",
+            "scripts/ci-metric-consistency-check.mjs"
+          ]
+        },
+        {
+          "id": "headline-translation",
+          "script": "scripts/ci-headline-translation-check.mjs",
+          "inputs": [
+            "scripts/build-market-day.mjs",
+            "scripts/fetch-data.mjs",
+            "scripts/producer/market-narrative.mjs",
+            "src/domain/briefing/day-account.js",
+            "public-data/data.json",
+            "public-data/market-day.json",
+            "public-data/event-briefs.json",
+            "scripts/ci-headline-translation-check.mjs"
+          ]
+        },
+        {
           "id": "native-decision",
           "script": "scripts/ci-native-decision-evidence-check.mjs",
           "inputs": [

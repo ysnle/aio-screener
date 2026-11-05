@@ -2427,9 +2427,11 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       && score('Gold Price Prediction for Tomorrow: 3 Cues and Key Levels', 'Univest').selectionReason === 'not-article-filter');
   check('v58.24 the two narrative feeds exist and each has a slot floor',
     ['Google News - AI narrative/Memory', 'Google News - Positioning/Sovereign/Politics'].every((name) => ns.NEWS_FEEDS.some((feed) => feed.source === name) && ns.NEWS_FEED_FLOORS.some(([key, floor]) => key === name && floor >= 2)));
-  // v59.63: the market-day ledger is rebuilt every refresh after the scenario state, without network, and committed.
+  // v59.63: the market-day ledger is rebuilt every refresh after the scenario state, and committed. v59.70 (owner D6): its
+  // one network step is headline translation through requestWorkersAiTranslation (the automation token in its env); no
+  // direct fetch.
   check('v59.63 refresh-data builds market-day.json after scenario-state and stages it',
-    /id: market-day[\s\S]{0,200}run: node scripts\/build-market-day\.mjs/.test(refresh) && refresh.indexOf('build-scenario-state.mjs') < refresh.indexOf('build-market-day.mjs')
+    /id: market-day[\s\S]{0,700}AIO_AUTOMATION_TOKEN[\s\S]{0,120}run: node scripts\/build-market-day\.mjs/.test(refresh) && refresh.indexOf('build-scenario-state.mjs') < refresh.indexOf('build-market-day.mjs')
       && refresh.includes('stage_if_exists public-data/market-day.json') && !/fetch\(|https?:\/\//.test(readFileSync(new URL('./build-market-day.mjs', import.meta.url), 'utf8')));
   check('v59.62 the deal and election-sector feeds exist with a seat, and a deal headline scores as a corporate action',
     ['Google News - Deals/M&A', 'Google News - Election sectors'].every((name) => ns.NEWS_FEEDS.some((feed) => feed.source === name) && ns.NEWS_FEED_FLOORS.some(([key, floor]) => key === name && floor >= 1))

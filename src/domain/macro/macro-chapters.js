@@ -4,7 +4,7 @@
 // read. Every number comes from macro-history.json (FRED) or history.json; every sentence is chosen by a rule here.
 import { readNumber, signedText } from '../shared/number.js';
 import { dayLabel } from '../market/market-story.js';
-import { buildCloseSeries } from '../market/close-series.js';
+import { buildCloseSeries, closeBasis } from '../market/close-series.js';
 import { MARKET_WINDOWS, closeChange } from '../market/market-windows.js';
 import { sessionPointBack } from './rates-fx.js';
 import { RULES } from '../rules/thresholds.js';
@@ -106,7 +106,7 @@ function labor(macroHistory, events) {
   };
 }
 
-function rates(macroHistory, events) {
+function rates(macroHistory, events, history = []) {
   // 10년 = 실질 + 기대인플레 holds only on one date: the legs are cut at the latest date all three have (FRED posts the
   // real yield a day after the others), and the line names that span, so 4.98% (10/29) beside the market 4.93% (10/30) reads.
   const through = ['dgs10', 'realYield10', 'breakeven10'].map((id) => series(macroHistory, id).at(-1)?.date || '').sort()[0] || null;
@@ -114,17 +114,22 @@ function rates(macroHistory, events) {
   const be = macroChange(macroHistory, 'breakeven10', through); const term = macroChange(macroHistory, 'termPremium10');
   const two = macroChange(macroHistory, 'dgs2', through);
   if (!ten || !real || !be) return null;
+  const tnx = closeChange(history, 'tnx', WINDOW, { through: closeBasis(history) });
+  const market = tnx ? { from: tnx.from.value, to: tnx.to.value, fromDate: tnx.from.date, date: tnx.to.date, bp: (tnx.to.value - tnx.from.value) * 100 } : null;
   const share = ten.bp ? real.bp / ten.bp : 0;
   const kind = Math.abs(ten.bp) < 10 ? 'flat' : share >= 0.6 ? (ten.bp < 0 ? 'growth' : 'tight') : be.bp / ten.bp >= 0.6 ? (ten.bp < 0 ? 'relief' : 'fear') : 'mixed';
   const read = { flat: '20거래일 동안 큰 변화가 없습니다.', growth: '하락이 거의 실질금리에서 나왔습니다. 물가 기대가 내려서가 아니라 성장 걱정으로 주식에서 채권으로 옮긴 움직임으로 보입니다.',
     tight: '상승이 실질금리에서 나왔습니다. 긴축 부담이 커져 성장주 할인율이 올라갑니다.', relief: '하락이 기대인플레에서 나와 물가 안도 쪽입니다.',
     fear: '상승이 기대인플레에서 나와 물가 걱정 쪽입니다.', mixed: '실질금리와 기대인플레가 함께 움직여 한쪽으로 읽기 어렵습니다.' }[kind];
   const next = nextOf(events, ['us-fed-rate']);
-  const points = [['10년', ten.bp], ['실질', real.bp], ['기대인플레', be.bp], term ? ['기간 프리미엄', term.bp] : null, two ? ['2년', two.bp] : null].filter(Boolean);
+  const points = [['10년', market ? market.bp : ten.bp], ['실질', real.bp], ['기대인플레', be.bp], term ? ['기간 프리미엄', term.bp] : null, two ? ['2년', two.bp] : null].filter(Boolean);
   return {
     id: 'rates', title: '연준 · 금리 — 왜 움직였나', question: '금리 변화는 물가 때문인가, 성장 걱정 때문인가',
     viz: { caption: '20거래일 변화 (bp)', unit: 'bp', points: points.map(([x, value], index) => ({ x, value, hot: index === 1 })) },
-    now: `10년 ${ten.from.toFixed(2)} → ${ten.to.toFixed(2)}% (${shortDay(ten.fromDate)}→${shortDay(ten.date)}, ${bp(ten.bp)}) = 실질 ${bp(real.bp)} + 기대인플레 ${bp(be.bp)}`,
+    // v59.70 (screen review 6): the 10-year itself is the market close reading every screen shares (closeChange on history tnx); the
+    // FRED legs, cut on their own common date, split the move and keep their own span beside them.
+    now: market ? `10년 ${market.from.toFixed(2)} → ${market.to.toFixed(2)}% (${shortDay(market.fromDate)}→${shortDay(market.date)}, ${bp(market.bp)}) · 실질 ${bp(real.bp)} · 기대인플레 ${bp(be.bp)} (${shortDay(ten.fromDate)}→${shortDay(ten.date)})`
+      : `10년 ${ten.from.toFixed(2)} → ${ten.to.toFixed(2)}% (${shortDay(ten.fromDate)}→${shortDay(ten.date)}, ${bp(ten.bp)}) = 실질 ${bp(real.bp)} + 기대인플레 ${bp(be.bp)}`,
     mean: read,
     next: whenOf(next) || '발표 일정을 확인하지 못했습니다',
     flip: '기대인플레가 같이 움직이기 시작하면 해석이 물가 쪽으로 바뀝니다.',
@@ -318,7 +323,7 @@ function growthKorea(macroHistory, history, events) {
 
 /** The chapters (v59.64: eight); a chapter whose series are missing is left out. `day` is market-day.json, when loaded. */
 export function buildMacroChapters({ macroHistory = null, history = [], events = [], day = null } = {}) {
-  const chapters = [inflation(macroHistory, events), labor(macroHistory, events), rates(macroHistory, events), credit(macroHistory), oil(history, macroHistory),
+  const chapters = [inflation(macroHistory, events), labor(macroHistory, events), rates(macroHistory, events, history), credit(macroHistory), oil(history, macroHistory),
     metals(history, macroHistory), dollarChapter(history), growthKorea(macroHistory, history, events)].filter(Boolean)
     .map((chapter) => ({ ...chapter, today: chapterToday(day, chapter.id) }));
   return { available: chapters.length > 0, chapters };

@@ -35,7 +35,7 @@ import { updateHistory } from './producer/history.mjs';
 import { SCREENER_OUT, enrichScreener } from './producer/screener.mjs';
 import { enrichScreenerExtended } from './producer/screener-extended.mjs';
 import { writeMacroHistory, MACRO_CALENDAR_OUT, MACRO_HISTORY_OUT, writeMacroCalendar } from './producer/macro-history.mjs';
-import { translateHeadlines, genMarketAnalysis, applyMarketAnalysis } from './producer/market-narrative.mjs';
+import { translateHeadlines, isCleanKoreanTitle, genMarketAnalysis, applyMarketAnalysis } from './producer/market-narrative.mjs';
 import { collectAfterHours, nyParts as afterHoursNyParts } from './producer/after-hours.mjs';
 import { readPreviousPlanes, sourcePlanes, collectSourcePlanes } from './producer/source-planes.mjs';
 import { mergeMacroPlanes, buildMarketSurveys } from './producer/macro-merge.mjs';
@@ -185,12 +185,20 @@ async function main() {
     // First-users F31: a slot sealed while translation was down kept English titles for its two days. Its selection and quotes
     // stay sealed; only the missing Korean title is filled by a later run (after this cycle's own headlines, inside the cap).
     const untranslatedSealed = (data.marketTimeline?.slots || []).flatMap((slot) => slot?.headlines || []).filter((row) => row && !row.titleKo);
-    const headlineTranslation = await translateHeadlines([...new Set([...(data.news || []), ...(data.newsIntraday || []), ...timelineRun.newHeadlines, ...untranslatedSealed])], {
+    const shownHeadlines = [...new Set([...(data.news || []), ...(data.newsIntraday || []), ...timelineRun.newHeadlines, ...untranslatedSealed])];
+    const headlineTranslation = await translateHeadlines(shownHeadlines, {
       previous: [...(previous?.news || []), ...(previous?.newsIntraday || []), ...(previous?.marketTimeline?.current?.headlines || []),
         ...(previous?.marketTimeline?.slots || []).flatMap((slot) => slot?.headlines || [])],
       request: aiUsage.shared('headline-translation'),
       translate: aiUsage.workersTranslate('headline-translation') });
-    data.meta.headlineTranslation = headlineTranslation;
+    // v59.70 (owner D6): translation is the producer's alone; a shown headline still without a clean Korean title is
+    // marked titleKoFailed (the screen shows the original with that mark, or passes it over) and retried next run.
+    let failedTitles = 0;
+    for (const item of shownHeadlines) {
+      if (!item?.title || isCleanKoreanTitle(item.title) || isCleanKoreanTitle(item.titleKo)) { if (item) delete item.titleKoFailed; continue; }
+      item.titleKoFailed = true; failedTitles += 1;
+    }
+    data.meta.headlineTranslation = { ...headlineTranslation, failed: failedTitles };
     aiUsage.note('headline-translation', headlineTranslation.provider ? 'translated' : headlineTranslation.pending ? (headlineTranslation.reason || 'unparsed') : 'nothing-new');
     console.log(`[fetch-data] headline translation: reused ${headlineTranslation.reused}, new ${headlineTranslation.translated}/${headlineTranslation.pending}${headlineTranslation.provider ? ` via ${headlineTranslation.provider}` : ''}${headlineTranslation.freeReason ? ` (free path: ${headlineTranslation.freeReason})` : ''}${headlineTranslation.reason ? ` (${headlineTranslation.reason})` : ''}`);
   } catch (error) { console.warn(`[fetch-data] headline translation skipped: ${error?.message || error}`); }

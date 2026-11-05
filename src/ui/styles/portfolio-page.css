@@ -178,3 +178,6 @@ input[aria-invalid="true"] { border-color: var(--data-red); }
 }
 /* The fold class sets display: block, which overrode [hidden] (an empty book showed 기록 and 점검 with nothing inside). */
 #page-portfolio #pf-main > :is(details, section)[hidden] { display: none !important; }
+/* v59.70 (screen review 20): an empty book offers add, import and a preview in its own empty state; the page head's
+   종목 추가 · 내보내기 · 가져오기 row said the same twice, so it shows once there is a holding. */
+#page-portfolio[data-pf-empty="true"] .page-head .sh-portfolio-row { display: none; }

@@ -10,6 +10,7 @@ import { storyWeight } from './story-weight.js';
 import { frameHead } from './section-frame.js';
 import { pickImportantNews } from '../../domain/briefing/news-picks.js';
 import { groupNewsStories } from '../../domain/news/stories.js';
+import { listingMarketOfSymbol } from '../../domain/market/session-time.js';
 
 const RANK_ORDER = Object.freeze({ lead: 0, major: 1, minor: 2, context: 3 });
 
@@ -17,8 +18,11 @@ const RANK_ORDER = Object.freeze({ lead: 0, major: 1, minor: 2, context: 3 });
 export function keyStocks(day, limit = 8) {
   const facts = Array.isArray(day?.facts) ? day.facts : [];
   const seen = new Set();
-  return facts.filter((fact) => fact.kind === 'stock-move' && (['lead', 'major'].includes(fact.rank) || Math.abs(fact.indexBp || 0) >= 8))
-    .sort((a, b) => (RANK_ORDER[a.rank] ?? 9) - (RANK_ORDER[b.rank] ?? 9) || (b.materiality || 0) - (a.materiality || 0))
+  // v59.70 (screen review 33): US listings lead, Korean ones follow (US first, AGENTS); a third market's line (285A.T) is not
+  // one of 오늘's names.
+  const market = (sym) => ({ US: 0, KR: 1 })[listingMarketOfSymbol(sym)] ?? 2;
+  return facts.filter((fact) => fact.kind === 'stock-move' && market(String(fact.subjects?.[0] || '')) < 2 && (['lead', 'major'].includes(fact.rank) || Math.abs(fact.indexBp || 0) >= 8))
+    .sort((a, b) => market(a.subjects[0]) - market(b.subjects[0]) || (RANK_ORDER[a.rank] ?? 9) - (RANK_ORDER[b.rank] ?? 9) || (b.materiality || 0) - (a.materiality || 0))
     .filter((fact) => { const sym = fact.subjects?.[0]; if (!sym || seen.has(sym)) return false; seen.add(sym); return true; })
     .slice(0, limit).map((fact) => ({ sym: fact.subjects[0], label: fact.label, change: fact.change, indexBp: fact.indexBp ?? null }));
 }
@@ -28,8 +32,10 @@ function homeHeadlines(root, store, limit = 3) {
   const items = store?.getState?.()?.news?.items;
   if (!Array.isArray(items) || !items.length || typeof root?.AIO?.buildNewsSurfaceModel !== 'function') return [];
   const model = root.AIO.buildNewsSurfaceModel('market-news', items, { countryFilter: 'all', topicFilter: 'all', typeTab: 'all', sortMode: 'score', nowMs: Date.now() });
-  return pickImportantNews(groupNewsStories(model?.eligibleItems || model?.items || []), limit).map((item) => {
-    const shown = typeof root.getDisplayTitle === 'function' ? root.getDisplayTitle(item) : '';
+  const picked = pickImportantNews(groupNewsStories(model?.eligibleItems || model?.items || []), limit);
+  return picked.map((item) => {
+    // v59.70 (owner D6): the producer's Korean title first (news translation runs in the producer, not the browser).
+    const shown = /[가-힣].*[가-힣]/.test(item.titleKo || '') ? item.titleKo : typeof root.getDisplayTitle === 'function' ? root.getDisplayTitle(item) : '';
     return { title: shown || item.title || '', original: shown && shown !== item.title ? item.title : null };
   }).filter((row) => row.title);
 }

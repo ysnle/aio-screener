@@ -69,6 +69,6 @@ export function beatButFell(briefs = [], { minBeats = 8 } = {}) {
   const share = Math.round(fell / beats.length * 100); const base = Math.round(allFell / rows.length * 100);
   return {
     beats: beats.length, fell, share, reports: rows.length, allFell, base,
-    text: `추정치를 넘긴 실적 ${beats.length}건 중 ${fell}건(${share}%)이 다음 거래일에 내렸습니다. 전체 실적 ${rows.length}건에서는 ${allFell}건(${base}%).`,
+    text: `추정치를 넘긴 실적 ${beats.length}건 중 ${fell}건(${share}%)이 다음 거래일 하락, 전체 ${rows.length}건 중 ${allFell}건(${base}%).`,
   };
 }

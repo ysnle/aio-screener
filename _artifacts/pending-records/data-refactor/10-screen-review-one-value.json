@@ -1,0 +1,28 @@
+{
+  "p": {
+    "title": "The same metric read different values across screens: HY +13/+25bp, 10-year -32/-40bp and day moves that spanned a carried-forward session",
+    "symptom": "1차 통합본 화면 검수(2026-11-04) 5–8: 시장 상태 문단 '하이일드 3.18 → 3.43% (+25bp)' beside the 5거래일 +13bp, its threshold cell '20일 +34bp, 346bp' read as a second 20-session value, 매크로 '10년 5.31 → 4.91% (10/5→11/2, -40bp)' beside -32bp everywhere else, 오늘의 핵심 'WTI -7.7%' and 브리핑 '나스닥100 -0.7%' that were two-session steps over a carried 11/2 close. Also 9 (a past 11/3 event at the top of '다음 주'), 10 (an empty AI·반도체 집중 row), 12 (English 오늘의 핵심 headlines), 17 ('스크리너 순위 상위' unlike the screener's first rows), 20 (duplicate add buttons on an empty portfolio), 22 (the quadrant dot over its cell name), 31 (™ ® in briefs), 33 (a Japanese listing among 오늘's names).",
+    "root_cause": "Each screen cut its own window from its own source: the market story spanned FRED observations between stock-session dates, the 매크로 rates chapter read FRED dgs10 through the real-yield date while the verdict table read the market tnx close, and the market-day ledger stepped from the previous row in a series the carried close had dropped out of. The week-ahead window kept a UTC day 12 hours past its end, the watch row was drawn without an observation, the market-day ledger carried the screener memos' English headlines untranslated, and the brief and stock lists had no mark or market filter.",
+    "fix": "The story's week uses oasDelta20Bp's five-session reading and the history tnx span; 매크로's 10-year is closeChange on history tnx with the FRED legs on their own dates; a credit threshold label opens with 기준; a market-day price fact needs its previous close one open session back; a price story leads with its close date; the week list starts at the KST day; AI·반도체 집중 is drawn only with a SOXX close; 오늘 reads the producer's Korean title first (item 12's producer lane is record 05); the start group names 백분위; an empty book hides the page-head add row; the quadrant dot keeps out of the label band; briefs drop ™ ® ℠ (producer and reader); 오늘 lists US then KR listings (listingMarketOfSymbol).",
+    "violated_rule": "One number, one source (a figure shown on two screens is computed once)",
+    "prevention": "{R}: scripts/ci-metric-consistency-check.mjs builds 시장 상태, 매크로 and 연결해서 보면 from the published history and macro history and requires one 10-year 5/20-session and one HY 5/20-session value, plus fixtures for the one-session day move, the dated price line, the KST week start, the unobserved watch row, 오늘's market order and the brief marks.",
+    "verification": "node scripts/ci-metric-consistency-check.mjs — passes on the branch; on the 140ba22c tree it fails (oasDelta20Bp missing, story +25bp, 매크로 -40bp)."
+  },
+  "r": {
+    "title": "A metric shown on two screens is one reader's value with its date",
+    "rule": "A 10-year change is the history tnx close series (closeChange / the verdict table); an OAS change is oasDelta20Bp; a one-day move spans one open session. A screen that needs another source for a split (FRED real yield and breakeven) shows that source's own dates beside it.",
+    "validation": "node scripts/ci-metric-consistency-check.mjs"
+  },
+  "qa": [
+    {
+      "id": "QA-DATA-ONE-VALUE",
+      "text": "v59.70: after the next market-day refresh, 오늘의 핵심 and 브리핑 have no day move over a carried-forward close (나스닥100, WTI), and 시장 상태 / 매크로 / 연결해서 보면 quote one HY and one 10-year value per window",
+      "verify_by": "2026-11-06"
+    }
+  ],
+  "qa_section": "Wave 2 D: entity, portfolio and data follow-ups (v59.70)",
+  "changelog": [
+    "**같은 지표는 모든 화면에서 같은 값 (1차 통합본 화면 검수 5–10·12·17·20·22·31·33, {VERSION}, {P}/{R}):** 시장 상태 문단의 하이일드·10년물 5거래일 값을 판정 표와 같은 판독(oasDelta20Bp, 종가 10년물)으로, 매크로 금리 장의 10년물을 같은 20거래일 종가 변화로 맞추고 FRED 분해는 자기 날짜를 붙였다. 신용 기준값 칸은 '기준 346bp'로 기준임을 밝힌다. 하루 변화는 직전 거래일 종가가 있을 때만 말하고(이월 종가를 건넌 WTI·나스닥100 하루 변화 제거), 가격 이야기는 종가 날짜를 앞에 둔다. '다음 주' 일정은 한국 날짜 기준으로 지난 일정을 뺀다. 데이터가 없는 AI·반도체 집중 행은 그리지 않는다. 오늘의 핵심 헤드라인은 생산기의 한국어 제목을 쓴다(생산 단계 번역은 별도 항목). 종목 시작 묶음은 '백분위 상위'로 기준을 밝힌다. 빈 포트폴리오는 머리 버튼 줄을 숨긴다. 사분면 점은 칸 이름을 가리지 않는다. 실적 요약에서 ™·®를 뺀다. 오늘의 크게 움직인 종목은 미국, 한국 순이고 다른 시장 종목은 넣지 않는다. 게이트: ci-metric-consistency-check."
+  ],
+  "note": "wave2-d: screen-review data-refactor items 5–10, 12, 17, 20, 22, 31, 33; T869 fold id follows S16; event-flow beats line shortened (text budget)"
+}

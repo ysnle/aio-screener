@@ -271,7 +271,7 @@ function flowsNode(doc, root, lead, briefs) {
     }
     box.append(list);
   }
-  if (beats) box.append(el(doc, 'p', beats.text, 'event-briefs__flows-note'));
+  if (beats) box.append(el(doc, 'p', beats.text, flow ? 'event-briefs__flows-text event-briefs__flows-text--next' : 'event-briefs__flows-text'));
   return box;
 }
 

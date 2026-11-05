@@ -11,6 +11,7 @@ import { indexLevels, levelValue, levelsRead } from './index-levels.js';
 import { historyFieldMeta } from './history-meta.js';
 import { buildCloseSeries, closeSessionMarket } from './close-series.js';
 import { MARKET_WINDOWS } from './market-windows.js';
+import { oasDelta20Bp } from '../briefing/market-read.js';
 
 // v59.70 (owner 11/4): one week, the same window as the verdict table's 5거래일 전 / 5일 변화 columns. The bars, the lead
 // sentence and every badge below read STORY_SESSIONS; the move thresholds are sized to that window (they were set for 15).
@@ -90,12 +91,16 @@ function concentrationOf(m) {
 }
 
 // The ten-year move split into the real yield and breakeven inflation (FRED DFII10 + T10YIE ≈ DGS10).
-function ratesOf(macroHistory, from, to) {
-  const ten = macroSpan(macroHistory, 'dgs10', from, to);
+// v59.70 (screen review 6): the 10-year line is the market close series every other screen reads (history tnx, the
+// 5거래일 column of the verdict table); the FRED legs only split it into real yield and inflation expectations.
+function ratesOf(macroHistory, history, from, to) {
+  const fred = macroSpan(macroHistory, 'dgs10', from, to);
+  const market = span(history, 'tnx', from, to);
+  const ten = market ? { ...market, bp: (market.to - market.from) * 100 } : fred;
   const real = macroSpan(macroHistory, 'realYield10', from, to);
   const be = macroSpan(macroHistory, 'breakeven10', from, to);
-  if (!ten || !real || !be) return null;
-  const d = ten.bp;
+  if (!ten || !fred || !real || !be) return null;
+  const d = fred.bp;
   let kind = 'flat';
   if (Math.abs(d) >= 10) {
     const realShare = real.bp / d; const beShare = be.bp / d;
@@ -105,10 +110,18 @@ function ratesOf(macroHistory, from, to) {
   return { ten, real, be, kind };
 }
 
-function creditOf(macroHistory, from, to) {
-  const hy = macroSpan(macroHistory, 'hyOas', from, to);
+// v59.70 (screen review 5): the week's spread change is the five-session OAS reading of oasDelta20Bp — the same
+// observations, dates and session filter as the verdict table and 매크로 — not a calendar span cut at the stock dates.
+function oasWeek(macroHistory, id, from, to, sessions) {
+  const read = sessions === 5 ? oasDelta20Bp(macroHistory, id, to) : null;
+  if (!read || read.d5 == null) return macroSpan(macroHistory, id, from, to);
+  return { from: read.level - read.d5 / 100, to: read.level, toDate: read.date, bp: read.d5 };
+}
+
+function creditOf(macroHistory, from, to, sessions) {
+  const hy = oasWeek(macroHistory, 'hyOas', from, to, sessions);
   if (!hy) return null;
-  const ccc = macroSpan(macroHistory, 'cccOas', from, to);
+  const ccc = oasWeek(macroHistory, 'cccOas', from, to, sessions);
   // v59.66: one widening line for every screen — +33bp read as '신용 불안은 아닙니다' here while 매크로 called it 경계 쪽.
   // v59.70: the five-session lines of the credit axis (RULES.credit.widen5dBp / widenWatch5dBp), matching the week of the table.
   const C = RULES.credit;
@@ -217,7 +230,10 @@ function confirmations({ moves, rates, credit, macroHistory, history, asOf, star
 function weekAhead({ calendar, nextEvent, story, nowMs, days = 8 }) {
   const out = [];
   const horizon = nowMs + days * 86400000;
-  const inside = (date) => { const ms = Date.parse(`${date}T23:59:00Z`); return Number.isFinite(ms) && ms >= nowMs - 12 * 3600000 && ms <= horizon; };
+  // v59.70 (screen review 9): an item belongs to the week ahead from the reader's own day — the KST date. A US event dated
+  // 11/3 (the midterm vote) is over by 11/4 KST; the old 12-hour grace on a UTC day kept it at the top of '다음 주'.
+  const kstToday = new Date(nowMs + 9 * 3600000).toISOString().slice(0, 10);
+  const inside = (date) => { const ms = Date.parse(`${date}T23:59:00Z`); return Number.isFinite(ms) && String(date) >= kstToday && ms <= horizon; };
   for (const event of SCHEDULED_EVENTS) if (inside(event.date)) out.push({ kind: 'event', date: event.date, when: dayLabel(event.date), title: event.title, why: event.why });
   if (nextEvent?.date && inside(nextEvent.date)) {
     const why = nextEvent.id === 'us-nfp'
@@ -237,13 +253,14 @@ function weekAhead({ calendar, nextEvent, story, nowMs, days = 8 }) {
     if (!sessionsOf.has(key)) sessionsOf.set(key, []);
     sessionsOf.get(key).push(row);
   }
-  for (const rows of [...sessionsOf.values()].sort((a, b) => a[0].date.localeCompare(b[0].date))) {
+  const slotOf = (row) => ({ bmo: 0, dmh: 1, amc: 2 })[row.hour] ?? 1;
+  for (const rows of [...sessionsOf.values()].sort((a, b) => a[0].date.localeCompare(b[0].date) || slotOf(a[0]) - slotOf(b[0]))) {
     const { date, hour } = rows[0];
     // v59.56 (text review): one naming rule per line — Korean names only when every company on it has one, otherwise
     // tickers for all ('애플 · PLTR' mixed the two; no Korean name is guessed for a company outside the mover list).
     const allKo = rows.every((row) => MOVER_BY_SYMBOL[row.symbol]?.nameKo);
     const nameOf = (row) => (allKo ? MOVER_BY_SYMBOL[row.symbol].nameKo : row.symbol);
-    out.push({ kind: 'earnings', date, when: `${dayLabel(date)}${SESSION_WORDS[hour] ? ` ${SESSION_WORDS[hour]}` : ''}`,
+    out.push({ kind: 'earnings', date, slot: slotOf(rows[0]), when: `${dayLabel(date)}${SESSION_WORDS[hour] ? ` ${SESSION_WORDS[hour]}` : ''}`,
       names: rows.map(nameOf).join(' · '),
       title: `${rows.map((row) => `${nameOf(row)} ${Number(row.indexWeight).toFixed(1)}%`).join(' · ')} 실적 (S&P 500 비중)`,
       // v59.56 (screen review): two report days printed the same sentence; the later one says it continues the question.
@@ -251,7 +268,8 @@ function weekAhead({ calendar, nextEvent, story, nowMs, days = 8 }) {
         : out.some((item) => item.kind === 'earnings') ? '앞 실적에서 나온 AI 투자 대비 수익 판단이 이어지는지, 다른 회사 가이던스로 한 번 더 확인합니다.'
           : '대형 기술주 쏠림이 이어질지 가르는 실적입니다. 가이던스가 AI 투자 대비 수익에 대한 의문을 키우는지 줄이는지 봅니다.' });
   }
-  out.sort((a, b) => a.date.localeCompare(b.date));
+  // v59.70 (screen review): one day's reports in session order — 장 전 before 장 마감 후 (QCOM after the close was listed first).
+  out.sort((a, b) => a.date.localeCompare(b.date) || (a.slot ?? 1) - (b.slot ?? 1));
   // v59.70 (owner 11/4): a daily item names its last observation — FRED's ICE spreads post a business day behind the closes.
   if (story.credit?.kind !== 'calm' && story.credit) out.push({ kind: 'daily', date: '', when: '매일', title: `${story.credit.ccc ? 'CCC · ' : ''}하이일드 스프레드 (${dayLabel(story.credit.hy.toDate).split('(')[0]} 관측)`, asOf: story.credit.hy.toDate, why: '약한 등급부터 계속 벌어지면 주가 조정이 신용 경계로 바뀝니다.' });
   if (story.moves.wti && story.moves.wti.pct >= STORY_RULE.oilPct) out.push({ kind: 'daily', date: '', when: '매일', title: `유가 (${dayLabel(story.moves.wti.toDate).split('(')[0]} 종가)`, asOf: story.moves.wti.toDate, why: '더 오르면 물가 경로와 금리 인하 기대가 함께 바뀝니다.' });
@@ -274,8 +292,8 @@ export function buildMarketStory({ history = [], macroHistory = null, briefs = n
   for (const [id] of MOVE_ROWS) { const s = span(history, id, start, asOf); if (s) moves[id] = s; }
   if (!moves.spx || !moves.ndx) return { available: false };
   const concentration = concentrationOf(moves);
-  const rates = ratesOf(macroHistory, start, asOf);
-  const credit = creditOf(macroHistory, start, asOf);
+  const rates = ratesOf(macroHistory, history, start, asOf);
+  const credit = creditOf(macroHistory, start, asOf, sessions);
   const reported = earningsMovers(briefs, { from: start, to: asOf });
   const direction = Math.sign(moves.ndx.pct);
   const drivers = reported.filter((row) => row.core && !row.korea && Math.abs(row.pct) >= 3 && Math.sign(row.pct) === direction).slice(0, 3);

@@ -8,6 +8,8 @@
 import { readNumber } from '../shared/number.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { sessionCloses } from '../market/index-levels.js';
+import { closeSessionMarket } from '../market/close-series.js';
+import { countOpenSessionsBetween } from '../market/market-calendar.js';
 import { companyMatcher } from '../briefing/news-picks.js';
 import { SCHEDULED_EVENTS } from '../briefing/scheduled-events.js';
 import { EVENT_NAMES } from '../market/macro-crossroads.js';
@@ -71,6 +73,9 @@ function priceFacts(history) {
     const move = changeOf(series, asset.unit);
     if (!move) continue;
     const last = series.at(-1);
+    // v59.70 (screen review 7·8): a day move is one session. A close the producer carried forward drops out of the series,
+    // and the step over the gap (WTI 10/30→11/3, 나스닥100 the same) read as that day's -7.7% / -0.7%; no fact then.
+    if (countOpenSessionsBetween(series.at(-2).date, last.date, closeSessionMarket(asset.field) || 'US') !== 1) continue;
     out.push({ id: `price:${asset.field}:${last.date}`, kind: 'price', asset: asset.field, label: asset.label, assetKind: asset.kind, date: last.date,
       value: round(last.value, asset.unit === 'bp' ? 3 : 2), unit: asset.unit, ...move, topics: asset.topics, subjects: [], weight: Math.abs(move.z ?? 0) });
   }
