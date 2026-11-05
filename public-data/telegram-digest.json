@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-05T10:51:37.914Z",
-  "attemptedAt": "2026-11-05T10:51:37.914Z",
-  "lastSuccessfulAt": "2026-11-05T10:51:37.914Z",
+  "generatedAt": "2026-11-05T11:21:42.238Z",
+  "attemptedAt": "2026-11-05T11:21:42.238Z",
+  "lastSuccessfulAt": "2026-11-05T11:21:42.238Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-22T10:51:32.342Z",
-  "until": "2026-11-05T10:51:32.342Z",
+  "since": "2026-10-22T11:21:36.781Z",
+  "until": "2026-11-05T11:21:36.781Z",
   "current24hWindow": {
     "start": "2026-11-03T23:00:00.000Z",
     "end": "2026-11-04T23:00:00.000Z",
@@ -89,15 +89,15 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1353,
-      "freshCount": 20,
-      "eligibleTextCount": 1288,
+      "count": 1351,
+      "freshCount": 38,
+      "eligibleTextCount": 1287,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 68447
+      "lastPostId": 68449
     },
     {
       "channel": "bornlupin",
@@ -113,58 +113,59 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 678,
-      "freshCount": 40,
+      "freshCount": 20,
       "eligibleTextCount": 677,
       "selectedCount": 123,
       "error": null,
       "lastPostId": 71599
     }
   ],
-  "count": 2343,
-  "retainedItemCount": 459,
+  "count": 2341,
+  "retainedItemCount": 456,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2343,
-    "eligibleTextCount": 2273,
-    "mediaOnlyCount": 70,
+    "observedCount": 2341,
+    "eligibleTextCount": 2272,
+    "mediaOnlyCount": 69,
     "mediaAttachedCount": 367,
     "photoPostCount": 318,
     "documentPostCount": 1,
     "imageOnlyCount": 1,
-    "highSignalCount": 412,
-    "broadSignalCount": 884,
+    "highSignalCount": 411,
+    "broadSignalCount": 883,
     "selectedRawCount": 408,
     "selectedEligibleCount": 408,
-    "selectedRawCoveragePct": 17.9,
+    "selectedRawCoveragePct": 18,
     "selectedOfObservedPct": 17.4,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "macro": 355,
     "market-note": 851,
-    "geo": 448,
-    "power": 272,
-    "earnings": 438,
+    "earnings": 439,
+    "macro": 354,
+    "geo": 447,
+    "power": 271,
     "japan": 87,
-    "semi": 496,
+    "semi": 495,
     "kr-market": 120,
-    "credit": 101,
+    "credit": 100,
     "ai-policy": 112,
     "equity": 139,
     "healthcare": 82,
     "flows": 68,
     "optical": 38,
-    "media-only": 70,
+    "media-only": 69,
     "crypto": 4
   },
   "tickerCounts": {
+    "AMZN": 78,
     "TSLA": 33,
     "MU": 34,
     "MSFT": 58,
@@ -176,7 +177,6 @@
     "IONQ": 1,
     "000660.KS": 77,
     "COHR": 4,
-    "AMZN": 77,
     "NVDA": 112,
     "AMD": 48,
     "GOOG": 118,
@@ -269,12 +269,12 @@
     "SPOT": 1
   },
   "themes": [
-    "Market Notes (851 posts in 14-day research window): 2026년 11월 5일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심의 매도 압력이 확대되며 혼조세. 한국시간 오후 1시 55분 기준 나스닥100 선물은 1.08% 하락, S&P500 선물은...",
-    "Semiconductors/Memory (496 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
-    "Geopolitics (448 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
-    "Earnings/Corporate (438 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
-    "Macro/Rates (355 posts in 14-day research window): 2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,...",
-    "AI Power/Grid (272 posts in 14-day research window): 시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준....",
+    "Market Notes (851 posts in 14-day research window): 2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,...",
+    "Semiconductors/Memory (495 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
+    "Geopolitics (447 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
+    "Earnings/Corporate (439 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
+    "Macro/Rates (354 posts in 14-day research window): 2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,...",
+    "AI Power/Grid (271 posts in 14-day research window): 시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준....",
     "Equity/Analyst (139 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "Korea Market (120 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
   ],
@@ -290,12 +290,12 @@
       "text": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
-      "key": "000660.KS",
-      "count": 77,
+      "key": "AMZN",
+      "count": 78,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Falcon Guardian에 AI 에이전트의 실행을 중단하고 재시작 및 기업 네트워크 접근을..."
     },
     {
-      "key": "AMZN",
+      "key": "000660.KS",
       "count": 77,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Falcon Guardian에 AI 에이전트의 실행을 중단하고 재시작 및 기업 네트워크 접근을..."
     },
@@ -347,7 +347,7 @@
       "topics": [
         "macro"
       ],
-      "count": 355,
+      "count": 354,
       "focus": "2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,..."
     },
     {
@@ -356,7 +356,7 @@
       "topics": [
         "geo"
       ],
-      "count": 448,
+      "count": 447,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격..."
     },
     {
@@ -365,8 +365,8 @@
       "topics": [
         "credit"
       ],
-      "count": 101,
-      "focus": "11월 04일 미주인 브리핑 • 나스닥 0.83% 상승 · 엔비디아 시총 5조 달러 회복 • AMD 데이터센터 매출 97% 급증 · 시간 외 6% 상승 • 메타 대규모 회사채 발행 추진 · AI 투자 확대 •..."
+      "count": 100,
+      "focus": "2026년 11월 5일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심의 매도 압력이 확대되며 혼조세. 한국시간 오후 1시 55분 기준 나스닥100 선물은 1.08% 하락, S&P500 선물은 0.20% 하락한 반면 다우 선물은 0.33% 상승. VIX 지수는 17.98로 1.34% 상승. AI 관련..."
     },
     {
       "id": "semi",
@@ -374,7 +374,7 @@
       "topics": [
         "semi"
       ],
-      "count": 496,
+      "count": 495,
       "focus": "2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A..."
     },
     {
@@ -384,7 +384,7 @@
         "optical"
       ],
       "count": 38,
-      "focus": "StoneX, 루멘텀( $LITE ), 매수 의견으로 커버리지 개시 , 목표주가 $1,200 NPO 수요 가속화 * 루멘텀의 NPO 사업 모멘텀이 강화되면서 2028 회계연도 투자 전망이 앞당겨지고 있음. *..."
+      "focus": "코히런트(COHR) Q1 2027 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 수익성 개선. 1분기 매출은 23억7,000만달러로 프로포마 기준 전년 대비 56%, 전분기 대비 16% 증가. 비GAAP EPS는 2.09달러로 전년 대비 80% 급증하며 강력한 실적 성장 달성. • 대규모 수주잔고 및 장기..."
     },
     {
       "id": "power",
@@ -392,7 +392,7 @@
       "topics": [
         "power"
       ],
-      "count": 272,
+      "count": 271,
       "focus": "시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준...."
     },
     {
@@ -437,7 +437,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 438,
+      "count": 439,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -483,7 +483,7 @@
         "market-note"
       ],
       "count": 851,
-      "focus": "2026년 11월 5일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심의 매도 압력이 확대되며 혼조세. 한국시간 오후 1시 55분 기준 나스닥100 선물은 1.08% 하락, S&P500 선물은..."
+      "focus": "2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,..."
     }
   ],
   "pageMap": {
@@ -742,7 +742,10 @@
       "datetime": "2026-11-05T04:59:33.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "market-note"
+        "credit",
+        "macro",
+        "geo",
+        "semi"
       ],
       "score": 100,
       "hasText": true,
@@ -752,10 +755,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "2026년 11월 5일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심의 매도 압력이 확대되며 혼조세. 한국시간 오후 1시 55분 기준 나스닥100 선물은 1.08% 하락, S&P500 선물은...",
       "tickers": [
         "IONQ"
-      ]
+      ],
+      "summary": "2026년 11월 5일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심의 매도 압력이 확대되며 혼조세. 한국시간 오후 1시 55분 기준 나스닥100 선물은 1.08% 하락, S&P500 선물은..."
     },
     {
       "id": "insidertracking/68360",
@@ -2002,7 +2005,10 @@
       "datetime": "2026-11-05T04:59:33.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "market-note"
+        "credit",
+        "macro",
+        "geo",
+        "semi"
       ],
       "score": 100,
       "hasText": true,
@@ -2012,10 +2018,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "2026년 11월 5일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심의 매도 압력이 확대되며 혼조세. 한국시간 오후 1시 55분 기준 나스닥100 선물은 1.08% 하락, S&P500 선물은...",
       "tickers": [
         "IONQ"
-      ]
+      ],
+      "summary": "2026년 11월 5일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심의 매도 압력이 확대되며 혼조세. 한국시간 오후 1시 55분 기준 나스닥100 선물은 1.08% 하락, S&P500 선물은..."
     },
     {
       "id": "bornlupin/21011",
@@ -2041,7 +2047,10 @@
       "datetime": "2026-11-05T04:53:05.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "geo"
+        "macro",
+        "geo",
+        "power",
+        "japan"
       ],
       "score": 75,
       "hasText": true,
@@ -2051,8 +2060,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 5일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 밴스 부통령은 공화당의 중간선거 패배 원인으로 이란 전쟁과 생활비 상승, 미국 우선주의 정책에 대한 불만,...",
-      "tickers": []
+      "tickers": [],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 5일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 밴스 부통령은 공화당의 중간선거 패배 원인으로 이란 전쟁과 생활비 상승, 미국 우선주의 정책에 대한 불만,..."
     },
     {
       "id": "bornlupin/21010",
@@ -2079,12 +2088,12 @@
       "datetime": "2026-11-05T03:24:20.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "market-note"
+        "geo"
       ],
       "score": 50,
       "hasText": true,
-      "summary": "월스트리트저널에 따르면 예멘 후티 반군이 사우디아라비아에 휴전 협상 대가로 510억 달러를 요구했다는 보도. 11월 5일 보도에 따르면 후티 반군이 홍해에서 사우디아라비아 유조선을 공격하고 전략적 요충지인...",
-      "tickers": []
+      "tickers": [],
+      "summary": "월스트리트저널에 따르면 예멘 후티 반군이 사우디아라비아에 휴전 협상 대가로 510억 달러를 요구했다는 보도. 11월 5일 보도에 따르면 후티 반군이 홍해에서 사우디아라비아 유조선을 공격하고 전략적 요충지인..."
     },
     {
       "id": "HANAchina/71582",
@@ -2129,11 +2138,11 @@
       "tags": [
         "power"
       ],
-      "lead": 1,
       "score": 58,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>중간선거 후 데이터센터 가격 결정 논리 변화! 무질서한 증설과 작별, 성장 경쟁에서 희소성 경쟁으로 (JPMorgan) •JPMorgan은 미국 중간선거 이후 데이터센터 산업의 가격 결정 논리가 조용히..."
+      "summary": ">>중간선거 후 데이터센터 가격 결정 논리 변화! 무질서한 증설과 작별, 성장 경쟁에서 희소성 경쟁으로 (JPMorgan) •JPMorgan은 미국 중간선거 이후 데이터센터 산업의 가격 결정 논리가 조용히...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/21009",
@@ -2163,16 +2172,18 @@
       "datetime": "2026-11-05T02:41:01.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "earnings",
-        "optical"
+        "optical",
+        "credit",
+        "power",
+        "earnings"
       ],
+      "lead": 1,
       "score": 87,
       "hasText": true,
-      "summary": "코히런트(COHR) Q1 2027 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 수익성 개선. 1분기 매출은 23억7,000만달러로 프로포마 기준 전년 대비 56%, 전분기 대비 16% 증가. 비GAAP...",
-      "lead": 2,
       "tickers": [
         "COHR"
-      ]
+      ],
+      "summary": "코히런트(COHR) Q1 2027 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 수익성 개선. 1분기 매출은 23억7,000만달러로 프로포마 기준 전년 대비 56%, 전분기 대비 16% 증가. 비GAAP..."
     },
     {
       "id": "insidertracking/68413",
@@ -2181,15 +2192,17 @@
       "datetime": "2026-11-05T02:39:15.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
+        "semi",
+        "power",
+        "equity",
         "earnings"
       ],
       "score": 69,
       "hasText": true,
-      "summary": "퀄컴(QCOM) Q4 2026 어닝콜 요약 긍정 요인: • 견조한 실적 및 가이던스 달성. 4분기 비GAAP 매출은 104억달러, EPS는 2.17달러 기록. QCT 매출은 90억달러로 모두 가이던스 상단에...",
-      "lead": 1,
       "tickers": [
         "AMZN"
-      ]
+      ],
+      "summary": "퀄컴(QCOM) Q4 2026 어닝콜 요약 긍정 요인: • 견조한 실적 및 가이던스 달성. 4분기 비GAAP 매출은 104억달러, EPS는 2.17달러 기록. QCT 매출은 90억달러로 모두 가이던스 상단에..."
     },
     {
       "id": "bornlupin/21008",
@@ -2227,8 +2240,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "•홍콩 증시 주요 대형지수 급등 •홍콩 대내외 악재 단기 완화 기대감 •전방 산업•소비재 많은 항셍테크 최상위 •홍콩CSP, SW바이오테크, 소비재, 전기차 등 전방 산업 중심 강세 •한편, 본토 반도체..."
+      "summary": "•홍콩 증시 주요 대형지수 급등 •홍콩 대내외 악재 단기 완화 기대감 •전방 산업•소비재 많은 항셍테크 최상위 •홍콩CSP, SW바이오테크, 소비재, 전기차 등 전방 산업 중심 강세 •한편, 본토 반도체...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "bornlupin/21007",
@@ -2259,12 +2273,12 @@
       "datetime": "2026-11-05T01:36:05.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "• 미국 중간선거에서 민주당이 상·하원 양원을 장악함에 따라, 대만 정부는 정세를 면밀히 분석하며 향후 정책 변화에 대비 . 대만 외교부는 초당적 교류 원칙을 바탕으로 안보, 경제·통상, 과학기술 등 전..."
+      "summary": "• 미국 중간선거에서 민주당이 상·하원 양원을 장악함에 따라, 대만 정부는 정세를 면밀히 분석하며 향후 정책 변화에 대비 . 대만 외교부는 초당적 교류 원칙을 바탕으로 안보, 경제·통상, 과학기술 등 전...",
+      "tickers": []
     },
     {
       "id": "bornlupin/21006",
@@ -2350,11 +2364,11 @@
       "tags": [
         "power"
       ],
-      "lead": 1,
       "score": 53,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>골드만삭스: 민주당 승리로 미국 데이터센터 프로젝트 단기 승인 중단 가능성, 신규 생산능력의 약 45%가 잠재적인 영향 •골드만삭스는 민주당이 미국 의회 상·하원 주도권을 확보하더라도 연방정부가 AI 및..."
+      "summary": ">>골드만삭스: 민주당 승리로 미국 데이터센터 프로젝트 단기 승인 중단 가능성, 신규 생산능력의 약 45%가 잠재적인 영향 •골드만삭스는 민주당이 미국 의회 상·하원 주도권을 확보하더라도 연방정부가 AI 및...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71563",
@@ -2364,16 +2378,15 @@
       "localDateKst": "2026-11-05",
       "tags": [
         "earnings",
-        "power",
-        "semi"
+        "power"
       ],
-      "lead": 2,
       "score": 64,
       "hasText": true,
+      "summary": ">>퀄컴 4분기 실적 예상 상회했지만 이익 가이던스는 부진, 스마트폰 사업 부담·데이터센터 전환 가속 •퀄컴은 4분기 실적을 발표, 비GAAP 매출은 104억4,200만달러, 주당순이익은 2.17달러로 시장...",
+      "lead": 2,
       "tickers": [
         "AMZN"
-      ],
-      "summary": ">>퀄컴 4분기 실적 예상 상회했지만 이익 가이던스는 부진, 스마트폰 사업 부담·데이터센터 전환 가속 •퀄컴은 4분기 실적을 발표, 비GAAP 매출은 104억4,200만달러, 주당순이익은 2.17달러로 시장..."
+      ]
     },
     {
       "id": "HANAchina/71561",
@@ -2382,12 +2395,12 @@
       "datetime": "2026-11-04T22:27:23.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "ai-policy"
+        "market-note"
       ],
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>유니트리 왕싱싱: 2027년 로봇 산업 임계점 도달 가능성, 관건은 ‘마지막 몇 밀리미터’ •유니트리 왕싱싱 CEO는 2027년이 로봇 산업의 임계점이 될 가능성이 높으며, 당시 로봇이 낯선 환경의..."
+      "summary": ">>유니트리 왕싱싱: 2027년 로봇 산업 임계점 도달 가능성, 관건은 ‘마지막 몇 밀리미터’ •유니트리 왕싱싱 CEO는 2027년이 로봇 산업의 임계점이 될 가능성이 높으며, 당시 로봇이 낯선 환경의...",
+      "tickers": []
     },
     {
       "id": "bornlupin/21004",
@@ -9247,12 +9260,12 @@
       "datetime": "2026-11-04T22:27:23.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "ai-policy"
+        "market-note"
       ],
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>유니트리 왕싱싱: 2027년 로봇 산업 임계점 도달 가능성, 관건은 ‘마지막 몇 밀리미터’ •유니트리 왕싱싱 CEO는 2027년이 로봇 산업의 임계점이 될 가능성이 높으며, 당시 로봇이 낯선 환경의..."
+      "summary": ">>유니트리 왕싱싱: 2027년 로봇 산업 임계점 도달 가능성, 관건은 ‘마지막 몇 밀리미터’ •유니트리 왕싱싱 CEO는 2027년이 로봇 산업의 임계점이 될 가능성이 높으며, 당시 로봇이 낯선 환경의...",
+      "tickers": []
     },
     {
       "id": "bornlupin/21004",
