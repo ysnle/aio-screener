@@ -1216,23 +1216,6 @@ window._aioSetupCanvas = function(canvas, w, h) {
   return ctx;
 };
 
-// LightweightCharts는 내부 레이어 canvas를 동적으로 생성한다. 실제 차트 의미는
-// 컨테이너가 전달하고 내부 canvas는 스크린리더에서 숨겨 중복/무라벨 경고를 막는다.
-window._aioMarkChartCanvases = function(rootEl, label) {
-  if (!rootEl || !rootEl.querySelectorAll) return;
-  try {
-    if (label) {
-      rootEl.setAttribute('role', rootEl.getAttribute('role') || 'img');
-      rootEl.setAttribute('aria-label', rootEl.getAttribute('aria-label') || label);
-    }
-    rootEl.querySelectorAll('.tv-lightweight-charts canvas, canvas').forEach(function(canvas) {
-      if (!canvas.id && !canvas.getAttribute('aria-label') && !canvas.getAttribute('aria-labelledby') && !canvas.getAttribute('title')) {
-        canvas.setAttribute('aria-hidden', 'true');
-        canvas.setAttribute('tabindex', '-1');
-      }
-    });
-  } catch(_) {}
-};
 
 // ═══ v48.96: _aioModalTrap — 모달 키보드 포커스 순환 + ESC 닫기 (P2-9) ════════
 // 용도: WCAG 2.1 SC 2.1.2 — 모달 내 Tab/Shift+Tab 순환, ESC로 닫힘
@@ -1956,13 +1939,6 @@ window._aioKrTickerSubmit = function() {
   var t = inp.value.trim();
   if (/^\d{6}$/.test(t)) t += '.KS';
   if (typeof window.analyzeKrTickerDeep === 'function') window.analyzeKrTickerDeep(t);
-};
-window._aioAddToPortfolio = function(ticker) {
-  if (typeof window.showPage === 'function') window.showPage('portfolio');
-  setTimeout(function() {
-    var inp = document.getElementById('pf-add-ticker');
-    if (inp) inp.value = ticker;
-  }, 50);
 };
 // LC-39 (bridge) + P1430/P1449: one bridge from any route into the technical deep analysis —
 // and the 종목 screen's company must follow. The native 차트 tab follows the subject
@@ -11766,27 +11742,6 @@ window._aioMemoStaleInfo = function(memo, opts) {
   };
 };
 
-// v48.37: SCREENER_DB 특정 심볼 memo staleness 조회
-window._aioStockStaleInfo = function(sym) {
-  var screenerRows = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
-  if (!Array.isArray(screenerRows)) return null;
-  var entry = screenerRows.find(function(r) { return r.sym === sym; });
-  if (!entry) return null;
-  // _asOf 필드 우선 (v48.37+ 수동 지정), memo 파싱 폴백
-  if (entry._asOf) {
-    var DE = window.FRESHNESS_ENGINE;
-    return {
-      freshestTs: DE ? DE.toTs(entry._asOf) : 0,
-      isStale: DE ? DE.isStale(entry._asOf, 'report') : false,
-      badge: DE ? DE.staleBadge(entry._asOf, 'report') : '',
-      label: DE ? DE.formatRelative(entry._asOf) : '',
-      source: '_asOf'
-    };
-  }
-  var info = window._aioMemoStaleInfo(entry.memo, { category: 'report' });
-  if (info) info.source = 'memo-parse';
-  return info;
-};
 
 // DATA_SNAPSHOT — 런타임 관측값 스키마
 // ─────────────────────────────────────────────────────────────────
@@ -12915,18 +12870,6 @@ window.AIO_OPERATIONAL_DATA_CONTRACT = {
   }
 };
 
-window.AIO.makeOperationalMetric = function(name, value, sourceKind, ts, sourceLabel, extra) {
-  var metric = Object.assign({
-    name: name,
-    value: value,
-    sourceKind: sourceKind || 'snapshot',
-    sourceLabel: sourceLabel || '',
-    ts: ts == null ? null : ts
-  }, extra || {});
-  metric.contract = window.AIO_OPERATIONAL_DATA_CONTRACT.evaluateMetric(metric);
-  metric.allowedUse = metric.contract.allowedUse;
-  return metric;
-};
 
 window.AIO.canDriveCurrentDecision = function(metric) {
   return !!(window.AIO_OPERATIONAL_DATA_CONTRACT.evaluateMetric(metric || {}).allowedUse);

@@ -654,10 +654,26 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
   if (depthAnchor) {
     // v59.68 (owner IA 2026-11-03: 시장 상태 owns the scenarios): the full map by release (with the rate hub) moved here
     // from 매크로, in place of the compact copy; 매크로 keeps the current state of each asset.
-    let host = doc.getElementById('macro-crossroads');
-    if (!host) { host = el(doc, 'div', null, 'xr-section'); host.id = 'macro-crossroads'; depthAnchor.insertAdjacentElement('afterend', host); }
-    renderMacroCrossroads({ documentRef: doc, root, regime, host });
-    renderHomeGuide({ documentRef: doc, root, store, anchor: host });
+    const paintDepth = () => {
+      let host = doc.getElementById('macro-crossroads');
+      if (!host) { host = el(doc, 'div', null, 'xr-section'); host.id = 'macro-crossroads'; depthAnchor.insertAdjacentElement('afterend', host); }
+      renderMacroCrossroads({ documentRef: doc, root, regime, host });
+      renderHomeGuide({ documentRef: doc, root, store, anchor: host });
+    };
+    // v59.70 DOM1: the closed fold (about 1,200 nodes) is painted when it opens, from the latest render.
+    const depthFold = depthAnchor.closest('details');
+    if (!depthFold || depthFold.open) paintDepth();
+    else {
+      depthFold.__aioPaintDepth = paintDepth;
+      if (!depthFold.__aioDepthLazy) {
+        depthFold.__aioDepthLazy = true;
+        depthFold.addEventListener('toggle', () => {
+          const paint = depthFold.open ? depthFold.__aioPaintDepth : null;
+          depthFold.__aioPaintDepth = null;
+          paint?.();
+        });
+      }
+    }
   }
   renderNextSteps(doc, doc.getElementById('regime-next'), regimeFlow({ regime, groups: root.__aioScenarioOutlook?.rotation || {} }).next); // P1431, I02
   // P1727: a link that asked for a section of this page (the briefing's Korea sentence -> 한국 시장) shows it once.

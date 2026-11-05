@@ -3089,24 +3089,6 @@ let _aioServerHyReady = false;
 
 // v59.34: the server data loader (the Treasury curve projection and _aioLoadServerData) moved to src/data/server-data-loader.js.
 
-// v51.66: _fieldTs 유틸 — 카테고리별 마지막 갱신 시각을 KST HH:MM 또는 날짜 문자열로 반환
-window._aioGetFieldTs = function(category) {
-  var snap = window.DATA_SNAPSHOT;
-  if (!snap || !snap._fieldTs) return null;
-  var raw = snap._fieldTs[category];
-  if (!raw) return null;
-  try {
-    var d = new Date(raw);
-    if (isNaN(d.getTime())) return raw; // 이미 날짜 문자열(ex: '2026-05-28')
-    var kst = new Date(d.getTime() + 9 * 3600000);
-    var mm = String(kst.getUTCMonth() + 1).padStart(2, '0');
-    var dd = String(kst.getUTCDate()).padStart(2, '0');
-    var hh = String(kst.getUTCHours()).padStart(2, '0');
-    var min = String(kst.getUTCMinutes()).padStart(2, '0');
-    // v58.80 (first-users R2-5): always MM-DD HH:MM — "가격 09:02 KST" beside a dated factor time read as undated.
-    return mm + '-' + dd + ' ' + hh + ':' + min + ' KST';
-  } catch(e) { return raw; }
-};
 
 // v59.38: the v51.67 delta display (_aioRenderDeltas, _aioSetDeltaEl, _aioRenderLiveFearGreedDelta and the aio_delta_* refs) is retired —
 // none of its 12 target ids exists in index.html or src/, so it painted nothing; 홈 F&G 전일 변화 is native (P1428).

@@ -5,6 +5,7 @@
 // v59.44 (owner 2026-10-29, news by weight): 오늘 leads with the releases that move the whole market — a monthly macro
 // release of the last two days, the FOMC, the core movers — as full cards; other notable reports are one line each
 // (name, the price after the report, headline) under '그 밖의 실적'; everything else of the last 30 days sits in a fold.
+import { fillOnOpen } from './lazy-fold.js';
 import { releaseZones } from '../../domain/macro/release-zones.js';
 import { releaseZoneBar } from './release-zone-bar.js';
 import { reactionRead } from '../../domain/briefing/reaction-read.js';
@@ -268,13 +269,14 @@ function paintBriefs(doc, root, { rerender, macro, id, frame, className, limits 
   // v59.51 (content audit): the second tier is one closed line; its rows (move, headline, reason, full summary) open in place.
   if (tiers.notable.length) {
     const fold = el(doc, 'details', null, 'event-briefs__all');
-    fold.append(el(doc, 'summary', `그 밖의 실적 ${tiers.notable.length}건`), rowList(doc, root, tiers.notable));
+    fold.append(el(doc, 'summary', `그 밖의 실적 ${tiers.notable.length}건`));
+    fillOnOpen(fold, () => [rowList(doc, root, tiers.notable)]); // v59.70 DOM1: rows built when it first opens
     parts.push(fold);
   }
   if (tiers.restTotal) {
     const fold = el(doc, 'details', null, 'event-briefs__all');
-    fold.append(el(doc, 'summary', `지난 30일 발표 요약 ${tiers.restTotal}건 더 보기`), rowList(doc, root, tiers.rest));
-    if (tiers.restTotal > tiers.rest.length) fold.append(el(doc, 'p', `최근 ${tiers.rest.length}건만 적었습니다. 다른 종목은 종목 화면에서 최근 실적 요약을 볼 수 있습니다.`, 'event-brief__note'));
+    fold.append(el(doc, 'summary', `지난 30일 발표 요약 ${tiers.restTotal}건 더 보기`));
+    fillOnOpen(fold, () => [rowList(doc, root, tiers.rest), ...(tiers.restTotal > tiers.rest.length ? [el(doc, 'p', `최근 ${tiers.rest.length}건만 적었습니다. 다른 종목은 종목 화면에서 최근 실적 요약을 볼 수 있습니다.`, 'event-brief__note')] : [])]);
     parts.push(fold);
   }
   host.replaceChildren(...parts);

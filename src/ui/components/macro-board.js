@@ -7,6 +7,7 @@
 //   금리 · 환율 (route fxbond) — Treasury curve, real yield / breakeven / HY spread, and the dollar,
 //                              won, yen and 10Y on the completed-close basis with six-month charts.
 // Observations only: the fixed-threshold storyline, risk pill and four-axis bull/bear count are retired.
+import { fillOnOpen } from './lazy-fold.js';
 import { renderReleaseGuide } from './release-zone-bar.js';
 import { alignInput, alignmentLabel, buildCloseSeries, closeBasis, closeSessionMarket, sessionPointBack as closePointBack } from '../../domain/briefing/market-read.js';
 import { requestConsensusEstimates, CONSENSUS_KEY } from '../../data/consensus-estimates.js';
@@ -150,7 +151,8 @@ function groupFold(doc, root, id, title, fact, count, body) {
   const text = el(doc, 'span', null, 'macro-group-summary__text');
   text.append(el(doc, 'h3', title, 'macro-group-title'), el(doc, 'p', fact, 'macro-group-fact'));
   summary.append(text, el(doc, 'span', `지표 ${count}개`, 'macro-group-count'));
-  fold.append(summary, ...body);
+  fold.append(summary);
+  fillOnOpen(fold, body); // v59.70 DOM1: the cards and charts are built when the group first opens
   fold.addEventListener('toggle', () => {
     if (fold.open) {
       root.__aioOpenMacroGroup = id;
@@ -760,20 +762,21 @@ export function renderMacroBoard({ documentRef: doc, root }) {
   host.replaceChildren(...board.groups.map((group) => {
     const section = el(doc, 'section', null, 'macro-group');
     section.dataset.group = group.id;
-    const grid = el(doc, 'div', null, 'macro-stat-grid');
-    grid.append(...group.items.map((item) => statCard(doc, { label: item.label, valueText: item.valueText, lines: [item.deltaText, item.targetText, item.trendText], meta: item.meta, note: item.note, status: item.status, series: item.series, direction: item.direction, unit: item.unit, format: item.people ? (value) => peopleText(value, { sign: true }) : null })));
-    section.append(groupFold(doc, root, group.id, group.title, group.fact, group.items.length, [grid]));
+    const grid = () => { const node = el(doc, 'div', null, 'macro-stat-grid');
+    node.append(...group.items.map((item) => statCard(doc, { label: item.label, valueText: item.valueText, lines: [item.deltaText, item.targetText, item.trendText], meta: item.meta, note: item.note, status: item.status, series: item.series, direction: item.direction, unit: item.unit, format: item.people ? (value) => peopleText(value, { sign: true }) : null })));
+    return node; };
+    section.append(groupFold(doc, root, group.id, group.title, group.fact, group.items.length, () => [grid()]));
     return section;
   }));
   // P1654: liquidity, growth-lead and commodity/Asia-FX groups from the extended FRED lane (hidden until produced).
   for (const group of buildLiquidityGrowthGroups(macroHistory, { macro: root._aioServerMacro || null, history: root._aioHistory || [] })) {
     const section = el(doc, 'section', null, 'macro-group');
     section.dataset.group = group.id;
-    const grid = el(doc, 'div', null, 'macro-stat-grid');
+    const grid = () => { const node = el(doc, 'div', null, 'macro-stat-grid');
     // M13/M14: the period the observation covers, and a stale chip once the cadence's normal delay has passed.
-    grid.append(...group.items.map((item) => statCard(doc, { label: item.label, valueText: item.valueText, lines: [item.changeText], meta: item.period, note: item.reading, series: item.series, unit: item.unit, format: item.format, status: item.stale ? 'stale' : 'observed', staleText: '새 값 발표 지연(평소 발표 주기보다 늦음)' })));
-    const fold = deepDiveFold(doc, root, group.title, MACRO_GROUP_DEEP_DIVES[group.id]); // P1660: a teaching fold
-    section.append(groupFold(doc, root, group.id, group.title, group.fact, group.items.length, fold ? [grid, fold] : [grid]));
+    node.append(...group.items.map((item) => statCard(doc, { label: item.label, valueText: item.valueText, lines: [item.changeText], meta: item.period, note: item.reading, series: item.series, unit: item.unit, format: item.format, status: item.stale ? 'stale' : 'observed', staleText: '새 값 발표 지연(평소 발표 주기보다 늦음)' })));
+    return node; };
+    section.append(groupFold(doc, root, group.id, group.title, group.fact, group.items.length, () => { const fold = deepDiveFold(doc, root, group.title, MACRO_GROUP_DEEP_DIVES[group.id]); return fold ? [grid(), fold] : [grid()]; })); // P1660: a teaching fold
     host.append(section);
   }
   // 2026-10-14 (live review 4f): where this month sits in decades of history — a level, not a direction.

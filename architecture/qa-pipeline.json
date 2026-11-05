@@ -2159,6 +2159,12 @@
           "timeoutMs": 180000
         },
         {
+          "id": "browser-legacy-writers",
+          "script": "scripts/ci-legacy-writer-probe.mjs",
+          "timeoutMs": 300000,
+          "remedy": "v59.70 L0: a new js/aio-*.js writer on a route belongs in src/; after moving writers out, node scripts/ci-legacy-writer-probe.mjs --write tightens the allowlist"
+        },
+        {
           "id": "browser-a11y",
           "script": "scripts/ci-accessibility-matrix-check.mjs",
           "timeoutMs": 300000

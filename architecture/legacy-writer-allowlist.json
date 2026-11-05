@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "legacy-writer-allowlist-v1",
+  "measuredBy": "scripts/ci-legacy-writer-probe.mjs",
+  "rule": "Classic js/aio-*.js functions that still write into a route page (text/HTML setters, node insertion) at boot, desktop 1440. Only shrinks: a new legacy writer belongs in src/.",
+  "routes": {
+    "home": [
+      "aio-core.js ?",
+      "aio-data.js ?",
+      "aio-data.js _aioSetLiveText",
+      "aio-ui.js updateQuotaBadge"
+    ],
+    "signal": [],
+    "breadth": [],
+    "sentiment": [],
+    "briefing": [
+      "aio-core.js ?"
+    ],
+    "technical": [],
+    "macro": [
+      "aio-core.js ?",
+      "aio-ui.js HTMLDocument.<anonymous>"
+    ],
+    "fxbond": [],
+    "fundamental": [],
+    "themes": [],
+    "portfolio": [
+      "aio-core.js _updateVaultStatus",
+      "aio-core.js window._aioRRPopulateSelect"
+    ],
+    "ticker": [],
+    "market-news": [
+      "aio-core.js ?",
+      "aio-core.js _aioFoldDensePageControls",
+      "aio-data.js _aioApplyNewsBackstop",
+      "aio-data.js freeTranslateNews"
+    ],
+    "principles": [],
+    "masters": [],
+    "atlas": [],
+    "guide": [],
+    "screener": [],
+    "charts": []
+  }
+}

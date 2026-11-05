@@ -14,23 +14,23 @@ last_verified: 2026-11-04
 - Version: `v59.69`
 - Architecture: `hybrid-static-shell-native-esm`
 - Active routes: 20 (source: `architecture/route-owners.json`)
-- App shell: 6,219 lines / 446,965 bytes
+- App shell: 6,175 lines / 444,695 bytes
 
 | Source | Lines | Bytes |
 |---|---:|---:|
-| `index.html` | 6,219 | 446,965 |
-| `js/aio-core.js` | 16,665 | 1,015,685 |
-| `js/aio-data.js` | 8,035 | 510,902 |
+| `index.html` | 6,175 | 444,695 |
+| `js/aio-core.js` | 15,483 | 951,195 |
+| `js/aio-data.js` | 7,897 | 501,573 |
 | `js/aio-ui.js` | 1,448 | 84,575 |
 | `js/aio-chat.js` | 4,719 | 360,897 |
-| `js/aio-tests.js` | 8,839 | 710,265 |
+| `js/aio-tests.js` | 8,809 | 707,348 |
 | `js/aio-glossary.js` | 415 | 114,129 |
 
 ## Workspace
 
 - Context documents: 79; preflight reads current state once; governance and INDEX are targeted references.
 - Skills: 10; command wrappers: 20; agent profiles: 4.
-- Workflows: 16; CI scripts: 173.
+- Workflows: 16; CI scripts: 175.
 - Ledgers: latest rule R735; latest postmortem P2218; open QA 86 unique IDs (86 rows, 0 explicitly superseded).
 - Canonical skills: `.claude/skills`; Codex mirror: `.agents/skills`.
 
