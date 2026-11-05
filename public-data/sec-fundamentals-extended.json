@@ -1,12 +1,12 @@
 {
  "schemaVersion": "2.0",
- "generatedAt": "2026-11-05T07:48:09.128Z",
+ "generatedAt": "2026-11-05T22:32:55.634Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
  "allowedUse": "research/reference; normalized annual filing facts, not analyst estimates or live TTM",
  "model": "sec-fy-normalized-v2",
- "eligible": 3877,
+ "eligible": 3876,
  "stored": 3515,
  "attempted": 0,
  "updated": 0,
@@ -4553,25 +4553,25 @@
  "batchLimit": 600,
  "backfillExtra": 0,
  "unsupportedRecheckPolicy": "SEC_RECHECK_UNSUPPORTED=1 required for explicit recheck; terminal unsupported rows remain auditable and out of normal batches",
- "nextRefreshCandidates": 362,
+ "nextRefreshCandidates": 361,
  "domainReceipt": {
   "schemaVersion": "domain-receipt.v1",
   "domain": "sec-fundamentals",
-  "runId": "gha:41988682012",
-  "attemptedAt": "2026-11-05T07:47:56.584Z",
+  "runId": "gha:42121397157",
+  "attemptedAt": "2026-11-05T22:32:44.174Z",
   "sourceRevision": "sec-company-tickers:224330f2c44f5d173395e427dbac3c6981acdb1f57e3658832d315c3e96f6522",
   "inputWatermarks": {
-   "universe": "2026-11-05T07:47:54.360Z",
-   "screener": "2026-11-05T07:47:09.028Z",
-   "previousArtifact": "2026-11-05T07:34:05.920Z"
+   "universe": "2026-11-05T22:32:41.783Z",
+   "screener": "2026-11-05T22:32:05.128Z",
+   "previousArtifact": "2026-11-05T07:48:09.128Z"
   },
   "batchLimit": 600,
   "counts": {
-   "eligible": 3877,
+   "eligible": 3876,
    "attempted": 0,
    "updated": 0,
    "retained": 3515,
-   "pendingEligible": 362
+   "pendingEligible": 361
   },
   "thisBatch": {
    "updated": 0,
@@ -319040,8 +319040,8 @@
  "recordPolicy": "compact: normalized annual record without point-in-time observation arrays",
  "issuerSicPolicy": "SEC submissions sic per issuer; recorded on every submissions read plus a SIC-only pass of up to 800 issuers (missing first, then older than 30 days); a failed read keeps the previous code",
  "issuerSicCoverage": {
-  "classified": 3832,
-  "eligible": 3877,
+  "classified": 3831,
+  "eligible": 3876,
   "passAttempted": 45,
   "passUpdated": 0,
   "passFailed": 0
@@ -323138,12 +323138,6 @@
    "description": "Electric Lighting & Wiring Equipment",
    "cik": "0001931717",
    "observedAt": "2026-10-25T22:33:15.356Z"
-  },
-  "CCXI": {
-   "sic": "3569",
-   "description": "General Industrial Machinery & Equipment, NEC",
-   "cik": "0002074973",
-   "observedAt": "2026-10-19T22:30:26.357Z"
   },
   "CD": {
    "sic": "6199",
