@@ -15,7 +15,8 @@
 | L7 | 저장소 전체에서 참조 0인 함수 5개 삭제(2.9K 문자) | 완료(엄격 기준에 걸린 것은 이것뿐) |
 | L0 | `scripts/ci-legacy-writer-probe.mjs` + `architecture/legacy-writer-allowlist.json`(13종/6라우트), route-owners narrativeOwner 7개 라우트 native로 재분류 | 완료 |
 | L4 (D6) | 뉴스 번역 | 오케스트레이터 결정: 브라우저 경로 없음, 생산 단계 번역 뒤 클라이언트 번역 코드 삭제(B 마지막 단위, 시점 통보 대기) |
-| L5 (D5) | 한국 통합 블록 | 안 함 — index.html kr-integrated 마크업(약 250줄) 삭제가 필요해 허용 범위(script 태그·판정 헤더 CSS) 밖 |
+| L5 (D5) | 한국 통합 블록: 기술 화면 `#kr-integrated-technical`(코스피·코스닥 추세 카드, 한국 종목 입력, dev 텔레그램)과 매크로 화면 `#kr-integrated-macro`(기준금리·금통위·물가·수출·원/달러 1년 범위, 기준일 배지) 퇴역. 기준금리·다음 금통위·물가·수출은 시장 상태 한국 보드의 카드 하나(`src/domain/market/korea-policy.js`), 코스피·코스닥·원/달러는 보드의 기존 카드가 맡는다. 같이 지운 것: `renderKrIndexTrends` 호출, `renderKoreaWon`, `macro-next-release.js`(기준일 배지), `analyzeKrTickerDeep`, `_aioKrTickerSubmit` | 부분: 테마 화면 `#kr-integrated-themes`는 남김 — 한국 테마 단계 표·확정 종가 테마 흐름(native)·종목/스크리너에서 여는 한국 테마 상세가 그 안에 있고, 장중 레거시 블록을 걷으려면 `src/ui/pages/themes.js`(B 소유 밖)도 고쳐야 한다 |
+| 포트폴리오 잔여 | `_aioRRPopulateSelect`·`_updateVaultStatus` → `src/ui/components/portfolio-shell-controls.js`(그대로 이동), `aio-workspace.js:758` 빈 상태 목록과 T1019가 `pf-benchmark-section`을 더 이상 부르지 않음 | 완료 |
 
 ## 측정
 
@@ -50,5 +51,19 @@ DOM 노드(데스크톱 1440, 라이트, 12초 뒤, 같은 public-data):
 
 - D6: 클라이언트 번역 코드(`freeTranslateNews`·`autoTranslateNews`·`_gtBatchTranslate`)는 그대로 둔다. data-refactor가 표시 헤드라인 전부를 산출물에 한국어로 넣은 뒤 지운다.
 - L5: index.html kr-integrated-* 마크업 퇴역은 index.html 소유자 결정이 필요하다.
-- boot-budget: 한도를 1,615,000 / 598,000으로 임시로 올렸다(옮긴 바이트, 사유는 `boot-budget.json`). A가 P1 뒤 다시 내린다.
+- boot-budget: 한도를 1,618,000 / 599,000으로 임시로 올렸다(D5 카드 +0.5 KB 포함)(옮긴 바이트, 사유는 `boot-budget.json`). A가 P1 뒤 다시 내린다.
 - P3 요청(A): GLOBAL_SCRIPTS를 부팅/지연으로 나누는 일. 이번에 지연된 것은 `js/aio-glossary.js`, 이전부터 지연이던 것은 `js/aio-chat.js`.
+
+## D5 전후 (2026-11-06, 같은 public-data, 12초 뒤)
+
+| | 전 (c0a23a5b) | 후 |
+|---|---|---|
+| 시장 상태 한국 보드 카드 | 코스피·코스닥·원/달러 | + 한국 금리·물가·수출 (기준금리 3.00%, 8/27 결정, 다음 금통위 2026-11-26, 수출 10월 잠정 1,153억 달러 +93.7%·명절 주석) — 전 매크로 접기의 값과 같음 |
+| 문서 전체 DOM 노드(데스크톱) 시장 상태 / 매크로 / 기술 | 3,449 / 3,356 / 2,127 | 3,324 / 3,225 / 1,938 |
+| index.html | | −206줄 |
+
+스크린샷: `shots/d5/signal-kr-desktop__before.png`·`__after.png`(보드), `shots/d5/macro-kr-fold__before.png`(퇴역한 매크로 접기), 원값 `shots/d5/before.json`·`after.json`. 보드의 다른 세 카드 글자는 전후 같다.
+
+레거시 writer probe(D5·포트폴리오 잔여 뒤): 13 → 9 (macro 2 → 0, portfolio 2 → 0). 남은 것 home 4, briefing 1, market-news 4.
+
+게이트(D5 커밋 시점, 2026-11-06): contracts 132/136 — 실패 4개(reconciliation·data-lineage·data-refresh·나이 기준)는 기준선 c0a23a5b에서도 실패하는 벽시계 데이터 나이. 헤드리스 1088/1090 — T552·T924는 기준선에서도 실패(T552의 데이터 페이지 수는 4 → 3, 매크로의 마지막 data-snap 칸이 빠져서). architecture·responsive·vault·reference-adoption 브라우저 게이트 통과, legacy-writer probe 통과.

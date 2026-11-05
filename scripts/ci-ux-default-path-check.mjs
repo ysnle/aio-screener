@@ -62,7 +62,7 @@ check('visual hierarchy refresh must move away from one-note terminal styling', 
 // v57.71 (owner 2026-10-15): the card is "오늘의 한 문장" — one dated sentence, no memo body or tags.
 // v53.7 (P725): kr-technical 페이지 퇴역 — 레거시 intro 은닉 규칙 대신 페이지 자체가 없어야 하고,
 // 이관된 통합 섹션에는 insight-box가 애초에 포함되지 않아야 한다.
-check('KR technical default path is retired into the technical page (v53.7 P725)', !/id="page-kr-technical"/.test(html) && /id="kr-integrated-technical"/.test(html) && !/<details[^>]*id="kr-integrated-technical"[\s\S]{0,400}insight-box/.test(html));
+check('KR technical default path is retired (v53.7 P725; v59.70 D5: the folded section left too)', !/id="page-kr-technical"/.test(html) && !/id="kr-integrated-technical"/.test(html));
 check('v58.76 the retired SEC annual scan grid leaves no styles behind', !/#fund-cards-grid/.test(html));
 
 const ariaLiveCount = (html.match(/aria-live=/gi) || []).length;

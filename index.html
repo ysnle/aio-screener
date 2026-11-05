@@ -2523,12 +2523,6 @@ body.dark-theme .scr-screen-chip.active { color:var(--bg-base) !important; }
   max-width: 100% !important;
   box-sizing: border-box;
 }
-#kr-integrated-technical canvas {
-  display: block;
-  width: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box;
-}
 
 /* ═══ v27.1: 전체 카드 간격 통일 ═══ */
 .page > .data-widget, .page > .aio-widget,
@@ -4037,76 +4031,7 @@ button[data-filter-active="true"] {
        12가지 셋업·기술 용어 설명은 퇴역 — 시장 판단은 위 시장 상태 요약, 종목 근거는 차트 옆 근거 패널, 용어는 리서치 라이브러리가 맡는다. -->
   <nav class="flow-next" id="technical-next" aria-label="이어서 볼 곳" hidden></nav>
 
-  <!-- ═══ v53.7: 한국 시장 통합 섹션 (구 kr-technical) — 구 KR 전용 페이지를 접힌 섹션으로 이관, 요소 id 보존 ═══ -->
-  <details class="aio-page-advanced-toggle sh-fold-mt16" id="kr-integrated-technical" data-user-fold><!-- v57.81: user fold; 종목 일봉 (repeats the 종목 chart), 현재 입력, VKOSPI, breadth and KR spreads have no working source → data-dev-only -->
-    <summary>한국 시장 — 코스피·코스닥 추세와 한국 종목 (한국 종가 기준)</summary>
-    <div class="aio-page-advanced-body">
-
-
-  <!-- ═══ v48.46: KR 기술 분석 심층 해설 ═══ -->
-    <div class="sh-technical-integrated-box">
-      <div class="sh-technical-integrated-row">
-        <div>
-          <div class="sh-bold-lead">한국 시장 추세</div>
-        </div>
-        <div class="sh-row">
-        </div>
-      </div>
-    </div>
-  <!-- v58.76: the developer-only 한국 종목 일봉 chart, 현재 입력·VKOSPI·breadth·spread cards are retired. -->
-
-  <div class="aio-section aio-comp-secondary-feed">
-    <div class="aio-section-hd"><span class="aio-section-label">한국 차트·반도체 최신 소식</span></div>
-    <div id="tg-feed-kr-technical"></div>
-  </div>
-
-    <!-- v57.76: 0-100 건강 점수 자리(입력 개수 큰 숫자)와 원천 없는 외국인 수급 줄은 퇴역 — 지표별 관측값만 남긴다. -->
-
-    <!-- v57.77: 지수 Stage(N단계·확도 NN%)·셋업 상태 카드와 MACD·볼린저 박스, 실시간 차트 호출(analyzeKrIndex)은 퇴역 —
-         코스피·코스닥은 한국 종가 기록(src/ui/components/kr-index-trend.js)으로 차트 한 장, 50일선·200일선 위치, 계산된 사실 3줄만 쓴다. -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">지수 추세 — 한국 종가 기준</span></div>
-    <div class="trend-grid" id="kr-index-trends">
-      <section class="trend-card" id="kr-kospi-tech-result" data-metric="kospi" aria-label="코스피 종가 추세">
-        <p class="trend-card-note">코스피 한국 종가 기록을 불러오는 중입니다.</p>
-      </section>
-      <section class="trend-card" id="kr-kosdaq-tech-result" data-metric="kosdaq" aria-label="코스닥 종가 추세">
-        <p class="trend-card-note">코스닥 한국 종가 기록을 불러오는 중입니다.</p>
-      </section>
-    </div>
-    <details class="kr-index-trend-basis">
-      <summary>계산 기준</summary>
-      <p class="trend-card-note">마감된 한국 거래일 종가만 씁니다. 장중 시세는 넣지 않습니다. 50일선·200일선은 최근 50·200거래일 종가의 단순 평균이고, 기록이 그만큼 쌓이기 전에는 계산하지 않습니다. 고점·저점은 최근 252거래일(약 1년) 종가 기준입니다.</p>
-    </details>
-    </div>
-
-    <!-- v57.77: 종목별 Stage·셋업 상태 분석은 퇴역 — 입력한 한국 종목을 종목 화면으로 보낸다(showTicker → 종목 주제 전환). -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">한국 종목 — 종목 화면에서 보기</span></div>
-    <div class="sh-technical-integrated-panel">
-      <div class="sh-technical-integrated-row-wrap">
-        <input id="kr-ticker-analysis-input" type="text" placeholder="종목코드 또는 종목명 (예: 005930)" aria-label="종목 화면으로 보낼 한국 종목코드"
-                class="sh-technical-analysis-input-field"
-               data-on-enter="analyzeKrTickerDeep:__value_kr"/>
-        <button data-action="_aioKrTickerSubmit" class="aio-btn-table sh-btn-fs11">종목 찾기</button>
-      </div>
-      <div class="sh-technical-integrated-row-gap4">
-        <button data-action="showTicker" data-arg="005930.KS" class="aio-btn-table sh-btn-fs11">삼성전자</button>
-        <button data-action="showTicker" data-arg="000660.KS" class="aio-btn-table sh-btn-fs11">SK하이닉스</button>
-        <button data-action="showTicker" data-arg="035720.KS" class="aio-btn-table sh-btn-fs11">카카오</button>
-        <button data-action="showTicker" data-arg="005380.KS" class="aio-btn-table sh-btn-fs11">현대차</button>
-        <button data-action="showTicker" data-arg="006400.KS" class="aio-btn-table sh-btn-fs11">삼성SDI</button>
-        <button data-action="showTicker" data-arg="035420.KS" class="aio-btn-table sh-btn-fs11">NAVER</button>
-        <button data-action="showTicker" data-arg="051910.KS" class="aio-btn-table sh-btn-fs11">LG화학</button>
-        <button data-action="showTicker" data-arg="247540.KQ" class="aio-btn-table sh-btn-fs11">에코프로비엠</button>
-      </div>
-      <div id="kr-ticker-analysis-result"></div>
-    </div>
-    </div><!-- /aio-section 한국 종목 -->
-
-
-    </div>
-  </details>
+  <!-- v59.70 (D5, owner decision): the folded 한국 시장 추세 section (#kr-integrated-technical: 코스피·코스닥 추세 cards, 한국 종목 quick links, the dev-only telegram feed) is retired — the 시장 상태 한국 board carries 코스피·코스닥·원/달러. -->
 </div>
 <div class="page" id="page-macro">
   <!-- P1425 (owner review 2026-10-03): 거시 경제 = 공식 발표 지표판(정책금리 · 물가 · 고용 · 소비·주택, 발표월·발표일·다음 발표·출처).
@@ -4164,134 +4089,7 @@ button[data-filter-active="true"] {
     </details>
   </section>
 
-  <!-- ═══ v53.7: 한국 시장 통합 섹션 (구 kr-macro) — 구 KR 전용 페이지를 접힌 섹션으로 이관, 요소 id 보존 ═══ -->
-  <details class="aio-page-advanced-toggle sh-fold-mt16" id="kr-integrated-macro" data-user-fold><!-- v57.81: user fold; index cards (repeat the 한국 추세 cards; VKOSPI sourceless), US 10Y (repeats 금리 · 환율) and 거시 환경 요약 (retired 0-100 score, composite index, named stocks) → data-dev-only -->
-    <summary>한국 시장 — 한국 거시 (기준금리, 물가, 원/달러)</summary>
-    <div class="aio-page-advanced-body">
-
-    <!-- ═══ v53.7 (P725): 핵심 지수 카드 — 구 kr-home 섹션 1 이관 (P636/P721 KR 전일종가·변화폭 계약 sink 보존) ═══ -->
-
-
-  <!-- ═══ v48.46: KR 매크로 심층 해설 ═══ -->
-    <div class="aio-section">
-    <div class="row mb-4 sh-macro-integrated-box">
-      <div>
-        <div class="sh-bold-lead">한국 거시 <span class="kr-badge">한국</span></div>
-      </div>
-      <div class="page-actions">
-      </div>
-    </div>
-    </div><!-- /aio-section 한국매크로헤더 -->
-
-    <!-- ═══ 섹션 1: 기준금리 현황 ═══ -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">기준금리 현황</span></div>
-    <div class="aio-widget sh-mb12">
-      <div class="widget-title">한국은행 기준금리 현황 <span id="kr-macro-bokrate-freshness" class="aio-freshness-mini sh-regular-fine"></span></div>
-      <div class="sh-macro-integrated-cols">
-        <div class="sh-base-panel">
-          <div class="sh-muted-label-semi">현재 기준금리</div>
-          <div class="sh-macro-integrated-big" data-snap="bok-rate">—</div>
-          <div class="sh-muted-note">공식 발표 기준</div>
-        </div>
-        <div class="sh-base-panel">
-          <div class="sh-muted-label-semi">다음 금통위</div>
-          <div class="sh-macro-integrated-big-ink" data-snap="bok-next">—</div>
-          <div class="sh-macro-integrated-note-amber" data-snap="bok-status">—</div>
-        </div>
-      </div>
-      <!-- v57.77: the former "글로벌 비교" widget is folded in here as a two-row Korea/US comparison. -->
-      <table class="kr-flow-table sh-mb8">
-        <tr><th>지표</th><th>한국</th><th>미국</th></tr>
-        <tr><td>기준금리</td><td class="sh-macro-integrated-cell" data-snap="bok-rate">—</td><td data-snap="fed-target">—</td></tr>
-        <tr><td>CPI (전년 대비)</td><td data-snap="kr-cpi">—</td><td data-snap="cpi">—</td></tr>
-      </table>
-      <div data-source-kind="official-primary" data-operational-use="reference-only" class="sh-muted-fine">현재 값·기준일·다음 일정은 공식 발표 기준입니다. 금리차의 시장 영향은 두 나라 금리·물가·환율 관측치가 모두 있을 때만 해석합니다.</div>
-    </div>
-
-    </div><!-- /aio-section 기준금리현황 -->
-
-    <!-- ═══ 섹션 2: 물가지표 ═══ -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">물가, 경기 지표</span></div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:12px;margin-bottom:12px;">
-      <div class="aio-widget">
-        <div class="widget-title">물가지표 <span id="kr-macro-cpi-freshness" class="aio-freshness-mini sh-regular-fine"></span></div>
-        <div class="sh-macro-integrated-cols-gap8">
-          <div class="sh-between-row-s1">
-            <span class="sh-soft-note">소비자물가 (전년 대비)</span>
-            <span class="sh-ink-lead" data-snap="kr-cpi-yoy">—</span>
-          </div>
-        </div>
-        <div class="sh-macro-integrated-tint" data-snap="kr-cpi-read">공식 물가 발표 전이라 목표 대비 위치는 보류합니다.</div>
-      </div>
-
-      <div class="aio-widget" data-aio-hide-when-empty hidden>
-        <div class="widget-title">수출 <span id="kr-macro-pmi-freshness" class="aio-freshness-mini sh-regular-fine"></span></div>
-        <!-- v59.70 (S7/I10): the 제조업 PMI and GDP rows had no producer and are removed, not hidden. -->
-        <div class="sh-macro-integrated-tint-soft">
-          최근 수출 잠정치는 <span data-snap="kr-export-reference">발표 대기</span>입니다. 월 중 집계라 월 전체치와 섞어 보지 않습니다.
-        </div>
-      </div>
-    </div>
-
-    </div><!-- /aio-section 물가경기지표 -->
-
-    <!-- ═══ 섹션 3: 원/달러 환율 분석 ═══ -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">원/달러 환율 분석</span></div>
-    <div class="aio-widget sh-mb12">
-      <div class="widget-title">원/달러 환율 분석</div>
-      <div class="sh-macro-integrated-cols-fluid"><!-- v57.81: undated 현재 환율 card → data-dev-only; dated closes carry the reading -->
-        <div class="sh-base-panel">
-          <div class="sh-muted-label-semi">1년 범위</div>
-          <div id="kr-macro-krw-range" class="sh-macro-krw-range-big">—</div>
-          <div id="kr-macro-krw-range-note" class="sh-muted-note">종가 기록 대기</div>
-        </div>
-        <div class="sh-base-panel">
-          <div class="sh-muted-label-semi">3개월 추이</div>
-          <div id="kr-macro-krw-3m" class="sh-macro-krw-range-big">—</div>
-          <div id="kr-macro-krw-3m-note" class="sh-muted-note">종가 기록 대기</div>
-        </div>
-      </div>
-      <p id="kr-macro-krw-read" class="sh-macro-integrated-tint">종가 기록 대기</p>
-      <div class="sh-macro-integrated-cols-min220">
-        <div class="sh-macro-integrated-tint-base">
-          <div class="sh-macro-integrated-label">함께 볼 것 (원인은 단정하지 않음)</div>
-          <ul class="sh-macro-integrated-fine">
-            <li>• 미·한 정책금리와 기대 변화</li>
-            <li>• 미국·한국 주요 경제지표</li>
-            <li>• 원유·지정학 뉴스와 실물지표</li>
-            <li>• 현물·NDF·주식 수급 자료</li>
-          </ul>
-        </div>
-        <div class="sh-macro-integrated-tint-base">
-          <div class="sh-macro-integrated-label">영향 확인 범위</div>
-          <ul class="sh-macro-integrated-fine">
-            <li>• 기업별 환노출·헤지 여부</li>
-            <li>• 원자재·수입단가 민감도</li>
-            <li>• 외국인 주식·채권 수급</li>
-            <li>• 수입물가·무역수지 후속 발표</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-
-    </div><!-- /aio-section 원달러환율분석 -->
-
-    <!-- ═══ 섹션 3B: 채권 금리 ═══ -->
-
-    <!-- ═══ v37.8: 한국 거시 동적 분석 ═══ -->
-
-    <!-- ═══ 텔레그램 한국 거시 최신 소식 ═══ -->
-    <div class="aio-section aio-comp-secondary-feed">
-      <div class="aio-section-hd"><span class="aio-section-label">한국 거시·반도체 최신 소식</span></div>
-      <div id="tg-feed-kr-macro"></div>
-    </div>
-
-    </div>
-  </details>
+  <!-- v59.70 (D5, owner decision): the folded 한국 거시 section (#kr-integrated-macro) is retired — 기준금리·다음 금통위·물가·수출 moved to the 시장 상태 한국 board (src/domain/market/korea-policy.js), 원/달러 1년 범위 is that board's won card. -->
   <!-- v57.50 I04: 거시 경제 ends with where the same reading continues (macro-board.js renderMacroBoard). -->
   <nav class="flow-next" id="macro-next" aria-label="이어서 볼 곳" data-fold hidden></nav>
 </div>

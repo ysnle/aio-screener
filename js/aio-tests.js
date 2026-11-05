@@ -4837,8 +4837,8 @@
 
     function _testKrPageFreshnessAudit() {
     var krGroup = window.AIO && window.AIO.CRITICAL_PAGE_GROUPS && window.AIO.CRITICAL_PAGE_GROUPS.krMarket;
-    _assert('T177 kr_audit_group: CRITICAL_PAGE_GROUPS.krMarket has 3 integrated sections (v53.7 P725)',
-      Array.isArray(krGroup) && krGroup.length === 3 && krGroup.every(function(id){ return /^kr-integrated-/.test(id); }),
+    _assert('T177 kr_audit_group: CRITICAL_PAGE_GROUPS.krMarket keeps the one 한국 테마 section (v53.7 P725; v59.70 D5 retired technical/macro)',
+      Array.isArray(krGroup) && krGroup.length === 1 && krGroup.every(function(id){ return /^kr-integrated-/.test(id); }),
       krGroup ? JSON.stringify(krGroup) : 'undefined');
 
     var krAudit = window.AIO && typeof window.AIO.getCriticalKrPageFreshnessAudit === 'function'
@@ -6830,7 +6830,7 @@
       Array.prototype.forEach.call(page.querySelectorAll('.aio-page-advanced-toggle'), function(el) { var uf869 = el.hasAttribute('data-user-fold'); // P1327/R672 -> v57.81: data-user-fold folds are shown to everyone, the rest stay developer-only
         if (uf869 ? (getComputedStyle(el).display === 'none' && !el.dataset.pfEmptyHidden) : getComputedStyle(el).display !== 'none') failures869.push(id + ':' + (el.id || 'fold') + (uf869 ? ':user-fold-hidden' : ':advanced-visible'));
       });
-    }); ['kr-integrated-technical','kr-integrated-macro','kr-integrated-themes','pf-watchlist-risk-fold'].forEach(function(f) { var n = document.getElementById(f); if (!n || !n.hasAttribute('data-user-fold') || (getComputedStyle(n).display === 'none' && !n.dataset.pfEmptyHidden)) failures869.push(f + ':user-fold-missing'); }); // v57.81 user folds; v58.75: a portfolio fold hidden by the empty state (data-pf-empty-hidden) is not dev-hidden; v59.51 (content audit): pf-ai-notes-fold retired with the in-page AI workbench
+    }); ['kr-integrated-themes','pf-watchlist-risk-fold'].forEach(function(f) { var n = document.getElementById(f); if (!n || !n.hasAttribute('data-user-fold') || (getComputedStyle(n).display === 'none' && !n.dataset.pfEmptyHidden)) failures869.push(f + ':user-fold-missing'); }); // v57.81 user folds; v58.75: a portfolio fold hidden by the empty state (data-pf-empty-hidden) is not dev-hidden; v59.51 (content audit): pf-ai-notes-fold retired with the in-page AI workbench
     try {
       if (typeof window._aioOrganizeGuideChapters === 'function') window._aioOrganizeGuideChapters(); // v59.07: src/ui/components/guide-chapters.js
       if (typeof window._aioRenderPageFundamentals === 'function') failures869.push('retired-fund-renderer-present');
@@ -6874,7 +6874,7 @@
       var krThemeVisible = Array.prototype.filter.call(krThemeCards, function(el){ return getComputedStyle(el).display !== 'none'; }).length;
       if (krThemeCards.length > 3 && krThemeVisible !== 3) failures869.push('kr-theme-visible=' + krThemeVisible);
       if (!document.getElementById('kr-theme-more')) failures869.push('kr-theme-more-missing');
-      if (document.querySelectorAll('.aio-comp-secondary-feed:not(.aio-dev-mode)').length < 2) failures869.push('kr-duplicate-feeds-not-marked'); /* v53.7 P725: 잔여 KR 피드 2개(macro/technical) */
+      /* v59.70 (D5): the two KR secondary feeds (macro/technical) left with their folds. */
       if (typeof renderGlossaryItems === 'function') renderGlossaryItems('');
       if (document.querySelectorAll('#glossary-body .aio-glossary-item').length < 200) failures869.push('glossary-items');
       // v59.51 (content audit): the allocation and holdings-analysis sections left; the order is entry form, holdings table,
@@ -7056,14 +7056,10 @@
     _assert('T877 tv_ohlc_fallback_independent_v5241 (EF-12): SPY TradingView 대체 strip과 sync 함수 퇴역 유지 (v57.76)',
       typeof window._aioSyncTvOhlcFallback !== 'function' && !document.querySelector('[data-tvohlc-close]'), 'sync=' + typeof window._aioSyncTvOhlcFallback);
 
-    // T878 (EF-19) → v57.77: the KR index Stage writer and its refresh buttons were retired (cards draw completed KRX closes); the KR ticker input only writes a 종목 screen link.
-    try {
-      var retired878 = typeof window.analyzeKrIndex !== 'function' && !document.querySelector('button[data-action="analyzeKrIndex"]') && !!document.getElementById('kr-kospi-tech-result') && !!document.getElementById('kr-kosdaq-tech-result');
-      var sink878 = document.getElementById('kr-ticker-analysis-result'), before878 = sink878 ? sink878.innerHTML : '', link878 = null;
-      if (sink878 && typeof window.analyzeKrTickerDeep === 'function') { window.analyzeKrTickerDeep('005930'); link878 = sink878.querySelector('button[data-action="showTicker"]'); link878 = link878 && link878.getAttribute('data-arg'); sink878.innerHTML = before878; }
-      _assert('T878 kr_technical_index_cards_v5777 (EF-19, v57.77): 지수 Stage 작성기 퇴역 · 카드 id 유지 · 종목 입력은 종목 화면 링크(showTicker)만 쓴다',
-        retired878 && link878 === '005930.KS', 'retired=' + retired878 + ' link=' + link878);
-    } catch (e878) { _assert('T878 kr_technical_index_cards_v5777 (EF-19, v57.77)', false, 'threw: ' + (e878 && e878.message)); }
+    // T878 (EF-19) → v57.77 → v59.70 (D5): the 한국 시장 추세 fold (KR index cards, KR ticker input) is retired; the 시장 상태 한국 board carries 코스피·코스닥.
+    _assert('T878 kr_technical_fold_retired_v5970 (EF-19, D5): 한국 시장 추세 접기·지수 Stage 작성기·종목 입력 퇴역',
+      typeof window.analyzeKrIndex !== 'function' && typeof window.analyzeKrTickerDeep !== 'function' && typeof window._aioKrTickerSubmit !== 'function' && !document.getElementById('kr-integrated-technical') && !document.getElementById('kr-integrated-macro'),
+      'technical=' + !!document.getElementById('kr-integrated-technical') + ' macro=' + !!document.getElementById('kr-integrated-macro'));
   }
 
   // v52.42 (P657): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 3 (EF-06/07/14/16) 회귀 게이트
@@ -7109,19 +7105,9 @@
       }
     } catch (e881) { _assert('T881 news_source_label_script_guard_v5242 (EF-14)', false, 'threw: ' + (e881 && e881.message)); }
 
-    // T883 (EF-16): kr-macro 3개 카드에 _fieldTs 기반 "기준: MM/DD (N일 전)" 배지가 채워지는지
-    try {
-      if (typeof window._aioRenderKrMacroFreshnessBadges === 'function' && document.getElementById('kr-macro-bokrate-freshness')) {
-        window._aioRenderKrMacroFreshnessBadges();
-        var badgeIds883 = ['kr-macro-bokrate-freshness', 'kr-macro-cpi-freshness', 'kr-macro-pmi-freshness'];
-        var texts883 = badgeIds883.map(function(id) { var el = document.getElementById(id); return el ? el.textContent : null; });
-        var allBadged883 = texts883.every(function(t) { return t && t.indexOf('기준:') === 0 && (/\d+일 전/.test(t) || t === '기준: 미수신'); });
-        _assert('T883 kr_macro_freshness_badges_v53_4 (EF-16): 기준일 또는 명시적 미수신 상태 렌더',
-          allBadged883, 'texts=' + texts883.join(' | '));
-      } else {
-        _assert('T883 kr_macro_freshness_badges_v5242 (EF-16)', false, 'fn or element missing');
-      }
-    } catch (e883) { _assert('T883 kr_macro_freshness_badges_v5242 (EF-16)', false, 'threw: ' + (e883 && e883.message)); }
+    // T883 (EF-16) → v59.70 (D5): the 한국 거시 fold and its 기준일 badges are retired with it.
+    _assert('T883 kr_macro_fold_retired_v5970 (EF-16, D5): 한국 거시 접기·기준일 배지 퇴역',
+      typeof window._aioRenderKrMacroFreshnessBadges !== 'function' && !document.getElementById('kr-macro-bokrate-freshness'), 'fn=' + typeof window._aioRenderKrMacroFreshnessBadges);
   }
 
   // v52.42 (P657): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 4 (EF-03/17/18) 회귀 게이트

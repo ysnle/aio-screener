@@ -153,7 +153,7 @@ check('Telegram memo overlay is exposed through audit',/_aioTelegramMemoOverlayA
 check('Telegram dynamic artifact replaces static narrative and exposes honest coverage', /themes:\s*Array\.isArray\(raw\.themes\)/.test(data) && /pipelineNote:\s*String\(raw\.pipelineNote/.test(data) && /coverage:\s*raw\.coverage/.test(data));
 check('Telegram page coverage audit spans all 17 routes (v53.7 P725)', /getTelegramPageCoverageAudit/.test(core) /* v59.70 P2: the audit moved to js/aio-qa-audits.js */ && /requiredPageCount/.test(core) && /'portfolio':\s*\[/.test(data) && /'ticker':\s*\[/.test(data) && /'screener':\s*\[/.test(data) && /'kr-macro':\s*\[/.test(data) && /'guide':\s*\[\]/.test(data));
 check('tests cover Telegram digest memo injection', /T831[\s\S]{0,2200}SCREENER_DB memo/.test(tests) && /_telegramMemoOverlay/.test(tests));
-check('Telegram page feeds cover fundamental/themes/KR technical pages', /id="tg-feed-fundamental"/.test(html) && /id="tg-feed-themes"/.test(html) && !/id="tg-feed-theme-detail"/.test(html) /* v58.76: the legacy theme-detail page is retired */ &&/id="tg-feed-kr-technical"/.test(html));
+check('Telegram page feeds cover fundamental/themes pages (v59.70 D5: KR technical feed retired)', /id="tg-feed-fundamental"/.test(html) && /id="tg-feed-themes"/.test(html) && !/id="tg-feed-theme-detail"/.test(html) /* v58.76: the legacy theme-detail page is retired */); // v59.70 (D5): tg-feed-kr-technical left with the 한국 시장 추세 fold
 check('Telegram page routing includes credit and AI infrastructure tags by page', /'fundamental':\s*\[[^\]]*'semi'[^\]]*'credit'/.test(data) && /'themes':\s*\[[^\]]*'power'[^\]]*'credit'/.test(data) && /'fxbond':\s*\[[^\]]*'credit'/.test(data) && /'kr-technical':\s*\[[^\]]*'semi'/.test(data) && /'credit':\s*\{\s*label:/.test(data));
 check('Telegram runtime audits four required channels including HANA China',/tgSlug:'HANAchina'/.test(data) && /requiredChannelSlugs/.test(core) && /missingRequiredChannels/.test(core) && /requiredSourcesReady/.test(core));
 check('Telegram market-note digest tag is consumed by briefing and market-news pages', /'briefing':\s*\[[^\]]*'market-note'/.test(data) && /'market-news':\s*\[[^\]]*'market-note'/.test(data));
@@ -722,23 +722,8 @@ check('v57.77 portfolio writerless 리스크 분석 shell and duplicate 자동 �
 check('screener comp default exposes 1M/3M/6M/RSI/vs50MA/trend confidence/VCP fields', /data-scr-sort="ret1m"/.test(html) && /data-scr-sort="ret3m"/.test(html) && /data-scr-sort="ret6m"/.test(html) && /data-scr-sort="pctSma50"/.test(html) && /ret1m/.test(screenerPage) && /ret6m/.test(screenerPage) && /vcpScore/.test(screenerPage));
 check('the related-news strip is retired (v58.76)', !/aio-page-news-strip/.test(html + core));
 check('home operational details stay collapsed while completed-24h Telegram feeds remain user-visible', /#page-home > details\.aio-card[\s\S]{0,1200}display:none !important/.test(html) && !/body:not\(\.aio-dev-mode\) #tg-feed-signal[\s\S]{0,1600}display:none !important/.test(html) && /body:not\(\.aio-dev-mode\) \.tg-live-feed/.test(html));
-// v58.85: the 한국 거시 badges render from src/ui/components/macro-next-release.js (moved from aio-core.js); v59.51: the header's
-// separate next-release line left — the board header names crossroads.nextEvent (one next-release answer).
-const macroReleaseProbe = await (async () => {
-  const { renderKrMacroFreshnessBadges } = await import('../src/ui/components/macro-next-release.js');
-  const nodes = {};
-  const node = () => { const attrs = {}; return { textContent: '', style: {}, setAttribute: (k, v) => { attrs[k] = String(v); }, getAttribute: (k) => attrs[k] ?? null }; };
-  const documentRef = { getElementById: (id) => (nodes[id] ||= node()) };
-  const now = Date.parse('2026-10-26T00:00:00Z');
-  const root = {
-    DATA_SNAPSHOT: { _fieldTs: { bok_rate: '2026-10-01' } },
-    _aioStaleDays: (date) => Math.floor((now - Date.parse(`${date}T00:00:00Z`)) / 86400000)
-  };
-  renderKrMacroFreshnessBadges({ documentRef, root });
-  return { badges: ['kr-macro-bokrate-freshness', 'kr-macro-cpi-freshness', 'kr-macro-pmi-freshness'].map((id) => nodes[id].textContent) };
-})();
 check('P1425 macro route has no legacy yield-curve owner and replays the official calendar after the server data lands', !/_lazyInitChartPage\('macro', 'yieldCurveChart'/.test(core) && !/renderOfficialFutureCalendar/.test(core) && !/renderMacroNextRelease|_initMacroPage/.test(core) && /'aio:serverDataLoaded'/.test(read('src/ui/pages/market.js'))); // v58.85: the header renderer left aio-core.js (its document-level aio:sharedMarketCut listener never fired: the event is dispatched on window) // P1672: #official-future-calendar left with P1425 // P1425
-check('v59.51 the 거시 next release is the board header crossroads.nextEvent; the separate calendar line and renderer stay retired', !/function renderOfficialFutureCalendar/.test(macroTech) && !/renderMacroNextRelease/.test(read('src/ui/components/macro-next-release.js') + read('src/ui/pages/market.js')) && /crossroads\?\.nextEvent/.test(read('src/ui/components/macro-board.js')));
+check('v59.51 the 거시 next release is the board header crossroads.nextEvent; the separate calendar line and renderer stay retired', !/function renderOfficialFutureCalendar/.test(macroTech) && !/renderMacroNextRelease/.test(read('src/ui/pages/market.js')) && /crossroads\?\.nextEvent/.test(read('src/ui/components/macro-board.js')));
 check('P1425 the legacy yield-curve renderer stays retired with its canvas', !/function renderYieldCurve/.test(macroTech) && !/id="yieldCurveChart"/.test(html));
 check('news and screener use 12-row progressive reveal instead of unbounded first paint', /_aioNewsVisibleLimit\s*\|\|\s*12/.test(data) && /const visibleLimit = \{ value: 12 \}/.test(read('src/ui/pages/screener.js')) /* v58.20: the screener's reveal limit lives in screener.js; the unread classic _scrVisibleLimit is gone */ && /id="news-load-more-wrap"/.test(html) && /id="scr-load-more-wrap"/.test(html));
 // P770: native news.js owns the briefing list height/reveal; the uncalled legacy adapters were retired.
@@ -990,7 +975,7 @@ check('EF-11/P1010: unsupported VXX futures inference is retired while RSP/SPY r
 check('EF-12 (v57.76 retired): the SPY TradingView fold, its OHLC fallback strip and the sync hooks stay deleted', !/function _aioSyncTvOhlcFallback/.test(ui) && !/html-tv-ohlc-fallback-(?:shown|live)/.test(ui)); // the retired DOM ids are pinned once in ci-architecture-contract-check (v57.76 block)
 // v57.77: the KOSPI/KOSDAQ Stage/MACD/BB writer (analyzeKrIndex) and its refresh buttons were retired; the cards are drawn from completed KRX closes.
 check('EF-19 (v57.77 retired): the KR index Stage writer analyzeKrIndex and its refresh buttons stay deleted', !/data-action="analyzeKrIndex"/.test(html) && !/function analyzeKrIndex/.test(ui)); // text-pin-ok: retirement absence
-check('v57.77: the technical route draws the 한국 지수 추세 cards from completed KRX closes (behaviour in ci-esm-core-unit-check)', /renderKrIndexTrends\(\{ documentRef, root \}\)/.test(read('src/ui/pages/analysis.js')));
+check('v59.70 (D5): the technical route no longer draws the 한국 지수 추세 cards (the 시장 상태 한국 board carries 코스피·코스닥)', !/renderKrIndexTrends/.test(read('src/ui/pages/analysis.js')));
 // P1134/R620: the codetabs fallback is declared in js/aio-data.js and consumed by the KR fetchers
 // that moved to js/aio-kr-data.js — assert both owners so removing either leg is caught.
 check('EF-19: _fetchYahooChartData proxy chain includes codetabs.com fallback (live network audit showed corsproxy.io/allorigins alone failing repeatedly for KR tickers)', /api\.codetabs\.com\/v1\/proxy/.test(krData + data));
@@ -1003,7 +988,7 @@ check('EF-06: VIX term-structure seed fallback values render a distinguishable n
   || (sentimentDomain.includes('export function vixTermStructure') && sentimentDomain.includes('blocked: true') && /points:\s*(?:Object\.freeze\()?\{ short, spot, medium, long \}/.test(sentimentDomain) && sentimentPage.includes('summary.vixTermStructure.regime') && sentimentPage.includes('canvas.dataset.aioRenderer')));
 check('EF-14: news source names are guarded by a non-Latin/non-Hangul script check separate from the title translation guard, so an untranslated source name cannot leak raw', /function _aioSafeSourceLabel/.test(data) && /root\._aioSafeSourceLabel\(item\?\.source/.test(read('src/ui/pages/news.js'))); // P1411: guard moved to the native news card
 check('EF-15/P1428: the home F&G day change uses the completed-close history, the same basis as 투자 심리 (not CNN previous_close)', !/_aioSetDeltaEl\('home-fg-delta'/.test(data) && /aioFgDeltaRenderer = 'native'/.test(read('src/ui/components/market-regime.js')) && /buildCloseSeries\(history, 'fg'/.test(read('src/ui/components/market-regime.js')));
-check('EF-16: kr-macro rate/CPI/PMI cards expose a shared _fieldTs-based freshness badge instead of inconsistent per-card date disclosure', macroReleaseProbe.badges[0] === '기준: 10/01 (25일 전)' && macroReleaseProbe.badges[1] === '기준: 미수신' && macroReleaseProbe.badges[2] === '기준: 미수신' && /kr-macro-bokrate-freshness/.test(html) && /kr-macro-cpi-freshness/.test(html) && /kr-macro-pmi-freshness/.test(html));
+check('v59.70 (D5): the 한국 거시 and 한국 시장 추세 folds are retired; 기준금리·물가·수출 sit on the 시장 상태 한국 board', !/id="kr-integrated-macro"|id="kr-integrated-technical"|kr-macro-bokrate-freshness|tg-feed-kr-technical|tg-feed-kr-macro/.test(html) && !exists('src/ui/components/macro-next-release.js') && /koreaPolicyCard\(root\.DATA_SNAPSHOT\)/.test(read('src/ui/components/market-regime.js')));
 check('headless tests cover Batch 3 efficacy fixes (EF-06/07/14/16)', /_testV5242Batch3Efficacy/.test(tests) && /T879/.test(tests) && /T880/.test(tests) && /T881/.test(tests) && /T883/.test(tests));
 
 // v52.42 (P657): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 4 (EF-03/05/17/18) structural gates

@@ -7,7 +7,6 @@ import { deriveQuotePresentation, quoteDisplayKind } from '../../domain/market/q
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { clearKnowledgeArrival, renderKnowledgeArrival } from '../components/knowledge-arrival.js';
 import { signedText, readNumber as finite } from '../../domain/shared/number.js';
-import { renderKrMacroFreshnessBadges } from '../components/macro-next-release.js';
 import { macroReleasesFor } from '../../domain/briefing/macro-releases.js';
 
 
@@ -260,14 +259,9 @@ function formatSnapshotMetric(key, metric) {
   return String(metric.value);
 }
 
-// v57.81: inside the 한국 거시 user fold only the Korea/US comparison table is native; its other values (기준금리,
-// 다음 금통위, 한국 물가) are written by the shell snapshot writers, which this renderer used to clear to 미수신.
-const KR_FOLD_NATIVE_KEYS = new Set(['fed-target', 'kr-cpi', 'cpi']);
-
 function renderSnapshotMetrics(root, page) {
   page.querySelectorAll('[data-snap]').forEach((node) => {
     const key = node.getAttribute('data-snap');
-    if (node.closest?.('#kr-integrated-macro') && !KR_FOLD_NATIVE_KEYS.has(key)) return;
     const metric = readSnapshotMetric(root, key);
     const value = formatSnapshotMetric(key, metric);
     if (value == null) {
@@ -294,7 +288,6 @@ function renderMacro(documentRef, root, page) {
   renderLiveQuotes(root, page);
   renderSnapshotMetrics(root, page);
   renderMacroBoard({ documentRef, root });
-  renderKrMacroFreshnessBadges({ documentRef, root }); // v53.7 (P725): the 한국 거시 fold's 기준일 badges
   // v59.44 (owner 2026-10-30, "each screen too"): the latest PCE·CPI·jobs·retail release as cards above the board (a lazy
   // chunk shared with 오늘's release summaries), so 거시 opens with what came out and when the next one is.
   import('../components/event-briefs.js').then(({ paintMacroReleaseCards }) => paintMacroReleaseCards(documentRef, page, macroReleasesFor(root, { days: 35 }))).catch(() => {});

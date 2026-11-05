@@ -2846,7 +2846,7 @@ window.AIO.assertXssEscapeCoverageAudit = function() {
     var hasEscHtml = typeof window.escHtml === 'function';
     // (2) 주요 chat/render 함수들 toString 후 scan
     var fnNames = [
-      'analyzeKrTickerDeep', // v57.77: analyzeKrIndex and renderKrIssues retired; v59.42: openChatHistory, chatRenderChips deleted
+      // v57.77: analyzeKrIndex and renderKrIssues retired; v59.42: openChatHistory, chatRenderChips deleted; v59.70 (D5): analyzeKrTickerDeep deleted
       'updateAIPanelContext',
       'renderPortfolio', 'renderBriefingFeed'
     ]; // v57.77: retired renderKrIssues (P725) and renderFeed no longer counted as scanned functions; v57.79: renderHomeFeed stub removed
@@ -3034,18 +3034,18 @@ window.AIO.getDataLineageAudit = function() {
     var sched = window.REFRESH_SCHEDULE || {};
     function domCount(attr) { try { return document.querySelectorAll('[' + attr + ']').length; } catch(_) { return 0; } }
     // 핵심 데이터 13종 lineage 정의 (코드 조사 v49.89 기반 — source URL은 실제 fetch 함수 확인)
-    var LINEAGE = [
+    var LINEAGE = [ // v59.70 (D5): no [data-snap] sinks remain (the 한국 거시 fold held the last); native readers render these rows.
       { id:'quotes',     label:'시세 (지수/종목)',  source:'Yahoo v8 chart (query1.finance.yahoo.com)', schedKey:'quotes',     transform:'PriceStore.set 검증',        renderAttr:'data-live-price', tier:'auto' },
       { id:'vix',        label:'VIX',              source:'Yahoo ^VIX 3mo',                            schedKey:'vixHistory', transform:'fetchSentimentHistory',       renderAttr:'data-live-price', tier:'auto' },
-      { id:'fearGreed',  label:'F&G (공포탐욕)',    source:'CNN dataviz → CORS_PROXY → snapshot (3단)', schedKey:'sentiment',  transform:'_applyFearGreedScore',       renderAttr:'data-snap',       tier:'auto' },
+      { id:'fearGreed',  label:'F&G (공포탐욕)',    source:'CNN dataviz → CORS_PROXY → snapshot (3단)', schedKey:'sentiment',  transform:'_applyFearGreedScore',       renderAttr:null,       tier:'auto' },
       { id:'fred',       label:'FRED 매크로',       source:'api.stlouisfed.org (CORS 친화, 키 필요)',     schedKey:'fred',       transform:'fetchAllFredData',           renderAttr:null,              tier:'auto', needsKey:true },
       { id:'technicals', label:'기술 지표 (SPY)',   source:'fetchTechnicalIndicators',                  schedKey:'technicals', transform:'none (v57.76: SPY indicator writers retired; producer reports skipped)', renderAttr:null, tier:'auto' },
-      { id:'hySpread',   label:'HY 스프레드',       source:'FRED BAMLH0A0HYM2 (키 필요)',                schedKey:'hySpread',   transform:'fetchHYSpread',              renderAttr:'data-snap',       tier:'auto', needsKey:true },
+      { id:'hySpread',   label:'HY 스프레드',       source:'FRED BAMLH0A0HYM2 (키 필요)',                schedKey:'hySpread',   transform:'fetchHYSpread',              renderAttr:null,       tier:'auto', needsKey:true },
       { id:'news',       label:'뉴스',             source:'data.json news (server bundle)',           schedKey:'news',       transform:'scoreItem + classifyTopic',  renderAttr:null,              tier:'auto' },
-      { id:'krDynamic',  label:'VKOSPI/KR 동적',    source:'Naver VKOSPI/basic (프록시)',                schedKey:'krDynamic',  transform:'fetchVkospiDynamic→DATA_SNAPSHOT.vkospi', renderAttr:'data-snap', tier:'auto' },
-      { id:'breadth',    label:'Breadth %above MA', source:'GitHub Actions Yahoo 1y adjusted-close · AIO US universe', schedKey:'breadth', transform:'computeScreenerBreadth → _aioApplyScreenerBreadth', renderAttr:'data-snap', tier:'auto', note:'공식 거래소 breadth가 아닌 AIO 미국 스크리너 유니버스 비가중 집계. 관측시각·85% 커버리지·값 범위 게이트 통과 시에만 의사결정 입력 허용.' },
-      { id:'officialServerMacro',label:'CPI/PCE/NFP/국채곡선/AAII', source:'GitHub Actions · BLS/BEA/Treasury/AAII official public + bounded relay', schedKey:null, transform:'fetch-data → typed evidence → DATA_SNAPSHOT', renderAttr:'data-snap', tier:'server-auto', note:'서버 자동 갱신. AAII relay는 publisher direct automation 차단 시에만 사용하며 reference-only/현재 판단 제외를 유지.' },
-      { id:'blockedSurveys',label:'NAAIM/Investors Intelligence 현재치', source:'publisher subscription boundary', schedKey:null, transform:'없음 · last public reference 또는 BLOCKED', renderAttr:'data-snap', tier:'manual', note:'무료 현재 수치/API 권한이 없어 자동 추정·대체하지 않음.' },
+      { id:'krDynamic',  label:'VKOSPI/KR 동적',    source:'Naver VKOSPI/basic (프록시)',                schedKey:'krDynamic',  transform:'fetchVkospiDynamic→DATA_SNAPSHOT.vkospi', renderAttr:null, tier:'auto' },
+      { id:'breadth',    label:'Breadth %above MA', source:'GitHub Actions Yahoo 1y adjusted-close · AIO US universe', schedKey:'breadth', transform:'computeScreenerBreadth → _aioApplyScreenerBreadth', renderAttr:null, tier:'auto', note:'공식 거래소 breadth가 아닌 AIO 미국 스크리너 유니버스 비가중 집계. 관측시각·85% 커버리지·값 범위 게이트 통과 시에만 의사결정 입력 허용.' },
+      { id:'officialServerMacro',label:'CPI/PCE/NFP/국채곡선/AAII', source:'GitHub Actions · BLS/BEA/Treasury/AAII official public + bounded relay', schedKey:null, transform:'fetch-data → typed evidence → DATA_SNAPSHOT', renderAttr:null, tier:'server-auto', note:'서버 자동 갱신. AAII relay는 publisher direct automation 차단 시에만 사용하며 reference-only/현재 판단 제외를 유지.' },
+      { id:'blockedSurveys',label:'NAAIM/Investors Intelligence 현재치', source:'publisher subscription boundary', schedKey:null, transform:'없음 · last public reference 또는 BLOCKED', renderAttr:null, tier:'manual', note:'무료 현재 수치/API 권한이 없어 자동 추정·대체하지 않음.' },
       { id:'crypto',     label:'BTC/ETH',          source:'CoinGecko (무키 30/min) / 수동 폴백',         schedKey:'quotes',     transform:'PriceStore.set',             renderAttr:'data-live-price', tier:'auto' }
     ];
     var rows = LINEAGE.map(function(L) {

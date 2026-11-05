@@ -1933,13 +1933,7 @@ window._aioLogsClear = function() {
     if (typeof window.showToast === 'function') window.showToast('로그 버퍼 초기화');
   }
 };
-window._aioKrTickerSubmit = function() {
-  var inp = document.getElementById('kr-ticker-analysis-input');
-  if (!inp) return;
-  var t = inp.value.trim();
-  if (/^\d{6}$/.test(t)) t += '.KS';
-  if (typeof window.analyzeKrTickerDeep === 'function') window.analyzeKrTickerDeep(t);
-};
+// v59.70 (D5): window._aioKrTickerSubmit left with the 한국 시장 추세 fold.
 // LC-39 (bridge) + P1430/P1449: one bridge from any route into the technical deep analysis —
 // and the 종목 screen's company must follow. The native 차트 tab follows the subject
 // (root._aioLastOpenedSymbol / _aioChartRequest, stock-chart.js), so this bridge now names the
@@ -9126,7 +9120,7 @@ window.AIO.CRITICAL_PAGE_GROUPS = {
   comprehensive: ['home','signal','breadth','sentiment','briefing'],
   marketAnalysis: ['technical','macro','fxbond','fundamental','themes'],
   // v53.7 (P725): KR 전용 페이지 퇴역 — 통합 섹션 요소 id로 감사 대상 전환
-  krMarket: ['kr-integrated-themes','kr-integrated-macro','kr-integrated-technical']
+  krMarket: ['kr-integrated-themes'] // v59.70 (D5): the technical and macro folds are retired
 };
 
 
