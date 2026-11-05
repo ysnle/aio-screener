@@ -50,12 +50,12 @@ export function installChatLoader(root = globalThis, doc = root.document, { onLo
   // Only a user action shows either: a hover warm-up loads silently.
   let notice = null;
   let slowTimer = null;
-  const buttons = () => [...doc.querySelectorAll('[data-action="toggleAIPanel"]')].filter((button) => !button.closest('#ai-panel'));
+  const buttons = () => [...(doc.querySelectorAll?.('[data-action="toggleAIPanel"]') || [])].filter((button) => !button.closest('#ai-panel'));
   const setBusy = (on) => { for (const button of buttons()) { if (on) button.setAttribute('aria-busy', 'true'); else button.removeAttribute('aria-busy'); } };
   const clearNotice = () => { if (slowTimer) root.clearTimeout?.(slowTimer); slowTimer = null; notice?.remove(); notice = null; };
   const showNotice = () => {
     const host = doc.getElementById('main-content');
-    if (!host || !queue.length) return;
+    if (!host?.prepend || !queue.length) return;
     const next = dataState(doc, { state: 'error', text: 'AI 도우미를 불러오지 못했습니다', onRetry: () => { clearNotice(); setBusy(true); load().catch(() => {}); } });
     next.id = 'aio-chat-load-failure';
     next.classList.add('aio-load-failure');
@@ -68,7 +68,7 @@ export function installChatLoader(root = globalThis, doc = root.document, { onLo
     const script = doc.createElement('script');
     script.src = './js/aio-chat.js?v=' + scriptVersion(doc);
     script.onload = () => { cuesReady.then(() => { clearNotice(); setBusy(false); replay(); resolve(true); }); };
-    script.onerror = () => { script.remove(); pending = null; if (slowTimer) root.clearTimeout?.(slowTimer); slowTimer = null; showNotice(); reject(new Error('aio-chat.js 로드 실패')); };
+    script.onerror = () => { script.remove?.(); pending = null; if (slowTimer) root.clearTimeout?.(slowTimer); slowTimer = null; showNotice(); reject(new Error('aio-chat.js 로드 실패')); };
     doc.head.appendChild(script);
   }));
   // A user action that has to wait: busy now, the notice if it is still waiting after the shared timeout.
@@ -100,13 +100,13 @@ export function installChatLoader(root = globalThis, doc = root.document, { onLo
   // a tap or a programmatic open still loads through the stubs above, and the dispatch waits for the corpus.
   const warm = (event) => {
     if (!event.target?.closest?.(AI_TRIGGERS)) return;
-    doc.removeEventListener('pointerover', warm, true);
-    doc.removeEventListener('focusin', warm, true);
+    doc.removeEventListener?.('pointerover', warm, true);
+    doc.removeEventListener?.('focusin', warm, true);
     load().catch(() => {});
     try { root.AIO.ensureResearchCorpus?.()?.catch?.(() => {}); } catch (_) { /* the dispatch loads it again */ }
   };
-  doc.addEventListener('pointerover', warm, true);
-  doc.addEventListener('focusin', warm, true);
+  doc.addEventListener?.('pointerover', warm, true);
+  doc.addEventListener?.('focusin', warm, true);
   // Automated browsers (QA gates) get the panel right away, as they get the QA audits, unless the gate measures the
   // boot a user gets (scripts/ci-boot-interaction-check.mjs sets __aioUserBoot before the page runs).
   if (root.navigator?.webdriver && !root.__aioUserBoot) load().catch(() => {});

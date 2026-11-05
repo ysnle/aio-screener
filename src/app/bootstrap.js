@@ -139,7 +139,7 @@ import { krIndexStressRows } from '../domain/portfolio/kr-stress.js';
 import { portfolioStressHtml } from '../ui/panels/portfolio-stress.js';
 import { SUPPLIED_MATERIAL_CLAIM_IDS } from '../domain/research/reference-index.js';
 import { loadResearchCorpus } from '../domain/research/corpus-loader.js';
-import { createCriticalDataGate, ROWS_FIRST_ROUTES } from './critical-data-gate.js';
+import { coreReadsSettled, createCriticalDataGate, ROWS_FIRST_ROUTES } from './critical-data-gate.js';
 import { loadFreshnessLedgers, readArtifactFreshness } from '../data/freshness.js';
 import { NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS } from '../domain/research/nathan-frameworks.js';
 import { NATHAN_FRAMEWORK_PACK, NATHAN_ANALYSIS_PROTOCOL, NATHAN_KNOWLEDGE_ALIASES } from '../domain/knowledge/nathan-framework-pack.js';
@@ -712,11 +712,14 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const compatibilityEvents = createCompatibilityEventAdapter({ root, eventTarget, now: clock.now });
     const currentRouteId = () => { try { return String(store.getState()?.route || router.active() || '').replace(/^page-/, ''); } catch (_) { return ''; } };
     const criticalData = createCriticalDataGate({
-      isReady: () => Boolean(root?._serverDataMeta) && Boolean(root?._aioHistoryMeta || (root?._aioHistory || []).length),
+      isReady: () => coreReadsSettled(root),
       subscribe: (check) => {
         const stopServer = legacy.on('aio:serverDataLoaded', check);
         const stopHistory = compatibilityEvents.on('aio:historyLoaded', check);
-        return () => { stopServer(); stopHistory(); };
+        // v59.70: a failed read settles the gate too (critical-data-gate.js coreReadsSettled).
+        const failedEvents = ['aio:serverDataFailed', 'aio:historyFailed'];
+        failedEvents.forEach((name) => root?.addEventListener?.(name, check));
+        return () => { stopServer(); stopHistory(); failedEvents.forEach((name) => root?.removeEventListener?.(name, check)); };
       },
       schedule: (task, ms) => deferredTasks.defer(task, ms)
     });

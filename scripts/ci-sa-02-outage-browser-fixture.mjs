@@ -62,15 +62,23 @@ async function runOnce(browser, run) {
 async function runCoreFileFailure(browser) {
   const page = await browser.newPage();
   let refuse = true;
+  // v59.70: the screener read waits on the critical-data gate; a failed history/data read now settles it at once,
+  // where it used to hold that read for the gate's 20 s fallback. Timed from navigation.
+  let screenerRequestedAt = null;
+  let navigatedAt = Date.now();
   await page.route('**/*', (route) => {
     const url = route.request().url();
     if (!url.startsWith(`http://127.0.0.1:${port}/`)) return route.abort();
+    if (screenerRequestedAt == null && /\/public-data\/screener\.json/.test(url)) screenerRequestedAt = Date.now() - navigatedAt;
     if (refuse && /\/public-data\/(history|data)\.json/.test(url)) return route.abort('failed');
     return route.continue();
   });
+  navigatedAt = Date.now();
   await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.waitForFunction(() => typeof window.showPage === 'function', { timeout: 30000 });
   const notice = await page.waitForSelector('#aio-load-failure .aio-state__retry', { timeout: 20000 }).then(() => true).catch(() => false);
+  for (let waited = 0; screenerRequestedAt == null && waited < 12000; waited += 250) await page.waitForTimeout(250);
+  const screenerReadPrompt = screenerRequestedAt != null && screenerRequestedAt < 12000;
   const failed = await page.evaluate(() => ({
     line: document.querySelector('#aio-load-failure .aio-state__text')?.textContent || '',
     hero: document.getElementById('home-hero-headline')?.textContent?.trim() || '',
@@ -80,8 +88,8 @@ async function runCoreFileFailure(browser) {
   await page.click('#aio-load-failure .aio-state__retry');
   const cleared = await page.waitForFunction(() => !document.getElementById('aio-load-failure'), { timeout: 20000 }).then(() => true).catch(() => false);
   await page.close();
-  const ok = notice && /받지 못했습니다/.test(failed.line) && failed.hero !== '종가 기록을 불러오는 중입니다.' && failed.regime === '종가 기록을 받지 못했습니다.' && cleared;
-  return { run: 'core-file-failure', ok, notice, failed, cleared };
+  const ok = notice && /받지 못했습니다/.test(failed.line) && failed.hero !== '종가 기록을 불러오는 중입니다.' && failed.regime === '종가 기록을 받지 못했습니다.' && cleared && screenerReadPrompt;
+  return { run: 'core-file-failure', ok, notice, failed, cleared, screenerRequestedAt, screenerReadPrompt };
 }
 
 // v59.70 (ui-states): an empty answer (history.json [] and data.json {}) is the empty state, not an error and not 불러오는 중.

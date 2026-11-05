@@ -1,0 +1,23 @@
+{
+  "p": {
+    "title": "A failed history.json or data.json held the screener read until the critical-data gate's 20 s fallback",
+    "symptom": "With history.json and data.json refused, the stock-row tables on the non-rows-first screens kept the loading state; the screener.json request went out only at 14.0 s (SA-02 fixture), when the gate's fallback fired.",
+    "root_cause": "createCriticalDataGate in bootstrap opened only when both core artifacts had loaded (_serverDataMeta and history present) and listened only to aio:serverDataLoaded / aio:historyLoaded. A failed or empty read never satisfied it, so the queued screener read waited for the fallback.",
+    "fix": "critical-data-gate.js coreReadsSettled: a core read counts as settled when it loaded or its load state is ready/failed/empty. bootstrap's gate uses it and also listens to aio:serverDataFailed / aio:historyFailed, so a failure opens the gate at once.",
+    "violated_rule": "A wait on another file must end when that file's read settles, failed or not, not only when it succeeds",
+    "prevention": "ci-esm-core-unit-check: coreReadsSettled cases and the bootstrap gate wiring (fails on the old code: export missing). ci-sa-02-outage-browser-fixture core-file-failure run: screener.json must be requested within 12 s of navigation with history/data refused (old code 14.0 s fails, new 3.2 s).",
+    "verification": "node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-sa-02-outage-browser-fixture.mjs (ok; the same fixture with HEAD 66fa81f6 bootstrap.js and critical-data-gate.js fails with screenerRequestedAt 13969)."
+  },
+  "changelog": [
+    "**A failed core file no longer delays the stock rows (v59.70, {P}):** when history.json or data.json fails, the screener read starts at once (3.2 s in the outage fixture) instead of waiting for the 20 s fallback (14.0 s)."
+  ],
+  "qa": [
+    {
+      "id": "QA-DATA-CORE-FAIL-SETTLES",
+      "text": "v59.70: with history.json and data.json refused, screener.json is requested within 12 s of navigation and the shell failure line still shows; coreReadsSettled treats failed/empty as settled",
+      "verify_by": "node scripts/ci-sa-02-outage-browser-fixture.mjs"
+    }
+  ],
+  "qa_section": "Data load failure states (v59.70)",
+  "note": "2nd batch A item (4). Measured, not assumed: on the 테마 route with only screener*.json refused, the old code already drew '스크리너 수익률을 받지 못했습니다' at 2.6 s (another event redrew it), so a store-slice change for the screener failure was tried and dropped as unconfirmed. Pages that draw a history/data failed state still redraw only on their *Loaded events or the renderDataState 20 s timeout (charts, analysis, market, portfolio, themes, screener, sentiment): a per-page failed-event hookup is a follow-up for the owning bundles."
+}

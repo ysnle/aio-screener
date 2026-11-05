@@ -499,7 +499,7 @@ for (const [groupName, group] of Object.entries(manifest.groups || {})) {
     const source = read(gate.script);
     const ownsLocalServer = gate.usesLocalServer !== false;
     if (gate.usesLocalServer === false) check(`${groupName}/${gate.id} is a serverless DOM fixture`, source.includes('.setContent(') && !/start-local-node|createServer\(/.test(source));
-    check(`${groupName}/${gate.id} takes its server port from the OS`, !ownsLocalServer || /freePort\(\)|startLocalServer\(0\b/.test(source));
+    check(`v59.70 ${groupName}/${gate.id} takes its server port from the OS`, !ownsLocalServer || /freePort\(\)|startLocalServer\(0\b/.test(source));
   }
 }
 
