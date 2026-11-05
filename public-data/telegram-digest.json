@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-05T00:51:49.749Z",
-  "attemptedAt": "2026-11-05T00:51:49.749Z",
-  "lastSuccessfulAt": "2026-11-05T00:51:49.749Z",
+  "generatedAt": "2026-11-05T01:21:56.694Z",
+  "attemptedAt": "2026-11-05T01:21:56.694Z",
+  "lastSuccessfulAt": "2026-11-05T01:21:56.694Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-22T00:51:43.293Z",
-  "until": "2026-11-05T00:51:43.293Z",
+  "since": "2026-10-22T01:21:51.042Z",
+  "until": "2026-11-05T01:21:51.042Z",
   "current24hWindow": {
     "start": "2026-11-03T23:00:00.000Z",
     "end": "2026-11-04T23:00:00.000Z",
@@ -80,21 +80,21 @@
       "pages": 0,
       "reachedOlder": false,
       "reachedKnown": false,
-      "count": 79,
+      "count": 78,
       "freshCount": 0,
-      "eligibleTextCount": 75,
+      "eligibleTextCount": 74,
       "selectedCount": 41,
       "error": "first page parsed no posts",
       "lastPostId": 26057
     },
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1360,
-      "freshCount": 38,
-      "eligibleTextCount": 1294,
+      "count": 1353,
+      "freshCount": 20,
+      "eligibleTextCount": 1287,
       "selectedCount": 123,
       "error": null,
       "lastPostId": 68407
@@ -116,63 +116,63 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 681,
+      "count": 679,
       "freshCount": 40,
-      "eligibleTextCount": 680,
+      "eligibleTextCount": 678,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 71570
+      "lastPostId": 71571
     }
   ],
-  "count": 2352,
-  "retainedItemCount": 472,
+  "count": 2342,
+  "retainedItemCount": 459,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2352,
-    "eligibleTextCount": 2281,
+    "observedCount": 2342,
+    "eligibleTextCount": 2271,
     "mediaOnlyCount": 71,
-    "mediaAttachedCount": 336,
-    "photoPostCount": 290,
+    "mediaAttachedCount": 337,
+    "photoPostCount": 291,
     "documentPostCount": 1,
     "imageOnlyCount": 1,
-    "highSignalCount": 412,
-    "broadSignalCount": 898,
+    "highSignalCount": 406,
+    "broadSignalCount": 889,
     "selectedRawCount": 410,
     "selectedEligibleCount": 410,
-    "selectedRawCoveragePct": 18,
-    "selectedOfObservedPct": 17.4,
+    "selectedRawCoveragePct": 18.1,
+    "selectedOfObservedPct": 17.5,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 862,
-    "earnings": 451,
+    "macro": 352,
+    "market-note": 860,
+    "earnings": 446,
     "flows": 68,
-    "semi": 495,
-    "power": 264,
-    "equity": 146,
-    "credit": 102,
-    "macro": 356,
+    "semi": 491,
+    "power": 261,
+    "equity": 143,
+    "credit": 100,
     "media-only": 71,
-    "ai-policy": 114,
+    "ai-policy": 112,
     "geo": 440,
-    "kr-market": 123,
-    "healthcare": 87,
+    "kr-market": 122,
+    "healthcare": 83,
     "optical": 39,
     "japan": 86,
     "crypto": 4
   },
   "tickerCounts": {
     "AMD": 49,
-    "MU": 37,
+    "MU": 36,
     "TSM": 39,
     "005930.KS": 48,
     "000660.KS": 76,
     "NVDA": 116,
-    "TSLA": 42,
-    "GOOG": 124,
+    "TSLA": 41,
+    "GOOG": 123,
     "AMZN": 78,
     "MSFT": 58,
     "ARM": 1,
@@ -220,7 +220,7 @@
     "009150.KS": 12,
     "000990.KS": 1,
     "6981.T": 3,
-    "META": 8,
+    "META": 7,
     "017670.KS": 4,
     "BX": 1,
     "LLY": 2,
@@ -269,19 +269,19 @@
     "PINS": 1
   },
   "themes": [
-    "Market Notes (862 posts in 14-day research window): 2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,...",
-    "Semiconductors/Memory (495 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
-    "Earnings/Corporate (451 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
+    "Market Notes (860 posts in 14-day research window): 2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,...",
+    "Semiconductors/Memory (491 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
+    "Earnings/Corporate (446 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
     "Geopolitics (440 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
-    "Macro/Rates (356 posts in 14-day research window): 2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,...",
-    "AI Power/Grid (264 posts in 14-day research window): 시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준....",
-    "Equity/Analyst (146 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p....",
-    "Korea Market (123 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
+    "Macro/Rates (352 posts in 14-day research window): 2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,...",
+    "AI Power/Grid (261 posts in 14-day research window): 시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준....",
+    "Equity/Analyst (143 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p....",
+    "Korea Market (122 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
   ],
   "catalysts": [
     {
       "key": "GOOG",
-      "count": 124,
+      "count": 123,
       "text": "2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,..."
     },
     {
@@ -316,7 +316,7 @@
     },
     {
       "key": "TSLA",
-      "count": 42,
+      "count": 41,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로..."
     },
     {
@@ -326,7 +326,7 @@
     },
     {
       "key": "MU",
-      "count": 37,
+      "count": 36,
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
@@ -347,7 +347,7 @@
       "topics": [
         "macro"
       ],
-      "count": 356,
+      "count": 352,
       "focus": "2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,..."
     },
     {
@@ -365,7 +365,7 @@
       "topics": [
         "credit"
       ],
-      "count": 102,
+      "count": 100,
       "focus": "11월 04일 미주인 브리핑 • 나스닥 0.83% 상승 · 엔비디아 시총 5조 달러 회복 • AMD 데이터센터 매출 97% 급증 · 시간 외 6% 상승 • 메타 대규모 회사채 발행 추진 · AI 투자 확대 •..."
     },
     {
@@ -374,7 +374,7 @@
       "topics": [
         "semi"
       ],
-      "count": 495,
+      "count": 491,
       "focus": "2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A..."
     },
     {
@@ -392,7 +392,7 @@
       "topics": [
         "power"
       ],
-      "count": 264,
+      "count": 261,
       "focus": "시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준...."
     },
     {
@@ -401,7 +401,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 114,
+      "count": 112,
       "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
@@ -410,7 +410,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 123,
+      "count": 122,
       "focus": "SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
     },
     {
@@ -419,7 +419,7 @@
       "topics": [
         "equity"
       ],
-      "count": 146,
+      "count": 143,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p...."
     },
     {
@@ -437,7 +437,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 451,
+      "count": 446,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -446,7 +446,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 87,
+      "count": 83,
       "focus": ">>미중 상호 기술 수출통제 강화, 글로벌 기술 질서 재편 가속화 (대만공상시보) •중국 상무부와 과기부는 10월 AI·바이오·태양광 등 40개 기술을 수출통제 목록에 추가하는 개정안 발표. 이중 14개는..."
     },
     {
@@ -482,7 +482,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 862,
+      "count": 860,
       "focus": "2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,..."
     }
   ],
@@ -1945,11 +1945,11 @@
       "tags": [
         "geo"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": "이란 지도부가 트럼프 대통령과 미국을 향해 잇따라 조롱성 발언을 내놓음. • 이란 최고지도자 모즈타바 하메네이: “미국의 붕괴 과정이 가속화되고 있습니다.” • 이란 최고국가안보회의 사무총장 모흐센 레자이..."
+      "summary": "이란 지도부가 트럼프 대통령과 미국을 향해 잇따라 조롱성 발언을 내놓음. • 이란 최고지도자 모즈타바 하메네이: “미국의 붕괴 과정이 가속화되고 있습니다.” • 이란 최고국가안보회의 사무총장 모흐센 레자이...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68369",
@@ -1958,11 +1958,11 @@
       "datetime": "2026-11-04T21:22:53.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "equity",
-        "healthcare"
+        "market-note"
       ],
       "score": 60,
       "hasText": true,
+      "summary": "52주 신고가 (시총 $1B 이상) 금융 · AerCap Holdings · AGNC Investment · Arch Capital Group · Arthur J. Gallagher & Co. ·...",
       "tickers": [],
       "listTickers": [
         "AAPL",
@@ -1985,8 +1985,7 @@
         "CTAS",
         "MCK",
         "ECL"
-      ],
-      "summary": "52주 신고가 (시총 $1B 이상) 금융 · AerCap Holdings · AGNC Investment · Arch Capital Group · Arthur J. Gallagher & Co. ·..."
+      ]
     },
     {
       "id": "insidertracking/68366",
@@ -1995,14 +1994,13 @@
       "datetime": "2026-11-04T21:17:03.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "macro",
         "kr-market",
         "earnings"
       ],
       "score": 65,
       "hasText": true,
-      "tickers": [],
-      "summary": "맥도날드(MCD) Q3 2026 어닝콜 요약 > 긍정 요인: • 글로벌 매출 성장 및 높은 수익성 유지. 3분기 글로벌 동일매장 매출은 전년 대비 1.5%, 전체 시스템 매출은 고정환율 기준 4% 증가. 조정..."
+      "summary": "맥도날드(MCD) Q3 2026 어닝콜 요약 > 긍정 요인: • 글로벌 매출 성장 및 높은 수익성 유지. 3분기 글로벌 동일매장 매출은 전년 대비 1.5%, 전체 시스템 매출은 고정환율 기준 4% 증가. 조정...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68364",
@@ -2013,7 +2011,6 @@
       "tags": [
         "earnings"
       ],
-      "lead": 1,
       "score": 59,
       "hasText": true,
       "media": {
@@ -2022,10 +2019,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "Arm Holdings 2027 회계연도 2분기 실적 요약 실적 • 로열티 매출 $7.73억, 예상 $7.07억 상회 • 라이선스 및 기타 매출 $7.73억, 예상 $6.68억 상회 • 연환산...",
       "tickers": [
         "ARM"
-      ],
-      "summary": "Arm Holdings 2027 회계연도 2분기 실적 요약 실적 • 로열티 매출 $7.73억, 예상 $7.07억 상회 • 라이선스 및 기타 매출 $7.73억, 예상 $6.68억 상회 • 연환산..."
+      ]
     },
     {
       "id": "insidertracking/68363",
@@ -2882,11 +2879,8 @@
       "datetime": "2026-11-04T04:17:36.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "semi",
-        "geo",
-        "healthcare"
+        "semi"
       ],
-      "lead": 1,
       "score": 75,
       "hasText": true,
       "media": {
@@ -2895,11 +2889,12 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "• 알리바바·텐센트·바이트댄스 등 중국 빅테크들이 주문한 엔비디아 'RTX Pro 5500'은 약 600만 대(총 700억 달러 이상)에 달하지만, 향후 4개월간 실제 인도받을 물량은 수만 대(전체의 약...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "TSM"
-      ],
-      "summary": "• 알리바바·텐센트·바이트댄스 등 중국 빅테크들이 주문한 엔비디아 'RTX Pro 5500'은 약 600만 대(총 700억 달러 이상)에 달하지만, 향후 4개월간 실제 인도받을 물량은 수만 대(전체의 약..."
+      ]
     },
     {
       "id": "insidertracking/68287",
@@ -9305,11 +9300,11 @@
       "tags": [
         "geo"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": "이란 지도부가 트럼프 대통령과 미국을 향해 잇따라 조롱성 발언을 내놓음. • 이란 최고지도자 모즈타바 하메네이: “미국의 붕괴 과정이 가속화되고 있습니다.” • 이란 최고국가안보회의 사무총장 모흐센 레자이..."
+      "summary": "이란 지도부가 트럼프 대통령과 미국을 향해 잇따라 조롱성 발언을 내놓음. • 이란 최고지도자 모즈타바 하메네이: “미국의 붕괴 과정이 가속화되고 있습니다.” • 이란 최고국가안보회의 사무총장 모흐센 레자이...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68369",
@@ -9318,11 +9313,11 @@
       "datetime": "2026-11-04T21:22:53.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "equity",
-        "healthcare"
+        "market-note"
       ],
       "score": 60,
       "hasText": true,
+      "summary": "52주 신고가 (시총 $1B 이상) 금융 · AerCap Holdings · AGNC Investment · Arch Capital Group · Arthur J. Gallagher & Co. ·...",
       "tickers": [],
       "listTickers": [
         "AAPL",
@@ -9345,8 +9340,7 @@
         "CTAS",
         "MCK",
         "ECL"
-      ],
-      "summary": "52주 신고가 (시총 $1B 이상) 금융 · AerCap Holdings · AGNC Investment · Arch Capital Group · Arthur J. Gallagher & Co. ·..."
+      ]
     },
     {
       "id": "insidertracking/68366",
@@ -9355,14 +9349,13 @@
       "datetime": "2026-11-04T21:17:03.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "macro",
         "kr-market",
         "earnings"
       ],
       "score": 65,
       "hasText": true,
-      "tickers": [],
-      "summary": "맥도날드(MCD) Q3 2026 어닝콜 요약 > 긍정 요인: • 글로벌 매출 성장 및 높은 수익성 유지. 3분기 글로벌 동일매장 매출은 전년 대비 1.5%, 전체 시스템 매출은 고정환율 기준 4% 증가. 조정..."
+      "summary": "맥도날드(MCD) Q3 2026 어닝콜 요약 > 긍정 요인: • 글로벌 매출 성장 및 높은 수익성 유지. 3분기 글로벌 동일매장 매출은 전년 대비 1.5%, 전체 시스템 매출은 고정환율 기준 4% 증가. 조정...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68364",
@@ -9373,7 +9366,6 @@
       "tags": [
         "earnings"
       ],
-      "lead": 1,
       "score": 59,
       "hasText": true,
       "media": {
@@ -9382,10 +9374,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "Arm Holdings 2027 회계연도 2분기 실적 요약 실적 • 로열티 매출 $7.73억, 예상 $7.07억 상회 • 라이선스 및 기타 매출 $7.73억, 예상 $6.68억 상회 • 연환산...",
       "tickers": [
         "ARM"
-      ],
-      "summary": "Arm Holdings 2027 회계연도 2분기 실적 요약 실적 • 로열티 매출 $7.73억, 예상 $7.07억 상회 • 라이선스 및 기타 매출 $7.73억, 예상 $6.68억 상회 • 연환산..."
+      ]
     },
     {
       "id": "insidertracking/68363",
@@ -10242,11 +10234,8 @@
       "datetime": "2026-11-04T04:17:36.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "semi",
-        "geo",
-        "healthcare"
+        "semi"
       ],
-      "lead": 1,
       "score": 75,
       "hasText": true,
       "media": {
@@ -10255,11 +10244,12 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "• 알리바바·텐센트·바이트댄스 등 중국 빅테크들이 주문한 엔비디아 'RTX Pro 5500'은 약 600만 대(총 700억 달러 이상)에 달하지만, 향후 4개월간 실제 인도받을 물량은 수만 대(전체의 약...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "TSM"
-      ],
-      "summary": "• 알리바바·텐센트·바이트댄스 등 중국 빅테크들이 주문한 엔비디아 'RTX Pro 5500'은 약 600만 대(총 700억 달러 이상)에 달하지만, 향후 4개월간 실제 인도받을 물량은 수만 대(전체의 약..."
+      ]
     },
     {
       "id": "insidertracking/68287",
