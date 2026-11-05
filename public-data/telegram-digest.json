@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-05T08:51:40.278Z",
-  "attemptedAt": "2026-11-05T08:51:40.278Z",
-  "lastSuccessfulAt": "2026-11-05T08:51:40.278Z",
+  "generatedAt": "2026-11-05T09:21:35.485Z",
+  "attemptedAt": "2026-11-05T09:21:35.485Z",
+  "lastSuccessfulAt": "2026-11-05T09:21:35.485Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-22T08:51:33.978Z",
-  "until": "2026-11-05T08:51:33.978Z",
+  "since": "2026-10-22T09:21:29.144Z",
+  "until": "2026-11-05T09:21:29.144Z",
   "current24hWindow": {
     "start": "2026-11-03T23:00:00.000Z",
     "end": "2026-11-04T23:00:00.000Z",
@@ -80,91 +80,93 @@
       "pages": 0,
       "reachedOlder": false,
       "reachedKnown": false,
-      "count": 73,
+      "count": 72,
       "freshCount": 0,
-      "eligibleTextCount": 69,
+      "eligibleTextCount": 68,
       "selectedCount": 40,
       "error": "first page parsed no posts",
       "lastPostId": 26057
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1354,
-      "freshCount": 18,
-      "eligibleTextCount": 1289,
+      "count": 1357,
+      "freshCount": 38,
+      "eligibleTextCount": 1292,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 68436
+      "lastPostId": 68439
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 241,
+      "count": 242,
       "freshCount": 40,
-      "eligibleTextCount": 241,
+      "eligibleTextCount": 242,
       "selectedCount": 124,
       "error": null,
-      "lastPostId": 21016
+      "lastPostId": 21017
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 672,
+      "count": 671,
       "freshCount": 40,
-      "eligibleTextCount": 671,
+      "eligibleTextCount": 670,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 71591
+      "lastPostId": 71592
     }
   ],
-  "count": 2340,
-  "retainedItemCount": 465,
+  "count": 2342,
+  "retainedItemCount": 482,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2340,
-    "eligibleTextCount": 2270,
+    "observedCount": 2342,
+    "eligibleTextCount": 2272,
     "mediaOnlyCount": 70,
-    "mediaAttachedCount": 357,
-    "photoPostCount": 310,
+    "mediaAttachedCount": 360,
+    "photoPostCount": 313,
     "documentPostCount": 1,
     "imageOnlyCount": 1,
-    "highSignalCount": 412,
+    "highSignalCount": 414,
     "broadSignalCount": 886,
     "selectedRawCount": 410,
     "selectedEligibleCount": 410,
-    "selectedRawCoveragePct": 18.1,
+    "selectedRawCoveragePct": 18,
     "selectedOfObservedPct": 17.5,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
     "semi": 496,
-    "credit": 100,
-    "power": 268,
-    "healthcare": 82,
-    "earnings": 443,
+    "kr-market": 122,
+    "market-note": 853,
+    "credit": 101,
+    "ai-policy": 112,
+    "equity": 140,
     "macro": 352,
-    "kr-market": 121,
-    "market-note": 852,
     "geo": 445,
+    "power": 269,
+    "healthcare": 82,
+    "earnings": 442,
     "flows": 68,
     "japan": 87,
-    "equity": 139,
-    "ai-policy": 110,
     "optical": 38,
     "media-only": 70,
     "crypto": 4
   },
   "tickerCounts": {
+    "MU": 34,
+    "MSFT": 58,
     "BCS": 2,
     "TSM": 38,
     "2454.TW": 4,
@@ -176,10 +178,8 @@
     "AMZN": 77,
     "NVDA": 112,
     "AMD": 48,
-    "MU": 34,
-    "TSLA": 34,
+    "TSLA": 33,
     "GOOG": 120,
-    "MSFT": 57,
     "ARM": 1,
     "QCOM": 1,
     "AAPL": 21,
@@ -270,14 +270,14 @@
     "PINS": 1
   },
   "themes": [
-    "Market Notes (852 posts in 14-day research window): 2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,...",
+    "Market Notes (853 posts in 14-day research window): 2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,...",
     "Semiconductors/Memory (496 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
     "Geopolitics (445 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
-    "Earnings/Corporate (443 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
+    "Earnings/Corporate (442 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
     "Macro/Rates (352 posts in 14-day research window): 2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,...",
-    "AI Power/Grid (268 posts in 14-day research window): 시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준....",
-    "Equity/Analyst (139 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p....",
-    "Korea Market (121 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
+    "AI Power/Grid (269 posts in 14-day research window): 시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준....",
+    "Equity/Analyst (140 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p....",
+    "Korea Market (122 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
   ],
   "catalysts": [
     {
@@ -302,7 +302,7 @@
     },
     {
       "key": "MSFT",
-      "count": 57,
+      "count": 58,
       "text": "AMD 2026년 3분기 실적 요약 실적 • 매출 $133.77억, YoY +45%, QoQ +16%, 분기 사상 최고 • GAAP 매출총이익 $72.10억, YoY +51%, QoQ +16% • GAAP..."
     },
     {
@@ -327,7 +327,7 @@
     },
     {
       "key": "TSLA",
-      "count": 34,
+      "count": 33,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로..."
     },
     {
@@ -366,7 +366,7 @@
       "topics": [
         "credit"
       ],
-      "count": 100,
+      "count": 101,
       "focus": "2026년 11월 5일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심의 매도 압력이 확대되며 혼조세. 한국시간 오후 1시 55분 기준 나스닥100 선물은 1.08% 하락, S&P500 선물은 0.20% 하락한 반면 다우 선물은 0.33% 상승. VIX 지수는 17.98로 1.34% 상승. AI 관련..."
     },
     {
@@ -385,7 +385,7 @@
         "optical"
       ],
       "count": 38,
-      "focus": "StoneX, 루멘텀( $LITE ), 매수 의견으로 커버리지 개시 , 목표주가 $1,200 NPO 수요 가속화 * 루멘텀의 NPO 사업 모멘텀이 강화되면서 2028 회계연도 투자 전망이 앞당겨지고 있음. *..."
+      "focus": "코히런트(COHR) Q1 2027 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 수익성 개선. 1분기 매출은 23억7,000만달러로 프로포마 기준 전년 대비 56%, 전분기 대비 16% 증가. 비GAAP EPS는 2.09달러로 전년 대비 80% 급증하며 강력한 실적 성장 달성. • 대규모 수주잔고 및 장기..."
     },
     {
       "id": "power",
@@ -393,7 +393,7 @@
       "topics": [
         "power"
       ],
-      "count": 268,
+      "count": 269,
       "focus": "시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준...."
     },
     {
@@ -402,7 +402,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 110,
+      "count": 112,
       "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
@@ -411,7 +411,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 121,
+      "count": 122,
       "focus": "SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
     },
     {
@@ -420,7 +420,7 @@
       "topics": [
         "equity"
       ],
-      "count": 139,
+      "count": 140,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p...."
     },
     {
@@ -438,7 +438,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 443,
+      "count": 442,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -483,7 +483,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 852,
+      "count": 853,
       "focus": "2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,..."
     }
   ],
@@ -1782,6 +1782,64 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/68439",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68439",
+      "datetime": "2026-11-05T09:20:53.000Z",
+      "localDateKst": "2026-11-05",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 51,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "MU"
+      ],
+      "summary": "블룸버그에 따르면 미국 반도체 기업 마이크론이 대만 타오위안에 건설 중인 메모리 반도체 공장의 공사를 장기화된 노사 분쟁으로 인해 대부분 중단한 것으로 알려짐. 마이크론은 현지 노동조합과의 합의 여부를 둘러싼..."
+    },
+    {
+      "id": "HANAchina/71592",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71592",
+      "datetime": "2026-11-05T09:09:43.000Z",
+      "localDateKst": "2026-11-05",
+      "tags": [
+        "credit",
+        "ai-policy",
+        "equity"
+      ],
+      "score": 71,
+      "hasText": true,
+      "tickers": [
+        "MSFT"
+      ],
+      "summary": ">>Microsoft, Nscale 계약 잇따라 철회: 영국 30억달러 계약 이어 텍사스 증설 주문도 취소 •영국 AI 스타트업 Nscale이 IPO를 앞두고 Microsoft의 계약 철회로 다시 타격을..."
+    },
+    {
+      "id": "bornlupin/21017",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21017",
+      "datetime": "2026-11-05T08:58:08.000Z",
+      "localDateKst": "2026-11-05",
+      "tags": [
+        "macro",
+        "geo",
+        "power",
+        "ai-policy"
+      ],
+      "score": 93,
+      "hasText": true,
+      "tickers": [],
+      "summary": "모건스탠리, 민주당의 중간선거 압승이 금융시장에 미칠 영향 민주당의 미국 중간선거 압승은 재정정책의 변화와 AI 인프라 투자에 대한 규제 강화를 초래할 수 있지만, 모건스탠리는 미국 경제와 주식시장에 대한..."
+    },
+    {
       "id": "bornlupin/21015",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21015",
@@ -2066,16 +2124,18 @@
       "datetime": "2026-11-05T02:41:01.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "earnings",
-        "optical"
+        "optical",
+        "credit",
+        "power",
+        "earnings"
       ],
+      "lead": 1,
       "score": 87,
       "hasText": true,
-      "summary": "코히런트(COHR) Q1 2027 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 수익성 개선. 1분기 매출은 23억7,000만달러로 프로포마 기준 전년 대비 56%, 전분기 대비 16% 증가. 비GAAP...",
-      "lead": 2,
       "tickers": [
         "COHR"
-      ]
+      ],
+      "summary": "코히런트(COHR) Q1 2027 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 수익성 개선. 1분기 매출은 23억7,000만달러로 프로포마 기준 전년 대비 56%, 전분기 대비 16% 증가. 비GAAP..."
     },
     {
       "id": "insidertracking/68413",
@@ -2084,15 +2144,17 @@
       "datetime": "2026-11-05T02:39:15.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
+        "semi",
+        "power",
+        "equity",
         "earnings"
       ],
       "score": 69,
       "hasText": true,
-      "summary": "퀄컴(QCOM) Q4 2026 어닝콜 요약 긍정 요인: • 견조한 실적 및 가이던스 달성. 4분기 비GAAP 매출은 104억달러, EPS는 2.17달러 기록. QCT 매출은 90억달러로 모두 가이던스 상단에...",
-      "lead": 1,
       "tickers": [
         "AMZN"
-      ]
+      ],
+      "summary": "퀄컴(QCOM) Q4 2026 어닝콜 요약 긍정 요인: • 견조한 실적 및 가이던스 달성. 4분기 비GAAP 매출은 104억달러, EPS는 2.17달러 기록. QCT 매출은 90억달러로 모두 가이던스 상단에..."
     },
     {
       "id": "bornlupin/21008",
@@ -2227,6 +2289,7 @@
         "macro",
         "semi"
       ],
+      "lead": 2,
       "score": 79,
       "hasText": true,
       "media": {
@@ -2235,14 +2298,14 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 레딧 관심도 마이크론, 구글, AMD, 유가, 애플, 테슬라, 엔비디아",
       "tickers": [
         "NVDA",
         "AMD",
         "TSLA",
         "GOOG",
         "MU"
-      ]
+      ],
+      "summary": "미국 레딧 관심도 마이크론, 구글, AMD, 유가, 애플, 테슬라, 엔비디아"
     },
     {
       "id": "HANAchina/71566",
@@ -2916,13 +2979,12 @@
       "datetime": "2026-11-04T11:37:41.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "macro",
-        "geo"
+        "market-note"
       ],
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>트럼프가 유권자들에게 참패한 이유는? 공화당 전략가의 한마디가 원인 지적 (대만경제일보) •유권자들은 이번 중간선거를 트럼프 2기 정책에 대한 국민투표로 받아들였으며, 민주당의 압승과 의회 장악으로..."
+      "summary": ">>트럼프가 유권자들에게 참패한 이유는? 공화당 전략가의 한마디가 원인 지적 (대만경제일보) •유권자들은 이번 중간선거를 트럼프 2기 정책에 대한 국민투표로 받아들였으며, 민주당의 압승과 의회 장악으로...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71544",
@@ -7219,28 +7281,6 @@
       ]
     },
     {
-      "id": "insidertracking/67961",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67961",
-      "datetime": "2026-10-31T22:45:37.000Z",
-      "localDateKst": "2026-11-01",
-      "tags": [
-        "market-note"
-      ],
-      "score": 56,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "메타가 중국 스타트업 푸리에(Fourier)와 협력해 가정용 휴머노이드 로봇 시제품을 비공개 개발했으며, 현재 두 번째 버전 개발을 진행 중. 디인포메이션은 프로젝트 관계자들을 인용해 메타가 인공지능을...",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
       "id": "HANAchina/71303",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71303",
@@ -7724,20 +7764,6 @@
       "tickers": [
         "AMD"
       ]
-    },
-    {
-      "id": "HANAchina/71261",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71261",
-      "datetime": "2026-10-30T06:48:51.000Z",
-      "localDateKst": "2026-10-30",
-      "tags": [
-        "market-note"
-      ],
-      "score": 69,
-      "hasText": true,
-      "summary": "하나증권 중국/신흥국전략 김경환(T.02-3771-7616) *텔레그램 채널 : [2027년 중국 주식시장 전망] 중국, 축소와 수렴의 기회 자료: [2027년 숙제] 성장 간극과 신용 축소 완화, 주체별...",
-      "tickers": []
     },
     {
       "id": "bornlupin/20893",
@@ -8826,24 +8852,6 @@
       "tickers": [
         "BE"
       ]
-    },
-    {
-      "id": "bornlupin/20816",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20816",
-      "datetime": "2026-10-26T00:11:56.000Z",
-      "localDateKst": "2026-10-26",
-      "tags": [
-        "earnings",
-        "power",
-        "credit",
-        "semi"
-      ],
-      "score": 77,
-      "hasText": true,
-      "summary": "일론 머스크 지난 몇 주 동안 채권시장은 AI 데이터센터 사업 이외에 상당한 규모의 독립적인 매출원이 없는 기업들에 대해 자금조달의 문을 사실상 거의 닫아버렸습니다. 스페이스X는 GPU 확보를 위해 400억...",
-      "lead": 3,
-      "tickers": []
     },
     {
       "id": "aetherjapanresearch/26035",
@@ -9937,13 +9945,12 @@
       "datetime": "2026-11-04T11:37:41.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "macro",
-        "geo"
+        "market-note"
       ],
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>트럼프가 유권자들에게 참패한 이유는? 공화당 전략가의 한마디가 원인 지적 (대만경제일보) •유권자들은 이번 중간선거를 트럼프 2기 정책에 대한 국민투표로 받아들였으며, 민주당의 압승과 의회 장악으로..."
+      "summary": ">>트럼프가 유권자들에게 참패한 이유는? 공화당 전략가의 한마디가 원인 지적 (대만경제일보) •유권자들은 이번 중간선거를 트럼프 2기 정책에 대한 국민투표로 받아들였으며, 민주당의 압승과 의회 장악으로...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71544",
