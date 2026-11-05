@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-05T12:21:59.370Z",
-  "attemptedAt": "2026-11-05T12:21:59.370Z",
-  "lastSuccessfulAt": "2026-11-05T12:21:59.370Z",
+  "generatedAt": "2026-11-05T12:51:37.076Z",
+  "attemptedAt": "2026-11-05T12:51:37.076Z",
+  "lastSuccessfulAt": "2026-11-05T12:51:37.076Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-22T12:21:52.422Z",
-  "until": "2026-11-05T12:21:52.422Z",
+  "since": "2026-10-22T12:51:30.299Z",
+  "until": "2026-11-05T12:51:30.299Z",
   "current24hWindow": {
     "start": "2026-11-03T23:00:00.000Z",
     "end": "2026-11-04T23:00:00.000Z",
@@ -92,12 +92,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1356,
+      "count": 1355,
       "freshCount": 38,
-      "eligibleTextCount": 1292,
+      "eligibleTextCount": 1291,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 68457
+      "lastPostId": 68459
     },
     {
       "channel": "bornlupin",
@@ -121,25 +121,25 @@
       "eligibleTextCount": 681,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 71603
+      "lastPostId": 71605
     }
   ],
-  "count": 2342,
-  "retainedItemCount": 470,
+  "count": 2341,
+  "retainedItemCount": 465,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2342,
-    "eligibleTextCount": 2273,
+    "observedCount": 2341,
+    "eligibleTextCount": 2272,
     "mediaOnlyCount": 69,
-    "mediaAttachedCount": 373,
-    "photoPostCount": 324,
+    "mediaAttachedCount": 374,
+    "photoPostCount": 325,
     "documentPostCount": 1,
     "imageOnlyCount": 1,
-    "highSignalCount": 408,
-    "broadSignalCount": 881,
+    "highSignalCount": 407,
+    "broadSignalCount": 879,
     "selectedRawCount": 405,
     "selectedEligibleCount": 405,
     "selectedRawCoveragePct": 17.8,
@@ -147,16 +147,16 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 853,
-    "macro": 358,
-    "semi": 492,
+    "market-note": 855,
+    "macro": 357,
+    "semi": 493,
+    "power": 269,
     "optical": 39,
-    "power": 268,
-    "geo": 448,
+    "geo": 446,
     "credit": 99,
     "kr-market": 121,
     "flows": 69,
-    "earnings": 435,
+    "earnings": 432,
     "japan": 85,
     "ai-policy": 111,
     "equity": 133,
@@ -190,7 +190,7 @@
     "MRVL": 15,
     "MPWR": 1,
     "GFS": 1,
-    "BE": 25,
+    "BE": 24,
     "CVS": 1,
     "INTC": 8,
     "SMCI": 6,
@@ -269,12 +269,12 @@
     "SPOT": 1
   },
   "themes": [
-    "Market Notes (853 posts in 14-day research window): 2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,...",
-    "Semiconductors/Memory (492 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
-    "Geopolitics (448 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
-    "Earnings/Corporate (435 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
-    "Macro/Rates (358 posts in 14-day research window): 2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,...",
-    "AI Power/Grid (268 posts in 14-day research window): 시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준....",
+    "Market Notes (855 posts in 14-day research window): 2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,...",
+    "Semiconductors/Memory (493 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
+    "Geopolitics (446 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
+    "Earnings/Corporate (432 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
+    "Macro/Rates (357 posts in 14-day research window): 2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,...",
+    "AI Power/Grid (269 posts in 14-day research window): 시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준....",
     "Equity/Analyst (133 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "Korea Market (121 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
   ],
@@ -336,7 +336,7 @@
     },
     {
       "key": "BE",
-      "count": 25,
+      "count": 24,
       "text": "민주당 블루웨이브와 AI 투자 1. 민주당이 연방 상원(52~54석)과 하원(약 250석), 그리고 텍사스 주지사까지 승리했지만, 미국 AI 투자가 정체될 가능성은 낮음 2. 미국의 AI 주도권 유지에는 양당의 공감대가 있으며 , 상원 60석 미달과 트럼프 대통령의 거부권 유지로 연방 차원의 데이터센터 건설..."
     }
   ],
@@ -347,7 +347,7 @@
       "topics": [
         "macro"
       ],
-      "count": 358,
+      "count": 357,
       "focus": "2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,..."
     },
     {
@@ -356,7 +356,7 @@
       "topics": [
         "geo"
       ],
-      "count": 448,
+      "count": 446,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격..."
     },
     {
@@ -374,7 +374,7 @@
       "topics": [
         "semi"
       ],
-      "count": 492,
+      "count": 493,
       "focus": "2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A..."
     },
     {
@@ -392,7 +392,7 @@
       "topics": [
         "power"
       ],
-      "count": 268,
+      "count": 269,
       "focus": "시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준...."
     },
     {
@@ -437,7 +437,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 435,
+      "count": 432,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -482,7 +482,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 853,
+      "count": 855,
       "focus": "2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,..."
     }
   ],
@@ -1789,6 +1789,21 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71604",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71604",
+      "datetime": "2026-11-05T12:27:48.000Z",
+      "localDateKst": "2026-11-05",
+      "tags": [
+        "semi",
+        "power"
+      ],
+      "score": 60,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>민주당은 AI에 반대하는가? (중국언론 칼럼) •2026년 미국 중간선거 이후 민주당 승리로 AI 산업과 데이터센터 투자가 타격을 받을 것이라는 우려가 나오고 있지만, 과거 사례와 실제 정책을 보면 민주당..."
+    },
+    {
       "id": "insidertracking/68456",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/68456",
@@ -1831,7 +1846,7 @@
       "score": 62,
       "hasText": true,
       "tickers": [],
-      "summary": "•영란은행, 8대1 표결로 기준금리 4%로 인상 •영란은행 위원 Mann은 반대 의견을 내고 기준금리를 50bp 인상해 4.25%로 올려야 한다고 주장 •영란은행의 기본 전망에 따르면 물가상승률은 2027년..."
+      "summary": "•영국 중앙은행, 8대1 표결로 기준금리 4%로 인상 •중앙은행 위원 Mann은 반대 의견을 내고 기준금리를 50bp 인상해 4.25%로 올려야 한다고 주장 •영국 중앙은행의 기본 전망에 따르면 물가상승률은..."
     },
     {
       "id": "insidertracking/68455",
@@ -2242,12 +2257,12 @@
       "datetime": "2026-11-05T03:24:20.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "geo"
+        "market-note"
       ],
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": "월스트리트저널에 따르면 예멘 후티 반군이 사우디아라비아에 휴전 협상 대가로 510억 달러를 요구했다는 보도. 11월 5일 보도에 따르면 후티 반군이 홍해에서 사우디아라비아 유조선을 공격하고 전략적 요충지인..."
+      "summary": "월스트리트저널에 따르면 예멘 후티 반군이 사우디아라비아에 휴전 협상 대가로 510억 달러를 요구했다는 보도. 11월 5일 보도에 따르면 후티 반군이 홍해에서 사우디아라비아 유조선을 공격하고 전략적 요충지인...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71582",
@@ -7728,21 +7743,6 @@
       "tickers": [
         "INTC"
       ]
-    },
-    {
-      "id": "HANAchina/71273",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71273",
-      "datetime": "2026-10-30T13:47:51.000Z",
-      "localDateKst": "2026-10-30",
-      "tags": [
-        "credit"
-      ],
-      "score": 89,
-      "hasText": true,
-      "summary": ">>BofA Hartnett: AI와 ABB의 모순 심화…기술주의 본격적인 부담 완화는 2027년 상반기 •BofA는 대형 클라우드 업체들의 회사채 발행이 급증하면서 ABB(Anything but...",
-      "lead": 1,
-      "tickers": []
     },
     {
       "id": "bornlupin/20898",
