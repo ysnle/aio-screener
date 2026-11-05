@@ -32,7 +32,7 @@ export function pageLine(page, interpretation) {
       if (!macroRead?.available) return '';
       const c = macroRead.counts || {};
       const label = macroRead.regime?.label || macroRead.regime?.name || '';
-      return `${label ? `${label}, ` : ''}증시에 주는 거시 6요인 양호 ${c.favorable ?? 0} · 중립 ${c.neutral ?? 0} · 부담 ${c.burden ?? 0}`;
+      return `${label ? `${label}, ` : ''}증시에 주는 매크로 6요인 양호 ${c.favorable ?? 0} · 중립 ${c.neutral ?? 0} · 부담 ${c.burden ?? 0}`;
     }
     case 'fxbond': return [axisLine(regime, 'rates'), axisLine(regime, 'korea')].filter(Boolean).join(' ');
     case 'themes': return flow?.available ? [flow.strongLine, flow.weakLine].filter(Boolean).join(', ') : firstSentence(interpretation?.outlook?.headline);

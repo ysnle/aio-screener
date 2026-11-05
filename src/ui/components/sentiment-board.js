@@ -66,7 +66,8 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   const bull = bear == null ? null : shown.bull;
   const judged = (value, state) => value == null ? (state === undefined ? null : EXCLUDED) : state;
   const fgBand = fearGreedBand(fg);
-  const fgChange = [[1, '전일'], [5, '5일'], [20, '20일']].map(([n, label]) => { const v = seriesChange(fgSeries.map((point) => ({ ...point, value: Math.round(point.value) })), n, '', 0); return v ? `${label} ${v}` : null; }).filter(Boolean).join(', ');
+  // v59.70 (screen review #13): '전일 0' read as a previous value of 0; the change says what it is measured against.
+  const fgChange = [[1, '전일'], [5, '5일 전'], [20, '20일 전']].map(([n, label]) => { const v = seriesChange(fgSeries.map((point) => ({ ...point, value: Math.round(point.value) })), n, '', 0); return v ? `${label} 대비 ${/^[+-]?0$/.test(v) ? '변화 없음' : v}` : null; }).filter(Boolean).join(', ');
   const cards = [
     { id: 'fg', title: '공포·탐욕 지수 (F&G)', value: shown.fg == null ? '—' : String(Math.round(shown.fg)), basis: alignmentLabel(alignments.fg), basisStatus: alignments.fg.status,
       state: shown.fg == null ? null : judged(fg, fgBand), series: fgSeries, refLines: [25, 50, 75], domain: [0, 100], format: (value) => value.toFixed(0),

@@ -369,8 +369,8 @@
 /* ═══ 9. Korea (5n) — labelled '한국', secondary to US; price moves use the Korean convention ═══
    up = --candle-up (#d23f35) · down = --candle-down (#2a64c8), the color-theme.js / chart-quality.css tokens. These are
    price directions only; verdict colours (green favourable / amber burden) never apply to them. */
-.kr-up { color: var(--candle-up, var(--red-11)) !important; }
-.kr-down { color: var(--candle-down, var(--blue-11)) !important; }
+.kr-up { color: var(--dir-up, var(--red-11)) !important; } /* v59.70 (#25): text takes the direction text colour, not the candle fill */
+.kr-down { color: var(--dir-down, var(--blue-11)) !important; }
 .kr-market-chip { margin-right: 8px; vertical-align: 2px; }
 .trend-card .kr-index-move { flex-basis: 100%; text-align: right; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text-secondary); }
 #kr-index-trends .trend-card-head { flex-wrap: wrap; }

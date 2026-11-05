@@ -10,13 +10,18 @@
 // (each item keeps its own category tag).
 export const GLOSSARY_GROUPS = [
   ['기초·회계', ['기초', '금융수학·통계', '회계·재무제표']],
-  ['거시·금리·외환', ['경제', '경제 기본', '거시·돈', '거시', '외환', '채권']],
+  ['매크로·금리·외환', ['경제', '경제 기본', '거시·돈', '거시', '외환', '채권']],
   ['시장·차트·전략', ['기술적분석', '기술', '전략', '시장·밸류에이션']],
   ['옵션', ['옵션']],
   ['한국', ['한국시장', '한국 기업·시장']],
   ['산업', ['은행', '보험', '부동산·리츠', '소비·유통', '소프트웨어·플랫폼', '바이오·의료', '에너지·화학·소재', '운송·물류', '농업·식품', '반도체·AI 인프라']],
   ['배경·심화', ['배경지식', '심화']]
 ];
+
+// v59.70 (screen review #36, owner: the screen and its labels are 매크로): the registry's own tags stay as data; the shown tag
+// uses the screen's name.
+const TAG_LABEL = { 거시: '매크로', '거시·돈': '매크로·돈' };
+export const glossaryTagLabel = (cat) => TAG_LABEL[cat] || cat;
 
 export function glossaryGroupOf(cat) {
   for (const [group, cats] of GLOSSARY_GROUPS) if (cats.includes(cat)) return group;
@@ -62,7 +67,7 @@ export function createGlossaryModal({ root = globalThis, documentRef = root.docu
     let html = `<details class="aio-glossary-item"${open ? ' open' : ''}>`;
     html += '<summary class="lu-gl-head">';
     html += `<span class="aio-glossary-term">${esc(entry.term)}</span>`;
-    html += `<span class="lu-gl-tag">${esc(entry.cat)}</span>`;
+    html += `<span class="lu-gl-tag">${esc(glossaryTagLabel(entry.cat))}</span>`;
     html += `<span class="lu-gl-first">${esc(lead)}</span>`;
     html += '</summary>';
     html += '<div class="lu-gl-def">';

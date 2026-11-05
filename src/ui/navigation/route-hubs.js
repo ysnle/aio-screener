@@ -110,10 +110,8 @@ export function renderHubTabs({ documentRef, routeId, root = globalThis }) {
   }
   nav.hidden = false;
   nav.dataset.hub = hub.id;
-  // First-users F08 (runs 1-4): the menu said 시장 상태 and the page said 국면 판정. A tab whose name differs from its screen's
-  // menu name carries that name above its title (soft-ui.css .page-title[data-hub-label]), so the two read as one place.
-  const title = documentRef.querySelector?.(`#page-${routeId} .page-title`);
-  if (title) { if (current && current.label !== hub.label && !String(title.textContent || '').trim().startsWith(hub.label)) title.dataset.hubLabel = hub.label; else delete title.dataset.hubLabel; }
+  // First-users F08 (runs 1-4) put the menu name above a tab's own title; v59.70 (screen review #32) drops it — the hub's tab
+  // strip names the tab and the sidebar / bottom bar mark the menu, so the extra word only floated between date and title.
   const subject = hub.id === 'stock' ? readStockSubject(root) : null;
   // v58.53 개편 v2: the tabs sit in one segmented control (soft-ui.css .aio-hub-seg).
   // First-users run-6 #20: a screen reader heard three loose buttons; the segment is the screen's tab list (the arrow-key

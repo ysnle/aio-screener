@@ -11,7 +11,7 @@ import { reactionRead } from '../../domain/briefing/reaction-read.js';
 import { el } from './dom.js';
 import { directionOf } from '../../domain/shared/number.js';
 import { frameHead, markFrame } from './section-frame.js';
-import { homeBriefTiers, latestBriefFor, reactionText, BRIEF_BASIS_WORDS, CALL_SEARCH_MAX_ATTEMPTS, epsComparisonBasis, koreanReleaseText, surprisePct } from '../../domain/briefing/event-briefs.js';
+import { homeBriefTiers, latestBriefFor, reactionText, BRIEF_BASIS_WORDS, CALL_SEARCH_MAX_ATTEMPTS, epsComparisonBasis, koreanReleaseText, surprisePct, watchItem } from '../../domain/briefing/event-briefs.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { EVENT_BRIEFS } from '../../data/event-artifacts.js';
 
@@ -86,7 +86,7 @@ export function briefNode(doc, brief, { showName = true, bodyOnly = false } = {}
   if (read) box.append(reactionNode(doc, read));
   else if (reasons.length) box.append(el(doc, 'p', `이유: ${reasons[0].text}`, 'event-brief__reason'));
   const more = el(doc, bodyOnly ? 'div' : 'details', null, bodyOnly ? 'event-brief__more is-inline' : 'event-brief__more');
-  if (!bodyOnly) more.append(el(doc, 'summary', brief.kind === 'fomc' ? '수치·바뀐 문구·기자회견·다음에 볼 것' : '수치·이유·부문·가이던스·콜 핵심'));
+  if (!bodyOnly) more.append(el(doc, 'summary', brief.kind === 'fomc' ? '수치·바뀐 문구·기자회견·다음 확인' : '수치·이유·부문·가이던스·콜 핵심'));
   if (bodyOnly && read) more.append(reactionNode(doc, read)); // the row's 왜 line, with the checks behind it
   // v59.44: three headline figures, then capex and cash flow when the release gave them (the market priced cash).
   const cashFigure = (figure) => ['capex', 'free_cash_flow', 'operating_cash_flow'].includes(figure?.metric);
@@ -109,7 +109,7 @@ export function briefNode(doc, brief, { showName = true, bodyOnly = false } = {}
   // v59.45 (pipeline review P21-LIFECYCLE-01): after the last search a missing summary is "not found", not "not yet".
   else if (!points?.done && (points?.attempts || 0) >= CALL_SEARCH_MAX_ATTEMPTS) more.append(el(doc, 'p', `${brief.kind === 'fomc' ? '기자회견' : '컨퍼런스콜'} 요약은 보도에서 찾지 못했습니다.`, 'event-brief__note'));
   else if (brief.kind !== 'fomc' || brief.status !== 'complete') more.append(el(doc, 'p', `${brief.kind === 'fomc' ? '기자회견' : '컨퍼런스콜'} 요약은 아직 정리 전입니다.`, 'event-brief__note'));
-  section('다음에 볼 것', brief.watch || []);
+  section('다음 확인', (brief.watch || []).map(watchItem));
   const source = el(doc, 'p', null, 'event-brief__source');
   source.append(doc.createTextNode('데이터 출처: '));
   if (brief.source?.url) {

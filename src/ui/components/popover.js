@@ -7,7 +7,9 @@ export const POPOVER_EDGE = 8;
 // Below the anchor when it fits, else above, else whichever side has more room, clamped to the viewport.
 export function placePopover(anchorRect, size, viewport) {
   const width = Math.min(size.width, viewport.width - POPOVER_EDGE * 2);
-  const left = Math.max(POPOVER_EDGE, Math.min(anchorRect.left + anchorRect.width / 2 - width / 2, viewport.width - width - POPOVER_EDGE));
+  // v59.70 (screen review #27): the popover starts where the term starts. Centred on a short term near the content's left
+  // edge, a 320px popover reached back over the sidebar.
+  const left = Math.max(POPOVER_EDGE, Math.min(anchorRect.left, viewport.width - width - POPOVER_EDGE));
   const below = anchorRect.bottom + 6;
   const above = anchorRect.top - size.height - 6;
   const roomBelow = viewport.height - POPOVER_EDGE - below;

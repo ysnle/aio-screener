@@ -33,6 +33,14 @@
   --sx-ease: var(--ease-out, cubic-bezier(0.2, 0.8, 0.2, 1));
   --sx-dur: var(--dur-base);
 }
+/* v59.70 (screen review #25): direction and data text in the light theme. Radix step 11 on a step-3 chip read 4.1~4.3:1; a
+   quarter of step 12 reaches AA on every chip, card and table background (ci-contrast-focus-browser-check). The base tokens
+   in index.html stay step 11 (P1758 reads them); the dark theme keeps step 11. */
+body:not(.dark-theme) {
+  --dir-up: color-mix(in srgb, var(--red-11) 75%, var(--red-12)); --dir-down: color-mix(in srgb, var(--blue-11) 75%, var(--blue-12));
+  --data-green: color-mix(in srgb, var(--green-11) 75%, var(--green-12)); --data-amber: color-mix(in srgb, var(--amber-11) 75%, var(--amber-12));
+  --data-red: color-mix(in srgb, var(--red-11) 75%, var(--red-12));
+}
 
 /* ═══ 1. Shell ═══════════════════════════════════════════════════════════ */
 body { background: var(--bg-base) !important; font-family: var(--font-sans); color: var(--text-primary); }
@@ -559,9 +567,6 @@ body.dark-theme #aio-first-visit-disclaimer { box-shadow:none !important; }
 }
 .sx-page-foot-version { font-variant-numeric: tabular-nums; white-space: nowrap; }
 
-/* First-users F08: the screen's menu name above a tab's own title ("시장 상태 ›" over 국면 판정). */
-/* Run-5 (phone #5): the trailing " ›" read as a tappable path; the hub name is a label, not a link. */
-.page-title[data-hub-label]::before { content: attr(data-hub-label); display: block; margin-bottom: 4px; font-size: 13px; font-weight: 500; letter-spacing: 0; color: var(--text-muted); }
 /* v58.82 (roadmap 12): the "이상해요" note dialog and the owner's reader (src/ui/components/feedback-form.js). */
 .aio-feedback { width: min(520px, calc(100vw - 32px)); border: 1px solid var(--border-strong); border-radius: 12px; padding: 20px; background: var(--bg-base); color: var(--text-primary); }
 .aio-feedback::backdrop { background: rgba(0, 0, 0, 0.4); }
@@ -607,11 +612,17 @@ body.dark-theme #aio-first-visit-disclaimer { box-shadow:none !important; }
 .zone-bar__band.is-bad.is-now { background: color-mix(in srgb, var(--data-red) 30%, transparent); }
 .zone-bar__label { overflow: hidden; text-overflow: ellipsis; padding: 0 4px; }
 .zone-bar__pin { position: absolute; bottom: 100%; transform: translateX(-50%); padding-bottom: 4px; font-size: 12px; font-weight: 700; color: var(--text-primary); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.zone-bar__pin::after { content: ''; position: absolute; left: 50%; top: 100%; width: 2px; height: 26px; margin-left: -1px; border-radius: 1px; background: var(--text-primary); }
-.zone-bar__pin.is-end { transform: translateX(-100%); } .zone-bar__pin.is-end::after { left: 100%; }
-.zone-bar__pin.is-start { transform: none; } .zone-bar__pin.is-start::after { left: 0; }
+/* v59.70 (screen review #21): the value is marked by two notches, at the track's top and bottom edges, so the line never
+   cuts the band label written across the middle ('끈|적함'). */
+.zone-bar__pin::before, .zone-bar__pin::after { content: ''; position: absolute; left: 50%; width: 2px; margin-left: -1px; border-radius: 1px; background: var(--text-primary); }
+.zone-bar__pin::after { top: 100%; height: 8px; }
+.zone-bar__pin::before { top: calc(100% + 14px); height: 8px; }
+.zone-bar__pin.is-end { transform: translateX(-100%); } .zone-bar__pin.is-end::after, .zone-bar__pin.is-end::before { left: 100%; }
+.zone-bar__pin.is-start { transform: none; } .zone-bar__pin.is-start::after, .zone-bar__pin.is-start::before { left: 0; }
 .zone-bar__edges { position: relative; height: 14px; font-size: var(--fs-min); color: var(--text-muted); font-variant-numeric: tabular-nums; }
-.zone-bar__edge { position: absolute; transform: translateX(-50%); }
+.zone-bar__edge { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; }
+.zone-bar__edge.is-low { top: 14px; }
+.zone-bar.has-low-edge .zone-bar__edges { height: 28px; }
 .zone-bar.is-compact { max-width: 420px; margin: 4px 0 2px; }
 .release-guide__row { display: grid; grid-template-columns: minmax(0, 9rem) minmax(0, 1fr); gap: 4px 20px; align-items: center; padding: 8px 0 6px; }
 .release-guide__row + .release-guide__row { border-top: 1px solid rgba(var(--ink-rgb), 0.06); }

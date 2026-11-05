@@ -40,10 +40,14 @@ function indexCard(doc, root, reading) {
   box.append(head, el(doc, 'p', reading.conclusion, 'charts-card-conclusion'));
   // One level line, the one to hold: the nearest support (or the double-top neck when there is none). A second line closer
   // than a label's height moves its label to the right edge, onto the 50-day line's end tag (trend-chart.js LABEL_GAP);
-  // resistance and the neck stay in the 차트 읽기 text.
+  // resistance and the neck stay in the 근거와 수치 fold.
   const refs = [reading.support?.value ?? reading.doubleTop?.neck?.value].filter(Number.isFinite);
-  box.append(createTrendChart(doc, { series: reading.series, refLines: refs, format: (value) => value.toFixed(0), label: `${reading.label} 종가`, guide: { series: reading.ma50Series, label: '50일선' } }));
-  const fold = noteFold(doc, reading.read, '차트 읽기');
+  // v59.70 (screen review #14): index levels in thousands ('27,192', not '27192'); the level line says it is the support
+  // (or the double top's neck), not another tick.
+  const whole = (value) => Math.round(value).toLocaleString('en-US');
+  const levelName = Number.isFinite(reading.support?.value) ? '지지' : '목선';
+  box.append(createTrendChart(doc, { series: reading.series, refLines: refs, format: whole, refLabel: (value) => `${levelName} ${whole(value)}`, label: `${reading.label} 종가`, guide: { series: reading.ma50Series, label: '50일선' } }));
+  const fold = noteFold(doc, reading.read, '근거와 수치');
   if (fold) {
     const list = el(doc, 'dl', null, 'charts-numbers');
     for (const [name, value] of reading.numbers) list.append(el(doc, 'dt', name), el(doc, 'dd', value));

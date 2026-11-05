@@ -8,6 +8,7 @@ import { selectNewsItems } from '../../state/selectors/news.js';
 import { signedText } from '../../domain/shared/number.js';
 import { el } from './dom.js';
 import { asOfChip } from './section-frame.js';
+import { dropReaderDuty } from '../../domain/content/reader-duty.js';
 
 // v58.75 (persona review): "왜 움직였나" — beside the stocks and themes 오늘 names as the session's movers, the headline
 // that named the company the same day (src/domain/briefing/news-picks.js), with its time; the publisher sits in the hover.
@@ -122,7 +123,7 @@ function slotBody(doc, slot) {
   const body = el(doc, 'div', null, 'market-slot-body');
   if (slot.summary) {
     const summary = el(doc, 'p', null, 'market-slot-summary');
-    summary.append(el(doc, 'span', slot.summarySource === 'ai' ? 'AI 요약' : '자동 요약', 'market-slot-tag'), doc.createTextNode(` ${slot.summary}`));
+    summary.append(el(doc, 'span', slot.summarySource === 'ai' ? 'AI 요약' : '자동 요약', 'market-slot-tag'), doc.createTextNode(` ${dropReaderDuty(slot.summary)}`));
     body.append(summary);
   }
   if (slot.moves.length) {

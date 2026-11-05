@@ -1,0 +1,23 @@
+{
+  "p": {
+    "title": "{VERSION} 다크 뉴스 '시간대별 시황' 제목이 브라우저 기본 파랑 링크였고, 라이트 칩·보조 글자는 AA에 못 미쳤으며, 뉴스 접힘 카드에 펼침 표시가 없었다",
+    "symptom": "다크 1440px 뉴스 화면의 시간대별 시황 헤드라인이 UA 기본 파랑(대비 1.85)·목록 점·시각과 제목 붙음·슬롯 머리 줄 붙음으로 나왔다(#2). 라이트에서 .sx-chip·.regime-state·.macro-tally-chip '양호/부담' 4.21~4.25, .kr-index-move 3.21, .kr-badge 3.81 등 AA 미달(#25). 뉴스 '시간대별 시황'·'전체 뉴스'·'시장 신호' 접힌 카드는 제목과 선만 있는 빈 카드였다(#4).",
+    "root_cause": "시황 슬롯 블록이 브리핑에서 뉴스로 옮겨졌는데 스타일 26줄은 '#page-briefing …' 범위 그대로였다. 라이트 데이터 색 토큰(--data-green/amber/red, --dir-up/down)은 Radix 11단계 그대로라 3단계 칩 바탕에서 4.1~4.3이었다. 뉴스 카드 접기의 ::after는 섹션 머리 구분선이 차지해 공용 펼침 표시 목록에 없었다.",
+    "fix": "슬롯 규칙을 ':is(#page-briefing, #page-market-news)'로 묶었다. 라이트 토큰을 11단계 75% + 12단계 25% 혼합으로 올렸고(.kr-up/.kr-down도 같은 토큰), 공용 접기 표시(responsive.css 그린 꺾쇠) 목록에 뉴스 카드·leaders 분포·mg-lesson·뉴스 원문·리서치 목차·스크리너 고급 접기를 넣었다.",
+    "violated_rule": "블록을 다른 화면으로 옮기면 그 블록의 스타일 범위도 같이 옮긴다. 데이터 색 토큰은 쓰이는 가장 어두운 바탕에서 AA를 넘어야 한다. 접기 행은 열린다는 표시를 가진다.",
+    "prevention": "scripts/ci-contrast-focus-browser-check.mjs: 전 라우트 × 라이트/다크 1440px, 접기를 모두 연 상태에서 (1) 조상 바탕을 합성한 글자 대비 AA, (2) 브라우저 기본 링크 색, (3) 펼침 표시 없는 접기 행, (4) 키보드 포커스 링 없음, (5) '거시' 라벨·제목 위 생성 단어, (6) 차트 날짜 축 형식. v59.69에서는 (1)(2)(3)이 실패한다.",
+    "verification": "수정 전: 다크 뉴스 슬롯 스크린샷(UA 파랑), 라이트 대비 측정 실패, 접기 표시 없는 카드 4종. 수정 후: 라이트 20개 라우트 대비 통과, 다크는 theme-sector 소유 span.capex-flow-seg-label 1.82(themes·theme-detail)만 남음. 키보드 Tab 순회로 .aio-term 16/16·summary 78/78 포커스 링 확인(#26은 프로그램 포커스로 잰 값이었다)."
+  },
+  "changelog": [
+    "**대비·링크·접기 표시 ({VERSION}, 화면 검수 #2·#4·#25·#26):** 다크 뉴스 시간대별 시황 헤드라인이 기본 파랑 링크로 나오던 것을 고쳤다(브리핑에서 옮겨 올 때 스타일 범위가 남았다). 라이트 칩과 보조 글자의 데이터 색을 AA로 올렸다. 뉴스의 접힌 카드 세 개와 나머지 표시 없던 접기 행에 꺾쇠를 붙였다. 전 화면 대비·링크·접기·포커스 브라우저 게이트를 넣었다."
+  ],
+  "qa": [
+    {
+      "id": "QA-CONTRAST-FOCUS-BROWSER",
+      "text": "{VERSION}: every route, light and dark, folds open — text meets WCAG AA on its composited background, no link keeps the UA colour, every fold row shows an open marker, keyboard focus shows a ring, no label names the screen '거시', no generated word above the title, chart date axes read 'YY년 M월'/'M월'/'M/D' (fails on v59.69: dark news slot links UA blue, light chips 4.21, news fold cards unmarked)",
+      "verify_by": "node scripts/ci-contrast-focus-browser-check.mjs"
+    }
+  ],
+  "qa_section": "Screen review fixes (ui-states)",
+  "note": "screen review 2026-11-04 #2 (상), #4, #25, #26. Known open: dark span.capex-flow-seg-label 1.82 on themes/theme-detail belongs to theme-sector #3 and keeps the gate red until it lands."
+}
