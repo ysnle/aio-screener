@@ -370,9 +370,17 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
   const commandSearch = () => import('../ui/navigation/command-search.js').then((m) => m.installCommandSearch({ root: window, documentRef: document }));
   window._aioOpenCommandSearch = (request) => commandSearch().then((search) => { search?.open(request); return search; });
   window._aioCommandSearchIsOpen = () => Boolean(document.getElementById('aio-command-search')?.open);
-  const warmCommandSearch = () => { commandSearch().catch(() => {}); };
-  if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(warmCommandSearch, { timeout: 6000 });
-  else globalThis.setTimeout?.(warmCommandSearch, 4000)?.unref?.();
+  // v59.70 (integration review, as D1): no idle warm-up, which put 11.7KB into every visit's post-boot JS. The module loads
+  // when the reader reaches for it: the first hover or focus of a search button, or a Ctrl/⌘ press (before its K) — and
+  // Ctrl+K, '/' and a click load it on demand through _aioOpenCommandSearch anyway.
+  const warmEvents = ['pointerover', 'focusin', 'keydown'];
+  const warmCommandSearch = (event) => {
+    if (event.type === 'keydown' ? !(event.key === 'Control' || event.key === 'Meta' || event.key === '/')
+      : !event.target?.closest?.('[data-action="_aioOpenCommandSearch"]')) return;
+    warmEvents.forEach((type) => document.removeEventListener?.(type, warmCommandSearch, true));
+    commandSearch().catch(() => {});
+  };
+  warmEvents.forEach((type) => document.addEventListener?.(type, warmCommandSearch, { capture: true, passive: true }));
   window._aioListingNameSuggestion = (raw) => {
     const query = String(raw || '').trim();
     if (query.length < 2) return Promise.resolve('');
