@@ -10,9 +10,9 @@
 //   3. `/` moves focus to 표에서 찾기 (not inside a text field, no modifier); Escape closes an open panel and returns
 //      focus to the button that opened it.
 import { chromium } from 'playwright';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, freePort, startLocalServer } from './lib/browser-gate.mjs';
 
-const port = Number(process.env.CI_SCREENER_CONTROLS_PORT || 8937);
+const port = (Number(process.env.CI_SCREENER_CONTROLS_PORT) || await freePort());
 const base = `http://127.0.0.1:${port}/`;
 const MAX_TOP_LEVEL_CONTROLS = 10;
 const viewports = [{ id: 'desktop', width: 1440, height: 1000 }, { id: 'tablet', width: 820, height: 1180 }, { id: 'phone', width: 390, height: 844, isMobile: true, hasTouch: true }];

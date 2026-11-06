@@ -113,8 +113,18 @@ try {
   await capture({ stepId: 'briefing-local-archive-empty', route: 'briefing', stateId: 'archive-empty', action: { type: 'disclose', target: 'local briefing archive' }, locator: '#page-briefing [data-research-snapshots=briefing]', expected: 'only explicitly saved reports, no fabricated past briefings', actual: 'empty isolated archive' });
   await page.evaluate(() => window.showPage('themes'));
   // v59.70: the sector card opens on its 등락 bars; the sector chips (detail triggers) are the 회전 view's.
+  // v59.70 (integration-20261104): the tab's click handler is bound when the lazy 테마 module mounts, and the static HTML
+  // already says data-view="bars", so a click before the mount was lost and left the chips in the hidden fold (one run
+  // in two locally). Click until the card shows the 회전 view, for at most 20 s.
   const rotationTab = page.locator('#themes-verdict-tabs [data-view="rrg"]');
-  if (await rotationTab.count()) await rotationTab.click();
+  if (await rotationTab.count()) {
+    const rotationShown = () => page.evaluate(() => document.querySelector('#themes-verdict .v2-themes-rrg')?.dataset.view === 'rrg');
+    for (const deadline = Date.now() + 20000; !(await rotationShown()) && Date.now() < deadline;) {
+      await rotationTab.click();
+      await page.waitForTimeout(500);
+    }
+    assert.ok(await rotationShown(), 'v59.70 the 회전 tab switches the sector card to the scatter view');
+  }
   // v57.54: while the sector-rotation artifact lags the latest close its quadrant chips are hidden; the theme playbook's
   // detail buttons (data-theme-id) are then the visible triggers. Either kind is a detail trigger (themes.js rule).
   const TRIGGERS = '#page-themes [data-action=showThemeDetail]:visible, #page-themes button[data-theme-id]:visible';

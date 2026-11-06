@@ -135,8 +135,14 @@ check('vertical slice browser gate is wired', qaPipeline.profiles?.full?.include
 check('live invariant watchdog is wired', qaPipeline.profiles?.watchdog?.includes('external') && qaGateScripts.includes('scripts/ci-live-invariant-check.mjs'));
 check('watchdog produces a retained rolling SLO artifact without hiding QA failure', /build-operations-slo-window\.mjs/.test(workflowText) && /aio-operations-slo-window/.test(workflowText) && /steps\.qa\.outcome != 'success'/.test(workflowText));
 
-const uses = [...workflowText.matchAll(/^\s*uses:\s*([^\s#]+)/gm)].map((match) => match[1]);
-check('all GitHub Actions refs are SHA pinned', uses.length > 0 && uses.every((ref) => /@[0-9a-f]{40}$/i.test(ref)), uses.join(', '));
+// v59.70 (wave 2 A′): a repository-local composite action (./.github/actions/<name>) is pinned by the commit itself;
+// the third-party refs inside it are checked like the workflows' own.
+const actionsDir = join(root, '.github', 'actions');
+const localActionText = existsSync(actionsDir) ? readdirSync(actionsDir).map((name) => join(actionsDir, name, 'action.yml')).filter(existsSync).map((file) => readFileSync(file, 'utf8')).join('\n') : '';
+const uses = [...`${workflowText}\n${localActionText}`.matchAll(/^\s*-?\s*uses:\s*([^\s#]+)/gm)].map((match) => match[1]);
+const localUses = uses.filter((ref) => ref.startsWith('./.github/actions/'));
+check('v59.70 all GitHub Actions refs are SHA pinned (local composite actions excepted)', uses.length > 0 && uses.every((ref) => localUses.includes(ref) || /@[0-9a-f]{40}$/i.test(ref)), uses.filter((ref) => !localUses.includes(ref) && !/@[0-9a-f]{40}$/i.test(ref)).join(', '));
+check('v59.70 every local composite action a workflow uses exists', localUses.every((ref) => existsSync(join(root, ref, 'action.yml'))), localUses.join(', '));
 // v58.82: both deploys install Wrangler from its own lockfile without install scripts (the job holds the Cloudflare token).
 const wranglerPackage = JSON.parse(read('tools/wrangler/package.json')), wranglerLock = JSON.parse(read('tools/wrangler/package-lock.json'));
 const lockedWrangler = /^\d+\.\d+\.\d+$/.test(wranglerPackage.dependencies?.wrangler || '') && wranglerLock.packages?.['node_modules/wrangler']?.version === wranglerPackage.dependencies.wrangler;

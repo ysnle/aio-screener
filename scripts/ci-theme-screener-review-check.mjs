@@ -8,9 +8,9 @@
 //   16 스크리너: the kicker names the ranked count, and the drawer's rank reads against that same count.
 //   29 스크리너 검증 안내 띠: not cut on a phone.
 import { chromium } from 'playwright';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, freePort, startLocalServer } from './lib/browser-gate.mjs';
 
-const port = Number(process.env.CI_THEME_SCREENER_REVIEW_PORT || 8939);
+const port = (Number(process.env.CI_THEME_SCREENER_REVIEW_PORT) || await freePort());
 const base = `http://127.0.0.1:${port}/`;
 const failures = [];
 const fail = (where, message) => failures.push(`[${where}] ${message}`);

@@ -10,6 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
+import { freePort } from './lib/browser-gate.mjs';
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const allowPath = path.join(repo, 'architecture/legacy-writer-allowlist.json');
@@ -27,7 +28,7 @@ const server = http.createServer((req, res) => {
     res.end(body);
   });
 });
-const port = Number(process.env.AIO_LEGACY_WRITER_PORT || 8967);
+const port = (Number(process.env.AIO_LEGACY_WRITER_PORT) || await freePort());
 await new Promise((resolve) => server.listen(port, '127.0.0.1', resolve));
 const origin = `http://127.0.0.1:${port}`;
 const browser = await chromium.launch();

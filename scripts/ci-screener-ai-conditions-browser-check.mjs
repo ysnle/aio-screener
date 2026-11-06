@@ -9,10 +9,10 @@ import { chromium } from 'playwright';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, freePort, startLocalServer } from './lib/browser-gate.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.CI_SCREENER_AI_CONDITIONS_PORT || 8947);
+const port = (Number(process.env.CI_SCREENER_AI_CONDITIONS_PORT) || await freePort());
 const localBase = `http://127.0.0.1:${port}`;
 const workerBase = 'https://aio-proxy.zmfhd007.workers.dev';
 const failures = [];
