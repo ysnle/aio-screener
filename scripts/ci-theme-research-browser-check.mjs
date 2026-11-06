@@ -128,7 +128,22 @@ try {
   await page.locator('#sidebar-theme-btn').click();
   assert.equal(await page.locator('body').evaluate(b=>b.classList.contains('dark-theme')),true,'P1604: storage refusal keeps theme functional');
   await capture('theme-storage-refusal','technical','stock','toggle with rejected persistence','visible dark mode and chart update continue');
-  await page.evaluate(()=>window.showPage('principles'));
+  // v59.70: the mount render is followed ~15 ms later by the narrative hydration render. A reader who opens the 목차
+  // list in between keeps it open (it used to be rebuilt closed: the open was recorded only by the later 'toggle' task,
+  // which made this journey time out on a hidden title about 1 run in 3). The list is opened from inside the mount.
+  const openedDuringMount=await page.evaluate(async()=>{
+    const host=document.getElementById('page-principles');
+    let opened=null;
+    const watch=new MutationObserver(()=>{ if(opened||host.dataset.aioArchitectureRoute!=='principles') return; opened=host.querySelector('nav .rl-nav-list'); opened?.querySelector('summary')?.click(); });
+    watch.observe(host,{attributes:true});
+    window.showPage('principles');
+    for(let i=0;i<100&&host.dataset.aioPrinciplesNarrative!=='connected';i+=1) await new Promise((r)=>setTimeout(r,50));
+    await new Promise((r)=>setTimeout(r,300));
+    watch.disconnect();
+    const now=host.querySelector('nav .rl-nav-list');
+    return {opened:!!opened,rebuilt:!!now&&now!==opened,open:now?.open??null,narrative:host.dataset.aioPrinciplesNarrative||null};
+  });
+  assert.deepEqual(openedDuringMount,{opened:true,rebuilt:true,open:true,narrative:'connected'},'v59.70: a 목차 list opened during the mount render stays open after hydration');
   for(const lesson of PACKET_20261011_LESSONS) {
     const navigation=page.getByRole('navigation',{name:'개념·분석 목차',exact:true});
     // v59.51: the open group's titles sit in one closed list; a reader opens it once and it stays open across re-renders.
