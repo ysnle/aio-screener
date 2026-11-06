@@ -383,10 +383,10 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
   const warmCommandSearch = (event) => {
     if (event.type === 'keydown' ? !(event.key === 'Control' || event.key === 'Meta' || event.key === '/')
       : !event.target?.closest?.('[data-action="_aioOpenCommandSearch"]')) return;
-    warmEvents.forEach((type) => document.removeEventListener?.(type, warmCommandSearch, true));
+    warmEvents.forEach((type) => document?.removeEventListener?.(type, warmCommandSearch, true));
     commandSearch().catch(() => {});
   };
-  warmEvents.forEach((type) => document.addEventListener?.(type, warmCommandSearch, { capture: true, passive: true }));
+  warmEvents.forEach((type) => document?.addEventListener?.(type, warmCommandSearch, { capture: true, passive: true }));
   window._aioListingNameSuggestion = (raw) => {
     const query = String(raw || '').trim();
     if (query.length < 2) return Promise.resolve('');

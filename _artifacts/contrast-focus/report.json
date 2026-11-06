@@ -1,6 +1,6 @@
 {
   "schemaVersion": "aio-contrast-focus.v1",
-  "observedAt": "2026-11-06T00:44:57.620Z",
+  "observedAt": "2026-11-06T01:01:17.982Z",
   "runs": [
     {
       "route": "home",
@@ -295,15 +295,7 @@
     {
       "route": "themes",
       "scheme": "dark",
-      "contrast": [
-        {
-          "sig": "span.capex-flow-seg-label",
-          "ratio": 1.82,
-          "need": 4.5,
-          "text": "네트워크",
-          "count": 3
-        }
-      ],
+      "contrast": [],
       "links": [],
       "folds": [],
       "labels": [],
@@ -313,15 +305,7 @@
     {
       "route": "theme-detail",
       "scheme": "dark",
-      "contrast": [
-        {
-          "sig": "span.capex-flow-seg-label",
-          "ratio": 1.82,
-          "need": 4.5,
-          "text": "네트워크",
-          "count": 3
-        }
-      ],
+      "contrast": [],
       "links": [],
       "folds": [],
       "labels": [],
@@ -419,5 +403,5 @@
       "busy": []
     }
   ],
-  "failures": 2
+  "failures": 0
 }
