@@ -82,3 +82,12 @@ DOM 노드(데스크톱 1440, 라이트, 12초 뒤, 같은 public-data):
 3. 한국 테마 접기(`#kr-integrated-themes`)는 옮기지 않는다. 종목 화면(`stock-read.js` → `openKrThemeDetail`), 테마 상세 내비(`navigation/theme-detail.js`), 스크리너 검증 탭(`screener/validation-tab.js`의 테마 앵커), 테마 마운트 뒤 상세 열기(`themes.js` `_aioOpenKrThemeDetailOnThemes`), 확정 종가 테마 읽기와 상세(`themes/sectors.js` `kr-themes-artifact-read`·`kr-theme-close-detail`)가 모두 테마 라우트의 수명주기에 묶여 있어, 시장 상태로 옮기면 이 링크들이 깨진다.
 
 게이트: affected 프로필 — 실패 5개(scenario-guidance-fixture·data-refresh·browser-boot·artifact-budget·browser-secondary-text-budget) 모두 통합 기준선 5687a55f에서도 실패. 헤드리스 1091/1091, 부팅 예산 통과, 래칫 통과.
+
+## 부팅 뒤 지연 예산 (7c20a830 위, 2026-11-06)
+
+browser-boot 부팅 뒤 지연 JS(6.5초, 한도 350,000, 올리지 않음): 371,757(통합) → **347,713**. ESM 부팅 1,557,163 / 579,785 (A 한도 1,572,000 / 585,000 안).
+- 화면 용어 49개 가운데 화면의 용어 표시(TERM_MARKS)가 쓰는 15개를 `src/domain/knowledge/screen-term-marked.js`(부팅 세트)로 옮겼다. 나머지 34개(`screen-term-additions.js`, 순서는 색인 참조로 원래 그대로)는 실제 사용 때 불러온다 — 용어 사전이나 명령 검색을 열 때, 용어 표시에 마우스를 올리거나 포커스할 때, 용어 사전 버튼을 가리키거나 포커스할 때. 불러오면 GLOSSARY를 도착 때 사본에서 원래 순서(전체 추가 → 개념 병합 → 지연 용어)로 다시 만든다.
+- korea-policy: 한국 시장 접기를 열 때 불러온다(닫힌 채 시작). operator-note: 부팅 때 홈 카드가 쓰므로 부팅 세트로 되돌렸다(0.8 KB).
+- 측정(전 7c20a830 / 후): 용어 표시 9개 라우트 전부 같음(`term-marks__*.json`); 첫 화면 31건 0픽셀·글자 수 같음(`first-screen-diff.json`); 팝오버 첫 열기(클릭) 2 ms / 2 ms; 용어 사전 첫 열기(사용자 경로: 버튼 가리킨 뒤 클릭) 중앙값 201 ms / 203 ms, 항목 440 / 440, GLOSSARY 내용 해시 같음(`popover-glossary__*.json`). 가리키지 않고 바로 `openGlossary()`를 부르면 126 → 198 ms(청크 로드).
+
+게이트(affected): 실패 4개(scenario-guidance-fixture·reconciliation·data-lineage·data-refresh) 모두 7c20a830에서도 실패. browser-boot 통과.

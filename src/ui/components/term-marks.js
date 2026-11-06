@@ -255,6 +255,7 @@ export function installTermMarks(documentRef, { root = globalThis } = {}) {
     if (event.pointerType !== 'mouse' || hoverSuppressed(root)) return;
     const mark = event.target.closest?.('.aio-term');
     if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; }
+    if (mark) { try { root.AIO?.loadGlossaryFull?.(); } catch (_) { /* the marked entry is already there */ } }
     if (mark) hoverTimer = setTimeout(() => { hoverTimer = null; open(mark, { focus: false }); }, 250);
     else if (pop && !pop.contains(event.target)) hoverTimer = setTimeout(() => { hoverTimer = null; if (!pop?.contains(documentRef.activeElement)) close({ restore: false }); }, 300);
   };

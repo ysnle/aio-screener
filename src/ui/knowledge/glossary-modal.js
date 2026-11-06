@@ -184,9 +184,12 @@ export function createGlossaryModal({ root = globalThis, documentRef = root.docu
 export function installGlossaryModal(root, documentRef) {
   const modal = createGlossaryModal({ root, documentRef });
   // v59.70 P3: an open before js/aio-glossary.js has arrived waits for it instead of showing an empty list.
-  root.openGlossary = (...args) => (Array.isArray(root.GLOSSARY) || typeof root.AIO?.loadGlossary !== 'function'
-    ? modal.open(...args)
-    : root.AIO.loadGlossary().then(() => modal.open(...args), () => modal.open(...args)));
+  // v59.70 (post-boot budget): and for the screen terms that join on real use (AIO.loadGlossaryFull).
+  root.openGlossary = (...args) => {
+    const load = root.AIO?.loadGlossaryFull || root.AIO?.loadGlossary;
+    if (typeof load !== 'function' || root._aioGlossaryFullDone) return modal.open(...args);
+    return load().then(() => modal.open(...args), () => modal.open(...args));
+  };
   root._aioCloseGlossary = modal.close;
   root._aioGlossaryIsOpen = modal.isOpen;
   root.renderGlossaryCats = modal.renderCats;

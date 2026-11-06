@@ -292,6 +292,7 @@ export function createCommandSearch({ root = globalThis, documentRef = root?.doc
   }
 
   function open(request = {}) {
+    try { root.AIO?.loadGlossaryFull?.(); } catch (_) { /* 용어 rows fill in once it lands */ }
     const node = dialog();
     const field = input();
     if (!node || !field) return false;

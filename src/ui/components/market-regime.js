@@ -639,14 +639,17 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
       // v59.70 (D5): the 한국 기준금리·물가·수출 facts from the retired 매크로 fold join the board as one card. The board sits in
       // a closed fold below the first screen, so the card's module loads after paint (boot budget); a newer render wins.
       const krRender = boardKr.__aioKrRender = (boardKr.__aioKrRender || 0) + 1;
-      if (cards.length) import('../../domain/market/korea-policy.js').then(({ koreaPolicyCard }) => {
+      // v59.70 (post-boot budget): and only once the 한국 시장 fold is open (it starts closed).
+      const krFold = boardKr.closest?.('details');
+      const whenOpen = (fn) => { if (!krFold || krFold.open) fn(); else krFold.addEventListener('toggle', function once() { if (!krFold.open) return; krFold.removeEventListener('toggle', once); fn(); }); };
+      if (cards.length) whenOpen(() => import('../../domain/market/korea-policy.js').then(({ koreaPolicyCard }) => {
         const policy = koreaPolicyCard(root.DATA_SNAPSHOT);
         if (!policy || boardKr.__aioKrRender !== krRender) return;
         const section = el(doc, 'section', null, 'regime-axis'); section.dataset.axis = 'kr-policy'; section.dataset.market = 'KR';
         section.append(el(doc, 'h3', policy.title, 'regime-axis-title'), el(doc, 'p', policy.caption, 'regime-chart-caption'), el(doc, 'p', policy.value, 'regime-korea-value'));
         for (const line of policy.lines) section.append(el(doc, 'p', line, 'regime-read'));
         boardKr.append(section);
-      }).catch(() => {});
+      }).catch(() => {}));
       boardKr.hidden = !cards.length;
       const krSection = boardKr.closest?.('section.mk-korea');
       if (krSection) krSection.hidden = !cards.length; // the 한국 시장 card goes with its board

@@ -7,6 +7,7 @@
 //     public-data/knowledge/search-index.json and the ranker (knowledge-search.js) loaded on its first query.
 import { CONCEPT_CORE } from '../../domain/knowledge/concept-core.js';
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
+import { SCREEN_TERM_MARKED } from '../../domain/knowledge/screen-term-marked.js';
 import { CONCEPT_SURFACES, SCREEN_TERMS, SCREEN_ROUTE_LABELS, screenRoutesFor } from '../../domain/knowledge/concept-surfaces.js';
 
 // Shared with knowledge-search.js: one normalization for glossary merge and knowledge search.
@@ -93,14 +94,37 @@ export function installGlossaryBridge({ root = globalThis, documentRef = root.do
   if (!documentRef || root._aioGlossaryBridgeInstalled) return;
   root._aioGlossaryBridgeInstalled = true;
   // v59.70 P3: js/aio-glossary.js loads after boot (src/app/classic-loader.js), so the merge runs when GLOSSARY arrives.
-  // v59.70 (boot budget): the screen-term additions (~21 KB) only ever join GLOSSARY, which itself loads after boot, so
-  // they load with it; the returned promise settles once both merges ran (classic-loader waits before aio:glossaryReady).
+  // v59.70 (post-boot budget): when GLOSSARY arrives only the screen terms that term marks underline join it (the marked
+  // set is in the boot set), then the concept merge and the deferred terms, so the marks and their popovers are as before;
+  // classic-loader waits for this before aio:glossaryReady. The other screen-term additions (~21 KB) join on real glossary
+  // use (_aioGlossaryFull: the glossary or command search opens, a term mark is hovered or focused). That rebuilds GLOSSARY
+  // from the copy taken on arrival in the original sequence (every addition, the concept merge, the deferred terms), so
+  // the result is the same list, entry for entry, as before the split.
+  let arrived = null;
+  const appendMarked = (glossary, entries) => {
+    const key = (text) => String(text || '').toLowerCase().replace(/\s*\(.*$/, '').replace(/\s+/g, '');
+    const known = new Set(glossary.map((entry) => key(entry?.term)));
+    for (const entry of entries) if (!known.has(key(entry.term))) { glossary.push({ ...entry }); known.add(key(entry.term)); }
+  };
+  const deferred = () => import('../../domain/knowledge/deferred-screen-terms.js').then(({ DEFERRED_SCREEN_TERMS }) => DEFERRED_SCREEN_TERMS);
   root._aioGlossaryAugment = () => {
     if (!Array.isArray(root.GLOSSARY) || root._aioGlossaryAugmented) return root._aioGlossaryAugmented || Promise.resolve();
-    return (root._aioGlossaryAugmented = import('../../domain/knowledge/screen-term-additions.js').then(({ appendScreenTerms }) => {
-      try { root._aioGlossaryScreenTerms = appendScreenTerms(root.GLOSSARY); root._aioGlossaryConceptMerge = mergeConceptCore(root.GLOSSARY); } catch (_) { /* legacy glossary absent */ }
-      return import('../../domain/knowledge/deferred-screen-terms.js').then(({ DEFERRED_SCREEN_TERMS }) => { if (Array.isArray(root.GLOSSARY)) appendScreenTerms(root.GLOSSARY, DEFERRED_SCREEN_TERMS); });
-    }).catch(() => {}));
+    arrived = root.GLOSSARY.map((entry) => ({ ...entry }));
+    try { appendMarked(root.GLOSSARY, SCREEN_TERM_MARKED); root._aioGlossaryConceptMerge = mergeConceptCore(root.GLOSSARY); } catch (_) { /* legacy glossary absent */ }
+    return (root._aioGlossaryAugmented = deferred().then((terms) => { if (!root._aioGlossaryFullDone) appendMarked(root.GLOSSARY, terms); }).catch(() => {}));
+  };
+  root._aioGlossaryFull = () => {
+    if (!Array.isArray(root.GLOSSARY)) return Promise.resolve();
+    if (root._aioGlossaryFullLoad) return root._aioGlossaryFullLoad;
+    return (root._aioGlossaryFullLoad = Promise.all([import('../../domain/knowledge/screen-term-additions.js'), deferred(), root._aioGlossaryAugment()])
+      .then(([{ appendScreenTerms }, terms]) => {
+        if (!arrived) return;
+        root.GLOSSARY.splice(0, root.GLOSSARY.length, ...arrived.map((entry) => ({ ...entry })));
+        root._aioGlossaryScreenTerms = appendScreenTerms(root.GLOSSARY);
+        root._aioGlossaryConceptMerge = mergeConceptCore(root.GLOSSARY);
+        appendScreenTerms(root.GLOSSARY, terms);
+        root._aioGlossaryFullDone = true;
+      }).catch(() => {}));
   };
   root._aioGlossaryAugment();
   // The classic renderer (js/aio-ui.js renderGlossaryItems) lays each entry out from these parts.
@@ -124,6 +148,7 @@ let knowledgeLoad = null;
 /** The generated knowledge index and its ranker (knowledge-search.js, bundle E): { index, search }; a failed fetch settles
  * to { index: null, search, failed: true } so the caller can say so instead of waiting. */
 export function loadKnowledgeSearch(root = globalThis) {
+  try { root.AIO?.loadGlossaryFull?.(); } catch (_) { /* the glossary rows are optional here */ }
   if (knowledgeLoad) return knowledgeLoad;
   const fetchFn = root.fetch?.bind(root);
   // Bundle E's loadKnowledgeIndex(fetchFn) fetches search-index.json once and settles to an empty index on failure (the

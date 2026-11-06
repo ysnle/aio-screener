@@ -17,7 +17,8 @@
   "**포트폴리오 잔여 writer를 src로 (v59.70):** R:R 계산기의 종목 선택(#rr-position-select)과 저장 기록 잠금 배지(#vault-status-badge)를 `js/aio-core.js`에서 `src/ui/components/portfolio-shell-controls.js`로 그대로 옮겼다. 빈 상태 목록과 T1019는 네이티브 차트로 간 `pf-benchmark-section`을 더 이상 찾지 않는다.",
   "**브라우저 뉴스 번역 삭제 (v59.70, 소유자 결정 D6):** 외신 제목은 수집 단계(build-market-day·fetch-data)가 한국어 `titleKo`로 넣는다. 브라우저의 무료 Google 번역(`_gtBatchTranslate`·`freeTranslateNews`), 공용 AI 번역(`autoTranslateNews`)과 지연 큐, 뉴스 화면의 번역 요청, '자동 한국어 번역' 상태 칸을 지웠다. 화면은 `titleKo`를 먼저 쓰고, 번역에 실패한 제목(`titleKoFailed`)은 원문 그대로 두고 '원문' 표시를 붙인다. 새 게이트 `browser-translation-retired`가 번역 경로가 돌아오면 실패한다.",
   "**부팅 세트 여유 확보 (v59.70, 통합 뒤):** 시장 상태 한국 보드의 금리·물가·수출 카드 모듈과 운영자 노트 로더는 처음 쓸 때 불러오고, 용어 사전 화면 용어 병합(`screen-term-additions.js`)은 용어 사전과 함께 불러온다. ESM 부팅 세트 1,572,432→1,550,152 B(gzip 585,790→576,630), 한도는 그대로. 첫 화면 31개 비교 0픽셀 차이.",
-  "**판정 헤더 삭제 뒤 감사 정합 (v59.70):** 내비 항목 감사는 허브의 하위 라우트(`data-hub-routes`)를, 데이터 페이지 감사는 페이지 epoch 도장을 인정한다. 지운 헤더의 버튼이 라우트마다 두 감사를 대신 통과시키고 있었다(T552·T924)."
+  "**판정 헤더 삭제 뒤 감사 정합 (v59.70):** 내비 항목 감사는 허브의 하위 라우트(`data-hub-routes`)를, 데이터 페이지 감사는 페이지 epoch 도장을 인정한다. 지운 헤더의 버튼이 라우트마다 두 감사를 대신 통과시키고 있었다(T552·T924).",
+  "**부팅 뒤 지연 JS 예산 안으로 (v59.70):** 화면에 밑줄 친 용어 15개만 용어 사전과 함께 들어오고(부팅 세트), 나머지 화면 용어 34개는 용어 사전·명령 검색을 열거나 용어를 가리킬 때 불러온다(원래 순서·내용 그대로). 한국 금리·물가·수출 카드는 한국 시장 접기를 열 때 불러온다. 부팅 뒤 6.5초 지연 JS 371,757→347,713 B(한도 350,000), 첫 화면·용어 표시·팝오버와 용어 사전 첫 열기 시간은 전후 같다."
  ],
  "note": "wave2-b legacy core: change-only; evidence _artifacts/wave2-b/ (before/after screenshot diff, DOM counts, boot bytes)"
 }

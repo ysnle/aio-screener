@@ -30,6 +30,16 @@ export function installGlossaryLoader(root = globalThis, doc = root.document) {
     doc.head.appendChild(script);
   }));
   root.AIO.loadGlossary = load;
+  // v59.70 (post-boot budget): real glossary use (the modal, a search, a term mark) also brings the remaining screen terms.
+  root.AIO.loadGlossaryFull = () => load().then(() => root._aioGlossaryFull?.());
+  // Pointing at or focusing a 용어 사전 button starts that load, so the first open does not wait for it.
+  const intent = (event) => {
+    if (!event.target?.closest?.('[data-action="openGlossary"]')) return;
+    doc.removeEventListener('pointerover', intent, true); doc.removeEventListener('focusin', intent, true);
+    root.AIO.loadGlossaryFull().catch(() => {});
+  };
+  doc.addEventListener('pointerover', intent, true);
+  doc.addEventListener('focusin', intent, true);
   const soon = () => {
     if (typeof root.requestIdleCallback === 'function') root.requestIdleCallback(() => { load().catch(() => {}); }, { timeout: IDLE_TIMEOUT_MS });
     else root.setTimeout(() => { load().catch(() => {}); }, 1);
