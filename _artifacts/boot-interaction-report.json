@@ -1,9 +1,9 @@
 {
   "schemaVersion": "aio-boot-performance-evidence.v1",
-  "observedAt": "2026-11-04T07:27:47.097Z",
+  "observedAt": "2026-11-06T01:04:50.623Z",
   "appRevision": "v59.69",
-  "gitHead": "727912a7e7f23e3c57534dd1741266c20e589eec",
-  "gitClean": true,
+  "gitHead": "20388270bee9d4069631ab19a68dcd5dbe5a2dd5",
+  "gitClean": false,
   "environment": {
     "browser": "chromium",
     "browserVersion": "156.0.8078.4",
@@ -16,26 +16,84 @@
   "targetStatus": "TARGET_MISS",
   "targetPolicy": "report-not-blocking",
   "targetFailures": [
-    "active DOM 2729 > 2500",
-    "decoded same-origin JS 3.83MB > 1.5MB"
+    "max long task 339 > 200",
+    "decoded same-origin JS 2.93MB > 1.5MB"
   ],
   "metrics": {
-    "fcpMs": 1028,
-    "dclMs": 690,
-    "loadMs": 746,
-    "maxLongTaskMs": 193,
-    "totalLongTaskMs": 821,
+    "fcpMs": 900,
+    "dclMs": 392,
+    "loadMs": 493,
+    "maxLongTaskMs": 339,
+    "totalLongTaskMs": 884,
     "longTaskCount": 7,
     "longTaskObservationWindowMs": 2000,
-    "domNodes": 5031,
-    "activeRouteDomNodes": 2729,
+    "domNodes": 3426,
+    "activeRouteDomNodes": 1437,
     "activePage": "page-signal",
     "bootStatusPresent": false,
-    "decodedJsBytes": 4019362,
-    "sameOriginScripts": 212,
+    "decodedJsBytes": 3073660,
+    "sameOriginScripts": 120,
     "crossOriginScripts": 1,
-    "routeMs": 45,
-    "wallMs": 7580,
+    "resourceEntries": 199,
+    "jsByKind": {
+      "esmBoot": 1572595,
+      "classicBoot": 1153374,
+      "aiPanelBeforeUse": 0,
+      "postBootLazy": 347691
+    },
+    "aiPanelRequestsBeforeUse": [],
+    "largestLazyFiles": [
+      {
+        "path": "src/chunks/legacy-screen-bridges-TMQJYGOM.js",
+        "bytes": 41791,
+        "startMs": 271
+      },
+      {
+        "path": "src/chunks/chunk-LJGEEISQ.js",
+        "bytes": 40220,
+        "startMs": 455
+      },
+      {
+        "path": "src/chunks/backtest-SYFJ4HRS.js",
+        "bytes": 28407,
+        "startMs": 2448
+      },
+      {
+        "path": "src/chunks/session-lean-EJGBB3OM.js",
+        "bytes": 28187,
+        "startMs": 512
+      },
+      {
+        "path": "src/chunks/request-pipeline-ZQCTVLOA.js",
+        "bytes": 27863,
+        "startMs": 269
+      },
+      {
+        "path": "src/chunks/analysis-TTWO56ZF.js",
+        "bytes": 23010,
+        "startMs": 371
+      },
+      {
+        "path": "src/chunks/chunk-M7XHRITR.js",
+        "bytes": 20420,
+        "startMs": 456
+      },
+      {
+        "path": "src/chunks/chunk-A23H672D.js",
+        "bytes": 15626,
+        "startMs": 410
+      }
+    ],
+    "measuredBundle": "deploy",
+    "aiPanelOnHover": [
+      "js/aio-chat.js",
+      "src/chunks/ai-profile-GU3SX7UP.js",
+      "src/chunks/chat-globals-ZNB37PBB.js",
+      "src/chunks/question-cues-HHNEV3TP.js",
+      "src/chunks/supplied-materials-XU3HSVII.js"
+    ],
+    "routeMs": 1014,
+    "wallMs": 9119,
     "totalExternalRequests": 53,
     "quoteRequests": 32,
     "initialExternalRequests": 7,
@@ -51,6 +109,6 @@
       "other": true,
       "noChartGlobal": true
     },
-    "decodedJsMb": 3.83
+    "decodedJsMb": 2.93
   }
 }

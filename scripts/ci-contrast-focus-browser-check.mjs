@@ -6,6 +6,7 @@
 //   labels   — no heading, fold row, section label, button or tab names the screen '거시' (owner: 매크로).
 //   folds    — every fold row (details > summary) shows that it opens: list marker, drawn or glyph chevron, or 펼치기·접기.
 //   focus    — a keyboard-focused term mark, fold summary, button or link shows an outline or a ring (box-shadow).
+//   busy     — the shared busy spinner on every visible button (and the AI panel's) neither covers the label nor overflows.
 // Report: _artifacts/contrast-focus/report.json. `--routes a,b` and `--schemes light` narrow a run.
 import { chromium } from 'playwright';
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -124,6 +125,40 @@ function focusShown(k) {
   return { ok: outline || ring, sig, text: (el.textContent || el.getAttribute('aria-label') || '').trim().slice(0, 30) };
 }
 
+// v59.70 (integration review): the shared busy spinner (ui-states.css button[aria-busy]::after) on every visible button of the
+// route and the AI panel's buttons. An absolutely placed spinner must not cross the label; one in the flow must keep the
+// button's content inside the button (no overflow past its edge).
+function busyOverlap() {
+  const page = document.querySelector('.page.active');
+  // A visually hidden button (1x1, clipped: the skip-to-basis button until it is focused) draws nothing to overlap.
+  const shown = (b) => { const r = b.getBoundingClientRect(); return r.width > 2 && r.height > 2 && !/rect\(0/.test(getComputedStyle(b).clip); };
+  const buttons = [...new Set([...(page ? page.querySelectorAll('button') : []), ...document.querySelectorAll('#ai-panel button, .topbar button')])].filter(shown).slice(0, 80);
+  const bad = [];
+  for (const b of buttons) {
+    const range = document.createRange();
+    const rects = [];
+    const walker = document.createTreeWalker(b, NodeFilter.SHOW_TEXT);
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) { if (!n.textContent.trim()) continue; range.selectNodeContents(n); rects.push(...range.getClientRects()); }
+    const had = b.getAttribute('aria-busy');
+    b.setAttribute('aria-busy', 'true');
+    const s = getComputedStyle(b, '::after');
+    const sig = `${b.tagName.toLowerCase()}${b.id ? `#${b.id}` : ''}${b.classList.length ? `.${[...b.classList].slice(0, 2).join('.')}` : ''}`;
+    const text = (b.textContent || b.getAttribute('aria-label') || '').trim().slice(0, 30);
+    if (s.content && s.content !== 'none' && s.content !== 'normal') {
+      if (s.position === 'absolute' || s.position === 'fixed') {
+        const br = b.getBoundingClientRect(); const bs = getComputedStyle(b);
+        const w = parseFloat(s.width) || 0; const h = parseFloat(s.height) || 0;
+        const left = s.right !== 'auto' ? br.right - parseFloat(bs.borderRightWidth) - parseFloat(s.right) - w - (parseFloat(s.marginRight) || 0) : br.left + parseFloat(bs.borderLeftWidth) + parseFloat(s.left) + (parseFloat(s.marginLeft) || 0);
+        const top = br.top + parseFloat(bs.borderTopWidth) + parseFloat(s.top) + (parseFloat(s.marginTop) || 0);
+        const hit = rects.some((r) => r.width > 0 && left < r.right && left + w > r.left && top < r.bottom && top + h > r.top);
+        if (hit) bad.push({ sig, text, why: 'spinner covers the label' });
+      } else if (b.scrollWidth > b.clientWidth + 1) bad.push({ sig, text, why: `content ${b.scrollWidth}px overflows the ${b.clientWidth}px button` });
+    }
+    if (had === null) b.removeAttribute('aria-busy'); else b.setAttribute('aria-busy', had);
+  }
+  return bad;
+}
+
 async function main() {
   mkdirSync(dirname(outPath), { recursive: true });
   const server = await startLocalServer(port, { label: 'contrast-focus/server' });
@@ -151,13 +186,22 @@ async function main() {
           const shown = await page.evaluate(focusShown, k);
           if (shown && !shown.skip && !shown.ok) focusMissing.push({ sig: shown.sig, text: shown.text });
         }
-        const run = { route, scheme, contrast: found.contrast, links: found.links, folds: found.folds, labels: found.labels, focusMissing };
+        const busy = await page.evaluate(busyOverlap);
+        if (route === routes[0]) { // the AI panel is shared: opened once per scheme, measured, closed
+          await page.evaluate(() => document.querySelector('#topbar-ai-btn')?.click());
+          await page.waitForTimeout(600);
+          for (const b of await page.evaluate(busyOverlap)) if (!busy.some((x) => x.sig === b.sig)) busy.push(b);
+          await page.evaluate(() => document.querySelector('#topbar-ai-btn')?.click());
+          await page.waitForTimeout(300);
+        }
+        const run = { route, scheme, contrast: found.contrast, links: found.links, folds: found.folds, labels: found.labels, focusMissing, busy };
         report.runs.push(run);
         for (const c of found.contrast) failures.push(`${scheme}/${route}: contrast ${c.ratio} < ${c.need} on ${c.sig} "${c.text}" (${c.count}x)`);
         for (const l of found.links) failures.push(`${scheme}/${route}: link in the browser's default colour ${l.sig} "${l.text}"`);
         for (const l of found.labels) failures.push(`${scheme}/${route}: label check — '거시' where the screen is 매크로, or a generated word above the title: ${l.sig} "${l.text}"`);
         for (const f of found.folds) failures.push(`${scheme}/${route}: fold row with no open marker ${f.sig} "${f.text}"`);
         for (const f of focusMissing) failures.push(`${scheme}/${route}: no visible focus on ${f.sig} "${f.text}"`);
+        for (const b of busy) failures.push(`${scheme}/${route}: busy spinner — ${b.why} on ${b.sig} "${b.text}"`);
       }
       await context.close();
     }
