@@ -179,6 +179,9 @@ try {
   };
   result.aiPanelRequestsBeforeUse = aiFiles.map((entry) => entry.path);
   result.largestLazyFiles = lazyFiles.sort((a, b) => b.bytes - a.bytes).slice(0, 8).map(({ path, bytes, startMs }) => ({ path, bytes, startMs }));
+  // v59.70 (integration): AIO_BOOT_LAZY_DUMP=<file> writes every lazy file with its source inputs, so a budget miss can
+  // be attributed to the inputs that grew (chunk names are content hashes and change between builds).
+  if (process.env.AIO_BOOT_LAZY_DUMP) writeFileSync(process.env.AIO_BOOT_LAZY_DUMP, JSON.stringify(lazyFiles.map(({ path, bytes }) => ({ path, bytes, inputs: chunkInputs[path] || [] })), null, 1) + '\n');
   result.measuredBundle = measureSource ? 'source' : 'deploy';
   // Then a user reaches the AI button: the panel script and the corpus start loading on hover, before the click.
   if (!measureSource) {
