@@ -1,0 +1,28 @@
+{
+  "p": {
+    "title": "Screen re-review: same-window values still split (HY 5-session +13/+25bp, KOSPI 20-session -18.6/-19.3%), ledger day moves over a carried close, a blank index day change and a third market in two mover lists",
+    "symptom": "통합본 재검수(2026-11-06, 89e8c881) #5·#7·#8·N2·N3·N5·N7. 시장 상태 '1년 중 위치' 문단 '하이일드 스프레드가 +25bp 벌어져' beside the 5-session +13bp, and the credit threshold '기준 346bp(20일 +34bp)' beside the 20-session +31bp. 브리핑 '나스닥100 -0.7%' and 오늘의 핵심 '11/3 종가 WTI -7.7%' beside a 브리핑 table WTI 1일 '—'; the 오늘 나스닥 100 card had a blank day change. 금리와 환율 '같은 기간 코스피 -18.6%' beside 매크로 and 시장 상태 -19.3%. 엔/달러 '0.00%, 20거래일 0.0%(엔 강세)'. 매크로 rates bars '기대인플레', '기간 프리…' cut. 브리핑 unexplained moves and 기술적 분석 movers led by 285A.T and 2454.TW.",
+    "root_cause": "The regime radar read its spread leg between stock-session dates, not the shared five-session OAS reading. The threshold label printed the rule's own '+Nbp', which read as a change. The published market-day ledger predates the producer's one-session rule, and its readers trusted it without the close history. The won decomposition counted the KOSPI's 20 sessions on the US calendar. The FX card chose the side word from the unrounded sign and mixed 2- and 1-decimal precision. The bar label CSS was nowrap with an ellipsis. Only 오늘's list had the US → Korea filter.",
+    "fix": "The radar's '피난성' sentence takes oasDelta20Bp's d5. Threshold short labels name their base ('기준 346bp(20일 전 312bp 대비)'). oneSessionDay (src/domain/market-day/one-session.js) drops a ledger price fact whose close history has no previous session; 오늘, 브리핑 and 매크로's today lines read through it. The 오늘 card from its last close says '전일 종가 없음', the intraday card's words. The 오늘 cause check dates its US session ('직전 미국장 11/3'). The won decomposition reads KOSPI with closeChange on its own Korean sessions ('코스피 20거래일 -19.3%'). The FX card uses one decimal and fxSideWord (no side on 0.0%). Bar labels wrap between words. usThenKorea (session-time.js) orders 오늘, 브리핑's unexplained moves and 기술적 분석's movers.",
+    "violated_rule": "One number, one source (a figure shown on two screens is computed once)",
+    "prevention": "{R}: scripts/ci-metric-consistency-check.mjs section 6 (radar HY d5, threshold labels without '+Nbp', KOSPI 20 sessions on the won decomposition and 매크로, the one-session ledger filter, the dated cause check, the 0.0% side word, US → Korea in both mover lists) and scripts/ci-screen-rereview-browser-check.mjs (no blank last-close day change on 오늘, no cut 매크로 bar label, 390 and 1440).",
+    "verification": "node scripts/ci-metric-consistency-check.mjs and node scripts/ci-screen-rereview-browser-check.mjs pass on the branch. On 89e8c881 the metric gate fails 9 checks (25 vs 13; 기준 346bp(20일 +34bp); -18.62 vs -19.3; wti kept; WTI -7.7% told; '직전 미국장' undated; 0.0% side word; 285A.T first twice), and the browser gate fails on the 89e8c881 home-index-strip.js (나스닥 100 blank) and responsive.css (기대인플레, 기간 프리미엄 cut)."
+  },
+  "r": {
+    "title": "A same-window figure on two screens is one reader's value",
+    "rule": "A 5- or 20-session HY change is oasDelta20Bp (value, d5); a threshold label names its base, never a '+Nbp'; a KOSPI window counts Korean sessions (closeChange); a ledger day move is shown only when the close history has the previous session (oneSessionDay); a list of the day's names is US then Korean (usThenKorea).",
+    "validation": "node scripts/ci-metric-consistency-check.mjs; node scripts/ci-screen-rereview-browser-check.mjs"
+  },
+  "qa": [
+    {
+      "id": "QA-DATA-REREVIEW-ONE-VALUE",
+      "text": "v59.70: on the next refresh, 시장 상태 · 매크로 · 금리와 환율 quote one HY 5/20-session and one KOSPI 20-session value, 오늘의 핵심 and 브리핑 tell no day move the close history lacks, and the 오늘 index cards have no blank day change",
+      "verify_by": "2026-11-08"
+    }
+  ],
+  "qa_section": "Wave 2 D: entity, portfolio and data follow-ups (v59.70)",
+  "changelog": [
+    "**재검수 남은 값 맞춤 (통합본 재검수 #5·#7·#8·N2·N3·N5·N7, {VERSION}, {P}/{R}):** 시장 상태 '1년 중 위치' 문단의 하이일드 5거래일 변화를 다른 화면과 같은 판독(+13bp)으로 맞추고, 신용 기준 칸은 '기준 346bp(20일 전 312bp 대비)'로 바꿔 두 번째 변화로 읽히지 않게 했다. 종가 기록에 직전 거래일이 없는 하루 변화(11/3 WTI -7.7%, 나스닥100 -0.7%)는 오늘의 핵심·브리핑·매크로에서 빼고, 오늘 지수 카드는 '전일 종가 없음'을 보인다. 오늘 원인 점검은 '직전 미국장 11/3'처럼 날짜를 밝힌다. 금리와 환율의 코스피 20거래일은 한국 거래일로 세어 매크로·시장 상태와 같은 값이다. 엔/달러 카드는 한 자릿수로 쓰고 0.0%에는 방향을 붙이지 않는다. 매크로 막대 이름은 줄을 바꿔 다 보인다. 브리핑의 이유 없는 큰 움직임과 기술적 분석의 움직인 종목도 미국, 한국 순이고 다른 시장 종목은 넣지 않는다. 게이트: ci-metric-consistency-check 6절, ci-screen-rereview-browser-check."
+  ],
+  "note": "wave2-d: screen re-review 2026-11-06 (89e8c881) data-refactor items #5, #7, #8, N2, N3 (data side), N5, N7; 금리와 환율 '1개월 -19.0%' is the 21-session window (MARKET_WINDOWS.month) and stays"
+}

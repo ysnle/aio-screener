@@ -1423,16 +1423,17 @@ export function buildMarketRegime(input = {}) {
       const value = finite(Array.isArray(row) ? row[1] : row?.value);
       if (value != null && (!basis || date <= basis)) hySeries.push({ date, value: value * 100 });
     }
-    // v59.70 (screen review 5): a threshold's short label opens with 기준 so 346bp beside the measured 343bp reads as the line, not a second reading.
+    // v59.70 (screen review 5): a threshold's short label opens with 기준 so 346bp beside the measured 343bp reads as the line, not a second reading;
+    // re-review: it names the base it is counted from, never a '+Nbp' that reads as a second 20-session change (+34 beside +31).
     const creditDistance = state === 'unknown' ? null : flipDistanceSearch({
       state, stateAt: (values) => creditAt(values.hy),
       levers: [{ key: 'hy', current: hyBp, typical: typicalDailyMove(hySeries.sort((a, b) => a.date.localeCompare(b.date))), points: [
         hyPoint(C.stressAtBp, `${C.stressAtBp}bp`, `${C.stressAtBp}bp`),
         hyPoint(C.tightBelowBp, `${C.tightBelowBp}bp`, `${C.tightBelowBp}bp`),
-        ...(base5 != null ? [hyPoint(base5 + C.widen5dBp, `${fmt(base5 + C.widen5dBp, 0)}bp(5거래일 +${C.widen5dBp}bp)`, `기준 ${fmt(base5 + C.widen5dBp, 0)}bp(5일 +${C.widen5dBp}bp)`),
-          hyPoint(base5 + C.calm5dBp, `${fmt(base5 + C.calm5dBp, 0)}bp(5거래일 +${C.calm5dBp}bp)`, `기준 ${fmt(base5 + C.calm5dBp, 0)}bp(5일 +${C.calm5dBp}bp)`)] : []),
-        ...(base20 != null ? [hyPoint(base20 + C.widen20dBp, `${fmt(base20 + C.widen20dBp, 0)}bp(20거래일 +${C.widen20dBp}bp)`, `기준 ${fmt(base20 + C.widen20dBp, 0)}bp(20일 +${C.widen20dBp}bp)`),
-          hyPoint(base20 + enter20, `${fmt(base20 + enter20, 0)}bp(20거래일 +${fmt(enter20, 0)}bp${c.hy20Record ? ', 자체 기록 상위 ' + (100 - C.stress20dPct) + '%' : ''})`, `기준 ${fmt(base20 + enter20, 0)}bp(20일 +${fmt(enter20, 0)}bp)`)] : [])
+        ...(base5 != null ? [hyPoint(base5 + C.widen5dBp, `${fmt(base5 + C.widen5dBp, 0)}bp(5거래일 +${C.widen5dBp}bp)`, `기준 ${fmt(base5 + C.widen5dBp, 0)}bp(5일 전 ${fmt(base5, 0)}bp 대비)`),
+          hyPoint(base5 + C.calm5dBp, `${fmt(base5 + C.calm5dBp, 0)}bp(5거래일 +${C.calm5dBp}bp)`, `기준 ${fmt(base5 + C.calm5dBp, 0)}bp(5일 전 ${fmt(base5, 0)}bp 대비)`)] : []),
+        ...(base20 != null ? [hyPoint(base20 + C.widen20dBp, `${fmt(base20 + C.widen20dBp, 0)}bp(20거래일 +${C.widen20dBp}bp)`, `기준 ${fmt(base20 + C.widen20dBp, 0)}bp(20일 전 ${fmt(base20, 0)}bp 대비)`),
+          hyPoint(base20 + enter20, `${fmt(base20 + enter20, 0)}bp(20거래일 +${fmt(enter20, 0)}bp${c.hy20Record ? ', 자체 기록 상위 ' + (100 - C.stress20dPct) + '%' : ''})`, `기준 ${fmt(base20 + enter20, 0)}bp(20일 전 ${fmt(base20, 0)}bp 대비)`)] : [])
       ] }]
     });
     const rec = c.hy20Record;

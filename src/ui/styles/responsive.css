@@ -668,7 +668,8 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 #page-macro .mx-ch__bar.is-hot { background: var(--text-primary); }
 #page-macro .mx-ch__bar.is-neg { background: rgba(var(--ink-rgb), 0.16); }
 #page-macro .mx-ch__bar.is-neg.is-hot { background: var(--text-secondary); }
-#page-macro .mx-ch__x { font-size: 11px; text-align: center; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-top: 2px; }
+/* v59.70 (re-review N5): a bar label wraps between words ('기간 / 프리미엄') instead of losing its end to an ellipsis. */
+#page-macro .mx-ch__x { font-size: 11px; line-height: 1.25; text-align: center; color: var(--text-muted); word-break: keep-all; overflow-wrap: anywhere; padding-top: 2px; }
 #page-macro .mx-ch__cap { font-size: 11px; color: var(--text-muted); }
 #page-macro .mx-ch__text { display: flex; flex-direction: column; gap: 6px; }
 #page-macro .mx-ch__now { margin: 0; font-size: 14px; font-weight: 700; line-height: 1.5; color: var(--text-primary); font-variant-numeric: tabular-nums; }

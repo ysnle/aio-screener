@@ -5,6 +5,7 @@
 // which axes moved, not a total.
 import { alignInput, buildCloseSeries, isUsable, sessionPointBack } from './close-series.js';
 import { RULES } from '../rules/thresholds.js';
+import { oasDelta20Bp } from '../briefing/market-read.js';
 import { finiteNumber as finite } from '../shared/number.js';
 import { isoDay } from '../shared/session-date.js';
 import { percentileOf } from '../shared/percentile.js';
@@ -106,7 +107,9 @@ export function buildRegimeRadar(input = {}, { macroHistory = null, offsets = [0
   // v59.43 (X bookmark 2114267194930663745): a lower 10-year yield is the supportive side only when credit is not
   // widening with it. A 5-session yield drop while HY OAS widens by the watch amount is a flight to safety; the axis
   // keeps its percentile and the reading names the pairing instead of calling it an improvement.
-  const defensive = defensiveYieldDrop(sources.rates[0].series, sources.credit[0].series, dates[0], dates[1]);
+  // v59.70 (re-review 5): the spread leg is the one 5-session OAS reading every screen quotes (US close sessions, back from
+  // the last observation), not the radar's own date pair, which read +25bp beside 시장 상태's and 매크로's +13bp.
+  const defensive = defensiveYieldDrop(sources.rates[0].series, sources.credit[0].series, dates[0], dates[1], oasDelta20Bp(macroHistory, 'hyOas', dates[0])?.d5);
   const rates = axes.find((axis) => axis.id === 'rates');
   if (rates) rates.defensive = defensive;
   const defensiveText = defensive ? ` 다만 10년물 금리가 5거래일 ${Math.abs(defensive.yieldBp)}bp 내리는 동안 하이일드 스프레드가 +${defensive.oasBp}bp 벌어져, 이번 금리 하락은 경기·신용 우려 속 피난성일 수 있습니다. 금리 위치가 좋아진 것을 그대로 우호 신호로 읽지 않습니다.` : '';
@@ -114,11 +117,11 @@ export function buildRegimeRadar(input = {}, { macroHistory = null, offsets = [0
 }
 
 /** 10-year yield change (bp) and HY OAS change (bp) between two dates, when the yield fell and the spread widened. */
-export function defensiveYieldDrop(tnx, hyOasBp, date, before) {
+export function defensiveYieldDrop(tnx, hyOasBp, date, before, oas5Bp = null) {
   if (!date || !before) return null;
   const at = (series, d) => { const i = endIndex(series, d); return i >= 0 && isUsable(alignInput(series[i].date, d)) ? series[i].value : null; };
   const y0 = at(tnx, before), y1 = at(tnx, date), s0 = at(hyOasBp, before), s1 = at(hyOasBp, date);
   if ([y0, y1, s0, s1].some((value) => value == null)) return null;
-  const yieldBp = Math.round((y1 - y0) * 100), oasBp = Math.round(s1 - s0);
+  const yieldBp = Math.round((y1 - y0) * 100), oasBp = Math.round(Number.isFinite(oas5Bp) ? oas5Bp : s1 - s0);
   return yieldBp < 0 && oasBp >= RULES.credit.widenWatch5dBp ? { yieldBp, oasBp } : null;
 }

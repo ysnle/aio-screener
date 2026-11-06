@@ -90,6 +90,54 @@ const tiers = homeBriefTiers({ schemaVersion: EVENT_BRIEFS_SCHEMA, briefs: [{ ki
 const shown = [...tiers.core, ...tiers.notable, ...tiers.rest];
 check('v59.70 31 a brief shows no ™ ® ℠', shown.length === 1 && !/[™®℠]/.test(JSON.stringify({ ...shown[0], checkText: '' })) && shown[0].checkText === 'Scorpio™', JSON.stringify(shown[0] || null));
 
+// ── 6. Screen re-review 2026-11-06 (89e8c881).
+const { buildRegimeRadar } = await load('src/domain/market/regime-radar.js');
+const { buildKrwDecomposition } = await load('src/domain/macro/krw-decomposition.js');
+const { closeChange } = await load('src/domain/market/market-windows.js');
+const { oneSessionDay } = await load('src/domain/market-day/one-session.js');
+const { koreaLinks } = await load('src/domain/market/session-bridge.js');
+const { fxSideWord } = await load('src/domain/macro/rates-fx.js');
+const { coreStockRows } = await load('src/domain/technical/market-charts.js');
+// #5: one HY reading per window — the radar's '피난성' sentence quotes the same 5-session change, and a threshold label
+// never prints a '+Nbp' that reads as a second 20-session change (기준 346bp(20일 +34bp) beside the measured +31bp).
+if (hy?.d5 != null) {
+  const radar = buildRegimeRadar({ history }, { macroHistory });
+  const said = num(radar.lead, /하이일드 스프레드가 \+(\d+)bp 벌어져/);
+  check('v59.70 re-review 5 the radar quotes the one 5-session HY change', said == null || said === Math.round(hy.d5), `${said} vs ${Math.round(hy.d5)}`);
+}
+for (const distance of creditAxis?.flipDistances || []) check('v59.70 re-review 5 a credit threshold label carries no +Nbp change', !/\+\d+bp/.test(distance.short || ''), distance.short);
+// N2: the KOSPI 20-session change is one number on 금리와 환율, 매크로 and 시장 상태.
+const kospi20 = closeChange(history, 'kospi', 20);
+if (kospi20) {
+  const want = Math.round(kospi20.pct * 10) / 10;
+  const krw = buildKrwDecomposition(history);
+  if (krw.available && krw.kospiMove != null) check('v59.70 re-review N2 the won decomposition quotes the KOSPI 20 Korean sessions', Math.round(krw.kospiMove * 10) / 10 === want, `${krw.kospiMove} vs ${want}`);
+  const growth = chapters.find((chapter) => chapter.id === 'growth')?.now || '';
+  if (/코스피/.test(growth)) check('v59.70 re-review N2 매크로 growth chapter quotes the same KOSPI 20-session change', num(growth, /코스피 ([+-]?[\d.]+)%/) === want, `${growth} vs ${want}`);
+}
+// #7 · #8: a ledger day move over a carried close is dropped where 오늘 and 브리핑 read it (the 11/3 ledger: WTI -7.7%,
+// 나스닥100 -0.7% over a missing 11/2 close), so the 브리핑 table's '—' and 오늘의 핵심 agree.
+const gapRows = rows.map((row) => ({ ...row }));
+gapRows.at(-2).wti = null;
+const ledger = { facts: [{ id: 'price:wti:x', kind: 'price', asset: 'wti', label: 'WTI 유가', date: gapRows.at(-1).date, change: -7.7, unit: 'pct', rank: 'lead', materiality: 90 },
+  { id: 'price:spx:x', kind: 'price', asset: 'spx', label: 'S&P 500', date: gapRows.at(-1).date, change: 0.4, unit: 'pct', rank: 'major', materiality: 60 }], links: [{ from: 'price:wti:x', to: 'price:spx:x', basis: 'family' }] };
+const kept = oneSessionDay(ledger, gapRows);
+check('v59.70 re-review 8 a day move over a missing close leaves the day ledger', kept.facts.map((fact) => fact.asset).join(',') === 'spx' && kept.links.length === 0, JSON.stringify(kept.facts.map((fact) => fact.asset)));
+const told = JSON.stringify(buildDayAccount(oneSessionDay({ ...ledger, facts: ledger.facts.map((fact) => ({ ...fact, z: 3 })) }, gapRows)));
+check('v59.70 re-review 8 오늘의 핵심 does not tell the two-session WTI move', !/WTI 유가 -7\.7%/.test(told), told.slice(0, 160));
+// #7: the cause check names the US session it read, so 나스닥 종합 there and 나스닥100 elsewhere read as one close.
+const links = koreaLinks({ kospi: { change: -3.4, observedAt: '2026-11-04T06:30:00Z' }, nasdaq: { change: 0.8, observedAt: '2026-11-03T20:30:00Z' } });
+check('v59.70 re-review 7 the cause check dates its US session', links.find((link) => link.id === 'us')?.label === '직전 미국장 11/3', links.find((link) => link.id === 'us')?.label);
+// N3: a 0.0% currency change has no side word.
+check('v59.70 re-review N3 no side word on a change shown as 0.0%', fxSideWord('usdjpy', -0.02) === '' && fxSideWord('usdjpy', -0.3) === '(엔 강세)' && fxSideWord('usdkrw', 0.04) === '');
+// N7: 브리핑's unexplained moves and 기술적 분석's movers follow 오늘's US → Korea order, no third market.
+const moves = [['285A.T', -15.8], ['2454.TW', -6], ['005930.KS', 4], ['NVDA', 2]].map(([sym, change]) => ({ id: `stock-move:${sym}`, kind: 'stock-move', rank: 'major', subjects: [sym], label: sym, change, materiality: 60 }));
+const unexplained = buildDayAccount({ facts: moves }).unexplained.map((row) => row.sym).join(',');
+check('v59.70 re-review N7 브리핑 unexplained moves: US first, Korean next, no third market', unexplained === 'NVDA,005930.KS', unexplained);
+const screenerData = Object.fromEntries(moves.map((fact) => [fact.subjects[0], { pctSma50: 1, pctSma200: 2 }]));
+const charted = coreStockRows({ screener: { data: screenerData }, day: { facts: moves } }).map((row) => row.sym).join(',');
+check('v59.70 re-review N7 기술적 분석 movers: US first, Korean next, no third market', charted === 'NVDA,005930.KS', charted);
+
 if (failures.length) {
   console.error(`[metric-consistency] ${failures.length} failure(s):\n- ${failures.join('\n- ')}`);
   process.exit(1);

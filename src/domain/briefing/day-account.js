@@ -5,7 +5,7 @@
 // prices — and a fact belongs to one story only, in materiality order. What moved hard with nothing linked to it is kept
 // apart as unexplained; what is still ahead is a dated list. Nothing is scored here: rank and materiality are the ledger's.
 import { signedText, usdKoreanText } from '../shared/number.js';
-
+import { usThenKorea } from '../market/session-time.js';
 const pct = (value, digits = 1) => signedText(value, digits, '%');
 const bp = (value) => signedText(value, 0, 'bp');
 const md = (date) => { const text = String(date || ''); return text.length >= 10 ? `${Number(text.slice(5, 7))}/${Number(text.slice(8, 10))}` : text; };
@@ -168,8 +168,9 @@ export function buildDayAccount(day) {
     stories.push(story);
   }
 
-  const unexplained = facts.filter((fact) => fact.kind === 'stock-move' && !(fact.explainedBy || []).length && !claimed.has(fact.id) && ['lead', 'major', 'minor'].includes(fact.rank))
-    .sort((a, b) => Math.abs(b.change) - Math.abs(a.change)).slice(0, 6).map((fact) => ({ sym: fact.subjects?.[0], label: fact.label, change: fact.change }));
+  // v59.70 (re-review N7): the same US → Korea order as 오늘's names, no third market.
+  const unexplained = usThenKorea(facts.filter((fact) => fact.kind === 'stock-move' && !(fact.explainedBy || []).length && !claimed.has(fact.id) && ['lead', 'major', 'minor'].includes(fact.rank)),
+    (fact) => String(fact.subjects?.[0] || ''), (a, b) => Math.abs(b.change) - Math.abs(a.change)).slice(0, 6).map((fact) => ({ sym: fact.subjects?.[0], label: fact.label, change: fact.change }));
   const ahead = facts.filter((fact) => fact.kind === 'upcoming' && ['lead', 'major'].includes(fact.rank))
     .sort((a, b) => String(a.date).localeCompare(String(b.date)) || byMateriality(a, b))
     .map((fact) => ({ date: fact.date, label: fact.label, why: fact.why || (fact.hour === 'amc' ? '장 마감 후 실적' : fact.hour === 'bmo' ? '장 시작 전 실적' : ''), rank: fact.rank }));

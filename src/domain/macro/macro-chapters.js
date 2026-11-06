@@ -2,6 +2,7 @@
 // 없고, 향후 … CPI 발표 체크해야된다라는 내용도 없고"): 매크로's six chapters. Each answers one question with one small
 // picture, the latest numbers, what they mean for stocks, the next dated release and the condition that would change the
 // read. Every number comes from macro-history.json (FRED) or history.json; every sentence is chosen by a rule here.
+import { oneSessionDay } from '../market-day/one-session.js';
 import { readNumber, signedText } from '../shared/number.js';
 import { dayLabel } from '../market/market-story.js';
 import { buildCloseSeries, closeBasis } from '../market/close-series.js';
@@ -325,6 +326,6 @@ function growthKorea(macroHistory, history, events) {
 export function buildMacroChapters({ macroHistory = null, history = [], events = [], day = null } = {}) {
   const chapters = [inflation(macroHistory, events), labor(macroHistory, events), rates(macroHistory, events, history), credit(macroHistory), oil(history, macroHistory),
     metals(history, macroHistory), dollarChapter(history), growthKorea(macroHistory, history, events)].filter(Boolean)
-    .map((chapter) => ({ ...chapter, today: chapterToday(day, chapter.id) }));
+    .map((chapter) => ({ ...chapter, today: chapterToday(oneSessionDay(day, history), chapter.id) }));
   return { available: chapters.length > 0, chapters };
 }

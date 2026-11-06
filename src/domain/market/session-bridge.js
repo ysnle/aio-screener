@@ -139,7 +139,8 @@ export function koreaLinks({ kospi, kosdaq: kosdaqRow, nasdaq: nasdaqRow, semis:
   if (nasdaq?.change != null) {
     const usSide = sideOf(nasdaq.change);
     const verdict = krSide === 0 ? 'unknown' : usSide === krSide ? 'supports' : 'against';
-    links.push({ id: 'us', label: '직전 미국장', verdict, evidence: `나스닥 종합 ${pct(nasdaq.change)}${semis?.change != null ? `, 반도체 ETF ${pct(semis.change)}` : ''}`,
+    // v59.70 (re-review 7): the session date said, so 나스닥 종합 here and 나스닥100 elsewhere read as the same US close.
+    links.push({ id: 'us', label: `직전 미국장 ${md(usBefore)}`, verdict, evidence: `나스닥 종합 ${pct(nasdaq.change)}${semis?.change != null ? `, 반도체 ETF ${pct(semis.change)}` : ''}`,
       text: verdict === 'supports' ? '같은 방향이라 미국장 흐름이 이어진 몫이 있습니다.' : verdict === 'against' ? (usSide === 0 ? '미국장 변화가 작아 이 움직임을 설명하지 못합니다.' : '미국장과 반대 방향이라 미국발로 보기 어렵습니다.') : '한국 변화가 작아 비교하지 않습니다.' });
   }
   // 2. Asia on the same day.

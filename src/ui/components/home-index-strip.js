@@ -91,6 +91,8 @@ function chartSvg(doc, model) {
   return svg;
 }
 
+export const NO_PREVIOUS_CLOSE = '전일 종가 없음';
+
 /** The last two published daily closes of a card's fallback series, or null. */
 export function closeFallback(history, spec) {
   const series = Array.isArray(history) && spec?.close ? buildCloseSeries(history, spec.close) : [];
@@ -116,7 +118,8 @@ function card(doc, root, spec, model, failed) {
   if (!model) {
     if (close) {
       const dir = toneOf(close.changePct);
-      head.append(' ', el(doc, 'span', close.changePct == null ? '' : signedText(close.changePct, 2, '%'), `home-index-change ${dir}`));
+      // v59.70 (re-review 7): no one-session change (나스닥100 has no 11/2 close) says so, in the intraday card's words.
+      head.append(' ', el(doc, 'span', close.changePct == null ? NO_PREVIOUS_CLOSE : signedText(close.changePct, 2, '%'), `home-index-change ${dir}`));
       const box = el(doc, 'div', null, 'home-index-plot is-empty home-index-fallback');
       // v59.55 (owner 11/1, "쓸모없는 텍스트 다 없애"): the card shows the close and its date; the name repeated the card
       // title, and the missing-intraday note (every weekend, four times) stays in the label for screen readers only.
@@ -132,7 +135,7 @@ function card(doc, root, spec, model, failed) {
     return node;
   }
   const direction = toneOf(model.changePct ?? model.change);
-  const changeText = model.change == null ? '전일 종가 없음' : `${signedText(model.change, 2)} (${signedText(model.changePct, 2, '%')})`;
+  const changeText = model.change == null ? NO_PREVIOUS_CLOSE : `${signedText(model.change, 2)} (${signedText(model.changePct, 2, '%')})`;
   head.append(' ', el(doc, 'span', changeText, `home-index-change ${direction}`));
   const plot = el(doc, 'div', null, 'home-index-plot');
   const axis = el(doc, 'div', null, 'home-index-axis');
