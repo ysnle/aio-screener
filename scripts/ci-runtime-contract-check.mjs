@@ -1,3 +1,5 @@
+import { readThemesPageSource } from './lib/themes-page-source.mjs';
+import { readScreenerPageSource } from './lib/screener-page-source.mjs'; // v59.70 (S12): the page is split under src/ui/pages/screener/
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -38,12 +40,12 @@ const bootstrap = read('src/app/bootstrap.js');
 const portfolioBacktest = read('src/domain/portfolio/backtest.js');
 const screenerProvider = read('src/data/providers/screener.js');
 const sentimentPage = read('src/ui/pages/sentiment.js');
-const screenerPage = read('src/ui/pages/screener.js');
+const screenerPage = readScreenerPageSource();
 const newsPage = read('src/ui/pages/news.js');
 const newsScoring = read('src/domain/news/scoring.js');
 const routeOwners = JSON.parse(read('architecture/route-owners.json'));
 const sentimentDomain = read('src/domain/sentiment/metrics.js');
-const themesPage = read('src/ui/pages/themes.js');
+const themesPage = readThemesPageSource(); // v59.70: the page is split under src/ui/pages/themes/
 const atlasPage = read('src/ui/pages/atlas.js');
 const mastersPage = read('src/ui/pages/masters.js') + read('src/ui/pages/masters-views.js'); // v59.70: view builders split out of the page
 const marketPage = read('src/ui/pages/market.js');
@@ -741,7 +743,7 @@ const macroReleaseProbe = await (async () => {
 check('P1425 macro route has no legacy yield-curve owner and replays the official calendar after the server data lands', !/_lazyInitChartPage\('macro', 'yieldCurveChart'/.test(core) && !/renderOfficialFutureCalendar/.test(core) && !/renderMacroNextRelease|_initMacroPage/.test(core) && /'aio:serverDataLoaded'/.test(read('src/ui/pages/market.js'))); // v58.85: the header renderer left aio-core.js (its document-level aio:sharedMarketCut listener never fired: the event is dispatched on window) // P1672: #official-future-calendar left with P1425 // P1425
 check('v59.51 the 거시 next release is the board header crossroads.nextEvent; the separate calendar line and renderer stay retired', !/function renderOfficialFutureCalendar/.test(macroTech) && !/renderMacroNextRelease/.test(read('src/ui/components/macro-next-release.js') + read('src/ui/pages/market.js')) && /crossroads\?\.nextEvent/.test(read('src/ui/components/macro-board.js')));
 check('P1425 the legacy yield-curve renderer stays retired with its canvas', !/function renderYieldCurve/.test(macroTech) && !/id="yieldCurveChart"/.test(html));
-check('news and screener use 12-row progressive reveal instead of unbounded first paint', /_aioNewsVisibleLimit\s*\|\|\s*12/.test(data) && /const visibleLimit = \{ value: 12 \}/.test(read('src/ui/pages/screener.js')) /* v58.20: the screener's reveal limit lives in screener.js; the unread classic _scrVisibleLimit is gone */ && /id="news-load-more-wrap"/.test(html) && /id="scr-load-more-wrap"/.test(html));
+check('news and screener use 12-row progressive reveal instead of unbounded first paint', /_aioNewsVisibleLimit\s*\|\|\s*12/.test(data) && /visibleLimit: \{ value: 12 \}/.test(readScreenerPageSource()) /* v58.20: the screener's reveal limit lives in screener.js; the unread classic _scrVisibleLimit is gone */ && /id="news-load-more-wrap"/.test(html) && /id="scr-load-more-wrap"/.test(html));
 // P770: native news.js owns the briefing list height/reveal; the uncalled legacy adapters were retired.
 // v58.92: the 뉴스 chips and sort buttons run from src/ui/components/news-controls.js (moved from aio-data.js).
 const newsControlsProbe = await (async () => {
@@ -957,8 +959,10 @@ const homeRetired = ['home-quote-basis', 'home-kpi-strip', 'home-schedule', 'hom
 check('v59.68 home static order: date, verdict hero, index strip, cross assets, 오늘의 핵심, daily loop, 내 종목; retired quote-basis/KPI/schedule/close-change/AI chain/participation/flips/chips/next ids absent; no runtime reorder (P1322/P1494)', homeOrder.every((at, i) => at > 0 && (i === 0 || at > homeOrder[i - 1])) && homeRetired && html.indexOf('id="home-market-summary-banner"') < 0 &&!/crossAssets\.insertAdjacentElement\('afterend', anchorH\)/.test(core) && /hero\.dataset\.state = regime\.available/.test(read('src/ui/components/market-regime.js')));
 // v57.77: the screener reads, then filters, then shows the table; the ranking validation lives once inside the
 // 과거 검증 tab, and the weight-profile and data-status folds sit below the tab panels.
-const screenerOrder = ['screener-read', 'screener-workbench', 'scr-tab-ranking', 'screener-results-table', 'scr-tab-backtest', 'screener-validation', 'scr-tab-evidence', 'scr-weight-profiles', 'scr-data-status', 'screener-next'].map((id) => html.indexOf(`id="${id}"`));
-check('v57.77 screener static order: read, filter controls, table; one validation view inside the 과거 검증 tab; folds below the panels', screenerOrder.every((at, i) => at > screenerAt && (i === 0 || at > screenerOrder[i - 1])) && html.indexOf('id="screener-validation"', screenerOrder[5] + 1) < 0);
+// v59.70 (S12): the condition row and its panels sit in the 순위 view above the table; the developer drawer (and the
+// workbench inside it) follows the table; the weight-profile fold is gone (보기 carries the weights).
+const screenerOrder = ['screener-read', 'scr-tab-ranking', 'scr-condition-panel', 'screener-results-table', 'scr-developer-drawer', 'screener-workbench', 'scr-tab-backtest', 'screener-validation', 'scr-tab-evidence', 'scr-data-status', 'screener-next'].map((id) => html.indexOf(`id="${id}"`));
+check('v59.70 screener static order: read, condition row, table, developer drawer; one validation view inside the 과거 검증 tab; data fold below the panels; no weight-profile fold', screenerOrder.every((at, i) => at > screenerAt && (i === 0 || at > screenerOrder[i - 1])) && html.indexOf('id="screener-validation"', screenerOrder[7] + 1) < 0 && html.indexOf('id="scr-weight-profiles"') < 0);
 check('news progressive reveal belongs to the market-news page rather than screener', newsMoreAt > marketNewsAt && newsMoreAt < screenerAt && /id="live-news-feed"[\s\S]{0,800}id="news-load-more-wrap"/.test(html));
 // v59.12: the 재무 공시 search moved from js/aio-chat.js to src/ui/components/fundamental-search.js.
 const fundSearch = read('src/ui/components/fundamental-search.js');
@@ -1757,12 +1761,13 @@ check('P1301/R650/QA-DATA-44 macro schedule dates never become lastRelease witho
 
 {
   // v57.61 WCAG 2.2 AA pass: focus survives re-renders, statuses are announced, names are distinct.
-  const custom = read('src/ui/components/screener-custom.js');
-  const screener = read('src/ui/pages/screener.js');
+  // v59.70 (S12): the 맞춤 조건 panel is the section of screener/filters.js between its banner and the condition-bar controller.
+  const custom = (read('src/ui/pages/screener/filters.js').split('// ── 맞춤 조건 panel')[1] || '').split('/** The condition bar')[0];
+  const screener = readScreenerPageSource();
   const terms = read('src/ui/components/term-marks.js');
   const entity = read('src/ui/pages/entity.js');
-  check('v57.61 맞춤 조건 chips keep focus across renders, the count note is a status and the chip list is not a live region', /chip\.dataset\.chip = chipKey\(condition\)/.test(custom) && /findIn\(focusKey\[0\], focusKey\[1\]\)\?\.focus\(\)/.test(custom) && /\(removes\[index\] \|\| removes\[index - 1\] \|\| select\)\.focus\(\)/.test(custom) && /note\.setAttribute\('role', 'status'\)/.test(custom) && !/aria-live/.test(custom) && /signature !== lastSignature/.test(custom)); // text-pin-ok: v57.61 a11y attribute contract; the browser accessibility matrix covers behaviour
-  check('v57.61 screener sort returns focus to the header button, non-sortable headers carry no aria-sort, hints reach assistive tech, search is debounced', /node\.dataset\.scrSort === column\)\?\.focus\?\.\(\)/.test(screener) && !/th\.setAttribute\('aria-sort', 'none'\);\n\s*\}/.test(screener) && !/정렬 적용|'적용'\}`\)/.test(screener) && /\$\{column\.label\}로 정렬/.test(screener) && /setAttribute\('aria-describedby', hintId\)/.test(screener) && /setTimeout\(\(\) => \{ searchTimer = null;[^}]*\}, 150\)/.test(screener)); // text-pin-ok: v57.61 a11y attribute contract; the browser accessibility matrix covers behaviour
+  check('v57.61 맞춤 조건 chips keep focus across renders, the count note is a status and the chip list is not a live region', /chip\.dataset\.chip = chipKey\(condition\)/.test(custom) && /findIn\(focusKey\[0\], focusKey\[1\]\)\?\.focus\(\)/.test(custom) && /\(removes\[index\] \|\| removes\[index - 1\] \|\|[^;]*select\)\.focus\(\)/.test(custom) && /note\.setAttribute\('role', 'status'\)/.test(custom) && !/aria-live/.test(custom) && /signature !== lastSignature/.test(custom)); // text-pin-ok: v57.61 a11y attribute contract; the browser accessibility matrix covers behaviour
+  check('v57.61 screener sort returns focus to the header button, non-sortable headers carry no aria-sort, hints reach assistive tech, search is debounced', /node\.dataset\.scrSort === column\)\?\.focus\?\.\(\)/.test(screener) && !/th\.setAttribute\('aria-sort', 'none'\);\n\s*\}/.test(screener) && !/정렬 적용|'적용'\}`\)/.test(screener) && /\$\{column\.label\}로 정렬/.test(screener) && /setAttribute\('aria-describedby', hintId\)/.test(screener) && /setTimeout\(\(\) => \{ (?:ctx\.)?searchTimer = null;[^}]*\}, 150\)/.test(screener)); // text-pin-ok: v57.61 a11y attribute contract; the browser accessibility matrix covers behaviour
   check('v57.61 KR theme card header is keyboard operable', /kr-theme-header" role="button" tabindex="0"/.test(krData) && /e\.key === 'Enter' \|\| e\.key === ' '/.test(krData)); // text-pin-ok: v57.61 a11y attribute contract; the browser accessibility matrix covers behaviour
   check('v57.61 term popover returns focus to its mark, exposes aria-expanded and closes when focus leaves', /mark\.setAttribute\('aria-expanded', 'false'\)/.test(terms) && /restore && hadFocus && mark\?\.isConnected/.test(terms) && /addEventListener\('focusout'/.test(terms)); // text-pin-ok: v57.61 a11y attribute contract; the browser accessibility matrix covers behaviour
   check('v57.61 ticker price basis and chart loading are status regions; the back button name does not read the arrow', /status\.setAttribute\('role', 'status'\)/.test(entity) && /loading\.setAttribute\('role', 'status'\)/.test(entity) && !/aria-label', `← /.test(entity) && !/aria-label', '← /.test(entity)); // text-pin-ok: v57.61 a11y attribute contract; the browser accessibility matrix covers behaviour

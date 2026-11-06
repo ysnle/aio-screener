@@ -1,4 +1,5 @@
 // P1462–P1469 (v57.19 takeover review): executable negative controls for the meaning fixes.
+import { readScreenerPageSource } from './lib/screener-page-source.mjs'; // v59.70 (S12): the page is split under src/ui/pages/screener/
 import { readFileSync } from 'node:fs';
 import { readProducerSource } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + the lib modules split out of it
 import { liveScreenerModelFingerprint, buildRankingIdentity } from '../src/domain/screener/model-fingerprint.js';
@@ -34,12 +35,12 @@ if (/!\['IMPORTED_CURRENT', 'IMPORTED_PRIOR'\]\.includes\(period\.rowImportStatu
 const fpDefault = liveScreenerModelFingerprint();
 if (liveScreenerModelFingerprint({ momentum: 0.369863, trend: 0.273973, lowvol: 0.219178, kalman: 0.136986 }) !== fpDefault) fail('P1463 applied default weights must match the default identity');
 if (liveScreenerModelFingerprint({ momentum: 0.6, trend: 0.1, lowvol: 0.1, kalman: 0.2 }) === fpDefault) fail('P1463 a profile with other weights must not read as the validated model');
-if (!/liveScreenerModelFingerprint\(metadata\?\.ranking\?\.appliedFactorWeights\)/.test(read('src/ui/pages/screener.js'))) fail('P1463 the 검증 view must pass the applied weights');
+if (!/liveScreenerModelFingerprint\(metadata\?\.ranking\?\.appliedFactorWeights\)/.test(readScreenerPageSource())) fail('P1463 the 검증 view must pass the applied weights');
 if (buildRankingIdentity({ appliedFactorWeights: { momentum: 0.5, trend: 0.5 }, activeFactors: ['trend', 'momentum'] }) !== buildRankingIdentity({ appliedFactorWeights: { trend: 0.5, momentum: 0.5 }, activeFactors: ['momentum', 'trend'] })) fail('P1465 ranking identity must be order-independent');
 
 // P1464: the percentile column is not called a score.
 const rankColumn = SCREENER_COLUMN_REGISTRY.find((column) => column.key === 'rank');
-if (rankColumn?.label !== '백분위' || /상대 점수/.test(read('src/ui/pages/screener.js'))) fail('P1464 rank column must read 백분위, not 상대 점수');
+if (rankColumn?.label !== '백분위' || /상대 점수/.test(readScreenerPageSource())) fail('P1464 rank column must read 백분위, not 상대 점수');
 
 // P1466: attribution identity R − B = sector + stock + fx + cash, and FX inversion.
 // v59.45 (P3-PF-01): the sector ETF row carries its session date; a sector return from another date holds the split.

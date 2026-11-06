@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Native ESM architecture contract, baseline and vertical slices. v58.86 gate consolidation: the sections below were separate gates until v58.86. They check one subject, so one gate
 // runs them in order; every section runs even when an earlier one fails, and the failure names the section.
+import { readThemesPageSource } from './lib/themes-page-source.mjs';
 import { runSections } from './lib/gate-sections.mjs';
 
 await runSections('architecture', [
@@ -177,7 +178,7 @@ const marketPageSource = read('src/ui/pages/market.js');
 const entityPageSource = read('src/ui/pages/entity.js');
 const portfolioPageSource = read('src/ui/pages/portfolio.js');
 const analysisPageSource = read('src/ui/pages/analysis.js');
-const themesPageSource = read('src/ui/pages/themes.js');
+const themesPageSource = readThemesPageSource(); // v59.70: the page is split under src/ui/pages/themes/
 if (!bootstrapSource.includes('const ingestSentiment') || !bootstrapSource.includes('ingestSentiment,')) fail('sentiment canonical ingest gateway missing');
 if (!dataSource.includes('AIO_ARCH.ingestSentiment')) fail('legacy sentiment producer gateway notification missing');
 if (!bootstrapSource.includes('createRuntimeReaders') || /create[A-Za-z]+Provider\(\{\s*read:\s*legacy\.read/.test(bootstrapSource)) fail('native route providers must use data-layer runtime readers rather than legacy.read projections');
@@ -446,9 +447,8 @@ if (legacyRuntimeSource.includes('function loadTechCandleChart')) fail('retired 
   // Ids created through a helper argument or a loop the literal patterns cannot see. `proof` must still match `file`.
   const indirectCreators = [
     { ids: ['ai-panel-loading', 'ai-panel-streaming'], file: 'js/aio-chat.js', proof: /function _appendAIMsg\(role, html, id\)[\s\S]{0,300}?if \(id\) msg\.id = id;/, reason: '_appendAIMsg(role, html, id) assigns msg.id from its third argument' },
-    { ids: ['scr-listing-market', 'scr-order'], file: 'src/ui/pages/screener.js', proof: /\['scr-listing-market', [\s\S]{0,200}?\['scr-order', [\s\S]{0,600}?select\.id = id;/, reason: 'the market-scope controls loop creates one <select> per [id, label, entries] tuple' },
     // v59.51 (content audit): the theme detail face/fold slots are built by a local make(tag, className, id) helper.
-    { ids: ['theme-detail-reading', 'theme-detail-native-why', 'theme-detail-native-criteria', 'theme-detail-native-criteria-table'], file: 'src/ui/pages/themes.js', proof: /const make = \(tag, className, id = null\) => \{[\s\S]{0,200}?node\.id = id;[\s\S]*?make\('ul', 'thp-reading', 'theme-detail-reading'\)/, reason: 'renderThemeDetailSummary make(tag, className, id) assigns node.id from its third argument' },
+    { ids: ['theme-detail-reading', 'theme-detail-native-why', 'theme-detail-native-criteria', 'theme-detail-native-criteria-table'], file: 'src/ui/pages/themes/detail.js', proof: /const make = \(tag, className, id = null\) => \{[\s\S]{0,200}?node\.id = id;[\s\S]*?make\('ul', 'thp-reading', 'theme-detail-reading'\)/, reason: 'renderThemeDetailSummary make(tag, className, id) assigns node.id from its third argument' },
   ];
   // Dead writers found in page files this change does not own (v57.79 parallel page work). Each entry fails once its
   // lookup is gone, so the list can only shrink.

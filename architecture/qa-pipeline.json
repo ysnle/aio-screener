@@ -2037,6 +2037,21 @@
           "timeoutMs": 180000
         },
         {
+          "id": "browser-screener-controls",
+          "script": "scripts/ci-screener-controls-contract.mjs",
+          "timeoutMs": 180000
+        },
+        {
+          "id": "browser-theme-screener-review",
+          "script": "scripts/ci-theme-screener-review-check.mjs",
+          "timeoutMs": 240000
+        },
+        {
+          "id": "browser-screener-ai-conditions",
+          "script": "scripts/ci-screener-ai-conditions-browser-check.mjs",
+          "timeoutMs": 180000
+        },
+        {
           "id": "browser-boot",
           "script": "scripts/ci-boot-interaction-check.mjs",
           "timeoutMs": 120000,

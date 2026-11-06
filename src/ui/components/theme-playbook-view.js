@@ -97,7 +97,11 @@ function momentumMap(doc, themes, size = 'wide', onPick = null) {
   const corner = (text, x, y, anchor) => { const t = svg(doc, 'text', { x, y, 'text-anchor': anchor, class: 'tp-quad' }); t.textContent = text; box.append(t); };
   corner('주도 지속', W - pad / 2, pad / 2 + 4, 'end'); corner('추세 속 조정', W - pad / 2, H - pad / 2 - 2, 'end');
   corner('반등 시도', pad / 2, pad / 2 + 4, 'start'); corner('약세 지속', pad / 2, H - pad / 2 - 2, 'start');
-  const axisLabel = svg(doc, 'text', { x: W / 2, y: H - 4, 'text-anchor': 'middle', class: 'tp-axis-label' }); axisLabel.textContent = `긴 추세${points.some((row) => row.relative) ? ', 지수 대비' : ''} (${market === 'KR' ? '3개월' : '6개월'}) →`; box.append(axisLabel);
+  // v59.70 (screen review 23): on a phone the full x title ran into the bottom captions on the same row; the narrow
+  // map names the window and the comparison only (the quadrant words already say 추세).
+  const relativeAxis = points.some((row) => row.relative), trendWindow = market === 'KR' ? '3개월' : '6개월';
+  const axisLabel = svg(doc, 'text', { x: W / 2, y: H - 4, 'text-anchor': 'middle', class: 'tp-axis-label' });
+  axisLabel.textContent = size === 'narrow' ? `${trendWindow}${relativeAxis ? ' 지수 대비' : ''} →` : `긴 추세${relativeAxis ? ', 지수 대비' : ''} (${trendWindow}) →`; box.append(axisLabel);
   const yLabel = svg(doc, 'text', { x: 12, y: H / 2, 'text-anchor': 'middle', class: 'tp-axis-label', transform: `rotate(-90 12 ${H / 2})` }); yLabel.textContent = points.some((row) => row.relative) ? '1개월, 지수 대비 →' : '최근 1개월 →'; box.append(yLabel);
   // v57.79 (375 review): labels covered markers and each other. Only the themes farthest from the centre are labelled
   // (both axes scaled to the drawing), a label never sits on any marker, another label, a quadrant caption or an axis
@@ -686,7 +690,18 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   const usThemes = playbook.themes.filter((row) => row.market !== 'KR'), krThemes = playbook.themes.filter((row) => row.market === 'KR');
   const usFold = usThemes.length ? stageTable('US', usThemes) : null;
   if (usFold && sideLines.length > shown) usFold.querySelector('summary').after(...sideLines.slice(shown).map((text) => el(doc, 'p', text, 'xr-reading')));
-  host.replaceChildren(el(doc, 'p', reading[0], 'xr-lead'), rulesFold, mapRow, ...(usFold ? [usFold] : []));
+  // v59.70 (screen review 15): the rotation sentence ran seven bold lines and named the month's top mover, which the
+  // board above lists under a different rule (주도 단계). The lead is one line on the 1-month return, saying whether
+  // that theme is also in the leading stage; the full sentence is the first reading line.
+  const topMover = playbook.rotation.gainers?.[0], bottomMover = playbook.rotation.losers?.[0];
+  const lead = topMover && bottomMover
+    ? `1개월 수익률 1위 ${topMover.label} ${pct(topMover.ret1m)}${topMover.state === 'leading' ? '(주도 단계)' : '(주도 단계는 아님)'}, 최하위 ${bottomMover.label} ${pct(bottomMover.ret1m)}.`
+    : reading[0];
+  if (lead !== reading[0]) {
+    const full = el(doc, 'p', reading[0], 'xr-reading');
+    if (usFold) usFold.querySelector('summary').after(full); else mapSide.append(full);
+  }
+  host.replaceChildren(el(doc, 'p', lead, 'xr-lead'), rulesFold, mapRow, ...(usFold ? [usFold] : []));
   if (krHost) krHost.replaceChildren(...(krThemes.length ? [stageTable('KR', krThemes)] : []));
   host.dataset.aioThemePlaybook = 'native';
   renderThemeStrengthMap(doc, root, playbook, interpretation);

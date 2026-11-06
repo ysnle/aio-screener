@@ -309,6 +309,12 @@ body.dark-theme .sector-map .is-na { background: var(--gold-3); color: var(--gol
 .capex-flow-key { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
 .capex-flow-swatch { width: 10px; height: 10px; border-radius: 4px; display: inline-block; }
 @media (max-width: 600px) { .capex-flow-seg-label { display: none; } .page .capex-flow-bar { height: 18px; } }
+/* v59.70 (screen review 3): the step-11 fills turn light in dark mode, so white labels fell to 1.8:1; the label takes
+   the page background instead. The card head wraps between the layer name and '$N / $100', never inside either. */
+body.dark-theme .capex-flow-seg { color: var(--bg-base); filter: none; font-weight: 700; }
+.capex-flow-card .trend-card-head { flex-wrap: wrap; row-gap: 2px; }
+.capex-flow-card .trend-card-title, .capex-flow-card .trend-card-value { white-space: nowrap; }
+.capex-flow-card .trend-card-value { font-size: 22px; }
 /* v57.79 (375 review): compact inline compare control and a shaded edge on the side of the rank table that has more columns. */
 .page .theme-strength-table .theme-strength-compare { font: inherit; font-size: 12px; font-weight: 600; margin-left: 4px; padding: 0 6px; min-height: 26px; min-width: 32px; box-sizing: border-box; /* v57.82: 24px rendered 23.6px on Linux CI fonts (sub-pixel); 26px keeps the AA 24px target with margin */ /* (0,3,0) outranks the shared .page button 36px floor; 24px meets the AA target size */ border: 0.5px solid var(--border-subtle); border-radius: 4px; background: none; color: var(--text-secondary); cursor: pointer; vertical-align: middle; }
 .theme-strength-compare[aria-expanded="true"] { color: var(--text-primary); border-color: var(--text-primary); }

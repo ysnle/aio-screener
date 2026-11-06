@@ -4,12 +4,10 @@
 
 /* ═══ 1. Views: one route, three views on #page-screener[data-scr-view] ═══ */
 #page-screener:not([data-scr-view="validation"]) .scr-view-validation,
-#page-screener:not([data-scr-view="custom"]) .scr-view-custom,
 #page-screener:not([data-scr-view="rank"]) .scr-view-rank { display: none !important; }
 #page-screener .scr-rank-read { margin: 0 0 12px; color: var(--text-secondary, inherit); line-height: 1.6; }
 #page-screener .scr-rank-read[hidden] { display: none; }
-#page-screener .scr-view-panel[hidden], #page-screener #scr-tab-ranking[hidden], #page-screener #screener-workbench[hidden] { display: none !important; }
-#page-screener:not([data-scr-view="rank"]) #scr-weight-profiles { display: none; }
+#page-screener .scr-view-panel[hidden], #page-screener #scr-tab-ranking[hidden] { display: none !important; }
 #page-screener[data-scr-view="validation"] .scr-view-panel { margin: 0 0 16px; }
 
 /* ═══ 2. Header: kicker (counts · close basis once) + view seg ═══ */
@@ -24,50 +22,69 @@
 #page-screener .scr-banner[hidden] { display: none; }
 #page-screener .scr-banner-chips { flex: 1 1 auto; min-width: 0; font-size: 13px; color: var(--text-primary); }
 #page-screener .scr-banner { padding-block: 10px; align-items: center; }
-#page-screener .scr-banner-link { flex: 0 0 auto; font-weight: 600; color: var(--data-amber); white-space: nowrap; }
-#page-screener .scr-banner-link:hover { color: var(--text-primary); }
+/* v59.70: amber on the amber banner was 4.25:1 in light; the link reads in body colour with an underline (AA). */
+#page-screener .scr-banner-link { flex: 0 0 auto; font-weight: 600; color: var(--text-primary); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--data-amber); white-space: nowrap; }
+#page-screener .scr-banner-link:hover { text-decoration-thickness: 2px; }
 
-#page-screener .scr-filterbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin: 0 0 10px; }
-#page-screener .scr-preset-seg { max-width: 100%; overflow-x: auto; scrollbar-width: none; flex-wrap: nowrap; }
-#page-screener .scr-preset-seg::-webkit-scrollbar { display: none; }
-#page-screener .scr-preset-seg > button {
-  flex: 0 0 auto; height: 32px !important; min-height: 32px !important; padding: 0 14px !important; border: 0 !important; border-radius: 8px !important;
-  background: transparent !important; color: var(--text-secondary) !important; font-weight: 400 !important; box-shadow: none !important; white-space: nowrap;
-}
-#page-screener .scr-preset-seg > button:hover { color: var(--text-primary) !important; }
-#page-screener .scr-preset-seg > button[aria-pressed="true"] {
-  background: var(--bg-card) !important; color: var(--text-primary) !important; font-weight: 600 !important; box-shadow:none !important;
-}
-#page-screener .scr-preset-seg > button:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 1px; }
-
-#page-screener .scr-sector-chip { position: relative; display: inline-flex; align-items: center; }
-#page-screener .scr-sector-chip::after { content: '⌄'; position: absolute; right: 12px; top: 50%; transform: translateY(-62%); font-size: 12px; color: var(--text-muted); pointer-events: none; }
-#page-screener .scr-sector-chip.is-set::after { content: none; }
+/* v59.70 (S12): one condition row — 표에서 찾기 · 시장 · 섹터 · + 조건 · 보기 — then the applied conditions as chips and the
+   two panels (+ 조건, 보기) that open under the row. */
+#page-screener .scr-filterbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 10px; }
+#page-screener .scr-search-field { flex: 0 1 240px; min-width: 0; height: 36px; min-height: 36px; padding: 0 14px !important; border-radius: 999px !important; font-size: 13px; }
 #page-screener .scr-chip-select {
-  appearance: none; -webkit-appearance: none; height: 32px; min-height: 32px; max-width: 220px; padding: 0 30px 0 14px !important;
-  border: 0 !important; border-radius: 999px !important; background: var(--sx-ink-a06) !important; color: var(--text-primary) !important;
-  font: inherit; font-size: 12px; cursor: pointer; text-overflow: ellipsis;
+  appearance: none; -webkit-appearance: none; height: 36px; min-height: 36px; max-width: 200px; padding: 0 30px 0 14px !important;
+  border: 0 !important; border-radius: 999px !important; background-color: var(--sx-ink-a06) !important; color: var(--text-primary) !important;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%) !important;
+  background-position: calc(100% - 16px) 52%, calc(100% - 11px) 52% !important; background-size: 5px 5px, 5px 5px !important; background-repeat: no-repeat !important;
+  font: inherit; font-size: 13px; cursor: pointer; text-overflow: ellipsis;
 }
-#page-screener .scr-sector-chip.is-set .scr-chip-select { background: var(--text-primary) !important; color: var(--bg-base) !important; font-weight: 600; padding-right: 34px !important; }
-#page-screener .scr-chip-clear {
-  position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 26px; height: 26px; border: 0; border-radius: 999px;
-  background: transparent; color: var(--bg-base); font: inherit; font-size: 14px; line-height: 1; cursor: pointer;
+#page-screener .scr-chip-select.is-set { background-color: var(--text-primary) !important; color: var(--bg-base) !important; font-weight: 600; }
+#page-screener .scr-bar-button {
+  display: inline-flex; align-items: center; gap: 6px; height: 36px; min-height: 36px; padding: 0 14px; border: 0; border-radius: 999px;
+  background: transparent; box-shadow: inset 0 0 0 1px rgba(var(--ink-rgb), 0.16); color: var(--text-primary); font: inherit; font-size: 13px; cursor: pointer;
 }
-#page-screener .scr-chip-clear[hidden] { display: none; }
-#page-screener .scr-chip-clear:focus-visible { outline: 2px solid var(--bg-base); outline-offset: -3px; }
-#page-screener .scr-add-condition { border: 0; font: inherit; font-size: 12px; height: 32px; cursor: pointer; background: transparent; box-shadow: inset 0 0 0 1px rgba(var(--ink-rgb), 0.14); color: var(--text-primary);  }
-#page-screener .scr-add-condition:hover { background: var(--sx-ink-a05); }
-#page-screener .scr-filterbar-end { margin-left: auto; display: inline-flex; align-items: center; gap: 12px; }
-#page-screener .scr-search-field { width: 200px; height: 32px; min-height: 32px; padding: 0 14px !important; border-radius: 999px !important; font-size: 12px; }
-#page-screener .scr-result-count { white-space: nowrap; font-size: 12px; color: var(--text-secondary); }
-/* v58.56 (4b): ≥744px the filter-sheet wrapper is transparent — its controls stay in the filter bar, and the secondary
-   toolbar, column chooser and 표 범위 row take full rows of the same flex bar. ≤743px it is a bottom sheet (section 10). */
-#page-screener .scr-filter-open { display: none; }
-#page-screener .scr-filter-sheet { display: contents; }
-#page-screener .scr-filter-sheet-head, #page-screener .scr-filter-sheet-foot { display: none; }
-#page-screener .scr-filterbar { margin: 0 0 14px; }
-#page-screener .scr-filter-sheet > :is(.scr-toolbar, .scr-column-chooser, #scr-adv-filter-row) { flex: 1 1 100%; margin: 0; }
+#page-screener .scr-bar-button:hover { background: var(--sx-ink-a05); }
+#page-screener .scr-bar-button:active { background: var(--sx-ink-a06); }
+#page-screener .scr-bar-button[aria-expanded="true"] { background: var(--text-primary); color: var(--bg-base); box-shadow: none; }
+#page-screener .scr-bar-button:focus-visible, #page-screener .scr-chip-select:focus-visible, #page-screener .scr-filter-chip:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; }
+#page-screener #scr-view-label { font-weight: 600; }
+#page-screener .scr-result-count { margin-left: auto; white-space: nowrap; font-size: 12px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+
+#page-screener .scr-chip-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 12px; }
+#page-screener .scr-chip-row[hidden] { display: none; }
+#page-screener #scr-active-filter-chips, #page-screener .scr-chip-row > .scr-custom-list { display: contents; }
+#page-screener .scr-filter-chip {
+  display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px 0 12px; border: 0; border-radius: 999px;
+  background: var(--sx-ink-a06); color: var(--text-primary); font: inherit; font-size: 12px; white-space: nowrap; cursor: pointer;
+}
+#page-screener .scr-filter-chip:hover { background: rgba(var(--ink-rgb), 0.1); }
+#page-screener .scr-filter-chip.is-screen { background: transparent; box-shadow: inset 0 0 0 1px rgba(var(--ink-rgb), 0.16); padding-right: 12px; }
+#page-screener .scr-filter-chip-x { color: var(--text-muted); font-size: 14px; line-height: 1; }
+#page-screener .scr-filter-chip:hover .scr-filter-chip-x { color: var(--text-primary); }
+
+#page-screener .scr-panel { display: flex; flex-direction: column; gap: 16px; margin: 0 0 14px; padding: 16px 18px; border-radius: 12px; background: var(--bg-card); box-shadow: 0 0 0 1px rgba(var(--ink-rgb), 0.08), 0 8px 24px var(--black-a1, rgba(0, 0, 0, 0.06)); }
+#page-screener .scr-panel[hidden] { display: none; }
+#page-screener .scr-panel-group { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+#page-screener .scr-panel-title { margin: 0; font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+#page-screener .scr-panel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px 14px; align-items: end; }
+#page-screener .scr-panel-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; font-size: 12px; color: var(--text-secondary); }
+#page-screener .scr-panel-field[hidden] { display: none; }
+#page-screener .scr-panel-field select, #page-screener .scr-panel-field > input { width: 100%; min-width: 0; height: 36px; min-height: 36px; padding: 0 10px !important; font-size: 13px; }
+#page-screener .scr-panel-range { display: flex; align-items: center; gap: 6px; }
+#page-screener .scr-panel-range input { flex: 1 1 0; min-width: 0; height: 36px; min-height: 36px; padding: 0 10px !important; font-size: 13px; }
+#page-screener .scr-panel-check { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; font-size: 13px; color: var(--text-primary); cursor: pointer; }
+#page-screener .scr-panel-check input { width: 18px; height: 18px; margin: 0; }
+#page-screener .scr-panel-note { margin: 0; font-size: 12px; color: var(--text-secondary); }
+#page-screener .scr-panel-foot { display: flex; justify-content: flex-end; align-items: center; gap: 14px; }
+#page-screener .scr-panel .scr-preset-seg { flex-wrap: wrap; overflow: visible; }
 #page-screener .scr-preset-short { display: none; }
+#page-screener .scr-profile-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* Developer surface (owner D3): only in 개발자 모드. */
+body:not(.aio-dev-mode) #page-screener .scr-dev-only { display: none !important; }
+#page-screener .scr-dev-drawer { margin: 16px 0 0; padding: 12px 14px; border-radius: 12px; background: var(--sx-ink-a03); }
+#page-screener .scr-dev-drawer > summary { cursor: pointer; font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+#page-screener .scr-dev-body { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+#page-screener .scr-definition-editor { width: 100%; box-sizing: border-box; padding: 8px; border: 0.5px solid var(--border); border-radius: 4px; background: var(--bg-card); color: var(--text-secondary); font: 12px/1.45 var(--font-mono); resize: vertical; }
 #page-screener .scr-banner-short { display: none; }
 /* v58.56 (#3): one line above the table — screen, count, order — and the large caps the screen left out. */
 #page-screener .scr-table-status { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; margin: 0 4px 10px; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
@@ -89,21 +106,6 @@
 #page-screener .scr-dropped-all, #page-screener .scr-passed-back { min-height: 32px; font-size: 12px; font-weight: 600; }
 #page-screener .scr-passed-back { font-size: 12px; }
 
-/* Secondary toolbar: the market-scope block (screener.js) flows into this row; its notes take their own lines. */
-#page-screener .scr-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin: 0 0 14px; font-size: 12px; color: var(--text-secondary); }
-#page-screener .scr-toolbar .scr-market-scope { display: contents; }
-/* The selects carry their own aria-label; the visible label words are dropped so the row fits on one line. */
-#page-screener .scr-toolbar .scr-market-scope label { display: inline-flex; align-items: center; gap: 0; font-size: 0; color: var(--text-muted); }
-#page-screener .scr-toolbar label[for="scr-column-preset"] { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-#page-screener .scr-toolbar select { height: 30px; min-height: 30px !important; max-width: 168px; padding: 0 10px !important; border-radius: 999px !important; font-size: 12px; }
-#page-screener .scr-toolbar .scr-market-scope > p, #page-screener .scr-toolbar .scr-market-scope > details { order: 20; flex-basis: 100%; margin: 0; font-size: 12px; color: var(--text-muted); line-height: 1.6; }
-#page-screener .scr-toolbar .scr-market-scope > details { padding: 0; }
-#page-screener .scr-toolbar .scr-market-scope > details > summary { padding: 2px 0; }
-#page-screener .scr-toolbar .scr-market-scope > [hidden], #page-screener .scr-toolbar .scr-market-scope label[hidden] { display: none; }
-#page-screener .scr-toolbar .sx-link { font-size: 12px; }
-#page-screener .scr-toolbar .sx-link[aria-pressed="true"] { color: var(--text-primary); font-weight: 600; }
-#page-screener #scr-adv-filter-row { border: 0; border-radius: 12px; background: var(--sx-ink-a03); padding: 10px 14px; margin: 0 0 12px; }
-#page-screener .scr-column-chooser { border: 0; border-radius: 12px; background: var(--sx-ink-a03); padding: 12px 14px; margin: 0 0 12px; }
 
 /* ═══ 4. Soft table (3c): no hairlines, selected row tinted, 52-week dot ═══ */
 #page-screener .scr-split { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-items: start; }
@@ -231,7 +233,7 @@
 #page-screener .scr-more-rows { margin: 12px 0 16px; border-radius: 12px; background: var(--bg-card); box-shadow:none; overflow: hidden; }
 #page-screener .scr-more-rows .sx-row:first-child { border-top: 0; }
 #page-screener .scr-more-rows .sx-row { padding: 14px 22px; min-height: 48px; }
-#page-screener .scr-workbench-advanced > summary, #page-screener .scr-data-status > summary { padding: 8px 0 8px var(--sx-card-pad-x); }
+#page-screener .scr-data-status > summary { padding: 8px 0 8px var(--sx-card-pad-x); }
 #page-screener .scr-fmp-status { display: none; flex-wrap: wrap; gap: 4px; align-items: center; margin: 6px 0; font-size: 12px; color: var(--text-secondary); }
 #page-screener .scr-profile-btn { min-height: 30px; padding: 0 12px; border: 0; border-radius: 999px; background: var(--sx-ink-a06); color: var(--text-primary); font-size: 12px; }
 #page-screener .scr-profile-btn.active { background: var(--text-primary); color: var(--bg-base); }
@@ -265,40 +267,28 @@
 #page-screener .scr-view-panel .aio-vis-card, #page-screener .scr-view-panel .sh-screener-tab-factors-panel { border: 0 !important; border-radius: 12px !important; background: var(--bg-card) !important; box-shadow:none !important; padding: 20px 22px; }
 #page-screener .scr-view-panel .aio-info-box { border: 0; border-radius: 12px; background: var(--sx-warn-bg); margin-top: 12px; }
 
-/* ═══ 8. 맞춤 조건 (5i): conditions on the left, what is left after each one on the right ═══ */
-#page-screener #screener-workbench { padding: 0 !important; border: 0 !important; background: transparent !important; box-shadow: none !important; margin: 0 0 16px; }
-#page-screener .scr-custom-grid { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; align-items: start; }
-#page-screener .scr-custom-main { padding: 22px 24px; min-width: 0; }
-#page-screener .scr-custom { display: flex; flex-direction: column; gap: 12px; min-width: 0; max-width: 100%; }
+/* ═══ 8. 맞춤 조건 (v59.70 S12): the picker sits in the + 조건 panel, the chosen conditions are chips in the condition row ═══ */
+#page-screener .scr-custom { display: flex; flex-direction: column; gap: 10px; min-width: 0; max-width: 100%; }
 #page-screener .scr-custom > * { min-width: 0; }
-#page-screener .scr-custom-hd { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-#page-screener .scr-custom-hd strong { font-size: 14px; font-weight: 700; color: var(--text-primary); }
-#page-screener .scr-custom-hd span { font-size: 12px; color: var(--text-secondary); }
 #page-screener .scr-custom-recipes { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 #page-screener .scr-custom-recipes > span { margin-right: 4px; font-size: 12px; color: var(--text-secondary); }
-#page-screener .scr-custom-recipe { height: 30px; padding: 0 12px; border: 0; border-radius: 999px; background: var(--sx-ink-a06); color: var(--text-primary); font: inherit; font-size: 12px; cursor: pointer;  }
+#page-screener .scr-custom-recipe { height: 30px; padding: 0 12px; border: 0; border-radius: 999px; background: var(--sx-ink-a06); color: var(--text-primary); font: inherit; font-size: 12px; cursor: pointer; }
 #page-screener .scr-custom-recipe:hover { background: var(--sx-ink-a08); }
-#page-screener .scr-custom-list { display: flex; flex-direction: column; gap: 8px; }
-#page-screener .scr-custom-chip { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; min-height: 52px; box-sizing: border-box; padding: 10px 10px 10px 16px; border: 0; border-radius: 12px; background: var(--sx-ink-a03); font-size: 14px; font-weight: 500; color: var(--text-primary); }
-#page-screener .scr-custom-chip input { width: 84px; height: 36px; min-height: 36px; padding: 0 10px !important; border-radius: 8px !important; background: var(--bg-card) !important; font-size: 14px; font-weight: 600; }
-#page-screener .scr-custom-chip em { margin-left: auto; font-style: normal; font-size: 12px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
-#page-screener .scr-custom-chip button { min-width: 44px; min-height: 36px; border: 0; border-radius: 8px; background: transparent; color: var(--text-muted); font: inherit; font-size: 12px; cursor: pointer; }
+#page-screener .scr-custom-chip { display: inline-flex; align-items: center; gap: 6px; height: 30px; box-sizing: border-box; padding: 0 4px 0 12px; border-radius: 999px; background: var(--sx-ink-a06); font-size: 12px; color: var(--text-primary); white-space: nowrap; }
+#page-screener .scr-custom-chip input { width: 56px; height: 24px; min-height: 24px; padding: 0 6px !important; border-radius: 6px !important; background: var(--bg-card) !important; font-size: 12px; font-weight: 600; text-align: right; }
+#page-screener .scr-custom-chip em { font-style: normal; font-size: 12px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+#page-screener .scr-custom-chip button { width: 26px; height: 26px; border: 0; border-radius: 999px; background: transparent; color: var(--text-muted); font: inherit; font-size: 14px; line-height: 1; cursor: pointer; }
 #page-screener .scr-custom-chip button:hover { background: var(--sx-ink-a05); color: var(--text-primary); }
+#page-screener .scr-custom-chip button:focus-visible, #page-screener .scr-custom-chip input:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 1px; }
 #page-screener .scr-custom-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 #page-screener .scr-custom-row input[type="text"] { flex: 1; min-width: 200px; height: 36px; padding: 0 12px !important; font-size: 12px; }
-#page-screener .scr-custom-row select { height: 36px; max-width: 100%; min-width: 0; padding: 0 10px !important; font-size: 12px; }
+#page-screener .scr-custom-row select { flex: 1 1 220px; height: 36px; max-width: 100%; min-width: 0; padding: 0 10px !important; font-size: 12px; }
 #page-screener .scr-custom-add { box-shadow: inset 0 0 0 1px rgba(var(--ink-rgb), 0.18) !important; background: transparent !important; }
 #page-screener .scr-custom-note { font-size: 12px; line-height: 1.6; color: var(--text-muted); }
-#page-screener .scr-workbench-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-top: 16px; padding-top: 14px; border-top: 0.5px solid rgba(var(--ink-rgb), 0.06); }
+#page-screener .scr-custom-note:empty { display: none; }
+#page-screener .scr-workbench-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; }
 #page-screener .scr-workbench-foot .scr-builder-row { gap: 6px; }
 #page-screener #scr-workbench-status { flex: 1 1 260px; min-width: 0; font-size: 12px; line-height: 1.5; }
-#page-screener .scr-custom-summary { position: sticky; top: 16px; padding: 22px 24px; }
-#page-screener .scr-custom-total { display: block; margin: 4px 0 16px; font-size: 28px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.05; font-variant-numeric: tabular-nums; color: var(--text-primary); }
-#page-screener .scr-custom-funnel { display: flex; flex-direction: column; gap: 10px; }
-#page-screener .scr-custom-step-head { display: flex; justify-content: space-between; gap: 10px; margin: 0 0 4px; font-size: 12px; color: var(--text-secondary); }
-#page-screener .scr-custom-step-head b { color: var(--text-primary); font-variant-numeric: tabular-nums; }
-#page-screener .scr-custom-foot { margin: 14px 0 0; line-height: 1.6; }
-#page-screener .scr-custom-go { width: 100%; height: 46px; margin-top: 14px; border-radius: 12px; }
 
 /* ═══ 9. 포트폴리오 (3g): KPI tiles, holdings + 읽는 법, restyled empty state ═══ */
 /* The hero (ids unchanged): the total-value block is the lead tile; #pf-hero-stats stays a three-column grid of tiles. */
@@ -410,8 +400,6 @@
   #page-portfolio #pf-hero { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 1023px) {
-  #page-screener .scr-custom-grid { grid-template-columns: minmax(0, 1fr); }
-  #page-screener .scr-custom-summary { position: static; }
   #page-screener .scr-why-drawer.sx-sheet { max-height: 86vh; overflow-y: auto; }
   #page-portfolio .pf-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   #page-portfolio #pf-reading, #page-portfolio #pf-reading:has(> .pf-reading-card:nth-of-type(4)) { grid-template-columns: minmax(0, 1fr); }
@@ -419,12 +407,14 @@
 @media (max-width: 1023px) {
   /* Touch targets (4a): every screener control at least 44px tall on iPad portrait and phone. */
   #page-screener .scr-view-seg > button, #page-screener .scr-preset-seg > button { height: 44px !important; min-height: 44px !important; }
-  #page-screener .scr-profile-btn, #page-screener .scr-chip-select, #page-screener .scr-add-condition, #page-screener .scr-custom-recipe,
-  #page-screener .scr-search-field, #page-screener .scr-toolbar select, #page-screener .scr-toolbar .sx-link, #page-screener .scr-banner-link,
+  #page-screener .scr-profile-btn, #page-screener .scr-chip-select, #page-screener .scr-bar-button, #page-screener .scr-custom-recipe,
+  #page-screener .scr-search-field, #page-screener .scr-panel-field select, #page-screener .scr-panel-field > input, #page-screener .scr-panel-range input, #page-screener .scr-panel-check, #page-screener .scr-banner-link,
   #page-screener .scr-why-close, #page-screener .scr-workbench-foot .sx-btn, #page-screener .scr-custom-row select, #page-screener .scr-custom-row input,
-  #page-screener .scr-custom-row button, #page-screener .scr-custom-chip input, #page-screener .scr-custom-chip button { min-height: 44px !important; }
-  #page-screener .scr-chip-select, #page-screener .scr-add-condition, #page-screener .scr-custom-recipe, #page-screener .scr-search-field { height: 44px; }
-  #page-screener .scr-chip-clear { width: 36px; height: 36px; }
+  #page-screener .scr-custom-row button { min-height: 44px !important; }
+  #page-screener .scr-custom-chip { height: auto; min-height: 44px; } #page-screener .scr-custom-chip input { height: 32px; min-height: 32px; } #page-screener .scr-custom-chip button { width: 36px; height: 36px; }
+  #page-screener .scr-chip-select, #page-screener .scr-bar-button, #page-screener .scr-custom-recipe, #page-screener .scr-search-field,
+  #page-screener .scr-panel-field select, #page-screener .scr-panel-field > input, #page-screener .scr-panel-range input { height: 44px; }
+  #page-screener .scr-filter-chip { height: 36px; }
 }
 @media (min-width: 744px) and (max-width: 1023px) {
   #page-screener .scr-why-drawer.sx-sheet { left: 50%; right: auto; width: min(640px, 100vw); transform: translate(-50%, 100%); }
@@ -435,49 +425,17 @@
   #page-screener .scr-head-end { width: 100%; justify-content: flex-start; }
   #page-screener .scr-view-seg { width: 100%; }
   #page-screener .scr-view-seg > button { flex: 1 1 0; min-width: 0; }
-  #page-screener .scr-preset-seg { width: 100%; }
-  #page-screener .scr-chip-select, #page-screener .scr-add-condition { height: 44px; min-height: 44px; }
-  #page-screener .scr-chip-clear { width: 36px; height: 36px; }
-  /* v58.56 (4b): title + 필터 N on one line, the view seg below; the collected/required counts leave the phone kicker. */
-  #page-screener .page-head > div:first-child { flex: 1 1 0; min-width: 0; }
-  #page-screener .scr-kicker #scr-kicker-counts { display: none; }
-  #page-screener .scr-filter-open { display: inline-flex; align-items: center; gap: 2px; align-self: flex-end; height: 44px; min-height: 44px; padding: 0 16px; border: 0; border-radius: 999px; background: var(--sx-ink-a06); color: var(--text-primary); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
-  #page-screener .scr-filter-open[aria-expanded="true"] { background: var(--text-primary); color: var(--bg-base); }
-  #page-screener .scr-filter-count { font-variant-numeric: tabular-nums; }
-  /* The preset screens keep one row of one-word names (균형 · 모멘텀 · 추세 · 저변동 …). */
-  #page-screener .scr-preset-seg > button.has-short > .scr-preset-full { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  #page-screener .scr-preset-seg > button.has-short > .scr-preset-short { display: inline; }
-  #page-screener .scr-preset-seg > button { padding: 0 12px !important; }
-  #page-screener .scr-filterbar { margin: 0 0 10px; }
-  /* The bottom sheet: 섹터 · 조건 추가 · 검색 · 시장 · 범위 · 정렬 · 지수 · 시총 · 컬럼 · 표 범위, then 결과 보기. */
-  #page-screener .scr-filter-sheet {
-    display: flex; flex-direction: column; align-items: stretch; gap: 12px; position: fixed; left: 0; right: 0; bottom: 0; z-index: 260;
-    max-height: 86vh; overflow-y: auto; overscroll-behavior: contain; box-sizing: border-box; padding: 10px 20px 0; border-radius: 12px 12px 0 0;
-    background: var(--bg-card); box-shadow: 0 -8px 40px var(--black-a3); transform: translateY(100%); visibility: hidden;
-    transition:transform 250ms ease-out;
-  }
-  #page-screener .scr-filter-sheet.is-open { transform: translateY(0); visibility: visible; transition:transform 250ms ease-out; }
-  #page-screener .scr-filter-sheet::before { content: ''; display: block; flex: 0 0 auto; width: 38px; height: 5px; margin: 0 auto 2px; border-radius: 999px; background: rgba(var(--ink-rgb), 0.18); }
-  #page-screener .scr-filter-sheet:focus { outline: none; }
-  #page-screener .scr-filter-sheet-head { display: flex; justify-content: space-between; align-items: center; font-size: 18px; }
-  #page-screener .scr-filter-close { min-height: 44px; font-size: 14px; }
-  #page-screener .scr-filter-sheet-foot { display: block; position: sticky; bottom: 0; margin: 4px -20px 0; padding: 12px 20px max(20px, env(safe-area-inset-bottom, 0px)); background: var(--bg-card); box-shadow: 0 -1px 0 rgba(var(--ink-rgb), 0.06); }
-  #page-screener .scr-filter-done { width: 100%; height: 50px; border-radius: 12px; }
-  #page-screener .scr-filter-sheet .scr-sector-chip, #page-screener .scr-filter-sheet .scr-chip-select { width: 100%; max-width: none; }
-  #page-screener .scr-filter-sheet .scr-add-condition { align-self: flex-start; }
-  #page-screener .scr-filterbar-end { margin-left: 0; width: 100%; }
-  #page-screener .scr-search-field { flex: 1 1 auto; width: auto; height: 44px; min-height: 44px; }
-  #page-screener .scr-filter-sheet .scr-toolbar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-  #page-screener .scr-filter-sheet .scr-toolbar .scr-market-scope > label { display: flex; flex-direction: column; align-items: stretch; gap: 4px; font-size: 12px; }
-  #page-screener .scr-filter-sheet .scr-toolbar .scr-market-scope > :is(p, details) { grid-column: 1 / -1; }
-  #page-screener .scr-filter-sheet .scr-toolbar select { width: 100%; max-width: none; height: 44px; min-height: 44px !important; align-self: end; }
-  #page-screener .scr-filter-sheet .scr-toolbar .sx-link { min-height: 44px; justify-self: start; }
-  #page-screener .scr-filter-sheet .scr-focus-toggle { display: none; }
-  #page-screener .scr-filter-sheet #scr-adv-filter-row.active { display: flex; }
+  /* v59.70 (S12): the phone keeps the same row — 표에서 찾기 takes the first line, 시장 · 섹터 · + 조건 · 보기 the second. */
+  #page-screener .scr-search-field { flex: 1 1 100%; width: 100%; }
+  #page-screener .scr-filterbar .scr-chip-select { flex: 1 1 0; max-width: none; }
+  #page-screener .scr-result-count { flex: 1 1 100%; margin-left: 0; }
+  #page-screener .scr-panel { padding: 14px; }
+  #page-screener .scr-panel-grid { grid-template-columns: minmax(0, 1fr); }
+  #page-screener .scr-panel-foot { justify-content: space-between; }
   /* One line: the state words and what the ranking is; the line opens 사후 검증. */
   #page-screener .scr-banner { flex-wrap: nowrap; padding: 0 16px; margin: 0 0 12px; }
   #page-screener .scr-banner > :not(.scr-banner-short) { display: none; }
-  #page-screener .scr-banner-short { display: block; flex: 1 1 auto; min-width: 0; min-height: 44px; padding: 0; border: 0; background: transparent; color: var(--text-primary); font: inherit; font-size: 12px; font-weight: 600; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+  #page-screener .scr-banner-short { display: block; flex: 1 1 auto; min-width: 0; min-height: 44px; padding: 0; border: 0; background: transparent; color: var(--text-primary); font: inherit; font-size: 12px; font-weight: 600; line-height: 1.45; text-align: left; white-space: normal; overflow-wrap: anywhere; padding-block: 8px; cursor: pointer; }
   #page-screener .scr-table-status { flex-wrap: nowrap; margin: 0 2px 8px; font-size: 12px; gap: 2px 10px; }
   #page-screener .scr-table-status:has(.scr-dropped[open]) { flex-wrap: wrap; }
   #page-screener .scr-table-status-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -498,8 +456,6 @@
   #page-screener .scr-vh-dates > .sx-card__head { flex-direction: column; align-items: flex-start; gap: 4px; }
   #page-screener .scr-vh-spread-row { grid-template-columns: 84px minmax(0, 1fr) 72px; row-gap: 2px; }
   #page-screener .scr-vh-spread-row > .scr-vh-legs { grid-column: 2 / -1; grid-row: 2; flex-direction: row; justify-content: flex-end; gap: 12px; }
-  #page-screener .scr-custom-main, #page-screener .scr-custom-summary { padding: 18px 16px; }
-  #page-screener .scr-custom-chip { padding-left: 12px; }
   #page-screener .scr-custom-row input[type="text"] { min-width: 0; flex-basis: 100%; height: 44px; }
   #page-screener .scr-custom-row select { flex: 1 1 100%; height: 44px; }
   #page-screener .scr-custom-recipe { height: 36px; }
@@ -513,7 +469,7 @@
 /* ═══ 11. Dark theme: light-only alphas ═══ */
 body.dark-theme #page-screener .scr-preset-seg > button[aria-pressed="true"] { background: var(--bg-elevated) !important; color: var(--text-primary) !important; box-shadow:none !important; }
 body.dark-theme #page-screener .scr-sheet-scrim { background: var(--black-a7); }
-body.dark-theme #page-screener .scr-sector-chip.is-set .scr-chip-select { color: var(--bg-base) !important; }
+body.dark-theme #page-screener .scr-chip-select.is-set { color: var(--bg-base) !important; }
 
 /* v58.54 (design 4c, user-first): beside the inspector the full table scrolled sideways and hid 백분위 on iPad landscape.
    The inspector already shows the 1·3·6-month gaps, so 3개월 leaves the table up to 1439, and 52주 위치 up to 1279. */
@@ -523,3 +479,13 @@ body.dark-theme #page-screener .scr-sector-chip.is-set .scr-chip-select { color:
 @media (min-width: 1024px) and (max-width: 1279px) {
   #page-screener :is(th, td)[data-column-key="range52"] { display: none; }
 }
+/* v59.70 (D3): the 스크리너 조건 card under an AI answer — the conditions the app read and 스크리너에 적용. */
+.aio-answer-screen { margin: 8px 0; padding: 10px 12px; border: 1px solid var(--border-subtle); border-radius: 10px; background: var(--bg-card); }
+.aio-answer-screen-head { margin: 0 0 6px; font-size: 13px; font-weight: 700; color: var(--text-primary); }
+.aio-answer-screen-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px; padding: 0; list-style: none; }
+.aio-answer-screen-list li { padding: 3px 10px; border-radius: 999px; background: var(--bg-surface); color: var(--text-primary); font-size: 12px; overflow-wrap: anywhere; }
+.aio-answer-screen-note { margin: 6px 0 0; font-size: 12px; line-height: 1.5; color: var(--text-secondary); }
+.aio-answer-screen-note.is-error { color: var(--text-primary); }
+.aio-answer-screen-apply { min-height: 36px; }
+.aio-answer-screen-apply:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; }
+@media (pointer: coarse) { .aio-answer-screen-apply { min-height: 44px; } }

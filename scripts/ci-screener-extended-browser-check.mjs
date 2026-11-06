@@ -68,17 +68,13 @@ try {
     const defaultState = await page.evaluate(() => ({ scope: document.getElementById('scr-universe-scope').value, label: document.getElementById('scr-universe-scope').options[0].textContent, rows: window.AIO_ARCH.getScreenerState().rows.length }));
     if (defaultState.scope !== 'core' || !/^기본 \(\d+종목\)$/.test(defaultState.label) || defaultState.rows !== coreRowCount) fail(viewport.id, `default scope/label/rows wrong: ${JSON.stringify(defaultState)}`);
 
-    // v58.56 (4b): on a phone the filter controls live in a bottom sheet behind 필터 (hidden while closed), so the gate opens
-    // and closes it the way a reader does instead of typing into controls that are not on screen.
+    // v59.70 (S12): 종목 범위 and 정렬 live in the 보기 panel under the condition row (every width), so the gate opens and
+    // closes it the way a reader does instead of typing into controls that are not on screen.
     const filterSheet = async (open) => {
-      if (viewport.id !== 'phone') return;
-      const isOpen = await page.evaluate(() => document.getElementById('scr-filter-sheet')?.classList.contains('is-open'));
-      if (open && !isOpen) {
-        await page.click('#scr-filter-open');
-        await page.waitForFunction(() => document.getElementById('scr-filter-sheet')?.classList.contains('is-open'), { timeout: 5000 });
-      } else if (!open && isOpen) {
-        await page.click('#scr-filter-sheet .scr-filter-done');
-        await page.waitForFunction(() => !document.getElementById('scr-filter-sheet')?.classList.contains('is-open'), { timeout: 5000 });
+      const isOpen = await page.evaluate(() => document.getElementById('scr-view-panel')?.hidden === false);
+      if (open !== isOpen) {
+        await page.click('#scr-view-button');
+        await page.waitForFunction((want) => (document.getElementById('scr-view-panel')?.hidden === false) === want, open, { timeout: 5000 });
       }
     };
     // 확장
@@ -120,6 +116,8 @@ try {
     const hasRussellOption = await page.evaluate(() => [...document.getElementById('scr-market').options].some((option) => option.value === 'RUSSELL2000'));
     if (!hasRussellOption) fail(viewport.id, 'index filter has no 러셀2000 option in the extended view');
     else {
+      // v59.70 (S12): the 지수 condition sits in the + 조건 panel.
+      if (await page.locator('#scr-condition-panel').isHidden()) await page.click('#scr-add-condition');
       await page.selectOption('#scr-market', 'RUSSELL2000');
       await page.waitForTimeout(300);
       const russell = await page.evaluate(() => {
@@ -130,7 +128,8 @@ try {
       if (!russell.visible || !russell.ok) fail(viewport.id, `러셀2000 filter wrong: ${JSON.stringify(russell)}`);
       await page.selectOption('#scr-market', '');
     }
-    // Sort by 3-month return over the merged population.
+    // Sort by 3-month return over the merged population (정렬 is in the 보기 panel).
+    await filterSheet(true);
     await page.selectOption('#scr-order', 'ret3m');
     await page.waitForTimeout(300);
     const sorted = await page.evaluate(() => {

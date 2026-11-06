@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Scenario guidance and the shared market guide. v58.86 gate consolidation: the sections below were separate gates until v58.86. They check one subject, so one gate
 // runs them in order; every section runs even when an earlier one fails, and the failure names the section.
+import { readThemesPageSource } from './lib/themes-page-source.mjs';
 import { runSections } from './lib/gate-sections.mjs';
 import { readHistoryRows } from '../src/domain/market/history-rows.js';
 
@@ -470,7 +471,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   const component = readFileSync(new URL('../src/ui/components/macro-crossroads.js', import.meta.url), 'utf8');
   // v59.68: the compact block (and its two path cards) is retired; 시장 상태 shows the full map, every branch listed.
   assert.match(component, /refreshScenarioArtifacts/, 'P1743: screens load the long-history outcomes and the per-refresh state');
-  const themesPage = readFileSync(new URL('../src/ui/pages/themes.js', import.meta.url), 'utf8');
+  const themesPage = readThemesPageSource(); // v59.70: the page is split under src/ui/pages/themes/
   assert.match(themesPage, /renderThemePlaybook\(/, 'P1743: 테마 renders the theme playbook');
   const marketContent = readFileSync(new URL('../src/ai/context/market-content.js', import.meta.url), 'utf8');
   assert.match(marketContent, /renderThemePlaybookContext/, 'P1743: the chat gets the theme playbook');

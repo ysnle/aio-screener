@@ -88,7 +88,9 @@ try {
   if (screenChoices.length < 2) throw new Error('screen selector fixture requires distinct definitions');
   const selectState = await page.evaluate(() => ({ hidden: !document.getElementById('scr-screen-select')?.offsetParent, options: [...(document.getElementById('scr-screen-select')?.options || [])].map(o => o.value) }));
   if (!selectState.hidden || selectState.options.join('|') !== screenChoices.join('|')) throw new Error(`v57.54 the same screen list must appear once (visible buttons, hidden select in sync): ${JSON.stringify({ selectState, screenChoices })}`);
-  const choosePreset = (id) => page.locator(`#scr-workbench-presets [data-aio-screener-arg="${id}"]`).click();
+  // v59.70 (S12): the 조건 화면 buttons sit in the + 조건 panel; a reader opens it from the bar.
+  const openConditions = async () => { if (await page.locator('#scr-condition-panel').isHidden()) await page.locator('#scr-add-condition').click(); };
+  const choosePreset = async (id) => { await openConditions(); await page.locator(`#scr-workbench-presets [data-aio-screener-arg="${id}"]`).click(); };
   await choosePreset(screenChoices[1]);
   const selectedDefinition = JSON.parse(await page.locator('#scr-definition-editor').inputValue()).definition;
   if (selectedDefinition.screenId !== screenChoices[1]) throw new Error('preset button did not change the actual definition');
@@ -163,17 +165,22 @@ try {
   const historyAfterReentry = await page.evaluate(runHistoryLens);
   if (historyAfterReentry.length > historyBeforeReentry.length) throw new Error(`P1168 screener re-entry accumulated identical pipeline runs: ${historyBeforeReentry.length} -> ${historyAfterReentry.length}`);
   if (historyAfterReentry.some((entry) => entry.startsWith('untagged|'))) throw new Error(`P1168 machine runs must be tagged in the run history: ${JSON.stringify(historyAfterReentry)}`);
-  // P1431: the visual builder lives in the folded 조건 직접 조합 details on the user path.
-  await page.evaluate(() => { const advanced = document.getElementById('scr-workbench-advanced'); if (advanced) advanced.open = true; });
-  await page.locator('#scr-builder-field').selectOption('rsi');
-  await page.locator('#scr-builder-value').fill('55');
-  await page.locator('[data-aio-screener-action="add-builder-condition"]').click();
-  await page.locator('[data-aio-screener-action="remove-builder-condition"]').first().click();
+  // v59.70 (S12): a run condition is set in the + 조건 panel and shows as one chip; the chip's × clears the same control.
+  const rsiChip = '#scr-active-filter-chips [data-aio-screener-action="clear-filter"][data-aio-screener-arg="scr-rsi-min"]';
+  await openConditions();
+  await page.locator('#scr-rsi-min').fill('55');
+  await page.locator('#scr-rsi-min').dispatchEvent('change');
+  await page.locator(rsiChip).click();
   if (await page.locator('#scr-rsi-min').inputValue() !== '') throw new Error('removing the condition chip left the filter active');
-  await page.locator('[data-aio-screener-action="add-builder-condition"]').click();
-  await page.locator('#scr-builder-value').fill('52');
-  await page.locator('[data-aio-screener-action="add-builder-condition"]').click();
-  if (await page.locator('[data-aio-screener-action="remove-builder-condition"]').count() !== 1) throw new Error('replacing a condition appended a second source of truth');
+  await openConditions();
+  await page.locator('#scr-rsi-min').fill('55');
+  await page.locator('#scr-rsi-min').dispatchEvent('change');
+  await page.locator('#scr-rsi-min').fill('52');
+  await page.locator('#scr-rsi-min').dispatchEvent('change');
+  if (await page.locator(rsiChip).count() !== 1 || !/RSI 52 이상/.test(await page.locator(rsiChip).textContent())) throw new Error('replacing a condition appended a second source of truth');
+  // The run (ScreenDefinition) is a developer surface (owner D3): 개발자 모드 shows the drawer.
+  const openDeveloperDrawer = () => page.evaluate(() => { document.body.classList.add('aio-dev-mode'); const drawer = document.getElementById('scr-developer-drawer'); if (drawer) drawer.open = true; });
+  await openDeveloperDrawer();
   await page.locator('[data-aio-screener-action="screen-run-visual"]').click();
   await page.waitForFunction(() => document.getElementById('scr-workbench-status')?.dataset.persistence === 'persisted');
   const recorded = await page.locator('#scr-workbench-status').evaluate(node => ({ ...node.dataset }));
@@ -215,7 +222,8 @@ try {
   await page.reload({ waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => window.AIO_ARCH?.getScreenerState?.()?.rows?.length >= 800);
   await page.evaluate(() => window.showPage('screener'));
-  await page.evaluate(() => { const advanced = document.getElementById('scr-workbench-advanced'); if (advanced) advanced.open = true; }); // P1431: run history sits in the folded panel
+  await page.waitForFunction(() => document.querySelectorAll('#screener-results-body [data-aio-screener-ticker]').length > 0);
+  await openDeveloperDrawer(); // the run history sits in the developer drawer
   await page.getByRole('button', { name: '저장 입력으로 재현', exact: true }).first().click();
   // P1518: H113 names the archived run and its data date; verify that current
   // surface instead of timing out on retired copy. Hash/row parity follows below.

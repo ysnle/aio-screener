@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // P1004: deterministic source-to-screen identity, timeframe and evidence checks.
+import { readThemesPageSource } from './lib/themes-page-source.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
@@ -80,7 +81,7 @@ check(invalid.root._currentTickerId === 'NVDA' && invalidDispatches === 0, 'v59.
 check(!macroTech.includes('function updateSRLevels'), 'retired legacy price reference-line writer stays retired');
 // v59.51 (content audit): the legacy factor radar (_aioDiagram _factorRadar / _aioRenderFundamentalRadar) left with #vis-fundamental-radar.
 check(!/function _factorRadar\(|_aioRenderFundamentalRadar\s*=/.test(ui), 'v59.51 (content audit): the retired legacy factor radar (_factorRadar, _aioRenderFundamentalRadar) stays retired');
-const themes = read('src/ui/pages/themes.js');
+const themes = readThemesPageSource(); // v59.70: the page is split under src/ui/pages/themes/
 check(themes.includes("catalog.setAttribute('aria-label', '회전 지표 미수신 테마 목록')") && themes.includes('appendUnclassified();'), 'missing RRG observations do not remove the independent theme exploration path');
 
 check(!core.includes('getAdrEstimate(') && !data.includes('function getAdrEstimate('), 'market-cap-derived fake ADR is retired');
