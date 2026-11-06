@@ -1,14 +1,14 @@
 {
  "schemaVersion": "2.0",
- "generatedAt": "2026-11-06T07:50:11.699Z",
+ "generatedAt": "2026-11-06T22:32:40.139Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
  "allowedUse": "research/reference; normalized annual filing facts, not analyst estimates or live TTM",
  "model": "sec-fy-normalized-v2",
  "eligible": 3876,
- "stored": 3515,
- "attempted": 0,
+ "stored": 3514,
+ "attempted": 1,
  "updated": 0,
  "failures": [
   {
@@ -2263,6 +2263,16 @@
    "issuerTaxonomy": "US_GAAP",
    "filingForms": [],
    "attemptedAt": "2026-10-19T22:30:26.357Z",
+   "retryPolicy": "manual-or-explicit-SEC_RECHECK_UNSUPPORTED"
+  },
+  {
+   "symbol": "LEDR",
+   "status": "TERMINAL_UNSUPPORTED",
+   "reasonCode": "required-us-gaap-taxonomy-missing",
+   "reason": "required-us-gaap-taxonomy-missing; issuerTaxonomy=UNKNOWN",
+   "issuerTaxonomy": "UNKNOWN",
+   "filingForms": [],
+   "attemptedAt": "2026-11-06T22:32:26.039Z",
    "retryPolicy": "manual-or-explicit-SEC_RECHECK_UNSUPPORTED"
   },
   {
@@ -4530,7 +4540,8 @@
   "YMAT",
   "YSS",
   "YSWY",
-  "ZKP"
+  "ZKP",
+  "LEDR"
  ],
  "retryableFailures": [
   "AYA",
@@ -4548,47 +4559,47 @@
   "SCZM",
   "TRBG"
  ],
- "pointInTimeCoverage": 3515,
- "pointInTimeAcceptedCoverage": 3515,
+ "pointInTimeCoverage": 3514,
+ "pointInTimeAcceptedCoverage": 3514,
  "batchLimit": 600,
  "backfillExtra": 0,
  "unsupportedRecheckPolicy": "SEC_RECHECK_UNSUPPORTED=1 required for explicit recheck; terminal unsupported rows remain auditable and out of normal batches",
- "nextRefreshCandidates": 361,
+ "nextRefreshCandidates": 362,
  "domainReceipt": {
   "schemaVersion": "domain-receipt.v1",
   "domain": "sec-fundamentals",
-  "runId": "gha:42182651065",
-  "attemptedAt": "2026-11-06T07:49:59.527Z",
+  "runId": "gha:42304629713",
+  "attemptedAt": "2026-11-06T22:32:26.039Z",
   "sourceRevision": "sec-company-tickers:224330f2c44f5d173395e427dbac3c6981acdb1f57e3658832d315c3e96f6522",
   "inputWatermarks": {
-   "universe": "2026-11-06T07:49:56.827Z",
-   "screener": "2026-11-06T07:49:04.278Z",
-   "previousArtifact": "2026-11-06T07:36:16.503Z"
+   "universe": "2026-11-06T22:32:24.617Z",
+   "screener": "2026-11-06T22:31:49.600Z",
+   "previousArtifact": "2026-11-06T07:50:11.699Z"
   },
   "batchLimit": 600,
   "counts": {
    "eligible": 3876,
-   "attempted": 0,
+   "attempted": 1,
    "updated": 0,
-   "retained": 3515,
-   "pendingEligible": 361
+   "retained": 3514,
+   "pendingEligible": 362
   },
   "thisBatch": {
    "updated": 0,
-   "terminalUnsupported": 0,
+   "terminalUnsupported": 1,
    "transientFailed": 0,
-   "recorded": 0
+   "recorded": 1
   },
   "ledger": {
-   "total": 364,
-   "terminalUnsupported": 350,
+   "total": 365,
+   "terminalUnsupported": 351,
    "transientFailed": 14,
    "legacyUnknown": 0
   },
   "lastSuccessfulObservation": "2026-11-06T07:32:43.228Z",
   "publication": {
-   "status": "NOT_ATTEMPTED",
-   "reason": "no target was due in this batch",
+   "status": "NO_REFRESH_RETAINED",
+   "reason": "every attempted target failed; previously stored rows stay published",
    "allowsPartial": true,
    "basis": "per-symbol independent collection; retained eligible rows stay published while rows that lose their period requirements are excluded from analysis",
    "terminalExcludedFromBatchFailures": true,
@@ -286791,95 +286802,6 @@
    "roeBasis": "average-equity",
    "equityPrior": 22229000
   },
-  "ALDF": {
-   "symbol": "ALDF",
-   "cik": "0002031561",
-   "entityName": "Aldel Financial II Inc.",
-   "source": "SEC EDGAR companyfacts",
-   "sourceTier": "T1_OFFICIAL",
-   "sourceKind": "T1_OFFICIAL",
-   "rightsId": "PUBLIC_REFERENCE",
-   "model": "sec-fy-normalized-v2",
-   "availabilityModel": "sec-pit-availability.v1",
-   "periodType": "FY",
-   "fiscalPeriodEnd": "2025-12-31",
-   "observedAt": "2025-12-31",
-   "filedAt": "2026-03-25",
-   "acceptedAt": "2026-03-24T22:14:34.000Z",
-   "availableAt": "2026-03-24T22:14:34.000Z",
-   "transportFetchedAt": "2026-11-04T07:35:04.589Z",
-   "reportAgeDays": 308,
-   "reportRecency": "recent-fy",
-   "periodAnchor": "net-income",
-   "revenueStatus": "unreported",
-   "accessionByField": {
-    "revenue": null,
-    "netIncome": "0001104659-26-033988",
-    "equity": "0001104659-26-033988",
-    "sharesOutstanding": "0001410578-25-000114"
-   },
-   "operandAvailability": {
-    "revenue": null,
-    "netIncome": "2026-03-24T22:14:34.000Z",
-    "equity": "2026-03-24T22:14:34.000Z",
-    "sharesOutstanding": "2025-02-11T21:11:19.000Z",
-    "priorRevenue": null
-   },
-   "derivedAvailability": {
-    "revGrowth": null,
-    "margin": "2026-03-24T22:14:34.000Z",
-    "roe": "2026-03-24T22:14:34.000Z",
-    "pe": "2026-03-24T22:14:34.000Z",
-    "pb": "2026-03-24T22:14:34.000Z"
-   },
-   "allowedUse": "research-relative-ranking-only",
-   "qualityStatus": "CURRENT",
-   "quality": {
-    "status": "CURRENT",
-    "stale": false,
-    "decisionUse": false,
-    "allowedUse": "reference"
-   },
-   "fetchedAt": "2026-11-04T07:35:04.590Z",
-   "form": "10-K",
-   "accession": "0001104659-26-033988",
-   "accountingStandard": "US-GAAP",
-   "reportingCurrency": "USD",
-   "revenue": null,
-   "netIncome": 9225582,
-   "equity": 651531,
-   "equityBasis": "parent",
-   "sharesOutstanding": 29868214,
-   "sharesCheck": "unchecked",
-   "sharesBasis": "dei-cover",
-   "sharesObservedAt": "2025-02-11",
-   "normalizerVersion": "sec-normalizer.2026-10-24",
-   "revenueConcept": null,
-   "coverage": [
-    "netIncome",
-    "equity",
-    "sharesOutstanding",
-    "roe"
-   ],
-   "pit": {
-    "schemaVersion": "sec-pit-facts.v1",
-    "status": "accepted-time-partial",
-    "observationCount": 41,
-    "acceptedTimeCount": 41,
-    "observationsDropped": "extended-ledger-compact"
-   },
-   "roe": 943,
-   "peEarnings": {
-    "basis": "ttm",
-    "concept": "common",
-    "value": 8313216,
-    "through": "2026-09-30",
-    "availableAt": "2026-11-03T22:23:34.000Z",
-    "derivedQuarter": true
-   },
-   "roeBasis": "average-equity",
-   "equityPrior": 1305063
-  },
   "ALDX": {
    "symbol": "ALDX",
    "cik": "0001341235",
@@ -319856,12 +319778,6 @@
    "cik": "0000003545",
    "observedAt": "2026-10-25T07:33:38.735Z"
   },
-  "ALDF": {
-   "sic": "6770",
-   "description": "Blank Checks",
-   "cik": "0002031561",
-   "observedAt": "2026-11-04T07:34:22.336Z"
-  },
   "ALDX": {
    "sic": "2834",
    "description": "Pharmaceutical Preparations",
@@ -331033,6 +330949,12 @@
    "description": "Metalworkg Machinery & Equipment",
    "cik": "0000059527",
    "observedAt": "2026-10-28T06:36:12.719Z"
+  },
+  "LEDR": {
+   "sic": "6770",
+   "description": "Blank Checks",
+   "cik": "0002109823",
+   "observedAt": "2026-11-06T22:32:26.039Z"
   },
   "LEDS": {
    "sic": "3674",
