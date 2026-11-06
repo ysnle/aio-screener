@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-06T21:21:45.190Z",
-  "attemptedAt": "2026-11-06T21:21:45.190Z",
-  "lastSuccessfulAt": "2026-11-06T21:21:45.190Z",
+  "generatedAt": "2026-11-06T21:51:41.425Z",
+  "attemptedAt": "2026-11-06T21:51:41.425Z",
+  "lastSuccessfulAt": "2026-11-06T21:51:41.425Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-23T21:21:40.122Z",
-  "until": "2026-11-06T21:21:40.122Z",
+  "since": "2026-10-23T21:51:37.043Z",
+  "until": "2026-11-06T21:51:37.043Z",
   "current24hWindow": {
     "start": "2026-11-04T23:00:00.000Z",
     "end": "2026-11-05T23:00:00.000Z",
@@ -89,15 +89,15 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1361,
-      "freshCount": 20,
-      "eligibleTextCount": 1300,
-      "selectedCount": 124,
+      "count": 1373,
+      "freshCount": 39,
+      "eligibleTextCount": 1312,
+      "selectedCount": 122,
       "error": null,
-      "lastPostId": 68567
+      "lastPostId": 68579
     },
     {
       "channel": "bornlupin",
@@ -124,62 +124,64 @@
       "lastPostId": 71672
     }
   ],
-  "count": 2319,
-  "retainedItemCount": 427,
+  "count": 2331,
+  "retainedItemCount": 445,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2319,
-    "eligibleTextCount": 2254,
+    "observedCount": 2331,
+    "eligibleTextCount": 2266,
     "mediaOnlyCount": 65,
-    "mediaAttachedCount": 458,
-    "photoPostCount": 399,
+    "mediaAttachedCount": 469,
+    "photoPostCount": 410,
     "documentPostCount": 2,
     "imageOnlyCount": 2,
-    "highSignalCount": 396,
-    "broadSignalCount": 853,
-    "selectedRawCount": 390,
-    "selectedEligibleCount": 390,
-    "selectedRawCoveragePct": 17.3,
-    "selectedOfObservedPct": 16.8,
+    "highSignalCount": 401,
+    "broadSignalCount": 862,
+    "selectedRawCount": 388,
+    "selectedEligibleCount": 388,
+    "selectedRawCoveragePct": 17.1,
+    "selectedOfObservedPct": 16.6,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "ai-policy": 105,
-    "equity": 116,
-    "geo": 446,
-    "semi": 476,
-    "credit": 99,
-    "power": 268,
-    "market-note": 845,
-    "macro": 352,
-    "kr-market": 117,
+    "flows": 66,
+    "semi": 482,
+    "power": 272,
+    "kr-market": 119,
+    "market-note": 847,
+    "healthcare": 77,
+    "macro": 357,
+    "equity": 117,
+    "ai-policy": 106,
+    "geo": 449,
+    "credit": 100,
     "earnings": 407,
-    "flows": 65,
     "japan": 79,
-    "healthcare": 76,
     "optical": 41,
     "media-only": 64,
     "crypto": 4
   },
   "tickerCounts": {
-    "NVDA": 112,
-    "MU": 35,
-    "TSM": 39,
+    "NVDA": 114,
+    "MU": 36,
+    "AAPL": 24,
+    "MRNA": 4,
+    "MTD": 1,
+    "IBN": 1,
+    "GOOG": 116,
+    "TSM": 40,
     "005930.KS": 48,
     "000660.KS": 71,
-    "MRNA": 3,
     "TSLA": 31,
     "MSFT": 60,
-    "GOOG": 115,
     "LLY": 3,
     "HIMS": 1,
     "NVO": 2,
     "BE": 13,
     "HUM": 1,
-    "AAPL": 23,
     "AVGO": 20,
     "AMZN": 79,
     "CRWV": 5,
@@ -260,25 +262,25 @@
     "BMY": 1
   },
   "themes": [
-    "Market Notes (845 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
-    "Semiconductors/Memory (476 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
-    "Geopolitics (446 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
+    "Market Notes (847 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
+    "Semiconductors/Memory (482 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
+    "Geopolitics (449 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
     "Earnings/Corporate (407 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
-    "Macro/Rates (352 posts in 14-day research window): 텍사스 주지사 당선인 지나 히노호사는 버니 샌더스가 아니다. 데이터센터 건설을 지지한다. - Tae Kim 시장은 텍사스 주지사 선거 결과가 AI 데이터센터 산업에 미칠 영향을 과도하게 부정적으로 해석하고 있다. 히노호사는 데이터센터 건설 자체를 반대하는 것이 아니라 지역 주민과 노동자에게 실질적인 혜택이...",
-    "AI Power/Grid (268 posts in 14-day research window): 데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가...",
-    "Korea Market (117 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY...",
-    "Equity/Analyst (116 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
+    "Macro/Rates (357 posts in 14-day research window): 2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000 +0.89% 상승한 반면 다우는 -0.46% 하락하며 성장주 우위 흐름. VIX는 25.64로 9.02%...",
+    "AI Power/Grid (272 posts in 14-day research window): 데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가...",
+    "Korea Market (119 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY...",
+    "Equity/Analyst (117 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
   ],
   "catalysts": [
     {
       "key": "GOOG",
-      "count": 115,
-      "text": "2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,..."
+      "count": 116,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 7일 🇺🇸 아메리카 • 연준 무살렘은 현재 인플레이션이 에너지 충격과 AI·데이터센터 투자에 따른 강한 수요의 영향을 받고 있다며, 물가를 적시에 2%로 복귀시켜야 한다고 강조. • 샌프란시스코 연은 데일리는 고용시장이 견조해 인플레이션 억제에 집중할 여력이 있다며 추가..."
     },
     {
       "key": "NVDA",
-      "count": 112,
-      "text": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가..."
+      "count": 114,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 7일 🇺🇸 아메리카 • 연준 무살렘은 현재 인플레이션이 에너지 충격과 AI·데이터센터 투자에 따른 강한 수요의 영향을 받고 있다며, 물가를 적시에 2%로 복귀시켜야 한다고 강조. • 샌프란시스코 연은 데일리는 고용시장이 견조해 인플레이션 억제에 집중할 여력이 있다며 추가..."
     },
     {
       "key": "AMZN",
@@ -307,12 +309,12 @@
     },
     {
       "key": "TSM",
-      "count": 39,
-      "text": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
+      "count": 40,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 7일 🇺🇸 아메리카 • 연준 무살렘은 현재 인플레이션이 에너지 충격과 AI·데이터센터 투자에 따른 강한 수요의 영향을 받고 있다며, 물가를 적시에 2%로 복귀시켜야 한다고 강조. • 샌프란시스코 연은 데일리는 고용시장이 견조해 인플레이션 억제에 집중할 여력이 있다며 추가..."
     },
     {
       "key": "MU",
-      "count": 35,
+      "count": 36,
       "text": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
     },
     {
@@ -327,7 +329,7 @@
     },
     {
       "key": "AAPL",
-      "count": 23,
+      "count": 24,
       "text": "알파벳(GOOGL) 2026년 3분기 어닝콜 — CapEx·AI 인프라 관련 1. CapEx 규모 및 2027년 전망 — CFO 아나트 아슈케나지 • 3분기 CapEx는 514억 달러. 대부분 AI 투자를..."
     }
   ],
@@ -338,8 +340,8 @@
       "topics": [
         "macro"
       ],
-      "count": 352,
-      "focus": "텍사스 주지사 당선인 지나 히노호사는 버니 샌더스가 아니다. 데이터센터 건설을 지지한다. - Tae Kim 시장은 텍사스 주지사 선거 결과가 AI 데이터센터 산업에 미칠 영향을 과도하게 부정적으로 해석하고 있다. 히노호사는 데이터센터 건설 자체를 반대하는 것이 아니라 지역 주민과 노동자에게 실질적인 혜택이..."
+      "count": 357,
+      "focus": "2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000 +0.89% 상승한 반면 다우는 -0.46% 하락하며 성장주 우위 흐름. VIX는 25.64로 9.02%..."
     },
     {
       "id": "geo",
@@ -347,7 +349,7 @@
       "topics": [
         "geo"
       ],
-      "count": 446,
+      "count": 449,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격..."
     },
     {
@@ -356,8 +358,8 @@
       "topics": [
         "credit"
       ],
-      "count": 99,
-      "focus": "11월 04일 미주인 브리핑 • 나스닥 0.83% 상승 · 엔비디아 시총 5조 달러 회복 • AMD 데이터센터 매출 97% 급증 · 시간 외 6% 상승 • 메타 대규모 회사채 발행 추진 · AI 투자 확대 •..."
+      "count": 100,
+      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 7일 🇺🇸 아메리카 • 연준 무살렘은 현재 인플레이션이 에너지 충격과 AI·데이터센터 투자에 따른 강한 수요의 영향을 받고 있다며, 물가를 적시에 2%로 복귀시켜야 한다고 강조. • 샌프란시스코 연은 데일리는 고용시장이 견조해 인플레이션 억제에 집중할 여력이 있다며 추가..."
     },
     {
       "id": "semi",
@@ -365,7 +367,7 @@
       "topics": [
         "semi"
       ],
-      "count": 476,
+      "count": 482,
       "focus": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
     },
     {
@@ -383,7 +385,7 @@
       "topics": [
         "power"
       ],
-      "count": 268,
+      "count": 272,
       "focus": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가..."
     },
     {
@@ -392,7 +394,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 105,
+      "count": 106,
       "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
@@ -401,7 +403,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 117,
+      "count": 119,
       "focus": "SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
     },
     {
@@ -410,7 +412,7 @@
       "topics": [
         "equity"
       ],
-      "count": 116,
+      "count": 117,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
@@ -437,8 +439,8 @@
       "topics": [
         "healthcare"
       ],
-      "count": 76,
-      "focus": "No retained full-text sample; 76 observed posts in the 14-day research window."
+      "count": 77,
+      "focus": "52주 신고가 (시총 $1B 이상) 헬스케어 · Amphastar Pharmaceuticals · Ardent Health · Becton, Dickinson and Company · BeOne Medicines · Certara · Mettler-Toledo International · Moderna · OPKO..."
     },
     {
       "id": "japan",
@@ -455,8 +457,8 @@
       "topics": [
         "flows"
       ],
-      "count": 65,
-      "focus": "No retained full-text sample; 65 observed posts in the 14-day research window."
+      "count": 66,
+      "focus": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (48.33%) 2위: ALPHABET INC CL A (14.78%) 3위: PROSHARES ULTRAPRO..."
     },
     {
       "id": "insider",
@@ -473,7 +475,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 845,
+      "count": 847,
       "focus": "2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며..."
     }
   ],
@@ -726,6 +728,112 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "insidertracking/68579",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68579",
+      "datetime": "2026-11-06T21:49:39.000Z",
+      "localDateKst": "2026-11-07",
+      "tags": [
+        "flows",
+        "semi",
+        "power",
+        "kr-market"
+      ],
+      "lead": 1,
+      "score": 100,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 2,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "listTickers": [
+        "NVDA",
+        "AMD",
+        "GOOG",
+        "META",
+        "BE",
+        "SMCI",
+        "GOOGL",
+        "V",
+        "ABBV",
+        "CVX",
+        "TMO",
+        "GS",
+        "INTC",
+        "COIN",
+        "MRNA",
+        "IONQ",
+        "RDDT",
+        "ONON",
+        "SHOP",
+        "FSLR"
+      ],
+      "summary": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
+    },
+    {
+      "id": "insidertracking/68574",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68574",
+      "datetime": "2026-11-06T21:40:36.000Z",
+      "localDateKst": "2026-11-07",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy"
+      ],
+      "score": 100,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "listTickers": [
+        "NVDA",
+        "MSFT",
+        "GOOG",
+        "MU",
+        "TSM",
+        "ORCL",
+        "005930.KS",
+        "000660.KS"
+      ],
+      "summary": "2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000..."
+    },
+    {
+      "id": "insidertracking/68568",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68568",
+      "datetime": "2026-11-06T21:33:08.000Z",
+      "localDateKst": "2026-11-07",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi"
+      ],
+      "score": 100,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA",
+        "GOOG",
+        "TSM"
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 7일 🇺🇸 아메리카 • 연준 무살렘은 현재 인플레이션이 에너지 충격과 AI·데이터센터 투자에 따른 강한 수요의 영향을 받고 있다며, 물가를 적시에 2%로 복귀시켜야..."
+    },
     {
       "id": "insidertracking/68528",
       "channel": "insidertracking",
@@ -1278,81 +1386,6 @@
       ]
     },
     {
-      "id": "insidertracking/68095",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68095",
-      "datetime": "2026-11-02T21:10:52.000Z",
-      "localDateKst": "2026-11-03",
-      "tags": [
-        "semi"
-      ],
-      "score": 100,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "2026년 11월 3일 미국 증시 브리핑 미국 증시는 중간선거를 앞둔 정치적 불확실성과 AI·반도체 중심의 대규모 매도세로 혼조 마감. S&P500 -0.51%, 나스닥 -1.07%, 다우 +0.41%,...",
-      "lead": 1,
-      "tickers": [
-        "NVDA",
-        "MSFT",
-        "GOOG",
-        "PLTR"
-      ]
-    },
-    {
-      "id": "insidertracking/68089",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68089",
-      "datetime": "2026-11-02T21:02:16.000Z",
-      "localDateKst": "2026-11-03",
-      "tags": [
-        "geo"
-      ],
-      "score": 100,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 3일 🇺🇸 아메리카 • 트럼프 대통령은 중간선거 이후 이란에 대한 추가 공습 계획을 부인하며 군사작전 재개를 서두르지 않겠다고 밝혀. 이란이 합의를 원하고 있으며...",
-      "lead": 1,
-      "tickers": [
-        "GOOG"
-      ]
-    },
-    {
-      "id": "insidertracking/68085",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68085",
-      "datetime": "2026-11-02T12:32:53.000Z",
-      "localDateKst": "2026-11-02",
-      "tags": [
-        "equity"
-      ],
-      "score": 100,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로...",
-      "tickers": [
-        "TSLA",
-        "GOOG",
-        "MRVL",
-        "LITE",
-        "T"
-      ]
-    },
-    {
       "id": "bornlupin/20941",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20941",
@@ -1753,6 +1786,249 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/68579",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68579",
+      "datetime": "2026-11-06T21:49:39.000Z",
+      "localDateKst": "2026-11-07",
+      "tags": [
+        "flows",
+        "semi",
+        "power",
+        "kr-market"
+      ],
+      "lead": 1,
+      "score": 100,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 2,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "listTickers": [
+        "NVDA",
+        "AMD",
+        "GOOG",
+        "META",
+        "BE",
+        "SMCI",
+        "GOOGL",
+        "V",
+        "ABBV",
+        "CVX",
+        "TMO",
+        "GS",
+        "INTC",
+        "COIN",
+        "MRNA",
+        "IONQ",
+        "RDDT",
+        "ONON",
+        "SHOP",
+        "FSLR"
+      ],
+      "summary": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
+    },
+    {
+      "id": "insidertracking/68577",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68577",
+      "datetime": "2026-11-06T21:44:21.000Z",
+      "localDateKst": "2026-11-07",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 55,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA",
+        "MU"
+      ],
+      "summary": "미국 레딧 관심도 마이크론, 엔비디아, 나스닥, 샌디스크 그리고 오라클"
+    },
+    {
+      "id": "insidertracking/68576",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68576",
+      "datetime": "2026-11-06T21:43:34.000Z",
+      "localDateKst": "2026-11-07",
+      "tags": [
+        "healthcare"
+      ],
+      "score": 56,
+      "hasText": true,
+      "tickers": [
+        "AAPL",
+        "MRNA",
+        "MTD",
+        "IBN"
+      ],
+      "summary": "52주 신고가 (시총 $1B 이상) 헬스케어 · Amphastar Pharmaceuticals · Ardent Health · Becton, Dickinson and Company · BeOne..."
+    },
+    {
+      "id": "insidertracking/68575",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68575",
+      "datetime": "2026-11-06T21:41:14.000Z",
+      "localDateKst": "2026-11-07",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "equity"
+      ],
+      "score": 97,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "listTickers": [
+        "NVDA",
+        "MSFT",
+        "GOOG",
+        "TSM",
+        "ORCL",
+        "TXT"
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) · 오라클 (ORCL) — 마이크로소프트가 2023년 체결한 오라클 AI 컴퓨팅 용량 임대 계약의..."
+    },
+    {
+      "id": "insidertracking/68574",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68574",
+      "datetime": "2026-11-06T21:40:36.000Z",
+      "localDateKst": "2026-11-07",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy"
+      ],
+      "score": 100,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "listTickers": [
+        "NVDA",
+        "MSFT",
+        "GOOG",
+        "MU",
+        "TSM",
+        "ORCL",
+        "005930.KS",
+        "000660.KS"
+      ],
+      "summary": "2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000..."
+    },
+    {
+      "id": "insidertracking/68571",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68571",
+      "datetime": "2026-11-06T21:37:10.000Z",
+      "localDateKst": "2026-11-07",
+      "tags": [
+        "macro"
+      ],
+      "score": 52,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": "2026년 11월 7일 미장 마감 S&P 500 - 7,376.86 +0.31% 다우 30 - 51,285.73 -0.46% 나스닥 - 24,579.42 +1.09% 러셀 2000 - 2,754.11..."
+    },
+    {
+      "id": "insidertracking/68570",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68570",
+      "datetime": "2026-11-06T21:35:42.000Z",
+      "localDateKst": "2026-11-07",
+      "tags": [
+        "geo"
+      ],
+      "score": 55,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": "트럼프 SNS 발언 [2026-11-07 오전 3:05] 처음부터 우리와 함께해 온 MAGA 전사 조 그루터스가 공화당 전국위원회(RNC) 위원장 연임에 도전하고 있다. 위원장으로서 조는 RNC를 효율적이고,..."
+    },
+    {
+      "id": "insidertracking/68569",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68569",
+      "datetime": "2026-11-06T21:34:14.000Z",
+      "localDateKst": "2026-11-07",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power"
+      ],
+      "score": 87,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 7일 트럼프 발언 · 트럼프 “가장 놀라운 고용 수치를 기록했다” 발언 · 트럼프, 주식시장 손실을 선거 결과 탓으로 돌림 · 트럼프 “이란과..."
+    },
+    {
+      "id": "insidertracking/68568",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68568",
+      "datetime": "2026-11-06T21:33:08.000Z",
+      "localDateKst": "2026-11-07",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi"
+      ],
+      "score": 100,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA",
+        "GOOG",
+        "TSM"
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 7일 🇺🇸 아메리카 • 연준 무살렘은 현재 인플레이션이 에너지 충격과 AI·데이터센터 투자에 따른 강한 수요의 영향을 받고 있다며, 물가를 적시에 2%로 복귀시켜야..."
+    },
+    {
       "id": "HANAchina/71672",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71672",
@@ -2022,6 +2298,7 @@
       "tags": [
         "earnings"
       ],
+      "lead": 1,
       "score": 69,
       "hasText": true,
       "media": {
@@ -2030,10 +2307,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "Moderna 2026년 3분기 실적 요약 실적 • 매출 $13.13억, YoY +29%, 예상 $8.902억 대비 47.5% 상회 • GAAP EPS $0.38, 전년 -$0.51에서 흑자 전환 • 순이익...",
       "tickers": [
         "MRNA"
-      ]
+      ],
+      "summary": "Moderna 2026년 3분기 실적 요약 실적 • 매출 $13.13억, YoY +29%, 예상 $8.902억 대비 47.5% 상회 • GAAP EPS $0.38, 전년 -$0.51에서 흑자 전환 • 순이익..."
     },
     {
       "id": "HANAchina/71665",
@@ -6281,22 +6558,6 @@
       ]
     },
     {
-      "id": "insidertracking/68158",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68158",
-      "datetime": "2026-11-03T02:15:47.000Z",
-      "localDateKst": "2026-11-03",
-      "tags": [
-        "earnings"
-      ],
-      "score": 81,
-      "hasText": true,
-      "summary": "애플(AAPL) Q4 2026 어닝콜 요약 > 긍정 요인: • 사상 최대 매출 및 EPS 달성. 4분기 매출은 1,145억달러로 전년 대비 12% 증가. 2026 회계연도 매출은 4,788억달러로 15%,...",
-      "tickers": [
-        "AAPL"
-      ]
-    },
-    {
       "id": "HANAchina/71453",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71453",
@@ -6358,21 +6619,6 @@
       "score": 50,
       "hasText": true,
       "summary": "WSJ - 미국, 이란 케슘섬 공습…트럼프는 전쟁 재개 가능성 축소 1. 미국 관리들에 따르면, 미군은 11월 2일 이란의 케슘섬(Qeshm Island)을 공격했습니다. 2. 이번 공격은 미국이 최근 몇 주...",
-      "lead": 1,
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/68137",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68137",
-      "datetime": "2026-11-02T23:52:05.000Z",
-      "localDateKst": "2026-11-03",
-      "tags": [
-        "equity"
-      ],
-      "score": 57,
-      "hasText": true,
-      "summary": "뱅크오브아메리카(BofA)가 마벨 테크놀로지의 투자 의견을 기존 ‘매수(Buy)’에서 ‘중립(Neutral)’으로 하향 조정하고, 목표주가도 400달러에서 225달러로 인하. 뱅크오브아메리카는 루멘텀과의 전액...",
       "lead": 1,
       "tickers": []
     },
@@ -6575,31 +6821,6 @@
       ]
     },
     {
-      "id": "insidertracking/68130",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68130",
-      "datetime": "2026-11-02T22:09:22.000Z",
-      "localDateKst": "2026-11-03",
-      "tags": [
-        "macro",
-        "semi",
-        "earnings"
-      ],
-      "score": 82,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "11월 03일 미주인 브리핑 • 나스닥 1.07% 하락 · 다우 0.41% 상승 • 반도체지수 3.3% 하락 · AI 기술주 매도세 • 국제유가 8.03% 하락 · WTI 95.76달러 • 애플 매출...",
-      "tickers": [
-        "AMD",
-        "PLTR"
-      ]
-    },
-    {
       "id": "bornlupin/20957",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20957",
@@ -6613,175 +6834,6 @@
       "summary": "블룸에너지(BE)와 캘리포니아 리소시스(CRC), 캘리포니아에서 1GW 이상의 발전 프로젝트 추진을 위한 협약 체결 블룸에너지와 캘리포니아 리소시스(CRC)는 고체산화물 연료전지(SOFC)와 탄소...",
       "tickers": [
         "BE"
-      ]
-    },
-    {
-      "id": "insidertracking/68129",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68129",
-      "datetime": "2026-11-02T21:50:18.000Z",
-      "localDateKst": "2026-11-03",
-      "tags": [
-        "power"
-      ],
-      "score": 52,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "블룸에너지와 캘리포니아 리소시스가 캘리포니아에서 1GW 이상의 전력 생산 프로젝트를 추진하기 위한 업무협약(MOU) 체결. 양사는 탄소 포집·저장(CCS) 기술과 결합한 고체산화물 연료전지 프로젝트 개발을...",
-      "lead": 1,
-      "tickers": [
-        "BE"
-      ]
-    },
-    {
-      "id": "insidertracking/68119",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68119",
-      "datetime": "2026-11-02T21:39:40.000Z",
-      "localDateKst": "2026-11-03",
-      "tags": [
-        "geo"
-      ],
-      "score": 50,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "뉴욕타임즈에 따르면 푸틴 러시아 대통령이 서방의 러시아 고립 전략을 효과적으로 약화시키고 있다는 분석. 푸틴 대통령은 우크라이나 전쟁에 대한 기존 입장을 유지하면서도 세계 각국 정상들과의 접촉을 확대하고...",
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/68115",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68115",
-      "datetime": "2026-11-02T21:37:40.000Z",
-      "localDateKst": "2026-11-03",
-      "tags": [
-        "semi",
-        "equity",
-        "earnings"
-      ],
-      "score": 55,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "금일 실적 발표 리스트 장전에 쇼피파이, 화이자, 이튼, 레이도스, 페라리 장 마감후에 AMD, SMCI (슈퍼마이크로컴퓨터), 아리스타, 듀오링고, 쿠팡, 아스트라랩, 아우스터",
-      "tickers": [
-        "AMD",
-        "SMCI"
-      ]
-    },
-    {
-      "id": "insidertracking/68114",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68114",
-      "datetime": "2026-11-02T21:34:37.000Z",
-      "localDateKst": "2026-11-03",
-      "tags": [
-        "earnings"
-      ],
-      "score": 61,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "Apple 2026년 4분기 실적 요약 실적 • 매출 $1,144.77억, YoY +11.7%, 9월 분기 역대 최고 • 제품 매출 $829.04억, YoY +12.5% • 서비스 매출 $315.73억,...",
-      "tickers": [
-        "AAPL"
-      ]
-    },
-    {
-      "id": "insidertracking/68109",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68109",
-      "datetime": "2026-11-02T21:29:13.000Z",
-      "localDateKst": "2026-11-03",
-      "tags": [
-        "semi",
-        "flows"
-      ],
-      "score": 100,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "2026년 11월 2일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.76%) 2위: ALPHABET INC CL A...",
-      "tickers": [],
-      "listTickers": [
-        "CAT",
-        "GOOG",
-        "META",
-        "AMZN",
-        "MRVL",
-        "BE",
-        "PLTR",
-        "GOOGL",
-        "LLY",
-        "V",
-        "GS",
-        "INTC",
-        "NOW",
-        "MRNA",
-        "IONQ",
-        "SOFI",
-        "PINS",
-        "SHOP",
-        "FSLR",
-        "QQQ"
-      ]
-    },
-    {
-      "id": "insidertracking/68106",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68106",
-      "datetime": "2026-11-02T21:24:02.000Z",
-      "localDateKst": "2026-11-03",
-      "tags": [
-        "market-note"
-      ],
-      "score": 68,
-      "hasText": true,
-      "summary": "52주 신고가 (시총 $1B 이상) 금융 · AerCap Holdings · American Financial Group · Arch Capital Group · Arthur J. Gallagher & Co....",
-      "tickers": [],
-      "listTickers": [
-        "V",
-        "MA",
-        "KO",
-        "PFE",
-        "REGN",
-        "NUE",
-        "MAR",
-        "ECL",
-        "ROP",
-        "MRSH",
-        "HLT",
-        "APD",
-        "FAST",
-        "ED",
-        "ACGL",
-        "VLTO",
-        "AWK",
-        "J",
-        "KDP",
-        "EG"
       ]
     },
     {
