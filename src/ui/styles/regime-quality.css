@@ -311,6 +311,12 @@ body.dark-theme .sector-map .is-na { background: var(--gold-3); color: var(--gol
 .capex-flow-key { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
 .capex-flow-swatch { width: 10px; height: 10px; border-radius: 4px; display: inline-block; }
 @media (max-width: 600px) { .capex-flow-seg-label { display: none; } .page .capex-flow-bar { height: 18px; } }
+/* v59.70 (screen review 3): the step-11 fills turn light in dark mode, so white labels fell to 1.8:1; the label takes
+   the page background instead. The card head wraps between the layer name and '$N / $100', never inside either. */
+body.dark-theme .capex-flow-seg { color: var(--bg-base); filter: none; font-weight: 700; }
+.capex-flow-card .trend-card-head { flex-wrap: wrap; row-gap: 2px; }
+.capex-flow-card .trend-card-title, .capex-flow-card .trend-card-value { white-space: nowrap; }
+.capex-flow-card .trend-card-value { font-size: 22px; }
 /* v57.79 (375 review): compact inline compare control and a shaded edge on the side of the rank table that has more columns. */
 .page .theme-strength-table .theme-strength-compare { font: inherit; font-size: 12px; font-weight: 600; margin-left: 4px; padding: 0 6px; min-height: 26px; min-width: 32px; box-sizing: border-box; /* v57.82: 24px rendered 23.6px on Linux CI fonts (sub-pixel); 26px keeps the AA 24px target with margin */ /* (0,3,0) outranks the shared .page button 36px floor; 24px meets the AA target size */ border: 0.5px solid var(--border-subtle); border-radius: 4px; background: none; color: var(--text-secondary); cursor: pointer; vertical-align: middle; }
 .theme-strength-compare[aria-expanded="true"] { color: var(--text-primary); border-color: var(--text-primary); }
@@ -564,6 +570,14 @@ body.dark-theme .sector-map .is-na { background: var(--gold-3); color: var(--gol
 .event-brief-row__fold summary { cursor: pointer; color: var(--text-secondary); min-height: 24px; }
 .event-brief-row__fold .event-brief__more.is-inline { padding: 6px 0 0; }
 .event-briefs__all { margin-top: 8px; }
+.event-briefs__flows { margin-top: 12px; padding-top: 12px; border-top: 0.5px solid var(--border); }
+.event-briefs__flows-title { margin: 0 0 4px; font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.event-briefs__flows-text { margin: 0; font-size: 13px; line-height: 1.6; color: var(--text-primary); }
+.event-briefs__flows-text--next { margin-top: 8px; }
+.event-briefs__flows-bars { display: grid; gap: 6px; margin-top: 8px; max-width: 520px; }
+.event-briefs__flows-row { display: grid; grid-template-columns: 96px minmax(0, 1fr) 64px; align-items: center; gap: 10px; font-size: 12px; }
+.event-briefs__flows-label { color: var(--text-secondary); }
+.event-briefs__flows-value { text-align: right; font-variant-numeric: tabular-nums; }
 /* v59.44: AI supply chain by group — one-month median bar, last session beside it. */
 .ai-chain__reading { margin: 0 0 6px; font-size: 13px; color: var(--text-primary); }
 .ai-chain__scale { margin: 0 0 4px; font-size: 12px; color: var(--text-secondary); text-align: right; }
@@ -579,3 +593,10 @@ body.dark-theme .sector-map .is-na { background: var(--gold-3); color: var(--gol
 .ai-chain__member-list { margin: 0 0 4px; font-size: 12px; font-variant-numeric: tabular-nums; }
 .event-briefs__all summary { cursor: pointer; font-size: 12px; color: var(--text-secondary); min-height: 24px; }
 .event-brief__source a { color: var(--text-primary); text-decoration: underline; }
+/* v59.70 (X bookmarks #1): the 추세 row's correction base rate (correction-base-rate.js). */
+.page .mk-correction { margin: 0 0 16px; padding-bottom: 14px; border-bottom: 0.5px solid var(--border); }
+.page .mk-correction h4 { margin: 0 0 4px; font-variant-numeric: tabular-nums; }
+.page .mk-correction__dots { display: flex; flex-wrap: wrap; gap: 4px; margin: 8px 0 6px; max-width: 420px; }
+.page .mk-correction__dot { width: 8px; height: 8px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(var(--ink-rgb), 0.45); }
+.page .mk-correction__dot.is-bear { background: var(--text-primary); box-shadow: none; }
+.page .mk-correction__def { margin: 0; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }

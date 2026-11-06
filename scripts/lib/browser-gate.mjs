@@ -3,15 +3,39 @@
 // fallback) and rejects on early exit or timeout; closeAll always closes the browser and
 // kills the server, even when chromium.launch() threw before a browser existed.
 import { spawn } from 'node:child_process';
+import { createServer } from 'node:net';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
-const READY_LINE = 'AIO local server';
 
-export function startLocalServer(port, { timeoutMs = 15000, label = 'local-server', root = repoRoot, windowsHide = true } = {}) {
+// v59.70 (2nd batch A): a free port from the OS for a gate that needs its URL before the server starts. Fixed ports
+// (8938 and the like) made parallel sessions' gates fail each other with EADDRINUSE; ci-qa-pipeline-contract-check
+// fails when a fixed port literal comes back.
+// v59.70 (wave 2 A′): the page clock of a pinned-data run (AIO_BROWSER_CLOCK_AT, start-local-node.mjs). A gate that builds
+// time-based fixtures in Node uses this, so its series end where the page thinks today is.
+export function gateNowMs() {
+  const at = Date.parse(process.env.AIO_BROWSER_CLOCK_AT || '');
+  return Number.isFinite(at) ? at : Date.now();
+}
+
+export function freePort() {
+  return new Promise((resolvePort, reject) => {
+    const probe = createServer();
+    probe.unref();
+    probe.on('error', reject);
+    probe.listen(0, '127.0.0.1', () => {
+      const { port } = probe.address();
+      probe.close(() => resolvePort(port));
+    });
+  });
+}
+
+// port: 0 (the default) lets the OS choose; the resolved child carries the port it listens on (`server.port`).
+// env: extra variables for the server (AIO_SERVE_ROOT, AIO_BROWSER_DATA_ROOT; see scripts/start-local-node.mjs).
+export function startLocalServer(port = 0, { timeoutMs = 15000, label = 'local-server', root = repoRoot, windowsHide = true, env = {} } = {}) {
   return new Promise((resolveServer, reject) => {
-    const child = spawn(process.execPath, ['scripts/start-local-node.mjs', String(port)], { cwd: root, windowsHide, stdio: ['ignore', 'pipe', 'pipe'] });
+    const child = spawn(process.execPath, ['scripts/start-local-node.mjs', String(port)], { cwd: root, windowsHide, stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, ...env } });
     let settled = false;
     let stdoutTail = '';
     const settle = (error) => {
@@ -29,7 +53,8 @@ export function startLocalServer(port, { timeoutMs = 15000, label = 'local-serve
     child.stdout.on('data', (data) => {
       // Keep a short tail so a ready line split across chunks is still recognised.
       stdoutTail = (stdoutTail + String(data)).slice(-512);
-      if (stdoutTail.includes(READY_LINE)) settle();
+      const ready = stdoutTail.match(/AIO local server: http:\/\/[^:\s]+:(\d+)\//);
+      if (ready) { child.port = Number(ready[1]); settle(); }
     });
     child.stderr.on('data', (data) => process.stderr.write(`[${label}] ${data}`));
     child.on('error', (error) => settle(error));

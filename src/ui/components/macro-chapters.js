@@ -28,6 +28,29 @@ function miniBars(doc, viz) {
   return box;
 }
 
+// v59.70 (X bookmarks #4): credit tiers in their own recorded range — the 10~90th percentile band, the median tick and
+// today's dot, each row on its own scale (CCC sits near 9%, investment grade under 1%).
+function rangeBands(doc, model) {
+  const box = el(doc, 'figure', null, 'mx-ch__range');
+  box.setAttribute('role', 'img');
+  box.setAttribute('aria-label', `스프레드 기록 범위, ${model.since}: ${model.ranges.map((range) => `${range.label} ${range.now.toFixed(2)}% (기록의 ${range.pct}% 위치)`).join(', ')}`);
+  for (const range of model.ranges) {
+    const span = range.max - range.min || 1;
+    const at = (value) => `${((value - range.min) / span * 100).toFixed(1)}%`;
+    const row = el(doc, 'div', null, 'mx-ch__range-row');
+    const track = el(doc, 'span', null, 'mx-ch__range-track');
+    const band = el(doc, 'span', null, 'mx-ch__range-band');
+    band.style.left = at(range.p10); band.style.width = `${((range.p90 - range.p10) / span * 100).toFixed(1)}%`;
+    const mid = el(doc, 'span', null, 'mx-ch__range-mid'); mid.style.left = at(range.p50);
+    const dot = el(doc, 'span', null, 'mx-ch__range-dot'); dot.style.left = at(range.now);
+    track.append(band, mid, dot);
+    row.append(el(doc, 'span', range.label, 'mx-ch__range-label'), track, el(doc, 'span', `${range.now.toFixed(2)}% · ${range.pct}%`, 'mx-ch__range-val'));
+    box.append(row);
+  }
+  box.append(el(doc, 'figcaption', `${model.since} 기록, 띠는 하위 10%~상위 10%, 세로선은 중앙값`, 'mx-ch__cap'));
+  return box;
+}
+
 function chapterCard(doc, chapter) {
   const card = el(doc, 'article', null, 'mx-ch');
   card.dataset.chapter = chapter.id;
@@ -49,7 +72,9 @@ function chapterCard(doc, chapter) {
   const rows = el(doc, 'dl', null, 'mx-ch__detail');
   for (const [label, value] of chapter.detail) rows.append(el(doc, 'dt', label), el(doc, 'dd', value));
   if (chapter.today?.report) rows.append(el(doc, 'dt', '관련 보도'), el(doc, 'dd', `${chapter.today.report.title} (${chapter.today.report.date.slice(5).replace('-', '/')})`));
-  fold.append(el(doc, 'summary', '숫자 더 보기'), rows);
+  fold.append(el(doc, 'summary', '숫자 더 보기'));
+  if (chapter.ranges) fold.append(el(doc, 'p', chapter.ranges.line, 'mx-ch__range-line'), rangeBands(doc, chapter.ranges));
+  fold.append(rows);
   card.append(head, body, next, fold);
   return card;
 }

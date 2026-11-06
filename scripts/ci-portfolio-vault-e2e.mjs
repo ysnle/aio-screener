@@ -6,11 +6,11 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { buildArtifact, buildListingRows, joinSecCik, secCikMap } from './lib/us-listings.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.CI_PORTFOLIO_PORT || 8894);
+const port = (Number(process.env.CI_PORTFOLIO_PORT) || await freePort());
 const liveBaseUrl = String(process.env.CI_PORTFOLIO_BASE_URL || '').replace(/\/+$/, '');
 const isLive = !!liveBaseUrl;
 const baseUrl = liveBaseUrl || `http://127.0.0.1:${port}`;
@@ -516,13 +516,13 @@ async function main() {
     const planCheck = await page.evaluate(() => {
       const set = (values) => Object.entries(values).forEach(([id, value]) => { document.getElementById(id).value = value; });
       set({ 'rr-entry': '100', 'rr-stop': '90', 'rr-target': '130', 'rr-capital': '1000', 'rr-total': '10000' });
-      window.calculateRR();
+      document.querySelector('#page-portfolio [data-plan-check]').click(); // v59.70: native portfolio-plan-check.js
       const shown = !document.getElementById('rr-result').hidden;
       set({ 'rr-stop': '110' });
-      window.calculateRR();
+      document.querySelector('#page-portfolio [data-plan-check]').click(); // v59.70: native portfolio-plan-check.js
       const hiddenOnStop = document.getElementById('rr-result').hidden;
       set({ 'rr-stop': '90', 'rr-capital': '99999999999999999999' });
-      window.calculateRR();
+      document.querySelector('#page-portfolio [data-plan-check]').click(); // v59.70: native portfolio-plan-check.js
       return { shown, hiddenOnStop, hiddenOnHuge: document.getElementById('rr-result').hidden, text: document.getElementById('rr-lines').textContent };
     });
     check('PFE2-26 refused_plan_check_hides_previous_result (P2071)',

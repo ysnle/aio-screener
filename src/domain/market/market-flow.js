@@ -2,8 +2,8 @@
 // rose: the loss sat in the largest AI and technology names, and staples (+3.3%, every member up), utilities and health
 // care rose with Treasuries (10-year -17bp) as fear reached 20. The money-flow line names where the session's money went —
 // the sector ETFs that rose and fell most, the 10-year yield and fear on the same session — and which of four shapes it
-// had. Sector rows are the produced rotation artifact (current session only); SMH and the 10-year change are the
-// completed history closes of that same session (MERGED #3/#13). Growth here is XLK·XLC·SMH, defensive is concepts.js DEFENSIVE_SECTORS.
+// had. Sector rows are the produced rotation artifact (current session only); SOXX (v59.70, the app's one semiconductor gauge) and the 10-year change are the
+// completed history closes of that same session (MERGED #3/#13). Growth here is XLK·XLC·SOXX, defensive is concepts.js DEFENSIVE_SECTORS.
 import { RULES } from '../rules/thresholds.js';
 import { selectProducedRotation } from '../themes/produced-rotation.js';
 import { DEFENSIVE_SECTORS, SECTOR_ETF_LABELS } from '../interpretation/concepts.js';
@@ -20,8 +20,8 @@ export const AI_CHAIN_THEMES = new Set(['semiconductor', 'utilities', 'photonics
 export const AI_CHAIN_GROUPS = new Set(['industrials:전력장비/그리드']);
 
 const signed = (value, digits = 1) => value == null || !Number.isFinite(value) ? null : signedText(value, digits, '%');
-const GROWTH_FLOW = Object.freeze(['XLK', 'XLC', 'SMH']);
-const FLOW_LABELS = Object.freeze({ ...SECTOR_ETF_LABELS, SMH: '반도체' });
+const GROWTH_FLOW = Object.freeze(['XLK', 'XLC', 'SOXX']);
+const FLOW_LABELS = Object.freeze({ ...SECTOR_ETF_LABELS, SOXX: '반도체' });
 export const MARKET_FLOW_KINDS = Object.freeze({ defensive: '방어 업종 강세', growth: '성장 업종 강세', broadDown: '업종 전반 하락', broadUp: '업종 전반 상승', mixed: '업종별로 엇갈림' });
 
 export function buildMarketFlow({ rotationHistory = null, history = [], themes = null, rows: screenerRows = null, nowMs = Date.now() } = {}) {
@@ -34,9 +34,9 @@ export function buildMarketFlow({ rotationHistory = null, history = [], themes =
   // MERGED #3 (run-6): SMH read -8.4% here (a rotation bar fetched 21 minutes after the close) beside -7.0% on the 주도 영역
   // line. One move has one number: the semiconductor row and the 10-year change are the completed history closes the
   // 주도 영역 line (sessionMove) and 시장 상태 (tenYearClose) print, on this session only.
-  const semis = sessionMove(history, 'smh', session);
-  const smhRow = semis?.date === session && semis.change != null ? { symbol: 'SMH', label: FLOW_LABELS.SMH, daily: semis.change, session } : null;
-  const rows = smhRow ? [...sectors, smhRow] : sectors;
+  const semis = sessionMove(history, 'soxx', session);
+  const semisRow = semis?.date === session && semis.change != null ? { symbol: 'SOXX', label: FLOW_LABELS.SOXX, daily: semis.change, session } : null;
+  const rows = semisRow ? [...sectors, semisRow] : sectors;
   const rule = RULES.leadership;
   const mean = (list) => list.length ? list.reduce((sum, row) => sum + row.daily, 0) / list.length : null;
   const defensive = mean(rows.filter((row) => DEFENSIVE_SECTORS.has(row.symbol)));
@@ -46,7 +46,7 @@ export function buildMarketFlow({ rotationHistory = null, history = [], themes =
   const kind = down >= rule.broadSectorCount ? 'broadDown' : up >= rule.broadSectorCount ? 'broadUp'
     : gap != null && gap >= rule.rotationGapPp && defensive > 0 ? 'defensive'
       : gap != null && -gap >= rule.rotationGapPp && growth > 0 ? 'growth' : 'mixed';
-  // v58.74 (text audit): the lists rank the 11 sectors only; 반도체(SMH) is named on its own after the count.
+  // v58.74 (text audit): the lists rank the 11 sectors only; 반도체(SOXX) is named on its own after the count.
   const sorted = [...sectors].sort((a, b) => b.daily - a.daily);
   const item = (row) => `${row.label} ${signed(row.daily)}`;
   const rose = sorted.filter((row) => row.daily > 0).slice(0, 3), fell = sorted.filter((row) => row.daily < 0).reverse().slice(0, 3);
@@ -58,7 +58,7 @@ export function buildMarketFlow({ rotationHistory = null, history = [], themes =
     rose.length ? `오른 업종 ${rose.map(item).join(', ')}` : null,
     fell.length ? `내린 업종 ${fell.map(item).join(', ')}` : null,
     `${sectors.length}개 업종 중 ${up}개 상승`, // v59.45: the denominator is the sectors observed
-    smhRow ? `반도체(SMH) ${signed(smhRow.daily)}` : null,
+    semisRow ? `반도체(SOXX) ${signed(semisRow.daily)}` : null,
     tenYearBp != null ? `미국 10년물 ${signedText(tenYearBp, 0, 'bp')}` : null,
     fear && !fear.blocked ? `공포·탐욕 ${Math.round(fear.score)}(${fear.label})` : null
   ].filter(Boolean);

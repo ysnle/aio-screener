@@ -1,5 +1,5 @@
 // Legacy unification (2026-10-27, roadmap item 11, layer 1 채팅): the public AI request and response pipeline moved here
-// unchanged from js/aio-chat.js, so news translation (js/aio-data.js autoTranslateNews) no longer needs the chat file.
+// unchanged from js/aio-chat.js (v59.70 D6: the browser news translation that also used it is deleted).
 // It covers the request object and its per-request stream, the research gate, the claim evidence binding, the answer
 // plan publication, the action gate and the disclosure. The window names are the ones the classic scripts already
 // call; installCompatibilityGlobals installs them. The disclosure box takes the lch-disc class (src/ has no inline

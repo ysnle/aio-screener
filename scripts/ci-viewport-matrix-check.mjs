@@ -6,12 +6,13 @@ import { mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DESKTOP_QA_VIEWPORTS } from './desktop-qa-config.mjs';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
+import { addressThemeDetail } from './lib/theme-detail-address.mjs';
 import { ROUTE_IDS } from '../src/app/routes.js';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const root = resolve(scriptDir, '..');
-const PORT = Number(process.env.CI_VIEWPORT_PORT || 8892);
+const PORT = (Number(process.env.CI_VIEWPORT_PORT) || await freePort());
 const BASE_URL = `http://127.0.0.1:${PORT}/index.html`;
 const SCREENSHOTS = process.env.AIO_VIEWPORT_SCREENSHOTS === '1';
 // Real route lifecycle is the default evidence. Set AIO_VIEWPORT_FULL_INIT=0
@@ -28,6 +29,7 @@ const VIEWPORTS = DESKTOP_QA_VIEWPORTS
 if (!VIEWPORTS.length) throw new Error('AIO_VIEWPORT_NAMES did not match a known viewport');
 
 async function activateRoute(page, routeId) {
+  if (routeId === 'theme-detail') await addressThemeDetail(page); // a detail needs a theme id (fix-r1-theme)
   return page.evaluate((id) => {
     const targetPageId = id === 'theme-detail' ? 'themes' : id;
     const targetPage = document.getElementById('page-' + targetPageId);

@@ -3,13 +3,13 @@
 import { chromium } from 'playwright';
 import { mkdirSync, readFileSync } from 'node:fs';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.CI_ENTITY_QUALITY_PORT || 8935);
+const port = (Number(process.env.CI_ENTITY_QUALITY_PORT) || await freePort());
 const base = `http://127.0.0.1:${port}`;
 const out = resolve(root, '_artifacts/entity-quality-20261012');
 const sourceVersion = JSON.parse(readFileSync(resolve(root,'version.json'),'utf8')).version;
@@ -173,11 +173,13 @@ try {
       await page.locator('.ai-ph-close').click();
 
       await page.evaluate(()=>window.showPage('screener'));
-      // v58.56 (4b): a phone keeps the screener's market/sort controls in the 필터 bottom sheet — open it like a reader.
-      await page.waitForSelector('#scr-listing-market',{state:'attached'});
-      if (await page.locator('#scr-filter-open').isVisible()) { await page.locator('#scr-filter-open').click(); await page.waitForFunction(()=>document.getElementById('scr-filter-sheet')?.classList.contains('is-open')); }
+      // v59.70 (S12): 시장 sits in the condition row at every width; 정렬 is in the 보기 panel — open it like a reader.
       await page.waitForSelector('#scr-listing-market');
+      // The route module mounts after showPage; its condition row (chip signature) marks the controls as wired.
+      await page.waitForFunction(()=>document.getElementById('scr-active-filter-chips')?.dataset.chipSignature !== undefined);
+      await page.locator('#scr-view-button').click();
       await page.locator('#scr-order').selectOption('ret3m');
+      await page.locator('#scr-view-button').click();
       for (const market of ['US','KR']) {
         await page.locator('#scr-listing-market').selectOption(market);
         // Settle on an observable outcome instead of a swallowed wait + fixed sleep: rows of THIS market
@@ -208,7 +210,6 @@ try {
         return {usd:formatScreenerPrice(84.64,'USD'),krw:formatScreenerPrice(73000,'KRW'),missing:formatScreenerPrice(null,'USD')};});
       check(currencyFormat.usd==='$84.64' && currencyFormat.krw==='₩73,000' && currencyFormat.missing==='—',`${label}: currency formatter/absence contract failed (P1625)`,currencyFormat);
       observations.push({label,currencyFormat,priceBoundary:'Unreceived public quotes remain unavailable; no published price is promoted into a current quote.'});
-      if (await page.locator('#scr-filter-sheet.is-open').count()) { await page.locator('#scr-filter-sheet .scr-filter-done').click(); await page.waitForFunction(()=>!document.getElementById('scr-filter-sheet')?.classList.contains('is-open')); }
       await captureLayout(page,`${label}/screener`);
 
       await page.evaluate(()=>window.showTicker('AEHR'));

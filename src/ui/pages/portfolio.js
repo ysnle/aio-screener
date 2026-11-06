@@ -11,6 +11,9 @@ import { portfolioRowsForAI, portfolioSectorLabel } from '../../domain/portfolio
 import { clearKnowledgeArrival, renderKnowledgeArrival } from '../components/knowledge-arrival.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { renderTradeJournal, installTradeJournal } from '../panels/portfolio-trade-journal.js';
+import { renderPortfolioValueTrend } from '../components/portfolio-value-trend.js';
+import { renderPortfolioExposureBar } from '../components/portfolio-exposure-bar.js';
+import { installPlanCheck } from '../components/portfolio-plan-check.js';
 import { signedText, readNumber as finite } from '../../domain/shared/number.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
 
@@ -649,6 +652,7 @@ function render({ root, documentRef, store }) {
     const shownChecks = renderPortfolioChecks(documentRef, root, shown);
     renderPortfolioLens({ documentRef, root, surface: shown, checks: shownChecks, sectorLabel: portfolioSectorLabel });
     renderPortfolioRead({ documentRef, root, surface: shown });
+    renderFirstScreen(documentRef, root, shown, bySymbol);
     renderPortfolioCriteria({ documentRef, root, surface: shown, checks: shownChecks, sectorLabel: portfolioSectorLabel });
     renderThesisCheck({ documentRef, root, surface: shown, holdings: shownState.holdings, bySymbol });
     syncEmptyState(documentRef, root, page, { empty: true, preview: true });
@@ -666,6 +670,7 @@ function render({ root, documentRef, store }) {
   const checks = renderPortfolioChecks(documentRef, root, surface);
   renderPortfolioLens({ documentRef, root, surface, checks, sectorLabel: portfolioSectorLabel }); // 개편 v2 (3g)
   renderPortfolioRead({ documentRef, root, surface }); // P1438
+  renderFirstScreen(documentRef, root, surface, bySymbol);
   // v58.75 (persona review, spec F4·F5): criteria met (a count, not a score) and the per-holding thesis check, facts only.
   renderPortfolioCriteria({ documentRef, root, surface, checks, sectorLabel: portfolioSectorLabel });
   renderThesisCheck({ documentRef, root, surface: empty ? null : surface, holdings: state?.holdings || [], bySymbol, rerender: () => rerenderPortfolio?.() });
@@ -681,8 +686,17 @@ function previewPortfolioState() {
   return { status: 'ready', readState: 'ready', holdingsKnown: true, cashKnown: true, cashBalances: [], holdings: PREVIEW_HOLDINGS.map(([symbol, shares]) => ({ symbol, shares })) };
 }
 
+// v59.70 (S16): the first screen's ① chart and ③ exposure bar, both from the surface the table reads (the chart's returns
+// and dates from the screener rows and the close history; no client price calls).
+function renderFirstScreen(documentRef, root, surface, bySymbol) {
+  renderPortfolioValueTrend({ documentRef, root, surface, rowOf: (symbol) => bySymbol.get(String(symbol || '').toUpperCase()) || null });
+  renderPortfolioExposureBar({ documentRef, surface, sectorLabel: portfolioSectorLabel });
+}
+
 // Sections that need holdings: hidden while the portfolio is empty (a journal or note that already holds entries stays).
-const EMPTY_HIDDEN_IDS = Object.freeze(['pf-freshness-strip', 'pf-records-fold', 'pf-backtest-fold', 'pf-rr-fold', 'pf-watchlist-risk-fold', 'pf-ledger-section', 'pf-fx-section']);
+// v59.70 (S16): 기록 and 점검 are the two folds that need holdings; 설정 (security, base currency) stays.
+const EMPTY_HIDDEN_IDS = Object.freeze(['pf-freshness-strip', 'pf-records-fold', 'pf-check-fold', 'pf-value-trend', 'pf-exposure-bar']);
+const PREVIEW_SHOWN = new Set(['pf-value-trend', 'pf-exposure-bar']);
 const EMPTY_KEEP = Object.freeze({
   'pf-records-fold': (node) => Boolean(node.querySelector('[data-trade-id]'))
 });
@@ -692,7 +706,8 @@ function syncEmptyState(documentRef, root, page, { empty, preview }) {
   for (const id of EMPTY_HIDDEN_IDS) {
     const node = documentRef.getElementById(id);
     if (!node) continue;
-    const hide = empty && !EMPTY_KEEP[id]?.(node);
+    // The example preview shows the first screen it fills (chart, exposure) like a real book.
+    const hide = empty && !EMPTY_KEEP[id]?.(node) && !(preview && PREVIEW_SHOWN.has(id));
     if (hide) { if (!node.hidden) { node.hidden = true; node.dataset.pfEmptyHidden = '1'; } } else if (node.dataset.pfEmptyHidden) { node.hidden = false; delete node.dataset.pfEmptyHidden; }
   }
   const section = documentRef.getElementById('pf-holdings-table-section');
@@ -776,6 +791,7 @@ export function createPortfolioPage({ root = globalThis, documentRef, store } = 
       listenCrossTab(documentRef, root);
       paintCrossTabNotice(documentRef, root);
       bag.add(installTradeJournal({ documentRef, root, getSurface: () => root?._aioPortfolioSurface || null }));
+      bag.add(installPlanCheck({ documentRef, root }));
       // v57.50 I05: what a research document sent the reader here to check (each entry to this route mounts again).
       renderKnowledgeArrival({ documentRef, root, routeId: 'portfolio' });
       bag.add(() => clearKnowledgeArrival({ documentRef, routeId: 'portfolio' }));

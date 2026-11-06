@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { basename } from 'node:path';
 import { load } from 'js-yaml';
 
@@ -478,20 +478,30 @@ check(`P1173 every declared gate input can select the gate that depends on it ($
 check('P1173 a data producer edit selects the gates that declare it', manifest.impactRules.some((rule) => rule.groups?.includes('data')
   && (rule.patterns || []).some((pattern) => impactPatternCovers(pattern, 'js/aio-kr-data.js'))), 'js/aio-kr-data.js must reach the data group');
 
-const browserPortOwners = new Map();
+// v59.70 (2nd batch A): browser servers take a port from the OS (freePort() / startLocalServer(0), scripts/lib/browser-gate.mjs).
+// One fixed default per gate (8938 and the rest) kept a single run apart, but two sessions running gates at once failed each
+// other with EADDRINUSE (integration 11/4, artifact-budget). Any fixed port literal in scripts/ fails here; an env override
+// (CI_*_PORT) may still pin one by hand. start-local-node.mjs keeps 8765 as the manual dev-server default.
+const FIXED_PORT_PATTERNS = [/process\.env\.[A-Z0-9_]*PORT\b[^)\n]*\|\|\s*\(?\s*\d{3,5}/, /startLocalServer\(\s*\d{2,5}\b/, /start-local-node\.mjs['"],\s*['"]\d+['"]/, /127\.0\.0\.1:\d{3,5}\b/];
+const fixedPortSites = (source) => FIXED_PORT_PATTERNS.filter((pattern) => pattern.test(source)).map(String);
+check('v59.70 fixed-port detector flags the old gate line and passes the free-port one',
+  fixedPortSites("const port = Number(process.env.AIO_THREE_PAGE_BUDGET_PORT || 8938);").length === 1
+  && fixedPortSites("const PORT = Number(process.env.CI_TEST_PORT || (8890 + SHARD_INDEX));").length === 1
+  && fixedPortSites("spawn(process.execPath, ['scripts/start-local-node.mjs', '8917'])").length === 1
+  && fixedPortSites("const port = (Number(process.env.AIO_THREE_PAGE_BUDGET_PORT) || await freePort());").length === 0);
+const scriptFiles = [...readdirSync('scripts').map((name) => `scripts/${name}`), ...readdirSync('scripts/lib').map((name) => `scripts/lib/${name}`)]
+  .filter((file) => file.endsWith('.mjs') && !['scripts/start-local-node.mjs', 'scripts/ci-qa-pipeline-contract-check.mjs'].includes(file));
+const fixedPortFiles = scriptFiles.filter((file) => fixedPortSites(read(file)).length);
+check(`v59.70 no fixed port literal in scripts/ (use freePort() or startLocalServer(0)): ${fixedPortFiles.join(', ')}`, fixedPortFiles.length === 0);
 for (const [groupName, group] of Object.entries(manifest.groups || {})) {
   if (group.kind !== 'browser') continue;
   for (const gate of group.gates || []) {
     const source = read(gate.script);
-    const defaultPort = source.match(/process\.env\.[A-Z0-9_]+\s*\|\|\s*(\d+)/)?.[1] || null;
-    const ownsLocalServer = gate.script !== 'scripts/ci-headless-tests.mjs' && gate.usesLocalServer !== false;
+    const ownsLocalServer = gate.usesLocalServer !== false;
     if (gate.usesLocalServer === false) check(`${groupName}/${gate.id} is a serverless DOM fixture`, source.includes('.setContent(') && !/start-local-node|createServer\(/.test(source));
-    check(`${groupName}/${gate.id} declares an isolated default port`, !ownsLocalServer || defaultPort !== null);
-    if (defaultPort) browserPortOwners.set(defaultPort, [...(browserPortOwners.get(defaultPort) || []), gate.id]);
+    check(`v59.70 ${groupName}/${gate.id} takes its server port from the OS`, !ownsLocalServer || /freePort\(\)|startLocalServer\(0\b/.test(source));
   }
 }
-const duplicateBrowserPorts = [...browserPortOwners.entries()].filter(([, owners]) => owners.length > 1);
-check(`browser gate default ports are unique: ${JSON.stringify(duplicateBrowserPorts)}`, duplicateBrowserPorts.length === 0);
 
 const reachableScripts = new Set(Object.values(manifest.groups || {}).flatMap((group) => (group.gates || []).map((gate) => gate.script)));
 const retiredScripts = new Map((manifest.retiredGateScripts || []).map((entry) => [entry.script, entry]));

@@ -122,7 +122,7 @@ export const PACKET_20261030_FRAMES = Object.freeze([
     shift: '약정 총액을 헤드라인 숫자로 읽던 모델에서, 차입 금리로 할인한 현재가치를 부채처럼 더하고 해지 조건과 상대방 수주잔고까지 함께 읽는 모델로 전환', inputs: ['commitment schedule', 'borrowing rate', 'present value', 'cash balance', 'operating cash flow', 'cancellation terms'],
     chart: '연도별 약정 지급액 막대와 할인 뒤 현재가치 막대를 나란히, 영업현금흐름 선을 겹쳐 보기', counterclaim: '매출이 약정보다 빨리 늘면 약정은 부채가 아니라 공급 확보이고, 해지·물량 조정 조건이 넓으면 부채처럼 셀 몫은 작음', concepts: ['present-value', 'fcf-vs-funding'] },
 
-  { id: 'post-report-path', path: 'chart', title: '실적 급락 뒤 사흘: 첫날 반응과 그다음 경로', issue: '실적 발표 뒤 크게 빠진 종목에서 첫날 숫자보다 그 뒤 며칠의 경로와 거래량으로 매도가 끝나 가는지를 읽는 방법', sourceRefs: [R.threeDay, R.flow, R.hold],
+  { id: 'post-report-path', path: 'chart', title: '실적 급락 뒤 사흘: 첫날 반응과 그다음 경로', issue: '실적 발표 뒤 크게 빠진 종목의 그다음 며칠 — 첫날 숫자보다 경로와 거래량이 매도의 끝을 가린다', sourceRefs: [R.threeDay, R.flow, R.hold],
     answer: '실적 뒤 크게 빠진 첫날은 반응의 시작일 수 있습니다. 많은 주식을 가진 기관은 하루에 다 팔 수 없어 둘째·셋째 날에도 매도가 이어지고 새 저점이 나오기도 합니다. 그래서 첫날 수익률만 보지 말고, 사흘 정도 지나 저점이 지켜지는지, 매도 거래량이 줄어드는지, 하락 이유가 실적 일시 요인인지 사업의 변화인지를 함께 봅니다.',
     steps: ['첫날 갭과 거래량', '둘째·셋째 날 새 저점 여부', '매도 거래량의 감소', '하락 이유의 성격(일시·구조)', '저점 위 횡보와 기반 형성'],
     mechanism: [

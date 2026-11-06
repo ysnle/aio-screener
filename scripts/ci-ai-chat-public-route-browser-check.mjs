@@ -1,11 +1,11 @@
 import { chromium } from 'playwright';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.AIO_AI_CHAT_PORT || 8912);
+const port = (Number(process.env.AIO_AI_CHAT_PORT) || await freePort());
 const localBase = `http://127.0.0.1:${port}`;
 const workerBase = 'https://aio-proxy.zmfhd007.workers.dev';
 
@@ -104,28 +104,8 @@ try {
     return { config, routeState, routeDisabled, streamed, unbound, invalid, truncated, partial, unavailable };
   });
 
-  await page.waitForFunction(() => typeof autoTranslateNews === 'function' && !_translationInProgress);
-  const queuedTranslation = await page.evaluate(async () => {
-    // P1421: execute the actual producer consumer with an offline response fixture.
-    const item = { title: 'Luna transport fixture unique news', source: 'fixture', desc: '' };
-    _aioBootPhase.translationReady = true;
-    // P1423: simulate an active batch and exercise the actual handoff path.
-    _translationInProgress = true;
-    await autoTranslateNews([item]);
-    const queued = _translationDeferredItems.has(_tcKey(item.title));
-    _translationInProgress = false;
-    _aioReleaseDeferredNewsTranslation();
-    return queued;
-  });
-  // P1423: another background batch may own the route while this item queues.
-  await page.waitForFunction(() => _translationCache.has(_tcKey('Luna transport fixture unique news')), { timeout: 30000 });
-  const translation = await page.evaluate(() => _translationCache.get(_tcKey('Luna transport fixture unique news'))?.ko_title);
-  // v57.54: a completed reply that omits an idx must still settle that item (fallback), not drop it uncached.
-  await page.waitForFunction(() => !_translationInProgress);
-  const omittedSettled = await page.evaluate(async () => {
-    await autoTranslateNews([{ title: 'Kept item fixture one', source: 'fixture', desc: '' }, { title: 'Omit item fixture two', source: 'fixture', desc: '' }]);
-    return _translationCache.has(_tcKey('Kept item fixture one')) && _translationCache.has(_tcKey('Omit item fixture two'));
-  });
+  // v59.70 (D6): the browser news translation is deleted; headlines arrive in Korean from the producer (titleKo).
+  const browserTranslation = await page.evaluate(() => ['autoTranslateNews', 'freeTranslateNews', '_gtBatchTranslate'].filter((name) => typeof window[name] === 'function'));
   // v59.16 (roadmap 11): a real reader's browser (navigator.webdriver false) loads js/aio-chat.js only on first use or
   // when idle. Asking from a page before that must load the panel, replay the queued open and send, and reach the Worker.
   const lazyContext = await browser.newContext({ viewport: { width: 1440, height: 900 } });
@@ -157,12 +137,7 @@ try {
   if (!(lazyBefore.chatScript === false && lazyBefore.getChatState === 'undefined' && lazyBefore.idleArmed === true)) failures.push('v59.16 reader browser boots without the chat script and arms the idle load');
   if (!(lazyAfter.sessions === true && lazyAfter.expanded === 'true')) failures.push('v59.16 an ask before the chat loads opens the panel with saved-conversation glue');
   if (!(lazySent && lazyAnswered)) failures.push('P2105 the queued send keeps the filled question, reaches the Worker and publishes the answer');
-  assert('P1423: concurrent translation preserves the requested item', queuedTranslation === true);
-  // P1421: translation must share the same authority and expose no provider key.
-  assert('shared Luna translation reaches completed JSON', translation === '공용 번역 연결 확인');
-  assert('v57.54: an idx omitted from a completed translation reply falls back instead of being dropped', omittedSettled === true);
-  const translationRequest = observedRequests.find(candidate => candidate.body?.stream === false && JSON.stringify(candidate.body.input).includes('Luna transport fixture unique news'));
-  assert('translation uses shared Responses caps and idempotency', translationRequest?.body?.model === 'gpt-6-luna' && translationRequest?.body?.max_output_tokens === 1500 && translationRequest?.headers?.['x-aio-idempotency-key'] && !translationRequest?.headers?.authorization);
+  assert('v59.70 D6: no browser news translation function is defined', browserTranslation.length === 0);
   const publicRequest = observedRequests.find((candidate) => JSON.stringify(candidate.body?.input || '').includes('공용 경로 확인'))
     || observedRequests.find((candidate) => candidate.body?.max_output_tokens === 1500)
     || observedRequests[0]

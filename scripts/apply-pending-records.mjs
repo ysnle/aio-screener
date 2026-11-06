@@ -7,7 +7,7 @@
 //   _artifacts/pending-records/<thread>/<NN-name>.json
 // (same shape as record-fix entries; "version" and "date" may be omitted, and any text may say {VERSION}).
 // At integration, on the merged tip, one command assigns the release and records every entry in order:
-//   node scripts/apply-pending-records.mjs [v59.57] [--dry-run] [--dir <path>]   (default: the next release)
+//   node scripts/apply-pending-records.mjs [v59.57] (--dry-run | --apply) [--dir <path>]   (default: the next release)
 // It runs bump-version once (skipped when version.json already says that version), then record-fix --no-regen per
 // entry (ids are allocated from the ledger bodies one entry at a time, so they cannot collide), deletes each applied
 // entry, and regenerates the workspace state once. A failing entry stops the run; entries applied before it are
@@ -18,6 +18,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { computeRecord, PATHS, RecordFixError } from './record-fix.mjs';
+import { parseCliArgs, CliArgsError } from './lib/cli-args.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 export const PENDING_DIR = '_artifacts/pending-records';
@@ -96,11 +97,25 @@ function simulate(entries, version, date) {
   }
 }
 
+export const USAGE = [
+  'usage: node scripts/apply-pending-records.mjs [v59.57] (--dry-run | --apply) [--dir <path>]',
+  '  --dry-run  replay every entry against scratch copies of the ledgers; nothing is written',
+  '  --apply    bump to the release, record every entry, delete the applied entries, regenerate the workspace state',
+  '  default release: the next one after version.json'
+].join('\n');
+
 function main(argv) {
-  const version = argv.find((arg) => /^v\d+\.\d+$/.test(arg)) || nextRelease(JSON.parse(readFileSync(join(root, 'version.json'), 'utf8')).version);
-  const dryRun = argv.includes('--dry-run');
-  const dirIndex = argv.indexOf('--dir');
-  const dir = dirIndex >= 0 ? argv[dirIndex + 1] : join(root, PENDING_DIR);
+  // v59.70: an unknown argument fails, --help only prints, and writing needs --apply (cli-args.mjs says why).
+  let args;
+  try { args = parseCliArgs(argv, { usage: USAGE, flags: ['--dry-run', '--apply'], options: ['--dir'], positional: { max: 1 } }); }
+  catch (error) { if (error instanceof CliArgsError) { console.error(error.message); return 2; } throw error; }
+  if (args.help) { console.log(USAGE); return 0; }
+  const named = args.positional[0];
+  if (named && !/^v\d+\.\d+$/.test(named)) { console.error(`not a release: ${named}\n${USAGE}`); return 2; }
+  const dryRun = args.flags.has('--dry-run');
+  if (dryRun === args.flags.has('--apply')) { console.error(`choose exactly one of --dry-run or --apply\n${USAGE}`); return 2; }
+  const version = named || nextRelease(JSON.parse(readFileSync(join(root, 'version.json'), 'utf8')).version);
+  const dir = args.options['--dir'] || join(root, PENDING_DIR);
   const files = listPendingEntries(dir);
   if (!files.length) { console.log(`no pending records under ${relative(root, dir) || dir}`); return 0; }
   const date = kstDate();

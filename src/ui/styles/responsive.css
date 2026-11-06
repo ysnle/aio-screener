@@ -683,6 +683,16 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 #page-macro .mx-ch__detail { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; margin: 4px 16px 0; font-size: 12px; line-height: 1.55; }
 #page-macro .mx-ch__detail dt { color: var(--text-secondary); }
 #page-macro .mx-ch__detail dd { margin: 0; font-variant-numeric: tabular-nums; }
+/* v59.70 (X bookmarks #4): credit tiers inside their own recorded range (macro-chapters.js rangeBands). */
+#page-macro .mx-ch__range-line { margin: 6px 16px 0; font-size: 13px; line-height: 1.6; color: var(--text-primary); }
+#page-macro .mx-ch__range { display: grid; gap: 8px; margin: 8px 16px 10px; }
+#page-macro .mx-ch__range-row { display: grid; grid-template-columns: 64px minmax(0, 1fr) 92px; align-items: center; gap: 10px; font-size: 12px; }
+#page-macro .mx-ch__range-label { color: var(--text-secondary); }
+#page-macro .mx-ch__range-val { text-align: right; font-variant-numeric: tabular-nums; color: var(--text-primary); }
+#page-macro .mx-ch__range-track { position: relative; height: 10px; border-radius: 5px; background: rgba(var(--ink-rgb), 0.06); }
+#page-macro .mx-ch__range-band { position: absolute; top: 0; bottom: 0; border-radius: 5px; background: rgba(var(--ink-rgb), 0.16); }
+#page-macro .mx-ch__range-mid { position: absolute; top: -2px; bottom: -2px; width: 1px; background: var(--text-muted); }
+#page-macro .mx-ch__range-dot { position: absolute; top: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: var(--text-primary); box-shadow: 0 0 0 2px var(--bg-card); }
 @media (max-width: 1023px) { #page-macro .mx-chapters__grid { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 743px) { #page-macro .mx-ch__body { grid-template-columns: minmax(0, 1fr); } }
 /* v59.56: the shared 'AI에게 묻기' row (components/ask-row.js) on screens without their own row style. */

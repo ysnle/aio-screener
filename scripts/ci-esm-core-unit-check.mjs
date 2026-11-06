@@ -150,7 +150,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
 // RM-07 -> v57.79: the cross-route sentiment summary projection painted four ids no page creates (R705 dead-id
 // scan), so it was removed with its module; bootstrap's sentiment sync must not bring a projection writer back.
 {
-  const bootstrapSource = readFileSync(path.join(root, 'src/app/bootstrap.js'), 'utf8');
+  const bootstrapSource = readFileSync(path.join(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'), 'src/app/bootstrap.js'), 'utf8');
   if (/renderSentimentSummaryProjection|ui\/projections\/sentiment-summary/.test(bootstrapSource)) fail('v57.79 retired sentiment summary projection returned to bootstrap'); // text-pin-ok: retirement absence
 }
 
@@ -235,6 +235,12 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
     applyLegacyThemeDetailAddress(root);
     if (root._aioOpenThemeDetailOnThemes != null) moved.push(`classic #theme-detail/${id} -> ${root._aioOpenThemeDetailOnThemes} (want the list)`);
   }
+  // fix-r1-theme: with 테마 already open no mount reads the address; the router's address reader must name the same id
+  // (a pasted old link used to leave the list open with the address unchanged).
+  const { parseRouteDeepLink } = await import('../src/app/router.js');
+  const ids = usThemes.map((theme) => theme.id);
+  for (const id of ids) for (const hash of [`#theme-detail/${id}`, `#theme-detail?theme=${id}`]) if (parseRouteDeepLink(hash, ids)?.themeId !== id) moved.push(`router ${hash}`);
+  for (const id of ['uam', 'space', 'quantum']) if (parseRouteDeepLink(`#theme-detail/${id}`, ids)?.themeId !== null) moved.push(`router #theme-detail/${id} (want the list)`);
   if (usThemes.length < 15 || moved.length) fail(`v59.70 old #theme-detail addresses keep their theme id (${usThemes.length} themes): ${moved.slice(0, 4).join('; ')}`);
 }
 
@@ -1221,7 +1227,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     fail('P1285/R635: persisted news charts must discard legacy, below-minimum, and wrong-model scores while retaining a sufficient current-model point');
   }
   const legacyNewsSource = readFileSync(path.join(root, 'js/aio-data.js'), 'utf8');
-  const newsBootstrapSource = readFileSync(path.join(root, 'src/app/bootstrap.js'), 'utf8');
+  const newsBootstrapSource = readFileSync(path.join(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'), 'src/app/bootstrap.js'), 'utf8');
   const legacyCoreNewsSource = readFileSync(path.join(root, 'js/aio-core.js'), 'utf8');
   const legacyFacadeNewsSource = readFileSync(path.join(root, 'src/legacy/compatibility-facade.js'), 'utf8');
   // v57.78: the loop audit (getAutonomousLoopAudit) moved to the on-demand QA bundle.
@@ -1477,6 +1483,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       if (oilToday?.rank !== 'lead' || !/에너지/.test(oilToday.text) || words !== 'up,pullback,breakdown,rebound,recovery,down' || stock?.trend !== 'breakdown') {
         fail(`v59.64: macro today line / chart trend words broke ${JSON.stringify({ oilToday, words, stock: stock?.trend })}`);
       }
+      // v59.70 (owner D6): the reports carry the producer's Korean titles; the account cites only those.
       // v59.65: 브리핑's 24-hour stories — same-family prices in one story, the theme speaks for its sector, a report that
       // points the other way is not evidence, a big move nothing explains is kept apart, the opening reads equal weight.
       const { buildDayAccount } = await load('src/domain/briefing/day-account.js');
@@ -1490,17 +1497,17 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
         { id: 'g:sector', kind: 'group-move', group: 'sector:Energy', label: 'Energy', members: ['OIL1'], change: -4, rank: 'major', materiality: 41 },
         { id: 's:oil1', kind: 'stock-move', subjects: ['OIL1'], label: 'Oil One', change: -6, rank: 'minor', materiality: 30, explainedBy: ['driver'] },
         { id: 's:myst', kind: 'stock-move', subjects: ['MYST'], label: 'Mystery', change: 9, rank: 'major', materiality: 45, explainedBy: [] },
-        { id: 'h:oil', kind: 'headline', title: 'Oil prices slump as supply returns', wordTopics: ['energy'], subjects: [], rank: 'major', materiality: 40 },
-        { id: 'h:off', kind: 'headline', title: 'Bond futures rule eased', wordTopics: [], subjects: [], rank: 'major', materiality: 45 },
+        { id: 'h:oil', kind: 'headline', title: 'Oil prices slump as supply returns', titleKo: '공급 회복에 유가 급락', wordTopics: ['energy'], subjects: [], rank: 'major', materiality: 40 },
+        { id: 'h:off', kind: 'headline', title: 'Bond futures rule eased', titleKo: '채권 선물 규정 완화', wordTopics: [], subjects: [], rank: 'major', materiality: 45 },
         { id: 's:dn1', kind: 'stock-move', subjects: ['DN1'], label: 'Down One', change: -5, rank: 'major', materiality: 44, explainedBy: ['subject'] },
-        { id: 'h:up', kind: 'headline', title: 'Down One shares jump on buyback', subjects: ['DN1'], rank: 'major', materiality: 42 },
-        { id: 'h:dn', kind: 'headline', title: 'Down One falls after guidance cut', subjects: ['DN1'], rank: 'major', materiality: 41 },
+        { id: 'h:up', kind: 'headline', title: 'Down One shares jump on buyback', titleKo: '다운원, 자사주 매입에 급등', subjects: ['DN1'], rank: 'major', materiality: 42 },
+        { id: 'h:dn', kind: 'headline', title: 'Down One falls after guidance cut', titleKo: '다운원, 가이던스 하향 뒤 하락', subjects: ['DN1'], rank: 'major', materiality: 41 },
         { id: 'u:nfp', kind: 'upcoming', label: '고용보고서', date: '2026-11-06', rank: 'lead', materiality: 60 }],
         links: [{ from: 'p:wti', to: 'g:theme', basis: 'driver' }, { from: 'p:wti', to: 'g:sector', basis: 'driver' }, { from: 'h:oil', to: 'p:wti', basis: 'topic' }, { from: 'h:off', to: 'p:wti', basis: 'topic' }] });
       const oilStory = account.stories[0];
       const told = [...account.stories, ...account.more].flatMap((item) => item.evidence.map((report) => report.title));
       if (oilStory?.title !== '유가 하락' || !/브렌트/.test(oilStory.line) || !/에너지\(/.test(oilStory.why.join(' ')) || /Energy/.test(oilStory.why.join(' '))
-        || !told.includes('Oil prices slump as supply returns') || told.includes('Bond futures rule eased') || told.includes('Down One shares jump on buyback') || !told.includes('Down One falls after guidance cut')
+        || !told.includes('공급 회복에 유가 급락') || told.includes('채권 선물 규정 완화') || told.includes('다운원, 자사주 매입에 급등') || !told.includes('다운원, 가이던스 하향 뒤 하락')
         || account.unexplained[0]?.sym !== 'MYST' || !/동일가중/.test(account.opening) || account.ahead[0]?.label !== '고용보고서') {
         fail(`v59.65: briefing day account broke ${JSON.stringify({ oilStory, told, unexplained: account.unexplained, opening: account.opening })}`);
       }
@@ -1540,7 +1547,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       // v59.69: why a stock moved after its report — a beat with a weak outlook reads as guidance (mixed numbers are not the
       // cause), a move matched by its group is the market's, a +40% run-up into a beat that fell is priced in.
       const { reactionRead } = await load('src/domain/briefing/reaction-read.js');
-      const rh = [{ date: '2026-10-29', smh: 100, spx: 100 }, { date: '2026-10-30', smh: 93, spx: 99.7 }];
+      const rh = [{ date: '2026-10-29', soxx: 100, spx: 100 }, { date: '2026-10-30', soxx: 93, spx: 99.7 }];
       const fig = (metric, surprisePct, extra = {}) => ({ metric, estimate: { surprisePct, ...extra } });
       const reaction = (pct, latestDate = '2026-10-30') => ({ baseDate: '2026-10-29', firstDate: '2026-10-30', firstPct: pct, latestDate, latestPct: pct });
       const intc = reactionRead({ layer: 'ai-core', figures: [fig('revenue', -1.7), fig('eps_diluted', 30, { actualBasis: 'adjusted' })], guidance: [], reasons: { points: [{ text: '다음 분기 매출·이익 전망이 시장 예상에 못 미쳐 우려를 키웠다.' }] }, reaction: reaction(-28.6) }, { history: rh });
@@ -3309,8 +3316,11 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     fail('P1182/22:PFR10 the panel must read weights through the frozen composition snapshot');
   }
   const e4HtmlSource = readFileSync(path.join(root, 'index.html'), 'utf8');
-  if (!/지금 구성을 과거에도 들고 있었다고 가정한 참고 그래프/.test(e4HtmlSource) || !/단순 추정/.test(e4HtmlSource) || !/배당·분할 미반영/.test(e4HtmlSource)) {
-    fail('P1182/22:PFR04 the benchmark chart must disclose retrospective basis, raw close and linear interpolation');
+  // v59.70 (S16): the chart is native (portfolio-value-trend.js) on adjusted closes at six fixed windows — no raw close, no
+  // interpolation — and discloses the held-fixed composition and the basis under the line.
+  const e4TrendSource = readFileSync(path.join(root, 'src/ui/components/portfolio-value-trend.js'), 'utf8');
+  if (!/지금 비중을 그대로 들고 있었다고 본 값이라 계좌 수익률과 다릅니다/.test(e4TrendSource) || !/수정 종가\(배당 포함\)/.test(e4TrendSource)) {
+    fail('P1182/22:PFR04 v59.70 the benchmark chart must disclose the retrospective (held-fixed) basis and its adjusted-close basis');
   }
   if (!/TWR\/MWR/.test(e4HtmlSource) || !/원장/.test(e4HtmlSource)) {
     fail('P1182/account-performance the risk surface must state the ledger hold before any computation runs');
@@ -5028,7 +5038,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   const failedP1317 = p1317Checks.filter(([, ok]) => !ok).map(([name]) => name);
   if (failedP1317.length) fail(`P1317~P1320 checks failed: ${failedP1317.join(' | ')}`);
   const p1317Core = readFileSync(path.join(root, 'js/aio-core.js'), 'utf8');
-  const p1317Boot = readFileSync(path.join(root, 'src/app/bootstrap.js'), 'utf8');
+  const p1317Boot = readFileSync(path.join(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'), 'src/app/bootstrap.js'), 'utf8');
   if (!/window\._aioNormalizeTickerInput\(tkr\)/.test(p1317Core) || !/window\._aioTickerDisplayName\(tkr\)/.test(p1317Core)
     || !/requestSelectedTickerQuote/.test(p1317Boot) || !/installTermTooltips\(documentRef/.test(p1317Boot)) {
     fail('P1317/P1320 showTicker must normalize through the native module, request a missing quote, and install term tooltips');
@@ -5173,6 +5183,25 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   const first = hosts['kr-kospi-tech-result'].children;
   renderKrIndexTrends({ documentRef: doc, root: { _aioHistory: rising }, now });
   if (hosts['kr-kospi-tech-result'].children !== first) fail('v57.77 the KR card redraws only when the last close changes');
+}
+
+// v59.70 (D6): the producer translates headlines; a failed translation (titleKoFailed) keeps the original with a '원문' mark.
+{
+  const { untranslatedMark } = await load('src/ui/pages/news.js');
+  const doc = { createElement: (tag) => ({ tag, className: '', textContent: '', title: '' }) };
+  const failed = untranslatedMark(doc, { title: 'Fed holds rates', titleKoFailed: true });
+  if (failed?.textContent !== '원문' || failed.className !== 'news-item-untranslated') fail(`v59.70 D6 a failed translation is marked: ${JSON.stringify(failed)}`);
+  if (untranslatedMark(doc, { title: 'Fed holds rates', titleKo: '연준 금리 동결' }) !== null) fail('v59.70 D6 a translated headline carries no mark');
+  if (untranslatedMark(doc, { title: 'Fed holds rates' }) !== null) fail('v59.70 D6 no flag, no mark');
+}
+
+// v59.70 (D5): the 시장 상태 한국 board's 금리·물가·수출 card reads the settled snapshot; a held reference (null) is not 0.
+{
+  const { koreaPolicyCard } = await load('src/domain/market/korea-policy.js');
+  const card = koreaPolicyCard({ bokRate: 3, bokNext: '2026-11-26', _fieldTs: { bok_rate: '2026-08-27' }, krCpi: 2.4, krExportReference: { status: 'verified', periodLabel: '2026-10', exportsBillionUsd: 115.3, exportsYoyPct: 93.7 } });
+  if (card?.value !== '기준금리 3.00%' || card.caption !== '한국은행 공식 발표, 8/27 결정' || card.lines[0] !== '다음 금통위 2026-11-26' || card.lines[1] !== '소비자물가 전년 대비 +2.4%, 목표 2%보다 0.4%p 높음' || !/^수출\(2026-10 잠정\) 1,153억 달러, 전년 같은 기간 대비 \+93\.7%\(같은 날짜 구간/.test(card.lines[2])) fail(`v59.70 D5 Korea policy card: ${JSON.stringify(card)}`);
+  if (koreaPolicyCard({ bokRate: null, krCpi: '', krExportReference: { status: 'stale-reference', exportsBillionUsd: 1 } }) !== null) fail('v59.70 D5 a held rate, a blank CPI and a stale export reference draw no card (never 0)');
+  if (koreaPolicyCard({ bokRate: null, krCpi: 1.9 })?.value !== '기준금리 기한 지남') fail('v59.70 D5 a held rate says so instead of printing a number');
 }
 
 // P1586: self-computed sentiment composite — withholds below four components, ranks each against its own
@@ -6100,7 +6129,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   // v58.78 (owner 2026-10-25): 오늘 opens with the four index ETFs' last regular session — change from the previous close,
   // an open/closed flag from the trading period, and nothing drawn from an empty payload.
   const { sessionModel, INDEX_STRIP } = await load('src/ui/components/home-index-strip.js');
-  if (INDEX_STRIP.map((row) => row.sym).join(',') !== 'SPY,QQQ,SMH,IWM') fail('v58.78 index strip: SPY, QQQ, SMH (v58.80 run-5: one semiconductor gauge app-wide), IWM in that order');
+  if (INDEX_STRIP.map((row) => row.sym).join(',') !== 'SPY,QQQ,SOXX,IWM') fail('v59.70 index strip: SPY, QQQ, SOXX (one semiconductor gauge app-wide, the leadership proxy), IWM in that order');
   const start = 1792762200; // 2026-10-23 09:30 New York
   const payload = { timestamps: [start, start + 300, start + 600], opens: [100, 101, null], highs: [102, 103, 104], lows: [99, 100, 101], closes: [101, 102, 103],
     meta: { chartPreviousClose: 100, currentTradingPeriod: { regular: { start, end: start + 23400 } } } };
@@ -6525,6 +6554,29 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const late = createCriticalDataGate({ isReady: () => false, subscribe: () => null, schedule: (fn) => { fallback = fn; } });
   const lateRan = []; late.run(() => lateRan.push(1)); fallback();
   if (lateRan.length !== 1 || !ROWS_FIRST_ROUTES.has('screener') || ROWS_FIRST_ROUTES.has('home')) fail('v58.80 the fallback releases the gate; 오늘 is not a rows-first screen');
+  // v59.70: a failed core read settles the gate, so the held screener read starts at once instead of after the 20 s
+  // fallback (history+data refused: old code made no screener request in 12 s, new code at ~2.9 s).
+  {
+    const gateModule = await load('src/app/critical-data-gate.js');
+    const settled = gateModule.coreReadsSettled;
+    if (typeof settled !== 'function') fail('v59.70 critical-data-gate exports coreReadsSettled');
+    else {
+      const cases = [
+        [{}, false],
+        [{ _serverDataMeta: {}, __aioHistoryLoadState: 'loading' }, false],
+        [{ _serverDataMeta: {}, __aioHistoryLoadState: 'failed' }, true],
+        [{ __aioServerDataLoadState: 'empty', _aioHistory: [1] }, true],
+        [{ __aioServerDataLoadState: 'failed', __aioHistoryLoadState: 'failed' }, true],
+        [{ _serverDataMeta: {}, _aioHistoryMeta: {} }, true]
+      ];
+      for (const [state, want] of cases) if (settled(state) !== want) fail(`v59.70 coreReadsSettled(${JSON.stringify(state)}) should be ${want}`);
+    }
+    const bootSource = readFileSync(path.join(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'), 'src/app/bootstrap.js'), 'utf8');
+    const gateBlock = bootSource.slice(bootSource.indexOf('createCriticalDataGate({'), bootSource.indexOf('createCriticalDataGate({') + 900);
+    if (!/isReady:\s*\(\)\s*=>\s*coreReadsSettled\(root\)/.test(gateBlock) || !gateBlock.includes("'aio:serverDataFailed'") || !gateBlock.includes("'aio:historyFailed'")) {
+      fail('v59.70 bootstrap opens the critical-data gate on a settled read (coreReadsSettled) and listens to aio:serverDataFailed / aio:historyFailed');
+    }
+  }
   const res = Promise.resolve({ ok: true });
   const root = { __aioBootPrefetch: { data: { url: 'x', minute: 42, at: 1000, res } } };
   const first = takeBootPrefetch(root, 'data', { now: 2000 });

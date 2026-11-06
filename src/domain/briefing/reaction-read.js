@@ -50,7 +50,7 @@ function benchMove(history, field, from, to) {
 
 /**
  * The reading for one earnings brief. `row` is the stock's screener row (ret3m at its factor session) and `history` the
- * shared close history (spx, smh). Returns null for a move too small to read.
+ * shared close history (spx, soxx). Returns null for a move too small to read.
  */
 export function reactionRead(brief, { row = null, history = [] } = {}) {
   const reaction = brief?.reaction;
@@ -65,9 +65,9 @@ export function reactionRead(brief, { row = null, history = [] } = {}) {
   const sameSession = row?.factorSessionDate === reaction.latestDate && reaction.latestDate && ret3m != null && since != null;
   const runUp = sameSession ? ((1 + ret3m / 100) / (1 + since / 100) - 1) * 100 : null;
   const aiChain = brief.layer && !NON_AI_LAYERS.includes(brief.layer);
-  const benchField = aiChain ? 'smh' : 'spx';
+  const benchField = aiChain ? 'soxx' : 'spx';
   const bench = benchMove(history, benchField, reaction.baseDate, reaction.firstDate);
-  const benchName = aiChain ? '반도체(SMH)' : 'S&P 500';
+  const benchName = aiChain ? '반도체(SOXX)' : 'S&P 500';
 
   // Mixed (one beat, one miss) is neither: the conclusion then comes from guidance or the reports, as INTC's +30% EPS
   // beat against a 1.7% revenue miss did (the outlook was what fell short).

@@ -195,43 +195,68 @@ export function renderStockContext(doc, root, host, ctx) {
 }
 
 // ── 종목 요약: strengths/weaknesses against named peers + what to keep watching ─────────────────────────────────────────
-function factRow(doc, fact, tone) {
-  const li = el(doc, 'li', null, `stock-read-point is-${tone}`);
-  const bar = el(doc, 'div', null, 'stock-read-track');
-  const fill = el(doc, 'div', null, `stock-read-bar is-${tone}`);
-  fill.style.width = `${Math.max(4, (1 - fact.side) * 100).toFixed(1)}%`;
-  bar.append(fill);
-  bar.title = `동종 ${fact.n}곳 중 ${fact.rank}위 (막대가 길수록 동종 안에서 앞쪽)`;
-  li.append(el(doc, 'span', fact.label, 'stock-read-point-title'), el(doc, 'span', fact.text, 'stock-read-point-text'), bar);
-  return li;
+// v59.70 (PLAN S13 ②): 동종 비교 is one rank chart — every metric that has peers, this company's place from 1위 (left) to
+// last (right) with the peer median tick — then one strength and one weakness line. The other facts, '계속 볼 것' and
+// the comparison basis fold under them.
+const SVG_NS = 'http://www.w3.org/2000/svg';
+function rankChart(doc, facts) {
+  // Percentage x and a fixed row height: the rows line up with the HTML labels beside it and the dots stay round.
+  const rowH = 26;
+  const svg = doc.createElementNS ? doc.createElementNS(SVG_NS, 'svg') : doc.createElement('svg');
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', String(facts.length * rowH));
+  svg.setAttribute('class', 'v2-peer-rank__svg');
+  svg.setAttribute('aria-hidden', 'true');
+  const node = (tag, attrs) => { const item = doc.createElementNS ? doc.createElementNS(SVG_NS, tag) : doc.createElement(tag); for (const [key, value] of Object.entries(attrs)) item.setAttribute(key, String(value)); return item; };
+  facts.forEach((fact, index) => {
+    const y = index * rowH + rowH / 2;
+    const x = 2 + Math.min(1, Math.max(0, fact.side)) * 96; // side 0 = 1위 (left), 1 = last (right), 2% inset each end
+    svg.append(node('line', { x1: '2%', x2: '98%', y1: y, y2: y, class: 'v2-peer-rank__track' }));
+    svg.append(node('circle', { cx: `${x.toFixed(1)}%`, cy: y, r: 5, class: `v2-peer-rank__dot is-${fact.vsMedian > 0 ? 'favorable' : fact.vsMedian < 0 ? 'burden' : 'neutral'}` }));
+  });
+  return svg;
 }
 export function renderStockStrengths(doc, host, ctx) {
-  const pair = el(doc, 'div', null, 'v2-stock-pair');
   const s = ctx?.strengths;
-  if (s && (s.strengths.length || s.weaknesses.length)) {
+  const nodes = [];
+  if (s && s.facts?.length) {
     const card = el(doc, 'div', null, 'sx-card v2-stock-card v2-peer-strengths');
-    card.append(cardHead(doc, '같은 테마 안에서 강한 점과 약한 점', `${ctx.peers.themeName}, 동종 ${s.peers}곳`));
-    if (s.strengths.length) { card.append(el(doc, 'p', '강한 점', 'stock-read-vis-title')); const ul = el(doc, 'ul', null, 'stock-read-points'); s.strengths.forEach((fact) => ul.append(factRow(doc, fact, 'favorable'))); card.append(ul); }
-    if (s.weaknesses.length) { card.append(el(doc, 'p', '약한 점', 'stock-read-vis-title')); const ul = el(doc, 'ul', null, 'stock-read-points'); s.weaknesses.forEach((fact) => ul.append(factRow(doc, fact, 'burden'))); card.append(ul); }
-    card.append(fold(doc, '비교 기준', [['동종', `${ctx.peers.themeName}의 같은 하위 테마 기업부터 테마 대표 기업까지 SEC 연간 공시가 있는 ${s.peers}곳: ${ctx.peers.rows.slice(1).map((row) => row.sym).join(', ')}.`],
-      ['기준', '각 지표에서 동종 안 순위와 중앙값을 사실로 적었습니다. 강점·약점은 중앙값보다 앞·뒤인 지표 중 차이가 큰 순서이며, 등급이나 매수 판단이 아닙니다. Forward PER은 낮을수록 이익 대비 가격 부담이 가벼운 쪽으로 읽습니다.'],
-      ['한계', '회계연도 마감 시점이 회사마다 다르고, 테마는 AIO의 투자 분류라 사업 구성이 같지 않습니다. 재무 공시 화면의 동종 표에서 숫자를 확인합니다.']]));
-    pair.append(card);
-  }
-  if (ctx?.watch?.length) {
-    const card = el(doc, 'div', null, 'sx-card v2-stock-card v2-stock-watch');
-    card.append(cardHead(doc, '이 종목에서 계속 볼 것', `${ctx.watch.length}가지`));
-    const ul = el(doc, 'ul', null, 'stock-read-points');
-    for (const item of ctx.watch) {
-      const li = el(doc, 'li', null, 'stock-read-point is-neutral');
-      li.append(el(doc, 'span', item.label, 'stock-read-point-title'), el(doc, 'span', `${item.now} — ${item.why}`, 'stock-read-point-text'));
-      ul.append(li);
+    card.append(cardHead(doc, '동종 비교', `${ctx.peers.themeName}, 이 회사 포함 ${s.peers + 1}곳`));
+    const chart = el(doc, 'div', null, 'v2-peer-rank');
+    chart.dataset.sectionVisual = 'peer-rank';
+    chart.setAttribute('role', 'img');
+    chart.setAttribute('aria-label', `동종 안 순위, ${s.facts.map((fact) => `${fact.label} ${fact.n}곳 중 ${fact.tied ? '공동 ' : ''}${fact.rank}위`).join(', ')}`);
+    const labels = el(doc, 'div', null, 'v2-peer-rank__labels');
+    const values = el(doc, 'div', null, 'v2-peer-rank__values');
+    for (const fact of s.facts) {
+      labels.append(el(doc, 'span', fact.label, 'v2-peer-rank__label'));
+      values.append(el(doc, 'span', `${fact.tied ? '공동 ' : ''}${fact.rank}/${fact.n}`, 'v2-peer-rank__value'));
     }
-    card.append(ul);
-    pair.append(card);
+    const plot = el(doc, 'div', null, 'v2-peer-rank__plot');
+    plot.append(rankChart(doc, s.facts));
+    const axis = el(doc, 'span', null, 'v2-peer-rank__axis');
+    axis.append(el(doc, 'span', '1위'), el(doc, 'span', '마지막'));
+    chart.append(labels, plot, values, axis);
+    card.append(chart);
+    const line = (label, fact, tone) => { const p = el(doc, 'p', null, `v2-peer-line is-${tone}`); p.append(el(doc, 'b', label), doc.createTextNode(` ${fact.text}`)); return p; };
+    if (s.strengths[0]) card.append(line('강한 점', s.strengths[0], 'favorable'));
+    if (s.weaknesses[0]) card.append(line('약한 점', s.weaknesses[0], 'burden'));
+    const rest = [...s.strengths.slice(1).map((fact) => ['강한 점', fact.text]), ...s.weaknesses.slice(1).map((fact) => ['약한 점', fact.text]),
+      ...(ctx.watch || []).map((item) => [item.label, `${item.now} — ${item.why}`]),
+      ['동종', `${ctx.peers.themeName}의 같은 하위 테마 기업부터 테마 대표 기업까지 SEC 연간 공시가 있는 ${s.peers}곳: ${ctx.peers.rows.slice(1).map((row) => row.sym).join(', ')}.`],
+      ['기준', '각 지표에서 동종 안 순위와 중앙값을 사실로 적었습니다. 강점·약점은 중앙값보다 앞·뒤인 지표 중 차이가 큰 순서이며, 등급이나 매수 판단이 아닙니다. Forward PER은 낮을수록 이익 대비 가격 부담이 가벼운 쪽입니다.'],
+      ['한계', '회계연도 마감 시점이 회사마다 다르고, 테마는 AIO의 투자 분류라 사업 구성이 같지 않습니다. 재무 공시 화면의 동종 표에 숫자가 있습니다.']];
+    card.append(fold(doc, `자세히 — 나머지 지표${ctx.watch?.length ? `, 계속 볼 것 ${ctx.watch.length}가지` : ''}, 비교 기준`, rest));
+    nodes.push(card);
+  } else if (ctx?.watch?.length) {
+    // No peer group with enough filings: the watch list is the section, folded the same way.
+    const card = el(doc, 'div', null, 'sx-card v2-stock-card v2-stock-watch');
+    card.append(cardHead(doc, '동종 비교', '비교할 동종 공시 부족'));
+    card.append(fold(doc, `이 종목에서 계속 볼 것 ${ctx.watch.length}가지`, ctx.watch.map((item) => [item.label, `${item.now} — ${item.why}`])));
+    nodes.push(card);
   }
-  host.replaceChildren(...(pair.childElementCount ? [pair] : []));
-  host.hidden = !pair.childElementCount;
+  host.replaceChildren(...nodes);
+  host.hidden = !nodes.length;
 }
 
 // ── 재무 공시: the lens, the thesis template, favourable/unfavourable situations ─────────────────────────────────────────

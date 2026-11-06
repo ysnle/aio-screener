@@ -2,7 +2,8 @@
 
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { MARKET_PRINCIPLES_CATALOG } from '../src/ui/pages/principles.js';
+import { readPrinciplesCatalogSource } from './lib/research-content.mjs';
+const MARKET_PRINCIPLES_CATALOG = readPrinciplesCatalogSource();
 import { atomicWriteFileSync } from './lib/atomic-write.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');

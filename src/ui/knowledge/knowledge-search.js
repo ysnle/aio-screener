@@ -1,21 +1,28 @@
-// Knowledge search ranker shared by the glossary modal and the research library. It folds the canonical
-// learning-core notes into the generated search index (P1606: notes stay searchable before the Actions index
-// rebuild), so it imports learning-core statically; the glossary loads this module on its first search.
-import { LESSONS, PATHS } from '../../domain/knowledge/learning-core.js';
+// Knowledge search ranker shared by the glossary modal, the research library and the command search (S23).
+// It reads only the generated index (public-data/knowledge/search-index.json, rebuilt by
+// scripts/build-knowledge-search-index.mjs and held equal by ci-knowledge-generated-parity-check), so a search
+// no longer pulls learning-core and the rest of the research modules into the route (S17~S19).
 import { normalize } from './glossary-bridge.js';
 
+export const KNOWLEDGE_INDEX_URL = './public-data/knowledge/search-index.json';
+
+let cached = null;
+// One fetch per page; a failed load settles to an empty index so callers never wait on a dead promise.
+export function loadKnowledgeIndex(fetchFn = globalThis.fetch?.bind(globalThis)) {
+  if (cached) return cached;
+  if (typeof fetchFn !== 'function') return Promise.resolve({ entries: [] });
+  cached = fetchFn(KNOWLEDGE_INDEX_URL).then((response) => (response.ok ? response.json() : null)).catch(() => null)
+    .then((json) => (json && Array.isArray(json.entries) ? json : { entries: [] }));
+  return cached;
+}
+
 // Ranked matches: exact title or key > title prefix/contains > key contains > text contains.
+// Returns [{ id, surface, surfaceLabel, title, text, group, keys, route: { page, params }, score }].
 export function searchKnowledgeIndex(index, query, limit = 8) {
   const q = normalize(query);
   if (!q || q.length < 2) return [];
-  // P1606: canonical local notes remain searchable before the Actions index rebuild.
-  const entries = new Map((index?.entries || []).map((entry) => [entry.id, entry]));
-  for (const lesson of LESSONS) {
-    const id = `frame:${lesson.id}`, previous = entries.get(id);
-    entries.set(id, { ...previous, id, surface: 'frame', surfaceLabel: '분석 노트', title: lesson.issue, text: lesson.answer.slice(0, 240), group: PATHS.find((path) => path.id === lesson.path)?.title || null, keys: [...new Set([...(previous?.keys || []), lesson.title, ...(lesson.concepts || [])])], route: { page: 'principles', params: { mode: 'frames', node: lesson.id } } });
-  }
   const scored = [];
-  for (const entry of entries.values()) {
+  for (const entry of index?.entries || []) {
     const title = normalize(entry.title);
     const keys = (entry.keys || []).map(normalize);
     const text = normalize(entry.text);

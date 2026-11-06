@@ -755,7 +755,7 @@ function renderPortfolio() {
   var _pfEmpty = positions.length === 0;
   var _pfMain = document.getElementById('pf-main');
   if (_pfMain) _pfMain.classList.toggle('is-empty', _pfEmpty);
-  ['pf-benchmark-section','pf-holdings-analysis-section','pf-risk-panel'].forEach(function(id) { // v57.81: 비중·섹터 stays visible when empty (it holds the cash boxes)
+  ['pf-holdings-analysis-section','pf-risk-panel'].forEach(function(id) { // v57.81: 비중·섹터 stays visible when empty (it holds the cash boxes); v59.70: pf-benchmark-section left with the native portfolio chart (wave2-d)
     var el = document.getElementById(id);
     if (el) el.hidden = _pfEmpty;
   });

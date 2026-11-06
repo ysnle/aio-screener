@@ -228,6 +228,9 @@ export async function renderAnswerVisuals({ documentRef: doc = globalThis.docume
 
 // P1741: the unified panel's mount — a host above the source badge, kept only when a figure was drawn.
 export async function attachAnswerVisuals({ documentRef: doc = globalThis.document, parent, before = null, scroller = null, ...rest } = {}) {
+  // v59.70 (D3): an answer that holds a screen gets the 스크리너 조건 card (the one path that makes screener conditions).
+  if (doc && parent) import('./screener-ai-conditions.js').then(({ attachScreenerConditions }) => attachScreenerConditions({ documentRef: doc, root: rest.root || globalThis, parent, before, query: rest.query }))
+    .then((card) => { if (card && scroller) scroller.scrollTop = scroller.scrollHeight; }).catch(() => {});
   if (!doc || !parent || !chooseAnswerVisuals(rest).length) return [];
   const host = doc.createElement('div');
   host.className = 'aio-answer-visuals';

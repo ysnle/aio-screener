@@ -5,6 +5,7 @@
 // v59.44 (owner 2026-10-29, news by weight): 오늘 leads with the releases that move the whole market — a monthly macro
 // release of the last two days, the FOMC, the core movers — as full cards; other notable reports are one line each
 // (name, the price after the report, headline) under '그 밖의 실적'; everything else of the last 30 days sits in a fold.
+import { fillOnOpen } from './lazy-fold.js';
 import { releaseZones } from '../../domain/macro/release-zones.js';
 import { releaseZoneBar } from './release-zone-bar.js';
 import { reactionRead } from '../../domain/briefing/reaction-read.js';
@@ -14,6 +15,8 @@ import { frameHead, markFrame } from './section-frame.js';
 import { homeBriefTiers, latestBriefFor, reactionText, BRIEF_BASIS_WORDS, CALL_SEARCH_MAX_ATTEMPTS, epsComparisonBasis, koreanReleaseText, surprisePct, watchItem } from '../../domain/briefing/event-briefs.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { EVENT_BRIEFS } from '../../data/event-artifacts.js';
+import { eventAftermath, beatButFell } from '../../domain/briefing/event-aftermath.js';
+import { signedBar, signedScale } from './signed-bar.js';
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
 function whenText(brief) {
@@ -243,6 +246,36 @@ export function paintNewsBriefs(doc, root, rerender, macro = []) {
   } });
 }
 
+// v59.70 (X bookmarks #6, #11): after the lead release, where money went over the next sessions (technology vs defensives
+// vs the broad market, against the S&P 500), and how often a beat closed lower the next day. Hidden until both readings
+// have their closes; context only.
+function flowsNode(doc, root, lead, briefs) {
+  const history = root?._aioHistory || [];
+  const label = lead?.kind === 'fomc' ? 'FOMC' : lead?.nameKo ? `${lead.nameKo} 실적` : '';
+  const flow = lead ? eventAftermath(history, { publishedAt: lead.publishedAt, dateOnly: lead.publishedDateOnly, label }) : null;
+  const beats = beatButFell(briefs);
+  if (!flow && !beats) return null;
+  const box = el(doc, 'section', null, 'event-briefs__flows');
+  box.dataset.eventFlows = '';
+  box.append(el(doc, 'h3', flow ? '발표 뒤 돈의 방향' : '실적 뒤 반응', 'event-briefs__flows-title'));
+  if (flow) {
+    box.append(el(doc, 'p', flow.text, 'event-briefs__flows-text'));
+    const scale = signedScale(flow.groups.map((group) => group.relPp), 1);
+    const list = el(doc, 'div', null, 'event-briefs__flows-bars');
+    list.setAttribute('role', 'list');
+    for (const group of flow.groups) {
+      const row = el(doc, 'div', null, 'event-briefs__flows-row');
+      row.setAttribute('role', 'listitem');
+      row.append(el(doc, 'span', group.label, 'event-briefs__flows-label'), signedBar(doc, group.relPp, scale, { tone: 'flat' }),
+        el(doc, 'span', `${group.relPp > 0 ? '+' : ''}${group.relPp.toFixed(1)}%p`, 'event-briefs__flows-value'));
+      list.append(row);
+    }
+    box.append(list);
+  }
+  if (beats) box.append(el(doc, 'p', beats.text, flow ? 'event-briefs__flows-text event-briefs__flows-text--next' : 'event-briefs__flows-text'));
+  return box;
+}
+
 function paintBriefs(doc, root, { rerender, macro, id, frame, className, limits = {}, place }) {
   const nowMs = Date.now();
   // v59.69: the reaction reading compares each move with its index on the same day; a paint before the close history
@@ -265,16 +298,19 @@ function paintBriefs(doc, root, { rerender, macro, id, frame, className, limits 
   head.title = '시장 전체를 움직이는 발표(물가·고용 지표, FOMC, 대형주 실적)는 크게, 그 밖의 실적은 한 줄로 보여 줍니다. 원문 공시 기준, 시각은 한국 시간';
   markFrame(host, frame);
   const parts = [head, ...macro.map((release) => macroNode(doc, release)), ...tiers.core.map((brief) => briefNode(doc, brief))];
+  const flows = flowsNode(doc, root, tiers.core[0], [...tiers.core, ...tiers.notable, ...tiers.rest]);
+  if (flows) parts.push(flows);
   // v59.51 (content audit): the second tier is one closed line; its rows (move, headline, reason, full summary) open in place.
   if (tiers.notable.length) {
     const fold = el(doc, 'details', null, 'event-briefs__all');
-    fold.append(el(doc, 'summary', `그 밖의 실적 ${tiers.notable.length}건`), rowList(doc, root, tiers.notable));
+    fold.append(el(doc, 'summary', `그 밖의 실적 ${tiers.notable.length}건`));
+    fillOnOpen(fold, () => [rowList(doc, root, tiers.notable)]); // v59.70 DOM1: rows built when it first opens
     parts.push(fold);
   }
   if (tiers.restTotal) {
     const fold = el(doc, 'details', null, 'event-briefs__all');
-    fold.append(el(doc, 'summary', `지난 30일 발표 요약 ${tiers.restTotal}건 더 보기`), rowList(doc, root, tiers.rest));
-    if (tiers.restTotal > tiers.rest.length) fold.append(el(doc, 'p', `최근 ${tiers.rest.length}건만 적었습니다. 다른 종목은 종목 화면에서 최근 실적 요약을 볼 수 있습니다.`, 'event-brief__note'));
+    fold.append(el(doc, 'summary', `지난 30일 발표 요약 ${tiers.restTotal}건 더 보기`));
+    fillOnOpen(fold, () => [rowList(doc, root, tiers.rest), ...(tiers.restTotal > tiers.rest.length ? [el(doc, 'p', `최근 ${tiers.rest.length}건만 적었습니다. 다른 종목은 종목 화면에서 최근 실적 요약을 볼 수 있습니다.`, 'event-brief__note')] : [])]);
     parts.push(fold);
   }
   host.replaceChildren(...parts);

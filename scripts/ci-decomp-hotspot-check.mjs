@@ -74,6 +74,24 @@ for (const file of files) {
   }
 }
 
+// v59.70 (S12): a split page has a fixed bound per module (not a ratchet), so a facade split cannot drift back into
+// one large file; the lifecycle file has its own smaller bound.
+const pageModules = config.pageModuleCeilings || {};
+const { readdir } = await import('node:fs/promises');
+const moduleCaps = { ...(pageModules.files || {}) };
+for (const [dir, cap] of Object.entries(pageModules.directories || {})) {
+  let names = [];
+  try { names = await readdir(new URL(dir, root)); } catch (error) { errors.push(`v59.70 page module directory is unreadable: ${dir} (${error.code || error.message})`); }
+  if (!names.length) errors.push(`v59.70 page module directory ${dir} has no modules; the split it bounds is missing`);
+  for (const name of names) if (name.endsWith('.js')) moduleCaps[`${dir}${name}`] = Math.min(Number(moduleCaps[`${dir}${name}`]) || Infinity, Number(cap));
+}
+for (const [file, cap] of Object.entries(moduleCaps)) {
+  let source;
+  try { source = await readFile(new URL(file, root), 'utf8'); } catch (error) { errors.push(`v59.70 bounded page module is unreadable: ${file} (${error.code || error.message})`); continue; }
+  const lines = source.split(/\r?\n/).length;
+  if (lines > cap) errors.push(`v59.70 ${file} has ${lines} lines, above its page-module bound ${cap}; split the module instead of raising the bound`);
+}
+
 // The code map must cover every file the gate measures, so a new hotspot cannot be
 // added without documenting where its section lives.
 const map = await readFile(new URL('_context/CODE-MAP.md', root), 'utf8');

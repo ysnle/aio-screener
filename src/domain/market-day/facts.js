@@ -8,6 +8,8 @@
 import { readNumber } from '../shared/number.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { sessionCloses } from '../market/index-levels.js';
+import { closeSessionMarket } from '../market/close-series.js';
+import { countOpenSessionsBetween } from '../market/market-calendar.js';
 import { companyMatcher } from '../briefing/news-picks.js';
 import { SCHEDULED_EVENTS } from '../briefing/scheduled-events.js';
 import { EVENT_NAMES } from '../market/macro-crossroads.js';
@@ -19,7 +21,7 @@ const DAY = 24 * HOUR;
 // Prices and levels read from history.json (session-keyed closes). `unit` bp means the field is a yield in percent.
 export const ASSETS = Object.freeze([
   ['spx', 'S&P 500', 'index', ['equity-us']], ['ndx', '나스닥100', 'index', ['equity-us', 'ai-semis']],
-  ['smh', '반도체(SMH)', 'index', ['ai-semis']], ['rut', '러셀2000', 'index', ['equity-us', 'small-caps']],
+  ['soxx', '반도체(SOXX)', 'index', ['ai-semis']], ['rut', '러셀2000', 'index', ['equity-us', 'small-caps']],
   ['rsp', 'S&P 500 동일가중', 'index', ['equity-us', 'breadth']], ['kospi', '코스피', 'index', ['korea']],
   ['kosdaq', '코스닥', 'index', ['korea']], ['vix', 'VIX', 'volatility', ['volatility']],
   ['tnx', '미국 10년 금리', 'rate', ['rates'], 'bp'], ['dxy', '달러지수', 'fx', ['fx']], ['usdkrw', '원/달러', 'fx', ['fx', 'korea']],
@@ -71,6 +73,9 @@ function priceFacts(history) {
     const move = changeOf(series, asset.unit);
     if (!move) continue;
     const last = series.at(-1);
+    // v59.70 (screen review 7·8): a day move is one session. A close the producer carried forward drops out of the series,
+    // and the step over the gap (WTI 10/30→11/3, 나스닥100 the same) read as that day's -7.7% / -0.7%; no fact then.
+    if (countOpenSessionsBetween(series.at(-2).date, last.date, closeSessionMarket(asset.field) || 'US') !== 1) continue;
     out.push({ id: `price:${asset.field}:${last.date}`, kind: 'price', asset: asset.field, label: asset.label, assetKind: asset.kind, date: last.date,
       value: round(last.value, asset.unit === 'bp' ? 3 : 2), unit: asset.unit, ...move, topics: asset.topics, subjects: [], weight: Math.abs(move.z ?? 0) });
   }
@@ -251,7 +256,7 @@ function briefFacts(briefs, nowMs) {
 
 // The price a group's earnings depend on (theme ids of js/aio-pages.js THEME_MAP, sectors of screener-universe.json).
 // Rates-sensitive groups are left out: utilities and real estate fall with higher yields, so their sign is reversed.
-export const GROUP_DRIVERS = Object.freeze({ 'theme:energy': 'wti', 'sector:Energy': 'wti', 'theme:crypto': 'btc', 'theme:semiconductor': 'smh', 'theme:photonics': 'smh', 'theme:ai_infra': 'smh' });
+export const GROUP_DRIVERS = Object.freeze({ 'theme:energy': 'wti', 'sector:Energy': 'wti', 'theme:crypto': 'btc', 'theme:semiconductor': 'soxx', 'theme:photonics': 'soxx', 'theme:ai_infra': 'soxx' });
 
 const MOVE_KINDS = new Set(['price', 'stock-move', 'group-move']);
 const CAUSE_KINDS = new Set(['headline', 'earnings', 'brief', 'deal', 'analyst', 'release', 'event']);

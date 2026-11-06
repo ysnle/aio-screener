@@ -1,11 +1,11 @@
 import { chromium } from 'playwright';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DESKTOP_QA_VIEWPORTS } from './desktop-qa-config.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.AIO_THREE_PAGE_FLOW_PORT || 8914);
+const port = (Number(process.env.AIO_THREE_PAGE_FLOW_PORT) || await freePort());
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 
 async function dismissDisclaimer(page) {

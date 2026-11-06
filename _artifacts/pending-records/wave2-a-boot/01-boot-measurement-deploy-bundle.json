@@ -1,0 +1,15 @@
+{
+  "title": "Boot measurement reads the deployed bundle; classic and post-boot byte budgets",
+  "changelog": [
+    "**Boot measured on the deployed bundle (v59.70):** ci-boot-interaction-check builds the Pages bundle exactly as pages-deploy.yml does (scripts/lib/pages-bundle-config.mjs stagePagesCode) and serves it with the repository's public-data, instead of the unbundled source whose 556 module requests filled the 250-entry resource-timing buffer and cut the reported bytes short. The seven classic boot scripts get a minified byte budget (1,226,000 raw ratchet, 1,000 KB target) and the lazy JS a route fetches in its first 6.5 s gets one too (350,000); ci-boot-bundle-budget-check fails when the workflow's copy and exclude lists drift from the shared config."
+  ],
+  "qa": [
+    {
+      "id": "QA-PERF-BOOT-DEPLOY-BUNDLE",
+      "text": "v59.70: ci-boot-interaction-check measures the staged Pages bundle (measuredBundle 'deploy', resource buffer not full) and enforces postBootLazyBudget; ci-boot-bundle-budget-check enforces classicBootBudget and matches pages-deploy.yml's root files, classic scripts and public-data excludes to pages-bundle-config.mjs",
+      "verify_by": "node scripts/ci-boot-bundle-budget-check.mjs && node scripts/ci-boot-interaction-check.mjs"
+    }
+  ],
+  "qa_section": "Boot and measurement (v59.70)",
+  "note": "change-only (no P): 2nd batch A P0 (perf-legacy-plan-20261104)"
+}

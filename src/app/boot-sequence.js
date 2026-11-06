@@ -15,7 +15,6 @@ export function installBootSequence(window = globalThis) {
     // P858: translation is deliberately outside the 0-2s interactive boot
     // budget. Source-language/local fallback text remains visible until this
     // enrichment phase is released.
-    _aioBootPhase.translationReady = false;
     console.log('[AIO v20] ═══════════════════════════════════════');
     console.log('[AIO v20] Data Engine v20 초기화 시작');
     // v50.23: 서버 데이터(data.json) 먼저 적용 — 프록시 실패와 무관하게 즉시 신선한 화면
@@ -50,10 +49,7 @@ export function installBootSequence(window = globalThis) {
     // the first paint source, then start external quote work after the 2s boot
     // budget so request and long-task SLOs measure the actual interactive boot.
     _aioBootPhase.quoteReady = false;
-    setTimeout(function() {
-      _aioBootPhase.translationReady = true;
-      _aioReleaseDeferredNewsTranslation();
-    }, 2300);
+    // v59.70 (D6): the deferred browser news translation release left; titles arrive in Korean from the producer.
     setTimeout(async () => {
       try {
         _aioBootPhase.quoteReady = true;

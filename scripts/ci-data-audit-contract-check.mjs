@@ -226,7 +226,151 @@ const calendars = await import('./lib/official-calendars.mjs');
   }
   const storyRows = days.map((date, i) => ({ date, spx: 6800 + i, ndx: 25000 + i, smh: 300 - i, soxx: 250 - i * 2 }));
   const bars = buildMarketStory({ history: storyRows, nowMs: Date.parse(`${days.at(-1)}T22:00:00Z`) })?.bars || [];
+  // v59.70 (owner 11/4 "권장안대로"): one semiconductor gauge app-wide — the home card, index levels, charts, day account,
+  // cross-asset moves, earnings reactions, the money-flow growth basket and market-day facts read SOXX; the smh history
+  // column stays data only. A domain or UI module that reads the 'smh' field again fails.
+  const { INDEX_STRIP } = await import('../src/ui/components/home-index-strip.js');
+  const { LEVEL_FIELDS } = await import('../src/domain/market/index-levels.js');
+  const { CHART_INDEXES } = await import('../src/domain/technical/market-charts.js');
+  check('v59.70 SOXX: the home semiconductor card, index levels and charts are SOXX', INDEX_STRIP.some((row) => row.sym === 'SOXX' && row.close === 'soxx') && !INDEX_STRIP.some((row) => row.sym === 'SMH')
+    && LEVEL_FIELDS.some(([field]) => field === 'soxx') && CHART_INDEXES.some(([field]) => field === 'soxx') && ![...LEVEL_FIELDS, ...CHART_INDEXES].some(([field]) => field === 'smh'));
+  const SMH_FIELD = /['"]smh['"]|\.smh\b|\bsmh\s*:/;
+  const jsFiles = (dir) => fs.readdirSync(new URL(`../${dir}/`, import.meta.url), { withFileTypes: true }).flatMap((entry) => entry.isDirectory()
+    ? jsFiles(`${dir}/${entry.name}`) : /\.(?:m?js)$/.test(entry.name) ? [`${dir}/${entry.name}`] : []);
+  const smhReads = [...jsFiles('src/domain'), ...jsFiles('src/ui')].filter((rel) => !/^src\/domain\/(?:research|knowledge)\/|history-session\.js$/.test(rel))
+    .flatMap((rel) => read(rel).split('\n').map((line, index) => ({ rel, line, index })).filter(({ line }) => !/^\s*(?:\/\/|\*)/.test(line) && SMH_FIELD.test(line)).map(({ rel, index }) => `${rel}:${index + 1}`));
+  check('v59.70 SOXX: no screen reads the smh history column', smhReads.length === 0, smhReads.join(', '));
   check('v59.70 SOXX: the 무슨 일이 있었나 semiconductor bar is SOXX', bars.some((bar) => bar.id === 'soxx' && bar.label === '반도체 SOXX') && !bars.some((bar) => bar.id === 'smh'), JSON.stringify(bars.map((bar) => bar.id)));
+}
+
+// v59.70 (screen review 11/4 + X bookmarks #3): one 20-session HY change and one credit rule on every screen. 시장 상태 said
+// '20일 +34bp' beside 연결해서 보면 '+32bp' (each counted its own window), and 매크로's credit chapter called +40bp or 4.5%
+// 위기 with a '3.5% 돌파' flip while the credit axis (RULES.credit, creditState) read 중립.
+{
+  const { hyDelta20Bp } = await import('../src/domain/briefing/market-read.js');
+  const { buildMacroChapters } = await import('../src/domain/macro/macro-chapters.js');
+  const { crossReadings } = await import('../src/domain/market/cross-readings.js');
+  const { resolveMarketCalendarSession } = await import('../src/domain/market/market-calendar.js');
+  const sessions = [];
+  for (let t = Date.parse('2026-02-02T12:00:00Z'); sessions.length < 201; t += 86400000) {
+    const date = new Date(t).toISOString().slice(0, 10);
+    if (resolveMarketCalendarSession({ market: 'US', date }).status === 'open') sessions.push(date);
+  }
+  // HY swinging ±30bp on a 40-session cycle (its 20-session record reaches ~60bp, so a record stress needs 50bp), then +45bp
+  // over the last 20 sessions to ~340bp — wider than widen20dBp, short of the record edge and of 350bp.
+  const wave = (i) => 2.9 + 0.3 * Math.sin(2 * Math.PI * i / 40);
+  // FRED publishes a day after the close: the history's 10-year yield already has session 201 when HY ends at 200 (11/3 vs
+  // 11/2 on 11/4), which made the paired reading a 19-session HY change.
+  const hyObs = sessions.slice(0, 200).map((date, i) => [date, i < 180 ? wave(i) : wave(179) + (i - 179) * 0.0225]);
+  const mh = { series: { hyOas: { observations: hyObs }, cccOas: { observations: sessions.map((date) => [date, 9]) }, igOas: { observations: sessions.map((date) => [date, 0.8]) } } };
+  const hist = sessions.map((date, i) => ({ date, tnx: 4 - (i >= 180 ? (i - 179) * 0.006 : 0), fieldMeta: { tnx: { sessionDate: date, observedAt: `${date}T20:00:00Z` } } }));
+  const axisHy20 = hyDelta20Bp(mh)?.value;
+  const chapter = buildMacroChapters({ macroHistory: mh, history: hist }).find?.((item) => item?.id === 'credit') || buildMacroChapters({ macroHistory: mh, history: hist }).chapters?.find((item) => item.id === 'credit');
+  const pair = crossReadings({ history: hist, macroHistory: mh }).find((item) => item.id === 'rates-credit');
+  const quoted = (text) => Number((text || '').match(/하이일드 스프레드 ([+-]?\d+)bp/)?.[1]);
+  check('v59.70 HY 20-session change: 매크로 and 연결해서 보면 quote the credit axis\'s number', Number.isFinite(axisHy20) && Math.round(axisHy20) === 45
+    && new RegExp(`\\(\\+${Math.round(axisHy20)}bp\\)`).test(chapter?.now || '') && quoted(pair?.text) === Math.round(axisHy20), JSON.stringify({ axisHy20, now: chapter?.now, pair: pair?.text?.slice(0, 60) }));
+  check('v59.70 매크로 credit chapter: +45bp at 345bp is the credit axis\'s 중립, not 위기', chapter?.state === 'neutral' && !/크게 벌어졌습니다/.test(chapter?.mean || '') && !/3\.5%/.test(chapter?.flip || '') && /4\.5%/.test(chapter?.flip || ''), JSON.stringify({ state: chapter?.state, mean: chapter?.mean?.slice(0, 40), flip: chapter?.flip }));
+  // X bookmarks #4: the long range is each tier's own recorded quantile band (FRED serves ~3 years), never a fixed 150bp.
+  const ranges = chapter?.ranges;
+  const hyRange = ranges?.ranges?.find((range) => range.id === 'hyOas');
+  check('v59.70 매크로 credit chapter: IG, HY and CCC sit in their own recorded p10~p90 band', ranges?.ranges?.length === 3
+    && ranges.ranges.every((range) => [range.p10, range.p50, range.p90, range.now].every(Number.isFinite) && range.p10 <= range.p50 && range.p50 <= range.p90)
+    && hyRange?.pct >= 90 && ranges.ranges.filter((range) => range.id !== 'hyOas').every((range) => range.pct === 50)
+    && /^하이일드 3\.\d\d%, 2026년 2월 이후 기록의 \d+% 위치/.test(ranges.line) && !/150\s*bp/.test(JSON.stringify(ranges)), JSON.stringify({ line: ranges?.line, hy: hyRange?.pct }));
+  const { MACRO_HISTORY_SERIES } = await import('./producer/macro-history.mjs');
+  check('v59.70 macro-history keeps every OAS observation FRED serves (800 rows, not 280)', ['hyOas', 'igOas', 'cccOas'].every((id) => MACRO_HISTORY_SERIES[id]?.limit === 800));
+}
+
+// v59.70 (X bookmarks #1): Nasdaq correction base rates — "N번 중 N번" with the definition, outside the verdict.
+{
+  const { correctionBaseRates, correctionReading } = await import('../src/domain/scenarios/correction-base-rates.js');
+  // 12 cycles from 1990: a 10-session -8% dip (fast), every third cycle a 300-session slide to -25% (slow, bear), then a new record.
+  const closes = []; let level = 100; let day = Date.parse('1990-01-02T00:00:00Z');
+  const push = (value) => { closes.push([new Date(day).toISOString().slice(0, 10), value]); day += 86400000; };
+  for (let cycle = 0; cycle < 12; cycle += 1) {
+    for (let i = 0; i < 20; i += 1) push(level *= 1.002);
+    const bear = cycle % 3 === 2; const steps = bear ? 300 : 10; const floor = bear ? 0.75 : 0.92; const top = level;
+    for (let i = 1; i <= steps; i += 1) push(top * (1 - (1 - floor) * i / steps));
+    for (let i = 1; i <= steps; i += 1) push(top * (floor + (1.01 - floor) * i / steps));
+    level = top * 1.01;
+  }
+  const rates = correctionBaseRates(closes);
+  check('v59.70 correction base rate: 12 corrections, 4 bear markets, 8 fast with none bear', rates?.n === 12 && rates.bear === 4 && rates.fastN === 8 && rates.fastBear === 0 && rates.events?.length === 12, JSON.stringify(rates && { n: rates.n, bear: rates.bear, fastN: rates.fastN, fastBear: rates.fastBear }));
+  const reading = correctionReading(rates, { close: rates.high.close * 0.92, recordClose: rates.high.close });
+  check('v59.70 correction base rate: the line says N번 중 N번 with its definition, never a probability', /1990년 이후 나스닥 종합 7% 이상 조정 12번 중 4번이 -20%까지/.test(reading?.text || '') && /8번 중 0번/.test(reading.text)
+    && /^정의: 직전 최고 종가보다 7% 이상/.test(reading.definition) && /판정 점수에는 넣지 않습니다/.test(reading.definition) && !/확률|가능성/.test(reading.text + reading.definition), reading?.text);
+  const { buildScenarioOutcomes } = await import('./build-scenario-outcomes.mjs');
+  const outcomeBody = buildScenarioOutcomes({ market: {}, nasdaq: closes });
+  check('v59.70 scenario-outcomes publishes the Nasdaq correction counts from the closes it is given', outcomeBody.corrections?.n === 12 && outcomeBody.corrections.bear === 4 && buildScenarioOutcomes({ market: {} }).corrections === null);
+}
+
+// v59.70 (X bookmarks #6, #11): flows after a release and the beat-but-fell share, on closes, outside any verdict.
+{
+  const { eventAftermath, beatButFell } = await import('../src/domain/briefing/event-aftermath.js');
+  const { resolveMarketCalendarSession } = await import('../src/domain/market/market-calendar.js');
+  const days = [];
+  for (let t = Date.parse('2026-10-01T12:00:00Z'); days.length < 20; t += 86400000) {
+    const date = new Date(t).toISOString().slice(0, 10);
+    if (resolveMarketCalendarSession({ market: 'US', date }).status === 'open') days.push(date);
+  }
+  // A release at 14:00 ET on days[10]: S&P 500 flat after it, Nasdaq 100 +3%, defensives -1%, RSP and RUT flat.
+  const hist = days.map((date, i) => {
+    const k = Math.max(0, i - 9);
+    const row = { date, spx: 6000, ndx: 20000 * (1 + 0.01 * Math.min(k, 3)), xlp: 80 * (1 - 0.0033 * Math.min(k, 3)), xlu: 70 * (1 - 0.0033 * Math.min(k, 3)), xlv: 140 * (1 - 0.0033 * Math.min(k, 3)), rsp: 180, rut: 2400, fieldMeta: {} };
+    for (const field of ['spx', 'ndx', 'xlp', 'xlu', 'xlv', 'rsp', 'rut']) row.fieldMeta[field] = { sessionDate: date, observedAt: `${date}T20:00:00Z` };
+    return row;
+  }).slice(0, 13);
+  const flow = eventAftermath(hist, { publishedAt: `${days[10]}T18:00:00Z`, label: 'FOMC' });
+  check('v59.70 event aftermath: three sessions after the release read 기술로 복귀 against the S&P 500', flow?.sessions === 3 && flow.from === days[9] && flow.outcome === '기술로 복귀'
+    && /^FOMC 뒤 3거래일, S&P 500 대비 기술 \+3\.0%p, 방어 업종 -1\.0%p, 동일가중·소형 0\.0%p — 기술로 복귀\.$/.test(flow.text), JSON.stringify(flow));
+  check('v59.70 event aftermath: one session after the release is not read yet', eventAftermath(hist.slice(0, 11), { publishedAt: `${days[10]}T18:00:00Z` }) === null);
+  const brief = (surprisePct, close) => ({ kind: 'earnings', figures: [{ metric: 'eps_diluted', estimate: { surprisePct } }], reaction: { firstPct: close } });
+  const briefs = [...Array.from({ length: 10 }, (_, i) => brief(5, i < 6 ? -2 : 1)), ...Array.from({ length: 4 }, () => brief(-5, -3))];
+  const beats = beatButFell(briefs);
+  check('v59.70 호재 무반응: 10 beats, 6 fell, beside all reports', beats?.beats === 10 && beats.fell === 6 && beats.share === 60 && beats.reports === 14 && beats.allFell === 10, JSON.stringify(beats));
+  const { HIST_FIELD_PLAUSIBILITY } = await import('./producer/history.mjs');
+  check('v59.70 history keeps XLP, XLU and XLV closes', ['xlp', 'xlu', 'xlv'].every((field) => Array.isArray(HIST_FIELD_PLAUSIBILITY[field])));
+}
+
+// v59.70 (X bookmarks #8): quarter-end inventory and receivables — collected from 10-Q/10-K, projected as two quarter
+// columns, read against revenue's step.
+{
+  const { quarterlyHistory } = await import('./lib/sec-fiscal-history.mjs');
+  const { parseQuarterHistory, buildWorkingCapitalRead } = await import('../src/domain/fundamental/quarter-read.js');
+  const { SEC_NORMALIZER_VERSION, normalizeSecCompanyFacts } = await import('../src/domain/fundamental/sec-normalize.js');
+  // A minimal companyfacts document: two fiscal years, two 10-Q quarters, and quarter-end inventory and receivables.
+  const fact = (start, end, val, form = '10-K', fp = 'FY', fy = 2025, filed = '2026-02-20') => ({ start, end, val, form, fp, fy, filed, accn: `0000-${end}-${form}` });
+  const usd = (rows) => ({ units: { USD: rows } });
+  const q2 = ['10-Q', 'Q2', 2026, '2026-08-01']; const q3 = ['10-Q', 'Q3', 2026, '2026-11-01'];
+  const record = normalizeSecCompanyFacts('FIX', { cik: 2488, entityName: 'Fixture Corp', facts: {
+    dei: { EntityCommonStockSharesOutstanding: { units: { shares: [fact(null, '2026-02-01', 1.6e9)] } } },
+    'us-gaap': {
+      Revenues: usd([fact('2025-01-01', '2025-12-31', 30e9), fact('2024-01-01', '2024-12-31', 24e9, '10-K', 'FY', 2024, '2025-02-20'), fact('2026-04-01', '2026-06-30', 7.7e9, ...q2), fact('2026-07-01', '2026-09-30', 9.2e9, ...q3)]),
+      NetIncomeLoss: usd([fact('2025-01-01', '2025-12-31', 3e9), fact('2024-01-01', '2024-12-31', 2e9, '10-K', 'FY', 2024, '2025-02-20'), fact('2026-04-01', '2026-06-30', 0.8e9, ...q2), fact('2026-07-01', '2026-09-30', 1.2e9, ...q3)]),
+      StockholdersEquity: usd([fact(null, '2025-12-31', 50e9), fact(null, '2024-12-31', 45e9, '10-K', 'FY', 2024, '2025-02-20')]),
+      InventoryNet: usd([fact(null, '2026-06-30', 5e9, ...q2), fact(null, '2026-09-30', 6e9, ...q3)]),
+      AccountsReceivableNetCurrent: usd([fact(null, '2026-06-30', 6e9, ...q2), fact(null, '2026-09-30', 7.8e9, ...q3)]),
+    } } }, 100);
+  const pit = record?.pit?.observations || {};
+  check('v59.70 #8 the SEC normalizer collects quarter-end inventory and receivables', SEC_NORMALIZER_VERSION === 'sec-normalizer.2026-11-04' && record?.normalizerVersion === SEC_NORMALIZER_VERSION
+    && pit.inventoryQ?.map((row) => row.value).sort().join(',') === '5000000000,6000000000' && pit.receivablesQ?.length === 2 && quarterlyHistory(pit) === '2026-06-30:7700:800:r:5000:6000;2026-09-30:9200:1200:r:6000:7800', quarterlyHistory(pit));
+  const concept = { revenueQ: 'Revenues', netIncomeQ: 'NetIncomeLoss', inventoryQ: 'InventoryNet', receivablesQ: 'AccountsReceivableNetCurrent' };
+  const q = (start, end, value, field) => ({ field, value, periodStart: start, periodEnd: end, filedAt: '2026-11-01', form: '10-Q', concept: concept[field] });
+  const observations = {
+    revenueQ: [q('2026-03-29', '2026-06-27', 7.7e9, 'revenueQ'), q('2026-06-28', '2026-09-27', 9.2e9, 'revenueQ')],
+    netIncomeQ: [q('2026-03-29', '2026-06-27', 0.8e9, 'netIncomeQ'), q('2026-06-28', '2026-09-27', 1.2e9, 'netIncomeQ')],
+    inventoryQ: [q(null, '2026-06-27', 5.0e9, 'inventoryQ'), q(null, '2026-09-27', 6.0e9, 'inventoryQ')],
+    receivablesQ: [q(null, '2026-06-27', 6.0e9, 'receivablesQ'), q(null, '2026-09-27', 7.8e9, 'receivablesQ')],
+  };
+  const text = quarterlyHistory(observations);
+  check('v59.70 #8 the quarter projection carries inventory and receivables columns', text === '2026-06-27:7700:800:r:5000:6000;2026-09-27:9200:1200:r:6000:7800', text);
+  const legacy = quarterlyHistory({ revenueQ: observations.revenueQ, netIncomeQ: observations.netIncomeQ });
+  check('v59.70 #8 a record read before the balances keeps the four-column quarter row', legacy === '2026-06-27:7700:800:r;2026-09-27:9200:1200:r', legacy);
+  const wc = buildWorkingCapitalRead(parseQuarterHistory(text));
+  check('v59.70 #8 the working-capital read names balances growing faster than revenue', wc.available && Math.round(wc.inventory.pct) === 20 && Math.round(wc.receivables.pct) === 30
+    && /재고 \+20\.0%, 매출채권 \+30\.0%\(분기 매출 \+19\.5%\)/.test(wc.headline) && /매출채권이 매출보다 빠르게 늘어/.test(wc.headline), wc.headline);
+  check('v59.70 #8 not yet collected is not a reading', buildWorkingCapitalRead(parseQuarterHistory(legacy)).available === false);
 }
 
 if (failures.length) {

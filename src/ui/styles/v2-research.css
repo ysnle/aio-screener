@@ -109,6 +109,7 @@
 
 /* ═══ 2. Learning paths (3h: 기초 · 중급 · 심화) ══════════════════════════ */
 .rl-paths { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 0 0 16px; }
+.rl-paths-dots { display: none; }
 .rl-path {
   display: flex; flex-direction: column; gap: 12px; padding: 20px 22px; border-radius: 12px;
   background: var(--bg-card); box-shadow:none;
@@ -460,6 +461,10 @@
   .rl-paths { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 84%; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; margin: 0 -16px 14px; padding: 2px 16px 10px; scroll-padding-inline: 16px; }
   .rl-path { scroll-snap-align: start; }
   .rl-path { padding: 16px 18px; }
+  .rl-paths:has(+ .rl-paths-dots) { margin-bottom: 6px; }
+  .rl-paths-dots { display: flex; justify-content: center; gap: 6px; margin: 0 0 14px; }
+  .rl-paths-dots > span { width: 6px; height: 6px; border-radius: 50%; background: rgba(var(--ink-rgb), 0.18); transition: width .15s, background .15s; }
+  .rl-paths-dots > span.is-on { width: 16px; border-radius: 3px; background: var(--text-secondary); }
   .rl-path-step, .rl-used-row, .rl-shell .rl-nav-item, .rl-shell .rl-shelf-chip, .rl-shell .rl-picks-item,
   #glossary-cats .lu-gl-cat, #glossary-body .lu-gl-route, #page-masters .masters-detail-tab, #page-masters .masters-route-button { min-height: 44px; }
   #page-masters .masters-top-tickers .masters-ticker-chip, #page-atlas .atlas-layer-ticker { height: 36px; min-height: 36px; padding: 0 14px; font-size: 12px; }

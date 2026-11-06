@@ -3,7 +3,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { MARKET_PRINCIPLES_CATALOG } from '../src/ui/pages/principles.js';
+import { readPrinciplesCatalogSource } from './lib/research-content.mjs';
+const MARKET_PRINCIPLES_CATALOG = readPrinciplesCatalogSource();
 import { NATHAN_KNOWLEDGE_CONCEPTS, NATHAN_KNOWLEDGE_ALIASES } from '../src/domain/knowledge/nathan-framework-pack.js';
 import { INTEGRATED_KNOWLEDGE_CONCEPTS, INTEGRATED_KNOWLEDGE_ALIASES } from '../src/domain/knowledge/integrated-market-ai-framework-pack.js';
 import { compareStableText } from '../src/domain/knowledge/order.js';
@@ -46,7 +47,7 @@ function concept(surface, node, source) {
 }
 
 const concepts = [
-  ...principles.map((node) => concept('principles', node, { artifact: 'src/ui/pages/principles.js', locator: 'MARKET_PRINCIPLES_CATALOG.nodes' })),
+  ...principles.map((node) => concept('principles', node, { artifact: 'content/research/principles/catalog.json', locator: 'parts[].nodes' })),
   ...atlas.map((node) => concept('atlas', node, { artifact: 'public-data/atlas/taxonomy-node-coverage.json', locator: 'nodes' })),
   ...NATHAN_KNOWLEDGE_CONCEPTS,
   ...INTEGRATED_KNOWLEDGE_CONCEPTS

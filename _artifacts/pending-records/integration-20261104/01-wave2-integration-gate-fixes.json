@@ -1,0 +1,15 @@
+{
+  "title": "Wave 2 integration: gate fixes found on the merged tree",
+  "changelog": [
+    "**Wave 2 integration gate fixes (v59.70):** browser-reference-adoption clicked the 테마 회전 tab before the lazy page module bound its handler (the static HTML already says data-view=\"bars\"), so one run in two left the sector chips in the hidden fold; it now clicks until the card shows the 회전 view (20 s bound). operations-contract accepts the repository-local composite action (./.github/actions/setup-browser-gates) and checks the third-party refs inside it. Five browser gates new in wave 2 (screener controls, theme screener review, screener AI conditions, contrast focus, legacy writers) take their server port from the OS like the rest."
+  ],
+  "qa": [
+    {
+      "id": "QA-OPS-WAVE2-INTEGRATION-GATES",
+      "text": "v59.70: browser-reference-adoption passes three runs in a row; operations-contract passes with the local composite action; qa-pipeline-contract finds no fixed port",
+      "verify_by": "node scripts/ci-reference-adoption-browser-check.mjs && node scripts/ci-operations-contract-check.mjs && node scripts/ci-qa-pipeline-contract-check.mjs"
+    }
+  ],
+  "qa_section": "Browser gate data (v59.70)",
+  "note": "change-only (no P): integration-20261104 after the wave 2 A-F merges."
+}

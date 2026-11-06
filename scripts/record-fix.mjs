@@ -47,6 +47,7 @@ import { existsSync, readFileSync, renameSync, unlinkSync, writeFileSync } from 
 import { spawnSync } from 'node:child_process';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseCliArgs, CliArgsError } from './lib/cli-args.mjs';
 
 export const PATHS = {
   postmortem: '_context/BUG-POSTMORTEM.md',
@@ -420,15 +421,19 @@ export function writeAtomically(files) {
 }
 
 // ── CLI ─────────────────────────────────────────────────────────────────────
+const USAGE = 'usage: node scripts/record-fix.mjs <entry.json> [--root DIR] [--dry-run] [--no-regen]';
+
 function main(argv) {
-  const args = argv.slice(2);
-  const dryRun = args.includes('--dry-run');
-  const noRegen = args.includes('--no-regen');
-  const rootIdx = args.indexOf('--root');
-  const rootArg = rootIdx >= 0 ? args[rootIdx + 1] : null;
-  if (rootIdx >= 0 && !rootArg) throw new RecordFixError('--root requires a directory');
-  const positional = args.filter((a, i) => !a.startsWith('--') && !(rootIdx >= 0 && i === rootIdx + 1));
-  if (positional.length !== 1) throw new RecordFixError('usage: node scripts/record-fix.mjs <entry.json> [--root DIR] [--dry-run] [--no-regen]');
+  // v59.70: an unknown argument fails before anything is read, and --help only prints (scripts/lib/cli-args.mjs).
+  let args;
+  try { args = parseCliArgs(argv.slice(2), { usage: USAGE, flags: ['--dry-run', '--no-regen'], options: ['--root'], positional: { min: 0, max: 1 } }); }
+  catch (error) { if (error instanceof CliArgsError) throw new RecordFixError(error.message); throw error; }
+  if (args.help) { console.log(USAGE); return; }
+  const dryRun = args.flags.has('--dry-run');
+  const noRegen = args.flags.has('--no-regen');
+  const rootArg = args.options['--root'] || null;
+  const positional = args.positional;
+  if (positional.length !== 1) throw new RecordFixError(USAGE);
   const root = rootArg ? resolve(rootArg) : resolve(dirname(fileURLToPath(import.meta.url)), '..');
   let raw;
   try { raw = readFileSync(resolve(positional[0]), 'utf8').replace(/^﻿/, ''); } catch (error) { throw new RecordFixError(`cannot read ${positional[0]}: ${error.message}`); }

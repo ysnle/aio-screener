@@ -70,7 +70,10 @@ const BASIS_CONCEPTS = Object.freeze({
     researchAndDevelopment: SEC_RD_CONCEPTS,
     // v58.75 (persona review): the margin ladder (gross -> operating -> net), the cash side of net debt and the capital-return
     // line (stock compensation, buybacks, dividends), annual only.
-    ...SEC_CAPITAL_CONCEPTS
+    ...SEC_CAPITAL_CONCEPTS,
+    // v59.70 (X bookmarks #8): quarter-end inventory and trade receivables (a free-cash-flow drop that is working capital).
+    inventory: ['InventoryNet'],
+    receivables: ['AccountsReceivableNetCurrent']
   },
   // Parent-attributable profit and equity first (the ROE pair), the group totals only when the parent line is absent.
   'ifrs-full': {
@@ -82,7 +85,9 @@ const BASIS_CONCEPTS = Object.freeze({
     longTermDebt: [],
     totalAssets: ['Assets'],
     researchAndDevelopment: ['ResearchAndDevelopmentExpense'],
-    ...SEC_IFRS_CAPITAL_CONCEPTS
+    ...SEC_IFRS_CAPITAL_CONCEPTS,
+    inventory: ['Inventories'],
+    receivables: ['TradeAndOtherCurrentReceivables']
   }
 });
 
@@ -188,7 +193,8 @@ const REPORT_RECENCY_MAX_DAYS = FUNDAMENTAL_MAX_PERIOD_AGE_DAYS;
 // 2026-10-17: USD convenience translations read on the statements' own currency; 20-F share counts withheld (ADS ratio).
 // v58.55 (2026-10-20): total assets and R&D expense observations (DuPont, Sloan accrual ratio, R&D ÷ revenue).
 // v58.75 (2026-10-24): gross profit, operating income, cash, short-term investments, stock compensation, buybacks, dividends.
-export const SEC_NORMALIZER_VERSION = 'sec-normalizer.2026-10-24';
+// v59.70 (2026-11-04, X bookmarks #8): quarter-end inventory and receivables from 10-Q/10-K balance sheets.
+export const SEC_NORMALIZER_VERSION = 'sec-normalizer.2026-11-04';
 
 // The earliest instant a single operand could have been known: its accession acceptance time
 // when available, otherwise the filing date (which is a date, not an intraday time).
@@ -341,6 +347,8 @@ function buildPointInTimeFacts(companyFacts, submissions, basis = US_GAAP_BASIS)
   // 2026-10-17 (logic audit D7): earnings available to common stockholders (net income less preferred dividends and
   // participating-securities allocations), annual and quarterly, for the P/E numerator; US-GAAP only.
   const commonRows = basis.taxonomy === 'us-gaap' ? amountRows([SEC_COMMON_INCOME_CONCEPT]) : [];
+  // v59.70 (X bookmarks #8): quarter-end balances from every periodic filing (10-Q and 10-K), written even when empty.
+  const quarterEnd = (row) => /^(10-Q|10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && !row.start;
   const observations = {
     revenue: compactPitRows(revenueRows, 'revenue', acceptedMap),
     netIncome: compactPitRows(incomeRows, 'netIncome', acceptedMap),
@@ -354,6 +362,8 @@ function buildPointInTimeFacts(companyFacts, submissions, basis = US_GAAP_BASIS)
     ...capitalObservations,
     revenueQ: compactPitRows(revenueQRows, 'revenueQ', acceptedMap, 16),
     netIncomeQ: compactPitRows(incomeQRows, 'netIncomeQ', acceptedMap, 16),
+    inventoryQ: compactPitRows(amountRows(concepts.inventory || []).filter(quarterEnd), 'inventoryQ', acceptedMap, 16),
+    receivablesQ: compactPitRows(amountRows(concepts.receivables || []).filter(quarterEnd), 'receivablesQ', acceptedMap, 16),
     ...(commonRows.length ? {
       netIncomeCommon: compactPitRows(commonRows.filter(annualFy), 'netIncomeCommon', acceptedMap, 12),
       netIncomeCommonQ: compactPitRows(commonRows.filter(quarterly), 'netIncomeCommonQ', acceptedMap, 16)

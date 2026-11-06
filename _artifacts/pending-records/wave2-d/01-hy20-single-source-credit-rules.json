@@ -1,0 +1,28 @@
+{
+  "p": {
+    "title": "Three screens computed the 20-session HY spread change three ways (+32bp vs +34bp), and 매크로 read credit with its own thresholds",
+    "symptom": "On 11/4 시장 상태's credit axis, the 매크로 credit chapter and 연결해서 보면's rates-credit pair quoted different 20-session high-yield changes for the same close (+32bp, +34bp). The 매크로 chapter said '크게 벌어졌습니다' and flipped at '3.5% 돌파' while 시장 상태 read the same spread as 중립.",
+    "root_cause": "hyDelta20Bp (market-read) counted FRED observations, cross-readings looked the spread up by calendar date against the history's tnx window (19 sessions when FRED lags a day), and macro-chapters took the first and last observation of its own slice. macro-chapters also hardcoded +40bp/4.5%/+50bp/3.5% instead of RULES.credit and creditState.",
+    "fix": "One reader, oasDelta20Bp(macroHistory, id, through), counts 20 US close sessions on FRED's own dates; hyDelta20Bp wraps it, cross-readings and the 매크로 chapter call it for HY, IG and CCC. The 매크로 chapter's state is creditState with RULES.credit (stressAtBp, widen5dBp, widen20dBp, stress20dPct/Multiple) and the record latch; its flip sentences print those values.",
+    "violated_rule": "One number, one source (a figure shown on two screens is computed once)",
+    "prevention": "{R}: the data-audit gate feeds one synthetic macro history (FRED one session behind the history) to all three readers and requires the same +45bp, 중립 on the 매크로 chapter, and the RULES.credit numbers in its flip.",
+    "verification": "node scripts/ci-data-audit-contract-check.mjs — passes on the branch; on the 140ba22c tree the HY 20-session and 매크로 credit checks fail (+43bp pair, '크게 벌어졌습니다', '3.5% 돌파')."
+  },
+  "r": {
+    "title": "Credit spread changes and credit states come from market-read",
+    "rule": "Every 20-session OAS change on screen is oasDelta20Bp (src/domain/briefing/market-read.js); every credit state is creditState with RULES.credit. No screen keeps its own credit thresholds.",
+    "validation": "node scripts/ci-data-audit-contract-check.mjs"
+  },
+  "qa": [
+    {
+      "id": "QA-DATA-HY20-ONE",
+      "text": "v59.70: after the next refresh, 시장 상태 credit axis, 매크로 신용 장 and 연결해서 보면 rates-credit quote the same 20-session HY bp, and the 매크로 chapter's label matches the credit axis",
+      "verify_by": "2026-11-06"
+    }
+  ],
+  "qa_section": "Wave 2 D: entity, portfolio and data follow-ups (v59.70)",
+  "changelog": [
+    "**하이일드 20거래일 변화 단일 출처와 매크로 신용 기준 단일화 (X 북마크 #3, {VERSION}, {P}/{R}):** 시장 상태·매크로·연결해서 보면이 같은 종가의 하이일드 20거래일 변화를 +32bp, +34bp로 따로 계산하던 것을 oasDelta20Bp 하나로 모았다. 매크로 신용 장은 자체 문턱(+40bp·4.5%·3.5% 돌파) 대신 RULES.credit와 creditState를 읽어, 시장 상태 신용 칸과 같은 판정을 말한다. 판정 밖 반도체 표시(홈 반도체 게이지, 지수 수준·차트, 하루 정리, 자산 간 관계, 반응 읽기, 성장 묶음 흐름)도 SMH에서 SOXX로 통일했다(소유자 '권장안대로'). smh 이력 열은 데이터로만 남는다."
+  ],
+  "note": "wave2-d: HY 20-session single source, 매크로 credit on RULES.credit, remaining SMH displays on SOXX"
+}

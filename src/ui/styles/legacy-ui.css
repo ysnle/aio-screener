@@ -57,8 +57,6 @@
 .page .lu-ld-btn { margin-top: 6px; padding: 4px 12px; font-size: var(--fs-xs); background: rgba(var(--ink-rgb),0.1); border: 0.5px solid rgba(var(--ink-rgb),0.3); color: var(--data-cyan); border-radius: 4px; cursor: pointer; }
 
 /* was an inline 12px in #page-technical — the `.page` 12px substring rule (0,2,0, !important) outranked `.aio-btn-table` → 14px */
-.page #kr-ticker-analysis-result .aio-btn-table.lu-kr-go { font-size: var(--fs-base) !important; }
-#kr-ticker-analysis-result .lu-kr-note { margin-top: 6px; }
 
 /* First-visit disclaimer bar — appended to <body>; shell-overlays.js reads its height. */
 #aio-first-visit-disclaimer { position: fixed; left: 0; right: 0; bottom: 0; z-index: 190; background: var(--bg-elevated,var(--gold-3)); border-top: 0.5px solid var(--border,var(--gold-6)); box-shadow:none; padding: 10px 14px; padding: 10px max(14px, env(safe-area-inset-right, 0px)) max(10px, env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font-size: 12px; line-height: 1.6; color: var(--text-secondary,var(--gold-11)); }

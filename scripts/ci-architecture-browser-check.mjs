@@ -1,5 +1,5 @@
 import { chromium } from 'playwright';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { ROUTE_IDS } from '../src/app/routes.js';
@@ -16,7 +16,7 @@ const NON_TIER_CHART_KINDS = new Set(['unavailable', 'live', 'derived']);
 const chartKindAllowed = (kind) => NON_TIER_CHART_KINDS.has(String(kind || '').trim().toLowerCase()) || isRecognizedSourceKind(kind);
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.AIO_ARCH_TEST_PORT || 8897);
+const port = (Number(process.env.AIO_ARCH_TEST_PORT) || await freePort());
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 
 const server = await startLocalServer(port, { label: 'architecture-browser/server' });
@@ -277,6 +277,9 @@ try {
   await page.evaluate(() => window.AIO_ARCH.navigate('macro'));
   await page.waitForFunction(() => document.getElementById('page-macro')?.dataset.aioArchitectureRoute === 'macro');
   // P1425: 거시 경제 is one native indicator board; the storyline, regime pill, curve canvas and 2Y/2s10s sinks are retired.
+  // v59.70 DOM1: a group's cards are built when it first opens, so the reader's tap on 물가 comes first.
+  await page.evaluate(() => { const fold = document.querySelector('#macro-board [data-group="inflation"] details.macro-group-fold'); if (fold) fold.open = true; });
+  await page.waitForFunction(() => !!document.querySelector('#macro-board [data-group="inflation"] .macro-stat'));
   const macroRoute = await page.evaluate(() => ({
     pageExists: !!document.getElementById('page-macro'),
     renderer: document.getElementById('page-macro')?.dataset.aioArchitectureRenderer || null,

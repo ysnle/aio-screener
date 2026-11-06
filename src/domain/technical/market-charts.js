@@ -10,7 +10,7 @@ import { readRowNumber } from '../../data/contracts/screener.js';
 import { sessionCloses, indexLevel } from '../market/index-levels.js';
 import { withTopicParticle } from '../content/korean-particle.js';
 
-export const CHART_INDEXES = Object.freeze([['ndx', '나스닥100'], ['spx', 'S&P 500'], ['smh', '반도체(SMH)'], ['rut', '러셀2000'], ['kospi', '코스피'], ['kosdaq', '코스닥']]);
+export const CHART_INDEXES = Object.freeze([['ndx', '나스닥100'], ['spx', 'S&P 500'], ['soxx', '반도체(SOXX)'], ['rut', '러셀2000'], ['kospi', '코스피'], ['kosdaq', '코스닥']]);
 export const TREND_WORDS = Object.freeze({ up: '상승 추세', pullback: '단기 조정', breakdown: '추세 이탈', rebound: '하락 속 반등', recovery: '회복 시도', down: '하락 추세', unknown: '판단 보류' });
 const SWING_SPAN = 5;
 

@@ -66,13 +66,15 @@ export const MACRO_HISTORY_SERIES = Object.freeze({
   // (model estimate, official FRED series). NY Fed ACM is published only as a spreadsheet, so the same
   // concept is taken from the official FRED path and named by its model on screen.
   termPremium10:  { id: 'THREEFYTP10',   frequency: 'daily',   limit: 280, unit: 'percent', label: '10년 기간 프리미엄 (Kim-Wright)' },
-  hyOas:          { id: 'BAMLH0A0HYM2',  frequency: 'daily',   limit: 280, unit: 'percent', label: '하이일드 스프레드' },
+  // v59.70 (X bookmarks #4): HY, IG and CCC keep everything FRED serves (ICE BofA series: the last three years, about 790
+  // observations) so 매크로's credit chapter can place today's level in its own long range (quantile bands, no fixed line).
+  hyOas:          { id: 'BAMLH0A0HYM2',  frequency: 'daily',   limit: 800, unit: 'percent', label: '하이일드 스프레드' },
   // P1586: investment-grade OAS — the junk-bond component is HY minus IG.
-  igOas:          { id: 'BAMLC0A0CM',    frequency: 'daily',   limit: 280, unit: 'percent', label: '투자등급 회사채 스프레드' },
+  igOas:          { id: 'BAMLC0A0CM',    frequency: 'daily',   limit: 800, unit: 'percent', label: '투자등급 회사채 스프레드' },
   // P1638: rating tiers — stress usually starts in the weakest borrowers (CCC) before the HY average moves.
   bbOas:          { id: 'BAMLH0A1HYBB',  frequency: 'daily',   limit: 280, unit: 'percent', label: 'BB 등급 스프레드' },
   bOas:           { id: 'BAMLH0A2HYB',   frequency: 'daily',   limit: 280, unit: 'percent', label: 'B 등급 스프레드' },
-  cccOas:         { id: 'BAMLH0A3HYC',   frequency: 'daily',   limit: 280, unit: 'percent', label: 'CCC 이하 스프레드' },
+  cccOas:         { id: 'BAMLH0A3HYC',   frequency: 'daily',   limit: 800, unit: 'percent', label: 'CCC 이하 스프레드' },
   // P1654 (owner 2026-10-12: fill free official data gaps): liquidity, growth and wider commodity/FX context from the
   // same operator FRED key. Raw observations only; readings are derived in src/domain/macro.
   fedBalanceSheet:{ id: 'WALCL',         frequency: 'weekly',  limit: 110, unit: 'usd-millions', label: '연준 총자산' },

@@ -2,7 +2,9 @@
 // Offline renderer contracts, not browser/user-experience certification.
 // v59.48: the native pages are mounted through their exported factories against scripts/lib/fake-dom.mjs, instead of
 // slicing function bodies out of src/ui/pages/*.js into a vm (a helper moving behind an import broke every slice).
+import { readThemesPageSource } from './lib/themes-page-source.mjs';
 import assert from 'node:assert/strict';
+import { readScreenerPageSource } from './lib/screener-page-source.mjs'; // v59.70 (S12): the page is split under src/ui/pages/screener/
 import { readFileSync, existsSync } from 'node:fs';
 import vm from 'node:vm';
 import { ROUTE_IDS } from '../src/app/routes.js';
@@ -71,7 +73,7 @@ for (const value of [null, '', undefined, false]) assert.equal(readNumber(value)
 assert(source.includes('renderMacro(documentRef, root, page)') && source.includes('renderMacroBoard({ documentRef, root })')); // P1425
 assert(!source.includes('renderMacroTransmissionLens')); // P1426: lens retired; macro-board.js renders through documentRef only
 assert(!/\bdocument\.createElement/.test(read('src/ui/components/macro-board.js')));
-const themes = read('src/ui/pages/themes.js');
+const themes = readThemesPageSource(); // v59.70: the page is split under src/ui/pages/themes/
 assert(!/비중 유지|진입 후보|익절 검토|회피/.test(themes)); // v58.76: the AI-infrastructure lens is retired
 assert(themes.includes('appendUnclassified()'));
 assert(read('src/ui/pages/principles.js').includes('principles-graph-node-list principles-sr-only'));
@@ -220,7 +222,7 @@ assert(!read('index.html').includes('id="ticker-m-mcap"') && !read('index.html')
 assert(!read('js/aio-core.js').includes('_tickerGapIds'), 'dead panel writer retired with its DOM');
 assert(!read('src/app/bootstrap.js').includes('screener:return-context'), 'write-only storage retired');
 
-const screenerSource = read('src/ui/pages/screener.js');
+const screenerSource = readScreenerPageSource();
 // The screener page mounted on the shell's ids, so its create-if-missing paths run as they do in the browser.
 const KRW_CAP = { value: 200000000000000, currency: 'KRW', source: 'fixture', observedAt: '2026-08-31' };
 const screenerStore = createStore({ initialState: { screener: { rows: [...rows,
@@ -252,8 +254,8 @@ const prunedCount = prunedNote ? String(prunedNote.textContent || '').split(':')
 assert(compareTable.children[1].children.length >= 1, 'comparison contains actual metric rows, not only ticker chips');
 assert.equal(compareTable.children[1].children.length + prunedCount, 8, 'every compared metric is either a row or named in the pruned note');
 assert(compareTable.textContent.includes('90') && compareTable.textContent.includes('60'));
-// The 위험 column view shows 시총; a KRW cap without a USD conversion keeps its basis note, a BLOCKED one shows nothing.
-pressAction('column-preset', 'risk');
+// The 저리스크 보기 shows 시총 (v59.70: 보기 sets the weights and the columns together); a KRW cap without a USD conversion keeps its basis note, a BLOCKED one shows nothing.
+pressAction('profile', 'lowrisk');
 const resultRows = screenerDoc.getElementById('screener-results-body').children;
 const rowFor = (symbol) => resultRows.find((tr) => tr.textContent.includes(symbol));
 const capColumn = rowFor('KRCAP').children.findIndex((td) => td.textContent.includes('KRW 200.0T'));

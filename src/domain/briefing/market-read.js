@@ -94,7 +94,7 @@ export function movingAverageStructure(stat) {
   };
 }
 
-const SERIES_FIELDS = ['spx', 'nasdaq', 'ndx', 'rut', 'smh', 'vix', 'vix3m', 'tnx', 'dxy', 'wti', 'gold', 'kospi', 'usdkrw', 'usdjpy', 'breadth50', 'breadth20', 'breadth200', 'advanceRatio',
+const SERIES_FIELDS = ['spx', 'nasdaq', 'ndx', 'rut', 'vix', 'vix3m', 'tnx', 'dxy', 'wti', 'gold', 'kospi', 'usdkrw', 'usdjpy', 'breadth50', 'breadth20', 'breadth200', 'advanceRatio',
   // P1416: leadership and index-confirmation evidence (src/domain/market/breadth-signals.js).
   'breadth40', 'breadthNewHighs', 'breadthNewLows', 'breadthUp4', 'breadthDown4', 'distributionDays',
   // v59.70 (owner 11/4): SOXX, the leadership proxy, and the equal-weight S&P 500 of the AI·반도체 집중 row.
@@ -116,15 +116,21 @@ export function krSessionThrough(now = Date.now()) {
 }
 // T05 (expert review 2026-10-13): the credit axis read only the level and the 5-day change, so +44bp in 20 sessions to the
 // top of the one-year range still read '양호·안정'. The 20-session change comes from the published daily HY OAS series.
-export function hyDelta20Bp(macroHistory, through = null) {
+// v59.70 (screen review 11/4: 시장 상태 신용 '20일 +34bp' beside 연결해서 보면 '+32bp'): every screen's 20-session spread change
+// is this one reading — the FRED observations on US close sessions, 20 of them back — so 매크로 and the paired readings
+// quote the same number as the credit axis. `id` is any OAS series (hyOas, igOas, cccOas).
+export function oasDelta20Bp(macroHistory, id = 'hyOas', through = null) {
   const byDate = new Map();
-  for (const row of macroHistory?.series?.hyOas?.observations || []) {
+  for (const row of macroHistory?.series?.[id]?.observations || []) {
     const date = String(Array.isArray(row) ? row[0] : row?.date || '').slice(0, 10);
     const value = finite(Array.isArray(row) ? row[1] : row?.value);
     if (value != null && isIsoDay(date) && (!through || date <= through) && isCloseSessionDate(date, 'US')) byDate.set(date, value);
   }
   const stat = stats([...byDate.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([date, value]) => ({ date, value })));
-  return stat?.d20 != null ? { value: (stat.value - stat.d20) * 100, date: stat.date, from: stat.d20Date } : null;
+  return stat?.d20 != null ? { value: (stat.value - stat.d20) * 100, date: stat.date, from: stat.d20Date, level: stat.value, d5: stat.d5 == null ? null : (stat.value - stat.d5) * 100 } : null;
+}
+export function hyDelta20Bp(macroHistory, through = null) {
+  return oasDelta20Bp(macroHistory, 'hyOas', through);
 }
 // v57.81: hysteresis over dated points — on from the first point where enter() holds, off again only where exit() holds.
 export function latchedState(points = [], enter, exit) {
@@ -1417,15 +1423,16 @@ export function buildMarketRegime(input = {}) {
       const value = finite(Array.isArray(row) ? row[1] : row?.value);
       if (value != null && (!basis || date <= basis)) hySeries.push({ date, value: value * 100 });
     }
+    // v59.70 (screen review 5): a threshold's short label opens with 기준 so 346bp beside the measured 343bp reads as the line, not a second reading.
     const creditDistance = state === 'unknown' ? null : flipDistanceSearch({
       state, stateAt: (values) => creditAt(values.hy),
       levers: [{ key: 'hy', current: hyBp, typical: typicalDailyMove(hySeries.sort((a, b) => a.date.localeCompare(b.date))), points: [
         hyPoint(C.stressAtBp, `${C.stressAtBp}bp`, `${C.stressAtBp}bp`),
         hyPoint(C.tightBelowBp, `${C.tightBelowBp}bp`, `${C.tightBelowBp}bp`),
-        ...(base5 != null ? [hyPoint(base5 + C.widen5dBp, `${fmt(base5 + C.widen5dBp, 0)}bp(5거래일 +${C.widen5dBp}bp)`, `5일 +${C.widen5dBp}bp, ${fmt(base5 + C.widen5dBp, 0)}bp`),
-          hyPoint(base5 + C.calm5dBp, `${fmt(base5 + C.calm5dBp, 0)}bp(5거래일 +${C.calm5dBp}bp)`, `5일 +${C.calm5dBp}bp, ${fmt(base5 + C.calm5dBp, 0)}bp`)] : []),
-        ...(base20 != null ? [hyPoint(base20 + C.widen20dBp, `${fmt(base20 + C.widen20dBp, 0)}bp(20거래일 +${C.widen20dBp}bp)`, `20일 +${C.widen20dBp}bp, ${fmt(base20 + C.widen20dBp, 0)}bp`),
-          hyPoint(base20 + enter20, `${fmt(base20 + enter20, 0)}bp(20거래일 +${fmt(enter20, 0)}bp${c.hy20Record ? ', 자체 기록 상위 ' + (100 - C.stress20dPct) + '%' : ''})`, `20일 +${fmt(enter20, 0)}bp, ${fmt(base20 + enter20, 0)}bp`)] : [])
+        ...(base5 != null ? [hyPoint(base5 + C.widen5dBp, `${fmt(base5 + C.widen5dBp, 0)}bp(5거래일 +${C.widen5dBp}bp)`, `기준 ${fmt(base5 + C.widen5dBp, 0)}bp(5일 +${C.widen5dBp}bp)`),
+          hyPoint(base5 + C.calm5dBp, `${fmt(base5 + C.calm5dBp, 0)}bp(5거래일 +${C.calm5dBp}bp)`, `기준 ${fmt(base5 + C.calm5dBp, 0)}bp(5일 +${C.calm5dBp}bp)`)] : []),
+        ...(base20 != null ? [hyPoint(base20 + C.widen20dBp, `${fmt(base20 + C.widen20dBp, 0)}bp(20거래일 +${C.widen20dBp}bp)`, `기준 ${fmt(base20 + C.widen20dBp, 0)}bp(20일 +${C.widen20dBp}bp)`),
+          hyPoint(base20 + enter20, `${fmt(base20 + enter20, 0)}bp(20거래일 +${fmt(enter20, 0)}bp${c.hy20Record ? ', 자체 기록 상위 ' + (100 - C.stress20dPct) + '%' : ''})`, `기준 ${fmt(base20 + enter20, 0)}bp(20일 +${fmt(enter20, 0)}bp)`)] : [])
       ] }]
     });
     const rec = c.hy20Record;
@@ -1757,6 +1764,8 @@ function leadershipAxis({ s, basis, leadership, axis, alignments, history }) {
   }
   row.watch = true;
   row.weight = 'leadership-cap';
+  // v59.70 (screen review 10): no SOXX close yet (the column is new to the producer) — the row is not drawn until it has one.
+  row.observed = !!semis;
   // The level beside the 5-session change column (the row's change5), so the two cells do not repeat one number.
   row.faceValue = semis?.ma50 ? `${ticker} 50일선 대비 ${signed(pct(semis.value, semis.ma50))}` : null;
   row.change5 = semis5 == null ? null : signed(semis5);

@@ -21,6 +21,7 @@ import { shortDate } from '../../domain/content/date-labels.js';
 import { signedText } from '../../domain/shared/number.js';
 import { withDirectionParticle } from '../../domain/content/korean-particle.js';
 import { historyWaitText } from './data-state.js';
+import { koreaPolicyCard } from '../../domain/market/korea-policy.js';
 
 // Live review 2026-10-14 (owner reading standard: 3–5 lines, ~130–230자 per block): a longer reading keeps its first
 // sentences on the face (up to ~200자, cut at a sentence end) and folds the rest under '이어서 읽기'.
@@ -346,6 +347,12 @@ function axisRow(doc, root, row, { history, scenarios, previous, inputs, asOf, o
   const chart = chartPanel(doc, history.axes[row.id] || [], history.range);
   if (chart) detail.append(chart);
   const facts = el(doc, 'div', null, 'mk-axis__facts');
+  // v59.70 (X bookmarks #1): Nasdaq 7% corrections since 1986 and how many became bear markets — context, not an input.
+  if (row.id === 'trend') {
+    const slot = el(doc, 'div', null, 'mk-correction-slot');
+    facts.append(slot);
+    (correctionBaseRate ||= import('./correction-base-rate.js')).then(({ renderCorrectionBaseRate }) => renderCorrectionBaseRate({ documentRef: doc, root, host: slot, onLoad: () => renderRegimePage({ documentRef: doc, root }) })).catch(() => { correctionBaseRate = null; });
+  }
   if (row.evidence.length) { const list = el(doc, 'dl', null, 'regime-evidence'); for (const [label, value] of row.evidence) list.append(el(doc, 'dt', label), el(doc, 'dd', value)); facts.append(list); }
   if (row.flip) {
     const changes = el(doc, 'div', null, 'regime-axis-observe');
@@ -499,7 +506,10 @@ function crossMap(doc, row) {
   node('text', { x: L, y: T - 6, class: 'mk-cross__axis is-y' }, `↑ ${yAxis[1]}`);
   node('text', { x: R, y: H - 4, 'text-anchor': 'end', class: 'mk-cross__axis' }, `${xAxis[1]} →`);
   node('text', { x: L, y: H - 4, class: 'mk-cross__axis' }, `← ${xAxis[0]}`);
-  node('circle', { cx: L + x * (R - L), cy: B - y * (B - T), r: 6, class: 'mk-cross__dot' });
+  // v59.70 (screen review 22): the cell names sit in the outer band of each cell; the dot keeps out of it (it stays in
+  // its own cell — only the outer 22 units are cut), so '성장 걱정' is not printed under the marker on a phone.
+  const clamp = (value, low, high) => Math.min(high, Math.max(low, value));
+  node('circle', { cx: clamp(L + x * (R - L), L + 8, R - 8), cy: clamp(B - y * (B - T), T + 22, B - 22), r: 6, class: 'mk-cross__dot' });
   return svg;
 }
 
@@ -582,7 +592,7 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
       watchBoard.id = 'regime-board-watch';
       board.insertAdjacentElement('afterend', watchBoard);
     }
-    const watchAxes = regime.watchAxes || [];
+    const watchAxes = (regime.watchAxes || []).filter((row) => row.observed !== false);
     watchBoard.replaceChildren(...watchAxes.map((row) => axisRow(doc, root, row, { history, scenarios, previous, inputs, asOf: regime.asOf, open: row.id === openId })));
     watchBoard.hidden = !watchAxes.length;
     // v59.51 (content audit): the distribution-day strip (a lazy chunk, v58.75) is trend evidence, so it opens with the
@@ -626,6 +636,14 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
         }
         return section;
       });
+      // v59.70 (D5): the 한국 기준금리·물가·수출 facts from the retired 매크로 fold join the board as one card.
+      const policy = koreaPolicyCard(root.DATA_SNAPSHOT);
+      if (policy && cards.length) {
+        const section = el(doc, 'section', null, 'regime-axis'); section.dataset.axis = 'kr-policy'; section.dataset.market = 'KR';
+        section.append(el(doc, 'h3', policy.title, 'regime-axis-title'), el(doc, 'p', policy.caption, 'regime-chart-caption'), el(doc, 'p', policy.value, 'regime-korea-value'));
+        for (const line of policy.lines) section.append(el(doc, 'p', line, 'regime-read'));
+        cards.push(section);
+      }
       boardKr.replaceChildren(...cards);
       boardKr.hidden = !cards.length;
       const krSection = boardKr.closest?.('section.mk-korea');
@@ -654,10 +672,26 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
   if (depthAnchor) {
     // v59.68 (owner IA 2026-11-03: 시장 상태 owns the scenarios): the full map by release (with the rate hub) moved here
     // from 매크로, in place of the compact copy; 매크로 keeps the current state of each asset.
-    let host = doc.getElementById('macro-crossroads');
-    if (!host) { host = el(doc, 'div', null, 'xr-section'); host.id = 'macro-crossroads'; depthAnchor.insertAdjacentElement('afterend', host); }
-    renderMacroCrossroads({ documentRef: doc, root, regime, host });
-    renderHomeGuide({ documentRef: doc, root, store, anchor: host });
+    const paintDepth = () => {
+      let host = doc.getElementById('macro-crossroads');
+      if (!host) { host = el(doc, 'div', null, 'xr-section'); host.id = 'macro-crossroads'; depthAnchor.insertAdjacentElement('afterend', host); }
+      renderMacroCrossroads({ documentRef: doc, root, regime, host });
+      renderHomeGuide({ documentRef: doc, root, store, anchor: host });
+    };
+    // v59.70 DOM1: the closed fold (about 1,200 nodes) is painted when it opens, from the latest render.
+    const depthFold = depthAnchor.closest('details');
+    if (!depthFold || depthFold.open) paintDepth();
+    else {
+      depthFold.__aioPaintDepth = paintDepth;
+      if (!depthFold.__aioDepthLazy) {
+        depthFold.__aioDepthLazy = true;
+        depthFold.addEventListener('toggle', () => {
+          const paint = depthFold.open ? depthFold.__aioPaintDepth : null;
+          depthFold.__aioPaintDepth = null;
+          paint?.();
+        });
+      }
+    }
   }
   renderNextSteps(doc, doc.getElementById('regime-next'), regimeFlow({ regime, groups: root.__aioScenarioOutlook?.rotation || {} }).next); // P1431, I02
   // P1727: a link that asked for a section of this page (the briefing's Korea sentence -> 한국 시장) shows it once.
@@ -772,6 +806,7 @@ function paintKoreaLine(doc, root) {
   line.hidden = false;
 }
 
+let correctionBaseRate = null; // v59.70: the correction base rate loads with the opened trend row, outside the boot set
 let sessionLean = null;
 
 // v59.51 (first-users run-6 #10): one way from 오늘 to an axis on 시장 상태. The axis is asked for before the route renders

@@ -22,7 +22,8 @@
 // shape change makes the pinned files unreadable to the current code, re-pin deliberately with --pin <commit> <iso>.
 import { spawnSync } from 'node:child_process';
 import { chromium } from 'playwright';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
+import { addressThemeDetail } from './lib/theme-detail-address.mjs';
 import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -30,7 +31,7 @@ import { ROUTE_IDS } from '../src/app/routes.js';
 import { SECONDARY_TEXT_PATTERN, READING_MAX, ASOF_MAX, FRAME_CONTRACTS } from '../src/ui/components/section-frame.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.CI_TEXT_BUDGET_PORT || 8954);
+const port = (Number(process.env.CI_TEXT_BUDGET_PORT) || await freePort());
 const base = `http://127.0.0.1:${port}`;
 const out = resolve(root, '_artifacts', 'secondary-text-budget');
 const BUDGET = resolve(root, 'architecture/secondary-text-budget.json');
@@ -153,6 +154,7 @@ if (isMain) {
     await page.waitForTimeout(1500);
     const args = { pattern: SECONDARY_TEXT_PATTERN, readingMax: READING_MAX, asofMax: ASOF_MAX, contracts: FRAME_CONTRACTS };
     for (const route of ROUTE_IDS) {
+      if (route === 'theme-detail') await addressThemeDetail(page); // measured on a real detail, not the list (fix-r1-theme)
       await page.evaluate((id) => window.showPage(id, null), route);
       await page.waitForTimeout(900);
       await settle();

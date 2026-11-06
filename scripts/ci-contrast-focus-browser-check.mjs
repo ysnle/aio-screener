@@ -12,11 +12,11 @@ import { chromium } from 'playwright';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, freePort, startLocalServer } from './lib/browser-gate.mjs';
 import { ROUTE_IDS } from '../src/app/routes.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.CI_CONTRAST_PORT || 8911);
+const port = (Number(process.env.CI_CONTRAST_PORT) || await freePort());
 const arg = (name) => { const at = process.argv.indexOf(`--${name}`); return at > 0 ? process.argv[at + 1] : null; };
 const routes = (arg('routes') || ROUTE_IDS.join(',')).split(',').filter(Boolean);
 const schemes = (arg('schemes') || 'light,dark').split(',');

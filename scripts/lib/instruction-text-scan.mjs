@@ -33,3 +33,18 @@ export function instructionIssues(source) {
   }
   return issues;
 }
+
+// v59.70 (PLAN S13/S15, owner 'no textbook tone'): a title, label or sentence that teaches how to read the screen ('읽는 법',
+// '보는 법', '먼저 … 보세요/확인하세요') instead of stating the number. Read from string literals only, like the directives.
+const HOW_TO_READ = /읽는\s?법|보는\s?법|먼저\s.*(?:보|확인)하세요/;
+export function howToReadIssues(source) {
+  // Comments quote retired wording ("the old '읽는 법' line"); only code literals count.
+  const text = String(source).replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|\s)\/\/\s.*$/gm, '$1').replace(REGEX_LITERAL, '""');
+  const issues = [];
+  for (const match of text.matchAll(STRING)) {
+    const literal = match[0];
+    if (/[가-힣]/.test(literal) && HOW_TO_READ.test(literal)) issues.push({ kind: 'howToRead', text: literal.slice(1, 90) });
+  }
+  return issues;
+}
+

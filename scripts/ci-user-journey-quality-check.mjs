@@ -1,12 +1,12 @@
 import { chromium } from 'playwright';
 import { writeFileSync, mkdirSync } from 'node:fs';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { ROUTE_IDS } from '../src/app/routes.js';
 // v59.59 (QA-CRED-32): the run writes to its own ignored folder; _artifacts/structural-quality-20260906 stays the frozen
 // 2026-09-06 evidence it is named for (every local run used to overwrite two tracked files there).
 const OUT_DIR = '_artifacts/user-journey';
 mkdirSync(OUT_DIR, { recursive: true });
-const PORT = Number(process.env.CI_USER_JOURNEY_PORT || 8921);
+const PORT = (Number(process.env.CI_USER_JOURNEY_PORT) || await freePort());
 const BASE_URL = 'http://127.0.0.1:' + PORT + '/';
 const server = await startLocalServer(PORT, { label: 'user-journey/server' }); // v57.62 shared lifecycle
 const browser = await chromium.launch().catch(async (error) => { await closeAll({ server }); throw error; });

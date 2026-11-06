@@ -1,3 +1,4 @@
+import { readScreenerPageSource } from './lib/screener-page-source.mjs'; // v59.70 (S12): the page is split under src/ui/pages/screener/
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -286,7 +287,7 @@ const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa
 const data = read('js/aio-data.js') + '\n' + read('src/data/server-data-loader.js') + '\n' + read('src/data/public-readiness.js') + '\n' + read('src/domain/news/selection.js') + '\n' + read('src/app/news-selection-entry-points.js') /* v59.42: news scoring and selection moved to src */; // v59.34/v59.35: the server data loader and the public readiness model moved to src
 const chat = read('js/aio-chat.js');
 const tests = read('js/aio-tests.js');
-const screenerPage = read('src/ui/pages/screener.js');
+const screenerPage = readScreenerPageSource();
 const screenerProvider = read('src/data/providers/screener.js');
 const newsPage = read('src/ui/pages/news.js');
 const marketPage = read('src/ui/pages/market.js');
@@ -2188,7 +2189,7 @@ const producerSource = readProducerSource();
 for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionDateByMarket', 'factorBarStartByMarket', "factorTimeBasis: 'bar-start'", 'factorScopesByMarket', 'factorComputedAt']) {
   check(`P1170 D04 the factor producer publishes ${token}`, producerSource.includes(token));
 }
-const screenerPageSource = read('src/ui/pages/screener.js');
+const screenerPageSource = readScreenerPageSource();
 check('P1170 D04 the screener reads the session date instead of presenting the bar start as an observation',
   screenerPageSource.includes('factorSessionDate') && /관측시각 아님|관측시각이 아닙니다/.test(screenerPageSource));
 
@@ -2427,9 +2428,11 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       && score('Gold Price Prediction for Tomorrow: 3 Cues and Key Levels', 'Univest').selectionReason === 'not-article-filter');
   check('v58.24 the two narrative feeds exist and each has a slot floor',
     ['Google News - AI narrative/Memory', 'Google News - Positioning/Sovereign/Politics'].every((name) => ns.NEWS_FEEDS.some((feed) => feed.source === name) && ns.NEWS_FEED_FLOORS.some(([key, floor]) => key === name && floor >= 2)));
-  // v59.63: the market-day ledger is rebuilt every refresh after the scenario state, without network, and committed.
+  // v59.63: the market-day ledger is rebuilt every refresh after the scenario state, and committed. v59.70 (owner D6): its
+  // one network step is headline translation through requestWorkersAiTranslation (the automation token in its env); no
+  // direct fetch.
   check('v59.63 refresh-data builds market-day.json after scenario-state and stages it',
-    /id: market-day[\s\S]{0,200}run: node scripts\/build-market-day\.mjs/.test(refresh) && refresh.indexOf('build-scenario-state.mjs') < refresh.indexOf('build-market-day.mjs')
+    /id: market-day[\s\S]{0,700}AIO_AUTOMATION_TOKEN[\s\S]{0,120}run: node scripts\/build-market-day\.mjs/.test(refresh) && refresh.indexOf('build-scenario-state.mjs') < refresh.indexOf('build-market-day.mjs')
       && refresh.includes('stage_if_exists public-data/market-day.json') && !/fetch\(|https?:\/\//.test(readFileSync(new URL('./build-market-day.mjs', import.meta.url), 'utf8')));
   check('v59.62 the deal and election-sector feeds exist with a seat, and a deal headline scores as a corporate action',
     ['Google News - Deals/M&A', 'Google News - Election sectors'].every((name) => ns.NEWS_FEEDS.some((feed) => feed.source === name) && ns.NEWS_FEED_FLOORS.some(([key, floor]) => key === name && floor >= 1))

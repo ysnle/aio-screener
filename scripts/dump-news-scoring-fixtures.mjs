@@ -3,6 +3,7 @@ import { spawn } from 'node:child_process';
 import { writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import { freePort } from './lib/browser-gate.mjs';
 
 // RM-03 (continued): dumps (scenario items, legacy computeNewsSentimentScore/computeNewsRiskSignals
 // output) pairs by driving the REAL, unmodified js/aio-data.js functions inside a real Chromium
@@ -12,7 +13,7 @@ import { dirname, resolve } from 'node:path';
 // state any time the legacy wrapper changes in a way that should not change scoring behavior.
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.AIO_ARCH_TEST_PORT || 8899);
+const port = (Number(process.env.AIO_ARCH_TEST_PORT) || await freePort());
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 const OUT_PATH = resolve(root, 'architecture/fixtures/news-scoring-golden.json');
 const FIXED_NOW = Date.parse('2026-07-20T03:00:00.000Z'); // KST 12:00 -- inside the 07-20 08:00-KST-anchored cycle

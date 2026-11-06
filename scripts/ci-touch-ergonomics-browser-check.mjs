@@ -13,11 +13,11 @@ import { mkdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { ROUTE_IDS } from '../src/app/routes.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.CI_TOUCH_ERGONOMICS_PORT || 8941);
+const port = (Number(process.env.CI_TOUCH_ERGONOMICS_PORT) || await freePort());
 const base = `http://127.0.0.1:${port}`;
 const out = resolve(root, '_artifacts', 'touch-ergonomics');
 const DEVICES = [

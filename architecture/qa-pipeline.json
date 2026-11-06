@@ -293,6 +293,61 @@
           ]
         },
         {
+          "id": "portfolio-native-chart",
+          "script": "scripts/ci-portfolio-native-chart-check.mjs",
+          "inputs": [
+            "index.html",
+            "js/aio-ui.js",
+            "architecture/route-owners.json",
+            "src/ui/pages/portfolio.js",
+            "src/ui/components/portfolio-*.js",
+            "src/domain/portfolio/**",
+            "scripts/ci-portfolio-native-chart-check.mjs"
+          ]
+        },
+        {
+          "id": "section-visual-contract",
+          "script": "scripts/ci-section-visual-contract.mjs",
+          "inputs": [
+            "index.html",
+            "src/ui/pages/entity.js",
+            "src/ui/components/fiscal-read.js",
+            "src/ui/components/stock-lens-cards.js",
+            "src/ui/components/company-story.js",
+            "src/ui/components/fundamental-analysis-*.js",
+            "src/domain/entity/**",
+            "src/domain/fundamental/**",
+            "src/domain/briefing/day-account.js",
+            "scripts/lib/fake-dom.mjs",
+            "scripts/ci-section-visual-contract.mjs"
+          ]
+        },
+        {
+          "id": "metric-consistency",
+          "script": "scripts/ci-metric-consistency-check.mjs",
+          "inputs": [
+            "src/domain/**",
+            "src/ui/components/home-day.js",
+            "public-data/history.json",
+            "public-data/macro-history.json",
+            "scripts/ci-metric-consistency-check.mjs"
+          ]
+        },
+        {
+          "id": "headline-translation",
+          "script": "scripts/ci-headline-translation-check.mjs",
+          "inputs": [
+            "scripts/build-market-day.mjs",
+            "scripts/fetch-data.mjs",
+            "scripts/producer/market-narrative.mjs",
+            "src/domain/briefing/day-account.js",
+            "public-data/data.json",
+            "public-data/market-day.json",
+            "public-data/event-briefs.json",
+            "scripts/ci-headline-translation-check.mjs"
+          ]
+        },
+        {
           "id": "native-decision",
           "script": "scripts/ci-native-decision-evidence-check.mjs",
           "inputs": [
@@ -695,6 +750,16 @@
           "script": "scripts/ci-structural-check.mjs"
         },
         {
+          "id": "qa-surface-boundary",
+          "script": "scripts/ci-qa-surface-boundary-check.mjs",
+          "remedy": "v59.70 P2: an audit only QA entry points call goes in js/aio-qa-audits.js (loaded by AIO.loadQaAudits()); the allowlist only shrinks"
+        },
+        {
+          "id": "browser-translation-retired",
+          "script": "scripts/ci-browser-translation-retired-check.mjs",
+          "remedy": "v59.70 D6: headlines are translated by the producer (titleKo / titleKoFailed); do not bring a browser translation path back"
+        },
+        {
           "id": "default-ux",
           "script": "scripts/ci-ux-default-path-check.mjs"
         },
@@ -957,7 +1022,15 @@
             "scripts/fetch-kr-investor-flows.mjs",
             ".github/workflows/pages-deploy.yml",
             "index.html",
-            "sw.js"
+            "sw.js",
+            "scripts/build-scenario-outcomes.mjs",
+            "src/domain/briefing/**",
+            "src/domain/macro/**",
+            "src/domain/market/**",
+            "src/domain/market-day/**",
+            "src/domain/scenarios/correction-base-rates.js",
+            "src/domain/technical/market-charts.js",
+            "src/ui/**"
           ]
         },
         {
@@ -1388,7 +1461,8 @@
             "version.json",
             "index.html",
             ".github/workflows/refresh-data.yml",
-            "src/ui/pages/masters.js"
+            "src/ui/pages/masters.js",
+            "src/ui/pages/masters-views.js"
           ]
         },
         {
@@ -1439,7 +1513,9 @@
         "src/ui/pages/principles.js",
         "src/ui/pages/atlas.js",
         "src/ui/pages/masters.js",
+        "src/ui/pages/masters-views.js",
         "src/ui/knowledge/**",
+        "content/research/**",
         "scripts/**",
         ".github/workflows/knowledge-build-candidate.yml",
         "_context/**"
@@ -1449,6 +1525,39 @@
           "id": "knowledge-generated-parity",
           "script": "scripts/ci-knowledge-generated-parity-check.mjs",
           "timeoutMs": 180000
+        },
+        {
+          "id": "research-content-source",
+          "script": "scripts/ci-research-content-source.mjs",
+          "inputs": [
+            "content/research/**",
+            "public-data/knowledge/search-index.json",
+            "public-data/principles/**",
+            "public-data/atlas/**",
+            "src/ui/pages/principles.js",
+            "src/ui/pages/atlas.js",
+            "src/ui/knowledge/knowledge-search.js",
+            "src/domain/knowledge/**",
+            "scripts/lib/research-content.mjs",
+            "scripts/lib/research-content-fingerprint.mjs",
+            "scripts/build-research-content.mjs",
+            "scripts/ci-research-content-source.mjs",
+            "architecture/research-content-baseline.json"
+          ]
+        },
+        {
+          "id": "research-heading-wording",
+          "script": "scripts/ci-research-heading-wording.mjs",
+          "inputs": [
+            "content/research/**",
+            "public-data/atlas/source-packets.json",
+            "src/domain/knowledge/**",
+            "src/domain/research/**",
+            "src/ui/knowledge/**",
+            "scripts/lib/fake-dom.mjs",
+            "scripts/lib/research-content.mjs",
+            "scripts/ci-research-heading-wording.mjs"
+          ]
         },
         {
           "id": "knowledge-corpus",
@@ -1462,7 +1571,9 @@
             "src/ui/pages/principles.js",
             "src/ui/pages/atlas.js",
             "src/ui/pages/masters.js",
+            "src/ui/pages/masters-views.js",
             "src/ui/knowledge/**",
+            "content/research/**",
             "scripts/**",
             ".github/workflows/knowledge-build-candidate.yml",
             "_context/**",
@@ -1487,7 +1598,9 @@
             "src/ui/pages/principles.js",
             "src/ui/pages/atlas.js",
             "src/ui/pages/masters.js",
+            "src/ui/pages/masters-views.js",
             "src/ui/knowledge/**",
+            "content/research/**",
             "scripts/**",
             ".github/workflows/knowledge-build-candidate.yml",
             "_context/**",
@@ -1516,7 +1629,9 @@
             "src/ui/pages/principles.js",
             "src/ui/pages/atlas.js",
             "src/ui/pages/masters.js",
+            "src/ui/pages/masters-views.js",
             "src/ui/knowledge/**",
+            "content/research/**",
             "scripts/**",
             ".github/workflows/knowledge-build-candidate.yml",
             "_context/**",
@@ -1543,7 +1658,9 @@
             "src/ui/pages/principles.js",
             "src/ui/pages/atlas.js",
             "src/ui/pages/masters.js",
+            "src/ui/pages/masters-views.js",
             "src/ui/knowledge/**",
+            "content/research/**",
             "scripts/**",
             ".github/workflows/knowledge-build-candidate.yml",
             "_context/**",
@@ -1670,6 +1787,24 @@
           "inputs": [
             "scripts/ci-*.mjs",
             "_context/text-pin-baseline.json"
+          ]
+        },
+        {
+          "id": "browser-data-fixture",
+          "script": "scripts/ci-browser-data-fixture-check.mjs",
+          "inputs": [
+            "public-data/**",
+            "architecture/browser-data-fixture.json",
+            "scripts/browser-data-fixture.mjs",
+            "scripts/ci-browser-data-fixture-check.mjs",
+            "scripts/lib/schema-fingerprint.mjs",
+            "scripts/lib/pages-bundle-config.mjs",
+            "scripts/lib/cli-args.mjs",
+            "scripts/start-local-node.mjs",
+            ".github/workflows/ci.yml",
+            ".github/workflows/watchdog-browser.yml",
+            ".github/workflows/operations-alert.yml",
+            ".github/actions/setup-browser-gates/action.yml"
           ]
         },
         {
@@ -1928,6 +2063,21 @@
           "timeoutMs": 180000
         },
         {
+          "id": "browser-screener-controls",
+          "script": "scripts/ci-screener-controls-contract.mjs",
+          "timeoutMs": 180000
+        },
+        {
+          "id": "browser-theme-screener-review",
+          "script": "scripts/ci-theme-screener-review-check.mjs",
+          "timeoutMs": 240000
+        },
+        {
+          "id": "browser-screener-ai-conditions",
+          "script": "scripts/ci-screener-ai-conditions-browser-check.mjs",
+          "timeoutMs": 180000
+        },
+        {
           "id": "browser-boot",
           "script": "scripts/ci-boot-interaction-check.mjs",
           "timeoutMs": 120000,
@@ -2170,6 +2320,12 @@
           "timeoutMs": 180000
         },
         {
+          "id": "browser-legacy-writers",
+          "script": "scripts/ci-legacy-writer-probe.mjs",
+          "timeoutMs": 300000,
+          "remedy": "v59.70 L0: a new js/aio-*.js writer on a route belongs in src/; after moving writers out, node scripts/ci-legacy-writer-probe.mjs --write tightens the allowlist"
+        },
+        {
           "id": "browser-a11y",
           "script": "scripts/ci-accessibility-matrix-check.mjs",
           "timeoutMs": 300000
@@ -2383,6 +2539,41 @@
   "impactRules": [
     {
       "patterns": [
+        "public-data/**",
+        "architecture/browser-data-fixture.json",
+        "scripts/browser-data-fixture.mjs",
+        "scripts/lib/schema-fingerprint.mjs",
+        "scripts/lib/pages-bundle-config.mjs",
+        "scripts/lib/cli-args.mjs",
+        "scripts/start-local-node.mjs",
+        ".github/workflows/ci.yml",
+        ".github/workflows/watchdog-browser.yml",
+        ".github/workflows/operations-alert.yml",
+        ".github/actions/setup-browser-gates/action.yml"
+      ],
+      "groups": [],
+      "gates": [
+        "browser-data-fixture"
+        ]
+      },
+      {
+        "patterns": [
+        "content/research/**",
+        "architecture/research-content-baseline.json",
+        "scripts/lib/research-content.mjs",
+        "scripts/lib/research-content-fingerprint.mjs",
+        "scripts/build-research-content.mjs",
+        "scripts/ci-research-content-source.mjs",
+        "scripts/ci-research-heading-wording.mjs",
+        "scripts/lib/fake-dom.mjs",
+        "public-data/atlas/source-packets.json"
+      ],
+      "groups": [
+        "knowledge"
+      ]
+    },
+    {
+      "patterns": [
         "index.html",
         "js/aio-ui.js",
         "js/aio-core.js",
@@ -2589,7 +2780,9 @@
         "src/ui/pages/principles.js",
         "src/ui/pages/atlas.js",
         "src/ui/pages/masters.js",
-        "src/ui/knowledge/**"
+        "src/ui/pages/masters-views.js",
+        "src/ui/knowledge/**",
+        "content/research/**"
       ],
       "groups": [
         "knowledge",
@@ -2730,7 +2923,8 @@
     },
     {
       "patterns": [
-        "src/ui/pages/masters.js"
+        "src/ui/pages/masters.js",
+        "src/ui/pages/masters-views.js"
       ],
       "groups": [
         "data"
@@ -2895,6 +3089,7 @@
         "scripts/lib/official-calendars.mjs",
         "scripts/lib/market-interpretation-inputs.mjs",
         "scripts/build-validation-gates.mjs",
+        "scripts/build-scenario-outcomes.mjs",
         "js/aio-pages.js",
         "architecture/validation-gate-criteria.json"
       ],
@@ -2912,6 +3107,9 @@
         "scripts/lib/13f-semantic-hash.mjs",
         "scripts/build-13f-issuer-aggregates.mjs",
         "scripts/lib/principles-stories*.mjs",
+        "scripts/lib/research-content.mjs",
+        "scripts/build-research-content.mjs",
+        "content/research/**",
         "scripts/lib/principles-worked*.mjs",
         "scripts/lib/knowledge-authoring-contract.mjs",
         "src/app/knowledge-learning-state.js",

@@ -1,3 +1,4 @@
+import { readScreenerPageSource } from './lib/screener-page-source.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {
@@ -9,7 +10,7 @@ import {
 } from '../src/domain/screener/conditional-evidence.js';
 import { classifyEvidenceLineage, EVIDENCE_LINEAGE_VERSION, normalizeEvidenceLineage } from '../src/domain/screener/evidence-lineage.js';
 
-const screenerUi = fs.readFileSync(new URL('../src/ui/pages/screener.js', import.meta.url), 'utf8');
+const screenerUi = readScreenerPageSource(); // v59.70 (S12): the page is split under src/ui/pages/screener/
 const screenerShell = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 
 const now = '2026-09-12T00:00:00.000Z';

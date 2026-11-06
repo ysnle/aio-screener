@@ -1,0 +1,16 @@
+{
+  "title": "AI panel script, reference corpus and orchestrator load when a user reaches an AI control",
+  "changelog": [
+    "**AI loads on hover or focus (v59.70, owner D1 '권장안대로'):** js/aio-chat.js, the AI reference corpus, chat-globals, the 맞춤 profile, the chip fold, the answer orchestrator and the knowledge retriever no longer load after every boot; they start when a pointer or the keyboard reaches an AI control, and a tap still loads them through the queued entry points. On the deployed bundle the signal route's first 6.5 s fetch 3.04 MB of same-origin JS instead of 3.92 MB, and the boot module set drops 1,610 → 1,563 KB raw (ceiling back to 1,572,000 / 585,000, under the pre-integration 1,606,000 / 594,000).",
+    "**AI button first click (v59.70):** while the panel script loads the AI button shows the shared busy spinner; a second click in that time is the same request (it used to open and close the panel); a failed load, or one still pending after 20 s, shows one line 'AI 도우미를 불러오지 못했습니다' with 다시 시도 at the top of the content."
+  ],
+  "qa": [
+    {
+      "id": "QA-PERF-AI-ON-INTENT",
+      "text": "v59.70: on the deployed bundle no AI panel file (js/aio-chat.js, the supplied-materials, chat-globals, ai-profile, question-cues chunks) is fetched before an AI control is reached, and hovering the AI button starts js/aio-chat.js and the corpus chunk",
+      "verify_by": "node scripts/ci-boot-interaction-check.mjs"
+    }
+  ],
+  "qa_section": "Boot and measurement (v59.70)",
+  "note": "change-only (no P): 2nd batch A P1 + P4 step 1 (perf-legacy-plan-20261104), owner decision D1"
+}

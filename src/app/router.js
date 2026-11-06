@@ -2,6 +2,7 @@ import { ROUTE_IDS, isRouteId } from './routes.js';
 import { createResourceBag } from './lifecycle.js';
 import { getVerticalSliceContract } from './vertical-slices.js';
 import { setStockSubject } from '../ui/navigation/route-hubs.js';
+import { legacyThemeDetailTarget } from '../ui/navigation/theme-detail.js';
 
 function defaultPage(route) {
   return {
@@ -134,7 +135,7 @@ function entityIdFor(route, detail = {}) {
 // Other query keys (knowledge context) are left untouched.
 const THEME_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$/;
 
-export function parseRouteDeepLink(hash) {
+export function parseRouteDeepLink(hash, themeIds = null) {
   const match = String(hash || '').match(/^#([^?]*)(?:\?(.*))?$/);
   if (!match) return null;
   // v57.54: a path-style link (#ticker/NVDA) is the same as #ticker?sym=NVDA; it used to open a blank page.
@@ -144,9 +145,11 @@ export function parseRouteDeepLink(hash) {
   const params = new URLSearchParams(match[2] || '');
   // v57.70: #fundamental/AAPL opened the fundamentals of whatever was selected before (or nothing) — both entity routes read it.
   const entityId = ENTITY_ROUTES.has(routeId) ? normalizeEntityId(params.get('sym') || pathArg) : null;
-  // #theme-detail?… keeps its own reader in the themes page; only #themes?theme= is read here.
-  const theme = rawRoute === 'themes' ? String(params.get('theme') || '').trim() : '';
-  return Object.freeze({ routeId, entityId, themeId: THEME_ID_PATTERN.test(theme) ? theme : null });
+  // v59.70 (fix-r1-theme): the old #theme-detail/<id> address names a theme too (legacyThemeDetailTarget, one parser
+  // with the boot route); with the US theme ids an unknown or retired id names none, and the list stays.
+  const legacy = rawRoute === 'theme-detail' ? legacyThemeDetailTarget(hash, themeIds) : null;
+  const theme = rawRoute === 'themes' ? String(params.get('theme') || '').trim() : legacy?.themeId || '';
+  return Object.freeze({ routeId, entityId, themeId: THEME_ID_PATTERN.test(theme) ? theme : null, legacyTheme: !!legacy });
 }
 
 // The hash for `routeId` with `key` set to `value` (or removed when value is empty), keeping the other keys.
@@ -170,9 +173,15 @@ function installRouteDeepLinks({ runtimeRoot, documentRef, activeRoute }) {
     try { history.replaceState(history.state ?? null, '', `${location.pathname}${location.search}${next}`); } catch (_) {}
   };
   // Address → selection: the first load and every back/forward step.
+  const themeIds = () => (Array.isArray(runtimeRoot.THEME_MAP) ? runtimeRoot.THEME_MAP.map((theme) => String(theme?.id || '')) : null);
   const applyAddress = () => {
-    const link = parseRouteDeepLink(location.hash);
+    const link = parseRouteDeepLink(location.hash, themeIds());
     if (!link) return;
+    if (link.legacyTheme) {
+      // The old detail address is read here once (the classic showPage copy is spent too) and written as #themes?theme=.
+      try { delete runtimeRoot._aioThemeDetailHash; } catch (_) { /* frozen root */ }
+      writeHash('themes', 'theme', link.themeId);
+    }
     if (link.entityId && /^#[a-z]+\//.test(location.hash)) writeHash(link.routeId, 'sym', link.entityId); // canonical address
     if (link.entityId && link.routeId === 'ticker') {
       const current = String(runtimeRoot.AIO?.state?._currentTickerSym || runtimeRoot._currentTickerSym || '').toUpperCase();
@@ -203,7 +212,11 @@ function installRouteDeepLinks({ runtimeRoot, documentRef, activeRoute }) {
     const symbol = normalizeEntityId(runtimeRoot._aioLastOpenedSymbol);
     if (ENTITY_ROUTES.has(routeId) && symbol) writeHash(routeId, 'sym', symbol);
   };
-  const onCommit = () => { if (!parseRouteDeepLink(location.hash)?.entityId) writeSubject(); };
+  const onCommit = () => {
+    // v59.70: an old detail address set while 테마 was already open (no mount reads it) opens its theme on the commit.
+    if (/^#theme-detail(?:[/?]|$)/.test(location.hash)) applyAddress();
+    if (!parseRouteDeepLink(location.hash)?.entityId) writeSubject();
+  };
   const onThemeShown = (event) => {
     const themeId = String(event?.detail?.themeId || '').trim();
     if (currentRoute() === 'themes' && THEME_ID_PATTERN.test(themeId)) writeHash('themes', 'theme', themeId);

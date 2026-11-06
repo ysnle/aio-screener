@@ -5,6 +5,7 @@
 import { readNumber, signedText } from '../shared/number.js';
 import { RULES } from '../rules/thresholds.js';
 import { sessionCloses } from './index-levels.js';
+import { hyDelta20Bp } from '../briefing/market-read.js';
 
 const pct = (value, digits = 1) => signedText(value, digits, '%');
 const unit = (value) => Math.max(0.04, Math.min(0.96, value));
@@ -25,11 +26,6 @@ function change(closes, n) {
   if (closes.length <= n) return null;
   const end = closes.at(-1).value; const start = closes.at(-1 - n).value;
   return start ? (end / start - 1) * 100 : null;
-}
-function macroAt(macroHistory, id, date) {
-  let hit = null;
-  for (const [day, value] of macroHistory?.series?.[id]?.observations || []) if (day <= date && readNumber(value) !== null) hit = Number(value);
-  return hit;
 }
 
 function trendAndBreadth(history) {
@@ -80,9 +76,9 @@ function ratesAndCredit(history, macroHistory) {
   if (tnx.length <= WINDOW || !macroHistory) return null;
   const end = tnx.at(-1); const start = tnx.at(-1 - WINDOW);
   const yieldBp = (end.value - start.value) * 100;
-  const hyEnd = macroAt(macroHistory, 'hyOas', end.date); const hyStart = macroAt(macroHistory, 'hyOas', start.date);
-  if (hyEnd === null || hyStart === null) return null;
-  const spreadBp = (hyEnd - hyStart) * 100;
+  // v59.70: the credit axis's own 20-session HY change (one reading for every screen), through the same close.
+  const spreadBp = hyDelta20Bp(macroHistory, end.date)?.value ?? null;
+  if (spreadBp === null) return null;
   const widening = spreadBp >= RULES.credit.widen20dBp;
   const numbers = `20거래일 동안 미국 10년 금리 ${bp(yieldBp)}, 하이일드 스프레드 ${bp(spreadBp)}.`;
   let read;

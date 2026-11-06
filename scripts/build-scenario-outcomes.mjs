@@ -5,6 +5,8 @@
 //              20 and 63 sessions after past, non-overlapping episodes of the same market move.
 //   themes   — for every theme with a published proxy ETF (THEME_MAP .etf, else exposures.js THEME_PROXY_ETF): what the
 //              ETF did over the next 63 sessions after past days in each stage (주도 지속 / 추세 속 조정 / 반등 / 약세).
+//   corrections — v59.70 (X bookmarks #1): Nasdaq Composite 7% corrections since 1986 and how many became bear markets
+//              (src/domain/scenarios/correction-base-rates.js). ^IXIC is fetched on its own from 1986, not aligned with MARKET.
 // Runs only in GitHub Actions (refresh-data operator slot, skipped while the artifact is under 7 days old). On any
 // fetch failure it keeps the previous artifact. Adding a branch analog or a theme proxy needs no change here.
 import { readFile } from 'node:fs/promises';
@@ -13,6 +15,7 @@ import { fileURLToPath } from 'node:url';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { ANALOG_METHOD, BRANCH_ANALOGS, analogOutcome, alignCloses, themeStateOutcomes, THEME_STAGE_RULE } from '../src/domain/scenarios/analogs.js';
 import { THEME_PROXY_ETF } from '../src/domain/scenarios/exposures.js';
+import { CORRECTION_RULE, correctionBaseRates } from '../src/domain/scenarios/correction-base-rates.js';
 import { loadThemeMaps } from './build-scenario-state.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -23,11 +26,11 @@ const REFRESH_AFTER_MS = 7 * 86400000;
 const PERIOD1 = Date.UTC(1990, 0, 1) / 1000;
 const MARKET = { spx: '^GSPC', tnx: '^TNX', vix: '^VIX', wti: 'CL=F', dxy: 'DX-Y.NYB' };
 
-async function dailyCloses(symbol, minRows = 500) {
+async function dailyCloses(symbol, minRows = 500, period1 = PERIOD1) {
   const period2 = Math.floor(Date.now() / 1000);
   for (const host of HOSTS) {
     try {
-      const url = `${host}/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&period1=${PERIOD1}&period2=${period2}`;
+      const url = `${host}/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&period1=${period1}&period2=${period2}`;
       const response = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
       if (!response.ok) continue;
       const result = (await response.json())?.chart?.result?.[0];
@@ -42,7 +45,7 @@ async function dailyCloses(symbol, minRows = 500) {
 }
 
 /** Pure: closes by field/symbol → the artifact body (tested by ci-scenario-guidance-fixture). */
-export function buildScenarioOutcomes({ market = {}, proxies = {}, themeProxy = {}, stageBenchmark = null } = {}) {
+export function buildScenarioOutcomes({ market = {}, proxies = {}, themeProxy = {}, stageBenchmark = null, nasdaq = null } = {}) {
   const rows = alignCloses(market);
   // ^TNX quotes the 10-year yield ×10 before 2005-ish on some feeds; values above 20 are rescaled to percent.
   for (const row of rows) if (row.tnx != null && row.tnx > 20) row.tnx /= 10;
@@ -62,14 +65,14 @@ export function buildScenarioOutcomes({ market = {}, proxies = {}, themeProxy = 
     const ew = stageBenchmark?.length ? stageBenchmark : null;
     themes[themeId] = { symbol, ...themeStateOutcomes(closes, { horizon: 63, benchmark: ew || market.spx || null, benchmarkField: ew ? 'rsp' : 'spx' }) };
   }
-  return { branches, themes, from: rows[0]?.date || null, to: rows.at(-1)?.date || null };
+  return { branches, themes, corrections: nasdaq?.length ? correctionBaseRates(nasdaq) : null, from: rows[0]?.date || null, to: rows.at(-1)?.date || null };
 }
 
 async function main() {
   let previous = null;
   try { previous = JSON.parse(await readFile(OUT, 'utf8')); } catch { /* first run */ }
   const ruleCurrent = Object.values(previous?.themes || {}).every((theme) => theme?.rule === THEME_STAGE_RULE);
-  if (previous?.status === 'current' && ruleCurrent && Date.now() - Date.parse(previous.generatedAt || '') < REFRESH_AFTER_MS && process.env.SCENARIO_OUTCOMES_FORCE !== '1') {
+  if (previous?.status === 'current' && ruleCurrent && previous?.corrections && Date.now() - Date.parse(previous.generatedAt || '') < REFRESH_AFTER_MS && process.env.SCENARIO_OUTCOMES_FORCE !== '1') {
     console.log(`[scenario-outcomes] fresh (${previous.generatedAt}) — skipping`); return;
   }
   const today = new Date().toISOString().slice(0, 10);
@@ -81,12 +84,15 @@ async function main() {
   const proxies = {};
   for (const symbol of new Set(Object.values(themeProxy))) proxies[symbol] = completed(await dailyCloses(symbol, 300));
   const stageBenchmark = completed(await dailyCloses('RSP', 2000));
-  const body = buildScenarioOutcomes({ market, proxies, themeProxy, stageBenchmark });
+  const nasdaq = completed(await dailyCloses('^IXIC', 9000, Date.parse(`${CORRECTION_RULE.since}T00:00:00Z`) / 1000));
+  const body = buildScenarioOutcomes({ market, proxies, themeProxy, stageBenchmark, nasdaq });
+  // A failed ^IXIC fetch keeps the previous week's correction counts instead of dropping the line.
+  if (!body.corrections && previous?.corrections) body.corrections = previous.corrections;
   const payload = { schemaVersion: SCENARIO_OUTCOMES_SCHEMA, status: 'current', generatedAt: new Date().toISOString(),
-    source: 'Yahoo Finance 일봉 종가 (^GSPC, ^TNX, ^VIX, CL=F, DX-Y.NYB, RSP, 테마 대표 ETF)', sourceKind: 'T3_PUBLIC_DELAYED', sourceLabel: '장기 일봉 기록', method: ANALOG_METHOD, // owner 2026-10-19: market-move proxies; a share is read only beyond the base rate
+    source: 'Yahoo Finance 일봉 종가 (^GSPC, ^IXIC, ^TNX, ^VIX, CL=F, DX-Y.NYB, RSP, 테마 대표 ETF)', sourceKind: 'T3_PUBLIC_DELAYED', sourceLabel: '장기 일봉 기록', method: ANALOG_METHOD, // owner 2026-10-19: market-move proxies; a share is read only beyond the base rate
     returnBasis: '가격 수익률(배당 제외), 거래일 기준 · 겹치지 않는 표본', ...body };
   await atomicWriteFile(OUT, JSON.stringify(payload));
-  console.log(`[scenario-outcomes] ${body.from}~${body.to} · branches ${Object.keys(body.branches).length} · themes ${Object.keys(body.themes).length}`);
+  console.log(`[scenario-outcomes] ${body.from}~${body.to} · branches ${Object.keys(body.branches).length} · themes ${Object.keys(body.themes).length} · corrections ${body.corrections ? `${body.corrections.n}/${body.corrections.bear}` : 'none'}`);
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

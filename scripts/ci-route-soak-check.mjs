@@ -2,7 +2,8 @@
 // This is intentionally a local deterministic gate. It does not certify live
 // provider SLOs or a deployed Pages revision.
 import { chromium } from 'playwright';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
+import { addressThemeDetail } from './lib/theme-detail-address.mjs';
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -11,7 +12,7 @@ import { ROUTE_IDS } from '../src/app/routes.js';
 import { DESKTOP_PRIMARY_VIEWPORT } from './desktop-qa-config.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.AIO_ROUTE_SOAK_PORT || 8903);
+const port = (Number(process.env.AIO_ROUTE_SOAK_PORT) || await freePort());
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 const ROUTES = ROUTE_IDS;
 const version = JSON.parse(readFileSync(resolve(root, 'version.json'), 'utf8')).version;
@@ -48,6 +49,7 @@ try {
     const lapRows = [];
     for (const route of ROUTES) {
       const target = canonical(route);
+      if (route === 'theme-detail') await addressThemeDetail(page); // a detail needs a theme id (fix-r1-theme)
       await page.evaluate((id) => window.AIO_ARCH.navigate(id), route);
       await page.waitForFunction((id) => document.getElementById(`page-${id}`)?.dataset.aioArchitectureRoute === id, target, { timeout: 15000 });
       if (route === 'theme-detail') await page.waitForFunction(() => document.getElementById('theme-detail-panel')?.style.display !== 'none', { timeout: 10000 });
