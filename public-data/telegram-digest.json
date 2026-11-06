@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-06T14:51:46.154Z",
-  "attemptedAt": "2026-11-06T14:51:46.154Z",
-  "lastSuccessfulAt": "2026-11-06T14:51:46.154Z",
+  "generatedAt": "2026-11-06T15:20:05.739Z",
+  "attemptedAt": "2026-11-06T15:20:05.739Z",
+  "lastSuccessfulAt": "2026-11-06T15:20:05.739Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-23T14:51:39.938Z",
-  "until": "2026-11-06T14:51:39.938Z",
+  "since": "2026-10-23T15:20:00.276Z",
+  "until": "2026-11-06T15:20:00.276Z",
   "current24hWindow": {
     "start": "2026-11-04T23:00:00.000Z",
     "end": "2026-11-05T23:00:00.000Z",
@@ -101,11 +101,11 @@
     },
     {
       "channel": "bornlupin",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 240,
-      "freshCount": 40,
+      "freshCount": 20,
       "eligibleTextCount": 240,
       "selectedCount": 122,
       "error": null,
@@ -125,7 +125,7 @@
     }
   ],
   "count": 2324,
-  "retainedItemCount": 432,
+  "retainedItemCount": 428,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -1643,10 +1643,7 @@
       "datetime": "2026-11-05T08:42:24.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "credit",
-        "semi",
-        "power",
-        "healthcare"
+        "power"
       ],
       "score": 99,
       "hasText": true,
@@ -1656,10 +1653,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "Barclays: 블루웨이브, AI 인프라 투자 문턱을 높인다 미국 중간선거에서 민주당이 선전하면서 AI 데이터센터 산업의 규제 부담이 확대될 전망임. 다만 양당 모두 미국의 AI 패권 경쟁을 지지하고 있어...",
       "tickers": [
         "BCS"
-      ],
-      "summary": "Barclays: 블루웨이브, AI 인프라 투자 문턱을 높인다 미국 중간선거에서 민주당이 선전하면서 AI 데이터센터 산업의 규제 부담이 확대될 전망임. 다만 양당 모두 미국의 AI 패권 경쟁을 지지하고 있어..."
+      ]
     },
     {
       "id": "bornlupin/20867",
@@ -1706,11 +1703,8 @@
       "localDateKst": "2026-11-05",
       "tags": [
         "power",
-        "credit",
-        "macro",
-        "semi"
+        "earnings"
       ],
-      "lead": 1,
       "score": 97,
       "hasText": true,
       "media": {
@@ -1719,8 +1713,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이..."
+      "summary": "시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이...",
+      "tickers": []
     },
     {
       "id": "aetherjapanresearch/26057",
@@ -2924,17 +2918,15 @@
       "datetime": "2026-11-05T13:41:57.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "semi",
-        "power",
-        "ai-policy"
+        "semi"
       ],
-      "lead": 1,
       "score": 74,
       "hasText": true,
+      "summary": "중국 AI 연구소 문샷, 미국의 대중국 규제 속 엔비디아 블랙웰 칩 접근 위해 유럽으로 눈 돌려 1. 문샷 AI, 유럽에서 엔비디아 블랙웰 GPU 확보 추진 - 중국 AI 기업 문샷 AI(Moonshot...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "중국 AI 연구소 문샷, 미국의 대중국 규제 속 엔비디아 블랙웰 칩 접근 위해 유럽으로 눈 돌려 1. 문샷 AI, 유럽에서 엔비디아 블랙웰 GPU 확보 추진 - 중국 AI 기업 문샷 AI(Moonshot..."
+      ]
     },
     {
       "id": "insidertracking/68464",
@@ -3239,15 +3231,12 @@
       "datetime": "2026-11-05T08:58:08.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "macro",
-        "geo",
-        "power",
-        "ai-policy"
+        "market-note"
       ],
       "score": 93,
       "hasText": true,
-      "tickers": [],
-      "summary": "모건스탠리, 민주당의 중간선거 압승이 금융시장에 미칠 영향 민주당의 미국 중간선거 압승은 재정정책의 변화와 AI 인프라 투자에 대한 규제 강화를 초래할 수 있지만, 모건스탠리는 미국 경제와 주식시장에 대한..."
+      "summary": "모건스탠리, 민주당의 중간선거 압승이 금융시장에 미칠 영향 민주당의 미국 중간선거 압승은 재정정책의 변화와 AI 인프라 투자에 대한 규제 강화를 초래할 수 있지만, 모건스탠리는 미국 경제와 주식시장에 대한...",
+      "tickers": []
     },
     {
       "id": "bornlupin/21015",
@@ -3256,10 +3245,7 @@
       "datetime": "2026-11-05T08:42:24.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "credit",
-        "semi",
-        "power",
-        "healthcare"
+        "power"
       ],
       "score": 99,
       "hasText": true,
@@ -3269,10 +3255,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "Barclays: 블루웨이브, AI 인프라 투자 문턱을 높인다 미국 중간선거에서 민주당이 선전하면서 AI 데이터센터 산업의 규제 부담이 확대될 전망임. 다만 양당 모두 미국의 AI 패권 경쟁을 지지하고 있어...",
       "tickers": [
         "BCS"
-      ],
-      "summary": "Barclays: 블루웨이브, AI 인프라 투자 문턱을 높인다 미국 중간선거에서 민주당이 선전하면서 AI 데이터센터 산업의 규제 부담이 확대될 전망임. 다만 양당 모두 미국의 AI 패권 경쟁을 지지하고 있어..."
+      ]
     },
     {
       "id": "HANAchina/71590",
@@ -3325,19 +3311,18 @@
       "datetime": "2026-11-05T05:11:35.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "semi",
-        "kr-market",
         "earnings",
-        "flows"
+        "semi",
+        "kr-market"
       ],
-      "lead": 1,
       "score": 81,
       "hasText": true,
+      "summary": "J.P. Morgan ,메모리 시장 업데이트 전반적인 시장 평가 긍정적인 3분기 실적: 환율 역풍에도 불구하고 주당순이익(EPS) 및 마진율이 예상치를 상회했으며, 가격 상승 여력, 성공적인 HBM 가격 협상...",
+      "lead": 3,
       "tickers": [
         "285A.T",
         "005930.KS"
-      ],
-      "summary": "J.P. Morgan ,메모리 시장 업데이트 전반적인 시장 평가 긍정적인 3분기 실적: 환율 역풍에도 불구하고 주당순이익(EPS) 및 마진율이 예상치를 상회했으며, 가격 상승 여력, 성공적인 HBM 가격 협상..."
+      ]
     },
     {
       "id": "bornlupin/21012",
@@ -3346,14 +3331,13 @@
       "datetime": "2026-11-05T05:04:44.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "power",
-        "semi"
+        "power"
       ],
-      "lead": 1,
       "score": 65,
       "hasText": true,
-      "tickers": [],
-      "summary": "[SemiAnalysis] 미국 데이터센터 규제 전망 1. 민주당이 상하원을 장악해도 트럼프의 거부권과 상원 의석 구조 때문에 강력한 연방 규제 도입은 제한적. 2. 양당 모두 데이터센터 개발사가 전력망 확충..."
+      "summary": "[SemiAnalysis] 미국 데이터센터 규제 전망 1. 민주당이 상하원을 장악해도 트럼프의 거부권과 상원 의석 구조 때문에 강력한 연방 규제 도입은 제한적. 2. 양당 모두 데이터센터 개발사가 전력망 확충...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68423",
@@ -3384,15 +3368,13 @@
       "datetime": "2026-11-05T04:58:40.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "power",
-        "semi",
-        "earnings"
+        "power"
       ],
-      "lead": 1,
       "score": 65,
       "hasText": true,
-      "tickers": [],
-      "summary": "SemiAnalysis) 미국 데이터센터 규제 전망: 수요 훼손보다 비용 증가와 공급 지연의 문제 1. 민주당이 상하원을 장악해도 연방 차원의 급격한 규제 변화는 제한적 • 민주당이 의회를 장악하더라도 트럼프..."
+      "summary": "SemiAnalysis) 미국 데이터센터 규제 전망: 수요 훼손보다 비용 증가와 공급 지연의 문제 1. 민주당이 상하원을 장악해도 연방 차원의 급격한 규제 변화는 제한적 • 민주당이 의회를 장악하더라도 트럼프...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68422",
@@ -3421,16 +3403,13 @@
       "datetime": "2026-11-05T04:34:41.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "semi",
-        "power",
-        "equity",
-        "earnings"
+        "semi"
       ],
-      "lead": 1,
       "score": 78,
       "hasText": true,
-      "tickers": [],
-      "summary": "BofA \"AI 지출 속도 조절이 오히려 호황(Boom)을 연장하고 반도체 주식을 회복시킬 것\" 월스트리트의 기존 통념(설비투자가 무조건 많을수록 반도체 주식에 좋다)에 반기를 들었습니다. 중간선거 이후..."
+      "summary": "BofA \"AI 지출 속도 조절이 오히려 호황(Boom)을 연장하고 반도체 주식을 회복시킬 것\" 월스트리트의 기존 통념(설비투자가 무조건 많을수록 반도체 주식에 좋다)에 반기를 들었습니다. 중간선거 이후...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68418",
@@ -3499,18 +3478,16 @@
       "localDateKst": "2026-11-05",
       "tags": [
         "semi",
-        "ai-policy",
-        "earnings",
         "flows"
       ],
-      "lead": 1,
       "score": 75,
       "hasText": true,
+      "summary": "[메리츠증권 반도체/디스플레이 김선우] 메리츠 김선우입니다. 메모리 산업에 급작스레 찾아온 미 정치 지형도 변화 발 AI 수요 둔화 우려에도 불구하고 끄떡없는 2027년 수급 전망을 예상합니다. 지난 20년간...",
+      "lead": 1,
       "tickers": [
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": "[메리츠증권 반도체/디스플레이 김선우] 메리츠 김선우입니다. 메모리 산업에 급작스레 찾아온 미 정치 지형도 변화 발 AI 수요 둔화 우려에도 불구하고 끄떡없는 2027년 수급 전망을 예상합니다. 지난 20년간..."
+      ]
     },
     {
       "id": "insidertracking/68414",
@@ -3554,16 +3531,14 @@
       "datetime": "2026-11-05T02:29:51.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "macro",
-        "semi",
-        "power"
+        "market-note"
       ],
       "score": 76,
       "hasText": true,
+      "summary": "미국 중간선거로 텍사스 정치 지형 변화, 대만 기업들 \"투자 계획 불변\" - 폭스콘, 페가트론, 컴팔, 위스트론, 위윈 등 주요 AI 서버 제조업체들은 정치적 변화와 관계없이 기존 공장 건설 및 증설 계획을...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "미국 중간선거로 텍사스 정치 지형 변화, 대만 기업들 \"투자 계획 불변\" - 폭스콘, 페가트론, 컴팔, 위스트론, 위윈 등 주요 AI 서버 제조업체들은 정치적 변화와 관계없이 기존 공장 건설 및 증설 계획을..."
+      ]
     },
     {
       "id": "HANAchina/71575",
@@ -3594,9 +3569,7 @@
       "datetime": "2026-11-05T02:13:16.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "geo",
-        "power",
-        "japan"
+        "market-note"
       ],
       "score": 73,
       "hasText": true,
@@ -3606,8 +3579,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "JPM sales에서 올린글.. 민주당 승리가 AI 산업에 규제 리스크로 작용하지 않을까? 아닐것으로 봄 첫째, 이번 민주당 승리는 AI에 대한 반발이 아니라 경제에 대한 불만이 만들어낸 결과 갤럽이 10월..."
+      "summary": "JPM sales에서 올린글.. 민주당 승리가 AI 산업에 규제 리스크로 작용하지 않을까? 아닐것으로 봄 첫째, 이번 민주당 승리는 AI에 대한 반발이 아니라 경제에 대한 불만이 만들어낸 결과 갤럽이 10월...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71573",
@@ -3631,21 +3604,19 @@
       "localDateKst": "2026-11-05",
       "tags": [
         "semi",
-        "power",
-        "equity",
-        "earnings"
+        "equity"
       ],
-      "lead": 1,
       "score": 85,
       "hasText": true,
+      "summary": "ARM Q2 2027 어닝콜 중 메모리 관련 1. AGI CPU 공급망에서 메모리 확보의 중요성 Rene Haas CEO: • Arm AGI CPU 수요는 최초 발표 당시 예상보다 훨씬 강하며, Meta뿐...",
+      "lead": 1,
       "tickers": [
         "AMD",
         "MU",
         "TSM",
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": "ARM Q2 2027 어닝콜 중 메모리 관련 1. AGI CPU 공급망에서 메모리 확보의 중요성 Rene Haas CEO: • Arm AGI CPU 수요는 최초 발표 당시 예상보다 훨씬 강하며, Meta뿐..."
+      ]
     },
     {
       "id": "bornlupin/21005",
@@ -3655,11 +3626,8 @@
       "localDateKst": "2026-11-05",
       "tags": [
         "power",
-        "credit",
-        "macro",
-        "semi"
+        "earnings"
       ],
-      "lead": 1,
       "score": 97,
       "hasText": true,
       "media": {
@@ -3668,8 +3636,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이..."
+      "summary": "시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68401",
@@ -3752,14 +3720,12 @@
       "datetime": "2026-11-04T22:09:00.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "earnings",
-        "semi"
+        "earnings"
       ],
-      "lead": 1,
       "score": 77,
       "hasText": true,
-      "tickers": [],
-      "summary": "ARM 2027 회계연도 2분기 실적 매출: 14억 4,000만 달러 (예상치 13억 8,000만 달러 상회), 전년 동기 대비 27% 증가 조정 주당순이익(EPS): 0.52달러 (예상치 0.47달러..."
+      "summary": "ARM 2027 회계연도 2분기 실적 매출: 14억 4,000만 달러 (예상치 13억 8,000만 달러 상회), 전년 동기 대비 27% 증가 조정 주당순이익(EPS): 0.52달러 (예상치 0.47달러...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68391",
@@ -4047,16 +4013,15 @@
       "datetime": "2026-11-04T13:58:24.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "macro",
-        "power"
+        "market-note"
       ],
       "score": 73,
       "hasText": true,
+      "summary": "구글, 2027년과 2028년 말레이시아에 150억 달러 투자 예정 알파벳(Alphabet) 산하 구글은 2027년부터 2028년까지 말레이시아에 150억 달러(약 20조 원)를 투자하여 데이터 센터 캠퍼스...",
       "tickers": [
         "GOOG",
         "GOOGL"
-      ],
-      "summary": "구글, 2027년과 2028년 말레이시아에 150억 달러 투자 예정 알파벳(Alphabet) 산하 구글은 2027년부터 2028년까지 말레이시아에 150억 달러(약 20조 원)를 투자하여 데이터 센터 캠퍼스..."
+      ]
     },
     {
       "id": "HANAchina/71555",
@@ -4217,16 +4182,14 @@
       "tags": [
         "semi",
         "equity",
-        "power",
         "earnings"
       ],
-      "lead": 2,
       "score": 89,
       "hasText": true,
+      "summary": "스티펠(Stifel) , AMD, 투자의견 '매수(Buy)'를 유지, 목표주가를 700달러에서 725달러로 상향 \"AMD는 2026 회계연도 3분기에 시장 예상치를 상회하는 실적과 함께 가이던스를...",
       "tickers": [
         "AMD"
-      ],
-      "summary": "스티펠(Stifel) , AMD, 투자의견 '매수(Buy)'를 유지, 목표주가를 700달러에서 725달러로 상향 \"AMD는 2026 회계연도 3분기에 시장 예상치를 상회하는 실적과 함께 가이던스를..."
+      ]
     },
     {
       "id": "insidertracking/68343",
@@ -4293,13 +4256,12 @@
       "tags": [
         "power"
       ],
-      "lead": 1,
       "score": 57,
       "hasText": true,
+      "summary": "Mizuho: 민주당의 상, 하원 승리로 데이터센터 규제 강화 가능성, 블룸에너지( $BE )에 유리 11월 3일 미국 중간선거에서 민주당이 상원과 하원을 모두 장악할 것으로 전망되는 가운데 , 주정부 차원의...",
       "tickers": [
         "BE"
-      ],
-      "summary": "Mizuho: 민주당의 상, 하원 승리로 데이터센터 규제 강화 가능성, 블룸에너지( $BE )에 유리 11월 3일 미국 중간선거에서 민주당이 상원과 하원을 모두 장악할 것으로 전망되는 가운데 , 주정부 차원의..."
+      ]
     },
     {
       "id": "insidertracking/68337",
@@ -9291,17 +9253,15 @@
       "datetime": "2026-11-05T13:41:57.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "semi",
-        "power",
-        "ai-policy"
+        "semi"
       ],
-      "lead": 1,
       "score": 74,
       "hasText": true,
+      "summary": "중국 AI 연구소 문샷, 미국의 대중국 규제 속 엔비디아 블랙웰 칩 접근 위해 유럽으로 눈 돌려 1. 문샷 AI, 유럽에서 엔비디아 블랙웰 GPU 확보 추진 - 중국 AI 기업 문샷 AI(Moonshot...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "중국 AI 연구소 문샷, 미국의 대중국 규제 속 엔비디아 블랙웰 칩 접근 위해 유럽으로 눈 돌려 1. 문샷 AI, 유럽에서 엔비디아 블랙웰 GPU 확보 추진 - 중국 AI 기업 문샷 AI(Moonshot..."
+      ]
     },
     {
       "id": "insidertracking/68462",
@@ -9586,15 +9546,12 @@
       "datetime": "2026-11-05T08:58:08.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "macro",
-        "geo",
-        "power",
-        "ai-policy"
+        "market-note"
       ],
       "score": 93,
       "hasText": true,
-      "tickers": [],
-      "summary": "모건스탠리, 민주당의 중간선거 압승이 금융시장에 미칠 영향 민주당의 미국 중간선거 압승은 재정정책의 변화와 AI 인프라 투자에 대한 규제 강화를 초래할 수 있지만, 모건스탠리는 미국 경제와 주식시장에 대한..."
+      "summary": "모건스탠리, 민주당의 중간선거 압승이 금융시장에 미칠 영향 민주당의 미국 중간선거 압승은 재정정책의 변화와 AI 인프라 투자에 대한 규제 강화를 초래할 수 있지만, 모건스탠리는 미국 경제와 주식시장에 대한...",
+      "tickers": []
     },
     {
       "id": "bornlupin/21015",
@@ -9603,10 +9560,7 @@
       "datetime": "2026-11-05T08:42:24.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "credit",
-        "semi",
-        "power",
-        "healthcare"
+        "power"
       ],
       "score": 99,
       "hasText": true,
@@ -9616,10 +9570,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "Barclays: 블루웨이브, AI 인프라 투자 문턱을 높인다 미국 중간선거에서 민주당이 선전하면서 AI 데이터센터 산업의 규제 부담이 확대될 전망임. 다만 양당 모두 미국의 AI 패권 경쟁을 지지하고 있어...",
       "tickers": [
         "BCS"
-      ],
-      "summary": "Barclays: 블루웨이브, AI 인프라 투자 문턱을 높인다 미국 중간선거에서 민주당이 선전하면서 AI 데이터센터 산업의 규제 부담이 확대될 전망임. 다만 양당 모두 미국의 AI 패권 경쟁을 지지하고 있어..."
+      ]
     },
     {
       "id": "HANAchina/71590",
@@ -9672,19 +9626,18 @@
       "datetime": "2026-11-05T05:11:35.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "semi",
-        "kr-market",
         "earnings",
-        "flows"
+        "semi",
+        "kr-market"
       ],
-      "lead": 1,
       "score": 81,
       "hasText": true,
+      "summary": "J.P. Morgan ,메모리 시장 업데이트 전반적인 시장 평가 긍정적인 3분기 실적: 환율 역풍에도 불구하고 주당순이익(EPS) 및 마진율이 예상치를 상회했으며, 가격 상승 여력, 성공적인 HBM 가격 협상...",
+      "lead": 3,
       "tickers": [
         "285A.T",
         "005930.KS"
-      ],
-      "summary": "J.P. Morgan ,메모리 시장 업데이트 전반적인 시장 평가 긍정적인 3분기 실적: 환율 역풍에도 불구하고 주당순이익(EPS) 및 마진율이 예상치를 상회했으며, 가격 상승 여력, 성공적인 HBM 가격 협상..."
+      ]
     },
     {
       "id": "bornlupin/21012",
@@ -9693,14 +9646,13 @@
       "datetime": "2026-11-05T05:04:44.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "power",
-        "semi"
+        "power"
       ],
-      "lead": 1,
       "score": 65,
       "hasText": true,
-      "tickers": [],
-      "summary": "[SemiAnalysis] 미국 데이터센터 규제 전망 1. 민주당이 상하원을 장악해도 트럼프의 거부권과 상원 의석 구조 때문에 강력한 연방 규제 도입은 제한적. 2. 양당 모두 데이터센터 개발사가 전력망 확충..."
+      "summary": "[SemiAnalysis] 미국 데이터센터 규제 전망 1. 민주당이 상하원을 장악해도 트럼프의 거부권과 상원 의석 구조 때문에 강력한 연방 규제 도입은 제한적. 2. 양당 모두 데이터센터 개발사가 전력망 확충...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68423",
@@ -9731,15 +9683,13 @@
       "datetime": "2026-11-05T04:58:40.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "power",
-        "semi",
-        "earnings"
+        "power"
       ],
-      "lead": 1,
       "score": 65,
       "hasText": true,
-      "tickers": [],
-      "summary": "SemiAnalysis) 미국 데이터센터 규제 전망: 수요 훼손보다 비용 증가와 공급 지연의 문제 1. 민주당이 상하원을 장악해도 연방 차원의 급격한 규제 변화는 제한적 • 민주당이 의회를 장악하더라도 트럼프..."
+      "summary": "SemiAnalysis) 미국 데이터센터 규제 전망: 수요 훼손보다 비용 증가와 공급 지연의 문제 1. 민주당이 상하원을 장악해도 연방 차원의 급격한 규제 변화는 제한적 • 민주당이 의회를 장악하더라도 트럼프...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68422",
@@ -9768,16 +9718,13 @@
       "datetime": "2026-11-05T04:34:41.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "semi",
-        "power",
-        "equity",
-        "earnings"
+        "semi"
       ],
-      "lead": 1,
       "score": 78,
       "hasText": true,
-      "tickers": [],
-      "summary": "BofA \"AI 지출 속도 조절이 오히려 호황(Boom)을 연장하고 반도체 주식을 회복시킬 것\" 월스트리트의 기존 통념(설비투자가 무조건 많을수록 반도체 주식에 좋다)에 반기를 들었습니다. 중간선거 이후..."
+      "summary": "BofA \"AI 지출 속도 조절이 오히려 호황(Boom)을 연장하고 반도체 주식을 회복시킬 것\" 월스트리트의 기존 통념(설비투자가 무조건 많을수록 반도체 주식에 좋다)에 반기를 들었습니다. 중간선거 이후...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68418",
@@ -9846,18 +9793,16 @@
       "localDateKst": "2026-11-05",
       "tags": [
         "semi",
-        "ai-policy",
-        "earnings",
         "flows"
       ],
-      "lead": 1,
       "score": 75,
       "hasText": true,
+      "summary": "[메리츠증권 반도체/디스플레이 김선우] 메리츠 김선우입니다. 메모리 산업에 급작스레 찾아온 미 정치 지형도 변화 발 AI 수요 둔화 우려에도 불구하고 끄떡없는 2027년 수급 전망을 예상합니다. 지난 20년간...",
+      "lead": 1,
       "tickers": [
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": "[메리츠증권 반도체/디스플레이 김선우] 메리츠 김선우입니다. 메모리 산업에 급작스레 찾아온 미 정치 지형도 변화 발 AI 수요 둔화 우려에도 불구하고 끄떡없는 2027년 수급 전망을 예상합니다. 지난 20년간..."
+      ]
     },
     {
       "id": "insidertracking/68414",
@@ -9901,16 +9846,14 @@
       "datetime": "2026-11-05T02:29:51.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "macro",
-        "semi",
-        "power"
+        "market-note"
       ],
       "score": 76,
       "hasText": true,
+      "summary": "미국 중간선거로 텍사스 정치 지형 변화, 대만 기업들 \"투자 계획 불변\" - 폭스콘, 페가트론, 컴팔, 위스트론, 위윈 등 주요 AI 서버 제조업체들은 정치적 변화와 관계없이 기존 공장 건설 및 증설 계획을...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "미국 중간선거로 텍사스 정치 지형 변화, 대만 기업들 \"투자 계획 불변\" - 폭스콘, 페가트론, 컴팔, 위스트론, 위윈 등 주요 AI 서버 제조업체들은 정치적 변화와 관계없이 기존 공장 건설 및 증설 계획을..."
+      ]
     },
     {
       "id": "HANAchina/71575",
@@ -9941,9 +9884,7 @@
       "datetime": "2026-11-05T02:13:16.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "geo",
-        "power",
-        "japan"
+        "market-note"
       ],
       "score": 73,
       "hasText": true,
@@ -9953,8 +9894,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "JPM sales에서 올린글.. 민주당 승리가 AI 산업에 규제 리스크로 작용하지 않을까? 아닐것으로 봄 첫째, 이번 민주당 승리는 AI에 대한 반발이 아니라 경제에 대한 불만이 만들어낸 결과 갤럽이 10월..."
+      "summary": "JPM sales에서 올린글.. 민주당 승리가 AI 산업에 규제 리스크로 작용하지 않을까? 아닐것으로 봄 첫째, 이번 민주당 승리는 AI에 대한 반발이 아니라 경제에 대한 불만이 만들어낸 결과 갤럽이 10월...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71573",
@@ -9978,21 +9919,19 @@
       "localDateKst": "2026-11-05",
       "tags": [
         "semi",
-        "power",
-        "equity",
-        "earnings"
+        "equity"
       ],
-      "lead": 1,
       "score": 85,
       "hasText": true,
+      "summary": "ARM Q2 2027 어닝콜 중 메모리 관련 1. AGI CPU 공급망에서 메모리 확보의 중요성 Rene Haas CEO: • Arm AGI CPU 수요는 최초 발표 당시 예상보다 훨씬 강하며, Meta뿐...",
+      "lead": 1,
       "tickers": [
         "AMD",
         "MU",
         "TSM",
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": "ARM Q2 2027 어닝콜 중 메모리 관련 1. AGI CPU 공급망에서 메모리 확보의 중요성 Rene Haas CEO: • Arm AGI CPU 수요는 최초 발표 당시 예상보다 훨씬 강하며, Meta뿐..."
+      ]
     },
     {
       "id": "bornlupin/21005",
@@ -10002,11 +9941,8 @@
       "localDateKst": "2026-11-05",
       "tags": [
         "power",
-        "credit",
-        "macro",
-        "semi"
+        "earnings"
       ],
-      "lead": 1,
       "score": 97,
       "hasText": true,
       "media": {
@@ -10015,8 +9951,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이..."
+      "summary": "시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68401",
@@ -10081,8 +10017,8 @@
   ],
   "signalsNote": "Numbers the channels reported (analyst target-price and rating actions, quarters against estimates, economic releases against forecasts, retail net-buy lists). Secondary observations for context and screener conditions; never a measurement of this app.",
   "signalCounts": {
-    "pt": 41,
-    "earnings": 55,
+    "pt": 24,
+    "earnings": 53,
     "macro": 3,
     "retail": 6,
     "deal": 2
@@ -10423,244 +10359,6 @@
       "ratingAction": "upgrade",
       "date": "2026-10-24",
       "post": "insidertracking/67130"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|028050.KS|iM증권|2026-10-23",
-      "ticker": "028050.KS",
-      "broker": "iM증권",
-      "ptFrom": null,
-      "ptTo": 78000,
-      "currency": "KRW",
-      "direction": "raise",
-      "rating": "buy",
-      "ratingAction": null,
-      "date": "2026-10-23",
-      "post": "bornlupin/20773"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|028050.KS|유안타증권|2026-10-23",
-      "ticker": "028050.KS",
-      "broker": "유안타증권",
-      "ptFrom": null,
-      "ptTo": 77000,
-      "currency": "KRW",
-      "direction": "raise",
-      "rating": "buy",
-      "ratingAction": null,
-      "date": "2026-10-23",
-      "post": "bornlupin/20773"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|028050.KS|교보증권|2026-10-23",
-      "ticker": "028050.KS",
-      "broker": "교보증권",
-      "ptFrom": null,
-      "ptTo": 71000,
-      "currency": "KRW",
-      "direction": "raise",
-      "rating": "buy",
-      "ratingAction": null,
-      "date": "2026-10-23",
-      "post": "bornlupin/20773"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|028050.KS|한화투자증권|2026-10-23",
-      "ticker": "028050.KS",
-      "broker": "한화투자증권",
-      "ptFrom": null,
-      "ptTo": 84000,
-      "currency": "KRW",
-      "direction": "raise",
-      "rating": "buy",
-      "ratingAction": null,
-      "date": "2026-10-23",
-      "post": "bornlupin/20773"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|028050.KS|대신증권|2026-10-23",
-      "ticker": "028050.KS",
-      "broker": "대신증권",
-      "ptFrom": null,
-      "ptTo": 75000,
-      "currency": "KRW",
-      "direction": "set",
-      "rating": "buy",
-      "ratingAction": null,
-      "date": "2026-10-23",
-      "post": "bornlupin/20773"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|028050.KS|키움증권|2026-10-23",
-      "ticker": "028050.KS",
-      "broker": "키움증권",
-      "ptFrom": null,
-      "ptTo": 75000,
-      "currency": "KRW",
-      "direction": "raise",
-      "rating": "buy",
-      "ratingAction": null,
-      "date": "2026-10-23",
-      "post": "bornlupin/20773"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|028050.KS|하나증권|2026-10-23",
-      "ticker": "028050.KS",
-      "broker": "하나증권",
-      "ptFrom": null,
-      "ptTo": 73000,
-      "currency": "KRW",
-      "direction": "raise",
-      "rating": "buy",
-      "ratingAction": null,
-      "date": "2026-10-23",
-      "post": "bornlupin/20773"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|028050.KS|유진투자증권|2026-10-23",
-      "ticker": "028050.KS",
-      "broker": "유진투자증권",
-      "ptFrom": null,
-      "ptTo": 82000,
-      "currency": "KRW",
-      "direction": "raise",
-      "rating": "buy",
-      "ratingAction": null,
-      "date": "2026-10-23",
-      "post": "bornlupin/20774"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|BE|JP Morgan|2026-10-23",
-      "ticker": "BE",
-      "broker": "JP Morgan",
-      "ptFrom": 314,
-      "ptTo": 292,
-      "currency": "USD",
-      "direction": "cut",
-      "rating": "buy",
-      "ratingAction": null,
-      "date": "2026-10-23",
-      "post": "aetherjapanresearch/25997"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|BE|Citi|2026-10-23",
-      "ticker": "BE",
-      "broker": "Citi",
-      "ptFrom": null,
-      "ptTo": 281,
-      "currency": "USD",
-      "direction": "set",
-      "rating": "hold",
-      "ratingAction": null,
-      "date": "2026-10-23",
-      "post": "aetherjapanresearch/26006"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|CRWV|Morgan Stanley|2026-10-23",
-      "ticker": "CRWV",
-      "broker": "Morgan Stanley",
-      "ptFrom": 99,
-      "ptTo": 70,
-      "currency": "USD",
-      "direction": "cut",
-      "rating": "hold",
-      "ratingAction": null,
-      "date": "2026-10-23",
-      "post": "insidertracking/67113"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|ORCL|Goldman Sachs|2026-10-23",
-      "ticker": "ORCL",
-      "broker": "Goldman Sachs",
-      "ptFrom": 240,
-      "ptTo": 206,
-      "currency": "USD",
-      "direction": "cut",
-      "rating": "buy",
-      "ratingAction": null,
-      "date": "2026-10-23",
-      "post": "insidertracking/67113"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|AMGN|Oppenheimer|2026-10-23",
-      "ticker": "AMGN",
-      "broker": "Oppenheimer",
-      "ptFrom": 450,
-      "ptTo": 480,
-      "currency": "USD",
-      "direction": "raise",
-      "rating": "buy",
-      "ratingAction": null,
-      "date": "2026-10-23",
-      "post": "insidertracking/67113"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|GILD|Jefferies|2026-10-23",
-      "ticker": "GILD",
-      "broker": "Jefferies",
-      "ptFrom": 184,
-      "ptTo": 185,
-      "currency": "USD",
-      "direction": "raise",
-      "rating": "buy",
-      "ratingAction": null,
-      "date": "2026-10-23",
-      "post": "insidertracking/67113"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|BE|Morgan Stanley|2026-10-23",
-      "ticker": "BE",
-      "broker": "Morgan Stanley",
-      "ptFrom": 310,
-      "ptTo": 335,
-      "currency": "USD",
-      "direction": "raise",
-      "rating": "buy",
-      "ratingAction": null,
-      "date": "2026-10-23",
-      "post": "bornlupin/20785"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|BE|Mizuho|2026-10-23",
-      "ticker": "BE",
-      "broker": "Mizuho",
-      "ptFrom": null,
-      "ptTo": 351,
-      "currency": "USD",
-      "direction": "set",
-      "rating": "buy",
-      "ratingAction": null,
-      "date": "2026-10-23",
-      "post": "bornlupin/20786"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|WDC|Goldman Sachs|2026-10-23",
-      "ticker": "WDC",
-      "broker": "Goldman Sachs",
-      "ptFrom": null,
-      "ptTo": 540,
-      "currency": "USD",
-      "direction": "set",
-      "rating": "hold",
-      "ratingAction": null,
-      "date": "2026-10-23",
-      "post": "HANAchina/70911"
     },
     {
       "kind": "earnings",
@@ -11297,30 +10995,6 @@
       "guidance": "raise",
       "date": "2026-10-27",
       "post": "insidertracking/67495"
-    },
-    {
-      "kind": "earnings",
-      "key": "earnings|BE|2026-10-23",
-      "ticker": "BE",
-      "name": "블룸에너지",
-      "quarter": "2026Q3",
-      "revenue": "beat",
-      "eps": "beat",
-      "guidance": "raise",
-      "date": "2026-10-23",
-      "post": "bornlupin/20769"
-    },
-    {
-      "kind": "earnings",
-      "key": "earnings|맥스리니어|2026-10-23",
-      "ticker": null,
-      "name": "맥스리니어",
-      "quarter": "2026Q3",
-      "revenue": "beat",
-      "eps": "beat",
-      "guidance": null,
-      "date": "2026-10-23",
-      "post": "bornlupin/20772"
     },
     {
       "kind": "macro",
