@@ -350,7 +350,13 @@ function axisRow(doc, root, row, { history, scenarios, previous, inputs, asOf, o
   if (row.id === 'trend') {
     const slot = el(doc, 'div', null, 'mk-correction-slot');
     facts.append(slot);
-    (correctionBaseRate ||= import('./correction-base-rate.js')).then(({ renderCorrectionBaseRate }) => renderCorrectionBaseRate({ documentRef: doc, root, host: slot, onLoad: () => renderRegimePage({ documentRef: doc, root }) })).catch(() => { correctionBaseRate = null; });
+    // v59.70 (boot budget): fetched when the trend row is open, not with every board paint.
+    const fill = () => {
+      if (slot.dataset.requested) return;
+      slot.dataset.requested = '1';
+      (correctionBaseRate ||= import('./correction-base-rate.js')).then(({ renderCorrectionBaseRate }) => renderCorrectionBaseRate({ documentRef: doc, root, host: slot, onLoad: () => renderRegimePage({ documentRef: doc, root }) })).catch(() => { correctionBaseRate = null; delete slot.dataset.requested; });
+    };
+    if (card.open) fill(); else card.addEventListener('toggle', () => { if (card.open) fill(); });
   }
   if (row.evidence.length) { const list = el(doc, 'dl', null, 'regime-evidence'); for (const [label, value] of row.evidence) list.append(el(doc, 'dt', label), el(doc, 'dd', value)); facts.append(list); }
   if (row.flip) {
