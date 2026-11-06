@@ -104,6 +104,7 @@ export function createFakeDocument({ queryAll = null, ids = null } = {}) {
       get options() { return descendants(this).filter((node) => node.tagName === 'OPTION'); },
       get selectedOptions() { const all = this.options; const hit = all.filter((o) => o.selected || (this.value !== '' && o.value === this.value)); return hit.length ? hit.slice(0, 1) : all.slice(0, 1); },
       get isConnected() { return true; },
+      get parentElement() { return this.parentNode || null; }, // v59.70: renderers that walk up from a node (fold restore)
       get nextElementSibling() { const s = this.parentNode?.children; return s ? s[s.indexOf(this) + 1] || null : null; },
       get previousElementSibling() { const s = this.parentNode?.children; return s ? s[s.indexOf(this) - 1] || null : null; },
       append(...items) { for (const item of items) this.appendChild(item); },

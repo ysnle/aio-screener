@@ -320,10 +320,16 @@ jobs:
         run: node scripts/build-scenario-state.mjs
 
       - name: Build the market-day ledger (v59.63, every refresh)
-        # No network: one ledger of the last day's moves and events from the artifacts above. A failure keeps the previous file.
+        # One ledger of the last day's moves and events from the artifacts above. A failure keeps the previous file.
+        # v59.70 (owner D6): its only network call translates headline facts the news bundle left in English, on the
+        # Worker's free Workers AI path (no paid fallback); a title that fails is marked titleKoFailed.
         id: market-day
         if: ${{ !cancelled() && steps.fetch-market.outcome == 'success' }}
         continue-on-error: true
+        timeout-minutes: 5
+        env:
+          AI_PROXY_URL: ${{ vars.AIO_PROXY_URL || 'https://aio-proxy.zmfhd007.workers.dev' }}
+          AIO_AUTOMATION_TOKEN: ${{ secrets.AIO_AUTOMATION_TOKEN }}
         run: node scripts/build-market-day.mjs
 
       - name: Write the freshness ledger (v59.70)

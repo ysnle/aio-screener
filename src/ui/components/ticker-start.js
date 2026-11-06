@@ -56,7 +56,8 @@ export function renderTickerStart({ documentRef: doc, root, portfolioState = nul
   const groups = [];
   if (model.mine.length) groups.push(group(doc, '내 종목', model.mine.map((row) => chip(doc, row.symbol, row.name))));
   if (model.top.length) {
-    const box = group(doc, '스크리너 순위 상위, 미국', model.top.map((row) => chip(doc, row.symbol, row.name)));
+    // v59.70 (screen review 17): the screener opens on 시총 큰 순, so '순위 상위' read as its first rows; the group names its own column.
+    const box = group(doc, '스크리너 백분위 상위, 미국', model.top.map((row) => chip(doc, row.symbol, row.name)));
     const more = el(doc, 'button', '스크리너에서 전체 순위 →', 'flow-next-link');
     more.type = 'button';
     more.dataset.action = 'showPage';

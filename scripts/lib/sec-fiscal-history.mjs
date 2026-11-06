@@ -16,7 +16,14 @@ export function compactFiscalMillions(value) {
 // Codex review 2026-10-05 (분기 추이): the last eight fiscal quarters of revenue and net income. Discrete
 // three-month facts are used as filed (latest filing wins per period end). A fourth quarter is derived
 // only when the fiscal year total and exactly three discrete quarters inside it exist, and is flagged 'd'.
-export const QUARTER_FORMAT = 'periodEnd:revenue:netIncome:basis (USD millions; basis r=reported, d=derived FY−Q1..Q3)';
+// v59.70 (X bookmarks #8): two quarter-end balances follow once the issuer was read with them — inventory and trade
+// receivables at the same period end (absent = not yet collected, empty = not reported).
+export const QUARTER_FORMAT = 'periodEnd:revenue:netIncome:basis[:inventory:receivables] (USD millions; basis r=reported, d=derived FY−Q1..Q3; the bracket is quarter-end balances, present once the issuer was read with them)';
+// The balance at a period end: the anchor concept's latest filing for that date.
+function balanceAt(rows, periodEnd) {
+  const list = anchorConceptRows(rows, []).filter((row) => row.periodEnd === periodEnd && !row.periodStart && Number.isFinite(row.value));
+  return list.sort((a, b) => String(b.filedAt || '').localeCompare(String(a.filedAt || '')))[0]?.value ?? null;
+}
 export function quarterlyHistory(observations = {}) {
   const quarters = new Map();
   for (const [field, qField, fyField] of [['revenue', 'revenueQ', 'revenue'], ['netIncome', 'netIncomeQ', 'netIncome']]) {
@@ -36,7 +43,9 @@ export function quarterlyHistory(observations = {}) {
   }
   const m = compactFiscalMillions;
   const rows = [...quarters.values()].filter((q) => q.revenue != null || q.netIncome != null).sort((a, b) => a.periodEnd.localeCompare(b.periodEnd)).slice(-8);
-  return rows.length >= 2 ? rows.map((q) => [q.periodEnd, m(q.revenue), m(q.netIncome), q.derived ? 'd' : 'r'].join(':')).join(';') : null;
+  const balances = Array.isArray(observations.inventoryQ) && Array.isArray(observations.receivablesQ);
+  return rows.length >= 2 ? rows.map((q) => [q.periodEnd, m(q.revenue), m(q.netIncome), q.derived ? 'd' : 'r',
+    ...(balances ? [m(balanceAt(observations.inventoryQ, q.periodEnd)), m(balanceAt(observations.receivablesQ, q.periodEnd))] : [])].join(':')).join(';') : null;
 }
 
 // P1436 (재무 공시 redesign): the page reads a trend, not one year. A compact fiscal-year series (at most

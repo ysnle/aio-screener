@@ -535,7 +535,7 @@ export function buildMacroCrossroads({ read = null, macroHistory = null, history
   } else if (downPaths === 0 && s.tnx20 != null && s.tnx20 <= -RATES_RISE) {
     // v58.80 (owner 2026-10-25): the same 20 sessions on stocks and long bonds say whether the fall was a flight to bonds.
     rateHub.tension = relations.flow
-      ? `금리를 낮출 조건이 뚜렷하지 않은데 10년물은 20거래일 ${bpChange(s.tnx20)} 내렸습니다. 같은 기간 S&P 500 ${signed(relations.moves.spx.value, 1, '%')}, 장기채 ${signed(relations.moves.tlt.value, 1, '%')}로 위험 회피 때 국채에 돈이 몰린 모양입니다${relations.driver && relations.moves.smh ? `. 주식 하락은 반도체(${signed(relations.moves.smh.value, 1, '%')})가 이끌었습니다` : ''}.`
+      ? `금리를 낮출 조건이 뚜렷하지 않은데 10년물은 20거래일 ${bpChange(s.tnx20)} 내렸습니다. 같은 기간 S&P 500 ${signed(relations.moves.spx.value, 1, '%')}, 장기채 ${signed(relations.moves.tlt.value, 1, '%')}로 위험 회피 때 국채에 돈이 몰린 모양입니다${relations.driver && relations.moves.soxx ? `. 주식 하락은 반도체(${signed(relations.moves.soxx.value, 1, '%')})가 이끌었습니다` : ''}.`
       : `금리를 낮출 조건이 뚜렷하지 않은데 10년물은 20거래일 ${bpChange(s.tnx20)} 내렸습니다. 안전자산 선호나 해외 요인일 수 있어, 위험 회피가 원인인지 신용·변동성 축과 함께 확인합니다.`;
   }
   const short = (item) => item.title.split(' — ')[0];

@@ -4676,39 +4676,7 @@ button[data-filter-active="true"] {
   <div class="page-head">
     <div>
       <h1 class="page-title">포트폴리오</h1>
-      <!-- LC-43: the separate #pf-freshness-strip is hidden in the public 기본 화면, so the intro must
-           not promise it. The visible evidence is the per-row price cell (통화·관측시각·출처 툴팁). -->
-      <div class="page-subtitle"><details class="pf-privacy sh-portfolio-fold"><summary class="sh-portfolio-toggle" title="이 브라우저에만 저장">보안</summary><span class="sh-portfolio-box">보유 내역은 이 브라우저에만 저장됩니다. AI 분석을 누를 때만 종목명·섹터·비중·수익률이 전송되고(수량·매수가·메모 제외, 처음 한 번 동의 확인), 브라우저 기록을 지우거나 기기를 바꾸면 백업 파일로만 되살릴 수 있습니다.</span>
-        <!-- v58.68: moved from the sidebar card — the PIN protects the portfolio this page stores. -->
-            <!-- v30.11: Vault PIN 보안 설정 -->
-            <div style="font-size:12px;color:var(--data-purple);font-family:var(--font-mono);margin-bottom:5px;cursor:pointer;padding:4px 6px;background:rgba(var(--ink-rgb),0.08);border:0.5px solid rgba(var(--ink-rgb),0.2);border-radius:4px;text-align:center;" data-action="_aioNextSiblingToggle" data-pass-el="1">
-               저장 기록 잠금 (PIN, 직접 정하는 비밀번호) <span id="vault-status-badge" style="font-size:12px;margin-left:4px;"> 미설정</span> <span class="arrow">▼</span>
-            </div>
-            <div style="display:none;margin-bottom:6px;">
-              <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;line-height:1.4;">이 브라우저에 저장한 포트폴리오 기록과 자체 프록시 주소를 PIN으로 보호합니다. 공용 AI 연결 설정과는 별개입니다.</div>
-              <div id="vault-set-panel">
-                <div class="llm-key-row sh-mb2">
-                  <input type="password" id="vault-pin-input" class="llm-key-input" placeholder="PIN (4자리 이상)" style="font-size:12px;" maxlength="20">
-                </div>
-                <div class="llm-key-row sh-mb2">
-                  <input type="password" id="vault-pin-confirm" class="llm-key-input" placeholder="PIN 확인" style="font-size:12px;" maxlength="20">
-                  <button class="llm-key-save btn-vault" data-action="_vaultSetPin">설정</button>
-                </div>
-                <div id="vault-pin-msg" style="font-size:12px;color:var(--text-muted);min-height:12px;"></div>
-              </div>
-              <div id="vault-unlock-panel" style="display:none;">
-                <div class="llm-key-row sh-mb2">
-                  <input type="password" id="vault-unlock-input" class="llm-key-input" placeholder="PIN 입력" style="font-size:12px;" maxlength="20">
-                  <button class="llm-key-save btn-vault" data-action="_vaultUnlock">해제</button>
-                </div>
-                <div id="vault-unlock-msg" style="font-size:12px;color:var(--text-muted);min-height:12px;"></div>
-              </div>
-              <div class="sh-shell-sidebar-mt3">
-                <label style="font-size:12px;color:var(--text-muted);cursor:pointer;"><input type="checkbox" id="vault-public-mode" aria-label="공용 PC 모드" data-on-change="_aioVaultPublicMode" class="sh-shell-sidebar-vault-public-field"> 공용 PC 모드 (탭을 닫으면 잠근 데이터 삭제)</label>
-                <span id="vault-public-label" style="font-size:12px;color:var(--data-amber);margin-left:4px;"></span>
-              </div>
-            </div>
-      </details></div>
+      <!-- v59.70 (S16): the 보안 fold moved into 설정 at the end of the page. -->
     </div>
     <div class="sh-portfolio-row">
       <button class="aio-btn-table primary is-interactive sh-portfolio-btn" data-action="_aioTogglePortfolioEntry">종목 추가</button>
@@ -4807,6 +4775,13 @@ button[data-filter-active="true"] {
     </div>
     </div><!-- /aio-section 종목추가 -->
 
+    <!-- v59.70 (S16): ① 지금 구성과 S&P 500 — native trend chart from the published closes (portfolio-value-trend.js). -->
+    <section class="aio-section pf-first" id="pf-value-trend" aria-labelledby="pf-value-trend-title" hidden>
+      <div class="pf-first-head"><h2 class="briefing-h2" id="pf-value-trend-title">지금 구성과 S&amp;P 500</h2><span class="pf-first-badge" data-pf-trend-badge></span></div>
+      <div class="pf-trend-body" data-pf-trend-body></div>
+      <div class="pf-value-legend"><span><svg width="18" height="6" aria-hidden="true" class="sh-portfolio-benchmark-part-valign"><line x1="0" x2="18" y1="3" y2="3" stroke="var(--text-primary)" stroke-width="2"/></svg>지금 구성</span><span><svg width="18" height="6" aria-hidden="true" class="sh-portfolio-benchmark-part-valign"><line x1="0" x2="18" y1="3" y2="3" stroke="var(--text-muted)" stroke-width="1.2" stroke-dasharray="4 3"/></svg>S&amp;P 500 (SPY)</span></div>
+    </section>
+
     <!-- 보유 종목 테이블 + 이 포트폴리오를 읽는 법 (개편 v2 3g; 읽는 법은 portfolio-read.js가 보유 종목이 있을 때만 채움) -->
     <div class="aio-widget sh-mb14" id="pf-holdings-table-section">
       <div class="sh-portfolio-holdings-table-row">
@@ -4836,107 +4811,118 @@ button[data-filter-active="true"] {
           <tr><td colspan="10" class="sh-portfolio-positions-tbody-cell">포지션을 추가해주세요. 데이터는 브라우저에만 저장됩니다.</td></tr>
         </tbody>
       </table>
+      <!-- v48.58: 시세 신선도 배지 (판매 Blocker #2 해소) -->
+      <div id="pf-freshness-strip" class="sh-portfolio-freshness-strip-row">
+        <span class="sh-portfolio-freshness-strip-row-middle">
+          <span id="pf-freshness-dot" class="sh-portfolio-freshness-dot-tint"></span>
+          <span class="sh-muted-tone-bold">시세 기준 시각</span>
+        </span>
+        <span id="pf-freshness-label" class="sh-ink-tone">시세 출처 확인 대기</span>
+        <span id="pf-freshness-time" class="sh-portfolio-freshness-time-fine">갱신: —</span>
+        <span class="sh-portfolio-freshness-strip-note">
+          장중 실시간, 일부 무료 시세는 지연 가능
+          <span class="aio-tooltip" data-action="_aioTooltipToggle" data-pass-el="1" data-pass-event="1" aria-expanded="false" role="button" tabindex="0" aria-label="시세 지연 설명">?<span class="aio-tooltip-body is-right"><span class="aio-tooltip-title">시세 안내</span>무료 시세는 지연될 수 있습니다. 받지 못하면 다른 출처로 자동 전환합니다.</span></span>
+        </span>
+      </div>
     </div>
     <!-- P1438 → v59.51: the one reading under the holdings — one visual (value share by trend state) and a short lead; the
          3-month gap to the index folds. The four prose points and the 읽는 법 cards (sector/index/single/bond) were the same
          facts as the hero, the table and 점검; their unique parts (index overlap, bond cushion) fold inside 점검. -->
     <section class="briefing-block pf-read" id="pf-read" aria-label="내 포트폴리오와 시장" hidden></section>
-    <section class="aio-section pf-checks" id="pf-checks" aria-label="포트폴리오 점검"><div class="briefing-empty">포지션을 추가하면 쏠림·통화·지역 점검이 표시됩니다</div></section>
+    <!-- v59.70 (S16): ③ 노출 — one stacked bar by sector and the largest holding (portfolio-exposure-bar.js). -->
+    <section class="aio-section pf-first" id="pf-exposure-bar" aria-labelledby="pf-exposure-bar-title" hidden>
+      <div class="pf-first-head"><h2 class="briefing-h2" id="pf-exposure-bar-title">노출</h2></div>
+      <div data-pf-exposure-body></div>
+    </section>
 
-    <!-- v48.58: 시세 신선도 배지 (판매 Blocker #2 해소) -->
-    <div id="pf-freshness-strip" class="sh-portfolio-freshness-strip-row">
-      <span class="sh-portfolio-freshness-strip-row-middle">
-        <span id="pf-freshness-dot" class="sh-portfolio-freshness-dot-tint"></span>
-        <span class="sh-muted-tone-bold">시세 기준 시각</span>
-      </span>
-      <span id="pf-freshness-label" class="sh-ink-tone">시세 출처 확인 대기</span>
-      <span id="pf-freshness-time" class="sh-portfolio-freshness-time-fine">갱신: —</span>
-      <span class="sh-portfolio-freshness-strip-note">
-        장중 실시간, 일부 무료 시세는 지연 가능
-        <span class="aio-tooltip" data-action="_aioTooltipToggle" data-pass-el="1" data-pass-event="1" aria-expanded="false" role="button" tabindex="0" aria-label="시세 지연 설명">?<span class="aio-tooltip-body is-right"><span class="aio-tooltip-title">시세 안내</span>무료 시세는 지연될 수 있습니다. 받지 못하면 다른 출처로 자동 전환합니다.</span></span>
-      </span>
-    </div>
-
-    <!-- v59.51 (content audit): 내 기록 · 도구 — two closed folds after the reading. 내 기록 holds what the reader wrote (매매일지,
-         논지 점검); 도구 holds the calculators and settings (benchmark inside 과거 성과, 내 계획 점검 owner 2026-10-24). The AI 메모
-         fold (the top AI panel answers the same asks; its note duplicated 매매일지), the 비중 도넛·섹터 배분 (the table's weight
-         column and 점검) and the per-holding mini charts (each row's 차트 opens the same MA/high-low chart) were retired. -->
-    <details id="pf-records-fold" class="aio-page-advanced-toggle sh-mb14" data-user-fold>
-      <summary>내 기록 — 매매일지, 보유 종목 논지 점검</summary>
+    <!-- v59.70 (S16): three folds — 기록 (what the reader wrote), 점검 (checks and calculators), 설정 (security and the
+         calculation settings). The 도구 fold, its five nested folds and the header's 보안 fold were merged into these. -->
+    <details id="pf-records-fold" class="aio-page-advanced-toggle sh-mb14" data-user-fold data-pf-fold="records">
+      <summary>기록 — 매매일지, 논지, 입출금, 환율</summary>
       <div class="aio-page-advanced-body">
         <section class="aio-section pf-trades" id="pf-trades" aria-label="매매일지와 복기" hidden></section>
         <section class="aio-section pf-checklist" id="pf-thesis" aria-label="보유 종목 논지 점검" hidden></section>
+    <section id="pf-ledger-section" class="pf-fold-part" aria-labelledby="pf-ledger-title">
+      <h3 class="pf-fold-h" id="pf-ledger-title">입출금</h3>
+      <div class="sh-portfolio-ledger-part-panel">
+        <div class="sh-portfolio-ledger-part-note">입출금(외부 현금흐름)과 기간 평가액을 선언하면 시간가중(TWR)·금액가중(MWR) 수익률을 계산합니다. 원장이나 계약이 없으면 계산하지 않고 보류합니다. 원장은 포지션과 같은 암호화 경로로 저장됩니다.</div>
+        <div class="sh-portfolio-ledger-part-row">
+          <div>
+            <div class="sh-muted-label">입출금 반영 시점</div>
+            <select id="pf-ledger-flow-timing" aria-label="현금흐름 시점 규약" class="sh-ink-field" data-on-change="_aioSaveLedgerConvention">
+              <option value="end-of-period">기간 말 (end-of-period)</option>
+              <option value="start-of-period">기간 시작 (start-of-period)</option>
+            </select>
+          </div>
+          <div id="pf-ledger-coverage"></div>
+        </div>
+        <div class="sh-portfolio-ledger-part-cols">
+          <div>
+            <div class="sh-muted-label">거래 종류</div>
+            <select id="pf-ledger-kind" aria-label="원장 거래 종류" class="sh-portfolio-ledger-kind-field"><option value="deposit">입금</option><option value="withdrawal">출금</option></select>
+          </div>
+          <div>
+            <div class="sh-muted-label">거래 날짜</div>
+            <input id="pf-ledger-date" type="date" aria-label="원장 거래 날짜" class="sh-ink-field-full"/>
+          </div>
+          <div>
+            <div class="sh-muted-label">금액</div>
+            <input id="pf-ledger-amount" type="number" min="0" step="0.01" aria-label="원장 거래 금액" class="sh-ink-field-s3"/>
+          </div>
+          <div><button class="aio-btn-table sh-btn-fs11" data-action="_aioAddLedgerEntry">거래 추가</button></div>
+        </div>
+        <div class="sh-portfolio-ledger-part-cols-fluid">
+          <div>
+            <div class="sh-muted-label">평가액 날짜</div>
+            <input id="pf-ledger-valuation-date" type="date" aria-label="기간 평가액 날짜" class="sh-ink-field-full"/>
+          </div>
+          <div>
+            <div class="sh-muted-label">기간 평가액</div>
+            <input id="pf-ledger-valuation-amount" type="number" min="0" step="0.01" aria-label="기간 평가액" class="sh-ink-field-s3"/>
+          </div>
+          <div><button class="aio-btn-table sh-btn-fs11" data-action="_aioAddLedgerValuation">평가액 추가</button></div>
+        </div>
+        <div id="pf-ledger-list" class="sh-muted-note">입출금 기록 없음</div>
+        <div id="pf-ledger-status" class="sh-portfolio-ledger-status-note">기간 수익률(TWR/MWR)은 입출금 기록과 반영 시점을 입력하면 자동 계산됩니다.</div>
+      </div>
+    </section>
+    <section id="pf-fx-section" class="pf-fold-part" aria-labelledby="pf-fx-title">
+      <h3 class="pf-fold-h" id="pf-fx-title">환율</h3>
+      <div class="sh-portfolio-ledger-part-panel">
+        <div class="sh-portfolio-ledger-part-note">보유 통화가 기준 통화와 다르면 합계에 환율이 필요합니다. 환율과 확인 시각을 입력하세요 — 72시간이 지난 환율은 쓰지 않고, 어느 통화가 왜 빠졌는지 결과에 표시합니다.</div>
+        <div class="sh-portfolio-fx-part-cols">
+          <div>
+            <div class="sh-muted-label">From</div>
+            <input id="pf-fx-from" type="text" maxlength="3" placeholder="KRW" aria-label="환산 기준 통화 3자리 코드" class="sh-portfolio-fx-from-field"/>
+          </div>
+          <div>
+            <div class="sh-muted-label">To</div>
+            <input id="pf-fx-to" type="text" maxlength="3" placeholder="USD" aria-label="환산 대상 통화 3자리 코드" class="sh-portfolio-fx-from-field"/>
+          </div>
+          <div>
+            <div class="sh-muted-label">환율</div>
+            <input id="pf-fx-rate" type="number" min="0" step="0.0001" aria-label="관측 환율" class="sh-ink-field-s3"/>
+          </div>
+          <div>
+            <div class="sh-muted-label">관측일</div>
+            <input id="pf-fx-date" type="date" aria-label="환율 관측일" class="sh-ink-field-full"/>
+          </div>
+          <div><button class="aio-btn-table sh-btn-fs11" data-action="_aioAddFxLeg">환율 기록 추가</button></div>
+        </div>
+        <div id="pf-fx-list" class="sh-muted-note">입력한 환율 없음</div>
+        <div id="pf-fx-status" class="sh-portfolio-ledger-status-note">직접 입력한 환율만 환산에 씁니다.</div>
+      </div>
+    </section>
       </div>
     </details>
-    <details id="pf-tools-fold" class="aio-page-advanced-toggle sh-mb14" data-user-fold>
-      <summary>도구 — 과거 성과, 내 계획 점검, 관심 종목, 위험 계산, 고급 설정</summary>
+    <details id="pf-check-fold" class="aio-page-advanced-toggle sh-mb14" data-user-fold data-pf-fold="check">
+      <summary>점검 — 쏠림·통화, 내 계획, 위험 계산, 과거 성과, 관심 종목</summary>
       <div class="aio-page-advanced-body">
-    <!-- v52.73 아이보리 4a: 시안엔 없는 백테스트 도구 — details로 압축 -->
-    <details id="pf-backtest-fold" class="aio-page-advanced-toggle sh-mb14" data-user-fold><!-- v58.75: user fold, shown once there are holdings (portfolio.js empty state hides it) -->
-      <summary>과거 성과, S&amp;P 500 비교 · 시뮬레이션</summary>
-      <div class="aio-page-advanced-body">
-    <!-- v34.9: SPY 벤치마크 비교 차트 (v59.51: moved into this fold) -->
-    <div class="aio-section" id="pf-benchmark-section">
-    <div class="aio-section-hd"><span class="aio-section-label">포트폴리오 vs SPY 수익률 비교</span><button data-action="updateBenchmarkChart" class="aio-btn-table sh-portfolio-benchmark-part-btn">새로고침</button></div>
-    <div class="sh-base-panel-s1">
-      <div class="sh-between-row">
-      </div>
-      <div id="pf-benchmark-chart" class="pf-benchmark-line" role="status"><p class="pf-benchmark-status">새로고침을 누르면 최근 30일을 SPY와 비교합니다.</p></div>
-      <div class="pf-benchmark-legend sh-portfolio-benchmark-part-row">
-        <span><svg width="18" height="6" aria-hidden="true" class="sh-portfolio-benchmark-part-valign"><line x1="0" x2="18" y1="3" y2="3" stroke="var(--text-primary)" stroke-width="2"/></svg>내 포트폴리오</span><span><svg width="18" height="6" aria-hidden="true" class="sh-portfolio-benchmark-part-valign"><line x1="0" x2="18" y1="3" y2="3" stroke="var(--text-muted)" stroke-width="1.2" stroke-dasharray="4 3"/></svg>SPY (S&P 500)</span>
-        <span class="sh-portfolio-benchmark-part-note">※ 지금 구성을 과거에도 들고 있었다고 가정한 참고 그래프 — 실제 계좌 수익이 아닙니다. 배당·분할 미반영, 상위 10종목 밖은 단순 추정입니다.</span>
-      </div>
-    </div>
-    </div><!-- /aio-section SPY비교 -->
-
-
-    <!-- v51.79: Portfolio Visualizer-style 장기 백테스트 Lab -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">과거 성과 시뮬레이션</span></div>
-    <div id="pf-backtest-lab" class="sh-base-panel-s1">
-      <div class="sh-portfolio-backtest-lab-row">
-        <div>
-          <div class="sh-portfolio-backtest-lab-text">장기 포트폴리오 백테스트</div>
-        </div>
-        <span class="sh-portfolio-backtest-lab-fine">월말 종가 기준</span>
-      </div>
-      <div class="sh-portfolio-backtest-lab-cols">
-        <label class="sh-muted-label-bold">초기 금액
-          <input id="pf-bt-initial" type="number" min="100" step="100" value="10000" aria-label="백테스트 초기 금액" class="sh-portfolio-bt-initial-field">
-        </label>
-        <label class="sh-muted-label-bold">시작 연도
-          <input id="pf-bt-start-year" type="number" min="1985" max="2026" step="1" value="2017" aria-label="백테스트 시작 연도" class="sh-portfolio-bt-initial-field">
-        </label>
-        <label class="sh-muted-label-bold">리밸런싱
-          <select id="pf-bt-rebalance" aria-label="백테스트 리밸런싱 방식" class="sh-portfolio-bt-rebalance-field">
-            <option value="annual">연 1회</option>
-            <option value="quarterly">분기 1회</option>
-            <option value="monthly">월 1회</option>
-            <option value="none">리밸런싱 없음</option>
-          </select>
-        </label>
-        <label class="sh-muted-label-bold">벤치마크
-          <input id="pf-bt-benchmark" type="text" value="SPY" aria-label="백테스트 벤치마크 티커" class="sh-portfolio-bt-benchmark-field">
-        </label>
-        <div class="sh-portfolio-backtest-lab-row-end">
-          <button class="aio-btn-table primary sh-portfolio-backtest-lab-btn" data-action="runPortfolioBacktestLab">백테스트 실행</button>
-        </div>
-      </div>
-      <div id="pf-backtest-output" class="sh-portfolio-backtest-output-note">보유 종목을 추가한 뒤 실행하세요. 결과는 브라우저에서 계산되며 서버로 전송되지 않습니다.</div>
-    </div>
-    </div><!-- /aio-section 백테스트 Lab -->
-      </div>
-    </details>
-
-    <!-- ══ v48.47: 위험/보상 계산기 (포지션 연동) — from technical ══ -->
-    <!-- v58.75 (owner 2026-10-24): the R:R calculator generated 1R/2R/3R target prices and a 2%-rule share count. The app does
-         not propose prices or sizes; it now checks the plan the user typed (entry, stop, optional target, amount, capital). -->
-    <details id="pf-rr-fold" class="aio-page-advanced-toggle sh-mb14" data-user-fold>
-      <summary>내 계획 점검 (손절·목표 가격)</summary>
-      <div class="aio-page-advanced-body">
+    <section class="aio-section pf-checks" id="pf-checks" aria-label="포트폴리오 점검"><div class="briefing-empty">포지션을 추가하면 쏠림·통화·지역 점검이 표시됩니다</div></section>
+    <section id="pf-rr-fold" class="pf-fold-part" aria-label="내 계획 점검">
     <div class="sh-portfolio-panel">
       <div class="sh-between-row">
-        <div class="sh-portfolio-text">내 계획 점검</div>
+        <h3 class="pf-fold-h">내 계획</h3>
         <div class="sh-portfolio-row-middle">
           <select id="rr-position-select" aria-label="보유 포지션에서 진입가 가져오기" data-on-change="_aioRRFillFromPosition" class="sh-portfolio-rr-position-field">
             <option value="">보유 종목에서 진입가 채우기...</option>
@@ -4965,7 +4951,7 @@ button[data-filter-active="true"] {
           <div class="sh-muted-note-mb3">전체 자본 (선택)</div>
           <input id="rr-total" type="number" step="any" min="0" aria-label="전체 자본 (선택)" class="sh-ink-field-digits">
         </div>
-        <button data-action="calculateRR" class="btn-cta">점검</button>
+        <button type="button" data-plan-check class="btn-cta">점검</button>
       </div>
       <div id="rr-result" hidden>
         <ul id="rr-lines" class="pf-rr-lines"></ul>
@@ -4973,14 +4959,8 @@ button[data-filter-active="true"] {
         <p class="sh-muted-note">이 종목의 지지·저항 후보와 함께 보려면 <button type="button" class="flow-next-link" data-action="showPage" data-arg="technical">차트 화면의 가격 레벨과 내 계획</button>에서 확인합니다.</p>
       </div>
     </div>
-      </div>
-    </details>
-
-    <!-- v52.73 아이보리 4a: 시안엔 없는 워치리스트/심화 위험 도구 — details로 압축 (v57.77: 자동 진단 퇴역; v57.81: user fold) -->
-    <details class="aio-page-advanced-toggle sh-mb14" id="pf-watchlist-risk-fold" data-user-fold>
-      <summary>관심종목 리스트, 위험 계산 (예상 최대 손실·종목끼리 함께 움직이는 정도)</summary>
-      <div class="aio-page-advanced-body">
-    <!-- ═══ 다중 워치리스트 시스템 ═══ -->
+    </section>
+    <section id="pf-watchlist-risk-fold" class="pf-fold-part" aria-label="위험 계산과 관심 종목">
     <div class="aio-widget sh-mb14">
       <div class="sh-portfolio-watchlist-risk-row">
         <div class="widget-title sh-flush">관심 종목 리스트</div>
@@ -5056,15 +5036,84 @@ button[data-filter-active="true"] {
         </div>
       </div>
     </div>
+    </section>
+    <section id="pf-backtest-fold" class="pf-fold-part" aria-label="과거 성과">
+      <h3 class="pf-fold-h">과거 성과</h3>
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">과거 성과 시뮬레이션</span></div>
+    <div id="pf-backtest-lab" class="sh-base-panel-s1">
+      <div class="sh-portfolio-backtest-lab-row">
+        <div>
+          <div class="sh-portfolio-backtest-lab-text">장기 포트폴리오 백테스트</div>
+        </div>
+        <span class="sh-portfolio-backtest-lab-fine">월말 종가 기준</span>
+      </div>
+      <div class="sh-portfolio-backtest-lab-cols">
+        <label class="sh-muted-label-bold">초기 금액
+          <input id="pf-bt-initial" type="number" min="100" step="100" value="10000" aria-label="백테스트 초기 금액" class="sh-portfolio-bt-initial-field">
+        </label>
+        <label class="sh-muted-label-bold">시작 연도
+          <input id="pf-bt-start-year" type="number" min="1985" max="2026" step="1" value="2017" aria-label="백테스트 시작 연도" class="sh-portfolio-bt-initial-field">
+        </label>
+        <label class="sh-muted-label-bold">리밸런싱
+          <select id="pf-bt-rebalance" aria-label="백테스트 리밸런싱 방식" class="sh-portfolio-bt-rebalance-field">
+            <option value="annual">연 1회</option>
+            <option value="quarterly">분기 1회</option>
+            <option value="monthly">월 1회</option>
+            <option value="none">리밸런싱 없음</option>
+          </select>
+        </label>
+        <label class="sh-muted-label-bold">벤치마크
+          <input id="pf-bt-benchmark" type="text" value="SPY" aria-label="백테스트 벤치마크 티커" class="sh-portfolio-bt-benchmark-field">
+        </label>
+        <div class="sh-portfolio-backtest-lab-row-end">
+          <button class="aio-btn-table primary sh-portfolio-backtest-lab-btn" data-action="runPortfolioBacktestLab">백테스트 실행</button>
+        </div>
+      </div>
+      <div id="pf-backtest-output" class="sh-portfolio-backtest-output-note">보유 종목을 추가한 뒤 실행하세요. 결과는 브라우저에서 계산되며 서버로 전송되지 않습니다.</div>
+    </div>
+    </div><!-- /aio-section 백테스트 Lab -->
+    </section>
       </div>
     </details>
-
-    <!-- Codex review 2026-10-05: base currency, cash return, RF, the cash-flow ledger (TWR/MWR) and FX legs are
-         calculation settings, not the first thing a holder needs. Results first; settings folded below.
-         v57.50 I08: the fold moved from inside the risk section to the end of the screen (hidden while empty, as before). -->
-    <details id="pf-calc-settings" class="sh-mt12">
-    <summary class="sh-portfolio-calc-settings-toggle">고급 설정, 통화, 현금 이자, 입출금, 환율 (기간 수익률·위험 지표를 계산할 때만 씁니다)</summary>
-    <!-- E3/E4/P1188: 통화·현금 수익률·RF는 입력이다 — 선언하지 않으면 추정하지 않고 해당 지표를 보류한다. -->
+    <details id="pf-settings-fold" class="aio-page-advanced-toggle sh-mb14" data-user-fold data-pf-fold="settings">
+      <summary>설정 — 보안, 기준 통화, 현금 이자</summary>
+      <div class="aio-page-advanced-body">
+    <section class="pf-fold-part pf-privacy" id="pf-security" aria-labelledby="pf-security-title">
+      <h3 class="pf-fold-h" id="pf-security-title">보안</h3>
+      <p class="sh-portfolio-box">보유 내역은 이 브라우저에만 저장됩니다. AI 분석을 누를 때만 종목명·섹터·비중·수익률이 전송되고(수량·매수가·메모 제외, 처음 한 번 동의 확인), 브라우저 기록을 지우거나 기기를 바꾸면 백업 파일로만 되살릴 수 있습니다.</p>
+        <!-- v58.68: moved from the sidebar card — the PIN protects the portfolio this page stores. -->
+            <!-- v30.11: Vault PIN 보안 설정 -->
+            <div style="font-size:12px;color:var(--data-purple);font-family:var(--font-mono);margin-bottom:5px;cursor:pointer;padding:4px 6px;background:rgba(var(--ink-rgb),0.08);border:0.5px solid rgba(var(--ink-rgb),0.2);border-radius:4px;text-align:center;" data-action="_aioNextSiblingToggle" data-pass-el="1">
+               저장 기록 잠금 (PIN, 직접 정하는 비밀번호) <span id="vault-status-badge" style="font-size:12px;margin-left:4px;"> 미설정</span> <span class="arrow">▼</span>
+            </div>
+            <div style="display:none;margin-bottom:6px;">
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;line-height:1.4;">이 브라우저에 저장한 포트폴리오 기록과 자체 프록시 주소를 PIN으로 보호합니다. 공용 AI 연결 설정과는 별개입니다.</div>
+              <div id="vault-set-panel">
+                <div class="llm-key-row sh-mb2">
+                  <input type="password" id="vault-pin-input" class="llm-key-input" placeholder="PIN (4자리 이상)" style="font-size:12px;" maxlength="20">
+                </div>
+                <div class="llm-key-row sh-mb2">
+                  <input type="password" id="vault-pin-confirm" class="llm-key-input" placeholder="PIN 확인" style="font-size:12px;" maxlength="20">
+                  <button class="llm-key-save btn-vault" data-action="_vaultSetPin">설정</button>
+                </div>
+                <div id="vault-pin-msg" style="font-size:12px;color:var(--text-muted);min-height:12px;"></div>
+              </div>
+              <div id="vault-unlock-panel" style="display:none;">
+                <div class="llm-key-row sh-mb2">
+                  <input type="password" id="vault-unlock-input" class="llm-key-input" placeholder="PIN 입력" style="font-size:12px;" maxlength="20">
+                  <button class="llm-key-save btn-vault" data-action="_vaultUnlock">해제</button>
+                </div>
+                <div id="vault-unlock-msg" style="font-size:12px;color:var(--text-muted);min-height:12px;"></div>
+              </div>
+              <div class="sh-shell-sidebar-mt3">
+                <label style="font-size:12px;color:var(--text-muted);cursor:pointer;"><input type="checkbox" id="vault-public-mode" aria-label="공용 PC 모드" data-on-change="_aioVaultPublicMode" class="sh-shell-sidebar-vault-public-field"> 공용 PC 모드 (탭을 닫으면 잠근 데이터 삭제)</label>
+                <span id="vault-public-label" style="font-size:12px;color:var(--data-amber);margin-left:4px;"></span>
+              </div>
+            </div>
+    </section>
+    <section class="pf-fold-part" id="pf-calc-settings" aria-labelledby="pf-calc-settings-title">
+      <h3 class="pf-fold-h" id="pf-calc-settings-title">기준 통화와 현금 이자</h3>
     <div class="sh-portfolio-calc-settings-row">
       <div>
         <div class="sh-muted-label">계좌 기준 통화</div>
@@ -5097,82 +5146,9 @@ button[data-filter-active="true"] {
       </div>
       <div id="pf-assumption-status" class="sh-portfolio-assumption-status-grow">입력한 값만 씁니다 — 비우면 추정하지 않고 표시하지 않습니다. 목표 비중 유지 방식은 종목별 목표 비중이 필요합니다.</div>
     </div>
-    <!-- E4/P1191: 계좌 원장 입력 — TWR/MWR은 원장 없이 계산되지 않는다. 원장은 Vault로 저장된다. -->
-    <details id="pf-ledger-section" class="sh-mb12">
-      <summary class="sh-portfolio-ledger-part-toggle">입출금 기록 (기간 수익률 계산용)</summary>
-      <div class="sh-portfolio-ledger-part-panel">
-        <div class="sh-portfolio-ledger-part-note">입출금(외부 현금흐름)과 기간 평가액을 선언하면 시간가중(TWR)·금액가중(MWR) 수익률을 계산합니다. 원장이나 계약이 없으면 계산하지 않고 보류합니다. 원장은 포지션과 같은 암호화 경로로 저장됩니다.</div>
-        <div class="sh-portfolio-ledger-part-row">
-          <div>
-            <div class="sh-muted-label">입출금 반영 시점</div>
-            <select id="pf-ledger-flow-timing" aria-label="현금흐름 시점 규약" class="sh-ink-field" data-on-change="_aioSaveLedgerConvention">
-              <option value="end-of-period">기간 말 (end-of-period)</option>
-              <option value="start-of-period">기간 시작 (start-of-period)</option>
-            </select>
-          </div>
-          <div id="pf-ledger-coverage"></div>
-        </div>
-        <div class="sh-portfolio-ledger-part-cols">
-          <div>
-            <div class="sh-muted-label">거래 종류</div>
-            <select id="pf-ledger-kind" aria-label="원장 거래 종류" class="sh-portfolio-ledger-kind-field"><option value="deposit">입금</option><option value="withdrawal">출금</option></select>
-          </div>
-          <div>
-            <div class="sh-muted-label">거래 날짜</div>
-            <input id="pf-ledger-date" type="date" aria-label="원장 거래 날짜" class="sh-ink-field-full"/>
-          </div>
-          <div>
-            <div class="sh-muted-label">금액</div>
-            <input id="pf-ledger-amount" type="number" min="0" step="0.01" aria-label="원장 거래 금액" class="sh-ink-field-s3"/>
-          </div>
-          <div><button class="aio-btn-table sh-btn-fs11" data-action="_aioAddLedgerEntry">거래 추가</button></div>
-        </div>
-        <div class="sh-portfolio-ledger-part-cols-fluid">
-          <div>
-            <div class="sh-muted-label">평가액 날짜</div>
-            <input id="pf-ledger-valuation-date" type="date" aria-label="기간 평가액 날짜" class="sh-ink-field-full"/>
-          </div>
-          <div>
-            <div class="sh-muted-label">기간 평가액</div>
-            <input id="pf-ledger-valuation-amount" type="number" min="0" step="0.01" aria-label="기간 평가액" class="sh-ink-field-s3"/>
-          </div>
-          <div><button class="aio-btn-table sh-btn-fs11" data-action="_aioAddLedgerValuation">평가액 추가</button></div>
-        </div>
-        <div id="pf-ledger-list" class="sh-muted-note">입출금 기록 없음</div>
-        <div id="pf-ledger-status" class="sh-portfolio-ledger-status-note">기간 수익률(TWR/MWR)은 입출금 기록과 반영 시점을 입력하면 자동 계산됩니다.</div>
+    </section>
       </div>
     </details>
-    <!-- E3/P1194 (11 §23): 선언된 FX leg — 혼합 통화 합계의 유일한 환산 근거. leg는 Vault로 저장된다. -->
-    <details id="pf-fx-section" class="sh-mb12">
-      <summary class="sh-portfolio-ledger-part-toggle">환율 기록 (달러·원화를 합칠 때)</summary>
-      <div class="sh-portfolio-ledger-part-panel">
-        <div class="sh-portfolio-ledger-part-note">보유 통화가 기준 통화와 다르면 합계에 환율이 필요합니다. 환율과 확인 시각을 입력하세요 — 72시간이 지난 환율은 쓰지 않고, 어느 통화가 왜 빠졌는지 결과에 표시합니다.</div>
-        <div class="sh-portfolio-fx-part-cols">
-          <div>
-            <div class="sh-muted-label">From</div>
-            <input id="pf-fx-from" type="text" maxlength="3" placeholder="KRW" aria-label="환산 기준 통화 3자리 코드" class="sh-portfolio-fx-from-field"/>
-          </div>
-          <div>
-            <div class="sh-muted-label">To</div>
-            <input id="pf-fx-to" type="text" maxlength="3" placeholder="USD" aria-label="환산 대상 통화 3자리 코드" class="sh-portfolio-fx-from-field"/>
-          </div>
-          <div>
-            <div class="sh-muted-label">환율</div>
-            <input id="pf-fx-rate" type="number" min="0" step="0.0001" aria-label="관측 환율" class="sh-ink-field-s3"/>
-          </div>
-          <div>
-            <div class="sh-muted-label">관측일</div>
-            <input id="pf-fx-date" type="date" aria-label="환율 관측일" class="sh-ink-field-full"/>
-          </div>
-          <div><button class="aio-btn-table sh-btn-fs11" data-action="_aioAddFxLeg">환율 기록 추가</button></div>
-        </div>
-        <div id="pf-fx-list" class="sh-muted-note">입력한 환율 없음</div>
-        <div id="pf-fx-status" class="sh-portfolio-ledger-status-note">직접 입력한 환율만 환산에 씁니다.</div>
-      </div>
-    </details>
-    </details>
-      </div>
-    </details><!-- /pf-tools-fold -->
     <nav class="flow-next" id="pf-next" aria-label="이어서 볼 곳" hidden></nav>
     </div><!-- pf-main -->
   </div>
@@ -5204,7 +5180,7 @@ button[data-filter-active="true"] {
       <p id="ticker-hero-valuation" class="sh-muted-note" hidden></p>
     </div>
     <!-- v59.51: 가격 흐름이 머리의 작은 차트 — 셋업·지표 분석은 차트 탭이 소유한다. -->
-    <div class="aio-widget" id="ticker-price-panel">
+    <div class="aio-widget" id="ticker-price-panel"><!-- v59.70 (PLAN S13 ①): 가격 — the chart and one why-moved line (entity.js markTickerSections) -->
       <div class="sh-ticker-quote-row">
         <h2 class="widget-title sh-flush">가격 흐름</h2>
         <div class="sh-ticker-plot-period-row" id="ticker-chart-period-tabs" role="group" aria-label="가격 이력 기간">
@@ -5215,6 +5191,7 @@ button[data-filter-active="true"] {
         </div>
       </div>
       <div id="ticker-chart-meta" class="sh-ticker-plot-meta-fine"></div>
+      <p id="ticker-why-moved" class="v2-stock-why" hidden></p>
       <div class="sh-ticker-quote-box">
         <div id="ticker-price-chart" class="ticker-price-line" hidden></div>
         <div id="ticker-chart-loading" class="sh-ticker-plot-loading-row">

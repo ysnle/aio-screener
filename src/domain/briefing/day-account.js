@@ -21,7 +21,7 @@ const FAMILIES = Object.freeze([
   { id: 'metals', name: '금과 은', assets: ['gold', 'silver'], up: '상승', down: '하락', topics: ['metals'] },
   { id: 'vol', name: '변동성', assets: ['vix'], up: '확대', down: '진정', topics: [] },
   { id: 'crypto', name: '비트코인', assets: ['btc'], up: '상승', down: '하락', topics: ['crypto'] },
-  { id: 'us', name: '미국 지수', assets: ['spx', 'ndx', 'smh', 'rut', 'rsp'], up: '상승', down: '하락' },
+  { id: 'us', name: '미국 지수', assets: ['spx', 'ndx', 'soxx', 'rut', 'rsp'], up: '상승', down: '하락' },
   { id: 'kr', name: '한국 증시', assets: ['kospi', 'kosdaq'], up: '상승', down: '하락' }
 ]);
 const FAMILY_OF = new Map(FAMILIES.flatMap((family) => family.assets.map((asset) => [asset, family])));
@@ -37,11 +37,15 @@ const agrees = (fact, change) => {
   return !Number.isFinite(change) || up === down || (change >= 0 ? up : down);
 };
 const evidenceOf = (fact) => ({ title: fact.titleKo || fact.title, original: fact.titleKo ? fact.title : null, at: fact.at || null });
+// v59.70 (owner D6): a story cites a report by its Korean title; an English one the producer could not translate
+// (titleKoFailed) is passed over, so the account never reads half in English.
+const HANGUL_PAIR = /[가-힣].*[가-힣]/;
+const shownKorean = (fact) => HANGUL_PAIR.test(fact?.titleKo || '') || HANGUL_PAIR.test(fact?.title || '');
 
 /** The opening line: both markets' indexes, with the equal-weight S&P 500 read against the index (who carried the move). */
 export function indexLine(facts) {
   const price = (asset) => facts.find((fact) => fact.kind === 'price' && fact.asset === asset);
-  const us = ['spx', 'ndx', 'smh'].map(price).filter(Boolean);
+  const us = ['spx', 'ndx', 'soxx'].map(price).filter(Boolean);
   const kr = ['kospi', 'kosdaq'].map(price).filter(Boolean);
   const parts = [];
   if (us.length) parts.push(`미국은 ${us.map((fact) => `${fact.label} ${pct(fact.change)}`).join(', ')}`);
@@ -76,11 +80,11 @@ export function buildDayAccount(day) {
   const byId = new Map(facts.map((fact) => [fact.id, fact]));
   const { out, into } = linkIndex(day.links);
   const claimed = new Map(); // fact id -> story id
-  const headlinesAbout = (subjects, change) => facts.filter((fact) => fact.kind === 'headline' && fact.rank !== 'context' && !claimed.has(fact.id)
+  const headlinesAbout = (subjects, change) => facts.filter((fact) => fact.kind === 'headline' && shownKorean(fact) && fact.rank !== 'context' && !claimed.has(fact.id)
     && (fact.subjects || []).some((sym) => subjects.includes(sym)) && agrees(fact, change)).sort(byMateriality);
   // A price story's reports must name its field in their own words (the topic link alone follows the feed it came from).
   const topicHeadlines = (ids, topics) => [...new Set(ids.flatMap((id) => into(id).filter((link) => link.basis === 'topic').map((link) => link.from)))]
-    .map((id) => byId.get(id)).filter((fact) => fact && fact.rank !== 'context' && !claimed.has(fact.id) && (fact.wordTopics || []).some((topic) => topics.includes(topic))).sort(byMateriality);
+    .map((id) => byId.get(id)).filter((fact) => fact && shownKorean(fact) && fact.rank !== 'context' && !claimed.has(fact.id) && (fact.wordTopics || []).some((topic) => topics.includes(topic))).sort(byMateriality);
   const stories = [];
   const claim = (story, list) => { for (const fact of list) if (fact && !claimed.has(fact.id)) claimed.set(fact.id, story.id); };
   const groupMembers = (fact) => new Set(fact.members || []);
@@ -100,7 +104,8 @@ export function buildDayAccount(day) {
       const groups = driven.filter((fact, index) => !driven.slice(0, index).some((other) => [...groupMembers(other)].filter((sym) => groupMembers(fact).has(sym)).length >= Math.min(groupMembers(fact).size, groupMembers(other).size) / 2));
       story.title = `${family ? family.name : seed.label} ${seed.change >= 0 ? family?.up || '상승' : family?.down || '하락'}`;
       const times = Number.isFinite(seed.z) ? `평소 하루 변동의 ${Math.abs(seed.z).toFixed(1)}배입니다.` : '';
-      story.line = `${kin.map((fact) => `${fact.label} ${move(fact)}`).join(', ')}.${times ? (kin.length > 1 ? ` 가장 큰 변화(${seed.label})는 ${times}` : ` ${times}`) : ''}`;
+      // v59.70 (screen review 8): the close date leads, so this day move is not read against a live quote chip or a week figure.
+      story.line = `${seed.date ? `${md(seed.date)} 종가 ` : ''}${kin.map((fact) => `${fact.label} ${move(fact)}`).join(', ')}.${times ? (kin.length > 1 ? ` 가장 큰 변화(${seed.label})는 ${times}` : ` ${times}`) : ''}`;
       if (groups.length) story.why.push(`같이 움직인 업종은 ${groups.slice(0, 2).map((fact) => `${fact.label}(${pct(fact.change)})`).join(', ')}입니다.`);
       const reports = topicHeadlines(ids, family?.topics || []).slice(0, 2);
       story.evidence = reports.map(evidenceOf);

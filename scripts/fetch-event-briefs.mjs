@@ -30,7 +30,7 @@ import { EARNINGS_SCHEMA, FOMC_SCHEMA, POINTS_SCHEMA, TRANSCRIPT_SCHEMA, REASONS
 
 export { EARNINGS_SCHEMA, FOMC_SCHEMA, POINTS_SCHEMA, TRANSCRIPT_SCHEMA, REASONS_SCHEMA, earningsPrompt, fomcPrompt, transcriptPrompt, presserPrompt, callPrompt, reasonsPrompt };
 import {
-  EVENT_BRIEFS_SCHEMA, MARKET_MOVERS, NEWS_REPORT_DOMAINS, REACTION_REPORT_DOMAINS, isNoReasonText, onReportDomain, normalizeSourceText, verifyQuotedItems, verifyFreeText, unverifiedNumbers, sourceNumberSet,
+  EVENT_BRIEFS_SCHEMA, withoutTradeMarks, MARKET_MOVERS, NEWS_REPORT_DOMAINS, REACTION_REPORT_DOMAINS, isNoReasonText, onReportDomain, normalizeSourceText, verifyQuotedItems, verifyFreeText, unverifiedNumbers, sourceNumberSet,
   parseDartPreliminaryResults, formatKrw, parseUsdAmount, parseUsdPerShare, surprisePct, epsComparisonBasis, estimateAiCostUsd, AI_RATE_CARD,
   MOVER_BY_SYMBOL, briefHeadline, releaseSession, earningsReaction, reactionPct, CALL_SEARCH_MAX_ATTEMPTS, statedReportingCurrency, consensusComparable
 } from '../src/domain/briefing/event-briefs.js';
@@ -637,7 +637,8 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
     reportWatch: Object.fromEntries(Object.entries(watch).filter(([sym]) => extended.some((mover) => mover.sym === sym))),
     // The release text stays only while a call summary is still to be checked against it.
     // A release-only brief (story names) has no call summary to check, so its release text is not kept.
-    briefs: kept.map(({ checkText, ...brief }) => ({ ...brief, ...(checkText && brief.status !== 'pending' && brief.scope !== 'release' && !brief.callPoints?.done && (brief.callPoints?.attempts || 0) < MAX_SEARCH_ATTEMPTS ? { checkText } : {}) }))
+    // v59.70 (screen review 31): shown fields carry no trademark signs; checkText stays as fetched for the quote check.
+    briefs: kept.map(({ checkText, ...brief }) => ({ ...withoutTradeMarks(brief), ...(checkText && brief.status !== 'pending' && brief.scope !== 'release' && !brief.callPoints?.done && (brief.callPoints?.attempts || 0) < MAX_SEARCH_ATTEMPTS ? { checkText } : {}) }))
   };
 }
 

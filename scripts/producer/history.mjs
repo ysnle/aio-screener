@@ -44,10 +44,13 @@ const HIST_SYMBOLS = {
   // v59.55 (owner 11/1, 매크로 원자재 장): COMEX silver futures, already a live quote, get a completed-close column beside
   // gold so the gold/silver ratio and silver's drawdown have a record. The <60-observation rule backfills one year.
   'SI=F': 'silver',
+  // v59.70 (X bookmarks #6): consumer staples, utilities and health care, already live quotes, get completed-close columns
+  // so the flows after a market-wide event (technology vs defensives vs equal-weight/small caps) read on closes.
+  'XLP': 'xlp', 'XLU': 'xlu', 'XLV': 'xlv',
   // v59.70 (data audit R12): non-core research columns (quotes.mjs AUX_SYMBOLS); nothing reads them for a judgement yet.
   '^SOX': 'sox', '^MOVE': 'move', '^SKEW': 'skew', '^VIX9D': 'vix9d',
 };
-const HIST_FIELDS = ['spx','nasdaq','ndx','dow','rut','vix','vix3m','vvix','tnx','dxy','wti','brent','gold','silver','kospi','kosdaq','btc','usdkrw','usdjpy','tlt','smh','soxx','rsp','sox','move','skew','vix9d','fg'];
+const HIST_FIELDS = ['spx','nasdaq','ndx','dow','rut','vix','vix3m','vvix','tnx','dxy','wti','brent','gold','silver','kospi','kosdaq','btc','usdkrw','usdjpy','tlt','smh','soxx','rsp','xlp','xlu','xlv','sox','move','skew','vix9d','fg'];
 // P1246 (data-refresh: 품질 경계): 히스토리 시장 필드의 **단일** 타당 범위 선언. producer가 이 범위를
 // 벗어난 값을 관측으로 승격하지 않고(null + fieldMeta 없음 = P1101의 무관측 표기), 게이트가 같은 선언을
 // 가져와 아티팩트를 검사한다 — 선언과 집행이 서로 다른 리터럴을 들고 어긋나는 경로를 만들지 않는다.
@@ -63,6 +66,7 @@ export const HIST_FIELD_PLAUSIBILITY = Object.freeze({
   smh: [20, 2000],
   soxx: [20, 2000],
   rsp: [20, 2000],
+  xlp: [10, 2000], xlu: [10, 2000], xlv: [10, 2000],
   silver: [1, 500],
   sox: [100, 50000], move: [20, 400], skew: [90, 200], vix9d: [5, 200],
 });

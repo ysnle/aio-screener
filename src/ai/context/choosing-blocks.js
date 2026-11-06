@@ -61,7 +61,7 @@ export function setupCoachContext(coach) {
 
 export function stockLensBlock(lens) {
   if (!lens) return '';
-  const lines = [`【종목 렌즈 — ${lens.symbol}, 화면 '이 기업을 보는 법'과 같은 값】`];
+  const lines = [`【종목 렌즈 — ${lens.symbol}, 화면 '이 기업을 보는 렌즈'와 같은 값】`];
   if (lens.marketLink) lines.push(`시황 연결: ${lens.marketLink}`);
   if (lens.lens?.metrics?.length) lines.push(`렌즈(${lens.lens.name}${lens.lens.basis ? `, ${lens.lens.basis}` : ''}) 추적 지표: ${lens.lens.metrics.slice(0, 6).map((m) => `${m.metric} ${m.value}${m.trend ? `(${m.trend})` : ''} — ${m.why}`).join(' / ')}`);
   if (lens.strengths?.length) lines.push(`동종 대비 강점: ${listText(lens.strengths, 3)}`);

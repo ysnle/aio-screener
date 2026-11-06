@@ -4,10 +4,12 @@
 // read. Every number comes from macro-history.json (FRED) or history.json; every sentence is chosen by a rule here.
 import { readNumber, signedText } from '../shared/number.js';
 import { dayLabel } from '../market/market-story.js';
-import { buildCloseSeries } from '../market/close-series.js';
+import { buildCloseSeries, closeBasis } from '../market/close-series.js';
 import { MARKET_WINDOWS, closeChange } from '../market/market-windows.js';
 import { sessionPointBack } from './rates-fx.js';
 import { RULES } from '../rules/thresholds.js';
+import { withTopicParticle } from '../content/korean-particle.js';
+import { creditState, hyWidening20Record, oasDelta20Bp } from '../briefing/market-read.js';
 
 // v59.56: the shared signedText, so a 20-session +0.04% prints 0.0%, never '+0.0%'.
 const signed = (value, digits = 2, unit = '%') => signedText(value, digits, unit);
@@ -104,7 +106,7 @@ function labor(macroHistory, events) {
   };
 }
 
-function rates(macroHistory, events) {
+function rates(macroHistory, events, history = []) {
   // 10년 = 실질 + 기대인플레 holds only on one date: the legs are cut at the latest date all three have (FRED posts the
   // real yield a day after the others), and the line names that span, so 4.98% (10/29) beside the market 4.93% (10/30) reads.
   const through = ['dgs10', 'realYield10', 'breakeven10'].map((id) => series(macroHistory, id).at(-1)?.date || '').sort()[0] || null;
@@ -112,17 +114,22 @@ function rates(macroHistory, events) {
   const be = macroChange(macroHistory, 'breakeven10', through); const term = macroChange(macroHistory, 'termPremium10');
   const two = macroChange(macroHistory, 'dgs2', through);
   if (!ten || !real || !be) return null;
+  const tnx = closeChange(history, 'tnx', WINDOW, { through: closeBasis(history) });
+  const market = tnx ? { from: tnx.from.value, to: tnx.to.value, fromDate: tnx.from.date, date: tnx.to.date, bp: (tnx.to.value - tnx.from.value) * 100 } : null;
   const share = ten.bp ? real.bp / ten.bp : 0;
   const kind = Math.abs(ten.bp) < 10 ? 'flat' : share >= 0.6 ? (ten.bp < 0 ? 'growth' : 'tight') : be.bp / ten.bp >= 0.6 ? (ten.bp < 0 ? 'relief' : 'fear') : 'mixed';
   const read = { flat: '20거래일 동안 큰 변화가 없습니다.', growth: '하락이 거의 실질금리에서 나왔습니다. 물가 기대가 내려서가 아니라 성장 걱정으로 주식에서 채권으로 옮긴 움직임으로 보입니다.',
     tight: '상승이 실질금리에서 나왔습니다. 긴축 부담이 커져 성장주 할인율이 올라갑니다.', relief: '하락이 기대인플레에서 나와 물가 안도 쪽입니다.',
     fear: '상승이 기대인플레에서 나와 물가 걱정 쪽입니다.', mixed: '실질금리와 기대인플레가 함께 움직여 한쪽으로 읽기 어렵습니다.' }[kind];
   const next = nextOf(events, ['us-fed-rate']);
-  const points = [['10년', ten.bp], ['실질', real.bp], ['기대인플레', be.bp], term ? ['기간 프리미엄', term.bp] : null, two ? ['2년', two.bp] : null].filter(Boolean);
+  const points = [['10년', market ? market.bp : ten.bp], ['실질', real.bp], ['기대인플레', be.bp], term ? ['기간 프리미엄', term.bp] : null, two ? ['2년', two.bp] : null].filter(Boolean);
   return {
     id: 'rates', title: '연준 · 금리 — 왜 움직였나', question: '금리 변화는 물가 때문인가, 성장 걱정 때문인가',
     viz: { caption: '20거래일 변화 (bp)', unit: 'bp', points: points.map(([x, value], index) => ({ x, value, hot: index === 1 })) },
-    now: `10년 ${ten.from.toFixed(2)} → ${ten.to.toFixed(2)}% (${shortDay(ten.fromDate)}→${shortDay(ten.date)}, ${bp(ten.bp)}) = 실질 ${bp(real.bp)} + 기대인플레 ${bp(be.bp)}`,
+    // v59.70 (screen review 6): the 10-year itself is the market close reading every screen shares (closeChange on history tnx); the
+    // FRED legs, cut on their own common date, split the move and keep their own span beside them.
+    now: market ? `10년 ${market.from.toFixed(2)} → ${market.to.toFixed(2)}% (${shortDay(market.fromDate)}→${shortDay(market.date)}, ${bp(market.bp)}) · 실질 ${bp(real.bp)} · 기대인플레 ${bp(be.bp)} (${shortDay(ten.fromDate)}→${shortDay(ten.date)})`
+      : `10년 ${ten.from.toFixed(2)} → ${ten.to.toFixed(2)}% (${shortDay(ten.fromDate)}→${shortDay(ten.date)}, ${bp(ten.bp)}) = 실질 ${bp(real.bp)} + 기대인플레 ${bp(be.bp)}`,
     mean: read,
     next: whenOf(next) || '발표 일정을 확인하지 못했습니다',
     flip: '기대인플레가 같이 움직이기 시작하면 해석이 물가 쪽으로 바뀝니다.',
@@ -232,26 +239,61 @@ export function chapterToday(day, chapterId) {
   return { text: `${parts.join('. ')}${parts.length ? '.' : ''}`, report: report ? { title: report.title, date: report.date } : null, rank: lead?.rank || report?.rank || 'minor' };
 }
 
+// v59.70 (X bookmarks #4): each spread tier's level inside its own recorded range — the 10/50/90th percentiles of every
+// FRED observation kept (ICE BofA: about three years) and where today sits. A quantile band, never a fixed '150bp' line:
+// the index definitions differ from the ones such lines are quoted from.
+const TIERS = Object.freeze([['igOas', '투자등급'], ['hyOas', '하이일드'], ['cccOas', 'CCC']]);
+function spreadRange(macroHistory, id, label) {
+  const rows = series(macroHistory, id);
+  if (rows.length < 120) return null;
+  const sorted = rows.map((row) => row.value).sort((a, b) => a - b);
+  const at = (q) => sorted[Math.min(sorted.length - 1, Math.floor(q * (sorted.length - 1)))];
+  const now = rows.at(-1).value;
+  // Mid-rank, so a flat stretch (ties at today's level) reads 50%, not the top of the record.
+  const pct = Math.round((sorted.filter((value) => value < now).length + sorted.filter((value) => value === now).length / 2) / sorted.length * 100);
+  return { id, label, now, p10: at(0.1), p50: at(0.5), p90: at(0.9), min: sorted[0], max: sorted.at(-1), pct, from: rows[0].date, to: rows.at(-1).date, n: rows.length };
+}
+export function creditRanges(macroHistory) {
+  const ranges = TIERS.map(([id, label]) => spreadRange(macroHistory, id, label)).filter(Boolean);
+  if (!ranges.length) return null;
+  const out = ranges.filter((range) => range.pct >= 90 || range.pct <= 10);
+  const lead = (out.length ? out : ranges).sort((a, b) => Math.abs(b.pct - 50) - Math.abs(a.pct - 50))[0];
+  const rest = ranges.filter((range) => range !== lead).map((range) => range.label).join('·');
+  const place = (range) => range.pct >= 90 ? '기록 상위 10% 안' : range.pct <= 10 ? '기록 하위 10% 안' : '범위 안';
+  const others = ranges.filter((range) => range !== lead);
+  const restText = others.every((range) => place(range) === '범위 안') ? `${withTopicParticle(rest)} 범위 안` : others.map((range) => `${range.label} ${place(range)}`).join(', ');
+  const since = `${lead.from.slice(0, 4)}년 ${Number(lead.from.slice(5, 7))}월 이후`;
+  return { ranges, since, line: `${lead.label} ${lead.now.toFixed(2)}%, ${since} 기록의 ${lead.pct}% 위치${others.length ? ` — ${restText}` : ''}.` };
+}
+
+// v59.70 (X bookmarks #3, owner 11/4): the chapter reads the credit axis's own rule (RULES.credit through creditState) and
+// its one 20-session reading (oasDelta20Bp) — '+40bp or 4.5%' and a '3.5% 돌파' flip here said 위기 where 시장 상태 said 중립.
 function credit(macroHistory) {
-  const hy = macroChange(macroHistory, 'hyOas');
-  if (!hy) return null;
-  const ccc = macroChange(macroHistory, 'cccOas'); const ig = macroChange(macroHistory, 'igOas');
+  const hy20 = oasDelta20Bp(macroHistory, 'hyOas');
+  if (!hy20) return null;
+  const ccc20 = oasDelta20Bp(macroHistory, 'cccOas'); const ig20 = oasDelta20Bp(macroHistory, 'igOas');
+  const hy = { from: hy20.level - hy20.value / 100, to: hy20.level, bp: hy20.value };
+  const ccc = ccc20 ? { to: ccc20.level, bp: ccc20.value } : null; const ig = ig20 ? { to: ig20.level, bp: ig20.value } : null;
   const fci = series(macroHistory, 'financialConditions').at(-1);
-  const stress = hy.bp >= 40 || hy.to >= 4.5;
-  const tail = ccc && ccc.bp >= 50;
-  // v59.64: +25bp to +40bp in 20 sessions is no longer quiet (HY +34bp read as 조용 on 11/3 while IG widened 4.7 sd in a day).
-  const widening = hy.bp >= RULES.credit.widen20dBp;
-  const mean = stress ? '스프레드가 크게 벌어졌습니다. 주가 조정이 신용 문제로 번지는지 확인해야 합니다.'
+  const C = RULES.credit;
+  const record = hyWidening20Record(macroHistory);
+  const state = creditState({ hyBp: hy.to * 100, hy5: hy20.d5, hy20: hy.bp, hy20Stress: !!record?.stress });
+  const tail = ccc && ccc.bp >= C.stress20dMultiple * C.widen20dBp; // CCC +50bp in 20 sessions, the axis's 2 × widen20dBp
+  const widening = hy.bp >= C.widen20dBp;
+  const mean = state === 'burden' ? '스프레드가 크게 벌어졌습니다. 주가 조정이 신용 문제로 번지는지 확인해야 합니다.'
     : widening ? `하이일드가 20거래일 동안 ${bp(hy.bp)} 벌어져 경계 쪽으로 움직이고 있습니다.${tail ? ' 가장 약한 CCC 등급이 더 빠르게 벌어져, 약한 기업부터 자금 조달이 어려워지는 모습입니다.' : ''}`
     : tail ? '전체 하이일드는 조용하지만 가장 약한 CCC 등급이 먼저 벌어지고 있습니다. 위기 신호가 오면 여기서 시작됩니다.'
-      : '주가가 움직여도 스프레드가 넓어지지 않아 신용 문제는 아닙니다.';
+      : state === 'favorable' ? '주가가 움직여도 스프레드가 넓어지지 않아 신용 문제는 아닙니다.' : '스프레드 수준·방향이 경계선입니다.';
+  const flip = state === 'burden' ? `하이일드가 ${C.stressAtBp / 100}% 아래로 내려오고 20거래일 확대가 +${C.widen20dBp}bp 아래로 줄면 경계를 풉니다.`
+    : `하이일드 ${C.stressAtBp / 100}% 이상, 5거래일 +${C.widen5dBp}bp, 20거래일 확대가 자체 기록 상위 ${100 - C.stress20dPct}% 중 하나면 부담으로 바꿉니다.`;
   return {
-    id: 'credit', title: '신용 · 유동성 — 위기인가', question: '주가 조정이 신용 위기로 번지나',
+    id: 'credit', title: '신용 · 유동성 — 위기인가', question: '주가 조정이 신용 위기로 번지나', state,
     viz: { caption: '스프레드 20거래일 변화 (bp)', unit: 'bp', points: [ig ? { x: '투자등급', value: ig.bp } : null, { x: '하이일드', value: hy.bp }, ccc ? { x: 'CCC', value: ccc.bp, hot: true } : null].filter(Boolean) },
     now: `하이일드 ${hy.from.toFixed(2)} → ${hy.to.toFixed(2)}% (${bp(hy.bp)})${ccc ? ` · CCC ${bp(ccc.bp)}` : ''}`,
     mean: `${mean}${fci ? ` 금융여건 지수는 ${fci.value.toFixed(2)}로 ${fci.value < 0 ? '아직 완화 쪽' : '긴축 쪽'}입니다.` : ''}`,
     next: '매일',
-    flip: '하이일드 3.5% 돌파나 CCC의 빠른 확대가 이어지면 경계 단계로 바꿉니다.',
+    flip,
+    ranges: creditRanges(macroHistory),
     detail: [['하이일드', `${hy.to.toFixed(2)}%`], ['CCC', ccc ? `${ccc.to.toFixed(2)}%` : '—'], ['투자등급', ig ? `${ig.to.toFixed(2)}%` : '—'], ['금융여건 지수', fci ? fci.value.toFixed(2) : '—']]
   };
 }
@@ -281,7 +323,7 @@ function growthKorea(macroHistory, history, events) {
 
 /** The chapters (v59.64: eight); a chapter whose series are missing is left out. `day` is market-day.json, when loaded. */
 export function buildMacroChapters({ macroHistory = null, history = [], events = [], day = null } = {}) {
-  const chapters = [inflation(macroHistory, events), labor(macroHistory, events), rates(macroHistory, events), credit(macroHistory), oil(history, macroHistory),
+  const chapters = [inflation(macroHistory, events), labor(macroHistory, events), rates(macroHistory, events, history), credit(macroHistory), oil(history, macroHistory),
     metals(history, macroHistory), dollarChapter(history), growthKorea(macroHistory, history, events)].filter(Boolean)
     .map((chapter) => ({ ...chapter, today: chapterToday(day, chapter.id) }));
   return { available: chapters.length > 0, chapters };

@@ -23,7 +23,7 @@ export function crossAssetMoves(history = [], { through = null, window = C.windo
     if (!back?.value) return null;
     return { value: points ? last.value - back.value : (last.value / back.value - 1) * 100, from: back.date, to: last.date };
   };
-  return { window, spx: change('spx'), smh: change('smh'), tnx: change('tnx', true), tlt: change('tlt'), wti: change('wti'), gold: change('gold'), dxy: change('dxy'), vix: change('vix') };
+  return { window, spx: change('spx'), soxx: change('soxx'), tnx: change('tnx', true), tlt: change('tlt'), wti: change('wti'), gold: change('gold'), dxy: change('dxy'), vix: change('vix') };
 }
 
 // The assets the all-clear sentence names, in its order.
@@ -36,7 +36,7 @@ export function buildCrossAssetRelations(history = [], options = {}) {
   const anchor = raw.spx?.to || null;
   const m = Object.fromEntries(Object.entries(raw).map(([key, move]) => [key, key === 'window' || move == null || move.to === anchor ? move : null]));
   const v = (key) => m[key]?.value ?? null;
-  const spx = v('spx'), smh = v('smh'), tnx = v('tnx'), tlt = v('tlt'), wti = v('wti'), gold = v('gold'), dxy = v('dxy'), vix = v('vix');
+  const spx = v('spx'), soxx = v('soxx'), tnx = v('tnx'), tlt = v('tlt'), wti = v('wti'), gold = v('gold'), dxy = v('dxy'), vix = v('vix');
   const known = (...values) => values.every((value) => value != null);
   const breaks = [];
   const add = (id, text) => breaks.push({ id, text });
@@ -55,8 +55,8 @@ export function buildCrossAssetRelations(history = [], options = {}) {
   if (riskOff && known(gold) && gold <= -C.gold20dPct) add('risk-off-gold-down', `그런데 금은 ${size(gold)} 내렸습니다 — ${bondHaven ? '돈은 안전자산 전반이 아니라 미국 국채로 갔습니다' : '안전자산 수요가 넓게 번지지 않았습니다'}.`);
   if (riskOff && known(dxy) && dxy <= -C.dollar20dPct) add('risk-off-dollar-down', `위험 회피인데 달러는 ${size(dxy)} 약해졌습니다 — 미국 안의 걱정이 더 큰 쪽일 수 있습니다.`);
 
-  const driver = known(smh, spx) && spx < 0 && smh - spx <= -C.semisLeadPp ? `하락은 반도체가 이끌었습니다(반도체 ETF ${pct(smh)}, S&P 500 ${pct(spx)})`
-    : known(smh, spx) && spx > 0 && smh - spx >= C.semisLeadPp ? `상승은 반도체가 이끌었습니다(반도체 ETF ${pct(smh)}, S&P 500 ${pct(spx)})` : null;
+  const driver = known(soxx, spx) && spx < 0 && soxx - spx <= -C.semisLeadPp ? `하락은 반도체가 이끌었습니다(반도체 ETF ${pct(soxx)}, S&P 500 ${pct(spx)})`
+    : known(soxx, spx) && spx > 0 && soxx - spx >= C.semisLeadPp ? `상승은 반도체가 이끌었습니다(반도체 ETF ${pct(soxx)}, S&P 500 ${pct(spx)})` : null;
   const flow = bondHaven ? `주식이 내리는 동안 장기채는 ${size(tlt)} 올라 분산 투자에서 완충 역할을 했습니다` : null;
   const lead = [driver, flow].filter(Boolean).join('. ');
   const asOf = m.spx?.to || m.tnx?.to || null;

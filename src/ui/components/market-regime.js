@@ -346,6 +346,12 @@ function axisRow(doc, root, row, { history, scenarios, previous, inputs, asOf, o
   const chart = chartPanel(doc, history.axes[row.id] || [], history.range);
   if (chart) detail.append(chart);
   const facts = el(doc, 'div', null, 'mk-axis__facts');
+  // v59.70 (X bookmarks #1): Nasdaq 7% corrections since 1986 and how many became bear markets — context, not an input.
+  if (row.id === 'trend') {
+    const slot = el(doc, 'div', null, 'mk-correction-slot');
+    facts.append(slot);
+    (correctionBaseRate ||= import('./correction-base-rate.js')).then(({ renderCorrectionBaseRate }) => renderCorrectionBaseRate({ documentRef: doc, root, host: slot, onLoad: () => renderRegimePage({ documentRef: doc, root }) })).catch(() => { correctionBaseRate = null; });
+  }
   if (row.evidence.length) { const list = el(doc, 'dl', null, 'regime-evidence'); for (const [label, value] of row.evidence) list.append(el(doc, 'dt', label), el(doc, 'dd', value)); facts.append(list); }
   if (row.flip) {
     const changes = el(doc, 'div', null, 'regime-axis-observe');
@@ -499,7 +505,10 @@ function crossMap(doc, row) {
   node('text', { x: L, y: T - 6, class: 'mk-cross__axis is-y' }, `↑ ${yAxis[1]}`);
   node('text', { x: R, y: H - 4, 'text-anchor': 'end', class: 'mk-cross__axis' }, `${xAxis[1]} →`);
   node('text', { x: L, y: H - 4, class: 'mk-cross__axis' }, `← ${xAxis[0]}`);
-  node('circle', { cx: L + x * (R - L), cy: B - y * (B - T), r: 6, class: 'mk-cross__dot' });
+  // v59.70 (screen review 22): the cell names sit in the outer band of each cell; the dot keeps out of it (it stays in
+  // its own cell — only the outer 22 units are cut), so '성장 걱정' is not printed under the marker on a phone.
+  const clamp = (value, low, high) => Math.min(high, Math.max(low, value));
+  node('circle', { cx: clamp(L + x * (R - L), L + 8, R - 8), cy: clamp(B - y * (B - T), T + 22, B - 22), r: 6, class: 'mk-cross__dot' });
   return svg;
 }
 
@@ -582,7 +591,7 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
       watchBoard.id = 'regime-board-watch';
       board.insertAdjacentElement('afterend', watchBoard);
     }
-    const watchAxes = regime.watchAxes || [];
+    const watchAxes = (regime.watchAxes || []).filter((row) => row.observed !== false);
     watchBoard.replaceChildren(...watchAxes.map((row) => axisRow(doc, root, row, { history, scenarios, previous, inputs, asOf: regime.asOf, open: row.id === openId })));
     watchBoard.hidden = !watchAxes.length;
     // v59.51 (content audit): the distribution-day strip (a lazy chunk, v58.75) is trend evidence, so it opens with the
@@ -772,6 +781,7 @@ function paintKoreaLine(doc, root) {
   line.hidden = false;
 }
 
+let correctionBaseRate = null; // v59.70: the correction base rate loads with the opened trend row, outside the boot set
 let sessionLean = null;
 
 // v59.51 (first-users run-6 #10): one way from 오늘 to an axis on 시장 상태. The axis is asked for before the route renders

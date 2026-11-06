@@ -15,7 +15,8 @@ import { renderTickerStart } from '../components/ticker-start.js';
 import { createTrendChart } from '../components/trend-chart.js';
 import { EARNINGS_CALENDAR, renderFiscalRead, requestFiscalHistory } from '../components/fiscal-read.js';
 import { requestConsensusEstimates } from '../../data/consensus-estimates.js';
-import { refreshSharedArtifact, SCENARIO_STATE } from '../../data/shared-artifacts.js';
+import { refreshSharedArtifact, SCENARIO_STATE, MARKET_DAY } from '../../data/shared-artifacts.js';
+import { whyMovedLine } from '../../domain/entity/why-moved.js';
 import { createSummaryHydrator } from '../../domain/entity/summary-hydration.js';
 import { businessProfileFor } from '../../domain/entity/business-profiles.js';
 import { renderCompanyAnalysis } from '../components/company-analysis.js';
@@ -258,6 +259,30 @@ function renderSummaryIdentity(documentRef, root, state) {
 
 // v58.75 ('고르는 법' B5/B2/B6): the market link with the memo/watchlist entry right under '이 종목의 지금', and strengths/weaknesses
 // against named theme peers with '계속 볼 것' under the setup. Rebuilt only when their text changes (quote ticks repaint often).
+// v59.70 (PLAN S13 ①): the 가격 section's one line — why the stock moved on the latest session, from the same market-day
+// account as 브리핑 and 오늘. A move the ledger did not count gets no line (the chart says it).
+export function renderWhyMoved(documentRef, root, state) {
+  const node = documentRef?.getElementById('ticker-why-moved');
+  if (!node) return;
+  const id = String(state?.id || root?._currentTickerId || '').trim().toUpperCase();
+  const day = root?.[MARKET_DAY.key] || null;
+  if (id && !day && !root.__aioWhyMovedRequested) {
+    root.__aioWhyMovedRequested = true;
+    refreshSharedArtifact(root, MARKET_DAY).then(({ changed }) => { if (changed && String(root?._currentTickerId || '').toUpperCase() === id) renderWhyMoved(documentRef, root, state); }).catch(() => {});
+  }
+  const line = id && day ? whyMovedLine(day, id) : null;
+  node.textContent = line?.text || '';
+  node.hidden = !line;
+}
+
+// v59.70 (PLAN S13): the overview's three sections — ① 가격 (the price panel), ② 동종 비교, ③ 회사 이야기 (the story fold).
+export function markTickerSections(documentRef) {
+  for (const [id, section] of [['ticker-price-panel', 'price'], ['ticker-strength', 'peers'], ['ticker-business-profile', 'story']]) {
+    const node = documentRef?.getElementById(id);
+    if (node) node.dataset.entitySection = section;
+  }
+}
+
 function renderStockLens(documentRef, root, state) {
   const readHost = documentRef?.getElementById('ticker-read');
   if (!readHost) return;
@@ -265,7 +290,7 @@ function renderStockLens(documentRef, root, state) {
   // The nodes are kept on the reading host: '이 종목의 지금' rebuilds its children on every quote tick.
   const make = (id, className, label) => { let node = readHost._aioLensNodes?.[id] || documentRef.getElementById(id); if (!node) { node = documentRef.createElement('section'); node.id = id; node.className = className; node.setAttribute('aria-label', label); } (readHost._aioLensNodes ||= {})[id] = node; return node; };
   const context = make('ticker-context', 'v2-stock-context', '시장과 이 종목의 연결');
-  const strength = make('ticker-strength', 'v2-stock-strength', '강한 점과 약한 점, 계속 볼 것');
+  const strength = make('ticker-strength', 'v2-stock-strength', '동종 비교');
   // First-users run 4: a symbol the listing check refused gets no market link or watch actions.
   const notListed = root?._aioOnDemandSymbol?.(String(state?.id || root?._currentTickerId || '').toUpperCase())?.status === 'not-listed';
   if (notListed) { context.hidden = true; strength.hidden = true; delete context.dataset.signature; return; }
@@ -733,6 +758,7 @@ function render({ root, documentRef, store, route, activeTickerTab = 'overview',
       symbol: state?.id, name: state?.name, quote: { ...state?.quote, basis: state?.quote?.changeBasis || 'unknown' } }) });
     renderTickerControls(documentRef, routeNode, activeTickerTab, tickerChartRange, state);
     renderTickerChart({ root, page: routeNode, state, requestedRange: tickerChartRange });
+    renderWhyMoved(documentRef, root, state);
     // Review (v58.53): the 재무 tile tells a pending or failed SEC projection apart from a confirmed absence. The provider
     // dispatches only after the projection settles, so a synced symbol without fundamentalsMeta means the load failed.
     const requestedId = String(root?._currentTickerId || '').trim().toUpperCase();
@@ -740,6 +766,7 @@ function render({ root, documentRef, store, route, activeTickerTab = 'overview',
     renderStockRead({ documentRef, root, symbol: state?.id || root?._currentTickerId || '', fundamentals: state?.fundamentals, fundamentalsState }); // P1434; v57.51 N20 recent filings
     renderStockLens(documentRef, root, state); // v58.75 ('고르는 법' layer B)
     renderCompanyAnalysis({ documentRef, root, state, fundamentalsState });
+    markTickerSections(documentRef); // after the lens and story hosts exist
   }
   if (route === 'fundamental') {
     // P1430: 재무 공시 is the same company as 요약 · 차트.
