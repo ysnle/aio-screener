@@ -1,0 +1,6 @@
+{
+  "changelog": [
+    "**리서치 예산 복구 (v59.70):** 개념·분석 첫 화면이 받는 catalog.json + narrative-journey.json이 123,995바이트로 120,000바이트 예산을 넘던 것을, content/research에서 만드는 배포본 4개(principles catalog·concept-stories, atlas page-copy·industry-stories)를 들여쓰기 없이 쓰도록 바꿔 110,715바이트로 낮춤(내용·원본 그대로, 직렬화 함수는 scripts/lib/research-content.mjs 하나를 build와 ci-research-content-source가 같이 씀). 산업 지도 분야 개요의 얼굴은 분야 이름과 흐름 한 문단만 남기고, '산업의 흐름'·'숫자가 말해주는 것과 감추는 것' 보조 라벨은 지우고, 관찰 단위·확인 질문 문단은 '확인 질문과 근거' 접기 첫머리로 옮기고, '이제 아래 세부 영역에서 … 따라가세요' 안내 문장은 삭제. 보조 글 예산 atlas 431자 → 21자(상한 36 그대로)."
+  ],
+  "note": "wave2-e: artifact-budget (principles) and secondary-text-budget (atlas) after integration 5687a55f; budgets and ceilings unchanged"
+}

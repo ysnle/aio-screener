@@ -4,10 +4,9 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { atomicWriteFileSync } from './lib/atomic-write.mjs';
-import { repoRoot, researchContentArtifacts } from './lib/research-content.mjs';
+import { repoRoot, researchContentArtifacts, serializeResearchArtifact as serialize } from './lib/research-content.mjs';
 
 const check = process.argv.includes('--check');
-const serialize = (value) => `${JSON.stringify(value, null, 1)}\n`;
 const stale = [];
 for (const [path, value] of researchContentArtifacts()) {
   const target = resolve(repoRoot, path);
