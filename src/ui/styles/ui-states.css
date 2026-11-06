@@ -19,6 +19,10 @@
 .aio-hub-subject-pick:hover { background: var(--sx-ink-a08); }
 .page .aio-btn-table.primary:hover:not(:disabled), .page .aio-btn-table.is-primary:hover:not(:disabled) { filter: brightness(1.15); }
 .sx-row:focus-visible, .sx-link:focus-visible { outline: 2px solid var(--text-primary); outline-offset: -2px; border-radius: 8px; }
+/* The chart library's attribution link (lightweight-charts a#tv-attr-logo) stays, in the theme's text colour rather than the
+   browser's link blue, with the same ring as every other link. */
+#tv-attr-logo { color: var(--text-secondary) !important; }
+#tv-attr-logo:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; border-radius: 4px; }
 .sx-link:active { color: var(--text-primary); text-decoration: underline; }
 
 /* Disabled: one look everywhere — faded, no hover change, not-allowed cursor. */
@@ -35,10 +39,11 @@
 
 /* Busy (a submit in flight, setSubmitState 'busy'): stays readable, shows progress instead of the not-allowed cursor. */
 button[aria-busy="true"] { position: relative; opacity: 0.7 !important; cursor: progress !important; }
-/* The spinner sits in the button's own end padding, so the button keeps its width and its neighbours do not move. */
+/* The spinner follows the label in the flow. It used to sit absolutely in the end padding, which a narrow button (the AI
+   도우미 send button, 14px padding) does not have room for, so it covered the text. In the flow it can never overlap. */
 button[aria-busy="true"]::after {
-  content: ''; position: absolute; right: 3px; top: 50%; width: 9px; height: 9px; margin-top: -6px;
-  border: 1.5px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: aio-state-spin 0.7s linear infinite;
+  content: ''; position: static; display: inline-block; flex: none; vertical-align: -1px; width: 9px; height: 9px;
+  margin-inline-start: 6px; box-sizing: border-box; border: 1.5px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: aio-state-spin 0.7s linear infinite;
 }
 @keyframes aio-state-spin { to { transform: rotate(360deg); } }
 

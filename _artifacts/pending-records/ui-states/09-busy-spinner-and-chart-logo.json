@@ -1,0 +1,15 @@
+{
+  "p": {
+    "title": "{VERSION} 공용 진행 표시(스피너)가 좁은 버튼 글자를 덮었고 차트 라이브러리 로고 링크가 브라우저 기본 파란색이었다",
+    "symptom": "AI 도우미 전송처럼 좌우 여백이 좁은 버튼에서 aria-busy 스피너가 버튼 글자 위에 겹쳤다(통합 검토). 기술적 분석 차트의 라이브러리 출처 링크 a#tv-attr-logo가 라이트·다크 모두 브라우저 기본 링크 색으로 남아 contrast-focus 게이트가 실패했다.",
+    "root_cause": "ui-states.css의 button[aria-busy]::after는 버튼 오른쪽 3px에 절대 위치해 끝 여백 안에 들어간다고 가정했다. 여백이 스피너보다 좁거나 글자가 가운데 정렬로 끝까지 차면 글자와 겹친다. 로고 링크는 lightweight-charts가 그리는 요소라 앱 링크 색 규칙이 닿지 않았다.",
+    "fix": "스피너를 글자 뒤 흐름 안(inline-block, 앞 여백 6px)에 둬 어떤 너비에서도 글자와 겹치지 않게 했다. 로고 링크는 출처 표기를 유지한 채 --text-secondary 색과 다른 링크와 같은 포커스 링을 받는다.",
+    "violated_rule": "공용 상태 표시는 가장 좁은 소비자에서도 내용을 가리지 않는다. 외부 라이브러리가 그린 링크도 앱의 링크 색·포커스 규칙을 따른다.",
+    "prevention": "ci-contrast-focus-browser-check {VERSION} busy 검사: 모든 라우트의 보이는 버튼과 AI 패널 버튼에 aria-busy를 걸고, 절대 위치 스피너가 글자 사각형과 겹치거나 흐름 안 스피너가 버튼 밖으로 넘치면 실패한다(v59.69 CSS에서 home 8건·technical 4건 실패). 같은 게이트의 링크 검사가 a#tv-attr-logo를 계속 본다(제외 없음).",
+    "verification": "수정 후 contrast-focus 전체 라우트 라이트·다크 실행에서 busy·링크 실패 0. ci-chat-ui-state-browser-check PASS."
+  },
+  "changelog": [
+    "**진행 표시·차트 출처 링크 ({VERSION}, 통합 검토):** 버튼이 처리 중일 때의 스피너가 글자 뒤에 붙어 좁은 버튼에서도 글자를 덮지 않는다. 기술적 분석 차트의 라이브러리 출처 링크는 화면 글자색과 포커스 링을 따른다."
+  ],
+  "note": "integration 5687a55f review: AI 도우미 button spinner overlap; a#tv-attr-logo link colour on technical."
+}
