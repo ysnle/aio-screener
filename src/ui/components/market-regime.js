@@ -21,7 +21,6 @@ import { shortDate } from '../../domain/content/date-labels.js';
 import { signedText } from '../../domain/shared/number.js';
 import { withDirectionParticle } from '../../domain/content/korean-particle.js';
 import { historyWaitText } from './data-state.js';
-import { koreaPolicyCard } from '../../domain/market/korea-policy.js';
 
 // Live review 2026-10-14 (owner reading standard: 3–5 lines, ~130–230자 per block): a longer reading keeps its first
 // sentences on the face (up to ~200자, cut at a sentence end) and folds the rest under '이어서 읽기'.
@@ -636,15 +635,18 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
         }
         return section;
       });
-      // v59.70 (D5): the 한국 기준금리·물가·수출 facts from the retired 매크로 fold join the board as one card.
-      const policy = koreaPolicyCard(root.DATA_SNAPSHOT);
-      if (policy && cards.length) {
+      boardKr.replaceChildren(...cards);
+      // v59.70 (D5): the 한국 기준금리·물가·수출 facts from the retired 매크로 fold join the board as one card. The board sits in
+      // a closed fold below the first screen, so the card's module loads after paint (boot budget); a newer render wins.
+      const krRender = boardKr.__aioKrRender = (boardKr.__aioKrRender || 0) + 1;
+      if (cards.length) import('../../domain/market/korea-policy.js').then(({ koreaPolicyCard }) => {
+        const policy = koreaPolicyCard(root.DATA_SNAPSHOT);
+        if (!policy || boardKr.__aioKrRender !== krRender) return;
         const section = el(doc, 'section', null, 'regime-axis'); section.dataset.axis = 'kr-policy'; section.dataset.market = 'KR';
         section.append(el(doc, 'h3', policy.title, 'regime-axis-title'), el(doc, 'p', policy.caption, 'regime-chart-caption'), el(doc, 'p', policy.value, 'regime-korea-value'));
         for (const line of policy.lines) section.append(el(doc, 'p', line, 'regime-read'));
-        cards.push(section);
-      }
-      boardKr.replaceChildren(...cards);
+        boardKr.append(section);
+      }).catch(() => {});
       boardKr.hidden = !cards.length;
       const krSection = boardKr.closest?.('section.mk-korea');
       if (krSection) krSection.hidden = !cards.length; // the 한국 시장 card goes with its board

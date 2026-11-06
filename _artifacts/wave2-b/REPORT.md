@@ -73,3 +73,12 @@ DOM 노드(데스크톱 1440, 라이트, 12초 뒤, 같은 public-data):
 `js/aio-data.js` −553줄(501,573 → 471,530 B raw). 뉴스 화면(데스크톱·폰): 헤드라인 12개 중 한국어 12개로 전후 같음, 첫 다섯 제목 글자 같음, 번역 요청 0건(전후 모두 오프라인), `#translate-status` 칸만 사라짐. 현재 산출물에는 `titleKoFailed` 행이 없어 '원문' 표시는 단위 검사(untranslatedMark)와 T889b(getDisplayTitle)로 확인했다. 스크린샷 `shots/d6/news-*__before.png`·`__after.png`, 원값 `shots/d6/news-facts.json`.
 
 게이트(D6): contracts — 기준선과 같은 벽시계 실패만(reconciliation·data-lineage·data-refresh). 헤드리스 1089/1091(T552·T924 기준선 실패), ai-chat-public-route 통과, browser-translation-retired 통과, legacy-writer probe 9 → 8(market-news `freeTranslateNews` 빠짐).
+
+## 통합(5687a55f) 뒤 잔여 3건 (2026-11-06)
+
+1. 헤드리스 T552·T924: 원인은 L1(dev 판정 헤더 삭제). 헤더의 AI 버튼이 라우트마다 `data-arg=<page>`와 데이터 표지를 실어, 내비 항목이 없는 허브 하위 라우트(briefing·market-news·masters·atlas)와 데이터 페이지 수 감사를 통과시키고 있었다. 감사를 결정에 맞춤: 내비 항목은 `[data-action=showPage][data-arg]` 또는 허브의 `data-hub-routes`, 데이터 페이지는 표지 또는 페이지 epoch 도장(`data-market-revision`). 헤드리스 1091/1091.
+2. ESM 부팅 예산(A 한도 1,572,000/585,000, 올리지 않음): 1,572,432/585,790 → 1,550,152/576,630 (여유 21,848 raw / 8,370 gzip). `korea-policy.js`(시장 상태 한국 보드 카드, 닫힌 접기 안)와 `operator-note.js`(첫 호출 때) 지연 로드, 그리고 용어 사전 화면 용어 병합(`screen-term-additions.js`, 약 21 KB)을 용어 사전과 함께 불러오게 바꿨다(P3 뒤 이 모듈은 GLOSSARY가 도착한 뒤에만 쓰인다; classic-loader는 병합이 끝난 뒤 `aio:glossaryReady`를 보낸다). 첫 화면: 5개 화면 × 3 뷰포트 × 라이트·다크 + 용어 사전 열기 31건 모두 0픽셀 차이, 본문 글자 수 같음(`shots/post-int/diff.json`). 한국 보드 '한국 금리·물가·수출' 카드는 지연 뒤에도 같은 값.
+   - 주의: browser-boot의 부팅 뒤 지연 JS(6.5초, 한도 350,000)는 통합 기준선에서 이미 359,433로 넘고, 이 변경으로 382,568이 된다 — 같은 바이트가 부팅 세트에서 부팅 뒤로 옮겨진 것(총 다운로드는 같음). 자동화 브라우저는 용어 사전을 바로 불러오기 때문이다. 두 예산의 배분은 A 소유자 판단.
+3. 한국 테마 접기(`#kr-integrated-themes`)는 옮기지 않는다. 종목 화면(`stock-read.js` → `openKrThemeDetail`), 테마 상세 내비(`navigation/theme-detail.js`), 스크리너 검증 탭(`screener/validation-tab.js`의 테마 앵커), 테마 마운트 뒤 상세 열기(`themes.js` `_aioOpenKrThemeDetailOnThemes`), 확정 종가 테마 읽기와 상세(`themes/sectors.js` `kr-themes-artifact-read`·`kr-theme-close-detail`)가 모두 테마 라우트의 수명주기에 묶여 있어, 시장 상태로 옮기면 이 링크들이 깨진다.
+
+게이트: affected 프로필 — 실패 5개(scenario-guidance-fixture·data-refresh·browser-boot·artifact-budget·browser-secondary-text-budget) 모두 통합 기준선 5687a55f에서도 실패. 헤드리스 1091/1091, 부팅 예산 통과, 래칫 통과.

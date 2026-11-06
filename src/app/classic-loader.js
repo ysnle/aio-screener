@@ -16,13 +16,16 @@ export function installGlossaryLoader(root = globalThis, doc = root.document) {
   if (!doc || typeof root.AIO.loadGlossary === 'function') return root.AIO.loadGlossary || null;
   let pending = Array.isArray(root.GLOSSARY) ? Promise.resolve(true) : null;
   const ready = () => {
-    try { root._aioGlossaryAugment?.(); } catch (_) { /* the screen-term merge is optional; the entries still show */ }
-    try { doc.dispatchEvent(new CustomEvent('aio:glossaryReady')); } catch (_) { /* no reader listening */ }
+    let merged;
+    try { merged = root._aioGlossaryAugment?.(); } catch (_) { /* the screen-term merge is optional; the entries still show */ }
+    return Promise.resolve(merged).catch(() => {}).then(() => {
+      try { doc.dispatchEvent(new CustomEvent('aio:glossaryReady')); } catch (_) { /* no reader listening */ }
+    });
   };
   const load = () => pending || (pending = new Promise((resolve, reject) => {
     const script = doc.createElement('script');
     script.src = './js/aio-glossary.js?v=' + scriptVersion(doc);
-    script.onload = () => { ready(); resolve(true); };
+    script.onload = () => { ready().then(() => resolve(true)); };
     script.onerror = () => { pending = null; reject(new Error('aio-glossary.js 로드 실패')); };
     doc.head.appendChild(script);
   }));

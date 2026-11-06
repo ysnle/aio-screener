@@ -2,12 +2,14 @@
 // badge (#server-data-age) moved here unchanged from js/aio-data.js, so the two home status sinks have one native owner;
 // the operator-note.json loader and its placeholder check went to src/data/operator-note.js (ui code does not fetch). Callers keep the same window globals; src/app/compatibility-globals.js
 // installs this before DOMContentLoaded, as data-status-surface.js is.
-import { installOperatorNote } from '../../data/operator-note.js';
-
 export function installHomeStatusSurface(window = globalThis, document = globalThis.document) {
-  installOperatorNote(window);
+  // v59.70 (boot budget): the operator-note.json loader (src/data/operator-note.js) loads on its first call (boot-sequence),
+  // which installs the real loader and placeholder check under the same window names and runs it.
+  window._aioLoadOperatorNote = function() {
+    return import('../../data/operator-note.js').then(function(m) { m.installOperatorNote(window); return window._aioLoadOperatorNote(); }).catch(function() {});
+  };
   var escHtml = function(value) { return window.escHtml(value); }; // js/aio-data.js escHtml, a classic global by the time either writer runs
-  var _aioIsOperatorNotePlaceholder = window._aioIsOperatorNotePlaceholder; // src/data/operator-note.js
+  var _aioIsOperatorNotePlaceholder = function(note) { return typeof window._aioIsOperatorNotePlaceholder === 'function' ? window._aioIsOperatorNotePlaceholder(note) : false; }; // src/data/operator-note.js, installed with the loader
 
   // P569/R260: this was defined 3 times in this file (v-baseline, v51.40, v51.43) — only the
   // last definition below ever took effect (each `function` redeclaration + `window.x =`
