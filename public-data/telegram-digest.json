@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-06T14:21:34.288Z",
-  "attemptedAt": "2026-11-06T14:21:34.288Z",
-  "lastSuccessfulAt": "2026-11-06T14:21:34.288Z",
+  "generatedAt": "2026-11-06T14:51:46.154Z",
+  "attemptedAt": "2026-11-06T14:51:46.154Z",
+  "lastSuccessfulAt": "2026-11-06T14:51:46.154Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-23T14:21:29.235Z",
-  "until": "2026-11-06T14:21:29.235Z",
+  "since": "2026-10-23T14:51:39.938Z",
+  "until": "2026-11-06T14:51:39.938Z",
   "current24hWindow": {
     "start": "2026-11-04T23:00:00.000Z",
     "end": "2026-11-05T23:00:00.000Z",
@@ -89,11 +89,11 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 1361,
-      "freshCount": 40,
+      "freshCount": 20,
       "eligibleTextCount": 1300,
       "selectedCount": 124,
       "error": null,
@@ -104,12 +104,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 239,
+      "count": 240,
       "freshCount": 40,
-      "eligibleTextCount": 239,
+      "eligibleTextCount": 240,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 21038
+      "lastPostId": 21039
     },
     {
       "channel": "HANAchina",
@@ -124,15 +124,15 @@
       "lastPostId": 71671
     }
   ],
-  "count": 2323,
-  "retainedItemCount": 448,
+  "count": 2324,
+  "retainedItemCount": 432,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2323,
-    "eligibleTextCount": 2258,
+    "observedCount": 2324,
+    "eligibleTextCount": 2259,
     "mediaOnlyCount": 65,
     "mediaAttachedCount": 458,
     "photoPostCount": 399,
@@ -147,6 +147,7 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "geo": 446,
     "semi": 478,
     "credit": 99,
     "power": 269,
@@ -157,7 +158,6 @@
     "earnings": 409,
     "flows": 65,
     "ai-policy": 105,
-    "geo": 445,
     "japan": 79,
     "healthcare": 76,
     "optical": 41,
@@ -262,10 +262,10 @@
   "themes": [
     "Market Notes (847 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
     "Semiconductors/Memory (478 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
-    "Geopolitics (445 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
+    "Geopolitics (446 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
     "Earnings/Corporate (409 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
     "Macro/Rates (352 posts in 14-day research window): 텍사스 주지사 당선인 지나 히노호사는 버니 샌더스가 아니다. 데이터센터 건설을 지지한다. - Tae Kim 시장은 텍사스 주지사 선거 결과가 AI 데이터센터 산업에 미칠 영향을 과도하게 부정적으로 해석하고 있다. 히노호사는 데이터센터 건설 자체를 반대하는 것이 아니라 지역 주민과 노동자에게 실질적인 혜택이...",
-    "AI Power/Grid (269 posts in 14-day research window): 데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가 나타나고 있음. 데이터센터의 막대한 전력 소비와 지역사회 부담에 대한 우려가 커지면서 미국 하원과 텍사스,...",
+    "AI Power/Grid (269 posts in 14-day research window): 데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가...",
     "Korea Market (117 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY...",
     "Equity/Analyst (117 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
   ],
@@ -278,12 +278,12 @@
     {
       "key": "NVDA",
       "count": 113,
-      "text": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가 나타나고 있음. 데이터센터의 막대한 전력 소비와 지역사회 부담에 대한 우려가 커지면서 미국 하원과 텍사스,..."
+      "text": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가..."
     },
     {
       "key": "AMZN",
       "count": 80,
-      "text": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가 나타나고 있음. 데이터센터의 막대한 전력 소비와 지역사회 부담에 대한 우려가 커지면서 미국 하원과 텍사스,..."
+      "text": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가..."
     },
     {
       "key": "000660.KS",
@@ -293,7 +293,7 @@
     {
       "key": "MSFT",
       "count": 60,
-      "text": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가 나타나고 있음. 데이터센터의 막대한 전력 소비와 지역사회 부담에 대한 우려가 커지면서 미국 하원과 텍사스,..."
+      "text": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가..."
     },
     {
       "key": "005930.KS",
@@ -347,7 +347,7 @@
       "topics": [
         "geo"
       ],
-      "count": 445,
+      "count": 446,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격..."
     },
     {
@@ -384,7 +384,7 @@
         "power"
       ],
       "count": 269,
-      "focus": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가 나타나고 있음. 데이터센터의 막대한 전력 소비와 지역사회 부담에 대한 우려가 커지면서 미국 하원과 텍사스,..."
+      "focus": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가..."
     },
     {
       "id": "ai-policy",
@@ -438,7 +438,7 @@
         "healthcare"
       ],
       "count": 76,
-      "focus": "11월 6일 미국 증시 프리마켓 주요 상승·하락 종목 상승 종목 • 제이프로그 +23.00% • 아이렌 +19.29% • 클라우드플레어 +18.84% • 에어비앤비 +13.40% • 사이퍼 디지털 +12.09% • 블룸에너지 +12.07% • 샌디스크 +11.84% • 트랜스메딕스 +11.65% • 크레도..."
+      "focus": "No retained full-text sample; 76 observed posts in the 14-day research window."
     },
     {
       "id": "japan",
@@ -733,12 +733,8 @@
       "datetime": "2026-11-06T08:13:28.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "power",
-        "credit",
-        "macro",
-        "semi"
+        "power"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
       "media": {
@@ -747,14 +743,14 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가...",
       "tickers": [
         "NVDA",
         "MSFT",
         "AVGO",
         "AMZN",
         "CRWV"
-      ],
-      "summary": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가..."
+      ]
     },
     {
       "id": "bornlupin/21024",
@@ -961,17 +957,14 @@
       "datetime": "2026-11-04T06:08:50.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "민주당 블루웨이브와 AI 투자 1. 민주당이 연방 상원(52~54석)과 하원(약 250석), 그리고 텍사스 주지사까지 승리했지만, 미국 AI 투자가 정체될 가능성은 낮음 2. 미국의 AI 주도권 유지에는...",
       "tickers": [
         "BE"
-      ],
-      "summary": "민주당 블루웨이브와 AI 투자 1. 민주당이 연방 상원(52~54석)과 하원(약 250석), 그리고 텍사스 주지사까지 승리했지만, 미국 AI 투자가 정체될 가능성은 낮음 2. 미국의 AI 주도권 유지에는..."
+      ]
     },
     {
       "id": "insidertracking/68305",
@@ -2019,7 +2012,6 @@
       "tags": [
         "earnings"
       ],
-      "lead": 1,
       "score": 69,
       "hasText": true,
       "media": {
@@ -2028,10 +2020,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "Moderna 2026년 3분기 실적 요약 실적 • 매출 $13.13억, YoY +29%, 예상 $8.902억 대비 47.5% 상회 • GAAP EPS $0.38, 전년 -$0.51에서 흑자 전환 • 순이익...",
       "tickers": [
         "MRNA"
-      ],
-      "summary": "Moderna 2026년 3분기 실적 요약 실적 • 매출 $13.13억, YoY +29%, 예상 $8.902억 대비 47.5% 상회 • GAAP EPS $0.38, 전년 -$0.51에서 흑자 전환 • 순이익..."
+      ]
     },
     {
       "id": "HANAchina/71665",
@@ -2071,14 +2063,13 @@
       "datetime": "2026-11-06T10:50:03.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "macro",
-        "semi"
+        "macro"
       ],
-      "lead": 1,
       "score": 69,
       "hasText": true,
-      "tickers": [],
-      "summary": "미국 연방준비제도(Fed)의 존 윌리엄스 뉴욕 연방준비은행 총재 주요 발언. • 현재는 추가 경제 데이터를 확보하기에 적절한 시점이라고 평가. • 인플레이션 기대치는 안정적이며, 임금 상승률도 물가 목표에..."
+      "summary": "미국 연방준비제도(Fed)의 존 윌리엄스 뉴욕 연방준비은행 총재 주요 발언. • 현재는 추가 경제 데이터를 확보하기에 적절한 시점이라고 평가. • 인플레이션 기대치는 안정적이며, 임금 상승률도 물가 목표에...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68531",
@@ -2089,7 +2080,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
       "media": {
@@ -2098,8 +2088,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "11월 5일 필라델피아 반도체 지수(SOX)가 12.25% 급락하며 1994년 이후 역대 두 번째로 큰 일일 하락률 기록. 같은 날 변동성 지수(VIX)는 16.6에서 28.2로 상승하며 하루 만에 약 70%..."
+      "summary": "11월 5일 필라델피아 반도체 지수(SOX)가 12.25% 급락하며 1994년 이후 역대 두 번째로 큰 일일 하락률 기록. 같은 날 변동성 지수(VIX)는 16.6에서 28.2로 상승하며 하루 만에 약 70%...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/21029",
@@ -2126,11 +2117,11 @@
       "tags": [
         "ai-policy"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": "오픈AI가 11월 6일 사이버보안 연구 전용 모델 GPT-6 Cyber를 출시. 취약점 발굴 능력과 지정된 작업 범위 준수 성능이 크게 향상되면서 AI 기반 사이버 공격·방어 기술이 새로운 단계에 진입했다는..."
+      "summary": "오픈AI가 11월 6일 사이버보안 연구 전용 모델 GPT-6 Cyber를 출시. 취약점 발굴 능력과 지정된 작업 범위 준수 성능이 크게 향상되면서 AI 기반 사이버 공격·방어 기술이 새로운 단계에 진입했다는...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68528",
@@ -2139,12 +2130,8 @@
       "datetime": "2026-11-06T08:13:28.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "power",
-        "credit",
-        "macro",
-        "semi"
+        "power"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
       "media": {
@@ -2153,14 +2140,14 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가...",
       "tickers": [
         "NVDA",
         "MSFT",
         "AVGO",
         "AMZN",
         "CRWV"
-      ],
-      "summary": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가..."
+      ]
     },
     {
       "id": "HANAchina/71657",
@@ -4600,17 +4587,14 @@
       "datetime": "2026-11-04T06:08:50.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "민주당 블루웨이브와 AI 투자 1. 민주당이 연방 상원(52~54석)과 하원(약 250석), 그리고 텍사스 주지사까지 승리했지만, 미국 AI 투자가 정체될 가능성은 낮음 2. 미국의 AI 주도권 유지에는...",
       "tickers": [
         "BE"
-      ],
-      "summary": "민주당 블루웨이브와 AI 투자 1. 민주당이 연방 상원(52~54석)과 하원(약 250석), 그리고 텍사스 주지사까지 승리했지만, 미국 AI 투자가 정체될 가능성은 낮음 2. 미국의 AI 주도권 유지에는..."
+      ]
     },
     {
       "id": "insidertracking/68305",
