@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-06T02:51:51.992Z",
-  "attemptedAt": "2026-11-06T02:51:51.992Z",
-  "lastSuccessfulAt": "2026-11-06T02:51:51.992Z",
+  "generatedAt": "2026-11-06T03:21:39.674Z",
+  "attemptedAt": "2026-11-06T03:21:39.674Z",
+  "lastSuccessfulAt": "2026-11-06T03:21:39.674Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-23T02:51:45.158Z",
-  "until": "2026-11-06T02:51:45.158Z",
+  "since": "2026-10-23T03:21:33.730Z",
+  "until": "2026-11-06T03:21:33.730Z",
   "current24hWindow": {
     "start": "2026-11-04T23:00:00.000Z",
     "end": "2026-11-05T23:00:00.000Z",
@@ -80,9 +80,9 @@
       "pages": 0,
       "reachedOlder": false,
       "reachedKnown": false,
-      "count": 61,
+      "count": 60,
       "freshCount": 0,
-      "eligibleTextCount": 57,
+      "eligibleTextCount": 56,
       "selectedCount": 30,
       "error": "first page parsed no posts",
       "lastPostId": 26057
@@ -92,21 +92,21 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1341,
-      "freshCount": 39,
-      "eligibleTextCount": 1280,
+      "count": 1345,
+      "freshCount": 40,
+      "eligibleTextCount": 1282,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 68504
+      "lastPostId": 68509
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 232,
+      "count": 231,
       "freshCount": 20,
-      "eligibleTextCount": 232,
+      "eligibleTextCount": 231,
       "selectedCount": 122,
       "error": null,
       "lastPostId": 21021
@@ -116,30 +116,30 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 684,
+      "count": 685,
       "freshCount": 36,
-      "eligibleTextCount": 683,
+      "eligibleTextCount": 684,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 71646
+      "lastPostId": 71647
     }
   ],
-  "count": 2318,
-  "retainedItemCount": 450,
+  "count": 2321,
+  "retainedItemCount": 451,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2318,
-    "eligibleTextCount": 2252,
-    "mediaOnlyCount": 66,
-    "mediaAttachedCount": 408,
-    "photoPostCount": 355,
-    "documentPostCount": 1,
-    "imageOnlyCount": 1,
-    "highSignalCount": 395,
-    "broadSignalCount": 861,
+    "observedCount": 2321,
+    "eligibleTextCount": 2253,
+    "mediaOnlyCount": 68,
+    "mediaAttachedCount": 410,
+    "photoPostCount": 356,
+    "documentPostCount": 2,
+    "imageOnlyCount": 2,
+    "highSignalCount": 396,
+    "broadSignalCount": 862,
     "selectedRawCount": 396,
     "selectedEligibleCount": 396,
     "selectedRawCoveragePct": 17.6,
@@ -147,9 +147,11 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 849,
+    "market-note": 851,
+    "credit": 100,
+    "geo": 442,
     "earnings": 417,
-    "credit": 99,
+    "media-only": 67,
     "semi": 482,
     "healthcare": 77,
     "ai-policy": 109,
@@ -158,10 +160,8 @@
     "kr-market": 119,
     "macro": 353,
     "flows": 70,
-    "geo": 441,
-    "japan": 81,
+    "japan": 79,
     "optical": 39,
-    "media-only": 66,
     "crypto": 4
   },
   "tickerCounts": {
@@ -172,7 +172,7 @@
     "ORCL": 12,
     "TSM": 36,
     "GOOG": 116,
-    "TSLA": 30,
+    "TSLA": 29,
     "AMD": 47,
     "CRWV": 5,
     "AAPL": 22,
@@ -180,7 +180,7 @@
     "DB": 2,
     "AMZN": 79,
     "MSFT": 57,
-    "005930.KS": 51,
+    "005930.KS": 50,
     "000660.KS": 73,
     "BCS": 2,
     "2454.TW": 4,
@@ -261,9 +261,9 @@
     "032640.KS": 1
   },
   "themes": [
-    "Market Notes (849 posts in 14-day research window): 2026년 11월 5일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심의 매도 압력이 확대되며 혼조세. 한국시간 오후 1시 55분 기준 나스닥100 선물은 1.08% 하락, S&P500 선물은...",
+    "Market Notes (851 posts in 14-day research window): 2026년 11월 5일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심의 매도 압력이 확대되며 혼조세. 한국시간 오후 1시 55분 기준 나스닥100 선물은 1.08% 하락, S&P500 선물은...",
     "Semiconductors/Memory (482 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
-    "Geopolitics (441 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
+    "Geopolitics (442 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
     "Earnings/Corporate (417 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
     "Macro/Rates (353 posts in 14-day research window): 2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,...",
     "AI Power/Grid (264 posts in 14-day research window): 시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준....",
@@ -298,7 +298,7 @@
     },
     {
       "key": "005930.KS",
-      "count": 51,
+      "count": 50,
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
@@ -318,7 +318,7 @@
     },
     {
       "key": "TSLA",
-      "count": 30,
+      "count": 29,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로..."
     },
     {
@@ -348,7 +348,7 @@
       "topics": [
         "geo"
       ],
-      "count": 441,
+      "count": 442,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격..."
     },
     {
@@ -357,7 +357,7 @@
       "topics": [
         "credit"
       ],
-      "count": 99,
+      "count": 100,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 아메리라이프와 보험 유통 전반의 AI 전환을 위한 엔터프라이즈 파트너십 체결. Foundry와 AIP는 크럼프 생명보험 서비스에서 이미 운영 중이며, 향후 32만5,000명 이상의 보험 에이전트·자문가 네트워크를..."
     },
     {
@@ -447,7 +447,7 @@
       "topics": [
         "japan"
       ],
-      "count": 81,
+      "count": 79,
       "focus": "앤트로픽, 대규모 미국 IPO 위해 일본에서 최대 35억 달러 조달 추진 1. 앤트로픽, 일본 투자자로부터 최대 35억 달러 조달 추진 - AI 스타트업 앤트로픽(Anthropic PBC)이 미국 증시..."
     },
     {
@@ -474,7 +474,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 849,
+      "count": 851,
       "focus": "2026년 11월 5일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심의 매도 압력이 확대되며 혼조세. 한국시간 오후 1시 55분 기준 나스닥100 선물은 1.08% 하락, S&P500 선물은..."
     }
   ],
@@ -1774,6 +1774,37 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/68508",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68508",
+      "datetime": "2026-11-06T03:08:48.000Z",
+      "localDateKst": "2026-11-06",
+      "tags": [
+        "credit",
+        "geo",
+        "earnings"
+      ],
+      "score": 77,
+      "hasText": true,
+      "tickers": [],
+      "summary": "에어비앤비(ABNB) Q3 2026 어닝콜 요약 긍정 요인: • 강력한 매출 및 예약 성장. 3분기 매출은 49억달러로 전년 대비 19% 증가. 총예약액(GBV)은 277억달러로 21%, 예약 숙박일수 및..."
+    },
+    {
+      "id": "HANAchina/71647",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71647",
+      "datetime": "2026-11-06T02:51:41.000Z",
+      "localDateKst": "2026-11-06",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 52,
+      "hasText": true,
+      "tickers": [],
+      "summary": "•중국 반도체 과창50지수 플러스 전환 •개장 -5% 낙폭 극복 •홍콩 증시 약보합 전환, 3대지수 낙폭 축소"
+    },
+    {
       "id": "insidertracking/68502",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/68502",
@@ -2246,8 +2277,6 @@
       "localDateKst": "2026-11-06",
       "tags": [
         "macro",
-        "geo",
-        "power",
         "healthcare"
       ],
       "score": 79,
@@ -2258,10 +2287,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 6일 🇺🇸 아메리카 • 클리블랜드 연은 해맥 총재는 인플레이션이 광범위하고 목표와 반대 방향으로 움직이고 있다며, 통화정책을 제약적 수준으로 전환해야 한다고 강조....",
       "tickers": [
         "GOOG"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 6일 🇺🇸 아메리카 • 클리블랜드 연은 해맥 총재는 인플레이션이 광범위하고 목표와 반대 방향으로 움직이고 있다며, 통화정책을 제약적 수준으로 전환해야 한다고 강조...."
+      ]
     },
     {
       "id": "HANAchina/71610",
@@ -2337,8 +2366,8 @@
         "videoCount": 1,
         "documents": []
       },
-      "tickers": [],
-      "summary": "공지사항 안내 Speed matters, Facts matter more > 속도도 중요하지만, 정확한 사실이 우선이다 미국 주식, 국제 정세, 속보 및 전쟁 이슈까지 가장 빠르고 정확하게 전달드리겠습니다...."
+      "summary": "공지사항 안내 Speed matters, Facts matter more > 속도도 중요하지만, 정확한 사실이 우선이다 미국 주식, 국제 정세, 속보 및 전쟁 이슈까지 가장 빠르고 정확하게 전달드리겠습니다....",
+      "tickers": []
     },
     {
       "id": "insidertracking/68462",
@@ -6679,25 +6708,6 @@
       ]
     },
     {
-      "id": "insidertracking/68083",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68083",
-      "datetime": "2026-11-02T12:12:10.000Z",
-      "localDateKst": "2026-11-02",
-      "tags": [
-        "semi",
-        "optical"
-      ],
-      "score": 73,
-      "hasText": true,
-      "summary": "Lumentum 주주들은 각 LITE 주식당 4.5주의 Marvell 주식을 받게 되며, 이는 주당 약 $1,132를 의미한다. • 이 제안은 10월 28일 영향을 받지 않은 종가 대비 23.9% 프리미엄을...",
-      "lead": 2,
-      "tickers": [
-        "MRVL",
-        "LITE"
-      ]
-    },
-    {
       "id": "bornlupin/20950",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20950",
@@ -7723,21 +7733,6 @@
         "000660.KS",
         "017670.KS"
       ]
-    },
-    {
-      "id": "HANAchina/71298",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71298",
-      "datetime": "2026-10-31T07:01:37.000Z",
-      "localDateKst": "2026-10-31",
-      "tags": [
-        "earnings"
-      ],
-      "score": 57,
-      "hasText": true,
-      "summary": ">>CXMT 실적 발표회 요약 : LPDDR6 자동차 시장으로 확대…20억 위안 자사주 매입 승인 •영업실적 : 2026년 3분기 매출은 1,187억 위안으로 QoQ+19% 증가, 총이익은 990억...",
-      "lead": 1,
-      "tickers": []
     },
     {
       "id": "bornlupin/20903",
@@ -9392,8 +9387,6 @@
       "localDateKst": "2026-11-06",
       "tags": [
         "macro",
-        "geo",
-        "power",
         "healthcare"
       ],
       "score": 79,
@@ -9404,10 +9397,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 6일 🇺🇸 아메리카 • 클리블랜드 연은 해맥 총재는 인플레이션이 광범위하고 목표와 반대 방향으로 움직이고 있다며, 통화정책을 제약적 수준으로 전환해야 한다고 강조....",
       "tickers": [
         "GOOG"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 6일 🇺🇸 아메리카 • 클리블랜드 연은 해맥 총재는 인플레이션이 광범위하고 목표와 반대 방향으로 움직이고 있다며, 통화정책을 제약적 수준으로 전환해야 한다고 강조...."
+      ]
     },
     {
       "id": "HANAchina/71610",
@@ -9465,26 +9458,6 @@
         "NVDA"
       ],
       "summary": "중국 AI 연구소 문샷, 미국의 대중국 규제 속 엔비디아 블랙웰 칩 접근 위해 유럽으로 눈 돌려 1. 문샷 AI, 유럽에서 엔비디아 블랙웰 GPU 확보 추진 - 중국 AI 기업 문샷 AI(Moonshot..."
-    },
-    {
-      "id": "insidertracking/68464",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68464",
-      "datetime": "2026-11-05T13:40:09.000Z",
-      "localDateKst": "2026-11-05",
-      "tags": [
-        "geo"
-      ],
-      "score": 55,
-      "hasText": true,
-      "media": {
-        "kind": "video",
-        "photoCount": 0,
-        "videoCount": 1,
-        "documents": []
-      },
-      "tickers": [],
-      "summary": "공지사항 안내 Speed matters, Facts matter more > 속도도 중요하지만, 정확한 사실이 우선이다 미국 주식, 국제 정세, 속보 및 전쟁 이슈까지 가장 빠르고 정확하게 전달드리겠습니다...."
     },
     {
       "id": "insidertracking/68462",
