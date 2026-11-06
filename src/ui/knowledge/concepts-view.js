@@ -98,9 +98,14 @@ function buildNav(doc, state, data) {
     // and the search stay on the face, and the open document sits in the middle column.
     if (open && box.children.length > 2) {
       const list = el(doc, 'details', 'rl-nav-list');
-      list.append(el(doc, 'summary', 'rl-nav-title', `${group.title} 목차${count != null ? `, ${count}편` : ''}`), ...[...box.children].slice(1));
+      const summary = el(doc, 'summary', 'rl-nav-title', `${group.title} 목차${count != null ? `, ${count}편` : ''}`);
+      list.append(summary, ...[...box.children].slice(1));
       // Once a reader opens the list it stays open across the re-render each title click causes.
       list.open = Boolean(state.navListOpen);
+      // v59.70: the 'toggle' event is queued as a later task, so a render that lands in between (the mount render is
+      // followed ~15 ms later by the hydration render) rebuilt the list closed and lost the reader's open. The summary
+      // click records the new state at once (it runs before the default toggle; Enter/Space on a summary also click).
+      summary.addEventListener('click', () => { state.navListOpen = !list.open; });
       list.addEventListener('toggle', () => { state.navListOpen = list.open; });
       box.appendChild(list);
     }
