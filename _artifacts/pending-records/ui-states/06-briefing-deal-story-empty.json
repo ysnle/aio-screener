@@ -1,0 +1,15 @@
+{
+  "p": {
+    "title": "{VERSION} 브리핑·오늘 '지난 24시간' 둘째 이야기가 제목과 본문 없이 무게 막대와 '관련 보도 1건'만 나왔다",
+    "symptom": "브리핑 지난 24시간과 오늘의 핵심 목록의 둘째 항목(MRVL·LITE 인수)이 빈 제목·빈 본문에 무게 막대와 '▶ 관련 보도 1건'만 있었다(화면 검수 #11).",
+    "root_cause": "src/domain/briefing/day-account.js는 'deal'을 이야기 씨앗 종류로 받으면서도 문구 분기가 없어, label·title이 없는 인수 사실을 일반 분기의 'seed.label || seed.title || '''로 빈 문자열 제목으로 만들었다. 데이터(market-day.json)는 인수자·대상·규모·지급 방식·프리미엄을 갖고 있었다.",
+    "fix": "deal 분기를 넣어 '인수자, 대상 인수' 제목(이름은 다른 사실의 label, 없으면 티커)과 '규모 2,750억 달러, 주식 교환, 프리미엄 +23.9%.' 본문을 쓰고, 문구가 없는 씨앗 종류는 목록에 넣지 않는다.",
+    "violated_rule": "씨앗 종류를 늘리면 그 종류의 문구도 같이 만든다 — 빈 제목 이야기는 목록에 들어가지 않는다.",
+    "prevention": "ci-esm-core-unit-check {VERSION} 단언: label 없는 deal 사실이 제목(인수자·대상 이름)과 규모·프리미엄 본문을 가진 이야기가 되고, 문구 없는 씨앗(event, label 없음)은 이야기·더 보기 어디에도 빈 제목으로 남지 않는다. v59.69 day-account.js에서는 deal 제목이 빈 문자열이라 실패한다.",
+    "verification": "수정 전: 실제 market-day.json으로 buildDayAccount → story:deal:MRVL:LITE title ''. 수정 후: 'MRVL, 루멘텀 인수 / 규모 2,750억 달러, 주식 교환, 프리미엄 +23.9%.', 390px 오늘 스크린샷 확인, ci-esm-core-unit-check ok."
+  },
+  "changelog": [
+    "**인수 소식에 제목이 생겼다 ({VERSION}, 화면 검수 #11):** 브리핑과 오늘의 핵심에서 인수 소식이 빈 제목·빈 본문으로 나오던 것을 고쳤다. 이제 '인수자, 대상 인수'와 규모·지급 방식·프리미엄을 쓴다. 데이터 쪽 의심 항목(CRWD가 MSFT를 인수한다는 deal 사실)은 데이터 담당에 넘겼다."
+  ],
+  "note": "screen review 2026-11-04 #11. Data follow-up for data-refactor in the shared notes folder: deal:CRWD:MSFT acquirer/target likely reversed (telegram insidertracking/68214)."
+}

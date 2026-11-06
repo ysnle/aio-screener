@@ -37,12 +37,12 @@ export const REASONS_SCHEMA = { type: 'object', additionalProperties: false, req
 // Structured summaries of a fetched source (earnings release, FOMC statement, transcript).
 export const QUOTED_ITEM_RULES = ruleBlock('규칙:', [
   `한국어로 짧게 쓴다. ${PROMPT_RULES.noTradeInstruction}`,
-  `text와 watch의 문장은 모두 ${FORMAL_ENDING}. headline은 끝맺음 없는 짧은 제목으로 쓴다.`,
+  `text의 문장은 모두 ${FORMAL_ENDING}. headline과 watch는 끝맺음 없는 짧은 구로 쓴다.`,
   PROMPT_RULES.koreanNames,
   '각 항목의 quote에는 원문 문장을 한 글자도 바꾸지 않고 그대로 옮긴다. value에는 원문 표기 그대로의 숫자와 단위를 쓴다(환산·반올림 금지).',
   'text에는 value에 쓴 숫자를 다시 쓰거나 다른 단위로 바꿔 쓰지 않는다. text는 value가 말하지 않는 것(전년 대비 변화, 이유, 조건)만 한 문장으로 쓴다.',
   'label·text·headline에 숫자를 쓸 때는 원문에 그대로 있는 숫자만 쓴다. 원문에 없는 숫자(계산한 증감률, 환산 금액)는 쓰지 않는다.',
-  'watch는 다음에 확인할 일(다음 발표, 지표, 조건)을 숫자 없이 한 줄씩 쓴다.'
+  'watch는 다음에 확인할 일(다음 발표, 지표, 조건)을 숫자 없이 한 줄씩, "확인해야 합니다" 같은 당부 없이 쓴다(예: "다음 분기 매출의 가이던스 부합 여부").'
 ]);
 // Points found by a hosted search (press conference, earnings call, post-report move).
 const searchPointRules = (extra = [], { names = true } = {}) => ruleBlock('규칙:', [

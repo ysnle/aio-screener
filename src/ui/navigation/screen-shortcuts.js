@@ -9,6 +9,18 @@ export const SCREEN_SHORTCUTS = Object.freeze(ROUTE_HUBS.slice(0, 9).map((hub, i
   return Object.freeze({ key: String(index + 1), route: first.id, label: hub.label });
 }));
 
+// v59.70 (wave2-f S23, owner D4 2026-11-04): every key the shell binds, one row per key and modifier. The help modal's
+// rows and the conflict gate (scripts/ci-search-surface-contract.mjs) read this table; two rows on one key fail the gate.
+export const SHELL_KEY_BINDINGS = Object.freeze([
+  Object.freeze({ key: 'k', mod: 'ctrl', action: 'command-search', label: '명령 검색 (종목, 화면, 용어)', inInput: true }),
+  Object.freeze({ key: 'k', mod: 'meta', action: 'command-search', label: '명령 검색 (Mac)', inInput: true }),
+  Object.freeze({ key: '/', mod: '', action: 'table-filter', label: '표에서 찾기, 표가 없는 화면은 명령 검색', inInput: false }),
+  Object.freeze({ key: '?', mod: 'shift', action: 'help', label: '단축키 보기', inInput: false }),
+  Object.freeze({ key: 'Escape', mod: '', action: 'close', label: '닫기', inInput: true }),
+  Object.freeze({ key: 'r', mod: '', action: 'refresh', label: '시세 새로고침', inInput: false }),
+  ...SCREEN_SHORTCUTS.map((entry) => Object.freeze({ key: entry.key, mod: '', action: `screen:${entry.route}`, label: entry.label, inInput: false }))
+]);
+
 export function screenShortcutRoute(key) {
   return SCREEN_SHORTCUTS.find((entry) => entry.key === String(key))?.route || null;
 }
@@ -33,9 +45,10 @@ export function renderScreenShortcutRows(documentRef) {
 
 // Roadmap item 11 (legacy decomposition, shell): the ? help modal (openKbdHelp / closeKbdHelp) and the document keydown
 // handler moved here from js/aio-ui.js, beside the screen table they read. Behaviour is unchanged:
-//   Escape  — closes the help modal, then the glossary if it shows, else the AI panel
-//   Ctrl/⌘K — focuses the active screen's search box; with none on screen, opens 용어 사전 (works inside inputs)
-//   ?       — toggles the help modal; 1..8 — the screens in menu order; R — refreshes live quotes (not Ctrl/⌘R)
+//   Escape  — closes the help modal, then the glossary if it shows, else the AI panel (the command search closes itself)
+//   Ctrl/⌘K — opens the command search on every screen, inside inputs too (D4; it replaced 2026-10-25's "focus the box")
+//   /       — focuses the screener's 표에서 찾기 when it is on screen, else opens the command search
+//   ?       — toggles the help modal; 1..9 — the screens in menu order; R — refreshes live quotes (not Ctrl/⌘R)
 // The other keys are ignored while typing in an input, textarea, select or contenteditable.
 export function createKeyboardHelp({ root = globalThis, documentRef = root?.document } = {}) {
   const modal = () => documentRef.getElementById('kbd-shortcuts-modal');
@@ -67,6 +80,14 @@ export function handleShortcutKey(event, { root = globalThis, documentRef = root
   const target = event.target || {};
   const tag = String(target.tagName || '').toLowerCase();
   const isInput = tag === 'input' || tag === 'textarea' || tag === 'select' || Boolean(target.isContentEditable);
+  if (event.isComposing || event.keyCode === 229) return null; // a Korean syllable still composing owns its keys
+  const openCommandSearch = (request) => (typeof root._aioOpenCommandSearch === 'function' && root._aioOpenCommandSearch(request) ? 'command-search' : null);
+  if ((event.ctrlKey || event.metaKey) && !event.altKey && String(event.key).toLowerCase() === 'k') {
+    event.preventDefault();
+    return openCommandSearch({});
+  }
+  // The open command search is a modal dialog: its own keys (arrows, Enter, Esc) and typing stay with it.
+  if (typeof root._aioCommandSearchIsOpen === 'function' && root._aioCommandSearchIsOpen()) return null;
   if (event.key === 'Escape') {
     help.close();
     if (typeof root._aioGlossaryIsOpen === 'function' && root._aioGlossaryIsOpen()) { root._aioCloseGlossary(); return 'glossary'; }
@@ -74,20 +95,13 @@ export function handleShortcutKey(event, { root = globalThis, documentRef = root
     if (aiPanel && aiPanel.classList.contains('open') && typeof root.toggleAIPanel === 'function') { root.toggleAIPanel(); return 'ai-panel'; }
     return 'escape';
   }
-  if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
-    event.preventDefault();
-    // P1315: .search-bar never existed. Owner 2026-10-25: only an on-screen search box takes focus; run-3 I#21: with none,
-    // 용어 사전, as the help row promises.
-    const search = (documentRef.querySelector('.page.active') || documentRef).querySelector('#scr-text-search, #ticker-direct-search, #guide-search-input');
-    if (search && search.offsetParent !== null) { search.focus(); return 'search'; }
-    if (typeof root.openGlossary === 'function') {
-      root.openGlossary();
-      root.setTimeout(() => { const field = documentRef.getElementById('glossary-search'); if (field) field.focus(); }, 60);
-      return 'glossary-open';
-    }
-    return null;
-  }
   if (isInput) return null;
+  if (event.key === '/' && !event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey) {
+    event.preventDefault();
+    const filter = documentRef.querySelector('.page.active #scr-text-search');
+    if (filter && filter.offsetParent !== null) { filter.focus(); return 'table-filter'; }
+    return openCommandSearch({});
+  }
   if (event.key === '?' || (event.shiftKey && event.key === '/')) {
     event.preventDefault();
     if (help.isOpen()) help.close(); else help.open();

@@ -213,6 +213,7 @@
   .page :is(.briefing-move-chart, .breadth-drill-body, .scr-why-grid,
       .principles-reference-body, .masters-principles-list, .aio-vis-panel,
       .principles-chapter-grid, .atlas-node-grid) { grid-template-columns: minmax(0, 1fr); }
+  #page-fxbond.page .mk-curve-card .rates-yields { grid-template-columns: repeat(2, minmax(0, 1fr)); } /* v59.70 (screen review #1): the curve card's auto-fit rule out-ranked the phone grid */
   .page :is(.rates-yields, .rates-other, .kr-index-grid, .scr-funnel, .principles-reference-loop, .integrated-framework-flow, .page .daily-moves, .chart-stage-steps) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .page .aio-responsive-card-grid { grid-template-columns: minmax(0, 1fr) !important; }
   .page :is(.briefing-event, .daily-event, .macro-chain-branch, .theme-detail-flow .stock-read-bar-row) { grid-template-columns: minmax(0, 1fr); }
@@ -505,16 +506,27 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
 .sx-disclosure > summary::after, .sx-disclosure__row::after, .leaders-line__more > summary::after, .mk-fold > summary::after,
 #page-sentiment details.trend-card > summary .trend-card-tags::after, #glossary-body .lu-gl-head::after,
 #page-guide .aio-guide-chapter > summary::after, #regime-kr-participation > details > summary::after, .kr-flows-basis > summary::after,
-#page-home .home-kr-line > summary::after, #page-home .market-lean > summary::after, #page-briefing summary.market-slot-head::after {
+#page-home .home-kr-line > summary::after, :is(#page-home, #page-signal) .market-lean > summary::after, :is(#page-briefing, #page-market-news) summary.market-slot-head::after,
+details.news-card > summary::after, .leaders-line__dist-fold > summary::after, .page .mg-lesson-more > summary::after,
+.news-evidence > summary::after, .rl-nav-list > summary::after, #scr-developer-drawer > summary::after {
   content: ''; display: inline-block; flex: none; align-self: center; width: 7px; height: 7px; margin-right: 3px;
   border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: translateY(-2px) rotate(45deg); font-size: 0;
 }
 .sx-disclosure[open] > summary::after, .sx-disclosure.is-open > .sx-disclosure__row::after, .leaders-line__more[open] > summary::after, .mk-fold[open] > summary::after,
 #page-sentiment details.trend-card[open] > summary .trend-card-tags::after, #glossary-body .aio-glossary-item[open] > .lu-gl-head::after,
 #page-guide .aio-guide-chapter[open] > summary::after, #regime-kr-participation > details[open] > summary::after, .kr-flows-basis[open] > summary::after,
-#page-home .home-kr-line[open] > summary::after, #page-home .market-lean[open] > summary::after, #page-briefing details[open] > summary.market-slot-head::after {
+#page-home .home-kr-line[open] > summary::after, :is(#page-home, #page-signal) .market-lean[open] > summary::after, :is(#page-briefing, #page-market-news) details[open] > summary.market-slot-head::after,
+details.news-card[open] > summary::after, .leaders-line__dist-fold[open] > summary::after, .page .mg-lesson-more[open] > summary::after,
+.news-evidence[open] > summary::after, .rl-nav-list[open] > summary::after, #scr-developer-drawer[open] > summary::after {
   content: ''; transform: translateY(2px) rotate(-135deg);
 }
+/* v59.70 (screen review #4): 뉴스's three fold cards (시간대별 시황·전체 뉴스·시장 신호) had no marker, the section
+   heading's divider line took the ::after; the card chevron sits at the right edge, the inline text folds keep it beside the words. */
+details.news-card > summary::after { margin-left: auto; height: 7px; background: none; }
+#page-market-news details.news-card > summary:is(.aio-section-hd, .briefing-h2) { align-items: center; }
+#page-market-news details.news-card:not([open]) > summary:is(.aio-section-hd, .briefing-h2) { margin-bottom: 0; }
+.leaders-line__dist-fold > summary::after, .page .mg-lesson-more > summary::after, .news-evidence > summary::after, .rl-nav-list > summary::after,
+#scr-developer-drawer > summary::after { margin-left: 6px; }
 /* A full-width fold card puts its chevron at the right edge, like every other fold row (the meta, when present, takes it). */
 .mk-fold > summary::after { margin-left: auto; }
 .mk-fold > summary:has(.sx-card__meta)::after { margin-left: 0; }
@@ -703,7 +715,9 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
 #page-market-news .news-focus__group-title { margin: 10px 0 4px; font-size: 13px; font-weight: 700; }
 #page-market-news .news-focus__titles { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.6; }
 #page-market-news .news-focus__check { margin: 4px 0 0; font-size: 12px; line-height: 1.55; color: var(--text-secondary); }
-@media (max-width: 743px) { :is(#page-fxbond .fx-krw__body, #page-market-news .news-focus__body) { grid-template-columns: minmax(0, 1fr); } }
+/* v59.70 (screen review #1): the phone rule repeats the two-column rule's selector, so it has the same weight and, coming later,
+   wins (at (1,1,0) it lost to (1,2,0) and the read column was 4px wide on a phone). scripts/ci-phone-override-specificity-check.mjs */
+@media (max-width: 743px) { :is(#page-fxbond .fx-krw, #page-market-news .news-focus) :is(.fx-krw__body, .news-focus__body) { grid-template-columns: minmax(0, 1fr); } }
 #page-market-news .news-focus { background: var(--bg-card); border-radius: 12px; padding: 20px var(--sx-card-pad-x); margin: 0 0 16px; }
 #page-screener #scr-tab-evidence.is-empty { display: none !important; }
 

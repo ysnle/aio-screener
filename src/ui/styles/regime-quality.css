@@ -57,7 +57,9 @@
 }
 @media (max-width: 480px) {
   .page .regime-quality-board .regime-axis { padding: 16px 12px; }
-  .page .regime-quality-board .regime-evidence { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  /* v59.70 (screen review #1): the page-scoped two-column rules (v2-market.css, 1,2,0) out-ranked this one; these out-rank them
+     whichever stylesheet loads last. */
+  .page .regime-quality-board .regime-evidence, #page-signal.page .mk-axis__facts .regime-evidence, #page-macro.page .mk-maxis__facts .regime-evidence { grid-template-columns: minmax(0, 1fr); gap: 2px; }
   .page .regime-quality-board .regime-evidence dd { margin-bottom: 10px; }
   .page .regime-scenario-card { padding: 16px; }
 }
@@ -173,7 +175,7 @@ button[data-basis], a[data-basis] { cursor: pointer; }
 .page .stress-bar.is-up { background: var(--dir-up); }
 .page .stress-bar.is-down { background: var(--dir-down); }
 .page .stress-bar-value { text-align: right; font-variant-numeric: tabular-nums; }
-@media (max-width: 600px) { .page .stress-bar-row { grid-template-columns: 1fr; gap: 4px; } .page .stress-bar-value { text-align: left; } }
+@media (max-width: 600px) { .page .stress-bar-row, .page .regime-axis .stress-bar-row { grid-template-columns: 1fr; gap: 4px; } .page .stress-bar-value { text-align: left; } }
 
 /* 2026-10-13 S&P 500 map — colours below (M07: same green/red as the return tables beside it; only candles keep P1634's red/blue). */
 .sector-map { margin: 0 0 26px; }

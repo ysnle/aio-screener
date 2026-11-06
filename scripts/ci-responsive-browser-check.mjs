@@ -176,7 +176,7 @@ try {
         const rgb = (color) => color.match(/[\d.]+/g).slice(0, 3).map(Number);
         const luminance = (color) => rgb(color).map((value) => value / 255).map((value) => value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4).reduce((sum, value, index) => sum + value * [.2126, .7152, .0722][index], 0);
         const background = luminance(getComputedStyle(modal.firstElementChild).backgroundColor);
-        const ratios = ['h2', '.aio-glossary-term', '.aio-glossary-item > div:last-child', '#glossary-search', '#glossary-cats [aria-pressed="true"]'].map((selector) => {
+        const ratios = ['h2', '.aio-glossary-term', '.aio-glossary-item > div:last-child', '#glossary-search-open', '#glossary-cats [aria-pressed="true"]'].map((selector) => {
           const element = modal.querySelector(selector), foreground = luminance(getComputedStyle(element).color);
           return { selector, ratio: (Math.max(background, foreground) + .05) / (Math.min(background, foreground) + .05) };
         });
@@ -185,8 +185,9 @@ try {
       });
       check(glossary.ratios.every((entry) => entry.ratio >= 4.5), `${viewport.name}: glossary text contrast in ${dark ? 'dark' : 'light'} theme (P1620)`, glossary);
       check(glossary.left >= 0 && glossary.right <= viewport.width && glossary.bottom <= viewport.height && glossary.focused && !glossary.drawer, `${viewport.name}: glossary modal conflicts with compact navigation (P1620)`, glossary);
-      await page.locator('#glossary-search').fill('RRG');
-      check(await page.locator('.aio-glossary-item').count() > 0, `${viewport.name}: glossary search unavailable (P1620)`);
+      // v59.70 (wave2-f S23): a term searched in the command search opens the glossary on that entry.
+      await page.evaluate(() => window.openGlossary('RRG'));
+      check(await page.locator('.aio-glossary-item[open]').count() > 0, `${viewport.name}: glossary search unavailable (P1620)`);
       await snap(page, `${viewport.name}-glossary-${dark ? 'dark' : 'light'}.png`);
       await page.keyboard.press('Escape');
       check(!await page.locator('#glossary-modal').isVisible() && await page.locator(navReturn).evaluate((el) => document.activeElement === el), `${viewport.name}: glossary Escape failed to restore a visible focus (P1620)`);

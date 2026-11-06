@@ -5,7 +5,7 @@
 // P1399 (Codex review 2026-10-03): x is placed by calendar date, not array index. Charts shown side
 // by side pass one `range`, so the same horizontal position is the same date on every card and a
 // series whose record starts later begins later on the axis.
-import { shortDate } from '../../domain/content/date-labels.js';
+import { monthLabel, shortDate } from '../../domain/content/date-labels.js';
 import { signedText } from '../../domain/shared/number.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
 const SVG = 'http://www.w3.org/2000/svg';
@@ -48,7 +48,10 @@ function datedShort(date) {
 // v58.80 run-5 (skeptic #5): `guide` is a second, dashed series the reading is measured against (the 50-day line under
 // the S&P 500 close); it sets the scale with the line, names itself at its right end and joins the hover readout.
 export function createTrendChart(doc, options = {}) {
-  const { series = [], refLines = [], format = (value) => value.toFixed(1), label = '', domain = null, range = null, spans = [], guide = null, width = DEFAULT_W } = options;
+  const { series = [], refLines = [], format = (value) => value.toFixed(1), label = '', domain = null, range = null, spans = [], guide = null, width = DEFAULT_W, refLabel = null } = options;
+  // v59.70 (screen review #14): a level line that is not a round tick says what it is ("지지 27,192"), or it read as a
+  // stray tick between the round ones.
+  const refText = (ref) => (typeof refLabel === 'function' ? refLabel(ref) : format(ref).replace(/(\d)\.0+(?!\d)/, '$1'));
   // v59.55 (C1): a wide host (the stock price panel) passes its own width so labels keep their size instead of scaling up.
   const W = Math.max(320, Math.round(width) || DEFAULT_W);
   const wrap = doc.createElement('div');
@@ -83,7 +86,9 @@ export function createTrendChart(doc, options = {}) {
   const tickLabels = ticks.map((tick) => format(tick));
   const trimmed = tickLabels.every((text) => /\d\.0+(?!\d)/.test(text)) ? tickLabels.map((text) => text.replace(/(\d)\.0+(?!\d)/, '$1')) : tickLabels;
   // v59.55 (C1): a long value label (a won price, "₩185,000") widens the axis column instead of running off the left edge.
-  const padLeft = Math.max(PAD.left, Math.ceil(Math.max(...trimmed.map((text) => text.length)) * 7.2 + 8));
+  const textUnits = (text) => [...String(text)].reduce((sum, ch) => sum + (/[가-힣]/.test(ch) ? 12.5 : 7.2), 0);
+  const axisTexts = [...trimmed, ...refLines.filter((ref) => Number.isFinite(ref) && ref >= lo && ref <= hi).map(refText)];
+  const padLeft = Math.max(PAD.left, Math.ceil(Math.max(...axisTexts.map(textUnits)) + 8));
   const plotW = W - padLeft - PAD.right;
   const plotH = H - PAD.top - PAD.bottom;
   const t0 = dayMs(start);
@@ -130,7 +135,7 @@ export function createTrendChart(doc, options = {}) {
     if ((m - 1) % labelEvery !== 0) continue;
     svg.append(svgEl(doc, 'line', { x1: xm, x2: xm, y1: PAD.top + plotH, y2: PAD.top + plotH + 4, class: 'trend-chart-baseline' }));
     const text = svgEl(doc, 'text', { x: xm, y: H - 8, 'text-anchor': 'middle', class: 'trend-chart-axis' });
-    text.textContent = m === 1 ? `${month.slice(2, 4)}년 1월` : `${m}월`;
+    text.textContent = m === 1 ? monthLabel(month) : `${m}월`;
     svg.append(text);
   }
   // Reference lines (thresholds). v58.53 개편 v2: two or more thresholds read as one soft band between the outer two
@@ -149,7 +154,7 @@ export function createTrendChart(doc, options = {}) {
     const crowded = shownRefs.some((other) => other !== ref && other < ref && Math.abs(y(other) - y(ref)) < LABEL_GAP);
     const tag = svgEl(doc, 'text', !crowded ? { x: padLeft - 8, y: (y(ref) + 4).toFixed(1), 'text-anchor': 'end', class: 'trend-chart-ref-label' }
       : { x: W - PAD.right - 2, y: (y(ref) - 3).toFixed(1), 'text-anchor': 'end', class: 'trend-chart-ref-label' });
-    tag.textContent = format(ref).replace(/(\d)\.0+(?!\d)/, '$1');
+    tag.textContent = refText(ref);
     svg.append(tag);
   }
   // P1599 (M04/F46): a series that starts after the shared range marks the earlier span as 'no record yet',
@@ -176,7 +181,32 @@ export function createTrendChart(doc, options = {}) {
   if (guidePoints.length > 1) {
     svg.append(svgEl(doc, 'path', { d: guidePoints.map((point, index) => `${index ? 'L' : 'M'}${xd(point.date).toFixed(1)},${y(point.value).toFixed(1)}`).join(' '), class: 'trend-chart-guide' }));
     const tail = guidePoints[guidePoints.length - 1];
-    const tag = svgEl(doc, 'text', { x: W - PAD.right - 2, y: (y(tail.value) + (tail.value > points[points.length - 1].value ? -5 : 13)).toFixed(1), 'text-anchor': 'end', class: 'trend-chart-ref-label' });
+    // v59.70 (screen review #14): the tag sat at the guide's right end, above or below by the last price alone, so a price
+    // line that wandered there ran through it. It now takes the spot along the guide's right half where the price line
+    // crosses its box least, on the side away from the price, nearest the end on a tie.
+    const tagW = textUnits(guide.label || '') + 4;
+    const priceAt = new Map(points.map((point) => [point.date, point.value]));
+    const box = (cx, baseline) => points.reduce((n, point, index) => {
+      const px = x(index); const py = y(point.value);
+      return n + (px > cx - tagW / 2 && px < cx + tagW / 2 && py > baseline - 14 && py < baseline + 4 ? 1 : 0);
+    }, 0);
+    const half = padLeft + plotW / 2;
+    let best = null;
+    for (let i = guidePoints.length - 1; i >= 0; i -= 3) {
+      const point = guidePoints[i];
+      const cx = Math.min(W - PAD.right - tagW / 2, xd(point.date));
+      if (cx < half) break;
+      const gy = y(point.value);
+      const priceY = priceAt.has(point.date) ? y(priceAt.get(point.date)) : gy;
+      const baseline = priceY < gy ? gy + 13 : gy - 5; // price above the guide → tag below it, and the other way
+      if (baseline - 12 < PAD.top || baseline > H - PAD.bottom) continue;
+      const hits = box(cx, baseline);
+      if (!best || hits < best.hits) best = { cx, baseline, hits };
+      if (hits === 0) break;
+    }
+    const tagX = best ? best.cx : W - PAD.right - tagW / 2;
+    const tagY = best ? best.baseline : y(tail.value) - 5;
+    const tag = svgEl(doc, 'text', { x: tagX.toFixed(1), y: tagY.toFixed(1), 'text-anchor': 'middle', class: 'trend-chart-ref-label' });
     tag.textContent = guide.label || '';
     svg.append(tag);
   }

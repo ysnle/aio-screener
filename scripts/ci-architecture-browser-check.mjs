@@ -191,20 +191,24 @@ try {
 
   await page.evaluate(() => window.AIO_ARCH.navigate('guide'));
   await page.waitForFunction(() => document.getElementById('page-guide')?.dataset.aioArchitectureRoute === 'guide');
-  const guideRoute = await page.evaluate(() => {
-    const input = document.getElementById('guide-search-input');
+  const guideRoute = await page.evaluate(async () => {
     // v59.51: 'VCP' lived only in the retired screen map; VIX is in the rule table generated from RULES.
-    input.value = 'VIX';
-    document.querySelector('[data-action="_aioGuideSearchTrigger"]')?.click();
-    const result = document.getElementById('guide-search-result');
+    // v59.70 (wave2-f S23): the guide is searched through the command search's 도움말 scope.
+    await window._aioOpenCommandSearch({ scope: 'guide', query: 'VIX' });
+    await window._aioCommandSearch.run('VIX');
+    const result = document.getElementById('aio-command-results');
+    const found = {
+      visible: document.getElementById('aio-command-search')?.open === true,
+      resultButtons: result?.querySelectorAll('[role="option"][data-kind="guide"]').length || 0
+    };
+    window._aioCommandSearch.close();
     return {
       active: window.AIO_ARCH.router.active(),
       renderer: document.getElementById('page-guide')?.dataset.aioArchitectureRenderer,
       capabilityManifest: document.getElementById('page-guide')?.dataset.aioCapabilityManifest,
       capabilityAudit: document.getElementById('page-guide')?.dataset.aioCapabilityAudit,
       capabilityStatus: document.getElementById('guide-capability-status')?.dataset.aioCapabilityStatus,
-      visible: result?.style.display === 'block',
-      resultButtons: result?.querySelectorAll('button[data-guide-target]').length || 0
+      ...found
     };
   });
   if (guideRoute.active !== 'guide' || guideRoute.renderer !== 'native' || guideRoute.capabilityManifest !== 'wave4.capability.v1' || guideRoute.capabilityAudit !== 'pass' || guideRoute.capabilityStatus !== 'pass' || !guideRoute.visible || guideRoute.resultButtons < 1) throw new Error(`guide lifecycle/search/capability failed: ${JSON.stringify(guideRoute)}`);
@@ -460,7 +464,7 @@ try {
     // v57.76: the 요약 tab's 최근 3봉 형태 section (ticker-candle-symbol) was retired; the subject hand-off is what remains.
     retiredCandleSection: !!document.getElementById('ticker-candle-symbol') || !!document.getElementById('realtime-pattern-indicator'),
     subject: String(window._aioLastOpenedSymbol || '').toUpperCase(),
-    searchBeforeRead: (() => { const search = document.getElementById('ticker-direct-search'); const read = document.getElementById('ticker-read'); return !!(search && read && (search.compareDocumentPosition(read) & Node.DOCUMENT_POSITION_FOLLOWING)); })(),
+    searchBeforeRead: (() => { const search = document.getElementById('ticker-search-open'); const read = document.getElementById('ticker-read'); return !!(search && read && (search.compareDocumentPosition(read) & Node.DOCUMENT_POSITION_FOLLOWING)); })(),
   }));
   if (tickerRoute.chartRenderer !== 'native' || !['unavailable', 'native-runtime'].includes(tickerRoute.chartSourceKind)) throw new Error(`ticker native chart surface failed: ${JSON.stringify(tickerRoute)}`);
   // P1430: the ticker page's inner tabs (재무 공시 · 가격 이력) were retired — the 종목 hub tabs own that

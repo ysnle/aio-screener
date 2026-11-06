@@ -4,7 +4,7 @@
 // neighbours — the members of a group, the headlines about its subject, the groups the price drives, the same-family
 // prices — and a fact belongs to one story only, in materiality order. What moved hard with nothing linked to it is kept
 // apart as unexplained; what is still ahead is a dated list. Nothing is scored here: rank and materiality are the ledger's.
-import { signedText } from '../shared/number.js';
+import { signedText, usdKoreanText } from '../shared/number.js';
 
 const pct = (value, digits = 1) => signedText(value, digits, '%');
 const bp = (value) => signedText(value, 0, 'bp');
@@ -137,6 +137,18 @@ export function buildDayAccount(day) {
       const reports = headlinesAbout([sym], stock?.change).slice(0, 3);
       story.evidence = reports.map(evidenceOf);
       claim(story, [seed, stock, ...reports]);
+    } else if (seed.kind === 'deal') {
+      // v59.70 (screen review #11): a deal fact carries acquirer/target/terms but no label, so the generic branch told it
+      // as an empty title and line under its reports.
+      const name = (sym) => facts.find((fact) => fact.subjects?.[0] === sym && fact.kind !== 'headline' && fact.label)?.label || sym;
+      const reports = headlinesAbout(seed.subjects || [], NaN).slice(0, 3);
+      story.title = `${name(seed.acquirer)}, ${name(seed.target)} 인수`;
+      const terms = [Number.isFinite(seed.valueUsd) && seed.valueUsd > 0 ? `규모 ${usdKoreanText(seed.valueUsd)}` : null,
+        seed.payment === 'stock' ? '주식 교환' : seed.payment === 'cash' ? '현금 인수' : null,
+        Number.isFinite(seed.premiumPct) ? `프리미엄 ${pct(seed.premiumPct)}` : null].filter(Boolean);
+      story.line = terms.length ? `${terms.join(', ')}.` : '';
+      story.evidence = reports.map(evidenceOf);
+      claim(story, [seed, ...reports]);
     } else {
       const sym = seed.subjects?.[0];
       if (seed.kind === 'stock-move' && !(seed.explainedBy || []).length) continue; // told below as unexplained
@@ -152,6 +164,7 @@ export function buildDayAccount(day) {
       story.evidence = reports.map(evidenceOf);
       claim(story, [seed, ...reports]);
     }
+    if (!story.title) continue; // a seed kind with no wording here is not shown as a bare weight bar
     stories.push(story);
   }
 

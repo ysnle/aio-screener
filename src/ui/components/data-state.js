@@ -7,7 +7,7 @@ export const DATA_STATES = Object.freeze(['loading', 'empty', 'error']);
 const DEFAULT_TEXT = Object.freeze({ empty: '표시할 자료가 없습니다', error: '불러오지 못했습니다' });
 export const DATA_STATE_TIMEOUT_MS = 20000;
 
-export function dataState(doc, { state = 'loading', text = '', onRetry = null, lines = 3 } = {}) {
+export function dataState(doc, { state = 'loading', text = '', onRetry = null, lines = 3, action = null } = {}) {
   const kind = DATA_STATES.includes(state) ? state : 'loading';
   const box = doc.createElement('div');
   box.className = `aio-state is-${kind}`;
@@ -34,6 +34,16 @@ export function dataState(doc, { state = 'loading', text = '', onRetry = null, l
     retry.textContent = '다시 시도';
     retry.addEventListener('click', onRetry);
     box.append(retry);
+  }
+  // An empty state can carry the one thing that fills it (재무 공시 before a stock is chosen: 종목 고르기).
+  if (kind === 'empty' && action?.label && typeof action.onClick === 'function') {
+    const button = doc.createElement('button');
+    button.type = 'button';
+    button.className = 'sx-btn aio-state__retry';
+    button.textContent = action.label;
+    if (action.haspopup) button.setAttribute('aria-haspopup', action.haspopup);
+    button.addEventListener('click', action.onClick);
+    box.append(button);
   }
   return box;
 }

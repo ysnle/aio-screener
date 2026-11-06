@@ -32,7 +32,7 @@ export { EARNINGS_SCHEMA, FOMC_SCHEMA, POINTS_SCHEMA, TRANSCRIPT_SCHEMA, REASONS
 import {
   EVENT_BRIEFS_SCHEMA, withoutTradeMarks, MARKET_MOVERS, NEWS_REPORT_DOMAINS, REACTION_REPORT_DOMAINS, isNoReasonText, onReportDomain, normalizeSourceText, verifyQuotedItems, verifyFreeText, unverifiedNumbers, sourceNumberSet,
   parseDartPreliminaryResults, formatKrw, parseUsdAmount, parseUsdPerShare, surprisePct, epsComparisonBasis, estimateAiCostUsd, AI_RATE_CARD,
-  MOVER_BY_SYMBOL, briefHeadline, releaseSession, earningsReaction, reactionPct, CALL_SEARCH_MAX_ATTEMPTS, statedReportingCurrency, consensusComparable
+  MOVER_BY_SYMBOL, briefHeadline, releaseSession, earningsReaction, reactionPct, CALL_SEARCH_MAX_ATTEMPTS, statedReportingCurrency, consensusComparable, watchItem
 } from '../src/domain/briefing/event-briefs.js';
 import { readNumber } from '../src/domain/shared/number.js';
 
@@ -269,7 +269,7 @@ export function acceptPoints(json, { sourceText, domains }) {
 
 function safeWatch(list, sourceText) {
   const numbers = sourceNumberSet(sourceText);
-  return (Array.isArray(list) ? list : []).map((text) => String(text || '').trim()).filter((text) => text && !unverifiedNumbers(text, numbers).length).slice(0, 4);
+  return (Array.isArray(list) ? list : []).map(watchItem).filter((text) => text && !unverifiedNumbers(text, numbers).length).slice(0, 4);
 }
 
 function safeHeadline(text, sourceText, fallback) {

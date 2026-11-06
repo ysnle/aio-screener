@@ -1511,6 +1511,21 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
         || account.unexplained[0]?.sym !== 'MYST' || !/동일가중/.test(account.opening) || account.ahead[0]?.label !== '고용보고서') {
         fail(`v59.65: briefing day account broke ${JSON.stringify({ oilStory, told, unexplained: account.unexplained, opening: account.opening })}`);
       }
+      // v59.70 (screen review #11): a deal fact (acquirer/target/terms, no label) is told as a story with a title and its
+      // terms; no seed kind reaches the list as a bare weight bar.
+      const dealAccount = buildDayAccount({ generatedAt: 'y', sessions: { us: D }, facts: [
+        { id: 'deal:AAA:BBB', kind: 'deal', subjects: ['AAA', 'BBB'], acquirer: 'AAA', target: 'BBB', payment: 'stock', valueUsd: 2.75e11, premiumPct: 23.9, rank: 'lead', materiality: 75 },
+        { id: 's:bbb', kind: 'stock-move', subjects: ['BBB'], label: 'Bee Corp', change: 4, rank: 'minor', materiality: 20, explainedBy: ['subject'] },
+        { id: 'x:odd', kind: 'event', rank: 'lead', materiality: 50 }], links: [] });
+      const deal = dealAccount.stories.find((story) => story.kind === 'deal');
+      const untitled = [...dealAccount.stories, ...dealAccount.more].filter((story) => !story.title);
+      if (!deal || !/AAA/.test(deal.title) || !/Bee Corp/.test(deal.title) || !/2,750억 달러/.test(deal.line) || !/23\.9%/.test(deal.line) || untitled.length) {
+        fail(`v59.70: briefing deal story broke ${JSON.stringify({ deal, untitled })}`);
+      }
+      // v59.70 (screen review #36): glossary group buttons and item tags name the screen 매크로, never 거시.
+      const { GLOSSARY_GROUPS, glossaryTagLabel } = await load('src/ui/knowledge/glossary-modal.js');
+      const shownGlossary = [...GLOSSARY_GROUPS.map(([group]) => group), ...GLOSSARY_GROUPS.flatMap(([, cats]) => cats.map(glossaryTagLabel))];
+      if (shownGlossary.some((label) => /거시/.test(label))) fail(`v59.70: glossary label says 거시 ${JSON.stringify(shownGlossary.filter((label) => /거시/.test(label)))}`);
       // v59.66: 시장 상태 reads indicators in pairs — an index under its 50-day line with most members above it is a narrow
       // pullback; extreme fear with a calm VIX is not a capitulation; falling yields with widening spreads is growth fear;
       // a day as large as a week is read on the day.
@@ -6461,6 +6476,8 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   closeB();
   if (openPopoverCount() !== 0 || classes.has('aio-popover-open')) fail('v58.80 closing the open popover clears the slot and the body class');
   if (placeTermPopover !== placePopover) fail('v58.80 the term popover uses the shared placement rule');
+  { const at = placePopover({ left: 312, right: 334, top: 259, bottom: 279, width: 22, height: 20 }, { width: 320, height: 90 }, { width: 1440, height: 900 }); if (at.left !== 312 || at.top !== 285) fail(`v59.70 (screen review #27) the popover starts at its term, not centred back over the sidebar: ${JSON.stringify(at)}`); }
+  { const at = placePopover({ left: 1400, right: 1430, top: 259, bottom: 279, width: 30, height: 20 }, { width: 320, height: 90 }, { width: 1440, height: 900 }); if (at.left !== 1440 - 320 - 8) fail(`v59.70 the popover stays inside the right edge: ${JSON.stringify(at)}`); }
   // run-5: after a route change hover waits for a real pointer move (a synthetic move has no movement).
   const { watchScroll, hoverSuppressed } = await load('src/ui/components/popover.js');
   const listeners = {};

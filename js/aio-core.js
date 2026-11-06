@@ -16545,25 +16545,8 @@ const tickerData = {
   RKLB:{name:'Rocket Lab USA', value:'—', action:'watch'},
 };
 
-// P626-followup/T143: last two inline onclick="(function(){...})()" holdouts — an input's live
-// value at click time, which the generic data-action dispatcher (§ above, "복잡한 인라인 JS...수동
-// 이식 필요") can't express as a static data-arg. Named so data-action="..." can reach them.
-function tickerDirectSearchFromInput() {
-  var el = document.getElementById('ticker-direct-search');
-  var v = el ? el.value.trim() : '';
-  if (!v) { if (typeof window._aioTickerSearchMiss === 'function') window._aioTickerSearchMiss(''); return; } // v58.80 run-5: an empty Enter says what to type
-  // v58.80 (first-users F17): a typed symbol the app does not know (AAPLL, SIVB, -100) opened a full stock page with memo,
-  // watchlist and AI actions. A typed search is checked against the registries and the official US listing first (the
-  // same owner as the watchlist and holding boxes); only "not listed" is refused — an unreachable listing still opens.
-  var norm = typeof window._aioNormalizeTickerInput === 'function' ? window._aioNormalizeTickerInput(v) : v.toUpperCase();
-  if (typeof window._aioAcceptSymbol !== 'function' || (typeof window._aioIsKnownTicker === 'function' && window._aioIsKnownTicker(norm))) { showTicker(v.toUpperCase()); return; }
-  window._aioAcceptSymbol(v).then(function(r) {
-    if (r && (r.ok || r.reason === 'listing-unavailable')) showTicker((r.id || v).toUpperCase());
-    else if (typeof window._aioTickerSearchMiss === 'function') window._aioTickerSearchMiss(v);
-    else if (typeof showToast === 'function') showToast('"' + v + '" 종목을 찾지 못했습니다.');
-  });
-}
-
+// v59.70 (wave2-f S23): tickerDirectSearchFromInput left with #ticker-direct-search; the 종목 search is the command
+// search's 종목 scope (src/ui/navigation/command-search.js), which checks a typed symbol with _aioAcceptSymbol.
 function showTicker(tkr) {
   // Capture origin before showPage updates the legacy prevPage projection.
   // Entity switches within ticker retain that origin; the native renderer owns navigation.

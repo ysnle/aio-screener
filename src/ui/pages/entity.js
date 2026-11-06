@@ -31,6 +31,7 @@ function storyRendererOr(onReady) {
 }
 import { requestCompanyStory, companyStoryFor, COMPANY_PROFILE_INDEX } from '../../data/company-profiles.js';
 import { entityFundamentalsState } from '../../domain/content/data-state.js';
+import { renderDataState } from '../components/data-state.js';
 import { finiteNumber as finite, signedText, usdKoreanText } from '../../domain/shared/number.js';
 import { latestCompletedKrSession } from '../../domain/market/market-calendar.js';
 import { stockLensContext, renderStockContext, renderStockStrengths, installStockLensGlobal } from '../components/stock-lens-cards.js';
@@ -593,6 +594,31 @@ function renderFundamentalStatus(documentRef, state, onDemand = null) {
   if (observedAt) { element.setAttribute('data-observed-at', observedAt); element.title = `회계연도 말 ${String(observedAt).slice(0, 10)}`; }
   else { element.removeAttribute('data-observed-at'); element.removeAttribute('title'); }
   element.setAttribute('data-cadence', 'annual'); // codex audit F16: a fiscal-year-end date is judged by the filing cadence, not two sessions
+  renderFundamentalEmpty(documentRef, unselected);
+}
+
+// v59.70 (screen review #18): before a stock is chosen the page was a '종목 선택 전' pill over an empty SEC fold; it is the
+// shared empty state with the action that fills it (the hub's 종목 고르기: the command search's 종목 scope).
+function renderFundamentalEmpty(documentRef, unselected) {
+  const status = documentRef.getElementById('fund-data-status');
+  const report = documentRef.getElementById('fund-native-sec-report');
+  let host = documentRef.getElementById('fund-empty-state');
+  if (status) status.hidden = unselected;
+  if (!unselected) { host?.remove(); return; }
+  if (!host) {
+    host = documentRef.createElement('section');
+    host.id = 'fund-empty-state';
+    host.className = 'briefing-block sx-card fund-empty';
+    host.setAttribute('aria-label', '재무 공시');
+    (report || documentRef.getElementById('fund-next'))?.before(host);
+  }
+  if (host.firstElementChild?.dataset.state === 'empty') return;
+  const root = documentRef.defaultView;
+  renderDataState(host, {
+    state: 'empty',
+    text: '고른 종목이 없습니다',
+    action: { label: '종목 고르기', haspopup: 'dialog', onClick: () => { if (!root?._aioOpenCommandSearch?.({ scope: 'stock' })) root?.showPage?.('ticker'); } },
+  });
 }
 
 // v58.76: the developer-only SEC 연간 재무 스캔 (summary line + watchlist cards) is retired; 재무 흐름 and the company card read the filings.
@@ -680,7 +706,7 @@ function renderFundamentalReport(documentRef, page, state) {
   // v59.56 (screen review): a Korean listing has no SEC report; the DART card above says so, and the empty SEC fold under it
   // only repeated that, so it is not shown for .KS/.KQ.
   const secFold = documentRef?.getElementById('fund-native-sec-report');
-  if (secFold) secFold.hidden = isKrSymbol(state?.id);
+  if (secFold) secFold.hidden = isKrSymbol(state?.id) || unselected; // v59.70 (#18): the empty state stands in before a pick
   if (meta) {
     // P1591 (S08): the reader line says which report and how old it is; filing ledger details
     // (acceptance time, accession, point-in-time count) move to the tooltip.

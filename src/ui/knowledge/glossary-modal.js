@@ -10,13 +10,18 @@
 // (each item keeps its own category tag).
 export const GLOSSARY_GROUPS = [
   ['기초·회계', ['기초', '금융수학·통계', '회계·재무제표']],
-  ['거시·금리·외환', ['경제', '경제 기본', '거시·돈', '거시', '외환', '채권']],
+  ['매크로·금리·외환', ['경제', '경제 기본', '거시·돈', '거시', '외환', '채권']],
   ['시장·차트·전략', ['기술적분석', '기술', '전략', '시장·밸류에이션']],
   ['옵션', ['옵션']],
   ['한국', ['한국시장', '한국 기업·시장']],
   ['산업', ['은행', '보험', '부동산·리츠', '소비·유통', '소프트웨어·플랫폼', '바이오·의료', '에너지·화학·소재', '운송·물류', '농업·식품', '반도체·AI 인프라']],
   ['배경·심화', ['배경지식', '심화']]
 ];
+
+// v59.70 (screen review #36, owner: the screen and its labels are 매크로): the registry's own tags stay as data; the shown tag
+// uses the screen's name.
+const TAG_LABEL = { 거시: '매크로', '거시·돈': '매크로·돈' };
+export const glossaryTagLabel = (cat) => TAG_LABEL[cat] || cat;
 
 export function glossaryGroupOf(cat) {
   for (const [group, cats] of GLOSSARY_GROUPS) if (cats.includes(cat)) return group;
@@ -34,6 +39,7 @@ function searchRank(entry, query) {
 export function createGlossaryModal({ root = globalThis, documentRef = root.document } = {}) {
   let category = 'all';
   let previousFocus = null;
+  let shownQuery = ''; // v59.70: the term the command search opened the modal on (the modal has no search box of its own)
   const entries = () => (Array.isArray(root.GLOSSARY) ? root.GLOSSARY : []);
   const esc = (value) => (typeof root.escHtml === 'function' ? root.escHtml(value) : String(value));
 
@@ -61,7 +67,7 @@ export function createGlossaryModal({ root = globalThis, documentRef = root.docu
     let html = `<details class="aio-glossary-item"${open ? ' open' : ''}>`;
     html += '<summary class="lu-gl-head">';
     html += `<span class="aio-glossary-term">${esc(entry.term)}</span>`;
-    html += `<span class="lu-gl-tag">${esc(entry.cat)}</span>`;
+    html += `<span class="lu-gl-tag">${esc(glossaryTagLabel(entry.cat))}</span>`;
     html += `<span class="lu-gl-first">${esc(lead)}</span>`;
     html += '</summary>';
     html += '<div class="lu-gl-def">';
@@ -82,7 +88,8 @@ export function createGlossaryModal({ root = globalThis, documentRef = root.docu
   }
 
   function renderItems(query) {
-    const q = (query || '').toLowerCase().trim();
+    shownQuery = String(query || '').trim();
+    const q = shownQuery.toLowerCase();
     const matches = (g) => !q
       || g.term.toLowerCase().indexOf(q) !== -1
       || Boolean(g.alias && g.alias.toLowerCase().indexOf(q) !== -1)
@@ -108,6 +115,8 @@ export function createGlossaryModal({ root = globalThis, documentRef = root.docu
       }
     }
     let html = scopeNote ? `<div role="status" class="lu-gl-scope">${esc(scopeNote)}</div>` : '';
+    // v59.70: a list narrowed to one searched term has one way back to the whole list.
+    if (q) html += `<div class="lu-gl-scope"><button type="button" class="lu-gl-route" data-action="_aioGlossaryShowAll">전체 용어 보기</button></div>`;
     if (filtered.length === 0) html += '<div class="lu-gl-empty">검색 결과가 없습니다</div>';
     else filtered.forEach((g, index) => { html += entryHtml(g, Boolean(q) && index === 0); });
     const body = documentRef.getElementById('glossary-body');
@@ -135,30 +144,29 @@ export function createGlossaryModal({ root = globalThis, documentRef = root.docu
     if (focusTarget && documentRef.contains(focusTarget) && !focusTarget.disabled) { try { focusTarget.focus(); } catch (_) { /* detached */ } }
   }
 
-  function open() {
+  // v59.70 (wave2-f S23): open(term) shows that term's entry open (a term mark, a research result or the command search);
+  // open() the whole list. Searching is the command search's '용어' scope (the 검색 button in the head).
+  function open(term = '') {
     const modal = documentRef.getElementById('glossary-modal');
     if (!modal) return;
     const active = documentRef.activeElement;
-    previousFocus = active && active !== documentRef.body ? active : null;
+    if (modal.style.display === 'none') previousFocus = active && active !== documentRef.body ? active : null;
     if (modal._aioTrapCleanup) modal._aioTrapCleanup();
     modal.style.display = '';
-    const searchInput = documentRef.getElementById('glossary-search');
-    if (searchInput) searchInput.value = '';
     category = 'all';
     renderCats();
-    renderItems('');
+    renderItems(typeof term === 'string' ? term.replace(/\s*\(.*$/, '') : '');
     const title = documentRef.querySelector('#glossary-modal h2');
     if (title) title.textContent = `투자 용어 사전, ${entries().length}개`;
     modal._aioTrapCleanup = typeof root._aioModalTrap === 'function' ? root._aioModalTrap(modal, close) : null;
-    // run-3 phone #21: on touch the keyboard covered half the list.
-    if (searchInput && !(root.matchMedia && root.matchMedia('(pointer: coarse)').matches)) searchInput.focus();
+    const first = shownQuery ? documentRef.querySelector('#glossary-body details[open] > summary') : documentRef.getElementById('glossary-search-open');
+    try { (first || documentRef.querySelector('#glossary-modal button'))?.focus(); } catch (_) { /* detached */ }
   }
 
   function selectCategory(cat) {
     category = cat;
     renderCats();
-    const search = documentRef.getElementById('glossary-search');
-    renderItems(search ? search.value : '');
+    renderItems(shownQuery);
   }
 
   // The Escape key (js/aio-ui.js) closes the glossary first when it is showing.
@@ -182,7 +190,7 @@ export function installGlossaryModal(root, documentRef) {
   root.renderGlossaryItems = modal.renderItems;
   root.filterGlossary = (value) => modal.renderItems(value);
   root._aioGlossaryCat = modal.selectCategory;
-  root._aioFilterGlossary = (el) => modal.renderItems(el ? el.value : '');
-  if (root._aioGlossaryPending) { root._aioGlossaryPending = false; modal.open(); }
+  root._aioGlossaryShowAll = () => modal.renderItems('');
+  if (root._aioGlossaryPending) { const term = root._aioGlossaryPending; root._aioGlossaryPending = false; modal.open(typeof term === 'string' ? term : ''); }
   return modal;
 }

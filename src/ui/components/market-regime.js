@@ -849,7 +849,8 @@ export function renderHomeRegime({ documentRef: doc, root, store = null }) {
     const history = root._aioHistory || [];
     const fg = buildCloseSeries(history, 'fg', { through: closeBasis(history) });
     const change = fg.length > 1 ? Math.round(fg[fg.length - 1].value) - Math.round(fg[fg.length - 2].value) : null;
-    fgDelta.textContent = change == null ? '' : `전일 ${change > 0 ? '+' : ''}${change}`;
+    // v59.70 (screen review #13): '전일 0' read as a previous value of 0.
+    fgDelta.textContent = change == null ? '' : change === 0 ? '전일과 같음' : `전일 대비 ${change > 0 ? '+' : ''}${change}`;
     fgDelta.className = 'aio-metric-delta';
     fgDelta.dataset.aioFgDeltaRenderer = 'native';
   }

@@ -26,7 +26,7 @@ import { longHistoryRows } from '../../domain/macro/long-history.js';
 import { taylorRule, TAYLOR_R_STAR_OPTIONS, TAYLOR_R_STAR_SEP } from '../../domain/macro/taylor-rule.js';
 import { el } from './dom.js';
 import { frameHead, noteFold } from './section-frame.js';
-import { shortDate } from '../../domain/content/date-labels.js';
+import { monthLabel, shortDate } from '../../domain/content/date-labels.js';
 import { usWeekendClosed } from '../../domain/market/market-calendar.js';
 import { peopleText, signedText } from '../../domain/shared/number.js';
 import { buildCrossAssetRelations } from '../../domain/macro/cross-asset-relations.js';
@@ -81,8 +81,8 @@ function sparkline(doc, series, { unitLabel = '', minSpan = null, format = null 
   if (lo < 0 && hi > 0) add('line', { x1: 4, x2: W - 4, y1: y(0), y2: y(0), class: 'macro-spark-zero' });
   add('polyline', { points: series.map((row, index) => `${x(index)},${y(row.value)}`).join(' '), class: 'macro-spark-line' });
   add('circle', { cx: x(series.length - 1), cy: y(values[values.length - 1]), r: 2.6, class: 'macro-spark-dot' });
-  const first = series[0].date.slice(2, 7).replace('-', '.');
-  const last = series[series.length - 1].date.slice(2, 7).replace('-', '.');
+  const first = monthLabel(series[0].date);
+  const last = monthLabel(series[series.length - 1].date);
   svg.dataset.first = first;
   svg.dataset.last = last;
   // P1449: the cadence comes from the dates, not an assumption. A daily rates series of 260
@@ -722,7 +722,7 @@ function macroThroughLine(read, crossroads) {
   if (!axes.length) return null;
   // v58.75 (persona review): "부담은 3개(통화정책, 유가, 달러, 신용)" read as four — a comma inside one factor name is '·'.
   const burden = axes.filter((row) => row.state === 'burden').map((row) => row.title.replace(/ \(.*\)$/, '').replace(/,\s*/g, '·'));
-  const weigh = burden.length ? `거시 6요인 중 부담은 ${burden.length}개(${burden.join(', ')})` : '거시 6요인 중 부담 요인은 없고';
+  const weigh = burden.length ? `매크로 6요인 중 부담은 ${burden.length}개(${burden.join(', ')})` : '매크로 6요인 중 부담 요인은 없고';
   const quadrant = read.regime?.available ? `국면은 '${read.regime.label}'` : '성장·물가 국면은 방향 보류';
   // v59.55 (owner 11/1, alignment pass): the scenario sentence left the lede — the 향후 시나리오 card right below opens with
   // the same lead (scenarioLead), so the header said it twice.

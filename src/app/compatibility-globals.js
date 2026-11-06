@@ -353,7 +353,7 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
   window._fundCache = window._fundCache || {};
   window.fundamentalSearch = () => { window._aioFundSearchPending = true; };
   // Roadmap 11 용어 사전: the glossary modal installs with the bridges; an open asked before they load is shown on install.
-  window.openGlossary = () => { window._aioGlossaryPending = true; };
+  window.openGlossary = (term) => { window._aioGlossaryPending = typeof term === 'string' && term ? term : true; };
   // Roadmap 11 실적 일정: the stored calendar reader that 브리핑, 오늘 and 뉴스 call at first paint (js/aio-pages.js).
   window._fetchEarningsCalendarSnapshot = () => fetchEarningsCalendarSnapshot({ root: window });
   import('./legacy-screen-bridges.js').then((m) => m.installLegacyScreenBridges(window, document)).catch(() => {});
@@ -362,36 +362,17 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
     .map((row) => String(row?.sym || row?.symbol || '').toUpperCase()).filter(Boolean));
   // 2026-10-17: the watchlist, price-alert and holding boxes accept symbols only; when a typed company name is refused,
   // the refusal names the listing candidates (registry names first, then the US listing) for the reader to type.
-  // First-users F22 (newcomer, runs 1-4): typing 애플 showed nothing until Enter. v58.80 run-5 (impatient #5, skeptic #10):
-  // the native datalist filtered its options by their value (the symbol), so a Korean name hid every candidate. The
-  // candidates are buttons under the box instead (the same chips as the no-match hint); Enter still opens the typed name.
-  const tickerSearch = document?.querySelector?.('#ticker-direct-search');
-  if (tickerSearch && !document.querySelector('#ticker-suggest')) {
-    const list = document.createElement('div');
-    list.id = 'ticker-suggest';
-    list.className = 'ticker-search-picks';
-    list.setAttribute('aria-label', '입력한 이름과 맞는 종목');
-    (tickerSearch.parentElement || tickerSearch).insertAdjacentElement('afterend', list);
-    let suggestTimer = null;
-    tickerSearch.addEventListener('input', () => {
-      clearTimeout(suggestTimer);
-      suggestTimer = setTimeout(() => {
-        const query = tickerSearch.value.trim();
-        const picks = query ? searchCandidates(query, { entries: window.AIO_TICKER_NAME_REGISTRY?.entries, krStockDb: window.KR_STOCK_DB, krToYahoo: window.krTickerToYahoo }).slice(0, 6) : [];
-        list.replaceChildren(...picks.map((pick) => {
-          const button = document.createElement('button');
-          button.type = 'button';
-          button.className = 'q-chip';
-          button.textContent = `${pick.label} · ${pick.symbol}`;
-          button.addEventListener('click', () => { list.replaceChildren(); window.showTicker?.(pick.symbol); });
-          return button;
-        }));
-      }, 120);
-    });
-    // A selection made within the 120 ms wait (typing, then Enter) also cancels the pending refill, which put the chosen
-    // company's own candidate back under the box.
-    for (const type of ['aio:tickerViewReset', 'aio:entityChanged']) document.addEventListener(type, () => { clearTimeout(suggestTimer); list.replaceChildren(); });
-  }
+  // v59.70 (wave2-f S23, D4): the 종목 box and its candidate buttons (first-users F22, v58.80 run-5) are the command
+  // search's 종목 scope now (src/ui/navigation/command-search.js): registry and KRX names as you type, the US listing by
+  // name from the third Latin letter, and a typed symbol checked against the listing before it opens.
+  // The module loads on first use (or when the page is idle), outside the boot module set; until then these names load it.
+  // _aioOpenCommandSearch returns a promise of the search, so a script can await it before reading results.
+  const commandSearch = () => import('../ui/navigation/command-search.js').then((m) => m.installCommandSearch({ root: window, documentRef: document }));
+  window._aioOpenCommandSearch = (request) => commandSearch().then((search) => { search?.open(request); return search; });
+  window._aioCommandSearchIsOpen = () => Boolean(document.getElementById('aio-command-search')?.open);
+  const warmCommandSearch = () => { commandSearch().catch(() => {}); };
+  if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(warmCommandSearch, { timeout: 6000 });
+  else globalThis.setTimeout?.(warmCommandSearch, 4000)?.unref?.();
   window._aioListingNameSuggestion = (raw) => {
     const query = String(raw || '').trim();
     if (query.length < 2) return Promise.resolve('');
@@ -408,8 +389,10 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
   };
   window._aioToastWithNameHint = (raw, message) => window._aioListingNameSuggestion(raw).catch(() => '')
     .then((hint) => window.showToast?.(hint ? `${message} ${hint}` : message));
+  // A refused symbol (showTicker with a name or an unlisted symbol, a deep link the listing refuses) is explained under
+  // the 종목 search button; picking a candidate or searching again clears it.
   window._aioTickerSearchMiss = (raw) => {
-    const input = document.getElementById('ticker-direct-search');
+    const input = document.getElementById('ticker-search-open');
     const row = input?.parentElement;
     if (!row) { window.showToast?.('올바른 티커를 입력하세요.'); return; }
     let hint = document.getElementById('ticker-search-hint');
@@ -421,12 +404,11 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
       row.insertAdjacentElement('afterend', hint);
       // v58.63 (architecture audit C01): clearing also retires the pending listing lookup, or a late answer for the
       // cleared query re-attached its candidates under an empty box.
-      const clear = () => { hint.replaceChildren(); delete hint.dataset.listingQuery; input.removeAttribute('aria-invalid'); };
-      input.addEventListener('input', clear);
+      const clear = () => { hint.replaceChildren(); delete hint.dataset.listingQuery; input.removeAttribute('aria-describedby'); };
+      input.addEventListener('click', clear);
       document.addEventListener('aio:tickerViewReset', clear);
+      document.addEventListener('aio:entityChanged', clear);
     }
-    // v59.70 (ui-states): the refused box is ringed like every other refused field; the hint under it says why.
-    input.setAttribute('aria-invalid', 'true');
     input.setAttribute('aria-describedby', 'ticker-search-hint');
     const query = String(raw || '').trim();
     const picks = searchCandidates(query, { entries: window.AIO_TICKER_NAME_REGISTRY?.entries, krStockDb: window.KR_STOCK_DB, krToYahoo: window.krTickerToYahoo });

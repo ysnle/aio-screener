@@ -232,7 +232,7 @@ for (const marker of ['createResourceBag', "dataset.aioArchitectureRenderer = 'n
   if (!sentimentPageSource.includes(marker)) fail(`native sentiment renderer marker missing: ${marker}`);
 }
 for (const [name, source, markers] of [
-  ['guide', guidePageSource, ['createResourceBag', "dataset.aioArchitectureRenderer = 'native'", 'searchGuide']]
+  ['guide', guidePageSource, ['createResourceBag', "dataset.aioArchitectureRenderer = 'native'", 'findGuideMatches']] // v59.70: the guide's matches feed the command search
 ]) {
   for (const marker of markers) if (!source.includes(marker)) fail(`native ${name} renderer marker missing: ${marker}`);
 }

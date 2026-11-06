@@ -225,10 +225,8 @@ export function installTermMarks(documentRef, { root = globalThis } = {}) {
     more.textContent = '용어 사전에서 보기';
     more.addEventListener('click', () => {
       close({ restore: false });
-      if (typeof root.openGlossary !== 'function') return;
-      root.openGlossary();
-      const search = documentRef.getElementById('glossary-search');
-      if (search) { search.value = entry.term.replace(/\s*\(.*$/, ''); search.dispatchEvent(new Event('input', { bubbles: true })); }
+      // v59.70 (wave2-f S23): the modal has no search box; it opens on the term itself.
+      if (typeof root.openGlossary === 'function') root.openGlossary(entry.term);
     });
     pop.append(name, body, more);
     // Tabbing out of the popover closes it; a pointer press elsewhere is handled by the document click.

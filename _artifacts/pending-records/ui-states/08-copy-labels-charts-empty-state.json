@@ -1,0 +1,20 @@
+{
+  "title": "Screen review copy, labels, chart axes and the 재무 공시 empty state",
+  "changelog": [
+    "**문구·라벨·차트 축 ({VERSION}, 화면 검수 #13·#14·#18·#19·#32·#35·#36):** 공포·탐욕 '전일 0'은 '전일과 같음'·'전일 대비 +3'으로, 심리 화면은 '전일·5일 전·20일 전 대비'로 쓴다. 기술적 분석 지수 축에 천 단위 쉼표를 넣고 둥근 눈금 사이 값에 '지지 27,192'처럼 이름을 붙였으며 '50일선' 표시는 가격선이 덜 지나는 자리로 옮겼다. 매크로 작은 추이의 양끝 날짜를 '25년 10월'로 다른 차트와 맞췄다. 재무 공시는 종목을 고르기 전 공용 빈 상태와 '종목 고르기'를 보여 준다. 실적 요약 '다음에 볼 것'의 '…확인해야 합니다' 당부와 시황 AI 요약의 같은 끝 문장을 빼고(생성 프롬프트도 고침), '세는 법'·'차트 읽기' 접기 이름을 바꿨다. 화면 머리의 상위 메뉴 이름 한 단어를 지웠다. '거시 6요인'·'심리·거시·금리'·용어 사전 '거시·금리·외환'·'한국 거시' 라벨을 '매크로'로 바꿨다(본문 일반 낱말은 그대로)."
+  ],
+  "qa": [
+    {
+      "id": "QA-COPY-READER-DUTY",
+      "text": "{VERSION}: no data screen tells the reader what to check ('…확인해야 합니다', '…살펴볼 필요가 있습니다') or carries a how-to-read label ('세는 법', '차트 읽기'); long-form knowledge routes exempt (fails on v59.69: 뉴스 시황 요약·시장 상태·심리)",
+      "verify_by": "node scripts/ci-rendered-copy-lint-check.mjs"
+    },
+    {
+      "id": "QA-GLOSSARY-MACRO-LABEL",
+      "text": "{VERSION}: glossary group buttons and item tags say 매크로, never 거시 (fails on v59.69: '거시·금리·외환')",
+      "verify_by": "node scripts/ci-esm-core-unit-check.mjs"
+    }
+  ],
+  "qa_section": "Screen review fixes (ui-states)",
+  "note": "change-only (no P): screen review 2026-11-04 #13 (the '◦' dot did not reproduce at HEAD 1edd18ad with the review's 12 s wait; only the '전일 0' wording changed), #14, #18, #19 (news and charts only; atlas/principles are bundle E), #32 (F08 hub label dropped: the hub tab strip and the sidebar/bottom bar already name the place), #34 (no change: the sidebar 단축키 button is already display:none under (hover: none) and (pointer: coarse); the review opened the table with a key press), #35, #36. Known item page-sources.js:26 put/call line: already absent on this base."
+}

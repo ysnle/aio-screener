@@ -458,6 +458,16 @@
           "script": "scripts/ci-market-session-contract-check.mjs"
         },
         {
+          "id": "phone-override-specificity",
+          "script": "scripts/ci-phone-override-specificity-check.mjs",
+          "remedy": "v59.70 (screen review #1): a phone layout rule lost the cascade; repeat the winning rule's selector (or out-rank it) inside the phone media query instead of a shorter selector"
+        },
+        {
+          "id": "search-surface",
+          "script": "scripts/ci-search-surface-contract.mjs",
+          "remedy": "v59.70 (wave2-f S23, D4): one command search (#aio-command-input) plus the screener table filter; a new search box joins the command search as a scope, and a new shortcut needs its own row in SHELL_KEY_BINDINGS"
+        },
+        {
           "id": "event-briefs",
           "script": "scripts/ci-event-briefs-check.mjs",
           "remedy": "v59.42 event briefs: the producer runs on scripts/fixtures/event-briefs only; a dropped-figure or basis failure means a number now reaches a brief without being in its fetched source"
@@ -2008,6 +2018,12 @@
           "id": "browser-ai-public",
           "script": "scripts/ci-ai-chat-public-route-browser-check.mjs",
           "timeoutMs": 120000
+        },
+        {
+          "id": "browser-contrast-focus",
+          "script": "scripts/ci-contrast-focus-browser-check.mjs",
+          "timeoutMs": 600000,
+          "remedy": "v59.70 (screen review #2, #4, #25, #26): text under WCAG AA on its painted background, a link in the browser's default colour, a fold row with no open marker, or a keyboard focus with no ring; report in _artifacts/contrast-focus/report.json"
         },
         {
           "id": "browser-chat-ui-state",

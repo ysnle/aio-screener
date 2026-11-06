@@ -4,9 +4,12 @@ import { openFromNav, tabTo, expectText, expectTabs, visibleText } from '../lib/
 const SUBJECT = '#aio-hub-tabs .aio-hub-subject strong';
 const PRICE = /^(—|[$₩]?[\d,]+(\.\d+)?)$/;
 
+// v59.70 (wave2-f S23): the 종목 box is the command search's 종목 scope; Enter opens the first row.
 async function search(p, value) {
-  await p.fill('#ticker-direct-search', value);
-  await p.press('#ticker-direct-search', 'Enter');
+  await p.click('#ticker-search-open');
+  await p.waitForSelector('#aio-command-search[open]', { timeout: 5000 });
+  await p.fill('#aio-command-input', value);
+  await p.press('#aio-command-input', 'Enter');
 }
 
 // v59.55 (alignment pass): on 개요 the hub line drops the symbol (the page title names it), so the selected company there is
@@ -49,8 +52,9 @@ export default {
     // v58.80 (P2088/R728): a candidate picked from the Korean-name list fills the 재무 tile with the company summary below it;
     // a late repaint used to put the tile back on '불러오는 중' for ~12 s with the click-time arguments.
     ['한글 후보 애플 → 재무 칸 즉시', async (p) => {
-      await p.fill('#ticker-direct-search', '애플');
-      const pick = p.locator('#ticker-suggest button', { hasText: 'AAPL' });
+      await p.click('#ticker-search-open');
+      await p.fill('#aio-command-input', '애플');
+      const pick = p.locator('#aio-command-results [role="option"]', { hasText: 'AAPL' });
       await pick.waitFor({ timeout: 5000 });
       const started = Date.now();
       await pick.click();
@@ -59,13 +63,19 @@ export default {
       return { subject: 'AAPL', tileReadyMs: Date.now() - started };
     }],
     ['잘못된 입력 → 안내, 화면 유지', async (p) => {
-      // Codex audit F12: the miss is a persistent role=status hint beside the search (no toast); the subject stays.
+      // Codex audit F12: the miss stays where it was typed (no toast); the subject stays. v59.70: the command search says
+      // there is no result, and an unlisted symbol is refused in its status line, never guessed.
       const before = await currentSubject(p);
       await search(p, '!!');
-      await p.waitForFunction(() => { const h = document.querySelector('#ticker-search-hint[role="status"]'); return h && /일치하는 종목이 없습니다|입력해 주세요/.test(h.textContent || ''); }, null, { timeout: 8000 });
+      await p.waitForFunction(() => /검색 결과가 없습니다/.test(document.getElementById('aio-command-results')?.textContent || ''), null, { timeout: 8000 });
+      await p.fill('#aio-command-input', 'ZZZZQ'); // the dialog is still open; the page behind it is inert
+      await p.press('#aio-command-input', 'Enter');
+      await p.waitForFunction(() => /목록에 없는 기호/.test(document.getElementById('aio-command-status')?.textContent || ''), null, { timeout: 8000 });
+      const hint = await visibleText(p, '#aio-command-status');
+      await p.keyboard.press('Escape');
       const subject = await currentSubject(p);
       if (subject !== before) throw new Error(`an invalid search replaced the subject: "${before}" -> "${subject}"`);
-      return { subject, hint: (await visibleText(p, '#ticker-search-hint')).slice(0, 80) };
+      return { subject, hint: hint.slice(0, 80) };
     }]
   ]
 };

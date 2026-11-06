@@ -69,7 +69,7 @@ export function renderNewsFocus({ documentRef: doc, stories = [] }) {
   {
     const fold = el(doc, 'details', null, 'sx-disclosure news-focus__more');
     fold.open = wasOpen;
-    fold.append(el(doc, 'summary', model.scenarios.length ? '시나리오별 기사와 확인할 것' : '세는 법'));
+    fold.append(el(doc, 'summary', model.scenarios.length ? '시나리오별 기사와 확인할 것' : '집계 기준'));
     for (const row of model.scenarios) {
       const group = el(doc, 'div', null, 'news-focus__group');
       group.append(el(doc, 'h3', `'${row.name}' (${row.role}) — ${row.titles.length}건`, 'news-focus__group-title'));

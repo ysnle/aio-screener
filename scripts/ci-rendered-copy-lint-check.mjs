@@ -35,7 +35,11 @@ export const COPY_RULES = Object.freeze([
   ['empty-paren', /\(\s*\)/],
   ['leading-separator', /^\s*[,·]\s/],
   ['double-paren', /\)\(/],
-  ['spaced-particle', /[가-힣] (?:이|가|을|를) (?:아직|빠져|빠짐)/]
+  ['spaced-particle', /[가-힣] (?:이|가|을|를) (?:아직|빠져|빠짐)/],
+  // v59.70 (screen review #19, owner: no textbook tone): an instruction to the reader ("…확인해야 합니다") or a how-to-read
+  // label ('세는 법', '차트 읽기') on a data screen. The long-form knowledge pages are their own pass.
+  ['reader-duty', /(?:확인|점검|살펴|지켜|주시)\s*(?:해야|봐야|볼 필요가 있|할 필요가 있)\s*(?:합니다|습니다)/, (route) => !LONG_FORM_ROUTES.has(route)],
+  ['how-to-read', /(?:읽는 (?:법|방법|순서)|세는 법|차트 읽기|먼저 알아둘 개념)/, (route) => !LONG_FORM_ROUTES.has(route)]
 ]);
 const failures = [];
 const offenders = [];
@@ -100,7 +104,7 @@ if (isMain) {
     const canaryText = await page.evaluate(() => {
       const host = document.createElement('div');
       host.id = 'copy-lint-canary';
-      host.innerText = "'유가 충격'(으)로 바뀌었습니다\n값 undefined\n10/23 -0.0%\n나스닥 100 −0.8%\n모델 검증 BLOCKED\n조건 ()\n, 3종목 세부 테마\n후행(약 50일 기준)(10/23)\n시장 폭 부담 이 아직 빠짐\n코스피 10/23 +0.3%, 원/달러 -0.2%입니다.";
+      host.innerText = "'유가 충격'(으)로 바뀌었습니다\n값 undefined\n10/23 -0.0%\n나스닥 100 −0.8%\n모델 검증 BLOCKED\n조건 ()\n, 3종목 세부 테마\n후행(약 50일 기준)(10/23)\n시장 폭 부담 이 아직 빠짐\n코스피 10/23 +0.3%, 원/달러 -0.2%입니다.\n다음 분기 매출을 확인해야 합니다.\n세는 법";
       document.querySelector('.page.active').appendChild(host);
       const text = host.innerText;
       host.remove();

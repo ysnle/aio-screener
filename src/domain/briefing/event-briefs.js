@@ -47,6 +47,9 @@ export const NEWS_REPORT_DOMAINS = Object.freeze(['reuters.com', 'apnews.com', '
 // a release does not report the reaction.
 export const REACTION_REPORT_DOMAINS = Object.freeze(['reuters.com', 'apnews.com', 'cnbc.com', 'marketwatch.com', 'finance.yahoo.com', 'investing.com',
   'barrons.com', 'yna.co.kr', 'hankyung.com', 'mk.co.kr']);
+// v59.70 (screen review #19): a watch line is an item to check, not an instruction; the producer and the renderer share it.
+export { watchItem } from '../content/reader-duty.js';
+
 // A line that only says the reason was not found is not a reason.
 export const isNoReasonText = (text) => /(찾지 못|확인하지 못|확인할 근거|뒷받침되지 않|확인되지 않|알 수 없|정리할 수 없|근거가 없|확인해 ?주지)/.test(String(text || ''));
 // v59.44 (10/30 live data): a reason stored before the outlet list changed can point at the company's own IR page or a
