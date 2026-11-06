@@ -14,7 +14,7 @@
 | DOM1 | 닫힌 접기 본문 지연 생성(`lazy-fold.js`): 시장 상태 시나리오와 가이드, 매크로 지표 묶음, 테마 단계 표, 뉴스 발표 요약 접기 | 완료 |
 | L7 | 저장소 전체에서 참조 0인 함수 5개 삭제(2.9K 문자) | 완료(엄격 기준에 걸린 것은 이것뿐) |
 | L0 | `scripts/ci-legacy-writer-probe.mjs` + `architecture/legacy-writer-allowlist.json`(13종/6라우트), route-owners narrativeOwner 7개 라우트 native로 재분류 | 완료 |
-| L4 (D6) | 뉴스 번역 | 오케스트레이터 결정: 브라우저 경로 없음, 생산 단계 번역 뒤 클라이언트 번역 코드 삭제(B 마지막 단위, 시점 통보 대기) |
+| L4 (D6) | 브라우저 뉴스 번역 삭제: `_gtBatchTranslate`(무료 Google 번역), `freeTranslateNews`, `autoTranslateNews`(공용 AI 번역), 지연 큐, `localEnrichSingle`, `_tcPut`·`_tcSaveToStorage`, 뉴스 화면의 `requestShownTranslations`, `#translate-status`. 표시는 생산 단계 `titleKo`가 먼저, `titleKoFailed`면 원문 + '원문' 표시(카드·속보 줄). 새 게이트 `browser-translation-retired`(옛 코드에서 실패 확인) | 완료(D의 9ac5e618 계약 기준). Worker 쪽 `ALLOWED_DOMAINS`의 translate 호스트는 B 파일 밖이라 남김(proxy-continuity가 클라이언트 미러와 같아야 함) |
 | L5 (D5) | 한국 통합 블록: 기술 화면 `#kr-integrated-technical`(코스피·코스닥 추세 카드, 한국 종목 입력, dev 텔레그램)과 매크로 화면 `#kr-integrated-macro`(기준금리·금통위·물가·수출·원/달러 1년 범위, 기준일 배지) 퇴역. 기준금리·다음 금통위·물가·수출은 시장 상태 한국 보드의 카드 하나(`src/domain/market/korea-policy.js`), 코스피·코스닥·원/달러는 보드의 기존 카드가 맡는다. 같이 지운 것: `renderKrIndexTrends` 호출, `renderKoreaWon`, `macro-next-release.js`(기준일 배지), `analyzeKrTickerDeep`, `_aioKrTickerSubmit` | 부분: 테마 화면 `#kr-integrated-themes`는 남김 — 한국 테마 단계 표·확정 종가 테마 흐름(native)·종목/스크리너에서 여는 한국 테마 상세가 그 안에 있고, 장중 레거시 블록을 걷으려면 `src/ui/pages/themes.js`(B 소유 밖)도 고쳐야 한다 |
 | 포트폴리오 잔여 | `_aioRRPopulateSelect`·`_updateVaultStatus` → `src/ui/components/portfolio-shell-controls.js`(그대로 이동), `aio-workspace.js:758` 빈 상태 목록과 T1019가 `pf-benchmark-section`을 더 이상 부르지 않음 | 완료 |
 
@@ -67,3 +67,9 @@ DOM 노드(데스크톱 1440, 라이트, 12초 뒤, 같은 public-data):
 레거시 writer probe(D5·포트폴리오 잔여 뒤): 13 → 9 (macro 2 → 0, portfolio 2 → 0). 남은 것 home 4, briefing 1, market-news 4.
 
 게이트(D5 커밋 시점, 2026-11-06): contracts 132/136 — 실패 4개(reconciliation·data-lineage·data-refresh·나이 기준)는 기준선 c0a23a5b에서도 실패하는 벽시계 데이터 나이. 헤드리스 1088/1090 — T552·T924는 기준선에서도 실패(T552의 데이터 페이지 수는 4 → 3, 매크로의 마지막 data-snap 칸이 빠져서). architecture·responsive·vault·reference-adoption 브라우저 게이트 통과, legacy-writer probe 통과.
+
+## D6 전후 (2026-11-06, 같은 public-data)
+
+`js/aio-data.js` −553줄(501,573 → 471,530 B raw). 뉴스 화면(데스크톱·폰): 헤드라인 12개 중 한국어 12개로 전후 같음, 첫 다섯 제목 글자 같음, 번역 요청 0건(전후 모두 오프라인), `#translate-status` 칸만 사라짐. 현재 산출물에는 `titleKoFailed` 행이 없어 '원문' 표시는 단위 검사(untranslatedMark)와 T889b(getDisplayTitle)로 확인했다. 스크린샷 `shots/d6/news-*__before.png`·`__after.png`, 원값 `shots/d6/news-facts.json`.
+
+게이트(D6): contracts — 기준선과 같은 벽시계 실패만(reconciliation·data-lineage·data-refresh). 헤드리스 1089/1091(T552·T924 기준선 실패), ai-chat-public-route 통과, browser-translation-retired 통과, legacy-writer probe 9 → 8(market-news `freeTranslateNews` 빠짐).

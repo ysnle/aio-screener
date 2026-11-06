@@ -3232,7 +3232,7 @@ function _aioApplyNewsBackstop(force) {
         correctionOf: n.correctionOf, retractionOf: n.retractionOf, supersedes: n.supersedes, revisionType: n.revisionType,
         issuerId: n.issuerId, issuerCik: n.issuerCik, issuerSymbol: n.issuerSymbol, evidenceKind: n.evidenceKind,
         observedAt: n.observedAt || null, fetchedAt: n.fetchedAt || null,
-        title: n.title, headline: n.title, titleKo: n.titleKo || null, // v57.55: translated once in Actions
+        title: n.title, headline: n.title, titleKo: n.titleKo || null, titleKoFailed: n.titleKoFailed === true || undefined, // v57.55: translated once in Actions; v59.70 D6: failure flag
         link: n.link, url: n.link,
         source: n.source || 'News', feed: n.source || 'News',
         // Missing publication time is undated reference material, not a
@@ -3501,8 +3501,7 @@ window._aioHistorySeries = _aioHistorySeries;
 // P858: phase state stays in one boot-coordinator object so the legacy surface
 // does not grow additional window-owned write points for a timing concern.
 var _aioBootPhase = (typeof window !== 'undefined' && window._aioBootPhase) || {
-  quoteReady: false,
-  translationReady: false
+  quoteReady: false
 };
 
 // v59.36: the master boot sequence (initV20DataEngine) moved to src/app/boot-sequence.js.
@@ -3789,64 +3788,15 @@ const KR_TICKER_MAP = {
    - 번역 결과 캐시하여 중복 번역 방지
    ══════════════════════════════════════════════════════════════════ */
 const _translationCache = new Map(); // normalizedKey -> { ko_title, ko_desc, ko_summary, ko_explain, ko_impact, ko_action, tickers, _failed }
-let _translationInProgress = false;
-// P858: translation is a non-critical enrichment plane. Keep it out of the
-// interactive boot window and release one deduplicated batch after the first
-// live-data phase. The visible news surface still renders source-language
-// titles/local fallbacks while this queue is held.
-const _translationDeferredItems = new Map();
-
-function _aioQueueDeferredNewsTranslation(items) {
-  if (!Array.isArray(items)) return;
-  items.forEach(function(item) {
-    if (!item || !item.title) return;
-    var key = _tcKey(item.title);
-    if (key && !_translationDeferredItems.has(key)) _translationDeferredItems.set(key, item);
-  });
-}
-
-function _aioReleaseDeferredNewsTranslation() {
-  if (!_translationDeferredItems.size || typeof autoTranslateNews !== 'function') return;
-  var items = Array.from(_translationDeferredItems.values());
-  _translationDeferredItems.clear();
-  setTimeout(function() {
-    try { autoTranslateNews(items).catch(function(){}); } catch(_) {}
-  }, 0);
-}
-
 // v27.3: 캐시 키 정규화 — 공백/대소문자/특수문자 차이로 인한 lookup 실패 방지
 function _tcKey(title) {
   if (!title) return '';
   return title.trim().replace(/\s+/g, ' ').slice(0, 120).toLowerCase();
 }
-function _tcHas(title) { return _translationCache.has(_tcKey(title)); }
 
 // v30.12 P4: 캐시 LRU 삽입 + sessionStorage 연동
-function _tcPut(title, data) {
-  var key = _tcKey(title);
-  if (!key) return;
-  // LRU: 1000건 초과 시 가장 오래된 항목 제거 (기존 500 → 1000으로 확대)
-  if (_translationCache.size >= 1000) {
-    var firstKey = _translationCache.keys().next().value;
-    _translationCache.delete(firstKey);
-  }
-  _translationCache.set(key, data);
-}
 
 // v30.12 P4 (v48.64): localStorage 저장 — 탭 닫아도 유지
-function _tcSaveToStorage() {
-  try {
-    var obj = {};
-    var count = 0;
-    _translationCache.forEach(function(val, key) {
-      if (count < 500 && !val._failed) { // 성공한 번역만 저장
-        obj[key] = { t: val.ko_title, d: val.ko_desc, s: val.ko_summary, e: val.ko_explain, i: val.ko_impact, a: val.ko_action, r: val.ko_rewrite, sec: val.ko_section, m: val.ko_market, k: val.tickers };
-        count++;
-      }
-    });
-    localStorage.setItem('aio_tc', JSON.stringify(obj));
-  } catch(e) { /* storage full or unavailable */ }
-}
 
 // v30.12 P4 (v48.64): localStorage 로딩 — 재방문 시에도 복원
 function _tcLoadFromStorage() {
@@ -3893,129 +3843,6 @@ function _aioSafeSourceLabel(source) {
 }
 window._aioSafeSourceLabel = _aioSafeSourceLabel;
 
-/* ── v30.12: Google Translate 무료 API (배치 지원 + 재시도 + 품질 검증 강화) ── */
-const _GT_SEPARATOR = '\n§§§\n'; // 배치 구분자 — Google이 번역하지 않는 특수 패턴
-
-
-// F27: the free machine translation renders finance idioms literally and can flip who affects whom
-// ("exposure to X" became "X에 영향을 미치는"). These phrase repairs run on its titles only.
-function _aioPolishMachineTitle(ko, en) {
-  if (!ko) return ko;
-  var out = String(ko)
-    .replace(/(실적|수익)\s*통화\s*(기록|녹취록?|사본)/g, '실적 발표 컨퍼런스콜 녹취')
-    .replace(/(실적|수익)\s*통화/g, '실적 발표 컨퍼런스콜')
-    .replace(/(몸을|물리적으로|신체적으로)\s*토하게/g, '속이 뒤집히게');
-  if (/exposure to/i.test(String(en || ''))) out = out.replace(/에\s*가장\s*큰\s*영향을\s*(미치는|주는)/g, '의 영향을 가장 크게 받는').replace(/에\s*영향을\s*(미치는|주는)/g, '의 영향을 받는');
-  return out;
-}
-
-// v30.12: 배치 번역 — 최대 8건을 하나의 API 호출로 처리
-// returns: string[] (각 항목의 번역 결과, 실패 시 null)
-async function _gtBatchTranslate(texts, from, to, _retry) {
-  from = from || 'en'; to = to || 'ko'; _retry = _retry || 0;
-  if (!texts || texts.length === 0) return [];
-  // 빈/짧은 텍스트 필터링 (위치 보존)
-  var validMap = []; // { idx, text }
-  for (var i = 0; i < texts.length; i++) {
-    if (texts[i] && texts[i].length >= 3) {
-      validMap.push({ idx: i, text: texts[i].slice(0, 500) });
-    }
-  }
-  if (validMap.length === 0) return texts.map(function() { return null; });
-
-  // 구분자로 연결
-  var combined = validMap.map(function(v) { return v.text; }).join(_GT_SEPARATOR);
-
-  // v46.6: 엔드포인트별 타임아웃 분화 (googleapis CDN=4s 빠름, google.com=10s 느림)
-  var endpoints = [
-    { url: 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=' + from + '&tl=' + to + '&dt=t&q=' + encodeURIComponent(combined), timeout: 4000 },
-    { url: 'https://translate.google.com/translate_a/single?client=gtx&sl=' + from + '&tl=' + to + '&dt=t&q=' + encodeURIComponent(combined), timeout: 10000 },
-  ];
-
-  for (var ei = 0; ei < endpoints.length; ei++) {
-    try {
-      var r = await fetchWithTimeout(endpoints[ei].url, {}, endpoints[ei].timeout);
-      if (!r.ok) {
-        if (ei === endpoints.length - 1 && typeof window._aioSetLastAiError === 'function') window._aioSetLastAiError({ status: r.status, message: 'translation upstream HTTP ' + r.status }, { source: 'translation' });
-        continue;
-      }
-      var d = await r.json();
-      if (!Array.isArray(d) || !Array.isArray(d[0])) continue;
-      var fullResult = d[0].map(function(s) { return (s && s[0]) || ''; }).join('');
-      if (!fullResult || fullResult.length < 3) continue;
-
-      // 구분자로 분리
-      var parts = fullResult.split(/\s*§§§\s*/);
-      // 분리 결과가 원본 개수와 다르면 → 개별 번역 폴백
-      if (parts.length !== validMap.length) {
-        if (validMap.length === 1) {
-          parts = [fullResult];
-        } else {
-          // v46.6: 배치 분리자 실패 → 개별 1건씩 재시도 (기존: 전부 null 반환)
-          _aioLog('warn', 'translate', '배치 분리자 불일치 (' + parts.length + '/' + validMap.length + ') → 개별 번역 폴백');
-          var fallbackResults = new Array(texts.length);
-          for (var fi = 0; fi < texts.length; fi++) fallbackResults[fi] = null;
-          for (var si = 0; si < validMap.length; si++) {
-            try {
-              var singleUrl = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=' + from + '&tl=' + to + '&dt=t&q=' + encodeURIComponent(validMap[si].text.slice(0, 300));
-              var sr = await fetchWithTimeout(singleUrl, {}, 5000);
-              if (sr.ok) {
-                var sd = await sr.json();
-                if (Array.isArray(sd) && Array.isArray(sd[0])) {
-                  var sText = sd[0].map(function(s2) { return (s2 && s2[0]) || ''; }).join('');
-                  if (sText && _isKoreanTranslationValid(sText)) {
-                    fallbackResults[validMap[si].idx] = sText;
-                  }
-                }
-              }
-            } catch(se) { /* 개별 실패 무시 — 다음 건 진행 */ }
-            // 개별 번역 간 300ms 딜레이 (rate limit 방어)
-            if (si < validMap.length - 1) await new Promise(function(r2) { setTimeout(r2, 300); });
-          }
-          return fallbackResults;
-        }
-      }
-
-      // v30.12: 금융 텍스트 품질 검증 강화
-      var results = new Array(texts.length);
-      for (var ri = 0; ri < texts.length; ri++) results[ri] = null;
-      for (var pi = 0; pi < parts.length; pi++) {
-        var part = parts[pi].trim();
-        if (!part || part.length < 2) continue;
-        if (_isKoreanTranslationValid(part)) {
-          results[validMap[pi].idx] = part;
-        }
-      }
-      return results;
-    } catch(e) { /* try next endpoint */ }
-  }
-
-  // 재시도 1회 (1.2초 후)
-  if (_retry < 1) {
-    await new Promise(function(resolve) { setTimeout(resolve, T.BATCH_DELAY); });
-    return _gtBatchTranslate(texts, from, to, _retry + 1);
-  }
-  return texts.map(function() { return null; });
-}
-
-// v46.6: 금융 텍스트 한국어 번역 품질 검증 강화
-// - 방법2 기준 7%→12% 상향 (기술용어 범벅 오탐 방지)
-// - CJK 한자 범위 추가 (일본 경제 뉴스 번역 감지)
-// - 최소 한글 3자 이상 필수 (2자="양산"만으로 통과 방지)
-function _isKoreanTranslationValid(text) {
-  if (!text || text.length < 2) return false;
-  // 한글 + CJK 한자 (일본 경제 용어 혼용 번역 대응)
-  var koreanChars = (text.match(/[\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F]/g) || []).length;
-  // 순수 텍스트 길이 (티커·숫자·특수문자 제외)
-  var pureText = text.replace(/[$%+\-.,0-9A-Z\s]/gi, '');
-  // 방법1: 순수 텍스트 중 한국어 비율 50% 이상
-  if (pureText.length > 0 && koreanChars >= pureText.length * 0.5) return true;
-  // 방법2: 전체 텍스트 대비 한국어 12% + 최소 3자 이상 (v46.6: 7%+2자 → 12%+3자)
-  if (koreanChars >= 3 && koreanChars >= text.length * 0.12) return true;
-  // 방법3: 짧은 텍스트(30자 이하)는 한글 2자 + 8% OK (제목 번역)
-  if (text.length <= 30 && koreanChars >= 2 && koreanChars >= text.length * 0.08) return true;
-  return false;
-}
 
 /* ── v30.12: Claude 키 없을 때 Google Translate 무료 배치 번역 수행 ── */
 function _aioNewsTopicKo(topic) {
@@ -4204,384 +4031,8 @@ function _aioGetNewsTranslation(item) {
   return merged;
 }
 
-async function freeTranslateNews(items) {
-  if (_aioBootPhase.translationReady === false) {
-    _aioQueueDeferredNewsTranslation(items);
-    return;
-  }
-  var statusEl = document.getElementById('translate-status');
-  if (statusEl) statusEl.innerHTML = '번역 준비 중...';
 
-  // Codex review 2026-10-05: a failed or non-Korean cached translation still needs translation.
-  var _hasUsableTranslation = function(i) {
-    var cached = _translationCache.get(_tcKey(i.title));
-    return !!(cached && !cached._failed && cached.ko_title && isKoreanText(cached.ko_title));
-  };
-  var needTrans = items.filter(function(i) {
-    return i.title && !isKoreanText(i.title) && !_hasUsableTranslation(i);
-  });
-  var _foreignCount = items.filter(function(i) { return i.title && !isKoreanText(i.title); }).length;
-  // 한국어 뉴스 먼저 처리
-  items.filter(function(i) {
-    return i.title && isKoreanText(i.title) && !_translationCache.has(_tcKey(i.title));
-  }).forEach(function(i) {
-    var tickers = extractTickers(i).map(function(t) { return '$' + t; });
-    var local = _aioBuildNewsLocalKoreanInsight(i, i.title);
-    _tcPut(i.title, Object.assign({}, local, { ko_title: i.title, ko_desc: i.desc || local.ko_desc || '', tickers: tickers.length ? tickers : local.tickers }));
-  });
 
-  if (needTrans.length === 0) {
-    if (statusEl) statusEl.textContent = _foreignCount ? (function(ko) { return ko === _foreignCount ? '해외 기사 ' + _foreignCount + '건 모두 한국어 제목' : '해외 기사 ' + _foreignCount + '건 중 ' + ko + '건 한국어 제목, ' + (_foreignCount - ko) + '건은 원문 제목 그대로'; })(items.filter(function(i) { return i.title && !isKoreanText(i.title) && _hasUsableTranslation(i); }).length) : '한국어 기사만 있어 번역할 항목이 없습니다';
-    if (typeof window._aioSetLastAiError === 'function') window._aioSetLastAiError({ status: 200, message: 'success' }, { source: 'translation' });
-    return;
-  }
-
-  var total = needTrans.length;
-  var translated = 0, failed = 0;
-  var failedItems = [];
-
-  // v30.12: 8건씩 배치 번역 (기존 1건씩 → 8배 속도 향상)
-  var BATCH = 8;
-  for (var b = 0; b < needTrans.length; b += BATCH) {
-    var batch = needTrans.slice(b, b + BATCH);
-    var titles = batch.map(function(item) { return item.title; });
-
-    // 진행률 표시 (P5 수정: 분모·분자 명확 + 예상 시간)
-    var done = b + batch.length;
-    var pct = Math.round(done / total * 100);
-    if (statusEl) statusEl.textContent = '번역 중 ' + Math.min(done, total) + '/' + total + '건 (' + pct + '%)';
-
-    try {
-      var koTitles = (await _gtBatchTranslate(titles)).map(function(ko, ki) { return _aioPolishMachineTitle(ko, titles[ki]); });
-      for (var i = 0; i < batch.length; i++) {
-        var item = batch[i];
-        var koTitle = koTitles[i];
-        var tickers = extractTickers(item).map(function(t) { return '$' + t; });
-        var koDesc = '';
-        if (koTitle) {
-          translated++;
-          // 설명도 배치에 포함하지 않고 제목만 — 속도 우선
-        } else {
-          failed++;
-          failedItems.push(item);
-        }
-        var localInsight = _aioBuildNewsLocalKoreanInsight(item, koTitle || item.title);
-        _tcPut(item.title, {
-          ko_title: koTitle || item.title,
-          ko_desc: item.desc || '',
-          ko_summary: localInsight.ko_summary,
-          ko_explain: localInsight.ko_explain,
-          ko_impact: localInsight.ko_impact,
-          ko_action: localInsight.ko_action,
-          ko_rewrite: localInsight.ko_rewrite,
-          ko_section: localInsight.ko_section,
-          ko_market: localInsight.ko_market,
-          tickers: tickers.length ? tickers : localInsight.tickers,
-          _failed: !koTitle  // P2 수정: 번역 실패 플래그
-        });
-      }
-    } catch(e) {
-      if (typeof window._aioSetLastAiError === 'function') window._aioSetLastAiError(e, { source: 'translation' });
-      // 배치 전체 실패 → 원문 유지
-      for (var fi = 0; fi < batch.length; fi++) {
-        var fItem = batch[fi];
-        var fTickers = extractTickers(fItem).map(function(t) { return '$' + t; });
-        var fLocal = _aioBuildNewsLocalKoreanInsight(fItem, fItem.title);
-        _tcPut(fItem.title, {
-          ko_title: fItem.title, ko_desc: fItem.desc || fLocal.ko_desc || '', ko_summary: fLocal.ko_summary,
-          ko_explain: fLocal.ko_explain,
-          ko_impact: fLocal.ko_impact,
-          ko_action: fLocal.ko_action,
-          ko_rewrite: fLocal.ko_rewrite,
-          ko_section: fLocal.ko_section,
-          ko_market: fLocal.ko_market,
-          tickers: fTickers.length ? fTickers : fLocal.tickers, _failed: true
-        });
-        failed++;
-        failedItems.push(fItem);
-      }
-    }
-
-    // 배치 간 800ms 대기 — rate limit 안전 확보
-    if (b + BATCH < needTrans.length) await new Promise(function(r) { setTimeout(r, 800); });
-    // 매 배치마다 중간 렌더링
-    _aioNotifyNewsSurfaceInvalidated('news-translation-batch');
-  }
-
-  // v30.12: 실패 항목 2차 재시도 (3초 후, 개별 번역, 상위 16건)
-  if (failedItems.length > 0) {
-    if (statusEl) statusEl.textContent = ' ' + failedItems.length + '건 재시도 중...';
-    await new Promise(function(r) { setTimeout(r, 3000); });
-    var retryBatch = failedItems.slice(0, 16);
-    var retryTitles = retryBatch.map(function(item) { return item.title; });
-    try {
-      // 재시도도 배치로 (8건씩 × 2회)
-      for (var rb = 0; rb < retryTitles.length; rb += BATCH) {
-        var rSlice = retryBatch.slice(rb, rb + BATCH);
-        var rTitles = rSlice.map(function(item) { return item.title; });
-        var rResults = await _gtBatchTranslate(rTitles);
-        for (var ri = 0; ri < rSlice.length; ri++) {
-          if (rResults[ri]) {
-            var rItem = rSlice[ri];
-            var rTickers = extractTickers(rItem).map(function(t) { return '$' + t; });
-            var rLocal = _aioBuildNewsLocalKoreanInsight(rItem, rResults[ri]);
-            _tcPut(rItem.title, {
-              ko_title: rResults[ri], ko_desc: rItem.desc || rLocal.ko_desc || '', ko_summary: rLocal.ko_summary,
-              ko_explain: rLocal.ko_explain,
-              ko_impact: rLocal.ko_impact,
-              ko_action: rLocal.ko_action,
-              ko_rewrite: rLocal.ko_rewrite,
-              ko_section: rLocal.ko_section,
-              ko_market: rLocal.ko_market,
-              tickers: rTickers.length ? rTickers : rLocal.tickers, _failed: false
-            });
-            translated++;
-            failed--;
-          }
-        }
-        if (rb + BATCH < retryTitles.length) await new Promise(function(r) { setTimeout(r, 1000); });
-      }
-    } catch(e) {}
-  }
-
-  // P2 수정: 실패 건수 명확 표시
-  // Codex browser audit H05: "N건 번역 완료" counted API responses, including ones that came back in English.
-  // The status counts only foreign headlines whose cached title is actually Korean; the rest stay original.
-  var _usableKo = items.filter(function(i) { return i.title && !isKoreanText(i.title) && _hasUsableTranslation(i); }).length;
-  var _stillOriginal = Math.max(0, _foreignCount - _usableKo);
-  var statusMsg = _usableKo === _foreignCount ? '해외 기사 ' + _foreignCount + '건 모두 한국어 제목' : '해외 기사 ' + _foreignCount + '건 중 ' + _usableKo + '건 한국어 제목';
-  if (_stillOriginal > 0) statusMsg += ', <span class="lda-tr-left">' + _stillOriginal + '건은 원문 제목 그대로</span>';
-  failed = _stillOriginal;
-  statusMsg += ', ';
-  // v58.74 (text audit): the "공용 AI 연결 시 해석 추가" button only showed a toast — AI is always on — so it is gone.
-  if (statusEl) statusEl.innerHTML = statusMsg.replace(/, $/, '') + (failed > 0 ? ', 네트워크를 확인한 뒤 다시 시도하세요.' : '.');
-  if (typeof window._aioSetLastAiError === 'function') window._aioSetLastAiError(failed > 0 ? { status: 503, message: 'translation partial failure' } : { status: 200, message: 'success' }, { source: 'translation' });
-  // P4 수정: 번역 완료 후 캐시 저장
-  _tcSaveToStorage();
-  _aioNotifyNewsSurfaceInvalidated('news-translation-complete');
-  renderBriefingFeed(newsCache);
-}
-
-/* ── v27.2: 뉴스 fetch 후 자동 번역 + 해석 + 티커 추출 ────────── */
-async function autoTranslateNews(items) { (items || []).forEach(function(i) { if (i && i.title && i.titleKo && isKoreanText(i.titleKo) && !_tcHas(i.title)) _tcPut(i.title, Object.assign({}, _aioBuildNewsLocalKoreanInsight(i, i.titleKo), { ko_title: i.titleKo, ko_desc: i.desc || '' })); }); // v57.55 review: a headline translated once in Actions (titleKo) is used as-is — no per-browser AI call or machine translation
-  if (_aioBootPhase.translationReady === false) {
-    _aioQueueDeferredNewsTranslation(items);
-    return;
-  }
-  const route = typeof _aioEnsureClaudeRoute === 'function' ? await _aioEnsureClaudeRoute('') : { ok: false };
-  const _ct = route.target;
-  if (!route.ok || !_ct || !_ct.serverKey) {
-    await freeTranslateNews(items);
-    return;
-  }
-  if (_translationInProgress) { _aioQueueDeferredNewsTranslation(items); return; }
-  _translationInProgress = true;
-
-  const statusEl = document.getElementById('translate-status');
-  if (statusEl) statusEl.textContent = '번역·해석 중...';
-
-  // 번역이 필요한 영어 뉴스만 필터 (이미 번역된 건 제외)
-  const needTranslation = items.filter(i =>
-    i.title &&
-    !_translationCache.has(_tcKey(i.title)) &&
-    !isKoreanText(i.title)
-  );
-  // 이미 한국어인 뉴스도 해석/티커 없으면 로컬 enrichment
-  items.filter(i => i.title && isKoreanText(i.title) && !_translationCache.has(_tcKey(i.title))).forEach(i => {
-    const tickers = extractTickers(i).map(t => '$' + t);
-    const local = _aioBuildNewsLocalKoreanInsight(i, i.title);
-    _tcPut(i.title, {
-      ko_title: i.title,
-      ko_desc: i.desc || local.ko_desc || '',
-      ko_summary: local.ko_summary,
-      ko_explain: local.ko_explain,
-      ko_impact: local.ko_impact,
-      ko_action: local.ko_action,
-      ko_rewrite: local.ko_rewrite,
-      ko_section: local.ko_section,
-      ko_market: local.ko_market,
-      tickers: tickers.length ? tickers : local.tickers
-    });
-  });
-
-  if (needTranslation.length === 0) {
-    _translationInProgress = false;
-    if (statusEl) statusEl.textContent = `✓ ${_translationCache.size}건 처리됨`;
-    _aioNotifyNewsSurfaceInvalidated('news-translation-retry');
-    renderBriefingFeed(newsCache);
-    return;
-  }
-
-  console.log(`[AIO v27.2] 번역+해석 시작: ${needTranslation.length}건 영어 뉴스`);
-
-  // 6개씩 배치 (해석 추가로 토큰 증가하여 배치 축소)
-  const BATCH = 6;
-  let translated = 0;
-  for (let i = 0; i < Math.min(needTranslation.length, 60); i += BATCH) {
-    const batch = needTranslation.slice(i, i + BATCH);
-    const prompt = batch.map((item, idx) => {
-      const safeItem = (window.AIO && typeof window.AIO.sanitizeAIUntrustedText === 'function')
-        ? window.AIO.sanitizeAIUntrustedText((item.title || '') + '\n' + (item.desc || ''), { maxChars: 600 })
-        : { text: (item.title || '') + '\n' + (item.desc || '') };
-      const safeParts = String(safeItem.text || '').split('\n');
-      const title = safeParts.shift() || '';
-      const desc = safeParts.join(' ').slice(0, 200);
-      return `[${idx+1}] Title: ${title}${desc ? '\nDesc: ' + desc : ''}\nSource: ${(item.source || 'unknown').toString().slice(0, 80)}\nSecurityFlags: ${(safeItem.flags || []).join(',') || 'none'}`;
-    }).join('\n\n');
-
-    // 공통 공개 정책이 자동 번역 출력 형식을 차단했다면 같은 세션에서 매 배치마다
-    // Claude 요청을 반복하지 않고 무료/로컬 번역 경로로 즉시 우회한다.
-    if (window._aioTranslationPolicyBlockedUntil > Date.now()) {
-      var _circuitBatch = batch.filter(orig => !_translationCache.has(_tcKey(orig.title)));
-      if (_circuitBatch.length) { try { await freeTranslateNews(_circuitBatch); } catch(_) { _circuitBatch.forEach(localEnrichSingle); } }
-      continue;
-    }
-    try {
-      // v52.76/WP-AI1: translation uses the same request envelope and final
-      // response pipeline as chat/retry. If the shared pipeline is absent,
-      // fail closed into the existing local/free translation fallback.
-      if (typeof _aioCreateAIRequestObject !== 'function' && window._aioAIPipelineReady) await window._aioAIPipelineReady; // v59.15: the pipeline module loads after boot
-      const _translationRequest = typeof _aioCreateAIRequestObject === 'function'
-        ? _aioCreateAIRequestObject('auto-translation', { ctxId: 'news-translation', query: prompt })
-        : null;
-      if (!_translationRequest || typeof _aioRunAIResponsePipeline !== 'function') throw new Error('AI response pipeline unavailable');
-      if (typeof _aioBeginAIRequestAttempt === 'function') _aioBeginAIRequestAttempt(_translationRequest, 'gpt-6-luna');
-      const resp = await (typeof _aioFetchClaudeWithRetry === 'function' ? _aioFetchClaudeWithRetry : fetch)(_ct.url, {
-        method: 'POST',
-        signal: AbortSignal.timeout(45000),
-        headers: { 'Content-Type': 'application/json', 'X-AIO-App-Token': (typeof _aioAppToken === 'function' ? _aioAppToken() : ''), 'X-AIO-Idempotency-Key': _translationRequest.requestId },
-        body: JSON.stringify({
-          model: 'gpt-6-luna',
-          max_output_tokens: Math.min(4000, Number(route.health?.ai?.maxTokens) || 4000),
-          reasoning: { effort: 'none' }, store: false, stream: false,
-          input: [{
-            role: 'user',
-            content: `다음 영어 금융/시장 뉴스를 한국어로 번역하고, 한국 투자자가 바로 읽을 수 있는 브리핑 문장으로 재작성하세요.
-
-규칙:
-1. title: 한국어 제목 (한국 경제 뉴스 헤드라인 스타일, 간결하게)
-2. desc: 핵심 내용 1-2문장 한국어 요약. desc 없으면 제목에서 유추
-3. summary: 투자자 관점 해석 1문장 (예: "반도체 업종 전반에 긍정적 시그널", "단기 변동성 확대 주의")
-4. section: 아래 중 하나만 선택 — 미국 정치, 국제외교, 지정학, 중동 전쟁 및 지정학, 연준 및 미국 경제, AI 및 빅테크, 미국 주식 및 기업, 암호화폐, 원자재 및 에너지, 글로벌 경제 및 중앙은행, 투자의견 및 목표가, 반도체·AI 인프라, 시장 종합
-5. rewrite: 원문 직역 금지. "누가 무엇을 밝혔다/보도했다 + 시장이 봐야 할 포인트" 형태의 한국어 브리핑 문장 1개
-6. market: 투자자가 확인해야 할 시장 의미 1문장
-7. tickers: 관련 주식 티커 배열 ($ 포함, 예: ["$NVDA","$TSLA"]). 관련 없으면 빈 배열
-   - 직접 언급된 종목 + 영향받을 종목 포함
-   - 섹터 ETF도 해당시 포함 (예: $XLK, $SMH, $XLE)
-
-금융 전문용어 정확히 사용 (rate cut→금리 인하, earnings beat→실적 상회, rally→랠리, selloff→매도세, earnings call→실적 발표 컨퍼런스콜)
-원문의 주어와 영향 방향을 그대로 유지 (exposure to X→X의 영향을 받는). 관용구는 직역하지 말고 뜻으로 옮김
-
-JSON 배열로만 반환 (다른 텍스트 없이):
-[{"idx":1,"title":"한국어 제목","desc":"한국어 요약","summary":"투자자 관점 해석","section":"AI 및 빅테크","rewrite":"엔비디아 관련 AI 인프라 수요가 다시 부각됐으며 반도체·전력 인프라 밸류체인 반응을 함께 확인해야 합니다.","market":"$NVDA와 $SMH의 가격·거래량 반응이 후속 확인 포인트입니다.","tickers":["$NVDA","$SMH"]}]
-
-${prompt}`
-          }]
-        })
-      }, _ct.serverKey);
-
-      if (resp.ok) {
-        const data = await resp.json();
-        if (data.status !== 'completed') throw new Error('AI translation incomplete');
-        const text = (data.output || []).flatMap(item => item.content || []).filter(item => item.type === 'output_text').map(item => item.text || '').join('');
-        if (typeof window._aioTrackApiUsage === 'function' && data.usage) window._aioTrackApiUsage({ model: 'gpt-6-luna', inputTokens: data.usage.input_tokens, outputTokens: data.usage.output_tokens });
-        const _translationResult = _aioRunAIResponsePipeline(text, {
-          request: _translationRequest,
-          entrypoint: 'auto-translation',
-          ctxId: 'news-translation',
-          stripChips: false
-        });
-        if (_translationResult.blocked) {
-          window._aioTranslationPolicyBlockedUntil = Date.now() + 30 * 60 * 1000;
-          throw new Error('AI translation blocked by public action policy; fallback circuit opened');
-        }
-        const jsonMatch = _translationResult.text.match(/\[[\s\S]*\]/);
-        if (jsonMatch) {
-          try {
-            const translations = JSON.parse(jsonMatch[0]);
-            translations.forEach(t => {
-              const orig = batch[t.idx - 1];
-              if (orig && t.title) {
-                // 로컬 티커 추출로 보강
-                const localTickers = extractTickers(orig).map(tk => '$' + tk);
-                const apiTickers = Array.isArray(t.tickers) ? t.tickers.filter(tk => typeof tk === 'string') : [];
-                const mergedTickers = [...new Set([...apiTickers, ...localTickers])].slice(0, 6);
-                const localInsight = _aioBuildNewsLocalKoreanInsight(orig, t.title);
-                // v30.12: _tcPut으로 LRU 캐시 관리 통합
-                _tcPut(orig.title, {
-                  ko_title: t.title,
-                  ko_desc: t.desc || localInsight.ko_desc || '',
-                  ko_summary: t.summary || localInsight.ko_summary,
-                  ko_explain: localInsight.ko_explain,
-                  ko_impact: localInsight.ko_impact,
-                  ko_action: localInsight.ko_action,
-                  ko_rewrite: t.rewrite || localInsight.ko_rewrite,
-                  ko_section: t.section || localInsight.ko_section,
-                  ko_market: t.market || localInsight.ko_market,
-                  tickers: mergedTickers.length ? mergedTickers : localInsight.tickers
-                });
-                translated++;
-              }
-            });
-          } catch(e) { _aioLog('warn', 'translate', '번역 JSON 파싱 에러: ' + (e && e.message || e)); }
-        }
-      } else {
-        const errText = await resp.text().catch(() => '');
-        if (typeof window._aioSetLastAiError === 'function') window._aioSetLastAiError({ status: resp.status, message: errText.slice(0, 200) || 'translation API error' }, { source: 'translation' });
-        _aioLog('warn', 'translate', '번역 API 응답 에러: ' + resp.status + ' ' + errText.slice(0, 200));
-        // FABLE-LIVE-AUDIT-2026-07-07 C2/L0-2: Claude(서버키) 경로 실패 시 바로 localEnrichSingle로
-        // 가면 원문이 영문일 때 헤드라인 없는 일반 분류 템플릿만 남는다(B5: CF Worker /anthropic
-        // 미배포 상태에선 이게 상시 발생). 무료 Google Translate로 실제 한국어 제목을 먼저 시도하고,
-        // 그마저 실패한 항목만 localEnrichSingle의 최종 폴백(내부에서 이미 처리)으로 남긴다.
-      }
-    } catch(e) {
-      if (typeof window._aioSetLastAiError === 'function') window._aioSetLastAiError(e, { source: 'translation' });
-      _aioLog('warn', 'translate', '번역 API 호출 에러: ' + (e && e.message || e));
-    }
-    // v57.54: one fallback for an error, a thrown call, or a completed reply that omitted some idx (those were dropped uncached).
-    var _failedBatch = batch.filter(orig => !_translationCache.has(_tcKey(orig.title)));
-    if (_failedBatch.length) { try { await freeTranslateNews(_failedBatch); } catch(_gtErr) { _failedBatch.forEach(orig => { if (!_translationCache.has(_tcKey(orig.title))) localEnrichSingle(orig); }); } }
-
-    // 배치 간 딜레이 + 중간 렌더링
-    if (i + BATCH < needTranslation.length) {
-      await new Promise(r => setTimeout(r, 600));
-      if (statusEl) statusEl.textContent = `번역·해석 중... (${translated}/${needTranslation.length})`;
-      _aioNotifyNewsSurfaceInvalidated('news-translation-progress');
-    }
-  }
-
-  _translationInProgress = false;
-  console.log(`[AIO v30.12] 번역+해석 완료: ${translated}건`);
-  _aioReleaseDeferredNewsTranslation(); // P1423: process items queued during an active batch.
-  if (statusEl) statusEl.textContent = `✓ ${_translationCache.size}건 번역·해석 완료`;
-  if (typeof window._aioSetLastAiError === 'function') window._aioSetLastAiError(translated < needTranslation.length ? { status: 503, message: 'translation partial failure' } : { status: 200, message: 'success' }, { source: 'translation' });
-
-  // v30.12 P4: 번역 완료 후 캐시 저장
-  _tcSaveToStorage();
-
-  // 최종 렌더링 업데이트
-  _aioNotifyNewsSurfaceInvalidated('news-translation-final');
-  renderBriefingFeed(newsCache);
-}
-
-function localEnrichSingle(item) {
-  if (!item || !item.title || _translationCache.has(_tcKey(item.title))) return;
-  var tickers = extractTickers(item).map(function(t) { return '$' + t; });
-  var local = _aioBuildNewsLocalKoreanInsight(item, item.title);
-  _tcPut(item.title, {
-    ko_title: item.title,
-    ko_desc: item.desc || local.ko_desc || '',
-    ko_summary: local.ko_summary,
-    ko_explain: local.ko_explain,
-    ko_impact: local.ko_impact,
-    ko_action: local.ko_action,
-    ko_rewrite: local.ko_rewrite,
-    ko_section: local.ko_section,
-    ko_market: local.ko_market,
-    tickers: tickers.length ? tickers : local.tickers,
-    _failed: !isKoreanText(item.title) // 영문 원문 유지 = 번역 실패
-  });
-}
 
 /* ── v30.12: 뉴스 표시 텍스트 (한국어 우선 + 해석 + 티커 + 실패 표시) ─── */
 // P1504: Google News titles end with " - Source"; the source is printed beside the title already.
@@ -4593,6 +4044,10 @@ function _aioTitleWithoutSource(item, text) {
 window._aioTitleWithoutSource = _aioTitleWithoutSource;
 function getDisplayTitle(item) {
   item = item || {};
+  // v59.70 (D6): headlines arrive in Korean from the producer (titleKo); a failed translation keeps the original
+  // (titleKoFailed) and the 뉴스 list marks it. The browser no longer translates.
+  if (item.titleKo && isKoreanText(item.titleKo)) return _aioTitleWithoutSource(item, item.titleKo);
+  if (item.titleKoFailed) return _aioTitleWithoutSource(item);
   if (_translationCache.has(_tcKey(item.title))) {
     var cached = _translationCache.get(_tcKey(item.title));
     // P1391: no translation → the original headline, never a generated '매크로 · Reuters 기사 · 중요도 48' line
@@ -5409,8 +4864,6 @@ async function fetchAllNews(forceRefresh = false) {
   var _newsSummary = _aioUpdateNewsSummaryFromItems(newsCache, { kind: 'direct', generatedAt: new Date().toISOString() });
   document.dispatchEvent(new CustomEvent('aio:newsUpdated', { detail: { count: newsCache.length, source: 'fetchAllNews' } }));
 
-  // v21: 자동 한국어 번역 — 상위 6건 즉시, 나머지는 renderFeed 내 IntersectionObserver로 lazy 처리
-  autoTranslateNews(newsCache.slice(0, 6)).catch(e => _aioLog('warn', 'translate', '자동 번역 에러: ' + (e && e.message || e)));
 
   // v20: 뉴스 감성 바 업데이트
   try {

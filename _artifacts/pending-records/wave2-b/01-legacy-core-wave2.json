@@ -14,7 +14,8 @@
   "**레거시 writer 측정 게이트 (v59.70, L0):** `scripts/ci-legacy-writer-probe.mjs`가 실제 브라우저에서 라우트마다 `js/aio-*.js` 함수가 페이지에 쓰는 목록을 재고 `architecture/legacy-writer-allowlist.json`과 비교한다. 새 레거시 writer는 실패하고 목록은 줄기만 한다.",
   "**부팅 바이트 (v59.70):** 배포 번들 기준 클래식 부팅 스크립트 1,225,679→1,071,897 B(gzip 405,967→351,768). ESM 부팅 세트는 옮긴 바이트만큼 1,609,748→1,614,429 B(boot-budget 한도 1,618,000/599,000으로 임시 상향(D5 카드 포함), A가 P1 뒤 다시 내린다).",
   "**한국 통합 블록 정리 (v59.70, 소유자 결정 D5):** 기술적 분석 화면의 접힌 '한국 시장 추세'(코스피·코스닥 추세 카드, 한국 종목 입력)와 매크로 화면의 접힌 '한국 거시'(기준금리·금통위·물가·수출·원/달러 1년 범위)를 퇴역했다. 기준금리·다음 금통위·물가·수출은 시장 상태 한국 보드의 '한국 금리·물가·수출' 카드 하나로 옮겼고(`src/domain/market/korea-policy.js`, 스냅샷이 정한 값 그대로), 코스피·코스닥·원/달러는 보드의 기존 카드가 맡는다. 테마 화면의 한국 테마 접기는 한국 테마 단계 표와 상세를 담고 있어 남겼다.",
-  "**포트폴리오 잔여 writer를 src로 (v59.70):** R:R 계산기의 종목 선택(#rr-position-select)과 저장 기록 잠금 배지(#vault-status-badge)를 `js/aio-core.js`에서 `src/ui/components/portfolio-shell-controls.js`로 그대로 옮겼다. 빈 상태 목록과 T1019는 네이티브 차트로 간 `pf-benchmark-section`을 더 이상 찾지 않는다."
+  "**포트폴리오 잔여 writer를 src로 (v59.70):** R:R 계산기의 종목 선택(#rr-position-select)과 저장 기록 잠금 배지(#vault-status-badge)를 `js/aio-core.js`에서 `src/ui/components/portfolio-shell-controls.js`로 그대로 옮겼다. 빈 상태 목록과 T1019는 네이티브 차트로 간 `pf-benchmark-section`을 더 이상 찾지 않는다.",
+  "**브라우저 뉴스 번역 삭제 (v59.70, 소유자 결정 D6):** 외신 제목은 수집 단계(build-market-day·fetch-data)가 한국어 `titleKo`로 넣는다. 브라우저의 무료 Google 번역(`_gtBatchTranslate`·`freeTranslateNews`), 공용 AI 번역(`autoTranslateNews`)과 지연 큐, 뉴스 화면의 번역 요청, '자동 한국어 번역' 상태 칸을 지웠다. 화면은 `titleKo`를 먼저 쓰고, 번역에 실패한 제목(`titleKoFailed`)은 원문 그대로 두고 '원문' 표시를 붙인다. 새 게이트 `browser-translation-retired`가 번역 경로가 돌아오면 실패한다."
  ],
  "note": "wave2-b legacy core: change-only; evidence _artifacts/wave2-b/ (before/after screenshot diff, DOM counts, boot bytes)"
 }

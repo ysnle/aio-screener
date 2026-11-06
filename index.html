@@ -5074,13 +5074,12 @@ button[data-filter-active="true"] {
     <details class="aio-section sx-card news-card news-feed-card" id="news-feed-card">
     <summary class="aio-section-hd"><span class="aio-section-label">전체 뉴스</span></summary>
 
-    <!-- 정렬 옵션 + 번역 상태 -->
+    <!-- 정렬 옵션 -->
     <div class="news-sort-row">
       <span class="sh-news-note">정렬:</span>
       <button class="news-sort-btn active" id="sort-time-btn" data-action="setNewsSortMode" data-arg="time" data-pass-el="1"> 최신순</button>
       <button class="news-sort-btn" id="sort-score-btn" data-action="setNewsSortMode" data-arg="score" data-pass-el="1"> 중요도순</button>
       <span class="sh-news-box"></span>
-      <span id="translate-status" class="sh-news-translate-status-note">자동 한국어 번역</span>
     </div>
 
     <!-- 로딩 프로그레스 바 -->
@@ -5595,7 +5594,7 @@ button[data-filter-active="true"] {
     <div class="sh-guide-capability-manifest-fine">아래 상태는 기능의 약속 범위입니다. 수치·뉴스·AI 답변은 기준시각, 출처, 신선도와 결측 상태를 확인하고, 행동은 관측·확인 체크리스트로만 정리합니다.</div>
     <div class="sh-guide-capability-manifest-cols">
       <div data-aio-capability-claim data-capability="quote-currentness" data-claim-mode="conditional"><b>시세 현재성</b><br>출처가 표시된 시세 참고, 관측 시각과 지연 여부 확인</div>
-      <div data-aio-capability-claim data-capability="translation" data-claim-mode="optional"><b>뉴스 번역</b><br>선택적 AI 번역 보강, 원문 우선</div>
+      <div data-aio-capability-claim data-capability="translation" data-claim-mode="optional"><b>뉴스 번역</b><br>수집 단계에서 한국어 제목, 실패하면 원문</div>
       <div data-aio-capability-claim data-capability="ai-analysis" data-claim-mode="optional"><b>AI 분석</b><br>교육·리서치 보조, 매매 지시 없음</div>
       <div data-aio-capability-claim data-capability="rrg" data-claim-mode="reference"><b>RRG</b><br>상대강도 로테이션 참고 분류, 일봉 이력 확인</div>
       <div data-aio-capability-claim data-capability="stage" data-claim-mode="conditional"><b>Stage</b><br>Weinstein 방식 추세 단계 참고, OHLCV 필요</div>
@@ -5726,7 +5725,7 @@ button[data-filter-active="true"] {
           </div>
           <div class="sh-raised-panel">
             <div class="sh-ink-label">Q. 뉴스가 영어로 나와요</div>
-            <div class="sh-muted-note-loose">A. 공용 AI 연결과 남은 월 예산이 있으면 외신 뉴스 번역을 보강합니다. 연결이 없거나 한도에 도달하면 원문을 표시합니다.</div>
+            <div class="sh-muted-note-loose">A. 외신 제목은 수집 단계에서 한국어로 옮겨 둡니다. 번역이 실패한 제목은 원문 그대로 두고 '원문' 표시를 붙입니다.</div>
           </div>
           <div class="sh-raised-panel">
             <div class="sh-ink-label">Q. 포트폴리오/설정이 사라졌어요</div>

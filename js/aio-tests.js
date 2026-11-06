@@ -7171,14 +7171,9 @@
       _assert('T888 claude_chat_uses_retry_helper (B8): callSharedAi 미존재', false);
     }
 
-    // T889: autoTranslateNews(뉴스 번역)가 재시도 헬퍼를 경유(미존재 시 원시 fetch로 안전 폴백)
-    if (typeof autoTranslateNews === 'function') {
-      var fnSrc889 = autoTranslateNews.toString();
-      _assert('T889 claude_translate_uses_retry_helper (B8): autoTranslateNews가 _aioFetchClaudeWithRetry를 경유(typeof 가드 + fetch 폴백)',
-        /_aioFetchClaudeWithRetry\s*:\s*fetch\)\(_ct\.url/.test(fnSrc889) && /\}, _ct\.serverKey\)/.test(fnSrc889));
-    } else {
-      _assert('T889 claude_translate_uses_retry_helper (B8): autoTranslateNews 미존재', false);
-    }
+    _assert('T889 browser_translation_retired_v5970 (B8, D6): autoTranslateNews·freeTranslateNews·_gtBatchTranslate 없음', typeof window.autoTranslateNews !== 'function' && typeof window.freeTranslateNews !== 'function' && typeof window._gtBatchTranslate !== 'function');
+    var shown889 = typeof getDisplayTitle === 'function' ? [getDisplayTitle({ title: 'D6 fixture headline zq', titleKo: '디식스 고정 제목' }), getDisplayTitle({ title: 'D6 fixture headline zr', titleKoFailed: true })] : [];
+    _assert('T889b producer_title_display_v5970 (D6): titleKo 우선, titleKoFailed는 원문', shown889[0] === '디식스 고정 제목' && shown889[1] === 'D6 fixture headline zr', JSON.stringify(shown889));
 
     // T890: _generateAIBriefing(AI 브리핑)이 재시도 헬퍼를 경유(미존재 시 원시 fetch로 안전 폴백)
     if (typeof _generateAIBriefing === 'function') {
@@ -7557,12 +7552,11 @@
 
     // v57.62: the per-page chatSend entry point was retired; the remaining AI entry points share one pipeline.
     var unifiedSrc937 = typeof chatSendUnified === 'function' ? chatSendUnified.toString() : '';
-    var translateSrc937 = typeof autoTranslateNews === 'function' ? autoTranslateNews.toString() : '';
     var briefingSrc937 = typeof _generateAIBriefing === 'function' ? _generateAIBriefing.toString() : '';
-    _assert('T940 v57.62 ai_entrypoints_use_one_pipeline (WP-AI1): per-page chatSend absent + unified/translation/briefing all call the shared response pipeline',
+    _assert('T940 v57.62 ai_entrypoints_use_one_pipeline (WP-AI1): per-page chatSend absent + unified/briefing call the shared response pipeline (v59.70 D6: browser translation deleted)',
       typeof window.chatSend === 'undefined' && /_aioRunAIResponsePipeline/.test(unifiedSrc937) &&
-      /_aioRunAIResponsePipeline/.test(translateSrc937) && (!briefingSrc937 || /_aioRunAIResponsePipeline/.test(briefingSrc937)),
-      JSON.stringify({ chatSend: typeof window.chatSend, unified: /_aioRunAIResponsePipeline/.test(unifiedSrc937), translation: /_aioRunAIResponsePipeline/.test(translateSrc937), briefing: !briefingSrc937 || /_aioRunAIResponsePipeline/.test(briefingSrc937) }));
+      (!briefingSrc937 || /_aioRunAIResponsePipeline/.test(briefingSrc937)),
+      JSON.stringify({ chatSend: typeof window.chatSend, unified: /_aioRunAIResponsePipeline/.test(unifiedSrc937), briefing: !briefingSrc937 || /_aioRunAIResponsePipeline/.test(briefingSrc937) }));
   }
 
   // Group95: v52.77/WP-AI2 typed claim/evidence validation contract.

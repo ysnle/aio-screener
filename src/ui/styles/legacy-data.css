@@ -17,7 +17,3 @@
 #aio-pipeline-status-bar .stale-manual-pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 12px; font-size: var(--fs-xs); background: var(--gold-3); border: 0.5px solid var(--amber-6); color: var(--amber-11); cursor: default; }
 #aio-pipeline-status-bar .lda-pipe { display: inline-flex; align-items: center; gap: 4px; background: var(--black-a4);  padding: 3px 8px; border-radius: 4px; font-size: var(--fs-xs); }
 #aio-pipeline-status-bar .lda-pipe-detail { color: var(--text-muted); font-size: var(--fs-xs); }
-/* News translation status (#translate-status in #page-market-news) */
-#translate-status .lda-tr-left { color: var(--red-11); }
-#translate-status .lda-tr-ai { display: inline-flex; align-items: center; min-height: 28px; padding: 2px 6px; background: none; border: 0; font: inherit; cursor: pointer; text-decoration: underline; color: var(--amber-11); }
-@media (pointer: coarse) { #translate-status .lda-tr-ai { min-height: 44px; } }

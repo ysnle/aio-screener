@@ -187,14 +187,27 @@ function createTickerBadge(documentRef, ticker, direct = false) {
   return badge;
 }
 
+// v59.70 (D6): a headline whose producer translation failed (titleKoFailed) shows the original with a short mark.
+export function untranslatedMark(documentRef, item) {
+  if (!item?.titleKoFailed || /[가-힣]/.test(item?.titleKo || '')) return null;
+  const mark = documentRef.createElement('span');
+  mark.className = 'news-item-untranslated';
+  mark.textContent = '원문';
+  mark.title = '한국어 번역에 실패해 원문 제목을 그대로 보여 줍니다';
+  return mark;
+}
+
 // P1391: a headline-only item without a real translation used to get a generated sentence
 // ("매크로 · Reuters 기사 · 중요도 48") as its title. Show the translated title or the original.
 function realTitle(root, item) {
-  let ko = '';
-  try {
-    const cached = root?._translationCache?.get?.(root?._tcKey?.(item?.title));
-    ko = (cached && !cached._failed && cached.ko_title) || item?.ko_title || '';
-  } catch (_) { ko = item?.ko_title || ''; }
+  // v59.70 (D6): the producer's titleKo leads; an older session cache or ko_title is the fallback.
+  let ko = /[가-힣]/.test(item?.titleKo || '') ? item.titleKo : '';
+  if (!ko && !item?.titleKoFailed) {
+    try {
+      const cached = root?._translationCache?.get?.(root?._tcKey?.(item?.title));
+      ko = (cached && !cached._failed && cached.ko_title) || item?.ko_title || '';
+    } catch (_) { ko = item?.ko_title || ''; }
+  }
   const original = typeof root?._aioTitleWithoutSource === 'function' ? root._aioTitleWithoutSource(item) : item?.title;
   const translated = /[가-힣]/.test(ko) && typeof root?._aioTitleWithoutSource === 'function' ? root._aioTitleWithoutSource(item, ko) : ko;
   const title = /[가-힣]/.test(ko) ? translated : (original || item?.headline || '제목 없음');
@@ -315,6 +328,8 @@ function createNewsCard(documentRef, root, item, index) {
   } else {
     headline.appendChild(text(documentRef, title, '제목 없음'));
   }
+  const untranslated = untranslatedMark(documentRef, item);
+  if (untranslated) headline.appendChild(untranslated);
   body.appendChild(headline);
   const headlineOnly = isNewsHeadlineOnly(item);
   // LC-32: a headline-only card has no article body, so no causal summary is shown (P1391: and no
@@ -610,6 +625,8 @@ function renderIntradayNews(documentRef, root, canonicalItems, nowMs = Date.now(
     // Sources stay off the screen text (owner 2026-10-06): publisher and full time live in the hover.
     titleNode.title = [item.source, formatAbsoluteTime(item.publishedMs ? new Date(item.publishedMs) : null)].filter(Boolean).join(', ');
     row.append(time, titleNode);
+    const untranslatedRow = untranslatedMark(documentRef, item);
+    if (untranslatedRow) row.append(untranslatedRow);
     list.appendChild(row);
   });
   section.replaceChildren(heading, list);
@@ -684,24 +701,6 @@ function syncNewsControlState(documentRef, controls) {
   };
   mark('#news-country-chips [data-action]', controls?.countryFilter || 'all');
   mark('#news-topic-chips [data-action="filterNewsByTopic"]', controls?.topicFilter || 'all');
-}
-
-// v57.54 audit (11): the native list never asked for translation — the legacy trigger ran only at the end of a direct
-// RSS fetch, which the published-news path skips, so live headlines stayed English (translation cache 0 on 10/14). The
-// shown, untranslated titles are requested once per session through the same pipeline, which repaints this list
-// through aio:newsSurfaceInvalidated when it finishes.
-function requestShownTranslations(root, items) {
-  if (typeof root?.autoTranslateNews !== 'function') return;
-  const asked = root.__aioNewsTranslationAsked || (root.__aioNewsTranslationAsked = new Set());
-  const pending = (items || []).filter((item) => {
-    const title = String(item?.title || '');
-    if (!title || /[가-힣]/.test(title) || asked.has(title)) return false;
-    const cached = root?._translationCache?.get?.(root?._tcKey?.(title));
-    return !(cached && cached.ko_title && /[가-힣]/.test(cached.ko_title));
-  }).slice(0, 18);
-  if (!pending.length) return;
-  pending.forEach((item) => asked.add(String(item.title)));
-  try { Promise.resolve(root.autoTranslateNews(pending)).catch(() => {}); } catch (_) {}
 }
 
 function render({ documentRef, root, store, route }) {
@@ -783,7 +782,6 @@ function render({ documentRef, root, store, route }) {
     }).catch(() => {});
   }
   appendMarketNews(documentRef, root, container, model, selectNewsStatus(state), visibleLimit, controls, new Set(important.map(newsKey)));
-  requestShownTranslations(root, [...intraday, ...important, ...(model?.items || []).slice(0, visibleLimit)]);
   renderMarketTimeline({ documentRef, root, nowMs }); // v59.51: the six-hour slots moved here from 브리핑 (a closed fold)
   renderNextSteps(documentRef, documentRef.getElementById('news-next'), newsFlow({ countryFilter: controls.countryFilter }).next); // v57.77
   container.dataset.aioNewsRenderer = 'native';
