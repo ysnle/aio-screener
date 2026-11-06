@@ -10,14 +10,14 @@
 //   node scripts/ci-rendered-copy-lint-check.mjs --prune-baseline   drop fixed entries (shrink only)
 //   node scripts/ci-rendered-copy-lint-check.mjs --write-baseline   record every current offender (deliberate)
 import { chromium } from 'playwright';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ROUTE_IDS } from '../src/app/routes.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.CI_COPY_LINT_PORT || 8953);
+const port = (Number(process.env.CI_COPY_LINT_PORT) || await freePort());
 const base = `http://127.0.0.1:${port}`;
 const out = resolve(root, '_artifacts', 'rendered-copy-lint');
 const BASELINE = resolve(root, 'architecture/rendered-copy-baseline.json');

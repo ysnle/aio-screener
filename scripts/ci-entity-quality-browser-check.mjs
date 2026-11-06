@@ -3,13 +3,13 @@
 import { chromium } from 'playwright';
 import { mkdirSync, readFileSync } from 'node:fs';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.CI_ENTITY_QUALITY_PORT || 8935);
+const port = (Number(process.env.CI_ENTITY_QUALITY_PORT) || await freePort());
 const base = `http://127.0.0.1:${port}`;
 const out = resolve(root, '_artifacts/entity-quality-20261012');
 const sourceVersion = JSON.parse(readFileSync(resolve(root,'version.json'),'utf8')).version;

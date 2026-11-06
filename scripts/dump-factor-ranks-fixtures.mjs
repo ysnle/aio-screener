@@ -3,6 +3,7 @@ import { spawn } from 'node:child_process';
 import { writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import { freePort } from './lib/browser-gate.mjs';
 
 // RM-03 continued (2026-07-21, P759, Fable-advisor design): dumps (scenario, legacy
 // window._aioComputeFactorRanks() row mutations + 4 window globals) tuples by driving the REAL,
@@ -24,7 +25,7 @@ import { dirname, resolve } from 'node:path';
 // dataset's emergent shape (real sector sizes, real tie density) is part of what's being verified.
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.AIO_ARCH_TEST_PORT || 8899);
+const port = (Number(process.env.AIO_ARCH_TEST_PORT) || await freePort());
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 const OUT_PATH = resolve(root, 'architecture/fixtures/factor-ranks-golden.json');
 

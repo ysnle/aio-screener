@@ -1,17 +1,13 @@
 import { chromium } from 'playwright';
-import { spawn } from 'node:child_process';
+import { startLocalServer } from './lib/browser-gate.mjs';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { ROUTE_IDS } from '../src/app/routes.js';
 
 const label = process.argv[2] || 'sample';
 if (!/^[a-z0-9-]+$/.test(label)) throw new Error('Invalid sample label');
-const origin = 'http://127.0.0.1:8917';
-const server = spawn(process.execPath, ['scripts/start-local-node.mjs', '8917'], { stdio: ['ignore', 'pipe', 'pipe'] });
-await new Promise((resolve, reject) => {
-  server.stdout.on('data', chunk => { if (String(chunk).includes('AIO local server')) resolve(); });
-  server.on('error', reject);
-  server.on('exit', code => reject(new Error(`server exited ${code}`)));
-});
+// v59.70: the OS picks the port (scripts/lib/browser-gate.mjs); the origin follows the server's ready line.
+const server = await startLocalServer(0, { label: 'performance-hunt/server' });
+const origin = `http://127.0.0.1:${server.port}`;
 let browser;
 function summarizeProfile(profile) {
   const totals = new Map();

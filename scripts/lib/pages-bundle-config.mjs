@@ -1,6 +1,30 @@
 // One definition of the Pages deploy bundle, shared by the deploy step (scripts/build-pages-bundle.mjs) and the
 // boot-budget gate (scripts/ci-boot-bundle-budget-check.mjs), so the gate measures exactly what ships.
+import fs from 'node:fs';
+import path from 'node:path';
 export const GLOBAL_SCRIPTS = ['aio-workspace', 'aio-kr-data', 'aio-pages', 'aio-core', 'aio-data', 'aio-ui', 'aio-chat', 'aio-glossary'].map((name) => `js/${name}.js`);
+// v59.70 (2nd batch A, P0): the classic scripts index.html runs at boot. js/aio-chat.js loads with the AI panel
+// (src/app/chat-loader.js), so it ships but is not part of the boot budget.
+export const CLASSIC_BOOT_SCRIPTS = GLOBAL_SCRIPTS.filter((file) => file !== 'js/aio-chat.js');
+// The files .github/workflows/pages-deploy.yml copies into the Pages artifact (its "Stage explicit public artifact
+// allowlist" step) and the public-data paths it leaves out. ci-boot-bundle-budget-check.mjs fails when the workflow and
+// these lists differ, so a measurement staged from them is the deploy's layout.
+export const PAGES_ROOT_FILES = ['index.html', 'sw.js', 'version.json', 'og-image.svg', 'robots.txt', 'sitemap.xml', 'public-artifact-manifest.json', 'public-config.json', '_headers'];
+export const PAGES_DATA_EXCLUDES = ['sec-fundamentals.json', 'sec-fundamentals-extended.json', 'telegram-observed.json', 'screener-extended-universe.json', 'score-backtest-history.json', 'score-backtest-longrun.json', 'operations-slo-window.json', 'telegram-reference-window.json', 'masters/holdings.json', 'masters/history-holdings.json', 'masters/issuer-aggregates.json', 'masters/managers/'];
+
+// Copies the deploy's code layout (root files, the classic scripts, src/) into `dest`, ready for build-pages-bundle.mjs.
+// public-data is left out on purpose: a measurement serves it from the repository (or a fixture overlay) instead of
+// copying ~100 MB per run.
+export function stagePagesCode(repoRoot, dest) {
+  fs.mkdirSync(path.join(dest, 'js'), { recursive: true });
+  for (const file of PAGES_ROOT_FILES) {
+    const from = path.join(repoRoot, file);
+    if (fs.existsSync(from)) fs.copyFileSync(from, path.join(dest, file));
+  }
+  for (const file of GLOBAL_SCRIPTS) fs.copyFileSync(path.join(repoRoot, file), path.join(dest, file));
+  fs.cpSync(path.join(repoRoot, 'src'), path.join(dest, 'src'), { recursive: true });
+  return dest;
+}
 export const ESM_ENTRY = 'src/app/bootstrap.js';
 // index.html links one stylesheet; it @imports the rest of src/ui/styles. Shipped as is, the browser finds those
 // imports only after the first file arrives (a second round trip before the page can paint); the deploy inlines them.

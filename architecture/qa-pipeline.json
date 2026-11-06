@@ -1663,6 +1663,24 @@
           ]
         },
         {
+          "id": "browser-data-fixture",
+          "script": "scripts/ci-browser-data-fixture-check.mjs",
+          "inputs": [
+            "public-data/**",
+            "architecture/browser-data-fixture.json",
+            "scripts/browser-data-fixture.mjs",
+            "scripts/ci-browser-data-fixture-check.mjs",
+            "scripts/lib/schema-fingerprint.mjs",
+            "scripts/lib/pages-bundle-config.mjs",
+            "scripts/lib/cli-args.mjs",
+            "scripts/start-local-node.mjs",
+            ".github/workflows/ci.yml",
+            ".github/workflows/watchdog-browser.yml",
+            ".github/workflows/operations-alert.yml",
+            ".github/actions/setup-browser-gates/action.yml"
+          ]
+        },
+        {
           "id": "qa-pipeline-contract",
           "script": "scripts/ci-qa-pipeline-contract-check.mjs",
           "inputs": [
@@ -2365,6 +2383,25 @@
     }
   },
   "impactRules": [
+    {
+      "patterns": [
+        "public-data/**",
+        "architecture/browser-data-fixture.json",
+        "scripts/browser-data-fixture.mjs",
+        "scripts/lib/schema-fingerprint.mjs",
+        "scripts/lib/pages-bundle-config.mjs",
+        "scripts/lib/cli-args.mjs",
+        "scripts/start-local-node.mjs",
+        ".github/workflows/ci.yml",
+        ".github/workflows/watchdog-browser.yml",
+        ".github/workflows/operations-alert.yml",
+        ".github/actions/setup-browser-gates/action.yml"
+      ],
+      "groups": [],
+      "gates": [
+        "browser-data-fixture"
+      ]
+    },
     {
       "patterns": [
         "index.html",

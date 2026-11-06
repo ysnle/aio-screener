@@ -11,7 +11,7 @@
 
 import { chromium } from 'playwright';
 import { spawnSync } from 'node:child_process';
-import { startLocalServer } from './lib/browser-gate.mjs';
+import { startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { resolve, dirname, join } from 'node:path';
@@ -34,7 +34,7 @@ if (!Number.isInteger(SHARD_INDEX) || !Number.isInteger(SHARD_COUNT) || SHARD_IN
 }
 const SHARD_LABEL = `${SHARD_INDEX}/${SHARD_COUNT}`;
 const SELECTION_LABEL = GROUP_IDS.length ? GROUP_IDS.join(',') : `shard=${SHARD_LABEL}`;
-const PORT = Number(process.env.CI_TEST_PORT || (8890 + SHARD_INDEX));
+const PORT = (Number(process.env.CI_TEST_PORT) || await freePort());
 const BASE_URL = `http://127.0.0.1:${PORT}/index.html`;
 const SKIP_LIST_PATH = resolve(root, '_context/gate-baseline-skip-list.json');
 const RUNTIME_ALLOWLIST_PATH = resolve(root, 'architecture/browser-error-allowlist.json');

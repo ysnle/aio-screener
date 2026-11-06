@@ -1,5 +1,5 @@
 import { chromium } from 'playwright';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
@@ -9,7 +9,7 @@ import { readFileSync } from 'node:fs';
 import { PAGE_DATA_TIMELINE_CONTRACTS } from '../src/data/contracts/page-timeline.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.AIO_MARKET_EPOCH_TEST_PORT || 8907);
+const port = (Number(process.env.AIO_MARKET_EPOCH_TEST_PORT) || await freePort());
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 
 const server = await startLocalServer(port, { label: 'market-epoch/server' });

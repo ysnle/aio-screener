@@ -7,14 +7,14 @@
 import { chromium } from 'playwright';
 import { mkdirSync, readFileSync } from 'node:fs';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort, gateNowMs } from './lib/browser-gate.mjs';
 import { chartFixture, companyFactsFixture, submissionsFixture, listingFixture } from './lib/out-of-universe-fixtures.mjs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.CI_OUT_OF_UNIVERSE_PORT || 8961);
+const port = (Number(process.env.CI_OUT_OF_UNIVERSE_PORT) || await freePort());
 const base = `http://127.0.0.1:${port}`;
 const out = resolve(root, '_artifacts/out-of-universe-20261015');
 const libraryDir = resolve(root, '_artifacts/entity-quality-20261012');
@@ -22,7 +22,7 @@ const failures = [], observations = [];
 const check = (condition, message, detail) => { if (!condition) failures.push({ message, detail }); };
 mkdirSync(out, { recursive: true });
 
-const nowMs = Date.now();
+const nowMs = gateNowMs(); // the page clock under a pinned-data run
 const CIK = { UFPT: '0000914156', MLI: '0000089439' };
 const universe = new Set((JSON.parse(readFileSync(resolve(root, 'public-data/screener-universe.json'), 'utf8')).universe || []).map((row) => String(row.sym || row.symbol || '').toUpperCase()));
 for (const sym of ['UFPT', 'HALO', 'MLI', 'BUFX']) if (universe.has(sym)) throw new Error(`${sym} joined the published universe; pick another out-of-universe fixture symbol`);

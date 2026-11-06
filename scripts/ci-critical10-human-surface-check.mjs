@@ -6,12 +6,12 @@ import { chromium } from 'playwright';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { DESKTOP_PRIMARY_VIEWPORT } from './desktop-qa-config.mjs';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { dirname, resolve } from 'node:path';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const root = resolve(scriptDir, '..');
-const PORT = Number(process.env.CI_HUMAN_SURFACE_PORT || 8893);
+const PORT = (Number(process.env.CI_HUMAN_SURFACE_PORT) || await freePort());
 const BASE_URL = `http://127.0.0.1:${PORT}/index.html`;
 const OUT_PATH = process.env.CI_HUMAN_SURFACE_OUT
   ? resolve(root, process.env.CI_HUMAN_SURFACE_OUT)

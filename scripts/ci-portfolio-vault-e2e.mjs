@@ -6,11 +6,11 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { buildArtifact, buildListingRows, joinSecCik, secCikMap } from './lib/us-listings.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.CI_PORTFOLIO_PORT || 8894);
+const port = (Number(process.env.CI_PORTFOLIO_PORT) || await freePort());
 const liveBaseUrl = String(process.env.CI_PORTFOLIO_BASE_URL || '').replace(/\/+$/, '');
 const isLive = !!liveBaseUrl;
 const baseUrl = liveBaseUrl || `http://127.0.0.1:${port}`;

@@ -1,5 +1,5 @@
 import { chromium } from 'playwright';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 // deep links and URL sync, the lazy reading text, F0 modules, hidden process modules, the relationship-guide
 // document, unified search, explicit failure with retry and the absence of internal copy.
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.AIO_ATLAS_PORT || 8904);
+const port = (Number(process.env.AIO_ATLAS_PORT) || await freePort());
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 const INTERNAL_COPY = /REVIEWED_CANDIDATE|REFERENCE_CONNECTED|PS-\d+|TG-C\d+|출처|source seed|텔레그램|근거·경계 보기|검토된 참고|최신성 검증 경계/;
 

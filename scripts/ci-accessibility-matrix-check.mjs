@@ -6,11 +6,11 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DESKTOP_PRIMARY_VIEWPORT, DESKTOP_QA_SCOPE } from './desktop-qa-config.mjs';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { ROUTE_IDS } from '../src/app/routes.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.CI_A11Y_PORT || 8901);
+const port = (Number(process.env.CI_A11Y_PORT) || await freePort());
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 const routes = ROUTE_IDS;
 const appRevision = JSON.parse(readFileSync(resolve(root, 'version.json'), 'utf8')).version;

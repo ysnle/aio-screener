@@ -1,7 +1,7 @@
 // Visit each vertical slice with external network blocked and verify its
 // canonical page contract/state. Leave/return coverage belongs to route-soak.
 import { chromium } from 'playwright';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { addressThemeDetail } from './lib/theme-detail-address.mjs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
@@ -9,7 +9,7 @@ import { VERTICAL_SLICE_CONTRACTS } from '../src/app/vertical-slices.js';
 import { DESKTOP_PRIMARY_VIEWPORT, DESKTOP_QA_SCOPE } from './desktop-qa-config.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.AIO_VERTICAL_SLICE_PORT || 8902);
+const port = (Number(process.env.AIO_VERTICAL_SLICE_PORT) || await freePort());
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 
 const server = await startLocalServer(port, { label: 'vertical-slice/server' });

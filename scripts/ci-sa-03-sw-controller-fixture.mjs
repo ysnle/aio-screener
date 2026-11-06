@@ -1,11 +1,11 @@
 import { chromium } from 'playwright';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.AIO_SA03_PORT || 8899);
+const port = (Number(process.env.AIO_SA03_PORT) || await freePort());
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 const appVersion = JSON.parse(readFileSync(resolve(root, 'version.json'), 'utf8')).version;
 const oldVersion = 'v53.17';

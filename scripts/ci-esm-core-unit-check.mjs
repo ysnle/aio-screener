@@ -150,7 +150,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
 // RM-07 -> v57.79: the cross-route sentiment summary projection painted four ids no page creates (R705 dead-id
 // scan), so it was removed with its module; bootstrap's sentiment sync must not bring a projection writer back.
 {
-  const bootstrapSource = readFileSync(path.join(root, 'src/app/bootstrap.js'), 'utf8');
+  const bootstrapSource = readFileSync(path.join(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'), 'src/app/bootstrap.js'), 'utf8');
   if (/renderSentimentSummaryProjection|ui\/projections\/sentiment-summary/.test(bootstrapSource)) fail('v57.79 retired sentiment summary projection returned to bootstrap'); // text-pin-ok: retirement absence
 }
 
@@ -1227,7 +1227,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     fail('P1285/R635: persisted news charts must discard legacy, below-minimum, and wrong-model scores while retaining a sufficient current-model point');
   }
   const legacyNewsSource = readFileSync(path.join(root, 'js/aio-data.js'), 'utf8');
-  const newsBootstrapSource = readFileSync(path.join(root, 'src/app/bootstrap.js'), 'utf8');
+  const newsBootstrapSource = readFileSync(path.join(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'), 'src/app/bootstrap.js'), 'utf8');
   const legacyCoreNewsSource = readFileSync(path.join(root, 'js/aio-core.js'), 'utf8');
   const legacyFacadeNewsSource = readFileSync(path.join(root, 'src/legacy/compatibility-facade.js'), 'utf8');
   // v57.78: the loop audit (getAutonomousLoopAudit) moved to the on-demand QA bundle.
@@ -5019,7 +5019,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   const failedP1317 = p1317Checks.filter(([, ok]) => !ok).map(([name]) => name);
   if (failedP1317.length) fail(`P1317~P1320 checks failed: ${failedP1317.join(' | ')}`);
   const p1317Core = readFileSync(path.join(root, 'js/aio-core.js'), 'utf8');
-  const p1317Boot = readFileSync(path.join(root, 'src/app/bootstrap.js'), 'utf8');
+  const p1317Boot = readFileSync(path.join(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'), 'src/app/bootstrap.js'), 'utf8');
   if (!/window\._aioNormalizeTickerInput\(tkr\)/.test(p1317Core) || !/window\._aioTickerDisplayName\(tkr\)/.test(p1317Core)
     || !/requestSelectedTickerQuote/.test(p1317Boot) || !/installTermTooltips\(documentRef/.test(p1317Boot)) {
     fail('P1317/P1320 showTicker must normalize through the native module, request a missing quote, and install term tooltips');
@@ -6514,6 +6514,29 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const late = createCriticalDataGate({ isReady: () => false, subscribe: () => null, schedule: (fn) => { fallback = fn; } });
   const lateRan = []; late.run(() => lateRan.push(1)); fallback();
   if (lateRan.length !== 1 || !ROWS_FIRST_ROUTES.has('screener') || ROWS_FIRST_ROUTES.has('home')) fail('v58.80 the fallback releases the gate; 오늘 is not a rows-first screen');
+  // v59.70: a failed core read settles the gate, so the held screener read starts at once instead of after the 20 s
+  // fallback (history+data refused: old code made no screener request in 12 s, new code at ~2.9 s).
+  {
+    const gateModule = await load('src/app/critical-data-gate.js');
+    const settled = gateModule.coreReadsSettled;
+    if (typeof settled !== 'function') fail('v59.70 critical-data-gate exports coreReadsSettled');
+    else {
+      const cases = [
+        [{}, false],
+        [{ _serverDataMeta: {}, __aioHistoryLoadState: 'loading' }, false],
+        [{ _serverDataMeta: {}, __aioHistoryLoadState: 'failed' }, true],
+        [{ __aioServerDataLoadState: 'empty', _aioHistory: [1] }, true],
+        [{ __aioServerDataLoadState: 'failed', __aioHistoryLoadState: 'failed' }, true],
+        [{ _serverDataMeta: {}, _aioHistoryMeta: {} }, true]
+      ];
+      for (const [state, want] of cases) if (settled(state) !== want) fail(`v59.70 coreReadsSettled(${JSON.stringify(state)}) should be ${want}`);
+    }
+    const bootSource = readFileSync(path.join(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'), 'src/app/bootstrap.js'), 'utf8');
+    const gateBlock = bootSource.slice(bootSource.indexOf('createCriticalDataGate({'), bootSource.indexOf('createCriticalDataGate({') + 900);
+    if (!/isReady:\s*\(\)\s*=>\s*coreReadsSettled\(root\)/.test(gateBlock) || !gateBlock.includes("'aio:serverDataFailed'") || !gateBlock.includes("'aio:historyFailed'")) {
+      fail('v59.70 bootstrap opens the critical-data gate on a settled read (coreReadsSettled) and listens to aio:serverDataFailed / aio:historyFailed');
+    }
+  }
   const res = Promise.resolve({ ok: true });
   const root = { __aioBootPrefetch: { data: { url: 'x', minute: 42, at: 1000, res } } };
   const first = takeBootPrefetch(root, 'data', { now: 2000 });

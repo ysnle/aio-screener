@@ -9,11 +9,11 @@ import { chromium } from 'playwright';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { ROUTE_HUBS } from '../src/ui/navigation/route-hubs.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.CI_ENTITY_DEEP_LINK_PORT || 8962);
+const port = (Number(process.env.CI_ENTITY_DEEP_LINK_PORT) || await freePort());
 const base = `http://127.0.0.1:${port}`;
 const out = resolve(root, '_artifacts/entity-deep-link');
 mkdirSync(out, { recursive: true });

@@ -3,6 +3,7 @@ import { spawn } from 'node:child_process';
 import { writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import { freePort } from './lib/browser-gate.mjs';
 
 // RM-03 item 2: dumps (scenario inputs, legacy calcLiveRS output) pairs by driving the REAL,
 // unmodified index.html calcLiveRS/classifyRRG inside a real Chromium page — this is the "legacy
@@ -13,7 +14,7 @@ import { dirname, resolve } from 'node:path';
 // not change RRG behavior, to refresh the golden file.
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.AIO_ARCH_TEST_PORT || 8899);
+const port = (Number(process.env.AIO_ARCH_TEST_PORT) || await freePort());
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 const OUT_PATH = resolve(root, 'architecture/fixtures/rrg-golden.json');
 

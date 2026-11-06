@@ -22,7 +22,7 @@
 // shape change makes the pinned files unreadable to the current code, re-pin deliberately with --pin <commit> <iso>.
 import { spawnSync } from 'node:child_process';
 import { chromium } from 'playwright';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { addressThemeDetail } from './lib/theme-detail-address.mjs';
 import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
@@ -31,7 +31,7 @@ import { ROUTE_IDS } from '../src/app/routes.js';
 import { SECONDARY_TEXT_PATTERN, READING_MAX, ASOF_MAX, FRAME_CONTRACTS } from '../src/ui/components/section-frame.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.CI_TEXT_BUDGET_PORT || 8954);
+const port = (Number(process.env.CI_TEXT_BUDGET_PORT) || await freePort());
 const base = `http://127.0.0.1:${port}`;
 const out = resolve(root, '_artifacts', 'secondary-text-budget');
 const BUDGET = resolve(root, 'architecture/secondary-text-budget.json');

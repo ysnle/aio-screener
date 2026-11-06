@@ -1,5 +1,5 @@
 import { chromium } from 'playwright';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DESKTOP_PRIMARY_VIEWPORT, DESKTOP_QA_SCOPE } from './desktop-qa-config.mjs';
@@ -9,7 +9,7 @@ import { DESKTOP_PRIMARY_VIEWPORT, DESKTOP_QA_SCOPE } from './desktop-qa-config.
 // analysis note, deep links into every group, the long-form reading text, lazy loads with an explicit failure and
 // retry, the concept-map depth contract, unified search, cross-route bridges and the absence of internal copy.
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.AIO_PRINCIPLES_PORT || 8906);
+const port = (Number(process.env.AIO_PRINCIPLES_PORT) || await freePort());
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 const INTERNAL_COPY = /REVIEWED_CANDIDATE|REFERENCE_CONNECTED|PS-\d+|TG-C\d+|출처|검토 질문|체크포인트|근거는 항목별 표시|텔레그램은 발견용/;
 

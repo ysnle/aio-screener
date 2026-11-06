@@ -1,11 +1,11 @@
 import fs from 'node:fs/promises';
 import { chromium } from 'playwright';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.AIO_THREE_PAGE_BUDGET_PORT || 8938);
+const port = (Number(process.env.AIO_THREE_PAGE_BUDGET_PORT) || await freePort());
 const origin = `http://127.0.0.1:${port}`;
 
 const fileSize = async (pathname) => (await fs.stat(resolve(root, `.${decodeURIComponent(pathname)}`))).size;

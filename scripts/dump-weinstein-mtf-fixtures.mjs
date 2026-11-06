@@ -3,6 +3,7 @@ import { spawn } from 'node:child_process';
 import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import { freePort } from './lib/browser-gate.mjs';
 
 // RM-03 item 2: dumps (ohlcv scenario, legacy calcTechnicalSnapshot + updateMTF output) tuples by
 // driving the REAL, unmodified js/aio-core.js:calcTechnicalSnapshot and index.html:updateMTF
@@ -19,7 +20,7 @@ import { dirname, resolve } from 'node:path';
 // same real function on a shifted window instead of reimplementing the SMA arithmetic here.
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.AIO_ARCH_TEST_PORT || 8899);
+const port = (Number(process.env.AIO_ARCH_TEST_PORT) || await freePort());
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 const OUT_PATH = resolve(root, 'architecture/fixtures/weinstein-mtf-golden.json');
 

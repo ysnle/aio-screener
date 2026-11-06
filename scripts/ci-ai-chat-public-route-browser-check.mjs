@@ -1,11 +1,11 @@
 import { chromium } from 'playwright';
-import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.AIO_AI_CHAT_PORT || 8912);
+const port = (Number(process.env.AIO_AI_CHAT_PORT) || await freePort());
 const localBase = `http://127.0.0.1:${port}`;
 const workerBase = 'https://aio-proxy.zmfhd007.workers.dev';
 
