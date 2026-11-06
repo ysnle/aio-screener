@@ -1,0 +1,22 @@
+{
+  "title": "Pinned browser data: drift is live data; reconciliation window advisory in CI; one history reader",
+  "changelog": [
+    "**Pinned browser data drift is live data (v59.70, integration review 89e8c881):** the workspace gate browser-data-fixture compared the pinned snapshot with the working tree's public-data, so the first refresh-data run that wrote this batch's new structures (history.v2, putCall removed, rotation-detail.json, market-day headlineTranslation) would have failed the next source push. It now checks only the pin itself (checkPinIntegrity: commit id, counts, blob ids, stored structures, and — when the pinned commit is in the clone — its tree and that it is an ancestor of HEAD). The drift comparison moved to browser-data-pin-drift (liveData: content): ADVISORY in a ci.yml contract shard, failing locally and in its watchdog-local twin, where the data watchdog's issue carries the re-pin command. Producer pre-push does not run it, because the new structure has to land before a commit can be pinned on it. browser-history-v2 serves the working tree's history compacted to history.v2 and checks that the page reads the same days, dates, fieldMeta and series as the v1 array, and that it refuses the load when the expander is withheld.",
+    "**Reconciliation 24h window advisory in CI (v59.70, class I8):** ci-reconciliation-contract-check judged the artifact against the wall clock in every CI shard. In a contract shard that is now a warning (clockJudgementBlocks); producers, local runs and watchdog-reconciliation still fail on it, replayed with AIO_RECONCILIATION_NOW in refresh-origin-live-data.",
+    "**One history reader (v59.70):** scenario guidance and crash replay fell back to `history.rows` after readHistoryRows; they read the expander's rows only, and history-access fails a reader that reads a history.json payload variable as `.rows` (replayed on the old code)."
+  ],
+  "qa": [
+    {
+      "id": "QA-OPS-PIN-DRIFT-LIVE-DATA",
+      "text": "v59.70: browser-data-fixture checks pin integrity only (replays: malformed blob, orphan or mis-hashed structure, count); browser-data-pin-drift is liveData: content in workspace with a watchdog-local twin; refresh-origin-live-data replays the reconciliation 24h window (source red, CI warning, fresh green)",
+      "verify_by": "node scripts/ci-browser-data-fixture-check.mjs && node scripts/ci-browser-data-pin-drift-check.mjs && node scripts/ci-refresh-origin-live-data-check.mjs"
+    },
+    {
+      "id": "QA-DATA-HISTORY-V2-BROWSER",
+      "text": "v59.70: the page reads history.v2 like the v1 array (days, dates, fieldMeta, spx/vix/us10y series) and refuses it without the expander; history-access fails a `.rows` read of a history.json payload",
+      "verify_by": "node scripts/ci-history-v2-browser-fixture.mjs && node scripts/ci-history-access-check.mjs"
+    }
+  ],
+  "qa_section": "Browser gate data (v59.70)",
+  "note": "change-only (no P): integration-20261104, independent review of 89e8c881 (findings 1-3)."
+}

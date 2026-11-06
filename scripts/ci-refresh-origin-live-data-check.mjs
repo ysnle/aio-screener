@@ -20,7 +20,9 @@ const read = (file) => readFileSync(join(root, file), 'utf8');
 const manifest = JSON.parse(read('architecture/qa-pipeline.json'));
 const errors = [];
 const check = (label, ok, detail = '') => { if (!ok) errors.push(`${label}${detail ? `: ${detail}` : ''}`); };
-const CONTRACT_GROUPS = ['core', 'data', 'knowledge'];
+// v59.70 (integration review 89e8c881): workspace is a source-push contract shard too (browser-data-pin-drift); producers
+// never run it, so a live-data gate there blocks only locally and in its watchdog twin.
+const CONTRACT_GROUPS = ['core', 'data', 'knowledge', 'workspace'];
 
 // 1. Exhaustive: every gate x origin. Only contract-group gates may declare liveData, with a known kind and a watchdog twin.
 const gates = Object.entries(manifest.groups).flatMap(([group, spec]) => (spec.gates || []).map((gate) => ({ ...gate, group })));
@@ -145,6 +147,26 @@ const lintSource = lint(null);
 const lintCi = lint(CI_ORIGIN);
 check('v59.70 calendar replay: knowledge-lint fails on P1125 outside CI (watchdog twin, local)', lintSource.status === 1 && /Knowledge lint check failed:[\s\S]*P1125 stale document set does not grow/.test(lintSource.out), lintSource.out.slice(-400));
 check('v59.70 calendar replay: the same tree passes in a CI shard with P1125 as a warning', lintCi.status === 0 && /Knowledge lint warnings:[\s\S]*P1125 stale document set does not grow/.test(lintCi.out), lintCi.out.slice(-400));
+
+// 6. v59.70 (integration review 89e8c881): the reconciliation 24h window is the same class. A clock 300 days after the
+// artifact fails it outside CI (watchdog-reconciliation, producers, local) and warns in a CI shard; an hour after passes.
+const reconciliation = (origin, offsetMs) => {
+  const generatedAt = JSON.parse(read('public-data/reconciliation-status.json')).generatedAt;
+  const env = { ...process.env, AIO_RECONCILIATION_NOW: new Date(Date.parse(generatedAt) + offsetMs).toISOString() };
+  delete env.AIO_QA_ORIGIN;
+  if (origin) env.AIO_QA_ORIGIN = origin;
+  const run = spawnSync(process.execPath, ['scripts/ci-reconciliation-contract-check.mjs'], { cwd: root, env, encoding: 'utf8' });
+  return { status: run.status, out: `${run.stdout}\n${run.stderr}` };
+};
+const reconLate = reconciliation(null, 300 * 86400000);
+const reconLateCi = reconciliation(CI_ORIGIN, 300 * 86400000);
+const reconFresh = reconciliation(null, 3600000);
+check('v59.70 calendar replay: reconciliation fails on the 24h window outside CI', reconLate.status !== 0 && /outside 24h operating window/.test(reconLate.out), reconLate.out.slice(-400));
+check('v59.70 calendar replay: reconciliation warns on the 24h window in a CI shard', reconLateCi.status === 0 && /outside 24h operating window[^\n]*warning in a CI contract shard/.test(reconLateCi.out), reconLateCi.out.slice(-400));
+check('v59.70 calendar replay: reconciliation passes an hour after its artifact', reconFresh.status === 0, reconFresh.out.slice(-400));
+check('v59.70 reconciliation has its watchdog twin (the 24h window blocks there)', watchdogScripts.has('scripts/ci-reconciliation-contract-check.mjs'));
+check('v59.70 the browser pin drift gate has its watchdog twin (operations-alert opens the re-pin issue)', watchdogScripts.has('scripts/ci-browser-data-pin-drift-check.mjs')
+  && gates.some((gate) => gate.id === 'browser-data-pin-drift' && gate.group === 'workspace' && gate.liveData === 'content'));
 
 if (errors.length) {
   console.error('CI live-data check failed:');

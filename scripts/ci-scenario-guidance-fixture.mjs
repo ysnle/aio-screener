@@ -23,8 +23,7 @@ const { liveCurrentObservations } = await import('../src/ui/knowledge/current-ob
 assert.equal(movingAverageStructure({ value: 110, ma5: 108, ma10: 106, ma20: 104, ma50: 100, ma100: 96, ma200: 90 }).shortLabel, '정배열');
 assert.equal(movingAverageStructure({ value: 80, ma5: 84, ma10: 88, ma20: 92, ma50: 96, ma100: 100, ma200: 104 }).longLabel, '역배열');
 
-const history = readHistoryRows(JSON.parse(readFileSync(new URL('../public-data/history.json', import.meta.url), 'utf8')));
-const rows = Array.isArray(history) ? history : history.rows || [];
+const rows = readHistoryRows(JSON.parse(readFileSync(new URL('../public-data/history.json', import.meta.url), 'utf8'))); // v59.70: the one reader; never the stored shape's .rows
 const input = { history: rows, credit: { hyBp: 315, hyDelta5Bp: -9 }, rates: {} };
 const regime = buildMarketRegime(input);
 assert.ok(regime.available, 'P1633: regime builds from the published history');
@@ -1163,8 +1162,7 @@ assert.match(d.costIfWrong[0].text, /w:wait/, `${label}: the opportunity cost qu
 assert.equal(buildDirection([], []).robust, null, `${label}: no live branch means no tally winner`);
 
 // End to end on the published artifacts: a guide is built, its lessons belong to today's state, the AI block holds the boundary.
-const history = readHistoryRows(JSON.parse(readFileSync(new URL('../public-data/history.json', import.meta.url), 'utf8')));
-const rows = Array.isArray(history) ? history : history.rows || [];
+const rows = readHistoryRows(JSON.parse(readFileSync(new URL('../public-data/history.json', import.meta.url), 'utf8'))); // v59.70: the one reader; never the stored shape's .rows
 const { buildMarketRegime } = await import('../src/domain/briefing/market-read.js');
 const regime = buildMarketRegime({ history: rows, credit: { hyBp: 315, hyDelta5Bp: -9 }, rates: {} });
 const guide = buildMarketGuide({ regime, outlook: null, crossroads: null, nowMs: Date.now() });

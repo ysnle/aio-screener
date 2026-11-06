@@ -42,7 +42,7 @@ export const USAGE = [
 ].join('\n');
 
 export const isDeployed = (rel) => !PAGES_DATA_EXCLUDES.some((entry) => entry.endsWith('/') ? rel.startsWith(entry) : rel === entry);
-const shapeId = (shape) => createHash('sha256').update(JSON.stringify(shape)).digest('hex').slice(0, 16);
+export const shapeId = (shape) => createHash('sha256').update(JSON.stringify(shape)).digest('hex').slice(0, 16);
 export const gitBlobId = (buffer) => createHash('sha1').update(`blob ${buffer.length}\0`).update(buffer).digest('hex');
 
 function git(args, { input, encoding = 'utf8' } = {}) {
@@ -107,7 +107,7 @@ function pin(rev) {
   }
   const manifest = {
     schemaVersion: 1,
-    note: `Pinned browser-gate data (scripts/browser-data-fixture.mjs). Re-pin with \`${PIN_HINT}\` after a producer changes an artifact's structure; check fails until then.`,
+    note: `Pinned browser-gate data (scripts/browser-data-fixture.mjs). Re-pin with \`${PIN_HINT}\` after a producer changes an artifact's structure; until then the drift gate reports in CI and fails the data watchdog.`,
     sha,
     committedAt,
     schemaDepth: SCHEMA_DEPTH,
@@ -123,8 +123,45 @@ function pin(rev) {
   return 0;
 }
 
-// The gate. Every pinned JSON artifact is compared with the working tree's copy; a new deployed JSON artifact that
-// the pin does not have fails too (its consumers would read live data in the fixture run).
+// v59.70 (integration review 89e8c881): the pin's own consistency, independent of what the producers write now. CI
+// blocks on this (scripts/ci-browser-data-fixture-check.mjs); the drift below is live data and only reports in CI.
+// When the pinned commit is in this clone its tree must give exactly the pinned blob ids and be an ancestor of HEAD
+// (a squash or rebase would leave the pin unreachable on the remote); a shallow CI checkout leaves that to `install`,
+// which checks every blob id of the fetched snapshot before the browser shards read it.
+export function checkPinIntegrity(manifest = readManifest(), { head = 'HEAD' } = {}) {
+  const problems = [];
+  const files = Object.entries(manifest.files || {});
+  if (!/^[0-9a-f]{40}$/.test(String(manifest.sha))) problems.push(`sha is not a full commit id: ${manifest.sha}`);
+  if (!Number.isFinite(Date.parse(manifest.committedAt))) problems.push(`committedAt is not a time: ${manifest.committedAt}`);
+  if (manifest.schemaDepth !== SCHEMA_DEPTH) problems.push(`schemaDepth ${manifest.schemaDepth} is not the fingerprint depth ${SCHEMA_DEPTH}`);
+  if (manifest.fileCount !== files.length) problems.push(`fileCount ${manifest.fileCount} but ${files.length} files listed`);
+  for (const [path, entry] of files) {
+    if (!path.startsWith(`${DATA_DIR}/`) || !isDeployed(path.slice(DATA_DIR.length + 1))) problems.push(`${path}: not a deployed public-data path`);
+    if (!/^[0-9a-f]{40}$/.test(String(entry.blob))) problems.push(`${path}: blob is not a git blob id`);
+    if (entry.shape && !manifest.shapes?.[entry.shape]) problems.push(`${path}: structure ${entry.shape} is not stored`);
+  }
+  const used = new Set(files.map(([, entry]) => entry.shape).filter(Boolean));
+  for (const [id, shape] of Object.entries(manifest.shapes || {})) {
+    if (shapeId(shape) !== id) problems.push(`structure ${id} does not hash to its id`);
+    if (!used.has(id)) problems.push(`structure ${id} is stored but no file uses it`);
+  }
+  let commit = 'absent';
+  try { git(['cat-file', '-e', `${manifest.sha}^{commit}`]); commit = 'present'; } catch (_) { /* shallow clone: install checks blobs */ }
+  if (commit === 'present') {
+    const tree = new Map(deployedFiles(manifest.sha).map((file) => [file.path, file.blob]));
+    const missing = [...tree.keys()].filter((path) => !manifest.files[path]);
+    const extra = files.filter(([path]) => !tree.has(path)).map(([path]) => path);
+    const wrong = files.filter(([path, entry]) => tree.has(path) && tree.get(path) !== entry.blob).map(([path]) => path);
+    if (missing.length || extra.length || wrong.length) problems.push(`the pinned commit's deployed files differ from the manifest: missing ${missing.slice(0, 3).join(', ') || '0'}; extra ${extra.slice(0, 3).join(', ') || '0'}; other blob ${wrong.slice(0, 3).join(', ') || '0'}`);
+    const ancestor = spawnSync('git', ['merge-base', '--is-ancestor', manifest.sha, head], { cwd: root });
+    if (ancestor.status === 1) problems.push(`pinned commit ${manifest.sha.slice(0, 12)} is not in ${head}'s history (re-pin on a commit of this branch)`);
+  }
+  return { problems, commit };
+}
+
+// The drift check. Every pinned JSON artifact is compared with the working tree's copy; a new deployed JSON artifact
+// that the pin does not have counts too (its consumers would read live data in the fixture run). This is live data:
+// scripts/ci-browser-data-pin-drift-check.mjs reports it in a CI shard and fails in the watchdog and locally.
 export function checkFixture({ manifest = readManifest(), dataRoot = root, listCurrent = currentDeployedJson } = {}) {
   const problems = [];
   for (const [path, entry] of Object.entries(manifest.files)) {

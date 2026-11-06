@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { validateReconciliationStatus } from '../src/data/contracts/reconciliation.js';
 import { buildReconciliationStatus } from './build-reconciliation-status.mjs';
 import { readHistoryRows } from '../src/domain/market/history-rows.js';
+import { clockJudgementBlocks } from './lib/qa-live-data.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const status = JSON.parse(fs.readFileSync(path.join(root, 'public-data/reconciliation-status.json'), 'utf8'));
@@ -22,9 +23,15 @@ for (const category of status.categories) {
   if (observed !== category.evidence.observed) throw new Error(`[reconciliation-contract] ${category.categoryId} observed count is not derived from checks`);
 }
 
-const statusAgeMs = Date.now() - Date.parse(status.generatedAt);
+// v59.70 (integration review 89e8c881, class I8): the 24h window judges the artifact against the wall clock. In a ci.yml
+// contract shard that is a warning (a source push must not fail because time passed); producers, local runs and the
+// watchdog twin (watchdog-reconciliation) still fail on it. AIO_RECONCILIATION_NOW replays another clock.
+const nowMs = process.env.AIO_RECONCILIATION_NOW ? Date.parse(process.env.AIO_RECONCILIATION_NOW) : Date.now();
+const statusAgeMs = nowMs - Date.parse(status.generatedAt);
 if (!Number.isFinite(statusAgeMs) || statusAgeMs < -15 * 60 * 1000 || statusAgeMs > 24 * 60 * 60 * 1000) {
-  throw new Error(`[reconciliation-contract] artifact timestamp outside 24h operating window: ${status.generatedAt}`);
+  const message = `[reconciliation-contract] artifact timestamp outside 24h operating window: ${status.generatedAt}`;
+  if (clockJudgementBlocks()) throw new Error(message);
+  console.warn(`${message} (warning in a CI contract shard; the watchdog twin fails on it)`);
 }
 const rebuilt = buildReconciliationStatus({
   data: readJson('data.json'),

@@ -193,8 +193,7 @@ for (const [w, window] of WINDOWS.entries()) {
 // - 2026-10-12..15: the v57.81 rule changes came from this week (0.15% over the 50-day line and VIX 16.87 after +11.9%
 //   in five sessions both read 양호 on 10/14).
 {
-  const history = readHistoryRows(JSON.parse(readFileSync(new URL('../public-data/history.json', import.meta.url), 'utf8')));
-  const rows = Array.isArray(history) ? history : history.rows || [];
+  const rows = readHistoryRows(JSON.parse(readFileSync(new URL('../public-data/history.json', import.meta.url), 'utf8'))); // v59.70: the one reader; never the stored shape's .rows
   // v59.70 (owner 11/4): the leadership proxy is SOXX. Until history.json carries its own soxx column (the next refresh
   // backfills a year), a session without one reads the dated Yahoo closes in architecture/fixtures/soxx-daily-closes.json.
   const soxxFixture = JSON.parse(readFileSync(new URL('../architecture/fixtures/soxx-daily-closes.json', import.meta.url), 'utf8')).closes;

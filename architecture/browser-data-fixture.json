@@ -1,6 +1,6 @@
 {
  "schemaVersion": 1,
- "note": "Pinned browser-gate data (scripts/browser-data-fixture.mjs). Re-pin with `node scripts/browser-data-fixture.mjs pin` after a producer changes an artifact's structure; check fails until then.",
+ "note": "Pinned browser-gate data (scripts/browser-data-fixture.mjs). Re-pin with `node scripts/browser-data-fixture.mjs pin` after a producer changes an artifact's structure; until then the drift gate reports in CI and fails the data watchdog.",
  "sha": "ceddf1b1e3a07d25bb63ee39935a71a4c6123124",
  "committedAt": "2026-11-06T10:02:26+09:00",
  "schemaDepth": 3,

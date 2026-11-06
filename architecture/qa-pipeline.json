@@ -1793,10 +1793,10 @@
           "id": "browser-data-fixture",
           "script": "scripts/ci-browser-data-fixture-check.mjs",
           "inputs": [
-            "public-data/**",
             "architecture/browser-data-fixture.json",
             "scripts/browser-data-fixture.mjs",
             "scripts/ci-browser-data-fixture-check.mjs",
+            "scripts/ci-browser-data-pin-drift-check.mjs",
             "scripts/lib/schema-fingerprint.mjs",
             "scripts/lib/pages-bundle-config.mjs",
             "scripts/lib/cli-args.mjs",
@@ -1805,6 +1805,19 @@
             ".github/workflows/watchdog-browser.yml",
             ".github/workflows/operations-alert.yml",
             ".github/actions/setup-browser-gates/action.yml"
+          ]
+        },
+        {
+          "id": "browser-data-pin-drift",
+          "script": "scripts/ci-browser-data-pin-drift-check.mjs",
+          "liveData": "content",
+          "inputs": [
+            "public-data/**",
+            "architecture/browser-data-fixture.json",
+            "scripts/browser-data-fixture.mjs",
+            "scripts/ci-browser-data-pin-drift-check.mjs",
+            "scripts/lib/schema-fingerprint.mjs",
+            "scripts/lib/pages-bundle-config.mjs"
           ]
         },
         {
@@ -1836,6 +1849,8 @@
             "scripts/lib/qa-live-data.mjs",
             "scripts/lib/qa-failure-cause.mjs",
             "scripts/ci-refresh-origin-live-data-check.mjs",
+            "scripts/ci-reconciliation-contract-check.mjs",
+            "public-data/reconciliation-status.json",
             "scripts/ci-data-pipeline-contract-check.mjs",
             "scripts/ci-runtime-contract-check.mjs",
             "scripts/ci-esm-core-unit-check.mjs",
@@ -2223,6 +2238,11 @@
           "script": "scripts/ci-sa-04-boot-network-budget.mjs",
           "timeoutMs": 180000,
           "exclusive": true
+        },
+        {
+          "id": "browser-history-v2",
+          "script": "scripts/ci-history-v2-browser-fixture.mjs",
+          "timeoutMs": 180000
         }
       ]
     },
@@ -2500,6 +2520,11 @@
           "id": "watchdog-artifact-headroom",
           "script": "scripts/ci-artifact-size-headroom-check.mjs",
           "cache": false
+        },
+        {
+          "id": "watchdog-browser-data-pin-drift",
+          "script": "scripts/ci-browser-data-pin-drift-check.mjs",
+          "cache": false
         }
       ]
     },
@@ -2542,6 +2567,7 @@
         "public-data/**",
         "architecture/browser-data-fixture.json",
         "scripts/browser-data-fixture.mjs",
+        "scripts/ci-browser-data-pin-drift-check.mjs",
         "scripts/lib/schema-fingerprint.mjs",
         "scripts/lib/pages-bundle-config.mjs",
         "scripts/lib/cli-args.mjs",
@@ -2553,7 +2579,8 @@
       ],
       "groups": [],
       "gates": [
-        "browser-data-fixture"
+        "browser-data-fixture",
+        "browser-data-pin-drift"
         ]
       },
       {
@@ -2688,6 +2715,8 @@
         "scripts/lib/qa-live-data.mjs",
         "scripts/lib/qa-failure-cause.mjs",
         "scripts/ci-refresh-origin-live-data-check.mjs",
+        "scripts/ci-reconciliation-contract-check.mjs",
+        "public-data/reconciliation-status.json",
         "scripts/ci-data-pipeline-contract-check.mjs",
         "scripts/ci-runtime-contract-check.mjs",
         "scripts/ci-esm-core-unit-check.mjs",

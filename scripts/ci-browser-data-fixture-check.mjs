@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 // v59.70 (wave 2 A′): the pinned browser data (scripts/browser-data-fixture.mjs) stays a faithful copy of what the
 // producers write, CI's browser shards read it, and watchdog-browser.yml still runs them on live data.
-//   1. every pinned JSON artifact's key structure matches the working tree's (schemaDrift), and no deployed JSON artifact
-//      is missing from the pin — the failure names `browser-data-fixture.mjs pin`;
+//   1. the pin is internally consistent (checkPinIntegrity: commit id, counts, blob ids, stored structures, and — when
+//      the pinned commit is in this clone — its tree and ancestry); drift against live data is its own gate,
+//      scripts/ci-browser-data-pin-drift-check.mjs (liveData: content);
 //   2. replays: a new or dropped key is drift; an array empty on one refresh, a renamed map key, or null against a
-//      number is not;
+//      number is not; checkFixture names a new artifact and the failure says `browser-data-fixture.mjs pin`;
 //   3. the page clock: start-local-node with AIO_BROWSER_CLOCK_AT serves the clock script first in <head>, and the
 //      script moves Date to that time;
 //   4. the workflows: ci.yml's browser job installs the pin (cache key = pinned commit + manifest hash) and sets the
@@ -15,7 +16,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 import { load as loadYaml } from 'js-yaml';
-import { checkFixture, formatCheckFailure, gitBlobId, readManifest, PIN_HINT, MANIFEST } from './browser-data-fixture.mjs';
+import { checkFixture, checkPinIntegrity, formatCheckFailure, gitBlobId, readManifest, PIN_HINT, MANIFEST } from './browser-data-fixture.mjs';
 import { schemaDrift, schemaShape } from './lib/schema-fingerprint.mjs';
 import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
 
@@ -23,15 +24,26 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const failures = [];
 const check = (label, ok) => { if (!ok) failures.push(label); };
 
-// 1. The repository's pin against the working tree.
+// 1. The pin's own consistency (blocks everywhere). Whether live data still has the pinned structures is drift, a
+// live-data judgement: scripts/ci-browser-data-pin-drift-check.mjs (liveData: content — reports in CI, fails in the
+// data watchdog twin and locally). v59.70 (integration review 89e8c881): this gate used to fail the next source push
+// as soon as refresh-data wrote a new structure (history.v2, putCall removed, rotation-detail.json).
 const manifest = readManifest();
-const problems = checkFixture({ manifest });
-if (problems.length) {
-  console.error(formatCheckFailure(manifest, problems));
-  process.exit(1);
-}
+const integrity = checkPinIntegrity(manifest);
+for (const problem of integrity.problems) check(`v59.70 pin integrity: ${problem}`, false);
 check('v59.70 the pin names a full commit and its time', /^[0-9a-f]{40}$/.test(manifest.sha) && Number.isFinite(Date.parse(manifest.committedAt)));
 check('v59.70 every pinned JSON structure is stored', Object.values(manifest.files).every((entry) => !entry.shape || manifest.shapes[entry.shape]));
+{
+  // Replays: a hand-edited blob id, an orphan structure and a structure whose id does not match are integrity faults.
+  const sample = Object.keys(manifest.files)[0];
+  const edited = { ...manifest, files: { ...manifest.files, [sample]: { ...manifest.files[sample], blob: 'x' } } };
+  check('v59.70 integrity replay: a malformed blob id fails', checkPinIntegrity(edited).problems.some((line) => line.includes(`${sample}: blob is not a git blob id`)));
+  const orphan = { ...manifest, shapes: { ...manifest.shapes, '0000000000000000': { a: 's' } } };
+  const orphanProblems = checkPinIntegrity(orphan).problems;
+  check('v59.70 integrity replay: an orphan or mis-hashed structure fails', orphanProblems.some((line) => line.includes('0000000000000000 does not hash')) && orphanProblems.some((line) => line.includes('0000000000000000 is stored but no file uses it')));
+  check('v59.70 integrity replay: a count that disagrees fails', checkPinIntegrity({ ...manifest, fileCount: manifest.fileCount + 1 }).problems.some((line) => line.startsWith('fileCount')));
+  check('v59.70 the drift gate is a separate live-data gate', readFileSync(join(root, 'scripts/ci-browser-data-pin-drift-check.mjs'), 'utf8').includes('checkFixture('));
+}
 
 // 2. Replays.
 const pinned = { meta: { asOf: '2026-11-04', quotes: { NVDA: { px: 1 }, AAPL: { px: 2 }, '005930.KS': { px: 3 } } }, rows: [{ sym: 'NVDA', price: 1, tags: [] }], ipos: [{ symbol: 'X', date: 'd' }] };

@@ -35,6 +35,21 @@ for (const rel of [...walk('scripts'), ...walk('src'), ...walk('js')]) {
   if (!hit) continue;
   readers.push(rel);
   check(`v59.70 R2 ${rel} reads history.json through readHistoryRows`, EXPANDS.test(code), hit.trim().slice(0, 140));
+  // v59.70 (integration review 89e8c881): a reader that expands and then still falls back to `payload.rows` reads the
+  // stored history.v2 shape (compact fieldMeta) whenever the expander's answer is not an array. A variable that holds
+  // what a history.json read returned must not be read as `.rows`.
+  const payloadVars = [...code.matchAll(/(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*[^\n;]*history\.json/g)].map((match) => match[1]);
+  for (const name of new Set(payloadVars)) {
+    const stored = code.split('\n').find((line) => new RegExp(`(?<![\\w$.])${name.replace(/\$/g, '\\$')}\\??\\.rows\\b`).test(line));
+    check(`v59.70 R2 ${rel} does not read the stored history shape (${name}.rows)`, !stored, stored?.trim().slice(0, 140));
+  }
+}
+{
+  // Replay: the fallback the review found (scenario guidance, crash replay) is caught; the expanded form is not.
+  const scan = (code) => [...code.matchAll(/(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*[^\n;]*history\.json/g)].map((match) => match[1])
+    .some((name) => new RegExp(`(?<![\\w$.])${name}\\??\\.rows\\b`).test(code));
+  check('v59.70 R2 replay: `Array.isArray(history) ? history : history.rows` after a history.json read fails', scan("const history = readHistoryRows(JSON.parse(readFileSync('../public-data/history.json')));\nconst rows = Array.isArray(history) ? history : history.rows || [];"));
+  check('v59.70 R2 replay: rows straight from readHistoryRows pass', !scan("const rows = readHistoryRows(JSON.parse(readFileSync('../public-data/history.json')));\nconst n = rows.length;"));
 }
 check('v59.70 R2 the reader scan found the known readers (producers, gates, the browser loader)', readers.length >= 15 && readers.includes('js/aio-data.js') && readers.includes('scripts/producer/history.mjs'), readers.join(', '));
 
