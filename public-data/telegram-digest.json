@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-06T11:51:55.493Z",
-  "attemptedAt": "2026-11-06T11:51:55.493Z",
-  "lastSuccessfulAt": "2026-11-06T11:51:55.493Z",
+  "generatedAt": "2026-11-06T12:21:30.457Z",
+  "attemptedAt": "2026-11-06T12:21:30.457Z",
+  "lastSuccessfulAt": "2026-11-06T12:21:30.457Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-23T11:51:48.639Z",
-  "until": "2026-11-06T11:51:48.639Z",
+  "since": "2026-10-23T12:21:25.572Z",
+  "until": "2026-11-06T12:21:25.572Z",
   "current24hWindow": {
     "start": "2026-11-04T23:00:00.000Z",
     "end": "2026-11-05T23:00:00.000Z",
@@ -80,9 +80,9 @@
       "pages": 0,
       "reachedOlder": false,
       "reachedKnown": false,
-      "count": 48,
+      "count": 46,
       "freshCount": 0,
-      "eligibleTextCount": 44,
+      "eligibleTextCount": 43,
       "selectedCount": 24,
       "error": "first page parsed no posts",
       "lastPostId": 26057
@@ -92,80 +92,82 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1349,
+      "count": 1351,
       "freshCount": 40,
-      "eligibleTextCount": 1287,
+      "eligibleTextCount": 1290,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 68543
+      "lastPostId": 68552
     },
     {
       "channel": "bornlupin",
-      "pages": 1,
-      "reachedOlder": false,
-      "reachedKnown": true,
-      "count": 230,
-      "freshCount": 20,
-      "eligibleTextCount": 230,
-      "selectedCount": 122,
-      "error": null,
-      "lastPostId": 21029
-    },
-    {
-      "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
+      "count": 232,
+      "freshCount": 40,
+      "eligibleTextCount": 232,
+      "selectedCount": 122,
+      "error": null,
+      "lastPostId": 21031
+    },
+    {
+      "channel": "HANAchina",
+      "pages": 1,
+      "reachedOlder": false,
+      "reachedKnown": true,
       "count": 679,
-      "freshCount": 37,
+      "freshCount": 20,
       "eligibleTextCount": 678,
       "selectedCount": 122,
       "error": null,
       "lastPostId": 71668
     }
   ],
-  "count": 2306,
+  "count": 2308,
   "retainedItemCount": 453,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2306,
-    "eligibleTextCount": 2239,
-    "mediaOnlyCount": 67,
-    "mediaAttachedCount": 437,
-    "photoPostCount": 381,
+    "observedCount": 2308,
+    "eligibleTextCount": 2243,
+    "mediaOnlyCount": 65,
+    "mediaAttachedCount": 444,
+    "photoPostCount": 386,
     "documentPostCount": 2,
     "imageOnlyCount": 2,
-    "highSignalCount": 394,
-    "broadSignalCount": 848,
+    "highSignalCount": 393,
+    "broadSignalCount": 847,
     "selectedRawCount": 391,
     "selectedEligibleCount": 391,
-    "selectedRawCoveragePct": 17.5,
-    "selectedOfObservedPct": 17,
+    "selectedRawCoveragePct": 17.4,
+    "selectedOfObservedPct": 16.9,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "geo": 443,
     "market-note": 843,
-    "power": 269,
-    "semi": 477,
-    "macro": 350,
-    "earnings": 403,
+    "geo": 443,
+    "earnings": 404,
+    "kr-market": 116,
+    "healthcare": 76,
+    "power": 267,
+    "semi": 476,
+    "macro": 348,
     "equity": 115,
-    "ai-policy": 106,
-    "healthcare": 75,
-    "credit": 99,
+    "ai-policy": 105,
+    "credit": 98,
     "optical": 41,
-    "kr-market": 115,
-    "japan": 79,
-    "media-only": 66,
+    "japan": 77,
+    "media-only": 64,
     "flows": 64,
     "crypto": 4
   },
   "tickerCounts": {
-    "TSLA": 32,
+    "BE": 14,
+    "MRNA": 2,
+    "TSLA": 31,
     "NVDA": 113,
     "HUM": 1,
     "GOOG": 114,
@@ -177,8 +179,7 @@
     "TSM": 37,
     "IONQ": 2,
     "MU": 34,
-    "BE": 13,
-    "ORCL": 12,
+    "ORCL": 11,
     "AMD": 46,
     "GS": 3,
     "DB": 2,
@@ -243,7 +244,6 @@
     "V": 1,
     "HOOD": 1,
     "005940.KS": 1,
-    "MRNA": 1,
     "RDDT": 1,
     "FDX": 1,
     "APO": 2,
@@ -256,18 +256,17 @@
     "PANW": 1,
     "EQIX": 1,
     "FCEL": 1,
-    "BMY": 2,
-    "RKLB": 1
+    "BMY": 1
   },
   "themes": [
     "Market Notes (843 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 아메리라이프와 보험 유통 전반의 AI 전환을 위한 엔터프라이즈 파트너십 체결. Foundry와 AIP는...",
-    "Semiconductors/Memory (477 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
+    "Semiconductors/Memory (476 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
     "Geopolitics (443 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
-    "Earnings/Corporate (403 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
-    "Macro/Rates (350 posts in 14-day research window): 텍사스 주지사 당선인 지나 히노호사는 버니 샌더스가 아니다. 데이터센터 건설을 지지한다. - Tae Kim 시장은 텍사스 주지사 선거 결과가 AI 데이터센터 산업에 미칠 영향을 과도하게 부정적으로 해석하고 있다. 히노호사는 데이터센터 건설 자체를 반대하는 것이 아니라 지역 주민과 노동자에게 실질적인 혜택이...",
-    "AI Power/Grid (269 posts in 14-day research window): 데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가 나타나고 있음. 데이터센터의 막대한 전력 소비와 지역사회 부담에 대한 우려가 커지면서 미국 하원과 텍사스,...",
-    "Equity/Analyst (115 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
-    "Korea Market (115 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
+    "Earnings/Corporate (404 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
+    "Macro/Rates (348 posts in 14-day research window): 텍사스 주지사 당선인 지나 히노호사는 버니 샌더스가 아니다. 데이터센터 건설을 지지한다. - Tae Kim 시장은 텍사스 주지사 선거 결과가 AI 데이터센터 산업에 미칠 영향을 과도하게 부정적으로 해석하고 있다. 히노호사는 데이터센터 건설 자체를 반대하는 것이 아니라 지역 주민과 노동자에게 실질적인 혜택이...",
+    "AI Power/Grid (267 posts in 14-day research window): 데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가 나타나고 있음. 데이터센터의 막대한 전력 소비와 지역사회 부담에 대한 우려가 커지면서 미국 하원과 텍사스,...",
+    "Korea Market (116 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY...",
+    "Equity/Analyst (115 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
   ],
   "catalysts": [
     {
@@ -317,7 +316,7 @@
     },
     {
       "key": "TSLA",
-      "count": 32,
+      "count": 31,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로..."
     },
     {
@@ -338,7 +337,7 @@
       "topics": [
         "macro"
       ],
-      "count": 350,
+      "count": 348,
       "focus": "텍사스 주지사 당선인 지나 히노호사는 버니 샌더스가 아니다. 데이터센터 건설을 지지한다. - Tae Kim 시장은 텍사스 주지사 선거 결과가 AI 데이터센터 산업에 미칠 영향을 과도하게 부정적으로 해석하고 있다. 히노호사는 데이터센터 건설 자체를 반대하는 것이 아니라 지역 주민과 노동자에게 실질적인 혜택이..."
     },
     {
@@ -356,7 +355,7 @@
       "topics": [
         "credit"
       ],
-      "count": 99,
+      "count": 98,
       "focus": "2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며 VIX는 23.83으로 -2.88%. 전일 급락 이후 기술주 중심의 단기 반등 시도가 나타나는 반면 다우와..."
     },
     {
@@ -365,7 +364,7 @@
       "topics": [
         "semi"
       ],
-      "count": 477,
+      "count": 476,
       "focus": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
     },
     {
@@ -383,7 +382,7 @@
       "topics": [
         "power"
       ],
-      "count": 269,
+      "count": 267,
       "focus": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가 나타나고 있음. 데이터센터의 막대한 전력 소비와 지역사회 부담에 대한 우려가 커지면서 미국 하원과 텍사스,..."
     },
     {
@@ -392,7 +391,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 106,
+      "count": 105,
       "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
@@ -401,7 +400,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 115,
+      "count": 116,
       "focus": "SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
     },
     {
@@ -428,7 +427,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 403,
+      "count": 404,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -437,8 +436,8 @@
       "topics": [
         "healthcare"
       ],
-      "count": 75,
-      "focus": "No retained full-text sample; 75 observed posts in the 14-day research window."
+      "count": 76,
+      "focus": "11월 6일 미국 증시 프리마켓 주요 상승·하락 종목 상승 종목 • 제이프로그 +23.00% • 아이렌 +19.29% • 클라우드플레어 +18.84% • 에어비앤비 +13.40% • 사이퍼 디지털 +12.09% • 블룸에너지 +12.07% • 샌디스크 +11.84% • 트랜스메딕스 +11.65% • 크레도..."
     },
     {
       "id": "japan",
@@ -446,7 +445,7 @@
       "topics": [
         "japan"
       ],
-      "count": 79,
+      "count": 77,
       "focus": "앤트로픽, 대규모 미국 IPO 위해 일본에서 최대 35억 달러 조달 추진 1. 앤트로픽, 일본 투자자로부터 최대 35억 달러 조달 추진 - AI 스타트업 앤트로픽(Anthropic PBC)이 미국 증시..."
     },
     {
@@ -964,14 +963,17 @@
       "datetime": "2026-11-04T06:08:50.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "민주당 블루웨이브와 AI 투자 1. 민주당이 연방 상원(52~54석)과 하원(약 250석), 그리고 텍사스 주지사까지 승리했지만, 미국 AI 투자가 정체될 가능성은 낮음 2. 미국의 AI 주도권 유지에는...",
       "tickers": [
         "BE"
-      ]
+      ],
+      "summary": "민주당 블루웨이브와 AI 투자 1. 민주당이 연방 상원(52~54석)과 하원(약 250석), 그리고 텍사스 주지사까지 승리했지만, 미국 AI 투자가 정체될 가능성은 낮음 2. 미국의 AI 주도권 유지에는..."
     },
     {
       "id": "insidertracking/68305",
@@ -1713,8 +1715,11 @@
       "localDateKst": "2026-11-05",
       "tags": [
         "power",
-        "earnings"
+        "credit",
+        "macro",
+        "semi"
       ],
+      "lead": 1,
       "score": 97,
       "hasText": true,
       "media": {
@@ -1723,8 +1728,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이...",
-      "tickers": []
+      "tickers": [],
+      "summary": "시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이..."
     },
     {
       "id": "aetherjapanresearch/26057",
@@ -1762,6 +1767,44 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "bornlupin/21031",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21031",
+      "datetime": "2026-11-06T12:14:38.000Z",
+      "localDateKst": "2026-11-06",
+      "tags": [
+        "earnings"
+      ],
+      "lead": 1,
+      "score": 73,
+      "hasText": true,
+      "tickers": [],
+      "summary": "모더나(MRNA) 2026년 3분기 실적 (장전 +10%) 매출: 13억 달러 (예상 8억 8,500만 달러 상회), 전년 대비 +29% EPS: 0.38달러 (예상 -1.25달러 상회) 순이익: 1억..."
+    },
+    {
+      "id": "insidertracking/68545",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68545",
+      "datetime": "2026-11-06T11:55:41.000Z",
+      "localDateKst": "2026-11-06",
+      "tags": [
+        "earnings"
+      ],
+      "lead": 1,
+      "score": 69,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "MRNA"
+      ],
+      "summary": "Moderna 2026년 3분기 실적 요약 실적 • 매출 $13.13억, YoY +29%, 예상 $8.902억 대비 47.5% 상회 • GAAP EPS $0.38, 전년 -$0.51에서 흑자 전환 • 순이익..."
+    },
     {
       "id": "HANAchina/71665",
       "channel": "HANAchina",
@@ -2118,15 +2161,13 @@
       "datetime": "2026-11-06T03:42:37.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "power",
-        "credit",
-        "earnings"
+        "power"
       ],
-      "lead": 1,
       "score": 75,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>미국 데이터센터 건설 리스크 상세 분석 : 인허가·인력·보험·전력 변동 (바클레이즈) •바클레이즈 William Thompson 연구팀은 2일간 데이터센터 산업 서밋에 참석한 뒤, AI 인프라 확장의..."
+      "summary": ">>미국 데이터센터 건설 리스크 상세 분석 : 인허가·인력·보험·전력 변동 (바클레이즈) •바클레이즈 William Thompson 연구팀은 2일간 데이터센터 산업 서밋에 참석한 뒤, AI 인프라 확장의...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68508",
@@ -2135,14 +2176,13 @@
       "datetime": "2026-11-06T03:08:48.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "credit",
-        "geo",
         "earnings"
       ],
       "score": 77,
       "hasText": true,
-      "tickers": [],
-      "summary": "에어비앤비(ABNB) Q3 2026 어닝콜 요약 긍정 요인: • 강력한 매출 및 예약 성장. 3분기 매출은 49억달러로 전년 대비 19% 증가. 총예약액(GBV)은 277억달러로 21%, 예약 숙박일수 및..."
+      "summary": "에어비앤비(ABNB) Q3 2026 어닝콜 요약 긍정 요인: • 강력한 매출 및 예약 성장. 3분기 매출은 49억달러로 전년 대비 19% 증가. 총예약액(GBV)은 277억달러로 21%, 예약 숙박일수 및...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71647",
@@ -2153,11 +2193,11 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "•중국 반도체 과창50지수 플러스 전환 •개장 -5% 낙폭 극복 •홍콩 증시 약보합 전환, 3대지수 낙폭 축소"
+      "summary": "•중국 반도체 과창50지수 플러스 전환 •개장 -5% 낙폭 극복 •홍콩 증시 약보합 전환, 3대지수 낙폭 축소",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68502",
@@ -2166,18 +2206,16 @@
       "datetime": "2026-11-06T02:48:27.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "credit",
-        "semi",
-        "earnings",
-        "healthcare"
+        "earnings"
       ],
       "score": 87,
       "hasText": true,
+      "summary": "아이온큐(IONQ) Q3 2026 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 가이던스 상향. 3분기 GAAP 매출은 1억7,380만달러로 전년 대비 336% 급증하며 사상 최대 기록. IQ 사업...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "IONQ"
-      ],
-      "summary": "아이온큐(IONQ) Q3 2026 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 가이던스 상향. 3분기 GAAP 매출은 1억7,380만달러로 전년 대비 336% 급증하며 사상 최대 기록. IQ 사업..."
+      ]
     },
     {
       "id": "HANAchina/71643",
@@ -2188,7 +2226,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 57,
       "hasText": true,
       "media": {
@@ -2197,8 +2234,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>BofA 로드쇼 : 홍콩 및 일부 상하이 투자자들, 메모리주에 대해 뚜렷한 약세 전환 •BofA 로드쇼에서 홍콩 투자자들의 메모리주에 대한 투자 심리가 뚜렷하게 약세로 전환된 것으로 나타났으며, 일부..."
+      "summary": ">>BofA 로드쇼 : 홍콩 및 일부 상하이 투자자들, 메모리주에 대해 뚜렷한 약세 전환 •BofA 로드쇼에서 홍콩 투자자들의 메모리주에 대한 투자 심리가 뚜렷하게 약세로 전환된 것으로 나타났으며, 일부...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68501",
@@ -2209,14 +2247,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 60,
       "hasText": true,
+      "summary": "11월 5일 시장 소식으로 25세 월가 신예 AI 투자자로 알려진 레오폴드 아셴브레너가 운용하는 AI 펀드 시추에이셔널 어웨어니스가 공식적으로 대규모 손실을 입었으며, 마이크론·코어...",
       "tickers": [
         "MU",
         "BE"
-      ],
-      "summary": "11월 5일 시장 소식으로 25세 월가 신예 AI 투자자로 알려진 레오폴드 아셴브레너가 운용하는 AI 펀드 시추에이셔널 어웨어니스가 공식적으로 대규모 손실을 입었으며, 마이크론·코어..."
+      ]
     },
     {
       "id": "HANAchina/71637",
@@ -2230,11 +2267,12 @@
       ],
       "score": 68,
       "hasText": true,
+      "summary": ">>젠슨 황, ‘세계 10대 부호’에서 탈락 •민주당이 의회 선거에서 압승하면서 AI 데이터센터 건설이 차질을 빚을 수 있다는 우려가 커졌고, 기술주와 반도체주가 일제히 매도세. Nvidia 주가는 하루 만에...",
+      "lead": 2,
       "tickers": [
         "NVDA",
         "ORCL"
-      ],
-      "summary": ">>젠슨 황, ‘세계 10대 부호’에서 탈락 •민주당이 의회 선거에서 압승하면서 AI 데이터센터 건설이 차질을 빚을 수 있다는 우려가 커졌고, 기술주와 반도체주가 일제히 매도세. Nvidia 주가는 하루 만에..."
+      ]
     },
     {
       "id": "HANAchina/71632",
@@ -2245,11 +2283,11 @@
       "tags": [
         "macro"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "•중국 주요 국채금리 급락 •10년 국채 수익률 1.58%로 사상 최저"
+      "summary": "•중국 주요 국채금리 급락 •10년 국채 수익률 1.58%로 사상 최저",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68499",
@@ -3256,16 +3294,18 @@
       "localDateKst": "2026-11-05",
       "tags": [
         "semi",
+        "ai-policy",
+        "earnings",
         "flows"
       ],
+      "lead": 1,
       "score": 75,
       "hasText": true,
-      "summary": "[메리츠증권 반도체/디스플레이 김선우] 메리츠 김선우입니다. 메모리 산업에 급작스레 찾아온 미 정치 지형도 변화 발 AI 수요 둔화 우려에도 불구하고 끄떡없는 2027년 수급 전망을 예상합니다. 지난 20년간...",
-      "lead": 1,
       "tickers": [
         "005930.KS",
         "000660.KS"
-      ]
+      ],
+      "summary": "[메리츠증권 반도체/디스플레이 김선우] 메리츠 김선우입니다. 메모리 산업에 급작스레 찾아온 미 정치 지형도 변화 발 AI 수요 둔화 우려에도 불구하고 끄떡없는 2027년 수급 전망을 예상합니다. 지난 20년간..."
     },
     {
       "id": "insidertracking/68414",
@@ -3309,14 +3349,16 @@
       "datetime": "2026-11-05T02:29:51.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "market-note"
+        "macro",
+        "semi",
+        "power"
       ],
       "score": 76,
       "hasText": true,
-      "summary": "미국 중간선거로 텍사스 정치 지형 변화, 대만 기업들 \"투자 계획 불변\" - 폭스콘, 페가트론, 컴팔, 위스트론, 위윈 등 주요 AI 서버 제조업체들은 정치적 변화와 관계없이 기존 공장 건설 및 증설 계획을...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "미국 중간선거로 텍사스 정치 지형 변화, 대만 기업들 \"투자 계획 불변\" - 폭스콘, 페가트론, 컴팔, 위스트론, 위윈 등 주요 AI 서버 제조업체들은 정치적 변화와 관계없이 기존 공장 건설 및 증설 계획을..."
     },
     {
       "id": "HANAchina/71575",
@@ -3347,7 +3389,9 @@
       "datetime": "2026-11-05T02:13:16.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "market-note"
+        "geo",
+        "power",
+        "japan"
       ],
       "score": 73,
       "hasText": true,
@@ -3357,8 +3401,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "JPM sales에서 올린글.. 민주당 승리가 AI 산업에 규제 리스크로 작용하지 않을까? 아닐것으로 봄 첫째, 이번 민주당 승리는 AI에 대한 반발이 아니라 경제에 대한 불만이 만들어낸 결과 갤럽이 10월...",
-      "tickers": []
+      "tickers": [],
+      "summary": "JPM sales에서 올린글.. 민주당 승리가 AI 산업에 규제 리스크로 작용하지 않을까? 아닐것으로 봄 첫째, 이번 민주당 승리는 AI에 대한 반발이 아니라 경제에 대한 불만이 만들어낸 결과 갤럽이 10월..."
     },
     {
       "id": "HANAchina/71573",
@@ -3382,19 +3426,21 @@
       "localDateKst": "2026-11-05",
       "tags": [
         "semi",
-        "equity"
+        "power",
+        "equity",
+        "earnings"
       ],
+      "lead": 1,
       "score": 85,
       "hasText": true,
-      "summary": "ARM Q2 2027 어닝콜 중 메모리 관련 1. AGI CPU 공급망에서 메모리 확보의 중요성 Rene Haas CEO: • Arm AGI CPU 수요는 최초 발표 당시 예상보다 훨씬 강하며, Meta뿐...",
-      "lead": 1,
       "tickers": [
         "AMD",
         "MU",
         "TSM",
         "005930.KS",
         "000660.KS"
-      ]
+      ],
+      "summary": "ARM Q2 2027 어닝콜 중 메모리 관련 1. AGI CPU 공급망에서 메모리 확보의 중요성 Rene Haas CEO: • Arm AGI CPU 수요는 최초 발표 당시 예상보다 훨씬 강하며, Meta뿐..."
     },
     {
       "id": "bornlupin/21005",
@@ -3404,8 +3450,11 @@
       "localDateKst": "2026-11-05",
       "tags": [
         "power",
-        "earnings"
+        "credit",
+        "macro",
+        "semi"
       ],
+      "lead": 1,
       "score": 97,
       "hasText": true,
       "media": {
@@ -3414,8 +3463,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이...",
-      "tickers": []
+      "tickers": [],
+      "summary": "시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이..."
     },
     {
       "id": "insidertracking/68401",
@@ -3498,12 +3547,14 @@
       "datetime": "2026-11-04T22:09:00.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "earnings"
+        "earnings",
+        "semi"
       ],
+      "lead": 1,
       "score": 77,
       "hasText": true,
-      "summary": "ARM 2027 회계연도 2분기 실적 매출: 14억 4,000만 달러 (예상치 13억 8,000만 달러 상회), 전년 동기 대비 27% 증가 조정 주당순이익(EPS): 0.52달러 (예상치 0.47달러...",
-      "tickers": []
+      "tickers": [],
+      "summary": "ARM 2027 회계연도 2분기 실적 매출: 14억 4,000만 달러 (예상치 13억 8,000만 달러 상회), 전년 동기 대비 27% 증가 조정 주당순이익(EPS): 0.52달러 (예상치 0.47달러..."
     },
     {
       "id": "insidertracking/68391",
@@ -3791,15 +3842,16 @@
       "datetime": "2026-11-04T13:58:24.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "market-note"
+        "macro",
+        "power"
       ],
       "score": 73,
       "hasText": true,
-      "summary": "구글, 2027년과 2028년 말레이시아에 150억 달러 투자 예정 알파벳(Alphabet) 산하 구글은 2027년부터 2028년까지 말레이시아에 150억 달러(약 20조 원)를 투자하여 데이터 센터 캠퍼스...",
       "tickers": [
         "GOOG",
         "GOOGL"
-      ]
+      ],
+      "summary": "구글, 2027년과 2028년 말레이시아에 150억 달러 투자 예정 알파벳(Alphabet) 산하 구글은 2027년부터 2028년까지 말레이시아에 150억 달러(약 20조 원)를 투자하여 데이터 센터 캠퍼스..."
     },
     {
       "id": "HANAchina/71555",
@@ -3960,14 +4012,16 @@
       "tags": [
         "semi",
         "equity",
+        "power",
         "earnings"
       ],
+      "lead": 2,
       "score": 89,
       "hasText": true,
-      "summary": "스티펠(Stifel) , AMD, 투자의견 '매수(Buy)'를 유지, 목표주가를 700달러에서 725달러로 상향 \"AMD는 2026 회계연도 3분기에 시장 예상치를 상회하는 실적과 함께 가이던스를...",
       "tickers": [
         "AMD"
-      ]
+      ],
+      "summary": "스티펠(Stifel) , AMD, 투자의견 '매수(Buy)'를 유지, 목표주가를 700달러에서 725달러로 상향 \"AMD는 2026 회계연도 3분기에 시장 예상치를 상회하는 실적과 함께 가이던스를..."
     },
     {
       "id": "insidertracking/68343",
@@ -4034,12 +4088,13 @@
       "tags": [
         "power"
       ],
+      "lead": 1,
       "score": 57,
       "hasText": true,
-      "summary": "Mizuho: 민주당의 상, 하원 승리로 데이터센터 규제 강화 가능성, 블룸에너지( $BE )에 유리 11월 3일 미국 중간선거에서 민주당이 상원과 하원을 모두 장악할 것으로 전망되는 가운데 , 주정부 차원의...",
       "tickers": [
         "BE"
-      ]
+      ],
+      "summary": "Mizuho: 민주당의 상, 하원 승리로 데이터센터 규제 강화 가능성, 블룸에너지( $BE )에 유리 11월 3일 미국 중간선거에서 민주당이 상원과 하원을 모두 장악할 것으로 전망되는 가운데 , 주정부 차원의..."
     },
     {
       "id": "insidertracking/68337",
@@ -4327,14 +4382,17 @@
       "datetime": "2026-11-04T06:08:50.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "민주당 블루웨이브와 AI 투자 1. 민주당이 연방 상원(52~54석)과 하원(약 250석), 그리고 텍사스 주지사까지 승리했지만, 미국 AI 투자가 정체될 가능성은 낮음 2. 미국의 AI 주도권 유지에는...",
       "tickers": [
         "BE"
-      ]
+      ],
+      "summary": "민주당 블루웨이브와 AI 투자 1. 민주당이 연방 상원(52~54석)과 하원(약 250석), 그리고 텍사스 주지사까지 승리했지만, 미국 AI 투자가 정체될 가능성은 낮음 2. 미국의 AI 주도권 유지에는..."
     },
     {
       "id": "insidertracking/68305",
@@ -4658,6 +4716,7 @@
       "datetime": "2026-11-04T00:03:25.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
+        "semi",
         "earnings"
       ],
       "score": 57,
@@ -4668,8 +4727,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "[한투증권 최건] 고영 3Q26 Review: 놀라셨겠지만, 이제 시작입니다. 영업이익 컨센서스 15% 상회. 2개분기 연속 최대 실적 - 3분기 매출액 1,066억원(+76.8% YoY, +20.1%...",
-      "tickers": []
+      "tickers": [],
+      "summary": "[한투증권 최건] 고영 3Q26 Review: 놀라셨겠지만, 이제 시작입니다. 영업이익 컨센서스 15% 상회. 2개분기 연속 최대 실적 - 3분기 매출액 1,066억원(+76.8% YoY, +20.1%..."
     },
     {
       "id": "bornlupin/20991",
@@ -6650,28 +6709,6 @@
       ]
     },
     {
-      "id": "insidertracking/68096",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68096",
-      "datetime": "2026-11-02T21:11:44.000Z",
-      "localDateKst": "2026-11-03",
-      "tags": [
-        "earnings"
-      ],
-      "score": 79,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "Palantir 2026년 3분기 실적 요약 실적 • 매출 $23.1억, YoY +96%, 예상 $21.8억 상회 • 조정 EPS $0.44, 예상 $0.41 상회 • 조정 영업이익 $14.3억, 예상...",
-      "tickers": [
-        "PLTR"
-      ]
-    },
-    {
       "id": "bornlupin/20956",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20956",
@@ -8579,23 +8616,6 @@
       ]
     },
     {
-      "id": "bornlupin/20829",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20829",
-      "datetime": "2026-10-26T23:00:48.000Z",
-      "localDateKst": "2026-10-27",
-      "tags": [
-        "optical"
-      ],
-      "score": 77,
-      "hasText": true,
-      "summary": "StoneX, 루멘텀( $LITE ), 매수 의견으로 커버리지 개시 , 목표주가 $1,200 NPO 수요 가속화 * 루멘텀의 NPO 사업 모멘텀이 강화되면서 2028 회계연도 투자 전망이 앞당겨지고 있음. *...",
-      "lead": 1,
-      "tickers": [
-        "LITE"
-      ]
-    },
-    {
       "id": "aetherjapanresearch/26057",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/26057",
@@ -9855,16 +9875,18 @@
       "localDateKst": "2026-11-05",
       "tags": [
         "semi",
+        "ai-policy",
+        "earnings",
         "flows"
       ],
+      "lead": 1,
       "score": 75,
       "hasText": true,
-      "summary": "[메리츠증권 반도체/디스플레이 김선우] 메리츠 김선우입니다. 메모리 산업에 급작스레 찾아온 미 정치 지형도 변화 발 AI 수요 둔화 우려에도 불구하고 끄떡없는 2027년 수급 전망을 예상합니다. 지난 20년간...",
-      "lead": 1,
       "tickers": [
         "005930.KS",
         "000660.KS"
-      ]
+      ],
+      "summary": "[메리츠증권 반도체/디스플레이 김선우] 메리츠 김선우입니다. 메모리 산업에 급작스레 찾아온 미 정치 지형도 변화 발 AI 수요 둔화 우려에도 불구하고 끄떡없는 2027년 수급 전망을 예상합니다. 지난 20년간..."
     },
     {
       "id": "insidertracking/68414",
@@ -9908,14 +9930,16 @@
       "datetime": "2026-11-05T02:29:51.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "market-note"
+        "macro",
+        "semi",
+        "power"
       ],
       "score": 76,
       "hasText": true,
-      "summary": "미국 중간선거로 텍사스 정치 지형 변화, 대만 기업들 \"투자 계획 불변\" - 폭스콘, 페가트론, 컴팔, 위스트론, 위윈 등 주요 AI 서버 제조업체들은 정치적 변화와 관계없이 기존 공장 건설 및 증설 계획을...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "미국 중간선거로 텍사스 정치 지형 변화, 대만 기업들 \"투자 계획 불변\" - 폭스콘, 페가트론, 컴팔, 위스트론, 위윈 등 주요 AI 서버 제조업체들은 정치적 변화와 관계없이 기존 공장 건설 및 증설 계획을..."
     },
     {
       "id": "HANAchina/71575",
@@ -9946,7 +9970,9 @@
       "datetime": "2026-11-05T02:13:16.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "market-note"
+        "geo",
+        "power",
+        "japan"
       ],
       "score": 73,
       "hasText": true,
@@ -9956,8 +9982,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "JPM sales에서 올린글.. 민주당 승리가 AI 산업에 규제 리스크로 작용하지 않을까? 아닐것으로 봄 첫째, 이번 민주당 승리는 AI에 대한 반발이 아니라 경제에 대한 불만이 만들어낸 결과 갤럽이 10월...",
-      "tickers": []
+      "tickers": [],
+      "summary": "JPM sales에서 올린글.. 민주당 승리가 AI 산업에 규제 리스크로 작용하지 않을까? 아닐것으로 봄 첫째, 이번 민주당 승리는 AI에 대한 반발이 아니라 경제에 대한 불만이 만들어낸 결과 갤럽이 10월..."
     },
     {
       "id": "HANAchina/71573",
@@ -9981,19 +10007,21 @@
       "localDateKst": "2026-11-05",
       "tags": [
         "semi",
-        "equity"
+        "power",
+        "equity",
+        "earnings"
       ],
+      "lead": 1,
       "score": 85,
       "hasText": true,
-      "summary": "ARM Q2 2027 어닝콜 중 메모리 관련 1. AGI CPU 공급망에서 메모리 확보의 중요성 Rene Haas CEO: • Arm AGI CPU 수요는 최초 발표 당시 예상보다 훨씬 강하며, Meta뿐...",
-      "lead": 1,
       "tickers": [
         "AMD",
         "MU",
         "TSM",
         "005930.KS",
         "000660.KS"
-      ]
+      ],
+      "summary": "ARM Q2 2027 어닝콜 중 메모리 관련 1. AGI CPU 공급망에서 메모리 확보의 중요성 Rene Haas CEO: • Arm AGI CPU 수요는 최초 발표 당시 예상보다 훨씬 강하며, Meta뿐..."
     },
     {
       "id": "bornlupin/21005",
@@ -10003,8 +10031,11 @@
       "localDateKst": "2026-11-05",
       "tags": [
         "power",
-        "earnings"
+        "credit",
+        "macro",
+        "semi"
       ],
+      "lead": 1,
       "score": 97,
       "hasText": true,
       "media": {
@@ -10013,8 +10044,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이...",
-      "tickers": []
+      "tickers": [],
+      "summary": "시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이..."
     },
     {
       "id": "insidertracking/68401",
@@ -10080,7 +10111,7 @@
   "signalsNote": "Numbers the channels reported (analyst target-price and rating actions, quarters against estimates, economic releases against forecasts, retail net-buy lists). Secondary observations for context and screener conditions; never a measurement of this app.",
   "signalCounts": {
     "pt": 40,
-    "earnings": 53,
+    "earnings": 54,
     "macro": 2,
     "retail": 6,
     "deal": 2
@@ -10645,6 +10676,18 @@
       "ratingAction": null,
       "date": "2026-10-23",
       "post": "HANAchina/70911"
+    },
+    {
+      "kind": "earnings",
+      "key": "earnings|MRNA|2026-11-06",
+      "ticker": "MRNA",
+      "name": "모더나",
+      "quarter": "2026Q3",
+      "revenue": "beat",
+      "eps": "beat",
+      "guidance": null,
+      "date": "2026-11-06",
+      "post": "bornlupin/21031"
     },
     {
       "kind": "earnings",
