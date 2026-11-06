@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-06T06:21:46.763Z",
-  "attemptedAt": "2026-11-06T06:21:46.763Z",
-  "lastSuccessfulAt": "2026-11-06T06:21:46.763Z",
+  "generatedAt": "2026-11-06T06:51:31.031Z",
+  "attemptedAt": "2026-11-06T06:51:31.031Z",
+  "lastSuccessfulAt": "2026-11-06T06:51:31.031Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-23T06:21:41.011Z",
-  "until": "2026-11-06T06:21:41.011Z",
+  "since": "2026-10-23T06:51:23.874Z",
+  "until": "2026-11-06T06:51:23.874Z",
   "current24hWindow": {
     "start": "2026-11-04T23:00:00.000Z",
     "end": "2026-11-05T23:00:00.000Z",
@@ -80,10 +80,10 @@
       "pages": 0,
       "reachedOlder": false,
       "reachedKnown": false,
-      "count": 58,
+      "count": 57,
       "freshCount": 0,
-      "eligibleTextCount": 54,
-      "selectedCount": 28,
+      "eligibleTextCount": 53,
+      "selectedCount": 27,
       "error": "first page parsed no posts",
       "lastPostId": 26057
     },
@@ -92,12 +92,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1342,
+      "count": 1343,
       "freshCount": 40,
-      "eligibleTextCount": 1280,
+      "eligibleTextCount": 1281,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 68516
+      "lastPostId": 68519
     },
     {
       "channel": "bornlupin",
@@ -109,62 +109,64 @@
       "eligibleTextCount": 233,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 21027
+      "lastPostId": 21028
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 675,
-      "freshCount": 17,
-      "eligibleTextCount": 674,
+      "count": 676,
+      "freshCount": 36,
+      "eligibleTextCount": 675,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 71650
+      "lastPostId": 71651
     }
   ],
-  "count": 2308,
-  "retainedItemCount": 448,
+  "count": 2309,
+  "retainedItemCount": 460,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2308,
-    "eligibleTextCount": 2241,
+    "observedCount": 2309,
+    "eligibleTextCount": 2242,
     "mediaOnlyCount": 67,
-    "mediaAttachedCount": 417,
-    "photoPostCount": 361,
+    "mediaAttachedCount": 419,
+    "photoPostCount": 363,
     "documentPostCount": 2,
     "imageOnlyCount": 2,
     "highSignalCount": 395,
     "broadSignalCount": 853,
-    "selectedRawCount": 394,
-    "selectedEligibleCount": 394,
-    "selectedRawCoveragePct": 17.6,
-    "selectedOfObservedPct": 17.1,
+    "selectedRawCount": 393,
+    "selectedEligibleCount": 393,
+    "selectedRawCoveragePct": 17.5,
+    "selectedOfObservedPct": 17,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "earnings": 413,
+    "market-note": 844,
+    "power": 265,
+    "macro": 350,
+    "semi": 476,
+    "kr-market": 117,
+    "earnings": 411,
     "equity": 118,
     "ai-policy": 106,
-    "power": 264,
-    "market-note": 843,
     "geo": 441,
-    "macro": 350,
-    "semi": 475,
     "credit": 100,
     "optical": 40,
     "japan": 77,
     "media-only": 66,
     "healthcare": 74,
-    "kr-market": 116,
-    "flows": 68,
+    "flows": 67,
     "crypto": 4
   },
   "tickerCounts": {
+    "AMZN": 79,
+    "TSLA": 30,
     "NVDA": 112,
     "IONQ": 2,
     "MU": 35,
@@ -172,13 +174,11 @@
     "ORCL": 12,
     "TSM": 36,
     "GOOG": 116,
-    "TSLA": 29,
     "AMD": 47,
     "CRWV": 4,
     "AAPL": 22,
     "GS": 3,
     "DB": 2,
-    "AMZN": 78,
     "MSFT": 57,
     "005930.KS": 48,
     "000660.KS": 71,
@@ -206,7 +206,7 @@
     "NVS": 1,
     "RACE": 1,
     "SNDK": 9,
-    "WDC": 5,
+    "WDC": 4,
     "STX": 7,
     "PFE": 1,
     "AVGO": 20,
@@ -259,14 +259,14 @@
     "RKLB": 1
   },
   "themes": [
-    "Market Notes (843 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 아메리라이프와 보험 유통 전반의 AI 전환을 위한 엔터프라이즈 파트너십 체결. Foundry와 AIP는...",
-    "Semiconductors/Memory (475 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
+    "Market Notes (844 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 아메리라이프와 보험 유통 전반의 AI 전환을 위한 엔터프라이즈 파트너십 체결. Foundry와 AIP는...",
+    "Semiconductors/Memory (476 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
     "Geopolitics (441 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
-    "Earnings/Corporate (413 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
+    "Earnings/Corporate (411 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
     "Macro/Rates (350 posts in 14-day research window): 텍사스 주지사 당선인 지나 히노호사는 버니 샌더스가 아니다. 데이터센터 건설을 지지한다. - Tae Kim 시장은 텍사스 주지사 선거 결과가 AI 데이터센터 산업에 미칠 영향을 과도하게 부정적으로 해석하고 있다. 히노호사는 데이터센터 건설 자체를 반대하는 것이 아니라 지역 주민과 노동자에게 실질적인 혜택이...",
-    "AI Power/Grid (264 posts in 14-day research window): 시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준....",
+    "AI Power/Grid (265 posts in 14-day research window): 시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준....",
     "Equity/Analyst (118 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p....",
-    "Korea Market (116 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
+    "Korea Market (117 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
   ],
   "catalysts": [
     {
@@ -281,7 +281,7 @@
     },
     {
       "key": "AMZN",
-      "count": 78,
+      "count": 79,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Falcon Guardian에 AI 에이전트의 실행을 중단하고 재시작 및 기업 네트워크 접근을..."
     },
     {
@@ -316,7 +316,7 @@
     },
     {
       "key": "TSLA",
-      "count": 29,
+      "count": 30,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로..."
     },
     {
@@ -364,7 +364,7 @@
       "topics": [
         "semi"
       ],
-      "count": 475,
+      "count": 476,
       "focus": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
     },
     {
@@ -382,7 +382,7 @@
       "topics": [
         "power"
       ],
-      "count": 264,
+      "count": 265,
       "focus": "시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준...."
     },
     {
@@ -400,7 +400,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 116,
+      "count": 117,
       "focus": "SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
     },
     {
@@ -427,7 +427,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 413,
+      "count": 411,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -454,8 +454,8 @@
       "topics": [
         "flows"
       ],
-      "count": 68,
-      "focus": "No retained full-text sample; 68 observed posts in the 14-day research window."
+      "count": 67,
+      "focus": "No retained full-text sample; 67 observed posts in the 14-day research window."
     },
     {
       "id": "insider",
@@ -472,7 +472,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 843,
+      "count": 844,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 아메리라이프와 보험 유통 전반의 AI 전환을 위한 엔터프라이즈 파트너십 체결. Foundry와 AIP는..."
     }
   ],
@@ -1766,6 +1766,23 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71651",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71651",
+      "datetime": "2026-11-06T06:26:22.000Z",
+      "localDateKst": "2026-11-06",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "kr-market"
+      ],
+      "score": 93,
+      "hasText": true,
+      "tickers": [],
+      "summary": "하나증권 중국/신흥국전략 김경환(T.02-3771-7616) *텔레그램 채널 : [김경환의 China Weekly] 민주당 압승과 홍콩 증시 상승, 우연일까? 자료: • 트럼프의 참패와 블루 웨이브, 중화권..."
+    },
+    {
       "id": "bornlupin/21027",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21027",
@@ -2119,11 +2136,11 @@
         "kr-market",
         "flows"
       ],
+      "lead": 3,
       "score": 55,
       "hasText": true,
-      "summary": "• 대만 증시 약세와 외국인 순매도 속에 신대만달러 환율이 장중 달러당 33선에 근접하자, 대만 중앙은행 외환국은 수출기업들에게 추가적인 고점 환율을 기다리기보다 달러 가격이 유리한 지금 시점에 맞춰 달러를...",
-      "lead": 3,
-      "tickers": []
+      "tickers": [],
+      "summary": "• 대만 증시 약세와 외국인 순매도 속에 신대만달러 환율이 장중 달러당 33선에 근접하자, 대만 중앙은행 외환국은 수출기업들에게 추가적인 고점 환율을 기다리기보다 달러 가격이 유리한 지금 시점에 맞춰 달러를..."
     },
     {
       "id": "insidertracking/68490",
@@ -2149,11 +2166,11 @@
       "tags": [
         "macro"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": "•대만 10월 CPI는 전년 동기 대비 2.33% 상승하여 9월보다는 하락했지만, 6개월 연속 2%를 웃도는 상승세를 기록 •운송 및 통신 부문이 4.36%로 가장 큰 폭의 증가세를 보였으며, 연료비와...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "•대만 10월 CPI는 전년 동기 대비 2.33% 상승하여 9월보다는 하락했지만, 6개월 연속 2%를 웃도는 상승세를 기록 •운송 및 통신 부문이 4.36%로 가장 큰 폭의 증가세를 보였으며, 연료비와..."
     },
     {
       "id": "HANAchina/71620",
@@ -2164,11 +2181,11 @@
       "tags": [
         "ai-policy"
       ],
+      "lead": 1,
       "score": 50,
       "hasText": true,
-      "summary": ">>OpenAI, GPT-6 Cyber 출시…사이버보안 AI 능력 대폭 향상 •GPT-6 Cyber의 취약점 공격 벤치마크 점수가 전작 대비 51% 향상, 연구진이 Firefox에서 81개의 고위험 취약점을...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>OpenAI, GPT-6 Cyber 출시…사이버보안 AI 능력 대폭 향상 •GPT-6 Cyber의 취약점 공격 벤치마크 점수가 전작 대비 51% 향상, 연구진이 Firefox에서 81개의 고위험 취약점을..."
     },
     {
       "id": "HANAchina/71618",
@@ -2177,12 +2194,15 @@
       "datetime": "2026-11-05T22:18:51.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "market-note"
+        "credit",
+        "macro",
+        "geo",
+        "power"
       ],
       "score": 92,
       "hasText": true,
-      "summary": ">>미국 중간선거 ‘블루 웨이브’ 이후 월가의 6가지 투자 방향 전환 (대만경제일보) •미국 중간선거에서 민주당이 의회 양원을 장악하면서 월가는 향후 정책 변화에 대응해 투자 방향을 조정하고 있음. 트럼프...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>미국 중간선거 ‘블루 웨이브’ 이후 월가의 6가지 투자 방향 전환 (대만경제일보) •미국 중간선거에서 민주당이 의회 양원을 장악하면서 월가는 향후 정책 변화에 대응해 투자 방향을 조정하고 있음. 트럼프..."
     },
     {
       "id": "HANAchina/71614",
@@ -2201,11 +2221,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "•항셍지수 선물 -1.58% 마감 •FTSE China A50 야간 선물 -1.85% •TSMC adr -10.8%",
-      "lead": 1,
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "•항셍지수 선물 -1.58% 마감 •FTSE China A50 야간 선물 -1.85% •TSMC adr -10.8%"
     },
     {
       "id": "HANAchina/71613",
@@ -2216,13 +2235,13 @@
       "tags": [
         "power"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": ">>Google, 미국 와이오밍주에 170억달러 투자해 첫 데이터센터 건설…전력 비용 전액 자체 부담 •Google이 미국 와이오밍주에 170억달러를 투자해 첫 데이터센터를 건설한다고 발표. 전력 비용은...",
-      "lead": 1,
       "tickers": [
         "GOOG"
-      ]
+      ],
+      "summary": ">>Google, 미국 와이오밍주에 170억달러 투자해 첫 데이터센터 건설…전력 비용 전액 자체 부담 •Google이 미국 와이오밍주에 170억달러를 투자해 첫 데이터센터를 건설한다고 발표. 전력 비용은..."
     },
     {
       "id": "insidertracking/68481",
@@ -2254,7 +2273,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 55,
       "hasText": true,
       "media": {
@@ -2263,11 +2281,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "미국 레딧 관심도 마이크론, 엔비디아, 나스닥",
       "tickers": [
         "NVDA",
         "MU"
-      ],
-      "summary": "미국 레딧 관심도 마이크론, 엔비디아, 나스닥"
+      ]
     },
     {
       "id": "insidertracking/68474",
@@ -2435,13 +2453,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 56,
       "hasText": true,
-      "summary": ">>Nvidia, AI 메모리 풀스택 협업 설계 공개…HBM 용량 3% 증가로 Agent 처리량/달러 최대 30배 향상 •Nvidia는 대규모 모델과 Agent 확산으로 메모리 부담이 커지고 있어 단순한...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>Nvidia, AI 메모리 풀스택 협업 설계 공개…HBM 용량 3% 증가로 Agent 처리량/달러 최대 30배 향상 •Nvidia는 대규모 모델과 Agent 확산으로 메모리 부담이 커지고 있어 단순한..."
     },
     {
       "id": "HANAchina/71608",
@@ -4567,18 +4585,15 @@
       "datetime": "2026-11-03T23:28:58.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "semi",
-        "macro",
-        "power",
-        "earnings"
+        "semi"
       ],
-      "lead": 1,
       "score": 81,
       "hasText": true,
+      "summary": "AMD Q3 2026 어닝콜 중 메모리 관련 리사 수 CEO · 진 후 CFO 1. HBM 가격 상승과 고객 비용 분담 Q. HBM 가격 상승이 Instinct GPU 사업에 미치는 영향은? GPU 가격에...",
+      "lead": 1,
       "tickers": [
         "AMD"
-      ],
-      "summary": "AMD Q3 2026 어닝콜 중 메모리 관련 리사 수 CEO · 진 후 CFO 1. HBM 가격 상승과 고객 비용 분담 Q. HBM 가격 상승이 Instinct GPU 사업에 미치는 영향은? GPU 가격에..."
+      ]
     },
     {
       "id": "bornlupin/20987",
@@ -7760,25 +7775,6 @@
       ]
     },
     {
-      "id": "HANAchina/71301",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71301",
-      "datetime": "2026-10-31T11:54:53.000Z",
-      "localDateKst": "2026-10-31",
-      "tags": [
-        "semi",
-        "optical"
-      ],
-      "score": 63,
-      "hasText": true,
-      "summary": ">>Marvell의 Lumentum 인수: ‘칩+광학’의 첫 심층적 수직계열화…광통신 시장의 ‘심판이자 선수’와 승자독식 •Marvell의 Lumentum 인수는 DSP부터 레이저, 광모듈까지 이어지는 산업...",
-      "lead": 2,
-      "tickers": [
-        "MRVL",
-        "LITE"
-      ]
-    },
-    {
       "id": "bornlupin/20906",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20906",
@@ -9067,22 +9063,6 @@
       "hasText": true,
       "summary": "제목 : 오픈AI, 기업가치 $1.25조에 최대 $300억 자금조달 임박 *연합인포맥스* CNBC는 “오픈AI가 기업가치 1조2천500억 달러를 기준으로 최대 300억 달러 규모의 신규 자금조달을 추진하고...",
       "tickers": []
-    },
-    {
-      "id": "aetherjapanresearch/25998",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25998",
-      "datetime": "2026-10-23T06:24:03.000Z",
-      "localDateKst": "2026-10-23",
-      "tags": [
-        "earnings"
-      ],
-      "score": 69,
-      "hasText": true,
-      "summary": "JP모건) 웨스턴 디지털, F1Q27 리뷰: 가격 모멘텀과 EB 회복이 긍정적 이익 추정치 상향을 뒷받침, 설비투자 우려는 과도 웨스턴 디지털(WDC)은 F1Q27(9월 말 종료)에 매출 43억 8,000만...",
-      "tickers": [
-        "WDC"
-      ]
     }
   ],
   "current24hItems": [
@@ -9095,11 +9075,11 @@
       "tags": [
         "ai-policy"
       ],
+      "lead": 1,
       "score": 50,
       "hasText": true,
-      "summary": ">>OpenAI, GPT-6 Cyber 출시…사이버보안 AI 능력 대폭 향상 •GPT-6 Cyber의 취약점 공격 벤치마크 점수가 전작 대비 51% 향상, 연구진이 Firefox에서 81개의 고위험 취약점을...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>OpenAI, GPT-6 Cyber 출시…사이버보안 AI 능력 대폭 향상 •GPT-6 Cyber의 취약점 공격 벤치마크 점수가 전작 대비 51% 향상, 연구진이 Firefox에서 81개의 고위험 취약점을..."
     },
     {
       "id": "HANAchina/71618",
@@ -9108,12 +9088,15 @@
       "datetime": "2026-11-05T22:18:51.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "market-note"
+        "credit",
+        "macro",
+        "geo",
+        "power"
       ],
       "score": 92,
       "hasText": true,
-      "summary": ">>미국 중간선거 ‘블루 웨이브’ 이후 월가의 6가지 투자 방향 전환 (대만경제일보) •미국 중간선거에서 민주당이 의회 양원을 장악하면서 월가는 향후 정책 변화에 대응해 투자 방향을 조정하고 있음. 트럼프...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>미국 중간선거 ‘블루 웨이브’ 이후 월가의 6가지 투자 방향 전환 (대만경제일보) •미국 중간선거에서 민주당이 의회 양원을 장악하면서 월가는 향후 정책 변화에 대응해 투자 방향을 조정하고 있음. 트럼프..."
     },
     {
       "id": "HANAchina/71614",
@@ -9132,11 +9115,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "•항셍지수 선물 -1.58% 마감 •FTSE China A50 야간 선물 -1.85% •TSMC adr -10.8%",
-      "lead": 1,
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "•항셍지수 선물 -1.58% 마감 •FTSE China A50 야간 선물 -1.85% •TSMC adr -10.8%"
     },
     {
       "id": "HANAchina/71613",
@@ -9147,13 +9129,13 @@
       "tags": [
         "power"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": ">>Google, 미국 와이오밍주에 170억달러 투자해 첫 데이터센터 건설…전력 비용 전액 자체 부담 •Google이 미국 와이오밍주에 170억달러를 투자해 첫 데이터센터를 건설한다고 발표. 전력 비용은...",
-      "lead": 1,
       "tickers": [
         "GOOG"
-      ]
+      ],
+      "summary": ">>Google, 미국 와이오밍주에 170억달러 투자해 첫 데이터센터 건설…전력 비용 전액 자체 부담 •Google이 미국 와이오밍주에 170억달러를 투자해 첫 데이터센터를 건설한다고 발표. 전력 비용은..."
     },
     {
       "id": "insidertracking/68481",
@@ -9185,7 +9167,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 55,
       "hasText": true,
       "media": {
@@ -9194,11 +9175,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "미국 레딧 관심도 마이크론, 엔비디아, 나스닥",
       "tickers": [
         "NVDA",
         "MU"
-      ],
-      "summary": "미국 레딧 관심도 마이크론, 엔비디아, 나스닥"
+      ]
     },
     {
       "id": "insidertracking/68474",
@@ -9366,13 +9347,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 56,
       "hasText": true,
-      "summary": ">>Nvidia, AI 메모리 풀스택 협업 설계 공개…HBM 용량 3% 증가로 Agent 처리량/달러 최대 30배 향상 •Nvidia는 대규모 모델과 Agent 확산으로 메모리 부담이 커지고 있어 단순한...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>Nvidia, AI 메모리 풀스택 협업 설계 공개…HBM 용량 3% 증가로 Agent 처리량/달러 최대 30배 향상 •Nvidia는 대규모 모델과 Agent 확산으로 메모리 부담이 커지고 있어 단순한..."
     },
     {
       "id": "HANAchina/71608",
