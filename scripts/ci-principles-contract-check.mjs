@@ -12,6 +12,9 @@ const routes = read('src/app/routes.js');
 const verticalSlices = read('src/app/vertical-slices.js');
 const bootstrap = read('src/app/bootstrap.js');
 const page = read('src/ui/pages/principles.js');
+// S17 (D8): the concept-map catalog moved to content/research; content markers are checked there, renderer markers in the page.
+const catalogSource = read('content/research/principles/catalog.json');
+const contentLib = read('scripts/lib/research-content.mjs');
 const conceptsView = read('src/ui/knowledge/concepts-view.js');
 const frameView = read('src/ui/knowledge/analysis-frames.js');
 const researchShell = read('src/ui/knowledge/research-shell.js');
@@ -57,8 +60,9 @@ for (const [label, source, marker] of [
   ['concept map group', conceptsView, "{ id: 'map', title: '개념 지도' }"],
   ['lesson reading text', conceptsView, 'lesson.story'],
   ['lesson worked-number block (v57.98)', conceptsView, 'renderWorkedCalc(doc, lesson.worked)'],
-  ['dictionary reading text', page, "import('../../domain/knowledge/concept-stories.js')"],
-    ['reviewed content', page, 'reviewedAt: REVIEWED_AT'],
+  ['dictionary reading text', page, 'loadJsonArtifact(stableFetcher(root), CONCEPT_STORIES_URL'],
+    ['reviewed content', catalogSource, '"reviewedAt": "2026-08-18"'],
+    ['catalog fetched before mount', page, 'loadPrinciplesCatalog(root, { signal: scope?.signal })'],
     ['deep article renderer', page, 'renderKnowledgeLesson'],
   ['per-lesson article shard', page, './public-data/knowledge/articles/principles/']
   ,['supplied material bridge', page, 'createSuppliedMaterialBridge']
@@ -78,15 +82,15 @@ if (!/data-principles-content/.test(index)) fail('page markup lacks renderer mou
 if (/출처|검토 질문|체크포인트|근거는 항목별 표시|텔레그램은 발견용/.test(conceptsView + frameView + researchShell)) fail('library reading surface must not show source notes, review questions or boundary chips');
 if (!/RESEARCH_URL/.test(page) || !/CHAPTERS_URL/.test(page) || !/LESSON_LIBRARY_URL/.test(page) || !/NODE_GUIDES_URL/.test(page) || !/aioPrinciplesResearch/.test(page) || !/aioPrinciplesChapters/.test(page) || !/aioPrinciplesLessonLibrary/.test(page) || !/aioPrinciplesNodeGuides/.test(page) || !/aioPrinciplesKnowledgeArticles/.test(page)) fail('principles page is not connected to the authored A~O curriculum, node knowledge base, deep article corpus, and reconciled evidence registry');
 if (!page.includes('article identity mismatch') || !page.includes('validateCurrentObservationsArtifact') || !page.includes('applySafeExternalLink')) fail('principles runtime artifact identity/schema/URL safety gates are missing');
-if (!/normalizeKnowledgeEdges/.test(page) || !/createKnowledgeCapabilityBatchLoader/.test(page) || !/loadKnowledgeCapabilities/.test(capabilityLoader) || /Promise\.all\(\[loadJson/.test(page)) fail('principles must use typed edge normalization and shared capability-level artifact loading');
+if (!/normalizeKnowledgeEdges/.test(contentLib) || !/createKnowledgeCapabilityBatchLoader/.test(page) || !/loadKnowledgeCapabilities/.test(capabilityLoader) || /Promise\.all\(\[loadJson/.test(page)) fail('principles must use typed edge normalization and shared capability-level artifact loading');
 if (!/renderFrameArticle/.test(conceptsView) || !/renderFrameConnections/.test(conceptsView) || !/observations/.test(page)) fail('principles page must render analysis notes with their connections and keep the observation boundary');
-if (!/MARKET_EXPANSION/.test(page) || !/SYSTEMS_EXPANSION/.test(page) || !/scarcity-choice/.test(page) || !/power-electricity-system/.test(page) || !/market-foundations/.test(page) || !/industry-and-korea/.test(page)) fail('market principles economic and systems spine is missing');
+if (!/"id": "market"/.test(catalogSource) || !/"id": "systems"/.test(catalogSource) || !/scarcity-choice/.test(catalogSource) || !/power-electricity-system/.test(catalogSource) || !/market-foundations/.test(catalogSource) || !/industry-and-korea/.test(catalogSource)) fail('market principles economic and systems spine is missing');
 if (!/nodesWithinHops/.test(page) || !/principlesGraphNodeCount/.test(page)) fail('principles graph depth must be a real selected subgraph');
-if (page.includes("sourceName: '학습 콘텐츠 검토 기록'") || page.includes("sourceName: '학습 콘텐츠 검토 기록', sourceUrl: 'https://www.sec.gov/edgar/search-and-access'")) fail('principles path must not expose a generic SEC search link');
+if (catalogSource.includes('"sourceName": "학습 콘텐츠 검토 기록"')) fail('principles path must not expose a generic SEC search link');
 if (!/principles-edge-label/.test(page) || !/principles-graph-node-list/.test(page)) fail('principles concept map must expose relation labels and a keyboard-readable node list');
 if (research.status !== 'REFERENCE_CONNECTED' || research.sources.length !== 23 || research.claims.length !== 14 || research.nodes.length !== 12) fail('principles evidence artifact counts or status drifted');
 if (research.publication?.currentClaims !== 0 || research.publication?.allowedSurfaces?.includes('principles') !== true) fail('principles publication boundary drifted');
-const catalogNodeIds = new Set([...page.matchAll(/id: '([^']+)'/g)].map((match) => match[1]));
+const catalogNodeIds = new Set(JSON.parse(catalogSource).parts.flatMap((part) => [...part.nodes, ...part.lessons, ...part.paths].map((item) => item.id)));
 const chapterIds = chapters.chapters.map((chapter) => chapter.id);
 if (chapters.status !== 'REFERENCE_CONNECTED' || chapters.publication !== 'EDUCATIONAL_REFERENCE_ONLY' || chapters.chapters.length !== 15 || chapterIds.join(',') !== 'A,B,C,D,E,F,G,H,I,J,K,L,M,N,O') fail('authored A~O chapter artifact counts or ordering drifted');
 const expectedLessonCount = 112;

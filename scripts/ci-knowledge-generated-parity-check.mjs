@@ -103,6 +103,7 @@ const builders = [
   ['scripts/build-nathan-framework-knowledge.mjs'],
   ['scripts/build-knowledge-concept-manifest.mjs'],
   ['scripts/build-principles-edge-semantics.mjs'],
+  ['scripts/build-research-content.mjs'], // S17~S19 (D8): content/research → screen artifacts
   ['scripts/build-knowledge-evidence-registry.mjs'],
   ['scripts/enrich-knowledge-source-lessons.mjs'],
   ['scripts/build-integrated-market-ai-framework-knowledge.mjs'],
@@ -124,6 +125,10 @@ const targets = [
   'public-data/knowledge/nathan-frameworks.json',
   'public-data/knowledge/aliases.json',
   'src/domain/knowledge/principles-edge-semantics.js',
+  'public-data/principles/catalog.json',
+  'public-data/principles/concept-stories.json',
+  'public-data/atlas/page-copy.json',
+  'public-data/atlas/industry-stories.json',
   'public-data/knowledge/sources.json',
   'public-data/knowledge/claims.json',
   'public-data/principles/lesson-library.json',

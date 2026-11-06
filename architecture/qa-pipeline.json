@@ -1378,7 +1378,8 @@
             "version.json",
             "index.html",
             ".github/workflows/refresh-data.yml",
-            "src/ui/pages/masters.js"
+            "src/ui/pages/masters.js",
+            "src/ui/pages/masters-views.js"
           ]
         },
         {
@@ -1429,7 +1430,9 @@
         "src/ui/pages/principles.js",
         "src/ui/pages/atlas.js",
         "src/ui/pages/masters.js",
+        "src/ui/pages/masters-views.js",
         "src/ui/knowledge/**",
+        "content/research/**",
         "scripts/**",
         ".github/workflows/knowledge-build-candidate.yml",
         "_context/**"
@@ -1439,6 +1442,39 @@
           "id": "knowledge-generated-parity",
           "script": "scripts/ci-knowledge-generated-parity-check.mjs",
           "timeoutMs": 180000
+        },
+        {
+          "id": "research-content-source",
+          "script": "scripts/ci-research-content-source.mjs",
+          "inputs": [
+            "content/research/**",
+            "public-data/knowledge/search-index.json",
+            "public-data/principles/**",
+            "public-data/atlas/**",
+            "src/ui/pages/principles.js",
+            "src/ui/pages/atlas.js",
+            "src/ui/knowledge/knowledge-search.js",
+            "src/domain/knowledge/**",
+            "scripts/lib/research-content.mjs",
+            "scripts/lib/research-content-fingerprint.mjs",
+            "scripts/build-research-content.mjs",
+            "scripts/ci-research-content-source.mjs",
+            "architecture/research-content-baseline.json"
+          ]
+        },
+        {
+          "id": "research-heading-wording",
+          "script": "scripts/ci-research-heading-wording.mjs",
+          "inputs": [
+            "content/research/**",
+            "public-data/atlas/source-packets.json",
+            "src/domain/knowledge/**",
+            "src/domain/research/**",
+            "src/ui/knowledge/**",
+            "scripts/lib/fake-dom.mjs",
+            "scripts/lib/research-content.mjs",
+            "scripts/ci-research-heading-wording.mjs"
+          ]
         },
         {
           "id": "knowledge-corpus",
@@ -1452,7 +1488,9 @@
             "src/ui/pages/principles.js",
             "src/ui/pages/atlas.js",
             "src/ui/pages/masters.js",
+            "src/ui/pages/masters-views.js",
             "src/ui/knowledge/**",
+            "content/research/**",
             "scripts/**",
             ".github/workflows/knowledge-build-candidate.yml",
             "_context/**",
@@ -1477,7 +1515,9 @@
             "src/ui/pages/principles.js",
             "src/ui/pages/atlas.js",
             "src/ui/pages/masters.js",
+            "src/ui/pages/masters-views.js",
             "src/ui/knowledge/**",
+            "content/research/**",
             "scripts/**",
             ".github/workflows/knowledge-build-candidate.yml",
             "_context/**",
@@ -1506,7 +1546,9 @@
             "src/ui/pages/principles.js",
             "src/ui/pages/atlas.js",
             "src/ui/pages/masters.js",
+            "src/ui/pages/masters-views.js",
             "src/ui/knowledge/**",
+            "content/research/**",
             "scripts/**",
             ".github/workflows/knowledge-build-candidate.yml",
             "_context/**",
@@ -1533,7 +1575,9 @@
             "src/ui/pages/principles.js",
             "src/ui/pages/atlas.js",
             "src/ui/pages/masters.js",
+            "src/ui/pages/masters-views.js",
             "src/ui/knowledge/**",
+            "content/research/**",
             "scripts/**",
             ".github/workflows/knowledge-build-candidate.yml",
             "_context/**",
@@ -2400,6 +2444,22 @@
       "groups": [],
       "gates": [
         "browser-data-fixture"
+        ]
+      },
+      {
+        "patterns": [
+        "content/research/**",
+        "architecture/research-content-baseline.json",
+        "scripts/lib/research-content.mjs",
+        "scripts/lib/research-content-fingerprint.mjs",
+        "scripts/build-research-content.mjs",
+        "scripts/ci-research-content-source.mjs",
+        "scripts/ci-research-heading-wording.mjs",
+        "scripts/lib/fake-dom.mjs",
+        "public-data/atlas/source-packets.json"
+      ],
+      "groups": [
+        "knowledge"
       ]
     },
     {
@@ -2610,7 +2670,9 @@
         "src/ui/pages/principles.js",
         "src/ui/pages/atlas.js",
         "src/ui/pages/masters.js",
-        "src/ui/knowledge/**"
+        "src/ui/pages/masters-views.js",
+        "src/ui/knowledge/**",
+        "content/research/**"
       ],
       "groups": [
         "knowledge",
@@ -2751,7 +2813,8 @@
     },
     {
       "patterns": [
-        "src/ui/pages/masters.js"
+        "src/ui/pages/masters.js",
+        "src/ui/pages/masters-views.js"
       ],
       "groups": [
         "data"
@@ -2933,6 +2996,9 @@
         "scripts/lib/13f-semantic-hash.mjs",
         "scripts/build-13f-issuer-aggregates.mjs",
         "scripts/lib/principles-stories*.mjs",
+        "scripts/lib/research-content.mjs",
+        "scripts/build-research-content.mjs",
+        "content/research/**",
         "scripts/lib/principles-worked*.mjs",
         "scripts/lib/knowledge-authoring-contract.mjs",
         "src/app/knowledge-learning-state.js",

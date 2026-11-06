@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "research-content-baseline.v1",
+  "capturedFrom": "integration-20261104 (pre-move JavaScript modules)",
+  "note": "S17~S19 content invariance: every research string, in order, as the old code defined it. A deliberate content edit updates this file in the same change and says so in the change record.",
+  "edits": [
+    "v59.70 screen review #19: industry-stories domain-cloud-platform body opened with '이 분야를 읽는 핵심은'; now '핵심은' (one sentence opening, nothing else changed)"
+  ],
+  "kinds": {
+    "principles-catalog": {
+      "strings": 1962,
+      "chars": 34616,
+      "sha256": "b46b9623a59715b9609174c5b3cc482684d5edcbe183e72719e9aa2b41c0f3c5"
+    },
+    "atlas-page-copy": {
+      "strings": 564,
+      "chars": 16297,
+      "sha256": "99380b2ee6f43969f93a81faf4805e3645a7078eb9ccf40e9662dbda6aa6b489"
+    },
+    "industry-stories": {
+      "strings": 476,
+      "chars": 55007,
+      "sha256": "628643d001943b7b5c3ed4e1847846b39812aaca76adf1ae689ef51f0052399b"
+    },
+    "concept-stories": {
+      "strings": 288,
+      "chars": 29547,
+      "sha256": "df740175743c872d507946c10ec10e7ff6b94c6d128a5768fc09997a7119ac0b"
+    }
+  }
+}

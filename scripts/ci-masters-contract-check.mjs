@@ -43,7 +43,7 @@ const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa
 const routes = read('src/app/routes.js');
 const slices = read('src/app/vertical-slices.js');
 const bootstrap = read('src/app/bootstrap.js');
-const page = read('src/ui/pages/masters.js');
+const page = read('src/ui/pages/masters.js') + read('src/ui/pages/masters-views.js'); // v59.70: view builders split out of the page
 const mastersFormat = read('src/domain/masters/holdings-format.js'); // v57.60: page registry/coverage/formatters moved here
 const worker = read('sw.js');
 const golden = JSON.parse(read('architecture/golden-routes.json'));
@@ -355,7 +355,7 @@ if (rowPreviews.managers.some((manager) => ['berkshire-hathaway', 'duquesne-fami
   const thousandthsRow = once.find((item) => item.managerId === 'thousandths');
   if (thousandthsRow.value !== null || thousandthsRow.reportedValueAsFiled !== 200 || twice.find((item) => item.managerId === 'thousandths').reportedValueAsFiled !== 200) fail('P1522 withholding must be idempotent and keep the first as-filed memo (a shard is withheld again after detection)');
   if (!/이전 분기도 같은 단위/.test(scale.describeValueScaleCarryover()) || /×\s*1,?000|곱/.test(scale.describeValueScaleCarryover())) fail('P1522 the carry-over notice must say earlier quarters are withheld and must not offer a multiplied figure');
-  const page = read('src/ui/pages/masters.js');
+  const page = read('src/ui/pages/masters.js') + read('src/ui/pages/masters-views.js'); // v59.70: view builders split out of the page
   const wired = [
     ['allHoldings is withheld at ingress', /allHoldings: withholdSuspectValues\(result\.value\.allHoldings, state\.valueScale\)/],
     ['a shard that finished before detection is withheld again', /state\.managerRows\.forEach\(\(artifact, managerId\) => \{[\s\S]{0,400}withholdSuspectValues\(artifact\.holdings/],

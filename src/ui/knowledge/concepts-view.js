@@ -273,7 +273,7 @@ function renderLesson(doc, lesson, failed = false, sources = []) {
   return article;
 }
 
-// Concepts a lesson leans on, found by their names in the lesson text — the reader's "먼저 알아둘 개념".
+// Concepts a lesson leans on, found by their names in the lesson text — the aside's "쓰인 개념".
 function conceptsInLesson(lesson) {
   const text = [lesson.title, lesson.definition, lesson.mechanism, ...(lesson.story?.body || []), lesson.story?.lead].filter(Boolean).join(' ');
   return CONCEPT_CORE.filter((concept) => [concept.term.replace(/\s*\(.*$/, ''), ...concept.aliases, ...(concept.covers || [])].some((name) => name.length >= 2 && !/^[a-z]/.test(name) && text.includes(name))).slice(0, 5);
@@ -311,7 +311,19 @@ function learningPaths(doc) {
     card.append(head, el(doc, 'h2', 'rl-path-title', band.title), list);
     row.appendChild(card);
   }
-  return row;
+  // Screen review #30 (2026-11-04): on a phone the three cards scroll sideways and the next one peeks in at the edge,
+  // which read as a clipped card. The dots (phone only, CSS) say how many cards there are and which one is in view.
+  const wrap = el(doc, 'div', 'rl-paths-wrap');
+  const dots = el(doc, 'div', 'rl-paths-dots');
+  dots.setAttribute('aria-hidden', 'true');
+  [...row.children].forEach((_, index) => dots.appendChild(el(doc, 'span', index ? null : 'is-on')));
+  row.addEventListener('scroll', () => {
+    const step = row.children[1] ? row.children[1].offsetLeft - row.children[0].offsetLeft : 1;
+    const at = Math.min(dots.children.length - 1, Math.round(row.scrollLeft / step));
+    [...dots.children].forEach((dot, index) => dot.classList.toggle('is-on', index === at));
+  }, { passive: true });
+  wrap.append(row, dots);
+  return wrap;
 }
 
 export function renderConceptsPage(doc, { root, state, data, renderMap, mapAside, onLocal, onNavigate, onConcept }) {
@@ -370,7 +382,7 @@ export function renderConceptsPage(doc, { root, state, data, renderMap, mapAside
       // neighbouring lessons named as contents order.
       const prereqIds = (lesson.prerequisites || lesson.metadata?.prerequisites || []).map((item) => String(item).split(' ')[0]).filter((id) => /^[A-O]\d{1,2}$/.test(id)); // v58.63 (audit UI-01): `d` was a literal letter, so D2/D3 never linked
       const prereqs = prereqIds.map((id) => (data.lessons || []).find((item) => item.id === id)).filter(Boolean);
-      if (prereqs.length) { const box = block('먼저 알아둘 레슨'); prereqs.forEach((item) => box.appendChild(lessonButton(item))); aside.appendChild(box); }
+      if (prereqs.length) { const box = block('선행 레슨'); prereqs.forEach((item) => box.appendChild(lessonButton(item))); aside.appendChild(box); }
       if (at > 0 || (at >= 0 && at < siblings.length - 1)) {
         const box = block('목차 순서');
         if (at > 0) box.appendChild(lessonButton(siblings[at - 1]));
@@ -379,7 +391,7 @@ export function renderConceptsPage(doc, { root, state, data, renderMap, mapAside
       }
       const concepts = conceptsInLesson(lesson);
       if (concepts.length) {
-        const box = block('먼저 알아둘 개념');
+        const box = block('쓰인 개념');
         concepts.forEach((item) => { const b = el(doc, 'button', 'af-route'); b.type = 'button'; b.dataset.principlesAction = 'concept'; b.dataset.principlesValue = item.id; b.append(el(doc, 'strong', null, item.term)); box.appendChild(b); });
         aside.appendChild(box);
       }

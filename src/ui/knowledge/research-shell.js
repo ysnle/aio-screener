@@ -3,7 +3,7 @@
 // answers and one search across every research surface; below it 목차 · 본문 · 연결 in three columns.
 // The skeleton owns layout and search only; each page fills the three columns with its own content.
 import { CONCEPT_CORE } from '../../domain/knowledge/concept-core.js';
-import { searchKnowledgeIndex } from './knowledge-search.js';
+import { loadKnowledgeIndex, searchKnowledgeIndex } from './knowledge-search.js';
 import { createStorageGateway } from '../../platform/storage.js';
 import { createAppKnowledgeLearningState } from '../../app/knowledge-learning-state.js';
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
@@ -169,14 +169,7 @@ export function el(doc, tag, className, text) {
   return node;
 }
 
-let indexPromise = null;
-function loadIndex(root) {
-  if (!indexPromise) {
-    const fetchFn = root?.fetch?.bind(root);
-    indexPromise = fetchFn ? fetchFn('./public-data/knowledge/search-index.json').then((r) => (r.ok ? r.json() : null)).catch(() => null) : Promise.resolve(null);
-  }
-  return indexPromise;
-}
+const loadIndex = (root) => loadKnowledgeIndex(root?.fetch?.bind(root));
 
 const normalize = (text) => String(text || '').toLowerCase().replace(/\(.*?\)/g, ' ').replace(/\s+/g, ' ').trim();
 // Codex browser audit H52: concepts were listed first regardless of fit, so the note whose title is

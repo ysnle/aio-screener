@@ -287,7 +287,7 @@ export function renderFrameConnections(doc, lesson, { onNavigate, onConcept, blo
   }
   const concepts = (lesson.concepts || []).map((id) => conceptById.get(id)).filter(Boolean);
   if (concepts.length) {
-    const box = block('먼저 알아둘 개념');
+    const box = block('쓰인 개념');
     for (const concept of concepts) {
       const link = el(doc, 'button', 'af-route');
       link.type = 'button';

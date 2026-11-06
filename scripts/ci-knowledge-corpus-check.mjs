@@ -10,7 +10,7 @@ await runSections('knowledge-corpus', [
 const { default: fs } = await import('node:fs');
 const { default: path } = await import('node:path');
 const { fileURLToPath } = await import('node:url');
-const { MARKET_PRINCIPLES_CATALOG } = await import('../src/ui/pages/principles.js');
+const MARKET_PRINCIPLES_CATALOG = (await import('./lib/research-content.mjs')).readPrinciplesCatalogSource();
 const { createClaimRegistry, createEvidenceRegistry, unresolvedEvidenceIds } = await import('../src/domain/knowledge/evidence.js');
 const { EDGE_TYPES, inspectKnowledgeGraph, normalizeKnowledgeEdge, normalizeKnowledgeEdges } = await import('../src/domain/knowledge/graph.js');
 const { loadKnowledgeCapabilities } = await import('../src/data/knowledge/load-capabilities.js');
@@ -284,7 +284,7 @@ console.log(JSON.stringify({ status: 'PASS', frameworks: frameworks.length, prin
 const { default: fs } = await import('node:fs');
 const { default: path } = await import('node:path');
 const { fileURLToPath } = await import('node:url');
-const { MARKET_PRINCIPLES_CATALOG } = await import('../src/ui/pages/principles.js');
+const MARKET_PRINCIPLES_CATALOG = (await import('./lib/research-content.mjs')).readPrinciplesCatalogSource();
 const { NATHAN_KNOWLEDGE_CONCEPTS } = await import('../src/domain/knowledge/nathan-framework-pack.js');
 const { INTEGRATED_KNOWLEDGE_CONCEPTS } = await import('../src/domain/knowledge/integrated-market-ai-framework-pack.js');
 
@@ -855,8 +855,9 @@ if (/SIGNAL 점수는 시장 환경/.test(html) || /기관급 스윙트레이딩
 // page carries reading text within the block/length limits, with no question outside the opening scene.
 const { PRINCIPLE_STORIES, storyProblems } = await import('./lib/principles-stories.mjs');
 const { FOUNDATION_STORIES, FOUNDATION_HIDDEN_MODULES } = await import('../src/domain/knowledge/foundation-stories.js');
-const { INDUSTRY_NODE_STORIES, INDUSTRY_DOMAIN_STORIES } = await import('../src/domain/knowledge/industry-node-stories.js');
-const { CONCEPT_STORIES } = await import('../src/domain/knowledge/concept-stories.js');
+const { readIndustryStories, readConceptStories } = await import('./lib/research-content.mjs');
+const { INDUSTRY_NODE_STORIES, INDUSTRY_DOMAIN_STORIES } = readIndustryStories();
+const CONCEPT_STORIES = readConceptStories();
 if (library.lessons.some((lesson) => !lesson.story) || Object.keys(PRINCIPLE_STORIES).length !== library.lessons.length) fail('P1480 every principles lesson needs reading text');
 // v57.98: every principles lesson carries a worked-number block (inputs → steps → result → limit) within the
 // reading standard, authored once in scripts/lib/principles-worked*.mjs and copied into the library.
