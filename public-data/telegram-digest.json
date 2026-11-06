@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-06T12:51:47.753Z",
-  "attemptedAt": "2026-11-06T12:51:47.753Z",
-  "lastSuccessfulAt": "2026-11-06T12:51:47.753Z",
+  "generatedAt": "2026-11-06T13:21:30.114Z",
+  "attemptedAt": "2026-11-06T13:21:30.114Z",
+  "lastSuccessfulAt": "2026-11-06T13:21:30.114Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-23T12:51:40.758Z",
-  "until": "2026-11-06T12:51:40.758Z",
+  "since": "2026-10-23T13:21:25.672Z",
+  "until": "2026-11-06T13:21:25.672Z",
   "current24hWindow": {
     "start": "2026-11-04T23:00:00.000Z",
     "end": "2026-11-05T23:00:00.000Z",
@@ -80,10 +80,10 @@
       "pages": 0,
       "reachedOlder": false,
       "reachedKnown": false,
-      "count": 45,
+      "count": 43,
       "freshCount": 0,
-      "eligibleTextCount": 42,
-      "selectedCount": 24,
+      "eligibleTextCount": 40,
+      "selectedCount": 23,
       "error": "first page parsed no posts",
       "lastPostId": 26057
     },
@@ -92,80 +92,80 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1353,
+      "count": 1354,
       "freshCount": 40,
-      "eligibleTextCount": 1292,
+      "eligibleTextCount": 1293,
       "selectedCount": 124,
       "error": null,
-      "lastPostId": 68557
+      "lastPostId": 68560
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 233,
+      "count": 236,
       "freshCount": 40,
-      "eligibleTextCount": 233,
+      "eligibleTextCount": 236,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 21032
+      "lastPostId": 21035
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 678,
-      "freshCount": 20,
+      "freshCount": 37,
       "eligibleTextCount": 677,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 71668
+      "lastPostId": 71669
     }
   ],
-  "count": 2309,
-  "retainedItemCount": 453,
+  "count": 2311,
+  "retainedItemCount": 462,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2309,
-    "eligibleTextCount": 2244,
+    "observedCount": 2311,
+    "eligibleTextCount": 2246,
     "mediaOnlyCount": 65,
-    "mediaAttachedCount": 448,
-    "photoPostCount": 390,
+    "mediaAttachedCount": 451,
+    "photoPostCount": 392,
     "documentPostCount": 2,
     "imageOnlyCount": 2,
-    "highSignalCount": 395,
-    "broadSignalCount": 850,
-    "selectedRawCount": 392,
-    "selectedEligibleCount": 392,
-    "selectedRawCoveragePct": 17.5,
-    "selectedOfObservedPct": 17,
+    "highSignalCount": 394,
+    "broadSignalCount": 849,
+    "selectedRawCount": 391,
+    "selectedEligibleCount": 391,
+    "selectedRawCoveragePct": 17.4,
+    "selectedOfObservedPct": 16.9,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "japan": 79,
-    "earnings": 406,
-    "macro": 349,
-    "market-note": 842,
-    "semi": 476,
-    "power": 269,
-    "healthcare": 77,
-    "geo": 444,
-    "kr-market": 116,
-    "equity": 114,
     "ai-policy": 105,
+    "equity": 116,
+    "semi": 476,
+    "flows": 64,
+    "macro": 350,
+    "earnings": 407,
+    "market-note": 842,
+    "geo": 445,
+    "japan": 79,
+    "power": 268,
+    "healthcare": 76,
+    "kr-market": 115,
     "credit": 98,
     "optical": 41,
     "media-only": 64,
-    "flows": 64,
     "crypto": 4
   },
   "tickerCounts": {
-    "TSLA": 32,
+    "TSLA": 31,
     "MSFT": 60,
     "GOOG": 115,
     "LLY": 3,
@@ -173,7 +173,7 @@
     "NVO": 2,
     "BE": 13,
     "MRNA": 2,
-    "NVDA": 113,
+    "NVDA": 112,
     "HUM": 1,
     "AAPL": 23,
     "AVGO": 21,
@@ -262,12 +262,12 @@
   "themes": [
     "Market Notes (842 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
     "Semiconductors/Memory (476 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
-    "Geopolitics (444 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
-    "Earnings/Corporate (406 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
-    "Macro/Rates (349 posts in 14-day research window): 텍사스 주지사 당선인 지나 히노호사는 버니 샌더스가 아니다. 데이터센터 건설을 지지한다. - Tae Kim 시장은 텍사스 주지사 선거 결과가 AI 데이터센터 산업에 미칠 영향을 과도하게 부정적으로 해석하고 있다. 히노호사는 데이터센터 건설 자체를 반대하는 것이 아니라 지역 주민과 노동자에게 실질적인 혜택이...",
-    "AI Power/Grid (269 posts in 14-day research window): 데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가 나타나고 있음. 데이터센터의 막대한 전력 소비와 지역사회 부담에 대한 우려가 커지면서 미국 하원과 텍사스,...",
-    "Korea Market (116 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY...",
-    "Equity/Analyst (114 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
+    "Geopolitics (445 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
+    "Earnings/Corporate (407 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
+    "Macro/Rates (350 posts in 14-day research window): 텍사스 주지사 당선인 지나 히노호사는 버니 샌더스가 아니다. 데이터센터 건설을 지지한다. - Tae Kim 시장은 텍사스 주지사 선거 결과가 AI 데이터센터 산업에 미칠 영향을 과도하게 부정적으로 해석하고 있다. 히노호사는 데이터센터 건설 자체를 반대하는 것이 아니라 지역 주민과 노동자에게 실질적인 혜택이...",
+    "AI Power/Grid (268 posts in 14-day research window): 데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가 나타나고 있음. 데이터센터의 막대한 전력 소비와 지역사회 부담에 대한 우려가 커지면서 미국 하원과 텍사스,...",
+    "Equity/Analyst (116 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
+    "Korea Market (115 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
   ],
   "catalysts": [
     {
@@ -277,7 +277,7 @@
     },
     {
       "key": "NVDA",
-      "count": 113,
+      "count": 112,
       "text": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가 나타나고 있음. 데이터센터의 막대한 전력 소비와 지역사회 부담에 대한 우려가 커지면서 미국 하원과 텍사스,..."
     },
     {
@@ -317,7 +317,7 @@
     },
     {
       "key": "TSLA",
-      "count": 32,
+      "count": 31,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로..."
     },
     {
@@ -338,7 +338,7 @@
       "topics": [
         "macro"
       ],
-      "count": 349,
+      "count": 350,
       "focus": "텍사스 주지사 당선인 지나 히노호사는 버니 샌더스가 아니다. 데이터센터 건설을 지지한다. - Tae Kim 시장은 텍사스 주지사 선거 결과가 AI 데이터센터 산업에 미칠 영향을 과도하게 부정적으로 해석하고 있다. 히노호사는 데이터센터 건설 자체를 반대하는 것이 아니라 지역 주민과 노동자에게 실질적인 혜택이..."
     },
     {
@@ -347,7 +347,7 @@
       "topics": [
         "geo"
       ],
-      "count": 444,
+      "count": 445,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격..."
     },
     {
@@ -383,7 +383,7 @@
       "topics": [
         "power"
       ],
-      "count": 269,
+      "count": 268,
       "focus": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가 나타나고 있음. 데이터센터의 막대한 전력 소비와 지역사회 부담에 대한 우려가 커지면서 미국 하원과 텍사스,..."
     },
     {
@@ -401,7 +401,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 116,
+      "count": 115,
       "focus": "SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
     },
     {
@@ -410,7 +410,7 @@
       "topics": [
         "equity"
       ],
-      "count": 114,
+      "count": 116,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
@@ -428,7 +428,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 406,
+      "count": 407,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -437,7 +437,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 77,
+      "count": 76,
       "focus": "11월 6일 미국 증시 프리마켓 주요 상승·하락 종목 상승 종목 • 제이프로그 +23.00% • 아이렌 +19.29% • 클라우드플레어 +18.84% • 에어비앤비 +13.40% • 사이퍼 디지털 +12.09% • 블룸에너지 +12.07% • 샌디스크 +11.84% • 트랜스메딕스 +11.65% • 크레도..."
     },
     {
@@ -1766,6 +1766,45 @@
   ],
   "broadItems": [
     {
+      "id": "bornlupin/21035",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21035",
+      "datetime": "2026-11-06T13:17:10.000Z",
+      "localDateKst": "2026-11-06",
+      "tags": [
+        "semi",
+        "flows"
+      ],
+      "lead": 1,
+      "score": 52,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": "Silicon Data, GPU 임대료 상승세 지속, AI 컴퓨팅 수요 여전히 견조 : 11월 5일 기준 GPU 시간당 임대료는 B300 $7.56, B200 $6.70, H200 $3.51, H100..."
+    },
+    {
+      "id": "bornlupin/21034",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21034",
+      "datetime": "2026-11-06T13:15:30.000Z",
+      "localDateKst": "2026-11-06",
+      "tags": [
+        "equity",
+        "macro",
+        "earnings"
+      ],
+      "lead": 1,
+      "score": 77,
+      "hasText": true,
+      "tickers": [],
+      "summary": "Canaccord, 트랜스메딕스(TransMedics, $TMDX ), 매수(BUY) 의견을 재확인, 목표주가를 95달러에서 120달러로 상향 TMDX는 2026년 3분기 총매출 2억 300만 달러(전년 동기..."
+    },
+    {
       "id": "insidertracking/68556",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/68556",
@@ -2246,13 +2285,15 @@
       "datetime": "2026-11-06T03:42:37.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "power"
+        "power",
+        "credit",
+        "earnings"
       ],
+      "lead": 1,
       "score": 75,
       "hasText": true,
-      "summary": ">>미국 데이터센터 건설 리스크 상세 분석 : 인허가·인력·보험·전력 변동 (바클레이즈) •바클레이즈 William Thompson 연구팀은 2일간 데이터센터 산업 서밋에 참석한 뒤, AI 인프라 확장의...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>미국 데이터센터 건설 리스크 상세 분석 : 인허가·인력·보험·전력 변동 (바클레이즈) •바클레이즈 William Thompson 연구팀은 2일간 데이터센터 산업 서밋에 참석한 뒤, AI 인프라 확장의..."
     },
     {
       "id": "insidertracking/68508",
@@ -2278,11 +2319,11 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": "•중국 반도체 과창50지수 플러스 전환 •개장 -5% 낙폭 극복 •홍콩 증시 약보합 전환, 3대지수 낙폭 축소",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "•중국 반도체 과창50지수 플러스 전환 •개장 -5% 낙폭 극복 •홍콩 증시 약보합 전환, 3대지수 낙폭 축소"
     },
     {
       "id": "insidertracking/68502",
@@ -2311,6 +2352,7 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 57,
       "hasText": true,
       "media": {
@@ -2319,9 +2361,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": ">>BofA 로드쇼 : 홍콩 및 일부 상하이 투자자들, 메모리주에 대해 뚜렷한 약세 전환 •BofA 로드쇼에서 홍콩 투자자들의 메모리주에 대한 투자 심리가 뚜렷하게 약세로 전환된 것으로 나타났으며, 일부...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>BofA 로드쇼 : 홍콩 및 일부 상하이 투자자들, 메모리주에 대해 뚜렷한 약세 전환 •BofA 로드쇼에서 홍콩 투자자들의 메모리주에 대한 투자 심리가 뚜렷하게 약세로 전환된 것으로 나타났으며, 일부..."
     },
     {
       "id": "insidertracking/68501",
@@ -2352,12 +2393,11 @@
       ],
       "score": 68,
       "hasText": true,
-      "summary": ">>젠슨 황, ‘세계 10대 부호’에서 탈락 •민주당이 의회 선거에서 압승하면서 AI 데이터센터 건설이 차질을 빚을 수 있다는 우려가 커졌고, 기술주와 반도체주가 일제히 매도세. Nvidia 주가는 하루 만에...",
-      "lead": 2,
       "tickers": [
         "NVDA",
         "ORCL"
-      ]
+      ],
+      "summary": ">>젠슨 황, ‘세계 10대 부호’에서 탈락 •민주당이 의회 선거에서 압승하면서 AI 데이터센터 건설이 차질을 빚을 수 있다는 우려가 커졌고, 기술주와 반도체주가 일제히 매도세. Nvidia 주가는 하루 만에..."
     },
     {
       "id": "HANAchina/71632",
@@ -2368,11 +2408,11 @@
       "tags": [
         "macro"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": "•중국 주요 국채금리 급락 •10년 국채 수익률 1.58%로 사상 최저",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "•중국 주요 국채금리 급락 •10년 국채 수익률 1.58%로 사상 최저"
     },
     {
       "id": "insidertracking/68499",
@@ -4801,7 +4841,6 @@
       "datetime": "2026-11-04T00:03:25.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "semi",
         "earnings"
       ],
       "score": 57,
@@ -4812,8 +4851,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "[한투증권 최건] 고영 3Q26 Review: 놀라셨겠지만, 이제 시작입니다. 영업이익 컨센서스 15% 상회. 2개분기 연속 최대 실적 - 3분기 매출액 1,066억원(+76.8% YoY, +20.1%..."
+      "summary": "[한투증권 최건] 고영 3Q26 Review: 놀라셨겠지만, 이제 시작입니다. 영업이익 컨센서스 15% 상회. 2개분기 연속 최대 실적 - 3분기 매출액 1,066억원(+76.8% YoY, +20.1%...",
+      "tickers": []
     },
     {
       "id": "bornlupin/20991",
@@ -8575,37 +8614,6 @@
       ]
     },
     {
-      "id": "bornlupin/20833",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20833",
-      "datetime": "2026-10-26T23:22:51.000Z",
-      "localDateKst": "2026-10-27",
-      "tags": [
-        "power",
-        "semi"
-      ],
-      "score": 65,
-      "hasText": true,
-      "summary": "AI 전력 수요 폭증… 대만전력공사, 막대한 자금 투입해 변전소 43곳 신·증설 1. AI·반도체 산업 확대로 전력 수요 급증 - AI 산업의 성장으로 반도체 웨이퍼 제조, 첨단 패키징,...",
-      "lead": 1,
-      "tickers": []
-    },
-    {
-      "id": "bornlupin/20832",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20832",
-      "datetime": "2026-10-26T23:19:27.000Z",
-      "localDateKst": "2026-10-27",
-      "tags": [
-        "semi"
-      ],
-      "score": 57,
-      "hasText": true,
-      "summary": "[리딩투자증권 한제윤] 심텍(222800) 명실상부 글로벌 SOCAMM 대표주자 투자포인트 1. SOCAMM, 모듈 PCB의 수익성을 바꾸는 성장축: 심텍의 핵심 성장동력은 AI 서버용 SOCAMM 모듈...",
-      "lead": 1,
-      "tickers": []
-    },
-    {
       "id": "aetherjapanresearch/26057",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/26057",
@@ -8979,20 +8987,6 @@
         "AMZN",
         "T"
       ]
-    },
-    {
-      "id": "aetherjapanresearch/26012",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/26012",
-      "datetime": "2026-10-23T13:05:46.000Z",
-      "localDateKst": "2026-10-23",
-      "tags": [
-        "market-note"
-      ],
-      "score": 68,
-      "hasText": true,
-      "summary": "Citi) 미니맥스(MiniMax, 0100.HK ) | 매수 / 고위험; M3.1 Flash 오픈소스화 및 AI 기술 수출 임시 등록에 대한 평가 내용 요약 미니맥스는 10월 19일 M3.1 Flash를...",
-      "tickers": []
     }
   ],
   "current24hItems": [
@@ -10100,13 +10094,27 @@
   ],
   "signalsNote": "Numbers the channels reported (analyst target-price and rating actions, quarters against estimates, economic releases against forecasts, retail net-buy lists). Secondary observations for context and screener conditions; never a measurement of this app.",
   "signalCounts": {
-    "pt": 40,
+    "pt": 41,
     "earnings": 55,
     "macro": 2,
     "retail": 6,
     "deal": 2
   },
   "signals": [
+    {
+      "kind": "pt",
+      "key": "pt|TMDX|-|2026-11-06|95>120",
+      "ticker": "TMDX",
+      "broker": null,
+      "ptFrom": 95,
+      "ptTo": 120,
+      "currency": "USD",
+      "direction": "raise",
+      "rating": "buy",
+      "ratingAction": null,
+      "date": "2026-11-06",
+      "post": "bornlupin/21034"
+    },
     {
       "kind": "pt",
       "key": "pt|AMD|Stifel|2026-11-04",
