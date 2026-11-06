@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-05T23:51:51.993Z",
-  "attemptedAt": "2026-11-05T23:51:51.993Z",
-  "lastSuccessfulAt": "2026-11-05T23:51:51.993Z",
+  "generatedAt": "2026-11-06T00:21:29.413Z",
+  "attemptedAt": "2026-11-06T00:21:29.413Z",
+  "lastSuccessfulAt": "2026-11-06T00:21:29.413Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-22T23:51:48.652Z",
-  "until": "2026-11-05T23:51:48.652Z",
+  "since": "2026-10-23T00:21:25.043Z",
+  "until": "2026-11-06T00:21:25.043Z",
   "current24hWindow": {
     "start": "2026-11-04T23:00:00.000Z",
     "end": "2026-11-05T23:00:00.000Z",
@@ -80,98 +80,98 @@
       "pages": 0,
       "reachedOlder": false,
       "reachedKnown": false,
-      "count": 64,
+      "count": 63,
       "freshCount": 0,
-      "eligibleTextCount": 60,
+      "eligibleTextCount": 59,
       "selectedCount": 32,
       "error": "first page parsed no posts",
       "lastPostId": 26057
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1341,
-      "freshCount": 20,
-      "eligibleTextCount": 1279,
-      "selectedCount": 121,
+      "count": 1344,
+      "freshCount": 39,
+      "eligibleTextCount": 1283,
+      "selectedCount": 122,
       "error": null,
-      "lastPostId": 68492
+      "lastPostId": 68498
     },
     {
       "channel": "bornlupin",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 233,
-      "freshCount": 20,
-      "eligibleTextCount": 233,
-      "selectedCount": 123,
+      "count": 234,
+      "freshCount": 40,
+      "eligibleTextCount": 234,
+      "selectedCount": 122,
       "error": null,
-      "lastPostId": 21018
+      "lastPostId": 21021
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 683,
+      "count": 679,
       "freshCount": 39,
-      "eligibleTextCount": 682,
+      "eligibleTextCount": 678,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 71627
+      "lastPostId": 71628
     }
   ],
-  "count": 2321,
-  "retainedItemCount": 438,
+  "count": 2320,
+  "retainedItemCount": 460,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2321,
+    "observedCount": 2320,
     "eligibleTextCount": 2254,
-    "mediaOnlyCount": 67,
-    "mediaAttachedCount": 397,
-    "photoPostCount": 344,
+    "mediaOnlyCount": 66,
+    "mediaAttachedCount": 399,
+    "photoPostCount": 346,
     "documentPostCount": 1,
     "imageOnlyCount": 1,
-    "highSignalCount": 396,
+    "highSignalCount": 395,
     "broadSignalCount": 865,
     "selectedRawCount": 398,
     "selectedEligibleCount": 398,
     "selectedRawCoveragePct": 17.7,
-    "selectedOfObservedPct": 17.1,
+    "selectedOfObservedPct": 17.2,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "japan": 83,
-    "macro": 354,
-    "kr-market": 118,
-    "flows": 69,
-    "geo": 442,
-    "earnings": 420,
-    "healthcare": 76,
-    "market-note": 851,
-    "ai-policy": 110,
-    "credit": 98,
-    "power": 266,
+    "geo": 443,
+    "market-note": 850,
+    "ai-policy": 111,
+    "macro": 353,
+    "power": 268,
+    "earnings": 419,
     "semi": 479,
-    "equity": 125,
+    "japan": 83,
+    "kr-market": 117,
+    "flows": 68,
+    "healthcare": 76,
+    "credit": 98,
+    "equity": 124,
     "optical": 39,
-    "media-only": 67,
+    "media-only": 66,
     "crypto": 4
   },
   "tickerCounts": {
+    "BE": 21,
     "TSM": 36,
     "GOOG": 119,
-    "TSLA": 31,
+    "TSLA": 30,
     "NVDA": 111,
     "MU": 36,
     "AMD": 47,
-    "BE": 20,
     "CRWV": 5,
     "AAPL": 22,
     "GS": 3,
@@ -241,7 +241,7 @@
     "ETSY": 2,
     "V": 1,
     "HOOD": 1,
-    "005940.KS": 2,
+    "005940.KS": 1,
     "MRNA": 1,
     "RDDT": 1,
     "FDX": 1,
@@ -261,21 +261,17 @@
     "032640.KS": 1,
     "TCOM": 2,
     "CVX": 1,
-    "PDD": 1,
-    "028050.KS": 2,
-    "068270.KS": 1,
-    "016360.KS": 1,
-    "039490.KS": 1
+    "PDD": 1
   },
   "themes": [
-    "Market Notes (851 posts in 14-day research window): 2026년 11월 5일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심의 매도 압력이 확대되며 혼조세. 한국시간 오후 1시 55분 기준 나스닥100 선물은 1.08% 하락, S&P500 선물은...",
+    "Market Notes (850 posts in 14-day research window): 2026년 11월 5일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심의 매도 압력이 확대되며 혼조세. 한국시간 오후 1시 55분 기준 나스닥100 선물은 1.08% 하락, S&P500 선물은...",
     "Semiconductors/Memory (479 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
-    "Geopolitics (442 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
-    "Earnings/Corporate (420 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
-    "Macro/Rates (354 posts in 14-day research window): 2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,...",
-    "AI Power/Grid (266 posts in 14-day research window): 시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준....",
-    "Equity/Analyst (125 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
-    "Korea Market (118 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
+    "Geopolitics (443 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
+    "Earnings/Corporate (419 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
+    "Macro/Rates (353 posts in 14-day research window): 2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,...",
+    "AI Power/Grid (268 posts in 14-day research window): 시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준....",
+    "Equity/Analyst (124 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p....",
+    "Korea Market (117 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
   ],
   "catalysts": [
     {
@@ -325,7 +321,7 @@
     },
     {
       "key": "TSLA",
-      "count": 31,
+      "count": 30,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로..."
     },
     {
@@ -346,7 +342,7 @@
       "topics": [
         "macro"
       ],
-      "count": 354,
+      "count": 353,
       "focus": "2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,..."
     },
     {
@@ -355,7 +351,7 @@
       "topics": [
         "geo"
       ],
-      "count": 442,
+      "count": 443,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격..."
     },
     {
@@ -391,7 +387,7 @@
       "topics": [
         "power"
       ],
-      "count": 266,
+      "count": 268,
       "focus": "시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준...."
     },
     {
@@ -400,7 +396,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 110,
+      "count": 111,
       "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
@@ -409,7 +405,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 118,
+      "count": 117,
       "focus": "SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
     },
     {
@@ -418,8 +414,8 @@
       "topics": [
         "equity"
       ],
-      "count": 125,
-      "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
+      "count": 124,
+      "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p...."
     },
     {
       "id": "crypto",
@@ -436,7 +432,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 420,
+      "count": 419,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -463,8 +459,8 @@
       "topics": [
         "flows"
       ],
-      "count": 69,
-      "focus": "No retained full-text sample; 69 observed posts in the 14-day research window."
+      "count": 68,
+      "focus": "No retained full-text sample; 68 observed posts in the 14-day research window."
     },
     {
       "id": "insider",
@@ -481,7 +477,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 851,
+      "count": 850,
       "focus": "2026년 11월 5일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심의 매도 압력이 확대되며 혼조세. 한국시간 오후 1시 55분 기준 나스닥100 선물은 1.08% 하락, S&P500 선물은..."
     }
   ],
@@ -950,18 +946,20 @@
       "localDateKst": "2026-11-04",
       "tags": [
         "equity",
-        "earnings"
+        "credit",
+        "geo",
+        "semi"
       ],
+      "lead": 1,
       "score": 100,
       "hasText": true,
-      "summary": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "AMD",
         "SMCI",
         "INTC"
-      ]
+      ],
+      "summary": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
       "id": "insidertracking/68237",
@@ -1661,26 +1659,6 @@
       ]
     },
     {
-      "id": "bornlupin/20773",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20773",
-      "datetime": "2026-10-23T00:10:32.000Z",
-      "localDateKst": "2026-10-23",
-      "tags": [
-        "equity"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "[시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
-      "tickers": [
-        "068270.KS",
-        "016360.KS",
-        "005940.KS",
-        "039490.KS",
-        "028050.KS"
-      ]
-    },
-    {
       "id": "bornlupin/21015",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21015",
@@ -1779,9 +1757,79 @@
       "hasText": true,
       "summary": "로이터) 중국에서는 AI 버블이 이미 터졌다 중국 증시에서 AI 관련주가 급락하며 사실상 버블 붕괴 국면에 진입했습니다. AI 및 반도체 대표 종목으로 구성된 STAR50 지수는 4개월도 채 되지 않아 40%...",
       "tickers": []
+    },
+    {
+      "id": "HANAchina/71608",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71608",
+      "datetime": "2026-11-05T14:39:27.000Z",
+      "localDateKst": "2026-11-05",
+      "tags": [
+        "credit",
+        "macro",
+        "earnings"
+      ],
+      "lead": 1,
+      "score": 96,
+      "hasText": true,
+      "tickers": [
+        "AAPL",
+        "GS",
+        "DB"
+      ],
+      "summary": ">>Apple, 7개 트랜치 달러채 발행…1년여 만에 투자등급 채권시장 복귀 •Apple이 1년여 만에 투자등급 채권시장에 복귀해 2~10년 만기의 7개 트랜치 달러채 발행에 나섬. 최장기 채권의 최초 금리..."
     }
   ],
   "broadItems": [
+    {
+      "id": "bornlupin/21021",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21021",
+      "datetime": "2026-11-06T00:15:55.000Z",
+      "localDateKst": "2026-11-06",
+      "tags": [
+        "geo"
+      ],
+      "lead": 1,
+      "score": 50,
+      "hasText": true,
+      "tickers": [],
+      "summary": "트럼프, 국가안보팀과 회동…이란 전쟁 결정 \"곧\" 내릴 것 - Axios 도널드 트럼프 대통령은 중간선거가 끝남에 따라 목요일 국가안보 보좌관들과 회의를 가진 후, 이란과의 전면전을 재개할지 여부를 곧 결정할..."
+    },
+    {
+      "id": "bornlupin/21020",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21020",
+      "datetime": "2026-11-06T00:11:05.000Z",
+      "localDateKst": "2026-11-06",
+      "tags": [
+        "ai-policy",
+        "macro",
+        "power",
+        "earnings"
+      ],
+      "lead": 1,
+      "score": 70,
+      "hasText": true,
+      "tickers": [],
+      "summary": "OpenAI) 책임 있는 AI 인프라의 새로운 기준 수립 OpenAI는 미국 내 AI 데이터센터 확충을 지속하면서, 지역사회의 전기요금·환경 부담을 최소화하고 주민과 경제적 이익을 공유하기 위한 새로운 원칙과..."
+    },
+    {
+      "id": "insidertracking/68496",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68496",
+      "datetime": "2026-11-06T00:04:55.000Z",
+      "localDateKst": "2026-11-06",
+      "tags": [
+        "semi"
+      ],
+      "score": 61,
+      "hasText": true,
+      "tickers": [
+        "BE"
+      ],
+      "summary": "블룸버그에 따르면 AI 중심 헤지펀드 밸류 얼라인드 리서치 어드바이저스(VARA)가 AI 인프라 관련 쏠림 거래의 급격한 반전으로 10월 33% 급락하며 올해 두 번째 대규모 손실 기록. VARA는 앞서..."
+    },
     {
       "id": "HANAchina/71626",
       "channel": "HANAchina",
@@ -2052,7 +2100,7 @@
       "datetime": "2026-11-05T21:27:21.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "market-note"
+        "macro"
       ],
       "score": 52,
       "hasText": true,
@@ -2062,8 +2110,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "2026년 11월 6일 미장 마감 S&P 500 - 7,353.73 -4.36% 다우 30 - 51,523.06 -3.44% 나스닥 - 24,315.00 -5.52% 러셀 2000 - 2,729.89...",
-      "tickers": []
+      "tickers": [],
+      "summary": "2026년 11월 6일 미장 마감 S&P 500 - 7,353.73 -4.36% 다우 30 - 51,523.06 -3.44% 나스닥 - 24,315.00 -5.52% 러셀 2000 - 2,729.89..."
     },
     {
       "id": "insidertracking/68468",
@@ -2072,7 +2120,7 @@
       "datetime": "2026-11-05T21:24:58.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "market-note"
+        "geo"
       ],
       "score": 50,
       "hasText": true,
@@ -2082,8 +2130,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 6일 트럼프 발언 · 트럼프, 백악관 집무실과 내각 회의실을 국가기념물로 지정하는 문서에 서명한다고 발표 · 트럼프 “향후 몇 주 동안 많은 일을 할...",
-      "tickers": []
+      "tickers": [],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 6일 트럼프 발언 · 트럼프, 백악관 집무실과 내각 회의실을 국가기념물로 지정하는 문서에 서명한다고 발표 · 트럼프 “향후 몇 주 동안 많은 일을 할..."
     },
     {
       "id": "insidertracking/68467",
@@ -2093,6 +2141,8 @@
       "localDateKst": "2026-11-06",
       "tags": [
         "macro",
+        "geo",
+        "power",
         "healthcare"
       ],
       "score": 79,
@@ -2103,10 +2153,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 6일 🇺🇸 아메리카 • 클리블랜드 연은 해맥 총재는 인플레이션이 광범위하고 목표와 반대 방향으로 움직이고 있다며, 통화정책을 제약적 수준으로 전환해야 한다고 강조....",
       "tickers": [
         "GOOG"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 6일 🇺🇸 아메리카 • 클리블랜드 연은 해맥 총재는 인플레이션이 광범위하고 목표와 반대 방향으로 움직이고 있다며, 통화정책을 제약적 수준으로 전환해야 한다고 강조...."
     },
     {
       "id": "HANAchina/71610",
@@ -2182,8 +2232,8 @@
         "videoCount": 1,
         "documents": []
       },
-      "summary": "공지사항 안내 Speed matters, Facts matter more > 속도도 중요하지만, 정확한 사실이 우선이다 미국 주식, 국제 정세, 속보 및 전쟁 이슈까지 가장 빠르고 정확하게 전달드리겠습니다....",
-      "tickers": []
+      "tickers": [],
+      "summary": "공지사항 안내 Speed matters, Facts matter more > 속도도 중요하지만, 정확한 사실이 우선이다 미국 주식, 국제 정세, 속보 및 전쟁 이슈까지 가장 빠르고 정확하게 전달드리겠습니다...."
     },
     {
       "id": "insidertracking/68462",
@@ -2192,7 +2242,8 @@
       "datetime": "2026-11-05T13:30:59.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "macro"
+        "macro",
+        "earnings"
       ],
       "score": 72,
       "hasText": true,
@@ -2202,8 +2253,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "경제 지표 발표 미국 신규 실업수당청구건수 (Initial Jobless Claims) ㆍ실제치(Actual): 189,000건 ㆍ예상치(Forecast): 197,000건 ㆍ이전치(Previous):...",
-      "tickers": []
+      "tickers": [],
+      "summary": "경제 지표 발표 미국 신규 실업수당청구건수 (Initial Jobless Claims) ㆍ실제치(Actual): 189,000건 ㆍ예상치(Forecast): 197,000건 ㆍ이전치(Previous):..."
     },
     {
       "id": "HANAchina/71607",
@@ -4161,6 +4212,7 @@
       "datetime": "2026-11-04T00:03:25.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
+        "semi",
         "earnings"
       ],
       "score": 57,
@@ -4171,8 +4223,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "[한투증권 최건] 고영 3Q26 Review: 놀라셨겠지만, 이제 시작입니다. 영업이익 컨센서스 15% 상회. 2개분기 연속 최대 실적 - 3분기 매출액 1,066억원(+76.8% YoY, +20.1%...",
-      "tickers": []
+      "tickers": [],
+      "summary": "[한투증권 최건] 고영 3Q26 Review: 놀라셨겠지만, 이제 시작입니다. 영업이익 컨센서스 15% 상회. 2개분기 연속 최대 실적 - 3분기 매출액 1,066억원(+76.8% YoY, +20.1%..."
     },
     {
       "id": "bornlupin/20991",
@@ -4181,16 +4233,18 @@
       "datetime": "2026-11-03T23:50:14.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "earnings",
-        "equity"
+        "equity",
+        "semi",
+        "power",
+        "earnings"
       ],
+      "lead": 1,
       "score": 59,
       "hasText": true,
-      "summary": "슈퍼마이크로 $SMCI 어닝콜 핵심 ① AI 인프라 수요가 매우 강력하며 공급을 크게 초과하고 있으며, 연간 매출 전망을 720억~820억 달러로 상향. 연간 매출 가이던스 720억~820억 달러도 매우...",
-      "lead": 2,
       "tickers": [
         "SMCI"
-      ]
+      ],
+      "summary": "슈퍼마이크로 $SMCI 어닝콜 핵심 ① AI 인프라 수요가 매우 강력하며 공급을 크게 초과하고 있으며, 연간 매출 전망을 720억~820억 달러로 상향. 연간 매출 가이던스 720억~820억 달러도 매우..."
     },
     {
       "id": "bornlupin/20990",
@@ -4200,18 +4254,20 @@
       "localDateKst": "2026-11-04",
       "tags": [
         "equity",
-        "earnings"
+        "credit",
+        "geo",
+        "semi"
       ],
+      "lead": 1,
       "score": 100,
       "hasText": true,
-      "summary": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "AMD",
         "SMCI",
         "INTC"
-      ]
+      ],
+      "summary": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
       "id": "bornlupin/20989",
@@ -4223,13 +4279,13 @@
         "semi",
         "power"
       ],
+      "lead": 1,
       "score": 79,
       "hasText": true,
-      "summary": "AMD Q3 2026 어닝콜 Q&A 중 Q. 2027년 약 3GW 규모의 AMD GPU 배치를 위한 고객들의 자금·토지·전력·데이터센터 인프라가 충분히 준비되어 있는가? 비벡 아리아(BofA): \"최근...",
-      "lead": 1,
       "tickers": [
         "AMD"
-      ]
+      ],
+      "summary": "AMD Q3 2026 어닝콜 Q&A 중 Q. 2027년 약 3GW 규모의 AMD GPU 배치를 위한 고객들의 자금·토지·전력·데이터센터 인프라가 충분히 준비되어 있는가? 비벡 아리아(BofA): \"최근..."
     },
     {
       "id": "HANAchina/71506",
@@ -4256,15 +4312,18 @@
       "datetime": "2026-11-03T23:28:58.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "semi"
+        "semi",
+        "macro",
+        "power",
+        "earnings"
       ],
+      "lead": 1,
       "score": 81,
       "hasText": true,
-      "summary": "AMD Q3 2026 어닝콜 중 메모리 관련 리사 수 CEO · 진 후 CFO 1. HBM 가격 상승과 고객 비용 분담 Q. HBM 가격 상승이 Instinct GPU 사업에 미치는 영향은? GPU 가격에...",
-      "lead": 1,
       "tickers": [
         "AMD"
-      ]
+      ],
+      "summary": "AMD Q3 2026 어닝콜 중 메모리 관련 리사 수 CEO · 진 후 CFO 1. HBM 가격 상승과 고객 비용 분담 Q. HBM 가격 상승이 Instinct GPU 사업에 미치는 영향은? GPU 가격에..."
     },
     {
       "id": "bornlupin/20987",
@@ -4274,17 +4333,19 @@
       "localDateKst": "2026-11-04",
       "tags": [
         "semi",
-        "earnings"
+        "power",
+        "ai-policy",
+        "equity"
       ],
+      "lead": 1,
       "score": 87,
       "hasText": true,
-      "summary": "AMD 2026년 3분기 어닝콜 1. 3분기 실적: 사상 최대 매출과 이익 - 매출 134억 달러(+45% YoY, +16% QoQ) - Non-GAAP EPS 2.09달러(+74% YoY) - 매출총이익률...",
-      "lead": 1,
       "tickers": [
         "AMD",
         "MSFT",
         "ORCL"
-      ]
+      ],
+      "summary": "AMD 2026년 3분기 어닝콜 1. 3분기 실적: 사상 최대 매출과 이익 - 매출 134억 달러(+45% YoY, +16% QoQ) - Non-GAAP EPS 2.09달러(+74% YoY) - 매출총이익률..."
     },
     {
       "id": "HANAchina/71505",
@@ -4389,13 +4450,13 @@
         "semi",
         "power"
       ],
+      "lead": 2,
       "score": 69,
       "hasText": true,
-      "summary": "AMD 리사 수 CEO “2027년 매출이 전년 대비 80% 이상 성장할 것으로 예상합니다.” 이는 AMD가 지난해 11월 제시한 장기 매출 성장률 목표의 두 배를 넘는 수준 입니다. - 데이터센터 매출...",
-      "lead": 2,
       "tickers": [
         "AMD"
-      ]
+      ],
+      "summary": "AMD 리사 수 CEO “2027년 매출이 전년 대비 80% 이상 성장할 것으로 예상합니다.” 이는 AMD가 지난해 11월 제시한 장기 매출 성장률 목표의 두 배를 넘는 수준 입니다. - 데이터센터 매출..."
     },
     {
       "id": "bornlupin/20985",
@@ -4404,12 +4465,14 @@
       "datetime": "2026-11-03T22:19:15.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "earnings"
+        "earnings",
+        "equity"
       ],
+      "lead": 1,
       "score": 65,
       "hasText": true,
-      "summary": "아리스타 네트웍스 (ANET) 2026년 3분기 실적 (시간외 +13%) * 매출: 36억 6,000만 달러 (예상치 33억 3,000만 달러 상회), 전년 동기 대비 58.5% 증가 * 조정...",
-      "tickers": []
+      "tickers": [],
+      "summary": "아리스타 네트웍스 (ANET) 2026년 3분기 실적 (시간외 +13%) * 매출: 36억 6,000만 달러 (예상치 33억 3,000만 달러 상회), 전년 동기 대비 58.5% 증가 * 조정..."
     },
     {
       "id": "insidertracking/68237",
@@ -4474,15 +4537,17 @@
       "datetime": "2026-11-03T21:25:45.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
+        "earnings",
         "equity",
-        "earnings"
+        "power"
       ],
+      "lead": 2,
       "score": 77,
       "hasText": true,
-      "summary": "슈퍼마이크로 $SMCI 2027 회계연도 1분기 실적 (시간외 +5%) 매출: 199억 달러; 전년 동기 대비 +298% 조정 주당순이익(EPS): 1.81달러 (예상치 1.62달러 상회); 전년 동기 대비...",
       "tickers": [
         "SMCI"
-      ]
+      ],
+      "summary": "슈퍼마이크로 $SMCI 2027 회계연도 1분기 실적 (시간외 +5%) 매출: 199억 달러; 전년 동기 대비 +298% 조정 주당순이익(EPS): 1.81달러 (예상치 1.62달러 상회); 전년 동기 대비..."
     },
     {
       "id": "insidertracking/68225",
@@ -4608,16 +4673,17 @@
       "localDateKst": "2026-11-04",
       "tags": [
         "earnings",
-        "semi"
+        "semi",
+        "power"
       ],
+      "lead": 2,
       "score": 73,
       "hasText": true,
-      "summary": "AMD 2026년 3분기 실적 (시간외 +6%) 매출: 134억 달러, 예상치 130.9억 달러. 전년 동기 대비 45% 증가 조정 주당순이익(EPS): 2.09달러, 예상치 1.95달러. 전년 동기 대비...",
-      "lead": 2,
       "tickers": [
         "AMD",
         "MSFT"
-      ]
+      ],
+      "summary": "AMD 2026년 3분기 실적 (시간외 +6%) 매출: 134억 달러, 예상치 130.9억 달러. 전년 동기 대비 45% 증가 조정 주당순이익(EPS): 2.09달러, 예상치 1.95달러. 전년 동기 대비..."
     },
     {
       "id": "insidertracking/68220",
@@ -6820,29 +6886,6 @@
       ]
     },
     {
-      "id": "insidertracking/68052",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68052",
-      "datetime": "2026-11-02T05:23:24.000Z",
-      "localDateKst": "2026-11-02",
-      "tags": [
-        "market-note"
-      ],
-      "score": 100,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 2,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000...",
-      "tickers": [
-        "AAPL",
-        "PLTR"
-      ]
-    },
-    {
       "id": "bornlupin/20943",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20943",
@@ -8801,42 +8844,6 @@
       "tickers": []
     },
     {
-      "id": "bornlupin/20819",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20819",
-      "datetime": "2026-10-26T02:12:42.000Z",
-      "localDateKst": "2026-10-26",
-      "tags": [
-        "semi"
-      ],
-      "score": 69,
-      "hasText": true,
-      "summary": "애플 폴더블폰 ‘아이폰 듀오’ 공급 부족… 주문 30% 추가, 폭스콘·TSMC 등 공급망 수혜 기대 1. 아이폰 듀오 출시 직후 완판, 애플 주문 30% 확대 - 애플 최초의 폴더블 스마트폰 아이폰...",
-      "lead": 1,
-      "tickers": [
-        "TSM",
-        "005930.KS",
-        "APH"
-      ]
-    },
-    {
-      "id": "bornlupin/20818",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20818",
-      "datetime": "2026-10-26T01:23:16.000Z",
-      "localDateKst": "2026-10-26",
-      "tags": [
-        "power"
-      ],
-      "score": 68,
-      "hasText": true,
-      "summary": "AI 투자, 1년 늦으면 비용 더 커진다! 기술 대기업들 전력·부지 확보 경쟁 구글 대만 전 총괄 젠리펑 주요 발언 1. AI 인프라 투자, 1년만 늦어도 비용 급증 - 구글을 비롯한 기술 대기업들이 막대한...",
-      "tickers": [
-        "GOOG",
-        "CEG"
-      ]
-    },
-    {
       "id": "aetherjapanresearch/26039",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/26039",
@@ -9417,7 +9424,7 @@
       "datetime": "2026-11-05T21:27:21.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "market-note"
+        "macro"
       ],
       "score": 52,
       "hasText": true,
@@ -9427,8 +9434,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "2026년 11월 6일 미장 마감 S&P 500 - 7,353.73 -4.36% 다우 30 - 51,523.06 -3.44% 나스닥 - 24,315.00 -5.52% 러셀 2000 - 2,729.89...",
-      "tickers": []
+      "tickers": [],
+      "summary": "2026년 11월 6일 미장 마감 S&P 500 - 7,353.73 -4.36% 다우 30 - 51,523.06 -3.44% 나스닥 - 24,315.00 -5.52% 러셀 2000 - 2,729.89..."
     },
     {
       "id": "insidertracking/68468",
@@ -9437,7 +9444,7 @@
       "datetime": "2026-11-05T21:24:58.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "market-note"
+        "geo"
       ],
       "score": 50,
       "hasText": true,
@@ -9447,8 +9454,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 6일 트럼프 발언 · 트럼프, 백악관 집무실과 내각 회의실을 국가기념물로 지정하는 문서에 서명한다고 발표 · 트럼프 “향후 몇 주 동안 많은 일을 할...",
-      "tickers": []
+      "tickers": [],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 6일 트럼프 발언 · 트럼프, 백악관 집무실과 내각 회의실을 국가기념물로 지정하는 문서에 서명한다고 발표 · 트럼프 “향후 몇 주 동안 많은 일을 할..."
     },
     {
       "id": "insidertracking/68467",
@@ -9458,6 +9465,8 @@
       "localDateKst": "2026-11-06",
       "tags": [
         "macro",
+        "geo",
+        "power",
         "healthcare"
       ],
       "score": 79,
@@ -9468,10 +9477,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 6일 🇺🇸 아메리카 • 클리블랜드 연은 해맥 총재는 인플레이션이 광범위하고 목표와 반대 방향으로 움직이고 있다며, 통화정책을 제약적 수준으로 전환해야 한다고 강조....",
       "tickers": [
         "GOOG"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 6일 🇺🇸 아메리카 • 클리블랜드 연은 해맥 총재는 인플레이션이 광범위하고 목표와 반대 방향으로 움직이고 있다며, 통화정책을 제약적 수준으로 전환해야 한다고 강조...."
     },
     {
       "id": "HANAchina/71610",
@@ -9531,13 +9540,34 @@
       "summary": "중국 AI 연구소 문샷, 미국의 대중국 규제 속 엔비디아 블랙웰 칩 접근 위해 유럽으로 눈 돌려 1. 문샷 AI, 유럽에서 엔비디아 블랙웰 GPU 확보 추진 - 중국 AI 기업 문샷 AI(Moonshot..."
     },
     {
+      "id": "insidertracking/68464",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68464",
+      "datetime": "2026-11-05T13:40:09.000Z",
+      "localDateKst": "2026-11-05",
+      "tags": [
+        "geo"
+      ],
+      "score": 55,
+      "hasText": true,
+      "media": {
+        "kind": "video",
+        "photoCount": 0,
+        "videoCount": 1,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": "공지사항 안내 Speed matters, Facts matter more > 속도도 중요하지만, 정확한 사실이 우선이다 미국 주식, 국제 정세, 속보 및 전쟁 이슈까지 가장 빠르고 정확하게 전달드리겠습니다...."
+    },
+    {
       "id": "insidertracking/68462",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/68462",
       "datetime": "2026-11-05T13:30:59.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "macro"
+        "macro",
+        "earnings"
       ],
       "score": 72,
       "hasText": true,
@@ -9547,8 +9577,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "경제 지표 발표 미국 신규 실업수당청구건수 (Initial Jobless Claims) ㆍ실제치(Actual): 189,000건 ㆍ예상치(Forecast): 197,000건 ㆍ이전치(Previous):...",
-      "tickers": []
+      "tickers": [],
+      "summary": "경제 지표 발표 미국 신규 실업수당청구건수 (Initial Jobless Claims) ㆍ실제치(Actual): 189,000건 ㆍ예상치(Forecast): 197,000건 ㆍ이전치(Previous):..."
     },
     {
       "id": "HANAchina/71607",
