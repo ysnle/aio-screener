@@ -528,18 +528,17 @@ function relationList(documentRef, groups = []) {
 
 function createDomainGuide(documentRef, domain, guide, packet, claimLedger) {
   if (!guide) return null;
-  const block = element(documentRef, 'section', 'atlas-domain-guide');
+  // v59.70 (QUALITY-BAR 6): the face is the domain's name and its one-paragraph flow. The column labels are gone, the
+  // observation/verification paragraph opens the evidence fold, and the 'follow the sub-areas below' how-to line is cut.
+  const block = element(documentRef, 'section', 'atlas-domain-brief');
   block.append(
     element(documentRef, 'h3', 'atlas-domain-detail-title', DOMAIN_LABELS[domain.id] || domain.title),
-    element(documentRef, 'p', 'atlas-learning-column-label', '산업의 흐름'),
-    element(documentRef, 'p', 'atlas-domain-detail-lede', `${guide.definition} 실제 흐름은 ${guide.mechanism}의 순서로 이어집니다.`),
-    element(documentRef, 'p', 'atlas-learning-column-label', '숫자가 말해주는 것과 감추는 것'),
-    element(documentRef, 'p', 'atlas-card-copy atlas-domain-guide-observation', `기본 관찰 단위는 ${guide.unit}입니다. 그러나 ${guide.bottleneck}에서 흐름이 막히면 겉으로 보이는 성장과 실제 현금 회수가 달라질 수 있습니다. 그래서 “${guide.verificationQuestion}”를 다음 확인 질문으로 남깁니다.`),
-    element(documentRef, 'p', 'atlas-card-copy atlas-domain-guide-exploration', '이제 아래 세부 영역에서 상류 제약이 제품·서비스를 거쳐 매출과 현금흐름으로 이동하는 경로를 한 단계씩 따라가세요.')
+    element(documentRef, 'p', 'atlas-domain-detail-lede', `${guide.definition} 실제 흐름은 ${guide.mechanism}의 순서로 이어집니다.`)
   );
 
   const evidence = element(documentRef, 'details', 'atlas-domain-evidence');
-  evidence.appendChild(element(documentRef, 'summary', 'atlas-module-source-summary', '근거와 검증 메모 보기'));
+  evidence.appendChild(element(documentRef, 'summary', 'atlas-module-source-summary', '확인 질문과 근거'));
+  evidence.appendChild(element(documentRef, 'p', 'atlas-card-copy atlas-domain-brief-observation', `기본 관찰 단위는 ${guide.unit}입니다. 그러나 ${guide.bottleneck}에서 흐름이 막히면 겉으로 보이는 성장과 실제 현금 회수가 달라질 수 있습니다. 그래서 “${guide.verificationQuestion}”를 다음 확인 질문으로 남깁니다.`));
   const links = element(documentRef, 'div', 'atlas-domain-guide-links');
   if (guide.sourceUrl) {
     const link = element(documentRef, 'a', 'atlas-reference-source-link', guide.sourceName || '공식 자료');

@@ -9,7 +9,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fingerprint } from './lib/research-content-fingerprint.mjs';
-import { ATLAS_COPY_SOURCE, CONCEPT_STORIES_SOURCE, INDUSTRY_STORIES_SOURCE, PRINCIPLES_CATALOG_SOURCE, readAtlasCopySource, readConceptStories, readIndustryStories, readPrinciplesCatalogSource, repoRoot, researchContentArtifacts } from './lib/research-content.mjs';
+import { ATLAS_COPY_SOURCE, CONCEPT_STORIES_SOURCE, INDUSTRY_STORIES_SOURCE, PRINCIPLES_CATALOG_SOURCE, readAtlasCopySource, readConceptStories, readIndustryStories, readPrinciplesCatalogSource, repoRoot, researchContentArtifacts, serializeResearchArtifact } from './lib/research-content.mjs';
 
 const errors = [];
 const read = (path) => readFileSync(resolve(repoRoot, path), 'utf8');
@@ -21,7 +21,7 @@ if (missing.length) {
 }
 
 for (const [path, value] of researchContentArtifacts()) {
-  if (!existsSync(resolve(repoRoot, path)) || read(path) !== `${JSON.stringify(value, null, 1)}\n`) errors.push(`stale generated artifact ${path} — run node scripts/build-research-content.mjs`);
+  if (!existsSync(resolve(repoRoot, path)) || read(path) !== serializeResearchArtifact(value)) errors.push(`stale generated artifact ${path} — run node scripts/build-research-content.mjs`);
 }
 
 const baseline = JSON.parse(read('architecture/research-content-baseline.json')).kinds;
