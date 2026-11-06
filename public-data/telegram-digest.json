@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-06T03:21:39.674Z",
-  "attemptedAt": "2026-11-06T03:21:39.674Z",
-  "lastSuccessfulAt": "2026-11-06T03:21:39.674Z",
+  "generatedAt": "2026-11-06T03:41:15.159Z",
+  "attemptedAt": "2026-11-06T03:41:15.159Z",
+  "lastSuccessfulAt": "2026-11-06T03:41:15.159Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-23T03:21:33.730Z",
-  "until": "2026-11-06T03:21:33.730Z",
+  "since": "2026-10-23T03:41:10.105Z",
+  "until": "2026-11-06T03:41:10.105Z",
   "current24hWindow": {
     "start": "2026-11-04T23:00:00.000Z",
     "end": "2026-11-05T23:00:00.000Z",
@@ -92,12 +92,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1345,
+      "count": 1346,
       "freshCount": 40,
-      "eligibleTextCount": 1282,
+      "eligibleTextCount": 1283,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 68509
+      "lastPostId": 68510
     },
     {
       "channel": "bornlupin",
@@ -113,29 +113,29 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 685,
-      "freshCount": 36,
+      "freshCount": 17,
       "eligibleTextCount": 684,
       "selectedCount": 122,
       "error": null,
       "lastPostId": 71647
     }
   ],
-  "count": 2321,
-  "retainedItemCount": 451,
+  "count": 2322,
+  "retainedItemCount": 440,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2321,
-    "eligibleTextCount": 2253,
+    "observedCount": 2322,
+    "eligibleTextCount": 2254,
     "mediaOnlyCount": 68,
-    "mediaAttachedCount": 410,
-    "photoPostCount": 356,
+    "mediaAttachedCount": 411,
+    "photoPostCount": 357,
     "documentPostCount": 2,
     "imageOnlyCount": 2,
     "highSignalCount": 396,
@@ -147,6 +147,7 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "japan": 80,
     "market-note": 851,
     "credit": 100,
     "geo": 442,
@@ -160,7 +161,6 @@
     "kr-market": 119,
     "macro": 353,
     "flows": 70,
-    "japan": 79,
     "optical": 39,
     "crypto": 4
   },
@@ -447,7 +447,7 @@
       "topics": [
         "japan"
       ],
-      "count": 79,
+      "count": 80,
       "focus": "앤트로픽, 대규모 미국 IPO 위해 일본에서 최대 35억 달러 조달 추진 1. 앤트로픽, 일본 투자자로부터 최대 35억 달러 조달 추진 - AI 스타트업 앤트로픽(Anthropic PBC)이 미국 증시..."
     },
     {
@@ -1758,18 +1758,17 @@
       "localDateKst": "2026-11-05",
       "tags": [
         "credit",
-        "macro",
-        "earnings"
+        "macro"
       ],
-      "lead": 1,
       "score": 96,
       "hasText": true,
+      "summary": ">>Apple, 7개 트랜치 달러채 발행…1년여 만에 투자등급 채권시장 복귀 •Apple이 1년여 만에 투자등급 채권시장에 복귀해 2~10년 만기의 7개 트랜치 달러채 발행에 나섬. 최장기 채권의 최초 금리...",
+      "lead": 1,
       "tickers": [
         "AAPL",
         "GS",
         "DB"
-      ],
-      "summary": ">>Apple, 7개 트랜치 달러채 발행…1년여 만에 투자등급 채권시장 복귀 •Apple이 1년여 만에 투자등급 채권시장에 복귀해 2~10년 만기의 7개 트랜치 달러채 발행에 나섬. 최장기 채권의 최초 금리..."
+      ]
     }
   ],
   "broadItems": [
@@ -1977,11 +1976,11 @@
         "kr-market",
         "flows"
       ],
-      "lead": 3,
       "score": 55,
       "hasText": true,
-      "tickers": [],
-      "summary": "• 대만 증시 약세와 외국인 순매도 속에 신대만달러 환율이 장중 달러당 33선에 근접하자, 대만 중앙은행 외환국은 수출기업들에게 추가적인 고점 환율을 기다리기보다 달러 가격이 유리한 지금 시점에 맞춰 달러를..."
+      "summary": "• 대만 증시 약세와 외국인 순매도 속에 신대만달러 환율이 장중 달러당 33선에 근접하자, 대만 중앙은행 외환국은 수출기업들에게 추가적인 고점 환율을 기다리기보다 달러 가격이 유리한 지금 시점에 맞춰 달러를...",
+      "lead": 3,
+      "tickers": []
     },
     {
       "id": "insidertracking/68490",
@@ -2007,11 +2006,11 @@
       "tags": [
         "macro"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "•대만 10월 CPI는 전년 동기 대비 2.33% 상승하여 9월보다는 하락했지만, 6개월 연속 2%를 웃도는 상승세를 기록 •운송 및 통신 부문이 4.36%로 가장 큰 폭의 증가세를 보였으며, 연료비와..."
+      "summary": "•대만 10월 CPI는 전년 동기 대비 2.33% 상승하여 9월보다는 하락했지만, 6개월 연속 2%를 웃도는 상승세를 기록 •운송 및 통신 부문이 4.36%로 가장 큰 폭의 증가세를 보였으며, 연료비와...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71620",
@@ -2022,11 +2021,11 @@
       "tags": [
         "ai-policy"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>OpenAI, GPT-6 Cyber 출시…사이버보안 AI 능력 대폭 향상 •GPT-6 Cyber의 취약점 공격 벤치마크 점수가 전작 대비 51% 향상, 연구진이 Firefox에서 81개의 고위험 취약점을..."
+      "summary": ">>OpenAI, GPT-6 Cyber 출시…사이버보안 AI 능력 대폭 향상 •GPT-6 Cyber의 취약점 공격 벤치마크 점수가 전작 대비 51% 향상, 연구진이 Firefox에서 81개의 고위험 취약점을...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71618",
@@ -2035,15 +2034,12 @@
       "datetime": "2026-11-05T22:18:51.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "power"
+        "market-note"
       ],
       "score": 92,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>미국 중간선거 ‘블루 웨이브’ 이후 월가의 6가지 투자 방향 전환 (대만경제일보) •미국 중간선거에서 민주당이 의회 양원을 장악하면서 월가는 향후 정책 변화에 대응해 투자 방향을 조정하고 있음. 트럼프..."
+      "summary": ">>미국 중간선거 ‘블루 웨이브’ 이후 월가의 6가지 투자 방향 전환 (대만경제일보) •미국 중간선거에서 민주당이 의회 양원을 장악하면서 월가는 향후 정책 변화에 대응해 투자 방향을 조정하고 있음. 트럼프...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71614",
@@ -2062,10 +2058,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "•항셍지수 선물 -1.58% 마감 •FTSE China A50 야간 선물 -1.85% •TSMC adr -10.8%",
+      "lead": 1,
       "tickers": [
         "TSM"
-      ],
-      "summary": "•항셍지수 선물 -1.58% 마감 •FTSE China A50 야간 선물 -1.85% •TSMC adr -10.8%"
+      ]
     },
     {
       "id": "HANAchina/71613",
@@ -2076,13 +2073,13 @@
       "tags": [
         "power"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
+      "summary": ">>Google, 미국 와이오밍주에 170억달러 투자해 첫 데이터센터 건설…전력 비용 전액 자체 부담 •Google이 미국 와이오밍주에 170억달러를 투자해 첫 데이터센터를 건설한다고 발표. 전력 비용은...",
+      "lead": 1,
       "tickers": [
         "GOOG"
-      ],
-      "summary": ">>Google, 미국 와이오밍주에 170억달러 투자해 첫 데이터센터 건설…전력 비용 전액 자체 부담 •Google이 미국 와이오밍주에 170억달러를 투자해 첫 데이터센터를 건설한다고 발표. 전력 비용은..."
+      ]
     },
     {
       "id": "insidertracking/68481",
@@ -2256,7 +2253,7 @@
       "datetime": "2026-11-05T21:24:58.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "geo"
+        "market-note"
       ],
       "score": 50,
       "hasText": true,
@@ -2266,8 +2263,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 6일 트럼프 발언 · 트럼프, 백악관 집무실과 내각 회의실을 국가기념물로 지정하는 문서에 서명한다고 발표 · 트럼프 “향후 몇 주 동안 많은 일을 할..."
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 6일 트럼프 발언 · 트럼프, 백악관 집무실과 내각 회의실을 국가기념물로 지정하는 문서에 서명한다고 발표 · 트럼프 “향후 몇 주 동안 많은 일을 할...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68467",
@@ -2301,13 +2298,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
+      "summary": ">>Nvidia, AI 메모리 풀스택 협업 설계 공개…HBM 용량 3% 증가로 Agent 처리량/달러 최대 30배 향상 •Nvidia는 대규모 모델과 Agent 확산으로 메모리 부담이 커지고 있어 단순한...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>Nvidia, AI 메모리 풀스택 협업 설계 공개…HBM 용량 3% 증가로 Agent 처리량/달러 최대 30배 향상 •Nvidia는 대규모 모델과 Agent 확산으로 메모리 부담이 커지고 있어 단순한..."
+      ]
     },
     {
       "id": "HANAchina/71608",
@@ -2317,18 +2314,17 @@
       "localDateKst": "2026-11-05",
       "tags": [
         "credit",
-        "macro",
-        "earnings"
+        "macro"
       ],
-      "lead": 1,
       "score": 96,
       "hasText": true,
+      "summary": ">>Apple, 7개 트랜치 달러채 발행…1년여 만에 투자등급 채권시장 복귀 •Apple이 1년여 만에 투자등급 채권시장에 복귀해 2~10년 만기의 7개 트랜치 달러채 발행에 나섬. 최장기 채권의 최초 금리...",
+      "lead": 1,
       "tickers": [
         "AAPL",
         "GS",
         "DB"
-      ],
-      "summary": ">>Apple, 7개 트랜치 달러채 발행…1년여 만에 투자등급 채권시장 복귀 •Apple이 1년여 만에 투자등급 채권시장에 복귀해 2~10년 만기의 7개 트랜치 달러채 발행에 나섬. 최장기 채권의 최초 금리..."
+      ]
     },
     {
       "id": "bornlupin/21018",
@@ -2397,14 +2393,13 @@
       "localDateKst": "2026-11-05",
       "tags": [
         "power",
-        "ai-policy",
-        "macro"
+        "ai-policy"
       ],
-      "lead": 2,
       "score": 65,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>반대 여론 속 OpenAI, 데이터센터 사업 추진 방식 변경 •OpenAI는 ‘전국 지역사회 협약’ 프레임워크를 발표하고 데이터센터 사업에서 비밀유지계약을 체결하지 않고, 전력 비용을 주민에게 전가하지..."
+      "summary": ">>반대 여론 속 OpenAI, 데이터센터 사업 추진 방식 변경 •OpenAI는 ‘전국 지역사회 협약’ 프레임워크를 발표하고 데이터센터 사업에서 비밀유지계약을 체결하지 않고, 전력 비용을 주민에게 전가하지...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "HANAchina/71604",
@@ -9132,11 +9127,11 @@
       "tags": [
         "ai-policy"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>OpenAI, GPT-6 Cyber 출시…사이버보안 AI 능력 대폭 향상 •GPT-6 Cyber의 취약점 공격 벤치마크 점수가 전작 대비 51% 향상, 연구진이 Firefox에서 81개의 고위험 취약점을..."
+      "summary": ">>OpenAI, GPT-6 Cyber 출시…사이버보안 AI 능력 대폭 향상 •GPT-6 Cyber의 취약점 공격 벤치마크 점수가 전작 대비 51% 향상, 연구진이 Firefox에서 81개의 고위험 취약점을...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71618",
@@ -9145,15 +9140,12 @@
       "datetime": "2026-11-05T22:18:51.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "power"
+        "market-note"
       ],
       "score": 92,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>미국 중간선거 ‘블루 웨이브’ 이후 월가의 6가지 투자 방향 전환 (대만경제일보) •미국 중간선거에서 민주당이 의회 양원을 장악하면서 월가는 향후 정책 변화에 대응해 투자 방향을 조정하고 있음. 트럼프..."
+      "summary": ">>미국 중간선거 ‘블루 웨이브’ 이후 월가의 6가지 투자 방향 전환 (대만경제일보) •미국 중간선거에서 민주당이 의회 양원을 장악하면서 월가는 향후 정책 변화에 대응해 투자 방향을 조정하고 있음. 트럼프...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71614",
@@ -9172,10 +9164,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "•항셍지수 선물 -1.58% 마감 •FTSE China A50 야간 선물 -1.85% •TSMC adr -10.8%",
+      "lead": 1,
       "tickers": [
         "TSM"
-      ],
-      "summary": "•항셍지수 선물 -1.58% 마감 •FTSE China A50 야간 선물 -1.85% •TSMC adr -10.8%"
+      ]
     },
     {
       "id": "HANAchina/71613",
@@ -9186,13 +9179,13 @@
       "tags": [
         "power"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
+      "summary": ">>Google, 미국 와이오밍주에 170억달러 투자해 첫 데이터센터 건설…전력 비용 전액 자체 부담 •Google이 미국 와이오밍주에 170억달러를 투자해 첫 데이터센터를 건설한다고 발표. 전력 비용은...",
+      "lead": 1,
       "tickers": [
         "GOOG"
-      ],
-      "summary": ">>Google, 미국 와이오밍주에 170억달러 투자해 첫 데이터센터 건설…전력 비용 전액 자체 부담 •Google이 미국 와이오밍주에 170억달러를 투자해 첫 데이터센터를 건설한다고 발표. 전력 비용은..."
+      ]
     },
     {
       "id": "insidertracking/68481",
@@ -9366,7 +9359,7 @@
       "datetime": "2026-11-05T21:24:58.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "geo"
+        "market-note"
       ],
       "score": 50,
       "hasText": true,
@@ -9376,8 +9369,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 6일 트럼프 발언 · 트럼프, 백악관 집무실과 내각 회의실을 국가기념물로 지정하는 문서에 서명한다고 발표 · 트럼프 “향후 몇 주 동안 많은 일을 할..."
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 6일 트럼프 발언 · 트럼프, 백악관 집무실과 내각 회의실을 국가기념물로 지정하는 문서에 서명한다고 발표 · 트럼프 “향후 몇 주 동안 많은 일을 할...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68467",
@@ -9411,13 +9404,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
+      "summary": ">>Nvidia, AI 메모리 풀스택 협업 설계 공개…HBM 용량 3% 증가로 Agent 처리량/달러 최대 30배 향상 •Nvidia는 대규모 모델과 Agent 확산으로 메모리 부담이 커지고 있어 단순한...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>Nvidia, AI 메모리 풀스택 협업 설계 공개…HBM 용량 3% 증가로 Agent 처리량/달러 최대 30배 향상 •Nvidia는 대규모 모델과 Agent 확산으로 메모리 부담이 커지고 있어 단순한..."
+      ]
     },
     {
       "id": "HANAchina/71608",
@@ -9427,18 +9420,17 @@
       "localDateKst": "2026-11-05",
       "tags": [
         "credit",
-        "macro",
-        "earnings"
+        "macro"
       ],
-      "lead": 1,
       "score": 96,
       "hasText": true,
+      "summary": ">>Apple, 7개 트랜치 달러채 발행…1년여 만에 투자등급 채권시장 복귀 •Apple이 1년여 만에 투자등급 채권시장에 복귀해 2~10년 만기의 7개 트랜치 달러채 발행에 나섬. 최장기 채권의 최초 금리...",
+      "lead": 1,
       "tickers": [
         "AAPL",
         "GS",
         "DB"
-      ],
-      "summary": ">>Apple, 7개 트랜치 달러채 발행…1년여 만에 투자등급 채권시장 복귀 •Apple이 1년여 만에 투자등급 채권시장에 복귀해 2~10년 만기의 7개 트랜치 달러채 발행에 나섬. 최장기 채권의 최초 금리..."
+      ]
     },
     {
       "id": "bornlupin/21018",
@@ -9487,14 +9479,13 @@
       "localDateKst": "2026-11-05",
       "tags": [
         "power",
-        "ai-policy",
-        "macro"
+        "ai-policy"
       ],
-      "lead": 2,
       "score": 65,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>반대 여론 속 OpenAI, 데이터센터 사업 추진 방식 변경 •OpenAI는 ‘전국 지역사회 협약’ 프레임워크를 발표하고 데이터센터 사업에서 비밀유지계약을 체결하지 않고, 전력 비용을 주민에게 전가하지..."
+      "summary": ">>반대 여론 속 OpenAI, 데이터센터 사업 추진 방식 변경 •OpenAI는 ‘전국 지역사회 협약’ 프레임워크를 발표하고 데이터센터 사업에서 비밀유지계약을 체결하지 않고, 전력 비용을 주민에게 전가하지...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "HANAchina/71604",
