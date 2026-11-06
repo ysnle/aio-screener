@@ -205,7 +205,7 @@ function themeRow({ market, id, label, ret1m, ret3m, ret6m, ret5d = null, vol = 
     relative: bench ? { name: benchName, field: bench.field || null, trendKey, trend: trendX, recent: recentX, band, recentBand, reference } : null,
     wind, // v59.56 (text pass): a tie names its branches once and says 'both' when their wind is the same.
     windText: scenario.state === 'tie' ? `중심 시나리오 ${withSubjectParticle(leadNames)} 동률이며 ${new Set(leadWinds).size === 1 ? `${leadWinds.length === 2 ? '두' : '모든'} 경우 모두 ${WIND_LABELS[leadWinds[0]]}` : leads.map((item, index) => `${scenario.names[index]}에서는 ${WIND_LABELS[leadWinds[index]]}`).join(', ')}`
-      : lead ? `중심 시나리오 ${scenario.names[0]}에서 ${WIND_LABELS[wind.lead]}${alt ? `, 대안 시나리오 '${alt.title.split(' — ')[0]}'에서 ${WIND_LABELS[wind.alt]}` : ''}` : '거시 시나리오 판단 보류',
+      : lead ? `중심 시나리오 ${scenario.names[0]}에서 ${WIND_LABELS[wind.lead]}${alt ? `, 대안 시나리오 '${alt.title.split(' — ')[0]}'에서 ${WIND_LABELS[wind.alt]}` : ''}` : '시나리오 판단 보류',
     favored, favoredWhy: why, choices,
     fit: known.length < 2 ? '판단 보류' : `조건 충족 ${met}/${conditions.length}`, met, total: conditions.length, known: known.length,
     basisText: conditions.map(([text, ok]) => `${text} ${ok == null ? '확인 불가' : ok ? '충족' : '미충족'}`),

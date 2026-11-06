@@ -159,7 +159,7 @@ function legend(doc) {
   clipped.append(el(doc, 'span', null, 'tp-swatch is-clipped'), doc.createTextNode('축 범위 밖'));
   clipped.title = '속이 빈 원은 축 범위 밖, 이름 옆이 실제 값';
   row.append(clipped);
-  row.title = '색은 중심 시나리오 기준의 거시 영향';
+  row.title = '색은 중심 시나리오 기준의 매크로 영향';
   return row;
 }
 
@@ -341,7 +341,7 @@ function themeCard(doc, root, row, screenerSector = null, { change = null, teach
   // v58.79: one short fact; why the two measures can differ is the line's hover (and the table's RRG fold).
   if (conflict) { const line = el(doc, 'p', `RRG ${conflict.etf} '${conflict.word}', 단계 '${conflict.stage}'`, 'xr-reading tp-rrg-fact'); line.title = rrgBasisText(row.relative?.name); card.append(line); }
   if (row.heavyweightNote) card.append(el(doc, 'p', row.heavyweightNote, 'xr-reading'));
-  card.append(el(doc, 'p', `거시 영향: ${row.windText}.`, 'xr-reading'));
+  card.append(el(doc, 'p', `매크로 영향: ${row.windText}.`, 'xr-reading'));
   // v58.75 (persona review, A-4·6): the expert-criteria count and the branches that would turn the wind either way.
   const split = scenarioSplitText(teach?.split);
   if (split) card.append(el(doc, 'p', split, 'xr-reading'));
@@ -751,7 +751,7 @@ export function renderThemeDetailPlaybook({ documentRef: doc, root } = {}) {
     Object.assign(el(doc, 'p', [row.ret5d != null ? `5거래일 ${pct(row.ret5d)}` : null, `1개월 ${pct(row.ret1m)}`, row.ret6m != null ? `6개월 ${pct(row.ret6m)}` : null, row.fit].filter(Boolean).join(', '), 'xr-basis'), { title: row.stateLabel }),
     // v59.51 (two layers): this read sits in the expert fold, so the RRG-vs-stage basis is printed, not a hover.
     ...(conflict ? [el(doc, 'p', `RRG ${conflict.etf} '${conflict.word}', 단계 '${conflict.stage}' — ${rrgBasisText(row.relative?.name)}.`, 'xr-reading tp-rrg-fact')] : []),
-    el(doc, 'p', `거시 영향: ${row.windText}. ${CHOICE_WORDS.favored}: ${row.favored.map((key) => CHOICES[key]).join(', ') || '판단 보류'} — ${row.favoredWhy}`, 'xr-reading'),
+    el(doc, 'p', `매크로 영향: ${row.windText}. ${CHOICE_WORDS.favored}: ${row.favored.map((key) => CHOICES[key]).join(', ') || '판단 보류'} — ${row.favoredWhy}`, 'xr-reading'),
     ...(row.thesis ? [el(doc, 'p', `핵심 논리: ${row.thesis}. 점검 신호: ${row.breaks.join(', ')}.`, 'xr-reading')] : []),
     // v59.51 (R724): the participation share as a criterion — what a high or low share means — not which members to check first.
     ...(row.above50 != null ? [el(doc, 'p', row.above50 === 0

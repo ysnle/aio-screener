@@ -6,7 +6,8 @@
 //   labels   — no heading, fold row, section label, button or tab names the screen '거시' (owner: 매크로).
 //   folds    — every fold row (details > summary) shows that it opens: list marker, drawn or glyph chevron, or 펼치기·접기.
 //   focus    — a keyboard-focused term mark, fold summary, button or link shows an outline or a ring (box-shadow).
-//   busy     — the shared busy spinner on every visible button (and the AI panel's) neither covers the label nor overflows.
+//   marks    — a live price has no unlabelled empty mark beside it (re-review #13, the '◦' freshness dot).
+//   busy     —the shared busy spinner on every visible button (and the AI panel's) neither covers the label nor overflows.
 // Report: _artifacts/contrast-focus/report.json. `--routes a,b` and `--schemes light` narrow a run.
 import { chromium } from 'playwright';
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -90,6 +91,16 @@ function audit() {
   const labels = [...page.querySelectorAll('h1, h2, h3, h4, summary, .aio-section-label, button, [role="tab"], .lu-gl-tag')]
     .filter((node) => visible(node) && /거시/.test(node.textContent))
     .map((node) => ({ sig: sig(node), text: node.textContent.trim().slice(0, 40) }));
+  // Re-review #36: labels are not only headings. A chip, tag, table cell or field label is short standalone text (its own
+  // text 16 characters or fewer: '거시' topic chip, '거시, 성장' criteria cell), and a field line's label is the part
+  // before its colon ('거시 영향: …'). Body sentences are longer and keep the plain word ('거시경제').
+  for (const node of page.querySelectorAll('*')) {
+    if (node.closest('svg, script, style, [hidden]')) continue;
+    const own = [...node.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join('').replace(/\s+/g, ' ').trim();
+    if (!own || !/거시/.test(own) || !visible(node)) continue;
+    const field = own.match(/^([^:：]{1,14})[:：]/);
+    if (own.length <= 16 || (field && /거시/.test(field[1]))) labels.push({ sig: sig(node), text: own.slice(0, 40) });
+  }
   // Screen review #35: one date format on chart axes and ends — "26년 1월" / "7월", or "M/D" for a window under two months
   // (the sparkline ends read "25.10" beside trend charts reading "26년 1월").
   for (const node of page.querySelectorAll('.macro-spark-dates span, .trend-chart text.trend-chart-axis[text-anchor="middle"]')) {
@@ -100,7 +111,32 @@ function audit() {
   const title = page.querySelector('.page-title');
   const before = title ? getComputedStyle(title, '::before').content : 'none';
   if (title && before && before !== 'none' && before !== 'normal' && before !== '""') labels.push({ sig: `${sig(title)}::before`, text: before.slice(0, 40) });
-  return { contrast: [...contrast.values()], links, folds, labels };
+  // Screen re-review #13: a quote reads label, price, change — no unlabelled mark between them (the v30.11 freshness dot
+  // drew a hollow '◦' after every stale price once the quote fetch failed). An empty visible box beside a live price
+  // that is not a chart is that mark.
+  const marks = [];
+  for (const price of document.querySelectorAll('.page.active [data-live-price], .topbar [data-live-price]')) {
+    for (const node of price.parentElement?.children || []) {
+      if (node === price || node.closest('svg, canvas') || node.matches('svg, canvas, img') || node.textContent.trim()) continue;
+      if (node.querySelector('svg, canvas, img')) continue;
+      if (visible(node)) marks.push({ sig: sig(node), text: `unlabelled mark beside ${price.getAttribute('data-live-price')}` });
+    }
+  }
+  // Screen re-review #21: the release strip's value line never runs through a band label's glyphs.
+  for (const bar of page.querySelectorAll('.zone-bar')) {
+    const pin = bar.querySelector('.zone-bar__pin');
+    if (!pin || !visible(bar)) continue;
+    const p = pin.getBoundingClientRect();
+    const x = pin.classList.contains('is-end') ? p.right : pin.classList.contains('is-start') ? p.left : p.left + p.width / 2;
+    for (const label of bar.querySelectorAll('.zone-bar__label')) {
+      if (label.hidden || !visible(label)) continue;
+      const range = document.createRange();
+      range.selectNodeContents(label);
+      const g = range.getBoundingClientRect();
+      if (g.width > 0 && x > g.left - 1 && x < g.right + 1) marks.push({ sig: `${sig(label)} (release strip)`, text: `value line ${pin.textContent.trim()} crosses '${label.textContent.trim()}'` });
+    }
+  }
+  return { contrast: [...contrast.values()], links, folds, labels, marks };
 }
 
 function focusCandidates() {
@@ -170,6 +206,10 @@ async function main() {
       const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, colorScheme: scheme, serviceWorkers: 'block', reducedMotion: 'reduce' });
       await context.addInitScript((dark) => { try { localStorage.setItem('aio_disclaimer_ack_v1', '1'); localStorage.setItem('aio_theme', dark ? 'dark' : 'light'); } catch (_) { /* storage blocked */ } }, scheme === 'dark');
       const page = await context.newPage();
+      // Outside requests fail at once (only the chart CDNs pass), so the quote-failure states render as a reader without
+      // the live feed sees them, instead of hanging until the wait ends.
+      const origin = `http://127.0.0.1:${port}`;
+      await page.route('**/*', (r) => (r.request().url().startsWith(origin) || /jsdelivr|unpkg|cdnjs/.test(r.request().url()) ? r.continue() : r.abort()));
       for (const route of routes) {
         await page.goto(`http://127.0.0.1:${port}/index.html#${route}`, { waitUntil: 'domcontentloaded' });
         await page.waitForFunction(() => document.querySelector('.page.active'), null, { timeout: 30000 });
@@ -194,13 +234,14 @@ async function main() {
           await page.evaluate(() => document.querySelector('#topbar-ai-btn')?.click());
           await page.waitForTimeout(300);
         }
-        const run = { route, scheme, contrast: found.contrast, links: found.links, folds: found.folds, labels: found.labels, focusMissing, busy };
+        const run = { route, scheme, contrast: found.contrast, links: found.links, folds: found.folds, labels: found.labels, marks: found.marks, focusMissing, busy };
         report.runs.push(run);
         for (const c of found.contrast) failures.push(`${scheme}/${route}: contrast ${c.ratio} < ${c.need} on ${c.sig} "${c.text}" (${c.count}x)`);
         for (const l of found.links) failures.push(`${scheme}/${route}: link in the browser's default colour ${l.sig} "${l.text}"`);
         for (const l of found.labels) failures.push(`${scheme}/${route}: label check — '거시' where the screen is 매크로, or a generated word above the title: ${l.sig} "${l.text}"`);
         for (const f of found.folds) failures.push(`${scheme}/${route}: fold row with no open marker ${f.sig} "${f.text}"`);
         for (const f of focusMissing) failures.push(`${scheme}/${route}: no visible focus on ${f.sig} "${f.text}"`);
+        for (const m of found.marks) failures.push(`${scheme}/${route}: ${m.sig} — ${m.text}`);
         for (const b of busy) failures.push(`${scheme}/${route}: busy spinner — ${b.why} on ${b.sig} "${b.text}"`);
       }
       await context.close();

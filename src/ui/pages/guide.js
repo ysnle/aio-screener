@@ -85,11 +85,11 @@ function guideRuleRowsRaw(R, levelBufferPp = MACRO_SIGNAL_RULES.inflationLevelBu
     ['시장 상태, 신용', '하이일드 스프레드 (ICE BofA)', `${R.credit.tightBelowBp}bp 미만, 5일 축소`, `${R.credit.stressAtBp}bp 이상, 5일 +${R.credit.widen5dBp}bp, 20일 확대 폭이 자체 기록 상위 ${100 - R.credit.stress20dPct}%(20일 +${R.credit.widen20dBp}bp 밑으로 줄 때까지 유지)`, '신용 스트레스'],
     ['시장 상태', '유가, 달러 (20일)', `WTI ${R.oil.fall20dPct}% 이하, 달러 하락`, `WTI +${R.oil.rise20dPct}%, 1년 범위 ${R.oil.rangeHighAt * 100}%, 달러 +${R.dollar.rise20dPct + R.dollar.bufferPct}%(1년 범위 ${R.dollar.rangeHighAt * 100}% 위면 +${R.dollar.rise20dPct}%)`, '물가·금융 여건'],
     ['한국 참고', '원/달러, 엔/달러 (20일)', `원/달러 -${R.fx.krwMove20dPct}% 이하`, `원/달러 +${R.fx.krwMove20dPct}%, 엔 ${R.fx.yenRally20dPct}% 이상 강세`, '2024년 8월 엔 캐리 청산'],
-    ['거시, 성장', 'Sahm 지표, 일자리 3개월 평균', `Sahm ${R.growth.sahmWatchAt}%p 미만, ${R.growth.payrollSolidK / 10}만 명 이상`, `Sahm ${R.growth.sahmRecessionAt}%p 이상, 3개월 평균 감소`, 'Sahm (2019)'],
+    ['매크로, 성장', 'Sahm 지표, 일자리 3개월 평균', `Sahm ${R.growth.sahmWatchAt}%p 미만, ${R.growth.payrollSolidK / 10}만 명 이상`, `Sahm ${R.growth.sahmRecessionAt}%p 이상, 3개월 평균 감소`, 'Sahm (2019)'],
     // v58.75 (persona review): the row said "3% 이상 부담"; the axis (macro-read inflationAxis) needs 3% + the level buffer, or a
     // re-acceleration that core PCE and core CPI agree on from 2.5% — derived from the same constants.
-    ['거시, 물가', '근원 PCE (전년 대비), 근원 PCE·CPI 3개월 속도', `${R.inflation.nearTargetPct}% 이하, 3개월 속도가 1년치 이하, 근원 PCE·CPI 어느 쪽도 재가속 아님`, `${(R.inflation.missPct + levelBufferPp).toFixed(1)}% 이상(${R.inflation.missPct}% 선 + ${levelBufferPp}%p), ${R.inflation.nearTargetPct}% 이상에서 근원 PCE·CPI가 함께 재가속(3개월 속도가 1년치보다 ${R.inflation.reaccelPp}%p 이상 빠름, 한쪽만이면 엇갈림)`, `FOMC 목표 ${R.inflation.targetPct}%`],
-    ['거시, 정책', '2년물 − 기준금리, 실질 기준금리', `-${R.policy.pricedMovePp}%p 이하`, `+${R.policy.pricedMovePp}%p 이상, 실질 ${R.policy.restrictiveRealPct}% 이상`, 'FOMC 장기 금리 전망'],
+    ['매크로, 물가', '근원 PCE (전년 대비), 근원 PCE·CPI 3개월 속도', `${R.inflation.nearTargetPct}% 이하, 3개월 속도가 1년치 이하, 근원 PCE·CPI 어느 쪽도 재가속 아님`, `${(R.inflation.missPct + levelBufferPp).toFixed(1)}% 이상(${R.inflation.missPct}% 선 + ${levelBufferPp}%p), ${R.inflation.nearTargetPct}% 이상에서 근원 PCE·CPI가 함께 재가속(3개월 속도가 1년치보다 ${R.inflation.reaccelPp}%p 이상 빠름, 한쪽만이면 엇갈림)`, `FOMC 목표 ${R.inflation.targetPct}%`],
+    ['매크로, 정책', '2년물 − 기준금리, 실질 기준금리', `-${R.policy.pricedMovePp}%p 이하`, `+${R.policy.pricedMovePp}%p 이상, 실질 ${R.policy.restrictiveRealPct}% 이상`, 'FOMC 장기 금리 전망'],
     ['투자 심리', 'CNN 공포·탐욕 (참고 지표)', '판정에 넣지 않음', '판정에 넣지 않음', `참고 구간: 극단 공포 <${R.fearGreed.extremeFearBelow}, 공포 <${R.fearGreed.fearBelow}, 탐욕 >${R.fearGreed.greedAbove}, 극단 탐욕 >${R.fearGreed.extremeGreedAbove}`]
   ];
 }

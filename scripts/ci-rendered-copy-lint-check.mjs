@@ -39,7 +39,12 @@ export const COPY_RULES = Object.freeze([
   // v59.70 (screen review #19, owner: no textbook tone): an instruction to the reader ("…확인해야 합니다") or a how-to-read
   // label ('세는 법', '차트 읽기') on a data screen. The long-form knowledge pages are their own pass.
   ['reader-duty', /(?:확인|점검|살펴|지켜|주시)\s*(?:해야|봐야|볼 필요가 있|할 필요가 있)\s*(?:합니다|습니다)/, (route) => !LONG_FORM_ROUTES.has(route)],
-  ['how-to-read', /(?:읽는 (?:법|방법|순서)|세는 법|차트 읽기|먼저 알아둘 개념)/, (route) => !LONG_FORM_ROUTES.has(route)]
+  ['how-to-read', /(?:읽는 (?:법|방법|순서)|세는 법|차트 읽기|먼저 알아둘 개념)/, (route) => !LONG_FORM_ROUTES.has(route)],
+  // v59.70 (re-review N3): a change that prints zero names no direction ('20거래일 0.0%(엔 강세)'), and one line prints its
+  // window changes at one precision ('직전 거래일 종가 대비 0.00%, 20거래일 0.0%'). Whole-number rule thresholds
+  // ('WTI 20일 -5% 이하') are not measured changes and do not count.
+  ['zero-direction', /(?:^|[^\d.,])[+-]?0(?:\.0+)?(?:%p|%|bp|pt)?\s*\([^)]*(?:강세|약세|상승|하락|확대|축소|오름|내림)\)/],
+  ['mixed-precision', { test: (line) => new Set([...line.matchAll(/(?:대비|거래일|일|주|개월|년)\s+[+-]?\d+\.(\d+)%(?!p)/g)].map((m) => m[1].length)).size > 1 }]
 ]);
 const failures = [];
 const offenders = [];
@@ -104,14 +109,14 @@ if (isMain) {
     const canaryText = await page.evaluate(() => {
       const host = document.createElement('div');
       host.id = 'copy-lint-canary';
-      host.innerText = "'유가 충격'(으)로 바뀌었습니다\n값 undefined\n10/23 -0.0%\n나스닥 100 −0.8%\n모델 검증 BLOCKED\n조건 ()\n, 3종목 세부 테마\n후행(약 50일 기준)(10/23)\n시장 폭 부담 이 아직 빠짐\n코스피 10/23 +0.3%, 원/달러 -0.2%입니다.\n다음 분기 매출을 확인해야 합니다.\n세는 법";
+      host.innerText = "'유가 충격'(으)로 바뀌었습니다\n값 undefined\n10/23 -0.0%\n나스닥 100 −0.8%\n모델 검증 BLOCKED\n조건 ()\n, 3종목 세부 테마\n후행(약 50일 기준)(10/23)\n시장 폭 부담 이 아직 빠짐\n코스피 10/23 +0.3%, 원/달러 -0.2%입니다.\n다음 분기 매출을 확인해야 합니다.\n세는 법\n20거래일 0.0%(엔 강세)\n직전 거래일 종가 대비 0.00%, 20거래일 0.0%";
       document.querySelector('.page.active').appendChild(host);
       const text = host.innerText;
       host.remove();
       return text;
     });
     const seen = new Set(lintLines(canaryText, 'canary').map((hit) => hit.rule));
-    const clean = lintLines('코스피 10/23 +0.3%, 원/달러 -0.2%입니다. 2년물 − 기준금리 0.82%p', 'canary');
+    const clean = lintLines('코스피 10/23 +0.3%, 원/달러 -0.2%입니다. 2년물 − 기준금리 0.82%p\n직전 거래일 종가 대비 +0.12%, 20거래일 -1.30%(엔 강세)', 'canary');
     const missing = COPY_RULES.map(([rule]) => rule).filter((rule) => !seen.has(rule));
     if (missing.length || clean.length) failures.push({ message: 'rendered copy lint canary failed (v58.74)', detail: { missing, clean } });
     await page.evaluate(() => {

@@ -8,7 +8,7 @@ import { buildCloseSeries, closeBasis, sessionPointBack as closeSessionPointBack
 import { resolveMarketCalendarSession } from '../market/market-calendar.js';
 import { RULES } from '../rules/thresholds.js';
 import { MARKET_WINDOWS } from '../market/market-windows.js';
-import { signedText, readNumber as finite } from '../shared/number.js';
+import { directionOf, signedText, readNumber as finite } from '../shared/number.js';
 import { isIsoDay } from '../shared/session-date.js';
 
 // MERGED #13 (run-6): the 10-year yield read 4.93 / 4.94 / 4.98 / 5.00 on one day — ^TNX close, Treasury par curve, FRED
@@ -369,7 +369,7 @@ export function buildRatesFx({ macro = null, history = [], macroHistory = null }
       // window carries the same name as the card's and the sentence says the two are one move seen from each side.
       // v59.45 (P18-FX-01): the rule is the USD/JPY fall itself; minus that fall is not the yen's own return (100→80 is −20%
       // for USD/JPY but +25% for the yen), so the sentence names the rate it measures.
-      text: `엔/달러 20거래일 ${signed(-yenStrength, 1, '%')}(${yenStrength > 0 ? '엔 강세' : yenStrength < 0 ? '엔 약세' : '변화 없음'}). 엔/달러가 20거래일에 ${YEN_RALLY_RULE}% 이상 내리면(엔 급강세) 시장 상태의 환율 참고 지표가 '부담'으로 바뀝니다(6개 지표 합계에는 넣지 않음).`
+      text: `엔/달러 20거래일 ${signed(-yenStrength, 2, '%')}${{ up: '(엔 강세)', down: '(엔 약세)' }[directionOf(yenStrength, 2)] || ''}. 엔/달러가 20거래일에 ${YEN_RALLY_RULE}% 이상 내리면(엔 급강세) 시장 상태의 환율 참고 지표가 '부담'으로 바뀝니다(6개 지표 합계에는 넣지 않음).`
     };
   // v57.50 C10: the 10-year "5일/20일" change on this tab is the ^TNX completed-close series — the same series and session
   // count as the 시장 상태 rates axis — so the two screens print the same number for the same day (tenYearClose).

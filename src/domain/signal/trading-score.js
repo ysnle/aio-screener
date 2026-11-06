@@ -48,7 +48,7 @@ function freezeEvidenceMap(value) {
 export function deriveTradingScoreComponents(score = {}) {
   return Object.freeze([
     ['volScore', '변동성', 25], ['trendScore', '추세', 20],
-    ['momScore', '위험선호', 25], ['breadthScore', '시장 폭', 20], ['macroScore', '거시', 10]
+    ['momScore', '위험선호', 25], ['breadthScore', '시장 폭', 20], ['macroScore', '매크로', 10]
   ].map(([key, label, weight]) => {
     const value = finiteNumber(score[key]);
     return Object.freeze({ key, label, weight, value, contribution: value == null ? null : Math.round(Math.max(0, Math.min(100, value)) * weight / 100) });
@@ -361,7 +361,7 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
     ? PREDICTIVE_VALIDATION_ESTABLISHED
     : PREDICTIVE_VALIDATION_NOT_ESTABLISHED;
   const decisionEligible = score?.decisionEligible === true && predictiveValidation === PREDICTIVE_VALIDATION_ESTABLISHED;
-  const missingLabels = { volatility: '변동성', momentum: '위험선호', trend: '추세', breadth: '시장 폭', macro: '거시' };
+  const missingLabels = { volatility: '변동성', momentum: '위험선호', trend: '추세', breadth: '시장 폭', macro: '매크로' };
   const missingText = missing.map((key) => missingLabels[key] || key).join(', ');
   const reasons = missing.map((key) => `missing:${key}`);
   // P1328: the basis the inputs were read on (e.g. "9/28 미국 정규장 종가 기준") is part of the statement.
