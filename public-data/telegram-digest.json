@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-06T13:51:39.268Z",
-  "attemptedAt": "2026-11-06T13:51:39.268Z",
-  "lastSuccessfulAt": "2026-11-06T13:51:39.268Z",
+  "generatedAt": "2026-11-06T14:21:34.288Z",
+  "attemptedAt": "2026-11-06T14:21:34.288Z",
+  "lastSuccessfulAt": "2026-11-06T14:21:34.288Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-23T13:51:32.322Z",
-  "until": "2026-11-06T13:51:32.322Z",
+  "since": "2026-10-23T14:21:29.235Z",
+  "until": "2026-11-06T14:21:29.235Z",
   "current24hWindow": {
     "start": "2026-11-04T23:00:00.000Z",
     "end": "2026-11-05T23:00:00.000Z",
@@ -92,80 +92,84 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1360,
+      "count": 1361,
       "freshCount": 40,
-      "eligibleTextCount": 1299,
+      "eligibleTextCount": 1300,
       "selectedCount": 124,
       "error": null,
-      "lastPostId": 68566
+      "lastPostId": 68567
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 237,
+      "count": 239,
       "freshCount": 40,
-      "eligibleTextCount": 237,
+      "eligibleTextCount": 239,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 21036
+      "lastPostId": 21038
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 680,
-      "freshCount": 37,
+      "freshCount": 20,
       "eligibleTextCount": 679,
       "selectedCount": 122,
       "error": null,
       "lastPostId": 71671
     }
   ],
-  "count": 2320,
-  "retainedItemCount": 461,
+  "count": 2323,
+  "retainedItemCount": 448,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2320,
-    "eligibleTextCount": 2255,
+    "observedCount": 2323,
+    "eligibleTextCount": 2258,
     "mediaOnlyCount": 65,
-    "mediaAttachedCount": 457,
-    "photoPostCount": 398,
+    "mediaAttachedCount": 458,
+    "photoPostCount": 399,
     "documentPostCount": 2,
     "imageOnlyCount": 2,
-    "highSignalCount": 395,
-    "broadSignalCount": 852,
+    "highSignalCount": 397,
+    "broadSignalCount": 854,
     "selectedRawCount": 391,
     "selectedEligibleCount": 391,
     "selectedRawCoveragePct": 17.3,
-    "selectedOfObservedPct": 16.9,
+    "selectedOfObservedPct": 16.8,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 846,
+    "semi": 478,
+    "credit": 99,
+    "power": 269,
+    "market-note": 847,
     "macro": 352,
     "kr-market": 117,
     "equity": 117,
     "earnings": 409,
-    "semi": 477,
     "flows": 65,
     "ai-policy": 105,
     "geo": 445,
     "japan": 79,
-    "power": 268,
     "healthcare": 76,
-    "credit": 98,
     "optical": 41,
     "media-only": 64,
     "crypto": 4
   },
   "tickerCounts": {
-    "TSM": 38,
+    "NVDA": 113,
+    "MU": 35,
+    "TSM": 39,
+    "005930.KS": 48,
+    "000660.KS": 71,
     "MRNA": 3,
     "TSLA": 31,
     "MSFT": 60,
@@ -174,20 +178,16 @@
     "HIMS": 1,
     "NVO": 2,
     "BE": 13,
-    "NVDA": 112,
     "HUM": 1,
     "AAPL": 23,
     "AVGO": 21,
     "AMZN": 80,
     "CRWV": 5,
     "IONQ": 2,
-    "MU": 34,
     "ORCL": 11,
     "AMD": 46,
     "GS": 3,
     "DB": 2,
-    "005930.KS": 47,
-    "000660.KS": 70,
     "BCS": 2,
     "2454.TW": 4,
     "285A.T": 9,
@@ -260,12 +260,12 @@
     "BMY": 1
   },
   "themes": [
-    "Market Notes (846 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
-    "Semiconductors/Memory (477 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
+    "Market Notes (847 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
+    "Semiconductors/Memory (478 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
     "Geopolitics (445 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
     "Earnings/Corporate (409 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
     "Macro/Rates (352 posts in 14-day research window): 텍사스 주지사 당선인 지나 히노호사는 버니 샌더스가 아니다. 데이터센터 건설을 지지한다. - Tae Kim 시장은 텍사스 주지사 선거 결과가 AI 데이터센터 산업에 미칠 영향을 과도하게 부정적으로 해석하고 있다. 히노호사는 데이터센터 건설 자체를 반대하는 것이 아니라 지역 주민과 노동자에게 실질적인 혜택이...",
-    "AI Power/Grid (268 posts in 14-day research window): 데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가 나타나고 있음. 데이터센터의 막대한 전력 소비와 지역사회 부담에 대한 우려가 커지면서 미국 하원과 텍사스,...",
+    "AI Power/Grid (269 posts in 14-day research window): 데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가 나타나고 있음. 데이터센터의 막대한 전력 소비와 지역사회 부담에 대한 우려가 커지면서 미국 하원과 텍사스,...",
     "Korea Market (117 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY...",
     "Equity/Analyst (117 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
   ],
@@ -277,7 +277,7 @@
     },
     {
       "key": "NVDA",
-      "count": 112,
+      "count": 113,
       "text": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가 나타나고 있음. 데이터센터의 막대한 전력 소비와 지역사회 부담에 대한 우려가 커지면서 미국 하원과 텍사스,..."
     },
     {
@@ -287,7 +287,7 @@
     },
     {
       "key": "000660.KS",
-      "count": 70,
+      "count": 71,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Falcon Guardian에 AI 에이전트의 실행을 중단하고 재시작 및 기업 네트워크 접근을..."
     },
     {
@@ -297,7 +297,7 @@
     },
     {
       "key": "005930.KS",
-      "count": 47,
+      "count": 48,
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
@@ -307,12 +307,12 @@
     },
     {
       "key": "TSM",
-      "count": 38,
+      "count": 39,
       "text": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
       "key": "MU",
-      "count": 34,
+      "count": 35,
       "text": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
     },
     {
@@ -356,7 +356,7 @@
       "topics": [
         "credit"
       ],
-      "count": 98,
+      "count": 99,
       "focus": "11월 04일 미주인 브리핑 • 나스닥 0.83% 상승 · 엔비디아 시총 5조 달러 회복 • AMD 데이터센터 매출 97% 급증 · 시간 외 6% 상승 • 메타 대규모 회사채 발행 추진 · AI 투자 확대 •..."
     },
     {
@@ -365,7 +365,7 @@
       "topics": [
         "semi"
       ],
-      "count": 477,
+      "count": 478,
       "focus": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
     },
     {
@@ -375,7 +375,7 @@
         "optical"
       ],
       "count": 41,
-      "focus": ">>중국 오전 대표 기술기업 자사주 매입 목표 발표 •Zhongji Innolight, Eoptolink, Luxshare Precision, Dongshan Precision, TFC Optical Communication, Hygon 등 상장사들이 잇따라 정오에 공시를 발표하고, 정책 수단을 충분히 활용해..."
+      "focus": "No retained full-text sample; 41 observed posts in the 14-day research window."
     },
     {
       "id": "power",
@@ -383,7 +383,7 @@
       "topics": [
         "power"
       ],
-      "count": 268,
+      "count": 269,
       "focus": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가 나타나고 있음. 데이터센터의 막대한 전력 소비와 지역사회 부담에 대한 우려가 커지면서 미국 하원과 텍사스,..."
     },
     {
@@ -473,7 +473,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 846,
+      "count": 847,
       "focus": "2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며..."
     }
   ],
@@ -1766,6 +1766,42 @@
   ],
   "broadItems": [
     {
+      "id": "bornlupin/21038",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21038",
+      "datetime": "2026-11-06T14:21:03.000Z",
+      "localDateKst": "2026-11-06",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 67,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "MU",
+        "TSM",
+        "005930.KS",
+        "000660.KS"
+      ],
+      "summary": "TSMC, 엔비디아 요청으로 3D D램 생산 검토 더 인포메이션(The Information)에 따르면, AI로 인한 메모리 공급 부족으로 칩 설계 업체들이 추가 공급처를 모색함에 따라 TSMC가 첨단 3D..."
+    },
+    {
+      "id": "bornlupin/21037",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21037",
+      "datetime": "2026-11-06T14:01:30.000Z",
+      "localDateKst": "2026-11-06",
+      "tags": [
+        "credit",
+        "power"
+      ],
+      "score": 78,
+      "hasText": true,
+      "tickers": [],
+      "summary": "모건스탠리: AI 투자 확대와 신용시장 리스크 분석 모건스탠리의 신용시장 전문가 댄 토스카노는 AI 인프라 투자 규모가 계속 확대되고 있지만, 현재 신용시장에서는 구조적인 자금조달 위기가 나타나지 않고 있다고..."
+    },
+    {
       "id": "bornlupin/21036",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21036",
@@ -2202,15 +2238,12 @@
       "datetime": "2026-11-06T06:26:22.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "kr-market"
+        "market-note"
       ],
       "score": 93,
       "hasText": true,
-      "tickers": [],
-      "summary": "하나증권 중국/신흥국전략 김경환(T.02-3771-7616) *텔레그램 채널 : [김경환의 China Weekly] 민주당 압승과 홍콩 증시 상승, 우연일까? 자료: • 트럼프의 참패와 블루 웨이브, 중화권..."
+      "summary": "하나증권 중국/신흥국전략 김경환(T.02-3771-7616) *텔레그램 채널 : [김경환의 China Weekly] 민주당 압승과 홍콩 증시 상승, 우연일까? 자료: • 트럼프의 참패와 블루 웨이브, 중화권...",
+      "tickers": []
     },
     {
       "id": "bornlupin/21027",
@@ -2312,7 +2345,6 @@
       "tags": [
         "macro"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
       "media": {
@@ -2321,8 +2353,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>유가 20% 급락했는데 금값은 왜 반대로 급등했나? 골드만삭스 : 금은 ‘역방향 원유 거래’ •브렌트유가 한 주간 약 20% 급락한 가운데 금값은 3% 이상 반등함. 골드만삭스는 금이 원유의 ‘거울..."
+      "summary": ">>유가 20% 급락했는데 금값은 왜 반대로 급등했나? 골드만삭스 : 금은 ‘역방향 원유 거래’ •브렌트유가 한 주간 약 20% 급락한 가운데 금값은 3% 이상 반등함. 골드만삭스는 금이 원유의 ‘거울...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/21023",
@@ -2346,15 +2379,13 @@
       "datetime": "2026-11-06T03:42:37.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "power",
-        "credit",
-        "earnings"
+        "power"
       ],
-      "lead": 1,
       "score": 75,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>미국 데이터센터 건설 리스크 상세 분석 : 인허가·인력·보험·전력 변동 (바클레이즈) •바클레이즈 William Thompson 연구팀은 2일간 데이터센터 산업 서밋에 참석한 뒤, AI 인프라 확장의..."
+      "summary": ">>미국 데이터센터 건설 리스크 상세 분석 : 인허가·인력·보험·전력 변동 (바클레이즈) •바클레이즈 William Thompson 연구팀은 2일간 데이터센터 산업 서밋에 참석한 뒤, AI 인프라 확장의...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68508",
@@ -2380,11 +2411,11 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "•중국 반도체 과창50지수 플러스 전환 •개장 -5% 낙폭 극복 •홍콩 증시 약보합 전환, 3대지수 낙폭 축소"
+      "summary": "•중국 반도체 과창50지수 플러스 전환 •개장 -5% 낙폭 극복 •홍콩 증시 약보합 전환, 3대지수 낙폭 축소",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68502",
@@ -2413,7 +2444,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 57,
       "hasText": true,
       "media": {
@@ -2422,8 +2452,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>BofA 로드쇼 : 홍콩 및 일부 상하이 투자자들, 메모리주에 대해 뚜렷한 약세 전환 •BofA 로드쇼에서 홍콩 투자자들의 메모리주에 대한 투자 심리가 뚜렷하게 약세로 전환된 것으로 나타났으며, 일부..."
+      "summary": ">>BofA 로드쇼 : 홍콩 및 일부 상하이 투자자들, 메모리주에 대해 뚜렷한 약세 전환 •BofA 로드쇼에서 홍콩 투자자들의 메모리주에 대한 투자 심리가 뚜렷하게 약세로 전환된 것으로 나타났으며, 일부...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68501",
@@ -2454,11 +2485,12 @@
       ],
       "score": 68,
       "hasText": true,
+      "summary": ">>젠슨 황, ‘세계 10대 부호’에서 탈락 •민주당이 의회 선거에서 압승하면서 AI 데이터센터 건설이 차질을 빚을 수 있다는 우려가 커졌고, 기술주와 반도체주가 일제히 매도세. Nvidia 주가는 하루 만에...",
+      "lead": 2,
       "tickers": [
         "NVDA",
         "ORCL"
-      ],
-      "summary": ">>젠슨 황, ‘세계 10대 부호’에서 탈락 •민주당이 의회 선거에서 압승하면서 AI 데이터센터 건설이 차질을 빚을 수 있다는 우려가 커졌고, 기술주와 반도체주가 일제히 매도세. Nvidia 주가는 하루 만에..."
+      ]
     },
     {
       "id": "HANAchina/71632",
@@ -2469,11 +2501,11 @@
       "tags": [
         "macro"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "•중국 주요 국채금리 급락 •10년 국채 수익률 1.58%로 사상 최저"
+      "summary": "•중국 주요 국채금리 급락 •10년 국채 수익률 1.58%로 사상 최저",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68499",
@@ -8582,37 +8614,6 @@
       "tickers": [
         "NVDA",
         "GOOG"
-      ]
-    },
-    {
-      "id": "bornlupin/20837",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20837",
-      "datetime": "2026-10-26T23:46:15.000Z",
-      "localDateKst": "2026-10-27",
-      "tags": [
-        "market-note"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": "일론 머스크 터무니없는 분석이다. 로봇의 RAM 수요는 지구상의 다른 모든 수요를 뛰어넘을 것이다. 원자를 원하는 형태로 배열하려면 로봇이 물리적 실체를 갖고 있어야 하기 때문이다. 초지능(Super...",
-      "tickers": []
-    },
-    {
-      "id": "bornlupin/20835",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20835",
-      "datetime": "2026-10-26T23:34:29.000Z",
-      "localDateKst": "2026-10-27",
-      "tags": [
-        "semi"
-      ],
-      "score": 61,
-      "hasText": true,
-      "summary": "TSMC CoWoS 가격 20% 인상설! AI 칩 생산능력 확보 경쟁에 장비 납기 최대 8개월로 연장 패키징 납기 장기화와 생산능력 부족이 장비 업계로 확산되면서 공급망 전반에 납품 및 증설 경쟁 심화 1....",
-      "lead": 1,
-      "tickers": [
-        "TSM"
       ]
     },
     {
