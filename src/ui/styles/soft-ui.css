@@ -181,12 +181,11 @@ h2, .section-title, .widget-title, .aio-card-title, .section-header {
 }
 .aio-card, .aio-widget, .data-widget { padding: 20px 22px; }
 .aio-card.is-interactive:hover { background: var(--bg-card) !important; box-shadow:none !important; }
-.aio-decision-header, #home-operator-note .aio-operator-note-card {
+#home-operator-note .aio-operator-note-card {
   border: 0 !important; border-radius: 12px !important; background: var(--bg-card) !important; box-shadow:none !important;
 }
 #home-operator-note .aio-operator-note-card { padding: 22px 26px !important; }
 #home-operator-note .aio-operator-note-kicker { color: var(--text-secondary) !important; }
-.aio-decision-verdict { font-size: 28px !important; font-weight: 700 !important; letter-spacing: -0.02em !important; }
 
 .trend-card, .regime-axis, .macro-stat, .temp-tile, .thp-quadrant-card, .tp-card, .capex-flow-card, .masters-metric, .pf-allocation-card, .regime-scenario-card, .scr-funnel-step, .sh-base-panel, .sh-base-panel-s1, .empty-state, .stock-chart-evidence, .masters-detail-card, .rates-guide {
   border: 0 !important; border-radius: 12px !important; background: var(--sx-ink-a03) !important; box-shadow: none !important;

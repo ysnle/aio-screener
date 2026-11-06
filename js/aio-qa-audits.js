@@ -2846,7 +2846,7 @@ window.AIO.assertXssEscapeCoverageAudit = function() {
     var hasEscHtml = typeof window.escHtml === 'function';
     // (2) 주요 chat/render 함수들 toString 후 scan
     var fnNames = [
-      'analyzeKrTickerDeep', // v57.77: analyzeKrIndex and renderKrIssues retired; v59.42: openChatHistory, chatRenderChips deleted
+      // v57.77: analyzeKrIndex and renderKrIssues retired; v59.42: openChatHistory, chatRenderChips deleted; v59.70 (D5): analyzeKrTickerDeep deleted
       'updateAIPanelContext',
       'renderPortfolio', 'renderBriefingFeed'
     ]; // v57.77: retired renderKrIssues (P725) and renderFeed no longer counted as scanned functions; v57.79: renderHomeFeed stub removed
@@ -3034,18 +3034,18 @@ window.AIO.getDataLineageAudit = function() {
     var sched = window.REFRESH_SCHEDULE || {};
     function domCount(attr) { try { return document.querySelectorAll('[' + attr + ']').length; } catch(_) { return 0; } }
     // 핵심 데이터 13종 lineage 정의 (코드 조사 v49.89 기반 — source URL은 실제 fetch 함수 확인)
-    var LINEAGE = [
+    var LINEAGE = [ // v59.70 (D5): no [data-snap] sinks remain (the 한국 거시 fold held the last); native readers render these rows.
       { id:'quotes',     label:'시세 (지수/종목)',  source:'Yahoo v8 chart (query1.finance.yahoo.com)', schedKey:'quotes',     transform:'PriceStore.set 검증',        renderAttr:'data-live-price', tier:'auto' },
       { id:'vix',        label:'VIX',              source:'Yahoo ^VIX 3mo',                            schedKey:'vixHistory', transform:'fetchSentimentHistory',       renderAttr:'data-live-price', tier:'auto' },
-      { id:'fearGreed',  label:'F&G (공포탐욕)',    source:'CNN dataviz → CORS_PROXY → snapshot (3단)', schedKey:'sentiment',  transform:'_applyFearGreedScore',       renderAttr:'data-snap',       tier:'auto' },
+      { id:'fearGreed',  label:'F&G (공포탐욕)',    source:'CNN dataviz → CORS_PROXY → snapshot (3단)', schedKey:'sentiment',  transform:'_applyFearGreedScore',       renderAttr:null,       tier:'auto' },
       { id:'fred',       label:'FRED 매크로',       source:'api.stlouisfed.org (CORS 친화, 키 필요)',     schedKey:'fred',       transform:'fetchAllFredData',           renderAttr:null,              tier:'auto', needsKey:true },
       { id:'technicals', label:'기술 지표 (SPY)',   source:'fetchTechnicalIndicators',                  schedKey:'technicals', transform:'none (v57.76: SPY indicator writers retired; producer reports skipped)', renderAttr:null, tier:'auto' },
-      { id:'hySpread',   label:'HY 스프레드',       source:'FRED BAMLH0A0HYM2 (키 필요)',                schedKey:'hySpread',   transform:'fetchHYSpread',              renderAttr:'data-snap',       tier:'auto', needsKey:true },
+      { id:'hySpread',   label:'HY 스프레드',       source:'FRED BAMLH0A0HYM2 (키 필요)',                schedKey:'hySpread',   transform:'fetchHYSpread',              renderAttr:null,       tier:'auto', needsKey:true },
       { id:'news',       label:'뉴스',             source:'data.json news (server bundle)',           schedKey:'news',       transform:'scoreItem + classifyTopic',  renderAttr:null,              tier:'auto' },
-      { id:'krDynamic',  label:'VKOSPI/KR 동적',    source:'Naver VKOSPI/basic (프록시)',                schedKey:'krDynamic',  transform:'fetchVkospiDynamic→DATA_SNAPSHOT.vkospi', renderAttr:'data-snap', tier:'auto' },
-      { id:'breadth',    label:'Breadth %above MA', source:'GitHub Actions Yahoo 1y adjusted-close · AIO US universe', schedKey:'breadth', transform:'computeScreenerBreadth → _aioApplyScreenerBreadth', renderAttr:'data-snap', tier:'auto', note:'공식 거래소 breadth가 아닌 AIO 미국 스크리너 유니버스 비가중 집계. 관측시각·85% 커버리지·값 범위 게이트 통과 시에만 의사결정 입력 허용.' },
-      { id:'officialServerMacro',label:'CPI/PCE/NFP/국채곡선/AAII', source:'GitHub Actions · BLS/BEA/Treasury/AAII official public + bounded relay', schedKey:null, transform:'fetch-data → typed evidence → DATA_SNAPSHOT', renderAttr:'data-snap', tier:'server-auto', note:'서버 자동 갱신. AAII relay는 publisher direct automation 차단 시에만 사용하며 reference-only/현재 판단 제외를 유지.' },
-      { id:'blockedSurveys',label:'NAAIM/Investors Intelligence 현재치', source:'publisher subscription boundary', schedKey:null, transform:'없음 · last public reference 또는 BLOCKED', renderAttr:'data-snap', tier:'manual', note:'무료 현재 수치/API 권한이 없어 자동 추정·대체하지 않음.' },
+      { id:'krDynamic',  label:'VKOSPI/KR 동적',    source:'Naver VKOSPI/basic (프록시)',                schedKey:'krDynamic',  transform:'fetchVkospiDynamic→DATA_SNAPSHOT.vkospi', renderAttr:null, tier:'auto' },
+      { id:'breadth',    label:'Breadth %above MA', source:'GitHub Actions Yahoo 1y adjusted-close · AIO US universe', schedKey:'breadth', transform:'computeScreenerBreadth → _aioApplyScreenerBreadth', renderAttr:null, tier:'auto', note:'공식 거래소 breadth가 아닌 AIO 미국 스크리너 유니버스 비가중 집계. 관측시각·85% 커버리지·값 범위 게이트 통과 시에만 의사결정 입력 허용.' },
+      { id:'officialServerMacro',label:'CPI/PCE/NFP/국채곡선/AAII', source:'GitHub Actions · BLS/BEA/Treasury/AAII official public + bounded relay', schedKey:null, transform:'fetch-data → typed evidence → DATA_SNAPSHOT', renderAttr:null, tier:'server-auto', note:'서버 자동 갱신. AAII relay는 publisher direct automation 차단 시에만 사용하며 reference-only/현재 판단 제외를 유지.' },
+      { id:'blockedSurveys',label:'NAAIM/Investors Intelligence 현재치', source:'publisher subscription boundary', schedKey:null, transform:'없음 · last public reference 또는 BLOCKED', renderAttr:null, tier:'manual', note:'무료 현재 수치/API 권한이 없어 자동 추정·대체하지 않음.' },
       { id:'crypto',     label:'BTC/ETH',          source:'CoinGecko (무키 30/min) / 수동 폴백',         schedKey:'quotes',     transform:'PriceStore.set',             renderAttr:'data-live-price', tier:'auto' }
     ];
     var rows = LINEAGE.map(function(L) {
@@ -5055,3 +5055,1063 @@ window.AIO.getTelegramPipelineAudit = function() {
     verificationPolicy: 'Telegram items are fast secondary inputs. Confirm with primary source or market data before presenting as live trade facts.'
   };
 };
+
+
+// ── v59.70 P2 (legacy core wave 2): audits whose only callers are QA entry points moved here from js/aio-core.js and
+// js/aio-data.js unchanged. They exist once AIO.loadQaAudits() has run, like the P1329 set above.
+
+window.AIO.getTableAccessibilityAudit = function(root) {
+  root = root || document;
+  if (typeof window._aioApplyTableAccessibility === 'function') window._aioApplyTableAccessibility(root);
+  var issues = [];
+  try {
+    Array.prototype.forEach.call(root.querySelectorAll('table'), function(tbl, idx) {
+      if (!tbl.getAttribute('aria-label') && !tbl.getAttribute('aria-labelledby') && !tbl.getAttribute('title')) {
+        issues.push('table ' + (idx + 1) + ': missing accessible name');
+      }
+      if (!tbl.querySelector('th') && !tbl.querySelector('[role="rowheader"]')) {
+        issues.push('table ' + (idx + 1) + ': missing header semantics');
+      }
+    });
+  } catch(e) {
+    issues.push('table accessibility audit error: ' + (e && e.message || e));
+  }
+  return {
+    status: issues.length ? 'warn' : 'ok',
+    issueCount: issues.length,
+    issues: issues,
+    tableCount: root.querySelectorAll ? root.querySelectorAll('table').length : 0,
+    generatedAt: new Date().toISOString()
+  };
+};
+
+window.AIO.getPageUXAudit = function() {
+  var ids = Object.keys(AIO_PAGE_BRIEFS);
+  var staleRe = /PCE\(4\/30\)|PCE 4\/30|VIX Spot 18\.36|5\/2 \(PCE|4\/8 기준|이번 주\(05\/04|예정 이벤트 \(v48/;
+  var homeStaleRe = /NFP 비농업고용지수 \(5\/8|PLTR·AMD·ANET|Fed 4인 동시 연설|5\/8 금|5\/9 토/;
+  var pages = ids.map(function(id) {
+    if (typeof window._aioRenderPageBrief === 'function') window._aioRenderPageBrief(id);
+    var page = document.getElementById('page-' + id);
+    var text = page ? (page.innerText || '').replace(/\s+/g, ' ').trim() : '';
+    var overflow = [];
+    if (page) {
+      var targets = page.querySelectorAll('button,.aio-page-brief-chip,.aio-page-brief-step-text,td,th,input,select,.q-chip');
+      Array.prototype.forEach.call(targets, function(el) {
+        if (overflow.length >= 6) return;
+        if (el.clientWidth > 0 && el.scrollWidth > el.clientWidth + 3) {
+          overflow.push({
+            tag: el.tagName,
+            text: ((el.textContent || el.value || '').trim()).slice(0, 80),
+            clientWidth: el.clientWidth,
+            scrollWidth: el.scrollWidth
+          });
+        }
+      });
+    }
+    return {
+      id: id,
+      pageExists: !!page,
+      briefConfig: !!AIO_PAGE_BRIEFS[id],
+      briefRendered: !!(page && page.querySelector('.aio-page-brief')),
+      textChars: text.length,
+      controls: page ? page.querySelectorAll('button,[data-action],input,select,textarea').length : 0,
+      charts: page ? page.querySelectorAll('canvas,iframe,[id*="chart"],[class*="chart"]').length : 0,
+      explainSections: page ? page.querySelectorAll('.aio-explain,.aio-explain-content,details').length : 0,
+      staleLiveLike: staleRe.test(text) || (id === 'home' && homeStaleRe.test(text)),
+      overflow: overflow
+    };
+  });
+  var issues = [];
+  pages.forEach(function(p) {
+    if (!p.pageExists) issues.push(p.id + ': page missing');
+    // v50.29 declutter 스펙 반전: Page Routine 박스는 의도적으로 0 — 남아 있으면 누출이 이슈
+    if (p.briefRendered) issues.push(p.id + ': page-brief not decluttered (v50.29)');
+    if (p.staleLiveLike) issues.push(p.id + ': stale live-like wording');
+    if (p.overflow.length) issues.push(p.id + ': text overflow');
+  });
+  return {
+    version: window.AIO.version || (typeof APP_VERSION === 'string' ? APP_VERSION : null),
+    generatedAt: new Date().toISOString(),
+    totalPages: pages.length,
+    issueCount: issues.length,
+    issues: issues,
+    pages: pages
+  };
+};
+
+// v49.67 Codex P358/R124: DOM-first full surface audit.
+// This complements the page registry audit by walking the actual rendered pages
+// and summarizing every major user-facing surface: headings, sections, data
+// sinks, controls, tables, charts, explainers, and visible placeholder text.
+window.AIO.getFullSurfaceAudit = function(opts) {
+  opts = opts || {};
+  var root = opts.root || document;
+  var registry = (window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY && window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages) || {};
+  var briefs = window.AIO_PAGE_BRIEFS || {};
+  var overlayRegistry = { glossary: '#glossary-modal' };
+  var issues = [];
+  var pages = [];
+  var totals = {
+    domPages: 0,
+    registeredPages: 0,
+    unregisteredPages: 0,
+    registrySubSections: 0,
+    headings: 0,
+    sections: 0,
+    dataSinks: 0,
+    controls: 0,
+    tables: 0,
+    charts: 0,
+    explainers: 0,
+    overlays: 0,
+    visibleLoadingText: 0
+  };
+
+  function qsa(base, selector) {
+    try { return Array.prototype.slice.call((base || root).querySelectorAll(selector)); }
+    catch(_) { return []; }
+  }
+  function ownVisibleText(el) {
+    if (!el) return '';
+    try {
+      if (!document.createTreeWalker || !window.NodeFilter) return el.textContent || '';
+      var parts = [];
+      var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+        acceptNode: function(node) {
+          var parent = node.parentElement;
+          if (!parent || /^(SCRIPT|STYLE|NOSCRIPT|TEMPLATE)$/i.test(parent.tagName)) return NodeFilter.FILTER_REJECT;
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      });
+      var node;
+      while ((node = walker.nextNode())) parts.push(node.nodeValue || '');
+      return parts.join(' ');
+    } catch(_) {
+      return el.textContent || '';
+    }
+  }
+  function countVisibleLoading(el) {
+    var text = ownVisibleText(el);
+    var match = text.match(/로딩 중|데이터 로딩|분석 로딩|계산 중/g);
+    return match ? match.length : 0;
+  }
+  function countEmptyTables(el) {
+    return qsa(el, 'table').filter(function(tbl) {
+      var rows = qsa(tbl, 'tbody tr, tr');
+      var text = ownVisibleText(tbl).replace(/\s+/g, '');
+      return rows.length <= 1 && !text;
+    }).length;
+  }
+  function pageKeyFromId(id) {
+    return String(id || '').replace(/^page-/, '');
+  }
+
+  var domPages = qsa(root, '.page[id]').filter(function(el) { return /^page-/.test(el.id || ''); });
+  totals.domPages = domPages.length;
+
+  domPages.forEach(function(pageEl) {
+    var id = pageKeyFromId(pageEl.id);
+    if (typeof window._aioRenderPageBrief === 'function') {
+      try { window._aioRenderPageBrief(id); } catch(_) {}
+    }
+    var reg = registry[id] || null;
+    var regSections = reg && Array.isArray(reg.subSections) ? reg.subSections.length : 0;
+    var headings = qsa(pageEl, 'h1,h2,h3,h4,.page-title,.section-title,.widget-title,.card-title,.subsection-title,.aio-page-brief-title').length;
+    var sections = qsa(pageEl, 'section,.section,[class*="section"],.data-widget,.widget,[class*="widget"],.card,[class*="card"],.glass-card,.aio-page-brief,[data-audit-section],[data-page-purpose],[style*="border"]').length;
+    var dataSinks = qsa(pageEl, '[data-live-price],[data-live-kr],[data-live-chg],[data-snap],[data-source-kind],[data-operational-use],[data-runtime-state],[data-score-scale],[data-threshold-table],[data-scenario-key],[data-cycle-phase]').length;
+    var controls = qsa(pageEl, 'button,[data-action],input,select,textarea').length;
+    var tables = qsa(pageEl, 'table').length;
+    var charts = qsa(pageEl, 'canvas,iframe,[id*="chart"],[class*="chart"]').length;
+    var explainers = qsa(pageEl, '.aio-explain,.aio-explain-content,details,.aio-page-brief-step,.aio-page-brief-focus').length;
+    var loading = countVisibleLoading(pageEl);
+    var emptyTables = countEmptyTables(pageEl);
+    var textChars = ownVisibleText(pageEl).replace(/\s+/g, ' ').trim().length;
+    var hasBrief = !!pageEl.querySelector('.aio-page-brief');
+    var riskFlags = [];
+
+    if (!reg) riskFlags.push('missingSequentialRegistry');
+    if (!briefs[id]) riskFlags.push('missingBriefRegistry');
+    // v50.29 declutter made _aioRenderPageBrief removal-only; rendered briefs are now leakage.
+    if (hasBrief) riskFlags.push('pageBriefNotDecluttered');
+    if (loading) riskFlags.push('visibleLoadingText');
+    if (textChars > 800 && dataSinks === 0 && tables === 0 && charts === 0 && controls === 0) riskFlags.push('textOnlySurface');
+    if (tables && emptyTables === tables) riskFlags.push('emptyTablesOnly');
+    if (headings === 0) riskFlags.push('noHeading');
+
+    totals.registeredPages += reg ? 1 : 0;
+    totals.unregisteredPages += reg ? 0 : 1;
+    totals.registrySubSections += regSections;
+    totals.headings += headings;
+    totals.sections += sections;
+    totals.dataSinks += dataSinks;
+    totals.controls += controls;
+    totals.tables += tables;
+    totals.charts += charts;
+    totals.explainers += explainers;
+    totals.visibleLoadingText += loading;
+
+    if (riskFlags.length) {
+      issues.push(id + ': ' + riskFlags.join(','));
+    }
+
+    pages.push({
+      id: id,
+      domId: pageEl.id,
+      title: ((pageEl.querySelector('.page-title,h1,h2') || {}).textContent || id).replace(/\s+/g, ' ').trim().slice(0, 80),
+      registered: !!reg,
+      registrySubSections: regSections,
+      briefRegistry: !!briefs[id],
+      briefRendered: hasBrief,
+      headings: headings,
+      sections: sections,
+      dataSinks: dataSinks,
+      controls: controls,
+      tables: tables,
+      emptyTables: emptyTables,
+      charts: charts,
+      explainers: explainers,
+      textChars: textChars,
+      visibleLoadingText: loading,
+      riskFlags: riskFlags
+    });
+  });
+
+  Object.keys(registry).forEach(function(id) {
+    var overlaySel = overlayRegistry[id];
+    var overlayEl = overlaySel ? document.querySelector(overlaySel) : null;
+    if (!document.getElementById('page-' + id) && !overlayEl) {
+      issues.push(id + ': registered but DOM page missing');
+    } else if (overlayEl) {
+      totals.overlays += 1;
+    }
+  });
+
+  var riskPageCount = pages.filter(function(p) { return p.riskFlags.length > 0; }).length;
+  var coveragePct = totals.domPages ? Math.round((totals.registeredPages / totals.domPages) * 100) : 0;
+  var score = Math.max(0, Math.min(100,
+    100 -
+    (totals.unregisteredPages * 6) -
+    (totals.visibleLoadingText * 5) -
+    (riskPageCount * 2)
+  ));
+  var status = score >= 90 && issues.length === 0 ? 'ok' : score >= 70 ? 'warn' : 'fail';
+
+  return {
+    version: window.AIO.version || (typeof APP_VERSION === 'string' ? APP_VERSION : null),
+    generatedAt: new Date().toISOString(),
+    status: status,
+    score: score,
+    coveragePct: coveragePct,
+    pageCount: totals.domPages,
+    riskPageCount: riskPageCount,
+    issueCount: issues.length,
+    issues: issues,
+    totals: totals,
+    pages: pages
+  };
+};
+
+window.AIO.getTickerMappingAudit = function() {
+  var reg = window.AIO_TICKER_NAME_REGISTRY;
+  if (!reg) return { status: 'error', unmappedCount: 0, issues: ['TICKER_NAME_REGISTRY undefined'] };
+  var issues = [];
+  Object.keys(reg.entries).forEach(function(t) {
+    var e = reg.entries[t];
+    if (window.AIO.isTickerRegistryPlaceholder && window.AIO.isTickerRegistryPlaceholder(t, e)) return;
+    if (!e.en || !e.kr) issues.push(t + ' missing en/kr');
+    if (!e.alt || !Array.isArray(e.alt)) issues.push(t + ' missing alt[]');
+  });
+  var entryAudit = window.AIO.getTickerRegistryEntryAudit ? window.AIO.getTickerRegistryEntryAudit() : null;
+  return {
+    status: issues.length ? 'warn' : 'ok',
+    unmappedCount: issues.length,
+    issues: issues,
+    totalEntries: entryAudit ? entryAudit.totalEntries : Object.keys(reg.entries).length,
+    realEntries: entryAudit ? entryAudit.realEntries : Object.keys(reg.entries).length,
+    placeholderCount: entryAudit ? entryAudit.placeholderCount : 0,
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// Theme/Trend deep audit: universe, weights, quote readiness, registry, and beginner UX.
+window.AIO.getThemeTrendDeepAudit = function() {
+  function uniq(arr) {
+    var seen = {};
+    return (arr || []).filter(Boolean).map(String).filter(function(x) {
+      if (seen[x]) return false;
+      seen[x] = true;
+      return true;
+    });
+  }
+  function registryMap() {
+    var out = {};
+    try {
+      (typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : []).forEach(function(r) {
+        if (r && r.sym) out[String(r.sym).toUpperCase()] = r;
+      });
+    } catch(_) {}
+    try {
+      var nameReg = window.AIO_TICKER_NAME_REGISTRY && window.AIO_TICKER_NAME_REGISTRY.entries;
+      Object.keys(nameReg || {}).forEach(function(k) {
+        var entry = nameReg[k];
+        if (!entry || (window.AIO.isTickerRegistryPlaceholder && window.AIO.isTickerRegistryPlaceholder(k, entry))) return;
+        out[String(k).toUpperCase()] = entry;
+      });
+    } catch(_) {}
+    try {
+      Object.keys(window.KR_STOCK_DB || {}).forEach(function(code) {
+        if (!/^\d{6}$/.test(String(code))) return;
+        var entry = window.KR_STOCK_DB[code];
+        out[code + '.KS'] = entry;
+        out[code + '.KQ'] = entry;
+      });
+    } catch(_) {}
+    return out;
+  }
+  function krCodeMap() {
+    var out = {};
+    function add(sym) {
+      sym = String(sym || '').toUpperCase();
+      var m = sym.match(/^(\d{6})\.(KS|KQ)$/);
+      if (m && !out[m[1]]) out[m[1]] = sym;
+    }
+    try { (typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : []).forEach(function(r) { add(r && r.sym); }); } catch(_) {}
+    try { (window.KR_SUB_THEMES || []).forEach(function(t) { (t.tickers || []).forEach(add); (t.leaders || []).forEach(add); Object.keys(t.weights || {}).forEach(add); }); } catch(_) {}
+    return out;
+  }
+  var registry = registryMap();
+  var codeToSym = krCodeMap();
+  var liveSet = {};
+  try { (window.LIVE_SYMBOLS || []).forEach(function(s) { liveSet[String(s).toUpperCase()] = true; }); } catch(_) {}
+  function normalizeKrCode(code) {
+    code = String(code || '').trim();
+    if (!code) return '';
+    if (/\.(KS|KQ)$/i.test(code)) return code.toUpperCase();
+    return codeToSym[code] || (code + '.KS');
+  }
+  function collectTheme(raw, source, idOverride) {
+    raw = raw || {};
+    var weights = {};
+    var symbols = [];
+    if (Array.isArray(raw)) {
+      var insight = (window.KR_THEME_INSIGHTS && idOverride && window.KR_THEME_INSIGHTS[idOverride]) || null;
+      raw.forEach(function(item) {
+        var sym = normalizeKrCode(item && item.code);
+        if (!sym) return;
+        symbols.push(sym);
+        weights[sym] = Number(item.w) || 0;
+      });
+      raw = {
+        id: idOverride,
+        name: idOverride,
+        tickers: symbols,
+        leaders: symbols.slice(0, 3),
+        weights: weights,
+        desc: insight && (insight.insight || insight.macro || insight.macroKey || insight.upCondition || insight.breakSignal || (insight.breakSignals && insight.breakSignals[0])) || ''
+      };
+    }
+    weights = raw.weights || {};
+    symbols = uniq([raw.etf, raw.compositeBase].concat(raw.leaders || [], raw.leaderHighlight || [], raw.tickers || [], Object.keys(weights || {})));
+    var wsum = Object.keys(weights || {}).reduce(function(sum, k) { return sum + (Number(weights[k]) || 0); }, 0);
+    return {
+      source: source,
+      id: raw.id || idOverride || raw.name || 'unknown',
+      name: raw.nameKr || raw.name || raw.id || idOverride || 'unknown',
+      symbols: symbols,
+      symbolCount: symbols.length,
+      weights: weights,
+      weightSum: wsum,
+      hasDesc: !!(raw.desc || raw.insight || raw.catalyst || raw.macro || raw.nameKr),
+      hasLeaders: Array.isArray(raw.leaders) && raw.leaders.length > 0,
+      etf: raw.etf || null
+    };
+  }
+  var themes = [];
+  try { (window.THEME_MAP || []).forEach(function(t) { themes.push(collectTheme(t, 'THEME_MAP')); }); } catch(_) {}
+  try { (window.SUB_THEMES || []).forEach(function(t) { themes.push(collectTheme(t, 'SUB_THEMES')); }); } catch(_) {}
+  try { (window.KR_SUB_THEMES || []).forEach(function(t) { themes.push(collectTheme(t, 'KR_SUB_THEMES')); }); } catch(_) {}
+  try {
+    Object.keys(window.KR_THEME_MAP || {}).forEach(function(id) {
+      themes.push(collectTheme(window.KR_THEME_MAP[id], 'KR_THEME_MAP', id));
+    });
+  } catch(_) {}
+  var symbolThemes = {};
+  themes.forEach(function(t) {
+    t.symbols.forEach(function(s) {
+      var key = String(s).toUpperCase();
+      symbolThemes[key] = symbolThemes[key] || [];
+      symbolThemes[key].push(t.id);
+    });
+  });
+  var uniqueSymbols = Object.keys(symbolThemes);
+  var weightIssues = themes.filter(function(t) {
+    var hasWeights = Object.keys(t.weights || {}).length > 0;
+    return hasWeights && Math.abs(t.weightSum - 100) > 1;
+  }).map(function(t) { return { source: t.source, id: t.id, name: t.name, weightSum: t.weightSum }; });
+  var concentrationWarnings = themes.map(function(t) {
+    var vals = Object.keys(t.weights || {}).map(function(k) { return Number(t.weights[k]) || 0; }).filter(function(v) { return v > 0; }).sort(function(a, b) { return b - a; });
+    if (vals.length < 3) return null;
+    var top1 = vals[0];
+    var top3 = vals.slice(0, 3).reduce(function(sum, v) { return sum + v; }, 0);
+    if (top1 > 45 || top3 > 85) return { source: t.source, id: t.id, name: t.name, top1: top1, top3: top3 };
+    return null;
+  }).filter(Boolean);
+  var thinThemes = themes.filter(function(t) { return t.symbolCount < 3; })
+    .map(function(t) { return { source: t.source, id: t.id, name: t.name, symbolCount: t.symbolCount, symbols: t.symbols }; });
+  var uxIssues = themes.filter(function(t) { return !t.hasDesc || !t.hasLeaders; })
+    .map(function(t) { return { source: t.source, id: t.id, name: t.name, hasDesc: t.hasDesc, hasLeaders: t.hasLeaders }; });
+  var missingLive = uniqueSymbols.filter(function(s) { return !liveSet[s]; });
+  var profileSet = {};
+  try {
+    (window.AIO.collectPageDataSymbols('themes', { symbolLimit: 999 }) || []).forEach(function(s) { profileSet[String(s).toUpperCase()] = true; });
+    (window.AIO.collectPageDataSymbols('theme-detail', { symbolLimit: 999 }) || []).forEach(function(s) { profileSet[String(s).toUpperCase()] = true; });
+    (window.AIO.collectPageDataSymbols('themes', { symbolLimit: 999 }) || []).forEach(function(s) { profileSet[String(s).toUpperCase()] = true; });
+  } catch(_) {}
+  var missingProfileSymbols = uniqueSymbols.filter(function(s) { return !profileSet[s]; });
+  var quoteReadySymbols = uniqueSymbols.filter(function(s) { return profileSet[s]; });
+  var missingRegistry = uniqueSymbols.filter(function(s) {
+    if (registry[s]) return false;
+    if (/^(XL|SMH|SOXX|QQQ|SPY|IWM|DIA|KRE|XBI|URA|BOTZ|HACK|ICLN|DRIV|IYZ|XSD|CRAK|ITA|GDX|LIT|JETS|OIH|AMLP|CIBR|ITB|XRT|IYT|COPX|KWEB|IBIT|BITO|FBTC|ARKB|BITB|HODL|BTC-|ETH-|KRW=|\^)/.test(s)) return false;
+    return true;
+  });
+  var standard = ['XLK','XLF','XLV','XLY','XLP','XLE','XLI','XLB','XLU','XLRE','XLC'];
+  var sectorSet = {};
+  try { (window.RRG_SECTORS || []).forEach(function(s) { sectorSet[String(s.sym || '').toUpperCase()] = true; }); } catch(_) {}
+  var missingSectors = standard.filter(function(s) { return !sectorSet[s]; });
+  var themeText = themes.map(function(t) { return [t.id, t.name, t.source].join(' ').toLowerCase(); }).join(' | ');
+  var expectedThemeCategories = [
+    { key: 'semiconductors-ai', re: /semi|hbm|ai|cloud|datacenter|data center/ },
+    { key: 'cybersecurity', re: /cyber|security|hack/ },
+    { key: 'defense-aerospace', re: /defense|drone|space|aerospace|uam/ },
+    { key: 'energy-nuclear-grid', re: /energy|nuclear|power|grid|uranium|hydrogen|solar|wind/ },
+    { key: 'healthcare-biotech', re: /health|bio|glp|medtech|pharma/ },
+    { key: 'finance-crypto', re: /finance|bank|crypto|bitcoin|btc|asset/ },
+    { key: 'consumer-platforms', re: /consumer|ecommerce|retail|stream|gaming|beauty|food|travel/ },
+    { key: 'industrial-materials', re: /industrial|robot|ship|steel|chem|materials|logistics|construction/ },
+    { key: 'quantum-frontier', re: /quantum/ },
+    { key: 'korea-local-themes', re: /kr_|korea|kospi|kosdaq/ }
+  ];
+  var missingThemeCategories = expectedThemeCategories.filter(function(c) { return !c.re.test(themeText); }).map(function(c) { return c.key; });
+  var pricedNow = uniqueSymbols.filter(function(s) {
+    var d = window._liveData && window._liveData[s];
+    return d && isFinite(Number(d.price));
+  });
+  var issues = [];
+  if (missingSectors.length) issues.push({ type: 'missing-standard-sector-etf', count: missingSectors.length, sample: missingSectors });
+  if (weightIssues.length) issues.push({ type: 'theme-weight-sum', count: weightIssues.length, sample: weightIssues.slice(0, 10) });
+  if (thinThemes.length) issues.push({ type: 'thin-theme-universe', count: thinThemes.length, sample: thinThemes.slice(0, 10) });
+  if (uxIssues.length) issues.push({ type: 'beginner-ux-metadata', count: uxIssues.length, sample: uxIssues.slice(0, 10) });
+  if (missingThemeCategories.length) issues.push({ type: 'missing-essential-theme-category', count: missingThemeCategories.length, sample: missingThemeCategories });
+  if (missingProfileSymbols.length) issues.push({ type: 'missing-theme-profile-symbols', count: missingProfileSymbols.length, sample: missingProfileSymbols.slice(0, 30) });
+  if (missingRegistry.length) issues.push({ type: 'missing-registry-symbols', count: missingRegistry.length, sample: missingRegistry.slice(0, 30) });
+  return {
+    status: issues.length ? 'warn' : 'ok',
+    issueCount: issues.length,
+    counts: {
+      themes: themes.length,
+      uniqueSymbols: uniqueSymbols.length,
+      pricedNow: pricedNow.length,
+      priceCoveragePct: uniqueSymbols.length ? Math.round(pricedNow.length / uniqueSymbols.length * 100) : 0,
+      quoteReadySymbols: quoteReadySymbols.length,
+      quoteReadinessPct: uniqueSymbols.length ? Math.round(quoteReadySymbols.length / uniqueSymbols.length * 100) : 0
+    },
+    issues: issues,
+    weightIssues: weightIssues,
+    concentrationWarnings: concentrationWarnings,
+    thinThemes: thinThemes,
+    uxIssues: uxIssues,
+    missingThemeCategories: missingThemeCategories,
+    missingLiveSymbols: missingLive,
+    missingThemeProfileSymbols: missingProfileSymbols,
+    missingRegistrySymbols: missingRegistry,
+    missingStandardSectorEtfs: missingSectors,
+    note: 'priceCoveragePct is already-loaded quote data; quoteReadinessPct is route/profile readiness for fetching theme prices.',
+    generatedAt: new Date().toISOString()
+  };
+};
+
+window.AIO.getFundamentalPageCriteriaAudit = function() {
+  var reg = window.AIO_FUNDAMENTAL_PAGE_CRITERIA;
+  if (!reg) return { status: 'error', notImplCount: 15, issues: ['CRITERIA undefined'] };
+  var impl = 0, notImpl = [], highRisk = [];
+  Object.keys(reg.criteria).forEach(function(key) {
+    var c = reg.criteria[key];
+    if (c.implFn) impl++;
+    else notImpl.push({ key: key, num: c.num, label: c.label, plannedFn: c.plannedFn || null, dataSource: c.dataSource });
+    if (c.hallucinationRisk === 'high') highRisk.push({ key: key, num: c.num, label: c.label });
+  });
+  return {
+    status: notImpl.length ? 'warn' : 'ok',
+    totalCriteria: 15,
+    implCount: impl,
+    notImplCount: notImpl.length,
+    coveragePct: Math.round(impl / 15 * 100),
+    notImpl: notImpl,
+    highRiskCount: highRisk.length,
+    highRiskFields: highRisk,
+    note: '미구현 기준은 plannedFn 명시. AI 채팅 시 미구현 기준 분석 요청 → "이 기준은 현재 시스템에서 자동 평가 불가, 수동 확인 권장" 답변 필수.',
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// v49.35 cross-reference: 3개 "15개 관점" registry 매핑 검증
+window.AIO.getCriteriaCrossReferenceAudit = function() {
+  var pageCount = window.AIO_FUNDAMENTAL_PAGE_CRITERIA && Object.keys(window.AIO_FUNDAMENTAL_PAGE_CRITERIA.criteria).length || 0;
+  var fundCount = window.AIO_FUNDAMENTAL_CRITERIA && Object.keys(window.AIO_FUNDAMENTAL_CRITERIA.criteria).length || 0;
+  var frameworkReg = window.AIO_ANALYSIS_FRAMEWORK_REGISTRY;
+  var frameworkCount = frameworkReg && Object.keys(frameworkReg.fields).length || 0;
+  var frameworkPerspectiveCount = frameworkReg && typeof frameworkReg.perspectiveKeys === 'function' ? frameworkReg.perspectiveKeys().length : frameworkCount;
+  return {
+    status: 'info',
+    pageCriteria15: pageCount,
+    fundamentalCriteria15: fundCount,
+    analysisFramework15: frameworkPerspectiveCount,
+    analysisFrameworkPerspective17: frameworkPerspectiveCount,
+    analysisFrameworkTotal: frameworkCount,
+    analysisFrameworkSupportFields: Math.max(0, frameworkCount - frameworkPerspectiveCount),
+    note: '3개 registry — (1) FUNDAMENTAL_PAGE_CRITERIA: 페이지 L8175 정량 15기준 (Quality/Moat/Growth/Margin/FCF/Balance/PE/EV/Insider/13F/Short/Revisions/Beat/Industry/Macro), (2) FUNDAMENTAL_CRITERIA: v49.25 정량 위주 15기준 (Piotroski 등), (3) ANALYSIS_FRAMEWORK: v49.34 정성+정량 15분야 (CEO/비즈니스/공급망/SEC/Wiki). 각각 목적 다름. AI 채팅에서 "15기준 분석" 요청 시 어느 registry를 참조하는지 명시 필수.',
+    generatedAt: new Date().toISOString()
+  };
+};
+
+window.AIO.getAnalysisFrameworkCoverageAudit = function() {
+  var reg = window.AIO_ANALYSIS_FRAMEWORK_REGISTRY;
+  if (!reg) return { status: 'error', coveragePct: 0, issues: ['REGISTRY undefined'] };
+  var perspectiveKeys = reg.perspectiveKeys ? reg.perspectiveKeys() : Object.keys(reg.fields);
+  var total = perspectiveKeys.length;
+  var impl = reg.implementedFields ? reg.implementedFields(true).length : 0;
+  var partial = reg.partialFields ? reg.partialFields() : [];
+  var highRisk = reg.highRiskFields ? reg.highRiskFields(true) : [];
+  var byType = { quantitative: 0, qualitative: 0, visual: 0, mixed: 0 };
+  perspectiveKeys.forEach(function(k) {
+    var t = String(reg.fields[k].type || '');
+    if (t.indexOf('+') >= 0) byType.mixed++;
+    else if (byType[t] != null) byType[t]++;
+  });
+  return {
+    status: partial.length ? 'warn' : (impl < total ? 'warn' : 'ok'),
+    coveragePct: Math.round(impl / total * 100),
+    implementedCount: impl,
+    totalCount: total,
+    supportFieldCount: Object.keys(reg.fields).length - total,
+    verifiedCount: total - partial.length,
+    operationalCoveragePct: Math.round((total - partial.length) / total * 100),
+    partialCount: partial.length,
+    partialFields: partial,
+    highRiskCount: highRisk.length,
+    highRiskFields: highRisk,
+    byType: byType,
+    note: 'coveragePct는 17 관점의 출처/함수 매핑률, operationalCoveragePct는 low-confidence/수동가이드 제외 실사용 신뢰도. partialFields는 답변에 한계 고지 필수.',
+    generatedAt: new Date().toISOString()
+  };
+};
+
+window.AIO.getStaticContentLifecycleAudit = function() {
+  var reg = window.AIO_STATIC_CONTENT_LIFECYCLE;
+  if (!reg) return { status: 'error', expiredCount: 0, issues: ['LIFECYCLE registry undefined'] };
+  var now = Date.now();
+  var expired = [], replaceDue = [];
+  Object.keys(reg.contents).forEach(function(id) {
+    var s = reg.getStatus(id, now);
+    if (s.replaceDue) replaceDue.push({ id: id, ageDays: s.ageDays, source: reg.contents[id].source });
+    else if (s.archiveDue) expired.push({ id: id, ageDays: s.ageDays });
+  });
+  return {
+    status: expired.length || replaceDue.length ? 'warn' : 'ok',
+    expiredCount: expired.length + replaceDue.length,
+    archiveDue: expired,
+    replaceDue: replaceDue,
+    generatedAt: new Date(now).toISOString()
+  };
+};
+
+window.AIO.getNamedEntityAudit = function() {
+  var reg = window.AIO_NAMED_ENTITY_REGISTRY;
+  if (!reg) return { status: 'error', unverifiedCount: 0, issues: ['NAMED_ENTITY registry undefined'] };
+  var now = Date.now();
+  var unverified = [];
+  Object.keys(reg.entities).forEach(function(key) {
+    var e = reg.entities[key];
+    var ts = new Date(e.currentAs).getTime();
+    if (isNaN(ts)) return;
+    var ageDays = Math.floor((now - ts) / 86400000);
+    if (ageDays > reg.defaultStaleDays) {
+      unverified.push({ key: key, name: e.name, role: e.role, ageDays: ageDays });
+    }
+  });
+  return {
+    status: unverified.length ? 'warn' : 'ok',
+    unverifiedCount: unverified.length,
+    unverified: unverified,
+    totalEntities: Object.keys(reg.entities).length,
+    generatedAt: new Date(now).toISOString()
+  };
+};
+
+window.AIO.getCriticalKrPageFreshnessAudit = function(opts) {
+  opts = opts || {};
+  var krIds = (window.AIO.CRITICAL_PAGE_GROUPS && window.AIO.CRITICAL_PAGE_GROUPS.krMarket) ||
+    ['kr-integrated-themes','kr-integrated-macro','kr-integrated-technical'];
+  var krStaleRe = /외국인 7거래일|3-4월 누적|3\/5 장중|4\/8 추정|이란 재협상 재개 전망|개인 매수세 유입 · 바이오/;
+  var pages = krIds.map(function(id) {
+    var el = null;
+    // v53.7 (P725): kr-integrated-* 는 페이지가 아닌 통합 섹션 id — 직접 조회
+    try { el = document.getElementById(id.indexOf('kr-integrated-') === 0 ? id : 'page-' + id); } catch(_) {}
+    var text = '';
+    if (el) {
+      try {
+        var clone = el.cloneNode(true);
+        clone.querySelectorAll('[data-aio-archive="true"]').forEach(function(n) { n.remove(); });
+        text = String(clone.innerText || clone.textContent || '');
+      } catch(_) { text = String(el.innerText || el.textContent || ''); }
+    }
+    var liveSinks = el ? el.querySelectorAll('[data-live-price],[data-live-pct],[data-snap],[data-snap-date]').length : 0;
+    var issue = [];
+    if (!el) issue.push('missing page DOM');
+    if (krStaleRe.test(text)) issue.push('stale live-like token in KR page text');
+    return { pageId: id, group: 'krMarket', status: issue.length ? 'warn' : 'ok', issues: issue, liveSinkCount: liveSinks };
+  });
+  var issues = pages.filter(function(p) { return p.issues.length; });
+  return {
+    status: issues.length ? 'warn' : 'ok',
+    issueCount: issues.length,
+    pagesChecked: pages.length,
+    pages: pages,
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// P208: CHAT_CONTEXTS system 함수 소스에서 stale 날짜 토큰 감사 (v49.19)
+window.AIO.getChatContextFreshnessAudit = function() {
+  if (typeof window.CHAT_CONTEXTS === 'undefined') {
+    return { totalHits: -1, error: 'CHAT_CONTEXTS not loaded' };
+  }
+  // v49.64 P335/T176b: 2026.04.X / 2026.05.0X 정적 토큰 광범위 검출 (CHAT_CONTEXTS 일반화 의무)
+  var staleRe = /BLS Apr CPI was headline|Warsh 화요일|Warsh 5월 취임|5-6월 발표|이슬라마바드 협상|2026\.04(\.\d+)?|2026\.05\.(0[1-9]|1[0-5])|4\/(12|13|14|15|18)[^0-9]/;
+  var hits = [];
+  var currentHits = [];
+  var archiveHits = [];
+  var byContext = {};
+  Object.keys(window.CHAT_CONTEXTS).forEach(function(key) {
+    var ctx = window.CHAT_CONTEXTS[key];
+    if (!ctx || typeof ctx.system !== 'function') return;
+    var src = ctx.system.toString();
+    var matches = src.match(new RegExp(staleRe.source, 'g')) || [];
+    byContext[key] = matches.length;
+    matches.forEach(function(m) {
+      var idx = src.indexOf(m);
+      var around = idx >= 0 ? src.slice(Math.max(0, idx - 220), Math.min(src.length, idx + 220)) : '';
+      var isArchiveRef = /archive|ARCHIVE|참고|프레임워크|시나리오|리서치|분석|테시스|패러다임|전환|국면|상황|리스크|이벤트|드라이버|청문회|협상|호르무즈|이란|워시|CPI|PPI|전문가콜|프리뷰|업데이트|JPM|Goldman|Citi|BofA|GS|Evercore|Mizuho|FactSet|§|과거|reference/i.test(around);
+      var hit = { context: key, match: m, archiveReference: isArchiveRef };
+      hits.push(hit);
+      (isArchiveRef ? archiveHits : currentHits).push(hit);
+    });
+  });
+  return {
+    totalHits: hits.length,
+    currentHits: currentHits.length,
+    archiveHits: archiveHits.length,
+    status: currentHits.length === 0 ? 'ok' : 'warn',
+    byContext: byContext,
+    samples: currentHits.slice(0, 5),
+    archiveSamples: archiveHits.slice(0, 5),
+    generatedAt: new Date().toISOString()
+  };
+};
+
+window.AIO.getDataTruthAudit = function(opts) {
+  opts = opts || {};
+  var symbols = opts.symbols;
+  if (!Array.isArray(symbols) || !symbols.length) {
+    if (opts.pageId && window.AIO.getDataRequirementProfile) symbols = window.AIO.getDataRequirementProfile({ pageId: opts.pageId, symbolLimit: opts.symbolLimit || 999 }).symbols || [];
+    else if (opts.critical10 && window.AIO_CRITICAL_10_PAGE_IDS && window.AIO.getDataRequirementProfile) {
+      var out = [];
+      window.AIO_CRITICAL_10_PAGE_IDS.forEach(function(id) {
+        (window.AIO.getDataRequirementProfile({ pageId: id, symbolLimit: opts.symbolLimit || 999 }).symbols || []).forEach(function(s) { out.push(s); });
+      });
+      symbols = _aioUniq(out);
+    } else {
+      symbols = Object.keys(window._liveData || {});
+    }
+  }
+  var rows = (symbols || []).map(function(sym) { return window.AIO.evaluateDataTruth(sym); });
+  var blocked = rows.filter(function(r) { return r.status === 'blocked'; });
+  var warn = rows.filter(function(r) { return r.status === 'warn'; });
+  return {
+    status: blocked.length ? 'blocked' : (warn.length ? 'warn' : 'verified'),
+    total: rows.length,
+    verifiedCount: rows.filter(function(r) { return r.status === 'verified'; }).length,
+    warnCount: warn.length,
+    blockedCount: blocked.length,
+    blockedSymbols: blocked.map(function(r) { return r.symbol; }),
+    warnSymbols: warn.map(function(r) { return r.symbol; }),
+    rows: rows,
+    generatedAt: new Date().toISOString()
+  };
+};
+
+window.AIO.getTelegramPageCoverageAudit = function() {
+  var digest = window.AIO_TELEGRAM_WEEKLY_DIGEST || {};
+  var pageMap = digest.pageMap || {};
+  var items = Array.isArray(digest.rawCurrent24hItems) ? digest.rawCurrent24hItems : [];
+  var digestAgeHours = digest.asOf ? (Date.now() - new Date(digest.asOf).getTime()) / 3600000 : Infinity;
+  var currentWindow = digest.current24hWindow || null;
+  var required = Array.isArray(window.AIO_ALL_ROUTE_PAGE_IDS) && window.AIO_ALL_ROUTE_PAGE_IDS.length
+    ? window.AIO_ALL_ROUTE_PAGE_IDS.slice()
+    : ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes','theme-detail','portfolio','ticker','market-news','screener','principles','masters','atlas','guide'];
+  var routes = {};
+  required.forEach(function(pageId) {
+    var tags = Array.isArray(_TG_PAGE_TAGS[pageId]) ? _TG_PAGE_TAGS[pageId] : [];
+    var mapped = Array.isArray(pageMap[pageId]) ? pageMap[pageId] : [];
+    var matched = tags.length ? items.filter(function(it) {
+      return it && Array.isArray(it.tags) && it.tags.some(function(t) { return tags.indexOf(t) >= 0; });
+    }).length : 0;
+    routes[pageId] = {
+      mapped: Array.isArray(pageMap[pageId]),
+      tagCount: tags.length,
+      selectedItemCount: matched,
+      consumer: pageId === 'guide' ? 'not-applicable-guide'
+        : (['portfolio','ticker','screener'].indexOf(pageId) >= 0 ? 'ticker-memo-and-chat' : 'page-feed-and-chat')
+    };
+  });
+  var missing = required.filter(function(pageId) { return !Array.isArray(pageMap[pageId]); });
+  var narrativeCurrent = !!(digest.dynamicDigestLoaded && Array.isArray(digest.themes) && digest.themes.length && Object.keys(pageMap).length >= required.length);
+  var sourceCycleFresh = isFinite(digestAgeHours) && digestAgeHours <= 12;
+  var currentLaneReady = !!(currentWindow && currentWindow.start && currentWindow.end && sourceCycleFresh);
+  return { status:missing.length || !narrativeCurrent || !currentLaneReady ? 'DEGRADED' : 'OK', requiredPageCount:required.length, mappedPageCount:required.length - missing.length, missingPages:missing, dynamicNarrative:narrativeCurrent, currentLaneReady:currentLaneReady, current24hCount:items.length, digestAgeHours:isFinite(digestAgeHours) ? Math.round(digestAgeHours * 10) / 10 : null, routes:routes };
+};
+
+// v52.58 H3-G/H3-H/H3-I: element-level lineage plus first-viewport and keyboard
+// contracts. The older category audit above can say "connected" while a visible
+// number, chart, or narrative sink still has no question, source, freshness, or
+// fallback explanation. Keep the inventory read-only and infer conservative
+// reference-only metadata when the DOM has not supplied a stronger contract.
+(function() {
+  window.AIO = window.AIO || {};
+  var REQUIRED_FIELDS = [
+    'pageId', 'sectionId', 'elementIdOrSelector', 'userQuestion', 'displayValue',
+    'sourceKind', 'sourceFamily', 'sourceEndpointOrFile', 'transformFormula',
+    'asOf', 'freshnessSla', 'failureAndFallback', 'decisionUse'
+  ];
+  var DEFAULT_PAGES = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
+  var SINK_SELECTOR = '[data-live-price],[data-live-chg],[data-live-pct],[data-live-field],[data-live-kr],[data-snap],[data-snap-date]';
+  var CHART_SELECTOR = 'canvas,[id*="chart"],[id*="widget"],[class*="chart"]';
+  var MARKET_WORD_RE = /시장|시황|강세|약세|상승|하락|위험|리스크|변동성|금리|유가|달러|VIX|S&P|SPY|QQQ|Nasdaq|나스닥|국채|채권|크레딧|브레드스|breadth|risk|volatility|yield|oil|gold|bitcoin|BTC/i;
+  var NUMERIC_RE = /(?:[$₩])?\s*[-+]?\d[\d,.]*(?:\.\d+)?\s*(?:%|bp|bps|x|배|조|억|M|B|T|pt|pts)?/i;
+
+  function textOf(el, limit) {
+    var text = '';
+    try { text = String(el.getAttribute('aria-label') || el.getAttribute('title') || el.textContent || '').replace(/\s+/g, ' ').trim(); } catch(_) {}
+    return text.slice(0, limit || 220);
+  }
+  function isHiddenForRoute(el, root) {
+    if (!el) return true;
+    var node = el;
+    while (node && node !== root) {
+      try {
+        if (node.hidden || node.getAttribute('aria-hidden') === 'true') return true;
+        if (node.tagName === 'DETAILS' && !node.open && !(el.matches && el.matches('summary'))) return true;
+        var cs = window.getComputedStyle ? window.getComputedStyle(node) : null;
+        if (cs && (cs.display === 'none' || cs.visibility === 'hidden' || cs.opacity === '0')) return true;
+      } catch(_) {}
+      node = node.parentElement;
+    }
+    return false;
+  }
+  function selectorFor(el, root) {
+    if (!el) return '';
+    if (el.id) return '#' + el.id;
+    var parts = [];
+    var node = el;
+    for (var i = 0; node && node !== root && i < 4; i++, node = node.parentElement) {
+      var part = String(node.tagName || 'element').toLowerCase();
+      var cls = String(node.className || '').split(/\s+/).filter(function(x) { return /^[A-Za-z0-9_-]+$/.test(x); }).slice(0, 2);
+      if (cls.length) part += '.' + cls.join('.');
+      parts.unshift(part);
+    }
+    return (root && root.id ? '#' + root.id + ' ' : '') + parts.join(' > ');
+  }
+  function sectionFor(el, root, pageId) {
+    var section = null;
+    try { section = el.closest('[data-section-id],[data-section],section[id],.aio-section[id],.aio-card[id],.card[id]'); } catch(_) {}
+    if (section) return section.getAttribute('data-section-id') || section.getAttribute('data-section') || section.id || 'section';
+    return pageId + ':root';
+  }
+  function questionFor(el, root, pageId, kind) {
+    var q = '';
+    try { q = el.getAttribute('data-user-question') || ''; } catch(_) {}
+    if (!q) {
+      var block = null;
+      try { block = el.closest('section,.aio-section,.aio-card,.data-widget,.aio-widget,.card,.panel,.section'); } catch(_) {}
+      var heading = block && block.querySelector ? block.querySelector('h1,h2,h3,h4,.section-header,.widget-title,.aio-card-title,.page-title') : null;
+      q = textOf(heading, 140);
+    }
+    return q || (pageId + '에서 이 ' + kind + '을 어떻게 읽나?');
+  }
+  function attr(el, name) {
+    try { return el.getAttribute(name) || ''; } catch(_) { return ''; }
+  }
+  function liveKeyOf(el) {
+    return attr(el, 'data-live-price') || attr(el, 'data-live-chg') || attr(el, 'data-live-pct') || attr(el, 'data-live-field') || attr(el, 'data-live-kr');
+  }
+  function sourceInfo(el, pageId, kind, root, coverage) {
+    var liveKey = liveKeyOf(el);
+    var snapKey = attr(el, 'data-snap');
+    var snapDateKey = attr(el, 'data-snap-date');
+    var isLive = !!liveKey;
+    var isSnap = !!snapKey || !!snapDateKey;
+    var isChart = kind === 'chart';
+    var rawKind = attr(el, 'data-source-kind').toLowerCase();
+    var sourceKind = rawKind || (isLive ? 'live' : isSnap ? 'snapshot' : isChart ? 'chart' : 'static');
+    var sourceLabel = attr(el, 'data-source-label');
+    var opUse = attr(el, 'data-operational-use');
+    var liveRow = null;
+    try { liveRow = liveKey && window._liveData ? window._liveData[liveKey] : null; } catch(_) {}
+    var ds = window.DATA_SNAPSHOT || {};
+    var asOf = attr(el, 'data-as-of') || attr(el, 'data-source-date') || (liveRow && (liveRow.ts || liveRow.updatedAt || liveRow.timestamp)) || '';
+    if (!asOf && isSnap) asOf = ds._updated || ds._snapshotDate || 'not-provided';
+    if (!asOf && isChart) asOf = attr(el, 'data-chart-as-of') || 'chart-evidence-required';
+    if (!asOf) asOf = 'not-applicable';
+    var endpoint = attr(el, 'data-source-endpoint') || sourceLabel;
+    if (!endpoint && isLive) endpoint = (liveRow && (liveRow.source || liveRow.provider)) || 'Yahoo Finance chart API:' + liveKey;
+    if (!endpoint && isSnap) endpoint = 'public-data/data.json -> DATA_SNAPSHOT.' + (snapKey || snapDateKey);
+    if (!endpoint && isChart) endpoint = 'chart runtime:' + (el.id || selectorFor(el, root));
+    if (!endpoint) endpoint = pageId === 'guide' ? '_context/guide content' : 'index.html inline content';
+    var family = attr(el, 'data-source-family');
+    if (!family) family = isLive ? (attr(el, 'data-live-field') ? 'derived-market-metric' : 'quote') : isSnap ? 'snapshot-reference' : isChart ? 'chart-series' : 'copy';
+    var transform = attr(el, 'data-transform-formula') || attr(el, 'data-transform');
+    if (!transform && isLive) transform = 'PriceStore/display ' + (attr(el, 'data-live-price') ? 'price' : attr(el, 'data-live-field') ? 'derived-field' : 'change');
+    if (!transform && isSnap) transform = 'applyDataSnapshot[' + (snapKey || snapDateKey) + ']';
+    if (!transform && isChart) transform = 'chart renderer -> series/labels';
+    if (!transform) transform = 'static text/threshold copy';
+    var freshness = attr(el, 'data-freshness-sla') || (isLive ? '15m' : isChart ? '60m' : isSnap ? 'reference-layer' : 'not-current');
+    var fallback = attr(el, 'data-failure-fallback');
+    if (!fallback) fallback = isLive ? 'refresh source; show unavailable and block decision use' : isSnap ? 'show reference/as-of; do not use for trading decision' : isChart ? 'render explicit fallback or unavailable state' : 'reference-only; current claim requires evidence';
+    var decisionUse = opUse || (/snapshot|fallback|reference|static|unknown|unavailable|chart/.test(sourceKind) ? 'reference' : 'decision');
+    if (sourceKind === 'unavailable') decisionUse = opUse || 'blocked';
+    var displayValue = textOf(el, 220) || attr(el, 'data-source-label') || (isChart ? 'chart ' + (el.id || 'unnamed') : selectorFor(el, root));
+    var orphan = false;
+    try {
+      if (isLive && !liveKey) orphan = true;
+      if (isSnap && !snapKey && !snapDateKey) orphan = true;
+      if (isLive && coverage && coverage.live) {
+        var liveAudit = coverage.live;
+        orphan = orphan || !!(liveAudit && liveAudit.missing && liveAudit.missing.some(function(row) { return row.ticker === liveKey; }));
+      }
+      if (snapKey && coverage && coverage.snap) {
+        var snapAudit = coverage.snap;
+        orphan = orphan || !!(snapAudit && snapAudit.missingSeeds && snapAudit.missingSeeds.some(function(row) { return row.key === snapKey; }));
+      }
+    } catch(_) {}
+    return {
+      sourceKind: sourceKind,
+      sourceFamily: family,
+      sourceEndpointOrFile: endpoint,
+      transformFormula: transform,
+      asOf: String(asOf),
+      freshnessSla: freshness,
+      failureAndFallback: fallback,
+      decisionUse: decisionUse,
+      orphan: orphan
+    };
+  }
+  function makeItem(pageId, root, el, kind, opts) {
+    var source = sourceInfo(el, pageId, kind, root, opts && opts.coverage);
+    var item = {
+      pageId: pageId,
+      sectionId: sectionFor(el, root, pageId),
+      elementIdOrSelector: selectorFor(el, root),
+      userQuestion: questionFor(el, root, pageId, kind),
+      displayValue: textOf(el, 220) || attr(el, 'data-source-label') || (kind === 'chart' ? 'chart ' + (el.id || 'unnamed') : selectorFor(el, root)),
+      sourceKind: source.sourceKind,
+      sourceFamily: source.sourceFamily,
+      sourceEndpointOrFile: source.sourceEndpointOrFile,
+      transformFormula: source.transformFormula,
+      asOf: source.asOf,
+      freshnessSla: source.freshnessSla,
+      failureAndFallback: source.failureAndFallback,
+      decisionUse: source.decisionUse,
+      kind: kind,
+      orphan: source.orphan
+    };
+    item.missingFields = REQUIRED_FIELDS.filter(function(field) {
+      return item[field] == null || String(item[field]).trim() === '';
+    });
+    item.complete = item.missingFields.length === 0;
+    return item;
+  }
+  function collectPage(pageId, opts) {
+    var root = document.getElementById('page-' + pageId);
+    var items = [], seen = [];
+    if (!root) return { pageId: pageId, pageExists: false, items: [], total: 0, incomplete: 0, orphanSinks: 0 };
+    function add(el, kind) {
+      if (!el || seen.indexOf(el) >= 0 || isHiddenForRoute(el, root)) return;
+      seen.push(el);
+      items.push(makeItem(pageId, root, el, kind, opts));
+    }
+    try { Array.prototype.slice.call(root.querySelectorAll(SINK_SELECTOR)).forEach(function(el) { add(el, 'numeric'); }); } catch(_) {}
+    try { Array.prototype.slice.call(root.querySelectorAll(CHART_SELECTOR)).forEach(function(el) { add(el, 'chart'); }); } catch(_) {}
+    try {
+      Array.prototype.slice.call(root.querySelectorAll('*')).forEach(function(el) {
+        if (seen.indexOf(el) >= 0 || isHiddenForRoute(el, root) || (el.children && el.children.length)) return;
+        if (el.closest && el.closest(SINK_SELECTOR)) return;
+        var text = textOf(el, 260);
+        if (!text || text.length < 2 || text.length > 260) return;
+        if (NUMERIC_RE.test(text)) add(el, 'numeric-text');
+        else if (MARKET_WORD_RE.test(text)) add(el, 'narrative');
+      });
+    } catch(_) {}
+    var incomplete = items.filter(function(item) { return !item.complete; }).length;
+    var orphanSinks = items.filter(function(item) { return item.orphan && item.kind !== 'narrative'; }).length;
+    return {
+      pageId: pageId,
+      pageExists: true,
+      total: items.length,
+      complete: items.length - incomplete,
+      incomplete: incomplete,
+      orphanSinks: orphanSinks,
+      kindCounts: items.reduce(function(acc, item) { acc[item.kind] = (acc[item.kind] || 0) + 1; return acc; }, {}),
+      items: opts.includeItems === false ? [] : items
+    };
+  }
+
+  window.AIO.getElementLineageInventory = function(opts) {
+    opts = opts || {};
+    var pages = opts.pages || (opts.allRoutes ? (window.AIO_ALL_ROUTE_PAGE_IDS || DEFAULT_PAGES) : (window.AIO_CRITICAL_10_PAGE_IDS || DEFAULT_PAGES));
+    var coverage = { live: null, snap: null };
+    try { coverage.live = window.AIO.getLiveSymbolsCoverageAudit ? window.AIO.getLiveSymbolsCoverageAudit() : null; } catch(_) {}
+    try { coverage.snap = window.AIO.getStaticSeedFallbackAudit ? window.AIO.getStaticSeedFallbackAudit() : null; } catch(_) {}
+    var collectOpts = Object.assign({}, opts, { coverage: coverage });
+    var pageRows = pages.map(function(pageId) { return collectPage(pageId, collectOpts); });
+    var items = [];
+    pageRows.forEach(function(row) { if (row.items && row.items.length) items = items.concat(row.items); });
+    var missingFieldCounts = {};
+    items.forEach(function(item) { (item.missingFields || []).forEach(function(field) { missingFieldCounts[field] = (missingFieldCounts[field] || 0) + 1; }); });
+    var incomplete = pageRows.reduce(function(sum, row) { return sum + (row.incomplete || 0); }, 0);
+    var orphanSinks = pageRows.reduce(function(sum, row) { return sum + (row.orphanSinks || 0); }, 0);
+    var missingPages = pageRows.filter(function(row) { return !row.pageExists; }).map(function(row) { return row.pageId; });
+    var total = pageRows.reduce(function(sum, row) { return sum + (row.total || 0); }, 0);
+    return {
+      status: missingPages.length || incomplete || orphanSinks ? 'warn' : 'ok',
+      pagesChecked: pageRows.length,
+      total: total,
+      complete: total - incomplete,
+      incomplete: incomplete,
+      orphanSinks: orphanSinks,
+      fieldCount: REQUIRED_FIELDS.length,
+      fields: REQUIRED_FIELDS.slice(),
+      missingPages: missingPages,
+      missingFieldCounts: missingFieldCounts,
+      kindCounts: items.reduce(function(acc, item) { acc[item.kind] = (acc[item.kind] || 0) + 1; return acc; }, {}),
+      pages: pageRows.map(function(row) { return Object.assign({}, row, { items: undefined }); }),
+      items: opts.includeItems === false ? [] : items,
+      note: 'H3-G element lineage: every visible numeric/chart/narrative item carries the full listed field set; static copy is explicitly reference-only, never promoted to current decision use.',
+      generatedAt: new Date().toISOString()
+    };
+  };
+
+  function activeRouteRoot(root) {
+    return !!(root && root.classList && root.classList.contains('active'));
+  }
+  window.AIO.getCritical10ContentHierarchyAudit = function(opts) {
+    opts = opts || {};
+    var pages = opts.pages || window.AIO_CRITICAL_10_PAGE_IDS || DEFAULT_PAGES;
+    // v59.70: the dev-only decision header is deleted (D2). The audit now checks the page's own first block.
+    var rows = pages.map(function(pageId) {
+      var root = document.getElementById('page-' + pageId);
+      var blockers = [], warnings = [];
+      var firstVisible = null;
+      if (root) {
+        Array.prototype.slice.call(root.children).some(function(child) {
+          if (isHiddenForRoute(child, root)) return false;
+          firstVisible = child;
+          return true;
+        });
+      }
+      var active = activeRouteRoot(root);
+      if (!root) blockers.push('page-root-missing');
+      if (root && !firstVisible) blockers.push('first-visible-block-missing');
+      var openFundamentals = root ? root.querySelectorAll('details.aio-fund[open]').length : 0;
+      var debugVisible = root ? Array.prototype.slice.call(root.querySelectorAll('.aio-audit-widget,.aio-debug,.debug-only,[data-text-role="developer-note"]')).filter(function(el) { return !isHiddenForRoute(el, root); }).length : 0;
+      if (openFundamentals) warnings.push('open-fundamentals:' + openFundamentals);
+      if (debugVisible) blockers.push('developer-surface-visible:' + debugVisible);
+      return {
+        pageId: pageId,
+        active: active,
+        pageExists: !!root,
+        firstVisibleSelector: firstVisible ? selectorFor(firstVisible, root) : '',
+        openFundamentals: openFundamentals,
+        developerSurfaceVisible: debugVisible,
+        blockers: blockers,
+        warnings: warnings
+      };
+    });
+    var blockers = rows.reduce(function(acc, row) { return acc.concat(row.blockers || []); }, []);
+    var warnings = rows.reduce(function(acc, row) { return acc.concat(row.warnings || []); }, []);
+    return { status: blockers.length ? 'fail' : (warnings.length ? 'warn' : 'ok'), pagesChecked: rows.length, issueCount: blockers.length, warningCount: warnings.length, blockers: blockers, warnings: warnings, pages: rows, generatedAt: new Date().toISOString() };
+  };
+
+  window.AIO.getCritical10AccessibilityAudit = function(opts) {
+    opts = opts || {};
+    var pages = opts.pages || window.AIO_CRITICAL_10_PAGE_IDS || DEFAULT_PAGES;
+    function nameOf(el, root) {
+      var labelled = attr(el, 'aria-labelledby');
+      if (labelled) {
+        var ids = labelled.split(/\s+/).map(function(id) { return document.getElementById(id); }).filter(Boolean);
+        if (ids.length) return ids.map(function(node) { return textOf(node, 120); }).join(' ').trim();
+      }
+      var label = attr(el, 'aria-label') || attr(el, 'title');
+      if (label) return label.trim();
+      if (el.labels && el.labels.length) return textOf(el.labels[0], 120);
+      var parentLabel = null;
+      try { parentLabel = el.closest('label'); } catch(_) {}
+      if (parentLabel) return textOf(parentLabel, 120);
+      if (/^(INPUT|SELECT|TEXTAREA)$/.test(el.tagName || '')) return attr(el, 'placeholder') || attr(el, 'value');
+      return textOf(el, 140);
+    }
+    var rows = pages.map(function(pageId) {
+      var root = document.getElementById('page-' + pageId);
+      var nameless = [], unfocusable = [], positiveTabindex = [], smallTargets = [], chartIssues = [];
+      if (!root) return { pageId: pageId, pageExists: false, active: false, blockers: ['page-root-missing'], warnings: [], nameless: [], unfocusable: [], positiveTabindex: [], smallTargets: [], chartIssues: [] };
+      var active = activeRouteRoot(root);
+      var controls = [];
+      try { controls = Array.prototype.slice.call(root.querySelectorAll('button,a[href],input,select,textarea,[role="button"],[data-action]')); } catch(_) {}
+      controls.forEach(function(el) {
+        if (isHiddenForRoute(el, root) || el.disabled) return;
+        var label = nameOf(el, root);
+        if (!label) nameless.push({ id: el.id || '', selector: selectorFor(el, root), tag: el.tagName || '' });
+        var tabindex = Number(el.getAttribute('tabindex'));
+        if (el.tabIndex < 0 || (!isFinite(tabindex) && el.tagName === 'DIV' && el.getAttribute('data-action'))) unfocusable.push({ id: el.id || '', selector: selectorFor(el, root), tag: el.tagName || '', tabindex: el.tabIndex });
+        if (isFinite(tabindex) && tabindex > 0) positiveTabindex.push({ id: el.id || '', selector: selectorFor(el, root), tabindex: tabindex });
+        if (active && el.getBoundingClientRect) {
+          var rect = el.getBoundingClientRect();
+          if (rect.width > 0 && rect.height > 0 && (rect.width < 24 || rect.height < 24)) smallTargets.push({ id: el.id || '', selector: selectorFor(el, root), width: Math.round(rect.width), height: Math.round(rect.height) });
+        }
+      });
+      Array.prototype.slice.call(root.querySelectorAll('canvas')).forEach(function(canvas) {
+        if (isHiddenForRoute(canvas, root)) return;
+        var chartName = nameOf(canvas, root) || attr(canvas, 'data-source-label');
+        if (!chartName) chartIssues.push({ id: canvas.id || '', selector: selectorFor(canvas, root) });
+      });
+      var blockers = [];
+      if (nameless.length) blockers.push('nameless-controls:' + nameless.length);
+      if (unfocusable.length) blockers.push('unfocusable-controls:' + unfocusable.length);
+      if (positiveTabindex.length) blockers.push('positive-tabindex:' + positiveTabindex.length);
+      if (chartIssues.length) blockers.push('unnamed-canvas:' + chartIssues.length);
+      var warnings = [];
+      if (smallTargets.length) warnings.push('small-targets:' + smallTargets.length);
+      return { pageId: pageId, pageExists: true, active: active, blockers: blockers, warnings: warnings, nameless: nameless, unfocusable: unfocusable, positiveTabindex: positiveTabindex, smallTargets: smallTargets.slice(0, 20), chartIssues: chartIssues };
+    });
+    var blockers = rows.reduce(function(acc, row) { return acc.concat(row.blockers || []); }, []);
+    var warnings = rows.reduce(function(acc, row) { return acc.concat(row.warnings || []); }, []);
+    return { status: blockers.length ? 'fail' : (warnings.length ? 'warn' : 'ok'), pagesChecked: rows.length, issueCount: blockers.length, warningCount: warnings.length, blockers: blockers, warnings: warnings, pages: rows, generatedAt: new Date().toISOString() };
+  };
+
+  window.AIO.getCritical10HumanSurfaceAudit = function(opts) {
+    opts = opts || {};
+    var hierarchy = window.AIO.getCritical10ContentHierarchyAudit(opts);
+    var accessibility = window.AIO.getCritical10AccessibilityAudit(opts);
+    var status = hierarchy.status === 'fail' || accessibility.status === 'fail' ? 'fail' : (hierarchy.status === 'warn' || accessibility.status === 'warn' ? 'warn' : 'ok');
+    return { status: status, hierarchy: hierarchy, accessibility: accessibility, generatedAt: new Date().toISOString() };
+  };
+})();

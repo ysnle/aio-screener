@@ -6,6 +6,7 @@
 // note. One visual (the momentum map: 6-month trend × 1-month move, coloured by the macro wind), a short reading (where
 // strength moved and which combinations stand out), then folded per-stage cards with each theme's choices, opportunity
 // cost, evidence lines, structural hypothesis and what would break it. Stock selection stays on 테마 상세 and 스크리너.
+import { fillOnOpen } from './lazy-fold.js';
 import { sessionChipText } from './session-lag.js';
 import { THEME_STATES } from '../../domain/scenarios/analogs.js';
 import { relativeBand, rrgRecentReading } from '../../domain/themes/recent-check.js';
@@ -556,6 +557,7 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   for (const node of krHost ? krHost.querySelectorAll('.tp-stage-choices-fold[open]') : []) openStages.add(node.dataset.stage);
   // v59.51 (content audit): one table per market — the US table folds under the map, the Korean one sits in the 한국 fold.
   const stageTable = (market, themes) => {
+  const buildTable = () => { // v59.70 DOM1: built when the fold first opens
   const table = el(doc, 'table', null, 'tp-table');
   const cols =['테마', '단계 흐름', '1개월 수익률 추이', '1주', '1개월', '긴 추세', '50일선 위', '시나리오 영향', '기준 충족'];
   const head = el(doc, 'thead'), headRow = el(doc, 'tr');
@@ -662,6 +664,8 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   tableScroll.setAttribute('aria-label', `${mkt({ market })} 테마 단계 표, 가로 스크롤`);
   tableScroll.tabIndex = 0;
   tableScroll.append(table);
+  return tableScroll;
+  };
   // v59.51 (content audit): the 46-row table (~14,000 px on a phone) is an expert fold, one per market; the how-to sentence
   // is the summary's hover (the 테마 buttons and the column names carry it).
   const fold = el(doc, 'details', null, 'tp-rules tp-table-fold');
@@ -671,7 +675,8 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   fold.addEventListener('toggle', () => { opened[market] = fold.open; });
   const summary = el(doc, 'summary', `${mkt({ market })} 테마 ${themes.length}개 — 단계, 근거, 대응별 득실 표`);
   summary.title = `테마 이름을 누르면 근거·핵심 논리·자기만의 득실이 펼쳐집니다. 단계 흐름은 지금 단계가 이어진 거래일 수와 그 전 단계(최근 10거래일 기록 안), '바뀜'은 최근 3거래일 안에 단계가 달라진 테마입니다. 추이 선은 같은 기간 1개월 수익률의 흐름입니다. 마지막 거래일에 바뀐 테마와 '다른 선택'(같은 단계 다수와 ${CHOICE_WORDS.favored}이 다름)은 처음부터 펼쳐 둡니다(최대 4개).`;
-  fold.append(summary, tableScroll);
+  fold.append(summary);
+  fillOnOpen(fold, () => [buildTable()]);
   return fold;
   };
   // v59.51 (content audit, two layers): the map's side keeps the legend and at most two highlight lines (the themes whose

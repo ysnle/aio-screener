@@ -7,6 +7,7 @@
 //   금리 · 환율 (route fxbond) — Treasury curve, real yield / breakeven / HY spread, and the dollar,
 //                              won, yen and 10Y on the completed-close basis with six-month charts.
 // Observations only: the fixed-threshold storyline, risk pill and four-axis bull/bear count are retired.
+import { fillOnOpen } from './lazy-fold.js';
 import { renderReleaseGuide } from './release-zone-bar.js';
 import { alignInput, alignmentLabel, buildCloseSeries, closeBasis, closeSessionMarket, sessionPointBack as closePointBack } from '../../domain/briefing/market-read.js';
 import { requestConsensusEstimates, CONSENSUS_KEY } from '../../data/consensus-estimates.js';
@@ -150,7 +151,8 @@ function groupFold(doc, root, id, title, fact, count, body) {
   const text = el(doc, 'span', null, 'macro-group-summary__text');
   text.append(el(doc, 'h3', title, 'macro-group-title'), el(doc, 'p', fact, 'macro-group-fact'));
   summary.append(text, el(doc, 'span', `지표 ${count}개`, 'macro-group-count'));
-  fold.append(summary, ...body);
+  fold.append(summary);
+  fillOnOpen(fold, body); // v59.70 DOM1: the cards and charts are built when the group first opens
   fold.addEventListener('toggle', () => {
     if (fold.open) {
       root.__aioOpenMacroGroup = id;
@@ -677,43 +679,7 @@ function renderCommodities(doc, root, oil = null) {
 // v58.75 hide-and-name step for them is gone with them.
 
 // Expert review M11: the 한국 시장 fold's 1-year range and 3-month move of the won, from the completed-close history.
-function renderKoreaWon(doc, root) {
-  const range = doc.getElementById('kr-macro-krw-range');
-  const trend = doc.getElementById('kr-macro-krw-3m');
-  if (!range && !trend) return;
-  const history = root._aioHistory || [];
-  const series = buildCloseSeries(history, 'usdkrw', { through: closeBasis(history) });
-  const last = series[series.length - 1];
-  const won = (value) => `${value.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}원`;
-  const set = (node, text) => { if (node) node.textContent = text; };
-  const year = last ? series.filter((row) => Date.parse(row.date) >= Date.parse(last.date) - 365 * 86400000) : [];
-  if (year.length > 20) {
-    const values = year.map((row) => row.value);
-    const lo = Math.min(...values); const hi = Math.max(...values);
-    set(range, `${won(lo)}–${won(hi)}`);
-    set(doc.getElementById('kr-macro-krw-range-note'), `${shortDate(last.date)} 종가 ${won(last.value)}, 1년 범위의 ${((last.value - lo) / ((hi - lo) || 1) * 100).toFixed(0)}% 위치`);
-  }
-  const back = last ? sessionPointBack(series, 63) : null;
-  if (back) {
-    set(trend, signed((last.value / back.value - 1) * 100, 1, '%'));
-    set(doc.getElementById('kr-macro-krw-3m-note'), `${shortDate(back.date)} ${won(back.value)} → ${shortDate(last.date)} ${won(last.value)}, 오르면 원화 약세`);
-  }
-  // v58.74 (text audit C6): the won block reads its own move against the dollar index over the same 3 months — a won move
-  // much larger than the dollar's is more likely Korea-specific (flows, exports) than U.S. rates.
-  const dxy = buildCloseSeries(history, 'dxy', { through: closeBasis(history) });
-  const dxyLast = dxy[dxy.length - 1];
-  const dxyBack = dxyLast ? sessionPointBack(dxy, 63) : null;
-  const readNode = doc.getElementById('kr-macro-krw-read');
-  if (readNode && back && dxyBack) {
-    const krw = (last.value / back.value - 1) * 100;
-    const usd = (dxyLast.value / dxyBack.value - 1) * 100;
-    const wonWord = krw > 0 ? '약세' : '강세';
-    readNode.textContent = Math.abs(krw) < 1 ? `원화는 3개월 동안 큰 변화가 없습니다(원/달러 ${signed(krw, 1, '%')}, 달러 지수 ${signed(usd, 1, '%')}).`
-      : Math.abs(krw) >= Math.abs(usd) * 2 || Math.sign(krw) !== Math.sign(usd)
-        ? `원화는 3개월 ${wonWord}(원/달러 ${signed(krw, 1, '%')})로, 같은 기간 달러 지수(${signed(usd, 1, '%')})보다 움직임이 커 미국 금리보다 한국 쪽 요인(수급·수출)이 더 컸을 수 있습니다.`
-        : `원화는 3개월 ${wonWord}(원/달러 ${signed(krw, 1, '%')})이고, 달러 지수도 같은 쪽(${signed(usd, 1, '%')})이라 달러 전체 흐름과 함께 움직였습니다.`;
-  }
-}
+// v59.70 (D5): renderKoreaWon left with the 한국 거시 fold; the 시장 상태 한국 board draws 원/달러.
 
 // v58.74 (text audit C1): the page opens with its through-line — which factors weigh, whether the quadrant is set, which
 // branch fits best and the release that decides next — so the sections below read as steps of one argument.
@@ -760,20 +726,21 @@ export function renderMacroBoard({ documentRef: doc, root }) {
   host.replaceChildren(...board.groups.map((group) => {
     const section = el(doc, 'section', null, 'macro-group');
     section.dataset.group = group.id;
-    const grid = el(doc, 'div', null, 'macro-stat-grid');
-    grid.append(...group.items.map((item) => statCard(doc, { label: item.label, valueText: item.valueText, lines: [item.deltaText, item.targetText, item.trendText], meta: item.meta, note: item.note, status: item.status, series: item.series, direction: item.direction, unit: item.unit, format: item.people ? (value) => peopleText(value, { sign: true }) : null })));
-    section.append(groupFold(doc, root, group.id, group.title, group.fact, group.items.length, [grid]));
+    const grid = () => { const node = el(doc, 'div', null, 'macro-stat-grid');
+    node.append(...group.items.map((item) => statCard(doc, { label: item.label, valueText: item.valueText, lines: [item.deltaText, item.targetText, item.trendText], meta: item.meta, note: item.note, status: item.status, series: item.series, direction: item.direction, unit: item.unit, format: item.people ? (value) => peopleText(value, { sign: true }) : null })));
+    return node; };
+    section.append(groupFold(doc, root, group.id, group.title, group.fact, group.items.length, () => [grid()]));
     return section;
   }));
   // P1654: liquidity, growth-lead and commodity/Asia-FX groups from the extended FRED lane (hidden until produced).
   for (const group of buildLiquidityGrowthGroups(macroHistory, { macro: root._aioServerMacro || null, history: root._aioHistory || [] })) {
     const section = el(doc, 'section', null, 'macro-group');
     section.dataset.group = group.id;
-    const grid = el(doc, 'div', null, 'macro-stat-grid');
+    const grid = () => { const node = el(doc, 'div', null, 'macro-stat-grid');
     // M13/M14: the period the observation covers, and a stale chip once the cadence's normal delay has passed.
-    grid.append(...group.items.map((item) => statCard(doc, { label: item.label, valueText: item.valueText, lines: [item.changeText], meta: item.period, note: item.reading, series: item.series, unit: item.unit, format: item.format, status: item.stale ? 'stale' : 'observed', staleText: '새 값 발표 지연(평소 발표 주기보다 늦음)' })));
-    const fold = deepDiveFold(doc, root, group.title, MACRO_GROUP_DEEP_DIVES[group.id]); // P1660: a teaching fold
-    section.append(groupFold(doc, root, group.id, group.title, group.fact, group.items.length, fold ? [grid, fold] : [grid]));
+    node.append(...group.items.map((item) => statCard(doc, { label: item.label, valueText: item.valueText, lines: [item.changeText], meta: item.period, note: item.reading, series: item.series, unit: item.unit, format: item.format, status: item.stale ? 'stale' : 'observed', staleText: '새 값 발표 지연(평소 발표 주기보다 늦음)' })));
+    return node; };
+    section.append(groupFold(doc, root, group.id, group.title, group.fact, group.items.length, () => { const fold = deepDiveFold(doc, root, group.title, MACRO_GROUP_DEEP_DIVES[group.id]); return fold ? [grid(), fold] : [grid()]; })); // P1660: a teaching fold
     host.append(section);
   }
   // 2026-10-14 (live review 4f): where this month sits in decades of history — a level, not a direction.
@@ -794,7 +761,6 @@ export function renderMacroBoard({ documentRef: doc, root }) {
     host.append(section);
   }
   renderCommodities(doc, root, read.oil);
-  renderKoreaWon(doc, root);
   // v59.55 (owner 11/1): the six chapters (물가 · 고용 · 금리 · 원자재 · 신용 · 성장) under the quadrant, a lazy chunk.
   import('./macro-chapters.js').then(({ renderMacroChapters }) => renderMacroChapters({ documentRef: doc, root, events: latestMarketInterpretation(root)?.events || [] })).catch(() => {});
   renderNextSteps(doc, doc.getElementById('macro-next'), macroNextSteps(read)); // v57.50 I04

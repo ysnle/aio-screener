@@ -1216,23 +1216,6 @@ window._aioSetupCanvas = function(canvas, w, h) {
   return ctx;
 };
 
-// LightweightCharts는 내부 레이어 canvas를 동적으로 생성한다. 실제 차트 의미는
-// 컨테이너가 전달하고 내부 canvas는 스크린리더에서 숨겨 중복/무라벨 경고를 막는다.
-window._aioMarkChartCanvases = function(rootEl, label) {
-  if (!rootEl || !rootEl.querySelectorAll) return;
-  try {
-    if (label) {
-      rootEl.setAttribute('role', rootEl.getAttribute('role') || 'img');
-      rootEl.setAttribute('aria-label', rootEl.getAttribute('aria-label') || label);
-    }
-    rootEl.querySelectorAll('.tv-lightweight-charts canvas, canvas').forEach(function(canvas) {
-      if (!canvas.id && !canvas.getAttribute('aria-label') && !canvas.getAttribute('aria-labelledby') && !canvas.getAttribute('title')) {
-        canvas.setAttribute('aria-hidden', 'true');
-        canvas.setAttribute('tabindex', '-1');
-      }
-    });
-  } catch(_) {}
-};
 
 // ═══ v48.96: _aioModalTrap — 모달 키보드 포커스 순환 + ESC 닫기 (P2-9) ════════
 // 용도: WCAG 2.1 SC 2.1.2 — 모달 내 Tab/Shift+Tab 순환, ESC로 닫힘
@@ -1897,30 +1880,7 @@ window._aioApplyTableAccessibility = function(root) {
   return fixed;
 };
 
-window.AIO.getTableAccessibilityAudit = function(root) {
-  root = root || document;
-  if (typeof window._aioApplyTableAccessibility === 'function') window._aioApplyTableAccessibility(root);
-  var issues = [];
-  try {
-    Array.prototype.forEach.call(root.querySelectorAll('table'), function(tbl, idx) {
-      if (!tbl.getAttribute('aria-label') && !tbl.getAttribute('aria-labelledby') && !tbl.getAttribute('title')) {
-        issues.push('table ' + (idx + 1) + ': missing accessible name');
-      }
-      if (!tbl.querySelector('th') && !tbl.querySelector('[role="rowheader"]')) {
-        issues.push('table ' + (idx + 1) + ': missing header semantics');
-      }
-    });
-  } catch(e) {
-    issues.push('table accessibility audit error: ' + (e && e.message || e));
-  }
-  return {
-    status: issues.length ? 'warn' : 'ok',
-    issueCount: issues.length,
-    issues: issues,
-    tableCount: root.querySelectorAll ? root.querySelectorAll('table').length : 0,
-    generatedAt: new Date().toISOString()
-  };
-};
+// v59.70 P2: window.AIO.getTableAccessibilityAudit moved to js/aio-qa-audits.js (QA-only callers).
 
 if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') {
@@ -1973,20 +1933,7 @@ window._aioLogsClear = function() {
     if (typeof window.showToast === 'function') window.showToast('로그 버퍼 초기화');
   }
 };
-window._aioKrTickerSubmit = function() {
-  var inp = document.getElementById('kr-ticker-analysis-input');
-  if (!inp) return;
-  var t = inp.value.trim();
-  if (/^\d{6}$/.test(t)) t += '.KS';
-  if (typeof window.analyzeKrTickerDeep === 'function') window.analyzeKrTickerDeep(t);
-};
-window._aioAddToPortfolio = function(ticker) {
-  if (typeof window.showPage === 'function') window.showPage('portfolio');
-  setTimeout(function() {
-    var inp = document.getElementById('pf-add-ticker');
-    if (inp) inp.value = ticker;
-  }, 50);
-};
+// v59.70 (D5): window._aioKrTickerSubmit left with the 한국 시장 추세 fold.
 // LC-39 (bridge) + P1430/P1449: one bridge from any route into the technical deep analysis —
 // and the 종목 screen's company must follow. The native 차트 tab follows the subject
 // (root._aioLastOpenedSymbol / _aioChartRequest, stock-chart.js), so this bridge now names the
@@ -3140,21 +3087,7 @@ window._aioNewsTickerClick = function(sym) {
   }
 };
 
-// v48.47: Portfolio rr-position-select 드롭다운 재생성
-window._aioRRPopulateSelect = function() {
-  var sel = document.getElementById('rr-position-select');
-  if (!sel) return;
-  var positions = (typeof getPortfolioData === 'function') ? getPortfolioData() : [];
-  var current = sel.value;
-  sel.innerHTML = '<option value="">포지션에서 자동 입력...</option>' +
-    positions.map(function(p){
-      var tk = escHtml(p.ticker); // v59.42: a stored ticker is escaped (it was raw HTML in the option)
-      // v59.45 (P27-IMPORT-01): an imported position without a readable cost shows '원가 미확인', not '$NaN'.
-      var costNum = Number(p.cost);
-      return '<option value="' + tk + '">' + tk + ', ' + escHtml(p.qty) + '주 @ ' + (p.cost != null && p.cost !== '' && isFinite(costNum) ? '$' + costNum.toFixed(2) : '원가 미확인') + '</option>';
-    }).join('');
-  if (current && positions.some(function(p){return p.ticker===current;})) sel.value = current;
-};
+// v59.70: window._aioRRPopulateSelect moved to src/ui/components/portfolio-shell-controls.js.
 window._aioScrollContentTop = function() {
   var c = document.querySelector('.content');
   if (c) c.scrollTo({ top: 0, behavior: 'smooth' });
@@ -3374,8 +3307,8 @@ window._aioRenderPageBrief = function(pageId) {
     }
   } catch(_) {}
   window._aioApplyContentSimplification(pageId);
-  if (typeof window._aioRenderPageDecisionHeader === 'function') {
-    window._aioRenderPageDecisionHeader(pageId);
+  if (typeof window._aioRefreshPageSurface === 'function') {
+    window._aioRefreshPageSurface(pageId);
   }
 };
 
@@ -3994,34 +3927,6 @@ window._aioBuildPageDecision = function(pageId) {
   };
 };
 
-window._aioAskAiFromPageDecision = function(pageId) {
-  var d = window._aioBuildPageDecision ? window._aioBuildPageDecision(pageId) : null;
-  var prompt = window.AIO && typeof window.AIO.buildPageDecisionAiPrompt === 'function'
-    ? window.AIO.buildPageDecisionAiPrompt(d)
-    : (d ? (d.title + ': ' + d.decision + '\n근거: ' + d.reasons.join(' / ') + '\n운용 포인트: ' + d.action) : '');
-  var ctxMap = {
-    home:'home', signal:'signal', breadth:'breadth', sentiment:'sentiment', briefing:'briefing',
-    technical:'technical', screener:'screener', ticker:'ticker', portfolio:'portfolio',
-    themes:'themes', 'theme-detail':'theme-detail', macro:'macro', fxbond:'fxbond', fundamental:'fundamental',
-    'market-news':'market-news'
-  };
-  var ctx = ctxMap[pageId] || pageId || 'home';
-  var inp = document.getElementById('ai-panel-inp') || document.getElementById('chat-' + ctx + '-inp');
-  if (inp) {
-    inp.value = prompt;
-    inp.focus();
-  }
-  if (typeof window.openUnifiedAI === 'function') {
-    try { window.openUnifiedAI(ctx); return; } catch(_) {}
-  }
-  if (typeof window.toggleAIPanel === 'function') {
-    try { window.toggleAIPanel(true); return; } catch(_) {}
-  }
-  if (typeof window.chatFromChip === 'function') {
-    try { window.chatFromChip(ctx, prompt); return; } catch(_) {}
-  }
-};
-
 window.AIO_PAGE_ACTION_HUBS = {
   home: {
     title:'시장 Cockpit',
@@ -4203,7 +4108,7 @@ function _aioFoldDensePageControls(pageId) {
   if (firstNode && firstNode.parentNode) {
     firstNode.parentNode.insertBefore(details, firstNode);
   } else {
-    var anchor = page.querySelector('.aio-action-hub') || page.querySelector('.aio-decision-header') || page.firstElementChild;
+    var anchor = page.querySelector('.aio-action-hub') || page.firstElementChild;
     if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(details, anchor.nextSibling);
   }
   nodes.forEach(function(node) {
@@ -5133,8 +5038,8 @@ function _aioSyncPageMarketEpoch(event) {
   });
   var active = document.querySelector('.page.active');
   var activeId = active && String(active.id || '').replace(/^page-/, '');
-  if (activeId && typeof (window._aioRenderPageDecisionHeader) === 'function') {
-    try { window._aioRenderPageDecisionHeader(activeId); } catch(_) {}
+  if (activeId && typeof (window._aioRefreshPageSurface) === 'function') {
+    try { window._aioRefreshPageSurface(activeId); } catch(_) {}
   }
   try { document.dispatchEvent(new CustomEvent('aio:marketEpochUpdated', { detail:{ reason:event && event.type || 'sync', audit:window.AIO.getPageMarketEpochAudit() } })); } catch(_) {}
 }
@@ -5151,84 +5056,16 @@ try {
   });
 } catch(_) {}
 
-window._aioRenderPageDecisionHeader = function(pageId) {
+// v59.70 (D2): the dev-only decision header is deleted. Page show/refresh still stamps the market epoch and
+// re-applies the action hub and dense-control fold, which the header renderer used to run as side effects.
+window._aioRefreshPageSurface = function(pageId) {
   var page = document.getElementById('page-' + pageId);
   if (!page) return null;
-  var d = window._aioBuildPageDecision(pageId);
-  if (!d) return null;
-  var old = page.querySelector('.aio-decision-header[data-aio-decision-page="' + pageId + '"]');
-  if (old) old.remove();
-  var cls = 'aio-source-' + String(d.sourceKind || 'SNAPSHOT').toLowerCase();
-  // FOMC 안내는 관련 페이지에만 표시, 텍스트는 레지스트리에서 읽음
-  var _fomcFooterPages = { home:1, macro:1, fxbond:1, signal:1, briefing:1 };
-  var _fomcFoot = (window.AIO_EVENT_FRESHNESS_REGISTRY || {}).fomc || {};
-  // v52.40 (P655/EF-13): 이 서브텍스트는 홈/시그널/브리핑 등 6개 페이지에서 asOf 없이 노출돼
-  // "데이터: 실시간" 칩 옆에서 오늘 판단처럼 읽혔다 — macro 페이지의 캘린더 표만 날짜를 달고 있었음.
-  // 모든 소비 페이지에 asOf 병기 + 21일 초과 시 경과 배지 + 30일 초과 시 자체 숨김(캐비어트로 폴백)을 통일 적용.
-  var _fomcAsOfAge = null;
-  if (_fomcFoot.eventDate) {
-    var _fomcAgeMs = Date.now() - new Date(_fomcFoot.eventDate + 'T00:00:00+09:00').getTime();
-    if (isFinite(_fomcAgeMs)) _fomcAsOfAge = Math.floor(_fomcAgeMs / 86400000);
-  }
-  var _fomcTooStale = (_fomcAsOfAge != null && _fomcAsOfAge > 30);
-  var _fomcFootNote = (_fomcFooterPages[pageId] && _fomcFoot.result && !_fomcTooStale)
-    ? (_fomcFoot.eventDate ? _fomcFoot.eventDate + ': ' : '') + _aioTruncateAtWord(_fomcFoot.result, 70) +
-      ((_fomcAsOfAge != null && _fomcAsOfAge > 21) ? ' (오래된 컨텍스트, ' + _fomcAsOfAge + '일 경과)' : '')
-    : '';
-  var sourceLabelMap = {
-    LIVE: '데이터: 실시간',
-    DELAYED: '데이터: 지연',
-    SNAPSHOT: '데이터: 스냅샷',
-    REFERENCE: '데이터: 참고',
-    UNAVAILABLE: '데이터: 미수신'
-  };
-  var sourceKind = String(d.sourceKind || 'SNAPSHOT').toUpperCase();
-  var sourceLabel = sourceLabelMap[sourceKind] || '데이터: 확인 필요';
-  if (sourceKind === 'UNAVAILABLE' && d.evidence) {
-    var _evAsOf = String(d.evidence.asOf || '');
-    if (Number(d.evidence.snapshotDom || 0) > 0 || /^20\d\d-/.test(_evAsOf)) sourceLabel = '데이터: 기준 미확인';
-  }
-  var sharedCut = window.AIO && typeof window.AIO.getSharedMarketCut === 'function'
-    ? window.AIO.getSharedMarketCut()
-    : null;
-  var marketEpoch = window.AIO && typeof window.AIO.getPageMarketEpochState === 'function'
-    ? window.AIO.getPageMarketEpochState(pageId)
-    : null;
-  var sharedCutHtml = sharedCut && sharedCut.end
-    ? '<span class="aio-confidence-badge" data-market-cut-status="' + _aioDecisionEsc(sharedCut.status || 'unknown') + '" title="' + _aioDecisionEsc(sharedCut.label || '') + '">' + (sharedCut.usable ? '기준 시각 ' : '기준 시각 지연, ') + _aioDecisionEsc(sharedCut.endLabel) + '</span>'
-    : '<span class="aio-confidence-badge" title="서버 24시간 컷 메타데이터 대기">기준 시각 대기</span>';
-  if (sharedCutHtml && sharedCut && sharedCut.end) {
-    sharedCutHtml = sharedCutHtml.replace(
-      'data-market-cut-status="' + _aioDecisionEsc(sharedCut.status || 'unknown') + '"',
-      'data-market-cut-status="' + _aioDecisionEsc(sharedCut.status || 'unknown') + '" data-market-cut-start="' + _aioDecisionEsc(sharedCut.start || '') + '" data-market-cut-end="' + _aioDecisionEsc(sharedCut.end || '') + '"'
-    );
-  }
-  var marketEpochLabel = !marketEpoch ? '시점 확인 중'
-    : marketEpoch.status === 'CURRENT' ? '시점 일치'
-      : marketEpoch.status === 'PARTIAL' ? '시점 부분 일치'
-        : marketEpoch.status === 'REFERENCE' ? '참고 페이지'
-          : '시점 불일치';
-  var marketEpochHtml = '<span class="aio-confidence-badge" data-market-epoch-status="' + _aioDecisionEsc(marketEpoch && marketEpoch.status || 'BLOCKED') + '" title="' + _aioDecisionEsc(marketEpoch && marketEpoch.blockers && marketEpoch.blockers.join(', ') || marketEpochLabel) + '">' + _aioDecisionEsc(marketEpochLabel) + '</span>';
-  var caveatHtml = d.caveat ? '<span class="aio-decision-caveat">' + _aioDecisionEsc(d.caveat) + '</span>' : '';
-  var html = ''
-    + '  <section class="aio-decision-header" data-aio-decision-page="' + _aioDecisionEsc(pageId) + '" data-source-kind="' + _aioDecisionEsc(sourceKind) + '" data-as-of="' + _aioDecisionEsc(d.asOf || '') + '" data-market-revision="' + _aioDecisionEsc(marketEpoch && marketEpoch.revision || '') + '" data-market-cut-end="' + _aioDecisionEsc(marketEpoch && marketEpoch.cutEnd || '') + '" data-field-timeline-status="' + _aioDecisionEsc(marketEpoch && marketEpoch.fieldTimeline && marketEpoch.fieldTimeline.status || 'REFERENCE') + '" data-field-observation-start="' + _aioDecisionEsc(marketEpoch && marketEpoch.fieldTimeline && marketEpoch.fieldTimeline.observationStart || '') + '" data-field-observation-end="' + _aioDecisionEsc(marketEpoch && marketEpoch.fieldTimeline && marketEpoch.fieldTimeline.observationEnd || '') + '">'
-    + '  <div class="aio-decision-top">'
-    + '    <div><div class="aio-decision-kicker">' + _aioDecisionEsc(d.title) + '</div><div class="aio-decision-verdict">' + _aioDecisionEsc(d.decision) + '</div></div>'
-    + '    <div class="aio-decision-meta"><span class="aio-source-badge ' + cls + '" title="sourceKind: ' + _aioDecisionEsc(sourceKind) + '">' + _aioDecisionEsc(sourceLabel) + '</span>' + (d.referenceSummary ? '<span class="aio-confidence-badge" data-reference-close-basis="true">' + _aioDecisionEsc(d.asOf) + '</span>' : '') + sharedCutHtml + marketEpochHtml + '<span class="aio-confidence-badge">근거 상태 ' + _aioDecisionEsc(d.confidence) + '</span></div>'
-    + '  </div>'
-    + '  <div class="aio-decision-foot">' + (_fomcFootNote ? '<span>' + _aioDecisionEsc(_fomcFootNote) + '</span>' : caveatHtml) + '<button type="button" class="aio-ai-context-btn" data-action="_aioAskAiFromPageDecision" data-arg="' + _aioDecisionEsc(pageId) + '">AI에게 묻기</button></div>'
-    + (_fomcFootNote && caveatHtml ? '<div class="aio-decision-foot aio-decision-evidence-foot">' + caveatHtml + '</div>' : '')
-    + '</section>';
-  var operatorNote = pageId === 'home' ? document.getElementById('home-operator-note') : null;
-  if (operatorNote && operatorNote.parentNode === page) operatorNote.insertAdjacentHTML('afterend', html);
-  else page.insertAdjacentHTML('afterbegin', html);
-  var header = page.querySelector('.aio-decision-header[data-aio-decision-page="' + pageId + '"]');
-  if (header) page.classList.add('has-aio-decision-header');
   try { if (window.AIO.applyPageMarketEpoch) window.AIO.applyPageMarketEpoch(pageId); } catch(_) {}
   if (typeof window._aioApplyPageBodyRedesign === 'function') {
     try { window._aioApplyPageBodyRedesign(pageId); } catch(_) {}
   }
-  return header;
+  return page;
 };
 
 window.AIO.getPageEvidenceCurrentnessAudit = function() {
@@ -5403,7 +5240,7 @@ window._aioCreateVisualReport = function(pageId) {
     + '<div><button type="button" class="aio-ai-context-btn" data-action="_aioDownloadVisualReport" data-arg="' + _aioDecisionEsc(pageId) + '">PNG 다운로드</button></div></div>'
     + '<canvas id="' + _aioDecisionEsc(id) + '" aria-label="AIO visual report"></canvas>'
     + '</section>';
-  var anchor = page.querySelector('.aio-decision-header') || page.firstElementChild;
+  var anchor = page.firstElementChild;
   if (anchor) anchor.insertAdjacentHTML('afterend', html);
   else page.insertAdjacentHTML('afterbegin', html);
   var canvas = document.getElementById(id);
@@ -5429,13 +5266,13 @@ window._aioDownloadVisualReport = function(pageId) {
   return true;
 };
 
-window._aioRenderAllPageDecisionHeaders = function() {
+window._aioRefreshAllPageSurfaces = function() {
   // AIO_ALL_ROUTE_PAGE_IDS 우선 사용 — ROUTE_PAGE_IDS 단일 출처와 동기화
   var ids = (window.AIO_ALL_ROUTE_PAGE_IDS && window.AIO_ALL_ROUTE_PAGE_IDS.length)
     ? window.AIO_ALL_ROUTE_PAGE_IDS
     : ['home','signal','breadth','sentiment','briefing','market-news','technical','screener','ticker','portfolio','themes','theme-detail','macro','fxbond','fundamental','guide'];
   ids.forEach(function(id) {
-    try { window._aioRenderPageDecisionHeader(id); } catch(_) {}
+    try { window._aioRefreshPageSurface(id); } catch(_) {}
   });
 };
 
@@ -5445,255 +5282,33 @@ window._aioRenderAllPageDecisionHeaders = function() {
 if (window._aioPageBus && typeof window._aioPageBus.register === 'function') {
   window._aioPageBus.register('core-page-decision-v5070', 'aio:pageShown', function(e) {
     var id = e && e.detail;
-    if (id) setTimeout(function() { window._aioRenderPageDecisionHeader(id); }, 40);
+    if (id) setTimeout(function() { window._aioRefreshPageSurface(id); }, 40);
   });
   window._aioPageBus.register('core-page-decision-live-v5070', 'aio:liveQuotes', function() {
     setTimeout(function() {
       var active = document.querySelector('.page.active');
       var id = active && active.id ? active.id.replace(/^page-/, '') : 'home';
-      window._aioRenderPageDecisionHeader(id);
+      window._aioRefreshPageSurface(id);
     }, 120);
   });
 }
 
 if (document && document.addEventListener) {
   document.addEventListener('DOMContentLoaded', function() {
-    try { window._aioRenderAllPageDecisionHeaders(); } catch(_) {}
-    setTimeout(function() { try { window._aioRenderAllPageDecisionHeaders(); } catch(_) {} }, 450);
+    try { window._aioRefreshAllPageSurfaces(); } catch(_) {}
+    setTimeout(function() { try { window._aioRefreshAllPageSurfaces(); } catch(_) {} }, 450);
   });
 }
 
 if (document && document.readyState !== 'loading') {
-  try { window._aioRenderAllPageDecisionHeaders(); } catch(_) {}
+  try { window._aioRefreshAllPageSurfaces(); } catch(_) {}
 }
 
 
 window.AIO = window.AIO || {};
-window.AIO.getPageUXAudit = function() {
-  var ids = Object.keys(AIO_PAGE_BRIEFS);
-  var staleRe = /PCE\(4\/30\)|PCE 4\/30|VIX Spot 18\.36|5\/2 \(PCE|4\/8 기준|이번 주\(05\/04|예정 이벤트 \(v48/;
-  var homeStaleRe = /NFP 비농업고용지수 \(5\/8|PLTR·AMD·ANET|Fed 4인 동시 연설|5\/8 금|5\/9 토/;
-  var pages = ids.map(function(id) {
-    if (typeof window._aioRenderPageBrief === 'function') window._aioRenderPageBrief(id);
-    var page = document.getElementById('page-' + id);
-    var text = page ? (page.innerText || '').replace(/\s+/g, ' ').trim() : '';
-    var overflow = [];
-    if (page) {
-      var targets = page.querySelectorAll('button,.aio-page-brief-chip,.aio-page-brief-step-text,td,th,input,select,.q-chip');
-      Array.prototype.forEach.call(targets, function(el) {
-        if (overflow.length >= 6) return;
-        if (el.clientWidth > 0 && el.scrollWidth > el.clientWidth + 3) {
-          overflow.push({
-            tag: el.tagName,
-            text: ((el.textContent || el.value || '').trim()).slice(0, 80),
-            clientWidth: el.clientWidth,
-            scrollWidth: el.scrollWidth
-          });
-        }
-      });
-    }
-    return {
-      id: id,
-      pageExists: !!page,
-      briefConfig: !!AIO_PAGE_BRIEFS[id],
-      briefRendered: !!(page && page.querySelector('.aio-page-brief')),
-      textChars: text.length,
-      controls: page ? page.querySelectorAll('button,[data-action],input,select,textarea').length : 0,
-      charts: page ? page.querySelectorAll('canvas,iframe,[id*="chart"],[class*="chart"]').length : 0,
-      explainSections: page ? page.querySelectorAll('.aio-explain,.aio-explain-content,details').length : 0,
-      staleLiveLike: staleRe.test(text) || (id === 'home' && homeStaleRe.test(text)),
-      overflow: overflow
-    };
-  });
-  var issues = [];
-  pages.forEach(function(p) {
-    if (!p.pageExists) issues.push(p.id + ': page missing');
-    // v50.29 declutter 스펙 반전: Page Routine 박스는 의도적으로 0 — 남아 있으면 누출이 이슈
-    if (p.briefRendered) issues.push(p.id + ': page-brief not decluttered (v50.29)');
-    if (p.staleLiveLike) issues.push(p.id + ': stale live-like wording');
-    if (p.overflow.length) issues.push(p.id + ': text overflow');
-  });
-  return {
-    version: window.AIO.version || (typeof APP_VERSION === 'string' ? APP_VERSION : null),
-    generatedAt: new Date().toISOString(),
-    totalPages: pages.length,
-    issueCount: issues.length,
-    issues: issues,
-    pages: pages
-  };
-};
+// v59.70 P2: window.AIO.getPageUXAudit moved to js/aio-qa-audits.js (QA-only callers).
 
-// v49.67 Codex P358/R124: DOM-first full surface audit.
-// This complements the page registry audit by walking the actual rendered pages
-// and summarizing every major user-facing surface: headings, sections, data
-// sinks, controls, tables, charts, explainers, and visible placeholder text.
-window.AIO.getFullSurfaceAudit = function(opts) {
-  opts = opts || {};
-  var root = opts.root || document;
-  var registry = (window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY && window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages) || {};
-  var briefs = window.AIO_PAGE_BRIEFS || {};
-  var overlayRegistry = { glossary: '#glossary-modal' };
-  var issues = [];
-  var pages = [];
-  var totals = {
-    domPages: 0,
-    registeredPages: 0,
-    unregisteredPages: 0,
-    registrySubSections: 0,
-    headings: 0,
-    sections: 0,
-    dataSinks: 0,
-    controls: 0,
-    tables: 0,
-    charts: 0,
-    explainers: 0,
-    overlays: 0,
-    visibleLoadingText: 0
-  };
-
-  function qsa(base, selector) {
-    try { return Array.prototype.slice.call((base || root).querySelectorAll(selector)); }
-    catch(_) { return []; }
-  }
-  function ownVisibleText(el) {
-    if (!el) return '';
-    try {
-      if (!document.createTreeWalker || !window.NodeFilter) return el.textContent || '';
-      var parts = [];
-      var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
-        acceptNode: function(node) {
-          var parent = node.parentElement;
-          if (!parent || /^(SCRIPT|STYLE|NOSCRIPT|TEMPLATE)$/i.test(parent.tagName)) return NodeFilter.FILTER_REJECT;
-          return NodeFilter.FILTER_ACCEPT;
-        }
-      });
-      var node;
-      while ((node = walker.nextNode())) parts.push(node.nodeValue || '');
-      return parts.join(' ');
-    } catch(_) {
-      return el.textContent || '';
-    }
-  }
-  function countVisibleLoading(el) {
-    var text = ownVisibleText(el);
-    var match = text.match(/로딩 중|데이터 로딩|분석 로딩|계산 중/g);
-    return match ? match.length : 0;
-  }
-  function countEmptyTables(el) {
-    return qsa(el, 'table').filter(function(tbl) {
-      var rows = qsa(tbl, 'tbody tr, tr');
-      var text = ownVisibleText(tbl).replace(/\s+/g, '');
-      return rows.length <= 1 && !text;
-    }).length;
-  }
-  function pageKeyFromId(id) {
-    return String(id || '').replace(/^page-/, '');
-  }
-
-  var domPages = qsa(root, '.page[id]').filter(function(el) { return /^page-/.test(el.id || ''); });
-  totals.domPages = domPages.length;
-
-  domPages.forEach(function(pageEl) {
-    var id = pageKeyFromId(pageEl.id);
-    if (typeof window._aioRenderPageBrief === 'function') {
-      try { window._aioRenderPageBrief(id); } catch(_) {}
-    }
-    var reg = registry[id] || null;
-    var regSections = reg && Array.isArray(reg.subSections) ? reg.subSections.length : 0;
-    var headings = qsa(pageEl, 'h1,h2,h3,h4,.page-title,.section-title,.widget-title,.card-title,.subsection-title,.aio-page-brief-title').length;
-    var sections = qsa(pageEl, 'section,.section,[class*="section"],.data-widget,.widget,[class*="widget"],.card,[class*="card"],.glass-card,.aio-page-brief,[data-audit-section],[data-page-purpose],[style*="border"]').length;
-    var dataSinks = qsa(pageEl, '[data-live-price],[data-live-kr],[data-live-chg],[data-snap],[data-source-kind],[data-operational-use],[data-runtime-state],[data-score-scale],[data-threshold-table],[data-scenario-key],[data-cycle-phase]').length;
-    var controls = qsa(pageEl, 'button,[data-action],input,select,textarea').length;
-    var tables = qsa(pageEl, 'table').length;
-    var charts = qsa(pageEl, 'canvas,iframe,[id*="chart"],[class*="chart"]').length;
-    var explainers = qsa(pageEl, '.aio-explain,.aio-explain-content,details,.aio-page-brief-step,.aio-page-brief-focus').length;
-    var loading = countVisibleLoading(pageEl);
-    var emptyTables = countEmptyTables(pageEl);
-    var textChars = ownVisibleText(pageEl).replace(/\s+/g, ' ').trim().length;
-    var hasBrief = !!pageEl.querySelector('.aio-page-brief');
-    var riskFlags = [];
-
-    if (!reg) riskFlags.push('missingSequentialRegistry');
-    if (!briefs[id]) riskFlags.push('missingBriefRegistry');
-    // v50.29 declutter made _aioRenderPageBrief removal-only; rendered briefs are now leakage.
-    if (hasBrief) riskFlags.push('pageBriefNotDecluttered');
-    if (loading) riskFlags.push('visibleLoadingText');
-    if (textChars > 800 && dataSinks === 0 && tables === 0 && charts === 0 && controls === 0) riskFlags.push('textOnlySurface');
-    if (tables && emptyTables === tables) riskFlags.push('emptyTablesOnly');
-    if (headings === 0) riskFlags.push('noHeading');
-
-    totals.registeredPages += reg ? 1 : 0;
-    totals.unregisteredPages += reg ? 0 : 1;
-    totals.registrySubSections += regSections;
-    totals.headings += headings;
-    totals.sections += sections;
-    totals.dataSinks += dataSinks;
-    totals.controls += controls;
-    totals.tables += tables;
-    totals.charts += charts;
-    totals.explainers += explainers;
-    totals.visibleLoadingText += loading;
-
-    if (riskFlags.length) {
-      issues.push(id + ': ' + riskFlags.join(','));
-    }
-
-    pages.push({
-      id: id,
-      domId: pageEl.id,
-      title: ((pageEl.querySelector('.page-title,h1,h2') || {}).textContent || id).replace(/\s+/g, ' ').trim().slice(0, 80),
-      registered: !!reg,
-      registrySubSections: regSections,
-      briefRegistry: !!briefs[id],
-      briefRendered: hasBrief,
-      headings: headings,
-      sections: sections,
-      dataSinks: dataSinks,
-      controls: controls,
-      tables: tables,
-      emptyTables: emptyTables,
-      charts: charts,
-      explainers: explainers,
-      textChars: textChars,
-      visibleLoadingText: loading,
-      riskFlags: riskFlags
-    });
-  });
-
-  Object.keys(registry).forEach(function(id) {
-    var overlaySel = overlayRegistry[id];
-    var overlayEl = overlaySel ? document.querySelector(overlaySel) : null;
-    if (!document.getElementById('page-' + id) && !overlayEl) {
-      issues.push(id + ': registered but DOM page missing');
-    } else if (overlayEl) {
-      totals.overlays += 1;
-    }
-  });
-
-  var riskPageCount = pages.filter(function(p) { return p.riskFlags.length > 0; }).length;
-  var coveragePct = totals.domPages ? Math.round((totals.registeredPages / totals.domPages) * 100) : 0;
-  var score = Math.max(0, Math.min(100,
-    100 -
-    (totals.unregisteredPages * 6) -
-    (totals.visibleLoadingText * 5) -
-    (riskPageCount * 2)
-  ));
-  var status = score >= 90 && issues.length === 0 ? 'ok' : score >= 70 ? 'warn' : 'fail';
-
-  return {
-    version: window.AIO.version || (typeof APP_VERSION === 'string' ? APP_VERSION : null),
-    generatedAt: new Date().toISOString(),
-    status: status,
-    score: score,
-    coveragePct: coveragePct,
-    pageCount: totals.domPages,
-    riskPageCount: riskPageCount,
-    issueCount: issues.length,
-    issues: issues,
-    totals: totals,
-    pages: pages
-  };
-};
+// v59.70 P2: window.AIO.getFullSurfaceAudit moved to js/aio-qa-audits.js (QA-only callers).
 
 
 // ─────────────────────────────────────────────────────────────────
@@ -6437,27 +6052,7 @@ window.AIO.getTickerRegistryEntryAudit = function() {
 // P1342: one resolver (src/domain/ticker/resolve-name.js) — aliases never rewrite ticker-shaped input.
 window.AIO.resolveTickerFromAnyName = function(input) { return typeof window._aioResolveRegisteredName === 'function' ? window._aioResolveRegisteredName(input) : null; };
 
-window.AIO.getTickerMappingAudit = function() {
-  var reg = window.AIO_TICKER_NAME_REGISTRY;
-  if (!reg) return { status: 'error', unmappedCount: 0, issues: ['TICKER_NAME_REGISTRY undefined'] };
-  var issues = [];
-  Object.keys(reg.entries).forEach(function(t) {
-    var e = reg.entries[t];
-    if (window.AIO.isTickerRegistryPlaceholder && window.AIO.isTickerRegistryPlaceholder(t, e)) return;
-    if (!e.en || !e.kr) issues.push(t + ' missing en/kr');
-    if (!e.alt || !Array.isArray(e.alt)) issues.push(t + ' missing alt[]');
-  });
-  var entryAudit = window.AIO.getTickerRegistryEntryAudit ? window.AIO.getTickerRegistryEntryAudit() : null;
-  return {
-    status: issues.length ? 'warn' : 'ok',
-    unmappedCount: issues.length,
-    issues: issues,
-    totalEntries: entryAudit ? entryAudit.totalEntries : Object.keys(reg.entries).length,
-    realEntries: entryAudit ? entryAudit.realEntries : Object.keys(reg.entries).length,
-    placeholderCount: entryAudit ? entryAudit.placeholderCount : 0,
-    generatedAt: new Date().toISOString()
-  };
-};
+// v59.70 P2: window.AIO.getTickerMappingAudit moved to js/aio-qa-audits.js (QA-only callers).
 
 // ─────────────────────────────────────────────────────────────────
 // v49.57 R103 신규: getThemeFetchCoverageAudit — 테마별 ticker × 5채널 fetch 가능성
@@ -6522,202 +6117,7 @@ window.AIO.getThemeFetchCoverageAudit = function(themeId) {
   };
 };
 
-// Theme/Trend deep audit: universe, weights, quote readiness, registry, and beginner UX.
-window.AIO.getThemeTrendDeepAudit = function() {
-  function uniq(arr) {
-    var seen = {};
-    return (arr || []).filter(Boolean).map(String).filter(function(x) {
-      if (seen[x]) return false;
-      seen[x] = true;
-      return true;
-    });
-  }
-  function registryMap() {
-    var out = {};
-    try {
-      (typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : []).forEach(function(r) {
-        if (r && r.sym) out[String(r.sym).toUpperCase()] = r;
-      });
-    } catch(_) {}
-    try {
-      var nameReg = window.AIO_TICKER_NAME_REGISTRY && window.AIO_TICKER_NAME_REGISTRY.entries;
-      Object.keys(nameReg || {}).forEach(function(k) {
-        var entry = nameReg[k];
-        if (!entry || (window.AIO.isTickerRegistryPlaceholder && window.AIO.isTickerRegistryPlaceholder(k, entry))) return;
-        out[String(k).toUpperCase()] = entry;
-      });
-    } catch(_) {}
-    try {
-      Object.keys(window.KR_STOCK_DB || {}).forEach(function(code) {
-        if (!/^\d{6}$/.test(String(code))) return;
-        var entry = window.KR_STOCK_DB[code];
-        out[code + '.KS'] = entry;
-        out[code + '.KQ'] = entry;
-      });
-    } catch(_) {}
-    return out;
-  }
-  function krCodeMap() {
-    var out = {};
-    function add(sym) {
-      sym = String(sym || '').toUpperCase();
-      var m = sym.match(/^(\d{6})\.(KS|KQ)$/);
-      if (m && !out[m[1]]) out[m[1]] = sym;
-    }
-    try { (typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : []).forEach(function(r) { add(r && r.sym); }); } catch(_) {}
-    try { (window.KR_SUB_THEMES || []).forEach(function(t) { (t.tickers || []).forEach(add); (t.leaders || []).forEach(add); Object.keys(t.weights || {}).forEach(add); }); } catch(_) {}
-    return out;
-  }
-  var registry = registryMap();
-  var codeToSym = krCodeMap();
-  var liveSet = {};
-  try { (window.LIVE_SYMBOLS || []).forEach(function(s) { liveSet[String(s).toUpperCase()] = true; }); } catch(_) {}
-  function normalizeKrCode(code) {
-    code = String(code || '').trim();
-    if (!code) return '';
-    if (/\.(KS|KQ)$/i.test(code)) return code.toUpperCase();
-    return codeToSym[code] || (code + '.KS');
-  }
-  function collectTheme(raw, source, idOverride) {
-    raw = raw || {};
-    var weights = {};
-    var symbols = [];
-    if (Array.isArray(raw)) {
-      var insight = (window.KR_THEME_INSIGHTS && idOverride && window.KR_THEME_INSIGHTS[idOverride]) || null;
-      raw.forEach(function(item) {
-        var sym = normalizeKrCode(item && item.code);
-        if (!sym) return;
-        symbols.push(sym);
-        weights[sym] = Number(item.w) || 0;
-      });
-      raw = {
-        id: idOverride,
-        name: idOverride,
-        tickers: symbols,
-        leaders: symbols.slice(0, 3),
-        weights: weights,
-        desc: insight && (insight.insight || insight.macro || insight.macroKey || insight.upCondition || insight.breakSignal || (insight.breakSignals && insight.breakSignals[0])) || ''
-      };
-    }
-    weights = raw.weights || {};
-    symbols = uniq([raw.etf, raw.compositeBase].concat(raw.leaders || [], raw.leaderHighlight || [], raw.tickers || [], Object.keys(weights || {})));
-    var wsum = Object.keys(weights || {}).reduce(function(sum, k) { return sum + (Number(weights[k]) || 0); }, 0);
-    return {
-      source: source,
-      id: raw.id || idOverride || raw.name || 'unknown',
-      name: raw.nameKr || raw.name || raw.id || idOverride || 'unknown',
-      symbols: symbols,
-      symbolCount: symbols.length,
-      weights: weights,
-      weightSum: wsum,
-      hasDesc: !!(raw.desc || raw.insight || raw.catalyst || raw.macro || raw.nameKr),
-      hasLeaders: Array.isArray(raw.leaders) && raw.leaders.length > 0,
-      etf: raw.etf || null
-    };
-  }
-  var themes = [];
-  try { (window.THEME_MAP || []).forEach(function(t) { themes.push(collectTheme(t, 'THEME_MAP')); }); } catch(_) {}
-  try { (window.SUB_THEMES || []).forEach(function(t) { themes.push(collectTheme(t, 'SUB_THEMES')); }); } catch(_) {}
-  try { (window.KR_SUB_THEMES || []).forEach(function(t) { themes.push(collectTheme(t, 'KR_SUB_THEMES')); }); } catch(_) {}
-  try {
-    Object.keys(window.KR_THEME_MAP || {}).forEach(function(id) {
-      themes.push(collectTheme(window.KR_THEME_MAP[id], 'KR_THEME_MAP', id));
-    });
-  } catch(_) {}
-  var symbolThemes = {};
-  themes.forEach(function(t) {
-    t.symbols.forEach(function(s) {
-      var key = String(s).toUpperCase();
-      symbolThemes[key] = symbolThemes[key] || [];
-      symbolThemes[key].push(t.id);
-    });
-  });
-  var uniqueSymbols = Object.keys(symbolThemes);
-  var weightIssues = themes.filter(function(t) {
-    var hasWeights = Object.keys(t.weights || {}).length > 0;
-    return hasWeights && Math.abs(t.weightSum - 100) > 1;
-  }).map(function(t) { return { source: t.source, id: t.id, name: t.name, weightSum: t.weightSum }; });
-  var concentrationWarnings = themes.map(function(t) {
-    var vals = Object.keys(t.weights || {}).map(function(k) { return Number(t.weights[k]) || 0; }).filter(function(v) { return v > 0; }).sort(function(a, b) { return b - a; });
-    if (vals.length < 3) return null;
-    var top1 = vals[0];
-    var top3 = vals.slice(0, 3).reduce(function(sum, v) { return sum + v; }, 0);
-    if (top1 > 45 || top3 > 85) return { source: t.source, id: t.id, name: t.name, top1: top1, top3: top3 };
-    return null;
-  }).filter(Boolean);
-  var thinThemes = themes.filter(function(t) { return t.symbolCount < 3; })
-    .map(function(t) { return { source: t.source, id: t.id, name: t.name, symbolCount: t.symbolCount, symbols: t.symbols }; });
-  var uxIssues = themes.filter(function(t) { return !t.hasDesc || !t.hasLeaders; })
-    .map(function(t) { return { source: t.source, id: t.id, name: t.name, hasDesc: t.hasDesc, hasLeaders: t.hasLeaders }; });
-  var missingLive = uniqueSymbols.filter(function(s) { return !liveSet[s]; });
-  var profileSet = {};
-  try {
-    (window.AIO.collectPageDataSymbols('themes', { symbolLimit: 999 }) || []).forEach(function(s) { profileSet[String(s).toUpperCase()] = true; });
-    (window.AIO.collectPageDataSymbols('theme-detail', { symbolLimit: 999 }) || []).forEach(function(s) { profileSet[String(s).toUpperCase()] = true; });
-    (window.AIO.collectPageDataSymbols('themes', { symbolLimit: 999 }) || []).forEach(function(s) { profileSet[String(s).toUpperCase()] = true; });
-  } catch(_) {}
-  var missingProfileSymbols = uniqueSymbols.filter(function(s) { return !profileSet[s]; });
-  var quoteReadySymbols = uniqueSymbols.filter(function(s) { return profileSet[s]; });
-  var missingRegistry = uniqueSymbols.filter(function(s) {
-    if (registry[s]) return false;
-    if (/^(XL|SMH|SOXX|QQQ|SPY|IWM|DIA|KRE|XBI|URA|BOTZ|HACK|ICLN|DRIV|IYZ|XSD|CRAK|ITA|GDX|LIT|JETS|OIH|AMLP|CIBR|ITB|XRT|IYT|COPX|KWEB|IBIT|BITO|FBTC|ARKB|BITB|HODL|BTC-|ETH-|KRW=|\^)/.test(s)) return false;
-    return true;
-  });
-  var standard = ['XLK','XLF','XLV','XLY','XLP','XLE','XLI','XLB','XLU','XLRE','XLC'];
-  var sectorSet = {};
-  try { (window.RRG_SECTORS || []).forEach(function(s) { sectorSet[String(s.sym || '').toUpperCase()] = true; }); } catch(_) {}
-  var missingSectors = standard.filter(function(s) { return !sectorSet[s]; });
-  var themeText = themes.map(function(t) { return [t.id, t.name, t.source].join(' ').toLowerCase(); }).join(' | ');
-  var expectedThemeCategories = [
-    { key: 'semiconductors-ai', re: /semi|hbm|ai|cloud|datacenter|data center/ },
-    { key: 'cybersecurity', re: /cyber|security|hack/ },
-    { key: 'defense-aerospace', re: /defense|drone|space|aerospace|uam/ },
-    { key: 'energy-nuclear-grid', re: /energy|nuclear|power|grid|uranium|hydrogen|solar|wind/ },
-    { key: 'healthcare-biotech', re: /health|bio|glp|medtech|pharma/ },
-    { key: 'finance-crypto', re: /finance|bank|crypto|bitcoin|btc|asset/ },
-    { key: 'consumer-platforms', re: /consumer|ecommerce|retail|stream|gaming|beauty|food|travel/ },
-    { key: 'industrial-materials', re: /industrial|robot|ship|steel|chem|materials|logistics|construction/ },
-    { key: 'quantum-frontier', re: /quantum/ },
-    { key: 'korea-local-themes', re: /kr_|korea|kospi|kosdaq/ }
-  ];
-  var missingThemeCategories = expectedThemeCategories.filter(function(c) { return !c.re.test(themeText); }).map(function(c) { return c.key; });
-  var pricedNow = uniqueSymbols.filter(function(s) {
-    var d = window._liveData && window._liveData[s];
-    return d && isFinite(Number(d.price));
-  });
-  var issues = [];
-  if (missingSectors.length) issues.push({ type: 'missing-standard-sector-etf', count: missingSectors.length, sample: missingSectors });
-  if (weightIssues.length) issues.push({ type: 'theme-weight-sum', count: weightIssues.length, sample: weightIssues.slice(0, 10) });
-  if (thinThemes.length) issues.push({ type: 'thin-theme-universe', count: thinThemes.length, sample: thinThemes.slice(0, 10) });
-  if (uxIssues.length) issues.push({ type: 'beginner-ux-metadata', count: uxIssues.length, sample: uxIssues.slice(0, 10) });
-  if (missingThemeCategories.length) issues.push({ type: 'missing-essential-theme-category', count: missingThemeCategories.length, sample: missingThemeCategories });
-  if (missingProfileSymbols.length) issues.push({ type: 'missing-theme-profile-symbols', count: missingProfileSymbols.length, sample: missingProfileSymbols.slice(0, 30) });
-  if (missingRegistry.length) issues.push({ type: 'missing-registry-symbols', count: missingRegistry.length, sample: missingRegistry.slice(0, 30) });
-  return {
-    status: issues.length ? 'warn' : 'ok',
-    issueCount: issues.length,
-    counts: {
-      themes: themes.length,
-      uniqueSymbols: uniqueSymbols.length,
-      pricedNow: pricedNow.length,
-      priceCoveragePct: uniqueSymbols.length ? Math.round(pricedNow.length / uniqueSymbols.length * 100) : 0,
-      quoteReadySymbols: quoteReadySymbols.length,
-      quoteReadinessPct: uniqueSymbols.length ? Math.round(quoteReadySymbols.length / uniqueSymbols.length * 100) : 0
-    },
-    issues: issues,
-    weightIssues: weightIssues,
-    concentrationWarnings: concentrationWarnings,
-    thinThemes: thinThemes,
-    uxIssues: uxIssues,
-    missingThemeCategories: missingThemeCategories,
-    missingLiveSymbols: missingLive,
-    missingThemeProfileSymbols: missingProfileSymbols,
-    missingRegistrySymbols: missingRegistry,
-    missingStandardSectorEtfs: missingSectors,
-    note: 'priceCoveragePct is already-loaded quote data; quoteReadinessPct is route/profile readiness for fetching theme prices.',
-    generatedAt: new Date().toISOString()
-  };
-};
+// v59.70 P2: window.AIO.getThemeTrendDeepAudit moved to js/aio-qa-audits.js (QA-only callers).
 
 
 // ─────────────────────────────────────────────────────────────────
@@ -7536,49 +6936,9 @@ window.AIO_FUNDAMENTAL_PAGE_CRITERIA = {
   }
 };
 
-window.AIO.getFundamentalPageCriteriaAudit = function() {
-  var reg = window.AIO_FUNDAMENTAL_PAGE_CRITERIA;
-  if (!reg) return { status: 'error', notImplCount: 15, issues: ['CRITERIA undefined'] };
-  var impl = 0, notImpl = [], highRisk = [];
-  Object.keys(reg.criteria).forEach(function(key) {
-    var c = reg.criteria[key];
-    if (c.implFn) impl++;
-    else notImpl.push({ key: key, num: c.num, label: c.label, plannedFn: c.plannedFn || null, dataSource: c.dataSource });
-    if (c.hallucinationRisk === 'high') highRisk.push({ key: key, num: c.num, label: c.label });
-  });
-  return {
-    status: notImpl.length ? 'warn' : 'ok',
-    totalCriteria: 15,
-    implCount: impl,
-    notImplCount: notImpl.length,
-    coveragePct: Math.round(impl / 15 * 100),
-    notImpl: notImpl,
-    highRiskCount: highRisk.length,
-    highRiskFields: highRisk,
-    note: '미구현 기준은 plannedFn 명시. AI 채팅 시 미구현 기준 분석 요청 → "이 기준은 현재 시스템에서 자동 평가 불가, 수동 확인 권장" 답변 필수.',
-    generatedAt: new Date().toISOString()
-  };
-};
+// v59.70 P2: window.AIO.getFundamentalPageCriteriaAudit moved to js/aio-qa-audits.js (QA-only callers).
 
-// v49.35 cross-reference: 3개 "15개 관점" registry 매핑 검증
-window.AIO.getCriteriaCrossReferenceAudit = function() {
-  var pageCount = window.AIO_FUNDAMENTAL_PAGE_CRITERIA && Object.keys(window.AIO_FUNDAMENTAL_PAGE_CRITERIA.criteria).length || 0;
-  var fundCount = window.AIO_FUNDAMENTAL_CRITERIA && Object.keys(window.AIO_FUNDAMENTAL_CRITERIA.criteria).length || 0;
-  var frameworkReg = window.AIO_ANALYSIS_FRAMEWORK_REGISTRY;
-  var frameworkCount = frameworkReg && Object.keys(frameworkReg.fields).length || 0;
-  var frameworkPerspectiveCount = frameworkReg && typeof frameworkReg.perspectiveKeys === 'function' ? frameworkReg.perspectiveKeys().length : frameworkCount;
-  return {
-    status: 'info',
-    pageCriteria15: pageCount,
-    fundamentalCriteria15: fundCount,
-    analysisFramework15: frameworkPerspectiveCount,
-    analysisFrameworkPerspective17: frameworkPerspectiveCount,
-    analysisFrameworkTotal: frameworkCount,
-    analysisFrameworkSupportFields: Math.max(0, frameworkCount - frameworkPerspectiveCount),
-    note: '3개 registry — (1) FUNDAMENTAL_PAGE_CRITERIA: 페이지 L8175 정량 15기준 (Quality/Moat/Growth/Margin/FCF/Balance/PE/EV/Insider/13F/Short/Revisions/Beat/Industry/Macro), (2) FUNDAMENTAL_CRITERIA: v49.25 정량 위주 15기준 (Piotroski 등), (3) ANALYSIS_FRAMEWORK: v49.34 정성+정량 15분야 (CEO/비즈니스/공급망/SEC/Wiki). 각각 목적 다름. AI 채팅에서 "15기준 분석" 요청 시 어느 registry를 참조하는지 명시 필수.',
-    generatedAt: new Date().toISOString()
-  };
-};
+// v59.70 P2: window.AIO.getCriteriaCrossReferenceAudit moved to js/aio-qa-audits.js (QA-only callers).
 
 // ─────────────────────────────────────────────────────────────────
 // v49.34 핵심: ANALYSIS_FRAMEWORK_REGISTRY — 종목/기업 15 분석 분야 데이터 출처
@@ -7637,37 +6997,7 @@ window.AIO_ANALYSIS_FRAMEWORK_REGISTRY = {
   }
 };
 
-window.AIO.getAnalysisFrameworkCoverageAudit = function() {
-  var reg = window.AIO_ANALYSIS_FRAMEWORK_REGISTRY;
-  if (!reg) return { status: 'error', coveragePct: 0, issues: ['REGISTRY undefined'] };
-  var perspectiveKeys = reg.perspectiveKeys ? reg.perspectiveKeys() : Object.keys(reg.fields);
-  var total = perspectiveKeys.length;
-  var impl = reg.implementedFields ? reg.implementedFields(true).length : 0;
-  var partial = reg.partialFields ? reg.partialFields() : [];
-  var highRisk = reg.highRiskFields ? reg.highRiskFields(true) : [];
-  var byType = { quantitative: 0, qualitative: 0, visual: 0, mixed: 0 };
-  perspectiveKeys.forEach(function(k) {
-    var t = String(reg.fields[k].type || '');
-    if (t.indexOf('+') >= 0) byType.mixed++;
-    else if (byType[t] != null) byType[t]++;
-  });
-  return {
-    status: partial.length ? 'warn' : (impl < total ? 'warn' : 'ok'),
-    coveragePct: Math.round(impl / total * 100),
-    implementedCount: impl,
-    totalCount: total,
-    supportFieldCount: Object.keys(reg.fields).length - total,
-    verifiedCount: total - partial.length,
-    operationalCoveragePct: Math.round((total - partial.length) / total * 100),
-    partialCount: partial.length,
-    partialFields: partial,
-    highRiskCount: highRisk.length,
-    highRiskFields: highRisk,
-    byType: byType,
-    note: 'coveragePct는 17 관점의 출처/함수 매핑률, operationalCoveragePct는 low-confidence/수동가이드 제외 실사용 신뢰도. partialFields는 답변에 한계 고지 필수.',
-    generatedAt: new Date().toISOString()
-  };
-};
+// v59.70 P2: window.AIO.getAnalysisFrameworkCoverageAudit moved to js/aio-qa-audits.js (QA-only callers).
 
 
 // v59.51 (content audit): assertFinancialChartsAudit (the 7-chart card, its canvases and the chat chart button) is
@@ -8350,24 +7680,7 @@ window.AIO_STATIC_CONTENT_LIFECYCLE = {
   }
 };
 
-window.AIO.getStaticContentLifecycleAudit = function() {
-  var reg = window.AIO_STATIC_CONTENT_LIFECYCLE;
-  if (!reg) return { status: 'error', expiredCount: 0, issues: ['LIFECYCLE registry undefined'] };
-  var now = Date.now();
-  var expired = [], replaceDue = [];
-  Object.keys(reg.contents).forEach(function(id) {
-    var s = reg.getStatus(id, now);
-    if (s.replaceDue) replaceDue.push({ id: id, ageDays: s.ageDays, source: reg.contents[id].source });
-    else if (s.archiveDue) expired.push({ id: id, ageDays: s.ageDays });
-  });
-  return {
-    status: expired.length || replaceDue.length ? 'warn' : 'ok',
-    expiredCount: expired.length + replaceDue.length,
-    archiveDue: expired,
-    replaceDue: replaceDue,
-    generatedAt: new Date(now).toISOString()
-  };
-};
+// v59.70 P2: window.AIO.getStaticContentLifecycleAudit moved to js/aio-qa-audits.js (QA-only callers).
 
 // ─────────────────────────────────────────────────────────────────
 // v49.48 P316/R75 보강: STATIC_CONTENT_LIFECYCLE 일반화 hook
@@ -8538,28 +7851,7 @@ window.AIO_NAMED_ENTITY_REGISTRY = {
   getEntity: function(key) { return this.entities[key] || null; }
 };
 
-window.AIO.getNamedEntityAudit = function() {
-  var reg = window.AIO_NAMED_ENTITY_REGISTRY;
-  if (!reg) return { status: 'error', unverifiedCount: 0, issues: ['NAMED_ENTITY registry undefined'] };
-  var now = Date.now();
-  var unverified = [];
-  Object.keys(reg.entities).forEach(function(key) {
-    var e = reg.entities[key];
-    var ts = new Date(e.currentAs).getTime();
-    if (isNaN(ts)) return;
-    var ageDays = Math.floor((now - ts) / 86400000);
-    if (ageDays > reg.defaultStaleDays) {
-      unverified.push({ key: key, name: e.name, role: e.role, ageDays: ageDays });
-    }
-  });
-  return {
-    status: unverified.length ? 'warn' : 'ok',
-    unverifiedCount: unverified.length,
-    unverified: unverified,
-    totalEntities: Object.keys(reg.entities).length,
-    generatedAt: new Date(now).toISOString()
-  };
-};
+// v59.70 P2: window.AIO.getNamedEntityAudit moved to js/aio-qa-audits.js (QA-only callers).
 
 // ─────────────────────────────────────────────────────────────────
 // v49.30 M4 근본 수정: MACRO_CALENDAR — 거시지표 발표 일정 + 자동 stale
@@ -9828,7 +9120,7 @@ window.AIO.CRITICAL_PAGE_GROUPS = {
   comprehensive: ['home','signal','breadth','sentiment','briefing'],
   marketAnalysis: ['technical','macro','fxbond','fundamental','themes'],
   // v53.7 (P725): KR 전용 페이지 퇴역 — 통합 섹션 요소 id로 감사 대상 전환
-  krMarket: ['kr-integrated-themes','kr-integrated-macro','kr-integrated-technical']
+  krMarket: ['kr-integrated-themes'] // v59.70 (D5): the technical and macro folds are retired
 };
 
 
@@ -9848,76 +9140,9 @@ function _aioLeafTextNodes(root) {
 }
 
 
-window.AIO.getCriticalKrPageFreshnessAudit = function(opts) {
-  opts = opts || {};
-  var krIds = (window.AIO.CRITICAL_PAGE_GROUPS && window.AIO.CRITICAL_PAGE_GROUPS.krMarket) ||
-    ['kr-integrated-themes','kr-integrated-macro','kr-integrated-technical'];
-  var krStaleRe = /외국인 7거래일|3-4월 누적|3\/5 장중|4\/8 추정|이란 재협상 재개 전망|개인 매수세 유입 · 바이오/;
-  var pages = krIds.map(function(id) {
-    var el = null;
-    // v53.7 (P725): kr-integrated-* 는 페이지가 아닌 통합 섹션 id — 직접 조회
-    try { el = document.getElementById(id.indexOf('kr-integrated-') === 0 ? id : 'page-' + id); } catch(_) {}
-    var text = '';
-    if (el) {
-      try {
-        var clone = el.cloneNode(true);
-        clone.querySelectorAll('[data-aio-archive="true"]').forEach(function(n) { n.remove(); });
-        text = String(clone.innerText || clone.textContent || '');
-      } catch(_) { text = String(el.innerText || el.textContent || ''); }
-    }
-    var liveSinks = el ? el.querySelectorAll('[data-live-price],[data-live-pct],[data-snap],[data-snap-date]').length : 0;
-    var issue = [];
-    if (!el) issue.push('missing page DOM');
-    if (krStaleRe.test(text)) issue.push('stale live-like token in KR page text');
-    return { pageId: id, group: 'krMarket', status: issue.length ? 'warn' : 'ok', issues: issue, liveSinkCount: liveSinks };
-  });
-  var issues = pages.filter(function(p) { return p.issues.length; });
-  return {
-    status: issues.length ? 'warn' : 'ok',
-    issueCount: issues.length,
-    pagesChecked: pages.length,
-    pages: pages,
-    generatedAt: new Date().toISOString()
-  };
-};
+// v59.70 P2: window.AIO.getCriticalKrPageFreshnessAudit moved to js/aio-qa-audits.js (QA-only callers).
 
-// P208: CHAT_CONTEXTS system 함수 소스에서 stale 날짜 토큰 감사 (v49.19)
-window.AIO.getChatContextFreshnessAudit = function() {
-  if (typeof window.CHAT_CONTEXTS === 'undefined') {
-    return { totalHits: -1, error: 'CHAT_CONTEXTS not loaded' };
-  }
-  // v49.64 P335/T176b: 2026.04.X / 2026.05.0X 정적 토큰 광범위 검출 (CHAT_CONTEXTS 일반화 의무)
-  var staleRe = /BLS Apr CPI was headline|Warsh 화요일|Warsh 5월 취임|5-6월 발표|이슬라마바드 협상|2026\.04(\.\d+)?|2026\.05\.(0[1-9]|1[0-5])|4\/(12|13|14|15|18)[^0-9]/;
-  var hits = [];
-  var currentHits = [];
-  var archiveHits = [];
-  var byContext = {};
-  Object.keys(window.CHAT_CONTEXTS).forEach(function(key) {
-    var ctx = window.CHAT_CONTEXTS[key];
-    if (!ctx || typeof ctx.system !== 'function') return;
-    var src = ctx.system.toString();
-    var matches = src.match(new RegExp(staleRe.source, 'g')) || [];
-    byContext[key] = matches.length;
-    matches.forEach(function(m) {
-      var idx = src.indexOf(m);
-      var around = idx >= 0 ? src.slice(Math.max(0, idx - 220), Math.min(src.length, idx + 220)) : '';
-      var isArchiveRef = /archive|ARCHIVE|참고|프레임워크|시나리오|리서치|분석|테시스|패러다임|전환|국면|상황|리스크|이벤트|드라이버|청문회|협상|호르무즈|이란|워시|CPI|PPI|전문가콜|프리뷰|업데이트|JPM|Goldman|Citi|BofA|GS|Evercore|Mizuho|FactSet|§|과거|reference/i.test(around);
-      var hit = { context: key, match: m, archiveReference: isArchiveRef };
-      hits.push(hit);
-      (isArchiveRef ? archiveHits : currentHits).push(hit);
-    });
-  });
-  return {
-    totalHits: hits.length,
-    currentHits: currentHits.length,
-    archiveHits: archiveHits.length,
-    status: currentHits.length === 0 ? 'ok' : 'warn',
-    byContext: byContext,
-    samples: currentHits.slice(0, 5),
-    archiveSamples: archiveHits.slice(0, 5),
-    generatedAt: new Date().toISOString()
-  };
-};
+// v59.70 P2: window.AIO.getChatContextFreshnessAudit moved to js/aio-qa-audits.js (QA-only callers).
 
 // v59.42: the AI question keyword cues live in src/ai/intent/question-cues.js (window._aioQuestionCues, loaded with
 // the AI panel by src/app/chat-loader.js); English cues match whole words there ('now' no longer hits "know", 'rate' no longer hits "corporate").
@@ -10755,372 +9980,7 @@ window.AIO.importApiKeys = async function(jsonString) {
 window.AIO = window.AIO || {};
 
 
-// v52.58 H3-G/H3-H/H3-I: element-level lineage plus first-viewport and keyboard
-// contracts. The older category audit above can say "connected" while a visible
-// number, chart, or narrative sink still has no question, source, freshness, or
-// fallback explanation. Keep the inventory read-only and infer conservative
-// reference-only metadata when the DOM has not supplied a stronger contract.
-(function() {
-  window.AIO = window.AIO || {};
-  var REQUIRED_FIELDS = [
-    'pageId', 'sectionId', 'elementIdOrSelector', 'userQuestion', 'displayValue',
-    'sourceKind', 'sourceFamily', 'sourceEndpointOrFile', 'transformFormula',
-    'asOf', 'freshnessSla', 'failureAndFallback', 'decisionUse'
-  ];
-  var DEFAULT_PAGES = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
-  var SINK_SELECTOR = '[data-live-price],[data-live-chg],[data-live-pct],[data-live-field],[data-live-kr],[data-snap],[data-snap-date]';
-  var CHART_SELECTOR = 'canvas,[id*="chart"],[id*="widget"],[class*="chart"]';
-  var MARKET_WORD_RE = /시장|시황|강세|약세|상승|하락|위험|리스크|변동성|금리|유가|달러|VIX|S&P|SPY|QQQ|Nasdaq|나스닥|국채|채권|크레딧|브레드스|breadth|risk|volatility|yield|oil|gold|bitcoin|BTC/i;
-  var NUMERIC_RE = /(?:[$₩])?\s*[-+]?\d[\d,.]*(?:\.\d+)?\s*(?:%|bp|bps|x|배|조|억|M|B|T|pt|pts)?/i;
-
-  function textOf(el, limit) {
-    var text = '';
-    try { text = String(el.getAttribute('aria-label') || el.getAttribute('title') || el.textContent || '').replace(/\s+/g, ' ').trim(); } catch(_) {}
-    return text.slice(0, limit || 220);
-  }
-  function isHiddenForRoute(el, root) {
-    if (!el) return true;
-    var node = el;
-    while (node && node !== root) {
-      try {
-        if (node.hidden || node.getAttribute('aria-hidden') === 'true') return true;
-        if (node.tagName === 'DETAILS' && !node.open && !(el.matches && el.matches('summary'))) return true;
-        var cs = window.getComputedStyle ? window.getComputedStyle(node) : null;
-        if (cs && (cs.display === 'none' || cs.visibility === 'hidden' || cs.opacity === '0')) return true;
-      } catch(_) {}
-      node = node.parentElement;
-    }
-    return false;
-  }
-  function selectorFor(el, root) {
-    if (!el) return '';
-    if (el.id) return '#' + el.id;
-    var parts = [];
-    var node = el;
-    for (var i = 0; node && node !== root && i < 4; i++, node = node.parentElement) {
-      var part = String(node.tagName || 'element').toLowerCase();
-      var cls = String(node.className || '').split(/\s+/).filter(function(x) { return /^[A-Za-z0-9_-]+$/.test(x); }).slice(0, 2);
-      if (cls.length) part += '.' + cls.join('.');
-      parts.unshift(part);
-    }
-    return (root && root.id ? '#' + root.id + ' ' : '') + parts.join(' > ');
-  }
-  function sectionFor(el, root, pageId) {
-    var section = null;
-    try { section = el.closest('[data-section-id],[data-section],section[id],.aio-section[id],.aio-card[id],.card[id]'); } catch(_) {}
-    if (section) return section.getAttribute('data-section-id') || section.getAttribute('data-section') || section.id || 'section';
-    return pageId + ':root';
-  }
-  function questionFor(el, root, pageId, kind) {
-    var q = '';
-    try { q = el.getAttribute('data-user-question') || ''; } catch(_) {}
-    if (!q) {
-      var block = null;
-      try { block = el.closest('section,.aio-section,.aio-card,.data-widget,.aio-widget,.card,.panel,.section'); } catch(_) {}
-      var heading = block && block.querySelector ? block.querySelector('h1,h2,h3,h4,.section-header,.widget-title,.aio-card-title,.page-title') : null;
-      q = textOf(heading, 140);
-    }
-    return q || (pageId + '에서 이 ' + kind + '을 어떻게 읽나?');
-  }
-  function attr(el, name) {
-    try { return el.getAttribute(name) || ''; } catch(_) { return ''; }
-  }
-  function liveKeyOf(el) {
-    return attr(el, 'data-live-price') || attr(el, 'data-live-chg') || attr(el, 'data-live-pct') || attr(el, 'data-live-field') || attr(el, 'data-live-kr');
-  }
-  function sourceInfo(el, pageId, kind, root, coverage) {
-    var liveKey = liveKeyOf(el);
-    var snapKey = attr(el, 'data-snap');
-    var snapDateKey = attr(el, 'data-snap-date');
-    var isLive = !!liveKey;
-    var isSnap = !!snapKey || !!snapDateKey;
-    var isChart = kind === 'chart';
-    var rawKind = attr(el, 'data-source-kind').toLowerCase();
-    var sourceKind = rawKind || (isLive ? 'live' : isSnap ? 'snapshot' : isChart ? 'chart' : 'static');
-    var sourceLabel = attr(el, 'data-source-label');
-    var opUse = attr(el, 'data-operational-use');
-    var liveRow = null;
-    try { liveRow = liveKey && window._liveData ? window._liveData[liveKey] : null; } catch(_) {}
-    var ds = window.DATA_SNAPSHOT || {};
-    var asOf = attr(el, 'data-as-of') || attr(el, 'data-source-date') || (liveRow && (liveRow.ts || liveRow.updatedAt || liveRow.timestamp)) || '';
-    if (!asOf && isSnap) asOf = ds._updated || ds._snapshotDate || 'not-provided';
-    if (!asOf && isChart) asOf = attr(el, 'data-chart-as-of') || 'chart-evidence-required';
-    if (!asOf) asOf = 'not-applicable';
-    var endpoint = attr(el, 'data-source-endpoint') || sourceLabel;
-    if (!endpoint && isLive) endpoint = (liveRow && (liveRow.source || liveRow.provider)) || 'Yahoo Finance chart API:' + liveKey;
-    if (!endpoint && isSnap) endpoint = 'public-data/data.json -> DATA_SNAPSHOT.' + (snapKey || snapDateKey);
-    if (!endpoint && isChart) endpoint = 'chart runtime:' + (el.id || selectorFor(el, root));
-    if (!endpoint) endpoint = pageId === 'guide' ? '_context/guide content' : 'index.html inline content';
-    var family = attr(el, 'data-source-family');
-    if (!family) family = isLive ? (attr(el, 'data-live-field') ? 'derived-market-metric' : 'quote') : isSnap ? 'snapshot-reference' : isChart ? 'chart-series' : 'copy';
-    var transform = attr(el, 'data-transform-formula') || attr(el, 'data-transform');
-    if (!transform && isLive) transform = 'PriceStore/display ' + (attr(el, 'data-live-price') ? 'price' : attr(el, 'data-live-field') ? 'derived-field' : 'change');
-    if (!transform && isSnap) transform = 'applyDataSnapshot[' + (snapKey || snapDateKey) + ']';
-    if (!transform && isChart) transform = 'chart renderer -> series/labels';
-    if (!transform) transform = 'static text/threshold copy';
-    var freshness = attr(el, 'data-freshness-sla') || (isLive ? '15m' : isChart ? '60m' : isSnap ? 'reference-layer' : 'not-current');
-    var fallback = attr(el, 'data-failure-fallback');
-    if (!fallback) fallback = isLive ? 'refresh source; show unavailable and block decision use' : isSnap ? 'show reference/as-of; do not use for trading decision' : isChart ? 'render explicit fallback or unavailable state' : 'reference-only; current claim requires evidence';
-    var decisionUse = opUse || (/snapshot|fallback|reference|static|unknown|unavailable|chart/.test(sourceKind) ? 'reference' : 'decision');
-    if (sourceKind === 'unavailable') decisionUse = opUse || 'blocked';
-    var displayValue = textOf(el, 220) || attr(el, 'data-source-label') || (isChart ? 'chart ' + (el.id || 'unnamed') : selectorFor(el, root));
-    var orphan = false;
-    try {
-      if (isLive && !liveKey) orphan = true;
-      if (isSnap && !snapKey && !snapDateKey) orphan = true;
-      if (isLive && coverage && coverage.live) {
-        var liveAudit = coverage.live;
-        orphan = orphan || !!(liveAudit && liveAudit.missing && liveAudit.missing.some(function(row) { return row.ticker === liveKey; }));
-      }
-      if (snapKey && coverage && coverage.snap) {
-        var snapAudit = coverage.snap;
-        orphan = orphan || !!(snapAudit && snapAudit.missingSeeds && snapAudit.missingSeeds.some(function(row) { return row.key === snapKey; }));
-      }
-    } catch(_) {}
-    return {
-      sourceKind: sourceKind,
-      sourceFamily: family,
-      sourceEndpointOrFile: endpoint,
-      transformFormula: transform,
-      asOf: String(asOf),
-      freshnessSla: freshness,
-      failureAndFallback: fallback,
-      decisionUse: decisionUse,
-      orphan: orphan
-    };
-  }
-  function makeItem(pageId, root, el, kind, opts) {
-    var source = sourceInfo(el, pageId, kind, root, opts && opts.coverage);
-    var item = {
-      pageId: pageId,
-      sectionId: sectionFor(el, root, pageId),
-      elementIdOrSelector: selectorFor(el, root),
-      userQuestion: questionFor(el, root, pageId, kind),
-      displayValue: textOf(el, 220) || attr(el, 'data-source-label') || (kind === 'chart' ? 'chart ' + (el.id || 'unnamed') : selectorFor(el, root)),
-      sourceKind: source.sourceKind,
-      sourceFamily: source.sourceFamily,
-      sourceEndpointOrFile: source.sourceEndpointOrFile,
-      transformFormula: source.transformFormula,
-      asOf: source.asOf,
-      freshnessSla: source.freshnessSla,
-      failureAndFallback: source.failureAndFallback,
-      decisionUse: source.decisionUse,
-      kind: kind,
-      orphan: source.orphan
-    };
-    item.missingFields = REQUIRED_FIELDS.filter(function(field) {
-      return item[field] == null || String(item[field]).trim() === '';
-    });
-    item.complete = item.missingFields.length === 0;
-    return item;
-  }
-  function collectPage(pageId, opts) {
-    var root = document.getElementById('page-' + pageId);
-    var items = [], seen = [];
-    if (!root) return { pageId: pageId, pageExists: false, items: [], total: 0, incomplete: 0, orphanSinks: 0 };
-    function add(el, kind) {
-      if (!el || seen.indexOf(el) >= 0 || isHiddenForRoute(el, root)) return;
-      seen.push(el);
-      items.push(makeItem(pageId, root, el, kind, opts));
-    }
-    try { Array.prototype.slice.call(root.querySelectorAll(SINK_SELECTOR)).forEach(function(el) { add(el, 'numeric'); }); } catch(_) {}
-    try { Array.prototype.slice.call(root.querySelectorAll(CHART_SELECTOR)).forEach(function(el) { add(el, 'chart'); }); } catch(_) {}
-    try {
-      Array.prototype.slice.call(root.querySelectorAll('*')).forEach(function(el) {
-        if (seen.indexOf(el) >= 0 || isHiddenForRoute(el, root) || (el.children && el.children.length)) return;
-        if (el.closest && el.closest(SINK_SELECTOR)) return;
-        var text = textOf(el, 260);
-        if (!text || text.length < 2 || text.length > 260) return;
-        if (NUMERIC_RE.test(text)) add(el, 'numeric-text');
-        else if (MARKET_WORD_RE.test(text)) add(el, 'narrative');
-      });
-    } catch(_) {}
-    var incomplete = items.filter(function(item) { return !item.complete; }).length;
-    var orphanSinks = items.filter(function(item) { return item.orphan && item.kind !== 'narrative'; }).length;
-    return {
-      pageId: pageId,
-      pageExists: true,
-      total: items.length,
-      complete: items.length - incomplete,
-      incomplete: incomplete,
-      orphanSinks: orphanSinks,
-      kindCounts: items.reduce(function(acc, item) { acc[item.kind] = (acc[item.kind] || 0) + 1; return acc; }, {}),
-      items: opts.includeItems === false ? [] : items
-    };
-  }
-
-  window.AIO.getElementLineageInventory = function(opts) {
-    opts = opts || {};
-    var pages = opts.pages || (opts.allRoutes ? (window.AIO_ALL_ROUTE_PAGE_IDS || DEFAULT_PAGES) : (window.AIO_CRITICAL_10_PAGE_IDS || DEFAULT_PAGES));
-    var coverage = { live: null, snap: null };
-    try { coverage.live = window.AIO.getLiveSymbolsCoverageAudit ? window.AIO.getLiveSymbolsCoverageAudit() : null; } catch(_) {}
-    try { coverage.snap = window.AIO.getStaticSeedFallbackAudit ? window.AIO.getStaticSeedFallbackAudit() : null; } catch(_) {}
-    var collectOpts = Object.assign({}, opts, { coverage: coverage });
-    var pageRows = pages.map(function(pageId) { return collectPage(pageId, collectOpts); });
-    var items = [];
-    pageRows.forEach(function(row) { if (row.items && row.items.length) items = items.concat(row.items); });
-    var missingFieldCounts = {};
-    items.forEach(function(item) { (item.missingFields || []).forEach(function(field) { missingFieldCounts[field] = (missingFieldCounts[field] || 0) + 1; }); });
-    var incomplete = pageRows.reduce(function(sum, row) { return sum + (row.incomplete || 0); }, 0);
-    var orphanSinks = pageRows.reduce(function(sum, row) { return sum + (row.orphanSinks || 0); }, 0);
-    var missingPages = pageRows.filter(function(row) { return !row.pageExists; }).map(function(row) { return row.pageId; });
-    var total = pageRows.reduce(function(sum, row) { return sum + (row.total || 0); }, 0);
-    return {
-      status: missingPages.length || incomplete || orphanSinks ? 'warn' : 'ok',
-      pagesChecked: pageRows.length,
-      total: total,
-      complete: total - incomplete,
-      incomplete: incomplete,
-      orphanSinks: orphanSinks,
-      fieldCount: REQUIRED_FIELDS.length,
-      fields: REQUIRED_FIELDS.slice(),
-      missingPages: missingPages,
-      missingFieldCounts: missingFieldCounts,
-      kindCounts: items.reduce(function(acc, item) { acc[item.kind] = (acc[item.kind] || 0) + 1; return acc; }, {}),
-      pages: pageRows.map(function(row) { return Object.assign({}, row, { items: undefined }); }),
-      items: opts.includeItems === false ? [] : items,
-      note: 'H3-G element lineage: every visible numeric/chart/narrative item carries the full listed field set; static copy is explicitly reference-only, never promoted to current decision use.',
-      generatedAt: new Date().toISOString()
-    };
-  };
-
-  function activeRouteRoot(root) {
-    return !!(root && root.classList && root.classList.contains('active'));
-  }
-  window.AIO.getCritical10ContentHierarchyAudit = function(opts) {
-    opts = opts || {};
-    var pages = opts.pages || window.AIO_CRITICAL_10_PAGE_IDS || DEFAULT_PAGES;
-    var viewportHeight = Number(opts.viewportHeight || (window.innerHeight || 768));
-    var compRoutes = { home:1, signal:1, briefing:1, breadth:1, sentiment:1, technical:1, macro:1, fxbond:1, fundamental:1, themes:1, portfolio:1, 'market-news':1, screener:1 };
-    var rows = pages.map(function(pageId) {
-      var root = document.getElementById('page-' + pageId);
-      var blockers = [], warnings = [];
-      var header = root && root.querySelector('.aio-decision-header[data-aio-decision-page="' + pageId + '"]');
-      var firstVisible = null;
-      if (root) {
-        Array.prototype.slice.call(root.children).some(function(child) {
-          if (isHiddenForRoute(child, root)) return false;
-          firstVisible = child;
-          return true;
-        });
-      }
-      var headerText = header ? textOf(header, 900) : '';
-      var compHeaderHidden = !!(header && compRoutes[pageId] && isHiddenForRoute(header, root));
-      var headerHasConclusion = !!(header && header.querySelector('.aio-decision-verdict') && textOf(header.querySelector('.aio-decision-verdict')));
-      var headerHasEvidence = !!(header && header.getAttribute('data-source-kind') && header.querySelector('.aio-source-badge,.aio-confidence-badge,.aio-decision-foot'));
-      var headerHasAction = !!(header && header.querySelector('button,[data-action]'));
-      var visibleChildren = root ? Array.prototype.slice.call(root.children).filter(function(child) { return !isHiddenForRoute(child, root); }) : [];
-      var headerIndex = header ? visibleChildren.indexOf(header) : -1;
-      var decisionFirst = compHeaderHidden || !!(header && headerIndex >= 0 && visibleChildren.slice(0, headerIndex).every(function(child) {
-        return child.matches && child.matches('.stale-badge');
-      }));
-      var active = activeRouteRoot(root);
-      var viewportPass = null;
-      if (compHeaderHidden) {
-        viewportPass = true;
-      } else if (active && header && header.getBoundingClientRect) {
-        var rect = header.getBoundingClientRect();
-        viewportPass = rect.top >= -4 && rect.top < viewportHeight && rect.bottom <= viewportHeight + 24;
-      }
-      if (!root) blockers.push('page-root-missing');
-      if (!header) blockers.push('decision-header-missing');
-      if (header && !headerHasConclusion) blockers.push('conclusion-missing');
-      if (header && !headerHasEvidence) blockers.push('evidence/status-missing');
-      if (header && !headerHasAction) blockers.push('action-affordance-missing');
-      if (header && !decisionFirst) blockers.push('decision-not-first-visible-block');
-      if (active && header && viewportPass === false) blockers.push('decision-not-in-first-viewport');
-      var openFundamentals = root ? root.querySelectorAll('details.aio-fund[open]').length : 0;
-      var debugVisible = root ? Array.prototype.slice.call(root.querySelectorAll('.aio-audit-widget,.aio-debug,.debug-only,[data-text-role="developer-note"]')).filter(function(el) { return !isHiddenForRoute(el, root); }).length : 0;
-      if (openFundamentals) warnings.push('open-fundamentals:' + openFundamentals);
-      if (debugVisible) blockers.push('developer-surface-visible:' + debugVisible);
-      return {
-        pageId: pageId,
-        active: active,
-        pageExists: !!root,
-        decisionHeader: !!header,
-        compHeaderHidden: compHeaderHidden,
-        decisionFirst: decisionFirst,
-        firstVisibleSelector: firstVisible ? selectorFor(firstVisible, root) : '',
-        conclusion: headerHasConclusion,
-        evidenceAndStatus: headerHasEvidence,
-        actionAffordance: headerHasAction,
-        viewportPass: viewportPass,
-        openFundamentals: openFundamentals,
-        developerSurfaceVisible: debugVisible,
-        blockers: blockers,
-        warnings: warnings,
-        headerText: headerText.slice(0, 220)
-      };
-    });
-    var blockers = rows.reduce(function(acc, row) { return acc.concat(row.blockers || []); }, []);
-    var warnings = rows.reduce(function(acc, row) { return acc.concat(row.warnings || []); }, []);
-    return { status: blockers.length ? 'fail' : (warnings.length ? 'warn' : 'ok'), pagesChecked: rows.length, issueCount: blockers.length, warningCount: warnings.length, blockers: blockers, warnings: warnings, pages: rows, generatedAt: new Date().toISOString() };
-  };
-
-  window.AIO.getCritical10AccessibilityAudit = function(opts) {
-    opts = opts || {};
-    var pages = opts.pages || window.AIO_CRITICAL_10_PAGE_IDS || DEFAULT_PAGES;
-    function nameOf(el, root) {
-      var labelled = attr(el, 'aria-labelledby');
-      if (labelled) {
-        var ids = labelled.split(/\s+/).map(function(id) { return document.getElementById(id); }).filter(Boolean);
-        if (ids.length) return ids.map(function(node) { return textOf(node, 120); }).join(' ').trim();
-      }
-      var label = attr(el, 'aria-label') || attr(el, 'title');
-      if (label) return label.trim();
-      if (el.labels && el.labels.length) return textOf(el.labels[0], 120);
-      var parentLabel = null;
-      try { parentLabel = el.closest('label'); } catch(_) {}
-      if (parentLabel) return textOf(parentLabel, 120);
-      if (/^(INPUT|SELECT|TEXTAREA)$/.test(el.tagName || '')) return attr(el, 'placeholder') || attr(el, 'value');
-      return textOf(el, 140);
-    }
-    var rows = pages.map(function(pageId) {
-      var root = document.getElementById('page-' + pageId);
-      var nameless = [], unfocusable = [], positiveTabindex = [], smallTargets = [], chartIssues = [];
-      if (!root) return { pageId: pageId, pageExists: false, active: false, blockers: ['page-root-missing'], warnings: [], nameless: [], unfocusable: [], positiveTabindex: [], smallTargets: [], chartIssues: [] };
-      var active = activeRouteRoot(root);
-      var controls = [];
-      try { controls = Array.prototype.slice.call(root.querySelectorAll('button,a[href],input,select,textarea,[role="button"],[data-action]')); } catch(_) {}
-      controls.forEach(function(el) {
-        if (isHiddenForRoute(el, root) || el.disabled) return;
-        var label = nameOf(el, root);
-        if (!label) nameless.push({ id: el.id || '', selector: selectorFor(el, root), tag: el.tagName || '' });
-        var tabindex = Number(el.getAttribute('tabindex'));
-        if (el.tabIndex < 0 || (!isFinite(tabindex) && el.tagName === 'DIV' && el.getAttribute('data-action'))) unfocusable.push({ id: el.id || '', selector: selectorFor(el, root), tag: el.tagName || '', tabindex: el.tabIndex });
-        if (isFinite(tabindex) && tabindex > 0) positiveTabindex.push({ id: el.id || '', selector: selectorFor(el, root), tabindex: tabindex });
-        if (active && el.getBoundingClientRect) {
-          var rect = el.getBoundingClientRect();
-          if (rect.width > 0 && rect.height > 0 && (rect.width < 24 || rect.height < 24)) smallTargets.push({ id: el.id || '', selector: selectorFor(el, root), width: Math.round(rect.width), height: Math.round(rect.height) });
-        }
-      });
-      Array.prototype.slice.call(root.querySelectorAll('canvas')).forEach(function(canvas) {
-        if (isHiddenForRoute(canvas, root)) return;
-        var chartName = nameOf(canvas, root) || attr(canvas, 'data-source-label');
-        if (!chartName) chartIssues.push({ id: canvas.id || '', selector: selectorFor(canvas, root) });
-      });
-      var blockers = [];
-      if (nameless.length) blockers.push('nameless-controls:' + nameless.length);
-      if (unfocusable.length) blockers.push('unfocusable-controls:' + unfocusable.length);
-      if (positiveTabindex.length) blockers.push('positive-tabindex:' + positiveTabindex.length);
-      if (chartIssues.length) blockers.push('unnamed-canvas:' + chartIssues.length);
-      var warnings = [];
-      if (smallTargets.length) warnings.push('small-targets:' + smallTargets.length);
-      return { pageId: pageId, pageExists: true, active: active, blockers: blockers, warnings: warnings, nameless: nameless, unfocusable: unfocusable, positiveTabindex: positiveTabindex, smallTargets: smallTargets.slice(0, 20), chartIssues: chartIssues };
-    });
-    var blockers = rows.reduce(function(acc, row) { return acc.concat(row.blockers || []); }, []);
-    var warnings = rows.reduce(function(acc, row) { return acc.concat(row.warnings || []); }, []);
-    return { status: blockers.length ? 'fail' : (warnings.length ? 'warn' : 'ok'), pagesChecked: rows.length, issueCount: blockers.length, warningCount: warnings.length, blockers: blockers, warnings: warnings, pages: rows, generatedAt: new Date().toISOString() };
-  };
-
-  window.AIO.getCritical10HumanSurfaceAudit = function(opts) {
-    opts = opts || {};
-    var hierarchy = window.AIO.getCritical10ContentHierarchyAudit(opts);
-    var accessibility = window.AIO.getCritical10AccessibilityAudit(opts);
-    var status = hierarchy.status === 'fail' || accessibility.status === 'fail' ? 'fail' : (hierarchy.status === 'warn' || accessibility.status === 'warn' ? 'warn' : 'ok');
-    return { status: status, hierarchy: hierarchy, accessibility: accessibility, generatedAt: new Date().toISOString() };
-  };
-})();
+// v59.70 P2: the H3-G/H3-H/H3-I element lineage and Critical-10 hierarchy/accessibility audits moved to js/aio-qa-audits.js.
 
 // ─────────────────────────────────────────────────────────────────
 // v49.96 P461/R185 근본 보강: Audit Push (pull→push)
@@ -11341,27 +10201,7 @@ async function _restoreDecryptedPortfolio() {
   return window._aioFinancialSecurity.restorePortfolioVault(_AioVault, { storage: _AioVault.getStorage(), readDecrypted: safeLSGet });
 }
 
-function _updateVaultStatus() {
-  var badge = document.getElementById('vault-status-badge');
-  var setPanel = document.getElementById('vault-set-panel');
-  var unlockPanel = document.getElementById('vault-unlock-panel');
-  if (!badge) return;
-  var hasSalt = !!_AioVault.getStorage().getItem('aio_vault_salt');
-  var isUnlocked = _AioVault.isUnlocked();
-  if (!hasSalt) {
-    badge.textContent = ' 미설정'; badge.style.color = 'var(--gold-11)';
-    if (setPanel) setPanel.style.display = 'block';
-    if (unlockPanel) unlockPanel.style.display = 'none';
-  } else if (isUnlocked) {
-    badge.textContent = ' 활성'; badge.style.color = 'var(--green-11)';
-    if (setPanel) setPanel.style.display = 'none';
-    if (unlockPanel) unlockPanel.style.display = 'none';
-  } else {
-    badge.textContent = ' 잠금'; badge.style.color = 'var(--amber-11)';
-    if (setPanel) setPanel.style.display = 'none';
-    if (unlockPanel) unlockPanel.style.display = 'block';
-  }
-}
+// v59.70: _updateVaultStatus (the 저장 기록 잠금 badge and panels) moved to src/ui/components/portfolio-shell-controls.js.
 
 // v30.11: 공용 PC 모드 — 탭 종료 시 sessionStorage 정리
 window.addEventListener('beforeunload', function() {
@@ -12862,27 +11702,6 @@ window._aioMemoStaleInfo = function(memo, opts) {
   };
 };
 
-// v48.37: SCREENER_DB 특정 심볼 memo staleness 조회
-window._aioStockStaleInfo = function(sym) {
-  var screenerRows = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
-  if (!Array.isArray(screenerRows)) return null;
-  var entry = screenerRows.find(function(r) { return r.sym === sym; });
-  if (!entry) return null;
-  // _asOf 필드 우선 (v48.37+ 수동 지정), memo 파싱 폴백
-  if (entry._asOf) {
-    var DE = window.FRESHNESS_ENGINE;
-    return {
-      freshestTs: DE ? DE.toTs(entry._asOf) : 0,
-      isStale: DE ? DE.isStale(entry._asOf, 'report') : false,
-      badge: DE ? DE.staleBadge(entry._asOf, 'report') : '',
-      label: DE ? DE.formatRelative(entry._asOf) : '',
-      source: '_asOf'
-    };
-  }
-  var info = window._aioMemoStaleInfo(entry.memo, { category: 'report' });
-  if (info) info.source = 'memo-parse';
-  return info;
-};
 
 // DATA_SNAPSHOT — 런타임 관측값 스키마
 // ─────────────────────────────────────────────────────────────────
@@ -14011,18 +12830,6 @@ window.AIO_OPERATIONAL_DATA_CONTRACT = {
   }
 };
 
-window.AIO.makeOperationalMetric = function(name, value, sourceKind, ts, sourceLabel, extra) {
-  var metric = Object.assign({
-    name: name,
-    value: value,
-    sourceKind: sourceKind || 'snapshot',
-    sourceLabel: sourceLabel || '',
-    ts: ts == null ? null : ts
-  }, extra || {});
-  metric.contract = window.AIO_OPERATIONAL_DATA_CONTRACT.evaluateMetric(metric);
-  metric.allowedUse = metric.contract.allowedUse;
-  return metric;
-};
 
 window.AIO.canDriveCurrentDecision = function(metric) {
   return !!(window.AIO_OPERATIONAL_DATA_CONTRACT.evaluateMetric(metric || {}).allowedUse);
@@ -14388,36 +13195,7 @@ window.AIO.evaluateDataTruth = function(symbol, data, sourceMeta) {
   return truth;
 };
 
-window.AIO.getDataTruthAudit = function(opts) {
-  opts = opts || {};
-  var symbols = opts.symbols;
-  if (!Array.isArray(symbols) || !symbols.length) {
-    if (opts.pageId && window.AIO.getDataRequirementProfile) symbols = window.AIO.getDataRequirementProfile({ pageId: opts.pageId, symbolLimit: opts.symbolLimit || 999 }).symbols || [];
-    else if (opts.critical10 && window.AIO_CRITICAL_10_PAGE_IDS && window.AIO.getDataRequirementProfile) {
-      var out = [];
-      window.AIO_CRITICAL_10_PAGE_IDS.forEach(function(id) {
-        (window.AIO.getDataRequirementProfile({ pageId: id, symbolLimit: opts.symbolLimit || 999 }).symbols || []).forEach(function(s) { out.push(s); });
-      });
-      symbols = _aioUniq(out);
-    } else {
-      symbols = Object.keys(window._liveData || {});
-    }
-  }
-  var rows = (symbols || []).map(function(sym) { return window.AIO.evaluateDataTruth(sym); });
-  var blocked = rows.filter(function(r) { return r.status === 'blocked'; });
-  var warn = rows.filter(function(r) { return r.status === 'warn'; });
-  return {
-    status: blocked.length ? 'blocked' : (warn.length ? 'warn' : 'verified'),
-    total: rows.length,
-    verifiedCount: rows.filter(function(r) { return r.status === 'verified'; }).length,
-    warnCount: warn.length,
-    blockedCount: blocked.length,
-    blockedSymbols: blocked.map(function(r) { return r.symbol; }),
-    warnSymbols: warn.map(function(r) { return r.symbol; }),
-    rows: rows,
-    generatedAt: new Date().toISOString()
-  };
-};
+// v59.70 P2: window.AIO.getDataTruthAudit moved to js/aio-qa-audits.js (QA-only callers).
 
 
 var AIO_CURRENTNESS_LIVE_SELECTOR = '[data-live-price], [data-live-kr], [data-live-chg], [data-live-pct], [data-live-field]';

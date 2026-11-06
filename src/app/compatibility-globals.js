@@ -2,9 +2,12 @@
 // installCompatibilityGlobals(window) at the same point of boot; `window`/`document` below are the passed root so the
 // assignments read exactly as they did in bootstrap (gates match these lines).
 import { installGlossaryBridge } from '../ui/knowledge/glossary-bridge.js';
+import { installGlossaryLoader } from './classic-loader.js'; // v59.70 P3: js/aio-glossary.js leaves the boot scripts
 import { fetchEarningsCalendarSnapshot } from '../data/earnings-calendar-snapshot.js'; // roadmap 11: moved from js/aio-pages.js
 import { installFreshnessEngine } from '../data/quality/freshness-engine.js'; // v59.19 roadmap 11: moved from js/aio-core.js
 import { installDataStatusSurface } from '../ui/components/data-status-surface.js'; // v59.20 roadmap 11: moved from js/aio-core.js and js/aio-data.js
+import { installHomeStatusSurface } from '../ui/components/home-status-surface.js'; // v59.70 L3: moved from js/aio-data.js
+import { installPortfolioShellControls } from '../ui/components/portfolio-shell-controls.js'; // v59.70: moved from js/aio-core.js
 import { installApiHealth } from '../data/quality/api-health.js'; // v59.18 roadmap 11: moved from js/aio-core.js
 import { installValidationStores } from '../data/quality/validation-stores.js'; // v59.17 roadmap 11: moved from js/aio-core.js
 import { installProxyTransport } from '../data/providers/proxy-transport.js'; // v59.22 roadmap 11: moved from js/aio-data.js
@@ -91,6 +94,8 @@ export function installCompatibilityGlobals(root = globalThis) {
   installApiHealth(window, document);
   installFreshnessEngine(window);
   installDataStatusSurface(window, document);
+  installHomeStatusSurface(window, document);
+  installPortfolioShellControls(window, document);
   installSharedRoute(window);
   // v59.15 roadmap 11: the AI request/response pipeline (moved from js/aio-chat.js) loads right after boot, outside the boot set; translation and the chat send wait for it.
   window._aioAIPipelineReady = import('../ai/response/request-pipeline.js').then((m) => { m.installAIRequestPipeline(window, document); }).catch(() => {});
@@ -177,6 +182,7 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
   window._pfAssembleRiskEstimateInput = assembleRiskEstimateInput;
   window._pfBaseValues = (positions) => baseValueRows(window._aioPortfolioSurface || null, positions); // P1445
   installGlossaryBridge({ root: window, documentRef: window.document }); // P1472/P1474: one concept source + cross-surface search
+  installGlossaryLoader(window, window.document);
   window._pfBaseNote = baseValueNote;
   window._pfAssessAccountPerformance = assessAccountPerformance;
   // E3/P1188: the classic-shell form is the writer for the declared currency /

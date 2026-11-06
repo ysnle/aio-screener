@@ -51,16 +51,20 @@ try {
   await page.waitForTimeout(100);
   const report = await page.evaluate(() => {
     const audit = window.AIO.getPageMarketEpochAudit();
-    const headers = [...document.querySelectorAll('.aio-decision-header[data-aio-decision-page]')].map((header) => ({
-      pageId: header.getAttribute('data-aio-decision-page'),
-      revision: header.getAttribute('data-market-revision'),
-      cutEnd: header.getAttribute('data-market-cut-end'),
-      epoch: header.querySelector('[data-market-epoch-status]')?.getAttribute('data-market-epoch-status') || null
-    }));
+    // v59.70 (D2): the dev-only decision header is deleted; every contract page carries its own epoch stamp.
+    const stamps = Object.keys(window.AIO?.PAGE_MARKET_EPOCH_CONTRACT || {}).map((pageId) => {
+      const root = document.getElementById(`page-${pageId}`);
+      return {
+        pageId,
+        revision: root?.getAttribute('data-market-revision') || null,
+        cutEnd: root?.getAttribute('data-market-cut-end') || null,
+        epoch: root?.getAttribute('data-market-epoch-status') || null
+      };
+    });
     return {
       audit,
       fieldTimeline: window.AIO_ARCH?.getPageDataTimelineAudit?.() || null,
-      headers,
+      stamps,
       reconciliation: window.AIO.getDataReconciliationStatus(),
       // P1395: the breadth page is a set of dated trend cards over the AIO history artifact; it
       // states its population and never claims an official exchange A/D or McClellan series.
@@ -98,10 +102,9 @@ try {
   const badFieldDom = report.audit.rows.filter((row) => String(row.fieldTimelineStatus).toLowerCase() !== row.domFieldTimelineStatus);
   if (badFieldDom.length) throw new Error(`DOM field timeline mismatch: ${badFieldDom.map((row) => row.pageId).join(',')}`);
   if (report.reconciliation.sourceRevisionMatches !== true) throw new Error('reconciliation source revision mismatch');
-  const requiredHeaders = report.headers.filter((header) => pageIds.includes(header.pageId));
-  if (requiredHeaders.length !== pageIds.length) throw new Error(`decision headers ${requiredHeaders.length}/${pageIds.length}`);
-  const badHeaders = requiredHeaders.filter((header) => header.revision !== report.audit.sharedRevision || !header.cutEnd || !header.epoch);
-  if (badHeaders.length) throw new Error(`decision header epoch missing: ${JSON.stringify(badHeaders)}`);
+  if (report.stamps.length !== pageIds.length) throw new Error(`page epoch stamps ${report.stamps.length}/${pageIds.length}`);
+  const badStamps = report.stamps.filter((stamp) => stamp.revision !== report.audit.sharedRevision || !stamp.cutEnd || !stamp.epoch);
+  if (badStamps.length) throw new Error(`page epoch stamp missing: ${JSON.stringify(badStamps)}`);
   // v59.51: the S&P 500 card left the board (the index line is drawn beside breadth, not as its own card).
   if (report.breadthHistory.cards !== 9 || !/AIO 미국 관찰 종목|S&P 500 구성 종목/.test(report.breadthHistory.text) || !/거래소·지수 공식 통계가 아닙니다/.test(report.breadthHistory.text) || /McClellan/.test(report.breadthHistory.text)) throw new Error(`breadth board lineage mismatch: ${JSON.stringify({ cards: report.breadthHistory.cards })}`);
   console.log(JSON.stringify({

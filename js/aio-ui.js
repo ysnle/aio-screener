@@ -1114,26 +1114,7 @@ setTimeout(function() {
 // v58.76: the developer-only 한국 기술 widgets (VKOSPI chart, 현재 입력, KR spreads, KR breadth and initKoreaTechnical)
 // are retired with their data-dev-only cards; the 한국 시장 fold keeps the native index trends and the news lane.
 
-// v57.77: the KR ticker Stage·확도·셋업 analysis was retired. The input (Enter or _aioKrTickerSubmit) now only writes a
-// link that hands the ticker to the 종목 screen through showTicker, which names the subject (aio:entityChanged ->
-// setStockSubject) and opens the route. The name is kept for the existing data-on-enter / _aioKrTickerSubmit callers.
-function analyzeKrTickerDeep(ticker) {
-  var resultEl = document.getElementById('kr-ticker-analysis-result');
-  if (!resultEl) return;
-  var raw = String(ticker == null ? '' : ticker).trim();
-  var sym = raw && typeof window._aioNormalizeTickerInput === 'function' ? window._aioNormalizeTickerInput(raw) : raw.toUpperCase();
-  if (!sym || !/^[A-Z0-9.\-]{1,12}$/.test(sym)) {
-    resultEl.innerHTML = '<p class="trend-card-note">종목코드 6자리(예: 005930)나 등록된 종목명을 입력하세요.</p>';
-    return;
-  }
-  var code = sym.replace(/\.(KS|KQ)$/, '');
-  var db = window.KR_STOCK_DB || {};
-  var name = db[code] && db[code].name ? db[code].name : '';
-  var known = typeof window._aioIsKnownTicker === 'function' ? !!window._aioIsKnownTicker(sym) : true;
-  resultEl.innerHTML = '<button type="button" data-action="showTicker" data-arg="' + escHtml(sym) + '" class="aio-btn-table lu-kr-go">' +
-      escHtml(name ? name + ' ' + sym : sym) + ' — 종목 화면에서 보기 →</button>' +
-    (known ? '' : '<p class="trend-card-note lu-kr-note">등록된 종목 목록에 없는 코드입니다. 종목 화면에 시세가 없을 수 있습니다.</p>');
-}
+// v59.70 (D5): analyzeKrTickerDeep left with the 한국 시장 추세 fold (#kr-ticker-analysis-input); the global search opens 종목.
 
 // P1430: calculateEntryQualityLocal retired with the ticker 가격·추세 위치 점검 calculator.
 

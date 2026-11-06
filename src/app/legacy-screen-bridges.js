@@ -1,7 +1,6 @@
 // Roadmap item 11 (legacy decomposition): screen code moved from js/aio-*.js to src/ keeps the window names that the
 // legacy callers and js/aio-tests.js use. src/app/compatibility-globals.js loads this module lazily (outside the boot
 // set) and installs them here; each renderer paints once on install for the calls that ran before it loaded.
-import { renderKrMacroFreshnessBadges } from '../ui/components/macro-next-release.js';
 import { renderHomeVix } from '../ui/components/home-vix.js';
 import { renderNewsProgress } from '../ui/components/news-progress.js';
 import * as newsControls from '../ui/components/news-controls.js';
@@ -20,9 +19,8 @@ import { createEarningsCalendar } from '../ui/components/earnings-calendar.js';
 import { renderPortfolioBacktestLab, renderPortfolioBacktestStatus, varCertLabel } from '../ui/components/portfolio-backtest-lab.js';
 
 export function installLegacyScreenBridges(root, documentRef) {
-  // v58.85 거시 · 금리: 한국 거시 badges (v59.51: the header next-release line left for the board header).
+  // v59.70 (D5): the 한국 거시 기준일 badges (_aioRenderKrMacroFreshnessBadges) left with the 한국 거시 fold.
   const at = { documentRef, root };
-  root._aioRenderKrMacroFreshnessBadges = () => renderKrMacroFreshnessBadges(at);
   // v58.91 오늘: home VIX card (legacy snapshot apply and home refresh call this name).
   root._aioRenderHomeVix = (quote) => renderHomeVix({ documentRef, root, quote });
   root._aioRenderHomeVix();

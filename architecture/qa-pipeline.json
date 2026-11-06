@@ -750,6 +750,16 @@
           "script": "scripts/ci-structural-check.mjs"
         },
         {
+          "id": "qa-surface-boundary",
+          "script": "scripts/ci-qa-surface-boundary-check.mjs",
+          "remedy": "v59.70 P2: an audit only QA entry points call goes in js/aio-qa-audits.js (loaded by AIO.loadQaAudits()); the allowlist only shrinks"
+        },
+        {
+          "id": "browser-translation-retired",
+          "script": "scripts/ci-browser-translation-retired-check.mjs",
+          "remedy": "v59.70 D6: headlines are translated by the producer (titleKo / titleKoFailed); do not bring a browser translation path back"
+        },
+        {
           "id": "default-ux",
           "script": "scripts/ci-ux-default-path-check.mjs"
         },
@@ -2308,6 +2318,12 @@
           "id": "browser-vault",
           "script": "scripts/ci-portfolio-vault-e2e.mjs",
           "timeoutMs": 180000
+        },
+        {
+          "id": "browser-legacy-writers",
+          "script": "scripts/ci-legacy-writer-probe.mjs",
+          "timeoutMs": 300000,
+          "remedy": "v59.70 L0: a new js/aio-*.js writer on a route belongs in src/; after moving writers out, node scripts/ci-legacy-writer-probe.mjs --write tightens the allowlist"
         },
         {
           "id": "browser-a11y",

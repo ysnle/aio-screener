@@ -280,7 +280,6 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 #page-macro .macro-stat, #page-fxbond .macro-stat { border: 0 !important; border-radius: 12px !important; background: var(--sx-ink-a03) !important; padding: 14px 16px; }
 #page-macro .macro-group { margin: 0 0 18px; }
 #page-macro #macro-commodities .trend-card { background: var(--sx-ink-a03) !important; }
-#page-macro #kr-integrated-macro { background: var(--bg-card); border-radius: 12px; box-shadow:none; padding: 16px 22px; margin: 0 0 16px !important; border: 0; }
 
 /* ═══ 5. 금리 · 환율 (5e) ═══════════════════════════════════════════════ */#page-fxbond .mk-curve-card .rates-curve-row { display: flex; flex-direction: column; align-items: stretch; gap: 12px; }
 #page-fxbond .mk-curve-card .rates-yields { border: 0; margin: 0; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); }

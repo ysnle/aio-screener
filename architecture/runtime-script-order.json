@@ -8,8 +8,7 @@
     "js/aio-pages.js",
     "js/aio-core.js",
     "js/aio-data.js",
-    "js/aio-ui.js",
-    "js/aio-glossary.js"
+    "js/aio-ui.js"
   ],
   "reasons": {
     "js/aio-workspace.js": "P1136 — inline block A (user state / workspace). Originally the first thing to run after the shell markup; core, data and ui read its globals at their own evaluation time.",
@@ -17,14 +16,15 @@
     "js/aio-pages.js": "P1133 — inline block D (page renderers). Originally ran before every defer script.",
     "js/aio-core.js": "The classic runtime core. Everything above it is code that used to be inline, so it must keep running first.",
     "js/aio-data.js": "Defines the data plane the ui and chat layers read at their own evaluation time.",
-    "js/aio-ui.js": "Consumes core + data globals during evaluation.",
-    "js/aio-glossary.js": "Static glossary literals consumed by ui and chat rendering."
+    "js/aio-ui.js": "Consumes core + data globals during evaluation."
   },
   "measuredBy": "scripts/ci-structural-check.mjs (exact order equality against index.html, plus membership of every measured runtime file)",
   "lazy": [
-    "js/aio-chat.js"
+    "js/aio-chat.js",
+    "js/aio-glossary.js"
   ],
   "lazyReasons": {
-    "js/aio-chat.js": "v59.16 (roadmap 11) — the AI panel. src/app/chat-loader.js inserts it after boot (first panel use or idle), so every static script above has already run; panel entry points are queued stubs until then. Was: Consumes the unified chat surface defined by ui/core."
+    "js/aio-chat.js": "v59.16 (roadmap 11) — the AI panel. src/app/chat-loader.js inserts it after boot (first panel use or idle), so every static script above has already run; panel entry points are queued stubs until then. Was: Consumes the unified chat surface defined by ui/core.",
+    "js/aio-glossary.js": "v59.70 P3 (legacy core wave 2) — the GLOSSARY literals. src/app/classic-loader.js inserts it once the page is idle after boot, on the first glossary open, or at once for automated browsers; term marks, the glossary modal and the research shell read GLOSSARY when they run, and aio:glossaryReady re-runs term marks and the screen-term merge. Was: Static glossary literals consumed by ui and chat rendering."
   }
 }

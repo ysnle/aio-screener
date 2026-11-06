@@ -4837,8 +4837,8 @@
 
     function _testKrPageFreshnessAudit() {
     var krGroup = window.AIO && window.AIO.CRITICAL_PAGE_GROUPS && window.AIO.CRITICAL_PAGE_GROUPS.krMarket;
-    _assert('T177 kr_audit_group: CRITICAL_PAGE_GROUPS.krMarket has 3 integrated sections (v53.7 P725)',
-      Array.isArray(krGroup) && krGroup.length === 3 && krGroup.every(function(id){ return /^kr-integrated-/.test(id); }),
+    _assert('T177 kr_audit_group: CRITICAL_PAGE_GROUPS.krMarket keeps the one 한국 테마 section (v53.7 P725; v59.70 D5 retired technical/macro)',
+      Array.isArray(krGroup) && krGroup.length === 1 && krGroup.every(function(id){ return /^kr-integrated-/.test(id); }),
       krGroup ? JSON.stringify(krGroup) : 'undefined');
 
     var krAudit = window.AIO && typeof window.AIO.getCriticalKrPageFreshnessAudit === 'function'
@@ -6600,24 +6600,19 @@
       var modelOk837 = models837.length === pages837.length && models837.every(function(m) {
         return m && m.decision && Array.isArray(m.reasons) && m.reasons.length === 3 && m.action && m.confidence && m.asOf && validKinds837[m.sourceKind];
       });
-      if (typeof window._aioRenderPageDecisionHeader === 'function') window._aioRenderPageDecisionHeader('screener');
-      var screenerHeader837 = document.querySelector('#page-screener .aio-decision-header');
-      var aiBtn837 = screenerHeader837 && screenerHeader837.querySelector('[data-action="_aioAskAiFromPageDecision"][data-arg="screener"]');
       var fomcSnapshot837 = window.DATA_SNAPSHOT && /6\/17/.test(String(window.DATA_SNAPSHOT.fomc || '')) &&
         /^2026-07-28~29$/.test(String(window.DATA_SNAPSHOT.fomcNext || '')) &&
         !/6\/16-17/.test(String(window.DATA_SNAPSHOT.fomcDotPlot || ''));
       var cp2Text837 = document.getElementById('cp2-detail') ? document.getElementById('cp2-detail').textContent : '';
       var domFresh837 = /6\/17|결과/.test(cp2Text837) && !/다음 FOMC|6\/16-17/.test(cp2Text837);
-      t837ok = !!(window.AIO_SOURCE_KIND && modelOk837 && aiBtn837 && fomcSnapshot837 && domFresh837);
-      t837detail = JSON.stringify({ modelOk:modelOk837, aiBtn:!!aiBtn837, fomcSnapshot:fomcSnapshot837, domFresh:domFresh837 });
+      t837ok = !!(window.AIO_SOURCE_KIND && modelOk837 && fomcSnapshot837 && domFresh837);
+      t837detail = JSON.stringify({ modelOk:modelOk837, fomcSnapshot:fomcSnapshot837, domFresh:domFresh837 });
     } catch(e) { t837detail = 'ERR:' + e.message; }
     _assert('T837 event_context_is_not_embedded_as_current', window.AIO_EVENT_RISK_CONTEXT && window.AIO_EVENT_RISK_CONTEXT.available === false && Object.keys(window.AIO_EVENT_FRESHNESS_REGISTRY).every(function(k) { var r = window.AIO_EVENT_FRESHNESS_REGISTRY[k] || {}; return !!r.eventDate && Number.isFinite(Number(r.maxClaimAgeDays)); }), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     // T838: v50.71 residual deep-audit fixes — guide header + screener/ticker AI contexts stay wired.
     var t838ok = false, t838detail = '';
     try {
-      if (typeof window._aioRenderPageDecisionHeader === 'function') window._aioRenderPageDecisionHeader('guide');
-      var guideHeader838 = document.querySelector('#page-guide .aio-decision-header');
       var ctx838 = window.CHAT_CONTEXTS || {};
       var screenerText838 = ctx838.screener && typeof ctx838.screener.system === 'function' ? ctx838.screener.system() : '';
       // P626-followup: ctx.ticker.system()'s opening line was rewritten at some point from
@@ -6633,12 +6628,11 @@
       var screenerMatch838 = /스크리너 후보|단일 종목/.test(screenerText838);
       var tickerMatch838 = /종목 심층 분석 전문가|현재 종목/.test(tickerText838);
       var cp2Clean838 = !/6\/16-17|다음 FOMC/.test(cp2Text838);
-      t838ok = !!(guideHeader838 &&
-        ctx838.screener && ctx838.ticker &&
+      t838ok = !!(ctx838.screener && ctx838.ticker &&
         screenerMatch838 &&
         tickerMatch838 &&
         cp2Clean838);
-      t838detail = JSON.stringify({ guideHeader:!!guideHeader838, screenerCtx:!!ctx838.screener, tickerCtx:!!ctx838.ticker, screenerMatch:screenerMatch838, tickerMatch:tickerMatch838, cp2Clean:cp2Clean838, cp2:cp2Text838 });
+      t838detail = JSON.stringify({ screenerCtx:!!ctx838.screener, tickerCtx:!!ctx838.ticker, screenerMatch:screenerMatch838, tickerMatch:tickerMatch838, cp2Clean:cp2Clean838, cp2:cp2Text838 });
     } catch(e) { t838detail = 'ERR:' + e.message; }
     _assert('T838 page_contexts_are_evidence_first_without_stale_event_copy', ['home','screener','ticker'].every(function(k){ return window.CHAT_CONTEXTS[k] && /현재 검증된 런타임 관측치/.test(window.CHAT_CONTEXTS[k].system()); }), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
@@ -6675,18 +6669,9 @@
       var reg841 = (window.AIO_EVENT_FRESHNESS_REGISTRY || {}).fomc || {};
       var fomcReasonDynamic841 = homeDecision841 && reg841.result &&
         homeDecision841.reasons.some(function(r) { return r && r.indexOf(reg841.result.slice(0, 20)) >= 0; });
-      // FOMC footer가 비관련 페이지(portfolio)에는 없어야 함
-      if (typeof window._aioRenderPageDecisionHeader === 'function') window._aioRenderPageDecisionHeader('portfolio');
-      var portHeader841 = document.querySelector('#page-portfolio .aio-decision-header[data-aio-decision-page="portfolio"]');
-      var noFomcFooter841 = !portHeader841 || !(/6\/17|FOMC/.test((portHeader841.querySelector('.aio-decision-foot') || {}).textContent || ''));
-      // FOMC footer가 관련 페이지(macro)에는 있어야 함
-      if (typeof window._aioRenderPageDecisionHeader === 'function') window._aioRenderPageDecisionHeader('macro');
-      var macroFooter841 = document.querySelector('#page-macro .aio-decision-header .aio-decision-foot');
-      var fomcFooterOnMacro841 = !macroFooter841 || macroFooter841.textContent.length > 5;
-      // _aioRenderAllPageDecisionHeaders가 AIO_ALL_ROUTE_PAGE_IDS를 참조
       var routeIds841 = window.AIO_ALL_ROUTE_PAGE_IDS && window.AIO_ALL_ROUTE_PAGE_IDS.length > 0;
-      t841ok = !!(descriptiveDecision841 && noPrescriptiveAction841 && scoreInDecision841 && validationBlocked841 && fomcReasonDynamic841 && noFomcFooter841 && routeIds841);
-      t841detail = JSON.stringify({ descriptive:descriptiveDecision841, noPrescriptive:noPrescriptiveAction841, score:scoreInDecision841, validationBlocked:validationBlocked841, fomcDynamic:fomcReasonDynamic841, noFomcPortfolio:noFomcFooter841, fomcMacro:fomcFooterOnMacro841, routeIds:routeIds841 });
+      t841ok = !!(descriptiveDecision841 && noPrescriptiveAction841 && scoreInDecision841 && validationBlocked841 && fomcReasonDynamic841 && routeIds841);
+      t841detail = JSON.stringify({ descriptive:descriptiveDecision841, noPrescriptive:noPrescriptiveAction841, score:scoreInDecision841, validationBlocked:validationBlocked841, fomcDynamic:fomcReasonDynamic841, routeIds:routeIds841 });
     } catch(e) { t841detail = 'ERR:' + e.message; }
     _assert('T841 decision_header_works_without_static_event_registry', typeof window._aioBuildPageDecision === 'function' && Object.keys(window.AIO_EVENT_FRESHNESS_REGISTRY).every(function(k) { var r = window.AIO_EVENT_FRESHNESS_REGISTRY[k] || {}; return !!r.eventDate && Number.isFinite(Number(r.maxClaimAgeDays)); }), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
@@ -6709,7 +6694,6 @@
       var audit842 = window.AIO && typeof window.AIO.getUserResearchPipelineAudit === 'function' ? window.AIO.getUserResearchPipelineAudit() : null;
       var ctx842 = typeof window._getImportedResearchContext === 'function' ? window._getImportedResearchContext('screener') : '';
       var noFakeUi842 = !document.querySelector('.aio-premium-board') && !document.querySelector('.aio-research-bridge');
-      if (typeof window._aioRenderPageDecisionHeader === 'function') window._aioRenderPageDecisionHeader('screener');
       var report842 = typeof window._aioCreateVisualReport === 'function' && window._aioCreateVisualReport('screener');
       var canvas842 = document.querySelector('.aio-visual-report[data-report-page="screener"] canvas');
       t842ok = !!(applied842 && audit842 && audit842.sourceKind === 'REFERENCE' && audit842.canPromoteToLive === false &&
@@ -6846,7 +6830,7 @@
       Array.prototype.forEach.call(page.querySelectorAll('.aio-page-advanced-toggle'), function(el) { var uf869 = el.hasAttribute('data-user-fold'); // P1327/R672 -> v57.81: data-user-fold folds are shown to everyone, the rest stay developer-only
         if (uf869 ? (getComputedStyle(el).display === 'none' && !el.dataset.pfEmptyHidden) : getComputedStyle(el).display !== 'none') failures869.push(id + ':' + (el.id || 'fold') + (uf869 ? ':user-fold-hidden' : ':advanced-visible'));
       });
-    }); ['kr-integrated-technical','kr-integrated-macro','kr-integrated-themes','pf-check-fold'].forEach(function(f) { var n = document.getElementById(f); if (!n || !n.hasAttribute('data-user-fold') || (getComputedStyle(n).display === 'none' && !n.dataset.pfEmptyHidden)) failures869.push(f + ':user-fold-missing'); }); // v57.81 user folds; v58.75: a portfolio fold hidden by the empty state (data-pf-empty-hidden) is not dev-hidden; v59.51 (content audit): pf-ai-notes-fold retired with the in-page AI workbench; v59.70: the watchlist and risk tools are a part of the pf-check-fold user fold
+    }); ['kr-integrated-themes','pf-check-fold'].forEach(function(f) { var n = document.getElementById(f); if (!n || !n.hasAttribute('data-user-fold') || (getComputedStyle(n).display === 'none' && !n.dataset.pfEmptyHidden)) failures869.push(f + ':user-fold-missing'); }); // v57.81 user folds; v58.75: a portfolio fold hidden by the empty state (data-pf-empty-hidden) is not dev-hidden; v59.51 (content audit): pf-ai-notes-fold retired with the in-page AI workbench; v59.70: the watchlist and risk tools are a part of the pf-check-fold user fold; wave2-b: the KR technical and macro folds are retired
     try {
       if (typeof window._aioOrganizeGuideChapters === 'function') window._aioOrganizeGuideChapters(); // v59.07: src/ui/components/guide-chapters.js
       if (typeof window._aioRenderPageFundamentals === 'function') failures869.push('retired-fund-renderer-present');
@@ -6859,9 +6843,6 @@
       if (readiness && getComputedStyle(readiness).display !== 'none') failures869.push('public-readiness-visible');
       var pulse = document.getElementById('market-pulse-bar');
       if (pulse && getComputedStyle(pulse).display !== 'none') failures869.push('market-pulse-visible');
-      Array.prototype.forEach.call(document.querySelectorAll('.page > .aio-decision-header'), function(el) {
-        if (getComputedStyle(el).display !== 'none') failures869.push('decision-header-visible');
-      });
       var homeDetails = document.querySelectorAll('#page-home > details.aio-card');
       Array.prototype.forEach.call(homeDetails, function(el) {
         if (getComputedStyle(el).display !== 'none') failures869.push('home-details-visible');
@@ -6893,7 +6874,7 @@
       var krThemeVisible = Array.prototype.filter.call(krThemeCards, function(el){ return getComputedStyle(el).display !== 'none'; }).length;
       if (krThemeCards.length > 3 && krThemeVisible !== 3) failures869.push('kr-theme-visible=' + krThemeVisible);
       if (!document.getElementById('kr-theme-more')) failures869.push('kr-theme-more-missing');
-      if (document.querySelectorAll('.aio-comp-secondary-feed:not(.aio-dev-mode)').length < 2) failures869.push('kr-duplicate-feeds-not-marked'); /* v53.7 P725: 잔여 KR 피드 2개(macro/technical) */
+      /* v59.70 (D5): the two KR secondary feeds (macro/technical) left with their folds. */
       if (typeof renderGlossaryItems === 'function') renderGlossaryItems('');
       if (document.querySelectorAll('#glossary-body .aio-glossary-item').length < 200) failures869.push('glossary-items');
       // v59.51 (content audit): the allocation and holdings-analysis sections left; the order is entry form, holdings table,
@@ -6962,8 +6943,8 @@
 
     var pfMain1019 = document.getElementById('pf-main');
     // v59.51 (content audit): pf-allocation-section is retired. The holdings table cannot stand in (the empty-state CTA lives
-    // in its tbody); the first calculation-only section is the benchmark comparison, which renderPortfolio hides when empty.
-    var pfRisk1019 = document.getElementById('pf-benchmark-section');
+    // in its tbody); the first calculation-only section is the risk panel (v59.70: the benchmark section left), hidden when empty.
+    var pfRisk1019 = document.getElementById('pf-risk-panel');
     var pfEmpty1019 = document.querySelector('#pf-positions-tbody .pf-empty-state');
     var empty1019 = !pfMain1019 || !pfMain1019.classList.contains('is-empty') || (!!pfEmpty1019 && pfRisk1019 && getComputedStyle(pfRisk1019).display === 'none');
     _assert('T1019 portfolio_empty_state_hierarchy: 빈 포트폴리오는 추가 CTA만 우선하고 계산 불가능한 리스크 카드를 숨긴다', empty1019,
@@ -7010,19 +6991,8 @@
       }
     } catch (e871) { _assert('T871 briefing_date_no_future_label_v5240 (EF-04)', false, 'threw: ' + (e871 && e871.message)); }
 
-    // T872 (EF-13): FOMC 이벤트 footnote가 홈 등 소비 페이지에서 asOf 날짜를 병기하는지 (기존엔 macro 캘린더 표만 날짜 표시)
-    try {
-      if (typeof window._aioRenderPageDecisionHeader === 'function' && document.getElementById('page-home')) {
-        window._aioRenderPageDecisionHeader('home');
-        var footEl872 = document.querySelector('#page-home .aio-decision-header[data-aio-decision-page="home"] .aio-decision-foot');
-        var footTxt872 = footEl872 ? footEl872.textContent : '';
-        var fomcReg872 = (window.AIO_EVENT_FRESHNESS_REGISTRY || {}).fomc || {};
-        var hasDate872 = !!fomcReg872.eventDate && footTxt872.indexOf(fomcReg872.eventDate) !== -1;
+    // T872 (EF-13): v59.70 the decision header footer is deleted (D2); the registry contract stays.
     _assert('T872 decision_footer_does_not_expose_embedded_event_date', Object.keys(window.AIO_EVENT_FRESHNESS_REGISTRY).every(function(k) { var r = window.AIO_EVENT_FRESHNESS_REGISTRY[k] || {}; return !!r.eventDate && Number.isFinite(Number(r.maxClaimAgeDays)); }), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
-      } else {
-        _assert('T872 fomc_footnote_asof_exposed_v5240 (EF-13)', false, '_aioRenderPageDecisionHeader or #page-home missing');
-      }
-    } catch (e872) { _assert('T872 fomc_footnote_asof_exposed_v5240 (EF-13)', false, 'threw: ' + (e872 && e872.message)); }
 
     // T873 (EF-02): breadth 표면 3곳(홈 스트립·헤더배지/종합신호·신고저 카드)이 canonical 소스/정직한 상태를 쓰는지
     try {
@@ -7086,14 +7056,10 @@
     _assert('T877 tv_ohlc_fallback_independent_v5241 (EF-12): SPY TradingView 대체 strip과 sync 함수 퇴역 유지 (v57.76)',
       typeof window._aioSyncTvOhlcFallback !== 'function' && !document.querySelector('[data-tvohlc-close]'), 'sync=' + typeof window._aioSyncTvOhlcFallback);
 
-    // T878 (EF-19) → v57.77: the KR index Stage writer and its refresh buttons were retired (cards draw completed KRX closes); the KR ticker input only writes a 종목 screen link.
-    try {
-      var retired878 = typeof window.analyzeKrIndex !== 'function' && !document.querySelector('button[data-action="analyzeKrIndex"]') && !!document.getElementById('kr-kospi-tech-result') && !!document.getElementById('kr-kosdaq-tech-result');
-      var sink878 = document.getElementById('kr-ticker-analysis-result'), before878 = sink878 ? sink878.innerHTML : '', link878 = null;
-      if (sink878 && typeof window.analyzeKrTickerDeep === 'function') { window.analyzeKrTickerDeep('005930'); link878 = sink878.querySelector('button[data-action="showTicker"]'); link878 = link878 && link878.getAttribute('data-arg'); sink878.innerHTML = before878; }
-      _assert('T878 kr_technical_index_cards_v5777 (EF-19, v57.77): 지수 Stage 작성기 퇴역 · 카드 id 유지 · 종목 입력은 종목 화면 링크(showTicker)만 쓴다',
-        retired878 && link878 === '005930.KS', 'retired=' + retired878 + ' link=' + link878);
-    } catch (e878) { _assert('T878 kr_technical_index_cards_v5777 (EF-19, v57.77)', false, 'threw: ' + (e878 && e878.message)); }
+    // T878 (EF-19) → v57.77 → v59.70 (D5): the 한국 시장 추세 fold (KR index cards, KR ticker input) is retired; the 시장 상태 한국 board carries 코스피·코스닥.
+    _assert('T878 kr_technical_fold_retired_v5970 (EF-19, D5): 한국 시장 추세 접기·지수 Stage 작성기·종목 입력 퇴역',
+      typeof window.analyzeKrIndex !== 'function' && typeof window.analyzeKrTickerDeep !== 'function' && typeof window._aioKrTickerSubmit !== 'function' && !document.getElementById('kr-integrated-technical') && !document.getElementById('kr-integrated-macro'),
+      'technical=' + !!document.getElementById('kr-integrated-technical') + ' macro=' + !!document.getElementById('kr-integrated-macro'));
   }
 
   // v52.42 (P657): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 3 (EF-06/07/14/16) 회귀 게이트
@@ -7139,19 +7105,9 @@
       }
     } catch (e881) { _assert('T881 news_source_label_script_guard_v5242 (EF-14)', false, 'threw: ' + (e881 && e881.message)); }
 
-    // T883 (EF-16): kr-macro 3개 카드에 _fieldTs 기반 "기준: MM/DD (N일 전)" 배지가 채워지는지
-    try {
-      if (typeof window._aioRenderKrMacroFreshnessBadges === 'function' && document.getElementById('kr-macro-bokrate-freshness')) {
-        window._aioRenderKrMacroFreshnessBadges();
-        var badgeIds883 = ['kr-macro-bokrate-freshness', 'kr-macro-cpi-freshness', 'kr-macro-pmi-freshness'];
-        var texts883 = badgeIds883.map(function(id) { var el = document.getElementById(id); return el ? el.textContent : null; });
-        var allBadged883 = texts883.every(function(t) { return t && t.indexOf('기준:') === 0 && (/\d+일 전/.test(t) || t === '기준: 미수신'); });
-        _assert('T883 kr_macro_freshness_badges_v53_4 (EF-16): 기준일 또는 명시적 미수신 상태 렌더',
-          allBadged883, 'texts=' + texts883.join(' | '));
-      } else {
-        _assert('T883 kr_macro_freshness_badges_v5242 (EF-16)', false, 'fn or element missing');
-      }
-    } catch (e883) { _assert('T883 kr_macro_freshness_badges_v5242 (EF-16)', false, 'threw: ' + (e883 && e883.message)); }
+    // T883 (EF-16) → v59.70 (D5): the 한국 거시 fold and its 기준일 badges are retired with it.
+    _assert('T883 kr_macro_fold_retired_v5970 (EF-16, D5): 한국 거시 접기·기준일 배지 퇴역',
+      typeof window._aioRenderKrMacroFreshnessBadges !== 'function' && !document.getElementById('kr-macro-bokrate-freshness'), 'fn=' + typeof window._aioRenderKrMacroFreshnessBadges);
   }
 
   // v52.42 (P657): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 4 (EF-03/17/18) 회귀 게이트
@@ -7215,14 +7171,9 @@
       _assert('T888 claude_chat_uses_retry_helper (B8): callSharedAi 미존재', false);
     }
 
-    // T889: autoTranslateNews(뉴스 번역)가 재시도 헬퍼를 경유(미존재 시 원시 fetch로 안전 폴백)
-    if (typeof autoTranslateNews === 'function') {
-      var fnSrc889 = autoTranslateNews.toString();
-      _assert('T889 claude_translate_uses_retry_helper (B8): autoTranslateNews가 _aioFetchClaudeWithRetry를 경유(typeof 가드 + fetch 폴백)',
-        /_aioFetchClaudeWithRetry\s*:\s*fetch\)\(_ct\.url/.test(fnSrc889) && /\}, _ct\.serverKey\)/.test(fnSrc889));
-    } else {
-      _assert('T889 claude_translate_uses_retry_helper (B8): autoTranslateNews 미존재', false);
-    }
+    _assert('T889 browser_translation_retired_v5970 (B8, D6): autoTranslateNews·freeTranslateNews·_gtBatchTranslate 없음', typeof window.autoTranslateNews !== 'function' && typeof window.freeTranslateNews !== 'function' && typeof window._gtBatchTranslate !== 'function');
+    var shown889 = typeof getDisplayTitle === 'function' ? [getDisplayTitle({ title: 'D6 fixture headline zq', titleKo: '디식스 고정 제목' }), getDisplayTitle({ title: 'D6 fixture headline zr', titleKoFailed: true })] : [];
+    _assert('T889b producer_title_display_v5970 (D6): titleKo 우선, titleKoFailed는 원문', shown889[0] === '디식스 고정 제목' && shown889[1] === 'D6 fixture headline zr', JSON.stringify(shown889));
 
     // T890: _generateAIBriefing(AI 브리핑)이 재시도 헬퍼를 경유(미존재 시 원시 fetch로 안전 폴백)
     if (typeof _generateAIBriefing === 'function') {
@@ -7466,8 +7417,8 @@
       JSON.stringify({ status: inventory91 && inventory91.status, total: inventory91 && inventory91.total, incomplete: inventory91 && inventory91.incomplete, orphanSinks: inventory91 && inventory91.orphanSinks, fieldCount: inventory91 && inventory91.fieldCount, sample: sample91 }));
 
     var hierarchy91 = window.AIO && window.AIO.getCritical10ContentHierarchyAudit ? window.AIO.getCritical10ContentHierarchyAudit({ pages:['home'] }) : null;
-    _assert('T915 critical10_first_view_hierarchy_contract (H3-H): conclusion/evidence/action precede detail and developer surfaces stay hidden',
-      !!hierarchy91 && hierarchy91.status !== 'fail' && hierarchy91.pages && hierarchy91.pages[0] && hierarchy91.pages[0].decisionHeader && hierarchy91.pages[0].conclusion && hierarchy91.pages[0].evidenceAndStatus && hierarchy91.pages[0].actionAffordance && hierarchy91.pages[0].developerSurfaceVisible === 0,
+    _assert('T915 critical10_first_view_hierarchy_contract (H3-H): each page has a first visible block and developer surfaces stay hidden (v59.70 decision header deleted)',
+      !!hierarchy91 && hierarchy91.status !== 'fail' && hierarchy91.pages && hierarchy91.pages[0] && hierarchy91.pages[0].pageExists && hierarchy91.pages[0].firstVisibleSelector && hierarchy91.pages[0].developerSurfaceVisible === 0,
       JSON.stringify(hierarchy91));
 
     var a11y91 = window.AIO && window.AIO.getCritical10AccessibilityAudit ? window.AIO.getCritical10AccessibilityAudit({ pages:['home'] }) : null;
@@ -7601,12 +7552,11 @@
 
     // v57.62: the per-page chatSend entry point was retired; the remaining AI entry points share one pipeline.
     var unifiedSrc937 = typeof chatSendUnified === 'function' ? chatSendUnified.toString() : '';
-    var translateSrc937 = typeof autoTranslateNews === 'function' ? autoTranslateNews.toString() : '';
     var briefingSrc937 = typeof _generateAIBriefing === 'function' ? _generateAIBriefing.toString() : '';
-    _assert('T940 v57.62 ai_entrypoints_use_one_pipeline (WP-AI1): per-page chatSend absent + unified/translation/briefing all call the shared response pipeline',
+    _assert('T940 v57.62 ai_entrypoints_use_one_pipeline (WP-AI1): per-page chatSend absent + unified/briefing call the shared response pipeline (v59.70 D6: browser translation deleted)',
       typeof window.chatSend === 'undefined' && /_aioRunAIResponsePipeline/.test(unifiedSrc937) &&
-      /_aioRunAIResponsePipeline/.test(translateSrc937) && (!briefingSrc937 || /_aioRunAIResponsePipeline/.test(briefingSrc937)),
-      JSON.stringify({ chatSend: typeof window.chatSend, unified: /_aioRunAIResponsePipeline/.test(unifiedSrc937), translation: /_aioRunAIResponsePipeline/.test(translateSrc937), briefing: !briefingSrc937 || /_aioRunAIResponsePipeline/.test(briefingSrc937) }));
+      (!briefingSrc937 || /_aioRunAIResponsePipeline/.test(briefingSrc937)),
+      JSON.stringify({ chatSend: typeof window.chatSend, unified: /_aioRunAIResponsePipeline/.test(unifiedSrc937), briefing: !briefingSrc937 || /_aioRunAIResponsePipeline/.test(briefingSrc937) }));
   }
 
   // Group95: v52.77/WP-AI2 typed claim/evidence validation contract.

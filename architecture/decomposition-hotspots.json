@@ -17,17 +17,17 @@
     "js/aio-qa-audits.js"
   ],
   "recordedLines": {
-    "index.html": 6218,
-    "js/aio-core.js": 16649,
-    "js/aio-data.js": 8036,
-    "js/aio-ui.js": 1449,
+    "index.html": 5973,
+    "js/aio-core.js": 15444,
+    "js/aio-data.js": 7351,
+    "js/aio-ui.js": 1430,
     "js/aio-chat.js": 4720,
-    "js/aio-tests.js": 8840,
+    "js/aio-tests.js": 8790,
     "js/aio-glossary.js": 416,
-    "js/aio-pages.js": 900,
+    "js/aio-pages.js": 899,
     "js/aio-kr-data.js": 1442,
     "js/aio-workspace.js": 1797,
-    "js/aio-qa-audits.js": 5059
+    "js/aio-qa-audits.js": 6119
   },
   "ceiling": {
     "index.html": 35000,
@@ -60,29 +60,17 @@
   "facadePolicy": "bounded compatibility facade only; no permanent duplicate primary writer",
   "codeMapRescan": "required after any change greater than 500 lines",
   "recordedNonWhitespaceChars": {
-    "index.html": 343330,
-    "js/aio-core.js": 761562,
-    "js/aio-data.js": 392029,
-    "js/aio-ui.js": 59307,
-    "js/aio-chat.js": 262433,
-    "js/aio-tests.js": 558917,
+    "index.html": 333712,
+    "js/aio-core.js": 709376,
+    "js/aio-data.js": 364270,
+    "js/aio-ui.js": 58230,
+    "js/aio-chat.js": 262504,
+    "js/aio-tests.js": 555089,
     "js/aio-glossary.js": 47079,
-    "js/aio-pages.js": 58498,
+    "js/aio-pages.js": 58506,
     "js/aio-kr-data.js": 64763,
-    "js/aio-workspace.js": 88339,
-    "js/aio-qa-audits.js": 243820
+    "js/aio-workspace.js": 88684,
+    "js/aio-qa-audits.js": 289087
   },
-  "nonWhitespaceCharSlack": 400,
-  "pageModuleCeilings": {
-    "note": "v59.70 (S12): a split page keeps every module under a fixed bound and its lifecycle file small, so the split cannot re-grow into one file. A directory entry bounds each .js file inside it; a file entry bounds one file.",
-    "directories": {
-      "src/ui/pages/screener/": 1200,
-      "src/ui/pages/themes/": 1200
-    },
-    "files": {
-      "src/ui/pages/themes.js": 400,
-      "src/ui/pages/screener/page.js": 400,
-      "src/ui/pages/screener.js": 40
-    }
-  }
+  "nonWhitespaceCharSlack": 400
 }

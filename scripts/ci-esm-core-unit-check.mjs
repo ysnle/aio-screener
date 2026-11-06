@@ -5185,6 +5185,25 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   if (hosts['kr-kospi-tech-result'].children !== first) fail('v57.77 the KR card redraws only when the last close changes');
 }
 
+// v59.70 (D6): the producer translates headlines; a failed translation (titleKoFailed) keeps the original with a '원문' mark.
+{
+  const { untranslatedMark } = await load('src/ui/pages/news.js');
+  const doc = { createElement: (tag) => ({ tag, className: '', textContent: '', title: '' }) };
+  const failed = untranslatedMark(doc, { title: 'Fed holds rates', titleKoFailed: true });
+  if (failed?.textContent !== '원문' || failed.className !== 'news-item-untranslated') fail(`v59.70 D6 a failed translation is marked: ${JSON.stringify(failed)}`);
+  if (untranslatedMark(doc, { title: 'Fed holds rates', titleKo: '연준 금리 동결' }) !== null) fail('v59.70 D6 a translated headline carries no mark');
+  if (untranslatedMark(doc, { title: 'Fed holds rates' }) !== null) fail('v59.70 D6 no flag, no mark');
+}
+
+// v59.70 (D5): the 시장 상태 한국 board's 금리·물가·수출 card reads the settled snapshot; a held reference (null) is not 0.
+{
+  const { koreaPolicyCard } = await load('src/domain/market/korea-policy.js');
+  const card = koreaPolicyCard({ bokRate: 3, bokNext: '2026-11-26', _fieldTs: { bok_rate: '2026-08-27' }, krCpi: 2.4, krExportReference: { status: 'verified', periodLabel: '2026-10', exportsBillionUsd: 115.3, exportsYoyPct: 93.7 } });
+  if (card?.value !== '기준금리 3.00%' || card.caption !== '한국은행 공식 발표, 8/27 결정' || card.lines[0] !== '다음 금통위 2026-11-26' || card.lines[1] !== '소비자물가 전년 대비 +2.4%, 목표 2%보다 0.4%p 높음' || !/^수출\(2026-10 잠정\) 1,153억 달러, 전년 같은 기간 대비 \+93\.7%\(같은 날짜 구간/.test(card.lines[2])) fail(`v59.70 D5 Korea policy card: ${JSON.stringify(card)}`);
+  if (koreaPolicyCard({ bokRate: null, krCpi: '', krExportReference: { status: 'stale-reference', exportsBillionUsd: 1 } }) !== null) fail('v59.70 D5 a held rate, a blank CPI and a stale export reference draw no card (never 0)');
+  if (koreaPolicyCard({ bokRate: null, krCpi: 1.9 })?.value !== '기준금리 기한 지남') fail('v59.70 D5 a held rate says so instead of printing a number');
+}
+
 // P1586: self-computed sentiment composite — withholds below four components, ranks each against its own
 // trailing year, labels the stand-in junk-bond basis, and never borrows CNN's value.
 {

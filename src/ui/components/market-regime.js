@@ -21,6 +21,7 @@ import { shortDate } from '../../domain/content/date-labels.js';
 import { signedText } from '../../domain/shared/number.js';
 import { withDirectionParticle } from '../../domain/content/korean-particle.js';
 import { historyWaitText } from './data-state.js';
+import { koreaPolicyCard } from '../../domain/market/korea-policy.js';
 
 // Live review 2026-10-14 (owner reading standard: 3–5 lines, ~130–230자 per block): a longer reading keeps its first
 // sentences on the face (up to ~200자, cut at a sentence end) and folds the rest under '이어서 읽기'.
@@ -635,6 +636,14 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
         }
         return section;
       });
+      // v59.70 (D5): the 한국 기준금리·물가·수출 facts from the retired 매크로 fold join the board as one card.
+      const policy = koreaPolicyCard(root.DATA_SNAPSHOT);
+      if (policy && cards.length) {
+        const section = el(doc, 'section', null, 'regime-axis'); section.dataset.axis = 'kr-policy'; section.dataset.market = 'KR';
+        section.append(el(doc, 'h3', policy.title, 'regime-axis-title'), el(doc, 'p', policy.caption, 'regime-chart-caption'), el(doc, 'p', policy.value, 'regime-korea-value'));
+        for (const line of policy.lines) section.append(el(doc, 'p', line, 'regime-read'));
+        cards.push(section);
+      }
       boardKr.replaceChildren(...cards);
       boardKr.hidden = !cards.length;
       const krSection = boardKr.closest?.('section.mk-korea');
@@ -663,10 +672,26 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
   if (depthAnchor) {
     // v59.68 (owner IA 2026-11-03: 시장 상태 owns the scenarios): the full map by release (with the rate hub) moved here
     // from 매크로, in place of the compact copy; 매크로 keeps the current state of each asset.
-    let host = doc.getElementById('macro-crossroads');
-    if (!host) { host = el(doc, 'div', null, 'xr-section'); host.id = 'macro-crossroads'; depthAnchor.insertAdjacentElement('afterend', host); }
-    renderMacroCrossroads({ documentRef: doc, root, regime, host });
-    renderHomeGuide({ documentRef: doc, root, store, anchor: host });
+    const paintDepth = () => {
+      let host = doc.getElementById('macro-crossroads');
+      if (!host) { host = el(doc, 'div', null, 'xr-section'); host.id = 'macro-crossroads'; depthAnchor.insertAdjacentElement('afterend', host); }
+      renderMacroCrossroads({ documentRef: doc, root, regime, host });
+      renderHomeGuide({ documentRef: doc, root, store, anchor: host });
+    };
+    // v59.70 DOM1: the closed fold (about 1,200 nodes) is painted when it opens, from the latest render.
+    const depthFold = depthAnchor.closest('details');
+    if (!depthFold || depthFold.open) paintDepth();
+    else {
+      depthFold.__aioPaintDepth = paintDepth;
+      if (!depthFold.__aioDepthLazy) {
+        depthFold.__aioDepthLazy = true;
+        depthFold.addEventListener('toggle', () => {
+          const paint = depthFold.open ? depthFold.__aioPaintDepth : null;
+          depthFold.__aioPaintDepth = null;
+          paint?.();
+        });
+      }
+    }
   }
   renderNextSteps(doc, doc.getElementById('regime-next'), regimeFlow({ regime, groups: root.__aioScenarioOutlook?.rotation || {} }).next); // P1431, I02
   // P1727: a link that asked for a section of this page (the briefing's Korea sentence -> 한국 시장) shows it once.

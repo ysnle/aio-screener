@@ -50,7 +50,6 @@ function refreshSignalDashboard() {
   // header and the snapshot/pulse writers that still have live sinks (the execution-window and
   // regime-badge derivations were retired: their ew-*/regime-* sinks are gone and nothing read
   // their return values).
-  try { if (typeof window._aioRenderPageDecisionHeader === 'function') window._aioRenderPageDecisionHeader('signal'); } catch(_) {}
 
   // v57.77: snapshot date bindings (the updateRiskMonitor [data-snap] writer is retired).
   try { if (typeof window._aioRenderSnapshotDateBindings === 'function') window._aioRenderSnapshotDateBindings(); } catch(_) {}
