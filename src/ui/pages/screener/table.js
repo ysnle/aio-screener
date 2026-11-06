@@ -900,6 +900,8 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
   const count = documentRef.getElementById('screener-result-count');
   if (count) count.textContent = String(filtered.length);
   renderTableStatus(documentRef, { status: state?.status, scopeRows, filtered, definition: chosenDefinition, sortState, passedOnly: !!documentRef.getElementById('scr-passed-only')?.checked, readLiveData, onExplain });
+  // The rows and the count are on screen: readers that changed a filter (the AI condition card) take the count from here.
+  documentRef.dispatchEvent?.(new (documentRef.defaultView?.CustomEvent || CustomEvent)('aio:screener-filtered', { detail: { count: filtered.length } }));
   const summary = documentRef.getElementById('scr-visible-summary');
   if (summary) summary.textContent = `${MARKET_LABELS[listingMarket]}, ${filtered.length}종목 중 ${Math.min(visibleLimit.value, filtered.length)}개 표시`;
   renderStaleNote(documentRef, body);

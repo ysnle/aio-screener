@@ -125,7 +125,23 @@ try {
       if (testCase.expect === 'applied' && !(Number(result.shown) > 0 && Number(result.shown) < baseline)) fail(testCase.id, `table shows ${result.shown} (before ${baseline}); the conditions did not narrow it`);
       if (!/조건을 모두 만족하고 다른 필터도 통과한 종목 \d+개/.test(note)) fail(testCase.id, `condition panel note does not state the count: ${note.slice(0, 80)}`);
       if (testCase.expect === 'empty' && !result.emptyState) fail(testCase.id, 'a zero-row screen did not show the shared empty state');
-      console.log(`[screener-ai] ${testCase.id}: table ${baseline} -> ${result.shown}${result.emptyState ? ' (shared empty state)' : ''}, chips ${result.chips.join(', ')}`);
+      // v59.70 (review 89e8c881): the card itself must report the table's count. The panel swaps its messages on the page
+      // change, so the card is read through the handle taken before 적용; it settles once the apply resolves.
+      const settled = await card.evaluate((node) => new Promise((resolve) => {
+        const started = Date.now();
+        const tick = () => {
+          const button = node.querySelector('.aio-answer-screen-apply');
+          if ((node.dataset.state !== 'ready' && !button?.disabled) || Date.now() - started > 12000) {
+            resolve({ state: node.dataset.state, status: node.querySelector('[role="status"]')?.textContent || '', ms: Date.now() - started });
+          } else setTimeout(tick, 100);
+        };
+        tick();
+      }));
+      const wantState = testCase.expect === 'empty' ? 'empty' : 'applied';
+      if (settled.state !== wantState) fail(testCase.id, `card state ${settled.state} (expected ${wantState}): ${settled.status}`);
+      if (wantState === 'applied' && settled.status !== `적용했습니다. 표에 ${Number(result.shown)}종목.`) fail(testCase.id, `card status "${settled.status}" does not state the table's ${result.shown}종목`);
+      if (wantState === 'empty' && !/조건에 맞는 종목이 없습니다/.test(settled.status)) fail(testCase.id, `card status "${settled.status}" does not say no stock met the conditions`);
+      console.log(`[screener-ai] ${testCase.id}: table ${baseline} -> ${result.shown}${result.emptyState ? ' (shared empty state)' : ''}, chips ${result.chips.join(', ')}; card ${settled.state} "${settled.status}"`);
     }
     if (paid !== 1) fail(testCase.id, `expected exactly one fixture answer request, saw ${paid}`);
     if (errors.length) fail(testCase.id, `page errors: ${errors.slice(0, 2).join(' | ')}`);
