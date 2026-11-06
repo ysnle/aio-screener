@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-06T13:21:30.114Z",
-  "attemptedAt": "2026-11-06T13:21:30.114Z",
-  "lastSuccessfulAt": "2026-11-06T13:21:30.114Z",
+  "generatedAt": "2026-11-06T13:51:39.268Z",
+  "attemptedAt": "2026-11-06T13:51:39.268Z",
+  "lastSuccessfulAt": "2026-11-06T13:51:39.268Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-23T13:21:25.672Z",
-  "until": "2026-11-06T13:21:25.672Z",
+  "since": "2026-10-23T13:51:32.322Z",
+  "until": "2026-11-06T13:51:32.322Z",
   "current24hWindow": {
     "start": "2026-11-04T23:00:00.000Z",
     "end": "2026-11-05T23:00:00.000Z",
@@ -92,79 +92,81 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1354,
+      "count": 1360,
       "freshCount": 40,
-      "eligibleTextCount": 1293,
+      "eligibleTextCount": 1299,
       "selectedCount": 124,
       "error": null,
-      "lastPostId": 68560
+      "lastPostId": 68566
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 236,
+      "count": 237,
       "freshCount": 40,
-      "eligibleTextCount": 236,
+      "eligibleTextCount": 237,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 21035
+      "lastPostId": 21036
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 678,
+      "count": 680,
       "freshCount": 37,
-      "eligibleTextCount": 677,
+      "eligibleTextCount": 679,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 71669
+      "lastPostId": 71671
     }
   ],
-  "count": 2311,
-  "retainedItemCount": 462,
+  "count": 2320,
+  "retainedItemCount": 461,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2311,
-    "eligibleTextCount": 2246,
+    "observedCount": 2320,
+    "eligibleTextCount": 2255,
     "mediaOnlyCount": 65,
-    "mediaAttachedCount": 451,
-    "photoPostCount": 392,
+    "mediaAttachedCount": 457,
+    "photoPostCount": 398,
     "documentPostCount": 2,
     "imageOnlyCount": 2,
-    "highSignalCount": 394,
-    "broadSignalCount": 849,
+    "highSignalCount": 395,
+    "broadSignalCount": 852,
     "selectedRawCount": 391,
     "selectedEligibleCount": 391,
-    "selectedRawCoveragePct": 17.4,
+    "selectedRawCoveragePct": 17.3,
     "selectedOfObservedPct": 16.9,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "market-note": 846,
+    "macro": 352,
+    "kr-market": 117,
+    "equity": 117,
+    "earnings": 409,
+    "semi": 477,
+    "flows": 65,
     "ai-policy": 105,
-    "equity": 116,
-    "semi": 476,
-    "flows": 64,
-    "macro": 350,
-    "earnings": 407,
-    "market-note": 842,
     "geo": 445,
     "japan": 79,
     "power": 268,
     "healthcare": 76,
-    "kr-market": 115,
     "credit": 98,
     "optical": 41,
     "media-only": 64,
     "crypto": 4
   },
   "tickerCounts": {
+    "TSM": 38,
+    "MRNA": 3,
     "TSLA": 31,
     "MSFT": 60,
     "GOOG": 115,
@@ -172,14 +174,12 @@
     "HIMS": 1,
     "NVO": 2,
     "BE": 13,
-    "MRNA": 2,
     "NVDA": 112,
     "HUM": 1,
     "AAPL": 23,
     "AVGO": 21,
     "AMZN": 80,
     "CRWV": 5,
-    "TSM": 37,
     "IONQ": 2,
     "MU": 34,
     "ORCL": 11,
@@ -260,14 +260,14 @@
     "BMY": 1
   },
   "themes": [
-    "Market Notes (842 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
-    "Semiconductors/Memory (476 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
+    "Market Notes (846 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
+    "Semiconductors/Memory (477 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
     "Geopolitics (445 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
-    "Earnings/Corporate (407 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
-    "Macro/Rates (350 posts in 14-day research window): 텍사스 주지사 당선인 지나 히노호사는 버니 샌더스가 아니다. 데이터센터 건설을 지지한다. - Tae Kim 시장은 텍사스 주지사 선거 결과가 AI 데이터센터 산업에 미칠 영향을 과도하게 부정적으로 해석하고 있다. 히노호사는 데이터센터 건설 자체를 반대하는 것이 아니라 지역 주민과 노동자에게 실질적인 혜택이...",
+    "Earnings/Corporate (409 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
+    "Macro/Rates (352 posts in 14-day research window): 텍사스 주지사 당선인 지나 히노호사는 버니 샌더스가 아니다. 데이터센터 건설을 지지한다. - Tae Kim 시장은 텍사스 주지사 선거 결과가 AI 데이터센터 산업에 미칠 영향을 과도하게 부정적으로 해석하고 있다. 히노호사는 데이터센터 건설 자체를 반대하는 것이 아니라 지역 주민과 노동자에게 실질적인 혜택이...",
     "AI Power/Grid (268 posts in 14-day research window): 데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가 나타나고 있음. 데이터센터의 막대한 전력 소비와 지역사회 부담에 대한 우려가 커지면서 미국 하원과 텍사스,...",
-    "Equity/Analyst (116 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
-    "Korea Market (115 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
+    "Korea Market (117 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY...",
+    "Equity/Analyst (117 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
   ],
   "catalysts": [
     {
@@ -307,7 +307,7 @@
     },
     {
       "key": "TSM",
-      "count": 37,
+      "count": 38,
       "text": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -338,7 +338,7 @@
       "topics": [
         "macro"
       ],
-      "count": 350,
+      "count": 352,
       "focus": "텍사스 주지사 당선인 지나 히노호사는 버니 샌더스가 아니다. 데이터센터 건설을 지지한다. - Tae Kim 시장은 텍사스 주지사 선거 결과가 AI 데이터센터 산업에 미칠 영향을 과도하게 부정적으로 해석하고 있다. 히노호사는 데이터센터 건설 자체를 반대하는 것이 아니라 지역 주민과 노동자에게 실질적인 혜택이..."
     },
     {
@@ -365,7 +365,7 @@
       "topics": [
         "semi"
       ],
-      "count": 476,
+      "count": 477,
       "focus": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
     },
     {
@@ -401,7 +401,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 115,
+      "count": 117,
       "focus": "SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
     },
     {
@@ -410,7 +410,7 @@
       "topics": [
         "equity"
       ],
-      "count": 116,
+      "count": 117,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
@@ -428,7 +428,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 407,
+      "count": 409,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -455,8 +455,8 @@
       "topics": [
         "flows"
       ],
-      "count": 64,
-      "focus": "No retained full-text sample; 64 observed posts in the 14-day research window."
+      "count": 65,
+      "focus": "No retained full-text sample; 65 observed posts in the 14-day research window."
     },
     {
       "id": "insider",
@@ -473,7 +473,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 842,
+      "count": 846,
       "focus": "2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며..."
     }
   ],
@@ -1766,6 +1766,68 @@
   ],
   "broadItems": [
     {
+      "id": "bornlupin/21036",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21036",
+      "datetime": "2026-11-06T13:33:12.000Z",
+      "localDateKst": "2026-11-06",
+      "tags": [
+        "macro"
+      ],
+      "lead": 1,
+      "score": 52,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": "미국 10월 고용보고서 비농업부문 신규 고용 +16만 5천 명 (예상 +6만 5천 명) 실업률 4.1% (예상 4.2%) 평균 시간당 임금 전년 대비 +3.1% (예상 +2.9%) 경제활동참가율 61.9%..."
+    },
+    {
+      "id": "insidertracking/68561",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68561",
+      "datetime": "2026-11-06T13:30:30.000Z",
+      "localDateKst": "2026-11-06",
+      "tags": [
+        "macro",
+        "equity",
+        "earnings"
+      ],
+      "score": 77,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": "경제 지표 발표 미국 비농업 고용 (Nonfarm Payrolls, 10월) ㆍ실제치(Actual): +165,000명 ㆍ예상치(Forecast): +65,000명 ㆍ이전치(Previous): +60,000명..."
+    },
+    {
+      "id": "HANAchina/71671",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71671",
+      "datetime": "2026-11-06T13:25:25.000Z",
+      "localDateKst": "2026-11-06",
+      "tags": [
+        "semi",
+        "kr-market",
+        "flows"
+      ],
+      "lead": 1,
+      "score": 64,
+      "hasText": true,
+      "tickers": [
+        "TSM"
+      ],
+      "summary": ">>TSMC 급락, 지금 매수해도 될까? (대만경제일보) •TSMC는 6일 2,135대만달러(-4.6%)로 급락했으나, 기관은 중장기적으로 분할 매수 기회로 평가함. AI 반도체 수요와 3나노·2나노 선단공정..."
+    },
+    {
       "id": "bornlupin/21035",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21035",
@@ -2097,10 +2159,8 @@
       "localDateKst": "2026-11-06",
       "tags": [
         "semi",
-        "geo",
-        "japan"
+        "geo"
       ],
-      "lead": 1,
       "score": 62,
       "hasText": true,
       "media": {
@@ -2109,8 +2169,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "중국이 핵심 금속에 대한 수출 제한 조치를 시행하면서 인공지능(AI) 반도체 생산 공정에 사용되는 초소형 드릴(마이크로드릴) 공급에 차질 발생. 지정학적 긴장이 글로벌 기술 산업에 영향을 미치는 또 다른..."
+      "summary": "중국이 핵심 금속에 대한 수출 제한 조치를 시행하면서 인공지능(AI) 반도체 생산 공정에 사용되는 초소형 드릴(마이크로드릴) 공급에 차질 발생. 지정학적 긴장이 글로벌 기술 산업에 영향을 미치는 또 다른...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71652",
@@ -6731,29 +6792,6 @@
       ]
     },
     {
-      "id": "insidertracking/68105",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68105",
-      "datetime": "2026-11-02T21:22:50.000Z",
-      "localDateKst": "2026-11-03",
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "score": 63,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "미국 레딧 관심도 애플, 유가, 마이크론 그리고 인텔",
-      "tickers": [
-        "MU"
-      ]
-    },
-    {
       "id": "bornlupin/20956",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20956",
@@ -7732,26 +7770,6 @@
       "tickers": []
     },
     {
-      "id": "HANAchina/71314",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71314",
-      "datetime": "2026-11-01T01:38:10.000Z",
-      "localDateKst": "2026-11-01",
-      "tags": [
-        "macro",
-        "earnings",
-        "semi"
-      ],
-      "score": 77,
-      "hasText": true,
-      "summary": ">>금주 시장 핵심 이벤트 : 미국 중간선거·고용지표·빅테크 실적 집중 •기술주 급락 이후 금주 Apple과 AMD의 실적이 AI 투자 논리 회복 여부를 가늠하는 핵심 시험대 •미국 중간선거에서는 상·하원...",
-      "lead": 3,
-      "tickers": [
-        "AMD",
-        "AAPL"
-      ]
-    },
-    {
       "id": "bornlupin/20924",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20924",
@@ -8595,22 +8613,6 @@
       "lead": 1,
       "tickers": [
         "TSM"
-      ]
-    },
-    {
-      "id": "bornlupin/20834",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20834",
-      "datetime": "2026-10-26T23:29:52.000Z",
-      "localDateKst": "2026-10-27",
-      "tags": [
-        "market-note"
-      ],
-      "score": 69,
-      "hasText": true,
-      "summary": "하이윈, 처음으로 공개 인정: 휴머노이드 로봇 부품 미국 대기업에 공급, 이미 순차 출하 시작 1. 미국 대기업에 휴머노이드 로봇 핵심 부품 출하 시작 - 대만 정밀기계 업체 하이윈(HIWIN, 2049)...",
-      "tickers": [
-        "TSLA"
       ]
     },
     {
@@ -10096,7 +10098,7 @@
   "signalCounts": {
     "pt": 41,
     "earnings": 55,
-    "macro": 2,
+    "macro": 3,
     "retail": 6,
     "deal": 2
   },
@@ -11334,6 +11336,19 @@
       "guidance": null,
       "date": "2026-10-23",
       "post": "bornlupin/20772"
+    },
+    {
+      "kind": "macro",
+      "key": "macro|Unemployment Rate, 10월|2026-11-06",
+      "name": "미국 실업률",
+      "nameEn": "Unemployment Rate, 10월",
+      "actual": 4.1,
+      "forecast": 4.2,
+      "previous": 4.2,
+      "unit": "%",
+      "surprise": -0.1,
+      "date": "2026-11-06",
+      "post": "insidertracking/68561"
     },
     {
       "kind": "macro",
