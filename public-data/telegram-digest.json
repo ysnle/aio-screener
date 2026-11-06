@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-06T07:51:33.408Z",
-  "attemptedAt": "2026-11-06T07:51:33.408Z",
-  "lastSuccessfulAt": "2026-11-06T07:51:33.408Z",
+  "generatedAt": "2026-11-06T08:21:39.954Z",
+  "attemptedAt": "2026-11-06T08:21:39.954Z",
+  "lastSuccessfulAt": "2026-11-06T08:21:39.954Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-23T07:51:28.695Z",
-  "until": "2026-11-06T07:51:28.695Z",
+  "since": "2026-10-23T08:21:35.607Z",
+  "until": "2026-11-06T08:21:35.607Z",
   "current24hWindow": {
     "start": "2026-11-04T23:00:00.000Z",
     "end": "2026-11-05T23:00:00.000Z",
@@ -80,10 +80,10 @@
       "pages": 0,
       "reachedOlder": false,
       "reachedKnown": false,
-      "count": 57,
+      "count": 55,
       "freshCount": 0,
-      "eligibleTextCount": 53,
-      "selectedCount": 27,
+      "eligibleTextCount": 51,
+      "selectedCount": 25,
       "error": "first page parsed no posts",
       "lastPostId": 26057
     },
@@ -92,21 +92,21 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1347,
+      "count": 1349,
       "freshCount": 40,
-      "eligibleTextCount": 1285,
-      "selectedCount": 123,
+      "eligibleTextCount": 1287,
+      "selectedCount": 122,
       "error": null,
-      "lastPostId": 68523
+      "lastPostId": 68528
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 233,
+      "count": 231,
       "freshCount": 20,
-      "eligibleTextCount": 233,
+      "eligibleTextCount": 231,
       "selectedCount": 122,
       "error": null,
       "lastPostId": 21028
@@ -116,72 +116,73 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 679,
+      "count": 675,
       "freshCount": 37,
-      "eligibleTextCount": 678,
+      "eligibleTextCount": 674,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 71656
+      "lastPostId": 71657
     }
   ],
-  "count": 2316,
+  "count": 2310,
   "retainedItemCount": 454,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2316,
-    "eligibleTextCount": 2249,
+    "observedCount": 2310,
+    "eligibleTextCount": 2243,
     "mediaOnlyCount": 67,
-    "mediaAttachedCount": 421,
-    "photoPostCount": 365,
+    "mediaAttachedCount": 426,
+    "photoPostCount": 370,
     "documentPostCount": 2,
     "imageOnlyCount": 2,
-    "highSignalCount": 395,
-    "broadSignalCount": 854,
-    "selectedRawCount": 394,
-    "selectedEligibleCount": 394,
-    "selectedRawCoveragePct": 17.5,
-    "selectedOfObservedPct": 17,
+    "highSignalCount": 397,
+    "broadSignalCount": 851,
+    "selectedRawCount": 391,
+    "selectedEligibleCount": 391,
+    "selectedRawCoveragePct": 17.4,
+    "selectedOfObservedPct": 16.9,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "earnings": 412,
-    "japan": 80,
-    "market-note": 847,
-    "semi": 478,
-    "geo": 442,
-    "macro": 350,
-    "power": 265,
-    "kr-market": 117,
-    "equity": 117,
-    "ai-policy": 105,
+    "power": 268,
     "credit": 100,
-    "optical": 40,
+    "macro": 350,
+    "semi": 477,
+    "optical": 41,
+    "kr-market": 117,
+    "market-note": 844,
+    "earnings": 409,
+    "japan": 80,
+    "geo": 442,
+    "equity": 116,
+    "ai-policy": 105,
     "media-only": 66,
     "healthcare": 74,
     "flows": 67,
     "crypto": 4
   },
   "tickerCounts": {
-    "TSLA": 31,
-    "AMZN": 79,
-    "NVDA": 112,
+    "NVDA": 113,
+    "MSFT": 58,
+    "AVGO": 21,
+    "AMZN": 80,
+    "CRWV": 5,
+    "TSM": 37,
+    "TSLA": 30,
     "IONQ": 2,
     "MU": 35,
-    "BE": 19,
+    "BE": 16,
     "ORCL": 12,
-    "TSM": 36,
-    "GOOG": 116,
+    "GOOG": 115,
     "AMD": 47,
-    "CRWV": 4,
     "AAPL": 22,
     "GS": 3,
     "DB": 2,
-    "MSFT": 57,
-    "005930.KS": 48,
-    "000660.KS": 71,
+    "005930.KS": 47,
+    "000660.KS": 70,
     "BCS": 2,
     "2454.TW": 4,
     "285A.T": 9,
@@ -209,7 +210,6 @@
     "WDC": 4,
     "STX": 7,
     "PFE": 1,
-    "AVGO": 20,
     "MS": 4,
     "CIEN": 1,
     "MTCH": 1,
@@ -259,45 +259,40 @@
     "RKLB": 1
   },
   "themes": [
-    "Market Notes (847 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 아메리라이프와 보험 유통 전반의 AI 전환을 위한 엔터프라이즈 파트너십 체결. Foundry와 AIP는...",
-    "Semiconductors/Memory (478 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
+    "Market Notes (844 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 아메리라이프와 보험 유통 전반의 AI 전환을 위한 엔터프라이즈 파트너십 체결. Foundry와 AIP는...",
+    "Semiconductors/Memory (477 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
     "Geopolitics (442 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
-    "Earnings/Corporate (412 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
+    "Earnings/Corporate (409 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
     "Macro/Rates (350 posts in 14-day research window): 텍사스 주지사 당선인 지나 히노호사는 버니 샌더스가 아니다. 데이터센터 건설을 지지한다. - Tae Kim 시장은 텍사스 주지사 선거 결과가 AI 데이터센터 산업에 미칠 영향을 과도하게 부정적으로 해석하고 있다. 히노호사는 데이터센터 건설 자체를 반대하는 것이 아니라 지역 주민과 노동자에게 실질적인 혜택이...",
-    "AI Power/Grid (265 posts in 14-day research window): 시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이...",
+    "AI Power/Grid (268 posts in 14-day research window): 데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가 나타나고 있음. 데이터센터의 막대한 전력 소비와 지역사회 부담에 대한 우려가 커지면서 미국 하원과 텍사스,...",
     "Korea Market (117 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY...",
-    "Equity/Analyst (117 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
+    "Equity/Analyst (116 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
   ],
   "catalysts": [
     {
       "key": "GOOG",
-      "count": 116,
+      "count": 115,
       "text": "2026년 11월 4일 미국 증시 프리마켓 브리핑 미국 증시 선물은 중간선거에서 민주당의 승리가 가시화되면서 하락세. 한국시간 오후 2시 45분 기준 다우 선물 -0.25%, S&P500 선물 -0.43%,..."
     },
     {
       "key": "NVDA",
-      "count": 112,
-      "text": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
+      "count": 113,
+      "text": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가 나타나고 있음. 데이터센터의 막대한 전력 소비와 지역사회 부담에 대한 우려가 커지면서 미국 하원과 텍사스,..."
     },
     {
       "key": "AMZN",
-      "count": 79,
-      "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Falcon Guardian에 AI 에이전트의 실행을 중단하고 재시작 및 기업 네트워크 접근을..."
+      "count": 80,
+      "text": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가 나타나고 있음. 데이터센터의 막대한 전력 소비와 지역사회 부담에 대한 우려가 커지면서 미국 하원과 텍사스,..."
     },
     {
       "key": "000660.KS",
-      "count": 71,
+      "count": 70,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Falcon Guardian에 AI 에이전트의 실행을 중단하고 재시작 및 기업 네트워크 접근을..."
     },
     {
       "key": "MSFT",
-      "count": 57,
-      "text": "AMD 2026년 3분기 실적 요약 실적 • 매출 $133.77억, YoY +45%, QoQ +16%, 분기 사상 최고 • GAAP 매출총이익 $72.10억, YoY +51%, QoQ +16% • GAAP..."
-    },
-    {
-      "key": "005930.KS",
-      "count": 48,
-      "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
+      "count": 58,
+      "text": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가 나타나고 있음. 데이터센터의 막대한 전력 소비와 지역사회 부담에 대한 우려가 커지면서 미국 하원과 텍사스,..."
     },
     {
       "key": "AMD",
@@ -305,8 +300,13 @@
       "text": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
     },
     {
+      "key": "005930.KS",
+      "count": 47,
+      "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
+    },
+    {
       "key": "TSM",
-      "count": 36,
+      "count": 37,
       "text": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -316,7 +316,7 @@
     },
     {
       "key": "TSLA",
-      "count": 31,
+      "count": 30,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — 도이체방크가 투자의견을 Hold에서 Buy로 상향하고 목표주가를 240달러에서 300달러로..."
     },
     {
@@ -364,7 +364,7 @@
       "topics": [
         "semi"
       ],
-      "count": 478,
+      "count": 477,
       "focus": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
     },
     {
@@ -373,7 +373,7 @@
       "topics": [
         "optical"
       ],
-      "count": 40,
+      "count": 41,
       "focus": "StoneX, 루멘텀( $LITE ), 매수 의견으로 커버리지 개시 , 목표주가 $1,200 NPO 수요 가속화 * 루멘텀의 NPO 사업 모멘텀이 강화되면서 2028 회계연도 투자 전망이 앞당겨지고 있음. *..."
     },
     {
@@ -382,8 +382,8 @@
       "topics": [
         "power"
       ],
-      "count": 265,
-      "focus": "시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이..."
+      "count": 268,
+      "focus": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가 나타나고 있음. 데이터센터의 막대한 전력 소비와 지역사회 부담에 대한 우려가 커지면서 미국 하원과 텍사스,..."
     },
     {
       "id": "ai-policy",
@@ -409,7 +409,7 @@
       "topics": [
         "equity"
       ],
-      "count": 117,
+      "count": 116,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
@@ -427,7 +427,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 412,
+      "count": 409,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -472,7 +472,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 847,
+      "count": 844,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 아메리라이프와 보험 유통 전반의 AI 전환을 위한 엔터프라이즈 파트너십 체결. Foundry와 AIP는..."
     }
   ],
@@ -725,6 +725,36 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "insidertracking/68528",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68528",
+      "datetime": "2026-11-06T08:13:28.000Z",
+      "localDateKst": "2026-11-06",
+      "tags": [
+        "power",
+        "credit",
+        "macro",
+        "semi"
+      ],
+      "lead": 1,
+      "score": 100,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA",
+        "MSFT",
+        "AVGO",
+        "AMZN",
+        "CRWV"
+      ],
+      "summary": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가..."
+    },
     {
       "id": "bornlupin/21024",
       "channel": "bornlupin",
@@ -1329,29 +1359,6 @@
       ]
     },
     {
-      "id": "insidertracking/68052",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68052",
-      "datetime": "2026-11-02T05:23:24.000Z",
-      "localDateKst": "2026-11-02",
-      "tags": [
-        "market-note"
-      ],
-      "score": 100,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 2,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "11월 2일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 기준 나스닥100 선물 +0.92%, S&P500 +0.51%, 다우 +0.40%, 러셀2000...",
-      "tickers": [
-        "AAPL",
-        "PLTR"
-      ]
-    },
-    {
       "id": "bornlupin/20941",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20941",
@@ -1757,6 +1764,61 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "insidertracking/68528",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68528",
+      "datetime": "2026-11-06T08:13:28.000Z",
+      "localDateKst": "2026-11-06",
+      "tags": [
+        "power",
+        "credit",
+        "macro",
+        "semi"
+      ],
+      "lead": 1,
+      "score": 100,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA",
+        "MSFT",
+        "AVGO",
+        "AMZN",
+        "CRWV"
+      ],
+      "summary": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가..."
+    },
+    {
+      "id": "HANAchina/71657",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71657",
+      "datetime": "2026-11-06T08:12:35.000Z",
+      "localDateKst": "2026-11-06",
+      "tags": [
+        "semi",
+        "optical",
+        "power",
+        "kr-market"
+      ],
+      "score": 77,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "TSM"
+      ],
+      "summary": "중화권 마감 시황 (26.11.06, 금) 🇨🇳 중국 본토 증시는 간밤 뉴욕 증시의 2.5조 달러 증발 쇼크와 글로벌 AI 하드웨어 투매 여파로 기술주를 중심으로 하락하며 조정을 겪음. 양대 시장..."
+    },
     {
       "id": "insidertracking/68520",
       "channel": "insidertracking",
@@ -2258,10 +2320,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "•항셍지수 선물 -1.58% 마감 •FTSE China A50 야간 선물 -1.85% •TSMC adr -10.8%",
+      "lead": 1,
       "tickers": [
         "TSM"
-      ],
-      "summary": "•항셍지수 선물 -1.58% 마감 •FTSE China A50 야간 선물 -1.85% •TSMC adr -10.8%"
+      ]
     },
     {
       "id": "HANAchina/71613",
@@ -2289,7 +2352,6 @@
       "tags": [
         "geo"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
       "media": {
@@ -2298,8 +2360,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "텔레그래프 칼럼니스트 데이비드 블레어는 미국 중간선거 이후 트럼프 대통령이 우크라이나 전쟁의 조기 종식을 위해 키이우에 대한 압박을 강화할 가능성이 있다고 분석. 블레어는 민주당의 중간선거 승리로 트럼프..."
+      "summary": "텔레그래프 칼럼니스트 데이비드 블레어는 미국 중간선거 이후 트럼프 대통령이 우크라이나 전쟁의 조기 종식을 위해 키이우에 대한 압박을 강화할 가능성이 있다고 분석. 블레어는 민주당의 중간선거 승리로 트럼프...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68475",
@@ -6600,28 +6663,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/68090",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68090",
-      "datetime": "2026-11-02T21:03:22.000Z",
-      "localDateKst": "2026-11-03",
-      "tags": [
-        "geo"
-      ],
-      "score": 66,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 3일 트럼프·이란 관련 발언 · 트럼프 “이란은 합의를 원하고 있으며 실제로 합의가 이뤄질 수 있다” 발언 · 트럼프 “이란과의 상황이 순조롭게...",
-      "tickers": [
-        "TSLA"
-      ]
-    },
-    {
       "id": "HANAchina/71428",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71428",
@@ -7710,23 +7751,6 @@
       "tickers": [
         "NVDA",
         "AMD"
-      ]
-    },
-    {
-      "id": "HANAchina/71307",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71307",
-      "datetime": "2026-10-31T22:55:03.000Z",
-      "localDateKst": "2026-11-01",
-      "tags": [
-        "semi"
-      ],
-      "score": 51,
-      "hasText": true,
-      "summary": ">>젠슨 황: 아이에게 야망이 없다면 AI는 오히려 아이를 더 게으르게 만들 뿐 •10월 23일, Nvidia 젠슨 황은 카자흐스탄 부총리 자슬란 마디예프와 회담. 젠슨 황은 연설에서 AI 시대에 성공을...",
-      "lead": 1,
-      "tickers": [
-        "NVDA"
       ]
     },
     {
@@ -9005,37 +9029,6 @@
         "GOOG",
         "BE"
       ]
-    },
-    {
-      "id": "aetherjapanresearch/26000",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/26000",
-      "datetime": "2026-10-23T07:55:46.000Z",
-      "localDateKst": "2026-10-23",
-      "tags": [
-        "earnings"
-      ],
-      "score": 56,
-      "hasText": true,
-      "summary": "제목 : 테슬라, 수익성 전망 밝지 않아 GS 외 *연합인포맥스* 테슬라(NAS: TSLA)의 ‘26년 3분기 실적발표 이후, 전문가들은 수익성 전망이 여전히 밝지 않다고 지적했다. 골드만삭스의 애널리스트는...",
-      "lead": 1,
-      "tickers": [
-        "TSLA"
-      ]
-    },
-    {
-      "id": "aetherjapanresearch/25999",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25999",
-      "datetime": "2026-10-23T07:54:48.000Z",
-      "localDateKst": "2026-10-23",
-      "tags": [
-        "credit"
-      ],
-      "score": 62,
-      "hasText": true,
-      "summary": "제목 : 오픈AI, 기업가치 $1.25조에 최대 $300억 자금조달 임박 *연합인포맥스* CNBC는 “오픈AI가 기업가치 1조2천500억 달러를 기준으로 최대 300억 달러 규모의 신규 자금조달을 추진하고...",
-      "tickers": []
     }
   ],
   "current24hItems": [
@@ -9088,10 +9081,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "•항셍지수 선물 -1.58% 마감 •FTSE China A50 야간 선물 -1.85% •TSMC adr -10.8%",
+      "lead": 1,
       "tickers": [
         "TSM"
-      ],
-      "summary": "•항셍지수 선물 -1.58% 마감 •FTSE China A50 야간 선물 -1.85% •TSMC adr -10.8%"
+      ]
     },
     {
       "id": "HANAchina/71613",
@@ -9119,7 +9113,6 @@
       "tags": [
         "geo"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
       "media": {
@@ -9128,8 +9121,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "텔레그래프 칼럼니스트 데이비드 블레어는 미국 중간선거 이후 트럼프 대통령이 우크라이나 전쟁의 조기 종식을 위해 키이우에 대한 압박을 강화할 가능성이 있다고 분석. 블레어는 민주당의 중간선거 승리로 트럼프..."
+      "summary": "텔레그래프 칼럼니스트 데이비드 블레어는 미국 중간선거 이후 트럼프 대통령이 우크라이나 전쟁의 조기 종식을 위해 키이우에 대한 압박을 강화할 가능성이 있다고 분석. 블레어는 민주당의 중간선거 승리로 트럼프...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68475",
