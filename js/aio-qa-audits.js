@@ -564,7 +564,7 @@ window.AIO.getFourthFifthPassAudit = function(opts) {
     passes: {
       dataTruth: {
         pageCount: pageRows.length,
-        dataPageCount: pageRows.filter(function(p) { return (p.dataSinks || 0) > 0; }).length,
+        dataPageCount: pageRows.filter(function(p) { var pg = document.getElementById('page-' + p.id); return (p.dataSinks || 0) > 0 || !!(pg && pg.getAttribute('data-market-revision')); }).length, // v59.70 L1: or the page epoch stamp
         weakPageCount: dataWeakPages.length,
         weakPages: dataWeakPages.slice(0, 12).map(function(p) {
           return { id: p.id, flags: p.dataTruthFlags, dataSinks: p.dataSinks, lineageMarkers: p.lineageMarkers, explainers: p.explainers };
@@ -4024,7 +4024,8 @@ window.AIO.getRouteIAAudit = function() {
     if (document.getElementById('page-' + id)) issues.push('REMOVED route still has DOM: ' + id);
   });
   (classes.NAV_ROUTE || []).forEach(function(id) {
-    if (!document.querySelector('[data-action="showPage"][data-arg="' + id + '"], [data-arg="' + id + '"]')) issues.push('NAV_ROUTE lacks navigation entry: ' + id);
+    // v59.70 L1: or its nav hub (data-hub-routes)
+    if (!document.querySelector('[data-action="showPage"][data-arg="' + id + '"], .nav-item[data-hub-routes~="' + id + '"]')) issues.push('NAV_ROUTE lacks navigation entry: ' + id);
   });
   var showFn = typeof window.showPage === 'function' ? window.showPage : (typeof showPage === 'function' ? showPage : null);
   var showSrc = showFn ? showFn.toString() : '';

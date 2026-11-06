@@ -15,7 +15,9 @@
   "**부팅 바이트 (v59.70):** 배포 번들 기준 클래식 부팅 스크립트 1,225,679→1,071,897 B(gzip 405,967→351,768). ESM 부팅 세트는 옮긴 바이트만큼 1,609,748→1,614,429 B(boot-budget 한도 1,618,000/599,000으로 임시 상향(D5 카드 포함), A가 P1 뒤 다시 내린다).",
   "**한국 통합 블록 정리 (v59.70, 소유자 결정 D5):** 기술적 분석 화면의 접힌 '한국 시장 추세'(코스피·코스닥 추세 카드, 한국 종목 입력)와 매크로 화면의 접힌 '한국 거시'(기준금리·금통위·물가·수출·원/달러 1년 범위)를 퇴역했다. 기준금리·다음 금통위·물가·수출은 시장 상태 한국 보드의 '한국 금리·물가·수출' 카드 하나로 옮겼고(`src/domain/market/korea-policy.js`, 스냅샷이 정한 값 그대로), 코스피·코스닥·원/달러는 보드의 기존 카드가 맡는다. 테마 화면의 한국 테마 접기는 한국 테마 단계 표와 상세를 담고 있어 남겼다.",
   "**포트폴리오 잔여 writer를 src로 (v59.70):** R:R 계산기의 종목 선택(#rr-position-select)과 저장 기록 잠금 배지(#vault-status-badge)를 `js/aio-core.js`에서 `src/ui/components/portfolio-shell-controls.js`로 그대로 옮겼다. 빈 상태 목록과 T1019는 네이티브 차트로 간 `pf-benchmark-section`을 더 이상 찾지 않는다.",
-  "**브라우저 뉴스 번역 삭제 (v59.70, 소유자 결정 D6):** 외신 제목은 수집 단계(build-market-day·fetch-data)가 한국어 `titleKo`로 넣는다. 브라우저의 무료 Google 번역(`_gtBatchTranslate`·`freeTranslateNews`), 공용 AI 번역(`autoTranslateNews`)과 지연 큐, 뉴스 화면의 번역 요청, '자동 한국어 번역' 상태 칸을 지웠다. 화면은 `titleKo`를 먼저 쓰고, 번역에 실패한 제목(`titleKoFailed`)은 원문 그대로 두고 '원문' 표시를 붙인다. 새 게이트 `browser-translation-retired`가 번역 경로가 돌아오면 실패한다."
+  "**브라우저 뉴스 번역 삭제 (v59.70, 소유자 결정 D6):** 외신 제목은 수집 단계(build-market-day·fetch-data)가 한국어 `titleKo`로 넣는다. 브라우저의 무료 Google 번역(`_gtBatchTranslate`·`freeTranslateNews`), 공용 AI 번역(`autoTranslateNews`)과 지연 큐, 뉴스 화면의 번역 요청, '자동 한국어 번역' 상태 칸을 지웠다. 화면은 `titleKo`를 먼저 쓰고, 번역에 실패한 제목(`titleKoFailed`)은 원문 그대로 두고 '원문' 표시를 붙인다. 새 게이트 `browser-translation-retired`가 번역 경로가 돌아오면 실패한다.",
+  "**부팅 세트 여유 확보 (v59.70, 통합 뒤):** 시장 상태 한국 보드의 금리·물가·수출 카드 모듈과 운영자 노트 로더는 처음 쓸 때 불러오고, 용어 사전 화면 용어 병합(`screen-term-additions.js`)은 용어 사전과 함께 불러온다. ESM 부팅 세트 1,572,432→1,550,152 B(gzip 585,790→576,630), 한도는 그대로. 첫 화면 31개 비교 0픽셀 차이.",
+  "**판정 헤더 삭제 뒤 감사 정합 (v59.70):** 내비 항목 감사는 허브의 하위 라우트(`data-hub-routes`)를, 데이터 페이지 감사는 페이지 epoch 도장을 인정한다. 지운 헤더의 버튼이 라우트마다 두 감사를 대신 통과시키고 있었다(T552·T924)."
  ],
  "note": "wave2-b legacy core: change-only; evidence _artifacts/wave2-b/ (before/after screenshot diff, DOM counts, boot bytes)"
 }

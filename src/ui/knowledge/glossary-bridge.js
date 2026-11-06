@@ -6,7 +6,6 @@
 //     search moved to the command search; loadKnowledgeSearch / openKnowledgeResult (below) are what it reads, with
 //     public-data/knowledge/search-index.json and the ranker (knowledge-search.js) loaded on its first query.
 import { CONCEPT_CORE } from '../../domain/knowledge/concept-core.js';
-import { appendScreenTerms } from '../../domain/knowledge/screen-term-additions.js';
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { CONCEPT_SURFACES, SCREEN_TERMS, SCREEN_ROUTE_LABELS, screenRoutesFor } from '../../domain/knowledge/concept-surfaces.js';
 
@@ -94,11 +93,14 @@ export function installGlossaryBridge({ root = globalThis, documentRef = root.do
   if (!documentRef || root._aioGlossaryBridgeInstalled) return;
   root._aioGlossaryBridgeInstalled = true;
   // v59.70 P3: js/aio-glossary.js loads after boot (src/app/classic-loader.js), so the merge runs when GLOSSARY arrives.
+  // v59.70 (boot budget): the screen-term additions (~21 KB) only ever join GLOSSARY, which itself loads after boot, so
+  // they load with it; the returned promise settles once both merges ran (classic-loader waits before aio:glossaryReady).
   root._aioGlossaryAugment = () => {
-    if (!Array.isArray(root.GLOSSARY) || root._aioGlossaryAugmented) return;
-    root._aioGlossaryAugmented = true;
-    try { root._aioGlossaryScreenTerms = appendScreenTerms(root.GLOSSARY); root._aioGlossaryConceptMerge = mergeConceptCore(root.GLOSSARY); } catch (_) { /* legacy glossary absent */ }
-    import('../../domain/knowledge/deferred-screen-terms.js').then(({ DEFERRED_SCREEN_TERMS }) => { if (Array.isArray(root.GLOSSARY)) appendScreenTerms(root.GLOSSARY, DEFERRED_SCREEN_TERMS); }).catch(() => {}); // v58.80 run-5 terms, after boot
+    if (!Array.isArray(root.GLOSSARY) || root._aioGlossaryAugmented) return root._aioGlossaryAugmented || Promise.resolve();
+    return (root._aioGlossaryAugmented = import('../../domain/knowledge/screen-term-additions.js').then(({ appendScreenTerms }) => {
+      try { root._aioGlossaryScreenTerms = appendScreenTerms(root.GLOSSARY); root._aioGlossaryConceptMerge = mergeConceptCore(root.GLOSSARY); } catch (_) { /* legacy glossary absent */ }
+      return import('../../domain/knowledge/deferred-screen-terms.js').then(({ DEFERRED_SCREEN_TERMS }) => { if (Array.isArray(root.GLOSSARY)) appendScreenTerms(root.GLOSSARY, DEFERRED_SCREEN_TERMS); });
+    }).catch(() => {}));
   };
   root._aioGlossaryAugment();
   // The classic renderer (js/aio-ui.js renderGlossaryItems) lays each entry out from these parts.
