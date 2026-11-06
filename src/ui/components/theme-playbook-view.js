@@ -20,6 +20,10 @@ import { stageChoiceText, LEAD_CONFIRM_MET, ABOVE50_FLOOR } from '../../domain/s
 
 const CREDIT_CONDITION = '신용 안정';
 const CHOICE_TEXT_OF = (state) => stageChoiceText(state);
+// v59.70 (re-review #15): a theme named like a sector (헬스케어, 필수소비재 …) is a different basket from that sector's ETF,
+// so the same name read +9.9% in the sector line and +7.0% here. Where the names collide the theme says '테마'.
+const SECTOR_NAMES = new Set(Object.values(SECTOR_ETF_LABELS));
+export const themeBasketLabel = (label) => (SECTOR_NAMES.has(String(label || '')) ? `${label} 테마` : label);
 function stageChoiceTable(doc, stage, list) {
   const wrap = el(doc, 'div', null, 'tp-stage-choices');
   const texts = Object.entries(CHOICE_TEXT_OF(stage));
@@ -43,6 +47,7 @@ import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { themePlaybookForRoot } from './theme-playbook.js';
 import { setResearchHandoff } from '../../app/research-handoff.js';
 import { el } from './dom.js';
+import { SECTOR_ETF_LABELS } from '../../domain/interpretation/concepts.js';
 import { closeChipText, frameHead, markFrame, setAsOf } from './section-frame.js';
 import { openThemeDetail } from '../navigation/theme-detail.js';
 import { NOTE_TITLES, researchForTheme } from '../../domain/knowledge/theme-research-links.js';
@@ -418,7 +423,7 @@ function renderThemeStrengthMap(doc, root, playbook, interpretation) {
   if (!playbook?.available) { box?.remove(); return; }
   if (!box) { box = el(doc, 'div', null, 'thp-strength-map'); box.id = 'themes-strength-map'; hero.append(box); }
   const rows = playbook.themes;
-  const name = (row) => `${row.market === 'KR' ? '한국 ' : ''}${row.label}`;
+  const name = (row) => `${row.market === 'KR' ? '한국 ' : ''}${themeBasketLabel(row.label)}`;
   const fact = (row) => `${name(row)}(1개월 ${pct(row.ret1m)}${row.above50 != null ? `, 50일선 위 ${row.above50}%` : ''})`;
   const us = rows.filter((row) => row.market === 'US');
   const strong = us.filter((row) => row.state === 'leading').sort((a, b) => (b.ret1m ?? -1e9) - (a.ret1m ?? -1e9)).slice(0, 3);
@@ -700,7 +705,7 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   // that theme is also in the leading stage; the full sentence is the first reading line.
   const topMover = playbook.rotation.gainers?.[0], bottomMover = playbook.rotation.losers?.[0];
   const lead = topMover && bottomMover
-    ? `1개월 수익률 1위 ${topMover.label} ${pct(topMover.ret1m)}${topMover.state === 'leading' ? '(주도 단계)' : '(주도 단계는 아님)'}, 최하위 ${bottomMover.label} ${pct(bottomMover.ret1m)}.`
+    ? `1개월 수익률 1위 ${themeBasketLabel(topMover.label)} ${pct(topMover.ret1m)}${topMover.state === 'leading' ? '(주도 단계)' : '(주도 단계는 아님)'}, 최하위 ${themeBasketLabel(bottomMover.label)} ${pct(bottomMover.ret1m)}.`
     : reading[0];
   if (lead !== reading[0]) {
     const full = el(doc, 'p', reading[0], 'xr-reading');

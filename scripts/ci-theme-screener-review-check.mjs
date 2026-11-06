@@ -7,19 +7,32 @@
 //   24 S&P 500 지도: no sector header is cut by an ellipsis.
 //   16 스크리너: the kicker names the ranked count, and the drawer's rank reads against that same count.
 //   29 스크리너 검증 안내 띠: not cut on a phone.
+// Re-review (RE-REVIEW.md, 89e8c881):
+//   N1 '세부 테마 상위' on a phone with a stale basis (page clock five days after the data's US session): every value
+//      cell is the last grid column at full width (the old placeholder span pushed it into a 20px cell, '+9/.6/%').
+//   15 a theme named like a sector (헬스케어, 필수소비재 …) says '테마' in the stage columns and the scenario lead, so its
+//      number is not read as the sector line's number for the same name.
+import { readFileSync } from 'node:fs';
 import { chromium } from 'playwright';
+import { SECTOR_ETF_LABELS } from '../src/domain/interpretation/concepts.js';
 import { closeAll, freePort, startLocalServer } from './lib/browser-gate.mjs';
 
 const port = (Number(process.env.CI_THEME_SCREENER_REVIEW_PORT) || await freePort());
 const base = `http://127.0.0.1:${port}/`;
 const failures = [];
 const fail = (where, message) => failures.push(`[${where}] ${message}`);
+const SECTOR_NAMES = new Set(Object.values(SECTOR_ETF_LABELS));
+// Five days after the data's US session always holds a later completed session, whatever weekday the data ends on.
+const usDay = readFileSync(new URL('../public-data/screener.json', import.meta.url), 'utf8').match(/"factorSessionDateByMarket":\{"US":"(\d{4}-\d{2}-\d{2})"/)?.[1];
+if (!usDay) { console.error('theme-screener-review: public-data/screener.json has no US factor session date'); process.exit(1); }
+const STALE_CLOCK = new Date(Date.parse(`${usDay}T12:00:00Z`) + 5 * 86400000);
 
-async function open(browser, { width, height, dark, mobile = false }) {
+async function open(browser, { width, height, dark, mobile = false, clock = null }) {
   const context = await browser.newContext({ viewport: { width, height }, colorScheme: dark ? 'dark' : 'light', isMobile: mobile, hasTouch: mobile, serviceWorkers: 'block', reducedMotion: 'reduce' });
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
+  if (clock) await page.clock.setFixedTime(clock);
   await page.route('**/*', (route) => (route.request().url().startsWith(base) ? route.continue() : route.abort()));
   await page.goto(base, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.waitForFunction(() => typeof window.showPage === 'function', null, { timeout: 30000 });
@@ -68,8 +81,41 @@ try {
       if (read.mapOverlaps) fail(view.id, `momentum map axis title overlaps ${read.mapOverlaps} quadrant caption(s)`);
     }
     if (read.cut.length) fail(view.id, `S&P 500 지도 sector headers cut: ${read.cut.join(', ')}`);
+    // 15: no bare sector name stands for a theme basket.
+    const names = await page.evaluate(() => ({
+      cols: [...document.querySelectorAll('#page-themes .thp-col-name')].map((n) => n.textContent.trim()),
+      lead: document.querySelector('#theme-playbook .xr-lead')?.textContent.trim() || ''
+    }));
+    const bare = names.cols.filter((name) => SECTOR_NAMES.has(name.replace(/^한국 /, '')));
+    const leadBare = [...names.lead.matchAll(/(?:1위|최하위) ([^\s+\-−(]+) [+\-−]/g)].map((m) => m[1]).filter((name) => SECTOR_NAMES.has(name));
+    if (bare.length) fail(view.id, `stage columns name theme baskets with a bare sector name: ${bare.join(', ')}`);
+    if (leadBare.length) fail(view.id, `scenario lead names a theme basket with a bare sector name: ${leadBare.join(', ')} ("${names.lead.slice(0, 80)}")`);
     if (errors.length) fail(view.id, `page errors: ${errors.slice(0, 2).join(' | ')}`);
     console.log(`[theme-review] ${view.id}: segs ${read.segs.map((s) => s.ratio).join('/')}, lead ${read.leadLines} lines, map overlaps ${read.mapOverlaps}, cut ${read.cut.length}`);
+    await context.close();
+  }
+  // N1: '세부 테마 상위' on a phone, light and dark, with a stale basis.
+  for (const dark of [false, true]) {
+    const id = `phone-stale-${dark ? 'dark' : 'light'}`;
+    const { context, page, errors } = await open(browser, { width: 390, height: 844, dark, mobile: true, clock: STALE_CLOCK });
+    await page.evaluate(() => window.showPage('themes'));
+    await page.waitForFunction(() => document.querySelectorAll('.v2-themes-top__row').length > 0, null, { timeout: 60000 });
+    await page.waitForTimeout(800);
+    const rows = await page.evaluate(() => ({
+      stale: !!document.querySelector('.v2-themes-top__stale'),
+      rows: [...document.querySelectorAll('.v2-themes-top__row')].map((row) => {
+        const value = row.querySelector('.v2-themes-top__value');
+        const cols = getComputedStyle(row).gridTemplateColumns.split(' ').length;
+        const box = value?.getBoundingClientRect(), rowBox = row.getBoundingClientRect();
+        return { value: value?.textContent || '', width: Math.round(box?.width || 0), height: Math.round(rowBox.height), lines: box ? Math.round(box.height / (parseFloat(getComputedStyle(value).lineHeight) || 20)) : 0, sameLine: box ? box.top < rowBox.top + rowBox.height / 2 : false, cols, placeholders: [...row.children].filter((n) => !n.className && !n.textContent.trim()).length };
+      })
+    }));
+    if (!rows.stale) fail(id, 'the stale clock did not put the 세부 테마 상위 card in its stale state (fixture)');
+    const bad = rows.rows.filter((row) => row.width < 44 || row.lines > 1 || !row.sameLine || row.placeholders);
+    if (!rows.rows.length) fail(id, 'no 세부 테마 상위 rows');
+    if (bad.length) fail(id, `세부 테마 상위 value cells break on a stale basis: ${JSON.stringify(bad.slice(0, 2))}`);
+    if (errors.length) fail(id, `page errors: ${errors.slice(0, 2).join(' | ')}`);
+    console.log(`[theme-review] ${id}: stale ${rows.stale}, values ${rows.rows.map((row) => `${row.value}@${row.width}px`).join(' ')}, rows ${rows.rows.map((row) => row.height).join('/')}px`);
     await context.close();
   }
   // 스크리너 at phone light (16, 29).
