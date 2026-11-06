@@ -7,7 +7,7 @@
  "allowedUse": "reference-only",
  "weekStart": "2026-11-02",
  "weekEnd": "2026-11-09",
- "generatedAt": "2026-11-05T22:26:42.943Z",
+ "generatedAt": "2026-11-06T01:51:28.396Z",
  "largeCapCoverage": {
   "basis": "S&P 500 top 30 by index weight + universe ADR listings",
   "watchCount": 36,
@@ -177,7 +177,7 @@
   }
  },
  "upcomingWindow": {
-  "from": "2026-11-05",
+  "from": "2026-11-06",
   "to": "2026-12-11",
   "weeks": 6,
   "scope": "screener universe (US listings)",
@@ -185,81 +185,6 @@
  },
  "upcomingGaps": [],
  "upcoming": {
-  "AAOI": "2026-11-05|amc",
-  "ABNB": "2026-11-05|amc",
-  "ACLS": "2026-11-05|bmo",
-  "ACMR": "2026-11-05|bmo",
-  "AEE": "2026-11-05|amc",
-  "AFRM": "2026-11-05|amc",
-  "AHR": "2026-11-05|amc",
-  "AKAM": "2026-11-05|amc",
-  "APPN": "2026-11-05|bmo",
-  "ARM": "2026-11-05|",
-  "ARRY": "2026-11-05|amc",
-  "AU": "2026-11-05|bmo",
-  "BDX": "2026-11-05|bmo",
-  "BKSY": "2026-11-05|bmo",
-  "CAH": "2026-11-05|bmo",
-  "CELH": "2026-11-05|bmo",
-  "CI": "2026-11-05|bmo",
-  "CMI": "2026-11-05|bmo",
-  "COP": "2026-11-05|bmo",
-  "CORZ": "2026-11-05|bmo",
-  "CPT": "2026-11-05|amc",
-  "DKNG": "2026-11-05|amc",
-  "DNA": "2026-11-05|amc",
-  "DTE": "2026-11-05|bmo",
-  "DUK": "2026-11-05|bmo",
-  "DVN": "2026-11-05|amc",
-  "ED": "2026-11-05|amc",
-  "EOG": "2026-11-05|amc",
-  "EPAM": "2026-11-05|bmo",
-  "EVRG": "2026-11-05|bmo",
-  "GMED": "2026-11-05|amc",
-  "GPN": "2026-11-05|bmo",
-  "IONQ": "2026-11-05|amc",
-  "IREN": "2026-11-05|amc",
-  "IRM": "2026-11-05|bmo",
-  "KMB": "2026-11-05|bmo",
-  "KRMN": "2026-11-05|amc",
-  "KTOS": "2026-11-05|amc",
-  "LAMR": "2026-11-05|bmo",
-  "LITE": "2026-11-05|amc",
-  "LYFT": "2026-11-05|amc",
-  "LYV": "2026-11-05|amc",
-  "MCHP": "2026-11-05|amc",
-  "MNST": "2026-11-05|amc",
-  "MP": "2026-11-05|amc",
-  "MTD": "2026-11-05|amc",
-  "MTSI": "2026-11-05|bmo",
-  "NET": "2026-11-05|amc",
-  "NVMI": "2026-11-05|bmo",
-  "NXST": "2026-11-05|bmo",
-  "PENN": "2026-11-05|bmo",
-  "PH": "2026-11-05|bmo",
-  "PLBY": "2026-11-05|amc",
-  "REG": "2026-11-05|amc",
-  "RGA": "2026-11-05|amc",
-  "RL": "2026-11-05|bmo",
-  "ROK": "2026-11-05|bmo",
-  "SMR": "2026-11-05|amc",
-  "SO": "2026-11-05|bmo",
-  "SOLV": "2026-11-05|amc",
-  "SOUN": "2026-11-05|amc",
-  "SPG": "2026-11-05|amc",
-  "SRE": "2026-11-05|bmo",
-  "STE": "2026-11-05|",
-  "TEAM": "2026-11-05|amc",
-  "TFX": "2026-11-05|bmo",
-  "TPR": "2026-11-05|bmo",
-  "TRGP": "2026-11-05|bmo",
-  "TXRH": "2026-11-05|amc",
-  "USFD": "2026-11-05|bmo",
-  "VRSK": "2026-11-05|bmo",
-  "VSAT": "2026-11-05|amc",
-  "VTRS": "2026-11-05|bmo",
-  "WYNN": "2026-11-05|amc",
-  "ZTS": "2026-11-05|bmo",
   "BAM": "2026-11-06|bmo",
   "BEN": "2026-11-06|bmo",
   "CHTR": "2026-11-06|bmo",
@@ -306,9 +231,9 @@
   "ECHO": "2026-11-11|",
   "LAC": "2026-11-11|",
   "AMAT": "2026-11-12|amc",
-  "CSCO": "2026-11-12|",
-  "LUNR": "2026-11-12|",
-  "NBIS": "2026-11-12|",
+  "CSCO": "2026-11-12|amc",
+  "LUNR": "2026-11-12|bmo",
+  "NBIS": "2026-11-12|bmo",
   "NTES": "2026-11-12|bmo",
   "NU": "2026-11-12|",
   "ARMK": "2026-11-16|amc",
@@ -9957,8 +9882,8 @@
    "epsEstimate": 0.1462,
    "revenueEstimate": 273471588,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.17,
+   "revenueActual": 269880000
   },
   {
    "symbol": "AAP",
@@ -9987,8 +9912,8 @@
    "epsEstimate": 2.9104,
    "revenueEstimate": 4844234785,
    "indexWeight": 0.11,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 3.16,
+   "revenueActual": 4869000000
   },
   {
    "symbol": "ABX",
@@ -9997,8 +9922,8 @@
    "epsEstimate": 0.2786,
    "revenueEstimate": 73986681,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.29,
+   "revenueActual": 76880000
   },
   {
    "symbol": "AC",
@@ -10013,12 +9938,12 @@
   {
    "symbol": "ACDC",
    "date": "2026-11-05",
-   "hour": "bmo",
+   "hour": "amc",
    "epsEstimate": -0.2642,
    "revenueEstimate": 559352700,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.44,
+   "revenueActual": 511100000
   },
   {
    "symbol": "ACH",
@@ -10027,8 +9952,8 @@
    "epsEstimate": -0.0101,
    "revenueEstimate": 623551780,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.23,
+   "revenueActual": 601780000
   },
   {
    "symbol": "ACHV",
@@ -10087,8 +10012,8 @@
    "epsEstimate": 2.3173,
    "revenueEstimate": 2844690250,
    "indexWeight": 0.05,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 2.42,
+   "revenueActual": 2882000000
   },
   {
    "symbol": "AFCG",
@@ -10107,8 +10032,8 @@
    "epsEstimate": 0.3856,
    "revenueEstimate": 1234920936,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.47,
+   "revenueActual": 1262220000
   },
   {
    "symbol": "AGIO",
@@ -10127,8 +10052,8 @@
    "epsEstimate": 5.252,
    "revenueEstimate": 122311505,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 4.82,
+   "revenueActual": 122730000
   },
   {
    "symbol": "AGNT",
@@ -10137,8 +10062,8 @@
    "epsEstimate": -0.0408,
    "revenueEstimate": 1392861000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.03,
+   "revenueActual": 1392860000
   },
   {
    "symbol": "AGO",
@@ -10147,8 +10072,8 @@
    "epsEstimate": 1.6493,
    "revenueEstimate": 207757000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.94,
+   "revenueActual": 207000000
   },
   {
    "symbol": "AHR",
@@ -10157,8 +10082,8 @@
    "epsEstimate": 0.1582,
    "revenueEstimate": 734445235,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.58,
+   "revenueActual": 740260000
   },
   {
    "symbol": "AIP",
@@ -10167,8 +10092,8 @@
    "epsEstimate": -0.0408,
    "revenueEstimate": 24747888,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.02,
+   "revenueActual": 25770000
   },
   {
    "symbol": "AKAM",
@@ -10177,8 +10102,8 @@
    "epsEstimate": 1.705,
    "revenueEstimate": 1140296046,
    "indexWeight": 0.02,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.77,
+   "revenueActual": 1121960000
   },
   {
    "symbol": "AKBA",
@@ -10197,8 +10122,8 @@
    "epsEstimate": -0.1505,
    "revenueEstimate": 2264,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.15,
+   "revenueActual": 0
   },
   {
    "symbol": "ALRM",
@@ -10207,8 +10132,8 @@
    "epsEstimate": 0.7687,
    "revenueEstimate": 272131073,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.9,
+   "revenueActual": 279440000
   },
   {
    "symbol": "ALXO",
@@ -10237,8 +10162,8 @@
    "epsEstimate": 0.2323,
    "revenueEstimate": 656035400,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.16,
+   "revenueActual": 717270000
   },
   {
    "symbol": "AMPH",
@@ -10247,8 +10172,8 @@
    "epsEstimate": 0.8757,
    "revenueEstimate": 201809376,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.14,
+   "revenueActual": 207610000
   },
   {
    "symbol": "AMTX",
@@ -10287,8 +10212,8 @@
    "epsEstimate": -0.0625,
    "revenueEstimate": 123152535,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.08,
+   "revenueActual": 123790000
   },
   {
    "symbol": "AOSL",
@@ -10297,8 +10222,8 @@
    "epsEstimate": -0.1441,
    "revenueEstimate": 179728080,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.07,
+   "revenueActual": 177760000
   },
   {
    "symbol": "APLE",
@@ -10307,8 +10232,8 @@
    "epsEstimate": 0.2168,
    "revenueEstimate": 387893637,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.5,
+   "revenueActual": 398330000
   },
   {
    "symbol": "APPN",
@@ -10337,8 +10262,8 @@
    "epsEstimate": -0.6923,
    "revenueEstimate": 8157960,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.26,
+   "revenueActual": 18300000
   },
   {
    "symbol": "ARHS",
@@ -10367,8 +10292,8 @@
    "epsEstimate": 0.2011,
    "revenueEstimate": 147828600,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.24,
+   "revenueActual": 149180000
   },
   {
    "symbol": "ARM",
@@ -10407,8 +10332,8 @@
    "epsEstimate": 0.1122,
    "revenueEstimate": 93040830,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.02,
+   "revenueActual": 91560000
   },
   {
    "symbol": "ASPN",
@@ -10437,8 +10362,8 @@
    "epsEstimate": 0.4775,
    "revenueEstimate": 1040458242,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.26,
+   "revenueActual": 1023620000
   },
   {
    "symbol": "ATEN",
@@ -10447,8 +10372,8 @@
    "epsEstimate": 0.275,
    "revenueEstimate": 85557192,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.31,
+   "revenueActual": 91550000
   },
   {
    "symbol": "ATII",
@@ -10467,18 +10392,18 @@
    "epsEstimate": 3.0479,
    "revenueEstimate": 790631406,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 3,
+   "revenueActual": 775930000
   },
   {
    "symbol": "ATYR",
    "date": "2026-11-05",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": -4.08,
    "revenueEstimate": 0,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -7.43,
+   "revenueActual": 0
   },
   {
    "symbol": "AU",
@@ -10497,8 +10422,8 @@
    "epsEstimate": 1.3838,
    "revenueEstimate": 368762976,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.43,
+   "revenueActual": 385980000
   },
   {
    "symbol": "AURA",
@@ -10517,8 +10442,8 @@
    "epsEstimate": 0.0955,
    "revenueEstimate": 131920598,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.12,
+   "revenueActual": 131100000
   },
   {
    "symbol": "BARK",
@@ -10527,8 +10452,8 @@
    "epsEstimate": -0.4335,
    "revenueEstimate": 89167890,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.43,
+   "revenueActual": 87560000
   },
   {
    "symbol": "BBDC",
@@ -10537,8 +10462,8 @@
    "epsEstimate": 0.2671,
    "revenueEstimate": 63502476,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.26,
+   "revenueActual": 64290000
   },
   {
    "symbol": "BBLR",
@@ -10577,8 +10502,8 @@
    "epsEstimate": -0.7635,
    "revenueEstimate": 28035424,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.75,
+   "revenueActual": 24040000
   },
   {
    "symbol": "BDX",
@@ -10593,12 +10518,12 @@
   {
    "symbol": "BFS",
    "date": "2026-11-05",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": 0.1515,
    "revenueEstimate": 78426500,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.72,
+   "revenueActual": 78420000
   },
   {
    "symbol": "BGC",
@@ -10637,8 +10562,8 @@
    "epsEstimate": 0.9813,
    "revenueEstimate": 448112632,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.18,
+   "revenueActual": 353770000
   },
   {
    "symbol": "BJRI",
@@ -10647,8 +10572,8 @@
    "epsEstimate": 0.1668,
    "revenueEstimate": 353610427,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.33,
+   "revenueActual": 358630000
   },
   {
    "symbol": "BKSY",
@@ -10677,8 +10602,8 @@
    "epsEstimate": 0.6498,
    "revenueEstimate": 199979650,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.64,
+   "revenueActual": 193400000
   },
   {
    "symbol": "BLND",
@@ -10687,8 +10612,8 @@
    "epsEstimate": 0.0061,
    "revenueEstimate": 33118553,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0,
+   "revenueActual": 32909999
   },
   {
    "symbol": "BLNK",
@@ -10697,8 +10622,8 @@
    "epsEstimate": -0.0408,
    "revenueEstimate": 21701520,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.02,
+   "revenueActual": 18400000
   },
   {
    "symbol": "BMNM",
@@ -10707,8 +10632,8 @@
    "epsEstimate": null,
    "revenueEstimate": null,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.1,
+   "revenueActual": 6400000
   },
   {
    "symbol": "BOBS",
@@ -10787,8 +10712,8 @@
    "epsEstimate": 5.3168,
    "revenueEstimate": 348910890,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -17.55,
+   "revenueActual": 332150000
   },
   {
    "symbol": "CADL",
@@ -10817,8 +10742,8 @@
    "epsEstimate": 0.0102,
    "revenueEstimate": 436838256,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.12,
+   "revenueActual": 436900000
   },
   {
    "symbol": "CARG",
@@ -10827,8 +10752,8 @@
    "epsEstimate": 0.6772,
    "revenueEstimate": 261591923,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.7,
+   "revenueActual": 258370000
   },
   {
    "symbol": "CARS",
@@ -10857,8 +10782,8 @@
    "epsEstimate": null,
    "revenueEstimate": null,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.9,
+   "revenueActual": 148700000
   },
   {
    "symbol": "CCLD",
@@ -10887,8 +10812,8 @@
    "epsEstimate": 1.4348,
    "revenueEstimate": 92776140,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.5,
+   "revenueActual": 91000000
   },
   {
    "symbol": "CDLX",
@@ -10897,8 +10822,8 @@
    "epsEstimate": -1.0608,
    "revenueEstimate": 37808003,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -1.03,
+   "revenueActual": 32880000
   },
   {
    "symbol": "CEF",
@@ -10917,8 +10842,8 @@
    "epsEstimate": -1.4623,
    "revenueEstimate": 1594147,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -1.33,
+   "revenueActual": 0
   },
   {
    "symbol": "CELH",
@@ -10947,8 +10872,8 @@
    "epsEstimate": 2.7778,
    "revenueEstimate": 980791200,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 2.89,
+   "revenueActual": 961200000
   },
   {
    "symbol": "CERT",
@@ -11017,8 +10942,8 @@
    "epsEstimate": 0.051,
    "revenueEstimate": 68107440,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.15,
+   "revenueActual": 71220000
   },
   {
    "symbol": "CLDT",
@@ -11037,8 +10962,8 @@
    "epsEstimate": -0.0267,
    "revenueEstimate": 113829113,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.03,
+   "revenueActual": 112180000
   },
   {
    "symbol": "CMI",
@@ -11067,8 +10992,8 @@
    "epsEstimate": -0.051,
    "revenueEstimate": 556580003,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.11,
+   "revenueActual": 534000000
   },
   {
    "symbol": "CNR",
@@ -11117,8 +11042,8 @@
    "epsEstimate": 0.0548,
    "revenueEstimate": 3982294475,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.07,
+   "revenueActual": 3897000000
   },
   {
    "symbol": "CON",
@@ -11127,8 +11052,8 @@
    "epsEstimate": 0.4449,
    "revenueEstimate": 611553717,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.52,
+   "revenueActual": 622120000
   },
   {
    "symbol": "COP",
@@ -11167,8 +11092,8 @@
    "epsEstimate": 0.9368,
    "revenueEstimate": 195233000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.89,
+   "revenueActual": 195800000
   },
   {
    "symbol": "CPSS",
@@ -11187,8 +11112,8 @@
    "epsEstimate": 0.5319,
    "revenueEstimate": 391739842,
    "indexWeight": 0.02,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.71,
+   "revenueActual": 381060000
   },
   {
    "symbol": "CRAI",
@@ -11217,8 +11142,8 @@
    "epsEstimate": 0.1197,
    "revenueEstimate": 343294596,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.13,
+   "revenueActual": 367030000
   },
   {
    "symbol": "CRVS",
@@ -11227,8 +11152,8 @@
    "epsEstimate": -0.2055,
    "revenueEstimate": 0,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.22,
+   "revenueActual": 0
   },
   {
    "symbol": "CSTL",
@@ -11237,8 +11162,8 @@
    "epsEstimate": -0.3749,
    "revenueEstimate": 94373052,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.13,
+   "revenueActual": 102890000
   },
   {
    "symbol": "CTM",
@@ -11247,8 +11172,8 @@
    "epsEstimate": 0,
    "revenueEstimate": 15004560,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.01,
+   "revenueActual": 14700000
   },
   {
    "symbol": "CTMX",
@@ -11257,8 +11182,8 @@
    "epsEstimate": -0.0887,
    "revenueEstimate": 5023500,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.09,
+   "revenueActual": 1690000
   },
   {
    "symbol": "CTRE",
@@ -11267,8 +11192,8 @@
    "epsEstimate": 0.4067,
    "revenueEstimate": 147005347,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.54,
+   "revenueActual": 176360000
   },
   {
    "symbol": "CTRI",
@@ -11307,8 +11232,8 @@
    "epsEstimate": -0.5053,
    "revenueEstimate": 14220258,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.52,
+   "revenueActual": 13830000
   },
   {
    "symbol": "CYRX",
@@ -11317,8 +11242,8 @@
    "epsEstimate": -0.1799,
    "revenueEstimate": 49830570,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.25,
+   "revenueActual": 50220000
   },
   {
    "symbol": "DBX",
@@ -11327,8 +11252,8 @@
    "epsEstimate": 0.7354,
    "revenueEstimate": 636015614,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.88,
+   "revenueActual": 637300000
   },
   {
    "symbol": "DCO",
@@ -11343,12 +11268,12 @@
   {
    "symbol": "DH",
    "date": "2026-11-05",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": 0.0436,
    "revenueEstimate": 56225434,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.06,
+   "revenueActual": 54650000
   },
   {
    "symbol": "DIBS",
@@ -11367,8 +11292,8 @@
    "epsEstimate": 1.0741,
    "revenueEstimate": 520197450,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.18,
+   "revenueActual": 532590000
   },
   {
    "symbol": "DKNG",
@@ -11377,8 +11302,8 @@
    "epsEstimate": -0.3901,
    "revenueEstimate": 1426523958,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.53,
+   "revenueActual": 1329060000
   },
   {
    "symbol": "DNA",
@@ -11387,8 +11312,8 @@
    "epsEstimate": -0.8787,
    "revenueEstimate": 21782336,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.64,
+   "revenueActual": 27710000
   },
   {
    "symbol": "DNOW",
@@ -11427,8 +11352,8 @@
    "epsEstimate": 0.358,
    "revenueEstimate": 174231034,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.36,
+   "revenueActual": 174540000
   },
   {
    "symbol": "DOMH",
@@ -11477,8 +11402,8 @@
    "epsEstimate": 0.0455,
    "revenueEstimate": 41280215,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.01,
+   "revenueActual": 40650000
   },
   {
    "symbol": "DUK",
@@ -11497,8 +11422,8 @@
    "epsEstimate": 1.3418,
    "revenueEstimate": 7036263394,
    "indexWeight": 0.09,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.42,
+   "revenueActual": 6860000000
   },
   {
    "symbol": "DXPE",
@@ -11527,8 +11452,8 @@
    "epsEstimate": 2.0901,
    "revenueEstimate": 4890634670,
    "indexWeight": 0.07,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 2.06,
+   "revenueActual": 4913000000
   },
   {
    "symbol": "EGAN",
@@ -11537,8 +11462,8 @@
    "epsEstimate": 0.0612,
    "revenueEstimate": 21514176,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.09,
+   "revenueActual": 21870000
   },
   {
    "symbol": "EGY",
@@ -11547,8 +11472,8 @@
    "epsEstimate": 0.1212,
    "revenueEstimate": 132310000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.1,
+   "revenueActual": 146980000
   },
   {
    "symbol": "ELUT",
@@ -11557,8 +11482,8 @@
    "epsEstimate": -0.153,
    "revenueEstimate": 1020000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.14,
+   "revenueActual": 1140000
   },
   {
    "symbol": "ENOV",
@@ -11587,8 +11512,8 @@
    "epsEstimate": 4.4996,
    "revenueEstimate": 7471150285,
    "indexWeight": 0.13,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 4.87,
+   "revenueActual": 8549000000
   },
   {
    "symbol": "EOSE",
@@ -11637,8 +11562,8 @@
    "epsEstimate": 0.3188,
    "revenueEstimate": 39640005,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.06,
+   "revenueActual": 57930000
   },
   {
    "symbol": "EVC",
@@ -11647,8 +11572,8 @@
    "epsEstimate": null,
    "revenueEstimate": null,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.18,
+   "revenueActual": 226310000
   },
   {
    "symbol": "EVCM",
@@ -11657,8 +11582,8 @@
    "epsEstimate": 0.1785,
    "revenueEstimate": 155981205,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.08,
+   "revenueActual": 151450000
   },
   {
    "symbol": "EVEX",
@@ -11707,8 +11632,8 @@
    "epsEstimate": 0.0204,
    "revenueEstimate": 34541280,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.03,
+   "revenueActual": 33020000
   },
   {
    "symbol": "EZRA",
@@ -11737,8 +11662,8 @@
    "epsEstimate": 0.5202,
    "revenueEstimate": 45193905,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.54,
+   "revenueActual": 45910000
   },
   {
    "symbol": "FENC",
@@ -11757,8 +11682,8 @@
    "epsEstimate": 0.6747,
    "revenueEstimate": 752930000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.74,
+   "revenueActual": 698000000
   },
   {
    "symbol": "FIGS",
@@ -11767,8 +11692,8 @@
    "epsEstimate": 0.0725,
    "revenueEstimate": 186353622,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.1,
+   "revenueActual": 190690000
   },
   {
    "symbol": "FIP",
@@ -11777,8 +11702,8 @@
    "epsEstimate": -0.6094,
    "revenueEstimate": 196975250,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -1.27,
+   "revenueActual": 218970000
   },
   {
    "symbol": "FIRY",
@@ -11797,8 +11722,8 @@
    "epsEstimate": 0.813,
    "revenueEstimate": 325457112,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.82,
+   "revenueActual": 323300000
   },
   {
    "symbol": "FLGT",
@@ -11807,8 +11732,8 @@
    "epsEstimate": -0.663,
    "revenueEstimate": 88026000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.09,
+   "revenueActual": 90410000
   },
   {
    "symbol": "FLL",
@@ -11817,8 +11742,8 @@
    "epsEstimate": -0.1741,
    "revenueEstimate": 82718394,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.24,
+   "revenueActual": 81780000
   },
   {
    "symbol": "FLWS",
@@ -11837,8 +11762,8 @@
    "epsEstimate": 1.337,
    "revenueEstimate": 3819062500,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.32,
+   "revenueActual": 3549000000
   },
   {
    "symbol": "FNKO",
@@ -11847,8 +11772,8 @@
    "epsEstimate": 0.1054,
    "revenueEstimate": 255717396,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.16,
+   "revenueActual": 258339999
   },
   {
    "symbol": "FOUR",
@@ -11867,8 +11792,8 @@
    "epsEstimate": 0.3536,
    "revenueEstimate": 349147703,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.54,
+   "revenueActual": 338410000
   },
   {
    "symbol": "FROG",
@@ -11877,8 +11802,8 @@
    "epsEstimate": 0.2368,
    "revenueEstimate": 169204413,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.32,
+   "revenueActual": 179170000
   },
   {
    "symbol": "FSK",
@@ -11913,12 +11838,12 @@
   {
    "symbol": "FWONA",
    "date": "2026-11-05",
-   "hour": "bmo",
+   "hour": "amc",
    "epsEstimate": 0.5452,
    "revenueEstimate": 1272183282,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.43,
+   "revenueActual": 1226000000
   },
   {
    "symbol": "G",
@@ -11927,18 +11852,18 @@
    "epsEstimate": 1.0647,
    "revenueEstimate": 1403127208,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.07,
+   "revenueActual": 1385400000
   },
   {
    "symbol": "GAMI",
    "date": "2026-11-05",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": null,
    "revenueEstimate": null,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.57,
+   "revenueActual": 68480000
   },
   {
    "symbol": "GCT",
@@ -11997,8 +11922,8 @@
    "epsEstimate": -0.3255,
    "revenueEstimate": 360868884,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.29,
+   "revenueActual": 360980000
   },
   {
    "symbol": "GHM",
@@ -12087,8 +12012,8 @@
    "epsEstimate": 0.5389,
    "revenueEstimate": 501245850,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.03,
+   "revenueActual": 495990000
   },
   {
    "symbol": "GPRO",
@@ -12107,8 +12032,8 @@
    "epsEstimate": 0.306,
    "revenueEstimate": 373074761,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.33,
+   "revenueActual": 371070000
   },
   {
    "symbol": "GRND",
@@ -12127,8 +12052,8 @@
    "epsEstimate": 0.144,
    "revenueEstimate": 154377000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.17,
+   "revenueActual": 177210000
   },
   {
    "symbol": "GROW",
@@ -12157,8 +12082,8 @@
    "epsEstimate": 0.3507,
    "revenueEstimate": 81094080,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.32,
+   "revenueActual": 74990000
   },
   {
    "symbol": "GSIT",
@@ -12167,8 +12092,8 @@
    "epsEstimate": -0.1224,
    "revenueEstimate": 6324000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.18,
+   "revenueActual": 6020000
   },
   {
    "symbol": "GWRS",
@@ -12187,8 +12112,8 @@
    "epsEstimate": 2.397,
    "revenueEstimate": 500663644,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 2.39,
+   "revenueActual": 492970000
   },
   {
    "symbol": "HASI",
@@ -12197,8 +12122,8 @@
    "epsEstimate": 0.7488,
    "revenueEstimate": 113554192,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.82,
+   "revenueActual": 14760000
   },
   {
    "symbol": "HCAT",
@@ -12207,8 +12132,8 @@
    "epsEstimate": -0.0485,
    "revenueEstimate": 56498208,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.03,
+   "revenueActual": 56280000
   },
   {
    "symbol": "HDRN",
@@ -12227,8 +12152,8 @@
    "epsEstimate": null,
    "revenueEstimate": null,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -5.511,
+   "revenueActual": 22077066000
   },
   {
    "symbol": "HGBL",
@@ -12237,8 +12162,8 @@
    "epsEstimate": 0.0281,
    "revenueEstimate": 13197780,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.03,
+   "revenueActual": 14590000
   },
   {
    "symbol": "HHH",
@@ -12247,8 +12172,8 @@
    "epsEstimate": 1.0353,
    "revenueEstimate": 626553500,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.55,
+   "revenueActual": 636300000
   },
   {
    "symbol": "HIMX",
@@ -12267,8 +12192,8 @@
    "epsEstimate": 0.7701,
    "revenueEstimate": 224765843,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.8,
+   "revenueActual": 229700000
   },
   {
    "symbol": "HLLY",
@@ -12327,8 +12252,8 @@
    "epsEstimate": 0.1791,
    "revenueEstimate": 24172470,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.18,
+   "revenueActual": 24060000
   },
   {
    "symbol": "HTZ",
@@ -12347,8 +12272,8 @@
    "epsEstimate": -0.412,
    "revenueEstimate": 954243500,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.77,
+   "revenueActual": 827400000
   },
   {
    "symbol": "IBEX",
@@ -12357,8 +12282,8 @@
    "epsEstimate": 0.918,
    "revenueEstimate": 172686000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.1,
+   "revenueActual": 175230000
   },
   {
    "symbol": "IBP",
@@ -12387,8 +12312,8 @@
    "epsEstimate": 1.9625,
    "revenueEstimate": 500642928,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.98,
+   "revenueActual": 470500000
   },
   {
    "symbol": "ICR PR A",
@@ -12407,8 +12332,8 @@
    "epsEstimate": 2.1799,
    "revenueEstimate": 563112858,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 2.44,
+   "revenueActual": 556220000
   },
   {
    "symbol": "IMAX",
@@ -12457,8 +12382,8 @@
    "epsEstimate": -0.0395,
    "revenueEstimate": 71612925,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.05,
+   "revenueActual": 70240000
   },
   {
    "symbol": "INGN",
@@ -12467,8 +12392,8 @@
    "epsEstimate": -0.1453,
    "revenueEstimate": 94095000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.56,
+   "revenueActual": 77190000
   },
   {
    "symbol": "INGR",
@@ -12487,8 +12412,8 @@
    "epsEstimate": -0.1496,
    "revenueEstimate": 0,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.17,
+   "revenueActual": 0
   },
   {
    "symbol": "INOD",
@@ -12497,8 +12422,8 @@
    "epsEstimate": 0.1724,
    "revenueEstimate": 84988440,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.29,
+   "revenueActual": 95620000
   },
   {
    "symbol": "INSE",
@@ -12507,8 +12432,8 @@
    "epsEstimate": 0.0203,
    "revenueEstimate": 65828464,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.1,
+   "revenueActual": 61400000
   },
   {
    "symbol": "INSW",
@@ -12527,8 +12452,8 @@
    "epsEstimate": -0.3835,
    "revenueEstimate": 144457602,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.29,
+   "revenueActual": 173830000
   },
   {
    "symbol": "IOVA",
@@ -12577,8 +12502,8 @@
    "epsEstimate": -0.6789,
    "revenueEstimate": 227655136,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.62,
+   "revenueActual": 228000000
   },
   {
    "symbol": "IRM",
@@ -12607,8 +12532,8 @@
    "epsEstimate": 0.0624,
    "revenueEstimate": 226899887,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.82,
+   "revenueActual": 221590000
   },
   {
    "symbol": "IRWD",
@@ -12637,8 +12562,8 @@
    "epsEstimate": 0.0816,
    "revenueEstimate": 15145470,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.1,
+   "revenueActual": 13550000
   },
   {
    "symbol": "KBDC",
@@ -12647,8 +12572,8 @@
    "epsEstimate": 0.3958,
    "revenueEstimate": 58471500,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.46,
+   "revenueActual": 58960000
   },
   {
    "symbol": "KDK",
@@ -12657,8 +12582,8 @@
    "epsEstimate": -0.2424,
    "revenueEstimate": 2491801,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.25,
+   "revenueActual": 2970000
   },
   {
    "symbol": "KEEL",
@@ -12687,8 +12612,8 @@
    "epsEstimate": 0.9384,
    "revenueEstimate": 43656000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.22,
+   "revenueActual": 67540000
   },
   {
    "symbol": "KLXE",
@@ -12697,8 +12622,8 @@
    "epsEstimate": -0.357,
    "revenueEstimate": 186150000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.44,
+   "revenueActual": 185600000
   },
   {
    "symbol": "KMB",
@@ -12727,8 +12652,8 @@
    "epsEstimate": 0.157,
    "revenueEstimate": 198590685,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.19,
+   "revenueActual": 201620000
   },
   {
    "symbol": "KRO",
@@ -12737,8 +12662,8 @@
    "epsEstimate": 0.1919,
    "revenueEstimate": 542621490,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.3,
+   "revenueActual": 541100000
   },
   {
    "symbol": "KRP",
@@ -12757,8 +12682,8 @@
    "epsEstimate": 0.4175,
    "revenueEstimate": 141737673,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.24,
+   "revenueActual": 134740000
   },
   {
    "symbol": "KRUS",
@@ -12767,8 +12692,8 @@
    "epsEstimate": 0.1893,
    "revenueEstimate": 92699191,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.08,
+   "revenueActual": 88880000
   },
   {
    "symbol": "KTB",
@@ -12787,8 +12712,8 @@
    "epsEstimate": 0.2115,
    "revenueEstimate": 479516127,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.24,
+   "revenueActual": 471800000
   },
   {
    "symbol": "KVHI",
@@ -12807,8 +12732,8 @@
    "epsEstimate": null,
    "revenueEstimate": null,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.1,
+   "revenueActual": 38850000
   },
   {
    "symbol": "LAMR",
@@ -12827,8 +12752,8 @@
    "epsEstimate": 0.0476,
    "revenueEstimate": 69513448,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.16,
+   "revenueActual": 73760000
   },
   {
    "symbol": "LBGJ",
@@ -12843,12 +12768,12 @@
   {
    "symbol": "LBRX",
    "date": "2026-11-05",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": -1.6532,
    "revenueEstimate": 0,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -1.79,
+   "revenueActual": 0
   },
   {
    "symbol": "LCII",
@@ -12917,8 +12842,8 @@
    "epsEstimate": -0.1734,
    "revenueEstimate": 586500,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.15,
+   "revenueActual": 510000
   },
   {
    "symbol": "LINK",
@@ -12937,8 +12862,8 @@
    "epsEstimate": -0.019,
    "revenueEstimate": 674946750,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.07,
+   "revenueActual": 668800000
   },
   {
    "symbol": "LITE",
@@ -12987,8 +12912,8 @@
    "epsEstimate": 0.2413,
    "revenueEstimate": 129574537,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.24,
+   "revenueActual": 126310000
   },
   {
    "symbol": "LONA",
@@ -13067,8 +12992,8 @@
    "epsEstimate": 0.1914,
    "revenueEstimate": 1958891466,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.43,
+   "revenueActual": 1821820000
   },
   {
    "symbol": "LYTS",
@@ -13087,8 +13012,8 @@
    "epsEstimate": 1.5581,
    "revenueEstimate": 9688892771,
    "indexWeight": 0.04,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.69,
+   "revenueActual": 10105000000
   },
   {
    "symbol": "MAIA",
@@ -13107,8 +13032,8 @@
    "epsEstimate": 0.9311,
    "revenueEstimate": 149044776,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.89,
+   "revenueActual": 142530000
   },
   {
    "symbol": "MAIR",
@@ -13137,8 +13062,8 @@
    "epsEstimate": 0.9471,
    "revenueEstimate": 1853550070,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.3,
+   "revenueActual": 1806700000
   },
   {
    "symbol": "MAZE",
@@ -13157,8 +13082,8 @@
    "epsEstimate": 0.0539,
    "revenueEstimate": 1065920336,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.1,
+   "revenueActual": 1036800000
   },
   {
    "symbol": "MBIO",
@@ -13207,8 +13132,8 @@
    "epsEstimate": 0.9482,
    "revenueEstimate": 1638920363,
    "indexWeight": 0.06,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.97,
+   "revenueActual": 1621500000
   },
   {
    "symbol": "MDU",
@@ -13227,8 +13152,8 @@
    "epsEstimate": -1.1798,
    "revenueEstimate": 472260000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.88,
+   "revenueActual": 440670000
   },
   {
    "symbol": "MFIC",
@@ -13287,8 +13212,8 @@
    "epsEstimate": -0.1938,
    "revenueEstimate": 16179240,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.33,
+   "revenueActual": 12850000
   },
   {
    "symbol": "MNKD",
@@ -13297,8 +13222,8 @@
    "epsEstimate": -0.0587,
    "revenueEstimate": 109905000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.07,
+   "revenueActual": 101870000
   },
   {
    "symbol": "MNR",
@@ -13307,8 +13232,8 @@
    "epsEstimate": 0.3262,
    "revenueEstimate": 342559346,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.34,
+   "revenueActual": 319240000
   },
   {
    "symbol": "MNST",
@@ -13317,8 +13242,8 @@
    "epsEstimate": 0.305,
    "revenueEstimate": 2545326951,
    "indexWeight": 0.1,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.3,
+   "revenueActual": 2563050000
   },
   {
    "symbol": "MOBI",
@@ -13327,8 +13252,8 @@
    "epsEstimate": -0.4769,
    "revenueEstimate": 14320800,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.52,
+   "revenueActual": 15620000
   },
   {
    "symbol": "MP",
@@ -13357,8 +13282,8 @@
    "epsEstimate": 0.4457,
    "revenueEstimate": 89456550,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.48,
+   "revenueActual": 86140000
   },
   {
    "symbol": "MSIF",
@@ -13377,8 +13302,8 @@
    "epsEstimate": 12.2154,
    "revenueEstimate": 1082192578,
    "indexWeight": 0.05,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 12.57,
+   "revenueActual": 1094290000
   },
   {
    "symbol": "MTSI",
@@ -13417,8 +13342,8 @@
    "epsEstimate": 0.0238,
    "revenueEstimate": 5601503,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.05,
+   "revenueActual": 5620000
   },
   {
    "symbol": "NET",
@@ -13427,8 +13352,8 @@
    "epsEstimate": 0.3456,
    "revenueEstimate": 745543438,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.38,
+   "revenueActual": 782510000
   },
   {
    "symbol": "NGL",
@@ -13437,8 +13362,8 @@
    "epsEstimate": 0.2222,
    "revenueEstimate": 838908020,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.24,
+   "revenueActual": 986550000
   },
   {
    "symbol": "NIKA",
@@ -13457,8 +13382,8 @@
    "epsEstimate": null,
    "revenueEstimate": null,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.26,
+   "revenueActual": 44000000
   },
   {
    "symbol": "NLCP",
@@ -13477,8 +13402,8 @@
    "epsEstimate": 1.3311,
    "revenueEstimate": 162998040,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.23,
+   "revenueActual": 187550000
   },
   {
    "symbol": "NNI",
@@ -13487,8 +13412,8 @@
    "epsEstimate": 1.8523,
    "revenueEstimate": 431643700,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.89,
+   "revenueActual": 436590000
   },
   {
    "symbol": "NOG",
@@ -13497,8 +13422,8 @@
    "epsEstimate": 1.0681,
    "revenueEstimate": 607180286,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.32,
+   "revenueActual": 697690000
   },
   {
    "symbol": "NRDS",
@@ -13507,8 +13432,8 @@
    "epsEstimate": 0.3488,
    "revenueEstimate": 256928004,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.23,
+   "revenueActual": 239600000
   },
   {
    "symbol": "NREF",
@@ -13557,8 +13482,8 @@
    "epsEstimate": -0.2985,
    "revenueEstimate": 718998816,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.39,
+   "revenueActual": 793980000
   },
   {
    "symbol": "NTWK",
@@ -13577,8 +13502,8 @@
    "epsEstimate": 0.2121,
    "revenueEstimate": 331987000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.1,
+   "revenueActual": 311010000
   },
   {
    "symbol": "NUTX",
@@ -13587,8 +13512,8 @@
    "epsEstimate": 5.8222,
    "revenueEstimate": 219284496,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 5.71,
+   "revenueActual": 217610000
   },
   {
    "symbol": "NVAX",
@@ -13667,8 +13592,8 @@
    "epsEstimate": -0.4091,
    "revenueEstimate": 499852636,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.28,
+   "revenueActual": 509310000
   },
   {
    "symbol": "NXST",
@@ -13717,8 +13642,8 @@
    "epsEstimate": 0.017,
    "revenueEstimate": 87389244,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.17,
+   "revenueActual": 91310000
   },
   {
    "symbol": "ONIT",
@@ -13737,8 +13662,8 @@
    "epsEstimate": -0.0808,
    "revenueEstimate": 34130930,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.2,
+   "revenueActual": 35430000
   },
   {
    "symbol": "OPEN",
@@ -13747,8 +13672,8 @@
    "epsEstimate": -0.1517,
    "revenueEstimate": 1088607627,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.07,
+   "revenueActual": 1022000000
   },
   {
    "symbol": "ORGO",
@@ -13757,8 +13682,8 @@
    "epsEstimate": -0.1785,
    "revenueEstimate": 53142000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.25,
+   "revenueActual": 45460000
   },
   {
    "symbol": "OSCR",
@@ -13777,8 +13702,8 @@
    "epsEstimate": 0.4126,
    "revenueEstimate": 513883202,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.58,
+   "revenueActual": 511100000
   },
   {
    "symbol": "PANL",
@@ -13787,8 +13712,8 @@
    "epsEstimate": 0.3954,
    "revenueEstimate": 208999530,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.52,
+   "revenueActual": 219060000
   },
   {
    "symbol": "PAYO",
@@ -13817,8 +13742,8 @@
    "epsEstimate": 0.0918,
    "revenueEstimate": 58650000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.15,
+   "revenueActual": 55100000
   },
   {
    "symbol": "PCTY",
@@ -13827,8 +13752,8 @@
    "epsEstimate": 1.9439,
    "revenueEstimate": 451922628,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 2.09,
+   "revenueActual": 451670000
   },
   {
    "symbol": "PDFS",
@@ -13837,8 +13762,8 @@
    "epsEstimate": 0.3351,
    "revenueEstimate": 68820420,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.4,
+   "revenueActual": 68330000
   },
   {
    "symbol": "PENN",
@@ -13877,8 +13802,8 @@
    "epsEstimate": 0,
    "revenueEstimate": 30924360,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.02,
+   "revenueActual": 31710000
   },
   {
    "symbol": "PLNT",
@@ -13907,8 +13832,8 @@
    "epsEstimate": -0.3723,
    "revenueEstimate": 527003,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.32,
+   "revenueActual": 400000
   },
   {
    "symbol": "PLTK",
@@ -13927,8 +13852,8 @@
    "epsEstimate": 1.4994,
    "revenueEstimate": 648822000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.82,
+   "revenueActual": 667920000
   },
   {
    "symbol": "PMVC",
@@ -13967,8 +13892,8 @@
    "epsEstimate": 0.816,
    "revenueEstimate": 313548336,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.39,
+   "revenueActual": 286270000
   },
   {
    "symbol": "PRDO",
@@ -13977,8 +13902,8 @@
    "epsEstimate": 0.765,
    "revenueEstimate": 215292420,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.77,
+   "revenueActual": 215860000
   },
   {
    "symbol": "PRKS",
@@ -14037,8 +13962,8 @@
    "epsEstimate": -0.2157,
    "revenueEstimate": 9767346,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.32,
+   "revenueActual": 620000
   },
   {
    "symbol": "PRTH",
@@ -14067,8 +13992,8 @@
    "epsEstimate": 0.9384,
    "revenueEstimate": 204102000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.3,
+   "revenueActual": 202070000
   },
   {
    "symbol": "PTLO",
@@ -14127,8 +14052,8 @@
    "epsEstimate": -0.3669,
    "revenueEstimate": 8128480,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.29,
+   "revenueActual": 9050000
   },
   {
    "symbol": "QRHC",
@@ -14137,8 +14062,8 @@
    "epsEstimate": -0.0357,
    "revenueEstimate": 67626000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.02,
+   "revenueActual": 63780000
   },
   {
    "symbol": "QSI",
@@ -14147,8 +14072,8 @@
    "epsEstimate": -0.1246,
    "revenueEstimate": 282800,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.1,
+   "revenueActual": 210000
   },
   {
    "symbol": "QTTB",
@@ -14187,8 +14112,8 @@
    "epsEstimate": -0.4311,
    "revenueEstimate": -4120000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.21,
+   "revenueActual": 0
   },
   {
    "symbol": "RCEL",
@@ -14197,8 +14122,8 @@
    "epsEstimate": -0.2278,
    "revenueEstimate": 22644000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.2,
+   "revenueActual": 26110000
   },
   {
    "symbol": "RCKT",
@@ -14237,8 +14162,8 @@
    "epsEstimate": 0.0209,
    "revenueEstimate": 170888970,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.02,
+   "revenueActual": 173570000
   },
   {
    "symbol": "REFR",
@@ -14257,8 +14182,8 @@
    "epsEstimate": 0.6111,
    "revenueEstimate": 420821045,
    "indexWeight": 0.02,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.23,
+   "revenueActual": 419060000
   },
   {
    "symbol": "REI",
@@ -14267,8 +14192,8 @@
    "epsEstimate": 0.0657,
    "revenueEstimate": 86291875,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.1,
+   "revenueActual": 102340000
   },
   {
    "symbol": "RGA",
@@ -14277,8 +14202,8 @@
    "epsEstimate": 6.9822,
    "revenueEstimate": 6752992138,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 8.49,
+   "revenueActual": 7635000000
   },
   {
    "symbol": "RGNX",
@@ -14327,8 +14252,8 @@
    "epsEstimate": -0.0612,
    "revenueEstimate": 1085790,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.07,
+   "revenueActual": 1070000
   },
   {
    "symbol": "ROCK",
@@ -14377,8 +14302,8 @@
    "epsEstimate": 0.3443,
    "revenueEstimate": 38442780,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.38,
+   "revenueActual": 40560000
   },
   {
    "symbol": "RYM",
@@ -14417,8 +14342,8 @@
    "epsEstimate": -0.1512,
    "revenueEstimate": 0,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.14,
+   "revenueActual": 0
   },
   {
    "symbol": "SARO",
@@ -14427,8 +14352,8 @@
    "epsEstimate": 0.3849,
    "revenueEstimate": 1593245100,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.39,
+   "revenueActual": 1557450000
   },
   {
    "symbol": "SBR",
@@ -14467,8 +14392,8 @@
    "epsEstimate": -0.6834,
    "revenueEstimate": 1686641,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.68,
+   "revenueActual": 2840000
   },
   {
    "symbol": "SG",
@@ -14477,8 +14402,8 @@
    "epsEstimate": -0.2708,
    "revenueEstimate": 174499417,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.23,
+   "revenueActual": 176020000
   },
   {
    "symbol": "SHAK",
@@ -14517,8 +14442,8 @@
    "epsEstimate": -0.5042,
    "revenueEstimate": 15900625,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.34,
+   "revenueActual": 16190000
   },
   {
    "symbol": "SINT",
@@ -14527,8 +14452,8 @@
    "epsEstimate": -0.3128,
    "revenueEstimate": 1359996,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.24,
+   "revenueActual": 2190000
   },
   {
    "symbol": "SKIN",
@@ -14537,8 +14462,8 @@
    "epsEstimate": -1.3056,
    "revenueEstimate": 69133335,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.14,
+   "revenueActual": 69200000
   },
   {
    "symbol": "SKWD",
@@ -14547,8 +14472,8 @@
    "epsEstimate": 1.2453,
    "revenueEstimate": 513095475,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.28,
+   "revenueActual": 455340000
   },
   {
    "symbol": "SLNCF",
@@ -14567,8 +14492,8 @@
    "epsEstimate": -0.2258,
    "revenueEstimate": 10945036,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.11,
+   "revenueActual": 280000
   },
   {
    "symbol": "SNDA",
@@ -14607,8 +14532,8 @@
    "epsEstimate": 1.3807,
    "revenueEstimate": 1974058856,
    "indexWeight": 0.02,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.45,
+   "revenueActual": 1949000000
   },
   {
    "symbol": "SOUN",
@@ -14617,8 +14542,8 @@
    "epsEstimate": -0.0638,
    "revenueEstimate": 62946852,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.05,
+   "revenueActual": 62430000
   },
   {
    "symbol": "SPG",
@@ -14627,8 +14552,8 @@
    "epsEstimate": 1.7195,
    "revenueEstimate": 1715617714,
    "indexWeight": 0.1,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 3.37,
+   "revenueActual": 1814560000
   },
   {
    "symbol": "SPHR",
@@ -14647,8 +14572,8 @@
    "epsEstimate": 0.6123,
    "revenueEstimate": 692082495,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.88,
+   "revenueActual": 867600000
   },
   {
    "symbol": "SPRY",
@@ -14657,8 +14582,8 @@
    "epsEstimate": -0.3239,
    "revenueEstimate": 42831585,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.36,
+   "revenueActual": 37710000
   },
   {
    "symbol": "SRE",
@@ -14677,8 +14602,8 @@
    "epsEstimate": 0.0652,
    "revenueEstimate": 360020169,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.13,
+   "revenueActual": 381350000
   },
   {
    "symbol": "SSP",
@@ -14687,8 +14612,8 @@
    "epsEstimate": -0.0455,
    "revenueEstimate": 558807750,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.21,
+   "revenueActual": 544860000
   },
   {
    "symbol": "SSTK",
@@ -14737,8 +14662,8 @@
    "epsEstimate": 0.5715,
    "revenueEstimate": 331826400,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.66,
+   "revenueActual": 362710000
   },
   {
    "symbol": "STHO",
@@ -14757,8 +14682,8 @@
    "epsEstimate": -0.049,
    "revenueEstimate": 172427940,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.13,
+   "revenueActual": 169770000
   },
   {
    "symbol": "STRA",
@@ -14777,8 +14702,8 @@
    "epsEstimate": 0.1862,
    "revenueEstimate": 41414182,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.34,
+   "revenueActual": 39990000
   },
   {
    "symbol": "SUIG",
@@ -14787,8 +14712,8 @@
    "epsEstimate": -0.0357,
    "revenueEstimate": 436560,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.09,
+   "revenueActual": 310000
   },
   {
    "symbol": "SUNE",
@@ -14817,18 +14742,18 @@
    "epsEstimate": 0.1574,
    "revenueEstimate": 463640752,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.16,
+   "revenueActual": 463080000
   },
   {
    "symbol": "SYNA",
    "date": "2026-11-05",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": 1.2791,
    "revenueEstimate": 322299600,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.26,
+   "revenueActual": 294000000
   },
   {
    "symbol": "SYRE",
@@ -14857,8 +14782,8 @@
    "epsEstimate": 0.2754,
    "revenueEstimate": 94880400,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.26,
+   "revenueActual": 84700000
   },
   {
    "symbol": "TCBS",
@@ -14887,8 +14812,8 @@
    "epsEstimate": null,
    "revenueEstimate": null,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.52,
+   "revenueActual": 99980000
   },
   {
    "symbol": "TDAY",
@@ -14907,8 +14832,8 @@
    "epsEstimate": 0.5847,
    "revenueEstimate": 399557585,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.7,
+   "revenueActual": 399000000
   },
   {
    "symbol": "TEAD",
@@ -14927,18 +14852,18 @@
    "epsEstimate": 1.4544,
    "revenueEstimate": 1745337075,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.65,
+   "revenueActual": 1772150000
   },
   {
    "symbol": "TECX",
    "date": "2026-11-05",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": -1.3563,
    "revenueEstimate": 0,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -1.08,
+   "revenueActual": 0
   },
   {
    "symbol": "TFX",
@@ -15007,8 +14932,8 @@
    "epsEstimate": 0.2977,
    "revenueEstimate": 181135312,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.51,
+   "revenueActual": 203010000
   },
   {
    "symbol": "TNDM",
@@ -15017,8 +14942,8 @@
    "epsEstimate": -0.2472,
    "revenueEstimate": 271240878,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.1,
+   "revenueActual": 283690000
   },
   {
    "symbol": "TPR",
@@ -15077,8 +15002,8 @@
    "epsEstimate": 0.1666,
    "revenueEstimate": 410570400,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.21,
+   "revenueActual": 405590000
   },
   {
    "symbol": "TSSI",
@@ -15087,8 +15012,8 @@
    "epsEstimate": 0.0405,
    "revenueEstimate": 47187576,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.04,
+   "revenueActual": 50060000
   },
   {
    "symbol": "TXG",
@@ -15097,8 +15022,8 @@
    "epsEstimate": -0.2648,
    "revenueEstimate": 149337468,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.15,
+   "revenueActual": 150670000
   },
   {
    "symbol": "TXRH",
@@ -15107,8 +15032,8 @@
    "epsEstimate": 1.4882,
    "revenueEstimate": 1615931766,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.36,
+   "revenueActual": 1573070000
   },
   {
    "symbol": "U",
@@ -15137,8 +15062,8 @@
    "epsEstimate": 0.102,
    "revenueEstimate": 78508380,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.17,
+   "revenueActual": 89420000
   },
   {
    "symbol": "UMAC",
@@ -15147,8 +15072,8 @@
    "epsEstimate": -0.1734,
    "revenueEstimate": 12420835,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.02,
+   "revenueActual": 13900000
   },
   {
    "symbol": "UNTC",
@@ -15197,8 +15122,8 @@
    "epsEstimate": -1.6524,
    "revenueEstimate": 3466266,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -1.3,
+   "revenueActual": 10280000
   },
   {
    "symbol": "VGM",
@@ -15217,8 +15142,8 @@
    "epsEstimate": null,
    "revenueEstimate": null,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.06,
+   "revenueActual": 589000000
   },
   {
    "symbol": "VIRT",
@@ -15297,8 +15222,8 @@
    "epsEstimate": -0.4468,
    "revenueEstimate": 1225823250,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.32,
+   "revenueActual": 1180000000
   },
   {
    "symbol": "VTEX",
@@ -15307,8 +15232,8 @@
    "epsEstimate": 0.0515,
    "revenueEstimate": 64583340,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.02,
+   "revenueActual": 63380000
   },
   {
    "symbol": "VTN",
@@ -15333,12 +15258,12 @@
   {
    "symbol": "VXRT",
    "date": "2026-11-05",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": -0.1882,
    "revenueEstimate": 14856300,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.07,
+   "revenueActual": 10620000
   },
   {
    "symbol": "VYX",
@@ -15397,8 +15322,8 @@
    "epsEstimate": -0.0714,
    "revenueEstimate": 310003500,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.1,
+   "revenueActual": 300200000
   },
   {
    "symbol": "WHG",
@@ -15407,8 +15332,8 @@
    "epsEstimate": null,
    "revenueEstimate": null,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.48,
+   "revenueActual": 26570000
   },
   {
    "symbol": "WK",
@@ -15417,8 +15342,8 @@
    "epsEstimate": 0.8205,
    "revenueEstimate": 269288762,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.72,
+   "revenueActual": 262959999
   },
   {
    "symbol": "WLDN",
@@ -15427,8 +15352,8 @@
    "epsEstimate": 1.0982,
    "revenueEstimate": 110364000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.2,
+   "revenueActual": 112160000
   },
   {
    "symbol": "WMS",
@@ -15457,8 +15382,8 @@
    "epsEstimate": 0.2803,
    "revenueEstimate": 589493125,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.29,
+   "revenueActual": 601340000
   },
   {
    "symbol": "WW",
@@ -15477,8 +15402,8 @@
    "epsEstimate": 0.7154,
    "revenueEstimate": 1795660020,
    "indexWeight": 0.01,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.33,
+   "revenueActual": 1689050000
   },
   {
    "symbol": "XCUR",
@@ -15507,8 +15432,8 @@
    "epsEstimate": 0.1156,
    "revenueEstimate": 64264335,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.04,
+   "revenueActual": 62260000
   },
   {
    "symbol": "XRAY",
@@ -15517,8 +15442,8 @@
    "epsEstimate": 0.3159,
    "revenueEstimate": 879240724,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.29,
+   "revenueActual": 836000000
   },
   {
    "symbol": "YELP",
@@ -15527,8 +15452,8 @@
    "epsEstimate": 0.4624,
    "revenueEstimate": 376256682,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 0.63,
+   "revenueActual": 370920000
   },
   {
    "symbol": "ZD",
@@ -15537,8 +15462,8 @@
    "epsEstimate": 1.2896,
    "revenueEstimate": 304181484,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.39,
+   "revenueActual": 289330000
   },
   {
    "symbol": "ZSTK",
@@ -16323,7 +16248,7 @@
   {
    "symbol": "AIOT",
    "date": "2026-11-09",
-   "hour": null,
+   "hour": "bmo",
    "epsEstimate": -0.0265,
    "revenueEstimate": 117217084,
    "indexWeight": null,
@@ -17253,7 +17178,7 @@
   {
    "symbol": "GRPN",
    "date": "2026-11-09",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": 0.0034,
    "revenueEstimate": 131981196,
    "indexWeight": null,
@@ -18483,7 +18408,7 @@
   {
    "symbol": "SCM",
    "date": "2026-11-09",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": 0.2624,
    "revenueEstimate": 23784995,
    "indexWeight": null,
@@ -18853,7 +18778,7 @@
   {
    "symbol": "TTEC",
    "date": "2026-11-09",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": 0.2074,
    "revenueEstimate": 489807743,
    "indexWeight": null,
