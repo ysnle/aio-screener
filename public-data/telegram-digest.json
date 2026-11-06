@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-06T15:51:51.808Z",
-  "attemptedAt": "2026-11-06T15:51:51.808Z",
-  "lastSuccessfulAt": "2026-11-06T15:51:51.808Z",
+  "generatedAt": "2026-11-06T16:22:26.671Z",
+  "attemptedAt": "2026-11-06T16:22:26.671Z",
+  "lastSuccessfulAt": "2026-11-06T16:22:26.671Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-23T15:51:47.783Z",
-  "until": "2026-11-06T15:51:47.783Z",
+  "since": "2026-10-23T16:22:20.483Z",
+  "until": "2026-11-06T16:22:20.483Z",
   "current24hWindow": {
     "start": "2026-11-04T23:00:00.000Z",
     "end": "2026-11-05T23:00:00.000Z",
@@ -113,33 +113,33 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 680,
-      "freshCount": 20,
-      "eligibleTextCount": 679,
+      "count": 681,
+      "freshCount": 37,
+      "eligibleTextCount": 680,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 71671
+      "lastPostId": 71672
     }
   ],
-  "count": 2321,
-  "retainedItemCount": 427,
+  "count": 2322,
+  "retainedItemCount": 438,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2321,
-    "eligibleTextCount": 2256,
+    "observedCount": 2322,
+    "eligibleTextCount": 2257,
     "mediaOnlyCount": 65,
     "mediaAttachedCount": 458,
     "photoPostCount": 399,
     "documentPostCount": 2,
     "imageOnlyCount": 2,
     "highSignalCount": 397,
-    "broadSignalCount": 853,
+    "broadSignalCount": 854,
     "selectedRawCount": 390,
     "selectedEligibleCount": 390,
     "selectedRawCoveragePct": 17.3,
@@ -147,6 +147,8 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "ai-policy": 106,
+    "equity": 117,
     "geo": 446,
     "semi": 478,
     "credit": 99,
@@ -154,10 +156,8 @@
     "market-note": 846,
     "macro": 352,
     "kr-market": 117,
-    "equity": 116,
     "earnings": 407,
     "flows": 65,
-    "ai-policy": 105,
     "japan": 79,
     "healthcare": 76,
     "optical": 41,
@@ -266,8 +266,8 @@
     "Earnings/Corporate (407 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
     "Macro/Rates (352 posts in 14-day research window): 텍사스 주지사 당선인 지나 히노호사는 버니 샌더스가 아니다. 데이터센터 건설을 지지한다. - Tae Kim 시장은 텍사스 주지사 선거 결과가 AI 데이터센터 산업에 미칠 영향을 과도하게 부정적으로 해석하고 있다. 히노호사는 데이터센터 건설 자체를 반대하는 것이 아니라 지역 주민과 노동자에게 실질적인 혜택이...",
     "AI Power/Grid (268 posts in 14-day research window): 데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가...",
-    "Korea Market (117 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY...",
-    "Equity/Analyst (116 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
+    "Equity/Analyst (117 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
+    "Korea Market (117 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
   ],
   "catalysts": [
     {
@@ -375,7 +375,7 @@
         "optical"
       ],
       "count": 41,
-      "focus": "No retained full-text sample; 41 observed posts in the 14-day research window."
+      "focus": ">>중국 오전 대표 기술기업 자사주 매입 목표 발표 •Zhongji Innolight, Eoptolink, Luxshare Precision, Dongshan Precision, TFC Optical Communication, Hygon 등 상장사들이 잇따라 정오에 공시를 발표하고, 정책 수단을 충분히 활용해..."
     },
     {
       "id": "power",
@@ -392,7 +392,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 105,
+      "count": 106,
       "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
@@ -410,7 +410,7 @@
       "topics": [
         "equity"
       ],
-      "count": 116,
+      "count": 117,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
@@ -1753,6 +1753,22 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71672",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71672",
+      "datetime": "2026-11-06T15:53:14.000Z",
+      "localDateKst": "2026-11-07",
+      "tags": [
+        "ai-policy",
+        "equity"
+      ],
+      "lead": 1,
+      "score": 55,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>Anthropic 상장이 더 큰 리스크 이벤트가 될 것 (HSBC) •HSBC의 Max Kettner는 2주 전 미국 증시 투자의견을 최고 수준의 비중확대에서 중립으로 하향. 당시 그는 기업들의 자본지출..."
+    },
+    {
       "id": "bornlupin/21038",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21038",
@@ -2219,12 +2235,15 @@
       "datetime": "2026-11-06T06:26:22.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "market-note"
+        "macro",
+        "semi",
+        "power",
+        "kr-market"
       ],
       "score": 93,
       "hasText": true,
-      "summary": "하나증권 중국/신흥국전략 김경환(T.02-3771-7616) *텔레그램 채널 : [김경환의 China Weekly] 민주당 압승과 홍콩 증시 상승, 우연일까? 자료: • 트럼프의 참패와 블루 웨이브, 중화권...",
-      "tickers": []
+      "tickers": [],
+      "summary": "하나증권 중국/신흥국전략 김경환(T.02-3771-7616) *텔레그램 채널 : [김경환의 China Weekly] 민주당 압승과 홍콩 증시 상승, 우연일까? 자료: • 트럼프의 참패와 블루 웨이브, 중화권..."
     },
     {
       "id": "bornlupin/21027",
@@ -2326,6 +2345,7 @@
       "tags": [
         "macro"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
       "media": {
@@ -2334,9 +2354,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": ">>유가 20% 급락했는데 금값은 왜 반대로 급등했나? 골드만삭스 : 금은 ‘역방향 원유 거래’ •브렌트유가 한 주간 약 20% 급락한 가운데 금값은 3% 이상 반등함. 골드만삭스는 금이 원유의 ‘거울...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>유가 20% 급락했는데 금값은 왜 반대로 급등했나? 골드만삭스 : 금은 ‘역방향 원유 거래’ •브렌트유가 한 주간 약 20% 급락한 가운데 금값은 3% 이상 반등함. 골드만삭스는 금이 원유의 ‘거울..."
     },
     {
       "id": "bornlupin/21023",
@@ -2360,13 +2379,15 @@
       "datetime": "2026-11-06T03:42:37.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "power"
+        "power",
+        "credit",
+        "earnings"
       ],
+      "lead": 1,
       "score": 75,
       "hasText": true,
-      "summary": ">>미국 데이터센터 건설 리스크 상세 분석 : 인허가·인력·보험·전력 변동 (바클레이즈) •바클레이즈 William Thompson 연구팀은 2일간 데이터센터 산업 서밋에 참석한 뒤, AI 인프라 확장의...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>미국 데이터센터 건설 리스크 상세 분석 : 인허가·인력·보험·전력 변동 (바클레이즈) •바클레이즈 William Thompson 연구팀은 2일간 데이터센터 산업 서밋에 참석한 뒤, AI 인프라 확장의..."
     },
     {
       "id": "insidertracking/68508",
@@ -2392,11 +2413,11 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": "•중국 반도체 과창50지수 플러스 전환 •개장 -5% 낙폭 극복 •홍콩 증시 약보합 전환, 3대지수 낙폭 축소",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "•중국 반도체 과창50지수 플러스 전환 •개장 -5% 낙폭 극복 •홍콩 증시 약보합 전환, 3대지수 낙폭 축소"
     },
     {
       "id": "insidertracking/68502",
@@ -2425,6 +2446,7 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 57,
       "hasText": true,
       "media": {
@@ -2433,9 +2455,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": ">>BofA 로드쇼 : 홍콩 및 일부 상하이 투자자들, 메모리주에 대해 뚜렷한 약세 전환 •BofA 로드쇼에서 홍콩 투자자들의 메모리주에 대한 투자 심리가 뚜렷하게 약세로 전환된 것으로 나타났으며, 일부...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>BofA 로드쇼 : 홍콩 및 일부 상하이 투자자들, 메모리주에 대해 뚜렷한 약세 전환 •BofA 로드쇼에서 홍콩 투자자들의 메모리주에 대한 투자 심리가 뚜렷하게 약세로 전환된 것으로 나타났으며, 일부..."
     },
     {
       "id": "insidertracking/68501",
@@ -2466,12 +2487,11 @@
       ],
       "score": 68,
       "hasText": true,
-      "summary": ">>젠슨 황, ‘세계 10대 부호’에서 탈락 •민주당이 의회 선거에서 압승하면서 AI 데이터센터 건설이 차질을 빚을 수 있다는 우려가 커졌고, 기술주와 반도체주가 일제히 매도세. Nvidia 주가는 하루 만에...",
-      "lead": 2,
       "tickers": [
         "NVDA",
         "ORCL"
-      ]
+      ],
+      "summary": ">>젠슨 황, ‘세계 10대 부호’에서 탈락 •민주당이 의회 선거에서 압승하면서 AI 데이터센터 건설이 차질을 빚을 수 있다는 우려가 커졌고, 기술주와 반도체주가 일제히 매도세. Nvidia 주가는 하루 만에..."
     },
     {
       "id": "HANAchina/71632",
@@ -7732,20 +7752,6 @@
         "GOOG",
         "AMZN"
       ]
-    },
-    {
-      "id": "HANAchina/71319",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71319",
-      "datetime": "2026-11-01T03:12:54.000Z",
-      "localDateKst": "2026-11-01",
-      "tags": [
-        "market-note"
-      ],
-      "score": 53,
-      "hasText": true,
-      "summary": ">>금주 시장 방향을 결정할 변수, 미국 중간선거 최대 관심사 : 공화당의 상원 수성 vs 민주당 53석 이상 확보 (CITI) •Citi는 민주당의 상·하원 동시 장악 가능성이 이미 미 증시 밸류에이션에...",
-      "tickers": []
     },
     {
       "id": "bornlupin/20924",
