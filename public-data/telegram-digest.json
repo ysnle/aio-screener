@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-06T04:51:36.020Z",
-  "attemptedAt": "2026-11-06T04:51:36.020Z",
-  "lastSuccessfulAt": "2026-11-06T04:51:36.020Z",
+  "generatedAt": "2026-11-06T05:21:49.513Z",
+  "attemptedAt": "2026-11-06T05:21:49.513Z",
+  "lastSuccessfulAt": "2026-11-06T05:21:49.513Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-23T04:51:30.271Z",
-  "until": "2026-11-06T04:51:30.271Z",
+  "since": "2026-10-23T05:21:43.062Z",
+  "until": "2026-11-06T05:21:43.062Z",
   "current24hWindow": {
     "start": "2026-11-04T23:00:00.000Z",
     "end": "2026-11-05T23:00:00.000Z",
@@ -89,43 +89,43 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 1341,
-      "freshCount": 20,
+      "freshCount": 40,
       "eligibleTextCount": 1279,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 68510
+      "lastPostId": 68511
     },
     {
       "channel": "bornlupin",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 230,
-      "freshCount": 20,
+      "freshCount": 40,
       "eligibleTextCount": 230,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 21021
+      "lastPostId": 21023
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 679,
-      "freshCount": 17,
+      "freshCount": 36,
       "eligibleTextCount": 678,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 71649
+      "lastPostId": 71650
     }
   ],
   "count": 2309,
-  "retainedItemCount": 424,
+  "retainedItemCount": 460,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -134,8 +134,8 @@
     "observedCount": 2309,
     "eligibleTextCount": 2242,
     "mediaOnlyCount": 67,
-    "mediaAttachedCount": 411,
-    "photoPostCount": 357,
+    "mediaAttachedCount": 412,
+    "photoPostCount": 358,
     "documentPostCount": 2,
     "imageOnlyCount": 2,
     "highSignalCount": 396,
@@ -147,25 +147,25 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "macro": 349,
+    "geo": 441,
+    "semi": 478,
+    "power": 264,
     "optical": 40,
-    "power": 262,
-    "credit": 101,
-    "earnings": 417,
-    "japan": 79,
-    "market-note": 846,
-    "geo": 440,
+    "credit": 100,
+    "earnings": 414,
+    "japan": 78,
+    "market-note": 845,
     "media-only": 66,
-    "semi": 479,
     "healthcare": 76,
     "ai-policy": 106,
-    "equity": 119,
+    "equity": 118,
     "kr-market": 118,
-    "macro": 348,
-    "flows": 70,
+    "flows": 69,
     "crypto": 4
   },
   "tickerCounts": {
-    "NVDA": 113,
+    "NVDA": 114,
     "IONQ": 2,
     "MU": 37,
     "BE": 21,
@@ -180,7 +180,7 @@
     "DB": 2,
     "AMZN": 78,
     "MSFT": 57,
-    "005930.KS": 50,
+    "005930.KS": 49,
     "000660.KS": 73,
     "BCS": 2,
     "2454.TW": 4,
@@ -224,7 +224,7 @@
     "000990.KS": 1,
     "6981.T": 3,
     "META": 4,
-    "017670.KS": 2,
+    "017670.KS": 1,
     "BX": 1,
     "LLY": 2,
     "TEM": 1,
@@ -257,17 +257,16 @@
     "FCEL": 1,
     "BMY": 2,
     "RKLB": 1,
-    "267250.KS": 1,
-    "032640.KS": 1
+    "267250.KS": 1
   },
   "themes": [
-    "Market Notes (846 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 아메리라이프와 보험 유통 전반의 AI 전환을 위한 엔터프라이즈 파트너십 체결. Foundry와 AIP는...",
-    "Semiconductors/Memory (479 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
-    "Geopolitics (440 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
-    "Earnings/Corporate (417 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
-    "Macro/Rates (348 posts in 14-day research window): 2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,...",
-    "AI Power/Grid (262 posts in 14-day research window): 시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준....",
-    "Equity/Analyst (119 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
+    "Market Notes (845 posts in 14-day research window): 2026년 11월 5일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심의 매도 압력이 확대되며 혼조세. 한국시간 오후 1시 55분 기준 나스닥100 선물은 1.08% 하락, S&P500 선물은...",
+    "Semiconductors/Memory (478 posts in 14-day research window): 2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
+    "Geopolitics (441 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
+    "Earnings/Corporate (414 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
+    "Macro/Rates (349 posts in 14-day research window): 2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,...",
+    "AI Power/Grid (264 posts in 14-day research window): 시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준....",
+    "Equity/Analyst (118 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p....",
     "Korea Market (118 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
   ],
   "catalysts": [
@@ -278,8 +277,8 @@
     },
     {
       "key": "NVDA",
-      "count": 113,
-      "text": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
+      "count": 114,
+      "text": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000 -4.45% 기록. 나스닥100은 고점 대비 약 15% 조정권에 진입했고 VIX는 69.68% 급등한..."
     },
     {
       "key": "AMZN",
@@ -298,18 +297,18 @@
     },
     {
       "key": "005930.KS",
-      "count": 50,
+      "count": 49,
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
       "key": "AMD",
       "count": 47,
-      "text": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
+      "text": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000 -4.45% 기록. 나스닥100은 고점 대비 약 15% 조정권에 진입했고 VIX는 69.68% 급등한..."
     },
     {
       "key": "MU",
       "count": 37,
-      "text": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
+      "text": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000 -4.45% 기록. 나스닥100은 고점 대비 약 15% 조정권에 진입했고 VIX는 69.68% 급등한..."
     },
     {
       "key": "TSM",
@@ -339,7 +338,7 @@
       "topics": [
         "macro"
       ],
-      "count": 348,
+      "count": 349,
       "focus": "2026년 11월 5일 미국 증시 브리핑 미국 증시는 중간선거에서 민주당이 상·하원 모두 장악했다는 소식과 국제유가 급락에 힘입어 큰 폭으로 상승 마감. 다우지수는 3.03%, S&P500은 1.58%,..."
     },
     {
@@ -348,7 +347,7 @@
       "topics": [
         "geo"
       ],
-      "count": 440,
+      "count": 441,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격..."
     },
     {
@@ -357,8 +356,8 @@
       "topics": [
         "credit"
       ],
-      "count": 101,
-      "focus": "11월 04일 미주인 브리핑 • 나스닥 0.83% 상승 · 엔비디아 시총 5조 달러 회복 • AMD 데이터센터 매출 97% 급증 · 시간 외 6% 상승 • 메타 대규모 회사채 발행 추진 · AI 투자 확대 •..."
+      "count": 100,
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 아메리라이프와 보험 유통 전반의 AI 전환을 위한 엔터프라이즈 파트너십 체결. Foundry와 AIP는 크럼프 생명보험 서비스에서 이미 운영 중이며, 향후 32만5,000명 이상의 보험 에이전트·자문가 네트워크를..."
     },
     {
       "id": "semi",
@@ -366,8 +365,8 @@
       "topics": [
         "semi"
       ],
-      "count": 479,
-      "focus": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
+      "count": 478,
+      "focus": "2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A..."
     },
     {
       "id": "optical",
@@ -384,7 +383,7 @@
       "topics": [
         "power"
       ],
-      "count": 262,
+      "count": 264,
       "focus": "시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이 제대로 찍히는 종목이 마땅치 않은 상황이지만, 반도체 단가가 50% 폭락 가정해도 PER이 5배 수준...."
     },
     {
@@ -411,8 +410,8 @@
       "topics": [
         "equity"
       ],
-      "count": 119,
-      "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
+      "count": 118,
+      "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS 1.81달러, GAAP EPS 1.75달러. 매출총이익률 12.8%(비GAAP), 전년 대비 +3.3%p...."
     },
     {
       "id": "crypto",
@@ -429,7 +428,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 417,
+      "count": 414,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -447,7 +446,7 @@
       "topics": [
         "japan"
       ],
-      "count": 79,
+      "count": 78,
       "focus": "앤트로픽, 대규모 미국 IPO 위해 일본에서 최대 35억 달러 조달 추진 1. 앤트로픽, 일본 투자자로부터 최대 35억 달러 조달 추진 - AI 스타트업 앤트로픽(Anthropic PBC)이 미국 증시..."
     },
     {
@@ -456,8 +455,8 @@
       "topics": [
         "flows"
       ],
-      "count": 70,
-      "focus": "No retained full-text sample; 70 observed posts in the 14-day research window."
+      "count": 69,
+      "focus": "No retained full-text sample; 69 observed posts in the 14-day research window."
     },
     {
       "id": "insider",
@@ -474,8 +473,8 @@
       "topics": [
         "market-note"
       ],
-      "count": 846,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 아메리라이프와 보험 유통 전반의 AI 전환을 위한 엔터프라이즈 파트너십 체결. Foundry와 AIP는..."
+      "count": 845,
+      "focus": "2026년 11월 5일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심의 매도 압력이 확대되며 혼조세. 한국시간 오후 1시 55분 기준 나스닥100 선물은 1.08% 하락, S&P500 선물은..."
     }
   ],
   "pageMap": {
@@ -734,7 +733,10 @@
       "datetime": "2026-11-05T21:33:51.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "market-note"
+        "credit",
+        "macro",
+        "semi",
+        "optical"
       ],
       "score": 100,
       "hasText": true,
@@ -744,7 +746,6 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 아메리라이프와 보험 유통 전반의 AI 전환을 위한 엔터프라이즈 파트너십 체결. Foundry와 AIP는...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -756,7 +757,8 @@
         "SMCI",
         "T",
         "AKAM"
-      ]
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 아메리라이프와 보험 유통 전반의 AI 전환을 위한 엔터프라이즈 파트너십 체결. Foundry와 AIP는..."
     },
     {
       "id": "insidertracking/68472",
@@ -765,6 +767,9 @@
       "datetime": "2026-11-05T21:31:41.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
+        "credit",
+        "macro",
+        "geo",
         "semi"
       ],
       "score": 100,
@@ -775,15 +780,14 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "AMD",
         "MU",
         "BE",
         "CRWV"
-      ]
+      ],
+      "summary": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
     },
     {
       "id": "insidertracking/68423",
@@ -895,14 +899,17 @@
       "datetime": "2026-11-04T06:08:50.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "민주당 블루웨이브와 AI 투자 1. 민주당이 연방 상원(52~54석)과 하원(약 250석), 그리고 텍사스 주지사까지 승리했지만, 미국 AI 투자가 정체될 가능성은 낮음 2. 미국의 AI 주도권 유지에는...",
       "tickers": [
         "BE"
-      ]
+      ],
+      "summary": "민주당 블루웨이브와 AI 투자 1. 민주당이 연방 상원(52~54석)과 하원(약 250석), 그리고 텍사스 주지사까지 승리했지만, 미국 AI 투자가 정체될 가능성은 낮음 2. 미국의 AI 주도권 유지에는..."
     },
     {
       "id": "insidertracking/68305",
@@ -935,18 +942,20 @@
       "localDateKst": "2026-11-04",
       "tags": [
         "equity",
-        "earnings"
+        "credit",
+        "geo",
+        "semi"
       ],
+      "lead": 1,
       "score": 100,
       "hasText": true,
-      "summary": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "AMD",
         "SMCI",
         "INTC"
-      ]
+      ],
+      "summary": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
       "id": "insidertracking/68237",
@@ -1768,6 +1777,61 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/68511",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68511",
+      "datetime": "2026-11-06T05:17:57.000Z",
+      "localDateKst": "2026-11-06",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power"
+      ],
+      "score": 96,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 6일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 러시아 측 드미트리예프 특사와 회동했으며 러시아·우크라이나 전쟁 종전 합의에 매우 근접했다고..."
+    },
+    {
+      "id": "HANAchina/71650",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71650",
+      "datetime": "2026-11-06T05:16:11.000Z",
+      "localDateKst": "2026-11-06",
+      "tags": [
+        "macro"
+      ],
+      "lead": 1,
+      "score": 52,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": ">>유가 20% 급락했는데 금값은 왜 반대로 급등했나? 골드만삭스 : 금은 ‘역방향 원유 거래’ •브렌트유가 한 주간 약 20% 급락한 가운데 금값은 3% 이상 반등함. 골드만삭스는 금이 원유의 ‘거울..."
+    },
+    {
+      "id": "bornlupin/21023",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21023",
+      "datetime": "2026-11-06T05:05:45.000Z",
+      "localDateKst": "2026-11-06",
+      "tags": [
+        "geo"
+      ],
+      "lead": 1,
+      "score": 50,
+      "hasText": true,
+      "tickers": [],
+      "summary": "이란, 카타르를 통해 미국에 핵 협상 제안 전달 — 이란 고위 관리 로이터에 밝혀 1. 이란, 미국에 핵 협상 제안 전달 - 이란이 카타르를 통해 미국에 핵 협상 제안서를 전달했다고 이란 고위 관리가 로이터에..."
+    },
+    {
       "id": "HANAchina/71648",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71648",
@@ -1988,11 +2052,11 @@
         "kr-market",
         "flows"
       ],
+      "lead": 3,
       "score": 55,
       "hasText": true,
-      "summary": "• 대만 증시 약세와 외국인 순매도 속에 신대만달러 환율이 장중 달러당 33선에 근접하자, 대만 중앙은행 외환국은 수출기업들에게 추가적인 고점 환율을 기다리기보다 달러 가격이 유리한 지금 시점에 맞춰 달러를...",
-      "lead": 3,
-      "tickers": []
+      "tickers": [],
+      "summary": "• 대만 증시 약세와 외국인 순매도 속에 신대만달러 환율이 장중 달러당 33선에 근접하자, 대만 중앙은행 외환국은 수출기업들에게 추가적인 고점 환율을 기다리기보다 달러 가격이 유리한 지금 시점에 맞춰 달러를..."
     },
     {
       "id": "insidertracking/68490",
@@ -2018,11 +2082,11 @@
       "tags": [
         "macro"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": "•대만 10월 CPI는 전년 동기 대비 2.33% 상승하여 9월보다는 하락했지만, 6개월 연속 2%를 웃도는 상승세를 기록 •운송 및 통신 부문이 4.36%로 가장 큰 폭의 증가세를 보였으며, 연료비와...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "•대만 10월 CPI는 전년 동기 대비 2.33% 상승하여 9월보다는 하락했지만, 6개월 연속 2%를 웃도는 상승세를 기록 •운송 및 통신 부문이 4.36%로 가장 큰 폭의 증가세를 보였으며, 연료비와..."
     },
     {
       "id": "HANAchina/71620",
@@ -2033,11 +2097,11 @@
       "tags": [
         "ai-policy"
       ],
+      "lead": 1,
       "score": 50,
       "hasText": true,
-      "summary": ">>OpenAI, GPT-6 Cyber 출시…사이버보안 AI 능력 대폭 향상 •GPT-6 Cyber의 취약점 공격 벤치마크 점수가 전작 대비 51% 향상, 연구진이 Firefox에서 81개의 고위험 취약점을...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>OpenAI, GPT-6 Cyber 출시…사이버보안 AI 능력 대폭 향상 •GPT-6 Cyber의 취약점 공격 벤치마크 점수가 전작 대비 51% 향상, 연구진이 Firefox에서 81개의 고위험 취약점을..."
     },
     {
       "id": "HANAchina/71618",
@@ -2046,12 +2110,15 @@
       "datetime": "2026-11-05T22:18:51.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "market-note"
+        "credit",
+        "macro",
+        "geo",
+        "power"
       ],
       "score": 92,
       "hasText": true,
-      "summary": ">>미국 중간선거 ‘블루 웨이브’ 이후 월가의 6가지 투자 방향 전환 (대만경제일보) •미국 중간선거에서 민주당이 의회 양원을 장악하면서 월가는 향후 정책 변화에 대응해 투자 방향을 조정하고 있음. 트럼프...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>미국 중간선거 ‘블루 웨이브’ 이후 월가의 6가지 투자 방향 전환 (대만경제일보) •미국 중간선거에서 민주당이 의회 양원을 장악하면서 월가는 향후 정책 변화에 대응해 투자 방향을 조정하고 있음. 트럼프..."
     },
     {
       "id": "HANAchina/71614",
@@ -2070,11 +2137,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "•항셍지수 선물 -1.58% 마감 •FTSE China A50 야간 선물 -1.85% •TSMC adr -10.8%",
-      "lead": 1,
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "•항셍지수 선물 -1.58% 마감 •FTSE China A50 야간 선물 -1.85% •TSMC adr -10.8%"
     },
     {
       "id": "HANAchina/71613",
@@ -2085,13 +2151,13 @@
       "tags": [
         "power"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": ">>Google, 미국 와이오밍주에 170억달러 투자해 첫 데이터센터 건설…전력 비용 전액 자체 부담 •Google이 미국 와이오밍주에 170억달러를 투자해 첫 데이터센터를 건설한다고 발표. 전력 비용은...",
-      "lead": 1,
       "tickers": [
         "GOOG"
-      ]
+      ],
+      "summary": ">>Google, 미국 와이오밍주에 170억달러 투자해 첫 데이터센터 건설…전력 비용 전액 자체 부담 •Google이 미국 와이오밍주에 170억달러를 투자해 첫 데이터센터를 건설한다고 발표. 전력 비용은..."
     },
     {
       "id": "insidertracking/68481",
@@ -2102,6 +2168,7 @@
       "tags": [
         "geo"
       ],
+      "lead": 1,
       "score": 50,
       "hasText": true,
       "media": {
@@ -2110,9 +2177,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "텔레그래프 칼럼니스트 데이비드 블레어는 미국 중간선거 이후 트럼프 대통령이 우크라이나 전쟁의 조기 종식을 위해 키이우에 대한 압박을 강화할 가능성이 있다고 분석. 블레어는 민주당의 중간선거 승리로 트럼프...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "텔레그래프 칼럼니스트 데이비드 블레어는 미국 중간선거 이후 트럼프 대통령이 우크라이나 전쟁의 조기 종식을 위해 키이우에 대한 압박을 강화할 가능성이 있다고 분석. 블레어는 민주당의 중간선거 승리로 트럼프..."
     },
     {
       "id": "insidertracking/68475",
@@ -2123,6 +2189,7 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 55,
       "hasText": true,
       "media": {
@@ -2131,11 +2198,11 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 레딧 관심도 마이크론, 엔비디아, 나스닥",
       "tickers": [
         "NVDA",
         "MU"
-      ]
+      ],
+      "summary": "미국 레딧 관심도 마이크론, 엔비디아, 나스닥"
     },
     {
       "id": "insidertracking/68474",
@@ -2144,11 +2211,11 @@
       "datetime": "2026-11-05T21:37:12.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "market-note"
+        "equity",
+        "healthcare"
       ],
       "score": 60,
       "hasText": true,
-      "summary": "52주 신고가 (시총 $1B 이상) 금융 · Aflac · AGNC Investment · Allstate · Amerant Bancorp · American Financial Group · American...",
       "tickers": [],
       "listTickers": [
         "AAPL",
@@ -2171,7 +2238,8 @@
         "AMC",
         "CI",
         "CL"
-      ]
+      ],
+      "summary": "52주 신고가 (시총 $1B 이상) 금융 · Aflac · AGNC Investment · Allstate · Amerant Bancorp · American Financial Group · American..."
     },
     {
       "id": "insidertracking/68473",
@@ -2180,7 +2248,10 @@
       "datetime": "2026-11-05T21:33:51.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "market-note"
+        "credit",
+        "macro",
+        "semi",
+        "optical"
       ],
       "score": 100,
       "hasText": true,
@@ -2190,7 +2261,6 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 아메리라이프와 보험 유통 전반의 AI 전환을 위한 엔터프라이즈 파트너십 체결. Foundry와 AIP는...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -2202,7 +2272,8 @@
         "SMCI",
         "T",
         "AKAM"
-      ]
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 아메리라이프와 보험 유통 전반의 AI 전환을 위한 엔터프라이즈 파트너십 체결. Foundry와 AIP는..."
     },
     {
       "id": "insidertracking/68472",
@@ -2211,6 +2282,9 @@
       "datetime": "2026-11-05T21:31:41.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
+        "credit",
+        "macro",
+        "geo",
         "semi"
       ],
       "score": 100,
@@ -2221,15 +2295,14 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "AMD",
         "MU",
         "BE",
         "CRWV"
-      ]
+      ],
+      "summary": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
     },
     {
       "id": "insidertracking/68469",
@@ -2303,13 +2376,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 56,
       "hasText": true,
-      "summary": ">>Nvidia, AI 메모리 풀스택 협업 설계 공개…HBM 용량 3% 증가로 Agent 처리량/달러 최대 30배 향상 •Nvidia는 대규모 모델과 Agent 확산으로 메모리 부담이 커지고 있어 단순한...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>Nvidia, AI 메모리 풀스택 협업 설계 공개…HBM 용량 3% 증가로 Agent 처리량/달러 최대 30배 향상 •Nvidia는 대규모 모델과 Agent 확산으로 메모리 부담이 커지고 있어 단순한..."
     },
     {
       "id": "HANAchina/71608",
@@ -3707,12 +3780,13 @@
       "tags": [
         "power"
       ],
+      "lead": 1,
       "score": 57,
       "hasText": true,
-      "summary": "Mizuho: 민주당의 상, 하원 승리로 데이터센터 규제 강화 가능성, 블룸에너지( $BE )에 유리 11월 3일 미국 중간선거에서 민주당이 상원과 하원을 모두 장악할 것으로 전망되는 가운데 , 주정부 차원의...",
       "tickers": [
         "BE"
-      ]
+      ],
+      "summary": "Mizuho: 민주당의 상, 하원 승리로 데이터센터 규제 강화 가능성, 블룸에너지( $BE )에 유리 11월 3일 미국 중간선거에서 민주당이 상원과 하원을 모두 장악할 것으로 전망되는 가운데 , 주정부 차원의..."
     },
     {
       "id": "insidertracking/68337",
@@ -4000,14 +4074,17 @@
       "datetime": "2026-11-04T06:08:50.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "민주당 블루웨이브와 AI 투자 1. 민주당이 연방 상원(52~54석)과 하원(약 250석), 그리고 텍사스 주지사까지 승리했지만, 미국 AI 투자가 정체될 가능성은 낮음 2. 미국의 AI 주도권 유지에는...",
       "tickers": [
         "BE"
-      ]
+      ],
+      "summary": "민주당 블루웨이브와 AI 투자 1. 민주당이 연방 상원(52~54석)과 하원(약 250석), 그리고 텍사스 주지사까지 승리했지만, 미국 AI 투자가 정체될 가능성은 낮음 2. 미국의 AI 주도권 유지에는..."
     },
     {
       "id": "insidertracking/68305",
@@ -4331,6 +4408,7 @@
       "datetime": "2026-11-04T00:03:25.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
+        "semi",
         "earnings"
       ],
       "score": 57,
@@ -4341,8 +4419,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "[한투증권 최건] 고영 3Q26 Review: 놀라셨겠지만, 이제 시작입니다. 영업이익 컨센서스 15% 상회. 2개분기 연속 최대 실적 - 3분기 매출액 1,066억원(+76.8% YoY, +20.1%...",
-      "tickers": []
+      "tickers": [],
+      "summary": "[한투증권 최건] 고영 3Q26 Review: 놀라셨겠지만, 이제 시작입니다. 영업이익 컨센서스 15% 상회. 2개분기 연속 최대 실적 - 3분기 매출액 1,066억원(+76.8% YoY, +20.1%..."
     },
     {
       "id": "bornlupin/20991",
@@ -4351,16 +4429,18 @@
       "datetime": "2026-11-03T23:50:14.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "earnings",
-        "equity"
+        "equity",
+        "semi",
+        "power",
+        "earnings"
       ],
+      "lead": 1,
       "score": 59,
       "hasText": true,
-      "summary": "슈퍼마이크로 $SMCI 어닝콜 핵심 ① AI 인프라 수요가 매우 강력하며 공급을 크게 초과하고 있으며, 연간 매출 전망을 720억~820억 달러로 상향. 연간 매출 가이던스 720억~820억 달러도 매우...",
-      "lead": 2,
       "tickers": [
         "SMCI"
-      ]
+      ],
+      "summary": "슈퍼마이크로 $SMCI 어닝콜 핵심 ① AI 인프라 수요가 매우 강력하며 공급을 크게 초과하고 있으며, 연간 매출 전망을 720억~820억 달러로 상향. 연간 매출 가이던스 720억~820억 달러도 매우..."
     },
     {
       "id": "bornlupin/20990",
@@ -4370,18 +4450,20 @@
       "localDateKst": "2026-11-04",
       "tags": [
         "equity",
-        "earnings"
+        "credit",
+        "geo",
+        "semi"
       ],
+      "lead": 1,
       "score": 100,
       "hasText": true,
-      "summary": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "AMD",
         "SMCI",
         "INTC"
-      ]
+      ],
+      "summary": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
       "id": "bornlupin/20989",
@@ -4393,13 +4475,13 @@
         "semi",
         "power"
       ],
+      "lead": 1,
       "score": 79,
       "hasText": true,
-      "summary": "AMD Q3 2026 어닝콜 Q&A 중 Q. 2027년 약 3GW 규모의 AMD GPU 배치를 위한 고객들의 자금·토지·전력·데이터센터 인프라가 충분히 준비되어 있는가? 비벡 아리아(BofA): \"최근...",
-      "lead": 1,
       "tickers": [
         "AMD"
-      ]
+      ],
+      "summary": "AMD Q3 2026 어닝콜 Q&A 중 Q. 2027년 약 3GW 규모의 AMD GPU 배치를 위한 고객들의 자금·토지·전력·데이터센터 인프라가 충분히 준비되어 있는가? 비벡 아리아(BofA): \"최근..."
     },
     {
       "id": "HANAchina/71506",
@@ -4426,15 +4508,18 @@
       "datetime": "2026-11-03T23:28:58.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "semi"
+        "semi",
+        "macro",
+        "power",
+        "earnings"
       ],
+      "lead": 1,
       "score": 81,
       "hasText": true,
-      "summary": "AMD Q3 2026 어닝콜 중 메모리 관련 리사 수 CEO · 진 후 CFO 1. HBM 가격 상승과 고객 비용 분담 Q. HBM 가격 상승이 Instinct GPU 사업에 미치는 영향은? GPU 가격에...",
-      "lead": 1,
       "tickers": [
         "AMD"
-      ]
+      ],
+      "summary": "AMD Q3 2026 어닝콜 중 메모리 관련 리사 수 CEO · 진 후 CFO 1. HBM 가격 상승과 고객 비용 분담 Q. HBM 가격 상승이 Instinct GPU 사업에 미치는 영향은? GPU 가격에..."
     },
     {
       "id": "bornlupin/20987",
@@ -4444,17 +4529,19 @@
       "localDateKst": "2026-11-04",
       "tags": [
         "semi",
-        "earnings"
+        "power",
+        "ai-policy",
+        "equity"
       ],
+      "lead": 1,
       "score": 87,
       "hasText": true,
-      "summary": "AMD 2026년 3분기 어닝콜 1. 3분기 실적: 사상 최대 매출과 이익 - 매출 134억 달러(+45% YoY, +16% QoQ) - Non-GAAP EPS 2.09달러(+74% YoY) - 매출총이익률...",
-      "lead": 1,
       "tickers": [
         "AMD",
         "MSFT",
         "ORCL"
-      ]
+      ],
+      "summary": "AMD 2026년 3분기 어닝콜 1. 3분기 실적: 사상 최대 매출과 이익 - 매출 134억 달러(+45% YoY, +16% QoQ) - Non-GAAP EPS 2.09달러(+74% YoY) - 매출총이익률..."
     },
     {
       "id": "HANAchina/71505",
@@ -4559,13 +4646,13 @@
         "semi",
         "power"
       ],
+      "lead": 2,
       "score": 69,
       "hasText": true,
-      "summary": "AMD 리사 수 CEO “2027년 매출이 전년 대비 80% 이상 성장할 것으로 예상합니다.” 이는 AMD가 지난해 11월 제시한 장기 매출 성장률 목표의 두 배를 넘는 수준 입니다. - 데이터센터 매출...",
-      "lead": 2,
       "tickers": [
         "AMD"
-      ]
+      ],
+      "summary": "AMD 리사 수 CEO “2027년 매출이 전년 대비 80% 이상 성장할 것으로 예상합니다.” 이는 AMD가 지난해 11월 제시한 장기 매출 성장률 목표의 두 배를 넘는 수준 입니다. - 데이터센터 매출..."
     },
     {
       "id": "bornlupin/20985",
@@ -4574,12 +4661,14 @@
       "datetime": "2026-11-03T22:19:15.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
-        "earnings"
+        "earnings",
+        "equity"
       ],
+      "lead": 1,
       "score": 65,
       "hasText": true,
-      "summary": "아리스타 네트웍스 (ANET) 2026년 3분기 실적 (시간외 +13%) * 매출: 36억 6,000만 달러 (예상치 33억 3,000만 달러 상회), 전년 동기 대비 58.5% 증가 * 조정...",
-      "tickers": []
+      "tickers": [],
+      "summary": "아리스타 네트웍스 (ANET) 2026년 3분기 실적 (시간외 +13%) * 매출: 36억 6,000만 달러 (예상치 33억 3,000만 달러 상회), 전년 동기 대비 58.5% 증가 * 조정..."
     },
     {
       "id": "insidertracking/68237",
@@ -4644,15 +4733,17 @@
       "datetime": "2026-11-03T21:25:45.000Z",
       "localDateKst": "2026-11-04",
       "tags": [
+        "earnings",
         "equity",
-        "earnings"
+        "power"
       ],
+      "lead": 2,
       "score": 77,
       "hasText": true,
-      "summary": "슈퍼마이크로 $SMCI 2027 회계연도 1분기 실적 (시간외 +5%) 매출: 199억 달러; 전년 동기 대비 +298% 조정 주당순이익(EPS): 1.81달러 (예상치 1.62달러 상회); 전년 동기 대비...",
       "tickers": [
         "SMCI"
-      ]
+      ],
+      "summary": "슈퍼마이크로 $SMCI 2027 회계연도 1분기 실적 (시간외 +5%) 매출: 199억 달러; 전년 동기 대비 +298% 조정 주당순이익(EPS): 1.81달러 (예상치 1.62달러 상회); 전년 동기 대비..."
     },
     {
       "id": "insidertracking/68225",
@@ -6670,26 +6761,6 @@
       ]
     },
     {
-      "id": "insidertracking/68084",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68084",
-      "datetime": "2026-11-02T12:29:51.000Z",
-      "localDateKst": "2026-11-02",
-      "tags": [
-        "ai-policy"
-      ],
-      "score": 85,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 2일 > 오후3시~오후 9시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 중간선거의 공정성과 안전성을 신뢰하느냐는 질문에 부정적인 입장을 밝혀. • OpenAI는...",
-      "tickers": []
-    },
-    {
       "id": "bornlupin/20952",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20952",
@@ -7678,25 +7749,6 @@
       "tickers": [
         "MRVL",
         "LITE"
-      ]
-    },
-    {
-      "id": "HANAchina/71300",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71300",
-      "datetime": "2026-10-31T08:36:38.000Z",
-      "localDateKst": "2026-10-31",
-      "tags": [
-        "earnings",
-        "japan"
-      ],
-      "score": 67,
-      "hasText": true,
-      "summary": ">>실적은 폭발적이었지만, SanDisk 주가는 왜 시간 외 거래에서 급락했나? (중국언론) •문제는 일본 웨이퍼 공장 파트너인 Kioxia. Kioxia가 제시한 이익 전망이 시장 기대에 미치지 못했고,...",
-      "lead": 1,
-      "tickers": [
-        "SNDK",
-        "285A.T"
       ]
     },
     {
@@ -8714,24 +8766,6 @@
       "tickers": []
     },
     {
-      "id": "bornlupin/20821",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20821",
-      "datetime": "2026-10-26T07:00:24.000Z",
-      "localDateKst": "2026-10-26",
-      "tags": [
-        "semi"
-      ],
-      "score": 69,
-      "hasText": true,
-      "summary": "CXMT, 애플 제안 단호히 거절: \"중국 내 주문도 벅차다\" 중국 본토의 D램 제조사 창신메모리(CXMT)가 자국 고객사의 폭발적인 수요를 우선 처리하기 위해 애플과 대만 서버 업체의 주문 제안을 연달아...",
-      "tickers": [
-        "MU",
-        "005930.KS",
-        "000660.KS"
-      ]
-    },
-    {
       "id": "aetherjapanresearch/26044",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/26044",
@@ -9098,11 +9132,11 @@
       "tags": [
         "ai-policy"
       ],
+      "lead": 1,
       "score": 50,
       "hasText": true,
-      "summary": ">>OpenAI, GPT-6 Cyber 출시…사이버보안 AI 능력 대폭 향상 •GPT-6 Cyber의 취약점 공격 벤치마크 점수가 전작 대비 51% 향상, 연구진이 Firefox에서 81개의 고위험 취약점을...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>OpenAI, GPT-6 Cyber 출시…사이버보안 AI 능력 대폭 향상 •GPT-6 Cyber의 취약점 공격 벤치마크 점수가 전작 대비 51% 향상, 연구진이 Firefox에서 81개의 고위험 취약점을..."
     },
     {
       "id": "HANAchina/71618",
@@ -9111,12 +9145,15 @@
       "datetime": "2026-11-05T22:18:51.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "market-note"
+        "credit",
+        "macro",
+        "geo",
+        "power"
       ],
       "score": 92,
       "hasText": true,
-      "summary": ">>미국 중간선거 ‘블루 웨이브’ 이후 월가의 6가지 투자 방향 전환 (대만경제일보) •미국 중간선거에서 민주당이 의회 양원을 장악하면서 월가는 향후 정책 변화에 대응해 투자 방향을 조정하고 있음. 트럼프...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>미국 중간선거 ‘블루 웨이브’ 이후 월가의 6가지 투자 방향 전환 (대만경제일보) •미국 중간선거에서 민주당이 의회 양원을 장악하면서 월가는 향후 정책 변화에 대응해 투자 방향을 조정하고 있음. 트럼프..."
     },
     {
       "id": "HANAchina/71614",
@@ -9135,11 +9172,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "•항셍지수 선물 -1.58% 마감 •FTSE China A50 야간 선물 -1.85% •TSMC adr -10.8%",
-      "lead": 1,
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "•항셍지수 선물 -1.58% 마감 •FTSE China A50 야간 선물 -1.85% •TSMC adr -10.8%"
     },
     {
       "id": "HANAchina/71613",
@@ -9150,13 +9186,13 @@
       "tags": [
         "power"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": ">>Google, 미국 와이오밍주에 170억달러 투자해 첫 데이터센터 건설…전력 비용 전액 자체 부담 •Google이 미국 와이오밍주에 170억달러를 투자해 첫 데이터센터를 건설한다고 발표. 전력 비용은...",
-      "lead": 1,
       "tickers": [
         "GOOG"
-      ]
+      ],
+      "summary": ">>Google, 미국 와이오밍주에 170억달러 투자해 첫 데이터센터 건설…전력 비용 전액 자체 부담 •Google이 미국 와이오밍주에 170억달러를 투자해 첫 데이터센터를 건설한다고 발표. 전력 비용은..."
     },
     {
       "id": "insidertracking/68481",
@@ -9167,6 +9203,7 @@
       "tags": [
         "geo"
       ],
+      "lead": 1,
       "score": 50,
       "hasText": true,
       "media": {
@@ -9175,9 +9212,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "텔레그래프 칼럼니스트 데이비드 블레어는 미국 중간선거 이후 트럼프 대통령이 우크라이나 전쟁의 조기 종식을 위해 키이우에 대한 압박을 강화할 가능성이 있다고 분석. 블레어는 민주당의 중간선거 승리로 트럼프...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "텔레그래프 칼럼니스트 데이비드 블레어는 미국 중간선거 이후 트럼프 대통령이 우크라이나 전쟁의 조기 종식을 위해 키이우에 대한 압박을 강화할 가능성이 있다고 분석. 블레어는 민주당의 중간선거 승리로 트럼프..."
     },
     {
       "id": "insidertracking/68475",
@@ -9188,6 +9224,7 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 55,
       "hasText": true,
       "media": {
@@ -9196,11 +9233,11 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 레딧 관심도 마이크론, 엔비디아, 나스닥",
       "tickers": [
         "NVDA",
         "MU"
-      ]
+      ],
+      "summary": "미국 레딧 관심도 마이크론, 엔비디아, 나스닥"
     },
     {
       "id": "insidertracking/68474",
@@ -9209,11 +9246,11 @@
       "datetime": "2026-11-05T21:37:12.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "market-note"
+        "equity",
+        "healthcare"
       ],
       "score": 60,
       "hasText": true,
-      "summary": "52주 신고가 (시총 $1B 이상) 금융 · Aflac · AGNC Investment · Allstate · Amerant Bancorp · American Financial Group · American...",
       "tickers": [],
       "listTickers": [
         "AAPL",
@@ -9236,7 +9273,8 @@
         "AMC",
         "CI",
         "CL"
-      ]
+      ],
+      "summary": "52주 신고가 (시총 $1B 이상) 금융 · Aflac · AGNC Investment · Allstate · Amerant Bancorp · American Financial Group · American..."
     },
     {
       "id": "insidertracking/68473",
@@ -9245,7 +9283,10 @@
       "datetime": "2026-11-05T21:33:51.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "market-note"
+        "credit",
+        "macro",
+        "semi",
+        "optical"
       ],
       "score": 100,
       "hasText": true,
@@ -9255,7 +9296,6 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 아메리라이프와 보험 유통 전반의 AI 전환을 위한 엔터프라이즈 파트너십 체결. Foundry와 AIP는...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -9267,7 +9307,8 @@
         "SMCI",
         "T",
         "AKAM"
-      ]
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 아메리라이프와 보험 유통 전반의 AI 전환을 위한 엔터프라이즈 파트너십 체결. Foundry와 AIP는..."
     },
     {
       "id": "insidertracking/68472",
@@ -9276,6 +9317,9 @@
       "datetime": "2026-11-05T21:31:41.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
+        "credit",
+        "macro",
+        "geo",
         "semi"
       ],
       "score": 100,
@@ -9286,15 +9330,14 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "AMD",
         "MU",
         "BE",
         "CRWV"
-      ]
+      ],
+      "summary": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
     },
     {
       "id": "insidertracking/68469",
@@ -9368,13 +9411,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 56,
       "hasText": true,
-      "summary": ">>Nvidia, AI 메모리 풀스택 협업 설계 공개…HBM 용량 3% 증가로 Agent 처리량/달러 최대 30배 향상 •Nvidia는 대규모 모델과 Agent 확산으로 메모리 부담이 커지고 있어 단순한...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>Nvidia, AI 메모리 풀스택 협업 설계 공개…HBM 용량 3% 증가로 Agent 처리량/달러 최대 30배 향상 •Nvidia는 대규모 모델과 Agent 확산으로 메모리 부담이 커지고 있어 단순한..."
     },
     {
       "id": "HANAchina/71608",
