@@ -7085,24 +7085,16 @@ _aioPageBus.register('data-page-activation', 'aio:pageShown', function(e) {
   if (pageId === 'home') {
     setTimeout(refreshHomeDashboard, 100);
   }
-  // v48.59: FRED/BOK/KOSIS 지연 fetch (페이지 진입 시만)
-  if (pageId === 'macro' || pageId === 'fxbond') {
-    setTimeout(function(){
-      if (typeof fetchAllFredData === 'function' && !window._fredData) {
-        try { fetchAllFredData(); } catch(_){}
-      }
-    }, 500);
-  }
-  if (pageId === 'macro') { // v53.7 (P725): KR 매크로 데이터는 macro 페이지 통합 섹션에서 사용
-    setTimeout(function(){
-      if (typeof fetchAllBokData === 'function' && !window._bokData) {
-        try { fetchAllBokData(); } catch(_){}
-      }
-      if (typeof fetchAllKosisData === 'function' && !window._kosisData) {
-        try { fetchAllKosisData(); } catch(_){}
-      }
-    }, 500);
-  }
+  // v48.59: FRED/BOK/KOSIS 지연 fetch (페이지 진입 시만). v59.70 (N6): a deep link runs this before the module graph
+  // installs the relay transport (proxy-transport.js), so the 500 ms delay starts after aio:relayReady.
+  var afterRelay = function(fn) { if (window._aioRelayReady) setTimeout(fn, 500); else document.addEventListener('aio:relayReady', function() { setTimeout(fn, 500); }, { once: true }); };
+  if (pageId === 'macro' || pageId === 'fxbond') afterRelay(function(){
+    if (typeof fetchAllFredData === 'function' && !window._fredData) fetchAllFredData();
+  });
+  if (pageId === 'macro') afterRelay(function(){ // v53.7 (P725): KR 매크로 데이터는 macro 페이지 통합 섹션에서 사용
+    if (typeof fetchAllBokData === 'function' && !window._bokData) fetchAllBokData();
+    if (typeof fetchAllKosisData === 'function' && !window._kosisData) fetchAllKosisData();
+  });
   // The screener route's ranking runs in its native orchestrator on page show (the legacy 200 ms re-rank is retired).
   // v51.08: market-news 페이지 진입 시 뉴스 캐시 재렌더 (백스톱 포함)
   if (pageId === 'market-news') {

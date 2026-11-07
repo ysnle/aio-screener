@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-route-soak-evidence.v1",
-  "observedAt": "2026-11-04T07:30:10.061Z",
+  "observedAt": "2026-11-06T13:58:58.360Z",
   "appRevision": "v59.69",
-  "gitHead": "727912a7e7f23e3c57534dd1741266c20e589eec",
+  "gitHead": "89e8c8812f3c856842dcce4d141142b102bcc1a9",
   "gitClean": false,
   "environment": {
     "browser": "chromium",
@@ -85,5 +85,17 @@
       }
     ],
     "active": "ticker"
-  }
+  },
+  "deepLinks": [
+    {
+      "route": "macro",
+      "surface": "bok+kosis fetched",
+      "errors": []
+    },
+    {
+      "route": "signal",
+      "surface": "한국 금리·물가·수출한국은행 공식 발표, 8/27 결정기준금리 3.00%다음 금통위 2026-11-26수출(2026-10 잠정) 1,153억 달",
+      "errors": []
+    }
+  ]
 }

@@ -88,6 +88,38 @@ try {
   });
   report.entityRoundTrip = entityRoundTrip;
   if (JSON.stringify(entityRoundTrip.sequence.map((row) => row.entityId)) !== JSON.stringify(['AAPL', 'MSFT', 'AAPL']) || entityRoundTrip.active !== 'ticker') throw new Error(`entity A→B→A failed: ${JSON.stringify(entityRoundTrip)}`);
+  // v59.70 (N6): direct entry with a late module graph. A deep link's first page hooks run while the deferred classic
+  // scripts evaluate; holding bootstrap.js 1.5 s makes the relay transport arrive after the legacy 500 ms BOK/KOSIS
+  // timer every time (the old code threw "_cfWorkerUrl is not defined" there and never fetched). Each entry must log no
+  // console error, 매크로 must run its BOK/KOSIS fetch, and the 시장 상태 한국 board must show its policy card.
+  report.deepLinks = [];
+  for (const route of ['macro', 'signal']) {
+    const deep = await browser.newPage({ viewport: DESKTOP_PRIMARY_VIEWPORT });
+    const deepErrors = [];
+    deep.on('pageerror', (error) => deepErrors.push(`pageerror:${error.message}`));
+    deep.on('console', (message) => { if (message.type() === 'error' && !isExpectedOfflineConsole(message.text())) deepErrors.push(`console:${message.text()}`); });
+    await deep.route('**/*', async (request) => {
+      const url = request.request().url();
+      if (!url.startsWith(`http://127.0.0.1:${port}/`)) return request.abort();
+      if (/\/src\/app\/bootstrap\.js/.test(url)) await new Promise((wait) => setTimeout(wait, 1500));
+      return request.continue();
+    });
+    await deep.goto(`${baseUrl}#${route}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await deep.waitForFunction(() => typeof window._cfWorkerUrl === 'function', null, { timeout: 30000 });
+    let surface;
+    if (route === 'macro') {
+      surface = await deep.waitForFunction(() => window._bokData && window._kosisData, null, { timeout: 15000 }).then(() => 'bok+kosis fetched', () => 'bok/kosis never fetched');
+    } else {
+      await deep.waitForFunction(() => document.getElementById('regime-kr-fold'), null, { timeout: 15000 });
+      await deep.evaluate(() => { document.getElementById('regime-kr-fold').open = true; });
+      surface = await deep.waitForFunction(() => document.querySelector('#regime-board-kr [data-axis="kr-policy"]')?.textContent, null, { timeout: 10000 }).then((h) => h.jsonValue(), () => 'kr-policy card missing');
+    }
+    await deep.waitForTimeout(1500);
+    report.deepLinks.push({ route, surface: String(surface).replace(/\s+/g, ' ').slice(0, 80), errors: deepErrors });
+    deepErrors.forEach((error) => report.errors.push(`deep-link #${route}: ${error}`));
+    if (/never|missing/.test(String(surface))) report.errors.push(`deep-link #${route}: ${surface}`);
+    await deep.close();
+  }
   const first = report.lapReports[0];
   const last = report.lapReports[report.lapReports.length - 1];
   if (first.maxCharts !== last.maxCharts || first.maxCanvases !== last.maxCanvases) throw new Error(`chart/canvas count grew across soak: ${JSON.stringify({ first, last })}`);
