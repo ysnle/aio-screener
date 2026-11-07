@@ -39,6 +39,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2249 - v59.70 - The first v59.70 refresh failed: the data-audit gate read the published history.v2 object as rows and got an empty regime (2026-11-07)
+
+- symptom/reproduction: After the v59.70 push, both scheduled Refresh market data runs (03:20Z, 03:50Z on 11/07) failed at 'Validate evidence-derived 22-category reconciliation' with data-audit-contract: 'the verdict table has the 심리 and AI·반도체 집중 watch rows' and the weight check. No data commit landed, so main stayed on an unattested bot commit and Pages could not converge to v59.70.
+- root_cause: The producer now writes history.json as history.v2 (an object with rows and a field dictionary). ci-data-audit-contract-check passed the raw payload to interpretationFromArtifacts, and marketAnalysisRegimeInput handed it to regimeMarketInput as if it were v1 rows, so the regime had 0 axes and no watch rows. Locally the gate passed because the local history.json was still a v1 array from the old producer; the producers themselves already call readHistoryRows.
+- fix: marketAnalysisRegimeInput reads its history through readHistoryRows (a v1 array passes through unchanged), and the gate reads history.json the way the producers do.
+- violated_rule: A reader of history.json goes through readHistoryRows; a gate that reads published artifacts must be run against the shape the new producer writes, not only the shape on disk
+- prevention: The data, core and knowledge groups were run with public-data/history.json rewritten to history.v2 by compactHistoryRows: data 41/0, core 63/0, knowledge 8/0. Before the fix the same probe gave 'v2 axes 0' against 'v1 axes 7'.
+- verification/residual: node scripts/ci-data-audit-contract-check.mjs with v1 and with a compactHistoryRows(v2) history.json (both OK); scratchpad probe: v1 and v2 both give sentiment:none, leadership:leadership-cap, 7 axes.
+
 ## P2248 - v59.70 - Three screens computed the 20-session HY spread change three ways (+32bp vs +34bp), and 매크로 read credit with its own thresholds (2026-11-07)
 
 - symptom/reproduction: On 11/4 시장 상태's credit axis, the 매크로 credit chapter and 연결해서 보면's rates-credit pair quoted different 20-session high-yield changes for the same close (+32bp, +34bp). The 매크로 chapter said '크게 벌어졌습니다' and flipped at '3.5% 돌파' while 시장 상태 read the same spread as 중립.

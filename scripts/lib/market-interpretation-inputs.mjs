@@ -9,11 +9,13 @@
 import { buildMarketInterpretation } from '../../src/domain/interpretation/market-interpretation.js';
 import { indexEarningsInput, interpretationInput, regimeMarketInput } from '../../src/domain/interpretation/inputs.js';
 import { expandScreenerArtifact } from '../../src/data/screener-extended.js'; // v57.95 core row encoding
+import { readHistoryRows } from '../../src/domain/market/history-rows.js';
 
 // P1635/P1685: the screen's regime inputs (credit with the 20-session HY change, rates) from the published
 // market data. The browser reads the same values through src/data/selectors/market-inputs.js.
 export function marketAnalysisRegimeInput(data, history = [], macroHistory = null, { screener = null, nowMs = Date.now() } = {}) {
-  return regimeMarketInput({ macro: data?.macro || null, fearGreed: data?.fearGreed || null, history, macroHistory,
+  // v59.70: accept the published history.v2 payload as well as v1 rows (a raw v2 object read as rows gave an empty regime).
+  return regimeMarketInput({ macro: data?.macro || null, fearGreed: data?.fearGreed || null, history: readHistoryRows(history), macroHistory,
     breadthSp500: screener?.breadth?.segments?.sp500 || null, nowMs }); // M05: the narrative uses the same latest-session admission as the screen
 }
 

@@ -151,7 +151,9 @@ const calendars = await import('./lib/official-calendars.mjs');
   check('v59.70 story moves read session-dated closes, not the value carried on the row date', ndx?.asOf === '2026-10-30' && Math.abs(ndx.pct - (400 / 20300) * 100) < 1e-9, JSON.stringify(ndx));
   const { interpretationFromArtifacts } = await import('./lib/market-interpretation-inputs.mjs');
   const pd = (file) => JSON.parse(read(`public-data/${file}`));
-  const out = interpretationFromArtifacts({ data: pd('data.json'), history: pd('history.json'), macroHistory: pd('macro-history.json'), screener: pd('screener.json'), nowMs: Date.parse('2026-11-03T14:00:00Z') });
+  // The published history.json is history.v2 once the producer runs (v59.70); read it the way the producers do.
+  const { readHistoryRows } = await import('../src/domain/market/history-rows.js');
+  const out = interpretationFromArtifacts({ data: pd('data.json'), history: readHistoryRows(pd('history.json')), macroHistory: pd('macro-history.json'), screener: pd('screener.json'), nowMs: Date.parse('2026-11-03T14:00:00Z') });
   const regime = out.regime || out;
   const watch = Object.fromEntries((regime.watchAxes || []).map((row) => [row.id, row]));
   check('v59.70 the verdict table has the 심리 and AI·반도체 집중 watch rows', watch.sentiment && watch.leadership && watch.sentiment.watch && watch.leadership.watch, Object.keys(watch).join(','));
