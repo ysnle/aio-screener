@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-07T06:21:49.830Z",
-  "attemptedAt": "2026-11-07T06:21:49.830Z",
-  "lastSuccessfulAt": "2026-11-07T06:21:49.830Z",
+  "generatedAt": "2026-11-07T07:21:18.745Z",
+  "attemptedAt": "2026-11-07T07:21:18.745Z",
+  "lastSuccessfulAt": "2026-11-07T07:21:18.745Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-24T06:21:43.812Z",
-  "until": "2026-11-07T06:21:43.812Z",
+  "since": "2026-10-24T07:21:12.415Z",
+  "until": "2026-11-07T07:21:12.415Z",
   "current24hWindow": {
     "start": "2026-11-05T23:00:00.000Z",
     "end": "2026-11-06T23:00:00.000Z",
@@ -89,15 +89,15 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1353,
-      "freshCount": 20,
-      "eligibleTextCount": 1291,
+      "count": 1354,
+      "freshCount": 39,
+      "eligibleTextCount": 1292,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 68619
+      "lastPostId": 68621
     },
     {
       "channel": "bornlupin",
@@ -116,56 +116,56 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 689,
+      "count": 691,
       "freshCount": 37,
-      "eligibleTextCount": 688,
+      "eligibleTextCount": 690,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 71707
+      "lastPostId": 71711
     }
   ],
-  "count": 2319,
-  "retainedItemCount": 434,
+  "count": 2322,
+  "retainedItemCount": 448,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2319,
-    "eligibleTextCount": 2253,
+    "observedCount": 2322,
+    "eligibleTextCount": 2256,
     "mediaOnlyCount": 66,
-    "mediaAttachedCount": 496,
-    "photoPostCount": 430,
+    "mediaAttachedCount": 498,
+    "photoPostCount": 431,
     "documentPostCount": 2,
     "imageOnlyCount": 2,
-    "highSignalCount": 395,
-    "broadSignalCount": 848,
+    "highSignalCount": 394,
+    "broadSignalCount": 850,
     "selectedRawCount": 389,
     "selectedEligibleCount": 389,
-    "selectedRawCoveragePct": 17.3,
+    "selectedRawCoveragePct": 17.2,
     "selectedOfObservedPct": 16.8,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "semi": 478,
-    "power": 271,
-    "healthcare": 73,
-    "market-note": 846,
+    "semi": 480,
+    "flows": 67,
+    "geo": 442,
+    "market-note": 844,
+    "power": 270,
     "ai-policy": 99,
-    "geo": 440,
     "kr-market": 117,
-    "flows": 65,
     "credit": 99,
     "macro": 348,
     "media-only": 65,
     "earnings": 403,
     "equity": 116,
+    "healthcare": 72,
     "japan": 77,
     "optical": 40,
     "crypto": 4
   },
   "tickerCounts": {
-    "NVDA": 115,
+    "NVDA": 116,
     "TSM": 45,
     "ORCL": 12,
     "MU": 34,
@@ -258,19 +258,19 @@
     "SHOP": 1
   },
   "themes": [
-    "Market Notes (846 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
-    "Semiconductors/Memory (478 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
-    "Geopolitics (440 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
+    "Market Notes (844 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
+    "Semiconductors/Memory (480 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
+    "Geopolitics (442 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
     "Earnings/Corporate (403 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
     "Macro/Rates (348 posts in 14-day research window): 2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000...",
-    "AI Power/Grid (271 posts in 14-day research window): 데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가...",
+    "AI Power/Grid (270 posts in 14-day research window): 데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가...",
     "Korea Market (117 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY...",
     "Equity/Analyst (116 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 115,
+      "count": 116,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 7일 🇺🇸 아메리카 • 연준 무살렘은 현재 인플레이션이 에너지 충격과 AI·데이터센터 투자에 따른 강한 수요의 영향을 받고 있다며, 물가를 적시에 2%로 복귀시켜야..."
     },
     {
@@ -345,7 +345,7 @@
       "topics": [
         "geo"
       ],
-      "count": 440,
+      "count": 442,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격..."
     },
     {
@@ -363,7 +363,7 @@
       "topics": [
         "semi"
       ],
-      "count": 478,
+      "count": 480,
       "focus": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
     },
     {
@@ -381,7 +381,7 @@
       "topics": [
         "power"
       ],
-      "count": 271,
+      "count": 270,
       "focus": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가..."
     },
     {
@@ -435,7 +435,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 73,
+      "count": 72,
       "focus": "52주 신고가 (시총 $1B 이상) 헬스케어 · Amphastar Pharmaceuticals · Ardent Health · Becton, Dickinson and Company · BeOne..."
     },
     {
@@ -453,8 +453,8 @@
       "topics": [
         "flows"
       ],
-      "count": 65,
-      "focus": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
+      "count": 67,
+      "focus": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (48.33%) 2위: ALPHABET INC CL A (14.78%) 3위: PROSHARES ULTRAPRO..."
     },
     {
       "id": "insider",
@@ -471,7 +471,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 846,
+      "count": 844,
       "focus": "2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며..."
     }
   ],
@@ -732,8 +732,11 @@
       "localDateKst": "2026-11-07",
       "tags": [
         "flows",
-        "semi"
+        "semi",
+        "power",
+        "kr-market"
       ],
+      "lead": 1,
       "score": 100,
       "hasText": true,
       "media": {
@@ -742,8 +745,6 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
-      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -766,7 +767,8 @@
         "ONON",
         "SHOP",
         "FSLR"
-      ]
+      ],
+      "summary": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
       "id": "insidertracking/68574",
@@ -1773,24 +1775,55 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71711",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71711",
+      "datetime": "2026-11-07T06:43:00.000Z",
+      "localDateKst": "2026-11-07",
+      "tags": [
+        "semi",
+        "flows"
+      ],
+      "lead": 1,
+      "score": 52,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>‘블루웨이브’에 반도체주 매도…한국 개인투자자, 3배 레버리지 ETF에 큰 손실 (중국언론) •미국 중간선거에서 ‘블루웨이브’가 나타나면서 반도체주가 급격히 매도되자 미국 주식에 투자하는 한국..."
+    },
+    {
+      "id": "insidertracking/68621",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68621",
+      "datetime": "2026-11-07T06:36:45.000Z",
+      "localDateKst": "2026-11-07",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "파이낸셜타임스에 따르면 미국 당국자들이 엔비디아 CEO 젠슨 황과 중국 정보기관이 포섭한 여성 간 연인 관계가 있었을 가능성을 제기. 보도에 따르면 젠슨 황이 중국 국가안전부가 포섭한 메가스피드 임원 앨리스..."
+    },
+    {
       "id": "HANAchina/71707",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71707",
       "datetime": "2026-11-07T05:43:04.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "semi",
-        "power",
-        "healthcare"
+        "semi"
       ],
       "lead": 1,
-      "score": 68,
+      "score": 55,
       "hasText": true,
       "tickers": [
         "NVDA",
         "TSM"
       ],
-      "summary": ">>TSMC가 3D DRAM 생산? Winbond 차오유쥔 회장은 자체 DRAM 진출 가능성은 낮다고 평가 •TSMC가 Nvidia용 3D DRAM 생산을 추진한다는 관측이 나오고 있으나, Winbond..."
+      "summary": ">>TSMC가 3D DRAM 생산? Winbond 회장은 자체 DRAM 진출 가능성은 낮다고 평가 •TSMC가 Nvidia용 3D DRAM 생산을 추진한다는 관측이 나오고 있으나, Winbond 차오유쥔..."
     },
     {
       "id": "HANAchina/71705",
@@ -2247,8 +2280,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "차주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 11월 10일 화요일 22:30 – 소비자물가지수 (MoM) (10월) 22:30 – 근원 소비자물가지수 (MoM) (10월) 22:30 –...",
-      "tickers": []
+      "tickers": [],
+      "summary": "차주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 11월 10일 화요일 22:30 – 소비자물가지수 (MoM) (10월) 22:30 – 근원 소비자물가지수 (MoM) (10월) 22:30 –..."
     },
     {
       "id": "insidertracking/68582",
@@ -2257,13 +2290,13 @@
       "datetime": "2026-11-06T21:52:28.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
+        "macro",
         "earnings"
       ],
       "score": 57,
       "hasText": true,
-      "summary": "모더나(MRNA) Q3 2026 어닝콜 요약 긍정 요인: • 매출 성장 및 흑자 달성. 3분기 매출은 13억달러로 전년 대비 29% 증가. GAAP 순이익은 1억6,000만달러, 희석 EPS는 0.38달러...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "모더나(MRNA) Q3 2026 어닝콜 요약 긍정 요인: • 매출 성장 및 흑자 달성. 3분기 매출은 13억달러로 전년 대비 29% 증가. GAAP 순이익은 1억6,000만달러, 희석 EPS는 0.38달러..."
     },
     {
       "id": "insidertracking/68581",
@@ -2273,13 +2306,14 @@
       "localDateKst": "2026-11-07",
       "tags": [
         "credit",
-        "macro"
+        "macro",
+        "power",
+        "earnings"
       ],
       "score": 87,
       "hasText": true,
-      "summary": "오클로(OKLO) Q3 2026 어닝콜 요약 긍정 요인: • 강력한 유동성 및 자금조달 능력. 현금 및 유가증권 31억달러 확보. 연초 이후 ATM 방식으로 23억달러를 조달하며 원자로 건설, 핵연료 개발 및...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "오클로(OKLO) Q3 2026 어닝콜 요약 긍정 요인: • 강력한 유동성 및 자금조달 능력. 현금 및 유가증권 31억달러 확보. 연초 이후 ATM 방식으로 23억달러를 조달하며 원자로 건설, 핵연료 개발 및..."
     },
     {
       "id": "insidertracking/68579",
@@ -2289,8 +2323,11 @@
       "localDateKst": "2026-11-07",
       "tags": [
         "flows",
-        "semi"
+        "semi",
+        "power",
+        "kr-market"
       ],
+      "lead": 1,
       "score": 100,
       "hasText": true,
       "media": {
@@ -2299,8 +2336,6 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
-      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -2323,7 +2358,8 @@
         "ONON",
         "SHOP",
         "FSLR"
-      ]
+      ],
+      "summary": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
       "id": "insidertracking/68577",
@@ -2616,13 +2652,13 @@
         "kr-market",
         "flows"
       ],
-      "lead": 1,
       "score": 64,
       "hasText": true,
+      "summary": ">>TSMC 급락, 지금 매수해도 될까? (대만경제일보) •TSMC는 6일 2,135대만달러(-4.6%)로 급락했으나, 기관은 중장기적으로 분할 매수 기회로 평가함. AI 반도체 수요와 3나노·2나노 선단공정...",
+      "lead": 1,
       "tickers": [
         "TSM"
-      ],
-      "summary": ">>TSMC 급락, 지금 매수해도 될까? (대만경제일보) •TSMC는 6일 2,135대만달러(-4.6%)로 급락했으나, 기관은 중장기적으로 분할 매수 기회로 평가함. AI 반도체 수요와 3나노·2나노 선단공정..."
+      ]
     },
     {
       "id": "bornlupin/21035",
@@ -6593,29 +6629,6 @@
       ]
     },
     {
-      "id": "insidertracking/68189",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68189",
-      "datetime": "2026-11-03T11:39:25.000Z",
-      "localDateKst": "2026-11-03",
-      "tags": [
-        "power"
-      ],
-      "score": 52,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "블룸에너지와 캘리포니아 리소시스가 캘리포니아에서 1GW 이상의 전력 생산 프로젝트를 추진하기 위한 양해각서(MOU) 체결. 양사는 탄소 포집·저장(CCS) 기술과 결합한 고체산화물 연료전지 프로젝트 개발을...",
-      "lead": 1,
-      "tickers": [
-        "BE"
-      ]
-    },
-    {
       "id": "HANAchina/71486",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71486",
@@ -7626,24 +7639,6 @@
       "hasText": true,
       "summary": "BofA, AI 설비투자(Capex) 전망치를 상향 조정 클라우드 설비투자가 2026년(역년 기준) 1조 300억 달러, 2027년 1조 5,800억 달러에 달할 것으로 추산했습니다. 이는 전년 동기 대비...",
       "tickers": []
-    },
-    {
-      "id": "HANAchina/71392",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71392",
-      "datetime": "2026-11-02T04:05:09.000Z",
-      "localDateKst": "2026-11-02",
-      "tags": [
-        "earnings",
-        "japan"
-      ],
-      "score": 56,
-      "hasText": true,
-      "summary": ">>(요약) Kioxia, 다음 분기 이익 전망 시장 예상 하회…주가 장중 한때 약 15% 급락 •일본 Kioxia가 사상 최대 실적을 발표. 분기 매출은 2조 4,800억 엔으로 전년비 453% 급증했고,...",
-      "lead": 2,
-      "tickers": [
-        "285A.T"
-      ]
     },
     {
       "id": "bornlupin/20941",
@@ -8974,8 +8969,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "차주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 11월 10일 화요일 22:30 – 소비자물가지수 (MoM) (10월) 22:30 – 근원 소비자물가지수 (MoM) (10월) 22:30 –...",
-      "tickers": []
+      "tickers": [],
+      "summary": "차주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 11월 10일 화요일 22:30 – 소비자물가지수 (MoM) (10월) 22:30 – 근원 소비자물가지수 (MoM) (10월) 22:30 –..."
     },
     {
       "id": "insidertracking/68582",
@@ -8984,13 +8979,13 @@
       "datetime": "2026-11-06T21:52:28.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
+        "macro",
         "earnings"
       ],
       "score": 57,
       "hasText": true,
-      "summary": "모더나(MRNA) Q3 2026 어닝콜 요약 긍정 요인: • 매출 성장 및 흑자 달성. 3분기 매출은 13억달러로 전년 대비 29% 증가. GAAP 순이익은 1억6,000만달러, 희석 EPS는 0.38달러...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "모더나(MRNA) Q3 2026 어닝콜 요약 긍정 요인: • 매출 성장 및 흑자 달성. 3분기 매출은 13억달러로 전년 대비 29% 증가. GAAP 순이익은 1억6,000만달러, 희석 EPS는 0.38달러..."
     },
     {
       "id": "insidertracking/68581",
@@ -9000,13 +8995,14 @@
       "localDateKst": "2026-11-07",
       "tags": [
         "credit",
-        "macro"
+        "macro",
+        "power",
+        "earnings"
       ],
       "score": 87,
       "hasText": true,
-      "summary": "오클로(OKLO) Q3 2026 어닝콜 요약 긍정 요인: • 강력한 유동성 및 자금조달 능력. 현금 및 유가증권 31억달러 확보. 연초 이후 ATM 방식으로 23억달러를 조달하며 원자로 건설, 핵연료 개발 및...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "오클로(OKLO) Q3 2026 어닝콜 요약 긍정 요인: • 강력한 유동성 및 자금조달 능력. 현금 및 유가증권 31억달러 확보. 연초 이후 ATM 방식으로 23억달러를 조달하며 원자로 건설, 핵연료 개발 및..."
     },
     {
       "id": "insidertracking/68579",
@@ -9016,8 +9012,11 @@
       "localDateKst": "2026-11-07",
       "tags": [
         "flows",
-        "semi"
+        "semi",
+        "power",
+        "kr-market"
       ],
+      "lead": 1,
       "score": 100,
       "hasText": true,
       "media": {
@@ -9026,8 +9025,6 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
-      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -9050,7 +9047,8 @@
         "ONON",
         "SHOP",
         "FSLR"
-      ]
+      ],
+      "summary": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
       "id": "insidertracking/68577",
@@ -9343,13 +9341,13 @@
         "kr-market",
         "flows"
       ],
-      "lead": 1,
       "score": 64,
       "hasText": true,
+      "summary": ">>TSMC 급락, 지금 매수해도 될까? (대만경제일보) •TSMC는 6일 2,135대만달러(-4.6%)로 급락했으나, 기관은 중장기적으로 분할 매수 기회로 평가함. AI 반도체 수요와 3나노·2나노 선단공정...",
+      "lead": 1,
       "tickers": [
         "TSM"
-      ],
-      "summary": ">>TSMC 급락, 지금 매수해도 될까? (대만경제일보) •TSMC는 6일 2,135대만달러(-4.6%)로 급락했으나, 기관은 중장기적으로 분할 매수 기회로 평가함. AI 반도체 수요와 3나노·2나노 선단공정..."
+      ]
     },
     {
       "id": "bornlupin/21035",
