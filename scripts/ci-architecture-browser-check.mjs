@@ -615,6 +615,8 @@ try {
   if (portfolioMath.missing.pnl !== '—' || portfolioMath.missing.cells[5] !== '매수가 없음' /* v59.51: empty cells name why */ || portfolioMath.daily.daily !== '—' || portfolioMath.daily.pct !== '—' || portfolioMath.live.value !== '$2,100' || portfolioMath.live.pnl !== '+$1,200' || portfolioMath.live.daily !== '$0' || !portfolioMath.live.cells.includes('$200.00')) throw new Error('portfolio valuation regression: ' + JSON.stringify(portfolioMath));
   await page.evaluate(() => window.AIO_ARCH.navigate('technical'));
   await page.waitForFunction(() => document.getElementById('page-technical')?.dataset.aioArchitectureRoute === 'technical');
+  // v59.75: stock-chart.js loads with the 차트 route (a dynamic import), so the install lands a task after the route commit.
+  await page.waitForFunction(() => document.getElementById('stock-chart-section')?.dataset.aioStockChart === 'installed', null, { timeout: 15000 }).catch(() => {});
   // P1420: the 0-100 health score was retired; the page shows the 시장 상태 six-axis summary and
   // leads with the stock chart, and the legacy health writer must still not paint the page.
   const technicalRoute = await page.evaluate(() => {

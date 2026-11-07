@@ -4,7 +4,6 @@ import { subscribeToSlices } from '../../state/memoize.js';
 import { selectSentimentValues } from '../../state/selectors/sentiment.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { renderRegimePage, renderHomeRegime, readMarketRegime } from '../components/market-regime.js';
-import { installStockChart } from '../components/stock-chart.js';
 import { renderDailyLoop } from '../components/daily-loop.js';
 import { renderKoreaParticipation } from '../components/korea-participation.js';
 import { alignInput, buildCloseSeries, closeBasis, isUsable } from '../../domain/briefing/market-read.js';
@@ -92,7 +91,9 @@ function render({ root, documentRef, store, route }) {
       page.dataset.aioArchitectureRenderer = 'native';
       page.dataset.aioTechnicalRenderer = 'native';
       renderTechnicalHealth({ documentRef, root });
-      installStockChart({ documentRef, root }); // P1397: idempotent (installs once per #stock-chart-section, v57.76)
+      // v59.75: the stock chart (~115 KB with its layers, drawings and analysis chunks) loads with the 차트 route only.
+      // A static import pulled it into every analysis-slice route, so 오늘 and 시장 신호 fetched it in their first 6.5 s.
+      import('../components/stock-chart.js').then(({ installStockChart }) => installStockChart({ documentRef, root })).catch(() => {}); // P1397: idempotent (installs once per #stock-chart-section, v57.76)
     }
     if (route === 'home') {
       page.dataset.aioArchitectureRenderer = 'native';
