@@ -188,13 +188,11 @@ window.AIO.stockTrendFor = (symbol) => {
   window.AIO.selectNativeSearch = selectNativeSearch;
   window.AIO.attachNativeSearch = attachNativeSearch;
   window.AIO.hasInternalCurrentEvidence = hasInternalCurrentEvidence;
-  // v58.80 (boot budget): the backtest engine loads on demand — when 포트폴리오 opens, when the form is read, or when the
-  // browser is idle after boot — and installs the same synchronous AIO.buildPortfolioBacktestLab the shell calls.
+  // v58.80 (boot budget): the backtest engine loads on demand, when the form is read (_aioReadBacktestInputs awaits it
+  // before the shell's synchronous AIO.buildPortfolioBacktestLab call). v59.72: the idle warm on every route is gone —
+  // it spent 28.6 KB of each route's post-boot budget on an engine only 포트폴리오's run button uses.
   const backtestLab = () => import('../domain/portfolio/backtest.js').then((module) => { window.AIO.buildPortfolioBacktestLab = module.buildPortfolioBacktestLab; return module; });
   window._aioLoadBacktestLab = backtestLab;
-  const warmBacktestLab = () => { backtestLab().catch(() => {}); };
-  if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(warmBacktestLab);
-  else globalThis.setTimeout?.(warmBacktestLab, 4000)?.unref?.();
   // P1258: 위험 입력 조립(스냅샷·returnsMap·estimate 호출)의 단일 소유자 — 셸은 이 브리지를
   // 호출해 결과를 그대로 렌더한다.
   window._pfAssembleRiskEstimateInput = assembleRiskEstimateInput;

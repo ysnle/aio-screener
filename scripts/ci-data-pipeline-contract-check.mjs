@@ -13,6 +13,8 @@ import { percentileRank01, spearman } from './lib/rank-statistics.mjs';
 import { SHARED_AI_MODEL, extractCompletedResponseText, requestSharedAnalysis, resolveSharedAiConfig } from './lib/ai-shared-analysis.mjs';
 import { marketAnalysisDiagnostic, summarizeOperationalChecks, workflowCadence, operationalSummary, WATCHDOG_THRESHOLDS } from './lib/operational-health.mjs';
 import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
+import { parseHoldings } from './fetch-sp500-weights.mjs';
+import { softenReaderDuty } from './lib/market-analysis-validate.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (path) => readFileSync(join(root, path), 'utf8');
@@ -22,6 +24,23 @@ const errors = [];
 const check = (label, condition, detail = '') => {
   if (!condition) errors.push(label + (detail ? ': ' + detail : ''));
 };
+
+// v59.72: the IVV holdings file renamed 'Weight (%)' to 'Market Weight'; both headers parse (stale since 10/27).
+for (const weightHeader of ['Weight (%)', 'Market Weight']) {
+  const csv = `Fund Holdings as of,"Nov 05, 2026"
+
+Ticker,Name,Type,Sector,Asset Class,Market Value,${weightHeader}
+"AAPL","APPLE","EQUITY","Information Technology","Equity","1","7.92"
+`;
+  let parsed = null;
+  try { parsed = parseHoldings(csv); } catch (error) { parsed = { error: error.message }; }
+  const rows = parsed?.rows || parsed?.members || [];
+  check(`v59.72 S&P 500 holdings parse the '${weightHeader}' header`, rows[0]?.weight === 7.92, JSON.stringify(parsed).slice(0, 200));
+}
+
+// v59.72: the AI reading published '…조정 여부를 확인해야 합니다' (rendered-copy reader-duty); the ending is rewritten.
+check('v59.72 AI reading reader-duty endings become state endings', softenReaderDuty('조정 여부를 확인해야 합니다. CPI를 지켜봐야 합니다. 금리를 점검할 필요가 있습니다.') === '조정 여부를 확인할 대목입니다. CPI를 지켜볼 대목입니다. 금리를 점검할 대목입니다.');
+check('v59.72 the producer publishes the rewritten reading', /text: softenReaderDuty\(semantic\.text \|\| text\)/.test(read('scripts/producer/market-narrative.mjs')));
 
 // P1596: optional degradation is visible even when release-blocking gates pass.
 check('P1596 warnings cannot be reported as healthy', summarizeOperationalChecks([], ['AI unavailable']).status === 'DEGRADED'

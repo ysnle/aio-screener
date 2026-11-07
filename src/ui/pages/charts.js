@@ -40,6 +40,7 @@ function indexCard(doc, root, reading, latest) {
   head.append(el(doc, 'h3', reading.label, 'trend-card-title'), el(doc, 'span', reading.trendWord, `charts-trend is-${reading.trend}`));
   if (reading.asOf && latest && reading.asOf !== latest) head.append(el(doc, 'span', `${shortDate(reading.asOf)} 종가`, 'charts-asof'));
   box.append(head, el(doc, 'p', reading.conclusion, 'charts-card-conclusion'));
+  if (reading.volume?.text) box.append(el(doc, 'p', reading.volume.text, 'charts-card-volume'));
   // One level line, the one to hold: the nearest support (or the double-top neck when there is none). A second line closer
   // than a label's height moves its label to the right edge, onto the 50-day line's end tag (trend-chart.js LABEL_GAP);
   // resistance and the neck stay in the 근거와 수치 fold.

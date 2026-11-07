@@ -12,15 +12,21 @@
     "leading-separator": 0,
     "double-paren": 0,
     "spaced-particle": 0,
-    "reader-duty": 0,
+    "reader-duty": 1,
     "how-to-read": 0,
     "zero-direction": 0,
     "mixed-precision": 0
   },
-  "offenderKinds": 0,
-  "baseline": 0,
+  "offenderKinds": 1,
+  "baseline": 1,
   "fixedSinceBaseline": [],
   "fresh": [],
   "failures": [],
-  "offenders": []
+  "offenders": [
+    {
+      "route": "briefing",
+      "rule": "reader-duty",
+      "line": "이 조건이라면 보유 유지는 핵심 시나리오 중 비용이 크다고 적힌 경우가 없고 분할 접근도 함께 고려되는 반면, 관망은 성장 재가속의 기회비용이 크며 반대 방향으로 AI 투자 꺾임이 강화되면 관망·방어 전환의 상대적 비용이 낮아집니다; 추세 반등 전에는 방어 섹터, 반도체·AI 인프라는 부담이며 필수소비재·헬스케어 강세는 추세 속 조정 여부를 확인해야 합니다."
+    }
+  ]
 }

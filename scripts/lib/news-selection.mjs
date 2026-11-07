@@ -113,7 +113,8 @@ export const NEWS_FEEDS = [
   { query: '(midterm OR election OR Democrats OR Republicans) (solar OR "clean energy" OR healthcare OR insurers OR drugmakers OR defense OR banks) stocks when:2d', source: 'Google News - Election sectors', topic: 'equity', country: 'us', tier: 2 },
   // v59.57: an official publisher's own feed goes quiet for days (10/29 FOMC → nothing until after the weekend), which is
   // not a dead feed. quietMaxHours lets the 72h dead-feed gate wait that long while the feed still answers with items.
-  { url: 'https://www.federalreserve.gov/feeds/press_all.xml', source: 'Federal Reserve', topic: 'macro', country: 'us', tier: 1, quietMaxHours: 192 },
+  // v59.72: 192h was a guess; the feed's own 9/18-11/05 history has a 291h gap (10/16 -> 10/28), so 14 days.
+  { url: 'https://www.federalreserve.gov/feeds/press_all.xml', source: 'Federal Reserve', topic: 'macro', country: 'us', tier: 1, quietMaxHours: 336 },
 ].map(feed => feed.url ? feed : ({ ...feed, url: _googleNewsSearchUrl(feed.query, feed.country === 'kr' ? 'ko' : 'en-US', feed.country === 'kr' ? 'KR' : 'US', feed.country === 'kr' ? 'KR:ko' : 'US:en') }));
 
 const SERVER_NEWS_PRIORITY_RULES = [

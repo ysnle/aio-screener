@@ -372,6 +372,14 @@ export function validateAnalysisMetricMentions(text, metricEvidence = [], change
   return [...new Set(issues)];
 }
 
+// v59.72 (owner 11/07: keep what to watch, do not ban it): a reader duty ("…여부를 확인해야 합니다") is rewritten to a
+// declarative ending ("…확인할 대목입니다"); the prompt does not forbid it and the validator does not block it.
+export function softenReaderDuty(text) {
+  return String(text ?? '')
+    .replace(/(확인|점검|주시)\s*(?:해야\s*합니다|할\s*필요가\s*있습니다)/g, '$1할 대목입니다')
+    .replace(/(살펴|지켜)\s*(?:봐야\s*합니다|볼\s*필요가\s*있습니다)/g, '$1볼 대목입니다');
+}
+
 // M06: typed admission for the claims the prompt forbids or the evidence can disprove. These are blocking issues.
 const ANALYSIS_TRADE_INSTRUCTION = /(?:매수|매도|매집|손절|익절|진입|청산)(?:하세요|하십시오|해라|하라|할\s*때입니다|하시길)|(?:사세요|파세요|사라(?![지졌진질져])|팔아라|담으세요|비중을\s*(?:늘리|줄이)세요)|목표\s*가(?:는|를)?\s*\$?\d|\b(?:buy|sell)\s+now\b/i;
 const ANALYSIS_PROBABILITY = /\d+(?:\.\d+)?\s*%\s*(?:의\s*)?(?:확률|가능성|승률)|(?:확률|가능성|승률)(?:은|이|는|로|이\s*약)?\s*(?:약\s*)?\d+(?:\.\d+)?\s*%/;

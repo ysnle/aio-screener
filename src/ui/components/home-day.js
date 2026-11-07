@@ -23,7 +23,18 @@ export function keyStocks(day, limit = 8) {
   return usThenKorea(facts.filter((fact) => fact.kind === 'stock-move' && (['lead', 'major'].includes(fact.rank) || Math.abs(fact.indexBp || 0) >= 8)),
     (fact) => String(fact.subjects?.[0] || ''), (a, b) => (RANK_ORDER[a.rank] ?? 9) - (RANK_ORDER[b.rank] ?? 9) || (b.materiality || 0) - (a.materiality || 0))
     .filter((fact) => { const sym = fact.subjects?.[0]; if (!sym || seen.has(sym)) return false; seen.add(sym); return true; })
-    .slice(0, limit).map((fact) => ({ sym: fact.subjects[0], label: fact.label, change: fact.change, indexBp: fact.indexBp ?? null }));
+    .slice(0, limit).map((fact) => ({ sym: fact.subjects[0], label: fact.label, change: fact.change, indexBp: fact.indexBp ?? null, rvol: Number.isFinite(fact.rvol) ? fact.rvol : null }));
+}
+
+// v59.71 (owner 11/07 '한 줄 추가'): the stories the market is relaying, counts only (market-day `narratives`, the same
+// artifact as 시장 상태's 시장이 말하는 이야기). Whether the indicators back them is the scenario engine's call, so the line
+// carries attention and points to 시장 상태 rather than repeating a verdict here.
+const NARR_TREND = Object.freeze({ rising: '늘어남', fading: '줄어듦', steady: '비슷함', new: '새로 등장' });
+export function homeNarrativeLine(narratives, limit = 2) {
+  const stories = (Array.isArray(narratives?.stories) ? narratives.stories : []).filter((row) => row?.label && row.telegramCount > 0).slice(0, limit);
+  if (!stories.length) return null;
+  const hours = narratives.windowHours || 72;
+  return `많이 오가는 이야기 · ${stories.map((row, i) => `${row.label} ${i === 0 ? `${hours}시간 ` : ''}${row.telegramCount}건${NARR_TREND[row.trend] ? `(24시간 ${NARR_TREND[row.trend]})` : ''}`).join(', ')}`;
 }
 
 /** The top stories of 뉴스's own 중요 뉴스 (same model, grouping and pick), so the two screens name the same news. */
@@ -49,7 +60,8 @@ export function renderHomeDay({ documentRef: doc, root, store = null }) {
   if (!account.available) return;
   // The news loads after the ledger on a cold start, so the headlines are part of the key.
   const headlines = homeHeadlines(root, store);
-  const key = [day.generatedAt, ...headlines.map((row) => row.title)].join('|');
+  const narrLine = homeNarrativeLine(day.narratives);
+  const key = [day.generatedAt, narrLine || '', ...headlines.map((row) => row.title)].join('|');
   if (section.dataset.renderKey === key) return;
   section.dataset.renderKey = key;
   const head = frameHead(doc, { title: '오늘의 핵심', titleId: 'home-day-title', asOf: account.coverage.session ? `${account.md(account.coverage.session)} 마감` : '' });
@@ -63,6 +75,7 @@ export function renderHomeDay({ documentRef: doc, root, store = null }) {
     list.append(item);
   }
   const parts = [head, list];
+  if (narrLine) parts.push(el(doc, 'p', narrLine, 'home-day__narr'));
   if (headlines.length) {
     const news = el(doc, 'ul', null, 'home-day__news');
     news.setAttribute('aria-label', '주요 뉴스');
@@ -85,13 +98,15 @@ export function renderHomeDay({ documentRef: doc, root, store = null }) {
       chip.dataset.action = 'aioOpenMarketChart';
       chip.dataset.arg = stock.sym;
       chip.title = `${stock.label}${Number.isFinite(stock.indexBp) && Math.abs(stock.indexBp) >= 5 ? `, S&P 500에 ${signedText(stock.indexBp, 0, 'bp')}` : ''}`;
-      chip.append(el(doc, 'b', stock.sym), el(doc, 'span', signedText(stock.change, 1, '%')));
+      // v59.71 (owner 11/07 '거래량'): a move on twice the usual turnover says so on the chip; the ratio is always in the title.
+      if (stock.rvol != null) chip.title += `, 거래량 평소(20일 평균)의 ${stock.rvol.toFixed(1)}배`;
+      chip.append(el(doc, 'b', stock.sym), el(doc, 'span', signedText(stock.change, 1, '%')), ...(stock.rvol >= 2 ? [el(doc, 'span', `거래량 ${stock.rvol.toFixed(1)}배`, 'home-day__stock-vol')] : []));
       row.append(chip);
     }
     parts.push(row);
   }
   const links = el(doc, 'div', null, 'home-day__links');
-  for (const [text, route] of [[`지난 24시간 전체 ${account.stories.length + account.more.length}건 → 브리핑`, 'briefing'], ['뉴스 전체 → 뉴스', 'market-news']]) {
+  for (const [text, route] of [[`지난 24시간 전체 ${account.stories.length + account.more.length}건 → 브리핑`, 'briefing'], ...(narrLine ? [['이야기와 시나리오 → 시장 상태', 'signal']] : []), ['뉴스 전체 → 뉴스', 'market-news']]) {
     const link = el(doc, 'button', text, 'flow-next-link');
     link.type = 'button';
     link.dataset.action = 'showPage';

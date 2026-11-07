@@ -515,7 +515,12 @@ export function earningsReaction(bars, session, { settleSessions = 5, extended =
   }
   const first = after[0];
   const latest = after.at(-1);
-  return { basis: 'close', baseDate: base.date, baseClose: base.close, firstDate: first.date, firstPct: pctOf(first.close, base.close),
+  // v59.71 (owner 11/07 '거래량'): the first session's volume over the mean of up to 20 sessions before the report (rvol20's
+  // definition; at least 10 with a volume), so a 5% move on three times the usual turnover reads differently from one on
+  // ordinary volume. Null when the bars carry no volume.
+  const prior = rows.filter(beforeOrOn).slice(-20).map((row) => Number(row.volume)).filter((v) => v > 0);
+  const firstVolumeRatio = Number(first.volume) > 0 && prior.length >= 10 ? Math.round(first.volume / (prior.reduce((a, b) => a + b, 0) / prior.length) * 10) / 10 : null;
+  return { basis: 'close', baseDate: base.date, baseClose: base.close, firstDate: first.date, firstPct: pctOf(first.close, base.close), firstVolumeRatio,
     latestDate: latest.date, latestPct: pctOf(latest.close, base.close), sessions: after.length, settled: after.length >= settleSessions };
 }
 

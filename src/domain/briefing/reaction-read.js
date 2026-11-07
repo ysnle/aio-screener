@@ -141,7 +141,9 @@ export function reactionRead(brief, { row = null, history = [] } = {}) {
     guide && guide !== 'given' ? { id: 'guidance', value: guidanceLabel(brief), hit: down ? guide === 'weak' : guide === 'raised' } : null,
     runUp == null ? null : { id: 'run-up', value: `발표 전 3개월 ${pctText(runUp, 0)}`, hit: down && runUp >= RUN_UP_MIN },
     bench == null ? null : { id: 'market', value: `${benchName} ${pctText(bench)}`,
-      hit: Math.sign(bench) === Math.sign(move) && Math.abs(move - bench) <= WITH_MARKET && Math.abs(bench) >= 0.6 * Math.abs(move) }
+      hit: Math.sign(bench) === Math.sign(move) && Math.abs(move - bench) <= WITH_MARKET && Math.abs(bench) >= 0.6 * Math.abs(move) },
+    // v59.71: the reaction day's turnover against the 20 sessions before the report — weight, not a cause, so it never picks the kind.
+    readNumber(reaction.firstVolumeRatio) == null ? null : { id: 'volume', value: `거래량 평소의 ${readNumber(reaction.firstVolumeRatio).toFixed(1)}배`, hit: false }
   ].filter(Boolean);
 
   const pick = (id) => steps.find((step) => step.id === id && step.hit) || (down && tags.includes(id) ? { id } : null);

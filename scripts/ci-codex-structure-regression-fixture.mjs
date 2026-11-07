@@ -165,7 +165,8 @@ const fedQuiet = { source: 'Federal Reserve', status: 'no-current', parsed: 20, 
 const fedNow = Date.parse('2026-11-02T01:28:00.000Z');
 assert.deepEqual(deadNewsFeeds({ meta: { newsFeedHealth: [fedQuiet] } }, { nowMs: fedNow }), [], 'v59.58 a quiet Fed feed that still parses items is not dead at 75h');
 assert.equal(dataSourceWarnings({ meta: { newsFeedHealth: [fedQuiet] } }, { nowMs: fedNow }).length, 0, 'v59.58 nor a 24h warning');
-assert.deepEqual(deadNewsFeeds({ meta: { newsFeedHealth: [fedQuiet] } }, { nowMs: Date.parse('2026-11-07T00:00:00.000Z') }), ['Federal Reserve'], 'v59.58 past its 192h allowance it is dead');
+assert.deepEqual(deadNewsFeeds({ meta: { newsFeedHealth: [fedQuiet] } }, { nowMs: Date.parse('2026-11-07T00:00:00.000Z') }), [], 'v59.72 the Fed feed published nothing usable for 291h within its own 48-day history, so 8 days quiet is not dead');
+assert.deepEqual(deadNewsFeeds({ meta: { newsFeedHealth: [fedQuiet] } }, { nowMs: Date.parse('2026-11-13T00:00:00.000Z') }), ['Federal Reserve'], 'v59.72 past its 336h allowance it is dead');
 assert.deepEqual(deadNewsFeeds({ meta: { newsFeedHealth: [{ ...fedQuiet, status: 'error', parsed: 0 }] } }, { nowMs: fedNow }), ['Federal Reserve'], 'v59.58 an erroring Fed feed keeps the 72h gate');
 assert.deepEqual(deadNewsFeeds({ meta: { newsFeedHealth: [{ ...fedQuiet, source: 'Google News - Wires' }] } }, { nowMs: fedNow }), ['Google News - Wires'], 'v59.58 a quiet Google query keeps the 72h gate');
 assert.equal(dataSourceWarnings({ meta: { marketSentenceReject: 'latin-word' }, marketAnalysis: { sentence: { day: '2026-10-18' } } }, { nowMs: Date.parse(healthAt) }).length, 1, 'a rejected new-day sentence is named');

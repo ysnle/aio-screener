@@ -74,6 +74,22 @@ export function bufferedTrend(row) {
   return { id: 'down', tone: 'burden', label: '하락 추세', drop, text: `50일선(${signed(s50)})과 200일선(${signed(s200)}) 아래 — 단기·장기 추세가 모두 아래쪽입니다` };
 }
 
+// v59.71 (owner 11/07 '가격 움직임과 거래량'): the trend stays a price reading (the three screens share its states), and the
+// volume beside it says whether the move carried weight — the screener's own follow-through fields: 50-day-average-plus
+// down days of 1%+ in the last 25 sessions (shown from 5, row-presentation.js) and pocket pivots in the last 10.
+export const HEAVY_DOWN_NOTICE = 5;
+export function trendVolumeNote(row, trend = bufferedTrend(row)) {
+  if (!trend) return '';
+  const heavy = value(row, 'heavyDownDays25');
+  const pockets = value(row, 'pocketPivots10');
+  const weak = ['down', 'pullback', 'near50', 'up-shaken'].includes(trend.id);
+  if (weak && heavy != null && heavy >= HEAVY_DOWN_NOTICE) return `최근 25거래일 거래량 실린 하락 ${heavy}일 — 밀릴 때 거래가 붙었습니다`;
+  if (weak && heavy != null && heavy <= 1) return `최근 25거래일 거래량 실린 하락 ${heavy}일 — 밀렸지만 거래는 크게 붙지 않았습니다`;
+  if (!weak && pockets != null && pockets >= 1) return `최근 10거래일 거래량 실린 상승(포켓 피벗) ${pockets}회`;
+  if (!weak && heavy != null && heavy >= HEAVY_DOWN_NOTICE) return `위쪽 추세지만 최근 25거래일 거래량 실린 하락 ${heavy}일`;
+  return '';
+}
+
 /** Entry-ready trend part: above the 50-day line by ENTRY_MIN_ADR_OVER_50 ranges, above the 200-day line, no break. */
 export function trendHeldWithMargin(row) {
   const trend = bufferedTrend(row);

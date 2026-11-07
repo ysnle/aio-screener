@@ -133,7 +133,7 @@ try {
     await page.evaluate(() => { const fold = document.getElementById('regime-kr-fold'); if (fold) fold.open = false; });
     check(await page.locator('.regime-scenario-card .regime-scenario-more[open]').count() === 0, `${viewport.name}: scenario conditions are not folded behind the reading (P1630)`);
     await snap(page, `${viewport.name}-market-regime.png`, { fullPage: true });
-    const overlayRoute = await page.evaluate(async () => { window.showPage('glossary', null); await new Promise(r => setTimeout(r, 50)); const state = { active: document.querySelector('.page.active')?.id || null, modal: document.getElementById('glossary-modal')?.style.display !== 'none' }; window._aioCloseGlossary?.(); return state; });
+    const overlayRoute = await page.evaluate(async () => { window.showPage('glossary', null); for (let i = 0; i < 100 && document.getElementById('glossary-modal')?.style.display === 'none'; i += 1) await new Promise(r => setTimeout(r, 50)); const state = { active: document.querySelector('.page.active')?.id || null, modal: document.getElementById('glossary-modal')?.style.display !== 'none' }; window._aioCloseGlossary?.(); return state; });
     check(overlayRoute.active === 'page-guide' && overlayRoute.modal, `${viewport.name}: #glossary overlay route left a blank screen (P1630)`, overlayRoute);
     await page.evaluate(() => window.showPage('home', null));
     // v58.54 (design 4a, owner user-first): the drawer is for iPad portrait and phones (<1024); iPad landscape keeps a

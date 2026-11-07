@@ -39,6 +39,42 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2267 - v59.72 - Post-boot lazy JS over budget once market-day carries narratives (backtest idle warm on every route) (2026-11-07)
+
+- symptom/reproduction: browser-boot: post-boot lazy JS 361,214 bytes in 6.5 s > 350,000 on the signal route with current data (v59.71 HEAD and this batch alike); CI passed only because its pinned data predated narratives.
+- root_cause: compatibility-globals warmed the 28.6 KB portfolio backtest engine with requestIdleCallback on every route, although the only caller (_aioReadBacktestInputs, the run button) already awaits the import.
+- fix: Drop the idle warm; the engine loads when the backtest form is read. Lazy JS 333,663 bytes.
+- violated_rule: Route-only engines load on that route's action, not on idle across all routes.
+- prevention: browser-boot budget with the re-pinned fixture (a0f4e13c, narratives present).
+- verification/residual: node scripts/ci-boot-interaction-check.mjs PASS 333,663; ci-headless-tests awaits _aioLoadBacktestLab before the suite.
+
+## P2266 - v59.72 - One flaky phone check on the v59.71 push left every later data release unattested (2026-11-07)
+
+- symptom/reproduction: v59.71 push CI failed browser-responsive (phone390 '#glossary overlay route left a blank screen' then a sidebar click timeout); every later refresh commit failed 'reduced-scope release ... no successful full push CI', converge refused the unattested revision, live stayed v59.70 and the watchdog failed each hour.
+- root_cause: The check called showPage('glossary') and read the modal after a fixed 50 ms. The glossary module installs lazily; before it loads the openGlossary stub only records a pending open, so on a slow runner the modal opened after the read, then covered the menu button for the next step. Locally the same check passes.
+- fix: Wait up to 5 s for the modal to show before reading it (scripts/ci-responsive-browser-check.mjs). The product behaviour (pending open shown once the module loads) is unchanged.
+- violated_rule: Browser gates wait on the state they assert, never on a fixed sleep.
+- prevention: The fixed-sleep read is gone; a full push CI on this release re-attests the chain.
+- verification/residual: node scripts/ci-responsive-browser-check.mjs (20 routes × 4 viewports PASS).
+
+## P2265 - v59.72 - Watchdog failed hourly on a quiet Federal Reserve feed (192h allowance below the feed's own gaps) (2026-11-07)
+
+- symptom/reproduction: pages-news-feeds-alive reported 'no usable item for 72h+: Federal Reserve' as an error from 11/06 20:51Z; the feed answered HTTP 200 with 20 items.
+- root_cause: v59.57/58 set quietMaxHours 192 by estimate. The feed's own 9/18–11/05 history has a 291h gap (10/16 → 10/28) between usable releases, and banking-order items do not count as usable, so an ordinary quiet week crossed the allowance.
+- fix: quietMaxHours 336 (14 days) for the Federal Reserve feed, derived from its observed gaps; an erroring or empty feed keeps the 72h gate.
+- violated_rule: Liveness thresholds come from the source's measured cadence, not a guess.
+- prevention: ci-codex-structure-regression-fixture: 8 days quiet is not dead, past 336h is dead, erroring feed keeps 72h.
+- verification/residual: node scripts/ci-codex-structure-regression-fixture.mjs; curl of press_all.xml gap computation.
+
+## P2264 - v59.72 - S&P 500 member weights stale since 10/27 — iShares renamed the weight column (2026-11-07)
+
+- symptom/reproduction: public-data/sp500-weights.json stayed at asOf 2026-10-23; every refresh-screener run warned 'holdings columns changed' and kept the previous file, and the external pipeline check reported sp500-weights stale as an error.
+- root_cause: parseHoldings required the exact header 'Weight (%)'; the IVV holdings CSV now names it 'Market Weight' (still percent, AAPL 7.92). The keep-previous fallback hid the break behind a warning for 11 days.
+- fix: Accept either header (scripts/fetch-sp500-weights.mjs). Local run: 503 members, 99.91%, holdings as of 2026-11-05.
+- violated_rule: An external CSV contract change must fail visibly, not age silently behind a kept file.
+- prevention: ci-data-pipeline-contract-check parses a fixture under both headers; the stale check in ci-external-pipeline-check stays the backstop.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs; node scripts/fetch-sp500-weights.mjs (local, data file restored).
+
 ## P2263 - v59.71 - Statistical conventions: sentiment percentile, Sahm windows, capture ratio, mixed quarter ends, index basis (2026-11-07)
 
 - symptom/reproduction: Consumer sentiment's record low read 1.4 (other percentiles 0); the Sahm gap averaged non-adjacent months across the skipped October 2025 release; up/down capture used arithmetic means; the hyperscaler capex sentence summed issuers on different quarter ends as one period; index attribution credited dividends to stock selection without saying so.

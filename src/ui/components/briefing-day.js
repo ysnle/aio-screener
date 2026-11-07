@@ -55,7 +55,7 @@ export function renderBriefingDay({ documentRef: doc, root }) {
   }
   if (account.unexplained.length) {
     const list = el(doc, 'ul', null, 'briefing-day-more');
-    for (const row of account.unexplained) list.append(el(doc, 'li', `${row.label}(${row.sym}) ${signedText(row.change, 1, '%')}`));
+    for (const row of account.unexplained) list.append(el(doc, 'li', `${String(row.label || '').includes('(') ? `${row.label} ${row.sym}` : `${row.label}(${row.sym})`} ${signedText(row.change, 1, '%')}${row.rvol != null ? `, 거래량 ${row.rvol.toFixed(1)}배` : ''}`)); // v59.71: unexplained moves carry their turnover
     folds.push(fold(doc, `이유가 확인되지 않은 큰 움직임 ${account.unexplained.length}건`, [el(doc, 'p', '관련 보도나 같이 움직인 업종·가격이 없는 움직임입니다. 원인이 나오기 전까지는 추측하지 않습니다.', 'briefing-day-note'), list]));
   }
   const { facts, lead, major, noise } = account.coverage;

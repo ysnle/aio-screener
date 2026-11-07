@@ -174,11 +174,12 @@ function liveSources({ env, fetchImpl = fetch }) {
       const zone = daily.meta?.exchangeTimezoneName || 'America/New_York';
       const dateOf = (sec) => new Intl.DateTimeFormat('en-CA', { timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(sec * 1000));
       const closes = daily.indicators?.quote?.[0]?.close || [];
+      const volumes = daily.indicators?.quote?.[0]?.volume || []; // v59.71: the reaction day's volume against the 20 before
       // While the regular session is open, its daily bar is a live price, not a close: it is left out.
       const regular = daily.meta?.currentTradingPeriod?.regular;
       const nowSec = Date.now() / 1000;
       const openDay = regular && nowSec >= regular.start && nowSec < regular.end ? dateOf(regular.start) : null;
-      const bars = (daily.timestamp || []).map((sec, i) => ({ date: dateOf(sec), close: closes[i] })).filter((row) => Number(row.close) > 0 && row.date !== openDay);
+      const bars = (daily.timestamp || []).map((sec, i) => ({ date: dateOf(sec), close: closes[i], volume: Number(volumes[i]) > 0 ? volumes[i] : null })).filter((row) => Number(row.close) > 0 && row.date !== openDay);
       let last = null;
       if (extended) {
         const intraday = await read('range=1d&interval=5m&includePrePost=true');

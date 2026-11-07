@@ -9,6 +9,8 @@ import { usThenKorea } from '../market/session-time.js';
 const pct = (value, digits = 1) => signedText(value, digits, '%');
 const bp = (value) => signedText(value, 0, 'bp');
 const md = (date) => { const text = String(date || ''); return text.length >= 10 ? `${Number(text.slice(5, 7))}/${Number(text.slice(8, 10))}` : text; };
+// v59.71 (owner 11/07 '거래량'): a stock move on at least twice its 20-session turnover says so beside the price.
+const volTag = (fact) => (Number.isFinite(fact?.rvol) && fact.rvol >= 2 ? `(거래량 ${fact.rvol.toFixed(1)}배)` : '');
 const move = (fact) => ((fact.changeUnit || fact.unit) === 'bp' ? bp(fact.change) : pct(fact.change));
 const RANK_ORDER = Object.freeze({ lead: 0, major: 1, minor: 2, context: 3 });
 
@@ -117,7 +119,7 @@ export function buildDayAccount(day) {
       const siblings = facts.filter((fact) => fact.kind === 'group-move' && fact.id !== seed.id && !claimed.has(fact.id)
         && (fact.members || []).filter((sym) => members.includes(sym)).length >= Math.min((fact.members || []).length, members.length) / 2);
       // Leaders already told in an earlier story (MRVL under 광통신 and again under AI 인프라) are not repeated.
-      const leaders = moved.slice(0, 3).map((fact) => `${fact.subjects[0]} ${pct(fact.change)}`);
+      const leaders = moved.slice(0, 3).map((fact) => `${fact.subjects[0]} ${pct(fact.change)}${volTag(fact)}`);
       story.title = `${seed.label} ${seed.change >= 0 ? '상승' : '하락'}`;
       story.line = `업종 중간값 ${pct(seed.change)}${leaders.length ? `, 크게 움직인 종목은 ${leaders.join(', ')}` : ''}.`;
       const drivers = into(seed.id).filter((link) => link.basis === 'driver').map((link) => byId.get(link.from)).filter(Boolean);
@@ -133,7 +135,7 @@ export function buildDayAccount(day) {
       const stock = facts.find((fact) => fact.kind === 'stock-move' && fact.subjects?.[0] === sym && !claimed.has(fact.id));
       const result = [Number.isFinite(seed.epsSurprise) ? `주당순이익은 예상보다 ${pct(seed.epsSurprise)}` : null, Number.isFinite(seed.revenueSurprise) ? `매출은 ${pct(seed.revenueSurprise)}` : null].filter(Boolean);
       story.title = `${seed.label} 실적`;
-      story.line = `${result.length ? `${result.join(', ')}.` : '실적을 발표했습니다.'}${stock ? ` 주가 ${pct(stock.change)}${Number.isFinite(stock.indexBp) && Math.abs(stock.indexBp) >= 5 ? `(S&P 500에 ${bp(stock.indexBp)})` : ''}.` : ''}`;
+      story.line = `${result.length ? `${result.join(', ')}.` : '실적을 발표했습니다.'}${stock ? ` 주가 ${pct(stock.change)}${volTag(stock)}${Number.isFinite(stock.indexBp) && Math.abs(stock.indexBp) >= 5 ? `(S&P 500에 ${bp(stock.indexBp)})` : ''}.` : ''}`;
       const reports = headlinesAbout([sym], stock?.change).slice(0, 3);
       story.evidence = reports.map(evidenceOf);
       claim(story, [seed, stock, ...reports]);
@@ -170,7 +172,7 @@ export function buildDayAccount(day) {
 
   // v59.70 (re-review N7): the same US → Korea order as 오늘's names, no third market.
   const unexplained = usThenKorea(facts.filter((fact) => fact.kind === 'stock-move' && !(fact.explainedBy || []).length && !claimed.has(fact.id) && ['lead', 'major', 'minor'].includes(fact.rank)),
-    (fact) => String(fact.subjects?.[0] || ''), (a, b) => Math.abs(b.change) - Math.abs(a.change)).slice(0, 6).map((fact) => ({ sym: fact.subjects?.[0], label: fact.label, change: fact.change }));
+    (fact) => String(fact.subjects?.[0] || ''), (a, b) => Math.abs(b.change) - Math.abs(a.change)).slice(0, 6).map((fact) => ({ sym: fact.subjects?.[0], label: fact.label, change: fact.change, rvol: Number.isFinite(fact.rvol) ? fact.rvol : null }));
   const ahead = facts.filter((fact) => fact.kind === 'upcoming' && ['lead', 'major'].includes(fact.rank))
     .sort((a, b) => String(a.date).localeCompare(String(b.date)) || byMateriality(a, b))
     .map((fact) => ({ date: fact.date, label: fact.label, why: fact.why || (fact.hour === 'amc' ? '장 마감 후 실적' : fact.hour === 'bmo' ? '장 시작 전 실적' : ''), rank: fact.rank }));

@@ -6,7 +6,7 @@
 import { hasFinalConsonant, withTopicParticle } from '../content/korean-particle.js';
 import { EXTENSION_BANDS } from '../screener/setup-profile.js';
 import { RULES } from '../rules/thresholds.js';
-import { NEAR_LINE_ADR, bufferedTrend, extensionBand } from '../technical/bands.js';
+import { NEAR_LINE_ADR, bufferedTrend, extensionBand, trendVolumeNote } from '../technical/bands.js';
 import { rrgRecentReading, relativeBand, signedPct } from '../themes/recent-check.js';
 import { RRG_QUADRANT_READS, RRG_QUADRANT_WORDS } from '../themes/rrg.js';
 import { extensionMultiple } from '../technical/definitions.js';
@@ -163,7 +163,8 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   const templateNote = row.vcpStage === 'not_stage2' && ['up', 'up-shaken', 'unconfirmed', 'pullback'].includes(trend?.id)
     ? ' 스크리너의 이동평균 배열 조건(가격 > 150일선 > 200일선, 52주 고점 대비 -30% 이내)은 이보다 엄격한 별도 기준이며, 이 종목은 아직 충족하지 않습니다.'
     : '';
-  if (trend) points.push({ id: 'trend', tone: trend.tone, title: '이동평균 위치', text: `${trend.text}.${templateNote}` });
+  const volumeNote = trendVolumeNote(row, trend); // v59.71: the volume beside the price trend
+  if (trend) points.push({ id: 'trend', tone: trend.tone, title: '이동평균 위치', text: `${trend.text}.${volumeNote ? ` ${volumeNote}.` : ''}${templateNote}` });
 
   const position = rangePosition(row.pctFrom52wLow, row.pctFrom52wHigh);
   const high = finite(row.pctFrom52wHigh);

@@ -11,6 +11,8 @@ import { readRowNumber } from '../../data/contracts/screener.js';
 import { sessionCloses, indexLevel } from '../market/index-levels.js';
 import { withTopicParticle } from '../content/korean-particle.js';
 import { bufferedTrend } from './bands.js';
+import { rallyAttemptRead } from '../market/rally-attempt.js';
+import { RULES } from '../rules/thresholds.js';
 
 export const CHART_INDEXES = Object.freeze([['ndx', '나스닥100'], ['spx', 'S&P 500'], ['soxx', '반도체(SOXX)'], ['rut', '러셀2000'], ['kospi', '코스피'], ['kosdaq', '코스닥']]);
 export const TREND_WORDS = Object.freeze({ up: '상승 추세', pullback: '단기 조정', breakdown: '추세 이탈', rebound: '하락 속 반등', recovery: '회복 시도', down: '하락 추세', unknown: '판단 보류' });
@@ -85,6 +87,27 @@ const TREND_READ = Object.freeze({
  * @returns {null | { field, label, asOf, close, trend, trendWord, rsi, ma50, ma200, high, support, resistance, doubleTop,
  *   series, ma50Series, conclusion, read, numbers, breadth }}
  */
+// v59.71 (owner 11/07 '가격 움직임과 거래량이 가장 근본'): what the volume said, from the history the producers already
+// keep — the S&P 500's distribution days (a close down 0.2% or more on more volume than the session before, last 25
+// sessions) and the Nasdaq Composite's rally attempt / follow-through day (a 1.25%+ gain on rising volume). Only the
+// indexes whose daily volume the producers read carry a line; the others say nothing rather than guess.
+export function indexVolumeRead(history, field) {
+  if (field === 'spx') {
+    for (let i = (history?.length || 0) - 1; i >= 0; i -= 1) {
+      const count = readNumber(history[i]?.distributionDays);
+      if (count === null) continue;
+      const heavy = count >= RULES.leadership.distributionDaysAt;
+      return { date: history[i].date, count, text: `거래량: 최근 25거래일 거래량 실린 하락(분배일) ${count}회${heavy ? ' — 매도 압력이 쌓인 편' : ''}` };
+    }
+    return null;
+  }
+  if (field === 'ndx') {
+    const rally = rallyAttemptRead(history);
+    return rally ? { phase: rally.phase, text: `거래량: 나스닥 종합 ${rally.state}${rally.phase === 'attempt' ? ' — 거래량 늘며 크게 오른 바닥 확인일은 아직' : ''}` } : null;
+  }
+  return null;
+}
+
 export function indexChartReading(history, field, label, { breadth = null } = {}) {
   const closes = sessionCloses(history, field);
   if (closes.length < 60) return null;
@@ -118,7 +141,7 @@ export function indexChartReading(history, field, label, { breadth = null } = {}
   const conclusion = `${withTopicParticle(label)} ${TREND_WORDS[trend]}${level ? `, 고점 대비 ${signed(level.fromHighPct)}` : ''}${Number.isFinite(ma50) ? `, 50일선 ${signed((close / ma50 - 1) * 100)}` : ''}${Number.isFinite(ma200) ? `, 200일선 ${signed((close / ma200 - 1) * 100)}` : ''}.`;
   return {
     field, label, asOf: closes.at(-1).date, close, trend, trendWord: TREND_WORDS[trend], rsi, ma50, ma200, high: level?.high || null, support, resistance, doubleTop: top || null,
-    series: closes.slice(-252), ma50Series: ma50Series.slice(-252), conclusion,
+    series: closes.slice(-252), ma50Series: ma50Series.slice(-252), conclusion, volume: indexVolumeRead(history, field),
     read: `${TREND_READ[trend]}${breadthRead}${momentum}${levels.length ? ` ${levels.join(', ')}입니다.` : ''}${pattern}`,
     numbers: [['종가', num(close)], ['50일선', Number.isFinite(ma50) ? num(ma50) : '—'], ['200일선', Number.isFinite(ma200) ? num(ma200) : '—'],
       ['1년 최고 종가', level ? `${num(level.high.value)} (${md(level.high.date)})` : '—'], ['RSI(14)', rsi === null ? '—' : rsi.toFixed(0)], ['6개월 최저 종가', level?.support ? `${num(level.support.value)} (${md(level.support.date)})` : '—']]

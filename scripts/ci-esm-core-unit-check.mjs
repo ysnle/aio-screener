@@ -1578,6 +1578,24 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
           || nowLog.log.length !== 2 || nowLog.log.at(-1).ids.join() !== 'memory-cycle,oil-geopolitics' || narrativeDayLog(null, { stories: [] }).changes !== null) {
           fail(`v59.70: narrative day log broke ${JSON.stringify(nowLog)}`);
         }
+        // v59.71 (owner 11/07 '가격 움직임과 거래량'): volume beside the price reads — the S&P 500 card's distribution days,
+        // the stock trend's heavy-volume down days / pocket pivots, and the earnings reaction day's turnover ratio.
+        const { indexVolumeRead } = await load('src/domain/technical/market-charts.js');
+        const { trendVolumeNote } = await load('src/domain/technical/bands.js');
+        const { earningsReaction } = await load('src/domain/briefing/event-briefs.js');
+        const ddRead = indexVolumeRead([{ date: '2026-11-05', distributionDays: 4 }, { date: '2026-11-06', distributionDays: 7 }], 'spx');
+        const downNote = trendVolumeNote({ pctSma50: -6, pctSma200: -3, adrPct: 2, ret5d: -1, heavyDownDays25: 6 });
+        const upNote = trendVolumeNote({ pctSma50: 8, pctSma200: 15, adrPct: 2, ret5d: 1, pocketPivots10: 2, heavyDownDays25: 1 });
+        const rbars = Array.from({ length: 21 }, (_, i) => ({ date: `2026-10-${String(i + 1).padStart(2, '0')}`, close: 100, volume: 1e6 })).concat([{ date: '2026-10-22', close: 92, volume: 3e6 }]);
+        const rx = earningsReaction(rbars, { releaseDate: '2026-10-21', afterClose: true });
+        if (ddRead?.count !== 7 || !/분배일\) 7회 — 매도 압력/.test(ddRead.text) || indexVolumeRead([], 'kospi') !== null
+          || !/거래량 실린 하락 6일 — 밀릴 때 거래가 붙었습니다/.test(downNote) || !/포켓 피벗\) 2회/.test(upNote) || rx?.firstVolumeRatio !== 3) {
+          fail(`v59.71: volume readings broke ${JSON.stringify({ ddRead, downNote, upNote, rx })}`);
+        }
+        // v59.71 (owner 11/07 '한 줄 추가'): 오늘의 핵심 names the two most relayed stories with counts only — no verdict.
+        const { homeNarrativeLine } = await load('src/ui/components/home-day.js');
+        const homeLine = homeNarrativeLine({ windowHours: 72, stories: [{ label: '메모리 사이클', telegramCount: 12, trend: 'rising' }, { label: 'AI 투자 회수', telegramCount: 8, trend: 'steady' }, { label: '셋째', telegramCount: 3 }] });
+        if (homeLine !== '많이 오가는 이야기 · 메모리 사이클 72시간 12건(24시간 늘어남), AI 투자 회수 8건(24시간 비슷함)' || homeNarrativeLine({ stories: [] }) !== null) fail(`v59.71: home narrative line broke ${homeLine}`);
         // v59.71 (quant review): the reverse DCF prices the close on the same row's split-adjusted count; the Sahm windows are
         // calendar months that tolerate one skipped release; sentiment ranks with the shared percentile convention.
         const { reverseDcfInputs } = await load('src/domain/fundamental/analysis-read.js');
