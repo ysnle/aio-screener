@@ -1,7 +1,0 @@
-{
-  "changelog": [
-    "**개념·분석 목차가 열자마자 닫히던 결함 (v59.70):** 개념·분석 화면을 다시 열면 첫 그리기 뒤 약 15ms에 칼럼 데이터를 채우는 두 번째 그리기가 온다. 목차 접기의 열림 상태는 나중 작업으로 오는 'toggle' 이벤트에서만 기록돼, 그 사이에 연 목차가 닫힌 채 다시 그려졌다(재현 5/5). 목차 제목(summary) 클릭에서 열림 상태를 바로 기록하도록 고침(수정 후 5/5 열림 유지). `ci-theme-research-browser-check`가 3번에 1번꼴로 숨은 목차 제목 '평균이 감추는 신용 분산과 차환의 시간차'를 기다리다 시간 초과로 실패하던 원인.",
-    "**게이트 `ci-theme-research-browser-check` (v59.70):** 첫 그리기 직후에 목차를 열고 칼럼 데이터가 채워진 뒤에도 열려 있는지 확인하는 단언을 추가(고치기 전 코드에서 실패 확인). 이어지는 노트 열기 여정은 화면의 완료 신호(data-aio-principles-narrative=connected)를 기다린 뒤 시작. 10회 연속 통과."
-  ],
-  "note": "wave2-e: principles TOC open-state race behind the intermittent browser-theme-research timeout (3/9 on integration 7c20a830)"
-}

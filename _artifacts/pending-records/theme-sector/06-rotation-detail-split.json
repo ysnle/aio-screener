@@ -1,3 +1,0 @@
-{ "version": "v59.70", "date": "2026-11-04",
-  "changelog": [ "**rotationHistory 분리 (v59.70, 데이터 감사 R11):** data.json은 회전 좌표만 싣고(588KB→283KB), 100세션 상대강도 선과 20점 꼬리는 `public-data/rotation-detail.json`으로 옮겼다. 브라우저 로더 하나(server-data-loader.js)가 둘을 `_serverDataMeta.rotationHistory`로 합쳐 종목·포트폴리오·스크리너·테마가 같은 접근자와 같은 판정을 읽고, 같은 세션의 상세만 합친다. 커밋 대상 경로는 refresh-data.yml(actions-reliability)에 함께 들어가야 한다." ],
-  "note": "theme-sector: rotation detail split" }

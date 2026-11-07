@@ -1,6 +1,0 @@
-{
-  "changelog": [
-    "**원천 없는 한국 지표 정의 삭제 ({VERSION}):** 원천이 없던 한국 보드 칸(한국 금리·CD91·국고채·PMI·GDP·PPI·실업, 신용·예탁금·52주·상승/하락 종목 수 등)의 정의·스냅샷 값·날짜 바인딩을 숨기지 않고 지웠다(js/aio-core.js DATA_SNAPSHOT·snap 목록, macro-board KR_UNCOLLECTED, 경기지표 위젯은 '수출'만). 한국 CPI 수기값(AIO_MANUAL_REFERENCE krInflation)과 만료 규칙도 지우고 official-references가 검증한 값만 쓰며, 검증 전에는 '—'로 둔다. kr-fundamentals.json(0개 기업 placeholder)은 지우고 프로듀서는 0건이면 파일을 만들지 않는다(OpenDART 미사용). 게이트: ci-static-data-contract·ci-manual-reference-expiry·ci-data-audit-contract(R6c), T684."
-  ],
-  "note": "delete sourceless KR board cells and KR CPI hand value; no 0-row kr-fundamentals"
-}

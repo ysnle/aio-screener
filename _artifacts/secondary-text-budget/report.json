@@ -28,7 +28,7 @@
   "failures": [],
   "routes": {
     "home": {
-      "total": 418,
+      "total": 407,
       "secondary": 84,
       "lines": [
         {
@@ -72,8 +72,8 @@
       ]
     },
     "signal": {
-      "total": 5055,
-      "secondary": 305,
+      "total": 3750,
+      "secondary": 250,
       "lines": [
         {
           "chars": 42,
@@ -81,14 +81,9 @@
           "text": "10/30 마감, 코스피 5,730.74 (-3.5%, 5거래일 +3.3%)"
         },
         {
-          "chars": 29,
-          "classes": "mg-library-summary mg-library xr-section mg-guide",
-          "text": "참여 원칙 28개 — 태도·전략·속지 말 것·믿을 것"
-        },
-        {
           "chars": 23,
-          "classes": "aio-note-fold xr-hub",
-          "text": "금리가 주가에 닿는 경로와 이 수치의 한계"
+          "classes": "mk-axis__dist-basis mk-axis__dist mk-axis__row",
+          "text": "기준 345bp(5일 전 340bp 대비)"
         },
         {
           "chars": 22,
@@ -117,11 +112,6 @@
         },
         {
           "chars": 14,
-          "classes": "mk-axis__dist-basis mk-axis__dist mk-axis__row",
-          "text": "5일 +5bp, 345bp"
-        },
-        {
-          "chars": 14,
           "classes": "regime-radar-legend",
           "text": "5거래일 전 (10/23)"
         },
@@ -134,6 +124,16 @@
           "chars": 13,
           "classes": "is-burden mk-tally__legend mk-tally",
           "text": "부담 1(달러와 원자재)"
+        },
+        {
+          "chars": 13,
+          "classes": "mk-axis__dist-basis mk-axis__dist mk-axis__row",
+          "text": "50일선+1% 7,774"
+        },
+        {
+          "chars": 10,
+          "classes": "mk-axis__dist-basis mk-axis__dist mk-axis__row",
+          "text": "50일선 위 60%"
         }
       ],
       "frames": [
@@ -223,7 +223,7 @@
       "frames": []
     },
     "sentiment": {
-      "total": 956,
+      "total": 969,
       "secondary": 141,
       "lines": [
         {
@@ -290,7 +290,7 @@
       "frames": []
     },
     "briefing": {
-      "total": 1073,
+      "total": 1070,
       "secondary": 45,
       "lines": [
         {
@@ -312,30 +312,25 @@
       "frames": []
     },
     "technical": {
-      "total": 160,
-      "secondary": 37,
+      "total": 134,
+      "secondary": 32,
       "lines": [
         {
           "chars": 32,
           "classes": "theme-strength-basis tech-regime-head aio-section tech-regime",
           "text": "10/30 미국 종가 기준, 양호 3, 중립 2, 부담 1"
-        },
-        {
-          "chars": 5,
-          "classes": "kr-index-trend-basis aio-section",
-          "text": "계산 기준"
         }
       ],
       "frames": []
     },
     "macro": {
-      "total": 4343,
-      "secondary": 252,
+      "total": 4258,
+      "secondary": 201,
       "lines": [
         {
-          "chars": 100,
+          "chars": 101,
           "classes": "page-subtitle  page-head",
-          "text": "거시 6요인 중 부담은 3개(물가, 통화정책, 유가·달러)이고, 성장·물가 국면은 방향 보류입니다. 다음 주요 발표는 11/10(화) 22:30 KST CPI (소비자물가)입니다."
+          "text": "매크로 6요인 중 부담은 3개(물가, 통화정책, 유가·달러)이고, 성장·물가 국면은 방향 보류입니다. 다음 주요 발표는 11/10(화) 22:30 KST CPI (소비자물가)입니다."
         },
         {
           "chars": 22,
@@ -389,8 +384,8 @@
         },
         {
           "chars": 2,
-          "classes": "aio-note-fold macro-stat",
-          "text": "설명"
+          "classes": "release-guide__state is-bad release-guide__name release-guide__row",
+          "text": "급랭"
         }
       ],
       "frames": [
@@ -413,7 +408,7 @@
       ]
     },
     "fxbond": {
-      "total": 1769,
+      "total": 1733,
       "secondary": 160,
       "lines": [
         {
@@ -480,13 +475,13 @@
       "frames": []
     },
     "fundamental": {
-      "total": 32,
+      "total": 28,
       "secondary": 0,
       "lines": [],
       "frames": []
     },
     "themes": {
-      "total": 3379,
+      "total": 3174,
       "secondary": 60,
       "lines": [
         {
@@ -621,25 +616,19 @@
       "frames": []
     },
     "portfolio": {
-      "total": 278,
-      "secondary": 2,
-      "lines": [
-        {
-          "chars": 2,
-          "classes": "sh-portfolio-toggle pf-privacy sh-portfolio-fold page-subtitle",
-          "text": "보안"
-        }
-      ],
+      "total": 124,
+      "secondary": 0,
+      "lines": [],
       "frames": []
     },
     "ticker": {
-      "total": 153,
+      "total": 180,
       "secondary": 0,
       "lines": [],
       "frames": []
     },
     "market-news": {
-      "total": 3542,
+      "total": 2598,
       "secondary": 288,
       "lines": [
         {
@@ -715,24 +704,13 @@
       ]
     },
     "principles": {
-      "total": 1768,
-      "secondary": 16,
-      "lines": [
-        {
-          "chars": 9,
-          "classes": "af-basis af-article",
-          "text": "근거와 가정 보기"
-        },
-        {
-          "chars": 7,
-          "classes": "af-kicker af-article rl-main",
-          "text": "금융수학·통계"
-        }
-      ],
+      "total": 36,
+      "secondary": 0,
+      "lines": [],
       "frames": []
     },
     "masters": {
-      "total": 1892,
+      "total": 1708,
       "secondary": 217,
       "lines": [
         {
@@ -774,18 +752,13 @@
       "frames": []
     },
     "atlas": {
-      "total": 1574,
-      "secondary": 30,
+      "total": 903,
+      "secondary": 21,
       "lines": [
         {
           "chars": 16,
           "classes": "atlas-layers-note rl-aside-block atlas-layers",
           "text": "기업은 역할 예시, 추천 아님"
-        },
-        {
-          "chars": 9,
-          "classes": "af-basis af-article",
-          "text": "근거와 가정 보기"
         },
         {
           "chars": 5,
@@ -796,8 +769,8 @@
       "frames": []
     },
     "guide": {
-      "total": 153,
-      "secondary": 154,
+      "total": 158,
+      "secondary": 159,
       "lines": [
         {
           "chars": 33,
@@ -805,9 +778,9 @@
           "text": "판정 기준표 데이터 출처 유의사항 자주 묻는 질문 용어 사전"
         },
         {
-          "chars": 31,
+          "chars": 32,
           "classes": "aio-guide-chapter",
-          "text": "판정 기준표, 시장 상태·심리·거시·금리·환율 공통 기준"
+          "text": "판정 기준표, 시장 상태·심리·매크로·금리·환율 공통 기준"
         },
         {
           "chars": 31,
@@ -830,16 +803,16 @@
           "text": "이용 정책, 개인정보, 문의"
         },
         {
-          "chars": 2,
-          "classes": "aio-btn-table primary guide-search guide-nav",
-          "text": "검색"
+          "chars": 6,
+          "classes": "aio-cmd-field__text aio-cmd-field guide-search",
+          "text": "도움말 검색"
         }
       ],
       "frames": []
     },
     "screener": {
-      "total": 1681,
-      "secondary": 653,
+      "total": 1594,
+      "secondary": 660,
       "lines": [
         {
           "chars": 88,
@@ -857,14 +830,19 @@
           "text": "종목 분석 열기 차트·가격 레벨·내 계획 점검 관심 종목 추가 비교 추가"
         },
         {
+          "chars": 39,
+          "classes": "scr-status-full scr-table-status-text scr-table-status sx-meta",
+          "text": "균형 상대 순위 조건 통과 332종목 · 자료 부족 96, 시총 큰 순"
+        },
+        {
           "chars": 36,
           "classes": "scr-why-section",
           "text": "점수를 만든 요인 S&P 500 대비 수익률 52주 범위 안 위치"
         },
         {
-          "chars": 28,
-          "classes": "scr-status-full scr-table-status-text scr-table-status sx-meta",
-          "text": "균형 상대 순위 조건 통과 332종목, 시총 큰 순"
+          "chars": 26,
+          "classes": "page-subtitle scr-kicker",
+          "text": "920종목 중 915종목 계산, 819종목 순위"
         },
         {
           "chars": 24,
@@ -893,19 +871,14 @@
         },
         {
           "chars": 17,
-          "classes": "scr-market-scope scr-toolbar",
-          "text": "주식 시장 종목 범위 정렬 기준"
-        },
-        {
-          "chars": 17,
-          "classes": "scr-why-status sx-meta scr-why-drawer sx-inspector scr-split",
-          "text": "조건 통과 · 자료 76% 확보"
+          "classes": "sx-meta scr-why-head-end scr-why-head",
+          "text": "순위 매긴 819종목 중 38위"
         }
       ],
       "frames": []
     },
     "charts": {
-      "total": 975,
+      "total": 898,
       "secondary": 43,
       "lines": [
         {
@@ -914,34 +887,29 @@
           "text": "10/30 종가 · 일봉"
         },
         {
-          "chars": 5,
+          "chars": 6,
           "classes": "aio-note-fold trend-card charts-card",
-          "text": "차트 읽기"
+          "text": "근거와 수치"
         },
         {
-          "chars": 5,
+          "chars": 6,
           "classes": "aio-note-fold trend-card charts-card",
-          "text": "차트 읽기"
+          "text": "근거와 수치"
         },
         {
-          "chars": 5,
+          "chars": 6,
           "classes": "aio-note-fold trend-card charts-card",
-          "text": "차트 읽기"
+          "text": "근거와 수치"
         },
         {
-          "chars": 5,
+          "chars": 6,
           "classes": "aio-note-fold trend-card charts-card",
-          "text": "차트 읽기"
+          "text": "근거와 수치"
         },
         {
-          "chars": 5,
+          "chars": 6,
           "classes": "aio-note-fold trend-card charts-card",
-          "text": "차트 읽기"
-        },
-        {
-          "chars": 5,
-          "classes": "aio-note-fold trend-card charts-card",
-          "text": "차트 읽기"
+          "text": "근거와 수치"
         }
       ],
       "frames": []

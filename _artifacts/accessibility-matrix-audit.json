@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-11-04T07:34:30.601Z",
-  "appRevision": "v59.69",
-  "gitHead": "727912a7e7f23e3c57534dd1741266c20e589eec",
+  "observedAt": "2026-11-07T02:27:33.658Z",
+  "appRevision": "v59.70",
+  "gitHead": "cae452b8e3e3e44991c0222b5036f0b1076dc76a",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -41,8 +41,15 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 2,
+      "smallTargetExceptionCount": 8,
       "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "%p",
+          "width": 17,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
         {
           "id": "",
           "text": "VIX",
@@ -52,8 +59,43 @@
         },
         {
           "id": "",
+          "text": "bp",
+          "width": 14,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "TIPS",
+          "width": 23,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "CCC",
+          "width": 22,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "HY",
+          "width": 15,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
           "text": "OAS",
           "width": 23,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "WTI",
+          "width": 21,
           "height": 28,
           "exception": "wcag-inline-text"
         }
@@ -65,7 +107,7 @@
       "routeId": "breadth",
       "active": true,
       "nameless": [],
-      "selectCount": 0,
+      "selectCount": 2,
       "selectsWithoutName": [],
       "positiveTabindex": [],
       "canvasCount": 0,
@@ -92,37 +134,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 4,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "%p",
-          "width": 20,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "bp",
-          "width": 14,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "RSI",
-          "width": 20,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "OAS",
-          "width": 23,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -179,59 +192,59 @@
       "smallTargetExceptions": [
         {
           "id": "",
-          "text": "PCE",
-          "width": 20,
-          "height": 28,
-          "exception": "wcag-inline-text"
+          "text": "기준금리(실효 연방기금금리) 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
         },
         {
           "id": "",
-          "text": "%p",
-          "width": 17,
-          "height": 28,
-          "exception": "wcag-inline-text"
+          "text": "미국 10년물 금리 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
         },
         {
           "id": "",
-          "text": "CPI",
-          "width": 17,
-          "height": 28,
-          "exception": "wcag-inline-text"
+          "text": "미국 2년물 금리 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
         },
         {
           "id": "",
-          "text": "WTI",
-          "width": 21,
-          "height": 28,
-          "exception": "wcag-inline-text"
+          "text": "10년물 − 3개월물 금리차 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
         },
         {
           "id": "",
-          "text": "PER",
-          "width": 20,
-          "height": 28,
-          "exception": "wcag-inline-text"
+          "text": "10년 실질금리 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
         },
         {
           "id": "",
-          "text": "bp",
-          "width": 14,
-          "height": 28,
-          "exception": "wcag-inline-text"
+          "text": "근원 CPI 전년 대비 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
         },
         {
           "id": "",
-          "text": "CCC",
-          "width": 22,
-          "height": 28,
-          "exception": "wcag-inline-text"
+          "text": "실업률 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
         },
         {
           "id": "",
-          "text": "OAS",
-          "width": 23,
-          "height": 28,
-          "exception": "wcag-inline-text"
+          "text": "VIX 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
         }
       ],
       "skipLink": true,
@@ -268,8 +281,23 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 2,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "SEC",
+          "width": 20,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "EPS",
+          "width": 19,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
@@ -304,23 +332,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 2,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "ETF",
-          "width": 18,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "EPS",
-          "width": 19,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -328,7 +341,7 @@
       "routeId": "portfolio",
       "active": true,
       "nameless": [],
-      "selectCount": 3,
+      "selectCount": 0,
       "selectsWithoutName": [],
       "positiveTabindex": [],
       "canvasCount": 0,
@@ -462,7 +475,7 @@
       "routeId": "screener",
       "active": true,
       "nameless": [],
-      "selectCount": 4,
+      "selectCount": 2,
       "selectsWithoutName": [],
       "positiveTabindex": [],
       "canvasCount": 0,

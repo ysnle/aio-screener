@@ -1,6 +1,0 @@
-{
-  "changelog": [
-    "**명령 검색 로딩 시점 ({VERSION}, 통합 검토, D1과 같은 원칙):** 명령 검색 모듈(11.7KB)을 유휴 시간에 미리 받지 않고, 검색 버튼에 처음 마우스를 올리거나 포커스할 때, Ctrl/⌘ 또는 '/'를 누를 때 받는다. 부팅 뒤 6.5초 지연 JS가 360,364에서 347,691바이트로 줄어 350,000 예산 안에 들어왔다. 첫 열기: 1x CPU에서 Ctrl+K 16–28ms, 4x CPU에서 114–127ms(검색 버튼 hover 뒤 클릭은 91–98ms)."
-  ],
-  "note": "change-only (no defect): integration 5687a55f post-boot lazy budget overage. Gate: ci-boot-interaction-check postBootLazyBudget (architecture/boot-budget.json)."
-}

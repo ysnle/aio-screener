@@ -3,7 +3,7 @@
 AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + native ESM 투자 리서치 터미널이다. 변동하는 버전·라우트·파일 크기·지식 상태의 정본은 `_context/CURRENT-STATE.md`이며, 이 문서에는 복제하지 않는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v59.69**
+- 현재 버전: **v59.70**
 - **버전 이력 → CHANGELOG.md** (v52.62+ 상세, v52.61 이하는 압축 이력 + git 히스토리). 버그 계보 → `_context/BUG-POSTMORTEM.md`(반복 클래스 표 + 압축 원장), 검증 이력 → `_context/QA-CHECKLIST.md`(현행 항목은 상단, §6은 압축 보관).
 - 이 파일에는 버전별 작업 요약을 **누적하지 않는다** (2026-07-18 통합 — CHANGELOG가 단일 출처).
 - 코드 구조: `index.html` 정적 셸 + `js/` 호환 모듈 + `src/` native ESM. 현재 집계는 `_context/CURRENT-STATE.md`, 구간 탐색은 `_context/CODE-MAP.md`를 사용한다.
@@ -56,7 +56,7 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 ## 환경 주의 (클라우드 세션)
 
 - 클라우드 컨테이너는 node_modules 없이, 저장소 Playwright보다 낮은 리비전의 브라우저로 시작한다 — 브라우저 게이트 전에 `node scripts/cloud-session-setup.mjs` 한 번(세션 시작 안내가 필요 여부를 알려 준다)
-- 다른 스레드와 병렬로 일할 때는 `bump-version`·`record-fix`를 돌리지 않고 기록 항목을 `_artifacts/pending-records/<스레드>/`에 두고, 새 assertion은 다음 릴리스(현재+1, 예 v59.56)를 인용한다 — 통합 때 `node scripts/apply-pending-records.mjs --dry-run` 후 같은 명령으로 그 릴리스에 한 번에 기록한다
+- 다른 스레드와 병렬로 일할 때는 `bump-version`·`record-fix`를 돌리지 않고 기록 항목을 `_artifacts/pending-records/<스레드>/`에 두고, 새 assertion은 다음 릴리스(현재+1, 예 v59.56)를 인용한다 — 통합 때 `node scripts/apply-pending-records.mjs --dry-run` 후 `--apply`로 그 릴리스에 한 번에 기록한다(모르는 인자는 실패, `--help`는 출력만)
 - 이 클론도 얕은 클론이다(`--is-shallow-repository` true) — 커밋 존재는 `git cat-file -e`로 본다
 
 ## 환경 주의 (Windows · Git Bash)

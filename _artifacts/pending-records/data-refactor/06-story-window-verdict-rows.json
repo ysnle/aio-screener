@@ -1,6 +1,0 @@
-{
-  "changelog": [
-    "**'무슨 일이 있었나' 5거래일 + 판정 표 2행 ({VERSION}):** 시장 이야기 막대·읽기 문장·배지가 MARKET_WINDOWS.week(5거래일) 하나를 써서 판정 표의 5일 열과 맞는다(이전 15거래일). 신용 리드는 관측 범위('10/30까지')를, 일간 예정 항목은 관측일('하이일드 스프레드 (10/30 관측)')을 붙인다. 판정 표에 '심리'(공포탐욕 합성 구성요소 중 공포 쪽 개수, R5 규칙으로 준비된 구성요소만)와 'AI·반도체 집중'(SOX, 없으면 SMH의 50일선·5일 변화, NDX 대 동일가중 RSP 격차)을 같은 열로 더했다. 두 행은 regime.watchAxes로 counts 밖에 있고, 화면에서는 6개 지표 아래 구분선 뒤 별도 블록(#regime-board-watch)으로 같은 열에 그린다('6개 지표' 문구 유지): 심리는 가중치 없음, AI·반도체는 기존 leadershipCap으로만 종합에 닿는다. 게이트: ci-data-audit-contract(5거래일 창, 세션 종가, watch 행 가중치·counts 밖), narrative-lifecycle model-check. 시장 해설 프로듀서는 screener·테마 지도·컨센서스를 파일 버전당 한 번만 읽고 펼친 스크리너 행을 재사용한다(narrative-lifecycle model-check 167초 → 43초)."
-  ],
-  "note": "market story 5-session window; sentiment + AI/semis watch rows in verdict table"
-}

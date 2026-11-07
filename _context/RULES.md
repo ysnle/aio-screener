@@ -1,6 +1,6 @@
 ---
 verified_by: local source review + ledger structure gates (ci-ledger-integrity, ci-record-fix, ci-workflow-compaction); live facts in CURRENT-STATE.md
-last_verified: 2026-11-03
+last_verified: 2026-11-07
 confidence: medium
 target_version: v57.79
 # 규칙 원장 — 원칙 18개(C1~C18)와 그 아래 R 규칙 (2026-10-31 v59.48 재구성)
@@ -11,6 +11,66 @@ target_version: v57.79
 ## 수신함 — 새 규칙은 여기 들어온다
 
 `node scripts/record-fix.mjs`는 새 규칙을 `## R<max+1>.` 헤딩으로 이 파일의 맨 위 `## R` 헤딩 바로 위에 넣는다. 그래서 이 수신함이 파일에서 첫 `## R` 헤딩을 가진다(가장 최근 규칙 하나는 앵커로 남긴다). 새 결함은 먼저 아래 원칙 중 어느 불변식을 어겼는지 보고, 그 원칙의 게이트에 케이스를 더해 막을 수 있으면 새 규칙을 만들지 않는다. 다음 정리 때 수신함 규칙을 해당 원칙 아래로 옮긴다. 핵심 규칙 색인은 수신함 바로 아래다.
+
+## R745. Credit spread changes and credit states come from market-read (v59.70, P2248)
+
+**Rule**: Every 20-session OAS change on screen is oasDelta20Bp (src/domain/briefing/market-read.js); every credit state is creditState with RULES.credit. No screen keeps its own credit thresholds.
+
+**Validation**: node scripts/ci-data-audit-contract-check.mjs
+
+## R744. A same-window figure on two screens is one reader's value (v59.70, P2230)
+
+**Rule**: A 5- or 20-session HY change is oasDelta20Bp (value, d5); a threshold label names its base, never a '+Nbp'; a KOSPI window counts Korean sessions (closeChange); a ledger day move is shown only when the close history has the previous session (oneSessionDay); a list of the day's names is US then Korean (usThenKorea).
+
+**Validation**: node scripts/ci-metric-consistency-check.mjs; node scripts/ci-screen-rereview-browser-check.mjs
+
+## R743. A metric shown on two screens is one reader's value with its date (v59.70, P2229)
+
+**Rule**: A 10-year change is the history tnx close series (closeChange / the verdict table); an OAS change is oasDelta20Bp; a one-day move spans one open session. A screen that needs another source for a split (FRED real yield and breakeven) shows that source's own dates beside it.
+
+**Validation**: node scripts/ci-metric-consistency-check.mjs
+
+## R742. Calendar facts fail producers and the watchdog, not CI contract shards (v59.70, P2226)
+
+**Rule**: ci.yml contract shards set AIO_QA_ORIGIN=ci; there a liveData: content gate reports ADVISORY and a wall-clock document-date judgement warns. Each has a watchdog-local twin that still fails. No other workflow sets AIO_QA_ORIGIN. Gates that judge code never declare liveData.
+
+**Validation**: node scripts/ci-refresh-origin-live-data-check.mjs
+
+## R741. Refresh-origin CI blocks on code, watchdog watches live content (v59.70, P2225)
+
+**Rule**: A contract-group gate that asserts live public-data content declares liveData: "content" and has a watchdog-local twin running the same script; a clock-bound code contract runs on a fixed clock. Only ci.yml contract shards set AIO_QA_ORIGIN, from the resolved reduced scope.
+
+**Validation**: node scripts/ci-refresh-origin-live-data-check.mjs
+
+## R740. Every screen artifact has a registered refresh path and one freshness record (v59.70, P2224)
+
+**Rule**: A public-data artifact a runtime reader names is registered in src/data/contracts/artifact-freshness.js: automatic (workflow stages it, producer exists, stale bound equals the lineage audit) or hand-kept (named expiry gate). Producing workflows write public-data/freshness/<workflow>.json before their validation gates; badges read src/data/freshness.js and the watchdog grades the same rows.
+
+**Validation**: node scripts/ci-artifact-refresh-path-check.mjs
+
+## R739. Currentness fixtures pass an explicit now (v59.70, P2223)
+
+**Rule**: A CI fixture that exercises session or age currentness passes a fixed now to the function under test and builds its timestamps from it, never from Date.now().
+
+**Validation**: node scripts/ci-runtime-contract-check.mjs
+
+## R738. Data age is the watchdog's verdict, not a release's (v59.70, P2221)
+
+**Rule**: ci-external-pipeline-check.mjs --mode release reports pages data/screener/Telegram freshness and pages-news-feeds-alive as warnings; --mode watchdog keeps them as errors and accepts an in-progress Deploy GitHub Pages run as provenance when its identity and SHA match.
+
+**Validation**: node scripts/ci-external-pipeline-check.mjs --mode watchdog
+
+## R737. Telegram signal kinds come from the producer module (v59.70, P2220)
+
+**Rule**: ci-artifact-semantics-check.mjs accepts the Telegram signal kinds Object.keys(SIGNAL_LIMITS) from scripts/lib/telegram-signals.mjs, and every kind literal the extractors emit must be a SIGNAL_LIMITS key.
+
+**Validation**: node scripts/ci-artifact-semantics-check.mjs
+
+## R736. Reference rows never refuse the market publish (v59.70, P2219)
+
+**Rule**: In ci-data-refresh-audit.mjs only BLOCKING_ROW_STATES and the structural checks decide the producer's publish. A hand-kept or weekly reference row (B1, E3, E4) that is not OK is published with its own date and a warning; the watchdog runs the audit with --reference-strict and stays red for it.
+
+**Validation**: node scripts/ci-data-refresh-audit.mjs (the exhaustive publicationVerdict fixture runs first and throws on regression)
 
 ## R735. 시세 세션 분류는 달력 경계 전수 훑기로 검증한다 (v59.60, P2213)
 

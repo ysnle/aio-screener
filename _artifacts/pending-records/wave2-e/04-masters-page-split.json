@@ -1,6 +1,0 @@
-{
-  "changelog": [
-    "**대가 보유 종목 페이지 모듈 분할 (v59.70, 페이지 모듈 상한 1,200줄):** `src/ui/pages/masters.js` 1,647줄 → 931줄. 표·변화 원장·보유 검색·섹터·분기·투자자 비교·투자 원칙·원본 공시 화면 조립 함수와 상위 10개 비중 막대, 공용 요소 함수를 `src/ui/pages/masters-views.js`(727줄)로 옮김. 공개 export(createSecurityLookup·shareClassTag 등)는 masters.js에서 그대로 다시 내보냄. 옮긴 코드의 `Number.isFinite(Number(x))` 3곳은 공용 `readNumber`로 바꿈(null을 0으로 읽지 않음, 현재 데이터에는 null 없음, null-as-zero 76→73). 분할 전후 화면 텍스트 52개 상태(운용사 3곳 × 상세 탭 8개, 개요·전략 개요·티커 찾기, 1440·390)와 스크린샷 12장이 같음. masters.js 원문을 읽는 게이트 3개(masters-contract·runtime-contract·13f-currentness)는 두 파일을 함께 읽도록 바꾸고 qa-pipeline 입력·영향 규칙에 masters-views.js를 추가."
-  ],
-  "note": "wave2-e: masters.js split (behaviour unchanged; screen text + screenshots identical)"
-}

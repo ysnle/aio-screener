@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-11-03
+last_verified: 2026-11-07
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
@@ -38,6 +38,276 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 <!-- ledger-class-report:end -->
 
 ---
+
+## P2248 - v59.70 - Three screens computed the 20-session HY spread change three ways (+32bp vs +34bp), and 매크로 read credit with its own thresholds (2026-11-07)
+
+- symptom/reproduction: On 11/4 시장 상태's credit axis, the 매크로 credit chapter and 연결해서 보면's rates-credit pair quoted different 20-session high-yield changes for the same close (+32bp, +34bp). The 매크로 chapter said '크게 벌어졌습니다' and flipped at '3.5% 돌파' while 시장 상태 read the same spread as 중립.
+- root_cause: hyDelta20Bp (market-read) counted FRED observations, cross-readings looked the spread up by calendar date against the history's tnx window (19 sessions when FRED lags a day), and macro-chapters took the first and last observation of its own slice. macro-chapters also hardcoded +40bp/4.5%/+50bp/3.5% instead of RULES.credit and creditState.
+- fix: One reader, oasDelta20Bp(macroHistory, id, through), counts 20 US close sessions on FRED's own dates; hyDelta20Bp wraps it, cross-readings and the 매크로 chapter call it for HY, IG and CCC. The 매크로 chapter's state is creditState with RULES.credit (stressAtBp, widen5dBp, widen20dBp, stress20dPct/Multiple) and the record latch; its flip sentences print those values.
+- violated_rule: One number, one source (a figure shown on two screens is computed once)
+- prevention: R745: the data-audit gate feeds one synthetic macro history (FRED one session behind the history) to all three readers and requires the same +45bp, 중립 on the 매크로 chapter, and the RULES.credit numbers in its flip.
+- verification/residual: node scripts/ci-data-audit-contract-check.mjs — passes on the branch; on the 140ba22c tree the HY 20-session and 매크로 credit checks fail (+43bp pair, '크게 벌어졌습니다', '3.5% 돌파').
+
+## P2247 - v59.70 - 테마·스크리너 화면 검수 결함 6건: AI 설비투자 띠 다크 대비 1.8, 카드 머리 줄 깨짐, 1개월 1위 기준 불일치와 7줄 시나리오 문단, 산점도 축 제목 겹침, S&P 500 지도 섹터 라벨 말줄임, 스크리너 분모 넷, 검증 안내 띠 잘림 (2026-11-04)
+
+- symptom/reproduction: 1차 통합본(140ba22c) 화면 검수(_artifacts/screen-review-20261104/REVIEW.md 3·15·16·23·24·29). 다크에서 'AI 설비투자 100달러' 띠의 흰 라벨이 밝은 칸 위에서 1.82~1.90:1이었고 '$50 / $100'·'시설·건설'이 두 줄로 깨졌다. 테마 머리말 '주도 단계 테마 · 1개월 헬스케어 +7.0%'와 시나리오 문단 '가장 오른 곳이 필수소비재(+10.2%)'가 같은 1위를 다르게 말하는 것처럼 읽혔고, 시나리오 문단은 20px 굵은 글씨 7~8줄이었다. 휴대폰 산점도의 x축 제목이 사분면 라벨 둘과 겹쳤다. 휴대폰 S&P 500 지도에서 '산업재 +0…' 같은 섹터 머리가 말줄임으로 잘렸다. 스크리너에 920/914/333/823 네 분모가 이어지지 않았다. 휴대폰 검증 안내 띠가 '…순위는 확인할 …'에서 잘렸다. 검증 안내 링크 '검증 보기'는 라이트에서 4.25:1이었다.
+- root_cause: 띠 칸이 step-11 색 토큰을 쓰는데 다크에서 step-11은 밝은 글자용 색이라 흰 라벨과 대비가 무너졌다. 카드 머리는 줄바꿈 금지가 없어 좁은 카드에서 값 안에서 끊겼다. 머리말 열은 '주도 단계'(지수 대비 단계 판정) 테마를, 시나리오 문단은 1개월 수익률 순서를 쓰는데 화면이 그 차이를 말하지 않았고, 문단 전체가 리드 글씨로 그려졌다. 좁은 지도의 x축 제목이 아래 사분면 라벨과 같은 줄이었다. 섹터 머리는 너비와 무관하게 '이름 + 등락'을 그리고 CSS 말줄임에 맡겼다. 스크리너 머리말은 수집·계산 수만, 상세 서랍은 순위 매긴 수를 썼다. 휴대폰 띠는 v58.56에서 한 줄 말줄임으로 정했다.
+- fix: 다크에서 띠 라벨은 배경색(--bg-base)으로 그린다(9.9:1). 카드 머리는 이름과 값 사이에서만 줄을 바꾸고 값은 22px. 시나리오 리드는 '1개월 수익률 1위 X (주도 단계 / 주도 단계는 아님), 최하위 Y' 한 줄이고 원래 문장은 미국 테마 표 접기 첫 줄로 옮겼다. 좁은 지도의 x축 제목은 '6개월 지수 대비 →'. 섹터 머리는 '이름 + 등락', '이름', '등락' 중 들어가는 가장 긴 것을 고르고 전체는 hover. 스크리너 머리말은 '920종목 중 914종목 계산, 823종목 순위', 서랍은 '순위 매긴 823종목 중 170위'로 같은 순위 모집단을 쓴다. 휴대폰 검증 띠는 두 줄로 감기고, '검증 보기' 링크는 본문색 + 밑줄.
+- violated_rule: QUALITY-BAR 1(숫자는 한 기준으로 이어진다)·2(잘린 글자 없음)·7(짧은 해석)·9(AA 대비)
+- prevention: ci-theme-screener-review-check(v59.70)가 데스크톱·아이패드 다크에서 띠 라벨 4.5:1 이상·카드 머리 한 줄, 휴대폰에서 시나리오 리드 3줄 이하·기준 명시, 지도 축 제목과 사분면 라벨 겹침 0, 섹터 머리 잘림 0, 스크리너 머리말의 순위 수 = 서랍의 순위 모집단, 검증 띠 잘림 없음을 본다 — 140ba22c에서 6개 클래스 모두 실패한다.
+- verification/residual: ci-theme-screener-review-check PASS(띠 9.9/9.86/10.28:1, 리드 1·2·3줄, 겹침 0, 잘림 0, 823 = 823). 전후 스크린샷 _artifacts/wave2-c/review-shots(데스크톱·아이패드 다크, 휴대폰 라이트·다크). _artifacts/wave2-c/proof.mjs: 1440/768/390 × 라이트·다크 대비 4.5 이상·가로 넘침 0·잘림 0.
+
+## P2246 - v59.70 - v59.70 매크로로 바로 들어오면 BOK·KOSIS 조회가 relay 전역이 설치되기 전에 돌아 _cfWorkerUrl ReferenceError로 끝났다 (2026-11-07)
+
+- symptom/reproduction: #macro 직접 진입(새로고침·링크)에서 콘솔에 'ReferenceError: _cfWorkerUrl is not defined'(js/aio-data.js:7099·7102 → fetchAllBokData·fetchAllKosisData)가 두 번씩 찍히고, window._bokData·_kosisData가 그 세션 내내 비었다. 다시 조회하지 않아 이를 읽는 값(src/ui/pages/market.js bok-rate·kr-cpi, js/aio-workspace.js)이 빠졌다. 화면 재검수 2026-11-06 N6(병렬 6개 브라우저에서 4/6 환경). 시장 상태 한국 보드의 금리·물가·수출 카드는 생산 데이터(DATA_SNAPSHOT.bokRate·krCpi)를 읽어 영향이 없었다.
+- root_cause: 직접 진입의 첫 aio:pageShown은 defer 클래식 스크립트가 평가되는 동안 나고, aio-data.js의 페이지 훅이 500 ms 타이머로 BOK·KOSIS·FRED 조회를 건다. _cfWorkerUrl·_aioRelayUrl은 v59.22부터 src/data/providers/proxy-transport.js가 bootstrap.js 모듈 평가 때 설치하는데, 모듈 그래프 내려받기가 500 ms보다 길면(느린 망·부하) 타이머가 먼저 돌아 전역 이름을 찾지 못했다. 함수가 async라 감싼 try/catch가 거부를 잡지 못했다.
+- fix: proxy-transport.js가 전역을 설치한 뒤 window._aioRelayReady = true와 aio:relayReady 이벤트를 낸다. aio-data.js 페이지 훅은 FRED·BOK·KOSIS 조회의 500 ms 지연을 그 신호 뒤에 시작한다(이미 설치됐으면 그대로 500 ms).
+- violated_rule: 클래식 코드가 모듈이 설치하는 전역을 부르려면 설치 신호를 기다린다 — 고정 시간 타이머는 모듈 그래프 도착 순서를 보장하지 않는다.
+- prevention: scripts/ci-route-soak-check.mjs에 직접 진입 단계를 더했다: bootstrap.js 응답을 1.5초 늦춰 모듈 그래프가 레거시 타이머보다 늦게 오게 하고, #macro·#signal로 바로 들어가 콘솔 오류 0건, 매크로의 BOK·KOSIS 조회 실행, 시장 상태 한국 보드 '한국 금리·물가·수출' 카드 표시를 확인한다. 수정 전 코드에서 _cfWorkerUrl 오류 4건과 'bok/kosis never fetched'로 실패한다.
+- verification/residual: 수정 전(89e8c881 aio-data.js·proxy-transport.js): ci-route-soak exit 1, deep-link #macro 오류 4건. 수정 후: exit 0, #macro 'bok+kosis fetched', #signal 카드 '한국 금리·물가·수출 … 기준금리 3.00%'. 탐침(모듈 응답 40·90 ms 지연, 각 4회): 수정 전 2/4 실패, 수정 후 0/8.
+
+## P2245 - v59.70 - A failed history.json or data.json held the screener read until the critical-data gate's 20 s fallback (2026-11-07)
+
+- symptom/reproduction: With history.json and data.json refused, the stock-row tables on the non-rows-first screens kept the loading state; the screener.json request went out only at 14.0 s (SA-02 fixture), when the gate's fallback fired.
+- root_cause: createCriticalDataGate in bootstrap opened only when both core artifacts had loaded (_serverDataMeta and history present) and listened only to aio:serverDataLoaded / aio:historyLoaded. A failed or empty read never satisfied it, so the queued screener read waited for the fallback.
+- fix: critical-data-gate.js coreReadsSettled: a core read counts as settled when it loaded or its load state is ready/failed/empty. bootstrap's gate uses it and also listens to aio:serverDataFailed / aio:historyFailed, so a failure opens the gate at once.
+- violated_rule: A wait on another file must end when that file's read settles, failed or not, not only when it succeeds
+- prevention: ci-esm-core-unit-check: coreReadsSettled cases and the bootstrap gate wiring (fails on the old code: export missing). ci-sa-02-outage-browser-fixture core-file-failure run: screener.json must be requested within 12 s of navigation with history/data refused (old code 14.0 s fails, new 3.2 s).
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-sa-02-outage-browser-fixture.mjs (ok; the same fixture with HEAD 66fa81f6 bootstrap.js and critical-data-gate.js fails with screenerRequestedAt 13969).
+
+## P2244 - v59.70 - apply-pending-records --help ran the real integration: version bump, every record written, pending files deleted (2026-11-07)
+
+- symptom/reproduction: On 2026-11-04 theme-sector ran `node scripts/apply-pending-records.mjs --help` in its worktree. The script bumped to v59.70, recorded every thread's pending entries into the ledgers and deleted the pending files; it was reverted before any commit.
+- root_cause: apply-pending-records read only the flags it knew (--dry-run, --dir, a vNN.NN release) and ignored anything else, and its default with no flag was to write. record-fix and bump-version also ignored unknown flags; they did not write only because a missing positional argument stopped them.
+- fix: scripts/lib/cli-args.mjs parseCliArgs: an unknown argument fails before any file is read, --help/-h prints the usage and exits 0. apply-pending-records, record-fix and bump-version parse through it, and apply-pending-records writes only with an explicit --apply (--dry-run unchanged; no flag refuses).
+- violated_rule: A command that writes the ledgers or the version must never write on an argument it does not understand
+- prevention: ci-record-fix-check runs the three writers from a sandbox copy with --help, an unknown flag and (apply-pending-records) no flag, and asserts the exit codes and that nothing in the sandbox changed; against the pre-v59.70 scripts seven of these checks fail, and apply-pending-records --help reaches '1 pending record(s) -> v59.70'.
+- verification/residual: node scripts/ci-record-fix-check.mjs (89 checks); the same gate with the three scripts from ff35bf0f fails 7 checks.
+
+## P2243 - v59.70 - v59.70 시세 칩 '◦', 발표 띠 현재값 선의 라벨 관통, 라벨의 '거시', 0 변화의 방향 라벨, 'HY' 검색 순서 (2026-11-07)
+
+- symptom/reproduction: 재검수(89e8c881): 오늘 시세 칩 'WTI 95.65 ◦ ▼-0.44'(#13), PCE·CPI 현재값 선이 '끈적함' 위를 지남(#21), 도움말 기준표 '거시, 성장'·뉴스 주제 칩 '거시'·테마 '거시 영향: 거시 시나리오 판단 보류'(#36), 엔/달러 '직전 거래일 종가 대비 0.00%, 20거래일 0.0%(엔 강세)'(N3), 명령 검색 'HY'에서 종목 7개가 용어 'HY 스프레드'보다 먼저(N4).
+- root_cause: #13: v30.11 가격별 신선도 점(.aio-src-dot)이 시세가 지연·스냅샷이면 빈 원으로 그려졌다. 외부 요청이 바로 실패하는 환경에서만 나타나 로컬 탐침에서 재현되지 않았다. #21: 핀 눈금은 띠 위아래로 짧아졌지만 라벨 위치와 비교하지 않았다. #36: 기존 라벨 검사가 제목·버튼·탭만 보아 칩·표 칸·필드 라벨을 놓쳤다. N3: 방향 단어를 반올림 전 값으로 골랐고, 같은 카드의 % 자릿수가 2·1로 달랐다. N4: 검색 그룹 순서가 종목→화면→용어로 고정이라 부분 일치 종목이 완전 일치 용어를 이겼다.
+- fix: #13 신선도 점 제거(현재성은 상단 칩과 숫자 hover가 말함). #21 fitZoneBar가 현재값 선이 지나는 라벨을 띠 안에서 비키고, 자리가 없으면 숨김(띠 title 유지). #36 라벨 '거시'→'매크로'(기준표·뉴스 칩·주제 이름·테마 매크로 영향·판단 보류 문구·점수 요인·링크·이벤트 축 대체어). N3 directionOf(인쇄 자릿수 기준)로 방향 단어, 카드 % 2자리 통일. N4 matchStrength(낱말 일치 3 > 낱말 앞부분 2 > 포함 1)로 그룹과 행을 정렬하는 orderByMatch.
+- violated_rule: 화면에 뜻 없는 기호를 두지 않는다. 표시는 인쇄된 값을 따른다. 라벨은 매크로다. 검색은 가장 정확한 일치를 먼저 보인다.
+- prevention: ci-contrast-focus-browser-check v59.70: 외부 요청을 바로 실패시키고 가격 옆 빈 표식(v59.69 home 4건 실패), 발표 띠 선-라벨 교차(macro 1건 실패), 짧은 라벨·필드 라벨의 '거시'(guide·market-news·themes·theme-detail 6건 실패). ci-rendered-copy-lint zero-direction·mixed-precision 규칙과 카나리(fxbond 5건 실패). ci-search-surface-contract N4 순위 4단언(이전 코드 4건 실패).
+- verification/residual: 수정 후 contrast-focus 전 라우트 라이트·다크 PASS, rendered-copy-lint PASS, search-surface PASS. 실제 앱 'HY' 첫 행 'HY 스프레드', 'NVDA' 첫 행 엔비디아.
+
+## P2242 - v59.70 - v59.70 공용 진행 표시(스피너)가 좁은 버튼 글자를 덮었고 차트 라이브러리 로고 링크가 브라우저 기본 파란색이었다 (2026-11-07)
+
+- symptom/reproduction: AI 도우미 전송처럼 좌우 여백이 좁은 버튼에서 aria-busy 스피너가 버튼 글자 위에 겹쳤다(통합 검토). 기술적 분석 차트의 라이브러리 출처 링크 a#tv-attr-logo가 라이트·다크 모두 브라우저 기본 링크 색으로 남아 contrast-focus 게이트가 실패했다.
+- root_cause: ui-states.css의 button[aria-busy]::after는 버튼 오른쪽 3px에 절대 위치해 끝 여백 안에 들어간다고 가정했다. 여백이 스피너보다 좁거나 글자가 가운데 정렬로 끝까지 차면 글자와 겹친다. 로고 링크는 lightweight-charts가 그리는 요소라 앱 링크 색 규칙이 닿지 않았다.
+- fix: 스피너를 글자 뒤 흐름 안(inline-block, 앞 여백 6px)에 둬 어떤 너비에서도 글자와 겹치지 않게 했다. 로고 링크는 출처 표기를 유지한 채 --text-secondary 색과 다른 링크와 같은 포커스 링을 받는다.
+- violated_rule: 공용 상태 표시는 가장 좁은 소비자에서도 내용을 가리지 않는다. 외부 라이브러리가 그린 링크도 앱의 링크 색·포커스 규칙을 따른다.
+- prevention: ci-contrast-focus-browser-check v59.70 busy 검사: 모든 라우트의 보이는 버튼과 AI 패널 버튼에 aria-busy를 걸고, 절대 위치 스피너가 글자 사각형과 겹치거나 흐름 안 스피너가 버튼 밖으로 넘치면 실패한다(v59.69 CSS에서 home 8건·technical 4건 실패). 같은 게이트의 링크 검사가 a#tv-attr-logo를 계속 본다(제외 없음).
+- verification/residual: 수정 후 contrast-focus 전체 라우트 라이트·다크 실행에서 busy·링크 실패 0. ci-chat-ui-state-browser-check PASS.
+
+## P2241 - v59.70 - v59.70 발표 띠 현재값 선이 라벨을 가르고 고용 눈금이 '5만7.5만'으로 붙었으며 용어 팝오버가 용어보다 왼쪽에 떴다 (2026-11-07)
+
+- symptom/reproduction: 매크로·브리핑 발표 띠에서 현재값 세로선이 '끈|적함'처럼 띠 라벨을 갈랐고, 고용보고서 눈금 '5만'·'7.5만'이 붙어 읽혔으며, 390px에서 '조금 높음'이 '조금 높…'으로 잘렸다(#21, 알려진 항목). 데스크톱 용어 hover 팝오버가 용어보다 왼쪽(사이드바 위)에 떴다(#27).
+- root_cause: zone-bar 핀은 띠 높이 전체를 지나는 선 하나였다. 눈금은 한 줄에 절대 위치라 가까운 두 경계가 겹쳤다. 라벨 맞춤은 화면에 그려지기 전(폰트 로드 전)에 재서 잘림이 남았다. placePopover는 용어 가운데에 팝오버 가운데를 맞춰 넓은 팝오버가 왼쪽으로 밀렸다.
+- fix: 핀을 띠 위아래 두 눈금(8px)으로 바꿨다. fitZoneBar가 그려진 뒤·폰트 로드 뒤·크기 변화 때 라벨이 넘치면 숨기고(띠 title에 남김), 이웃 눈금과 6px 안이면 둘째 줄로 내린다. 팝오버는 용어 왼쪽 끝에 맞추고 화면 오른쪽 끝에서만 당긴다.
+- violated_rule: 화면 너비에 달린 배치는 그려진 뒤 잰다. 팝오버는 그것을 연 요소에 붙는다.
+- prevention: ci-esm-core-unit-check v59.70 단언: placePopover가 용어 왼쪽(312)에 맞추고 오른쪽 끝에서 1112로 당긴다(v59.69 가운데 맞춤에서 실패). 발표 띠는 1440·390 라이트·다크 스크린샷으로 확인.
+- verification/residual: 수정 후 매크로 1440/390 라이트·다크 스크린샷: 핀이 라벨을 가르지 않고 '조금 높음'은 390px에서 숨겨지며 '5만/7.5만'은 두 줄. 용어 312px → 팝오버 312px.
+
+## P2240 - v59.70 - v59.70 브리핑·오늘 '지난 24시간' 둘째 이야기가 제목과 본문 없이 무게 막대와 '관련 보도 1건'만 나왔다 (2026-11-07)
+
+- symptom/reproduction: 브리핑 지난 24시간과 오늘의 핵심 목록의 둘째 항목(MRVL·LITE 인수)이 빈 제목·빈 본문에 무게 막대와 '▶ 관련 보도 1건'만 있었다(화면 검수 #11).
+- root_cause: src/domain/briefing/day-account.js는 'deal'을 이야기 씨앗 종류로 받으면서도 문구 분기가 없어, label·title이 없는 인수 사실을 일반 분기의 'seed.label || seed.title || '''로 빈 문자열 제목으로 만들었다. 데이터(market-day.json)는 인수자·대상·규모·지급 방식·프리미엄을 갖고 있었다.
+- fix: deal 분기를 넣어 '인수자, 대상 인수' 제목(이름은 다른 사실의 label, 없으면 티커)과 '규모 2,750억 달러, 주식 교환, 프리미엄 +23.9%.' 본문을 쓰고, 문구가 없는 씨앗 종류는 목록에 넣지 않는다.
+- violated_rule: 씨앗 종류를 늘리면 그 종류의 문구도 같이 만든다 — 빈 제목 이야기는 목록에 들어가지 않는다.
+- prevention: ci-esm-core-unit-check v59.70 단언: label 없는 deal 사실이 제목(인수자·대상 이름)과 규모·프리미엄 본문을 가진 이야기가 되고, 문구 없는 씨앗(event, label 없음)은 이야기·더 보기 어디에도 빈 제목으로 남지 않는다. v59.69 day-account.js에서는 deal 제목이 빈 문자열이라 실패한다.
+- verification/residual: 수정 전: 실제 market-day.json으로 buildDayAccount → story:deal:MRVL:LITE title ''. 수정 후: 'MRVL, 루멘텀 인수 / 규모 2,750억 달러, 주식 교환, 프리미엄 +23.9%.', 390px 오늘 스크린샷 확인, ci-esm-core-unit-check ok.
+
+## P2239 - v59.70 - v59.70 다크 뉴스 '시간대별 시황' 제목이 브라우저 기본 파랑 링크였고, 라이트 칩·보조 글자는 AA에 못 미쳤으며, 뉴스 접힘 카드에 펼침 표시가 없었다 (2026-11-07)
+
+- symptom/reproduction: 다크 1440px 뉴스 화면의 시간대별 시황 헤드라인이 UA 기본 파랑(대비 1.85)·목록 점·시각과 제목 붙음·슬롯 머리 줄 붙음으로 나왔다(#2). 라이트에서 .sx-chip·.regime-state·.macro-tally-chip '양호/부담' 4.21~4.25, .kr-index-move 3.21, .kr-badge 3.81 등 AA 미달(#25). 뉴스 '시간대별 시황'·'전체 뉴스'·'시장 신호' 접힌 카드는 제목과 선만 있는 빈 카드였다(#4).
+- root_cause: 시황 슬롯 블록이 브리핑에서 뉴스로 옮겨졌는데 스타일 26줄은 '#page-briefing …' 범위 그대로였다. 라이트 데이터 색 토큰(--data-green/amber/red, --dir-up/down)은 Radix 11단계 그대로라 3단계 칩 바탕에서 4.1~4.3이었다. 뉴스 카드 접기의 ::after는 섹션 머리 구분선이 차지해 공용 펼침 표시 목록에 없었다.
+- fix: 슬롯 규칙을 ':is(#page-briefing, #page-market-news)'로 묶었다. 라이트 토큰을 11단계 75% + 12단계 25% 혼합으로 올렸고(.kr-up/.kr-down도 같은 토큰), 공용 접기 표시(responsive.css 그린 꺾쇠) 목록에 뉴스 카드·leaders 분포·mg-lesson·뉴스 원문·리서치 목차·스크리너 고급 접기를 넣었다.
+- violated_rule: 블록을 다른 화면으로 옮기면 그 블록의 스타일 범위도 같이 옮긴다. 데이터 색 토큰은 쓰이는 가장 어두운 바탕에서 AA를 넘어야 한다. 접기 행은 열린다는 표시를 가진다.
+- prevention: scripts/ci-contrast-focus-browser-check.mjs: 전 라우트 × 라이트/다크 1440px, 접기를 모두 연 상태에서 (1) 조상 바탕을 합성한 글자 대비 AA, (2) 브라우저 기본 링크 색, (3) 펼침 표시 없는 접기 행, (4) 키보드 포커스 링 없음, (5) '거시' 라벨·제목 위 생성 단어, (6) 차트 날짜 축 형식. v59.69에서는 (1)(2)(3)이 실패한다.
+- verification/residual: 수정 전: 다크 뉴스 슬롯 스크린샷(UA 파랑), 라이트 대비 측정 실패, 접기 표시 없는 카드 4종. 수정 후: 라이트 20개 라우트 대비 통과, 다크는 theme-sector 소유 span.capex-flow-seg-label 1.82(themes·theme-detail)만 남음. 키보드 Tab 순회로 .aio-term 16/16·summary 78/78 포커스 링 확인(#26은 프로그램 포커스로 잰 값이었다).
+
+## P2238 - v59.70 - v59.70 휴대폰 1열 규칙이 더 구체적인 2열 규칙에 져서 환율·뉴스 초점·금리 표가 390px에서 2열로 눌렸다 (2026-11-07)
+
+- symptom/reproduction: 390px에서 금리와 환율 원/달러 카드와 뉴스 초점 카드 본문이 2열로 남아 글자가 세로로 쪼개졌고, 시장 상태·매크로 축의 근거 목록(지금 숫자)도 2열 dl이라 한 값이 세 줄로 접혔다(화면 검수 2026-11-04 #1, 알려진 항목 '지금 숫자').
+- root_cause: responsive.css:680/696의 휴대폰 규칙은 '.fx-krw__body' 같은 짧은 선택자였고, 같은 속성의 데스크톱 규칙은 '#page-fxbond .fx-krw .fx-krw__body'처럼 id가 붙은 선택자라 미디어 쿼리 안에 있어도 캐스케이드에서 졌다. 같은 모양이 regime-quality.css 근거 목록, 금리 수익률 표, 뉴스 시황 슬롯 규칙에도 있었다.
+- fix: 휴대폰 규칙을 이기는 규칙과 같은 범위(':is(#page-fxbond .fx-krw, #page-market-news .news-focus) :is(…)__body', '#page-fxbond.page .mk-curve-card .rates-yields', '#page-signal.page/#page-macro.page … .regime-evidence')로 올렸다. 시황 슬롯 규칙 26개는 ':is(#page-briefing, #page-market-news)'로 묶었다.
+- violated_rule: 미디어 쿼리는 명시도를 올려 주지 않는다 — 휴대폰 재배치 규칙은 이기려는 규칙과 같은 범위 이상이어야 한다.
+- prevention: scripts/ci-phone-override-specificity-check.mjs: index.html 인라인 스타일과 src/ui/styles/*.css의 ≤760px 레이아웃 규칙마다 같은 요소에 닿는 넓은 화면 규칙과 캐스케이드 승자를 계산해, 휴대폰 규칙이 지면 실패한다(:is() 전개, 페이지 범위 일치, 파일 순서). v59.69 responsive.css로 돌리면 실패한다.
+- verification/residual: 수정 전: node scripts/ci-phone-override-specificity-check.mjs --css <v59.69 responsive.css> FAIL(fx-krw__body·news-focus__body 등). 수정 후: OK, 휴대폰 규칙 452개. 390px 전후 스크린샷: 금리와 환율·뉴스·매크로 축 근거 목록 1열.
+
+## P2237 - v59.70 - 종목 경로형 딥링크(#technical/AAPL, #fundamental/AAPL)가 '오늘' 허브 탭과 빈 차트로 열림 (2026-11-07)
+
+- symptom/reproduction: #technical/AAPL과 #fundamental/AAPL로 들어오면 차트·재무 공시 화면 위에 '오늘' 허브 탭(요약·브리핑·뉴스)이 보이고, 허브 줄에 종목이 없고, 차트는 그려지지 않았다. #ticker/AAPL과 ?sym= 쿼리형은 정상.
+- root_cause: src/app/bootstrap.js resolveInitialRoute가 부팅 라우트를 '?'에서만 잘라 'technical/AAPL'을 라우트로 읽지 못해 home으로 부팅했다. 같은 해시를 router.js parseRouteDeepLink는 '/'까지 읽어 페이지만 차트로 바꿨으므로, 셸(허브 탭·종목 줄)과 페이지가 서로 다른 라우트를 가리켰다. #ticker/는 showTicker가 다시 진입시켜 가려졌다.
+- fix: resolveInitialRoute가 '?'와 '/' 모두에서 라우트를 자른다(bootstrap.js 137행, theme-sector bd4f89b0과 같은 한 줄).
+- violated_rule: 주소 하나는 한 파서로 읽는다 — 부팅 라우트와 라우터가 같은 해시 형식을 다르게 읽었다.
+- prevention: scripts/ci-esm-core-unit-check.mjs: 모든 ROUTE_IDS × 맨·쿼리·경로형 해시가 그 라우트로 부팅하고 종목 라우트는 종목을 읽는다. scripts/ci-entity-deep-link-browser-check.mjs(browser-viewport): 종목 허브 3탭 × 경로·쿼리형 × AAPL·MSFT 12개 링크가 그 페이지·그 탭·그 종목·정규 주소로 열린다. 둘 다 옛 코드에서 실패(경로형 4건, 부팅 라우트 다수).
+- verification/residual: 옛 bootstrap.js로 브라우저 게이트 FAIL 4/12, 단위 검사 FAIL; 고친 코드로 둘 다 PASS. probe: #technical/AAPL → 개요·차트*·재무 공시, 'AAPL 일봉'.
+
+## P2236 - v59.70 - v59.70 history.json·data.json을 받지 못해도 화면은 '종가 기록을 불러오는 중입니다'를 계속 보여 줬다 (2026-11-07)
+
+- symptom/reproduction: public-data/history.json과 data.json 요청을 막은 브라우저에서 오늘·시장 상태·시장 폭·투자 심리·브리핑·금리와 환율·기술적 분석의 기준 줄이 몇 분이 지나도 '종가 기록을 불러오는 중입니다.'였고, 기술적 분석의 지수 그리드는 아무것도 그리지 않았다. 실패와 느린 응답이 화면에서 구별되지 않았고 다시 시도할 방법도 없었다.
+- root_cause: js/aio-data.js _aioLoadHistory는 !r.ok와 예외에서 null만 돌려주고 상태도 이벤트도 남기지 않았다(성공일 때만 aio:historyLoaded). src/data/server-data-loader.js _aioLoadServerData도 경고 로그만 남겼다. 카드들은 '아직 없음'만 알 수 있어 대기 문구를 계속 썼다.
+- fix: 두 로더가 처음 불러오기에 실패하면 window.__aioHistoryLoadState / __aioServerDataLoadState = 'failed'와 aio:historyFailed / aio:serverDataFailed를 낸다(이미 받은 사본이 있으면 실패로 보지 않는다). 공용 src/ui/components/data-state.js installLoadFailureNotice가 본문 맨 위에 한 줄 오류와 다시 시도를 그리고, 성공하면 지운다. 기준 줄 7곳은 historyWaitText(root) 하나로 대기/받지 못함을 고른다. 기술적 분석 지수 그리드·종목 표는 renderDataState로 스켈레톤 또는 오류를 그린다. 응답이 비면(history.json [] · data.json에 meta 없음) 'empty'로 발행해 빈 상태 한 줄('…비어 있습니다', 기준 줄 '종가 기록이 없습니다.')을, 60초 안에 답이 없으면 실패로 보고 다시 시도를 보여 준다. 카드 스켈레톤은 20초 뒤 오류+다시 시도로 바뀐다.
+- violated_rule: 불러오기 실패는 대기와 다른 상태로 발행해야 한다 — 실패를 null로만 돌려주면 모든 소비자가 영원한 '불러오는 중'을 보여 준다.
+- prevention: ci-sa-02-outage-browser-fixture v59.70 단언: history.json·data.json을 막으면 #aio-load-failure가 다시 시도 버튼과 함께 뜨고 #regime-basis가 '종가 기록을 받지 못했습니다.', 오늘 히어로에 대기 문구가 남지 않으며, 차단을 풀고 다시 시도하면 줄이 사라진다; history.json [] · data.json {}이면 #aio-load-failure.is-empty('비어 있습니다', 다시 시도 없음)와 #regime-basis '종가 기록이 없습니다.'.
+- verification/residual: 수정 전: 같은 차단에서 오늘·스크리너 스크린샷이 대기 문구 그대로(_artifacts/ui-states-20261104/before/error-*.png), #aio-load-failure 요소 자체가 없어 단언 실패. 수정 후: node scripts/ci-sa-02-outage-browser-fixture.mjs 4/4 PASS(core-file-failure·core-file-empty 포함).
+
+## P2235 - v59.70 - 테마가 이미 열린 상태에서 옛 #theme-detail/<id> 주소가 아무것도 열지 않음, 테마 구성 변경 뒤 playbook 버전 미변경 (2026-11-04)
+
+- symptom/reproduction: 1차 통합에서 상세 패널을 기다리는 브라우저 게이트 5개가 실패했다(vertical, route-soak, viewport ×3, 보조 텍스트 예산 60 > 33, reference-adoption). 테마 화면이 열린 채 옛 상세 주소를 붙여 넣으면 목록이 그대로이고 주소도 바뀌지 않았다. scenario-guidance-fixture는 배포된 scenario-state(v2)와 새 테마 구성의 미국 1개월 값이 달라 실패했다(software -5.1 vs -4.0, defense 2.9 vs 1.2).
+- root_cause: THEME_MAP[0] 기본값을 지운 뒤 id 없는 theme-detail은 목록을 여는데, 게이트는 id 없이 들어가 상세를 기다렸다. 옛 주소의 id는 테마 화면이 마운트될 때만 읽혀서, 이미 열린 화면에서의 주소 변경(popstate)은 라우터 parseRouteDeepLink가 #themes?theme=만 읽는 탓에 버려졌다. reference-adoption은 섹터 칩이 회전 보기로 옮겨간 뒤에도 등락 보기에서 칩을 기다렸다. 테마 구성(하드웨어·기기, IT 서비스, 한국 퇴역 3개)을 바꾸고 THEME_PLAYBOOK_VERSION을 올리지 않아 옛 규칙의 산출물이 새 값과 나란히 읽혔다.
+- fix: 라우터 parseRouteDeepLink가 legacyThemeDetailTarget으로 옛 주소의 id를 읽고(미국 테마 id로 검증, 퇴역·모르는 id는 목록), 주소를 #themes?theme=<id>로 바꾼다. 같은 경로 이동(commit)에서도 한 번 읽는다. 상세를 검사하는 게이트 4개는 scripts/lib/theme-detail-address.mjs로 실제 테마 id 주소(해시 변경, 사용자 링크와 같은 길)를 먼저 연다. reference-adoption은 회전 보기를 연 뒤 칩을 찾는다. THEME_PLAYBOOK_VERSION을 theme-playbook.v3로 올렸고, refresh-data의 build-scenario-state가 첫 refresh에서 v3 산출물을 다시 쓴다(로컬 재생성: v3, 테마 44개, software -3.99, defense 1.16, 픽스처 통과).
+- violated_rule: 주소가 주제를 담는다(v57.50 I28) — 화면이 이미 열려 있어도 주소의 id가 선택을 정한다; 산출물을 만드는 규칙이 바뀌면 버전 표기를 함께 올린다
+- prevention: ci-esm-core-unit-check 'v59.70 old #theme-detail addresses keep their theme id'에 라우터 경로(모든 THEME_MAP id × 두 형식, 퇴역 id는 목록)를 더했다 — 통합 브랜치의 router.js에서 실패한다. 브라우저 게이트 5개가 실제 id 주소로 상세를 검사한다.
+- verification/residual: 브라우저 게이트 5개 PASS(보조 텍스트 예산 theme-detail 27/33 — 60은 목록 화면을 상세 예산으로 잰 값, themes 60/77와 같다). 1440/768/390 × 라이트·다크: 테마가 열린 채 #theme-detail/software 주소 → software 상세, 주소 #themes?theme=software; 새로 연 #theme-detail·#theme-detail/uam은 목록. 오류 0, 가로 스크롤 없음.
+
+## P2234 - v59.70 - 옛 #theme-detail/<id> 주소가 어느 테마든 방산을 연다 (2026-11-04)
+
+- symptom/reproduction: #theme-detail/software, #theme-detail?theme=photonics 같은 옛 주소로 들어오면 주소가 #themes?theme=defense로 바뀌고 방산 상세가 열렸다.
+- root_cause: 두 곳이 주소의 id를 읽지 않았다. js/aio-core.js showPage('theme-detail')는 _currentThemeId 또는 THEME_MAP[0](defense)를 대기 id로 덮어썼고, src/app/bootstrap.js resolveInitialRoute는 '?' 앞만 경로로 잘라 경로형 주소를 놓치고 같은 THEME_MAP[0] 대체를 썼다. 첫 로드에서는 classic showPage가 먼저 돌며 주소를 #themes로 바꾸기 때문에 ESM 쪽 읽기도 닿지 못했다.
+- fix: 주소 id 파서를 src/ui/navigation/theme-detail.js legacyThemeDetailTarget 하나로 두고 resolveInitialRoute와 테마 화면 읽기가 함께 쓴다. classic showPage는 같은 규칙의 aioLegacyThemeDetailId를 쓴다. 이름 있는 id가 이기고, THEME_MAP에 없는 id(퇴역한 UAM·우주·양자 포함)는 테마 목록을 연다. THEME_MAP[0] 대체는 지웠다.
+- violated_rule: 주소가 주제를 담는다(v57.50 I28) — 주소의 id를 대체값으로 덮지 않는다
+- prevention: ci-esm-core-unit-check 'v59.70 old #theme-detail addresses keep their theme id' — 모든 THEME_MAP id × 세 주소 형식을 ESM과 classic 양쪽에서 검사하고, 퇴역 id는 목록으로 가는지 본다. 옛 bootstrap·aio-core에서 실패한다.
+- verification/residual: 브라우저 첫 로드: #theme-detail/software·hardware, ?theme=photonics가 같은 id로(데스크톱·다크·폰), #theme-detail/uam은 목록. 게이트는 옛 bootstrap(경로형 undefined, ?theme= → previous)과 옛 aio-core에서 실패.
+
+## P2233 - v59.70 - 테마 시나리오: 미국 종가가 반영되기 전 '미국 0'과 빈 지도 (2026-11-04)
+
+- symptom/reproduction: 11/3 미국 마감 뒤 스크리너 갱신 전까지 테마 시나리오 카드가 '미국 0'을 기본 선택해 사분면 지도가 비었다. 같은 화면 세부 테마 순위는 11/2 기준 참고 순위를 보여 화면끼리 어긋났다.
+- root_cause: buildGroupStrength가 기준일이 최신 완료 세션과 다른 그룹을 current:false로 표시하고 buildThemePlaybook이 current:false를 모두 버렸다. 매일 미국 마감(21:05Z)과 스크리너 갱신(~22:30Z) 사이에 미국 테마가 전부 빠졌고, 지도는 행이 0인 미국을 기본으로 열었다.
+- fix: playbook이 그룹들 중 가장 새 기준일의 그룹은 그 기준일이 아직 최신 세션 전이어도 읽고 lagging.US로 표시한다(칩 '반영 전', '지금 주도' 강조는 미국 행에서 보류 — P1681과 같은 규칙). 지도는 테마가 있는 시장으로 열린다. 다른 그룹보다 오래된 그룹은 여전히 제외. 제목 '테마 시나리오 — 단계와 거시 영향'은 '테마 시나리오'로 줄였다(매크로 이름 규칙).
+- violated_rule: X03 — 오래된 기준일은 지우지 않고 날짜를 붙인 참고 값으로 둔다(P1681)
+- prevention: v59.70 assertion: 모든 미국 그룹이 current:false인 같은 기준일이면 행이 남고 lagging.US=true, 강조 목록에 미국 행이 없다; 다른 그룹보다 오래된 그룹은 계속 빠진다.
+- verification/residual: ci-scenario-guidance-fixture PASS; 브라우저에서 지도 탭이 테마가 있는 시장으로 열림.
+
+## P2232 - v59.70 - 테마 RRG: 산출물이 한 세션 늦으면 세부 업종 ETF가 한 점에 겹침 (2026-11-04)
+
+- symptom/reproduction: 11/3 마감 뒤 세부 업종·전체 보기에서 IGV·XBI·ITA·OIH·AMLP·GDX·URA·XOP·ICLN·KRE 등이 약 101.7, 101.8 한 좌표에 겹쳐 라벨이 방사형으로 뭉치고 '선도 20, 개선 0, 약화 0, 후행 0'으로 읽혔다.
+- root_cause: selectProducedRotation이 rotationHistory(11/2)를 최신 완료 세션(11/3)과 다르다며 전부 버리자, themes provider가 computeRelativeRotation으로 root._priceHistory를 다시 계산했다. 11섹터와 SPY는 일봉으로 수화되지만 세부 업종은 30초 세션 틱(마감 뒤 같은 가격의 반복)이었고, 상수 가격 ÷ SPY 일봉의 정규화 비율은 가격과 무관하게 같아 모든 ETF가 같은 점이 됐다.
+- fix: selectProducedRotation에 lagSessions 옵션을 두어 테마 화면(provider·compatibility-facade·themes.js)이 한 세션 전 산출물을 lagging 표시와 함께 읽고(칩 '11/2 종가 기준, 11/3 반영 전', session-lag.js 하나로 세 화면 공용), 클라이언트 RRG 재계산(computeRelativeRotation over _priceHistory)과 정의 기본값(item.rsRatio·item.quadrant) 대체, 그 입력이던 P721 hydrateRRGDailyHistory를 지웠다(데이터 감사 R1). 다른 화면의 엄격한 세션 검사는 그대로.
+- violated_rule: R14 계열 — 세션 틱과 일봉 시계열을 한 계산에 섞지 않는다
+- prevention: v59.70 assertion: themes provider에 computeRelativeRotation·item?.rsRatio·item?.quadrant가 없다; 한 세션 늦은 산출물은 lagSessions:1에서만 lagging으로 읽히고 두 세션 늦으면 거부된다.
+- verification/residual: node 재현: 상수 틱 이력 3개(95.1/101.4/210.2)가 모두 96.521/98.426로 같은 점; 수정 후 IGV 97.10/96.97 lagging=true, 11/5 기준 null. 브라우저 보기 전환 3회 왕복 스크린샷.
+
+## P2231 - v59.70 - 라이브 데이터 02:54Z에서 게이지 '+0.0%'와 국채 곡선 라벨 겹침 — push CI browser-surface·viewport 실패 (2026-11-07)
+
+- symptom/reproduction: 달러 지수 20일 변화 0.03이 게이지 캡션·aria-label에 '+0.0%'로 나와 browser-rendered-copy-lint가 실패했고, 1개월 금리 4.03이 축 하단 3.9% 바로 위라 값 라벨이 축 라벨에 겹쳐 ci-viewport-matrix가 desktop1280/1440/1920 모두 'svg text overlaps 1'로 실패했다.
+- root_cause: gauge-bar.js valueText가 부호를 값의 부호로 붙여 반올림해 0이 된 값에도 '+'/'-'를 남겼다(공용 signedText 규칙을 쓰지 않음). 국채 곡선은 값 라벨끼리의 간격만 보고 축·눈금 라벨과의 충돌은 보지 않았다.
+- fix: 게이지는 부호 있는 눈금에서 signedText, 부호 없는 눈금에서도 반올림 0은 부호 없음. 공용 src/ui/components/svg-label-dodge.js dodgeSvgLabels가 겹칠 라벨을 위·아래 중 덜 움직이는 쪽으로 세로로 비키고, 국채 곡선이 그리기 뒤 한 번 호출한다.
+- violated_rule: 반올림해 0인 변화는 부호도 색도 없다(signedText 규칙, v58.80 R2-27). 차트 텍스트는 서로 겹치지 않는다(viewport matrix).
+- prevention: scripts/ci-render-boundary-fixture.mjs(core): 게이지 0.04·-0.04·0.03·0.05·-0.05·0 캡션과 aria-label, 부호 없는 눈금 -0.04, 값 차이 0 라벨 두 개, 축 하단 라벨 사례. 옛 gauge-bar로 7건 실패, 회피 모듈 없으면 import 실패.
+- verification/residual: hotfix 트리(origin/main 389806b6)에서 현재 데이터로 fxbond 'svg text overlaps' 1→0(1280/1440/1920/768/390), 매크로 게이지 캡션 '달러 지수 20일 변화, 0.0%'.
+
+## P2230 - v59.70 - Screen re-review: same-window values still split (HY 5-session +13/+25bp, KOSPI 20-session -18.6/-19.3%), ledger day moves over a carried close, a blank index day change and a third market in two mover lists (2026-11-07)
+
+- symptom/reproduction: 통합본 재검수(2026-11-06, 89e8c881) #5·#7·#8·N2·N3·N5·N7. 시장 상태 '1년 중 위치' 문단 '하이일드 스프레드가 +25bp 벌어져' beside the 5-session +13bp, and the credit threshold '기준 346bp(20일 +34bp)' beside the 20-session +31bp. 브리핑 '나스닥100 -0.7%' and 오늘의 핵심 '11/3 종가 WTI -7.7%' beside a 브리핑 table WTI 1일 '—'; the 오늘 나스닥 100 card had a blank day change. 금리와 환율 '같은 기간 코스피 -18.6%' beside 매크로 and 시장 상태 -19.3%. 엔/달러 '0.00%, 20거래일 0.0%(엔 강세)'. 매크로 rates bars '기대인플레', '기간 프리…' cut. 브리핑 unexplained moves and 기술적 분석 movers led by 285A.T and 2454.TW.
+- root_cause: The regime radar read its spread leg between stock-session dates, not the shared five-session OAS reading. The threshold label printed the rule's own '+Nbp', which read as a change. The published market-day ledger predates the producer's one-session rule, and its readers trusted it without the close history. The won decomposition counted the KOSPI's 20 sessions on the US calendar. The FX card chose the side word from the unrounded sign and mixed 2- and 1-decimal precision. The bar label CSS was nowrap with an ellipsis. Only 오늘's list had the US → Korea filter.
+- fix: The radar's '피난성' sentence takes oasDelta20Bp's d5. Threshold short labels name their base ('기준 346bp(20일 전 312bp 대비)'). oneSessionDay (src/domain/market-day/one-session.js) drops a ledger price fact whose close history has no previous session; 오늘, 브리핑 and 매크로's today lines read through it. The 오늘 card from its last close says '전일 종가 없음', the intraday card's words. The 오늘 cause check dates its US session ('직전 미국장 11/3'). The won decomposition reads KOSPI with closeChange on its own Korean sessions ('코스피 20거래일 -19.3%'). The FX card uses one decimal and fxSideWord (no side on 0.0%). Bar labels wrap between words. usThenKorea (session-time.js) orders 오늘, 브리핑's unexplained moves and 기술적 분석's movers.
+- violated_rule: One number, one source (a figure shown on two screens is computed once)
+- prevention: R744: scripts/ci-metric-consistency-check.mjs section 6 (radar HY d5, threshold labels without '+Nbp', KOSPI 20 sessions on the won decomposition and 매크로, the one-session ledger filter, the dated cause check, the 0.0% side word, US → Korea in both mover lists) and scripts/ci-screen-rereview-browser-check.mjs (no blank last-close day change on 오늘, no cut 매크로 bar label, 390 and 1440).
+- verification/residual: node scripts/ci-metric-consistency-check.mjs and node scripts/ci-screen-rereview-browser-check.mjs pass on the branch. On 89e8c881 the metric gate fails 9 checks (25 vs 13; 기준 346bp(20일 +34bp); -18.62 vs -19.3; wti kept; WTI -7.7% told; '직전 미국장' undated; 0.0% side word; 285A.T first twice), and the browser gate fails on the 89e8c881 home-index-strip.js (나스닥 100 blank) and responsive.css (기대인플레, 기간 프리미엄 cut).
+
+## P2229 - v59.70 - The same metric read different values across screens: HY +13/+25bp, 10-year -32/-40bp and day moves that spanned a carried-forward session (2026-11-07)
+
+- symptom/reproduction: 1차 통합본 화면 검수(2026-11-04) 5–8: 시장 상태 문단 '하이일드 3.18 → 3.43% (+25bp)' beside the 5거래일 +13bp, its threshold cell '20일 +34bp, 346bp' read as a second 20-session value, 매크로 '10년 5.31 → 4.91% (10/5→11/2, -40bp)' beside -32bp everywhere else, 오늘의 핵심 'WTI -7.7%' and 브리핑 '나스닥100 -0.7%' that were two-session steps over a carried 11/2 close. Also 9 (a past 11/3 event at the top of '다음 주'), 10 (an empty AI·반도체 집중 row), 12 (English 오늘의 핵심 headlines), 17 ('스크리너 순위 상위' unlike the screener's first rows), 20 (duplicate add buttons on an empty portfolio), 22 (the quadrant dot over its cell name), 31 (™ ® in briefs), 33 (a Japanese listing among 오늘's names).
+- root_cause: Each screen cut its own window from its own source: the market story spanned FRED observations between stock-session dates, the 매크로 rates chapter read FRED dgs10 through the real-yield date while the verdict table read the market tnx close, and the market-day ledger stepped from the previous row in a series the carried close had dropped out of. The week-ahead window kept a UTC day 12 hours past its end, the watch row was drawn without an observation, the market-day ledger carried the screener memos' English headlines untranslated, and the brief and stock lists had no mark or market filter.
+- fix: The story's week uses oasDelta20Bp's five-session reading and the history tnx span; 매크로's 10-year is closeChange on history tnx with the FRED legs on their own dates; a credit threshold label opens with 기준; a market-day price fact needs its previous close one open session back; a price story leads with its close date; the week list starts at the KST day; AI·반도체 집중 is drawn only with a SOXX close; 오늘 reads the producer's Korean title first (item 12's producer lane is record 05); the start group names 백분위; an empty book hides the page-head add row; the quadrant dot keeps out of the label band; briefs drop ™ ® ℠ (producer and reader); 오늘 lists US then KR listings (listingMarketOfSymbol).
+- violated_rule: One number, one source (a figure shown on two screens is computed once)
+- prevention: R743: scripts/ci-metric-consistency-check.mjs builds 시장 상태, 매크로 and 연결해서 보면 from the published history and macro history and requires one 10-year 5/20-session and one HY 5/20-session value, plus fixtures for the one-session day move, the dated price line, the KST week start, the unobserved watch row, 오늘's market order and the brief marks.
+- verification/residual: node scripts/ci-metric-consistency-check.mjs — passes on the branch; on the 140ba22c tree it fails (oasDelta20Bp missing, story +25bp, 매크로 -40bp).
+
+## P2228 - v59.70 - 시장 이야기가 이월된 행 값을 그 날 종가로 읽음 (2026-11-07)
+
+- symptom/reproduction: 11/2 행에 10/30 NDX·WTI 값이 이월돼 있어 '무슨 일이 있었나'가 NDX -3.0%, WTI +0.8%로 읽었다(세션 종가 기준 -4.4%, -6.6%).
+- root_cause: src/domain/market/market-story.js span()이 history 행의 날짜별 값을 그대로 썼다. 행 날짜와 그 필드의 마감 세션이 다를 때 이월값이 새 관측처럼 계산됐다.
+- fix: span()이 buildCloseSeries(history, field, {market: closeSessionMarket(field)})로 세션 키 종가 계열을 읽는다.
+- violated_rule: 종가 기준 점수 / 시점 일치(관측일과 행 날짜를 구분)
+- prevention: scripts/ci-data-audit-contract-check.mjs: 행마다 직전 세션 종가(session-dated)를 실은 픽스처에서 NDX 5일 변화의 asOf·값이 세션 종가 계열과 같아야 한다(HEAD 코드는 실패).
+- verification/residual: 로컬 history.json에서 NDX 5일 -4.4%, WTI -6.6%로 판정 표 5일 열과 일치.
+
+## P2227 - v59.70 - 실패한 원천 레코드가 판단용 사용 등급을 그대로 발행 (2026-11-07)
+
+- symptom/reproduction: Cboe 풋/콜 비율이 HTTP 403으로 13일째 갱신되지 않아 status 'stale-reference'(asOf 2026-10-22)인데, data.json putCall.allowedUse는 'decision-with-daily-delay'(evidence 계약상 decision)로 남아 있었다.
+- root_cause: allowedUse를 원천 선언에서 그대로 복사했고, 최신 읽기가 실패해 이전 값을 유지할 때 사용 등급을 낮추는 공통 규칙이 없었다(각 레인이 status만 바꿨다).
+- fix: src/data/contracts/evidence.js degradeAllowedUseOnStatus/degradePayloadAllowedUse: status가 stale·retain·fail·error·block·unavailable·missing·not-collected·expired 계열이고 allowedUse가 decision급이면 'reference-only'로 낮추고 원래 값은 allowedUseDeclared에, 이유는 allowedUseDegradedBy에 남긴다. fetch-data toPublicPayload가 data.json 최상위와 한 단계 아래 레코드에 적용한다. 매 실행마다 allowedUseDeclared(없으면 현재 allowedUse)에서 다시 계산해 이전 실행의 강등을 물려받지 않고(회복 시 선언값 복귀), 자기 status가 없는 레코드는 파일의 aio-freshness.v1 상태(fileState)를 따른다. 자기 status가 있으면 그것이 우선한다.
+- violated_rule: AGENTS: 원천 없는 판단 금지 / evidence 계약(freshness가 decision을 승격하지 못하고 강등만 한다)
+- prevention: scripts/ci-data-audit-contract-check.mjs R5: stale 레코드는 reference-only, current 레코드는 선언 유지, 한 단계 아래 레코드도 강등, fetch-data가 규칙을 거쳐 발행. 회복(stale → ok 다음 실행에서 decision 복귀), 이중 강등 없음, 자기 status 없는 레코드의 fileState stale/fresh, 자기 status 우선을 픽스처로 검사.
+- verification/residual: 현재 data.json에 적용하면 putCall 하나만 바뀐다(allowedUse reference-only, allowedUseDeclared decision-with-daily-delay). 심리 합성 점수는 풋/콜 이력이 부족해 처음부터 '자료 부족'으로 빠지고, 7개 중 4개가 정상이라 'partial'로 표시된다.
+
+## P2226 - v59.70 - A source push that fixed the data plane failed CI only because time had passed, so no release could be attested (2026-11-07)
+
+- symptom/reproduction: 11-04: 432ac3eb (the fix for the stopped data plane) failed its push CI on data-lineage and data-refresh (data.json 13.6 h > 12 h SLA, because the data plane had been stopped) and knowledge-lint (CODE-MAP last_verified 46 d > 45 d). Reduced-scope data releases need a successful full push CI on their source commit, so 9da5c8ba (fresh data 02:54Z) and every later data commit failed attestation; rerunning 432ac3eb's CI could never pass. Live stayed at v59.68.
+- root_cause: Source-push CI blocked on calendar facts (data age, document age) that no code change on that commit could fix, and the attest guard made the data plane depend on that CI. The refresh-origin ADVISORY (record 07) covered data commits only.
+- fix: Every ci.yml contract shard runs with AIO_QA_ORIGIN=ci, source pushes included: liveData: content gates report ADVISORY and knowledge-lint reports its P1125 date ratchet as a warning (scripts/lib/qa-live-data.mjs clockJudgementBlocks). Producer pre-push runs, local runs and the watchdog twins (watchdog-data-lineage, watchdog-scenario-guidance, watchdog-data-refresh, new watchdog-knowledge-lint) still fail. Source-defect gates declare nothing and block everywhere. RULES R634 and governance-markers record the scope.
+- violated_rule: R634 (rewritten v59.70): calendar facts block producers and the watchdog, not source-push CI
+- prevention: R742: scripts/ci-refresh-origin-live-data-check.mjs checks every gate x {source, ci}, the source-defect gates (workflow-yaml, syntax, generated-state, qa-pipeline-contract, workspace-contract, knowledge-lint) staying blocking, the 432ac3eb deadlock rows, the ci.yml wiring (one AIO_QA_ORIGIN: ci, none in producer/watchdog/pages workflows), real qa-runner replays (live old=red, new=green in CI, red locally; source defect red in CI) and a real knowledge-lint calendar replay 300 days on (red outside CI, green in CI with the warning). It fails with the HEAD lib/ci.yml/knowledge-lint/manifest.
+- verification/residual: node scripts/ci-refresh-origin-live-data-check.mjs OK (184 gates x 2 origins, 12 ledger causes).
+
+## P2225 - v59.70 - CI on refresh commits failed on what the live data said, and every later data commit stayed UNATTESTED (2026-11-07)
+
+- symptom/reproduction: 35 refresh-origin CI runs failed 10-28..11-04 (49 gate failures): esm-core news audit (10), runtime LIVE3-03 (9) and data-pipeline breadth (9) on the wall clock, scenario-guidance 'at least one staged theme' (6), data-refresh/data-lineage data age on screener commits (8). A refresh commit only changes generated data on a source commit whose full push CI passed, so each failure froze the live site until the data changed.
+- root_cause: The reduced refresh-origin CI ran the same blocking contract groups as a source push. Clock-bound fixtures read Date.now(), and live-content assertions (staged theme, SLA) judged the data itself, which the producer had already validated before the push and which a data commit cannot fix in code.
+- fix: Live-content gates declare liveData: "content" in architecture/qa-pipeline.json (scenario-guidance-fixture, data-lineage, data-refresh); on AIO_QA_ORIGIN=refresh (ci.yml contract shards when reduced_scope) qa-runner reports their failure as ADVISORY (warning, exit 0) through scripts/lib/qa-live-data.mjs, and watchdog-local twins (watchdog-data-lineage, watchdog-scenario-guidance, existing watchdog-data-refresh) keep failing on the live content. The data-pipeline breadth fixture runs on a fixed clock (it failed Tuesdays 05-09Z). Source pushes, producer pre-push runs and the watchdog still fail.
+- violated_rule: R3/AGENTS: a refresh commit is attested on code contracts; live content is watched, not re-litigated per commit
+- prevention: R741: scripts/ci-refresh-origin-live-data-check.mjs checks every gate x origin, requires a watchdog twin and a contract group for each liveData gate, replays the 7-day ledger (each cause fixed-clock, liveData, source-defect, browser-scope or still blocking), proves the old breadth assertion failed on the 11-03 06:00Z clock, and runs the real qa-runner on a one-gate manifest: old config red on a refresh origin, new config green, source push red. It fails on HEAD.
+- verification/residual: node scripts/ci-refresh-origin-live-data-check.mjs OK (182 gates x 2 origins, 9 ledger causes); fails with HEAD qa-runner/manifest/ci.yml/data-pipeline check restored.
+
+## P2224 - v59.70 - No single freshness record: screens, gates and the watchdog each judged age from their own clock, and some screen data had no refresh path at all (2026-11-07)
+
+- symptom/reproduction: Owner question 2026-11-04: is every card on every screen refreshed automatically? Audit found: structural-data-research.json (08-21) and factor-backtest-longrun.json (07-10, no age bound) read by screens with no writer in any workflow; kr-investor-flows.json empty since 10-20 because the BOK_API_KEY secret is absent; scenario-state.json 7 of 8 and today-verdict.json 8 of 8 recent commits differed only in generatedAt (212 KB every 30 minutes); a lane that failed and kept its previous file looked identical to one that confirmed it.
+- root_cause: Freshness lived in three places with different clocks: the lineage audit POLICIES (artifact timestamp), the watchdog (data/screener/telegram only), and each screen's own reading of generatedAt. No record said which workflow refreshes an artifact, when a run last confirmed it, or which session it reflects, so 'unchanged' and 'not refreshed' could not be told apart and a timestamp-only rewrite was the only way to look fresh.
+- fix: src/data/contracts/artifact-freshness.js registers every runtime-read artifact (34 automatic: workflow, producer, cadence, stale bound, clock and basis paths; 7 hand-kept with their expiry gate). refresh-data and refresh-screener write public-data/freshness/<workflow>.json (aio-freshness.v1: producedAt, checkedAt, basisSession, expectedEveryMinutes, staleAfterMinutes, lastAttempt) before their gates; a timestamp-only rewrite of a derived artifact keeps the published bytes. The lineage audit counts a ledger confirmation of the exact content; the watchdog grades every ledger row (stale = error, late/blocked = warning) with the same freshnessState the browser reader src/data/freshness.js uses (root._aioArtifactFreshness). factor-backtest-longrun gets a 120-day lineage bound.
+- violated_rule: Owner 2026-11-04: every screen value refreshes itself or says it does not; one freshness source
+- prevention: R740: scripts/ci-artifact-refresh-path-check.mjs fails when a public-data file a runtime reader names has no registry entry, when a registered workflow does not stage it or its producer is missing, when the registry stale bound differs from the lineage bound, or when a ledger workflow writes its ledger after recording the candidate; an exhaustive fixture pins the ledger verdict for written x skipUnchanged x same-content and the reader/watchdog grading. On HEAD it fails (no registry; factor-backtest-longrun had no bound).
+- verification/residual: node scripts/ci-artifact-refresh-path-check.mjs OK (39 runtime-read names). Local run of write-freshness-ledger: 8 derived artifacts recognised as timestamp-only and kept; git status clean. Watchdog against live Pages: both ledgers reported as not yet published (warning) until the first v59.70 refresh.
+
+## P2223 - v59.70 - The LIVE3-03 breadth fixture ran on the wall clock and failed the bot's data-commit CI at some hours (2026-11-07)
+
+- symptom/reproduction: CI on refresh-data commits failed 9 times on 11/03 05:22-08:53Z at runtime 'LIVE3-03: 20SMA breadth ... fails closed' (plus data-pipeline). The commits were on main but converge refused them (UNATTESTED_REVISION), so the live site kept the older data for ~3.5 h; nothing in the code or data had changed.
+- root_cause: ci-runtime-contract-check.mjs built the breadth fixture with observedAt = Date.now() - 24 h and called readScreenerBreadth without a now. Session currentness depends on where 'now' falls against the US close, so 'a day ago' is the latest session at most hours and not at others.
+- fix: The fixture is pinned: observedAt 2026-10-14T20:30Z (after that US close) and BREADTH_FIXTURE_NOW 2026-10-15T02:00Z passed to every readScreenerBreadth call, the stale case 97 h before that.
+- violated_rule: Fixtures do not read the wall clock (v59.48 failure-ledger pass pinned the news audit the same way)
+- prevention: R739: a contract fixture that judges currentness passes an explicit now; the check gives the same verdict at every hour.
+- verification/residual: Date.now pinned to 11/03 06:00Z: HEAD fails LIVE3-03, the new check passes; at 11/03 12:00Z, 11/04 01:00Z and Sat 11/08 03:00Z both pass.
+
+## P2222 - v59.70 - v59.69 reaction-read.js regexes carried literal backspace bytes instead of \b (2026-11-07)
+
+- symptom/reproduction: Push CI for v59.69 (67b740e5) failed preflight workflow-yaml: 'src/domain/briefing/reaction-read.js: 제어문자 10건'. With no green full-push CI, every later reduced-scope data commit (797ac874, 1da80799) could not be attested, so the live site stayed at v59.68 and its data stopped converging.
+- root_cause: The file was written through a Node/shell heredoc that turned \b into U+0008 (the known heredoc-backslash hazard). The control-character gate runs in CI preflight only, after the commit was pushed. The regexes for CEO/CFO, lowered/cut and raised then matched a backspace instead of a word boundary, so those English cues never matched.
+- fix: The 10 U+0008 bytes are \b again (String.raw replacement); node --check and ci-control-char-check pass.
+- violated_rule: Edit tool, not shell heredocs, for JS with backslashes (CLAUDE.md Windows note)
+- prevention: ci-control-char-check.mjs already fails this; it is in the preflight group, so running qa-runner affected before a push catches it.
+- verification/residual: node scripts/ci-control-char-check.mjs: 0 regressions (was 10 control characters).
+
+## P2221 - v59.70 - Pages release verification failed code deploys on stale data, and the watchdog read an in-flight deploy as untrusted (2026-11-07)
+
+- symptom/reproduction: 13 of 14 red Deploy GitHub Pages runs (11/01-11/03) had deployed successfully and then failed 'Verify released Pages' on pages-data-freshness/pages-telegram-freshness or pages-news-feeds-alive. Each failed run then failed the watchdog's pages-deployment-run-provenance (22 red watchdog runs, conclusion=failure), and 22 more watchdog runs went red on the same check with status=in_progress while the deploy run was still verifying.
+- root_cause: ci-external-pipeline-check.mjs --mode release judged data-plane freshness as an error, so a stalled producer failed every source release; the watchdog already owns that verdict. Separately, deployment.json goes live when the deploy step ends, minutes before its run completes, and isTrustedDeploymentRun allowed in_progress only for the release's own run.
+- fix: In release mode the data, screener and Telegram freshness checks and the news-feed check are warnings (the watchdog keeps them as errors). In watchdog mode the Pages provenance run may be in_progress; repository, branch, name, event and exact SHA checks are unchanged, and a run that then fails verification is still caught as completed=failure.
+- violated_rule: v59.48 ownership split: each plane is judged once, by the workflow that owns it
+- prevention: R738: the release verdict covers what the release changed (exact SHA, identity, config, Workers); data age is judged only by the watchdog.
+- verification/residual: Watchdog artifacts 10/28-11/04 (163 red runs) reclassified: 22 provenance[in_progress] and 22 provenance[completed-fail] whose Pages run failed only on data freshness/news feeds.
+
+## P2220 - v59.70 - The Telegram signal kind list in the semantics gate was a copy and refused the 'deal' kind (2026-11-07)
+
+- symptom/reproduction: From 11/03 13:50Z every Refresh market data run (25 in a row through 11/04 00:20Z) failed artifact-semantics with 'telegram signals carry known kinds and no post text: deal|CRWD|MSFT deal|MRVL|LITE'. No market, news or Telegram data reached main; live data.json was 11+ hours old.
+- root_cause: v59.62-64 added a 'deal' extractor to scripts/lib/telegram-signals.mjs (with a SIGNAL_LIMITS entry), but ci-artifact-semantics-check.mjs kept its own hardcoded list ['pt','earnings','macro','retail']. The first real deal post produced a valid signal the gate did not know, and the digest is not a degradable lane, so the whole refresh was refused.
+- fix: The gate imports SIGNAL_LIMITS and accepts exactly its keys. A new check reads every `kind: '...'` literal in telegram-signals.mjs and requires a SIGNAL_LIMITS entry for each, so a new extractor without a limit fails in the producer's own source, not on the first live post.
+- violated_rule: One vocabulary, one source (closed-vocabulary copies drift)
+- prevention: R737: the semantics check derives the kind set from the producer module and checks producer literals against it; there is no second list to update.
+- verification/residual: public-data/telegram-digest.json with a deal signal appended: HEAD check fails with the 11/03 message; the new check passes. Without the deal signal both pass.
+
+## P2219 - v59.70 - A weekly survey or hand-kept event value that aged refused the whole market refresh (2026-11-07)
+
+- symptom/reproduction: Refresh market data failed 38 times in 7 days at the data-refresh gate: 30 runs in a row on 10/29 00:20-13:50Z (E3 FOMC calendar STALE after the 10/28 meeting, ~14 h with no price, news or Telegram update) and 8 on 11/02 08:20-11:50Z plus 11/03 17:20Z (B1 AAII BLOCKED when the weekly page did not parse). Each refusal also turned the watchdog red (34 watchdog-data-refresh failures).
+- root_cause: ci-data-refresh-audit.mjs folded B1, E3 and E4 into structuralOk, which decides whether the producer may publish. P1556 had already given BOK a 14-day grace for the same reason, one value at a time; FOMC and AAII had none. A refusal never made the reference value fresher: the frozen data.json kept the same stale value and froze every price beside it.
+- fix: Only BLOCKING_ROW_STATES (A1 OK, B2/B3 BLOCKED, C4 DYNAMIC) plus the structural checks (22 rows, snapshot promotion, tier-0 coverage, sessions, FOMC registry alignment, BOK evidence) decide publication. B1/E3/E4 not OK prints a ::warning:: and publishes; --reference-strict (watchdog-data-refresh in qa-pipeline.json) keeps them red so the watchdog still names them until recorded.
+- violated_rule: AGENTS lane-quarantine decision (owner 2026-10-23): one auxiliary check must not refuse the whole refresh
+- prevention: R736: publicationVerdict() runs an exhaustive in-file fixture — every one of the 22 rows in each of 8 statuses, default and strict — and throws if a reference or advisory row decides publication by default, or if a blocking row stops blocking. The old structuralOk fails it (B1=BLOCKED refuses).
+- verification/residual: With Date.now pinned to 2026-11-03T15:00Z and data.marketSurveys.aaii.status='unavailable': HEAD audit exit 1 (D1-structural no); new audit exit 0 with D1-reference warning; new audit --reference-strict exit 1. Healthy data: both exit 0.
 
 ## P2218 - v59.62 - A headline naming two reporters showed only the first calendar row (Palantir lost to Apple) (2026-11-03)
 
