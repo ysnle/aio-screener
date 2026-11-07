@@ -41,9 +41,12 @@ import { isIsoDay } from '../../domain/shared/session-date.js';
 
 // The official US listing name for a symbol none of AIO's registries name; cached per symbol, written once it arrives.
 function usListingNameFor(root, documentRef, id, state) {
-  if ((state?.name && state.name !== id) || typeof root?._aioCheckUsListing !== 'function' || root?._aioIsKnownTicker?.(id)) return null;
+  if ((state?.name && state.name !== id) || typeof root?._aioCheckUsListing !== 'function') return null;
   const names = (root._aioListingNames ||= {});
+  // v59.74 (integration review): the cached name first — a listing this session confirmed makes _aioIsKnownTicker true
+  // (listedSeen), so the next render (the symbol's own quote, now really requested) dropped the name back to the letters.
   if (id in names) return names[id];
+  if (root?._aioIsKnownTicker?.(id)) return null;
   names[id] = null;
   Promise.resolve(root._aioCheckUsListing(id)).then((listing) => {
     if (listing?.listed !== true || !listing.name) return;

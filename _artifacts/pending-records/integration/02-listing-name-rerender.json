@@ -1,0 +1,18 @@
+{
+  "note": "{VERSION} 통합 검토: 확인된 상장명이 종목 자체 시세 요청 뒤 다시 그릴 때 사라지던 문제 수정.",
+  "r": null,
+  "status": null,
+  "qa_section": "상태 머신 감사",
+  "p": {
+    "title": "등록 밖 상장 종목의 공식 이름이 약 1초 뒤 티커 글자로 되돌아감",
+    "symptom": "BUFX처럼 레지스트리에 없는 상장 종목을 열면 공식 상장명이 잠깐 보였다가, 그 종목의 시세 요청이 끝나 화면을 다시 그리면 'BUFX'만 남았다. v20 래퍼가 종목 인자를 버리던 동안에는 그 요청이 없어 드러나지 않았다.",
+    "root_cause": "usListingNameFor가 캐시를 보기 전에 _aioIsKnownTicker를 물었다. 상장 확인이 끝나면 그 종목은 listedSeen으로 '알려진 종목'이 되므로, 다음 렌더는 캐시된 이름을 건너뛰고 null을 돌렸다.",
+    "fix": "src/ui/pages/entity.js usListingNameFor: 캐시된 상장명을 먼저 돌려주고, 알려진 종목 판정은 아직 이름이 없을 때만 적용한다.",
+    "violated_rule": "한 번 확인한 공식 이름은 같은 세션의 다시 그리기에서 유지된다(v59.54 run-6 #11)",
+    "prevention": "{P}: scripts/ci-out-of-universe-ticker-browser-check.mjs — 시세 요청이 끝나고 1.5초 뒤에도 상장명이 남는지 확인(수정 전 코드에서 phone·desktop 모두 실패 확인)",
+    "verification": "AIO_BROWSER_CLOCK_AT=2026-11-07T09:26:03Z로 브라우저 검사 실행: 수정 전 FAIL(2), 수정 후 PASS."
+  },
+  "changelog": [
+    "**통합 검토 — 상장명 유지 ({P}):** 등록 밖 상장 종목의 공식 이름이 시세를 받은 뒤에도 그대로 보인다."
+  ]
+}

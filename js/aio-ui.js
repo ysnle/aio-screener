@@ -74,21 +74,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // getCanonicalMetric()이 구분해야 점수/설명/배지가 같은 provenance를 소비한다.
   // 실시간 시세는 initV20DataEngine이 서버 artifact와 architecture snapshot
   // preflight를 끝낸 뒤 한 번만 시작한다.
-  // v20: Adaptive refresh - slow down if repeatedly failing
-  let _quoteFailCount = 0;
-  const _origFetchQuotes = fetchLiveQuotes;
-  fetchLiveQuotes = async function() {
-    try {
-      await _origFetchQuotes();
-      _quoteFailCount = 0; // reset on success
-    } catch(e) {
-      _quoteFailCount++;
-      _aioLog('warn', 'fetch', 'Quote fetch failed (attempt ' + _quoteFailCount + '): ' + e.message);
-      if (_quoteFailCount >= 5) {
-        _aioLog('warn', 'fetch', 'Too many failures, extending refresh interval');
-      }
-    }
-  };
+  // v59.74 (integration review of the quote demand): the v20 wrapper that stood here replaced window.fetchLiveQuotes after
+  // src/data/quote-demand.js installed it, called the demand with no symbols and returned undefined — every caller's
+  // symbols (scheduler runs, live-binding repair, a stock opened from search) and every result were dropped. The demand
+  // owns failure counting and backoff; fetchLiveQuotes is not reassigned outside src/data/quote-demand.js.
   // v30.11: T1 _liveQuoteInterval 삭제 — REFRESH_SCHEDULE.quotes가 60s 지터 포함 단일 경로
   // Pre-fetch news in background after 3s delay (non-blocking)
   setTimeout(function() {
