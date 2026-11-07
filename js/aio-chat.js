@@ -3570,7 +3570,7 @@ function _suggestFollowUpQuestions(ctxId, userQuery, aiResponse, detectedTickers
   // Suggestions are explanatory/verification prompts only. They must not
   // manufacture portfolio sizing, calibrated probabilities, or unavailable data.
   if (primaryTicker) {
-    suggestions.push(primaryTicker + ' 결론이 틀릴 수 있는 반대 조건은 무엇인가?');
+    suggestions.push(primaryTicker + ' 결론이 틀릴 수 있는 반대 조건을 정리해줘');
     if (required.has('fundamentals') || intents.indexOf('ENTITY_ANALYSIS') >= 0) suggestions.push(primaryTicker + '의 성장률·마진·밸류에이션을 같은 기준일로 비교해줘');
     if (required.has('technical')) suggestions.push(primaryTicker + ' 차트에서 추세 확인·무효화 조건을 설명해줘');
     else if (canAskCurrent) suggestions.push(primaryTicker + ' 관련 최근 공시·뉴스가 기존 결론을 바꾸는지 확인해줘');
@@ -3578,22 +3578,22 @@ function _suggestFollowUpQuestions(ctxId, userQuery, aiResponse, detectedTickers
   } else if (ctxId === 'macro') {
     suggestions.push('이 거시 변수의 전달 경로를 금리→달러→주식 순서로 설명해줘');
     suggestions.push('현재 판단을 확인할 공식 지표와 발표 일정을 알려줘');
-    suggestions.push('기본 시나리오가 무효화되는 반대 데이터는 무엇인가?');
+    suggestions.push('기본 시나리오를 무효화할 반대 데이터를 정리해줘');
   } else if (ctxId === 'sentiment') {
-    suggestions.push('VIX·F&G·AAII가 서로 엇갈릴 때 어떻게 해석해야 하나?');
+    suggestions.push('VIX·F&G·AAII가 서로 엇갈릴 때의 해석을 설명해줘');
     suggestions.push('현재 심리 판단의 기준시각과 원천을 정리해줘');
-    suggestions.push('심리 반전 여부를 확인할 다음 지표는 무엇인가?');
+    suggestions.push('심리 반전 여부를 확인할 다음 지표를 알려줘');
   } else if (ctxId === 'technical') {
     suggestions.push('추세·모멘텀·거래량이 같은 방향인지 확인해줘');
-    suggestions.push('현재 기술적 해석의 무효화 조건은 무엇인가?');
-    suggestions.push('일봉과 주봉 해석이 다르면 무엇을 우선해야 하나?');
+    suggestions.push('현재 기술적 해석의 무효화 조건을 정리해줘');
+    suggestions.push('일봉과 주봉 해석이 다를 때 우선순위를 설명해줘');
   } else if (ctxId === 'fxbond') {
     suggestions.push('미국 금리와 USD/KRW의 연결 경로를 설명해줘');
     suggestions.push('환율 판단에 필요한 한국·미국 공식 지표를 정리해줘');
-    suggestions.push('환율 방향이 바뀌는 반대 조건은 무엇인가?');
+    suggestions.push('환율 방향이 바뀌는 반대 조건을 정리해줘');
   } else if (ctxId === 'signal' || ctxId === 'breadth') {
     suggestions.push('시장 폭과 지수 방향이 엇갈리는 이유를 설명해줘');
-    suggestions.push('현재 신호의 확인 조건과 무효화 조건은 무엇인가?');
+    suggestions.push('현재 신호의 확인 조건과 무효화 조건을 정리해줘');
     suggestions.push('이 신호에 가장 민감한 섹터를 근거와 함께 비교해줘');
   } else if (ctxId === 'portfolio') {
     suggestions.push('보유 종목의 섹터·팩터 집중도를 설명해줘');
@@ -3601,15 +3601,15 @@ function _suggestFollowUpQuestions(ctxId, userQuery, aiResponse, detectedTickers
     suggestions.push('리밸런싱 전 확인해야 할 데이터와 제약조건을 알려줘');
   } else if (ctxId === 'themes' || ctxId === 'theme-detail') {
     suggestions.push('이 테마의 수요→공급→실적 전달 경로를 설명해줘');
-    suggestions.push('테마 전망을 무효화할 병목과 반대 지표는 무엇인가?');
+    suggestions.push('테마 전망을 무효화할 병목과 반대 지표를 정리해줘');
     suggestions.push('테마 내 기업을 실적·밸류에이션·가격 강도로 비교해줘');
   } else if (ctxId === 'market-news' || ctxId === 'briefing') {
     suggestions.push('핵심 이벤트별 사실과 시장 해석을 분리해줘');
     suggestions.push('각 뉴스의 원문·발생시각·가격 반응을 연결해줘');
-    suggestions.push('현재 설명과 경쟁하는 대안 가설은 무엇인가?');
+    suggestions.push('현재 설명과 경쟁하는 대안 가설을 정리해줘');
   } else if (ctxId === 'fundamental') {
     suggestions.push('매출 성장·마진·현금흐름의 질을 연결해서 설명해줘');
-    suggestions.push('밸류에이션이 정당화되려면 어떤 가정이 필요한가?');
+    suggestions.push('밸류에이션이 정당화되는 데 필요한 가정을 정리해줘');
     suggestions.push('가장 중요한 공시 원문과 반대 근거를 알려줘');
   }
   // 사용자 질의에서 키워드 추출 → 추가 후속 질문

@@ -69,7 +69,7 @@ function inflation(macroHistory, events) {
   const service = shelter && supercore && shelter.value >= 0.3 && supercore.value >= 0.3 ? ' 주거비와 주거 뺀 서비스가 함께 올라 서비스 물가가 다시 붙었습니다.' : '';
   const next = nextOf(events, ['us-cpi', 'us-pce']);
   return {
-    id: 'inflation', title: '물가 — PCE · CPI', question: hiking ? '연준이 더 올릴까, 멈출까' : '연준이 금리를 내릴 수 있나',
+    id: 'inflation', title: '물가 — PCE · CPI', question: hiking ? '연준의 추가 인상과 동결 사이' : '연준의 금리 인하 여지',
     viz: { caption: '근원 PCE 전월비 (%)', unit: '%', points: mom.map((row, index) => ({ x: monthName(row.date), value: row.value, hot: index === mom.length - 1 })) },
     now: `${monthName(last.date)} 근원 PCE ${signed(last.value)} · 3개월 연율 ${three.toFixed(1)}% · 전년비 ${yoy.toFixed(1)}%`,
     mean: `최근 두 달 물가 속도가 그 전 두 달보다 ${turn}. ${hot}.${service}`,
@@ -97,7 +97,7 @@ function labor(macroHistory, events) {
     : avg3 < 100 ? '채용은 크게 줄었지만 해고는 늘지 않았습니다. "덜 뽑는 둔화"이지 "자르는 침체"는 아직 아닙니다' : '고용이 꾸준히 늘어 경기 걱정은 크지 않습니다';
   const next = nextOf(events, ['us-nfp']);
   return {
-    id: 'labor', title: '고용 — 식는가, 꺾이는가', question: '경기가 침체로 가나',
+    id: 'labor', title: '고용 — 냉각과 꺾임의 구분', question: '경기 침체 위험',
     viz: { caption: '비농업 고용 증감 (천 명)', unit: '', points: changes.map((row, index) => ({ x: monthName(row.date), value: row.value, hot: index === changes.length - 1 })) },
     now: `${monthName(changes.at(-1).date)} ${changes.at(-1).value >= 0 ? '+' : ''}${(changes.at(-1).value / 10).toFixed(1)}만 · 3개월 평균 ${avg3 >= 0 ? '+' : ''}${(avg3 / 10).toFixed(1)}만 · 실업률 ${rate.value.toFixed(1)}%${claims ? ` · 실업수당 청구 ${(claims.value / 10000).toFixed(1)}만` : ''}`,
     mean: `${shape}.${wageYoy !== null ? ` 임금은 1년 전보다 ${wageYoy.toFixed(1)}% 올라 ${wageYoy >= 4 ? '물가를 다시 밀어 올릴 수 있는 속도입니다' : '물가를 밀어 올릴 정도는 아닙니다'}.` : ''}`,
@@ -125,7 +125,7 @@ function rates(macroHistory, events, history = []) {
   const next = nextOf(events, ['us-fed-rate']);
   const points = [['10년', market ? market.bp : ten.bp], ['실질', real.bp], ['기대인플레', be.bp], term ? ['기간 프리미엄', term.bp] : null, two ? ['2년', two.bp] : null].filter(Boolean);
   return {
-    id: 'rates', title: '연준 · 금리 — 왜 움직였나', question: '금리 변화는 물가 때문인가, 성장 걱정 때문인가',
+    id: 'rates', title: '연준 · 금리 — 움직인 이유', question: '금리 변화의 원인, 물가와 성장 걱정',
     viz: { caption: '20거래일 변화 (bp)', unit: 'bp', points: points.map(([x, value], index) => ({ x, value, hot: index === 1 })) },
     // v59.70 (screen review 6): the 10-year itself is the market close reading every screen shares (closeChange on history tnx); the
     // FRED legs, cut on their own common date, split the move and keep their own span beside them.
@@ -153,7 +153,7 @@ function oil(history, macroHistory) {
     : sameWay ? ` 기대인플레도 ${bp(be.bp)} 같은 쪽으로 움직여 채권시장이 유가를 물가에 반영하고 있습니다.`
       : ` 기대인플레는 반대로 ${bp(be.bp)} 움직여, 채권시장은 유가보다 다른 요인(성장 걱정 등)을 더 크게 봅니다.`;
   return {
-    id: 'oil', title: '유가 — 물가와 경기 사이', question: '유가가 물가를 밀어 올리나, 경기 둔화를 알리나',
+    id: 'oil', title: '유가 — 물가와 경기 사이', question: '유가가 보내는 물가 신호와 경기 신호',
     viz: { caption: '20거래일 등락 (%)', unit: '%', points: [{ x: 'WTI', value: wti.pct, hot: true }, brent ? { x: '브렌트', value: brent.pct } : null].filter(Boolean) },
     now: `WTI $${wti.to.toFixed(1)} (${signed(wti.pct, 1)})${brent ? ` · 브렌트 $${brent.to.toFixed(1)} (${signed(brent.pct, 1)})` : ''}`,
     mean: `${read}.${inflation} 에너지 기업 이익은 유가를 따라가서, 유가가 크게 움직인 날은 에너지 업종이 같이 움직입니다.`,
@@ -180,7 +180,7 @@ function metals(history, macroHistory) {
   const ratio = silver ? gold.to / silver.to : null;
   const silverRead = silver ? (silver.pct - gold.pct >= 3 ? ' 은이 금보다 더 올라 산업 수요(경기) 기대가 섞여 있습니다.' : gold.pct - silver.pct >= 3 ? ' 은이 금보다 약해 경기보다 안전자산 쪽 움직임입니다.' : ' 은은 금과 비슷하게 움직였습니다.') : '';
   return {
-    id: 'metals', title: '금 · 은 — 안전자산인가, 포지션인가', question: '금·은 움직임은 금리 때문인가, 돈의 쏠림 때문인가',
+    id: 'metals', title: '금 · 은 — 안전자산 수요와 포지션', question: '금·은 움직임의 원인, 금리와 자금 쏠림',
     viz: { caption: '20거래일 등락 (%)', unit: '%', points: [{ x: '금', value: gold.pct, hot: true }, silver ? { x: '은', value: silver.pct } : null, dollar ? { x: '달러', value: dollar.pct } : null].filter(Boolean) },
     now: `금 $${Math.round(gold.to).toLocaleString('en-US')} (${signed(gold.pct, 1)}${fromPeak <= -5 ? `, 고점 대비 ${signed(fromPeak, 1)}` : ''})${silver ? ` · 은 $${silver.to.toFixed(2)} (${signed(silver.pct, 1)})` : ''}`,
     mean: `${read}${silverRead}`,
@@ -201,7 +201,7 @@ function dollarChapter(history) {
   const carry = jpy && jpy.pct <= -3 ? ' 엔화가 빠르게 강해져(엔/달러 하락) 낮은 엔화 금리로 빌린 돈이 되돌아가는지(캐리 청산) 봐야 합니다.' : '';
   const won = krw ? (krw.pct >= 2 ? ` 원/달러가 ${signed(krw.pct, 1)} 올라 원화가 약해졌습니다. 외국인에게는 환차손이라 한국 주식 매도 압력이 됩니다.` : krw.pct <= -2 ? ' 원화가 강해져 외국인 수급에 우호적입니다.' : ' 원화는 안정적입니다.') : '';
   return {
-    id: 'dollar', title: '달러 · 환율 — 돈줄은 어디로', question: '달러가 세계 돈줄을 조이나, 푸나',
+    id: 'dollar', title: '달러 · 환율 — 세계 돈줄의 방향', question: '달러가 세계 유동성을 조이는지 푸는지',
     viz: { caption: '20거래일 등락 (%)', unit: '%', points: [{ x: '달러지수', value: dxy.pct, hot: true }, jpy ? { x: '엔/달러', value: jpy.pct } : null, krw ? { x: '원/달러', value: krw.pct } : null].filter(Boolean) },
     now: `달러지수 ${dxy.to.toFixed(2)} (${signed(dxy.pct, 1)})${jpy ? ` · 엔/달러 ${jpy.to.toFixed(1)}` : ''}${krw ? ` · 원/달러 ${Math.round(krw.to).toLocaleString('en-US')}` : ''}`,
     mean: `${read}.${carry}${won}`,
@@ -288,7 +288,7 @@ function credit(macroHistory) {
   const flip = state === 'burden' ? `하이일드가 ${C.stressAtBp / 100}% 아래로 내려오고 20거래일 확대가 +${C.widen20dBp}bp 아래로 줄면 경계를 풉니다.`
     : `하이일드 ${C.stressAtBp / 100}% 이상, 5거래일 +${C.widen5dBp}bp, 20거래일 확대가 자체 기록 상위 ${100 - C.stress20dPct}% 중 하나면 부담으로 바꿉니다.`;
   return {
-    id: 'credit', title: '신용 · 유동성 — 위기인가', question: '주가 조정이 신용 위기로 번지나', state,
+    id: 'credit', title: '신용 · 유동성 — 위기 신호 점검', question: '주가 조정이 신용 위기로 번질 위험', state,
     viz: { caption: '스프레드 20거래일 변화 (bp)', unit: 'bp', points: [ig ? { x: '투자등급', value: ig.bp } : null, { x: '하이일드', value: hy.bp }, ccc ? { x: 'CCC', value: ccc.bp, hot: true } : null].filter(Boolean) },
     now: `하이일드 ${hy.from.toFixed(2)} → ${hy.to.toFixed(2)}% (${bp(hy.bp)})${ccc ? ` · CCC ${bp(ccc.bp)}` : ''}`,
     mean: `${mean}${fci ? ` 금융여건 지수는 ${fci.value.toFixed(2)}로 ${fci.value < 0 ? '아직 완화 쪽' : '긴축 쪽'}입니다.` : ''}`,
@@ -312,7 +312,7 @@ function growthKorea(macroHistory, history, events) {
   const won = krw ? (Math.abs(krw.pct) < 1.5 ? ' 원화는 안정적입니다.' : krw.pct > 0 ? ' 원화가 약해져 외국인 이탈을 봐야 합니다.' : ' 원화가 강해졌습니다.') : '';
   const next = nextOf(events, ['us-retail']);
   return {
-    id: 'growth', title: '성장 · 소비 · 한국', question: '경기가 버티나, 한국은 어디에 묶여 있나',
+    id: 'growth', title: '성장 · 소비 · 한국', question: '경기의 지속력과 한국 시장이 묶인 고리',
     viz: { caption: '20거래일 등락 (%)', unit: '%', points: [kospi ? { x: '코스피', value: kospi.pct, hot: true } : null, semis ? { x: 'SOXX', value: semis.pct } : null, krw ? { x: '원/달러', value: krw.pct } : null].filter(Boolean) },
     now: [sentiment ? `소비심리 ${sentiment.value.toFixed(1)}` : null, retail ? `소매판매 ${signed(retail.value, 1)}` : null, kospi ? `코스피 ${signed(kospi.pct, 1)}` : null].filter(Boolean).join(' · '),
     mean: `${sentiment && sentiment.value < 60 ? '소비심리는 낮지만 ' : ''}${retail ? (retail.value >= 0 ? '소비 지출은 아직 꺾이지 않았습니다. ' : '소비 지출이 줄었습니다. ') : ''}${korea}.${won}`,

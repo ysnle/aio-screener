@@ -24,3 +24,21 @@
 .stock-chart-interval-note { font-size: 12px; line-height: 1.65; color: var(--text-secondary); }
 /* 2026-10-19 layout system: the market-comparison note under the chart title (src/ui/components/stock-chart.js); old inline 12px reads --fs-base. */
 .page .stock-chart-context { display: block; font-size: var(--fs-base); font-weight: 400; color: var(--text-muted); margin-top: 2px; }
+
+/* v59.74 (owner 2026-11-07): chart layer chips, study panes, the read chips and the market candle strip (stock-chart-layers.js, market-candles.js). */
+.stock-chart-layers { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; margin: 6px 0 2px; }
+.stock-chart-layer-group, .stock-chart-layer-group.sx-seg { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 2px; max-width: 100%; }
+@media (max-width: 760px) { .stock-chart-layer-group.sx-seg > button { min-height: 36px !important; padding: 0 8px !important; } }
+.stock-chart-panes { width: 100%; } .stock-chart-pane { border-top: 1px solid var(--border-subtle); }
+.stock-chart-pane-label { position: absolute; top: 3px; left: 6px; z-index: 3; font-size: var(--fs-min); color: var(--text-secondary); pointer-events: none; font-variant-numeric: tabular-nums; }
+.stock-chart-layer-label { font-size: 12px; color: var(--text-muted); margin-right: 2px; }
+.stock-chart-layer-group[data-tier="base"] button[aria-pressed="true"] { font-weight: 600; }
+.stock-chart-layer-read { display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0 6px; }
+.charts-candle-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+.charts-candle-card { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.charts-candle-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.charts-candle-title { margin: 0; font-size: 15px; } .charts-candle-name { font-size: 12px; color: var(--text-muted); }
+.charts-candle-close { margin-left: auto; font-size: 12px; font-variant-numeric: tabular-nums; } .charts-candle-close.is-up { color: var(--candle-up); } .charts-candle-close.is-down { color: var(--candle-down); }
+.charts-candle-canvas { width: 100%; }
+.chart-chip { font-size: 12px; line-height: 1.4; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--border-subtle); color: var(--text-secondary); white-space: nowrap; }
+.chart-chip.is-up { color: var(--candle-up); border-color: currentColor; } .chart-chip.is-down { color: var(--candle-down); border-color: currentColor; }

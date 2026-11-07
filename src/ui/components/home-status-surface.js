@@ -28,12 +28,15 @@ export function installHomeStatusSurface(window = globalThis, document = globalT
       ? { text: String(note.sentence), day: note.updated, by: '운영자' } : null;
     var produced = window._aioMarketSentence;
     var line = manual || (produced && produced.text && (produced.day === day || produced.day === yesterday) ? { text: String(produced.text), day: produced.day, by: null } : null);
+    // Owner 2026-11-07: questions stay in long prose; a line written as a question (the producer's older prompt asked for one)
+    // is not shown as the day's line. The producer now writes a statement (scripts/lib/market-analysis-prompt.mjs).
+    if (line && /[?？]|(?:까요?|는가|인가|나요)[\s.。]*$/.test(String(line.text).trim())) line = null;
     if (!line) { el.style.display = 'none'; el.innerHTML = ''; return; }
     var md = Number(line.day.slice(5, 7)) + '/' + Number(line.day.slice(8, 10));
     el.innerHTML =
       '<div class="aio-operator-note-card aio-operator-note-priority aio-market-sentence" data-source-kind="REFERENCE" data-operational-use="reference-only" data-sentence-day="' + escHtml(line.day) + '">' +
         '<div class="aio-operator-note-meta">' +
-          '<span class="aio-operator-note-kicker">오늘의 질문</span>' +
+          '<span class="aio-operator-note-kicker">오늘의 쟁점</span>' +
           '<span class="aio-operator-note-date">' + escHtml(md) + ' 작성' + (line.by ? ', ' + escHtml(line.by) : '') + '</span>' + // v58.80 (first-users run-4): the writing day, not the close it reads
         '</div>' +
         '<div class="aio-operator-note-title">' + escHtml(line.text) + '</div>' + // v59.51: the note sits inside the home verdict card, which already leads with the verdict it questions

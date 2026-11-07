@@ -13,6 +13,8 @@ import { askRow } from './ask-row.js';
 import { CHART_NOTES } from '../../domain/knowledge/theme-research-links.js';
 import { attachChartDrawings } from './stock-chart-drawings.js';
 import { attachChartCompare } from './stock-chart-compare.js';
+import { attachChartLayers } from './stock-chart-layers.js';
+import { buildChartLayers } from '../../domain/technical/chart-layers.js';
 import { strategySection } from './stock-chart-strategies.js';
 import { trendRead } from '../../domain/technical/chart-strategies.js';
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
@@ -21,6 +23,7 @@ import { signedText } from '../../domain/shared/number.js';
 // v58.75: the bar helpers live in chart-bars.js so boot-time readers (AI visuals, compatibility globals) can import
 // them without pulling the chart module into the boot set; re-exported here for existing importers.
 import { barsFromYahoo, completedBars } from './chart-bars.js';
+const INDEX_FUNDS = new Set(['SPY', 'QQQ', 'SOXX', 'IWM', 'DIA']);
 export { barsFromYahoo, completedBars };
 // v57.91 (visual audit): the loading card spans the whole evidence grid instead of sitting in its last column.
 const fullRow = (node) => { if (node?.style) node.style.gridColumn = '1 / -1'; return node; };
@@ -139,24 +142,9 @@ export function rsLineSeries(analysis) {
   const highs = [...set].filter((i) => i >= from && (!set.has(i - 1) || i === last)).map((i) => analysis.bars[i].time);
   return { points, highs };
 }
-function syncRsLegend(doc, shown, benchmarkLabel) {
-  const legend = doc.querySelector?.('#stock-chart-section .stock-chart-legend');
-  if (!legend) return;
-  legend.querySelector('.lg-rs')?.remove();
-  if (!shown) return;
-  // Only the line glyph takes the series colour (as the other legend items colour their first letter); the words keep the
-  // legend's text colour for contrast in both themes.
-  const item = el(doc, 'span', null, 'lg-rs');
-  const glyph = el(doc, 'span', '━');
-  glyph.style.color = RS_LINE_COLOR;
-  glyph.setAttribute('aria-hidden', 'true');
-  item.append(glyph, doc.createTextNode(' 상대강도선'));
-  item.title = `종목 ÷ ${benchmarkLabel}, 가격 아래 칸, 점은 1년 신고가`;
-  legend.append(item);
-}
-function drawChart(root, host, analysis, previous, kr = false) {
+export function drawChart(root, host, analysis, previous, kr = false) {
   const LWC = root.LightweightCharts;
-  if (previous?.chart) { try { previous.chart.remove(); } catch (_) {} }
+  if (previous?.chart) { try { previous.layers?.dispose?.(); } catch (_) {} try { previous.chart.remove(); } catch (_) {} }
   host.replaceChildren();
   if (!LWC?.createChart) { host.append(el(root.document, 'div', '차트 라이브러리를 불러오지 못했습니다.', 'briefing-empty')); return null; }
   const text = cssVar(root, '--text-secondary', '#544f46');
@@ -176,71 +164,51 @@ function drawChart(root, host, analysis, previous, kr = false) {
   });
   const candles = chart.addCandlestickSeries({ upColor: up, downColor: down, borderUpColor: up, borderDownColor: down, wickUpColor: up, wickDownColor: down });
   candles.setData(analysis.bars.map(({ time, open, high, low, close }) => ({ time, open, high, low, close })));
-  const line = (values, color, width, style = 0) => {
-    const series = chart.addLineSeries({ color, lineWidth: width, lineStyle: style, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false });
-    series.setData(analysis.bars.map((bar, i) => values[i] == null ? null : { time: bar.time, value: values[i] }).filter(Boolean));
-    return series;
-  };
-  // v59.69 (visual audit): the legend's own tokens; the 21-day line was the falling-candle blue.
-  const brown = cssVar(root, '--brown-11', '#815e46');
-  line(analysis.lines.ema8, cssVar(root, '--teal-11', '#008573'), 1.2);
-  line(analysis.lines.ema21, cssVar(root, '--orange-11', '#cc4e00'), 1.5);
-  line(analysis.lines.sma50, brown, 1.5);
-  line(analysis.lines.sma200, cssVar(root, '--plum-11', '#953ea3'), 1.5, 2);
+  // v59.74 (owner 2026-11-07, chart redesign): drawChart lays down the price action (candles) and volume only; every
+  // other mark — moving averages, the volume profile, trend areas and the opt-in studies — is a layer drawn by
+  // stock-chart-layers.js from domain/technical/chart-layers.js, so the default chart carries the base tier only.
   const volume = chart.addHistogramSeries({ priceScaleId: 'volume', priceFormat: { type: 'volume' }, lastValueVisible: false, priceLineVisible: false });
-  // v58.75 (persona review): the relative-strength line (close ÷ index, rebased to 100) in its own band between the price and
-  // the volume, with its one-year highs dotted. Without an index series the chart keeps its previous layout.
-  const rs = rsLineSeries(analysis);
-  chart.priceScale('volume').applyOptions({ scaleMargins: rs ? { top: 0.86, bottom: 0 } : { top: 0.82, bottom: 0 } });
+  chart.priceScale('volume').applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
   const upVol = withAlpha(up, 0.35), downVol = withAlpha(down, 0.35);
   volume.setData(analysis.bars.map((bar) => ({ time: bar.time, value: bar.volume || 0, color: bar.close >= bar.open ? upVol : downVol })));
-  if (rs) {
-    chart.priceScale('right').applyOptions({ scaleMargins: { top: 0.06, bottom: 0.34 } });
-    const rsSeries = chart.addLineSeries({ priceScaleId: 'rs', color: RS_LINE_COLOR, lineWidth: 1.5, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false, priceFormat: { type: 'price', precision: 1, minMove: 0.1 } });
-    chart.priceScale('rs').applyOptions({ scaleMargins: { top: 0.69, bottom: 0.16 } });
-    rsSeries.setData(rs.points);
-    // The legend names the dots; a label on the last bar was clipped at the chart's right edge.
-    if (rs.highs.length) rsSeries.setMarkers(rs.highs.map((time) => ({ time, position: 'inBar', color: RS_LINE_COLOR, shape: 'circle', size: 0.6 })));
-  }
-  // First-users run 4 (breaker #17): '피벗' sat under '전일 고가' when the two levels nearly matched. Levels within 0.4% of the
-  // last close share one axis label that names both; each keeps its own line.
-  const levels = [[analysis.pivot, brown, '피벗', 0], [analysis.prev.high, text, '전일 고가', 1], [analysis.prev.low, text, '전일 저가', 1]];
-  if (analysis.high52 > analysis.last.close * 1.002) levels.push([analysis.high52, grid === '#e8e2d9' ? '#999' : text, '52주 고점', 3]);
-  const near = Math.abs(analysis.last.close) * 0.004;
-  const placed = [];
-  for (const [price, color, title, style] of levels.filter(([price]) => price != null).sort((x, y) => y[0] - x[0])) {
-    const group = placed.find((item) => Math.abs(item.price - price) <= near);
-    if (group) { group.titles.push(title); candles.createPriceLine({ price, color, lineWidth: 1, lineStyle: style, axisLabelVisible: false, title: '' }); continue; }
-    placed.push({ price, color, style, titles: [title] });
-  }
-  for (const item of placed) candles.createPriceLine({ price: item.price, color: item.color, lineWidth: 1, lineStyle: item.style, axisLabelVisible: true, title: item.titles.join('·') });
-  // Contraction lows (depth) + descriptive events (8-day line, volume gap, squeeze, overheating).
-  const toneColor = { favorable: up, burden: down, neutral: '#978365' };
-  const markers = (analysis.vcp.valid ? analysis.vcp.contractions : []).map((row) => ({ time: analysis.bars[row.lowIndex].time, position: 'belowBar', color: brown, shape: 'arrowUp', text: `수축 -${row.depth.toFixed(1)}%` }));
-  for (const event of analysis.events || []) markers.push({ time: analysis.bars[event.index].time, position: event.position, color: toneColor[event.tone] || '#978365', shape: event.position === 'aboveBar' ? 'arrowDown' : 'arrowUp', text: event.text });
-  if (analysis.state === 'breakout') markers.push({ time: analysis.last.time, position: 'aboveBar', color: up, shape: 'arrowDown', text: '피벗 돌파' });
-  // 2026-10-18 UI review: the same label (8일 EMA 회복 …) printed at every occurrence piled up over the latest bars; older
-  // repeats keep their arrow and only the most recent one is labelled.
-  const labelled = new Set();
-  for (const marker of [...markers].sort((a, b) => b.time.localeCompare(a.time))) {
-    if (labelled.has(marker.text)) marker.text = '';
-    else labelled.add(marker.text);
-  }
-  candles.setMarkers(markers.sort((a, b) => a.time.localeCompare(b.time)));
   const showRecent = () => chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, analysis.bars.length - 130), to: analysis.bars.length + 3 });
   showRecent();
   (root.requestAnimationFrame || setTimeout)(showRecent); // autoSize lays out after the first frame
-  // v58.75 (owner decision 2026-10-24): the price-level map draws its zones as thin dotted lines (no axis label, so the
-  // pivot and prior-day labels stay readable); the section's toggle swaps the nearest four for all of them.
-  let levelLines = [];
-  const setLevels = (levels = []) => {
-    levelLines.forEach((item) => { try { candles.removePriceLine(item); } catch (_) {} });
-    levelLines = levels.map((level) => candles.createPriceLine({ price: level.price, color: LEVEL_LINE_COLOR, lineWidth: 1, lineStyle: 1, axisLabelVisible: false, title: '' }));
-  };
-  return { chart, candles, setLevels, applyTheme: (palette) => {
-    chart.applyOptions({ layout: { textColor: palette.text }, grid: { vertLines: { color: palette.grid }, horzLines: { color: palette.grid } }, rightPriceScale: { borderColor: palette.grid }, timeScale: { borderColor: palette.grid } });
-    candles.applyOptions({ upColor: palette.up, downColor: palette.down, borderUpColor: palette.up, borderDownColor: palette.down, wickUpColor: palette.up, wickDownColor: palette.down });
+  const palette = layerPalette(root, { up, down, text, grid });
+  const self = { chart, candles, volume, palette, host, setLevels: () => {}, applyTheme: (next) => {
+    chart.applyOptions({ layout: { textColor: next.text }, grid: { vertLines: { color: next.grid }, horzLines: { color: next.grid } }, rightPriceScale: { borderColor: next.grid }, timeScale: { borderColor: next.grid } });
+    candles.applyOptions({ upColor: next.up, downColor: next.down, borderUpColor: next.up, borderDownColor: next.down, wickUpColor: next.up, wickDownColor: next.down });
+    Object.assign(palette, layerPalette(root, next));
+    const upV = withAlpha(next.up, 0.35), downV = withAlpha(next.down, 0.35);
+    volume.setData(analysis.bars.map((bar) => ({ time: bar.time, value: bar.volume || 0, color: bar.close >= bar.open ? upV : downV })));
+    self.layers?.render?.(); // the layer colours follow the theme tokens too
   } };
+  return self;
+}
+
+// v59.69 (visual audit): the legend's own tokens (the 21-day line was the falling-candle blue); v59.74 adds the layer colours.
+function layerPalette(root, { up, down, text, grid }) {
+  return {
+    up, down, text, grid,
+    muted: '#978365',
+    ma5: cssVar(root, '--amber-11', '#ab6400'),
+    ma10: cssVar(root, '--teal-11', '#008573'),
+    ma20: cssVar(root, '--orange-11', '#cc4e00'),
+    ma50: cssVar(root, '--brown-11', '#815e46'),
+    ma100: cssVar(root, '--gray-10', '#8d8d86'),
+    ma200: cssVar(root, '--plum-11', '#953ea3'),
+    sma50: cssVar(root, '--brown-11', '#815e46'),
+    ema8: cssVar(root, '--pink-11', '#c2298a'),
+    ema21x: cssVar(root, '--indigo-11', '#3a5bc7'),
+    zone: LEVEL_LINE_COLOR,
+    rs: RS_LINE_COLOR,
+    rsi: cssVar(root, '--violet-11', '#6550b9'),
+    macd: cssVar(root, '--blue-11', '#0d74ce'),
+    signal: cssVar(root, '--orange-11', '#cc4e00'),
+    band: cssVar(root, '--cyan-11', '#107d98'),
+    squeeze: cssVar(root, '--amber-9', '#ffc53d'),
+    fib: cssVar(root, '--yellow-11', '#9e6c00')
+  };
 }
 
 // v58.75: the teaching sections (stock-chart-coach.js) load once with the first daily chart, not at boot; a failed load
@@ -322,10 +290,20 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
     if (!root.__aioStockChartInstance || otherSymbolShown) setChartEmpty(doc, true);
     panel.replaceChildren(emptyState(doc, { title: `${sym} 시세를 아직 받아오지 못했습니다`, reason: '시세 제공처나 AIO 시세 서버 응답이 늦어지고 있습니다.', next: '응답이 오면 차트가 나타납니다.', action: { label: '다시 시도', onClick: () => renderStockChart({ documentRef: doc, root, symbol: sym }) } }));
   }
-  const payload = await pending;
+  let payload = await pending;
   if (ticket !== root.__aioStockChartTicket) return null;
-  const { bars, droppedLive } = completedBars(barsFromYahoo(payload), payload);
+  let { bars, droppedLive } = completedBars(barsFromYahoo(payload), payload);
   const kr = /\.(KS|KQ)$/.test(sym);
+  // v59.74 (owner 2026-11-07, no stock left out): a Korean listing Yahoo returns short or empty falls back to the Naver
+  // daily series (naver-kr.js fetchKrDailyCandles, the same provider the KR quotes use) before the chart gives up.
+  if (kr && bars.length < 260 && typeof root.fetchKrDailyCandles === 'function') {
+    const rows = await Promise.resolve().then(() => root.fetchKrDailyCandles(sym, 500)).catch(() => null);
+    if (ticket !== root.__aioStockChartTicket) return null;
+    if (Array.isArray(rows) && rows.length > bars.length) {
+      payload = { ...(payload || {}), meta: { ...(payload?.meta || {}), currency: 'KRW', exchangeTimezoneName: 'Asia/Seoul' }, transport: 'naver-fchart' };
+      ({ bars, droppedLive } = completedBars(rows.map((row) => ({ time: row.date, open: row.open, high: row.high, low: row.low, close: row.close, volume: row.volume })), payload));
+    }
+  }
   const benchmarkField = benchmarkFieldFor(sym);
   const benchmark = benchmarkField ? buildCloseSeries(root._aioHistory || [], benchmarkField) : [];
   const analysis = analyzeChart(bars, { benchmark, benchmarkLabel: kr ? (/\.KQ$/.test(sym) ? 'KOSDAQ' : 'KOSPI') : 'S&P 500' });
@@ -339,16 +317,34 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
     const heldText = held ? `앱에 있는 마지막 종가는 ${Number(held.date.slice(5, 7))}/${Number(held.date.slice(8, 10))} ${formatScreenerPrice(held.value, held.currency || (kr ? 'KRW' : 'USD'))}입니다(요약 탭과 같은 값). ` : '';
     // v59.70 (coverage audit S14): the failure states what is missing; the retry button is the next step, not a sentence.
     const state = payload == null
-      ? emptyState(doc, { title: `${sym} 시세를 받아오지 못했습니다`, reason: '시세 제공처나 AIO 시세 서버가 응답하지 않았습니다.', next: heldText.trim(), action: retry })
+      // QA 2026-11-07: with the quote server down this screen was empty while 지수 차트 (#charts) draws from the published
+      // closes; an index fund names that screen.
+      ? emptyState(doc, { title: `${sym} 시세를 받아오지 못했습니다`, reason: '시세 제공처나 AIO 시세 서버가 응답하지 않았습니다.', next: `${heldText}${INDEX_FUNDS.has(sym) ? '발행된 종가로 그린 지수 차트는 기술적 분석의 지수 차트에서 볼 수 있습니다.' : ''}`.trim(), action: retry })
       : bars.length === 0
         ? emptyState(doc, { title: `${sym}의 일봉이 없습니다`, reason: '시세 제공처에 이 코드의 일봉 기록이 없습니다. 한국 종목은 6자리 코드(예: 005930)로 찾습니다.' })
         : emptyState(doc, { title: `${sym}의 일봉이 ${bars.length}개뿐입니다`, reason: '추세·셋업 분석에는 최소 60거래일이 필요합니다.', next: '상장 직후 종목은 기록이 쌓인 뒤 분석됩니다.' });
+    // v59.74 (owner 2026-11-07): a short history still gets its chart and the base tier (moving averages that fit, volume,
+    // volume profile, trend areas); only the setup analysis waits for 60 sessions.
+    if (bars.length >= 2) {
+      await library;
+      if (ticket !== root.__aioStockChartTicket) return null;
+      setChartEmpty(doc, false);
+      const badge = doc.getElementById('stock-chart-state');
+      if (badge) { badge.textContent = `${bars.length}거래일`; badge.className = 'regime-state is-neutral'; }
+      root.__aioStockChartInstance = drawChart(root, host, { bars }, root.__aioStockChartInstance, kr);
+      root.__aioStockChartDrawnSymbol = sym;
+      attachChartLayers({ doc, root, instance: root.__aioStockChartInstance, layers: buildChartLayers(bars), price: (value) => formatScreenerPrice(value, kr ? 'KRW' : payload?.meta?.currency || null) });
+      set('stock-chart-status', `${bars.at(-1).time} 종가 ${formatScreenerPrice(bars.at(-1).close, kr ? 'KRW' : payload?.meta?.currency || null)}`);
+      panel.replaceChildren(state);
+      doc.getElementById('stock-chart-section')?.setAttribute('data-symbol', sym);
+      return null;
+    }
     panel.replaceChildren(state);
     host.replaceChildren();
     // P1428: a failed lookup clears the previous symbol's setup badge and chart instance too.
     const staleBadge = doc.getElementById('stock-chart-state');
     if (staleBadge) { staleBadge.textContent = ''; staleBadge.className = 'regime-state is-unknown'; }
-    if (root.__aioStockChartInstance?.chart) { try { root.__aioStockChartInstance.chart.remove(); } catch (_) {} }
+    if (root.__aioStockChartInstance?.chart) { try { root.__aioStockChartInstance.layers?.dispose?.(); } catch (_) {} try { root.__aioStockChartInstance.chart.remove(); } catch (_) {} }
     root.__aioStockChartInstance = null;
     setChartEmpty(doc, true);
     return null;
@@ -378,26 +374,26 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   root.__aioStockChartDrawnSymbol = sym;
   attachChartDrawings({ doc, root, sym, instance: root.__aioStockChartInstance, analysis, levels, price: (value) => formatScreenerPrice(value, kr ? 'KRW' : payload?.meta?.currency || null) });
   attachChartCompare({ doc, root, sym, instance: root.__aioStockChartInstance, analysis });
-  syncRsLegend(doc, !!(root.__aioStockChartInstance && rsLineSeries(analysis)), analysis.benchmarkLabel);
-  {
-    const legend = doc.querySelector?.('#stock-chart-section .stock-chart-legend');
-    legend?.querySelector('.lg-levels')?.remove();
-    if (legend && root.__aioStockChartInstance && levels.available) { const item = el(doc, 'span', '┈ 가격 레벨', 'lg-levels'); item.title = '자세히의 \'가격 레벨과 내 계획\', 기본은 가까운 위·아래 2개씩'; legend.append(item); }
-  }
+  // v59.74: the base tier and the opt-in studies, drawn on the same completed daily bars as the analysis.
+  const chartLayers = buildChartLayers(analysis.bars);
+  attachChartLayers({ doc, root, instance: root.__aioStockChartInstance, layers: chartLayers, analysis, rs: rsLineSeries(analysis), price: (value) => formatScreenerPrice(value, kr ? 'KRW' : payload?.meta?.currency || null) });
   const regime = readMarketRegime(root); // v57.55 review (E1-02): the same regime reader (and credit history) as 시장 상태
   // P1435: reading first (state → why → market → flip), two pictures (Weinstein stage, trend template),
   // and the full evidence list folded underneath.
   const reading = chartReading(analysis, regime);
   const read = el(doc, 'div', null, 'chart-read');
   read.append(el(doc, 'p', reading.headline, 'chart-read-headline'));
-  if (reading.why) read.append(el(doc, 'p', `근거: ${reading.why}.`, 'chart-read-why'));
-  if (reading.flip) read.append(el(doc, 'p', `전환 조건: ${reading.flip}`, 'regime-flip'));
+
   // v59.51 (content audit + owner two layers): the face is this reading and the trend-template dots; the market line, the
   // Weinstein stage, the reading cards, the evidence list and every section below fold into one expert disclosure.
   const expert = el(doc, 'details', null, 'chart-expert-fold');
   expert.open = root.__aioChartExpertOpenFor === sym || root.__aioChartScrollTo === 'chart-levels';
   expert.addEventListener('toggle', () => { root.__aioChartExpertOpenFor = expert.open ? sym : null; });
   expert.append(el(doc, 'summary', '자세히 — 지표 값, 단계, 셋업 점검, 가격 레벨, 시나리오, 거래 집중 가격대'));
+  // v59.74 (owner 2026-11-07, chart first, little text): the face keeps the one-line reading; its grounds and the turn
+  // condition open with the details.
+  if (reading.why) expert.append(el(doc, 'p', `근거: ${reading.why}.`, 'chart-read-why'));
+  if (reading.flip) expert.append(el(doc, 'p', `전환 조건: ${reading.flip}`, 'regime-flip'));
   if (reading.market) expert.append(el(doc, 'p', `${reading.market}.`, 'chart-read-market'));
   const visuals = el(doc, 'div', null, 'chart-read-visuals');
   const stageVisual = el(doc, 'div', null, 'chart-read-visuals');
@@ -425,8 +421,9 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   template.append(dots);
   visuals.append(template);
   const list = el(doc, 'dl', null, 'regime-evidence');
-  const structure = intervalStructure(analysis.bars);
-  const structureRows = [['단기 추세 (종가와 5·10·20일 평균선의 순서)', structure.short || '계산 불가'], ['장기 추세 (20·50·100·200일 평균선의 순서)', structure.long || '기록 부족']];
+  // v59.74 (owner 2026-11-07): short 5 > 10 > 20, mid/long 20 > 50 > 200 — the same alignment the chart's layer line states.
+  const align = chartLayers.alignment;
+  const structureRows = [['단기 이평 배열 (5·10·20일)', align.shortLabel ? `${align.shortLabel}${align.closeAbove5 == null ? '' : `, 종가 5일선 ${align.closeAbove5 ? '위' : '아래'}`}` : '계산 불가'], ['중장기 이평 배열 (20·50·200일)', align.longLabel ? `${align.longLabel}${align.full && align.full === align.long && align.long !== 'mixed' ? ' (100일선 포함)' : ''}` : '기록 부족']];
   for (const [label, value] of [...structureRows, ...analysis.evidence, ['시장 상태', regime.available ? `${regime.overall} (양호 ${regime.counts.favorable}, 부담 ${regime.counts.burden})` : '—']]) list.append(el(doc, 'dt', label), el(doc, 'dd', value));
   const more = el(doc, 'details', null, 'chart-evidence-more');
   more.append(el(doc, 'summary', `근거 전체 (${analysis.evidence.length + 3}개)`), list);
@@ -575,7 +572,7 @@ async function renderIntervalChart({ doc, root, sym, spec, ticket }) {
   await library;
   if (ticket !== root.__aioStockChartTicket) return null;
   const bars = intervalBars(payload, spec);
-  if (root.__aioStockChartInstance?.chart) { try { root.__aioStockChartInstance.chart.remove(); } catch (_) {} }
+  if (root.__aioStockChartInstance?.chart) { try { root.__aioStockChartInstance.layers?.dispose?.(); } catch (_) {} try { root.__aioStockChartInstance.chart.remove(); } catch (_) {} }
   root.__aioStockChartInstance = null;
   host.replaceChildren();
   const badge = doc.getElementById('stock-chart-state');
@@ -605,43 +602,45 @@ async function renderIntervalChart({ doc, root, sym, spec, ticket }) {
   });
   const candles = chart.addCandlestickSeries({ upColor: up, downColor: down, borderUpColor: up, borderDownColor: down, wickUpColor: up, wickDownColor: down });
   candles.setData(bars.map(({ time, open, high, low, close }) => ({ time, open, high, low, close })));
-  const closes = bars.map((bar) => bar.close);
-  const maColors = { 5: cssVar(root, '--amber-11', '#ab6400'), 20: cssVar(root, '--orange-11', '#cc4e00'), 60: cssVar(root, '--teal-11', '#008573'), 120: cssVar(root, '--plum-11', '#953ea3') };
-  for (const n of [5, 20, 60, 120]) {
-    if (bars.length < n) continue;
-    const values = smaOf(closes, n);
-    chart.addLineSeries({ color: maColors[n], lineWidth: n >= 60 ? 1.5 : 1.2, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false })
-      .setData(bars.map((bar, i) => values[i] == null ? null : { time: bar.time, value: values[i] }).filter(Boolean));
-  }
+  // v59.74 (owner 2026-11-07): every interval carries the same base tier (5~200 moving averages and their alignment, the
+  // volume profile, trend areas) and the same opt-in studies as the daily chart; the daily-only setup layers stay daily.
   const volume = chart.addHistogramSeries({ priceScaleId: 'volume', priceFormat: { type: 'volume' }, lastValueVisible: false, priceLineVisible: false });
   chart.priceScale('volume').applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
-  const upVol = withAlpha(up, 0.35), downVol = withAlpha(down, 0.35);
-  volume.setData(bars.map((bar) => ({ time: bar.time, value: bar.volume || 0, color: bar.close >= bar.open ? upVol : downVol })));
+  const paintVolume = (upC, downC) => { const upV = withAlpha(upC, 0.35), downV = withAlpha(downC, 0.35); volume.setData(bars.map((bar) => ({ time: bar.time, value: bar.volume || 0, color: bar.close >= bar.open ? upV : downV }))); };
+  paintVolume(up, down);
   const showRecent = () => chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, bars.length - 130), to: bars.length + 3 });
   showRecent();
   (root.requestAnimationFrame || setTimeout)(showRecent);
   root.__aioStockChartDrawnSymbol = sym;
-  root.__aioStockChartInstance = { chart, applyTheme: (palette) => {
-    chart.applyOptions({ layout: { textColor: palette.text }, grid: { vertLines: { color: palette.grid }, horzLines: { color: palette.grid } } });
-    candles.applyOptions({ upColor: palette.up, downColor: palette.down, borderUpColor: palette.up, borderDownColor: palette.down, wickUpColor: palette.up, wickDownColor: palette.down });
+  const palette = layerPalette(root, { up, down, text, grid });
+  const instance = { chart, candles, volume, palette, host, setLevels: () => {}, applyTheme: (next) => {
+    chart.applyOptions({ layout: { textColor: next.text }, grid: { vertLines: { color: next.grid }, horzLines: { color: next.grid } } });
+    candles.applyOptions({ upColor: next.up, downColor: next.down, borderUpColor: next.up, borderDownColor: next.down, wickUpColor: next.up, wickDownColor: next.down });
+    Object.assign(palette, layerPalette(root, next));
+    paintVolume(next.up, next.down);
+    instance.layers?.render?.();
   } };
+  root.__aioStockChartInstance = instance;
+  const chartLayers = buildChartLayers(bars);
+  attachChartLayers({ doc, root, instance, layers: chartLayers, price: (value) => formatScreenerPrice(value, kr ? 'KRW' : payload?.meta?.currency || null) });
   const lastBar = bars.at(-1), prevBar = bars.at(-2);
   const change = (lastBar.close / prevBar.close - 1) * 100;
   const stamp = spec.intraday ? new Date(lastBar.time * 1000).toISOString().slice(0, 16).replace('T', ' ') : lastBar.time;
   set('stock-chart-status', `${stamp}${spec.intraday ? ' 거래소 현지 시각' : ''} ${formatScreenerPrice(lastBar.close, kr ? 'KRW' : payload?.meta?.currency || null)} (${signedText(change, 2)}%, 직전 봉 대비)`);
   const structure = intervalStructure(bars);
+  const align = chartLayers.alignment;
   const read = el(doc, 'div', null, 'chart-read');
-  read.append(el(doc, 'p', `${spec.label}봉 기준 단기 이동평균(종가>5>10>20)은 ${structure.short || '계산 불가'}, 장기(20>50>100>200)는 ${structure.long || '기록 부족'}입니다.`, 'chart-read-headline'));
+  read.append(el(doc, 'p', `${spec.label}봉 기준 단기 이동평균(5>10>20)은 ${align?.shortLabel || '계산 불가'}${align?.closeAbove5 == null ? '' : `(종가 5선 ${align.closeAbove5 ? '위' : '아래'})`}, 중장기(20>50>200)는 ${align?.longLabel || '기록 부족'}입니다.`, 'chart-read-headline'));
   // v59.69 (owner 2026-11-04): one line of facts; what an intraday or weekly bar means is the hover.
-  const note = el(doc, 'p', `${bars.length}봉 · 이평 5·20·60·120${spec.intraday ? ' · 마지막 봉 진행 중' : ''}`, 'stock-chart-interval-note');
-  note.title = `${spec.intraday ? '분·시간봉은 정규장 기준, 짧은 주기는 일봉 추세와 같은 방향인지 함께 봅니다.' : '주·월봉의 마지막 봉은 기간이 끝나기 전까지 바뀝니다.'} 피벗·변동성 수축·추세 템플릿은 일봉 기준입니다.`;
+  const note = el(doc, 'p', `${bars.length}봉 · 이평 5·10·20·50·100·200${spec.intraday ? ' · 마지막 봉 진행 중' : ''}`, 'stock-chart-interval-note');
+  note.title = `${spec.intraday ? '분·시간봉은 정규장 기준, 짧은 주기는 일봉 추세와 같은 방향인지 함께 봅니다.' : '주·월봉의 마지막 봉은 기간이 끝나기 전까지 바뀝니다.'} 피벗·변동성 수축·추세 템플릿·신호·상대강도·가격 레벨은 일봉 기준입니다.`;
   read.append(note);
   const toDaily = el(doc, 'button', '일봉 셋업 분석 보기', 'aio-btn-table');
   toDaily.type = 'button';
   toDaily.addEventListener('click', () => renderStockChart({ documentRef: doc, root, symbol: sym, interval: '1d' }));
   read.append(toDaily);
   panel.replaceChildren(read);
-  return { interval: spec.id, bars: bars.length, structure };
+  return { interval: spec.id, bars: bars.length, structure, alignment: align };
 }
 
 function renderIntervalButtons(doc, root, sym, active) {
@@ -667,7 +666,6 @@ function renderIntervalButtons(doc, root, sym, active) {
   if (legend) {
     if (!legend.__aioDailyLegend) legend.__aioDailyLegend = [...legend.childNodes].map((node) => node.cloneNode(true));
     if (active === '1d') legend.replaceChildren(...legend.__aioDailyLegend.map((node) => node.cloneNode(true)));
-    else legend.replaceChildren(el(doc, 'span', '━ 5, 20, 60, 120 이동평균'), el(doc, 'span', '아래 막대는 거래량, 상승 빨강, 하락 파랑'));
   }
 }
 

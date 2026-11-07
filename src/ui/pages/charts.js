@@ -10,6 +10,7 @@ import { signedText } from '../../domain/shared/number.js';
 import { createTrendChart } from '../components/trend-chart.js';
 import { noteFold } from '../components/section-frame.js';
 import { openMarketChart } from '../components/stock-chart.js';
+import { installMarketCandles } from '../components/market-candles.js';
 import { el } from '../components/dom.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { historyWaitText, renderDataState } from '../components/data-state.js';
@@ -139,6 +140,8 @@ export function createChartsPage({ root = globalThis, documentRef, store, route 
       let alive = true;
       bag.add(() => { alive = false; });
       const renderNow = () => { if (alive) render(documentRef, root, store, page); };
+      // v59.74 (owner 2026-11-07): QQQ·SPY·IWM candle charts with the base analysis lead the screen.
+      bag.add(installMarketCandles({ documentRef, root, page }));
       renderNow();
       refreshSharedArtifact(root, MARKET_DAY).then(({ changed }) => { if (changed) renderNow(); }).catch(() => {});
       const unsubscribe = store && subscribeToSlices(store, ['screener'], renderNow);

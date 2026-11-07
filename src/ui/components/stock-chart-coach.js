@@ -108,7 +108,7 @@ export function setupCoachSection(doc, root, sym, analysis, regime, tools, hasLe
   const align = root.__aioSetupCoach.alignment;
   if (align) {
     const box = el(doc, 'div', null, 'chart-timeframe');
-    box.append(el(doc, 'h4', '주봉과 일봉이 같은 방향인가'), el(doc, 'p', `${align.headline}. ${align.reading}`));
+    box.append(el(doc, 'h4', '주봉과 일봉의 방향'), el(doc, 'p', `${align.headline}. ${align.reading}`));
     section.append(box);
   }
   // D6: the next steps of the top-down flow on this screen — the level map and the plan check below.
@@ -395,7 +395,7 @@ export function priceLevelSection(doc, root, sym, levels, currency, instance, ch
     const toggle = el(doc, 'label', null, 'chart-level-toggle');
     Object.assign(toggle.style, { display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', margin: '6px 0' });
     const box = el(doc, 'input'); box.type = 'checkbox'; box.id = 'chart-level-all';
-    box.addEventListener('change', () => instance.setLevels(box.checked ? [...levels.above, ...levels.below] : nearestLevels(levels)));
+    box.addEventListener('change', () => instance.setLevels(box.checked ? [...levels.above, ...levels.below] : nearestLevels(levels), { reveal: true }));
     toggle.append(box, doc.createTextNode('차트에 레벨 전체 표시 (기본: 가장 가까운 위 2개·아래 2개, 연한 점선)'));
     section.append(toggle);
   }

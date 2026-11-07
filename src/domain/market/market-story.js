@@ -142,6 +142,9 @@ function creditOf(macroHistory, from, to, sessions) {
 const RATE_READ = Object.freeze({
   'growth-fear': '대부분 실질금리 하락이라 물가 안도보다 성장 걱정에 안전자산인 국채로 돈이 옮겨 간 쪽입니다',
   'inflation-relief': '대부분 기대인플레 하락이라 물가 안도 쪽입니다',
+  // QA 2026-11-07: the week read 기대인플레 하락 → 물가 안도 while 1년 중 위치 and 금리와 신용 on the same page called the same fall
+  // a flight to safety, because high yield widened with it. A fall in yields beside widening spreads is read the way those cards read it.
+  flight: '기대인플레 하락이 컸지만 하이일드 스프레드가 함께 벌어져, 물가 안도보다 경기·신용 걱정 속 국채로 피한 쪽으로 읽습니다',
   'real-up': '대부분 실질금리 상승이라 긴축 부담 쪽입니다',
   'inflation-fear': '대부분 기대인플레 상승이라 물가 걱정 쪽입니다',
   mixed: '실질금리와 기대인플레가 함께 움직여 한쪽으로 읽기 어렵습니다',
@@ -375,6 +378,7 @@ export function buildMarketStory({ history = [], macroHistory = null, briefs = n
   const concentration = concentrationOf(moves);
   const rates = ratesOf(macroHistory, history, start, asOf);
   const credit = creditOf(macroHistory, start, asOf, sessions);
+  if (rates?.kind === 'inflation-relief' && credit && credit.kind !== 'calm') rates.kind = 'flight';
   const reported = earningsMovers(briefs, { from: start, to: asOf });
   const direction = Math.sign(moves.ndx.pct);
   const drivers = reported.filter((row) => row.core && !row.korea && Math.abs(row.pct) >= 3 && Math.sign(row.pct) === direction).slice(0, 3);

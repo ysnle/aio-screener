@@ -73,6 +73,7 @@ target_version: version.json
 | 2026-11-02 | 보이는 결정 헤더(R426)는 숨김 유지 — 권장안으로 진행(11-01 상시 규칙) | 이 문서 어긋남 7 | 유지 | RULES R426 |
 | 2026-10-25 | Ctrl+K는 화면에 보이는 검색창에만 포커스, 없으면 용어 사전 | P1315 주석(`screen-shortcuts.js`) | **2026-11-04 D4로 대체** | 코드 |
 | 2026-11-04 | D4: 검색창 4개(종목·도움말·용어 사전·Ctrl+K 포커스)를 명령 검색 하나로. Ctrl/⌘K는 어디서나 명령 검색(종목·화면·용어·도움말), 스크리너 표 필터는 `/` 키. 없는 기호는 추정하지 않고 '목록에 없음' | wave2 PLAN §5 D4(권장안) | 유지 | `src/ui/navigation/command-search.js`, `scripts/ci-search-surface-contract.mjs` |
+| 2026-11-07 | 질문은 긴 분석·설명·AI 생성 문단 안에서만 쓴다. 이해 확인·개념 확인 질문, 퀴즈·시뮬레이션·유치한 카드형 콘텐츠는 두지 않고, 제목·칩·라벨·카드 문장은 서술형으로 쓴다(뉴스 원문 제목·확인 대화상자·도움말 FAQ는 예외). 2026-10-15의 '오늘의 질문'은 '오늘의 쟁점'(서술문)으로 대체 | 소유자 메시지 2026-11-07 11:48Z·11:49Z | 유지 | AGENTS Screen design, `scripts/lib/market-analysis-validate.mjs` MARKET_SENTENCE_QUESTION, `scripts/ci-rendered-copy-lint-check.mjs` question-label |
 
 ## 데이터·원천
 

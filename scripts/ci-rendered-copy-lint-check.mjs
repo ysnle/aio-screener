@@ -46,6 +46,16 @@ export const COPY_RULES = Object.freeze([
   ['zero-direction', /(?:^|[^\d.,])[+-]?0(?:\.0+)?(?:%p|%|bp|pt)?\s*\([^)]*(?:강세|약세|상승|하락|확대|축소|오름|내림)\)/],
   ['mixed-precision', { test: (line) => new Set([...line.matchAll(/(?:대비|거래일|일|주|개월|년)\s+[+-]?\d+\.(\d+)%(?!p)/g)].map((m) => m[1].length)).size > 1 }]
 ]);
+// Owner 2026-11-07: questions belong in long prose only; a short label, heading, chip or card line written as a question
+// ('연준이 더 올릴까, 멈출까', '왜 보는가', '오늘의 질문') reads as a quiz. It is read with news headlines hidden (their
+// sources' words) and skips the long-form knowledge pages.
+export const QUESTION_LABEL = /(?:[?？]|까요?|는가|인가|나요|있나|가나|됐나|했나|빠졌나|올랐나)$/;
+const NEWS_NODES = 'a[href], [class*="news"], [class*="nws"], [class*="headline"], .briefing-day-evidence, blockquote';
+export function questionLines(text, route) {
+  if (LONG_FORM_ROUTES.has(route)) return [];
+  return String(text || '').split('\n').map((line) => line.trim()).filter((line) => line && line.length <= 40 && QUESTION_LABEL.test(line))
+    .map((line) => ({ rule: 'question-label', line }));
+}
 const failures = [];
 const offenders = [];
 mkdirSync(out, { recursive: true });
@@ -102,6 +112,16 @@ if (isMain) {
         return active.innerText || '';
       });
       for (const hit of lintLines(text, route)) offenders.push({ route, ...hit });
+      const labels = await page.evaluate((selector) => {
+        const active = document.querySelector('.page.active');
+        if (!active) return '';
+        const hidden = [...active.querySelectorAll(selector)].filter((node) => node.style.display !== 'none');
+        hidden.forEach((node) => { node.dataset.copyLintDisplay = node.style.display; node.style.display = 'none'; });
+        const text = active.innerText || '';
+        hidden.forEach((node) => { node.style.display = node.dataset.copyLintDisplay; delete node.dataset.copyLintDisplay; });
+        return text;
+      }, NEWS_NODES);
+      for (const hit of questionLines(labels, route)) offenders.push({ route, ...hit });
       const mismatched = await page.evaluate(signColourMismatches, '.page.active');
       if (mismatched.length) failures.push({ message: `P2115 ${route}: a signed number's colour disagrees with its printed sign`, detail: mismatched.slice(0, 10) });
     }
@@ -109,15 +129,15 @@ if (isMain) {
     const canaryText = await page.evaluate(() => {
       const host = document.createElement('div');
       host.id = 'copy-lint-canary';
-      host.innerText = "'유가 충격'(으)로 바뀌었습니다\n값 undefined\n10/23 -0.0%\n나스닥 100 −0.8%\n모델 검증 BLOCKED\n조건 ()\n, 3종목 세부 테마\n후행(약 50일 기준)(10/23)\n시장 폭 부담 이 아직 빠짐\n코스피 10/23 +0.3%, 원/달러 -0.2%입니다.\n다음 분기 매출을 확인해야 합니다.\n세는 법\n20거래일 0.0%(엔 강세)\n직전 거래일 종가 대비 0.00%, 20거래일 0.0%";
+      host.innerText = "'유가 충격'(으)로 바뀌었습니다\n값 undefined\n10/23 -0.0%\n나스닥 100 −0.8%\n모델 검증 BLOCKED\n조건 ()\n, 3종목 세부 테마\n후행(약 50일 기준)(10/23)\n시장 폭 부담 이 아직 빠짐\n코스피 10/23 +0.3%, 원/달러 -0.2%입니다.\n다음 분기 매출을 확인해야 합니다.\n세는 법\n연준이 더 올릴까, 멈출까\n20거래일 0.0%(엔 강세)\n직전 거래일 종가 대비 0.00%, 20거래일 0.0%";
       document.querySelector('.page.active').appendChild(host);
       const text = host.innerText;
       host.remove();
       return text;
     });
-    const seen = new Set(lintLines(canaryText, 'canary').map((hit) => hit.rule));
+    const seen = new Set([...lintLines(canaryText, 'canary'), ...questionLines(canaryText, 'canary')].map((hit) => hit.rule));
     const clean = lintLines('코스피 10/23 +0.3%, 원/달러 -0.2%입니다. 2년물 − 기준금리 0.82%p\n직전 거래일 종가 대비 +0.12%, 20거래일 -1.30%(엔 강세)', 'canary');
-    const missing = COPY_RULES.map(([rule]) => rule).filter((rule) => !seen.has(rule));
+    const missing = [...COPY_RULES.map(([rule]) => rule), 'question-label'].filter((rule) => !seen.has(rule));
     if (missing.length || clean.length) failures.push({ message: 'rendered copy lint canary failed (v58.74)', detail: { missing, clean } });
     await page.evaluate(() => {
       const host = document.createElement('div');

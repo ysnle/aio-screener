@@ -274,7 +274,7 @@ export function lensCard(doc, read) {
   const table = el(doc, 'table', null, 'fiscal-amount-table');
   table.append(el(doc, 'caption', '추적할 지표, 이 기업의 값과 방향, 미확인은 이 화면 공시 수집본에 없는 항목'));
   const head = el(doc, 'thead'); const hr = el(doc, 'tr');
-  for (const label of ['지표', '이 기업', '방향', '왜 보는가']) { const th = el(doc, 'th', label); th.scope = 'col'; hr.append(th); }
+  for (const label of ['지표', '이 기업', '방향', '보는 이유']) { const th = el(doc, 'th', label); th.scope = 'col'; hr.append(th); }
   head.append(hr); table.append(head);
   const body = el(doc, 'tbody');
   for (const row of read.rows) {

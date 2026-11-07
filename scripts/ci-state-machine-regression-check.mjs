@@ -337,4 +337,14 @@ this._aioKeepRunningAnswer = function (from, to) { return !!(from && to && this.
   pass('SM-15 server-data loads run one at a time');
 }
 
+// v59.74 SM-04b (integration review): the demand is the page's fetchLiveQuotes only if nothing replaces it later. A v20
+// wrapper in js/aio-ui.js reassigned it at DOMContentLoaded, called it with no symbols and returned undefined.
+{
+  const { readdirSync } = await import('node:fs');
+  const files = [...readdirSync(new URL('../js/', import.meta.url)).filter((f) => f.endsWith('.js')).map((f) => `js/${f}`), 'index.html'];
+  const offenders = files.filter((file) => /(?:^|[^.\w])(?:window\.)?fetchLiveQuotes\s*=(?!=)/m.test(readFileSync(new URL(`../${file}`, import.meta.url), 'utf8')));
+  assert.deepEqual(offenders, [], 'v59.74 SM-04b: fetchLiveQuotes is assigned only by src/data/quote-demand.js');
+  pass('SM-04b no legacy script replaces the quote demand seam');
+}
+
 console.log(JSON.stringify({ ok: true, gate: 'state-machine-regression', checks }));

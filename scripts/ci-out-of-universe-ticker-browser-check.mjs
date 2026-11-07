@@ -127,6 +127,12 @@ try {
       await page.evaluate(() => window.showTicker('BUFX'));
       const bufx = await page.waitForFunction(() => /Fixture Dynamic Buffer ETF/.test(document.getElementById('ticker-hero-fullname')?.textContent || ''), null, { timeout: 15000 }).then(() => true).catch(() => false);
       check(bufx, `${label}: an unregistered listed symbol must show its official listing name (v59.54)`, await page.evaluate(() => document.getElementById('ticker-hero-fullname')?.textContent || ''));
+      // v59.74 (integration review): the name stays after the symbol's own quote request re-renders the hero; a confirmed
+      // listing counts as known, which used to drop the cached name back to the letters about a second later.
+      await page.waitForFunction(() => !window.__aioQuoteDemand?.state().running, null, { timeout: 15000 }).catch(() => {});
+      await page.waitForTimeout(1500);
+      const bufxKept = await page.evaluate(() => document.getElementById('ticker-hero-fullname')?.textContent || '');
+      check(/Fixture Dynamic Buffer ETF/.test(bufxKept), `${label}: the listing name must survive the re-render after the symbol's quote request (v59.74)`, bufxKept);
       await page.evaluate(() => window.showTicker('UFPT'));
       await page.waitForFunction(() => document.getElementById('ticker-out-of-universe')?.dataset.onDemandState === 'ready', null, { timeout: 30000 });
       await layout(page, `${label}/ticker-ufpt`);

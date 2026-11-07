@@ -465,7 +465,7 @@ function renderThemeStrengthMap(doc, root, playbook, interpretation) {
   if (regime?.overall || scenario.items.length) {
     const tail = rows.filter((row) => row.wind?.lead === 'tail').length, head = rows.filter((row) => row.wind?.lead === 'head').length;
     const scenarioText = scenario.state === 'tie' ? `중심 시나리오가 ${withDirectionParticle(scenario.names.join('·'))} 동률` : scenario.items.length ? `중심 시나리오 ${scenario.names[0]}` : '';
-    parts.push(el(doc, 'p', `${regime?.overall ? `시장 상태 '${regime.overall}'` : '시장 상태 미확인'}${scenarioText ? `, ${scenarioText} — 테마 ${rows.length}개 중 ${WIND_LABELS.tail} ${tail}개, ${WIND_LABELS.head} ${head}개${rows.length - tail - head > 0 ? `, 나머지 ${rows.length - tail - head}개는 혼재이거나 영향이 작음` : ''}` : ''}.`, 'thp-strength-line'));
+    parts.push(el(doc, 'p', `${regime?.overall ? `시장 상태 '${regime.overall}'` : '시장 상태 미확인'}${scenarioText ? `, ${scenarioText} — 큰 테마 ${rows.length}개 중 ${WIND_LABELS.tail} ${tail}개, ${WIND_LABELS.head} ${head}개${rows.length - tail - head > 0 ? `, 나머지 ${rows.length - tail - head}개는 혼재이거나 영향이 작음` : ''}` : ''}.`, 'thp-strength-line'));
   }
   // v58.79 (layout over captions): the basis sentence became the box's hover; the 테마 시나리오 section's 기준과 판정 규칙 fold
   // spells the same stage rule for a reader without a pointer.
