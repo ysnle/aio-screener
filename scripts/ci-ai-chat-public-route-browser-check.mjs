@@ -19,9 +19,20 @@ try {
   await context.addInitScript(() => localStorage.clear());
   const page = await context.newPage();
   page.on('pageerror', (error) => errors.push(String(error)));
+  // v59.70 (integration QA): the answer orchestrator loads lazily beside the panel. A reply that finished before it loaded
+  // threw on a null parse ("reading 'plan'") and was shown as a 502 — 1 run in 3 without the pinned clock, 4 in 4 with it.
+  // The first page holds the orchestrator module until callSharedAi has started, so that order is replayed every run.
+  let releaseOrchestrator;
+  const orchestratorReleased = new Promise((resolveRelease) => { releaseOrchestrator = resolveRelease; });
+  let heldOrchestrator = 0;
   const routeFixture = async (route) => {
     const request = route.request();
     const url = request.url();
+    if (url.startsWith(localBase) && /\/answer-orchestrator[^/]*\.js$/.test(new URL(url).pathname)) {
+      heldOrchestrator += 1;
+      await orchestratorReleased;
+      return route.continue();
+    }
     if (url.startsWith(localBase) && new URL(url).pathname === '/public-config.json') {
       const config = JSON.parse(readFileSync(resolve(root, 'public-config.json'), 'utf8'));
       // P1421: fixture readiness is independent of the held deployment state.
@@ -67,12 +78,17 @@ try {
   await page.goto(`${localBase}/index.html`, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.waitForFunction(() => typeof window.callSharedAi === 'function' && typeof window._aioEnsureClaudeRoute === 'function' && typeof window.AIO_ARCH?.parseAIAnswerPlan === 'function', { timeout: 30000 });
 
-  const result = await page.evaluate(async () => {
+  const pendingResult = page.evaluate(async () => {
     localStorage.clear();
     await window.AIO.loadPublicConfig();
     const routeState = await window._aioEnsureClaudeRoute('');
     const config = window.AIO.getPublicConfig();
     const routeDisabled = !config?.ai?.workerUrl;
+    // The orchestrator is still held here: a null parse is the unavailable case, never a thrown TypeError.
+    const orchestratorBeforeAsk = !!window.AIO_ARCH.getAIOrchestrator?.();
+    let nullParse;
+    try { nullParse = { text: window._aioRunAIResponsePipeline('[AI_ANSWER_PLAN]{"schemaVersion":"answer-plan.v1","summary":"현재 주가 999 USD"}[/AI_ANSWER_PLAN]', { entrypoint: 'orchestrator-loading-fixture', streamPhase: 'complete', record: false })?.text }; } catch (error) { nullParse = { threw: String(error) }; }
+    window.__aioAskStarted = true;
     const streamed = routeDisabled ? null : await new Promise((resolveStream, rejectStream) => {
       window.callSharedAi('Answer briefly.', [{ role: 'user', content: '공용 경로 확인' }], () => {}, (raw, completion) => {
         resolveStream({ raw, completion, published: window._aioRunAIResponsePipeline(raw, { entrypoint: 'public-route-browser-fixture', streamPhase: 'complete', completion, record: false }) });
@@ -101,8 +117,12 @@ try {
         schemaVersion: 'answer-plan.v1', summary: '현재 주가 999 USD', claims: [], sections: [], citations: []
       }) + '[/AI_ANSWER_PLAN]', { entrypoint: 'publication-unavailable-fixture', questionPlan, streamPhase: 'complete', record: false });
     } finally { Object.defineProperty(window, 'AIO_ARCH', architecture); }
-    return { config, routeState, routeDisabled, streamed, unbound, invalid, truncated, partial, unavailable };
+    return { config, routeState, routeDisabled, streamed, unbound, invalid, truncated, partial, unavailable, orchestratorBeforeAsk, nullParse };
   });
+  // Release the held orchestrator module only once callSharedAi has been called (the stream itself answers at once).
+  await page.waitForFunction(() => window.__aioAskStarted === true, null, { timeout: 30000 }).catch(() => {});
+  releaseOrchestrator();
+  const result = await pendingResult;
 
   // v59.70 (D6): the browser news translation is deleted; headlines arrive in Korean from the producer (titleKo).
   const browserTranslation = await page.evaluate(() => ['autoTranslateNews', 'freeTranslateNews', '_gtBatchTranslate'].filter((name) => typeof window[name] === 'function'));
@@ -162,6 +182,8 @@ try {
   assert('truncated JSON recovers prose and reports limitation', result.truncated?.blocked === false && /공급과 수요/.test(result.truncated.text) && result.truncated?.limitations?.includes('model-output-truncated'));
   assert('partial JSON never exposes control payload', result.partial?.text === 'AI 답변을 구성하고 근거를 검증하는 중…' && !/AI_ANSWER_PLAN/.test(result.partial.text));
   assert('P1519 unavailable publication cannot expose raw numbers or control JSON', result.unavailable?.text && !/999|AI_ANSWER_PLAN/.test(result.unavailable.text));
+  assert('v59.70 the ask started while the orchestrator module was held (the load order is replayed)', heldOrchestrator >= 1 && result.orchestratorBeforeAsk === false);
+  assert('v59.70 a reply published before the orchestrator loads is the safe fallback, not a thrown null parse', !result.nullParse?.threw && typeof result.nullParse?.text === 'string' && !/999|AI_ANSWER_PLAN/.test(result.nullParse.text));
   assert('no browser runtime errors', errors.length === 0);
   if (failures.length) throw new Error(`${failures.join(' | ')}\n${JSON.stringify({ result, publicRequest, observedRequests, errors }, null, 2)}`);
   console.log(JSON.stringify({ ok: true, route: result.routeDisabled ? 'disabled' : result.routeState.target.source, worker: result.config.ai.workerUrl, maxTokens: publicRequest?.body?.max_output_tokens || null, workerRequestCount: observedRequests.length, partialClaimDegradation: true, truncatedRecovery: true, errors }));

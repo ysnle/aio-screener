@@ -1138,7 +1138,7 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
   // P1245 (05 A05): 이 스트림의 불변 요청 id. 재시도는 같은 요청 객체를 재사용하므로 id도 안정적이고,
   // 수집기·진단·evidence floor는 모두 이 값만 쓰고 공유 전역을 읽지 않는다.
   var _streamRequestId = opts.requestId ? String(opts.requestId) : null;
-  if (typeof _aioAIRequestStream !== 'function' && window._aioAIPipelineReady) await window._aioAIPipelineReady; // v59.15: the pipeline module loads after boot
+  await (window._aioAIAnswerReady ? window._aioAIAnswerReady() : window._aioAIPipelineReady); // v59.15 pipeline + v59.70 answer orchestrator load after boot (src/app/compatibility-globals.js)
   var _streamState = _aioAIRequestStream(_streamRequestId);
   var _chatSignal = opts.signal;
   try { _aioThrowIfChatAborted(_chatSignal); } catch (abortBeforeRoute) {

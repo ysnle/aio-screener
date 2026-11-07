@@ -99,6 +99,14 @@ export function installCompatibilityGlobals(root = globalThis) {
   installSharedRoute(window);
   // v59.15 roadmap 11: the AI request/response pipeline (moved from js/aio-chat.js) loads right after boot, outside the boot set; translation and the chat send wait for it.
   window._aioAIPipelineReady = import('../ai/response/request-pipeline.js').then((m) => { m.installAIRequestPipeline(window, document); }).catch(() => {});
+  // v59.70 (integration QA): a shared-AI reply is published through the answer orchestrator, which loads lazily beside the
+  // panel (P4). A stream that finished before it loaded read a null parse ("reading 'plan'") and showed as a 502
+  // "AI 서버를 일시적으로 사용할 수 없습니다", so js/aio-chat.js callSharedAi waits for both. The load promise is cached.
+  window._aioAIAnswerReady = () => {
+    const arch = window.AIO_ARCH;
+    const orchestrator = arch?.getAIOrchestrator?.() || typeof arch?.loadAIOrchestrator !== 'function' ? null : arch.loadAIOrchestrator().catch(() => null);
+    return Promise.all([window._aioAIPipelineReady, orchestrator]);
+  };
   // v59.14 (roadmap 11): boot-time helpers that only lived in js/aio-chat.js — the promise bound, the free-tier call
   // counters, the question ticker scan and the desktop sidebar toggle (its saved state is restored here).
   window._withTimeout = withTimeout;

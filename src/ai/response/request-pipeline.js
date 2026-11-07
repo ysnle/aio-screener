@@ -276,9 +276,11 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     var researchRequired = meta.researchRequired === true || !!(questionPlan && questionPlan.researchDecision && questionPlan.researchDecision.requirement === 'REQUIRED');
     var isPartialStream = meta.streamPhase === 'partial';
     var raw = String(rawText == null ? '' : rawText);
-    var answerPlanAudit = (typeof window !== 'undefined' && window.AIO_ARCH && typeof window.AIO_ARCH.parseAIAnswerPlan === 'function')
-      ? window.AIO_ARCH.parseAIAnswerPlan(raw, { questionPlan: questionPlan, currentSensitive: currentSensitive })
-      : { status: 'unavailable', plan: null, audit: { ok: false, errors: ['orchestrator-unavailable'] } };
+    // v59.70 (integration QA): AIO_ARCH.parseAIAnswerPlan answers null until the lazy orchestrator has loaded (P4);
+    // that is the unavailable case too, not a parse result to dereference.
+    var answerPlanAudit = (typeof window !== 'undefined' && window.AIO_ARCH && typeof window.AIO_ARCH.parseAIAnswerPlan === 'function'
+      && window.AIO_ARCH.parseAIAnswerPlan(raw, { questionPlan: questionPlan, currentSensitive: currentSensitive }))
+      || { status: 'unavailable', plan: null, audit: { ok: false, errors: ['orchestrator-unavailable'] } };
     var bindingEvidence = _aioCollectAIClaimEvidence(meta);
     var bindingIds = new Set(bindingEvidence.filter(_aioEvidenceCanPublish).map(_aioAIClaimEvidenceId));
     var publishablePlan = _aioBuildPublishableAnswerPlan(answerPlanAudit.plan, bindingEvidence, currentSensitive);
