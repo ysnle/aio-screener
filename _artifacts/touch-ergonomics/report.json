@@ -1,7 +1,7 @@
 {
   "release": "v57.81",
   "status": "PASS",
-  "seconds": 18,
+  "seconds": 20,
   "observations": [
     {
       "device": "ipad820",
@@ -12,14 +12,6 @@
       "text": []
     },
     {
-      "device": "ipad820",
-      "surface": "signal",
-      "inputs": [],
-      "nav": [],
-      "targets": [],
-      "text": []
-    },
-    {
       "device": "phone390",
       "surface": "home",
       "inputs": [],
@@ -29,7 +21,7 @@
     },
     {
       "device": "ipad820",
-      "surface": "breadth",
+      "surface": "signal",
       "inputs": [],
       "nav": [],
       "targets": [],
@@ -37,7 +29,7 @@
     },
     {
       "device": "ipad820",
-      "surface": "sentiment",
+      "surface": "breadth",
       "inputs": [],
       "nav": [],
       "targets": [],
@@ -53,7 +45,7 @@
     },
     {
       "device": "ipad820",
-      "surface": "briefing",
+      "surface": "sentiment",
       "inputs": [],
       "nav": [],
       "targets": [],
@@ -85,6 +77,14 @@
     },
     {
       "device": "ipad820",
+      "surface": "briefing",
+      "inputs": [],
+      "nav": [],
+      "targets": [],
+      "text": []
+    },
+    {
+      "device": "ipad820",
       "surface": "technical",
       "inputs": [],
       "nav": [],
@@ -100,6 +100,14 @@
       "text": []
     },
     {
+      "device": "phone390",
+      "surface": "macro",
+      "inputs": [],
+      "nav": [],
+      "targets": [],
+      "text": []
+    },
+    {
       "device": "ipad820",
       "surface": "macro",
       "inputs": [],
@@ -109,7 +117,7 @@
     },
     {
       "device": "phone390",
-      "surface": "macro",
+      "surface": "fxbond",
       "inputs": [],
       "nav": [],
       "targets": [],
@@ -125,22 +133,6 @@
     },
     {
       "device": "ipad820",
-      "surface": "fundamental",
-      "inputs": [],
-      "nav": [],
-      "targets": [],
-      "text": []
-    },
-    {
-      "device": "phone390",
-      "surface": "fxbond",
-      "inputs": [],
-      "nav": [],
-      "targets": [],
-      "text": []
-    },
-    {
-      "device": "phone390",
       "surface": "fundamental",
       "inputs": [],
       "nav": [],
@@ -150,6 +142,14 @@
     {
       "device": "ipad820",
       "surface": "themes",
+      "inputs": [],
+      "nav": [],
+      "targets": [],
+      "text": []
+    },
+    {
+      "device": "phone390",
+      "surface": "fundamental",
       "inputs": [],
       "nav": [],
       "targets": [],
@@ -212,6 +212,14 @@
       "text": []
     },
     {
+      "device": "ipad820",
+      "surface": "principles",
+      "inputs": [],
+      "nav": [],
+      "targets": [],
+      "text": []
+    },
+    {
       "device": "phone390",
       "surface": "ticker",
       "inputs": [],
@@ -221,7 +229,7 @@
     },
     {
       "device": "ipad820",
-      "surface": "principles",
+      "surface": "masters",
       "inputs": [],
       "nav": [],
       "targets": [],
@@ -229,7 +237,7 @@
     },
     {
       "device": "ipad820",
-      "surface": "masters",
+      "surface": "atlas",
       "inputs": [],
       "nav": [],
       "targets": [],
@@ -245,7 +253,7 @@
     },
     {
       "device": "ipad820",
-      "surface": "atlas",
+      "surface": "guide",
       "inputs": [],
       "nav": [],
       "targets": [],
@@ -254,14 +262,6 @@
     {
       "device": "phone390",
       "surface": "principles",
-      "inputs": [],
-      "nav": [],
-      "targets": [],
-      "text": []
-    },
-    {
-      "device": "ipad820",
-      "surface": "guide",
       "inputs": [],
       "nav": [],
       "targets": [],
@@ -284,6 +284,14 @@
       "text": []
     },
     {
+      "device": "ipad820",
+      "surface": "screener",
+      "inputs": [],
+      "nav": [],
+      "targets": [],
+      "text": []
+    },
+    {
       "device": "phone390",
       "surface": "guide",
       "inputs": [],
@@ -293,39 +301,7 @@
     },
     {
       "device": "ipad820",
-      "surface": "screener",
-      "inputs": [],
-      "nav": [],
-      "targets": [],
-      "text": []
-    },
-    {
-      "device": "ipad820",
       "surface": "charts",
-      "inputs": [],
-      "nav": [],
-      "targets": [],
-      "text": []
-    },
-    {
-      "device": "phone390",
-      "surface": "screener",
-      "inputs": [],
-      "nav": [],
-      "targets": [],
-      "text": []
-    },
-    {
-      "device": "phone390",
-      "surface": "charts",
-      "inputs": [],
-      "nav": [],
-      "targets": [],
-      "text": []
-    },
-    {
-      "device": "phone390",
-      "surface": "drawer",
       "inputs": [],
       "nav": [],
       "targets": [],
@@ -341,6 +317,22 @@
     },
     {
       "device": "phone390",
+      "surface": "screener",
+      "inputs": [],
+      "nav": [],
+      "targets": [],
+      "text": []
+    },
+    {
+      "device": "phone390",
+      "surface": "charts",
+      "inputs": [],
+      "nav": [],
+      "targets": [],
+      "text": []
+    },
+    {
+      "device": "ipad820",
       "surface": "glossary",
       "inputs": [],
       "nav": [],
@@ -348,7 +340,15 @@
       "text": []
     },
     {
-      "device": "ipad820",
+      "device": "phone390",
+      "surface": "drawer",
+      "inputs": [],
+      "nav": [],
+      "targets": [],
+      "text": []
+    },
+    {
+      "device": "phone390",
       "surface": "glossary",
       "inputs": [],
       "nav": [],

@@ -24,7 +24,7 @@ export function branchSupport(branch) {
 }
 const SUPPORT_WORDS = Object.freeze({ backed: '지표가 뒷받침', partial: '일부만 맞음', unbacked: '지표로는 아직 확인 안 됨', unknown: '판단 보류' });
 
-function lessonFrame(frames, lessons) {
+export function lessonFrame(frames, lessons) {
   const byId = new Map((lessons || []).map((lesson) => [lesson.id, lesson]));
   const frame = (frames || []).map((id) => byId.get(id)).find((lesson) => lesson && Array.isArray(lesson.steps) && lesson.steps.length);
   return frame ? { id: frame.id, title: frame.title, steps: frame.steps.slice(0, 4), counterclaim: frame.counterclaim || null } : null;

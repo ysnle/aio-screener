@@ -5,7 +5,7 @@
 // no relayed post text is shown (owner 2026-11-01).
 import { el } from './dom.js';
 import { frameHead, markFrame } from './section-frame.js';
-import { buildNarrativeCards } from '../../domain/narrative/narrative-cards.js';
+import { buildNarrativeCards, lessonFrame } from '../../domain/narrative/narrative-cards.js';
 import { MARKET_DAY, refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { NARRATIVE_BY_ID } from '../../domain/narrative/narratives.js';
 
@@ -70,16 +70,27 @@ function storyItem(doc, card) {
   fold.append(el(doc, 'summary', '근거·시나리오·대응 보기'));
   if (card.question) fold.append(el(doc, 'p', `질문: ${card.question}`, 'mk-narr__question'));
   fold.append(el(doc, 'p', `관심: ${card.attention}${card.movers.length ? ` · 헤드라인이 이 이야기를 다룬 급등락 종목 ${card.movers.join(', ')}` : ''}`, 'mk-narr__attention'));
-  if (card.frame) {
-    fold.append(el(doc, 'p', `읽는 틀 — ${card.frame.title}`, 'event-brief__sub'), el(doc, 'p', card.frame.steps.join(' → '), 'mk-narr__frame'));
-    if (card.frame.counterclaim) fold.append(el(doc, 'p', `반론: ${card.frame.counterclaim}`, 'mk-narr__frame is-counter'));
-  }
+  // v59.71 (boot gate): the reading frame comes from learning-core, whose research packets are ~440 KB; it loads when a
+  // reader opens the fold, not with the screen (the post-boot lazy budget is 350 KB).
+  const frameSlot = el(doc, 'div', null, 'mk-narr__frame-slot');
+  fold.append(frameSlot);
+  fold.addEventListener('toggle', () => {
+    if (!fold.open || frameSlot.dataset.loaded) return;
+    frameSlot.dataset.loaded = '1';
+    loadLessons().then((lessons) => {
+      const frame = lessonFrame(NARRATIVE_BY_ID[card.id]?.frames, lessons);
+      if (!frame) return;
+      frameSlot.append(el(doc, 'p', `읽는 틀 — ${frame.title}`, 'event-brief__sub'), el(doc, 'p', frame.steps.join(' → '), 'mk-narr__frame'));
+      if (frame.counterclaim) frameSlot.append(el(doc, 'p', `반론: ${frame.counterclaim}`, 'mk-narr__frame is-counter'));
+    });
+  });
   for (const scenario of card.scenarios) fold.append(scenarioBlock(doc, scenario));
   item.append(fold);
   return item;
 }
 
 let lessonsPromise = null;
+const loadLessons = () => (lessonsPromise ||= import('../../domain/knowledge/learning-core.js').then((mod) => mod.LESSONS || []).catch(() => []));
 export function renderMarketNarratives({ documentRef: doc, root, interpretation }) {
   const story = doc?.getElementById('regime-story');
   const axes = doc?.querySelector?.('#page-signal .mk-axes');
@@ -95,13 +106,12 @@ export function renderMarketNarratives({ documentRef: doc, root, interpretation 
   const again = () => renderMarketNarratives({ documentRef: doc, root, interpretation });
   const day = root?.[MARKET_DAY.key];
   if (!day) { refreshSharedArtifact(root, MARKET_DAY).then(({ changed }) => { if (changed) again(); }).catch(() => {}); return section; }
-  lessonsPromise ||= import('../../domain/knowledge/learning-core.js').then((mod) => mod.LESSONS || []).catch(() => []);
-  lessonsPromise.then((lessons) => {
+  {
     const key = [day.narratives?.at, interpretation?.crossroads?.asOf, interpretation?.crossroads?.leadId].join('|');
-    if (section.dataset.signature === key && section.childElementCount) return;
-    const model = buildNarrativeCards({ narratives: day.narratives, crossroads: interpretation?.crossroads, lessons });
+    if (section.dataset.signature === key && section.childElementCount) return section;
+    const model = buildNarrativeCards({ narratives: day.narratives, crossroads: interpretation?.crossroads });
     section.hidden = !model.available;
-    if (!model.available) { section.replaceChildren(); return; }
+    if (!model.available) { section.replaceChildren(); return section; }
     const cards = model.cards.map((card) => ({ ...card, total: (day.narratives.stories.find((row) => row.id === card.id) || {}).telegramCount || 0,
       recent: (day.narratives.stories.find((row) => row.id === card.id) || {}).recentCount || 0 }));
     const at = new Date(Date.parse(model.at) + 9 * 3600000);
@@ -127,6 +137,6 @@ export function renderMarketNarratives({ documentRef: doc, root, interpretation 
     section.replaceChildren(...parts);
     markFrame(section, 'signal.narratives');
     section.dataset.signature = key;
-  });
+  }
   return section;
 }
