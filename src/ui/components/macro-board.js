@@ -16,7 +16,7 @@ import { renderNextSteps } from './page-flow.js';
 import { readMarketRegime } from './market-regime.js';
 import { latestMarketInterpretation, marketInterpretation } from '../../data/selectors/interpretation.js';
 import { buildMacroBoard } from '../../domain/macro/indicators.js';
-import { buildRatesFx, sessionPointBack, signed, tenYearClose, TEN_YEAR_SOURCE } from '../../domain/macro/rates-fx.js';
+import { buildRatesFx, fxSideWord, sessionPointBack, signed, tenYearClose, TEN_YEAR_SOURCE } from '../../domain/macro/rates-fx.js';
 import { createTrendChart } from './trend-chart.js';
 import { buildLiquidityGrowthGroups } from '../../domain/macro/liquidity-growth.js';
 import { AXIS_DEEP_DIVES, MACRO_AXIS_DEEP_DIVES, MACRO_GROUP_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
@@ -1014,7 +1014,8 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
           chipOff: align.status !== 'aligned',
           // P1725: the day change here is close-to-close on the FX trading day (New York evening); the live quote strip's
           // 전일 대비 is measured from the 08:00 KST cut, so the two can differ and the line says which this is.
-          lines: card.available ? [[card.day == null ? null : `직전 거래일 종가 대비 ${signed(card.day, 2, '%')}`, card.change20 == null ? null : `20거래일 ${signed(card.change20, 1, '%')}${card.id === 'usdkrw' ? (card.change20 > 0 ? '(원화 약세)' : card.change20 < 0 ? '(원화 강세)' : '') : card.id === 'usdjpy' ? (card.change20 > 0 ? '(엔 약세)' : card.change20 < 0 ? '(엔 강세)' : '') : ''}`].filter(Boolean).join(', ')] : ['기록 수집 중'],
+          // v59.70 (re-review N3): one precision on the card, and a direction word only for a change that is not 0.0% as shown.
+          lines: card.available ? [[card.day == null ? null : `직전 거래일 종가 대비 ${signed(card.day, 1, '%')}`, card.change20 == null ? null : `20거래일 ${signed(card.change20, 1, '%')}${fxSideWord(card.id, card.change20)}`].filter(Boolean).join(', ')] : ['기록 수집 중'],
           series: card.series,
           format: (value) => `${value.toFixed(card.digits === 1 ? 0 : 1)}${card.unit || ''}`,
           note: card.id === 'usdjpy' ? model.carry.text : card.id === 'usdkrw' ? '원/달러가 오르면 원화 약세입니다. 일별 값은 뉴욕 외환 거래일 마감 무렵 종가라, 실시간 시세의 전일 대비(한국 시간 오전 8시 기준)와 기준 시각이 다릅니다.' : '주요 6개 통화 대비 달러 가치입니다.'

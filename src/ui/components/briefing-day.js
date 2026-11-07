@@ -3,6 +3,7 @@
 // the reports behind a story, the smaller stories and the big moves nothing explains open in folds.
 import { MARKET_DAY, refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { buildDayAccount } from '../../domain/briefing/day-account.js';
+import { oneSessionDay } from '../../domain/market-day/one-session.js';
 import { signedText } from '../../domain/shared/number.js';
 import { el } from './dom.js';
 import { storyWeight } from './story-weight.js';
@@ -36,7 +37,7 @@ export function renderBriefingDay({ documentRef: doc, root }) {
   if (!section) return;
   const day = root?.[MARKET_DAY.key] || null;
   if (root && !day) refreshSharedArtifact(root, MARKET_DAY).then(({ changed }) => { if (changed) renderBriefingDay({ documentRef: doc, root }); }).catch(() => {});
-  const account = buildDayAccount(day);
+  const account = buildDayAccount(oneSessionDay(day, root?._aioHistory)); // v59.70 (re-review 7·8)
   section.hidden = !account.available;
   if (!account.available) return;
   const key = `${day.generatedAt}`;

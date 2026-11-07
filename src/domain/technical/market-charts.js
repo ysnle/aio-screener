@@ -5,6 +5,7 @@
 // support and resistance from swing points (a close that is the lowest/highest of five sessions on each side), the
 // double top and the six-month support from index-levels.js. Breadth enters only where it changes the reading of a
 // trend (owner: "시장 폭만 본다고 해서 의미가 없듯이"). No target, entry or stop is ever named.
+import { usThenKorea } from '../market/session-time.js';
 import { readNumber } from '../shared/number.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { sessionCloses, indexLevel } from '../market/index-levels.js';
@@ -142,7 +143,8 @@ export function indexChartReadings(history) {
 export function coreStockRows({ screener = null, indexWeights = [], day = null, universe = [] } = {}) {
   const names = new Map((Array.isArray(universe) ? universe : []).map((item) => [item.sym, item.name]));
   const top = (Array.isArray(indexWeights) ? indexWeights : []).slice().sort((a, b) => (b.weight || 0) - (a.weight || 0)).slice(0, 10).map((row) => String(row.sym).replace('.', '-'));
-  const movers = (day?.facts || []).filter((fact) => fact.kind === 'stock-move' && ['lead', 'major'].includes(fact.rank)).map((fact) => fact.subjects[0]);
+  // v59.70 (re-review N7): the same US → Korea order as 오늘's names, no third market.
+  const movers = usThenKorea((day?.facts || []).filter((fact) => fact.kind === 'stock-move' && ['lead', 'major'].includes(fact.rank)), (fact) => String(fact.subjects?.[0] || '')).map((fact) => fact.subjects[0]);
   const rows = [];
   for (const sym of [...new Set([...top, ...movers])]) {
     const row = screener?.data?.[sym];

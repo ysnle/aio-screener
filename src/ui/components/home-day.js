@@ -4,13 +4,14 @@
 // the two screens cannot disagree on what mattered.
 import { MARKET_DAY, refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { buildDayAccount } from '../../domain/briefing/day-account.js';
+import { oneSessionDay } from '../../domain/market-day/one-session.js';
 import { signedText } from '../../domain/shared/number.js';
 import { el } from './dom.js';
 import { storyWeight } from './story-weight.js';
 import { frameHead } from './section-frame.js';
 import { pickImportantNews } from '../../domain/briefing/news-picks.js';
 import { groupNewsStories } from '../../domain/news/stories.js';
-import { listingMarketOfSymbol } from '../../domain/market/session-time.js';
+import { usThenKorea } from '../../domain/market/session-time.js';
 
 const RANK_ORDER = Object.freeze({ lead: 0, major: 1, minor: 2, context: 3 });
 
@@ -18,11 +19,9 @@ const RANK_ORDER = Object.freeze({ lead: 0, major: 1, minor: 2, context: 3 });
 export function keyStocks(day, limit = 8) {
   const facts = Array.isArray(day?.facts) ? day.facts : [];
   const seen = new Set();
-  // v59.70 (screen review 33): US listings lead, Korean ones follow (US first, AGENTS); a third market's line (285A.T) is not
-  // one of 오늘's names.
-  const market = (sym) => ({ US: 0, KR: 1 })[listingMarketOfSymbol(sym)] ?? 2;
-  return facts.filter((fact) => fact.kind === 'stock-move' && market(String(fact.subjects?.[0] || '')) < 2 && (['lead', 'major'].includes(fact.rank) || Math.abs(fact.indexBp || 0) >= 8))
-    .sort((a, b) => market(a.subjects[0]) - market(b.subjects[0]) || (RANK_ORDER[a.rank] ?? 9) - (RANK_ORDER[b.rank] ?? 9) || (b.materiality || 0) - (a.materiality || 0))
+  // v59.70 (screen review 33): US listings lead, Korean ones follow; a third market's line is not one of 오늘's names.
+  return usThenKorea(facts.filter((fact) => fact.kind === 'stock-move' && (['lead', 'major'].includes(fact.rank) || Math.abs(fact.indexBp || 0) >= 8)),
+    (fact) => String(fact.subjects?.[0] || ''), (a, b) => (RANK_ORDER[a.rank] ?? 9) - (RANK_ORDER[b.rank] ?? 9) || (b.materiality || 0) - (a.materiality || 0))
     .filter((fact) => { const sym = fact.subjects?.[0]; if (!sym || seen.has(sym)) return false; seen.add(sym); return true; })
     .slice(0, limit).map((fact) => ({ sym: fact.subjects[0], label: fact.label, change: fact.change, indexBp: fact.indexBp ?? null }));
 }
@@ -45,7 +44,7 @@ export function renderHomeDay({ documentRef: doc, root, store = null }) {
   if (!section) return;
   const day = root?.[MARKET_DAY.key] || null;
   if (root && !day) refreshSharedArtifact(root, MARKET_DAY).then(({ changed }) => { if (changed) renderHomeDay({ documentRef: doc, root, store }); }).catch(() => {});
-  const account = buildDayAccount(day);
+  const account = buildDayAccount(oneSessionDay(day, root?._aioHistory)); // v59.70 (re-review 7·8)
   section.hidden = !account.available;
   if (!account.available) return;
   // The news loads after the ledger on a cold start, so the headlines are part of the key.

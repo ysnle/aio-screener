@@ -29,6 +29,14 @@ export function listingMarketOfSymbol(symbol) {
   return intlSuffixOf(symbol) ? 'INTL' : 'US';
 }
 
+// v59.70 (screen review 33, re-review N7): every 'moved today' list of names — 오늘, 브리핑's unexplained moves, 기술적 분석's
+// movers — puts US listings first, Korean ones next (US first, AGENTS), and leaves a third market's line (285A.T) out.
+const LISTING_ORDER = Object.freeze({ US: 0, KR: 1 });
+export function usThenKorea(list, symOf, then = () => 0) {
+  const rank = (item) => LISTING_ORDER[listingMarketOfSymbol(symOf(item))];
+  return (Array.isArray(list) ? list : []).filter((item) => rank(item) != null).sort((a, b) => rank(a) - rank(b) || then(a, b));
+}
+
 export function timeZoneForSymbol(symbol) {
   const suffix = intlSuffixOf(symbol);
   return suffix ? INTL_LISTING_TIME_ZONE[suffix] : timeZoneForMarket(marketOfSymbol(symbol));

@@ -4,7 +4,7 @@
 // closes only; daily changes are blurred because the two closes are stamped at different hours); the dollar's share is that slope times the dollar index's 20-session move, the rest is the Korea share.
 // It is a split of one past move, not a forecast, and the slope changes over time (the fold says how well it fit).
 import { buildCloseSeries, closeBasis, sessionPointBack } from '../market/close-series.js';
-import { MARKET_WINDOWS } from '../market/market-windows.js';
+import { MARKET_WINDOWS, closeChange } from '../market/market-windows.js';
 import { signedText } from '../shared/number.js';
 
 export const KRW_RULE = Object.freeze({ sessions: MARKET_WINDOWS.rule, fitSessions: 250, step: MARKET_WINDOWS.week, minFit: 30, quietPct: 1 });
@@ -49,7 +49,10 @@ export function buildKrwDecomposition(history = [], { through = undefined } = {}
     const last = series.at(-1); const back = sessionPointBack(series, n);
     return last && back && back.value > 0 ? { from: back.date, to: last.date, pct: pct(last.value, back.value) } : null;
   };
-  const krw = move('usdkrw'); const dxy = move('dxy'); const kospi = move('kospi');
+  // v59.70 (re-review N2): the KOSPI leg is its own 20 Korean sessions, the one KOSPI 20-session change 매크로 and 시장 상태
+  // quote (-19.3%); counted in the won's US sessions it read -18.6% for the same label.
+  const krw = move('usdkrw'); const dxy = move('dxy'); const kospiChange = closeChange(history, 'kospi', n, { through: basis });
+  const kospi = kospiChange ? { pct: kospiChange.pct } : null;
   if (!krw || !dxy) return { available: false, reason: '원/달러와 달러 지수의 20거래일 변화를 계산하지 못했습니다.' };
   const start = { date: krw.from }; const end = { date: krw.to };
   const krwMove = krw.pct;
@@ -75,12 +78,12 @@ export function buildKrwDecomposition(history = [], { through = undefined } = {}
   }[driver];
   let stocks = '';
   if (kospiMove != null) {
-    if (koreaPart >= 1 && kospiMove < 0) stocks = `같은 기간 코스피 ${signed(kospiMove)} — 원화 고유 약세와 주가 약세가 겹쳐 외국인 이탈 가능성을 확인할 구간입니다.`;
-    else if (koreaPart <= -1 && kospiMove > 0) stocks = `같은 기간 코스피 ${signed(kospiMove)} — 원화 강세와 주가 강세가 겹쳐 외국인 유입 쪽 그림입니다.`;
-    else if (koreaPart <= -1 && kospiMove <= -5) stocks = `같은 기간 코스피 ${signed(kospiMove)} — 원화는 강했는데 주가는 크게 내려, 환율이 하락의 이유는 아닙니다. 하락의 원인은 업종과 실적 쪽에서 찾습니다.`;
-    else if (koreaPart >= 1 && kospiMove >= 5) stocks = `같은 기간 코스피 ${signed(kospiMove)} — 원화가 약한데도 주가가 올라, 환율 부담보다 다른 힘이 컸습니다.`;
-    else if (Math.abs(koreaPart) < 1 && Math.abs(kospiMove) >= 5) stocks = `같은 기간 코스피 ${signed(kospiMove)} — 원화가 크게 흔들리지 않아 환율은 이 움직임의 이유가 아닙니다.`;
-    else stocks = `같은 기간 코스피는 ${signed(kospiMove)}입니다.`;
+    if (koreaPart >= 1 && kospiMove < 0) stocks = `코스피 ${n}거래일 ${signed(kospiMove)} — 원화 고유 약세와 주가 약세가 겹쳐 외국인 이탈 가능성을 확인할 구간입니다.`;
+    else if (koreaPart <= -1 && kospiMove > 0) stocks = `코스피 ${n}거래일 ${signed(kospiMove)} — 원화 강세와 주가 강세가 겹쳐 외국인 유입 쪽 그림입니다.`;
+    else if (koreaPart <= -1 && kospiMove <= -5) stocks = `코스피 ${n}거래일 ${signed(kospiMove)} — 원화는 강했는데 주가는 크게 내려, 환율이 하락의 이유는 아닙니다. 하락의 원인은 업종과 실적 쪽에서 찾습니다.`;
+    else if (koreaPart >= 1 && kospiMove >= 5) stocks = `코스피 ${n}거래일 ${signed(kospiMove)} — 원화가 약한데도 주가가 올라, 환율 부담보다 다른 힘이 컸습니다.`;
+    else if (Math.abs(koreaPart) < 1 && Math.abs(kospiMove) >= 5) stocks = `코스피 ${n}거래일 ${signed(kospiMove)} — 원화가 크게 흔들리지 않아 환율은 이 움직임의 이유가 아닙니다.`;
+    else stocks = `코스피는 ${n}거래일 ${signed(kospiMove)}입니다.`;
   }
   return {
     available: true, from: start.date, to: end.date, sessions: n,
