@@ -29,7 +29,8 @@ function storyRendererOr(onReady) {
   storyRendererLoad.then(onReady, () => {});
   return null;
 }
-import { requestCompanyStory, companyStoryFor, COMPANY_PROFILE_INDEX } from '../../data/company-profiles.js';
+import { requestCompanyStory, companyStoryFor, companySideArtifact, COMPANY_PROFILE_INDEX } from '../../data/company-profiles.js';
+import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { entityFundamentalsState } from '../../domain/content/data-state.js';
 import { renderDataState } from '../components/data-state.js';
 import { finiteNumber as finite, signedText, usdKoreanText } from '../../domain/shared/number.js';
@@ -233,10 +234,18 @@ function renderSummaryIdentity(documentRef, root, state) {
   if (story && renderer) {
     const earnings = root?.[EARNINGS_CALENDAR.key]?.earnings || [];
     // The stale note depends on this symbol's report rows (date and actuals), not on how many rows the calendar has.
-    const signature = `${id}|${story.researchedAt}|${earnings.filter((row) => String(row?.symbol || '').toUpperCase() === id).map((row) => `${row.date}:${row.epsActual ?? row.revenueActual ?? ''}`).join(',')}`;
+    // v59.74: the company graph and the 산업 지도 text arrive once per tab; the story repaints when each lands.
+    const again = () => { if (String(root?._currentTickerId || '').toUpperCase() === id) renderSummaryIdentity(documentRef, root, state); };
+    const graph = companySideArtifact(root, 'graph', again);
+    const industry = companySideArtifact(root, 'industry', again);
+    const signature = `${id}|${story.researchedAt}|${graph ? 'g' : ''}${industry ? 'i' : ''}|${earnings.filter((row) => String(row?.symbol || '').toUpperCase() === id).map((row) => `${row.date}:${row.epsActual ?? row.revenueActual ?? ''}`).join(',')}`;
     if (profileNode.dataset.storySignature !== signature) {
+      // A repaint keeps the folds the reader opened (matched by their summary text).
+      const opened = new Set([...profileNode.querySelectorAll('details[open] > summary')].map((node) => node.textContent));
       profileNode.replaceChildren(title);
-      renderer.renderCompanyStory(documentRef, profileNode, { profile: story, earnings, peers: root?.[COMPANY_PROFILE_INDEX.key]?.profiles || [], openTicker: (symbol) => root?.showTicker?.(symbol) });
+      renderer.renderCompanyStory(documentRef, profileNode, { profile: story, earnings, peers: root?.[COMPANY_PROFILE_INDEX.key]?.profiles || [], openTicker: (symbol) => root?.showTicker?.(symbol), graph, industry,
+        openLibrary: (domain) => navigateKnowledgeRoute({ root, page: 'atlas', params: { mode: 'taxonomy', domain, view: 'domain' } }) });
+      for (const summary of profileNode.querySelectorAll('details > summary')) if (opened.has(summary.textContent)) summary.parentElement.open = true;
       profileNode.dataset.storySignature = signature;
     }
     profileNode.hidden = false;

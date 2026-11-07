@@ -6,6 +6,7 @@ import { hasLeadingIsoDay } from '../../domain/shared/session-date.js';
 import {
   layerLabel, POSITION_LABEL, CASH_USE_LABEL, moneyText, amountScale, pctText, storyFreshness
 } from '../../domain/entity/company-story.js';
+import { renderDebate, renderCompanyFlow, renderUnderTheHood, renderIndustryFold } from './company-flow.js';
 
 const has = (value) => value != null && value !== '' && !(Array.isArray(value) && !value.length);
 const mdOf = (date) => { const m = String(date || '').match(/^\d{4}-(\d{2})-(\d{2})/); return m ? `${Number(m[1])}/${Number(m[2])}` : String(date || ''); };
@@ -129,9 +130,13 @@ function cashStack(doc, useOfCash) {
 
 /**
  * Paints the story into `host` (replacing its children after the heading the caller owns).
- * @param {{ profile: object, earnings?: Array, peers?: Array<{symbol:string,name?:string,layer?:string}>, openTicker?: Function }} ctx
+ * v59.74 (owner 2026-11-07): the face goes past what the company does — the issue the stock turns on (debate), the money
+ * and technology flow across the other researched companies (graph), the structures under the numbers (underTheHood) and
+ * the industry's own workings (산업 지도) — before the story's own steps, which stay in one fold below.
+ * @param {{ profile: object, earnings?: Array, peers?: Array<{symbol:string,name?:string,layer?:string}>, openTicker?: Function,
+ *   graph?: object|null, industry?: object|null, openLibrary?: Function }} ctx
  */
-export function renderCompanyStory(doc, host, { profile, earnings = [], peers = [], openTicker = null }) {
+export function renderCompanyStory(doc, host, { profile, earnings = [], peers = [], openTicker = null, graph = null, industry = null, openLibrary = null }) {
   if (!doc || !host || !profile) return null;
   const nodes = [];
   const ai = profile.aiChain || {};
@@ -145,6 +150,7 @@ export function renderCompanyStory(doc, host, { profile, earnings = [], peers = 
 
   // v59.70 (PLAN S13 ③): 회사 이야기 is the overview's third section and a fold — the one line stays on the face, the
   // money-flow visual opens first inside it.
+  for (const part of [renderDebate(doc, profile), renderCompanyFlow(doc, profile, graph, openTicker), renderUnderTheHood(doc, profile), renderIndustryFold(doc, profile, industry, openLibrary)]) if (part) nodes.push(part);
   const flow = moneyFlow(doc, profile);
   const more = fold(doc, '회사 이야기 — 돈이 들어오는 길, 숫자, 사업 구조, 실적, AI 위치, 경쟁, 전략', 'company-story-more');
   if (flow) more.append(el(doc, 'h3', '돈이 들어오는 길', 'company-story-h3'), flow);
