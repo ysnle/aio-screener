@@ -1,6 +1,220 @@
 {
-  "schemaVersion": "aio-freshness.v1",
-  "workflow": "refresh-screener.yml",
-  "writtenAt": null,
-  "artifacts": {}
+ "schemaVersion": "aio-freshness.v1",
+ "workflow": "refresh-screener.yml",
+ "writtenAt": "2026-11-07T06:46:11.958Z",
+ "artifacts": {
+  "screener.json": {
+   "expectedEveryMinutes": 360,
+   "staleAfterMinutes": 2880,
+   "workflow": "refresh-screener.yml",
+   "producer": "scripts/producer/screener.mjs",
+   "producedAt": "2026-11-07T06:46:07.058Z",
+   "checkedAt": "2026-11-07T06:46:11.958Z",
+   "basisSession": {
+    "US": "2026-11-06",
+    "KR": "2026-11-06"
+   },
+   "lastAttempt": {
+    "at": "2026-11-07T06:46:11.958Z",
+    "status": "updated"
+   }
+  },
+  "sec-fundamentals-summary.json": {
+   "expectedEveryMinutes": 360,
+   "staleAfterMinutes": 2880,
+   "workflow": "refresh-screener.yml",
+   "producer": "scripts/producer/screener.mjs",
+   "producedAt": "2026-11-07T06:39:35.623Z",
+   "checkedAt": "2026-11-07T06:46:11.958Z",
+   "basisSession": null,
+   "lastAttempt": {
+    "at": "2026-11-07T06:46:11.958Z",
+    "status": "updated"
+   }
+  },
+  "sec-fiscal-history.json": {
+   "expectedEveryMinutes": 360,
+   "staleAfterMinutes": 2880,
+   "workflow": "refresh-screener.yml",
+   "producer": "scripts/producer/screener.mjs",
+   "producedAt": "2026-11-07T06:39:35.623Z",
+   "checkedAt": "2026-11-07T06:46:11.958Z",
+   "basisSession": null,
+   "lastAttempt": {
+    "at": "2026-11-07T06:46:11.958Z",
+    "status": "updated"
+   }
+  },
+  "earnings-calendar.json": {
+   "expectedEveryMinutes": 360,
+   "staleAfterMinutes": 11520,
+   "workflow": "refresh-screener.yml",
+   "producer": "scripts/fetch-earnings-calendar.mjs",
+   "producedAt": "2026-11-07T06:40:45.617Z",
+   "checkedAt": "2026-11-07T06:46:11.958Z",
+   "basisSession": null,
+   "lastAttempt": {
+    "at": "2026-11-07T06:46:11.958Z",
+    "status": "updated"
+   }
+  },
+  "consensus-estimates.json": {
+   "expectedEveryMinutes": 360,
+   "staleAfterMinutes": 5760,
+   "workflow": "refresh-screener.yml",
+   "producer": "scripts/fetch-consensus-estimates.mjs",
+   "producedAt": "2026-11-07T06:44:02.938Z",
+   "checkedAt": "2026-11-07T06:46:11.958Z",
+   "basisSession": null,
+   "lastAttempt": {
+    "at": "2026-11-07T06:46:11.958Z",
+    "status": "updated"
+   }
+  },
+  "bigtech-cashflow.json": {
+   "expectedEveryMinutes": 360,
+   "staleAfterMinutes": 5760,
+   "workflow": "refresh-screener.yml",
+   "producer": "scripts/fetch-bigtech-cashflow.mjs",
+   "producedAt": "2026-11-07T06:40:52.867Z",
+   "checkedAt": "2026-11-07T06:46:11.958Z",
+   "basisSession": null,
+   "lastAttempt": {
+    "at": "2026-11-07T06:46:11.958Z",
+    "status": "updated"
+   }
+  },
+  "treasury-auctions.json": {
+   "expectedEveryMinutes": 360,
+   "staleAfterMinutes": 5760,
+   "workflow": "refresh-screener.yml",
+   "producer": "scripts/fetch-treasury-auctions.mjs",
+   "producedAt": "2026-11-07T06:40:53.340Z",
+   "checkedAt": "2026-11-07T06:46:11.958Z",
+   "basisSession": null,
+   "lastAttempt": {
+    "at": "2026-11-07T06:46:11.958Z",
+    "status": "updated"
+   }
+  },
+  "sp500-weights.json": {
+   "expectedEveryMinutes": 1440,
+   "staleAfterMinutes": 11520,
+   "workflow": "refresh-screener.yml",
+   "producer": "scripts/fetch-sp500-weights.mjs",
+   "producedAt": "2026-10-27T12:55:42.734Z",
+   "checkedAt": "2026-10-27T12:55:42.734Z",
+   "basisSession": null,
+   "lastAttempt": {
+    "at": "2026-11-07T06:46:11.958Z",
+    "status": "not-written"
+   }
+  },
+  "us-listings.json": {
+   "expectedEveryMinutes": 1440,
+   "staleAfterMinutes": 5760,
+   "workflow": "refresh-screener.yml",
+   "producer": "scripts/build-us-listings.mjs",
+   "producedAt": "2026-11-06T19:48:02.887Z",
+   "checkedAt": "2026-11-06T19:48:02.887Z",
+   "basisSession": null,
+   "lastAttempt": {
+    "at": "2026-11-07T06:46:11.958Z",
+    "status": "not-written"
+   }
+  },
+  "tw-monthly-revenue.json": {
+   "expectedEveryMinutes": 360,
+   "staleAfterMinutes": 89280,
+   "workflow": "refresh-screener.yml",
+   "producer": "scripts/fetch-tw-monthly-revenue.mjs",
+   "producedAt": "2026-11-01T18:09:04.996Z",
+   "checkedAt": "2026-11-01T18:09:04.996Z",
+   "basisSession": null,
+   "lastAttempt": {
+    "at": "2026-11-07T06:46:11.958Z",
+    "status": "not-written"
+   }
+  },
+  "kr-investor-flows.json": {
+   "expectedEveryMinutes": 360,
+   "staleAfterMinutes": 5760,
+   "workflow": "refresh-screener.yml",
+   "producer": "scripts/fetch-kr-investor-flows.mjs",
+   "producedAt": "2026-11-07T06:39:36.675Z",
+   "checkedAt": "2026-11-07T06:46:11.958Z",
+   "basisSession": null,
+   "lastAttempt": {
+    "at": "2026-11-07T06:46:11.958Z",
+    "status": "updated"
+   }
+  },
+  "kr-fundamentals.json": {
+   "expectedEveryMinutes": 10080,
+   "staleAfterMinutes": 20160,
+   "workflow": "refresh-screener.yml",
+   "producer": "scripts/fetch-dart-fundamentals.mjs",
+   "producedAt": null,
+   "checkedAt": null,
+   "basisSession": null,
+   "lastAttempt": {
+    "at": "2026-11-07T06:46:11.958Z",
+    "status": "missing"
+   }
+  },
+  "breadth-contributors.json": {
+   "expectedEveryMinutes": 360,
+   "staleAfterMinutes": 11520,
+   "workflow": "refresh-screener.yml",
+   "producer": "scripts/producer/screener-breadth.mjs",
+   "producedAt": "2026-11-07T06:46:01.916Z",
+   "checkedAt": "2026-11-07T06:46:11.958Z",
+   "basisSession": null,
+   "lastAttempt": {
+    "at": "2026-11-07T06:46:11.958Z",
+    "status": "updated"
+   }
+  },
+  "theme-stage-history.json": {
+   "expectedEveryMinutes": 360,
+   "staleAfterMinutes": 11520,
+   "workflow": "refresh-screener.yml",
+   "producer": "scripts/build-scenario-state.mjs",
+   "producedAt": "2026-11-07T06:46:01.937Z",
+   "checkedAt": "2026-11-07T06:46:11.958Z",
+   "basisSession": null,
+   "lastAttempt": {
+    "at": "2026-11-07T06:46:11.958Z",
+    "status": "updated"
+   }
+  },
+  "backtest-history.json": {
+   "expectedEveryMinutes": 360,
+   "staleAfterMinutes": 20160,
+   "workflow": "refresh-screener.yml",
+   "producer": "scripts/producer/screener.mjs",
+   "producedAt": "2026-11-07T06:45:18.748Z",
+   "checkedAt": "2026-11-07T06:46:11.958Z",
+   "basisSession": {
+    "US": "2026-11-07"
+   },
+   "lastAttempt": {
+    "at": "2026-11-07T06:46:11.958Z",
+    "status": "updated"
+   }
+  },
+  "screener-candidate-archive.json": {
+   "expectedEveryMinutes": 360,
+   "staleAfterMinutes": 11520,
+   "workflow": "refresh-screener.yml",
+   "producer": "scripts/producer/screener.mjs",
+   "producedAt": "2026-11-07T06:46:07.249Z",
+   "checkedAt": "2026-11-07T06:46:11.958Z",
+   "basisSession": null,
+   "lastAttempt": {
+    "at": "2026-11-07T06:46:11.958Z",
+    "status": "updated"
+   }
+  }
+ }
 }
