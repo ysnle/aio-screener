@@ -1,6 +1,6 @@
 {
   "gate": "v58.74 rendered-copy-lint",
-  "status": "PASS",
+  "status": "FAIL",
   "routes": 20,
   "counts": {
     "placeholder-particle": 0,
@@ -10,17 +10,29 @@
     "raw-token": 0,
     "empty-paren": 0,
     "leading-separator": 0,
-    "double-paren": 0,
+    "double-paren": 1,
     "spaced-particle": 0,
     "reader-duty": 0,
     "how-to-read": 0,
     "zero-direction": 0,
     "mixed-precision": 0
   },
-  "offenderKinds": 0,
+  "offenderKinds": 1,
   "baseline": 0,
   "fixedSinceBaseline": [],
-  "fresh": [],
+  "fresh": [
+    {
+      "route": "charts",
+      "rule": "double-paren",
+      "line": "지수 6개 중 단기 조정 1개, 추세 이탈 3개, 하락 추세 2개. 가장 약한 곳은 반도체(SOXX)(50일선 -21.4%)입니다."
+    }
+  ],
   "failures": [],
-  "offenders": []
+  "offenders": [
+    {
+      "route": "charts",
+      "rule": "double-paren",
+      "line": "지수 6개 중 단기 조정 1개, 추세 이탈 3개, 하락 추세 2개. 가장 약한 곳은 반도체(SOXX)(50일선 -21.4%)입니다."
+    }
+  ]
 }

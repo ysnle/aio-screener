@@ -9,7 +9,7 @@ import { usThenKorea } from '../market/session-time.js';
 const pct = (value, digits = 1) => signedText(value, digits, '%');
 const bp = (value) => signedText(value, 0, 'bp');
 const md = (date) => { const text = String(date || ''); return text.length >= 10 ? `${Number(text.slice(5, 7))}/${Number(text.slice(8, 10))}` : text; };
-const move = (fact) => (fact.unit === 'bp' ? bp(fact.change) : pct(fact.change));
+const move = (fact) => ((fact.changeUnit || fact.unit) === 'bp' ? bp(fact.change) : pct(fact.change));
 const RANK_ORDER = Object.freeze({ lead: 0, major: 1, minor: 2, context: 3 });
 
 // Prices told together: one story per family, named by the family and the direction that matters for it.

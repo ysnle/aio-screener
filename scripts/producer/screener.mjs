@@ -211,11 +211,13 @@ export async function enrichSecFundamentals(syms, priceData, priceResults = null
     // 발행 아티팩트에 가격을 기록하지 않으며, 계산 근거(가격·발행주식·관측일)를
     // rec에 함께 남겨 PIT 재현이 가능하게 한다.
     const priceBySym = new Map();
+    const splitsBySym = new Map(); // v59.70: chart split events, so a pre-split SEC share count is scaled to the close's basis
     for (const r of (Array.isArray(priceResults) ? priceResults : [])) {
       if (!r || r.__error || typeof r.sym !== 'string') continue;
       const series = Array.isArray(r.adjCloses) && r.adjCloses.length ? r.adjCloses : r.closes;
       const last = Array.isArray(series) ? series[series.length - 1] : null;
       if (typeof last === 'number' && Number.isFinite(last) && last > 0) priceBySym.set(r.sym, last);
+      if (Array.isArray(r.splits) && r.splits.length) splitsBySym.set(r.sym, r.splits);
     }
     for (const sym of syms) {
       // 2026-10-13 F08: ETFs/trusts carry no operating financials (USO margin 115%, SLV negative revenue).
@@ -225,7 +227,7 @@ export async function enrichSecFundamentals(syms, priceData, priceResults = null
       if (!row || !row.fetchedAt || Date.now() - new Date(row.fetchedAt).getTime() > maxFetchAge) continue;
       // v57.81: the per-symbol SEC row fields are one shared pure function (src/domain/fundamental/sec-row-fields.js),
       // so the browser's out-of-universe read builds them the same way.
-      const rec = secFundamentalRowFields(row, { price: priceBySym.get(sym), dollarVolume30d: priceData?.[sym]?.dollarVolume30d, factorSessionDate: priceData?.[sym]?.factorSessionDate, payloadModel: payload.model });
+      const rec = secFundamentalRowFields(row, { price: priceBySym.get(sym), dollarVolume30d: priceData?.[sym]?.dollarVolume30d, factorSessionDate: priceData?.[sym]?.factorSessionDate, payloadModel: payload.model, splits: splitsBySym.get(sym) || [] });
       if (!rec) continue;
       out[sym] = rec;
       available++;
@@ -382,8 +384,11 @@ export function computeScreenerBreadth(syms, results, assetTypeOf = null, option
     return {
       id, label,
       universe: segmentSymbols.length,
-      eligible: rows.length,
-      coveragePct: pct(rows.length, segmentSymbols.length),
+      // v59.71 (quant review): the counts describe the session rows only, so the coverage gate reads them too — 300 of
+      // 855 rows still on the prior session read 99.9% coverage while the percentages described 65% of the universe.
+      eligible: sessionRows,
+      coveragePct: pct(sessionRows, segmentSymbols.length),
+      rowsAnySession: rows.length,
       sessionRows,
       observedAt,
       above5: pct(counts.above5, counts.eligible5),
@@ -513,7 +518,7 @@ export function mergeSecIntoFactorRows(data, secData = {}) {
       // 메모리 한정 가격으로 재계산한 pe/pb는 계산 근거(가격·기저·발행주식·관측일)를
       // 행에 함께 남긴다. 발행 아티팩트에 원시가를 기록하지 않는다.
       // 2026-10-13 F04/F10: the verified share basis and the close it multiplies travel with the row.
-      ['pePrice','pePriceBasis','peEarningsBasis','peEarningsThrough','peEarningsConcept','pbPrice','pbPriceBasis','valuationPrice','valuationPriceBasis','valuationSharesOutstanding','valuationSharesObservedAt','valuationSharesCheck','valuationSharesBasis','valuationHeldReason'].forEach(key => {
+      ['pePrice','pePriceBasis','peEarningsBasis','peEarningsThrough','peEarningsConcept','pbPrice','pbPriceBasis','valuationPrice','valuationPriceBasis','valuationSharesOutstanding','valuationSharesObservedAt','valuationSharesCheck','valuationSharesBasis','valuationSplitRatio','valuationSplitDate','valuationHeldReason'].forEach(key => {
         if (sec[key] != null) data[sym][key] = sec[key];
       });
     }

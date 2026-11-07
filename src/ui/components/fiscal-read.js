@@ -412,7 +412,7 @@ function analysisPair(doc, root, host, analysis, { symbol, fundamentals, close, 
   // The same precise latest year as the chart (reconcileFiscalHistory swaps the rounded USD-million row for the exact receipt).
   const history = typeof series === 'string' ? reconcileFiscalHistory(parseFiscalHistory(series), own, symbol) : [];
   const financial = isLendingFinancial(symbol, sector);
-  const signature = JSON.stringify([symbol, series || '', own.sharesOutstanding ?? null, own.observedAt ?? null, own.sharesObservedAt ?? null, own.quality?.stale ?? null, history.at(-1) ?? null, close?.value ?? null, close?.date ?? null, financial]);
+  const signature = JSON.stringify([symbol, series || '', own.sharesOutstanding ?? null, own.observedAt ?? null, own.sharesObservedAt ?? null, own.quality?.stale ?? null, history.at(-1) ?? null, close?.value ?? null, close?.date ?? null, close?.shares ?? null, financial]);
   if (host._aioAnalysisPair?.dataset.signature === signature) return host._aioAnalysisPair;
   const pair = el(doc, 'div', null, 'v2-stock-pair v2-analysis-pair');
   pair.dataset.signature = signature;

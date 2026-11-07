@@ -195,6 +195,25 @@ export function sessionPointBack(series, n, market = 'US') {
   return null;
 }
 
+/**
+ * v59.70 (step 1, one move one number): a field's close-to-close change between two dates, read from the completed
+ * close series. A history row that repeats the previous close (a weekend row, or 11/03 carrying 11/02 before the next
+ * refresh) is not a close of its own date, so reading rows by date compared a session with itself and printed 0.0%
+ * beside every 11/03 earnings reaction. `from` takes the last close on or before it; `to` the last close on or before it,
+ * or — with `exactTo` — only a close of that very session (otherwise null: the move is unknown, not flat).
+ */
+export function closeMoveBetween(history, field, from, to, { exactTo = false } = {}) {
+  if (!from || !to) return null;
+  const series = buildCloseSeries(history, field, { through: to });
+  let start = null; let end = null;
+  for (const point of series) {
+    if (point.date <= from) start = point;
+    if (point.date <= to) end = point;
+  }
+  if (!start || !end || start.date === end.date || !start.value || (exactTo && end.date !== String(to).slice(0, 10))) return null;
+  return { from: start.value, to: end.value, fromDate: start.date, toDate: end.date, pct: (end.value / start.value - 1) * 100 };
+}
+
 // v57.50 D05/D20: where a value sits in AIO's own recorded history of that series (mid-rank percentile, the regime
 // radar's convention), with the record length. A fixed textbook line (분배일 5회, 시장 폭 40/60%) can be crossed on half
 // of all recorded days; the percentile says how unusual today is in this sample. Fewer than 252 records is provisional.

@@ -33,6 +33,7 @@ import { describeSharedConnection } from '../domain/connections/shared.js';
 import { formatSecResearchEvidence } from '../ai/context/sec-fundamentals.js';
 import { chooseAnswerVisuals } from '../ai/response/answer-visual-choice.js';
 import { buildChatPolicyLines } from '../ai/context/policy-lines.js';
+import { bufferedTrend } from '../domain/technical/bands.js';
 import { resolveChatTickers } from '../ai/entity/chat-tickers.js';
 import { portfolioRowsLine } from '../ai/context/portfolio-rows.js'; // v58.75: redacted holdings line (workbench + AI panel)
 import { selectNativeSearch, attachNativeSearch, hasInternalCurrentEvidence } from '../ai/research/native-search.js';
@@ -175,6 +176,15 @@ export function installCompatibilityGlobals(root = globalThis) {
   window.AIO.attachAnswerVisuals = (options) => answerVisuals().then((module) => module.attachAnswerVisuals(options));
 // P1740: chat prompt pieces moved out of js/aio-chat.js (answer shape, principles, policy lines, ticker resolver).
 Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioRowsLine });
+// v59.71 (legacy audit): the chat's [주가 추이] names the 종목 page's trend (bands.js bufferedTrend on the screener row), so the
+// AI is not told '단기·중기 상승 추세' for a stock the page reads 하락 추세; the 5/20-day returns stay as 단기 흐름 beside it.
+window.AIO.stockTrendFor = (symbol) => {
+  const sym = String(symbol || '').toUpperCase();
+  const rows = typeof window._aioGetCanonicalScreenerRows === 'function' ? window._aioGetCanonicalScreenerRows() || [] : [];
+  const row = rows.find((item) => item?.sym === sym);
+  const trend = row ? bufferedTrend(row) : null;
+  return trend ? { id: trend.id, label: trend.label, session: String(row.factorSessionDate || '').slice(0, 10) || null } : null;
+};
   window.AIO.selectNativeSearch = selectNativeSearch;
   window.AIO.attachNativeSearch = attachNativeSearch;
   window.AIO.hasInternalCurrentEvidence = hasInternalCurrentEvidence;

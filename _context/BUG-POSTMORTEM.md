@@ -39,6 +39,132 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2263 - v59.71 - Statistical conventions: sentiment percentile, Sahm windows, capture ratio, mixed quarter ends, index basis (2026-11-07)
+
+- symptom/reproduction: Consumer sentiment's record low read 1.4 (other percentiles 0); the Sahm gap averaged non-adjacent months across the skipped October 2025 release; up/down capture used arithmetic means; the hyperscaler capex sentence summed issuers on different quarter ends as one period; index attribution credited dividends to stock selection without saying so.
+- root_cause: sentimentRank kept the retired (below+equal/2)/n convention; sahmGap took array neighbours; backtest capture predates the geometric definition; groupCashflow's complete flag checked presence, not alignment; the price-index benchmark label did not name its basis.
+- fix: sentimentRank uses shared percentileOf; sahmGap keys calendar months (3-month average from at least 2 of 3, prior 12 with at least 11); capture = geometric mean ratio; groupCashflow carries endSpreadDays/endRange and the sentence names mixed quarter ends over 45 days; index benchmarks read '(가격 지수, 배당 제외)'.
+- violated_rule: Shared statistical conventions (shared/percentile.js) and calendar-aligned windows
+- prevention: ci-esm-core-unit-check v59.71 assertions for sentiment percentile and Sahm with a missing month.
+- verification/residual: ci-esm-core-unit-check ok; live Sahm 2026-09 reads 0.0.
+
+## P2262 - v59.71 - Legacy engines still computed trend, breadth, extension and 52-week distance on their own rules beside the canonical ones (2026-11-07)
+
+- symptom/reproduction: Top-bar breadth 55-59% read green while 시장 상태 needed 60; the AI was told an uncalibrated cycle composite, an always-empty breadth consensus, and a fixed-% trend label against the stock page's trend; portfolio burden used 3/4/6 ATR where the stock page uses 4/7 ADR; the charts table's 52-week distance used the closing high while the stock page used the intraday high; the SPX 50/200-day lines could include a moving intraday bar; theme same-day participation counted a missing change as a decline; weekly W20/W50 collapsed to one average under 20 weeks; a flat RSI read 100.
+- root_cause: Older js/ engines (NARRATIVE_ENGINE.getBreadthRegime, getCycleFromMacro, _fetchTickerTrend, calcSellPressure, autoUpdateMA, calcSectorUpShare, _calcWeeklyContext) and market-charts helpers kept their own thresholds after RULES and bands.js became canonical.
+- fix: getBreadthRegime on RULES.breadth 40/60; the cycle composite and the argument-less consensus left the AI context; chat trend leads with AIO.stockTrendFor (bufferedTrend) and labels returns as short-term flow; calcSellPressure reads the 50-day extension in ADRs on RULES.technical.extension; the charts table reads pctFrom52wHigh; autoUpdateMA uses completed bars; calcSectorUpShare counts only rows with a change; weekly averages need a full window; rsiOf reads a flat window as 50; getVVIXRegime/getFGRegime/getInsiderRegime (no callers) removed.
+- violated_rule: One owner per quantity (RULES thresholds, bands.js trend, one 52-week field)
+- prevention: T866 pins the RULES breadth label; comments name the canonical owner at each former duplicate.
+- verification/residual: ci-esm-core-unit-check, ci-domain-parity-check, ci-chart-scenarios-fixture ok; qa-runner affected.
+
+## P2261 - v59.71 - Value factor scored loss-makers on P/B alone, ranking distressed names as cheap (2026-11-07)
+
+- symptom/reproduction: A loss-maker with P/B 0.8 scored value 0.625 while a profitable stock at P/E 15, P/B 3 scored 0.25.
+- root_cause: P/E is dropped upstream at net income <= 0, and valueRaw averaged only the terms present, so the earnings term vanished instead of counting as no yield.
+- fix: When P/E is missing and margin is negative, the earnings term scores 0 (factor-ranks.js valueRaw).
+- violated_rule: A value missing because its input is negative is information, not absence
+- prevention: ci-domain-parity-check factor-ranks golden still matches; comment beside the term.
+- verification/residual: node scripts/ci-domain-parity-check.mjs ok.
+
+## P2260 - v59.71 - Breadth history was rewritten from today's S&P 500 membership every run and mixed two populations in one percentile (2026-11-07)
+
+- symptom/reproduction: Past breadth50/200 and new-high counts were re-judged daily on current members (names added after strong runs, losers dropped), biasing the past up and today's percentile down; 4 of 254 breadth50 rows were the ~830-name AIO universe ranked beside ~500 S&P members.
+- root_cause: updateScreenerBreadthHistory overwrote every backfilled date on each run, and rows written under another universeScope stayed in the series.
+- fix: A date older than BREADTH_REVISION_DAYS (7) already written on the same scope keeps its first value; rows on a scope other than the newest row's are cleared (scripts/producer/screener-breadth.mjs).
+- violated_rule: Point-in-time data: a historical observation is frozen once published (survivorship)
+- prevention: BREADTH_REVISION_DAYS and the single-scope pass sit in the writer every producer run uses.
+- verification/residual: node --check; qa-runner affected; first effect after the next refresh-screener run.
+
+## P2259 - v59.71 - Breadth snapshot coverage gate counted rows from every session while the percentages used only the majority session (2026-11-07)
+
+- symptom/reproduction: With 300 of 855 US rows still on the prior session, screener.json breadth read coverage 99.9% and passed the 85% gate while above50/advanceRatio described 65% of the universe; the 'all' segment silently dropped KR whenever KR was a session ahead.
+- root_cause: buildSegment set eligible = rows.length and coveragePct = rows/universe, but v58.71 restricted the counts to sessionRows without moving the gate inputs.
+- fix: eligible = sessionRows and coveragePct = sessionRows/universe; rowsAnySession keeps the old count (scripts/producer/screener.mjs).
+- violated_rule: A coverage gate must measure the population the published number describes
+- prevention: The gate fields and the counted rows now come from the same filter, documented beside the code.
+- verification/residual: node --check; qa-runner affected.
+
+## P2258 - v59.71 - Reverse DCF priced a split-adjusted close against the pre-split SEC cover share count (2026-11-07)
+
+- symptom/reproduction: After a split dated after the last 10-K/10-Q cover date (Sandisk 8:1), the reverse DCF market value was price x the filed count, 1/8 of the real value, and the implied 10-year FCF growth read far too low.
+- root_cause: The split fix (splitAdjustedShares) ran only in secFundamentalRowFields, the screener-row path. reverseDcfInputs read fundamentals.sharesOutstanding from the raw SEC record while the close came from the screener row.
+- fix: The close passed to reverseDcfInputs carries the same row's verified count (_valuationSharesOutstanding: split-scaled and turnover-checked); the filed count is the fallback, and sharesBasis names which one priced it (entity.js, stock-lens-cards.js, fiscal-read.js signature, analysis-read.js).
+- violated_rule: One valuation basis per number: price and share count from the same reconciled row
+- prevention: ci-esm-core-unit-check v59.71 assertion: an 8x row count prices 8x the filed-count market value.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs ok.
+
+## P2257 - v59.71 - 스크리너 '거시 시나리오' link opened 매크로 after the scenarios moved to 시장 상태 (2026-11-07)
+
+- symptom/reproduction: 스크리너 순위 읽기의 '거시 시나리오' 다음 링크가 매크로를 열었는데, 시나리오는 v59.68부터 시장 상태 '시나리오와 가이드' 접기에 있다.
+- root_cause: 시나리오를 옮길 때 screener-read의 next 링크를 따라 바꾸지 않았다.
+- fix: 링크를 시장 상태 regime-depth-fold 앵커로 바꿨다(fiscal-read와 같은 방식).
+- violated_rule: 결론에서 근거로 가는 링크는 근거가 있는 화면을 연다.
+- prevention: 링크 대상은 lenses/registry.js의 렌즈별 home과 같은 방식으로 한 곳에서 정한다(이번 배치에서 데이터 출처 접기에 적용).
+- verification/residual: node --check 통과, 같은 앵커를 쓰는 fiscal-read 링크와 동일한 형태.
+
+## P2256 - v59.71 - 기술적 분석 stock table and 종목 named a different trend for the same stock (2026-11-07)
+
+- symptom/reproduction: 기술적 분석 '대표 종목' 표는 50일선 −8.8%·200일선 −1.0% 종목을 '추세 이탈'로, 같은 종목의 종목 화면은 '하락 추세'로 읽었다. 표는 오래된 종가로도 추세를 적었지만 종목 화면은 판단을 보류했다.
+- root_cause: coreStockRows는 거리에서 이동평균을 되살려 지수용 trendOf(완충 없음, 기울기 모름)로 읽었고, 종목 화면은 bands.js bufferedTrend(일평균 변동폭 완충, 5거래일 급락, 계산용 준비 상태)를 썼다. 추세 정의가 화면마다 달랐다.
+- fix: 대표 종목 표의 종목 행은 bufferedTrend의 상태·이름을 쓴다. 지수 카드는 실제 이동평균과 50일선 기울기가 있는 trendOf를 유지한다.
+- violated_rule: 같은 종목의 같은 지표는 화면이 달라도 같은 정의로 읽는다(한 사실, 여러 화면).
+- prevention: ci-esm-core-unit-check v59.64 단언 갱신: −8.75%/−1.03% 종목 행은 'down'·'하락 추세'(bufferedTrend와 같음).
+- verification/residual: 단위 검사 통과. 로컬 브라우저에서 표의 상위 비중 종목이 11/03 종가(지연)로 종목 화면과 같이 '판단 보류'를 보임.
+
+## P2255 - v59.71 - An outlook reported as below expectations read as 전망 신중 instead of 가이던스 하회 (2026-11-07)
+
+- symptom/reproduction: 애플 반응 이유 '연말 분기 매출총이익률 전망은 시장 기대보다 낮아 실적 호재를 상쇄했습니다'가 '가이던스 하회'가 아니라 '전망 신중'으로 분류됐다.
+- root_cause: reaction-read GUIDE_BELOW는 '못 미/밑돌/하회'만 보아, '기대보다 낮'처럼 예상 대비로 낮다고 쓴 문장을 하회로 읽지 못했다.
+- fix: GUIDE_BELOW에 '(기대|예상|컨센서스)(보다|에) 낮/못'을 더했다. 전체 브리프 재판독에서 바뀐 것은 애플 1건이다.
+- violated_rule: 가이던스 하향(회사가 낮춤)·하회(예상보다 낮음)·신중(어조)은 서로 다른 상태다(v59.70).
+- prevention: ci-esm-core-unit-check v59.70 단언: 애플 반응 이유로 만든 earningsCells의 다음 전망이 '가이던스 하회'다.
+- verification/residual: 단위 검사 통과. 로컬 event-briefs.json 전체에서 새로 '가이던스 하회'가 된 브리프는 애플 1건.
+
+## P2254 - v59.71 - 시장 상태 week-ahead listed any-weight reports and gave them the AI-spending sentence by market mood, not by company (2026-11-07)
+
+- symptom/reproduction: 시장 상태 맨 위 '다음 주 판단을 바꿀 일정'에 'MRNA 0.1% 실적 (S&P 500 비중) — 대형 기술주 쏠림이 이어질지 가르는 실적입니다'와 'CEG 0.1% · KKR 0.1%'가 올라왔다. 비중이 작은 바이오·전력 회사가 '판단을 바꿀 일정'으로, AI 투자 질문으로 읽혔다.
+- root_cause: market-story weekAhead는 지수 비중이 0보다 크기만 하면 실적을 넣었고(달력 148건 중 1% 이상은 2건), 문장은 시장 이야기(나스닥 100 쏠림 여부)로만 골라 회사가 무엇인지 보지 않았다.
+- fix: 실적은 S&P 500 비중 1% 이상(REPORT_WEIGHT_MIN)이거나 주도주 목록(MARKET_MOVERS)에 든 회사만 올린다. AI 투자 문장은 쏠림 장세이면서 그 줄에 주도주가 있을 때만 쓰고, 그 밖에는 합산 비중 1% 이상이면 '지수 비중이 커서', 아니면 '주도주 목록에 든 회사라'로 쓴다.
+- violated_rule: 문장은 그 줄의 대상에서 나온다 — 시장 전체 상태로 개별 항목을 설명하지 않는다.
+- prevention: ci-esm-core-unit-check v59.70 단언: 나스닥 100 쏠림 상승 합성 이력에서 MRNA 0.1%는 목록에 없고, 엔비디아 줄은 쏠림 문장, 주도주가 아닌 1.2% 회사 줄은 '지수 비중이 커서' 문장이다(이전 코드는 MRNA를 올린다).
+- verification/residual: 단위 검사 통과. 로컬 브라우저 #signal에서 0.1% 실적 줄이 사라지고 신용 스프레드 줄만 남음을 확인(로컬 데이터 11/03 기준).
+
+## P2253 - v59.71 - One earnings report printed different surprises on 브리핑 and 오늘, and annual revenue was compared with the quarter's estimate (2026-11-07)
+
+- symptom/reproduction: 애플 실적이 오늘 화면에서는 'EPS 예상보다 +1.1%, 매출 −1%'인데 브리핑 화면에서는 'EPS +3.6% (보고 기준)'이고, 연간 매출 $479B에는 '예상 대비 +314.1%'가 붙었다(비자 연간 순매출 +272.4%도 같음). 탈렌 EPS는 브리핑 −68.3%, 실적 달력의 같은 기준 실제치로는 −37.9%다.
+- root_cause: 같은 보고서의 서프라이즈를 세 곳이 따로 계산했다. 오늘(market-day facts)은 실적 달력의 컨센서스 기준 실제치(조정 EPS·분기 매출)를, 브리핑 줄은 화면에서 epsComparisonBasis로 다시 고른 보도자료 수치(GAAP 포함)를, 반응 판독은 저장된 surprisePct를 그대로 썼다. 매출 비교는 '매출' 지표면 연간 줄도 분기 추정치와 비교했다.
+- fix: event-briefs.js figureSurprise 하나가 비교를 정한다. 연간 매출 줄은 비교하지 않고, EPS 줄은 epsComparisonBasis로 고르며, 실적 달력의 같은 기준 실제치(estimate.providerActual)가 있으면 그 값으로 비교하고 '(조정 $X 기준)'을 붙인다. 생산자 buildEventBriefs가 저장된 브리프의 추정치에 달력 실제치를 매 실행 찍는다. 브리핑 줄(ui event-briefs comparison)과 반응 판독(resultVerdict)이 같은 함수를 쓴다.
+- violated_rule: 같은 사실은 한 선택자에서 나온다 — 한 보고서의 서프라이즈는 한 기준·한 숫자다.
+- prevention: ci-esm-core-unit-check v59.70 단언: 애플 연간 매출 줄 비교 없음, 달력 실제치 $2.05로 EPS +1.1% '(조정 $2.05 기준)', 실제치가 없으면 +3.6% '(보고 기준)', resultVerdict가 같은 값(+1.1%·beat)을 읽음. ci-event-briefs-check v59.70: 달력 행에 실제치가 있으면 저장된 MSFT 추정치에 providerActual이 찍히고 figureSurprise가 그 값으로 비교함, 실제치가 없으면 찍지 않음.
+- verification/residual: 로컬 event-briefs.json에 같은 찍기를 메모리에서 적용해 재판독: 비교 7건 변경(애플·비자 연간 매출 비교 제거, 탈렌 −68.3→−37.9, 애플 3.6→1.1, 매출 반올림 3건), 반응 판독 종류 변경 0건. 로컬 브라우저 briefNode에서 애플·비자 연간 매출 줄에 '예상 대비'가 없음을 확인. EPS 값 변경은 다음 event-briefs 실행 뒤 반영된다.
+
+## P2252 - v59.71 - Earnings reactions read a carried-forward history row as the benchmark's close and printed a flat 0.0% market move (2026-11-07)
+
+- symptom/reproduction: 11/03 실적 반응 상자마다 'S&P 500 0.0%' 또는 '반도체(SMH) 0.0%'가 붙었다. history.json의 11/03 행은 다음 갱신 전이라 11/02 종가를 그대로 들고 있었는데, 반응 판독이 그 값을 11/03 종가로 읽었다.
+- root_cause: 같은 지수 등락을 여러 곳에서 따로 계산했다. 시장 요약·당일 사실은 carry-aware buildCloseSeries(fieldMeta sessionDate)를 썼지만, reaction-read benchMove와 market-story span은 history 행 날짜를 직접 골라 이월된 값을 걸러내지 못했다. 실적 서프라이즈 %도 다섯 곳에서 같은 식을 따로 두어 반올림만 달랐다.
+- fix: close-series.js에 closeMoveBetween(history, field, from, to, { exactTo })을 두고 benchMove(exactTo: 끝 날짜 종가가 실제로 있어야 함)와 market-story span이 이를 쓴다. 이월 행은 건너뛰어 끝 날짜 종가가 없으면 시장 단계를 빼고, 0.0%로 쓰지 않는다. 서프라이즈 %는 shared/number.js surprisePct 하나로 모으고 event-briefs(재수출)·market-day facts·earnings-context·analysis-read가 같은 함수를 쓴다.
+- violated_rule: 같은 사실은 한 선택자에서 나온다 — history 이월 값은 그 날짜의 관측이 아니다(fieldMeta.sessionDate).
+- prevention: ci-esm-core-unit-check v59.70 단언: 11/03 행이 11/02 값을 이월한 history에서 closeMoveBetween(exactTo)은 null이고 반응 판독에 market 단계가 없다(이전 코드는 0.0% 단계를 만든다). 이월 없는 SMH 구간은 −7.0%. surprisePct(110,100)=10, (−0.5,−1)=50, 추정치 0·결측은 null.
+- verification/residual: ci-esm-core-unit-check·ci-data-pipeline-contract-check 통과. event-briefs.json 78건 중 판독 47건 재판독: 시장 단계 40건, 0.0% 0건. 로컬 브라우저 #briefing에서 S&P 500 −0.5%, SMH −2.7%/−6.2% 등 0.0% 없음 확인.
+
+## P2251 - v59.71 - A stock split before the next SEC filing priced P/E and P/B on the pre-split share count (2026-11-07)
+
+- symptom/reproduction: 샌디스크는 8:1 분할(2026-11-20 분할 기준 거래)을 발표했다. 스크리너·종목의 PER·PBR·참고 시가총액은 분할 조정 종가 × 최근 SEC 표지 주식 수(146.4M, 2026-08-07)로 계산되므로, 다음 10-Q까지 시가총액이 1/8이 된다. PER은 약 1.8로 '단위 불일치'로 사라지고, PBR은 1.31(실제 약 10.5)로 틀린 값이 남는다.
+- root_cause: v58.20의 분할 보정(sec-normalize selectShareCount)은 분할 뒤 공시된 표지 주식 수가 있어야만 작동했다. 분할 효력일부터 다음 분기 공시까지 생기는 공백을 메울 분할 이벤트 원천이 파이프라인에 없었다.
+- fix: 기존 Yahoo 일봉 요청(fetchHistory)에 events=split을 붙여 분할 이벤트를 받고(dailyRowsFromYahooChart → splits), priceHistoryFromRows와 enrichSecFundamentals를 거쳐 secFundamentalRowFields에 전달한다. splitAdjustedShares가 주식 수 관측일 뒤·팩터 세션 이전의 분할 비율로 주식 수를 보정하고, valuationSharesBasis 'dei-cover-split-adjusted'와 비율·날짜를 행에 남긴다. 추가 호출은 없다.
+- violated_rule: 가격 비율의 분자와 분모는 같은 주식 기준이어야 한다(v58.20 B1).
+- prevention: ci-data-pipeline-contract-check v59.70 단언: Yahoo events.splits 파싱(8:1, 2026-11-20), 분할 뒤 세션은 주식 수 1,171,352,008·PER 14.43·PBR 10.48, 분할 이벤트가 없으면 PER 보류·PBR 1.31(결함 재현), 분할 전 세션이나 분할 뒤 관측된 주식 수는 보정하지 않음.
+- verification/residual: Yahoo 실응답으로 NVDA 10:1(2024-06-10) 이벤트 형식 확인. SNDK 실제 SEC 값으로 보정 전후를 직접 계산. 데이터 파이프라인 계약 검사 통과. 실제 효과는 11/20 이후 refresh-screener 결과로 확인해야 한다.
+
+## P2250 - v59.71 - Earnings reaction read benchmarked oil, power and software against SMH and called a kept outlook weak (2026-11-07)
+
+- symptom/reproduction: 실적 반응 판독이 AI 공급망 층이면 모두 반도체 ETF(SMH)와 비교해 XOM·CVX·PLTR·TLN 같은 전력·소프트웨어 종목도 '반도체(SMH) -7.0%'로 시장 동반 여부를 판정했다. '전망 유지'가 약한 가이던스로 분류됐고, 회사가 직접 낮춘 전망과 예상 하회가 모두 '가이던스 하회'로 표시됐다. EPS -68% 하회에 전망 상향으로 오른 TLN은 '호실적 반영'으로 나왔다.
+- root_cause: reaction-read.js가 벤치마크를 NON_AI_LAYERS 밖 전부로 SMH에 묶었고, GUIDE_WEAK 정규식에 '유지'가 들어 있었으며, 약세의 종류(회사 하향/보도상 하회/신중)를 하나의 라벨로 합쳤다. 상승 반응은 숫자와 가이던스 중 어느 쪽이 맞든 'as-reported'로 묶였다.
+- fix: 반도체 비교(소유자 11/04부터 SOXX)를 chips-compute·semicap-foundry·memory 층으로 한정하고 나머지는 S&P 500과 비교. '유지'를 약세 어휘에서 제거. guidanceLabel이 가이던스 하향/가이던스 하회/전망 신중을 구분. 상승 반응에서 숫자가 설명하지 못하고 가이던스만 맞으면 'guidance-up'(가이던스 상향 반영).
+- violated_rule: AGENTS 근거 없는 판정 금지 — 비교 대상은 종목이 실제 속한 집합이어야 한다.
+- prevention: ci-esm-core-unit-check v59.70 단언: power-energy 층은 S&P 500 비교, 유지 문장은 guidance 단계 없음, 회사 하향은 '가이던스 하향', 보도상 미달은 '가이던스 하회', EPS 하회+전망 상향 상승은 guidance-up.
+- verification/residual: 로컬 event-briefs.json 47건 전체를 reactionRead로 재판독해 SMH는 반도체 3개 층에만, TLN은 가이던스 상향 반영으로 나옴을 확인. 단위 검사 통과.
+
 ## P2249 - v59.70 - The first v59.70 refresh failed: the data-audit gate read the published history.v2 object as rows and got an empty regime (2026-11-07)
 
 - symptom/reproduction: After the v59.70 push, both scheduled Refresh market data runs (03:20Z, 03:50Z on 11/07) failed at 'Validate evidence-derived 22-category reconciliation' with data-audit-contract: 'the verdict table has the 심리 and AI·반도체 집중 watch rows' and the weight check. No data commit landed, so main stayed on an unattested bot commit and Pages could not converge to v59.70.

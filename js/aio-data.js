@@ -7199,8 +7199,15 @@ async function autoUpdateMA() {
       throw new Error('Yahoo chart returned non-JSON: ' + trimmed.slice(0, 80));
     }
     const json = JSON.parse(trimmed);
-    const closes = (json?.chart?.result?.[0]?.indicators?.quote?.[0]?.close || [])
-      .filter(function(v) { return typeof v === 'number' && isFinite(v) && v > 0; });
+    // P2262: completed bars only, the history.json writer's basis.
+    const result = json?.chart?.result?.[0] || {};
+    const rawCloses = result?.indicators?.quote?.[0]?.close || [];
+    const tz = result?.meta?.exchangeTimezoneName || 'America/New_York';
+    let bars = (Array.isArray(result.timestamp) ? result.timestamp : []).map(function(ts, i) {
+      return { time: new Date(ts * 1000).toLocaleDateString('en-CA', { timeZone: tz }), close: rawCloses[i] };
+    }).filter(function(bar) { return typeof bar.close === 'number' && isFinite(bar.close) && bar.close > 0; });
+    if (typeof window._aioCompletedBars === 'function') bars = window._aioCompletedBars(bars, { meta: result.meta }).bars;
+    const closes = bars.map(function(bar) { return bar.close; });
     if (closes.length >= 200) {
       const ma200 = closes.slice(-200).reduce((a,b) => a+b, 0) / 200;
       const ma50  = closes.slice(-50).reduce((a,b) => a+b, 0) / 50;
@@ -7208,8 +7215,9 @@ async function autoUpdateMA() {
         200: Math.round(ma200 * 100) / 100,
         50:  Math.round(ma50 * 100) / 100
       };
-      window._spxMATs = Date.now();
-      window._spxMASource = 'Yahoo ^GSPC observed daily closes';
+      const lastDay = bars.length ? bars[bars.length - 1].time : null;
+      window._spxMATs = lastDay ? Date.parse(lastDay + 'T00:00:00Z') : Date.now();
+      window._spxMASource = 'Yahoo ^GSPC completed daily closes' + (lastDay ? ' (' + lastDay + ')' : '');
       console.log('[AIO] MA auto-updated: 50SMA=' + window._spxMA[50] + ', 200SMA=' + window._spxMA[200]);
       if (typeof refreshHomeDashboard === 'function') refreshHomeDashboard();
     }

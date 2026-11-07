@@ -147,6 +147,19 @@ check('v59.42 a name that already reported leaves the unconfirmed list with its 
   like(out.unconfirmedReasons.TSM, /foreign issuer/);
 });
 
+// v59.70 (lens plan step 1): an estimate keeps the first run that saw it and the last run that saw it before an actual.
+const { stampEstimateSeen } = await import('./fetch-earnings-calendar.mjs');
+check('v59.70 estimate first/last seen times survive rewrites and stop at the report', () => {
+  const t1 = '2026-11-01T00:00:00.000Z', t2 = '2026-11-02T00:00:00.000Z', t3 = '2026-11-03T00:00:00.000Z';
+  const pre = { symbol: 'AAA', date: '2026-11-02', epsEstimate: 1, revenueEstimate: 10, epsActual: null, revenueActual: null };
+  const r1 = stampEstimateSeen([pre], [], t1)[0];
+  const r2 = stampEstimateSeen([pre], [r1], t2)[0];
+  const r3 = stampEstimateSeen([{ ...pre, epsActual: 1.2 }], [r2], t3)[0];
+  const revised = stampEstimateSeen([{ ...pre, epsEstimate: 1.1 }], [r2], t3)[0];
+  const late = stampEstimateSeen([{ ...pre, epsActual: 1.2 }], [], t3)[0];
+  same([r2.estimateFirstSeenAt, r2.estimateLastSeenAt, r3.estimateFirstSeenAt, r3.estimateLastSeenAt, revised.estimateFirstSeenAt, late.estimateLastSeenAt], [t1, t2, t1, t2, t3, null]);
+});
+
 // v59.42: KOSPI weight proxies — common stocks only (no preferred, no ETF), the share at the previous close.
 const { buildKrIndexWeights } = await import('./fetch-kr-index-weights.mjs');
 const { readFileSync } = await import('node:fs');
@@ -478,6 +491,26 @@ check('v59.56 cash-flow lane in the reading: the group line always, an issuer li
     ok(ccj, 'the stored brief is kept');
     eq(ccj.figures[0].estimate, undefined);
     ok(rerun.briefs.find((brief) => brief.id === msft.id)?.figures.some((figure) => figure.estimate), 'a domestic 8-K keeps its comparison');
+  });
+}
+
+// v59.70 (refactor step 2): the calendar's same-basis actual reaches the brief's estimate, so the briefing line, the
+// reaction read and 오늘 (market-day facts, the same calendar row) print one surprise per report.
+{
+  const { figureSurprise } = await import('../src/domain/briefing/event-briefs.js');
+  const row = { ...base.earningsRows[0], epsActual: 4.9, revenueActual: 93000000000 };
+  const stamped = await buildEventBriefs({ ...base, previous: first, nowMs, earningsRows: [row] });
+  check('v59.70 provider actual stamped on the stored estimate and read by figureSurprise', () => {
+    const brief = stamped.briefs.find((candidate) => candidate.id === msft.id);
+    const compared = (brief?.figures || []).filter((figure) => figure.estimate);
+    ok(compared.length, 'the MSFT brief keeps its comparisons');
+    for (const figure of compared) {
+      const want = figure.metric === 'revenue' ? row.revenueActual : row.epsActual;
+      eq(figure.estimate.providerActual, want, `${figure.metric} providerActual`);
+      const read = figureSurprise(figure, brief.figures);
+      if (read) eq(read.pct, Math.round(((want - figure.estimate.value) / Math.abs(figure.estimate.value)) * 1000) / 10, `${figure.metric} pct`);
+    }
+    ok(!first.briefs.find((candidate) => candidate.id === msft.id).figures.some((figure) => figure.estimate?.providerActual != null), 'no actual, nothing stamped');
   });
 }
 

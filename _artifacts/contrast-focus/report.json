@@ -1,6 +1,6 @@
 {
   "schemaVersion": "aio-contrast-focus.v1",
-  "observedAt": "2026-11-07T02:12:05.917Z",
+  "observedAt": "2026-11-07T08:27:57.254Z",
   "runs": [
     {
       "route": "home",
@@ -54,7 +54,12 @@
       "folds": [],
       "labels": [],
       "marks": [],
-      "focusMissing": [],
+      "focusMissing": [
+        {
+          "sig": "li.is-up",
+          "text": "산업재+0.12%50일 선도"
+        }
+      ],
       "busy": []
     },
     {
@@ -274,7 +279,12 @@
       "folds": [],
       "labels": [],
       "marks": [],
-      "focusMissing": [],
+      "focusMissing": [
+        {
+          "sig": "li.is-up",
+          "text": "산업재+0.12%50일 선도"
+        }
+      ],
       "busy": []
     },
     {
@@ -443,5 +453,5 @@
       "busy": []
     }
   ],
-  "failures": 0
+  "failures": 2
 }

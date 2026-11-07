@@ -22,6 +22,12 @@ function lastValue(history, field) {
   }
   return null;
 }
+function lastDate(history, field) {
+  for (let i = (history?.length || 0) - 1; i >= 0; i -= 1) {
+    if (readNumber(history[i]?.[field]) !== null) return String(history[i].fieldMeta?.[field]?.sessionDate || history[i].date || '').slice(0, 10) || null;
+  }
+  return null;
+}
 function change(closes, n) {
   if (closes.length <= n) return null;
   const end = closes.at(-1).value; const start = closes.at(-1 - n).value;
@@ -42,16 +48,21 @@ function trendAndBreadth(history) {
   else if (!below && b < 45) text = `지수는 50일선 위(${pct(vs50)})지만 구성 종목은 ${b}%만 50일선 위입니다. 소수 대형주가 받치는 좁은 상승이라, 그 종목들이 꺾이면 지수도 쉽게 밀립니다.`;
   else if (!below && b >= 55) text = `지수와 구성 종목 대부분(${b}%)이 함께 50일선 위입니다. 넓게 받쳐진 상승 추세입니다.`;
   else text = `지수는 50일선 ${below ? '아래' : '위'}(${pct(vs50)}), 구성 종목은 ${b}%가 50일선 위로 중간입니다. 폭이 아직 방향을 정하지 못했습니다.`;
+  // v59.70 (lens plan step 3): a member above a falling 50-day line is a bounce, not participation; when most of the
+  // above-line share sits on falling lines the reading says so.
+  const rising = lastValue(history, 'breadth50Rising');
+  if (rising !== null && b - rising >= 15) text += ` 다만 50일선 위 ${b}% 중 선 자체가 오르는 종목은 ${Math.round(rising)}%라, 상당수는 내리는 선 위의 반등입니다.`;
   const rsp = sessionCloses(history, 'rsp');
   const gap = rsp.length > WINDOW ? change(rsp, WINDOW) - change(spx, WINDOW) : null;
-  if (Number.isFinite(gap) && gap >= 3) text += ` 20거래일 동안 동일가중 지수가 ${gap.toFixed(1)}%p 앞서, 돈이 대형주에서 나머지 종목으로 옮겨 가고 있습니다.`;
+  if (Number.isFinite(gap) && gap >= 3) text += ` 20거래일 동안 동일가중 지수가 ${gap.toFixed(1)}%p 앞서, 상승이 대형주 밖으로 넓어졌습니다.`;
   else if (Number.isFinite(gap) && gap <= -3) text += ` 20거래일 동안 동일가중 지수가 ${Math.abs(gap).toFixed(1)}%p 뒤처져, 대형주 쏠림이 더 심해졌습니다.`;
   const map = quad(0.5 + vs50 / 10, b / 100, ['지수 50일선 아래', '50일선 위'], ['종목 참여 적음', '종목 참여 많음'], ['넓은 하락', '좁은 상승', '좁은 조정', '넓은 상승']);
-  return { id: 'trend-breadth', title: '추세와 시장 폭', axes: ['trend', 'breadth'], text, map };
+  return { id: 'trend-breadth', title: '추세와 시장 폭', axes: ['trend', 'breadth'], asOf: spx.at(-1).date || null, text, map };
 }
 
 function volatilityAndSentiment(history, day) {
   const vix = lastValue(history, 'vix'); const vix3m = lastValue(history, 'vix3m');
+  const vixAt = lastDate(history, 'vix');
   const fg = lastValue(history, 'fg');
   if (vix === null) return null;
   const inverted = vix3m !== null && vix > vix3m;
@@ -68,7 +79,7 @@ function volatilityAndSentiment(history, day) {
   const crowd = retail && retail.leveragedLongShare >= 40
     ? ` 서학개미 순매수의 ${Math.round(retail.leveragedLongShare)}%가 레버리지 상품이라, 개인은 하락에도 사들이고 있습니다. 공포가 개인 투자자까지 번지지 않았다는 뜻이기도 합니다.` : '';
   const map = fg === null ? null : quad((vix - 12) / 24, 1 - fg / 100, ['VIX 낮음', 'VIX 높음'], ['심리 탐욕', '심리 공포'], ['과열', '흔들리는 강세', '겁만 난 상태', '투매형 공포']);
-  return { id: 'volatility-sentiment', title: '변동성과 투자 심리', axes: ['volatility'], text: `${numbers.join(', ')}. ${read}${crowd}`, map };
+  return { id: 'volatility-sentiment', title: '변동성과 투자 심리', axes: ['volatility'], asOf: vixAt, text: `${numbers.join(', ')}. ${read}${crowd}`, map };
 }
 
 function ratesAndCredit(history, macroHistory) {
@@ -82,14 +93,14 @@ function ratesAndCredit(history, macroHistory) {
   const widening = spreadBp >= RULES.credit.widen20dBp;
   const numbers = `20거래일 동안 미국 10년 금리 ${bp(yieldBp)}, 하이일드 스프레드 ${bp(spreadBp)}.`;
   let read;
-  if (yieldBp <= -10 && widening) read = '안전한 국채로 돈이 몰리고 위험한 회사채는 팔리는, 성장 걱정형 조합입니다. 금리 하락이 호재로 읽히지 않는 이유입니다.';
+  if (yieldBp <= -10 && widening) read = '국채 금리는 내리고 회사채 스프레드는 벌어진, 성장 걱정과 맞는 조합입니다. 금리 하락이 호재로 읽히지 않는 이유입니다.';
   else if (yieldBp <= -10) read = '금리와 신용이 함께 안정돼, 돈 빌리는 비용이 전반적으로 낮아지는 완화형 조합입니다.';
   else if (yieldBp >= 10 && widening) read = '금리와 스프레드가 함께 올라, 긴축 부담이 위험자산으로 번지는 조합입니다.';
   else if (yieldBp >= 10) read = '금리는 올랐지만 신용은 차분해, 경기나 물가 쪽 금리 상승으로 읽힙니다.';
   else if (widening) read = '금리는 크게 움직이지 않았는데 스프레드만 벌어져, 신용 쪽 경계가 따로 커지고 있습니다.';
   else read = '금리와 신용 모두 큰 변화가 없습니다.';
   const map = quad(0.5 + yieldBp / 80, 0.5 + spreadBp / 80, ['금리 하락', '금리 상승'], ['스프레드 축소', '스프레드 확대'], ['완화', '경기·물가', '성장 걱정', '긴축 부담']);
-  return { id: 'rates-credit', title: '금리와 신용', axes: ['rates', 'credit'], text: `${numbers} ${read}`, map };
+  return { id: 'rates-credit', title: '금리와 신용', axes: ['rates', 'credit'], asOf: end.date || null, text: `${numbers} ${read}`, map };
 }
 
 function koreaAndWon(history) {
@@ -102,16 +113,16 @@ function koreaAndWon(history) {
   const [k, w, kDown, wWeak, label] = daily ? [k1, w1, -2.5, 0.5, '하루'] : [k5, w5, -3, 1, '5거래일'];
   const numbers = daily ? `코스피 하루 ${pct(k1)}, 원/달러 ${pct(w1)}(5거래일 ${pct(k5)}, ${pct(w5)}).` : `${label} 동안 코스피 ${pct(k5)}, 원/달러 ${pct(w5)}.`;
   let read;
-  if (k <= kDown && w >= wWeak) read = '원화가 약해지며 주가가 내려, 외국인 자금 이탈과 함께 움직이는 하락입니다.';
+  if (k <= kDown && w >= wWeak) read = '원화 약세와 주가 하락이 함께 나온, 환율이 같이 밀린 하락입니다.';
   else if (k <= kDown) read = '원화는 차분해, 환율보다 업종(반도체 등) 요인이 큰 하락입니다.';
-  else if (k >= -kDown && w <= -wWeak) read = '원화 강세와 함께 오른, 외국인 자금이 들어오는 상승입니다.';
+  else if (k >= -kDown && w <= -wWeak) read = '원화 강세와 함께 오른 상승입니다.';
   else if (w5 >= 1.5) read = '주가보다 원화 약세가 먼저 움직이고 있어, 환율이 다음 부담이 될 수 있습니다.';
   else read = '주가와 환율 모두 큰 쏠림은 없습니다.';
-  const map = quad(0.5 + k / (daily ? 8 : 10), 0.5 + w / (daily ? 2 : 4), ['코스피 하락', '코스피 상승'], ['원화 강세', '원화 약세'], ['업종 요인 하락', '외국인 유입', '자금 이탈형 하락', '환율 부담 속 상승']);
-  return { id: 'korea-won', title: '한국 증시와 원화', axes: ['korea'], text: `${numbers} ${read}`, map };
+  const map = quad(0.5 + k / (daily ? 8 : 10), 0.5 + w / (daily ? 2 : 4), ['코스피 하락', '코스피 상승'], ['원화 강세', '원화 약세'], ['업종 요인 하락', '원화 강세 속 상승', '원화 약세 동반 하락', '환율 부담 속 상승']);
+  return { id: 'korea-won', title: '한국 증시와 원화', axes: ['korea'], asOf: kospi.at(-1).date || null, text: `${numbers} ${read}`, map };
 }
 
-/** The pairs that have their inputs, in reading order. */
+/** The pairs that have their inputs, in reading order. v59.70 (lens plan step 4): each carries asOf, its last close's session. */
 export function crossReadings({ history = [], macroHistory = null, day = null } = {}) {
   return [trendAndBreadth(history), volatilityAndSentiment(history, day), ratesAndCredit(history, macroHistory), koreaAndWon(history)].filter(Boolean);
 }

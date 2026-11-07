@@ -105,7 +105,7 @@ export const PACKET_20261030_FRAMES = Object.freeze([
     channels: ['매출', '단가'], variables: ['이용량 증가율', '단위당 수익', '새 화면 비중', '과금 단위(좌석·사용량)', '광고·가격 실험 결과', '총매출 성장률'],
     indicators: [{ label: '소프트웨어·인터넷 종목의 실적 반응', route: 'market-news', routeLabel: '뉴스' }, { label: '기업 이해의 돈이 들어오는 길', route: 'ticker', routeLabel: '종목 개요' }],
     shift: 'AI 이용량 증가를 매출 증가로 바로 읽던 모델에서, 매출 = 이용량 × 단위 수익으로 나눠 이용이 단위 수익이 낮은 곳으로 옮겨 가는지와 과금 단위가 AI에 어떻게 반응하는지로 읽는 모델로 전환', inputs: ['usage growth', 'revenue per unit', 'surface mix', 'pricing unit', 'monetization tests', 'total revenue growth'],
-    chart: '분기별 이용량 증가율과 매출 증가율을 같은 축에 겹쳐 두 선의 간격(단위 수익 변화) 보기', counterclaim: '새 화면의 이용 대부분이 순증이면 잠식이 아니라 이익 풀 확대이고, 광고·고가 요금제로 단위 수익 격차는 좁혀질 수 있음', concepts: ['elasticity', 'competition-moat'] },
+    chart: '분기별 이용량 증가율과 매출 증가율을 같은 축에 겹치고, 단위 수익 변화는 (1+매출 증가율)/(1+이용량 증가율)−1로 따로 표시(두 선의 간격은 근사라 이용량 +100%·매출 +50%면 간격 −50%p, 실제 −25%; 같은 기간·매출 범위일 때만)', counterclaim: '새 화면의 이용 대부분이 순증이면 잠식이 아니라 이익 풀 확대이고, 광고·고가 요금제로 단위 수익 격차는 좁혀질 수 있음', concepts: ['elasticity', 'competition-moat'] },
 
   { id: 'commitment-present-value', path: 'business', title: '약정은 부채처럼 읽기: 계약 의무의 현재가치', issue: '연산·구매 약정이 대차대조표의 부채가 아니어도 해지하기 어려우면 부채처럼 할인해 현재가치로 더해 보는 방법', sourceRefs: [R.anthropic, R.google],
     answer: '데이터센터·연산 계약처럼 몇 년에 걸쳐 반드시 내야 하는 돈은 장부의 부채가 아니어도 부채처럼 작동합니다. 연도별 지급액을 그 회사가 돈을 빌릴 때의 금리로 할인해 더하면 오늘 기준 부담이 나오고, 이를 현금·매출과 비교하면 투자 규모가 감당할 만한지 볼 수 있습니다. 계약에 물량 조정이나 해지 조건이 있으면 그만큼 부채성은 줄어듭니다.',

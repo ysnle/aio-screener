@@ -99,7 +99,7 @@ export function rallyAttemptStrip(doc, history, through) {
   if (!read) return null;
   const part = el(doc, 'div', null, 'leaders-line__part leaders-line__dist leaders-line__rally');
   const head = el(doc, 'div', null, 'leaders-line__head');
-  head.append(el(doc, 'span', '나스닥 바닥 확인 (반등 시도·FTD)', 'leaders-line__label'),
+  head.append(el(doc, 'span', '나스닥 반등 시도·FTD', 'leaders-line__label'),
     el(doc, 'span', read.state, 'leaders-line__state'),
     el(doc, 'span', read.plain, 'leaders-line__read'));
   part.append(head);

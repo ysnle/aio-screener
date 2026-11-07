@@ -214,6 +214,24 @@ const fetchData = readProducerSource();
       split?.sharesBasis === 'dei-cover-post-split' && split?.sharesOutstanding === 892133940 && split?.sharesSplitRatio === 10 && Math.abs(split?.pe - 26.5) < 0.2
         && buyback?.sharesBasis === 'dei-cover' && buyback?.sharesOutstanding === 89213394,
       JSON.stringify({ split: split && { b: split.sharesBasis, s: split.sharesOutstanding, r: split.sharesSplitRatio, pe: split.pe }, buyback: buyback && { b: buyback.sharesBasis, s: buyback.sharesOutstanding } }));
+    // v59.70 (Sandisk 8:1, trading adjusted 2026-11-20): before any post-split filing exists, the chart's split event
+    // scales the pre-split cover count to the split-adjusted close; a split before the count's date, or after the factor
+    // session, does not. Yahoo's events.splits shape is read by dailyRowsFromYahooChart.
+    const { secFundamentalRowFields } = await import('../src/domain/fundamental/sec-row-fields.js');
+    const { dailyRowsFromYahooChart } = await import('../src/domain/screener/price-factors.js');
+    const sndk = { sharesOutstanding: 146419001, sharesObservedAt: '2026-08-07', sharesCheck: 'consistent', observedAt: '2026-07-03', netIncome: 11433000000, equity: 15736000000, peEarnings: null };
+    const eight = dailyRowsFromYahooChart({ meta: { symbol: 'SNDK' }, timestamp: [1795185000], indicators: { quote: [{ close: [140.8] }] }, events: { splits: { 1795185000: { date: 1795185000, numerator: 8, denominator: 1 } } } }).splits;
+    const opts = { price: 140.8, nowMs: Date.parse('2026-11-21T00:00:00Z') };
+    const adjusted = secFundamentalRowFields(sndk, { ...opts, factorSessionDate: '2026-11-20', splits: eight });
+    const unadjusted = secFundamentalRowFields(sndk, { ...opts, factorSessionDate: '2026-11-20', splits: [] });
+    const notYet = secFundamentalRowFields(sndk, { ...opts, factorSessionDate: '2026-11-19', splits: eight });
+    const before = secFundamentalRowFields({ ...sndk, sharesObservedAt: '2026-11-25' }, { ...opts, factorSessionDate: '2026-11-26', splits: eight });
+    check('v59.70 a split after the SEC cover count scales the count to the split-adjusted close for P/E, P/B and the reference cap',
+      eight?.[0]?.date === '2026-11-20' && eight[0].ratio === 8
+        && adjusted?.valuationSharesOutstanding === 1171352008 && adjusted?.valuationSharesBasis === 'dei-cover-split-adjusted' && adjusted?.valuationSplitRatio === 8
+        && Math.abs(adjusted?.pe - 14.43) < 0.05 && Math.abs(adjusted?.pb - 10.48) < 0.05
+        && unadjusted?.pe == null && unadjusted?.pb < 2 && notYet?.valuationSplitRatio == null && before?.valuationSplitRatio == null,
+      JSON.stringify({ eight, adjusted: adjusted && { s: adjusted.valuationSharesOutstanding, pe: adjusted.pe, pb: adjusted.pb }, unadjusted: unadjusted && { pe: unadjusted.pe, pb: unadjusted.pb } }));
     // 2026-10-14: a filer with no reported share count (class-dimensioned dei) is priced on net income / diluted EPS;
     // utility revenue concepts count as annual revenue.
     const multiClass = { facts: { 'us-gaap': { RegulatedAndUnregulatedOperatingRevenue: { units: { USD: [fy(8.6e9), fy(8.4e9, { start: '2024-01-01', end: '2024-12-31', fy: 2024, accn: 'b' })] } }, NetIncomeLoss: { units: { USD: [fy(774.1e6)] } }, EarningsPerShareDiluted: { units: { 'USD/shares': [fy(8.62)] } } } } };

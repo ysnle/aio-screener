@@ -141,6 +141,25 @@ export function mergeEarningsRows(...lists) {
   return [...merged.values()].sort((a, b) => String(a.date).localeCompare(String(b.date)) || String(a.symbol).localeCompare(String(b.symbol)));
 }
 
+// v59.70 (lens plan step 1): when each estimate was seen. The calendar is rewritten every run and its estimate column is
+// the provider's value at that moment; after the report the same row can carry a revised estimate beside the actual.
+// estimateFirstSeenAt is the first run that saw this exact pair (EPS, revenue) for this report; estimateLastSeenAt is
+// the last run that saw it while no actual was published — the "before the report" mark the surprise needs. A row first
+// seen with its actual already published has no pre-report mark (null), and the reading says so.
+export function stampEstimateSeen(rows = [], previousRows = [], nowIso = new Date().toISOString()) {
+  const key = (row) => `${row?.symbol || ''}|${row?.date || ''}`;
+  const prior = new Map((Array.isArray(previousRows) ? previousRows : []).map((row) => [key(row), row]));
+  return rows.map((row) => {
+    const before = prior.get(key(row));
+    const hasEstimate = row.epsEstimate != null || row.revenueEstimate != null;
+    const reported = row.epsActual != null || row.revenueActual != null;
+    const same = before && before.epsEstimate === row.epsEstimate && before.revenueEstimate === row.revenueEstimate;
+    const firstSeen = !hasEstimate ? null : same && before.estimateFirstSeenAt ? before.estimateFirstSeenAt : nowIso;
+    const lastSeen = !hasEstimate ? null : !reported ? nowIso : before?.estimateLastSeenAt || null;
+    return { ...row, estimateFirstSeenAt: firstSeen, estimateLastSeenAt: lastSeen };
+  });
+}
+
 async function readJsonIf(path) {
   try { return JSON.parse(await readFile(path, 'utf8')); } catch { return null; }
 }
@@ -224,7 +243,7 @@ async function main() {
     upcomingWindow: { from: isoDay(now), to: upcomingDays.at(-1) || to, weeks: UPCOMING_WEEKS, scope: 'screener universe (US listings)', format: 'SYM: date|hour (bmo before open, amc after close, dmh during hours, empty unknown)' },
     upcomingGaps,
     upcoming,
-    earnings: earnings.map((row) => ({
+    earnings: stampEstimateSeen(earnings.map((row) => ({
       symbol: row.symbol || null,
       date: row.date || null,
       hour: row.hour || null,
@@ -234,7 +253,7 @@ async function main() {
       // P1382: after the report Finnhub returns the actuals; headline-only earnings news cites them.
       epsActual: typeof row.epsActual === 'number' ? row.epsActual : null,
       revenueActual: typeof row.revenueActual === 'number' ? row.revenueActual : null
-    })),
+    })), previous?.earnings, new Date().toISOString()),
     ipos: ipos.map((row) => ({
       symbol: row.symbol || null,
       date: row.date || null,

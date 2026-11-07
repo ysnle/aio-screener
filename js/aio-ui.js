@@ -935,7 +935,7 @@ function renderPortfolioTechnicalRisk(result) {
   el.innerHTML = '<div class="lu-pf-head">' +
     '<div>' + _itbBadge(_itbActionLabel(result.action), tone) + '<span class="lu-pf-obs">' + _itbPortfolioObserved(result) + '</span></div>' +
     '</div>' +
-    '<div class="lu-pf-note">10EMA/21EMA/50SMA 이탈, ATR 과열, 보유 비중을 포지션별로 나열한 관측입니다. 합산 점수는 예측 검증이 없어 표시하지 않습니다.</div>' +
+    '<div class="lu-pf-note">10EMA/21EMA/50SMA 이탈, 50일선 대비 과열(일평균 변동폭 4배·7배), 보유 비중을 포지션별로 나열한 관측입니다. 합산 점수는 예측 검증이 없어 표시하지 않습니다.</div>' +
     '<div class="lu-pf-scroll"><table class="lu-pf-tbl"><thead><tr class="lu-pf-thr"><th class="lu-pf-th">종목</th><th class="lu-pf-th lu-pf-th-r">비중</th><th class="lu-pf-th lu-pf-th-r">손익</th><th class="lu-pf-th lu-pf-th-r">확인 조건</th><th class="lu-pf-th">부담 수준</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
 }
 

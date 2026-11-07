@@ -1638,7 +1638,8 @@ async function _fetchTickerTrend(ticker) {
     var hi = Math.max.apply(null, closes);
     var lo = Math.min.apply(null, closes);
     var pos = hi > lo ? Math.round(((now - lo) / (hi - lo)) * 100) : 50;
-    var text = label + ' (' + Number(lastDay.slice(5, 7)) + '/' + Number(lastDay.slice(8, 10)) + ' 완료 종가까지 5거래일 ' + (pct5>=0?'+':'') + pct5.toFixed(1) + '%, 20거래일 ' + (pct20>=0?'+':'') + pct20.toFixed(1) + '%, 3개월 ' + (pct60>=0?'+':'') + pct60.toFixed(1) + '%, 3개월 범위 ' + pos + '% 위치)';
+    var canon = window.AIO && typeof window.AIO.stockTrendFor === 'function' ? window.AIO.stockTrendFor(ticker) : null;
+    var text = (canon ? '추세 ' + canon.label + '(종목 화면과 같은 50·200일선 기준' + (canon.session ? ', ' + Number(canon.session.slice(5, 7)) + '/' + Number(canon.session.slice(8, 10)) + ' 종가' : '') + ') · ' : '') + '단기 흐름 ' + label + ' (' + Number(lastDay.slice(5, 7)) + '/' + Number(lastDay.slice(8, 10)) + ' 완료 종가까지 5거래일 ' + (pct5>=0?'+':'') + pct5.toFixed(1) + '%, 20거래일 ' + (pct20>=0?'+':'') + pct20.toFixed(1) + '%, 3개월 ' + (pct60>=0?'+':'') + pct60.toFixed(1) + '%, 3개월 범위 ' + pos + '% 위치)';
     window._tickerTrendCache[ticker] = { text: text, _ts: Date.now() };
     return text;
   } catch(e) { return null; }
@@ -1853,8 +1854,7 @@ function _fetchDomainContextForChat(ctxId) {
       if (pol.length) lines.push('• 고용: ' + pol.join(', '));
       (window.AIO && typeof window.AIO.buildChatPolicyLines === 'function' ? window.AIO.buildChatPolicyLines({ root: window, includeKorea: ctxId === 'kr-macro' }) : []).forEach(function(line) { lines.push(line); });
       if (tnx != null || twoY != null) lines.push('• 금리: ' + (tnx != null ? '10Y ' + tnx.toFixed(2) + '%' : '') + (twoY != null ? ', 2Y ' + twoY.toFixed(2) + '%' : '') + (spreadBp != null ? ', 2s10s ' + spreadBp + ' (' + spreadBasis + (spread < 0 ? ', 역전·침체 선행' : '') + ')' : ''));
-      try { if (window.AIO && typeof window.AIO.getCycleFromMacro === 'function') { var cyc = window.AIO.getCycleFromMacro({ vix: reg && reg.vix, breadth50: br50, yield2s10s: spread }); /* trend from the 시장 상태 axis, not one session's sign */ if (cyc && cyc.phase) lines.push('• 경기 사이클 국면(동적): ' + cyc.phase + (cyc.label ? ' — ' + cyc.label : '')); } } catch(_) {}
-      if (lines.length) { lines.unshift('【거시 도메인 혼합 데이터 (FRED 스냅샷 + 라이브 금리/국면 + 동적 사이클), ' + timeLabel + '】'); }
+      if (lines.length) { lines.unshift('【거시 도메인 혼합 데이터 (FRED 스냅샷 + 라이브 금리/국면), ' + timeLabel + '】'); }
     } else if (ctxId === 'fxbond') {
       var dxy = liveNum('DX-Y.NYB', 'price'); if (dxy == null) dxy = num(pick('dxy'));
       var hyg = liveNum('HYG', 'price');
@@ -1873,9 +1873,7 @@ function _fetchDomainContextForChat(ctxId) {
         lines.push('• 섹터 리더(당일): ' + rows.slice(0, 3).map(function(x) { return secNames[x.s] + '(' + (x.pct >= 0 ? '+' : '') + x.pct.toFixed(2) + '%)'; }).join(', '));
         lines.push('• 섹터 하위(당일): ' + rows.slice(-3).map(function(x) { return secNames[x.s] + '(' + (x.pct >= 0 ? '+' : '') + x.pct.toFixed(2) + '%)'; }).join(', '));
       }
-      try { if (window.AIO && typeof window.AIO.getCycleFromMacro === 'function') { var cyc2 = window.AIO.getCycleFromMacro({ vix: reg && reg.vix, breadth50: br50, yield2s10s: spread }); if (cyc2 && cyc2.phase) lines.push('• 경기 사이클 국면(섹터 로테이션 기준): ' + cyc2.phase + (cyc2.leaders ? ' → 주도: ' + cyc2.leaders : (cyc2.label ? ' — ' + cyc2.label : ''))); } } catch(_) {}
-      try { if (window.AIO && typeof window.AIO.diagnoseBreadthConsensus === 'function') { var bc = window.AIO.diagnoseBreadthConsensus(); if (bc && (bc.verdict || bc.signal || bc.label)) lines.push('• 시장 폭 합의: ' + (bc.verdict || bc.signal || bc.label)); } } catch(_) {}
-      if (lines.length) { lines.unshift('【테마·섹터 도메인 혼합 데이터 (섹터 ETF 등락 + 동적 사이클 + 시장 폭), ' + timeLabel + '】'); }
+      if (lines.length) { lines.unshift('【테마·섹터 도메인 혼합 데이터 (섹터 ETF 등락), ' + timeLabel + '】'); }
     }
 
     if (!lines.length) return '';

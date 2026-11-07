@@ -68,12 +68,25 @@ export function annualised3m(series) {
 }
 
 /** Sahm rule: 3-month average unemployment minus the lowest 3-month average of the prior 12 months. */
+// v59.71 (quant review): the windows are calendar months, not array neighbours — a skipped release (October
+// 2025, the shutdown month) averaged non-adjacent months and stretched "the prior 12" to 13 calendar months. A 3-month
+// average uses the months present in its three (at least two); the prior window is the 12 calendar months before, at
+// least 11 present — one missing release does not blank the reading for a year.
 export function sahmGap(unemployment) {
   if (unemployment.length < 15) return null;
-  const avg3 = unemployment.map((row, index) => index < 2 ? null : { date: row.date, value: (row.value + unemployment[index - 1].value + unemployment[index - 2].value) / 3 }).filter(Boolean);
-  const last = avg3[avg3.length - 1];
-  const prior = avg3.slice(-13, -1);
-  if (prior.length < 12) return null;
+  const byMonth = new Map(unemployment.map((row) => [row.date.slice(0, 7), row]));
+  const monthKey = (date, back) => { const [y, m] = date.split('-').map(Number); return new Date(Date.UTC(y, m - 1 - back, 1)).toISOString().slice(0, 7); };
+  const avg3At = (date) => {
+    const rows = [0, 1, 2].map((back) => byMonth.get(monthKey(date, back))).filter(Boolean);
+    return rows.length >= 2 ? rows.reduce((sum, row) => sum + row.value, 0) / rows.length : null;
+  };
+  const lastRow = unemployment[unemployment.length - 1];
+  const lastAvg = avg3At(lastRow.date);
+  if (lastAvg == null || !byMonth.has(monthKey(lastRow.date, 0))) return null;
+  const last = { date: lastRow.date, value: lastAvg };
+  const prior = Array.from({ length: 12 }, (_, i) => monthKey(lastRow.date, i + 1)).filter((key) => byMonth.has(key))
+    .map((key) => ({ date: `${key}-01`, value: avg3At(`${key}-01`) })).filter((row) => row.value != null);
+  if (prior.length < 11) return null;
   const low = Math.min(...prior.map((row) => row.value));
   return { date: last.date, value: last.value - low, avg3: last.value, low };
 }

@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-boot-performance-evidence.v1",
-  "observedAt": "2026-11-07T02:42:13.362Z",
-  "appRevision": "v59.70",
-  "gitHead": "cae452b8e3e3e44991c0222b5036f0b1076dc76a",
+  "observedAt": "2026-11-07T08:33:09.787Z",
+  "appRevision": "v59.71",
+  "gitHead": "9a270474390dd9b7a3f3cc1c245f8d004fbd049a",
   "gitClean": false,
   "environment": {
     "browser": "chromium",
@@ -12,88 +12,88 @@
     "viewport": "1440x1000"
   },
   "command": "node scripts/ci-boot-interaction-check.mjs",
-  "gateStatus": "PASS",
+  "gateStatus": "FAIL",
   "targetStatus": "TARGET_MISS",
   "targetPolicy": "report-not-blocking",
   "targetFailures": [
-    "max long task 235 > 200",
-    "decoded same-origin JS 2.9MB > 1.5MB"
+    "max long task 232 > 200",
+    "decoded same-origin JS 3.46MB > 1.5MB"
   ],
   "metrics": {
-    "fcpMs": 320,
-    "dclMs": 385,
-    "loadMs": 446,
-    "maxLongTaskMs": 235,
-    "totalLongTaskMs": 825,
-    "longTaskCount": 7,
+    "fcpMs": 1688,
+    "dclMs": 310,
+    "loadMs": 385,
+    "maxLongTaskMs": 232,
+    "totalLongTaskMs": 903,
+    "longTaskCount": 8,
     "longTaskObservationWindowMs": 2000,
-    "domNodes": 3358,
-    "activeRouteDomNodes": 1431,
+    "domNodes": 3821,
+    "activeRouteDomNodes": 1763,
     "activePage": "page-signal",
     "bootStatusPresent": false,
-    "decodedJsBytes": 3039347,
-    "sameOriginScripts": 118,
+    "decodedJsBytes": 3623676,
+    "sameOriginScripts": 129,
     "crossOriginScripts": 1,
-    "resourceEntries": 195,
+    "resourceEntries": 208,
     "jsByKind": {
-      "esmBoot": 1558278,
-      "classicBoot": 1151973,
+      "esmBoot": 1574620,
+      "classicBoot": 1152059,
       "aiPanelBeforeUse": 0,
-      "postBootLazy": 329096
+      "postBootLazy": 896997
     },
     "aiPanelRequestsBeforeUse": [],
     "largestLazyFiles": [
       {
+        "path": "src/chunks/chunk-GXN2AJUA.js",
+        "bytes": 439882,
+        "startMs": 2046
+      },
+      {
+        "path": "src/chunks/chunk-WMWWGI43.js",
+        "bytes": 95809,
+        "startMs": 2046
+      },
+      {
         "path": "src/chunks/legacy-screen-bridges-KFALLX7O.js",
         "bytes": 41813,
-        "startMs": 344
+        "startMs": 212
       },
       {
-        "path": "src/chunks/chunk-C4ODOX6J.js",
+        "path": "src/chunks/chunk-NMQREB5W.js",
         "bytes": 40220,
-        "startMs": 480
+        "startMs": 384
       },
       {
-        "path": "src/chunks/backtest-SYFJ4HRS.js",
-        "bytes": 28407,
-        "startMs": 2177
+        "path": "src/chunks/backtest-F6NKOV77.js",
+        "bytes": 28619,
+        "startMs": 2042
       },
       {
-        "path": "src/chunks/session-lean-2IAD7L7A.js",
-        "bytes": 28222,
-        "startMs": 649
+        "path": "src/chunks/session-lean-LNQ4S5C7.js",
+        "bytes": 28250,
+        "startMs": 431
       },
       {
         "path": "src/chunks/request-pipeline-DS3ZGKB7.js",
         "bytes": 27865,
-        "startMs": 343
+        "startMs": 211
       },
       {
-        "path": "src/chunks/analysis-PNCHY2AO.js",
-        "bytes": 23038,
-        "startMs": 368
-      },
-      {
-        "path": "src/chunks/chunk-M7XHRITR.js",
-        "bytes": 20420,
-        "startMs": 480
-      },
-      {
-        "path": "src/chunks/chunk-HK6JZQAH.js",
-        "bytes": 15626,
-        "startMs": 411
+        "path": "src/chunks/analysis-2BTR2YAK.js",
+        "bytes": 23066,
+        "startMs": 298
       }
     ],
     "measuredBundle": "deploy",
     "aiPanelOnHover": [
       "js/aio-chat.js",
       "src/chunks/ai-profile-GU3SX7UP.js",
-      "src/chunks/chat-globals-7WTAEMRZ.js",
+      "src/chunks/chat-globals-57FTWIYF.js",
       "src/chunks/question-cues-HHNEV3TP.js",
-      "src/chunks/supplied-materials-XU3HSVII.js"
+      "src/chunks/supplied-materials-5YAMERY5.js"
     ],
-    "routeMs": 103,
-    "wallMs": 7736,
+    "routeMs": 24,
+    "wallMs": 8868,
     "totalExternalRequests": 53,
     "quoteRequests": 32,
     "initialExternalRequests": 8,
@@ -109,6 +109,6 @@
       "other": true,
       "noChartGlobal": true
     },
-    "decodedJsMb": 2.9
+    "decodedJsMb": 3.46
   }
 }

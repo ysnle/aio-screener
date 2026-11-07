@@ -470,7 +470,7 @@ export async function fetchCoinGeckoCrossCheck() {
 export async function fetchHistory(symbol, range = '6mo') {
   for (const host of YAHOO_HOSTS) {
     try {
-      const url = host + '/v8/finance/chart/' + encodeURIComponent(symbol) + '?interval=1d&range=' + range;
+      const url = host + '/v8/finance/chart/' + encodeURIComponent(symbol) + '?interval=1d&range=' + range + '&events=split';
       const j = await fetchJSON(url, {}, 2);
       const res = j?.chart?.result?.[0];
       const ts = res?.timestamp;

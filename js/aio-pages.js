@@ -516,15 +516,15 @@ function getThemePerf(theme) {
 //  시장 브레드스 (Market Breadth) — screener compute_breadth 기반
 // ══════════════════════════════════════════════════════════════════
 function calcSectorUpShare(tickers) { // v59.70 R9: was calcSectorBreadth — leaders up today, not moving-average breadth
-  // v36.9: 종가 기준 pct 사용 (장중 변동으로 폭 흔들림 방지)
+  // 당일 등락(_liveData) 기준; 등락 없는 종목은 분모에서 뺀다(P2262).
   let ld = window._liveData || {};
   var above = 0, total = 0;
   tickers.forEach(function(t) {
     var d = ld[t];
-    if (!d || !d.price) return;
+    var pct = d && d.price && d.pct != null && d.pct !== '' ? Number(d.pct) : NaN;
+    if (!isFinite(pct)) return;
     total++;
-    // 간이 브레드스: 금일 양봉 비율 (종가 기준 pct)
-    if ((d.pct != null ? d.pct : 0) > 0) above++;
+    if (pct > 0) above++;
   });
   return total >= Math.max(2, Math.ceil(tickers.length * 0.6)) ? Math.round(above / total * 100) : null;
 }

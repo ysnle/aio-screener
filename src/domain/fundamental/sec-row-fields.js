@@ -5,8 +5,27 @@
 import { secSharesTrust } from './sec-report.js';
 import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from './period.js';
 
-export function secFundamentalRowFields(row, { price = null, dollarVolume30d = null, factorSessionDate = null, payloadModel = null, nowMs = Date.now() } = {}) {
+/**
+ * v59.70 (Sandisk 8:1, trading adjusted from 2026-11-20): the close is split-adjusted, but the share count is the last
+ * filing's cover count, so until the next 10-Q the count is on the pre-split basis — P/E reads 1/8 (then withheld as a
+ * unit mismatch) and P/B stays 1/8 on screen. A split dated after the count's observation date, up to the factor
+ * session, scales the count; a count already filed after the split (dei-cover-post-split) has nothing to scale.
+ */
+export function splitAdjustedShares(row, splits = [], factorSessionDate = null) {
+  const observed = String(row?.sharesObservedAt || '').slice(0, 10);
+  const session = String(factorSessionDate || '').slice(0, 10);
+  const shares = Number(row?.sharesOutstanding);
+  if (!observed || !(shares > 0) || !Array.isArray(splits)) return null;
+  const after = splits.filter((split) => split?.date > observed && (!session || split.date <= session) && Number(split.ratio) > 0);
+  if (!after.length) return null;
+  const ratio = after.reduce((product, split) => product * Number(split.ratio), 1);
+  return ratio === 1 ? null : { shares: Math.round(shares * ratio), ratio: Math.round(ratio * 1000) / 1000, since: after.at(-1).date };
+}
+
+export function secFundamentalRowFields(row, { price = null, dollarVolume30d = null, factorSessionDate = null, payloadModel = null, nowMs = Date.now(), splits = [] } = {}) {
   if (!row) return null;
+  const split = splitAdjustedShares(row, splits, factorSessionDate);
+  if (split) row = { ...row, sharesOutstanding: split.shares };
   const rec = {};
   const px = price;
   // F04/F10: only a share count matched to EPS by the producer, or (older/unchecked records) one whose implied
@@ -45,7 +64,8 @@ export function secFundamentalRowFields(row, { price = null, dollarVolume30d = n
     rec.valuationSharesOutstanding = shares;
     rec.valuationSharesObservedAt = row.sharesObservedAt || null;
     rec.valuationSharesCheck = trust.check;
-    rec.valuationSharesBasis = row.sharesBasis || 'dei-cover';
+    rec.valuationSharesBasis = split ? 'dei-cover-split-adjusted' : (row.sharesBasis || 'dei-cover');
+    if (split) { rec.valuationSplitRatio = split.ratio; rec.valuationSplitDate = split.since; }
   }
   // P1652: a filing whose period ended over 15 months ago is not current fundamentals (companyfacts concept gaps
   // left WFC on FY2019 and NEE on FY2012); the fields stay missing rather than ranking on a stale year.

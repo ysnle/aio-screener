@@ -6,6 +6,7 @@
 
 export const EVENT_BRIEFS_SCHEMA = 'event-briefs.v1';
 
+import { surprisePct, readNumber } from '../shared/number.js';
 import { MARKET_MOVERS, MOVER_BY_SYMBOL } from './market-movers.js';
 import { resolveMarketCalendarSession } from '../market/market-calendar.js';
 import { isIsoDay, hasLeadingIsoDay } from '../shared/session-date.js';
@@ -269,10 +270,8 @@ export function consensusComparable({ form = '', currency = null } = {}) {
   return !FOREIGN_ISSUER_FORM.test(String(form || '')) || currency === 'USD';
 }
 
-export function surprisePct(actual, estimate) {
-  if (!Number.isFinite(actual) || !Number.isFinite(estimate) || estimate === 0) return null;
-  return Math.round(((actual - estimate) / Math.abs(estimate)) * 1000) / 10;
-}
+// v59.70: the formula lives in shared/number.js; re-exported here for the producer and existing imports.
+export { surprisePct };
 
 // v59.48: which per-share amount the provider's EPS consensus (adjusted / non-GAAP by convention) is compared with.
 // The report's own "GAAP 기준" line beside an adjusted line printed two comparisons (LLY, EME), and a GAAP value whose
@@ -297,6 +296,36 @@ export function epsComparisonBasis(figure, figures = []) {
   if (GAAP_RE.test(`${figure.label || ''} ${note}`.replace(/non-?GAAP|비\s*GAAP/gi, ' '))) return null;
   const actual = perShareValue(figure.value);
   return actual == null ? null : { actual, basis: 'reported' };
+}
+
+// v59.70 (refactor step 2, one surprise per report): the briefing line, the reaction read and the 오늘 earnings story
+// each derived the surprise their own way. AAPL read EPS +3.6% (GAAP $2.10, briefing) beside +1.1% (오늘), its annual
+// $479B revenue read +314.1% against the quarter's estimate, and TLN's GAAP $2.88 read −68.3% where the provider's
+// same-basis actual is −37.9%. One reader now: an annual line is not compared with a quarterly estimate; the EPS line
+// is chosen by epsComparisonBasis; the provider's own actual (the calendar row market-day facts read, stamped by the
+// producer as estimate.providerActual) is the compared amount when present, else the brief's.
+const ANNUAL_RE = /연간|통년|full[-\s]?year|annual|fiscal\s+year/i;
+/** { pct, note, basis } for a brief figure against the provider consensus, or null when it is not compared. */
+export function figureSurprise(figure, figures = [], { provisional = false } = {}) {
+  const estimate = figure?.estimate;
+  if (estimate?.surprisePct == null) return null;
+  if (figure.metric === 'revenue' && ANNUAL_RE.test(figure.label || '')) return null;
+  const provider = readNumber(estimate.providerActual);
+  const consensus = !estimate.basis || estimate.basis === 'provider-consensus-reference';
+  if (provisional || !consensus || (figure.metric !== 'eps_diluted' && figure.metric !== 'revenue')) return { pct: estimate.surprisePct, note: '', basis: 'stored' };
+  if (figure.metric === 'revenue') {
+    const pct = provider != null ? surprisePct(provider, Number(estimate.value)) : estimate.surprisePct;
+    return pct == null ? null : { pct, note: '', basis: provider != null ? 'provider' : 'stored' };
+  }
+  const basis = epsComparisonBasis(figure, figures);
+  if (!basis) return null;
+  if (provider != null) {
+    const pct = surprisePct(provider, Number(estimate.value));
+    return pct == null ? null : { pct, note: provider !== basis.actual ? `(조정 $${provider} 기준)` : '', basis: 'provider' };
+  }
+  const pct = surprisePct(basis.actual, Number(estimate.value));
+  if (pct == null) return null;
+  return { pct, note: basis.basis === 'adjusted-in-note' ? `(조정 ${basis.amount} 기준)` : basis.basis === 'reported' ? '(보고 기준)' : '', basis: basis.basis };
 }
 
 // v59.48: release amounts and phrases copied in English ("$16.5 billion", "up 21%", "$1.89 per diluted share",

@@ -561,7 +561,7 @@ body.dark-theme .capex-flow-seg { color: var(--bg-base); filter: none; font-weig
 .reaction-read__head { margin: 0; font-size: 14px; line-height: 1.6; color: var(--text-secondary); }
 .reaction-read__tag { display: inline-block; margin-right: 6px; padding: 1px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; line-height: 1.6; color: var(--text-primary); background: rgba(var(--ink-rgb), 0.08); vertical-align: 1px; }
 .reaction-read.is-down .reaction-read__tag, .reaction-read__tag:is(.is-missed, .is-guidance, .is-spend, .is-execution, .is-management, .is-priced-in, .is-beat-fell) { background: color-mix(in srgb, var(--dir-down) 14%, transparent); }
-.reaction-read__tag:is(.is-as-reported, .is-relief) { background: color-mix(in srgb, var(--dir-up) 14%, transparent); }
+.reaction-read__tag:is(.is-as-reported, .is-guidance-up, .is-relief) { background: color-mix(in srgb, var(--dir-up) 14%, transparent); }
 .reaction-read__facts { margin: 0; display: flex; flex-wrap: wrap; gap: 2px 0; font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
 .reaction-read__facts > span + span::before { content: '·'; margin: 0 8px; color: var(--text-muted); }
 .reaction-read__facts > .is-hit { color: var(--text-primary); font-weight: 600; }
@@ -600,3 +600,51 @@ body.dark-theme .capex-flow-seg { color: var(--bg-base); filter: none; font-weig
 .page .mk-correction__dot { width: 8px; height: 8px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(var(--ink-rgb), 0.45); }
 .page .mk-correction__dot.is-bear { background: var(--text-primary); box-shadow: none; }
 .page .mk-correction__def { margin: 0; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
+
+/* v59.70 (refactor step 4): 종목 실적 네 칸 — 예상 | 발표 | 다음 전망 | 주가 반응. Two columns on a phone. */
+.event-brief__cells { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 6px 0 8px; }
+.event-brief__cell { padding: 8px 10px; border: 0.5px solid var(--border); border-radius: 8px; background: var(--bg-card); min-width: 0; }
+.event-brief__cell dt { margin: 0 0 4px; font-size: 12px; color: var(--text-secondary); font-weight: 600; }
+.event-brief__cell dd { margin: 0; font-size: 13px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.event-brief__cell dd.is-empty { color: var(--text-secondary); }
+.event-brief__cell dd[data-direction="up"] { color: var(--dir-up); }
+.event-brief__cell dd[data-direction="down"] { color: var(--dir-down); }
+@media (max-width: 640px) { .event-brief__cells { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* v59.70: 데이터 출처와 읽는 범위 — one row per lens (question · basis · reading · limit · evidence screen). */
+.page-sources .page-lenses { list-style: none; margin: 8px 0 12px; padding: 0 var(--sx-card-pad-x, 22px); display: grid; gap: 10px; }
+.page-sources .page-lenses > li { padding-bottom: 10px; border-bottom: 0.5px solid var(--border-subtle, var(--border)); }
+.page-lens__head { margin: 0 0 2px; color: var(--text-primary); font-size: 13px; }
+.page-lens__head b { margin-right: 4px; }
+.page-lens__basis { margin-left: 8px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.page-lens__basis.is-late { color: var(--text-primary); font-weight: 600; }
+.page-lens__line { margin: 2px 0 0; line-height: 1.6; }
+.page-lens__line.is-limit { color: var(--text-secondary); }
+.page-lens__link { margin-top: 4px; font-size: 12px; }
+
+/* v59.70: 시장이 말하는 이야기 — attention bars (24h shaded), one line per story, a fold with scenario and responses. */
+.mk-narr__bars { list-style: none; margin: 8px 0 4px; padding: 0; display: grid; gap: 6px; }
+.mk-narr__bar-row { display: grid; grid-template-columns: minmax(96px, 30%) 1fr auto; align-items: center; gap: 8px; font-size: 13px; }
+.mk-narr__track { display: flex; height: 10px; background: var(--bg-subtle, rgba(127,127,127,.12)); border-radius: 5px; overflow: hidden; }
+.mk-narr__fill.is-recent { background: var(--text-primary); opacity: .75; }
+.mk-narr__fill.is-earlier { background: var(--text-secondary); opacity: .35; }
+.mk-narr__bar-value { font-variant-numeric: tabular-nums; color: var(--text-secondary); }
+.mk-narr__legend { margin: 2px 0 10px; font-size: 12px; color: var(--text-secondary); }
+.mk-narr__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.mk-narr__story { padding-top: 10px; border-top: 0.5px solid var(--border); }
+.mk-narr__story-head { margin: 0 0 2px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.mk-narr__chip { font-size: 12px; padding: 1px 8px; border-radius: 999px; border: 0.5px solid var(--border); color: var(--text-secondary); }
+.mk-narr__chip.is-backed { color: var(--text-primary); font-weight: 600; }
+.mk-narr__line { margin: 2px 0 4px; line-height: 1.6; }
+.mk-narr__more > summary { cursor: pointer; font-size: 13px; color: var(--text-secondary); }
+.mk-narr__question, .mk-narr__attention, .mk-narr__frame, .mk-narr__why { margin: 6px 0 0; line-height: 1.6; font-size: 13px; }
+.mk-narr__frame.is-counter, .mk-narr__why { color: var(--text-secondary); }
+.mk-narr__scenario { margin-top: 10px; padding: 10px 12px; border: 0.5px solid var(--border); border-radius: 8px; background: var(--bg-card); }
+.mk-narr__scenario-head { margin: 0 0 6px; font-size: 13px; }
+.mk-narr__facts { display: grid; grid-template-columns: max-content 1fr; gap: 4px 10px; margin: 0; font-size: 13px; line-height: 1.55; }
+.mk-narr__facts dt { color: var(--text-secondary); }
+.mk-narr__facts dd { margin: 0; }
+.mk-narr__choices { margin: 4px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.6; }
+.mk-narr__choices .is-costly b { color: var(--text-secondary); }
+@media (max-width: 640px) { .mk-narr__facts { grid-template-columns: 1fr; } .mk-narr__facts dd { margin-bottom: 4px; } .mk-narr__bar-row { grid-template-columns: 38% 1fr auto; } }
+.mk-narr__change { margin: 4px 0 0; font-size: 13px; color: var(--text-primary); font-weight: 600; }

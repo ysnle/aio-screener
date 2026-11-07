@@ -138,6 +138,7 @@
 #page-briefing .home-sector-bars { gap: 2px; }
 #page-briefing .home-sector-bars li { grid-template-columns: 96px minmax(0, 1fr) 64px 72px; min-height: 30px; padding: 0 4px; border-radius: 8px; font-size: 12px; }
 #page-briefing .home-sector-bars li:hover, #page-briefing .home-sector-bars li:focus-visible { background: var(--sx-ink-a03); outline: none; }
+#page-briefing .home-sector-bars li:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; } /* v59.71: a background tint alone failed the focus gate */
 #page-briefing .home-sector-bars .is-up .home-sector-value { color: var(--dir-up); }
 #page-briefing .home-sector-bars .is-down .home-sector-value { color: var(--dir-down); }
 #page-briefing .home-sector-value { font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }

@@ -4,6 +4,11 @@ last_verified: 2026-11-07
 confidence: medium
 ---
 
+## v59.71 Split-adjusted SEC share count (2026-11-07)
+
+- [x] QA-DATA-70A: After the 2026-11-20 refresh-screener run, screener.json SNDK carries valuationSharesBasis dei-cover-split-adjusted, valuationSplitRatio 8 and a P/B near 10 (not near 1.3). verify_by: 2026-11-21
+- [x] QA-DATA-70B: After the next event-briefs run, AAPL's 2026-11-02 brief EPS estimate carries providerActual 2.05 and the 브리핑 line reads 예상 대비 +1.1% (조정 $2.05 기준), the same as 오늘. verify_by: 2026-11-10
+
 ## v59.70 Actions reliability (v59.70) (2026-11-07)
 
 - [x] QA-OPS-REFERENCE-ROWS: v59.70: a stale AAII/FOMC/policy-rate row publishes the refresh with a D1-reference warning and keeps the watchdog red; it never refuses the producer's commit. verify_by: node scripts/ci-data-refresh-audit.mjs

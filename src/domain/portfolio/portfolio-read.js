@@ -18,7 +18,7 @@ import { rrgRecentReading } from '../themes/recent-check.js';
 import { koreaRecordText, KR_SHOCK_TAIL_PCT } from '../briefing/market-read.js';
 import { signedText, readNumber as finite } from '../shared/number.js';
 import { hasLeadingIsoDay } from '../shared/session-date.js';
-import { readRowNumber } from '../../data/contracts/screener.js';
+import { bufferedTrend } from '../technical/bands.js';
 
 const signed = (value, digits = 1, unit = '%') => signedText(value, digits, unit);
 const QUADRANT = Object.freeze({ Leading: { label: '선도', tone: 'favorable' }, Improving: { label: '개선', tone: 'neutral' }, Weakening: { label: '약화', tone: 'neutral' }, Lagging: { label: '후행', tone: 'burden' } });
@@ -37,20 +37,17 @@ function rotationQuadrant(item) {
   return { ...base, held: false, base: base.label, why: '' };
 }
 
-// v57.81: a holding 0.38% above its 50-day line (QQQ, 5 sessions -3.8%) is on the line, not in an uptrend. Within
-// ±max(1%, the holding's average daily range) of either line the state is 선 근처(판정 보류) — the same idea as the
-// market-read trend buffer, with a per-holding band because one day's ordinary range can cross the line.
-export const TREND_BUFFER_MIN_PCT = 1;
+// v59.70 (lens plan step 5): one trend definition. The portfolio used its own band (±max(1%, ADR) around either line);
+// it now reads the same bufferedTrend as 종목·기술적 분석 (technical/bands.js), mapped to the portfolio's five states. A
+// short-term break inside an up-trend counts as 판정 보류. Above both lines with the five-session return missing stays 상승
+// only when the 50-day band was tested (ADR known), as the portfolio read did before; without the ADR it is 판정 보류.
+const TREND_STATE_OF = Object.freeze({ up: 'up', 'up-shaken': 'near', near50: 'near', pullback: 'pullback', rebound: 'rebound', down: 'down' });
 // v57.81: the Korean part of a book is read beside the US verdict once it is at least this share of the holdings.
 export const KR_BOOK_SHARE_PCT = 30;
 function trendState(row) {
-  // v59.46 boundary contract: the trend state is judged on values the screener readiness contract allows in a calculation.
-  const s50 = readRowNumber(row, 'pctSma50', 'calculation');
-  const s200 = readRowNumber(row, 'pctSma200', 'calculation');
-  if (s50 == null || s200 == null) return null;
-  const band = Math.max(TREND_BUFFER_MIN_PCT, finite(row?.adrPct) ?? 0);
-  if (Math.abs(s50) < band || Math.abs(s200) < band) return 'near';
-  return s50 >= 0 && s200 >= 0 ? 'up' : s50 < 0 && s200 >= 0 ? 'pullback' : s50 >= 0 ? 'rebound' : 'down';
+  const trend = bufferedTrend(row);
+  if (trend?.id === 'unconfirmed') return finite(row?.adrPct) > 0 ? 'up' : 'near';
+  return TREND_STATE_OF[trend?.id] || null;
 }
 export const TREND_LABEL = Object.freeze({ up: '상승 추세', near: '선 근처(판정 보류)', pullback: '추세 속 조정', rebound: '장기 추세 아래 반등', down: '하락 추세' });
 const isKr = (symbol) => /\.(KS|KQ)$/i.test(String(symbol || ''));
@@ -101,7 +98,7 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
       : usDown > 0 ? ` 미국 시장 폭이 좁은 지금은 미국 보유 중 하락 추세 종목(${usDown.toFixed(0)}%)이 지수보다 먼저 흔들리기 쉬운 환경입니다.`
         : ' 미국 시장 폭이 좁은 가운데 미국 보유 종목은 하락 추세에 있지 않습니다.';
     points.push({ id: 'trend', tone: up >= 60 ? 'favorable' : down >= 30 ? 'burden' : 'neutral', title: '보유 종목 추세',
-      text: `${trendBasisNote ? trendBasisNote + ': ' : ''}그중 ${up.toFixed(0)}%가 상승 추세(50·200일선 위), ${down.toFixed(0)}%가 하락 추세에 있습니다${near > 0 ? `. ${near.toFixed(0)}%는 50일선이나 200일선과의 차이가 하루 평균 변동폭(최소 ${TREND_BUFFER_MIN_PCT}%) 안이라 방향 판정을 보류합니다` : ''}${weakest.length ? ` — 하락 추세 중 가장 큰 비중은 ${weakest.slice(0, 2).map((row) => `${row.symbol}(${(row.value / trendTotal * 100).toFixed(0)}%, 평가액의 ${(row.value / total * 100).toFixed(0)}%)`).join(', ')}` : ''}.${breadthClause}` });
+      text: `${trendBasisNote ? trendBasisNote + ': ' : ''}그중 ${up.toFixed(0)}%가 상승 추세(50·200일선 위), ${down.toFixed(0)}%가 하락 추세에 있습니다${near > 0 ? `. ${near.toFixed(0)}%는 50일선과의 차이가 하루 평균 변동폭 안이거나 상승 추세 속 단기 급락이라 방향 판정을 보류합니다` : ''}${weakest.length ? ` — 하락 추세 중 가장 큰 비중은 ${weakest.slice(0, 2).map((row) => `${row.symbol}(${(row.value / trendTotal * 100).toFixed(0)}%, 평가액의 ${(row.value / total * 100).toFixed(0)}%)`).join(', ')}` : ''}.${breadthClause}` });
   }
 
   // v57.50 C24: one denominator and one classification with the 비중 · 섹터 배분 bars (surface.sectorBreakdown) — total

@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-07T07:21:18.745Z",
-  "attemptedAt": "2026-11-07T07:21:18.745Z",
-  "lastSuccessfulAt": "2026-11-07T07:21:18.745Z",
+  "generatedAt": "2026-11-07T08:21:36.547Z",
+  "attemptedAt": "2026-11-07T08:21:36.547Z",
+  "lastSuccessfulAt": "2026-11-07T08:21:36.547Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-24T07:21:12.415Z",
-  "until": "2026-11-07T07:21:12.415Z",
+  "since": "2026-10-24T08:21:32.381Z",
+  "until": "2026-11-07T08:21:32.381Z",
   "current24hWindow": {
     "start": "2026-11-05T23:00:00.000Z",
     "end": "2026-11-06T23:00:00.000Z",
@@ -80,10 +80,10 @@
       "pages": 0,
       "reachedOlder": false,
       "reachedKnown": false,
-      "count": 38,
+      "count": 37,
       "freshCount": 0,
-      "eligibleTextCount": 35,
-      "selectedCount": 21,
+      "eligibleTextCount": 34,
+      "selectedCount": 20,
       "error": "first page parsed no posts",
       "lastPostId": 26057
     },
@@ -92,12 +92,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1354,
-      "freshCount": 39,
-      "eligibleTextCount": 1292,
+      "count": 1353,
+      "freshCount": 40,
+      "eligibleTextCount": 1291,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 68621
+      "lastPostId": 68624
     },
     {
       "channel": "bornlupin",
@@ -113,54 +113,54 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 691,
-      "freshCount": 37,
+      "freshCount": 17,
       "eligibleTextCount": 690,
       "selectedCount": 122,
       "error": null,
       "lastPostId": 71711
     }
   ],
-  "count": 2322,
-  "retainedItemCount": 448,
+  "count": 2320,
+  "retainedItemCount": 436,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2322,
-    "eligibleTextCount": 2256,
+    "observedCount": 2320,
+    "eligibleTextCount": 2254,
     "mediaOnlyCount": 66,
-    "mediaAttachedCount": 498,
-    "photoPostCount": 431,
+    "mediaAttachedCount": 500,
+    "photoPostCount": 433,
     "documentPostCount": 2,
     "imageOnlyCount": 2,
-    "highSignalCount": 394,
-    "broadSignalCount": 850,
-    "selectedRawCount": 389,
-    "selectedEligibleCount": 389,
+    "highSignalCount": 393,
+    "broadSignalCount": 849,
+    "selectedRawCount": 388,
+    "selectedEligibleCount": 388,
     "selectedRawCoveragePct": 17.2,
-    "selectedOfObservedPct": 16.8,
+    "selectedOfObservedPct": 16.7,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "market-note": 843,
+    "geo": 441,
     "semi": 480,
     "flows": 67,
-    "geo": 442,
-    "market-note": 844,
     "power": 270,
     "ai-policy": 99,
-    "kr-market": 117,
+    "kr-market": 116,
     "credit": 99,
-    "macro": 348,
+    "macro": 347,
     "media-only": 65,
     "earnings": 403,
     "equity": 116,
     "healthcare": 72,
-    "japan": 77,
+    "japan": 76,
     "optical": 40,
     "crypto": 4
   },
@@ -258,13 +258,13 @@
     "SHOP": 1
   },
   "themes": [
-    "Market Notes (844 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
+    "Market Notes (843 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
     "Semiconductors/Memory (480 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
-    "Geopolitics (442 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
+    "Geopolitics (441 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
     "Earnings/Corporate (403 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
-    "Macro/Rates (348 posts in 14-day research window): 2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000...",
+    "Macro/Rates (347 posts in 14-day research window): 2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000...",
     "AI Power/Grid (270 posts in 14-day research window): 데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가...",
-    "Korea Market (117 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY...",
+    "Korea Market (116 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY...",
     "Equity/Analyst (116 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
   ],
   "catalysts": [
@@ -336,7 +336,7 @@
       "topics": [
         "macro"
       ],
-      "count": 348,
+      "count": 347,
       "focus": "2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000..."
     },
     {
@@ -345,7 +345,7 @@
       "topics": [
         "geo"
       ],
-      "count": 442,
+      "count": 441,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격..."
     },
     {
@@ -399,7 +399,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 117,
+      "count": 116,
       "focus": "SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
     },
     {
@@ -444,7 +444,7 @@
       "topics": [
         "japan"
       ],
-      "count": 77,
+      "count": 76,
       "focus": "앤트로픽, 대규모 미국 IPO 위해 일본에서 최대 35억 달러 조달 추진 1. 앤트로픽, 일본 투자자로부터 최대 35억 달러 조달 추진 - AI 스타트업 앤트로픽(Anthropic PBC)이 미국 증시..."
     },
     {
@@ -454,7 +454,7 @@
         "flows"
       ],
       "count": 67,
-      "focus": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (48.33%) 2위: ALPHABET INC CL A (14.78%) 3위: PROSHARES ULTRAPRO..."
+      "focus": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
       "id": "insider",
@@ -471,7 +471,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 844,
+      "count": 843,
       "focus": "2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며..."
     }
   ],
@@ -732,11 +732,8 @@
       "localDateKst": "2026-11-07",
       "tags": [
         "flows",
-        "semi",
-        "power",
-        "kr-market"
+        "semi"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
       "media": {
@@ -745,6 +742,8 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
+      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -767,8 +766,7 @@
         "ONON",
         "SHOP",
         "FSLR"
-      ],
-      "summary": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
+      ]
     },
     {
       "id": "insidertracking/68574",
@@ -2015,13 +2013,13 @@
       "datetime": "2026-11-07T02:39:26.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "credit",
         "power"
       ],
       "score": 65,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>골드만삭스 ‘역발상 강세’ : 데이터 건설 지출 전망치 상향 •골드만삭스는 역발상으로 미국 데이터센터 건설 지출 전망을 상향 조정. 2026년 전망치를 기존 670억달러에서 800억달러로 올렸으며,..."
+      "summary": ">>골드만삭스 ‘역발상 강세’ : 데이터 건설 지출 전망치 상향 •골드만삭스는 역발상으로 미국 데이터센터 건설 지출 전망을 상향 조정. 2026년 전망치를 기존 670억달러에서 800억달러로 올렸으며,...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71690",
@@ -2035,10 +2033,10 @@
       ],
       "score": 68,
       "hasText": true,
+      "summary": ">>미국 증시 충격의 한 주! AI 매도 일단 진정됐지만 강한 고용지표에 금리 인상 경고, 금요일 반등은 ‘데드캣 바운스’일까? (중국언론) •미국 증시는 금요일 급락했던 반도체주를 중심으로 기술적 반등을...",
       "tickers": [
         "AMD"
-      ],
-      "summary": ">>미국 증시 충격의 한 주! AI 매도 일단 진정됐지만 강한 고용지표에 금리 인상 경고, 금요일 반등은 ‘데드캣 바운스’일까? (중국언론) •미국 증시는 금요일 급락했던 반도체주를 중심으로 기술적 반등을..."
+      ]
     },
     {
       "id": "insidertracking/68605",
@@ -2066,7 +2064,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
       "media": {
@@ -2075,10 +2072,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": ">>역대 ‘반도체주 급락’ 이후에는 무슨 일이 있었나? •목요일 필라델피아 SOX는 -12% 하락했고, S&P500은 -4% 하락. 이는 SOX 출범 이후 두 번째로 큰 하루 낙폭으로, 최대 낙폭은 2020년...",
+      "lead": 1,
       "tickers": [
         "DB"
-      ],
-      "summary": ">>역대 ‘반도체주 급락’ 이후에는 무슨 일이 있었나? •목요일 필라델피아 SOX는 -12% 하락했고, S&P500은 -4% 하락. 이는 SOX 출범 이후 두 번째로 큰 하루 낙폭으로, 최대 낙폭은 2020년..."
+      ]
     },
     {
       "id": "HANAchina/71686",
@@ -2087,17 +2085,17 @@
       "datetime": "2026-11-07T01:29:48.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 68,
       "hasText": true,
+      "summary": ">>Microsoft, AI 연산력 임대 축소 - Oracle Cloud 계약에서 단계적으로 철수한다는 소식에 ‘신흥 클라우드’ CoreWeave 급락 •금요일 보도에 따르면 Microsoft가 최근 몇 달간...",
       "tickers": [
         "NVDA",
         "MSFT",
         "ORCL",
         "CRWV"
-      ],
-      "summary": ">>Microsoft, AI 연산력 임대 축소 - Oracle Cloud 계약에서 단계적으로 철수한다는 소식에 ‘신흥 클라우드’ CoreWeave 급락 •금요일 보도에 따르면 Microsoft가 최근 몇 달간..."
+      ]
     },
     {
       "id": "bornlupin/21045",
@@ -2168,12 +2166,12 @@
       "datetime": "2026-11-07T00:18:01.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "power"
+        "market-note"
       ],
       "score": 63,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>UBS : AI 투자 사이클 조정 국면, 버블 붕괴 아님…대만 시장 밸류에이션 매력 부각 (대만경제일보) •UBS 대만 전략은 현재 AI 투자 사이클이 조정 국면에 진입했지만 버블 붕괴는 아니라고 밝힘...."
+      "summary": ">>UBS : AI 투자 사이클 조정 국면, 버블 붕괴 아님…대만 시장 밸류에이션 매력 부각 (대만경제일보) •UBS 대만 전략은 현재 AI 투자 사이클이 조정 국면에 진입했지만 버블 붕괴는 아니라고 밝힘....",
+      "tickers": []
     },
     {
       "id": "bornlupin/21042",
@@ -2210,14 +2208,14 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 55,
       "hasText": true,
+      "summary": ">>TSMC, 첨단 메모리 반도체 진출 검토 (The Information) •TSMC가 첨단 메모리 반도체 제조 사업으로 확대를 검토. TSMC는 Nvidia의 요청에 따라 최근 특정 유형의 첨단 메모리...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "TSM"
-      ],
-      "summary": ">>TSMC, 첨단 메모리 반도체 진출 검토 (The Information) •TSMC가 첨단 메모리 반도체 제조 사업으로 확대를 검토. TSMC는 Nvidia의 요청에 따라 최근 특정 유형의 첨단 메모리..."
+      ]
     },
     {
       "id": "bornlupin/21041",
@@ -2254,14 +2252,13 @@
       "datetime": "2026-11-06T23:41:26.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "macro",
-        "japan"
+        "macro"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>BOJ 총재 : 인플레이션 상방 리스크, 향후 심각한 충격 시 비전통적 완화 재개 가능 •우에다 가즈오는 기조적 인플레이션이 2% 목표 수준을 유지할 것으로 예상하며, 임금 상승과 물가 상승이 점차..."
+      "summary": ">>BOJ 총재 : 인플레이션 상방 리스크, 향후 심각한 충격 시 비전통적 완화 재개 가능 •우에다 가즈오는 기조적 인플레이션이 2% 목표 수준을 유지할 것으로 예상하며, 임금 상승과 물가 상승이 점차...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68584",
@@ -2306,14 +2303,13 @@
       "localDateKst": "2026-11-07",
       "tags": [
         "credit",
-        "macro",
-        "power",
-        "earnings"
+        "macro"
       ],
       "score": 87,
       "hasText": true,
-      "tickers": [],
-      "summary": "오클로(OKLO) Q3 2026 어닝콜 요약 긍정 요인: • 강력한 유동성 및 자금조달 능력. 현금 및 유가증권 31억달러 확보. 연초 이후 ATM 방식으로 23억달러를 조달하며 원자로 건설, 핵연료 개발 및..."
+      "summary": "오클로(OKLO) Q3 2026 어닝콜 요약 긍정 요인: • 강력한 유동성 및 자금조달 능력. 현금 및 유가증권 31억달러 확보. 연초 이후 ATM 방식으로 23억달러를 조달하며 원자로 건설, 핵연료 개발 및...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68579",
@@ -2323,11 +2319,8 @@
       "localDateKst": "2026-11-07",
       "tags": [
         "flows",
-        "semi",
-        "power",
-        "kr-market"
+        "semi"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
       "media": {
@@ -2336,6 +2329,8 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
+      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -2358,8 +2353,7 @@
         "ONON",
         "SHOP",
         "FSLR"
-      ],
-      "summary": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
+      ]
     },
     {
       "id": "insidertracking/68577",
@@ -2555,14 +2549,13 @@
       "datetime": "2026-11-06T15:53:14.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "ai-policy",
-        "equity"
+        "ai-policy"
       ],
-      "lead": 1,
       "score": 55,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>Anthropic 상장이 더 큰 리스크 이벤트가 될 것 (HSBC) •HSBC의 Max Kettner는 2주 전 미국 증시 투자의견을 최고 수준의 비중확대에서 중립으로 하향. 당시 그는 기업들의 자본지출..."
+      "summary": ">>Anthropic 상장이 더 큰 리스크 이벤트가 될 것 (HSBC) •HSBC의 Max Kettner는 2주 전 미국 증시 투자의견을 최고 수준의 비중확대에서 중립으로 하향. 당시 그는 기업들의 자본지출...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/21038",
@@ -8934,21 +8927,6 @@
       "hasText": true,
       "summary": "> 격리된 작업 간 통신 에이전트들이 서로 통신하기 위해 항상 네트워크 연결이 필요한 것은 아닙니다. 별도의 환경이 동일한 하드웨어나 서비스를 공유하는 경우, 한 환경의 활동이 다른 환경에서 감지할 수 있는...",
       "tickers": []
-    },
-    {
-      "id": "aetherjapanresearch/26018",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/26018",
-      "datetime": "2026-10-24T08:12:15.000Z",
-      "localDateKst": "2026-10-24",
-      "tags": [
-        "macro",
-        "japan"
-      ],
-      "score": 85,
-      "hasText": true,
-      "summary": "Citi) 일본 FX – 제2차 타카이치 내각 하에서의 일본은행 정책 변화와 엔화에 미치는 영향 Citi는 일본은행(BoJ)이 다음 주 회의에서 정책금리를 1.25%로 동결할 것으로 예상하며, FOMC와...",
-      "tickers": []
     }
   ],
   "current24hItems": [
@@ -8995,14 +8973,13 @@
       "localDateKst": "2026-11-07",
       "tags": [
         "credit",
-        "macro",
-        "power",
-        "earnings"
+        "macro"
       ],
       "score": 87,
       "hasText": true,
-      "tickers": [],
-      "summary": "오클로(OKLO) Q3 2026 어닝콜 요약 긍정 요인: • 강력한 유동성 및 자금조달 능력. 현금 및 유가증권 31억달러 확보. 연초 이후 ATM 방식으로 23억달러를 조달하며 원자로 건설, 핵연료 개발 및..."
+      "summary": "오클로(OKLO) Q3 2026 어닝콜 요약 긍정 요인: • 강력한 유동성 및 자금조달 능력. 현금 및 유가증권 31억달러 확보. 연초 이후 ATM 방식으로 23억달러를 조달하며 원자로 건설, 핵연료 개발 및...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68579",
@@ -9012,11 +8989,8 @@
       "localDateKst": "2026-11-07",
       "tags": [
         "flows",
-        "semi",
-        "power",
-        "kr-market"
+        "semi"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
       "media": {
@@ -9025,6 +8999,8 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
+      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -9047,8 +9023,7 @@
         "ONON",
         "SHOP",
         "FSLR"
-      ],
-      "summary": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
+      ]
     },
     {
       "id": "insidertracking/68577",
@@ -9244,14 +9219,13 @@
       "datetime": "2026-11-06T15:53:14.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "ai-policy",
-        "equity"
+        "ai-policy"
       ],
-      "lead": 1,
       "score": 55,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>Anthropic 상장이 더 큰 리스크 이벤트가 될 것 (HSBC) •HSBC의 Max Kettner는 2주 전 미국 증시 투자의견을 최고 수준의 비중확대에서 중립으로 하향. 당시 그는 기업들의 자본지출..."
+      "summary": ">>Anthropic 상장이 더 큰 리스크 이벤트가 될 것 (HSBC) •HSBC의 Max Kettner는 2주 전 미국 증시 투자의견을 최고 수준의 비중확대에서 중립으로 하향. 당시 그는 기업들의 자본지출...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/21038",

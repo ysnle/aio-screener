@@ -31,12 +31,14 @@ function screenerOf(root, store) {
   return { screener: { data: Object.fromEntries(rows.filter((row) => row?.sym).map((row) => [row.sym, row])) }, universe: rows, indexWeights: weightRows(state.screener?.metadata?.indexWeights) };
 }
 
-function indexCard(doc, root, reading) {
+// v59.70 (lens plan step 4): a card whose last close is older than the page basis (코스피 before the US close) says its own date.
+function indexCard(doc, root, reading, latest) {
   const box = el(doc, 'section', null, 'trend-card charts-card');
   box.dataset.index = reading.field;
   box.dataset.trend = reading.trend;
   const head = el(doc, 'div', null, 'trend-card-head');
   head.append(el(doc, 'h3', reading.label, 'trend-card-title'), el(doc, 'span', reading.trendWord, `charts-trend is-${reading.trend}`));
+  if (reading.asOf && latest && reading.asOf !== latest) head.append(el(doc, 'span', `${shortDate(reading.asOf)} 종가`, 'charts-asof'));
   box.append(head, el(doc, 'p', reading.conclusion, 'charts-card-conclusion'));
   // One level line, the one to hold: the nearest support (or the double-top neck when there is none). A second line closer
   // than a label's height moves its label to the right edge, onto the 50-day line's end tag (trend-chart.js LABEL_GAP);
@@ -112,7 +114,7 @@ function render(documentRef, root, store, page) {
     // v59.70 (ui-states): an empty grid drew nothing at all; it now shows the shared loading or failed state.
     if (!readings.length) renderDataState(grid, root?.__aioHistoryLoadState === 'failed'
       ? { state: 'error', text: historyWaitText(root), onRetry: () => root?._aioLoadHistory?.() } : { state: 'loading', lines: 4 });
-    else grid.replaceChildren(...readings.map((reading) => indexCard(documentRef, root, reading)));
+    else grid.replaceChildren(...readings.map((reading) => indexCard(documentRef, root, reading, asOf)));
     grid.querySelectorAll('[data-index]').forEach((card) => { if (opened.has(card.dataset.index)) card.querySelector('details')?.setAttribute('open', ''); });
   }
   const host = documentRef.getElementById('charts-stock-table');

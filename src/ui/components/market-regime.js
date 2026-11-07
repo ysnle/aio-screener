@@ -529,7 +529,9 @@ function paintCrossReadings(doc, root, inputs) {
       host.replaceChildren(...rows.map((row) => {
         const item = el(doc, 'div', null, 'mk-cross__item');
         item.dataset.pair = row.id;
-        item.append(el(doc, 'h3', row.title, 'mk-cross__title'));
+        const title = el(doc, 'h3', row.title, 'mk-cross__title');
+        if (row.asOf) title.append(el(doc, 'span', ` ${shortDate(row.asOf)} 기준`, 'mk-cross__asof'));
+        item.append(title);
         if (row.map) item.append(crossMap(doc, row));
         item.append(el(doc, 'p', row.text, 'mk-cross__text'));
         return item;
@@ -575,7 +577,9 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
   (sessionLean ||= import('./session-lean.js')).then((mod) => mod.paintMarketLean(doc, root, regime.available ? regime : null, doc.getElementById('regime-leaders'), () => renderRegimePage({ documentRef: doc, root, store }))).catch(() => { sessionLean = null; });
   heroSide(doc, regime, previous);
   // v59.55 (owner 11/1): 무슨 일이 있었나 — a lazy chunk (this module is on the boot path through 오늘's verdict).
-  if (regime.available) import('./market-story.js').then(({ renderMarketStory }) => renderMarketStory({ documentRef: doc, root, interpretation })).catch(() => {});
+  if (regime.available) import('./market-story.js').then(({ renderMarketStory }) => renderMarketStory({ documentRef: doc, root, interpretation }))
+    // v59.70 (owner 11/07): 시장이 말하는 이야기 — the relayed stories tied to the scenario they would feed, under the story.
+    .then(() => import('./market-narratives.js')).then(({ renderMarketNarratives }) => renderMarketNarratives({ documentRef: doc, root, interpretation })).catch(() => {});
   comboAndWatch(doc, root, regime, interpretation);
   // v59.51: the four-choice cost card (regime-choices.js) is deleted — it repeated 거시's lead-scenario 대응별 득실 word for
   // word, and its next release disagreed with the one above.
