@@ -5246,10 +5246,28 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   const split = chainOf({ _asOf_realYield10: '2026-10-06', _asOf_breakeven10: '2026-10-07' });
   const same = chainOf({ _asOf_realYield10: '2026-10-07', _asOf_breakeven10: '2026-10-07' });
   const unknown = chainOf({});
-  if (breakevenOf(split) !== '기준일이 달라 보류') fail('P1528 the chain must hold the breakeven move when the real-yield and breakeven dates differ');
+  // v59.74 (macro review): the breakeven node is the breakeven's own move and needs no real yield; only the comparison is held.
+  if (breakevenOf(split) !== '5거래일 +8bp') fail('v59.74 the chain must show the breakeven 5-session move even when the real yield posted on another day');
   if (split.links.some((link) => /실질금리 우위/.test(link))) fail('P1528 the chain must not claim real-yield dominance across different observation dates');
   if (breakevenOf(same) !== '5거래일 +8bp' || !same.links.some((link) => /실질금리 우위/.test(link))) fail('P1528 same-day real yield and breakeven must still be compared');
   if (breakevenOf(unknown) !== '5거래일 +8bp') fail('P1528 without observation dates the chain keeps its previous reading');
+}
+
+// v59.74 (macro review): gold is read against the real yield and the dollar past the cross-asset lines; the volatility
+// chapter places VVIX/MOVE inside their own record and names the market the shaking comes from.
+{
+  const { goldRead } = await load('src/domain/macro/macro-chapters.js');
+  if (!/설명되지 않아/.test(goldRead({ pct: -3.4 }, { bp: -27 }, { pct: 0.05 }))) fail('v59.74 gold down while the real yield fell 27bp must read as unexplained by rates, not as the usual relation');
+  if (!/평소 관계/.test(goldRead({ pct: -4 }, { bp: 20 }, { pct: 0 }))) fail('v59.74 gold down with a 20bp real-yield rise is the usual relation');
+  if (!/달러/.test(goldRead({ pct: 3 }, { bp: 2 }, { pct: -2 }))) fail('v59.74 a gold rise with a 2% weaker dollar names the dollar');
+  if (!/크게 움직이지 않았습니다/.test(goldRead({ pct: 1 }, { bp: -30 }, { pct: 0 }))) fail('v59.74 a gold move under 2% is not read against rates');
+  const { volatilityChapter } = await load('src/domain/macro/volatility.js');
+  const days = Array.from({ length: 200 }, (_, i) => new Date(Date.UTC(2026, 0, 1 + i)).toISOString().slice(0, 10)).filter((d) => ![0, 6].includes(new Date(`${d}T12:00:00Z`).getUTCDay()));
+  const rows = days.map((date, i) => ({ date, spx: 6000 + i, vix: i === days.length - 1 ? 30 : 15 + (i % 5), vix3m: i === days.length - 1 ? 27 : 18, vvix: 90 + (i % 10), move: i === days.length - 1 ? 140 : 80 + (i % 10) }));
+  const vol = volatilityChapter(rows, []);
+  if (!vol || !/기간 구조가 역전/.test(vol.mean)) fail('v59.74 the volatility chapter must name an inverted VIX term structure (VIX 30 over VIX3M 27)');
+  if (!vol.bond || vol.bond.pct < 99) fail('v59.74 MOVE at a record high must sit at the top of its own record');
+  if (volatilityChapter([], []) !== null) fail('v59.74 the volatility chapter is left out without a VIX close');
 }
 
 // 2026-10-19 (expertise review): shelter and services ex-shelter split sticky core CPI on the inflation axis (evidence only),

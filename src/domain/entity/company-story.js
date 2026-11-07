@@ -5,6 +5,7 @@
 // source in the file; nothing here estimates a missing value.
 import { readNumber as finite } from '../shared/number.js';
 import { isIsoDay, hasLeadingIsoDay } from '../shared/session-date.js';
+import { debateContextLines } from './company-debate.js';
 
 export const AI_LAYERS = Object.freeze([
   ['power-energy', '전력·에너지'], ['cooling-electrical', '냉각·전기 설비'], ['data-center-real-estate', '데이터센터 부동산'],
@@ -107,6 +108,8 @@ export function companyStoryContext(story) {
     (story.guidance?.latest || []).length ? `회사 가이던스: ${story.guidance.latest.map((g) => `${g.period} ${g.metric} ${g.value}(${g.givenOn || '날짜 미상'})`).join(' / ')}` : null,
     (w.confirms || []).length ? `맞아가는 신호: ${w.confirms.join(' / ')}` : null,
     (w.breaks || []).length ? `어긋나는 신호: ${w.breaks.join(' / ')}` : null,
+    // v59.74: the issue the stock turns on, both readings, and the structures under the numbers.
+    ...debateContextLines(story),
     '이 조사 이후 새 실적이 나왔으면 그 내용이 우선한다. 매매 지시 없이 조건으로 답할 것.'
   ];
   return lines.filter(Boolean).join('\n');

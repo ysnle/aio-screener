@@ -39,6 +39,7 @@ current_checkpoint: P963 correlated public-AI browser request plus ticker empty-
 | `src/ui/pages/themes.js` | 1,117 | native bounded RRG quadrant/rotation-read renderer plus accessible theme-detail triggers, theme-detail summary/composition/leaders/temperature/spread/breadth-health/subtheme-gap/benchmark/insights, RRG chart lifecycle and AI inference/deal-loop reference lens; deeper legacy-only surfaces remain bounded |
 | `src/domain/ai/inference-efficiency.js` | 105 | reference-only inference efficiency axes, workload fit, architecture archetypes, AI deal-map nodes/role-level edges and public proxy resolver |
 | `src/domain/macro/macro-read.js` | 312 | P1426 거시 read: growth (Sahm, payroll trend, claims), inflation (core PCE vs 2%, 3-month pace) and policy (2Y vs policy rate, real policy rate) axes; rates/oil-dollar/credit shared with 시장 상태; growth×inflation regime; oil→inflation→policy→rates→valuation chain. Replaces the retired transmission lens (`transmission.js`). |
+| `src/domain/macro/volatility.js` | 95 | v59.74 매크로 › 변동성 장: VIX(시장 상태와 같은 선)·VIX9D·VIX3M 기간구조, VVIX·MOVE·SKEW 1년 기록 안 위치, 채권 vs 주식 변동성 출처 판독; 금리와 환율 MOVE 카드가 같은 판독을 읽는다 |
 | `src/ui/pages/analysis.js` | 371 | native home/signal/technical decision surfaces and technical OHLCV/volume chart lifecycles with fail-closed input states |
 | `src/ui/pages/entity.js` | 453 | native ticker hero/activity/navigation, VIX/PCR/SKEW replacement metrics (options page retired v56.79), fundamental SEC status/summary, `sec-report.v2` core report renderer, and native ticker chart lifecycle with explicit unavailable history state |
 | `src/ui/pages/portfolio.js` | 386 | native portfolio state, positive-only holdings/summary/allocation surfaces, and position-allocation chart lifecycle with explicit unavailable state |
@@ -118,7 +119,7 @@ benchmark-relative-strength remains visible as missing evidence.
 ### P761-P780 continuation (2026-07-22)
 
 - `src/domain/signal/trading-score.js` owns the `signal-from-trading-score.v1` decision envelope; `src/domain/signal/decision.js`, `src/domain/market/model.js`, and `src/domain/screener/ranking.js` are retired.
-- `src/domain/screener/factor-weights.js` owns neutral/risk-on/risk-off/profile weight resolution. `js/aio-data.js:_aioFactorWeights` is a storage/profile bridge only.
+- `src/domain/screener/factor-weights.js` owns neutral/risk-on/risk-off/profile weight resolution. `src/app/trader-profiles.js:_aioFactorWeights` (moved out of js/aio-data.js in v59.40) is a storage/profile bridge only.
 - `src/app/bootstrap.js:getScreenerRows` is the native screener read API. `_aioGetCanonicalScreenerRows()` is the legacy compatibility adapter used by portfolio, ticker, fundamental, chat, watchlist, and audit consumers.
 - `SCREENER_DB` remains the curated identity/memo and legacy data-pipeline compatibility boundary. Its direct non-route reads and runtime factor projection were retired; remaining work is to migrate the identity/memo producers and remove the remaining compatibility surface when their consumers are cut over.
 - P765 removed the missed legacy `_aioRenderQuantReadiness` DOM writer/call and registered the retired symbol in `screener.legacySymbolsMustBeAbsent`; native screener now owns `screener-readiness-note` without an AG-DOM-WRITER exception.
@@ -442,7 +443,7 @@ Shared modules (import these instead of re-declaring): `src/ui/components/dom.js
 | `renderBriefingFeed` | 4994 | 브리핑 입력 무효화 신호만(렌더는 `src/ui/pages/news.js`) |
 | `vixToPercentile` | 14286 | VIX percentile 로그 외삽 |
 | `toggleSignalMode` | 16184 | signal UI mode state |
-| `_aioFactorWeights` | 15342 | storage/profile 입력을 pure `factor-weights.v1`에 연결하는 호환 브릿지 |
+| ~~`_aioFactorWeights`~~ | 이동 (v59.40) | `src/app/trader-profiles.js`로 옮겼다. storage/profile 입력을 pure `factor-weights.v1`에 연결하는 호환 브릿지 |
 | ~~`_aioComputeFactorRanks`~~ | 퇴역 (2026-10-17) | 같은 행을 두 번째로 랭킹하던 legacy wrapper. rank·factorScores는 native screener orchestrator가 canonical row에 싣는다 |
 > P763 correction: deterministic factor-weight math moved to `src/domain/screener/factor-weights.js`; `_aioFactorWeights` now resolves compatibility inputs and bridges the pure result only.
 | `computeFactorRanks` | `src/domain/screener/factor-ranks.js:105` | 순수 7팩터 랭킹: 섹터 z-score·winsorize·활성 factor·percentile rank. global/DOM/storage 접근 없음 |
