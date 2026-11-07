@@ -10,6 +10,7 @@
 //   SM-05   each failed quote fetch added its own retry chain, and the chains fetched while the tab was hidden
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
 import { installRefreshScheduler } from '../src/app/refresh-scheduler.js';
 
 let checks = 0;
@@ -135,39 +136,66 @@ function pendingFetcher(name) {
   pass('SM-04 overlapping refreshes hold their symbol lists independently');
 }
 
-// SM-05 — the retry owner in the scheduler, and the two lines of js/aio-data.js fetchLiveQuotes that use it.
-{
+// SM-05 — the real js/aio-data.js fetchLiveQuotes (with its group planner) run in a vm against an offline transport,
+// wired to the real scheduler's retry owner, under fake timers. Names the function does not reach resolve to inert stubs.
+function loadFetchLiveQuotes(win, globalsForVm) {
   const source = readFileSync(new URL('../js/aio-data.js', import.meta.url), 'utf8');
-  const start = source.indexOf('async function fetchLiveQuotes(');
-  const fetchSource = source.slice(start, source.indexOf('function scheduleQuoteCrossSourceValidation(', start));
-  assert.ok(fetchSource.includes('if (!usingSnapshotFallback && window._aioScheduleQuoteRetry) window._aioScheduleQuoteRetry(wait * 1000);'), 'v59.74 SM-05: the failure path schedules through the one retry owner');
-  assert.ok(!fetchSource.includes('setTimeout(fetchLiveQuotes'), 'v59.74 SM-05: no failure path adds its own retry timer');
-  assert.ok(fetchSource.includes('if (window._aioQuoteInFlight) return { ok: false, skipped: true, coalesced: true'), 'v59.74 SM-03a: a call during a running fetch reports that it did nothing');
+  const start = source.indexOf('function _aioPlanQuoteGroups(');
+  const end = source.indexOf('function scheduleQuoteCrossSourceValidation(', start);
+  assert(start >= 0 && end > start, 'v59.74 SM-05: fetchLiveQuotes and its planner are found in js/aio-data.js');
+  const inert = () => new Proxy(function () {}, { apply: () => undefined, get: (_, key) => (key === 'then' ? undefined : key === Symbol.toPrimitive ? () => '' : inert()) });
+  const own = {
+    console: { log() {}, warn() {}, error() {} }, Promise, Date, Math, JSON, Object, Array, Set, Map, String, Number, Boolean, Error, RegExp,
+    isFinite, isNaN, parseFloat, parseInt, encodeURIComponent, window: win, document: doc,
+    CustomEvent: class { constructor(type, init) { this.type = type; this.detail = init?.detail; } },
+    fetchWithTimeout: async () => { throw new Error('offline'); }, fetchViaProxy: async () => { throw new Error('offline'); },
+    fetchKrNaverQuotes: async () => [], LIVE_SYMBOLS: ['SPY'], _aioMarketSnapshotMeta: null, ...globalsForVm
+  };
+  const context = vm.createContext(new Proxy(own, {
+    has: () => true,
+    get: (target, key) => (key in target ? target[key] : key === Symbol.unscopables ? undefined : key in win ? win[key] : inert())
+  }));
+  vm.runInContext(`${source.slice(start, end)}\nthis.fetchLiveQuotes = fetchLiveQuotes;`, context);
+  return context.fetchLiveQuotes;
+}
+{
   const win = freshScheduler();
-  let calls = 0;
-  globalThis.fetchLiveQuotes = () => { calls += 1; };
-  const realSetTimeout = globalThis.setTimeout, realClearTimeout = globalThis.clearTimeout;
   const timers = new Map();
   let seq = 0;
-  globalThis.setTimeout = (fn, ms) => { seq += 1; timers.set(seq, { fn, ms }); return seq; };
-  globalThis.clearTimeout = (id) => { timers.delete(id); };
+  const fakeSetTimeout = (fn, ms) => { seq += 1; timers.set(seq, { fn, ms }); return seq; };
+  const fakeClearTimeout = (id) => { timers.delete(id); };
+  const realSetTimeout = globalThis.setTimeout, realClearTimeout = globalThis.clearTimeout;
+  globalThis.setTimeout = fakeSetTimeout; globalThis.clearTimeout = fakeClearTimeout; // the scheduler's retry owner
   try {
-    win._aioScheduleQuoteRetry(15000); win._aioScheduleQuoteRetry(30000); win._aioScheduleQuoteRetry(60000);
-    assert.equal(timers.size, 1, 'v59.74 SM-05: repeated failures keep one retry pending, not one chain each');
-    assert.equal([...timers.values()][0].ms, 60000, 'v59.74 SM-05: expected state')
+    const fetchLiveQuotes = loadFetchLiveQuotes(win, { setTimeout: fakeSetTimeout, clearTimeout: fakeClearTimeout });
+    let retries = 0;
+    globalThis.fetchLiveQuotes = () => { retries += 1; return fetchLiveQuotes(); }; // what the retry timer calls
+    win._aioQuoteInFlight = true;
+    const coalesced = await fetchLiveQuotes(['AAPL']);
+    assert.equal(coalesced.coalesced, true, 'v59.74 SM-03a: a call during a running fetch reports that it did nothing');
+    assert.equal(timers.size, 0, 'v59.74 SM-03a: a coalesced call schedules nothing');
+    win._aioQuoteInFlight = false;
+    for (let i = 0; i < 3; i += 1) {
+      const failed = await fetchLiveQuotes([]);
+      assert.equal(failed.status, 'failed', 'v59.74 SM-05: an offline fetch fails');
+    }
+    assert.equal(timers.size, 1, 'v59.74 SM-05: three failures leave one retry pending, not three chains');
+    const pending = [...timers.values()][0];
+    assert.ok(pending.ms >= 15000, 'v59.74 SM-05: the retry waits its backoff');
     doc.hidden = true;
-    [...timers.values()][0].fn();
-    assert.equal(calls, 0, 'v59.74 SM-05: a hidden tab does not fetch on a retry timer');
-    assert.equal(timers.size, 1, 'v59.74 SM-05: expected state')
+    timers.clear(); pending.fn();
+    assert.equal(retries, 0, 'v59.74 SM-05: a hidden tab does not fetch on a retry timer');
     doc.hidden = false;
-    win._aioScheduleQuoteRetry(15000);
-    win._aioCancelQuoteRetry();
-    assert.equal(timers.size, 1, 'v59.74 SM-05: a fetch that starts cancels the pending retry');
-    win._aioScheduleQuoteRetry(15000);
-    [...timers.values()].at(-1).fn();
-    assert.equal(calls, 1, 'v59.74 SM-05: a visible tab retries once');
+    await fetchLiveQuotes([]);
+    assert.equal(timers.size, 1, 'v59.74 SM-05: a visible failure schedules the retry again');
+    const started = fetchLiveQuotes([]); // a new fetch starts: the pending retry is cancelled at once
+    assert.equal(timers.size, 0, 'v59.74 SM-05: a fetch that starts cancels the pending retry');
+    await started;
+    const next = [...timers.values()].at(-1);
+    timers.clear(); next.fn(); await settle();
+    assert.equal(retries, 1, 'v59.74 SM-05: a visible tab retries through the real fetch');
   } finally { globalThis.setTimeout = realSetTimeout; globalThis.clearTimeout = realClearTimeout; doc.hidden = false; }
-  pass('SM-05 one quote retry at a time, none while hidden');
+  pass('SM-05 the real quote fetch keeps one retry, cancels it on a new fetch and skips it while hidden');
 }
 
 console.log(JSON.stringify({ ok: true, gate: 'state-machine-regression', checks }));
