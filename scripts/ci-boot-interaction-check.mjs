@@ -126,6 +126,10 @@ try {
   await page.evaluate(() => new Promise((resolvePaint) => {
     requestAnimationFrame(() => requestAnimationFrame(resolvePaint));
   }));
+  // v59.75: let 오늘 (the landing route) render before the switch. 오늘의 핵심 (home-day.js) loads only when it has, and a
+  // run that switched first measured ~19 KB less, so the pinned-clock CI run hid the v59.74 overrun. Measure the case a
+  // reader who lands on 오늘 and then opens 시장 신호 actually gets.
+  await page.waitForFunction(() => document.getElementById('home-daily-loop')?.dataset.aioDailyLoopRenderer === 'native', null, { timeout: 10000 }).catch(() => {});
   const interactiveStart = Date.now();
   await page.evaluate(() => window.showPage('signal'));
   const routeMs = Date.now() - interactiveStart;
