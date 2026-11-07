@@ -2775,10 +2775,7 @@ window.AIO.ensureFreshDataForUse = async function(scope) {
   }
   window._aioEnsureFreshInFlight[key] = true;
   window._aioEnsureFreshLast[key] = now;
-  var prevQuoteRequestSymbols = window._aioQuoteRequestSymbols;
-  if (plan.profile && Array.isArray(plan.profile.symbols) && plan.profile.symbols.length) {
-    window._aioQuoteRequestSymbols = plan.profile.symbols.slice();
-  }
+  var releaseQuoteRequestSymbols = _aioHoldQuoteSymbols(plan.profile && plan.profile.symbols); // SM-04 (_context/STATE-MACHINES.md)
   try {
     var refresh = await window.AIO.runScheduledRefresh({
       keys: plan.tasks,
@@ -2804,11 +2801,11 @@ window.AIO.ensureFreshDataForUse = async function(scope) {
   } catch(e) {
     return { status: 'warn', plan: plan, refresh: null, error: e && e.message || String(e), generatedAt: new Date().toISOString() };
   } finally {
-    if (prevQuoteRequestSymbols == null) delete window._aioQuoteRequestSymbols;
-    else window._aioQuoteRequestSymbols = prevQuoteRequestSymbols;
+    releaseQuoteRequestSymbols();
     delete window._aioEnsureFreshInFlight[key];
   }
 };
+function _aioHoldQuoteSymbols(symbols) { return typeof window._aioHoldQuoteRequestSymbols === 'function' ? window._aioHoldQuoteRequestSymbols(symbols) : function() {}; }
 
 function _aioNormalizeChatTickers(tickers) {
   var out = [];
@@ -4555,7 +4552,7 @@ async function fetchAllNews(forceRefresh = false) {
     isFetching = false;
     _aioNotifyNewsSurfaceInvalidated('news-fetch-timeout');
   }
-  if (isFetching) return;
+  if (isFetching) return { ok: false, skipped: true, coalesced: true, error: 'news fetch already in flight' }; // SM-03a
   // P1756: while the server news bundle is fresh the browser RSS run is skipped. The news screens render that bundle
   // whenever the run returns nothing, and in production it always did: the shared Worker refuses every feed host and
   // the public relays abort, so a run was ~300 failed requests for an identical screen.
@@ -5142,8 +5139,8 @@ function _aioPlanQuoteGroups(requestedSymbols, coreSymbols) {
 }
 
 async function fetchLiveQuotes(requestedSymbols) {
-  if (window._aioQuoteInFlight) return;
-  window._aioQuoteInFlight = true;
+  if (window._aioQuoteInFlight) return { ok: false, skipped: true, coalesced: true, error: 'quote fetch already in flight' }; // SM-03a: did nothing, not a success
+  window._aioQuoteInFlight = true; if (window._aioCancelQuoteRetry) window._aioCancelQuoteRetry(); // SM-05: a fetch supersedes the pending retry
   try {
   // ═══════════════════════════════════════════════════════════
   // v19: 소스별 전용 API 사용 — 단순하고 확실하게 작동
@@ -5651,7 +5648,7 @@ async function fetchLiveQuotes(requestedSymbols) {
       ? '실시간 시세 미수신, 기준 스냅샷 사용, 중앙 갱신 주기 대기'
       : 'API 연결 실패 — ' + wait + '초 후 재시도');
     if (typeof _reportApiError === 'function') _reportApiError('yahoo-quote', '연결 실패 (시도 ' + fetchLiveQuotes._failCount + ')');
-    if (!usingSnapshotFallback) setTimeout(fetchLiveQuotes, wait * 1000);
+    if (!usingSnapshotFallback && window._aioScheduleQuoteRetry) window._aioScheduleQuoteRetry(wait * 1000); // SM-05: one retry, none while hidden
     return { ok: false, updated: false, status: 'failed', error: 'live quote refresh received no quotes' };
   }
   } catch (e) {
@@ -6109,15 +6106,13 @@ window.AIO.repairPageLiveDataBinding = async function(opts) {
     var missing = Array.from(new Set(audit.sourceMissing.map(function(x) { return x.symbol; }))).slice(0, opts.limit || 160);
     if (missing.length) {
       window._aioLiveBindingRepairInFlight = true;
-      var prev = window._aioQuoteRequestSymbols;
+      var releaseMissing = _aioHoldQuoteSymbols(missing);
       try {
-        window._aioQuoteRequestSymbols = missing.slice();
         await fetchLiveQuotes(missing);
       } catch(e) {
         audit.retryError = e && e.message || String(e);
       } finally {
-        if (prev == null) delete window._aioQuoteRequestSymbols;
-        else window._aioQuoteRequestSymbols = prev;
+        releaseMissing();
         window._aioLiveBindingRepairInFlight = false;
       }
       window.AIO.applyLiveDataToDom({ pageId: opts.pageId, reason: 'repair-live-binding-retry', force: true });

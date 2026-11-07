@@ -1,0 +1,18 @@
+{
+  "r": null,
+  "status": null,
+  "note": "{VERSION} 상태 머신 감사: 자동 갱신 결과 기록·시세 요청 종목·시세 재시도 수정, _context/STATE-MACHINES.md 신설.",
+  "qa_section": "상태 머신 감사",
+  "p": {
+    "title": "자동 갱신이 하지 않은 수신을 성공으로, 취소를 실패로 기록하고 늦게 끝난 수신 결과를 버림",
+    "symptom": "시세·뉴스 수신이 이미 진행 중일 때 들어온 갱신이 화면 종목을 받지 않고도 '방금 갱신'(loaded, _lastOk)이 되어 다음 진입 갱신을 건너뛰었다. 화면 이동으로 취소된 진입 갱신은 failed·retryCount+1로 기록됐고, 시간 초과·취소 뒤에 끝난 수신은 데이터를 바꾸고도 failed·옛 성공 시각을 남겼다.",
+    "root_cause": "_runScheduledTask가 undefined 결과를 성공으로 보았고(fetchLiveQuotes·fetchAllNews는 수신 중일 때 undefined를 돌려줌), 호출자 abort를 공급자 실패와 같은 catch로 처리했으며, race에서 진 작업의 settle 결과를 기록하지 않았다.",
+    "fix": "수신 중 호출은 {coalesced:true}를 돌려주고 스케줄러는 실행 전 상태로 되돌린다. 호출자 취소는 상태 복원·재시도 횟수 유지·경고 없음. race에서 진 작업이 settle하면 그 결과를 같은 규칙으로 기록한다(_inFlight는 settle까지 유지돼 더 새 실행을 덮지 않음).",
+    "violated_rule": "C 상태 정직성: 갱신 시각은 실제로 받은 데이터만 말한다",
+    "prevention": "{P}: scripts/ci-state-machine-regression-check.mjs SM-03a/b/c, _context/STATE-MACHINES.md SM-03 전이표",
+    "verification": "재현 스크립트에서 수정 전 coalesced 실행이 loaded·_lastOk 갱신, 취소가 failed·retry 1, 늦은 성공 무시를 보였고 수정 후 세 사례 모두 통과. refresh-scheduler-model R1~R3 통과."
+  },
+  "changelog": [
+    "**상태 머신 감사 — 자동 갱신 결과 기록 ({P}):** 이미 진행 중인 수신에 합류한 갱신은 성공도 실패도 아니고, 화면 이동 취소는 실패가 아니며, 시간 초과·취소 뒤 끝난 수신 결과는 기록된다. 상태 머신 목록·전이표·불변식은 `_context/STATE-MACHINES.md`."
+  ]
+}

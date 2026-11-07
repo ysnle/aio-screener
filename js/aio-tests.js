@@ -3487,7 +3487,7 @@
     var runSrc699 = (window.AIO && typeof window.AIO.runScheduledRefresh === 'function') ? window.AIO.runScheduledRefresh.toString() : '';
     _assert('T699 page_onenter_uses_central_refresh_v49102: 5-page entry refresh emits progress and passes symbols',
       prSrc699.indexOf('runScheduledRefresh') >= 0 && prSrc699.indexOf('symbols') >= 0 &&
-        prSrc699.indexOf('_runScheduledTask') < 0 && runSrc699.indexOf('_aioQuoteRequestSymbols') >= 0,
+        prSrc699.indexOf('_runScheduledTask') < 0 && runSrc699.indexOf('_aioHoldQuoteRequestSymbols') >= 0,
       'pageRun=' + (prSrc699.indexOf('runScheduledRefresh') >= 0) + ' symbols=' + (prSrc699.indexOf('symbols') >= 0));
 
     _assert('T700 comprehensive_page_data_audit_v49102: 5-page data surface audit exists (v58.20: the uncalled force-refresh API is retired)',
