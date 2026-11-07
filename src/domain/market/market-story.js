@@ -11,6 +11,7 @@ import { indexLevels, levelValue, levelsRead } from './index-levels.js';
 import { historyFieldMeta } from './history-meta.js';
 import { buildCloseSeries, closeSessionMarket } from './close-series.js';
 import { MARKET_WINDOWS } from './market-windows.js';
+import { countOpenSessionsBetween } from './market-calendar.js';
 import { oasDelta20Bp } from '../briefing/market-read.js';
 
 // v59.70 (owner 11/4): one week, the same window as the verdict table's 5거래일 전 / 5일 변화 columns. The bars, the lead
@@ -174,6 +175,8 @@ export function biggestDay(history, { from, to, events = SCHEDULED_EVENTS } = {}
   for (let i = 1; i < spx.length; i++) {
     const day = spx[i]; const prev = spx[i - 1];
     if (day.date <= from || day.date > to) continue;
+    // A missing close (collection gap, no backfill) leaves neighbours several sessions apart; that span is not a day.
+    if (countOpenSessionsBetween(prev.date, day.date, 'US') !== 1) continue;
     const pct = (Number(day.value) / Number(prev.value) - 1) * 100;
     if (!best || Math.abs(pct) > Math.abs(best.pct)) best = { date: day.date, prevDate: prev.date, pct };
   }

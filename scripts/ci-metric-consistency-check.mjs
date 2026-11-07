@@ -159,6 +159,10 @@ if (weekStory.available) {
   check('v59.74 the biggest session is named with its breadth', weekStory.bigDay?.date === '2026-11-05' && /가장 큰 하루는 .*11\/5\(목\) S&P 500 -4\.4%.*전면 매도/.test(weekStory.lead), weekStory.lead);
   check('v59.74 a broad sell-off day withdraws "시장 전체가 팔린 것은 아닙니다"', !/시장 전체가 팔린 것은 아닙니다/.test(weekStory.lead), weekStory.lead);
 }
+const { biggestDay } = await load('src/domain/market/market-story.js');
+const spxRow = (date, spx) => ({ date, spx, fieldMeta: { spx: { observedAt: `${date}T21:00:00.000Z`, observationRelation: 'latest-completed-close', sessionDate: date } } });
+const gapDay = biggestDay([spxRow('2026-11-02', 100), spxRow('2026-11-03', 101.5), spxRow('2026-11-05', 104.5), spxRow('2026-11-06', 104.6)], { from: '2026-11-02', to: '2026-11-06', events: [] });
+check('v59.74 a two-session span over a missing close is not the biggest day', gapDay === null, JSON.stringify(gapDay));
 const metaAt = (session, relation, extra = {}) => ({ observedAt: `${session}T05:00:00.000Z`, observationRelation: relation, sessionDate: session, ...extra });
 const heldHist = [
   { date: '2026-11-03', wti: 96.09, fieldMeta: { wti: metaAt('2026-11-03', 'latest-completed-close') } },
