@@ -33,7 +33,7 @@ function miniBars(doc, viz) {
 function rangeBands(doc, model) {
   const box = el(doc, 'figure', null, 'mx-ch__range');
   box.setAttribute('role', 'img');
-  box.setAttribute('aria-label', `스프레드 기록 범위, ${model.since}: ${model.ranges.map((range) => `${range.label} ${range.now.toFixed(2)}% (기록의 ${range.pct}% 위치)`).join(', ')}`);
+  box.setAttribute('aria-label', `${model.label || '스프레드 기록 범위'}, ${model.since}: ${model.ranges.map((range) => `${range.label} ${range.display ? range.now.toFixed(1) : `${range.now.toFixed(2)}%`} (기록의 ${range.pct}% 위치)`).join(', ')}`);
   for (const range of model.ranges) {
     const span = range.max - range.min || 1;
     const at = (value) => `${((value - range.min) / span * 100).toFixed(1)}%`;
@@ -44,7 +44,7 @@ function rangeBands(doc, model) {
     const mid = el(doc, 'span', null, 'mx-ch__range-mid'); mid.style.left = at(range.p50);
     const dot = el(doc, 'span', null, 'mx-ch__range-dot'); dot.style.left = at(range.now);
     track.append(band, mid, dot);
-    row.append(el(doc, 'span', range.label, 'mx-ch__range-label'), track, el(doc, 'span', `${range.now.toFixed(2)}% · ${range.pct}%`, 'mx-ch__range-val'));
+    row.append(el(doc, 'span', range.label, 'mx-ch__range-label'), track, el(doc, 'span', range.display || `${range.now.toFixed(2)}% · ${range.pct}%`, 'mx-ch__range-val'));
     box.append(row);
   }
   box.append(el(doc, 'figcaption', `${model.since} 기록, 띠는 하위 10%~상위 10%, 세로선은 중앙값`, 'mx-ch__cap'));
@@ -102,7 +102,7 @@ export function renderMacroChapters({ documentRef: doc, root, events = [] }) {
     if (open.has(chapter.id)) card.querySelector('.mx-ch__more').open = true;
     grid.append(card);
   }
-  const title = el(doc, 'h2', '주제별로 보기 — 물가 · 고용 · 금리 · 신용 · 유가 · 금과 은 · 달러 · 성장', 'briefing-h2');
+  const title = el(doc, 'h2', '주제별로 보기 — 물가 · 고용 · 금리 · 신용 · 유가 · 금과 은 · 달러 · 변동성 · 성장', 'briefing-h2');
   title.id = 'macro-chapters-title';
   section.replaceChildren(title, grid);
   markFrame(section, 'macro.chapters');

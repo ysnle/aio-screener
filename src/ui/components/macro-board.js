@@ -35,6 +35,7 @@ import { dodgeSvgLabels } from './svg-label-dodge.js';
 import { MARKET_WINDOWS } from '../../domain/market/market-windows.js';
 import { RULES } from '../../domain/rules/thresholds.js';
 import { MACRO_SIGNAL_RULES } from '../../domain/macro/macro-signals.js';
+import { volatilityChapter } from '../../domain/macro/volatility.js';
 import { renderIndexEarnings } from './index-earnings.js';
 import { gaugeBar, bandOf, TONE_WORD } from './gauge-bar.js';
 import { historyWaitText, serverDataWaitText } from './data-state.js';
@@ -1001,6 +1002,27 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
         status: ageDays > 30 ? 'stale' : 'observed',
         series: premium.length >= 20 ? premium : null,
         unit: '%'
+      }));
+    }
+  }
+
+  // v59.74 (owner 11/7, bond market in full): the bond market's own volatility. MOVE was collected into history.json and shown
+  // nowhere after the P772 snapshot cell left; it sits beside the curve it measures, read inside its own one-year record and
+  // against VIX (the same reading as 매크로 › 변동성).
+  if (levels) {
+    const bond = volatilityChapter(root._aioHistory || [])?.bond || null;
+    const moveSeries = buildCloseSeries(root._aioHistory || [], 'move', { through: model.basis });
+    if (bond) {
+      levels.append(statCard(doc, {
+        label: '채권 변동성 (MOVE)',
+        valueText: bond.now.toFixed(1),
+        lines: [bond.change20 == null ? null : `20거래일 ${signed(bond.change20, 1, '%')}`, `1년 기록의 ${bond.pct}% 위치 (중앙값 ${bond.p50.toFixed(0)})`],
+        meta: [shortDate(bond.to), 'ICE BofA MOVE 지수'].join(', '),
+        note: `미 국채 옵션에 매겨진 앞으로 한 달 금리 변동 폭(bp)입니다. 채권의 VIX로, 높을수록 금리 경로가 불확실하고 주식 할인율도 흔들립니다.${bond.read ? ` ${bond.read}` : ''}`,
+        status: 'observed',
+        series: moveSeries.length >= 20 ? moveSeries.slice(-260) : null,
+        unit: null,
+        format: (value) => value.toFixed(0)
       }));
     }
   }
