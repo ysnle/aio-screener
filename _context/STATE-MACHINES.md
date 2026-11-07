@@ -44,12 +44,12 @@
 | SM-04 | 중간 | 시세 요청 종목 | 쓰는 쪽 셋(`runScheduledRefresh`, `AIO.ensureFreshDataForUse`, `repairPageLiveDataBinding`)이 모두 "이전 값 저장 → 내 값 설정 → 끝나면 이전 값 복원"을 했다. 겹친 두 갱신이 시작 순서와 같은 순서로 끝나면, 먼저 끝난 쪽이 아직 도는 갱신의 목록을 지우고(그 갱신의 시세 단계가 종목 없이 돈다) 나중 끝난 쪽이 먼저 끝난 갱신의 목록을 **영구히** 되살렸다. 재현: 화면 진입 갱신 + 탭 복귀 갱신. | 고침(v59.74) | A |
 | SM-03b | 중간 | 갱신 작업 | 화면을 옮겨 진입 갱신이 취소되면(`route-changed`) 실패로 기록: `_status='failed'`, `retryCount+1`, 경고 문구 시도. 실제 공급자는 실패하지 않았다. | 고침(v59.74) | A |
 | SM-03c | 중간 | 갱신 작업 | 시간 초과나 취소 뒤에도 수신은 계속돼 전역 데이터는 갱신되는데, 그 결과는 버려져 `failed`·옛 `_lastOk`가 남았다. 다음 진입이 다시 받아 호출이 겹친다. | 고침(v59.74) | A |
-| SM-07 | 낮음 | 화면 진입 갱신 | `_aioPageRefreshLast[key]`(30초 간격)를 실제 실행 전에 찍는다. 0ms 뒤 실행이 화면 이동으로 버려지거나 취소되면, 30초 안에 같은 화면으로 돌아와도 갱신하지 않는다. 다음 주기가 메운다. | 열림 | B. 화면 진입 갱신 |
-| SM-08 | 낮음 | AI 질문 요청 | 한 대화가 화면을 따라가는 답변(`_aioKeepRunningAnswer`) 중에 다른 AI 화면으로 가면 `updateAIPanelContext`·`toggleAIPanel`이 `#ai-panel-btn`을 다시 켠다. 답변이 도는 동안 전송이 눌리지만 `chatSendUnified`는 조용히 무시한다(60초가 지나면 돌던 답변을 취소). 요청 잠금 자체는 지켜진다. | 열림 | C. AI 패널 |
-| SM-13 | 낮음 | 유니버스 밖 종목 | 대기 중인 항목도 40개 LRU에서 밀려날 수 있어, 같은 종목을 다시 부르면 중복 수신이 생긴다(동시 2개 제한 안). | 열림 | D. 캐시 |
-| SM-15 | 낮음 | 서버 데이터 | `_aioLoadServerData` 호출이 겹치면 늦게 온 옛 응답이 새 메타를 덮을 수 있다(세대 가드 없음). 호출 간격이 30분이고 부팅 재시도는 이전 호출이 돌려준 뒤라 실제로 겹치기 어렵다. | 열림(관찰) | D |
+| SM-07 | 낮음 | 화면 진입 갱신 | `_aioPageRefreshLast[key]`(30초 간격)를 실제 실행 전에 찍는다. 0ms 뒤 실행이 화면 이동으로 버려지거나 취소되면, 30초 안에 같은 화면으로 돌아와도 갱신하지 않는다. 같은 화면 재진입(`superseded`)은 진행 중 갱신을 취소하고 새 갱신도 표시 때문에 건너뛰었다. 수정: 각 controller가 자기 표시를 들고 버려지거나 취소될 때 돌려준다. | 고침(v59.74) | B. 화면 진입 갱신 |
+| SM-08 | 낮음 | AI 질문 요청 | 한 대화가 화면을 따라가는 답변(`_aioKeepRunningAnswer`) 중에 다른 AI 화면으로 가면 `updateAIPanelContext`·`toggleAIPanel`이 `#ai-panel-btn`을 다시 켠다. 답변이 도는 동안 전송이 눌리지만 `chatSendUnified`는 조용히 무시한다(60초가 지나면 돌던 답변을 취소). 요청 잠금 자체는 지켜진다. 수정: 화면 전환·패널 열기의 버튼 상태를 공유 대화의 `_activeRequest`에서 파생한다. | 고침(v59.74) | C. AI 패널 |
+| SM-13 | 낮음 | 유니버스 밖 종목 | 대기 중인 항목도 40개 LRU에서 밀려날 수 있어, 같은 종목을 다시 부르면 중복 수신이 생긴다(동시 2개 제한 안). 수정: 정리는 끝난 기록만 지운다. | 고침(v59.74) | D. 캐시 |
+| SM-15 | 낮음 | 서버 데이터 | `_aioLoadServerData` 호출이 겹치면 늦게 온 옛 응답이 새 메타를 덮을 수 있다(세대 가드 없음). 호출 간격이 30분이고 부팅 재시도는 이전 호출이 돌려준 뒤라 실제로 겹치기 어렵지만 숨긴 탭 복귀의 주기 실행과 느린 응답이 겹칠 수 있다. 수정: 적재를 한 번에 하나로 묶고 겹친 호출은 합류한다(세대 가드보다 단순하고 좋은 응답을 버리지 않음). | 고침(v59.74) | D |
 
-각 열린 항목은 "가능성 낮은 경계 사례에 복잡도를 더하지 않는다"(CLAUDE.md 작업 규칙)에 따라 소유자 판단 전까지 코드를 더하지 않는다.
+낮음 4건(SM-07·08·13·15)은 소유자 승인(2026-11-07 "전부 진행")으로 고쳤다. 각 수정은 결함의 원인 전이를 없앤다: 기록을 실제 일어난 일에 묶고(SM-07), 쓰는 쪽 여럿을 상태 파생으로 바꾸고(SM-08), 대기와 끝난 기록을 구분하고(SM-13), 한 번에 하나만 돌게 한다(SM-15). 회귀: `scripts/ci-state-machine-regression-check.mjs`가 실제 코드를 돌려 각 경로를 재현하고, 수정 전 코드에서는 실패한다.
 
 ---
 
@@ -148,13 +148,13 @@ v59.74부터 값은 계산된다: **기본층**(`AIO.registerLiveSymbol`이 등�
 
 ### SM-07 화면 진입 갱신 (`_aioRefreshPageData`)
 
-화면마다 `AbortController` 하나. 다른 화면 진입은 그 화면의 진행 중 갱신을 `route-changed`로, 같은 화면 재진입은 `superseded`로 취소한다. 작업별 가드: ½ interval 안의 성공은 건너뜀, 30초 안의 진입 갱신은 건너뜀. 부팅 시세 단계가 준비되기 전(`quoteReady===false`)에는 돌지 않는다. 열린 결함 SM-07(§2).
+화면마다 `AbortController` 하나. 다른 화면 진입은 그 화면의 진행 중 갱신을 `route-changed`로, 같은 화면 재진입은 `superseded`로 취소한다. 작업별 가드: ½ interval 안의 성공은 건너뜀, 30초 안의 진입 갱신은 건너뜀. 부팅 시세 단계가 준비되기 전(`quoteReady===false`)에는 돌지 않는다. 시작 전 버려지거나 `route-changed`/`superseded`로 취소된 실행은 자기가 찍은 30초 표시를 돌려준다. 끝난 실행은 표시를 유지한다(SM-07, v59.74).
 
 ### SM-08 AI 질문 요청 run
 
 run 상태: `준비`(잠금, 데이터·리서치 대기) → `스트리밍` → `해제`; 어느 단계에서든 `취소`(사용자 중지·다른 화면·대체·60초 stale). 공유 대화 상태(`chat-sessions.js` shared)는 `_activeRequest`, `_requestEpoch`, `streaming`을 가진다.
 
-불변식: 활성 run은 하나다. `_aioIsCurrentChatRequest`는 epoch·취소·abort를 함께 본다. 해제는 자기 epoch일 때만 공유 상태를 푼다. 쿼터 확인 모달은 취소 시 닫힌다. 열린 결함 SM-08(§2, 버튼만 잘못 켜짐).
+불변식: 활성 run은 하나다. `_aioIsCurrentChatRequest`는 epoch·취소·abort를 함께 본다. 해제는 자기 epoch일 때만 공유 상태를 푼다. 쿼터 확인 모달은 취소 시 닫힌다. 전송 버튼은 활성 run이 있는 동안 꺼져 있다: begin이 끄고 release가 켜며, 화면 전환·패널 열기는 `_activeRequest`에서 파생한다(SM-08, v59.74).
 
 ### SM-09 · SM-10 지연 스크립트 로더
 
@@ -170,7 +170,7 @@ run 상태: `준비`(잠금, 데이터·리서치 대기) → `스트리밍` →
 
 ### SM-13 유니버스 밖 종목 읽기
 
-종목마다 `없음` → `대기(promise)` → 기록(`ready`·`in-universe`·`not-listed`·`unavailable`·`universe-unavailable`). `ready`/`in-universe`는 유니버스 지문이 같을 때만 재사용, 그 밖은 60초 뒤 다시 읽음, `universe-unavailable`은 매번 다시 읽음. 동시 2개. 열린 결함 SM-13(§2).
+종목마다 `없음` → `대기(promise)` → 기록(`ready`·`in-universe`·`not-listed`·`unavailable`·`universe-unavailable`). `ready`/`in-universe`는 유니버스 지문이 같을 때만 재사용, 그 밖은 60초 뒤 다시 읽음, `universe-unavailable`은 매번 다시 읽음. 동시 2개. 대기 항목은 40개 한도 정리에서 제외된다(SM-13, v59.74).
 
 ### SM-14 서비스 워커 교체 새로고침
 
@@ -178,7 +178,7 @@ run 상태: `준비`(잠금, 데이터·리서치 대기) → `스트리밍` →
 
 ### SM-15 서버 데이터 적재 상태
 
-`__aioServerDataLoadState`: `(없음)` → `ready` | `failed` | `empty`. 한 번 적용(`__aioServerDataApplied`)된 뒤의 실패는 상태를 `failed`로 되돌리지 않는다(적용된 사본이 날짜와 함께 남는다). 코어 준비 전이면 1초 간격 최대 5회 다시 적재한다. 열린 관찰 SM-15(§2).
+`__aioServerDataLoadState`: `(없음)` → `ready` | `failed` | `empty`. 한 번 적용(`__aioServerDataApplied`)된 뒤의 실패는 상태를 `failed`로 되돌리지 않는다(적용된 사본이 날짜와 함께 남는다). 코어 준비 전이면 1초 간격 최대 5회 다시 적재한다. 적재는 한 번에 하나: 진행 중 호출은 같은 promise에 합류한다(SM-15, v59.74).
 
 ### SM-16 부팅 시세 단계
 

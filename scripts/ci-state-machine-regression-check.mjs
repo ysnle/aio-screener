@@ -8,10 +8,16 @@
 //   SM-03c  a fetch that finished after its timeout or cancel had its outcome dropped
 //   SM-04   overlapping refreshes dropped a running refresh's symbols and restored a finished one's list for good
 //   SM-05   each failed quote fetch added its own retry chain, and the chains fetched while the tab was hidden
+//   SM-07   a page refresh dropped or cancelled before it finished still held its 30s stamp, so a quick return skipped it
+//   SM-08   moving to another AI screen while an answer kept running turned 전송 back on
+//   SM-13   a read still pending could be evicted from the 40-entry cache, so asking again fetched twice
+//   SM-15   two server-data loads could overlap, and the older response could land after the newer one
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import { installRefreshScheduler } from '../src/app/refresh-scheduler.js';
+import { createOnDemandSymbolReader } from '../src/data/on-demand-symbol.js';
+import { installServerDataLoader } from '../src/data/server-data-loader.js';
 
 let checks = 0;
 const pass = (name) => { checks += 1; console.log(`PASS ${name}`); };
@@ -196,6 +202,110 @@ function loadFetchLiveQuotes(win, globalsForVm) {
     assert.equal(retries, 1, 'v59.74 SM-05: a visible tab retries through the real fetch');
   } finally { globalThis.setTimeout = realSetTimeout; globalThis.clearTimeout = realClearTimeout; doc.hidden = false; }
   pass('SM-05 the real quote fetch keeps one retry, cancels it on a new fetch and skips it while hidden');
+}
+
+// SM-07 — the real page on-enter refresh under fake timers; runScheduledRefresh is a stub that never settles.
+{
+  const win = freshScheduler();
+  const calls = [];
+  let active = 'home';
+  win.AIO.getActivePage = () => active;
+  win.AIO.runScheduledRefresh = (request) => { calls.push(request); return new Promise(() => {}); };
+  globalThis._aioBootPhase = { quoteReady: true };
+  const timers = [];
+  const realSetTimeout = globalThis.setTimeout;
+  globalThis.setTimeout = (fn) => { timers.push(fn); return timers.length; };
+  try {
+    const flush = () => { while (timers.length) timers.shift()(); };
+    win._aioRefreshPageData('home');
+    active = 'breadth'; win._aioRefreshPageData('breadth'); // leaves before the home run started
+    flush();
+    assert.equal(calls.length, 1, 'v59.74 SM-07: the dropped home run never starts');
+    assert.equal(calls[0].pageId, 'breadth', 'v59.74 SM-07: expected state');
+    active = 'home'; win._aioRefreshPageData('home'); flush(); // back within 30s, the breadth run still running
+    const back = calls.at(-1);
+    assert.equal(back.pageId, 'home', 'v59.74 SM-07: returning within 30s starts a home refresh');
+    assert.ok(back.keys.includes('quotes') && back.keys.includes('news'), `v59.74 SM-07: the dropped and the cancelled run gave their stamps back: ${back.keys}`);
+    assert.equal(back.signal.aborted, false, 'v59.74 SM-07: expected state');
+    win._aioRefreshPageData('home'); flush(); // a same-screen re-entry supersedes the run and still refreshes
+    assert.ok(calls.at(-1).keys.includes('quotes'), 'v59.74 SM-07: a superseded run gives its stamps back');
+    assert.equal(back.signal.aborted, true, 'v59.74 SM-07: expected state');
+  } finally { globalThis.setTimeout = realSetTimeout; }
+  pass('SM-07 a page refresh that never ran or was cancelled does not block the next entry');
+}
+
+// SM-08 — the real request lifecycle and panel context switch cut out of js/aio-chat.js, with one shared conversation
+// state (what src/ui/components/chat-sessions.js installs).
+{
+  const source = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8');
+  const cut = (from, to) => { const a = source.indexOf(from), b = source.indexOf(to, a); assert(a >= 0 && b > a, `v59.74 SM-08: ${from} is found in js/aio-chat.js`); return source.slice(a, b); };
+  const button = { disabled: false, textContent: '전송', setAttribute() {}, removeAttribute() {} };
+  const input = { disabled: false, value: '' };
+  const shared = { messages: [], streaming: false, _chatSendEntered: 0, _requestEpoch: 0, _activeRequest: null, _retryCount: 0 };
+  const own = {
+    window: {}, AbortController, Date, String, Object, Array, Math, Promise,
+    document: { getElementById: (id) => (id === 'ai-panel-btn' ? button : id === 'ai-panel-inp' ? input : null), createElement: () => ({}) },
+    CHAT_CONTEXTS: { home: { title: '오늘' }, macro: { title: '매크로' } }, _aiDefaultChips: {}
+  };
+  own.window = own;
+  const inert = () => new Proxy(function () {}, { apply: () => undefined, get: (_, key) => (key === 'then' ? undefined : inert()) });
+  const context = vm.createContext(new Proxy(own, { has: () => true, get: (target, key) => (key in target ? target[key] : key === Symbol.unscopables ? undefined : inert()) }));
+  vm.runInContext(`${cut('const chatState = {};', "if (typeof window !== 'undefined') {")}
+var _aiCurrentCtx = 'home'; var _aiCtxMap = { home: 'home', macro: 'macro' };
+${cut('function updateAIPanelContext(', 'function _aioSyncQuestionCount(')}
+getChatState = function () { return this.__shared; }.bind(this);
+this._aioKeepRunningAnswer = function (from, to) { return !!(from && to && this.__shared._activeRequest); }.bind(this);`, Object.assign(context, { __shared: shared }));
+  const run = context._aioBeginChatRequest('home', '질문', { entrypoint: 'unified-chat', buttonId: 'ai-panel-btn', idleLabel: '전송' });
+  assert.equal(button.disabled, true, 'v59.74 SM-08: a running answer holds 전송');
+  context.updateAIPanelContext('macro');
+  assert.equal(shared._activeRequest, run, 'v59.74 SM-08: the answer keeps running across screens');
+  assert.equal(button.disabled, true, 'v59.74 SM-08: moving to another AI screen keeps 전송 off while the answer runs');
+  assert.equal(input.disabled, false, 'v59.74 SM-08: the box stays open for the next question');
+  context._aioReleaseChatRequest(run);
+  assert.equal(button.disabled, false, 'v59.74 SM-08: the finished answer gives 전송 back');
+  context.updateAIPanelContext('home');
+  assert.equal(button.disabled, false, 'v59.74 SM-08: an idle panel has 전송 on');
+  pass('SM-08 a kept-running answer keeps the send button off on every AI screen');
+}
+
+// SM-13 — the real on-demand reader: a pending read keeps its cache slot while 40 settled reads pass it.
+{
+  let pendingListing = null;
+  let listChecks = 0;
+  const reader = createOnDemandSymbolReader({
+    fetchChart: async () => null,
+    universeRows: () => [{ sym: 'SPY' }],
+    isListed: (id) => { listChecks += id === 'PEND' ? 1 : 0; return id === 'PEND' ? new Promise((resolve) => { pendingListing = resolve; }) : { listed: false }; }
+  });
+  const first = reader.load('PEND');
+  await settle();
+  for (let i = 0; i < 45; i += 1) await reader.load(`F${i}`);
+  assert.ok(reader.stats().entries <= 41, `v59.74 SM-13: the cache stays bounded: ${reader.stats().entries}`);
+  const again = reader.load('PEND');
+  assert.equal(again, first, 'v59.74 SM-13: asking again joins the pending read');
+  assert.equal(listChecks, 1, 'v59.74 SM-13: no duplicate read for a pending symbol');
+  pendingListing({ listed: false });
+  assert.equal((await again).status, 'not-listed', 'v59.74 SM-13: expected state');
+  assert.ok(reader.stats().entries <= 40, `v59.74 SM-13: settled entries are trimmed back to the bound: ${reader.stats().entries}`);
+  pass('SM-13 a pending on-demand read is not evicted');
+}
+
+// SM-15 — the real server-data loader: a second load while one runs joins it instead of racing it.
+{
+  const fetches = [];
+  const win = { addEventListener() {}, dispatchEvent() {}, _aioFetchServerData: () => new Promise((resolve) => fetches.push(resolve)) };
+  installServerDataLoader(win);
+  const a = win._aioLoadServerData();
+  const b = win._aioLoadServerData();
+  await settle();
+  assert.equal(fetches.length, 1, 'v59.74 SM-15: a load during a load joins it (one fetch for both callers)');
+  fetches[0]({ ok: false, reason: 'offline' });
+  assert.deepEqual([await a, await b], [false, false], 'v59.74 SM-15: both callers get the one outcome');
+  const c = win._aioLoadServerData();
+  await settle();
+  assert.equal(fetches.length, 2, 'v59.74 SM-15: a load after the last one finished starts its own');
+  fetches[1]({ ok: false, reason: 'offline' }); await c;
+  pass('SM-15 server-data loads run one at a time');
 }
 
 console.log(JSON.stringify({ ok: true, gate: 'state-machine-regression', checks }));

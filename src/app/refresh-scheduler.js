@@ -426,6 +426,19 @@ export function installRefreshScheduler(window = globalThis) {
   }
   window._aioIsWeeklyNewsExpiring = _aioIsWeeklyNewsExpiring;
 
+  // v59.74 SM-07: the 30s on-enter stamp is written before the deferred run starts. A run that is dropped or
+  // cancelled before it finishes gives its stamps back, so coming back to the page within 30s still refreshes.
+  function _aioReleasePageRefreshStamps(controller) {
+    var stamped = controller && controller._aioStamped;
+    if (!stamped) return;
+    controller._aioStamped = null;
+    stamped.keys.forEach(function(key) { if (_aioPageRefreshLast[key] === stamped.at) delete _aioPageRefreshLast[key]; });
+  }
+  function _aioAbortPageRefresh(controller, reason) {
+    _aioReleasePageRefreshStamps(controller);
+    try { controller.abort(reason); } catch (_) {}
+  }
+
   function _aioRefreshPageData(pageId) {
     try {
       if (_schedulerPaused) return;
@@ -440,13 +453,11 @@ export function installRefreshScheduler(window = globalThis) {
       var symbols = Array.isArray(profile.symbols) ? profile.symbols.slice() : [];
       Object.keys(_aioPageRefreshControllers).forEach(function(activePageId) {
         if (activePageId !== pageId && _aioPageRefreshControllers[activePageId]) {
-          try { _aioPageRefreshControllers[activePageId].abort('route-changed'); } catch (_) {}
+          _aioAbortPageRefresh(_aioPageRefreshControllers[activePageId], 'route-changed');
           delete _aioPageRefreshControllers[activePageId];
         }
       });
-      if (_aioPageRefreshControllers[pageId]) {
-        try { _aioPageRefreshControllers[pageId].abort('superseded'); } catch (_) {}
-      }
+      if (_aioPageRefreshControllers[pageId]) _aioAbortPageRefresh(_aioPageRefreshControllers[pageId], 'superseded');
       var pageController = new AbortController();
       _aioPageRefreshControllers[pageId] = pageController;
       var now = Date.now();
@@ -470,12 +481,14 @@ export function installRefreshScheduler(window = globalThis) {
         options[key] = { pageId: pageId, forceRefresh: forceRefresh, reason: forceRefresh ? 'weekly-news-expiring' : 'page-onenter-stale', symbols: symbols };
       });
       if (dueKeys.length && window.AIO && typeof window.AIO.runScheduledRefresh === 'function') {
+        pageController._aioStamped = { keys: dueKeys, at: now };
         setTimeout(function(){
           var activePageId = String((window.AIO && typeof window.AIO.getActivePage === 'function' && window.AIO.getActivePage()) || document.querySelector('.page.active')?.id || '').replace(/^page-/, '');
-          if (pageController.signal.aborted || (activePageId && activePageId !== pageId)) return;
+          if (pageController.signal.aborted || (activePageId && activePageId !== pageId)) { _aioReleasePageRefreshStamps(pageController); return; }
           window.AIO.runScheduledRefresh({ keys: dueKeys, options: options, pageId: pageId, symbols: symbols, reason: 'page-onenter', signal: pageController.signal }).catch(function(e) {
             if (typeof _aioLog === 'function') _aioLog('warn', 'refresh', 'page refresh failed: ' + pageId + ' ' + (e && e.message || e));
           }).finally(function() {
+            pageController._aioStamped = null;
             if (_aioPageRefreshControllers[pageId] === pageController) delete _aioPageRefreshControllers[pageId];
           });
         }, 0);

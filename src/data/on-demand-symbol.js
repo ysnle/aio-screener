@@ -182,7 +182,9 @@ export function createOnDemandSymbolReader({ fetchChart, fetchJson = null, isLis
   const remember = (id, record, universe = null) => {
     entries.delete(id);
     entries.set(id, { at: now(), record, promise: null, universe });
-    while (entries.size > MAX_ENTRIES) entries.delete(entries.keys().next().value);
+    // v59.74 SM-13: eviction takes the oldest settled record; a read still pending keeps its slot so a second load
+    // joins it instead of starting a duplicate fetch.
+    for (const [key, entry] of entries) { if (entries.size <= MAX_ENTRIES) break; if (!entry.promise) entries.delete(key); }
     try { onRecord(record); } catch (_) { /* a consumer's render error does not poison the cache */ }
     return record;
   };
