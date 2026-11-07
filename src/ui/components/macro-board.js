@@ -1045,7 +1045,9 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
           lines: card.available ? [[card.day == null ? null : `직전 거래일 종가 대비 ${signed(card.day, 1, '%')}`, card.change20 == null ? null : `20거래일 ${signed(card.change20, 1, '%')}${fxSideWord(card.id, card.change20)}`].filter(Boolean).join(', ')] : ['기록 수집 중'],
           series: card.series,
           format: (value) => `${value.toFixed(card.digits === 1 ? 0 : 1)}${card.unit || ''}`,
-          note: card.id === 'usdjpy' ? model.carry.text : card.id === 'usdkrw' ? '원/달러가 오르면 원화 약세입니다. 일별 값은 뉴욕 외환 거래일 마감 무렵 종가라, 실시간 시세의 전일 대비(한국 시간 오전 8시 기준)와 기준 시각이 다릅니다.' : '주요 6개 통화 대비 달러 가치입니다.'
+          // v59.75 (macro audit 11/7): the yen and won cards carry their rate-differential driver (OECD monthly 10-year yields).
+          note: [card.id === 'usdjpy' ? model.carry.text : card.id === 'usdkrw' ? '원/달러가 오르면 원화 약세입니다. 일별 값은 뉴욕 외환 거래일 마감 무렵 종가라, 실시간 시세의 전일 대비(한국 시간 오전 8시 기준)와 기준 시각이 다릅니다.' : '주요 6개 통화 대비 달러 가치입니다.',
+            model.differentials?.[card.id]?.text || null].filter(Boolean).join(' ')
         });
       }));
   }
@@ -1201,9 +1203,30 @@ function renderErpLine(doc, root) {
 // no change. The note now names what the cells actually hold — a market quote time, or a daily reference rate and
 // its date — and an empty change cell for a reference rate is hidden instead of showing a fixed dash.
 const OTHER_FX = Object.freeze(['EURUSD=X', 'GBPUSD=X', 'CNY=X', 'AUDUSD=X']);
-export function describeOtherFx(live = {}) {
+// v59.75 (macro audit 11/7): with no live quote the fold showed nothing; history.json now keeps completed closes for the four
+// (scripts/producer/history.mjs), and the fold falls back to the last close of each, named as a close with its date.
+const OTHER_FX_FIELDS = Object.freeze({ 'EURUSD=X': 'eurusd', 'GBPUSD=X': 'gbpusd', 'CNY=X': 'usdcny', 'AUDUSD=X': 'audusd' });
+export function otherFxCloses(history = []) {
+  const closes = {};
+  for (const symbol of OTHER_FX) {
+    const last = buildCloseSeries(history, OTHER_FX_FIELDS[symbol]).at(-1);
+    if (last) closes[symbol] = last;
+  }
+  return closes;
+}
+// Only closes of the label's own day are shown (an older cell under a newer date would misstate it), and a last close more
+// than ten days old is no fallback at all.
+const OTHER_FX_CLOSE_MAX_AGE_MS = 10 * 86400000;
+export function describeOtherFx(live = {}, history = [], nowMs = Date.now()) {
   const rows = OTHER_FX.map((symbol) => live?.[symbol]).filter((row) => row && Number.isFinite(Number(row.price ?? row.quoteEnvelope?.price ?? row.regularMarketPrice)));
-  if (!rows.length) return { text: '시세 대기', reference: false };
+  if (!rows.length) {
+    const all = otherFxCloses(history);
+    const label = Object.values(all).map((point) => point.date).sort().at(-1);
+    if (!label || nowMs - Date.parse(`${label}T21:00:00Z`) > OTHER_FX_CLOSE_MAX_AGE_MS) return { text: '시세 대기', reference: false };
+    const closes = Object.fromEntries(Object.entries(all).filter(([, point]) => point.date === label));
+    const [, month, day] = label.split('-').map(Number);
+    return { text: `${month}/${day} 종가`, reference: true, closes };
+  }
   const basisOf = (row) => row.quoteEnvelope?.valueBasis || row.valueBasis || null;
   const sourceOf = (row) => String(row.quoteEnvelope?.source || row._source || row.source || '');
   const reference = rows.every((row) => basisOf(row) === 'daily-reference-rate' || sourceOf(row).startsWith('reference:fx'));
@@ -1221,7 +1244,7 @@ export function describeOtherFx(live = {}) {
 function syncOtherCurrencyNote(doc, root) {
   const note = doc.querySelector?.('#rates-other-title .rates-other-note');
   if (!note) return;
-  const read = describeOtherFx(root?._liveData || {});
+  const read = describeOtherFx(root?._liveData || {}, root?._aioHistory || []);
   // v57.91 (wording audit): with no quote at all, one line replaces a grid of eight dashes.
   const empty = read.text === '시세 대기';
   const grid = doc.querySelector?.('.rates-other');
@@ -1233,5 +1256,8 @@ function syncOtherCurrencyNote(doc, root) {
   for (const symbol of OTHER_FX) {
     const change = doc.querySelector?.(`.rates-other [data-live-chg="${symbol}"]`);
     if (change) change.hidden = read.reference;
+    const close = read.closes?.[symbol];
+    const price = close ? doc.querySelector?.(`.rates-other [data-live-price="${symbol}"]`) : null;
+    if (price) { price.textContent = close.value.toFixed(4); price.title = `${close.date} 종가`; price.dataset.quoteState = 'close'; }
   }
 }

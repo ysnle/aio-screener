@@ -310,7 +310,8 @@ export function isSessionComplete(date, segment, nowMs = Date.now()) {
 
 // The provider's 1y daily chart (one chart.result entry) as dated rows, exactly as the producer's fetchHistory builds
 // them: raw OHLC/volume, adjusted close kept separate, a missing value stays null, an empty close is a gap date.
-export function dailyRowsFromYahooChart(res, { fetchedAt = new Date().toISOString() } = {}) {
+// v59.75: `closeDigits` keeps a quote convention finer than cents (EUR/USD 1.1544); every other caller keeps 2.
+export function dailyRowsFromYahooChart(res, { fetchedAt = new Date().toISOString(), closeDigits = 2 } = {}) {
   const ts = res?.timestamp;
   const q0 = res?.indicators?.quote?.[0];
   const closes = q0?.close;
@@ -340,7 +341,7 @@ export function dailyRowsFromYahooChart(res, { fetchedAt = new Date().toISOStrin
       instrumentId: res.meta?.symbol || null,
       timeframe: res.meta?.dataGranularity || null,
       currency: res.meta?.currency || null,
-       close: round(c, 2),
+       close: round(c, closeDigits),
       // Missing adjusted-close evidence stays missing. A raw-close fallback
       // would silently turn a total-return backtest into a price-only test.
       adjClose: (typeof a === 'number' && isFinite(a) && a > 0) ? round(a, 2) : null,

@@ -39,6 +39,24 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2286 - v59.75 - 오늘·시장 신호 첫 6.5초에 차트 화면 전용 종목 차트 묶음(~124 KB)이 함께 내려옴 (2026-11-08)
+
+- symptom/reproduction: 로컬 ci-boot-interaction-check에서 부트 후 지연 JS가 360,954 B로 예산 350,000을 넘었다. CI(고정 시계)는 343,079로 통과해 초과가 가려졌다.
+- root_cause: src/ui/pages/analysis.js가 stock-chart.js를 정적으로 import해, 차트 경로만 쓰는 종목 차트와 레이어·그리기·분석 청크가 오늘·시장 신호·차트가 함께 쓰는 analysis 청크에 딸려 왔다. 측정값이 두 갈래였던 것은 오늘의 핵심(home-day.js, 18.8 KB)이 경로 전환 전에 오늘이 그려졌을 때만 로드되기 때문이고, 고정 시계 CI 실행은 대개 그 전에 전환했다.
+- fix: analysis.js는 차트 경로에서만 stock-chart.js를 동적 import한다. 실패한 로드는 두 번 다시 시도하고 그래도 안 되면 '차트를 불러오지 못했습니다'를 띄운다. ci-boot-interaction-check는 오늘이 그려진 뒤 전환해 오늘의 핵심을 항상 센다. 예산은 측정 256,977에 맞춰 350,000→265,000으로 낮춘다.
+- violated_rule: 한 화면만 쓰는 무거운 모듈은 그 화면이 열릴 때 불러온다(boot-budget: 첫 화면 집합을 줄이면 상한도 내린다).
+- prevention: P2286: architecture/boot-budget.json postBootLazyBudget 265,000 — 정적 import가 돌아오면 약 360 KB로 ci-boot-interaction-check가 실패한다.
+- verification/residual: ci-boot-interaction-check 실시간·고정 시계 PASS, postBootLazy 256,046/256,977, stock-chart 청크 없음, home-day 항상 포함. 수정 전 4회 중 3회 360,954.
+
+## P2285 - v59.75 - 매크로 성장 장의 판단 조건이 수집하지 않는 ISM을 기준으로 삼고, BB·B 스프레드는 기록이 1년으로 잘려 읽히지 않음 (2026-11-08)
+
+- symptom/reproduction: 성장·소비·한국 장의 flip 문장이 'ISM 제조·서비스가 함께 50 아래'를 조건으로 들었지만 macro-history에는 ISM 계열이 없어 그 조건은 화면에서 확인할 수 없었다. 출처 목록에도 ISM이 올라 있었다. BB·B 등급 스프레드는 매일 수집되지만 278개(1년)만 남아 하이일드·투자등급·CCC(약 786개, 3년)와 같은 범위로 읽을 수 없어 쓰이지 않았다. 엔·원 환율에는 금리차 근거가 없었고, 그 밖의 통화 접이식은 실시간 시세가 없으면 통째로 숨었다.
+- root_cause: 화면 문장이 수집 계열 목록이 아니라 일반 지식에서 지표 이름을 가져왔고(ISM은 라이선스 자료라 FRED에 없다), scripts/producer/macro-history.mjs의 bbOas·bOas limit이 280으로 다른 등급(800)과 달랐다. 금리차는 원천(OECD 월간 장기금리)이 수집 목록에 없었고, 그 밖의 통화 네 개는 history.json에 종가 열이 없어 폴백이 불가능했다.
+- fix: macro-history에 INDPRO(산업생산)와 IRLTLT01US·JP·KR(OECD 10년 장기금리 월평균)을 더하고 BB·B limit을 800으로 맞췄다. 성장 장은 소매판매·산업생산 두 공식 월간 계열로 판단 조건을 말하고, 출처 없는 '외국인 매매 · 아직 제공하지 않음' 행과 출처 목록의 ISM을 뺐다. 신용 장은 BB·B를 사다리에 넣되 기록 시작이 다른 등급과 한 달 넘게 다르면 범위 비교에서 뺀다. rateDifferential이 같은 OECD 기준으로 미·일·미·한 금리차와 6개월 변화를 같은 월말 사이 환율 변화와 대조해 엔·원 카드와 달러 장에 붙는다. history.json에 eurusd·gbpusd·usdcny·audusd 종가 열(보조 백필 경로)을 더해 실시간 시세가 없을 때 마지막 종가와 날짜를 보여 준다.
+- violated_rule: 화면이 말하는 지표와 판단 조건은 수집·표시되는 원천에서만 나온다(원천 없는 위젯·근거 없는 판단 제거, AGENTS).
+- prevention: P2285: ci-esm-core-unit-check — rateDifferential 읽기(벌어진 금리차와 같은 방향 환율, 거의 그대로인 금리차), creditRanges가 기록 시작이 다른 BB·B를 빼고 같은 기록이면 넣는지, describeOtherFx의 종가 폴백을 고정한다.
+- verification/residual: ci-esm-core-unit-check PASS. 현재 public-data로 신용 장 사다리 투자등급·하이일드·BB·B·CCC, 범위 문장은 BB·B 제외(1년 기록) 확인. 새 FRED·Yahoo 계열은 다음 데이터 갱신에서 채워진다(샌드박스에서 원천 접근 불가).
+
 ## P2284 - v59.74 - v59.74 평일 종가가 전날 값으로 남음 (나스닥100·WTI·브렌트·금·은·달러, 10/26~11/4) (2026-11-08)
 
 - symptom/reproduction: history.json 11/2·11/4 등 미국 거래일 행의 ndx·wti·brent·gold·silver·dxy가 이전 세션 종가(carried-forward, heldReason session-already-recorded)였다. 11/5 나스닥100 하루 변화가 11/3 대비 이틀치로 계산됐고 11/4 WTI 하루 변화는 0이었다.

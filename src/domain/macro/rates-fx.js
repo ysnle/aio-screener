@@ -339,6 +339,55 @@ function fxCard(history, basis, spec) {
   };
 }
 
+// v59.75 (macro audit 11/7): the rate differential behind USD/JPY and USD/KRW. FRED has Japan's and Korea's 10-year yields
+// only as OECD monthly means, so both legs are the OECD series (US IRLTLT01USM156N) for the same month. The read compares the
+// spread's six-month change with the currency's move between the same two month-ends; a spread that barely moved says
+// nothing about direction. Rates do not explain every move, and the line says when the currency went the other way.
+export const RATE_DIFF_RULE = Object.freeze({ months: 6, flatPp: 0.15 });
+const RATE_DIFF_LEGS = Object.freeze({ usdjpy: { foreign: 'jpLongRate', name: '미·일', currency: '엔' }, usdkrw: { foreign: 'krLongRate', name: '미·한', currency: '원' } });
+function monthlyRows(macroHistory, id) {
+  return (macroHistory?.series?.[id]?.observations || []).map(([date, value]) => ({ month: String(date || '').slice(0, 7), value: finite(value) })).filter((row) => /^\d{4}-\d{2}$/.test(row.month) && row.value != null);
+}
+function closeAtMonthEnd(series, month) {
+  const rows = series.filter((point) => point.date.slice(0, 7) <= month);
+  const last = rows[rows.length - 1];
+  return last && last.date.slice(0, 7) === month ? last : null;
+}
+export function rateDifferential(macroHistory, history, id, rule = RATE_DIFF_RULE) {
+  const legs = RATE_DIFF_LEGS[id];
+  if (!legs) return null;
+  const foreign = new Map(monthlyRows(macroHistory, legs.foreign).map((row) => [row.month, row.value]));
+  const spreads = monthlyRows(macroHistory, 'usLongRate').filter((row) => foreign.has(row.month)).map((row) => ({ month: row.month, value: Math.round((row.value - foreign.get(row.month)) * 100) / 100 }));
+  if (!spreads.length) return null;
+  const last = spreads[spreads.length - 1];
+  const [year, mon] = last.month.split('-').map(Number);
+  const startIndex = year * 12 + mon - 1 - rule.months;
+  const startMonth = `${Math.floor(startIndex / 12)}-${String(startIndex % 12 + 1).padStart(2, '0')}`;
+  const start = spreads.find((row) => row.month === startMonth) || null;
+  const change = start ? Math.round((last.value - start.value) * 100) / 100 : null;
+  const closes = buildCloseSeries(history, id);
+  const fxFrom = start ? closeAtMonthEnd(closes, start.month) : null;
+  const fxTo = closeAtMonthEnd(closes, last.month);
+  const fxChange = fxFrom && fxTo ? (fxTo.value / fxFrom.value - 1) * 100 : null;
+  const label = `${Number(last.month.slice(5))}월`;
+  const level = `${legs.name} 10년 금리차 ${last.value.toFixed(2)}%p(${last.month.slice(0, 4)}년 ${label} 월평균)`;
+  let read = null;
+  if (change != null) {
+    const moved = Math.abs(change) >= rule.flatPp;
+    const span = `${rule.months}개월 ${signed(change, 2, '%p')}`;
+    if (!moved) read = `${level}, ${span}로 거의 그대로라 그동안의 환율 움직임은 금리차보다 다른 요인에서 왔습니다.`;
+    else if (fxChange == null) read = `${level}, ${span}.`;
+    else {
+      const fxText = `같은 기간 ${id === 'usdjpy' ? '엔/달러' : '원/달러'} ${signed(fxChange, 1, '%')}`;
+      const agrees = Math.sign(change) === Math.sign(fxChange) && Math.abs(fxChange) >= 0.5;
+      // A wider US spread favours the dollar (USD/JPY, USD/KRW up); a narrower one favours the other currency.
+      read = agrees ? `${level}, ${span}. ${fxText}로 금리차가 ${change > 0 ? '벌어진 만큼 달러가 강해진' : `좁혀진 만큼 ${legs.currency}화가 강해진`} 쪽입니다.`
+        : `${level}, ${span}. ${fxText}로 금리차만으로는 설명되지 않습니다.`;
+    }
+  }
+  return { id, name: legs.name, month: last.month, value: last.value, change, fxChange, start: start?.month || null, text: read || `${level}.`, source: 'FRED OECD 장기금리(IRLTLT01) 월평균' };
+}
+
 export function buildRatesFx({ macro = null, history = [], macroHistory = null } = {}) {
   const m = macro && typeof macro === 'object' ? macro : {};
   const curve = treasury(m);
@@ -397,7 +446,8 @@ export function buildRatesFx({ macro = null, history = [], macroHistory = null }
     tnx,
     tnxChange,
     fx,
-    carry
+    carry,
+    differentials: { usdjpy: rateDifferential(macroHistory, history, 'usdjpy'), usdkrw: rateDifferential(macroHistory, history, 'usdkrw') }
   };
 }
 

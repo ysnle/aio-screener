@@ -7,7 +7,7 @@ import { readNumber, signedText } from '../shared/number.js';
 import { dayLabel } from '../market/market-story.js';
 import { buildCloseSeries, closeBasis } from '../market/close-series.js';
 import { MARKET_WINDOWS, closeChange } from '../market/market-windows.js';
-import { sessionPointBack } from './rates-fx.js';
+import { rateDifferential, sessionPointBack } from './rates-fx.js';
 import { RULES } from '../rules/thresholds.js';
 import { withTopicParticle } from '../content/korean-particle.js';
 import { creditState, hyWidening20Record, oasDelta20Bp } from '../briefing/market-read.js';
@@ -236,7 +236,7 @@ export function goldRead(gold, real, dollar) {
     : `실질금리·달러가 크게 움직이지 않았는데 금이 ${signed(g, 1)} 빠져 포지션 정리 쪽입니다(추정).`;
 }
 
-function dollarChapter(history) {
+function dollarChapter(history, macroHistory = null) {
   const dxy = historySpan(history, 'dxy');
   if (!dxy) return null;
   const jpy = historySpan(history, 'usdjpy'); const krw = historySpan(history, 'usdkrw');
@@ -253,7 +253,10 @@ function dollarChapter(history) {
     mean: `${read}.${carry}${won}`,
     next: '매일 · 미국 금리 발표와 일본은행 회의',
     flip: '달러가 오르면서 미국 금리도 오르면 긴축 쪽, 달러가 오르는데 금리가 내리면 위험 회피(안전자산 달러) 쪽입니다.',
-    detail: [['달러지수 20거래일 전', dxy.from.toFixed(2)], ['엔/달러 20거래일', jpy ? signed(jpy.pct, 1) : '—'], ['원/달러 20거래일', krw ? signed(krw.pct, 1) : '—']]
+    // v59.75 (macro audit 11/7): the rate-differential driver, the same OECD monthly read as the 금리와 환율 FX cards.
+    detail: [['달러지수 20거래일 전', dxy.from.toFixed(2)], ['엔/달러 20거래일', jpy ? signed(jpy.pct, 1) : '—'], ['원/달러 20거래일', krw ? signed(krw.pct, 1) : '—'],
+      ...[rateDifferential(macroHistory, history, 'usdjpy'), rateDifferential(macroHistory, history, 'usdkrw')].filter(Boolean)
+        .map((row) => [`${row.name} 10년 금리차`, `${row.value.toFixed(2)}%p (${Number(row.month.slice(5))}월${row.change == null ? '' : `, 6개월 ${signed(row.change, 2, '%p')}`})`])]
   };
 }
 
@@ -289,7 +292,11 @@ export function chapterToday(day, chapterId) {
 // v59.70 (X bookmarks #4): each spread tier's level inside its own recorded range — the 10/50/90th percentiles of every
 // FRED observation kept (ICE BofA: about three years) and where today sits. A quantile band, never a fixed '150bp' line:
 // the index definitions differ from the ones such lines are quoted from.
-const TIERS = Object.freeze([['igOas', '투자등급'], ['hyOas', '하이일드'], ['cccOas', 'CCC']]);
+// v59.75 (macro audit 11/7): BB and B join the ladder between 하이일드 and CCC. A tier enters only when its record starts
+// with the others' (within a month): BB/B held one year until the producer kept three, and a one-year percentile beside
+// three-year ones would read as the same yardstick.
+const TIERS = Object.freeze([['igOas', '투자등급'], ['hyOas', '하이일드'], ['bbOas', 'BB'], ['bOas', 'B'], ['cccOas', 'CCC']]);
+const SAME_RECORD_DAYS = 31;
 function spreadRange(macroHistory, id, label) {
   const rows = series(macroHistory, id);
   if (rows.length < 120) return null;
@@ -301,7 +308,9 @@ function spreadRange(macroHistory, id, label) {
   return { id, label, now, p10: at(0.1), p50: at(0.5), p90: at(0.9), min: sorted[0], max: sorted.at(-1), pct, from: rows[0].date, to: rows.at(-1).date, n: rows.length };
 }
 export function creditRanges(macroHistory) {
-  const ranges = TIERS.map(([id, label]) => spreadRange(macroHistory, id, label)).filter(Boolean);
+  const all = TIERS.map(([id, label]) => spreadRange(macroHistory, id, label)).filter(Boolean);
+  const first = all.map((range) => range.from).sort()[0];
+  const ranges = all.filter((range) => (Date.parse(range.from) - Date.parse(first)) / 86400000 <= SAME_RECORD_DAYS);
   if (!ranges.length) return null;
   const out = ranges.filter((range) => range.pct >= 90 || range.pct <= 10);
   const lead = (out.length ? out : ranges).sort((a, b) => Math.abs(b.pct - 50) - Math.abs(a.pct - 50))[0];
@@ -319,6 +328,7 @@ function credit(macroHistory) {
   const hy20 = oasDelta20Bp(macroHistory, 'hyOas');
   if (!hy20) return null;
   const ccc20 = oasDelta20Bp(macroHistory, 'cccOas'); const ig20 = oasDelta20Bp(macroHistory, 'igOas');
+  const bb20 = oasDelta20Bp(macroHistory, 'bbOas'); const b20 = oasDelta20Bp(macroHistory, 'bOas');
   const hy = { from: hy20.level - hy20.value / 100, to: hy20.level, bp: hy20.value };
   const ccc = ccc20 ? { to: ccc20.level, bp: ccc20.value } : null; const ig = ig20 ? { to: ig20.level, bp: ig20.value } : null;
   const fci = series(macroHistory, 'financialConditions').at(-1);
@@ -335,13 +345,13 @@ function credit(macroHistory) {
     : `하이일드 ${C.stressAtBp / 100}% 이상, 5거래일 +${C.widen5dBp}bp, 20거래일 확대가 자체 기록 상위 ${100 - C.stress20dPct}% 중 하나면 부담으로 바꿉니다.`;
   return {
     id: 'credit', title: '신용 · 유동성 — 위기 신호 점검', question: '주가 조정이 신용 위기로 번질 위험', state,
-    viz: { caption: '스프레드 20거래일 변화 (bp)', unit: 'bp', points: [ig ? { x: '투자등급', value: ig.bp } : null, { x: '하이일드', value: hy.bp }, ccc ? { x: 'CCC', value: ccc.bp, hot: true } : null].filter(Boolean) },
+    viz: { caption: '스프레드 20거래일 변화 (bp)', unit: 'bp', points: [ig ? { x: '투자등급', value: ig.bp } : null, { x: '하이일드', value: hy.bp }, bb20 ? { x: 'BB', value: bb20.value } : null, b20 ? { x: 'B', value: b20.value } : null, ccc ? { x: 'CCC', value: ccc.bp, hot: true } : null].filter(Boolean) },
     now: `하이일드 ${hy.from.toFixed(2)} → ${hy.to.toFixed(2)}% (${bp(hy.bp)})${ccc ? ` · CCC ${bp(ccc.bp)}` : ''}`,
     mean: `${mean}${fci ? ` 금융여건 지수는 ${fci.value.toFixed(2)}로 ${fci.value < 0 ? '아직 완화 쪽' : '긴축 쪽'}입니다.` : ''}`,
     next: '매일',
     flip,
     ranges: creditRanges(macroHistory),
-    detail: [['하이일드', `${hy.to.toFixed(2)}%`], ['CCC', ccc ? `${ccc.to.toFixed(2)}%` : '—'], ['투자등급', ig ? `${ig.to.toFixed(2)}%` : '—'], ['금융여건 지수', fci ? fci.value.toFixed(2) : '—']]
+    detail: [['하이일드', `${hy.to.toFixed(2)}%`], ...(bb20 ? [['BB', `${bb20.level.toFixed(2)}%`]] : []), ...(b20 ? [['B', `${b20.level.toFixed(2)}%`]] : []), ['CCC', ccc ? `${ccc.to.toFixed(2)}%` : '—'], ['투자등급', ig ? `${ig.to.toFixed(2)}%` : '—'], ['금융여건 지수', fci ? fci.value.toFixed(2) : '—']]
   };
 }
 
@@ -352,6 +362,8 @@ function growthKorea(macroHistory, history, events) {
   const krw = historySpan(history, 'usdkrw');
   const sentiment = series(macroHistory, 'consumerSentiment').at(-1);
   const retail = monthOverMonth(series(macroHistory, 'retailSales').slice(-2)).at(-1);
+  // v59.75 (macro audit 11/7): output beside spending — industrial production (Fed G.17), month over month.
+  const output = monthOverMonth(series(macroHistory, 'industrialProduction').slice(-2)).at(-1);
   if (!kospi && !sentiment) return null;
   const korea = kospi && semis && Math.abs(kospi.pct - semis.pct) < 4 && Math.abs(semis.pct) >= 5 ? `코스피(${signed(kospi.pct, 1)})가 미국 반도체(SOXX ${signed(semis.pct, 1)})와 같은 폭으로 움직여, 한국은 AI 반도체 업황에 묶여 있습니다`
     : kospi ? `코스피는 20거래일 ${signed(kospi.pct, 1)}입니다` : '';
@@ -360,18 +372,20 @@ function growthKorea(macroHistory, history, events) {
   return {
     id: 'growth', title: '성장 · 소비 · 한국', question: '경기의 지속력과 한국 시장이 묶인 고리',
     viz: { caption: '20거래일 등락 (%)', unit: '%', points: [kospi ? { x: '코스피', value: kospi.pct, hot: true } : null, semis ? { x: 'SOXX', value: semis.pct } : null, krw ? { x: '원/달러', value: krw.pct } : null].filter(Boolean) },
-    now: [sentiment ? `소비심리 ${sentiment.value.toFixed(1)}` : null, retail ? `소매판매 ${signed(retail.value, 1)}` : null, kospi ? `코스피 ${signed(kospi.pct, 1)}` : null].filter(Boolean).join(' · '),
+    now: [sentiment ? `소비심리 ${sentiment.value.toFixed(1)}` : null, retail ? `소매판매 ${signed(retail.value, 1)}` : null, output ? `산업생산 ${signed(output.value, 1)}` : null, kospi ? `코스피 ${signed(kospi.pct, 1)}` : null].filter(Boolean).join(' · '),
     mean: `${sentiment && sentiment.value < 60 ? '소비심리는 낮지만 ' : ''}${retail ? (retail.value >= 0 ? '소비 지출은 아직 꺾이지 않았습니다. ' : '소비 지출이 줄었습니다. ') : ''}${korea}.${won}`,
-    next: whenOf(next) || 'ISM 제조업(매월 첫 영업일) · 서비스업(셋째 영업일)',
-    flip: '소매판매가 두 달 연속 줄고 ISM 제조·서비스가 함께 50 아래면 경기 둔화로 읽습니다.',
-    detail: [['소비심리(미시간)', sentiment ? sentiment.value.toFixed(1) : '—'], ['소매판매 전월비', retail ? signed(retail.value, 1) : '—'], ['원/달러 20거래일', krw ? signed(krw.pct, 1) : '—'], ['외국인 매매', '아직 제공하지 않음']]
+    // v59.75 (macro audit 11/7): the flip named ISM, which is not collected (licensed, not on FRED); it now reads the two
+    // official monthly series the chapter shows. The '외국인 매매 · 아직 제공하지 않음' row (no source) left.
+    next: whenOf(next) || '소매판매 · 산업생산 (매월 중순)',
+    flip: '소매판매와 산업생산이 두 달 연속 함께 줄면 경기 둔화로 읽습니다.',
+    detail: [['소비심리(미시간)', sentiment ? sentiment.value.toFixed(1) : '—'], ['소매판매 전월비', retail ? signed(retail.value, 1) : '—'], ...(output ? [['산업생산 전월비', `${signed(output.value, 1)} (${monthName(output.date)})`]] : []), ['원/달러 20거래일', krw ? signed(krw.pct, 1) : '—']]
   };
 }
 
 /** The chapters (v59.64: eight; v59.74: nine with 변동성); a chapter whose series are missing is left out. `day` is market-day.json, when loaded. */
 export function buildMacroChapters({ macroHistory = null, history = [], events = [], day = null } = {}) {
   const chapters = [inflation(macroHistory, events), labor(macroHistory, events), rates(macroHistory, events, history), credit(macroHistory), oil(history, macroHistory),
-    metals(history, macroHistory), dollarChapter(history), volatilityChapter(history, events), growthKorea(macroHistory, history, events)].filter(Boolean)
+    metals(history, macroHistory), dollarChapter(history, macroHistory), volatilityChapter(history, events), growthKorea(macroHistory, history, events)].filter(Boolean)
     .map((chapter) => ({ ...chapter, today: chapterToday(oneSessionDay(day, history), chapter.id) }));
   return { available: chapters.length > 0, chapters };
 }

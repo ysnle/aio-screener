@@ -10,7 +10,7 @@ import { round } from '../lib/producer-math.mjs';
 import { isSessionComplete } from '../../src/domain/screener/price-factors.js';
 import { compareUsdKrwCrossCheck } from '../lib/macro-sources.mjs';
 import { HIST } from './paths.mjs';
-import { mapLimit, fetchHistory, fetchHourlySessionClose } from './quotes.mjs';
+import { mapLimit, fetchHistory, fetchHourlySessionClose, FOUR_PLACE_QUOTES } from './quotes.mjs';
 import { readNumber } from '../../src/domain/shared/number.js';
 import { isoDay } from '../../src/domain/shared/session-date.js';
 import { readHistoryRows, compactHistoryRows } from '../../src/domain/market/history-rows.js';
@@ -50,8 +50,11 @@ const HIST_SYMBOLS = {
   'XLP': 'xlp', 'XLU': 'xlu', 'XLV': 'xlv',
   // v59.70 (data audit R12): non-core research columns (quotes.mjs AUX_SYMBOLS); nothing reads them for a judgement yet.
   '^SOX': 'sox', '^MOVE': 'move', '^SKEW': 'skew', '^VIX9D': 'vix9d',
+  // v59.75 (macro audit 11/7): the 금리와 환율 '그 밖의 통화' fold read live quotes only, so without the quote Worker it was
+  // hidden. These four, already live quotes, get completed-close columns as the fold's fallback (the last close and its date).
+  'EURUSD=X': 'eurusd', 'GBPUSD=X': 'gbpusd', 'CNY=X': 'usdcny', 'AUDUSD=X': 'audusd',
 };
-const HIST_FIELDS = ['spx','nasdaq','ndx','dow','rut','vix','vix3m','vvix','tnx','dxy','wti','brent','gold','silver','kospi','kosdaq','btc','usdkrw','usdjpy','tlt','smh','soxx','rsp','xlp','xlu','xlv','sox','move','skew','vix9d','fg'];
+const HIST_FIELDS = ['spx','nasdaq','ndx','dow','rut','vix','vix3m','vvix','tnx','dxy','wti','brent','gold','silver','kospi','kosdaq','btc','usdkrw','usdjpy','tlt','smh','soxx','rsp','xlp','xlu','xlv','sox','move','skew','vix9d','eurusd','gbpusd','usdcny','audusd','fg'];
 // P1246 (data-refresh: 품질 경계): 히스토리 시장 필드의 **단일** 타당 범위 선언. producer가 이 범위를
 // 벗어난 값을 관측으로 승격하지 않고(null + fieldMeta 없음 = P1101의 무관측 표기), 게이트가 같은 선언을
 // 가져와 아티팩트를 검사한다 — 선언과 집행이 서로 다른 리터럴을 들고 어긋나는 경로를 만들지 않는다.
@@ -70,6 +73,7 @@ export const HIST_FIELD_PLAUSIBILITY = Object.freeze({
   xlp: [10, 2000], xlu: [10, 2000], xlv: [10, 2000],
   silver: [1, 500],
   sox: [100, 50000], move: [20, 400], skew: [90, 200], vix9d: [5, 200],
+  eurusd: [0.5, 2.5], gbpusd: [0.8, 3], usdcny: [4, 12], audusd: [0.3, 1.5],
 });
 export function histValueWithinPlausibility(field, value) {
   const range = HIST_FIELD_PLAUSIBILITY[field];
@@ -165,7 +169,8 @@ export function heldUsSessionFields(hist, nowMs = Date.now(), lookbackDays = 10,
 // v59.70 (R12): the research columns of quotes.mjs AUX_SYMBOLS. Their thin history never triggers the full backfill
 // (all ~30 symbols); they backfill on their own, once an hour at most (minute < 30), so a series the provider does not
 // serve costs four requests an hour instead of a full refetch every cycle.
-const AUX_HIST_SYMBOLS = Object.freeze(['^SOX', '^MOVE', '^SKEW', '^VIX9D']);
+// v59.75: the four fold currencies backfill on the same lane.
+const AUX_HIST_SYMBOLS = Object.freeze(['^SOX', '^MOVE', '^SKEW', '^VIX9D', 'EURUSD=X', 'GBPUSD=X', 'CNY=X', 'AUDUSD=X']);
 const AUX_HIST_FIELDS = new Set(AUX_HIST_SYMBOLS.map((sym) => HIST_SYMBOLS[sym]));
 
 async function backfillHistory(hist, syms = Object.keys(HIST_SYMBOLS)) {
@@ -474,7 +479,7 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
       };
       bySymQuote[q.symbol] = bySymQuoteEntry;
     }
-    const pick = (s) => (typeof bySym[s] === 'number' && isFinite(bySym[s])) ? round(bySym[s], 2) : null;
+    const pick = (s) => (typeof bySym[s] === 'number' && isFinite(bySym[s])) ? round(bySym[s], FOUR_PLACE_QUOTES.has(s) ? 4 : 2) : null;
     // P1246 (품질 경계): 히스토리에 실릴 값은 선언된 타당 범위 안에 있어야 한다. 범위 밖 값은 관측이
     // 아니라 공급자 오류로 취급해 null로 남긴다(값도 fieldMeta도 없음 — P1101의 무관측 표기).
     const pickField = (field, symbol) => {
