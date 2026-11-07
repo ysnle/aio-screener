@@ -36,7 +36,7 @@ try {
   const result = await page.evaluate(async () => {
     const visible = [...document.querySelectorAll('#screener-results-body [data-aio-screener-ticker]')]
       .map((node) => node.getAttribute('data-aio-screener-ticker')).filter(Boolean);
-    const registered = visible.filter((symbol) => (window._aioQuoteRequestSymbols || []).includes(symbol));
+    const registered = visible.filter((symbol) => (window.__aioQuoteDemand?.state().registered || []).includes(symbol));
     const observedAt = new Date().toISOString();
     const revision = `ci-visible-quotes:${observedAt}`;
     window._liveData = window._liveData || {};

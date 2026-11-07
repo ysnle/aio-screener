@@ -551,7 +551,7 @@
           "id": "state-machine-regression",
           "script": "scripts/ci-state-machine-regression-check.mjs",
           "remedy": "each case names the _context/STATE-MACHINES.md finding (SM-xx) it guards; fix the transition, not the expected state",
-          "inputs": ["src/app/refresh-scheduler.js", "js/aio-data.js", "js/aio-core.js", "js/aio-chat.js", "src/data/on-demand-symbol.js", "src/data/server-data-loader.js", "scripts/ci-state-machine-regression-check.mjs"]
+          "inputs": ["src/app/refresh-scheduler.js", "js/aio-data.js", "js/aio-core.js", "js/aio-chat.js", "src/data/on-demand-symbol.js", "src/data/server-data-loader.js", "src/data/quote-demand.js", "scripts/ci-state-machine-regression-check.mjs"]
         },
         {
           "id": "artifact-cache-model",

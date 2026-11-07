@@ -3,6 +3,8 @@
 // resume, and AIO.runScheduledRefresh with its audits. The scheduler state (_schedulerPaused, _lastVisibleTime) stays
 // in this one scope with every function that reads it. Top-level functions and vars stay window globals as they were
 // in the classic script; src/app/compatibility-globals.js installs this before DOMContentLoaded.
+import { installQuoteDemand } from '../data/quote-demand.js';
+
 export function installRefreshScheduler(window = globalThis) {
   // ═══ 9. 데이터 갱신 스케줄러 (중앙 관리) ═══════════════════════
   // v21: 5명 동시 접속 기준 rate limit 안전 간격
@@ -785,61 +787,21 @@ export function installRefreshScheduler(window = globalThis) {
     };
   };
 
-  // State-machine audit SM-04: window._aioQuoteRequestSymbols is the extra symbol list fetchLiveQuotes adds to its
-  // request. Each writer used to save the old value, set its own and put the saved one back when it finished, so two
-  // overlapping refreshes (a page refresh beside the visibility resume, or an AI ensure-fresh) ended in the wrong order
-  // dropped the second run's symbols while it was still running and then restored the first run's list for good. Every
-  // writer now holds its list and releases it; the published value is the union of the lists still held.
-  // The registered symbols (AIO.registerLiveSymbol: rows and holdings a screen shows) are the standing base layer.
-  var _aioQuoteRequestBase = Array.isArray(window._aioQuoteRequestSymbols) ? window._aioQuoteRequestSymbols.slice() : [];
-  var _aioQuoteRequestHolds = new Map();
-  var _aioQuoteRequestHoldSeq = 0;
-  function _aioPublishQuoteRequestSymbols() {
-    var union = _aioQuoteRequestBase.slice();
-    _aioQuoteRequestHolds.forEach(function(list) {
-      list.forEach(function(sym) { if (union.indexOf(sym) < 0) union.push(sym); });
-    });
-    if (union.length) window._aioQuoteRequestSymbols = union;
-    else delete window._aioQuoteRequestSymbols;
-  }
-  function _aioHoldQuoteRequestSymbols(symbols) {
-    var list = (Array.isArray(symbols) ? symbols : []).map(function(sym) { return String(sym || '').trim(); }).filter(Boolean);
-    if (!list.length) return function() {};
-    var id = ++_aioQuoteRequestHoldSeq;
-    _aioQuoteRequestHolds.set(id, list);
-    _aioPublishQuoteRequestSymbols();
-    var released = false;
-    return function() {
-      if (released) return;
-      released = true;
-      _aioQuoteRequestHolds.delete(id);
-      _aioPublishQuoteRequestSymbols();
-    };
-  }
-  window._aioHoldQuoteRequestSymbols = _aioHoldQuoteRequestSymbols;
-  // SM-05: a failed quote fetch with no snapshot fallback retries after a backoff. Each failure used to add its own
-  // timer that called the fetch again, so every failing cycle started one more self-renewing retry chain (an hour offline left
-  // about twenty) and the chains kept fetching while the tab was hidden, outside the pause above. One retry is pending
-  // at most, a fetch that starts cancels it, and a hidden tab skips it (the visibility resume refreshes stale quotes).
-  var _aioQuoteRetryTimer = null;
-  window._aioCancelQuoteRetry = function() {
-    if (_aioQuoteRetryTimer != null) clearTimeout(_aioQuoteRetryTimer);
-    _aioQuoteRetryTimer = null;
-  };
-  window._aioScheduleQuoteRetry = function(delayMs) {
-    window._aioCancelQuoteRetry();
-    _aioQuoteRetryTimer = setTimeout(function() {
-      _aioQuoteRetryTimer = null;
-      if (typeof document !== 'undefined' && document.hidden) return;
-      if (typeof fetchLiveQuotes === 'function') fetchLiveQuotes();
-    }, delayMs);
-    return _aioQuoteRetryTimer;
-  };
-  window._aioAddQuoteRequestBaseSymbol = function(sym) {
-    if (!sym || _aioQuoteRequestBase.indexOf(sym) >= 0) return;
-    _aioQuoteRequestBase.push(sym);
-    _aioPublishQuoteRequestSymbols();
-  };
+  // SM-03a/04/04b/05: src/data/quote-demand.js owns quote requests; every outcome, whoever asked, is recorded here.
+  installQuoteDemand(window, { onOutcome: function(outcome) {
+    var cfg = REFRESH_SCHEDULE.quotes;
+    if (!cfg || cfg._inFlight) return; // a scheduled run records its own outcome
+    if (outcome.ok) {
+      cfg._lastOk = Date.now();
+      cfg._lastSuccessfulAt = new Date(cfg._lastOk).toISOString();
+      cfg._status = outcome.status || 'loaded';
+      cfg._lastErr = cfg._failureReason = '';
+      _aioMarkSchedulerFetch('quotes', outcome);
+    } else {
+      cfg._status = 'failed';
+      cfg._lastErr = cfg._failureReason = outcome.error || 'quote fetch failed';
+    }
+  } });
 
   window.AIO.runScheduledRefresh = async function(keys) {
     _assignRefreshScheduleFunctions();
@@ -867,7 +829,6 @@ export function installRefreshScheduler(window = globalThis) {
     var out = [];
     var runId = 'refresh-' + Date.now() + '-' + Math.round(Math.random() * 100000);
     var startedAt = Date.now();
-    var releaseQuoteRequestSymbols = _aioHoldQuoteRequestSymbols(runSymbols);
     _aioEmitRefreshEvent('start', {
       runId: runId,
       keys: list.slice(),
@@ -950,7 +911,6 @@ export function installRefreshScheduler(window = globalThis) {
       // started. Restoring the start value left a run begun while hidden (portfolio/screener retry, AI ensure-fresh) that
       // ended after the tab returned with a visible tab paused, and every timer then stopped without rescheduling.
       _schedulerPaused = !!(typeof document !== 'undefined' && document.hidden);
-      releaseQuoteRequestSymbols();
     }
     var result = {
       status: out.some(function(x) { return !x.ok && !x.skipped; }) ? 'warn' : 'ok',

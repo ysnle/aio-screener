@@ -17,8 +17,8 @@
 | SM-02 | 지연 화면 모듈 | `src/app/router.js` `createLazyPage` + `data-aio-route-module-state` | 명시적 | ESM 유닛 |
 | SM-03 | 자동 갱신 작업 1회 실행 | `src/app/refresh-scheduler.js` `_runScheduledTask` (`cfg._status`, `_inFlight`) | 암묵적 | **state-machine-regression** |
 | SM-03P | 스케줄러 일시정지·세대 | `src/app/refresh-scheduler.js` (`_schedulerPaused`, `_scheduleEpoch`, `cfg.timer`) | 암묵적 | refresh-scheduler-model (R1~R3) |
-| SM-04 | 시세 요청 종목 목록 | `window._aioQuoteRequestSymbols` (scheduler·`js/aio-data.js`·`js/aio-core.js`) | 암묵적 | **state-machine-regression** |
-| SM-05 | 시세 수신과 실패 재시도 | `js/aio-data.js` `fetchLiveQuotes`, 재시도 소유자 `src/app/refresh-scheduler.js` `_aioScheduleQuoteRetry`·`_aioCancelQuoteRetry` | 암묵적 | **state-machine-regression** |
+| SM-04 | 시세 요청 종목 목록 | `src/data/quote-demand.js` `createQuoteDemand` (등록 종목, 진행 중·대기 요청의 종목) | 명시적(v59.74) | **state-machine-regression** |
+| SM-05 | 시세 수신과 실패 재시도 | `src/data/quote-demand.js`(요청·합류·대기열·재시도 timer), 공급자 수신 `js/aio-data.js` `_aioFetchLiveQuotesOnce` | 명시적(v59.74) | **state-machine-regression** |
 | SM-06 | 뉴스 수신 잠금 | `js/aio-data.js` `fetchAllNews` (`isFetching`, `_fetchStartTime`) | 암묵적 | 리뷰 |
 | SM-07 | 화면 진입 갱신 | `src/app/refresh-scheduler.js` `_aioRefreshPageData` | 암묵적 | 리뷰 |
 | SM-08 | AI 질문 요청(run) | `js/aio-chat.js` `_aioBeginChatRequest` / `_aioReleaseChatRequest` / `_aioCancelChatRequest` | 명시적 | AI 채팅 신뢰성 계약 |
@@ -42,6 +42,7 @@
 | SM-05 | 높음 | 시세 재시도 | 스냅샷 없이 시세가 실패하면 `fetchLiveQuotes`가 `setTimeout(fetchLiveQuotes, wait)`를 **실패마다 새로** 걸었다. 3분 주기 스케줄러가 실패할 때마다 자기 갱신하는 재시도 사슬이 하나씩 늘어 1시간 오프라인이면 약 20개, 각 사슬은 탭이 숨겨져도 계속 호출했다(스케줄러 일시정지 밖, R3 위반). | 고침(v59.74) | A. 갱신 결과 기록·재시도 |
 | SM-03a | 높음 | 갱신 작업 | `fetchLiveQuotes`·`fetchAllNews`가 이미 수신 중이면 `undefined`를 돌려줬고, 스케줄러는 `undefined`를 성공으로 기록(`_lastOk` 갱신, `loaded`)했다. 재현: 부팅 2단계 수신 중에 화면 진입 갱신이 돌면 그 화면의 종목은 받지도 않고 "방금 갱신"이 되어 다음 진입 갱신(½ 주기)까지 건너뛴다. | 고침(v59.74) | A |
 | SM-04 | 중간 | 시세 요청 종목 | 쓰는 쪽 셋(`runScheduledRefresh`, `AIO.ensureFreshDataForUse`, `repairPageLiveDataBinding`)이 모두 "이전 값 저장 → 내 값 설정 → 끝나면 이전 값 복원"을 했다. 겹친 두 갱신이 시작 순서와 같은 순서로 끝나면, 먼저 끝난 쪽이 아직 도는 갱신의 목록을 지우고(그 갱신의 시세 단계가 종목 없이 돈다) 나중 끝난 쪽이 먼저 끝난 갱신의 목록을 **영구히** 되살렸다. 재현: 화면 진입 갱신 + 탭 복귀 갱신. | 고침(v59.74) | A |
+| SM-04b | 중간 | 시세 요청 종목 | 수신이 도는 중에 종목을 붙인 요청(`repairPageLiveDataBinding`의 빠진 종목, `ensureFreshDataForUse`, 종목 선택)은 `coalesced`만 받고 그 종목은 받지 못했다. 도는 수신은 시작할 때 목록을 읽었기 때문이다. 보유를 걸어도 곧바로 풀려 화면은 다음 3분 주기까지 "—"로 남았다. 2026-11-07 deepening 재검토에서 찾았다. 수정: 시세 수요 모듈이 새 종목을 대기열에 모아 끝난 직후 한 번 더 받는다. | 고침(v59.74) | A |
 | SM-03b | 중간 | 갱신 작업 | 화면을 옮겨 진입 갱신이 취소되면(`route-changed`) 실패로 기록: `_status='failed'`, `retryCount+1`, 경고 문구 시도. 실제 공급자는 실패하지 않았다. | 고침(v59.74) | A |
 | SM-03c | 중간 | 갱신 작업 | 시간 초과나 취소 뒤에도 수신은 계속돼 전역 데이터는 갱신되는데, 그 결과는 버려져 `failed`·옛 `_lastOk`가 남았다. 다음 진입이 다시 받아 호출이 겹친다. | 고침(v59.74) | A |
 | SM-07 | 낮음 | 화면 진입 갱신 | `_aioPageRefreshLast[key]`(30초 간격)를 실제 실행 전에 찍는다. 0ms 뒤 실행이 화면 이동으로 버려지거나 취소되면, 30초 안에 같은 화면으로 돌아와도 갱신하지 않는다. 같은 화면 재진입(`superseded`)은 진행 중 갱신을 취소하고 새 갱신도 표시 때문에 건너뛰었다. 수정: 각 controller가 자기 표시를 들고 버려지거나 취소될 때 돌려준다. | 고침(v59.74) | B. 화면 진입 갱신 |
@@ -114,33 +115,34 @@
 
 불변식 R1~R3은 `ci-refresh-scheduler-model-check.mjs`가 깊이 6까지 전수 검사한다. 첫 periodic 실행은 `초기 지연 + interval`이다(첫 수신은 부팅 단계 몫) — 의도.
 
-### SM-04 시세 요청 종목 목록 (`window._aioQuoteRequestSymbols`)
+### SM-04 시세 요청 종목 목록 (`src/data/quote-demand.js`)
 
-v59.74부터 값은 계산된다: **기본층**(`AIO.registerLiveSymbol`이 등록한 행·보유 종목) ∪ **보유 중인 목록들**(진행 중인 갱신 각각의 종목). 쓰는 쪽은 `_aioHoldQuoteRequestSymbols(list)`로 잡고 돌려받은 `release()`로 놓는다.
+v59.74부터 종목 목록은 시세 수요 모듈 안에만 있다. 처음에는 전역 보유 레지스트리로 고쳤지만(SM-04), deepening 재검토(`/deepen`)에서 전역 다섯 개가 호출자 12곳의 지식이 되는 문제가 보여 모듈로 옮겼다. 호출자는 `fetchLiveQuotes(symbols)`만 부른다. 모듈은 **등록 종목**(`AIO.registerLiveSymbol` → `register`, 행·보유 종목)과 그 요청의 종목을 합쳐 받는다. 설치 전에 등록된 종목은 `_aioQuoteRequestSymbols` 임시 버퍼에서 한 번 가져오고, 그 전역은 지운다.
 
 | 사건 | 결과 |
 |---|---|
-| 갱신 시작(종목 있음) | 보유 추가 → 다시 발행 |
-| 갱신 끝(어떤 순서든) | 그 보유만 제거 → 다시 발행. 비면 속성 삭제 |
-| `registerLiveSymbol(sym)` | 기본층에 추가 → 다시 발행 |
-| `release()` 두 번 | 두 번째는 아무 일 없음 |
+| 쉼에서 `request(syms)` | 수신 시작: `syms ∪ 등록 종목` |
+| 수신 중 `request(syms)`, 모두 이미 읽음 | 그 수신에 합류(같은 결과) |
+| 수신 중 `request(syms)`, 새 종목 있음 | 대기열에 추가. 대기 요청들은 하나의 후속 수신을 함께 기다림 |
+| 수신 끝 | 대기열이 있으면 후속 수신 시작: `대기 종목 ∪ 등록 종목` |
+| `register(sym)` | 다음 수신부터 늘 포함 |
 
-불변식: I4.1 진행 중인 갱신의 종목은 끝날 때까지 목록에 있다. I4.2 모든 갱신이 끝나면 목록은 기본층과 같다. 이전(저장·복원) 방식은 두 불변식을 모두 깼다(SM-04).
+불변식: I4.1 요청한 종목은 그 요청이 돌려받는 수신이 읽은 목록에 있다(SM-04b). I4.2 끝난 요청의 종목이 다음 수신에 남지 않는다. 등록 종목만 남는다(SM-04).
 
-### SM-05 시세 수신과 실패 재시도 (`fetchLiveQuotes`)
+### SM-05 시세 수신과 실패 재시도 (`src/data/quote-demand.js` + `_aioFetchLiveQuotesOnce`)
 
-상태: `쉼` · `수신 중`(`_aioQuoteInFlight`) · `재시도 대기`(스케줄러 안의 재시도 timer 하나, `window._aioScheduleQuoteRetry`가 걸고 `window._aioCancelQuoteRetry`가 푼다).
+상태: `쉼` · `수신 중` · `대기열 있음`(수신 중 + 후속 1개) · `재시도 대기`(모듈 안 timer 하나). 공급자 수신(`js/aio-data.js` `_aioFetchLiveQuotesOnce(symbols, {failures})`)은 실패하면 `retryAfterMs`를 알린다. 연속 실패 수는 모듈이 넘기고, backoff는 15·30·…·300 s다. 스냅샷 폴백이 있으면 `null`이다.
 
 | 현재 | 사건 | 다음 | 돌려주는 값 |
 |---|---|---|---|
-| 수신 중 | 또 호출 | 수신 중 | `{ok:false, skipped:true, coalesced:true}` |
-| 쉼/재시도 대기 | 호출 | 수신 중 (대기 중 재시도 취소) | — |
-| 수신 중 | 시세 0건, 스냅샷 있음 | 쉼 | `{ok:false, status:'failed'}` (스케줄러 주기가 다시 시도) |
-| 수신 중 | 시세 0건, 스냅샷 없음 | 재시도 대기(backoff 15·30·…·300 s, 기존 대기 교체) | `{ok:false, status:'failed'}` |
+| 쉼/재시도 대기 | 요청 | 수신 중 (대기 중 재시도 취소) | 그 수신의 결과 |
+| 수신 중 | 실패, `retryAfterMs` 있음 | 재시도 대기 | `{ok:false, status:'failed', retryAfterMs}` |
+| 수신 중 | 실패, 스냅샷 폴백 | 쉼 | 같음, `retryAfterMs:null` (스케줄러 주기가 다시 시도) |
 | 재시도 대기 | timer, 탭 숨김 | 쉼 | 호출 안 함(복귀 갱신이 맡음) |
 | 재시도 대기 | timer, 탭 보임 | 수신 중 | — |
+| 아무 수신 끝 | — | — | 결과가 `onOutcome`으로 스케줄러 `quotes` 작업 기록에 간다(스케줄러가 직접 돈 수신은 그 실행이 기록) |
 
-불변식: 재시도 timer는 많아야 하나. 숨긴 탭은 재시도 timer로 호출하지 않는다(SM-03P R3과 같은 약속).
+불변식: 수신은 한 번에 하나. 재시도 timer는 많아야 하나. 숨긴 탭은 재시도 timer로 호출하지 않는다(SM-03P R3과 같은 약속). 어느 호출자의 수신이든 결과가 `quotes` 작업 상태에 남는다(SM-03a의 근본 원인 제거).
 
 ### SM-06 뉴스 수신 잠금 (`fetchAllNews`)
 

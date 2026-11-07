@@ -170,7 +170,7 @@ async function runUsListingHoldingFixture(browser, check) {
         status: document.getElementById('pf-analysis-status')?.textContent || '',
         dailyPct: document.getElementById('pf-daily-pct')?.textContent || '',
         live: window._liveData?.HWKN ? { price: window._liveData.HWKN.price, pct: window._liveData.HWKN.pct ?? window._liveData.HWKN.regularMarketChangePercent ?? null } : null,
-        requested: (window._aioQuoteRequestSymbols || []).filter((s) => s === 'HWKN' || s === 'GHC')
+        requested: (window.__aioQuoteDemand?.state().registered || []).filter((s) => s === 'HWKN' || s === 'GHC')
       };
     });
     let state = await read();

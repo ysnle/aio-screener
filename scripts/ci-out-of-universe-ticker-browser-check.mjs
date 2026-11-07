@@ -174,7 +174,7 @@ try {
         await new Promise((r) => setTimeout(r, 1500));
         const saved = (JSON.parse(localStorage.getItem('aio_watchlists') || '[]')[0]?.tickers || []).map((t) => t.sym);
         await new Promise((r) => setTimeout(r, 800));
-        return { saved, quoteSet: [...new Set([...(window._aioQuoteRequestSymbols || []), ...(window.LIVE_SYMBOLS || [])])].filter((s) => ['MLI', 'HALO', 'ZZZZ', 'UFPT'].includes(s)), zzzz: await window._aioAcceptSymbol('ZZZZ') };
+        return { saved, quoteSet: [...new Set([...(window.__aioQuoteDemand?.state().registered || []), ...(window.LIVE_SYMBOLS || [])])].filter((s) => ['MLI', 'HALO', 'ZZZZ', 'UFPT'].includes(s)), zzzz: await window._aioAcceptSymbol('ZZZZ') };
       });
       observations.push({ label, accept });
       check(accept.saved.includes('MLI') && !accept.saved.includes('ZZZZ'), `${label}: watchlist must accept a listed symbol and refuse an unlisted one (v57.81)`, accept);
