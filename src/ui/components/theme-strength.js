@@ -297,9 +297,11 @@ function renderTopSubthemes(doc, host, model, basis) {
     const name = el(doc, 'span', null, 'v2-themes-top__name');
     name.append(el(doc, 'b', group.name), el(doc, 'span', `${group.themeName}, ${group.listed}종목`, 'v2-themes-top__theme'));
     const dir = DIRECTION[group.direction];
-    li.append(el(doc, 'span', String(group.rank), 'v2-themes-top__rank'), name,
-      dir && !basis?.stale ? el(doc, 'span', directionLabel(group, { short: true }), `sx-chip sx-chip--sm ${directionLabel(group) === dir[0] ? DIRECTION_CHIP[group.direction] || 'sx-chip--neutral' : 'sx-chip--neutral'}`) : el(doc, 'span', ''),
-      el(doc, 'b', pct(group[model.sortKey]), `v2-themes-top__value ${({ up: 'is-up', down: 'is-down' }[directionOf(group[model.sortKey])] || '')}`));
+    // v59.70 (re-review N1): no placeholder for a missing chip — a class-less span took the phone's third column and
+    // pushed the value into a 20px cell. The value sits in the last column by CSS, whatever cells precede it.
+    li.append(el(doc, 'span', String(group.rank), 'v2-themes-top__rank'), name);
+    if (dir && !basis?.stale) li.append(el(doc, 'span', directionLabel(group, { short: true }), `sx-chip sx-chip--sm ${directionLabel(group) === dir[0] ? DIRECTION_CHIP[group.direction] || 'sx-chip--neutral' : 'sx-chip--neutral'}`));
+    li.append(el(doc, 'b', pct(group[model.sortKey]), `v2-themes-top__value ${({ up: 'is-up', down: 'is-down' }[directionOf(group[model.sortKey])] || '')}`));
     list.append(li);
   }
   host.append(list);

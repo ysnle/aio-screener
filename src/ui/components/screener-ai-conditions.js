@@ -37,19 +37,27 @@ export async function applyToScreener({ documentRef: doc, root, conditions, time
   while (!doc.querySelector('#scr-custom .scr-custom-row') && Date.now() < until) await wait();
   const input = doc.getElementById('scr-custom-conditions');
   if (!input || !doc.querySelector('#scr-custom .scr-custom-row')) throw new Error('스크리너가 열리지 않았습니다');
-  input.value = JSON.stringify(normalizeConditions(conditions));
-  input.dispatchEvent(new Event('change', { bubbles: true }));
-  while (Date.now() < until) {
-    await wait();
-    const body = doc.getElementById('screener-results-body');
-    if (!body) continue;
-    const state = body.querySelector('[data-scr-state]')?.dataset.scrState;
-    if (state === 'empty') return 0;
-    if (state === 'error') return null;
-    const count = Number((doc.getElementById('screener-result-count')?.textContent || '').match(/([\d,]+)\s*종목/)?.[1]?.replace(/,/g, ''));
-    if (body.querySelector('[data-aio-screener-ticker]') && Number.isFinite(count)) return count;
+  // The count comes from the table's own render after this change (aio:screener-filtered), never from the count text,
+  // which still holds the previous filter's number until the re-filter lands.
+  let rendered = null;
+  const onFiltered = (event) => { const count = Number(event?.detail?.count); if (Number.isFinite(count)) rendered = count; };
+  doc.addEventListener('aio:screener-filtered', onFiltered);
+  try {
+    input.value = JSON.stringify(normalizeConditions(conditions));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+    while (Date.now() < until) {
+      await wait();
+      const body = doc.getElementById('screener-results-body');
+      if (!body) continue;
+      const state = body.querySelector('[data-scr-state]')?.dataset.scrState;
+      if (state === 'error') return null;
+      if (rendered === 0 && state === 'empty') return 0;
+      if (rendered != null && body.querySelector('[data-aio-screener-ticker]')) return rendered;
+    }
+    return null;
+  } finally {
+    doc.removeEventListener('aio:screener-filtered', onFiltered);
   }
-  return null;
 }
 
 /** Card under an answer; nothing when the turn holds no screen. */
