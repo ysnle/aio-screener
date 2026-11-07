@@ -1,9 +1,14 @@
 {
   "symbol": "BAC",
+
   "name": "Bank of America Corporation",
-  "researchedAt": "2026-10-28",
+
+  "researchedAt": "2026-11-08",
+
   "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+
   "oneLine": "Bank of America는 미국 소비자 예금 1위 기반의 2조 달러 예금을 대출·증권에 굴리고 Merrill 자산관리와 투자은행·트레이딩을 더한 미국 2위권 은행으로, 금리가 순이자이익에 가장 직접 전달되는 대형 은행이다.",
+
   "sources": [
     { "id": "s1", "kind": "8-K", "title": "Bank of America 3Q26 Supplemental Information (8-K Exhibit 99.3; preliminary)", "url": "https://www.sec.gov/Archives/edgar/data/0000070858/000007085826000481/bac-09302026ex993.htm", "publisher": "Bank of America / SEC EDGAR", "date": "2026-10-14" },
     { "id": "s2", "kind": "8-K", "title": "Bank of America 3Q26 earnings presentation (8-K Exhibit 99.2)", "url": "https://www.sec.gov/Archives/edgar/data/0000070858/000007085826000481/bac09302026ex992.htm", "publisher": "Bank of America / SEC EDGAR", "date": "2026-10-14" },
@@ -69,32 +74,37 @@
   },
 
   "earnings": {
-    "period": "FY2025 (ended 2025-12-31)",
-    "revenue": { "value": 113.1, "unit": "USD bn", "yoy": 6.8 },
+    "period": "Q3 2026 (ended 2026-09-30)",
+    "revenue": {
+      "value": 29.958,
+      "unit": "USD bn",
+      "yoy": 3.2
+    },
     "grossMargin": null,
     "operatingMargin": null,
-    "netMargin": 27.0,
+    "netMargin": 23.1,
     "operatingCashFlow": null,
     "freeCashFlow": null,
     "segments": [
-      { "name": "Consumer Banking", "revenue": 43.7, "unit": "USD bn", "share": 38.6, "yoy": null, "operatingMargin": null, "src": ["s3"] },
-      { "name": "Global Wealth & Investment Management", "revenue": 24.9, "unit": "USD bn", "share": 22.0, "yoy": null, "operatingMargin": null, "src": ["s3"] },
-      { "name": "Global Banking", "revenue": 24.1, "unit": "USD bn", "share": 21.3, "yoy": null, "operatingMargin": null, "src": ["s3"] },
-      { "name": "Global Markets", "revenue": 24.1, "unit": "USD bn", "share": 21.3, "yoy": null, "operatingMargin": null, "src": ["s3"] },
-      { "name": "All Other", "revenue": -3.1, "unit": "USD bn", "share": -2.7, "yoy": null, "operatingMargin": null, "src": ["s3"] }
+      { "name": "Consumer Banking", "revenue": 11.572, "unit": "USD bn", "share": 38.4, "yoy": 3.6, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Global Wealth & Investment Management", "revenue": 7.118, "unit": "USD bn", "share": 23.6, "yoy": 12.8, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Global Banking", "revenue": 6.205, "unit": "USD bn", "share": 20.6, "yoy": 0.3, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Global Markets", "revenue": 5.867, "unit": "USD bn", "share": 19.5, "yoy": -5.8, "operatingMargin": null, "src": ["s2"] },
+      { "name": "All Other", "revenue": -0.643, "unit": "USD bn", "share": -2.1, "yoy": null, "operatingMargin": null, "src": ["s2"] }
     ],
     "industryMetric": [
-      { "name": "순이자이익(NII) / 비이자수익", "value": "FY2025 601억(FTE 607억) / 530억 달러; Q3 2026 164억(FTE 166억, +12억) / 135억 달러", "src": ["s3", "s1", "s2"] },
+      { "name": "순이자이익(NII) / 비이자수익", "value": "Q3 2026 164억(FTE 166억, +8%) / 135억 달러(-2%); 1~3분기 NII 482억(+9%) / 비이자수익 436억(+8%); FY2025 601억 / 530억 달러", "src": ["s3", "s1", "s2"] },
+      { "name": "Q3 2026 순이익·EPS·비용", "value": "순이익 69.3억(-17%), 희석 EPS 0.91달러(-13%), 비이자비용 197.2억(+14%), 충당금 12.7억 달러; 1~3분기 순이익 245.9억(+8%), EPS 3.23달러(+14%), ROTCE 15.2%", "src": ["s2"] },
       { "name": "ROTCE / ROE", "value": "FY2025 14.2% / 10.6%; Q3 2026 보고 12.6% / 9.4%, 제재금 제외 14.9% / 11.1%", "src": ["s3", "s2"] },
-      { "name": "효율성 비율", "value": "FY2025 62%; Q3 2026 66% (제재금 제외 62%)", "src": ["s3", "s2"] },
+      { "name": "효율성 비율", "value": "FY2025 62%; Q3 2026 66%(제재금 제외 62%), 1~3분기 62%", "src": ["s3", "s2"] },
       { "name": "CET1 비율 (표준법)", "value": "11.4% (2025말) → 10.9% (Q3 2026, CET1 자본 1,980억 달러)", "src": ["s3", "s2"] },
       { "name": "신용 비용", "value": "Q3 2026 충당금 12.7억, 순상각 13억 달러, 순상각률 0.44%, 카드 순상각률 3.22%", "src": ["s1", "s2"] },
-      { "name": "사업부 순이익 (FY2025)", "value": "Consumer 122억, Global Banking 78억, Global Markets 61억, GWIM 47억 달러", "src": ["s3"] },
+      { "name": "사업부 순이익 (Q3 2026)", "value": "Consumer 35.2억(+2%), Global Banking 19.9억(-5%), Global Markets 12.4억(-25%), GWIM 15.4억(+22%), All Other -13.5억 달러", "src": ["s2"] },
       { "name": "GWIM 고객 자산 / AUM", "value": "5.1조(+9%) / 2.4조 달러(+12%), Q3 2026", "src": ["s2"] },
       { "name": "주당 유형순자산", "value": "29.14달러 (Q3 2026)", "src": ["s1"] }
     ],
-    "text": "이 두 수익원이 2025년 매출 1,131억 달러(+6.8%)와 순이익 305억 달러(EPS 3.81달러, +19%)를 만들었다. 이익은 Consumer Banking(122억)에 가장 많이 모이고, 기업 금융(78억)과 트레이딩(61억)이 뒤를 잇는다. Q3 2026은 NII가 8% 늘었지만 12억 달러 규제 제재금 때문에 순이익이 69억 달러로 줄었고, 이를 빼면 81억 달러(EPS 1.08달러)였다.",
-    "src": ["s3", "s1", "s2"]
+    "text": "2026년 3분기 매출은 299.6억 달러(+3%)로 NII가 8% 늘었지만 12억 달러 규제 제재금으로 비용이 14% 늘어 순이익이 69.3억 달러(-17%)로 줄었고, 이를 빼면 81억 달러(EPS 1.08달러)였다. 이익은 Consumer Banking(35.2억)에 가장 많이 모이고 Global Banking(19.9억), GWIM(15.4억)이 뒤를 잇는다. 트레이딩인 Global Markets는 매출 -5.8%, 순이익 -25%였다. 1~3분기 누적은 순이익 245.9억 달러(+8%), ROTCE 15.2%다. 비교 기준인 FY2025는 매출 1,131억 달러(+6.8%), 순이익 305억 달러였다.",
+    "src": ["s2", "s1", "s3"]
   },
 
   "useOfCash": {
@@ -112,8 +122,13 @@
   "aiChain": {
     "layer": "ai-adopter",
     "position": "AI를 파는 회사가 아니라 대규모로 쓰는 회사. 고객용 가상 비서 Erica(누적 38억 회 상호작용, 분기 약 2억 회)와 직원용 Erica for Employees(직원 97% 사용)를 운영하고, 연 약 140억 달러 기술 예산 중 41억 달러 이상을 AI 포함 신규 사업에 쓴다.",
-    "dependsOn": ["models-platforms (외부·자체 AI 모델 - 업체명 미공시)", "cloud-infrastructure (데이터센터·클라우드)"],
-    "sellsTo": ["AI 자체를 팔지 않음 - 효과는 고객 서비스 비용, 디지털 판매, 직원 생산성으로 나타남"],
+    "dependsOn": [
+      "models-platforms (외부·자체 AI 모델 - 업체명 미공시)",
+      "cloud-infrastructure (데이터센터·클라우드)"
+    ],
+    "sellsTo": [
+      "AI 자체를 팔지 않음 - 효과는 고객 서비스 비용, 디지털 판매, 직원 생산성으로 나타남"
+    ],
     "aiRevenue": null,
     "upside": "AI는 이 회사에 주로 비용과 판매 레버다. Erica가 분기 약 2억 회의 고객 응대를 맡고 고객 상호작용의 94%가 디지털이라, 같은 매출을 더 적은 인력·지점 비용으로 낼 수 있다. 투자자의 날(2025-11)에 제시한 효율성 비율 55~59% 목표가 그 효과를 재는 잣대다.",
     "risk": "AI 투자비가 비용을 먼저 올리고(Q3 2026 조정 비용 +7%, 기술·브랜드 투자 포함), 자금세탁 방지 통제 문제로 이미 제재를 받은 만큼 새 기술 도입의 통제 위험이 감독 대상이 된다. 핀테크가 AI로 결제·대출을 더 싸게 제공하면 수수료가 잠식될 수 있다.",
@@ -123,11 +138,65 @@
 
   "competition": {
     "arenas": [
-      { "arena": "미국 소비자 예금·지점 금융", "rivals": ["JPMorgan Chase", "Wells Fargo", "Citigroup", "온라인 은행·핀테크"], "position": "leader", "share": "미국 소비자 예금 1위 (FFIEC 2Q26 기준, 회사 표기; 비율 미확인)", "src": ["s2"] },
-      { "arena": "소상공인 대출", "rivals": ["JPMorgan Chase", "Wells Fargo", "핀테크 대출"], "position": "leader", "share": "미국 소상공인 대출 1위 (FDIC 기준, 회사 표기)", "src": ["s5"] },
-      { "arena": "투자은행 수수료", "rivals": ["JPMorgan", "Goldman Sachs", "Morgan Stanley", "Citigroup"], "position": "challenger", "share": "세계 투자은행 수수료 상위 4위 (Dealogic, 2026-09-30, 회사 표기)", "src": ["s5"] },
-      { "arena": "자산관리 (Merrill)", "rivals": ["Morgan Stanley", "JPMorgan", "Wells Fargo", "Charles Schwab"], "position": "leader", "share": null, "src": ["s2"] },
-      { "arena": "채권·주식 트레이딩", "rivals": ["JPMorgan", "Goldman Sachs", "Morgan Stanley", "Citigroup"], "position": "challenger", "share": null, "src": ["s2"] }
+      {
+        "arena": "미국 소비자 예금·지점 금융",
+        "rivals": [
+          "JPMorgan Chase",
+          "Wells Fargo",
+          "Citigroup",
+          "온라인 은행·핀테크"
+        ],
+        "position": "leader",
+        "share": "미국 소비자 예금 1위 (FFIEC 2Q26 기준, 회사 표기; 비율 미확인)",
+        "src": ["s2"]
+      },
+      {
+        "arena": "소상공인 대출",
+        "rivals": [
+          "JPMorgan Chase",
+          "Wells Fargo",
+          "핀테크 대출"
+        ],
+        "position": "leader",
+        "share": "미국 소상공인 대출 1위 (FDIC 기준, 회사 표기)",
+        "src": ["s5"]
+      },
+      {
+        "arena": "투자은행 수수료",
+        "rivals": [
+          "JPMorgan",
+          "Goldman Sachs",
+          "Morgan Stanley",
+          "Citigroup"
+        ],
+        "position": "challenger",
+        "share": "세계 투자은행 수수료 상위 4위 (Dealogic, 2026-09-30, 회사 표기)",
+        "src": ["s5"]
+      },
+      {
+        "arena": "자산관리 (Merrill)",
+        "rivals": [
+          "Morgan Stanley",
+          "JPMorgan",
+          "Wells Fargo",
+          "Charles Schwab"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": ["s2"]
+      },
+      {
+        "arena": "채권·주식 트레이딩",
+        "rivals": [
+          "JPMorgan",
+          "Goldman Sachs",
+          "Morgan Stanley",
+          "Citigroup"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": ["s2"]
+      }
     ],
     "edge": "무이자 예금이 많은 소비자 예금 1위 기반, 디지털 채널 규모, 은행과 Merrill을 잇는 교차판매.",
     "threats": "금리 인하 시 NII 감소(회사 계산 -1%p에 -19억 달러), 투자은행·트레이딩에서 JPMorgan·Goldman과의 격차, 자금세탁 방지 동의명령에 따른 통제 비용, 핀테크의 예금·결제 잠식.",
@@ -198,77 +267,26 @@
   "debate": {
     "question": "금리 하락에 더 민감한 순이자이익이 비용 개선과 자사주 매입으로 수익성 목표까지 이어지는지",
     "bull": {
-      "text": "목표에 닿는다고 보는 쪽은 Q3 2026 NII가 164억 달러로 12억 달러 늘고(+8%) 평균 대출이 1.23조 달러로 6% 늘었으며, 제재금을 빼면 순이익 81억 달러·ROTCE 14.9%·효율성 비율 62%라는 점을 든다. 400억 달러 자사주 프로그램에 약 170억 달러가 남아 있고 투자자의 날 목표(ROTCE 16~18%, 효율성 55~59%)가 신규 투자 41억 달러 이상의 효과로 달성 가능하다는 읽기다.",
-      "src": [
-        "s2",
-        "s1",
-        "s4",
-        "s6"
-      ]
+      "text": "목표에 닿는다고 보는 쪽은 Q3 2026 NII가 164억 달러로 12억 달러 늘고(+8%) 평균 대출이 1.23조 달러로 6% 늘었으며, 제재금을 빼면 순이익 81억 달러·ROTCE 14.9%·효율성 비율 62%이고 1~3분기 누적 ROTCE가 15.2%(전년 14.3%)라는 점을 든다. 400억 달러 자사주 프로그램에 약 170억 달러가 남아 있고 투자자의 날 목표(ROTCE 16~18%, 효율성 55~59%)가 신규 투자 41억 달러 이상의 효과로 달성 가능하다는 읽기다.",
+      "src": ["s2", "s1", "s4", "s6"]
     },
     "bear": {
       "text": "거리가 멀다고 보는 쪽은 보고 기준 Q3 ROTCE가 12.6%로 중기 목표 16~18%에 못 미치고, 회사 계산상 금리가 1%p 내리면 NII가 19억 달러 줄어 오를 때의 14억 달러보다 하락 쪽이 더 크다는 점을 짚는다. CET1 비율이 11.4%에서 10.9%로 내려와 목표 약 10.5%에 가까워졌고, 12억 달러 자금세탁 방지 관련 제재금과 FICC 매출 17% 감소가 같은 분기에 나왔으며 컨센서스는 최근 4주 하향 7건, 상향 4건이었다.",
-      "src": [
-        "s2",
-        "s1",
-        "s3",
-        "s6",
-        "s8"
-      ]
+      "src": ["s2", "s1", "s3", "s6", "s8"]
     },
     "decides": [
-      {
-        "when": "2027-01 중순 (추정, 회사 미확정)",
-        "what": "4Q26 NII 증가세와 제재금을 뺀 효율성 비율, 2027 NII 전망",
-        "src": [
-          "s2"
-        ]
-      },
-      {
-        "when": "분기마다",
-        "what": "CET1 비율(Q3 10.9%)이 목표 약 10.5%에 접근하며 분기 자사주 매입 속도가 유지되는지",
-        "src": [
-          "s2",
-          "s6"
-        ]
-      }
+      { "when": "2027-01 중순 (추정, 회사 미확정)", "what": "4Q26 NII 증가세와 제재금을 뺀 효율성 비율, 2027 NII 전망", "src": ["s2"] },
+      { "when": "분기마다", "what": "CET1 비율(Q3 10.9%)이 목표 약 10.5%에 접근하며 분기 자사주 매입 속도가 유지되는지", "src": ["s2", "s6"] }
     ]
   },
+
   "underTheHood": [
-    {
-      "title": "무이자 예금의 값",
-      "text": "Q3 2026 평균 예금 2.02조 달러 중 5,367억 달러가 이자를 주지 않는 예금이다. 이 예금이 대출·증권 수익률과의 차이를 그대로 NII로 남기는 원천이라, 예금이 이자를 주는 상품으로 옮겨 가는지가 NII 방향을 가른다.",
-      "src": [
-        "s1",
-        "s2"
-      ]
-    },
-    {
-      "title": "금리 민감도의 비대칭",
-      "text": "회사 계산으로 금리 1%p 상승은 향후 12개월 NII +14억 달러, 1%p 하락은 -19억 달러다. 금리가 오르는 것보다 내리는 쪽의 충격이 더 크게 설계되어 있다는 뜻이라, 금리 경로 전망이 같은 순이익 전망에도 비대칭적으로 작용한다.",
-      "src": [
-        "s2"
-      ]
-    },
-    {
-      "title": "일회성 비용의 크기",
-      "text": "Q3 2026 순이익은 보고 69억 달러, 제재금 12억 달러를 빼면 81억 달러(EPS 1.08달러)이고 효율성 비율도 66%에서 62%로 달라진다. 자금세탁 방지 통제 문제로 동의명령을 받은 만큼, 일회성으로 볼지 통제 비용의 지속으로 볼지에 따라 ROTCE 해석이 달라진다.",
-      "src": [
-        "s2",
-        "s3"
-      ]
-    },
-    {
-      "title": "자본으로 사는 EPS",
-      "text": "CET1이 2025년 말 11.4%에서 Q3 2026 10.9%로 내려온 것은 대출 성장과 자사주 매입(1~3분기 192억 달러)이 자본을 쓰고 있다는 뜻이다. 주당이익 개선의 일부는 자본 소진으로 이루어지므로 환원 속도는 CET1 목표 약 10.5%가 상한선처럼 작용한다.",
-      "src": [
-        "s2",
-        "s3",
-        "s4",
-        "s6"
-      ]
-    }
+    { "title": "무이자 예금의 값", "text": "Q3 2026 평균 예금 2.02조 달러 중 5,367억 달러가 이자를 주지 않는 예금이다. 이 예금이 대출·증권 수익률과의 차이를 그대로 NII로 남기는 원천이라, 예금이 이자를 주는 상품으로 옮겨 가는지가 NII 방향을 가른다.", "src": ["s1", "s2"] },
+    { "title": "금리 민감도의 비대칭", "text": "회사 계산으로 금리 1%p 상승은 향후 12개월 NII +14억 달러, 1%p 하락은 -19억 달러다. 금리가 오르는 것보다 내리는 쪽의 충격이 더 크게 설계되어 있다는 뜻이라, 금리 경로 전망이 같은 순이익 전망에도 비대칭적으로 작용한다.", "src": ["s2"] },
+    { "title": "일회성 비용의 크기", "text": "Q3 2026 순이익은 보고 69억 달러, 제재금 12억 달러를 빼면 81억 달러(EPS 1.08달러)이고 효율성 비율도 66%에서 62%로 달라진다. 자금세탁 방지 통제 문제로 동의명령을 받은 만큼, 일회성으로 볼지 통제 비용의 지속으로 볼지에 따라 ROTCE 해석이 달라진다.", "src": ["s2", "s3"] },
+    { "title": "자본으로 사는 EPS", "text": "CET1이 2025년 말 11.4%에서 Q3 2026 10.9%로 내려온 것은 대출 성장과 자사주 매입(1~3분기 192억 달러)이 자본을 쓰고 있다는 뜻이다. 주당이익 개선의 일부는 자본 소진으로 이루어지므로 환원 속도는 CET1 목표 약 10.5%가 상한선처럼 작용한다.", "src": ["s2", "s3", "s4", "s6"] }
   ],
+
   "trading": {
     "calendar": [
       { "date": "2027-01 중순 (추정, 회사 미확정)", "event": "4Q26·FY2026 실적과 2027 NII 전망", "src": [] },
@@ -287,8 +305,6 @@
   },
 
   "unverified": [
-    "사업부 매출은 FTE(세전 환산) 기준이라 합계 1,137억이 보고 매출 1,131억과 약 6억 달러 차이 (FTE 조정분으로 추정)",
-    "사업부별 FY2025 전년 대비 증감률 (원문 표에서 읽지 못해 null)",
     "FY2025 연간 자사주 매입·배당 총액 (분기별 일부만 확인, 그래서 useOfCash는 2026 1~3분기 사용)",
     "은행 특성상 총마진·영업이익률·영업현금흐름·잉여현금흐름은 null (순이익률은 305억/1,131억 계산값)",
     "투자자의 날 목표(ROTCE 16~18%, NII 5~7%, 효율성 55~59%, CET1 10.5%, Consumer 목표)는 2차 요약 기준, 회사 발표 자료 원문 미확인",
@@ -297,7 +313,10 @@
     "OCC·FinCEN 동의명령의 구체 요구사항과 사업 제한 여부",
     "기술 예산 140억 달러 중 AI 비중과 AI 효과 금액",
     "Moynihan 승계 계획",
-    "4Q26 실적 발표일"
+    "4Q26 실적 발표일",
+    "사업부 매출은 FTE 기준이라 합계 301.2억이 보고 매출 299.6억과 약 1.6억 달러 차이(FTE 조정분)",
+    "All Other 매출 증감률은 n/m이라 null"
   ],
+
   "confidence": "high - 매출·이익·자본·환원은 회사 8-K와 실적 자료에서 왔다. 투자자의 날 목표와 일부 가이던스는 2차 요약이라 medium 수준이다."
 }

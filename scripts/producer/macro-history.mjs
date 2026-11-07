@@ -72,8 +72,10 @@ export const MACRO_HISTORY_SERIES = Object.freeze({
   // P1586: investment-grade OAS — the junk-bond component is HY minus IG.
   igOas:          { id: 'BAMLC0A0CM',    frequency: 'daily',   limit: 800, unit: 'percent', label: '투자등급 회사채 스프레드' },
   // P1638: rating tiers — stress usually starts in the weakest borrowers (CCC) before the HY average moves.
-  bbOas:          { id: 'BAMLH0A1HYBB',  frequency: 'daily',   limit: 280, unit: 'percent', label: 'BB 등급 스프레드' },
-  bOas:           { id: 'BAMLH0A2HYB',   frequency: 'daily',   limit: 280, unit: 'percent', label: 'B 등급 스프레드' },
+  // v59.75 (macro audit 11/7): BB and B keep the same three-year record as HY/IG/CCC. At 280 they held one year, so the
+  // credit chapter could not place them in the same range as the other tiers and left them unread.
+  bbOas:          { id: 'BAMLH0A1HYBB',  frequency: 'daily',   limit: 800, unit: 'percent', label: 'BB 등급 스프레드' },
+  bOas:           { id: 'BAMLH0A2HYB',   frequency: 'daily',   limit: 800, unit: 'percent', label: 'B 등급 스프레드' },
   cccOas:         { id: 'BAMLH0A3HYC',   frequency: 'daily',   limit: 800, unit: 'percent', label: 'CCC 이하 스프레드' },
   // P1654 (owner 2026-10-12: fill free official data gaps): liquidity, growth and wider commodity/FX context from the
   // same operator FRED key. Raw observations only; readings are derived in src/domain/macro.
@@ -91,7 +93,16 @@ export const MACRO_HISTORY_SERIES = Object.freeze({
   brent:          { id: 'DCOILBRENTEU',  frequency: 'daily',   limit: 280, unit: 'usd-per-barrel', label: '브렌트유' },
   natGas:         { id: 'DHHNGSP',       frequency: 'daily',   limit: 280, unit: 'usd-per-mmbtu', label: '천연가스(헨리허브)' },
   copper:         { id: 'PCOPPUSDM',     frequency: 'monthly', limit: 40,  unit: 'usd-per-ton', label: '구리' },
-  usdCny:         { id: 'DEXCHUS',       frequency: 'daily',   limit: 280, unit: 'cny-per-usd', label: '위안/달러' }
+  usdCny:         { id: 'DEXCHUS',       frequency: 'daily',   limit: 280, unit: 'cny-per-usd', label: '위안/달러' },
+  // v59.75 (macro audit 11/7): the rate-differential driver behind USD/JPY and USD/KRW. FRED carries Japan's and Korea's
+  // 10-year government yields only as the OECD monthly series (long-term rates, monthly mean), so the US leg is the same
+  // OECD series rather than daily DGS10 — the two legs of a spread share one basis and one month.
+  usLongRate:     { id: 'IRLTLT01USM156N', frequency: 'monthly', limit: 40, unit: 'percent', label: '미국 장기금리 (OECD, 10년 국채 월평균)' },
+  jpLongRate:     { id: 'IRLTLT01JPM156N', frequency: 'monthly', limit: 40, unit: 'percent', label: '일본 장기금리 (OECD, 10년 국채 월평균)' },
+  krLongRate:     { id: 'IRLTLT01KRM156N', frequency: 'monthly', limit: 40, unit: 'percent', label: '한국 장기금리 (OECD, 10년 국채 월평균)' },
+  // v59.75 (macro audit 11/7): industrial production (Fed G.17), the official monthly output series the growth chapter reads
+  // beside retail sales — its flip line named ISM, which is not collected (ISM data is licensed and not on FRED).
+  industrialProduction: { id: 'INDPRO',  frequency: 'monthly', limit: 40,  unit: 'index', label: '산업생산 지수 (연준 G.17)' }
 });
 export const MACRO_HISTORY_OUT = `${REPO_ROOT}/public-data/macro-history.json`;
 

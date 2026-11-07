@@ -6910,6 +6910,28 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const { describeOtherFx } = await load('src/ui/components/macro-board.js');
   const fx = describeOtherFx({ 'EURUSD=X': { price: 1.08, observedAt: '2026-10-26T15:30:00Z' } });
   if (!/10\/27 00:30 관측/.test(fx.text)) fail(`v58.82 FX observation label is KST regardless of the browser zone: ${fx.text}`);
+  // v59.75 (macro audit 11/7): with no live quote the fold reads the last completed close of each currency, named as a close.
+  const fxHistory = [{ date: '2026-11-05', eurusd: 1.1512, usdcny: 7.1234 }, { date: '2026-11-06', eurusd: 1.1544, usdcny: 7.1201 }];
+  const fxFallback = describeOtherFx({}, fxHistory);
+  if (fxFallback.text !== '11/6 종가' || !fxFallback.reference || fxFallback.closes['EURUSD=X']?.value !== 1.1544 || fxFallback.closes['GBPUSD=X'] || describeOtherFx({}, []).text !== '시세 대기') fail(`v59.75 other-currency fold falls back to completed closes: ${JSON.stringify(fxFallback)}`);
+  // v59.75: the US–Japan / US–Korea rate differential on one OECD monthly basis, read against the currency's move between the same month-ends.
+  const { rateDifferential } = await load('src/domain/macro/rates-fx.js');
+  const months = ['2026-03', '2026-04', '2026-05', '2026-06', '2026-07', '2026-08', '2026-09'];
+  const oecd = (values) => ({ observations: months.map((month, index) => [`${month}-01`, values[index]]) });
+  const rdMacro = { series: { usLongRate: oecd([4.0, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6]), jpLongRate: oecd([1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5]), krLongRate: oecd([3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6]) } };
+  const rdHistory = [{ date: '2026-03-31', usdjpy: 145, usdkrw: 1400 }, { date: '2026-09-30', usdjpy: 152, usdkrw: 1380 }];
+  const jpDiff = rateDifferential(rdMacro, rdHistory, 'usdjpy');
+  const krDiff = rateDifferential(rdMacro, rdHistory, 'usdkrw');
+  if (jpDiff?.value !== 3.1 || jpDiff.change !== 0.6 || !/미·일 10년 금리차 3\.10%p\(2026년 9월 월평균\), 6개월 \+0\.60%p\. 같은 기간 엔\/달러 \+4\.8%로 금리차가 벌어진 만큼 달러가 강해진 쪽/.test(jpDiff.text)
+    || krDiff?.value !== 1 || krDiff.change !== 0 || !/거의 그대로/.test(krDiff.text) || rateDifferential({}, rdHistory, 'usdjpy') !== null) fail(`v59.75 rate differential read: ${JSON.stringify({ jpDiff, krDiff })}`);
+  // v59.75: BB/B join the credit ladder only when their record starts with the other tiers'.
+  const { creditRanges } = await load('src/domain/macro/macro-chapters.js');
+  const day = (index) => new Date(Date.UTC(2024, 0, 1) + index * 86400000).toISOString().slice(0, 10);
+  const tier = (from, count, base) => ({ observations: Array.from({ length: count }, (_, index) => [day(from + index), base + (index % 10) / 100]) });
+  const longTiers = { hyOas: tier(0, 400, 3), igOas: tier(0, 400, 1), cccOas: tier(0, 400, 10) };
+  const shortBb = creditRanges({ series: { ...longTiers, bbOas: tier(200, 200, 2), bOas: tier(200, 200, 3.5) } });
+  const fullBb = creditRanges({ series: { ...longTiers, bbOas: tier(0, 400, 2), bOas: tier(5, 395, 3.5) } });
+  if (shortBb.ranges.some((range) => ['bbOas', 'bOas'].includes(range.id)) || fullBb.ranges.map((range) => range.id).join() !== 'igOas,hyOas,bbOas,bOas,cccOas') fail(`v59.75 BB/B enter the credit ranges only on the same record: ${JSON.stringify({ short: shortBb.ranges.map((r) => r.id), full: fullBb.ranges.map((r) => r.id) })}`);
   // v59.10 (owner 2026-10-26: family codes removed): a health payload with a left-over family field is still ready.
   const { describeSharedConnection } = await load('src/domain/connections/shared.js');
   const ai = { ready: true, provider: 'openai', model: 'gpt-6-luna' };
