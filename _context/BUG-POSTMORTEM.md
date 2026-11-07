@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-11-07
+last_verified: 2026-11-08
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
@@ -38,6 +38,159 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 <!-- ledger-class-report:end -->
 
 ---
+
+## P2284 - v59.74 - v59.74 평일 종가가 전날 값으로 남음 (나스닥100·WTI·브렌트·금·은·달러, 10/26~11/4) (2026-11-08)
+
+- symptom/reproduction: history.json 11/2·11/4 등 미국 거래일 행의 ndx·wti·brent·gold·silver·dxy가 이전 세션 종가(carried-forward, heldReason session-already-recorded)였다. 11/5 나스닥100 하루 변화가 11/3 대비 이틀치로 계산됐고 11/4 WTI 하루 변화는 0이었다.
+- root_cause: 23:51Z 실행 때 선물·^NDX가 아직 세션 중(DELAYED_IN_SESSION)이라 그날 행에 전날 종가가 들어가고, 다음 날 행에서 그날 종가가 밀려날 때 keepDisplacedSessions가 '대상 행에 이미 값이 있다'며 건너뛰었다. 그 값은 다른 세션의 자리표시였다. 일봉 백필은 S&P 500 누락만 보고 돌아 이 구멍을 메우지 않았다. 이어서 병합 뒤 백필이 돌아도 mergeBackfillBars가 자리표시를 그 행 세션의 완료 기록으로 읽어 건너뛰었다. carried-forward는 historyFieldSessionDate가 null을 돌려주고, observedAt 대체 경로가 자리표시의 조회 시각(11/2 14:30Z)을 11/2 세션으로 읽었기 때문이다(11/7 13:23~16:22Z 갱신 4회 동안 보정 0건).
+- fix: keepDisplacedSessions가 다른 세션에서 끌어온 자리표시는 밀려난 실제 종가로 바꾼다(replacedCarriedFrom 기록). heldUsSessionFields가 최근 10일 미국 거래일의 자리표시를 찾아, 해당 심볼만 시간당 한 번 일봉 백필해 이미 생긴 구멍을 다음 갱신에서 메운다. mergeBackfillBars는 carried-forward 값을 완료 기록으로 보지 않고 항상 일봉으로 바꾼다.
+- violated_rule: 한 세션의 종가는 그 세션의 행이 가진다. 자리표시 값은 관측이 아니다.
+- prevention: ci-metric-consistency-check v59.74: 11/4 자리표시가 heldUsSessionFields에 잡히고, 밀려난 11/4 종가가 자리표시를 대신한다. 라이브 11/2 NDX 모양의 자리표시(행 날짜 observedAt, valueBasis previous-completed-close)를 일봉이 대신한다. history-session-model B1 설명에 자리표시를 넣고 재동기화했다.
+- verification/residual: 현재 history.json에서 16건(dxy 10/27·10/29·11/4, wti·brent·gold 10/28·11/2·11/4, ndx·silver 11/2·11/4)을 찾는다. 로컬 프로듀서 금지라 데이터는 다음 Actions 갱신에서 보정된다. 1차 수정 병합 뒤 4회 갱신에서 19건이 그대로 남은 것을 확인했고, 백필 병합 수정은 고치기 전 코드에서 새 assertion이 실패하는 것을 확인했다.
+
+## P2283 - v59.74 - v59.74 다음 주 일정에서 11/10 CPI 누락, 매크로 첫 문장 '다음 주요 발표는 11/17 소매판매' (2026-11-08)
+
+- symptom/reproduction: 11/7 검토: 시장 상태 '다음 주 판단을 바꿀 일정'에 거시 발표가 하나도 없었고(하이일드 매일 한 줄), '다음 주 시나리오' 질문 칩이 사라졌다. 매크로 첫 문장은 '다음 주요 발표는 11/17(화) 소매판매'라고 적었지만 같은 화면 물가 카드는 '다음 발표 11/10 CPI'였다. 브리핑 '다음 확인 포인트'와 시장 상태 '다음 갈림길'도 11/17 소매판매였다.
+- root_cause: nextDecidingEvent가 '지금 맞서는 시나리오(동률 셋: 성장 재가속·AI 투자 꺾임·변동성 충격)를 시험하는 발표'를 먼저 골랐다. 그 셋에는 CPI 조건이 없어 CPI를 건너뛰고 소매판매를 골랐고, 이 값 하나가 '다음 발표'라는 이름으로 모든 화면에 쓰였다. weekAhead는 거시 발표를 이 하나만 넣어 8일 창 밖 11/17이 빠지자 0건이 됐다.
+- fix: nextEvent는 어느 시나리오든 시험하는 가장 이른 발표(공유 선택자)로 바꾸고, 맞서는 시나리오를 가르는 발표는 decidingEvent로 따로 낸다(다를 때만). 동률 헤드라인은 decidingEvent로 '가른다'고 쓰고 그 전 발표를 덧붙인다. weekAhead는 crossroads.events 전체를 창 안에서 넣는다. 매크로 첫 문장은 다음 발표와 가르는 발표를 나눠 쓴다. 브리핑 확인 포인트는 선두·대안이 그 발표를 안 읽으면 그 발표를 읽는 시나리오를 최대 3개 보인다.
+- violated_rule: '다음 발표'는 달력상 다음 발표다. 한 이름에 두 뜻을 싣지 않는다.
+- prevention: ci-metric-consistency-check v59.74: 동률 셋과 무관한 이른 CPI가 nextEvent, 소매판매가 decidingEvent, 주간 목록에 11/10 CPI. ci-structural-check 매크로 첫 문장 규칙 갱신.
+- verification/residual: 로컬 실행(11/7 데이터): 매크로 '다음 주요 발표는 11/10(화) 22:30 KST CPI … 지금 맞서는 시나리오를 가를 발표는 11/17(화) 소매판매', 시장 상태 목록 첫 줄 CPI, 다음 갈림길 CPI, 브리핑 확인 포인트 CPI.
+
+## P2282 - v59.74 - 수신 중에 종목을 붙인 시세 요청이 그 종목을 받지 못함(시세 수요 모듈 신설) (2026-11-08)
+
+- symptom/reproduction: 시세 수신이 도는 중에 fetchLiveQuotes(symbols)를 부르면 coalesced만 돌아오고, 그 종목은 도는 수신이 시작 때 읽은 목록에 없어 받지 못했다. repairPageLiveDataBinding의 빠진 종목 복구가 아무 일도 하지 않고 화면이 다음 3분 주기까지 '—'로 남았다.
+- root_cause: 시세 요청을 맡는 모듈이 없었다. 10개 파일 12곳이 공급자 수신을 직접 부르고, 합류·종목 목록·재시도·상태 기록이 전역 다섯 개(_aioQuoteInFlight, _aioQuoteRequestSymbols, 보유·기본층, 재시도 쌍)에 흩어져 있었다.
+- fix: src/data/quote-demand.js가 요청을 맡는다: 수신은 하나, 읽은 종목은 합류, 새 종목은 대기열 후속 수신 하나, 등록 종목 포함, 재시도 timer 하나(숨긴 탭 건너뜀), 모든 결과를 스케줄러 quotes 작업 기록에. fetchLiveQuotes 이름은 그대로 seam이 되고 공급자 수신은 _aioFetchLiveQuotesOnce(symbols, {failures})로 retryAfterMs를 알린다. 전역 6개와 보유 호출 3곳 제거.
+- violated_rule: 요청한 종목은 그 요청이 돌려받는 수신이 읽는다(STATE-MACHINES SM-04 I4.1)
+- prevention: P2282: scripts/ci-state-machine-regression-check.mjs SM-03a/04b·SM-04·SM-05(모듈 인터페이스, 돌연변이 4종 검출)
+- verification/residual: 수신 중 새 종목 요청 → 후속 수신 1회가 그 종목을 받음, 덮인 요청은 같은 결과에 합류, 화면 직접 호출도 quotes 작업에 기록. 수정 전(합류 시 반환) 변이에서 실패.
+
+## P2281 - v59.74 - 서버 데이터 적재가 겹치면 늦게 온 옛 응답이 새 메타를 덮을 수 있음 (2026-11-08)
+
+- symptom/reproduction: _aioLoadServerData 호출이 겹치면(숨긴 탭 복귀의 주기 실행, 느린 응답) 두 적재가 여러 await에 걸쳐 _serverDataMeta를 함께 쓰고, 늦게 끝난 옛 응답이 새 것을 덮을 수 있었다.
+- root_cause: 적재에 진행 중 상태가 없어 호출마다 독립 실행됐다.
+- fix: 적재를 한 번에 하나로 묶는다. 진행 중 호출은 같은 promise에 합류하고, 끝난 뒤 호출은 새로 적재한다.
+- violated_rule: 한 적재 결과만 공유 메타를 쓴다(STATE-MACHINES SM-15)
+- prevention: P2281: scripts/ci-state-machine-regression-check.mjs SM-15
+- verification/residual: 겹친 두 호출이 같은 promise·fetch 1회, 끝난 뒤 호출은 새 fetch. 수정 전 코드에서 실패 확인.
+
+## P2280 - v59.74 - 유니버스 밖 종목 읽기 캐시가 대기 중 항목을 밀어내 중복 수신 (2026-11-08)
+
+- symptom/reproduction: 한 종목 읽기가 대기 중일 때 다른 종목 40개 이상이 기록되면 대기 항목이 LRU에서 빠져, 같은 종목을 다시 부르면 두 번째 수신이 시작됐다.
+- root_cause: remember의 LRU 정리가 대기(promise) 항목과 끝난 기록을 구분하지 않았다.
+- fix: 정리는 가장 오래된 끝난 기록부터 지우고 대기 항목은 남긴다. 대기가 끝나면 다음 정리에서 한도로 돌아온다.
+- violated_rule: 같은 종목의 진행 중 읽기는 하나다(STATE-MACHINES SM-13)
+- prevention: P2280: scripts/ci-state-machine-regression-check.mjs SM-13
+- verification/residual: 대기 1개 + 45개 기록 뒤 재요청이 같은 promise, 목록 조회 1회. 수정 전 코드에서 실패 확인.
+
+## P2279 - v59.74 - 답변이 도는 중 다른 AI 화면으로 가면 전송 버튼이 다시 켜짐 (2026-11-08)
+
+- symptom/reproduction: 한 대화가 화면을 따라가는 답변 중 다른 AI 화면으로 옮기면 updateAIPanelContext·toggleAIPanel이 #ai-panel-btn을 켰다. 눌러도 chatSendUnified가 조용히 무시했고, 60초가 지난 뒤 누르면 돌던 답변을 취소했다.
+- root_cause: 전송 버튼 disabled를 요청 수명주기(begin/release)와 화면 전환 코드가 따로 썼고, 화면 전환 쪽은 진행 중 요청을 보지 않았다.
+- fix: 화면 전환·패널 열기의 버튼 상태를 공유 대화의 _activeRequest에서 파생한다(진행 중이면 꺼짐, 해제 때 release가 켬).
+- violated_rule: AI 채팅 요청은 하나만 활성이고 그 동안 전송은 꺼진다(STATE-MACHINES SM-08)
+- prevention: P2279: scripts/ci-state-machine-regression-check.mjs SM-08
+- verification/residual: 실제 _aioBeginChatRequest·updateAIPanelContext·_aioReleaseChatRequest로 화면 전환 중 버튼 꺼짐, 해제 뒤 켜짐. 수정 전 코드에서 실패 확인.
+
+## P2278 - v59.74 - 화면 진입 갱신이 시작 전 취소되면 30초 동안 같은 화면 갱신을 막음 (2026-11-08)
+
+- symptom/reproduction: 화면에 들어가자마자 다른 화면으로 옮기거나 같은 화면이 다시 진입되면, 실행되지 않았거나 취소된 갱신의 30초 간격 표시가 남아 30초 안에 돌아와도 갱신하지 않았다. 같은 화면 재진입은 진행 중 갱신을 취소하고 새 갱신도 건너뛰었다.
+- root_cause: _aioPageRefreshLast 간격 표시를 0ms 뒤 실제 실행 전에 찍고, 취소·폐기 경로에서 되돌리지 않았다.
+- fix: 각 화면 갱신 controller가 자기가 찍은 표시(키·시각)를 들고, 실행 전 폐기나 route-changed/superseded 취소 때 자기 표시만 되돌린다. 끝난 실행은 표시를 유지한다.
+- violated_rule: 상태 전이는 실제로 일어난 일만 기록한다(STATE-MACHINES SM-07)
+- prevention: P2278: scripts/ci-state-machine-regression-check.mjs SM-07
+- verification/residual: home→breadth 즉시 이동 뒤 30초 안 home 복귀에 quotes·news 갱신 시작, 같은 화면 재진입도 갱신 시작. 수정 전 코드에서 실패 확인.
+
+## P2277 - v59.74 - 시세 실패마다 재시도 사슬이 하나씩 늘고 숨긴 탭에서도 호출함 (2026-11-08)
+
+- symptom/reproduction: 기준 스냅샷 없이 시세가 실패하면 실패마다 새 setTimeout(fetchLiveQuotes)가 걸려, 3분 주기 실패가 이어질수록 자기 갱신하는 재시도 사슬이 늘었고(1시간 오프라인 약 20개) 탭이 숨겨져도 계속 외부 호출을 했다.
+- root_cause: 재시도 timer에 소유자가 없었고 스케줄러 일시정지 밖에서 돌았다.
+- fix: _aioScheduleQuoteRetry가 재시도를 하나만 대기시키고(새 실패는 교체, 새 수신 시작은 취소), 숨긴 탭에서는 호출하지 않는다(복귀 갱신이 맡음).
+- violated_rule: C 숨긴 탭은 스스로 호출하지 않는다(refresh-scheduler-model R3)
+- prevention: P2277: scripts/ci-state-machine-regression-check.mjs SM-05, ci-runtime-contract-check P783 핀 갱신
+- verification/residual: 세 번 연속 예약 뒤 timer 1개, 숨김 상태 발화 시 호출 0, 보임 상태 1회.
+
+## P2276 - v59.74 - 겹친 갱신이 시세 요청 종목 목록을 지우거나 끝난 갱신의 목록을 영구히 되살림 (2026-11-08)
+
+- symptom/reproduction: 화면 진입 갱신과 탭 복귀 갱신(또는 AI 최신화)이 겹쳐 시작 순서대로 끝나면, 먼저 끝난 쪽이 진행 중 갱신의 종목을 지워 그 시세 단계가 종목 없이 돌았고, 나중 끝난 쪽이 먼저 끝난 갱신의 종목 목록을 window._aioQuoteRequestSymbols에 영구히 남겼다.
+- root_cause: runScheduledRefresh·ensureFreshDataForUse·repairPageLiveDataBinding이 모두 '이전 값 저장→설정→복원'을 써서 중첩이 아닌 겹침에서 복원 순서가 어긋났다.
+- fix: 스케줄러가 보유 목록 레지스트리를 둔다: 등록 종목(registerLiveSymbol) 기본층 ∪ 진행 중 갱신마다 잡은 목록. 쓰는 쪽은 _aioHoldQuoteRequestSymbols로 잡고 release로 놓는다.
+- violated_rule: C 공유 상태는 소유자가 하나이거나 합성으로 계산한다
+- prevention: P2276: scripts/ci-state-machine-regression-check.mjs SM-04
+- verification/residual: 재현: 수정 전 두 갱신 뒤 ['HOME1'] 누수, 진행 중 갱신 목록 undefined. 수정 후 진행 중 목록 유지·종료 뒤 등록 종목만 남음.
+
+## P2275 - v59.74 - 자동 갱신이 하지 않은 수신을 성공으로, 취소를 실패로 기록하고 늦게 끝난 수신 결과를 버림 (2026-11-08)
+
+- symptom/reproduction: 시세·뉴스 수신이 이미 진행 중일 때 들어온 갱신이 화면 종목을 받지 않고도 '방금 갱신'(loaded, _lastOk)이 되어 다음 진입 갱신을 건너뛰었다. 화면 이동으로 취소된 진입 갱신은 failed·retryCount+1로 기록됐고, 시간 초과·취소 뒤에 끝난 수신은 데이터를 바꾸고도 failed·옛 성공 시각을 남겼다.
+- root_cause: _runScheduledTask가 undefined 결과를 성공으로 보았고(fetchLiveQuotes·fetchAllNews는 수신 중일 때 undefined를 돌려줌), 호출자 abort를 공급자 실패와 같은 catch로 처리했으며, race에서 진 작업의 settle 결과를 기록하지 않았다.
+- fix: 수신 중 호출은 {coalesced:true}를 돌려주고 스케줄러는 실행 전 상태로 되돌린다. 호출자 취소는 상태 복원·재시도 횟수 유지·경고 없음. race에서 진 작업이 settle하면 그 결과를 같은 규칙으로 기록한다(_inFlight는 settle까지 유지돼 더 새 실행을 덮지 않음).
+- violated_rule: C 상태 정직성: 갱신 시각은 실제로 받은 데이터만 말한다
+- prevention: P2275: scripts/ci-state-machine-regression-check.mjs SM-03a/b/c, _context/STATE-MACHINES.md SM-03 전이표
+- verification/residual: 재현 스크립트에서 수정 전 coalesced 실행이 loaded·_lastOk 갱신, 취소가 failed·retry 1, 늦은 성공 무시를 보였고 수정 후 세 사례 모두 통과. refresh-scheduler-model R1~R3 통과.
+
+## P2274 - v59.74 - 같은 시장 상태 화면이 같은 금리 하락을 '물가 안도'와 '피난성·성장 걱정'으로 반대로 읽음 (2026-11-08)
+
+- symptom/reproduction: 11/7 시장 상태 첫 카드는 '10년 금리 -7bp는 대부분 기대인플레 하락이라 물가 안도 쪽'이라 했고, 같은 화면 1년 중 위치·금리와 신용 카드와 매크로는 같은 하락을 하이일드 확대 속 피난성·성장 걱정으로 읽었다.
+- root_cause: market-story.js ratesOf가 금리 하락을 실질금리·기대인플레 분해만으로 분류했고, 같은 주의 하이일드 확대(creditOf)를 보지 않았다. 다른 카드는 금리와 신용을 함께 읽는다.
+- fix: 기대인플레 주도 하락이라도 같은 주 하이일드가 벌어지면(credit.kind가 calm이 아님) 'flight'로 분류해 '물가 안도보다 경기·신용 걱정 속 국채로 피한 쪽'으로 읽는다.
+- violated_rule: 한 화면 한 판정: 같은 사실을 화면 안에서 반대로 읽지 않는다
+- prevention: P2274: 금리 해석 문장은 신용 축과 함께 결정된다(market-story.js buildMarketStory).
+- verification/residual: 11/6 데이터에서 첫 카드가 '기대인플레 하락이 컸지만 하이일드 스프레드가 함께 벌어져 … 국채로 피한 쪽'으로 바뀌어 아래 카드와 같은 방향을 말한다(로컬 렌더).
+
+## P2273 - v59.74 - 시장 상태·스크리너 등에서 문서가 창보다 길어져 바깥 스크롤이 한 번 더 생기고 휴대폰 화면 아래가 비어 보임 (2026-11-08)
+
+- symptom/reproduction: 화면 스크롤은 #main-content 안에서만 일어나야 하는데 시장 상태에서 문서 높이가 아이폰 2,271/664px, 아이패드 1,844/1,194px, 데스크톱 1,685/900px였고 스크리너 아이폰은 850/664px였다. 바깥이 한 번 더 스크롤되며 셸과 하단 탭바가 위로 밀리고 아래가 빈 띠로 남았다.
+- root_cause: position:absolute인 .sr-only(regime-axes-title·regime-chart-caption·scr-status-full)와 막대 채움이 위치 지정 없는 스크롤 컨테이너(.content#main-content) 안에 있어 containing block이 문서 최상위로 잡혔고, 그 좌표가 문서 높이를 늘렸다.
+- fix: 스크롤 컨테이너 .content에 position:relative를 줘 안쪽 절대 위치 요소의 기준이 되게 했다(index.html).
+- violated_rule: 반응형: 데스크톱·휴대폰·아이패드가 같은 화면을 한 스크롤로 쓴다(AGENTS Responsive)
+- prevention: P2273: scripts/ci-viewport-matrix-check.mjs가 라우트별 docOverflowY(문서 높이 − 창 높이)가 3px를 넘으면 실패시킨다.
+- verification/residual: 수정 전 19개 라우트 × 3기기 중 signal·screener 등에서 문서가 창보다 길었고, 수정 뒤 57개 조합 모두 문서 높이 = 창 높이(로컬 Playwright).
+
+## P2272 - v59.74 - 유가가 거의 안 움직였는데 '채권시장이 유가를 물가에 반영', 연결 지도는 기대인플레를 '기준일이 달라 보류' (2026-11-08)
+
+- symptom/reproduction: WTI 20거래일 -1.1%에 기대인플레 -10bp를 두고 유가 장이 '기대인플레도 같은 쪽으로 움직여 채권시장이 유가를 물가에 반영하고 있습니다'라고 썼다. 같은 화면 금리 장은 같은 기대인플레를 -11bp로 적었다(기준일 차이). 연결 지도의 기대인플레 칸은 실질금리 공표일이 하루 늦다는 이유로 '기준일이 달라 보류'였다.
+- root_cause: oil()이 유가 자체가 움직였는지 보지 않고 부호만 비교했고, 기대인플레를 금리 장과 다른 기준일로 잘랐다. 연결 지도는 실질금리와 비교할 때만 필요한 같은 날 조건(P1528)을 기대인플레 칸 자체에 걸었다.
+- fix: 유가가 ±5%(RULES.crossAsset.oil20dPct)를 넘을 때만 기대인플레를 유가와 잇고, 아니면 '유가 때문은 아닙니다'로 쓴다. 기대인플레·실질금리는 금리 장의 공통 기준일(splitThrough)로 자른다. 브렌트와 WTI 20거래일 차이가 5%p 이상이면 해외 공급 위험의 값이 빠졌는지/붙었는지 적는다. 연결 지도는 기대인플레 5거래일 변화를 늘 보이고, 실질금리 우위 비교만 같은 날일 때 한다.
+- violated_rule: 판단을 보류하는 조건은 그 판단에 필요한 입력에만 건다
+- prevention: P2272: scripts/ci-esm-core-unit-check.mjs P1528 블록 — 기준일이 달라도 기대인플레 칸은 '5거래일 +8bp', 실질금리 우위 문장은 없음
+- verification/residual: 로컬 Playwright: 유가 장 '기대인플레는 -11bp 움직였지만 유가 때문은 아닙니다', 금리 장과 같은 -11bp.
+
+## P2271 - v59.74 - 매크로 금·은 장이 실질금리 -27bp 속 금 -3.4%를 '실질금리·달러와 어긋나지 않았다'로 읽음 (2026-11-08)
+
+- symptom/reproduction: 11/6 기준 금 20거래일 -3.4%, 10년 실질금리 -27bp, 달러 0.0%인데 매크로 › 금 · 은 카드는 '금은 실질금리·달러와 크게 어긋나지 않았습니다'라고 썼다. 같은 20거래일을 본 금리와 환율의 자산 관계 문장은 '금은 3.4% 내렸습니다 — 돈은 미국 국채로 갔습니다'라고 반대로 말했다.
+- root_cause: metals()가 ±4% 이상 금 움직임만 분기하고 나머지는 모두 기본 문장('어긋나지 않음')으로 떨어졌다. 금리·달러 다리가 움직였는지, 금과 같은 쪽인지 반대쪽인지 판정하지 않았다.
+- fix: goldRead(): 금 2%·실질금리 10bp·달러 1%(RULES.crossAsset) 선을 넘은 다리만 세고, 금과 반대 방향이면 평소 관계, 같은 방향이면 금리로 설명되지 않는 수요(포지션 정리·안전자산)로 읽는다. 실질금리는 금리 장과 같은 공통 기준일로 자른다. 은이 하락하는 금보다 더 빠질 때는 '안전자산 쪽'이 아니라 금/은 비율 상승(산업 수요 걱정·위험 축소)으로 읽는다.
+- violated_rule: 같은 화면 무리에서 같은 20거래일은 한 가지로 읽는다(cross-asset-relations와 같은 선)
+- prevention: P2271: scripts/ci-esm-core-unit-check.mjs 'v59.74 gold down while the real yield fell 27bp must read as unexplained by rates'
+- verification/residual: 로컬 정적 서버 + Playwright: 매크로 › 금 · 은 카드가 '실질금리가 -27bp 내렸는데도 금은 -3.4% 빠졌습니다 — 금리·달러로는 설명되지 않아…'로 읽는다.
+
+## P2270 - v59.74 - 등록 밖 상장 종목의 공식 이름이 약 1초 뒤 티커 글자로 되돌아감 (2026-11-08)
+
+- symptom/reproduction: BUFX처럼 레지스트리에 없는 상장 종목을 열면 공식 상장명이 잠깐 보였다가, 그 종목의 시세 요청이 끝나 화면을 다시 그리면 'BUFX'만 남았다. v20 래퍼가 종목 인자를 버리던 동안에는 그 요청이 없어 드러나지 않았다.
+- root_cause: usListingNameFor가 캐시를 보기 전에 _aioIsKnownTicker를 물었다. 상장 확인이 끝나면 그 종목은 listedSeen으로 '알려진 종목'이 되므로, 다음 렌더는 캐시된 이름을 건너뛰고 null을 돌렸다.
+- fix: src/ui/pages/entity.js usListingNameFor: 캐시된 상장명을 먼저 돌려주고, 알려진 종목 판정은 아직 이름이 없을 때만 적용한다.
+- violated_rule: 한 번 확인한 공식 이름은 같은 세션의 다시 그리기에서 유지된다(v59.54 run-6 #11)
+- prevention: P2270: scripts/ci-out-of-universe-ticker-browser-check.mjs — 시세 요청이 끝나고 1.5초 뒤에도 상장명이 남는지 확인(수정 전 코드에서 phone·desktop 모두 실패 확인)
+- verification/residual: AIO_BROWSER_CLOCK_AT=2026-11-07T09:26:03Z로 브라우저 검사 실행: 수정 전 FAIL(2), 수정 후 PASS.
+
+## P2269 - v59.74 - DOMContentLoaded의 v20 래퍼가 시세 수요 모듈을 덮어써 요청 종목과 결과가 사라짐 (2026-11-08)
+
+- symptom/reproduction: #146 병합 뒤 페이지의 window.fetchLiveQuotes가 demand.request가 아니라 js/aio-ui.js의 v20 래퍼였다. 래퍼는 인자 없이 원 함수를 부르고 undefined를 돌려, 스케줄러 run 종목·빠진 종목 복구·검색에서 연 종목([id])이 요청되지 않고 호출자는 결과를 받지 못했다.
+- root_cause: 시세 요청의 주인을 quote-demand로 옮기면서, 같은 전역을 DOMContentLoaded에 다시 대입하는 오래된 적응형 래퍼를 찾지 못했다. 이전에는 전역 _aioQuoteRequestSymbols가 종목을 실어 날라 인자 유실이 가려져 있었다.
+- fix: js/aio-ui.js의 v20 래퍼를 지운다. 실패 횟수와 backoff는 quote-demand가 맡는다.
+- violated_rule: 요청한 종목은 그 요청이 돌려받는 수신이 읽는다(STATE-MACHINES SM-04 I4.1)
+- prevention: P2269: scripts/ci-state-machine-regression-check.mjs 'SM-04b no legacy script replaces the quote demand seam' — js/*.js·index.html에서 fetchLiveQuotes 대입을 금지(수정 전 코드에서 실패 확인)
+- verification/residual: 로컬 정적 서버 + Playwright: 로드 뒤 window.fetchLiveQuotes.toString()이 '(symbols) => demand.request(symbols)'. 수정 전에는 v20 래퍼.
+
+## P2268 - v59.74 - 기록이 60거래일 미만이거나 Yahoo 일봉이 없는 한국 종목은 차트 자체가 비었다 (2026-11-08)
+
+- symptom/reproduction: 상장 직후 종목이나 Yahoo가 일봉을 짧게·비워 돌려준 .KS/.KQ 종목은 '일봉이 N개뿐입니다' 안내만 남고 캔들·거래량·이평선이 하나도 그려지지 않았다.
+- root_cause: renderStockChart가 셋업 분석(analyzeChart, 60거래일 필요)의 실패를 차트 그리기 실패와 같은 분기로 처리했고, 한국 종목의 네이버 일봉(fetchKrDailyCandles)은 차트 경로에 연결돼 있지 않았다.
+- fix: 봉이 2개 이상이면 기본 레이어(그릴 수 있는 이동평균·거래량·매물대·추세 면)로 차트를 그리고 셋업 분석만 기다린다. 한국 종목은 Yahoo 일봉이 260개 미만이면 네이버 일봉으로 보강한다. 매물대는 거래량이 빈 봉을 빼고 90% 이상 있을 때 그린다(E08: 결측을 0으로 만들지 않음).
+- violated_rule: 모든 종목에 기본 차트 분석을 빠짐없이 보여 준다(소유자 2026-11-07)
+- prevention: P2268: scripts/ci-chart-layers-fixture.mjs 짧은 기록·결측 거래량 사례
+- verification/residual: 12개 5분봉과 결측 거래량 7개가 섞인 130봉에서 기본 레이어가 그려지고, 결측 3분의 1은 매물대를 그리지 않음을 픽스처로 확인. 헤드리스 브라우저로 일봉·1시간봉·모바일·다크 화면 확인.
 
 ## P2267 - v59.72 - Post-boot lazy JS over budget once market-day carries narratives (backtest idle warm on every route) (2026-11-07)
 

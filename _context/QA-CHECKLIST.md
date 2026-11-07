@@ -1,8 +1,19 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-11-07
+last_verified: 2026-11-08
 confidence: medium
 ---
+
+## v59.74 사이트 품질 점검 (2026-11-08)
+
+- [x] QA-UI-OUTER-SCROLL: v59.74: 19개 라우트를 아이폰·아이패드·데스크톱에서 열면 문서 높이가 창 높이와 같고, 시장 상태를 끝까지 내려도 하단 탭바가 화면 아래에 붙어 있다. verify_by: node scripts/ci-viewport-matrix-check.mjs
+- [x] QA-UI-NO-QUESTION-LABEL: v59.74: 긴 글 화면(개념·대가·산업 지도·안내)과 뉴스 제목을 뺀 모든 라우트에서 40자 이하 줄이 물음표나 '~까/~는가/~인가/~나요'로 끝나지 않는다. verify_by: node scripts/ci-rendered-copy-lint-check.mjs
+- [ ] QA-DATA-SENTENCE-STATEMENT: v59.74: 다음 08:00 KST 시장 해석 실행 뒤 public-data의 오늘 문장이 질문이 아니고, 홈 판정 카드에 '오늘의 쟁점'으로 나온다. verify_by: 2026-11-09
+- [x] QA-UI-WEEK-ON-CARDS: v59.74: 주말 홈 지수 카드 네 장 모두 '5거래일 ±x.x%'를 보여주고(11/6 기준 S&P -2.7%, SOXX -13.1%), 장중 카드는 마감 전까지 이 줄을 숨긴다. verify_by: node scripts/ci-rendered-copy-lint-check.mjs
+- [x] QA-UI-WATCH-AXES-CAPTION: v59.74: 시장 상태 6개 지표 아래 심리·AI·반도체 집중 블록이 '참고 지표 2개 — 위 6개 지표의 합계에는 넣지 않습니다'로 시작한다. verify_by: node scripts/ci-rendered-copy-lint-check.mjs
+- [ ] QA-DATA-SEMIS-EVIDENCE-SOXX: v59.74: 다음 갱신 뒤 public-data/market-snapshot.json evidenceQuotes의 반도체 행이 SOXX이고, AI 시장 해석이 반도체를 SMH로 적지 않는다. verify_by: 2026-11-09
+- [ ] QA-DATA-HEADLINE-GLOSSARY: v59.74: Worker 배포 뒤 새로 번역된 뉴스 제목에 'Muted'→'미묘한', 'oil prices'→'오일 가격' 같은 직역과 ' : Finance : JKN' 같은 매체 꼬리표가 없다. verify_by: 2026-11-10
+- [x] QA-DATA-NARRATIVE-NEWS: v59.74: market-day.json narratives.stories에 newsCount가 있고, 블루웨이브·민주당 승리 보도가 '미국 정치 (선거 결과·셧다운)' 이야기로 묶인다. verify_by: node scripts/ci-esm-core-unit-check.mjs
 
 ## v59.71 Split-adjusted SEC share count (2026-11-07)
 
