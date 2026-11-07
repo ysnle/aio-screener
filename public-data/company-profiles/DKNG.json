@@ -1,0 +1,483 @@
+{
+  "symbol": "DKNG",
+  "name": "DraftKings Inc.",
+  "researchedAt": "2026-11-07",
+  "fiscalYearEnd": "December 31",
+  "oneLine": "DraftKings는 미국 27개 주에서 온라인 스포츠 베팅과 5개 주에서 온라인 카지노를 운영하는 회사로, 본업은 연 9억 달러 안팎의 조정 EBITDA를 벌지만 새 예측시장 사업 DraftKings Predictions에 올해 6.5억~7억 달러를 쏟아 2026년 3분기 순손실이 4.69억 달러로 커졌다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "8-K",
+      "title": "DraftKings Reports Third Quarter 2026 Results (8-K Exhibit 99.1)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0001883685/000188368526000039/q326-prx8kexx991.htm",
+      "publisher": "DraftKings / SEC EDGAR",
+      "date": "2026-11-05"
+    },
+    {
+      "id": "s2",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/dkng/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-11-07"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "주별 면허 - 모바일 스포츠 베팅 27개 주·워싱턴 DC·푸에르토리코(미국 인구 약 53%), iGaming 5개 주(약 11%)",
+      "월 결제 이용자 410만 명(+13%)의 고객 기반과 교차 판매",
+      "스포츠 리그 공식 파트너십 - NHL, PGA TOUR, WNBA, NASCAR, NBA, MLB",
+      "베팅 상품 설계로 끌어올린 스포츠 순매출 마진 5.6%"
+    ],
+    "text": "DraftKings의 힘은 주마다 따로 받아야 하는 면허와, 그 위에 쌓은 대규모 고객 기반에 있다. 스포츠 베팅으로 들어온 고객을 온라인 카지노와 새 예측시장 상품으로 넘기는 구조다. 리그 공식 파트너십도 브랜드와 데이터 접근을 받쳐 준다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "design": {
+    "text": "회사가 보고하는 사업은 스포츠(온라인 스포츠 베팅), iGaming(온라인 카지노), 기타로 나뉜다. 2026년에는 주 면허가 아닌 예측시장 방식의 DraftKings Predictions를 새로 내놨고, 올해 매출 기여는 미미할 것이라고 밝혔다. 캐나다에서도 인구 약 51% 지역에서 스포츠 베팅과 iGaming을 운영한다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "make": {
+    "model": "service",
+    "partners": [
+      "NHL - 리그 파트너",
+      "PGA TOUR - 리그 파트너",
+      "WNBA - 리그 파트너",
+      "NASCAR - 리그 파트너",
+      "NBA - 리그 파트너",
+      "MLB - 리그 파트너"
+    ],
+    "text": "상품은 자체 앱과 플랫폼으로 만든다. 스포츠 리그와는 공식 파트너 관계를 맺고, 매출의 상당 부분은 주별 세금과 마케팅 비용으로 나간다. 자체 개발 소프트웨어에 1~9월 1.14억 달러를 투자했다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "미국·캐나다 성인 이용자 - 월 결제 이용자 410만 명 (+13%), 이용자당 월평균 매출 109달러 (+3%)",
+      "DraftKings Predictions 이용자 - 연초 이후 160만 명 이상 참여"
+    ],
+    "channel": "자체 모바일 앱·웹 직접 판매",
+    "concentration": "개인 이용자 분산. 매출은 면허를 받은 주와 각 주의 세율에 집중된다.",
+    "text": "고객은 앱으로 베팅하는 수백만 명의 개인이다. 매출은 고객 수와 고객당 베팅 금액, 그리고 회사가 남기는 마진으로 정해진다. 한 고객에 기대는 구조는 아니지만, 어느 주에서 영업할 수 있고 세금을 얼마나 내느냐가 이익을 정한다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "이용자",
+        "to": "DraftKings",
+        "what": "스포츠 베팅 금액 - Q3 2026 139억 달러 (+21.9%)"
+      },
+      {
+        "from": "DraftKings",
+        "to": "이용자",
+        "what": "당첨금 지급 - 남는 몫이 순매출 (스포츠 순매출 마진 5.6%)"
+      },
+      {
+        "from": "DraftKings",
+        "to": "주 정부",
+        "what": "온라인 게임 세금과 면허 비용"
+      },
+      {
+        "from": "DraftKings",
+        "to": "DraftKings Predictions",
+        "what": "신사업 투자 - 2026년 조정 EBITDA 기준 6.5억~7억 달러"
+      }
+    ],
+    "pricing": "베팅 금액에서 당첨금을 뺀 몫(홀드)과 프로모션 차감 뒤 순매출. iGaming은 게임별 하우스 엣지.",
+    "text": "이용자가 건 139억 달러 가운데 당첨금을 주고 남는 약 5.6%가 스포츠 순매출이 된다. 경기 결과가 이용자에게 유리하게 나오면 같은 베팅 금액에서도 매출이 줄어, 회사는 이번 전망에서 '고객에게 다소 유리한 결과'를 반영했다. 남은 돈의 큰 몫은 주 세금, 마케팅, 그리고 올해는 Predictions 투자로 나간다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "earnings": {
+    "period": "Q3 2026 (ended 2026-09-30)",
+    "revenue": {
+      "value": 1.329,
+      "unit": "USD bn",
+      "yoy": 16
+    },
+    "grossMargin": null,
+    "operatingMargin": null,
+    "netMargin": -35.3,
+    "operatingCashFlow": {
+      "value": null,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": null,
+      "unit": "USD bn"
+    },
+    "segments": [
+      {
+        "name": "Sports",
+        "revenue": 0.7836,
+        "unit": "USD bn",
+        "share": 59.0,
+        "yoy": 31.5,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "iGaming",
+        "revenue": 0.4609,
+        "unit": "USD bn",
+        "share": 34.7,
+        "yoy": 2.1,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Other",
+        "revenue": 0.0845,
+        "unit": "USD bn",
+        "share": 6.4,
+        "yoy": -12.5,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "월 결제 이용자 (MUP)",
+        "value": "410만 명 (+13%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "이용자당 월평균 매출 (ARPMUP)",
+        "value": "109달러 (+3%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "스포츠 베팅 금액 / 순매출 마진",
+        "value": "139억 달러 (+21.9%) / 5.6% (전년 5.2%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Adjusted EBITDA",
+        "value": "Q3 2026 -3.17억 달러 (전년 -1.27억), 1~9월 -3,440만 달러",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "text": "Q3 2026 매출은 13.29억 달러로 16% 늘었고, 스포츠가 31.5% 늘어 성장을 이끈 반면 iGaming은 2.1%에 그쳤다. 순손실은 4.69억 달러로 1년 전 2.57억 달러보다 커졌고 조정 EBITDA도 -3.17억 달러였다. 손실이 커진 주된 이유는 Predictions 투자다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "useOfCash": {
+    "period": "2026년 1~9월 누계 (ended 2026-09-30)",
+    "items": [
+      {
+        "use": "capex",
+        "value": 0.1689,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "buybacks",
+        "value": 0.1542,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "debt repayment",
+        "value": 0.3004,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "other",
+        "label": "DraftKings Predictions 투자 (조정 EBITDA 기준, 연간 전망)",
+        "value": 0.675,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "text": "1~9월 영업활동 현금은 6,300만 달러로 1년 전 3.42억 달러에서 크게 줄었는데, 설비 5,540만 달러와 자체 소프트웨어 1.14억 달러를 쓰면 잉여현금은 약 -1.06억 달러로 계산된다. 그런데도 자사주 1.54억 달러를 사고 전환사채 3.00억 달러를 되샀다. Predictions 투자는 연간 6.5억~7억 달러(중간값 6.75억)로 이 해의 가장 큰 돈 쓰임이다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "aiChain": {
+    "layer": "limited",
+    "position": "AI 인프라 공급망 밖의 온라인 베팅 운영사. 배당률·위험 관리에 데이터 모델을 쓰지만 AI 투자에서 매출을 얻는 구조는 아니다.",
+    "dependsOn": [
+      "주별 면허와 세율",
+      "스포츠 리그 데이터·파트너십"
+    ],
+    "sellsTo": [
+      "미국·캐나다 성인 이용자"
+    ],
+    "aiRevenue": null,
+    "upside": "베팅 상품과 프로모션을 데이터로 더 정교하게 설계하면 순매출 마진이 오를 수 있다.",
+    "risk": "AI와 직접 관련은 적고, 규제·세금·경기 결과·예측시장 경쟁이 실적을 좌우한다.",
+    "text": "AI 가치사슬로 보면 DraftKings는 영향이 제한적이다. 실적을 정하는 것은 면허를 받은 주의 수, 세율, 경기 결과, 그리고 새로 연 예측시장의 성패다. 순매출 마진이 5.2%에서 5.6%로 오른 것도 상품 설계의 결과로 설명된다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "미국 온라인 스포츠 베팅",
+        "rivals": [
+          "상장 미국 경쟁사 (발표문은 이름을 밝히지 않음)"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "온라인 카지노 (iGaming)",
+        "rivals": [
+          "상장 미국 경쟁사 (발표문은 이름을 밝히지 않음)"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "예측시장",
+        "rivals": [
+          "예측시장 운영사 (출처에 이름 없음)"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "edge": "넓은 면허 지역과 410만 명의 결제 이용자, 스포츠 순매출 마진 개선.",
+    "threats": "예측시장이 주 면허 없이 베팅 수요를 가져가는 경우, 주 세율 인상, iGaming 성장 정체.",
+    "text": "발표문은 경쟁사를 '상장 미국 경쟁사'로만 부른다. 스포츠에서는 31.5% 성장으로 앞서가지만, iGaming은 2.1% 성장에 그쳐 회사가 추가 투자를 예고했다. 예측시장에 대규모로 들어간 것은 면허 밖의 새 경쟁 공간을 놓치지 않으려는 선택으로 읽힌다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "strategy": {
+    "goal": "2026년 매출 63.5억~65.5억 달러, 조정 EBITDA 1.75억~2.75억 달러(본업만 8.75억~9.25억 달러)를 제시하고, 예측시장을 새 성장축으로 키우려 한다.",
+    "roadmap": [
+      {
+        "when": "Q4 2026",
+        "what": "Predictions 투자 1.75억~2.25억 달러",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "FY2026",
+        "what": "매출 63.5억~65.5억 달러, 조정 EBITDA 1.75억~2.75억 달러, Predictions 매출은 미미",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "FY2026",
+        "what": "iGaming 추가 투자",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "vision": "스포츠 베팅·카지노·예측시장을 한 고객 기반 위에 묶은 온라인 게임 플랫폼.",
+    "text": "회사는 올해 본업 이익의 상당 부분을 예측시장에 다시 넣기로 했다. 본업 조정 EBITDA 8.75억~9.25억 달러에서 Predictions 투자 6.5억~7억 달러를 빼면 회사 전체 조정 EBITDA가 1.75억~2.75억 달러로 내려간다. 투자 회수 시점은 이번 발표에 나오지 않는다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "governance": {
+    "line": "경영진 구성은 이번에 읽은 발표문에서 확인하지 못했고, 손실 확대 속에서도 1~9월 자사주 1.54억 달러를 사들였다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "FY2026",
+        "metric": "revenue",
+        "value": "63.5억~65.5억 달러",
+        "givenOn": "2026-11-05",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "adjusted EBITDA",
+        "value": "1.75억~2.75억 달러 (본업 8.75억~9.25억 달러)",
+        "givenOn": "2026-11-05",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "Predictions investment",
+        "value": "6.5억~7억 달러로 상향 (Q4 1.75억~2.25억 달러)",
+        "givenOn": "2026-11-05",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "style": "annual",
+    "track": "회사는 Predictions 투자 규모를 올렸고, 본업 전망에는 iGaming 추가 투자와 고객에게 다소 유리한 경기 결과를 반영했다. 이전 범위는 이번 발표문에 나오지 않아 변경 폭은 확인하지 못했다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-11-07, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) EPS 합계 1.14달러(범위 0.81~1.53), 직전 4개 분기 -0.49달러. Q3 2026 EPS -0.70달러로 추정 -0.34달러보다 손실이 컸고, 최근 4주 상향 1건·하향 2건.",
+    "src": [
+      "s2"
+    ]
+  },
+  "watch": {
+    "confirms": [
+      "Predictions 이용자가 매출과 기존 상품 교차 이용으로 이어짐",
+      "본업 조정 EBITDA가 8.75억~9.25억 달러 범위를 채움",
+      "iGaming 성장률 회복",
+      "4분기 Predictions 투자가 범위 안"
+    ],
+    "breaks": [
+      "Predictions 투자가 2027년에도 같은 규모로 이어짐",
+      "iGaming 성장 정체 지속",
+      "주 세율 인상",
+      "영업현금흐름의 추가 감소"
+    ],
+    "keyNumbers": [
+      {
+        "name": "본업 조정 EBITDA",
+        "why": "Predictions 투자를 감당할 체력"
+      },
+      {
+        "name": "Predictions 투자액",
+        "why": "회사 전체 이익을 가르는 변수"
+      },
+      {
+        "name": "스포츠 순매출 마진",
+        "why": "같은 베팅에서 남기는 몫"
+      },
+      {
+        "name": "월 결제 이용자·ARPMUP",
+        "why": "고객 기반과 고객 가치"
+      }
+    ]
+  },
+  "debate": {
+    "question": "본업에서 버는 돈을 예측시장에 쏟는 선택이 새 성장축으로 이어지는지",
+    "bull": {
+      "text": "유지된다고 보는 쪽은 스포츠 매출이 31.5% 늘고 순매출 마진이 5.6%로 오른 본업이 연 8.75억~9.25억 달러의 조정 EBITDA를 낸다는 점을 든다. Predictions에는 연초 이후 160만 명 이상이 참여해, 면허 밖의 새 시장에 고객을 빨리 모으고 있다는 읽기다.",
+      "src": [
+        "s1"
+      ]
+    },
+    "bear": {
+      "text": "깨진다고 보는 쪽은 Predictions 투자가 6.5억~7억 달러로 올랐는데 올해 매출 기여는 미미하다는 점을 본다. 3분기 순손실은 4.69억 달러로 커졌고, 1~9월 영업현금은 6,300만 달러로 줄어 설비·소프트웨어 투자를 빼면 잉여현금이 마이너스라는 것이 근거다.",
+      "src": [
+        "s1"
+      ]
+    },
+    "decides": [
+      {
+        "when": "2027-02 (추정, 회사 미공지) Q4·FY2026 실적",
+        "what": "2027년 Predictions 투자 규모와 그 매출 전망이 처음으로 숫자로 나오는지",
+        "src": [
+          "s1"
+        ]
+      }
+    ]
+  },
+  "underTheHood": [
+    {
+      "title": "두 개의 EBITDA",
+      "text": "회사 전체 조정 EBITDA 전망은 1.75억~2.75억 달러지만 본업만 따로 보면 8.75억~9.25억 달러다. 그 차이 6.5억~7억 달러가 Predictions 투자이므로, 헤드라인 이익만 보면 본업의 수익성 변화와 신사업 비용이 섞여 보인다.",
+      "src": [
+        "s1"
+      ]
+    },
+    {
+      "title": "경기 결과가 매출을 흔든다",
+      "text": "스포츠 매출은 베팅 금액에서 당첨금을 뺀 몫이라, 경기 결과가 이용자에게 유리하면 같은 베팅 금액에서도 매출이 줄어든다. 회사가 연간 본업 전망에 '고객에게 다소 유리한 결과'를 반영한 것도 이 때문이며, 분기 실적의 일부는 운에 좌우된다.",
+      "src": [
+        "s1"
+      ]
+    },
+    {
+      "title": "자사주 매입과 현금의 간격",
+      "text": "1~9월 영업현금 6,300만 달러에서 설비·소프트웨어 1.69억 달러를 빼면 잉여현금은 마이너스로 계산되는데, 같은 기간 자사주 1.54억 달러와 전환사채 3.00억 달러를 되샀다. 9월 말 현금 11.0억 달러와 Term B 대출 12.5억 달러가 이 차이를 받치고 있다.",
+      "src": [
+        "s1"
+      ]
+    }
+  ],
+  "trading": {
+    "calendar": [
+      {
+        "date": "2027-02 (추정, 회사 미공지)",
+        "event": "Q4·FY2026 실적과 2027 전망",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "date": "매 주말·시즌 (NFL·NBA 등)",
+        "event": "경기 결과에 따른 홀드 변동",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "reaction": "매출보다 조정 EBITDA 전망, 특히 Predictions 투자 규모와 본업 이익 변화에 크게 반응하는 경향이 있다.",
+    "conditions": [
+      "Predictions 투자 범위와 이용자 수 변화",
+      "본업 조정 EBITDA 전망",
+      "스포츠 순매출 마진",
+      "iGaming 성장률",
+      "신규 주 합법화와 세율 변화"
+    ]
+  },
+  "unverified": [
+    "Q3 2026 단독 영업현금흐름 - 1~9월 누계만 확인; 잉여현금 -1.06억 달러는 계산값",
+    "이전 FY2026 매출·EBITDA 전망과 이번 변경 폭",
+    "Predictions 투자 6.75억 달러는 회사 범위 6.5억~7억 달러의 중간값으로 넣은 값",
+    "경영진 이름",
+    "경쟁사 이름과 시장 점유율",
+    "보도문 하단 문구의 30개 주와 본문 27개 주의 차이"
+  ],
+  "confidence": "medium - 숫자는 SEC 8-K 원문에서 왔지만 콜 녹취를 읽지 못해 Predictions의 상품 구조와 회수 계획 설명이 빠졌다."
+}

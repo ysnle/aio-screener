@@ -1,0 +1,246 @@
+{
+  "symbol": "DASH",
+  "name": "DoorDash, Inc.",
+  "researchedAt": "2026-11-07",
+  "fiscalYearEnd": "December 31",
+  "oneLine": "DoorDash는 식당·식료품·소매점의 주문을 소비자에게 배달하고 주문 금액의 일부를 수수료로 받는 지역 커머스 플랫폼으로, 2026년 3분기 주문 9.93억 건(+28%)에 Deliveroo를 더했고 약 170억 달러에 Instacart 인수를 발표해 식료품 배달을 크게 키우려 한다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "DoorDash Releases Third Quarter 2026 Financial Results (Exhibit 99.1, company IR PDF)",
+      "url": "https://s22.q4cdn.com/280253921/files/content_files/Q3-2026-Earnings-Press-Release.pdf",
+      "publisher": "DoorDash",
+      "date": "2026-10-29"
+    },
+    {
+      "id": "s2",
+      "kind": "other",
+      "title": "DoorDash to acquire Instacart for $65.00 per share (third-party summary of the 2026-10-29 Form 8-K)",
+      "url": "https://www.autobound.ai/companies/doordash/8-k/doordash-to-acquire-instacart-for-65-00-per-share-9fcc1363",
+      "publisher": "Autobound",
+      "date": "2026-10-29"
+    },
+    {
+      "id": "s3",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/dash/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-11-07"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "주문 밀도 - Q3 2026 총주문 9.93억 건, Marketplace GOV 339억 달러",
+      "DashPass 유료 멤버십 - 2년간 주문당 거래 수수료 9% 인하에 기여",
+      "DashMart 재고·풀필먼트 - Giant Eagle·Albertsons 재고 관리, 정확도 99% 이상",
+      "Deliveroo·Wolt로 넓힌 해외 브랜드"
+    ],
+    "text": "DoorDash의 힘은 한 지역에 주문이 많을수록 배달원 한 명이 더 많은 주문을 나르고, 그만큼 비용이 내려가 다시 주문이 느는 밀도에서 나온다. 3분기에만 주문 9.93억 건, 주문 금액(GOV) 339억 달러를 처리했다. DashPass 멤버십이 반복 주문을 묶어 두고, 회사는 이를 통해 2년간 주문당 거래 수수료를 9% 낮췄다고 밝혔다.",
+    "src": ["s1"]
+  },
+  "design": {
+    "text": "이 밀도 위에서 회사는 식당 배달을 중심으로 식료품·소매 배달, 자체 창고형 매장 DashMart, 식당 예약, DashPass 구독을 판다. 2026년 인수한 영국 Deliveroo와 기존 Wolt가 해외 사업이고, 자율 배송은 투자 영역으로 적혀 있다. 3분기 미국 식료품·소매 GOV 증가율은 미국 식당의 두 배를 넘었다.",
+    "src": ["s1"]
+  },
+  "make": {
+    "model": "service",
+    "partners": [
+      "독립 배달원(Dasher) - 배달 수행",
+      "식당·식료품점·소매점 가맹점 - 상품 공급",
+      "Giant Eagle - DashMart가 재고 관리를 맡는 파트너",
+      "Albertsons - DashMart가 재고 관리를 맡는 파트너",
+      "JPMorgan Chase - Instacart 인수 브리지론 약정 제공"
+    ],
+    "text": "DoorDash는 음식이나 상품을 만들지 않고 주문·배차·결제를 맡는 서비스 회사다. 배달은 독립 배달원이 하고, 상품은 가맹점이 공급한다. 예외가 DashMart로, Giant Eagle·Albertsons 같은 파트너의 재고를 직접 관리해 정확도 99% 이상, 배송 시간 평균 10분 이상 단축을 내세운다.",
+    "src": ["s1"]
+  },
+  "sell": {
+    "customers": [
+      "소비자 - 주문 시 배달비·서비스 수수료 부담, DashPass 구독",
+      "식당·식료품점·소매점 가맹점 - 주문당 수수료와 광고비 부담",
+      "Giant Eagle - DashMart 재고 관리 서비스",
+      "Albertsons - DashMart 재고 관리 서비스"
+    ],
+    "channel": "자체 앱(DoorDash, Wolt, Deliveroo) 직접 주문, 가맹점용 배달·주문 서비스.",
+    "concentration": "개별 고객 집중 공시 없음. Q3 2026 매출 중 Deliveroo 3.65억 달러(약 8%).",
+    "text": "돈을 내는 쪽은 소비자와 가맹점 두 곳이다. 소비자는 배달비와 서비스 수수료, 구독료를 내고 가맹점은 주문 수수료를 낸다. 3분기 매출 46.2억 달러 가운데 Deliveroo가 3.65억 달러였고, 해외에서는 모든 브랜드의 주문 증가가 빨라졌다.",
+    "src": ["s1"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "소비자", "to": "DoorDash", "what": "주문 금액·배달비·서비스 수수료 결제 (GOV), DashPass 구독료" },
+      { "from": "DoorDash", "to": "식당·식료품점·소매점", "what": "주문 금액에서 가맹점 수수료를 뺀 대금 지급" },
+      { "from": "DoorDash", "to": "배달원(Dasher)", "what": "배달 건당 보수와 팁 전달" },
+      { "from": "가맹점·브랜드", "to": "DoorDash", "what": "광고비 (금액 비공개)" }
+    ],
+    "pricing": "주문 금액(GOV)에 대한 수수료. Q3 2026 Net Revenue Margin(매출 ÷ GOV) 13.6%.",
+    "text": "소비자가 낸 주문 금액은 일단 DoorDash로 들어오고, 가맹점 몫과 배달원 몫을 나눠 준 뒤 남는 것이 매출이다. 3분기 매출은 GOV의 13.6%였다. 연말 가맹점 대금 지급 시점 때문에 2026년 잉여현금흐름이 7억~8억 달러 줄 것이라는 회사 설명도, 이 돈이 남의 돈을 잠시 들고 있는 구조라는 뜻이다.",
+    "src": ["s1"]
+  },
+  "earnings": {
+    "period": "Q3 2026 (ended 2026-09-30)",
+    "revenue": { "value": 4.616, "unit": "USD bn", "yoy": 34 },
+    "grossMargin": null,
+    "operatingMargin": null,
+    "netMargin": 10.1,
+    "operatingCashFlow": { "value": 0.994, "unit": "USD bn" },
+    "freeCashFlow": { "value": 0.787, "unit": "USD bn" },
+    "segments": [
+      { "name": "DoorDash excluding Deliveroo", "revenue": 4.251, "unit": "USD bn", "share": 92.1, "yoy": 23, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Deliveroo", "revenue": 0.365, "unit": "USD bn", "share": 7.9, "yoy": null, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "총주문(Total Orders)", "value": "Q3 2026 9.93억 건, +28% (Deliveroo 제외 +17%)", "src": ["s1"] },
+      { "name": "Marketplace GOV", "value": "Q3 2026 339억 달러, +36% (Deliveroo 제외 +23%)", "src": ["s1"] },
+      { "name": "Net Revenue Margin", "value": "Q3 2026 13.6%", "src": ["s1"] },
+      { "name": "조정 EBITDA", "value": "Q3 2026 10.6억 달러, +41%", "src": ["s1"] },
+      { "name": "잉여현금흐름 (TTM)", "value": "22.0억 달러 (영업현금흐름 TTM 29.5억 달러)", "src": ["s1"] }
+    ],
+    "text": "3분기 매출은 46.2억 달러로 34%(Deliveroo 제외 23%) 늘었고, GAAP 순이익은 4.66억 달러로 91% 늘어 매출보다 훨씬 빨랐다. 조정 EBITDA는 10.6억 달러(+41%)였다. 회사는 연간 주식보상비 약 12억 달러, 감가상각 약 12억 달러를 예상해, 조정 EBITDA와 GAAP 이익 사이 간격이 크다.",
+    "src": ["s1"]
+  },
+  "useOfCash": {
+    "period": "9M 2026 (buybacks year-to-date through 2026-10-28)",
+    "items": [
+      { "use": "buybacks", "value": 1.0, "unit": "USD bn", "src": ["s1"] },
+      { "use": "capex", "value": 0.208, "unit": "USD bn", "src": ["s1"] },
+      { "use": "other", "label": "소프트웨어·웹사이트 개발비 자본화", "value": 0.375, "unit": "USD bn", "src": ["s1"] }
+    ],
+    "text": "올해 현금은 Deliveroo 인수와 자사주 매입, 개발 투자에 쓰였다. 10월 28일까지 680만 주를 10억 달러에 샀고 승인 잔액은 약 40억 달러이며, 9개월 설비투자 2.08억 달러보다 자본화한 소프트웨어 개발비 3.75억 달러가 크다. 다음 큰 지출은 약 170억 달러 지분가치의 Instacart 인수로, JPMorgan Chase가 브리지론을 약정했다.",
+    "src": ["s1", "s2"]
+  },
+  "aiChain": {
+    "layer": "ai-exposed",
+    "position": "AI 인프라를 팔지 않는 소비자·가맹점 플랫폼. 자율 배송을 투자 영역으로 두고, 회사 위험 요인과 경쟁 환경이 AI 기술 변화에 노출된 쪽이다.",
+    "dependsOn": ["독립 배달원 공급", "가맹점 파트너"],
+    "sellsTo": ["소비자", "Giant Eagle", "Albertsons"],
+    "aiRevenue": null,
+    "upside": "자율 배송이 배달원 비용을 낮추면 주문당 비용이 줄 수 있으나, 보도자료는 투자 영역이라고만 적고 금액·일정을 밝히지 않았다.",
+    "risk": "자율 배송 투자가 비용을 먼저 늘리고, 새 기술을 가진 경쟁자가 배달 단가를 바꿀 수 있다. 보도자료는 구체 금액을 밝히지 않았다.",
+    "text": "그래서 AI 가치사슬에서 DoorDash는 'AI 노출' 자리다. 이익을 움직이는 것은 아직 주문 밀도와 식료품 확장이고, AI와 자율 배송은 배달 비용 구조를 바꿀 수 있는 장기 변수로 남아 있다.",
+    "src": ["s1"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "미국 식당 배달", "rivals": [], "position": "leader", "share": null, "src": ["s1"] },
+      { "arena": "식료품·소매 배달", "rivals": [], "position": "challenger", "share": null, "src": ["s1", "s2"] },
+      { "arena": "해외 배달 (Deliveroo·Wolt)", "rivals": [], "position": "challenger", "share": null, "src": ["s1"] }
+    ],
+    "edge": "미국 내 주문 밀도, DashPass 멤버십, DashMart 재고 관리, 그리고 Instacart 인수로 더해질 식료품 배달 규모.",
+    "threats": "인수 완료까지 2027년 말~2028년 상반기가 걸려 규제 심사가 길고, 첫해에는 시너지보다 투자가 크다. 보도자료는 경쟁사 이름을 적지 않았다.",
+    "text": "보도자료는 경쟁사를 이름으로 적지 않는다. 회사가 숫자로 보여준 싸움터는 식료품·소매로, 미국 GOV 증가율이 식당의 두 배를 넘었고 성숙한 고객 집단 대부분에서 주문 빈도가 두 자릿수로 늘었다. Instacart 인수는 이 싸움터에서 규모를 한 번에 키우는 수다.",
+    "src": ["s1", "s2"]
+  },
+  "strategy": {
+    "goal": "식당 배달에서 번 밀도를 식료품·소매로 옮기고, Instacart와 합쳐 '연간 5억 달러 이상(투자 차감 후)' 시너지를 여러 해에 걸쳐 내는 것.",
+    "roadmap": [
+      { "when": "Q4 2026", "what": "Marketplace GOV 354억~364억 달러, 조정 EBITDA 9억~11억 달러 전망", "src": ["s1"] },
+      { "when": "2026-10-29 발표", "what": "Instacart 주당 65달러·지분가치 약 170억 달러 인수 합의 (2026-10-22 종가 대비 26% 프리미엄)", "src": ["s2"] },
+      { "when": "2027 말 ~ 2028 H1", "what": "Instacart 인수 완료 예정; 완료 후 첫해는 시너지의 100% 넘게 재투자, 2년 차부터 순시너지 플러스", "src": ["s1", "s2"] }
+    ],
+    "vision": "식당·식료품·소매 등 동네의 모든 상점을 문 앞까지 연결하는 지역 커머스 플랫폼.",
+    "text": "다음 수는 식료품이다. Instacart 인수가 완료되면 첫해에는 시너지보다 많은 돈을 재투자하고 2년 차부터 순시너지가 나오도록 짰다. 그 전까지는 Deliveroo 통합과 미국 식료품·소매 성장으로 주문 밀도를 더 높이는 것이 과제다.",
+    "src": ["s1", "s2"]
+  },
+  "governance": {
+    "line": "2025년 2월 승인한 자사주 매입 프로그램 잔액 약 40억 달러를 두고 매입을 이어 가면서, 동시에 약 170억 달러 Instacart 인수를 추진하는 성장 투자형 회사다.",
+    "src": ["s1", "s2"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "Q4 2026", "metric": "Marketplace GOV", "value": "354억~364억 달러", "givenOn": "2026-10-29", "src": ["s1"] },
+      { "period": "Q4 2026", "metric": "adjusted EBITDA", "value": "9억~11억 달러", "givenOn": "2026-10-29", "src": ["s1"] },
+      { "period": "FY2026", "metric": "stock-based compensation", "value": "약 12억 달러", "givenOn": "2026-10-29", "src": ["s1"] },
+      { "period": "FY2026", "metric": "D&A", "value": "약 12억 달러", "givenOn": "2026-10-29", "src": ["s1"] },
+      { "period": "FY2026", "metric": "free cash flow timing effect", "value": "연말 가맹점 지급 시점으로 7억~8억 달러 감소", "givenOn": "2026-10-29", "src": ["s1"] }
+    ],
+    "style": "quarterly",
+    "track": "분기 GOV와 조정 EBITDA 범위를 제시한다. Q3 2026 조정 EPS 1.06달러는 컨센서스 0.82달러를 웃돌았고, 직전 분기(Q2 2026)는 0.46달러로 컨센서스 0.50달러를 밑돌았다.",
+    "src": ["s1", "s3"]
+  },
+  "estimates": {
+    "text": "2026-11-07 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) 합계 4.23달러(범위 3.33~5.28, 추정치 수 최소 7), 직전 4개 분기 실적 합 2.42달러. 최근 4주 상향 11건·하향 6건.",
+    "src": ["s3"]
+  },
+  "watch": {
+    "confirms": [
+      "Deliveroo 제외 주문·GOV 증가율이 10% 후반~20% 초반을 유지",
+      "미국 식료품·소매 GOV 증가율이 식당보다 빠른 흐름 지속",
+      "Q4 GOV가 354억~364억 달러, 조정 EBITDA가 9억~11억 달러 범위 안",
+      "Instacart 인수가 규제 심사를 예정대로 통과",
+      "Deliveroo 주문 증가 가속이 이어짐"
+    ],
+    "breaks": [
+      "Instacart 인수 심사 지연이나 조건부 승인",
+      "Net Revenue Margin 하락이 이어짐",
+      "자율 배송·해외 투자로 조정 EBITDA 증가율이 꺾임",
+      "주식보상비가 커져 GAAP 이익 개선이 멈춤"
+    ],
+    "keyNumbers": [
+      { "name": "Total Orders와 Marketplace GOV 증가율 (Deliveroo 제외)", "why": "기존 사업의 본래 성장" },
+      { "name": "Net Revenue Margin", "why": "수수료와 투자 사이 균형" },
+      { "name": "조정 EBITDA와 GAAP 순이익", "why": "주식보상비를 뺀 실제 이익" },
+      { "name": "잉여현금흐름 (TTM)", "why": "매입과 인수 재원" },
+      { "name": "Instacart 인수 심사 진행", "why": "식료품 전략의 성패" }
+    ]
+  },
+  "debate": {
+    "question": "식료품 확장과 약 170억 달러 Instacart 인수가 주문 밀도의 이익을 키우는 쪽으로 작동하는지",
+    "bull": {
+      "text": "키운다고 보는 쪽은 3분기 Deliveroo 제외 주문이 17%, GOV가 23% 늘었고 미국 식료품·소매 GOV 증가율이 식당의 두 배를 넘었으며, 조정 EBITDA(+41%)와 GAAP 순이익(+91%)이 매출보다 빨랐다는 점을 든다. 회사는 Instacart와 합쳐 연간 5억 달러 이상 순시너지를 제시했다.",
+      "src": ["s1", "s2"]
+    },
+    "bear": {
+      "text": "반대로 보는 쪽은 인수 완료가 2027년 말~2028년 상반기로 멀고, 완료 후 첫해에는 시너지의 100% 넘게를 재투자한다고 회사가 밝혔다는 점을 든다. 연간 주식보상비 약 12억 달러와 자율 배송 투자가 겹치면 조정 이익과 GAAP 이익의 간격이 좁혀지지 않을 수 있다.",
+      "src": ["s1"]
+    },
+    "decides": [
+      { "when": "Q4 2026 실적 발표 (2027-02 예상, 회사 미확정)", "what": "GOV 354억~364억 달러, 조정 EBITDA 9억~11억 달러 범위 달성과 2027년 투자 계획", "src": ["s1"] },
+      { "when": "2027 말 ~ 2028 H1", "what": "Instacart 인수 규제 승인과 완료 여부", "src": ["s1", "s2"] }
+    ]
+  },
+  "underTheHood": [
+    {
+      "title": "남의 돈을 잠시 쥐는 구조",
+      "text": "소비자 결제가 먼저 들어오고 가맹점과 배달원 몫은 나중에 나간다. 회사는 연말 가맹점 지급 시점 때문에 2026년 잉여현금흐름이 7억~8억 달러 줄 것이라 했는데, 이는 영업 악화가 아니라 지급 시점 차이다. 분기 현금흐름을 읽을 때 이 계절성을 걸러야 한다.",
+      "src": ["s1"]
+    },
+    {
+      "title": "인수 효과를 뺀 성장률",
+      "text": "3분기 매출 +34%, 주문 +28%에는 Deliveroo 인수 효과가 들어 있고, 이를 빼면 매출 +23%, 주문 +17%다. Instacart까지 붙으면 비교 기준이 또 바뀌므로, 기존 사업의 속도는 회사가 따로 주는 '인수 제외' 수치로 봐야 한다.",
+      "src": ["s1"]
+    },
+    {
+      "title": "조정 EBITDA와 GAAP의 간격",
+      "text": "3분기 조정 EBITDA 10.6억 달러는 GAAP 순이익 4.66억 달러의 두 배를 넘는다. 회사가 예상한 연간 주식보상비 약 12억 달러와 감가상각 약 12억 달러가 그 차이의 대부분이어서, 주식보상이 실제 주주 희석 비용이라는 점을 함께 봐야 한다.",
+      "src": ["s1"]
+    }
+  ],
+  "trading": {
+    "calendar": [
+      { "date": "2027-02 (추정, 회사 미확정)", "event": "Q4·FY2026 실적 (Q3는 2026-10-29 발표)", "src": ["s1"] },
+      { "date": "2027 말 ~ 2028 H1", "event": "Instacart 인수 완료 예정", "src": ["s1", "s2"] }
+    ],
+    "reaction": "주가는 GOV·주문 증가율과 다음 분기 조정 EBITDA 가이던스에 반응하는 경향이 있고, 인수 발표처럼 대형 자본 배분 소식이 겹치면 해석이 엇갈릴 수 있다.",
+    "conditions": [
+      "Deliveroo 제외 주문·GOV 증가율의 방향",
+      "다음 분기 조정 EBITDA 가이던스 중간값과 컨센서스 비교",
+      "Net Revenue Margin 변화",
+      "Instacart 인수 심사 관련 공시",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+  "unverified": [
+    "영업이익률·총마진 (보도자료 요약에서 확인 못 함)",
+    "광고 매출 금액",
+    "DashPass·Wolt+ 회원 수",
+    "Instacart 인수 대금의 현금·주식 구성, 기업가치, 브리지론 금액, 해지 수수료 (요약 출처에 없음)",
+    "자율 배송 투자 금액과 일정",
+    "Deliveroo 매출의 전년 비교",
+    "보도자료가 경쟁사를 이름으로 적지 않아 경쟁 구도의 회사명은 비워 둠",
+    "Q4 2026 실적 발표일"
+  ],
+  "confidence": "medium - 실적·가이던스·현금흐름은 회사 보도자료 원문에서 왔지만, Instacart 인수 조건은 8-K를 요약한 제3자 자료이고 경쟁사·광고 매출은 확인하지 못했다."
+}

@@ -1,0 +1,514 @@
+{
+  "symbol": "NOC",
+  "name": "Northrop Grumman Corporation",
+  "researchedAt": "2026-11-07",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "Northrop Grumman은 B-21 스텔스 폭격기와 Sentinel 대륙간탄도미사일, 비공개(restricted) 우주·레이더 사업을 맡은 미국 방산 회사로, 2026년 3분기 수주잔고가 1,096억 달러로 늘었다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Northrop Grumman Reports Third Quarter 2026 Financial Results (8-K exhibit; segment results, cash flow, 2026 guidance)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0001133421/000113342126000037/noc-09302026xearningsrelea.htm",
+      "publisher": "Northrop Grumman / SEC",
+      "date": "2026-10-20"
+    },
+    {
+      "id": "s2",
+      "kind": "10-K",
+      "title": "Lockheed Martin Form 10-K for fiscal year 2025 (competition section naming Northrop Grumman, RTX, General Dynamics, L3Harris, Boeing)",
+      "url": "https://www.sec.gov/Archives/edgar/data/936468/000162828026004195/lmt-20251231.htm",
+      "publisher": "Lockheed Martin / SEC",
+      "date": "2026-01-29"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "B-21 Raider - 미 공군 차세대 스텔스 폭격기, Aeronautics Systems 매출 증가 요인",
+      "Sentinel - 차세대 대륙간탄도미사일, 2026년 3분기 20억 달러 수주",
+      "비공개(restricted) 우주·공중 레이더 프로그램 - 3분기 수주 46억 달러",
+      "고체 로켓 모터와 GMLRS ER 추진체 생산"
+    ],
+    "text": "Northrop Grumman의 힘은 미국 핵 억지력과 비공개 국방 프로그램처럼 대체할 회사가 거의 없는 사업에 있다. B-21 폭격기와 Sentinel 대륙간탄도미사일은 수십 년 이어질 프로그램이고, 3분기 수주에서도 비공개 프로그램이 46억 달러로 가장 컸다. 이 사업들은 보안 인가와 전용 설비가 필요해 새 경쟁자가 들어오기 어렵다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "design": {
+    "text": "회사는 네 부문으로 보고한다. Aeronautics Systems는 B-21·B-2와 F-35 부품·유지보수, E-2 같은 항공기를, Defense Systems는 Sentinel·GMLRS ER·전술 고체 로켓 모터·무장을 맡는다. Mission Systems는 공중 레이더·해양 체계·첨단 마이크로전자를, Space Systems는 비공개 우주 프로그램과 상업 재보급(Commercial Resupply Service)을 맡는다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "고객에 장비 매각 - 3분기 조정 FCF에 3.71억 달러 장비 매각 대금 포함"
+    ],
+    "text": "무기 체계와 우주 장비는 대부분 자체 시설에서 개발·생산한다. 고체 로켓 모터처럼 다른 방산사가 쓰는 부품도 직접 만들어, 미사일 증산 시기에는 공급사 역할도 한다. 3분기에는 고객에게 장비를 팔아 3.71억 달러를 받아 현금흐름에 더했다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "미국 정부 - 사업의 상당 부분 (보도자료는 비율을 적지 않음)",
+      "미 공군 - B-21, Sentinel, B-2 유지보수",
+      "미 해군 - Virginia·Columbia급 잠수함 관련 3분기 14억 달러, E-2 10억 달러",
+      "F-35 프로그램 - 3분기 13억 달러 수주"
+    ],
+    "channel": "미국 정부와 직접 계약한다. F-35 관련 수주의 계약 경로(직접 또는 주계약자 경유)는 이 자료에서 확인하지 못했다.",
+    "concentration": "미국 정부 의존이 크다고만 밝히며 비율은 이 자료에서 확인하지 못했다.",
+    "text": "고객은 거의 미국 정부다. 3분기 순수주 164억 달러 가운데 비공개 프로그램 46억, Sentinel 20억, Virginia급 잠수함 14억, F-35 13억, E-2 10억 달러가 컸다. 그래서 실적은 국방 예산 중에서도 핵 현대화와 비공개 예산의 흐름에 묶인다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "미국 의회 (국방 예산 승인)",
+        "to": "미 공군·해군·우주군",
+        "what": "조달·연구개발 예산 배정"
+      },
+      {
+        "from": "미 공군·우주군",
+        "to": "Northrop Grumman",
+        "what": "B-21·Sentinel·비공개 우주 프로그램 계약 대금"
+      },
+      {
+        "from": "F-35 프로그램 (주계약 경로 미확인)",
+        "to": "Northrop Grumman",
+        "what": "F-35 관련 계약 대금 (3분기 수주 13억 달러)"
+      },
+      {
+        "from": "미 해군",
+        "to": "Northrop Grumman",
+        "what": "잠수함 장비·E-2 계약 대금"
+      }
+    ],
+    "pricing": "정부 계약은 원가가산과 고정가가 섞여 있고 매출은 원가 진행률로 인식한다. 원가가산 비중이 늘면 마진은 낮아지지만 위험도 줄고, 고정가에서 원가가 초과되면 손실 충당금을 쌓는다(2025년 B-21 손실 충당금 4.77억 달러).",
+    "text": "돈은 예산에서 각 군을 거쳐 회사로 온다. 3분기 Defense Systems 마진이 떨어진 이유로 회사는 원가가산 계약 비중 증가를 꼽았는데, 이는 Sentinel처럼 개발 단계 사업이 커질 때 나타나는 현상이다. 반대로 고정가인 B-21 초기 생산에서는 2025년 손실 충당금이 있었다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "earnings": {
+    "period": "Q3 2026 (2026-09-30 종료 분기)",
+    "revenue": {
+      "value": 11.122,
+      "unit": "USD bn",
+      "yoy": 7
+    },
+    "grossMargin": null,
+    "operatingMargin": 11.4,
+    "netMargin": 10.1,
+    "operatingCashFlow": {
+      "value": 1.745,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": 1.81,
+      "unit": "USD bn"
+    },
+    "segments": [
+      {
+        "name": "Aeronautics Systems",
+        "revenue": 3.575,
+        "unit": "USD bn",
+        "share": 32.1,
+        "yoy": 14,
+        "operatingMargin": 10.5,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Defense Systems",
+        "revenue": 2.307,
+        "unit": "USD bn",
+        "share": 20.7,
+        "yoy": 12,
+        "operatingMargin": 10.8,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Mission Systems",
+        "revenue": 3.155,
+        "unit": "USD bn",
+        "share": 28.4,
+        "yoy": 2,
+        "operatingMargin": 15.8,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Space Systems",
+        "revenue": 2.749,
+        "unit": "USD bn",
+        "share": 24.7,
+        "yoy": 2,
+        "operatingMargin": 11.3,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Intersegment eliminations (계산값)",
+        "revenue": -0.664,
+        "unit": "USD bn",
+        "share": -6.0,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "수주잔고(backlog)",
+        "value": "1,095.97억 달러 (2026-09-30), 2025년 말 956.81억 달러 대비 15% 증가",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "수주 대비 매출(book-to-bill)",
+        "value": "Q3 2026 1.5배, 순수주 164억 달러",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "부문 영업이익률",
+        "value": "Q3 2026 12.1% (부문 영업이익 13.45억 달러)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "9개월 누적 (YTD 2026)",
+        "value": "매출 318.79억(+5%), 영업이익 33.54억, 순이익 30.93억, 영업현금흐름 13.69억, 조정 FCF 9.65억 달러",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "text": "2026년 3분기 매출은 111.2억 달러로 7% 늘었고, 성장은 B-21·F-35·B-2 유지보수가 이끈 Aeronautics(+14%)와 Sentinel 증산의 Defense Systems(+12%)에서 나왔다. 마진은 Mission Systems가 15.8%로 가장 높아 이익의 가장 큰 몫(5.0억 달러)을 낸다. 성장은 항공·미사일 쪽에, 이익은 레이더·전자 쪽에 있는 구조다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "useOfCash": {
+    "period": "2026년 9개월 (2026-09-30까지)",
+    "items": [
+      {
+        "use": "dividends",
+        "value": 1.035,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "capex",
+        "value": 0.775,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "debt repayment",
+        "value": 0.527,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "buybacks",
+        "value": 0.068,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "text": "2026년 9개월 동안 배당 10.4억 달러, 설비 7.8억 달러, 부채 상환 5.3억 달러를 썼고, 자사주 매입은 0.7억 달러로 전년 같은 기간 11.7억 달러에서 크게 줄었다. 9개월 영업현금흐름이 13.7억 달러에 그쳐 현금이 4분기에 몰리는 해이기 때문이다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "aiChain": {
+    "layer": "limited",
+    "position": "AI 데이터센터 공급망 밖의 방산·우주 회사. 실적은 핵 현대화, 비공개 우주·레이더 예산, 미사일 추진체 수요에 달려 있다.",
+    "dependsOn": [
+      "미국 국방 예산과 의회 승인",
+      "비공개 프로그램 예산"
+    ],
+    "sellsTo": [
+      "미 공군·해군·우주군",
+      "F-35 프로그램"
+    ],
+    "aiRevenue": null,
+    "upside": "AI 관련 매출은 공시되지 않는다. 실적은 B-21·Sentinel 같은 대형 프로그램 증산에서 나온다.",
+    "risk": "AI가 직접 수요를 줄이는 경로는 확인되지 않는다.",
+    "text": "그래서 AI 가치사슬에서는 직접 연결이 적은 자리다. 이 회사의 기술 변화가 매출로 오는 길은 비공개 우주·레이더 프로그램과 첨단 마이크로전자 같은 국방 전자 분야지만, 보도자료는 그 내용을 공개하지 않는다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "전략·전술 미사일과 추진체",
+        "rivals": [
+          "Lockheed Martin",
+          "RTX",
+          "L3Harris"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s2",
+          "s1"
+        ]
+      },
+      {
+        "arena": "군용기 (폭격기·조기경보기)",
+        "rivals": [
+          "Boeing",
+          "Lockheed Martin"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s2",
+          "s1"
+        ]
+      },
+      {
+        "arena": "우주·레이더·전자전",
+        "rivals": [
+          "Lockheed Martin",
+          "L3Harris",
+          "RTX"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s2",
+          "s1"
+        ]
+      }
+    ],
+    "edge": "B-21·Sentinel 같은 장기 단독 프로그램과 비공개 프로그램 비중, 직접 만드는 고체 로켓 모터.",
+    "threats": "고정가 개발·초기 생산 계약의 원가 초과, 예산 지연, 미사일·우주 분야에서 Lockheed Martin·RTX·L3Harris와의 경쟁.",
+    "text": "경쟁은 프로그램 단위로 붙는다. Lockheed Martin 10-K가 Northrop Grumman을 RTX·L3Harris·General Dynamics·Boeing과 함께 주요 경쟁자로 적듯, 미사일·우주·전자 분야에서 같은 회사들이 서로 경쟁하고 협력한다. 이미 따낸 B-21과 Sentinel은 이 회사의 장기 지위를 받친다.",
+    "src": [
+      "s2",
+      "s1"
+    ]
+  },
+  "strategy": {
+    "goal": "2026년 매출 437.5~442.5억 달러, 부문 영업이익 49.4~50.4억 달러, MTM 조정 EPS 29.35~29.75달러, 조정 FCF 31~35억 달러 (2026-10).",
+    "roadmap": [
+      {
+        "when": "2026 Q4",
+        "what": "연간 조정 FCF 31~35억 달러 - 9개월 9.65억 달러로 4분기에 큰 현금 유입 필요",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2026",
+        "what": "부문별 전망: Aeronautics 약 140억, Defense 80억 중후반, Mission 120억 후반, Space 약 110억 달러",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "진행 중",
+        "what": "Sentinel 증산과 B-21 생산 확대",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "vision": "핵 억지력·비공개 우주·첨단 레이더라는 장기 국가 프로그램을 중심으로 잔고를 키우고 생산으로 전환하는 것.",
+    "text": "회사의 다음 수는 기록적인 잔고를 매출과 현금으로 바꾸는 것이다. 10월 전망에서 부문 영업이익과 EPS를 올렸지만 FCF 범위는 31~35억 달러로 유지했는데, 9개월 실적이 9.65억 달러여서 4분기 현금 회수가 연간 결과를 정한다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "governance": {
+    "line": "Kathy Warden이 회장·CEO·사장으로 이끌고, 2026년에는 자사주 매입을 크게 줄이고 배당과 부채 상환을 유지했다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "FY2026",
+        "metric": "sales",
+        "value": "437.5~442.5억 달러",
+        "givenOn": "2026-10-20",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "segment operating income",
+        "value": "49.4~50.4억 달러 (직전 48.5~50억)",
+        "givenOn": "2026-10-20",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "MTM-adjusted EPS",
+        "value": "29.35~29.75달러 (직전 28.60~29.10)",
+        "givenOn": "2026-10-20",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "adjusted free cash flow",
+        "value": "31~35억 달러",
+        "givenOn": "2026-10-20",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "style": "annual",
+    "track": "2026년 10월 이익 전망(부문 영업이익·EPS)을 올렸고 매출·FCF 범위는 이 자료에서 직전 값과 비교되지 않았다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "estimates": {
+    "text": null,
+    "src": []
+  },
+  "watch": {
+    "confirms": [
+      "4분기 현금 유입으로 연간 조정 FCF가 31~35억 달러 범위에 들어옴",
+      "Sentinel·B-21 증산으로 Aeronautics·Defense 매출이 두 자릿수 성장을 이어 감",
+      "book-to-bill이 1배를 넘어 잔고가 계속 늘어남"
+    ],
+    "breaks": [
+      "B-21 등 고정가 프로그램에서 새 손실 충당금이 나옴",
+      "4분기 현금 회수가 늦어 FCF가 범위 아래로 떨어짐",
+      "Mission Systems 마진이 계속 낮아짐"
+    ],
+    "keyNumbers": [
+      {
+        "name": "조정 FCF",
+        "why": "현금이 4분기에 몰리는 해"
+      },
+      {
+        "name": "수주잔고와 book-to-bill",
+        "why": "장기 매출의 크기"
+      },
+      {
+        "name": "부문 영업이익률",
+        "why": "원가가산 비중 변화와 손실 조정"
+      },
+      {
+        "name": "Aeronautics·Defense 성장률",
+        "why": "B-21·Sentinel 증산 속도"
+      }
+    ]
+  },
+  "debate": {
+    "question": "늘어난 잔고와 상향된 이익 전망이 4분기에 몰린 현금 회수로 확인되는지",
+    "bull": {
+      "text": "이야기가 유지된다고 보는 쪽은 3분기 book-to-bill이 1.5배, 잔고가 1,096억 달러로 연초보다 15% 늘었고 회사가 부문 영업이익과 EPS 전망을 올렸다는 점을 든다. Sentinel 20억, 비공개 프로그램 46억 달러 수주는 장기 매출을 받친다.",
+      "src": [
+        "s1"
+      ]
+    },
+    "bear": {
+      "text": "깨진다고 보는 쪽은 9개월 영업현금흐름이 13.7억 달러, 조정 FCF가 9.65억 달러뿐이고, 3분기 FCF에도 3.71억 달러 장비 매각 대금이 들어 있다는 점을 든다. Mission Systems 마진은 15.8%로 전년 16.7%보다 낮아졌다.",
+      "src": [
+        "s1"
+      ]
+    },
+    "decides": [
+      {
+        "when": "2027-01 하순 (추정, 회사 미확정) Q4·FY2026 실적",
+        "what": "연간 조정 FCF가 31~35억 달러 범위에 들어오는지와 2027 전망",
+        "src": [
+          "s1"
+        ]
+      }
+    ]
+  },
+  "underTheHood": [
+    {
+      "title": "현금이 4분기에 몰리는 해",
+      "text": "9개월 조정 FCF는 9.65억 달러인데 연간 전망은 31~35억 달러여서, 남은 한 분기에 21~25억 달러가 들어와야 한다. 3분기 FCF 18.1억 달러에도 3.71억 달러 장비 매각 대금이 섞여 있어, 반복되는 영업 현금과 일회성 현금을 나눠 봐야 한다.",
+      "src": [
+        "s1"
+      ]
+    },
+    {
+      "title": "원가가산이 마진을 낮춤",
+      "text": "Defense Systems 마진이 11.4%에서 10.8%로 내려간 이유로 회사는 원가가산 계약 비중 증가를 들었다. Sentinel 같은 개발 단계 사업이 커지면 위험은 정부가 더 지는 대신 마진은 낮아져, 매출 성장과 이익률이 반대로 움직일 수 있다.",
+      "src": [
+        "s1"
+      ]
+    },
+    {
+      "title": "보이지 않는 비공개 사업",
+      "text": "3분기 수주의 가장 큰 몫(46억 달러)이 비공개 프로그램이고 Space·Mission Systems 성장도 비공개 우주·레이더 사업에서 나왔다. 투자자는 이 프로그램의 내용과 마진을 따로 볼 수 없어, 부문 숫자로만 판단해야 한다.",
+      "src": [
+        "s1"
+      ]
+    }
+  ],
+  "trading": {
+    "calendar": [
+      {
+        "date": "2027-01 하순 (추정, 회사 미확정)",
+        "event": "Q4·FY2026 실적과 2027 전망 (Q3는 2026-10-20 발표)",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "reaction": "실적 발표에서는 연간 전망 변화, FCF, 프로그램 손실 충당금 유무, book-to-bill에 크게 반응하는 경향이 있다.",
+    "conditions": [
+      "연간 이익·FCF 전망이 상향·유지·하향 중 어느 쪽인지",
+      "누적 조정 FCF가 연간 범위 대비 어디까지 왔는지 (9개월 9.65억 달러)",
+      "B-21·Sentinel 관련 손실 조정 여부",
+      "book-to-bill과 잔고 증감"
+    ]
+  },
+  "unverified": [
+    "총마진 (회사가 매출총이익을 따로 보고하지 않음)",
+    "operatingMargin 11.4%는 GAAP 영업이익 기준; 부문 영업이익률은 12.1%",
+    "부문 매출 합과 연결 매출의 차이 -6.64억 달러는 계산값(부문 간 거래 제거)",
+    "freeCashFlow 18.1억 달러는 회사의 조정 FCF(장비 매각 대금 3.71억 포함)이며 영업현금흐름 17.45억보다 큼",
+    "미국 정부 매출 비중 (보도자료에 비율 없음, 10-K 미확인)",
+    "FY2025 연간 실적과 10-K 사업 설명",
+    "Virginia·Columbia급 잠수함 관련 수주의 계약 상대",
+    "F-35 관련 수주의 계약 경로와 품목",
+    "2026년 매출·FCF 전망의 직전 값",
+    "9개월 R&D 금액",
+    "컨센서스 추정치",
+    "Q4 2026 실적 발표일"
+  ],
+  "confidence": "medium - 분기 실적·부문·현금흐름·전망은 회사 보도자료에서 왔지만, 10-K의 고객 비중·사업 설명과 실적 콜 발언은 확인하지 못했다."
+}

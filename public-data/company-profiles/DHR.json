@@ -1,0 +1,235 @@
+{
+  "symbol": "DHR",
+  "name": "Danaher Corporation",
+  "researchedAt": "2026-11-07",
+  "fiscalYearEnd": "December (Q3 2026 ended 2026-09-25)",
+  "oneLine": "Danaher는 신약을 만드는 바이오 공정(Biotechnology), 연구실 장비(Life Sciences), 병원 진단(Diagnostics)에 장비와 소모품을 대는 생명과학 도구 회사로, 2026년 Masimo 인수로 병원 환자 모니터링까지 넓혔다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "Danaher Reports Third Quarter 2026 Results (Form 8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0000313616/000031361626000201/dhr-20261021xex991.htm", "publisher": "Danaher Corporation via SEC EDGAR", "date": "2026-10-21" },
+    { "id": "s2", "kind": "news", "title": "Danaher Completes Acquisition of Masimo", "url": "https://respiratory-therapy.com/products-treatment/industry-regulatory-news/business-news/danaher-completes-acquisition-of-masimo/", "publisher": "Respiratory Therapy", "date": "2026-06-12" },
+    { "id": "s3", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/dhr/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-11-07" }
+  ],
+
+  "moat": {
+    "sources": [
+      "바이오 공정·연구·진단 세 시장에 걸친 장비 설치 기반과 반복 구매",
+      "인수로 사업 묶음을 바꾸는 포트폴리오 운영 - 2026년 Masimo 99억 달러 인수",
+      "높은 현금 전환 - Q3 2026 영업현금흐름 18.9억, 잉여현금흐름 16.3억 달러"
+    ],
+    "text": "Danaher의 힘은 고객 공정과 실험실에 한 번 들어간 장비가 같은 회사의 소모품과 서비스를 계속 부르는 구조에서 나온다. Q3 2026 매출 65.5억 달러 가운데 잉여현금흐름이 16.3억 달러로 순이익보다 많았다. 이 현금으로 사업을 사들여 묶음을 바꾸는데, 2026년에는 병원용 환자 모니터링 회사 Masimo를 약 99억 달러에 인수했다.",
+    "src": ["s1", "s2"]
+  },
+
+  "design": {
+    "text": "회사는 세 부문으로 보고한다. Biotechnology는 바이오의약품 생산 공정용 제품, Life Sciences는 연구 장비와 시약, Diagnostics는 병원·검사실 진단 장비와 검사 소모품이다. Masimo는 펄스 옥시미터와 환자 모니터링 제품을 가진 회사로, Diagnostics 부문 안에서 독립 브랜드로 운영된다.",
+    "src": ["s1", "s2"]
+  },
+
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "Masimo - 2026년 인수, Diagnostics 부문 자회사로 펄스 옥시미터·환자 모니터링 공급"
+    ],
+    "text": "제품은 Danaher 산하 운영 회사들이 직접 만든다. 이번에 읽은 보도자료는 외부 위탁 생산자나 핵심 부품 공급사를 밝히지 않았다. 대신 설비투자는 Q3 2.6억 달러, 9개월 7.6억 달러로 매출 대비 작아, 생산 확장보다 인수가 성장의 큰 수단임이 드러난다.",
+    "src": ["s1", "s2"]
+  },
+
+  "sell": {
+    "customers": [
+      "바이오의약품 제조사 - Biotechnology 부문 공정 제품 (고객명 미공시)",
+      "제약·학계 연구소 - Life Sciences 장비·시약",
+      "병원·임상 검사실 - Diagnostics 검사, 호흡기 검사 2026년 약 15억 달러",
+      "병원 급성기 진료 - Masimo 환자 모니터링"
+    ],
+    "channel": "직접 판매와 서비스 조직 (채널 비중 미공시)",
+    "concentration": "고객별 비중 미공시",
+    "text": "이 제품들은 약을 만드는 회사, 연구소, 병원 검사실에 팔린다. 진단 쪽은 호흡기 감염 검사 수요에 크게 흔들리는데, 회사는 호흡기 검사 매출을 2025년 약 19억 달러에서 2026년 약 15억 달러로 본다. 그래서 회사도 '호흡기 검사 제외 코어 성장률'을 따로 낸다.",
+    "src": ["s1"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "환자·보험·제약 고객의 최종 수요", "to": "바이오의약품 제조사·병원 검사실·연구소", "what": "약 생산·검사·연구 예산" },
+      { "from": "바이오의약품 제조사", "to": "Danaher (Biotechnology)", "what": "생산 공정 소모품·장비 대금" },
+      { "from": "병원·검사실", "to": "Danaher (Diagnostics)", "what": "진단 장비와 검사 소모품, 환자 모니터링 대금" },
+      { "from": "연구소·제약 R&D", "to": "Danaher (Life Sciences)", "what": "연구 장비·시약 대금" }
+    ],
+    "pricing": "장비 판매와 반복 구매되는 소모품·서비스. 2026년에는 관세 환급을 고객에게 돌려준 것이 매출을 약 1%p 낮췄다.",
+    "text": "돈은 약 생산량, 검사 건수, 연구 예산에 따라 소모품 대금으로 반복해서 들어온다. Q3 2026 코어 매출 성장률은 3.0%였고 호흡기 검사를 빼면 5.5%였다. 관세 환급을 고객에게 넘긴 영향이 1.0%p 있었는데, Biotechnology에서는 그 영향이 4.0%p로 컸다.",
+    "src": ["s1"]
+  },
+
+  "earnings": {
+    "period": "Q3 2026 (quarter ended 2026-09-25)",
+    "revenue": { "value": 6.554, "unit": "USD bn", "yoy": 8.5 },
+    "grossMargin": 58.5,
+    "operatingMargin": 19.0,
+    "netMargin": 18.4,
+    "operatingCashFlow": { "value": 1.886, "unit": "USD bn" },
+    "freeCashFlow": { "value": 1.632, "unit": "USD bn" },
+    "segments": [
+      { "name": "Biotechnology", "revenue": null, "unit": "USD bn", "share": null, "yoy": 0.5, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Life Sciences", "revenue": null, "unit": "USD bn", "share": null, "yoy": 4.0, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Diagnostics", "revenue": null, "unit": "USD bn", "share": null, "yoy": 17.0, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "코어 매출 성장률", "value": "Q3 2026 3.0% (호흡기 검사 제외 5.5%); Biotechnology 5.0%, Life Sciences 4.5%, Diagnostics 0.5% (호흡기 제외 7.0%)", "src": ["s1"] },
+      { "name": "인수·처분 효과", "value": "Q3 2026 매출 성장에 +6.5%p (보도자료 표기 (6.5)%)", "src": ["s1"] },
+      { "name": "조정 EPS", "value": "Q3 2026 2.11달러 (+11.5%), GAAP 계속사업 1.71달러", "src": ["s1"] },
+      { "name": "호흡기 검사 매출", "value": "FY2025 약 19억 달러 → FY2026 전망 약 15억 달러 (Q4 약 4억)", "src": ["s1"] }
+    ],
+    "text": "Q3 2026 매출은 65.5억 달러로 8.5% 늘었지만, 대부분은 Masimo 같은 인수 효과였고 코어 성장률은 3.0%였다. 총마진은 약 58.5%, GAAP 영업이익률은 약 19.0%(계산값)였고 조정 EPS는 2.11달러로 11.5% 늘었다. 인수 무형자산 상각이 주당 0.73달러라 GAAP과 조정 이익의 차이가 크다.",
+    "src": ["s1"]
+  },
+
+  "useOfCash": {
+    "period": "9M 2026 (nine months ended 2026-09-25)",
+    "items": [
+      { "use": "capex", "value": 0.761, "unit": "USD bn", "src": ["s1"] },
+      { "use": "acquisitions", "value": 9.9, "unit": "USD bn", "src": ["s2"] },
+      { "use": "other", "label": "설비투자 외 투자활동 순유출 (Masimo 인수 포함, 계산값)", "value": 9.935, "unit": "USD bn", "src": ["s1"] },
+      { "use": "buybacks", "value": null, "unit": "USD bn", "src": [] },
+      { "use": "dividends", "value": null, "unit": "USD bn", "src": [] }
+    ],
+    "text": "2026년 현금의 가장 큰 쓰임은 Masimo 인수였다(발표 금액 99억 달러). 9개월 투자활동 순유출은 107.0억 달러였고 재무활동으로 70.6억 달러가 들어와, 인수 자금의 상당 부분을 차입으로 마련했다. 자사주 매입과 배당은 이번 보도자료에 나오지 않았다.",
+    "src": ["s1", "s2"]
+  },
+
+  "aiChain": {
+    "layer": "limited",
+    "position": "생명과학·진단 도구 회사로, 보도자료는 AI를 사업 위험 요인(개발·도입·사용의 불확실성)으로만 언급했다.",
+    "dependsOn": ["공개된 AI 의존 업체 없음"],
+    "sellsTo": ["AI를 팔지 않음 - 바이오의약품 제조사·병원·연구소"],
+    "aiRevenue": null,
+    "upside": "이번 원문에서 AI가 매출로 이어지는 경로는 공시되지 않았다.",
+    "risk": "보도자료는 AI의 개발·도입·사용 불확실성을 위험 요인으로 적었다.",
+    "text": "AI 가치사슬에서 Danaher는 직접 연결이 약하다. 실적을 움직이는 것은 바이오 공정 소모품 수요, 호흡기 검사 수요, 인수 효과다. AI 관련 매출이나 지출 수치는 공시되지 않았다.",
+    "src": ["s1"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "바이오 공정 제품", "rivals": ["다른 생명과학 도구 회사 (원문 미명시)"], "position": "leader", "share": null, "src": ["s1"] },
+      { "arena": "임상 진단·호흡기 검사", "rivals": ["다른 진단 회사 (원문 미명시)"], "position": "challenger", "share": null, "src": ["s1"] },
+      { "arena": "병원 환자 모니터링 (Masimo)", "rivals": ["다른 의료기기 회사 (원문 미명시)"], "position": "challenger", "share": null, "src": ["s2"] }
+    ],
+    "edge": "설치 기반에서 나오는 반복 매출과, 인수한 사업을 키우는 현금 창출력.",
+    "threats": "호흡기 검사 수요 감소, 관세 비용과 고객 환급, 인수 부채 부담.",
+    "text": "이번에 읽은 원문은 경쟁사를 이름으로 밝히지 않아 점유율은 판단하지 않는다. 확인되는 것은 Biotechnology 코어 성장(5.0%)이 회복 중이고 진단은 호흡기 검사 감소에 눌려 있다는 점이다. 시장 위치는 인수로 넓힌 진단·모니터링 쪽에서 새로 시험받는다.",
+    "src": ["s1", "s2"]
+  },
+
+  "strategy": {
+    "goal": "2026년 조정 EPS 8.57~8.62달러, 코어 매출 약 +2.5% (호흡기 제외 중간 한 자릿수).",
+    "roadmap": [
+      { "when": "2026-06", "what": "Masimo 인수 완료, Diagnostics 부문 편입", "src": ["s2"] },
+      { "when": "Q4 2026", "what": "코어 매출 약 +3%, 조정 영업이익률 약 29.5% 전망", "src": ["s1"] },
+      { "when": "FY2026", "what": "호흡기 검사 매출 약 15억 달러로 축소 전망", "src": ["s1"] }
+    ],
+    "vision": "CEO Julie Sawyer Montgomery는 'Danaher는 강한 기반을 쌓았다'고 말하며, 진단·급성기 진료로 넓힌 포트폴리오를 키우는 그림을 보인다.",
+    "text": "회사는 바이오 공정의 회복을 바탕으로 하고, 인수한 Masimo로 병원 급성기 진료 시장을 넓힌다. Q4 전망은 Biotechnology 중간 한 자릿수 성장, Diagnostics 소폭 성장이다. 연간 조정 EPS 전망은 8.45~8.60달러에서 8.57~8.62달러로 좁히며 올렸다.",
+    "src": ["s1", "s2"]
+  },
+
+  "governance": {
+    "line": "Masimo 인수 당시 진단 부문 EVP였던 Julie Sawyer Montgomery가 사장 겸 CEO로 회사를 이끌며, 인수 자금을 차입으로 조달해 2026년 자본 배분은 인수 쪽에 무게가 실렸다.",
+    "src": ["s1", "s2"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "adjusted diluted EPS", "value": "8.57~8.62달러 (직전 8.45~8.60)", "givenOn": "2026-10-21", "src": ["s1"] },
+      { "period": "FY2026", "metric": "core sales growth", "value": "약 +2.5% (호흡기 제외 중간 한 자릿수)", "givenOn": "2026-10-21", "src": ["s1"] },
+      { "period": "Q4 2026", "metric": "core sales growth / adjusted operating margin", "value": "약 +3.0% (호흡기 제외 +4~5%) / 약 29.5%", "givenOn": "2026-10-21", "src": ["s1"] }
+    ],
+    "style": "quarterly",
+    "track": "Q3 조정 EPS 2.11달러는 컨센서스 1.92달러를 넘었고(AIO 스냅샷), 회사는 '예상보다 좋은' 분기라고 밝히며 연간 EPS 범위 하단을 올렸다.",
+    "src": ["s1", "s3"]
+  },
+
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-11-07, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) EPS 합계 9.10달러(범위 8.92~9.30), 직전 4개 분기 8.34달러. 최근 4주 상향 9건·하향 7건.",
+    "src": ["s3"]
+  },
+
+  "watch": {
+    "confirms": [
+      "호흡기 제외 코어 성장률이 4~5%대 유지",
+      "Biotechnology 코어 성장률이 중간 한 자릿수 이상",
+      "Q4 조정 영업이익률 약 29.5% 달성",
+      "Masimo 편입 뒤 Diagnostics 호흡기 제외 성장 유지"
+    ],
+    "breaks": [
+      "호흡기 검사 매출이 전망(연 15억 달러)보다 더 줄어듦",
+      "Biotechnology 코어 성장 재둔화",
+      "관세 비용·고객 환급 확대",
+      "인수 부채로 이자비용이 전망(연 약 3.05억 달러)을 넘음"
+    ],
+    "keyNumbers": [
+      { "name": "코어 매출 성장률 (호흡기 제외)", "why": "인수 효과를 뺀 본업 수요" },
+      { "name": "Biotechnology 코어 성장률", "why": "바이오 공정 회복의 직접 지표" },
+      { "name": "호흡기 검사 매출", "why": "진단 실적 변동의 가장 큰 원인" },
+      { "name": "잉여현금흐름", "why": "인수 부채 상환 여력" }
+    ]
+  },
+
+  "debate": {
+    "question": "호흡기 검사 감소와 인수 효과를 걷어낸 본업 성장이 중간 한 자릿수로 이어지는지",
+    "bull": {
+      "text": "강세로 보는 쪽은 호흡기 검사를 뺀 Q3 코어 성장률이 5.5%였고 Biotechnology 코어가 5.0% 늘었다는 점을 든다. 조정 EPS 2.11달러는 컨센서스 1.92달러를 넘었고 연간 EPS 전망 하단도 8.57달러로 올랐다.",
+      "src": ["s1", "s3"]
+    },
+    "bear": {
+      "text": "약세로 보는 쪽은 보고 매출 +8.5% 중 인수 효과가 6.5%p이고 전체 코어 성장률은 3.0%에 그쳤다는 점을 짚는다. 호흡기 검사 매출은 연 19억에서 15억 달러로 줄고, Masimo 인수로 9개월 재무활동 순유입 70.6억 달러가 생겨 이자 부담이 늘었다.",
+      "src": ["s1", "s2"]
+    },
+    "decides": [
+      { "when": "Q4 2026 실적 (2027-01 예상, 회사 미확정)", "what": "호흡기 제외 코어 성장률 4~5%와 조정 영업이익률 약 29.5% 달성 여부", "src": ["s1"] },
+      { "when": "2027 연간 전망 발표", "what": "Biotechnology 중간 한 자릿수 성장이 다음 해로 이어지는지", "src": ["s1"] }
+    ]
+  },
+
+  "underTheHood": [
+    {
+      "title": "보고 성장과 코어 성장의 차이",
+      "text": "Q3 매출은 8.5% 늘었지만 인수·처분 효과가 6.5%p를 차지해 코어 성장률은 3.0%였다. Diagnostics는 보고 17.0%, 코어 0.5%로 차이가 가장 크다. 인수가 많은 회사라 헤드라인 성장률보다 코어 숫자를 먼저 읽어야 한다.",
+      "src": ["s1"]
+    },
+    {
+      "title": "관세 환급이 매출을 깎는다",
+      "text": "관세 환급을 고객에게 돌려준 것이 Q3 매출을 1.0%p, Biotechnology를 4.0%p 낮췄다. Biotechnology 보고 성장률 0.5%와 코어 5.0%의 차이가 여기서 나온다. 일회성 성격인지는 원문에 없어, 다음 분기에도 반복되는지 봐야 한다.",
+      "src": ["s1"]
+    },
+    {
+      "title": "상각이 만드는 이익 간극",
+      "text": "Q3 GAAP 계속사업 EPS는 1.71달러, 조정 EPS는 2.11달러였고 인수 무형자산 상각만 주당 0.73달러였다. 연간 상각 전망은 약 19억 달러다. 인수를 거듭할수록 이 간극이 커지므로 현금흐름(9개월 FCF 39.8억 달러)과 함께 봐야 한다.",
+      "src": ["s1"]
+    }
+  ],
+
+  "trading": {
+    "calendar": [
+      { "date": "2027-01 하순 (추정, 회사 미확정)", "event": "Q4·FY2026 실적과 2027 전망", "src": [] }
+    ],
+    "reaction": "실적 발표 때는 헤드라인 매출보다 코어 성장률(특히 Biotechnology)과 연간 EPS 범위 변경이 함께 읽힌다.",
+    "conditions": [
+      "호흡기 제외 코어 성장률",
+      "Biotechnology 코어 성장률과 관세 환급 영향",
+      "연간 조정 EPS 범위 변화",
+      "Masimo 편입 뒤 Diagnostics 성장",
+      "컨센서스 EPS 상향·하향 건수"
+    ]
+  },
+
+  "unverified": [
+    "부문별 매출 금액과 부문 영업이익률 (보도자료는 성장률만 공시)",
+    "보고 매출 성장률 8.5%는 보도자료 표기 - 표의 금액으로 계산하면 약 8.3%",
+    "총마진 58.5%·영업이익률 19.0%·순이익률 18.4%(계속사업)는 보도자료 금액으로 계산한 값",
+    "Masimo 인수 완료 날짜와 주당 가격 (기사는 2026-06-12 완료 보도, 발표 금액 99억 달러만 확인)",
+    "9개월 투자활동 중 인수 금액 (설비투자 외 순유출 99.35억 달러는 계산값)",
+    "자사주 매입·배당 금액",
+    "주요 고객·공급사·경쟁사 이름과 점유율",
+    "Julie Sawyer Montgomery의 CEO 취임 시점"
+  ],
+  "confidence": "medium - 분기 수치와 전망은 회사 8-K 보도자료에서 직접 왔지만, 부문 금액·자본 환원·경쟁 구도는 원문에 없었다."
+}

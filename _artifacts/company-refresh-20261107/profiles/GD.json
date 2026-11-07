@@ -1,0 +1,204 @@
+{
+  "symbol": "GD",
+  "name": "General Dynamics Corporation",
+  "researchedAt": "2026-11-07",
+  "fiscalYearEnd": "December 31 (분기는 회계 달력 기준; Q3 2026은 2026-10-04 종료)",
+  "oneLine": "General Dynamics는 Gulfstream 비즈니스 제트기와 Virginia·Columbia급 핵잠수함을 함께 만드는 회사로, 2026년 3분기 잠수함 대형 수주로 수주잔고가 2,203억 달러까지 뛰었다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "General Dynamics Reports Third-Quarter 2026 Financial Results (segment results, backlog, Gulfstream deliveries, cash flow)", "url": "https://finviz.com/news/412441/general-dynamics-reports-third-quarter-2026-financial-results", "publisher": "General Dynamics via Finviz (press release text)", "date": "2026-10-21" },
+    { "id": "s2", "kind": "10-K", "title": "Lockheed Martin Form 10-K for fiscal year 2025 (competition section naming General Dynamics, RTX, Northrop Grumman, L3Harris, Boeing)", "url": "https://www.sec.gov/Archives/edgar/data/936468/000162828026004195/lmt-20251231.htm", "publisher": "Lockheed Martin / SEC", "date": "2026-01-29" }
+  ],
+  "moat": {
+    "sources": [
+      "Virginia·Columbia급 핵잠수함 건조 - 3분기 국방 수주 938억 달러의 중심",
+      "Gulfstream 대형 객실 비즈니스 제트기 - 3분기 인도 40대 중 대형 35대",
+      "수주잔고 2,203억 달러와 잠재 계약가치 503억 달러 (총 추정 계약가치 2,707억 달러)",
+      "네 부문의 분산 - 비즈니스 항공, 조선, 지상 전투체계, IT·임무 체계"
+    ],
+    "text": "General Dynamics의 힘은 미 해군 핵잠수함처럼 건조할 수 있는 조선소가 극히 적은 사업과, 대형 비즈니스 제트기 시장의 Gulfstream 브랜드를 함께 가진 데서 나온다. 잠수함은 한 척에 수년이 걸리는 장기 계약이어서 3분기 한 분기에만 국방 수주 938억 달러가 들어왔다. 상업 항공(Gulfstream)과 국방이 서로 다른 경기에 반응해 실적을 분산한다.",
+    "src": ["s1"]
+  },
+  "design": {
+    "text": "회사는 네 부문으로 보고한다. Aerospace는 Gulfstream 비즈니스 제트기 생산과 정비 서비스를, Marine Systems는 Virginia·Columbia급 잠수함과 수상함을 건조한다. Combat Systems는 지상 전투차량·무기·탄약을, Technologies는 정부 대상 IT 서비스와 임무 체계를 맡는다.",
+    "src": ["s1"]
+  },
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "자체 조선소·공장 - 잠수함과 Gulfstream 항공기를 직접 건조·조립 (시설 세부는 이 자료에서 미확인)"
+    ],
+    "text": "잠수함과 비즈니스 제트기 모두 자체 조선소와 공장에서 만든다. 그래서 실적은 수요보다 생산 속도에 더 좌우되고, Marine Systems 마진(7.9%)이 다른 부문보다 낮은 것도 대형 건조 사업의 원가 구조를 보여 준다. 3분기 Marine 매출은 21.1% 늘어 생산이 빨라지고 있다.",
+    "src": ["s1"]
+  },
+  "sell": {
+    "customers": [
+      "미 해군 - Virginia·Columbia급 잠수함 (3분기 대형 수주)",
+      "미국 정부 각 기관 - Combat Systems·Technologies 고객",
+      "기업·개인 비즈니스 제트기 구매자 - Gulfstream 3분기 수주 50억 달러"
+    ],
+    "channel": "국방은 미국 정부와 직접 계약, Gulfstream은 기업·개인 고객에게 직접 판매하고 정비 서비스를 제공한다.",
+    "concentration": "3분기 수주 988억 달러 중 국방 부문이 938억 달러. 미국 정부 매출 비중은 이 자료에서 확인하지 못했다.",
+    "text": "고객은 미 해군을 중심으로 한 미국 정부와 Gulfstream을 사는 부유층·기업으로 나뉜다. 3분기에는 잠수함 계약으로 국방 book-to-bill이 8.5배까지 올랐고, Aerospace도 1.4배로 주문이 인도보다 많았다.",
+    "src": ["s1"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "미국 의회 (조선 예산 승인)", "to": "미 해군", "what": "잠수함 건조 예산 배정" },
+      { "from": "미 해군", "to": "General Dynamics Marine Systems", "what": "Virginia·Columbia급 잠수함 건조 계약 대금 (진행률 인식)" },
+      { "from": "미국 정부 각 기관", "to": "General Dynamics Combat Systems·Technologies", "what": "전투차량·탄약, IT 서비스 계약 대금" },
+      { "from": "기업·개인 고객", "to": "Gulfstream (General Dynamics Aerospace)", "what": "항공기 대금(계약금과 인도 시 잔금)과 정비 서비스 요금" }
+    ],
+    "pricing": "국방 계약은 정부 계약 방식(고정가·원가가산)이고 장기 건조 사업은 진행률로 매출을 인식한다. Gulfstream은 항공기를 대당 판매하고 정비 서비스로 추가 매출을 얻는다.",
+    "text": "돈은 두 갈래로 들어온다. 잠수함 대금은 해군 조선 예산에서 건조 진행에 따라 들어오고, Gulfstream 대금은 고객이 주문할 때와 인도받을 때 나뉘어 들어온다. 3분기 영업현금흐름 17.1억 달러는 순이익의 139%로, 현금 회수가 이익보다 빨랐다.",
+    "src": ["s1"]
+  },
+  "earnings": {
+    "period": "Q3 2026 (2026-10-04 종료 분기)",
+    "revenue": { "value": 14.566, "unit": "USD bn", "yoy": 12.9 },
+    "grossMargin": null,
+    "operatingMargin": 10.5,
+    "netMargin": 8.4,
+    "operatingCashFlow": { "value": 1.710, "unit": "USD bn" },
+    "freeCashFlow": { "value": 1.229, "unit": "USD bn" },
+    "segments": [
+      { "name": "Aerospace", "revenue": 3.536, "unit": "USD bn", "share": 24.3, "yoy": 9.3, "operatingMargin": 14.5, "src": ["s1"] },
+      { "name": "Marine Systems", "revenue": 4.960, "unit": "USD bn", "share": 34.1, "yoy": 21.1, "operatingMargin": 7.9, "src": ["s1"] },
+      { "name": "Combat Systems", "revenue": 2.386, "unit": "USD bn", "share": 16.4, "yoy": 6.0, "operatingMargin": 13.8, "src": ["s1"] },
+      { "name": "Technologies", "revenue": 3.684, "unit": "USD bn", "share": 25.3, "yoy": 10.8, "operatingMargin": 9.4, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "수주잔고와 총 추정 계약가치", "value": "잔고 2,203.4억 달러, 잠재 계약가치 503.3억, 총 추정 계약가치 2,706.7억 달러 (2026-10-04)", "src": ["s1"] },
+      { "name": "수주 대비 매출(book-to-bill)", "value": "Q3 2026 전사 6.8배, 국방 부문 8.5배, Aerospace 1.4배. 수주 988억 달러(국방 938억, Aerospace 50억)", "src": ["s1"] },
+      { "name": "Gulfstream 인도", "value": "Q3 2026 40대(대형 35, 중형 5), 9개월 119대(대형 101, 중형 18)", "src": ["s1"] },
+      { "name": "9개월 누적 (YTD 2026)", "value": "매출 421.41억(+10.4%), 영업이익 44.07억(마진 10.5%), 순이익 35.14억, 영업현금흐름 57.45억, FCF 48.27억 달러", "src": ["s1"] }
+    ],
+    "text": "2026년 3분기 매출은 145.7억 달러로 12.9% 늘었고 네 부문 모두 성장했다. 가장 큰 부문은 잠수함의 Marine Systems(34.1%, +21.1%)지만 마진은 7.9%로 가장 낮고, 마진이 가장 높은 곳은 Gulfstream의 Aerospace(14.5%)다. 매출은 조선이, 이익률은 비즈니스 제트기가 이끄는 구조다.",
+    "src": ["s1"]
+  },
+  "useOfCash": {
+    "period": "2026년 9개월 (2026-10-04까지)",
+    "items": [
+      { "use": "dividends", "value": 1.263, "unit": "USD bn", "src": ["s1"] },
+      { "use": "capex", "value": 0.918, "unit": "USD bn", "src": ["s1"] },
+      { "use": "buybacks", "value": 0.604, "unit": "USD bn", "src": ["s1"] }
+    ],
+    "text": "2026년 9개월 FCF 48.3억 달러 가운데 배당에 12.6억, 자사주 매입에 6.0억 달러를 썼고 설비투자는 9.2억 달러였다. 다른 대형 방산사들이 자사주 매입을 거의 멈춘 해에도 매입을 이어 간 점이 다르다.",
+    "src": ["s1"]
+  },
+  "aiChain": {
+    "layer": "limited",
+    "position": "AI 데이터센터 공급망 밖의 조선·비즈니스 항공·방산 회사. 실적은 해군 조선 예산과 비즈니스 제트기 수요에 달려 있다.",
+    "dependsOn": ["미 해군 조선 예산", "비즈니스 제트기 수요 (기업 이익·부유층 자산)"],
+    "sellsTo": ["미 해군·미국 정부", "Gulfstream 구매 기업·개인"],
+    "aiRevenue": null,
+    "upside": "AI 관련 매출은 공시되지 않는다. Technologies 부문의 정부 IT 서비스가 AI 도입 수요와 닿을 수 있지만 금액은 확인되지 않았다.",
+    "risk": "AI가 직접 수요를 줄이는 경로는 확인되지 않는다.",
+    "text": "그래서 AI 가치사슬에서는 직접 연결이 적은 자리다. 이 회사의 성장은 잠수함 건조 속도와 Gulfstream 인도량에서 나온다.",
+    "src": ["s1"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "핵잠수함·함정 건조", "rivals": ["미국 내 다른 조선사 (이 자료에서 이름 미확인)"], "position": "leader", "share": null, "src": ["s1"] },
+      { "arena": "지상 전투체계·정부 IT", "rivals": ["Lockheed Martin", "Northrop Grumman", "L3Harris", "RTX"], "position": "challenger", "share": null, "src": ["s2"] },
+      { "arena": "대형 비즈니스 제트기", "rivals": ["다른 비즈니스 제트기 제작사 (이 자료에서 이름 미확인)"], "position": "leader", "share": null, "src": ["s1"] }
+    ],
+    "edge": "핵잠수함 건조 능력과 Gulfstream 대형 객실 제트기 라인업, 네 부문 분산.",
+    "threats": "조선소 인력·공급망 제약으로 건조 일정이 밀리면 Marine 마진이 압박받고, 경기 둔화 시 비즈니스 제트기 수요가 줄 수 있다.",
+    "text": "국방 IT·지상 체계에서는 Lockheed Martin 10-K가 General Dynamics를 RTX·Northrop Grumman·L3Harris·Boeing과 함께 경쟁자로 적는다. 잠수함은 건조 가능한 조선소가 적어 경쟁보다 생산 능력이 문제이고, Gulfstream은 대형 객실 시장에서 인도량으로 지위를 확인한다.",
+    "src": ["s2", "s1"]
+  },
+  "strategy": {
+    "goal": "잔고 2,203억 달러를 생산으로 바꾸고, Marine 마진을 개선하며 Gulfstream 인도를 늘리는 것 (이 자료에 2026 수치 가이던스 없음).",
+    "roadmap": [
+      { "when": "2026 Q4", "what": "Gulfstream 인도 계속 - 9개월 119대", "src": ["s1"] },
+      { "when": "다년", "what": "Virginia·Columbia급 잠수함 대형 계약 생산", "src": ["s1"] }
+    ],
+    "vision": "회사는 네 부문 모두의 성장을 바탕으로 앞으로 몇 년간 성과를 이어 가겠다고 밝혔다.",
+    "text": "회사의 다음 수는 3분기에 쌓인 잠수함 잔고를 꾸준한 건조 매출로 바꾸는 것이다. Marine 매출이 이미 21% 늘었으므로, 이제는 생산이 빨라질 때 마진이 7.9%에서 얼마나 오르는지가 이익 성장을 정한다.",
+    "src": ["s1"]
+  },
+  "governance": {
+    "line": "Phebe Novakovic이 회장 겸 CEO로 이끌고, 2026년에도 배당과 자사주 매입을 함께 이어 가고 있다.",
+    "src": ["s1"]
+  },
+  "guidance": {
+    "latest": [],
+    "style": "annual",
+    "track": "이번 보도자료 본문에는 2026년 수치 전망이 없어 직전 전망과 비교하지 못했다.",
+    "src": ["s1"]
+  },
+  "estimates": { "text": null, "src": [] },
+  "watch": {
+    "confirms": [
+      "Marine Systems 매출 성장과 함께 마진이 오름",
+      "Gulfstream 인도량과 Aerospace book-to-bill 1배 이상 유지",
+      "영업현금흐름이 순이익을 웃도는 흐름 유지"
+    ],
+    "breaks": [
+      "조선소 생산 지연이나 원가 초과로 Marine 마진이 떨어짐",
+      "비즈니스 제트기 수주가 인도보다 줄어듦",
+      "Combat Systems 마진 하락이 이어짐 (3분기 13.8%, 전년 14.9%)"
+    ],
+    "keyNumbers": [
+      { "name": "Marine Systems 마진", "why": "가장 큰 부문의 수익성" },
+      { "name": "Gulfstream 인도 대수와 Aerospace book-to-bill", "why": "비즈니스 제트기 수요" },
+      { "name": "수주잔고", "why": "잠수함 장기 계약의 크기" },
+      { "name": "현금 전환율", "why": "이익이 현금으로 들어오는지" }
+    ]
+  },
+  "debate": {
+    "question": "사상 최대 잠수함 잔고가 낮은 조선 마진을 넘어 이익 성장으로 이어지는지",
+    "bull": {
+      "text": "이야기가 유지된다고 보는 쪽은 3분기 국방 book-to-bill이 8.5배, 잔고가 2,203억 달러로 뛰었고 Marine 매출이 21.1% 늘며 마진도 7.1%에서 7.9%로 올랐다는 점을 든다. 영업현금흐름은 순이익의 139%였다.",
+      "src": ["s1"]
+    },
+    "bear": {
+      "text": "깨진다고 보는 쪽은 가장 큰 부문인 Marine 마진이 7.9%로 Aerospace 14.5%의 절반 수준이어서, 매출 구성이 조선으로 옮겨 갈수록 전사 마진이 크게 오르기 어렵다는 점을 든다. Combat Systems 영업이익은 1.5% 줄었고 Technologies 마진도 9.8%에서 9.4%로 낮아졌다.",
+      "src": ["s1"]
+    },
+    "decides": [
+      { "when": "2027-01 하순 (추정, 회사 미확정) Q4·FY2026 실적", "what": "2027 전망에서 Marine 마진과 Gulfstream 인도 계획이 어떻게 제시되는지", "src": ["s1"] }
+    ]
+  },
+  "underTheHood": [
+    {
+      "title": "매출은 조선, 마진은 제트기",
+      "text": "3분기 매출의 34.1%가 Marine Systems지만 마진은 7.9%이고, 매출 24.3%인 Aerospace가 마진 14.5%로 가장 큰 영업이익(5.13억 달러)을 냈다. 잠수함 매출이 빨리 늘수록 전사 마진은 희석되므로, 매출 성장률과 이익률을 따로 봐야 한다.",
+      "src": ["s1"]
+    },
+    {
+      "title": "한 분기에 들어온 다년 잔고",
+      "text": "3분기 수주 988억 달러는 분기 매출의 6.8배로, 여러 해에 걸쳐 건조할 잠수함 계약이 한 번에 잡힌 결과다. 잔고 급증이 곧 내년 매출 급증을 뜻하지 않고, 건조 속도에 따라 수년에 나눠 매출이 된다.",
+      "src": ["s1"]
+    },
+    {
+      "title": "경기를 타는 Gulfstream",
+      "text": "국방 세 부문과 달리 Aerospace는 기업·개인 고객이 사는 비즈니스 제트기여서 경기와 자산 시장에 반응한다. 3분기 Aerospace book-to-bill 1.4배는 주문이 인도보다 많다는 신호지만, 이 부문이 전사 이익의 가장 큰 몫이라 수요 변화가 이익에 크게 닿는다.",
+      "src": ["s1"]
+    }
+  ],
+  "trading": {
+    "calendar": [
+      { "date": "2027-01 하순 (추정, 회사 미확정)", "event": "Q4·FY2026 실적과 2027 전망 (Q3는 2026-10-21 발표)", "src": ["s1"] }
+    ],
+    "reaction": "실적 발표에서는 Gulfstream 인도·수주, Marine 마진, 연간 전망에 크게 반응하는 경향이 있다.",
+    "conditions": [
+      "Marine Systems 마진의 방향",
+      "Gulfstream 인도 대수와 Aerospace book-to-bill",
+      "연간 전망 제시 여부와 변화",
+      "현금 전환율"
+    ]
+  },
+  "unverified": [
+    "총마진 (회사가 매출총이익을 따로 보고하지 않음)",
+    "2026년 연간 가이던스와 그 변화 (s1 본문에 없음)",
+    "미국 정부 매출 비중과 FY2025 10-K 사업 설명",
+    "잠수함 계약 금액과 건조 척수",
+    "조선·비즈니스 제트기 시장의 경쟁사 이름과 점유율",
+    "Q3 보도자료 정확한 발표일 (finviz 게재일 기준 2026-10-21로 둠)",
+    "9개월 R&D·부채 상환 금액",
+    "컨센서스 추정치",
+    "Q4 2026 실적 발표일"
+  ],
+  "confidence": "medium - 분기 실적·부문·잔고·현금 사용은 회사 보도자료 본문(Finviz 게재본)에서 왔지만, 연간 가이던스와 10-K의 고객·경쟁 내용은 확인하지 못했다."
+}

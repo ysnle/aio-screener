@@ -1,0 +1,242 @@
+{
+  "symbol": "DIS",
+  "name": "The Walt Disney Company",
+  "researchedAt": "2026-11-07",
+  "fiscalYearEnd": "Fiscal year ending around early October (FY2026 is a 53-week year; Q3 FY2026 ended 2026-06-27)",
+  "oneLine": "Disney는 테마파크·크루즈(Experiences), 영화·Disney+·Hulu(Entertainment), ESPN(Sports)을 가진 미디어·여가 회사로, 지금은 이익의 절반 이상을 테마파크가 벌고 스트리밍이 흑자로 올라선 단계에 있다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "The Walt Disney Company Reports Third Quarter and Nine Months Earnings for Fiscal 2026 (Form 8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0001744489/000174448926000056/fy2026_q3xerxex991.htm", "publisher": "The Walt Disney Company via SEC EDGAR", "date": "2026-08-05" },
+    { "id": "s2", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/dis/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-11-07" }
+  ],
+
+  "moat": {
+    "sources": [
+      "테마파크·크루즈 자산 - Experiences 분기 영업이익 30.2억 달러, 9개월 마진 약 30%",
+      "캐릭터·영화 IP를 테마파크·상품·스트리밍에 반복 사용 - Consumer Products 영업이익 +26%",
+      "ESPN 스포츠 중계 - Sports 구독·제휴 수수료 31.4억 달러",
+      "스트리밍 규모 - Disney+·Hulu SVOD 매출 55.3억 달러"
+    ],
+    "text": "Disney의 힘은 하나의 캐릭터·영화 IP를 영화, 스트리밍, 테마파크, 상품에서 여러 번 파는 구조다. Q3 FY2026에 Experiences 영업이익은 30.2억 달러로 전체 부문 영업이익 55.6억 달러의 절반을 넘었다. 스트리밍(SVOD) 영업이익도 7.12억 달러로 전년 3.29억 달러의 두 배가 넘었다.",
+    "src": ["s1"]
+  },
+
+  "design": {
+    "text": "회사는 세 부문으로 보고한다. Entertainment는 방송·케이블 채널, Disney+·Hulu 스트리밍, 영화·콘텐츠 판매, Sports는 ESPN, Experiences는 미국·해외 테마파크와 리조트, 크루즈, 상품(Consumer Products)이다. Experiences 안에서 미국 테마파크가 매출 71.2억 달러로 가장 크다.",
+    "src": ["s1"]
+  },
+
+  "make": {
+    "model": "asset-owner",
+    "partners": [
+      "Hearst - ESPN 지분 18% 보유, A+E 지분 50%를 약 12억 달러에 Disney로부터 인수 합의",
+      "NFL - 2026-01 ESPN에 NFL Network 등을 넘기고 ESPN 지분 10% 취득",
+      "Fubo - 2025-10 Hulu Live TV와 결합, Disney 70% 보유",
+      "TikTok - 크리에이터 콘텐츠를 Disney+ Verts에 공급하는 새 계약"
+    ],
+    "text": "Disney는 테마파크·크루즈선·스튜디오를 소유하고, 스포츠 사업은 파트너 지분과 섞여 있다. ESPN은 Disney 72%, Hearst 18%, NFL 10%로 나뉘고, Hulu Live TV는 Fubo와 합쳐 Disney가 70%를 갖는다. 2026년 7월에는 A+E 지분 50%를 Hearst에 약 12억 달러에 팔기로 하고 8.12억 달러를 손상 처리했다.",
+    "src": ["s1"]
+  },
+
+  "sell": {
+    "customers": [
+      "테마파크·크루즈 방문객 - 세계 방문객 +4%, 미국 입장객 +3% (Q3)",
+      "스트리밍 가입자 - Disney+·Hulu SVOD 매출 55.3억 달러 (+11%)",
+      "유료 방송 사업자 - 구독·제휴 수수료 (Entertainment 75.5억, Sports 31.4억 달러)",
+      "광고주 - Entertainment 16.3억 (-1%), Sports 12.0억 달러 (+5%)",
+      "MLB, FOX One, The CW Network - ESPN 유통 협력"
+    ],
+    "channel": "테마파크·크루즈 직접 판매, 스트리밍 직접 구독, 유료 방송 사업자 제휴, 광고 판매, 극장 배급",
+    "concentration": "고객별 비중 미공시",
+    "text": "돈을 내는 사람은 테마파크 방문객, 스트리밍 가입자, 유료 방송 사업자, 광고주다. 크루즈는 Disney Destiny와 Disney Adventure 취항으로 객실 수가 약 50% 늘었다. 광고 매출은 Entertainment에서 1% 줄어, 회사는 4분기 광고 환경이 약하다고 밝혔다.",
+    "src": ["s1"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "방문객·크루즈 승객", "to": "Disney (Experiences)", "what": "입장료·숙박·식음료·상품 (Q3 99.7억 달러)" },
+      { "from": "스트리밍 가입자", "to": "Disney (Entertainment SVOD)", "what": "Disney+·Hulu 월 구독료 (55.3억 달러)" },
+      { "from": "유료 방송 사업자", "to": "Disney (Entertainment·Sports)", "what": "채널 제휴 수수료" },
+      { "from": "광고주", "to": "Disney (Entertainment·Sports)", "what": "방송·스트리밍 광고비" },
+      { "from": "Disney", "to": "주주", "what": "9개월 자사주 72.5억, 배당 13.4억 달러" }
+    ],
+    "pricing": "테마파크 입장료·객단가, 스트리밍 월 구독료와 광고, 채널 제휴 수수료, 콘텐츠 라이선스.",
+    "text": "현금의 가장 큰 원천은 테마파크와 크루즈다. 스트리밍은 SVOD 영업이익 7.12억 달러로 흑자 폭을 키웠고, 방송 채널은 제휴 수수료와 광고로 번다. 이렇게 번 돈은 크루즈선·테마파크 투자(연 약 90억 달러)와 자사주 매입(연 90억 달러 이상)에 쓰인다.",
+    "src": ["s1"]
+  },
+
+  "earnings": {
+    "period": "Q3 FY2026 (quarter ended 2026-06-27)",
+    "revenue": { "value": 25.248, "unit": "USD bn", "yoy": 7 },
+    "grossMargin": null,
+    "operatingMargin": null,
+    "netMargin": null,
+    "operatingCashFlow": { "value": 4.866, "unit": "USD bn" },
+    "freeCashFlow": { "value": 3.072, "unit": "USD bn" },
+    "segments": [
+      { "name": "Entertainment", "revenue": 11.345, "unit": "USD bn", "share": null, "yoy": 6, "operatingMargin": 14.8, "src": ["s1"] },
+      { "name": "Sports", "revenue": 4.5, "unit": "USD bn", "share": null, "yoy": 4, "operatingMargin": 19.1, "src": ["s1"] },
+      { "name": "Experiences", "revenue": 9.968, "unit": "USD bn", "share": null, "yoy": 10, "operatingMargin": 30.3, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "부문 영업이익 합계", "value": "Q3 FY2026 55.6억 달러 (+21%)", "src": ["s1"] },
+      { "name": "EPS (GAAP / 조정)", "value": "Q3 FY2026 1.51달러 (-48%) / 2.06달러 (+28%)", "src": ["s1"] },
+      { "name": "SVOD 영업이익", "value": "Q3 FY2026 7.12억 달러 (전년 3.29억), 마진 12.9%", "src": ["s1"] },
+      { "name": "Experiences 세부", "value": "미국 영업이익 20.9억(+27%), 해외 3.69억(-13%), Consumer Products 5.60억 달러(+26%)", "src": ["s1"] },
+      { "name": "Sports 영업이익", "value": "Q3 FY2026 8.58억 달러 (-17%)", "src": ["s1"] }
+    ],
+    "text": "Q3 FY2026 매출은 252.5억 달러로 7% 늘었고, 부문 영업이익은 55.6억 달러로 21% 늘었다. 성장은 Entertainment(+64%)와 Experiences(+20%)에서 왔고 Sports 영업이익은 17% 줄었다. GAAP EPS는 1.51달러로 48% 줄었는데, A+E 손상(8.12억 달러) 등이 반영돼 조정 EPS 2.06달러와 차이가 크다.",
+    "src": ["s1"]
+  },
+
+  "useOfCash": {
+    "period": "9M FY2026 (nine months ended 2026-06-27)",
+    "items": [
+      { "use": "buybacks", "value": 7.245, "unit": "USD bn", "src": ["s1"] },
+      { "use": "capex", "value": 6.78, "unit": "USD bn", "src": ["s1"] },
+      { "use": "dividends", "value": 1.337, "unit": "USD bn", "src": ["s1"] }
+    ],
+    "text": "9개월 영업현금흐름 125.2억 달러 가운데 자사주 72.5억, 테마파크·리조트 등 설비투자 67.8억, 배당 13.4억 달러가 나갔다. 설비투자와 환원 합계가 영업현금흐름보다 크다. 회사는 연간 자사주 매입 목표를 90억 달러 이상으로 올렸다.",
+    "src": ["s1"]
+  },
+
+  "aiChain": {
+    "layer": "ai-adopter",
+    "position": "미디어·여가 회사로, 보도자료는 아부다비 테마파크를 AI 기반 설계 도구로 개발 중이라고만 밝혔다.",
+    "dependsOn": ["AI 설계 도구 (업체명 미공시)"],
+    "sellsTo": ["AI를 팔지 않음 - 방문객·가입자·광고주"],
+    "aiRevenue": null,
+    "upside": "AI 설계 도구가 테마파크 개발 속도를 높일 수 있다고 읽히지만, 회사는 효과를 숫자로 공시하지 않았다.",
+    "risk": "원문에 AI 관련 위험 언급 없음.",
+    "text": "AI 가치사슬에서 Disney는 도구를 쓰는 쪽이며, 원문이 밝힌 사례는 아부다비 테마파크 설계 하나다. 실적을 움직이는 것은 테마파크 수요, 스트리밍 수익성, ESPN 비용이다.",
+    "src": ["s1"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "테마파크·크루즈", "rivals": ["원문 미명시"], "position": "leader", "share": null, "src": ["s1"] },
+      { "arena": "스트리밍", "rivals": ["원문 미명시"], "position": "challenger", "share": null, "src": ["s1"] },
+      { "arena": "스포츠 중계 (ESPN)", "rivals": ["원문 미명시"], "position": "leader", "share": null, "src": ["s1"] }
+    ],
+    "edge": "IP를 여러 사업에서 반복해 파는 구조, 테마파크·크루즈 자산, ESPN 중계권.",
+    "threats": "광고 시장 약세, 흥행 부진(Moana 4분기 부담), 스포츠 중계 비용.",
+    "text": "이번에 읽은 원문은 경쟁사 이름을 밝히지 않았다. 원문이 드러내는 경쟁 압력은 4분기 영화 흥행 부진(Moana)과 약한 광고 환경, Sports 영업이익 17% 감소다. 반대로 테마파크는 새 시설(Disneyland Paris World of Frozen)과 크루즈 확장으로 앞서 있다.",
+    "src": ["s1"]
+  },
+
+  "strategy": {
+    "goal": "FY2026 조정 EPS 약 12% 성장(53주차 제외, 포함 시 약 16%), FY2027 두 자릿수 성장, 자사주 90억 달러 이상.",
+    "roadmap": [
+      { "when": "FY2026 Q4", "what": "부문 영업이익 약 49억 달러 (53주차 약 6억 달러 포함)", "src": ["s1"] },
+      { "when": "FY2026 말", "what": "A+E 지분 50% Hearst 매각(약 12억 달러) 종결 예상", "src": ["s1"] },
+      { "when": "향후 몇 년", "what": "크루즈 객실 추가 확대, 아부다비 테마파크 개발", "src": ["s1"] },
+      { "when": "FY2027", "what": "조정 EPS 두 자릿수 성장 (53주차 제외)", "src": ["s1"] }
+    ],
+    "vision": "CEO Josh D'Amaro는 'Q3 결과에 만족하며 남은 회계연도를 낙관한다'고 말했다.",
+    "text": "회사는 테마파크·크루즈에 계속 투자하고(연 설비투자 약 90억 달러), 스트리밍은 두 자릿수 마진을 유지하며, ESPN은 NFL·Fubo 거래로 묶음을 넓힌다. Experiences 영업이익 성장은 기존 높은 한 자릿수 전망의 상단으로 올렸다. 앞으로의 설비투자는 두 자릿수 수익률을 낼 것으로 회사가 본다.",
+    "src": ["s1"]
+  },
+
+  "governance": {
+    "line": "CEO Josh D'Amaro와 CFO Hugh Johnston이 이끌며, 2026회계연도에 자사주 90억 달러 이상을 사들이는 환원 확대 기조다.",
+    "src": ["s1"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "adjusted EPS growth", "value": "약 12% (53주차 제외), 약 16% (포함) - 유지", "givenOn": "2026-08-05", "src": ["s1"] },
+      { "period": "FY2026", "metric": "share repurchases", "value": "90억 달러 이상 (상향)", "givenOn": "2026-08-05", "src": ["s1"] },
+      { "period": "FY2026", "metric": "cash from operations / capex", "value": "190억 달러 이상 / 약 90억 달러 - 유지", "givenOn": "2026-08-05", "src": ["s1"] },
+      { "period": "FY2026", "metric": "Experiences segment OI growth", "value": "높은 한 자릿수 전망의 상단 (53주차 제외)", "givenOn": "2026-08-05", "src": ["s1"] },
+      { "period": "FY2027", "metric": "adjusted EPS growth", "value": "두 자릿수 (53주차 제외) - 유지", "givenOn": "2026-08-05", "src": ["s1"] }
+    ],
+    "style": "annual",
+    "track": "Q3 조정 EPS 2.06달러는 컨센서스 1.88달러를 넘었고(AIO 스냅샷), 회사는 연간 전망을 유지하면서 자사주 목표와 Experiences 전망을 올렸다.",
+    "src": ["s1", "s2"]
+  },
+
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-11-07, Zacks via Nasdaq) 향후 4개 분기(2026-09~2027-06) EPS 합계 7.57달러(범위 7.16~8.23), 직전 4개 분기 6.37달러. 최근 4주 상향 0건·하향 2건.",
+    "src": ["s2"]
+  },
+
+  "watch": {
+    "confirms": [
+      "Experiences 영업이익 성장 지속과 크루즈 확대 효과",
+      "SVOD 영업이익률 두 자릿수 유지",
+      "Q4 부문 영업이익 약 49억 달러 달성",
+      "FY2027 두 자릿수 EPS 성장 전망 유지"
+    ],
+    "breaks": [
+      "미국 테마파크 입장객 감소",
+      "광고 매출 감소 확대",
+      "Sports 영업이익 감소 지속",
+      "설비투자 확대로 잉여현금흐름 감소"
+    ],
+    "keyNumbers": [
+      { "name": "Experiences 영업이익", "why": "이익의 절반 이상" },
+      { "name": "SVOD 영업이익·마진", "why": "스트리밍 수익성" },
+      { "name": "Sports 영업이익", "why": "중계 비용 부담" },
+      { "name": "잉여현금흐름", "why": "투자와 자사주 매입 여력" }
+    ]
+  },
+
+  "debate": {
+    "question": "테마파크 이익과 스트리밍 흑자가 광고 약세와 스포츠 비용을 넘어 두 자릿수 EPS 성장을 이어 가는지",
+    "bull": {
+      "text": "강세로 보는 쪽은 Q3 부문 영업이익이 21% 늘고 SVOD 영업이익이 7.12억 달러로 두 배 넘게 늘었다는 점을 든다. Experiences 영업이익은 20% 늘었고 회사는 그 전망을 상단으로 올렸으며, 자사주 목표도 90억 달러 이상으로 높였다.",
+      "src": ["s1"]
+    },
+    "bear": {
+      "text": "약세로 보는 쪽은 Sports 영업이익이 17% 줄고 해외 테마파크 영업이익이 13% 줄었다는 점을 짚는다. 회사 스스로 4분기 흥행 부진(Moana)과 약한 광고 환경을 언급했고, 9개월 잉여현금흐름은 57.4억 달러로 24% 줄어 자사주 72.5억 달러보다 작았다.",
+      "src": ["s1"]
+    },
+    "decides": [
+      { "when": "Q4 FY2026 실적 (2026-11 예상, 회사 미확정)", "what": "부문 영업이익 약 49억 달러와 FY2027 두 자릿수 EPS 성장 전망 유지", "src": ["s1"] },
+      { "when": "FY2027", "what": "SVOD 두 자릿수 마진과 Sports 영업이익 회복 여부", "src": ["s1"] }
+    ]
+  },
+
+  "underTheHood": [
+    {
+      "title": "환원이 잉여현금을 넘는다",
+      "text": "9개월 잉여현금흐름은 57.4억 달러였는데 자사주 72.5억, 배당 13.4억 달러를 썼다. 차이는 차입이나 현금 잔액으로 메운 셈이다. 연간 설비투자 약 90억 달러와 자사주 90억 달러 이상을 함께 유지하려면 4분기 현금흐름이 커야 한다.",
+      "src": ["s1"]
+    },
+    {
+      "title": "53주차가 성장률을 부풀린다",
+      "text": "FY2026은 53주 회계연도라, 회사는 조정 EPS 성장을 53주차 제외 약 12%, 포함 약 16%로 나눠 제시했다. 4분기 부문 영업이익 약 49억 달러 가운데 약 6억 달러가 53주차 몫이다. FY2027 비교 기준이 그만큼 높아진다.",
+      "src": ["s1"]
+    },
+    {
+      "title": "ESPN은 더 이상 혼자가 아니다",
+      "text": "NFL 거래로 ESPN 지분은 Disney 72%, Hearst 18%, NFL 10%가 됐고, Hulu Live TV는 Fubo와 합쳐 Disney가 70%를 갖는다. 스포츠 사업의 이익 일부가 비지배 지분으로 나뉘므로, 부문 영업이익과 주주 귀속 이익 사이의 차이를 봐야 한다.",
+      "src": ["s1"]
+    }
+  ],
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11 (추정, 회사 미확정)", "event": "Q4·FY2026 실적과 FY2027 전망", "src": [] }
+    ],
+    "reaction": "주가는 분기 EPS보다 Experiences 영업이익, 스트리밍 마진, 다음 해 EPS 전망에 크게 반응하는 경향이 있다.",
+    "conditions": [
+      "Experiences 영업이익 성장률",
+      "SVOD 영업이익률",
+      "Sports 영업이익과 광고 매출",
+      "FY2027 EPS 성장 전망",
+      "컨센서스 EPS 상향·하향 건수"
+    ]
+  },
+
+  "unverified": [
+    "Q4 FY2026 실적은 아직 발표 전 (2026-11-07 기준 최신 보고서는 Q3 FY2026)",
+    "Disney+·Hulu 가입자 수 (보도자료 미공시)",
+    "Q3 순이익과 순이익률, 영업이익률",
+    "Q3 단독 자사주·배당 금액",
+    "A+E 매각 종결 여부",
+    "경쟁사 이름과 점유율",
+    "Sports 영업이익률 19.1%, Experiences 30.3%는 보도자료 금액으로 계산한 값",
+    "부문 매출 합계가 연결 매출보다 큰 것은 부문 간 상계 때문 - 부문 비중은 비워 둠"
+  ],
+  "confidence": "medium - 수치와 전망은 회사 8-K 보도자료에서 직접 왔지만 한 분기 전 자료이고, 가입자·경쟁 구도는 원문에 없었다."
+}

@@ -1,0 +1,234 @@
+{
+  "symbol": "PM",
+  "name": "Philip Morris International Inc.",
+  "researchedAt": "2026-11-07",
+  "fiscalYearEnd": "December 31",
+  "oneLine": "Philip Morris International은 미국 밖에서 Marlboro 담배를 파는 국제 담배 회사로, 가열 담배 IQOS와 니코틴 파우치 ZYN 같은 연기 없는 제품이 매출의 40% 이상으로 커지며 사업의 중심을 옮기고 있다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "Philip Morris International Reports 2026 Third-Quarter & First Nine Months Results and Updates 2026 Full-Year Forecast (Form 8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0001413329/000162828026066596/earningsreleasepm-ex991xq3.htm", "publisher": "Philip Morris International via SEC EDGAR", "date": "2026-10-21" },
+    { "id": "s2", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/pm/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-11-07" }
+  ],
+
+  "moat": {
+    "sources": [
+      "Marlboro 브랜드 - 국제 담배 점유율 11.4% (사상 최고)",
+      "IQOS 가열 담배 - 분기 HTU 출하 415억 개비, 담배+HTU 합산 점유율 9.9%",
+      "미국 니코틴 파우치 ZYN - FDA 판매 허가 31개 제품, 위험 저감 표시(MRTP) 허가 20개",
+      "규모와 가격 결정력 - Q3 조정 영업이익률 44.7%"
+    ],
+    "text": "PMI의 힘은 오래된 Marlboro 브랜드와, 그 현금으로 키운 연기 없는 제품 묶음이다. Q3 2026 국제 담배 점유율은 25.9%, Marlboro 단독 11.4%로 올랐고, 연기 없는 제품은 30개 넘는 시장에서 매출의 절반을 넘었다. 미국에서는 ZYN이 FDA 판매 허가(31개 제품)를 받아 규제 장벽 자체가 경쟁 우위가 된다.",
+    "src": ["s1"]
+  },
+
+  "design": {
+    "text": "회사는 세 부문으로 보고한다. International Smoke-Free(IQOS 가열 담배, VEEV 전자담배, 구강 니코틴), International Combustibles(Marlboro 등 담배), U.S.(ZYN 등)다. Q3 연기 없는 제품 출하는 482억 개로 2.7% 늘었고, 그 안에서 VEEV는 61.6% 늘었다.",
+    "src": ["s1"]
+  },
+
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [],
+    "text": "제품은 회사가 직접 만든다. 미국에서는 ZYN 생산 시설을 넓히는 중이라 제조비가 올랐다고 회사가 밝혔고, 4분기에는 주력 ZYN 제품 대부분을 15개입에서 20개입 캔으로 바꾼다. 2026년 설비투자는 14~16억 달러로 예상한다.",
+    "src": ["s1"]
+  },
+
+  "sell": {
+    "customers": [
+      "미국 밖 성인 흡연자 - International Combustibles 매출 67억 달러 (+6.5%)",
+      "IQOS 사용자 - International Smoke-Free 매출 39억 달러 (+0.7%), HTU 실판매 +7.1%",
+      "미국 니코틴 파우치 사용자 - ZYN 32억 개 파우치 (+4.2%), U.S. 매출 8.45억 달러 (+22.7%)"
+    ],
+    "channel": "도매상·소매점 유통 (유통사 이름 미공시)",
+    "concentration": "고객별 비중 미공시; 연기 없는 제품이 매출의 40% 이상 (YTD 약 42%)",
+    "text": "매출의 약 59%는 아직 미국 밖 담배에서 나온다. 연기 없는 제품 비중은 Q3에 40%를 넘었고 9개월 기준 약 42%다. 미국 사업은 분기 매출이 22.7% 늘었지만 9개월로는 5.2% 줄어, ZYN 투자·생산 변화에 따라 분기 숫자가 크게 흔들린다.",
+    "src": ["s1"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "성인 흡연자·니코틴 사용자", "to": "소매점·도매상", "what": "담배·IQOS·ZYN 구매 (각국 소비세 포함)" },
+      { "from": "소매점·도매상", "to": "각국 정부", "what": "담배 소비세" },
+      { "from": "소매점·도매상", "to": "Philip Morris International", "what": "세후 순매출 (Q3 114억 달러)" },
+      { "from": "Philip Morris International", "to": "주주", "what": "분기 배당 주당 1.60달러 (8.8% 인상)" }
+    ],
+    "pricing": "개비·캔 단위 판매. 소비세가 큰 비중을 차지하며, 순매출은 소비세를 뺀 값이다. 담배 물량이 줄어도 가격 인상으로 매출이 는다.",
+    "text": "담배 물량은 Q3에 제자리였지만 International Combustibles 매출은 유기 기준 7.8% 늘어, 가격이 물량을 대신해 성장을 만들었다. 이 현금이 IQOS·ZYN 투자와 배당을 댄다. 회사는 연간 영업현금흐름을 약 135억 달러로 본다.",
+    "src": ["s1"]
+  },
+
+  "earnings": {
+    "period": "Q3 2026 (quarter ended 2026-09-30)",
+    "revenue": { "value": 11.438, "unit": "USD bn", "yoy": 5.5 },
+    "grossMargin": 68.7,
+    "operatingMargin": 42.5,
+    "netMargin": null,
+    "operatingCashFlow": null,
+    "freeCashFlow": null,
+    "segments": [
+      { "name": "International Combustibles", "revenue": 6.7, "unit": "USD bn", "share": 58.6, "yoy": 6.5, "operatingMargin": null, "src": ["s1"] },
+      { "name": "International Smoke-Free", "revenue": 3.9, "unit": "USD bn", "share": 34.1, "yoy": 0.7, "operatingMargin": null, "src": ["s1"] },
+      { "name": "U.S.", "revenue": 0.845, "unit": "USD bn", "share": 7.4, "yoy": 22.7, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "총 출하량", "value": "Q3 2026 2,062억 개 (+0.6%); 담배 1,580억 (0%), 연기 없는 제품 482억 (+2.7%)", "src": ["s1"] },
+      { "name": "IQOS HTU 출하 / 점유율", "value": "Q3 2026 415억 개비 (+1.5%), 실판매 +7.1%, 담배+HTU 합산 점유율 9.9% (+1.0%p)", "src": ["s1"] },
+      { "name": "ZYN (미국)", "value": "Q3 2026 32억 파우치 (+4.2%)", "src": ["s1"] },
+      { "name": "유기 성장률", "value": "Q3 2026 매출 +7.1%, 영업이익 +10.5%", "src": ["s1"] },
+      { "name": "EPS (보고 / 조정)", "value": "Q3 2026 2.12달러 (-4.9%) / 2.36달러 (+5.4%)", "src": ["s1"] }
+    ],
+    "text": "Q3 2026 매출은 114억 달러로 5.5%(유기 7.1%) 늘었고, 영업이익은 49억 달러로 14.1% 늘었다. 조정 총마진은 68.7%, 조정 영업이익률은 44.7%로 각각 0.8%p, 1.6%p 올랐다. 다만 보고 EPS는 2.12달러로 4.9% 줄어 조정 EPS 2.36달러와 차이가 있다.",
+    "src": ["s1"]
+  },
+
+  "useOfCash": {
+    "period": "FY2026 (forecast as of 2026-10-21)",
+    "items": [
+      { "use": "capex", "value": null, "unit": "USD bn", "src": ["s1"] },
+      { "use": "dividends", "value": null, "unit": "USD bn", "src": ["s1"] },
+      { "use": "buybacks", "value": 0, "unit": "USD bn", "src": ["s1"] },
+      { "use": "debt repayment", "value": null, "unit": "USD bn", "src": ["s1"] }
+    ],
+    "text": "회사는 2026년 영업현금흐름 약 135억 달러 가운데 설비투자에 14~16억 달러를 쓰고, 자사주 매입은 가정하지 않는다. 분기 배당은 8.8% 올린 주당 1.60달러(연 6.40달러)이고, 연말까지 순부채/조정 EBITDA를 약 2.0배로 낮추는 것이 목표다. 배당과 부채 축소가 현금 배분의 두 축이다.",
+    "src": ["s1"]
+  },
+
+  "aiChain": {
+    "layer": "limited",
+    "position": "담배·니코틴 회사로, 이번에 읽은 보도자료에는 AI 관련 언급이나 수치가 없다.",
+    "dependsOn": ["공개된 AI 의존 업체 없음"],
+    "sellsTo": ["AI를 팔지 않음 - 성인 흡연자·니코틴 사용자"],
+    "aiRevenue": null,
+    "upside": "원문에 AI가 매출이나 비용으로 이어지는 경로가 공시되지 않았다.",
+    "risk": "원문에 AI 관련 위험 언급 없음.",
+    "text": "AI 가치사슬과의 연결은 공시로 확인되지 않는다. 실적은 담배 가격 인상, IQOS 점유율, 미국 ZYN 성장과 FDA 규제가 움직인다.",
+    "src": ["s1"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "국제 담배", "rivals": ["다른 담배 회사 (원문 미명시)"], "position": "leader", "share": "PMI 담배 점유율 25.9%, Marlboro 11.4% (Q3 2026, 회사 발표)", "src": ["s1"] },
+      { "arena": "가열 담배", "rivals": ["원문 미명시"], "position": "leader", "share": "HTU의 담배+HTU 합산 점유율 9.9% (회사 발표)", "src": ["s1"] },
+      { "arena": "미국 니코틴 파우치", "rivals": ["원문 미명시"], "position": "leader", "share": null, "src": ["s1"] }
+    ],
+    "edge": "Marlboro 브랜드 가격 결정력, IQOS 설치 기반, ZYN의 FDA 허가.",
+    "threats": "미국 ZYN 투자 비용 증가와 분기 변동, 연기 없는 제품의 성장 둔화(Q3 HTU 출하 +1.5%), 각국 규제·세금.",
+    "text": "이번에 읽은 원문은 경쟁사 이름을 밝히지 않았지만 PMI 스스로의 점유율은 공시한다. 담배 점유율은 0.4%p, 가열 담배 점유율은 1.0%p 올랐다. 미국 ZYN에서는 판매 허가 제품 수가 31개로 늘어 규제 장벽이 높아졌지만, 회사는 4분기 미국 투자를 늘린다고 밝혔다.",
+    "src": ["s1"]
+  },
+
+  "strategy": {
+    "goal": "2026년 조정 EPS 8.29~8.44달러(+9.9~11.9%), 유기 매출 성장 5~7%, 6년 연속 물량 성장.",
+    "roadmap": [
+      { "when": "2026-06-30", "what": "ZYN 주력 20개 제품 FDA 위험 저감 표시(MRTP) 허가", "src": ["s1"] },
+      { "when": "2026-08-21", "what": "ZYN ULTRA 11개 제품 FDA 판매 허가 - 총 31개", "src": ["s1"] },
+      { "when": "Q4 2026", "what": "주력 ZYN 제품 대부분을 20개입 캔으로 전환, 미국 투자 확대", "src": ["s1"] },
+      { "when": "2026 말", "what": "순부채/조정 EBITDA 약 2.0배 목표", "src": ["s1"] }
+    ],
+    "vision": "CEO Jacek Olczak는 '6년 연속 물량 성장으로 가고 있다'고 말하며, 연기 없는 제품으로 담배를 대체하는 그림을 그린다.",
+    "text": "회사는 담배에서 나오는 현금으로 연기 없는 제품을 키우고, 미국 ZYN에서 규제 허가를 넓혀 시장을 지킨다. 연간 전망에서 총 물량은 '성장'으로 올렸고 담배 물량 감소 폭은 연초 2~3%에서 올해 누적 추세 수준으로 줄였다. 환율 효과는 주당 0.24달러에서 0.18달러로 낮췄다.",
+    "src": ["s1"]
+  },
+
+  "governance": {
+    "line": "CEO Jacek Olczak와 CFO Massimo Andolina가 이끌며, 자사주 매입 없이 배당 인상(주당 연 6.40달러)과 부채 축소에 현금을 쓴다.",
+    "src": ["s1"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "adjusted diluted EPS", "value": "8.29~8.44달러 (환율 제외 8.11~8.26달러)", "givenOn": "2026-10-21", "src": ["s1"] },
+      { "period": "FY2026", "metric": "reported diluted EPS", "value": "7.11~7.26달러", "givenOn": "2026-10-21", "src": ["s1"] },
+      { "period": "FY2026", "metric": "organic net revenue / operating income growth", "value": "5~7% (중간~상단) / 7~9% (중간~하단)", "givenOn": "2026-10-21", "src": ["s1"] },
+      { "period": "FY2026", "metric": "operating cash flow / capex", "value": "약 135억 달러 / 14~16억 달러", "givenOn": "2026-10-21", "src": ["s1"] }
+    ],
+    "style": "annual",
+    "track": "Q3 조정 EPS 2.36달러는 컨센서스 2.30달러를 조금 넘었다(AIO 스냅샷). 이번 갱신에서 물량 전망은 올리고 환율 효과는 낮췄다.",
+    "src": ["s1", "s2"]
+  },
+
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-11-07, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) EPS 합계 8.60달러(범위 8.35~8.85), 직전 4개 분기 8.22달러. 최근 4주 상향 1건·하향 9건으로 하향이 많다.",
+    "src": ["s2"]
+  },
+
+  "watch": {
+    "confirms": [
+      "IQOS HTU 실판매 성장 지속과 점유율 상승",
+      "ZYN 미국 출하 증가와 20개입 캔 전환 안착",
+      "담배 가격 인상으로 Combustibles 매출 성장 유지",
+      "순부채/EBITDA 약 2.0배 달성"
+    ],
+    "breaks": [
+      "HTU 출하 성장 둔화 지속 (Q3 +1.5%)",
+      "미국 사업 이익 감소 지속 (YTD 조정 이익 -41.1% 유기)",
+      "담배 물량 감소 가속",
+      "규제·세금 인상"
+    ],
+    "keyNumbers": [
+      { "name": "연기 없는 제품 매출 비중", "why": "사업 전환의 속도" },
+      { "name": "IQOS HTU 실판매·점유율", "why": "가장 큰 연기 없는 제품" },
+      { "name": "ZYN 미국 출하", "why": "미국 성장의 거의 전부" },
+      { "name": "조정 영업이익률", "why": "가격 결정력" }
+    ]
+  },
+
+  "debate": {
+    "question": "연기 없는 제품의 성장이 둔해지는 사이 담배 가격 인상이 이익 성장을 계속 떠받치는지",
+    "bull": {
+      "text": "강세로 보는 쪽은 Q3 유기 영업이익이 10.5% 늘고 조정 영업이익률이 44.7%로 1.6%p 올랐다는 점을 든다. 담배 점유율은 25.9%로 올랐고, ZYN은 FDA 판매 허가를 31개로 늘렸으며, 회사는 연간 물량 전망을 '성장'으로 올렸다.",
+      "src": ["s1"]
+    },
+    "bear": {
+      "text": "약세로 보는 쪽은 Q3 IQOS HTU 출하가 1.5%, 구강 니코틴이 1.8% 느는 데 그쳤고, 미국 사업 9개월 조정 이익이 유기 기준 41.1% 줄었다는 점을 짚는다. 보고 EPS는 4.9% 줄었고, 컨센서스도 최근 4주 하향 9건이 상향 1건보다 많다.",
+      "src": ["s1", "s2"]
+    },
+    "decides": [
+      { "when": "Q4 2026 실적 (2027-02 예상, 회사 미확정)", "what": "ZYN 20개입 캔 전환 뒤 미국 출하·이익과 2027 전망", "src": ["s1"] },
+      { "when": "2026 말", "what": "순부채/조정 EBITDA 약 2.0배 목표 달성 여부", "src": ["s1"] }
+    ]
+  },
+
+  "underTheHood": [
+    {
+      "title": "담배가 전환 비용을 낸다",
+      "text": "Q3 담배 물량은 제자리인데 International Combustibles 매출은 유기 7.8%, 총이익은 9.8% 늘었다. 가격 인상이 만든 이 이익이 IQOS·ZYN 투자의 재원이다. 연기 없는 제품이 커질수록 이 재원의 비중은 줄어든다.",
+      "src": ["s1"]
+    },
+    {
+      "title": "미국 사업의 분기 변동",
+      "text": "U.S. 부문 매출은 Q3에 22.7% 늘었지만 9개월로는 5.2% 줄었고, 9개월 조정 이익은 유기 기준 41.1% 줄었다. 생산 시설 확장 비용과 4분기 캔 규격 전환이 겹쳐, 한 분기 숫자로 미국 추세를 판단하기 어렵다.",
+      "src": ["s1"]
+    },
+    {
+      "title": "환율과 조정의 간극",
+      "text": "9개월 조정 EPS는 6.52달러(+11.8%)지만 환율을 빼면 6.32달러(+8.4%)이고, 보고 EPS는 5.48달러(-7.0%)였다. 환율 효과와 조정 항목이 성장률을 크게 바꾼다. 연간 환율 효과 전망은 주당 0.18달러로 낮아졌다.",
+      "src": ["s1"]
+    }
+  ],
+
+  "trading": {
+    "calendar": [
+      { "date": "2027-02 (추정, 회사 미확정)", "event": "Q4·FY2026 실적과 2027 전망", "src": [] }
+    ],
+    "reaction": "주가는 분기 EPS보다 연기 없는 제품 물량(IQOS·ZYN)과 연간 전망 변경에 크게 반응하는 경향이 있다.",
+    "conditions": [
+      "IQOS HTU 실판매 성장률과 점유율",
+      "ZYN 미국 출하",
+      "담배 가격·물량",
+      "환율 효과 전망",
+      "컨센서스 EPS 상향·하향 건수"
+    ]
+  },
+
+  "unverified": [
+    "분기·9개월 영업현금흐름 (보도자료 미공시)",
+    "배당 지급 총액·순부채 금액",
+    "Q3 순이익과 순이익률",
+    "부문 영업이익률",
+    "세계 ZYN 캔 출하 (보도자료는 미국 파우치 기준만 공시)",
+    "경쟁사 이름과 시장별 점유율",
+    "보고 영업이익률 42.5%는 보도자료 금액으로 계산한 값, 총마진 68.7%는 조정 기준",
+    "부문 매출 39억·67억 달러는 보도자료의 반올림 값"
+  ],
+  "confidence": "medium - 분기 수치·물량·전망은 회사 8-K 보도자료에서 직접 왔지만, 현금흐름 실적과 경쟁 구도는 원문에 없었다."
+}

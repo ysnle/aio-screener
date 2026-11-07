@@ -1,0 +1,252 @@
+{
+  "symbol": "T",
+  "name": "AT&T Inc.",
+  "researchedAt": "2026-11-07",
+  "fiscalYearEnd": "December 31",
+  "oneLine": "AT&T는 미국 3대 무선 통신사이자 최대급 광통신(fiber) 사업자로, 휴대폰과 집 인터넷을 한 가구에 묶어 파는 '결합' 전략과 EchoStar 주파수·Lumen 광회선 인수로 성장 축을 옮기는 중이다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "AT&T 3Q 2026 earnings release (Form 8-K Exhibit 99.1): segment results, subscriber metrics, 2026 and 2026-2028 outlook", "url": "https://www.sec.gov/Archives/edgar/data/0000732717/000073271726000370/t-3q2026exhibit991.htm", "publisher": "AT&T / SEC EDGAR", "date": "2026-10-21" },
+    { "id": "s2", "kind": "news", "title": "AT&T Closes Deal to Acquire Wireless Spectrum Licenses from EchoStar", "url": "https://dallasinnovates.com/att-closes-deal-to-acquire-wireless-spectrum-licenses-from-echostar/", "publisher": "Dallas Innovates", "date": "2026-07-29" }
+  ],
+
+  "moat": {
+    "sources": [
+      "광통신 회선 - 소비자·기업 3,900만 곳 이상에 광 도달(Q3 2026), 2026말 4,000만·2030말 6,000만 이상 목표",
+      "전국 무선망과 주파수 - 2026 Q3 EchoStar로부터 약 230억 달러에 3.45GHz 약 30MHz·600MHz 약 20MHz 전국 주파수 취득",
+      "무선+집 인터넷 결합 - 고급 집 인터넷 가구의 42.8%가 AT&T 무선도 사용(Q3 2026)",
+      "대규모 고객 기반 - 미국 1억 이상 개인·가족 고객과 약 250만 기업 고객"
+    ],
+    "text": "AT&T의 힘은 다시 깔기 어려운 광통신망과 전국 무선망을 함께 가진 데서 나온다. Q3 2026 기준 3,900만 곳 이상에 광이 닿고, 2026년 여름 EchoStar로부터 약 230억 달러어치 전국 주파수를 사들여 무선 용량을 키웠다. 이 두 망을 한 가구에 묶어 팔면 해지가 줄어든다는 것이 회사 전략의 출발점이다.",
+    "src": ["s1", "s2"]
+  },
+
+  "design": {
+    "text": "회사는 2026년부터 사업을 세 부문으로 나눠 보고한다. Advanced Connectivity는 무선(5G)·광 인터넷·고정무선(Internet Air)·기업용 광 서비스와 단말기를 묶은 성장 부문이고, Legacy는 줄어드는 구리선 유선·구형 기업 서비스, Latin America는 매각이 합의된 멕시코 무선 사업이다. Lumen의 대중 시장 광 사업 고객은 2026-02-02 인수 완료 후 AT&T 실적에 들어왔다.",
+    "src": ["s1"]
+  },
+
+  "make": {
+    "model": "asset-owner",
+    "partners": [
+      "EchoStar - 3.45GHz·600MHz 전국 주파수 매도인(약 230억 달러, 2026 Q3 완료)이자 Boost Mobile 도매 고객",
+      "Lumen - 대중 시장 광통신 사업 매도인(57.5억 달러 합의, 2026-02-02 완료)",
+      "Forged Fiber 37 - Lumen에서 넘어온 광 네트워크 자산을 담은 회사, 지배 지분 매각 합의(매수자 미공개)",
+      "네트워크 장비 공급업체 - Q3 설비투자 중 5억 달러가 공급업체 금융(vendor financing) 상환 (업체명 미확인)"
+    ],
+    "text": "통신사에게 생산은 망을 깔고 유지하는 일이다. AT&T는 Q3 2026 한 분기에만 설비투자 51억 달러(공급업체 금융 상환 포함 자본투자 56억 달러)를 썼고, 2026년 한 해 자본투자는 230억~240억 달러를 예상한다. 광 범위는 직접 구축과 Lumen 인수로, 무선 용량은 EchoStar 주파수 인수로 넓혔다.",
+    "src": ["s1", "s2"]
+  },
+
+  "sell": {
+    "customers": [
+      "미국 개인·가족 가입자 - 무선 요금과 광·Internet Air 집 인터넷 (Advanced Connectivity의 중심)",
+      "기업 고객 약 250만 곳 - 무선·기업용 광(Business Fiber) 서비스",
+      "EchoStar - Boost Mobile 하이브리드 MVNO, AT&T가 주 네트워크 파트너",
+      "멕시코 무선 가입자 - Grupo Televisa·Fintech Holdings에 매각 합의(2026-10-13)"
+    ],
+    "channel": "직영 매장·온라인·대리점(개인), 기업 영업 조직(기업), 도매 계약(EchoStar 등 MVNO)",
+    "concentration": "단일 대형 고객 의존 공시 없음 (보도자료 기준)",
+    "text": "이 망은 대부분 미국 개인과 가족에게 팔린다. Q3 2026 Advanced Connectivity 매출 295억 달러 가운데 무선 서비스가 178억 달러, 고급 집 인터넷이 30억 달러, 기업용 광·연결 서비스가 20억 달러였다. EchoStar는 주파수를 판 뒤 Boost Mobile 브랜드로 AT&T 망을 빌려 쓰는 도매 고객이 됐다.",
+    "src": ["s1", "s2"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "개인 무선 가입자", "to": "AT&T Advanced Connectivity", "what": "매달 무선 서비스 요금 (Q3 2026 178억 달러)" },
+      { "from": "광·Internet Air 가입 가구", "to": "AT&T Advanced Connectivity", "what": "집 인터넷 월정액 (Q3 2026 30억 달러, 23.4% 증가)" },
+      { "from": "기업 고객", "to": "AT&T Advanced Connectivity", "what": "기업용 광·연결 서비스 요금 (Q3 2026 20억 달러)" },
+      { "from": "개인·기업 고객", "to": "AT&T", "what": "단말기 대금 (Q3 2026 56억 달러)" },
+      { "from": "EchoStar (Boost Mobile)", "to": "AT&T", "what": "망 사용 도매 요금" }
+    ],
+    "pricing": "회선·가구 단위 월정액 구독이 중심이고, 단말기는 별도 판매, 기업은 계약 요금, MVNO는 도매 요금이다.",
+    "text": "돈은 대부분 매달 들어오는 요금에서 나온다. Q3 2026 Advanced Connectivity 서비스 매출은 239억 달러로 6.1% 늘었고, 그중 집 인터넷이 23.4%로 가장 빨리 컸다. 반면 Legacy 매출은 24.5% 줄어, 회사 전체 성장률은 성장 부문이 쇠퇴 부문을 얼마나 빨리 메우느냐로 정해진다.",
+    "src": ["s1"]
+  },
+
+  "earnings": {
+    "period": "Q3 2026 (ended 2026-09-30)",
+    "revenue": { "value": 32.3, "unit": "USD bn", "yoy": 5.3 },
+    "grossMargin": null,
+    "operatingMargin": 12.7,
+    "netMargin": 2.8,
+    "operatingCashFlow": { "value": 10.5, "unit": "USD bn" },
+    "freeCashFlow": { "value": 5.0, "unit": "USD bn" },
+    "segments": [
+      { "name": "Advanced Connectivity", "revenue": 29.481, "unit": "USD bn", "share": 91.3, "yoy": 7.2, "operatingMargin": 25.9, "src": ["s1"] },
+      { "name": "Legacy", "revenue": 1.519, "unit": "USD bn", "share": 4.7, "yoy": -24.5, "operatingMargin": 32.8, "src": ["s1"] },
+      { "name": "Latin America (Mexico, 매각 합의)", "revenue": 1.24, "unit": "USD bn", "share": 3.8, "yoy": 13.2, "operatingMargin": 3.6, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "후불 휴대폰 순증 / 이탈률", "value": "Q3 2026 순증 37.9만, 월 이탈률 0.92%", "src": ["s1"] },
+      { "name": "집 인터넷 순증", "value": "Q3 2026 광 44.2만 + 고정무선 32.7만 = 76.9만 (분기 최대)", "src": ["s1"] },
+      { "name": "광 도달 지점", "value": "3,900만 곳 이상 (Q3 2026), 2026말 4,000만·2030말 6,000만 이상 목표", "src": ["s1"] },
+      { "name": "결합 가구 비율", "value": "고급 집 인터넷 가구의 42.8%가 AT&T 무선 사용", "src": ["s1"] },
+      { "name": "조정 EBITDA", "value": "Q3 2026 125억 달러(5.4% 증가); Advanced Connectivity EBITDA 123.3억 달러, 마진 41.8%", "src": ["s1"] },
+      { "name": "순부채", "value": "1,498억 달러 (Q3 2026말, EchoStar 주파수 인수로 전분기 대비 증가); 2029년 순부채/조정 EBITDA 2.5배 범위 복귀 목표", "src": ["s1"] }
+    ],
+    "text": "Q3 2026 매출은 323억 달러로 5.3% 늘었고 조정 EPS는 0.65달러로 올랐다. 다만 멕시코 무선 사업 26억 달러 손상과 인력 감축 비용 때문에 GAAP 영업이익은 41억 달러, 계속사업 보통주 귀속 이익은 9억 달러(희석 EPS 0.13달러)에 그쳤다. 이익의 거의 전부는 EBITDA 마진 41.8%의 Advanced Connectivity에서 나온다.",
+    "src": ["s1"]
+  },
+
+  "useOfCash": {
+    "period": "Q3 2026 (ended 2026-09-30)",
+    "items": [
+      { "use": "capex", "value": 5.1, "unit": "USD bn", "src": ["s1"] },
+      { "use": "other", "label": "장비 공급업체 금융 상환", "value": 0.5, "unit": "USD bn", "src": ["s1"] },
+      { "use": "buybacks", "value": 2.8, "unit": "USD bn", "src": ["s1"] },
+      { "use": "dividends", "value": 2.0, "unit": "USD bn", "src": ["s1"] },
+      { "use": "acquisitions", "value": 23, "unit": "USD bn", "src": ["s2"] }
+    ],
+    "text": "번 현금은 망 투자, 주주 환원, 주파수 인수에 나뉜다. Q3 2026 설비투자는 51억 달러, 주주 환원은 48억 달러(자사주 28억 달러, 나머지 약 20억 달러는 배당으로 계산)였고, 같은 분기에 약 230억 달러 EchoStar 주파수 인수를 마쳐 순부채가 1,498억 달러로 늘었다. 회사는 2026~2028년 배당과 자사주로 450억 달러 이상(자사주 240억 달러 이상)을 돌려주면서 2029년 레버리지 2.5배 범위로 돌아가겠다고 했다.",
+    "src": ["s1", "s2"]
+  },
+
+  "aiChain": {
+    "layer": "networking",
+    "position": "AI 칩이나 모델을 만들지 않고, 광통신과 5G 무선으로 AI를 쓰는 가정·기업과 데이터센터를 잇는 연결 계층에 있다.",
+    "dependsOn": ["networking (광·무선 장비 공급업체 - 업체명 미확인)", "power-energy (망 운영 전력)"],
+    "sellsTo": ["ai-adopter (기업 고객)", "devices (AI 기능 스마트폰 사용자)"],
+    "aiRevenue": null,
+    "upside": "AI 서비스가 늘어 데이터 사용량과 업로드 속도 요구가 커지면 광·5G 요금제의 가치가 올라간다. 회사는 EchoStar 주파수가 'AI-ready' 연결의 업링크 성능을 높인다고 설명했다.",
+    "risk": "AI 관련 매출은 따로 공시되지 않아 실적을 움직이는 본업은 여전히 가입자 순증과 요금이다. AI 데이터센터 연결 계약 규모도 이번 자료에서 확인되지 않았다.",
+    "text": "AI 가치사슬에서 AT&T는 '연결' 자리에 있다. CEO John Stankey는 광 선두 지위가 AI 시대에 회사를 유리하게 한다고 말했지만, AI가 손익계산서에 따로 잡히는 숫자는 아직 없다. 그래서 AI는 광·주파수 투자의 논리를 보강하는 요인이지 별도 성장 축으로 읽기는 이르다.",
+    "src": ["s1", "s2"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "미국 무선(휴대폰)", "rivals": ["Verizon", "T-Mobile US", "케이블 MVNO (Comcast, Charter)"], "position": "challenger", "share": null, "src": ["s1"] },
+      { "arena": "가정용 브로드밴드 (광·고정무선)", "rivals": ["Comcast", "Charter", "Verizon", "T-Mobile US"], "position": "challenger", "share": null, "src": ["s1"] },
+      { "arena": "기업 연결 서비스", "rivals": ["Verizon", "Lumen"], "position": "leader", "share": null, "src": ["s1"] }
+    ],
+    "edge": "넓은 광 범위와 새 주파수, 무선+광 결합(결합 가구 42.8%), 대규모 기업 고객 기반.",
+    "threats": "무선 3사의 가격·프로모션 경쟁, 케이블사의 저가 결합 상품, Legacy 매출이 예상보다 빨리 줄어드는 것.",
+    "text": "AT&T는 무선에서 Verizon·T-Mobile US와, 집 인터넷에서 Comcast·Charter 같은 케이블사와 싸운다. Q3 2026에는 후불 휴대폰 37.9만 순증과 집 인터넷 76.9만 순증을 함께 내 결합 전략이 작동하고 있음을 보였다. 다만 이번 자료에는 시장 점유율 수치가 없어 상대적 위치는 가입자 순증 비교로 읽어야 한다.",
+    "src": ["s1"]
+  },
+
+  "strategy": {
+    "goal": "2026~2028년 Advanced Connectivity 서비스 매출 연 중간 한 자릿수 성장, 조정 EBITDA 성장률 2028년 5% 이상, 조정 EPS 3년 두 자릿수 연평균 성장, 잉여현금흐름 2027년 190억·2028년 210억 달러 이상.",
+    "roadmap": [
+      { "when": "2026-02-02", "what": "Lumen 대중 시장 광 사업 인수 완료 (광 자산은 Forged Fiber 37로 분리, 지배 지분 매각 합의)", "src": ["s1"] },
+      { "when": "2026 Q3", "what": "EchoStar 주파수 인수 완료 (약 230억 달러)", "src": ["s1", "s2"] },
+      { "when": "2026-10-13", "what": "멕시코 무선 사업 Grupo Televisa·Fintech Holdings에 매각 합의", "src": ["s1"] },
+      { "when": "2026말", "what": "광 도달 4,000만 곳 이상", "src": ["s1"] },
+      { "when": "2027 이후", "what": "Legacy EBITDA 적자 전환 예상", "src": ["s1"] },
+      { "when": "2030말", "what": "광 도달 6,000만 곳 이상", "src": ["s1"] }
+    ],
+    "vision": "구리선 유선과 해외 사업을 정리하고 미국 광통신+5G 결합 회사로 단순화해, 결합 가구를 늘려 해지율을 낮추고 현금흐름을 키운다.",
+    "text": "앞으로의 계획은 사업을 '미국 광+5G'로 좁히는 것이다. 멕시코를 팔고 Legacy 축소를 받아들이는 대신, 광 도달을 2030말 6,000만 곳 이상으로 늘려 결합 가구를 키운다. 경영진은 이 전환이 2028년 EBITDA 성장률 5% 이상과 잉여현금흐름 210억 달러 이상으로 이어진다고 제시했다.",
+    "src": ["s1"]
+  },
+
+  "governance": {
+    "line": "CEO John Stankey가 이끄는 지분 분산 회사로, 연 1.11달러 배당을 유지하면서 2026년 약 100억 달러 자사주 매입과 2026~2028년 450억 달러 이상 주주 환원을 약속했다.",
+    "src": ["s1"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "adjusted EPS", "value": "약 2.40달러 수준 (상향)", "givenOn": "2026-10-21", "src": ["s1"] },
+      { "period": "FY2026", "metric": "adjusted EBITDA growth", "value": "3~4%의 상단", "givenOn": "2026-10-21", "src": ["s1"] },
+      { "period": "FY2026", "metric": "Advanced Connectivity service revenue growth", "value": "5% 이상", "givenOn": "2026-10-21", "src": ["s1"] },
+      { "period": "FY2026", "metric": "capital investment", "value": "230억~240억 달러", "givenOn": "2026-10-21", "src": ["s1"] },
+      { "period": "FY2026", "metric": "free cash flow", "value": "180억 달러 이상", "givenOn": "2026-10-21", "src": ["s1"] },
+      { "period": "FY2026", "metric": "share repurchases", "value": "약 100억 달러", "givenOn": "2026-10-21", "src": ["s1"] },
+      { "period": "FY2027-2028", "metric": "free cash flow", "value": "2027년 190억 달러 이상, 2028년 210억 달러 이상", "givenOn": "2026-10-21", "src": ["s1"] }
+    ],
+    "style": "annual",
+    "track": "Q3 2026 보도자료에서 2026 조정 EPS 전망을 상향했다. 이전 분기 대비 다른 항목의 변경 폭은 이번 자료에서 확인하지 못했다.",
+    "src": ["s1"]
+  },
+
+  "estimates": { "text": null, "src": [] },
+
+  "watch": {
+    "confirms": [
+      "광 순증이 분기 40만 이상 이어지고 결합 가구 비율이 올라감",
+      "Advanced Connectivity 서비스 매출 성장률 5% 이상 유지",
+      "후불 휴대폰 이탈률이 0.9%대에 머묾",
+      "잉여현금흐름이 2026년 180억 달러 이상 달성",
+      "순부채가 EchoStar 인수 뒤 줄어들기 시작함"
+    ],
+    "breaks": [
+      "가입자 확보를 위해 단말기 보조금·프로모션이 커져 EBITDA 마진이 떨어짐",
+      "Legacy 매출 감소가 20%를 크게 넘어 성장 부문이 못 메움",
+      "후불 휴대폰 순증 둔화와 이탈률 상승",
+      "자본투자가 가이던스를 넘어 잉여현금흐름 전망 하향"
+    ],
+    "keyNumbers": [
+      { "name": "광 순증", "why": "결합 전략의 기반" },
+      { "name": "후불 휴대폰 순증·이탈률", "why": "무선 경쟁력의 직접 증거" },
+      { "name": "Advanced Connectivity 서비스 매출 성장률", "why": "성장 부문의 진짜 속도" },
+      { "name": "잉여현금흐름", "why": "배당·자사주의 재원" },
+      { "name": "순부채", "why": "주파수 인수 뒤 재무 여력" }
+    ]
+  },
+
+  "debate": {
+    "question": "광 결합 성장이 Legacy 감소와 EchoStar 인수로 늘어난 부채를 함께 감당할 수 있는지",
+    "bull": {
+      "text": "낙관하는 쪽은 Q3 2026 집 인터넷 순증 76.9만(분기 최대)과 후불 휴대폰 37.9만 순증, Advanced Connectivity EBITDA 마진 41.8%를 근거로 든다. 회사는 2026 조정 EPS 전망을 약 2.40달러로 올렸고 잉여현금흐름이 2026년 180억, 2028년 210억 달러 이상으로 커진다고 제시했다.",
+      "src": ["s1"]
+    },
+    "bear": {
+      "text": "비관하는 쪽은 순부채가 1,498억 달러로 늘었고 레버리지가 2.5배 범위로 돌아오는 시점이 2029년이라는 점을 든다. 같은 기간 2026~2028년 450억 달러 이상을 주주에게 돌려주기로 해 투자·환원·부채 상환이 같은 현금을 나눠 쓰고, Legacy EBITDA는 2027년 이후 적자로 바뀔 전망이다. 멕시코 26억 달러 손상으로 Q3 GAAP EPS는 0.13달러에 그쳤다.",
+      "src": ["s1", "s2"]
+    },
+    "decides": [
+      { "when": "2027-01 하순 (추정, 회사 미확정)", "what": "4Q26 실적에서 2026 잉여현금흐름 180억 달러 이상과 광 도달 4,000만 곳 달성 여부", "src": ["s1"] },
+      { "when": "2027년 중", "what": "멕시코 매각과 Forged Fiber 37 지분 매각 대금이 들어와 순부채가 줄어드는지", "src": ["s1"] }
+    ]
+  },
+  "underTheHood": [
+    {
+      "title": "GAAP와 조정 이익의 간격",
+      "text": "Q3 2026 조정 EPS는 0.65달러였지만 GAAP 희석 EPS는 0.13달러였다. 차이는 멕시코 무선 사업 26억 달러 비현금 손상과 인력 감축 비용에서 나왔으므로, 본업 흐름은 조정 EBITDA와 잉여현금흐름으로, 자산 정리 비용은 GAAP 숫자로 따로 읽어야 한다.",
+      "src": ["s1"]
+    },
+    {
+      "title": "줄어드는 부문이 가리는 성장",
+      "text": "연결 매출 성장률 5.3%는 7.2% 성장한 Advanced Connectivity와 24.5% 줄어든 Legacy의 합이다. Legacy는 아직 마진 32.8%의 이익을 내지만 2027년 이후 EBITDA 적자가 예상돼, 앞으로는 성장 부문이 쇠퇴 부문의 이익 공백까지 메워야 한다.",
+      "src": ["s1"]
+    },
+    {
+      "title": "주파수를 판 회사가 고객",
+      "text": "EchoStar는 약 230억 달러에 주파수를 AT&T에 넘긴 뒤 Boost Mobile로 AT&T 망을 빌려 쓰는 도매 고객이 됐다. 인수 대금 일부는 EchoStar 자회사 부채 상환에 쓰였고, 도매 매출이 생기는 한편 Boost Mobile은 AT&T와 같은 시장에서 가입자를 놓고 경쟁한다.",
+      "src": ["s2"]
+    },
+    {
+      "title": "설비투자에 숨은 금융",
+      "text": "Q3 자본투자 56억 달러에는 설비투자 51억 달러 외에 공급업체 금융 상환 5억 달러가 들어 있다. 장비 대금을 나중에 갚는 구조라, 잉여현금흐름은 설비투자만 빼고 계산되고 공급업체 금융 상환은 그 뒤에 따로 나간다.",
+      "src": ["s1"]
+    }
+  ],
+  "trading": {
+    "calendar": [
+      { "date": "2027-01 하순 (추정, 회사 미확정)", "event": "4Q26·FY2026 실적", "src": [] },
+      { "date": "분기 중 수시", "event": "Verizon·T-Mobile US 실적의 순증·이탈률 비교", "src": [] }
+    ],
+    "reaction": "통신주는 매출보다 후불 휴대폰 순증, 광 순증, 잉여현금흐름 가이던스에 크게 반응하는 경향이 있다. Q3 2026은 GAAP 이익이 손상으로 크게 줄었지만 조정 EPS·EBITDA와 연간 EPS 전망 상향이 함께 나왔다.",
+    "conditions": [
+      "후불 휴대폰 순증·이탈률이 Verizon·T-Mobile US 대비 어떤지",
+      "광 순증과 결합 가구 비율 추이",
+      "Advanced Connectivity와 Legacy 매출 성장률을 나눠 보기",
+      "잉여현금흐름 가이던스와 자사주 매입 속도",
+      "순부채와 자산 매각 대금 유입 시점"
+    ]
+  },
+  "unverified": [
+    "총마진은 통신사 손익계산서 구조상 미표기 (null)",
+    "순이익률 2.8%는 계속사업 보통주 귀속 이익 9억 달러 / 매출 323억 달러로 계산한 값",
+    "Q3 배당 약 20억 달러는 주주 환원 48억 달러에서 자사주 28억 달러를 뺀 계산값",
+    "EchoStar 주파수 대가 약 230억 달러는 언론 보도 기준이며 정확한 지급 시점·현금/부채 구성 미확인",
+    "Forged Fiber 37 지분 매수자와 매각 대금, 멕시코 매각 대금",
+    "ARPU, 연초 대비(9개월) 누적 현금흐름",
+    "AI 관련 매출·데이터센터 연결 계약 규모",
+    "네트워크 장비 공급업체 이름",
+    "컨센서스 추정치 (이번 조사에서 미수집)",
+    "4Q26 실적 발표일"
+  ],
+  "confidence": "medium - 분기 매출·부문·가입자·가이던스는 회사 8-K 보도자료에서 직접 읽었지만, 연간 10-K 수치·누적 현금흐름·AI 매출은 이번에 확인하지 못했다."
+}

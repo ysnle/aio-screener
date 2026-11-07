@@ -1,14 +1,14 @@
 {
   "schemaVersion": "aio-boot-performance-evidence.v1",
-  "observedAt": "2026-11-07T10:03:24.010Z",
-  "appRevision": "v59.72",
-  "gitHead": "a0f4e13c51dbf1cda5a3e78bd5684bcbf8b93b19",
+  "observedAt": "2026-11-07T17:36:09.490Z",
+  "appRevision": "v59.73",
+  "gitHead": "6749ac35e2f34ca5f105ee880b40835ebc851597",
   "gitClean": false,
   "environment": {
     "browser": "chromium",
-    "browserVersion": "156.0.8078.4",
-    "platform": "win32",
-    "node": "v24.18.0",
+    "browserVersion": "153.0.8010.12",
+    "platform": "linux",
+    "node": "v22.23.4",
     "viewport": "1440x1000"
   },
   "command": "node scripts/ci-boot-interaction-check.mjs",
@@ -16,87 +16,87 @@
   "targetStatus": "TARGET_MISS",
   "targetPolicy": "report-not-blocking",
   "targetFailures": [
-    "max long task 239 > 200",
-    "decoded same-origin JS 2.92MB > 1.5MB"
+    "max long task 224 > 200",
+    "decoded same-origin JS 2.93MB > 1.5MB"
   ],
   "metrics": {
-    "fcpMs": 1700,
-    "dclMs": 318,
-    "loadMs": 394,
-    "maxLongTaskMs": 239,
-    "totalLongTaskMs": 909,
-    "longTaskCount": 8,
+    "fcpMs": 104,
+    "dclMs": 496,
+    "loadMs": 570,
+    "maxLongTaskMs": 224,
+    "totalLongTaskMs": 749,
+    "longTaskCount": 7,
     "longTaskObservationWindowMs": 2000,
-    "domNodes": 4119,
-    "activeRouteDomNodes": 2059,
+    "domNodes": 4082,
+    "activeRouteDomNodes": 2097,
     "activePage": "page-signal",
     "bootStatusPresent": false,
-    "decodedJsBytes": 3060791,
-    "sameOriginScripts": 126,
+    "decodedJsBytes": 3071510,
+    "sameOriginScripts": 122,
     "crossOriginScripts": 1,
-    "resourceEntries": 205,
+    "resourceEntries": 200,
     "jsByKind": {
-      "esmBoot": 1575069,
-      "classicBoot": 1152059,
+      "esmBoot": 1578215,
+      "classicBoot": 1151147,
       "aiPanelBeforeUse": 0,
-      "postBootLazy": 333663
+      "postBootLazy": 342148
     },
     "aiPanelRequestsBeforeUse": [],
     "largestLazyFiles": [
       {
+        "path": "src/chunks/chunk-I74XYHY5.js",
+        "bytes": 63421,
+        "startMs": 579
+      },
+      {
         "path": "src/chunks/legacy-screen-bridges-KFALLX7O.js",
         "bytes": 41813,
-        "startMs": 218
+        "startMs": 450
       },
       {
-        "path": "src/chunks/chunk-PIHIMGMU.js",
-        "bytes": 40220,
-        "startMs": 393
-      },
-      {
-        "path": "src/chunks/session-lean-LNQ4S5C7.js",
-        "bytes": 28250,
-        "startMs": 439
+        "path": "src/chunks/session-lean-PLXZZRLW.js",
+        "bytes": 28251,
+        "startMs": 755
       },
       {
         "path": "src/chunks/request-pipeline-DS3ZGKB7.js",
         "bytes": 27865,
-        "startMs": 217
+        "startMs": 448
       },
       {
-        "path": "src/chunks/analysis-NICXRIC7.js",
+        "path": "src/chunks/analysis-BGFXZQPN.js",
         "bytes": 23066,
-        "startMs": 306
+        "startMs": 478
       },
       {
-        "path": "src/chunks/chunk-GNADF7YA.js",
-        "bytes": 20420,
-        "startMs": 393
+        "path": "src/chunks/chunk-O43BD3CY.js",
+        "bytes": 20427,
+        "startMs": 579
+      },
+      {
+        "path": "src/chunks/chunk-DW4EUP2G.js",
+        "bytes": 17584,
+        "startMs": 1431
       },
       {
         "path": "src/chunks/chunk-4J6BDRBY.js",
         "bytes": 15989,
-        "startMs": 333
-      },
-      {
-        "path": "src/chunks/chunk-LIK5EPNF.js",
-        "bytes": 14516,
-        "startMs": 1937
+        "startMs": 519
       }
     ],
     "measuredBundle": "deploy",
     "aiPanelOnHover": [
       "js/aio-chat.js",
       "src/chunks/ai-profile-GU3SX7UP.js",
-      "src/chunks/chat-globals-57FTWIYF.js",
+      "src/chunks/chat-globals-QH5DI3OS.js",
       "src/chunks/question-cues-HHNEV3TP.js",
       "src/chunks/supplied-materials-5YAMERY5.js"
     ],
-    "routeMs": 25,
-    "wallMs": 8908,
+    "routeMs": 123,
+    "wallMs": 7835,
     "totalExternalRequests": 53,
     "quoteRequests": 32,
-    "initialExternalRequests": 8,
+    "initialExternalRequests": 7,
     "initialQuoteRequests": 4,
     "bootObservationWindowMs": 2000,
     "onDemandChartLibrary": {
@@ -109,6 +109,6 @@
       "other": true,
       "noChartGlobal": true
     },
-    "decodedJsMb": 2.92
+    "decodedJsMb": 2.93
   }
 }

@@ -1,10 +1,18 @@
 {
  "schemaVersion": "company-profiles-index.v1",
- "revision": "2b010fd5fcebda05",
- "count": 188,
+ "revision": "47bc5548221818fc",
+ "count": 274,
  "schema": "_artifacts/company-profile-pilot-20261028/SCHEMA-v2.md",
  "cadence": "researched once per quarterly report; a story older than the company's latest report is shown as stale",
  "profiles": [
+  {
+   "symbol": "000270.KS",
+   "name": "기아 (Kia Corporation)",
+   "file": "000270.KS.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (2026-07~09, 3개월)",
+   "layer": "limited"
+  },
   {
    "symbol": "000660.KS",
    "name": "SK hynix Inc. (SK하이닉스)",
@@ -46,6 +54,14 @@
    "layer": "chips-compute"
   },
   {
+   "symbol": "010120.KS",
+   "name": "LS ELECTRIC Co., Ltd. (LS일렉트릭)",
+   "file": "010120.KS.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (2026-07~09, 3개월, 연결 잠정)",
+   "layer": "cooling-electrical"
+  },
+  {
    "symbol": "012450.KS",
    "name": "한화에어로스페이스 (Hanwha Aerospace Co., Ltd.)",
    "file": "012450.KS.json",
@@ -62,12 +78,52 @@
    "layer": "power-energy"
   },
   {
+   "symbol": "035420.KS",
+   "name": "NAVER (NAVER Corporation)",
+   "file": "035420.KS.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q2 2026 (2026-04~06, 3개월)",
+   "layer": "ai-adopter"
+  },
+  {
    "symbol": "036930.KQ",
    "name": "Jusung Engineering Co., Ltd. (주성엔지니어링)",
    "file": "036930.KQ.json",
-   "researchedAt": "2026-10-28",
-   "period": "1H26 (six months ended 2026-06-30, K-IFRS 연결 잠정)",
+   "researchedAt": "2026-11-07",
+   "period": "3Q26 (three months ended 2026-09-30, K-IFRS 연결 잠정)",
    "layer": "semicap-foundry"
+  },
+  {
+   "symbol": "042700.KS",
+   "name": "Hanmi Semiconductor Co., Ltd. (한미반도체)",
+   "file": "042700.KS.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (2026-07~09, 3개월, 연결 잠정)",
+   "layer": "semicap-foundry"
+  },
+  {
+   "symbol": "055550.KS",
+   "name": "Shinhan Financial Group Co., Ltd. (신한지주)",
+   "file": "055550.KS.json",
+   "researchedAt": "2026-11-07",
+   "period": "2026 1~3Q 누적 (2026-01~09, 9개월)",
+   "layer": "limited"
+  },
+  {
+   "symbol": "066570.KS",
+   "name": "LG전자 (LG Electronics Inc.)",
+   "file": "066570.KS.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (2026-07~09, 3개월, 잠정)",
+   "layer": "cooling-electrical"
+  },
+  {
+   "symbol": "068270.KS",
+   "name": "Celltrion, Inc. (셀트리온)",
+   "file": "068270.KS.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (2026-07~09, 3개월, 연결)",
+   "layer": "limited"
   },
   {
    "symbol": "105560.KS",
@@ -76,6 +132,38 @@
    "researchedAt": "2026-10-29",
    "period": "FY2025 (ended 2025-12-31)",
    "layer": "ai-adopter"
+  },
+  {
+   "symbol": "207940.KS",
+   "name": "삼성바이오로직스 (Samsung Biologics Co., Ltd.)",
+   "file": "207940.KS.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (2026-07~09, 3개월)",
+   "layer": "limited"
+  },
+  {
+   "symbol": "267260.KS",
+   "name": "HD Hyundai Electric Co., Ltd. (HD현대일렉트릭)",
+   "file": "267260.KS.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (2026-07~09, 3개월, 연결)",
+   "layer": "cooling-electrical"
+  },
+  {
+   "symbol": "329180.KS",
+   "name": "HD현대중공업 (HD Hyundai Heavy Industries Co., Ltd.)",
+   "file": "329180.KS.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (2026-07~09, 3개월, 잠정)",
+   "layer": "limited"
+  },
+  {
+   "symbol": "373220.KS",
+   "name": "LG에너지솔루션 (LG Energy Solution, Ltd.)",
+   "file": "373220.KS.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (2026-07~09, 3개월, 잠정)",
+   "layer": "power-energy"
   },
   {
    "symbol": "402340.KS",
@@ -89,40 +177,56 @@
    "symbol": "AAOI",
    "name": "Applied Optoelectronics, Inc.",
    "file": "AAOI.json",
-   "researchedAt": "2026-10-30",
-   "period": "Q2 2026 (ended 2026-06-30)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "networking"
   },
   {
    "symbol": "AAPL",
    "name": "Apple Inc.",
    "file": "AAPL.json",
-   "researchedAt": "2026-10-29",
-   "period": "FY2025 (ended 2025-09-27)",
+   "researchedAt": "2026-11-07",
+   "period": "FY2026 (ended 2026-09-26)",
    "layer": "devices"
   },
   {
    "symbol": "ABBV",
    "name": "AbbVie Inc.",
    "file": "ABBV.json",
-   "researchedAt": "2026-10-28",
-   "period": "FY2025 (ended 2025-12-31)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "ai-adopter"
+  },
+  {
+   "symbol": "ABNB",
+   "name": "Airbnb, Inc.",
+   "file": "ABNB.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "ai-adopter"
+  },
+  {
+   "symbol": "ABT",
+   "name": "Abbott Laboratories",
+   "file": "ABT.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "ai-adopter"
   },
   {
    "symbol": "ACLS",
    "name": "Axcelis Technologies, Inc.",
    "file": "ACLS.json",
-   "researchedAt": "2026-10-30",
-   "period": "Q2 2026 (ended 2026-06-30)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "semicap-foundry"
   },
   {
    "symbol": "ACMR",
    "name": "ACM Research, Inc.",
    "file": "ACMR.json",
-   "researchedAt": "2026-10-30",
-   "period": "Q2 2026 (ended 2026-06-30; Q3 full results due 2026-11-05)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "semicap-foundry"
   },
   {
@@ -161,9 +265,17 @@
    "symbol": "AEIS",
    "name": "Advanced Energy Industries, Inc.",
    "file": "AEIS.json",
-   "researchedAt": "2026-10-30",
-   "period": "Q2 2026 (quarter ended 2026-06-30)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (quarter ended 2026-09-30)",
    "layer": "power-energy"
+  },
+  {
+   "symbol": "AFRM",
+   "name": "Affirm Holdings, Inc.",
+   "file": "AFRM.json",
+   "researchedAt": "2026-11-07",
+   "period": "FQ1 FY2027 (quarter ended 2026-09-30)",
+   "layer": "ai-adopter"
   },
   {
    "symbol": "AI",
@@ -177,8 +289,8 @@
    "symbol": "ALAB",
    "name": "Astera Labs, Inc.",
    "file": "ALAB.json",
-   "researchedAt": "2026-10-28",
-   "period": "FY2025 (ended 2025-12-31)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "networking"
   },
   {
@@ -201,16 +313,16 @@
    "symbol": "AMD",
    "name": "Advanced Micro Devices, Inc.",
    "file": "AMD.json",
-   "researchedAt": "2026-10-29",
-   "period": "FY2025 (ended 2025-12-27)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended late September 2026)",
    "layer": "chips-compute"
   },
   {
    "symbol": "AMGN",
    "name": "Amgen Inc.",
    "file": "AMGN.json",
-   "researchedAt": "2026-10-28",
-   "period": "FY2025 (ended 2025-12-31)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "ai-adopter"
   },
   {
@@ -233,8 +345,8 @@
    "symbol": "ANET",
    "name": "Arista Networks, Inc.",
    "file": "ANET.json",
-   "researchedAt": "2026-10-28",
-   "period": "FY2025 (ended 2025-12-31)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "networking"
   },
   {
@@ -257,24 +369,24 @@
    "symbol": "APP",
    "name": "AppLovin Corporation",
    "file": "APP.json",
-   "researchedAt": "2026-10-28",
-   "period": "FY2025 (ended 2025-12-31)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "software-applications"
   },
   {
    "symbol": "APPN",
    "name": "Appian Corporation",
    "file": "APPN.json",
-   "researchedAt": "2026-10-30",
-   "period": "1H 2026 (six months ended 2026-06-30)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "software-applications"
   },
   {
    "symbol": "ARM",
    "name": "Arm Holdings plc",
    "file": "ARM.json",
-   "researchedAt": "2026-10-29",
-   "period": "FY2026 (ended 2026-03-31)",
+   "researchedAt": "2026-11-07",
+   "period": "Q2 FY2027 (ended 2026-09-30)",
    "layer": "chips-compute"
   },
   {
@@ -286,6 +398,14 @@
    "layer": "semicap-foundry"
   },
   {
+   "symbol": "ASTS",
+   "name": "AST SpaceMobile, Inc.",
+   "file": "ASTS.json",
+   "researchedAt": "2026-11-07",
+   "period": "H1 2026 (2026-01-01 ~ 2026-06-30)",
+   "layer": "limited"
+  },
+  {
    "symbol": "ASX",
    "name": "ASE Technology Holding Co., Ltd.",
    "file": "ASX.json",
@@ -294,12 +414,28 @@
    "layer": "semicap-foundry"
   },
   {
+   "symbol": "AVAV",
+   "name": "AeroVironment, Inc.",
+   "file": "AVAV.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q1 FY2027 (ended 2026-08-01)",
+   "layer": "limited"
+  },
+  {
    "symbol": "AVGO",
    "name": "Broadcom Inc.",
    "file": "AVGO.json",
    "researchedAt": "2026-10-28",
    "period": "FY2025 (ended 2025-11-02)",
    "layer": "chips-compute"
+  },
+  {
+   "symbol": "AXP",
+   "name": "American Express Company",
+   "file": "AXP.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (quarter ended 2026-09-30)",
+   "layer": "limited"
   },
   {
    "symbol": "AXTI",
@@ -316,6 +452,14 @@
    "researchedAt": "2026-10-28",
    "period": "FY2025 (ended 2025-12-31)",
    "layer": "limited"
+  },
+  {
+   "symbol": "BABA",
+   "name": "Alibaba Group Holding Limited",
+   "file": "BABA.json",
+   "researchedAt": "2026-11-07",
+   "period": "June quarter 2026 (Q1 FY2027, ended 2026-06-30)",
+   "layer": "cloud-infrastructure"
   },
   {
    "symbol": "BAC",
@@ -337,16 +481,32 @@
    "symbol": "BKNG",
    "name": "Booking Holdings Inc.",
    "file": "BKNG.json",
-   "researchedAt": "2026-10-28",
-   "period": "FY2025 (ended 2025-12-31)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (quarter ended 2026-09-30)",
    "layer": "ai-exposed"
+  },
+  {
+   "symbol": "BLK",
+   "name": "BlackRock, Inc.",
+   "file": "BLK.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (quarter ended 2026-09-30)",
+   "layer": "data-center-real-estate"
+  },
+  {
+   "symbol": "BMY",
+   "name": "Bristol-Myers Squibb Company",
+   "file": "BMY.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (quarter ended 2026-09-30)",
+   "layer": "limited"
   },
   {
    "symbol": "BRK-B",
    "name": "Berkshire Hathaway Inc. (Class B)",
    "file": "BRK-B.json",
-   "researchedAt": "2026-10-28",
-   "period": "FY2025 (ended 2025-12-31)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "ai-exposed"
   },
   {
@@ -377,8 +537,8 @@
    "symbol": "CAMT",
    "name": "Camtek Ltd.",
    "file": "CAMT.json",
-   "researchedAt": "2026-10-30",
-   "period": "Q2 2026 (quarter ended 2026-06-30)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (quarter ended 2026-09-30)",
    "layer": "semicap-foundry"
   },
   {
@@ -398,12 +558,36 @@
    "layer": "power-energy"
   },
   {
+   "symbol": "CCJ",
+   "name": "Cameco Corporation",
+   "file": "CCJ.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30; amounts in CAD)",
+   "layer": "power-energy"
+  },
+  {
    "symbol": "CDNS",
    "name": "Cadence Design Systems, Inc.",
    "file": "CDNS.json",
    "researchedAt": "2026-10-30",
    "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "semicap-foundry"
+  },
+  {
+   "symbol": "CEG",
+   "name": "Constellation Energy Corporation",
+   "file": "CEG.json",
+   "researchedAt": "2026-11-07",
+   "period": "H1 2026 (six months ended 2026-06-30)",
+   "layer": "power-energy"
+  },
+  {
+   "symbol": "CELH",
+   "name": "Celsius Holdings, Inc.",
+   "file": "CELH.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "limited"
   },
   {
    "symbol": "CEVA",
@@ -425,8 +609,8 @@
    "symbol": "CIFR",
    "name": "Cipher Digital Inc. (formerly Cipher Mining)",
    "file": "CIFR.json",
-   "researchedAt": "2026-10-30",
-   "period": "Q2 2026 (ended 2026-06-30)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "data-center-real-estate"
   },
   {
@@ -438,11 +622,19 @@
    "layer": "networking"
   },
   {
+   "symbol": "CMCSA",
+   "name": "Comcast Corporation",
+   "file": "CMCSA.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (quarter ended 2026-09-30)",
+   "layer": "limited"
+  },
+  {
    "symbol": "COHR",
    "name": "Coherent Corp.",
    "file": "COHR.json",
-   "researchedAt": "2026-10-28",
-   "period": "FY2026 (ended 2026-06-30)",
+   "researchedAt": "2026-11-07",
+   "period": "Q1 FY2027 (ended 2026-09-30)",
    "layer": "networking"
   },
   {
@@ -462,11 +654,19 @@
    "layer": "ai-exposed"
   },
   {
+   "symbol": "COP",
+   "name": "ConocoPhillips",
+   "file": "COP.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (quarter ended 2026-09-30)",
+   "layer": "limited"
+  },
+  {
    "symbol": "CORZ",
    "name": "Core Scientific, Inc.",
    "file": "CORZ.json",
-   "researchedAt": "2026-10-30",
-   "period": "Q2 2026 (ended 2026-06-30)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "data-center-real-estate"
   },
   {
@@ -518,20 +718,52 @@
    "layer": "networking"
   },
   {
+   "symbol": "CVNA",
+   "name": "Carvana Co.",
+   "file": "CVNA.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "limited"
+  },
+  {
+   "symbol": "CVS",
+   "name": "CVS Health Corporation",
+   "file": "CVS.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "ai-adopter"
+  },
+  {
    "symbol": "CVX",
    "name": "Chevron Corporation",
    "file": "CVX.json",
-   "researchedAt": "2026-10-28",
-   "period": "FY2025 (ended 2025-12-31)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "power-energy"
+  },
+  {
+   "symbol": "DASH",
+   "name": "DoorDash, Inc.",
+   "file": "DASH.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "ai-exposed"
   },
   {
    "symbol": "DDOG",
    "name": "Datadog, Inc.",
    "file": "DDOG.json",
-   "researchedAt": "2026-10-30",
-   "period": "FY2025 (ended 2025-12-31)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "software-applications"
+  },
+  {
+   "symbol": "DE",
+   "name": "Deere & Company",
+   "file": "DE.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 FY2026 (reported 2026-08-20; cash flow is year-to-date)",
+   "layer": "limited"
   },
   {
    "symbol": "DELL",
@@ -542,12 +774,52 @@
    "layer": "chips-compute"
   },
   {
+   "symbol": "DHR",
+   "name": "Danaher Corporation",
+   "file": "DHR.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (quarter ended 2026-09-25)",
+   "layer": "limited"
+  },
+  {
+   "symbol": "DIS",
+   "name": "The Walt Disney Company",
+   "file": "DIS.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 FY2026 (quarter ended 2026-06-27)",
+   "layer": "ai-adopter"
+  },
+  {
+   "symbol": "DKNG",
+   "name": "DraftKings Inc.",
+   "file": "DKNG.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "limited"
+  },
+  {
+   "symbol": "ELV",
+   "name": "Elevance Health, Inc.",
+   "file": "ELV.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (quarter ended 2026-09-30)",
+   "layer": "limited"
+  },
+  {
    "symbol": "EME",
    "name": "EMCOR Group, Inc.",
    "file": "EME.json",
    "researchedAt": "2026-10-30",
    "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "cooling-electrical"
+  },
+  {
+   "symbol": "ENPH",
+   "name": "Enphase Energy, Inc.",
+   "file": "ENPH.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "power-energy"
   },
   {
    "symbol": "ENTG",
@@ -577,9 +849,17 @@
    "symbol": "ETN",
    "name": "Eaton Corporation plc",
    "file": "ETN.json",
-   "researchedAt": "2026-10-30",
-   "period": "Q2 2026 (ended 2026-06-30)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "cooling-electrical"
+  },
+  {
+   "symbol": "F",
+   "name": "Ford Motor Company",
+   "file": "F.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "limited"
   },
   {
    "symbol": "FIX",
@@ -601,8 +881,8 @@
    "symbol": "FN",
    "name": "Fabrinet",
    "file": "FN.json",
-   "researchedAt": "2026-10-30",
-   "period": "FY2026 (ended 2026-06-26)",
+   "researchedAt": "2026-11-07",
+   "period": "Q1 FY2027 (ended 2026-09-25)",
    "layer": "networking"
   },
   {
@@ -614,12 +894,28 @@
    "layer": "semicap-foundry"
   },
   {
+   "symbol": "FSLR",
+   "name": "First Solar, Inc.",
+   "file": "FSLR.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "power-energy"
+  },
+  {
    "symbol": "FTNT",
    "name": "Fortinet, Inc.",
    "file": "FTNT.json",
    "researchedAt": "2026-10-30",
    "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "software-applications"
+  },
+  {
+   "symbol": "GD",
+   "name": "General Dynamics Corporation",
+   "file": "GD.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (2026-10-04 종료 분기)",
+   "layer": "limited"
   },
   {
    "symbol": "GE",
@@ -641,9 +937,17 @@
    "symbol": "GFS",
    "name": "GLOBALFOUNDRIES Inc.",
    "file": "GFS.json",
-   "researchedAt": "2026-10-30",
-   "period": "Q2 2026 (ended 2026-06-30)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "semicap-foundry"
+  },
+  {
+   "symbol": "GILD",
+   "name": "Gilead Sciences, Inc.",
+   "file": "GILD.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (quarter ended 2026-09-30)",
+   "layer": "limited"
   },
   {
    "symbol": "GLW",
@@ -660,6 +964,14 @@
    "researchedAt": "2026-10-30",
    "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "data-center-real-estate"
+  },
+  {
+   "symbol": "GM",
+   "name": "General Motors Company",
+   "file": "GM.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "devices"
   },
   {
    "symbol": "GOOGL",
@@ -683,6 +995,14 @@
    "file": "HD.json",
    "researchedAt": "2026-10-28",
    "period": "FY2025 (ended 2026-02-01, 52 weeks vs 53 weeks in FY2024)",
+   "layer": "ai-adopter"
+  },
+  {
+   "symbol": "HIMS",
+   "name": "Hims & Hers Health, Inc.",
+   "file": "HIMS.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q2 2026 (quarter ended 2026-06-30)",
    "layer": "ai-adopter"
   },
   {
@@ -713,8 +1033,8 @@
    "symbol": "HUT",
    "name": "Hut 8 Corp.",
    "file": "HUT.json",
-   "researchedAt": "2026-10-30",
-   "period": "Q2 2026 (ended 2026-06-30)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "data-center-real-estate"
   },
   {
@@ -729,8 +1049,8 @@
    "symbol": "ICHR",
    "name": "Ichor Holdings, Ltd.",
    "file": "ICHR.json",
-   "researchedAt": "2026-10-30",
-   "period": "Q2 2026 (quarter ended 2026-06-26)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (quarter ended 2026-09-25)",
    "layer": "semicap-foundry"
   },
   {
@@ -750,12 +1070,28 @@
    "layer": "software-applications"
   },
   {
+   "symbol": "IONQ",
+   "name": "IonQ, Inc.",
+   "file": "IONQ.json",
+   "researchedAt": "2026-11-07",
+   "period": "9M 2026 (2026-01-01 ~ 2026-09-30)",
+   "layer": "limited"
+  },
+  {
    "symbol": "IREN",
    "name": "IREN Limited",
    "file": "IREN.json",
-   "researchedAt": "2026-10-29",
-   "period": "FY2026 (ended 2026-06-30)",
+   "researchedAt": "2026-11-07",
+   "period": "Q1 FY2027 (ended 2026-09-30)",
    "layer": "cloud-infrastructure"
+  },
+  {
+   "symbol": "ISRG",
+   "name": "Intuitive Surgical, Inc.",
+   "file": "ISRG.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "ai-adopter"
   },
   {
    "symbol": "JBL",
@@ -780,6 +1116,14 @@
    "researchedAt": "2026-10-29",
    "period": "FY2025 (ended 2025-12-28)",
    "layer": "ai-adopter"
+  },
+  {
+   "symbol": "JOBY",
+   "name": "Joby Aviation, Inc.",
+   "file": "JOBY.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "limited"
   },
   {
    "symbol": "JPM",
@@ -814,11 +1158,51 @@
    "layer": "ai-adopter"
   },
   {
+   "symbol": "KTOS",
+   "name": "Kratos Defense & Security Solutions, Inc.",
+   "file": "KTOS.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-27)",
+   "layer": "limited"
+  },
+  {
+   "symbol": "LCID",
+   "name": "Lucid Group, Inc.",
+   "file": "LCID.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q2 2026 (ended 2026-06-30)",
+   "layer": "devices"
+  },
+  {
+   "symbol": "LEU",
+   "name": "Centrus Energy Corp.",
+   "file": "LEU.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30; cash flow is 9M 2026)",
+   "layer": "power-energy"
+  },
+  {
+   "symbol": "LHX",
+   "name": "L3Harris Technologies, Inc.",
+   "file": "LHX.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (2026-10-02 전후 종료 분기)",
+   "layer": "limited"
+  },
+  {
+   "symbol": "LIN",
+   "name": "Linde plc",
+   "file": "LIN.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (2026-09-30 종료 분기)",
+   "layer": "ai-exposed"
+  },
+  {
    "symbol": "LITE",
    "name": "Lumentum Holdings Inc.",
    "file": "LITE.json",
-   "researchedAt": "2026-10-28",
-   "period": "FY2026 (ended 2026-06-27)",
+   "researchedAt": "2026-11-07",
+   "period": "Q1 FY2027 (ended 2026-09-26)",
    "layer": "networking"
   },
   {
@@ -828,6 +1212,14 @@
    "researchedAt": "2026-10-30",
    "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "ai-adopter"
+  },
+  {
+   "symbol": "LMT",
+   "name": "Lockheed Martin Corporation",
+   "file": "LMT.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (2026-09-27 종료 분기)",
+   "layer": "limited"
   },
   {
    "symbol": "LRCX",
@@ -841,9 +1233,17 @@
    "symbol": "LSCC",
    "name": "Lattice Semiconductor Corporation",
    "file": "LSCC.json",
-   "researchedAt": "2026-10-30",
-   "period": "Q2 2026 (quarter ended 2026-07-04)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (quarter ended 2026-10-03)",
    "layer": "chips-compute"
+  },
+  {
+   "symbol": "LULU",
+   "name": "lululemon athletica inc.",
+   "file": "LULU.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q2 FY2026 (ended 2026-08-02)",
+   "layer": "limited"
   },
   {
    "symbol": "MA",
@@ -857,16 +1257,16 @@
    "symbol": "MCD",
    "name": "McDonald's Corporation",
    "file": "MCD.json",
-   "researchedAt": "2026-10-28",
-   "period": "FY2025 (ended 2025-12-31)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "ai-adopter"
   },
   {
    "symbol": "MCHP",
    "name": "Microchip Technology Incorporated",
    "file": "MCHP.json",
-   "researchedAt": "2026-10-30",
-   "period": "Q1 FY2027 (ended 2026-06-30)",
+   "researchedAt": "2026-11-07",
+   "period": "Q2 FY2027 (ended 2026-09-30)",
    "layer": "ai-exposed"
   },
   {
@@ -886,6 +1286,14 @@
    "layer": "ai-adopter"
   },
   {
+   "symbol": "MELI",
+   "name": "MercadoLibre, Inc.",
+   "file": "MELI.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "limited"
+  },
+  {
    "symbol": "META",
    "name": "Meta Platforms, Inc.",
    "file": "META.json",
@@ -897,8 +1305,8 @@
    "symbol": "MKSI",
    "name": "MKS Inc.",
    "file": "MKSI.json",
-   "researchedAt": "2026-10-30",
-   "period": "Q2 2026 (ended 2026-06-30)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "semicap-foundry"
   },
   {
@@ -929,8 +1337,8 @@
    "symbol": "MRNA",
    "name": "Moderna, Inc.",
    "file": "MRNA.json",
-   "researchedAt": "2026-10-29",
-   "period": "FY2025 (ended 2025-12-31)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "ai-adopter"
   },
   {
@@ -940,6 +1348,14 @@
    "researchedAt": "2026-10-28",
    "period": "FY2026 (ended 2026-01-31)",
    "layer": "networking"
+  },
+  {
+   "symbol": "MS",
+   "name": "Morgan Stanley",
+   "file": "MS.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (quarter ended 2026-09-30)",
+   "layer": "ai-exposed"
   },
   {
    "symbol": "MSFT",
@@ -961,8 +1377,8 @@
    "symbol": "MTSI",
    "name": "MACOM Technology Solutions Holdings, Inc.",
    "file": "MTSI.json",
-   "researchedAt": "2026-10-30",
-   "period": "Q3 FY2026 (ended 2026-07-03)",
+   "researchedAt": "2026-11-07",
+   "period": "FY2026 (ended 2026-10-02)",
    "layer": "networking"
   },
   {
@@ -993,8 +1409,8 @@
    "symbol": "NET",
    "name": "Cloudflare, Inc.",
    "file": "NET.json",
-   "researchedAt": "2026-10-30",
-   "period": "Q2 2026 (ended 2026-06-30)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "cloud-infrastructure"
   },
   {
@@ -1014,12 +1430,28 @@
    "layer": "limited"
   },
   {
+   "symbol": "NOC",
+   "name": "Northrop Grumman Corporation",
+   "file": "NOC.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (2026-09-30 종료 분기)",
+   "layer": "limited"
+  },
+  {
    "symbol": "NOW",
    "name": "ServiceNow, Inc.",
    "file": "NOW.json",
    "researchedAt": "2026-10-30",
    "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "software-applications"
+  },
+  {
+   "symbol": "NRG",
+   "name": "NRG Energy, Inc.",
+   "file": "NRG.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q2 2026 (ended 2026-06-30; Q3 2026 to be reported 2026-11-09)",
+   "layer": "power-energy"
   },
   {
    "symbol": "NTAP",
@@ -1049,16 +1481,16 @@
    "symbol": "NVMI",
    "name": "Nova Ltd.",
    "file": "NVMI.json",
-   "researchedAt": "2026-10-30",
-   "period": "Q2 2026 (quarter ended 2026-06-30)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (quarter ended 2026-09-30)",
    "layer": "semicap-foundry"
   },
   {
    "symbol": "NVT",
    "name": "nVent Electric plc",
    "file": "NVT.json",
-   "researchedAt": "2026-10-30",
-   "period": "Q2 2026 (ended 2026-06-30)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "cooling-electrical"
   },
   {
@@ -1070,11 +1502,27 @@
    "layer": "ai-exposed"
   },
   {
+   "symbol": "OKLO",
+   "name": "Oklo Inc.",
+   "file": "OKLO.json",
+   "researchedAt": "2026-11-07",
+   "period": "9M 2026 (ended 2026-09-30)",
+   "layer": "power-energy"
+  },
+  {
+   "symbol": "OKTA",
+   "name": "Okta, Inc.",
+   "file": "OKTA.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q2 FY2027 (ended 2026-07-31)",
+   "layer": "software-applications"
+  },
+  {
    "symbol": "ON",
    "name": "ON Semiconductor Corporation (onsemi)",
    "file": "ON.json",
-   "researchedAt": "2026-10-30",
-   "period": "Q2 2026 (ended 2026-07-03)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-10-02)",
    "layer": "ai-exposed"
   },
   {
@@ -1110,6 +1558,14 @@
    "layer": "software-applications"
   },
   {
+   "symbol": "PDD",
+   "name": "PDD Holdings Inc.",
+   "file": "PDD.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q2 2026 (ended 2026-06-30)",
+   "layer": "limited"
+  },
+  {
    "symbol": "PEGA",
    "name": "Pegasystems Inc.",
    "file": "PEGA.json",
@@ -1126,12 +1582,36 @@
    "layer": "ai-adopter"
   },
   {
+   "symbol": "PFE",
+   "name": "Pfizer Inc.",
+   "file": "PFE.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (quarter ended 2026-09-30)",
+   "layer": "limited"
+  },
+  {
    "symbol": "PG",
    "name": "The Procter & Gamble Company",
    "file": "PG.json",
    "researchedAt": "2026-10-28",
    "period": "FY2026 (ended 2026-06-30)",
    "layer": "limited"
+  },
+  {
+   "symbol": "PGR",
+   "name": "The Progressive Corporation",
+   "file": "PGR.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (quarter ended 2026-09-30)",
+   "layer": "limited"
+  },
+  {
+   "symbol": "PINS",
+   "name": "Pinterest, Inc.",
+   "file": "PINS.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "ai-adopter"
   },
   {
    "symbol": "PLAB",
@@ -1145,9 +1625,17 @@
    "symbol": "PLTR",
    "name": "Palantir Technologies Inc.",
    "file": "PLTR.json",
-   "researchedAt": "2026-10-28",
-   "period": "FY2025 (ended 2025-12-31)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "software-applications"
+  },
+  {
+   "symbol": "PM",
+   "name": "Philip Morris International Inc.",
+   "file": "PM.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (quarter ended 2026-09-30)",
+   "layer": "limited"
   },
   {
    "symbol": "POWL",
@@ -1161,8 +1649,8 @@
    "symbol": "PRCT",
    "name": "PROCEPT BioRobotics Corporation",
    "file": "PRCT.json",
-   "researchedAt": "2026-10-28",
-   "period": "FY2025 (ended 2025-12-31)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "ai-adopter"
   },
   {
@@ -1174,12 +1662,36 @@
    "layer": "power-energy"
   },
   {
+   "symbol": "PYPL",
+   "name": "PayPal Holdings, Inc.",
+   "file": "PYPL.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (quarter ended 2026-09-30)",
+   "layer": "ai-adopter"
+  },
+  {
+   "symbol": "QBTS",
+   "name": "D-Wave Quantum Inc.",
+   "file": "QBTS.json",
+   "researchedAt": "2026-11-07",
+   "period": "H1 2026 (2026-01-01 ~ 2026-06-30)",
+   "layer": "limited"
+  },
+  {
    "symbol": "QCOM",
    "name": "QUALCOMM Incorporated",
    "file": "QCOM.json",
-   "researchedAt": "2026-10-28",
-   "period": "FY2025 (ended 2025-09-28)",
+   "researchedAt": "2026-11-07",
+   "period": "FY2026 (ended 2026-09-27)",
    "layer": "devices"
+  },
+  {
+   "symbol": "RBLX",
+   "name": "Roblox Corporation",
+   "file": "RBLX.json",
+   "researchedAt": "2026-11-07",
+   "period": "FY2025 (ended 2025-12-31; Q3 2026 in industryMetric)",
+   "layer": "software-applications"
   },
   {
    "symbol": "RBRK",
@@ -1188,6 +1700,30 @@
    "researchedAt": "2026-10-30",
    "period": "FY2026 (ended 2026-01-31)",
    "layer": "software-applications"
+  },
+  {
+   "symbol": "RDDT",
+   "name": "Reddit, Inc.",
+   "file": "RDDT.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (quarter ended 2026-09-30)",
+   "layer": "ai-exposed"
+  },
+  {
+   "symbol": "RGTI",
+   "name": "Rigetti Computing, Inc.",
+   "file": "RGTI.json",
+   "researchedAt": "2026-11-07",
+   "period": "H1 2026 (2026-01-01 ~ 2026-06-30)",
+   "layer": "limited"
+  },
+  {
+   "symbol": "RIVN",
+   "name": "Rivian Automotive, Inc.",
+   "file": "RIVN.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "devices"
   },
   {
    "symbol": "RKLB",
@@ -1206,6 +1742,22 @@
    "layer": "memory"
   },
   {
+   "symbol": "ROKU",
+   "name": "Roku, Inc.",
+   "file": "ROKU.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "limited"
+  },
+  {
+   "symbol": "RTX",
+   "name": "RTX Corporation",
+   "file": "RTX.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (2026-09-30 종료 분기)",
+   "layer": "limited"
+  },
+  {
    "symbol": "S",
    "name": "SentinelOne, Inc.",
    "file": "S.json",
@@ -1222,11 +1774,35 @@
    "layer": "chips-compute"
   },
   {
+   "symbol": "SBUX",
+   "name": "Starbucks Corporation",
+   "file": "SBUX.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q4 FY2026 (quarter ended 2026-09-27)",
+   "layer": "limited"
+  },
+  {
+   "symbol": "SCHW",
+   "name": "The Charles Schwab Corporation",
+   "file": "SCHW.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (quarter ended 2026-09-30)",
+   "layer": "ai-adopter"
+  },
+  {
+   "symbol": "SE",
+   "name": "Sea Limited",
+   "file": "SE.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q2 2026 (ended 2026-06-30)",
+   "layer": "limited"
+  },
+  {
    "symbol": "SHOP",
    "name": "Shopify Inc.",
    "file": "SHOP.json",
-   "researchedAt": "2026-10-28",
-   "period": "FY2025 (ended 2025-12-31)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "software-applications"
   },
   {
@@ -1241,8 +1817,8 @@
    "symbol": "SITM",
    "name": "SiTime Corporation",
    "file": "SITM.json",
-   "researchedAt": "2026-10-30",
-   "period": "Q2 2026 (quarter ended 2026-06-30; before the Renesas TPD closing on 2026-07-01)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (quarter ended 2026-09-30; first quarter including Renesas TPD)",
    "layer": "networking"
   },
   {
@@ -1254,12 +1830,28 @@
    "layer": "chips-compute"
   },
   {
+   "symbol": "SMR",
+   "name": "NuScale Power Corporation",
+   "file": "SMR.json",
+   "researchedAt": "2026-11-07",
+   "period": "9M 2026 (2026-01-01 ~ 2026-09-30)",
+   "layer": "power-energy"
+  },
+  {
    "symbol": "SMTC",
    "name": "Semtech Corporation",
    "file": "SMTC.json",
    "researchedAt": "2026-10-30",
    "period": "Q2 FY2027 (ended 2026-07-26)",
    "layer": "networking"
+  },
+  {
+   "symbol": "SNAP",
+   "name": "Snap Inc.",
+   "file": "SNAP.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "ai-adopter"
   },
   {
    "symbol": "SNDK",
@@ -1286,12 +1878,36 @@
    "layer": "semicap-foundry"
   },
   {
+   "symbol": "SOFI",
+   "name": "SoFi Technologies, Inc.",
+   "file": "SOFI.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (quarter ended 2026-09-30)",
+   "layer": "ai-adopter"
+  },
+  {
    "symbol": "SPCX",
    "name": "Space Exploration Technologies Corp. (SpaceX)",
    "file": "SPCX.json",
    "researchedAt": "2026-10-28",
    "period": "FY2025 (ended 2025-12-31, S-1 figures via secondary summaries)",
    "layer": "cloud-infrastructure"
+  },
+  {
+   "symbol": "SPGI",
+   "name": "S&P Global Inc.",
+   "file": "SPGI.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30; cash flow is 9M 2026)",
+   "layer": "ai-exposed"
+  },
+  {
+   "symbol": "SPOT",
+   "name": "Spotify Technology S.A.",
+   "file": "SPOT.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "software-applications"
   },
   {
    "symbol": "STRL",
@@ -1310,11 +1926,19 @@
    "layer": "memory"
   },
   {
+   "symbol": "T",
+   "name": "AT&T Inc.",
+   "file": "T.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "networking"
+  },
+  {
    "symbol": "TEAM",
    "name": "Atlassian Corporation",
    "file": "TEAM.json",
-   "researchedAt": "2026-10-30",
-   "period": "FY2026 (ended 2026-06-30)",
+   "researchedAt": "2026-11-07",
+   "period": "Q1 FY2027 (ended 2026-09-30)",
    "layer": "software-applications"
   },
   {
@@ -1326,6 +1950,14 @@
    "layer": "semicap-foundry"
   },
   {
+   "symbol": "TLN",
+   "name": "Talen Energy Corporation",
+   "file": "TLN.json",
+   "researchedAt": "2026-11-07",
+   "period": "9M 2026 (nine months ended 2026-09-30)",
+   "layer": "power-energy"
+  },
+  {
    "symbol": "TMO",
    "name": "Thermo Fisher Scientific Inc.",
    "file": "TMO.json",
@@ -1334,11 +1966,19 @@
    "layer": "ai-adopter"
   },
   {
+   "symbol": "TMUS",
+   "name": "T-Mobile US, Inc.",
+   "file": "TMUS.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "networking"
+  },
+  {
    "symbol": "TSEM",
    "name": "Tower Semiconductor Ltd.",
    "file": "TSEM.json",
-   "researchedAt": "2026-10-30",
-   "period": "Q2 2026 (ended 2026-06-30)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "semicap-foundry"
   },
   {
@@ -1382,6 +2022,14 @@
    "layer": "ai-exposed"
   },
   {
+   "symbol": "UBER",
+   "name": "Uber Technologies, Inc.",
+   "file": "UBER.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (quarter ended 2026-09-30)",
+   "layer": "ai-adopter"
+  },
+  {
    "symbol": "UCTT",
    "name": "Ultra Clean Holdings, Inc.",
    "file": "UCTT.json",
@@ -1406,6 +2054,22 @@
    "layer": "ai-adopter"
   },
   {
+   "symbol": "UNP",
+   "name": "Union Pacific Corporation",
+   "file": "UNP.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30; cash flow is 9M 2026)",
+   "layer": "limited"
+  },
+  {
+   "symbol": "UPST",
+   "name": "Upstart Holdings, Inc.",
+   "file": "UPST.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "software-applications"
+  },
+  {
    "symbol": "V",
    "name": "Visa Inc.",
    "file": "V.json",
@@ -1417,8 +2081,8 @@
    "symbol": "VIAV",
    "name": "Viavi Solutions Inc.",
    "file": "VIAV.json",
-   "researchedAt": "2026-10-30",
-   "period": "FY2026 (ended 2026-06-27)",
+   "researchedAt": "2026-11-07",
+   "period": "Q1 FY2027 (14 weeks ended 2026-10-03)",
    "layer": "networking"
   },
   {
@@ -1438,12 +2102,28 @@
    "layer": "cooling-electrical"
   },
   {
+   "symbol": "VRTX",
+   "name": "Vertex Pharmaceuticals Incorporated",
+   "file": "VRTX.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (quarter ended 2026-09-30)",
+   "layer": "limited"
+  },
+  {
    "symbol": "VSH",
    "name": "Vishay Intertechnology, Inc.",
    "file": "VSH.json",
-   "researchedAt": "2026-10-30",
-   "period": "Q2 2026 (ended 2026-07-04)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-10-03)",
    "layer": "ai-exposed"
+  },
+  {
+   "symbol": "VST",
+   "name": "Vistra Corp.",
+   "file": "VST.json",
+   "researchedAt": "2026-11-07",
+   "period": "9M 2026 (nine months ended 2026-09-30)",
+   "layer": "power-energy"
   },
   {
    "symbol": "VZ",
@@ -1489,17 +2169,25 @@
    "symbol": "WULF",
    "name": "TeraWulf Inc.",
    "file": "WULF.json",
-   "researchedAt": "2026-10-30",
-   "period": "Q2 2026 (ended 2026-06-30)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "data-center-real-estate"
   },
   {
    "symbol": "XOM",
    "name": "Exxon Mobil Corporation (2026-07-01부터 상장 모회사는 ExxonMobil Holdings Corporation)",
    "file": "XOM.json",
-   "researchedAt": "2026-10-28",
-   "period": "FY2025 (ended 2025-12-31)",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "power-energy"
+  },
+  {
+   "symbol": "XYZ",
+   "name": "Block, Inc.",
+   "file": "XYZ.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (quarter ended 2026-09-30)",
+   "layer": "ai-adopter"
   },
   {
    "symbol": "ZS",

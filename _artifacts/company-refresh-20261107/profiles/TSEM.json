@@ -1,0 +1,572 @@
+{
+  "symbol": "TSEM",
+  "name": "Tower Semiconductor Ltd.",
+  "researchedAt": "2026-11-07",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "Tower Semiconductor는 이스라엘에 본사를 둔 아날로그 특화 파운드리로, AI 데이터센터 광모듈에 들어가는 실리콘 포토닉스 칩 생산이 급증해 2026년 3분기 매출이 33% 늘었고, 4분기 실리콘 포토닉스 연환산 11억 달러와 2026년 매출 약 20억 달러, 2028년 매출 36억 달러를 목표로 한다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Tower Semiconductor announces record results for revenue and profitability for the second quarter 2026 (6-K Exhibit 99.1)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0000928876/000117891326003776/exhibit_99-1.htm",
+      "publisher": "Tower Semiconductor / SEC EDGAR",
+      "date": "2026-08-04"
+    },
+    {
+      "id": "s2",
+      "kind": "other",
+      "title": "Tower Semiconductor unaudited condensed interim consolidated financial statements as of 2026-06-30 (6-K Exhibit 99.1)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0000928876/000117891326004158/exhibit_99-1.htm",
+      "publisher": "Tower Semiconductor / SEC EDGAR",
+      "date": "2026-08"
+    },
+    {
+      "id": "s3",
+      "kind": "other",
+      "title": "Tower Semiconductor MD&A for the six months ended 2026-06-30 (6-K Exhibit 99.2)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0000928876/000117891326004158/exhibit_99-2.htm",
+      "publisher": "Tower Semiconductor / SEC EDGAR",
+      "date": "2026-08"
+    },
+    {
+      "id": "s4",
+      "kind": "other",
+      "title": "Tower Semiconductor Form 20-F for fiscal year ended 2025-12-31",
+      "url": "https://www.sec.gov/Archives/edgar/data/928876/000117891326002318/zk2635149.htm",
+      "publisher": "Tower Semiconductor / SEC EDGAR",
+      "date": "2026-04-30"
+    },
+    {
+      "id": "s5",
+      "kind": "other",
+      "title": "Tower Semiconductor announces third quarter 2026 financial results and conference call (6-K)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0000928876/000117891326004755/zk2636218.htm",
+      "publisher": "Tower Semiconductor / SEC EDGAR",
+      "date": "2026-10-13"
+    },
+    {
+      "id": "s6",
+      "kind": "earnings-release",
+      "title": "Tower Semiconductor reports third quarter record results, record fourth quarter guidance resulting in 2026 $2 billion annual revenue (6-K Exhibit 99.1)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0000928876/000117891326004949/exhibit_99-1.htm",
+      "publisher": "Tower Semiconductor / SEC EDGAR",
+      "date": "2026-11-02"
+    },
+    {
+      "id": "s7",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/tsem/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-11-07"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "실리콘 포토닉스 대량 생산 플랫폼 - 200mm PH18과 300mm PH45가 AI 광연결용으로 양산 중, 1.6Tb/s 램프·3.2Tb/s와 CPO 개발",
+      "아날로그 특화 공정 - RF CMOS(RF-SOI 포함), SiGe BiCMOS, 전원 IC, 디스크리트, CMOS 이미지센서",
+      "고객이 선급금을 내고 2028년까지 생산 능력을 예약한 실리콘 포토닉스 계약",
+      "이스라엘·미국·일본·이탈리아에 나뉜 공장"
+    ],
+    "text": "Tower의 힘은 최첨단 디지털 공정이 아니라 빛·전파·전력을 다루는 아날로그 특화 공정에 있다. 특히 AI 데이터센터 광모듈에 들어가는 실리콘 포토닉스를 200mm와 300mm에서 모두 대량으로 만들 수 있고, 고객들이 선급금을 내며 2028년까지 생산 능력을 예약했다. 이 예약이 다른 파운드리로 쉽게 옮기지 못하게 하는 장치다.",
+    "src": [
+      "s4",
+      "s1"
+    ]
+  },
+  "design": {
+    "text": "Tower는 자기 칩을 설계하지 않고 고객 칩을 만드는 공정을 제공한다. 2025년 매출의 상당 부분이 RF CMOS(RF-SOI 포함), SiGe BiCMOS, 실리콘 포토닉스, 전원 관리 IC, 디스크리트, CMOS 이미지센서에서 나왔다고 회사는 설명하지만, 공정별 매출 비중은 공개하지 않는다. 실리콘 포토닉스는 1.6Tb/s 광모듈용 플랫폼을 늘리고 3.2Tb/s와 CPO(광학 칩을 프로세서 옆에 함께 패키징) 플랫폼을 개발 중이다.",
+    "src": [
+      "s4"
+    ]
+  },
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "이스라엘 Migdal Haemek Fab 2 (200mm, 0.35~0.13um) - 6인치 Fab 1은 2025년 1분기 가동 중단",
+      "미국 Newport Beach Fab 3, San Antonio Fab 9 (200mm)",
+      "일본 TPSCo(지분 51%) - Uozu 300mm Fab 7, Tonami 200mm Fab 5; 2027-04-01 목표로 Fab 7은 Tower가 100% 소유, Fab 5는 NTCJ로 이전",
+      "이탈리아 Agrate 300mm Fab 10 - STMicroelectronics와 공유, Tower가 클린룸의 약 3분의 1 사용",
+      "Intel 미국 New Mexico 300mm - 2023년 생산 능력 계약, Intel이 이행 의사가 없다고 밝혀 조정 중"
+    ],
+    "text": "Tower는 이스라엘 1곳, 미국 2곳의 200mm 공장과 일본·이탈리아의 300mm 공장에서 직접 만든다. 실리콘 포토닉스와 SiGe 생산 능력을 늘리려고 Fab 2·3·7·9에 약 9.2억 달러 설비 투자를 계획했고, 일본에서는 Arai 시설을 300mm 실리콘 포토닉스용으로 바꾸고 Fab 7 옆에 300mm 공장을 더 짓는 방안을 정부 보조금과 함께 추진한다. Intel New Mexico 공장을 쓰기로 한 계약은 Intel이 이행하지 않겠다고 해 조정 절차에 들어가 있다.",
+    "src": [
+      "s4",
+      "s2"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "광모듈·광연결 칩 회사 - AI 데이터센터용 실리콘 포토닉스 (Q2 2026 연환산 6.8억 달러)",
+      "RF·무선 칩 회사 - 스마트폰·인프라용 RF-SOI·SiGe",
+      "전원·아날로그·이미지센서 칩 회사",
+      "NTCJ (일본 TPSCo 파트너) - 2025 매출의 11%"
+    ],
+    "channel": "고객과 직접 계약하는 웨이퍼 위탁 생산, 실리콘 포토닉스는 선급금을 받는 생산 능력 예약 계약.",
+    "concentration": "2025년 NTCJ 11%, 다른 고객 7곳이 각각 4~7%(합 39%), 나머지 50%. 지역별로 미국 42%, 아시아(일본 제외) 39%, 일본 13%, 유럽 6%.",
+    "text": "Tower의 고객은 미국·아시아의 아날로그·RF·광통신 칩 회사들이고, 2025년에는 NTCJ(11%) 다음으로 7개 고객이 각각 4~7%씩을 차지해 고객 집중이 높아지는 중이다. 특히 AI 광모듈 고객들이 생산 능력을 예약하며 선급금을 내, 2026년 6월 말 고객 선수금이 3.2억 달러(유동 1.76억, 장기 1.45억)로 늘었다.",
+    "src": [
+      "s4",
+      "s2",
+      "s1"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "하이퍼스케일러 AI 데이터센터",
+        "to": "광모듈 제조사",
+        "what": "고속(1.6T 등) 광모듈 구매 대금"
+      },
+      {
+        "from": "광모듈·광연결 칩 회사",
+        "to": "Tower",
+        "what": "실리콘 포토닉스·SiGe 웨이퍼 대금과 생산 능력 예약 선급금"
+      },
+      {
+        "from": "RF·전원·이미지센서 칩 회사",
+        "to": "Tower",
+        "what": "아날로그 특화 웨이퍼 장당 대금"
+      },
+      {
+        "from": "일본 정부(METI)",
+        "to": "Tower",
+        "what": "300mm 실리콘 포토닉스 증설 보조금 (예상)"
+      }
+    ],
+    "pricing": "웨이퍼 장당 가격. 실리콘 포토닉스는 2028년까지 최소 생산 능력을 약속하는 대가로 고객이 미리 돈을 내는 예약 계약이 붙는다. 2026년 매출 증가는 실리콘 포토닉스 같은 고가 제품 비중이 늘어 평균판매가격이 오른 영향이 컸다.",
+    "text": "돈은 AI 데이터센터의 광모듈 투자에서 출발해 광모듈용 칩 회사가 Tower 웨이퍼를 주문할 때 들어오고, 생산 능력을 미리 확보하려는 고객의 선급금이 먼저 들어오기도 한다. 2026년 상반기 영업현금흐름 6.87억 달러 가운데 2.83억 달러가 이런 선급금이었다. 고가 제품 비중이 커지면서 매출이 늘어난 것보다 이익이 훨씬 빨리 늘었다.",
+    "src": [
+      "s1",
+      "s3",
+      "s4"
+    ]
+  },
+  "earnings": {
+    "period": "Q3 2026 (ended 2026-09-30)",
+    "revenue": {
+      "value": 0.5262,
+      "unit": "USD bn",
+      "yoy": 33
+    },
+    "grossMargin": 34,
+    "operatingMargin": 24.2,
+    "netMargin": 22.9,
+    "operatingCashFlow": {
+      "value": 0.1852,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": -0.0055,
+      "unit": "USD bn"
+    },
+    "segments": [],
+    "industryMetric": [
+      {
+        "name": "실리콘 포토닉스 연환산 매출",
+        "value": "Q2 2026 6.8억 달러 → Q4 2026 목표 11억 달러 (2025년 연간 실리콘 포토닉스 매출의 약 5배); 8월 목표는 10억 달러 초과",
+        "src": [
+          "s6",
+          "s1"
+        ]
+      },
+      {
+        "name": "분기 추세",
+        "value": "매출 Q3 2025 3.96억 → Q2 2026 4.60억 → Q3 2026 5.26억 달러; 총마진 약 23.5% → 29.9% → 34.0% (계산값)",
+        "src": [
+          "s6",
+          "s1"
+        ]
+      },
+      {
+        "name": "Q3 2026 이익과 EPS",
+        "value": "영업이익 1.271억 달러, 지배주주 순이익 1.203억; 희석 EPS 1.05달러, 조정 희석 EPS 1.15달러",
+        "src": [
+          "s6"
+        ]
+      },
+      {
+        "name": "2026년 9개월 현금흐름",
+        "value": "영업현금 8.72억 달러(고객 선급금 증가 3.05억 포함), 설비투자 5.34억, FCF 약 3.38억 달러(계산값); Q3 단독 선급금 증가 0.23억",
+        "src": [
+          "s6"
+        ]
+      },
+      {
+        "name": "현금·단기 예금 (2026-09-30)",
+        "value": "14.73억 달러 (현금 2.51억 + 단기 예금 12.22억), 차입 약 1.54억",
+        "src": [
+          "s6"
+        ]
+      }
+    ],
+    "text": "Q3 2026 매출은 5.26억 달러로 1년 전보다 33%, 전 분기보다 약 14% 늘어 가이던스(5.2억 달러 ±5%) 중간값을 조금 넘었다. 영업이익은 1.27억 달러로 1년 전의 2.5배, 순이익은 1.20억 달러로 두 배 넘게 늘었고, 총마진은 약 34%(계산값)로 Q2 29.9%보다 더 올랐다. 반면 설비투자가 1.91억 달러로 커지고 고객 선급금 유입이 0.23억 달러로 줄어, 분기 잉여현금흐름은 약 -0.06억 달러였다.",
+    "src": [
+      "s6",
+      "s1"
+    ]
+  },
+  "useOfCash": {
+    "period": "2026 9개월 (2026-01-01~09-30)",
+    "items": [
+      {
+        "use": "capex",
+        "value": 0.534,
+        "unit": "USD bn",
+        "src": [
+          "s6"
+        ]
+      },
+      {
+        "use": "R&D",
+        "value": 0.0471,
+        "unit": "USD bn",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "use": "debt repayment",
+        "value": 0.0157,
+        "unit": "USD bn",
+        "src": [
+          "s3"
+        ]
+      }
+    ],
+    "text": "2026년 9개월 동안 고객 선급금 3.05억 달러를 포함한 영업현금 8.72억 달러가 들어왔고, 그중 5.34억 달러를 설비 투자에 썼다. 3분기 한 분기 설비투자만 1.91억 달러로 2025년 같은 분기(1.03억)의 두 배 가까이 되며, 실리콘 포토닉스·SiGe와 일본 300mm 증설이 이어지고 있다. 회사는 배당 계획이 없고, R&D(상반기 0.47억 달러)와 차입 상환은 작은 편이다.",
+    "src": [
+      "s6",
+      "s3",
+      "s4"
+    ]
+  },
+  "aiChain": {
+    "layer": "semicap-foundry",
+    "position": "AI 데이터센터에서 GPU 서버 사이를 빛으로 잇는 800G·1.6T 광모듈의 핵심 칩(실리콘 포토닉스와 SiGe 칩)을 만드는 특화 파운드리. 광모듈 회사와 광칩 설계사가 고객이다.",
+    "dependsOn": [
+      "장비·소재 공급사",
+      "STMicroelectronics (Agrate 공장 공유)",
+      "일본 정부 보조금 (300mm 증설)"
+    ],
+    "sellsTo": [
+      "networking (광모듈·광연결 칩 회사)",
+      "devices (스마트폰 RF·이미지센서 칩 회사)",
+      "chips-compute (CPO 개발 고객)"
+    ],
+    "aiRevenue": "AI 전용 매출 공시 없음. AI 광연결이 주 용도인 실리콘 포토닉스 연환산 매출이 Q2 2026 6.8억 달러(Q2 2025 1.8억), Q4 2026 10억 달러 초과 목표",
+    "upside": "AI 클러스터가 커질수록 광모듈 수가 늘고 속도가 1.6T→3.2T로 오르면서 실리콘 포토닉스 웨이퍼 수요가 늘어난다. 회사는 2028년 목표 매출 36억 달러·순이익 12억 달러가 '고객이 이미 다 예약했다'고 말한다.",
+    "risk": "실리콘 포토닉스 고객이 소수 대형사에 몰려 있어 한 고객의 설계 변경이나 재고 조정이 매출을 크게 흔든다. TSMC·GlobalFoundries도 같은 시장의 경쟁자이고, GlobalFoundries가 2026년 3월 Tower를 상대로 특허 소송을 냈다. CPO가 확산되면 광모듈 구조가 바뀌어 기존 플랫폼의 위치가 달라질 수 있다.",
+    "text": "AI 가치사슬에서 Tower는 연산 칩이 아니라 연산 칩 사이를 잇는 광연결의 '빛을 다루는 칩'을 만드는 자리에 있고, 이 사업이 1년 만에 거의 네 배로 커지며 회사 실적의 중심이 됐다. 그래서 하이퍼스케일러의 광모듈 주문과 1.6T 전환 속도가 Tower 실적을 가장 직접적으로 움직인다.",
+    "src": [
+      "s1",
+      "s4",
+      "s2"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "실리콘 포토닉스 파운드리 (AI 광연결)",
+        "rivals": [
+          "GlobalFoundries",
+          "TSMC"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s4",
+          "s1"
+        ]
+      },
+      {
+        "arena": "아날로그 특화 파운드리 (RF·SiGe·전원·이미지센서)",
+        "rivals": [
+          "GlobalFoundries",
+          "Vanguard",
+          "DongBu",
+          "X-Fab",
+          "Hua Hong"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s4"
+        ]
+      },
+      {
+        "arena": "300mm 성숙 공정",
+        "rivals": [
+          "TSMC",
+          "UMC",
+          "SMIC"
+        ],
+        "position": "niche",
+        "share": null,
+        "src": [
+          "s4"
+        ]
+      }
+    ],
+    "edge": "200mm·300mm 양쪽의 실리콘 포토닉스 양산 경험, SiGe와 포토닉스를 함께 제공하는 공정, 선급금으로 묶은 고객 예약.",
+    "threats": "TSMC·GlobalFoundries의 실리콘 포토닉스 경쟁, GlobalFoundries의 특허 소송, Intel New Mexico 생산 능력 계약 무산에 따른 300mm 부족.",
+    "text": "20-F는 특화 공정 경쟁사로 GlobalFoundries, Vanguard, DongBu, X-Fab, Hua Hong을, 선단 공정 파운드리로 TSMC, UMC, SMIC를 든다. AI 광연결에서는 Tower가 가장 먼저 대량 생산에 들어선 편이지만, GlobalFoundries가 같은 시장을 노리며 소송까지 걸어 왔다. 그래서 Tower는 고객 선급금과 생산 능력 예약으로 먼저 물량을 묶어 두는 방식으로 대응한다.",
+    "src": [
+      "s4",
+      "s2"
+    ]
+  },
+  "strategy": {
+    "goal": "2028년 목표 사업 모델 매출 36억 달러·순이익 12억 달러 (2026년 8월 상향, 회사는 고객이 이미 예약한 물량이라고 설명).",
+    "roadmap": [
+      {
+        "when": "Q3 2026",
+        "what": "매출 5.2억 달러 ±5% 가이던스 (사상 최대, 전년 대비 +31%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "Q4 2026",
+        "what": "실리콘 포토닉스 연환산 매출 10억 달러 초과 목표",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2027-04-01",
+        "what": "일본 Fab 7(300mm) 100% 소유 전환, Fab 5는 NTCJ로 이전 (NTCJ가 0.25억 달러 지급)",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "when": "2027~2028",
+        "what": "Arai 시설 300mm 실리콘 포토닉스 전환과 Fab 7 옆 300mm 추가 공장 검토 (METI 보조금 예상), 3.2Tb/s·CPO 플랫폼",
+        "src": [
+          "s2",
+          "s4"
+        ]
+      }
+    ],
+    "vision": "AI 데이터센터 광연결과 아날로그 특화 칩의 핵심 파운드리로, 고객 예약을 바탕으로 생산 능력과 이익을 함께 키우는 회사.",
+    "text": "그래서 Tower의 다음 단계는 실리콘 포토닉스 생산 능력을 일본 300mm로 넓혀 2028년 목표를 채우는 것이다. 3분기에는 일본 Track-1 300mm 구축이 예정보다 빠르다고 밝히고 고객 계약을 2029년까지 연장했지만, 목표 달성은 광모듈 수요가 2028년까지 꺾이지 않고 경쟁사와 소송에서 고객을 지키는지에 달려 있다.",
+    "src": [
+      "s6",
+      "s1"
+    ]
+  },
+  "governance": {
+    "line": "이스라엘 회사로 Nasdaq과 텔아비브 증시에 함께 상장돼 있고, 배당 계획이 없으며 자사주 매입은 이사회 재량이고, 일본 TPSCo 지분 51%를 2027년 구조 개편으로 Fab 7 단독 소유로 바꾼다.",
+    "src": [
+      "s4",
+      "s5",
+      "s2"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "Q4 2026",
+        "metric": "revenue",
+        "value": "6.0억 달러 ±5% (전년 대비 +36%, 전 분기 대비 +14%)",
+        "givenOn": "2026-11-02",
+        "src": [
+          "s6"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "revenue",
+        "value": "약 20억 달러, 연환산 24억 달러 속도로 연말 진입",
+        "givenOn": "2026-11-02",
+        "src": [
+          "s6"
+        ]
+      },
+      {
+        "period": "Q4 2026",
+        "metric": "silicon photonics annualized run rate",
+        "value": "11억 달러 (8월 10억 달러 초과에서 구체화·상향)",
+        "givenOn": "2026-11-02",
+        "src": [
+          "s6",
+          "s1"
+        ]
+      },
+      {
+        "period": "2028",
+        "metric": "target business model",
+        "value": "매출 36억 달러, 순이익 12억 달러 (11월 고객 계약 연장을 근거로 재확인)",
+        "givenOn": "2026-11-02",
+        "src": [
+          "s6",
+          "s1"
+        ]
+      }
+    ],
+    "style": "quarterly",
+    "track": "Q3 매출 5.26억 달러는 8월 가이던스 5.2억 달러 ±5%의 중간값을 조금 넘었다. 4분기 가이던스 6.0억 달러는 회사 사상 최대이며, 실리콘 포토닉스 연환산 목표도 10억 달러 초과에서 11억 달러로 구체화됐다.",
+    "src": [
+      "s1",
+      "s6"
+    ]
+  },
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-11-06, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) EPS 합계 5.46달러(범위 4.43~6.52, 추정 6건), 직전 4개 분기 3.11달러, 최근 4주 상향·하향 0건. Q3 실적은 1.05달러(예상 0.98달러)로 표시된다.",
+    "src": [
+      "s7"
+    ]
+  },
+  "watch": {
+    "confirms": [
+      "Q4 매출이 6.0억 달러 ±5% 범위 안이나 위",
+      "실리콘 포토닉스 연환산 매출이 Q4 2026에 11억 달러에 도달",
+      "고객 선급금이 다시 늘거나 새 생산 능력 예약·계약 연장 발표",
+      "일본 300mm 실리콘 포토닉스 증설이 보조금과 함께 확정",
+      "총마진이 30%대 중반 이상 유지"
+    ],
+    "breaks": [
+      "실리콘 포토닉스 연환산 매출 성장 정체",
+      "대형 광모듈 고객의 재고 조정이나 TSMC·GlobalFoundries로 이동",
+      "GlobalFoundries 특허 소송에서 수입·생산 제한",
+      "설비 투자가 늘어 분기 잉여현금흐름이 계속 마이너스 (Q2 약 -0.1억, Q3 약 -0.06억 달러)"
+    ],
+    "keyNumbers": [
+      {
+        "name": "실리콘 포토닉스 연환산 매출",
+        "why": "AI 광연결 수요가 바로 나타나는 숫자"
+      },
+      {
+        "name": "분기 매출 가이던스",
+        "why": "회사가 보는 다음 분기 주문"
+      },
+      {
+        "name": "총마진",
+        "why": "고가 제품 비중과 가동률의 결과"
+      },
+      {
+        "name": "고객 선급금 잔액",
+        "why": "고객이 미래 생산 능력을 얼마나 확보하려 하는지"
+      },
+      {
+        "name": "설비 투자",
+        "why": "2028년 목표를 위한 증설 속도"
+      }
+    ]
+  },
+  "debate": {
+    "question": "계약 연장으로 묶은 실리콘 포토닉스 물량이 커지는 설비투자를 감당하며 2028년 매출 36억 달러까지 이어지는지",
+    "bull": {
+      "text": "Q3 2026 매출은 5.26억 달러(+33%), 영업이익 1.27억 달러로 1년 전의 2.5배였고 총마진은 약 34%까지 올랐다. 회사는 4분기 매출 6.0억 달러, 2026년 매출 약 20억 달러, 4분기 실리콘 포토닉스 연환산 11억 달러(2025년 연간의 약 5배)를 제시했다. 이렇게 보는 쪽은 일본 300mm 고객 계약이 2029년까지 연장됐고 CEO가 이를 근거로 2028년 모델을 '큰 확신'으로 재확인했다는 점을 든다.",
+      "src": [
+        "s6"
+      ]
+    },
+    "bear": {
+      "text": "Q3 설비투자는 1.91억 달러로 영업현금 1.85억 달러보다 많아 잉여현금흐름이 약 -0.06억 달러였고, 고객 선급금 유입은 Q3에 0.23억 달러로 상반기(2.83억)보다 크게 줄었다. 9개월 영업현금 8.72억 달러 중 3.05억 달러가 선급금이라 반복 가능한 현금창출력으로 보기 어렵다고 읽는 쪽이 있다. GlobalFoundries는 Tower에 특허 소송을 냈고, Intel과는 생산 능력 통로를 짓지 않기로 한 결정을 두고 분쟁 중이다.",
+      "src": [
+        "s6",
+        "s3"
+      ]
+    },
+    "decides": [
+      {
+        "when": "2027-02 (Q4 실적, 날짜 미공지)",
+        "what": "Q4 매출이 6.0억 달러 ±5% 안에 들고 실리콘 포토닉스 연환산 11억 달러에 도달했는지, 2027년 가이던스",
+        "src": [
+          "s6"
+        ]
+      },
+      {
+        "when": "2027-04-01 (목표)",
+        "what": "일본 TPSCo 구조 개편으로 Fab 7(300mm) 100% 소유 전환과 300mm 포토닉스 증설 보조금 확정",
+        "src": [
+          "s2",
+          "s6"
+        ]
+      }
+    ]
+  },
+  "underTheHood": [
+    {
+      "title": "마진을 끌어올린 믹스",
+      "text": "분기 총마진은 Q3 2025 약 23.5%에서 Q2 2026 29.9%, Q3 2026 약 34%(계산값)로 올랐고, 회사는 실리콘 포토닉스 같은 고가 제품 비중 확대를 이유로 든다. 같은 이유로 이 마진은 고가 제품 믹스와 높은 가동률이 유지되는 동안만 성립한다.",
+      "src": [
+        "s6",
+        "s1",
+        "s3"
+      ]
+    },
+    {
+      "title": "선급금이 낀 현금흐름",
+      "text": "9개월 영업현금 8.72억 달러 가운데 3.05억 달러가 고객 선급금이고, 같은 기간 설비투자로 5.34억 달러가 나갔다. 선급금 유입이 Q3에 0.23억 달러로 줄자 분기 잉여현금흐름이 바로 마이너스가 됐듯, 선수금은 웨이퍼 납품으로 갚아야 할 의무라 현금을 그대로 이익 체력으로 읽으면 과대평가한다.",
+      "src": [
+        "s6",
+        "s3"
+      ]
+    },
+    {
+      "title": "고객 집중이 높아진다",
+      "text": "2025년 NTCJ가 11%, 다른 7개 고객이 각각 4~7%(합 39%)였다. 실리콘 포토닉스는 광모듈 고객 소수에 몰려 있어 한 고객의 설계 변경이나 재고 조정이 매출을 크게 흔든다.",
+      "src": [
+        "s4",
+        "s1"
+      ]
+    },
+    {
+      "title": "300mm 생산 능력의 구멍",
+      "text": "Intel과는 New Mexico 생산 능력 통로를 짓지 않기로 한 Intel의 결정을 두고 분쟁 중이다. 대신 일본에서는 300mm 고객 계약을 2029년까지 연장하고 Arai 시설 전환과 Fab 7 옆 신규 공장을 추진하지만 정부(METI) 보조금 조건에 기대고 있어, 2028년 물량을 찍어낼 300mm 용량이 확정된 것은 아니다.",
+      "src": [
+        "s6",
+        "s4",
+        "s2"
+      ]
+    }
+  ],
+  "trading": {
+    "calendar": [
+      {
+        "date": "2027-02 (추정, 회사 미공지)",
+        "event": "Q4 2026 실적과 Q1 2027 가이던스",
+        "src": []
+      },
+      {
+        "date": "2027-04-01 (목표)",
+        "event": "일본 TPSCo 구조 개편 완료 - Fab 7 단독 소유",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "date": "수시",
+        "event": "GlobalFoundries 특허 소송(미국 ITC·법원, 중국)과 Intel 분쟁 진행",
+        "src": [
+          "s2",
+          "s6"
+        ]
+      }
+    ],
+    "reaction": "Tower 주가는 AI 광연결 기대가 크게 반영돼 있어, 분기 실적보다 실리콘 포토닉스 연환산 매출, 다음 분기 가이던스, 2028년 목표 변경에 크게 반응하는 경향이 있다. 광모듈 업체 실적과 하이퍼스케일러 설비 투자 발표에도 함께 움직인다.",
+    "conditions": [
+      "다음 분기 매출 가이던스와 컨센서스의 차이",
+      "실리콘 포토닉스 연환산 매출과 Q4 10억 달러 목표 진척",
+      "총마진 방향과 고가 제품 비중 언급",
+      "고객 선급금 변화와 새 예약 계약",
+      "GlobalFoundries 소송·Intel 조정 결과"
+    ]
+  },
+  "unverified": [
+    "공정별·사업별 매출 - 회사가 실리콘 포토닉스 연환산 매출 외에는 공개하지 않아 segments를 비워 둠",
+    "AI 전용 매출 - 공시 없음 (실리콘 포토닉스를 AI 광연결 매출로 보는 것은 20-F 설명에 기댄 해석)",
+    "Q3 2026 총마진·영업이익률·순이익률과 분기 잉여현금흐름은 보도자료 금액으로 계산한 값",
+    "CEO Russell Ellwanger 외 지배 구조(최대 주주) - 읽은 문서에서 확인하지 못함",
+    "실리콘 포토닉스·SiGe 증설 계획 약 9.2억 달러의 정확한 기간",
+    "Intel 분쟁의 절차·결과, 일본 300mm 추가 공장 투자 규모",
+    "실적 콜 녹취록 - 읽지 못함",
+    "경쟁 영역별 position 판단과 실리콘 포토닉스 경쟁사(TSMC·GlobalFoundries) 배치는 회사 공시가 아닌 판단",
+    "시장 점유율 - 확인한 출처 없음"
+  ],
+  "confidence": "medium - Q3 실적·현금흐름·가이던스·일본 계약 연장은 회사 6-K 보도자료, 공장 구조는 20-F와 반기 재무제표에서 왔지만, 사업별 매출이 공개되지 않고 콜 녹취록은 읽지 못했다."
+}

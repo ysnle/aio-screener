@@ -1,0 +1,228 @@
+{
+  "symbol": "DE",
+  "name": "Deere & Company",
+  "researchedAt": "2026-11-07",
+  "fiscalYearEnd": "fiscal year ending in late autumn (exact FY2026 end date not confirmed in the source read)",
+  "oneLine": "Deere(John Deere)는 대형 농기계·소형 농기계·건설 장비를 만들고 할부 금융까지 붙여 파는 회사로, 2026 회계연도에 대형 농기계가 바닥 사이클을 지나는 동안 건설·소형 장비가 늘어 순이익 전망을 47.5억~50억 달러로 올렸다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Deere Reports Third Quarter Net Income of $1.379 Billion (fiscal Q3 2026 news release, company IR PDF)",
+      "url": "https://s22.q4cdn.com/253594569/files/doc_financials/2026/q3/DE-3Q26-News-Release.pdf",
+      "publisher": "Deere & Company",
+      "date": "2026-08-20"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "농기계·소형 장비·건설 장비를 아우르는 제품군과 딜러망",
+      "정밀 기술 솔루션 - 회사가 고객 채택의 동력으로 꼽는 '첨단 기술'",
+      "John Deere Financial - 장비 할부·리스로 판매를 받치는 금융 부문 (연 순이익 약 8.7억 달러 전망)",
+      "가격 인상력 - 불황 속에서도 FY2026 부문별 가격 실현 +1.0~3.0%"
+    ],
+    "text": "Deere의 힘은 장비, 기술, 금융을 한 묶음으로 판다는 데서 나온다. 회사는 '첨단 기술'과 '정밀 기술 솔루션'을 고객 채택의 이유로 꼽고, 자체 금융 부문이 장비 구입 대금을 빌려준다. 대형 농기계 매출이 줄어드는 2026년에도 모든 부문에서 가격을 1~3% 올릴 수 있다는 전망이 그 힘을 보여준다.",
+    "src": ["s1"]
+  },
+  "design": {
+    "text": "회사는 네 부문으로 보고한다. Production & Precision Agriculture(PPA)는 대형 농기계와 정밀 농업, Small Agriculture & Turf(SAT)는 중소형 농기계와 잔디 장비, Construction & Forestry(C&F)는 건설·임업·도로 장비, Financial Services는 장비 금융이다. 2026년 2월에는 혼합 장비 운영·자산 추적 기술 회사 Tenna를 C&F에 인수했다.",
+    "src": ["s1"]
+  },
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "Bradesco - Banco John Deere S.A. 지분 50% 보유 파트너 (브라질 금융)",
+      "Tenna - 2026-02 인수한 건설 기술 회사 (혼합 장비 운영·자산 추적)"
+    ],
+    "text": "장비는 자체 공장에서 만든다. 원가 쪽 변수는 관세로, 회사는 3분기 1.10억 달러, 연초 이후 3.82억 달러의 관세 환급을 대부분 생산원가에 반영했다. 브라질에서는 Bradesco와 지분을 반씩 나눈 Banco John Deere로 금융을 제공한다.",
+    "src": ["s1"]
+  },
+  "sell": {
+    "customers": [
+      "대형 농가 - 대형 트랙터·콤바인·정밀 농업 (PPA)",
+      "중소형 농가·잔디 관리 고객 (SAT)",
+      "건설·임업·도로 공사 고객 (C&F)",
+      "장비 구매 고객 - John Deere Financial의 할부·리스"
+    ],
+    "channel": "독립 딜러망을 통한 판매와 자체 금융 부문의 구매 금융.",
+    "concentration": "개별 고객 비중 공시 없음.",
+    "text": "고객은 농가와 건설업체로 경기가 다르게 움직인다. 2026년 회사는 미국·캐나다 대형 농기계 산업 수요가 15~20%, 남미 트랙터·콤바인이 15~20% 줄고, 미국·캐나다 건설 장비는 5~10% 늘 것으로 본다. 그래서 3분기 PPA 매출은 6% 줄고 C&F는 18% 늘었다.",
+    "src": ["s1"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "농가·건설업체", "to": "John Deere 딜러", "what": "장비 구입 대금 (현금 또는 할부)" },
+      { "from": "John Deere 딜러", "to": "Deere & Company", "what": "장비 도매 대금 (장비 부문 매출)" },
+      { "from": "장비 구매 고객·딜러", "to": "John Deere Financial", "what": "할부·리스 이자와 금융 수익" },
+      { "from": "Deere & Company", "to": "주주", "what": "배당과 자사주 매입" }
+    ],
+    "pricing": "장비 단위 판매(연간 가격 인상 반영)와 금융 부문의 이자 스프레드.",
+    "text": "돈은 농가와 건설업체가 딜러에게 장비 값을 내고, 딜러가 Deere에 도매 대금을 내는 길로 들어온다. 많은 고객이 할부로 사기 때문에 금융 부문이 이자를 받는 두 번째 흐름이 있고, 3분기 금융 순이익은 금융 스프레드 개선으로 7% 늘었다. 장비 판매가 줄어도 금융 부문 이익이 받치는 구조다.",
+    "src": ["s1"]
+  },
+  "earnings": {
+    "period": "Q3 FY2026 (reported 2026-08-20; cash flow is year-to-date)",
+    "revenue": { "value": 12.608, "unit": "USD bn", "yoy": 4.9 },
+    "grossMargin": null,
+    "operatingMargin": null,
+    "netMargin": 10.9,
+    "operatingCashFlow": { "value": 3.25, "unit": "USD bn" },
+    "freeCashFlow": { "value": 2.534, "unit": "USD bn" },
+    "segments": [
+      { "name": "Production & Precision Agriculture", "revenue": 3.998, "unit": "USD bn", "share": 31.7, "yoy": -6, "operatingMargin": 13.2, "src": ["s1"] },
+      { "name": "Construction & Forestry", "revenue": 3.618, "unit": "USD bn", "share": 28.7, "yoy": 18, "operatingMargin": 12.1, "src": ["s1"] },
+      { "name": "Small Agriculture & Turf", "revenue": 3.383, "unit": "USD bn", "share": 26.8, "yoy": 12, "operatingMargin": 18.4, "src": ["s1"] },
+      { "name": "Financial Services (revenues)", "revenue": 1.371, "unit": "USD bn", "share": 10.9, "yoy": -3, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Other revenues (계산값)", "revenue": 0.238, "unit": "USD bn", "share": 1.9, "yoy": null, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "부문 영업이익 (Q3 FY2026)", "value": "PPA 5.27억(-9%), SAT 6.22억(+28%), C&F 4.36억(+84%), 금융 2.71억 달러(+2%)", "src": ["s1"] },
+      { "name": "연초 이후 부문 영업이익", "value": "PPA 13.72억(-34%), SAT 15.38억(+30%), C&F 11.34억(+67%), 금융 8.23억 달러(+11%)", "src": ["s1"] },
+      { "name": "산업 수요 전망 (FY2026)", "value": "미국·캐나다 대형 농기계 -15~20%, 소형 농기계·잔디 0~+5%, 유럽 0%, 남미 트랙터·콤바인 -15~20%, 미국·캐나다 건설 장비 +5~10%", "src": ["s1"] },
+      { "name": "관세 환급", "value": "Q3 1.10억 달러, 연초 이후 3.82억 달러 (주로 생산원가에 반영)", "src": ["s1"] },
+      { "name": "순이익 (연초 이후)", "value": "38.08억 달러 (-4%), 희석 EPS 14.06달러", "src": ["s1"] }
+    ],
+    "text": "3분기 매출은 126.1억 달러로 5% 늘고 순이익은 13.8억 달러(+7%)였지만, 이익의 주인이 바뀌었다. 대형 농기계(PPA) 영업이익은 9% 줄었고 건설·임업(C&F)은 84%, 소형 농기계(SAT)는 28% 늘었다. 연초 이후로는 PPA 이익이 34% 줄어 순이익이 4% 감소했다.",
+    "src": ["s1"]
+  },
+  "useOfCash": {
+    "period": "YTD FY2026 (through fiscal Q3)",
+    "items": [
+      { "use": "dividends", "value": 1.316, "unit": "USD bn", "src": ["s1"] },
+      { "use": "capex", "value": 0.716, "unit": "USD bn", "src": ["s1"] },
+      { "use": "buybacks", "value": 0.697, "unit": "USD bn", "src": ["s1"] },
+      { "use": "acquisitions", "value": 0.439, "unit": "USD bn", "src": ["s1"] }
+    ],
+    "text": "불황기라 현금 사용을 줄였다. 연초 이후 배당은 13.2억 달러로 늘었지만, 자사주 매입은 6.97억 달러로 전년 11.4억 달러에서 줄고 설비투자도 7.16억 달러로 전년 8.52억보다 낮았다. 대신 건설 기술 회사 Tenna를 4.39억 달러에 사서 기술 쪽에 돈을 넣었다.",
+    "src": ["s1"]
+  },
+  "aiChain": {
+    "layer": "limited",
+    "position": "AI 공급망 밖의 농기계·건설 장비 회사. 실적은 농가 소득, 건설 경기, 관세에 달려 있다. 정밀 기술은 제품 차별화 수단이다.",
+    "dependsOn": ["농가 소득과 곡물 시장", "건설 경기", "관세 정책"],
+    "sellsTo": ["농가", "건설·임업·도로 공사 고객"],
+    "aiRevenue": null,
+    "upside": "보도자료는 AI를 언급하지 않는다. 정밀 기술과 Tenna 같은 장비 운영 기술이 가격과 채택을 받치지만 관련 매출은 공시하지 않았다.",
+    "risk": "AI가 직접 실적을 해칠 경로는 공시되지 않았다.",
+    "text": "그래서 AI 가치사슬에서 Deere는 '제한적' 자리다. 회사가 말하는 기술 경쟁력은 정밀 농업과 장비 운영 데이터이고, 실적을 움직이는 것은 아직 대형 농기계 사이클과 건설 수요다.",
+    "src": ["s1"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "대형 농기계·정밀 농업", "rivals": [], "position": "leader", "share": null, "src": ["s1"] },
+      { "arena": "소형 농기계·잔디 장비", "rivals": [], "position": "leader", "share": null, "src": ["s1"] },
+      { "arena": "건설·임업·도로 장비", "rivals": [], "position": "challenger", "share": null, "src": ["s1"] }
+    ],
+    "edge": "장비·정밀 기술·금융을 묶어 파는 구조, 불황기에도 유지되는 가격 실현.",
+    "threats": "대형 농기계 수요 감소의 장기화, 관세, 남미 농업 불황. 보도자료는 경쟁사를 이름으로 적지 않는다.",
+    "text": "보도자료는 경쟁사를 이름으로 적지 않아 여기서도 이름을 붙이지 않는다. 숫자로 보이는 경쟁 위치는 가격 실현으로, 수요가 15~20% 줄어드는 대형 농기계에서도 2026년 가격을 약 1% 올릴 것으로 본다. 건설 장비에서는 Tenna 인수로 여러 브랜드 장비를 함께 관리하는 기술을 더했다.",
+    "src": ["s1"]
+  },
+  "strategy": {
+    "goal": "2026 회계연도 순이익 47.5억~50억 달러, 금융 순이익 약 8.7억 달러. 경영진은 2026년을 '현재 농기계 사이클의 바닥'으로 본다.",
+    "roadmap": [
+      { "when": "FY2026 Q4", "what": "순이익 47.5억~50억 달러 전망 (상향), 부문 매출 PPA 약 -10%, SAT 약 +15%, C&F 약 +20%", "src": ["s1"] },
+      { "when": "2026-02 (완료)", "what": "Tenna 인수 (4.39억 달러) - 건설 장비 운영 기술", "src": ["s1"] },
+      { "when": "FY2027", "what": "경영진이 바닥으로 본 2026년 이후 대형 농기계 회복 여부 (회사 전망 미발표)", "src": ["s1"] }
+    ],
+    "vision": "장비에 정밀 기술과 데이터, 금융을 붙여 농업·건설 고객의 생산성을 높이고 그 대가를 가격으로 받는 것.",
+    "text": "회사의 다음 수는 바닥을 지나는 것이다. 대형 농기계 매출이 약 10% 줄어드는 해에도 순이익 전망을 올린 것은 건설·소형 장비와 관세 환급, 금융 부문 덕분이다. 그 다음은 경영진 말대로 2026년이 바닥이었는지를 2027년 대형 농기계 수요가 보여줄 차례다.",
+    "src": ["s1"]
+  },
+  "governance": {
+    "line": "불황기에도 배당을 늘리고(연초 이후 13.2억 달러) 자사주 매입은 줄여 현금을 지키는 주주환원형 장비 회사로, 브라질 금융은 Bradesco와 50:50 합작으로 운영한다.",
+    "src": ["s1"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "net income attributable to Deere", "value": "47.5억~50억 달러 (상향)", "givenOn": "2026-08-20", "src": ["s1"] },
+      { "period": "FY2026", "metric": "segment net sales", "value": "PPA 약 -10%, SAT 약 +15%, C&F 약 +20%", "givenOn": "2026-08-20", "src": ["s1"] },
+      { "period": "FY2026", "metric": "price realization", "value": "PPA 약 +1.0%, SAT 약 +1.5%, C&F 약 +3.0%", "givenOn": "2026-08-20", "src": ["s1"] },
+      { "period": "FY2026", "metric": "Financial Services net income", "value": "약 8.7억 달러", "givenOn": "2026-08-20", "src": ["s1"] }
+    ],
+    "style": "quarterly",
+    "track": "8월에 연간 순이익 전망을 올렸다(직전 범위는 읽은 자료에 없음).",
+    "src": ["s1"]
+  },
+  "estimates": {
+    "text": null,
+    "src": []
+  },
+  "watch": {
+    "confirms": [
+      "FY2026 순이익이 47.5억~50억 달러 범위로 마감",
+      "FY2027 전망에서 대형 농기계 수요 감소가 멈춤",
+      "C&F·SAT 성장과 마진 개선 지속",
+      "가격 실현이 플러스를 유지",
+      "금융 부문 순이익이 약 8.7억 달러 경로 유지"
+    ],
+    "breaks": [
+      "FY2027 대형 농기계 산업 수요가 또 두 자릿수 감소",
+      "관세 부담 확대나 환급 중단",
+      "남미 농업 불황 장기화",
+      "할부 금융 연체 증가로 금융 부문 이익 감소"
+    ],
+    "keyNumbers": [
+      { "name": "PPA 매출과 영업이익률", "why": "농기계 사이클의 바닥 확인" },
+      { "name": "C&F·SAT 매출 증가율", "why": "농기계 부진을 메우는 이익원" },
+      { "name": "부문별 가격 실현", "why": "불황기 가격력" },
+      { "name": "산업 수요 전망 (지역별)", "why": "다음 해 매출 방향" },
+      { "name": "금융 부문 순이익", "why": "판매 둔화기의 완충" }
+    ]
+  },
+  "debate": {
+    "question": "대형 농기계 사이클이 2026년에 바닥을 찍고 건설·소형 장비가 그 사이를 메우는지",
+    "bull": {
+      "text": "바닥이라고 보는 쪽은 경영진이 2026년을 '현재 농기계 사이클의 바닥'이라 했고, 대형 농기계 매출이 약 10% 줄어드는 해에도 순이익 전망을 47.5억~50억 달러로 올렸다는 점을 든다. 3분기 C&F 영업이익이 84%, SAT가 28% 늘었고 모든 부문에서 가격을 올렸다.",
+      "src": ["s1"]
+    },
+    "bear": {
+      "text": "의심하는 쪽은 연초 이후 PPA 영업이익이 34% 줄고 순이익도 4% 감소했으며, 미국·캐나다 대형 농기계와 남미 산업 수요가 각각 15~20% 줄 것으로 회사가 본다는 점을 든다. 연초 이후 3.82억 달러의 관세 환급이 원가를 낮춘 일시 요인이라, 이를 빼면 개선 폭이 작아진다.",
+      "src": ["s1"]
+    },
+    "decides": [
+      { "when": "FY2026 Q4 실적과 FY2027 전망 발표 (2026-11 하순 예상, 회사 미확정)", "what": "FY2027 대형 농기계 산업 수요 전망이 감소를 멈추는지와 순이익 전망 수준", "src": ["s1"] }
+    ]
+  },
+  "underTheHood": [
+    {
+      "title": "이익의 주인이 바뀌는 해",
+      "text": "전년에는 대형 농기계(PPA)가 이익의 중심이었지만 연초 이후 PPA 영업이익은 13.7억 달러로 34% 줄었고, SAT 15.4억·C&F 11.3억 달러가 늘어 그 자리를 채웠다. 회사 전체 이익 변화만 보면 이 이동이 가려진다.",
+      "src": ["s1"]
+    },
+    {
+      "title": "장비 회사 안의 은행",
+      "text": "금융 부문은 3분기 매출 13.7억 달러로 매출 비중이 약 11%지만, 연초 이후 부문 이익 8.2억 달러로 PPA 이익의 60% 수준이다. 장비 판매가 줄어도 이미 빌려준 할부의 이자가 들어오는 구조라 불황기 완충 역할을 하고, 반대로 연체가 늘면 위험이 된다.",
+      "src": ["s1"]
+    },
+    {
+      "title": "관세 환급이라는 일시 요인",
+      "text": "연초 이후 3.82억 달러의 관세 환급이 주로 생산원가에 반영돼 부문 이익을 끌어올렸다. 반복되지 않을 수 있는 항목이므로, 다음 해 마진 비교에서는 이 금액을 빼고 봐야 한다.",
+      "src": ["s1"]
+    }
+  ],
+  "trading": {
+    "calendar": [
+      { "date": "2026-11 하순 (추정, 회사 미확정)", "event": "FY2026 Q4 실적과 FY2027 전망 (Q3는 2026-08-20 발표)", "src": ["s1"] }
+    ],
+    "reaction": "주가는 분기 이익보다 다음 회계연도 순이익 전망과 산업 수요 전망에 크게 반응하는 경향이 있다.",
+    "conditions": [
+      "FY2027 순이익 전망 범위",
+      "지역별 대형 농기계 산업 수요 전망의 방향",
+      "부문별 가격 실현 전망",
+      "관세 환급·부담에 대한 설명",
+      "금융 부문 연체·충당금 변화"
+    ]
+  },
+  "unverified": [
+    "FY2026 Q4 실적 (아직 발표되지 않음 - 가장 최근 발표인 Q3 FY2026 사용)",
+    "회계연도 종료일과 Q3 종료일 정확한 날짜",
+    "영업이익률·총마진 (회사 연결 기준으로 보고되지 않음)",
+    "잉여현금흐름 25.3억 달러는 연초 이후 영업현금흐름 32.5억에서 설비투자 7.16억을 뺀 계산값",
+    "직전 FY2026 순이익 전망 범위",
+    "컨센서스 (AIO 스냅샷에서 DE는 unavailable)",
+    "경쟁사 이름과 점유율 (읽은 자료에 이름 없음)",
+    "정밀 농업·기술 관련 매출"
+  ],
+  "confidence": "medium - Q3 FY2026 실적·부문·전망은 회사 보도자료 원문에서 왔지만, Q4 실적이 곧 나올 시점이라 내용이 빨리 낡을 수 있고 경쟁 구도는 확인하지 못했다."
+}

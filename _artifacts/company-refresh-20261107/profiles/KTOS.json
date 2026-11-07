@@ -1,0 +1,509 @@
+{
+  "symbol": "KTOS",
+  "name": "Kratos Defense & Security Solutions, Inc.",
+  "researchedAt": "2026-11-07",
+  "fiscalYearEnd": "last Sunday of December",
+  "oneLine": "Kratos는 극초음속 시험체·로켓 모터·저가형 무인 전투기 Valkyrie 등을 만드는 미국 방산 업체로, 2026년 3분기 매출이 36% 늘고 수주잔고가 26.5억 달러로 최대를 기록했지만 공장 투자로 현금흐름은 마이너스이고 올해 13억 달러가 넘는 신주 발행으로 자금을 댔다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "8-K",
+      "title": "Kratos Reports Third Quarter 2026 Financial Results (8-K Exhibit 99.1)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0001069258/000106925826000085/ktos202609278kexhibit991.htm",
+      "publisher": "Kratos / SEC EDGAR",
+      "date": "2026-11-05"
+    },
+    {
+      "id": "s2",
+      "kind": "news",
+      "title": "Kratos sees hypersonics revenue reaching at least $700 million in 2027 with MACH-TB funding and new awards driving expansion (Q2 2026 call)",
+      "url": "https://defence-industry.eu/kratos-sees-hypersonics-revenue-reaching-at-least-700-million-in-2027-with-mach-tb-funding-and-new-awards-driving-expansion/",
+      "publisher": "Defence Industry Europe",
+      "date": "2026-08-07"
+    },
+    {
+      "id": "s3",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/ktos/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-11-07"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "극초음속 시험 사업 - MACH-TB 프로그램 (국방부 예산 문서상 5년간 약 70억 달러)",
+      "저가형 무인 전투기 Valkyrie와 무인 표적기",
+      "로켓 모터 공급망 확보 - L3Harris(Aerojet) Zeus 모터, Northrop Grumman Oriole 지원, Rafael과 Prometheus 고체 로켓 모터",
+      "입찰·제안 파이프라인 155억 달러"
+    ],
+    "text": "Kratos의 강점은 큰 방산 업체보다 싸고 빠르게 시험용·소모성 무기 체계를 만든다는 데 있다. 극초음속 시험 프로그램 MACH-TB와 무인기 Valkyrie가 대표적이고, CEO Eric DeMarco는 극초음속이 회사 최대 사업이 될 것이라고 말했다. 로켓 모터를 여러 공급원에서 확보해 둔 것도 시험 일정을 지키는 기반이다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "design": {
+    "text": "회사는 두 부문으로 보고한다. Kratos Government Solutions(KGS)는 극초음속 시험체와 로켓 시스템을 포함한 정부용 시스템을 묶고, Unmanned Systems(KUS)는 Valkyrie 등 무인 체계를 만든다. 3분기 매출의 84%가 KGS였고, KGS는 유기적으로도 35.8% 늘었다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "L3Harris - Aerojet Zeus 로켓 모터 공급 (일정 준수)",
+      "Northrop Grumman - Oriole 로켓 모터 지원",
+      "Rafael - Prometheus 고체 로켓 모터 공동 추진 (2027 첫 시험 발사, 2028 생산 목표)"
+    ],
+    "text": "제품은 자체 공장에서 만들고, 핵심 부품인 로켓 모터는 L3Harris(Aerojet), Northrop Grumman에서 받으며 Rafael과는 자체 모터 Prometheus를 키운다. 회사는 2026년 3분기부터 앞서 주문한 모터 120개를 받기 시작할 예정이었다. 공장 증설로 1~9월 설비투자가 6,730만 달러였다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "미국 정부·국방부 - 극초음속(MACH-TB 등)·무인 시스템 계약",
+      "해외 고객 - 전년 3분기 Valkyrie 출하 1,610만 달러 (고객명 미공시)"
+    ],
+    "channel": "정부 직접 계약과 주계약자 하청",
+    "concentration": "매출 대부분이 미국 정부 관련. 고객별 비중은 이번 자료에 없음.",
+    "text": "고객은 대부분 미국 정부와 국방부다. 3분기 수주가 10.37억 달러로 매출의 2.2배였고, 수주잔고는 26.5억 달러(그중 20.7억 달러는 예산 집행 확정)로 최대였다. 정부 예산 일정에 매출이 묶여, 회사는 장기화된 임시 예산(continuing resolution) 때문에 2027년 1분기가 가장 약한 분기가 될 것이라고 했다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "미국 국방부",
+        "to": "Kratos",
+        "what": "극초음속 시험·무인기·시스템 계약 대금 (원가 가산·고정가)"
+      },
+      {
+        "from": "Kratos",
+        "to": "L3Harris·Northrop Grumman",
+        "what": "로켓 모터 구매"
+      },
+      {
+        "from": "주식 투자자",
+        "to": "Kratos",
+        "what": "신주 발행 대금 - 1~9월 순 13.48억 달러"
+      },
+      {
+        "from": "Kratos",
+        "to": "공장·설비",
+        "what": "생산 능력 투자 - 2026년 1~1.1억 달러 계획"
+      }
+    ],
+    "pricing": "정부 계약 기반. 원가 가산·고정가 계약이 섞여 있다(구성 비율은 이번 자료에 없음).",
+    "text": "돈은 국방부 계약에서 들어오지만, 지금은 수주를 소화할 공장을 먼저 짓는 단계다. 그래서 3분기 영업현금흐름이 -520만 달러, 잉여현금흐름이 -2,940만 달러였고, 그 차이를 올해 13.48억 달러의 신주 발행이 메웠다. 9월 말 현금은 14.0억 달러이고 은행 차입은 없다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "earnings": {
+    "period": "Q3 2026 (ended 2026-09-27)",
+    "revenue": {
+      "value": 0.4718,
+      "unit": "USD bn",
+      "yoy": 35.7
+    },
+    "grossMargin": 22.5,
+    "operatingMargin": -1.0,
+    "netMargin": 0.0,
+    "operatingCashFlow": {
+      "value": -0.0052,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": -0.0294,
+      "unit": "USD bn"
+    },
+    "segments": [
+      {
+        "name": "Kratos Government Solutions",
+        "revenue": 0.3972,
+        "unit": "USD bn",
+        "share": 84.2,
+        "yoy": 52.5,
+        "operatingMargin": 3.8,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Unmanned Systems",
+        "revenue": 0.0746,
+        "unit": "USD bn",
+        "share": 15.8,
+        "yoy": -14.4,
+        "operatingMargin": -1.2,
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "수주잔고",
+        "value": "26.5억 달러 (집행 확정 20.67억, 미확정 5.83억), 최대",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "수주 / 수주 대비 매출",
+        "value": "Q3 10.37억 달러, 2.2배; 최근 12개월 26.14억 달러, 1.6배",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "입찰·제안 파이프라인",
+        "value": "155억 달러 (이전 150억)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Adjusted EBITDA",
+        "value": "5,090만 달러 (마진 10.8%), 조정 EPS 0.24달러",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "유기적 성장률",
+        "value": "전체 23.2%, KGS 35.8%",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "극초음속 매출",
+        "value": "2025년 약 2억 → 2026년 약 4억 → 2027년 7억 달러 이상 (Q2 콜 전망)",
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "text": "Q3 2026 매출은 4.72억 달러로 35.7% 늘었고 유기적으로도 23.2% 늘었다. 그러나 매출총이익률 22.5%에 영업손실 490만 달러, 순손실 20만 달러로 이익은 거의 남지 않았고, 조정 EBITDA만 5,090만 달러였다. 무인 시스템 매출은 전년 해외 Valkyrie 출하 효과가 빠져 줄었다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "useOfCash": {
+    "period": "2026년 1~9월 누계 (ended 2026-09-27)",
+    "items": [
+      {
+        "use": "capex",
+        "value": 0.0673,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "text": "번 돈이 거의 없어 현금 쓰임은 설비 투자에 몰려 있다. 1~9월 설비투자가 6,730만 달러였고 연간으로는 1.0억~1.1억 달러를 계획하며, 연간 잉여현금흐름은 -1.1억~-1.2억 달러로 안내했다. 이 투자는 올해 순 13.48억 달러의 신주 발행으로 충당했다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "aiChain": {
+    "layer": "limited",
+    "position": "AI 인프라 공급망 밖의 방산 업체. 무인기 자율 기능을 개발하지만 AI 투자에서 매출을 얻는 구조는 아니다.",
+    "dependsOn": [
+      "미국 국방 예산",
+      "로켓 모터 공급 (L3Harris·Northrop Grumman·Rafael)"
+    ],
+    "sellsTo": [
+      "미국 국방부",
+      "해외 정부 고객"
+    ],
+    "aiRevenue": null,
+    "upside": "무인 전투기 같은 자율 무기 체계 수요가 늘면 Valkyrie 매출이 커질 수 있다.",
+    "risk": "AI와 직접 관련은 적고, 국방 예산 일정과 극초음속·무인기 프로그램 결정이 실적을 좌우한다.",
+    "text": "AI 가치사슬로 보면 Kratos는 영향이 제한적이다. 실적을 정하는 것은 국방 예산의 크기와 집행 시점, 그리고 MACH-TB 같은 극초음속 시험 프로그램이다. 회사가 말한 2027년 1분기 약세도 AI가 아니라 임시 예산 때문이다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "극초음속 시험·시험체",
+        "rivals": [
+          "대형 방산 주계약자 (출처에 이름 없음)"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "arena": "저가형 무인 전투기·표적기",
+        "rivals": [
+          "무인기 업체 (출처에 이름 없음)"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "edge": "빠르고 싼 시험·소모성 체계, 확보된 로켓 모터 공급, 26.5억 달러 수주잔고와 은행 차입 없는 재무.",
+    "threats": "국방 예산 지연·축소, 대형 업체의 저가 체계 진입, 공장 증설 지연.",
+    "text": "이번에 읽은 자료는 경쟁사를 이름으로 들지 않는다. L3Harris와 Northrop Grumman은 여기서 경쟁사가 아니라 로켓 모터 공급자로 등장한다. Kratos는 극초음속에서 시험 빈도를 높이는 저비용 체계로 자리를 잡았다고 설명한다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "strategy": {
+    "goal": "극초음속·무인 시스템을 키워 2027년 매출 21억~22억 달러, 조정 EBITDA 2.3억~2.4억 달러에 이르는 것. CEO는 극초음속이 회사 최대 사업이 될 것이라고 했다.",
+    "roadmap": [
+      {
+        "when": "Q4 2026",
+        "what": "매출 4.8억~5.1억 달러, 조정 EBITDA 4,800만~5,200만 달러",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "FY2026",
+        "what": "매출 17.8억~18.1억 달러, 조정 EBITDA 1.76억~1.80억 달러, 잉여현금흐름 -1.1억~-1.2억 달러",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2027 Q1",
+        "what": "임시 예산 장기화로 연중 가장 약한 분기 예상",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "FY2027",
+        "what": "매출 21억~22억 달러, 조정 EBITDA 2.3억~2.4억 달러; 극초음속 매출 7억 달러 이상",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      },
+      {
+        "when": "2027 / 2028",
+        "what": "Rafael과의 Prometheus 고체 로켓 모터 첫 시험 발사 / 생산 시작",
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "vision": "극초음속·드론·미사일·우주 분야의 '군비 경쟁'에서 저비용 시스템 공급자가 되겠다는 그림이다.",
+    "text": "회사는 2027년 매출을 올해보다 약 20% 높게 잡았고, MACH-TB가 5년간 약 70억 달러 규모라는 국방부 예산 문서를 근거로 연 10억 달러 이상도 가능하다고 말했다. 2027년 영업·잉여현금흐름 전망은 2월 말 4분기 실적 때 내놓겠다고 했다. 수주를 매출로 바꾸려면 공장 투자와 로켓 모터 공급이 계획대로 가야 한다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "governance": {
+    "line": "CEO Eric DeMarco가 이끌며, 배당 없이 신주 발행(2026년 1~9월 순 13.48억 달러)으로 생산 능력 투자를 하고 은행 차입은 두지 않는다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "Q4 2026",
+        "metric": "revenue / adjusted EBITDA",
+        "value": "4.8억~5.1억 달러 / 4,800만~5,200만 달러",
+        "givenOn": "2026-11-05",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "revenue / adjusted EBITDA",
+        "value": "17.8억~18.1억 달러 / 1.76억~1.80억 달러",
+        "givenOn": "2026-11-05",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "free cash flow",
+        "value": "-1.1억~-1.2억 달러 (영업현금흐름 -1,000만~+1,000만, 설비투자 1.0억~1.1억)",
+        "givenOn": "2026-11-05",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2027",
+        "metric": "revenue / adjusted EBITDA",
+        "value": "21억~22억 달러 / 2.3억~2.4억 달러 (현금흐름 전망은 2027년 2월 말)",
+        "givenOn": "2026-11-05",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "style": "quarterly",
+    "track": "Q3 조정 EPS 0.24달러로 1년 전 0.14달러보다 높았다. 회사 자체 3분기 전망 대비 결과는 이번 자료로 확인하지 못했다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-11-07, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) EPS 합계 0.80달러(범위 0.62~0.91), 직전 4개 분기 0.54달러. Q3 2026 EPS 0.16달러로 추정 0.15달러와 비슷했고, 최근 4주 상향 3건·하향 0건.",
+    "src": [
+      "s3"
+    ]
+  },
+  "watch": {
+    "confirms": [
+      "수주 대비 매출 1배 이상과 수주잔고 증가 지속",
+      "극초음속 매출이 2027년 7억 달러 궤도",
+      "로켓 모터 납품과 Prometheus 일정 준수",
+      "2027년 현금흐름 전망이 플러스"
+    ],
+    "breaks": [
+      "임시 예산 장기화로 매출 이연 확대",
+      "공장 증설 지연으로 잉여현금흐름 적자 확대",
+      "추가 대규모 신주 발행",
+      "Valkyrie 해외·미군 주문 지연"
+    ],
+    "keyNumbers": [
+      {
+        "name": "수주잔고와 수주 대비 매출",
+        "why": "미래 매출의 크기"
+      },
+      {
+        "name": "잉여현금흐름",
+        "why": "투자 단계에서 신주 발행 필요성"
+      },
+      {
+        "name": "조정 EBITDA 마진",
+        "why": "매출 증가가 이익으로 이어지는지"
+      },
+      {
+        "name": "희석 주식 수",
+        "why": "성장 비용이 주주에게 넘어가는 정도"
+      }
+    ]
+  },
+  "debate": {
+    "question": "최대 수주잔고가 신주 발행 없이도 이익과 현금으로 이어지는지",
+    "bull": {
+      "text": "이어진다고 보는 쪽은 3분기 수주가 매출의 2.2배였고 수주잔고 26.5억 달러, 파이프라인 155억 달러가 쌓였다는 점을 든다. 2027년 매출 전망 21억~22억 달러와 극초음속 매출 7억 달러 이상 전망, 은행 차입 없이 14.0억 달러 현금을 가진 재무가 근거다.",
+      "src": [
+        "s1",
+        "s2"
+      ]
+    },
+    "bear": {
+      "text": "어렵다고 보는 쪽은 매출이 36% 늘었는데도 영업손실 490만 달러, 잉여현금흐름 -2,940만 달러였고 올해 잉여현금흐름이 -1.1억~-1.2억 달러로 안내됐다는 점을 본다. 1~9월 신주 발행이 순 13.48억 달러로, 성장이 지금까지 주주 희석으로 조달됐다는 것이 근거다.",
+      "src": [
+        "s1"
+      ]
+    },
+    "decides": [
+      {
+        "when": "2027-02 말 Q4·FY2026 실적",
+        "what": "2027년 영업·잉여현금흐름 전망이 플러스로 나오는지",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2027 Q1",
+        "what": "임시 예산 아래에서도 매출이 회사가 말한 '가장 약한 분기' 수준을 지키는지",
+        "src": [
+          "s1"
+        ]
+      }
+    ]
+  },
+  "underTheHood": [
+    {
+      "title": "EBITDA와 영업손실 사이",
+      "text": "3분기 조정 EBITDA는 5,090만 달러였지만 GAAP 영업이익은 -490만 달러였다. 감가상각·주식보상 등 조정 항목이 이 차이를 만들며, 매출총이익률 22.5%의 저마진 정부 계약 구조에서는 조정 지표만으로 수익성을 읽기 어렵다.",
+      "src": [
+        "s1"
+      ]
+    },
+    {
+      "title": "주식으로 짓는 공장",
+      "text": "올해 1~9월 신주 발행 순 13.48억 달러가 설비투자와 현금 적자를 메웠고, 9월 말 현금은 14.0억 달러다. 회사가 은행 차입을 두지 않는 대신 주주가 성장 비용을 지분 희석으로 나눠 지는 구조다.",
+      "src": [
+        "s1"
+      ]
+    },
+    {
+      "title": "수주잔고의 확정 비율",
+      "text": "수주잔고 26.5억 달러 가운데 20.67억 달러는 예산 집행이 확정됐고 5.83억 달러는 미확정이다. 155억 달러 파이프라인은 입찰 단계라 수주와 다르며, 미국 예산 일정이 늦어지면 확정분도 매출 인식이 미뤄진다.",
+      "src": [
+        "s1"
+      ]
+    },
+    {
+      "title": "공급자이자 큰 방산사",
+      "text": "로켓 모터는 L3Harris(Aerojet)와 Northrop Grumman에서 받는다. 극초음속 시험 일정이 이들 대형 방산사의 납품에 기대고 있어, Rafael과의 Prometheus 자체 모터(2028년 생산 목표)는 공급 의존을 줄이려는 시도로 읽힌다.",
+      "src": [
+        "s2"
+      ]
+    }
+  ],
+  "trading": {
+    "calendar": [
+      {
+        "date": "2027-02 말",
+        "event": "Q4·FY2026 실적과 2027 현금흐름 전망",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "date": "2027 Q1",
+        "event": "임시 예산 영향으로 연중 가장 약한 분기 예상",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "date": "2027",
+        "event": "Prometheus 고체 로켓 모터 첫 시험 발사 목표",
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "reaction": "실적 숫자보다 수주잔고·대형 프로그램 수주·국방 예산 소식과 증자 발표에 크게 반응하는 경향이 있다.",
+    "conditions": [
+      "수주 대비 매출과 수주잔고 증감",
+      "연간·다음 해 매출 전망 변화",
+      "잉여현금흐름 전망",
+      "신주 발행 공시",
+      "국방 예산·임시 예산 진행 상황"
+    ]
+  },
+  "unverified": [
+    "미국 정부 매출 비중과 고객별 비중",
+    "원가 가산·고정가 계약 비율",
+    "극초음속 매출 전망은 2분기 콜 기준 보도 - 3분기 콜에서 바뀌었는지 미확인",
+    "로켓 모터 120개 실제 수령 여부",
+    "Valkyrie 고객(해외 고객명, 미군 주문 상태)",
+    "경쟁사 이름과 점유율",
+    "회사 자체 3분기 전망 대비 결과"
+  ],
+  "confidence": "medium - 실적·수주·전망은 SEC 8-K 원문, 극초음속·로켓 모터 설명은 2분기 콜 보도에 기대며 3분기 콜 녹취를 읽지 못했다."
+}

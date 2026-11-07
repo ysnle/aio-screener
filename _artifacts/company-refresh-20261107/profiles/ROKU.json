@@ -1,0 +1,451 @@
+{
+  "symbol": "ROKU",
+  "name": "Roku, Inc.",
+  "researchedAt": "2026-11-07",
+  "fiscalYearEnd": "December 31",
+  "oneLine": "Roku는 TV 운영체제와 스트리밍 기기로 1억 가구 넘는 시청자를 모아 광고와 구독 중개로 돈을 버는 회사로, 2026년 3분기 매출이 24% 늘었고 Fox Corporation이 약 220억 달러에 인수하기로 해 2027년 상반기 거래 완료를 앞두고 있다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "8-K",
+      "title": "Roku Q3 2026 Shareholder Letter (8-K Exhibit 99.1)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0001428439/000162828026068877/a04fy2026q3exhibit991.htm",
+      "publisher": "Roku / SEC EDGAR",
+      "date": "2026-11-02"
+    },
+    {
+      "id": "s2",
+      "kind": "news",
+      "title": "Roku Q3 revenue up 24% ahead of Fox deal",
+      "url": "https://www.advanced-television.com/2026/11/02/roku-q3-revenue-up-24-ahead-of-fox-deal/",
+      "publisher": "Advanced Television",
+      "date": "2026-11-02"
+    },
+    {
+      "id": "s3",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/roku/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-11-07"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "TV 운영체제(Roku TV OS)가 들어간 TV와 스트리밍 기기 - 전 세계 1억 가구 이상",
+      "TV 첫 화면을 쥔 위치 - 스트리밍 시청 시간 Q3 2026 399억 시간 (+9%)",
+      "Roku가 직접 만든 TV가 미국 TV 판매 대수의 약 8%",
+      "외부 광고 구매 플랫폼(DSP) 연동 - Google DV360 통합"
+    ],
+    "text": "Roku의 힘은 시청자가 TV를 켜면 처음 보는 화면을 쥐고 있다는 데 있다. 1억 가구가 넘는 시청자가 Roku 화면에서 앱을 고르고 구독을 시작하므로, 스트리밍 회사와 광고주가 Roku를 거쳐야 한다. 기기는 이 화면을 보급하는 수단이라 손해를 보고도 판다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "design": {
+    "text": "회사는 두 사업을 보고한다. 플랫폼 사업은 광고(홈 화면·The Roku Channel 광고 등)와 구독(스트리밍 서비스 구독 중개·Premium Subscriptions)으로 나뉘고, 기기 사업은 스트리밍 기기와 Roku가 만든 TV를 판다. 플랫폼이 매출의 87%와 이익 거의 전부를 낸다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "make": {
+    "model": "mixed",
+    "partners": [
+      "TCL - Roku TV 제조·판매 파트너 (Target 채널)",
+      "Hisense - Roku TV 제조·판매 파트너 (Best Buy 채널)",
+      "Google - DV360 광고 구매 플랫폼 연동"
+    ],
+    "text": "소프트웨어와 플랫폼은 직접 만들고, TV는 Roku 자체 브랜드와 TCL·Hisense 같은 TV 제조사의 Roku TV로 함께 보급한다. 3분기 기기 매출총이익률은 메모리 원가 상승으로 -25.1%였다. 광고는 Google DV360 같은 외부 구매 플랫폼과도 연결돼 팔린다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "Paramount - 스트리밍 콘텐츠 파트너",
+      "Disney - 스트리밍 콘텐츠 파트너",
+      "NBCUniversal - 스트리밍 콘텐츠 파트너 (Peacock)",
+      "Apple TV - 스트리밍 파트너",
+      "Fox Corporation - FOX One 파트너이자 인수 예정자",
+      "ViX - 스트리밍 파트너",
+      "Amazon - Roku Pro Series OLED TV 독점 판매처",
+      "Target - TCL Roku TV 판매처",
+      "Best Buy - Hisense Roku TV 판매처",
+      "광고주 - 직접 영업과 외부 DSP를 통한 광고 구매"
+    ],
+    "channel": "광고는 직접 영업과 외부 DSP, 구독은 Roku 화면에서 앱 가입 중개, 기기는 소매점",
+    "concentration": "고객별 매출 비중은 이번 자료에 없음",
+    "text": "Roku에 돈을 내는 쪽은 시청자가 아니라 광고주와 스트리밍 회사다. Paramount, Disney, NBCUniversal 같은 콘텐츠 회사가 Roku 화면에서 구독자를 모으고, 광고주는 그 시청 시간에 광고를 산다. 기기는 Amazon, Target, Best Buy 같은 소매점을 통해 퍼진다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "광고주 (직접·DSP 경유)",
+        "to": "Roku",
+        "what": "홈 화면·The Roku Channel 광고비"
+      },
+      {
+        "from": "스트리밍 서비스 (Paramount·Disney 등)",
+        "to": "Roku",
+        "what": "Roku 화면에서 모은 구독자의 구독료 일부와 배분 수익"
+      },
+      {
+        "from": "시청자",
+        "to": "Roku",
+        "what": "Premium Subscriptions 구독료와 기기 구매 대금"
+      },
+      {
+        "from": "소매점 (Amazon·Target·Best Buy)",
+        "to": "Roku",
+        "what": "TV·스트리밍 기기 도매 대금"
+      }
+    ],
+    "pricing": "광고는 노출 단위 판매, 구독은 가입 중개 수수료·매출 배분, 기기는 손해를 감수한 판매.",
+    "text": "기기를 원가 이하로 팔아 화면을 넓히고, 그 화면에서 광고와 구독 중개로 마진을 남기는 구조다. 3분기 광고 매출총이익률은 63.2%, 구독은 40.9%였고, 기기는 -25.1%였다. 구독 마진은 Premium Subscriptions 비중이 커지면서 약 1.8%p 내려갔다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "earnings": {
+    "period": "Q3 2026 (ended 2026-09-30)",
+    "revenue": {
+      "value": 1.502,
+      "unit": "USD bn",
+      "yoy": 24
+    },
+    "grossMargin": 43.2,
+    "operatingMargin": 10.9,
+    "netMargin": 12.2,
+    "operatingCashFlow": {
+      "value": null,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": null,
+      "unit": "USD bn"
+    },
+    "segments": [
+      {
+        "name": "Platform",
+        "revenue": 1.308,
+        "unit": "USD bn",
+        "share": 87.1,
+        "yoy": 23,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Devices",
+        "revenue": 0.1937,
+        "unit": "USD bn",
+        "share": 12.9,
+        "yoy": 33,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "스트리밍 시청 시간",
+        "value": "399억 시간 (+9%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "플랫폼 매출총이익률",
+        "value": "53.3% (광고 63.2%, 구독 40.9%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "구독 매출",
+        "value": "5.81억 달러 (+23%)",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "Adjusted EBITDA",
+        "value": "2.488억 달러 (마진 16.6%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "현금흐름 기준",
+        "value": "영업현금흐름 8.11억·잉여현금흐름 7.96억 달러는 최근 12개월(TTM) 합계",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "text": "Q3 2026 매출은 15.02억 달러로 24% 늘었고 영업이익 1.64억 달러, 순이익 1.83억 달러를 냈다. 플랫폼 매출 13.08억 달러(+23%)가 매출총이익 6.97억 달러를 만들었고, 기기는 4,860만 달러 손실이었다. 최근 12개월 잉여현금흐름은 7.96억 달러다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "useOfCash": {
+    "period": "2026년 1~9월 누계 (ended 2026-09-30)",
+    "items": [
+      {
+        "use": "buybacks",
+        "value": 0.1627,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "text": "1~9월 자사주 1.63억 달러를 사들였고, 9월 말 현금 25.2억 달러와 단기투자 2.0억 달러를 쌓아 두었다. 기기 손실을 감수하며 TV를 보급하는 것 자체가 회사의 가장 큰 투자 방식이다. Fox Corporation 인수가 진행 중이라 별도 자본 계획은 나오지 않았다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "aiChain": {
+    "layer": "limited",
+    "position": "AI 인프라 공급망 밖의 TV 스트리밍 플랫폼. 광고 타기팅에 데이터를 쓰지만 AI 투자에서 매출을 얻는 구조는 아니다.",
+    "dependsOn": [
+      "TV 제조사 (TCL·Hisense)",
+      "메모리 등 기기 부품",
+      "스트리밍 콘텐츠 회사"
+    ],
+    "sellsTo": [
+      "광고주",
+      "스트리밍 서비스",
+      "소매점"
+    ],
+    "aiRevenue": null,
+    "upside": "광고 타기팅과 외부 DSP 연동이 좋아지면 같은 시청 시간에서 광고 단가가 오를 수 있다.",
+    "risk": "기기 원가가 메모리 가격에 묶여 있어, 부품 가격 상승이 기기 손실을 키운다.",
+    "text": "AI 가치사슬로 보면 Roku는 영향이 제한적이다. 다만 3분기 기기 매출총이익률이 메모리 원가 상승으로 -25.1%까지 내려가, 부품 가격이 이 회사의 기기 손실에 직접 닿는다는 점은 확인됐다. 실적을 정하는 것은 TV 광고 예산이 스트리밍으로 옮겨 가는 속도다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "TV 운영체제·스트리밍 플랫폼",
+        "rivals": [
+          "다른 TV 운영체제 (출처에 이름 없음)"
+        ],
+        "position": "leader",
+        "share": "Roku가 만든 TV가 미국 TV 판매 대수의 약 8% (Q3 2026)",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "arena": "커넥티드 TV 광고",
+        "rivals": [
+          "다른 스트리밍 광고 플랫폼 (출처에 이름 없음)"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "edge": "1억 가구 이상의 설치 기반과 TV 첫 화면, 광고·구독을 함께 파는 플랫폼.",
+    "threats": "기기 원가 상승, 경쟁 TV 운영체제 확대, 대형 스트리밍 회사의 배분 조건 재협상.",
+    "text": "주주서한은 경쟁사를 이름으로 들지 않는다. Roku는 TV 첫 화면을 쥔 설치 기반으로 광고와 구독을 함께 파는 점을 차별점으로 내세운다. 인수가 끝나면 Fox Corporation이라는 콘텐츠 회사가 이 화면의 주인이 되는 셈이다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "strategy": {
+    "goal": "인수 계약에 따라 Fox Corporation이 Roku를 약 220억 달러에 사들이며, 거래는 2027년 상반기 완료 예정이다. 회사는 위임장 설명서에 낸 2026년 하반기 전망을 지키는 궤도라고 밝혔다.",
+    "roadmap": [
+      {
+        "when": "2026-06-15",
+        "what": "Fox Corporation과 인수 확정 계약 체결",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2026 하반기",
+        "what": "위임장 설명서의 하반기 전망 달성 (수치는 이번 자료에 없음)",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      },
+      {
+        "when": "2027 상반기",
+        "what": "Fox Corporation의 인수 완료 예정",
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "vision": "TV 첫 화면을 가진 스트리밍 플랫폼으로 TV 광고 예산이 스트리밍으로 옮겨 가는 흐름을 받는 것. 인수 뒤에는 Fox Corporation의 콘텐츠와 결합된다.",
+    "text": "이제 Roku의 다음 단계는 독립 회사의 전략보다 인수 완료가 정한다. 회사는 인수 진행 중이라 실적 발표 콜과 재무 전망을 하지 않겠다고 밝혔다. 주당 가격과 대금 지급 방식은 이번에 읽은 자료에 나오지 않는다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "governance": {
+    "line": "Fox Corporation이 2026-06-15 확정 계약에 따라 Roku를 약 220억 달러에 인수할 예정이며(2027년 상반기 완료 예정), 회사는 그 사이 콜과 전망을 내지 않는다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "2026 하반기",
+        "metric": "financial outlook",
+        "value": "위임장 설명서 전망 유지 (수치는 이번 자료에 없음); 인수 진행 중이라 새 전망 없음",
+        "givenOn": "2026-11-02",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "style": "none",
+    "track": "인수 계약 이후 분기 전망과 콜을 중단했다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-11-07, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) EPS 합계 3.87달러(범위 2.80~5.10), 직전 4개 분기 3.43달러. Q3 2026 EPS 1.15달러로 추정 0.55달러를 넘었고, 최근 4주 상향 7건·하향 4건.",
+    "src": [
+      "s3"
+    ]
+  },
+  "watch": {
+    "confirms": [
+      "인수 승인 절차가 일정대로 진행",
+      "플랫폼 매출 20%대 성장 유지",
+      "기기 손실이 메모리 원가 안정으로 줄어듦"
+    ],
+    "breaks": [
+      "인수 계약 지연·조건 변경·무산",
+      "플랫폼 성장 둔화",
+      "기기 손실 확대"
+    ],
+    "keyNumbers": [
+      {
+        "name": "인수 완료 일정",
+        "why": "주가가 독립 실적보다 거래 조건에 묶여 있다"
+      },
+      {
+        "name": "플랫폼 매출 성장률",
+        "why": "이익의 거의 전부"
+      },
+      {
+        "name": "기기 매출총이익률",
+        "why": "부품 원가 부담"
+      },
+      {
+        "name": "스트리밍 시청 시간",
+        "why": "광고 재고의 크기"
+      }
+    ]
+  },
+  "debate": {
+    "question": "Fox Corporation 인수가 2027년 상반기에 계획대로 끝나는지",
+    "bull": {
+      "text": "계획대로 간다고 보는 쪽은 6월 15일 확정 계약이 체결됐고, Roku가 하반기 전망 궤도에 있다고 밝혔다는 점을 든다. 플랫폼 매출이 23% 늘고 순이익 1.83억 달러, 최근 12개월 잉여현금흐름 7.96억 달러를 내, 거래 기간 동안 사업이 흔들리지 않는다는 읽기다.",
+      "src": [
+        "s1",
+        "s2"
+      ]
+    },
+    "bear": {
+      "text": "변수가 남았다고 보는 쪽은 이번에 읽은 자료에 규제 승인 상태와 대금 구조가 나오지 않는다는 점을 본다. 회사가 콜과 전망을 멈춰 밖에서 사업 흐름을 확인할 수단이 줄었고, 기기 매출총이익률이 메모리 원가로 -25.1%까지 내려간 것도 거래 전 실적의 약점이다.",
+      "src": [
+        "s1",
+        "s2"
+      ]
+    },
+    "decides": [
+      {
+        "when": "2027 상반기",
+        "what": "Fox Corporation의 인수 완료 공시",
+        "src": [
+          "s2"
+        ]
+      }
+    ]
+  },
+  "underTheHood": [
+    {
+      "title": "기기는 손해, 화면이 이익",
+      "text": "3분기 기기 사업은 매출 1.94억 달러에 매출총손실 4,860만 달러였고, 플랫폼은 매출총이익 6.97억 달러를 냈다. 기기 판매가 33% 늘수록 손실도 커지지만, 그 TV가 광고와 구독을 팔 화면을 넓히는 구조다.",
+      "src": [
+        "s1"
+      ]
+    },
+    {
+      "title": "구독 마진의 희석",
+      "text": "구독 매출은 23% 늘었지만 매출총이익률이 약 1.8%p 낮아진 40.9%였다. Roku가 직접 파는 Premium Subscriptions 비중이 커지면 매출은 크게 잡히지만, 콘텐츠 비용을 넘겨줘야 해 마진은 광고(63.2%)보다 낮다.",
+      "src": [
+        "s1",
+        "s2"
+      ]
+    },
+    {
+      "title": "현금흐름은 12개월 합계",
+      "text": "주주서한이 내는 영업현금흐름 8.11억 달러와 잉여현금흐름 7.96억 달러는 분기가 아니라 최근 12개월 합계다. 분기 수치와 섞어 비교하면 현금 창출력이 크게 부풀어 보인다.",
+      "src": [
+        "s1"
+      ]
+    }
+  ],
+  "trading": {
+    "calendar": [
+      {
+        "date": "2027 상반기",
+        "event": "Fox Corporation 인수 완료 예정",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "date": "2027-02 (추정, 회사 미공지)",
+        "event": "Q4 2026 주주서한 (콜·전망 없음)",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "reaction": "인수 계약 이후에는 분기 실적보다 인수 조건과 승인 진행 소식이 주가를 더 크게 정할 가능성이 크다.",
+    "conditions": [
+      "인수 승인·완료 일정 관련 공시",
+      "인수 조건 변경 여부",
+      "플랫폼 매출 성장률",
+      "기기 매출총이익률"
+    ]
+  },
+  "unverified": [
+    "Fox Corporation 인수 주당 가격·현금/주식 구성·자금 조달·규제 승인 상태 - 이번에 읽은 자료에 없음 (220억 달러와 2027년 상반기 완료는 보도 기준)",
+    "위임장 설명서의 2026년 하반기 전망 수치",
+    "스트리밍 가구 수와 ARPU - 회사가 공시 중단",
+    "광고 매출 절대값 - 플랫폼 매출에서 구독 매출을 뺀 약 7.27억 달러는 계산값",
+    "분기 단독 영업·잉여현금흐름",
+    "경쟁사 이름과 점유율"
+  ],
+  "confidence": "high - 실적은 SEC 8-K 주주서한 원문에서 왔다. 인수 조건 세부는 보도에 기대며 원문을 읽지 못했다."
+}

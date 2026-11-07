@@ -1,0 +1,494 @@
+{
+  "symbol": "ELV",
+  "name": "Elevance Health, Inc.",
+  "researchedAt": "2026-11-07",
+  "fiscalYearEnd": "December 31",
+  "oneLine": "Elevance Health는 Blue Cross Blue Shield 라이선스로 미국 4,500만 명에게 건강보험을 파는 대형 보험사로, 보험료의 90%가 의료비로 나가는 얇은 마진 위에서 약제 관리(CarelonRx)와 의료 서비스(Carelon Services)로 이익을 보탠다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Elevance Health Reports Third Quarter 2026 Results (Form 8-K Exhibit 99)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0001156039/000115603926000068/a3q2026elvearningsrelease.htm",
+      "publisher": "Elevance Health via SEC EDGAR",
+      "date": "2026-10-21"
+    },
+    {
+      "id": "s2",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/elv/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-11-07"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "Blue Cross and Blue Shield Association 라이선스 브랜드",
+      "규모 - 의료 가입자 4,488만 명 (2026-09말), 분기 영업수익 504억 달러",
+      "보험·약제·의료 서비스 통합 - CarelonRx 116억, Carelon Services 77억 달러 매출 (Q3 2026)"
+    ],
+    "text": "Elevance의 힘은 Blue Cross Blue Shield 브랜드 아래 쌓인 가입자 규모와, 그 가입자에게 약제·의료 서비스까지 함께 파는 구조에서 나온다. 2026-09말 의료 가입자는 4,488만 명이었다. 보험(Health Benefits)의 마진은 1%에 불과하지만 CarelonRx(5.3%)와 Carelon Services(3.8%)가 이익을 보탠다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "design": {
+    "text": "회사는 네 부문으로 보고한다. Health Benefits는 고용주·개인·Medicaid·Medicare 건강보험, CarelonRx는 약제 혜택 관리(PBM)와 약국 서비스, Carelon Services는 의료 서비스와 보건 관리, 그리고 Corporate & Other다. 보험은 위험을 회사가 지는 위험 인수형(risk-based)과 고용주 대신 관리만 하는 수수료형(fee-based)으로 나뉜다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "make": {
+    "model": "service",
+    "partners": [
+      "Blue Cross and Blue Shield Association - 브랜드 라이선스",
+      "CaremarkPCS Health - 약국 서비스 계약"
+    ],
+    "text": "보험사가 '만드는' 것은 의료 제공자 네트워크와 보험 상품이다. 회사는 Blue Cross and Blue Shield Association에서 브랜드 라이선스를 받고, 약국 서비스 일부는 CaremarkPCS Health와 계약으로 운영한다. 병원·의사 네트워크의 이름과 규모는 이번 보도자료에 없다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "고용주 수수료형 가입자 - 2,761만 명 (+2.2%)",
+      "고용주·개인 위험 인수형 가입자 - 471만 명 (-5.2%)",
+      "Medicaid 가입자 (주 정부 계약) - 822만 명 (-4.9%)",
+      "Medicare Advantage 가입자 - 190만 명 (-15.5%)",
+      "연방 공무원 프로그램(FEP) - 155만 명 (-5.1%)",
+      "개인(ACA) 가입자 - 135만 명 (-0.4%)"
+    ],
+    "channel": "고용주 단체 계약, 주 정부 Medicaid 계약, 연방 Medicare 계약, 개인 시장 판매",
+    "concentration": "고객별 비중 미공시; 가입자 기준 고용주 수수료형이 약 62%",
+    "text": "가입자는 1년 전보다 1.1% 줄었다. 위험을 회사가 지는 Medicare Advantage(-15.5%)와 Medicaid(-4.9%)가 줄었고, 관리 수수료만 받는 고용주 가입자는 2.2% 늘었다. 회사가 위험이 큰 쪽을 줄이고 수수료 쪽을 늘린 구성 변화로 읽힌다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "고용주·개인·주 정부·연방 정부(CMS)",
+        "to": "Elevance Health",
+        "what": "보험료 (Q3 2026 417억 달러)와 관리 수수료 (22.8억 달러)"
+      },
+      {
+        "from": "Elevance Health",
+        "to": "병원·의사·약국",
+        "what": "의료비 지급 (보험료의 90.6%)"
+      },
+      {
+        "from": "가입자·고객 약제 수요",
+        "to": "CarelonRx",
+        "what": "약제 관리·약국 매출 (116억 달러)"
+      },
+      {
+        "from": "Elevance Health",
+        "to": "주주",
+        "what": "Q3 자사주 3.3억, 배당 3.73억 달러"
+      }
+    ],
+    "pricing": "보험료(위험 인수형)와 관리 수수료(수수료형), 약제 관리 매출. 이익은 보험료에서 의료비(MBR)와 운영비를 뺀 몫이다.",
+    "text": "돈은 보험료로 들어와 대부분 의료비로 나간다. Q3 의료비율(MBR)은 90.6%로 전년보다 0.7%p 좋아졌지만 운영비율은 11.4%로 0.9%p 올라, 영업이익률은 2.5%에 머물렀다. 그래서 의료비율 0.1~0.2%p 차이가 이익을 크게 바꾼다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "earnings": {
+    "period": "Q3 2026 (quarter ended 2026-09-30)",
+    "revenue": {
+      "value": 50.44,
+      "unit": "USD bn",
+      "yoy": 0.7
+    },
+    "grossMargin": null,
+    "operatingMargin": 2.5,
+    "netMargin": 2.6,
+    "operatingCashFlow": {
+      "value": 1.3,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": null,
+    "segments": [
+      {
+        "name": "Health Benefits (사업부 간 거래 제거 전)",
+        "revenue": 43.357,
+        "unit": "USD bn",
+        "share": null,
+        "yoy": 2.6,
+        "operatingMargin": 1.0,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "CarelonRx (사업부 간 거래 제거 전)",
+        "revenue": 11.599,
+        "unit": "USD bn",
+        "share": null,
+        "yoy": 5.5,
+        "operatingMargin": 5.3,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Carelon Services (사업부 간 거래 제거 전)",
+        "revenue": 7.708,
+        "unit": "USD bn",
+        "share": null,
+        "yoy": 5.2,
+        "operatingMargin": 3.8,
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "의료비율 (MBR)",
+        "value": "Q3 2026 90.6% (전년 91.3%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "운영비율",
+        "value": "Q3 2026 11.4% (조정 11.3%), +0.9%p",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "의료 가입자",
+        "value": "2026-09말 4,488.2만 명 (-1.1%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "EPS (GAAP / 조정)",
+        "value": "Q3 2026 6.27달러 / 6.99달러 (전년 5.32 / 6.03)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "부문 영업이익",
+        "value": "Health Benefits 4.36억(-27.5%), CarelonRx 6.16억(+10.8%), Carelon Services 2.92억 달러(+33.3%)",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "text": "Q3 2026 영업수익은 504억 달러로 0.7% 늘었고 순이익은 13.4억 달러로 13.1% 늘었다. 그러나 이익의 무게중심이 바뀌어, 보험 부문 영업이익은 27.5% 줄고 CarelonRx와 Carelon Services가 각각 10.8%, 33.3% 늘었다. 부문 매출 합계가 영업수익보다 큰 것은 부문 간 거래가 연결에서 상계되기 때문이다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "useOfCash": {
+    "period": "9M 2026 (nine months ended 2026-09-30)",
+    "items": [
+      {
+        "use": "buybacks",
+        "value": 1.688,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "dividends",
+        "value": 1.122,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "other",
+        "label": "Medicare 위험조정 자료 관련 충당금 (Q3, 손익 기준)",
+        "value": 0.935,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "text": "9개월 영업현금흐름 75.1억 달러 가운데 자사주 16.9억, 배당 11.2억 달러가 주주에게 갔다. Q3에는 주당 평균 398.75달러에 80만 주를 3.3억 달러에 샀고, 분기 배당은 주당 1.72달러였다. 별도로 CMS 통지(2026-02-27)와 관련한 과거 위험조정 자료 노출에 9.35억 달러를 충당금으로 쌓았다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "aiChain": {
+    "layer": "limited",
+    "position": "건강보험사로, 이번에 읽은 보도자료에는 AI 관련 언급이나 수치가 없다.",
+    "dependsOn": [
+      "공개된 AI 의존 업체 없음"
+    ],
+    "sellsTo": [
+      "AI를 팔지 않음 - 고용주·개인·정부 보험 고객"
+    ],
+    "aiRevenue": null,
+    "upside": "원문에 AI가 매출이나 비용으로 이어지는 경로가 공시되지 않았다.",
+    "risk": "원문에 AI 관련 위험 언급 없음.",
+    "text": "AI 가치사슬과의 연결은 공시로 확인되지 않는다. 실적은 의료비율, 정부 보험(Medicaid·Medicare) 가입자 구성, CMS 규제가 움직인다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "고용주 건강보험",
+        "rivals": [
+          "다른 대형 건강보험사 (원문 미명시)"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "Medicaid 관리형 보험",
+        "rivals": [
+          "원문 미명시"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "Medicare Advantage",
+        "rivals": [
+          "원문 미명시"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "약제 혜택 관리 (CarelonRx)",
+        "rivals": [
+          "원문 미명시"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "edge": "Blue Cross Blue Shield 브랜드와 지역 네트워크, 보험·약제·서비스 통합.",
+    "threats": "Medicaid·Medicare 의료비 상승, CMS 위험조정 규제, 가입자 감소.",
+    "text": "이번에 읽은 원문은 경쟁사 이름을 밝히지 않았다. 숫자로 보이는 경쟁 결과는 Medicare Advantage 가입자 15.5% 감소로, 회사가 가격을 올리거나 시장을 줄인 것으로 읽힐 수 있지만 원문은 이유를 설명하지 않는다. 고용주 수수료형 가입자 증가는 통합 서비스의 경쟁력을 보여 준다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "strategy": {
+    "goal": "2026년 조정 EPS 최소 29.00달러, 2027년 조정 EPS는 최소 26.75달러 기준에서 최소 12% 성장.",
+    "roadmap": [
+      {
+        "when": "FY2026",
+        "what": "조정 EPS 최소 29.00달러, GAAP 최소 22.00달러, 영업현금흐름 최소 65억 달러",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "FY2027",
+        "what": "최소 26.75달러 기준 대비 조정 EPS 최소 12% 성장",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "vision": "사장 겸 CEO Gail K. Boudreaux는 '2026년 이익 전망을 올리고 2027년 최소 12% 성장을 확신한다'고 말했다.",
+    "text": "회사는 위험이 큰 정부 보험을 조이고 CarelonRx·Carelon Services로 이익원을 넓히는 쪽으로 움직인다. 2026년 전망은 올렸지만, 2027년 성장의 기준점은 2026년 전망(29.00달러)보다 낮은 26.75달러로 제시됐다. 즉 2026년 이익에 다음 해로 이어지지 않는 부분이 있다고 회사가 보고 있다는 뜻으로 읽힌다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "governance": {
+    "line": "사장 겸 CEO Gail K. Boudreaux가 이끌며, 9개월 동안 자사주 16.9억 달러와 분기 배당 주당 1.72달러로 주주에게 돌려준다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "FY2026",
+        "metric": "adjusted diluted EPS",
+        "value": "최소 29.00달러 (상향, 직전 값은 원문 미기재)",
+        "givenOn": "2026-10-21",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "GAAP diluted EPS",
+        "value": "최소 22.00달러 (상향)",
+        "givenOn": "2026-10-21",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "operating cash flow",
+        "value": "최소 65억 달러 (상향)",
+        "givenOn": "2026-10-21",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2027",
+        "metric": "adjusted EPS growth",
+        "value": "최소 26.75달러 기준에서 최소 12%",
+        "givenOn": "2026-10-21",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "style": "annual",
+    "track": "Q3 조정 EPS 6.99달러는 컨센서스 4.66달러를 크게 넘었고(AIO 스냅샷), 회사는 연간 전망을 올렸다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-11-07, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) EPS 합계 27.99달러(범위 22.88~32.45), 직전 4개 분기 30.35달러로 이익 감소를 본다. 최근 4주 상향 6건·하향 9건.",
+    "src": [
+      "s2"
+    ]
+  },
+  "watch": {
+    "confirms": [
+      "의료비율이 전년보다 계속 낮아짐",
+      "CarelonRx·Carelon Services 영업이익 증가 지속",
+      "2027 조정 EPS 성장 목표 유지",
+      "고용주 수수료형 가입자 증가"
+    ],
+    "breaks": [
+      "Medicaid·Medicare 의료비율 재상승",
+      "CMS 위험조정 관련 추가 충당금",
+      "Health Benefits 영업이익 추가 감소",
+      "2027 기준점이나 성장률 하향"
+    ],
+    "keyNumbers": [
+      {
+        "name": "의료비율 (MBR)",
+        "why": "보험 이익의 가장 큰 변수"
+      },
+      {
+        "name": "부문별 영업이익",
+        "why": "보험에서 Carelon으로의 이익 이동"
+      },
+      {
+        "name": "가입자 구성",
+        "why": "위험 인수형과 수수료형의 비중"
+      },
+      {
+        "name": "조정 EPS 전망",
+        "why": "2027 기준점 26.75달러 대비 성장"
+      }
+    ]
+  },
+  "debate": {
+    "question": "Carelon 부문 성장과 의료비율 개선이 정부 보험 가입자 감소와 규제 비용을 넘어 2027년 성장으로 이어지는지",
+    "bull": {
+      "text": "강세로 보는 쪽은 Q3 의료비율이 90.6%로 0.7%p 좋아졌고 CarelonRx(+10.8%)와 Carelon Services(+33.3%) 영업이익이 늘었다는 점을 든다. 조정 EPS 6.99달러는 컨센서스 4.66달러를 크게 넘었고, 회사는 2026 전망을 올리며 2027년 최소 12% 성장을 제시했다.",
+      "src": [
+        "s1",
+        "s2"
+      ]
+    },
+    "bear": {
+      "text": "약세로 보는 쪽은 보험 부문 영업이익이 27.5% 줄고 Medicare Advantage 가입자가 15.5% 감소했다는 점을 짚는다. Medicare 위험조정 자료와 관련해 9.35억 달러를 충당금으로 쌓았고, 2027년 성장의 기준점은 26.75달러로 2026 전망 29.00달러보다 낮으며, 컨센서스도 향후 4개 분기 EPS를 27.99달러로 직전보다 낮게 본다.",
+      "src": [
+        "s1",
+        "s2"
+      ]
+    },
+    "decides": [
+      {
+        "when": "Q4·FY2026 실적 (2027-01 예상, 회사 미확정)",
+        "what": "2027 조정 EPS 전망이 26.75달러 기준 최소 12% 성장을 유지하는지",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "CMS 위험조정 검토 결과 (시점 원문 미기재)",
+        "what": "9.35억 달러 충당금 외 추가 노출이 생기는지",
+        "src": [
+          "s1"
+        ]
+      }
+    ]
+  },
+  "underTheHood": [
+    {
+      "title": "2027의 기준점이 낮다",
+      "text": "회사는 2026년 조정 EPS를 최소 29.00달러로 올리면서 2027년 성장은 최소 26.75달러 기준에서 12%라고 했다. 26.75달러에 12%를 더해도 약 29.96달러로, 2026 전망과 크게 다르지 않다. 올해 이익 일부를 회사가 반복되지 않는다고 보는 셈이라 '12% 성장'을 액면 그대로 읽으면 안 된다.",
+      "src": [
+        "s1"
+      ]
+    },
+    {
+      "title": "이익이 보험 밖으로 옮겨 간다",
+      "text": "Q3 보험 부문 영업이익은 4.36억 달러로 CarelonRx 6.16억 달러보다 작았다. 보험 마진은 1.0%로 얇아, 의료비 변동이 보험 이익을 크게 흔든다. 같은 회사 안에서 약제·서비스 부문이 보험의 변동을 메우는 구조다.",
+      "src": [
+        "s1"
+      ]
+    },
+    {
+      "title": "규제 충당금은 판단의 숫자",
+      "text": "9.35억 달러 충당금은 CMS 통지(2026-02-27)에 따른 과거 위험조정 자료 노출에 대한 회사의 '현재 최선 추정'이다. 실제 결과가 이와 다르면 이익이 다시 조정된다. 정부 보험 비중이 큰 보험사는 이런 규제 판단이 분기 이익을 바꿀 수 있다.",
+      "src": [
+        "s1"
+      ]
+    }
+  ],
+  "trading": {
+    "calendar": [
+      {
+        "date": "2027-01 하순 (추정, 회사 미확정)",
+        "event": "Q4·FY2026 실적과 2027 전망",
+        "src": []
+      }
+    ],
+    "reaction": "주가는 분기 EPS보다 의료비율과 다음 해 전망, 정부 보험 규제 소식에 크게 반응하는 경향이 있다.",
+    "conditions": [
+      "의료비율 (부문·상품별)",
+      "가입자 구성 변화",
+      "2027 조정 EPS 전망과 기준점",
+      "CMS 위험조정 관련 추가 공시",
+      "컨센서스 EPS 상향·하향 건수"
+    ]
+  },
+  "unverified": [
+    "직전 연간 전망 값 (보도자료는 상향만 언급)",
+    "가입자·의료비율 연간 전망",
+    "잉여현금흐름과 설비투자",
+    "부채/자본 비율 (보도자료 미공시, 재무상태표로 계산하면 약 40.7%)",
+    "Medicare Advantage 가입자 감소의 원인",
+    "병원·의사 네트워크와 경쟁사 이름",
+    "순이익률 2.6%는 순이익 13.43억 / 총수익 514.29억 달러로 계산한 값",
+    "2027 성장 기준점이 2026 전망보다 낮은 이유 (원문 미설명)",
+    "사업부 매출 합계는 사업부 간 거래를 빼기 전 금액이라 연결 매출보다 크다."
+  ],
+  "confidence": "medium - 분기 수치·가입자·전망은 회사 8-K 보도자료에서 직접 왔지만, 직전 전망 값과 경쟁 구도는 원문에 없었다."
+}

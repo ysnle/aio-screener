@@ -1,0 +1,179 @@
+{
+  "symbol": "RIVN",
+  "name": "Rivian Automotive, Inc.",
+  "researchedAt": "2026-11-07",
+  "fiscalYearEnd": "December 31",
+  "oneLine": "Rivian은 중형 SUV R2 양산으로 판매를 빠르게 늘리고, Volkswagen과의 소프트웨어 합작으로 번 돈을 보태며 흑자 전환을 향해 가는 미국 전기차 회사다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Rivian Q3 2026 earnings release / shareholder letter (8-K Ex.99.2)", "url": "https://www.sec.gov/Archives/edgar/data/0001874178/000187417826000065/ex-9923q26rivianearnings.htm", "publisher": "Rivian / SEC EDGAR", "date": "2026-10-29" },
+    { "id": "s2", "kind": "news", "title": "Rivian Q3 2026 Earnings: R2 Is Now Rivian's Best Seller and Guidance Goes Up", "url": "https://riviantrackr.com/news/rivian-q3-2026-earnings/", "publisher": "RivianTrackr", "date": "2026-10-29" },
+    { "id": "s3", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/rivn/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-11-07" }
+  ],
+  "moat": {
+    "sources": [
+      "차량 전기·전자 구조와 소프트웨어를 직접 설계 - Volkswagen Group이 합작사 RV Tech로 이를 사들임",
+      "R2 중형 SUV - 3분기 R1·EDV를 제치고 최다 판매 차종",
+      "Autonomy+ 운전 보조 구독과 자체 시뮬레이션 학습 체계",
+      "Amazon 전기 배송 밴(EDV) 공급 관계"
+    ],
+    "text": "Rivian의 핵심 자산은 차량의 전기·전자 구조와 소프트웨어를 스스로 만든다는 점이다. 이 기술은 Volkswagen Group이 합작사 RV Tech를 통해 돈을 내고 쓰고 있어, 소프트웨어·서비스 매출이 3분기 6.05억 달러, 마진 42%에 이르렀다. 여기에 새로 나온 R2가 3분기 최다 판매 차종이 되며 판매 기반이 넓어졌다.",
+    "src": ["s1", "s2"]
+  },
+  "design": {
+    "text": "회사는 자동차(R1 SUV·픽업, R2, 상업용 배송 밴 EDV)와 소프트웨어·서비스 두 줄로 매출을 보고한다. 소프트웨어·서비스에는 Volkswagen 합작 관련 매출과 Autonomy+ 구독이 들어간다. 자율주행 기능 Point to Point는 2026년 말 일부 이용자에게 먼저 풀리고 2027년 모든 Autonomy+ 구독자에게 제공될 예정이다.",
+    "src": ["s1", "s2"]
+  },
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "Volkswagen Group - 합작사 RV Tech, 10년 만기 비소구 대출 10억 달러(6.03%), 추가 지분투자 4.6억 달러 예정",
+      "Mind Robotics - Rivian 지분 31.2%, Rivian이 주요 고객",
+      "Third Dimension AI - 모델 학습·검증용 시뮬레이션 지원"
+    ],
+    "text": "차는 일리노이주 Normal 공장에서 만들며, 3분기에 R2용 두 번째 교대 근무를 시작했다. 조지아 공장은 미국 에너지부 대출(최대 45억 달러)로 짓고 있고 첫 인출은 2027년 초로 예상한다. 두 공장의 합산 생산능력은 연 최대 51.5만 대라고 밝혔지만 이는 현재 생산 속도와 다르다.",
+    "src": ["s1", "s2"]
+  },
+  "sell": {
+    "customers": [
+      "개인 소비자 - R1·R2 직판, 3분기 인도 19,248대(+46%)",
+      "Amazon - 북미 전역에서 Rivian 전기 배송 밴(EDV) 차량을 계속 확대",
+      "Volkswagen Group - RV Tech 합작을 통한 소프트웨어·서비스 매출",
+      "Uber - 자율주행 협력, 2026년 말 마일스톤 달성 시 2.5억 달러 투자 예정"
+    ],
+    "channel": "딜러 없이 온라인·자체 매장 직판, 상업용 밴은 법인 직접 공급, 소프트웨어는 합작 계약과 구독",
+    "concentration": "고객별 매출 비중은 읽은 자료에 공시되지 않음.",
+    "text": "차는 딜러 없이 직접 팔리고, 3분기 시승이 10.3만 건으로 2분기 약 5.7만 건에서 크게 늘었다. 법인 고객 Amazon은 배송 밴을 계속 늘리고 있다. 차가 아닌 매출원으로 Volkswagen Group의 합작 대금과 Uber의 단계별 투자가 붙어 있다.",
+    "src": ["s1", "s2"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "개인 소비자", "to": "Rivian", "what": "R1·R2 차량 대금 (대당 직판)" },
+      { "from": "Amazon", "to": "Rivian", "what": "전기 배송 밴(EDV) 대금" },
+      { "from": "Volkswagen Group", "to": "Rivian", "what": "RV Tech 합작 소프트웨어·서비스 대금, 대출 10억 달러, 지분투자 4.6억 달러(예정)" },
+      { "from": "Uber", "to": "Rivian", "what": "자율주행 마일스톤 투자 2.5억 달러(2026년 말 목표), 2031년까지 최대 7억 달러 추가" },
+      { "from": "Rivian 차량 소유자", "to": "Rivian", "what": "Autonomy+ 구독료" }
+    ],
+    "pricing": "차량은 대당 판매, 소프트웨어는 합작 계약 대금과 구독. 일부 자금은 매출이 아니라 파트너 투자·대출로 들어온다.",
+    "text": "돈은 차 판매에서 대부분 들어오지만 이익은 거의 소프트웨어 쪽에서 난다. 3분기 자동차는 R2 증산 비용 약 1.2억 달러를 포함해 총손실 8천만 달러였고, 소프트웨어·서비스가 42% 마진으로 이를 메웠다. 파트너의 대출과 지분투자는 매출이 아니지만 유동성 계산에 들어간다.",
+    "src": ["s1", "s2"]
+  },
+  "earnings": {
+    "period": "Q3 2026 (ended 2026-09-30)",
+    "revenue": { "value": 2.155, "unit": "USD bn", "yoy": 38 },
+    "grossMargin": 8.2,
+    "operatingMargin": -40.9,
+    "netMargin": -42.4,
+    "operatingCashFlow": { "value": -0.758, "unit": "USD bn" },
+    "freeCashFlow": { "value": -1.124, "unit": "USD bn" },
+    "segments": [
+      { "name": "Automotive", "revenue": 1.55, "unit": "USD bn", "share": 71.9, "yoy": 36, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Software and services", "revenue": 0.605, "unit": "USD bn", "share": 28.1, "yoy": 45, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "생산·인도 (Q3 2026)", "value": "생산 19,751대(+84%), 인도 19,248대(+46%)", "src": ["s1"] },
+      { "name": "부문 총이익", "value": "소프트웨어·서비스 총마진 42%, 자동차 총손실 8천만 달러(R2 증산 비용 약 1.2억 포함), 대당 자동차 원가 2분기 대비 1.2만 달러 이상 감소", "src": ["s1", "s2"] },
+      { "name": "조정 EBITDA", "value": "-4.35억 달러 (전년 -6.02억)", "src": ["s1"] },
+      { "name": "유동성", "value": "현금·단기투자 55.0억 달러, 프로포마 가용 유동성 70.95억 달러 (2026-09-30)", "src": ["s1"] }
+    ],
+    "text": "3분기 매출은 21.6억 달러로 38% 늘었고 총이익은 1.76억 달러, 총마진 8%로 전년 2%에서 올라왔다. 다만 영업손실 8.8억 달러, 순손실 9.1억 달러로 아직 큰 적자이며, 영업현금흐름 -7.6억과 설비투자 3.7억 달러로 잉여현금흐름은 -11.2억 달러였다. 총이익의 원천은 자동차가 아니라 소프트웨어·서비스다.",
+    "src": ["s1"]
+  },
+  "useOfCash": {
+    "period": "Q3 2026",
+    "items": [
+      { "use": "R&D", "value": 0.485, "unit": "USD bn", "src": ["s1"] },
+      { "use": "capex", "value": 0.366, "unit": "USD bn", "src": ["s1"] }
+    ],
+    "text": "번 돈이 아니라 쌓아 둔 현금과 파트너 자금으로 R&D 4.85억 달러와 설비투자 3.66억 달러를 쓰는 단계다. 연간 설비투자 가이던스는 집행 시기 때문에 14억~15억 달러로 약 3억 달러 낮췄다. 자사주 매입이나 배당은 없다.",
+    "src": ["s1"]
+  },
+  "aiChain": {
+    "layer": "devices",
+    "position": "자율주행·운전 보조 소프트웨어를 얹은 전기차를 만들고, 그 차량 소프트웨어 구조를 다른 완성차(Volkswagen Group)에 파는 회사다.",
+    "dependsOn": ["Third Dimension AI (시뮬레이션 학습 지원)", "미국 에너지부 대출 (조지아 공장)"],
+    "sellsTo": ["Volkswagen Group (RV Tech 합작)", "Uber (자율주행 협력)", "Amazon (EDV)", "개인 소비자"],
+    "aiRevenue": "AI 매출 별도 공시 없음. Autonomy+ 구독은 소프트웨어·서비스(Q3 6.05억 달러)에 포함되며 금액 미공시.",
+    "upside": "Autonomy+ 가입률이 예상보다 높고 Point to Point가 2027년 전 구독자에게 풀리면 고마진 구독 매출이 커진다. Uber 협력 마일스톤마다 투자금이 들어온다.",
+    "risk": "자율주행 기능 일정이 늦어지면 Uber 마일스톤 투자와 구독 성장 기대가 함께 미뤄진다.",
+    "text": "Rivian에서 AI는 자율주행 소프트웨어와 그 학습 체계로 나타난다. Autonomy+ 가입률이 예상보다 높다고 회사는 말했고, 2026-12-09 Autonomy & AI Day를 연다. 매출로는 소프트웨어·서비스 안에 섞여 있어 아직 따로 보이지 않는다.",
+    "src": ["s1", "s2"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "미국 전기 SUV·픽업", "rivals": ["전기차 업체 (출처에 이름 없음)"], "position": "challenger", "share": null, "src": ["s1"] },
+      { "arena": "상업용 전기 배송 밴", "rivals": ["상용차 업체 (출처에 이름 없음)"], "position": "niche", "share": null, "src": ["s1"] },
+      { "arena": "차량 전기·전자 구조·소프트웨어 공급", "rivals": ["완성차 자체 개발 (출처에 이름 없음)"], "position": "niche", "share": null, "src": ["s1"] }
+    ],
+    "edge": "자체 차량 소프트웨어 구조(Volkswagen Group이 채택), R2의 빠른 판매 확대, 파트너 자금.",
+    "threats": "R2 증산 비용으로 자동차 부문이 아직 총손실, 분기 11억 달러 수준의 현금 유출.",
+    "text": "읽은 자료는 경쟁사를 이름으로 들지 않는다. 숫자로 보이는 경쟁력은 R2가 출시 직후 최다 판매 차종이 된 점과, 다른 완성차가 Rivian 소프트웨어를 돈 주고 쓴다는 점이다. 약점은 차를 팔수록 아직 자동차 부문에서 손실이 난다는 점이다.",
+    "src": ["s1", "s2"]
+  },
+  "strategy": {
+    "goal": "R2 증산으로 규모를 키워 자동차 원가를 낮추고, 소프트웨어·자율주행으로 고마진 매출을 쌓는 것.",
+    "roadmap": [
+      { "when": "2026-12-09", "what": "Autonomy & AI Day (San Francisco)", "src": ["s1", "s2"] },
+      { "when": "2026 말", "what": "Uber 마일스톤 달성으로 2.5억 달러 투자 유입 목표, Point to Point 조기 이용 프로그램 시작", "src": ["s1"] },
+      { "when": "2027 초", "what": "조지아 공장용 에너지부 대출 첫 인출 예상", "src": ["s1"] },
+      { "when": "2027", "what": "Point to Point를 모든 Autonomy+ 구독자에게 제공", "src": ["s1", "s2"] },
+      { "when": "2028-01까지", "what": "Volkswagen Group 추가 지분투자 4.6억 달러 (RV Tech 하드웨어·소프트웨어 탑재 첫 차 출시 또는 2028-01 중 빠른 시점)", "src": ["s1"] }
+    ],
+    "vision": "차량 하드웨어와 소프트웨어를 함께 파는 회사, 다른 완성차에도 기술을 공급하는 회사.",
+    "text": "계획은 R2로 물량을 늘리고 조지아 공장으로 생산능력을 넓히며, 자율주행 기능을 단계적으로 푸는 것이다. 각 단계에 Uber와 Volkswagen Group의 투자금이 묶여 있어, 기술 일정을 지키는 것이 곧 자금 조달 일정이다.",
+    "src": ["s1"]
+  },
+  "governance": { "line": "읽은 자료에 경영진·지배구조 세부는 없으며, 배당·자사주 매입 없이 파트너 자금과 대출로 성장 투자를 하는 회사다.", "src": ["s1"] },
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "deliveries", "value": "6.7만~7.0만 대 (기존 6.5만~7.0만, 하단 상향)", "givenOn": "2026-10-29", "src": ["s1"] },
+      { "period": "FY2026", "metric": "adjusted EBITDA", "value": "-18.5억~-17.5억 달러 (중간값 약 1억 달러 개선)", "givenOn": "2026-10-29", "src": ["s1"] },
+      { "period": "FY2026", "metric": "capex", "value": "14억~15억 달러 (중간값 약 3억 달러 하향, 집행 시기)", "givenOn": "2026-10-29", "src": ["s1"] }
+    ],
+    "style": "annual",
+    "track": "3분기에 인도 하단과 EBITDA를 올렸다. 새 하단은 4분기 인도 최소 약 2.52만 대를 뜻한다(RivianTrackr 계산). 3분기 조정 EPS -0.62달러는 컨센서스 -0.84달러보다 나았다.",
+    "src": ["s1", "s2", "s3"]
+  },
+  "estimates": { "text": "2026-11-07 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기 합계 -2.52달러(범위 -2.68~-2.42, 추정치 수 최소 2), 직전 4개 분기 실적 합 -2.63달러. 최근 4주 상향 3건·하향 2건.", "src": ["s3"] },
+  "watch": {
+    "confirms": ["4분기 인도가 약 2.52만 대 이상으로 연간 가이던스 하단을 지킴", "자동차 부문 총이익이 플러스로 돌아섬", "Uber 마일스톤 투자 2.5억 달러가 연말에 들어옴", "Point to Point 기능이 일정대로 풀림"],
+    "breaks": ["R2 증산 비용이 줄지 않아 자동차 총손실 확대", "분기 잉여현금흐름 -11억 달러 수준이 이어지며 유동성 감소", "에너지부 대출 인출이나 조지아 공장 일정 지연", "자율주행 일정 지연으로 파트너 투자 지연"],
+    "keyNumbers": [
+      { "name": "분기 인도량", "why": "R2 수요와 증산의 직접 신호" },
+      { "name": "자동차 부문 총이익", "why": "차 자체가 돈을 버는지" },
+      { "name": "소프트웨어·서비스 매출과 마진", "why": "현재 이익의 원천" },
+      { "name": "현금·단기투자와 잉여현금흐름", "why": "버틸 수 있는 기간" }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      { "date": "2026-12-09", "event": "Autonomy & AI Day", "src": ["s1"] },
+      { "date": "2027-01 초 (추정, 회사 미공지)", "event": "Q4 2026 생산·인도 발표", "src": ["s2"] },
+      { "date": "2026 말", "event": "Uber 마일스톤 2.5억 달러 투자 여부", "src": ["s1"] }
+    ],
+    "reaction": "주가는 분기 인도량, 연간 인도 가이던스, 총이익 부호, 자율주행 발표에 크게 반응하는 경향이 있다.",
+    "conditions": ["분기 인도가 가이던스 하단이 암시하는 수준을 넘는지", "자동차 총이익의 부호", "현금 소진 속도와 파트너 자금 유입 시점", "컨센서스 EPS 수정 방향"]
+  },
+  "unverified": [
+    "Autonomy+ 구독 매출 금액과 가입자 수",
+    "Volkswagen 합작 관련 분기 매출 금액",
+    "Amazon 매출 비중",
+    "경쟁사 이름과 점유율",
+    "Q4 2026 인도·실적 발표일 (회사 미공지)",
+    "CEO 등 지배구조 세부 (읽은 자료에 없음)"
+  ],
+  "confidence": "high - 재무·운영 수치와 파트너 조건은 8-K 원문에서 왔다. 경쟁과 지배구조는 확인하지 못했다.",
+  "debate": {
+    "question": "R2 증산이 자동차 손실을 줄여 소프트웨어 이익과 파트너 자금이 바닥나기 전에 흑자로 가는지",
+    "bull": { "text": "R2가 3분기 최다 판매 차종이 됐고 대당 자동차 원가는 2분기보다 1.2만 달러 이상 낮아졌다. 소프트웨어·서비스는 6.05억 달러를 42% 마진으로 벌었고, Volkswagen Group 대출을 포함한 프로포마 유동성은 71억 달러다. 회사는 인도와 EBITDA 가이던스를 올렸다.", "src": ["s1", "s2"] },
+    "bear": { "text": "자동차 부문은 R2 증산 비용 약 1.2억 달러를 안고 총손실 8천만 달러였고 순손실은 9.1억 달러였다. 3분기 잉여현금흐름은 -11.2억 달러로 현금·단기투자 55억 달러에 견주면 몇 분기를 버틸 규모이며, 유동성 일부는 Uber 마일스톤처럼 아직 들어오지 않은 돈이다.", "src": ["s1", "s2"] },
+    "decides": [
+      { "when": "2026 말", "what": "Uber 마일스톤 투자 2.5억 달러 유입과 Point to Point 조기 이용 시작", "src": ["s1"] },
+      { "when": "Q4 2026 인도 발표 (회사 미공지)", "what": "4분기 인도가 약 2.52만 대 이상으로 연간 하단 6.7만 대를 지키는지", "src": ["s2", "s1"] }
+    ]
+  },
+  "underTheHood": [
+    { "title": "총이익은 소프트웨어에서", "text": "3분기 총이익 1.76억 달러는 소프트웨어·서비스 이익이 자동차 총손실 8천만 달러를 덮은 결과다. 차량 사업 자체가 흑자인지 보려면 회사 전체 총마진 8%가 아니라 자동차 부문 총이익을 따로 봐야 한다.", "src": ["s1", "s2"] },
+    { "title": "파트너 자금과 유동성", "text": "프로포마 유동성 71억 달러에는 Volkswagen Group 10억 달러 대출과 ABL 한도가 들어 있고, 다시 Uber 2.5억 달러를 더하면 73억 달러가 된다. 파트너 자금은 기술 마일스톤에 묶여 있어 일정이 미뤄지면 유동성도 함께 줄어든다.", "src": ["s1"] },
+    { "title": "생산능력과 생산의 차이", "text": "두 공장 합산 생산능력은 연 51.5만 대로 공시되지만 2026년 인도 가이던스는 6.7만~7.0만 대다. 조지아 공장은 에너지부 대출 첫 인출(2027년 초)에 기대고 있어, 생산능력 숫자는 먼 미래의 상한으로 읽어야 한다.", "src": ["s1"] }
+  ]
+}
