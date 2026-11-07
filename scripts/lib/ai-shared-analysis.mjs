@@ -1,4 +1,8 @@
 import { randomUUID } from 'node:crypto';
+import { HEADLINE_GLOSSARY_PAIRS } from '../../src/domain/briefing/headline-terms.js';
+
+// v59.74: the free Workers AI path gets the same market glossary as the shared-model prompt.
+const HEADLINE_TRANSLATE_GLOSSARY = HEADLINE_GLOSSARY_PAIRS.map(([en, ko]) => `${en} → ${ko}`).join(', ');
 
 export const SHARED_AI_MODEL = 'gpt-6-luna';
 
@@ -190,7 +194,7 @@ export async function requestWorkersAiTranslation(titles, { env = process.env, f
       const response = await fetchImpl(config.url.replace(/\/openai$/, '/workers-ai/translate'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-AIO-Automation-Token': config.token },
-        body: JSON.stringify({ titles: chunk }),
+        body: JSON.stringify({ titles: chunk, glossary: HEADLINE_TRANSLATE_GLOSSARY }),
         signal: controller.signal,
         redirect: 'error',
       });

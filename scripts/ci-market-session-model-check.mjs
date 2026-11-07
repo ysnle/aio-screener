@@ -94,7 +94,7 @@ const INSTRUMENTS = [
   { id: '^IXIC', market: 'US', delay: 0, stamp: 0 },
   { id: '^DJI', market: 'US', delay: 0, stamp: 0 },
   { id: '^RUT', market: 'US', delay: 15, stamp: 30 },
-  { id: 'SMH', market: 'US', delay: 0, stamp: 0 },
+  { id: 'SOXX', market: 'US', delay: 0, stamp: 0 },
   // Both KRX indices arrive 20 minutes late (snapshot 11-02 00:21Z held 00:01Z); the Friday 10-30 close was stamped 20:05 KST.
   { id: '^KS11', market: 'KR', delay: 20, stamp: 0 },
   { id: '^KQ11', market: 'KR', delay: 20, stamp: 275 }
@@ -116,7 +116,7 @@ const VARIANTS = [
   { label: '관측일의 KRX 시간 대신 오늘 시간 사용', replacements: [["const krObserved = isKorea && observedDate !== dateInTimezone(nowMs, zone) ? resolveMarketCalendarSession({ market: 'KR', date: observedDate }) : krToday;", 'const krObserved = krToday;']] },
   { label: 'KRX 지연 개장 직전 종가 허용 제거', replacements: [['return ageMs <= DAY_MS || observedAtOrAfterLastKrSessionClose(symbol, observedMs, nowMs);', 'return ageMs <= DAY_MS;']] },
   { label: '다른 날 관측을 날짜만으로 직전 종가 취급(v59.60 리뷰 전)', replacements: [["if (observedLocal && isWeekday(observedLocal.weekday) && observedMinute != null && observedMinute >= ownOpen && observedMinute < ownClose) {", "if (observedDate === dateInTimezone(nowMs, zone) && observedLocal && isWeekday(observedLocal.weekday) && observedMinute != null && observedMinute >= ownOpen && observedMinute < ownClose) {"]] },
-  { label: 'SMH 달력 확정 종가 제거', replacements: [["if (symbol === 'SMH') return 'MARKET_CLOSED';", '']] },
+  { label: 'SOXX 달력 확정 종가 제거', replacements: [["if (symbol === 'SOXX') return 'MARKET_CLOSED';", '']] },
   { label: '개장 직후 지연 지수 종가 분기 제거', replacements: [["if (last.inSession) return 'PREVIOUS_CLOSE_EXPECTED';", '']] }
 ];
 

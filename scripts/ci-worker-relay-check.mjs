@@ -293,6 +293,11 @@ async function main() {
     const good = await worker.fetch(translate(titles(2)), ok);
     const goodBody = await good.json();
     check('v57.61 translate returns one translation per title', good.status === 200 && goodBody.translations?.length === 2, goodBody);
+    // v59.74: the producer's glossary reaches the free model's system prompt (bounded); a request without one still works.
+    let seenSystem = '';
+    const glossed = await worker.fetch(translate(null, { raw: JSON.stringify({ titles: titles(2), glossary: 'muted → 약한·제한적, oil prices → 유가' }) }),
+      { AIO_AUTOMATION_TOKEN: AUTOMATION, AI: { run: async (_model, input) => { seenSystem = input.messages[0].content; return { response: '["번역 0", "번역 1"]' }; } } });
+    check('v59.74 translate passes the caller glossary into the system prompt', glossed.status === 200 && seenSystem.includes('oil prices → 유가') && seenSystem.includes('제목체'), seenSystem);
     const tried = [];
     const gatedFirst = { AIO_AUTOMATION_TOKEN: AUTOMATION, AI: { run: async (model) => { tried.push(model); if (tried.length === 1) throw new Error('5018: This account is not allowed to access ' + model); return { response: '["번역 0", "번역 1"]' }; } } };
     const fellBack = await worker.fetch(translate(titles(2)), gatedFirst), fellBackBody = await fellBack.json();
@@ -320,12 +325,14 @@ async function main() {
     // Client side: larger lists are chunked to <=20 titles per request, and a failure reason keeps the code only.
     const { requestWorkersAiTranslation } = await import('./lib/ai-shared-analysis.mjs');
     const sizes = [];
+    let sentGlossary = '';
     const clientEnv = { AIO_AUTOMATION_TOKEN: AUTOMATION, AI_PROXY_URL: 'https://worker.example' };
     const chunked = await requestWorkersAiTranslation(titles(30), { env: clientEnv, fetchImpl: async (_url, init) => {
-      const sent = JSON.parse(init.body).titles; sizes.push(sent.length);
+      const sent = JSON.parse(init.body).titles; sizes.push(sent.length); sentGlossary = JSON.parse(init.body).glossary;
       return Response.json({ model: 'm', translations: sent.map((t) => '번역 ' + t) });
     } });
     check('v57.61 the translation client sends at most 20 titles per request and keeps order', JSON.stringify(sizes) === '[20,10]' && chunked.translations?.length === 30 && chunked.translations[29] === '번역 Headline 29', { sizes, n: chunked.translations?.length });
+    check('v59.74 the translation client sends the shared market glossary', /oil prices → 유가/.test(sentGlossary || '') && /earnings → 실적/.test(sentGlossary || ''), sentGlossary);
     const failedClient = await requestWorkersAiTranslation(titles(2), { env: clientEnv, fetchImpl: async () => Response.json({ error: 'workers-ai-unparsed:count-mismatch', detail: MODEL_TEXT }, { status: 503 }) });
     check('v57.61 the translation client logs the Worker code only', failedClient.translations === null && failedClient.reason === 'workers-ai-http-503-workers-ai-unparsed:count-mismatch', failedClient);
   }

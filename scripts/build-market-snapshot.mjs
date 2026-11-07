@@ -83,7 +83,7 @@ function isContinuousInstrument(symbol) {
   return /(?:=X$|(?:CL|BZ|GC|SI|ES|NQ)=F$|DX-Y\.NYB$)/i.test(symbol);
 }
 
-// Evidence tier (2026-10-21): SMH trades the US regular session; Tokyo and Hong Kong indices keep their own venue
+// Evidence tier (2026-10-21): SOXX (SMH before v59.74) trades the US regular session; Tokyo and Hong Kong indices keep their own venue
 // hours (no holiday calendar — a holiday fails toward a missing evidence row, never toward a mislabelled close).
 const ASIA_VENUE_SESSIONS = Object.freeze({
   '^N225': { zone: 'Asia/Tokyo', open: 9 * 60, close: 15 * 60 + 30 },
@@ -92,7 +92,7 @@ const ASIA_VENUE_SESSIONS = Object.freeze({
 
 function scheduledSession(symbol, observedMs, nowMs) {
   const isKorea = /^\^(KS11|KQ11)$/.test(symbol);
-  const isUsSession = /^(?:\^(GSPC|IXIC|DJI|RUT|VIX|VIX3M|TNX|IRX)|SMH)$/.test(symbol);
+  const isUsSession = /^(?:\^(GSPC|IXIC|DJI|RUT|VIX|VIX3M|TNX|IRX)|SOXX)$/.test(symbol);
   const asia = ASIA_VENUE_SESSIONS[symbol] || null;
   if (isContinuousInstrument(symbol)) {
     const nowUtc = zoneParts(nowMs, 'UTC');
@@ -158,19 +158,19 @@ export function deriveMarketSession({ instrumentId, observedAt, providerSession 
   // v59.49 (session sweep): once a session opens, a delayed cash-index feed still holds the previous session's final print
   // (^RUT, 15 minutes). After a weekend that print is 65 h old and the 24 h leash below called it STALE_UNEXPECTED on
   // Monday 09:30-09:45 ET; the previous completed session's close is exactly the expected previous close.
-  // v59.60 (market-session model check): SMH takes the same NYSE calendar. Its fixed 09:30-16:00 weekday schedule read
+  // v59.60 (market-session model check): SOXX (then SMH) takes the same NYSE calendar. Its fixed 09:30-16:00 weekday schedule read
   // the 11-27 13:00 half-day close as in session, and a holiday's previous close as STALE_UNEXPECTED after 24 h.
-  if (/^(?:\^(GSPC|IXIC|DJI|RUT)|SMH)$/.test(symbol)) {
+  if (/^(?:\^(GSPC|IXIC|DJI|RUT)|SOXX)$/.test(symbol)) {
     const last = latestCompletedUsSession(nowMs, { requirePrevious: false });
     const observed = nyParts(observedMs);
     if (last && observed.date === last.date && observed.minute >= nyParts(last.closeMs).minute - 5) {
       if (last.inSession) return 'PREVIOUS_CLOSE_EXPECTED';
-      if (symbol === 'SMH') return 'MARKET_CLOSED';
+      if (symbol === 'SOXX') return 'MARKET_CLOSED';
     }
   }
-  // Evidence tier (SMH, Tokyo, Hong Kong): the chart meta keeps the regular-session price and flags PRE/POST outside
+  // Evidence tier (SOXX, Tokyo, Hong Kong): the chart meta keeps the regular-session price and flags PRE/POST outside
   // the session, so the venue schedule — not the extended-hours flag — decides whether it is a completed close.
-  if ((symbol === 'SMH' || ASIA_VENUE_SESSIONS[symbol]) && ['PREPRE', 'PRE', 'POST', 'POSTPOST'].includes(provider)) {
+  if ((symbol === 'SOXX' || ASIA_VENUE_SESSIONS[symbol]) && ['PREPRE', 'PRE', 'POST', 'POSTPOST'].includes(provider)) {
     const scheduled = scheduledSession(symbol, observedMs, nowMs);
     if (scheduled === 'MARKET_CLOSED') return ageMs <= CLOSED_VENUE_MAX_AGE_MS ? 'MARKET_CLOSED' : 'STALE_UNEXPECTED';
     if (scheduled === 'PREVIOUS_CLOSE_EXPECTED') return ageMs <= DAY_MS ? 'PREVIOUS_CLOSE_EXPECTED' : 'STALE_UNEXPECTED';

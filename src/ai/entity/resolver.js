@@ -19,7 +19,7 @@ const FALLBACK_NAMES = Object.freeze({
 
 // Sector and index words are topics, not company names; they keep prefix matching ('반도체주').
 const MARKET_TERMS = Object.freeze({
-  반도체: 'SMH', semiconductor: 'SMH', 소프트웨어: 'IGV', software: 'IGV', 나스닥: '^IXIC', nasdaq: '^IXIC',
+  반도체: 'SOXX', semiconductor: 'SOXX', 소프트웨어: 'IGV', software: 'IGV', 나스닥: '^IXIC', nasdaq: '^IXIC',
   에스앤피: '^GSPC', 's&p': '^GSPC', sp500: '^GSPC', 달러인덱스: 'DX-Y.NYB', dxy: 'DX-Y.NYB',
   코스피: '^KS11', 코스닥: '^KQ11', krx: '^KS11'
 });
