@@ -1,0 +1,16 @@
+{
+  "r": null,
+  "status": null,
+  "note": "{VERSION} 반도체 근거 SOXX 전환, 무료 번역 모델 용어집·매체 꼬리표 제거, 뉴스 제목을 이야기 출처로 추가.",
+  "qa_section": "사이트 품질 점검",
+  "qa": [
+    { "id": "QA-DATA-SEMIS-EVIDENCE-SOXX", "text": "{VERSION}: 다음 갱신 뒤 public-data/market-snapshot.json evidenceQuotes의 반도체 행이 SOXX이고, AI 시장 해석이 반도체를 SMH로 적지 않는다.", "verify_by": "2026-11-09", "done": false },
+    { "id": "QA-DATA-HEADLINE-GLOSSARY", "text": "{VERSION}: Worker 배포 뒤 새로 번역된 뉴스 제목에 'Muted'→'미묘한', 'oil prices'→'오일 가격' 같은 직역과 ' : Finance : JKN' 같은 매체 꼬리표가 없다.", "verify_by": "2026-11-10", "done": false },
+    { "id": "QA-DATA-NARRATIVE-NEWS", "text": "{VERSION}: market-day.json narratives.stories에 newsCount가 있고, 블루웨이브·민주당 승리 보도가 '미국 정치 (선거 결과·셧다운)' 이야기로 묶인다.", "verify_by": "node scripts/ci-esm-core-unit-check.mjs", "done": true }
+  ],
+  "changelog": [
+    "**반도체 근거 SOXX로 통일 (소유자 2026-11-04 'SOXX로 하자'):** 화면은 v59.70에 SOXX로 바뀌었지만 AI 시장 해석의 근거 행(market-snapshot evidenceQuotes)·장중 연결·채팅의 '반도체' 해석은 SMH로 남아 같은 글에 'SMH'와 'SOXX'가 함께 나왔다. 근거 행을 SOXX로 바꾸고, 전환 전에 발행된 SMH 행은 오류 대신 건너뛰어(LEGACY_EVIDENCE_IDS) 다음 갱신까지 스냅숏이 막히지 않는다. smh 이력 열과 테마 장기 대리 ETF는 그대로 둔다.",
+    "**뉴스 제목 번역 품질:** 무료 번역 모델(Workers AI)에도 유료 경로와 같은 시장 용어집을 보내고(muted·oil prices·earnings beat·중간선거·블루웨이브 추가), 제목체 지시를 더했다. ' : Finance : JKN', ' | Reuters' 같은 매체 꼬리표는 번역에 보내지 않는다. Worker 변경은 main CI 뒤 deploy-ai-proxy가 반영한다.",
+    "**블루웨이브 이야기 누락:** 이야기 탐지가 텔레그램 리서치 글과 급등락 종목 메모만 읽어, 이틀 동안 뉴스 목록을 채운 중간선거 결과 보도가 '미국 정치 일정'(줄어드는 중)으로만 보였다. 뉴스 제목을 세 번째 출처로 더하고(가중치는 최대 6건), 블루웨이브·민주당 승리 표현을 패턴에 넣고, 이름을 '미국 정치 (선거 결과·셧다운)'로 바꿨다. 카드에 '뉴스 보도 N건'을 적는다."
+  ]
+}

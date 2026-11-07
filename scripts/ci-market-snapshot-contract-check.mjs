@@ -326,9 +326,9 @@ if (!loaderSource.includes('snapshot_not_published') || !loaderSource.includes('
   if (!withTier.complete || !without.complete || withTier.snapshot.quotes.length !== TIER_0_INSTRUMENTS.length
     || withTier.snapshot.quotes.some((row) => !TIER_0_INSTRUMENTS.some((item) => item.instrumentId === row.instrumentId))) fail(`v58.62 the evidence tier changed Tier-0 publication or the Tier-0 quote list: ${JSON.stringify(withTier.snapshot.errors)}`);
   if (withTier.snapshot.coverage.tier1Observed !== 4 || withTier.snapshot.coverage.tier1Required !== 5 || without.snapshot.evidenceQuotes.length !== 0) fail(`v58.62 evidence-tier coverage is not declared from the measured rows: ${JSON.stringify(withTier.snapshot.coverage)}`);
-  if (sessions.SMH !== 'MARKET_CLOSED/CLOSED_CURRENT' || sessions['NQ=F'] !== 'DELAYED_IN_SESSION/DELAYED' || sessions['^N225'] !== 'DELAYED_IN_SESSION/DELAYED' || sessions['^HSI'] !== 'DELAYED_IN_SESSION/DELAYED') fail(`v58.62 evidence-tier sessions follow the venue schedule (SMH closed at 22:21 ET; futures, Tokyo and Hong Kong in session): ${JSON.stringify(sessions)}`);
-  // SMH flagged POST after the bell is still its completed regular close; a stale row is dropped, not published.
-  if (deriveMarketSession({ instrumentId: 'SMH', observedAt: '2026-10-20T20:00:00.000Z', providerSession: 'POST', now }) !== 'MARKET_CLOSED') fail('v58.62 SMH after the bell was labelled an extended-hours print');
+  if (sessions.SOXX !== 'MARKET_CLOSED/CLOSED_CURRENT' || sessions['NQ=F'] !== 'DELAYED_IN_SESSION/DELAYED' || sessions['^N225'] !== 'DELAYED_IN_SESSION/DELAYED' || sessions['^HSI'] !== 'DELAYED_IN_SESSION/DELAYED') fail(`v58.62 evidence-tier sessions follow the venue schedule (SMH closed at 22:21 ET; futures, Tokyo and Hong Kong in session): ${JSON.stringify(sessions)}`);
+  // SOXX flagged POST after the bell is still its completed regular close; a stale row is dropped, not published.
+  if (deriveMarketSession({ instrumentId: 'SOXX', observedAt: '2026-10-20T20:00:00.000Z', providerSession: 'POST', now }) !== 'MARKET_CLOSED') fail('v58.62 SOXX after the bell was labelled an extended-hours print');
   const staleTier = buildMarketSnapshot({ quotes: [...tier0Raw, { ...tier.quotes[1], observedAt: '2026-10-10T02:10:00.000Z' }], attemptedAt: tier.nowMs, source: 'fixture', now });
   if (!staleTier.complete || staleTier.snapshot.evidenceQuotes.length !== 0) fail('v58.62 a stale evidence row was published or blocked Tier 0');
   const tampered = JSON.parse(JSON.stringify(withTier.snapshot));
@@ -336,6 +336,12 @@ if (!loaderSource.includes('snapshot_not_published') || !loaderSource.includes('
   tampered.evidenceQuotes.push({ ...tampered.evidenceQuotes[0], instrumentId: 'AAPL' });
   const rejected = validateMarketSnapshot(createMarketSnapshot(tampered));
   if (rejected.ok || !rejected.errors.includes('evidence_quote_identity_mismatch:NQ=F') || !rejected.errors.includes('evidence_quote_unknown:AAPL')) fail(`v58.62 an evidence row with a wrong identity or an unknown symbol was accepted: ${JSON.stringify(rejected.errors)}`);
+  // v59.74: semis evidence moved SMH → SOXX (owner 2026-11-04). A snapshot published before the switch still carries an
+  // SMH row; it validates (the row is skipped, not cited) so the loader keeps the rest of the snapshot until the next refresh.
+  const legacy = JSON.parse(JSON.stringify(withTier.snapshot));
+  legacy.evidenceQuotes = legacy.evidenceQuotes.map((row) => row.instrumentId === 'SOXX' ? { ...row, instrumentId: 'SMH' } : row);
+  const legacyCheck = validateMarketSnapshot(createMarketSnapshot(legacy));
+  if (!legacyCheck.ok || !withTier.snapshot.evidenceQuotes.some((row) => row.instrumentId === 'SOXX')) fail(`v59.74 a pre-switch SMH evidence row blocked the snapshot or SOXX is not the semis row: ${JSON.stringify(legacyCheck.errors)}`);
 }
 const bridgeSource = fs.readFileSync(path.join(root, 'src/legacy/market-snapshot-bridge.js'), 'utf8');
 if (!bridgeSource.includes("policyKey: 'static_snapshot'") || !bridgeSource.includes('market-snapshot-fallback')) fail('legacy bridge does not preserve snapshot provenance');

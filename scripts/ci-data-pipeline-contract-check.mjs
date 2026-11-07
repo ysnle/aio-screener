@@ -2681,7 +2681,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
 {
   // v58.62 (live 2026-10-21): the reading explained KOSPI +3.3% only as "AI 투자심리 회복" while Nasdaq 100 futures were
   // +0.99% after SpaceX's AI-capex headline — semis, US futures and Asia were not evidence it could cite. The snapshot now
-  // carries an optional evidence tier (SMH, ES=F, NQ=F, ^N225, ^HSI). Fixture: the same 02:21Z run, with the tier's
+  // carries an optional evidence tier (SOXX, ES=F, NQ=F, ^N225, ^HSI). Fixture: the same 02:21Z run, with the tier's
   // provider values for that minute built through the real snapshot builder; no model call.
   const fx = JSON.parse(readFileSync(join(root, 'scripts/fixtures/market-analysis-20261021.json'), 'utf8'));
   const tier = JSON.parse(readFileSync(join(root, 'scripts/fixtures/market-analysis-evidence-tier-20261021.json'), 'utf8'));
@@ -2694,7 +2694,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   const opts = { context: fx.context, history: fx.history };
   const issuesOf = (text, snap = snapshot) => va.validateMarketAnalysisText(text, fx.data, snap, opts).issues;
   const evidence = va.buildMarketAnalysisEvidence(fx.data, { snapshot });
-  check('v58.62 the evidence tier reaches the reading only from the snapshot (SMH closed, NQ/Nikkei/Hang Seng in session); without the tier there is no such row',
+  check('v58.62 the evidence tier reaches the reading only from the snapshot (SOXX closed, NQ/Nikkei/Hang Seng in session); without the tier there is no such row',
     ['market.semis', 'market.nasdaq100-futures', 'market.nikkei', 'market.hangseng'].every((id) => evidence.some((row) => row.metricId === id))
       && evidence.find((row) => row.metricId === 'market.semis')?.session === 'MARKET_CLOSED'
       && !va.buildMarketAnalysisEvidence(fx.data, { snapshot: fx.snapshot }).some((row) => va.EVIDENCE_TIER_METRIC_IDS.includes(row.metricId)),
@@ -2703,7 +2703,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
     '10/20 블룸버그 보도에 따르면 코어위브 채권 급락이 AI 인프라 자금 조달 우려로 번졌다 — 반도체·대형 기술주에 부담이 몰린 배경으로 거론됐다.',
     '지금은 코스피 장중 11:01 KST 기준 +4.48%로 반대 방향이며, 10/21 연합뉴스 속보(잠정)에 따르면 매수 사이드카가 발동됐다.',
     '10/21 Business Insider 보도에 따르면 SpaceX의 AI 설비투자 확대 전망이 반도체 반등을 이끌었고, 10/21 WSJ 보도에 따르면 미국·이란 외교 기대가 증시의 방향을 돌렸다.',
-    '같은 시각 나스닥 100 선물은 장중 11:10 KST 기준 +0.99%, 닛케이 225는 장중 11:10 KST 기준 +1.12%로 함께 올랐고, 반도체 ETF(SMH)는 10/20 종가 -0.38%로 아직 반등 전이었다.',
+    '같은 시각 나스닥 100 선물은 장중 11:10 KST 기준 +0.99%, 닛케이 225는 장중 11:10 KST 기준 +1.12%로 함께 올랐고, 반도체 ETF(SOXX)는 10/20 종가 -0.38%로 아직 반등 전이었다.',
     '시장 상태는 다소 부담이고 지금 흐름은 「소수 주도 → 동반 약세 전환 확인 중」 — 조건 충족 2/3이며, 추세 부담 조건은 아직 빠져 있다[regime-context].'].join('\n');
   const futuresAlone = '나스닥 100 선물은 +0.99% 올랐다.';
   const variants = {
@@ -2714,7 +2714,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
     // Before v58.62 "S&P 500 선물" was read as the S&P 500 itself and checked against its +0.28% close.
     spxFutures: issuesOf(reading.replace('나스닥 100 선물은', 'S&P 500 선물은 장중 11:10 KST 기준 +0.58%, 나스닥 100 선물은'))
   };
-  check('v58.62 a reading that cites the NQ futures and Nikkei moves (장중 + KST time) and the SMH close publishes; a wrong futures or semis change, an untimed futures move, or futures read as the cash index block',
+  check('v58.62 a reading that cites the NQ futures and Nikkei moves (장중 + KST time) and the SOXX close publishes; a wrong futures or semis change, an untimed futures move, or futures read as the cash index block',
     !variants.reading.length && variants.wrongFutures.includes('metric-change-mismatch:market.nasdaq100-futures') && variants.wrongSemis.includes('metric-change-mismatch:market.semis')
       && variants.futuresNoTime.includes('intraday-time-missing:market.nasdaq100-futures') && !variants.spxFutures.some((issue) => /market\.spx/.test(issue)),
     JSON.stringify(variants));
@@ -2726,8 +2726,8 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   const prompt = prompts[0] || '';
   // The run builds its own REGIME_CONTEXT from the history tail, so its other verdict checks differ from the fixture
   // context; only the evidence tier's own issues are asserted absent here.
-  check('v58.62 the prompt carries the SMH close in METRIC_EVIDENCE and the futures/Asian in-session moves under CROSS_MARKET_INTRADAY',
-    /^METRIC_EVIDENCE:[\s\S]*?^- market\.sector\.semis:\w+ SMH=546\.36 USD change=-0\.38% vs previous close/m.test(prompt)
+  check('v58.62 the prompt carries the SOXX close in METRIC_EVIDENCE and the futures/Asian in-session moves under CROSS_MARKET_INTRADAY',
+    /^METRIC_EVIDENCE:[\s\S]*?^- market\.sector\.semis:\w+ SOXX=546\.36 USD change=-0\.38% vs previous close/m.test(prompt)
       && /^CROSS_MARKET_INTRADAY [^\n]*\n(?:- [^\n]*\n)*?- market\.futures\.nasdaq100:\w+ NQ=29970\.25 index change=\+0\.99% vs previous close 장중 11:10 KST/m.test(prompt)
       && /- market\.index\.nikkei225:\w+ Nikkei=64789\.89 index change=\+1\.1\d% vs previous close 장중 11:10 KST/.test(prompt)
       && !(run?.semanticIssues || []).some((issue) => /market\.(?:semis|nasdaq100-futures|nikkei|hangseng)/.test(issue)),
