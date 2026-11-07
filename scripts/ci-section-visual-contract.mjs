@@ -86,7 +86,11 @@ const visualIn = (node) => !!find(node, (item) => ['svg', 'canvas'].includes(tag
   const story = storyDoc.getElementById('ticker-business-profile');
   renderCompanyStory(storyDoc, story, { profile });
   const face = [...story.children];
-  check('v59.70 S13 ③ 회사 이야기 face is the one line and the fold', face.length >= 2 && tag(face.at(-1)) === 'details' && face.slice(0, -1).every((node) => tag(node) === 'p'), face.map(tag).join(','));
+  // v59.74 (owner 2026-11-07): between the one line and the fold sit the issue, the flow, the structures and the industry.
+  const part = (node) => /company-(debate|flow|hood|industry)/.test(String(node.className || ''));
+  const lead = face.findIndex((node) => tag(node) !== 'p');
+  check('v59.70 S13 ③ 회사 이야기 face is the one line and the fold', face.length >= 2 && lead > 0 && tag(face.at(-1)) === 'details' && face.slice(lead, -1).every(part), face.map(tag).join(','));
+  check('v59.74 the story face leads with the issue the stock turns on and the structures under the numbers', !profile.debate || (part(face[lead]) && /company-debate/.test(face[lead].className) && face.some((node) => /company-hood/.test(String(node.className || '')))), face.map((node) => node.className || tag(node)).join(','));
   check('v59.70 S13 ③ the money flow opens inside the fold', !profile.moneyFlow?.steps?.length || !!find(face.at(-1), (item) => String(item.className || '').includes('company-story-flow')));
 }
 

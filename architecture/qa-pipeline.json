@@ -1506,7 +1506,13 @@
             "public-data/company-profiles/**",
             "src/domain/entity/company-story.js",
             "scripts/ci-company-profile-contract-check.mjs",
-            "scripts/sync-company-profiles.mjs"
+            "scripts/sync-company-profiles.mjs",
+            "scripts/merge-company-debates.mjs",
+            "src/domain/entity/company-debate.js",
+            "src/domain/entity/company-graph.js",
+            "src/domain/entity/company-aliases.js",
+            "src/domain/entity/industry-links.js",
+            "public-data/atlas/industry-stories.json"
           ]
         }
       ]
@@ -3037,6 +3043,17 @@
       "groups": [
         "data",
         "core"
+      ]
+    },
+    {
+      "patterns": [
+        "scripts/merge-company-debates.mjs"
+      ],
+      "groups": [
+        "data"
+      ],
+      "gates": [
+        "company-profile-contract"
       ]
     },
     {

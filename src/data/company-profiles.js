@@ -52,3 +52,31 @@ export function requestCompanyStory(root, symbol, onChange) {
       .finally(() => { delete store.inFlight[id]; });
   }).catch(() => {});
 }
+
+// v59.74: the company graph (who pays whom across the stories) and the 산업 지도 reading text, each fetched once when the
+// first story renders and kept for the tab's life. A failed read is retried after a minute; the story renders without it.
+const SIDE_ARTIFACTS = Object.freeze({
+  graph: { url: './public-data/company-profiles/graph.json', maxBytes: 512 * 1024, valid: (p) => p?.schemaVersion === 'company-graph.v1' && p.nodes && Array.isArray(p.edges) },
+  industry: { url: './public-data/atlas/industry-stories.json', maxBytes: 256 * 1024, valid: (p) => p?.schemaVersion === 'industry-stories.v1' && p.nodes && p.domains }
+});
+
+/** The loaded side artifact ('graph' | 'industry'), or null; onChange runs once when it arrives. */
+export function companySideArtifact(root, name, onChange) {
+  const spec = SIDE_ARTIFACTS[name];
+  if (!root || !spec) return null;
+  const store = (root.__aioCompanySide ||= { rows: {}, inFlight: {}, failed: {}, waiting: {} });
+  if (store.rows[name]) return store.rows[name];
+  if (onChange) (store.waiting[name] ||= new Set()).add(onChange);
+  if (!store.inFlight[name] && Date.now() - (store.failed[name] || 0) >= 60000) {
+    store.inFlight[name] = loadJsonArtifact(stableFetcher(root), spec.url, { maxAgeMs: 12 * 60 * 60 * 1000, maxBytes: spec.maxBytes })
+      .then((payload) => {
+        if (!spec.valid(payload)) throw new Error('shape');
+        store.rows[name] = payload;
+        const waiting = [...(store.waiting[name] || [])]; store.waiting[name] = new Set();
+        for (const fn of waiting) { try { fn(); } catch (_) { /* a closed page */ } }
+      })
+      .catch(() => { store.failed[name] = Date.now(); })
+      .finally(() => { delete store.inFlight[name]; });
+  }
+  return null;
+}
