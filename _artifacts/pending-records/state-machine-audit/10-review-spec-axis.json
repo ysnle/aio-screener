@@ -1,0 +1,9 @@
+{
+  "note": "{VERSION} 상태 머신 감사: 자동 갱신 결과 기록·시세 요청 종목·시세 재시도 수정, _context/STATE-MACHINES.md 신설.",
+  "r": null,
+  "status": null,
+  "qa_section": "상태 머신 감사",
+  "changelog": [
+    "**리뷰 요청 축·대체 리뷰 ({VERSION}):** mattpocock/skills 본문 전체 재검토 결과를 넣었다. REVIEW.md에 요청 원문과 diff를 대조하는 요청 축(빠진 것·요청 밖 동작·틀리게 된 것)과, 자동 리뷰가 끝나지 않으면 code-reviewer로 대신 리뷰하는 규칙을 더했다(PR #146이 Codex 한도로 리뷰 없이 병합된 일). CLAUDE.md는 겹치는 줄·효과 없는 금지 문구를 긍정형으로 정리하고 크기 상한을 16→11 KB로 낮췄다. /bug-fix에 seam이 없으면 /deepen 후보로 기록·맞은 가설을 커밋에·[DEBUG-] 탐침 정리를, PR 템플릿에 되돌리기·영향 범위·자동 리뷰 단락을 더했다."
+  ]
+}

@@ -1,0 +1,148 @@
+{
+ "schemaVersion": "aio-review-eval-run.v1",
+ "date": "2026-11-07",
+ "reviewer": {
+  "profile": ".claude/agents/code-reviewer.md (architecture/agent-profiles.json)",
+  "grouping": "4 reviewers, 3-4 shuffled opaque packets each",
+  "change_under_test": "REVIEW.md Spec axis + fallback-review rule (packets carry no request text, so the Spec axis should skip)"
+ },
+ "review_md_sha256": "036db34a569d1ec0242c7a038f569ce95819b77ce80c34dad03141347234cda8",
+ "blindness": "fresh repo per case with only base+head (depth 1, no refs, random dir name); packets numbered, map kept outside the reviewers folder",
+ "score": {
+  "bug_cases": 10,
+  "hits": [
+   "rev-P2105",
+   "rev-P2091"
+  ],
+  "clean_cases": 3,
+  "findings_on_clean": 3,
+  "clean_findings_judged": "all 3 real, not harmful: d8243d06 left CODE-MAP:121/445 naming js/aio-data.js:_aioFactorWeights (still on main) and cites v59.39 in assertions shipped as v59.40; 94ccd17f removed the LC-29 check while QA-SENT-29 still names it as its gate (still on main)"
+ },
+ "verdict": "recall 2/10 equals the 2026-10-28 baseline (same hits); no harmful clean findings; keep",
+ "findings": {
+  "rev-P2092": [
+   {
+    "file": "src/ui/components/home-kpi-trend.js",
+    "line": 69,
+    "tag": "Important"
+   }
+  ],
+  "rev-clean-f6b79438": [],
+  "rev-P2047": [],
+  "rev-P2106": [
+   {
+    "file": "src/app/compatibility-globals.js",
+    "line": 123,
+    "tag": "Important"
+   },
+   {
+    "file": "src/domain/market/macro-crossroads.js",
+    "line": 515,
+    "tag": "Important"
+   }
+  ],
+  "rev-P2111": [
+   {
+    "file": "js/aio-data.js",
+    "line": 14899,
+    "tag": "Important"
+   },
+   {
+    "file": "js/aio-data.js",
+    "line": 11402,
+    "tag": "Important"
+   },
+   {
+    "file": "src/domain/news/earnings-context.js",
+    "line": 30,
+    "tag": "Important"
+   },
+   {
+    "file": "js/aio-data.js",
+    "line": 15674,
+    "tag": "Important"
+   },
+   {
+    "file": "js/aio-core.js",
+    "line": 11318,
+    "tag": "Important"
+   }
+  ],
+  "rev-P2045": [
+   {
+    "file": "src/ai/policy/conduct.js",
+    "line": 57,
+    "tag": "Important"
+   }
+  ],
+  "rev-P2091": [
+   {
+    "file": "src/app/bootstrap.js",
+    "line": 257,
+    "tag": "Important"
+   },
+   {
+    "file": "src/domain/portfolio/portfolio-read.js",
+    "line": 32,
+    "tag": "Important"
+   },
+   {
+    "file": "scripts/lib/model-check-kit.mjs",
+    "line": 34,
+    "tag": "Important"
+   }
+  ],
+  "rev-clean-d8243d06": [
+   {
+    "file": "_context/CODE-MAP.md",
+    "line": 121,
+    "tag": "Important"
+   },
+   {
+    "file": "scripts/ci-esm-core-unit-check.mjs",
+    "line": 6317,
+    "tag": "Important"
+   }
+  ],
+  "rev-P2109": [
+   {
+    "file": "scripts/lib/market-analysis-validate.mjs",
+    "line": 766,
+    "tag": "Important"
+   }
+  ],
+  "rev-P2104": [
+   {
+    "file": "scripts/build-operations-slo-window.mjs",
+    "line": 77,
+    "tag": "Important"
+   }
+  ],
+  "rev-P2105": [
+   {
+    "file": "src/app/chat-loader.js",
+    "line": 37,
+    "tag": "Important"
+   },
+   {
+    "file": "src/app/bootstrap.js",
+    "line": 101,
+    "tag": "Important"
+   }
+  ],
+  "rev-P2053": [
+   {
+    "file": "src/ui/components/portfolio-read.js",
+    "line": 55,
+    "tag": "Important"
+   }
+  ],
+  "rev-clean-94ccd17f": [
+   {
+    "file": "scripts/ci-runtime-contract-check.mjs",
+    "line": 263,
+    "tag": "Important"
+   }
+  ]
+ }
+}
