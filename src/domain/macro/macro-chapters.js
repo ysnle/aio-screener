@@ -11,6 +11,8 @@ import { sessionPointBack } from './rates-fx.js';
 import { RULES } from '../rules/thresholds.js';
 import { withTopicParticle } from '../content/korean-particle.js';
 import { creditState, hyWidening20Record, oasDelta20Bp } from '../briefing/market-read.js';
+import { formatKstWhen, releaseAtMs } from '../briefing/schedule.js';
+import { volatilityChapter } from './volatility.js';
 
 // v59.56: the shared signedText, so a 20-session +0.04% prints 0.0%, never '+0.0%'.
 const signed = (value, digits = 2, unit = '%') => signedText(value, digits, unit);
@@ -24,7 +26,13 @@ function monthOverMonth(rows) {
 }
 const monthName = (date) => `${Number(String(date).slice(5, 7))}월`;
 const nextOf = (events, ids) => (events || []).find((event) => ids.includes(event.id)) || null;
-const whenOf = (event) => (event ? `${dayLabel(event.date)} ${event.name}` : '');
+// v59.74 (macro review): the release in Korean time, as the page subtitle and the policy-rate card say it — an FOMC decision
+// at 14:00 ET is 12/10(목) 04:00 KST, and the chapter read '12/9(수) FOMC 회의' beside it.
+const whenOf = (event) => {
+  if (!event) return '';
+  const at = releaseAtMs(event.id, event.date);
+  return Number.isFinite(at) ? `${formatKstWhen(at).label} KST ${event.name}` : `${dayLabel(event.date)} ${event.name}`;
+};
 // v59.56 (screen review): every chapter change is the shared 20-session window ('20거래일'), counted in exchange sessions.
 // Rows (history.json carries weekend copies) and 21 calendar days gave WTI +12.7% / 달러 -0.3% here beside the six-factor
 // table's 20거래일 +14.3% / 0.0% on the same screen.
@@ -107,10 +115,14 @@ function labor(macroHistory, events) {
   };
 }
 
+// 10년 = 실질 + 기대인플레 holds only on one date: the legs are cut at the latest date all three have (FRED posts the
+// real yield a day after the others). v59.74: the oil and metals chapters read the same cut, so one screen does not print a
+// 20-session breakeven of -11bp (rates) beside -10bp (oil).
+const splitThrough = (macroHistory) => ['dgs10', 'realYield10', 'breakeven10'].map((id) => series(macroHistory, id).at(-1)?.date || '').sort()[0] || null;
+
 function rates(macroHistory, events, history = []) {
-  // 10년 = 실질 + 기대인플레 holds only on one date: the legs are cut at the latest date all three have (FRED posts the
-  // real yield a day after the others), and the line names that span, so 4.98% (10/29) beside the market 4.93% (10/30) reads.
-  const through = ['dgs10', 'realYield10', 'breakeven10'].map((id) => series(macroHistory, id).at(-1)?.date || '').sort()[0] || null;
+  // The line names the FRED legs' span, so 4.98% (10/29) beside the market 4.93% (10/30) reads.
+  const through = splitThrough(macroHistory);
   const ten = macroChange(macroHistory, 'dgs10', through); const real = macroChange(macroHistory, 'realYield10', through);
   const be = macroChange(macroHistory, 'breakeven10', through); const term = macroChange(macroHistory, 'termPremium10');
   const two = macroChange(macroHistory, 'dgs2', through);
@@ -144,19 +156,31 @@ function oil(history, macroHistory) {
   const wti = historySpan(history, 'wti');
   if (!wti) return null;
   const brent = historySpan(history, 'brent');
-  const be = macroChange(macroHistory, 'breakeven10');
+  const be = macroChange(macroHistory, 'breakeven10', splitThrough(macroHistory));
+  const C = RULES.crossAsset;
   const read = wti.pct >= 10 ? '유가가 크게 올라 다음 달 헤드라인 물가를 밀어 올리고 소비 여력은 줄입니다'
     : wti.pct <= -10 ? '유가가 크게 내려 물가 부담은 줄지만, 공급이 아니라 수요가 줄어서라면 경기 둔화 신호입니다'
       : '유가는 물가 경로를 바꿀 만큼 움직이지 않았습니다';
+  // v59.74 (macro review): breakeven is said to follow oil only when oil itself moved past the cross-asset line (5%). WTI
+  // -1.1% beside breakeven -10bp read '채권시장이 유가를 물가에 반영' — a move oil did not make.
+  const oilMoved = Math.abs(wti.pct) >= C.oil20dPct;
+  const beMoved = be && Math.abs(be.bp) >= RULES.breakeven.move5dBp;
   const sameWay = be && Math.sign(be.bp) === Math.sign(wti.pct);
-  const inflation = !be ? '' : Math.abs(be.bp) < 5 ? ' 기대인플레는 크게 움직이지 않아 채권시장은 유가를 일시적으로 봅니다.'
-    : sameWay ? ` 기대인플레도 ${bp(be.bp)} 같은 쪽으로 움직여 채권시장이 유가를 물가에 반영하고 있습니다.`
-      : ` 기대인플레는 반대로 ${bp(be.bp)} 움직여, 채권시장은 유가보다 다른 요인(성장 걱정 등)을 더 크게 봅니다.`;
+  const inflation = !be ? ''
+    : !oilMoved ? (beMoved ? ` 기대인플레는 ${bp(be.bp)} 움직였지만 유가 때문은 아닙니다 — 물가 발표나 성장 걱정 쪽에서 원인을 찾습니다.` : '')
+      : !beMoved ? ' 기대인플레는 크게 움직이지 않아 채권시장은 유가를 일시적으로 봅니다.'
+        : sameWay ? ` 기대인플레도 ${bp(be.bp)} 같은 쪽으로 움직여 채권시장이 유가를 물가에 반영하고 있습니다.`
+          : ` 기대인플레는 반대로 ${bp(be.bp)} 움직여, 채권시장은 유가보다 다른 요인(성장 걱정 등)을 더 크게 봅니다.`;
+  // Brent carries the seaborne/Middle East premium WTI does not; the two drifting apart says which supply story moved.
+  const gap = brent ? brent.pct - wti.pct : null;
+  const spread = gap == null || Math.abs(gap) < C.oil20dPct ? ''
+    : gap < 0 ? ` 브렌트(${signed(brent.pct, 1)})가 WTI보다 크게 내려, 중동·해상 운송 같은 해외 공급 위험의 값이 빠졌습니다.`
+      : ` 브렌트(${signed(brent.pct, 1)})가 WTI보다 크게 올라, 중동·해상 운송 같은 해외 공급 위험의 값이 붙었습니다.`;
   return {
     id: 'oil', title: '유가 — 물가와 경기 사이', question: '유가가 보내는 물가 신호와 경기 신호',
     viz: { caption: '20거래일 등락 (%)', unit: '%', points: [{ x: 'WTI', value: wti.pct, hot: true }, brent ? { x: '브렌트', value: brent.pct } : null].filter(Boolean) },
     now: `WTI $${wti.to.toFixed(1)} (${signed(wti.pct, 1)})${brent ? ` · 브렌트 $${brent.to.toFixed(1)} (${signed(brent.pct, 1)})` : ''}`,
-    mean: `${read}.${inflation} 에너지 기업 이익은 유가를 따라가서, 유가가 크게 움직인 날은 에너지 업종이 같이 움직입니다.`,
+    mean: `${read}.${inflation}${spread} 에너지 기업 이익은 유가를 따라가서, 유가가 크게 움직인 날은 에너지 업종이 같이 움직입니다.`,
     next: '매일 · 산유국 회의, 중동 정세, 미국 원유 재고(매주 수요일)',
     flip: '유가 급등에 기대인플레가 같이 오르면 물가 시나리오가, 유가 급락에 금리도 같이 내리면 경기 둔화 시나리오가 힘을 얻습니다.',
     detail: [['WTI 20거래일 전', `$${wti.from.toFixed(1)}`], ['브렌트', brent ? `$${brent.to.toFixed(1)}` : '—'], ['10년 기대인플레', be ? `${be.to.toFixed(2)}% (${bp(be.bp)})` : '—']]
@@ -167,18 +191,16 @@ function metals(history, macroHistory) {
   const gold = historySpan(history, 'gold');
   if (!gold) return null;
   const silver = historySpan(history, 'silver');
-  const real = macroChange(macroHistory, 'realYield10'); const dollar = historySpan(history, 'dxy');
+  const real = macroChange(macroHistory, 'realYield10', splitThrough(macroHistory)); const dollar = historySpan(history, 'dxy');
   const peak = buildCloseSeries(history, 'gold').slice(-MARKET_WINDOWS.half).reduce((best, row) => (row.value > best.value ? row : best), { date: '', value: -Infinity });
   const fromPeak = (gold.to / peak.value - 1) * 100;
-  // Gold has no yield: a falling real yield or a weaker dollar lowers what holding it costs. A move against both is
-  // positioning (flows), not rates.
-  let read = '금은 실질금리·달러와 크게 어긋나지 않았습니다.';
-  if (gold.pct <= -4 && real && real.bp < -5 && dollar && Math.abs(dollar.pct) < 1.5) read = '금은 실질금리가 내렸고 달러도 그대로인데 빠져, 금리·달러로는 설명되지 않습니다. 많이 오른 자산부터 파는 포지션 정리일 수 있습니다(추정).';
-  else if (gold.pct <= -4 && real && real.bp > 5) read = '금 하락은 실질금리 상승과 같은 방향입니다. 이자가 없는 금을 들고 있는 비용이 커졌습니다.';
-  else if (gold.pct >= 4 && real && real.bp < 0) read = '금 상승은 실질금리 하락과 같은 방향입니다.';
-  else if (gold.pct >= 4) read = '실질금리가 내리지 않았는데 금이 올라 안전자산 수요나 중앙은행 매수 쪽입니다.';
+  const read = goldRead(gold, real, dollar);
   const ratio = silver ? gold.to / silver.to : null;
-  const silverRead = silver ? (silver.pct - gold.pct >= 3 ? ' 은이 금보다 더 올라 산업 수요(경기) 기대가 섞여 있습니다.' : gold.pct - silver.pct >= 3 ? ' 은이 금보다 약해 경기보다 안전자산 쪽 움직임입니다.' : ' 은은 금과 비슷하게 움직였습니다.') : '';
+  // v59.74: silver is gold with an industrial (and higher-beta) leg. Silver lagging a falling gold is not a haven move — the
+  // gold/silver ratio rises when growth worry or de-risking hits the more volatile metal first.
+  const silverRead = !silver ? '' : silver.pct - gold.pct >= 3 ? ' 은이 금보다 강해 산업 수요(경기) 기대가 섞여 있습니다.'
+    : gold.pct - silver.pct >= 3 ? (silver.pct < 0 && gold.pct <= 0 ? ' 은이 금보다 더 빠져(금/은 비율 상승), 산업 수요 걱정이나 변동성 큰 자산부터 줄이는 움직임이 겹쳤습니다.' : ' 은이 금보다 약해 경기보다 안전자산 쪽 수요입니다.')
+      : ' 은은 금과 비슷하게 움직였습니다.';
   return {
     id: 'metals', title: '금 · 은 — 안전자산 수요와 포지션', question: '금·은 움직임의 원인, 금리와 자금 쏠림',
     viz: { caption: '20거래일 등락 (%)', unit: '%', points: [{ x: '금', value: gold.pct, hot: true }, silver ? { x: '은', value: silver.pct } : null, dollar ? { x: '달러', value: dollar.pct } : null].filter(Boolean) },
@@ -188,6 +210,30 @@ function metals(history, macroHistory) {
     flip: '금이 실질금리와 다시 반대로 움직이면 금리로 설명되는 국면, 금리와 상관없이 크게 빠지면 포지션 정리 국면입니다.',
     detail: [['금 6개월 고점', `$${Math.round(peak.value).toLocaleString('en-US')} (${dayLabel(peak.date).split('(')[0]})`], ['금/은 비율', ratio ? ratio.toFixed(1) : '—'], ['10년 실질금리 20거래일', real ? bp(real.bp) : '—'], ['달러 지수 20거래일', dollar ? signed(dollar.pct, 1) : '—']]
   };
+}
+
+// Gold has no yield: a falling real yield or a weaker dollar lowers what holding it costs, so gold usually moves against
+// both. v59.74 (macro review): each leg counts only past the cross-asset lines (gold 2%, real yield 10bp, dollar 1%) and the
+// read names the leg that explains the move — gold -3.4% while the real yield fell 27bp and the dollar sat still read
+// '실질금리·달러와 크게 어긋나지 않았습니다', the opposite of what 금리와 환율 said about the same 20 sessions.
+export function goldRead(gold, real, dollar) {
+  const C = RULES.crossAsset;
+  const g = gold.pct; const r = real ? real.bp : null; const d = dollar ? dollar.pct : null;
+  if (Math.abs(g) < C.gold20dPct) return `금은 20거래일 ${signed(g, 1)}로 크게 움직이지 않았습니다.`;
+  const up = g > 0;
+  const rateMoved = r != null && Math.abs(r) >= C.rate20dBp;
+  const dollarMoved = d != null && Math.abs(d) >= C.dollar20dPct;
+  const rateFits = rateMoved && Math.sign(r) !== Math.sign(g);
+  const dollarFits = dollarMoved && Math.sign(d) !== Math.sign(g);
+  if (rateFits) return `금 ${up ? '상승' : '하락'}은 실질금리 ${bp(r)}와 맞는 평소 관계입니다 — 이자가 없는 금을 들고 있는 비용이 ${up ? '줄었' : '커졌'}습니다${dollarFits ? `. 달러(${signed(d, 1)})도 같은 쪽으로 거들었습니다` : ''}.`;
+  if (dollarFits) return `금 ${up ? '상승' : '하락'}은 달러 ${signed(d, 1)}와 맞는 평소 관계입니다${rateMoved ? ` — 실질금리(${bp(r)})는 오히려 반대 쪽이라 달러 쪽 설명이 큽니다` : ''}.`;
+  if (rateMoved) {
+    return up
+      ? `실질금리가 ${bp(r)} 올랐는데도 금이 ${signed(g, 1)} 올랐습니다 — 금리로 설명되지 않는 안전자산·중앙은행 매수 쪽 수요입니다.`
+      : `실질금리가 ${bp(r)} 내렸는데도 금은 ${signed(g, 1)} 빠졌습니다 — 금리·달러로는 설명되지 않아, 많이 오른 자산부터 줄이는 포지션 정리 쪽으로 읽습니다(추정).`;
+  }
+  return up ? `실질금리·달러가 크게 움직이지 않았는데 금이 ${signed(g, 1)} 올라 안전자산이나 중앙은행 매수 쪽입니다.`
+    : `실질금리·달러가 크게 움직이지 않았는데 금이 ${signed(g, 1)} 빠져 포지션 정리 쪽입니다(추정).`;
 }
 
 function dollarChapter(history) {
@@ -215,8 +261,8 @@ function dollarChapter(history) {
 // gauge that moved most against its usual day, what moved with it (driver links: oil → energy names), and the most
 // material report on the same topic. Nothing is said when the ledger is missing or every gauge moved as usual.
 const CHAPTER_ASSETS = Object.freeze({ inflation: ['breakeven10'], labor: [], rates: ['tnx', 'dgs2', 'realYield10'], oil: ['wti', 'brent'],
-  metals: ['gold', 'silver'], dollar: ['dxy', 'usdjpy', 'usdkrw'], credit: ['hyOas', 'igOas', 'cccOas'], growth: ['kospi', 'kosdaq'] });
-const CHAPTER_TOPICS = Object.freeze({ inflation: ['inflation'], labor: ['jobs'], rates: ['rates'], oil: ['energy'], metals: ['metals'], dollar: ['fx'], credit: ['credit'], growth: ['korea'] });
+  metals: ['gold', 'silver'], dollar: ['dxy', 'usdjpy', 'usdkrw'], credit: ['hyOas', 'igOas', 'cccOas'], volatility: ['vix'], growth: ['kospi', 'kosdaq'] });
+const CHAPTER_TOPICS = Object.freeze({ inflation: ['inflation'], labor: ['jobs'], rates: ['rates'], oil: ['energy'], metals: ['metals'], dollar: ['fx'], credit: ['credit'], volatility: ['volatility'], growth: ['korea'] });
 export function chapterToday(day, chapterId) {
   const facts = Array.isArray(day?.facts) ? day.facts : [];
   if (!facts.length) return null;
@@ -322,10 +368,10 @@ function growthKorea(macroHistory, history, events) {
   };
 }
 
-/** The chapters (v59.64: eight); a chapter whose series are missing is left out. `day` is market-day.json, when loaded. */
+/** The chapters (v59.64: eight; v59.74: nine with 변동성); a chapter whose series are missing is left out. `day` is market-day.json, when loaded. */
 export function buildMacroChapters({ macroHistory = null, history = [], events = [], day = null } = {}) {
   const chapters = [inflation(macroHistory, events), labor(macroHistory, events), rates(macroHistory, events, history), credit(macroHistory), oil(history, macroHistory),
-    metals(history, macroHistory), dollarChapter(history), growthKorea(macroHistory, history, events)].filter(Boolean)
+    metals(history, macroHistory), dollarChapter(history), volatilityChapter(history, events), growthKorea(macroHistory, history, events)].filter(Boolean)
     .map((chapter) => ({ ...chapter, today: chapterToday(oneSessionDay(day, history), chapter.id) }));
   return { available: chapters.length > 0, chapters };
 }
