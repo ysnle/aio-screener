@@ -1,0 +1,176 @@
+{
+  "symbol": "GM",
+  "name": "General Motors Company",
+  "researchedAt": "2026-11-07",
+  "fiscalYearEnd": "December 31",
+  "oneLine": "GM은 북미 픽업트럭·SUV에서 이익 대부분을 버는 미국 최대 완성차 회사로, 전기차 손실을 줄이며 번 현금을 대규모 자사주 매입에 쓰고 있다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "GM releases 2026 third-quarter results and updates full-year 2026 guidance; Board approves new $20 billion share repurchase authorization; declares quarterly dividend (verbatim repost of company release)", "url": "https://finviz.com/news/404350/gm-releases-2026-third-quarter-results-and-updates-full-year-2026-guidance-board-approves-new-20-billion-share-repurchase-authorization-declares-quarterly-dividend", "publisher": "Finviz (GM release text)", "date": "2026-10-20" },
+    { "id": "s2", "kind": "call-transcript", "title": "General Motors FY2026 Q3 earnings call (excerpt; Q&A cut off)", "url": "https://bullfincher.io/companies/general-motors-company/earnings-call/fy2026-q3", "publisher": "Bullfincher", "date": "2026-10-20" },
+    { "id": "s3", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/gm/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-11-07" }
+  ],
+  "moat": {
+    "sources": [
+      "미국 대형 픽업(Silverado·Sierra) 판매 선두 - 2026년 7년 연속 선두 예상, 2018년 이후 점유율 10%p 확대 (콜 발언)",
+      "19분기 연속 미국 판매 1위의 딜러·생산 규모",
+      "OnStar·Super Cruise 소프트웨어 설치 기반 - 소프트웨어·서비스 이연매출 약 75억 달러 수준 (콜 발언)",
+      "GM Financial 자체 금융 - 할부·리스로 판매를 받치고 본사에 배당"
+    ],
+    "text": "GM의 힘은 미국 대형 픽업과 SUV라는 가장 수익성 높은 차급을 오래 지배해 온 데서 나온다. 회사는 19분기 연속 미국 판매 1위였고, 대형 픽업에서는 2026년에 7년 연속 선두를 예상한다. 여기에 차를 판 뒤에도 돈을 버는 OnStar·Super Cruise 소프트웨어와 자체 금융사 GM Financial이 겹쳐 판매 한 대의 가치가 커진다.",
+    "src": ["s2", "s1"]
+  },
+  "design": {
+    "text": "회사는 사업을 북미(GMNA), 해외(GMI), 중국 합작, GM Financial로 나눠 보고한다. 북미에서는 내연기관 트럭·SUV가 판매의 대부분이고(3분기 미국 판매 67만 대 이상 중 내연기관 64.5만 대), 전기차는 생산능력을 줄이며 손실을 낮추는 단계다. 신형 트럭은 Silao를 시작으로 Fort Wayne(2027년 1분기), Orion(2분기)에서 생산을 시작한다.",
+    "src": ["s1", "s2"]
+  },
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "LG Energy Solution - 배터리 합작사 Ultium Cells Holdings 50:50 공동 소유 (Q3 2026 지분법이익은 미미, 전년 2.13억 달러)",
+      "중국 합작사 - 지분법이익 Q3 2026 3,200만 달러, 9개월 2.8억 달러",
+      "Momenta - 해외 사업이 보유한 투자 지분 (Q3 평가손 약 1억 달러)"
+    ],
+    "text": "GM은 미국·멕시코 등 자체 공장에서 차를 직접 만들고, 배터리는 LG Energy Solution과 반씩 가진 Ultium Cells에서 조달한다. 전기차 물량이 줄면서 Ultium Cells 지분법이익은 전년 2.13억 달러에서 미미한 수준으로 떨어졌다. 원가에서는 구리·철강 가격과 DRAM 가격 상승이 올해 약 20억 달러 부담으로 꼽혔다.",
+    "src": ["s1", "s2"]
+  },
+  "sell": {
+    "customers": [
+      "미국 개인·법인 구매자 - 딜러망을 통한 판매, 3분기 미국 판매 67만 대 이상",
+      "GM Financial 할부·리스 고객 - 3분기 EBT-adjusted 7억 달러(콜) / 6.68억 달러(릴리스 표)",
+      "중국 소비자 - 합작사 판매, 3분기 신에너지차가 GM China 판매의 60% 이상"
+    ],
+    "channel": "프랜차이즈 딜러를 통한 차량 도매 판매, GM Financial을 통한 할부·리스, 차량 소프트웨어(OnStar·Super Cruise) 구독",
+    "concentration": "개별 고객 집중은 공시되지 않음. 이익은 북미(Q3 GMNA EBIT-adjusted 35.9억 달러, 전체 41.1억 달러의 약 87%)에 집중.",
+    "text": "차는 딜러를 통해 미국 소비자와 법인에게 팔리고, 상당수는 GM Financial의 할부·리스로 자금이 붙는다. 이익은 북미에 몰려 있어 3분기 EBIT-adjusted 41.1억 달러 가운데 35.9억 달러가 GMNA에서 나왔고, 해외(GMI)는 2,800만 달러에 그쳤다. 그래서 미국 트럭 수요와 가격이 실적의 거의 전부를 결정한다.",
+    "src": ["s1", "s2"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "미국 소비자·법인", "to": "GM 딜러", "what": "차량 구매 대금 (현금·할부·리스)" },
+      { "from": "GM 딜러", "to": "General Motors", "what": "차량 도매 대금 (대당)" },
+      { "from": "할부·리스 고객", "to": "GM Financial", "what": "이자·리스료 - 분기 2.5억 달러를 본사에 배당 (Q3)" },
+      { "from": "차량 소유자", "to": "General Motors", "what": "OnStar·Super Cruise 구독료 - Q3 인식 8억 달러 이상" },
+      { "from": "General Motors", "to": "LG Energy Solution", "what": "Ultium Cells 합작을 통한 배터리 셀 조달" }
+    ],
+    "pricing": "차량은 대당 도매가로 판매하고 인센티브로 조정한다(2026년 북미 가격 효과 +0.5%, 9개월 +4억 달러). 소프트웨어는 구독, GM Financial은 이자·리스 스프레드.",
+    "text": "돈은 소비자가 딜러에서 차를 사며 출발해 GM의 도매 매출로 들어오고, 금융을 쓰면 GM Financial이 이자를 따로 번다. 차를 판 뒤에는 OnStar와 Super Cruise 구독료가 3분기에만 8억 달러 이상 인식됐고 연간 30억 달러 이상이 예상된다. 반대로 배터리 대금은 LG Energy Solution과의 합작사로 나간다.",
+    "src": ["s1", "s2"]
+  },
+  "earnings": {
+    "period": "Q3 2026 (ended 2026-09-30)",
+    "revenue": { "value": 50.015, "unit": "USD bn", "yoy": 2.9 },
+    "grossMargin": null,
+    "operatingMargin": 8.2,
+    "netMargin": 6.7,
+    "operatingCashFlow": { "value": 8.049, "unit": "USD bn" },
+    "freeCashFlow": { "value": 5.882, "unit": "USD bn" },
+    "segments": [],
+    "industryMetric": [
+      { "name": "부문별 EBIT-adjusted (Q3 2026)", "value": "GMNA 35.92억 달러(마진 8.7%, 전년 6.2%), GMI 2,800만 달러(전년 2.26억), 중국 지분법이익 3,200만 달러, GM Financial EBT-adjusted 6.68억 달러(전년 8.04억)", "src": ["s1"] },
+      { "name": "미국 판매", "value": "Q3 미국 판매 67만 대 이상(내연기관 64.5만 대), 대형 픽업 판매 +9%, 19분기 연속 미국 판매 1위", "src": ["s2"] },
+      { "name": "관세 비용", "value": "9개월 누적 약 18억 달러(IEEPA 환급 반영), 연간 총 관세는 25억~35억 달러 범위의 하단 예상", "src": ["s2"] },
+      { "name": "전기차 구조조정 현금 비용", "value": "2025년 상반기 이후 74억 달러 중 46억 달러 지급, Q4 약 10억 달러, 나머지 2027년", "src": ["s2"] },
+      { "name": "주식 수", "value": "발행주식 8.49억 주(2026-09-30), 2023년 말 12억 주에서 감소", "src": ["s1"] }
+    ],
+    "text": "3분기 매출은 500억 달러로 2.9% 늘었고 EBIT-adjusted 마진은 8.2%로 1.3%p 높아졌다. 이익 개선은 거의 북미에서 나와 GMNA 마진이 6.2%에서 8.7%로 올랐고, 해외와 GM Financial은 오히려 줄었다. 자동차 영업현금흐름 80억 달러, 조정 자동차 잉여현금흐름 58.8억 달러로 현금 창출이 이익보다 강했다(EBIT-adjusted는 비GAAP 기준이며 총마진은 공시되지 않음).",
+    "src": ["s1"]
+  },
+  "useOfCash": {
+    "period": "9M 2026 (Jan-Sep, automotive)",
+    "items": [
+      { "use": "capex", "value": 5.758, "unit": "USD bn", "src": ["s1"] },
+      { "use": "buybacks", "value": 5.301, "unit": "USD bn", "src": ["s1"] },
+      { "use": "dividends", "value": 0.927, "unit": "USD bn", "src": ["s1"] }
+    ],
+    "text": "9개월 동안 자동차 부문은 설비투자 57.6억 달러와 거의 같은 53억 달러를 자사주 매입에 썼다. 1월에 발표한 60억 달러 매입을 끝냈고 10월에도 약 10억 달러를 더 샀으며, 이사회는 만기 없는 200억 달러 새 매입 한도를 승인했다. 발행주식이 2023년 말 12억 주에서 8.49억 주로 줄어 주당이익이 순이익보다 빠르게 늘어나는 구조다.",
+    "src": ["s1", "s2"]
+  },
+  "aiChain": {
+    "layer": "devices",
+    "position": "AI 인프라 공급자가 아니라 운전자 보조(Super Cruise)·커넥티드 소프트웨어를 차량에 얹어 파는 완성차 회사다.",
+    "dependsOn": ["LG Energy Solution (Ultium Cells 배터리)", "메모리 반도체 (DRAM 가격 상승이 원가 부담으로 언급)"],
+    "sellsTo": ["미국 소비자·법인 차량 구매자", "차량 소프트웨어 구독자"],
+    "aiRevenue": null,
+    "upside": "Super Cruise 탑재가 대형 트럭에서 내년 4~5배, 설치 기반이 약 50% 늘면 고마진 구독 매출(2026년 30억 달러 이상 예상)이 커진다.",
+    "risk": "AI 데이터센터 수요로 오른 DRAM 등 부품 가격이 원가를 올릴 수 있다(회사는 상품·물류·DRAM 부담을 약 20억 달러로 제시, 원인 구분은 없음).",
+    "text": "GM에게 AI는 매출을 만드는 산업이 아니라 차량 소프트웨어와 원가의 문제다. Super Cruise와 OnStar가 3분기 8억 달러 이상을 인식해 커지고 있지만 회사 매출 500억 달러에 비하면 작다. 반대로 DRAM 가격 상승은 원가 부담 목록에 올라 있다.",
+    "src": ["s2", "s1"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "미국 대형 픽업트럭", "rivals": ["미국·해외 완성차 업체 (출처에 이름 없음)"], "position": "leader", "share": "2018년 이후 Silverado/Sierra 점유율 10%p 확대, 2026년 7년 연속 판매 1위 예상 (콜 발언, 2026-10-20)", "src": ["s2"] },
+      { "arena": "미국 전체 신차 시장", "rivals": ["미국·해외 완성차 업체 (출처에 이름 없음)"], "position": "leader", "share": "19분기 연속 미국 판매 1위 (콜 발언)", "src": ["s2"] },
+      { "arena": "중국 승용차", "rivals": ["중국 현지 업체 (출처에 이름 없음)"], "position": "follower", "share": null, "src": ["s2"] }
+    ],
+    "edge": "가장 이익률 높은 대형 픽업·SUV에서의 규모, 딜러망, 자체 금융, 차량 소프트웨어 설치 기반.",
+    "threats": "관세(연 25억~35억 달러 범위), 구리·철강·DRAM 원가 상승, 4분기 대형 픽업 약 3.5만 대 감소, 해외 사업 약세.",
+    "text": "북미에서 GM은 판매 1위이고 대형 픽업에서 점유율을 넓혀 왔다. 다만 경쟁사 이름보다 큰 변수는 관세와 원가여서, 3분기까지 관세만 약 18억 달러를 냈다. 해외(GMI)는 중국 지분법이익을 빼면 손익분기 수준으로 내려왔다.",
+    "src": ["s2", "s1"]
+  },
+  "strategy": {
+    "goal": "2027년이 2026년보다 나은 해가 될 것이라는 경영진 전망, 전기차 손실 축소와 소프트웨어 매출 확대, 꾸준한 자사주 매입.",
+    "roadmap": [
+      { "when": "2026 Q4", "what": "전기차 구조조정 현금 비용 약 10억 달러 지급, 대형 픽업 판매 전년 대비 약 3.5만 대 역풍", "src": ["s2"] },
+      { "when": "2027 Q1", "what": "신형 트럭 Fort Wayne 공장 생산 시작 (Silao 이후)", "src": ["s2"] },
+      { "when": "2027 Q2", "what": "신형 트럭 Orion 공장 생산 시작", "src": ["s2"] },
+      { "when": "2027", "what": "Super Cruise 대형 트럭 탑재율 4~5배, 설치 기반 약 50% 증가 예상", "src": ["s2"] }
+    ],
+    "vision": "트럭·SUV에서 번 현금으로 소프트웨어와 차세대 차량에 투자하고 남는 현금은 주주에게 돌려주는 회사.",
+    "text": "앞으로의 계획은 신형 트럭 전환을 2027년 상반기까지 세 공장에서 마치고, 전기차 손실을 올해 10억~15억 달러 줄이는 것이다. 경영진은 수요가 유지되고 원가 압박이 누그러지면 2027년이 2026년보다 낫다고 말했지만, 원자재 인플레이션만으로 10억~15억 달러 추가 부담이 있을 수 있다고 덧붙였다.",
+    "src": ["s2"]
+  },
+  "governance": { "line": "Mary Barra가 회장 겸 CEO로 이끌고, 9개월 53억 달러 자사주 매입과 200억 달러 신규 한도로 주주환원을 크게 하는 회사다.", "src": ["s2", "s1"] },
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "EBIT-adjusted", "value": "145억~155억 달러 (기존 140억~160억, 범위 축소)", "givenOn": "2026-10-20", "src": ["s1"] },
+      { "period": "FY2026", "metric": "EPS-diluted-adjusted", "value": "12.75~13.75달러 (기존 12.00~14.00)", "givenOn": "2026-10-20", "src": ["s1"] },
+      { "period": "FY2026", "metric": "adjusted automotive free cash flow", "value": "115억~125억 달러 (기존 95억~115억, 상향)", "givenOn": "2026-10-20", "src": ["s1"] },
+      { "period": "FY2026", "metric": "capex", "value": "100억~120억 달러 범위 유지, 콜에서는 하단 절반 예상", "givenOn": "2026-10-20", "src": ["s1", "s2"] }
+    ],
+    "style": "annual",
+    "track": "콜 요약은 2026년 들어 가이던스를 두 차례 올린 뒤 3분기에 범위를 좁혔다고 전한다. 3분기 조정 EPS 3.70달러는 컨센서스 3.55달러를 넘었다.",
+    "src": ["s1", "s2", "s3"]
+  },
+  "estimates": { "text": "2026-11-07 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기 합계 13.51달러(범위 12.56~14.89, 추정치 수 최소 4), 직전 4개 분기 실적 합 13.48달러. 최근 4주 상향 8건·하향 8건.", "src": ["s3"] },
+  "watch": {
+    "confirms": ["GMNA EBIT-adjusted 마진이 8%대를 유지", "조정 자동차 잉여현금흐름이 가이던스 115억~125억 달러 안에 들어옴", "전기차 손실 축소와 구조조정 현금 비용이 계획대로 소진", "소프트웨어·서비스 이연매출과 Super Cruise 설치 기반 증가"],
+    "breaks": ["관세 비용이 범위 하단을 넘어 늘어남", "원자재·DRAM 원가 상승으로 2027년 마진 하락", "미국 SAAR가 연 1,600만 대 중반 아래로 둔화", "신형 트럭 전환 지연으로 픽업 판매 감소"],
+    "keyNumbers": [
+      { "name": "GMNA EBIT-adjusted 마진", "why": "이익 대부분이 나오는 곳" },
+      { "name": "조정 자동차 잉여현금흐름", "why": "자사주 매입의 재원" },
+      { "name": "관세 비용", "why": "올해 최대 단일 원가 변수" },
+      { "name": "미국 판매·딜러 재고 일수(목표 50~60일)", "why": "수요와 가격 결정력의 신호" }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      { "date": "2026-12-04", "event": "분기 배당 0.18달러 기준일 (지급 2026-12-17)", "src": ["s1"] },
+      { "date": "2027-01~02 (회사 미공지)", "event": "Q4·FY2026 실적과 2027년 전체 가이던스 (콜에서 Q4 실적과 함께 제시한다고 언급)", "src": ["s2"] }
+    ],
+    "reaction": "주가는 분기 이익보다 연간 가이던스 변화, 관세 비용, 자사주 매입 규모에 반응하는 경향이 있다. 4분기 실적일에는 다음 해 EBIT 가이던스가 핵심이 된다.",
+    "conditions": ["연간 EBIT-adjusted 가이던스가 올라가는지 좁혀지는지", "관세 순비용 추정의 변화", "GMNA 마진과 딜러 재고 일수", "자사주 매입 집행 속도", "컨센서스 EPS 상향·하향 건수"]
+  },
+  "unverified": [
+    "부문별 매출(GMNA·GMI·GM Financial) - 읽은 발췌에 EBIT만 확인",
+    "총마진 - GM은 표준 총마진을 별도 제시하지 않으며 확인하지 않음",
+    "Q3 GM Financial EBT-adjusted: 릴리스 표 6.68억 달러, 콜 발언 약 7억 달러",
+    "경쟁사 이름과 점유율 수치 - 읽은 출처에 없음",
+    "Q4 2026 실적 발표일 (회사 미공지)",
+    "9개월 EV 전략 재편 손상차손 금액 (릴리스 일부만 읽음)"
+  ],
+  "confidence": "medium - 재무 수치는 회사 릴리스 재게시본에서 왔고, 관세·EV·소프트웨어 수치는 콜 발췌(2차 정리)에서 왔다. 부문 매출과 경쟁 정보는 확인하지 못했다.",
+  "debate": {
+    "question": "북미 트럭 이익과 자사주 매입이 관세·원가 상승을 넘어 2027년에도 이어지는지",
+    "bull": { "text": "3분기 GMNA 마진은 6.2%에서 8.7%로 올랐고 조정 자동차 잉여현금흐름 가이던스는 115억~125억 달러로 올라갔다. 9개월에 53억 달러를 사들이고도 200억 달러 새 매입 한도를 받았으며, 경영진은 2027년이 2026년보다 나을 것이라고 말했다.", "src": ["s1", "s2"] },
+    "bear": { "text": "관세는 9개월에 약 18억 달러였고 구리·철강·DRAM 등 원가 부담은 올해 약 20억 달러, 이를 연율화하면 2027년 10억~15억 달러가 더해질 수 있다고 CFO가 말했다. 해외(GMI) 이익은 2.26억에서 2,800만 달러로 줄었고 GM Financial EBT도 감소했으며, 4분기에는 대형 픽업 약 3.5만 대 역풍이 있다.", "src": ["s1", "s2"] },
+    "decides": [
+      { "when": "2027-01~02 (회사 미공지) Q4 실적", "what": "2027년 EBIT-adjusted 가이던스가 2026년 145억~155억 달러보다 높게 나오는지", "src": ["s2", "s1"] },
+      { "when": "2027 상반기", "what": "Fort Wayne(1분기)·Orion(2분기) 신형 트럭 생산 전환이 판매 공백 없이 진행되는지", "src": ["s2"] }
+    ]
+  },
+  "underTheHood": [
+    { "title": "이익의 87%가 북미에서", "text": "3분기 EBIT-adjusted 41.1억 달러 가운데 35.9억 달러가 GMNA에서 나왔고 해외와 중국은 합쳐도 6천만 달러 수준이다. 회사 전체 실적을 읽을 때 사실상 미국 트럭·SUV 가격과 관세만 보면 되는 구조다.", "src": ["s1"] },
+    { "title": "주식 수 감소가 만드는 EPS", "text": "발행주식은 2023년 말 12억 주에서 2026-09-30 8.49억 주로 줄었다. 그래서 3분기 조정 EPS는 32% 늘어 EBIT-adjusted 증가율 21.6%보다 빨랐고, 주당 지표의 개선 일부는 사업이 아니라 매입에서 온다.", "src": ["s1"] },
+    { "title": "비GAAP 이익과 EV 비용", "text": "EBIT-adjusted는 특별항목을 뺀 수치이며, 전기차 재편 현금 비용 74억 달러 가운데 28억 달러는 아직 나가지 않았다(Q4 약 10억, 나머지 2027년). 조정 잉여현금흐름과 실제 현금 유출 사이에 이 차이가 남아 있다.", "src": ["s2", "s1"] }
+  ]
+}

@@ -1,0 +1,528 @@
+{
+  "symbol": "LHX",
+  "name": "L3Harris Technologies, Inc.",
+  "researchedAt": "2026-11-07",
+  "fiscalYearEnd": "Friday nearest December 31",
+  "oneLine": "L3Harris는 위성·센서, 전술 통신·전자전, 그리고 PAC-3·THAAD 미사일의 로켓 추진체를 만드는 미국 방산 회사로, 2026년 3분기 추진체 대형 계약으로 수주잔고가 532억 달러로 늘었다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "L3Harris Delivers Record Backlog and Strong Third Quarter Results (press release)",
+      "url": "https://www.l3harris.com/newsroom/press-release/2026/10/l3harris-delivers-record-backlog-and-strong-third-quarter-results",
+      "publisher": "L3Harris",
+      "date": "2026-10-29"
+    },
+    {
+      "id": "s2",
+      "kind": "earnings-release",
+      "title": "L3Harris Q3 2026 earnings release PDF with financial tables (segment revenue and operating income, cash flow, 2026 segment guidance)",
+      "url": "https://s205.q4cdn.com/565046976/files/doc_news/L3Harris-Delivers-Record-Backlog-and-Strong-Third-Quarter-Results-2026.pdf",
+      "publisher": "L3Harris",
+      "date": "2026-10-29"
+    },
+    {
+      "id": "s3",
+      "kind": "10-K",
+      "title": "Lockheed Martin Form 10-K for fiscal year 2025 (competition section naming L3Harris, RTX, Northrop Grumman, General Dynamics, Boeing)",
+      "url": "https://www.sec.gov/Archives/edgar/data/936468/000162828026004195/lmt-20251231.htm",
+      "publisher": "Lockheed Martin / SEC",
+      "date": "2026-01-29"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "미사일 고체 로켓 추진체 - THAAD 추진체 63억 달러, PAC-3 MSE 추진체 47억 달러 7년 계약 (3분기)",
+      "전술 통신·전자전 - Communications & Spectrum Dominance 부문 마진 25.2%",
+      "위성·우주 센서와 임무 체계 - Space & Mission Systems가 매출의 절반",
+      "증산 설비 - Arkansas Camden 'Arsenal of Freedom' 시설 등 약 60개 신규 시설 건설"
+    ],
+    "text": "L3Harris의 힘은 다른 방산사의 미사일 안에 들어가는 핵심 부품을 쥐고 있다는 점이다. 3분기에 THAAD(63억 달러)와 PAC-3 MSE(47억 달러) 추진체 7년 계약을 받아, Missile Solutions 부문 book-to-bill이 11.8배가 됐다. 여기에 마진 25%대의 전술 통신·전자전 사업이 이익의 중심을 받친다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "design": {
+    "text": "회사는 세 부문으로 보고한다. Space & Mission Systems는 위성·우주 센서와 항공 임무 체계를, Communications & Spectrum Dominance는 전술 무전기·전자전 체계(차세대 재머 NGJ-LB 포함)를 만든다. Missile Solutions는 미사일 고체 로켓 추진체와 GMLRS 추진 장치, VAMPIRE 대드론 체계 같은 제품을 맡는다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "Arkansas Camden 'Arsenal of Freedom' 시설 - 2026년 10월 가동, 약 60개 신규 시설 중 하나",
+      "미국 전쟁부 - 자회사(Missile Solutions 관련)에 지분 투자 (보도자료 위험 요인에 언급, 조건 미확인)"
+    ],
+    "text": "제품은 자체 공장에서 만들고, 늘어난 미사일 수요에 맞춰 약 60개 신규 시설을 짓고 있다. 고체 로켓 추진체는 증산에 시간이 걸리는 병목 품목이어서, 설비가 가동되는 속도가 Missile Solutions 매출 속도를 정한다. 보도자료는 미국 전쟁부가 회사 자회사에 투자했다는 사실을 위험 요인으로 적는다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "THAAD·PAC-3 MSE 미사일 프로그램 - 추진체 7년 계약 110억 달러 (발주 주체는 보도자료에 명시 없음)",
+      "미 해군 - NGJ-LB 차세대 재머 8.76억 달러 계약 변경",
+      "미국 정부·동맹국 - VAMPIRE 대드론 체계 5억 달러 이상 주문, GMLRS 추진 장치 2.5억 달러 후속 계약"
+    ],
+    "channel": "미국 정부와 직접 계약하고, 미사일 추진체처럼 다른 주계약자 무기에 들어가는 부품은 주계약자 또는 정부와 계약한다.",
+    "concentration": "고객별 매출 비중은 이 자료에서 확인하지 못했다.",
+    "text": "고객은 미국 정부와 동맹국, 그리고 미사일 프로그램이다. 3분기 수주 193억 달러는 매출의 3배가 넘었고, 그중 THAAD·PAC-3 추진체 두 계약이 110억 달러를 차지했다. 그래서 이 회사의 미사일 매출은 두 요격 미사일의 증산 속도와 함께 움직인다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "미국 의회 (국방 예산 승인)",
+        "to": "미국 전쟁부·각 군",
+        "what": "조달·연구개발 예산 배정"
+      },
+      {
+        "from": "미사일 생산 계약 (발주 경로 미확인)",
+        "to": "L3Harris Missile Solutions",
+        "what": "THAAD·PAC-3 MSE 추진체 7년 계약 대금 (조건 미확정)"
+      },
+      {
+        "from": "미 해군·미국 정부",
+        "to": "L3Harris",
+        "what": "NGJ-LB 재머, 위성·센서, 전술 통신 계약 대금"
+      }
+    ],
+    "pricing": "정부 계약 방식(고정가·원가가산)이며, 3분기 추진체 대형 계약은 7년짜리 미확정(undefinitized) 계약으로 금액은 가격 상승분 제외 기준이다.",
+    "text": "돈은 국방 예산에서 각 군과 미사일 프로그램을 거쳐 들어온다. 추진체 계약은 7년에 걸친 생산이라 잔고는 크게 뛰었지만 매출은 설비 가동에 맞춰 천천히 인식된다. 2026년 Missile Solutions 매출 전망이 약 41억 달러로 유지된 것도 이 시차를 보여 준다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "earnings": {
+    "period": "Q3 2026 (2026-10-02 전후 종료 분기)",
+    "revenue": {
+      "value": 6.06,
+      "unit": "USD bn",
+      "yoy": 7.1
+    },
+    "grossMargin": null,
+    "operatingMargin": 13.0,
+    "netMargin": 10.4,
+    "operatingCashFlow": {
+      "value": 1.4,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": 1.3,
+      "unit": "USD bn"
+    },
+    "segments": [
+      {
+        "name": "Space & Mission Systems",
+        "revenue": 3.093,
+        "unit": "USD bn",
+        "share": 51.0,
+        "yoy": 10.3,
+        "operatingMargin": 10.9,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "Communications & Spectrum Dominance",
+        "revenue": 1.995,
+        "unit": "USD bn",
+        "share": 32.9,
+        "yoy": 3.1,
+        "operatingMargin": 25.2,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "Missile Solutions",
+        "revenue": 1.057,
+        "unit": "USD bn",
+        "share": 17.4,
+        "yoy": 4.9,
+        "operatingMargin": 12.0,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "Intersegment and other",
+        "revenue": -0.085,
+        "unit": "USD bn",
+        "share": -1.4,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "수주잔고(backlog)",
+        "value": "532억 달러 (사상 최대, Q3 2026)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "수주 대비 매출(book-to-bill)",
+        "value": "Q3 2026 전사 3.2배, 수주 193억 달러. Space & Mission 1.0배, Communications & Spectrum 1.9배, Missile Solutions 11.8배",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "유기적 매출 성장률",
+        "value": "Q3 2026 9% (비GAAP)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "부문 영업이익률",
+        "value": "Q3 2026 15.9% (전년과 같음), 부문 영업이익 9.67억 달러",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "9개월 누적 (YTD 2026)",
+        "value": "매출 176.85억(+9.1%), 순이익 17.44억, 영업현금흐름 22.23억, 설비투자 3.86억 달러",
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "text": "2026년 3분기 매출은 60.6억 달러로 7%(유기적 9%) 늘었고 GAAP EPS는 3.28달러로 33% 올랐다. 매출의 절반은 Space & Mission Systems지만, 이익은 마진 25.2%인 Communications & Spectrum Dominance(5.02억 달러)가 가장 많이 낸다. 잔고를 끌어올린 Missile Solutions는 아직 매출 17%, 마진 12%의 작은 부문이다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "useOfCash": {
+    "period": "2026년 9개월",
+    "items": [
+      {
+        "use": "dividends",
+        "value": 0.704,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "use": "buybacks",
+        "value": 0.598,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "use": "capex",
+        "value": 0.386,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "use": "debt repayment",
+        "value": 0.115,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "text": "2026년 9개월 동안 배당 7.0억, 자사주 매입 6.0억 달러를 썼고 설비투자는 3.9억 달러로 전년 같은 기간 2.7억 달러보다 늘었다. 자사주 매입은 전년 10.0억 달러에서 줄어, 현금 일부가 추진체 증산 설비로 옮겨 가고 있다. 분기 말 총부채는 110억 달러, 현금은 25억 달러다.",
+    "src": [
+      "s2",
+      "s1"
+    ]
+  },
+  "aiChain": {
+    "layer": "limited",
+    "position": "AI 데이터센터 공급망 밖의 방산 전자·우주·미사일 추진체 회사. 실적은 국방 예산과 미사일 증산에 달려 있다.",
+    "dependsOn": [
+      "미국 국방 예산",
+      "추진체 증산 설비 가동"
+    ],
+    "sellsTo": [
+      "미국 전쟁부·각 군",
+      "미사일 주계약자",
+      "동맹국 정부"
+    ],
+    "aiRevenue": null,
+    "upside": "AI 관련 매출은 공시되지 않는다. 대드론 체계(VAMPIRE)와 전자전처럼 새 위협에 대응하는 제품 수요가 매출로 오는 길이다.",
+    "risk": "AI가 직접 수요를 줄이는 경로는 확인되지 않는다.",
+    "text": "그래서 AI 가치사슬에서는 직접 연결이 적은 자리다. 이 회사에서 기술 변화가 매출로 오는 길은 드론 위협에 대응하는 VAMPIRE(3분기 5억 달러 이상 주문)와 전자전 장비다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "미사일 추진체",
+        "rivals": [
+          "Northrop Grumman"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s3",
+          "s1"
+        ]
+      },
+      {
+        "arena": "전술 통신·전자전",
+        "rivals": [
+          "RTX",
+          "Lockheed Martin",
+          "General Dynamics"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "arena": "우주·센서·임무 체계",
+        "rivals": [
+          "Lockheed Martin",
+          "Northrop Grumman",
+          "RTX"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s3"
+        ]
+      }
+    ],
+    "edge": "고체 로켓 추진체 생산 능력과 7년 장기 계약, 마진 25%대의 전술 통신·전자전 사업.",
+    "threats": "추진체 증산이 늦으면 대형 계약의 매출 인식이 밀리고, 미확정 계약 조건에 따라 수익성이 달라질 수 있다.",
+    "text": "Lockheed Martin 10-K는 L3Harris를 RTX·Northrop Grumman·General Dynamics·Boeing과 함께 경쟁자로 적는다. 동시에 L3Harris는 PAC-3 MSE·THAAD 같은 다른 회사 요격 미사일의 추진체를 만들어, 한 분야에서는 공급사이고 다른 분야에서는 경쟁자인 관계다.",
+    "src": [
+      "s3",
+      "s1"
+    ]
+  },
+  "strategy": {
+    "goal": "2026년 매출 235~237억 달러, GAAP EPS 12.25~12.35달러, FCF 30억 달러, 부문 영업이익률 낮은 16% (2026-10).",
+    "roadmap": [
+      {
+        "when": "2026",
+        "what": "부문 매출 전망: Space & Mission 약 119억(상향), Communications 약 79억(소폭 하향), Missile Solutions 약 41억 달러(유지)",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "when": "2026-10",
+        "what": "Arkansas Camden 'Arsenal of Freedom' 시설 가동 - 약 60개 신규 시설 중 하나",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "다년 (7년)",
+        "what": "THAAD·PAC-3 MSE 추진체 생산 계약 수행",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "vision": "CEO Sam Mehta는 이제 우선순위가 늘어난 수요를 실적으로 바꾸는 것이라고 말했다.",
+    "text": "회사의 다음 수는 532억 달러 잔고를 생산으로 바꾸는 것이다. 신규 시설이 가동되면 Missile Solutions 매출이 늘 수 있지만, 2026년 전망은 약 41억 달러로 그대로여서 본격적인 효과는 그 이후에 나타날 가능성이 크다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "governance": {
+    "line": "Sam Mehta가 사장 겸 CEO로 이끌고, 2026년에도 배당과 자사주 매입을 이어 가면서 증산 설비 투자를 늘리고 있다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "FY2026",
+        "metric": "revenue",
+        "value": "235~237억 달러 (직전 232~237억)",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "GAAP EPS",
+        "value": "12.25~12.35달러 (직전 11.80~12.00)",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "free cash flow",
+        "value": "30억 달러 (유지)",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "segment operating margin",
+        "value": "낮은 16% (유지); Space & Mission 중반 10%, Communications 중반 25%, Missile Solutions 낮은 12%",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "style": "annual",
+    "track": "2026년 10월 매출 하단과 EPS 전망을 올리고 FCF는 유지했다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "estimates": {
+    "text": null,
+    "src": []
+  },
+  "watch": {
+    "confirms": [
+      "Missile Solutions 매출이 신규 설비 가동과 함께 늘어남",
+      "추진체 7년 계약의 조건이 확정됨",
+      "연간 FCF 30억 달러 달성"
+    ],
+    "breaks": [
+      "추진체 증산 지연으로 잔고 대비 매출이 늘지 않음",
+      "Communications & Spectrum Dominance 매출 둔화가 이어짐 (2026 전망 소폭 하향)",
+      "미확정 계약 조건이 예상보다 불리하게 확정됨"
+    ],
+    "keyNumbers": [
+      {
+        "name": "Missile Solutions 매출과 book-to-bill",
+        "why": "추진체 계약이 매출로 바뀌는 속도"
+      },
+      {
+        "name": "부문별 마진",
+        "why": "고마진 통신 부문의 비중 변화"
+      },
+      {
+        "name": "FCF",
+        "why": "설비 투자 증가와 주주환원의 균형"
+      },
+      {
+        "name": "수주잔고",
+        "why": "다년 매출의 크기"
+      }
+    ]
+  },
+  "debate": {
+    "question": "추진체 장기 계약으로 불어난 잔고가 증산 설비 가동과 함께 매출과 마진으로 이어지는지",
+    "bull": {
+      "text": "이야기가 유지된다고 보는 쪽은 3분기 수주 193억 달러로 book-to-bill이 3.2배, 잔고가 532억 달러로 사상 최대였고 FCF가 13억 달러로 195% 늘었다는 점을 든다. THAAD·PAC-3 MSE 추진체 7년 계약 110억 달러와 신규 시설 가동이 Missile Solutions 성장의 기반이다.",
+      "src": [
+        "s1"
+      ]
+    },
+    "bear": {
+      "text": "깨진다고 보는 쪽은 Missile Solutions 매출이 3분기 4.9% 늘었을 뿐이고 2026년 전망도 약 41억 달러로 그대로라는 점을 든다. 추진체 계약은 조건이 확정되지 않은 상태이고, 이익의 중심인 Communications & Spectrum Dominance의 연간 매출 전망은 약 80억에서 79억 달러로 낮아졌다.",
+      "src": [
+        "s1",
+        "s2"
+      ]
+    },
+    "decides": [
+      {
+        "when": "2027-01 하순 (추정, 회사 미확정) Q4·FY2026 실적",
+        "what": "2027 Missile Solutions 매출 전망이 추진체 계약을 반영해 얼마나 오르는지",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "when": "다년",
+        "what": "THAAD·PAC-3 MSE 추진체 계약 조건 확정",
+        "src": [
+          "s1"
+        ]
+      }
+    ]
+  },
+  "underTheHood": [
+    {
+      "title": "잔고와 매출의 시차",
+      "text": "Missile Solutions 3분기 book-to-bill은 11.8배지만 분기 매출은 10.6억 달러로 4.9% 늘었을 뿐이다. 7년 계약은 설비가 늘어나는 속도대로 나눠 매출이 되므로, 잔고 급증을 곧 매출 급증으로 읽으면 안 된다.",
+      "src": [
+        "s1",
+        "s2"
+      ]
+    },
+    {
+      "title": "추진체는 남의 미사일 안에",
+      "text": "THAAD·PAC-3 MSE 추진체 계약은 L3Harris 자체 무기가 아니라 다른 요격 미사일 생산에 묶인 매출이다. 그래서 이 부문 매출은 미사일 전체 생산 일정과 계약 조건 확정에 따라 움직이고, 동시에 Lockheed Martin 10-K는 L3Harris를 경쟁자로 적어 같은 업계 안에서 공급과 경쟁이 겹친다.",
+      "src": [
+        "s1",
+        "s3"
+      ]
+    },
+    {
+      "title": "이익은 통신 부문에서",
+      "text": "3분기 부문 영업이익 9.67억 달러 중 5.02억 달러가 매출 비중 33%의 Communications & Spectrum Dominance에서 나왔다. 성장이 마진이 낮은 우주·미사일 쪽으로 옮겨 가면 전사 마진이 오르기 어려워, 부문 구성 변화가 이익률을 정한다.",
+      "src": [
+        "s2"
+      ]
+    }
+  ],
+  "trading": {
+    "calendar": [
+      {
+        "date": "2027-01 하순 (추정, 회사 미확정)",
+        "event": "Q4·FY2026 실적과 2027 전망 (Q3는 2026-10-29 발표)",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "reaction": "실적 발표에서는 연간 전망 변화, 수주·잔고, FCF에 크게 반응하는 경향이 있다.",
+    "conditions": [
+      "연간 전망 상향·유지·하향 여부",
+      "Missile Solutions 매출 성장률과 book-to-bill",
+      "부문별 마진 변화",
+      "FCF가 연간 30억 달러 경로에 있는지"
+    ]
+  },
+  "unverified": [
+    "총마진 (회사가 매출총이익을 따로 보고하지 않음)",
+    "부문 영업이익률은 부문 매출 대비 계산값 (회사는 부문별 마진을 표로 보고하지 않음)",
+    "Q3 2026 분기 종료일 정확한 날짜",
+    "operatingCashFlow 14억·FCF 13억 달러는 보도자료의 반올림 값",
+    "THAAD·PAC-3 추진체 계약의 발주 주체(정부 직접 또는 Lockheed Martin 경유)",
+    "미국 전쟁부의 자회사 투자 조건과 Missile Solutions 지분 구조",
+    "조정 EPS (보도자료는 GAAP EPS만 제시)",
+    "고객별 매출 비중과 FY2025 10-K 사업 설명",
+    "미사일 추진체 시장 점유율과 경쟁 구도",
+    "컨센서스 추정치",
+    "Q4 2026 실적 발표일"
+  ],
+  "confidence": "medium - 분기 실적·부문·현금 사용·전망은 회사 보도자료와 표에서 왔지만, 10-K의 고객 비중과 계약 발주 경로, 실적 콜 발언은 확인하지 못했다."
+}

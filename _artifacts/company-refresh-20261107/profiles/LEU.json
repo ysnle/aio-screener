@@ -1,0 +1,239 @@
+{
+  "symbol": "LEU",
+  "name": "Centrus Energy Corp.",
+  "researchedAt": "2026-11-07",
+  "fiscalYearEnd": "December 31",
+  "oneLine": "Centrus Energy는 원전 연료용 농축 우라늄(LEU)과 차세대 원자로용 고순도 저농축 우라늄(HALEU)을 공급하는 미국 회사로, 2040년까지 이어지는 약 70억 달러 잔고를 바탕으로 오하이오 Piketon에 자체 원심분리 농축 공장을 짓기 시작했다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Centrus Reports Third Quarter 2026 Results (PR Newswire, with financial statements)",
+      "url": "https://www.prnewswire.com/news-releases/centrus-reports-third-quarter-2026-results-302929804.html",
+      "publisher": "Centrus Energy via PR Newswire",
+      "date": "2026-11-04"
+    },
+    {
+      "id": "s2",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/leu/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-11-07"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "미국 자체 원심분리 농축 기술 - Oak Ridge에서 새 원심분리기 첫 출하 (2026)",
+      "상업 시장용 HALEU를 생산하는 16기 원심분리 캐스케이드 (Piketon)",
+      "약 70억 달러 잔고, 2040년까지 - LEU 부문 약 62억 달러",
+      "미국 에너지부(DOE) HALEU·LEU 생산 계약 경험"
+    ],
+    "text": "Centrus의 힘은 미국 안에서 우라늄을 농축할 기술과 그 기술을 쓸 고객 약정을 함께 가졌다는 데서 나온다. Piketon의 16기 원심분리 캐스케이드로 이미 상업 시장용 HALEU를 만들고 있고, 2026년에는 Oak Ridge에서 새 원심분리기를 계획보다 두 달 앞서 출하하기 시작했다. 2040년까지 약 70억 달러의 잔고가 이 확장을 받친다.",
+    "src": ["s1"]
+  },
+  "design": {
+    "text": "회사는 두 부문으로 보고한다. LEU 부문은 원전 전력회사에 농축 서비스(SWU)와 우라늄을 팔고, Technical Solutions 부문은 DOE와의 HALEU 운영 계약 같은 엔지니어링·제조·운영 서비스를 한다. 2026년에는 Westerman을 인수해 사업을 넓혔다(조건 미공개).",
+    "src": ["s1"]
+  },
+  "make": {
+    "model": "mixed",
+    "partners": [
+      "Oak Ridge (테네시) - 원심분리기 제조, 첫 출하 2026",
+      "Piketon (오하이오) - 16기 HALEU 캐스케이드와 확장 예정지 (DOE 임차 부지)",
+      "제3자 LEU·SWU 공급원 - 러시아산 LEU 포함, 제재·관세 위험 (공급사 이름 미기재)",
+      "Westerman - 2026 인수"
+    ],
+    "text": "지금 파는 LEU 대부분은 직접 만든 것이 아니라 제3자에게서 사서 되파는 구조여서 '혼합형'이다. 회사는 위험 요인으로 러시아산 LEU를 포함한 공급의 제재·관세 위험과 제3자 공급 의존을 적는다. 그래서 Piketon에 자체 원심분리 공장을 짓는 것이 공급을 직접 쥐려는 핵심 계획이고, 핵심 공급망 계약도 연말 목표보다 앞서 모두 마쳤다.",
+    "src": ["s1"]
+  },
+  "sell": {
+    "customers": [
+      "원자력 전력회사 - LEU·SWU 장기 계약 (회사명 미기재)",
+      "미국 에너지부(DOE) - HALEU 운영·생산, LEU 생산, HALEU 변환 계약",
+      "차세대 원자로 개발사 - 상업 시장용 HALEU (회사명 미기재)"
+    ],
+    "channel": "전력회사·정부와 직접 맺는 다년 계약.",
+    "concentration": "회사는 최대 고객과 잔고 의존을 위험으로 적지만 비중은 읽은 자료에 없음.",
+    "text": "LEU 부문 고객은 원전 전력회사이고, Technical Solutions의 큰 고객은 DOE다. 그런데 DOE는 2027 회계연도 예산안에 HALEU 운영 계약 추가 자금을 넣지 않았고 추가 옵션도 행사할 생각이 없다고 알려, 이 부문 잔고 약 8억 달러가 흔들린다. 회사는 그래서 상업 HALEU 판매 쪽으로 무게를 옮기고 있다.",
+    "src": ["s1"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "원자력 전력회사", "to": "Centrus Energy", "what": "농축 서비스(SWU)와 우라늄 대금 (Q3 2026 SWU 1,410만·우라늄 1,770만 달러)" },
+      { "from": "미국 에너지부(DOE)", "to": "Centrus Energy", "what": "HALEU 운영 계약 등 기술 서비스 대금 (Q3 2,370만 달러)" },
+      { "from": "Centrus Energy", "to": "제3자 LEU·SWU 공급원", "what": "되팔 LEU·SWU 구매 대금" },
+      { "from": "전력회사 (조건부 약정)", "to": "Centrus Energy Piketon 확장", "what": "약 54억 달러 조건부 LEU·HALEU 구매 약정 (운영 이정표 연동)" }
+    ],
+    "pricing": "SWU당 가격과 우라늄 판매가의 장기 계약, DOE 계약은 용역 대금. 조건부 약정은 Piketon 운영 이정표에 연동.",
+    "text": "지금 돈은 전력회사의 SWU·우라늄 대금과 DOE 용역 대금으로 들어오고, 그중 상당 부분이 제3자에게 LEU를 사는 데 다시 나간다. 3분기 SWU 매출은 물량 19%, 평균 가격 10% 상승으로 늘었지만 우라늄 판매가 줄어 LEU 부문 매출은 29% 감소했다. 미래 돈은 54억 달러의 조건부 약정으로, Piketon 공장이 이정표를 지나야 매출이 된다.",
+    "src": ["s1"]
+  },
+  "earnings": {
+    "period": "Q3 2026 (ended 2026-09-30; cash flow is 9M 2026)",
+    "revenue": { "value": 55.5, "unit": "USD mn", "yoy": -25.9 },
+    "grossMargin": -19.1,
+    "operatingMargin": null,
+    "netMargin": 56.9,
+    "operatingCashFlow": { "value": -11.1, "unit": "USD mn" },
+    "freeCashFlow": { "value": -237.5, "unit": "USD mn" },
+    "segments": [
+      { "name": "LEU", "revenue": 31.8, "unit": "USD mn", "share": 57.3, "yoy": -29, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Technical Solutions", "revenue": 23.7, "unit": "USD mn", "share": 42.7, "yoy": -21, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "잔고(backlog)", "value": "2026-09-30 약 70억 달러 (2040년까지): LEU 약 62억(조건부 약 54억, 그중 51억 확정 계약), Technical Solutions 약 8억", "src": ["s1"] },
+      { "name": "매출 구성 (Q3 2026)", "value": "SWU 1,410만(전년 1,070만), 우라늄 1,770만(3,410만), Technical Solutions 2,370만(3,010만) 달러", "src": ["s1"] },
+      { "name": "9M 2026", "value": "매출 3.083억 달러(전년 3.025억), 매출총이익 7,080만, 순이익 5,840만, 조정 순이익 5,280만 달러", "src": ["s1"] },
+      { "name": "워런트 평가 이익", "value": "Q3 2026 4,640만 달러 - 순이익 3,160만 달러의 대부분; 조정 순손실 -940만 달러", "src": ["s1"] },
+      { "name": "현금", "value": "2026-09-30 현금성 자산 22.36억 달러; 9M 주식·워런트 발행 순수입 4.94억 + 0.54억 달러", "src": ["s1"] }
+    ],
+    "text": "3분기 매출은 5,550만 달러로 26% 줄었고 매출총이익은 -1,060만 달러였다. 그런데도 순이익이 3,160만 달러로 늘어난 것은 워런트 부채 평가 이익 4,640만 달러 덕분이며, 이를 뺀 조정 순손실은 -940만 달러다. 분기 매출은 인도 시점에 따라 크게 출렁여, 9개월 매출은 3.08억 달러로 전년보다 조금 많다.",
+    "src": ["s1"]
+  },
+  "useOfCash": {
+    "period": "9M 2026",
+    "items": [
+      { "use": "capex", "value": 226.4, "unit": "USD mn", "src": ["s1"] }
+    ],
+    "text": "올해 현금은 거의 전부 Piketon 확장과 원심분리기 제조에 들어간다. 9개월 설비투자는 2.26억 달러로 전년 1,010만 달러의 20배를 넘었고, 2026년 전체 투자 계획은 3.5억~5억 달러다. 재원은 2025년 전환사채와 2026년 주식·워런트 발행(순 약 5.5억 달러)으로 마련한 22억 달러 넘는 현금이다.",
+    "src": ["s1"]
+  },
+  "aiChain": {
+    "layer": "power-energy",
+    "position": "원전 연료 사슬의 농축 단계. 기존 원전용 LEU와 차세대 원자로용 HALEU를 공급하며, 원전 확대 수요의 상류에 있다.",
+    "dependsOn": ["제3자 LEU·SWU 공급 (러시아산 포함)", "미국 에너지부(DOE) 계약과 Piketon 부지 임차", "원심분리기 공급망"],
+    "sellsTo": ["원자력 전력회사", "미국 에너지부(DOE)"],
+    "aiRevenue": null,
+    "upside": "원전 확대로 미국산 농축 수요가 늘면 54억 달러 조건부 약정이 Piketon 이정표에 맞춰 매출로 바뀐다. 읽은 자료는 AI나 데이터센터를 직접 언급하지 않는다.",
+    "risk": "DOE 지원 축소(HALEU 운영 계약 추가 자금 없음), Piketon 임차 연장 실패 시 확장 지연·축소와 비현금 손상, 러시아산 공급 제재.",
+    "text": "그래서 AI 가치사슬에서 Centrus는 '전력·에너지'의 연료 쪽 자리다. AI 데이터센터 전력 수요가 원전 증설로 이어질 때 농축 우라늄 수요가 늘어나는 구조지만, 이번 분기 자료는 AI를 직접 말하지 않는다. 지금 이야기를 움직이는 것은 Piketon 공장 건설 속도와 DOE 지원 변화다.",
+    "src": ["s1"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "원전용 LEU·농축 서비스", "rivals": [], "position": "challenger", "share": null, "src": ["s1"] },
+      { "arena": "차세대 원자로용 HALEU", "rivals": [], "position": "leader", "share": null, "src": ["s1"] }
+    ],
+    "edge": "미국 자체 원심분리 기술, 이미 가동 중인 HALEU 캐스케이드, 54억 달러 조건부 구매 약정, 22억 달러 넘는 현금.",
+    "threats": "회사는 해외 업체를 포함한 '주요 LEU 생산자'와의 경쟁을 위험으로 적는다(이름 미기재). DOE 지원 축소와 제3자 공급 의존도 위험이다.",
+    "text": "읽은 보도자료는 경쟁사를 이름으로 적지 않고 '해외를 포함한 주요 LEU 생산자'라고만 쓴다. Centrus는 지금 규모로는 도전자이지만, 미국 안에서 HALEU를 실제로 만들고 있다는 점이 차별점이다. 경쟁의 승부는 Piketon 공장을 약정 이정표에 맞춰 완공하느냐에 달려 있다.",
+    "src": ["s1"]
+  },
+  "strategy": {
+    "goal": "Piketon에 상업 규모 원심분리 농축 공장을 지어 LEU·HALEU를 직접 생산하고, 54억 달러 조건부 약정을 매출로 바꾸는 것. 2026년 매출 4.5억~5억 달러.",
+    "roadmap": [
+      { "when": "2026 (완료, 연말 목표보다 앞당김)", "what": "Oak Ridge 새 원심분리기 첫 출하, 핵심 공급망 계약 완료, 첫 시공 승인 설계 패키지 완료", "src": ["s1"] },
+      { "when": "2026", "what": "매출 4.5억~5억 달러, 투자 3.5억~5억 달러, Oak Ridge 순증 100명·Piketon 순증 175명 이상 채용", "src": ["s1"] },
+      { "when": "2026-11-02", "what": "S-3 일괄 신고서 제출", "src": ["s1"] },
+      { "when": "FY2027 (DOE 예산)", "what": "HALEU 운영 계약 추가 자금 미반영 - 약 8억 달러 잔고 불확실", "src": ["s1"] },
+      { "when": "~2040", "what": "잔고 약 70억 달러 인도 기간", "src": ["s1"] }
+    ],
+    "vision": "미국 안에서 원전 연료를 농축하는 상업 공급자가 되어, 기존 원전과 차세대 원자로 모두에 LEU·HALEU를 공급하는 것.",
+    "text": "다음 수는 공장을 짓는 것이다. 첫 원심분리기 출하와 공급망 계약, 설계 패키지가 모두 연말 목표보다 앞서 끝났고, Piketon 채용 목표도 100명에서 175명 이상으로 올렸다. 반면 DOE는 HALEU 운영 계약을 더 이어가지 않겠다고 알려, 회사는 정부 용역에서 상업 HALEU 판매로 무게를 옮기는 중이다.",
+    "src": ["s1"]
+  },
+  "governance": {
+    "line": "Amir Vexler CEO가 이끌며 배당 없이 주식·워런트 발행과 전환사채로 조달한 현금을 Piketon 확장에 쓰는 성장 투자형 회사다.",
+    "src": ["s1"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "total revenue", "value": "4.5억~5억 달러", "givenOn": "2026-11-04", "src": ["s1"] },
+      { "period": "FY2026", "metric": "total capital deployment", "value": "3.5억~5억 달러 (주로 원심분리기 제조)", "givenOn": "2026-11-04", "src": ["s1"] },
+      { "period": "FY2026", "metric": "net new hires", "value": "Oak Ridge 100명 이상, Piketon 175명 이상 (직전 100명)", "givenOn": "2026-11-04", "src": ["s1"] }
+    ],
+    "style": "annual",
+    "track": "9개월 매출 3.08억 달러로, 연간 4.5억~5억 달러를 맞추려면 4분기에 1.4억~1.9억 달러가 필요하다(계산값). Q3 2026 GAAP EPS 1.41달러는 컨센서스 -0.36달러를 웃돌았지만 대부분 워런트 평가 이익 때문이다.",
+    "src": ["s1", "s2"]
+  },
+  "estimates": {
+    "text": "2026-11-07 기준 컨센서스(EPS, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) 합계 4.71달러(추정치 1건뿐, 범위 없음), 직전 4개 분기 실적 합 4.02달러. 최근 4주 상향 1건·하향 2건. 추정치가 하나라 대표성이 낮다.",
+    "src": ["s2"]
+  },
+  "watch": {
+    "confirms": [
+      "Piketon 확장 이정표가 일정대로 진행",
+      "조건부 약정이 확정 계약으로 늘어남",
+      "4분기 매출이 연간 4.5억~5억 달러를 채움",
+      "DOE의 Piketon 임차 연장이 수용 가능한 조건으로 확정",
+      "상업 HALEU 판매 계약 확대"
+    ],
+    "breaks": [
+      "Piketon 임차 연장 실패로 확장 지연·축소와 손상",
+      "러시아산 LEU 공급 제재로 인도 차질",
+      "DOE 지원 축소로 Technical Solutions 매출 급감",
+      "공장 투자 비용이 계획을 크게 넘음",
+      "추가 주식 발행으로 희석 확대"
+    ],
+    "keyNumbers": [
+      { "name": "잔고와 조건부 약정 (확정 계약 비중)", "why": "공장의 미래 매출" },
+      { "name": "설비투자와 현금 잔액", "why": "공장 건설 재원" },
+      { "name": "SWU 판매량·평균 가격", "why": "본업의 가격 흐름" },
+      { "name": "조정 순이익 (워런트 효과 제외)", "why": "실제 영업 성과" },
+      { "name": "Technical Solutions 매출", "why": "DOE 지원 축소의 영향" }
+    ]
+  },
+  "debate": {
+    "question": "Piketon 농축 공장 건설이 DOE 지원 축소와 외부 공급 의존을 넘어 조건부 약정을 매출로 바꾸는지",
+    "bull": {
+      "text": "바꾼다고 보는 쪽은 LEU 부문 잔고 약 62억 달러 중 조건부 약정 54억 달러의 51억이 확정 계약이고, 첫 원심분리기 출하·공급망 계약·설계 패키지가 모두 연말 목표보다 앞서 끝났다는 점을 든다. 9월 말 현금 22억 달러 넘게 확보해 2026년 투자 3.5억~5억 달러를 감당할 여력이 있다.",
+      "src": ["s1"]
+    },
+    "bear": {
+      "text": "의심하는 쪽은 3분기 매출이 26% 줄고 매출총이익이 적자였으며, 순이익은 워런트 평가 이익 덕분이고 조정 기준으로는 손실이었다는 점을 든다. DOE는 HALEU 운영 계약을 더 행사하지 않겠다고 알렸고, 회사는 Piketon 임차가 연장되지 않으면 확장 지연·축소와 비현금 손상이 생길 수 있다고 적었다.",
+      "src": ["s1"]
+    },
+    "decides": [
+      { "when": "Q4·FY2026 실적 발표 (2027-02~03 예상, 회사 미확정)", "what": "연간 매출 4.5억~5억 달러 달성과 Piketon 투자 진척, 2027 투자 계획", "src": ["s1"] },
+      { "when": "미정", "what": "DOE의 Piketon 부지 임차 연장 조건 확정 여부", "src": ["s1"] }
+    ]
+  },
+  "underTheHood": [
+    {
+      "title": "순이익을 만든 워런트 평가",
+      "text": "3분기 순이익 3,160만 달러는 워런트 부채의 공정가치 변동 이익 4,640만 달러에서 나왔다. 주가가 내리면 워런트 부채 가치가 줄어 이익이 생기는 회계라, 이를 뺀 조정 순손실 -940만 달러가 영업 성과에 가깝다.",
+      "src": ["s1"]
+    },
+    {
+      "title": "조건부 약정은 아직 매출 아님",
+      "text": "잔고 70억 달러 가운데 54억 달러는 Piketon 공장이 운영 이정표를 지나야 실현되는 조건부 약정이다. 공장 건설이 늦어지면 이 금액도 늦어지거나 줄어들 수 있어, 잔고 크기보다 건설 진척을 먼저 봐야 한다.",
+      "src": ["s1"]
+    },
+    {
+      "title": "사서 파는 LEU",
+      "text": "지금 파는 LEU는 상당 부분 제3자에게서 사 오는 물량이고, 회사는 러시아산 LEU 제재·관세를 위험으로 적는다. 그래서 3분기 LEU 부문 매출총이익이 -690만 달러였듯 구매 원가에 이익이 크게 흔들리며, 자체 공장은 이 구조를 바꾸려는 투자다.",
+      "src": ["s1"]
+    },
+    {
+      "title": "정부 부지 위의 공장",
+      "text": "Piketon 확장은 DOE에서 빌린 부지에서 이뤄진다. 회사는 임차가 수용 가능한 조건으로 연장되지 않으면 이미 자본화한 개량 투자에 큰 비현금 손상이 생길 수 있다고 적어, 정부 결정 하나가 수억 달러 투자의 가치를 좌우한다.",
+      "src": ["s1"]
+    }
+  ],
+  "trading": {
+    "calendar": [
+      { "date": "2027-02~03 (추정, 회사 미확정)", "event": "Q4·FY2026 실적 (Q3는 2026-11-04 발표)", "src": ["s1"] },
+      { "date": "미정", "event": "DOE Piketon 임차 연장, FY2027 DOE 예산 확정", "src": ["s1"] }
+    ],
+    "reaction": "주가는 분기 실적보다 원전 정책, DOE 계약·예산, Piketon 확장 소식과 자금 조달 공시에 크게 반응하는 경향이 있다.",
+    "conditions": [
+      "Piketon 확장 이정표 발표 여부",
+      "조건부 약정 중 확정 계약 비중 변화",
+      "DOE 계약·임차 관련 공시",
+      "S-3 신고서를 통한 추가 발행 여부",
+      "워런트 효과를 뺀 조정 순이익"
+    ]
+  },
+  "unverified": [
+    "전력회사 고객 이름과 비중 (읽은 자료에 없음)",
+    "LEU·SWU 공급사 이름 (러시아산 LEU 언급만 있음)",
+    "Westerman 인수 조건과 사업 내용",
+    "전환사채 잔액과 총부채 (읽은 범위에 부채 항목 없음)",
+    "Piketon 확장 목표 용량·완공 시점",
+    "잉여현금흐름 -2.375억 달러는 9M 영업현금흐름(-0.111억)에서 설비투자(2.264억)를 뺀 계산값",
+    "경쟁사 이름과 점유율 (읽은 자료에 이름 없음)",
+    "Q4 2026 실적 발표일"
+  ],
+  "confidence": "medium - 실적·잔고·현금흐름·가이던스는 회사 보도자료 원문에서 왔지만, 고객·공급사 이름과 공장 목표 용량은 확인하지 못했고 분기 매출이 인도 시점에 크게 흔들린다."
+}

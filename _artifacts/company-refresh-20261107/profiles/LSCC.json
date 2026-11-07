@@ -1,0 +1,600 @@
+{
+  "symbol": "LSCC",
+  "name": "Lattice Semiconductor Corporation",
+  "researchedAt": "2026-11-07",
+  "fiscalYearEnd": "Saturday closest to December 31 (FY2025 ended 2026-01-03)",
+  "oneLine": "Lattice는 서버 보드의 전원·부팅·보안을 관리하는 작고 전력이 적은 FPGA를 만드는 회사로, AI 서버 수요와 7월 인수한 서버 펌웨어 회사 AMI가 더해지며 2026년 3분기 매출이 2.91억 달러(+118%)로 뛰었다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "8-K",
+      "title": "Lattice Semiconductor Reports Record 2Q26 Revenue, Up 62% YOY (8-K Ex.99.1)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0000855658/000143774926025650/ex_971139.htm",
+      "publisher": "Lattice / SEC EDGAR",
+      "date": "2026-08-04"
+    },
+    {
+      "id": "s2",
+      "kind": "10-K",
+      "title": "Lattice Form 10-K for fiscal year ended 2026-01-03 (filing date per AIO SEC snapshot)",
+      "url": "https://www.sec.gov/Archives/edgar/data/855658/000143774926004100/lscc20260103_10k.htm",
+      "publisher": "Lattice / SEC EDGAR",
+      "date": "2026-02-13"
+    },
+    {
+      "id": "s3",
+      "kind": "8-K",
+      "title": "Lattice 8-K on the AMI acquisition agreement and 364-day term loan commitment (mirror; read through a search summary)",
+      "url": "https://www.boardroomalpha.com/sec/lscc-8-k-2026-05-04-0001437749-26-014654",
+      "publisher": "Boardroom Alpha (SEC mirror)",
+      "date": "2026-05-04"
+    },
+    {
+      "id": "s6",
+      "kind": "10-K",
+      "title": "AMD Form 10-K FY2025 naming Altera and Lattice as FPGA competitors (carried from the AMD story, not re-fetched)",
+      "url": "https://ir.amd.com/financial-information/sec-filings/content/0000002488-26-000018/0000002488-26-000018.pdf",
+      "publisher": "AMD IR",
+      "date": "2026-02-04"
+    },
+    {
+      "id": "s7",
+      "kind": "8-K",
+      "title": "Lattice Semiconductor Reports Record 3Q26 Revenue, Up 118% YOY (8-K Ex.99.1; quarter ended 2026-10-03, nine-month cash flow, recast end markets, Q4 guidance)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0000855658/000143774926034452/ex_1012509.htm",
+      "publisher": "Lattice / SEC EDGAR",
+      "date": "2026-11-02"
+    },
+    {
+      "id": "s8",
+      "kind": "other",
+      "title": "AIO local consensus snapshot after Q3 report (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/lscc/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-11-07"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "저전력·소형 FPGA 플랫폼 (Nexus·Nexus 2·Avant) - 서버 보드 관리·보안·센서 연결용으로 특화 (10-K)",
+      "보안 FPGA(MachXO5D-NX 등)와 Sentry 솔루션 스택 - 서버 부팅 단계의 펌웨어 보호 (10-K)",
+      "AMI 인수로 얻은 서버 플랫폼 펌웨어·관리 소프트웨어 - 하이퍼스케일러·OEM·ODM·네오클라우드와의 관계 (8-K)",
+      "4개 파운드리(UMC·USJC, Samsung, TSMC, Seiko Epson)에 나눠 둔 생산 (10-K)"
+    ],
+    "text": "Lattice의 힘은 크고 비싼 FPGA가 아니라 서버·통신 장비 보드 위에서 전원 순서, 부팅, 보안, 각종 신호 연결을 맡는 작은 저전력 FPGA에 있다. 이런 칩은 보드 설계 초기에 들어가면 그 세대 내내 바뀌지 않아 고객이 쉽게 갈아타지 않는다. 여기에 2026년 7월 서버 펌웨어 회사 AMI를 더해 칩과 소프트웨어를 함께 내는 회사가 됐다.",
+    "src": [
+      "s2",
+      "s1"
+    ]
+  },
+  "design": {
+    "text": "이 기술로 회사가 설계하는 것은 소형(Nexus·Nexus 2)과 중형(Avant) FPGA 플랫폼, 그리고 MachXO·CrossLink·Certus·iCE·Mach-N2 같은 제품군이다. 그 위에 AI용 sensAI, 비전용 mVision, 보안용 Sentry 같은 솔루션 스택을 얹어 판다. 매출은 3분기부터 연산·통신(Compute and Communications), 산업·임베디드(Industrial and Embedded), AMI 세 줄로 보고하며, AMI는 서버 펌웨어와 Rack Manager 같은 원격 관리 소프트웨어를 더한다.",
+    "src": [
+      "s2",
+      "s1",
+      "s7"
+    ]
+  },
+  "make": {
+    "model": "fabless",
+    "partners": [
+      "UMC·USJC - 웨이퍼 생산 (파운드리)",
+      "Samsung - 웨이퍼 생산 (파운드리)",
+      "TSMC - 웨이퍼 생산 (파운드리)",
+      "Seiko Epson - 웨이퍼 생산 (파운드리)",
+      "ASE - 주 조립·테스트, Amkor - 두 번째 조립 파트너, KYEC - 대만 웨이퍼 소트 테스트 2차 공급원"
+    ],
+    "text": "설계한 칩은 UMC·USJC, Samsung, TSMC, Seiko Epson 네 곳에서 만들고, 조립·테스트는 ASE와 Amkor가 맡는다. 생산을 여러 파운드리에 나눠 둔 덕분에 특정 공정 부족에 덜 묶인다. AMI 사업은 칩이 아니라 소프트웨어라 별도 생산 설비가 필요 없다.",
+    "src": [
+      "s2"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "서버·스토리지·네트워크 장비 OEM·ODM - 보드 관리·보안 FPGA (이름 미공시)",
+      "하이퍼스케일러·네오클라우드 - AMI 펌웨어·관리 소프트웨어 직접 고객 (8-K)",
+      "산업·자동차·임베디드 장비 업체",
+      "유통사 - 글로벌 유통사 1곳, 아시아·일본·유럽·이스라엘 지역 유통사, 전자상거래 유통사 4곳"
+    ],
+    "channel": "Q3 2026 매출의 81%가 유통사 경유, 19%가 직접 판매(AMI 편입으로 직접 비중 상승; FY2025는 유통사 84%). 지역은 아시아 76%, 미주 16%, 유럽 8%.",
+    "concentration": "유통사 집중이 높음(10-K는 유통사 A~D로만 표시). 최종 고객별 비중은 확인하지 못함.",
+    "text": "이렇게 만든 칩은 대부분 유통사를 거쳐 서버·통신·산업 장비 회사로 간다. 3분기에는 매출의 81%가 유통사 경유로 FY2025의 84%보다 낮아졌는데, AMI 소프트웨어가 하이퍼스케일러·OEM·ODM·네오클라우드와 직접 거래하는 통로이기 때문이다.",
+    "src": [
+      "s2",
+      "s1",
+      "s7"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "하이퍼스케일러·네오클라우드",
+        "to": "서버 OEM·ODM",
+        "what": "AI·범용 서버 구매"
+      },
+      {
+        "from": "서버 OEM·ODM (유통사 경유 포함)",
+        "to": "Lattice",
+        "what": "보드 관리·보안·연결용 FPGA 대금 (개당, 서버당 여러 개)"
+      },
+      {
+        "from": "산업·자동차·임베디드 장비 업체 (유통사 경유)",
+        "to": "Lattice",
+        "what": "센서·비전·제어용 FPGA 대금"
+      },
+      {
+        "from": "하이퍼스케일러·OEM·ODM",
+        "to": "Lattice (AMI)",
+        "what": "서버 플랫폼 펌웨어·관리 소프트웨어 라이선스"
+      },
+      {
+        "from": "Lattice",
+        "to": "UMC·Samsung·TSMC·Seiko Epson·ASE·Amkor",
+        "what": "웨이퍼·조립·테스트 대금"
+      }
+    ],
+    "pricing": "FPGA는 개당 판매(서버 한 대에 여러 개가 들어가는 '부착률'이 핵심), AMI 펌웨어는 소프트웨어 라이선스 방식(세부 과금 구조는 미확인).",
+    "text": "돈은 클라우드 기업이 서버를 살 때 시작해, 서버 회사가 보드마다 Lattice FPGA를 넣으면서 들어온다. 회사는 서버당 AI 관련 칩 수와 FPGA 부착률이 늘어난 것을 성장 이유로 꼽았다. AMI 인수 이후에는 같은 서버에 들어가는 펌웨어 소프트웨어 대금이 더해진다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "earnings": {
+    "period": "Q3 2026 (quarter ended 2026-10-03)",
+    "revenue": {
+      "value": 291,
+      "unit": "USD mn",
+      "yoy": 118.3
+    },
+    "grossMargin": 67.4,
+    "operatingMargin": 8.2,
+    "netMargin": 3.9,
+    "operatingCashFlow": {
+      "value": 95,
+      "unit": "USD mn"
+    },
+    "freeCashFlow": {
+      "value": 77.6,
+      "unit": "USD mn"
+    },
+    "segments": [
+      {
+        "name": "Compute and Communications",
+        "revenue": 171.9,
+        "unit": "USD mn",
+        "share": 59.1,
+        "yoy": 132.3,
+        "operatingMargin": null,
+        "src": [
+          "s7"
+        ]
+      },
+      {
+        "name": "Industrial and Embedded",
+        "revenue": 80,
+        "unit": "USD mn",
+        "share": 27.5,
+        "yoy": 34.9,
+        "operatingMargin": null,
+        "src": [
+          "s7"
+        ]
+      },
+      {
+        "name": "AMI (2026-07-27 인수 이후분)",
+        "revenue": 39.1,
+        "unit": "USD mn",
+        "share": 13.4,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s7"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "Non-GAAP 이익률",
+        "value": "Q3 2026 총마진 70.9%, 영업이익률 41.1%, 조정 EBITDA 마진 45.0%, EPS 0.72달러 (GAAP EPS 0.08달러)",
+        "src": [
+          "s7"
+        ]
+      },
+      {
+        "name": "FPGA 매출 (AMI 제외)",
+        "value": "2.519억 달러, 전년 1.333억 대비 약 +89% (회사 가이던스 2.1억~2.3억)",
+        "src": [
+          "s7",
+          "s1"
+        ]
+      },
+      {
+        "name": "2026년 1~9월",
+        "value": "매출 6.630억 달러, 영업현금흐름 2.336억 달러, 주식보상 1.228억 달러",
+        "src": [
+          "s7"
+        ]
+      },
+      {
+        "name": "인수 관련 비용",
+        "value": "Q3 인수 관련 비용 2,590만 달러, 인수 무형자산 상각 1,290만 달러, 주식보상(급여세 포함) 5,070만 달러",
+        "src": [
+          "s7"
+        ]
+      },
+      {
+        "name": "재고",
+        "value": "1.206억 달러 (연초 0.892억), 재고일수 116일",
+        "src": [
+          "s7"
+        ]
+      },
+      {
+        "name": "FY2025 연간",
+        "value": "매출 5.233억 달러(+2.7%), 유통사 비중 84%",
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "text": "이 흐름이 3분기에 매출 2.91억 달러(+118%), 영업현금흐름 9,500만 달러로 나타났다. AMI를 뺀 FPGA 매출만 2.519억 달러로 전년보다 약 89% 늘어 회사 가이던스(2.1억~2.3억)를 크게 넘었고, 연산·통신 시장이 +132%로 성장을 이끌었다. 다만 GAAP 영업이익률은 8.2%로 non-GAAP 41.1%와 차이가 더 벌어졌는데, 주식보상과 AMI 인수 비용·무형자산 상각이 겹쳤기 때문이다.",
+    "src": [
+      "s7"
+    ]
+  },
+  "useOfCash": {
+    "period": "9M 2026 (nine months ended 2026-10-03)",
+    "items": [
+      {
+        "use": "acquisitions",
+        "value": 971.3,
+        "unit": "USD mn",
+        "src": [
+          "s7"
+        ]
+      },
+      {
+        "use": "capex",
+        "value": 35,
+        "unit": "USD mn",
+        "src": [
+          "s7"
+        ]
+      },
+      {
+        "use": "debt repayment",
+        "value": 50,
+        "unit": "USD mn",
+        "src": [
+          "s7"
+        ]
+      },
+      {
+        "use": "buybacks",
+        "value": 15,
+        "unit": "USD mn",
+        "src": [
+          "s7"
+        ]
+      },
+      {
+        "use": "other",
+        "label": "주식보상 행사 관련 순현금 유출",
+        "value": 44.4,
+        "unit": "USD mn",
+        "src": [
+          "s7"
+        ]
+      }
+    ],
+    "text": "1~9월 현금은 대부분 AMI 인수(인수 현금 차감 9.713억 달러)에 들어갔고, 이를 위해 장기차입 9.127억 달러(발행비용 차감)를 일으켰다. 3분기 말 장기부채는 8.691억 달러, 현금은 1.283억 달러이며 이미 5,000만 달러를 갚았다. 자사주 매입은 1~9월 1,500만 달러에 그쳤고, CFO는 잉여현금흐름 확대와 부채 감축을 우선순위로 밝혔다.",
+    "src": [
+      "s7",
+      "s3"
+    ]
+  },
+  "aiChain": {
+    "layer": "chips-compute",
+    "position": "AI 서버·스위치·스토리지 보드 위에서 전원 순서·부팅·보안·신호 연결을 맡는 보조 칩(FPGA) 공급자이자, AMI로 서버 펌웨어·원격 관리 소프트웨어까지 공급하는 자리. GPU·CPU 같은 주 연산 칩은 아니다.",
+    "dependsOn": [
+      "semicap-foundry (UMC·USJC, Samsung, TSMC, Seiko Epson 웨이퍼; ASE·Amkor 조립)",
+      "유통사 네트워크",
+      "chips-compute (GPU·CPU 플랫폼 세대 전환 일정)"
+    ],
+    "sellsTo": [
+      "서버·네트워크 장비 OEM·ODM",
+      "cloud-infrastructure (하이퍼스케일러·네오클라우드, AMI 직접 고객)",
+      "산업·자동차 장비 업체"
+    ],
+    "aiRevenue": null,
+    "upside": "회사는 클라우드 설비투자 증가, 서버당 AI 관련 칩 수 증가, FPGA 부착률 확대를 수요 동력으로 들었다. AI 서버 한 대에 들어가는 관리·보안 칩이 늘수록 개수가 곧 매출이 되고, AMI 펌웨어는 같은 서버에 소프트웨어 매출을 더한다.",
+    "risk": "AI 서버 출하가 꺾이면 연산·통신 매출(Q3 59%)이 바로 흔들린다. 서버 업체가 보드 관리 기능을 전용 칩(ASIC)이나 BMC로 흡수하면 FPGA 자리가 줄 수 있고, 장기부채 8.69억 달러를 갚는 동안 수요가 꺾이면 재무 부담이 커진다.",
+    "text": "그래서 AI 가치사슬에서 Lattice는 연산 칩 층의 주변부, 즉 GPU를 둘러싼 보드 관리·보안 칩 자리에 있다. 회사는 AI 매출을 따로 공시하지 않지만, CEO는 3분기 FPGA 매출 약 90% 성장이 데이터센터 AI 수요 가속에서 왔다고 설명했고 연산·통신 시장이 +132% 늘었다. AMI 편입으로 같은 서버의 펌웨어·랙 관리 소프트웨어 매출(3분기 3,910만 달러)이 더해졌다.",
+    "src": [
+      "s7",
+      "s2"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "FPGA (소형·저전력 중심)",
+        "rivals": [
+          "AMD (Xilinx)",
+          "Altera"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s6",
+          "s2"
+        ]
+      },
+      {
+        "arena": "서버 보드 관리·제어 칩",
+        "rivals": [
+          "ASIC·ASSP·마이크로컨트롤러 업체 (10-K, 이름 미특정)"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "arena": "서버 플랫폼 펌웨어·관리 소프트웨어 (AMI)",
+        "rivals": [
+          "이름 미확인"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "edge": "저전력·소형 FPGA에 집중한 제품군, 보드 설계 초기 채택으로 생기는 고착성, AMI 인수로 칩·펌웨어를 함께 내는 범위.",
+    "threats": "AMD·Altera가 소형 FPGA 쪽으로 내려오거나, 서버 업체가 관리 기능을 ASIC·마이크로컨트롤러로 대체하는 것. AMI는 하이퍼스케일러가 펌웨어를 자체 개발하는 흐름과 맞선다.",
+    "text": "FPGA 전체 시장에서 Lattice는 AMD(Xilinx)·Altera보다 작은 도전자다. 그러나 이 회사가 이기는 곳은 대형 FPGA가 아니라 저전력·소형 칩이 필요한 보드 관리·보안 자리이고, 경쟁 상대도 FPGA 회사보다는 ASIC·마이크로컨트롤러다. AMI로 칩과 펌웨어를 묶어 서버 회사의 관리 체계 전체를 맡겠다는 것이 차별화 전략이다.",
+    "src": [
+      "s6",
+      "s2",
+      "s1"
+    ]
+  },
+  "strategy": {
+    "goal": "칩과 AMI 펌웨어를 묶은 '보안 관리·제어 플랫폼'으로 하이퍼스케일러·OEM·ODM·네오클라우드 관계를 넓히고, 인수 후 18~24개월 안에 총차입배율 2배 미만으로 낮춘다 (회사 발표).",
+    "roadmap": [
+      {
+        "when": "2026-07-27",
+        "what": "AMI 인수 완료 (총 16.5억 달러: 현금 약 10억 + 주식 약 520만 주), Q3에 약 2개월분 매출 3,910만 달러 반영",
+        "src": [
+          "s1",
+          "s7"
+        ]
+      },
+      {
+        "when": "Q4 2026",
+        "what": "매출 3.25억~3.45억 달러(전년 대비 약 130%), 산업·임베디드 성장 약 70%로 가속 전망",
+        "src": [
+          "s7"
+        ]
+      },
+      {
+        "when": "2027 ~ 2028 상반기",
+        "what": "인수 후 18~24개월 내 총차입배율 2배 미만 목표",
+        "src": [
+          "s3"
+        ]
+      }
+    ],
+    "vision": "AI 데이터센터의 모든 서버 보드가 안전하게 켜지고 관리되도록, 그 아래 칩(FPGA)과 위의 펌웨어(AMI)를 Lattice가 함께 공급한다는 그림이다.",
+    "text": "이 경쟁을 이기기 위해 회사는 칩만 파는 데서 칩과 서버 펌웨어를 묶어 파는 쪽으로 방향을 틀었다. AMI는 특정 칩에 묶이지 않은 펌웨어 회사라 다른 회사 CPU·GPU를 쓰는 서버에도 들어가고, 3분기에는 AMI Rack Manager 1.0과 Arm과의 AI 데이터센터 협력 확대를 냈다. 이제 과제는 장기부채를 줄이면서 칩·소프트웨어 교차 판매를 숫자로 보여 주는 것이다.",
+    "src": [
+      "s1",
+      "s3",
+      "s7"
+    ]
+  },
+  "governance": {
+    "line": "Ford Tamer CEO와 Lorenzo Flores CFO가 이끌며, AMI 인수 뒤에는 자사주 매입보다 잉여현금흐름 확대와 부채 감축을 우선하겠다고 밝혔다.",
+    "src": [
+      "s7",
+      "s3"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "Q4 2026",
+        "metric": "total revenue",
+        "value": "3.25억~3.45억 달러 (중간값 약 3.35억, 전년 대비 약 130%)",
+        "givenOn": "2026-11-02",
+        "src": [
+          "s7"
+        ]
+      },
+      {
+        "period": "Q4 2026",
+        "metric": "non-GAAP gross margin / opex",
+        "value": "총마진 72.0% ±1%p, 영업비용 9,500만~1.01억 달러",
+        "givenOn": "2026-11-02",
+        "src": [
+          "s7"
+        ]
+      },
+      {
+        "period": "Q4 2026",
+        "metric": "non-GAAP EPS",
+        "value": "0.82~0.86달러 (세율 4~6%)",
+        "givenOn": "2026-11-02",
+        "src": [
+          "s7"
+        ]
+      },
+      {
+        "period": "Q4 2026",
+        "metric": "Industrial and Embedded growth",
+        "value": "전년 대비 약 70%로 가속",
+        "givenOn": "2026-11-02",
+        "src": [
+          "s7"
+        ]
+      }
+    ],
+    "style": "quarterly",
+    "track": "3분기 매출 2.91억 달러는 8월 가이던스(2.45억~2.65억) 상단을 약 2,600만 달러 넘었고, FPGA 매출 2.519억 달러도 2.1억~2.3억 범위를 넘었다. non-GAAP EPS 0.72달러는 가이던스 0.54~0.58달러보다 높다. CEO는 수주·수주잔고·디자인윈이 Q4 전망을 뒷받침한다고 밝혔다.",
+    "src": [
+      "s7",
+      "s1"
+    ]
+  },
+  "estimates": {
+    "text": "2026-11-07 기준 AIO 컨센서스(Zacks via Nasdaq, 조정 EPS): 향후 4개 분기(2026-12~2027-09) EPS 합계 1.84달러(범위 1.57~2.16, 추정 4건), 최근 4주 상향 4건·하향 0건. 직전 4개 분기 실적 합 0.97달러. Zacks 기준 EPS는 회사 non-GAAP EPS와 기준이 달라 직접 비교하지 않는다.",
+    "src": [
+      "s8"
+    ]
+  },
+  "watch": {
+    "confirms": [
+      "Q4 매출이 3.25억~3.45억 달러 범위 상단에 닿음",
+      "연산·통신 시장이 전년 대비 높은 성장률을 유지",
+      "산업·임베디드가 회사 전망대로 약 70% 성장으로 가속",
+      "AMI 분기 매출과 마진이 인수 때 제시한 연 2억 달러 초과·EBITDA 약 40% 흐름과 맞음",
+      "장기부채 잔액(Q3 말 8.69억 달러)이 분기마다 줄어듦"
+    ],
+    "breaks": [
+      "Q4 가이던스 미달 또는 AI 서버 수요 둔화 언급",
+      "재고(Q3 말 116일)가 계속 늘거나 유통사 재고가 쌓였다는 신호",
+      "non-GAAP 총마진이 72% 가이던스 아래로 떨어짐",
+      "부채 상환 지연이나 추가 차입",
+      "GAAP 이익이 인수 비용·주식보상 때문에 계속 non-GAAP과 크게 벌어짐"
+    ],
+    "keyNumbers": [
+      {
+        "name": "FPGA 매출(AMI 제외)과 연산·통신 성장률",
+        "why": "AI 서버 수요가 칩 개수로 들어오는 통로"
+      },
+      {
+        "name": "AMI 분기 매출과 마진",
+        "why": "16.5억 달러 인수가 값어치를 하는지"
+      },
+      {
+        "name": "장기부채 잔액과 차입배율",
+        "why": "2배 미만 목표 진척"
+      },
+      {
+        "name": "GAAP와 non-GAAP 영업이익률 차이",
+        "why": "Q3 8.2% 대 41.1%"
+      },
+      {
+        "name": "재고일수·유통사 비중",
+        "why": "실수요와 채널 재고를 구분"
+      }
+    ]
+  },
+  "debate": {
+    "question": "AI 서버 수요로 뛴 FPGA 매출과 AMI 인수가 부채 부담과 GAAP 이익의 간격을 이기고 이어지는지",
+    "bull": {
+      "text": "긍정적으로 보는 쪽은 Q3 2026 매출이 2.91억 달러(+118%)로 가이던스 상단을 넘었고, AMI를 뺀 FPGA 매출만 2.519억 달러로 약 89% 늘었다는 점을 든다. 연산·통신 시장이 +132%였고, 회사는 Q4 매출을 3.25억~3.45억 달러(약 +130%)로 제시하며 수주·수주잔고·디자인윈이 이를 뒷받침한다고 밝혔다. 3분기 잉여현금흐름도 7,760만 달러였다.",
+      "src": [
+        "s7"
+      ]
+    },
+    "bear": {
+      "text": "비관적으로 보는 쪽은 성장이 연산·통신(Q3 매출의 59%)에 몰려 AI 서버 출하에 대한 의존이 커졌고, FY2025 매출은 5.233억 달러(+2.7%)에 그쳤다는 점을 든다. AMI 인수로 3분기 말 장기부채가 8.691억 달러로 현금 1.283억 달러를 크게 넘고, GAAP 영업이익률은 8.2%로 non-GAAP 41.1%와 차이가 컸다. 재고도 연초 0.892억에서 1.206억 달러(116일)로 늘었다.",
+      "src": [
+        "s7",
+        "s2"
+      ]
+    },
+    "decides": [
+      {
+        "when": "Q4 2026 실적 (2027년 2월 예상, 회사 미확정)",
+        "what": "매출이 3.25억~3.45억 달러 범위 어디에 놓이는지, 산업·임베디드가 약 70% 성장으로 가속했는지, 재고일수가 줄었는지",
+        "src": [
+          "s7"
+        ]
+      },
+      {
+        "when": "2027 ~ 2028 상반기",
+        "what": "AMI 인수 후 18~24개월 안에 총차입배율 2배 미만이라는 목표의 진척과 장기부채 잔액 감소 속도",
+        "src": [
+          "s3",
+          "s7"
+        ]
+      }
+    ]
+  },
+  "underTheHood": [
+    {
+      "title": "유통사 경유 매출과 재고",
+      "text": "Q3 매출의 81%가 유통사를 거쳤고 10-K는 유통사를 A~D로만 표시한다. 같은 분기 회사 재고는 1.206억 달러, 116일로 연초보다 늘었다. 유통사로 나간 물량과 회사 재고가 최종 수요보다 빠르게 늘면 매출 성장률만으로 실수요와 채널 재고를 구분하기 어렵다.",
+      "src": [
+        "s7",
+        "s2"
+      ]
+    },
+    {
+      "title": "GAAP과 non-GAAP의 간격",
+      "text": "Q3 GAAP 영업이익은 2,400만 달러(8.2%), non-GAAP은 1.196억 달러(41.1%)다. 그 사이에 주식보상 5,070만 달러, 인수 관련 비용 2,590만 달러, 인수 무형자산 상각 1,290만 달러가 있다. AMI 편입 뒤 상각은 계속 남는 비용이라, 어느 기준의 이익률을 쓰는지에 따라 평가가 크게 달라진다.",
+      "src": [
+        "s7"
+      ]
+    },
+    {
+      "title": "인수 가격과 AMI의 규모",
+      "text": "AMI 인수가는 16.5억 달러이고 3분기 대차대조표의 영업권은 13.695억, 무형자산은 5.597억 달러로 늘었다. AMI는 7월 27일부터 9월 말까지 3,910만 달러를 벌었고, 회사가 인수 때 제시한 연 매출은 2억 달러 초과다. 영업권이 이만큼 크면 AMI 성장이 기대에 못 미칠 때 손상 위험이 숫자에 직접 걸린다.",
+      "src": [
+        "s7",
+        "s1"
+      ]
+    },
+    {
+      "title": "칩 회사의 자리 이동",
+      "text": "Lattice의 칩은 GPU가 아니라 서버 보드의 전원·부팅·보안을 관리하는 보조 칩이다. 서버 업체가 이 기능을 ASIC이나 마이크로컨트롤러로 대체하면 자리가 줄 수 있다고 회사 자료가 위험으로 적었다. AMI는 특정 칩에 묶이지 않은 펌웨어라, 이 위험을 소프트웨어로 분산하려는 시도로 읽힌다.",
+      "src": [
+        "s1",
+        "s2"
+      ]
+    }
+  ],
+  "trading": {
+    "calendar": [
+      {
+        "date": "2027-02 (추정, 회사 미확정)",
+        "event": "Q4·FY2026 실적과 2027년 1분기 가이던스",
+        "src": []
+      },
+      {
+        "date": "2027 ~ 2028 상반기",
+        "event": "인수 후 18~24개월 차입배율 2배 미만 목표 시점",
+        "src": [
+          "s3"
+        ]
+      }
+    ],
+    "reaction": "3분기는 매출·EPS가 가이던스를 크게 넘은 분기였다. 이번부터 시장은 매출 성장 폭과 함께 GAAP 이익, 재고일수, AMI 기여분과 부채 감축 속도를 같이 볼 가능성이 크다 (실적 뒤 주가 반응은 이번에 확인하지 않음).",
+    "conditions": [
+      "Q4 매출이 3.25억~3.45억 달러 범위 어디에 놓이는지",
+      "연산·통신 성장률이 전분기(+132%)보다 높은지 낮은지",
+      "재고일수(Q3 116일)가 내려오는지",
+      "장기부채 잔액(Q3 말 8.69억 달러) 감소 폭",
+      "컨센서스 EPS 상향 흐름이 이어지는지"
+    ]
+  },
+  "unverified": [
+    "AI 관련 매출 비중 (회사 미공시; CEO는 FPGA 성장 동력으로 데이터센터 AI 수요를 언급)",
+    "유통사·최종 고객 이름과 개별 비중 (10-K는 유통사 A~D로만 표시)",
+    "Q3 2026 단독 자사주 매입액 (1~9월 1,500만 달러만 공시)",
+    "AMI 단독 마진·EBITDA (Q3 보도자료 미공시)",
+    "차입배율 2배 미만 목표는 투자자 자료를 검색 요약으로만 확인",
+    "AMI 펌웨어의 과금 방식과 경쟁사 이름",
+    "FPGA 시장 점유율 (공신력 있는 수치 미확인)",
+    "AMD(Xilinx)·Altera 경쟁 구도는 AMD 10-K를 AMD 스토리에서 옮겨 온 것으로 이번에 다시 읽지 않음",
+    "Q4 실적 발표일 (회사 미발표)",
+    "Q3 실적 뒤 주가 반응 (검색 결과에 하락 보도 제목만 보였고 본문 미확인)"
+  ],
+  "confidence": "medium-high - 3분기 실적·현금흐름·대차대조표·Q4 가이던스는 8-K 원문에서 읽었다. 실적 통화 녹취와 AMI 단독 마진, 차입 목표 원문은 확인하지 못했다."
+}

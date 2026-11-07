@@ -1,0 +1,563 @@
+{
+  "symbol": "RTX",
+  "name": "RTX Corporation",
+  "researchedAt": "2026-11-07",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "RTX는 Collins Aerospace(항공기 부품·전장), Pratt & Whitney(GTF·F135 엔진), Raytheon(Patriot·미사일)을 묶은 항공·방산 회사로, 상업 항공 정비 수요와 미사일 재고 보충이 함께 늘며 수주잔고가 3,400억 달러에 이르렀다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "RTX Reports Q3 2026 Results (segment results, cash flow, raised 2026 outlook)",
+      "url": "https://rtx.com/news/news-center/2026/10/20/rtx-reports-q3-2026-results",
+      "publisher": "RTX",
+      "date": "2026-10-20"
+    },
+    {
+      "id": "s2",
+      "kind": "10-K",
+      "title": "RTX Corporation Form 10-K for fiscal year 2025 (business, customers, segments, employees)",
+      "url": "https://www.sec.gov/Archives/edgar/data/101829/000010182926000006/rtx-20251231.htm",
+      "publisher": "RTX / SEC",
+      "date": "2026-02"
+    },
+    {
+      "id": "s3",
+      "kind": "10-K",
+      "title": "Lockheed Martin Form 10-K for fiscal year 2025 (competition section naming RTX, Northrop Grumman, General Dynamics, L3Harris, Boeing)",
+      "url": "https://www.sec.gov/Archives/edgar/data/936468/000162828026004195/lmt-20251231.htm",
+      "publisher": "Lockheed Martin / SEC",
+      "date": "2026-01-29"
+    },
+    {
+      "id": "s4",
+      "kind": "news",
+      "title": "Engine market share on Airbus narrow-body aircraft (LEAP vs GTF; read from search result title, page not fetched)",
+      "url": "https://airinsight.com/engine-market-share-on-airbus-narrow-body-aircraft/",
+      "publisher": "AirInsight",
+      "date": "2026"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "세 사업의 설치 기반 - Collins 전장·부품과 Pratt & Whitney 엔진이 수십 년 정비 수요를 만듦",
+      "F-35 전용 엔진 F135 - Pratt & Whitney가 생산·유지보수, F-35 전 기종에 단독 장착",
+      "Raytheon 방공 체계 - Patriot, LTAMDS, AMRAAM, Tomahawk, SM-6, AIM-9X, SPY-6, Coyote",
+      "수주잔고 3,400억 달러 (상업 1,760억, 방산 1,640억, 2026-09-30)"
+    ],
+    "text": "RTX의 힘은 항공기와 무기 체계 안에 깊이 박혀 있다는 점이다. 상업기에서는 Collins의 전장·착륙장치·객실 부품과 Pratt & Whitney 엔진이 한 번 장착되면 수십 년 정비 매출을 만들고, 국방에서는 F-35의 유일한 엔진 F135와 Patriot 같은 방공 체계가 장기 생산 계약으로 이어진다. 이 두 바퀴가 잔고 3,400억 달러를 상업 1,760억과 방산 1,640억으로 거의 반씩 나눠 받친다.",
+    "src": [
+      "s2",
+      "s1"
+    ]
+  },
+  "design": {
+    "text": "회사는 세 부문으로 보고한다. Collins Aerospace는 애프터마켓 서비스, 전력 계통, 비행 제어, 엔진 부품·나셀, 착륙장치, 항전, 객실 내장, 통신·항공교통관리 체계를 만든다. Pratt & Whitney는 GTF 계열 상업 엔진, F-35용 F135를 비롯한 군용 엔진, 비즈니스·일반 항공 엔진과 보조동력장치를, Raytheon은 Patriot·LTAMDS·AMRAAM·Tomahawk·SM-6·SPY-6 같은 방공·미사일·센서를 만든다.",
+    "src": [
+      "s2"
+    ]
+  },
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "엔진 프로그램 협력사 - Pratt & Whitney 주도 엔진 프로그램에서 외부 참여사 지분이 프로그램별 합계 13~49% (2025-12-31; 업체명은 이 자료에서 미확인)",
+      "자체 공장 - 약 18만 명, 52개국, 인력의 69%가 미국"
+    ],
+    "text": "제품은 대부분 자체 공장에서 만들지만, 상업 엔진은 외부 참여사와 지분을 나눠 개발·생산하는 협력 프로그램이 많아 프로그램별 외부 지분이 13~49%다. 이 구조 때문에 엔진 문제의 비용도 참여사와 나누지만, 회사가 보고하는 매출과 비용은 RTX 몫 기준이다. 2026년에는 GTF 엔진(PW1100G-JM) 일부 부품의 분말 금속 결함으로 상당수 기단의 조기 탈거·검사가 이어지고 있다.",
+    "src": [
+      "s2",
+      "s1"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "미국 정부 - 2025년 매출의 38% (FMS 제외)",
+      "해외 고객 - 2025년 매출의 47%",
+      "Airbus - Pratt & Whitney 최대 상업 고객, 2025년 부문 매출의 29%",
+      "Boeing - Collins 주요 고객, Airbus와 합쳐 2025년 Collins 매출의 16%",
+      "항공사·리스사 - GTF·V2500 엔진 정비와 Collins 부품 애프터마켓"
+    ],
+    "channel": "항공기 제작사에 장착용으로 직접 팔고, 항공사·MRO에 정비·부품을 팔며, 국방 제품은 미국 정부와 직접 계약 또는 대외군사판매(FMS)로 판다.",
+    "concentration": "미국 정부 38%, 해외 47% (2025). Pratt & Whitney 매출의 29%가 Airbus, Collins 매출의 16%가 Boeing·Airbus 합계 (할인·인센티브 전).",
+    "text": "고객은 세 갈래다. 상업 쪽은 Airbus·Boeing에 장착용으로 팔고 항공사에 정비로 다시 팔며, Pratt & Whitney 매출의 29%가 Airbus 한 곳에서 나온다. 국방 쪽은 미국 정부가 매출의 38%이고, 해외 매출이 47%로 Lockheed Martin 같은 순수 방산사보다 국제 비중이 크다.",
+    "src": [
+      "s2"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "항공사·리스사",
+        "to": "Airbus·Boeing",
+        "what": "항공기 구매 대금 (엔진·부품 선택 포함)"
+      },
+      {
+        "from": "Airbus",
+        "to": "Pratt & Whitney",
+        "what": "A320neo용 GTF 장착 엔진 대금 (할인·인센티브 후)"
+      },
+      {
+        "from": "Airbus·Boeing",
+        "to": "Collins Aerospace",
+        "what": "전장·착륙장치·객실 부품 대금"
+      },
+      {
+        "from": "항공사·MRO",
+        "to": "Collins Aerospace·Pratt & Whitney",
+        "what": "애프터마켓 정비·예비 부품 대금"
+      },
+      {
+        "from": "미국 전쟁부·해외 정부",
+        "to": "Raytheon·Pratt & Whitney",
+        "what": "Patriot·Tomahawk·AMRAAM 생산 계약, F135 생산·유지보수 대금"
+      }
+    ],
+    "pricing": "상업 장착품은 제작사에 할인·인센티브를 주고 팔아 마진이 낮고, 이익은 애프터마켓 정비·부품에서 난다. 국방은 고정가·원가가산 계약을 섞어 쓰며, 3분기 Tomahawk·AMRAAM 다년 계약은 아직 조건이 확정되지 않은(undefinitized) 상태다.",
+    "text": "돈의 흐름은 상업과 국방이 다르다. 상업은 엔진·부품을 싸게 깔고 정비로 회수하는 구조라, 3분기에 Pratt & Whitney 애프터마켓이 21% 늘 때 상업 장착용은 5% 줄었다. 국방은 정부 예산과 다년 계약에 따라 들어오며, Raytheon 매출은 3분기 14% 늘었다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "earnings": {
+    "period": "Q3 2026 (2026-09-30 종료 분기)",
+    "revenue": {
+      "value": 24.965,
+      "unit": "USD bn",
+      "yoy": 11
+    },
+    "grossMargin": null,
+    "operatingMargin": 13.4,
+    "netMargin": 10.3,
+    "operatingCashFlow": {
+      "value": 2.868,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": 2.119,
+      "unit": "USD bn"
+    },
+    "segments": [
+      {
+        "name": "Collins Aerospace",
+        "revenue": 8.382,
+        "unit": "USD bn",
+        "share": 33.6,
+        "yoy": 10,
+        "operatingMargin": 21.3,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Pratt & Whitney",
+        "revenue": 9.231,
+        "unit": "USD bn",
+        "share": 37.0,
+        "yoy": 10,
+        "operatingMargin": 6.6,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Raytheon",
+        "revenue": 8.031,
+        "unit": "USD bn",
+        "share": 32.2,
+        "yoy": 14,
+        "operatingMargin": 14.1,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Eliminations and other (계산값)",
+        "revenue": -0.679,
+        "unit": "USD bn",
+        "share": -2.7,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "수주잔고(backlog)",
+        "value": "3,400억 달러 (상업 1,760억, 방산 1,640억, 2026-09-30)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "유기적 매출 성장률",
+        "value": "Q3 2026 12%; Collins 12% (상업 장착 +23%, 애프터마켓 +9%, 국방 +7%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Pratt & Whitney 매출 구성 변화",
+        "value": "Q3 2026 애프터마켓 +21%, 군용 +2%, 상업 장착 -5%",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "조정 영업이익률",
+        "value": "Q3 2026 전사 조정 영업이익 39.87억(16.0%); Collins 21.3%, Pratt & Whitney 10.5%, Raytheon 14.1%",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "9개월 누적 (YTD 2026)",
+        "value": "매출 717.49억(+11.5%), 영업이익 87.03억, 영업현금흐름 82.70억, FCF 63.06억 달러",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "일회성 항목",
+        "value": "IEEPA(관세) 환급이 조정 EPS 0.25달러·영업현금 약 3억 달러 기여. Pratt & Whitney는 고객 파산 관련 3.63억 달러 손실 반영",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "text": "2026년 3분기 매출은 249.65억 달러로 11% 늘었고 유기적 성장률은 12%였다. 마진은 Collins가 21.3%로 가장 높고, Pratt & Whitney는 고객 파산 관련 3.63억 달러 손실 때문에 보고 마진이 6.6%(조정 10.5%)에 그쳤다. 이익의 중심은 Collins와 Raytheon이며, Pratt & Whitney는 매출이 가장 크지만 이익 기여는 작다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "useOfCash": {
+    "period": "2026년 9개월 (2026-09-30까지)",
+    "items": [
+      {
+        "use": "dividends",
+        "value": 2.882,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "capex",
+        "value": 1.964,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "debt repayment",
+        "value": 0.526,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "buybacks",
+        "value": 0,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "text": "2026년 9개월 동안 배당 28.8억 달러를 주고 설비에 19.6억 달러를 썼으며, 자사주 매입은 하지 않았다. 장기부채 상환은 5.3억 달러로 전년 같은 기간 22.9억 달러보다 줄었다. 현금은 배당과 증산 설비에 먼저 가고, GTF 기단 대응 비용이 현금 흐름을 계속 누르는 구조다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "aiChain": {
+    "layer": "limited",
+    "position": "AI 데이터센터 공급망 밖의 항공·방산 회사. 실적은 항공 운항량과 정비 주기, 항공기 생산 속도, 국방 예산에 달려 있다.",
+    "dependsOn": [
+      "Airbus·Boeing의 항공기 생산 속도",
+      "미국·동맹국 국방 예산",
+      "엔진 소재·부품 공급망"
+    ],
+    "sellsTo": [
+      "Airbus",
+      "Boeing",
+      "항공사·MRO",
+      "미국 전쟁부·해외 정부"
+    ],
+    "aiRevenue": null,
+    "upside": "AI 관련 매출은 공시되지 않는다. 실적은 GPU 수요가 아니라 항공 정비 물량과 방공 미사일 증산으로 움직인다.",
+    "risk": "AI가 직접 수요를 줄이는 경로는 확인되지 않는다. 데이터센터 전력 수요는 이 회사의 매출 구조와 직접 연결되지 않는다.",
+    "text": "그래서 AI 가치사슬에서는 직접 연결이 적은 자리다. 이 회사의 성장은 운항 중인 GTF·V2500 엔진과 Collins 부품의 정비, 그리고 Patriot·Tomahawk 같은 무기의 재고 보충에서 나온다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "단일통로기 엔진 (A320neo)",
+        "rivals": [
+          "GE Aerospace",
+          "CFM International"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s4"
+        ]
+      },
+      {
+        "arena": "미사일·방공 체계",
+        "rivals": [
+          "Lockheed Martin",
+          "Northrop Grumman"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s3",
+          "s2"
+        ]
+      },
+      {
+        "arena": "항공기 부품·항전",
+        "rivals": [
+          "미국·해외 항공 부품 업체와 새로운 비전통 진입자 (10-K, 업체명 미기재)"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "edge": "상업 항공과 국방을 함께 가져 한쪽이 약할 때 다른 쪽이 받쳐 주고, F-35 단독 엔진 F135와 Patriot 같은 장기 프로그램을 쥐고 있다.",
+    "threats": "10-K는 미국·해외 기업, 다국적 기업, 새로운 상업·비전통 진입자를 경쟁자로 적는다. GTF 분말 금속 결함은 항공사 신뢰와 A320neo 엔진 선택에 영향을 줄 수 있다.",
+    "text": "경쟁은 시장마다 다르다. A320neo 엔진에서는 CFM의 LEAP와 GTF가 맞서고, 미사일에서는 Lockheed Martin이 RTX를 주요 경쟁자로 적을 만큼 두 회사가 정면으로 붙는다. RTX 10-K 자체는 경쟁사 이름 대신 새로운 비전통 진입자까지 경쟁 범주로 둔다.",
+    "src": [
+      "s2",
+      "s3",
+      "s4"
+    ]
+  },
+  "strategy": {
+    "goal": "2026년 조정 매출 970~975억 달러, 유기적 성장 10~11%, 조정 EPS 7.65~7.75달러, FCF 90~92억 달러 (2026-10 상향).",
+    "roadmap": [
+      {
+        "when": "2026 Q4",
+        "what": "연간 FCF 90~92억 달러 달성 여부 - 9개월 63.06억 달러",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2026~2027",
+        "what": "Tomahawk·AMRAAM 다년 생산 계약의 조건 확정(definitization)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "진행 중",
+        "what": "PW1100G-JM GTF 기단 조기 탈거·검사 진행",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      }
+    ],
+    "vision": "상업 항공 애프터마켓과 방공·미사일 수요를 함께 키워, 잔고 3,400억 달러를 생산과 정비 매출로 바꾸는 것.",
+    "text": "회사의 다음 수는 공급을 늘려 잔고를 매출로 바꾸는 것이다. 2026년 전망은 10월에 다시 올라 유기적 성장 10~11%가 됐고, Tomahawk·AMRAAM 다년 계약이 확정되면 Raytheon 매출의 가시성이 더 길어진다. 상업 쪽에서는 GTF 검사를 마무리해 기단을 다시 하늘로 돌려보내는 것이 과제다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "governance": {
+    "line": "Chris Calio가 회장 겸 CEO로 이끌고, 2026년 9개월 동안 자사주 매입 없이 배당 28.8억 달러를 지급했다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "FY2026",
+        "metric": "adjusted sales",
+        "value": "970~975억 달러 (직전 950~960억)",
+        "givenOn": "2026-10-20",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "organic sales growth",
+        "value": "10~11% (직전 8~9%)",
+        "givenOn": "2026-10-20",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "adjusted EPS",
+        "value": "7.65~7.75달러 (직전 7.10~7.25)",
+        "givenOn": "2026-10-20",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "free cash flow",
+        "value": "90~92억 달러 (직전 85~87.5억)",
+        "givenOn": "2026-10-20",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "style": "annual",
+    "track": "2026년 10월 매출·EPS·FCF 전망을 모두 올렸다. 다만 3분기 조정 EPS 2.26달러에는 IEEPA 관세 환급 0.25달러가 들어 있어, 상향의 일부는 일회성이다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "estimates": {
+    "text": null,
+    "src": []
+  },
+  "watch": {
+    "confirms": [
+      "Pratt & Whitney 애프터마켓과 Collins 애프터마켓이 두 자릿수 안팎 성장을 유지",
+      "Raytheon 매출이 Patriot·Tomahawk·AMRAAM 증산으로 두 자릿수 성장을 이어 감",
+      "4분기 FCF가 연간 90~92억 달러 경로를 지킴",
+      "Tomahawk·AMRAAM 다년 계약이 확정됨"
+    ],
+    "breaks": [
+      "GTF 분말 금속 결함 관련 탈거·보상 비용이 커져 현금이 더 줄어듦",
+      "항공사 고객 파산 같은 손실이 반복됨",
+      "Airbus 생산 차질로 장착용 엔진·부품 수요가 줄어듦",
+      "관세 환급 같은 일회성 효과를 빼면 이익 성장이 둔화"
+    ],
+    "keyNumbers": [
+      {
+        "name": "부문별 유기적 성장률과 애프터마켓 성장률",
+        "why": "정비 매출이 이익을 끌고 가는지"
+      },
+      {
+        "name": "Pratt & Whitney 조정 마진",
+        "why": "GTF 비용과 장착용 비중의 압력"
+      },
+      {
+        "name": "수주잔고(상업·방산)",
+        "why": "다년 매출의 크기"
+      },
+      {
+        "name": "잉여현금흐름",
+        "why": "GTF 대응 비용을 흡수하는지"
+      }
+    ]
+  },
+  "debate": {
+    "question": "애프터마켓과 방공 수요의 성장이 GTF 비용과 일회성 효과를 걷어낸 뒤에도 현금으로 남는지",
+    "bull": {
+      "text": "이야기가 유지된다고 보는 쪽은 3분기 잔고가 3,400억 달러로 상업·방산이 고르게 쌓였고, Pratt & Whitney 애프터마켓이 21%, Raytheon 매출이 14% 늘었다는 점을 든다. 회사는 연간 유기적 성장 전망을 8~9%에서 10~11%로, FCF 전망을 90~92억 달러로 올렸다.",
+      "src": [
+        "s1"
+      ]
+    },
+    "bear": {
+      "text": "깨진다고 보는 쪽은 3분기 FCF가 21.2억 달러로 전년 40.3억 달러의 절반 수준이었고, 조정 EPS 2.26달러에 관세 환급 0.25달러가 들어 있다는 점을 든다. Pratt & Whitney는 고객 파산으로 3.63억 달러를 손실 처리했고, GTF 기단 상당수의 조기 탈거·검사가 아직 진행 중이다.",
+      "src": [
+        "s1"
+      ]
+    },
+    "decides": [
+      {
+        "when": "2027-01 하순 (추정, 회사 미확정) Q4·FY2026 실적",
+        "what": "연간 FCF가 90~92억 달러 범위에 들어오는지와 2027 전망에서 일회성 효과를 뺀 성장률",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2026~2027",
+        "what": "Tomahawk·AMRAAM 다년 계약의 조건이 확정되는지",
+        "src": [
+          "s1"
+        ]
+      }
+    ]
+  },
+  "underTheHood": [
+    {
+      "title": "매출 1위, 이익은 작은 엔진",
+      "text": "3분기 Pratt & Whitney 매출은 92.3억 달러로 세 부문 중 가장 크지만 보고 영업이익은 6.08억 달러(6.6%)로 Collins 17.89억 달러의 3분의 1 수준이다. 이익의 중심은 마진 21.3%의 Collins와 14.1%의 Raytheon이어서, 엔진 매출 증가가 곧 전사 이익 증가로 읽히지 않는다.",
+      "src": [
+        "s1"
+      ]
+    },
+    {
+      "title": "조정 이익 속 관세 환급",
+      "text": "3분기 조정 EPS 2.26달러 가운데 0.25달러, 영업현금 약 3억 달러가 IEEPA 관세 환급이다. Collins 조정 이익에는 약 2.5억, Pratt & Whitney에는 약 1.6억 달러가 들어 있어, 반복되지 않는 몫을 빼고 성장률을 봐야 한다.",
+      "src": [
+        "s1"
+      ]
+    },
+    {
+      "title": "한 고객에 묶인 엔진 매출",
+      "text": "Pratt & Whitney 매출의 29%가 Airbus에서 나온다. A320neo용 GTF가 분말 금속 결함으로 조기 탈거·검사를 받고 있어, 이 한 프로그램의 비용과 평판이 엔진 부문 실적을 크게 좌우한다.",
+      "src": [
+        "s2",
+        "s1"
+      ]
+    },
+    {
+      "title": "엔진 이익을 나눠 갖는 구조",
+      "text": "Pratt & Whitney 주도 엔진 프로그램에는 외부 참여사가 프로그램별 합계 13~49% 지분으로 들어와 있다. 그래서 프로그램의 매출·비용 일부가 참여사 몫으로 나가고, 회사가 보고하는 숫자는 RTX 지분 기준이다.",
+      "src": [
+        "s2"
+      ]
+    }
+  ],
+  "trading": {
+    "calendar": [
+      {
+        "date": "2027-01 하순 (추정, 회사 미확정)",
+        "event": "Q4·FY2026 실적과 2027 전망 (Q3는 2026-10-20 발표)",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "reaction": "실적 발표에서는 연간 전망 변화, 잉여현금흐름, Pratt & Whitney의 GTF 관련 비용과 애프터마켓 성장률에 크게 반응하는 경향이 있다.",
+    "conditions": [
+      "연간 전망 상향·유지·하향 여부와 일회성 항목 포함 여부",
+      "분기 FCF와 연간 전망 대비 누적 진척 (9개월 63.06억 달러)",
+      "Pratt & Whitney 조정 마진과 GTF 관련 비용 언급",
+      "부문별 애프터마켓·국방 성장률",
+      "잔고의 상업·방산 구성 변화"
+    ]
+  },
+  "unverified": [
+    "총마진 (회사가 매출총이익을 따로 보고하지 않음)",
+    "operatingMargin 13.4%는 GAAP 보고 기준; 조정 영업이익률은 16.0%",
+    "부문 매출 합과 연결 매출의 차이 -6.79억 달러는 계산값(내부거래 제거 등)",
+    "FY2025 연간 매출·부문 실적 (10-K 재무표를 열지 못함)",
+    "GTF 분말 금속 결함 관련 고객 보상 총액과 남은 비용",
+    "고객 파산 손실 3.63억 달러의 상대 고객 이름",
+    "Tomahawk·AMRAAM 다년 계약 금액",
+    "엔진 협력 프로그램 참여사 이름과 지분 (10-K 발췌에 없음)",
+    "A320neo 엔진 점유율 (s4는 검색 결과 제목만 확인)",
+    "9개월 R&D 금액",
+    "컨센서스 추정치",
+    "Q4 2026 실적 발표일",
+    "항공기 부품·군용 엔진 분야의 개별 경쟁사 이름 (RTX 10-K가 이름을 들지 않음)"
+  ],
+  "confidence": "medium - 분기 실적·부문·현금흐름·전망은 회사 보도자료와 10-K에서 왔지만, 실적 콜 발언, FY2025 연간 재무표, GTF 보상 규모, 점유율은 확인하지 못했다."
+}

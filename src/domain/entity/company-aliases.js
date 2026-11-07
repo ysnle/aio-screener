@@ -40,7 +40,28 @@ export const COMPANY_ALIASES = Object.freeze({
   TSM: ['TSMC'], TT: ['Trane'], TTD: ['The Trade Desk', 'Trade Desk'], TXN: ['Texas Instruments'], UCTT: ['Ultra Clean'],
   UMC: ['UMC'], UNH: ['UnitedHealth'], V: ['Visa'], VIAV: ['Viavi'], VLO: ['Valero'], VRT: ['Vertiv'], VSH: ['Vishay'], VZ: ['Verizon'],
   WDAY: ['Workday'], WDC: ['Western Digital'], WFC: ['Wells Fargo'], WMT: ['Walmart'], WULF: ['TeraWulf'], XOM: ['ExxonMobil', 'Exxon Mobil'],
-  ZS: ['Zscaler']
+  ZS: ['Zscaler'],
+  // v59.74 expansion (owner 2026-11-07: US leaders and retail-popular names first). Bare words that also read as plain
+  // English or as another company's text ('Block', 'Square', 'Hims', 'Vertex', 'Constellation', 'Progressive',
+  // 'Intuitive', 'Snap', 'Celsius') are left out on purpose.
+  ABNB: ['Airbnb'], ABT: ['Abbott Laboratories', 'Abbott'], AFRM: ['Affirm Holdings', 'Affirm'], ASTS: ['AST SpaceMobile'],
+  AVAV: ['AeroVironment'], AXP: ['American Express', 'Amex'], BABA: ['Alibaba Group', 'Alibaba Cloud', 'Alibaba'], BLK: ['BlackRock'],
+  BMY: ['Bristol Myers Squibb', 'Bristol-Myers Squibb'], CCJ: ['Cameco'], CEG: ['Constellation Energy'], CELH: ['Celsius Holdings'],
+  CMCSA: ['Comcast', 'NBCUniversal'], COP: ['ConocoPhillips'], CVNA: ['Carvana'], CVS: ['CVS Health', 'CVS Caremark', 'Aetna'],
+  DASH: ['DoorDash'], DE: ['John Deere', 'Deere'], DHR: ['Danaher'], DIS: ['Walt Disney', 'Disney'], DKNG: ['DraftKings'],
+  ELV: ['Elevance Health', 'Anthem'], ENPH: ['Enphase Energy', 'Enphase'], F: ['Ford Motor Company', 'Ford Motor', 'Ford'], FSLR: ['First Solar'],
+  GD: ['General Dynamics', 'Gulfstream'], GILD: ['Gilead Sciences', 'Gilead'], GM: ['General Motors'], HIMS: ['Hims & Hers'],
+  IONQ: ['IonQ'], ISRG: ['Intuitive Surgical'], JOBY: ['Joby Aviation', 'Joby'], KTOS: ['Kratos Defense', 'Kratos'], LCID: ['Lucid Group', 'Lucid Motors'],
+  LEU: ['Centrus Energy', 'Centrus'], LHX: ['L3Harris'], LIN: ['Linde'], LMT: ['Lockheed Martin', 'Lockheed'], LULU: ['Lululemon'],
+  MELI: ['MercadoLibre', 'Mercado Libre', 'Mercado Pago'], MS: ['Morgan Stanley'], NOC: ['Northrop Grumman'], NRG: ['NRG Energy'], OKLO: ['Oklo'],
+  OKTA: ['Okta'], PDD: ['PDD Holdings', 'Temu', 'Pinduoduo'], PFE: ['Pfizer'], PGR: ['Progressive Corporation', 'Progressive Insurance'],
+  PINS: ['Pinterest'], PM: ['Philip Morris International'], PYPL: ['PayPal', 'Venmo'], QBTS: ['D-Wave Quantum', 'D-Wave'],
+  RBLX: ['Roblox'], RDDT: ['Reddit'], RGTI: ['Rigetti Computing', 'Rigetti'], RIVN: ['Rivian'], ROKU: ['Roku'],
+  RTX: ['RTX', 'Raytheon', 'Pratt & Whitney', 'Collins Aerospace'], SBUX: ['Starbucks'], SCHW: ['Charles Schwab', 'Schwab'],
+  SE: ['Sea Limited', 'Shopee'], SMR: ['NuScale Power', 'NuScale'], SNAP: ['Snap Inc.', 'Snapchat'], SOFI: ['SoFi Technologies', 'SoFi'],
+  SPGI: ['S&P Global'], SPOT: ['Spotify'], T: ['AT&T'], TLN: ['Talen Energy', 'Talen'], TMUS: ['T-Mobile US', 'T-Mobile'],
+  UBER: ['Uber Technologies', 'Uber'], UNP: ['Union Pacific'], UPST: ['Upstart'], VRTX: ['Vertex Pharmaceuticals'], VST: ['Vistra'],
+  XYZ: ['Block, Inc.', 'Cash App', 'Afterpay']
 });
 
 /** Unlisted companies that end many AI money flows. Shown by name, never linked to a stock page. */

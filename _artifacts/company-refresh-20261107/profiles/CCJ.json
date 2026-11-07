@@ -1,0 +1,244 @@
+{
+  "symbol": "CCJ",
+  "name": "Cameco Corporation",
+  "researchedAt": "2026-11-07",
+  "fiscalYearEnd": "December 31",
+  "oneLine": "Cameco는 캐나다의 우라늄 채굴·핵연료 가공 회사이자 원자로 회사 Westinghouse의 지분 보유자로, 장기 계약으로 연평균 2,800만 파운드 넘는 우라늄을 팔고 있으며 미국·폴란드·슬로바키아의 AP1000 원전 계획이 Westinghouse를 통해 다음 성장 축이 된다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Cameco Reports Third Quarter Results: Year-to-Date Performance as Expected; Nuclear Industry Fundamentals Continue to Strengthen; Annual Dividend Declared (Business Wire release, verbatim repost)",
+      "url": "https://investingnews.com/cameco-reports-third-quarter-results-year-to-date-performance-as-expected-nuclear-industry-fundamentals-continue-to-strengthen-disciplined-strategy-and-integrated-nuclear-exposure-support-long-term-va/",
+      "publisher": "Cameco via Business Wire / Investing News Network",
+      "date": "2026-10-30"
+    },
+    {
+      "id": "s2",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/ccj/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-11-07"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "캐나다 고품위 우라늄 광산·정련 시설 (McArthur River/Key Lake, Cigar Lake)",
+      "장기 계약 포트폴리오 - 향후 5년 연평균 2,800만 파운드 이상 인도 약정",
+      "우라늄 정련·변환 등 핵연료 가공(Fuel Services)",
+      "Westinghouse 지분 - AP1000 원자로와 원전 서비스"
+    ],
+    "text": "Cameco의 힘은 광산에서 원자로까지 핵연료 사슬의 여러 고리를 한 회사가 쥐고 있다는 데서 나온다. 캐나다 광산에서 우라늄을 캐고, 핵연료 가공을 하며, Westinghouse 지분을 통해 원자로 설계·서비스까지 닿는다. 전력회사와 맺은 장기 계약이 향후 5년 연평균 2,800만 파운드 넘는 인도를 약속해 판매량을 미리 확보해 둔다.",
+    "src": ["s1"]
+  },
+  "design": {
+    "text": "회사는 우라늄(Uranium), 핵연료 가공(Fuel Services), Westinghouse 지분 세 갈래로 보고한다. 우라늄은 캐나다 광산과 카자흐스탄 합작사 JV Inkai에서 나오고, Fuel Services는 2026년 1,300만~1,400만 kgU를 생산할 계획이다. Westinghouse는 AP1000 원자로와 원전 서비스를 파는 회사로, Cameco는 그 몫의 이익을 지분법으로 반영한다.",
+    "src": ["s1"]
+  },
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "Key Lake - 정련 시설, Q3 2026 평소보다 긴 연간 정비로 생산 감소",
+      "JV Inkai - 카자흐스탄 합작사, 2026년 1,040만 파운드(100% 기준) 생산 예상, Cameco 몫 420만 파운드",
+      "TEPCO - Cigar Lake 합작 파트너",
+      "Brookfield - 2025년 Cameco·Brookfield·미국 정부 파트너십 (미국 원전 확대)"
+    ],
+    "text": "우라늄은 자체 광산과 합작 광산에서 직접 만든다. 3분기 생산(Cameco 몫)은 350만 파운드로 전년 440만에서 줄었는데, Key Lake 정련 시설의 정비가 평소보다 길어진 탓이다. 그래서 회사는 2026년 생산 전망을 1,950만~2,050만 파운드로 좁혔고, 판매 약정을 채우려 3분기에 180만 파운드를 시장에서 사 왔다.",
+    "src": ["s1"]
+  },
+  "sell": {
+    "customers": [
+      "원자력 발전 전력회사 - 장기 우라늄 공급 계약 (회사명 비공개)",
+      "Polskie Elektrownie Jadrowe - Westinghouse AP1000 첫 호기 (Lubiatowo-Kopalino) 조건부 발주",
+      "미국 정부·대한민국 - 최대 8기 대형 원전(AP1000 6기 포함) 자금 비구속 프레임워크"
+    ],
+    "channel": "전력회사와 직접 맺는 다년 장기 계약 (시장 연동 가격 포함), 일부 현물 판매.",
+    "concentration": "개별 고객 비중은 읽은 자료에 없음.",
+    "text": "우라늄 고객은 원전을 운영하는 전력회사이고, 대부분 여러 해에 걸친 장기 계약으로 산다. 회사는 2026~2028년 약정이 연평균보다 많고 2029~2030년은 적다고 밝혀, 그 뒤 물량을 시장 연동 가격으로 채워 가격 상승을 잡겠다는 계획이다. Westinghouse 쪽에서는 폴란드 첫 AP1000과 미국·한국 원전 프레임워크가 새 고객 흐름이다.",
+    "src": ["s1"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "원자력 전력회사", "to": "Cameco", "what": "장기 계약 우라늄 대금 (Q3 2026 평균 실현가 파운드당 65.78달러)" },
+      { "from": "원자력 전력회사", "to": "Cameco Fuel Services", "what": "핵연료 가공 대금 (kgU당)" },
+      { "from": "Polskie Elektrownie Jadrowe·각국 원전 사업자", "to": "Westinghouse", "what": "AP1000 원자로 설계·기자재·원전 서비스 대금" },
+      { "from": "Westinghouse", "to": "Cameco", "what": "지분만큼의 이익 반영 (Q3 2026 조정 EBITDA 몫 1.43억 캐나다달러)" },
+      { "from": "Cameco", "to": "현물 시장", "what": "판매 약정을 채우는 우라늄 구매 (Q3 180만 파운드, 파운드당 60.15달러)" }
+    ],
+    "pricing": "우라늄은 고정·기준가 연동·시장 연동을 섞은 장기 계약, Fuel Services는 kgU당 가격, Westinghouse는 지분법 이익.",
+    "text": "돈은 전력회사가 장기 계약으로 우라늄 값을 내는 데서 가장 많이 들어온다. 3분기 평균 실현가는 파운드당 65.78달러로 전년 62.12달러보다 올랐지만, 판매량이 610만에서 560만 파운드로 줄어 우라늄 매출은 거의 그대로였다. 생산이 모자랄 때는 시장에서 사서 약정을 채우므로, 산 값과 판 값의 차이도 이익에 영향을 준다.",
+    "src": ["s1"]
+  },
+  "earnings": {
+    "period": "Q3 2026 (ended 2026-09-30; amounts in CAD)",
+    "revenue": { "value": null, "yoy": 0.7 },
+    "grossMargin": 19.7,
+    "operatingMargin": null,
+    "netMargin": 6.9,
+    "operatingCashFlow": null,
+    "freeCashFlow": null,
+    "segments": [
+      { "name": "Uranium", "revenue": null, "share": 83.7, "yoy": -1.0, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Fuel Services", "revenue": null, "share": 15.3, "yoy": 4.4, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "매출·이익 (캐나다달러)", "value": "Q3 2026 매출 6.19억(+1%), 매출총이익 1.22억(-28%), 순이익 0.43억, 조정 순이익 -0.02억, 조정 EBITDA 2.67억(-14%), 영업현금흐름 0.03억; 9M 매출 22.78억, 조정 EBITDA 11.66억(-13%), 영업현금흐름 1.12억(전년 7.31억)", "src": ["s1"] },
+      { "name": "우라늄 부문 (캐나다달러)", "value": "Q3 매출 5.18억, 매출총이익 1.11억, 조정 EBITDA 1.79억; 판매 560만 파운드(전년 610만); 평균 실현가 US$65.78/lb (전년 US$62.12)", "src": ["s1"] },
+      { "name": "Fuel Services (캐나다달러)", "value": "Q3 매출 0.95억, 조정 EBITDA 0.24억; 판매 220만 kgU; 평균 실현가 C$42.90/kgU (전년 C$49.11)", "src": ["s1"] },
+      { "name": "Westinghouse (Cameco 몫, 캐나다달러)", "value": "Q3 조정 EBITDA 1.43억(전년 1.24억), 9M 4.27억(전년 5.69억; 2025-Q2 Dukovany 관련 약 US$1.7억 매출 효과); Westinghouse 순손실 Q3 0.24억", "src": ["s1"] },
+      { "name": "생산 (Cameco 몫)", "value": "Q3 350만 파운드(전년 440만), 9M 1,360만 파운드(전년 1,500만); 2026 전망 1,950만~2,050만 파운드(직전 1,950만~2,150만)", "src": ["s1"] },
+      { "name": "장기 계약", "value": "향후 5년 연평균 2,800만 파운드 이상 인도 약정; 2026~2028년은 평균 이상, 2029~2030년은 평균 이하", "src": ["s1"] }
+    ],
+    "text": "3분기 매출은 6.19억 캐나다달러로 1% 늘었지만 매출총이익은 28% 줄어 총마진이 19.7%였고, 조정 순이익은 -0.02억 캐나다달러로 사실상 0이었다. Key Lake 정비로 생산이 줄어 단가가 오르고, 약정을 채우려 더 비싼 값에 우라늄을 사 온 영향이 컸다. 영업현금흐름은 9개월 1.12억 캐나다달러로 전년 7.31억에서 크게 줄었다.",
+    "src": ["s1"]
+  },
+  "useOfCash": {
+    "period": "9M 2026 (amounts in CAD; not entered as numbers)",
+    "items": [
+      { "use": "dividends", "value": null, "src": ["s1"] },
+      { "use": "other", "label": "판매 약정용 우라늄 시장 구매 (Q3 180만 파운드, 평균 C$83.78/lb)", "value": null, "src": ["s1"] }
+    ],
+    "text": "올해 현금은 생산 부족분을 메우는 우라늄 구매에 많이 들어갔다. 3분기에만 180만 파운드를 파운드당 83.78캐나다달러에 샀는데, 보유 재고의 평균 원가 58.37캐나다달러보다 훨씬 비싸다. 회사는 2026년 연간 배당 주당 0.24캐나다달러를 12월 15일 지급하기로 했고, 9월 말 현금 8.6억·부채 10억 캐나다달러에 미사용 신용한도 10억이 있다.",
+    "src": ["s1"]
+  },
+  "aiChain": {
+    "layer": "power-energy",
+    "position": "원자력 발전의 연료(우라늄·핵연료 가공)와 원자로(Westinghouse 지분)를 공급하는 자리. 데이터센터 전력 수요가 원전 확대로 이어질 때 상류에서 수혜를 받는 구조다.",
+    "dependsOn": ["캐나다 광산·정련 시설", "JV Inkai (카자흐스탄)", "각국 원전 정책"],
+    "sellsTo": ["원자력 전력회사", "Polskie Elektrownie Jadrowe"],
+    "aiRevenue": null,
+    "upside": "원전 신규 건설(미국·한국 프레임워크의 AP1000 6기, 폴란드·슬로바키아 AP1000)이 늘면 Westinghouse 기자재 매출과 장기 우라늄 수요가 함께 늘어난다. 읽은 자료는 AI나 데이터센터를 직접 언급하지 않는다.",
+    "risk": "원전 계획은 비구속 프레임워크·조건부 발주 단계가 많고, 생산 차질은 단기 이익을 깎는다.",
+    "text": "그래서 AI 가치사슬에서 Cameco는 '전력·에너지'의 가장 위쪽, 연료 자리다. AI 데이터센터가 전력을 더 원하고 그 일부가 원전으로 채워질 때 우라늄 장기 계약과 Westinghouse 원자로 수주가 늘어나는 순서다. 다만 이번 분기 자료는 AI를 직접 말하지 않고, 회사는 원전 기본 여건이 '그 어느 때보다 강하다'고만 했다.",
+    "src": ["s1"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "우라늄 채굴·장기 계약", "rivals": [], "position": "leader", "share": null, "src": ["s1"] },
+      { "arena": "핵연료 가공", "rivals": [], "position": "leader", "share": null, "src": ["s1"] },
+      { "arena": "대형 원자로 (Westinghouse AP1000)", "rivals": [], "position": "leader", "share": null, "src": ["s1"] }
+    ],
+    "edge": "광산·핵연료 가공·원자로를 잇는 통합 노출, 연평균 2,800만 파운드 넘는 장기 계약, 미국·폴란드·슬로바키아 AP1000 진행.",
+    "threats": "자체 생산 차질과 높은 시장 구매 단가, Westinghouse 손실, 비구속 원전 계획의 지연. 읽은 자료는 경쟁사를 이름으로 적지 않는다.",
+    "text": "읽은 보도자료는 경쟁사를 이름으로 적지 않아 여기서도 이름을 붙이지 않는다. 회사가 내세우는 차별점은 '통합된 원자력 노출'로, 광산에서 원자로까지 한 회사가 여러 고리를 쥐고 있다는 점이다. 약점은 이번 분기처럼 자체 생산이 막히면 시장에서 비싸게 사 와 약정을 채워야 한다는 점이다.",
+    "src": ["s1"]
+  },
+  "strategy": {
+    "goal": "장기 계약에 시장 연동 가격 물량을 더해 가격 상승을 잡고, Westinghouse를 통해 대형 원전 신규 건설의 수혜를 받는 것.",
+    "roadmap": [
+      { "when": "2026 (연말까지)", "what": "생산 1,950만~2,050만 파운드, 판매 2,950만~3,050만 파운드, JV Inkai 마지막 선적 Blind River 도착", "src": ["s1"] },
+      { "when": "2026-12-15", "what": "연간 배당 주당 0.24캐나다달러 지급 (기준일 11-30)", "src": ["s1"] },
+      { "when": "확정 계약 전", "what": "미국·한국 최대 1,200억 달러 원전 자금 프레임워크 (AP1000 6기 포함, 비구속)", "src": ["s1"] },
+      { "when": "진행 중", "what": "폴란드 첫 AP1000 장납기 부품 조달, 슬로바키아 AP1000 FEED 연구", "src": ["s1"] },
+      { "when": "2029~2030", "what": "약정이 연평균보다 적은 구간 - 시장 연동 가격 계약으로 채울 계획", "src": ["s1"] }
+    ],
+    "vision": "광산에서 원자로까지 원자력 가치사슬 전반에 걸친 통합 노출로, 원전 확대의 장기 수혜를 받는 회사.",
+    "text": "다음 수는 계약 공백을 좋은 가격으로 채우는 것이다. 2029~2030년 약정이 평균보다 적다는 것은 그만큼을 앞으로의 시장 가격으로 팔 수 있다는 뜻이다. 그 사이 Westinghouse는 미국·폴란드·슬로바키아 AP1000 계획을 실제 계약으로 바꿔야 한다.",
+    "src": ["s1"]
+  },
+  "governance": {
+    "line": "Tim Gitzel CEO가 이끌며 연 1회 배당(2026년 주당 0.24캐나다달러)을 지급하고, 2025년 Brookfield·미국 정부와 원전 확대 파트너십을 맺은 통합 원자력 회사다.",
+    "src": ["s1"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "production (Cameco share)", "value": "1,950만~2,050만 파운드 (직전 1,950만~2,150만, 범위 축소)", "givenOn": "2026-10-30", "src": ["s1"] },
+      { "period": "FY2026", "metric": "uranium sales/deliveries", "value": "2,950만~3,050만 파운드 (직전 2,900만~3,200만)", "givenOn": "2026-10-30", "src": ["s1"] },
+      { "period": "FY2026", "metric": "Fuel Services production", "value": "1,300만~1,400만 kgU", "givenOn": "2026-10-30", "src": ["s1"] },
+      { "period": "FY2026", "metric": "JV Inkai production", "value": "1,040만 파운드 (100% 기준), Cameco 몫 420만", "givenOn": "2026-10-30", "src": ["s1"] }
+    ],
+    "style": "annual",
+    "track": "3분기에 생산 전망 상단을 낮췄다(2,150만→2,050만 파운드). 조정 EPS는 Q3 2026 0.00달러로 컨센서스 0.23달러, Q2 0.13달러로 0.26달러를 밑돌았고, Q1(0.34 vs 0.29)과 Q4 2025(0.36 vs 0.29)는 웃돌았다 (Nasdaq/Zacks 기준).",
+    "src": ["s1", "s2"]
+  },
+  "estimates": {
+    "text": "2026-11-07 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) 합계 1.31달러(범위 1.04~1.60, 추정치 수 최소 2), 직전 4개 분기 실적 합 0.83달러. 최근 4주 상향 1건·하향 3건.",
+    "src": ["s2"]
+  },
+  "watch": {
+    "confirms": [
+      "연간 생산이 1,950만~2,050만 파운드 안에서 마감",
+      "평균 실현가가 계속 오름",
+      "새 장기 계약이 시장 연동 가격으로 체결",
+      "미국·한국 프레임워크가 확정 계약으로 전환",
+      "Westinghouse 조정 EBITDA 몫이 늘고 순손실이 줄어듦"
+    ],
+    "breaks": [
+      "Key Lake·Cigar Lake 등 생산 차질 반복",
+      "시장 구매 단가가 판매 가격보다 빠르게 오름",
+      "원전 프레임워크·발주가 확정되지 않음",
+      "영업현금흐름 부진 지속"
+    ],
+    "keyNumbers": [
+      { "name": "우라늄 평균 실현가 (US$/lb)", "why": "장기 계약 가격 반영 속도" },
+      { "name": "생산량과 판매량", "why": "자체 생산으로 약정을 채우는 비율" },
+      { "name": "시장 구매량과 단가", "why": "생산 부족이 마진에 주는 부담" },
+      { "name": "Westinghouse 조정 EBITDA 몫", "why": "원자로 사업의 기여" },
+      { "name": "장기 계약 연평균 인도량", "why": "미래 판매의 바닥" }
+    ]
+  },
+  "debate": {
+    "question": "원전 확대의 장기 수요가 생산 차질과 높은 구매 단가에 눌린 단기 이익을 넘어서는지",
+    "bull": {
+      "text": "넘어선다고 보는 쪽은 향후 5년 연평균 2,800만 파운드 넘는 인도 약정이 있고 평균 실현가가 파운드당 62.12달러에서 65.78달러로 올랐으며, 2029~2030년 약정 공백을 시장 연동 가격으로 채울 수 있다는 점을 든다. Westinghouse에는 미국·한국 AP1000 6기 프레임워크, 폴란드 조건부 발주, 슬로바키아 FEED가 쌓이고 있다.",
+      "src": ["s1"]
+    },
+    "bear": {
+      "text": "의심하는 쪽은 3분기 조정 순이익이 사실상 0이고 매출총이익이 28% 줄었으며, 9개월 영업현금흐름이 7.31억에서 1.12억 캐나다달러로 급감했다는 점을 든다. Key Lake 정비로 생산 전망 상단을 낮췄고, 재고 원가(58.37)보다 훨씬 비싼 83.78캐나다달러에 우라늄을 사 와 약정을 채웠다. 원전 계획 다수는 비구속 단계다.",
+      "src": ["s1"]
+    },
+    "decides": [
+      { "when": "Q4·FY2026 실적 발표 (2027-02 예상, 회사 미확정)", "what": "연간 생산이 전망 범위에 들고 2027 생산·판매 전망과 계약 체결량이 어떻게 나오는지", "src": ["s1"] },
+      { "when": "확정 계약 시점 미정", "what": "미국·한국 프레임워크와 폴란드 AP1000이 확정 계약으로 바뀌는지", "src": ["s1"] }
+    ]
+  },
+  "underTheHood": [
+    {
+      "title": "못 캐면 사서 채우는 약정",
+      "text": "장기 계약은 인도량을 약속하므로 자체 생산이 줄면 시장에서 사서라도 채워야 한다. 3분기 생산은 350만 파운드였지만 판매는 560만 파운드였고, 그 차이를 메운 구매 단가(C$83.78)가 재고 원가(C$58.37)보다 높아 마진이 줄었다. 가격이 오르는 시장에서 생산 차질은 이중으로 비싸다.",
+      "src": ["s1"]
+    },
+    {
+      "title": "장기 계약이 늦추는 가격 반영",
+      "text": "실현가 65.78달러는 과거에 맺은 계약 가격이 섞인 평균이라 시장 가격을 늦게 따라간다. 2026~2028년은 약정이 많고 2029~2030년은 적어, 가격 상승의 효과는 오히려 몇 년 뒤 새로 채우는 물량에서 크게 나타날 구조다.",
+      "src": ["s1"]
+    },
+    {
+      "title": "지분법 뒤의 Westinghouse",
+      "text": "Westinghouse는 매출로 잡히지 않고 Cameco 몫의 이익만 반영된다. 3분기 조정 EBITDA 몫은 1.43억 캐나다달러로 늘었지만 Westinghouse 자체는 순손실 0.24억이었고, 9개월 비교는 전년 Dukovany 관련 약 1.7억 달러 일회성 매출 때문에 낮아 보인다.",
+      "src": ["s1"]
+    },
+    {
+      "title": "캐나다달러 보고",
+      "text": "회사는 캐나다달러로 보고하지만 우라늄 가격은 미국달러로 정해진다. 그래서 실현가가 US$65.78와 C$91.76 두 가지로 나오고, 환율 변화가 캐나다달러 기준 매출과 이익을 흔든다. 이 이야기의 금액 칸이 비어 있는 것도 캐나다달러 단위를 앱이 아직 읽지 못하기 때문이다.",
+      "src": ["s1"]
+    }
+  ],
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-30 / 2026-12-15", "event": "연간 배당 기준일 / 지급일", "src": ["s1"] },
+      { "date": "2027-02 (추정, 회사 미확정)", "event": "Q4·FY2026 실적과 2027 전망 (Q3는 2026-10-30 발표)", "src": ["s1"] }
+    ],
+    "reaction": "주가는 생산 전망 변경, 장기 계약 체결 소식, Westinghouse 원전 수주 뉴스에 반응하는 경향이 있다.",
+    "conditions": [
+      "생산·판매 전망 범위의 변경 방향",
+      "평균 실현가와 시장 구매 단가의 차이",
+      "장기 계약 체결량과 가격 조건 언급",
+      "Westinghouse 원전 계약의 구속력 여부",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+  "unverified": [
+    "금액 칸(매출·현금흐름·부문 매출·현금 사용 금액)은 비워 둠: 회사가 캐나다달러로 보고하는데 STORY_UNITS(src/domain/entity/company-story.js)에 CAD가 없음 - 금액은 산문과 industryMetric에 캐나다달러로 적음",
+    "McArthur River/Key Lake와 Cigar Lake별 생산량",
+    "장기 계약 총 잔고(파운드)",
+    "현물·장기 우라늄 시장 가격",
+    "단위 원가·설비투자 전망 (MD&A에만 있음, 열지 못함)",
+    "9개월 배당·설비투자 금액",
+    "Westinghouse 지분율 (읽은 자료에 없음)",
+    "개별 고객 이름과 비중",
+    "경쟁사 이름과 점유율 (읽은 자료에 이름 없음)"
+  ],
+  "confidence": "medium - 실적·생산·계약·전망은 회사 보도자료 원문(재게시본)에서 왔지만 MD&A를 열지 못했고, 캐나다달러 금액을 숫자 칸에 넣지 못했다."
+}

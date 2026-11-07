@@ -1,0 +1,172 @@
+{
+  "symbol": "FSLR",
+  "name": "First Solar, Inc.",
+  "researchedAt": "2026-11-07",
+  "fiscalYearEnd": "December 31",
+  "oneLine": "First Solar는 중국산 실리콘과 다른 박막(CdTe) 기술로 태양광 모듈을 대부분 미국에서 만드는 회사로, 44GW 수주잔고와 미국 제조 세액공제가 이익을 받친다.",
+  "sources": [
+    { "id": "s1", "kind": "news", "title": "First Solar Cuts 2026 Guidance as Q3 Revenue Falls 23% YoY", "url": "https://mercomindia.com/first-solar-cuts-2026-guidance-as-q3-revenue-falls-23-yoy", "publisher": "Mercom India", "date": "2026-11-02" },
+    { "id": "s2", "kind": "news", "title": "First Solar Q3 2026 results: net sales $1.23B, 58% margin, new buyback", "url": "https://now.solar/2026/10/31/first-solar-q3-2026-results-net-sales-1-23b-58-margin-new-buyback-news-and-statistics-indexbox/", "publisher": "Solar Now / IndexBox", "date": "2026-10-30" },
+    { "id": "s3", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus; lastReportedAt 2026-10-29), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/fslr/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-11-07" }
+  ],
+  "moat": {
+    "sources": [
+      "실리콘이 아닌 박막 기술 - 실리콘 계열(PERC·TOPCon)과 다른 공급망",
+      "미국 내 생산 - 2027년 글로벌 모듈 생산의 약 80%를 미국에서 할 계획",
+      "장기 수주잔고 44GW(약 135억 달러), 2030년까지 인도",
+      "차세대 기술 - CuRe, 페로브스카이트 (Oxford PV·CubicPV 특허 라이선스)"
+    ],
+    "text": "First Solar의 힘은 기술과 위치가 함께 만든다. 실리콘 계열과 다른 박막 모듈을 미국 공장에서 만들어, 미국 제조 세액공제와 수입 규제의 혜택을 받는 쪽에 서 있다. 이를 바탕으로 2030년까지 인도할 44GW, 약 135억 달러의 수주잔고를 쌓아 두었다.",
+    "src": ["s1", "s2"]
+  },
+  "design": {
+    "text": "주력은 Series 6·Series 7 박막 모듈이며, CuRe 기술로의 전환과 페로브스카이트 모듈을 준비하고 있다. India 공장은 2027년 1분기부터 첫 Series 7 CuRe 전환을 시작하고, Ohio에는 Series 6 크기 페로브스카이트 시험 라인을 2027년 상반기 가동 목표로 짓는다. 2026년 페로브스카이트 R&D는 약 1.2억 달러로 늘렸다.",
+    "src": ["s1"]
+  },
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "Oxford PV - 기존 페로브스카이트 특허 계약",
+      "CubicPV - 새 비독점 특허 라이선스 (실적 콜 직전 발표)"
+    ],
+    "text": "모듈은 자체 공장에서 만든다. South Carolina에 Series 6 마감 공장 1단계가 3분기에 가동했고 2단계는 2027년 중반, India 공장은 2027년 2.2~2.6GW 생산 예정이다. Malaysia 1.8GW 공장은 미국 세액공제(45X) 대상이 아니어서, 2027년 상반기에 완전 가동이냐 폐쇄냐를 정한다.",
+    "src": ["s1", "s2"]
+  },
+  "sell": {
+    "customers": [
+      "미국 유틸리티급 태양광 개발사 - 2026년 미국 신규 예약 약 4.9GW, 와트당 0.35~0.36달러",
+      "Swift Current Energy - 개발사, 보증 관련 소송 제기",
+      "인도 국내 시장 - 2026년 판매 예상 약 700MW 하향"
+    ],
+    "channel": "개발사와의 다년 공급 계약 (직접 판매)",
+    "concentration": "고객 집중 공시 미확인. 수주잔고 밖 잠재 물량 약 4GW 중 절반은 고객이 5개월 안에 결정해야 함.",
+    "text": "모듈은 대형 태양광 발전소를 짓는 개발사와 몇 년짜리 계약으로 팔린다. 3분기 이후 미국에서 약 1.4GW를 와트당 약 0.36달러에 새로 예약했다. 반면 개발사 Swift Current Energy는 보증 소송을 냈고, 일부 계약 물량은 고객 결정이 남아 있다.",
+    "src": ["s1", "s2"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "전력 구매자 (유틸리티·기업)", "to": "태양광 개발사", "what": "장기 전력 구매 대금" },
+      { "from": "태양광 개발사", "to": "First Solar", "what": "모듈 대금 (와트당 약 0.35~0.36달러, 다년 계약)" },
+      { "from": "미국 정부", "to": "First Solar", "what": "미국 생산 모듈의 45X 제조 세액공제 (금액 미확인)" },
+      { "from": "First Solar", "to": "Oxford PV·CubicPV", "what": "페로브스카이트 특허 라이선스" }
+    ],
+    "pricing": "와트당 가격의 다년 공급 계약. 미국 생산분은 제조 세액공제를 받는다.",
+    "text": "돈은 발전소의 전력 판매 수입에서 출발해 개발사가 모듈을 살 때 First Solar로 들어온다. 미국에서 만든 모듈은 제조 세액공제를 받아 마진이 더 높고, Malaysia 생산분은 그렇지 않다. 그래서 미국 생산 비중이 이익률을 결정한다.",
+    "src": ["s1", "s2"]
+  },
+  "earnings": {
+    "period": "Q3 2026 (ended 2026-09-30)",
+    "revenue": { "value": 1.23, "unit": "USD bn", "yoy": -22.8 },
+    "grossMargin": 58,
+    "operatingMargin": null,
+    "netMargin": 46.4,
+    "operatingCashFlow": null,
+    "freeCashFlow": null,
+    "segments": [],
+    "industryMetric": [
+      { "name": "수주잔고", "value": "44GW, 약 135억 달러, 2030년까지 인도", "src": ["s1", "s2"] },
+      { "name": "조정 EBITDA", "value": "Q3 7.44억 달러(마진 60%, 전년 42%), 9개월 19.1억 달러", "src": ["s1"] },
+      { "name": "신규 예약 단가", "value": "3분기 이후 미국 약 1.4GW, 와트당 약 0.36달러; 2026년 누적 약 4.9GW, 0.35~0.36달러", "src": ["s1"] },
+      { "name": "Q4 2026 판매량 가이던스", "value": "4.3~5.3GW (미국 생산분 3.4~4.3GW)", "src": ["s1"] }
+    ],
+    "text": "3분기 매출은 12.3억 달러로 약 23% 줄었는데, 제3자 고객에게 판 모듈 물량이 줄었기 때문이다. 그런데도 총마진은 58%로 전년보다 약 20%p 높았고 순이익은 5.71억 달러로 25% 늘었다. 물량은 줄고 마진은 오른 이 조합이 미국 생산 비중과 세액공제의 힘을 보여 준다.",
+    "src": ["s1", "s2"]
+  },
+  "useOfCash": {
+    "period": "FY2026 (승인·계획 기준)",
+    "items": [
+      { "use": "R&D", "value": 0.12, "unit": "USD bn", "src": ["s1"] },
+      { "use": "other", "label": "자사주 매입 승인 한도 (신규, 집행액 미확인)", "value": 0.5, "unit": "USD bn", "src": ["s1", "s2"] }
+    ],
+    "text": "회사는 3분기 발표와 함께 5억 달러 자사주 매입을 새로 승인했고, 2026년 페로브스카이트 R&D를 1억 달러에서 약 1.2억 달러로 늘렸다. 설비투자와 현금흐름 수치는 읽은 자료에 없었다. 공장 확장(South Carolina·India)과 주주환원을 함께 하는 단계다.",
+    "src": ["s1", "s2"]
+  },
+  "aiChain": {
+    "layer": "power-energy",
+    "position": "AI 데이터센터 전력 수요를 포함한 미국 전력 수요에 대형 태양광 발전용 모듈을 공급하는 제조사다(읽은 자료에 데이터센터 언급은 없음).",
+    "dependsOn": ["미국 제조 세액공제(45X)와 무역 규제 (Section 232)"],
+    "sellsTo": ["미국 유틸리티급 태양광 개발사"],
+    "aiRevenue": null,
+    "upside": "전력 수요 증가로 미국 발전소 건설이 늘면 미국산 모듈 예약과 단가가 오른다.",
+    "risk": "정책(외국 우려 기업 지침, Section 232, 최저 수입가) 변화가 세액공제와 경쟁 구도를 바꿀 수 있다.",
+    "text": "First Solar는 AI를 직접 다루지 않지만 전력 수요가 늘어나는 흐름의 공급자 쪽에 있다. 다만 읽은 자료는 데이터센터를 별도로 언급하지 않았고, 실적의 핵심 변수는 미국 정책과 개발사 예약이다. 그래서 이 연결은 간접적이다.",
+    "src": ["s1"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "미국 유틸리티급 태양광 모듈", "rivals": ["실리콘 계열(PERC·TOPCon) 모듈 업체 (출처에 이름 없음)"], "position": "leader", "share": null, "src": ["s2"] },
+      { "arena": "인도 태양광 모듈", "rivals": ["인도·해외 모듈 업체 (출처에 이름 없음)"], "position": "challenger", "share": null, "src": ["s1"] }
+    ],
+    "edge": "미국 생산 비중(2027년 약 80%), 박막 기술, 장기 수주잔고.",
+    "threats": "고객 계약 해지·물량 결정 지연, TOPCon 특허 분쟁, 정책 불확실성, 보증 소송.",
+    "text": "경쟁 상대는 실리콘 계열 PERC·TOPCon 모듈로, 출처는 업체 이름을 들지 않는다. First Solar는 미국 생산이라는 위치로 차별화하지만, 2026년 판매량 가이던스를 17~18.2GW에서 16~17GW로 낮춰 수요 쪽 흔들림도 드러냈다. TOPCon 특허 분쟁도 진행 중이다.",
+    "src": ["s1", "s2"]
+  },
+  "strategy": {
+    "goal": "2027년 글로벌 모듈 생산의 약 80%를 미국에서, CuRe·페로브스카이트로 다음 세대 기술 전환.",
+    "roadmap": [
+      { "when": "2027 Q1", "what": "India 공장 Series 7 CuRe 전환 시작", "src": ["s1"] },
+      { "when": "2027 H1", "what": "Malaysia 공장 완전 가동 또는 폐쇄 결정, Ohio 페로브스카이트 시험 라인 준비", "src": ["s1"] },
+      { "when": "2027 중반", "what": "South Carolina 2단계 상업 가동", "src": ["s1"] },
+      { "when": "2027", "what": "South Carolina 2.2~2.5GW, India 2.2~2.6GW 생산 예상", "src": ["s1"] }
+    ],
+    "vision": "미국 중심 생산과 기술 전환으로 실리콘 계열과 다른 길을 가는 태양광 제조사.",
+    "text": "계획의 중심은 생산을 미국으로 옮기고 기술을 바꾸는 것이다. South Carolina 확장과 India 전환이 2027년에 몰려 있고, 세액공제를 못 받는 Malaysia 공장의 운명도 그때 정해진다. 페로브스카이트는 Oxford PV·CubicPV 특허를 함께 쓰며 Ohio에서 시험한다.",
+    "src": ["s1", "s2"]
+  },
+  "governance": { "line": "CEO Mark Widmar와 CFO Alex Bradley가 이끌며, 5억 달러 자사주 매입을 새로 승인했다.", "src": ["s2"] },
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "net sales", "value": "46억~49억 달러 (기존 49억~52억, 하향)", "givenOn": "2026-10-29", "src": ["s1", "s2"] },
+      { "period": "FY2026", "metric": "module volume sold", "value": "16~17GW (기존 17~18.2GW)", "givenOn": "2026-10-29", "src": ["s1"] },
+      { "period": "FY2026", "metric": "adjusted EBITDA", "value": "25.5억~27.5억 달러 (기존 26억~28억)", "givenOn": "2026-10-29", "src": ["s1"] },
+      { "period": "Q4 2026", "metric": "adjusted EBITDA", "value": "6.43억~8.43억 달러", "givenOn": "2026-10-29", "src": ["s1"] }
+    ],
+    "style": "annual",
+    "track": "3분기에 연간 매출·물량·EBITDA를 모두 낮췄다. 3분기 EPS 5.30달러는 예상보다 0.63달러 높았지만 매출은 예상보다 약 5,760만 달러 낮았다(Mercom).",
+    "src": ["s1"]
+  },
+  "estimates": { "text": "2026-11-07 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기 합계 21.17달러(범위 17.99~25.23, 추정치 수 최소 7), 직전 4개 분기 실적 합 17.28달러. 최근 4주 상향 5건·하향 15건.", "src": ["s3"] },
+  "watch": {
+    "confirms": ["미국 신규 예약이 와트당 0.35달러 이상에서 이어짐", "수주잔고 밖 약 4GW 중 고객 결정분이 계약으로 확정", "South Carolina·India 증설이 일정대로 진행", "미국 생산 비중 상승과 함께 총마진 유지"],
+    "breaks": ["고객 계약 해지나 물량 연기가 늘어남", "정책 변경으로 세액공제 혜택 축소", "보증 소송·특허 분쟁 확대", "판매량 가이던스 추가 하향"],
+    "keyNumbers": [
+      { "name": "수주잔고 GW와 금액", "why": "미래 매출의 상한" },
+      { "name": "신규 예약 단가(와트당)", "why": "가격 결정력" },
+      { "name": "판매량 GW", "why": "매출의 직접 원천" },
+      { "name": "총마진", "why": "세액공제와 미국 생산 비중의 결과" }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      { "date": "2027-02 (추정, 회사 미공지)", "event": "Q4·FY2026 실적과 2027 가이던스", "src": ["s1"] },
+      { "date": "2027 H1", "event": "Malaysia 공장 결정, 수주잔고 밖 물량 약 2GW의 고객 결정 시한(5개월 이내)", "src": ["s1"] }
+    ],
+    "reaction": "주가는 이익보다 신규 예약, 수주잔고, 가이던스와 미국 무역·세액공제 정책 뉴스에 크게 반응하는 경향이 있다.",
+    "conditions": ["신규 예약 GW와 단가의 방향", "연간 판매량 가이던스 변화", "정책(Section 232·외국 우려 기업 지침) 결정", "컨센서스 EPS 상향·하향 건수 (최근 4주 하향 15건)"]
+  },
+  "unverified": [
+    "영업이익·영업현금흐름·설비투자·순현금 (읽은 자료에 없음; 8-K 원문 접속 실패)",
+    "45X 세액공제 인식 금액",
+    "계약 해지 물량과 해지 보상금",
+    "3분기 판매량 GW",
+    "실적 발표일 2026-10-29는 AIO 컨센서스 스냅샷의 lastReportedAt 기준 (원문 미확인)",
+    "주요 고객 이름과 집중도",
+    "경쟁사 이름과 점유율"
+  ],
+  "confidence": "medium - 핵심 수치는 업계 매체 두 곳(2차 출처)에서 왔고 서로 일치하지만, 회사 8-K 원문은 읽지 못했다.",
+  "debate": {
+    "question": "물량이 줄어도 미국 생산과 세액공제가 높은 마진과 수주잔고를 지켜 주는지",
+    "bull": { "text": "3분기 총마진은 58%로 약 20%p 올랐고 순이익은 25% 늘었으며, 2030년까지 인도할 44GW·약 135억 달러 수주잔고가 있다. 미국에서 와트당 약 0.36달러에 새로 1.4GW를 예약했고 5억 달러 자사주 매입도 승인했다.", "src": ["s1", "s2"] },
+    "bear": { "text": "매출은 약 23% 줄었고 연간 판매량 가이던스는 17~18.2GW에서 16~17GW로, 매출은 49억~52억에서 46억~49억 달러로 낮아졌다. 수주잔고 밖 약 4GW는 고객 결정이 남아 있고, 개발사 보증 소송과 TOPCon 특허 분쟁, Malaysia 공장의 세액공제 제외도 걸려 있다.", "src": ["s1", "s2"] },
+    "decides": [
+      { "when": "2027 H1", "what": "Malaysia 1.8GW 공장의 가동·폐쇄 결정과 남은 약 4GW 물량에 대한 고객 결정", "src": ["s1"] },
+      { "when": "Q4 실적 (회사 미공지)", "what": "2027 판매량 가이던스가 2026년 16~17GW보다 높게 나오는지", "src": ["s1"] }
+    ]
+  },
+  "underTheHood": [
+    { "title": "마진은 정책이 만든다", "text": "물량이 줄었는데 총마진이 58%로 오른 것은 미국 생산분이 받는 제조 세액공제와 관련이 깊다. Malaysia 생산분은 이 공제를 못 받아, 미국 생산 비중이 이익률을 좌우하고 정책 변화가 곧 마진 변화가 된다.", "src": ["s2", "s1"] },
+    { "title": "수주잔고는 확정이 아님", "text": "44GW 수주잔고와 별도로 약 4GW의 잠재 물량은 고객 결정이 남았고 절반은 5개월 안에 정해야 한다. 개발사 보증 소송도 있어, 잔고 숫자를 그대로 미래 매출로 읽기 어렵다.", "src": ["s1", "s2"] },
+    { "title": "조정 EBITDA 기준 가이던스", "text": "회사의 이익 가이던스는 조정 EBITDA(연 25.5억~27.5억 달러) 기준이고, 3분기 EBITDA 마진 60%는 순이익률 약 46%보다 높다. 가이던스와 GAAP 이익을 같은 기준으로 놓고 봐야 한다.", "src": ["s1"] }
+  ]
+}

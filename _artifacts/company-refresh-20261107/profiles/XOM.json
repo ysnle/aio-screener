@@ -1,0 +1,796 @@
+{
+  "symbol": "XOM",
+  "name": "Exxon Mobil Corporation (2026-07-01부터 상장 모회사는 ExxonMobil Holdings Corporation)",
+  "researchedAt": "2026-11-07",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "ExxonMobil은 원유·가스를 캐서 연료·화학제품으로 바꿔 파는 통합 석유회사로, 2026년 3분기에는 정제마진 급등으로 정유 부문 조정이익이 Upstream을 넘었고, AI와는 데이터센터용 가스발전·탄소포집이라는 아직 계약 전 단계의 선택권으로 연결된다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "8-K",
+      "title": "ExxonMobil Announces 2025 Results (8-K Exhibit 99.1, posted on IR site)",
+      "url": "https://investor.exxonmobil.com/sec-filings/all-sec-filings/content/0000034088-26-000033/livef8k4q25991.htm",
+      "publisher": "ExxonMobil",
+      "date": "2026-01-30"
+    },
+    {
+      "id": "s2",
+      "kind": "news",
+      "title": "ExxonMobil second-quarter earnings climb to $14.5 billion on rising oil prices, record Permian output",
+      "url": "https://www.ogj.com/general-interest/companies/news/55394938/exxonmobil-second-quarter-2026-earnings-climb-to-145-billion-on-rising-oil-prices-record-permian-output",
+      "publisher": "Oil & Gas Journal",
+      "date": "2026-07-31"
+    },
+    {
+      "id": "s3",
+      "kind": "earnings-release",
+      "title": "ExxonMobil Announces Second-Quarter 2026 Results (repost of company release highlights)",
+      "url": "https://rmsystem.cz/udalosti/21342-exxonmobil-announces-second-quarter-2026-results",
+      "publisher": "RM-SYSTEM (company release text)",
+      "date": "2026-08-03"
+    },
+    {
+      "id": "s4",
+      "kind": "other",
+      "title": "Financial analysis of Exxon Mobil FY2025 and the first half of 2026 (10-K/10-Q segment tables; third-party analysis)",
+      "url": "https://sec-api.io/insights/financial-analysis-of-exxon-mobil-fy2025-and-the-first-half-of-2026",
+      "publisher": "sec-api.io",
+      "date": "2026-09-04"
+    },
+    {
+      "id": "s5",
+      "kind": "8-K",
+      "title": "ExxonMobil Holdings 3Q26 earnings considerations (8-K Exhibit 99.1; date inferred from file name f8k3q991101626, not checked)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0002115436/000211543626000013/f8k3q991101626.htm",
+      "publisher": "ExxonMobil Holdings / SEC EDGAR",
+      "date": "2026-10-16"
+    },
+    {
+      "id": "s7",
+      "kind": "8-K",
+      "title": "ExxonMobil Holdings Corp Form 8-K12B (Texas redomiciliation completed)",
+      "url": "https://investor.exxonmobil.com/sec-filings/all-sec-filings/content/0001193125-26-291990/d71068d8k12b.htm",
+      "publisher": "ExxonMobil Holdings / IR site",
+      "date": "2026-07-01"
+    },
+    {
+      "id": "s8",
+      "kind": "news",
+      "title": "ExxonMobil raises 2030 plan, lifts upstream outlook without boosting capital",
+      "url": "https://worldoil.com/news/2025/12/9/exxonmobil-raises-2030-plan-lifts-upstream-outlook-without-boosting-capital/",
+      "publisher": "World Oil",
+      "date": "2025-12-09"
+    },
+    {
+      "id": "s9",
+      "kind": "news",
+      "title": "Exxon can't resist the AI power gold rush (1.5 GW gas plant for data centers with carbon capture)",
+      "url": "https://techcrunch.com/2024/12/13/exxon-cant-resist-the-ai-power-gold-rush/",
+      "publisher": "TechCrunch",
+      "date": "2024-12-13"
+    },
+    {
+      "id": "s10",
+      "kind": "ir-site",
+      "title": "ExxonMobil Management Committee (Darren Woods biography; accessed date)",
+      "url": "https://corporate.exxonmobil.com/about-us/who-we-are/management-committee",
+      "publisher": "ExxonMobil",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s12",
+      "kind": "news",
+      "title": "NextEra-Exxon 1.2GW Gas+CCS Data Center: First of Its Kind (MOU announced 2025-12-08; cites CNBC and NextEra investor day)",
+      "url": "https://introl.com/blog/nextera-exxon-carbon-capture-data-center-1-2gw-december-2025",
+      "publisher": "Introl",
+      "date": "2026-01-15"
+    },
+    {
+      "id": "s13",
+      "kind": "news",
+      "title": "Chevron Signs 20-Year Power Agreement With Microsoft For West Texas Data Center (Project Kilby, ~2.67 GW)",
+      "url": "https://pulse2.com/chevron-signs-20-year-power-agreement-with-microsoft-for-west-texas-data-center/amp/",
+      "publisher": "Pulse 2.0",
+      "date": "2026-06-23"
+    },
+    {
+      "id": "s14",
+      "kind": "earnings-release",
+      "title": "ExxonMobil Announces Third-Quarter 2026 Results (IR press release with segment, cash flow and production tables)",
+      "url": "https://investor.exxonmobil.com/company-information/press-releases/detail/1213/exxonmobil-announces-third-quarter-2026-results",
+      "publisher": "Exxon Mobil Corporation",
+      "date": "2026-10-30"
+    },
+    {
+      "id": "s15",
+      "kind": "other",
+      "title": "ExxonMobil (XOM) Q3 2026 earnings SEC filing analysis (8-K Ex.99.1 revenue, Brent, refining margin, debt, YTD buybacks, call remarks on Uaru and Golden Pass)",
+      "url": "https://sec-api.io/insights/exxonmobil-xom-q3-2026-earnings-sec-filing-analysis",
+      "publisher": "sec-api.io",
+      "date": "2026-11-01"
+    },
+    {
+      "id": "s16",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/xom/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-11-07"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "저원가 대형 자원 - 퍼미안(2026년 2분기 하루 180만 배럴 초과)과 가이아나 심해(FY2025 하루 70만 배럴 초과), 2030년 생산의 약 65%를 저원가 자산으로 계획",
+      "탐사·생산부터 정제·화학·윤활유까지 잇는 통합 설비 - 생산물의 약 5분의 3을 자사 정제·화학 부문에 넘긴다",
+      "자체 시추·완결(drilling and completion) 기술과 구조적 비용절감(2019년 대비 누적 169억 달러, 2026년 9월 말)",
+      "재무 여력 - 2025년 말 순부채비율 11.0%, 탄소 파이프라인·저장 자산 보유"
+    ],
+    "text": "ExxonMobil의 힘은 땅 밑 자원의 질과 규모에서 시작한다. 퍼미안 셰일과 가이아나 심해처럼 배럴당 원가가 낮은 자산을 키워, 2030년에는 생산의 약 65%를 이런 자산에서 내겠다는 계획이다. 여기에 생산한 원유를 자기 정유·화학 공장으로 넘겨 한 번 더 부가가치를 얻는 통합 구조, 그리고 순부채비율 11%라는 낮은 빚이 유가 하락기에도 투자와 배당을 이어가게 해 준다.",
+    "src": [
+      "s1",
+      "s2",
+      "s4",
+      "s8",
+      "s14"
+    ]
+  },
+  "design": {
+    "text": "이런 자원과 설비 위에서 회사가 내놓는 것은 네 사업부로 보고된다. Upstream은 원유·천연가스·LNG를 생산하고, Energy Products는 휘발유·디젤·항공유 같은 연료를, Chemical Products는 올레핀·폴리올레핀 같은 석유화학 기초소재를, Specialty Products는 윤활유와 Proxxima 같은 특수소재를 만든다. 데이터센터용 저탄소 전력은 아직 독립 사업이 아니라 탄소포집·저장(CCS) 역량을 파트너 발전소에 붙이는 형태로 준비 중이다.",
+    "src": [
+      "s1",
+      "s2",
+      "s12"
+    ]
+  },
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "자체 운영 - 퍼미안 시추·생산, 가이아나 FPSO(부유식 생산저장설비) 운영, 자체 정유·화학 공장",
+      "가이아나 5번째 FPSO - 하루 25만 배럴 용량, 2026년 2분기 출항·2026년 4분기 가동 예정 (건조사명은 미확인)",
+      "외부 원유·제품 조달 - FY2025 연료 판매(하루 559만 배럴)가 정제처리량(398만 배럴)보다 많아 외부 물량도 거래",
+      "NextEra Energy - 데이터센터용 1.2GW 가스발전소 개발, ExxonMobil은 탄소포집·저장과 CO2 파이프라인 제공 (2025-12 양해각서)"
+    ],
+    "text": "NVIDIA와 달리 ExxonMobil은 거의 모든 것을 직접 만든다. 유정을 뚫고, 바다 위 FPSO에서 원유를 뽑고, 자기 정유·화학 공장에서 제품으로 바꾼다. 다만 연료 판매량이 정제처리량보다 많아 외부에서 사들인 제품도 함께 팔고, 데이터센터 전력처럼 새 영역은 발전 개발을 NextEra에 맡기고 자신은 탄소포집·저장만 맡는 협업 방식을 택했다.",
+    "src": [
+      "s1",
+      "s2",
+      "s3",
+      "s4",
+      "s12"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "연료 도매·소매 및 산업·운송 고객 (Energy Products, FY2025 외부 매출 2,445억 달러)",
+      "석유화학 고객 (Chemical Products, 222억 달러)",
+      "윤활유·특수소재 고객 (Specialty Products, 178억 달러)",
+      "외부 정유사·가스 구매자 (Upstream 외부 판매분, 394억 달러)",
+      "데이터센터 개발사·하이퍼스케일러 (NextEra 발전소를 통한 잠재 고객, 계약 미체결)"
+    ],
+    "channel": "연료는 도매·소매 판매망과 산업 고객 직접 판매, 화학·특수제품은 기업 고객 직접 판매, 원유·가스는 시장 거래와 장기 인도 약정(2026~2028년 원유 약 7,300만 배럴, 가스 2.9조 입방피트)으로 판다.",
+    "concentration": "고객 집중 공시 확인 못함. 원자재 성격상 특정 고객 의존도는 낮은 구조로 보인다.",
+    "text": "직접 만든 제품은 대부분 연료 형태로 팔리며, FY2025 외부 매출의 약 75%가 Energy Products에서 나왔다. 원유·가스 자체를 외부에 파는 몫은 12% 남짓이고, 나머지 생산물은 내부 정유·화학 공장으로 간다. 고객이 수많은 연료·화학 구매자로 흩어져 있어, 수요 신호는 특정 고객이 아니라 유가·정제마진이라는 시장 가격으로 나타난다.",
+    "src": [
+      "s1",
+      "s4"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "운전자·항공사·물류·산업 고객",
+        "to": "연료 도매·소매 판매망",
+        "what": "휘발유·디젤·항공유 구매 (시장가격 연동)"
+      },
+      {
+        "from": "연료 판매망·산업 고객",
+        "to": "ExxonMobil Energy Products",
+        "what": "정제 제품 대금 - 이익은 원유값과 제품값의 차이(정제마진)"
+      },
+      {
+        "from": "화학·윤활유 고객",
+        "to": "ExxonMobil Chemical·Specialty Products",
+        "what": "톤 단위 제품 대금 (원료 대비 스프레드)"
+      },
+      {
+        "from": "외부 정유사·가스 구매자",
+        "to": "ExxonMobil Upstream",
+        "what": "원유·가스 판매 (브렌트·가스 시세 연동 실현가격)"
+      },
+      {
+        "from": "ExxonMobil Upstream",
+        "to": "ExxonMobil 정유·화학 부문",
+        "what": "생산 원유·가스의 내부 이전 (Upstream 총매출 약 1,018억 달러 중 약 5분의 3)"
+      },
+      {
+        "from": "데이터센터 고객 (미정)",
+        "to": "NextEra 발전소 → ExxonMobil",
+        "what": "전력 구매 대금 중 탄소포집·저장 서비스 몫 (계약 미체결, 구조 미공개)"
+      }
+    ],
+    "pricing": "원자재 가격을 받아들이는 구조(price taker)다. Upstream은 실현 유가·가스가에, 정유는 정제마진에, 화학은 원료 대비 제품 스프레드에 이익이 걸린다. 분기마다 '이익 고려사항' 8-K로 가격·마진 효과를 미리 공시한다.",
+    "text": "그래서 돈은 연료와 화학제품을 사는 수많은 고객에게서 들어오지만, 얼마가 남는지는 원유값과 제품값의 차이가 정한다. 유가가 오르면 Upstream이, 제품값이 원유보다 더 오르면 정유가 더 벌고, 둘은 서로 일부를 상쇄한다. 2026년 3분기에는 원유가 하락이 Upstream에 -13억, 정제마진 상승이 +45억 달러로 미리 공시돼, 이익의 무게가 정유 쪽으로 옮겨가는 모습이다.",
+    "src": [
+      "s1",
+      "s4",
+      "s5"
+    ]
+  },
+  "earnings": {
+    "period": "Q3 2026 (ended 2026-09-30)",
+    "revenue": {
+      "value": 113.2,
+      "unit": "USD bn",
+      "yoy": 32.7
+    },
+    "grossMargin": null,
+    "operatingMargin": null,
+    "netMargin": 13.6,
+    "operatingCashFlow": {
+      "value": 25.65,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": 19.109,
+      "unit": "USD bn"
+    },
+    "segments": [
+      {
+        "name": "Upstream (세그먼트 이익 70.9억, 조정 73.1억 달러)",
+        "revenue": null,
+        "unit": "USD bn",
+        "share": null,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s14"
+        ]
+      },
+      {
+        "name": "Energy Products (세그먼트 이익 71.7억, 조정 90.5억 달러)",
+        "revenue": null,
+        "unit": "USD bn",
+        "share": null,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s14"
+        ]
+      },
+      {
+        "name": "Chemical Products (세그먼트 이익 7.4억, 조정 7.3억 달러)",
+        "revenue": null,
+        "unit": "USD bn",
+        "share": null,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s14"
+        ]
+      },
+      {
+        "name": "Specialty Products (세그먼트 이익 12.9억, 조정 12.8억 달러)",
+        "revenue": null,
+        "unit": "USD bn",
+        "share": null,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s14"
+        ]
+      },
+      {
+        "name": "Corporate & Financing (세그먼트 손실 8.6억 달러)",
+        "revenue": null,
+        "unit": "USD bn",
+        "share": null,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s14"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "생산량",
+        "value": "2026년 3분기 하루 450만 배럴(석유환산, 2분기 451만), 9개월 평균 453만(전년 동기 465만); 퍼미안은 연말 목표에 일정보다 약간 빨리 도달, 가이아나 총량 하루 약 90만 배럴(콜 발언)",
+        "src": [
+          "s14",
+          "s15"
+        ]
+      },
+      {
+        "name": "실현가격·정제마진 (3분기)",
+        "value": "브렌트 평균 97.01달러(전년 동기 69.07), 미국 실현 원유가 84.82달러, 회사 정제마진 지표 배럴당 50.3달러(2분기 29.0, 전년 동기 17.5)",
+        "src": [
+          "s15"
+        ]
+      },
+      {
+        "name": "GAAP 이익과 조정이익 (3분기)",
+        "value": "GAAP 154.1억 달러(EPS 3.72), 조정이익 175.1억 달러(EPS 4.23); 차이는 자산매각 이익 등 확인 항목 +4.5억과 타이밍 효과 -25.4억 달러",
+        "src": [
+          "s14"
+        ]
+      },
+      {
+        "name": "구조적 비용절감",
+        "value": "2019년 대비 누적 169억 달러 (2026년 9개월 동안 18억 추가), 2030년 목표 200억 달러",
+        "src": [
+          "s14",
+          "s8"
+        ]
+      },
+      {
+        "name": "순부채",
+        "value": "2026-09-30 기준 221억 달러 (총부채 343억 - 현금 122억), 연초 대비 약 110억 달러 감소",
+        "src": [
+          "s14",
+          "s15"
+        ]
+      }
+    ],
+    "text": "이 가격 구조가 2026년 3분기에 매출 1,132억 달러(전년 대비 +32.7%), GAAP 이익 154억 달러(순이익률 약 13.6%, 계산값)로 나타났다. 정제마진 지표가 배럴당 50.3달러로 전년 동기의 약 3배가 되면서 Energy Products 조정이익(90.5억)이 Upstream(73.1억)을 넘었고, 화학은 7억 달러대에 머물렀다. 분기 영업현금흐름 257억, 잉여현금흐름 191억 달러로 9개월 누계 잉여현금흐름이 390억 달러다.",
+    "src": [
+      "s14",
+      "s15"
+    ]
+  },
+  "useOfCash": {
+    "period": "2026년 9개월 (ended 2026-09-30)",
+    "items": [
+      {
+        "use": "capex",
+        "value": 19.976,
+        "unit": "USD bn",
+        "src": [
+          "s14"
+        ]
+      },
+      {
+        "use": "dividends",
+        "value": 12.9,
+        "unit": "USD bn",
+        "src": [
+          "s15"
+        ]
+      },
+      {
+        "use": "buybacks",
+        "value": 15.1,
+        "unit": "USD bn",
+        "src": [
+          "s15"
+        ]
+      },
+      {
+        "use": "debt repayment",
+        "value": 9.2,
+        "unit": "USD bn",
+        "src": [
+          "s15"
+        ]
+      },
+      {
+        "use": "R&D",
+        "value": null,
+        "unit": "USD bn",
+        "src": []
+      }
+    ],
+    "text": "2026년 9개월 영업현금흐름 579억 달러 가운데 현금 설비투자가 200억 달러로 가장 크고, 배당 약 129억(분기 합산 계산값)과 자사주 151억 달러가 그 다음이다. 그러고도 총부채를 435억에서 343억 달러로 약 92억 달러 줄였고 순부채는 약 110억 달러 감소했다. 연간 설비투자 270억~290억, 자사주 200억 달러 계획은 그대로이며 2027년 자사주도 200억 달러로 미리 제시해, 높은 마진의 현금을 환원과 부채 축소에 함께 쓰는 방향이다.",
+    "src": [
+      "s14",
+      "s15"
+    ]
+  },
+  "aiChain": {
+    "layer": "power-energy",
+    "position": "AI 데이터센터에 전력을 대는 가스발전의 연료(천연가스)와 탄소포집·저장(CCS)을 공급하려는 잠재 공급자. NextEra와 1.2GW 가스+CCS 발전소를 추진 중이지만 2026-01 기준 고객 계약은 없고, 현재 실적에서 AI 매출은 없다.",
+    "dependsOn": [
+      "발전 개발사 (NextEra Energy)",
+      "가스터빈 제조사 (발전소 장비)",
+      "CO2 파이프라인·저장 허가와 정책 지원"
+    ],
+    "sellsTo": [
+      "data-center-real-estate (하이퍼스케일 데이터센터 개발사, 미정)",
+      "cloud-infrastructure (하이퍼스케일러, 미정)",
+      "유틸리티·발전사 (천연가스 연료)"
+    ],
+    "aiRevenue": null,
+    "upside": "데이터센터용 가스발전이 늘면 미국 천연가스 수요가 커지고, 저탄소 전력을 원하는 하이퍼스케일러에 CCS 서비스를 팔 수 있다. NextEra 프로젝트는 고객이 정해지면 2026~2027년 설계, 2028~2029년 상업운전 가능성이 제시됐다.",
+    "risk": "고객 계약이 안 나오면 선택권에 그친다. 경쟁사 Chevron은 이미 Microsoft와 20년 전력구매계약(약 2.67GW)을 맺어 한발 앞서 있고, AI 효율 개선이나 재생에너지·원전 선호가 가스발전 수요를 줄일 수 있다.",
+    "text": "그래서 AI 가치사슬에서 ExxonMobil은 아직 '전력·에너지' 층의 문 앞에 서 있는 회사다. 2024년 12월 1.5GW 데이터센터용 가스발전소 구상을 밝혔고, 2025년 12월에는 NextEra와 1.2GW 가스+탄소포집 발전소 양해각서를 맺었지만, 2026년 3분기 보도자료는 저탄소 데이터센터를 미래 예측 문구에서만 언급했고 고객 계약 발표는 없었다. 지금 실적을 움직이는 것은 여전히 유가와 정제마진이다.",
+    "src": [
+      "s9",
+      "s12",
+      "s13",
+      "s14"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "원유·가스 생산 (Upstream)",
+        "rivals": [
+          "Chevron",
+          "Shell",
+          "TotalEnergies",
+          "BP",
+          "ConocoPhillips"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s1",
+          "s8"
+        ]
+      },
+      {
+        "arena": "정유·연료 판매",
+        "rivals": [
+          "Chevron",
+          "Shell",
+          "미국 독립 정유사들"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s1",
+          "s4"
+        ]
+      },
+      {
+        "arena": "석유화학",
+        "rivals": [
+          "Dow",
+          "LyondellBasell",
+          "SABIC",
+          "중국 신규 설비"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "데이터센터용 가스발전·저탄소 전력",
+        "rivals": [
+          "Chevron (Microsoft와 20년 PPA, Project Kilby 약 2.67GW, 2028년 첫 전력 예정)",
+          "유틸리티·독립발전사"
+        ],
+        "position": "follower",
+        "share": null,
+        "src": [
+          "s12",
+          "s13"
+        ]
+      }
+    ],
+    "edge": "저원가 자원(퍼미안·가이아나)의 생산 성장, 통합 정유·화학 설비, 비용절감과 낮은 부채. 데이터센터 전력에서는 CO2 파이프라인·저장 자산이 차별점이다.",
+    "threats": "유가·정제마진 하락 사이클, 화학 공급 과잉, 저탄소 정책. 데이터센터 전력에서는 Chevron이 이미 Microsoft 계약과 GE Vernova 터빈을 확보해 선점했다.",
+    "text": "이 회사가 싸우는 무대는 크게 넷이다. 원유·가스 생산과 정유에서는 Chevron·Shell 등 대형 석유회사와 경쟁하며, 저원가 자원과 통합 설비로 규모의 우위를 지킨다. 화학은 공급 과잉으로 이익이 바닥이고, 새로 열리는 데이터센터 전력 시장에서는 Chevron이 2026년 6월 Microsoft와 20년 계약을 맺어 ExxonMobil이 뒤따르는 위치다.",
+    "src": [
+      "s1",
+      "s8",
+      "s13"
+    ]
+  },
+  "strategy": {
+    "goal": "2030년까지 2024년 대비 이익 250억 달러, 현금흐름 350억 달러 증가(가격·마진 불변 가정), ROCE 17% 이상, 생산 하루 550만 배럴, 구조적 비용절감 200억 달러.",
+    "roadmap": [
+      {
+        "when": "2026년 4분기",
+        "what": "가이아나 5번째 FPSO Uaru 가동 (하루 25만 배럴 용량, 콜에서 4분기 시작 재확인)",
+        "src": [
+          "s2",
+          "s3",
+          "s15"
+        ]
+      },
+      {
+        "when": "2026년 12월",
+        "what": "Golden Pass LNG 2호 트레인 가동 목표",
+        "src": [
+          "s15"
+        ]
+      },
+      {
+        "when": "2026년 4분기 (콜 발언)",
+        "what": "다년 기업계획 갱신과 2027년 설비투자 등 계획 지표 공개; 2027년 자사주 200억 달러는 3분기 발표에서 먼저 제시",
+        "src": [
+          "s8",
+          "s14",
+          "s15"
+        ]
+      },
+      {
+        "when": "2026년 (진행)",
+        "what": "Papua LNG 운영권 인수(지분 34%로 확대 예정), 모잠비크 Rovuma 지분 50%로 확대 합의, Nucor 탄소포집 가동",
+        "src": [
+          "s14"
+        ]
+      },
+      {
+        "when": "2028~2029년",
+        "what": "NextEra 데이터센터 발전소 고객 확보 시 상업운전 가능",
+        "src": [
+          "s12"
+        ]
+      },
+      {
+        "when": "2030년",
+        "what": "퍼미안 하루 약 250만 배럴, 총 생산 550만 배럴, 저원가 자산 비중 약 65%, 구조적 비용절감 200억 달러",
+        "src": [
+          "s8"
+        ]
+      }
+    ],
+    "vision": "저원가 석유·가스를 늘리면서 탄소포집·저배출 사업을 붙여, 유가가 낮아도 돈을 버는 회사가 되겠다는 그림이다. 브렌트 65달러 가정에서 2030년까지 누적 잉여현금 약 1,450억 달러를 제시했다.",
+    "text": "경쟁에서 이기기 위해 회사가 택한 것은 투자를 크게 늘리지 않고 저원가 물량을 키우는 길이다. 퍼미안은 2026년 연말 목표에 일정보다 조금 빨리 닿았고, 가이아나 Uaru와 Golden Pass 2호 트레인이 연말에 추가되며, 9개월 동안 비용절감 18억 달러를 더 쌓았다. 데이터센터 전력은 이 계획의 본류가 아니라 2028년 이후 열릴 수 있는 추가 선택권으로 남아 있다.",
+    "src": [
+      "s8",
+      "s14",
+      "s15",
+      "s12"
+    ]
+  },
+  "governance": {
+    "line": "2017년부터 회장 겸 CEO인 Darren Woods가 이끌고, 2026-07-01 텍사스 법인으로 본적을 옮겼으며, 4분기 배당을 주당 1.07달러로 올려 44년 연속 증배를 이어 가고 2026·2027년 각 200억 달러 자사주를 내건다.",
+    "src": [
+      "s10",
+      "s7",
+      "s14"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "FY2026",
+        "metric": "cash capex",
+        "value": "270억~290억 달러 (유지)",
+        "givenOn": "2026-10-30",
+        "src": [
+          "s1",
+          "s15"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "share repurchases",
+        "value": "200억 달러 (9개월 151억 집행)",
+        "givenOn": "2026-10-30",
+        "src": [
+          "s15"
+        ]
+      },
+      {
+        "period": "FY2027",
+        "metric": "share repurchases",
+        "value": "200억 달러 (합리적 시장 여건 전제), 2027년 설비투자는 4분기 중 별도 제시",
+        "givenOn": "2026-10-30",
+        "src": [
+          "s14",
+          "s15"
+        ]
+      },
+      {
+        "period": "4Q26",
+        "metric": "dividend",
+        "value": "주당 1.07달러 (직전 1.03달러)",
+        "givenOn": "2026-10-30",
+        "src": [
+          "s14"
+        ]
+      },
+      {
+        "period": "2030 (vs 2024)",
+        "metric": "earnings / cash flow growth",
+        "value": "이익 +250억, 현금흐름 +350억 달러 (가격·마진 불변 가정), ROCE 17% 이상",
+        "givenOn": "2025-12-09",
+        "src": [
+          "s8"
+        ]
+      }
+    ],
+    "style": "annual",
+    "track": "분기 이익 가이던스는 없고 분기 말 직후 이익 고려사항 8-K로 가격·마진 효과를 미리 알린다. 2026년 3분기 조정 EPS 4.23달러는 컨센서스 3.90달러를 넘었다(2분기는 3.52달러로 3.68달러에 미달).",
+    "src": [
+      "s5",
+      "s14",
+      "s16"
+    ]
+  },
+  "estimates": {
+    "text": "2026-11-07 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) 합계 15.19달러(범위 11.01~17.50), 직전 4개 분기 실적 합 10.62달러. 최근 4주 상향 13건·하향 7건으로 상향 우위지만 범위가 넓어 유가·정제마진 가정 차이가 크다.",
+    "src": [
+      "s16"
+    ]
+  },
+  "watch": {
+    "confirms": [
+      "가이아나 Uaru FPSO와 Golden Pass 2호 트레인이 2026년 말 일정대로 가동",
+      "구조적 비용절감 누적액(169억 달러)이 2030년 200억 달러 경로로 계속 증가",
+      "2027년 자사주 200억 달러 계획이 12월 기업계획에서도 유지",
+      "Chemical 부문 이익이 분기 7억 달러대에서 회복",
+      "NextEra 데이터센터 발전소에 하이퍼스케일러 고객 계약 체결"
+    ],
+    "breaks": [
+      "정제마진 지표가 배럴당 50달러대에서 2025년 수준(17달러대)으로 빠르게 돌아감",
+      "브렌트가 계획 가정(65달러)을 크게 밑도는 기간이 길어짐",
+      "자사주 계획 축소 또는 순부채 재증가",
+      "가이아나·퍼미안 생산 차질이나 일정 지연",
+      "대규모 손상차손이나 타이밍 효과로 GAAP 이익이 크게 흔들림"
+    ],
+    "keyNumbers": [
+      {
+        "name": "Upstream 생산량 (총량·퍼미안·가이아나)",
+        "why": "이익 대부분이 Upstream에서 나온다"
+      },
+      {
+        "name": "실현 유가 vs 브렌트",
+        "why": "유가 민감도의 직접 결과"
+      },
+      {
+        "name": "정제마진",
+        "why": "2026년 이익 급증의 상당 부분"
+      },
+      {
+        "name": "조정이익과 타이밍 효과",
+        "why": "파생상품 평가로 GAAP 이익이 수십억 달러 흔들린다"
+      },
+      {
+        "name": "잉여현금흐름 대비 주주환원",
+        "why": "배당+자사주를 현금으로 감당하는지"
+      },
+      {
+        "name": "데이터센터 전력 계약 여부",
+        "why": "AI 선택권이 실제 매출로 바뀌는 신호"
+      }
+    ]
+  },
+  "debate": {
+    "question": "정제마진 급등이 끝난 뒤에도 저원가 생산 증가와 비용절감이 이익과 연 200억 달러 자사주를 지켜 주는지",
+    "bull": {
+      "text": "낙관하는 쪽은 3분기 잉여현금흐름 191억 달러로 9개월 누계 390억 달러를 벌어 자사주 151억과 배당을 내고도 순부채를 약 110억 달러 줄였다는 점을 든다. 비용절감은 2019년 대비 169억 달러로 쌓였고, 회사는 '유가와 마진 덕만이 아닌 지속적 개선'이라며 2027년 자사주 200억 달러를 미리 내걸었다. 연말 Uaru FPSO와 Golden Pass 2호 트레인이 물량을 더한다.",
+      "src": [
+        "s14",
+        "s15"
+      ]
+    },
+    "bear": {
+      "text": "비관하는 쪽은 3분기 이익 증가의 중심이 회사가 통제하지 못하는 가격이라는 점을 본다. 정제마진 지표가 배럴당 50.3달러로 전년 동기 17.5달러의 약 3배였고, 브렌트도 97달러였으며, 그 덕에 Energy Products 조정이익(90.5억)이 Upstream을 넘었다. 생산량은 9개월 평균 하루 453만 배럴로 전년 동기 465만보다 적고, 화학 이익은 7억 달러대에 그쳤다.",
+      "src": [
+        "s15",
+        "s14"
+      ]
+    },
+    "decides": [
+      {
+        "when": "2026년 12월 (2025-12-09 선례)",
+        "what": "다년 기업계획 갱신에서 2027년 설비투자와 2030년 생산 550만 배럴·비용절감 200억 달러 목표가 유지되는지",
+        "src": [
+          "s8",
+          "s15"
+        ]
+      },
+      {
+        "when": "2026년 4분기",
+        "what": "Uaru FPSO와 Golden Pass 2호 트레인이 계획대로 가동돼 생산량이 전년 수준을 회복하는지",
+        "src": [
+          "s15",
+          "s14"
+        ]
+      },
+      {
+        "when": "2027년 1월 초 (분기 말 직후 패턴)",
+        "what": "4Q26 이익 고려사항 8-K에서 정제마진 효과가 3분기 대비 얼마나 되돌려지는지",
+        "src": [
+          "s5"
+        ]
+      }
+    ]
+  },
+  "underTheHood": [
+    {
+      "title": "정유가 Upstream을 넘은 분기",
+      "text": "2026년 3분기 조정이익은 Energy Products 90.5억, Upstream 73.1억 달러로 정유가 앞섰다. FY2025에는 Upstream 213.5억, Energy Products 74.2억 달러로 반대였으므로, 3분기 이익의 구성은 이 회사의 평소 수익원이 아니라 정제마진 급등의 결과로 읽어야 한다.",
+      "src": [
+        "s14",
+        "s1"
+      ]
+    },
+    {
+      "title": "GAAP와 조정이익의 25억 달러",
+      "text": "3분기 GAAP 이익 154억 달러와 조정이익 175억 달러의 차이는 주로 파생상품 평가 같은 타이밍 효과 -25.4억 달러다. 회사는 분기 말 직후 이익 고려사항 8-K로 이 효과를 미리 알리는데, 3분기 공시의 타이밍 효과 -25억 달러가 실제와 거의 같았다.",
+      "src": [
+        "s14",
+        "s5"
+      ]
+    },
+    {
+      "title": "환원과 부채 축소를 함께",
+      "text": "9개월 영업현금흐름 579억 달러로 설비투자 200억, 자사주 151억, 배당 약 129억 달러를 내고도 총부채를 약 92억 달러 줄였다. 높은 마진이 이어지는 동안은 세 가지를 모두 감당하지만, 연간 계획(설비투자 270억~290억·자사주 200억 달러)은 마진이 정상화돼도 유지되는 금액으로 정해져 있다.",
+      "src": [
+        "s14",
+        "s15"
+      ]
+    },
+    {
+      "title": "AI 전력은 아직 선택권",
+      "text": "NextEra와의 1.2GW 가스+탄소포집 발전소는 양해각서 단계이고 3분기 발표에도 고객 계약은 없었다. Chevron이 2026년 6월 Microsoft와 20년 계약(약 2.67GW)을 먼저 맺었으며, 현재 실적에 AI 매출은 없다.",
+      "src": [
+        "s12",
+        "s13",
+        "s14"
+      ]
+    }
+  ],
+  "trading": {
+    "calendar": [
+      {
+        "date": "2026-11-16 (기준일) / 2026-12-10 (지급)",
+        "event": "4분기 배당 주당 1.07달러",
+        "src": [
+          "s14"
+        ]
+      },
+      {
+        "date": "2026년 4분기",
+        "event": "가이아나 Uaru FPSO 가동 개시",
+        "src": [
+          "s15"
+        ]
+      },
+      {
+        "date": "2026년 12월",
+        "event": "Golden Pass LNG 2호 트레인 가동 목표, 다년 기업계획 갱신(2025-12-09 선례)과 2027년 설비투자",
+        "src": [
+          "s15",
+          "s8"
+        ]
+      },
+      {
+        "date": "2027년 1월 초 (분기 말 직후 패턴)",
+        "event": "4Q26 이익 고려사항 8-K 공시",
+        "src": [
+          "s5"
+        ]
+      },
+      {
+        "date": "수시",
+        "event": "NextEra 데이터센터 발전소 고객 발표 여부",
+        "src": [
+          "s12"
+        ]
+      }
+    ],
+    "reaction": "이익 고려사항 8-K로 유가·마진 효과가 미리 알려지므로, 실적 당일에는 조정 EPS 자체보다 생산량, 자사주 페이스, 설비투자 가이던스 변화에 반응하는 경향이 있다. 평소 주가는 실적보다 유가·정제마진 흐름과 함께 움직이는 비중이 크다.",
+    "conditions": [
+      "브렌트 유가와 회사 계획 가정(65달러)의 거리",
+      "회사 정제마진 지표(3분기 배럴당 50.3달러)의 추이와 정제제품 시장 차질 뉴스",
+      "실적 발표 때 생산량, 퍼미안·가이아나 언급, 자사주 연간 페이스",
+      "타이밍 효과를 뺀 조정이익의 부문별 구성",
+      "컨센서스 EPS 상향·하향 건수와 추정 범위 폭",
+      "데이터센터 전력 관련 계약·최종투자결정 뉴스"
+    ]
+  },
+  "unverified": [
+    "3분기 세그먼트별 외부 매출과 매출 비중 (보도자료에 없음, 그래서 segments 매출은 null)",
+    "총마진·영업이익률 - 통합 석유회사 보고 형식상 직접 제시되지 않아 null",
+    "R&D 지출 금액 (보도자료에 없음)",
+    "9개월 배당 약 129억 달러는 sec-api.io가 분기 배당을 합산한 계산값, 부채 상환 약 92억 달러는 총부채 435억→343억 달러 차이로 계산한 값",
+    "퍼미안·가이아나 3분기 생산량과 Uaru 가동 시기는 콜 발언을 옮긴 2차 요약(s15) 기준이며 녹취록 원문 미확인",
+    "3분기 매출·브렌트·정제마진 지표는 8-K 부록을 정리한 sec-api.io 페이지(s15) 기준",
+    "NextEra 프로젝트 용량(1.2GW vs 1.45GW 보도 엇갈림)과 2026년 1월 이후 고객 계약 진행 상황",
+    "2024년 발표한 1.5GW 데이터센터 발전소의 2026년 상태",
+    "경쟁 무대별 점유율과 position 판정(작성자 판단), 경쟁사 목록은 공시 미확인",
+    "판매 채널의 브랜드별 주유소 수 등 세부",
+    "최신 손익분기 유가, 내부자 지분율",
+    "s5 공시일(파일명에서 추정)",
+    "4Q26 실적 발표일 (회사 미공지)"
+  ],
+  "confidence": "medium - 3분기 실적·현금흐름·환원은 회사 보도자료에서 왔지만, 매출·실현가격·콜 발언은 서드파티 정리(s15) 기준이고 데이터센터 전력 진행 상황은 2026년 1월 이후 새 사실이 없다."
+}
