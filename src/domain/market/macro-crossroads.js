@@ -498,7 +498,12 @@ export function buildMacroCrossroads({ read = null, macroHistory = null, history
   const tied = held ? [] : ranked.filter((item) => gated(item) && ratio(item) === ratio(lead));
   const partial = items.filter((item) => item.gate.met !== true && item.known >= 2 && item.met > 0).sort((a, b) => ratio(b) - ratio(a))[0] || null;
   const alt = held ? null : tied[1] || others.find(pricedSame) || others[0] || null;
-  const nextEvent = nextDecidingEvent(events, tied.length >= 2 ? tied.map((item) => item.id) : [lead, alt].filter((item) => item && !held).map((item) => item.id));
+  // v59.74 (weekly outlook review 11/7): nextEvent is the next release that tests any branch; decidingEvent is the one that
+  // tests the branches in play, named apart only when it is a later release (see nextDecidingEvent).
+  const inPlay = tied.length >= 2 ? tied.map((item) => item.id) : [lead, alt].filter((item) => item && !held).map((item) => item.id);
+  const nextEvent = nextDecidingEvent(events);
+  const deciding = nextDecidingEvent(events, inPlay, { inPlayOnly: true });
+  const decidingEvent = deciding && nextEvent && deciding.id !== nextEvent.id ? deciding : null;
 
   // The rate hub: why higher rates hurt, what would have to happen for them to fall, and which release shows it.
   // Oil falling is read on WTI and Brent together: opposite 20-session signs on the same futures basis are 혼재, not
@@ -547,21 +552,27 @@ export function buildMacroCrossroads({ read = null, macroHistory = null, history
   const registryIndex = (item) => BRANCHES.findIndex((branch) => branch.id === item.id);
   const tiedText = [...tied].sort((a, b) => registryIndex(a) - registryIndex(b)).map((item) => { const extra = [sameFit ? '' : item.fit, tone(item)].filter(Boolean).join(', '); return `'${short(item)}'${extra ? `(${extra})` : ''}`; });
   const headline = held ? (partial ? `핵심 조건이 충족된 시나리오가 없어 중심 시나리오를 정하지 않습니다 — 조건이 가장 많이 맞는 '${short(partial)}'도 핵심 조건(${partial.gate.labels[0].split(' (')[0]})은 ${partial.gate.met === false ? '충족하지 못했습니다' : '확인할 수 없습니다'}.${nextEvent ? ` 다음 발표: ${nextEvent.when} ${nextEvent.name}.` : ''}` : '조건을 확인할 관측이 부족하거나 뚜렷하게 맞는 시나리오가 없어 판단을 보류합니다.')
-    : tied.length >= 2 ? `조건 충족이 같은${sameFit ? `(${lead.met}/${lead.total})` : ''} 시나리오가 ${COUNT_WORDS[tied.length] || `${tied.length}개`}입니다 — ${tiedText.slice(0, -1).join(', ')}${andParticle(tiedText.at(-2))} ${tiedText.at(-1)}. ${nextEvent ? `${nextEvent.when} ${nextEvent.name} 발표가 ${tied.length === 2 ? '둘을' : '이 시나리오들을'} 가릅니다.` : '다음 발표가 이 시나리오들을 가릅니다.'}`
+    : tied.length >= 2 ? `조건 충족이 같은${sameFit ? `(${lead.met}/${lead.total})` : ''} 시나리오가 ${COUNT_WORDS[tied.length] || `${tied.length}개`}입니다 — ${tiedText.slice(0, -1).join(', ')}${andParticle(tiedText.at(-2))} ${tiedText.at(-1)}. ${(decidingEvent || nextEvent) ? `${(decidingEvent || nextEvent).when} ${(decidingEvent || nextEvent).name} 발표가 ${tied.length === 2 ? '둘을' : '이 시나리오들을'} 가릅니다.${decidingEvent ? ` 그 전에 ${nextEvent.when} ${nextEvent.name}이 조건 수를 바꿀 수 있습니다.` : ''}` : '다음 발표가 이 시나리오들을 가릅니다.'}`
     : `지금 조건이 가장 많이 맞는 시나리오는 '${short(lead)}'(${lead.fit})입니다.${lead.pricing.tone === 'same' && !lead.pricingInConditions ? ' 시장 가격도 같은 방향입니다.' : lead.pricing.tone === 'against' ? ' 다만 시장 가격은 반대 방향입니다.' : ''}${alt ? ` 대안 시나리오: '${short(alt)}'(${alt.fit}${pricedSame(alt) ? ', 시장 가격은 이쪽' : ''}).` : ''}${nextEvent ? ` 다음 발표: ${nextEvent.when} ${nextEvent.name}.` : ''}`;
   return { available: items.some((item) => item.known >= 2), version: MACRO_CROSSROADS_VERSION, asOf: s.asOf, held, headline,
-    leadId: held ? null : lead.id, altId: alt?.id || null, tiedIds: tied.length >= 2 ? tied.map((item) => item.id) : [], items, rateHub, relations, events, nextEvent, cash: s.cash ? { value: s.cash.value, date: s.cash.date } : null };
+    leadId: held ? null : lead.id, altId: alt?.id || null, tiedIds: tied.length >= 2 ? tied.map((item) => item.id) : [], items, rateHub, relations, events, nextEvent, decidingEvent, cash: s.cash ? { value: s.cash.value, date: s.cash.date } : null };
 }
 
 // MERGED #13 (run-6): the next release had three answers on one day (11/6 고용 on 시장 상태, 11/10 CPI on the lead's
 // choices, 11/3 ISM on the 거시 header). The one selector: the earliest release that tests a branch in play (the tied set,
 // else the lead and the alternative), else the earliest that tests any branch. A release no branch reads (ISM) decides
 // no scenario and is never "다음 갈림길".
-export function nextDecidingEvent(events, branchIds = []) {
+// v59.74 (weekly outlook review 11/7): preferring the branches in play skipped an earlier release that tests another branch
+// — on 11/7 the tie (성장 재가속·AI 투자 꺾임·변동성 충격) made 11/17 소매판매 the "다음 주요 발표" over the 11/10 CPI, the
+// 시장 상태 week list (8 days) then held no release, and the 거시 header contradicted its own CPI card. A release that tests any
+// branch moves the condition counts, so the shared selector is now the earliest such release; the in-play pick
+// (inPlayOnly) is published apart as crossroads.decidingEvent, for the sentences that say which release settles a tie.
+export function nextDecidingEvent(events, branchIds = [], { inPlayOnly = false } = {}) {
   const list = Array.isArray(events) ? events : [];
   const tests = (event, pool) => BRANCHES.some((branch) => (!pool || pool.has(branch.id)) && branch.triggers.some(([id]) => id === event.id));
   const pool = branchIds.length ? new Set(branchIds) : null;
-  return (pool && list.find((event) => tests(event, pool))) || list.find((event) => tests(event, null)) || null;
+  if (inPlayOnly) return pool ? list.find((event) => tests(event, pool)) || null : null;
+  return list.find((event) => tests(event, null)) || null;
 }
 
 // The macro auto-log (변화 기록) is the scenario record: lead, alternative, condition count, market pricing, the rate
