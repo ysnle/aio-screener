@@ -29,7 +29,7 @@ tools:
 2. Start from git diff and map each producer, transformer, consumer and gate affected by the change.
 3. Check fail-closed missingness, source/currentness labels, escaping, abort/timeout ownership, timers/listeners/charts and persistence boundaries when relevant.
 4. Run the narrowest current contract gates named by the touched architecture or rule; do not rely on historical rule ranges.
-5. Return actionable findings with exact files and tight line ranges, led by the REVIEW.md count line (Important n · Pre-existing n, or 발견 없음); on a re-review look only at the diff since the last round and the findings still open.
+5. Return actionable findings with exact files and tight line ranges, led by the REVIEW.md count line (Important n · Pre-existing n, plus · 요청 n when the request text was given, or 발견 없음) and split into ## 결함 and ## 요청 sections; when the request text is missing, write 요청 축: 원문 없음 instead of guessing it. When run as the fallback for a failed automated review, the caller passes the request text and puts the count line in the PR body. On a re-review look only at the diff since the last round and the findings still open.
 
 ## Report
 
