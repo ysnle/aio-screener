@@ -243,9 +243,13 @@ export function mergeBackfillBars(hist, byDate, fields = HIST_FIELDS) {
       for (const f of fields) {
         if (byDate[date][f] == null) continue;
         const meta = existing.fieldMeta[f];
-        const ownSession = meta ? (historyFieldSessionDate(meta, f) || observationSessionDate(f, meta.observedAt)) : null;
+        // v59.74 (live 11/7): a carried-forward placeholder holds another session's close, so it is never this bar's
+        // completed record. historyFieldSessionDate returns null for it and the observedAt fallback read the placeholder's
+        // fetch stamp (11/2 14:30Z) as an 11/2 session, so the held-session backfill kept the 10/30 close it came to replace.
+        const carried = meta?.observationRelation === 'carried-forward';
+        const ownSession = meta && !carried ? (historyFieldSessionDate(meta, f) || observationSessionDate(f, meta.observedAt)) : null;
         const barSession = byDate[date].fieldMeta?.[f]?.sessionDate || date;
-        if (readNumber(existing[f]) != null && meta?.valueBasis && (!ownSession || ownSession === barSession)) continue;
+        if (!carried && readNumber(existing[f]) != null && meta?.valueBasis && (!ownSession || ownSession === barSession)) continue;
         existing[f] = byDate[date][f];
         if (byDate[date].fieldMeta?.[f]) existing.fieldMeta[f] = byDate[date].fieldMeta[f];
       }

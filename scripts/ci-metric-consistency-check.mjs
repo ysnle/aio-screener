@@ -140,7 +140,7 @@ check('v59.70 re-review N7 기술적 분석 movers: US first, Korean next, no th
 
 // ── 7. v59.74 weekly outlook review (11/7): the next release, the week list, the biggest day and the held closes.
 const { nextDecidingEvent } = await load('src/domain/market/macro-crossroads.js');
-const { keepDisplacedSessions, heldUsSessionFields } = await load('scripts/producer/history.mjs');
+const { keepDisplacedSessions, heldUsSessionFields, mergeBackfillBars } = await load('scripts/producer/history.mjs');
 const cpi = { id: 'us-cpi', name: 'CPI (소비자물가)', date: '2026-11-10', when: '11/10(화) 22:30 KST' };
 const retail = { id: 'us-retail', name: '소매판매', date: '2026-11-17', when: '11/17(화) 22:30 KST' };
 const tie = ['reflation', 'aibust', 'volshock'];
@@ -172,6 +172,10 @@ check('v59.74 a weekday held close is found for repair', heldUsSessionFields(hel
 const keptRows = keepDisplacedSessions(heldHist, '2026-11-05', { fieldMeta: { wti: metaAt('2026-11-05', 'latest-completed-close') } }, { fields: ['wti'] });
 check('v59.74 a displaced close replaces a carried placeholder in its own row', keptRows.length === 1 && heldHist[1].wti === 93.1 && heldHist[1].fieldMeta.wti.sessionDate === '2026-11-04', JSON.stringify(heldHist[1]));
 
+// The live 11/2 NDX placeholder: stamped at the row date's open, valueBasis previous-completed-close, holding the 10/30 close.
+const liveHeld = [{ date: '2026-11-02', ndx: 28384.85, fieldMeta: { ndx: { observedAt: '2026-11-02T14:30:00.000Z', valueBasis: 'previous-completed-close', observationRelation: 'carried-forward', sessionDate: '2026-10-30', carriedFrom: '2026-10-30', heldReason: 'session-already-recorded' } } }];
+mergeBackfillBars(liveHeld, { '2026-11-02': { date: '2026-11-02', ndx: 28102.4, fieldMeta: { ndx: metaAt('2026-11-02', 'latest-completed-close') } } }, ['ndx']);
+check('v59.74 the backfill bar replaces a carried placeholder stamped on its own row date', liveHeld[0].ndx === 28102.4 && liveHeld[0].fieldMeta.ndx.sessionDate === '2026-11-02', JSON.stringify(liveHeld[0]));
 if (failures.length) {
   console.error(`[metric-consistency] ${failures.length} failure(s):\n- ${failures.join('\n- ')}`);
   process.exit(1);
