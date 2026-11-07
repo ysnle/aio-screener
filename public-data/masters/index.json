@@ -2,9 +2,9 @@
   "schemaVersion": "masters-13f.v1",
   "sourceKind": "REFERENCE",
   "status": "REFERENCE_ROWS_CONNECTED",
-  "reviewedAt": "2026-10-26",
-  "generatedAt": "2026-10-26T15:53:05.306Z",
-  "latestAvailablePeriod": "2026-06-30",
+  "reviewedAt": "2026-11-04",
+  "generatedAt": "2026-11-04T15:44:34.754Z",
+  "latestAvailablePeriod": "2026-09-30",
   "metadataStatus": "REFERENCE_METADATA_CONNECTED",
   "metadataArtifact": "public-data/masters/filings.json",
   "managerCatalogArtifact": "public-data/masters/manager-catalog.json",
@@ -23,10 +23,10 @@
   "holdingsArtifact": "public-data/masters/holdings.json",
   "verifiedFilerMetadata": 37,
   "holdingRowsPublished": 366,
-  "fullRowsAvailable": 193200,
+  "fullRowsAvailable": 193956,
   "reconciledManagers": 37,
   "comparisonRowsPublished": 366,
-  "fullComparisonRowsAvailable": 89976,
+  "fullComparisonRowsAvailable": 89968,
   "reconciledComparisons": 37,
   "historyIndexArtifact": "public-data/masters/history-index.json",
   "historyHoldingsArtifact": "public-data/masters/history-holdings.json",
@@ -42,14 +42,14 @@
   "issuerAggregateStatus": "RAW_CUSIP_MULTI_QUARTER_CONNECTED",
   "issuerAggregateRecords": 2565,
   "issuerAggregateReviewQueue": 282,
-  "issuerAggregateReviewedAt": "2026-10-26",
+  "issuerAggregateReviewedAt": "2026-11-04",
   "policy": "SEC EDGAR filing and information-table XML are the canonical source for 13F profiles. Method-only educators such as Mark Minervini are visibly separated and never receive filer, CIK, accession, holdings, or reported-value rows. Do not publish holdings before filer, CIK, accession, report period, and summary reconciliation pass.",
   "managers": [
     {
       "id": "blackrock-inc",
       "displayName": "BlackRock",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "citigroup",
@@ -61,49 +61,49 @@
       "id": "goldman-sachs-group",
       "displayName": "Goldman Sachs",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "jpmorgan-chase",
       "displayName": "JPMorgan Asset Management",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "state-street-investment-management",
       "displayName": "State Street Investment Management",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "vanguard-group",
       "displayName": "Vanguard",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "capital-international-investors",
       "displayName": "Capital Group",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "fidelity-fmr",
       "displayName": "Fidelity / FMR",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "t-rowe-price",
       "displayName": "T. Rowe Price",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "wellington-management",
       "displayName": "Wellington Management",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "dimensional-fund-advisors",
@@ -115,67 +115,67 @@
       "id": "berkshire-hathaway",
       "displayName": "Warren Buffett",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "soros-fund-management",
       "displayName": "George Soros / Dawn Fitzpatrick",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "bridgewater-associates",
       "displayName": "Ray Dalio",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "duquesne-family-office",
       "displayName": "Stanley Druckenmiller",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "appaloosa-management",
       "displayName": "David Tepper",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "oaktree-capital-management",
       "displayName": "Howard Marks",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "citadel-advisors",
       "displayName": "Ken Griffin / Seth Levy",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "millennium-management",
       "displayName": "Millennium Management",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "renaissance-technologies",
       "displayName": "Renaissance Technologies",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "two-sigma-investments",
       "displayName": "Two Sigma",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "tudor-investment",
       "displayName": "Tudor Investment",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "pershing-square",
@@ -187,73 +187,73 @@
       "id": "starboard-value",
       "displayName": "Starboard Value",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "trian-fund-management",
       "displayName": "Trian Fund Management",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "valueact-holdings",
       "displayName": "ValueAct",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "third-point",
       "displayName": "Daniel Loeb",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "elliott-investment-management",
       "displayName": "Paul Singer",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "tci-fund-management",
       "displayName": "Chris Hohn",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "viking-global-investors",
       "displayName": "Andreas Halvorsen",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "tiger-global-management",
       "displayName": "Chase Coleman",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "ark-investment-management",
       "displayName": "Cathie Wood",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "harvard-management-company",
       "displayName": "Harvard Management Company",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "situational-awareness",
       "displayName": "Leopold Aschenbrenner",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "baupost-group",
       "displayName": "Seth Klarman",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "scion-asset-management",
@@ -265,7 +265,7 @@
       "id": "fisher-asset-management",
       "displayName": "Ken Fisher",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "mark-minervini",
@@ -279,16 +279,49 @@
   "nextStep": "MF-05 issuer/ticker/share-class/corporate-action normalization and sector mapping before portfolio-weight labels; raw SEC history rows remain reference-only.",
   "lastSuccessfulArtifact": "2026-09-02T12:06:32.826Z",
   "staleReferenceManagers": [
+    "blackrock-inc",
+    "goldman-sachs-group",
+    "jpmorgan-chase",
+    "state-street-investment-management",
+    "vanguard-group",
+    "capital-international-investors",
+    "fidelity-fmr",
+    "t-rowe-price",
+    "wellington-management",
+    "berkshire-hathaway",
+    "soros-fund-management",
+    "bridgewater-associates",
+    "duquesne-family-office",
+    "appaloosa-management",
+    "oaktree-capital-management",
+    "citadel-advisors",
+    "millennium-management",
+    "renaissance-technologies",
+    "two-sigma-investments",
+    "tudor-investment",
     "pershing-square",
-    "scion-asset-management"
+    "starboard-value",
+    "trian-fund-management",
+    "valueact-holdings",
+    "third-point",
+    "elliott-investment-management",
+    "tci-fund-management",
+    "viking-global-investors",
+    "tiger-global-management",
+    "ark-investment-management",
+    "harvard-management-company",
+    "situational-awareness",
+    "baupost-group",
+    "scion-asset-management",
+    "fisher-asset-management"
   ],
   "runtimeHoldingsArtifact": "public-data/masters/holdings-summary.json",
-  "runtimeHoldingsBytes": 264097,
+  "runtimeHoldingsBytes": 264013,
   "managerShardCount": 37,
   "historyManagerShardCount": 7,
   "tickerIndexArtifact": "public-data/masters/ticker-index-reference.json",
   "tickerIndexStatus": "REFERENCE_ONLY",
   "tickerIndexReferenceCount": 49,
   "tickerIndexMatchedRows": 139,
-  "tickerIndexGeneratedAt": "2026-10-26T15:53:05.306Z"
+  "tickerIndexGeneratedAt": "2026-11-04T15:44:34.754Z"
 }

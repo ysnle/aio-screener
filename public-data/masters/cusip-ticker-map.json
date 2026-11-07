@@ -3,18 +3,18 @@
   "artifactRole": "CUSIP_TICKER_CACHE",
   "source": "OpenFIGI /v3/mapping (idType ID_CUSIP, exchCode US)",
   "sourceUrl": "https://www.openfigi.com/api",
-  "generatedAt": "2026-11-02T17:26:51.855Z",
+  "generatedAt": "2026-11-04T15:45:18.103Z",
   "status": "OK",
   "policy": "A CUSIP gets a ticker only when OpenFIGI returns exactly one US-exchange common-stock ticker for it. Ambiguous, non-common and missing answers are kept as such and never shown as tickers. The runtime builder also drops a ticker that disagrees with the reference crosswalk.",
   "lastRun": {
     "apiKey": false,
-    "asked": 125,
-    "answered": 109
+    "asked": 28,
+    "answered": 12
   },
   "counts": {
-    "EXACT": 1271,
+    "EXACT": 1281,
     "AMBIGUOUS": 0,
-    "NOT_COMMON": 413,
+    "NOT_COMMON": 415,
     "NOT_FOUND": 393,
     "INVALID_TICKER": 0
   },
@@ -652,6 +652,12 @@
       "t": "DRI",
       "n": "DARDEN RESTAURANTS INC",
       "on": "2026-10-26"
+    },
+    "237266101": {
+      "s": "EXACT",
+      "t": "DAR",
+      "n": "DARLING INGREDIENTS INC",
+      "on": "2026-11-04"
     },
     "243537107": {
       "s": "EXACT",
@@ -2255,6 +2261,12 @@
       "n": "PEPSICO INC",
       "on": "2026-10-26"
     },
+    "714046109": {
+      "s": "EXACT",
+      "t": "RVTY",
+      "n": "REVVITY INC",
+      "on": "2026-11-04"
+    },
     "717081103": {
       "s": "EXACT",
       "t": "PFE",
@@ -3439,6 +3451,12 @@
       "n": "ABM INDUSTRIES INC",
       "on": "2026-10-26"
     },
+    "001026103": {
+      "s": "EXACT",
+      "t": "ADIG",
+      "n": "ADI GLOBAL DISTRIB",
+      "on": "2026-11-04"
+    },
     "001055102": {
       "s": "EXACT",
       "t": "AFL",
@@ -3494,6 +3512,10 @@
     "00162Q387": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "00162Q445": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-04"
     },
     "00162Q452": {
       "s": "NOT_COMMON",
@@ -3628,6 +3650,10 @@
     "00214Q708": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "00214Q724": {
+      "s": "NOT_COMMON",
+      "on": "2026-11-04"
     },
     "00215F107": {
       "s": "EXACT",
@@ -3832,6 +3858,18 @@
       "t": "ARAY",
       "n": "ACCURAY INC",
       "on": "2026-10-26"
+    },
+    "00439U104": {
+      "s": "EXACT",
+      "t": "GRCE",
+      "n": "GRACE THERAPEUTICS INC",
+      "on": "2026-11-04"
+    },
+    "00444T209": {
+      "s": "EXACT",
+      "t": "TLPH",
+      "n": "TALPHERA INC",
+      "on": "2026-11-04"
     },
     "004468500": {
       "s": "EXACT",
@@ -7039,11 +7077,23 @@
       "s": "NOT_FOUND",
       "on": "2026-10-26"
     },
+    "30233Q108": {
+      "s": "EXACT",
+      "t": "XOM",
+      "n": "EXXONMOBIL HOLDINGS CORP",
+      "on": "2026-11-04"
+    },
     "30303M102": {
       "s": "EXACT",
       "t": "META",
       "n": "META PLATFORMS INC-CLASS A",
       "on": "2026-10-26"
+    },
+    "30609A109": {
+      "s": "EXACT",
+      "t": "OKE",
+      "n": "ONEOK INC",
+      "on": "2026-11-04"
     },
     "31428X106": {
       "s": "EXACT",
@@ -7694,6 +7744,12 @@
     "46654Q773": {
       "s": "NOT_COMMON",
       "on": "2026-10-26"
+    },
+    "46817M107": {
+      "s": "EXACT",
+      "t": "JXN",
+      "n": "JACKSON FINANCIAL INC-A",
+      "on": "2026-11-04"
     },
     "46982L108": {
       "s": "EXACT",
@@ -8513,6 +8569,12 @@
       "s": "NOT_COMMON",
       "on": "2026-11-02"
     },
+    "70450Y103": {
+      "s": "EXACT",
+      "t": "PYPL",
+      "n": "PAYPAL HOLDINGS INC",
+      "on": "2026-11-04"
+    },
     "70451X104": {
       "s": "EXACT",
       "t": "PAYO",
@@ -9158,6 +9220,12 @@
       "t": "SKE",
       "n": "SKEENA RESOURCES LTD",
       "on": "2026-11-02"
+    },
+    "83088M102": {
+      "s": "EXACT",
+      "t": "SWKS",
+      "n": "SKYWORKS SOLUTIONS INC",
+      "on": "2026-11-04"
     },
     "83193G107": {
       "s": "EXACT",
