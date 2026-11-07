@@ -349,6 +349,8 @@ try {
   await page.waitForFunction(() => document.getElementById('page-sentiment')?.dataset.aioSentimentBoardRenderer === 'native');
   const sentimentFg = await page.evaluate(() => document.querySelector('#page-sentiment [data-metric="fg"] .trend-card-change')?.textContent || '');
   const fgNumber = (text, label) => { const m = new RegExp(`${label}\\s*([+−-]?\\d+)`).exec(text); return m ? Number(m[1].replace('-', '-')) : null; };
+  // v59.74 (QA-SENT-29/P1219): the change carries its own name; an unlabelled number read as a second score. Empty = no history yet.
+  if (homeFg.trim() && !/^(전일 대비 [+-]\d+|전일과 같음)$/.test(homeFg.trim())) throw new Error(`v59.74 QA-SENT-29 home F&G change lost its label: ${JSON.stringify(homeFg)}`);
   const homeFgDelta = fgNumber(homeFg, '전일 대비');
   const sentimentFgDelta = fgNumber(sentimentFg, '전일');
   if (homeFgDelta != null && sentimentFgDelta != null && homeFgDelta !== sentimentFgDelta) throw new Error(`P1428 F&G day change differs across screens: home=${homeFg} sentiment=${sentimentFg}`);
