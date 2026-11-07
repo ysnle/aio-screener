@@ -7,7 +7,7 @@
     "targeted": "Search or read only when the task touches the named domain.",
     "explicitOnly": "Point-in-time evidence; never load by default or treat as current state."
   },
-  "documentCount": 79,
+  "documentCount": 80,
   "documents": [
     {
       "path": "_context/AI-CHAT-INSTITUTIONAL-AUDIT-2026-07-12.md",
@@ -379,8 +379,8 @@
       "title": "AIO Context Index",
       "kind": "targeted-map",
       "readPolicy": "targeted",
-      "bytes": 9586,
-      "lines": 118,
+      "bytes": 9836,
+      "lines": 119,
       "lastVerified": "2026-11-02",
       "autoRefresh": true
     },
@@ -675,6 +675,16 @@
       "bytes": 4793,
       "lines": 56,
       "lastVerified": "2026-09-28",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/STATE-MACHINES.md",
+      "title": "상태 머신 목록 — 상태·불변식·전이표·도달 가능한 잘못된 상태",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 18281,
+      "lines": 196,
+      "lastVerified": null,
       "autoRefresh": false
     },
     {

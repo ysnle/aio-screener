@@ -31,6 +31,7 @@ target_version: version.json
 | `RULES.md` | 맨 위 수신함 다음의 원칙 색인(C1~C18: 불변식·게이트) → 해당 원칙의 R번호·함수 | 새 결함을 어긴 원칙에 넣거나 규칙/게이트로 승격할 때 |
 | `BUG-POSTMORTEM.md` | 관련 P번호, 증상, producer/consumer; 맨 위 원칙별 반복 결함 표(`scripts/ledger-class-report.mjs --write`) | 버그 수정 시 |
 | `QA-CHECKLIST.md` | QA ID, 페이지, 게이트 | 새 회귀·미검증 경계 발생 시 |
+| `STATE-MACHINES.md` | SM 번호, 상태 머신 이름(라우터·자동 갱신·시세 재시도·AI 요청·로더·캐시), 전이표·불변식 | 상태·플래그·타이머·재시도 코드를 바꾸거나 잘못된 상태를 찾았을 때 |
 | `KNOWLEDGE-BASE.md` | 도메인 용어, source/evidence 상태 | 재사용 가능한 지식 또는 경계 변경 시 |
 
 ## Task routing
