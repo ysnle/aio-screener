@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-07T05:22:06.417Z",
-  "attemptedAt": "2026-11-07T05:22:06.417Z",
-  "lastSuccessfulAt": "2026-11-07T05:22:06.417Z",
+  "generatedAt": "2026-11-07T06:21:49.830Z",
+  "attemptedAt": "2026-11-07T06:21:49.830Z",
+  "lastSuccessfulAt": "2026-11-07T06:21:49.830Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-24T05:22:00.641Z",
-  "until": "2026-11-07T05:22:00.641Z",
+  "since": "2026-10-24T06:21:43.812Z",
+  "until": "2026-11-07T06:21:43.812Z",
   "current24hWindow": {
     "start": "2026-11-05T23:00:00.000Z",
     "end": "2026-11-06T23:00:00.000Z",
@@ -80,21 +80,21 @@
       "pages": 0,
       "reachedOlder": false,
       "reachedKnown": false,
-      "count": 39,
+      "count": 38,
       "freshCount": 0,
-      "eligibleTextCount": 36,
-      "selectedCount": 22,
+      "eligibleTextCount": 35,
+      "selectedCount": 21,
       "error": "first page parsed no posts",
       "lastPostId": 26057
     },
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1359,
-      "freshCount": 39,
-      "eligibleTextCount": 1297,
+      "count": 1353,
+      "freshCount": 20,
+      "eligibleTextCount": 1291,
       "selectedCount": 122,
       "error": null,
       "lastPostId": 68619
@@ -104,9 +104,9 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 240,
+      "count": 239,
       "freshCount": 20,
-      "eligibleTextCount": 240,
+      "eligibleTextCount": 239,
       "selectedCount": 124,
       "error": null,
       "lastPostId": 21045
@@ -116,63 +116,63 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 687,
+      "count": 689,
       "freshCount": 37,
-      "eligibleTextCount": 686,
+      "eligibleTextCount": 688,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 71704
+      "lastPostId": 71707
     }
   ],
-  "count": 2325,
-  "retainedItemCount": 452,
+  "count": 2319,
+  "retainedItemCount": 434,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2325,
-    "eligibleTextCount": 2259,
+    "observedCount": 2319,
+    "eligibleTextCount": 2253,
     "mediaOnlyCount": 66,
     "mediaAttachedCount": 496,
     "photoPostCount": 430,
     "documentPostCount": 2,
     "imageOnlyCount": 2,
     "highSignalCount": 395,
-    "broadSignalCount": 850,
-    "selectedRawCount": 390,
-    "selectedEligibleCount": 390,
+    "broadSignalCount": 848,
+    "selectedRawCount": 389,
+    "selectedEligibleCount": 389,
     "selectedRawCoveragePct": 17.3,
     "selectedOfObservedPct": 16.8,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 849,
-    "semi": 480,
-    "power": 270,
-    "geo": 442,
+    "semi": 478,
+    "power": 271,
+    "healthcare": 73,
+    "market-note": 846,
+    "ai-policy": 99,
+    "geo": 440,
     "kr-market": 117,
     "flows": 65,
     "credit": 99,
     "macro": 348,
     "media-only": 65,
-    "earnings": 405,
+    "earnings": 403,
     "equity": 116,
-    "healthcare": 72,
     "japan": 77,
-    "ai-policy": 100,
     "optical": 40,
     "crypto": 4
   },
   "tickerCounts": {
     "NVDA": 115,
+    "TSM": 45,
+    "ORCL": 12,
     "MU": 34,
     "005930.KS": 49,
-    "TSM": 44,
     "AMD": 47,
     "DB": 3,
     "MSFT": 58,
-    "ORCL": 11,
     "CRWV": 6,
     "GOOG": 114,
     "BE": 12,
@@ -258,12 +258,12 @@
     "SHOP": 1
   },
   "themes": [
-    "Market Notes (849 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
-    "Semiconductors/Memory (480 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
-    "Geopolitics (442 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
-    "Earnings/Corporate (405 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
+    "Market Notes (846 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
+    "Semiconductors/Memory (478 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
+    "Geopolitics (440 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
+    "Earnings/Corporate (403 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
     "Macro/Rates (348 posts in 14-day research window): 2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000...",
-    "AI Power/Grid (270 posts in 14-day research window): 데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가...",
+    "AI Power/Grid (271 posts in 14-day research window): 데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가...",
     "Korea Market (117 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY...",
     "Equity/Analyst (116 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
   ],
@@ -305,7 +305,7 @@
     },
     {
       "key": "TSM",
-      "count": 44,
+      "count": 45,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 7일 🇺🇸 아메리카 • 연준 무살렘은 현재 인플레이션이 에너지 충격과 AI·데이터센터 투자에 따른 강한 수요의 영향을 받고 있다며, 물가를 적시에 2%로 복귀시켜야..."
     },
     {
@@ -345,7 +345,7 @@
       "topics": [
         "geo"
       ],
-      "count": 442,
+      "count": 440,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격..."
     },
     {
@@ -363,7 +363,7 @@
       "topics": [
         "semi"
       ],
-      "count": 480,
+      "count": 478,
       "focus": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
     },
     {
@@ -381,7 +381,7 @@
       "topics": [
         "power"
       ],
-      "count": 270,
+      "count": 271,
       "focus": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가..."
     },
     {
@@ -390,7 +390,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 100,
+      "count": 99,
       "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
@@ -426,7 +426,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 405,
+      "count": 403,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -435,7 +435,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 72,
+      "count": 73,
       "focus": "52주 신고가 (시총 $1B 이상) 헬스케어 · Amphastar Pharmaceuticals · Ardent Health · Becton, Dickinson and Company · BeOne..."
     },
     {
@@ -454,7 +454,7 @@
         "flows"
       ],
       "count": 65,
-      "focus": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (48.33%) 2위: ALPHABET INC CL A (14.78%) 3위: PROSHARES ULTRAPRO..."
+      "focus": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
       "id": "insider",
@@ -471,7 +471,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 849,
+      "count": 846,
       "focus": "2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며..."
     }
   ],
@@ -732,11 +732,8 @@
       "localDateKst": "2026-11-07",
       "tags": [
         "flows",
-        "semi",
-        "power",
-        "kr-market"
+        "semi"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
       "media": {
@@ -745,6 +742,8 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
+      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -767,8 +766,7 @@
         "ONON",
         "SHOP",
         "FSLR"
-      ],
-      "summary": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
+      ]
     },
     {
       "id": "insidertracking/68574",
@@ -1775,6 +1773,44 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71707",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71707",
+      "datetime": "2026-11-07T05:43:04.000Z",
+      "localDateKst": "2026-11-07",
+      "tags": [
+        "semi",
+        "power",
+        "healthcare"
+      ],
+      "lead": 1,
+      "score": 68,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "TSM"
+      ],
+      "summary": ">>TSMC가 3D DRAM 생산? Winbond 차오유쥔 회장은 자체 DRAM 진출 가능성은 낮다고 평가 •TSMC가 Nvidia용 3D DRAM 생산을 추진한다는 관측이 나오고 있으나, Winbond..."
+    },
+    {
+      "id": "HANAchina/71705",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71705",
+      "datetime": "2026-11-07T05:29:14.000Z",
+      "localDateKst": "2026-11-07",
+      "tags": [
+        "power",
+        "ai-policy"
+      ],
+      "lead": 1,
+      "score": 62,
+      "hasText": true,
+      "tickers": [
+        "ORCL"
+      ],
+      "summary": ">>AI 인프라 금융에 새로운 균열 - 데이터센터 대출 잇따라 일괄 매각, 스타게이트 프로젝트도 포함 •네덜란드계 ING가 약 5억달러 규모의 데이터센터 대출 포트폴리오를 한꺼번에 매각하는 방안을 추진하고..."
+    },
+    {
       "id": "HANAchina/71703",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71703",
@@ -2211,8 +2247,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "차주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 11월 10일 화요일 22:30 – 소비자물가지수 (MoM) (10월) 22:30 – 근원 소비자물가지수 (MoM) (10월) 22:30 –..."
+      "summary": "차주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 11월 10일 화요일 22:30 – 소비자물가지수 (MoM) (10월) 22:30 – 근원 소비자물가지수 (MoM) (10월) 22:30 –...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68582",
@@ -2221,13 +2257,13 @@
       "datetime": "2026-11-06T21:52:28.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "macro",
         "earnings"
       ],
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": "모더나(MRNA) Q3 2026 어닝콜 요약 긍정 요인: • 매출 성장 및 흑자 달성. 3분기 매출은 13억달러로 전년 대비 29% 증가. GAAP 순이익은 1억6,000만달러, 희석 EPS는 0.38달러..."
+      "summary": "모더나(MRNA) Q3 2026 어닝콜 요약 긍정 요인: • 매출 성장 및 흑자 달성. 3분기 매출은 13억달러로 전년 대비 29% 증가. GAAP 순이익은 1억6,000만달러, 희석 EPS는 0.38달러...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68581",
@@ -2237,14 +2273,13 @@
       "localDateKst": "2026-11-07",
       "tags": [
         "credit",
-        "macro",
-        "power",
-        "earnings"
+        "macro"
       ],
       "score": 87,
       "hasText": true,
-      "tickers": [],
-      "summary": "오클로(OKLO) Q3 2026 어닝콜 요약 긍정 요인: • 강력한 유동성 및 자금조달 능력. 현금 및 유가증권 31억달러 확보. 연초 이후 ATM 방식으로 23억달러를 조달하며 원자로 건설, 핵연료 개발 및..."
+      "summary": "오클로(OKLO) Q3 2026 어닝콜 요약 긍정 요인: • 강력한 유동성 및 자금조달 능력. 현금 및 유가증권 31억달러 확보. 연초 이후 ATM 방식으로 23억달러를 조달하며 원자로 건설, 핵연료 개발 및...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68579",
@@ -2254,11 +2289,8 @@
       "localDateKst": "2026-11-07",
       "tags": [
         "flows",
-        "semi",
-        "power",
-        "kr-market"
+        "semi"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
       "media": {
@@ -2267,6 +2299,8 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
+      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -2289,8 +2323,7 @@
         "ONON",
         "SHOP",
         "FSLR"
-      ],
-      "summary": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
+      ]
     },
     {
       "id": "insidertracking/68577",
@@ -2301,7 +2334,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 55,
       "hasText": true,
       "media": {
@@ -2310,11 +2342,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "미국 레딧 관심도 마이크론, 엔비디아, 나스닥, 샌디스크 그리고 오라클",
       "tickers": [
         "NVDA",
         "MU"
-      ],
-      "summary": "미국 레딧 관심도 마이크론, 엔비디아, 나스닥, 샌디스크 그리고 오라클"
+      ]
     },
     {
       "id": "insidertracking/68576",
@@ -2764,13 +2796,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": ">>중국이 엔비디아 칩을 사지 않는데, 미국은 왜 초조해하나 (환구시보) •결국 지금 다급한 쪽은 중국 시장이 아님. 중국의 컴퓨팅 산업은 최근 몇 년간 자체 기술 노선을 통해 산업 발전을 뒷받침하기에 충분한...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>중국이 엔비디아 칩을 사지 않는데, 미국은 왜 초조해하나 (환구시보) •결국 지금 다급한 쪽은 중국 시장이 아님. 중국의 컴퓨팅 산업은 최근 몇 년간 자체 기술 노선을 통해 산업 발전을 뒷받침하기에 충분한..."
+      ]
     },
     {
       "id": "HANAchina/71662",
@@ -7614,21 +7646,6 @@
       ]
     },
     {
-      "id": "HANAchina/71390",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71390",
-      "datetime": "2026-11-02T03:54:45.000Z",
-      "localDateKst": "2026-11-02",
-      "tags": [
-        "macro"
-      ],
-      "score": 62,
-      "hasText": true,
-      "summary": ">>국제유가 하락세 지속, 낙폭 약 -3%로 확대 •국제유가의 낙폭이 확대. WTI 원유 선물은 3% 넘게 하락한 배럴당 100.94달러에 거래중, 브렌트유 선물은 약 3% 하락한 배럴당 110.05달러를...",
-      "lead": 1,
-      "tickers": []
-    },
-    {
       "id": "bornlupin/20941",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20941",
@@ -7680,27 +7697,6 @@
         "documents": []
       },
       "summary": "미국의 AI 투자가 빠르게 가속화되고 있다. 2026년 3분기 미국의 정보처리 장비 및 소프트웨어에 대한 민간 고정투자는 연율 기준 7.3% 증가하며, 사상 최고치 인 1조 7,700억 달러를 기록했다. 이는...",
-      "tickers": []
-    },
-    {
-      "id": "HANAchina/71381",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71381",
-      "datetime": "2026-11-02T03:06:56.000Z",
-      "localDateKst": "2026-11-02",
-      "tags": [
-        "power"
-      ],
-      "score": 58,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 5,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": ">>70GW 전력 부족! 미국 전력망·주민·AI 기업 중 누군가는 양보해야…막대한 자본지출 실현 어려워 •Morgan Stanley의 추산에 따르면 원자력, 연료전지 등 가능한 모든 해결책을 동원하더라도 순수...",
-      "lead": 1,
       "tickers": []
     },
     {
@@ -8958,21 +8954,6 @@
       "hasText": true,
       "summary": "Citi) 일본 FX – 제2차 타카이치 내각 하에서의 일본은행 정책 변화와 엔화에 미치는 영향 Citi는 일본은행(BoJ)이 다음 주 회의에서 정책금리를 1.25%로 동결할 것으로 예상하며, FOMC와...",
       "tickers": []
-    },
-    {
-      "id": "aetherjapanresearch/26017",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/26017",
-      "datetime": "2026-10-24T05:42:29.000Z",
-      "localDateKst": "2026-10-24",
-      "tags": [
-        "semi"
-      ],
-      "score": 62,
-      "hasText": true,
-      "summary": "38달러, 딥시크의 계산 • 최근 딥시크는 단일 GPU가 시간당 38달러의 생산액 창출 & 연간 33만달러 이상의 가치 창출한다는 충격적인 수치 공개 • 하지만 정말 돈을 벌 수 있는가? 중소기업의 AI 수요...",
-      "lead": 1,
-      "tickers": []
     }
   ],
   "current24hItems": [
@@ -8993,8 +8974,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "차주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 11월 10일 화요일 22:30 – 소비자물가지수 (MoM) (10월) 22:30 – 근원 소비자물가지수 (MoM) (10월) 22:30 –..."
+      "summary": "차주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 11월 10일 화요일 22:30 – 소비자물가지수 (MoM) (10월) 22:30 – 근원 소비자물가지수 (MoM) (10월) 22:30 –...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68582",
@@ -9003,13 +8984,13 @@
       "datetime": "2026-11-06T21:52:28.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "macro",
         "earnings"
       ],
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": "모더나(MRNA) Q3 2026 어닝콜 요약 긍정 요인: • 매출 성장 및 흑자 달성. 3분기 매출은 13억달러로 전년 대비 29% 증가. GAAP 순이익은 1억6,000만달러, 희석 EPS는 0.38달러..."
+      "summary": "모더나(MRNA) Q3 2026 어닝콜 요약 긍정 요인: • 매출 성장 및 흑자 달성. 3분기 매출은 13억달러로 전년 대비 29% 증가. GAAP 순이익은 1억6,000만달러, 희석 EPS는 0.38달러...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68581",
@@ -9019,14 +9000,13 @@
       "localDateKst": "2026-11-07",
       "tags": [
         "credit",
-        "macro",
-        "power",
-        "earnings"
+        "macro"
       ],
       "score": 87,
       "hasText": true,
-      "tickers": [],
-      "summary": "오클로(OKLO) Q3 2026 어닝콜 요약 긍정 요인: • 강력한 유동성 및 자금조달 능력. 현금 및 유가증권 31억달러 확보. 연초 이후 ATM 방식으로 23억달러를 조달하며 원자로 건설, 핵연료 개발 및..."
+      "summary": "오클로(OKLO) Q3 2026 어닝콜 요약 긍정 요인: • 강력한 유동성 및 자금조달 능력. 현금 및 유가증권 31억달러 확보. 연초 이후 ATM 방식으로 23억달러를 조달하며 원자로 건설, 핵연료 개발 및...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68579",
@@ -9036,11 +9016,8 @@
       "localDateKst": "2026-11-07",
       "tags": [
         "flows",
-        "semi",
-        "power",
-        "kr-market"
+        "semi"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
       "media": {
@@ -9049,6 +9026,8 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
+      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -9071,8 +9050,7 @@
         "ONON",
         "SHOP",
         "FSLR"
-      ],
-      "summary": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
+      ]
     },
     {
       "id": "insidertracking/68577",
@@ -9083,7 +9061,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 55,
       "hasText": true,
       "media": {
@@ -9092,11 +9069,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "미국 레딧 관심도 마이크론, 엔비디아, 나스닥, 샌디스크 그리고 오라클",
       "tickers": [
         "NVDA",
         "MU"
-      ],
-      "summary": "미국 레딧 관심도 마이크론, 엔비디아, 나스닥, 샌디스크 그리고 오라클"
+      ]
     },
     {
       "id": "insidertracking/68576",
@@ -9546,13 +9523,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": ">>중국이 엔비디아 칩을 사지 않는데, 미국은 왜 초조해하나 (환구시보) •결국 지금 다급한 쪽은 중국 시장이 아님. 중국의 컴퓨팅 산업은 최근 몇 년간 자체 기술 노선을 통해 산업 발전을 뒷받침하기에 충분한...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>중국이 엔비디아 칩을 사지 않는데, 미국은 왜 초조해하나 (환구시보) •결국 지금 다급한 쪽은 중국 시장이 아님. 중국의 컴퓨팅 산업은 최근 몇 년간 자체 기술 노선을 통해 산업 발전을 뒷받침하기에 충분한..."
+      ]
     },
     {
       "id": "HANAchina/71662",
