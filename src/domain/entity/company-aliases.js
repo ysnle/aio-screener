@@ -33,7 +33,7 @@ export const COMPANY_ALIASES = Object.freeze({
   NU: ['Nubank', 'Nu Holdings'], NVDA: ['NVIDIA', 'Nvidia', '엔비디아'], NVMI: ['Nova Ltd'], NVT: ['nVent'], NXPI: ['NXP'],
   ON: ['onsemi', 'ON Semiconductor'], ONTO: ['Onto Innovation'], ORCL: ['Oracle'], PANW: ['Palo Alto Networks'], PATH: ['UiPath'],
   PEGA: ['Pegasystems'], PEP: ['PepsiCo'], PG: ['Procter & Gamble'], PLAB: ['Photronics'], PLTR: ['Palantir'], POWL: ['Powell Industries'],
-  PRCT: ['PROCEPT'], PWR: ['Quanta Services', 'Quanta'], QCOM: ['Qualcomm'], RBRK: ['Rubrik'], RKLB: ['Rocket Lab'], RMBS: ['Rambus'],
+  PRCT: ['PROCEPT'], PWR: ['Quanta Services'], QCOM: ['Qualcomm'], RBRK: ['Rubrik'], RKLB: ['Rocket Lab'], RMBS: ['Rambus'],
   S: ['SentinelOne'], SANM: ['Sanmina'], SHOP: ['Shopify'], SIMO: ['Silicon Motion'], SITM: ['SiTime'], SMCI: ['Supermicro', 'Super Micro'],
   SMTC: ['Semtech'], SNDK: ['Sandisk', 'SanDisk'], SNOW: ['Snowflake'], SNPS: ['Synopsys'], SPCX: ['SpaceX'], STRL: ['Sterling Infrastructure'],
   STX: ['Seagate'], TEAM: ['Atlassian'], TER: ['Teradyne'], TMO: ['Thermo Fisher'], TSEM: ['Tower Semiconductor'], TSLA: ['Tesla'],

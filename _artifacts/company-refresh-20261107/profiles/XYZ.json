@@ -38,11 +38,16 @@
       "판매자용 하드웨어·소프트웨어 묶음 (Square 결제 단말, POS, Squaremates AI)"
     ],
     "text": "Block의 힘은 가게 사장이 쓰는 Square와 개인이 쓰는 Cash App이라는 두 생태계를 한 회사가 쥐고 있다는 데 있다. Cash App은 월간 거래 활성 6,000만 명 가운데 940만 명이 주 거래 은행처럼 쓰고, 이들의 입출금 데이터가 Cash App Borrow·Afterpay 대출 심사의 바탕이 된다. Square는 결제 단말과 POS 소프트웨어를 묶어 판매자를 붙잡는다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "design": {
     "text": "이 두 생태계 위에서 Block은 세 갈래의 매출을 보고한다. 판매자 결제·소프트웨어와 Afterpay가 들어간 커머스 지원(commerce enablement), Cash App 카드·Borrow·예금 같은 금융 솔루션(financial solutions), 그리고 Cash App의 비트코인 매매(bitcoin ecosystem)다. 이익 기준으로는 Cash App 매출총이익 20.7억 달러, Square 11.6억 달러로 나뉜다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
   "make": {
     "model": "service",
@@ -52,7 +57,9 @@
       "자체 AI 모델·도구 - Dessa(음성 모델), Buzz(개발 환경), 전 직원 모델 라우팅"
     ],
     "text": "Block은 자체 소프트웨어·위험 관리와 Square 단말로 서비스를 만들고, 카드 처리와 일부 예금·카드 발급은 외부 카드망과 은행을 거친다. 회사는 2026년 2월 조직 개편과 인력 감축을 했고, 10월에는 전 직원에게 AI 모델 라우팅을 열어 위험이 낮은 코드 변경을 AI가 검토·병합하는 비중을 늘리고 있다고 밝혔다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "sell": {
     "customers": [
@@ -64,106 +71,372 @@
     "channel": "Square는 온라인 가입·현장 영업·파트너 판매, Cash App과 Afterpay는 자체 앱 직접 배포.",
     "concentration": "10-Q 기준 매출의 10%를 넘는 단일 고객 없음.",
     "text": "Square는 가게 사장에게, Cash App은 개인에게, Afterpay는 상점과 소비자 양쪽에 팔린다. Q3 Square 결제액은 764억 달러로 14% 늘었고 해외(+26%)가 미국(+10%)보다 빨랐다. Cash App은 사용자 수보다 한 명이 맡기는 돈(입금 +6%)과 빌려 쓰는 돈이 늘며 커지고 있다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
   "moneyFlow": {
     "steps": [
-      { "from": "가게 손님", "to": "Square 판매자", "what": "Square 단말·온라인으로 카드 결제 (Q3 결제액 764억 달러)" },
-      { "from": "Square 판매자", "to": "Block", "what": "결제액 대비 처리 수수료와 소프트웨어 구독료 - Square 매출총이익 11.6억 달러" },
-      { "from": "Cash App 고객", "to": "Block", "what": "카드 사용(가맹점 수수료 몫), 즉시 출금 수수료, Borrow 대출 수수료, 예금 이자 - Cash App 매출총이익 20.7억 달러" },
-      { "from": "Afterpay 이용 소비자·상점", "to": "Block", "what": "상점 수수료와 연체료 - 커머스 지원 결제액 569억 달러, 수익화율 1.74%" },
-      { "from": "Cash App 고객", "to": "Block", "what": "비트코인 매매 - 매출 18.0억 달러지만 대부분 원가로 나감" }
+      {
+        "from": "가게 손님",
+        "to": "Square 판매자",
+        "what": "Square 단말·온라인으로 카드 결제 (Q3 결제액 764억 달러)"
+      },
+      {
+        "from": "Square 판매자",
+        "to": "Block",
+        "what": "결제액 대비 처리 수수료와 소프트웨어 구독료 - Square 매출총이익 11.6억 달러"
+      },
+      {
+        "from": "Cash App 고객",
+        "to": "Block",
+        "what": "카드 사용(가맹점 수수료 몫), 즉시 출금 수수료, Borrow 대출 수수료, 예금 이자 - Cash App 매출총이익 20.7억 달러"
+      },
+      {
+        "from": "Afterpay 이용 소비자·상점",
+        "to": "Block",
+        "what": "상점 수수료와 연체료 - 커머스 지원 결제액 569억 달러, 수익화율 1.74%"
+      },
+      {
+        "from": "Cash App 고객",
+        "to": "Block",
+        "what": "비트코인 매매 - 매출 18.0억 달러지만 대부분 원가로 나감"
+      }
     ],
     "pricing": "판매자 결제 수수료(결제액 대비 %)와 소프트웨어 구독, Cash App 카드 가맹점 수수료 몫·즉시 출금 수수료·대출 수수료, Afterpay 상점 수수료, 비트코인 매매 스프레드.",
     "text": "돈은 판매자가 내는 결제 수수료, Cash App 고객이 카드를 쓰고 돈을 빌릴 때 생기는 수수료, Afterpay 상점 수수료로 들어온다. 비트코인 매매는 매출 18.0억 달러를 만들지만 사고판 비트코인 원가가 대부분이라 이익 기여가 작다. 그래서 회사는 매출보다 매출총이익을 핵심 지표로 쓴다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
   "earnings": {
     "period": "Q3 2026 (quarter ended 2026-09-30)",
-    "revenue": { "value": 6.719, "unit": "USD bn", "yoy": 10 },
+    "revenue": {
+      "value": 6.719,
+      "unit": "USD bn",
+      "yoy": 10
+    },
     "grossMargin": 48.1,
     "operatingMargin": 6.4,
     "netMargin": 8.4,
     "operatingCashFlow": null,
-    "freeCashFlow": { "value": 0.972, "unit": "USD bn" },
+    "freeCashFlow": {
+      "value": 0.972,
+      "unit": "USD bn"
+    },
     "segments": [
-      { "name": "Cash App (gross profit)", "revenue": 2.07, "unit": "USD bn", "share": 64.0, "yoy": 27, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Square (gross profit)", "revenue": 1.157, "unit": "USD bn", "share": 35.8, "yoy": 14, "operatingMargin": null, "src": ["s1"] }
+      {
+        "name": "커머스 지원 (거래 수수료)",
+        "revenue": 3.48,
+        "unit": "USD bn",
+        "share": 51.8,
+        "yoy": 16,
+        "operatingMargin": null,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "금융 솔루션 (구독·서비스)",
+        "revenue": 1.44,
+        "unit": "USD bn",
+        "share": 21.4,
+        "yoy": 31,
+        "operatingMargin": null,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "비트코인 매출",
+        "revenue": 1.8,
+        "unit": "USD bn",
+        "share": 26.8,
+        "yoy": -11,
+        "operatingMargin": null,
+        "src": [
+          "s2"
+        ]
+      }
     ],
     "industryMetric": [
-      { "name": "매출총이익 (회사 핵심 지표)", "value": "32.4억 달러(+22%)", "src": ["s1"] },
-      { "name": "매출 구성 (10-Q)", "value": "커머스 지원 34.8억(+16%), 금융 솔루션 14.4억(+31%), 비트코인 18.0억(-11%) 달러", "src": ["s2"] },
-      { "name": "Square 결제액(GPV)", "value": "764억 달러(+14%), 미국 +10%, 해외 +26%", "src": ["s1"] },
-      { "name": "Cash App 월간 거래 활성 / 주 거래 은행 활성 / 활성당 입금", "value": "6,000만(+4%) / 940만(+13%) / 1,446달러(+6%)", "src": ["s1"] },
-      { "name": "소비자 대출 실행 (Cash App Borrow + Afterpay)", "value": "190억 달러(+40%)", "src": ["s1"] },
-      { "name": "조정 영업이익 / 조정 EBITDA", "value": "9.23억 달러(+92%, 매출총이익 대비 29%) / 12.3억 달러", "src": ["s1"] },
-      { "name": "EPS", "value": "GAAP 희석 0.92달러(+24%), 조정 희석 1.13달러(+109%)", "src": ["s1", "s2"] }
+      {
+        "name": "매출총이익 (회사 핵심 지표)",
+        "value": "32.4억 달러(+22%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "사업부별 매출총이익",
+        "value": "Cash App 20.7억 달러(+27%, 매출총이익의 64.0%), Square 11.57억 달러(+14%, 35.8%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "매출 구성 (10-Q)",
+        "value": "커머스 지원 34.8억(+16%), 금융 솔루션 14.4억(+31%), 비트코인 18.0억(-11%) 달러",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "Square 결제액(GPV)",
+        "value": "764억 달러(+14%), 미국 +10%, 해외 +26%",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Cash App 월간 거래 활성 / 주 거래 은행 활성 / 활성당 입금",
+        "value": "6,000만(+4%) / 940만(+13%) / 1,446달러(+6%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "소비자 대출 실행 (Cash App Borrow + Afterpay)",
+        "value": "190억 달러(+40%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "조정 영업이익 / 조정 EBITDA",
+        "value": "9.23억 달러(+92%, 매출총이익 대비 29%) / 12.3억 달러",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "EPS",
+        "value": "GAAP 희석 0.92달러(+24%), 조정 희석 1.13달러(+109%)",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      }
     ],
     "text": "Q3 2026 매출은 67.2억 달러(+10%), 매출총이익은 32.4억 달러(+22%)였고, 이 중 64%를 Cash App이 벌었다. 조정 영업이익은 9.23억 달러로 92% 늘어 매출총이익의 29%가 남았다. 다만 GAAP 영업이익은 4.28억 달러(+5%)로, 조정 기준과 GAAP 기준의 차이가 크다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
   "useOfCash": {
     "period": "9M 2026 (2026-01~09)",
     "items": [
-      { "use": "buybacks", "value": 0.701, "unit": "USD bn", "src": ["s2"] },
-      { "use": "capex", "value": 0.128, "unit": "USD bn", "src": ["s2"] },
-      { "use": "customer financing", "label": "Cash App Borrow·Afterpay 소비자 대출 실행 (Q3 단일 분기)", "value": 19.0, "unit": "USD bn", "src": ["s1"] }
+      {
+        "use": "buybacks",
+        "value": 0.701,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "use": "capex",
+        "value": 0.128,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "use": "customer financing",
+        "label": "Cash App Borrow·Afterpay 소비자 대출 실행 (Q3 단일 분기)",
+        "value": 19.0,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "text": "9개월 영업현금흐름 30.0억 달러 가운데 자사주 매입에 7.0억 달러, 설비투자에 1.3억 달러를 썼고, 10-Q 자본 변동표에는 Q3 자사주 매입이 없었다. 돈이 가장 크게 도는 곳은 소비자 대출로, Q3 한 분기에만 190억 달러를 실행했다. 대출은 짧게 돌아 회수되지만, 회사의 현금이 신용 위험을 지는 자리라는 뜻이다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
   "aiChain": {
     "layer": "ai-adopter",
     "position": "AI를 판매자 도구(Squaremates, Square Kiosk 음성 주문)와 사내 개발(Buzz, 모델 라우팅)에 붙이는 도입자. 기업 고객용 Builderlab에서 첫 AI 매출이 Q4에 나올 것으로 회사가 예상한다.",
-    "dependsOn": ["models-platforms (외부 AI 모델 - 업체명 이번 조사에서 미확인)", "자체 음성 모델 Dessa"],
-    "sellsTo": ["Square 판매자 (Squaremates AI 비서, Square Kiosk)", "기업 고객 (Builderlab)"],
+    "dependsOn": [
+      "models-platforms (외부 AI 모델 - 업체명 이번 조사에서 미확인)",
+      "자체 음성 모델 Dessa"
+    ],
+    "sellsTo": [
+      "Square 판매자 (Squaremates AI 비서, Square Kiosk)",
+      "기업 고객 (Builderlab)"
+    ],
     "aiRevenue": "Builderlab 첫 AI 매출 Q4 2026 예상 (금액 미공시)",
     "upside": "판매자가 AI 비서로 가게 운영을 맡기면 Square 소프트웨어 구독과 결제가 붙고, 사내 AI로 개발 속도를 올리면 인력을 늘리지 않고도 이익률이 오른다. 조정 영업이익률 29%가 그 효과의 일부라고 회사는 설명한다.",
     "risk": "AI 기능은 POS 경쟁사도 함께 붙이고 있어 차별점이 오래가지 않을 수 있다. 사내 AI 의존이 커지면 코드 품질·보안 사고의 위험도 커진다.",
     "text": "AI 가치사슬에서 Block은 끝단의 도입자이며, 지금 숫자에 보이는 효과는 매출보다 비용 쪽이다. 회사는 2026년 2월 인력 감축 뒤 AI로 일하는 방식을 바꿨다고 말하고, 그 사이 조정 영업이익은 두 배 가까이 늘었다. AI가 매출을 직접 만드는 첫 사례는 Q4 Builderlab이 될 예정이다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "competition": {
     "arenas": [
-      { "arena": "판매자 결제·POS", "rivals": ["Toast", "Fiserv (Clover)", "Shopify", "Stripe"], "position": "challenger", "share": null, "src": [] },
-      { "arena": "개인 금융 앱·송금", "rivals": ["PayPal", "Chime", "SoFi"], "position": "leader", "share": null, "src": [] },
-      { "arena": "후불결제 (Afterpay)", "rivals": ["Affirm", "Klarna", "PayPal"], "position": "challenger", "share": null, "src": [] },
-      { "arena": "개인 비트코인 매매", "rivals": ["Coinbase", "Robinhood"], "position": "challenger", "share": null, "src": [] }
+      {
+        "arena": "판매자 결제·POS",
+        "rivals": [
+          "Toast",
+          "Fiserv (Clover)",
+          "Shopify",
+          "Stripe"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": []
+      },
+      {
+        "arena": "개인 금융 앱·송금",
+        "rivals": [
+          "PayPal",
+          "Chime",
+          "SoFi"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": []
+      },
+      {
+        "arena": "후불결제 (Afterpay)",
+        "rivals": [
+          "Affirm",
+          "Klarna",
+          "PayPal"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": []
+      },
+      {
+        "arena": "개인 비트코인 매매",
+        "rivals": [
+          "Coinbase",
+          "Robinhood"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": []
+      }
     ],
     "edge": "판매자와 개인을 함께 가진 두 생태계, Cash App 입출금 데이터를 쓰는 짧은 소비자 대출, 판매자 하드웨어와 소프트웨어 묶음.",
     "threats": "POS 시장의 Toast·Fiserv 경쟁, 디지털 은행과 송금 앱의 고객 쟁탈, 경기 둔화 때 소비자 대출 손실, 비트코인 가격 하락과 매매 수수료 인하.",
     "text": "Square는 식당 쪽에서 Toast, 소매 쪽에서 Fiserv의 Clover·Shopify와 겨루며, 해외 결제액 +26%가 확장의 무게중심이다. Cash App은 PayPal의 Venmo, Chime·SoFi 같은 디지털 은행과 주 거래 은행 자리를 다툰다(경쟁사 분류는 일반 분류이며 점유율 미확인). 회사의 방식은 두 생태계를 잇고 대출로 고객당 이익을 키우는 것이다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "strategy": {
     "goal": "2026년 매출총이익 126.3억 달러(+22%), 조정 영업이익 35.2억 달러(매출총이익 대비 28%), 2027년 매출총이익 145.2억 달러 안팎(+15% 이상)과 조정 영업이익 45.8억 달러(+30%, 32%).",
     "roadmap": [
-      { "when": "Q4 2026", "what": "Builderlab 첫 AI(머신 인텔리전스) 매출 발생 예상", "src": ["s1"] },
-      { "when": "2027", "what": "Square 결제액 증가율 3년 연속 가속, Cash App 활성 사용자 최소 낮은 한 자릿수 성장", "src": ["s1"] },
-      { "when": "2027", "what": "조정 영업이익 45.8억 달러, 매출총이익 대비 32% 목표", "src": ["s1"] },
-      { "when": "2026 (진행 중)", "what": "Squaremates 미국 일반 출시, Square Kiosk·Afterpay 구매 전 결제 확대", "src": ["s1"] }
+      {
+        "when": "Q4 2026",
+        "what": "Builderlab 첫 AI(머신 인텔리전스) 매출 발생 예상",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2027",
+        "what": "Square 결제액 증가율 3년 연속 가속, Cash App 활성 사용자 최소 낮은 한 자릿수 성장",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2027",
+        "what": "조정 영업이익 45.8억 달러, 매출총이익 대비 32% 목표",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2026 (진행 중)",
+        "what": "Squaremates 미국 일반 출시, Square Kiosk·Afterpay 구매 전 결제 확대",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "vision": "Jack Dorsey와 Amrita Ahuja는 주주서한에서 회사가 '캐즘을 의미 있게 건넜다'고 쓰며, AI로 일하는 방식을 바꾼 작은 조직이 판매자와 개인 금융을 함께 키우는 그림을 제시한다.",
     "text": "계획은 Square의 해외·현장 영업 확대와 Cash App의 은행·대출 기능 강화로 매출총이익을 키우고, AI로 비용 증가를 억눌러 이익률을 올리는 것이다. 2027년 예비 전망은 매출총이익 +15% 이상과 조정 영업이익 +30%로, 이익이 매출총이익보다 두 배 빠르게 크는 그림이다. Investor Day 때 제시한 2026년 조정 영업이익 27억 달러는 35.2억 달러로 크게 올라갔다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "governance": {
     "line": "공동창업자 Jack Dorsey가 이끌고 Amrita Ahuja가 CFO·COO로 주주서한을 함께 쓰며(지배 구조 세부는 이번 조사에서 미확인), 배당 없이 자사주 매입(9개월 7.0억 달러)으로 주주에게 돌려준다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
   "guidance": {
     "latest": [
-      { "period": "FY2026", "metric": "gross profit", "value": "126.3억 달러(+22%) (Investor Day 119.8억 달러에서 상향)", "givenOn": "2026-11-03", "src": ["s1"] },
-      { "period": "FY2026", "metric": "adjusted operating income", "value": "35.2억 달러(+69%, 28%) (Investor Day 27.0억 달러에서 상향)", "givenOn": "2026-11-03", "src": ["s1"] },
-      { "period": "FY2026", "metric": "adjusted diluted EPS", "value": "4.15달러(+75%)", "givenOn": "2026-11-03", "src": ["s1"] },
-      { "period": "Q4 2026", "metric": "gross profit / adjusted operating income / adjusted EPS", "value": "33.2억 달러(+15%) / 10.1억 달러(30%) / 1.15달러(+77%)", "givenOn": "2026-11-03", "src": ["s1"] },
-      { "period": "FY2027 (preliminary)", "metric": "gross profit / adjusted operating income", "value": "+15% 이상, 약 145.2억 달러 / 45.8억 달러(+30%, 32%)", "givenOn": "2026-11-03", "src": ["s1"] }
+      {
+        "period": "FY2026",
+        "metric": "gross profit",
+        "value": "126.3억 달러(+22%) (Investor Day 119.8억 달러에서 상향)",
+        "givenOn": "2026-11-03",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "adjusted operating income",
+        "value": "35.2억 달러(+69%, 28%) (Investor Day 27.0억 달러에서 상향)",
+        "givenOn": "2026-11-03",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "adjusted diluted EPS",
+        "value": "4.15달러(+75%)",
+        "givenOn": "2026-11-03",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "Q4 2026",
+        "metric": "gross profit / adjusted operating income / adjusted EPS",
+        "value": "33.2억 달러(+15%) / 10.1억 달러(30%) / 1.15달러(+77%)",
+        "givenOn": "2026-11-03",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2027 (preliminary)",
+        "metric": "gross profit / adjusted operating income",
+        "value": "+15% 이상, 약 145.2억 달러 / 45.8억 달러(+30%, 32%)",
+        "givenOn": "2026-11-03",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "style": "quarterly",
     "track": "Investor Day 이후 연간 전망을 거듭 올렸고, 이번에 2026년 조정 영업이익 전망은 Investor Day 대비 약 30% 높아졌다. Q4 매출총이익 전망(+15%)은 Q3(+22%)보다 낮은 성장률을 가정한다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-  "estimates": { "text": null, "src": [] },
+  "estimates": {
+    "text": null,
+    "src": []
+  },
   "watch": {
     "confirms": [
       "Square 결제액 증가율 가속 (특히 미국 10%대 유지·상승)",
@@ -180,53 +453,101 @@
       "조정 영업이익과 GAAP 영업이익의 격차 확대"
     ],
     "keyNumbers": [
-      { "name": "매출총이익 (Cash App·Square)", "why": "회사가 고른 핵심 성장 지표" },
-      { "name": "Square GPV 증가율", "why": "판매자 쪽 건강도" },
-      { "name": "Cash App 활성·주 거래 은행 활성", "why": "개인 쪽 고객 기반" },
-      { "name": "소비자 대출 실행과 손실", "why": "성장을 만드는 동시에 위험을 지는 곳" },
-      { "name": "조정 영업이익률", "why": "AI·인력 감축 효과의 계기판" }
+      {
+        "name": "매출총이익 (Cash App·Square)",
+        "why": "회사가 고른 핵심 성장 지표"
+      },
+      {
+        "name": "Square GPV 증가율",
+        "why": "판매자 쪽 건강도"
+      },
+      {
+        "name": "Cash App 활성·주 거래 은행 활성",
+        "why": "개인 쪽 고객 기반"
+      },
+      {
+        "name": "소비자 대출 실행과 손실",
+        "why": "성장을 만드는 동시에 위험을 지는 곳"
+      },
+      {
+        "name": "조정 영업이익률",
+        "why": "AI·인력 감축 효과의 계기판"
+      }
     ]
   },
   "debate": {
     "question": "대출로 키운 Cash App 이익과 AI 비용 절감이 사용자 증가 둔화 속에서도 2027년 조정 영업이익 30% 성장을 만들 수 있는지",
     "bull": {
       "text": "강세로 읽는 쪽은 Q3 조정 영업이익 9.23억 달러(+92%)와 매출총이익 +22%를 근거로 든다. Square 결제액은 14% 늘었고 해외는 26% 늘었으며, 회사는 2026년 조정 영업이익 전망을 Investor Day 27억 달러에서 35.2억 달러로 올리고 2027년 45.8억 달러(32%)를 제시했다. 인력 감축 뒤 AI로 일하는 조직이 이익률을 구조적으로 끌어올렸다는 읽기다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     "bear": {
       "text": "약세로 읽는 쪽은 Cash App 월간 거래 활성이 6,000만 명으로 4% 늘어 성장이 사용자보다 대출에서 나온다는 점을 본다. 소비자 대출 실행은 한 분기 190억 달러(+40%)로 커져 경기가 꺾이면 손실이 이익을 깎을 수 있고, 보도에 따르면 비트코인 매출총이익은 31% 줄었다. GAAP 영업이익은 4.28억 달러(+5%)로 조정 영업이익 성장과 거리가 멀다.",
-      "src": ["s1", "s2", "s3"]
+      "src": [
+        "s1",
+        "s2",
+        "s3"
+      ]
     },
     "decides": [
-      { "when": "2027-02-24", "what": "Q4·FY2026 실적에서 매출총이익 33.2억 달러·조정 영업이익 10.1억 달러 전망 달성 여부와 소비자 대출 손실 추이, 2027 전망 확정", "src": ["s1"] }
+      {
+        "when": "2027-02-24",
+        "what": "Q4·FY2026 실적에서 매출총이익 33.2억 달러·조정 영업이익 10.1억 달러 전망 달성 여부와 소비자 대출 손실 추이, 2027 전망 확정",
+        "src": [
+          "s1"
+        ]
+      }
     ]
   },
   "underTheHood": [
     {
       "title": "매출이 아니라 매출총이익",
       "text": "Q3 매출 67.2억 달러 가운데 18.0억 달러는 Cash App 고객의 비트코인 매매인데, 사고판 비트코인 원가가 대부분이라 이익 기여는 작다. 그래서 매출 증가율(+10%)과 매출총이익 증가율(+22%)이 크게 다르고, Block을 읽을 때는 매출총이익을 먼저 봐야 한다.",
-      "src": ["s1", "s2"]
+      "src": [
+        "s1",
+        "s2"
+      ]
     },
     {
       "title": "성장을 만드는 대출 장부",
       "text": "Cash App Borrow와 Afterpay의 소비자 대출 실행은 Q3에만 190억 달러(+40%)이고, Afterpay 구매 후 결제 물량은 1년 새 세 배가 넘었다. 금융 솔루션 매출 +31%의 상당 부분이 이 대출에서 나오므로, 이익 성장은 신용 손실이라는 숨은 변수에 묶여 있다.",
-      "src": ["s1", "s2"]
+      "src": [
+        "s1",
+        "s2"
+      ]
     },
     {
       "title": "조정 이익과 GAAP 이익의 거리",
       "text": "조정 영업이익은 9.23억 달러로 92% 늘었지만 GAAP 영업이익은 4.28억 달러로 5% 늘었다. 회사가 제시하는 이익률 목표(28%, 32%)는 모두 조정 기준이므로, 주식보상 등 조정 항목의 크기를 함께 봐야 실제 주주 몫의 변화를 알 수 있다.",
-      "src": ["s1", "s2"]
+      "src": [
+        "s1",
+        "s2"
+      ]
     },
     {
       "title": "사용자보다 사용자당 돈",
       "text": "Cash App 월간 거래 활성은 4% 늘었지만 매출총이익은 27% 늘었다. 주 거래 은행 활성(940만, +13%)과 활성당 입금(+6%)이 늘면서 한 사람에게서 버는 돈이 커진 결과이고, 회사도 2027년 활성 증가를 '최소 낮은 한 자릿수'로만 제시했다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     }
   ],
   "trading": {
     "calendar": [
-      { "date": "2026-11 말~12 (연말 쇼핑 시즌)", "event": "Square 판매자 결제·Afterpay 이용 흐름 (일정 출처 미첨부)", "src": [] },
-      { "date": "2027-02-24", "event": "Q4 2026·FY2026 실적 발표", "src": ["s1"] }
+      {
+        "date": "2026-11 말~12 (연말 쇼핑 시즌)",
+        "event": "Square 판매자 결제·Afterpay 이용 흐름 (일정 출처 미첨부)",
+        "src": []
+      },
+      {
+        "date": "2027-02-24",
+        "event": "Q4 2026·FY2026 실적 발표",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "reaction": "주가는 매출보다 매출총이익 증가율, Cash App 활성 사용자, 조정 영업이익 전망 변경에 반응하는 경향이 있다. Q3 발표 뒤에는 전망 상향과 함께 주가가 크게 오른 것으로 보도됐다(정확한 변동 폭은 이번 조사에서 1차 확인하지 못함).",
     "conditions": [
@@ -237,7 +558,9 @@
       "조정 영업이익 전망 변경과 GAAP 이익과의 격차",
       "소비자 신용·후불결제 규제 뉴스"
     ],
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "unverified": [
     "Q3 단일 분기 영업현금흐름 (9개월 30.0억 달러만 확인) - operatingCashFlow는 null",

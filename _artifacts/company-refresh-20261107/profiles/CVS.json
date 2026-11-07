@@ -5,13 +5,47 @@
   "fiscalYearEnd": "December 31",
   "oneLine": "CVS Health는 건강보험(Aetna), 약제관리(CVS Caremark), 약국(CVS Pharmacy)을 한 회사에 묶은 미국 최대급 헬스케어 기업으로, 2026년 의료비율 개선으로 이익을 되살리는 동시에 2028년 상반기까지 약국 사업을 떼어 두 회사로 나누겠다고 발표했다.",
   "sources": [
-    { "id": "s1", "kind": "earnings-release", "title": "CVS Health Corporation Reports Third Quarter 2026 Results and Raises Full Year 2026 Guidance", "url": "https://www.cvshealth.com/news/company-news/cvs-health-corporation-reports-third-quarter-2026-results-and-raises-full-year-2026-guidance.html", "publisher": "CVS Health", "date": "2026-11-04" },
-    { "id": "s2", "kind": "earnings-release", "title": "Q3 2026 Earnings Release (PDF: consolidated and segment tables, membership, pharmacy metrics, cash flow statement, balance sheet)", "url": "https://www.cvshealth.com/content/dam/enterprise/cvs-enterprise/pdfs/2026/Q3-2026-EarningsRelease.pdf", "publisher": "CVS Health", "date": "2026-11-04" },
-    { "id": "s3", "kind": "investor-day", "title": "Q3 2026 Earnings Presentation (segment results, FY2026 guidance by segment, capital deployment)", "url": "https://s206.q4cdn.com/752775519/files/content_files/Q3-2026-Earnings-Presentation.pdf", "publisher": "CVS Health", "date": "2026-11-04" },
-    { "id": "s4", "kind": "news", "title": "CVS Health shares fall on restructuring (Q3 results, separation plan, CFO 2027 pharmacy-benefit headwinds, analyst comments)", "url": "https://beinsure.com/news/cvs-health-shares-fall-on-restructuring/", "publisher": "Beinsure", "date": "2026-11-04" },
-    { "id": "s5", "kind": "news", "title": "CVS Health to split retail pharmacy from Aetna, Caremark by 2028 (structure, leaders, timing, tax-free intent)", "url": "https://www.ajmc.com/view/cvs-health-to-split-retail-pharmacy-from-aetna-caremark-by-2028", "publisher": "AJMC", "date": "2026-11-04" }
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "CVS Health Corporation Reports Third Quarter 2026 Results and Raises Full Year 2026 Guidance",
+      "url": "https://www.cvshealth.com/news/company-news/cvs-health-corporation-reports-third-quarter-2026-results-and-raises-full-year-2026-guidance.html",
+      "publisher": "CVS Health",
+      "date": "2026-11-04"
+    },
+    {
+      "id": "s2",
+      "kind": "earnings-release",
+      "title": "Q3 2026 Earnings Release (PDF: consolidated and segment tables, membership, pharmacy metrics, cash flow statement, balance sheet)",
+      "url": "https://www.cvshealth.com/content/dam/enterprise/cvs-enterprise/pdfs/2026/Q3-2026-EarningsRelease.pdf",
+      "publisher": "CVS Health",
+      "date": "2026-11-04"
+    },
+    {
+      "id": "s3",
+      "kind": "investor-day",
+      "title": "Q3 2026 Earnings Presentation (segment results, FY2026 guidance by segment, capital deployment)",
+      "url": "https://s206.q4cdn.com/752775519/files/content_files/Q3-2026-Earnings-Presentation.pdf",
+      "publisher": "CVS Health",
+      "date": "2026-11-04"
+    },
+    {
+      "id": "s4",
+      "kind": "news",
+      "title": "CVS Health shares fall on restructuring (Q3 results, separation plan, CFO 2027 pharmacy-benefit headwinds, analyst comments)",
+      "url": "https://beinsure.com/news/cvs-health-shares-fall-on-restructuring/",
+      "publisher": "Beinsure",
+      "date": "2026-11-04"
+    },
+    {
+      "id": "s5",
+      "kind": "news",
+      "title": "CVS Health to split retail pharmacy from Aetna, Caremark by 2028 (structure, leaders, timing, tax-free intent)",
+      "url": "https://www.ajmc.com/view/cvs-health-to-split-retail-pharmacy-from-aetna-caremark-by-2028",
+      "publisher": "AJMC",
+      "date": "2026-11-04"
+    }
   ],
-
   "moat": {
     "sources": [
       "약제관리(PBM) 규모 - CVS Caremark Q3 2026 처방 청구 4.82억 건(30일 환산)",
@@ -20,14 +54,18 @@
       "보험·PBM·약국·진료(Oak Street Health, Signify Health)를 잇는 수직 통합"
     ],
     "text": "CVS의 힘은 약값이 지나가는 길목을 여러 곳에서 동시에 쥐고 있다는 데서 나온다. Caremark가 분기 4.8억 건의 처방 청구를 관리해 제약사·약국과 가격을 협상하고, 약 9,000개 약국이 분기 4.7억 건을 직접 조제하며, Aetna 가입자 2,612만 명이 그 약과 진료의 수요를 만든다. 다만 이 통합 구조가 주(州) 규제의 표적이 되면서, 회사는 2026년 11월 약국 사업을 분리하겠다고 밝혔다.",
-    "src": ["s2", "s5"]
+    "src": [
+      "s2",
+      "s5"
+    ]
   },
-
   "design": {
     "text": "회사는 사업을 세 부문으로 보고한다. Health Care Benefits는 Aetna 상업·메디케어 어드밴티지·메디케이드 건강보험이고, Health Services는 약제관리(CVS Caremark), 전문의약품(CVS Specialty), 1차 진료(Oak Street Health)와 방문 건강평가(Signify Health)를 묶는다. Pharmacy & Consumer Wellness는 CVS Pharmacy 소매·우편 약국과 MinuteClinic이다.",
-    "src": ["s2", "s5"]
+    "src": [
+      "s2",
+      "s5"
+    ]
   },
-
   "make": {
     "model": "service",
     "partners": [
@@ -37,9 +75,10 @@
       "미국 연방정부(CMS)·주정부 - 메디케어 어드밴티지·메디케이드 보험료 지급자이자 규제자"
     ],
     "text": "CVS는 약을 만들지 않는다. 보험료를 받아 병원·의사에게 진료비를 내고, 제약사·도매상에서 산 약을 약국에서 팔며, 다른 보험사·고용주를 대신해 약값을 관리하고 수수료와 가격 차이를 얻는다. 그래서 원가의 대부분은 의료비와 약값이고, 이익은 그 사이의 얇은 마진(Q3 2026 영업이익률 약 3.3%, 계산값)에서 나온다.",
-    "src": ["s2"]
+    "src": [
+      "s2"
+    ]
   },
-
   "sell": {
     "customers": [
       "고용주·개인 - Aetna 상업 가입자 1,840만 명(보험 위험 256만, 자가보험 위탁 1,584만, 2026-09-30)",
@@ -51,115 +90,369 @@
     "channel": "Aetna는 고용주·브로커·정부 계약, Caremark는 보험사·고용주와의 PBM 계약, 약국은 약 9,000개 점포와 우편 약국으로 판다.",
     "concentration": "개별 고객 비중은 이번 조사에서 확인하지 못했다. 메디케어·메디케이드 보험료는 연방·주정부가 지급한다.",
     "text": "그 얇은 마진을 내는 고객은 세 층이다. 고용주와 정부가 Aetna에 보험료를 내고, 보험사와 고용주는 Caremark에 약값 관리를 맡기며, 환자는 약국에서 처방을 받는다. 가입자는 1년 전 2,670만 명에서 2,612만 명으로 줄었는데, 회사가 수익성 낮은 계약을 정리한 결과와 함께 CFO는 2027년 가입자 감소와 약한 PBM 영업 시즌을 부담으로 꼽았다.",
-    "src": ["s2", "s4"]
+    "src": [
+      "s2",
+      "s4"
+    ]
   },
-
   "moneyFlow": {
     "steps": [
-      { "from": "고용주·개인·미국 연방정부·주정부", "to": "Aetna (Health Care Benefits)", "what": "보험료 - Q3 2026 부문 매출 368.6억 달러" },
-      { "from": "Aetna", "to": "병원·의사·약국", "what": "의료비 지급 - 의료비율(MBR) 91.3%" },
-      { "from": "외부 보험사·고용주·Aetna", "to": "CVS Caremark (Health Services)", "what": "약값 관리 수수료와 약값 - Q3 2026 부문 매출 539.6억 달러" },
-      { "from": "환자·보험사", "to": "CVS Pharmacy (Pharmacy & Consumer Wellness)", "what": "처방약과 생활용품 판매 - Q3 2026 부문 매출 355.0억 달러" },
-      { "from": "CVS Health", "to": "제약사·의약품 도매상", "what": "약 구입 대금 (업체명 미공시)" }
+      {
+        "from": "고용주·개인·미국 연방정부·주정부",
+        "to": "Aetna (Health Care Benefits)",
+        "what": "보험료 - Q3 2026 부문 매출 368.6억 달러"
+      },
+      {
+        "from": "Aetna",
+        "to": "병원·의사·약국",
+        "what": "의료비 지급 - 의료비율(MBR) 91.3%"
+      },
+      {
+        "from": "외부 보험사·고용주·Aetna",
+        "to": "CVS Caremark (Health Services)",
+        "what": "약값 관리 수수료와 약값 - Q3 2026 부문 매출 539.6억 달러"
+      },
+      {
+        "from": "환자·보험사",
+        "to": "CVS Pharmacy (Pharmacy & Consumer Wellness)",
+        "what": "처방약과 생활용품 판매 - Q3 2026 부문 매출 355.0억 달러"
+      },
+      {
+        "from": "CVS Health",
+        "to": "제약사·의약품 도매상",
+        "what": "약 구입 대금 (업체명 미공시)"
+      }
     ],
     "pricing": "보험은 가입자당 보험료(위험 인수) 또는 자가보험 위탁 수수료, PBM은 청구 건당 관리 수수료와 약값 차이, 약국은 처방약 판매가(CostVantage 상환 모델)와 생활용품 판매가다.",
     "text": "돈은 보험료에서 시작해 의료비와 약값으로 빠져나간다. 한 회사 안에서 Aetna가 Caremark에, Caremark가 CVS Pharmacy에 돈을 넘기기 때문에 부문 매출 합계(1,263억 달러)는 연결 매출(1,084억 달러)보다 크고, 그 차이 181억 달러가 내부 거래 제거다. 그래서 각 부문의 성장은 외부 고객 증가와 내부 물량 이동을 함께 반영한다.",
-    "src": ["s2", "s3"]
+    "src": [
+      "s2",
+      "s3"
+    ]
   },
-
   "earnings": {
     "period": "Q3 2026 (ended 2026-09-30)",
-    "revenue": { "value": 108.399, "unit": "USD bn", "yoy": 5.4 },
+    "revenue": {
+      "value": 108.399,
+      "unit": "USD bn",
+      "yoy": 5.4
+    },
     "grossMargin": null,
     "operatingMargin": 3.3,
     "netMargin": 2.0,
-    "operatingCashFlow": { "value": 4.7, "unit": "USD bn" },
-    "freeCashFlow": { "value": null, "unit": "USD bn" },
+    "operatingCashFlow": {
+      "value": 4.7,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": null,
+      "unit": "USD bn"
+    },
     "segments": [
-      { "name": "Health Services (CVS Caremark·Specialty·Oak Street Health)", "revenue": 53.964, "unit": "USD bn", "share": null, "yoy": 9.5, "operatingMargin": 3.9, "src": ["s2"] },
-      { "name": "Health Care Benefits (Aetna)", "revenue": 36.855, "unit": "USD bn", "share": null, "yoy": 2.4, "operatingMargin": 2.5, "src": ["s2"] },
-      { "name": "Pharmacy & Consumer Wellness (CVS Pharmacy)", "revenue": 35.498, "unit": "USD bn", "share": null, "yoy": -2.0, "operatingMargin": 4.6, "src": ["s2"] }
+      {
+        "name": "Health Services (CVS Caremark·Specialty·Oak Street Health) (사업부 간 거래 제거 전)",
+        "revenue": 53.964,
+        "unit": "USD bn",
+        "share": null,
+        "yoy": 9.5,
+        "operatingMargin": 3.9,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "Health Care Benefits (Aetna) (사업부 간 거래 제거 전)",
+        "revenue": 36.855,
+        "unit": "USD bn",
+        "share": null,
+        "yoy": 2.4,
+        "operatingMargin": 2.5,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "Pharmacy & Consumer Wellness (CVS Pharmacy) (사업부 간 거래 제거 전)",
+        "revenue": 35.498,
+        "unit": "USD bn",
+        "share": null,
+        "yoy": -2.0,
+        "operatingMargin": 4.6,
+        "src": [
+          "s2"
+        ]
+      }
     ],
     "industryMetric": [
-      { "name": "의료비율(MBR)", "value": "Q3 2026 91.3% (전년 92.8%, -150bp); FY2026 전망 89.75%±25bp의 하단", "src": ["s2", "s3"] },
-      { "name": "의료 가입자", "value": "2026-09-30 2,612만 명 (전년 2,670만 명); FY2026 전망 약 2,600만 명", "src": ["s2", "s3"] },
-      { "name": "PBM 처방 청구 (30일 환산)", "value": "Q3 2026 4.82억 건 (+1.3%); FY2026 전망 19.05억 건 이상", "src": ["s2", "s3"] },
-      { "name": "약국 처방 조제 / 동일 점포 매출", "value": "Q3 2026 4.70억 건(+1.9%) / 동일 점포 매출 -0.6%, 동일 점포 처방량 +3.9%", "src": ["s2"] },
-      { "name": "조정 영업이익 (부문 기준)", "value": "Q3 2026 41.9억 달러 (전년 34.6억 달러); Aetna 9.1억(전년 3.1억), Health Services 21.1억(전년 20.5억), 약국 16.4억(전년 14.8억)", "src": ["s2"] }
+      {
+        "name": "의료비율(MBR)",
+        "value": "Q3 2026 91.3% (전년 92.8%, -150bp); FY2026 전망 89.75%±25bp의 하단",
+        "src": [
+          "s2",
+          "s3"
+        ]
+      },
+      {
+        "name": "의료 가입자",
+        "value": "2026-09-30 2,612만 명 (전년 2,670만 명); FY2026 전망 약 2,600만 명",
+        "src": [
+          "s2",
+          "s3"
+        ]
+      },
+      {
+        "name": "PBM 처방 청구 (30일 환산)",
+        "value": "Q3 2026 4.82억 건 (+1.3%); FY2026 전망 19.05억 건 이상",
+        "src": [
+          "s2",
+          "s3"
+        ]
+      },
+      {
+        "name": "약국 처방 조제 / 동일 점포 매출",
+        "value": "Q3 2026 4.70억 건(+1.9%) / 동일 점포 매출 -0.6%, 동일 점포 처방량 +3.9%",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "조정 영업이익 (부문 기준)",
+        "value": "Q3 2026 41.9억 달러 (전년 34.6억 달러); Aetna 9.1억(전년 3.1억), Health Services 21.1억(전년 20.5억), 약국 16.4억(전년 14.8억)",
+        "src": [
+          "s2"
+        ]
+      }
     ],
     "text": "2026년 3분기 매출은 1,084억 달러(+5.4%), GAAP 영업이익 35.7억 달러, 순이익 21.7억 달러로, 1년 전 57억 달러 영업권 손상으로 낸 적자에서 흑자로 돌아섰다. 조정 EPS는 2.09달러(전년 1.60달러)였고, 개선의 중심은 의료비율이 92.8%에서 91.3%로 내려간 Aetna로 조정 영업이익이 3.1억에서 9.1억 달러로 세 배가 됐다. 이익 금액이 가장 큰 곳은 여전히 Caremark가 있는 Health Services(21.1억 달러)다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
-
   "useOfCash": {
     "period": "9M 2026 (ended 2026-09-30)",
     "items": [
-      { "use": "debt repayment", "value": 4.057, "unit": "USD bn", "src": ["s2"] },
-      { "use": "dividends", "value": 2.578, "unit": "USD bn", "src": ["s2"] },
-      { "use": "capex", "value": 2.357, "unit": "USD bn", "src": ["s2"] },
-      { "use": "buybacks", "value": null, "unit": "USD bn", "src": ["s2", "s3"] }
+      {
+        "use": "debt repayment",
+        "value": 4.057,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "use": "dividends",
+        "value": 2.578,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "use": "capex",
+        "value": 2.357,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "use": "buybacks",
+        "value": null,
+        "unit": "USD bn",
+        "src": [
+          "s2",
+          "s3"
+        ]
+      }
     ],
     "text": "2026년 1~9월 영업현금흐름은 153억 달러로 전년 같은 기간(72억 달러)의 두 배를 넘었다. 이 돈은 장기 차입금 상환 40.6억 달러, 배당 25.8억 달러, 설비투자 23.6억 달러에 쓰였고 현금흐름표에 자사주 매입 항목은 없다. 회사는 부채 비율이 나아졌다며 4분기에 자사주 매입을 다시 시작하겠다고 밝혔고, 9월 말 총차입금은 약 607억 달러(계산값), 현금은 117억 달러다.",
-    "src": ["s2", "s3"]
+    "src": [
+      "s2",
+      "s3"
+    ]
   },
-
   "aiChain": {
     "layer": "ai-adopter",
     "position": "AI를 공급하지 않고, 보험 청구·약제관리·약국 운영에 기술을 쓰는 대형 헬스케어 사업자. 분기 실적 자료에는 AI 언급이 없고, 기술 사업으로는 분리 후 약국 회사에 들어갈 Health100(기술 서비스 사업)이 제시됐다.",
-    "dependsOn": ["cloud-infrastructure (공급사명 미공시)", "software-applications (청구·약국 시스템, 공급사명 미공시)"],
-    "sellsTo": ["AI 제품을 팔지 않음 - 보험 가입자·PBM 고객·약국 이용자"],
+    "dependsOn": [
+      "cloud-infrastructure (공급사명 미공시)",
+      "software-applications (청구·약국 시스템, 공급사명 미공시)"
+    ],
+    "sellsTo": [
+      "AI 제품을 팔지 않음 - 보험 가입자·PBM 고객·약국 이용자"
+    ],
     "aiRevenue": null,
     "upside": "자동화가 청구 심사·사전 승인·약국 조제의 인건비와 관리비를 낮추면, 영업이익률 3%대의 사업에서는 작은 비용 절감도 이익에 크게 반영된다.",
     "risk": "AI 자체의 위험보다 의료비·약값 규제와 정부 보험료가 이익을 좌우한다. 기술 투자에 대한 구체 수치는 이번 조사에서 확인하지 못했다.",
     "text": "AI 가치사슬에서 CVS는 쓰는 쪽에 있고 AI 매출은 없다. 이 회사의 이익을 움직이는 것은 AI 지출이 아니라 의료 이용률, 정부 보험료, 약값 규제다. 그래서 AI는 비용 구조를 낮추는 도구로 볼 일이며, 이번 분기 자료에는 그 효과를 보여 주는 수치가 없다.",
-    "src": ["s1", "s3", "s5"]
+    "src": [
+      "s1",
+      "s3",
+      "s5"
+    ]
   },
-
   "competition": {
     "arenas": [
-      { "arena": "건강보험 (상업·메디케어 어드밴티지·메디케이드)", "rivals": ["UnitedHealth Group", "Elevance Health", "Humana", "Cigna"], "position": "challenger", "share": null, "src": ["s2"] },
-      { "arena": "약제관리(PBM)", "rivals": ["Cigna Express Scripts", "UnitedHealth Group (Optum Rx)"], "position": "leader", "share": null, "src": ["s2"] },
-      { "arena": "소매 약국", "rivals": ["Walgreens", "Walmart", "Amazon Pharmacy"], "position": "leader", "share": null, "src": ["s5"] },
-      { "arena": "1차 진료·가치기반 진료", "rivals": ["UnitedHealth Group (Optum Health)", "Amazon (One Medical)"], "position": "challenger", "share": null, "src": ["s2"] }
+      {
+        "arena": "건강보험 (상업·메디케어 어드밴티지·메디케이드)",
+        "rivals": [
+          "UnitedHealth Group",
+          "Elevance Health",
+          "Humana",
+          "Cigna"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "arena": "약제관리(PBM)",
+        "rivals": [
+          "Cigna Express Scripts",
+          "UnitedHealth Group (Optum Rx)"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "arena": "소매 약국",
+        "rivals": [
+          "Walgreens",
+          "Walmart",
+          "Amazon Pharmacy"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s5"
+        ]
+      },
+      {
+        "arena": "1차 진료·가치기반 진료",
+        "rivals": [
+          "UnitedHealth Group (Optum Health)",
+          "Amazon (One Medical)"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s2"
+        ]
+      }
     ],
     "edge": "보험·PBM·약국·진료를 모두 가진 규모, 약 9,000개 약국과 약사 약 3만 명, CostVantage로 바꾼 약국 상환 구조.",
     "threats": "PBM의 약국 소유를 금지하는 주법(아칸소·테네시), 연방 처방약 할인 프로그램 압력, 메디케어 어드밴티지 의료비 상승, 분리 과정의 비용과 시너지 상실.",
     "text": "경쟁은 각 부문에서 따로 벌어진다. 보험에서는 UnitedHealth·Elevance·Humana와, PBM에서는 Cigna Express Scripts·Optum Rx와, 약국에서는 Walgreens·Walmart·Amazon과 맞선다. 문제는 경쟁자보다 규제로, 아칸소·테네시가 PBM의 약국 소유를 금지하는 법을 통과시켰고 분석가들은 분리 결정이 이런 수직 통합 감시를 피하려는 방어적 선택일 수 있다고 본다.",
-    "src": ["s5", "s4"]
+    "src": [
+      "s5",
+      "s4"
+    ]
   },
-
   "strategy": {
     "goal": "2026년 조정 EPS 8.20달러 이상, 영업현금흐름 155억 달러 이상, 그리고 약국 사업과 보험·PBM·진료 사업을 두 상장사로 분리.",
     "roadmap": [
-      { "when": "2026 Q4", "what": "자사주 매입 재개 계획", "src": ["s3"] },
-      { "when": "2027", "what": "CFO가 연방 처방약 할인 프로그램 압력, 약한 PBM 영업 시즌, 가입자 감소를 부담으로 제시", "src": ["s4"] },
-      { "when": "2028 상반기 (목표)", "what": "약국 회사 CVS Pharmacy(약 9,000개 약국·우편 약국·MinuteClinic·Health100, CEO Prem Shah)와 건강 솔루션 회사(Aetna·CVS Caremark·CVS Specialty·Oak Street Health·Signify Health, CEO David Joyner)로 분리, 미국 연방세 비과세 목표", "src": ["s5"] }
+      {
+        "when": "2026 Q4",
+        "what": "자사주 매입 재개 계획",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "when": "2027",
+        "what": "CFO가 연방 처방약 할인 프로그램 압력, 약한 PBM 영업 시즌, 가입자 감소를 부담으로 제시",
+        "src": [
+          "s4"
+        ]
+      },
+      {
+        "when": "2028 상반기 (목표)",
+        "what": "약국 회사 CVS Pharmacy(약 9,000개 약국·우편 약국·MinuteClinic·Health100, CEO Prem Shah)와 건강 솔루션 회사(Aetna·CVS Caremark·CVS Specialty·Oak Street Health·Signify Health, CEO David Joyner)로 분리, 미국 연방세 비과세 목표",
+        "src": [
+          "s5"
+        ]
+      }
     ],
     "vision": "Joyner CEO는 분리 뒤 두 회사가 각각 소비자 참여, 비용 부담 완화, 진료 연결에 집중하는 그림을 제시했다.",
     "text": "앞으로의 계획은 합친 회사를 다시 나누는 것이다. 2018년 780억 달러에 산 Aetna와 Caremark·진료 사업은 한 회사에, 약국은 다른 회사에 두며 2028년 상반기 완료를 목표로 한다. 분리 전까지는 Aetna 의료비율 개선과 약국 상환 모델(CostVantage)로 이익을 지키고, 4분기부터 자사주 매입을 재개한다.",
-    "src": ["s5", "s3"]
+    "src": [
+      "s5",
+      "s3"
+    ]
   },
-
   "governance": {
     "line": "David Joyner가 2024년 10월부터 회장 겸 CEO를 맡고 Brian Newman이 CFO이며, 분리 뒤 보험·PBM 회사는 Joyner, 약국 회사는 Prem Shah가 이끌 예정이고 2026년 1~9월 배당 25.8억 달러를 지급했다.",
-    "src": ["s5", "s4", "s2"]
+    "src": [
+      "s5",
+      "s4",
+      "s2"
+    ]
   },
-
   "guidance": {
     "latest": [
-      { "period": "FY2026", "metric": "adjusted EPS", "value": "8.20달러 이상 (직전 7.90~8.10달러)", "givenOn": "2026-11-04", "src": ["s1"] },
-      { "period": "FY2026", "metric": "GAAP diluted EPS", "value": "6.98달러 이상 (직전 6.84~7.04달러)", "givenOn": "2026-11-04", "src": ["s1"] },
-      { "period": "FY2026", "metric": "cash flow from operations", "value": "155억 달러 이상 (직전 115억 달러 이상)", "givenOn": "2026-11-04", "src": ["s1"] },
-      { "period": "FY2026", "metric": "total revenue / adjusted operating income", "value": "4,200억 달러 이상 / 170.5억 달러 이상 (Q2 기준 4,140억 / 165.8억~169.2억 달러)", "givenOn": "2026-11-04", "src": ["s3"] },
-      { "period": "FY2026", "metric": "Health Care Benefits MBR / medical membership", "value": "89.75%±25bp 범위 하단 / 약 2,600만 명 (유지)", "givenOn": "2026-11-04", "src": ["s3"] }
+      {
+        "period": "FY2026",
+        "metric": "adjusted EPS",
+        "value": "8.20달러 이상 (직전 7.90~8.10달러)",
+        "givenOn": "2026-11-04",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "GAAP diluted EPS",
+        "value": "6.98달러 이상 (직전 6.84~7.04달러)",
+        "givenOn": "2026-11-04",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "cash flow from operations",
+        "value": "155억 달러 이상 (직전 115억 달러 이상)",
+        "givenOn": "2026-11-04",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "total revenue / adjusted operating income",
+        "value": "4,200억 달러 이상 / 170.5억 달러 이상 (Q2 기준 4,140억 / 165.8억~169.2억 달러)",
+        "givenOn": "2026-11-04",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "Health Care Benefits MBR / medical membership",
+        "value": "89.75%±25bp 범위 하단 / 약 2,600만 명 (유지)",
+        "givenOn": "2026-11-04",
+        "src": [
+          "s3"
+        ]
+      }
     ],
     "style": "annual",
     "track": "2026년 3분기에 연간 조정 EPS·영업현금흐름·매출 전망을 모두 올렸고, 회사는 상향에도 의료비 추세와 거시 위험 때문에 남은 기간을 보수적으로 본다고 밝혔다.",
-    "src": ["s1", "s3"]
+    "src": [
+      "s1",
+      "s3"
+    ]
   },
-
-  "estimates": { "text": null, "src": [] },
-
+  "estimates": {
+    "text": null,
+    "src": []
+  },
   "watch": {
     "confirms": [
       "Aetna 의료비율이 연간 전망 범위 하단(89.75%±25bp) 안에 머묾",
@@ -174,50 +467,102 @@
       "분리 비용이 커지거나 시너지 상실이 수치로 드러남"
     ],
     "keyNumbers": [
-      { "name": "의료비율(MBR)", "why": "Aetna 이익을 가장 크게 움직이는 숫자" },
-      { "name": "의료 가입자 수", "why": "보험 매출과 2027 부담의 크기" },
-      { "name": "PBM 처방 청구 건수", "why": "Caremark 물량과 고객 유지" },
-      { "name": "부문별 조정 영업이익", "why": "분리 뒤 두 회사의 가치를 나눠 보는 기준" },
-      { "name": "영업현금흐름과 자사주 매입액", "why": "부채 감축 뒤 주주 환원 속도" }
+      {
+        "name": "의료비율(MBR)",
+        "why": "Aetna 이익을 가장 크게 움직이는 숫자"
+      },
+      {
+        "name": "의료 가입자 수",
+        "why": "보험 매출과 2027 부담의 크기"
+      },
+      {
+        "name": "PBM 처방 청구 건수",
+        "why": "Caremark 물량과 고객 유지"
+      },
+      {
+        "name": "부문별 조정 영업이익",
+        "why": "분리 뒤 두 회사의 가치를 나눠 보는 기준"
+      },
+      {
+        "name": "영업현금흐름과 자사주 매입액",
+        "why": "부채 감축 뒤 주주 환원 속도"
+      }
     ]
   },
-
   "debate": {
     "question": "Aetna 의료비율 회복이 이어지는 가운데 두 회사 분리가 2027 이익 둔화와 규제 위험을 덜어 주는지",
     "bull": {
       "text": "이렇게 보는 쪽은 Q3 2026 의료비율이 91.3%로 전년보다 150bp 낮아지며 Aetna 조정 영업이익이 3.1억에서 9.1억 달러로 늘었다는 점을 든다. 회사는 연간 조정 EPS 전망을 8.20달러 이상으로, 영업현금흐름 전망을 155억 달러 이상으로 올렸고 4분기 자사주 매입 재개를 예고했다. 분리는 아칸소·테네시처럼 PBM의 약국 소유를 막는 규제에서 사업을 떼어 놓는 장치로 읽힌다.",
-      "src": ["s2", "s1", "s3", "s5"]
+      "src": [
+        "s2",
+        "s1",
+        "s3",
+        "s5"
+      ]
     },
     "bear": {
       "text": "반대쪽은 CFO가 2027년에 연방 처방약 할인 프로그램 압력, 약한 PBM 영업 시즌, 가입자 감소를 부담으로 꼽았다는 점을 근거로 든다. 의료 가입자는 1년 사이 2,670만 명에서 2,612만 명으로 줄었고 약국 동일 점포 매출은 -0.6%였다. 분석가들은 분리 계획의 재무 세부가 부족하고, Caremark 인수 때 내세운 약국-PBM 시너지가 분리 뒤 어떻게 되는지 불분명하다고 지적했다.",
-      "src": ["s4", "s2"]
+      "src": [
+        "s4",
+        "s2"
+      ]
     },
     "decides": [
-      { "when": "2027-02 (추정, 회사 미확정) Q4·FY2026 실적과 2027 전망", "what": "2027 조정 EPS 전망과 PBM 계약 유지율, 가입자 전망이 CFO가 말한 부담을 어느 정도로 반영하는지", "src": ["s4"] },
-      { "when": "분리 완료 목표 2028 상반기까지", "what": "Form 10 등록 서류에 나올 두 회사의 매출·이익·부채 배분", "src": ["s5"] }
+      {
+        "when": "2027-02 (추정, 회사 미확정) Q4·FY2026 실적과 2027 전망",
+        "what": "2027 조정 EPS 전망과 PBM 계약 유지율, 가입자 전망이 CFO가 말한 부담을 어느 정도로 반영하는지",
+        "src": [
+          "s4"
+        ]
+      },
+      {
+        "when": "분리 완료 목표 2028 상반기까지",
+        "what": "Form 10 등록 서류에 나올 두 회사의 매출·이익·부채 배분",
+        "src": [
+          "s5"
+        ]
+      }
     ]
   },
   "underTheHood": [
     {
       "title": "내부 거래가 부풀린 부문 매출",
       "text": "Q3 2026 부문 매출을 더하면 1,263억 달러지만 연결 매출은 1,084억 달러로, 181억 달러가 Aetna→Caremark→약국으로 이어진 내부 거래 제거다. 분리 뒤에는 이 내부 물량이 회사 간 외부 계약으로 바뀌므로, 각 회사의 매출과 마진은 지금 부문 숫자와 다르게 보일 수 있다.",
-      "src": ["s2", "s5"]
+      "src": [
+        "s2",
+        "s5"
+      ]
     },
     {
       "title": "1%p 의료비율의 무게",
       "text": "Aetna의 분기 매출 368.6억 달러에서 의료비율 1%p는 약 3.7억 달러(계산값)로, 이번 분기 부문 조정 영업이익 9.1억 달러의 40%에 이른다. 그래서 회사 전체 이익의 방향은 매출 성장보다 의료비율 몇십 bp 변화에 더 민감하다.",
-      "src": ["s2"]
+      "src": [
+        "s2"
+      ]
     },
     {
       "title": "GAAP 흑자 전환의 기저",
       "text": "Q3 2026 GAAP EPS 1.68달러는 1년 전 -3.13달러에서 크게 뛰었지만, 전년 숫자에는 진료 사업(Oak Street Health 등) 영업권 손상 57억 달러가 들어 있었다. 본업 변화는 조정 EPS 1.60달러에서 2.09달러로의 증가로 보는 편이 맞다.",
-      "src": ["s1", "s2"]
+      "src": [
+        "s1",
+        "s2"
+      ]
     }
   ],
   "trading": {
     "calendar": [
-      { "date": "2027-02 (추정, 회사 미확정)", "event": "Q4·FY2026 실적과 2027 전망", "src": [] },
-      { "date": "2028 상반기 (목표)", "event": "약국 사업 분리 완료", "src": ["s5"] }
+      {
+        "date": "2027-02 (추정, 회사 미확정)",
+        "event": "Q4·FY2026 실적과 2027 전망",
+        "src": []
+      },
+      {
+        "date": "2028 상반기 (목표)",
+        "event": "약국 사업 분리 완료",
+        "src": [
+          "s5"
+        ]
+      }
     ],
     "reaction": "실적 수치보다 의료비율과 다음 해 전망, 구조 변화 발표에 크게 움직인다. 2026-11-04 3분기 실적에서는 전망을 올렸지만 분리 발표와 2027 부담 언급이 겹친 날 주가가 13% 떨어졌다고 보도됐다.",
     "conditions": [
@@ -228,7 +573,6 @@
       "자사주 매입 재개 규모"
     ]
   },
-
   "unverified": [
     "FY2025 연간 매출·이익과 연간 대비 비교 (이번 조사는 Q3 2026 분기 자료 중심)",
     "Q3 2026 단일 분기 설비투자와 잉여현금흐름 (9개월 누계 설비투자 23.6억 달러만 확인)",
@@ -236,7 +580,8 @@
     "주요 PBM 고객과 의약품 도매 공급사 이름",
     "AI·기술 투자 금액과 효과",
     "Q4 2026 실적 발표일",
-    "컨센서스 추정치"
+    "컨센서스 추정치",
+    "사업부 매출 합계는 사업부 간 거래를 빼기 전 금액이라 연결 매출보다 크다."
   ],
   "confidence": "high - 분기 매출·부문·가입자·현금흐름·가이던스는 회사 실적 자료에서 왔다. 분리 구조와 2027 부담 발언은 같은 날 보도 기사로 확인했다."
 }
