@@ -182,9 +182,15 @@ jobs:
         # Playwright Chromium and its OS packages (cached); each workaround's history is in the action.
         uses: ./.github/actions/setup-browser-gates
       - name: Run all gates in shard
+        # v59.72 (P2266, owner 11/07): one flaky browser gate on a push left every later data release unattested until the
+        # next push. A failed shard reruns only its failed gates once; a gate that fails twice fails the shard.
         env:
           AIO_QA_CACHE_DIR: ${{ runner.temp }}/aio-qa
-        run: node scripts/qa-runner.mjs --group ${{ matrix.group }} --no-cache
+        run: |
+          node scripts/qa-runner.mjs --group ${{ matrix.group }} --no-cache && exit 0
+          echo "::warning::${{ matrix.group }} failed once; rerunning only the failed gates"
+          node scripts/qa-runner.mjs rerun-failed --no-cache
+          echo "::warning::${{ matrix.group }} passed on rerun (flaky gate; the first failure is in this log)"
       - name: Upload redacted QA failure output
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

@@ -556,7 +556,7 @@ for (const jobName of ['preflight', 'contracts', 'browser']) {
     : new RegExp(`aio-qa-failure-output-${jobName}-\\$\\{\\{ matrix\\.group \\}\\}-\\$\\{\\{ github\\.run_attempt \\}\\}`);
   check(`P1286 CI ${jobName} job uses the shared runner-temp QA cache`,
     /AIO_QA_CACHE_DIR:\s*\$\{\{\s*runner\.temp\s*\}\}\/aio-qa/.test(qaRunStep)
-    && /run:\s*node scripts\/qa-runner\.mjs/.test(qaRunStep));
+    && /run:\s*(?:\|\s*)?node scripts\/qa-runner\.mjs/.test(qaRunStep)); // v59.72: the browser shard's block scalar (rerun once)
   check(`P1286 CI ${jobName} uploads only redacted run-scoped QA failures after failure`,
     /^        if: failure\(\)\s*$/m.test(uploadStep)
     && new RegExp(`^        uses: actions/upload-artifact@${qaFailureUploadSha.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:\\s+#.*)?\\s*$`, 'm').test(uploadStep)

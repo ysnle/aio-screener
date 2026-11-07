@@ -42,6 +42,14 @@ Ticker,Name,Type,Sector,Asset Class,Market Value,${weightHeader}
 check('v59.72 AI reading reader-duty endings become state endings', softenReaderDuty('조정 여부를 확인해야 합니다. CPI를 지켜봐야 합니다. 금리를 점검할 필요가 있습니다.') === '조정 여부를 확인할 대목입니다. CPI를 지켜볼 대목입니다. 금리를 점검할 대목입니다.');
 check('v59.72 the producer publishes the rewritten reading', /text: softenReaderDuty\(semantic\.text \|\| text\)/.test(read('scripts/producer/market-narrative.mjs')));
 
+// v59.72 (P2266): a failed CI browser shard reruns only its failed gates once before failing the push.
+{
+  const ci = read('.github/workflows/ci.yml');
+  const browserJob = ci.slice(ci.indexOf('\n  browser:'), ci.indexOf('\n  attest:'));
+  const shard = browserJob.slice(browserJob.indexOf('- name: Run all gates in shard'), browserJob.indexOf('- name: Upload redacted QA failure output'));
+  check('v59.72 CI browser shards rerun failed gates once', /run: \|\n\s+node scripts\/qa-runner\.mjs --group \$\{\{ matrix\.group \}\} --no-cache && exit 0\n[\s\S]*\n\s+node scripts\/qa-runner\.mjs rerun-failed --no-cache\n/.test(shard), shard.slice(0, 200));
+}
+
 // P1596: optional degradation is visible even when release-blocking gates pass.
 check('P1596 warnings cannot be reported as healthy', summarizeOperationalChecks([], ['AI unavailable']).status === 'DEGRADED'
   && summarizeOperationalChecks([{ ok: false, severity: 'warning' }]).gateStatus === 'PASS'
