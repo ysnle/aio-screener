@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-07T09:25:07.193Z",
-  "attemptedAt": "2026-11-07T09:25:07.193Z",
-  "lastSuccessfulAt": "2026-11-07T09:25:07.193Z",
+  "generatedAt": "2026-11-07T10:15:26.225Z",
+  "attemptedAt": "2026-11-07T10:15:26.225Z",
+  "lastSuccessfulAt": "2026-11-07T10:15:26.225Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-24T09:25:02.937Z",
-  "until": "2026-11-07T09:25:02.937Z",
+  "since": "2026-10-24T10:15:19.589Z",
+  "until": "2026-11-07T10:15:19.589Z",
   "current24hWindow": {
     "start": "2026-11-05T23:00:00.000Z",
     "end": "2026-11-06T23:00:00.000Z",
@@ -89,15 +89,15 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1352,
-      "freshCount": 20,
-      "eligibleTextCount": 1290,
+      "count": 1353,
+      "freshCount": 40,
+      "eligibleTextCount": 1291,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 68624
+      "lastPostId": 68626
     },
     {
       "channel": "bornlupin",
@@ -116,30 +116,30 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 698,
-      "freshCount": 37,
-      "eligibleTextCount": 697,
+      "count": 699,
+      "freshCount": 35,
+      "eligibleTextCount": 698,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 71718
+      "lastPostId": 71722
     }
   ],
-  "count": 2326,
-  "retainedItemCount": 434,
+  "count": 2328,
+  "retainedItemCount": 448,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2326,
-    "eligibleTextCount": 2260,
+    "observedCount": 2328,
+    "eligibleTextCount": 2262,
     "mediaOnlyCount": 66,
-    "mediaAttachedCount": 501,
-    "photoPostCount": 434,
+    "mediaAttachedCount": 502,
+    "photoPostCount": 435,
     "documentPostCount": 2,
     "imageOnlyCount": 2,
     "highSignalCount": 394,
-    "broadSignalCount": 851,
+    "broadSignalCount": 853,
     "selectedRawCount": 388,
     "selectedEligibleCount": 388,
     "selectedRawCoveragePct": 17.2,
@@ -147,15 +147,15 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "power": 273,
+    "credit": 100,
+    "geo": 441,
     "market-note": 847,
     "earnings": 406,
     "semi": 481,
-    "power": 272,
-    "geo": 440,
     "flows": 67,
     "ai-policy": 99,
     "kr-market": 116,
-    "credit": 99,
     "macro": 347,
     "media-only": 65,
     "equity": 116,
@@ -165,6 +165,8 @@
     "crypto": 4
   },
   "tickerCounts": {
+    "TSLA": 32,
+    "AAPL": 24,
     "GOOG": 115,
     "GOOGL": 9,
     "NVDA": 116,
@@ -177,9 +179,7 @@
     "MSFT": 58,
     "CRWV": 6,
     "BE": 12,
-    "TSLA": 31,
     "AMAT": 2,
-    "AAPL": 23,
     "MRNA": 4,
     "MTD": 1,
     "IBN": 1,
@@ -260,10 +260,10 @@
   "themes": [
     "Market Notes (847 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
     "Semiconductors/Memory (481 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
-    "Geopolitics (440 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
+    "Geopolitics (441 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
     "Earnings/Corporate (406 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
     "Macro/Rates (347 posts in 14-day research window): 2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000...",
-    "AI Power/Grid (272 posts in 14-day research window): 데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가...",
+    "AI Power/Grid (273 posts in 14-day research window): 데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가...",
     "Korea Market (116 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY...",
     "Equity/Analyst (116 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
   ],
@@ -315,7 +315,7 @@
     },
     {
       "key": "TSLA",
-      "count": 31,
+      "count": 32,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) 반도체 · 데이터센터 · 광통신 • 마이크론 (MU) — 장기화된 노동 분쟁으로 대만의 45억 달러 규모 메모리 반도체 공장 건설을 중단한 것으로 보도됨. 해당..."
     },
     {
@@ -325,7 +325,7 @@
     },
     {
       "key": "AAPL",
-      "count": 23,
+      "count": 24,
       "text": "알파벳(GOOGL) 2026년 3분기 어닝콜 — CapEx·AI 인프라 관련 1. CapEx 규모 및 2027년 전망 — CFO 아나트 아슈케나지 • 3분기 CapEx는 514억 달러. 대부분 AI 투자를..."
     }
   ],
@@ -345,7 +345,7 @@
       "topics": [
         "geo"
       ],
-      "count": 440,
+      "count": 441,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격..."
     },
     {
@@ -354,7 +354,7 @@
       "topics": [
         "credit"
       ],
-      "count": 99,
+      "count": 100,
       "focus": "11월 04일 미주인 브리핑 • 나스닥 0.83% 상승 · 엔비디아 시총 5조 달러 회복 • AMD 데이터센터 매출 97% 급증 · 시간 외 6% 상승 • 메타 대규모 회사채 발행 추진 · AI 투자 확대 •..."
     },
     {
@@ -381,7 +381,7 @@
       "topics": [
         "power"
       ],
-      "count": 272,
+      "count": 273,
       "focus": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가..."
     },
     {
@@ -1773,6 +1773,37 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/68626",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68626",
+      "datetime": "2026-11-07T10:05:21.000Z",
+      "localDateKst": "2026-11-07",
+      "tags": [
+        "power"
+      ],
+      "score": 52,
+      "hasText": true,
+      "tickers": [
+        "TSLA"
+      ],
+      "summary": "머스크의 ‘텍사스 제국’, 정치 지형 변화에 규제 리스크 부상 일론 머스크가 캘리포니아를 떠나 구축해온 텍사스 사업 기반이 새로운 정치적 시험대에 오르고 있음. 머스크는 2020년 이후 테슬라와 스페이스X를..."
+    },
+    {
+      "id": "insidertracking/68625",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68625",
+      "datetime": "2026-11-07T09:59:42.000Z",
+      "localDateKst": "2026-11-07",
+      "tags": [
+        "credit",
+        "geo"
+      ],
+      "score": 62,
+      "hasText": true,
+      "tickers": [],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 7일 > 오전 7시~오후 7시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 협상을 진행 중이며 결과를 지켜보겠다고 밝혀. Axios는 트럼프 대통령이 당분간..."
+    },
+    {
       "id": "HANAchina/71717",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71717",
@@ -2163,11 +2194,11 @@
       "tags": [
         "geo"
       ],
+      "lead": 1,
       "score": 50,
       "hasText": true,
-      "summary": "11월 7일 월스트리트저널에 따르면 트럼프 대통령이 이란과의 전쟁을 종료할지, 대규모 군사작전을 재개할지를 놓고 참모진 및 해외 동맹국들과 의견 차이를 보이는 중. 밴스 부통령과 스티브 위트코프 특사는 외교적...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "11월 7일 월스트리트저널에 따르면 트럼프 대통령이 이란과의 전쟁을 종료할지, 대규모 군사작전을 재개할지를 놓고 참모진 및 해외 동맹국들과 의견 차이를 보이는 중. 밴스 부통령과 스티브 위트코프 특사는 외교적..."
     },
     {
       "id": "bornlupin/21044",
@@ -2311,8 +2342,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "차주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 11월 10일 화요일 22:30 – 소비자물가지수 (MoM) (10월) 22:30 – 근원 소비자물가지수 (MoM) (10월) 22:30 –...",
-      "tickers": []
+      "tickers": [],
+      "summary": "차주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 11월 10일 화요일 22:30 – 소비자물가지수 (MoM) (10월) 22:30 – 근원 소비자물가지수 (MoM) (10월) 22:30 –..."
     },
     {
       "id": "insidertracking/68582",
@@ -6605,20 +6636,6 @@
       ]
     },
     {
-      "id": "insidertracking/68193",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68193",
-      "datetime": "2026-11-03T11:49:58.000Z",
-      "localDateKst": "2026-11-03",
-      "tags": [
-        "earnings"
-      ],
-      "score": 57,
-      "hasText": true,
-      "summary": "BioNTech 2026년 3분기 실적 요약 실적 • 매출 €12.89억, YoY -15.1% • IFRS EPS €0.73, 전년 -€0.12에서 흑자 전환 • 조정 EPS €1.76, 전년 €3.11 대비...",
-      "tickers": []
-    },
-    {
       "id": "HANAchina/71488",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71488",
@@ -6632,28 +6649,6 @@
       "summary": ">>세계금협회, 올해 금 투자 수요 증가 전망 200톤으로 하향…중앙은행 금 매입 가속화, ETF 보유량 사상 최고치 •세계금협회는 2026년 글로벌 금 투자 수요 증가 전망을 200톤으로 하향 조정. 금...",
       "lead": 1,
       "tickers": []
-    },
-    {
-      "id": "insidertracking/68192",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68192",
-      "datetime": "2026-11-03T11:48:45.000Z",
-      "localDateKst": "2026-11-03",
-      "tags": [
-        "earnings"
-      ],
-      "score": 69,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "Pfizer 2026년 3분기 실적 요약 실적 • 매출 $166억, YoY 변동 없음, 예상 $158.7억 상회 • GAAP EPS $0.56, YoY -9% • 조정 EPS $0.87, YoY 변동 없음,...",
-      "tickers": [
-        "PFE"
-      ]
     },
     {
       "id": "HANAchina/71486",
@@ -8949,8 +8944,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "차주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 11월 10일 화요일 22:30 – 소비자물가지수 (MoM) (10월) 22:30 – 근원 소비자물가지수 (MoM) (10월) 22:30 –...",
-      "tickers": []
+      "tickers": [],
+      "summary": "차주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 11월 10일 화요일 22:30 – 소비자물가지수 (MoM) (10월) 22:30 – 근원 소비자물가지수 (MoM) (10월) 22:30 –..."
     },
     {
       "id": "insidertracking/68582",
