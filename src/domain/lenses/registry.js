@@ -36,7 +36,7 @@ const STALE_DAYS = 5;
 export const LENSES = Object.freeze([
   {
     id: 'trend', label: '추세', home: 'charts',
-    question: '지수가 중기 평균선 위에서 움직이나',
+    question: '지수와 중기 평균선의 위치',
     reading: 'S&P 500·나스닥 100의 50일선·200일선 위치와 거리. 판정은 직전 미국 정규장 종가 기준이다.',
     data: ['S&P 500·나스닥 100 일별 종가'],
     limits: ['평균선 위치는 방향을 말하지 속도나 끝을 말하지 않는다.'],
@@ -44,7 +44,7 @@ export const LENSES = Object.freeze([
   },
   {
     id: 'breadth', label: '시장 폭', home: 'breadth',
-    question: '지수 상승에 참여한 종목이 넓은가',
+    question: '지수 상승에 참여한 종목의 넓이',
     reading: '지수가 올라도 평균선 위 종목이 적으면 소수 대형주가 끈 움직임이다. 동일가중 지수와의 차이를 함께 본다.',
     data: ['스크리너 유니버스 미국 종목의 수정 종가(종목마다 같은 무게)', '동일가중 S&P 500(RSP) 종가'],
     limits: ['거래소 전체 집계가 아니라 유니버스 기준이다.', '평균선 위 비율과 평균선이 오르면서 그 위에 있는 비율(10거래일 전보다 높은 50일선)은 다른 값이다. 내리는 선 위의 종목은 하락 추세 속 반등일 수 있다.'],
@@ -57,7 +57,7 @@ export const LENSES = Object.freeze([
   },
   {
     id: 'volatility', label: '변동성', home: 'sentiment',
-    question: '지수가 흔들리는 크기가 평소보다 큰가',
+    question: '평소와 비교한 지수의 흔들림',
     reading: 'VIX 수준과 VIX·VIX3M 구조. 근월이 더 높으면 단기 불안이 크다.',
     data: ['Cboe VIX·VIX3M 일별 종가'],
     limits: ['변동성이 높다는 것은 흔들림이 크다는 뜻이지 하락 방향을 말하지 않는다.'],
@@ -65,7 +65,7 @@ export const LENSES = Object.freeze([
   },
   {
     id: 'sentiment', label: '투자 심리', home: 'sentiment',
-    question: '참여자들이 겁을 내는가, 과열인가',
+    question: '참여자의 공포와 과열 정도',
     // v59.71: the put/call ratio is retired (owner 11/04, Cboe terms); the lens reads the survey against VIX only.
     reading: '공포·탐욕 지수를 VIX와 겹쳐, 겁만 난 상태와 투매를 나눈다.',
     data: ['CNN 공포·탐욕 지수', 'Cboe VIX 일별 종가'],
@@ -79,7 +79,7 @@ export const LENSES = Object.freeze([
   },
   {
     id: 'rates', label: '금리', home: 'fxbond',
-    question: '금리가 주가의 할인율을 누르고 있나',
+    question: '금리가 주가 할인율에 주는 부담',
     reading: '10년 명목금리를 실질금리와 기대인플레이션으로 나눠, 금리 하락이 성장 걱정인지 물가 안정인지 본다.',
     data: ['미 국채 10년·2년 수익률', '10년 실질금리(DFII10)·기대인플레이션(T10YIE)'],
     limits: ['10년 금리 한 줄로 AI 투자 수요 같은 개별 원인을 잴 수 없다.'],
@@ -87,7 +87,7 @@ export const LENSES = Object.freeze([
   },
   {
     id: 'credit', label: '신용', home: 'sentiment',
-    question: '회사채 시장이 위험을 더 비싸게 받나',
+    question: '회사채 시장이 매기는 위험의 값',
     reading: '하이일드·CCC 스프레드가 넓어지면 주가 조정이 신용 경계로 바뀌는지 본다.',
     data: ['ICE BofA 하이일드·CCC·투자등급 OAS'],
     limits: ['공개 회사채 시장의 금리차이며 사모 신용이나 개별 기업 CDS가 아니다.'],
@@ -95,7 +95,7 @@ export const LENSES = Object.freeze([
   },
   {
     id: 'earnings', label: '실적 반응', home: 'briefing',
-    question: '실적이 예상과 어땠고, 주가는 어떻게 받았나',
+    question: '예상 대비 실적과 주가의 반응',
     reading: '예상 | 발표 | 다음 전망 | 주가 반응을 나란히 두고, 같은 날 시장·업종 움직임과 비교한다.',
     data: ['기업 보도자료·공시(SEC 8-K, DART)', '실적 달력 컨센서스(조정 EPS·분기 매출)'],
     limits: ['예상치의 취득 시각을 저장하지 않아 발표 직전 값인지 확인하지 못한다.', 'GAAP과 조정 기준, 연간과 분기는 서로 비교하지 않는다.'],
@@ -109,7 +109,7 @@ export const LENSES = Object.freeze([
   },
   {
     id: 'expectations', label: '이익 전망', home: 'macro',
-    question: '시장이 앞으로의 이익을 높이고 있나 낮추고 있나',
+    question: '앞으로의 이익 전망이 오르는지 내리는지',
     reading: '컨센서스 EPS와 최근 4주 상향·하향 수로 전망의 방향을 본다.',
     data: ['Nasdaq 공개 실적 전망(Zacks 컨센서스, 조정 EPS)'],
     limits: ['추정치의 수정 이력 전체가 아니라 최근 4주 상향·하향 수다.'],
@@ -120,7 +120,7 @@ export const LENSES = Object.freeze([
   },
   {
     id: 'valuation', label: '밸류에이션', home: 'screener',
-    question: '가격이 이익·자본에 비해 비싼가',
+    question: '이익·자본에 견준 가격 수준',
     reading: '직전 종가 × SEC 공시 주식 수로 PER·PBR을 계산한다. 분할 뒤 다음 공시 전에는 주식 수를 분할 비율로 보정한다.',
     data: ['SEC EDGAR XBRL(연간·분기)', '수정 종가'],
     limits: ['PER 2 미만·PBR 0.1 미만은 주식 단위 불일치로 보고 표시하지 않는다.', '한국 종목은 재무 자료가 아직 없다.'],
@@ -132,7 +132,7 @@ export const LENSES = Object.freeze([
   },
   {
     id: 'rotation', label: '테마 회전', home: 'themes',
-    question: '어느 업종·테마로 강세가 옮겨 가나',
+    question: '강세가 옮겨 가는 업종·테마',
     reading: '세부 테마의 기간별 상대강도와 순위 변화, 단계(주도·조정·반등·약세)를 같은 기준일로 본다.',
     data: ['테마 구성 종목·ETF 수정 종가(상대강도 자체 계산)'],
     limits: ['함께 움직였다는 것만으로 같은 원인이라고 하지 않는다.', '상대강도 순위는 추천 순서가 아니다.'],
@@ -143,7 +143,7 @@ export const LENSES = Object.freeze([
   },
   {
     id: 'macro', label: '경기·물가', home: 'macro',
-    question: '성장과 물가가 어느 쪽으로 가나',
+    question: '성장과 물가의 방향',
     reading: '고용·물가·소비 발표를 이전 추세와 견주어 성장 × 물가 사분면의 위치를 본다.',
     data: ['FRED·BLS·BEA 공식 발표'],
     limits: ['월간 발표는 늦게 나오고 수정된다. 발표 전 값을 뒤에 나온 값으로 바꾸지 않는다.'],
@@ -151,7 +151,7 @@ export const LENSES = Object.freeze([
   },
   {
     id: 'korea', label: '한국 시장', home: 'signal',
-    question: '한국 증시가 미국과 같은 방향인가, 원화가 같이 움직이나',
+    question: '미국과 견준 한국 증시와 원화의 방향',
     reading: '코스피·코스닥 마감과 원/달러를 함께 놓고, 원화 약세가 동반된 하락인지 본다.',
     data: ['코스피·코스닥 일별 종가', '원/달러 종가'],
     limits: ['투자자별 매매(외국인·기관) 자료는 아직 수집 전이다.', '한국 종목 재무 자료가 없어 한국 밸류에이션은 계산하지 않는다.'],

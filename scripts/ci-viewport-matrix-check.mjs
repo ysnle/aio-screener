@@ -151,6 +151,9 @@ async function auditRoute(page, routeId) {
       routeId: id,
       activeFound: !!pageEl,
       docOverflowX: Math.max(docEl.scrollWidth - docEl.clientWidth, body.scrollWidth - body.clientWidth),
+      // QA 2026-11-07: the page scrolls inside #main-content; a document taller than the window is a second, outer scroll
+      // (absolute .sr-only nodes escaped an unpositioned scroller and pushed the phone shell up over a blank band).
+      docOverflowY: Math.max(0, docEl.scrollHeight - docEl.clientHeight),
       badTextCount: badTextNodes.length,
       namelessControlCount: controls.length,
       zeroCanvasCount: zeroCanvases.length,
@@ -319,6 +322,7 @@ async function main() {
         if (r.jsErrorCount) routeFailures.push(`unhandled pageerror/console.error ${r.jsErrorCount}`);
         if (r.unhandledRejectionCount) routeFailures.push(`unhandledrejection ${r.unhandledRejectionCount}`);
         if (r.docOverflowX > 3) routeFailures.push(`horizontal overflow ${r.docOverflowX}px`);
+        if (r.docOverflowY > 3) routeFailures.push(`document taller than the window by ${r.docOverflowY}px (outer scroll)`);
         if (r.badTextCount) routeFailures.push(`bad visible text ${r.badTextCount}`);
         if (r.namelessControlCount) routeFailures.push(`nameless controls ${r.namelessControlCount}`);
         if (r.zeroCanvasCount) routeFailures.push(`zero-size canvases ${r.zeroCanvasCount}`);

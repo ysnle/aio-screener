@@ -21,6 +21,7 @@ import { signedText } from '../../domain/shared/number.js';
 // v58.75: the bar helpers live in chart-bars.js so boot-time readers (AI visuals, compatibility globals) can import
 // them without pulling the chart module into the boot set; re-exported here for existing importers.
 import { barsFromYahoo, completedBars } from './chart-bars.js';
+const INDEX_FUNDS = new Set(['SPY', 'QQQ', 'SOXX', 'IWM', 'DIA']);
 export { barsFromYahoo, completedBars };
 // v57.91 (visual audit): the loading card spans the whole evidence grid instead of sitting in its last column.
 const fullRow = (node) => { if (node?.style) node.style.gridColumn = '1 / -1'; return node; };
@@ -339,7 +340,9 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
     const heldText = held ? `앱에 있는 마지막 종가는 ${Number(held.date.slice(5, 7))}/${Number(held.date.slice(8, 10))} ${formatScreenerPrice(held.value, held.currency || (kr ? 'KRW' : 'USD'))}입니다(요약 탭과 같은 값). ` : '';
     // v59.70 (coverage audit S14): the failure states what is missing; the retry button is the next step, not a sentence.
     const state = payload == null
-      ? emptyState(doc, { title: `${sym} 시세를 받아오지 못했습니다`, reason: '시세 제공처나 AIO 시세 서버가 응답하지 않았습니다.', next: heldText.trim(), action: retry })
+      // QA 2026-11-07: with the quote server down this screen was empty while 지수 차트 (#charts) draws from the published
+      // closes; an index fund names that screen.
+      ? emptyState(doc, { title: `${sym} 시세를 받아오지 못했습니다`, reason: '시세 제공처나 AIO 시세 서버가 응답하지 않았습니다.', next: `${heldText}${INDEX_FUNDS.has(sym) ? '발행된 종가로 그린 지수 차트는 기술적 분석의 지수 차트에서 볼 수 있습니다.' : ''}`.trim(), action: retry })
       : bars.length === 0
         ? emptyState(doc, { title: `${sym}의 일봉이 없습니다`, reason: '시세 제공처에 이 코드의 일봉 기록이 없습니다. 한국 종목은 6자리 코드(예: 005930)로 찾습니다.' })
         : emptyState(doc, { title: `${sym}의 일봉이 ${bars.length}개뿐입니다`, reason: '추세·셋업 분석에는 최소 60거래일이 필요합니다.', next: '상장 직후 종목은 기록이 쌓인 뒤 분석됩니다.' });

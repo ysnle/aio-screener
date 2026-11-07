@@ -450,3 +450,4 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
   #page-signal .mk-story__grid { grid-template-columns: minmax(0, 1fr); }
   #page-signal .mk-story__bars .briefing-move-row { grid-template-columns: 96px minmax(0, 1fr) 52px; }
 }
+#page-signal #regime-board-watch .regime-watch-head { margin: 0 0 6px; font-size: 12px; color: var(--text-muted); }

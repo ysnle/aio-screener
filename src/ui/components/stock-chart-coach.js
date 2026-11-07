@@ -108,7 +108,7 @@ export function setupCoachSection(doc, root, sym, analysis, regime, tools, hasLe
   const align = root.__aioSetupCoach.alignment;
   if (align) {
     const box = el(doc, 'div', null, 'chart-timeframe');
-    box.append(el(doc, 'h4', '주봉과 일봉이 같은 방향인가'), el(doc, 'p', `${align.headline}. ${align.reading}`));
+    box.append(el(doc, 'h4', '주봉과 일봉의 방향'), el(doc, 'p', `${align.headline}. ${align.reading}`));
     section.append(box);
   }
   // D6: the next steps of the top-down flow on this screen — the level map and the plan check below.

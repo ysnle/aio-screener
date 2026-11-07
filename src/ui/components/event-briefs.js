@@ -127,7 +127,7 @@ export function briefNode(doc, brief, { showName = true, bodyOnly = false, cells
     figures.forEach((figure, i) => { if (figure.estimate) ul.children[i].title = `예상치: ${figure.estimate.source || '제공처'} 컨센서스(참고)${seenText(figure.estimate.seenBeforeReportAt)}`; else if (figure.derived) ul.children[i].title = `공시 원문 ${figure.derived}`; });
     more.append(el(doc, 'p', '발표 수치', 'event-brief__sub'), ul);
   }
-  if (reasons.length) more.append(el(doc, 'p', '왜 움직였나(보도 기준)', 'event-brief__sub'), list(doc, reasons.slice(0, 3).map((point) => point.text), 'event-brief__reasons'));
+  if (reasons.length) more.append(el(doc, 'p', '움직인 이유(보도 기준)', 'event-brief__sub'), list(doc, reasons.slice(0, 3).map((point) => point.text), 'event-brief__reasons'));
   const section = (title, items) => { if (items.length) more.append(el(doc, 'p', title, 'event-brief__sub'), list(doc, items)); };
   section(brief.detailTitle || '세부', (brief.details || []).map(releaseLine));
   section('반대 의견', (brief.dissents || []).map((item) => item.text || item.label));

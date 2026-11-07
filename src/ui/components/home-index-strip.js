@@ -100,7 +100,21 @@ export function closeFallback(history, spec) {
   const last = series.at(-1), prev = sessionPointBack(series, 1, closeSessionMarket(spec.close) || 'US');
   if (!last) return null;
   const [, m, d] = String(last.date).split('-').map(Number);
-  return { date: `${m}/${d}`, closeLabel: spec.closeLabel, value: last.value, changePct: prev?.value ? (last.value / prev.value - 1) * 100 : null };
+  // QA 2026-11-07: the week beside the day. On 11/7 the four cards read +0.3%~+3.5% (all up) for a week of S&P 500 -2.7%,
+  // SOXX -13.1%; the week lived only on 브리핑 and 시장 상태. Five sessions back, the window of the verdict table's 5일 변화.
+  const week = sessionPointBack(series, WEEK_SESSIONS, closeSessionMarket(spec.close) || 'US');
+  return { date: `${m}/${d}`, closeLabel: spec.closeLabel, value: last.value, changePct: prev?.value ? (last.value / prev.value - 1) * 100 : null,
+    weekPct: week?.value ? (last.value / week.value - 1) * 100 : null };
+}
+
+const WEEK_SESSIONS = 5;
+/** The card's five-session line ("5거래일 -2.7%") from the published closes, or null when the history lacks them. */
+function weekLine(doc, root, spec) {
+  const pct = closeFallback(root?._aioHistory, spec)?.weekPct;
+  if (pct == null || !Number.isFinite(pct)) return null;
+  const line = el(doc, 'span', null, 'home-index-week');
+  line.append('5거래일 ', el(doc, 'b', signedText(pct, 1, '%'), toneOf(pct)));
+  return line;
 }
 
 function card(doc, root, spec, model, failed) {
@@ -124,8 +138,10 @@ function card(doc, root, spec, model, failed) {
       // v59.55 (owner 11/1, "쓸모없는 텍스트 다 없애"): the card shows the close and its date; the name repeated the card
       // title, and the missing-intraday note (every weekend, four times) stays in the label for screen readers only.
       box.append(el(doc, 'strong', price(close.value), `home-index-last ${dir}`), ' ', el(doc, 'span', `${close.date} 종가`));
+      const week = weekLine(doc, root, spec);
+      if (week) box.append(week);
       node.append(head, box);
-      node.setAttribute('aria-label', `${spec.label}, ${close.date} 종가 ${price(close.value)}. ${failed ? '장중 그래프는 받지 못했습니다' : '장중 그래프 불러오는 중'}. 누르면 ${shown} 차트로 이동${shown !== spec.closeSym ? '(이 지수를 따르는 ETF)' : ''}`);
+      node.setAttribute('aria-label', `${spec.label}, ${close.date} 종가 ${price(close.value)}${close.weekPct != null ? `, 5거래일 ${signedText(close.weekPct, 1, '%')}` : ''}. ${failed ? '장중 그래프는 받지 못했습니다' : '장중 그래프 불러오는 중'}. 누르면 ${shown} 차트로 이동${shown !== spec.closeSym ? '(이 지수를 따르는 ETF)' : ''}`);
       node.title = `누르면 ${shown} 차트${shown !== spec.closeSym ? ', 이 지수를 따르는 ETF' : ''}`;
       return node;
     }
@@ -159,6 +175,9 @@ function card(doc, root, spec, model, failed) {
     times.append(mark);
   }
   node.append(head, plot, times);
+  // While the session runs the published closes lag the live last price, so the week line waits for the close.
+  const week = model.open ? null : weekLine(doc, root, spec);
+  if (week) node.append(week);
   node.setAttribute('aria-label', `${spec.label} ${spec.sym}, ${model.session.month}/${model.session.day} ${model.open ? '진행 중' : '종가'} ${price(model.last)}, 전일 종가 대비 ${changeText}. 누르면 차트 화면으로 이동`);
   return node;
 }

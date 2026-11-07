@@ -38,6 +38,6 @@ export function renderKrwRead({ documentRef: doc, root }) {
   const fold = el(doc, 'details', null, 'sx-disclosure fx-krw__more');
   fold.open = wasOpen;
   fold.append(el(doc, 'summary', '계산 방법과 신뢰도'), el(doc, 'p', model.method));
-  block.replaceChildren(el(doc, 'h3', '원화는 왜 움직였나 — 달러 요인과 원화 고유 요인', 'fx-krw__title'), body, fold);
+  block.replaceChildren(el(doc, 'h3', '원화가 움직인 이유 — 달러 요인과 원화 고유 요인', 'fx-krw__title'), body, fold);
   return block;
 }

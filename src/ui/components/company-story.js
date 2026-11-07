@@ -219,7 +219,7 @@ export function renderCompanyStory(doc, host, { profile, earnings = [], peers = 
 
   // 5. roadmap and guidance
   const st = profile.strategy || {}, gd = profile.guidance || {};
-  const next = fold(doc, '앞으로 무엇을 하나');
+  const next = fold(doc, '앞으로의 계획');
   if (has(st.goal)) next.append(el(doc, 'p', st.goal));
   if (has(st.roadmap)) {
     const road = el(doc, 'ol', null, 'company-story-road');

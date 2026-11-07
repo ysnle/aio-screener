@@ -7,7 +7,7 @@
 export const AI_CAPEX_FLOW = Object.freeze({
   id: 'ai-capex-flow-2026-08',
   sourceKind: 'REFERENCE',
-  title: 'AI 설비투자 100달러는 어디로 가나',
+  title: 'AI 설비투자 100달러가 흘러가는 곳',
   // M20: provider names stay in `source` (hover title and the folded 데이터 출처); the body shows `asOf` only.
   asOf: '2026-08',
   source: 'BNP Paribas 추정(2026-08), a16z State of Markets II(2026-09-30) 인용',

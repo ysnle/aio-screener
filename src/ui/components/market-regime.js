@@ -602,7 +602,10 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
       board.insertAdjacentElement('afterend', watchBoard);
     }
     const watchAxes = (regime.watchAxes || []).filter((row) => row.observed !== false);
-    watchBoard.replaceChildren(...watchAxes.map((row) => axisRow(doc, root, row, { history, scenarios, previous, inputs, asOf: regime.asOf, open: row.id === openId })));
+    // QA 2026-11-07: the rule alone did not say these rows sit outside the tally — read as text, the table had 8 rows and
+    // 4 부담 under a head saying 6개 지표, 부담 2. One caption names them as reference rows.
+    const watchHead = watchAxes.length ? el(doc, 'p', `참고 지표 ${watchAxes.length}개 — 위 6개 지표의 양호·중립·부담 합계에는 넣지 않습니다`, 'regime-watch-head') : null;
+    watchBoard.replaceChildren(...[watchHead].filter(Boolean), ...watchAxes.map((row) => axisRow(doc, root, row, { history, scenarios, previous, inputs, asOf: regime.asOf, open: row.id === openId })));
     watchBoard.hidden = !watchAxes.length;
     // v59.51 (content audit): the distribution-day strip (a lazy chunk, v58.75) is trend evidence, so it opens with the
     // trend row instead of standing under the verdict.
