@@ -168,7 +168,7 @@ export function rolesBlock(doc, node, registry) {
   const roleOnly = players.filter((player) => !withProduct.has(player.playerId));
   const ownerOf = new Map((registry?.players || []).map((player) => [player.playerId, player.name]));
   const wrap = el(doc, 'div', 'rl-roles');
-  wrap.appendChild(el(doc, 'h3', 'af-section', '누가 어떤 자리에 있나'));
+  wrap.appendChild(el(doc, 'h3', 'af-section', '기업별 역할과 위치'));
   wrap.appendChild(el(doc, 'p', 'rl-note rl-role-boundary', "기업 역할과 제품군을 둘러보기 위한 참고이며, 현재 매출·출하·점유율·양산 여부를 나타내지 않습니다. '제품 연결'은 이 자리에 대응하는 제품이 등록된 경우이고, '기업 역할 참고'는 기업 단위 역할만 등록돼 이 자리의 직접 공급을 뜻하지 않습니다."));
   const group = (title, kind, items) => {
     const box = el(doc, 'div', `rl-role-group rl-role-${kind}`);

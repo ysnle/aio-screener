@@ -239,7 +239,7 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
   host.append(list);
   const footer = el(doc, 'div', null, 'theme-strength-footer');
   if (model.groups.length > 10) {
-    const more = el(doc, 'button', expanded ? (weakestFirst ? '하위 10개만' : '상위 10개만') : `전체 ${model.groups.length}개`, 'news-sort-btn theme-strength-more');
+    const more = el(doc, 'button', expanded ? (weakestFirst ? '하위 10개만' : '상위 10개만') : `세부 테마 전체 ${model.groups.length}개`, 'news-sort-btn theme-strength-more');
     more.type = 'button';
     more.addEventListener('click', onToggle);
     footer.append(more);
@@ -305,7 +305,7 @@ function renderTopSubthemes(doc, host, model, basis) {
     list.append(li);
   }
   host.append(list);
-  const more = el(doc, 'button', `전체 ${model.groups.length}개 순위와 구성 종목`, 'sx-row');
+  const more = el(doc, 'button', `세부 테마 전체 ${model.groups.length}개 순위와 구성 종목`, 'sx-row');
   more.type = 'button';
   more.append(el(doc, 'span', `S&P 500 ${model.windowLabel} ${pct(model.benchmark)}`, 'sx-row__meta'));
   more.addEventListener('click', () => doc.getElementById('theme-strength-board')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));

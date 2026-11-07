@@ -42,7 +42,7 @@ export function openFeedbackDialog({ documentRef: doc, windowRef: win, version =
     form.noValidate = true; // the refusal is written under the field, not in the browser's bubble
     const text = el(doc, 'textarea');
     text.id = 'aio-feedback-text'; text.name = 'text'; text.rows = 4; text.maxLength = FEEDBACK_MAX_CHARS; text.required = true;
-    text.setAttribute('aria-label', '무엇이 이상했나요');
+    text.setAttribute('aria-label', '이상했던 점');
     text.placeholder = '무엇이 이상했나요? 예: 차트가 비어 있어요';
     const status = el(doc, 'div', null, 'aio-feedback-status'); status.setAttribute('role', 'status');
     const send = el(doc, 'button', '보내기'); send.type = 'submit'; send.dataset.status = 'aio-feedback-status';

@@ -32,12 +32,12 @@
     {"id":"BB-09","title":"신용거래와 반대매매","url":"https://x.com/blazingbees/status/2029156243416465873","durableThemes":["신용잔고를 유동성과 함께 해석","자발적 디레버리징과 강제청산 구분","담보·결제 규칙은 공식 원문 확인"]}
   ],
   "decisionLoop": [
-    {"id":"claim","label":"가설","question":"무엇이 일어나야 이 아이디어가 맞다고 볼 수 있는가?"},
-    {"id":"evidence","label":"증거","question":"어떤 가격·거래량·공시·시장 구조 자료가 관찰 가능한가?"},
-    {"id":"response","label":"시장 반응","question":"예상보다 실제 가격·거래량·상대강도는 어떻게 반응했는가?"},
-    {"id":"exposure","label":"노출","question":"증거의 질과 계좌 상황에 맞는 포지션 크기는 얼마인가?"},
-    {"id":"invalidation","label":"무효화","question":"어떤 관찰이 논점을 틀렸다고 인정하게 만드는가?"},
-    {"id":"journal","label":"복기","question":"결과와 과정을 기록하고 다음 규칙을 어떻게 수정할 것인가?"}
+    {"id":"claim","label":"가설","question":"이 아이디어가 맞다고 볼 수 있는 사건과 조건을 먼저 적는다."},
+    {"id":"evidence","label":"증거","question":"관찰할 수 있는 가격·거래량·공시·시장 구조 자료를 정한다."},
+    {"id":"response","label":"시장 반응","question":"예상과 견준 실제 가격·거래량·상대강도의 반응을 기록한다."},
+    {"id":"exposure","label":"노출","question":"증거의 질과 계좌 상황에 맞춰 노출 크기를 정한다."},
+    {"id":"invalidation","label":"무효화","question":"논점이 틀렸다고 인정할 관찰을 미리 정한다."},
+    {"id":"journal","label":"복기","question":"결과와 과정을 기록하고 다음 규칙에 반영할 수정을 남긴다."}
   ],
   "stages": [
     {

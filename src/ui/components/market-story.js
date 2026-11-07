@@ -57,7 +57,7 @@ function questionRow(doc, story) {
   const fell = story.moves.ndx.pct < 0;
   const events = story.week.filter((item) => item.kind !== 'daily').map((item) => item.names || item.title).slice(0, 4).join(', ');
   const questions = [
-    [fell ? '왜 빠졌나' : '왜 올랐나', `최근 ${story.sessions}거래일 대형 기술주가 왜 ${fell ? '빠졌는지' : '올랐는지'} 실적 발표와 뉴스를 근거로 설명해줘`],
+    [fell ? '하락 원인' : '상승 원인', `최근 ${story.sessions}거래일 대형 기술주가 왜 ${fell ? '빠졌는지' : '올랐는지'} 실적 발표와 뉴스를 근거로 설명해줘`],
     ['AI 투자 흐름', '빅테크 설비투자 전망과 AI 투자 대비 수익 논쟁이 지금 어디까지 왔는지 정리해줘'],
     events ? ['다음 주 시나리오', `다음 주 ${events}의 결과별로 시장이 어떻게 반응할 수 있는지 정리해줘`] : null
   ].filter(Boolean);
@@ -68,7 +68,7 @@ function detailFold(doc, story) {
   const fold = el(doc, 'details', null, 'sx-disclosure aio-frame-more mk-story__more');
   fold.append(el(doc, 'summary', `자세히 — ${story.levels ? '차트 위치, ' : ''}금리·신용·유가·금·한국 확인과 실적 반응`));
   if (story.levels) {
-    fold.append(el(doc, 'h3', '지수는 차트에서 어디쯤인가', 'mk-story__sub'));
+    fold.append(el(doc, 'h3', '차트 위 지수의 위치', 'mk-story__sub'));
     fold.append(el(doc, 'p', story.levels.read, 'mk-story__read'));
     const list = el(doc, 'dl', null, 'mk-story__checks');
     for (const row of story.levels.rows) {
@@ -80,7 +80,7 @@ function detailFold(doc, story) {
     fold.append(list);
   }
   if (story.checks.length) {
-    fold.append(el(doc, 'h3', '다른 자산도 같은 이야기를 하나', 'mk-story__sub'));
+    fold.append(el(doc, 'h3', '다른 자산의 확인', 'mk-story__sub'));
     const list = el(doc, 'dl', null, 'mk-story__checks');
     for (const row of story.checks) {
       const item = el(doc, 'div', null, 'mk-story__check');

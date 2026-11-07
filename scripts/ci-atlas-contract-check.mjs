@@ -55,7 +55,7 @@ const required = [
   ['factory', atlas.includes('export function createAtlasPage')],
   ['reference-connected state', atlas.includes("DESIGN_ONLY") && data.status === 'REFERENCE_CONNECTED' && data.researchArtifact === 'public-data/atlas/source-packets.json'],
   ['telegram discovery boundary', atlas.includes('discovery only') && data.telegram.role === 'DISCOVERY'],
-  ['player/product reference registry', atlas.includes('PLAYER_PRODUCT_URL') && industryView.includes('function rolesBlock') && industryView.includes('누가 어떤 자리에 있나') && data.playerProductArtifact === 'public-data/atlas/player-product-registry.json' && playerProduct.status === 'ROLE_REFERENCE_ONLY'],
+  ['player/product reference registry', atlas.includes('PLAYER_PRODUCT_URL') && industryView.includes('function rolesBlock') && industryView.includes('기업별 역할과 위치') && data.playerProductArtifact === 'public-data/atlas/player-product-registry.json' && playerProduct.status === 'ROLE_REFERENCE_ONLY'],
   ['evidence reconciled but not shown as reader chrome', atlas.includes('createEvidenceRegistry') && atlas.includes('evidenceById') && atlas.includes('const stripReferenceChrome') && !/atlas-reference-source-link|출처/.test(industryView)],
   ['capability-level artifact loading', atlas.includes('createKnowledgeCapabilityBatchLoader') && capabilityLoader.includes('loadKnowledgeCapabilities') && !atlas.includes('Promise.all([')],
   ['no current promotion', atlas.includes('publishedCurrentClaims') || data.publishedCurrentClaims === 0],

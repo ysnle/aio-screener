@@ -22,6 +22,9 @@ import { buildOutOfUniverseRead } from '../../domain/entity/out-of-universe-read
 import { fiscalYearLabel } from '../../domain/fundamental/period.js';
 import { signedText as sharedSignedText, usdKoreanText } from '../../domain/shared/number.js';
 import { krFundamentalPoints } from '../../domain/entity/kr-fundamentals.js';
+// QA 2026-11-07: every ROE above 60% read '자기자본이 작아 크게 나옴' — NVIDIA's 101.5% comes from a 55.6% net margin, not a
+// thin equity base. A very high margin names the margin; otherwise the note says what usually lifts ROE that far.
+const roeNote = (margin) => (margin != null && margin >= 30 ? '(이익률이 매우 높아 크게 나옴)' : '(자사주 매입·적은 자기자본이 키운 값일 수 있음)');
 
 const TICKER_INDEX_REFERENCE_URL = './public-data/masters/ticker-index-reference.json';
 
@@ -171,7 +174,7 @@ function stockChecks(doc, read, sym, fundamentals, fundamentalsState = null, krC
     if (growth != null || margin != null) {
       tiles.push(checkTile(doc, { name: '재무', chip: fy ? (fiscalYearLabel(fy) || 'SEC') : 'SEC', stale,
         value: growth != null ? `매출 ${signedText(growth)}` : `순이익률 ${margin.toFixed(1)}%`,
-        detail: [growth != null && margin != null ? `순이익률 ${margin.toFixed(1)}%` : null, roe != null ? `ROE ${roe.toFixed(1)}%${roe > 60 ? '(자기자본이 작아 크게 나옴)' : ''}` : null, fy ? `${fy} 마감` : null, ttmTurn(own, margin, fy)].filter(Boolean).join(', ') }));
+        detail: [growth != null && margin != null ? `순이익률 ${margin.toFixed(1)}%` : null, roe != null ? `ROE ${roe.toFixed(1)}%${roe > 60 ? roeNote(margin) : ''}` : null, fy ? `${fy} 마감` : null, ttmTurn(own, margin, fy)].filter(Boolean).join(', ') }));
     } else if (fundamentalsState === 'loading') tiles.push(checkTile(doc, { name: '재무', chip: DATA_STATE_CHIPS.loading, value: 'SEC 연간 공시', detail: dataStateText('loading', '공시 요약') }));
     // Review: only a loaded projection without this issuer is a confirmed absence; a failed or unknown load says so.
     // v58.80 (bundle 3): the chips are the shared state words (data-state.js).

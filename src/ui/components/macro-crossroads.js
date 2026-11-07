@@ -215,7 +215,7 @@ function auctionBlock(doc, root) {
 
 function rateHub(doc, model, pathsOpen = false, root = null) {
   const hub = el(doc, 'div', null, 'xr-hub');
-  hub.append(el(doc, 'h3', '왜 금리가 중심인가', 'xr-h3'));
+  hub.append(el(doc, 'h3', '금리가 중심인 이유', 'xr-h3'));
   if (model.rateHub.policy) hub.append(el(doc, 'p', model.rateHub.policy, 'xr-hub-now')); // v57.55 review (E2-03): policy path first
   if (model.rateHub.now) hub.append(el(doc, 'p', model.rateHub.now, 'xr-hub-now'));
   const auctions = auctionBlock(doc, root);
