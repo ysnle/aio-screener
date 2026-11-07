@@ -12738,8 +12738,8 @@ window.AIO.registerLiveSymbol = function(sym, meta) {
   if (sym === 'PCR') return false;
   window.LIVE_SYMBOLS = window.LIVE_SYMBOLS || [];
   if (window.LIVE_SYMBOLS.indexOf(sym) === -1) window.LIVE_SYMBOLS.push(sym);
-  window._aioQuoteRequestSymbols = window._aioQuoteRequestSymbols || [];
-  if (window._aioQuoteRequestSymbols.indexOf(sym) === -1) window._aioQuoteRequestSymbols.push(sym);
+  if (typeof window._aioAddQuoteRequestBaseSymbol === 'function') window._aioAddQuoteRequestBaseSymbol(sym); // SM-04: the scheduler's base layer
+  else if ((window._aioQuoteRequestSymbols = window._aioQuoteRequestSymbols || []).indexOf(sym) === -1) window._aioQuoteRequestSymbols.push(sym);
   if (meta && meta.reason && typeof _aioLog === 'function') {
     _aioLog('info', 'live-symbols', 'registered ' + sym + ' (' + meta.reason + ')');
   }

@@ -1538,7 +1538,7 @@ check('P783: reference snapshot metadata drives an explicit non-live topbar stat
 check('P783: a dead client quote proxy preserves snapshot fallback and bounds retry fanout',
   /quoteProxyCircuitOpen/.test(data) &&
   /quoteProxyCircuitOpen && hasMarketSnapshotFallback/.test(data) &&
-  /if \(!usingSnapshotFallback\) setTimeout\(fetchLiveQuotes/.test(data) &&
+  /if \(!usingSnapshotFallback && window\._aioScheduleQuoteRetry\) window\._aioScheduleQuoteRetry\(wait \* 1000\)/.test(data) && !/setTimeout\(fetchLiveQuotes/.test(data) &&
   /기준 스냅샷 사용, 중앙 갱신 주기 대기/.test(data));
 check('P783: boot waits for the same-origin snapshot and server macro/HY success suppresses duplicate browser fallbacks',
   !/실시간 시세 \(성공 시 기본값 교체\)[\s\S]{0,80}fetchLiveQuotes\(\)/.test(ui) &&
