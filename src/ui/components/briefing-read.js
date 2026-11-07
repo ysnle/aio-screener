@@ -349,8 +349,11 @@ export function renderBriefingRead({ documentRef: doc, root, store = null, nowMs
     try {
       xr = interpretation?.crossroads || crossroadsForRoot(root, { nowMs });
       const event = xr?.nextEvent;
-      const sides = event ? (xr.items || []).filter((item) => item.id === xr.leadId || item.id === xr.altId)
-        .map((item) => { const trigger = item.triggers.find((row) => row.id === event.id); return trigger ? { title: item.title.split(' — ')[0], text: trigger.text } : null; }).filter(Boolean) : [];
+      const sideOf = (item) => { const trigger = item.triggers.find((row) => row.id === event.id); return trigger ? { title: item.title.split(' — ')[0], text: trigger.text } : null; };
+      let sides = event ? (xr.items || []).filter((item) => item.id === xr.leadId || item.id === xr.altId).map(sideOf).filter(Boolean) : [];
+      // v59.74: the next release may test branches other than the lead and the alternative (11/10 CPI vs a growth/AI tie);
+      // its own branches are named then, at most three.
+      if (event && !sides.length) sides = (xr.items || []).map(sideOf).filter(Boolean).slice(0, 3);
       const [, m, d] = String(event?.date || '').split('-').map(Number);
       if (event) split = { when: event.when || (m && d ? `${m}/${d}` : ''), name: event.name, sides, zone: releaseZones(event.id, root._aioMacroHistory || null) };
     } catch (_) { split = null; }

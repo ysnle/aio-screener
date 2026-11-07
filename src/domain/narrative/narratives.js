@@ -40,7 +40,7 @@ export const NARRATIVE_THEMES = Object.freeze([
     frames: ['long-bond', 'growth-inflation-balance'], branches: ['fiscalsteep'],
     re: /유럽[^.。\n]{0,20}(?:부채|재정|국채|금융\s*리스크)|프랑스\s*(?:국채|재정|신용)|길트|\bgilts?\b|분트|\bBunds?\b|\bJGBs?\b|일본\s*(?:국채|장기\s*금리)|sovereign debt|재정\s*적자|fiscal deficit|기간\s*프리미엄|term premium|국채\s*발작/i },
   { id: 'us-politics', label: '미국 정치 일정', promptLabel: '미국 정치 일정 (중간선거·셧다운)', question: '선거·셧다운 같은 정치 일정이 정책 경로를 바꾸나',
-    frames: ['headline-provenance'], branches: ['fiscalsteep'],
+    frames: ['headline-provenance'], branches: ['fiscalsteep', 'volshock'], // v59.74: an election result moved risk appetite (11/5 -4.4%) before rates; both paths are read
     re: /중간\s*선거|midterms?|셧다운|government shutdown|부채\s*한도|debt ceiling/i },
   { id: 'oil-geopolitics', label: '유가·지정학', promptLabel: '유가·지정학 (호르무즈·이란)', question: '지정학 위험이 유가를 거쳐 물가와 성장에 번지나',
     frames: ['oil-shock-split', 'geopolitical-shock-paths'], branches: ['oilshock'],

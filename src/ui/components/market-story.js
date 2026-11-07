@@ -3,7 +3,7 @@
 // confirmation and the earnings reactions. The week-ahead list owns the next release on this page; the 다음에 확인할 것
 // card below keeps the two price checks.
 import { buildMarketStory } from '../../domain/market/market-story.js';
-import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
+import { MARKET_DAY, refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { EVENT_BRIEFS, EARNINGS_CALENDAR } from '../../data/event-artifacts.js';
 import { signedFill, signedScale, signedTrack } from './signed-bar.js';
 import { frameHead, frameReading, markFrame } from './section-frame.js';
@@ -128,11 +128,18 @@ export function renderMarketStory({ documentRef: doc, root, interpretation }) {
   const again = () => renderMarketStory({ documentRef: doc, root, interpretation });
   const briefs = ensure(root, EVENT_BRIEFS, again);
   const calendar = ensure(root, EARNINGS_CALENDAR, again);
+  // v59.74: the market-day stories' movers — a report one of them is about joins the week list whatever its weight.
+  const day = ensure(root, MARKET_DAY, again);
+  const storySymbols = new Map();
+  for (const item of Array.isArray(day?.narratives?.stories) ? day.narratives.stories : []) {
+    for (const mover of Array.isArray(item?.movers) ? item.movers : []) if (mover?.sym && !storySymbols.has(mover.sym)) storySymbols.set(mover.sym, item.label);
+  }
+  const events = Array.isArray(interpretation?.crossroads?.events) ? interpretation.crossroads.events : [];
   const macroHistory = root?._aioMacroHistory || null;
   const history = interpretation?.inputs?.history || root?._aioHistory || [];
-  const key = [history.at?.(-1)?.date, briefs?.generatedAt, calendar?.generatedAt, macroHistory?.generatedAt || (macroHistory ? 'loaded' : ''), interpretation?.crossroads?.nextEvent?.id].join('|');
+  const key = [history.at?.(-1)?.date, briefs?.generatedAt, calendar?.generatedAt, macroHistory?.generatedAt || (macroHistory ? 'loaded' : ''), interpretation?.crossroads?.nextEvent?.id, events.map((e) => `${e.id}:${e.date}`).join(','), day?.generatedAt || ''].join('|');
   if (section.dataset.signature === key && section.childElementCount) return section;
-  const story = buildMarketStory({ history, macroHistory, briefs, calendar, nextEvent: interpretation?.crossroads?.nextEvent || null });
+  const story = buildMarketStory({ history, macroHistory, briefs, calendar, nextEvent: interpretation?.crossroads?.nextEvent || null, decidingEvent: interpretation?.crossroads?.decidingEvent || null, events, storySymbols });
   section.hidden = !story.available;
   if (!story.available) { section.replaceChildren(); return section; }
   const wasOpen = section.querySelector('.mk-story__more')?.open;

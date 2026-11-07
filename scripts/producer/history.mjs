@@ -12,6 +12,7 @@ import { compareUsdKrwCrossCheck } from '../lib/macro-sources.mjs';
 import { HIST } from './paths.mjs';
 import { mapLimit, fetchHistory, fetchHourlySessionClose } from './quotes.mjs';
 import { readNumber } from '../../src/domain/shared/number.js';
+import { isoDay } from '../../src/domain/shared/session-date.js';
 import { readHistoryRows, compactHistoryRows } from '../../src/domain/market/history-rows.js';
 
 // history.json 레코드 필드 ↔ Yahoo 심볼 매핑 (백필 대상). F&G/IV는 과거 무료 소스 없어 제외(해당 일자 null).
@@ -133,6 +134,32 @@ export function missingRecentUsSessions(hist, nowMs = Date.now(), lookbackDays =
     cursor = new Date(Date.parse(`${cursor}T12:00:00Z`) - 86400000).toISOString().slice(0, 10);
   }
   return missing.sort();
+}
+
+// v59.74 (weekly outlook review 11/7): a weekday row of a US-session field whose value is a carried-forward earlier
+// session (11/2 and 11/4: Nasdaq-100, WTI, Brent, gold, silver, DXY held 10/30 and 11/3). The 23:51Z run reads futures
+// and ^NDX as still in session and records the previous close; keepDisplacedSessions then found the row "already
+// filled" by that placeholder and dropped the real close. Such rows trigger the daily backfill, whose bars replace a
+// value from another session (mergeBackfillBars), so a gap left by an earlier run is repaired on the next refresh.
+// Korean fields (KRX holidays), 24/7 BTC and FX (their own day boundary) are not US sessions and are not checked.
+export const US_SESSION_HISTORY_FIELDS = Object.freeze(['spx', 'nasdaq', 'ndx', 'dow', 'rut', 'vix', 'tnx', 'dxy', 'wti', 'brent', 'gold', 'silver', 'tlt', 'smh', 'soxx', 'rsp']);
+export function heldUsSessionFields(hist, nowMs = Date.now(), lookbackDays = 10, fields = US_SESSION_HISTORY_FIELDS) {
+  const basis = latestCompletedUsSession(nowMs);
+  if (!basis?.date) return [];
+  const floor = new Date(Date.parse(`${basis.date}T12:00:00Z`) - lookbackDays * 86400000).toISOString().slice(0, 10);
+  const out = [];
+  for (const row of Array.isArray(hist) ? hist : []) {
+    const date = String(row?.date || '');
+    if (!isoDay(date) || date < floor || date > basis.date) continue;
+    if (resolveMarketCalendarSession({ market: 'US', date })?.status !== 'open') continue;
+    for (const field of fields) {
+      const meta = row.fieldMeta?.[field];
+      if (typeof row[field] !== 'number' || meta?.observationRelation !== 'carried-forward') continue;
+      const session = historyFieldSessionDate(meta, field) || meta.sessionDate || null;
+      if (session && session < date) out.push({ date, field, session });
+    }
+  }
+  return out;
 }
 
 // v59.70 (R12): the research columns of quotes.mjs AUX_SYMBOLS. Their thin history never triggers the full backfill
@@ -344,11 +371,15 @@ export function keepDisplacedSessions(hist, today, rec, { fields = HIST_MARKET_F
     const owned = rows.some((row) => row !== current && typeof row?.[field] === 'number' && row.fieldMeta?.[field]?.observationRelation !== 'carried-forward' && sessionOf(row.fieldMeta?.[field], field) === session);
     if (owned) continue;
     let target = rows.find((row) => row?.date === session);
-    if (target && typeof target[field] === 'number' && Number.isFinite(target[field])) continue;
+    // v59.74: a value carried forward from an earlier session is a placeholder, not this session's close — it is
+    // replaced (the 11/4 row held the 11/3 WTI close, so the 11/4 close displaced from the 11/5 row was dropped).
+    const targetMeta = target?.fieldMeta?.[field];
+    const placeholder = targetMeta?.observationRelation === 'carried-forward' && (historyFieldSessionDate(targetMeta, field) || targetMeta.sessionDate || session) !== session;
+    if (target && typeof target[field] === 'number' && Number.isFinite(target[field]) && !placeholder) continue;
     if (!target) { target = { date: session, fieldMeta: {} }; rows.push(target); }
     target[field] = value;
-    target.fieldMeta = { ...(target.fieldMeta || {}), [field]: { ...meta, sessionDate: session, keptFromRow: today } };
-    kept.push({ field, session, value });
+    target.fieldMeta = { ...(target.fieldMeta || {}), [field]: { ...meta, sessionDate: session, keptFromRow: today, ...(placeholder ? { replacedCarriedFrom: targetMeta.carriedFrom || null } : {}) } };
+    kept.push({ field, session, value, ...(placeholder ? { replacedPlaceholder: true } : {}) });
   }
   return kept;
 }
@@ -551,8 +582,15 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
     const thinAux = AUX_HIST_SYMBOLS.filter((sym) => thinField(HIST_SYMBOLS[sym]));
     const missingSessions = missingRecentUsSessions(hist);
     if (missingSessions.length) console.log(`[fetch-data] 최근 미국 거래일 종가 누락 ${missingSessions.join(',')} — 일봉 백필 실행`);
+    const heldFields = heldUsSessionFields(hist, Date.parse(fetchedAt) || Date.now());
+    if (heldFields.length) console.log(`[fetch-data] 미국 거래일인데 이전 종가로 채워진 값 ${heldFields.length}건 (${heldFields.slice(0, 6).map((row) => `${row.field} ${row.date}`).join(', ')}) — 일봉 백필 실행`);
+    // v59.74: a held weekday field refetches only its own symbols, at most once an hour (minute < 30) like the aux lane, so
+    // a session the provider never serves costs a few requests an hour, not a full one-year refetch every cycle.
+    const heldSyms = [...new Set(heldFields.map((row) => Object.keys(HIST_SYMBOLS).find((sym) => HIST_SYMBOLS[sym] === row.field)).filter(Boolean))];
     if (hist.length < 60 || process.env.BACKFILL === '1' || needsFieldMeta || needsFieldBackfill || missingSessions.length) {
       try { const bf = await backfillHistory(hist); hist = bf.hist; backfilled = bf.added; } catch (e) { console.warn('[fetch-data] backfill 실패(무시):', e && e.message || e); }
+    } else if (heldSyms.length && new Date(fetchedAt).getUTCMinutes() < 30) {
+      try { const bf = await backfillHistory(hist, heldSyms); hist = bf.hist; backfilled = bf.added; console.log(`[fetch-data] held-session backfill ${heldSyms.join(',')}`); } catch (e) { console.warn('[fetch-data] held-session backfill 실패(무시):', e && e.message || e); }
     } else if (thinAux.length && new Date(fetchedAt).getUTCMinutes() < 30) {
       try { const bf = await backfillHistory(hist, thinAux); hist = bf.hist; backfilled = bf.added; console.log(`[fetch-data] aux history backfill ${thinAux.join(',')}: +${bf.added}`); } catch (e) { console.warn('[fetch-data] aux backfill 실패(무시):', e && e.message || e); }
     }

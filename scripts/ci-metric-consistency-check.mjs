@@ -138,6 +138,36 @@ const screenerData = Object.fromEntries(moves.map((fact) => [fact.subjects[0], {
 const charted = coreStockRows({ screener: { data: screenerData }, day: { facts: moves } }).map((row) => row.sym).join(',');
 check('v59.70 re-review N7 기술적 분석 movers: US first, Korean next, no third market', charted === 'NVDA,005930.KS', charted);
 
+// ── 7. v59.74 weekly outlook review (11/7): the next release, the week list, the biggest day and the held closes.
+const { nextDecidingEvent } = await load('src/domain/market/macro-crossroads.js');
+const { keepDisplacedSessions, heldUsSessionFields } = await load('scripts/producer/history.mjs');
+const cpi = { id: 'us-cpi', name: 'CPI (소비자물가)', date: '2026-11-10', when: '11/10(화) 22:30 KST' };
+const retail = { id: 'us-retail', name: '소매판매', date: '2026-11-17', when: '11/17(화) 22:30 KST' };
+const tie = ['reflation', 'aibust', 'volshock'];
+check('v59.74 the shared next release is the earliest one any branch reads (CPI before a tie-only retail)', nextDecidingEvent([cpi, retail], tie)?.id === 'us-cpi', nextDecidingEvent([cpi, retail], tie)?.id);
+check('v59.74 the tie decider is published apart', nextDecidingEvent([cpi, retail], tie, { inPlayOnly: true })?.id === 'us-retail');
+const weekHistory = history.filter((row) => row.date <= '2026-11-07');
+const calendarFixture = { earnings: [{ symbol: 'CSCO', date: '2026-11-12', hour: 'amc', indexWeight: 0.64 }, { symbol: 'AMAT', date: '2026-11-12', hour: 'amc', indexWeight: 0.46 },
+  { symbol: 'TDG', date: '2026-11-10', hour: 'bmo', indexWeight: 0.09 }, { symbol: 'CRWV', date: '2026-11-10', hour: 'amc', indexWeight: null }] };
+const weekStory = buildMarketStory({ history: weekHistory, macroHistory, calendar: calendarFixture, nextEvent: cpi, decidingEvent: retail, events: [cpi, retail],
+  storySymbols: new Map([['CRWV', 'AI 인프라 조달·신용']]), nowMs: Date.parse('2026-11-07T10:00:00Z') });
+if (weekStory.available) {
+  const titles = (weekStory.week || []).map((row) => row.title);
+  check('v59.74 the week list carries the 11/10 CPI', (weekStory.week || []).some((row) => row.kind === 'macro' && row.date === '2026-11-10'), JSON.stringify(titles));
+  check('v59.74 an empty 1% week lists the two heaviest reports at 0.3%+', titles.some((t) => /CSCO 0\.6% · AMAT 0\.5%/.test(t)) && !titles.some((t) => /TDG/.test(t)), JSON.stringify(titles));
+  check('v59.74 a report a current story is about joins the list', (weekStory.week || []).some((row) => row.title === 'CRWV 실적' && row.story === 'AI 인프라 조달·신용' && /'AI 인프라 조달·신용' 이야기의 당사자/.test(row.why)), JSON.stringify(titles));
+  check('v59.74 the biggest session is named with its breadth', weekStory.bigDay?.date === '2026-11-05' && /가장 큰 하루는 .*11\/5\(목\) S&P 500 -4\.4%.*전면 매도/.test(weekStory.lead), weekStory.lead);
+  check('v59.74 a broad sell-off day withdraws "시장 전체가 팔린 것은 아닙니다"', !/시장 전체가 팔린 것은 아닙니다/.test(weekStory.lead), weekStory.lead);
+}
+const metaAt = (session, relation, extra = {}) => ({ observedAt: `${session}T05:00:00.000Z`, observationRelation: relation, sessionDate: session, ...extra });
+const heldHist = [
+  { date: '2026-11-03', wti: 96.09, fieldMeta: { wti: metaAt('2026-11-03', 'latest-completed-close') } },
+  { date: '2026-11-04', wti: 96.09, fieldMeta: { wti: metaAt('2026-11-03', 'carried-forward', { carriedFrom: '2026-11-03', heldReason: 'session-already-recorded' }) } },
+  { date: '2026-11-05', wti: 93.1, fieldMeta: { wti: metaAt('2026-11-04', 'previous-completed-close', { valueBasis: 'previous-completed-close' }) } }];
+check('v59.74 a weekday held close is found for repair', heldUsSessionFields(heldHist, Date.parse('2026-11-06T02:00:00Z')).some((row) => row.field === 'wti' && row.date === '2026-11-04'));
+const keptRows = keepDisplacedSessions(heldHist, '2026-11-05', { fieldMeta: { wti: metaAt('2026-11-05', 'latest-completed-close') } }, { fields: ['wti'] });
+check('v59.74 a displaced close replaces a carried placeholder in its own row', keptRows.length === 1 && heldHist[1].wti === 93.1 && heldHist[1].fieldMeta.wti.sessionDate === '2026-11-04', JSON.stringify(heldHist[1]));
+
 if (failures.length) {
   console.error(`[metric-consistency] ${failures.length} failure(s):\n- ${failures.join('\n- ')}`);
   process.exit(1);

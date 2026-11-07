@@ -28,6 +28,14 @@ export const SCHEDULED_EVENTS = Object.freeze(REGISTRY.filter((event) => event.m
 
 const NON_AI_LAYERS = new Set(['ai-adopter', 'ai-exposed', 'limited']);
 const REPORT_WEIGHT_MIN = 1; // % of the S&P 500 — a smaller report outside the mover list does not change the week's read
+// v59.74 (weekly outlook review 11/7): a week with no report at 1% left the list empty while CSCO 0.64% and AMAT 0.46%
+// reported; the two heaviest at this floor fill an empty week (Moderna 0.1% stays out, v59.70).
+const REPORT_WEIGHT_FALLBACK = 0.3;
+// v59.74: the biggest single session of the window is named when the S&P 500 moved at least this much (11/5 -4.4% was
+// missing from a lead that read only the five-session totals), and a session with this small a share of advancing
+// members is named as a broad sell-off even when the week's equal-weight total stayed small.
+const BIG_DAY_PCT = 2;
+const BROAD_SELL_ADVANCE = 0.25;
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
 const SESSION_WORDS = Object.freeze({ bmo: '장 전', amc: '장 마감 후', dmh: '장중' });
 
@@ -156,14 +164,52 @@ export function earningsMovers(briefs, { from, to } = {}) {
     .filter((row) => (seen.has(row.symbol) ? false : seen.add(row.symbol)));
 }
 
-function lead({ n, moves, concentration, drivers, rates, credit, asOf = null }) {
+// v59.74: the window's largest S&P 500 session, its Nasdaq-100 move, the share of advancing members and a fixed event
+// (SCHEDULED_EVENTS) dated in the window before it. Order in time only — the event is not named as the cause.
+export function biggestDay(history, { from, to, events = SCHEDULED_EVENTS } = {}) {
+  const spx = buildCloseSeries(history, 'spx', { market: 'US' }).filter((p) => readNumber(p.value) !== null);
+  const ndx = new Map(buildCloseSeries(history, 'ndx', { market: 'US' }).filter((p) => readNumber(p.value) !== null).map((p) => [p.date, Number(p.value)]));
+  const ndxDates = [...ndx.keys()].sort();
+  let best = null;
+  for (let i = 1; i < spx.length; i++) {
+    const day = spx[i]; const prev = spx[i - 1];
+    if (day.date <= from || day.date > to) continue;
+    const pct = (Number(day.value) / Number(prev.value) - 1) * 100;
+    if (!best || Math.abs(pct) > Math.abs(best.pct)) best = { date: day.date, prevDate: prev.date, pct };
+  }
+  if (!best || Math.abs(best.pct) < BIG_DAY_PCT) return null;
+  // The Nasdaq-100 move only over the same two sessions; a held (carried) close on the day before is not compared.
+  const nIdx = ndxDates.indexOf(best.date);
+  const ndxPct = nIdx > 0 && ndxDates[nIdx - 1] === best.prevDate ? (ndx.get(best.date) / ndx.get(best.prevDate) - 1) * 100 : null;
+  const dayRow = (Array.isArray(history) ? history : []).find((candidate) => candidate?.date === best.date);
+  const advance = readNumber(dayRow?.advanceRatio);
+  const before = events.filter((event) => event.date > from && event.date < best.date).at(-1) || null;
+  return { ...best, ndxPct, advance, before };
+}
+
+function bigDayText(day) {
+  if (!day) return '';
+  const lead = day.before ? `${dayLabel(day.before.date).split('(')[0]} ${day.before.title} 뒤 ` : '';
+  const parts = [`S&P 500 ${pctText(day.pct)}`];
+  if (Number.isFinite(day.ndxPct)) parts.push(`나스닥 100 ${pctText(day.ndxPct)}`);
+  const breadth = day.advance === null ? '' : day.pct < 0 && day.advance <= BROAD_SELL_ADVANCE
+    ? `, 오른 종목 ${Math.round(day.advance * 100)}%뿐인 전면 매도였습니다` : day.pct > 0 && day.advance >= 1 - BROAD_SELL_ADVANCE
+      ? `, 구성 종목 ${Math.round(day.advance * 100)}%가 오른 전면 반등이었습니다` : `, 오른 종목 ${Math.round(day.advance * 100)}%였습니다`;
+  return `가장 큰 하루는 ${lead}${dayLabel(day.date)} ${parts.join(', ')}${breadth || '였습니다'}.`;
+}
+
+function lead({ n, moves, concentration, drivers, rates, credit, asOf = null, bigDay = null }) {
   const parts = [];
   const f = (id) => pctText(moves[id].pct);
-  if (concentration.kind === 'narrow-down') parts.push(`최근 ${n}거래일 나스닥 100 ${f('ndx')}, 동일가중 S&P 500 ${f('rsp')}. 하락은 대형 기술주에 몰렸고 시장 전체가 팔린 것은 아닙니다.`);
+  // v59.74: "시장 전체가 팔린 것은 아닙니다" stood beside a session where 15% of the members rose; that week the claim is
+  // limited to the five-session total.
+  const broadDay = bigDay && bigDay.pct < 0 && bigDay.advance !== null && bigDay.advance <= BROAD_SELL_ADVANCE;
+  if (concentration.kind === 'narrow-down') parts.push(`최근 ${n}거래일 나스닥 100 ${f('ndx')}, 동일가중 S&P 500 ${f('rsp')}. ${broadDay ? '주간 합계로는 하락이 대형 기술주에 몰렸습니다.' : '하락은 대형 기술주에 몰렸고 시장 전체가 팔린 것은 아닙니다.'}`);
   else if (concentration.kind === 'narrow-up') parts.push(`최근 ${n}거래일 나스닥 100 ${f('ndx')}, 동일가중 S&P 500 ${f('rsp')}. 상승은 대형 기술주에 몰렸습니다.`);
   else if (concentration.kind === 'broad-down') parts.push(`최근 ${n}거래일 S&P 500 ${f('spx')}, 동일가중 ${f('rsp')}로 하락이 시장 전반에 퍼졌습니다.`);
   else if (concentration.kind === 'broad-up') parts.push(`최근 ${n}거래일 S&P 500 ${f('spx')}, 동일가중 ${f('rsp')}로 상승이 고르게 퍼졌습니다.`);
   else if (concentration.kind === 'flat') parts.push(`최근 ${n}거래일 S&P 500 ${f('spx')}, 나스닥 100 ${f('ndx')}로 뚜렷한 방향이 없었습니다.`);
+  if (bigDay) parts.push(bigDayText(bigDay));
   if (drivers.length) parts.push(`실적 다음 날 ${drivers.map((row) => `${row.name} ${pctText(row.pct)}`).join(', ')}가 ${drivers[0].pct < 0 ? '하락' : '상승'}을 이끌었습니다.`);
   const tail = [];
   // v59.56 (screen review): the split comes from FRED, a session behind the closes; the span is named when it ends earlier.
@@ -228,7 +274,17 @@ function confirmations({ moves, rates, credit, macroHistory, history, asOf, star
 }
 
 // What in the coming week would change the read: the collected next release, the heaviest reports and fixed events.
-function weekAhead({ calendar, nextEvent, story, nowMs, days = 8 }) {
+const releaseWhy = (event, story) => (event.id === 'us-nfp'
+  ? (story.rates?.kind === 'growth-fear' ? '실업률이 오르면 금리 하락이 성장 걱정으로 굳고, 버티면 이번 하락은 업종 조정에 그칩니다.' : '고용이 식으면 금리 인하 기대가 커지고, 강하면 금리 부담이 다시 커집니다.')
+  : /\b(?:cpi|pce)\b/.test(String(event.id)) ? '근원 물가가 다시 오르면 금리 인하 기대가 줄어듭니다.'
+    : event.id === 'us-fed-rate' ? '금리 결정과 함께 앞으로의 경로 발언을 봅니다.'
+      : event.id === 'us-retail' ? '소비가 버티는지, 성장 걱정이 소비로 번지는지 봅니다.' : '결과에 따라 지금 시나리오가 바뀔 수 있습니다.');
+
+// v59.74 (weekly outlook review 11/7): every collected release in the window is listed (crossroads.events), not only the
+// one that decides the tied branches — that rule skipped the 11/10 CPI for the 11/17 retail sales, which fell outside the
+// eight days, and the list had no release at all. `storySymbols` (symbol → story label, from the market-day narratives)
+// lets a report the stories are about onto the list whatever its index weight (CoreWeave, outside the S&P 500).
+function weekAhead({ calendar, nextEvent, decidingEvent = null, events = [], storySymbols = null, story, nowMs, days = 8 }) {
   const out = [];
   const horizon = nowMs + days * 86400000;
   // v59.70 (screen review 9): an item belongs to the week ahead from the reader's own day — the KST date. A US event dated
@@ -236,21 +292,26 @@ function weekAhead({ calendar, nextEvent, story, nowMs, days = 8 }) {
   const kstToday = new Date(nowMs + 9 * 3600000).toISOString().slice(0, 10);
   const inside = (date) => { const ms = Date.parse(`${date}T23:59:00Z`); return Number.isFinite(ms) && String(date) >= kstToday && ms <= horizon; };
   for (const event of SCHEDULED_EVENTS) if (inside(event.date)) out.push({ kind: 'event', date: event.date, when: dayLabel(event.date), title: event.title, why: event.why });
-  if (nextEvent?.date && inside(nextEvent.date)) {
-    const why = nextEvent.id === 'us-nfp'
-      ? (story.rates?.kind === 'growth-fear' ? '실업률이 오르면 금리 하락이 성장 걱정으로 굳고, 버티면 이번 하락은 업종 조정에 그칩니다.' : '고용이 식으면 금리 인하 기대가 커지고, 강하면 금리 부담이 다시 커집니다.')
-      : /\b(?:cpi|pce)\b/.test(String(nextEvent.id)) ? '근원 물가가 다시 오르면 금리 인하 기대가 줄어듭니다.'
-        : nextEvent.id === 'us-fed-rate' ? '금리 결정과 함께 앞으로의 경로 발언을 봅니다.' : '결과에 따라 지금 시나리오가 바뀔 수 있습니다.';
-    out.push({ kind: 'macro', date: nextEvent.date, when: nextEvent.when || dayLabel(nextEvent.date), title: nextEvent.name, why });
+  const releases = [...(Array.isArray(events) ? events : []), ...[nextEvent, decidingEvent].filter(Boolean)];
+  const seenRelease = new Set();
+  for (const event of releases) {
+    if (!event?.date || !event.id || !inside(event.date) || seenRelease.has(`${event.id}|${event.date}`)) continue;
+    seenRelease.add(`${event.id}|${event.date}`);
+    const decides = decidingEvent && decidingEvent.id === event.id && decidingEvent.date === event.date;
+    out.push({ kind: 'macro', date: event.date, when: event.when || dayLabel(event.date), title: event.name,
+      why: `${releaseWhy(event, story)}${decides ? ' 지금 맞서는 시나리오를 가르는 발표입니다.' : ''}` });
   }
   const aiStory = story.concentration.kind === 'narrow-down' || story.concentration.kind === 'narrow-up';
   // v59.70 (step 3 screen audit): a quiet week listed Moderna 0.1% as "대형 기술주 쏠림이 이어질지 가르는 실적" — the line's
   // sentence followed the market's story, not the company, and any weight qualified. A report is on the list when its
   // index weight is at least REPORT_WEIGHT_MIN or it is on the market-mover list; the AI sentence needs a mover on the line.
-  const reports = (Array.isArray(calendar?.earnings) ? calendar.earnings : [])
-    .filter((row) => row?.symbol && row.date && (Number(row.indexWeight) >= REPORT_WEIGHT_MIN || (MOVER_BY_SYMBOL[row.symbol] && Number(row.indexWeight) > 0))
-      && readNumber(row.epsActual) === null && inside(row.date))
-    .sort((a, b) => Number(b.indexWeight) - Number(a.indexWeight)).slice(0, 3);
+  const pending = (Array.isArray(calendar?.earnings) ? calendar.earnings : [])
+    .filter((row) => row?.symbol && row.date && readNumber(row.epsActual) === null && inside(row.date));
+  const byWeight = (a, b) => (Number(b.indexWeight) || 0) - (Number(a.indexWeight) || 0);
+  let reports = pending.filter((row) => Number(row.indexWeight) >= REPORT_WEIGHT_MIN || (MOVER_BY_SYMBOL[row.symbol] && Number(row.indexWeight) > 0)).sort(byWeight).slice(0, 3);
+  if (!reports.length) reports = pending.filter((row) => Number(row.indexWeight) >= REPORT_WEIGHT_FALLBACK).sort(byWeight).slice(0, 2);
+  const storyOf = (row) => (storySymbols instanceof Map ? storySymbols.get(row.symbol) : null);
+  const storyReports = pending.filter((row) => storyOf(row) && !reports.includes(row)).slice(0, 2);
   // Reports in the same session are one line: "AAPL 7.7% · PLTR 0.7% 실적 (S&P 500 비중)" — each weight beside its name.
   const sessionsOf = new Map();
   for (const row of reports) {
@@ -259,6 +320,7 @@ function weekAhead({ calendar, nextEvent, story, nowMs, days = 8 }) {
     sessionsOf.get(key).push(row);
   }
   const slotOf = (row) => ({ bmo: 0, dmh: 1, amc: 2 })[row.hour] ?? 1;
+  const fallbackWeek = !reports.some((row) => Number(row.indexWeight) >= REPORT_WEIGHT_MIN || MOVER_BY_SYMBOL[row.symbol]);
   for (const rows of [...sessionsOf.values()].sort((a, b) => a[0].date.localeCompare(b[0].date) || slotOf(a[0]) - slotOf(b[0]))) {
     const { date, hour } = rows[0];
     // v59.56 (text review): one naming rule per line — Korean names only when every company on it has one, otherwise
@@ -270,10 +332,16 @@ function weekAhead({ calendar, nextEvent, story, nowMs, days = 8 }) {
       title: `${rows.map((row) => `${nameOf(row)} ${Number(row.indexWeight).toFixed(1)}%`).join(' · ')} 실적 (S&P 500 비중)`,
       // v59.56 (screen review): two report days printed the same sentence; the later one says it continues the question.
       why: !(aiStory && rows.some((row) => MOVER_BY_SYMBOL[row.symbol]))
-        ? (rows.reduce((sum, row) => sum + Number(row.indexWeight), 0) >= REPORT_WEIGHT_MIN ? '지수 비중이 커서 결과가 지수 방향에 바로 들어옵니다.' : '주도주 목록에 든 회사라 같은 업종 판단에 바로 쓰입니다.')
+        ? (fallbackWeek ? '이 기간 S&P 500 실적 가운데 비중이 가장 커, 같은 업종의 가이던스 판단에 바로 쓰입니다.'
+          : rows.reduce((sum, row) => sum + Number(row.indexWeight), 0) >= REPORT_WEIGHT_MIN ? '지수 비중이 커서 결과가 지수 방향에 바로 들어옵니다.' : '주도주 목록에 든 회사라 같은 업종 판단에 바로 쓰입니다.')
         : out.some((item) => item.kind === 'earnings' && item.ai) ? '앞 실적에서 나온 AI 투자 대비 수익 판단이 이어지는지, 다른 회사 가이던스로 한 번 더 확인합니다.'
           : '대형 기술주 쏠림이 이어질지 가르는 실적입니다. 가이던스가 AI 투자 대비 수익에 대한 의문을 키우는지 줄이는지 봅니다.',
       ai: aiStory && rows.some((row) => MOVER_BY_SYMBOL[row.symbol]) });
+  }
+  for (const row of storyReports) {
+    out.push({ kind: 'earnings', date: row.date, slot: slotOf(row), when: `${dayLabel(row.date)}${SESSION_WORDS[row.hour] ? ` ${SESSION_WORDS[row.hour]}` : ''}`,
+      names: row.symbol, title: `${row.symbol} 실적`, story: storyOf(row),
+      why: `지금 많이 오가는 '${storyOf(row)}' 이야기의 당사자입니다. 그 이야기가 숫자로 맞는지 이 실적에서 확인합니다.` });
   }
   // v59.70 (screen review): one day's reports in session order — 장 전 before 장 마감 후 (QCOM after the close was listed first).
   out.sort((a, b) => a.date.localeCompare(b.date) || (a.slot ?? 1) - (b.slot ?? 1));
@@ -290,8 +358,11 @@ function weekAhead({ calendar, nextEvent, story, nowMs, days = 8 }) {
  * @param {object} [input.briefs] event-briefs.json
  * @param {object} [input.calendar] earnings-calendar.json
  * @param {object} [input.nextEvent] the crossroads' next release ({ id, name, date, when })
+ * @param {object} [input.decidingEvent] v59.74: the later release that settles the branches in play, when it differs
+ * @param {object[]} [input.events] v59.74: every collected release (crossroads.events)
+ * @param {Map} [input.storySymbols] v59.74: symbol → market-day story label
  */
-export function buildMarketStory({ history = [], macroHistory = null, briefs = null, calendar = null, nextEvent = null, nowMs = Date.now(), sessions = STORY_SESSIONS } = {}) {
+export function buildMarketStory({ history = [], macroHistory = null, briefs = null, calendar = null, nextEvent = null, decidingEvent = null, events = [], storySymbols = null, nowMs = Date.now(), sessions = STORY_SESSIONS } = {}) {
   const rows = usSessions(history);
   if (rows.length <= sessions) return { available: false };
   const asOf = rows.at(-1).date; const start = rows.at(-1 - sessions).date;
@@ -306,12 +377,13 @@ export function buildMarketStory({ history = [], macroHistory = null, briefs = n
   const drivers = reported.filter((row) => row.core && !row.korea && Math.abs(row.pct) >= 3 && Math.sign(row.pct) === direction).slice(0, 3);
   const story = { available: true, asOf, start, sessions, concentration, rates, credit, moves };
   story.bars = MOVE_ROWS.filter(([id]) => moves[id]).map(([id, label, group]) => ({ id, label, group, pct: moves[id].pct, asOf: moves[id].toDate }));
-  story.lead = lead({ n: sessions, moves, concentration, drivers, rates, credit, asOf });
+  story.bigDay = biggestDay(history, { from: start, to: asOf });
+  story.lead = lead({ n: sessions, moves, concentration, drivers, rates, credit, asOf, bigDay: story.bigDay });
   story.checks = confirmations({ moves, rates, credit, macroHistory, history, asOf, start });
   // The table: every index-moving core name, then the four largest other moves of 8% or more.
   story.earnings = [...reported.filter((row) => row.core).slice(0, 8),
     ...reported.filter((row) => !row.core && Math.abs(row.pct) >= 8).sort((a, b) => Math.abs(b.pct) - Math.abs(a.pct)).slice(0, 4)];
-  story.week = weekAhead({ calendar, nextEvent, story, nowMs });
+  story.week = weekAhead({ calendar, nextEvent, decidingEvent, events, storySymbols, story, nowMs });
   // v59.62: where the indexes sit on their charts (index-levels.js) — distance from the high, the 50/200-day lines, the
   // support below and a double top at or through its neck. Not a cross-asset check, so it is its own block.
   const levels = indexLevels(history);
