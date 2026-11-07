@@ -514,7 +514,10 @@ function buildChain({ macro, regime, rateFx, oil = null, mh = null }) {
   // holds them apart (market-read splitHeld); the chain must not draw or compare their 5-day moves either.
   const asOfDay = (value) => String(value || '').slice(0, 10);
   const splitReal = !!(macro._asOf_realYield10 && macro._asOf_breakeven10 && asOfDay(macro._asOf_realYield10) !== asOfDay(macro._asOf_breakeven10));
-  const bei5 = splitReal ? null : finite(macro.breakeven10Delta5);
+  // v59.74 (macro review): the breakeven node shows the breakeven's own 5-session move, which needs no real yield. Withholding
+  // it ('기준일이 달라 보류') whenever the real yield posted a day later blanked the node while 주제별로 보기 printed the same
+  // breakeven move; only the real-versus-breakeven comparison below needs one date.
+  const bei5 = finite(macro.breakeven10Delta5);
   // Macro audit 2026-10-17: the same midpoint as the 통화정책 axis — upper − 0.125 assumed a 25bp-wide range.
   const pricing = policyPricing(macro).pricing;
   const tnx20 = fx.tnx20 ?? null;
@@ -538,7 +541,7 @@ function buildChain({ macro, regime, rateFx, oil = null, mh = null }) {
   const dir = (value, up, down) => value == null ? 'unknown' : value >= up ? 'up' : value <= down ? 'down' : 'flat';
   const nodes = [
     { id: 'oil', label: '유가 (WTI)', held: oilHeld, value: wti20 == null ? '—' : `20거래일 ${signed(wti20, 1, '%')}${oilShort}${oilHeld ? (oil?.abnormal ? ', 브렌트 비교 보류' : `, 브렌트 ${signed(oil.brent20, 1, '%')}`) : ''}`, dir: fx.wtiHigh && wti20 != null && wti20 > RULES.oil.fall20dPct ? 'up' : dir(wti20, RULES.oil.rise20dPct, RULES.oil.fall20dPct) },
-    { id: 'breakeven', label: '기대인플레이션', value: bei5 == null ? (splitReal ? '기준일이 달라 보류' : '—') : `5거래일 ${signed(bei5 * 100, 0, 'bp')}`, dir: dir(bei5 == null ? null : bei5 * 100, RULES.breakeven.move5dBp, -RULES.breakeven.move5dBp) },
+    { id: 'breakeven', label: '기대인플레이션', value: bei5 == null ? '—' : `5거래일 ${signed(bei5 * 100, 0, 'bp')}`, dir: dir(bei5 == null ? null : bei5 * 100, RULES.breakeven.move5dBp, -RULES.breakeven.move5dBp) },
     { id: 'policy', label: '연준 경로 (2년물)', value: pricing == null ? '—' : pricing >= P.pricedMovePp ? `기준금리 대비 ${signed(pricing, 2, '%p')}` : pricing <= -P.pricedMovePp ? `기준금리 대비 ${signed(pricing, 2, '%p')}` : '동결 근접', dir: dir(pricing, P.pricedMovePp, -P.pricedMovePp) },
     { id: 'rates', label: '장기금리 (10년물)', value: tnx20 == null ? '—' : `20거래일 ${signed(tnx20, 0, 'bp')}`, dir: dir(tnx20, RULES.rates.move20dBp, -RULES.rates.move20dBp) },
     { id: 'valuation', label: '주식 밸류에이션 압력(해석)', inferred: true, value: axisById.rates ? `관측 아님, 금리 지표 ${axisById.rates.stateLabel}에서 추론` : '—', dir: axisById.rates?.state === 'burden' ? 'down' : axisById.rates?.state === 'favorable' ? 'up' : 'flat' }
@@ -550,7 +553,7 @@ function buildChain({ macro, regime, rateFx, oil = null, mh = null }) {
   // P1449: 2년물은 프리미엄을 분리하지 못한 대용 지표 — 링크 문장도 해석 단정 대신 관측을 말한다.
   if (nodes[2].dir === 'up') links.push('2년물이 기준금리 중간값보다 높습니다. 기간 프리미엄이 섞여 있어 추가 인상 예상으로 단정하지 않습니다.');
   if (nodes[2].dir === 'down') links.push('2년물이 기준금리 중간값보다 낮습니다. 기간 프리미엄이 섞여 있어 인하 예상으로 단정하지 않습니다.');
-  // v58.74 (audit): with the breakeven node withheld ('기준일이 달라 보류') the line no longer reads it as '번지지 않음'.
+  // v58.74 (audit): with no breakeven move (node 'unknown') the line no longer reads it as '번지지 않음'.
   if (!oilHeld && nodes[0].dir === 'up' && nodes[1].dir !== 'up') links.push(fx.wtiHigh ? '유가가 1년 범위 상단에 있어 물가 부담 요인입니다.' : nodes[1].dir === 'unknown' ? `유가가 20일 동안 ${signed(wti20, 1, '%')} 올랐습니다 — 기대인플레이션으로 번지는지는 같은 날 값이 없어 보류합니다.` : `유가가 20일 동안 ${signed(wti20, 1, '%')} 올랐습니다 — 아직 기대인플레이션으로 크게 번지지는 않았습니다.`);
   if (nodes[3].dir === 'up') links.push(`10년물이 20일 동안 ${signed(tnx20, 0, 'bp')} 올랐습니다${real5 != null && bei5 != null && real5 > bei5 && real5 > 0 ? ' — 실질금리 우위는 5거래일 관측 기준이며(20일 전체 분해는 자료가 없음), 그 관측은 성장주 밸류에이션 부담 쪽과 같은 방향입니다' : ''}.`);
   if (nodes[3].dir === 'down') links.push(`10년물이 20일 동안 ${signed(tnx20, 0, 'bp')} 내려 할인율 부담이 줄고 있습니다.`);
