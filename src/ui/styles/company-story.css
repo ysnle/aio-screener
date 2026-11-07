@@ -43,6 +43,62 @@
 .company-story-road strong { color:var(--text-primary); margin-right:6px; }
 .company-story-sources a { color:var(--accent); }
 .company-story-fold summary:focus-visible, .company-story-peers button:focus-visible, .company-story-sources a:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+
+/* v59.74 (owner 2026-11-07): 핵심 쟁점, 돈과 기술의 흐름, 숫자 뒤의 구조, 이 업종이 돌아가는 방식 (src/ui/components/company-flow.js). */
+.company-debate { margin:14px 0 4px; padding:14px 16px; border-radius:12px; background:var(--sx-ink-a03); }
+.company-debate__head { display:flex; flex-direction:column; gap:4px; }
+.company-debate__label { font-size:var(--fs-min); font-weight:700; letter-spacing:.02em; color:var(--text-secondary); }
+.company-debate__q { margin:0; font-size:15px; font-weight:700; line-height:1.6; overflow-wrap:anywhere; }
+.company-debate__sides { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr)); gap:10px; margin-top:10px; }
+.company-debate__side { min-width:0; padding:10px 12px; border-radius:10px; background:var(--bg-card); border-left:3px solid var(--chart-grid); }
+.company-debate__side--bull { border-left-color:var(--chart-1); }
+.company-debate__side--bear { border-left-color:var(--chart-4); }
+.company-debate__side h4, .company-debate__sub { font-size:12px; margin:0 0 4px; color:var(--text-primary); }
+.company-debate__sub { margin-top:12px; }
+.company-debate__side p { margin:0; font-size:13px; line-height:1.7; color:var(--text-secondary); overflow-wrap:anywhere; }
+.company-debate__decides { list-style:none; margin:0; padding:0; display:grid; gap:4px; font-size:12px; line-height:1.6; color:var(--text-secondary); }
+.company-debate__decides strong { color:var(--text-primary); margin-right:6px; }
+.company-flow { margin-top:14px; }
+.company-flow-legend { font-size:12px; color:var(--text-secondary); margin:0 0 8px; line-height:1.6; }
+.company-flow-map { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,11rem) auto minmax(0,1fr); gap:8px; align-items:stretch; }
+.company-flow-arrow { align-self:center; font-size:18px; color:var(--text-secondary); }
+.company-flow-centre { align-self:center; display:flex; flex-direction:column; justify-content:center; gap:3px; padding:12px; border-radius:12px; background:var(--bg-card); border:2px solid var(--accent); text-align:center; min-width:0; }
+.company-flow-centre b { font-size:16px; }
+.company-flow-col { min-width:0; padding:10px 12px; border-radius:12px; background:var(--sx-ink-a03); }
+.company-flow-col__title { margin:0; font-size:12px; font-weight:700; }
+.company-flow-col__note { margin:2px 0 8px; font-size:var(--fs-min); color:var(--text-secondary); }
+.company-flow-chips { display:flex; flex-wrap:wrap; gap:6px; }
+.company-flow-chip { display:inline-flex; flex-direction:column; align-items:flex-start; gap:1px; max-width:100%; padding:5px 9px; border-radius:8px; border:1px solid var(--chart-grid); background:var(--bg-card); color:var(--text-primary); font:inherit; font-size:12px; text-align:left; line-height:1.35; min-width:0; }
+button.company-flow-chip { cursor:pointer; }
+.company-flow-chip.is-both { border-color:var(--text-secondary); box-shadow:inset 0 0 0 1px var(--text-secondary); }
+.company-flow-chip.is-private { border-style:dashed; }
+.company-flow-chip b { font-size:12px; }
+.company-flow-chip__name { font-size:var(--fs-min); color:var(--text-secondary); overflow-wrap:anywhere; }
+.company-flow-chip__fig { font-size:var(--fs-min); color:var(--text-secondary); font-variant-numeric:tabular-nums; }
+.company-flow-empty, .company-flow-more { font-size:var(--fs-min); color:var(--text-secondary); align-self:center; }
+.company-flow-side { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr)); gap:8px; margin-top:8px; }
+.company-chain { list-style:none; margin:10px 0 0; padding:0; display:grid; grid-template-columns:repeat(auto-fit,minmax(78px,1fr)); gap:4px; }
+.company-chain__step { display:flex; flex-direction:column; gap:2px; padding:6px 6px; border-radius:6px; background:var(--sx-ink-a03); font-size:var(--fs-min); color:var(--text-secondary); min-width:0; }
+.company-chain__step.is-linked { color:var(--text-primary); }
+.company-chain__step.is-here { background:var(--accent); color:var(--bg-card); font-weight:700; }
+.company-chain__name { overflow-wrap:anywhere; }
+.company-chain__count { font-size:var(--fs-min); font-variant-numeric:tabular-nums; }
+.company-hood { margin-top:14px; }
+.company-hood__item { padding:8px 12px; border-radius:10px; background:var(--sx-ink-a03); margin-top:6px; }
+.company-hood__item > summary { cursor:pointer; font-size:13px; font-weight:600; line-height:1.6; }
+.company-hood__item p { margin:6px 0 2px; font-size:13px; line-height:1.7; color:var(--text-secondary); overflow-wrap:anywhere; }
+.company-industry__lead { color:var(--text-primary)!important; font-weight:600; }
+.company-industry__twist { border-left:3px solid var(--chart-grid); padding-left:10px; }
+.company-industry__open { margin-top:8px; }
+.company-flow-chip:focus-visible, .company-hood__item > summary:focus-visible, .company-industry__open:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+@media (max-width: 720px) {
+  .company-flow-map { grid-template-columns:minmax(0,1fr); }
+  .company-flow-arrow { justify-self:center; transform:rotate(90deg); }
+  .company-flow-centre { order:0; }
+  .company-flow-chips { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .company-flow-chip { width:100%; }
+  .company-flow-more, .company-flow-empty { grid-column:1 / -1; }
+}
 @media (max-width: 600px) {
   .company-story-bar { grid-template-columns:minmax(0,1fr) auto; }
   .company-story-bar .company-story-track { grid-column:1 / -1; grid-row:2; }
