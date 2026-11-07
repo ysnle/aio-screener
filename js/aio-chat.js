@@ -3768,7 +3768,7 @@ function toggleAIPanel() {
       var aiInp = document.getElementById('ai-panel-inp');
       var aiBtn = document.getElementById('ai-panel-btn');
       if (aiInp) aiInp.disabled = false;
-      if (aiBtn) aiBtn.disabled = false;
+      if (aiBtn) aiBtn.disabled = !!getChatState(_aiCurrentCtx)._activeRequest; // v59.74 SM-08: an answer still running keeps 전송 off
     }
     var inp = document.getElementById('ai-panel-inp');
     if (inp && !inp.disabled) setTimeout(function() { inp.focus(); }, 300);
@@ -3860,7 +3860,7 @@ function updateAIPanelContext(pageId) {
     return;
   }
   if (aiInp) { aiInp.disabled = false; if (_ctxChanged) { aiInp.value = ''; _aioSyncQuestionCount(); } }
-  if (aiBtn) aiBtn.disabled = false;
+  if (aiBtn) aiBtn.disabled = !!getChatState(ctxId)._activeRequest; // v59.74 SM-08: a kept-running answer still owns the send button
   _aiCurrentCtx = ctxId;
   var titleEl = document.getElementById('ai-panel-title');
   var _ctxPublicTitle = String(chatContexts[ctxId].title || '리서치').replace(/^AI\s*/i, '').replace(/분석가/g, '리서치');

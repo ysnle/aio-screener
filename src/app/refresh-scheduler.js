@@ -102,11 +102,23 @@ export function installRefreshScheduler(window = globalThis) {
     cfg._inFlight = true;
     cfg.lastRunStart = Date.now();
     cfg._attemptedAt = new Date(cfg.lastRunStart).toISOString();
+    // State-machine audit (_context/STATE-MACHINES.md SM-03): a run that ends without an outcome of its own — the fetch
+    // was already running for another caller (coalesced) or the caller cancelled — puts the task back where it was.
+    var statusBeforeRun = { status: cfg._status, failureReason: cfg._failureReason, lastErr: cfg._lastErr };
+    var restoreStatus = function() {
+      cfg._status = statusBeforeRun.status;
+      cfg._failureReason = statusBeforeRun.failureReason;
+      cfg._lastErr = statusBeforeRun.lastErr;
+    };
     cfg._status = 'loading';
     cfg._failureReason = '';
     var resolved;
     var taskPromise = null;
     var taskSettled = true;
+    // Set when the timeout or the caller's abort answered before the task did. The task keeps cfg._inFlight until it
+    // settles, so no newer run can own cfg meanwhile, and its late outcome is recorded instead of being dropped (SM-03).
+    var raceLost = false;
+    var cancelledByCaller = false;
     var taskTimer = null;
     var taskController = new AbortController();
     var externalSignal = opts.signal;
@@ -120,32 +132,11 @@ export function installRefreshScheduler(window = globalThis) {
       cfg._inFlight = false;
       cfg._activeRun = null;
     };
-    var relayExternalAbort = function() {
-      try { taskController.abort(externalSignal && externalSignal.reason); } catch (_) { try { taskController.abort(); } catch (_) {} }
-      if (externalAbortReject) externalAbortReject(new Error('scheduler aborted by caller: ' + key));
-    };
-    if (externalSignal) {
-      if (externalSignal.aborted) relayExternalAbort();
-      else if (typeof externalSignal.addEventListener === 'function') externalSignal.addEventListener('abort', relayExternalAbort, { once: true });
-    }
-    cfg._activeRun = { key: key, startedAt: cfg.lastRunStart, controller: taskController };
-    try {
-      var taskResult = cfg.fn(Object.assign({}, opts, { signal: taskController.signal }));
-      if (taskResult && typeof taskResult.then === 'function') {
-        taskSettled = false;
-        taskPromise = Promise.resolve(taskResult);
-        taskPromise.then(function() { taskSettled = true; finishRun(); }, function() { taskSettled = true; finishRun(); });
-        var timeoutMs = Math.max(3000, cfg.timeoutMs || 30000);
-        var timeoutPromise = new Promise(function(_, reject) {
-          taskTimer = setTimeout(function() {
-            try { taskController.abort('timeout'); } catch (_) {}
-            reject(new Error('scheduler timeout: ' + key + ' (' + timeoutMs + 'ms)'));
-          }, timeoutMs);
-        });
-        var abortPromise = externalSignal ? new Promise(function(_, reject) { externalAbortReject = reject; }) : null;
-        resolved = await Promise.race([taskPromise, timeoutPromise, abortPromise].filter(Boolean));
-      } else {
-        resolved = taskResult;
+    function recordOutcome(resolved) {
+      // A fetcher that found its own fetch already running did nothing: neither a success nor a failure.
+      if (resolved && typeof resolved === 'object' && resolved.coalesced === true) {
+        restoreStatus();
+        return { key: key, ok: false, skipped: true, updated: false, coalesced: true, error: resolved.error || resolved.reason || 'fetch already in flight', result: resolved };
       }
       if (resolved && typeof resolved === 'object' && resolved.ok === false) {
         cfg._lastErr = resolved.error || resolved.reason || 'scheduler task returned no update';
@@ -203,13 +194,62 @@ export function installRefreshScheduler(window = globalThis) {
       cfg._allowedUse = resolved && resolved.allowedUse || cfg._allowedUse || null;
       _aioMarkSchedulerFetch(key, resolved);
       return { key: key, ok: !settledFailure, skipped: false, updated: !(resolved && resolved.updated === false), status: cfg._status, lastSuccessfulAt: cfg._lastSuccessfulAt, error: '', result: resolved };
-    } catch(e) {
+    }
+    function recordFailure(e, showToast) {
       cfg._lastErr = e && e.message || String(e);
       cfg._status = 'failed';
       cfg._failureReason = cfg._lastErr;
       cfg.retryCount = (cfg.retryCount || 0) + 1;
-      if (showError) showDataError(cfg.label, 'auto refresh failed; retrying on next cycle', 'warn');
+      if (showToast) showDataError(cfg.label, 'auto refresh failed; retrying on next cycle', 'warn');
       return { key: key, ok: false, skipped: false, updated: false, error: cfg._lastErr };
+    }
+    var relayExternalAbort = function() {
+      cancelledByCaller = true;
+      try { taskController.abort(externalSignal && externalSignal.reason); } catch (_) { try { taskController.abort(); } catch (_) {} }
+      if (externalAbortReject) externalAbortReject(new Error('scheduler aborted by caller: ' + key));
+    };
+    if (externalSignal) {
+      if (externalSignal.aborted) relayExternalAbort();
+      else if (typeof externalSignal.addEventListener === 'function') externalSignal.addEventListener('abort', relayExternalAbort, { once: true });
+    }
+    cfg._activeRun = { key: key, startedAt: cfg.lastRunStart, controller: taskController };
+    try {
+      var taskResult = cfg.fn(Object.assign({}, opts, { signal: taskController.signal }));
+      if (taskResult && typeof taskResult.then === 'function') {
+        taskSettled = false;
+        taskPromise = Promise.resolve(taskResult);
+        taskPromise.then(function(late) {
+          taskSettled = true;
+          if (raceLost) { try { recordOutcome(late); } catch (_) {} }
+          finishRun();
+        }, function() {
+          // A late rejection after a timeout was already recorded as the timeout; after a cancel it is usually the
+          // task honouring the abort, so the restored status stands.
+          taskSettled = true;
+          finishRun();
+        });
+        var timeoutMs = Math.max(3000, cfg.timeoutMs || 30000);
+        var timeoutPromise = new Promise(function(_, reject) {
+          taskTimer = setTimeout(function() {
+            try { taskController.abort('timeout'); } catch (_) {}
+            reject(new Error('scheduler timeout: ' + key + ' (' + timeoutMs + 'ms)'));
+          }, timeoutMs);
+        });
+        var abortPromise = externalSignal ? new Promise(function(_, reject) { externalAbortReject = reject; }) : null;
+        resolved = await Promise.race([taskPromise, timeoutPromise, abortPromise].filter(Boolean));
+      } else {
+        resolved = taskResult;
+      }
+      return recordOutcome(resolved);
+    } catch(e) {
+      if (taskPromise && !taskSettled) raceLost = true;
+      // A caller that cancels (route change, superseded page refresh) is not a provider failure: no failed status, no
+      // retry count, no warning. The fetch may still finish; its outcome is recorded when it does.
+      if (cancelledByCaller) {
+        restoreStatus();
+        return { key: key, ok: false, skipped: true, updated: false, cancelled: true, error: 'refresh cancelled by caller' };
+      }
+      return recordFailure(e, showError);
     } finally {
       if (taskTimer) clearTimeout(taskTimer);
       if (externalSignal && typeof externalSignal.removeEventListener === 'function') externalSignal.removeEventListener('abort', relayExternalAbort);
@@ -386,6 +426,19 @@ export function installRefreshScheduler(window = globalThis) {
   }
   window._aioIsWeeklyNewsExpiring = _aioIsWeeklyNewsExpiring;
 
+  // v59.74 SM-07: the 30s on-enter stamp is written before the deferred run starts. A run that is dropped or
+  // cancelled before it finishes gives its stamps back, so coming back to the page within 30s still refreshes.
+  function _aioReleasePageRefreshStamps(controller) {
+    var stamped = controller && controller._aioStamped;
+    if (!stamped) return;
+    controller._aioStamped = null;
+    stamped.keys.forEach(function(key) { if (_aioPageRefreshLast[key] === stamped.at) delete _aioPageRefreshLast[key]; });
+  }
+  function _aioAbortPageRefresh(controller, reason) {
+    _aioReleasePageRefreshStamps(controller);
+    try { controller.abort(reason); } catch (_) {}
+  }
+
   function _aioRefreshPageData(pageId) {
     try {
       if (_schedulerPaused) return;
@@ -400,13 +453,11 @@ export function installRefreshScheduler(window = globalThis) {
       var symbols = Array.isArray(profile.symbols) ? profile.symbols.slice() : [];
       Object.keys(_aioPageRefreshControllers).forEach(function(activePageId) {
         if (activePageId !== pageId && _aioPageRefreshControllers[activePageId]) {
-          try { _aioPageRefreshControllers[activePageId].abort('route-changed'); } catch (_) {}
+          _aioAbortPageRefresh(_aioPageRefreshControllers[activePageId], 'route-changed');
           delete _aioPageRefreshControllers[activePageId];
         }
       });
-      if (_aioPageRefreshControllers[pageId]) {
-        try { _aioPageRefreshControllers[pageId].abort('superseded'); } catch (_) {}
-      }
+      if (_aioPageRefreshControllers[pageId]) _aioAbortPageRefresh(_aioPageRefreshControllers[pageId], 'superseded');
       var pageController = new AbortController();
       _aioPageRefreshControllers[pageId] = pageController;
       var now = Date.now();
@@ -430,12 +481,14 @@ export function installRefreshScheduler(window = globalThis) {
         options[key] = { pageId: pageId, forceRefresh: forceRefresh, reason: forceRefresh ? 'weekly-news-expiring' : 'page-onenter-stale', symbols: symbols };
       });
       if (dueKeys.length && window.AIO && typeof window.AIO.runScheduledRefresh === 'function') {
+        pageController._aioStamped = { keys: dueKeys, at: now };
         setTimeout(function(){
           var activePageId = String((window.AIO && typeof window.AIO.getActivePage === 'function' && window.AIO.getActivePage()) || document.querySelector('.page.active')?.id || '').replace(/^page-/, '');
-          if (pageController.signal.aborted || (activePageId && activePageId !== pageId)) return;
+          if (pageController.signal.aborted || (activePageId && activePageId !== pageId)) { _aioReleasePageRefreshStamps(pageController); return; }
           window.AIO.runScheduledRefresh({ keys: dueKeys, options: options, pageId: pageId, symbols: symbols, reason: 'page-onenter', signal: pageController.signal }).catch(function(e) {
             if (typeof _aioLog === 'function') _aioLog('warn', 'refresh', 'page refresh failed: ' + pageId + ' ' + (e && e.message || e));
           }).finally(function() {
+            pageController._aioStamped = null;
             if (_aioPageRefreshControllers[pageId] === pageController) delete _aioPageRefreshControllers[pageId];
           });
         }, 0);
@@ -732,6 +785,62 @@ export function installRefreshScheduler(window = globalThis) {
     };
   };
 
+  // State-machine audit SM-04: window._aioQuoteRequestSymbols is the extra symbol list fetchLiveQuotes adds to its
+  // request. Each writer used to save the old value, set its own and put the saved one back when it finished, so two
+  // overlapping refreshes (a page refresh beside the visibility resume, or an AI ensure-fresh) ended in the wrong order
+  // dropped the second run's symbols while it was still running and then restored the first run's list for good. Every
+  // writer now holds its list and releases it; the published value is the union of the lists still held.
+  // The registered symbols (AIO.registerLiveSymbol: rows and holdings a screen shows) are the standing base layer.
+  var _aioQuoteRequestBase = Array.isArray(window._aioQuoteRequestSymbols) ? window._aioQuoteRequestSymbols.slice() : [];
+  var _aioQuoteRequestHolds = new Map();
+  var _aioQuoteRequestHoldSeq = 0;
+  function _aioPublishQuoteRequestSymbols() {
+    var union = _aioQuoteRequestBase.slice();
+    _aioQuoteRequestHolds.forEach(function(list) {
+      list.forEach(function(sym) { if (union.indexOf(sym) < 0) union.push(sym); });
+    });
+    if (union.length) window._aioQuoteRequestSymbols = union;
+    else delete window._aioQuoteRequestSymbols;
+  }
+  function _aioHoldQuoteRequestSymbols(symbols) {
+    var list = (Array.isArray(symbols) ? symbols : []).map(function(sym) { return String(sym || '').trim(); }).filter(Boolean);
+    if (!list.length) return function() {};
+    var id = ++_aioQuoteRequestHoldSeq;
+    _aioQuoteRequestHolds.set(id, list);
+    _aioPublishQuoteRequestSymbols();
+    var released = false;
+    return function() {
+      if (released) return;
+      released = true;
+      _aioQuoteRequestHolds.delete(id);
+      _aioPublishQuoteRequestSymbols();
+    };
+  }
+  window._aioHoldQuoteRequestSymbols = _aioHoldQuoteRequestSymbols;
+  // SM-05: a failed quote fetch with no snapshot fallback retries after a backoff. Each failure used to add its own
+  // timer that called the fetch again, so every failing cycle started one more self-renewing retry chain (an hour offline left
+  // about twenty) and the chains kept fetching while the tab was hidden, outside the pause above. One retry is pending
+  // at most, a fetch that starts cancels it, and a hidden tab skips it (the visibility resume refreshes stale quotes).
+  var _aioQuoteRetryTimer = null;
+  window._aioCancelQuoteRetry = function() {
+    if (_aioQuoteRetryTimer != null) clearTimeout(_aioQuoteRetryTimer);
+    _aioQuoteRetryTimer = null;
+  };
+  window._aioScheduleQuoteRetry = function(delayMs) {
+    window._aioCancelQuoteRetry();
+    _aioQuoteRetryTimer = setTimeout(function() {
+      _aioQuoteRetryTimer = null;
+      if (typeof document !== 'undefined' && document.hidden) return;
+      if (typeof fetchLiveQuotes === 'function') fetchLiveQuotes();
+    }, delayMs);
+    return _aioQuoteRetryTimer;
+  };
+  window._aioAddQuoteRequestBaseSymbol = function(sym) {
+    if (!sym || _aioQuoteRequestBase.indexOf(sym) >= 0) return;
+    _aioQuoteRequestBase.push(sym);
+    _aioPublishQuoteRequestSymbols();
+  };
+
   window.AIO.runScheduledRefresh = async function(keys) {
     _assignRefreshScheduleFunctions();
     _normalizeRefreshSchedule();
@@ -756,10 +865,9 @@ export function installRefreshScheduler(window = globalThis) {
       runSymbols = Array.isArray(runProfile.symbols) ? runProfile.symbols.slice() : [];
     }
     var out = [];
-    var prevQuoteRequestSymbols = window._aioQuoteRequestSymbols;
     var runId = 'refresh-' + Date.now() + '-' + Math.round(Math.random() * 100000);
     var startedAt = Date.now();
-    if (runSymbols.length) window._aioQuoteRequestSymbols = runSymbols.slice();
+    var releaseQuoteRequestSymbols = _aioHoldQuoteRequestSymbols(runSymbols);
     _aioEmitRefreshEvent('start', {
       runId: runId,
       keys: list.slice(),
@@ -842,8 +950,7 @@ export function installRefreshScheduler(window = globalThis) {
       // started. Restoring the start value left a run begun while hidden (portfolio/screener retry, AI ensure-fresh) that
       // ended after the tab returned with a visible tab paused, and every timer then stopped without rescheduling.
       _schedulerPaused = !!(typeof document !== 'undefined' && document.hidden);
-      if (prevQuoteRequestSymbols == null) delete window._aioQuoteRequestSymbols;
-      else window._aioQuoteRequestSymbols = prevQuoteRequestSymbols;
+      releaseQuoteRequestSymbols();
     }
     var result = {
       status: out.some(function(x) { return !x.ok && !x.skipped; }) ? 'warn' : 'ok',
