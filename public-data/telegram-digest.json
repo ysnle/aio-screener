@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-07T10:15:26.225Z",
-  "attemptedAt": "2026-11-07T10:15:26.225Z",
-  "lastSuccessfulAt": "2026-11-07T10:15:26.225Z",
+  "generatedAt": "2026-11-07T12:22:03.280Z",
+  "attemptedAt": "2026-11-07T12:22:03.280Z",
+  "lastSuccessfulAt": "2026-11-07T12:22:03.280Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-24T10:15:19.589Z",
-  "until": "2026-11-07T10:15:19.589Z",
+  "since": "2026-10-24T12:21:55.982Z",
+  "until": "2026-11-07T12:21:55.982Z",
   "current24hWindow": {
     "start": "2026-11-05T23:00:00.000Z",
     "end": "2026-11-06T23:00:00.000Z",
@@ -80,9 +80,9 @@
       "pages": 0,
       "reachedOlder": false,
       "reachedKnown": false,
-      "count": 37,
+      "count": 36,
       "freshCount": 0,
-      "eligibleTextCount": 34,
+      "eligibleTextCount": 33,
       "selectedCount": 20,
       "error": "first page parsed no posts",
       "lastPostId": 26057
@@ -92,54 +92,54 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1353,
+      "count": 1348,
       "freshCount": 40,
-      "eligibleTextCount": 1291,
+      "eligibleTextCount": 1286,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 68626
+      "lastPostId": 68630
     },
     {
       "channel": "bornlupin",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 239,
-      "freshCount": 20,
-      "eligibleTextCount": 239,
+      "count": 238,
+      "freshCount": 40,
+      "eligibleTextCount": 238,
       "selectedCount": 124,
       "error": null,
-      "lastPostId": 21045
+      "lastPostId": 21046
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 699,
-      "freshCount": 35,
-      "eligibleTextCount": 698,
+      "count": 700,
+      "freshCount": 31,
+      "eligibleTextCount": 699,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 71722
+      "lastPostId": 71732
     }
   ],
-  "count": 2328,
-  "retainedItemCount": 448,
+  "count": 2322,
+  "retainedItemCount": 451,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2328,
-    "eligibleTextCount": 2262,
+    "observedCount": 2322,
+    "eligibleTextCount": 2256,
     "mediaOnlyCount": 66,
-    "mediaAttachedCount": 502,
-    "photoPostCount": 435,
+    "mediaAttachedCount": 505,
+    "photoPostCount": 438,
     "documentPostCount": 2,
     "imageOnlyCount": 2,
-    "highSignalCount": 394,
-    "broadSignalCount": 853,
+    "highSignalCount": 395,
+    "broadSignalCount": 851,
     "selectedRawCount": 388,
     "selectedEligibleCount": 388,
     "selectedRawCoveragePct": 17.2,
@@ -147,36 +147,39 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "power": 273,
-    "credit": 100,
-    "geo": 441,
-    "market-note": 847,
-    "earnings": 406,
+    "market-note": 844,
     "semi": 481,
-    "flows": 67,
-    "ai-policy": 99,
-    "kr-market": 116,
-    "macro": 347,
+    "power": 274,
+    "healthcare": 73,
+    "earnings": 408,
+    "equity": 117,
+    "ai-policy": 100,
+    "geo": 439,
+    "credit": 98,
+    "flows": 66,
+    "kr-market": 115,
+    "macro": 346,
     "media-only": 65,
-    "equity": 116,
-    "healthcare": 72,
     "japan": 76,
     "optical": 40,
     "crypto": 4
   },
   "tickerCounts": {
-    "TSLA": 32,
-    "AAPL": 24,
-    "GOOG": 115,
-    "GOOGL": 9,
+    "WDC": 2,
+    "STX": 7,
     "NVDA": 116,
-    "TSM": 45,
+    "TSM": 46,
+    "005930.KS": 50,
+    "MU": 35,
+    "TSLA": 32,
+    "MSFT": 59,
+    "GOOG": 116,
+    "AMZN": 75,
+    "AAPL": 24,
+    "GOOGL": 9,
     "ORCL": 12,
-    "MU": 34,
-    "005930.KS": 49,
-    "AMD": 47,
+    "AMD": 46,
     "DB": 3,
-    "MSFT": 58,
     "CRWV": 6,
     "BE": 12,
     "AMAT": 2,
@@ -189,7 +192,6 @@
     "NVO": 2,
     "HUM": 1,
     "AVGO": 20,
-    "AMZN": 75,
     "IONQ": 2,
     "GS": 3,
     "BCS": 2,
@@ -204,7 +206,7 @@
     "MPWR": 1,
     "GFS": 1,
     "CVS": 1,
-    "INTC": 8,
+    "INTC": 7,
     "SMCI": 6,
     "AMGN": 1,
     "DUOL": 1,
@@ -214,8 +216,6 @@
     "NVS": 1,
     "RACE": 1,
     "SNDK": 8,
-    "WDC": 1,
-    "STX": 6,
     "PFE": 1,
     "MS": 4,
     "CIEN": 1,
@@ -258,14 +258,14 @@
     "SHOP": 1
   },
   "themes": [
-    "Market Notes (847 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
+    "Market Notes (844 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
     "Semiconductors/Memory (481 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
-    "Geopolitics (441 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
-    "Earnings/Corporate (406 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
-    "Macro/Rates (347 posts in 14-day research window): 2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000...",
-    "AI Power/Grid (273 posts in 14-day research window): 데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가...",
-    "Korea Market (116 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY...",
-    "Equity/Analyst (116 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
+    "Geopolitics (439 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
+    "Earnings/Corporate (408 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
+    "Macro/Rates (346 posts in 14-day research window): 2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000...",
+    "AI Power/Grid (274 posts in 14-day research window): 데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가...",
+    "Equity/Analyst (117 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
+    "Korea Market (115 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
   ],
   "catalysts": [
     {
@@ -275,7 +275,7 @@
     },
     {
       "key": "GOOG",
-      "count": 115,
+      "count": 116,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 7일 🇺🇸 아메리카 • 연준 무살렘은 현재 인플레이션이 에너지 충격과 AI·데이터센터 투자에 따른 강한 수요의 영향을 받고 있다며, 물가를 적시에 2%로 복귀시켜야..."
     },
     {
@@ -290,27 +290,27 @@
     },
     {
       "key": "MSFT",
-      "count": 58,
+      "count": 59,
       "text": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가..."
     },
     {
       "key": "005930.KS",
-      "count": 49,
+      "count": 50,
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
-      "key": "AMD",
-      "count": 47,
-      "text": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
-    },
-    {
       "key": "TSM",
-      "count": 45,
+      "count": 46,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 7일 🇺🇸 아메리카 • 연준 무살렘은 현재 인플레이션이 에너지 충격과 AI·데이터센터 투자에 따른 강한 수요의 영향을 받고 있다며, 물가를 적시에 2%로 복귀시켜야..."
     },
     {
+      "key": "AMD",
+      "count": 46,
+      "text": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
+    },
+    {
       "key": "MU",
-      "count": 34,
+      "count": 35,
       "text": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
     },
     {
@@ -336,7 +336,7 @@
       "topics": [
         "macro"
       ],
-      "count": 347,
+      "count": 346,
       "focus": "2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000..."
     },
     {
@@ -345,7 +345,7 @@
       "topics": [
         "geo"
       ],
-      "count": 441,
+      "count": 439,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격..."
     },
     {
@@ -354,7 +354,7 @@
       "topics": [
         "credit"
       ],
-      "count": 100,
+      "count": 98,
       "focus": "11월 04일 미주인 브리핑 • 나스닥 0.83% 상승 · 엔비디아 시총 5조 달러 회복 • AMD 데이터센터 매출 97% 급증 · 시간 외 6% 상승 • 메타 대규모 회사채 발행 추진 · AI 투자 확대 •..."
     },
     {
@@ -381,7 +381,7 @@
       "topics": [
         "power"
       ],
-      "count": 273,
+      "count": 274,
       "focus": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가..."
     },
     {
@@ -390,7 +390,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 99,
+      "count": 100,
       "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
@@ -399,7 +399,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 116,
+      "count": 115,
       "focus": "SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
     },
     {
@@ -408,7 +408,7 @@
       "topics": [
         "equity"
       ],
-      "count": 116,
+      "count": 117,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
@@ -426,7 +426,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 406,
+      "count": 408,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -435,7 +435,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 72,
+      "count": 73,
       "focus": "52주 신고가 (시총 $1B 이상) 헬스케어 · Amphastar Pharmaceuticals · Ardent Health · Becton, Dickinson and Company · BeOne..."
     },
     {
@@ -453,7 +453,7 @@
       "topics": [
         "flows"
       ],
-      "count": 67,
+      "count": 66,
       "focus": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -471,7 +471,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 847,
+      "count": 844,
       "focus": "2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며..."
     }
   ],
@@ -857,12 +857,15 @@
       "datetime": "2026-11-06T05:33:55.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
+        "macro",
+        "geo",
+        "semi",
         "power"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "텍사스 주지사 당선인 지나 히노호사는 버니 샌더스가 아니다. 데이터센터 건설을 지지한다. - Tae Kim 시장은 텍사스 주지사 선거 결과가 AI 데이터센터 산업에 미칠 영향을 과도하게 부정적으로 해석하고...",
-      "tickers": []
+      "tickers": [],
+      "summary": "텍사스 주지사 당선인 지나 히노호사는 버니 샌더스가 아니다. 데이터센터 건설을 지지한다. - Tae Kim 시장은 텍사스 주지사 선거 결과가 AI 데이터센터 산업에 미칠 영향을 과도하게 부정적으로 해석하고..."
     },
     {
       "id": "insidertracking/68512",
@@ -1663,7 +1666,10 @@
       "datetime": "2026-11-05T08:42:24.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "power"
+        "credit",
+        "semi",
+        "power",
+        "healthcare"
       ],
       "score": 99,
       "hasText": true,
@@ -1673,10 +1679,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "Barclays: 블루웨이브, AI 인프라 투자 문턱을 높인다 미국 중간선거에서 민주당이 선전하면서 AI 데이터센터 산업의 규제 부담이 확대될 전망임. 다만 양당 모두 미국의 AI 패권 경쟁을 지지하고 있어...",
       "tickers": [
         "BCS"
-      ]
+      ],
+      "summary": "Barclays: 블루웨이브, AI 인프라 투자 문턱을 높인다 미국 중간선거에서 민주당이 선전하면서 AI 데이터센터 산업의 규제 부담이 확대될 전망임. 다만 양당 모두 미국의 AI 패권 경쟁을 지지하고 있어..."
     },
     {
       "id": "bornlupin/20867",
@@ -1772,6 +1778,69 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "bornlupin/21046",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21046",
+      "datetime": "2026-11-07T11:53:21.000Z",
+      "localDateKst": "2026-11-07",
+      "tags": [
+        "semi",
+        "power",
+        "healthcare"
+      ],
+      "lead": 1,
+      "score": 72,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "TSM",
+        "005930.KS"
+      ],
+      "summary": "TSMC가 엔비디아를 위해 3D DRAM을 생산한다고? 윈본드 자오유쥔 회장의 견해 1. TSMC의 DRAM 시장 진출 가능성 낮아 최근 TSMC가 엔비디아를 위해 3D DRAM을 생산하고 첨단 메모리 시장에..."
+    },
+    {
+      "id": "insidertracking/68629",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68629",
+      "datetime": "2026-11-07T11:42:42.000Z",
+      "localDateKst": "2026-11-07",
+      "tags": [
+        "earnings",
+        "semi"
+      ],
+      "lead": 2,
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "MU"
+      ],
+      "summary": "최근 메모리 장기 공급계약의 구속력과 소프트뱅크의 터빈 주문 계약 위반 관련 주장에 대해 마이크론과 GE 버노바의 실적 발표 콘퍼런스콜 발언을 인용. 마이크론의 수밋 사다나 수석부사장 겸..."
+    },
+    {
+      "id": "HANAchina/71725",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71725",
+      "datetime": "2026-11-07T11:09:51.000Z",
+      "localDateKst": "2026-11-07",
+      "tags": [
+        "semi",
+        "ai-policy",
+        "equity"
+      ],
+      "score": 77,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "MSFT",
+        "GOOG",
+        "AMZN"
+      ],
+      "relatedTickers": [
+        "AVGO"
+      ],
+      "summary": ">>Apollo, AI 칩 구매에 750억달러 투입 계획…어느 Neocloud보다도 큰 규모 (중국언론) •사모펀드 대형사 Apollo가 750억달러에 달하는 대규모 투자를 통해 AI 칩 금융 시장을 재편하고..."
+    },
     {
       "id": "insidertracking/68626",
       "channel": "insidertracking",
@@ -2129,7 +2198,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
       "media": {
@@ -2138,10 +2206,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": ">>역대 ‘반도체주 급락’ 이후에는 무슨 일이 있었나? •목요일 필라델피아 SOX는 -12% 하락했고, S&P500은 -4% 하락. 이는 SOX 출범 이후 두 번째로 큰 하루 낙폭으로, 최대 낙폭은 2020년...",
+      "lead": 1,
       "tickers": [
         "DB"
-      ],
-      "summary": ">>역대 ‘반도체주 급락’ 이후에는 무슨 일이 있었나? •목요일 필라델피아 SOX는 -12% 하락했고, S&P500은 -4% 하락. 이는 SOX 출범 이후 두 번째로 큰 하루 낙폭으로, 최대 낙폭은 2020년..."
+      ]
     },
     {
       "id": "HANAchina/71686",
@@ -2150,17 +2219,17 @@
       "datetime": "2026-11-07T01:29:48.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 68,
       "hasText": true,
+      "summary": ">>Microsoft, AI 연산력 임대 축소 - Oracle Cloud 계약에서 단계적으로 철수한다는 소식에 ‘신흥 클라우드’ CoreWeave 급락 •금요일 보도에 따르면 Microsoft가 최근 몇 달간...",
       "tickers": [
         "NVDA",
         "MSFT",
         "ORCL",
         "CRWV"
-      ],
-      "summary": ">>Microsoft, AI 연산력 임대 축소 - Oracle Cloud 계약에서 단계적으로 철수한다는 소식에 ‘신흥 클라우드’ CoreWeave 급락 •금요일 보도에 따르면 Microsoft가 최근 몇 달간..."
+      ]
     },
     {
       "id": "bornlupin/21045",
@@ -2231,12 +2300,12 @@
       "datetime": "2026-11-07T00:18:01.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "power"
+        "market-note"
       ],
       "score": 63,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>UBS : AI 투자 사이클 조정 국면, 버블 붕괴 아님…대만 시장 밸류에이션 매력 부각 (대만경제일보) •UBS 대만 전략은 현재 AI 투자 사이클이 조정 국면에 진입했지만 버블 붕괴는 아니라고 밝힘...."
+      "summary": ">>UBS : AI 투자 사이클 조정 국면, 버블 붕괴 아님…대만 시장 밸류에이션 매력 부각 (대만경제일보) •UBS 대만 전략은 현재 AI 투자 사이클이 조정 국면에 진입했지만 버블 붕괴는 아니라고 밝힘....",
+      "tickers": []
     },
     {
       "id": "bornlupin/21042",
@@ -2342,8 +2411,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "차주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 11월 10일 화요일 22:30 – 소비자물가지수 (MoM) (10월) 22:30 – 근원 소비자물가지수 (MoM) (10월) 22:30 –..."
+      "summary": "차주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 11월 10일 화요일 22:30 – 소비자물가지수 (MoM) (10월) 22:30 – 근원 소비자물가지수 (MoM) (10월) 22:30 –...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68582",
@@ -3113,13 +3182,14 @@
       "datetime": "2026-11-06T05:38:14.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "geo"
+        "geo",
+        "macro"
       ],
+      "lead": 1,
       "score": 62,
       "hasText": true,
-      "summary": "이란, 트럼프의 선거 패배에 환호…중재국들, 종전 합의 추진 1. 이란, 미국 중간선거 결과를 협상 지렛대로 활용 - 이란 지도부는 민주당의 압승과 트럼프의 정치적 패배를 자신들의 전략이 효과를 거뒀다는...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "이란, 트럼프의 선거 패배에 환호…중재국들, 종전 합의 추진 1. 이란, 미국 중간선거 결과를 협상 지렛대로 활용 - 이란 지도부는 민주당의 압승과 트럼프의 정치적 패배를 자신들의 전략이 효과를 거뒀다는..."
     },
     {
       "id": "bornlupin/21024",
@@ -3128,12 +3198,15 @@
       "datetime": "2026-11-06T05:33:55.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
+        "macro",
+        "geo",
+        "semi",
         "power"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "텍사스 주지사 당선인 지나 히노호사는 버니 샌더스가 아니다. 데이터센터 건설을 지지한다. - Tae Kim 시장은 텍사스 주지사 선거 결과가 AI 데이터센터 산업에 미칠 영향을 과도하게 부정적으로 해석하고...",
-      "tickers": []
+      "tickers": [],
+      "summary": "텍사스 주지사 당선인 지나 히노호사는 버니 샌더스가 아니다. 데이터센터 건설을 지지한다. - Tae Kim 시장은 텍사스 주지사 선거 결과가 AI 데이터센터 산업에 미칠 영향을 과도하게 부정적으로 해석하고..."
     },
     {
       "id": "insidertracking/68512",
@@ -3201,11 +3274,11 @@
       "tags": [
         "geo"
       ],
+      "lead": 1,
       "score": 50,
       "hasText": true,
-      "summary": "이란, 카타르를 통해 미국에 핵 협상 제안 전달 — 이란 고위 관리 로이터에 밝혀 1. 이란, 미국에 핵 협상 제안 전달 - 이란이 카타르를 통해 미국에 핵 협상 제안서를 전달했다고 이란 고위 관리가 로이터에...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "이란, 카타르를 통해 미국에 핵 협상 제안 전달 — 이란 고위 관리 로이터에 밝혀 1. 이란, 미국에 핵 협상 제안 전달 - 이란이 카타르를 통해 미국에 핵 협상 제안서를 전달했다고 이란 고위 관리가 로이터에..."
     },
     {
       "id": "HANAchina/71648",
@@ -3372,10 +3445,11 @@
       "tags": [
         "geo"
       ],
+      "lead": 1,
       "score": 50,
       "hasText": true,
-      "summary": "트럼프, 국가안보팀과 회동…이란 전쟁 결정 \"곧\" 내릴 것 - Axios 도널드 트럼프 대통령은 중간선거가 끝남에 따라 목요일 국가안보 보좌관들과 회의를 가진 후, 이란과의 전면전을 재개할지 여부를 곧 결정할...",
-      "tickers": []
+      "tickers": [],
+      "summary": "트럼프, 국가안보팀과 회동…이란 전쟁 결정 \"곧\" 내릴 것 - Axios 도널드 트럼프 대통령은 중간선거가 끝남에 따라 목요일 국가안보 보좌관들과 회의를 가진 후, 이란과의 전면전을 재개할지 여부를 곧 결정할..."
     },
     {
       "id": "bornlupin/21020",
@@ -3384,13 +3458,16 @@
       "datetime": "2026-11-06T00:11:05.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
+        "ai-policy",
+        "macro",
         "power",
-        "ai-policy"
+        "earnings"
       ],
+      "lead": 1,
       "score": 70,
       "hasText": true,
-      "summary": "OpenAI) 책임 있는 AI 인프라의 새로운 기준 수립 OpenAI는 미국 내 AI 데이터센터 확충을 지속하면서, 지역사회의 전기요금·환경 부담을 최소화하고 주민과 경제적 이익을 공유하기 위한 새로운 원칙과...",
-      "tickers": []
+      "tickers": [],
+      "summary": "OpenAI) 책임 있는 AI 인프라의 새로운 기준 수립 OpenAI는 미국 내 AI 데이터센터 확충을 지속하면서, 지역사회의 전기요금·환경 부담을 최소화하고 주민과 경제적 이익을 공유하기 위한 새로운 원칙과..."
     },
     {
       "id": "insidertracking/68496",
@@ -3768,15 +3845,17 @@
       "datetime": "2026-11-05T13:41:57.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "semi"
+        "semi",
+        "power",
+        "ai-policy"
       ],
+      "lead": 1,
       "score": 74,
       "hasText": true,
-      "summary": "중국 AI 연구소 문샷, 미국의 대중국 규제 속 엔비디아 블랙웰 칩 접근 위해 유럽으로 눈 돌려 1. 문샷 AI, 유럽에서 엔비디아 블랙웰 GPU 확보 추진 - 중국 AI 기업 문샷 AI(Moonshot...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "중국 AI 연구소 문샷, 미국의 대중국 규제 속 엔비디아 블랙웰 칩 접근 위해 유럽으로 눈 돌려 1. 문샷 AI, 유럽에서 엔비디아 블랙웰 GPU 확보 추진 - 중국 AI 기업 문샷 AI(Moonshot..."
     },
     {
       "id": "insidertracking/68464",
@@ -4081,12 +4160,15 @@
       "datetime": "2026-11-05T08:58:08.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "power",
+        "ai-policy"
       ],
       "score": 93,
       "hasText": true,
-      "summary": "모건스탠리, 민주당의 중간선거 압승이 금융시장에 미칠 영향 민주당의 미국 중간선거 압승은 재정정책의 변화와 AI 인프라 투자에 대한 규제 강화를 초래할 수 있지만, 모건스탠리는 미국 경제와 주식시장에 대한...",
-      "tickers": []
+      "tickers": [],
+      "summary": "모건스탠리, 민주당의 중간선거 압승이 금융시장에 미칠 영향 민주당의 미국 중간선거 압승은 재정정책의 변화와 AI 인프라 투자에 대한 규제 강화를 초래할 수 있지만, 모건스탠리는 미국 경제와 주식시장에 대한..."
     },
     {
       "id": "bornlupin/21015",
@@ -4095,7 +4177,10 @@
       "datetime": "2026-11-05T08:42:24.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "power"
+        "credit",
+        "semi",
+        "power",
+        "healthcare"
       ],
       "score": 99,
       "hasText": true,
@@ -4105,10 +4190,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "Barclays: 블루웨이브, AI 인프라 투자 문턱을 높인다 미국 중간선거에서 민주당이 선전하면서 AI 데이터센터 산업의 규제 부담이 확대될 전망임. 다만 양당 모두 미국의 AI 패권 경쟁을 지지하고 있어...",
       "tickers": [
         "BCS"
-      ]
+      ],
+      "summary": "Barclays: 블루웨이브, AI 인프라 투자 문턱을 높인다 미국 중간선거에서 민주당이 선전하면서 AI 데이터센터 산업의 규제 부담이 확대될 전망임. 다만 양당 모두 미국의 AI 패권 경쟁을 지지하고 있어..."
     },
     {
       "id": "HANAchina/71590",
@@ -4161,18 +4246,19 @@
       "datetime": "2026-11-05T05:11:35.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "earnings",
         "semi",
-        "kr-market"
+        "kr-market",
+        "earnings",
+        "flows"
       ],
+      "lead": 1,
       "score": 81,
       "hasText": true,
-      "summary": "J.P. Morgan ,메모리 시장 업데이트 전반적인 시장 평가 긍정적인 3분기 실적: 환율 역풍에도 불구하고 주당순이익(EPS) 및 마진율이 예상치를 상회했으며, 가격 상승 여력, 성공적인 HBM 가격 협상...",
-      "lead": 3,
       "tickers": [
         "285A.T",
         "005930.KS"
-      ]
+      ],
+      "summary": "J.P. Morgan ,메모리 시장 업데이트 전반적인 시장 평가 긍정적인 3분기 실적: 환율 역풍에도 불구하고 주당순이익(EPS) 및 마진율이 예상치를 상회했으며, 가격 상승 여력, 성공적인 HBM 가격 협상..."
     },
     {
       "id": "bornlupin/21012",
@@ -4181,13 +4267,14 @@
       "datetime": "2026-11-05T05:04:44.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "power"
+        "power",
+        "semi"
       ],
+      "lead": 1,
       "score": 65,
       "hasText": true,
-      "summary": "[SemiAnalysis] 미국 데이터센터 규제 전망 1. 민주당이 상하원을 장악해도 트럼프의 거부권과 상원 의석 구조 때문에 강력한 연방 규제 도입은 제한적. 2. 양당 모두 데이터센터 개발사가 전력망 확충...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "[SemiAnalysis] 미국 데이터센터 규제 전망 1. 민주당이 상하원을 장악해도 트럼프의 거부권과 상원 의석 구조 때문에 강력한 연방 규제 도입은 제한적. 2. 양당 모두 데이터센터 개발사가 전력망 확충..."
     },
     {
       "id": "insidertracking/68423",
@@ -4218,13 +4305,15 @@
       "datetime": "2026-11-05T04:58:40.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "power"
+        "power",
+        "semi",
+        "earnings"
       ],
+      "lead": 1,
       "score": 65,
       "hasText": true,
-      "summary": "SemiAnalysis) 미국 데이터센터 규제 전망: 수요 훼손보다 비용 증가와 공급 지연의 문제 1. 민주당이 상하원을 장악해도 연방 차원의 급격한 규제 변화는 제한적 • 민주당이 의회를 장악하더라도 트럼프...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "SemiAnalysis) 미국 데이터센터 규제 전망: 수요 훼손보다 비용 증가와 공급 지연의 문제 1. 민주당이 상하원을 장악해도 연방 차원의 급격한 규제 변화는 제한적 • 민주당이 의회를 장악하더라도 트럼프..."
     },
     {
       "id": "insidertracking/68422",
@@ -4253,13 +4342,16 @@
       "datetime": "2026-11-05T04:34:41.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "semi"
+        "semi",
+        "power",
+        "equity",
+        "earnings"
       ],
+      "lead": 1,
       "score": 78,
       "hasText": true,
-      "summary": "BofA \"AI 지출 속도 조절이 오히려 호황(Boom)을 연장하고 반도체 주식을 회복시킬 것\" 월스트리트의 기존 통념(설비투자가 무조건 많을수록 반도체 주식에 좋다)에 반기를 들었습니다. 중간선거 이후...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "BofA \"AI 지출 속도 조절이 오히려 호황(Boom)을 연장하고 반도체 주식을 회복시킬 것\" 월스트리트의 기존 통념(설비투자가 무조건 많을수록 반도체 주식에 좋다)에 반기를 들었습니다. 중간선거 이후..."
     },
     {
       "id": "insidertracking/68418",
@@ -4328,16 +4420,18 @@
       "localDateKst": "2026-11-05",
       "tags": [
         "semi",
+        "ai-policy",
+        "earnings",
         "flows"
       ],
+      "lead": 1,
       "score": 75,
       "hasText": true,
-      "summary": "[메리츠증권 반도체/디스플레이 김선우] 메리츠 김선우입니다. 메모리 산업에 급작스레 찾아온 미 정치 지형도 변화 발 AI 수요 둔화 우려에도 불구하고 끄떡없는 2027년 수급 전망을 예상합니다. 지난 20년간...",
-      "lead": 1,
       "tickers": [
         "005930.KS",
         "000660.KS"
-      ]
+      ],
+      "summary": "[메리츠증권 반도체/디스플레이 김선우] 메리츠 김선우입니다. 메모리 산업에 급작스레 찾아온 미 정치 지형도 변화 발 AI 수요 둔화 우려에도 불구하고 끄떡없는 2027년 수급 전망을 예상합니다. 지난 20년간..."
     },
     {
       "id": "insidertracking/68414",
@@ -4381,14 +4475,16 @@
       "datetime": "2026-11-05T02:29:51.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "market-note"
+        "macro",
+        "semi",
+        "power"
       ],
       "score": 76,
       "hasText": true,
-      "summary": "미국 중간선거로 텍사스 정치 지형 변화, 대만 기업들 \"투자 계획 불변\" - 폭스콘, 페가트론, 컴팔, 위스트론, 위윈 등 주요 AI 서버 제조업체들은 정치적 변화와 관계없이 기존 공장 건설 및 증설 계획을...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "미국 중간선거로 텍사스 정치 지형 변화, 대만 기업들 \"투자 계획 불변\" - 폭스콘, 페가트론, 컴팔, 위스트론, 위윈 등 주요 AI 서버 제조업체들은 정치적 변화와 관계없이 기존 공장 건설 및 증설 계획을..."
     },
     {
       "id": "HANAchina/71575",
@@ -4419,7 +4515,9 @@
       "datetime": "2026-11-05T02:13:16.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "market-note"
+        "geo",
+        "power",
+        "japan"
       ],
       "score": 73,
       "hasText": true,
@@ -4429,8 +4527,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "JPM sales에서 올린글.. 민주당 승리가 AI 산업에 규제 리스크로 작용하지 않을까? 아닐것으로 봄 첫째, 이번 민주당 승리는 AI에 대한 반발이 아니라 경제에 대한 불만이 만들어낸 결과 갤럽이 10월...",
-      "tickers": []
+      "tickers": [],
+      "summary": "JPM sales에서 올린글.. 민주당 승리가 AI 산업에 규제 리스크로 작용하지 않을까? 아닐것으로 봄 첫째, 이번 민주당 승리는 AI에 대한 반발이 아니라 경제에 대한 불만이 만들어낸 결과 갤럽이 10월..."
     },
     {
       "id": "HANAchina/71573",
@@ -6594,29 +6692,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/68196",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68196",
-      "datetime": "2026-11-03T12:20:34.000Z",
-      "localDateKst": "2026-11-03",
-      "tags": [
-        "kr-market",
-        "earnings"
-      ],
-      "score": 67,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "Ferrari 2026년 3분기 실적 요약 실적 • 매출 €18.96억, YoY +7%, 환율 제외 +10% • 영업이익 €5.63억, YoY +12%, 환율 제외 +23% • 영업이익률 29.7%, YoY...",
-      "tickers": [
-        "RACE"
-      ]
-    },
-    {
       "id": "HANAchina/71489",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71489",
@@ -7571,27 +7646,6 @@
       "summary": "이수페타시스, 대구에 PCB 제조시설 5000억원 투자 글로벌 빅테크 기업 AI수요증가 선제 대응을 위한 생산라인 구축 초고다층 인쇄회로기판 세계적기업, 대구국가산단 내 7공장 신설 대구광역시는 2일...",
       "tickers": [
         "007660.KS"
-      ]
-    },
-    {
-      "id": "HANAchina/71397",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71397",
-      "datetime": "2026-11-02T05:28:49.000Z",
-      "localDateKst": "2026-11-02",
-      "tags": [
-        "semi",
-        "japan",
-        "kr-market"
-      ],
-      "score": 72,
-      "hasText": true,
-      "summary": ">>골드만삭스, NAND 공급 부족 2027년까지 지속 전망…삼성전자·SK hynix 지지 •10월 30일 일본 NAND 플래시 메모리 제조업체 Kioxia가 2026년 역년 3분기(2026 회계연도 2분기)...",
-      "lead": 3,
-      "tickers": [
-        "285A.T",
-        "005930.KS",
-        "000660.KS"
       ]
     },
     {
@@ -8580,24 +8634,6 @@
       ]
     },
     {
-      "id": "bornlupin/20848",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20848",
-      "datetime": "2026-10-27T08:40:04.000Z",
-      "localDateKst": "2026-10-27",
-      "tags": [
-        "semi",
-        "equity"
-      ],
-      "score": 74,
-      "hasText": true,
-      "summary": "NVIDIA와 Meta, 강력한 성장세 속 Muse 및 Muse 모델 제품군 협력 확대 1. 핵심 발표 내용 - Muse AI 협력 확대 : NVIDIA와 Meta는 AI 에이전트 수요 급증에 대응해 Muse...",
-      "lead": 2,
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
       "id": "aetherjapanresearch/26057",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/26057",
@@ -8944,8 +8980,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "차주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 11월 10일 화요일 22:30 – 소비자물가지수 (MoM) (10월) 22:30 – 근원 소비자물가지수 (MoM) (10월) 22:30 –..."
+      "summary": "차주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 11월 10일 화요일 22:30 – 소비자물가지수 (MoM) (10월) 22:30 – 근원 소비자물가지수 (MoM) (10월) 22:30 –...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68582",
@@ -9715,13 +9751,14 @@
       "datetime": "2026-11-06T05:38:14.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "geo"
+        "geo",
+        "macro"
       ],
+      "lead": 1,
       "score": 62,
       "hasText": true,
-      "summary": "이란, 트럼프의 선거 패배에 환호…중재국들, 종전 합의 추진 1. 이란, 미국 중간선거 결과를 협상 지렛대로 활용 - 이란 지도부는 민주당의 압승과 트럼프의 정치적 패배를 자신들의 전략이 효과를 거뒀다는...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "이란, 트럼프의 선거 패배에 환호…중재국들, 종전 합의 추진 1. 이란, 미국 중간선거 결과를 협상 지렛대로 활용 - 이란 지도부는 민주당의 압승과 트럼프의 정치적 패배를 자신들의 전략이 효과를 거뒀다는..."
     },
     {
       "id": "bornlupin/21024",
@@ -9730,12 +9767,15 @@
       "datetime": "2026-11-06T05:33:55.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
+        "macro",
+        "geo",
+        "semi",
         "power"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "텍사스 주지사 당선인 지나 히노호사는 버니 샌더스가 아니다. 데이터센터 건설을 지지한다. - Tae Kim 시장은 텍사스 주지사 선거 결과가 AI 데이터센터 산업에 미칠 영향을 과도하게 부정적으로 해석하고...",
-      "tickers": []
+      "tickers": [],
+      "summary": "텍사스 주지사 당선인 지나 히노호사는 버니 샌더스가 아니다. 데이터센터 건설을 지지한다. - Tae Kim 시장은 텍사스 주지사 선거 결과가 AI 데이터센터 산업에 미칠 영향을 과도하게 부정적으로 해석하고..."
     },
     {
       "id": "insidertracking/68512",
@@ -9803,11 +9843,11 @@
       "tags": [
         "geo"
       ],
+      "lead": 1,
       "score": 50,
       "hasText": true,
-      "summary": "이란, 카타르를 통해 미국에 핵 협상 제안 전달 — 이란 고위 관리 로이터에 밝혀 1. 이란, 미국에 핵 협상 제안 전달 - 이란이 카타르를 통해 미국에 핵 협상 제안서를 전달했다고 이란 고위 관리가 로이터에...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "이란, 카타르를 통해 미국에 핵 협상 제안 전달 — 이란 고위 관리 로이터에 밝혀 1. 이란, 미국에 핵 협상 제안 전달 - 이란이 카타르를 통해 미국에 핵 협상 제안서를 전달했다고 이란 고위 관리가 로이터에..."
     },
     {
       "id": "HANAchina/71648",
@@ -9974,10 +10014,11 @@
       "tags": [
         "geo"
       ],
+      "lead": 1,
       "score": 50,
       "hasText": true,
-      "summary": "트럼프, 국가안보팀과 회동…이란 전쟁 결정 \"곧\" 내릴 것 - Axios 도널드 트럼프 대통령은 중간선거가 끝남에 따라 목요일 국가안보 보좌관들과 회의를 가진 후, 이란과의 전면전을 재개할지 여부를 곧 결정할...",
-      "tickers": []
+      "tickers": [],
+      "summary": "트럼프, 국가안보팀과 회동…이란 전쟁 결정 \"곧\" 내릴 것 - Axios 도널드 트럼프 대통령은 중간선거가 끝남에 따라 목요일 국가안보 보좌관들과 회의를 가진 후, 이란과의 전면전을 재개할지 여부를 곧 결정할..."
     },
     {
       "id": "bornlupin/21020",
@@ -9986,13 +10027,16 @@
       "datetime": "2026-11-06T00:11:05.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
+        "ai-policy",
+        "macro",
         "power",
-        "ai-policy"
+        "earnings"
       ],
+      "lead": 1,
       "score": 70,
       "hasText": true,
-      "summary": "OpenAI) 책임 있는 AI 인프라의 새로운 기준 수립 OpenAI는 미국 내 AI 데이터센터 확충을 지속하면서, 지역사회의 전기요금·환경 부담을 최소화하고 주민과 경제적 이익을 공유하기 위한 새로운 원칙과...",
-      "tickers": []
+      "tickers": [],
+      "summary": "OpenAI) 책임 있는 AI 인프라의 새로운 기준 수립 OpenAI는 미국 내 AI 데이터센터 확충을 지속하면서, 지역사회의 전기요금·환경 부담을 최소화하고 주민과 경제적 이익을 공유하기 위한 새로운 원칙과..."
     },
     {
       "id": "insidertracking/68496",

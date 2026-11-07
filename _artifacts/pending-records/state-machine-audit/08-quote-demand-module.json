@@ -1,0 +1,18 @@
+{
+  "note": "{VERSION} 상태 머신 감사: 자동 갱신 결과 기록·시세 요청 종목·시세 재시도 수정, _context/STATE-MACHINES.md 신설.",
+  "r": null,
+  "status": null,
+  "qa_section": "상태 머신 감사",
+  "p": {
+    "title": "수신 중에 종목을 붙인 시세 요청이 그 종목을 받지 못함(시세 수요 모듈 신설)",
+    "symptom": "시세 수신이 도는 중에 fetchLiveQuotes(symbols)를 부르면 coalesced만 돌아오고, 그 종목은 도는 수신이 시작 때 읽은 목록에 없어 받지 못했다. repairPageLiveDataBinding의 빠진 종목 복구가 아무 일도 하지 않고 화면이 다음 3분 주기까지 '—'로 남았다.",
+    "root_cause": "시세 요청을 맡는 모듈이 없었다. 10개 파일 12곳이 공급자 수신을 직접 부르고, 합류·종목 목록·재시도·상태 기록이 전역 다섯 개(_aioQuoteInFlight, _aioQuoteRequestSymbols, 보유·기본층, 재시도 쌍)에 흩어져 있었다.",
+    "fix": "src/data/quote-demand.js가 요청을 맡는다: 수신은 하나, 읽은 종목은 합류, 새 종목은 대기열 후속 수신 하나, 등록 종목 포함, 재시도 timer 하나(숨긴 탭 건너뜀), 모든 결과를 스케줄러 quotes 작업 기록에. fetchLiveQuotes 이름은 그대로 seam이 되고 공급자 수신은 _aioFetchLiveQuotesOnce(symbols, {failures})로 retryAfterMs를 알린다. 전역 6개와 보유 호출 3곳 제거.",
+    "violated_rule": "요청한 종목은 그 요청이 돌려받는 수신이 읽는다(STATE-MACHINES SM-04 I4.1)",
+    "prevention": "{P}: scripts/ci-state-machine-regression-check.mjs SM-03a/04b·SM-04·SM-05(모듈 인터페이스, 돌연변이 4종 검출)",
+    "verification": "수신 중 새 종목 요청 → 후속 수신 1회가 그 종목을 받음, 덮인 요청은 같은 결과에 합류, 화면 직접 호출도 quotes 작업에 기록. 수정 전(합류 시 반환) 변이에서 실패."
+  },
+  "changelog": [
+    "**상태 머신 감사 — 시세 수요 모듈 ({P}):** 시세 요청은 한 모듈이 맡아, 수신 중에 들어온 종목도 끝난 직후 받는다."
+  ]
+}

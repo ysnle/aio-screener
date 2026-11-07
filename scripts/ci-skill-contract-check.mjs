@@ -36,7 +36,8 @@ const skills = [
   'create-verification-skill',
   'maintain-verification-skill',
   'verify-aio',
-  'model-check'
+  'model-check',
+  'deepen'
 ];
 const commandForSkill = {
   autoresearch: 'autoresearch.md',
@@ -48,7 +49,8 @@ const commandForSkill = {
   'create-verification-skill': 'create-verification-skill.md',
   'maintain-verification-skill': 'maintain-verification-skill.md',
   'verify-aio': 'verify-aio.md',
-  'model-check': 'model-check.md'
+  'model-check': 'model-check.md',
+  deepen: 'deepen.md'
 };
 const referencesForSkill = {
   autoresearch: ['references/workflow.md', 'references/eval-guide.md'],

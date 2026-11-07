@@ -24,7 +24,7 @@ async function runOnce(browser, run) {
   // Chromium scheduling can delay the rejected fetch callback beyond the
   // nominal retry window. Wait for the deterministic failure counter when it
   // is available, while keeping a bounded timeout for a fully blocked boot.
-  await page.waitForFunction(() => Number(window.fetchLiveQuotes?._failCount || 0) >= 1, { timeout: 10000 }).catch(() => {});
+  await page.waitForFunction(() => Number(window.__aioQuoteDemand?.state().failures || 0) >= 1, { timeout: 10000 }).catch(() => {});
   const early = await page.evaluate(() => {
     const sources = Object.values(window._dataSource || {});
     return {
@@ -34,14 +34,14 @@ async function runOnce(browser, run) {
         className: document.getElementById('live-quote-ts')?.dataset?.currentness || '',
         title: document.getElementById('live-quote-ts')?.getAttribute('title') || ''
       },
-      quoteFailCount: typeof window.fetchLiveQuotes === 'function' ? (window.fetchLiveQuotes._failCount || 0) : null
+      quoteFailCount: window.__aioQuoteDemand ? window.__aioQuoteDemand.state().failures : null
     };
   });
   const earlyQuoteRequests = external.filter((url) => /yahoo|stooq|quote|corsproxy|allorigins|codetabs/i.test(url)).length;
   await new Promise((resolvePromise) => setTimeout(resolvePromise, 2200));
   const lateQuoteRequests = external.filter((url) => /yahoo|stooq|quote|corsproxy|allorigins|codetabs/i.test(url)).length;
   const late = await page.evaluate(() => ({
-    quoteFailCount: typeof window.fetchLiveQuotes === 'function' ? (window.fetchLiveQuotes._failCount || 0) : null,
+    quoteFailCount: window.__aioQuoteDemand ? window.__aioQuoteDemand.state().failures : null,
     topbar: document.getElementById('live-quote-ts')?.textContent || ''
   }));
   await page.close();

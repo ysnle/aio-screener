@@ -693,7 +693,12 @@ function macroThroughLine(read, crossroads) {
   // v59.55 (owner 11/1, alignment pass): the scenario sentence left the lede — the 향후 시나리오 card right below opens with
   // the same lead (scenarioLead), so the header said it twice.
   // v59.51: the header's single next-release answer (crossroads.nextEvent); the separate "다음 주요 발표" line left.
-  const next = crossroads?.nextEvent ? ` 다음 주요 발표는 ${crossroads.nextEvent.when || crossroads.nextEvent.date} ${crossroads.nextEvent.name}입니다.` : '';
+  // v59.74 (weekly outlook review 11/7): the header read "다음 주요 발표는 11/17 소매판매" above a card saying "다음 발표
+  // 11/10 CPI". nextEvent is now the next release; the one that settles the branches in play follows when it differs.
+  const label = (event) => `${event.when || event.date} ${event.name}`;
+  const first = crossroads?.nextEvent || null;
+  const decider = crossroads?.decidingEvent || null;
+  const next = first ? ` 다음 주요 발표는 ${label(first)}입니다.${decider ? ` 지금 맞서는 시나리오를 가를 발표는 ${label(decider)}입니다.` : ''}` : '';
   return `${weigh}${burden.length ? '이고' : ''}, ${quadrant}입니다.${next}`;
 }
 
