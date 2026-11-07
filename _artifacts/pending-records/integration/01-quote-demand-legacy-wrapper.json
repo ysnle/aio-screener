@@ -1,0 +1,18 @@
+{
+  "note": "{VERSION} 통합 검토: 시세 수요 모듈을 덮어쓰던 v20 fetchLiveQuotes 래퍼 제거.",
+  "r": null,
+  "status": null,
+  "qa_section": "상태 머신 감사",
+  "p": {
+    "title": "DOMContentLoaded의 v20 래퍼가 시세 수요 모듈을 덮어써 요청 종목과 결과가 사라짐",
+    "symptom": "#146 병합 뒤 페이지의 window.fetchLiveQuotes가 demand.request가 아니라 js/aio-ui.js의 v20 래퍼였다. 래퍼는 인자 없이 원 함수를 부르고 undefined를 돌려, 스케줄러 run 종목·빠진 종목 복구·검색에서 연 종목([id])이 요청되지 않고 호출자는 결과를 받지 못했다.",
+    "root_cause": "시세 요청의 주인을 quote-demand로 옮기면서, 같은 전역을 DOMContentLoaded에 다시 대입하는 오래된 적응형 래퍼를 찾지 못했다. 이전에는 전역 _aioQuoteRequestSymbols가 종목을 실어 날라 인자 유실이 가려져 있었다.",
+    "fix": "js/aio-ui.js의 v20 래퍼를 지운다. 실패 횟수와 backoff는 quote-demand가 맡는다.",
+    "violated_rule": "요청한 종목은 그 요청이 돌려받는 수신이 읽는다(STATE-MACHINES SM-04 I4.1)",
+    "prevention": "{P}: scripts/ci-state-machine-regression-check.mjs 'SM-04b no legacy script replaces the quote demand seam' — js/*.js·index.html에서 fetchLiveQuotes 대입을 금지(수정 전 코드에서 실패 확인)",
+    "verification": "로컬 정적 서버 + Playwright: 로드 뒤 window.fetchLiveQuotes.toString()이 '(symbols) => demand.request(symbols)'. 수정 전에는 v20 래퍼."
+  },
+  "changelog": [
+    "**통합 검토 — 시세 요청 종목 유실 ({P}):** 오래된 래퍼가 시세 수요 모듈을 덮어써 화면이 요청한 종목을 받지 못하던 문제를 고쳤다."
+  ]
+}
