@@ -43,3 +43,9 @@
 - Held in profiles-kr until their Q3 report: 015760.KS KEPCO (Q2, low confidence, conflicting borrowings), 058470.KQ LEENO (Q2, around 11/13), 039030.KQ EO Technics (Q2, around 11/14).
 - Primary-source gaps: 207940, 329180, 042700, 267260, 010120 and 068270 rest on press reports. Replace them with DART or IR releases when those are reachable.
 - Alias note: '네이버' also matches '네이버페이' (KB rival line). Naver Pay is a NAVER subsidiary, so the link is kept.
+
+## Fallback review (2026-11-07, Codex at its limit)
+
+- Important 3 · Pre-existing 0 · 요청 2. Fixed: NAVER→NVIDIA and Uber→Lucid were in moneyFlow (drawn as supply edges) without a payment, so they now stay as partner/customer lines only. Kia's six profit factors sum to +1,970억, not the +3,560억 increase, and the text now says so. The HD현대중공업 debate line no longer asserts the cause that its own unverified list leaves open. NAVER's estimate with no named aggregator was removed from estimates.
+- Still open (요청 ①): the six press-only Korean stories listed above.
+- Watch: the alias 'RTX' would match "GeForce RTX" if that text ever enters a graph input (NVDA rivals or moneyFlow).
