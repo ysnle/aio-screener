@@ -119,7 +119,7 @@ benchmark-relative-strength remains visible as missing evidence.
 ### P761-P780 continuation (2026-07-22)
 
 - `src/domain/signal/trading-score.js` owns the `signal-from-trading-score.v1` decision envelope; `src/domain/signal/decision.js`, `src/domain/market/model.js`, and `src/domain/screener/ranking.js` are retired.
-- `src/domain/screener/factor-weights.js` owns neutral/risk-on/risk-off/profile weight resolution. `js/aio-data.js:_aioFactorWeights` is a storage/profile bridge only.
+- `src/domain/screener/factor-weights.js` owns neutral/risk-on/risk-off/profile weight resolution. `src/app/trader-profiles.js:_aioFactorWeights` (moved out of js/aio-data.js in v59.40) is a storage/profile bridge only.
 - `src/app/bootstrap.js:getScreenerRows` is the native screener read API. `_aioGetCanonicalScreenerRows()` is the legacy compatibility adapter used by portfolio, ticker, fundamental, chat, watchlist, and audit consumers.
 - `SCREENER_DB` remains the curated identity/memo and legacy data-pipeline compatibility boundary. Its direct non-route reads and runtime factor projection were retired; remaining work is to migrate the identity/memo producers and remove the remaining compatibility surface when their consumers are cut over.
 - P765 removed the missed legacy `_aioRenderQuantReadiness` DOM writer/call and registered the retired symbol in `screener.legacySymbolsMustBeAbsent`; native screener now owns `screener-readiness-note` without an AG-DOM-WRITER exception.
@@ -443,7 +443,7 @@ Shared modules (import these instead of re-declaring): `src/ui/components/dom.js
 | `renderBriefingFeed` | 4994 | 브리핑 입력 무효화 신호만(렌더는 `src/ui/pages/news.js`) |
 | `vixToPercentile` | 14286 | VIX percentile 로그 외삽 |
 | `toggleSignalMode` | 16184 | signal UI mode state |
-| `_aioFactorWeights` | 15342 | storage/profile 입력을 pure `factor-weights.v1`에 연결하는 호환 브릿지 |
+| ~~`_aioFactorWeights`~~ | 이동 (v59.40) | `src/app/trader-profiles.js`로 옮겼다. storage/profile 입력을 pure `factor-weights.v1`에 연결하는 호환 브릿지 |
 | ~~`_aioComputeFactorRanks`~~ | 퇴역 (2026-10-17) | 같은 행을 두 번째로 랭킹하던 legacy wrapper. rank·factorScores는 native screener orchestrator가 canonical row에 싣는다 |
 > P763 correction: deterministic factor-weight math moved to `src/domain/screener/factor-weights.js`; `_aioFactorWeights` now resolves compatibility inputs and bridges the pure result only.
 | `computeFactorRanks` | `src/domain/screener/factor-ranks.js:105` | 순수 7팩터 랭킹: 섹터 z-score·winsorize·활성 factor·percentile rank. global/DOM/storage 접근 없음 |

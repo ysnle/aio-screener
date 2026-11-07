@@ -5,7 +5,7 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 - 배포: `https://ysnle.github.io/aio-screener/`
 - 현재 버전: **v59.73**
 - **버전 이력 → CHANGELOG.md** (v52.62+ 상세, v52.61 이하는 압축 이력 + git 히스토리). 버그 계보 → `_context/BUG-POSTMORTEM.md`(반복 클래스 표 + 압축 원장), 검증 이력 → `_context/QA-CHECKLIST.md`(현행 항목은 상단, §6은 압축 보관).
-- 이 파일에는 버전별 작업 요약을 **누적하지 않는다** (2026-07-18 통합 — CHANGELOG가 단일 출처).
+- 버전별 작업 요약은 CHANGELOG.md에만 쓴다 (2026-07-18 통합 — 단일 출처).
 - 코드 구조: `index.html` 정적 셸 + `js/` 호환 모듈 + `src/` native ESM. 현재 집계는 `_context/CURRENT-STATE.md`, 구간 탐색은 `_context/CODE-MAP.md`를 사용한다.
 - 스택: HTML5 + 인라인 CSS/JS · 공용 SVG 차트 + lightweight-charts(CDN, 종목 차트) · AES-256 · GitHub Pages · 한국어 UI · 아이보리 테마(다크 지원) · WCAG AA
 
@@ -45,8 +45,8 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 - **문서와 코드가 어긋나면 코드 관례를 따른다** — CODE-MAP·스킬·핸드오프·메모리·이 파일의 설명이 지금 코드와 다르면 코드의 관례를 따르고, 최종 답변에 찾은 어긋남을 모두 적는다. 단 `AGENTS.md` 제품 결정·`RULES.md` 정책과 다른 코드는 결함으로 보고한다. 근거: 에이전트는 지시 파일이 낡아도 90% 이상 그쪽을 따르며, 이 한 문장이 코드 준수를 4%→91%로 바꿨다(arXiv 2610.30571, 2026-10-25)
 - **가능성 낮은 경계 사례에 복잡도를 더하지 않는다** — 드문 경합·보안 사례 대비 코드는 실패 양상·가능성·복잡도 비용을 먼저 설명하고 동의를 받은 뒤 넣는다(opencode AGENTS, 2026-10-25)
 - 변경 이유 추적은 `/why`(`node scripts/why-trace.mjs`), 선례 없는 화면 결정은 `/prototype`, 첫 사용자 관점 QA는 `/first-users`, 모듈 깊이·인터페이스 점검은 `/deepen`
-- **자동 배포/커밋 금지** — 사용자가 명시적으로 요청한 경우와 아래 배치 마감 상시 승인에만
-- **코드 전면 재작성 금지** — CODE-MAP/owner registry 기반으로 가장 낮은 공통 원인을 부분 패치
+- **커밋·배포는 사용자가 요청할 때와 아래 배치 마감 상시 승인 때만 한다**
+- **가장 낮은 공통 원인을 부분 패치한다** — CODE-MAP/owner registry로 소유자를 찾고, 전면 재작성 대신 모듈 하나씩 옮긴다
 - **제품 결정·협업 원칙·변경 흐름의 정본은 `AGENTS.md`**: 소유자 요청도 근거로 검토·반대 의견 제시, 8화면 정보구조, 원천 없는 위젯·근거 없는 등급 제거, 느린 데이터 정적화, AI는 gpt-6-luna 공용 Worker(웹검색 포함 월 $20 목표·항상 사용), 종가 기준 점수, 데스크톱·모바일·아이패드 반응형 지원(2026-10-11 재승인), 옵션 퇴역, 티커 추정 금지, 로컬 프로듀서 금지, **main 직접 작업**(단일 작업은 PR 없음, 병렬 스레드는 브랜치 → 통합 때 병합, push는 배치 끝 한 번), 생성물 충돌 해소 스크립트
 - **생성 파일은 손으로 고치지 않는다** — `.claude/agents/*`·`.codex/agents/*`는 `architecture/agent-profiles.json` → `node scripts/sync-agent-profiles.mjs`, `.agents/skills/`는 `.claude/skills/` → `node scripts/sync-agent-skills.mjs`, `CURRENT-STATE`·`CONTEXT-CATALOG`는 `generate-workspace-state --write`, `*.expect.md`는 `node scripts/ci-expect-output-check.mjs --update`(바뀐 출력 diff를 읽고 확인)
 - **기록 순서**: `bump-version` → 항목별 `record-fix` → `generate-workspace-state --write` → 원장·버전·워크스페이스 게이트. 큰 배치는 구현을 모은 뒤 기록·검증을 한 번에
@@ -57,13 +57,12 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 
 - 클라우드 컨테이너는 node_modules 없이, 저장소 Playwright보다 낮은 리비전의 브라우저로 시작한다 — 브라우저 게이트 전에 `node scripts/cloud-session-setup.mjs` 한 번(세션 시작 안내가 필요 여부를 알려 준다)
 - 다른 스레드와 병렬로 일할 때는 `bump-version`·`record-fix`를 돌리지 않고 기록 항목을 `_artifacts/pending-records/<스레드>/`에 두고, 새 assertion은 다음 릴리스(현재+1, 예 v59.56)를 인용한다 — 통합 때 `node scripts/apply-pending-records.mjs --dry-run` 후 `--apply`로 그 릴리스에 한 번에 기록한다(모르는 인자는 실패, `--help`는 출력만)
-- 이 클론도 얕은 클론이다(`--is-shallow-repository` true) — 커밋 존재는 `git cat-file -e`로 본다
+- 클라우드·로컬 클론 모두 얕은 클론이다(`--is-shallow-repository` true) — 얕은 클론 판정으로 검사를 건너뛰지 말고 커밋 존재는 `git cat-file -e`로 본다
 
 ## 환경 주의 (Windows · Git Bash)
 
 - 셸 heredoc·`sed`로 JS를 고치면 `\n` 같은 백슬래시가 사라지거나 실제 줄바꿈이 된다 — Edit 도구로 고치고 `node --check`
 - Node에서 git을 부를 때 `execSync('git rev-parse X^')`는 cmd.exe가 `^`를 먹는다 — `spawnSync('git', [...])`
-- 이 로컬 클론은 `--is-shallow-repository`가 `true`다 — 얕은 클론 판정으로 검사를 건너뛰지 말고 커밋 존재(`git cat-file -e`)로 본다
 - `bump-version` 뒤 `qa-runner affected`는 `version.json` 때문에 브라우저까지 전 그룹(약 9분)을 돈다 — 배치 끝에 한 번, 백그라운드로
 
 ---
@@ -82,16 +81,15 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 | 인사이트 | KNOWLEDGE-BASE (R26) |
 | 리팩토링 ±500줄 | CODE-MAP 재스캔 |
 
-에러 복리 방지: `/knowledge-lint`와 `ci-workspace-contract-check.mjs`를 push·주기 실행에 연결한다. 코드 확인 없이 추측 판단 금지.
+에러 복리 방지: `/knowledge-lint`와 `ci-workspace-contract-check.mjs`를 push·주기 실행에 연결한다.
 
 ---
 
 ## 토큰 효율성
 
-- 인사/칭찬/마무리 멘트 금지 · 질문 되풀이 금지 — 바로 작업
 - 요청 없는 구현·과잉 설계 금지 — 단, 반대 의견과 더 단순한 대안은 먼저 말한다 (AGENTS 협업 원칙)
 - index.html은 CODE-MAP 기반 부분 읽기 · 파일은 한 번만 읽기
-- 모르면 솔직히 말하기 (경로/함수명 날조 금지)
+- 판단은 코드에서 확인한 것으로만 한다. 확인하지 못한 경로·함수명은 모른다고 말한다
 - 대형 RULES/QA/BUG/KNOWLEDGE 원장은 관련 용어만 검색한다. 기본 컨텍스트는 CURRENT-STATE로 제한하고 GOVERNANCE/INDEX와 스킬은 필요한 부분만 읽는다. 승인·완료·병렬 위임 원칙은 AGENTS.md를 따른다.
 - 자동 커밋 훅을 추가하지 않는다. 훅은 파괴 명령 차단과 advisory 검증만 수행한다.
 - 위임·검토 루틴: 서브에이전트 프롬프트는 `.claude/skills/_shared/agent-prompt-anatomy.md`(목표→반환 형식→경고→컨텍스트). 주간 회고 `/retro`, 큰 작업 전 `/restate`(6번 '더 깊게, 더 크게 말고' 4문항 포함), 가정 점검은 `/assumptions`(검증/추정 표시, 적용 전 정지), 큰 배치 뒤에는 새 컨텍스트 `/trim-pr`로 덜어낼 것부터 찾는다.

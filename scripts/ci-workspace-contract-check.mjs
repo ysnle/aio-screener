@@ -45,7 +45,8 @@ for (const guide of ['AGENTS.md', 'CLAUDE.md', '_context/INDEX.md', '_context/CL
   check(`${guide} avoids historical architecture constants`, !/(39,?000\+?|~32,?000|2\.2MB|21개 SPA|라우트 17개|R1~R18|204개 검증|버전 6곳)/i.test(text));
 }
 check('root AGENTS.md stays below the default project-instruction budget', Buffer.byteLength(read('AGENTS.md'), 'utf8') <= 16_000);
-check('root CLAUDE.md stays compact', Buffer.byteLength(read('CLAUDE.md'), 'utf8') <= 16_000);
+// v59.74: ratchet — measured 10,410 B after the writing-for-agents pass; lower it when the file shrinks, raise only with a reason here.
+check('root CLAUDE.md stays compact', Buffer.byteLength(read('CLAUDE.md'), 'utf8') <= 11_000);
 check('context index stays compact', Buffer.byteLength(read('_context/INDEX.md'), 'utf8') <= 24_000);
 check('context guide stays compact', Buffer.byteLength(read('_context/CLAUDE.md'), 'utf8') <= 24_000);
 
