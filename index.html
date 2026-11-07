@@ -1328,7 +1328,7 @@ body.dark-theme .capex-flow-seg { filter: brightness(1.1); }
 .stock-chart-layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: start; }
 .stock-chart-canvas { width: 100%; height: 440px; }
 .stock-chart-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 8px; font-size: 12px; color: var(--text-muted); }
-.stock-chart-legend [class^="lg-"] { color: var(--text-secondary); } .stock-chart-legend .lg-ema8::first-letter { color: var(--teal-11); } .stock-chart-legend .lg-ema::first-letter { color: var(--orange-11); } .stock-chart-legend .lg-50::first-letter, .stock-chart-legend .lg-pivot::first-letter { color: var(--brown-11); } .stock-chart-legend .lg-200::first-letter { color: var(--plum-11); } .stock-chart-legend .lg-pivot { font-weight: 700; }
+.stock-chart-legend [class^="lg-"] { color: var(--text-secondary); }
 .stock-chart-evidence { border: 0.5px solid var(--border); border-radius: 8px; padding: 14px 16px; background: var(--bg-card); }
 .trend-chart-tip { position: absolute; transform: translateX(-50%); padding: 3px 8px; border-radius: 4px; background: var(--text-primary); color: var(--bg-card); font-size: 12px; font-weight: 600; white-space: nowrap; pointer-events: none; }
 .aio-hub-tab { appearance: none; background: none; border: 0; border-bottom: 0.5px solid transparent; margin-bottom: -1px; padding: 10px 0; min-height: 38px; font: inherit; font-size: 12px; color: var(--text-secondary); cursor: pointer; }
@@ -3995,8 +3995,8 @@ button[data-filter-active="true"] {
     </div>
     <div class="stock-chart-layout">
       <div>
-        <div class="stock-chart-canvas" id="stock-chart-canvas" role="img" aria-label="일봉 캔들 차트와 이동평균·피벗·거래량"></div>
-        <div class="stock-chart-legend"><span class="lg-ema8">━ 8일</span><span class="lg-ema">━ 21일</span><span class="lg-50">━ 50일</span><span class="lg-200">┅ 200일</span><span class="lg-pivot" title="피벗: 마지막 수축 구간의 고점">━ 피벗</span><span title="▲▼ 수축 저점, 8일선 이탈·회복, 거래량 갭, 변동성 압축, 과열">▲▼ 신호</span></div>
+        <div class="stock-chart-canvas" id="stock-chart-canvas" role="img" aria-label="캔들 차트와 거래량, 이동평균, 매물대, 추세 구간"></div>
+        <div class="stock-chart-legend"><span class="lg-item">━ 5·10·20·50·100·200 이동평균</span><span class="lg-item">▬ 추세 구간</span><span class="lg-item">▮ 매물대</span></div>
       </div>
       <aside class="stock-chart-evidence" id="stock-chart-evidence" aria-label="차트 근거"></aside>
     </div>
