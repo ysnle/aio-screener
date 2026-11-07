@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-07T02:21:20.414Z",
-  "attemptedAt": "2026-11-07T02:21:20.414Z",
-  "lastSuccessfulAt": "2026-11-07T02:21:20.414Z",
+  "generatedAt": "2026-11-07T04:21:45.360Z",
+  "attemptedAt": "2026-11-07T04:21:45.360Z",
+  "lastSuccessfulAt": "2026-11-07T04:21:45.360Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-24T02:21:14.740Z",
-  "until": "2026-11-07T02:21:14.740Z",
+  "since": "2026-10-24T04:21:39.998Z",
+  "until": "2026-11-07T04:21:39.998Z",
   "current24hWindow": {
     "start": "2026-11-05T23:00:00.000Z",
     "end": "2026-11-06T23:00:00.000Z",
@@ -80,9 +80,9 @@
       "pages": 0,
       "reachedOlder": false,
       "reachedKnown": false,
-      "count": 40,
+      "count": 39,
       "freshCount": 0,
-      "eligibleTextCount": 37,
+      "eligibleTextCount": 36,
       "selectedCount": 22,
       "error": "first page parsed no posts",
       "lastPostId": 26057
@@ -94,10 +94,10 @@
       "reachedKnown": true,
       "count": 1359,
       "freshCount": 39,
-      "eligibleTextCount": 1298,
+      "eligibleTextCount": 1297,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 68609
+      "lastPostId": 68615
     },
     {
       "channel": "bornlupin",
@@ -116,30 +116,30 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 682,
-      "freshCount": 40,
-      "eligibleTextCount": 681,
+      "count": 686,
+      "freshCount": 37,
+      "eligibleTextCount": 685,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 71689
+      "lastPostId": 71699
     }
   ],
-  "count": 2321,
-  "retainedItemCount": 452,
+  "count": 2324,
+  "retainedItemCount": 454,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2321,
-    "eligibleTextCount": 2256,
-    "mediaOnlyCount": 65,
-    "mediaAttachedCount": 487,
-    "photoPostCount": 424,
+    "observedCount": 2324,
+    "eligibleTextCount": 2258,
+    "mediaOnlyCount": 66,
+    "mediaAttachedCount": 490,
+    "photoPostCount": 426,
     "documentPostCount": 2,
     "imageOnlyCount": 2,
-    "highSignalCount": 391,
-    "broadSignalCount": 845,
+    "highSignalCount": 394,
+    "broadSignalCount": 847,
     "selectedRawCount": 390,
     "selectedEligibleCount": 390,
     "selectedRawCoveragePct": 17.3,
@@ -147,33 +147,34 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "macro": 348,
-    "earnings": 406,
-    "geo": 441,
-    "market-note": 851,
-    "semi": 474,
-    "power": 267,
-    "media-only": 64,
-    "equity": 118,
+    "kr-market": 116,
+    "semi": 476,
+    "flows": 65,
+    "power": 269,
+    "market-note": 849,
+    "geo": 443,
+    "credit": 99,
+    "macro": 349,
+    "media-only": 65,
+    "earnings": 405,
+    "equity": 117,
     "healthcare": 72,
     "japan": 77,
-    "ai-policy": 102,
-    "credit": 97,
-    "flows": 64,
-    "kr-market": 115,
+    "ai-policy": 100,
     "optical": 40,
     "crypto": 4
   },
   "tickerCounts": {
-    "NVDA": 113,
+    "NVDA": 114,
+    "TSM": 44,
+    "AMD": 47,
     "DB": 3,
     "MSFT": 58,
     "ORCL": 11,
     "CRWV": 6,
     "GOOG": 114,
     "BE": 12,
-    "TSLA": 32,
-    "TSM": 43,
+    "TSLA": 31,
     "005930.KS": 48,
     "AMAT": 2,
     "MU": 33,
@@ -189,7 +190,6 @@
     "AVGO": 20,
     "AMZN": 76,
     "IONQ": 2,
-    "AMD": 46,
     "GS": 3,
     "BCS": 2,
     "2454.TW": 4,
@@ -258,25 +258,25 @@
     "SHOP": 1
   },
   "themes": [
-    "Market Notes (851 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
-    "Semiconductors/Memory (474 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
-    "Geopolitics (441 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
-    "Earnings/Corporate (406 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
-    "Macro/Rates (348 posts in 14-day research window): 2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000 +0.89% 상승한 반면 다우는 -0.46% 하락하며 성장주 우위 흐름. VIX는 25.64로 9.02%...",
-    "AI Power/Grid (267 posts in 14-day research window): 데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가...",
-    "Equity/Analyst (118 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
-    "Korea Market (115 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
+    "Market Notes (849 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
+    "Semiconductors/Memory (476 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
+    "Geopolitics (443 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
+    "Earnings/Corporate (405 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
+    "Macro/Rates (349 posts in 14-day research window): 2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000 +0.89% 상승한 반면 다우는 -0.46% 하락하며 성장주 우위 흐름. VIX는 25.64로 9.02%...",
+    "AI Power/Grid (269 posts in 14-day research window): 데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가...",
+    "Equity/Analyst (117 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
+    "Korea Market (116 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
   ],
   "catalysts": [
     {
-      "key": "GOOG",
+      "key": "NVDA",
       "count": 114,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 7일 🇺🇸 아메리카 • 연준 무살렘은 현재 인플레이션이 에너지 충격과 AI·데이터센터 투자에 따른 강한 수요의 영향을 받고 있다며, 물가를 적시에 2%로 복귀시켜야 한다고 강조. • 샌프란시스코 연은 데일리는 고용시장이 견조해 인플레이션 억제에 집중할 여력이 있다며 추가..."
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 7일 🇺🇸 아메리카 • 연준 무살렘은 현재 인플레이션이 에너지 충격과 AI·데이터센터 투자에 따른 강한 수요의 영향을 받고 있다며, 물가를 적시에 2%로 복귀시켜야..."
     },
     {
-      "key": "NVDA",
-      "count": 113,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 7일 🇺🇸 아메리카 • 연준 무살렘은 현재 인플레이션이 에너지 충격과 AI·데이터센터 투자에 따른 강한 수요의 영향을 받고 있다며, 물가를 적시에 2%로 복귀시켜야 한다고 강조. • 샌프란시스코 연은 데일리는 고용시장이 견조해 인플레이션 억제에 집중할 여력이 있다며 추가..."
+      "key": "GOOG",
+      "count": 114,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 7일 🇺🇸 아메리카 • 연준 무살렘은 현재 인플레이션이 에너지 충격과 AI·데이터센터 투자에 따른 강한 수요의 영향을 받고 있다며, 물가를 적시에 2%로 복귀시켜야..."
     },
     {
       "key": "AMZN",
@@ -300,13 +300,13 @@
     },
     {
       "key": "AMD",
-      "count": 46,
+      "count": 47,
       "text": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
     },
     {
       "key": "TSM",
-      "count": 43,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 7일 🇺🇸 아메리카 • 연준 무살렘은 현재 인플레이션이 에너지 충격과 AI·데이터센터 투자에 따른 강한 수요의 영향을 받고 있다며, 물가를 적시에 2%로 복귀시켜야 한다고 강조. • 샌프란시스코 연은 데일리는 고용시장이 견조해 인플레이션 억제에 집중할 여력이 있다며 추가..."
+      "count": 44,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 7일 🇺🇸 아메리카 • 연준 무살렘은 현재 인플레이션이 에너지 충격과 AI·데이터센터 투자에 따른 강한 수요의 영향을 받고 있다며, 물가를 적시에 2%로 복귀시켜야..."
     },
     {
       "key": "MU",
@@ -315,7 +315,7 @@
     },
     {
       "key": "TSLA",
-      "count": 32,
+      "count": 31,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) 반도체 · 데이터센터 · 광통신 • 마이크론 (MU) — 장기화된 노동 분쟁으로 대만의 45억 달러 규모 메모리 반도체 공장 건설을 중단한 것으로 보도됨. 해당..."
     },
     {
@@ -336,7 +336,7 @@
       "topics": [
         "macro"
       ],
-      "count": 348,
+      "count": 349,
       "focus": "2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000 +0.89% 상승한 반면 다우는 -0.46% 하락하며 성장주 우위 흐름. VIX는 25.64로 9.02%..."
     },
     {
@@ -345,7 +345,7 @@
       "topics": [
         "geo"
       ],
-      "count": 441,
+      "count": 443,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격..."
     },
     {
@@ -354,8 +354,8 @@
       "topics": [
         "credit"
       ],
-      "count": 97,
-      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 7일 🇺🇸 아메리카 • 연준 무살렘은 현재 인플레이션이 에너지 충격과 AI·데이터센터 투자에 따른 강한 수요의 영향을 받고 있다며, 물가를 적시에 2%로 복귀시켜야 한다고 강조. • 샌프란시스코 연은 데일리는 고용시장이 견조해 인플레이션 억제에 집중할 여력이 있다며 추가..."
+      "count": 99,
+      "focus": "11월 04일 미주인 브리핑 • 나스닥 0.83% 상승 · 엔비디아 시총 5조 달러 회복 • AMD 데이터센터 매출 97% 급증 · 시간 외 6% 상승 • 메타 대규모 회사채 발행 추진 · AI 투자 확대 •..."
     },
     {
       "id": "semi",
@@ -363,7 +363,7 @@
       "topics": [
         "semi"
       ],
-      "count": 474,
+      "count": 476,
       "focus": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
     },
     {
@@ -381,7 +381,7 @@
       "topics": [
         "power"
       ],
-      "count": 267,
+      "count": 269,
       "focus": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가..."
     },
     {
@@ -390,7 +390,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 102,
+      "count": 100,
       "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
@@ -399,7 +399,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 115,
+      "count": 116,
       "focus": "SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
     },
     {
@@ -408,7 +408,7 @@
       "topics": [
         "equity"
       ],
-      "count": 118,
+      "count": 117,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
@@ -426,7 +426,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 406,
+      "count": 405,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -453,7 +453,7 @@
       "topics": [
         "flows"
       ],
-      "count": 64,
+      "count": 65,
       "focus": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (48.33%) 2위: ALPHABET INC CL A (14.78%) 3위: PROSHARES ULTRAPRO..."
     },
     {
@@ -471,7 +471,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 851,
+      "count": 849,
       "focus": "2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며..."
     }
   ],
@@ -810,10 +810,8 @@
       "datetime": "2026-11-06T21:33:08.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "credit",
         "macro",
-        "geo",
-        "semi"
+        "power"
       ],
       "score": 100,
       "hasText": true,
@@ -823,12 +821,12 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 7일 🇺🇸 아메리카 • 연준 무살렘은 현재 인플레이션이 에너지 충격과 AI·데이터센터 투자에 따른 강한 수요의 영향을 받고 있다며, 물가를 적시에 2%로 복귀시켜야...",
       "tickers": [
         "NVDA",
         "GOOG",
         "TSM"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 7일 🇺🇸 아메리카 • 연준 무살렘은 현재 인플레이션이 에너지 충격과 AI·데이터센터 투자에 따른 강한 수요의 영향을 받고 있다며, 물가를 적시에 2%로 복귀시켜야..."
+      ]
     },
     {
       "id": "insidertracking/68528",
@@ -1779,6 +1777,112 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/68615",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68615",
+      "datetime": "2026-11-07T04:09:35.000Z",
+      "localDateKst": "2026-11-07",
+      "tags": [
+        "kr-market"
+      ],
+      "score": 53,
+      "hasText": true,
+      "tickers": [],
+      "summary": "비상계엄 직후보다 더 밀렸다...코스닥 ‘충격’ > 7일 한국거래소에 따르면 코스닥 지수는 전날 34.14포인트(5.03%) 내린 644.27에 장을 마쳤다. 12.3 비상계엄과 탄핵정국 혼란이 한창이던 지난..."
+    },
+    {
+      "id": "HANAchina/71699",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71699",
+      "datetime": "2026-11-07T04:09:02.000Z",
+      "localDateKst": "2026-11-07",
+      "tags": [
+        "semi",
+        "kr-market",
+        "flows",
+        "power"
+      ],
+      "lead": 3,
+      "score": 76,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "TSM"
+      ],
+      "summary": ">>TSMC 목표주가 최대 700대만달러 하향…대만 투자자문사 2곳 보수적 전망, 외국인은 21거래일 연속 순매도 (대만공상시보) •외국인은 6일 TSMC를 478억4,800만 TWD 순매도하며 21거래일..."
+    },
+    {
+      "id": "HANAchina/71693",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71693",
+      "datetime": "2026-11-07T03:35:20.000Z",
+      "localDateKst": "2026-11-07",
+      "tags": [
+        "credit",
+        "macro",
+        "semi"
+      ],
+      "score": 86,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 4,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": ">>AI 자본지출 ‘정점’ 임박, 미국 경제도 함께 정점에 도달하나? (Jefferies) •AI 자본지출이 역사적인 전환점에 가까워지고 있음. Jefferies는 AI 투자가 미국 GDP 성장률 기여분의..."
+    },
+    {
+      "id": "HANAchina/71692",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71692",
+      "datetime": "2026-11-07T03:13:29.000Z",
+      "localDateKst": "2026-11-07",
+      "tags": [
+        "power",
+        "credit",
+        "earnings"
+      ],
+      "lead": 1,
+      "score": 75,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>(상세) 민주당이 데이터센터 열풍을 무너뜨리나? 골드만삭스 ‘역발상 강세’ : 건설 전망 상향 •미국 데이터센터 건설 열풍에 정치적 역풍이 불고 있지만 골드만삭스는 건설 사이클 자체가 끝난 것은 아니라고..."
+    },
+    {
+      "id": "HANAchina/71691",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71691",
+      "datetime": "2026-11-07T02:39:26.000Z",
+      "localDateKst": "2026-11-07",
+      "tags": [
+        "credit",
+        "power"
+      ],
+      "score": 65,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>골드만삭스 ‘역발상 강세’ : 데이터 건설 지출 전망치 상향 •골드만삭스는 역발상으로 미국 데이터센터 건설 지출 전망을 상향 조정. 2026년 전망치를 기존 670억달러에서 800억달러로 올렸으며,..."
+    },
+    {
+      "id": "HANAchina/71690",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71690",
+      "datetime": "2026-11-07T02:37:42.000Z",
+      "localDateKst": "2026-11-07",
+      "tags": [
+        "macro",
+        "semi"
+      ],
+      "score": 68,
+      "hasText": true,
+      "tickers": [
+        "AMD"
+      ],
+      "summary": ">>미국 증시 충격의 한 주! AI 매도 일단 진정됐지만 강한 고용지표에 금리 인상 경고, 금요일 반등은 ‘데드캣 바운스’일까? (중국언론) •미국 증시는 금요일 급락했던 반도체주를 중심으로 기술적 반등을..."
+    },
+    {
       "id": "insidertracking/68605",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/68605",
@@ -2213,7 +2317,7 @@
       "datetime": "2026-11-06T21:37:10.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
@@ -2223,8 +2327,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "2026년 11월 7일 미장 마감 S&P 500 - 7,376.86 +0.31% 다우 30 - 51,285.73 -0.46% 나스닥 - 24,579.42 +1.09% 러셀 2000 - 2,754.11..."
+      "summary": "2026년 11월 7일 미장 마감 S&P 500 - 7,376.86 +0.31% 다우 30 - 51,285.73 -0.46% 나스닥 - 24,579.42 +1.09% 러셀 2000 - 2,754.11...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68570",
@@ -2233,7 +2337,7 @@
       "datetime": "2026-11-06T21:35:42.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "geo"
+        "market-note"
       ],
       "score": 55,
       "hasText": true,
@@ -2243,8 +2347,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "트럼프 SNS 발언 [2026-11-07 오전 3:05] 처음부터 우리와 함께해 온 MAGA 전사 조 그루터스가 공화당 전국위원회(RNC) 위원장 연임에 도전하고 있다. 위원장으로서 조는 RNC를 효율적이고,..."
+      "summary": "트럼프 SNS 발언 [2026-11-07 오전 3:05] 처음부터 우리와 함께해 온 MAGA 전사 조 그루터스가 공화당 전국위원회(RNC) 위원장 연임에 도전하고 있다. 위원장으로서 조는 RNC를 효율적이고,...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68569",
@@ -2254,9 +2358,7 @@
       "localDateKst": "2026-11-07",
       "tags": [
         "macro",
-        "geo",
-        "semi",
-        "power"
+        "geo"
       ],
       "score": 87,
       "hasText": true,
@@ -2266,8 +2368,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 7일 트럼프 발언 · 트럼프 “가장 놀라운 고용 수치를 기록했다” 발언 · 트럼프, 주식시장 손실을 선거 결과 탓으로 돌림 · 트럼프 “이란과..."
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 7일 트럼프 발언 · 트럼프 “가장 놀라운 고용 수치를 기록했다” 발언 · 트럼프, 주식시장 손실을 선거 결과 탓으로 돌림 · 트럼프 “이란과...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68568",
@@ -2276,10 +2378,8 @@
       "datetime": "2026-11-06T21:33:08.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "credit",
         "macro",
-        "geo",
-        "semi"
+        "power"
       ],
       "score": 100,
       "hasText": true,
@@ -2289,12 +2389,12 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 7일 🇺🇸 아메리카 • 연준 무살렘은 현재 인플레이션이 에너지 충격과 AI·데이터센터 투자에 따른 강한 수요의 영향을 받고 있다며, 물가를 적시에 2%로 복귀시켜야...",
       "tickers": [
         "NVDA",
         "GOOG",
         "TSM"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 7일 🇺🇸 아메리카 • 연준 무살렘은 현재 인플레이션이 에너지 충격과 AI·데이터센터 투자에 따른 강한 수요의 영향을 받고 있다며, 물가를 적시에 2%로 복귀시켜야..."
+      ]
     },
     {
       "id": "HANAchina/71672",
@@ -2702,10 +2802,7 @@
       "datetime": "2026-11-06T08:12:35.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "semi",
-        "optical",
-        "power",
-        "kr-market"
+        "market-note"
       ],
       "score": 77,
       "hasText": true,
@@ -2715,10 +2812,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "중화권 마감 시황 (26.11.06, 금) 🇨🇳 중국 본토 증시는 간밤 뉴욕 증시의 2.5조 달러 증발 쇼크와 글로벌 AI 하드웨어 투매 여파로 기술주를 중심으로 하락하며 조정을 겪음. 양대 시장...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "중화권 마감 시황 (26.11.06, 금) 🇨🇳 중국 본토 증시는 간밤 뉴욕 증시의 2.5조 달러 증발 쇼크와 글로벌 AI 하드웨어 투매 여파로 기술주를 중심으로 하락하며 조정을 겪음. 양대 시장..."
+      ]
     },
     {
       "id": "insidertracking/68520",
@@ -2749,10 +2846,8 @@
       "datetime": "2026-11-06T07:02:28.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "japan",
-        "macro"
+        "japan"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
       "media": {
@@ -2761,8 +2856,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>AI 거래 조정 시, 최적의 헤지 수단은 엔화? •골드만삭스의 핵심 논리는 2000년 이후 20차례의 주식·채권 동반 하락 사례에서 엔화가 모두 가장 강한 롱 통화였다는 것임. 캐리 트레이드 청산..."
+      "summary": ">>AI 거래 조정 시, 최적의 헤지 수단은 엔화? •골드만삭스의 핵심 논리는 2000년 이후 20차례의 주식·채권 동반 하락 사례에서 엔화가 모두 가장 강한 롱 통화였다는 것임. 캐리 트레이드 청산...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71651",
@@ -2771,15 +2867,12 @@
       "datetime": "2026-11-06T06:26:22.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "kr-market"
+        "market-note"
       ],
       "score": 93,
       "hasText": true,
-      "tickers": [],
-      "summary": "하나증권 중국/신흥국전략 김경환(T.02-3771-7616) *텔레그램 채널 : [김경환의 China Weekly] 민주당 압승과 홍콩 증시 상승, 우연일까? 자료: • 트럼프의 참패와 블루 웨이브, 중화권..."
+      "summary": "하나증권 중국/신흥국전략 김경환(T.02-3771-7616) *텔레그램 채널 : [김경환의 China Weekly] 민주당 압승과 홍콩 증시 상승, 우연일까? 자료: • 트럼프의 참패와 블루 웨이브, 중화권...",
+      "tickers": []
     },
     {
       "id": "bornlupin/21027",
@@ -2877,7 +2970,6 @@
       "tags": [
         "macro"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
       "media": {
@@ -2886,8 +2978,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>유가 20% 급락했는데 금값은 왜 반대로 급등했나? 골드만삭스 : 금은 ‘역방향 원유 거래’ •브렌트유가 한 주간 약 20% 급락한 가운데 금값은 3% 이상 반등함. 골드만삭스는 금이 원유의 ‘거울..."
+      "summary": ">>유가 20% 급락했는데 금값은 왜 반대로 급등했나? 골드만삭스 : 금은 ‘역방향 원유 거래’ •브렌트유가 한 주간 약 20% 급락한 가운데 금값은 3% 이상 반등함. 골드만삭스는 금이 원유의 ‘거울...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/21023",
@@ -6533,26 +6626,6 @@
       ]
     },
     {
-      "id": "insidertracking/68182",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68182",
-      "datetime": "2026-11-03T07:29:55.000Z",
-      "localDateKst": "2026-11-03",
-      "tags": [
-        "earnings"
-      ],
-      "score": 63,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "Saudi Aramco 2026년 3분기 실적 요약 실적 • 순이익 $362.52억, YoY +34.6%, QoQ +10.9% • 조정 순이익 $311.98억, YoY +9.2%, QoQ -6.6% •...",
-      "tickers": []
-    },
-    {
       "id": "HANAchina/71472",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71472",
@@ -7715,20 +7788,6 @@
       ]
     },
     {
-      "id": "HANAchina/71367",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71367",
-      "datetime": "2026-11-02T00:06:57.000Z",
-      "localDateKst": "2026-11-02",
-      "tags": [
-        "market-note"
-      ],
-      "score": 67,
-      "hasText": true,
-      "summary": ">>미국 중간선거, 민주당의 ‘싹쓸이’는 이미 시장에 반영됐지만 ‘압승’은 아직 미반영 (BofA) •BofA의 Hartnett는 지난 9월 민주당이 의회를 싹쓸이할 경우 증시 급락과 AI 버블 붕괴를 초래할...",
-      "tickers": []
-    },
-    {
       "id": "bornlupin/20931",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20931",
@@ -7761,85 +7820,6 @@
       "hasText": true,
       "summary": "Axios, 미국·이란 협상에 관여한 외교관 인용 “협상은 긍정적인 진전을 보였으며, 중재국들은 양측 사이에 여전히 남아 있는 입장 차이와 우려 사항을 해소하기 위해 노력하고 있다.” 미국·이란 전쟁 종식을...",
       "tickers": []
-    },
-    {
-      "id": "HANAchina/71365",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71365",
-      "datetime": "2026-11-01T22:53:36.000Z",
-      "localDateKst": "2026-11-02",
-      "tags": [
-        "semi",
-        "kr-market"
-      ],
-      "score": 76,
-      "hasText": true,
-      "summary": ">UMC 생산능력 포화, 삼성전자 긴급 주문 거절 (대만경제일보) •최근 시장에서는 Samsung이 스마트폰 판매 호조로 UMC(2303)에 OLED 디스플레이 구동칩 생산을 1만 장 이상 긴급 추가...",
-      "lead": 2,
-      "tickers": [
-        "005930.KS"
-      ]
-    },
-    {
-      "id": "HANAchina/71363",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71363",
-      "datetime": "2026-11-01T21:58:48.000Z",
-      "localDateKst": "2026-11-02",
-      "tags": [
-        "semi",
-        "ai-policy"
-      ],
-      "score": 87,
-      "hasText": true,
-      "summary": "> >OpenAI, 자체 ASIC 및 Stargate 추진 가속화…Sam Altman 대만 재방문, AI 공급망 협력 확대 (대만공상시보) •OpenAI CEO Sam Altman이 자체 ASIC 개발과...",
-      "lead": 2,
-      "tickers": [
-        "AVGO",
-        "TSM",
-        "ORCL"
-      ]
-    },
-    {
-      "id": "HANAchina/71353",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71353",
-      "datetime": "2026-11-01T12:25:13.000Z",
-      "localDateKst": "2026-11-01",
-      "tags": [
-        "semi"
-      ],
-      "score": 63,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": ">>메모리는 ‘기술주의 피난처’인가? Nomura “2027년 예상 PER 2~3배에 불과” •Nomura는 메모리 공급 부족이 2028년까지 지속되고, 주주환원도 성장 국면에 진입할 것으로 전망함. 그러나...",
-      "lead": 1,
-      "tickers": [
-        "005930.KS",
-        "000660.KS"
-      ]
-    },
-    {
-      "id": "HANAchina/71348",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71348",
-      "datetime": "2026-11-01T11:45:13.000Z",
-      "localDateKst": "2026-11-01",
-      "tags": [
-        "equity"
-      ],
-      "score": 57,
-      "hasText": true,
-      "summary": ">>(상세) 무라타, MLCC 증설에 1조 엔 투자…AI 서버 한 대에 최대 2만5,000개 사용 (대만공상시보) •AI 서버 수요 급증으로 MLCC 공급 부족이 심화되면서 Murata...",
-      "lead": 1,
-      "tickers": [
-        "6981.T"
-      ]
     },
     {
       "id": "bornlupin/20927",
@@ -9186,7 +9166,7 @@
       "datetime": "2026-11-06T21:37:10.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
@@ -9196,8 +9176,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "2026년 11월 7일 미장 마감 S&P 500 - 7,376.86 +0.31% 다우 30 - 51,285.73 -0.46% 나스닥 - 24,579.42 +1.09% 러셀 2000 - 2,754.11..."
+      "summary": "2026년 11월 7일 미장 마감 S&P 500 - 7,376.86 +0.31% 다우 30 - 51,285.73 -0.46% 나스닥 - 24,579.42 +1.09% 러셀 2000 - 2,754.11...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68570",
@@ -9206,7 +9186,7 @@
       "datetime": "2026-11-06T21:35:42.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "geo"
+        "market-note"
       ],
       "score": 55,
       "hasText": true,
@@ -9216,8 +9196,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "트럼프 SNS 발언 [2026-11-07 오전 3:05] 처음부터 우리와 함께해 온 MAGA 전사 조 그루터스가 공화당 전국위원회(RNC) 위원장 연임에 도전하고 있다. 위원장으로서 조는 RNC를 효율적이고,..."
+      "summary": "트럼프 SNS 발언 [2026-11-07 오전 3:05] 처음부터 우리와 함께해 온 MAGA 전사 조 그루터스가 공화당 전국위원회(RNC) 위원장 연임에 도전하고 있다. 위원장으로서 조는 RNC를 효율적이고,...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68569",
@@ -9227,9 +9207,7 @@
       "localDateKst": "2026-11-07",
       "tags": [
         "macro",
-        "geo",
-        "semi",
-        "power"
+        "geo"
       ],
       "score": 87,
       "hasText": true,
@@ -9239,8 +9217,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 7일 트럼프 발언 · 트럼프 “가장 놀라운 고용 수치를 기록했다” 발언 · 트럼프, 주식시장 손실을 선거 결과 탓으로 돌림 · 트럼프 “이란과..."
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 7일 트럼프 발언 · 트럼프 “가장 놀라운 고용 수치를 기록했다” 발언 · 트럼프, 주식시장 손실을 선거 결과 탓으로 돌림 · 트럼프 “이란과...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68568",
@@ -9249,10 +9227,8 @@
       "datetime": "2026-11-06T21:33:08.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "credit",
         "macro",
-        "geo",
-        "semi"
+        "power"
       ],
       "score": 100,
       "hasText": true,
@@ -9262,12 +9238,12 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 7일 🇺🇸 아메리카 • 연준 무살렘은 현재 인플레이션이 에너지 충격과 AI·데이터센터 투자에 따른 강한 수요의 영향을 받고 있다며, 물가를 적시에 2%로 복귀시켜야...",
       "tickers": [
         "NVDA",
         "GOOG",
         "TSM"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 7일 🇺🇸 아메리카 • 연준 무살렘은 현재 인플레이션이 에너지 충격과 AI·데이터센터 투자에 따른 강한 수요의 영향을 받고 있다며, 물가를 적시에 2%로 복귀시켜야..."
+      ]
     },
     {
       "id": "HANAchina/71672",
@@ -9675,10 +9651,7 @@
       "datetime": "2026-11-06T08:12:35.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "semi",
-        "optical",
-        "power",
-        "kr-market"
+        "market-note"
       ],
       "score": 77,
       "hasText": true,
@@ -9688,10 +9661,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "중화권 마감 시황 (26.11.06, 금) 🇨🇳 중국 본토 증시는 간밤 뉴욕 증시의 2.5조 달러 증발 쇼크와 글로벌 AI 하드웨어 투매 여파로 기술주를 중심으로 하락하며 조정을 겪음. 양대 시장...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "중화권 마감 시황 (26.11.06, 금) 🇨🇳 중국 본토 증시는 간밤 뉴욕 증시의 2.5조 달러 증발 쇼크와 글로벌 AI 하드웨어 투매 여파로 기술주를 중심으로 하락하며 조정을 겪음. 양대 시장..."
+      ]
     },
     {
       "id": "insidertracking/68520",
@@ -9722,10 +9695,8 @@
       "datetime": "2026-11-06T07:02:28.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "japan",
-        "macro"
+        "japan"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
       "media": {
@@ -9734,8 +9705,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>AI 거래 조정 시, 최적의 헤지 수단은 엔화? •골드만삭스의 핵심 논리는 2000년 이후 20차례의 주식·채권 동반 하락 사례에서 엔화가 모두 가장 강한 롱 통화였다는 것임. 캐리 트레이드 청산..."
+      "summary": ">>AI 거래 조정 시, 최적의 헤지 수단은 엔화? •골드만삭스의 핵심 논리는 2000년 이후 20차례의 주식·채권 동반 하락 사례에서 엔화가 모두 가장 강한 롱 통화였다는 것임. 캐리 트레이드 청산...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71651",
@@ -9744,15 +9716,12 @@
       "datetime": "2026-11-06T06:26:22.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "kr-market"
+        "market-note"
       ],
       "score": 93,
       "hasText": true,
-      "tickers": [],
-      "summary": "하나증권 중국/신흥국전략 김경환(T.02-3771-7616) *텔레그램 채널 : [김경환의 China Weekly] 민주당 압승과 홍콩 증시 상승, 우연일까? 자료: • 트럼프의 참패와 블루 웨이브, 중화권..."
+      "summary": "하나증권 중국/신흥국전략 김경환(T.02-3771-7616) *텔레그램 채널 : [김경환의 China Weekly] 민주당 압승과 홍콩 증시 상승, 우연일까? 자료: • 트럼프의 참패와 블루 웨이브, 중화권...",
+      "tickers": []
     },
     {
       "id": "bornlupin/21027",
@@ -9850,7 +9819,6 @@
       "tags": [
         "macro"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
       "media": {
@@ -9859,8 +9827,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>유가 20% 급락했는데 금값은 왜 반대로 급등했나? 골드만삭스 : 금은 ‘역방향 원유 거래’ •브렌트유가 한 주간 약 20% 급락한 가운데 금값은 3% 이상 반등함. 골드만삭스는 금이 원유의 ‘거울..."
+      "summary": ">>유가 20% 급락했는데 금값은 왜 반대로 급등했나? 골드만삭스 : 금은 ‘역방향 원유 거래’ •브렌트유가 한 주간 약 20% 급락한 가운데 금값은 3% 이상 반등함. 골드만삭스는 금이 원유의 ‘거울...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/21023",

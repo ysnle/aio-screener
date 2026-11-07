@@ -1,6 +1,223 @@
 {
-  "schemaVersion": "aio-freshness.v1",
-  "workflow": "refresh-data.yml",
-  "writtenAt": null,
-  "artifacts": {}
+ "schemaVersion": "aio-freshness.v1",
+ "workflow": "refresh-data.yml",
+ "writtenAt": "2026-11-07T04:21:54.702Z",
+ "artifacts": {
+  "data.json": {
+   "expectedEveryMinutes": 30,
+   "staleAfterMinutes": 720,
+   "workflow": "refresh-data.yml",
+   "producer": "scripts/fetch-data.mjs",
+   "producedAt": "2026-11-07T04:21:04.864Z",
+   "checkedAt": "2026-11-07T04:21:54.702Z",
+   "basisSession": null,
+   "lastAttempt": {
+    "at": "2026-11-07T04:21:54.702Z",
+    "status": "updated"
+   }
+  },
+  "history.json": {
+   "expectedEveryMinutes": 30,
+   "staleAfterMinutes": 4320,
+   "workflow": "refresh-data.yml",
+   "producer": "scripts/producer/history.mjs",
+   "producedAt": null,
+   "checkedAt": "2026-11-07T04:21:54.702Z",
+   "basisSession": null,
+   "lastAttempt": {
+    "at": "2026-11-07T04:21:54.702Z",
+    "status": "updated"
+   }
+  },
+  "market-snapshot.json": {
+   "expectedEveryMinutes": 30,
+   "staleAfterMinutes": 1440,
+   "workflow": "refresh-data.yml",
+   "producer": "scripts/fetch-data.mjs",
+   "producedAt": "2026-11-07T04:21:04.864Z",
+   "checkedAt": "2026-11-07T04:21:54.702Z",
+   "basisSession": null,
+   "lastAttempt": {
+    "at": "2026-11-07T04:21:54.702Z",
+    "status": "updated"
+   }
+  },
+  "macro-history.json": {
+   "expectedEveryMinutes": 30,
+   "staleAfterMinutes": 5760,
+   "workflow": "refresh-data.yml",
+   "producer": "scripts/producer/macro-history.mjs",
+   "producedAt": "2026-11-07T02:21:02.046Z",
+   "checkedAt": "2026-11-07T04:21:54.702Z",
+   "basisSession": null,
+   "lastAttempt": {
+    "at": "2026-11-07T04:21:54.702Z",
+    "status": "unchanged"
+   }
+  },
+  "rotation-detail.json": {
+   "expectedEveryMinutes": 30,
+   "staleAfterMinutes": 5760,
+   "workflow": "refresh-data.yml",
+   "producer": "scripts/fetch-data.mjs",
+   "producedAt": "2026-11-07T04:21:05.826Z",
+   "checkedAt": "2026-11-07T04:21:54.702Z",
+   "basisSession": null,
+   "lastAttempt": {
+    "at": "2026-11-07T04:21:54.702Z",
+    "status": "updated"
+   }
+  },
+  "macro-calendar.json": {
+   "expectedEveryMinutes": 30,
+   "staleAfterMinutes": 5760,
+   "workflow": "refresh-data.yml",
+   "producer": "scripts/fetch-data.mjs",
+   "producedAt": "2026-11-07T02:21:02.046Z",
+   "checkedAt": "2026-11-07T04:21:54.702Z",
+   "basisSession": null,
+   "lastAttempt": {
+    "at": "2026-11-07T04:21:54.702Z",
+    "status": "unchanged"
+   }
+  },
+  "telegram-digest.json": {
+   "expectedEveryMinutes": 30,
+   "staleAfterMinutes": 720,
+   "workflow": "refresh-data.yml",
+   "producer": "scripts/fetch-telegram-digest.mjs",
+   "producedAt": "2026-11-07T04:21:45.360Z",
+   "checkedAt": "2026-11-07T04:21:54.702Z",
+   "basisSession": null,
+   "lastAttempt": {
+    "at": "2026-11-07T04:21:54.702Z",
+    "status": "updated"
+   }
+  },
+  "official-references.json": {
+   "expectedEveryMinutes": 720,
+   "staleAfterMinutes": 2880,
+   "workflow": "refresh-data.yml",
+   "producer": "scripts/refresh-web-research.mjs",
+   "producedAt": "2026-11-07T04:21:47.600Z",
+   "checkedAt": "2026-11-07T04:21:54.702Z",
+   "basisSession": null,
+   "lastAttempt": {
+    "at": "2026-11-07T04:21:54.702Z",
+    "status": "updated"
+   }
+  },
+  "market-temperature.json": {
+   "expectedEveryMinutes": 240,
+   "staleAfterMinutes": 5760,
+   "workflow": "refresh-data.yml",
+   "producer": "scripts/build-market-temperature.mjs",
+   "producedAt": "2026-11-07T00:22:01.744Z",
+   "checkedAt": "2026-11-07T00:22:01.744Z",
+   "basisSession": null,
+   "lastAttempt": {
+    "at": "2026-11-07T04:21:54.702Z",
+    "status": "not-written"
+   }
+  },
+  "scenario-state.json": {
+   "expectedEveryMinutes": 30,
+   "staleAfterMinutes": 2880,
+   "workflow": "refresh-data.yml",
+   "producer": "scripts/build-scenario-state.mjs",
+   "producedAt": "2026-11-07T04:21:48.677Z",
+   "checkedAt": "2026-11-07T04:21:54.702Z",
+   "basisSession": {
+    "US": "2026-11-06",
+    "KR": "2026-11-06"
+   },
+   "lastAttempt": {
+    "at": "2026-11-07T04:21:54.702Z",
+    "status": "updated"
+   }
+  },
+  "today-verdict.json": {
+   "expectedEveryMinutes": 30,
+   "staleAfterMinutes": 2880,
+   "workflow": "refresh-data.yml",
+   "producer": "scripts/build-scenario-state.mjs",
+   "producedAt": "2026-11-07T02:21:23.054Z",
+   "checkedAt": "2026-11-07T04:21:54.702Z",
+   "basisSession": {
+    "US": "2026-11-06"
+   },
+   "lastAttempt": {
+    "at": "2026-11-07T04:21:54.702Z",
+    "status": "unchanged"
+   }
+  },
+  "market-day.json": {
+   "expectedEveryMinutes": 30,
+   "staleAfterMinutes": 2880,
+   "workflow": "refresh-data.yml",
+   "producer": "scripts/build-market-day.mjs",
+   "producedAt": "2026-11-07T04:21:49.056Z",
+   "checkedAt": "2026-11-07T04:21:54.702Z",
+   "basisSession": {
+    "US": "2026-11-06",
+    "KR": "2026-11-06"
+   },
+   "lastAttempt": {
+    "at": "2026-11-07T04:21:54.702Z",
+    "status": "updated"
+   }
+  },
+  "stress-outcomes.json": {
+   "expectedEveryMinutes": 1440,
+   "staleAfterMinutes": 20160,
+   "workflow": "refresh-data.yml",
+   "producer": "scripts/build-stress-outcomes.mjs",
+   "producedAt": "2026-11-04T02:52:38.060Z",
+   "checkedAt": "2026-11-04T02:52:38.060Z",
+   "basisSession": null,
+   "lastAttempt": {
+    "at": "2026-11-07T04:21:54.702Z",
+    "status": "not-written"
+   }
+  },
+  "scenario-outcomes.json": {
+   "expectedEveryMinutes": 1440,
+   "staleAfterMinutes": 20160,
+   "workflow": "refresh-data.yml",
+   "producer": "scripts/build-scenario-outcomes.mjs",
+   "producedAt": "2026-10-31T12:21:45.474Z",
+   "checkedAt": "2026-10-31T12:21:45.474Z",
+   "basisSession": null,
+   "lastAttempt": {
+    "at": "2026-11-07T04:21:54.702Z",
+    "status": "not-written"
+   }
+  },
+  "reconciliation-status.json": {
+   "expectedEveryMinutes": 30,
+   "staleAfterMinutes": 1440,
+   "workflow": "refresh-data.yml",
+   "producer": "scripts/build-reconciliation-status.mjs",
+   "producedAt": "2026-11-07T04:21:39.234Z",
+   "checkedAt": "2026-11-07T04:21:54.702Z",
+   "basisSession": null,
+   "lastAttempt": {
+    "at": "2026-11-07T04:21:54.702Z",
+    "status": "updated"
+   }
+  },
+  "operations-status.json": {
+   "expectedEveryMinutes": 30,
+   "staleAfterMinutes": 1440,
+   "workflow": "refresh-data.yml",
+   "producer": "scripts/build-operations-status.mjs",
+   "producedAt": "2026-11-07T04:21:39.256Z",
+   "checkedAt": "2026-11-07T04:21:54.702Z",
+   "basisSession": null,
+   "lastAttempt": {
+    "at": "2026-11-07T04:21:54.702Z",
+    "status": "updated"
+   }
+  }
+ }
 }
