@@ -4,7 +4,6 @@ import { subscribeToSlices } from '../../state/memoize.js';
 import { selectSentimentValues } from '../../state/selectors/sentiment.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { renderRegimePage, renderHomeRegime, readMarketRegime } from '../components/market-regime.js';
-import { installStockChart } from '../components/stock-chart.js';
 import { renderDailyLoop } from '../components/daily-loop.js';
 import { renderKoreaParticipation } from '../components/korea-participation.js';
 import { alignInput, buildCloseSeries, closeBasis, isUsable } from '../../domain/briefing/market-read.js';
@@ -13,6 +12,26 @@ import { renderKnowledgeArrival, clearKnowledgeArrival } from '../components/kno
 import { renderHomeVix } from '../components/home-vix.js';
 import { readNumber as finite } from '../../domain/shared/number.js';
 import { historyWaitText } from '../components/data-state.js';
+
+// v59.75: the stock chart is a route-only chunk. Like createLazyPage (v57.55 S1-F14), a failed load (GitHub Pages 429, a
+// chunk missing after a deploy) is retried twice with a growing pause; after that the section says so instead of
+// keeping an empty canvas and 판정 대기. Only the import is caught: an error inside installStockChart still surfaces.
+let stockChartModule = null;
+function loadStockChart(delays = [1500, 6000]) {
+  if (stockChartModule) return stockChartModule;
+  const attempt = (n = 0) => import('../components/stock-chart.js').catch((error) => {
+    if (n >= delays.length) throw error;
+    return new Promise((resolve) => setTimeout(resolve, delays[n])).then(() => attempt(n + 1));
+  });
+  stockChartModule = attempt().catch((error) => { stockChartModule = null; throw error; });
+  return stockChartModule;
+}
+function showStockChartLoadFailure(doc) {
+  const status = doc?.getElementById('stock-chart-status');
+  if (status) status.textContent = '차트를 불러오지 못했습니다. 화면을 다시 열면 다시 시도합니다.';
+  const state = doc?.getElementById('stock-chart-state');
+  if (state) state.hidden = true;
+}
 
 
 // RM-01 (2026-07-19): home and technical secondary/chart surfaces remain compatibility
@@ -92,7 +111,9 @@ function render({ root, documentRef, store, route }) {
       page.dataset.aioArchitectureRenderer = 'native';
       page.dataset.aioTechnicalRenderer = 'native';
       renderTechnicalHealth({ documentRef, root });
-      installStockChart({ documentRef, root }); // P1397: idempotent (installs once per #stock-chart-section, v57.76)
+      // v59.75: the stock chart (~115 KB with its layers, drawings and analysis chunks) loads with the 차트 route only.
+      // A static import pulled it into every analysis-slice route, so 오늘 and 시장 신호 fetched it in their first 6.5 s.
+      loadStockChart().then(({ installStockChart }) => installStockChart({ documentRef, root }), () => showStockChartLoadFailure(documentRef)); // P1397: idempotent (installs once per #stock-chart-section, v57.76)
     }
     if (route === 'home') {
       page.dataset.aioArchitectureRenderer = 'native';
