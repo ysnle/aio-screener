@@ -48,6 +48,7 @@ export function buildNarrativeCards({ narratives = null, crossroads = null, less
     const lead = branches[0] || null;
     const support = branchSupport(lead);
     const attention = [`리서치 채널 ${narratives.windowHours || 72}시간 ${story.telegramCount}건`, `24시간 ${story.recentCount}건(${TREND_WORDS[story.trend] || '비슷함'})`,
+      story.newsCount ? `뉴스 보도 ${story.newsCount}건` : null,
       story.rumorCount || story.unconfirmedCount ? `루머·익명 소식통 ${story.rumorCount + story.unconfirmedCount}건` : null].filter(Boolean).join(' · ');
     const movers = (story.movers || []).map((row) => `${row.sym} 5거래일 ${signedPct(row.ret5d)}`);
     // The one line. A story does not carry its own direction (a memory story can be a shortage or a glut), so it is never

@@ -1569,6 +1569,16 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
           || !/지표로 아직 확인되지 않습니다/.test(oilCard?.line || '') || !/많이 오가는 것과 맞는 것은 다릅니다/.test(oilCard?.line || '')) {
           fail(`v59.70: narratives broke ${JSON.stringify({ memory, mem: memCard?.line, oil: oilCard?.line })}`);
         }
+        // v59.74 (site QA 11/7): wire headlines are a source. A "blue wave" burst with no relayed post still forms the
+        // politics story, its headline count is capped in the weight, and a headline outside the window is not counted.
+        {
+          const headline = (title, hoursAgo) => ({ title, pubDate: new Date(nowN - hoursAgo * 3600000).toISOString() });
+          const news = [headline("'블루웨이브 쇼크'에 세계증시 시총 증발", 3), headline('Tech stocks plummet after midterm elections', 5),
+            headline("Democrats' midterm gains hang over data centers", 6), ...Array.from({ length: 9 }, (_, i) => headline(`Blue wave sell-off ${i}`, 8)),
+            headline('Midterm elections preview', 100)];
+          const politics = detectNarratives({ telegramDigest: { current24hItems: [] }, screener: { data: {} }, news, nowMs: nowN }).find((row) => row.id === 'us-politics');
+          if (politics?.newsCount !== 12 || politics.weight !== 6 || politics.telegramCount !== 0) fail(`v59.74: wire headlines did not form the politics story ${JSON.stringify(politics)}`);
+        }
         // v59.70 '바뀐 점': the change is read against the latest earlier KST day, not the minutes-old previous run; a
         // second run the same day replaces today's entry and keeps the same baseline.
         const { narrativeDayLog } = await load('src/domain/narrative/narratives.js');

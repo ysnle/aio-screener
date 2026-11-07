@@ -1523,9 +1523,13 @@ async function handleWorkersAiTranslate(request, env) {
   if (!await enforceRateLimit(env, 'RATE_LIMIT_WORKERS_AI', workersAiRateLimitMap, WORKERS_AI_TRANSLATE_PER_MINUTE, 'automation')) return privateOperatorResponse({ error: 'rate-limit' }, 429);
   if (!env?.AI || typeof env.AI.run !== 'function') return privateOperatorResponse({ error: 'workers-ai-unbound' }, 503);
   let titles;
+  let glossary = '';
   try {
     const body = JSON.parse(await readBoundedAiRequestBody(request, 32 * 1024));
     titles = Array.isArray(body?.titles) ? body.titles : null;
+    // v59.74 (site QA 11/7: 'Muted AI Rebound' → '미묘한 AI 반등', 'Earnings Beat' → '실적 상승'): the producer sends the
+    // shared market glossary (src/domain/briefing/headline-terms.js) so the free model gets the same terms as the paid one.
+    glossary = typeof body?.glossary === 'string' ? body.glossary.replace(/[\u0000-\u001f]/g, ' ').slice(0, 2000).trim() : '';
   } catch (error) {
     if (error?.status === 413) return privateOperatorResponse({ error: 'body-too-large' }, 413);
     titles = null;
@@ -1541,7 +1545,9 @@ async function handleWorkersAiTranslate(request, env) {
       model = candidate;
       try {
         result = await env.AI.run(model, { max_tokens: Math.min(2400, 400 + titles.length * 100), temperature: 0.1, messages: [
-          { role: 'system', content: '너는 금융 뉴스 번역가다. 영어 헤드라인을 자연스러운 한국어 기사 제목으로 옮긴다. 고유명사·티커·숫자는 그대로 두고, 뜻을 더하거나 빼지 않는다. 출력은 JSON 문자열 배열 하나뿐이다.' },
+          { role: 'system', content: ['너는 금융 뉴스 번역가다. 영어 헤드라인을 한국 경제지 기사 제목처럼 옮긴다. 고유명사·티커·숫자는 그대로 두고, 뜻을 더하거나 빼지 않는다.',
+            "제목체로 쓴다: '~하고 있다', '~이다' 같은 서술 문장 대신 명사형이나 '…'로 잇고, 직역투(예: 'oil prices' → '오일 가격')를 피한다.",
+            glossary ? `시장 용어는 다음처럼 옮긴다: ${glossary}.` : '', '출력은 JSON 문자열 배열 하나뿐이다.'].filter(Boolean).join('\n') },
           { role: 'user', content: `입력과 같은 순서로 정확히 ${titles.length}개를 JSON 배열로만 출력하라.\n${JSON.stringify(titles)}` }
         ] });
         break;

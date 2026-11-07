@@ -92,7 +92,7 @@ target_version: version.json
 | 2026-11-01 | 텔레그램 글은 원문을 붙이지 않고 가공된 사실로만 분석에 통합 | v59.55 | 유지 | RULES C14 |
 | 2026-11-04 | OpenDART 키 없음: 한국 재무(kr-fundamentals)는 숨기고 0행 파일을 쓰지 않는다. 한국 투자자 수급 원천은 Naver | 소유자 메시지 2026-11-04 "Naver로 교체" | 유지 | 코드 |
 | 2026-11-04 | Cboe 풋/콜 수집 중단·화면 퇴역(Cboe 이용 약관), Worker 허용 도메인에서 cdn.cboe.com 제거 | 소유자 메시지 2026-11-04 | 유지 | 코드, Worker 허용 목록 |
-| 2026-11-04 | 'AI 주도' 대리 지표는 SOXX(개인 투자자 대표성), 판단 밖 SMH 참조도 SOXX로 통일 | 소유자 메시지 2026-11-04 "SOXX로 하자" | 유지 | 코드 |
+| 2026-11-04 | 'AI 주도' 대리 지표는 SOXX(개인 투자자 대표성), 판단 밖 SMH 참조도 SOXX로 통일. 반도체 기준은 확정 — SOXX는 반도체 대표 지수 SOX를 대신하는 ETF(2021년부터 NYSE 반도체 지수 추종, 움직임은 SOX와 거의 같음)로 보고 다시 묻지 않는다(소유자 2026-11-07) | 소유자 메시지 2026-11-04 "SOXX로 하자" | 유지 | 코드 |
 | 2026-11-04 | 테마 구성 권장안: 미국 '하드웨어·기기'·'IT 서비스' 신설, 한국 UAM·우주·양자 퇴역, DRAM·NCLD는 참고용(벤치마크 SOXX·SKYY), 순위 기본 기간 1주 | 소유자 메시지 2026-11-04 "권고안대로" | 유지 | 코드 |
 | 2026-11-04 | 헤드라인 번역은 생산 단계(Workers AI 무료, 유료 대체 없음, 실패는 원문+'원문' 표시). 브라우저 번역 코드 삭제 | wave2 PLAN D6(권장안) | 유지 | `scripts/build-market-day.mjs`, `scripts/ci-headline-translation-check.mjs` |
 | 2026-11-04 | CI는 라이브 데이터 나이·구조 차이를 경고로, 생산자 push 전·watchdog은 차단으로 | 소유자 직접 승인(actions-reliability 세션 "ㅇㅇ 승인") | 유지 | RULES R634, `architecture/governance-markers.json` |

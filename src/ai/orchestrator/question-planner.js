@@ -10,8 +10,8 @@ import { createQuestionPremise } from './premise.js';
 import { buildNathanAnalysisContext } from '../../domain/knowledge/nathan-framework-pack.js';
 
 export const AI_QUESTION_PLAN_VERSION = 'question-plan.v1';
-// Sector/index topic words resolve to proxy symbols (반도체 → SMH); they are topics, not a named company.
-export const CHAT_TOPIC_PROXIES = new Set(['SMH', 'IGV', 'DX-Y.NYB']);
+// Sector/index topic words resolve to proxy symbols (반도체 → SOXX, owner 2026-11-04); they are topics, not a named company.
+export const CHAT_TOPIC_PROXIES = new Set(['SOXX', 'SMH', 'IGV', 'DX-Y.NYB']);
 
 // P1740: the companies a question names, for data injection: verified US/KR listings, never an index or topic proxy.
 export function companyEntitySymbols(questionPlan, limit = 5) {
