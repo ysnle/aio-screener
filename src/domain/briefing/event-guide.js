@@ -48,7 +48,7 @@ export function newsImpactChain(words, xr, { axes = null } = {}) {
     const names = (tags) => (Array.isArray(tags) && tags.length ? `${tags.slice(0, 2).map((tag) => String(EXPOSURE_TAGS[tag] || tag).split(',')[0]).join(', ')}${tags.length > 2 ? ' 등' : ''}` : null);
     const weaker = names(item.weaker);
     const firmer = names(item.firmer);
-    const head = `${AXIS_WORDS[item.id] || '거시'} → '${short(item)}'(${role}, ${item.fit})`;
+    const head = `${AXIS_WORDS[item.id] || '매크로'} → '${short(item)}'(${role}, ${item.fit})`;
     const parts = [head, weaker ? `부담: ${weaker}` : null, firmer ? `수혜: ${firmer}` : null, check ? `확인: ${check}` : null];
     return { branchId: item.id, role, branch: short(item), axis: AXIS_WORDS[item.id] || null, weaker, firmer, check, head, text: parts.filter(Boolean).join(' → ') };
   }

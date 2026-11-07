@@ -86,6 +86,51 @@ export function matchTerms(query, glossary = [], limit = GROUP_LIMIT.term) {
     .sort((a, b) => b.rank - a.rank || String(a.entry.term).length - String(b.entry.term).length).slice(0, limit).map((row) => row.entry);
 }
 
+/**
+ * v59.70 (re-review N4): how well a query matches a row's names — 3 the whole name or one of its words ('HY' in
+ * 'HY 스프레드'), 2 a word that starts with it ('hy' → 'hynix'), 1 contained, 0 none.
+ */
+export function matchStrength(query, names = []) {
+  const q = normalize(query);
+  if (!q) return 0;
+  let best = 0;
+  for (const raw of names) {
+    const name = normalize(raw);
+    if (!name) continue;
+    const words = name.split(/[^a-z0-9가-힣]+/).filter(Boolean);
+    const level = name === q || words.includes(q) ? 3 : words.some((word) => word.startsWith(q)) ? 2 : name.includes(q) ? 1 : 0;
+    if (level > best) best = level;
+  }
+  return best;
+}
+
+/**
+ * Orders the 종목, 화면 and 용어 groups (in place) by their best match, and each group's rows the same way, so an exact
+ * English abbreviation ('HY' → 용어 'HY 스프레드') leads partial romanized stock names (SK hynix, Hyundai) and is the first
+ * row Enter opens. Equal strength keeps the default order (종목, 화면, 용어); 리서치 and 도움말 stay after them.
+ */
+export function orderByMatch(query, groups, { entries = {} } = {}) {
+  const namesOf = (item) => item.kind === 'stock'
+    ? [item.label, item.symbol, String(item.symbol || '').replace(/\.K[SQ]$/, ''), entries?.[item.symbol]?.en, entries?.[item.symbol]?.kr, ...(entries?.[item.symbol]?.alt || [])]
+    : item.kind === 'term' ? [item.term, String(item.term || '').replace(/\s*\(.*$/, ''), ...String(item.alias || '').split(/\s{2,}|,/)]
+      : item.kind === 'typed' ? [] : [item.label];
+  const strength = new Map();
+  for (const group of groups) {
+    if (!['stock', 'screen', 'term'].includes(group.id)) continue;
+    const scored = group.items.map((item, at) => ({ item, at, level: matchStrength(query, namesOf(item)) }));
+    // a typed-symbol row stays first in its group (it is the reader's own text); the rest follow their match
+    scored.sort((a, b) => (b.item.kind === 'typed') - (a.item.kind === 'typed') || b.level - a.level || a.at - b.at);
+    group.items = scored.map((row) => row.item);
+    strength.set(group, Math.max(0, ...scored.map((row) => row.level)));
+  }
+  const lead = groups.filter((group) => strength.has(group));
+  const order = new Map(lead.map((group, at) => [group, at]));
+  lead.sort((a, b) => strength.get(b) - strength.get(a) || order.get(a) - order.get(b));
+  let k = 0;
+  groups.forEach((group, at) => { if (strength.has(group)) groups[at] = lead[k++]; });
+  return groups;
+}
+
 /** The typed text as a symbol to check, when it looks like one and no candidate already is it. */
 export function typedSymbol(query, candidates = []) {
   const text = String(query || '').trim();
@@ -247,13 +292,14 @@ export function createCommandSearch({ root = globalThis, documentRef = root?.doc
     const screen = { id: 'screen', title: '화면', items: want('screen') ? matchScreens(query).slice(0, query ? GROUP_LIMIT.screen : 9).map((entry) => ({ kind: 'screen', route: entry.route, label: entry.label, meta: '' })) : [] };
     if (scope === 'all' && !query) screen.items = []; // an empty box in 전체 shows the hint, not the menu twice
     groups.push(screen);
-    const term = { id: 'term', title: '용어', items: want('term') ? matchTerms(query, root.GLOSSARY).map((entry) => ({ kind: 'term', term: entry.term, label: entry.term, meta: firstSentence(entry.def) })) : [] };
+    const term = { id: 'term', title: '용어', items: want('term') ? matchTerms(query, root.GLOSSARY).map((entry) => ({ kind: 'term', term: entry.term, alias: entry.alias, label: entry.term, meta: firstSentence(entry.def) })) : [] };
     groups.push(term);
     const research = { id: 'research', title: '리서치', items: [], pending: want('research') && query.length >= 2 };
     groups.push(research);
     const guide = { id: 'guide', title: '도움말', items: [], pending: want('guide') && query.length >= 2 };
     groups.push(guide);
     painted = query;
+    orderByMatch(query, groups, registry());
     paint(groups);
     if (!groups.some((group) => group.pending)) return groups;
     say('찾는 중');
@@ -279,6 +325,7 @@ export function createCommandSearch({ root = globalThis, documentRef = root?.doc
     await Promise.all(tasks.map((task) => task.catch(() => {})));
     if (mine !== seq || !dialog()?.open) return groups; // a newer query or a closed dialog owns the list now
     const keep = options[active]?.label;
+    orderByMatch(query, groups, registry());
     paint(groups);
     if (keep) { const at = options.findIndex((option) => option.label === keep); if (at > 0) setActive(at); }
     return groups;

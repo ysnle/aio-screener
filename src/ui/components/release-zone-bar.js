@@ -50,8 +50,27 @@ export function releaseZoneBar(doc, zone, { compact = false } = {}) {
 // ('5만7.5만') drops to a second line.
 export function fitZoneBar(box) {
   const labels = [...box.querySelectorAll('.zone-bar__label')];
-  labels.forEach((label) => { label.hidden = false; }); // measured shown, so a bar that widened gets its labels back
+  labels.forEach((label) => { label.hidden = false; label.style.transform = ''; }); // measured shown, so a bar that widened gets its labels back
   labels.forEach((label) => { label.hidden = label.scrollWidth > label.clientWidth + 1; });
+  // v59.70 (re-review #21): the pin's notches run through the band, so a label the value line falls on ('+0.32%' over
+  // '끈적함') steps aside inside its own band, or is dropped (the band keeps it as its title) when it has no room.
+  const pin = box.querySelector('.zone-bar__pin');
+  if (pin) {
+    const pinRect = pin.getBoundingClientRect();
+    const x = pin.classList.contains('is-end') ? pinRect.right : pin.classList.contains('is-start') ? pinRect.left : pinRect.left + pinRect.width / 2;
+    const pad = 4;
+    for (const label of labels) {
+      if (label.hidden) continue;
+      const rect = label.getBoundingClientRect();
+      if (x < rect.left - pad || x > rect.right + pad) continue;
+      const band = label.parentElement.getBoundingClientRect();
+      const right = x + pad - rect.left; // shift right so the label starts after the line
+      const left = rect.right - (x - pad); // or left so it ends before it
+      if (rect.right + right <= band.right) label.style.transform = `translateX(${right.toFixed(1)}px)`;
+      else if (rect.left - left >= band.left) label.style.transform = `translateX(${(-left).toFixed(1)}px)`;
+      else label.hidden = true;
+    }
+  }
   const edges = [...box.querySelectorAll('.zone-bar__edge')];
   edges.forEach((edge) => edge.classList.remove('is-low'));
   let lastTop = null;

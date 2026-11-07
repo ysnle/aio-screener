@@ -429,7 +429,7 @@ export function scoreItem(item, env = {}) {
 
 /* ── 화면별 선별 (v50.2: home / briefing / market-news 공용 계약 + 분석 화면 토픽 줄) ── */
 export const NEWS_TOPIC_GROUP_ORDER = [
-  { key:'macro',     label:'거시·경제',       icon:'' },
+  { key:'macro',     label:'매크로·경제',       icon:'' },
   { key:'geo',       label:'국제 정치·지정학',  icon:'' },
   { key:'market-note',label:'시장 노트',         icon:'' },
   { key:'equity',    label:'주식·시장',         icon:'' },

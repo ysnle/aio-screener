@@ -54,6 +54,31 @@ for (const file of sources) {
   check(`v59.70 ${file} reads no retired search box`, !hit, hit);
 }
 
+// 2b. Ranking (re-review N4): 'HY' typed in 전체 listed seven romanized stock partials (SK hynix, Hyundai …) before the
+// glossary's exact 'HY 스프레드', and Enter opened 000660.KS. An exact or whole-word abbreviation match leads partial matches,
+// across groups and within one; a stock that is the query exactly still leads.
+{
+  const entries = {
+    '000660.KS': { kr: 'SK하이닉스', en: 'SK hynix', alt: ['hynix'] }, '005380.KS': { kr: '현대차', en: 'Hyundai Motor' },
+    '348210.KQ': { kr: '넥스틴', en: 'NEXTIN' }, NVDA: { kr: '엔비디아', en: 'NVIDIA' }
+  };
+  const glossary = [{ term: 'OAS / HY 스프레드', alias: '하이일드 스프레드  high yield', def: '하이일드 회사채가 국채보다 더 얹어 주는 금리입니다.' }, { term: 'HYG', alias: '', def: 'ETF' }];
+  const { searchCandidates } = await import('../src/domain/ticker/resolve-name.js');
+  const groupsFor = (query) => {
+    const stock = { id: 'stock', items: searchCandidates(query, { entries, limit: 7 }).map((pick) => ({ kind: 'stock', symbol: pick.symbol, label: pick.label })) };
+    const term = { id: 'term', items: search.matchTerms(query, glossary).map((entry) => ({ kind: 'term', term: entry.term, alias: entry.alias, label: entry.term })) };
+    return [stock, { id: 'screen', items: [] }, term, { id: 'research', items: [] }];
+  };
+  const ordered = typeof search.orderByMatch === 'function' ? search.orderByMatch('HY', groupsFor('HY'), { entries }) : groupsFor('HY');
+  const first = ordered.find((group) => group.items.length)?.items[0];
+  check("v59.70 N4 'HY': the first row is the glossary's exact 'HY 스프레드', not a romanized stock partial", first?.kind === 'term' && /HY 스프레드/.test(first.term), JSON.stringify(first));
+  check("v59.70 N4 'HY': stock partials follow the term group", ordered.findIndex((group) => group.id === 'term') < ordered.findIndex((group) => group.id === 'stock'));
+  check('v59.70 N4 match strength: whole word 3 > word prefix 2 > contained 1', typeof search.matchStrength === 'function'
+    && search.matchStrength('HY', ['OAS / HY 스프레드']) === 3 && search.matchStrength('hy', ['SK hynix']) === 2 && search.matchStrength('nix', ['SK hynix']) === 1);
+  const nvda = typeof search.orderByMatch === 'function' ? search.orderByMatch('NVDA', groupsFor('NVDA'), { entries }) : [];
+  check("v59.70 N4 'NVDA': an exact stock symbol keeps the stock group first", nvda[0]?.id === 'stock' && nvda[0].items[0]?.symbol === 'NVDA');
+}
+
 // 3. Shortcuts: one action per key and modifier; Ctrl/⌘K → command search (inside inputs too); "/" → table filter.
 const shortcuts = await import('../src/ui/navigation/screen-shortcuts.js');
 const bindings = shortcuts.SHELL_KEY_BINDINGS || [];

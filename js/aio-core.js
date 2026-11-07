@@ -3166,7 +3166,7 @@ var AIO_PAGE_BRIEFS = {
     use: '주식 밸류에이션과 글로벌 자금 흐름의 입력값입니다.',
     steps: ['DXY와 USD/KRW로 달러 스트레스 확인', '2Y·10Y·커브로 금리 압박 확인', 'HY/OAS가 벌어지는지 확인'],
     focus: '주식 차트가 좋아도 달러와 금리가 동시에 올라가면 위험자산에는 부담이 되는 조합입니다.',
-    links: [['macro','거시'], ['signal','시그널'], ['themes','테마']]
+    links: [['macro','매크로'], ['signal','시그널'], ['themes','테마']]
   },
   charts: { // v59.64 기술적 분석
     title: '지수와 대표 종목이 차트에서 어디쯤인지 확인',
@@ -3962,7 +3962,7 @@ window.AIO_PAGE_ACTION_HUBS = {
     title:'뉴스 인텔리전스',
     subtitle:'Top 뉴스와 시장 영향은 상단, 필터는 분석 목적에 맞게 직접 조정합니다.',
     cards:[['핵심 지표','Top 5 뉴스, 24h 건수, 리스크 뉴스'],['운용 포인트','시장/섹터/보유 종목 영향만 선별'],['상세 도구','소스 상태와 원문 목록은 상세에서 확인']],
-    links:[['브리핑','briefing'],['거시','macro'],['AI 분석','ai']]
+    links:[['브리핑','briefing'],['매크로','macro'],['AI 분석','ai']]
   },
   technical: {
     title:'차트 거래 계획',
@@ -4010,7 +4010,7 @@ window.AIO_PAGE_ACTION_HUBS = {
     title:'FX·Rates·Credit',
     subtitle:'달러, 금리곡선, 크레딧, 원유를 설명문보다 지표 중심으로 읽습니다.',
     cards:[['핵심 지표','DXY, 2Y/10Y, HYG, WTI, USD/KRW'],['운용 포인트','달러·금리·유가가 동시에 위험선호인지 확인'],['상세 도구','인과 설명은 상세에서 확인']],
-    links:[['거시','macro'],['시장 뉴스','market-news'],['AI 분석','ai']]
+    links:[['매크로','macro'],['시장 뉴스','market-news'],['AI 분석','ai']]
   },
   fundamental: {
     title:'기업 분석 17관점',

@@ -1588,7 +1588,7 @@ var _TG_CAT_MAP = {
   'kr-market':  { label:'한국장',     cls:'tg-cat-kr'     },
   'semi':       { label:'반도체',     cls:'tg-cat-semi'   },
   'credit':     { label:'신용·자금',  cls:'tg-cat-macro'  },
-  'macro':      { label:'거시',     cls:'tg-cat-macro'  },
+  'macro':      { label:'매크로',     cls:'tg-cat-macro'  },
   'geo':        { label:'지정학',     cls:'tg-cat-geo'    },
   'ai-policy':  { label:'AI정책',     cls:'tg-cat-ai'     },
   'equity':     { label:'주식분석',   cls:'tg-cat-equity' },
@@ -3848,7 +3848,7 @@ window._aioSafeSourceLabel = _aioSafeSourceLabel;
 function _aioNewsTopicKo(topic) {
   var t = String(topic || 'general').toLowerCase();
   var map = {
-    macro: '거시', fed: '연준/금리', rates: '금리', bond: '채권', credit: '크레딧', fx: '환율',
+    macro: '매크로', fed: '연준/금리', rates: '금리', bond: '채권', credit: '크레딧', fx: '환율',
     geo: '지정학', geopolitics: '지정학', energy: '에너지', oil: '에너지',
     semi: '반도체/AI 인프라', ai: 'AI', 'ai-policy': 'AI 정책',
     earnings: '실적', equity: '주식', analyst: '애널리스트', policy: '정책',
@@ -6886,9 +6886,6 @@ function applyLiveQuotes(quotes) {
   // v34: 글로벌 마켓 오버뷰 신선도 타임스탬프 갱신
   window._liveQuoteTimestamp = Date.now();
 
-  // v30.11: 신선도 뱃지 갱신
-  _updateFreshnessBadges();
-
   // v35.8: 실시간 데이터 localStorage 캐시 — 다음 로드 시 폴백으로 활용
   try {
     var cacheData = atomicQuotes.filter(function(q) { return q._source !== 'snapshot' && q._atomicObservedAt; }).map(function(q) {
@@ -6977,54 +6974,9 @@ window._aioApplyScreenerBreadth = _aioApplyScreenerBreadth;
 // labelled an intraday quote 'FRED:<id>' (src/ui/pages/market.js) against the close-price policy. FRED slots now hold
 // only official observations; intraday quotes stay in _liveData.
 
-// ═══ v30.11: 데이터 신선도 뱃지 시스템 ═══════════════════════════════
-// 각 data-live-price 요소 옆에 실시간/정적 구분 표시
-function _getDataFreshness(symbol) {
-  var src = (window._dataSource || {})[symbol];
-  var ts  = (window._quoteTimestamps || {})[symbol];
-  if (!src || !ts) {
-    // 데이터 출처 없음 → 정적 폴백 사용 중
-    return { level: 'snapshot', label: '정적', color: 'transparent', title: '정적 스냅샷 데이터 (API 미연결)' };
-  }
-  var age = Date.now() - ts;
-  var srcLabel = src.source || 'unknown';
-  if (age < 120000) {
-    return { level: 'live', label: '실시간', color: 'var(--text-secondary)', title: srcLabel + ', ' + Math.round(age/1000) + '초 전' };
-  }
-  if (age < 600000) {
-    var mins = Math.floor(age / 60000);
-    return { level: 'recent', label: mins + '분전', color: 'var(--data-amber)', title: srcLabel + ', ' + mins + '분 전 갱신' };
-  }
-  var hrs = Math.floor(age / 3600000);
-  var minR = Math.floor((age % 3600000) / 60000);
-  return { level: 'stale', label: (hrs > 0 ? hrs + '시간' : minR + '분') + '전', color: 'transparent', title: srcLabel + ', 갱신 지연' }; // P1599 (A09/E16): freshness is not price direction — neutral filled/amber/hollow, never green/red
-}
-
-function _updateFreshnessBadges() {
-  document.querySelectorAll('[data-live-price]').forEach(function(el) {
-    var sym = el.getAttribute('data-live-price');
-    var info = _getDataFreshness(sym);
-    // dot 요소 찾기/생성
-    var dot = el.parentElement ? el.parentElement.querySelector('.aio-src-dot[data-for="' + sym + '"]') : null;
-    if (!dot && el.parentElement) {
-      dot = document.createElement('span');
-      dot.className = 'aio-src-dot';
-      dot.setAttribute('data-for', sym);
-      dot.style.cssText = 'display:inline-block;width:5px;height:5px;border-radius:50%;margin-left:3px;vertical-align:middle;cursor:help;';
-      // 가격 요소 바로 뒤에 삽입
-      if (el.nextSibling) {
-        el.parentElement.insertBefore(dot, el.nextSibling);
-      } else {
-        el.parentElement.appendChild(dot);
-      }
-    }
-    if (dot) {
-      dot.style.background = info.color;
-      dot.style.boxShadow = info.color === 'transparent' ? 'inset 0 0 0 1px var(--text-muted)' : 'none';
-      dot.title = info.title; dot.setAttribute('role', 'img'); dot.setAttribute('aria-label', '시세 상태: ' + info.title);
-    }
-  });
-}
+// v59.70 (screen re-review #13): the v30.11 per-price freshness dot (.aio-src-dot, an unlabelled hollow circle after
+// every live price when the quote was stale or a snapshot: 'WTI 95.65 ◦ ▼-0.44') is retired. How current the prices are
+// is the one topbar chip's job (지난 시세 …), and a price's own hover title names its observation time.
 
 // (showPage 훅은 showPage 함수 본문에 직접 포함됨)
 
