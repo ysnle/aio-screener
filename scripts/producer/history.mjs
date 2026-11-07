@@ -10,7 +10,7 @@ import { round } from '../lib/producer-math.mjs';
 import { isSessionComplete } from '../../src/domain/screener/price-factors.js';
 import { compareUsdKrwCrossCheck } from '../lib/macro-sources.mjs';
 import { HIST } from './paths.mjs';
-import { mapLimit, fetchHistory, fetchHourlySessionClose } from './quotes.mjs';
+import { mapLimit, fetchHistory, fetchHourlySessionClose, FOUR_PLACE_QUOTES } from './quotes.mjs';
 import { readNumber } from '../../src/domain/shared/number.js';
 import { isoDay } from '../../src/domain/shared/session-date.js';
 import { readHistoryRows, compactHistoryRows } from '../../src/domain/market/history-rows.js';
@@ -479,7 +479,7 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
       };
       bySymQuote[q.symbol] = bySymQuoteEntry;
     }
-    const pick = (s) => (typeof bySym[s] === 'number' && isFinite(bySym[s])) ? round(bySym[s], 2) : null;
+    const pick = (s) => (typeof bySym[s] === 'number' && isFinite(bySym[s])) ? round(bySym[s], FOUR_PLACE_QUOTES.has(s) ? 4 : 2) : null;
     // P1246 (품질 경계): 히스토리에 실릴 값은 선언된 타당 범위 안에 있어야 한다. 범위 밖 값은 관측이
     // 아니라 공급자 오류로 취급해 null로 남긴다(값도 fieldMeta도 없음 — P1101의 무관측 표기).
     const pickField = (field, symbol) => {

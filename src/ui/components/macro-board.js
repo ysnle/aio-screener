@@ -1214,13 +1214,17 @@ export function otherFxCloses(history = []) {
   }
   return closes;
 }
-export function describeOtherFx(live = {}, history = []) {
+// Only closes of the label's own day are shown (an older cell under a newer date would misstate it), and a last close more
+// than ten days old is no fallback at all.
+const OTHER_FX_CLOSE_MAX_AGE_MS = 10 * 86400000;
+export function describeOtherFx(live = {}, history = [], nowMs = Date.now()) {
   const rows = OTHER_FX.map((symbol) => live?.[symbol]).filter((row) => row && Number.isFinite(Number(row.price ?? row.quoteEnvelope?.price ?? row.regularMarketPrice)));
   if (!rows.length) {
-    const closes = otherFxCloses(history);
-    const dates = Object.values(closes).map((point) => point.date).sort();
-    if (!dates.length) return { text: '시세 대기', reference: false };
-    const [, month, day] = dates.at(-1).split('-').map(Number);
+    const all = otherFxCloses(history);
+    const label = Object.values(all).map((point) => point.date).sort().at(-1);
+    if (!label || nowMs - Date.parse(`${label}T21:00:00Z`) > OTHER_FX_CLOSE_MAX_AGE_MS) return { text: '시세 대기', reference: false };
+    const closes = Object.fromEntries(Object.entries(all).filter(([, point]) => point.date === label));
+    const [, month, day] = label.split('-').map(Number);
     return { text: `${month}/${day} 종가`, reference: true, closes };
   }
   const basisOf = (row) => row.quoteEnvelope?.valueBasis || row.valueBasis || null;
@@ -1254,6 +1258,6 @@ function syncOtherCurrencyNote(doc, root) {
     if (change) change.hidden = read.reference;
     const close = read.closes?.[symbol];
     const price = close ? doc.querySelector?.(`.rates-other [data-live-price="${symbol}"]`) : null;
-    if (price) price.textContent = close.value.toFixed(symbol === 'CNY=X' ? 3 : 4);
+    if (price) { price.textContent = close.value.toFixed(4); price.title = `${close.date} 종가`; price.dataset.quoteState = 'close'; }
   }
 }

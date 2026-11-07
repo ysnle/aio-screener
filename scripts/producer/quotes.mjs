@@ -467,6 +467,8 @@ export async function fetchCoinGeckoCrossCheck() {
 // ── v50.52 B4: Yahoo v8/chart 다일 종가 히스토리 (백필용) ──
 // 왜: fetchQuote는 range=5d + meta(현재가)만 읽어 history가 하루 1건씩만 쌓임(20~60일 대기).
 //     range=6mo로 일별 종가 배열을 1회 받아 history.json을 즉시 시드 → 차트 대기 제거.
+// v59.75: currency pairs quoted to four places keep them in history (a 2-place EUR/USD would print 1.15 for 1.1544).
+export const FOUR_PLACE_QUOTES = Object.freeze(new Set(['EURUSD=X', 'GBPUSD=X', 'CNY=X', 'AUDUSD=X']));
 export async function fetchHistory(symbol, range = '6mo') {
   for (const host of YAHOO_HOSTS) {
     try {
@@ -488,7 +490,7 @@ export async function fetchHistory(symbol, range = '6mo') {
       const adjArr = res?.indicators?.adjclose?.[0]?.adjclose;
       if (!Array.isArray(ts) || !Array.isArray(closes)) throw new Error('no history arrays');
       // v57.81: the row assembly is shared with the browser's out-of-universe read (src/domain/screener/price-factors.js).
-      return dailyRowsFromYahooChart(res, { fetchedAt });
+      return dailyRowsFromYahooChart(res, { fetchedAt, closeDigits: FOUR_PLACE_QUOTES.has(symbol) ? 4 : 2 });
     } catch (e) { /* 호스트 폴백 */ }
   }
   return [];

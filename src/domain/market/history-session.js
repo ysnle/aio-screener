@@ -24,6 +24,8 @@ const BAR_ZONE = Object.freeze({
   rsp: 'America/New_York',
   dxy: 'America/New_York', wti: 'America/New_York', brent: 'America/New_York', gold: 'America/New_York', silver: 'America/New_York',
   usdkrw: 'Europe/London', usdjpy: 'Europe/London',
+  // v59.75: the fold currencies (EUR/USD, GBP/USD, USD/CNY, AUD/USD) open on the same London day as the won and yen.
+  eurusd: 'Europe/London', gbpusd: 'Europe/London', usdcny: 'Europe/London', audusd: 'Europe/London',
   kospi: 'Asia/Seoul', kosdaq: 'Asia/Seoul',
   btc: 'UTC',
 });

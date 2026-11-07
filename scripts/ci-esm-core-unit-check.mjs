@@ -6911,9 +6911,18 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const fx = describeOtherFx({ 'EURUSD=X': { price: 1.08, observedAt: '2026-10-26T15:30:00Z' } });
   if (!/10\/27 00:30 관측/.test(fx.text)) fail(`v58.82 FX observation label is KST regardless of the browser zone: ${fx.text}`);
   // v59.75 (macro audit 11/7): with no live quote the fold reads the last completed close of each currency, named as a close.
-  const fxHistory = [{ date: '2026-11-05', eurusd: 1.1512, usdcny: 7.1234 }, { date: '2026-11-06', eurusd: 1.1544, usdcny: 7.1201 }];
-  const fxFallback = describeOtherFx({}, fxHistory);
-  if (fxFallback.text !== '11/6 종가' || !fxFallback.reference || fxFallback.closes['EURUSD=X']?.value !== 1.1544 || fxFallback.closes['GBPUSD=X'] || describeOtherFx({}, []).text !== '시세 대기') fail(`v59.75 other-currency fold falls back to completed closes: ${JSON.stringify(fxFallback)}`);
+  // Only the label day's closes show (USD/CNY's older 11/5 close stays out), and a close over ten days old is no fallback.
+  const fxHistory = [{ date: '2026-11-05', eurusd: 1.1512, usdcny: 7.1234 }, { date: '2026-11-06', eurusd: 1.1544 }];
+  const fxNow = Date.parse('2026-11-08T00:00:00Z');
+  const fxFallback = describeOtherFx({}, fxHistory, fxNow);
+  if (fxFallback.text !== '11/6 종가' || !fxFallback.reference || fxFallback.closes['EURUSD=X']?.value !== 1.1544 || fxFallback.closes['CNY=X'] || fxFallback.closes['GBPUSD=X']
+    || describeOtherFx({}, [], fxNow).text !== '시세 대기' || describeOtherFx({}, fxHistory, Date.parse('2026-11-20T00:00:00Z')).text !== '시세 대기') fail(`v59.75 other-currency fold falls back to the label day's completed closes: ${JSON.stringify(fxFallback)}`);
+  // v59.75 (review): the fold currencies keep four places from the provider bar and file a summer 23:00Z bar on its London day.
+  const { dailyRowsFromYahooChart } = await load('src/domain/screener/price-factors.js');
+  const fxBar = { timestamp: [1783897200], indicators: { quote: [{ close: [1.15437], open: [1.15], high: [1.16], low: [1.14], volume: [0] }] }, meta: {} };
+  const { barSessionDateForField } = await load('src/domain/market/history-session.js');
+  if (dailyRowsFromYahooChart(fxBar, { closeDigits: 4 })[0]?.close !== 1.1544 || dailyRowsFromYahooChart(fxBar)[0]?.close !== 1.15
+    || barSessionDateForField('eurusd', '2026-07-12T23:00:00Z') !== '2026-07-13') fail('v59.75 fold currency history keeps four places and its London session day');
   // v59.75: the US–Japan / US–Korea rate differential on one OECD monthly basis, read against the currency's move between the same month-ends.
   const { rateDifferential } = await load('src/domain/macro/rates-fx.js');
   const months = ['2026-03', '2026-04', '2026-05', '2026-06', '2026-07', '2026-08', '2026-09'];
