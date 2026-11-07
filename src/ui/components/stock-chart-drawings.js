@@ -40,7 +40,7 @@ export function attachChartDrawings({ doc, root, sym, instance, analysis, levels
   const { chart, candles } = instance;
   const bars = analysis.bars;
   const last = bars.length - 1;
-  const pref = { trend: true, avwap: false, ...readJson(PREF_KEY, {}) };
+  const pref = { trend: false, avwap: false, ...readJson(PREF_KEY, {}) }; // v59.74: trend reads as areas (layers); the rule lines are opt-in
   const trend = ruleTrendLines(bars);
   const anchors = vwapAnchors(bars);
   let trendSeries = [], vwapSeries = [], minePriceLines = [], drawing = false;
