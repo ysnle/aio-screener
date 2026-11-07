@@ -315,6 +315,9 @@ export const isFaithfulKoreanTitle = (title, ko) => {
   const stated = titleAmounts(title);
   return !stated.length || koreanAmounts(ko).every((amount) => stated.some((value) => Math.abs(amount - value) <= value * 0.01));
 };
+// v59.74 (site QA 11/7: '… market eyes Fed policy : Finance : JKN' was translated with its feed tail): trailing
+// ' : Section : Outlet' / ' | Outlet' segments are the feed's labels, not the headline, and are not sent for translation.
+export const headlineForTranslation = (title) => String(title || '').replace(/(?:\s+[:|]\s+[A-Z][\w.&'-]*(?:\s[A-Z][\w.&'-]*){0,2}){1,3}$/, '').trim().slice(0, 300);
 export async function translateHeadlines(items, { previous = [], request = null, translate = null } = {}) {
   const list = (Array.isArray(items) ? items : []).filter((item) => item && typeof item.title === 'string' && item.title.trim());
   const known = new Map((Array.isArray(previous) ? previous : []).filter((item) => item?.title && isFaithfulKoreanTitle(item.title, item.titleKo)).map((item) => [item.title, item.titleKo]));
@@ -336,7 +339,7 @@ export async function translateHeadlines(items, { previous = [], request = null,
   let freeReason = null;
   if (pending.length && typeof translate === 'function') {
     let free = null;
-    try { free = await translate(pending.map((item) => item.title.slice(0, 300))); } catch (_) { free = null; }
+    try { free = await translate(pending.map((item) => headlineForTranslation(item.title))); } catch (_) { free = null; }
     if (Array.isArray(free?.translations) && free.translations.length === pending.length) {
       const translated = accept(free.translations);
       if (translated >= Math.ceil(pending.length * 0.8)) return { reused, translated, pending: pending.length, provider: 'workers-ai', model: free.model || null, reason: null };
@@ -348,7 +351,7 @@ export async function translateHeadlines(items, { previous = [], request = null,
   const prompt = ['다음 영어 금융 뉴스 헤드라인을 자연스러운 한국어 기사 제목으로 옮겨라. 고유명사·티커·숫자는 그대로 두고, 뜻을 더하거나 빼지 마라.',
     `시장 용어는 다음처럼 옮긴다: ${HEADLINE_GLOSSARY}.`,
     `출력은 JSON 문자열 배열 하나만, 입력과 같은 순서로 정확히 ${pending.length}개.`,
-    JSON.stringify(pending.map((item) => item.title.slice(0, 300)))].join('\n');
+    JSON.stringify(pending.map((item) => headlineForTranslation(item.title)))].join('\n');
   let result = null;
   try { result = await request(prompt); } catch (_) { result = null; }
   const text = String(result?.text || '');

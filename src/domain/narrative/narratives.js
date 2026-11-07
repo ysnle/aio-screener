@@ -15,6 +15,10 @@ import { readRowNumber } from '../../data/contracts/screener.js';
 export const NARRATIVE_WINDOW_HOURS = 72;
 export const NARRATIVE_RECENT_HOURS = 24;
 export const NARRATIVE_MAX_THEMES = 5;
+// v59.74 (site QA 11/7): the wire headlines are the third source. The midterm "블루웨이브" sell-off filled the news list
+// for two days while the stories read only relayed posts and mover memos, so it showed as a fading schedule item.
+// A headline weighs one post; at most this many count, so a syndicated burst cannot outweigh the research channels.
+export const NARRATIVE_NEWS_WEIGHT_CAP = 6;
 export const NARRATIVE_MOVER_MIN_ABS_RET5D = 10;
 export const NARRATIVES_VERSION = 'narratives.v1';
 
@@ -39,14 +43,28 @@ export const NARRATIVE_THEMES = Object.freeze([
   { id: 'sovereign-debt', label: '선진국 재정·국채', promptLabel: '선진국 재정·국채 (유럽·영국·일본 장기물)', question: '재정 적자가 장기 금리에 주는 상승 압력',
     frames: ['long-bond', 'growth-inflation-balance'], branches: ['fiscalsteep'],
     re: /유럽[^.。\n]{0,20}(?:부채|재정|국채|금융\s*리스크)|프랑스\s*(?:국채|재정|신용)|길트|\bgilts?\b|분트|\bBunds?\b|\bJGBs?\b|일본\s*(?:국채|장기\s*금리)|sovereign debt|재정\s*적자|fiscal deficit|기간\s*프리미엄|term premium|국채\s*발작/i },
-  { id: 'us-politics', label: '미국 정치 일정', promptLabel: '미국 정치 일정 (중간선거·셧다운)', question: '선거·셧다운 같은 정치 일정이 정책 경로에 주는 변화',
+  { id: 'us-politics', label: '미국 정치 (선거 결과·셧다운)', promptLabel: '미국 정치 (중간선거 결과·블루웨이브·셧다운)', question: '선거 결과·셧다운 같은 정치 변수가 정책 경로와 위험 선호에 주는 변화',
     frames: ['headline-provenance'], branches: ['fiscalsteep', 'volshock'], // v59.74: an election result moved risk appetite (11/5 -4.4%) before rates; both paths are read
-    re: /중간\s*선거|midterms?|셧다운|government shutdown|부채\s*한도|debt ceiling/i },
+    // v59.74: the result words too — 11/5 headlines said "블루웨이브 쇼크", "Democrats' midterm gains", "post-midterm sell-off".
+    re: /중간\s*선거|midterms?|셧다운|government shutdown|부채\s*한도|debt ceiling|블루\s*웨이브|blue\s*wave|민주당\s*(?:압승|승리|약진|장악)|Democrat(?:s|ic)?(?:['’]s?)?\s+\b(?:sweep|victor(?:y|ies)|wins?|gains|takeover)\b/i },
   { id: 'oil-geopolitics', label: '유가·지정학', promptLabel: '유가·지정학 (호르무즈·이란)', question: '지정학 위험이 유가를 거쳐 물가와 성장으로 번지는 경로',
     frames: ['oil-shock-split', 'geopolitical-shock-paths'], branches: ['oilshock'],
     re: /호르무즈|Hormuz|(?<![가-힣])이란|\bIran(?:ian)?\b|유가(?!증권)|oil price|원유|\bcrude\b|브렌트|\bBrent\b|\bOPEC\b/i }
 ]);
 export const NARRATIVE_BY_ID = Object.freeze(Object.fromEntries(NARRATIVE_THEMES.map((theme) => [theme.id, theme])));
+
+/** Wire headlines of the window (data.json news + newsIntraday), one per title, read in English and Korean. */
+export function newsHeadlinePosts(news, { nowMs, windowHours = NARRATIVE_WINDOW_HOURS }) {
+  const since = nowMs - windowHours * 3600000;
+  const byTitle = new Map();
+  for (const item of Array.isArray(news) ? news : []) {
+    const title = String(item?.title || '').trim();
+    const ts = Date.parse(item?.pubDate || item?.fetchedAt || '');
+    if (!title || byTitle.has(title) || !Number.isFinite(ts) || ts < since || ts > nowMs + 15 * 60000) continue;
+    byTitle.set(title, { kind: 'news', id: `news:${title}`, ts, text: `${title} ${item.titleKo || ''}` });
+  }
+  return [...byTitle.values()];
+}
 
 /** Relayed research posts of the window, one per id (the digest lists an item under several keys). */
 export function telegramPosts(digest, { nowMs, windowHours = NARRATIVE_WINDOW_HOURS }) {
@@ -88,15 +106,17 @@ export function moverMemos(screener, { nowMs, windowHours = NARRATIVE_WINDOW_HOU
  * verification mix and the movers whose own headline names the story. `posts`/`movers` may be passed when the caller
  * already built them (the prompt builder keeps its samples from the same pass).
  */
-export function detectNarratives({ telegramDigest = null, screener = null, nowMs = Date.now(), windowHours = NARRATIVE_WINDOW_HOURS, posts = null, movers = null } = {}) {
+export function detectNarratives({ telegramDigest = null, screener = null, news = null, nowMs = Date.now(), windowHours = NARRATIVE_WINDOW_HOURS, posts = null, movers = null } = {}) {
   const allPosts = posts || telegramPosts(telegramDigest, { nowMs, windowHours });
   const allMovers = movers || moverMemos(screener, { nowMs, windowHours });
+  const allNews = newsHeadlinePosts(news, { nowMs, windowHours });
   const recentSince = nowMs - NARRATIVE_RECENT_HOURS * 3600000;
   const themes = [];
   for (const theme of NARRATIVE_THEMES) {
     const tg = allPosts.filter((post) => theme.re.test(post.text));
     const tickers = allMovers.filter((row) => theme.re.test(row.text));
-    if (!tg.length && !tickers.length) continue;
+    const press = allNews.filter((row) => theme.re.test(row.text));
+    if (!tg.length && !tickers.length && !press.length) continue;
     const recent = tg.filter((post) => post.ts >= recentSince).length;
     const earlier = tg.length - recent;
     // Attention change: the last 24 hours against the average day of the 48 before it. A story with no earlier posts is
@@ -105,10 +125,10 @@ export function detectNarratives({ telegramDigest = null, screener = null, nowMs
     const trend = tg.length < 3 ? 'few' : earlier === 0 ? 'new' : recent >= perDayBefore * 1.5 ? 'rising' : recent <= perDayBefore * 0.5 ? 'fading' : 'steady';
     const checks = tg.map((post) => reportVerification(post.text));
     // A matching mover is the market voting on the story; it weighs as much as two relayed posts.
-    const weight = tg.length + recent + tickers.length * 2;
+    const weight = tg.length + recent + tickers.length * 2 + Math.min(press.length, NARRATIVE_NEWS_WEIGHT_CAP);
     themes.push({ id: theme.id, label: theme.label, weight, telegramCount: tg.length, recentCount: recent, earlierCount: earlier, trend,
       rumorCount: checks.filter((check) => check === 'rumor').length, unconfirmedCount: checks.filter((check) => check === 'unconfirmed').length,
-      tickerCount: tickers.length, latestAt: new Date(Math.max(...tg.map((post) => post.ts), ...tickers.map((row) => row.ts))).toISOString(),
+      tickerCount: tickers.length, newsCount: press.length, latestAt: new Date(Math.max(...tg.map((post) => post.ts), ...tickers.map((row) => row.ts), ...press.map((row) => row.ts))).toISOString(),
       movers: tickers.slice(0, 4).map((mover) => ({ sym: mover.sym, ret5d: Math.round(mover.ret5d * 10) / 10 })),
       _posts: tg, _tickers: tickers });
   }

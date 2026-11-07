@@ -19,6 +19,16 @@ const korean = (text) => (String(text || '').match(/[가-힣]/g) || []).length >
 const shown = (row) => korean(row?.title) || korean(row?.titleKo) || row?.titleKoFailed === true;
 
 const { translateDayHeadlines } = await load('scripts/build-market-day.mjs');
+// v59.74 (site QA 11/7): feed tails (' : Finance : JKN', ' | Reuters') are not sent for translation; a lowercase clause after
+// a colon is part of the headline.
+{
+  const { headlineForTranslation } = await load('scripts/producer/market-narrative.mjs');
+  check('v59.74 feed tails are cut before translation, headline clauses are kept',
+    headlineForTranslation('Gold hits 2-week high; market eyes Fed policy : Finance : JKN') === 'Gold hits 2-week high; market eyes Fed policy'
+    && headlineForTranslation('Stocks fall | Fox Business') === 'Stocks fall'
+    && headlineForTranslation('Fed holds : what it means for rates') === 'Fed holds : what it means for rates'
+    && headlineForTranslation('Exclusive | Major Investors Are Skeptical') === 'Exclusive | Major Investors Are Skeptical');
+}
 const { buildDayAccount } = await load('src/domain/briefing/day-account.js');
 
 // ── 1. The producer lane.

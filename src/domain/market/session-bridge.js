@@ -188,7 +188,7 @@ export function buildSessionBridge({ nowMs = Date.now(), snapshot = null, attrib
   const clock = marketClock(nowMs);
   const quotes = quoteMap(snapshot);
   const read = (id) => reading(quotes, id, nowMs);
-  const r = { es: read('ES=F'), nq: read('NQ=F'), kospi: read('^KS11'), kosdaq: read('^KQ11'), nasdaq: read('^IXIC'), semis: read('SMH'), nikkei: read('^N225'), hangseng: read('^HSI'), usdkrw: read('KRW=X'), wti: read('CL=F'), vix: read('^VIX'), spx: read('^GSPC') };
+  const r = { es: read('ES=F'), nq: read('NQ=F'), kospi: read('^KS11'), kosdaq: read('^KQ11'), nasdaq: read('^IXIC'), semis: read('SOXX'), nikkei: read('^N225'), hangseng: read('^HSI'), usdkrw: read('KRW=X'), wti: read('CL=F'), vix: read('^VIX'), spx: read('^GSPC') };
   const lines = [];
   // Korea's latest session (date in KST) with its candidate drivers.
   const kospiMs = Date.parse(r.kospi?.observedAt || '');

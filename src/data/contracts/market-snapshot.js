@@ -47,12 +47,16 @@ export const TIER_0_REQUIRED = TIER_0_INSTRUMENTS.length;
 // and never read by the Tier-0 consumers. Like Tier 0 they are market-level reference values, not the per-symbol
 // quote plane P715 stopped redistributing.
 export const EVIDENCE_TIER_INSTRUMENTS = Object.freeze([
-  { instrumentId: 'SMH', metricId: 'market.sector.semis', unit: 'USD', valueKind: 'price' },
+  // v59.74 (owner 2026-11-04 "SOXX로 하자"): semis evidence is SOXX like every other 반도체 surface. SMH rows in a
+  // snapshot published before the switch are skipped (LEGACY_EVIDENCE_IDS), never cited, until the next refresh.
+  { instrumentId: 'SOXX', metricId: 'market.sector.semis', unit: 'USD', valueKind: 'price' },
   { instrumentId: 'ES=F', metricId: 'market.futures.sp500', unit: 'index', valueKind: 'index' },
   { instrumentId: 'NQ=F', metricId: 'market.futures.nasdaq100', unit: 'index', valueKind: 'index' },
   { instrumentId: '^N225', metricId: 'market.index.nikkei225', unit: 'index', valueKind: 'index' },
   { instrumentId: '^HSI', metricId: 'market.index.hangseng', unit: 'index', valueKind: 'index' }
 ]);
+
+export const LEGACY_EVIDENCE_IDS = Object.freeze(['SMH']);
 
 const INSTRUMENT_BY_ID = new Map([...TIER_0_INSTRUMENTS, ...EVIDENCE_TIER_INSTRUMENTS].map((row) => [row.instrumentId, row]));
 
@@ -262,7 +266,7 @@ export function validateEvidenceQuotes(rows, { instruments = EVIDENCE_TIER_INSTR
   for (const quote of rows) {
     const instrumentId = String(quote?.instrumentId || '');
     const entry = registry.get(instrumentId);
-    if (!entry) { errors.push(`evidence_quote_unknown:${instrumentId}`); continue; }
+    if (!entry) { if (!LEGACY_EVIDENCE_IDS.includes(instrumentId)) errors.push(`evidence_quote_unknown:${instrumentId}`); continue; }
     if (seen.has(instrumentId)) errors.push(`evidence_quote_duplicate:${instrumentId}`);
     seen.add(instrumentId);
     if (quote.metricId !== entry.metricId || quote.unit !== entry.unit || quote.valueKind !== entry.valueKind) errors.push(`evidence_quote_identity_mismatch:${instrumentId}`);
