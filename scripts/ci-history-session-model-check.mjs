@@ -13,6 +13,7 @@
 //                    changes that session's value, in this run or a later one.
 //   H4 no loss     — every observed (session, value) survives as the owner value, a revision, or a held row.
 //   B1 backfill    — a bar never overwrites a completed record of its own session and always replaces another session's.
+//                    A carried-forward placeholder is another session's value (v59.74), so a bar always replaces it.
 //
 // Self-check (pstack create/maintain-formal-verification): the covered functions are fingerprinted in
 // architecture/model-check-coverage.json, and each VARIANT below (the pre-P2011 code, a removed guard) must break its

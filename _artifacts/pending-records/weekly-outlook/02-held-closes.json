@@ -2,11 +2,11 @@
   "p": {
     "title": "{VERSION} 평일 종가가 전날 값으로 남음 (나스닥100·WTI·브렌트·금·은·달러, 10/26~11/4)",
     "symptom": "history.json 11/2·11/4 등 미국 거래일 행의 ndx·wti·brent·gold·silver·dxy가 이전 세션 종가(carried-forward, heldReason session-already-recorded)였다. 11/5 나스닥100 하루 변화가 11/3 대비 이틀치로 계산됐고 11/4 WTI 하루 변화는 0이었다.",
-    "root_cause": "23:51Z 실행 때 선물·^NDX가 아직 세션 중(DELAYED_IN_SESSION)이라 그날 행에 전날 종가가 들어가고, 다음 날 행에서 그날 종가가 밀려날 때 keepDisplacedSessions가 '대상 행에 이미 값이 있다'며 건너뛰었다. 그 값은 다른 세션의 자리표시였다. 일봉 백필은 S&P 500 누락만 보고 돌아 이 구멍을 메우지 않았다.",
-    "fix": "keepDisplacedSessions가 다른 세션에서 끌어온 자리표시는 밀려난 실제 종가로 바꾼다(replacedCarriedFrom 기록). heldUsSessionFields가 최근 10일 미국 거래일의 자리표시를 찾아, 해당 심볼만 시간당 한 번 일봉 백필해 이미 생긴 구멍을 다음 갱신에서 메운다.",
+    "root_cause": "23:51Z 실행 때 선물·^NDX가 아직 세션 중(DELAYED_IN_SESSION)이라 그날 행에 전날 종가가 들어가고, 다음 날 행에서 그날 종가가 밀려날 때 keepDisplacedSessions가 '대상 행에 이미 값이 있다'며 건너뛰었다. 그 값은 다른 세션의 자리표시였다. 일봉 백필은 S&P 500 누락만 보고 돌아 이 구멍을 메우지 않았다. 이어서 병합 뒤 백필이 돌아도 mergeBackfillBars가 자리표시를 그 행 세션의 완료 기록으로 읽어 건너뛰었다. carried-forward는 historyFieldSessionDate가 null을 돌려주고, observedAt 대체 경로가 자리표시의 조회 시각(11/2 14:30Z)을 11/2 세션으로 읽었기 때문이다(11/7 13:23~16:22Z 갱신 4회 동안 보정 0건).",
+    "fix": "keepDisplacedSessions가 다른 세션에서 끌어온 자리표시는 밀려난 실제 종가로 바꾼다(replacedCarriedFrom 기록). heldUsSessionFields가 최근 10일 미국 거래일의 자리표시를 찾아, 해당 심볼만 시간당 한 번 일봉 백필해 이미 생긴 구멍을 다음 갱신에서 메운다. mergeBackfillBars는 carried-forward 값을 완료 기록으로 보지 않고 항상 일봉으로 바꾼다.",
     "violated_rule": "한 세션의 종가는 그 세션의 행이 가진다. 자리표시 값은 관측이 아니다.",
-    "prevention": "ci-metric-consistency-check {VERSION}: 11/4 자리표시가 heldUsSessionFields에 잡히고, 밀려난 11/4 종가가 자리표시를 대신한다.",
-    "verification": "현재 history.json에서 16건(dxy 10/27·10/29·11/4, wti·brent·gold 10/28·11/2·11/4, ndx·silver 11/2·11/4)을 찾는다. 로컬 프로듀서 금지라 데이터는 다음 Actions 갱신에서 보정된다."
+    "prevention": "ci-metric-consistency-check {VERSION}: 11/4 자리표시가 heldUsSessionFields에 잡히고, 밀려난 11/4 종가가 자리표시를 대신한다. 라이브 11/2 NDX 모양의 자리표시(행 날짜 observedAt, valueBasis previous-completed-close)를 일봉이 대신한다. history-session-model B1 설명에 자리표시를 넣고 재동기화했다.",
+    "verification": "현재 history.json에서 16건(dxy 10/27·10/29·11/4, wti·brent·gold 10/28·11/2·11/4, ndx·silver 11/2·11/4)을 찾는다. 로컬 프로듀서 금지라 데이터는 다음 Actions 갱신에서 보정된다. 1차 수정 병합 뒤 4회 갱신에서 19건이 그대로 남은 것을 확인했고, 백필 병합 수정은 고치기 전 코드에서 새 assertion이 실패하는 것을 확인했다."
   },
   "changelog": [
     "**평일 종가 누락 보정 ({VERSION}):** 저녁 실행 때 선물·나스닥100이 세션 중이라 전날 종가로 채워진 평일 값을, 다음 날 들어온 실제 종가가 대신하게 했다. 이미 생긴 누락은 다음 갱신 때 해당 심볼만 일봉으로 다시 받아 메운다."
