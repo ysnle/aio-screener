@@ -153,6 +153,7 @@ Do not create a new skill when an existing skill can be hardened. New skills req
 | `knowledge-lint` | broken doc links resolved, INDEX current, stale/missing rule-to-QA mappings reported |
 | `autoresearch` | binary evals, baseline result, one-variable change log, accepted/rejected result |
 | `verify-aio` | launch → doctor → drive → evidence path → cleanup; per-feature PASS/FAIL, unreachable sub-features with prerequisite |
+| `deepen` | candidates ranked with the deletion test and dependency class; when carried out, the deleted globals/entry points listed, regression cases at the new interface that fail on the old code, shallow-piece tests replaced |
 | `model-check` | gate command run; per-invariant PASS or violation trail classified real bug / modeling error; every variant still breaks its invariant; `--sync` only after re-reading the model |
 | `create-verification-skill` | generated skill executed once end to end, evidence survives cleanup, feature map seeded |
 | `maintain-verification-skill` | every feature covered from source and live; outcome clean/changed/blocked; product gaps reported, not doc-patched |

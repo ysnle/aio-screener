@@ -111,7 +111,7 @@ const fault = harness({fetcher:async(u)=>u.startsWith('https://owned.example') ?
 check((await fault.root.fetchViaProxy(url(),{parseJson:true}))._aioTransport.provider==='allorigins-raw' && fault.calls.length===2, 'P1758 a Worker 503 still falls back to exactly one public relay');
 const krData1758 = readFileSync(new URL('../js/aio-kr-data.js', import.meta.url), 'utf8');
 const core1758 = readFileSync(new URL('../js/aio-core.js', import.meta.url), 'utf8');
-const quotes1758 = section(source, 'async function fetchLiveQuotes(', 'function scheduleQuoteCrossSourceValidation(');
+const quotes1758 = section(source, 'async function _aioFetchLiveQuotesOnce(', 'function scheduleQuoteCrossSourceValidation(');
 check(/v7\/finance\/spark\?symbols=/.test(quotes1758) && /i \+= 20\)/.test(quotes1758) && !/yahoo\.com\/v7\/finance\/quote/.test(quotes1758) && /function _yfQuoteFromMeta\(/.test(quotes1758), 'P1758 quote polling batches 20 symbols per spark request through the relay chain (v7/quote needs a crumb and 401s)');
 check(quotes1758.indexOf('const _PRICE_RULES') < quotes1758.indexOf('await _yfBatchFetch('), 'P1758 the batch runs after the price rules it validates against are initialised');
 check(!/codetabs\.com|allorigins\.win|corsproxy\.io|proxy\.cors\.sh|Promise\.any/.test(section(krData1758, 'async function dynamicTickerLookup(', '// 한국 종목: siseJson 폴백')) && !/corsproxy\.io\/\?'|allorigins\.win\/raw\?url='/.test(core1758), 'P1758 ticker lookup and SEC submissions use the relay chain, not a public-relay race or list');
@@ -178,7 +178,7 @@ const oldQuote={...q,_source:'live:yahoo-v7-batch',regularMarketTime:1787918000}
 const newQuote={...q,_source:'live:yahoo-proxy',regularMarketTime:1787918400,regularMarketPrice:102};
 check(observations._aioSelectAtomicQuotes([oldQuote,newQuote],Date.now())[0].regularMarketPrice===102, 'newer observation wins over preferred older provider');
 check(observations._aioSelectAtomicQuotes([newQuote,{...q,fetchedAt:new Date().toISOString()}],Date.now())[0].regularMarketPrice===102, 'collection time cannot displace a real observation');
-vm.runInContext(section(source, 'function _aioPlanQuoteGroups(', 'async function fetchLiveQuotes('), observations);
+vm.runInContext(section(source, 'function _aioPlanQuoteGroups(', '// The provider fetch behind fetchLiveQuotes.'), observations);
 const groups=observations._aioPlanQuoteGroups(['NVDA','NVDA','BRK-B','<bad>'],['^GSPC','KRW=X']);
 check(groups.flat().join(',')==='NVDA,BRK-B,^GSPC,KRW=X' && groups.every(group=>group.length<=5), 'request-owned quote scope deduplicates and validates symbols without hidden catalogue fanout');
 observations.window=observations;

@@ -340,8 +340,8 @@ function renderKrThemeCardsFromMap() {
   if (window.AIO && typeof window.AIO.registerLiveSymbolsFromDom === 'function') {
     addedLiveSymbols = window.AIO.registerLiveSymbolsFromDom(container, { reason: 'kr-theme-render' });
   }
-  if (addedLiveSymbols > 0 && typeof fetchLiveQuotes === 'function' && typeof _aioBootPhase !== 'undefined' && _aioBootPhase.quoteReady === true && !window._aioQuoteInFlight) {
-    setTimeout(function() { fetchLiveQuotes(window._aioQuoteRequestSymbols || []); }, 50);
+  if (addedLiveSymbols > 0 && typeof fetchLiveQuotes === 'function' && typeof _aioBootPhase !== 'undefined' && _aioBootPhase.quoteReady === true) {
+    setTimeout(function() { fetchLiveQuotes(); }, 50); // registered symbols join every fetch (src/data/quote-demand.js)
   }
 
   // 클릭 핸들러 연결

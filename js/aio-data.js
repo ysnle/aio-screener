@@ -2775,7 +2775,6 @@ window.AIO.ensureFreshDataForUse = async function(scope) {
   }
   window._aioEnsureFreshInFlight[key] = true;
   window._aioEnsureFreshLast[key] = now;
-  var releaseQuoteRequestSymbols = _aioHoldQuoteSymbols(plan.profile && plan.profile.symbols); // SM-04 (_context/STATE-MACHINES.md)
   try {
     var refresh = await window.AIO.runScheduledRefresh({
       keys: plan.tasks,
@@ -2801,11 +2800,9 @@ window.AIO.ensureFreshDataForUse = async function(scope) {
   } catch(e) {
     return { status: 'warn', plan: plan, refresh: null, error: e && e.message || String(e), generatedAt: new Date().toISOString() };
   } finally {
-    releaseQuoteRequestSymbols();
     delete window._aioEnsureFreshInFlight[key];
   }
 };
-function _aioHoldQuoteSymbols(symbols) { return typeof window._aioHoldQuoteRequestSymbols === 'function' ? window._aioHoldQuoteRequestSymbols(symbols) : function() {}; }
 
 function _aioNormalizeChatTickers(tickers) {
   var out = [];
@@ -5138,19 +5135,18 @@ function _aioPlanQuoteGroups(requestedSymbols, coreSymbols) {
   return groups;
 }
 
-async function fetchLiveQuotes(requestedSymbols) {
-  if (window._aioQuoteInFlight) return { ok: false, skipped: true, coalesced: true, error: 'quote fetch already in flight' }; // SM-03a: did nothing, not a success
-  window._aioQuoteInFlight = true; if (window._aioCancelQuoteRetry) window._aioCancelQuoteRetry(); // SM-05: a fetch supersedes the pending retry
+// The provider fetch behind fetchLiveQuotes. src/data/quote-demand.js owns the requests: one fetch at a time, joined or
+// queued symbols, the retry timer, and the status record. `attempt.failures` = failures in a row before this fetch.
+async function _aioFetchLiveQuotesOnce(requestedSymbols, attempt) {
+  const failCount = ((attempt && attempt.failures) || 0) + 1; // used only if this fetch fails
   try {
   // ═══════════════════════════════════════════════════════════
   // v19: 소스별 전용 API 사용 — 단순하고 확실하게 작동
   // ═══════════════════════════════════════════════════════════
 
   const allQuotes = [];
-  const _requestedQuoteSyms = Array.from(new Set([].concat(
-    Array.isArray(requestedSymbols) ? requestedSymbols : [],
-    Array.isArray(window._aioQuoteRequestSymbols) ? window._aioQuoteRequestSymbols : []
-  ).map(function(sym) { return String(sym || '').trim().toUpperCase(); }).filter(Boolean)));
+  const _requestedQuoteSyms = Array.from(new Set((Array.isArray(requestedSymbols) ? requestedSymbols : [])
+    .map(function(sym) { return String(sym || '').trim().toUpperCase(); }).filter(Boolean)));
 
   // ─── 1. 암호화폐: CoinGecko (완전 무료) → CF Worker 프록시 폴백 ────
   // v48.2: include_market_cap + include_24hr_vol 추가 — 거래량 스파이크 감지 + BTC 도미넌스 판단 가능
@@ -5609,7 +5605,6 @@ async function fetchLiveQuotes(requestedSymbols) {
         (typeof _aioGetCritical10Symbols === 'function' ? _aioGetCritical10Symbols() : [])
       ), 'post-live-quotes-cross-source');
     } catch(_crossScheduleErr) {}
-    fetchLiveQuotes._failCount = 0;
     // v48.36: 중앙 freshness 추적 — _lastFetch.quote + DATA_SNAPSHOT._isFallback 해제
     if (typeof window._markFetch === 'function') window._markFetch('quote');
     var liveCoverage = null;
@@ -5633,10 +5628,9 @@ async function fetchLiveQuotes(requestedSymbols) {
     // v59.45 (R2-01): the refresh scheduler records success from this value; an undefined return read every run as 'loaded'.
     return { ok: true, updated: true, status: coreCoverageOk ? 'loaded' : 'partial', count: allQuotes.length };
   } else {
-    fetchLiveQuotes._failCount = (fetchLiveQuotes._failCount||0) + 1;
     // v46.4: 지수적 백오프 (선형 30×N → 지수 15×2^N, 최대 300초)
     const usingSnapshotFallback = !!(_aioMarketSnapshotMeta && Number(_aioMarketSnapshotMeta.count) > 0);
-    const wait = usingSnapshotFallback ? 180 : Math.min(300, 15 * Math.pow(2, fetchLiveQuotes._failCount - 1));
+    const wait = usingSnapshotFallback ? 180 : Math.min(300, 15 * Math.pow(2, failCount - 1));
     // P1326/R671: a failed fetch does not replace the currentness label with transport text;
     // whatever observations exist keep their own label (종가/지난 시세/미수신).
     if (usingSnapshotFallback) {
@@ -5647,20 +5641,19 @@ async function fetchLiveQuotes(requestedSymbols) {
     updateDataStatusError(usingSnapshotFallback ? 'warn' : 'error', usingSnapshotFallback
       ? '실시간 시세 미수신, 기준 스냅샷 사용, 중앙 갱신 주기 대기'
       : 'API 연결 실패 — ' + wait + '초 후 재시도');
-    if (typeof _reportApiError === 'function') _reportApiError('yahoo-quote', '연결 실패 (시도 ' + fetchLiveQuotes._failCount + ')');
-    if (!usingSnapshotFallback && window._aioScheduleQuoteRetry) window._aioScheduleQuoteRetry(wait * 1000); // SM-05: one retry, none while hidden
-    return { ok: false, updated: false, status: 'failed', error: 'live quote refresh received no quotes' };
+    if (typeof _reportApiError === 'function') _reportApiError('yahoo-quote', '연결 실패 (시도 ' + failCount + ')');
+    // SM-05: the demand keeps one retry pending and skips it while hidden; with the snapshot fallback the central cycle retries.
+    return { ok: false, updated: false, status: 'failed', error: 'live quote refresh received no quotes', retryAfterMs: usingSnapshotFallback ? null : wait * 1000 };
   }
   } catch (e) {
-    fetchLiveQuotes._failCount = (fetchLiveQuotes._failCount || 0) + 1;
     if (typeof _aioLog === 'function') _aioLog('error', 'fetch', 'fetchLiveQuotes fatal: ' + (e && e.message ? e.message : e));
     updateDataStatusError('error', 'quote refresh failed - next refresh remains enabled');
     if (typeof _reportApiError === 'function') _reportApiError('yahoo-quote', 'fatal refresh error');
     return { ok: false, updated: false, status: 'failed', error: 'fetchLiveQuotes fatal: ' + (e && e.message ? e.message : e) };
-  } finally {
-    window._aioQuoteInFlight = false;
   }
 }
+
+window._aioFetchLiveQuotesOnce = _aioFetchLiveQuotesOnce; // read by src/data/quote-demand.js
 
 function scheduleQuoteCrossSourceValidation(symbols, reason) {
   if (!window.AIO || typeof window.AIO.validateQuoteCrossSources !== 'function') return;
@@ -6106,13 +6099,11 @@ window.AIO.repairPageLiveDataBinding = async function(opts) {
     var missing = Array.from(new Set(audit.sourceMissing.map(function(x) { return x.symbol; }))).slice(0, opts.limit || 160);
     if (missing.length) {
       window._aioLiveBindingRepairInFlight = true;
-      var releaseMissing = _aioHoldQuoteSymbols(missing);
       try {
-        await fetchLiveQuotes(missing);
+        await fetchLiveQuotes(missing); // SM-04b: joins or queues behind a running fetch, never dropped
       } catch(e) {
         audit.retryError = e && e.message || String(e);
       } finally {
-        releaseMissing();
         window._aioLiveBindingRepairInFlight = false;
       }
       window.AIO.applyLiveDataToDom({ pageId: opts.pageId, reason: 'repair-live-binding-retry', force: true });

@@ -8,6 +8,8 @@
 //   SM-03c  a fetch that finished after its timeout or cancel had its outcome dropped
 //   SM-04   overlapping refreshes dropped a running refresh's symbols and restored a finished one's list for good
 //   SM-05   each failed quote fetch added its own retry chain, and the chains fetched while the tab was hidden
+//   SM-04b   a quote request made while a fetch ran got "coalesced" back and its symbols were never fetched
+// SM-03a/04/04b/05 are tested at the interface of src/data/quote-demand.js, the module that now owns those transitions.
 //   SM-07   a page refresh dropped or cancelled before it finished still held its 30s stamp, so a quick return skipped it
 //   SM-08   moving to another AI screen while an answer kept running turned 전송 back on
 //   SM-13   a read still pending could be evicted from the 40-entry cache, so asking again fetched twice
@@ -18,6 +20,7 @@ import vm from 'node:vm';
 import { installRefreshScheduler } from '../src/app/refresh-scheduler.js';
 import { createOnDemandSymbolReader } from '../src/data/on-demand-symbol.js';
 import { installServerDataLoader } from '../src/data/server-data-loader.js';
+import { createQuoteDemand } from '../src/data/quote-demand.js';
 
 let checks = 0;
 const pass = (name) => { checks += 1; console.log(`PASS ${name}`); };
@@ -41,7 +44,7 @@ function freshScheduler() {
 }
 function pendingFetcher(name) {
   const pending = [];
-  globalThis[name] = (...args) => new Promise((resolve, reject) => pending.push({ resolve, reject, args, symbols: globalThis.window?._aioQuoteRequestSymbols?.slice() }));
+  globalThis[name] = (...args) => new Promise((resolve, reject) => pending.push({ resolve, reject, args }));
   return pending;
 }
 
@@ -112,43 +115,95 @@ function pendingFetcher(name) {
   pass('SM-03c fetch finishing after its timeout is recorded');
 }
 
-// SM-04
-{
-  const win = freshScheduler();
-  globalThis.window = win;
-  win.AIO.registerLiveSymbol = (sym) => win._aioAddQuoteRequestBaseSymbol(sym); // the aio-core.js path
-  win.AIO.registerLiveSymbol('REG1');
-  const quotes = pendingFetcher('fetchLiveQuotes');
-  const news = pendingFetcher('fetchAllNews');
-  const first = win.AIO.runScheduledRefresh({ keys: ['quotes'], symbols: ['HOME1'] });
-  await settle();
-  const second = win.AIO.runScheduledRefresh({ keys: ['news', 'quotes'], symbols: ['COMP1'] });
-  await settle();
-  win.AIO.registerLiveSymbol('REG2'); // a screen registers a row while both refreshes run
-  assert.deepEqual(win._aioQuoteRequestSymbols, ['REG1', 'REG2', 'HOME1', 'COMP1'], 'v59.74 SM-04: expected state')
-  quotes.shift().resolve({ ok: true });
-  await first;
-  assert.deepEqual(win._aioQuoteRequestSymbols, ['REG1', 'REG2', 'COMP1'], 'v59.74 SM-04: the running refresh keeps its symbols');
-  news.shift().resolve({ ok: true });
-  await settle();
-  assert.deepEqual(quotes[0].symbols, ['REG1', 'REG2', 'COMP1'], 'v59.74 SM-04: the second refresh asks for its own symbols');
-  quotes.shift().resolve({ ok: true });
-  await second;
-  assert.deepEqual(win._aioQuoteRequestSymbols, ['REG1', 'REG2'], 'v59.74 SM-04: a finished refresh leaves only the registered symbols');
-  const release = win._aioHoldQuoteRequestSymbols(['X']);
-  release(); release();
-  assert.deepEqual(win._aioQuoteRequestSymbols, ['REG1', 'REG2'], 'v59.74 SM-04: a release is idempotent');
-  delete globalThis.window;
-  pass('SM-04 overlapping refreshes hold their symbol lists independently');
+// SM-03a/04/04b/05 — the quote demand (src/data/quote-demand.js), tested at its interface with an injected provider fetch
+// and fake timers. Each case is the trail that reached the bad state before the demand owned these transitions.
+function demandHarness({ hidden = false } = {}) {
+  const fetches = [];
+  const outcomes = [];
+  const timers = new Map();
+  let seq = 0;
+  const env = { hidden };
+  const demand = createQuoteDemand({
+    fetchQuotes: (symbols, attempt) => new Promise((resolve) => fetches.push({ symbols, attempt, resolve })),
+    onOutcome: (outcome) => outcomes.push(outcome),
+    isHidden: () => env.hidden,
+    timers: { setTimeout: (fn, ms) => { seq += 1; timers.set(seq, { fn, ms }); return seq; }, clearTimeout: (id) => timers.delete(id) },
+    base: ['REG1']
+  });
+  return { demand, fetches, outcomes, timers, env };
 }
-
-// SM-05 — the real js/aio-data.js fetchLiveQuotes (with its group planner) run in a vm against an offline transport,
-// wired to the real scheduler's retry owner, under fake timers. Names the function does not reach resolve to inert stubs.
-function loadFetchLiveQuotes(win, globalsForVm) {
+// SM-03a + SM-04b: a request during a fetch is never "did nothing": covered symbols join, new ones are fetched next.
+{
+  const { demand, fetches, outcomes } = demandHarness();
+  const first = demand.request(['HOME1']);
+  await settle();
+  const joined = demand.request(['home1']);
+  assert.equal(joined, first, 'v59.74 SM-03a: a request the running fetch covers joins it');
+  const repair = demand.request(['MISS1']);
+  const repair2 = demand.request(['MISS2', 'HOME1']);
+  assert.equal(repair2, repair, 'v59.74 SM-04b: requests with new symbols share one follow-up fetch');
+  assert.equal(fetches.length, 1, 'v59.74 SM-03a: one provider fetch at a time');
+  fetches[0].resolve({ ok: true, updated: true, status: 'loaded' });
+  assert.equal((await first).ok, true, 'v59.74 SM-03a: the joined caller gets the real outcome');
+  await settle();
+  assert.equal(fetches.length, 2, 'v59.74 SM-04b: the queued symbols are fetched right after');
+  assert.deepEqual(fetches[1].symbols.sort(), ['MISS1', 'MISS2', 'REG1'], 'v59.74 SM-04b: the follow-up asks for the symbols the running fetch did not read');
+  fetches[1].resolve({ ok: true, updated: true, status: 'loaded' });
+  assert.equal((await repair).ok, true, 'v59.74 SM-04b: the repair caller waits for the fetch that has its symbols');
+  assert.equal(outcomes.length, 2, 'v59.74 SM-03a: every fetch outcome is recorded once');
+  pass('SM-03a/04b a request during a fetch joins it or is fetched next, never dropped');
+}
+// SM-04: registered symbols join every fetch, including ones registered while a fetch runs; nothing is restored later.
+{
+  const { demand, fetches } = demandHarness();
+  const first = demand.request(['A']);
+  await settle();
+  demand.register('reg2');
+  const second = demand.request(['B']);
+  fetches[0].resolve({ ok: true });
+  await first; await settle();
+  assert.deepEqual(fetches[1].symbols.sort(), ['B', 'REG1', 'REG2'], 'v59.74 SM-04: the next fetch has the registered symbols and its own, not the finished one');
+  fetches[1].resolve({ ok: true }); await second;
+  demand.request(); await settle();
+  assert.deepEqual(fetches[2].symbols.sort(), ['REG1', 'REG2'], 'v59.74 SM-04: a finished request leaves only the registered symbols');
+  fetches[2].resolve({ ok: true });
+  pass('SM-04 symbol lists of overlapping requests stay independent');
+}
+// SM-05: one retry pending, a new fetch cancels it, a hidden tab skips it, the backoff count reaches the provider.
+{
+  const { demand, fetches, timers, env } = demandHarness();
+  for (let i = 0; i < 3; i += 1) {
+    const run = demand.request();
+    await settle();
+    assert.equal(fetches.at(-1).attempt.failures, i, 'v59.74 SM-05: the provider sees the failures in a row for its backoff');
+    fetches.at(-1).resolve({ ok: false, status: 'failed', retryAfterMs: 15000 * 2 ** i });
+    await run;
+  }
+  assert.equal(timers.size, 1, 'v59.74 SM-05: three failures leave one retry pending, not three chains');
+  assert.equal([...timers.values()][0].ms, 60000, 'v59.74 SM-05: the pending retry is the latest backoff');
+  const started = demand.request(); // a fetch from anywhere starts: the pending retry is cancelled at once
+  assert.equal(timers.size, 0, 'v59.74 SM-05: a fetch that starts cancels the pending retry');
+  await settle(); fetches.at(-1).resolve({ ok: false, retryAfterMs: 1000 }); await started;
+  env.hidden = true;
+  const pending = [...timers.values()][0]; timers.clear(); pending.fn(); await settle();
+  assert.equal(fetches.length, 4, 'v59.74 SM-05: a hidden tab does not fetch on a retry timer');
+  env.hidden = false;
+  demand.request(); await settle();
+  fetches.at(-1).resolve({ ok: false, retryAfterMs: 1000 }); await settle();
+  const visible = [...timers.values()][0]; timers.clear(); visible.fn(); await settle();
+  assert.equal(fetches.length, 6, 'v59.74 SM-05: a visible tab retries once');
+  fetches.at(-1).resolve({ ok: true }); await settle();
+  assert.equal(demand.state().failures, 0, 'v59.74 SM-05: a success resets the failure count');
+  assert.equal(timers.size, 0, 'v59.74 SM-05: a success leaves no retry');
+  pass('SM-05 the quote demand keeps one retry, cancels it on a new fetch and skips it while hidden');
+}
+// The real provider fetch (js/aio-data.js) offline: it reports a retry from the failure count it was given, and the
+// scheduler records an outcome from a caller that never went through it.
+function loadProviderFetch(win, globalsForVm) {
   const source = readFileSync(new URL('../js/aio-data.js', import.meta.url), 'utf8');
   const start = source.indexOf('function _aioPlanQuoteGroups(');
   const end = source.indexOf('function scheduleQuoteCrossSourceValidation(', start);
-  assert(start >= 0 && end > start, 'v59.74 SM-05: fetchLiveQuotes and its planner are found in js/aio-data.js');
+  assert(start >= 0 && end > start, 'v59.74 SM-05: the provider fetch and its planner are found in js/aio-data.js');
   const inert = () => new Proxy(function () {}, { apply: () => undefined, get: (_, key) => (key === 'then' ? undefined : key === Symbol.toPrimitive ? () => '' : inert()) });
   const own = {
     console: { log() {}, warn() {}, error() {} }, Promise, Date, Math, JSON, Object, Array, Set, Map, String, Number, Boolean, Error, RegExp,
@@ -161,47 +216,21 @@ function loadFetchLiveQuotes(win, globalsForVm) {
     has: () => true,
     get: (target, key) => (key in target ? target[key] : key === Symbol.unscopables ? undefined : key in win ? win[key] : inert())
   }));
-  vm.runInContext(`${source.slice(start, end)}\nthis.fetchLiveQuotes = fetchLiveQuotes;`, context);
-  return context.fetchLiveQuotes;
+  vm.runInContext(`${source.slice(start, end)}\nthis._aioFetchLiveQuotesOnce = _aioFetchLiveQuotesOnce;`, context);
+  return context._aioFetchLiveQuotesOnce;
 }
 {
   const win = freshScheduler();
-  const timers = new Map();
-  let seq = 0;
-  const fakeSetTimeout = (fn, ms) => { seq += 1; timers.set(seq, { fn, ms }); return seq; };
-  const fakeClearTimeout = (id) => { timers.delete(id); };
-  const realSetTimeout = globalThis.setTimeout, realClearTimeout = globalThis.clearTimeout;
-  globalThis.setTimeout = fakeSetTimeout; globalThis.clearTimeout = fakeClearTimeout; // the scheduler's retry owner
-  try {
-    const fetchLiveQuotes = loadFetchLiveQuotes(win, { setTimeout: fakeSetTimeout, clearTimeout: fakeClearTimeout });
-    let retries = 0;
-    globalThis.fetchLiveQuotes = () => { retries += 1; return fetchLiveQuotes(); }; // what the retry timer calls
-    win._aioQuoteInFlight = true;
-    const coalesced = await fetchLiveQuotes(['AAPL']);
-    assert.equal(coalesced.coalesced, true, 'v59.74 SM-03a: a call during a running fetch reports that it did nothing');
-    assert.equal(timers.size, 0, 'v59.74 SM-03a: a coalesced call schedules nothing');
-    win._aioQuoteInFlight = false;
-    for (let i = 0; i < 3; i += 1) {
-      const failed = await fetchLiveQuotes([]);
-      assert.equal(failed.status, 'failed', 'v59.74 SM-05: an offline fetch fails');
-    }
-    assert.equal(timers.size, 1, 'v59.74 SM-05: three failures leave one retry pending, not three chains');
-    const pending = [...timers.values()][0];
-    assert.ok(pending.ms >= 15000, 'v59.74 SM-05: the retry waits its backoff');
-    doc.hidden = true;
-    timers.clear(); pending.fn();
-    assert.equal(retries, 0, 'v59.74 SM-05: a hidden tab does not fetch on a retry timer');
-    doc.hidden = false;
-    await fetchLiveQuotes([]);
-    assert.equal(timers.size, 1, 'v59.74 SM-05: a visible failure schedules the retry again');
-    const started = fetchLiveQuotes([]); // a new fetch starts: the pending retry is cancelled at once
-    assert.equal(timers.size, 0, 'v59.74 SM-05: a fetch that starts cancels the pending retry');
-    await started;
-    const next = [...timers.values()].at(-1);
-    timers.clear(); next.fn(); await settle();
-    assert.equal(retries, 1, 'v59.74 SM-05: a visible tab retries through the real fetch');
-  } finally { globalThis.setTimeout = realSetTimeout; globalThis.clearTimeout = realClearTimeout; doc.hidden = false; }
-  pass('SM-05 the real quote fetch keeps one retry, cancels it on a new fetch and skips it while hidden');
+  const provider = loadProviderFetch(win, {});
+  const first = await provider([], { failures: 0 });
+  const third = await provider([], { failures: 2 });
+  assert.deepEqual([first.ok, first.retryAfterMs, third.retryAfterMs], [false, 15000, 60000], 'v59.74 SM-05: the provider backs off from the failure count it is given');
+  win._aioFetchLiveQuotesOnce = async () => ({ ok: true, updated: true, status: 'loaded', count: 3 });
+  const cfg = win.REFRESH_SCHEDULE.quotes;
+  cfg._lastOk = 0; cfg._status = 'failed';
+  await win.fetchLiveQuotes(['AAPL']); // a screen's direct call, outside the scheduler
+  assert.ok(cfg._lastOk > 0 && cfg._status === 'loaded', 'v59.74 SM-03a: a quote fetch from any caller is recorded on the quotes task');
+  pass('SM-05 the real provider reports its retry, and outcomes from any caller reach the quotes task');
 }
 
 // SM-07 — the real page on-enter refresh under fake timers; runScheduledRefresh is a stub that never settles.

@@ -52,6 +52,11 @@
       { "prompt": "AI 예산 원장 코드를 고쳤어. 괜찮은지 검증해줘.", "mustInclude": ["node scripts/ci-ai-ledger-model-check.mjs", "variants broken", "bound covered, not live"], "mustNotClaim": ["deployed Worker verified"] },
       { "prompt": "ai-ledger-model 게이트가 covered code changed로 실패해.", "mustInclude": ["re-read header model", "update variants", "--sync after confirming"], "mustNotClaim": ["just run --sync"] },
       { "prompt": "모델 검사가 L1 위반 trail을 냈어. 코드 버그야?", "mustInclude": ["replay the trail against the code", "real bug vs modeling error", "report, do not weaken the invariant"], "mustNotClaim": ["loosen the invariant to pass"] }
+    ],
+    "deepen": [
+      { "prompt": "deepen modules and simplify interfaces — 시세 쪽 다시 봐줘.", "mustInclude": ["deletion test", "hot spots from recent commits", "candidates ranked Strong / Worth exploring / Speculative"], "mustNotClaim": ["rewrite the whole file"] },
+      { "prompt": "버그를 고치려면 window 전역을 하나 더 만들어야 할 것 같아.", "mustInclude": ["a global a caller touches is interface", "owner module behind the existing seam", "test at the new interface"], "mustNotClaim": ["add the global and pin its source text"] },
+      { "prompt": "이 모듈에 포트를 두고 어댑터를 주입할까?", "mustInclude": ["classify the dependency", "two adapters make a real seam", "offline adapter in the gate"], "mustNotClaim": ["add a port with one adapter"] }
     ]
   }
 }
