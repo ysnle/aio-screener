@@ -20,7 +20,7 @@ const MARKET_ANALYSIS_QUOTE_DEFS = [
   { symbol: '^KS11', metricId: 'market.kospi', label: 'KOSPI', unit: 'index', aliases: [], zone: 'Asia/Seoul' },
   // Live 2026-10-21: KOSPI +3.3% was read only as "AI 투자심리 회복" — semis, US futures and Asia were not evidence. These come
   // from the snapshot's evidence tier only (snapshotOnly): an id that does not resolve in market-snapshot.json is not cited.
-  { symbol: 'SMH', metricId: 'market.semis', label: 'SMH', unit: 'USD', aliases: ['반도체 ETF', '반도체ETF'], snapshotOnly: true },
+  { symbol: 'SOXX', metricId: 'market.semis', label: 'SOXX', unit: 'USD', aliases: ['반도체 ETF', '반도체ETF'], snapshotOnly: true },
   { symbol: 'ES=F', metricId: 'market.sp500-futures', label: 'ES', unit: 'index', aliases: ['ES=F', 'S&P 500 선물', 'S&P500 선물', 'S&P 선물'], snapshotOnly: true },
   { symbol: 'NQ=F', metricId: 'market.nasdaq100-futures', label: 'NQ', unit: 'index', aliases: ['NQ=F', '나스닥 100 선물', '나스닥100 선물', '나스닥 선물', 'Nasdaq 100 futures'], snapshotOnly: true },
   { symbol: '^N225', metricId: 'market.nikkei', label: 'Nikkei', unit: 'index', aliases: ['Nikkei 225', '닛케이', '닛케이 225', '닛케이225'], zone: 'Asia/Tokyo', snapshotOnly: true },
@@ -214,7 +214,7 @@ const MARKET_ANALYSIS_MENTIONS = Object.freeze({
   // "S&P 500 선물 +0.6%" is checked against the futures row, never against the S&P 500 close.
   'market.sp500-futures': ['ES=F', 'S&P\\s?500\\s?(?:지수\\s?)?선물', 'S&P\\s?선물', '에스앤피\\s?(?:오백|500)\\s?선물'],
   'market.nasdaq100-futures': ['NQ=F', 'Nasdaq\\s?(?:100\\s?)?futures', '나스닥\\s?(?:100\\s?)?(?:지수\\s?)?선물'],
-  'market.semis': ['SMH', '반도체\\s?ETF'],
+  'market.semis': ['SOXX', '반도체\\s?ETF'],
   'market.nikkei': ['Nikkei(?:\\s?225)?', '닛케이(?:\\s?225)?(?:\\s?지수)?', '니케이(?:\\s?225)?'],
   'market.hangseng': ['Hang\\s?Seng', '항셍(?:\\s?지수)?'],
   'market.spx': ['S&P\\s?500', 'SPX', 'S&P', '에스앤피\\s?(?:오백|500)'],
@@ -531,7 +531,7 @@ export function crossMarketDateIssues(body, { krDate = null, usDate = null } = {
 // (data.rotationHistory weeklyPct) and theme lines carrying "5거래일 x%" (theme-playbook.js context, rotation text).
 export const THEME_LEAD_DROP_PCT = -3;
 const SECTOR_ETF_WORDS = Object.freeze({
-  SMH: ['반도체'], XLK: ['기술주', '정보기술', '기술 섹터', '기술 업종'], IGV: ['소프트웨어'], XLE: ['에너지'], XLF: ['금융'], XLV: ['헬스케어'],
+  SOXX: ['반도체'], SMH: ['반도체'], XLK: ['기술주', '정보기술', '기술 섹터', '기술 업종'], IGV: ['소프트웨어'], XLE: ['에너지'], XLF: ['금융'], XLV: ['헬스케어'],
   XLI: ['산업재'], XLY: ['임의소비재', '경기소비재'], XLP: ['필수소비재'], XLU: ['유틸리티'], XLB: ['소재'], XLRE: ['부동산', '리츠'], XLC: ['통신서비스', '통신']
 });
 function packetFiveSessionMoves({ context = '', data = null } = {}) {
@@ -1042,7 +1042,7 @@ const MARKET_ANALYSIS_PLAIN_NAMES = Object.freeze({
   'market.spx': 'S&P 500', 'market.vix': 'VIX(변동성 지수)', 'market.us10y': '미국 10년물 금리', 'market.dxy': '달러 지수',
   'market.wti': 'WTI 유가', 'market.gold': '금', 'market.kospi': '코스피', 'macro.cpi': '미국 소비자물가(전년비)',
   'macro.fed-rate': '미국 실효 연방기금금리(월평균)', 'macro.fed-target-upper': '연준 목표 범위 상단', 'macro.nfp-mom': '미국 비농업 고용 증감', 'sentiment.fear-greed': '공포·탐욕 지수',
-  'market.semis': '반도체 ETF(SMH)', 'market.sp500-futures': 'S&P 500 선물', 'market.nasdaq100-futures': '나스닥 100 선물', 'market.nikkei': '닛케이 225', 'market.hangseng': '항셍 지수'
+  'market.semis': '반도체 ETF(SOXX)', 'market.sp500-futures': 'S&P 500 선물', 'market.nasdaq100-futures': '나스닥 100 선물', 'market.nikkei': '닛케이 225', 'market.hangseng': '항셍 지수'
 });
 const _plainNumber = (value, unit) => {
   const text = Number(value).toLocaleString('en-US', { maximumFractionDigits: 2 });

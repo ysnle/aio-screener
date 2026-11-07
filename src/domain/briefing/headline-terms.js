@@ -9,7 +9,11 @@ export const HEADLINE_GLOSSARY_PAIRS = Object.freeze([
   ['the Fed', '연준'], ['downgrade/upgrade (analyst)', '투자의견 하향/상향'], ['price target', '목표주가'], ['buyback', '자사주 매입'],
   ['futures', '선물'], ['stocks slide/jump', '주가 하락/급등'], ['layoffs', '감원'], ['tariffs', '관세'],
   // v59.56 (text-quality audit): 'high junk' came back as '고위 자산'·'상승'; 'sources say' left '소식통은 말하다'.
-  ['junk / high-yield (bonds, ratings)', '정크(투기 등급)/하이일드'], ['sources say', '소식통에 따르면']
+  ['junk / high-yield (bonds, ratings)', '정크(투기 등급)/하이일드'], ['sources say', '소식통에 따르면'],
+  // v59.74 (site QA 11/7): 'Muted AI Rebound' came back as '미묘한 AI 반등', 'Earnings Beat Raises … Outlook' as '실적 상승',
+  // 'oil prices' as '오일 가격'; the midterm week's political terms had no fixed rendering.
+  ['muted (rebound, reaction)', '약한·제한적'], ['oil prices', '유가'], ['earnings beat', '실적 예상 상회'], ['raises outlook', '전망 상향'],
+  ['midterm elections', '중간선거'], ['blue wave', '블루웨이브(민주당 압승)'], ['neocloud', '네오클라우드']
 ]);
 
 // [English term in the original, wrong Korean rendering, replacement]

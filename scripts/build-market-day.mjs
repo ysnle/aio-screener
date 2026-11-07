@@ -69,7 +69,7 @@ export async function translateDayHeadlines(day, { previous = null, translate = 
 
 export function narrativesFor(inputs, nowMs, previous = null) {
   try {
-    const current = publishedNarratives(detectNarratives({ telegramDigest: inputs.telegramDigest, screener: inputs.screener, nowMs }), { nowMs });
+    const current = publishedNarratives(detectNarratives({ telegramDigest: inputs.telegramDigest, screener: inputs.screener, news: inputs.news, nowMs }), { nowMs });
     return { ...current, ...narrativeDayLog(previous, current, { nowMs }) };
   }
   catch (error) { return { version: 'narratives.v1', at: new Date(nowMs).toISOString(), stories: [], log: Array.isArray(previous?.log) ? previous.log : [], changes: null, error: String(error?.message || error) }; }
