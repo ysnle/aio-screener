@@ -1,10 +1,18 @@
 {
  "schemaVersion": "company-profiles-index.v1",
- "revision": "f59df1f19f77fd2b",
- "count": 263,
+ "revision": "47bc5548221818fc",
+ "count": 274,
  "schema": "_artifacts/company-profile-pilot-20261028/SCHEMA-v2.md",
  "cadence": "researched once per quarterly report; a story older than the company's latest report is shown as stale",
  "profiles": [
+  {
+   "symbol": "000270.KS",
+   "name": "기아 (Kia Corporation)",
+   "file": "000270.KS.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (2026-07~09, 3개월)",
+   "layer": "limited"
+  },
   {
    "symbol": "000660.KS",
    "name": "SK hynix Inc. (SK하이닉스)",
@@ -46,6 +54,14 @@
    "layer": "chips-compute"
   },
   {
+   "symbol": "010120.KS",
+   "name": "LS ELECTRIC Co., Ltd. (LS일렉트릭)",
+   "file": "010120.KS.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (2026-07~09, 3개월, 연결 잠정)",
+   "layer": "cooling-electrical"
+  },
+  {
    "symbol": "012450.KS",
    "name": "한화에어로스페이스 (Hanwha Aerospace Co., Ltd.)",
    "file": "012450.KS.json",
@@ -62,6 +78,14 @@
    "layer": "power-energy"
   },
   {
+   "symbol": "035420.KS",
+   "name": "NAVER (NAVER Corporation)",
+   "file": "035420.KS.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q2 2026 (2026-04~06, 3개월)",
+   "layer": "ai-adopter"
+  },
+  {
    "symbol": "036930.KQ",
    "name": "Jusung Engineering Co., Ltd. (주성엔지니어링)",
    "file": "036930.KQ.json",
@@ -70,12 +94,76 @@
    "layer": "semicap-foundry"
   },
   {
+   "symbol": "042700.KS",
+   "name": "Hanmi Semiconductor Co., Ltd. (한미반도체)",
+   "file": "042700.KS.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (2026-07~09, 3개월, 연결 잠정)",
+   "layer": "semicap-foundry"
+  },
+  {
+   "symbol": "055550.KS",
+   "name": "Shinhan Financial Group Co., Ltd. (신한지주)",
+   "file": "055550.KS.json",
+   "researchedAt": "2026-11-07",
+   "period": "2026 1~3Q 누적 (2026-01~09, 9개월)",
+   "layer": "limited"
+  },
+  {
+   "symbol": "066570.KS",
+   "name": "LG전자 (LG Electronics Inc.)",
+   "file": "066570.KS.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (2026-07~09, 3개월, 잠정)",
+   "layer": "cooling-electrical"
+  },
+  {
+   "symbol": "068270.KS",
+   "name": "Celltrion, Inc. (셀트리온)",
+   "file": "068270.KS.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (2026-07~09, 3개월, 연결)",
+   "layer": "limited"
+  },
+  {
    "symbol": "105560.KS",
    "name": "KB금융지주 (KB Financial Group Inc.)",
    "file": "105560.KS.json",
    "researchedAt": "2026-10-29",
    "period": "FY2025 (ended 2025-12-31)",
    "layer": "ai-adopter"
+  },
+  {
+   "symbol": "207940.KS",
+   "name": "삼성바이오로직스 (Samsung Biologics Co., Ltd.)",
+   "file": "207940.KS.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (2026-07~09, 3개월)",
+   "layer": "limited"
+  },
+  {
+   "symbol": "267260.KS",
+   "name": "HD Hyundai Electric Co., Ltd. (HD현대일렉트릭)",
+   "file": "267260.KS.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (2026-07~09, 3개월, 연결)",
+   "layer": "cooling-electrical"
+  },
+  {
+   "symbol": "329180.KS",
+   "name": "HD현대중공업 (HD Hyundai Heavy Industries Co., Ltd.)",
+   "file": "329180.KS.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (2026-07~09, 3개월, 잠정)",
+   "layer": "limited"
+  },
+  {
+   "symbol": "373220.KS",
+   "name": "LG에너지솔루션 (LG Energy Solution, Ltd.)",
+   "file": "373220.KS.json",
+   "researchedAt": "2026-11-07",
+   "period": "Q3 2026 (2026-07~09, 3개월, 잠정)",
+   "layer": "power-energy"
   },
   {
    "symbol": "402340.KS",

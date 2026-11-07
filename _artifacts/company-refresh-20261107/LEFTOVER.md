@@ -25,3 +25,21 @@
 - QUALITY: PGR, BMY low confidence (secondary only) — redo with primary; COP partners QatarEnergy/Sempra and AXP rivals from general knowledge — remove or source before merge
 - Aliases: UBER(Uber, Uber Technologies), AXP(American Express, Amex), SCHW(Charles Schwab, Schwab), PGR(Progressive — check collisions), BMY(Bristol Myers Squibb, BMS), COP(ConocoPhillips)
 - Aliases: LIN(Linde), RTX(RTX, Raytheon, Pratt & Whitney, Collins Aerospace), LMT(Lockheed Martin), NOC(Northrop Grumman), GD(General Dynamics, Gulfstream), LHX(L3Harris, L3Harris Technologies)
+
+## KR batch A report (2026-11-07 17:40 UTC, staged in profiles-kr/)
+
+- 373220.KS LG Energy Solution / LG에너지솔루션 / LGES: Q3 2026 preliminary. Unverified: net loss, EV customer compensation, segments, cash flow.
+- 207940.KS Samsung Biologics / 삼성바이오로직스: Q3 2026. **0 primary** sources (press only). Needs the IR release.
+- 000270.KS Kia / 기아: Q3 2026. 2 primary sources. aiChain.layer `limited`.
+- 035420.KS NAVER / 네이버: **Q2 2026**. Refresh after 3Q26 on 2026-11-12.
+- 066570.KS LG Electronics / LG전자 / LGE: Q3 2026 preliminary. 1 primary source (IR PDF).
+- 015760.KS KEPCO / Korea Electric Power / 한국전력 / 한전: **Q2 2026**, 0 primary, low confidence. Borrowings conflict (133.3tn vs 84.8tn).
+- 329180.KS HD Hyundai Heavy Industries / HD현대중공업: Q3 2026 preliminary. 0 primary. Segments are the parent HD한국조선해양's consolidated figures.
+- Rival lists are empty in all 7 (no source named rivals).
+
+## KR batch B (staged) and what was published
+
+- Published 11 (commit after 6749ac3): 000270, 010120, 035420, 042700, 055550, 066570, 068270, 207940, 267260, 329180, 373220.
+- Held in profiles-kr until their Q3 report: 015760.KS KEPCO (Q2, low confidence, conflicting borrowings), 058470.KQ LEENO (Q2, around 11/13), 039030.KQ EO Technics (Q2, around 11/14).
+- Primary-source gaps: 207940, 329180, 042700, 267260, 010120 and 068270 rest on press reports. Replace them with DART or IR releases when those are reachable.
+- Alias note: '네이버' also matches '네이버페이' (KB rival line). Naver Pay is a NAVER subsidiary, so the link is kept.
