@@ -68,7 +68,7 @@ function storyItem(doc, card) {
   item.append(head, el(doc, 'p', card.line, 'mk-narr__line'));
   const fold = el(doc, 'details', null, 'mk-narr__more');
   fold.append(el(doc, 'summary', '근거·시나리오·대응 보기'));
-  if (card.question) fold.append(el(doc, 'p', `질문: ${card.question}`, 'mk-narr__question'));
+  if (card.question) fold.append(el(doc, 'p', `쟁점: ${card.question}`, 'mk-narr__question'));
   fold.append(el(doc, 'p', `관심: ${card.attention}${card.movers.length ? ` · 헤드라인이 이 이야기를 다룬 급등락 종목 ${card.movers.join(', ')}` : ''}`, 'mk-narr__attention'));
   // v59.71 (boot gate): the reading frame comes from learning-core, whose research packets are ~440 KB; it loads when a
   // reader opens the fold, not with the screen (the post-boot lazy budget is 350 KB).

@@ -47,8 +47,7 @@ function createFrameworkCard(documentRef, framework, page, onNavigate, labelOf) 
     element(documentRef, 'p', page === 'principles' ? 'principles-chapter-copy' : 'atlas-card-copy', `정의: ${framework.definition}`),
     element(documentRef, 'p', page === 'principles' ? 'principles-chapter-copy' : 'atlas-card-copy', `작동 경로: ${framework.mechanism}`),
     element(documentRef, 'p', page === 'principles' ? 'principles-chapter-copy' : 'atlas-card-copy', `확인할 자료: ${framework.observables.join(', ')}`),
-    element(documentRef, 'p', page === 'principles' ? 'principles-chapter-copy principles-chapter-counter' : 'atlas-governance-note', `무효화·반대 경로: ${framework.invalidation} ${framework.counterclaim}`),
-    element(documentRef, 'p', page === 'principles' ? 'principles-chapter-copy' : 'atlas-card-copy', `핵심 질문: ${framework.question}`)
+    element(documentRef, 'p', page === 'principles' ? 'principles-chapter-copy principles-chapter-counter' : 'atlas-governance-note', `무효화·반대 경로: ${framework.invalidation} ${framework.counterclaim}`)
   );
   const links = element(documentRef, 'div', page === 'principles' ? 'principles-learning-steps' : 'atlas-route-links');
   (framework.linkedConceptIds || []).slice(0, 4).forEach((conceptId) => links.appendChild(element(documentRef, page === 'principles' ? 'span' : 'span', page === 'principles' ? 'principles-learning-step' : 'atlas-chip', readableConcept(conceptId, labelOf))));

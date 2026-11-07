@@ -1010,16 +1010,18 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   // Screen audit 2026-10-19: no 10/19 sentence passed and the home kept 10/18's line. 매도 소진 (the bottom-watch split the
   // prompt invites) is a noun phrase, not an instruction; a dropped candidate names its reason for the refresh log.
   check('v57.71 (screen audit 2026-10-19) 매도 소진 is not an instruction, and an imperative 매도 still is',
-    !!validateMarketSentence('매도 소진은 바닥의 신호인가, 더 깊은 조정의 전조인가?') && validateMarketSentence('지금 매도하세요, 조정이 깊어집니다') === null
-      && marketSentenceRejectReason('나스닥 급락은 기회인가?') === 'names-company-or-index', 'sentence validator');
+    !!validateMarketSentence('매도 소진은 바닥의 신호와 더 깊은 조정의 전조 사이에 있다.') && validateMarketSentence('지금 매도하세요, 조정이 깊어집니다') === null
+      && marketSentenceRejectReason('나스닥 급락이 기회로 읽힌다.') === 'names-company-or-index'
+      // Owner 2026-11-07: the day's line is a statement; a question is refused.
+      && marketSentenceRejectReason('오늘의 하락은 기회인가, 서사의 끝인가?') === 'question' && marketSentenceRejectReason('오늘의 반등은 다음 주에도 이어질까') === 'question', 'sentence validator');
   // Screen audit 2026-10-20: KOSPI -3.73% gave back a two-day rebound and the line read as bottoming.
   const { marketAnalysisLargeMoveDirection } = await import('./lib/market-analysis-validate.mjs');
   const kospiDown = marketAnalysisLargeMoveDirection([{ evidenceId: 'k', metricId: 'market.kospi' }, { evidenceId: 's', metricId: 'market.spx' }], new Map([['k', -3.73], ['s', 0.41]]), null);
-  const breakdownDay = dailyMarketSentence({ candidate: '소진 신호가 쌓이는 가운데, 회복 확인은 아직인가?', previous: { text: '아침 문장은 그대로 남는가?', day: '2026-10-20' }, nowMs: Date.parse('2026-10-20T09:20:00.000Z'), largeMove: true, largeMoveDirection: kospiDown });
+  const breakdownDay = dailyMarketSentence({ candidate: '소진 신호가 쌓이는 가운데, 회복 확인은 아직이다.', previous: { text: '아침 문장은 그대로 남는다.', day: '2026-10-20' }, nowMs: Date.parse('2026-10-20T09:20:00.000Z'), largeMove: true, largeMoveDirection: kospiDown });
   check('v58.52 (screen audit 2026-10-20) on a large completed fall the sentence starts from the fall, not from bottoming',
-    kospiDown === 'down' && marketSentenceRejectReason('소진 신호가 쌓이는 가운데, 회복 확인은 아직인가?', { largeMoveDirection: 'down' }) === 'large-move-missed'
-      && !!validateMarketSentence('반등이 꺾인 자리, 투매의 끝인가 새 하락의 시작인가?', { largeMoveDirection: 'down' })
-      && !!validateMarketSentence('소진 신호가 쌓이는 가운데, 회복 확인은 아직인가?') && breakdownDay?.text === '아침 문장은 그대로 남는가?', JSON.stringify({ kospiDown, breakdownDay }));
+    kospiDown === 'down' && marketSentenceRejectReason('소진 신호가 쌓이는 가운데, 회복 확인은 아직이다.', { largeMoveDirection: 'down' }) === 'large-move-missed'
+      && !!validateMarketSentence('반등이 꺾인 자리, 투매의 끝과 새 하락의 시작이 갈린다.', { largeMoveDirection: 'down' })
+      && !!validateMarketSentence('소진 신호가 쌓이는 가운데, 회복 확인은 아직이다.') && breakdownDay?.text === '아침 문장은 그대로 남는다.', JSON.stringify({ kospiDown, breakdownDay }));
   // Live 2026-10-21: after the US 10/20 close (+0.28%) the morning KOSPI -3.73% still forced "오늘의 하락".
   const sessionWindow = { meta: { newsCycleStart: '2026-10-19T23:00:00.000Z' } };
   const krFall = { evidenceId: 'k', metricId: 'market.kospi', observedAt: '2026-10-20T06:30:00.000Z' };
@@ -1029,9 +1031,9 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   const usLaterFlat = directionAfter('2026-10-20T20:45:45.000Z', 0.02);
   check('v58.58 (live 2026-10-21) the sentence direction reads both markets\' sessions in the window: a later opposite session makes the day mixed',
     usLaterUp === 'mixed' && usEarlierUp === 'down' && usLaterFlat === 'down'
-      && marketSentenceRejectReason('오늘의 하락은 AI 투자 기대의 흔들림인가, 동반 약세의 시작인가?', { largeMoveDirection: 'mixed' }) === 'large-move-one-sided'
-      && !!validateMarketSentence('한쪽의 급락과 다른 쪽의 반등, 어느 쪽이 내일을 이끄는가?', { largeMoveDirection: 'mixed' })
-      && !!validateMarketSentence('AI 투자 확대는 새 주도의 시작인가, 과열의 신호인가?', { largeMoveDirection: 'mixed' }), JSON.stringify({ usLaterUp, usEarlierUp, usLaterFlat }));
+      && marketSentenceRejectReason('오늘의 하락은 AI 투자 기대의 흔들림과 동반 약세의 시작 사이에 있다.', { largeMoveDirection: 'mixed' }) === 'large-move-one-sided'
+      && !!validateMarketSentence('한쪽의 급락과 다른 쪽의 반등, 내일을 이끌 쪽은 아직 갈리지 않았다.', { largeMoveDirection: 'mixed' })
+      && !!validateMarketSentence('AI 투자 확대는 새 주도의 시작과 과열의 신호 사이에 있다.', { largeMoveDirection: 'mixed' }), JSON.stringify({ usLaterUp, usEarlierUp, usLaterFlat }));
   // Live 2026-10-21: the verified reading showed the prompt's section names around its citations.
   const { normalizePromptLabels, reusableMarketAnalysis } = await import('./lib/market-analysis-validate.mjs');
   const leaked = '코스피는 10/21 종가 +3.29%(METRIC_EVIDENCE: market.index.kospi:fbdb5f95), WTI는 -1.80%(REGIME_CONTEXT), 장중 -3.37%(MARKET_DRIVERS)였다.';
@@ -1047,13 +1049,13 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   const { NEWS_FEEDS } = await import('./lib/news-selection.mjs');
   const split = splitMarketSentence('S&P 500은 1.11% 하락했다.\n코스피는 장중 급락했다.\n오늘의 한 문장: "누군가는 이날을 기다렸고, 누군가는 이날을 기점으로 떠날 것이다."');
   const at = (iso) => Date.parse(iso);
-  const morning = dailyMarketSentence({ candidate: '오늘의 하락은 기회인가, 서사의 끝을 알리는 신호인가?', previous: null, nowMs: at('2026-10-15T00:30:00.000Z') });
-  const sameDay = dailyMarketSentence({ candidate: '다른 문장이 와도 같은 날에는 바뀌지 않는가?', previous: morning, nowMs: at('2026-10-15T06:30:00.000Z') });
-  const nextDay = dailyMarketSentence({ candidate: '하루가 지나면 새 문장이 그 자리를 잇는가?', previous: morning, nowMs: at('2026-10-15T23:30:00.000Z') });
+  const morning = dailyMarketSentence({ candidate: '오늘의 하락은 기회와 서사의 끝 사이에 놓여 있다.', previous: null, nowMs: at('2026-10-15T00:30:00.000Z') });
+  const sameDay = dailyMarketSentence({ candidate: '다른 문장이 와도 같은 날에는 바뀌지 않는다.', previous: morning, nowMs: at('2026-10-15T06:30:00.000Z') });
+  const nextDay = dailyMarketSentence({ candidate: '하루가 지나면 새 문장이 그 자리를 잇는다.', previous: morning, nowMs: at('2026-10-15T23:30:00.000Z') });
   const rejected = dailyMarketSentence({ candidate: 'NVDA를 지금 사세요', previous: morning, nowMs: at('2026-10-15T23:30:00.000Z') });
   check('v57.71 the daily sentence is split from the reading, carries no number/ticker/instruction, and changes once per 08:00 KST day',
     split.sentence === '누군가는 이날을 기다렸고, 누군가는 이날을 기점으로 떠날 것이다.' && !/오늘의 한 문장/.test(split.body)
-      && validateMarketSentence('AI 서사는 끝났는가, 쉬어 가는 것인가?') && !validateMarketSentence('코스피 6% 급락, 기회인가') && !validateMarketSentence('지금 비중을 늘리세요, 바닥입니다')
+      && validateMarketSentence('AI 서사는 끝과 쉼 사이에 있다.') && !validateMarketSentence('코스피 6% 급락, 기회인가') && !validateMarketSentence('지금 비중을 늘리세요, 바닥입니다')
       && morning?.day === '2026-10-15' && sameDay === morning && nextDay?.day === '2026-10-16' && nextDay.text !== morning.text && rejected === morning
       && marketSentenceDay(at('2026-10-14T22:59:00.000Z')) === '2026-10-14' && marketSentenceDay(at('2026-10-14T23:00:00.000Z')) === '2026-10-15',
     JSON.stringify({ split, morning, sameDay, nextDay, rejected }));
@@ -1097,10 +1099,10 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   const morning = { text: '이전 문장이 아침에 정해졌다는 기록이다.', day: '2026-10-15', generatedAt: '2026-10-14T23:30:00.000Z' };
   const at = Date.parse('2026-10-15T02:00:00.000Z');
   const replaced = dailyMarketSentence({ candidate: 'AI 투자의 회수 시점이 시장의 질문으로 떠올랐다.', previous: morning, nowMs: at, largeMove: true });
-  const twice = dailyMarketSentence({ candidate: '두 번째 교체는 같은 날에 일어나지 않는가?', previous: replaced, nowMs: at, largeMove: true });
+  const twice = dailyMarketSentence({ candidate: '두 번째 교체는 같은 날에 일어나지 않는다.', previous: replaced, nowMs: at, largeMove: true });
   check('v57.75 the sentence label is split in any markup, names and certainty are refused, and a large move replaces it once a day',
     bold.sentence === 'AI 투자의 회수 시점이 시장의 질문으로 떠올랐다.' && bold.body === '본문 줄' && nextLine.sentence === 'AI 투자의 회수가 시장의 질문이 됐다.' && nextLine.body === '본문'
-      && validateMarketSentence('AI 서사는 끝났는가, 쉬어 가는 것인가?') && !validateMarketSentence('엔비디아의 하락은 기회인가, 끝인가?') && !validateMarketSentence('nvda 하락은 기회인가 끝을 알리는 신호인가?')
+      && validateMarketSentence('AI 서사는 끝과 쉼 사이에 있다.') && !validateMarketSentence('엔비디아의 하락은 기회인가, 끝인가?') && !validateMarketSentence('nvda 하락은 기회인가 끝을 알리는 신호인가?')
       && !validateMarketSentence('정책이 바닥을 받쳐 줄 것이라는 믿음이 남아 있다.') && !validateMarketSentence('물가가 둔화되고 있어 부담이 줄어드는 하루였다.', { inflationRising: true })
       && replaced?.replaced === true && replaced.text !== morning.text && twice === replaced,
     JSON.stringify({ bold, nextLine, replaced, twice }));
@@ -2655,7 +2657,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
     titles.includes('Stocks Make a U-Turn on Hopes of U.S.-Iran Diplomacy') && titles.includes('SpaceX says its capex could double this quarter as AI spending grows')
       && !titles.some((title) => /^(?:Spotify|Texas Instruments)/.test(title)) && titles.length === va.HEADLINE_CONTEXT_MAX, JSON.stringify(titles));
   // Producer: both attempts blocked, each carrying a sentence that passes its own gate — the new day still gets it.
-  const sentence = '오늘의 반등은 AI 투자 기대의 복귀인가, 하락 뒤 숨 고르기인가?';
+  const sentence = '오늘의 반등은 AI 투자 기대의 복귀와 하락 뒤 숨 고르기 사이에 있다.';
   const prompts = [];
   const blocked = `${fx.attempts[0].text}\n${va.MARKET_SENTENCE_LABEL} ${sentence}`;
   const stub = async (prompt) => { prompts.push(prompt); return { text: blocked }; };
@@ -2717,7 +2719,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       && variants.futuresNoTime.includes('intraday-time-missing:market.nasdaq100-futures') && !variants.spxFutures.some((issue) => /market\.spx/.test(issue)),
     JSON.stringify(variants));
   const prompts = [];
-  const stub = async (prompt) => { prompts.push(prompt); return { text: `${reading}\n${va.MARKET_SENTENCE_LABEL} 오늘의 반등은 AI 투자 기대의 복귀인가, 하락 뒤 숨 고르기인가?` }; };
+  const stub = async (prompt) => { prompts.push(prompt); return { text: `${reading}\n${va.MARKET_SENTENCE_LABEL} 오늘의 반등은 AI 투자 기대의 복귀와 하락 뒤 숨 고르기 사이에 있다.` }; };
   const warn = console.warn; const log = console.log; console.warn = () => {}; console.log = () => {};
   let run;
   try { run = await genMarketAnalysis(fx.data, snapshot, { previous: null, request: stub, nowMs, history: fx.history, narrative: { text: '', signature: 'fixture', themes: [] }, earnings: fx.earnings }); } finally { console.warn = warn; console.log = log; }

@@ -1143,6 +1143,7 @@ const SENTENCE_CERTAINTY = /가능성|확률|틀림없|분명히|바닥은\s?이
 // every new candidate was rejected here and nothing said why. The reason is now named so the run log can carry it.
 const SENTENCE_DOWN_MOVE = /하락|급락|낙폭|무너|밀려|밀리|꺾|되돌|반납|반등\s?(?:실패|좌절)|재하락|다시\s?(?:내려|흔들|떨어)|흔들|약세|투매|매도세|공포|충격|붕괴|이탈|깨/;
 const SENTENCE_UP_MOVE = /상승|급등|반등|오름|올라|되찾|회복|안도|랠리|강세|치솟|돌파|만회/;
+export const MARKET_SENTENCE_QUESTION = /[?？]|(?:까요?|는가|인가|나요)[\s.。]*$/;
 export function marketSentenceRejectReason(sentence, { inflationRising = false, largeMoveDirection = null } = {}) {
   const text = String(sentence || '').replace(/\s+/g, ' ').trim();
   if (!text) return 'missing';
@@ -1151,6 +1152,8 @@ export function marketSentenceRejectReason(sentence, { inflationRising = false, 
   if (/[0-9%$₩]/.test(text)) return 'number';
   if (/\p{Extended_Pictographic}/u.test(text)) return 'emoji';
   if (SENTENCE_INSTRUCTION.test(text)) return 'instruction';
+  // Owner 2026-11-07: questions belong in long prose only; the home's one line is a statement, never a question.
+  if (MARKET_SENTENCE_QUESTION.test(text)) return 'question';
   // Latin tickers in any case ("nvda", "Nvda") except the word AI.
   if ((text.match(/\b[A-Za-z]{2,5}\b/g) || []).some((word) => word.toUpperCase() !== 'AI')) return 'latin-word';
   if (SENTENCE_NAMES.test(text)) return 'names-company-or-index';

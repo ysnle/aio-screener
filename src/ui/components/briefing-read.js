@@ -64,7 +64,7 @@ export function renderMoveNews(doc, root, store, flow) {
   if (!summary) { summary = el(doc, 'summary'); fold.append(summary); }
   let body = fold.querySelector(':scope > .briefing-move-news-body');
   if (!body) { body = el(doc, 'div', null, 'briefing-move-news-body'); fold.append(body); }
-  summary.replaceChildren(doc.createTextNode(`왜 움직였나, 종목·테마 ${rows.length}곳 `));
+  summary.replaceChildren(doc.createTextNode(`움직인 이유, 종목·테마 ${rows.length}곳 `));
   // v58.79: date chip; what the list compares is its hover.
   summary.append(asOfChip(doc, `${shortDate(flow.session)} 종가`, '미국 종가, 같은 업종·테마 안에서 갈린 종목과 테마'));
   const lead = el(doc, 'p', matched

@@ -215,7 +215,7 @@ export function renderPortfolioRead({ documentRef: doc, root, surface }) {
   }
   // v59.56: questions that start from the holdings, sent to the shared AI panel.
   const ask = askRow(doc, [
-    ['어디에 쏠려 있나', '내 포트폴리오의 섹터·종목 집중과 지수 대비 위험을 점검해줘'],
+    ['쏠림 점검', '내 포트폴리오의 섹터·종목 집중과 지수 대비 위험을 점검해줘'],
     ['시나리오가 틀리면', '지금 중심 시나리오가 틀렸을 때 내 포트폴리오에서 먼저 흔들릴 종목과 대응 원칙을 알려줘'],
     ['현금은 얼마나', '지금 시장 국면에서 현금 비중과 보유 종목 비중을 어떤 기준으로 정해야 하는지 알려줘']
   ], 'pf-read-ask');

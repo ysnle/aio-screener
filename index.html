@@ -943,7 +943,7 @@ body {
   min-height: var(--topbar-h);
 }
 .content {
-  flex: 1;
+  flex: 1; position: relative; /* QA 2026-11-07: the scroller is the containing block, so absolute .sr-only nodes no longer lengthen the document (outer scroll) */
   overflow-y: auto;
   overflow-x: hidden;
   padding: var(--space-5);
@@ -3820,7 +3820,7 @@ button[data-filter-active="true"] {
   </section>
   <div class="mk-pair">
     <section class="sx-card mk-combo" aria-labelledby="regime-combo-title"><!-- v59.55 (flow 5): one question — the closest of three flows, then the conflicting combinations -->
-      <h2 class="sx-card__title" id="regime-combo-title">지금 어떤 흐름인가</h2>
+      <h2 class="sx-card__title" id="regime-combo-title">지금의 흐름</h2>
       <div class="mk-structure" id="regime-structure-host"></div>
       <ul class="mk-combo__list" id="regime-conflicts"></ul>
     </section>
