@@ -8,6 +8,15 @@
 // A price, size or timing order (same rule as the story contract).
 const ORDER = /(매수하세요|매도하세요|사세요|파세요|진입가|손절가|손절\s*라인|목표\s*주가|목표가\s*[:：]?\s*\$?\d|비중을?\s*(늘리|줄이)세요|buy at|sell at|stop[- ]loss at|price target of)/i;
 const text = (value) => typeof value === 'string' && value.trim() !== '';
+// A question ending: '?', or a final 가/까 after a syllable closed by ㄴ/ㄹ (는가·인가·한가 — 가능한가 read as a statement
+// until the v59.74 integration — and 할까·될까·지켜질까). '-지' noun clauses and plain nouns (평가, 증가) pass.
+function endsAsQuestion(value) {
+  const t = String(value).trim().replace(/[.\s]+$/, '');
+  if (/[?？]$/.test(t)) return true;
+  const last = t.at(-1), code = t.length > 1 ? t.charCodeAt(t.length - 2) - 0xac00 : -1;
+  if (code < 0 || code >= 11172) return false;
+  return (last === '가' && code % 28 === 4) || (last === '까' && code % 28 === 8);
+}
 
 /**
  * Shape problems of a story's (or a draft's) debate and underTheHood, as short strings. Both fields are optional; a
@@ -25,7 +34,7 @@ export function debateIssues(story, sourceIds) {
   if (d != null) {
     if (!text(d.question)) issues.push('debate.question missing');
     // Owner rule (2026-11-07): questions live only inside prose; the issue line is a noun clause ('…이어지는지').
-    else if (/[?？]|(는가|인가|은가|할까|을까|일까)[.\s]*$/.test(d.question)) issues.push('debate.question ends as a question; write the issue as a noun clause (…는지)');
+    else if (endsAsQuestion(d.question)) issues.push('debate.question ends as a question; write the issue as a noun clause (…는지)');
     for (const side of ['bull', 'bear']) {
       if (!text(d[side]?.text)) issues.push(`debate.${side}.text missing`);
       cites(d[side]?.src, `debate.${side}`);
