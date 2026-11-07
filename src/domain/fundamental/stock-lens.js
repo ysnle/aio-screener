@@ -247,7 +247,7 @@ export function buildSituationRead({ themes = [], market = 'US', crossroads = nu
   const lead = state === 'lead' ? rows[0] : null;
   return {
     tags: tags.map((tag) => EXPOSURE_TAGS[tag] || tag), favour, burden, themes: profiles.map((item) => ({ id: item.theme.id, label: item.theme.label, thesis: item.profile.thesis, breaks: item.profile.breaks })),
-    lead, tied: state === 'tie' ? rows : [], beta,
+    lead, tied: state === 'tie' ? rows : [], beta, asOf: crossroads?.asOf || null,
     now: lead ? `지금 가장 맞는 시나리오 ${withTopicParticle(`'${lead.title}'${lead.fit ? `(${lead.fit})` : ''}`)} 이 종목의 노출로 보면 ${lead.wind || '판단 보류'} 쪽입니다.`
       : state === 'tie' ? `맞는 조건 수가 같은 시나리오가 ${rows.length}개라 한쪽으로 정하지 않습니다 — 이 종목 노출로 보면 ${rows.map((row) => `${withTopicParticle(`'${row.title}'`)} ${row.wind || '판단 보류'} 쪽`).join(', ')}입니다.` : null
   };

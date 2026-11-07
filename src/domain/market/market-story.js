@@ -8,6 +8,7 @@ import { readNumber } from '../shared/number.js';
 import { RULES } from '../rules/thresholds.js';
 import { SCHEDULED_EVENTS as REGISTRY } from '../briefing/scheduled-events.js';
 import { indexLevels, levelValue, levelsRead } from './index-levels.js';
+import { closeMoveBetween } from './close-series.js';
 
 export const STORY_SESSIONS = 15;
 
@@ -17,6 +18,7 @@ export const SCHEDULED_EVENTS = Object.freeze(REGISTRY.filter((event) => event.m
   .map((event) => Object.freeze({ date: event.marketDate, title: event.storyTitle || event.label, why: event.storyWhy })));
 
 const NON_AI_LAYERS = new Set(['ai-adopter', 'ai-exposed', 'limited']);
+const REPORT_WEIGHT_MIN = 1; // % of the S&P 500 — a smaller report outside the mover list does not change the week's read
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
 const SESSION_WORDS = Object.freeze({ bmo: '장 전', amc: '장 마감 후', dmh: '장중' });
 
@@ -36,16 +38,10 @@ function usSessions(history) {
     && (!row.fieldMeta?.spx?.sessionDate || row.fieldMeta.spx.sessionDate === row.date));
 }
 
-// A field's value on `from` (else the nearest earlier close) and its latest close on or before `to`.
+// A field's last completed close on or before `from` and on or before `to` (v59.70: the carry-aware close series, so a
+// row repeating the previous close is not read as that date's close).
 function span(history, field, from, to) {
-  let start = null; let end = null;
-  for (const row of history) {
-    if (!row?.date || readNumber(row[field]) === null) continue;
-    if (row.date <= from) start = { date: row.date, value: Number(row[field]) };
-    if (row.date <= to) end = { date: row.date, value: Number(row[field]) };
-  }
-  if (!start || !end || start.date === end.date || !start.value) return null;
-  return { from: start.value, to: end.value, fromDate: start.date, toDate: end.date, pct: (end.value / start.value - 1) * 100 };
+  return closeMoveBetween(history, field, from, to);
 }
 
 function macroAt(series, date) {
@@ -210,8 +206,12 @@ function weekAhead({ calendar, nextEvent, story, nowMs, days = 8 }) {
     out.push({ kind: 'macro', date: nextEvent.date, when: nextEvent.when || dayLabel(nextEvent.date), title: nextEvent.name, why });
   }
   const aiStory = story.concentration.kind === 'narrow-down' || story.concentration.kind === 'narrow-up';
+  // v59.70 (step 3 screen audit): a quiet week listed Moderna 0.1% as "대형 기술주 쏠림이 이어질지 가르는 실적" — the line's
+  // sentence followed the market's story, not the company, and any weight qualified. A report is on the list when its
+  // index weight is at least REPORT_WEIGHT_MIN or it is on the market-mover list; the AI sentence needs a mover on the line.
   const reports = (Array.isArray(calendar?.earnings) ? calendar.earnings : [])
-    .filter((row) => row?.symbol && row.date && Number(row.indexWeight) > 0 && readNumber(row.epsActual) === null && inside(row.date))
+    .filter((row) => row?.symbol && row.date && (Number(row.indexWeight) >= REPORT_WEIGHT_MIN || (MOVER_BY_SYMBOL[row.symbol] && Number(row.indexWeight) > 0))
+      && readNumber(row.epsActual) === null && inside(row.date))
     .sort((a, b) => Number(b.indexWeight) - Number(a.indexWeight)).slice(0, 3);
   // Reports in the same session are one line: "AAPL 7.7% · PLTR 0.7% 실적 (S&P 500 비중)" — each weight beside its name.
   const sessionsOf = new Map();
@@ -230,9 +230,11 @@ function weekAhead({ calendar, nextEvent, story, nowMs, days = 8 }) {
       names: rows.map(nameOf).join(' · '),
       title: `${rows.map((row) => `${nameOf(row)} ${Number(row.indexWeight).toFixed(1)}%`).join(' · ')} 실적 (S&P 500 비중)`,
       // v59.56 (screen review): two report days printed the same sentence; the later one says it continues the question.
-      why: !aiStory ? '지수 비중이 커서 결과가 지수 방향에 바로 들어옵니다.'
-        : out.some((item) => item.kind === 'earnings') ? '앞 실적에서 나온 AI 투자 대비 수익 판단이 이어지는지, 다른 회사 가이던스로 한 번 더 확인합니다.'
-          : '대형 기술주 쏠림이 이어질지 가르는 실적입니다. 가이던스가 AI 투자 대비 수익에 대한 의문을 키우는지 줄이는지 봅니다.' });
+      why: !(aiStory && rows.some((row) => MOVER_BY_SYMBOL[row.symbol]))
+        ? (rows.reduce((sum, row) => sum + Number(row.indexWeight), 0) >= REPORT_WEIGHT_MIN ? '지수 비중이 커서 결과가 지수 방향에 바로 들어옵니다.' : '주도주 목록에 든 회사라 같은 업종 판단에 바로 쓰입니다.')
+        : out.some((item) => item.kind === 'earnings' && item.ai) ? '앞 실적에서 나온 AI 투자 대비 수익 판단이 이어지는지, 다른 회사 가이던스로 한 번 더 확인합니다.'
+          : '대형 기술주 쏠림이 이어질지 가르는 실적입니다. 가이던스가 AI 투자 대비 수익에 대한 의문을 키우는지 줄이는지 봅니다.',
+      ai: aiStory && rows.some((row) => MOVER_BY_SYMBOL[row.symbol]) });
   }
   out.sort((a, b) => a.date.localeCompare(b.date));
   if (story.credit?.kind !== 'calm' && story.credit) out.push({ kind: 'daily', date: '', when: '매일', title: 'CCC · 하이일드 스프레드', why: '약한 등급부터 계속 벌어지면 주가 조정이 신용 경계로 바뀝니다.' });

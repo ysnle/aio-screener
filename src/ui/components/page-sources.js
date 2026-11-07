@@ -2,7 +2,10 @@
 // "데이터 출처" note at its end so a reader who needs to check a number — an institutional user in particular —
 // can still find the provider and series. Dates stay on the numbers themselves; only the provider moves here.
 
-const QUOTES = '지수·환율·원자재 시세: Yahoo Finance (지연 시세, 판정은 직전 미국장 종가)';
+import { pageLensReads } from '../../domain/lenses/registry.js';
+import { screenerRowsForRoot } from '../../data/selectors/interpretation.js';
+
+const QUOTES ='지수·환율·원자재 시세: Yahoo Finance (지연 시세, 판정은 직전 미국장 종가)';
 const NEWS = '뉴스: Google News가 모은 매체별 기사 (제목과 매체명만 표시, 본문은 원문 링크)';
 const TELEGRAM = '텔레그램: 공개 채널 4곳의 요약 (각 글은 원문 링크)';
 const FRED = '미국 금리·물가·고용: FRED(세인트루이스 연준), BLS, BEA, 미 재무부 공식 고시';
@@ -49,23 +52,88 @@ export const PAGE_SOURCES = Object.freeze({
   atlas: ['각 분야의 근거는 본문의 "근거와 가정 보기"에 있습니다']
 });
 
+// v59.70 (owner 2026-11-07): the fold also says what the screen reads through — each lens's question, the reading it
+// encodes, today's basis date and coverage, and what it cannot tell (src/domain/lenses/registry.js). Refreshed on every
+// visit, since coverage moves with the loaded data; the provider list below it is unchanged.
+const ROUTE_NAMES = Object.freeze({ charts: '기술적 분석', breadth: '시장 폭', sentiment: '투자 심리', fxbond: '금리와 환율', briefing: '브리핑', macro: '매크로',
+  themes: '테마와 섹터', screener: '스크리너', signal: '시장 상태' });
+
+function lensInputs(root) {
+  return {
+    history: Array.isArray(root?._aioHistory) ? root._aioHistory : [], macroHistory: root?._aioMacroHistory || null,
+    screenerRows: screenerRowsForRoot(root), eventBriefs: root?._aioEventBriefs || null, consensus: root?._aioConsensusEstimates || null,
+    scenarioState: root?._aioScenarioState || null, nowMs: Date.now()
+  };
+}
+
+function lensList(doc, routeId, reads) {
+  const list = doc.createElement('ul');
+  list.className = 'page-lenses';
+  for (const lens of reads) {
+    const item = doc.createElement('li');
+    const head = doc.createElement('p');
+    head.className = 'page-lens__head';
+    const name = doc.createElement('b');
+    name.textContent = lens.label;
+    head.append(name, doc.createTextNode(` ${lens.question}`));
+    const basis = [lens.asOf ? `기준 ${lens.asOf}` : null, lens.scope, lens.late].filter(Boolean).join(' · ');
+    if (basis) { const span = doc.createElement('span'); span.className = `page-lens__basis${lens.late ? ' is-late' : ''}`; span.textContent = basis; head.append(span); }
+    const reading = doc.createElement('p');
+    reading.className = 'page-lens__line';
+    reading.textContent = `${lens.reading} 자료: ${lens.data.join(', ')}.`;
+    const limits = doc.createElement('p');
+    limits.className = 'page-lens__line is-limit';
+    limits.textContent = `한계: ${lens.limits.join(' ')}`;
+    item.append(head, reading, limits);
+    if (lens.home !== routeId && ROUTE_NAMES[lens.home]) {
+      const link = doc.createElement('button');
+      link.type = 'button';
+      link.className = 'flow-next-link page-lens__link';
+      link.dataset.action = 'showPage';
+      link.dataset.arg = lens.home;
+      link.textContent = `근거 → ${ROUTE_NAMES[lens.home]}`;
+      item.append(link);
+    }
+    list.append(item);
+  }
+  return list;
+}
+
 export function renderPageSources(doc, routeId) {
   const page = doc?.getElementById?.(`page-${routeId}`);
   const rows = PAGE_SOURCES[routeId];
-  if (!page || !rows) return null;
+  const root = doc?.defaultView || globalThis;
+  const reads = pageLensReads(routeId, lensInputs(root));
+  if (!page || (!rows && !reads.length)) return null;
   let fold = page.querySelector(':scope > details.page-sources');
-  if (fold) return fold;
-  fold = doc.createElement('details');
-  fold.className = 'page-sources';
-  const summary = doc.createElement('summary');
-  summary.textContent = '데이터 출처';
-  const list = doc.createElement('ul');
-  for (const row of rows) {
-    const item = doc.createElement('li');
-    item.textContent = row;
-    list.append(item);
+  if (!fold) {
+    fold = doc.createElement('details');
+    fold.className = 'page-sources';
+    const summary = doc.createElement('summary');
+    summary.textContent = '데이터 출처';
+    fold.append(summary);
+    if (rows) {
+      const list = doc.createElement('ul');
+      list.className = 'page-sources__providers';
+      for (const row of rows) {
+        const item = doc.createElement('li');
+        item.textContent = row;
+        list.append(item);
+      }
+      fold.append(list);
+    }
+    page.append(fold);
   }
-  fold.append(summary, list);
-  page.append(fold);
+  if (reads.length) {
+    const summary = fold.querySelector(':scope > summary');
+    if (summary && summary.textContent === '데이터 출처') summary.textContent = '데이터 출처와 읽는 범위';
+    const paint = (current) => { fold.querySelector(':scope > .page-lenses')?.remove(); summary?.after(lensList(doc, routeId, current)); };
+    paint(reads);
+    // The route is shown before its artifacts load; opening the fold reads the coverage then.
+    if (!fold.dataset.lensToggle) {
+      fold.dataset.lensToggle = '1';
+      fold.addEventListener('toggle', () => { if (fold.open) paint(pageLensReads(routeId, lensInputs(root))); });
+    }
+  }
   return fold;
 }

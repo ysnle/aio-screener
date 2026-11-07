@@ -2,6 +2,7 @@
 // the Sloan (1996) accrual ratio and a reverse DCF calculator. Pure: the parsed SEC fiscal history (sec-fiscal-history.json,
 // newest last) and the screener/SEC facts in, plain reading objects out. Nothing here is a score or a verdict; a missing
 // input returns a state ('pending' = not yet collected, 'unreported' = the filer does not tag it) instead of a number.
+import { surprisePct } from '../shared/number.js';
 import { dataStateText } from '../content/data-state.js';
 import { finiteFact as finite, isPriorAnnualPeriod, FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, fiscalYearLabel } from './period.js';
 import { hasFinalConsonant, withTopicParticle } from '../content/korean-particle.js';
@@ -206,13 +207,17 @@ export function reverseDcfInputs({ history, fundamentals, close, financial = fal
   // v59.45 (pipeline review P19-DCF-01): a share count the normalizer flagged as off-scale is not a verified count, and the
   // "지금 가격" needs a current close — a dated 1990 close passed the date-shape check. The age rule is the Forward PER's
   // (CONSENSUS_PRICE_MAX_AGE_DAYS); a close dated after now is not current either.
-  const shares = fundamentals?.sharesCheck === 'scale-mismatch' ? null : finite(fundamentals?.sharesOutstanding);
+  // v59.71 (quant review): the close is split-adjusted, the SEC cover count is not until the next filing — Sandisk's 8:1
+  // priced a market value of 1/8. A close taken from a screener row carries that row's verified count (split-scaled and
+  // turnover-checked by secFundamentalRowFields), so price and count are on one basis; the filed count is the fallback.
+  const rowShares = finite(close?.shares);
+  const shares = rowShares > 0 ? rowShares : fundamentals?.sharesCheck === 'scale-mismatch' ? null : finite(fundamentals?.sharesOutstanding);
   if (!(shares > 0)) return { state: 'missing', reason: '검증된 주식 수가 없어(공시 표지 주식 수 미확인) 시가총액을 만들지 않습니다.' };
   const price = finite(close?.value);
   if (!(price > 0) || !isIsoDay(String(close?.date || ''))) return { state: 'missing', reason: '날짜가 확인된 종가가 아직 없어 계산하지 않습니다.' };
   const closeMs = Date.parse(`${close.date}T00:00:00Z`);
   if (!Number.isFinite(closeMs) || closeMs > nowMs || nowMs - closeMs > CONSENSUS_PRICE_MAX_AGE_DAYS * DAY_MS) return { state: 'missing', reason: `종가(${close.date})가 최근 ${CONSENSUS_PRICE_MAX_AGE_DAYS}일 안의 완료 종가가 아니라 지금 가격으로 계산하지 않습니다.` };
-  return { state: 'ready', fcf, periodEnd: latest.periodEnd, label: fyLabel(latest.periodEnd), ocf, capex, shares, sharesObservedAt: fundamentals?.sharesObservedAt || null, price, priceDate: close.date, marketValue: price * shares };
+  return { state: 'ready', fcf, periodEnd: latest.periodEnd, label: fyLabel(latest.periodEnd), ocf, capex, shares, sharesObservedAt: (rowShares > 0 ? close?.sharesObservedAt : null) || fundamentals?.sharesObservedAt || null, sharesBasis: rowShares > 0 ? 'screener-row' : 'sec-cover', price, priceDate: close.date, marketValue: price * shares };
 }
 
 // ── v58.75 (persona review): 재무 공시 for fundamental investors and traders ─────────────────────────────────────────────
@@ -287,7 +292,7 @@ export function buildSurpriseRead(consensus = null) {
     .filter((cells) => /^\d{4}-\d{2}$/.test(cells[0] || '') && finite(cells[1]) != null && finite(cells[2]) != null)
     .map(([quarter, eps, est]) => {
       const actual = finite(eps), estimate = finite(est);
-      return { quarter, actual, estimate, surprise: estimate !== 0 ? (actual - estimate) / Math.abs(estimate) * 100 : null };
+      return { quarter, actual, estimate, surprise: surprisePct(actual, estimate) };
     }).reverse();
   if (!rows.length) return null;
   const beats = rows.filter((row) => row.actual > row.estimate).length;

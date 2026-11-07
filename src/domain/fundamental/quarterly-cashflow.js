@@ -149,6 +149,10 @@ export function groupCashflow(issuers, members = HYPERSCALERS) {
     missing: members.filter((symbol) => !rows.some((row) => row.symbol === symbol)),
     complete: rows.length === members.length,
     ends: Object.fromEntries(rows.map((row) => [row.symbol, row.ttm.end])),
+    // v59.71 (quant review): "complete" means every member has twelve months, not the same twelve — one issuer not yet
+    // reporting the new quarter mixes quarter ends. The spread is carried so the sentence names it.
+    endSpreadDays: (() => { const ms = rows.map((row) => Date.parse(String(row.ttm.end || '').slice(0, 10))).filter(Number.isFinite); return ms.length ? Math.round((Math.max(...ms) - Math.min(...ms)) / 86400000) : null; })(),
+    endRange: (() => { const list = rows.map((row) => String(row.ttm.end || '').slice(0, 10)).filter(Boolean).sort(); return list.length ? [list[0], list.at(-1)] : null; })(),
     ocf, capex, fcf: ocf - capex,
     capexToOcfPct: round1(ocf > 0 ? capex / ocf * 100 : null),
     yearAgo: prior ? { ocf: prior.ocf, capex: prior.capex, fcf: prior.ocf - prior.capex, capexToOcfPct: round1(prior.ocf > 0 ? prior.capex / prior.ocf * 100 : null) } : null,
@@ -167,7 +171,8 @@ export function groupCashflowSentence(group) {
   if (!group?.complete) return '';
   const who = `빅테크 ${group.members.length}개사(${group.members.join('·')})`;
   const prior = group.yearAgo ? ` — 1년 전 ${group.yearAgo.capexToOcfPct}%, 설비투자 ${group.capexYoyPct >= 0 ? '+' : ''}${group.capexYoyPct}%` : '';
-  return `${who} 최근 4분기 합계 설비투자 ${usdB(group.capex)} ÷ 영업현금흐름 ${usdB(group.ocf)} = ${group.capexToOcfPct}%, 잉여현금흐름 ${usdB(group.fcf)}${prior}`;
+  const mixed = group.endSpreadDays > 45 && group.endRange ? `(분기 끝 ${md(group.endRange[0])}~${md(group.endRange[1])} 혼재)` : '';
+  return `${who} 최근 4분기${mixed} 합계 설비투자 ${usdB(group.capex)} ÷ 영업현금흐름 ${usdB(group.ocf)} = ${group.capexToOcfPct}%, 잉여현금흐름 ${usdB(group.fcf)}${prior}`;
 }
 
 /** One issuer line: twelve months to the latest quarter end, the SEC basis named. */

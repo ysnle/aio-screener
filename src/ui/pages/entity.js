@@ -775,7 +775,7 @@ function render({ root, documentRef, store, route, activeTickerTab = 'overview',
     try { analysisRow = (root?._aioGetCanonicalScreenerRows?.() || []).find((item) => item?.sym === analysisId) || null; } catch (_) { analysisRow = null; }
     const valuationClose = finite(analysisRow?._valuationPrice ?? analysisRow?._valuationPePrice ?? analysisRow?.valuationPrice);
     const valuationDate = String(analysisRow?.factorSessionDate || '').slice(0, 10);
-    const close = valuationClose > 0 && isIsoDay(valuationDate) ? { value: valuationClose, date: valuationDate } : analysisId ? lastPublishedClose(analysisId, state, root) : null;
+    const close = valuationClose > 0 && isIsoDay(valuationDate) ? { value: valuationClose, date: valuationDate, shares: finite(analysisRow?._valuationSharesOutstanding), sharesObservedAt: analysisRow?._valuationSharesObservedAt || null } : analysisId ? lastPublishedClose(analysisId, state, root) : null;
     renderFiscalRead({ documentRef, root, state, close }); // P1436
   }
 }

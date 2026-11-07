@@ -1446,7 +1446,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       const { trendOf, coreStockRows } = await load('src/domain/technical/market-charts.js');
       const words = [[110, 100, 90], [95, 100, 90], [85, 100, 90], [95, 90, 100], [105, 90, 100], [85, 90, 100]].map(([close, ma50, ma200]) => trendOf({ close, ma50, ma200, ma50Before: null })).join(',');
       const stock = coreStockRows({ screener: { data: { NV: { pctSma50: -8.75, pctSma200: -1.03 } } }, indexWeights: [{ sym: 'NV', weight: 7 }] })[0];
-      if (oilToday?.rank !== 'lead' || !/에너지/.test(oilToday.text) || words !== 'up,pullback,breakdown,rebound,recovery,down' || stock?.trend !== 'breakdown') {
+      if (oilToday?.rank !== 'lead' || !/에너지/.test(oilToday.text) || words !== 'up,pullback,breakdown,rebound,recovery,down' || stock?.trend !== 'down' || stock.trendWord !== '하락 추세') { // v59.70: a stock row reads the 종목 page's buffered trend
         fail(`v59.64: macro today line / chart trend words broke ${JSON.stringify({ oilToday, words, stock: stock?.trend })}`);
       }
       // v59.65: 브리핑's 24-hour stories — same-family prices in one story, the theme speaks for its sector, a report that
@@ -1484,8 +1484,69 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       const chist = cdays.map((date, i) => ({ date, spx: i < 79 ? 5000 : 4800, rsp: 100 + i * 0.2, breadth50: 68, vix: 21, vix3m: 22, fg: 19, pcr: 0.9, tnx: 4.9 - i * 0.02, kospi: i < 79 ? 5000 : 4800, usdkrw: i < 79 ? 1400 : 1410 }));
       const chy = { series: { hyOas: { observations: cdays.map((date, i) => [date, 3 + i * 0.02]) } } };
       const pairs = Object.fromEntries(crossReadings({ history: chist, macroHistory: chy, day: null }).map((row) => [row.id, row.text]));
-      if (!/68%는 아직 50일선 위/.test(pairs['trend-breadth'] || '') || !/투매는 아닌/.test(pairs['volatility-sentiment'] || '') || !/성장 걱정형/.test(pairs['rates-credit'] || '') || !/코스피 하루 -4\.0%/.test(pairs['korea-won'] || '')) {
+      if (!/68%는 아직 50일선 위/.test(pairs['trend-breadth'] || '') || !/투매는 아닌/.test(pairs['volatility-sentiment'] || '') || !/성장 걱정과 맞는/.test(pairs['rates-credit'] || '') || /돈이|자금 이탈/.test(Object.values(pairs).join(' ')) || !/코스피 하루 -4\.0%/.test(pairs['korea-won'] || '')) {
         fail(`v59.66: cross readings broke ${JSON.stringify(pairs)}`);
+      }
+      // v59.70 (lens audit): a put/call ratio that stopped weeks before the VIX close is not read beside it.
+      const stalePcr = chist.map((row, i) => (i < 60 ? row : { ...row, pcr: undefined }));
+      const staleText = crossReadings({ history: stalePcr, macroHistory: chy, day: null }).find((row) => row.id === 'volatility-sentiment')?.text || '';
+      if (/풋\/콜/.test(staleText) || !/풋\/콜 비율 0\.90/.test(pairs['volatility-sentiment'] || '')) fail(`v59.70: a stale put/call ratio must not read as today's, got "${staleText}"`);
+      // v59.70 (owner 11/07): each screen's lenses carry their basis and reach — a stalled input is named, a market with
+      // no data says so, and every lens a screen lists exists with a question, data and a limit.
+      const { pageLensReads, PAGE_LENSES, LENS_BY_ID } = await load('src/domain/lenses/registry.js');
+      const lensReads = pageLensReads('signal', { history: stalePcr, macroHistory: chy, nowMs: Date.parse(`${cdays.at(-1)}T22:00:00Z`) });
+      const sentimentLens = lensReads.find((lens) => lens.id === 'sentiment');
+      const valuationLens = pageLensReads('screener', { screenerRows: [{ market: 'US', pe: 20 }, { market: 'US', pe: null }, { market: 'KR', pe: null }] }).find((lens) => lens.id === 'valuation');
+      const unknown = Object.entries(PAGE_LENSES).flatMap(([route, ids]) => ids.filter((id) => !LENS_BY_ID[id]?.question || !LENS_BY_ID[id].data.length || !LENS_BY_ID[id].limits.length).map((id) => `${route}:${id}`));
+      if (lensReads[0]?.id !== 'trend' || !/에 멈춤/.test(sentimentLens?.late || '') || valuationLens?.scope !== 'PER 미국 2종목 중 1종목, 한국 1종목 중 0종목' || valuationLens.late !== '한국 재무 없음' || unknown.length) {
+        fail(`v59.70: page lenses broke ${JSON.stringify({ sentimentLens, valuationLens, unknown })}`);
+      }
+      // v59.70 (owner 11/07): the stories the market relays reach the screen as counts tied to the scenario engine — no
+      // post text is published, a story is never read as one direction (two linked branches are readings A and B), and a
+      // much-relayed story whose branch is unmet says attention is not confirmation.
+      {
+        const { detectNarratives, publishedNarratives } = await load('src/domain/narrative/narratives.js');
+        const { buildNarrativeCards } = await load('src/domain/narrative/narrative-cards.js');
+        const nowN = Date.parse('2026-11-03T13:00:00Z');
+        const post = (id, hoursAgo, text) => ({ id, channel: 'c', datetime: new Date(nowN - hoursAgo * 3600000).toISOString(), summary: text, score: 1 });
+        const digest = { current24hItems: [post('a', 2, 'HBM 가격 상승과 마이크론 증설'), post('b', 5, 'D램 계약가 둔화'), post('c', 10, '낸드 재고'), post('d', 30, 'CXMT 증산'), post('e', 50, '유가 급등, 호르무즈')] };
+        const found = detectNarratives({ telegramDigest: digest, screener: { data: {} }, nowMs: nowN });
+        const memory = found.find((row) => row.id === 'memory-cycle');
+        const published = publishedNarratives(found, { nowMs: nowN });
+        const item = (id, met, total, gate) => ({ id, title: `${id} 제목 — 설명`, met, total, gate: { met: gate }, status: `조건 충족 ${met}/${total}`, chain: ['a', 'b'], triggers: [], invalidation: [], choices: {}, favored: [], costly: [] });
+        const cardsN = buildNarrativeCards({ narratives: published, crossroads: { items: [item('aibust', 3, 4, true), item('reflation', 1, 4, false), item('oilshock', 0, 4, false)] } }).cards;
+        const memCard = cardsN.find((card) => card.id === 'memory-cycle');
+        const oilCard = cardsN.find((card) => card.id === 'oil-geopolitics');
+        if (memory?.telegramCount !== 4 || memory.recentCount !== 3 || memory.trend !== 'rising' || /summary|text|_posts/.test(JSON.stringify(published))
+          || !/지표가 더 맞는 쪽은 'aibust 제목'\(조건 충족 3\/4\)이고, 'reflation 제목'은 조건 충족 1\/4/.test(memCard?.line || '') || /맞다면/.test(memCard?.line || '')
+          || !/지표로 아직 확인되지 않습니다/.test(oilCard?.line || '') || !/많이 오가는 것과 맞는 것은 다릅니다/.test(oilCard?.line || '')) {
+          fail(`v59.70: narratives broke ${JSON.stringify({ memory, mem: memCard?.line, oil: oilCard?.line })}`);
+        }
+        // v59.70 '바뀐 점': the change is read against the latest earlier KST day, not the minutes-old previous run; a
+        // second run the same day replaces today's entry and keeps the same baseline.
+        const { narrativeDayLog } = await load('src/domain/narrative/narratives.js');
+        const prevN = { log: [{ date: '2026-11-02', ids: ['oil-geopolitics', 'us-politics'] }, { date: '2026-11-03', ids: ['stale'] }] };
+        const nowLog = narrativeDayLog(prevN, { stories: [{ id: 'memory-cycle' }, { id: 'oil-geopolitics' }] }, { nowMs: Date.parse('2026-11-03T13:00:00Z') });
+        if (nowLog.changes?.since !== '2026-11-02' || nowLog.changes.added.join() !== 'memory-cycle' || nowLog.changes.dropped.join() !== 'us-politics'
+          || nowLog.log.length !== 2 || nowLog.log.at(-1).ids.join() !== 'memory-cycle,oil-geopolitics' || narrativeDayLog(null, { stories: [] }).changes !== null) {
+          fail(`v59.70: narrative day log broke ${JSON.stringify(nowLog)}`);
+        }
+        // v59.71 (quant review): the reverse DCF prices the close on the same row's split-adjusted count; the Sahm windows are
+        // calendar months that tolerate one skipped release; sentiment ranks with the shared percentile convention.
+        const { reverseDcfInputs } = await load('src/domain/fundamental/analysis-read.js');
+        const dcfNow = Date.parse('2026-11-07T00:00:00Z');
+        const dcfArgs = { history: [{ periodEnd: '2026-06-30', operatingCashFlow: 5e9, capex: 1e9 }], fundamentals: { sharesOutstanding: 100e6, sharesObservedAt: '2026-08-01', observedAt: '2026-06-30' }, nowMs: dcfNow };
+        const splitDcf = reverseDcfInputs({ ...dcfArgs, close: { value: 50, date: '2026-11-06', shares: 800e6 } });
+        const filedDcf = reverseDcfInputs({ ...dcfArgs, close: { value: 50, date: '2026-11-06' } });
+        const { sahmGap } = await load('src/domain/macro/macro-read.js');
+        const unemp = Array.from({ length: 18 }, (_, i) => ({ date: new Date(Date.UTC(2025, i, 1)).toISOString().slice(0, 10), value: i >= 15 ? 4.6 : 4 })).filter((_, i) => i !== 9);
+        const sahm = sahmGap(unemp);
+        const { sentimentRank } = await load('src/domain/macro/macro-signals.js');
+        const sent = sentimentRank([...Array.from({ length: 35 }, (_, i) => ({ date: `2023-${String(i % 12 + 1).padStart(2, '0')}-01`, value: 60 + i })), { date: '2026-01-01', value: 10 }]);
+        if (splitDcf.marketValue !== 40e9 || splitDcf.sharesBasis !== 'screener-row' || filedDcf.marketValue !== 5e9
+          || !(sahm && Math.abs(sahm.value - 0.6) < 1e-9 && sahm.date === '2026-06-01') || sent?.percentile !== 0) {
+          fail(`v59.71: split-adjusted DCF / Sahm calendar months / sentiment percentile broke ${JSON.stringify({ splitDcf: splitDcf.marketValue, filedDcf: filedDcf.marketValue, sahm, sent: sent?.percentile })}`);
+        }
       }
       // v59.69: each pair is also a 2x2 map; the dot's cell must agree with the sentence (a narrow pullback sits in
       // 좁은 조정, falling yields with widening spreads in 성장 걱정), and the day's lead story carries its direction.
@@ -1498,13 +1559,64 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       // cause), a move matched by its group is the market's, a +40% run-up into a beat that fell is priced in.
       const { reactionRead } = await load('src/domain/briefing/reaction-read.js');
       const rh = [{ date: '2026-10-29', smh: 100, spx: 100 }, { date: '2026-10-30', smh: 93, spx: 99.7 }];
-      const fig = (metric, surprisePct, extra = {}) => ({ metric, estimate: { surprisePct, ...extra } });
+      // v59.70 step 2: a figure carries the reported value and the estimate it is compared with, as stored briefs do.
+      const fig = (metric, surprisePct, extra = {}) => ({ metric, label: metric === 'eps_diluted' && extra.actualBasis === 'adjusted' ? '조정 희석 EPS' : metric,
+        value: metric === 'eps_diluted' ? `$${(100 * (1 + surprisePct / 100)).toFixed(2)}` : '$1 billion', estimate: { value: 100, surprisePct, basis: 'provider-consensus-reference', ...extra } });
       const reaction = (pct, latestDate = '2026-10-30') => ({ baseDate: '2026-10-29', firstDate: '2026-10-30', firstPct: pct, latestDate, latestPct: pct });
       const intc = reactionRead({ layer: 'ai-core', figures: [fig('revenue', -1.7), fig('eps_diluted', 30, { actualBasis: 'adjusted' })], guidance: [], reasons: { points: [{ text: '다음 분기 매출·이익 전망이 시장 예상에 못 미쳐 우려를 키웠다.' }] }, reaction: reaction(-28.6) }, { history: rh });
-      const nvt = reactionRead({ layer: 'ai-core', figures: [fig('revenue', 3), fig('eps_diluted', 4)], guidance: [{ text: '연간 전망 제시' }], reasons: { points: [] }, reaction: reaction(-8.8) }, { history: rh });
+      const nvt = reactionRead({ layer: 'chips-compute', figures: [fig('revenue', 3), fig('eps_diluted', 4)], guidance: [{ text: '연간 전망 제시' }], reasons: { points: [] }, reaction: reaction(-8.8) }, { history: rh });
       const run = reactionRead({ layer: 'limited', figures: [fig('revenue', 3), fig('eps_diluted', 4)], guidance: [], reasons: { points: [] }, reaction: reaction(-9) }, { history: rh, row: { factorSessionDate: '2026-10-30', ret3m: 27.4 } });
       if (intc?.kind !== 'guidance' || nvt?.kind !== 'with-market' || run?.kind !== 'priced-in' || run.steps.find((step) => step.id === 'run-up')?.value !== '발표 전 3개월 +40%') {
         fail(`v59.69: reaction reading broke ${JSON.stringify({ intc: intc?.kind, nvt: nvt?.kind, run: run && { kind: run.kind, steps: run.steps } })}`);
+      }
+      // v59.70: SMH is the group only for chip layers (an oil major reads against the S&P 500); a kept outlook is not weak;
+      // a company cut is 하향, a reported shortfall against the estimate 하회.
+      const xom = reactionRead({ layer: 'power-energy', figures: [fig('revenue', 3), fig('eps_diluted', 4)], guidance: [], reasons: { points: [] }, reaction: reaction(-8.8) }, { history: rh });
+      const kept = reactionRead({ layer: 'limited', figures: [], guidance: [], reasons: { points: [{ text: '연간 가이던스를 유지했다.' }] }, reaction: reaction(-5) }, { history: rh });
+      const cut = reactionRead({ layer: 'limited', figures: [], guidance: [{ text: '연간 매출 전망 하향' }], reasons: { points: [] }, reaction: reaction(-5) }, { history: rh });
+      if (xom?.kind === 'with-market' || !/S&P 500/.test(xom?.steps.find((step) => step.id === 'market')?.value || '') || kept?.steps.some((step) => step.id === 'guidance')
+        || cut?.steps.find((step) => step.id === 'guidance')?.value !== '가이던스 하향' || intc?.steps.find((step) => step.id === 'guidance')?.value !== '가이던스 하회') {
+        fail(`v59.70: reaction benchmark/guidance labels broke ${JSON.stringify({ xom: xom?.steps, kept: kept?.steps, cut: cut?.steps, intc: intc?.steps })}`);
+      }
+      const tln = reactionRead({ layer: 'limited', figures: [fig('eps_diluted', -68)], guidance: [{ text: '2027년 전망 상향' }], reasons: { points: [] }, reaction: reaction(6) }, { history: rh });
+      // v59.70 step 1: a history row that repeats the previous close (11/03 carrying 11/02) is not that date's close — the
+      // reaction's market rung is unknown rather than 0.0%, and every surprise % is the one shared formula.
+      const { closeMoveBetween } = await load('src/domain/market/close-series.js');
+      const { surprisePct } = await load('src/domain/shared/number.js');
+      const carried = [{ date: '2026-11-02', spx: 7541.4, fieldMeta: { spx: { sessionDate: '2026-11-02' } } }, { date: '2026-11-03', spx: 7541.4, fieldMeta: { spx: { sessionDate: '2026-11-02' } } }];
+      const flat = reactionRead({ layer: 'limited', figures: [fig('eps_diluted', 5)], guidance: [], reasons: { points: [] }, reaction: { baseDate: '2026-11-02', firstDate: '2026-11-03', firstPct: -6, latestDate: '2026-11-03', latestPct: -6 } }, { history: carried });
+      if (closeMoveBetween(carried, 'spx', '2026-11-02', '2026-11-03', { exactTo: true }) !== null || flat?.steps.some((step) => step.id === 'market')
+        || !(Math.abs(closeMoveBetween(rh, 'smh', '2026-10-29', '2026-10-30', { exactTo: true })?.pct + 7) < 1e-9)
+        || surprisePct(110, 100) !== 10 || surprisePct(-0.5, -1) !== 50 || surprisePct(1, 0) !== null || surprisePct(null, 1) !== null) {
+        fail(`v59.70: carried closes must not read as a flat move, surprise % must be the shared formula ${JSON.stringify(flat?.steps)}`);
+      }
+      if (tln?.kind !== 'guidance-up') fail(`v59.70: an up-move on a raised outlook with an EPS miss is not 호실적 반영, got ${tln?.kind}`);
+      // v59.70 step 2: one surprise per report. An annual revenue line is not compared with the quarter's estimate (AAPL
+      // $479B read +314.1%); the provider's same-basis actual (the number 오늘 prints) wins over the brief's GAAP line
+      // (AAPL $2.10 +3.6% → $2.05 +1.1%); the reaction read and the briefing line read the same function.
+      const { figureSurprise } = await load('src/domain/briefing/event-briefs.js');
+      const { resultVerdict } = await load('src/domain/briefing/reaction-read.js');
+      const aaplFigures = [
+        { metric: 'revenue', label: '분기 매출', value: '$114.5 billion', estimate: { value: 115660327009, surprisePct: -1, basis: 'provider-consensus-reference', providerActual: 114477000000 } },
+        { metric: 'revenue', label: '연간 매출', value: '$479 billion', estimate: { value: 115660327009, surprisePct: 314.1, basis: 'provider-consensus-reference' } },
+        { metric: 'eps_diluted', label: '희석 EPS', value: '$2.10', estimate: { value: 2.0267, surprisePct: 3.6, basis: 'provider-consensus-reference', actualBasis: 'reported', providerActual: 2.05 } }
+      ];
+      const annual = figureSurprise(aaplFigures[1], aaplFigures);
+      const aaplEps = figureSurprise(aaplFigures[2], aaplFigures);
+      const noProvider = figureSurprise({ ...aaplFigures[2], estimate: { ...aaplFigures[2].estimate, providerActual: undefined } }, aaplFigures);
+      const verdict = resultVerdict(aaplFigures);
+      if (annual !== null || aaplEps?.pct !== 1.1 || aaplEps?.note !== '(조정 $2.05 기준)' || noProvider?.pct !== 3.6 || noProvider?.note !== '(보고 기준)'
+        || verdict.revenuePct !== -1 || verdict.epsPct !== 1.1 || verdict.eps !== 'beat') {
+        fail(`v59.70: one surprise per report broke ${JSON.stringify({ annual, aaplEps, noProvider, verdict })}`);
+      }
+      // v59.70 step 4: 종목's four cells read the same comparison; "전망은 시장 기대보다 낮아" is 가이던스 하회, not 신중.
+      const { earningsCells } = await load('src/domain/briefing/reaction-read.js');
+      const aaplBrief = { kind: 'earnings', figures: aaplFigures, guidance: [], reasons: { points: [{ text: '분기 실적은 예상치를 웃돌았지만, 연말 분기 매출총이익률 전망은 시장 기대보다 낮아 실적 호재를 상쇄했습니다.' }] },
+        reaction: { firstDate: '2026-11-03', firstPct: -1.9, latestPct: -1.9, sessions: 1 } };
+      const four = earningsCells(aaplBrief);
+      if (four?.compared.map((row) => `${row.metric}:${row.pct}`).join(',') !== 'revenue:-1,eps:1.1' || four.outlook !== '가이던스 하회' || four.reaction?.firstPct !== -1.9
+        || earningsCells({ kind: 'fomc' }) !== null || earningsCells({ kind: 'earnings', figures: [] }) !== null) {
+        fail(`v59.70: earnings four cells broke ${JSON.stringify(four)}`);
       }
       // v59.69: release bands — with core PCE above 2.5% a 25만 jobs report is a burden (cuts wait), near target it is
       // growth; a jobs report with unemployment up 0.2%p is 급랭 whatever the payroll; core CPI 0.33% is 끈적함.
@@ -1545,6 +1657,20 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     const nextRow = (iso) => buildMarketGuide({ regime: { available: true, overall: '혼조', counts: {} }, crossroads: { available: true, events: [], items: [], nextEvent: { id: 'us-nfp', name: '고용보고서', date: '2026-11-06', when: '11/6(금)' } }, nowMs: Date.parse(iso) }).situation.find((row) => row.id === 'next').text;
     if (!/^11\/3 미국 중간선거 결과 → 11\/6\(금\) 고용보고서/.test(nextRow('2026-11-03T12:00:00Z')) || /중간선거/.test(nextRow('2026-11-05T12:00:00Z'))
       || !storyEvents.some((event) => event.date === '2026-11-03' && event.title === '미국 중간선거')) fail('v59.62: the next-fork row must name the midterm before the jobs report, and 시장 상태 must read the same registry');
+    // v59.70 (step 3 screen audit): the week ahead lists a report only at 1%+ of the S&P 500 or from the mover list, and
+    // the AI-spending sentence only on a line with a mover (Moderna 0.1% read "대형 기술주 쏠림이 이어질지 가르는 실적").
+    {
+      const { buildMarketStory } = await load('src/domain/market/market-story.js');
+      const weekRows = []; let day = Date.parse('2026-09-01T00:00:00Z');
+      while (weekRows.length < 40) { const at = new Date(day); if (at.getUTCDay() >= 1 && at.getUTCDay() <= 5) { const i = weekRows.length; weekRows.push({ date: at.toISOString().slice(0, 10), spx: 6000 + i * 5, ndx: 20000 + i * 80, smh: 300 + i * 2, rsp: 180 - i * 0.5, iwm: 220 }); } day += 86400000; }
+      const lastDay = weekRows.at(-1).date;
+      const ahead = new Date(Date.parse(lastDay) + 3 * 86400000).toISOString().slice(0, 10);
+      const calendarRows = [{ symbol: 'MRNA', date: ahead, hour: 'bmo', indexWeight: 0.1 }, { symbol: 'XYZ', date: ahead, hour: 'bmo', indexWeight: 1.2 }, { symbol: 'NVDA', date: ahead, hour: 'amc', indexWeight: 7.1 }];
+      const week = buildMarketStory({ history: weekRows, calendar: { earnings: calendarRows }, nowMs: Date.parse(`${lastDay}T21:00:00Z`) }).week || [];
+      const lines = week.filter((row) => row.kind === 'earnings');
+      if (lines.some((row) => /MRNA/.test(row.title)) || !/쏠림/.test(lines.find((row) => /엔비디아/.test(row.title))?.why || '')
+        || !/지수 비중이 커서/.test(lines.find((row) => /XYZ/.test(row.title))?.why || '')) fail(`v59.70: week-ahead earnings lines must follow the company, got ${JSON.stringify(lines)}`);
+    }
     if (both?.symbols?.join(',') !== 'MU,BAC' || both.symbol !== 'MU' || !/Micron[\s\S]*Bank of America/.test(both.text)) fail('v59.62: a multi-company earnings headline must carry every named reporter in headline order');
   }
   // v57.55 review (E1-03): a quarterly trend is named only when the last two steps agree.
@@ -4432,6 +4558,15 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const dipPoint = dipRows[dipRows.length - 1].us;
   if (dipPoint.breadthLow20 !== 1 || dipPoint.breadthLow63 !== 1 || dipPoint.signalEligible.low20 !== 2 || dipPoint.signalEligible.low63 !== 2)
     fail(`v58.68 producer recent-low aggregation wrong: ${JSON.stringify({ l20: dipPoint.breadthLow20, l63: dipPoint.breadthLow63, eligible: dipPoint.signalEligible })}`);
+  // v59.70 (lens plan step 3): above a rising 50-day line. UP rises throughout; BOUNCE falls for 80 sessions then jumps
+  // over its still-falling 50-day line — it counts in breadth50, not in breadth50Rising.
+  const upSeries = Array.from({ length: 90 }, (_, i) => 100 + i);
+  const bounce = Array.from({ length: 90 }, (_, i) => (i < 89 ? 200 - i : 190));
+  const rDates = Array.from({ length: 90 }, (_, i) => new Date(Date.UTC(2025, 8, 1) + i * 86400000).toISOString().slice(0, 10));
+  const risingRows = computeScreenerBreadthHistory(['UP', 'BOUNCE'], [{ sym: 'UP', dates: rDates, adjCloses: upSeries }, { sym: 'BOUNCE', dates: rDates, adjCloses: bounce }], 252, Date.parse('2027-01-01T00:00:00Z'));
+  const risingPoint = risingRows.at(-1).us;
+  if (risingPoint.breadth50 !== 100 || risingPoint.breadth50Rising !== 50 || risingPoint.eligibleByWindow.rising50 !== 2)
+    fail(`v59.70 breadth above a rising 50-day line wrong: ${JSON.stringify({ b50: risingPoint.breadth50, rising: risingPoint.breadth50Rising, eligible: risingPoint.eligibleByWindow })}`);
 }
 
 // v58.68 (owner 2026-10-23): the leaders' verdict line — a 6% semiconductor session is named 급락일 beside the break state,

@@ -225,7 +225,7 @@ export function chapterToday(day, chapterId) {
   const report = facts.filter((fact) => fact.kind === 'headline' && fact.rank !== 'context' && (fact.wordTopics || fact.topics)?.some((topic) => topics.includes(topic)))
     .sort((a, b) => b.materiality - a.materiality)[0] || null;
   if (!lead && !report) return null;
-  const size = (fact) => (fact.unit === 'bp' ? bp(fact.change) : signed(fact.change, 1));
+  const size = (fact) => ((fact.changeUnit || fact.unit) === 'bp' ? bp(fact.change) : signed(fact.change, 1));
   const parts = [];
   if (lead) parts.push(`${lead.label} ${size(lead)}, 평소 하루 변동의 ${Math.abs(lead.z).toFixed(1)}배${lead.rank === 'lead' ? '로 오늘 가장 큰 변화 중 하나입니다' : '입니다'}`);
   if (moved.length) parts.push(`같이 움직인 업종은 ${moved.slice(0, 2).map((group) => `${group.label}(${signed(group.change, 1)})`).join(', ')}입니다`);

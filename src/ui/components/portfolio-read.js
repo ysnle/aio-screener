@@ -141,7 +141,9 @@ export function renderPortfolioRead({ documentRef: doc, root, surface }) {
       // E02: null is missing, not 0% return. X01 (2026-10-13): this return once sat inside the comment, so SPY was never used.
       return { ret3m: spyReturn, label: 'S&P 500(SPY, 배당 포함)', asOf: spy.factorSessionDate || null };
     }
-    return bench;
+    // v59.71 (quant review): a stock's 3-month return is on adjusted closes (dividends in), an index here is a price index,
+    // so dividends land in 종목 선택; the label says so rather than reading as a like-for-like comparison.
+    return bench && bench.label ? { ...bench, label: `${bench.label}(가격 지수, 배당 제외)` } : bench;
   };
   // #22: the USD/KRW 3-month return ends on the series' last close; that date travels with it so a holding whose
   // close is on another day has its FX effect held instead of mixing two windows.

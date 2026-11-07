@@ -11,6 +11,7 @@
 // (market-read included) can call them without an import cycle.
 import { RULES } from '../rules/thresholds.js';
 import { signedText, finiteNumber as finite } from '../shared/number.js';
+import { percentileOf } from '../shared/percentile.js';
 
 export const MACRO_SIGNAL_RULES = Object.freeze({
   deadZoneSd: 0.5,          // a move counts only past 0.5 sd of the series' own n-period changes
@@ -111,9 +112,9 @@ export function sentimentRank(series) {
   const rows = (Array.isArray(series) ? series : []).filter((row) => finite(row?.value) != null).slice(-MACRO_SIGNAL_RULES.sentimentWindow);
   const last = rows.at(-1);
   if (!last || rows.length < MACRO_SIGNAL_RULES.sentimentMinRecords) return last ? { value: last.value, date: last.date, month: monthOf(last.date), percentile: null, records: rows.length } : null;
-  const below = rows.filter((row) => row.value < last.value).length;
-  const equal = rows.filter((row) => row.value === last.value).length;
-  return { value: last.value, date: last.date, month: monthOf(last.date), percentile: ((below + equal / 2) / rows.length) * 100, records: rows.length };
+  // v59.71 (quant review): the shared convention (shared/percentile.js) — (below + equal/2)/n counted the release itself,
+  // so a record low read 1.4 here and 0 on every other percentile.
+  return { value: last.value, date: last.date, month: monthOf(last.date), percentile: percentileOf(rows.map((row) => row.value), last.value), records: rows.length };
 }
 
 /** Brent futures against WTI futures from two close series: the same-day spread, both 20-session changes (pointBack is the

@@ -323,6 +323,12 @@ export function dailyRowsFromYahooChart(res, { fetchedAt = new Date().toISOStrin
   // 2026-10-13 F07: the listing's own currency and exchange zone travel with the series so a Tokyo or
   // Taipei row is never published as USD on a New York session date.
   out.meta = { currency: res.meta?.currency || null, exchangeTimezoneName: res.meta?.exchangeTimezoneName || null, symbol: res.meta?.symbol || null };
+  // v59.70: the chart's split events (requested with events=split). The closes are already split-adjusted, but an SEC
+  // share count filed before the split is not, so the SEC row fields scale it by the splits after its cover date.
+  out.splits = Object.values(res.events?.splits || {})
+    .map((event) => ({ date: Number.isFinite(event?.date) ? new Date(event.date * 1000).toISOString().slice(0, 10) : null, ratio: event?.numerator > 0 && event?.denominator > 0 ? event.numerator / event.denominator : null }))
+    .filter((event) => event.date && Number.isFinite(event.ratio) && event.ratio > 0 && event.ratio !== 1)
+    .sort((a, b) => a.date.localeCompare(b.date));
   for (let i = 0; i < ts.length; i++) {
     const c = closes[i];
     if (typeof c !== 'number' || !isFinite(c)) { if (Number.isFinite(ts[i])) out.nullCloseDates.push(new Date(ts[i] * 1000).toISOString().slice(0, 10)); continue; }
@@ -368,6 +374,7 @@ export function priceHistoryFromRows(sym, fetched, { providerMeta = null, nullCl
     providerMeta,
     closeReconciliation,
     nullCloseDates,
+    splits: Array.isArray(fetched?.splits) ? fetched.splits : [],
     dates:     (rows || []).map(r => r.date),
     observedAts:(rows || []).map(r => r.observedAt || null),
     closes:    (rows || []).map(r => r.close),

@@ -3165,10 +3165,10 @@
       var regime866 = typeof NARRATIVE_ENGINE !== 'undefined' && NARRATIVE_ENGINE.getBreadthRegime
         ? NARRATIVE_ENGINE.getBreadthRegime(32)
         : null;
-      t866ok = !!(regime866 && /#ec5d5e/i.test(regime866.color || '') && /공포/.test(regime866.label || ''));
+      t866ok = !!(regime866 && /#ec5d5e/i.test(regime866.color || '') && /좁음/.test(regime866.label || ''));
       t866detail = JSON.stringify({ regimeColor: regime866 && regime866.color, regimeLabel: regime866 && regime866.label });
     } catch(e) { t866detail = 'ERR:' + e.message; }
-    _assert('T866 breadth_regime_contract_v5460 (v59.38: the zero-delta half left with the retired delta display): 32% breadth classifies fearful red',
+    _assert('T866 breadth_regime_contract_v5460 (v59.38: the zero-delta half left with the retired delta display; v59.71: RULES.breadth bands): 32% breadth classifies narrow red',
       t866ok,
       t866detail);
     _assert('T868 vkospi_failure_state_contract_v5234 → v58.76: repeated VKOSPI failures still clear the live flag',

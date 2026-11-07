@@ -16,6 +16,11 @@ import { normalizeHistoryRows } from './history.mjs';
 // official exchange advance/decline data.
 // v58.79 (owner 2026-10-25): the headline breadth is S&P 500 members, not the AIO watch list — a fourth bucket
 // (sp500) counts members only, judged on the same adjusted closes; the history writer prefers it (SP500_SCOPE below).
+// v59.70 (lens plan step 3): '평균선이 오르면서 그 위' — above the 50-day average while that average is higher than it was
+// RISING_LOOKBACK sessions earlier. A share above a falling line is a bounce inside a down-trend, not participation.
+export const RISING_LOOKBACK = 10;
+// v59.71: dates newer than this many calendar days may still be revised (late bars, dividend-adjusted closes); older ones keep their first value.
+export const BREADTH_REVISION_DAYS = 7;
 export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowMs = Date.now(), assetTypeOf = null, sp500Members = null) {
   const isMember = (sym) => sp500Members instanceof Set && sp500Members.has(String(sym || '').toUpperCase());
   // v57.50 D21: breadth is a share of stocks; ETFs (index trackers, VIX products) are excluded from both
@@ -32,7 +37,7 @@ export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowM
     kr: [...symbolSet].filter((sym) => segmentFor(sym) === 'kr').length,
     sp500: [...symbolSet].filter((sym) => segmentFor(sym) === 'us' && isMember(sym)).length
   };
-  const blank = () => ({ eligible: 0, advances: 0, declines: 0, unchanged: 0, observedAt: null, above: { 20: 0, 40: 0, 50: 0, 200: 0 }, eligibleByWindow: { 20: 0, 40: 0, 50: 0, 200: 0 },
+  const blank = () => ({ eligible: 0, advances: 0, declines: 0, unchanged: 0, observedAt: null, above: { 20: 0, 40: 0, 50: 0, 200: 0, rising50: 0 }, eligibleByWindow: { 20: 0, 40: 0, 50: 0, 200: 0, rising50: 0 },
     // P1416: StockBee 4% movers, 52-week highs/lows; each with its own eligible denominator.
     up4: 0, down4: 0, moverEligible: 0, newHighs: 0, newLows: 0, highLowEligible: 0, contributors: { up4: [], down4: [], newHigh: [], newLow: [] },
     // v58.68: recent closing lows (20 / 63 sessions), each with its own eligible denominator.
@@ -76,6 +81,13 @@ export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowM
       if (!Number.isFinite(average)) continue;
       bucket.eligibleByWindow[window] += 1;
       if (value > average) bucket.above[window] += 1;
+      if (window === 50) {
+        const past = index - RISING_LOOKBACK;
+        if (past + 1 < 50 || finitePrefix[past + 1] - finitePrefix[past + 1 - 50] !== 50) continue;
+        const pastAverage = (prefix[past + 1] - prefix[past + 1 - 50]) / 50;
+        bucket.eligibleByWindow.rising50 += 1;
+        if (value > average && average > pastAverage) bucket.above.rising50 += 1;
+      }
     }
   };
 
@@ -126,6 +138,7 @@ export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowM
       signalEligible: { movers: bucket.moverEligible, highLow: bucket.highLowEligible, low20: bucket.low20Eligible, low63: bucket.low63Eligible },
       contributors: bucket.contributors,
       breadth50: pct(bucket.above[50], bucket.eligibleByWindow[50]),
+      breadth50Rising: pct(bucket.above.rising50, bucket.eligibleByWindow.rising50),
       breadth200: pct(bucket.above[200], bucket.eligibleByWindow[200]),
       advanceRatio: directional > 0 ? round(bucket.advances / directional, 4) : null,
       advanceDecline: bucket.advances - bucket.declines,
@@ -191,11 +204,12 @@ export async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), dis
   let history = [];
   try { const raw = JSON.parse(await readFile(HIST, 'utf8')); if (Array.isArray(raw)) history = raw; } catch { /* first producer run */ }
   const fetchedAt = new Date().toISOString();
-  const fields = ['breadth20', 'breadth50', 'breadth200', 'advanceRatio', 'advanceDecline', 'breadth40', 'breadthUp4', 'breadthDown4', 'breadthNewHighs', 'breadthNewLows', 'breadthLow20', 'breadthLow63'];
+  const fields = ['breadth20', 'breadth50', 'breadth200', 'advanceRatio', 'advanceDecline', 'breadth40', 'breadthUp4', 'breadthDown4', 'breadthNewHighs', 'breadthNewLows', 'breadthLow20', 'breadthLow63', 'breadth50Rising'];
   // P1416: each count is judged against its own eligible population.
   const eligibleFor = (segment, field) => {
     const window = /^breadth(20|40|50|200)$/.exec(field)?.[1];
     if (window) return Number(segment.eligibleByWindow?.[window]);
+    if (field === 'breadth50Rising') return Number(segment.eligibleByWindow?.rising50);
     if (field === 'breadthUp4' || field === 'breadthDown4') return Number(segment.signalEligible?.movers);
     if (field === 'breadthNewHighs' || field === 'breadthNewLows') return Number(segment.signalEligible?.highLow);
     if (field === 'breadthLow20' || field === 'breadthLow63') return Number(segment.signalEligible?.[field === 'breadthLow20' ? 'low20' : 'low63']);
@@ -214,7 +228,12 @@ export async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), dis
     let target = history.find((row) => row?.date === point.date);
     if (!target) { target = { date: point.date, fieldMeta: {} }; history.push(target); }
     target.fieldMeta = target.fieldMeta || {};
+    // v59.71 (quant review): the backfill re-judges a year of dates on today's index members, so a name added after a
+    // strong run and a dropped loser rewrite the past (survivorship). A date already written on the same population
+    // and older than the revision window keeps its first value; only recent dates (late bars, adjusted closes) are redone.
+    const frozen = nowMs - Date.parse(`${point.date}T00:00:00Z`) > BREADTH_REVISION_DAYS * 86400000;
     for (const field of fields) {
+      if (frozen && Number.isFinite(target[field]) && target.fieldMeta[field]?.universeScope === headline.scope) continue;
       const eligible = eligibleFor(segment, field);
       const universe = Number(segment.universe);
       const minimumEligible = breadthMinimumEligible(universe);
@@ -245,6 +264,19 @@ export async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), dis
         eligible,
         coveragePct: round(eligible / universe * 100, 1)
       };
+    }
+  }
+  // v59.71 (quant review): one percentile sample is one population. Rows judged on another scope than the newest row's
+  // (the AIO US universe on dates the S&P 500 bucket had not reached) are cleared rather than ranked beside it.
+  const latestScope = [...history].sort((a, b) => String(b?.date).localeCompare(String(a?.date)))
+    .map((row) => row?.fieldMeta?.breadth50?.universeScope).find(Boolean) || null;
+  if (latestScope) {
+    for (const row of history) {
+      if (!row?.fieldMeta) continue;
+      for (const field of fields) {
+        const scope = row.fieldMeta[field]?.universeScope;
+        if (scope && scope !== latestScope) { row[field] = null; delete row.fieldMeta[field]; }
+      }
     }
   }
   // P1416: S&P 500 distribution days (25-session count) from the index's own completed bars.

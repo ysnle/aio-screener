@@ -795,8 +795,17 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
     if (br >= 0) { upBench.push(br); upPf.push(monthlyReturns[idx]); }
     else { downBench.push(br); downPf.push(monthlyReturns[idx]); }
   });
-  var upCapture = _statMean(upBench) !== 0 ? _statMean(upPf) / _statMean(upBench) : null;
-  var downCapture = _statMean(downBench) !== 0 ? _statMean(downPf) / _statMean(downBench) : null;
+  // v59.71 (quant review): capture is the geometric mean return over the up (down) months, as Morningstar and Portfolio
+  // Visualizer define it — the arithmetic mean overstated capture for a volatile book.
+  var geoMean = function(list) {
+    if (!list.length) return null;
+    var log = 0;
+    for (var i = 0; i < list.length; i++) { if (!(1 + list[i] > 0)) return null; log += Math.log(1 + list[i]); }
+    return Math.exp(log / list.length) - 1;
+  };
+  var upB = geoMean(upBench), upP = geoMean(upPf), downB = geoMean(downBench), downP = geoMean(downPf);
+  var upCapture = upB != null && upP != null && upB !== 0 ? upP / upB : null;
+  var downCapture = downB != null && downP != null && downB !== 0 ? downP / downB : null;
   var mddRows = _aioBtWorstDrawdowns(monthlyRows, common[0], initialAmount);
   var mdd = mddRows.length ? mddRows[0].drawdown : 0;
   var portVar = Math.pow(_statStdDev(monthlyReturns), 2);

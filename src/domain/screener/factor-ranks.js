@@ -137,6 +137,11 @@ function valueRaw(row) {
     if (numeric != null && numeric > 0 && numeric < upper) parts.push(Math.max(0, Math.min(maxInverse, 1 / numeric)) / maxInverse);
   };
   addInverse(value(row, 'pe'), 200, 0.20);
+  // v59.71 (quant review): a loss-maker has no P/E (dropped upstream at net income ≤ 0), so its value read was P/B
+  // alone and a distressed low-P/B name ranked cheaper than a profitable peer. Losses (negative margin) score the
+  // earnings term 0 — no earnings yield — instead of leaving it out.
+  const margin = value(row, 'margin');
+  if (value(row, 'pe') == null && margin != null && margin < 0) parts.push(0);
   addInverse(value(row, 'pb'), 50, 2.0);
   // 2026-10-13 F11: EV/EBITDA is retired at the provider (no automated producer; 0 of 873 rows), so this term is
   // inert on live rows. The line stays only because the legacy-derived factor-ranks golden fixture

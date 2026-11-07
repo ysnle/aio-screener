@@ -9,6 +9,18 @@ import { frameHead, markFrame } from './section-frame.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { el } from './dom.js';
 import { askRow } from './ask-row.js';
+import { MARKET_DAY } from '../../data/shared-artifacts.js';
+import { buildNarrativeCards } from '../../domain/narrative/narrative-cards.js';
+
+// v59.70 (owner 11/07, narrative connected end to end): the chain gains the story the market is relaying most, with how
+// far the indicators back the scenario it points to — the same read as 시장 상태's 시장이 말하는 이야기 card.
+function storyStep(root, interpretation) {
+  const narratives = root?.[MARKET_DAY.key]?.narratives;
+  const card = buildNarrativeCards({ narratives, crossroads: interpretation?.crossroads }).cards[0];
+  const story = card && narratives.stories.find((row) => row.id === card.id);
+  if (!card || !story) return null;
+  return { id: 'story', label: '이야기', text: `가장 많이 오가는 이야기는 '${card.label}'(${narratives.windowHours || 72}시간 ${story.telegramCount}건) · 이어지는 시나리오: ${card.supportWord}` };
+}
 
 function chain(doc, rows) {
   const list = el(doc, 'ol', null, 'mk-synth__chain');
@@ -79,7 +91,8 @@ export function renderMarketSynthesis({ documentRef: doc, host, page }) {
   let section = doc.getElementById(id);
   const model = buildMarketSynthesis(interpretation, { page });
   if (!model.available) { section?.remove(); return null; }
-  const key = [model.asOf, model.headline, model.pageLine, model.branches.map((row) => `${row.id}:${row.met}`).join(',')].join('|');
+  const story = storyStep(root, interpretation);
+  const key = [model.asOf, model.headline, model.pageLine, model.branches.map((row) => `${row.id}:${row.met}`).join(','), story?.text || ''].join('|');
   if (section?.dataset.signature === key) return section;
   if (!section) {
     section = el(doc, 'section', null, 'sx-card mk-synth');
@@ -91,7 +104,7 @@ export function renderMarketSynthesis({ documentRef: doc, host, page }) {
   if (section.nextElementSibling !== anchor) anchor.before(section);
   const parts = [frameHead(doc, { title: '연결해서 보면', titleId: `${id}-title`, asOf: model.asOf ? `${shortDate(model.asOf)} 종가` : '' })];
   // v59.68: the card sits on 시장 상태 only, under the verdict it would have repeated as 'X에서 본 것'.
-  parts.push(el(doc, 'h3', '흐름', 'mk-synth__sub'), chain(doc, model.chain));
+  parts.push(el(doc, 'h3', '흐름', 'mk-synth__sub'), chain(doc, story ? [...model.chain, story] : model.chain));
   if (model.branches.length) {
     const grid = el(doc, 'div', null, 'mk-synth__branches');
     grid.append(...model.branches.map((row) => branchCard(doc, row)));

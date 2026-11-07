@@ -7,11 +7,11 @@
 // (name, the price after the report, headline) under '그 밖의 실적'; everything else of the last 30 days sits in a fold.
 import { releaseZones } from '../../domain/macro/release-zones.js';
 import { releaseZoneBar } from './release-zone-bar.js';
-import { reactionRead } from '../../domain/briefing/reaction-read.js';
+import { reactionRead, earningsCells } from '../../domain/briefing/reaction-read.js';
 import { el } from './dom.js';
 import { directionOf } from '../../domain/shared/number.js';
 import { frameHead, markFrame } from './section-frame.js';
-import { homeBriefTiers, latestBriefFor, reactionText, BRIEF_BASIS_WORDS, CALL_SEARCH_MAX_ATTEMPTS, epsComparisonBasis, koreanReleaseText, surprisePct } from '../../domain/briefing/event-briefs.js';
+import { homeBriefTiers, latestBriefFor, reactionText, BRIEF_BASIS_WORDS, CALL_SEARCH_MAX_ATTEMPTS, figureSurprise, koreanReleaseText } from '../../domain/briefing/event-briefs.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { EVENT_BRIEFS } from '../../data/event-artifacts.js';
 
@@ -25,17 +25,8 @@ function whenText(brief) {
 }
 
 const signed = (value) => `${value > 0 ? '+' : ''}${value}%`;
-// v59.48: an EPS line is compared on the basis epsComparisonBasis names (the adjusted line, or the adjusted amount its
-// note gives, or the reported basis for GAAP-only issuers) — re-read here so a brief published before the rule reads it.
-function comparison(figure, figures, provisional) {
-  const estimate = figure.estimate;
-  if (estimate?.surprisePct == null) return null;
-  if (provisional || figure.metric !== 'eps_diluted' || (estimate.basis && estimate.basis !== 'provider-consensus-reference')) return { pct: estimate.surprisePct, note: '' };
-  const basis = epsComparisonBasis(figure, figures);
-  const pct = basis ? surprisePct(basis.actual, Number(estimate.value)) : null;
-  if (pct == null) return null;
-  return { pct, note: basis.basis === 'adjusted-in-note' ? `(조정 ${basis.amount} 기준)` : basis.basis === 'reported' ? '(보고 기준)' : '' };
-}
+// v59.70: the comparison is the domain's figureSurprise — the same reader the reaction read uses.
+const comparison = (figure, figures, provisional) => figureSurprise(figure, figures, { provisional });
 function figureText(figure, figures = [], provisional = false) {
   const parts = [koreanReleaseText(`${figure.label} ${figure.value}`.trim())];
   const head = parts[0].slice(String(figure.label || '').length).trim();
@@ -62,7 +53,41 @@ function basisWord(points) {
 
 // v59.55 (flow 7): `bodyOnly` returns just the folded part — a 뉴스 row already shows the headline, reaction and reason and
 // opens this body in its own fold, so it no longer repeats them and nests a second fold.
-export function briefNode(doc, brief, { showName = true, bodyOnly = false } = {}) {
+// v59.70 (refactor step 4, 종목): 예상 | 발표 | 다음 전망 | 주가 반응 — four short cells read from earningsCells. The reaction
+// cell replaces the reaction line; an empty cell says what is missing instead of leaving a gap.
+const signedOne = (value) => `${value > 0 ? '+' : ''}${value.toFixed(1)}%`;
+// v59.70 (lens plan step 1): when the compared estimate was last seen before the report; a row first seen after it says so.
+const seenText = (iso) => {
+  const ms = Date.parse(iso || '');
+  if (!Number.isFinite(ms)) return ', 발표 전 값인지 확인 안 됨';
+  const kst = new Date(ms + 9 * 3600000);
+  return `, ${kst.getUTCMonth() + 1}/${kst.getUTCDate()} ${String(kst.getUTCHours()).padStart(2, '0')}:${String(kst.getUTCMinutes()).padStart(2, '0')} KST 발표 전 마지막 확인`;
+};
+const estimateText = (row) => (row.metric === 'revenue' ? `매출 ${koreanReleaseText(`$${(row.estimate / 1e9).toFixed(1)} billion`)}` : `EPS $${row.estimate.toFixed(2)}`);
+// The EPS basis travels with the number: after the provider's adjusted actual is stamped, "$2.10 (+1.1%)" alone misreads.
+const actualText = (row) => `${row.metric === 'revenue' ? '매출' : 'EPS'} ${koreanReleaseText(row.value)} (${signedOne(row.pct)}${row.note ? `, ${row.note.replace(/[()]/g, '')}` : ''})`;
+function cellsNode(doc, cells) {
+  const grid = el(doc, 'dl', null, 'event-brief__cells');
+  const cell = (term, lines, direction = null) => {
+    const box = el(doc, 'div', null, 'event-brief__cell');
+    box.append(el(doc, 'dt', term));
+    const dd = el(doc, 'dd', null);
+    (lines.length ? lines : ['없음']).forEach((line, i) => { if (i) dd.append(el(doc, 'br')); dd.append(doc.createTextNode(line)); });
+    if (!lines.length) dd.classList.add('is-empty');
+    if (direction) dd.dataset.direction = direction;
+    box.append(dd);
+    grid.append(box);
+  };
+  cell('예상', cells.compared.map(estimateText));
+  cell('발표', cells.compared.map(actualText));
+  cell('다음 전망', cells.outlook ? [cells.outlook] : []);
+  const r = cells.reaction;
+  cell('주가 반응', r ? [`첫 거래일 ${signedOne(r.firstPct)}`, ...(r.sessions > 1 && Number.isFinite(r.latestPct) ? [`${r.sessions}거래일 ${signedOne(r.latestPct)}`] : [])] : [],
+    r ? directionOf(r.sessions > 1 && Number.isFinite(r.latestPct) ? r.latestPct : r.firstPct, 1) || 'flat' : null);
+  return grid;
+}
+
+export function briefNode(doc, brief, { showName = true, bodyOnly = false, cells = false } = {}) {
   const box = el(doc, 'article', null, 'event-brief');
   box.dataset.kind = brief.kind;
   const head = el(doc, 'p', null, 'event-brief__head');
@@ -71,8 +96,10 @@ export function briefNode(doc, brief, { showName = true, bodyOnly = false } = {}
   if (brief.status === 'provisional') head.append(doc.createTextNode(' '), el(doc, 'span', BRIEF_BASIS_WORDS.provider, 'event-brief__basis'));
   box.append(head);
   if (brief.headline) box.append(el(doc, 'p', koreanReleaseText(brief.headline), 'event-brief__headline'));
+  const fourCells = cells && !bodyOnly ? earningsCells(brief) : null;
+  if (fourCells) box.append(cellsNode(doc, fourCells));
   const reaction = reactionText(brief.reaction);
-  if (reaction) {
+  if (reaction && !fourCells?.reaction) {
     const line = el(doc, 'p', reaction, 'event-brief__reaction');
     line.dataset.direction = directionOf(brief.reaction.extendedPct ?? brief.reaction.latestPct, 1) || 'flat'; // v59.45 (R1-05): 0.0% is flat
     line.title = brief.reaction.basis === 'latest-trade' ? '발표 직전 정규장 종가 대비 가장 최근 체결가(시간외 또는 마감 전 정규장)' : `발표 직전 종가(${brief.reaction.baseDate}) 대비 종가`;
@@ -94,7 +121,7 @@ export function briefNode(doc, brief, { showName = true, bodyOnly = false } = {}
   if (figures.length) {
     const ul = list(doc, figures.map((figure) => figureText(figure, brief.figures || [], brief.status === 'provisional')), 'event-brief__figures');
     // Sources stay off the face (owner 2026-10-06): the estimate's provider is on the row's hover.
-    figures.forEach((figure, i) => { if (figure.estimate) ul.children[i].title = `예상치: ${figure.estimate.source || '제공처'} 컨센서스(참고)`; else if (figure.derived) ul.children[i].title = `공시 원문 ${figure.derived}`; });
+    figures.forEach((figure, i) => { if (figure.estimate) ul.children[i].title = `예상치: ${figure.estimate.source || '제공처'} 컨센서스(참고)${seenText(figure.estimate.seenBeforeReportAt)}`; else if (figure.derived) ul.children[i].title = `공시 원문 ${figure.derived}`; });
     more.append(el(doc, 'p', '발표 수치', 'event-brief__sub'), ul);
   }
   if (reasons.length) more.append(el(doc, 'p', '왜 움직였나(보도 기준)', 'event-brief__sub'), list(doc, reasons.slice(0, 3).map((point) => point.text), 'event-brief__reasons'));
@@ -310,7 +337,7 @@ export function paintTickerBrief(doc, root, symbol, anchor, rerender) {
   if (!host) { host = el(doc, 'section', null, 'event-briefs event-briefs--ticker'); host.id = 'ticker-event-brief'; anchor.insertAdjacentElement('afterend', host); }
   if (host.dataset.signature === `${brief.id}|${root?.[EVENT_BRIEFS.key]?.generatedAt || ''}` && host.childElementCount) { host.hidden = false; return brief; }
   host.dataset.signature = `${brief.id}|${root?.[EVENT_BRIEFS.key]?.generatedAt || ''}`;
-  host.replaceChildren(el(doc, 'h2', '최근 실적 발표 요약', 'briefing-h2'), briefNode(doc, brief, { showName: false }));
+  host.replaceChildren(el(doc, 'h2', '최근 실적 발표 요약', 'briefing-h2'), briefNode(doc, brief, { showName: false, cells: true }));
   host.hidden = false;
   return brief;
 }

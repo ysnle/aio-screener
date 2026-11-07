@@ -3,6 +3,7 @@
 // '계속 볼 것' list, and on 재무 공시 the business lens, the thesis template and the favourable/unfavourable situations.
 // Loaded with the entity route and the lazy analysis cards (never the boot set). Readings come from
 // src/domain/fundamental/stock-lens.js; this file gathers the page's existing inputs and draws them.
+import { shortDate } from '../../domain/content/date-labels.js';
 import { el } from './dom.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { parseFiscalHistory } from './fiscal-read.js';
@@ -72,7 +73,7 @@ export function stockLensContext(root, symbol, { fundamentals = null, bars = nul
   const schedule = market === 'US' ? buildEarningsSchedule({ symbol: sym, calendar: root?.[CALENDAR_KEY], consensus, calendarState: sharedArtifactState(root, CALENDAR_KEY) }) : null;
   const levels = typeof root?._aioPriceLevelsFor === 'function' ? root._aioPriceLevelsFor(sym) : null;
   const financial = isLendingFinancial(sym, row?.sector);
-  const close = Number(row?._valuationPrice ?? row?.valuationPrice) > 0 && hasLeadingIsoDay(String(row?.factorSessionDate || '')) ? { value: Number(row._valuationPrice ?? row.valuationPrice), date: String(row.factorSessionDate).slice(0, 10) } : null;
+  const close = Number(row?._valuationPrice ?? row?.valuationPrice) > 0 && hasLeadingIsoDay(String(row?.factorSessionDate || '')) ? { value: Number(row._valuationPrice ?? row.valuationPrice), date: String(row.factorSessionDate).slice(0, 10), shares: Number(row?._valuationSharesOutstanding) > 0 ? Number(row._valuationSharesOutstanding) : null, sharesObservedAt: row?._valuationSharesObservedAt || null } : null;
   const inputs = history.length ? reverseDcfInputs({ history, fundamentals: own, close, financial }) : null;
   const implied = inputs?.state === 'ready' ? impliedGrowth({ fcf: inputs.fcf, marketValue: inputs.marketValue, discountRate: REVERSE_DCF_DEFAULTS.discountRate, terminalGrowth: REVERSE_DCF_DEFAULTS.terminalGrowth }) : inputs ? { state: inputs.state } : null;
   const strengths = peers ? buildPeerStrengths(peers.rows) : null;
@@ -305,7 +306,12 @@ export function situationCard(doc, ctx) {
   const card = el(doc, 'section', null, 'sx-card v2-analysis-card v2-situation');
   card.dataset.analysis = 'situation';
   card.append(cardHead(doc, '유리한 환경과 불리한 환경', s.themes.map((theme) => theme.label).join(', ')));
-  if (s.now) card.append(el(doc, 'p', s.now, 'v2-analysis-lede'));
+  if (s.now) {
+    // v59.70 (lens plan step 4): the scenario fit is a market reading with its own close date, not the stock's.
+    const lede = el(doc, 'p', s.now, 'v2-analysis-lede');
+    if (s.asOf) lede.append(el(doc, 'span', ` (${shortDate(s.asOf)} 관측 기준)`, 'theme-strength-basis'));
+    card.append(lede);
+  }
   const pair = el(doc, 'div', null, 'v2-thesis-grid is-pair');
   const leadFirst = (items) => (s.lead?.title && items.includes(s.lead.title) ? [s.lead.title, ...items.filter((item) => item !== s.lead.title)] : items);
   if (s.favour.length) { const box = el(doc, 'div', null, 'v2-thesis-block is-favorable'); box.append(el(doc, 'p', `이런 환경에서 유리 (${s.favour.length})`, 'stock-read-vis-title'), shortList(doc, leadFirst(s.favour))); pair.append(box); }

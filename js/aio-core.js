@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v59.69';
+const APP_VERSION = 'v59.71';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -12207,8 +12207,10 @@ function _calcWeeklyContext(bars) {
   if (weekBars.length > 4 && weekBars[0]._n < WEEK) weekBars.shift(); // 부분 최고(最古) 청크 제거
   if (weekBars.length < 4) return null;
   var wCloses = weekBars.map(function(b) { return b.close; });
-  var wSma20 = _calcSMA(wCloses, Math.min(20, wCloses.length));
-  var wSma50 = _calcSMA(wCloses, Math.min(50, wCloses.length));
+  // v59.71 (legacy audit): a shorter history is not a 50-week line — Math.min(50, n) made W20 and W50 the same average under
+  // 20 weeks and wTrend read 'bearish' on equality. A window longer than the record is no average.
+  var wSma20 = wCloses.length >= 20 ? _calcSMA(wCloses, 20) : null;
+  var wSma50 = wCloses.length >= 50 ? _calcSMA(wCloses, 50) : null;
   var wRsi   = _calcRSILast(wCloses, 14);
   var lastW  = weekBars[weekBars.length - 1];
   var prevW  = weekBars[weekBars.length - 2] || lastW;
@@ -12475,9 +12477,11 @@ function calcSellPressure(ohlcvOrSnapshot, context) {
   var flags = [], score = 0;
   function add(points, flag) { score += points; flags.push(flag); }
   if (!snapshot || !snapshot.ok) return { score: null, action: 'WAIT', flags: ['DATA_INSUFFICIENT'], snapshot: snapshot };
-  if (snapshot.dist50Atr !== null && snapshot.dist50Atr >= 3) add(12, 'DIST_50SMA_PLUS_3ATR_WARNING');
-  if (snapshot.dist50Atr !== null && snapshot.dist50Atr >= 4) add(12, 'DIST_50SMA_PLUS_4ATR_NO_ADD_TRIM_CANDIDATE');
-  if (snapshot.dist50Atr !== null && snapshot.dist50Atr >= 6) add(20, 'DIST_50SMA_PLUS_6ATR_STRONG_TRIM_HEDGE');
+  // v59.71 (legacy audit): the 50-day extension is read in ADRs on RULES.technical.extension (extended 4, stretched 7) — the
+  // bands the 종목 page and the screener use (definitions.extensionStateFor). 3/4/6 ATR here read TRIM where they read normal.
+  var dist50Adr = snapshot.dist50Pct != null && snapshot.adr20Pct > 0 ? snapshot.dist50Pct / snapshot.adr20Pct : null;
+  if (dist50Adr !== null && dist50Adr >= 4) add(24, 'DIST_50SMA_EXTENDED_4ADR');
+  if (dist50Adr !== null && dist50Adr >= 7) add(20, 'DIST_50SMA_STRETCHED_7ADR');
   if (snapshot.dist21Atr !== null && snapshot.dist21Atr >= 2.5) add(10, 'DIST_21EMA_PLUS_2_5ATR_SHORT_TERM_EXTENSION');
   if (snapshot.rsi14 !== null && snapshot.rsi14 >= 80) add(8, 'RSI_80_OVERHEAT_NOT_AUTO_SELL');
   if (snapshot.rsi14 !== null && snapshot.rsi14 >= 85) add(10, 'RSI_85_EXTREME_OVERHEAT');
@@ -13323,10 +13327,9 @@ const NARRATIVE_ENGINE = (function() {
   }
   function getSKEWRegime(v) { return regime(v, [[125,'low','낮음','#3dd68c',25],[140,'normal','보통','#ffa057',55],[Infinity,'high','높음','#ec5d5e',85]]); }
   function getMOVERegime(v) { return regime(v, [[80,'low','낮음','#3dd68c',25],[120,'normal','보통','#ffa057',55],[Infinity,'high','높음','#ec5d5e',85]]); }
-  function getVVIXRegime(v) { return regime(v, [[85,'low','낮음','#3dd68c',25],[105,'normal','보통','#ffa057',55],[Infinity,'high','높음','#ec5d5e',85]]); }
-  function getFGRegime(v) { return regime(v, [[25,'fear','공포','#ec5d5e',25],[55,'neutral','중립','#ffa057',50],[75,'greed','탐욕','#ffa057',70],[Infinity,'extreme','극단 탐욕','#ec5d5e',90]]); }
-  function getBreadthRegime(v) { return regime(v, [[40,'weak','공포 영역','#ec5d5e',25],[55,'mixed','혼조','#ffa057',45],[70,'healthy','양호','#3dd68c',70],[Infinity,'broad','광범위','#3dd68c',90]]); }
-  function getInsiderRegime(v) { return regime(v, [[20,'selling','매도 우위','#ec5d5e',25],[50,'neutral','중립','#ffa057',50],[Infinity,'buying','매수 우위','#3dd68c',80]]); }
+  // v59.71 (legacy audit): the bands are RULES.breadth (weakBelow 40, broadAtLeast 60, src/domain/rules/thresholds.js), the edges
+  // 시장 상태 reads — 55-59% was green '양호' here and not broad there. Breadth is participation, not sentiment: '좁음', not '공포'.
+  function getBreadthRegime(v) { return regime(v, [[40,'weak','좁음','#ec5d5e',25],[60,'mixed','혼조','#ffa057',50],[Infinity,'broad','넓음','#3dd68c',85]]); }
 
   function current() {
     var ds = window.DATA_SNAPSHOT || {};
@@ -13390,8 +13393,9 @@ const NARRATIVE_ENGINE = (function() {
   function setSnapshot(snap) { if (snap && typeof snap === 'object') window._DS_OVERRIDE = snap; }
   function clearSnapshot() { try { delete window._DS_OVERRIDE; } catch(_) {} }
   return {
-    getSKEWRegime:getSKEWRegime, getMOVERegime:getMOVERegime, getVVIXRegime:getVVIXRegime,
-    getFGRegime:getFGRegime, getBreadthRegime:getBreadthRegime, getInsiderRegime:getInsiderRegime,
+    // v59.71 (legacy audit): getVVIXRegime, getFGRegime (25/55/75 without the 45 edge every other F&G read uses) and
+    // getInsiderRegime had no caller and left.
+    getSKEWRegime:getSKEWRegime, getMOVERegime:getMOVERegime, getBreadthRegime:getBreadthRegime,
     setSnapshot:setSnapshot, clearSnapshot:clearSnapshot,
     checkDistributionDiagnosis:checkDistributionDiagnosis, getFGInternalStructureText:getFGInternalStructureText,
     getDistributionDiagnosisText:getDistributionDiagnosisText, getCP1Text:getCP1Text, getCP2Text:getCP2Text,

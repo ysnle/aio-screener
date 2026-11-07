@@ -501,15 +501,17 @@ function getThemePerf(theme) {
 //  시장 브레드스 (Market Breadth) — screener compute_breadth 기반
 // ══════════════════════════════════════════════════════════════════
 function calcSectorBreadth(tickers) {
-  // v36.9: 종가 기준 pct 사용 (장중 변동으로 폭 흔들림 방지)
+  // 당일 상승 종목 비율 — 시세(_liveData)의 당일 등락이다(종가 기준이 아님; 화면 제목이 '당일'이라고 말한다).
+  // v59.71 (legacy audit): 등락이 없는 종목은 분모에서 뺀다. 가격만 있고 pct가 없으면 하락으로 세어 비율이 낮아졌고,
+  // 화면의 '가격 적격 n'(pct가 확인된 종목 수)과 분모가 달랐다.
   let ld = window._liveData || {};
   var above = 0, total = 0;
   tickers.forEach(function(t) {
     var d = ld[t];
-    if (!d || !d.price) return;
+    var pct = d && d.price && d.pct != null && d.pct !== '' ? Number(d.pct) : NaN;
+    if (!isFinite(pct)) return;
     total++;
-    // 간이 브레드스: 금일 양봉 비율 (종가 기준 pct)
-    if ((d.pct != null ? d.pct : 0) > 0) above++;
+    if (pct > 0) above++;
   });
   return total >= Math.max(2, Math.ceil(tickers.length * 0.6)) ? Math.round(above / total * 100) : null;
 }

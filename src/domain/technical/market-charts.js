@@ -9,6 +9,7 @@ import { readNumber } from '../shared/number.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { sessionCloses, indexLevel } from '../market/index-levels.js';
 import { withTopicParticle } from '../content/korean-particle.js';
+import { bufferedTrend } from './bands.js';
 
 export const CHART_INDEXES = Object.freeze([['ndx', '나스닥100'], ['spx', 'S&P 500'], ['smh', '반도체(SMH)'], ['rut', '러셀2000'], ['kospi', '코스피'], ['kosdaq', '코스닥']]);
 export const TREND_WORDS = Object.freeze({ up: '상승 추세', pullback: '단기 조정', breakdown: '추세 이탈', rebound: '하락 속 반등', recovery: '회복 시도', down: '하락 추세', unknown: '판단 보류' });
@@ -40,7 +41,9 @@ export function rsiOf(closes, period = 14) {
     gain = (gain * (period - 1) + Math.max(d, 0)) / period;
     loss = (loss * (period - 1) + Math.max(-d, 0)) / period;
   }
-  return loss === 0 ? 100 : 100 - 100 / (1 + gain / loss);
+  // v59.71: a flat window has no gains either — 50, as definitions.rsiWilder reads it, not 100 (overbought).
+  if (loss === 0) return gain === 0 ? 50 : 100;
+  return 100 - 100 / (1 + gain / loss);
 }
 
 /** Swing highs and lows of the last year: a close higher (lower) than the five sessions on each side. */
@@ -148,11 +151,14 @@ export function coreStockRows({ screener = null, indexWeights = [], day = null, 
     const row = screener?.data?.[sym];
     const vs50 = readRowNumber(row, 'pctSma50'); const vs200 = readRowNumber(row, 'pctSma200');
     if (vs50 === null) continue;
-    // The screener carries distances, not the averages: on a close of 1 the lines are 1/(1+d), which also orders the
-    // 50-day against the 200-day, so a stock gets the same trend words as an index (its 50-day slope is not known).
-    const trend = vs200 === null ? 'unknown' : trendOf({ close: 1, ma50: 1 / (1 + vs50 / 100), ma200: 1 / (1 + vs200 / 100), ma50Before: null });
+    // v59.70 (lens audit, one trend per stock): a stock reads the 종목 page's buffered trend (bands.js, ADR bands and the
+    // five-session drop), so the table and the stock page name the same state. The index cards above keep trendOf, which
+    // has the real averages and the 50-day slope. NV −8.8% / −1.0% read '추세 이탈' here and '하락 추세' on 종목.
+    const buffered = vs200 === null ? null : bufferedTrend(row);
+    // v59.71: '고점 대비' is the 종목·스크리너·테마 field (pctFrom52wHigh, the 52-week intraday high), not the close high.
+    const trend = buffered?.id || 'unknown';
     rows.push({ sym, name: names.get(sym) || sym, group: top.includes(sym) ? 'weight' : 'mover', ret1d: readRowNumber(row, 'ret1d'), vs50, vs200,
-      fromHigh: readRowNumber(row, 'pctFromCloseHigh52w'), rsi: readRowNumber(row, 'rsi'), rvol: readRowNumber(row, 'rvol20'), trend, trendWord: TREND_WORDS[trend] });
+      fromHigh: readRowNumber(row, 'pctFrom52wHigh'), rsi: readRowNumber(row, 'rsi'), rvol: readRowNumber(row, 'rvol20'), trend, trendWord: buffered?.label || TREND_WORDS.unknown });
   }
   return rows;
 }

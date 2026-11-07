@@ -5,7 +5,7 @@
 // company, a date or a level by hand: what is unusual is decided by the size of a move against its own recent
 // volatility, and what a move is linked to is decided by shared subjects (the same ticker, a member of the same group)
 // or a shared topic. A move with no subject link is kept and marked unexplained instead of being given a guessed cause.
-import { readNumber } from '../shared/number.js';
+import { readNumber, surprisePct } from '../shared/number.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { sessionCloses } from '../market/index-levels.js';
 import { companyMatcher } from '../briefing/news-picks.js';
@@ -17,6 +17,9 @@ const HOUR = 3600000;
 const DAY = 24 * HOUR;
 
 // Prices and levels read from history.json (session-keyed closes). `unit` bp means the field is a yield in percent.
+// v59.70 (lens plan step 7): `unit` names the change, not the value — 4.123 with unit 'bp' is a 4.123% level that moved in
+// bp. Each price fact also carries valueUnit ('%' level, 'level' price or index) and changeUnit ('bp' or 'pct'); `unit`
+// stays for artifacts already published and their readers.
 export const ASSETS = Object.freeze([
   ['spx', 'S&P 500', 'index', ['equity-us']], ['ndx', '나스닥100', 'index', ['equity-us', 'ai-semis']],
   ['smh', '반도체(SMH)', 'index', ['ai-semis']], ['rut', '러셀2000', 'index', ['equity-us', 'small-caps']],
@@ -72,7 +75,7 @@ function priceFacts(history) {
     if (!move) continue;
     const last = series.at(-1);
     out.push({ id: `price:${asset.field}:${last.date}`, kind: 'price', asset: asset.field, label: asset.label, assetKind: asset.kind, date: last.date,
-      value: round(last.value, asset.unit === 'bp' ? 3 : 2), unit: asset.unit, ...move, topics: asset.topics, subjects: [], weight: Math.abs(move.z ?? 0) });
+      value: round(last.value, asset.unit === 'bp' ? 3 : 2), unit: asset.unit, valueUnit: asset.unit === 'bp' ? '%' : 'level', changeUnit: asset.unit, ...move, topics: asset.topics, subjects: [], weight: Math.abs(move.z ?? 0) });
   }
   return out;
 }
@@ -85,7 +88,7 @@ function macroFacts(macroHistory) {
     if (!move) continue;
     const last = rows.at(-1);
     out.push({ id: `price:${series.id}:${last.date}`, kind: 'price', asset: series.id, label: series.label, assetKind: 'macro', date: last.date,
-      value: round(last.value, 3), unit: 'bp', ...move, topics: series.topics, subjects: [], weight: Math.abs(move.z ?? 0) });
+      value: round(last.value, 3), unit: 'bp', valueUnit: '%', changeUnit: 'bp', ...move, topics: series.topics, subjects: [], weight: Math.abs(move.z ?? 0) });
   }
   return out;
 }
@@ -141,7 +144,7 @@ function earningsFacts(calendar, nowMs, namesBySymbol) {
     const at = Date.parse(`${row?.date}T12:00:00Z`);
     if (!row?.symbol || !Number.isFinite(at)) continue;
     const reported = readNumber(row.epsActual) !== null || readNumber(row.revenueActual) !== null;
-    const surprise = (actual, estimate) => (readNumber(actual) !== null && readNumber(estimate) ? round((actual - estimate) / Math.abs(estimate) * 100, 1) : null);
+    const surprise = surprisePct;
     const weight = readNumber(row.indexWeight) || 0;
     if (reported && at >= nowMs - 3 * DAY && at <= nowMs + DAY) {
       out.push({ id: `earnings:${row.symbol}:${row.date}`, kind: 'earnings', subjects: [row.symbol], label: namesBySymbol.get(row.symbol) || row.symbol, date: row.date, hour: row.hour || null,

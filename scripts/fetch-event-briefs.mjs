@@ -232,7 +232,7 @@ export function provisionalBrief(row, mover, { source = null, sourceUrl = null }
   // v59.45 (pipeline review P21-PROVISIONAL-01): a numeric string from the provider is a number; '' and null stay missing.
   const num = readNumber;
   const revenueActual = num(row.revenueActual), epsActual = num(row.epsActual);
-  const vs = (actual, estimate) => (Number.isFinite(actual) && num(estimate) != null && num(estimate) !== 0 ? { value: num(estimate), surprisePct: surprisePct(actual, num(estimate)), source: source || 'Finnhub', basis: 'provider-consensus-reference' } : null);
+  const vs = (actual, estimate) => (Number.isFinite(actual) && num(estimate) != null && num(estimate) !== 0 ? { value: num(estimate), surprisePct: surprisePct(actual, num(estimate)), source: source || 'Finnhub', basis: 'provider-consensus-reference', seenBeforeReportAt: row.estimateLastSeenAt || null } : null);
   if (revenueActual != null) {
     const estimate = vs(revenueActual, row.revenueEstimate);
     figures.push({ metric: 'revenue', label: '매출', value: `$${(revenueActual / 1e9).toFixed(2)} billion`, text: '', ...(estimate ? { estimate } : {}) });
@@ -292,14 +292,14 @@ export function assembleEarningsSections(json, sourceText, estimate = null) {
     if (figure.metric === 'revenue' && readNumber(estimate.revenueEstimate) != null) {
       const actual = parseUsdAmount(figure.value);
       const pct = surprisePct(actual, Number(estimate.revenueEstimate));
-      if (pct != null) return { ...figure, estimate: { value: Number(estimate.revenueEstimate), surprisePct: pct, source: estimate.source || 'Finnhub', basis: 'provider-consensus-reference' } };
+      if (pct != null) return { ...figure, estimate: { value: Number(estimate.revenueEstimate), surprisePct: pct, source: estimate.source || 'Finnhub', basis: 'provider-consensus-reference', seenBeforeReportAt: estimate.estimateLastSeenAt || null } };
     }
     if (figure.metric === 'eps_diluted' && readNumber(estimate.epsEstimate) != null) {
       // v59.45 (P21-AMOUNT-01): one per-share amount, its sign kept ("$(0.12)" is a loss), or no comparison.
       // v59.48: the amount the adjusted consensus is compared with (epsComparisonBasis), named on the estimate.
       const comparison = epsComparisonBasis(figure, figures.kept);
       const pct = comparison ? surprisePct(comparison.actual, Number(estimate.epsEstimate)) : null;
-      if (pct != null) return { ...figure, estimate: { value: Number(estimate.epsEstimate), surprisePct: pct, source: estimate.source || 'Finnhub', basis: 'provider-consensus-reference', actualBasis: comparison.basis, ...(comparison.amount ? { comparedAmount: comparison.amount } : {}) } };
+      if (pct != null) return { ...figure, estimate: { value: Number(estimate.epsEstimate), surprisePct: pct, source: estimate.source || 'Finnhub', basis: 'provider-consensus-reference', seenBeforeReportAt: estimate.estimateLastSeenAt || null, actualBasis: comparison.basis, ...(comparison.amount ? { comparedAmount: comparison.amount } : {}) } };
     }
     return figure;
   });
@@ -570,6 +570,24 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
       return figure;
     });
     if (headline !== brief.headline || figures.some((figure, i) => figure !== brief.figures[i])) briefs.set(id, { ...brief, headline, figures });
+  }
+
+  // v59.70 (refactor step 2, one surprise per report): the calendar row's actual is on the consensus basis (adjusted EPS,
+  // the quarter's revenue) and is what 오늘 (market-day facts) prints. It is stamped on the brief's estimate so the
+  // briefing line and the reaction read (figureSurprise) compare the same amount; the brief's own figure stays as quoted.
+  for (const [id, brief] of briefs) {
+    if (brief.kind !== 'earnings' || brief.status === 'provisional' || brief.source?.rcpNo || !brief.symbol) continue;
+    const row = earningsRows.find((candidate) => candidate?.symbol === brief.symbol && Math.abs(Date.parse(candidate.date) - Date.parse(brief.eventDate)) <= 3 * DAY);
+    if (!row) continue;
+    let changed = false;
+    const figures = (brief.figures || []).map((figure) => {
+      const estimate = figure.estimate;
+      const actual = figure.metric === 'revenue' ? readNumber(row.revenueActual) : figure.metric === 'eps_diluted' ? readNumber(row.epsActual) : null;
+      if (actual == null || !estimate || (estimate.basis && estimate.basis !== 'provider-consensus-reference') || estimate.providerActual === actual) return figure;
+      changed = true;
+      return { ...figure, estimate: { ...estimate, providerActual: actual } };
+    });
+    if (changed) briefs.set(id, { ...brief, figures });
   }
 
   // v59.44: closes around each recent report (and the latest trade until a session has closed on it), until settled.

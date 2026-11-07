@@ -59,3 +59,14 @@ export function usdKoreanText(value, { precise = false } = {}) {
     : abs >= 1e12 ? `${fmt(abs / 1e12, 2)}조 달러` : abs >= 1e8 ? `${fmt(abs / 1e8, abs >= 1e10 ? 0 : 1)}억 달러` : abs >= 1e4 ? `${fmt(abs / 1e4, 0)}만 달러` : `${fmt(abs, 0)}달러`;
   return `${number < 0 && body !== '0달러' ? '-' : ''}${body}`;
 }
+
+/**
+ * v59.70 (step 1, one move one number): an actual's surprise against its estimate in percent of the estimate's size,
+ * rounded to 0.1. Earnings briefs, the market-day facts, the news card and the fundamental read each wrote this formula
+ * with their own rounding and guards; they read this one. A missing value or a zero estimate is null.
+ */
+export function surprisePct(actual, estimate) {
+  const a = readNumber(actual), e = readNumber(estimate);
+  if (a == null || e == null || e === 0) return null;
+  return Math.round(((a - e) / Math.abs(e)) * 1000) / 10;
+}
