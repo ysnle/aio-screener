@@ -1,0 +1,31 @@
+{
+ "version": "v59.85",
+ "date": "2026-11-08",
+ "r": null,
+ "status": null,
+ "qa": [],
+ "note": "v59.85 차트·기술적 분석 고도화: 추세 단어·매물대·RSI를 한 정의로 모으고, 거래량 배수·주기별 추세 띠를 더했다.",
+ "p": {
+  "title": "같은 화면에서 같은 지수·종목의 추세가 세 가지 단어로 읽힘",
+  "symptom": "기술적 분석 화면에서 SPY가 지수 카드 '단기 조정', 시장 지수 캔들 칩 '하락 추세 7봉', 종목 표와 종목 화면 '장기 추세 속 조정'으로 동시에 읽혔다. 일봉 상태 배지는 종가가 200일선만 내줘도 '하락 추세 — 패턴 해당 없음'이라고 했다.",
+  "root_cause": "추세 분류기가 네 벌이었다: market-charts trendOf(50/200 위치+50일선 기울기, 7단어), chart-layers trendRegimes(종가>50·20>50·50 기울기, 3상태), chart-strategies trendRead(스윙 구조 투표), bands.js bufferedTrend(스크리너·종목·포트폴리오). v59.70이 종목 표만 bufferedTrend로 옮기고 지수 카드와 차트 칩은 남겼다.",
+  "fix": "bands.js classifyTrend가 숫자 핵심(50·200선 거리, ADR 부근 띠, 5거래일 급락, 50/200 순서 phase: 회복 시도·추세 이탈)이고 bufferedTrend(행), trend-state.js trendStateSeries(봉, 3봉 확인), market-charts trendOf(지수 종가, 위치만)가 모두 그것을 읽는다. id·tone은 그대로라 id를 보는 소비자는 바뀌지 않는다. 상태 배지는 '200일선 아래 — 셋업 해당 없음'으로 사실만 말한다.",
+  "violated_rule": "한 사실은 한 소유자(v59.84 화면 간 단일 사실 게이트)",
+  "prevention": "ci-metric-consistency-check §9: 오늘 파일의 지수 카드 단어 = 분류기 단어, 종목 표 단어 = 종목 화면 단어, 같은 숫자의 봉과 행이 한 단어; ci-chart-layers-fixture: 봉↔행 동등, phase가 id를 유지",
+  "verification": "qa-runner affected 통과, 헤드리스 화면에서 QQQ 캔들 칩과 나스닥100 지수 카드가 모두 '추세 이탈'",
+  "files": [
+   "src/domain/technical/bands.js",
+   "src/domain/technical/trend-state.js",
+   "src/domain/technical/chart-layers.js",
+   "src/domain/technical/market-charts.js",
+   "src/domain/technical/chart-analysis.js",
+   "src/ui/components/stock-chart.js",
+   "scripts/ci-metric-consistency-check.mjs",
+   "scripts/ci-chart-layers-fixture.mjs",
+   "scripts/ci-esm-core-unit-check.mjs"
+  ]
+ },
+ "changelog": [
+  "**추세 단어 하나로 ({P}):** 지수 카드, 시장 지수 캔들, 종목 차트 칩·추세 면, 종목 화면, 스크리너가 같은 분류기(bands.js classifyTrend)를 읽는다. 50일선이 아직 200일선 위인데 둘 다 내준 상태는 '추세 이탈', 둘 다 회복했지만 50일선이 아직 아래인 상태는 '회복 시도'로 모든 화면에서 같게 부른다. '단기 조정'·'하락 속 반등'은 '장기 추세 속 조정'·'장기 추세 아래 반등'으로 통일."
+ ]
+}

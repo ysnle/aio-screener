@@ -154,27 +154,32 @@ export function attachChartLayers({ doc, root, instance, layers, analysis = null
         }
       }));
     }
-    // Base: volume profile — horizontal bars on the right edge, the three heaviest zones as full-width bands.
+    // Base: volume profile — horizontal rows on the right edge; v59.85 the 70% value area as a faint band and the point
+    // of control (POC) as a line across the chart, the standard profile read (the table under the chart names the same rows).
     if (active.profile && layers.profile.available) {
-      const { bins, zones } = layers.profile;
+      const { bins, poc, valueArea: va } = layers.profile;
       const max = Math.max(...bins.map((bin) => bin.volume)) || 1;
-      const zoneIndex = new Set(zones.map((zone) => zone.index));
       primitive(candles, canvasLayer((ctx, size) => {
         const width = Math.min(150, size.width * 0.2);
-        for (const zone of zones) {
-          const y1 = candles.priceToCoordinate(zone.high), y2 = candles.priceToCoordinate(zone.low);
-          if (y1 == null || y2 == null) continue;
-          ctx.fillStyle = withAlpha(palette.zone, 0.07);
-          ctx.fillRect(0, y1, size.width, Math.max(1, y2 - y1));
+        if (va) {
+          const y1 = candles.priceToCoordinate(va.high), y2 = candles.priceToCoordinate(va.low);
+          if (y1 != null && y2 != null) { ctx.fillStyle = withAlpha(palette.zone, 0.06); ctx.fillRect(0, y1, size.width, Math.max(1, y2 - y1)); }
         }
         bins.forEach((bin, index) => {
           const y1 = candles.priceToCoordinate(bin.high), y2 = candles.priceToCoordinate(bin.low);
           if (y1 == null || y2 == null) return;
           const w = bin.volume / max * width;
-          ctx.fillStyle = withAlpha(palette.zone, zoneIndex.has(index) ? 0.42 : 0.2);
+          const inVa = va && index >= va.lowIndex && index <= va.highIndex;
+          ctx.fillStyle = withAlpha(palette.zone, index === poc.index ? 0.6 : inVa ? 0.32 : 0.15);
           ctx.fillRect(size.width - w, y1 + 0.5, w, Math.max(1, y2 - y1 - 1));
         });
+        const y = candles.priceToCoordinate(poc.price);
+        if (y != null) { ctx.fillStyle = withAlpha(palette.zone, 0.75); ctx.fillRect(0, Math.round(y) - 0.5, size.width, 1); }
       }));
+    }
+    // Base: the volume average line on the volume bars (50 bars; 20 on intraday), so a heavy bar reads at a glance.
+    if (layers.volumeAverage?.values?.some((value) => value != null) && volume) {
+      line(layers.volumeAverage.values, withAlpha(palette.text, 0.55), 1, { scale: 'volume' });
     }
     // Base: 5·10·20·50·100·200 simple moving averages; 5·10·20 (short) and 20·50·200 (mid/long) drawn heavier, 100 light.
     if (active.ma) for (const [p, width, style] of MA_STYLE) if (bars.length >= p) line(layers.ma[p], palette[`ma${p}`], width, { style });
@@ -338,7 +343,8 @@ export function attachChartLayers({ doc, root, instance, layers, analysis = null
     if (active.ma) for (const [p, , style] of MA_STYLE) if (bars.length >= p) item(style ? '┅' : '━', palette[`ma${p}`], String(p));
     if (active.ema821) { item('┈', palette.ema8, 'EMA 8'); item('┈', palette.ema21x, 'EMA 21'); }
     if (active.trend) { item('▬', palette.up, '상승 추세'); item('▬', palette.down, '하락 추세', '배경 면: 추세 조건이 3거래일 이상 이어진 구간'); }
-    if (active.profile) item('▮', palette.zone, '매물대', '오른쪽 막대: 가격대별 거래량, 진한 띠: 거래 집중 상위 3구간');
+    if (active.profile) item('▮', palette.zone, '매물대 · POC', '오른쪽 막대: 가격대별 거래량, 실선: 가장 많이 거래된 가격대(POC), 옅은 띠: 거래의 70%가 몰린 가치 영역');
+    if (layers.volumeAverage?.values?.some((value) => value != null)) item('─', withAlpha(palette.text, 0.55), `거래량 ${layers.volumeAverage.period}봉 평균`);
     if (active.signals) item('▲▼', palette.muted, '신호', '8일 EMA 이탈·회복, 거래량 갭, 변동성 압축, 과열');
     if (active.vcp) item('━', palette.sma50, '피벗 · ▲ 수축');
     if (active.bands) item('▒', palette.band, '볼린저 · 수렴', '진한 노란 면: 밴드 폭이 6개월 최저인 수렴 구간');

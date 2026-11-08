@@ -48,30 +48,50 @@ export const recentDropText = (drop) => (drop ? `최근 5거래일 ${signed(drop
 /**
  * The 50·200-day trend with the buffers above. id: up (favourable) · up-shaken · near50 · pullback · rebound · down ·
  * unconfirmed (above both lines but the ADR or five-session input is missing, so the buffers cannot be tested).
+ *
+ * v59.85 (chart review 2026-11-08, one trend vocabulary): the numeric core every surface shares — the screener row
+ * (bufferedTrend), the stock chart's bars and the 기술적 분석 index cards (trend-state.js). Before, the index cards ran their
+ * own classifier (market-charts trendOf: 단기 조정 · 추세 이탈 · 하락 속 반등) while the stock table under them and the 종목
+ * page used this one (장기 추세 속 조정 · 하락 추세 · 장기 추세 아래 반등), and the chart's trend chips a third rule — so SPY
+ * could read 단기 조정, 장기 추세 속 조정 and 하락 추세 on one screen. The 50/200 cross is a `phase` on the same id, read
+ * from the two distances alone (ma50 < ma200 exactly when the close is further above the 50-day than above the 200-day):
+ *   up + 50-day still under the 200-day → phase 'recovery', 회복 시도 (전환 확인 전);
+ *   down + 50-day still over the 200-day → phase 'breakdown', 추세 이탈 (꺾이는 초기).
+ * The id (and its tone) is unchanged, so every reader that tests the id keeps working.
+ * `positionOnly` (closes without high/low, e.g. index levels) skips the ADR buffers instead of reading 'unconfirmed'.
  */
-export function bufferedTrend(row) {
-  const s50 = value(row, 'pctSma50');
-  const s200 = value(row, 'pctSma200');
-  if (s50 == null || s200 == null) return null;
-  const adr = finite(row?.adrPct);
-  const drop = recentDrop(row);
+export const TREND_PHASE_LABELS = Object.freeze({ recovery: '회복 시도', breakdown: '추세 이탈' });
+export function classifyTrend({ s50, s200, adr = null, drop = null, positionOnly = false } = {}) {
+  if (s50 == null || s200 == null || !Number.isFinite(s50) || !Number.isFinite(s200)) return null;
   const line200 = s200 >= 0 ? `200일선 위(${signed(s200)})` : `200일선 아래(${signed(s200)})`;
+  const hasAdr = adr != null && adr > 0;
   // v59.45 R4-03: the 50-day band needs only the ADR. With the five-session return missing the row skipped it and a close
   // 0.05% over the line read "50일선은 회복(+0.1%)" — the 0.01% call v57.81 removed. The band is tested first.
-  if (adr != null && adr > 0 && Math.abs(s50) < NEAR_LINE_ADR * adr) {
+  if (hasAdr && Math.abs(s50) < NEAR_LINE_ADR * adr) {
     return { id: 'near50', tone: 'neutral', label: '50일선 부근', drop,
       text: `50일선과 ${signed(s50)} 차이로 일평균 변동폭(${adr.toFixed(1)}%)의 ${NEAR_LINE_ADR}배 안 — 50일선 위인지 아래인지 아직 가를 수 없는 자리이고, ${line200}입니다${drop?.broken ? `. ${recentDropText(drop)}` : ''}` };
   }
-  if (adr == null || !(adr > 0) || drop == null) {
+  if (!positionOnly && (!hasAdr || drop == null)) {
     if (s50 >= 0 && s200 >= 0) return { id: 'unconfirmed', tone: 'neutral', label: '50·200일선 위', drop, text: `50일선(${signed(s50)})과 200일선(${signed(s200)}) 위 — 일평균 변동폭 또는 최근 5거래일 자료가 없어 50일선과의 여유와 단기 낙폭은 판단하지 않습니다` };
-  } else if (s50 >= 0 && s200 >= 0 && drop.broken) {
+  } else if (s50 >= 0 && s200 >= 0 && drop?.broken) {
     return { id: 'up-shaken', tone: 'neutral', label: '상승 추세 속 단기 급락', drop,
       text: `50일선(${signed(s50)})과 200일선(${signed(s200)}) 위지만 ${recentDropText(drop)} — 이동평균 위치는 위쪽이어도 최근 한 주의 낙폭이 이 종목의 보통 움직임보다 큽니다` };
   }
-  if (s50 >= 0 && s200 >= 0) return { id: 'up', tone: 'favorable', label: '상승 추세', drop, text: `50일선(${signed(s50)})과 200일선(${signed(s200)}) 위 — 단기·장기 추세가 모두 위쪽입니다` };
+  if (s50 >= 0 && s200 >= 0) {
+    if (s50 > s200) return { id: 'up', phase: 'recovery', tone: 'favorable', label: TREND_PHASE_LABELS.recovery, drop, text: `50일선(${signed(s50)})과 200일선(${signed(s200)}) 위로 올라왔지만 50일선이 아직 200일선 아래 — 50일선이 200일선 위로 올라서야(골든크로스) 추세 전환이 확인됩니다` };
+    return { id: 'up', tone: 'favorable', label: '상승 추세', drop, text: `50일선(${signed(s50)})과 200일선(${signed(s200)}) 위 — 단기·장기 추세가 모두 위쪽입니다` };
+  }
   if (s50 < 0 && s200 >= 0) return { id: 'pullback', tone: 'neutral', label: '장기 추세 속 조정', drop, text: `200일선 위(${signed(s200)})지만 50일선 아래(${signed(s50)}) — 장기 추세 안에서 쉬는 구간입니다${drop?.broken ? `. ${recentDropText(drop)}` : ''}` };
   if (s50 >= 0 && s200 < 0) return { id: 'rebound', tone: 'neutral', label: '장기 추세 아래 반등', drop, text: `50일선은 회복(${signed(s50)})했지만 200일선 아래(${signed(s200)}) — 반등이 장기 추세를 되돌릴지는 아직입니다` };
+  if (s200 > s50) return { id: 'down', phase: 'breakdown', tone: 'burden', label: TREND_PHASE_LABELS.breakdown, drop, text: `50일선(${signed(s50)})과 200일선(${signed(s200)})을 모두 내줬고 50일선은 아직 200일선 위 — 추세가 꺾이는 초기이며, 50일선이 200일선 아래로 내려가면(데드크로스) 하락 추세로 굳습니다` };
   return { id: 'down', tone: 'burden', label: '하락 추세', drop, text: `50일선(${signed(s50)})과 200일선(${signed(s200)}) 아래 — 단기·장기 추세가 모두 아래쪽입니다` };
+}
+
+/** The display key of a trend: its phase when it has one, else its id (one word per key on every screen). */
+export const trendKey = (trend) => (trend ? trend.phase || trend.id : null);
+
+export function bufferedTrend(row) {
+  return classifyTrend({ s50: value(row, 'pctSma50'), s200: value(row, 'pctSma200'), adr: finite(row?.adrPct), drop: recentDrop(row) });
 }
 
 // v59.71 (owner 11/07 '가격 움직임과 거래량'): the trend stays a price reading (the three screens share its states), and the
