@@ -3730,6 +3730,8 @@ button[data-filter-active="true"] {
       <details id="home-kr-line" class="home-kr-line" hidden><summary></summary><p id="home-kr-detail" class="home-kr-detail"></p></details>
       <button type="button" class="flow-next-link home-hero-more" data-action="showPage" data-arg="signal">근거와 시나리오 → 시장 상태</button>
     </div>
+    <!-- The hero's second column: 다음 일정, 시장 상태's dated week items (home-ahead.js). -->
+    <aside id="home-ahead" class="home-ahead" aria-label="다음 일정" hidden></aside>
   </section>
   <!-- Owner 2026-10-25: the four index ETFs' last regular session (5-minute candles), the page's market picture. -->
   <section id="home-index-strip" class="home-index-strip" aria-label="지수 하루 흐름"></section>
@@ -3754,11 +3756,7 @@ button[data-filter-active="true"] {
     <section class="daily-block" id="home-my-news" aria-label="내 종목 뉴스" hidden></section>
   </div>
 
-  <!-- v51.65: 파이프라인 상태 배너 — AI/FMP/FRED 이슈 있을 때만 표시 (R234: 기본 hidden)
-       v52.15 P6/P616: pill 11개 연속 노출이 "고장난 시스템" 인상을 주던 문제 —
-       사이트 전역 .aio-page-advanced-toggle(details/summary, JS 불필요) 패턴으로 1줄 요약+펼치기 전환.
-       내부 #aio-pipeline-status-bar는 기존 두 함수(_aioRenderPipelineStatus/_aioCheckManualFieldStaleness)가
-       그대로 innerHTML/appendChild — 이 두 함수는 무변경, _aioUpdatePipelineStatusToggle()이 개수만 집계. -->
+  <!-- v51.65/P616: 파이프라인 상태 — 이슈 있을 때만(R234), 1줄 요약+펼치기; _aioUpdatePipelineStatusToggle()이 개수만 집계. -->
   <details class="aio-page-advanced-toggle" id="aio-pipeline-status-toggle" style="display:none;margin-bottom:8px;">
     <summary id="aio-pipeline-status-summary">주의 항목 확인 중...</summary>
     <div class="aio-page-advanced-body">

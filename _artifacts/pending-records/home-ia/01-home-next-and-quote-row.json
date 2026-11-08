@@ -1,0 +1,9 @@
+{
+  "version": "v59.85",
+  "date": "2026-11-08",
+  "changelog": [
+    "**오늘 = 지금 + 다음 (v59.85, IA review 11/8):** the hero's right column, empty since v59.68 moved the conditions tile to 시장 상태, now holds 다음 일정 — the dated items of 시장 상태's own week list (`buildMarketStory().week`, same model and order, at most three, each with its why; daily watch rows stay on 시장 상태). On 11/8 오늘 said nothing about the 11/10 CPI two days out. `readMarketStory` in market-story.js gathers the story's artifacts once for both screens; the heading opens the list there (src/ui/components/home-ahead.js).",
+    "**Quote row hierarchy (v59.85):** the value leads its name (13px bold over 12px; `.page .sh-muted-text` had set the name to 14px !important, outweighing the number), so the desktop row fits one line; on phones the row is a two-column grid of small tiles instead of one pill per line."
+  ],
+  "note": "v59.85: 오늘 hero 다음 일정 column (시장 상태 week list), quote row hierarchy and phone tiles"
+}
