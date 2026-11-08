@@ -295,13 +295,13 @@
     "layer": "data-center-real-estate",
     "position": "AI용 고밀도 코로케이션 데이터센터 운영사. 전력·건물·냉각을 갖춘 공간을 GPU 클라우드와 칩 회사(AMD)에 장기 임대한다.",
     "dependsOn": [
-      "power-energy (7개 주 전력망, 약 1.1GW)",
-      "cooling-electrical (액체냉각·전기 설비)",
+      "전력·에너지 (7개 주 전력망, 약 1.1GW)",
+      "냉각·전기 설비 (액체냉각·전기 설비)",
       "채권·전환사채 시장"
     ],
     "sellsTo": [
-      "cloud-infrastructure (CoreWeave, 네오클라우드)",
-      "chips-compute (AMD)"
+      "클라우드 (CoreWeave, 네오클라우드)",
+      "연산 칩 (AMD)"
     ],
     "aiRevenue": "Q3 2026 코로케이션 매출 2.154억 달러(매출의 92.5%); 과금 485MW 기준 연평균 7억 달러 이상. 잠재 계약 매출 240억 달러 이상, 전체 가동 시 연평균 코로케이션 매출 약 18억 달러(Q2 발표).",
     "upside": "CoreWeave 590MW가 2027년 초 완공되고 AMD 377MW와 네오클라우드 152MW가 2027년부터 가동되면 과금 MW가 지금의 두 배를 넘는다. AMD는 2028년 말까지 최대 1,925MW를 더 빌릴 권리가 있다.",

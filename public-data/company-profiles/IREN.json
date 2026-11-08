@@ -295,12 +295,12 @@
     "layer": "cloud-infrastructure",
     "position": "전력 부지를 가진 데이터센터 개발자이자 GPU 클라우드 운영자. 전력·부지(아래)와 AI 고객(위)을 잇는 자리에서 둘 다 직접 갖는다.",
     "dependsOn": [
-      "power-energy (자체 확보 전력 5GW 이상)",
-      "chips-compute (NVIDIA GPU, Dell 경유)",
+      "전력·에너지 (자체 확보 전력 5GW 이상)",
+      "연산 칩 (NVIDIA GPU, Dell 경유)",
       "GPU 금융·전환사채 시장"
     ],
     "sellsTo": [
-      "cloud-infrastructure·models-platforms (Microsoft, 프런티어 AI 연구소)",
+      "클라우드·모델·플랫폼 (Microsoft, 프런티어 AI 연구소)",
       "AI 기업 (Cohere, Perplexity, Figure AI 등)"
     ],
     "aiRevenue": "Q1 FY2027 AI 클라우드 매출 2.0억 달러(매출의 88%, 전분기 0.71억), 부문 총마진 86%. 수주잔고 203억 달러, ARR 40억 달러 초과 목표는 2027-01 가동 예정 (2026-11-05).",
@@ -418,7 +418,7 @@
     "latest": [
       {
         "period": "2027-01 (2월까지 가능)",
-        "metric": "ARR (operational)",
+        "metric": "ARR (운영 기준)",
         "value": "40억 달러 초과 가동 목표 - 계약·자금 조달 완료 (기존 2026-12-31에서 이동)",
         "givenOn": "2026-11-05",
         "src": [
@@ -427,7 +427,7 @@
       },
       {
         "period": "FY2027 (남은 기간)",
-        "metric": "capex",
+        "metric": "설비투자",
         "value": "약 150억 달러 (90억 확보, 60억은 GPU 금융·선급금·데이터센터 금융 등으로 조달 목표)",
         "givenOn": "2026-11-05",
         "src": [
@@ -436,7 +436,7 @@
       },
       {
         "period": "CY2027 말",
-        "metric": "cumulative data center capacity",
+        "metric": "누적 데이터센터 용량",
         "value": "약 0.8GW",
         "givenOn": "2026-11-05",
         "src": [
@@ -445,7 +445,7 @@
       },
       {
         "period": "Q2 FY2027",
-        "metric": "cash operating expense",
+        "metric": "현금 영업비용",
         "value": "증가 예상 (금액 미제시)",
         "givenOn": "2026-11-05",
         "src": [

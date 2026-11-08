@@ -8,7 +8,7 @@ import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { AI_LAYERS, STORY_UNITS, moneyText, storyFreshness, isCompanyStory } from '../src/domain/entity/company-story.js';
+import { AI_LAYERS, STORY_UNITS, moneyText, storyFreshness, storyPeriodEnd, withConfirmedReport, isCompanyStory } from '../src/domain/entity/company-story.js';
 import { debateIssues } from '../src/domain/entity/company-debate.js';
 import { buildCompanyGraph, companyNeighbourhood, COMPANY_GRAPH_SCHEMA } from '../src/domain/entity/company-graph.js';
 import { companiesNamedIn } from '../src/domain/entity/company-aliases.js';
@@ -54,6 +54,24 @@ for (const file of files) {
   };
   walk(story, id);
   if (!LAYERS.has(story.aiChain?.layer)) fail(`${file}: aiChain.layer not in the list: ${story.aiChain?.layer}`);
+  // v59.85 (company analysis review 2026-11-08): the AI-chain lists lead with the Korean layer name, never the slug
+  // ('semicap-foundry (TSMC …)' reached the page in 199 stories), and the guidance table's item is Korean ('revenue',
+  // 'gross margin' in 910 rows); an acronym or a product name may stay (EPS, EBITDA, ARR, Azure).
+  for (const key of ['dependsOn', 'sellsTo']) for (const line of story.aiChain?.[key] || []) {
+    const lead = String(line).split(/\s[(\-—]/)[0];
+    if (AI_LAYERS.some(([slug]) => new RegExp(`(^|[^A-Za-z-])${slug}($|[^A-Za-z-])`).test(lead))) fail(`${file}: aiChain.${key} leads with a layer slug: ${line.slice(0, 60)}`);
+  }
+  for (const row of story.guidance?.latest || []) if (!/[가-힣]/.test(row?.metric || '') && /\b[a-z]{4,}\b/.test(row?.metric || '')) fail(`${file}: guidance metric in English: ${row.metric}`);
+  // v59.85: the face's four numbers are the latest reported quarter. A quarter is reported within about two months of
+  // its end, so a period ending more than 150 days before the research day is a fiscal year (or an older quarter) shown
+  // as current — 57 stories read 4-12 months back (NVDA FY2026 ended 2026-01-25 on 2026-10-28). A half-year filer
+  // (basis 'half-year') reports twice a year.
+  const e = story.earnings || {};
+  if (e.periodEnd != null && !/^\d{4}-\d{2}-\d{2}$/.test(e.periodEnd)) fail(`${file}: earnings.periodEnd is not a date`);
+  if (e.basis != null && !['quarter', 'half-year', 'year-to-date'].includes(e.basis)) fail(`${file}: earnings.basis ${e.basis} is not quarter, half-year or year-to-date`);
+  const periodEnd = storyPeriodEnd(story);
+  const ageDays = periodEnd && /^\d{4}-\d{2}-\d{2}$/.test(story.researchedAt || '') ? (Date.parse(story.researchedAt) - Date.parse(periodEnd)) / 86400000 : null;
+  if (ageDays != null && ageDays > (e.basis === 'half-year' ? 240 : 150)) fail(`${file}: earnings period ended ${periodEnd}, ${Math.round(ageDays)} days before the research day — re-base onto the latest reported quarter`);
   const hops = story.moneyFlow?.steps?.length || 0;
   if (hops < 3 || hops > 6) fail(`${file}: moneyFlow has ${hops} hops`);
   for (const item of story.useOfCash?.items || []) if (/other|customer financing/.test(item.use) && !item.label) fail(`${file}: useOfCash ${item.use} without a label`);
@@ -79,12 +97,39 @@ for (const [value, unit, text] of [[215.9, 'USD bn', '2,159억 달러'], [1234, 
   assert.equal(moneyText(value, unit), text, `v59.43 company story amount ${value} ${unit} reads ${text}`);
 }
 const story = { symbol: 'AAA', researchedAt: '2026-10-28' };
-assert.deepEqual(storyFreshness(story, [{ symbol: 'AAA', date: '2026-10-29', epsActual: null }], '2026-10-29'), { state: 'current', researchedAt: '2026-10-28', newReport: null }, 'v59.43 a report due today with no actuals has not been released');
-assert.deepEqual(storyFreshness(story, [{ symbol: 'AAA', date: '2026-10-29', epsActual: 1.2 }], '2026-10-29'), { state: 'stale', researchedAt: '2026-10-28', newReport: '2026-10-29' }, 'v59.43 actuals on the calendar mean the report is out');
-assert.deepEqual(storyFreshness(story, [{ symbol: 'AAA', date: '2026-10-28' }], '2026-10-29'), { state: 'stale', researchedAt: '2026-10-28', newReport: '2026-10-28' }, 'v59.43 a US report dated on the KST research day is not in the story');
-assert.deepEqual(storyFreshness(story, [{ symbol: 'AAA', date: '2026-10-27' }], '2026-10-29'), { state: 'current', researchedAt: '2026-10-28', newReport: null }, 'v59.43 a report before the research day is in the story');
-assert.deepEqual(storyFreshness(story, [{ symbol: 'AAA', date: '2026-11-05' }], '2026-11-04'), { state: 'current', researchedAt: '2026-10-28', newReport: null }, 'v59.43 a future report does not age the story');
-assert.deepEqual(storyFreshness(story, [{ symbol: 'AAA', date: '2026-11-05' }, { symbol: 'BBB', date: '2026-11-01' }], '2026-11-06'), { state: 'stale', researchedAt: '2026-10-28', newReport: '2026-11-05' }, 'v59.43 only reports for the story symbol age it');
+assert.deepEqual(storyFreshness(story, [{ symbol: 'AAA', date: '2026-10-29', epsActual: null }], '2026-10-29'), { state: 'current', researchedAt: '2026-10-28', newReport: null, newQuarterEnd: null }, 'v59.43 a report due today with no actuals has not been released');
+assert.deepEqual(storyFreshness(story, [{ symbol: 'AAA', date: '2026-10-29', epsActual: 1.2 }], '2026-10-29'), { state: 'stale', researchedAt: '2026-10-28', newReport: '2026-10-29', newQuarterEnd: null }, 'v59.43 actuals on the calendar mean the report is out');
+assert.deepEqual(storyFreshness(story, [{ symbol: 'AAA', date: '2026-10-28' }], '2026-10-29'), { state: 'stale', researchedAt: '2026-10-28', newReport: '2026-10-28', newQuarterEnd: null }, 'v59.43 a US report dated on the KST research day is not in the story');
+assert.deepEqual(storyFreshness(story, [{ symbol: 'AAA', date: '2026-10-27' }], '2026-10-29'), { state: 'current', researchedAt: '2026-10-28', newReport: null, newQuarterEnd: null }, 'v59.43 a report before the research day is in the story');
+assert.deepEqual(storyFreshness(story, [{ symbol: 'AAA', date: '2026-11-05' }], '2026-11-04'), { state: 'current', researchedAt: '2026-10-28', newReport: null, newQuarterEnd: null }, 'v59.43 a future report does not age the story');
+assert.deepEqual(storyFreshness(story, [{ symbol: 'AAA', date: '2026-11-05' }, { symbol: 'BBB', date: '2026-11-01' }], '2026-11-06'), { state: 'stale', researchedAt: '2026-10-28', newReport: '2026-11-05', newQuarterEnd: null }, 'v59.43 only reports for the story symbol age it');
+// v59.85: a report the coming-week calendar no longer holds still ages the story — an earnings brief read from the filing,
+// or an SEC quarter ending after the story's own period.
+assert.deepEqual(storyFreshness(story, [], '2026-11-08', { briefs: [{ kind: 'earnings', symbol: 'AAA', eventDate: '2026-11-04' }, { kind: 'fomc', symbol: 'AAA', eventDate: '2026-11-05' }] }), { state: 'stale', researchedAt: '2026-10-28', newReport: '2026-11-04', newQuarterEnd: null }, 'v59.85 an earnings brief after the research day ages the story');
+const annual = { symbol: 'AAA', researchedAt: '2026-10-28', earnings: { period: 'FY2026 (ended 2026-01-25)' } };
+assert.equal(storyPeriodEnd(annual), '2026-01-25', 'v59.85 the period end is read from the period text');
+assert.equal(storyPeriodEnd({ earnings: { period: 'FY2026 (ended 2026-01-25)', periodEnd: '2026-07-26' } }), '2026-07-26', 'v59.85 an explicit periodEnd wins');
+assert.equal(storyPeriodEnd({ earnings: { period: 'FY2026 (ended 2026-06-30, preliminary; 10-K filed 2026-08-31)' } }), '2026-06-30', 'v59.85 a filing day after the period end is not the period end');
+assert.equal(storyPeriodEnd({ earnings: { period: 'H1 2026 (2026-01-01 ~ 2026-06-30)' } }), '2026-06-30', 'v59.85 a range ends after its tilde');
+assert.deepEqual(storyFreshness(annual, [], '2026-11-08', { quarters: '2026-01-25:68127:42960:d;2026-04-26:81615:58321:r;2026-07-26:96221:59688:r' }), { state: 'stale', researchedAt: '2026-10-28', newReport: null, newQuarterEnd: '2026-07-26' }, 'v59.85 an SEC quarter after the story period means newer numbers exist');
+assert.equal(storyFreshness({ ...annual, earnings: { period: 'Q2 FY2027', periodEnd: '2026-07-26' } }, [], '2026-11-08', { quarters: '2026-07-26:96221:59688:r;2026-07-28:1:1:r' }).state, 'current', 'v59.85 a quarter ending within two weeks of the story period is the same quarter');
+// v59.85: the earnings calendar's confirmed day re-dates the company's own next-report line and leaves peers' reports,
+// recurring lines and later quarters as written.
+{
+  const items = [
+    { date: '2026-12 중순 (추정)', event: 'Q1 FY2027 실적과 Q2 가이던스' },
+    { date: '매 분기', event: '삼성전자·SK hynix 실적과 메모리 가격' },
+    { date: '수시', event: 'Q1 FY2027 실적 관련 발언' },
+    { date: '2027-03 (추정)', event: 'Q2 FY2027 실적' },
+  ];
+  const out = withConfirmedReport(items, 'MU', { date: '2026-12-15', hour: '장 마감 후' });
+  assert.deepEqual(out.map((x) => x.date), ['2026-12-15', '매 분기', '수시', '2027-03 (추정)'], 'v59.85 only the own next report takes the confirmed day');
+  assert.equal(out[0].event, 'Q1 FY2027 실적과 Q2 가이던스 (장 마감 후, 실적 달력 기준)', 'v59.85 the re-dated line keeps its description');
+  const notice = [{ date: '2026-11-24 (오전 7시 발표, 회사 공지)', event: 'Q4·FY2026 실적 발표' }];
+  assert.deepEqual(withConfirmedReport(notice, 'ADI', { date: '2026-11-24', hour: '장 마감 후' }), notice, 'v59.85 a line already naming the confirmed day keeps the company notice hour');
+  const peerOnly = withConfirmedReport([{ date: '2026-11-20', event: 'NVIDIA 실적' }], 'MU', { date: '2026-12-15', hour: null });
+  assert.deepEqual(peerOnly.map((x) => x.event), ['실적 발표 (실적 달력 기준)', 'NVIDIA 실적'], 'v59.85 a peer report is not the company report');
+}
 
 // v59.74: every 산업 지도 domain and node a story links to exists in the library text.
 {

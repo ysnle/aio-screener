@@ -5,8 +5,22 @@
   "fiscalYearEnd": "December 31",
   "oneLine": "Pinterest는 월 6억 6,100만 명이 사고 싶은 것과 하고 싶은 것을 찾아 저장하는 이미지 검색·발견 서비스로, 광고로 돈을 벌며 2026년 3분기 매출이 12% 늘었지만 순이익은 2,150만 달러로 줄었고 4분기 성장 전망은 8~12%로 낮아졌다.",
   "sources": [
-    { "id": "s1", "kind": "earnings-release", "title": "Pinterest Announces Third Quarter 2026 Results (IR press release PDF)", "url": "https://s204.q4cdn.com/369458543/files/doc_earnings/2026/q3/earnings-result/Q3-2026-PressRelease.pdf", "publisher": "Pinterest IR", "date": "2026-10-29" },
-    { "id": "s2", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/pins/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-11-07" }
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Pinterest Announces Third Quarter 2026 Results (IR press release PDF)",
+      "url": "https://s204.q4cdn.com/369458543/files/doc_earnings/2026/q3/earnings-result/Q3-2026-PressRelease.pdf",
+      "publisher": "Pinterest IR",
+      "date": "2026-10-29"
+    },
+    {
+      "id": "s2",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/pins/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-11-07"
+    }
   ],
   "moat": {
     "sources": [
@@ -15,11 +29,15 @@
       "미국·캐나다 ARPU 8.38달러(+10%)로 수익화가 깊어지는 핵심 시장"
     ],
     "text": "Pinterest의 힘은 이용자가 무엇을 사고 싶은지, 무엇을 하고 싶은지를 찾으러 들어온다는 데 있다. CEO Bill Ready는 AI 기반 이미지 검색과 쇼핑 경험이 이용자와 광고주 모두에게 가치를 키운다고 설명한다. 구매 의도가 높은 이용자라 성과형 광고에 맞는 구조다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "design": {
     "text": "회사가 운영하는 것은 이미지 검색·저장 서비스 Pinterest와 그 위의 광고 상품이다. 회사는 높은 구매 의도를 가진 발견을 장기 성장으로 바꾸는 성과형 광고를 키우는 데 집중한다고 밝혔다. 매출은 지역별로 미국·캐나다, 유럽, 그 밖의 지역으로 보고한다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "make": {
     "model": "service",
@@ -27,7 +45,9 @@
       "Amazon Web Services - 인프라 의존 (위험 요인에 명시)"
     ],
     "text": "서비스는 자체 개발하고 인프라는 Amazon Web Services에 크게 기댄다고 위험 요인에서 밝힌다. 3분기 영업현금흐름 3.16억 달러에서 잉여현금흐름 3.00억 달러가 남아 설비투자는 크지 않다. 비용의 큰 부분은 사람과 주식보상이다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "sell": {
     "customers": [
@@ -38,144 +58,354 @@
     "channel": "자체 광고 플랫폼 (직접 영업·셀프서브)",
     "concentration": "매출의 76%가 미국·캐나다에서 나오지만 이 지역 MAU는 1억 700만 명으로 전체의 16%",
     "text": "Pinterest에 돈을 내는 쪽은 광고주이며, 매출의 76%가 미국·캐나다에서 나온다. 이 지역 이용자는 전체의 16%에 불과하지만 ARPU가 8.38달러로 유럽(1.21달러)의 7배 가까이다. 유럽 매출이 정체하고 ARPU가 7% 줄어든 것이 3분기의 약한 고리였다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "moneyFlow": {
     "steps": [
-      { "from": "광고주 (리테일러·브랜드)", "to": "Pinterest", "what": "검색·홈피드 광고비 - 성과형 광고 중심" },
-      { "from": "이용자", "to": "광고주", "what": "광고를 통한 상품 구매 (Pinterest 밖에서 결제)" },
-      { "from": "Pinterest", "to": "Amazon Web Services", "what": "클라우드 인프라 비용" },
-      { "from": "Pinterest", "to": "직원", "what": "주식보상 - Q3 2026 2.88억 달러" }
+      {
+        "from": "광고주 (리테일러·브랜드)",
+        "to": "Pinterest",
+        "what": "검색·홈피드 광고비 - 성과형 광고 중심"
+      },
+      {
+        "from": "이용자",
+        "to": "광고주",
+        "what": "광고를 통한 상품 구매 (Pinterest 밖에서 결제)"
+      },
+      {
+        "from": "Pinterest",
+        "to": "Amazon Web Services",
+        "what": "클라우드 인프라 비용"
+      },
+      {
+        "from": "Pinterest",
+        "to": "직원",
+        "what": "주식보상 - Q3 2026 2.88억 달러"
+      }
     ],
     "pricing": "경매 방식의 노출·클릭·전환 기반 광고 과금",
     "text": "돈은 광고주가 이용자의 구매 의도 앞에 광고를 놓는 대가로 들어온다. 3분기 매출 11.74억 달러 가운데 조정 EBITDA 3.39억 달러가 남았지만, 주식보상 2.88억 달러를 포함한 GAAP 순이익은 2,150만 달러였다. 광고 단가가 높은 북미 광고주의 예산이 이 흐름의 중심이다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "earnings": {
     "period": "Q3 2026 (ended 2026-09-30)",
-    "revenue": { "value": 1.174, "unit": "USD bn", "yoy": 12 },
+    "revenue": {
+      "value": 1.174,
+      "unit": "USD bn",
+      "yoy": 12
+    },
     "grossMargin": null,
     "operatingMargin": null,
     "netMargin": 1.8,
-    "operatingCashFlow": { "value": 0.316, "unit": "USD bn" },
-    "freeCashFlow": { "value": 0.3, "unit": "USD bn" },
+    "operatingCashFlow": {
+      "value": 0.316,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": 0.3,
+      "unit": "USD bn"
+    },
     "segments": [
-      { "name": "U.S. and Canada", "revenue": 0.894, "unit": "USD bn", "share": 76.1, "yoy": 14, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Europe", "revenue": 0.193, "unit": "USD bn", "share": 16.4, "yoy": 0, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Rest of World", "revenue": 0.087, "unit": "USD bn", "share": 7.4, "yoy": 24, "operatingMargin": null, "src": ["s1"] }
+      {
+        "name": "U.S. and Canada",
+        "revenue": 0.894,
+        "unit": "USD bn",
+        "share": 76.1,
+        "yoy": 14,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Europe",
+        "revenue": 0.193,
+        "unit": "USD bn",
+        "share": 16.4,
+        "yoy": 0,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Rest of World",
+        "revenue": 0.087,
+        "unit": "USD bn",
+        "share": 7.4,
+        "yoy": 24,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "industryMetric": [
-      { "name": "MAU", "value": "6억 6,100만 (+10%); 미국·캐나다 1억 700만(+4%), 유럽 1억 6,100만(+7%), 그 밖 3억 9,400만(+13%)", "src": ["s1"] },
-      { "name": "ARPU", "value": "전체 1.80달러(+1%); 미국·캐나다 8.38달러(+10%), 유럽 1.21달러(-7%), 그 밖 0.23달러(+9%)", "src": ["s1"] },
-      { "name": "Adjusted EBITDA", "value": "3.39억 달러 (+11%, 마진 29%)", "src": ["s1"] },
-      { "name": "주식보상", "value": "2.88억 달러 (매출의 약 25%)", "src": ["s1"] }
+      {
+        "name": "MAU",
+        "value": "6억 6,100만 (+10%); 미국·캐나다 1억 700만(+4%), 유럽 1억 6,100만(+7%), 그 밖 3억 9,400만(+13%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "ARPU",
+        "value": "전체 1.80달러(+1%); 미국·캐나다 8.38달러(+10%), 유럽 1.21달러(-7%), 그 밖 0.23달러(+9%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Adjusted EBITDA",
+        "value": "3.39억 달러 (+11%, 마진 29%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "주식보상",
+        "value": "2.88억 달러 (매출의 약 25%)",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "text": "Q3 2026 매출은 11.74억 달러로 12% 늘었고 조정 EBITDA는 3.39억 달러(마진 29%)였다. 그러나 GAAP 순이익은 2,150만 달러로 1년 전 9,210만 달러에서 줄었고, 영업현금흐름(-2%)과 잉여현금흐름(-6%)도 뒷걸음질쳤다. 전체 ARPU 증가율은 1%에 그쳤다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "useOfCash": {
     "period": "2026년 1~9월 누계 (ended 2026-09-30)",
     "items": [
-      { "use": "buybacks", "value": 2.02, "unit": "USD bn", "src": ["s1"] },
-      { "use": "other", "label": "구조조정 비용 (손익 기준)", "value": 0.0655, "unit": "USD bn", "src": ["s1"] }
+      {
+        "use": "buybacks",
+        "value": 2.02,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "other",
+        "label": "구조조정 비용 (손익 기준)",
+        "value": 0.0655,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "text": "올해 1~9월 자사주를 약 20.2억 달러어치 샀는데, 1년 전 같은 기간 4.25억 달러의 5배 가까이다. 3분기에는 매입이 없었고, 9월 말 현금·유가증권은 14.7억 달러로 남았다. 구조조정 비용으로 올해 6,550만 달러를 썼다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "aiChain": {
     "layer": "ai-adopter",
     "position": "AI 기반 이미지 검색과 광고 추천을 쓰는 소비자 발견 플랫폼. AI를 써서 광고 성과와 쇼핑 경험을 높이려는 쪽이다.",
-    "dependsOn": ["Amazon Web Services 클라우드", "광고주 마케팅 예산"],
-    "sellsTo": ["광고주 (리테일러·브랜드)"],
+    "dependsOn": [
+      "Amazon Web Services 클라우드",
+      "광고주 마케팅 예산"
+    ],
+    "sellsTo": [
+      "광고주 (리테일러·브랜드)"
+    ],
     "aiRevenue": null,
     "upside": "AI 이미지 검색과 성과형 광고가 전환율을 높이면 ARPU가 오르고 광고 예산이 더 들어온다.",
     "risk": "AI 검색·쇼핑 도우미가 이용자의 발견 경로를 다른 곳으로 옮기거나, 더 큰 플랫폼이 AI 광고 성과에서 앞서는 경우.",
     "text": "AI 가치사슬에서 Pinterest는 AI를 써서 광고 성과를 높이려는 채택자다. 회사는 AI 이미지 검색과 쇼핑 경험을 성장 동력으로 내세우지만, 3분기 전체 ARPU 증가율 1%는 그 효과가 아직 지역별로 고르지 않다는 뜻이다. AI 관련 매출은 따로 공시하지 않는다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "competition": {
     "arenas": [
-      { "arena": "디지털 광고 (쇼핑·발견)", "rivals": ["대형 소셜·검색 광고 플랫폼 (출처에 이름 없음)"], "position": "challenger", "share": null, "src": ["s1"] }
+      {
+        "arena": "디지털 광고 (쇼핑·발견)",
+        "rivals": [
+          "대형 소셜·검색 광고 플랫폼 (출처에 이름 없음)"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "edge": "구매 의도가 높은 이용자와 이미지 검색.",
     "threats": "광고 예산이 더 큰 플랫폼에 몰리거나, 유럽처럼 광고 수요가 정체하는 지역이 늘어나는 경우.",
     "text": "발표문은 경쟁사를 이름으로 들지 않는다. Pinterest는 이용자 수로는 더 큰 플랫폼보다 작지만, 구매 의도가 분명한 이용자를 광고주에게 연결한다는 점을 내세운다. 유럽 매출 정체는 그 차별점이 모든 지역에서 같은 값을 받지는 못한다는 신호다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "strategy": {
     "goal": "성과형 광고를 키우고 높은 구매 의도의 발견을 장기 성장으로 바꾸는 것. Q4 2026 매출 14.25억~14.75억 달러(+8~12%), 조정 EBITDA 5.38억~5.88억 달러를 제시했다.",
     "roadmap": [
-      { "when": "Q4 2026", "what": "매출 14.25억~14.75억 달러 (+8~12%), 조정 EBITDA 5.38억~5.88억 달러", "src": ["s1"] },
-      { "when": "2026", "what": "구조조정 계획 진행 (올해 비용 6,550만 달러)", "src": ["s1"] }
+      {
+        "when": "Q4 2026",
+        "what": "매출 14.25억~14.75억 달러 (+8~12%), 조정 EBITDA 5.38억~5.88억 달러",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2026",
+        "what": "구조조정 계획 진행 (올해 비용 6,550만 달러)",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "vision": "AI 기반 시각 검색과 쇼핑으로 영감에서 구매까지 이어지는 발견 플랫폼.",
     "text": "4분기 전망은 성장률이 3분기 12%에서 8~12%로 내려올 수 있다는 범위다. 회사는 구조조정과 AI 쇼핑 경험에 기대를 걸고 있다. 연말 쇼핑 시즌 광고 예산이 이 전망의 어느 쪽에 닿는지가 다음 확인 지점이다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "governance": {
     "line": "CEO Bill Ready가 이끌며, 올해 1~9월 자사주 약 20.2억 달러를 사들여 주식보상 희석을 상쇄하는 데 현금을 크게 썼다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "guidance": {
     "latest": [
-      { "period": "Q4 2026", "metric": "revenue", "value": "14.25억~14.75억 달러 (+8~12%)", "givenOn": "2026-10-29", "src": ["s1"] },
-      { "period": "Q4 2026", "metric": "adjusted EBITDA", "value": "5.38억~5.88억 달러", "givenOn": "2026-10-29", "src": ["s1"] }
+      {
+        "period": "Q4 2026",
+        "metric": "매출",
+        "value": "14.25억~14.75억 달러 (+8~12%)",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "Q4 2026",
+        "metric": "조정 EBITDA",
+        "value": "5.38억~5.88억 달러",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "style": "quarterly",
     "track": "Q3 EPS는 0.07달러로 시장 추정 0.13달러를 밑돌았다. 회사 자체 3분기 전망 대비 결과는 이번 자료로 확인하지 못했다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
   "estimates": {
     "text": "AIO 로컬 스냅샷(2026-11-07, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) EPS 합계 0.57달러(범위 0.18~0.88, 9개 추정), 직전 4개 분기 0.32달러. 최근 4주 상향 0건·하향 10건으로 추정이 일제히 내려갔다.",
-    "src": ["s2"]
+    "src": [
+      "s2"
+    ]
   },
   "watch": {
-    "confirms": ["4분기 매출이 전망 상단(+12%) 쪽에 닿음", "유럽 매출과 ARPU 반등", "GAAP 순이익률 회복", "북미 ARPU 두 자릿수 성장 유지"],
-    "breaks": ["4분기 성장률이 8% 하단 근처", "유럽 ARPU 감소 지속", "영업·잉여현금흐름 감소 지속", "자사주 매입 축소 뒤 희석 확대"],
+    "confirms": [
+      "4분기 매출이 전망 상단(+12%) 쪽에 닿음",
+      "유럽 매출과 ARPU 반등",
+      "GAAP 순이익률 회복",
+      "북미 ARPU 두 자릿수 성장 유지"
+    ],
+    "breaks": [
+      "4분기 성장률이 8% 하단 근처",
+      "유럽 ARPU 감소 지속",
+      "영업·잉여현금흐름 감소 지속",
+      "자사주 매입 축소 뒤 희석 확대"
+    ],
     "keyNumbers": [
-      { "name": "매출 성장률과 다음 분기 전망", "why": "광고 예산 흐름" },
-      { "name": "지역별 ARPU", "why": "수익화가 실제로 깊어지는지" },
-      { "name": "GAAP 순이익과 주식보상", "why": "조정 이익과 실제 이익의 간격" },
-      { "name": "잉여현금흐름", "why": "자사주 매입 여력" }
+      {
+        "name": "매출 성장률과 다음 분기 전망",
+        "why": "광고 예산 흐름"
+      },
+      {
+        "name": "지역별 ARPU",
+        "why": "수익화가 실제로 깊어지는지"
+      },
+      {
+        "name": "GAAP 순이익과 주식보상",
+        "why": "조정 이익과 실제 이익의 간격"
+      },
+      {
+        "name": "잉여현금흐름",
+        "why": "자사주 매입 여력"
+      }
     ]
   },
   "debate": {
     "question": "역대 최대 이용자 수가 북미 밖에서도 광고 매출로 바뀌는지",
     "bull": {
       "text": "유지된다고 보는 쪽은 MAU가 6억 6,100만 명으로 역대 최대이고, 미국·캐나다 ARPU가 10% 오르며 매출이 14% 늘었다는 점을 든다. 그 밖의 지역 매출도 24% 늘었고 조정 EBITDA 마진은 29%를 유지했다는 것이 근거다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     "bear": {
       "text": "깨진다고 보는 쪽은 전체 ARPU가 1%만 올랐고 유럽 매출은 보합, 유럽 ARPU는 7% 줄었다는 점을 본다. 4분기 성장 전망이 8~12%로 낮아졌고 GAAP 순이익은 2,150만 달러로 줄었으며, 최근 4주 EPS 추정이 10건 하향됐다는 것도 근거다.",
-      "src": ["s1", "s2"]
+      "src": [
+        "s1",
+        "s2"
+      ]
     },
     "decides": [
-      { "when": "2027-02 (추정, 회사 미공지) Q4 2026 실적", "what": "4분기 매출이 14.25억~14.75억 달러 범위 어디에 닿고 유럽 ARPU가 반등하는지", "src": ["s1"] }
+      {
+        "when": "2027-02 (추정, 회사 미공지) Q4 2026 실적",
+        "what": "4분기 매출이 14.25억~14.75억 달러 범위 어디에 닿고 유럽 ARPU가 반등하는지",
+        "src": [
+          "s1"
+        ]
+      }
     ]
   },
   "underTheHood": [
     {
       "title": "16%의 이용자가 76%를 번다",
       "text": "미국·캐나다 MAU는 1억 700만 명으로 전체의 16%지만 매출의 76%를 낸다. 이용자 증가는 대부분 ARPU 0.23달러인 그 밖의 지역에서 나오므로, MAU 증가율 10%가 매출 증가로 그대로 이어지지 않는다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     {
       "title": "조정 EBITDA와 순이익의 간격",
       "text": "3분기 조정 EBITDA는 3.39억 달러였지만 GAAP 순이익은 2,150만 달러였다. 가장 큰 차이는 매출의 약 25%인 주식보상 2.88억 달러로, 조정 지표만 보면 수익성이 실제보다 크게 보인다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     {
       "title": "자사주 매입의 앞당김",
       "text": "올해 1~9월 자사주 매입은 약 20.2억 달러로 1년 전의 5배 가까이였고, 3분기에는 매입이 없었다. 9월 말 현금·유가증권 14.7억 달러는 분기 잉여현금흐름 3.00억 달러의 약 5배라, 같은 속도의 매입은 이어 가기 어렵다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     }
   ],
   "trading": {
     "calendar": [
-      { "date": "2027-02 (추정, 회사 미공지)", "event": "Q4 2026 실적과 2027 1분기 전망", "src": ["s1"] }
+      {
+        "date": "2027-02 (추정, 회사 미공지)",
+        "event": "Q4 2026 실적과 2027 1분기 전망",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "reaction": "매출보다 다음 분기 매출 전망과 ARPU 변화에 크게 반응하는 경향이 있다.",
-    "conditions": ["다음 분기 매출 전망 범위", "지역별 ARPU", "유럽 매출 성장률", "EPS 추정 변화 방향", "자사주 매입 규모"]
+    "conditions": [
+      "다음 분기 매출 전망 범위",
+      "지역별 ARPU",
+      "유럽 매출 성장률",
+      "EPS 추정 변화 방향",
+      "자사주 매입 규모"
+    ]
   },
   "unverified": [
     "GAAP 영업이익률과 매출총이익률",

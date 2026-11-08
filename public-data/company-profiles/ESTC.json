@@ -1,7 +1,7 @@
 {
   "symbol": "ESTC",
   "name": "Elastic N.V.",
-  "researchedAt": "2026-10-30",
+  "researchedAt": "2026-11-08",
   "fiscalYearEnd": "April 30 (FY2026 ended 2026-04-30)",
   "oneLine": "Elastic은 검색 엔진 Elasticsearch를 바탕으로 검색·벡터 검색, 로그 기반 관측, 보안 분석을 구독으로 파는 회사로, AI 앱이 기업 데이터를 찾아 쓰는 '검색·맥락' 단계의 수요를 노린다.",
   "sources": [
@@ -38,28 +38,12 @@
       "date": "2026-06-24"
     },
     {
-      "id": "s5",
-      "kind": "8-K",
-      "title": "Elastic press release: Julia Liuson nominated to the Board (8-K Exhibit 99.1)",
-      "url": "https://www.sec.gov/Archives/edgar/data/1707753/000170775326000036/a20260827_exx991xpr.htm",
-      "publisher": "Elastic / SEC EDGAR",
-      "date": "2026-08-27"
-    },
-    {
-      "id": "s6",
+      "id": "s8",
       "kind": "other",
-      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus, adjusted-EPS basis), public-data/consensus-estimates.json",
       "url": "https://www.nasdaq.com/market-activity/stocks/estc/earnings",
       "publisher": "Nasdaq / Zacks via AIO",
-      "date": "2026-10-29"
-    },
-    {
-      "id": "s7",
-      "kind": "other",
-      "title": "AIO local earnings calendar (Finnhub calendar/earnings), public-data/earnings-calendar.json - ESTC 2026-11-16, not company-confirmed",
-      "url": "https://finnhub.io/docs/api/earnings-calendar",
-      "publisher": "Finnhub via AIO",
-      "date": "2026-10-30"
+      "date": "2026-11-08"
     }
   ],
   "moat": {
@@ -142,67 +126,60 @@
     ]
   },
   "earnings": {
-    "period": "FY2026 (ended 2026-04-30)",
+    "period": "Q1 FY2027 (ended 2026-07-31)",
+    "periodEnd": "2026-07-31",
+    "basis": "quarter",
     "revenue": {
-      "value": 1739.3,
+      "value": 478.1,
       "unit": "USD mn",
-      "yoy": 17.3
+      "yoy": 15.1
     },
-    "grossMargin": 76.1,
-    "operatingMargin": -1.9,
-    "netMargin": 21.1,
+    "grossMargin": 74.5,
+    "operatingMargin": -4.9,
+    "netMargin": -3.5,
     "operatingCashFlow": {
-      "value": 326.9,
+      "value": 132.0,
       "unit": "USD mn"
     },
     "freeCashFlow": {
-      "value": 321.8,
+      "value": 131.4,
       "unit": "USD mn"
     },
     "segments": [
       {
         "name": "Subscription",
-        "revenue": 1634.5,
+        "revenue": 448.7,
         "unit": "USD mn",
-        "share": 94,
-        "yoy": 18.1,
+        "share": 93.9,
+        "yoy": 15.5,
         "operatingMargin": null,
         "src": [
-          "s2"
+          "s1"
         ]
       },
       {
         "name": "Services",
-        "revenue": 104.9,
+        "revenue": 29.4,
         "unit": "USD mn",
-        "share": 6,
-        "yoy": 6.2,
+        "share": 6.1,
+        "yoy": 10.0,
         "operatingMargin": null,
         "src": [
-          "s2"
+          "s1"
         ]
       }
     ],
     "industryMetric": [
       {
         "name": "Elastic Cloud 매출",
-        "value": "FY2026 8.373억 달러(+22%, 매출의 약 48%); Q1 FY2027 2.352억 달러(+20%, 연간형 +27%, 월간형 +1%)",
+        "value": "Q1 FY2027 2.352억 달러(+20%, 매출의 49%): 연간 약정형 1.850억 달러(+27%), 월간형 5,020만 달러(+1%)",
         "src": [
-          "s2",
           "s1"
         ]
       },
       {
         "name": "영업 주도 구독 매출",
-        "value": "FY2026 14.38억 달러(+20%); Q1 FY2027 3.985억 달러(+18%)",
-        "src": [
-          "s2",
-          "s1"
-        ]
-      },
-      {
-        "name": "최근 분기 (Q1 FY2027)",
-        "value": "매출 4.781억 달러(+15%), GAAP 총마진 74.5%, GAAP 영업이익률 -4.9%(구조조정비 1,990만 달러 포함), non-GAAP 영업이익률 16.2%, 조정 잉여현금흐름 1.433억 달러",
+        "value": "Q1 FY2027 3.985억 달러(+18%)",
         "src": [
           "s1"
         ]
@@ -221,52 +198,68 @@
           "s1",
           "s2"
         ]
+      },
+      {
+        "name": "ACV 10만 달러 이상 고객",
+        "value": "1,800곳 이상 (전년 1,550곳 이상)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "non-GAAP 영업이익률",
+        "value": "16.2% (Q1 FY2027; GAAP -4.9%, 구조조정비 1,990만 달러 포함)",
+        "src": [
+          "s1"
+        ]
       }
     ],
-    "text": "이 구조에서 FY2026 매출은 17.4억 달러로 17% 늘었고, GAAP 영업이익률은 -1.9%로 손익분기점 근처다. 순이익 3.68억 달러는 영업이 아니라 이연법인세 평가충당금 약 4.35억 달러를 되돌린 세금 이익 덕분이라, 이익 체력으로 보면 안 된다. 현금은 꾸준히 벌어 영업현금흐름이 3.27억 달러, 회사 기준 조정 잉여현금흐름이 3.46억 달러(매출의 20%)였다.",
+    "text": "Q1 FY2027(2026-05~07) 매출은 4.78억 달러로 전년 같은 분기보다 15% 늘었고, 구독이 4.49억 달러(+15%)로 94%를 차지했다. GAAP 영업이익률은 -4.9%(전년 -2.3%)로 구조조정비 1,990만 달러가 들어가 적자 폭이 커졌고 순손실은 1,670만 달러였지만, 영업현금흐름은 1.32억 달러로 매출의 28%였다. 직전 회계연도 FY2026(2026-04 종료) 매출은 17.4억 달러였다.",
     "src": [
+      "s1",
       "s2"
     ]
   },
   "useOfCash": {
-    "period": "FY2026 (ended 2026-04-30)",
+    "period": "Q1 FY2027 (3개월, ended 2026-07-31)",
     "items": [
       {
         "use": "R&D",
-        "value": 451.9,
+        "value": 112.5,
         "unit": "USD mn",
         "src": [
-          "s2"
+          "s1"
         ]
       },
       {
         "use": "capex",
-        "value": 5.1,
+        "value": 0.6,
         "unit": "USD mn",
         "src": [
-          "s2"
-        ]
-      },
-      {
-        "use": "acquisitions",
-        "value": 36.8,
-        "unit": "USD mn",
-        "src": [
-          "s2"
+          "s1"
         ]
       },
       {
         "use": "buybacks",
-        "value": 340.1,
+        "value": 40.0,
         "unit": "USD mn",
         "src": [
-          "s2"
+          "s1"
+        ]
+      },
+      {
+        "use": "other",
+        "label": "구조조정 비용 (손익 인식액, 현금 지급액 아님)",
+        "value": 19.9,
+        "unit": "USD mn",
+        "src": [
+          "s1",
+          "s4"
         ]
       }
     ],
-    "text": "번 돈은 R&D(FY2026 4.52억 달러, 매출의 26%)와 자사주 매입(3.40억 달러, 약 440만 주, 평균 76.91달러)에 가장 많이 쓰였다. 자사주 매입은 2025-10에 발표한 5억 달러 한도 안에서 이뤄졌고, Q1 FY2027에도 4,000만 달러(평균 49.71달러)를 더 샀다. 2026-06에는 인력 약 7%를 줄이는 구조조정(현금 비용 2,200만~2,500만 달러)을 결정해, 성장 투자를 줄이기보다 비용 구조를 다시 짜는 쪽을 택했다.",
+    "text": "Q1 FY2027에 가장 큰 쓰임은 R&D 1.12억 달러(매출의 24%)였고, 자사주 매입에 4,000만 달러(평균 49.71달러)를 더 썼다. 설비투자는 60만 달러에 그쳐 영업현금흐름 1.32억 달러가 거의 그대로 남았고, 분기 말 현금·유가증권은 14.6억 달러다. 2026-06에 결정한 인력 약 7% 구조조정 비용 1,990만 달러가 이 분기에 인식돼, 성장 투자보다 비용 구조를 다시 짜는 쪽을 택한 흐름이 이어졌다.",
     "src": [
-      "s2",
       "s1",
       "s4"
     ]
@@ -275,12 +268,12 @@
     "layer": "software-applications",
     "position": "AI 앱과 에이전트가 기업 데이터에서 맞는 문서·기록을 찾아오도록 돕는 검색·벡터 검색 엔진과, AI로 로그·보안 데이터를 분석하는 도구를 파는 데이터 소프트웨어 공급자.",
     "dependsOn": [
-      "cloud-infrastructure (AWS·Google Cloud·Azure 위에서 Elastic Cloud 운영)",
-      "models-platforms (Jina AI 임베딩 모델, OpenAI·Anthropic 모델 연동)"
+      "클라우드 (AWS·Google Cloud·Microsoft Azure 위에서 Elastic Cloud 운영)",
+      "모델·플랫폼 (Jina AI 임베딩 모델, OpenAI·Anthropic 모델 연동)"
     ],
     "sellsTo": [
-      "ai-adopter (AI 검색·에이전트를 만드는 기업)",
-      "software-applications (검색을 제품에 넣는 소프트웨어 회사)",
+      "AI를 쓰는 기업 (AI 검색·에이전트를 만드는 기업)",
+      "소프트웨어·앱 (검색을 제품에 넣는 소프트웨어 회사)",
       "기업 보안·운영 조직"
     ],
     "aiRevenue": null,
@@ -413,7 +406,7 @@
     "latest": [
       {
         "period": "Q2 FY2027",
-        "metric": "revenue",
+        "metric": "매출",
         "value": "4.86~4.87억 달러 (중간값 +14.9%)",
         "givenOn": "2026-08-27",
         "src": [
@@ -422,7 +415,7 @@
       },
       {
         "period": "Q2 FY2027",
-        "metric": "non-GAAP operating margin / EPS",
+        "metric": "조정 영업이익률 / 조정 EPS",
         "value": "약 19.0% / 0.80~0.82달러",
         "givenOn": "2026-08-27",
         "src": [
@@ -431,7 +424,7 @@
       },
       {
         "period": "FY2027",
-        "metric": "revenue",
+        "metric": "매출",
         "value": "19.98~20.10억 달러 (5월 첫 가이던스 19.85~20.00억에서 상향)",
         "givenOn": "2026-08-27",
         "src": [
@@ -441,7 +434,7 @@
       },
       {
         "period": "FY2027",
-        "metric": "sales-led subscription revenue",
+        "metric": "영업 주도 구독 매출",
         "value": "16.82~16.94억 달러 (5월 16.73~16.88억에서 상향)",
         "givenOn": "2026-08-27",
         "src": [
@@ -451,7 +444,7 @@
       },
       {
         "period": "FY2027",
-        "metric": "non-GAAP operating margin / EPS / adjusted FCF margin",
+        "metric": "조정 영업이익률 / 조정 EPS / 조정 잉여현금흐름 마진",
         "value": "약 19.4% (5월 약 19.0%) / 3.29~3.37달러 (5월 3.21~3.29) / 약 21.5% (유지)",
         "givenOn": "2026-08-27",
         "src": [
@@ -461,16 +454,16 @@
       }
     ],
     "style": "quarterly",
-    "track": "Q1 FY2027 매출 4.781억 달러로 가이던스(4.69~4.70억)를 넘었고, non-GAAP 영업이익률 16.2%도 가이던스(약 14.0%)보다 높았다. 연간 매출·이익률 가이던스를 소폭 올렸다.",
+    "track": "Q1 FY2027 매출 4.781억 달러로 가이던스(4.69~4.70억)를 넘었고, non-GAAP 영업이익률 16.2%도 가이던스(약 14.0%)보다 높았다. 연간 매출·이익률 가이던스를 소폭 올렸다. 2026-11-08 현재 이를 바꾼 새 실적 발표는 없다.",
     "src": [
       "s1",
       "s2"
     ]
   },
   "estimates": {
-    "text": "2026-10-29 기준 Nasdaq/Zacks 컨센서스 EPS 향후 4개 분기 합계 0.72달러(범위 0.32~0.98, 7개 추정), 최근 4주 상향·하향 0건. 회사 non-GAAP EPS 가이던스(연 3.29~3.37달러)와 기준이 달라 GAAP 기준으로 보인다.",
+    "text": "2026-11-08 기준 Nasdaq/Zacks 컨센서스(피드 표기 조정 EPS) 향후 4개 분기(2026-10~2027-07) 합계 0.72달러(범위 0.32~0.98, 7개 추정), 직전 4개 분기 실적 합 -0.04달러, 최근 4주 상향·하향 0건. 회사 non-GAAP EPS 가이던스(연 3.29~3.37달러)와 크기가 크게 달라, 피드 기준이 GAAP에 가까울 수 있다.",
     "src": [
-      "s6"
+      "s8"
     ]
   },
   "watch": {
@@ -512,16 +505,16 @@
     ]
   },
   "debate": {
-    "question": "AI 검색 수요가 대형 계약 성장을 15%대 위로 끌어올리는지가 아직 숫자로 확인되지 않는다",
+    "question": "AI 검색 수요가 대형 계약 성장을 15%대 매출 성장 위로 끌어올리는지",
     "bull": {
-      "text": "Q1 FY2027 영업 주도 구독 매출은 3.985억 달러(+18%), Elastic Cloud 연간 약정형은 +27%, 현재 RPO는 11.53억 달러(+21%), 전체 RPO는 18.54억 달러(+27%)로 매출 성장률 15%보다 빠르다. 회사는 FY2027 매출 가이던스를 19.85~20.00억에서 19.98~20.10억 달러로, non-GAAP 영업이익률 목표를 약 19.0%에서 약 19.4%로 올렸다. 벡터 검색과 Jina AI 모델, OpenAI 추론 모델 협력으로 AI 에이전트가 사내 데이터를 찾는 단계를 노리고, 이 수요가 선행 지표인 RPO에 먼저 나타난다는 것이 이 읽기의 근거다.",
+      "text": "강세로 읽는 쪽은 Q1 FY2027 매출 성장률은 15%지만 영업 주도 구독 매출(+18%), 연간 약정형 Elastic Cloud(+27%), 현재 RPO(11.53억 달러, +21%), 전체 RPO(18.54억 달러, +27%)가 모두 더 빠르다는 점을 든다. 회사는 FY2027 매출 가이던스를 19.98~20.10억 달러로, non-GAAP 영업이익률 목표를 약 19.4%로 올렸고 ACV 10만 달러 이상 고객은 1,800곳 이상으로 늘었다. 벡터 검색과 Jina AI 모델, OpenAI 협력으로 AI 에이전트가 사내 데이터를 찾는 단계를 노리며, 이 수요가 RPO에 먼저 나타난다는 것이 이 읽기의 근거다.",
       "src": [
         "s1",
         "s2"
       ]
     },
     "bear": {
-      "text": "AI 관련 매출은 공개되지 않아 15%대 성장에서 AI의 몫을 확인할 수 없고, 셀프서비스 월간 클라우드 성장률은 1%로 사실상 멈췄다. 10-K는 Pinecone·Qdrant·Weaviate 같은 벡터 DB와 MongoDB Atlas, Google·Microsoft의 AI 검색을 같은 수요의 경쟁자로 꼽는다. Q1 FY2027의 GAAP 영업이익률은 -4.9%였고 회사는 2026-06에 인력 약 7%를 줄이는 구조조정과 최고제품책임자 퇴임을 발표해, 이익률 개선이 성장 투자 축소의 결과일 수 있다고 읽는 쪽이 있다.",
+      "text": "약세로 읽는 쪽은 AI 관련 매출이 공개되지 않아 15%대 성장에서 AI의 몫을 확인할 수 없고, 월간 셀프서비스 클라우드 성장률이 1%로 사실상 멈췄다는 점을 짚는다. 같은 분기 GAAP 영업이익률은 -4.9%로 전년(-2.3%)보다 나빴고 서비스 매출 증가율은 10%에 그쳤으며, 10-K는 Pinecone·Qdrant·Weaviate 같은 벡터 DB와 MongoDB Atlas, Google·Microsoft의 AI 검색을 같은 수요의 경쟁자로 꼽는다. 2026-06 인력 약 7% 감축과 최고제품책임자 퇴임을 두고 이익률 개선이 성장 투자 축소의 결과일 수 있다고 읽는 쪽도 있다.",
       "src": [
         "s1",
         "s3",
@@ -530,10 +523,9 @@
     },
     "decides": [
       {
-        "when": "2026-11-16 (추정, 회사 미확정)",
-        "what": "Q2 FY2027에서 영업 주도 구독 매출 성장률, 연간형 클라우드 성장률, GAAP 영업이익 흑자 전환 여부",
+        "when": "Q2 FY2027 실적 (2026-11 중하순 추정, 회사 미공지)",
+        "what": "매출이 가이던스 4.86~4.87억 달러를 넘는지, 영업 주도 구독 매출과 연간형 클라우드 성장률이 유지되는지, GAAP 영업이익이 흑자로 돌아서는지",
         "src": [
-          "s7",
           "s1"
         ]
       },
@@ -549,32 +541,31 @@
   "underTheHood": [
     {
       "title": "성장이 한쪽에 몰린 클라우드",
-      "text": "Elastic Cloud는 FY2026 매출의 약 48%이고 Q1 FY2027에 +20%였지만, 연간 약정형이 +27%인 반면 월간 셀프서비스형은 +1%였다. 개발자가 무료로 써 보다 늘어나는 경로가 거의 정체되고 영업이 맺는 대형 계약이 성장을 만들고 있어, 개발자 기반이라는 해자가 매출로 이어지는 속도가 이전과 다르다.",
+      "text": "Q1 FY2027 Elastic Cloud 매출 2.352억 달러 가운데 연간 약정형은 +27%였지만 월간 셀프서비스형은 +1%였다. 개발자가 무료로 써 보다 늘어나는 경로가 거의 정체되고 영업이 맺는 대형 계약이 성장을 만들고 있어, 개발자 기반이라는 해자가 매출로 이어지는 속도가 이전과 다르다.",
       "src": [
-        "s2",
         "s1",
         "s3"
       ]
     },
     {
-      "title": "순이익을 부풀린 세금 이익",
-      "text": "FY2026 순이익 3.68억 달러에는 이연법인세 평가충당금 환입 약 4.35억 달러가 들어 있고, GAAP 영업이익률은 -1.9%다. 순이익률 21.1%를 이익 체력으로 읽으면 안 되고, 현금 기준 영업현금흐름 3.27억 달러와 non-GAAP 영업이익률을 같이 봐야 한다.",
+      "title": "세금 이익이 빠진 손익",
+      "text": "FY2026 순이익 3.68억 달러에는 이연법인세 평가충당금 환입 약 4.35억 달러가 들어 있었지만, 분기 기준으로 보면 Q1 FY2027 순이익률은 -3.5%다. 연간 순이익률 21.1%와 이번 분기 숫자의 차이는 영업이 아니라 일회성 세금 항목에서 나온 것이다.",
       "src": [
-        "s2"
+        "s2",
+        "s1"
       ]
     },
     {
       "title": "비용으로 줄이는 격차",
-      "text": "Q1 FY2027 GAAP 영업이익률 -4.9%와 non-GAAP 16.2%의 간격에는 구조조정비 1,990만 달러가 들어 있다. FY2026 R&D가 매출의 26%인 구조에서 인력 7% 감축은 non-GAAP 이익률(약 19.4% 목표)을 올리는 가장 직접적인 수단이다.",
+      "text": "Q1 FY2027 GAAP 영업이익률 -4.9%와 non-GAAP 16.2%의 간격에는 구조조정비 1,990만 달러가 들어 있다. R&D가 분기 매출의 24%인 구조에서 인력 7% 감축은 non-GAAP 이익률(약 19.4% 목표)을 올리는 가장 직접적인 수단이다.",
       "src": [
         "s1",
-        "s4",
-        "s2"
+        "s4"
       ]
     },
     {
       "title": "클라우드에 의존하는 클라우드",
-      "text": "Elastic Cloud는 AWS·Google Cloud·Azure 위에서 돌아가고 같은 세 곳의 마켓플레이스로도 팔린다. 10-K는 AWS 등이 지원하지 않는 분기 버전을 호스팅해 파는 것을 위협으로 적고 있어, 가장 큰 유통 채널이 동시에 경쟁자가 되는 구조다.",
+      "text": "Elastic Cloud는 AWS·Google Cloud·Microsoft Azure 위에서 돌아가고 같은 세 곳의 마켓플레이스로도 팔린다. 10-K는 AWS 등이 지원하지 않는 분기 버전을 호스팅해 파는 것을 위협으로 적고 있어, 가장 큰 유통 채널이 동시에 경쟁자가 되는 구조다.",
       "src": [
         "s3"
       ]
@@ -583,18 +574,9 @@
   "trading": {
     "calendar": [
       {
-        "date": "2026-11-16 (추정, 회사 미확정)",
+        "date": "2026-11 중하순 (추정, 회사 미공지)",
         "event": "Q2 FY2027 실적 발표 (분기 2026-10-31 종료)와 연간 가이던스",
-        "src": [
-          "s7"
-        ]
-      },
-      {
-        "date": "2026-10 (주주총회)",
-        "event": "연례 주주총회 - Julia Liuson 이사 선임 안건",
-        "src": [
-          "s5"
-        ]
+        "src": []
       }
     ],
     "reaction": "주가는 총매출보다 영업 주도 구독 매출·클라우드 성장률과 연간 가이던스 변화, 그리고 이익률 개선 폭에 반응하는 경향이 있다. FY2026 Q4 평균 매입가 61.28달러에서 Q1 FY2027 49.71달러로 자사주 매입 단가가 내려간 것은 그 사이 주가 하락을 보여 준다.",
@@ -608,13 +590,14 @@
     ]
   },
   "unverified": [
+    "Q1 FY2027 잉여현금흐름 1.314억 달러는 영업현금흐름 1.320억에서 유형자산 구매 60만 달러를 뺀 계산값; 회사 '조정 잉여현금흐름'은 1.433억 달러",
+    "Q2 FY2027 실적 발표일 - 회사 미공지; 앞선 Finnhub 추정(2026-11-16)은 2026-11-08 AIO 달력(11-09~11-16 주)에 없어 날짜를 빼고 시기만 적었다",
     "AI 관련(벡터 검색·Search AI) 매출이나 고객 수 - 회사 미공시",
     "FY2026 순이익 3.68억 달러는 평가충당금 환입 약 4.35억 달러(Q4) 세금 이익이 포함된 값",
     "FY2026 잉여현금흐름 3.218억 달러는 영업현금흐름에서 유형자산 구매를 뺀 계산값; 회사 '조정 잉여현금흐름'은 이자 지급을 더한 3.455억 달러",
     "Search·Observability·Security 해법별 매출 - 회사 미공시",
     "Jina AI·Deductive AI 인수 금액 - FY2026 인수 현금 3,680만 달러만 확인",
     "시장 점유율 - 공개 자료 미확인",
-    "Q2 FY2027 실적 발표일 (Finnhub 추정)",
     "컨센서스 EPS 기준이 회사 non-GAAP EPS와 다른 이유"
   ],
   "confidence": "high - 실적·가이던스·구조조정·경쟁사 목록은 SEC 8-K·10-K 원문에서 왔고, AI 매출 기여와 점유율은 공개 수치가 없어 판단을 제한했다."

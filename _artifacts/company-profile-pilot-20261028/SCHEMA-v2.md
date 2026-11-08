@@ -33,7 +33,8 @@ add new ones after the last id.
     "text": "...", "src": []
   },
   "earnings": {
-    "period": "FY2026",
+    "period": "Q3 2026 (ended 2026-09-30) — the latest reported single quarter (2026-11-08 re-base; a fiscal year is context in text)",
+    "periodEnd": "YYYY-MM-DD (the quarter's last day)", "basis": "quarter|half-year|year-to-date",
     "revenue": { "value": 0, "unit": "USD bn", "yoy": 0 },
     "grossMargin": 0, "operatingMargin": 0, "netMargin": 0,
     "operatingCashFlow": { "value": 0, "unit": "USD bn" }, "freeCashFlow": { "value": 0, "unit": "USD bn" },
@@ -68,7 +69,7 @@ add new ones after the last id.
     "text": "...", "src": []
   },
   "governance": { "line": "one Korean sentence: who leads, control structure, capital-return stance", "src": [] },
-  "guidance": { "latest": [{ "period": "...", "metric": "...", "value": "...", "givenOn": "YYYY-MM-DD", "src": [] }], "style": "quarterly|annual|none", "track": "how it has landed vs its guide", "src": [] },
+  "guidance": { "latest": [{ "period": "...", "metric": "Korean item name (매출, 매출총이익률, 조정 EPS …)", "value": "...", "givenOn": "YYYY-MM-DD", "src": [] }], "style": "quarterly|annual|none", "track": "how it has landed vs its guide", "src": [] },
   "estimates": { "text": "consensus direction and level with date, or null", "src": [] },
   "watch": {
     "confirms": ["observable facts that would show the story is working"],

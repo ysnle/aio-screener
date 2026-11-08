@@ -332,12 +332,12 @@
     "layer": "software-applications",
     "position": "AI 모델을 만들지도, 칩·서버를 팔지도 않고, 기업이 외부 LLM 기반 에이전트를 실제 업무 프로세스에 넣을 때 에이전트·로봇·사람·기존 시스템 사이를 지휘하고 통제하는 응용 소프트웨어 층.",
     "dependsOn": [
-      "models-platforms (외부 LLM 제공사, 업체명 미공시)",
-      "cloud-infrastructure (제3자 클라우드 호스팅, 다년 용량 약정)",
+      "모델·플랫폼 (외부 LLM 제공사, 업체명 미공시)",
+      "클라우드 (제3자 클라우드 호스팅, 다년 용량 약정)",
       "기업 핵심 시스템 (SAP·Oracle·Epic 등과의 연동)"
     ],
     "sellsTo": [
-      "ai-adopter (은행·보험·의료·제조·공공 등 대기업)",
+      "AI를 쓰는 기업 (은행·보험·의료·제조·공공 등 대기업)",
       "시스템 통합사·BPO 파트너 (재판매·구축)"
     ],
     "aiRevenue": null,
@@ -483,7 +483,7 @@
     "latest": [
       {
         "period": "3Q FY2027",
-        "metric": "revenue",
+        "metric": "매출",
         "value": "4.40~4.45억 달러 (전년 대비 환율 역풍 약 1,000만 달러 포함, 콜)",
         "givenOn": "2026-09-03",
         "src": [
@@ -493,7 +493,7 @@
       },
       {
         "period": "3Q FY2027",
-        "metric": "ARR / non-GAAP operating income",
+        "metric": "ARR / non-GAAP 영업이익",
         "value": "ARR 19.92~19.97억 달러, non-GAAP 영업이익 약 1억 달러",
         "givenOn": "2026-09-03",
         "src": [
@@ -502,7 +502,7 @@
       },
       {
         "period": "FY2027",
-        "metric": "revenue",
+        "metric": "매출",
         "value": "17.89~17.94억 달러 (콜 요약상 1,300만 달러 상향)",
         "givenOn": "2026-09-03",
         "src": [
@@ -512,7 +512,7 @@
       },
       {
         "period": "FY2027",
-        "metric": "ARR / non-GAAP operating income",
+        "metric": "ARR / non-GAAP 영업이익",
         "value": "ARR 20.65~20.70억 달러, non-GAAP 영업이익 약 4.45억 달러",
         "givenOn": "2026-09-03",
         "src": [
@@ -521,7 +521,7 @@
       },
       {
         "period": "FY2027",
-        "metric": "non-GAAP adjusted free cash flow / gross margin",
+        "metric": "non-GAAP 조정 잉여현금흐름 / 매출총이익률",
         "value": "약 4.25억 달러, non-GAAP 총마진 약 84% (콜 요약, 2차)",
         "givenOn": "2026-09-03",
         "src": [

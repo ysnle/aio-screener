@@ -372,12 +372,12 @@
     "layer": "software-applications",
     "position": "기업 업무 흐름 위에서 AI 에이전트를 배치·관리하는 응용 소프트웨어 층. 모델을 만들지 않고, 여러 모델과 고객 데이터를 엮어 실제 업무(IT 장애 처리, 고객 상담, 인사 요청)를 처리하는 에이전트와 그 통제 도구(AI Control Tower)를 판다.",
     "dependsOn": [
-      "cloud-infrastructure (자체 데이터센터 + 퍼블릭 클라우드)",
-      "models-platforms (외부 AI 모델; 기술 파트너 Microsoft·Google·NVIDIA 등)",
-      "chips-compute (NVIDIA 파트너십)"
+      "클라우드 (자체 데이터센터 + 퍼블릭 클라우드)",
+      "모델·플랫폼 (외부 AI 모델; 기술 파트너 Microsoft·Google·NVIDIA 등)",
+      "연산 칩 (NVIDIA 파트너십)"
     ],
     "sellsTo": [
-      "ai-adopter (대기업·정부의 IT·고객서비스·인사·보안 부서)"
+      "AI를 쓰는 기업 (대기업·정부의 IT·고객서비스·인사·보안 부서)"
     ],
     "aiRevenue": "2026년 말 AI ACV 목표를 17억 달러 초과로 상향(2026-10-28), Q3 AI 순신규 ACV 전년 대비 +65%. 현재 AI ACV 금액은 이번 분기 미공개(Q2 2026에 10억 달러 돌파). 장기 목표는 2030년 ACV의 30%를 AI에서.",
     "upside": "AI는 이 회사에 '제품'이다. 상위 AI 요금제(가격 인상 30% 이상)와 사용량 요금, 에이전트 운영 고객 증가(9개월간 9배)가 구독 매출로 직접 들어오고, AI Control Tower는 출시 6개월 만에 500곳 이상이 쓴다.",
@@ -548,7 +548,7 @@
     "latest": [
       {
         "period": "Q4 2026",
-        "metric": "subscription revenue",
+        "metric": "구독 매출",
         "value": "42.45억~42.55억 달러 (+22.5~23%, 고정환율 +21.5%)",
         "givenOn": "2026-10-28",
         "src": [
@@ -557,7 +557,7 @@
       },
       {
         "period": "Q4 2026",
-        "metric": "cRPO growth",
+        "metric": "cRPO 성장률",
         "value": "+18.5% (고정환율; 온프레미스 비중·T4C 잔고 제외·Q3 조기 갱신이 역풍)",
         "givenOn": "2026-10-28",
         "src": [
@@ -567,7 +567,7 @@
       },
       {
         "period": "Q4 2026",
-        "metric": "operating margin",
+        "metric": "영업이익률",
         "value": "non-GAAP 32%, GAAP 12%",
         "givenOn": "2026-10-28",
         "src": [
@@ -576,7 +576,7 @@
       },
       {
         "period": "FY2026",
-        "metric": "subscription revenue",
+        "metric": "구독 매출",
         "value": "157.8억~157.9억 달러 (+22.5%, 고정환율 +21%; 7월 157.6억~157.8억에서 소폭 상향)",
         "givenOn": "2026-10-28",
         "src": [
@@ -586,7 +586,7 @@
       },
       {
         "period": "FY2026",
-        "metric": "non-GAAP subscription gross margin / operating margin / FCF margin",
+        "metric": "non-GAAP 구독 매출총이익률 / 영업이익률 / FCF 이익률",
         "value": "81% / 31.5% / 36% (FCF 마진 35%에서 상향, 설비투자 감소)",
         "givenOn": "2026-10-28",
         "src": [

@@ -380,15 +380,15 @@
     "layer": "chips-compute",
     "position": "AI 데이터센터에서 GPU를 지휘하고 추론·에이전트 작업을 처리하는 범용 서버 CPU(Xeon)를 공급하고, 맞춤형 칩 설계와 웨이퍼·첨단 패키징(EMIB-T) 파운드리로 다른 AI 칩 회사의 생산 단계에도 들어가려 한다.",
     "dependsOn": [
-      "semicap-foundry (ASML High NA EUV 등 장비, 일부 타일은 TSMC 생산)",
-      "memory·기판 공급 (회사가 기판·메모리 공급 확보를 직접 언급)",
+      "장비·파운드리 (ASML High NA EUV 등 장비, 일부 타일은 TSMC 생산)",
+      "메모리·기판 공급 (회사가 기판·메모리 공급 확보를 직접 언급)",
       "자체 팹 건설 자금 (Brookfield 등 공동투자 파트너, 정부 보조금)"
     ],
     "sellsTo": [
-      "cloud-infrastructure (하이퍼스케일러 서버 CPU, Google Cloud 협력)",
-      "ai-adopter (기업·통신사 서버, 엣지·로보틱스)",
-      "devices (PC OEM의 AI PC)",
-      "chips-compute (외부 파운드리·패키징 고객, Fortinet 등 맞춤형 칩 고객)"
+      "클라우드 (하이퍼스케일러 서버 CPU, Google Cloud 협력)",
+      "AI를 쓰는 기업 (기업·통신사 서버, 엣지·로보틱스)",
+      "기기 (PC OEM의 AI PC)",
+      "연산 칩 (외부 파운드리·패키징 고객, Fortinet 등 맞춤형 칩 고객)"
     ],
     "aiRevenue": "AI 매출을 따로 공시하지 않음. Q3 2026 DCAI 매출 73억 달러(+78%), 맞춤형(purpose-built) 칩 매출 전분기 대비 50% 이상·전년 대비 2배 이상 (2026-10-29 발표·콜). Q2 2026 콜에서는 'AI 주도 사업'이 매출의 약 70%라고 했다(회사 정의).",
     "upside": "AI가 학습에서 추론·에이전트로 넓어지면 서버당 CPU 수요가 늘고, 회사는 업계 서버 CPU 출하가 올해와 내년 두 자릿수 성장할 것으로 본다. 공급이 늘어나는 만큼 DCAI 매출과 가격이 오르고, 외부 고객이 18A-P·14A·EMIB-T를 쓰기 시작하면 Foundry 손실이 줄어든다.",
@@ -534,7 +534,7 @@
     "latest": [
       {
         "period": "Q4 2026",
-        "metric": "revenue",
+        "metric": "매출",
         "value": "150억~160억 달러 (중간값 155억, Fab 28 영향 약 3억 달러 포함)",
         "givenOn": "2026-10-29",
         "src": [
@@ -544,7 +544,7 @@
       },
       {
         "period": "Q4 2026",
-        "metric": "gross margin",
+        "metric": "매출총이익률",
         "value": "GAAP 37.1%, non-GAAP 38.0% (Fab 28 영향 약 200bp)",
         "givenOn": "2026-10-29",
         "src": [
@@ -554,7 +554,7 @@
       },
       {
         "period": "Q4 2026",
-        "metric": "EPS attributable to Intel",
+        "metric": "Intel 귀속 EPS",
         "value": "GAAP 0.10달러, non-GAAP 0.25달러 (세율 GAAP 31%, non-GAAP 11%)",
         "givenOn": "2026-10-29",
         "src": [
@@ -563,7 +563,7 @@
       },
       {
         "period": "Q4 2026",
-        "metric": "segment color",
+        "metric": "부문 세부 설명",
         "value": "DCAI 전분기 대비 10%대 중반 증가, CCPG 20% 넘게 감소, non-GAAP 영업비용 약 44억 달러",
         "givenOn": "2026-10-29",
         "src": [
@@ -572,7 +572,7 @@
       },
       {
         "period": "FY2026 / FY2027",
-        "metric": "gross capex",
+        "metric": "총 설비투자",
         "value": "2026년 200억 달러 유지, 2027년 크게 증가, 2027년 잉여현금흐름 플러스 기대 안 함",
         "givenOn": "2026-10-29",
         "src": [

@@ -14,6 +14,8 @@ import { renderStockRead } from '../components/stock-read.js';
 import { renderTickerStart } from '../components/ticker-start.js';
 import { createTrendChart } from '../components/trend-chart.js';
 import { EARNINGS_CALENDAR, renderFiscalRead, requestFiscalHistory } from '../components/fiscal-read.js';
+import { EVENT_BRIEFS } from '../../data/event-artifacts.js';
+import { buildEarningsSchedule } from '../../domain/fundamental/analysis-read.js';
 import { requestConsensusEstimates } from '../../data/consensus-estimates.js';
 import { refreshSharedArtifact, SCENARIO_STATE, MARKET_DAY } from '../../data/shared-artifacts.js';
 import { whyMovedLine } from '../../domain/entity/why-moved.js';
@@ -236,17 +238,26 @@ function renderSummaryIdentity(documentRef, root, state) {
   const renderer = story ? storyRendererOr(() => { if (String(root?._currentTickerId || '').toUpperCase() === id) renderSummaryIdentity(documentRef, root, state); }) : null;
   if (story && renderer) {
     const earnings = root?.[EARNINGS_CALENDAR.key]?.earnings || [];
+    // The coming-week calendar alone misses reports one to three weeks old; the earnings briefs (loaded by the
+    // company summary) and the SEC quarters (loaded by the lens) also say a newer report is out.
+    const briefs = (root?._aioEventBriefs?.briefs || []).filter((brief) => brief?.kind === 'earnings' && String(brief?.symbol || '').toUpperCase() === id);
+    const quarters = String(root?._aioSecQuarterHistory?.[id] || '');
     // The stale note depends on this symbol's report rows (date and actuals), not on how many rows the calendar has.
     // v59.74: the company graph and the 산업 지도 text arrive once per tab; the story repaints when each lands.
     const again = () => { if (String(root?._currentTickerId || '').toUpperCase() === id) renderSummaryIdentity(documentRef, root, state); };
+    // The two records the freshness note reads repaint the story when they land after it (one request each, shared).
+    // SEC quarters exist only for US filers; the earnings briefs cover Korean listings too.
+    if (!/\.K[SQ]$/.test(id)) requestFiscalHistory(root, again, 'story');
+    refreshSharedArtifact(root, EVENT_BRIEFS).then(({ changed }) => { if (changed) again(); }).catch(() => {});
+    const schedule = buildEarningsSchedule({ symbol: id, calendar: root?.[EARNINGS_CALENDAR.key] || null });
     const graph = companySideArtifact(root, 'graph', again);
     const industry = companySideArtifact(root, 'industry', again);
-    const signature = `${id}|${story.researchedAt}|${graph ? 'g' : ''}${industry ? 'i' : ''}|${earnings.filter((row) => String(row?.symbol || '').toUpperCase() === id).map((row) => `${row.date}:${row.epsActual ?? row.revenueActual ?? ''}`).join(',')}`;
+    const signature = `${id}|${story.researchedAt}|${graph ? 'g' : ''}${industry ? 'i' : ''}|${earnings.filter((row) => String(row?.symbol || '').toUpperCase() === id).map((row) => `${row.date}:${row.epsActual ?? row.revenueActual ?? ''}`).join(',')}|${briefs.map((brief) => brief.eventDate).join(',')}|${quarters.split(';').at(-1)}|${schedule?.date || ''}${schedule?.hour || ''}`;
     if (profileNode.dataset.storySignature !== signature) {
       // A repaint keeps the folds the reader opened (matched by their summary text).
       const opened = new Set([...profileNode.querySelectorAll('details[open] > summary')].map((node) => node.textContent));
       profileNode.replaceChildren(title);
-      renderer.renderCompanyStory(documentRef, profileNode, { profile: story, earnings, peers: root?.[COMPANY_PROFILE_INDEX.key]?.profiles || [], openTicker: (symbol) => root?.showTicker?.(symbol), graph, industry,
+      renderer.renderCompanyStory(documentRef, profileNode, { profile: story, earnings, briefs, quarters, schedule, peers: root?.[COMPANY_PROFILE_INDEX.key]?.profiles || [], openTicker: (symbol) => root?.showTicker?.(symbol), graph, industry,
         openLibrary: (domain) => navigateKnowledgeRoute({ root, page: 'atlas', params: { mode: 'taxonomy', domain, view: 'domain' } }) });
       for (const summary of profileNode.querySelectorAll('details > summary')) if (opened.has(summary.textContent)) summary.parentElement.open = true;
       profileNode.dataset.storySignature = signature;

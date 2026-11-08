@@ -6,6 +6,7 @@
 import { readNumber as finite } from '../shared/number.js';
 import { isIsoDay, hasLeadingIsoDay } from '../shared/session-date.js';
 import { debateContextLines } from './company-debate.js';
+import { companiesNamedIn } from './company-aliases.js';
 
 export const AI_LAYERS = Object.freeze([
   ['power-energy', '전력·에너지'], ['cooling-electrical', '냉각·전기 설비'], ['data-center-real-estate', '데이터센터 부동산'],
@@ -61,29 +62,56 @@ export function amountScale(value, unit) {
 
 export const pctText = (value) => { const v = finite(value); return v == null ? null : `${trimZero(v.toFixed(1))}%`; };
 
+/** The last day of the period the story's `earnings` describe: the explicit `periodEnd`, else the end day in the
+ * period text ('FY2026 (ended 2026-01-25)'). Null when neither says it ('Q3 2026 (2026-07~09, 3개월)'). */
+export function storyPeriodEnd(profile) {
+  const e = profile?.earnings || {};
+  if (isIsoDay(String(e.periodEnd || ''))) return e.periodEnd;
+  // The day after 'ended' or a range's '~' is the period's end; a later date in the text is a filing or report day
+  // ('FY2026 (ended 2026-06-30; 10-K filed 2026-08-31)').
+  const text = String(e.period || '');
+  return text.match(/(?:\bended\b|~)\s*(20\d\d-\d\d-\d\d)/i)?.[1] || text.match(/20\d\d-\d\d-\d\d/)?.[0] || null;
+}
+
+const DAY_MS = 86400000;
 /**
  * Whether the story still describes the latest report. A profile is researched on one date; once the company has
  * reported again after that date, the story is the older quarter's (cadence-relative freshness, AGENTS Freshness).
  * v59.45 (pipeline review P25-STORY-01): no report found is not proof of current — without a research date or with no
  * calendar rows at all (not loaded / failed) the state is 'unknown', so a consumer cannot read it as checked.
- * @returns {{ state: 'current'|'stale'|'unknown', researchedAt: string|null, newReport: string|null }}
+ * The earnings calendar holds the coming week only, so it cannot see a report one to three weeks after the research day.
+ * Three records count, each a fact that
+ * a report is out: a calendar row with actuals or a past date, an earnings brief read from the company's own filing
+ * (event-briefs, about a quarter), and an SEC quarter that ends after the story's own period (`quarters`, the
+ * sec-fiscal-history string for this symbol) — the last one also catches a story whose numbers were already a fiscal
+ * year old when it was written.
+ * @returns {{ state: 'current'|'stale'|'unknown', researchedAt: string|null, newReport: string|null, newQuarterEnd: string|null }}
  */
-export function storyFreshness(profile, earnings = [], today = new Date().toISOString().slice(0, 10)) {
+export function storyFreshness(profile, earnings = [], today = new Date().toISOString().slice(0, 10), { briefs = [], quarters = '' } = {}) {
   const researchedAt = isIsoDay(profile?.researchedAt || '') ? profile.researchedAt : null;
   const symbol = String(profile?.symbol || '').toUpperCase();
-  if (!researchedAt || !Array.isArray(earnings) || !earnings.length) return { state: 'unknown', researchedAt, newReport: null };
-  const newer = earnings
-    .filter((row) => String(row?.symbol || '').toUpperCase() === symbol && hasLeadingIsoDay(row?.date || ''))
-    // Already reported: the calendar carries the actual figures, or the report day is over. A row dated today with no
-    // actuals has not been released yet (AMZN 2026-10-29 after the close).
-    .filter((row) => row.epsActual != null || row.revenueActual != null || String(row.date).slice(0, 10) < today)
-    .map((row) => String(row.date).slice(0, 10))
+  const calendar = Array.isArray(earnings) ? earnings : [];
+  const filed = (Array.isArray(briefs) ? briefs : []).filter((b) => b?.kind === 'earnings' && String(b?.symbol || '').toUpperCase() === symbol && hasLeadingIsoDay(b?.eventDate || ''));
+  const periodEnd = storyPeriodEnd(profile);
+  // A quarter whose end is more than two weeks past the story's period (fiscal calendars end a few days apart).
+  const newQuarterEnd = periodEnd ? String(quarters || '').split(';').map((part) => part.split(':')[0]).filter((end) => isIsoDay(end)
+    && Date.parse(end) - Date.parse(periodEnd) > 15 * DAY_MS && end <= today).sort().at(-1) || null : null;
+  if (!researchedAt || (!calendar.length && !filed.length && !(periodEnd && String(quarters || '').trim()))) return { state: 'unknown', researchedAt, newReport: null, newQuarterEnd: null };
+  const dates = [
+    ...calendar.filter((row) => String(row?.symbol || '').toUpperCase() === symbol && hasLeadingIsoDay(row?.date || ''))
+      // Already reported: the calendar carries the actual figures, or the report day is over. A row dated today with no
+      // actuals has not been released yet (AMZN 2026-10-29 after the close).
+      .filter((row) => row.epsActual != null || row.revenueActual != null || String(row.date).slice(0, 10) < today)
+      .map((row) => String(row.date).slice(0, 10)),
+    ...filed.map((b) => String(b.eventDate).slice(0, 10))
+  ];
+  const newer = dates
     // On or after the research day. The calendar gives the US report date and stories are researched in KST, so a
     // report dated on the research day (MSFT/GOOGL 2026-10-28, after the close) is not in it.
     .filter((date) => researchedAt && date >= researchedAt && date <= today)
     .sort()
     .at(-1) || null;
-  return { state: newer ? 'stale' : 'current', researchedAt, newReport: newer };
+  return { state: newer || newQuarterEnd ? 'stale' : 'current', researchedAt, newReport: newer, newQuarterEnd };
 }
 
 /** True when the file is a usable story for this symbol (shape checked by scripts/ci-company-profile-contract-check.mjs). */
@@ -113,4 +141,30 @@ export function companyStoryContext(story) {
     '이 조사 이후 새 실적이 나왔으면 그 내용이 우선한다. 매매 지시 없이 조건으로 답할 것.'
   ];
   return lines.filter(Boolean).join('\n');
+}
+
+const RECURRING = /^(매\s*분기|분기마다|수시)/;
+function leadingDayMs(text) {
+  const match = /^(\d{4})-(\d{2})(?:-(\d{2}))?/.exec(String(text || ''));
+  return match ? Date.UTC(+match[1], +match[2] - 1, match[3] ? +match[3] : 15) : null;
+}
+/** The calendar list with the company's next report dated by the earnings calendar: the earliest own-report item
+ *  (mentions 실적, names no other company, not a recurring line, dated within 45 days of the confirmed day when it is
+ *  dated) takes the confirmed date and keeps its description, unless it already names that day; without such an item
+ *  a new line leads the list. */
+export function withConfirmedReport(items, symbol, schedule) {
+  const own = String(symbol || '').toUpperCase();
+  const confirmed = leadingDayMs(schedule.date);
+  const note = `${schedule.hour ? `${schedule.hour}, ` : ''}실적 달력 기준`;
+  const pick = items.map((item, index) => ({ item, index, at: leadingDayMs(item?.date) }))
+    .filter(({ item, at }) => /실적/.test(item?.event || '') && !RECURRING.test(String(item?.date || '').trim())
+      && !companiesNamedIn(item.event).some((id) => id !== own)
+      && (at == null || Math.abs(at - confirmed) <= 45 * DAY_MS))
+    .sort((a, b) => (a.at ?? Infinity) - (b.at ?? Infinity))[0];
+  if (!pick) return [{ date: schedule.date, event: `실적 발표 (${note})` }, ...items];
+  // A line that already names the confirmed day keeps its own words: a company notice's hour outranks the calendar's.
+  if (pick.at === confirmed && String(pick.item.date).slice(0, 10) === schedule.date) return items;
+  const out = items.slice();
+  out[pick.index] = { ...pick.item, date: schedule.date, event: `${pick.item.event} (${note})` };
+  return out;
 }

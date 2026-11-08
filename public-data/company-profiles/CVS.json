@@ -276,8 +276,8 @@
     "layer": "ai-adopter",
     "position": "AI를 공급하지 않고, 보험 청구·약제관리·약국 운영에 기술을 쓰는 대형 헬스케어 사업자. 분기 실적 자료에는 AI 언급이 없고, 기술 사업으로는 분리 후 약국 회사에 들어갈 Health100(기술 서비스 사업)이 제시됐다.",
     "dependsOn": [
-      "cloud-infrastructure (공급사명 미공시)",
-      "software-applications (청구·약국 시스템, 공급사명 미공시)"
+      "클라우드 (공급사명 미공시)",
+      "소프트웨어·앱 (청구·약국 시스템, 공급사명 미공시)"
     ],
     "sellsTo": [
       "AI 제품을 팔지 않음 - 보험 가입자·PBM 고객·약국 이용자"
@@ -398,7 +398,7 @@
     "latest": [
       {
         "period": "FY2026",
-        "metric": "adjusted EPS",
+        "metric": "조정 EPS",
         "value": "8.20달러 이상 (직전 7.90~8.10달러)",
         "givenOn": "2026-11-04",
         "src": [
@@ -407,7 +407,7 @@
       },
       {
         "period": "FY2026",
-        "metric": "GAAP diluted EPS",
+        "metric": "GAAP 희석 EPS",
         "value": "6.98달러 이상 (직전 6.84~7.04달러)",
         "givenOn": "2026-11-04",
         "src": [
@@ -416,7 +416,7 @@
       },
       {
         "period": "FY2026",
-        "metric": "cash flow from operations",
+        "metric": "영업현금흐름",
         "value": "155억 달러 이상 (직전 115억 달러 이상)",
         "givenOn": "2026-11-04",
         "src": [
@@ -425,7 +425,7 @@
       },
       {
         "period": "FY2026",
-        "metric": "total revenue / adjusted operating income",
+        "metric": "총매출 / 조정 영업이익",
         "value": "4,200억 달러 이상 / 170.5억 달러 이상 (Q2 기준 4,140억 / 165.8억~169.2억 달러)",
         "givenOn": "2026-11-04",
         "src": [
@@ -434,7 +434,7 @@
       },
       {
         "period": "FY2026",
-        "metric": "Health Care Benefits MBR / medical membership",
+        "metric": "헬스케어 보험 MBR / 의료 회원",
         "value": "89.75%±25bp 범위 하단 / 약 2,600만 명 (유지)",
         "givenOn": "2026-11-04",
         "src": [

@@ -330,8 +330,8 @@
     "layer": "ai-adopter",
     "position": "AI를 팔지 않고 신약 발굴·임상·제조·영업에 쓰는 쪽. 이번에 읽은 회사 자료에는 AI 지출이나 효과 금액이 공시되어 있지 않다.",
     "dependsOn": [
-      "models-platforms (AI 모델·플랫폼 - 업체명 미확인)",
-      "cloud-infrastructure (클라우드 - 업체명 미확인)"
+      "모델·플랫폼 (AI 모델·플랫폼 - 업체명 미확인)",
+      "클라우드 (클라우드 - 업체명 미확인)"
     ],
     "sellsTo": [
       "AI 자체를 팔지 않음 - 효과는 R&D 생산성과 운영 비용으로 나타남"
@@ -492,7 +492,7 @@
     "latest": [
       {
         "period": "FY2026",
-        "metric": "worldwide sales",
+        "metric": "전 세계 매출",
         "value": "668억~673억 달러 (8월 663억~673억, 2월 최초 655억~670억)",
         "givenOn": "2026-10-29",
         "src": [
@@ -514,7 +514,7 @@
       },
       {
         "period": "FY2026",
-        "metric": "non-GAAP gross margin",
+        "metric": "non-GAAP 매출총이익률",
         "value": "약 81%",
         "givenOn": "2026-10-29",
         "src": [
@@ -523,7 +523,7 @@
       },
       {
         "period": "FY2026",
-        "metric": "non-GAAP tax rate",
+        "metric": "non-GAAP 세율",
         "value": "32~33% (공제되지 않는 인수 비용 영향)",
         "givenOn": "2026-10-29",
         "src": [

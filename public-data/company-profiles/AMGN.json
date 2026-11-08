@@ -289,8 +289,8 @@
     "layer": "ai-adopter",
     "position": "AI를 팔지 않고 신약 설계·임상·제조에 쓰는 쪽. 이번에 읽은 실적 자료에는 AI 지출이나 효과 수치가 없다.",
     "dependsOn": [
-      "models-platforms (AI 모델 - 업체명 미확인)",
-      "cloud-infrastructure / chips-compute (연산 자원 - 업체명 미확인)"
+      "모델·플랫폼 (AI 모델 - 업체명 미확인)",
+      "클라우드 / 연산 칩 (연산 자원 - 업체명 미확인)"
     ],
     "sellsTo": [
       "AI 자체를 팔지 않음 - 효과는 R&D 속도와 제조 효율로 나타남"
@@ -432,7 +432,7 @@
     "latest": [
       {
         "period": "FY2026",
-        "metric": "total revenues",
+        "metric": "총매출",
         "value": "389억~397억 달러 (8월 382억~394억, 2월 최초 370억~384억)",
         "givenOn": "2026-11-03",
         "src": [
@@ -464,7 +464,7 @@
       },
       {
         "period": "FY2026",
-        "metric": "capital expenditures",
+        "metric": "설비투자",
         "value": "약 26억 달러",
         "givenOn": "2026-11-03",
         "src": [
@@ -473,7 +473,7 @@
       },
       {
         "period": "FY2026",
-        "metric": "share repurchases",
+        "metric": "자사주 매입",
         "value": "최대 30억 달러 (3분기까지 매입 없음)",
         "givenOn": "2026-11-03",
         "src": [

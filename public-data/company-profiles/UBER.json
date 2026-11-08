@@ -5,13 +5,47 @@
   "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
   "oneLine": "Uber는 월 2억 명이 넘는 사용자를 차량 호출·음식 배달·화물 운송 기사와 연결하고 거래액의 일부를 수수료로 받는 플랫폼으로, 자율주행차가 늘어날 때 그 차들을 누가 고객에게 연결하느냐를 가르는 시험대에 서 있다.",
   "sources": [
-    { "id": "s1", "kind": "8-K", "title": "Uber Announces Results for Third Quarter 2026 (8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0001543151/000154315126000039/uberq326earningspressrelea.htm", "publisher": "Uber Technologies / SEC EDGAR", "date": "2026-11-04" },
-    { "id": "s2", "kind": "news", "title": "With 200 Million Monthly Users, Uber Readies for Autonomous Rides (Q4 2025 call coverage)", "url": "https://www.pymnts.com/?p=3451891", "publisher": "PYMNTS", "date": "2026-02-04" },
-    { "id": "s3", "kind": "news", "title": "Uber names new CFO, stands by autonomous vehicle strategy", "url": "https://www.cfobrew.com/stories/2026/02/05/uber-names-new-cfo-stands-by-autonomous-vehicle-strategy", "publisher": "CFO Brew", "date": "2026-02-05" },
-    { "id": "s4", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/uber/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-11-07" },
-    { "id": "s5", "kind": "10-K", "title": "Uber FY2025 Form 10-K XBRL facts (revenue, net income, equity) via AIO public-data/sec-fundamentals-summary.json", "url": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces", "publisher": "SEC EDGAR via AIO", "date": "2026-02-13" }
+    {
+      "id": "s1",
+      "kind": "8-K",
+      "title": "Uber Announces Results for Third Quarter 2026 (8-K Exhibit 99.1)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0001543151/000154315126000039/uberq326earningspressrelea.htm",
+      "publisher": "Uber Technologies / SEC EDGAR",
+      "date": "2026-11-04"
+    },
+    {
+      "id": "s2",
+      "kind": "news",
+      "title": "With 200 Million Monthly Users, Uber Readies for Autonomous Rides (Q4 2025 call coverage)",
+      "url": "https://www.pymnts.com/?p=3451891",
+      "publisher": "PYMNTS",
+      "date": "2026-02-04"
+    },
+    {
+      "id": "s3",
+      "kind": "news",
+      "title": "Uber names new CFO, stands by autonomous vehicle strategy",
+      "url": "https://www.cfobrew.com/stories/2026/02/05/uber-names-new-cfo-stands-by-autonomous-vehicle-strategy",
+      "publisher": "CFO Brew",
+      "date": "2026-02-05"
+    },
+    {
+      "id": "s4",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/uber/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-11-07"
+    },
+    {
+      "id": "s5",
+      "kind": "10-K",
+      "title": "Uber FY2025 Form 10-K XBRL facts (revenue, net income, equity) via AIO public-data/sec-fundamentals-summary.json",
+      "url": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
+      "publisher": "SEC EDGAR via AIO",
+      "date": "2026-02-13"
+    }
   ],
-
   "moat": {
     "sources": [
       "수요와 공급의 양면 네트워크 - Q3 2026 월간 활성 플랫폼 소비자(MAPC) 2.15억 명, 분기 이동·배달 41억 건",
@@ -20,14 +54,19 @@
       "자율주행 차량을 수요에 연결하는 유통 창구 - 2026년 말 완전 무인 차량 약 700대 목표"
     ],
     "text": "Uber의 힘은 탈 사람과 태울 사람이 가장 많이 모여 있는 곳이라는 데서 나온다. Q3 2026 월간 활성 소비자는 2.15억 명(+14%)이고 분기 이동·배달 건수는 41억 건(+16%)이어서, 기사는 대기 시간이 짧고 승객은 배차가 빠른 선순환이 돌아간다. 차량 호출과 배달을 한 계정으로 쓰게 하는 멤버십 Uber One(2025말 4,600만 명 이상)이 이 고리를 더 단단하게 묶는다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
-
   "design": {
     "text": "회사는 세 부문으로 보고한다. Mobility는 차량 호출(UberX·프리미엄·택시 연결 등), Delivery는 음식·식료품·편의점 배달(Uber Eats), Freight는 화주와 운송사를 잇는 화물 중개다. 세 부문 위에 광고와 멤버십이 얹혀 있고, 회사는 자율주행 차량 운영사들의 차를 자기 앱에 올리는 일을 다음 사업으로 키우고 있다.",
-    "src": ["s1", "s2", "s3"]
+    "src": [
+      "s1",
+      "s2",
+      "s3"
+    ]
   },
-
   "make": {
     "model": "service",
     "partners": [
@@ -37,9 +76,10 @@
       "자율주행 차량 운영 파트너 - 2026년 말 무인 차량 약 700대, 2027년 2,000대 이상 (파트너명은 이번 조사에서 원문 미확인)"
     ],
     "text": "Uber는 차도 기사도 직접 소유하지 않는 서비스 회사다. 실제 운행과 배달은 독립 계약 기사·배달원과 음식점·운송사가 맡고, Uber는 배차·가격·결제·보험 같은 연결 장치를 만든다. 그래서 설비투자는 9개월 누적 2.39억 달러에 그치지만, 기사 지위와 보험·법률 비용이 사실상의 생산 원가가 되어 Q3 2026에도 법률·규제 충당금 변동 4.84억 달러가 생겼다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "sell": {
     "customers": [
       "개인 승객 - 차량 호출 (Mobility 총거래액 Q3 2026 295억 달러)",
@@ -50,116 +90,343 @@
     "channel": "자체 앱(Uber, Uber Eats)과 기업용 계정, 화물은 Uber Freight 플랫폼으로 직접 판매.",
     "concentration": "개인 소비자 중심으로 단일 고객 의존 없음. 국가·도시별 매출 비중은 이번 조사에서 확인하지 못함.",
     "text": "이렇게 만든 연결 서비스는 거의 모두 앱을 통해 개인에게 직접 팔린다. Q3 2026 총거래액 598억 달러 가운데 Mobility 295억, Delivery 285억, Freight 18억 달러였고, 배달이 +22%로 이동(+18%)보다 빨리 컸다. 멤버십 회원이 미국 Mobility 거래액의 3분의 1 이상을 차지할 만큼 충성 고객층이 넓어졌다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
-
   "moneyFlow": {
     "steps": [
-      { "from": "승객·배달 주문 고객", "to": "Uber", "what": "요금·주문 금액 결제 (Q3 2026 총거래액 598억 달러)" },
-      { "from": "Uber", "to": "기사·배달원", "what": "요금의 대부분을 운행·배달 대가로 지급 - 남는 몫이 Uber 매출(Q3 2026 148억 달러)" },
-      { "from": "음식점·식료품점", "to": "Uber", "what": "Uber Eats 주문당 수수료와 광고비" },
-      { "from": "Uber One 회원", "to": "Uber", "what": "월·연 멤버십 구독료" },
-      { "from": "화주 기업", "to": "Uber Freight", "what": "운송료 전액을 매출로 인식하고 운송사에 지급" }
+      {
+        "from": "승객·배달 주문 고객",
+        "to": "Uber",
+        "what": "요금·주문 금액 결제 (Q3 2026 총거래액 598억 달러)"
+      },
+      {
+        "from": "Uber",
+        "to": "기사·배달원",
+        "what": "요금의 대부분을 운행·배달 대가로 지급 - 남는 몫이 Uber 매출(Q3 2026 148억 달러)"
+      },
+      {
+        "from": "음식점·식료품점",
+        "to": "Uber",
+        "what": "Uber Eats 주문당 수수료와 광고비"
+      },
+      {
+        "from": "Uber One 회원",
+        "to": "Uber",
+        "what": "월·연 멤버십 구독료"
+      },
+      {
+        "from": "화주 기업",
+        "to": "Uber Freight",
+        "what": "운송료 전액을 매출로 인식하고 운송사에 지급"
+      }
     ],
     "pricing": "거래액에서 기사 몫을 뺀 수수료(take rate)가 핵심이다. 차량 호출·배달은 순액(수수료)으로, 일부 국가의 사업 구조와 화물은 총액으로 매출을 잡아서 같은 거래액이라도 매출이 달라진다. 여기에 광고비와 멤버십 구독료가 더해진다.",
     "text": "돈은 고객이 낸 요금에서 시작해 대부분 기사와 음식점으로 빠져나가고, 그 사이에 Uber가 떼는 몫이 매출이 된다. Q3 2026에는 총거래액 598억 달러에서 매출 148억 달러가 남았는데, 회사는 사업 모델 변경이 매출 성장률을 8%p 깎았다고 밝혔다. 그래서 이 회사는 매출보다 총거래액과 거래액 대비 이익률로 읽는 편이 정확하다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "earnings": {
     "period": "Q3 2026 (quarter ended 2026-09-30)",
-    "revenue": { "value": 14.8, "unit": "USD bn", "yoy": 10 },
+    "revenue": {
+      "value": 14.8,
+      "unit": "USD bn",
+      "yoy": 10
+    },
     "grossMargin": null,
     "operatingMargin": 9.5,
     "netMargin": 3.5,
-    "operatingCashFlow": { "value": 2.6, "unit": "USD bn" },
-    "freeCashFlow": { "value": 2.5, "unit": "USD bn" },
+    "operatingCashFlow": {
+      "value": 2.6,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": 2.5,
+      "unit": "USD bn"
+    },
     "segments": [
-      { "name": "Mobility", "revenue": 7.5, "unit": "USD bn", "share": 50.7, "yoy": -2, "operatingMargin": 31.5, "src": ["s1"] },
-      { "name": "Delivery", "revenue": 5.5, "unit": "USD bn", "share": 37.2, "yoy": 23, "operatingMargin": 19.3, "src": ["s1"] },
-      { "name": "Freight", "revenue": 1.8, "unit": "USD bn", "share": 12.2, "yoy": 34, "operatingMargin": -1.8, "src": ["s1"] }
+      {
+        "name": "Mobility",
+        "revenue": 7.5,
+        "unit": "USD bn",
+        "share": 50.7,
+        "yoy": -2,
+        "operatingMargin": 31.5,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Delivery",
+        "revenue": 5.5,
+        "unit": "USD bn",
+        "share": 37.2,
+        "yoy": 23,
+        "operatingMargin": 19.3,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Freight",
+        "revenue": 1.8,
+        "unit": "USD bn",
+        "share": 12.2,
+        "yoy": 34,
+        "operatingMargin": -1.8,
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "industryMetric": [
-      { "name": "총거래액(Gross Bookings)", "value": "Q3 2026 598억 달러, +20% (고정환율 +20%), 5분기 연속 20% 이상 성장", "src": ["s1"] },
-      { "name": "MAPC·이용 건수", "value": "MAPC 2.15억 명(+14%), 이용 41억 건(+16%), MAPC당 월 이용 +2%", "src": ["s1"] },
-      { "name": "조정 EBITDA (거래액 대비)", "value": "Q3 2026 30억 달러(+31%), 거래액 대비 5.0% (전년 4.5%)", "src": ["s1"] },
-      { "name": "Non-GAAP 영업이익 (거래액 대비)", "value": "23억 달러(+38%), 거래액 대비 3.9% (전년 3.4%)", "src": ["s1"] },
-      { "name": "부문 영업이익", "value": "Mobility 23.6억(+27%), Delivery 10.6억(+30%), Freight -0.33억 달러", "src": ["s1"] }
+      {
+        "name": "총거래액(Gross Bookings)",
+        "value": "Q3 2026 598억 달러, +20% (고정환율 +20%), 5분기 연속 20% 이상 성장",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "MAPC·이용 건수",
+        "value": "MAPC 2.15억 명(+14%), 이용 41억 건(+16%), MAPC당 월 이용 +2%",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "조정 EBITDA (거래액 대비)",
+        "value": "Q3 2026 30억 달러(+31%), 거래액 대비 5.0% (전년 4.5%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Non-GAAP 영업이익 (거래액 대비)",
+        "value": "23억 달러(+38%), 거래액 대비 3.9% (전년 3.4%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "부문 영업이익",
+        "value": "Mobility 23.6억(+27%), Delivery 10.6억(+30%), Freight -0.33억 달러",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "text": "그 결과 Q3 2026 매출은 148억 달러(+10%), GAAP 영업이익은 14억 달러(+30%)였다. 이익은 Mobility(부문 영업이익 23.6억 달러)에 몰려 있고 Delivery(10.6억 달러)가 빠르게 따라붙으며, Freight는 소폭 적자다. 다만 GAAP 순이익은 지분 투자 재평가 손실 4.76억 달러 탓에 5.12억 달러로 작았고, 전년 동기 66억 달러는 세금 충당금 환입 49억 달러가 부풀린 숫자라 단순 비교가 어렵다. 2025년 연간 매출은 520억 달러였다.",
-    "src": ["s1", "s5"]
+    "src": [
+      "s1",
+      "s5"
+    ]
   },
-
   "useOfCash": {
     "period": "Q3 2026 (설비투자는 9M 2026 누적)",
     "items": [
-      { "use": "buybacks", "value": 0.75, "unit": "USD bn", "src": ["s1"] },
-      { "use": "acquisitions", "value": 0.902, "unit": "USD bn", "src": ["s1"] },
-      { "use": "capex", "value": 0.239, "unit": "USD bn", "src": ["s1"] }
+      {
+        "use": "buybacks",
+        "value": 0.75,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "acquisitions",
+        "value": 0.902,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "capex",
+        "value": 0.239,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "text": "번 현금은 주로 자사주와 인수로 나간다. Q3 2026 자사주 매입은 7.5억 달러(연초 이후 42.8억 달러), 인수에 쓴 현금은 9.02억 달러(9개월 15.6억 달러)였고, 설비투자는 9개월 2.39억 달러로 매우 작다. 동시에 장기 부채가 2025말 105억 달러에서 157억 달러로 늘어, 환원과 인수의 일부를 차입으로 메우고 있다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "aiChain": {
     "layer": "ai-adopter",
     "position": "AI 모델이나 칩을 팔지 않고, 배차·가격·광고에 AI를 쓰며 자율주행차를 수요와 잇는 유통 창구 역할을 노린다.",
-    "dependsOn": ["자율주행 차량 운영 파트너 (원문에서 이름 미확인)", "cloud-infrastructure (클라우드 공급자 - 업체명 미공시)"],
-    "sellsTo": ["개인 승객·배달 고객 - AI 자체를 팔지 않음"],
+    "dependsOn": [
+      "자율주행 차량 운영 파트너 (원문에서 이름 미확인)",
+      "클라우드 (클라우드 공급자 - 업체명 미공시)"
+    ],
+    "sellsTo": [
+      "개인 승객·배달 고객 - AI 자체를 팔지 않음"
+    ],
     "aiRevenue": null,
     "upside": "자율주행 차량이 늘면 Uber는 차를 소유하지 않고도 그 차량의 수요를 공급하는 창구가 돼 거래액이 커질 수 있다. 회사는 2026년 말 무인 차량 약 700대, 2027년 2,000대 이상, 2026년 말까지 최대 15개 도시 운행을 제시했고 2029년 세계 최대 자율주행 이동 중개자가 되겠다고 했다.",
     "risk": "자율주행 회사가 자체 앱으로 고객을 직접 모으면 Uber를 건너뛸 수 있고, 무인 차량은 기사 몫이 아니라 차량 소유자의 감가상각·보험을 떠안는 다른 경제성을 요구한다. 경영진도 상용화가 기술보다 '훨씬 오래' 걸린다고 말했다.",
     "text": "AI 가치사슬에서 Uber는 맨 끝의 도입자이자 유통 창구다. 지금 매출에 AI 매출은 따로 없고, AI의 효과는 배차 효율과 광고, 그리고 앞으로 자율주행차를 얼마나 자기 앱에 묶어 두느냐로 나타난다. 무인 차량 700대는 분기 41억 건 이용 규모에 비하면 아직 시험 단계다.",
-    "src": ["s1", "s3"]
+    "src": [
+      "s1",
+      "s3"
+    ]
   },
-
   "competition": {
     "arenas": [
-      { "arena": "미국·글로벌 차량 호출", "rivals": ["Lyft", "Waymo (자체 앱 운행)", "지역 차량 호출 업체"], "position": "leader", "share": null, "src": ["s1"] },
-      { "arena": "음식·식료품 배달", "rivals": ["DoorDash", "Instacart", "지역 배달 플랫폼"], "position": "challenger", "share": null, "src": ["s1"] },
-      { "arena": "디지털 화물 중개", "rivals": ["C.H. Robinson", "전통 화물 중개사"], "position": "niche", "share": null, "src": ["s1"] },
-      { "arena": "자율주행 이동 중개", "rivals": ["Waymo", "Tesla"], "position": "challenger", "share": null, "src": ["s3"] }
+      {
+        "arena": "미국·글로벌 차량 호출",
+        "rivals": [
+          "Lyft",
+          "Waymo (자체 앱 운행)",
+          "지역 차량 호출 업체"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "음식·식료품 배달",
+        "rivals": [
+          "DoorDash",
+          "Instacart",
+          "지역 배달 플랫폼"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "디지털 화물 중개",
+        "rivals": [
+          "C.H. Robinson",
+          "전통 화물 중개사"
+        ],
+        "position": "niche",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "자율주행 이동 중개",
+        "rivals": [
+          "Waymo",
+          "Tesla"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s3"
+        ]
+      }
     ],
     "edge": "가장 큰 소비자 기반과 이동·배달을 묶은 멤버십, 차량을 소유하지 않는 가벼운 자산 구조.",
     "threats": "자율주행 회사의 직접 판매, 배달 시장의 가격 경쟁, 기사 지위·수수료 규제.",
     "text": "차량 호출에서는 규모로 앞서지만 배달에서는 미국 1위가 아닌 추격자이며, 새 싸움터는 자율주행이다. 무인 차량을 직접 운행하는 회사가 자기 앱으로 고객을 모으면 Uber의 창구 역할이 줄어들 수 있다. 회사는 여러 자율주행 업체의 차를 한 앱에 모아 가장 많은 수요를 주는 쪽이 되겠다는 전략으로 맞선다. 이번 조사에서 공시된 점유율 수치는 확인하지 못했다.",
-    "src": ["s1", "s3"]
+    "src": [
+      "s1",
+      "s3"
+    ]
   },
-
   "strategy": {
     "goal": "Q4 2026 총거래액 632.5억~652.5억 달러(고정환율 +18~22%)와 조정 EBITDA 31.3억~32.3억 달러를 제시했고, 2029년까지 세계 최대 자율주행 이동 중개자가 되겠다고 밝혔다.",
     "roadmap": [
-      { "when": "2026년 말", "what": "완전 무인 차량 약 700대 플랫폼 운행", "src": ["s1"] },
-      { "when": "2026년 말", "what": "최대 15개 도시(미국·해외 절반씩)에서 자율주행 이동 중개", "src": ["s3"] },
-      { "when": "2027", "what": "무인 차량 2,000대 이상", "src": ["s1"] },
-      { "when": "2029", "what": "세계 최대 자율주행 이동 중개자 목표", "src": ["s3"] }
+      {
+        "when": "2026년 말",
+        "what": "완전 무인 차량 약 700대 플랫폼 운행",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2026년 말",
+        "what": "최대 15개 도시(미국·해외 절반씩)에서 자율주행 이동 중개",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "when": "2027",
+        "what": "무인 차량 2,000대 이상",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2029",
+        "what": "세계 최대 자율주행 이동 중개자 목표",
+        "src": [
+          "s3"
+        ]
+      }
     ],
     "vision": "Khosrowshahi CEO는 자율주행이 '수조 달러 규모의 기회'를 연다고 말하며, 사람 기사와 무인 차량을 한 네트워크에서 섞어 쓰는 플랫폼을 그린다.",
     "text": "앞으로의 계획은 지금의 사람 기사 네트워크를 지키면서 무인 차량을 단계적으로 섞는 것이다. 2026년 말 약 700대, 2027년 2,000대 이상이라는 숫자는 이 전환이 아직 초기라는 뜻이기도 하다. 그 사이 회사는 5분기 연속 20%대 거래액 성장과 이익률 개선으로 투자 재원을 만든다.",
-    "src": ["s1", "s3"]
+    "src": [
+      "s1",
+      "s3"
+    ]
   },
-
   "governance": {
     "line": "2017년부터 CEO인 Dara Khosrowshahi가 이끄는 지분 분산 회사로, 2026년 2월 Balaji Krishnamurthy가 CFO를 넘겨받았고 자사주 매입을 주된 환원 수단으로 쓴다.",
-    "src": ["s3", "s1"]
+    "src": [
+      "s3",
+      "s1"
+    ]
   },
-
   "guidance": {
     "latest": [
-      { "period": "Q4 2026", "metric": "Gross Bookings", "value": "632.5억~652.5억 달러 (고정환율 +18~22%, 환율 약 1%p 역풍)", "givenOn": "2026-11-04", "src": ["s1"] },
-      { "period": "Q4 2026", "metric": "Non-GAAP EPS", "value": "0.95~0.99달러 (+34~39%)", "givenOn": "2026-11-04", "src": ["s1"] },
-      { "period": "Q4 2026", "metric": "Adjusted EBITDA", "value": "31.3억~32.3억 달러", "givenOn": "2026-11-04", "src": ["s1"] }
+      {
+        "period": "Q4 2026",
+        "metric": "총 예약액",
+        "value": "632.5억~652.5억 달러 (고정환율 +18~22%, 환율 약 1%p 역풍)",
+        "givenOn": "2026-11-04",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "Q4 2026",
+        "metric": "non-GAAP EPS",
+        "value": "0.95~0.99달러 (+34~39%)",
+        "givenOn": "2026-11-04",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "Q4 2026",
+        "metric": "조정 EBITDA",
+        "value": "31.3억~32.3억 달러",
+        "givenOn": "2026-11-04",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "style": "quarterly",
     "track": "다음 분기의 총거래액·조정 EBITDA·Non-GAAP EPS 범위를 분기마다 제시한다. 과거 범위 대비 실적 적중 이력은 이번 조사에서 정리하지 못했다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "estimates": {
     "text": "AIO 로컬 스냅샷(2026-11-07, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) EPS 합계 4.66달러(범위 3.46~6.58), 직전 4개 분기 2.85달러. 최근 4주 상향 1건·하향 1건. Q3 2026 보고 EPS 0.25달러는 컨센서스 0.94달러를 밑돌았는데 지분 재평가 손실이 포함된 GAAP 기준이다.",
-    "src": ["s4", "s1"]
+    "src": [
+      "s4",
+      "s1"
+    ]
   },
-
   "watch": {
     "confirms": [
       "총거래액이 고정환율 기준 18% 이상 성장을 이어 감",
@@ -176,53 +443,103 @@
       "지분 투자 평가손이 반복돼 GAAP 이익이 계속 흔들림"
     ],
     "keyNumbers": [
-      { "name": "Gross Bookings 성장률 (고정환율)", "why": "플랫폼 수요의 직접 지표" },
-      { "name": "조정 EBITDA / Gross Bookings", "why": "수수료와 비용 효율의 결과" },
-      { "name": "MAPC와 이용 건수", "why": "네트워크 규모와 사용 빈도" },
-      { "name": "부문 영업이익 (Mobility·Delivery)", "why": "이익이 어디서 나는지" },
-      { "name": "무인 차량 대수와 운행 도시 수", "why": "자율주행 전환의 속도" },
-      { "name": "잉여현금흐름과 자사주 매입", "why": "주주환원의 재원" }
+      {
+        "name": "Gross Bookings 성장률 (고정환율)",
+        "why": "플랫폼 수요의 직접 지표"
+      },
+      {
+        "name": "조정 EBITDA / Gross Bookings",
+        "why": "수수료와 비용 효율의 결과"
+      },
+      {
+        "name": "MAPC와 이용 건수",
+        "why": "네트워크 규모와 사용 빈도"
+      },
+      {
+        "name": "부문 영업이익 (Mobility·Delivery)",
+        "why": "이익이 어디서 나는지"
+      },
+      {
+        "name": "무인 차량 대수와 운행 도시 수",
+        "why": "자율주행 전환의 속도"
+      },
+      {
+        "name": "잉여현금흐름과 자사주 매입",
+        "why": "주주환원의 재원"
+      }
     ]
   },
-
   "debate": {
     "question": "거래액 20% 성장과 이익률 개선이 자율주행 전환기에도 Uber의 중개 몫을 지켜 주는지",
     "bull": {
       "text": "Q3 2026 총거래액은 598억 달러로 5분기 연속 20% 이상 늘었고, 조정 EBITDA는 거래액 대비 5.0%로 전년 4.5%에서 올랐다. 회사는 Q4에도 고정환율 +18~22% 성장을 제시했고 2027년 무인 차량 2,000대 이상을 자기 앱에 올리겠다고 해, 강세 쪽은 가장 큰 수요 기반이 자율주행차를 끌어오는 자석이 된다고 읽는다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     "bear": {
       "text": "Mobility 매출은 거래액이 18% 늘었는데도 2% 줄었고, 회사는 사업 모델 변경이 매출 성장률을 8%p 깎았다고 밝혔다. GAAP 순이익은 지분 재평가 손실로 5.12억 달러에 그쳤고 장기 부채는 2025말 105억 달러에서 157억 달러로 늘었으며, 경영진도 자율주행 상용화가 기술보다 훨씬 오래 걸린다고 말한다는 점을 약세 쪽은 짚는다.",
-      "src": ["s1", "s3"]
+      "src": [
+        "s1",
+        "s3"
+      ]
     },
     "decides": [
-      { "when": "2027-02 (Q4 2026 실적, 날짜 미확정)", "what": "Q4 총거래액이 632.5억~652.5억 달러 범위에 들고 조정 EBITDA가 31.3억~32.3억 달러를 지키는지", "src": ["s1"] },
-      { "when": "2026년 말", "what": "완전 무인 차량이 약 700대에 이르고 최대 15개 도시에서 자율주행 중개가 돌아가는지", "src": ["s1", "s3"] }
+      {
+        "when": "2027-02 (Q4 2026 실적, 날짜 미확정)",
+        "what": "Q4 총거래액이 632.5억~652.5억 달러 범위에 들고 조정 EBITDA가 31.3억~32.3억 달러를 지키는지",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2026년 말",
+        "what": "완전 무인 차량이 약 700대에 이르고 최대 15개 도시에서 자율주행 중개가 돌아가는지",
+        "src": [
+          "s1",
+          "s3"
+        ]
+      }
     ]
   },
-
   "underTheHood": [
     {
       "title": "거래액과 매출이 다르게 움직인다",
       "text": "Q3 2026 총거래액은 20% 늘었지만 매출은 10% 늘었고, 회사는 사업 모델 변경이 매출 성장률을 8%p 깎았다고 밝혔다. Mobility는 거래액 +18%에 매출 -2%였다. 매출을 순액으로 잡느냐 총액으로 잡느냐에 따라 숫자가 달라지므로, 수요는 거래액으로, 이익률은 거래액 대비 EBITDA로 읽어야 한다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     {
       "title": "GAAP 순이익의 큰 소음",
       "text": "Q3 2026 GAAP 순이익 5.12억 달러에는 지분 투자 재평가 손실 4.76억 달러가, 전년 66억 달러에는 세금 충당금 환입 49억 달러와 지분 평가익 15억 달러가 들어 있다. 반면 Non-GAAP 순이익은 18억 달러(+29%)였다. 보유 지분의 시가 변동이 분기 이익을 크게 흔들기 때문에 GAAP EPS와 컨센서스 비교는 왜곡되기 쉽다.",
-      "src": ["s1", "s4"]
+      "src": [
+        "s1",
+        "s4"
+      ]
     },
     {
       "title": "가벼운 자산, 무거워지는 부채",
       "text": "설비투자는 9개월 누적 2.39억 달러로 영업현금흐름 78.5억 달러에 비해 작아 잉여현금흐름이 거의 그대로 남는다. 그런데도 장기 부채가 2025말 105억 달러에서 157억 달러로 늘었고, 연초 이후 자사주 42.8억 달러와 인수 15.6억 달러를 함께 썼다. 무인 차량 시대에 차량 자산을 누가 떠안느냐에 따라 이 가벼운 구조가 달라질 수 있다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     }
   ],
-
   "trading": {
     "calendar": [
-      { "date": "2027-02 초 (추정, 회사 미확정)", "event": "Q4·FY2026 실적과 Q1 2027 가이던스", "src": [] },
-      { "date": "2026년 말", "event": "무인 차량 약 700대 목표 시점", "src": ["s1"] }
+      {
+        "date": "2027-02 초 (추정, 회사 미확정)",
+        "event": "Q4·FY2026 실적과 Q1 2027 가이던스",
+        "src": []
+      },
+      {
+        "date": "2026년 말",
+        "event": "무인 차량 약 700대 목표 시점",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "reaction": "주가는 분기 GAAP EPS보다 다음 분기 총거래액·조정 EBITDA 가이던스와 자율주행 관련 발언에 반응하는 경향이 있다. Q3 2026에는 거래액·이익률이 개선됐지만 GAAP EPS가 지분 평가손으로 컨센서스를 밑돌았고, 일부 보도는 Q4 가이던스를 미지근하게 평가했다.",
     "conditions": [
@@ -234,7 +551,6 @@
       "컨센서스 EPS 상향·하향 건수"
     ]
   },
-
   "unverified": [
     "자율주행 파트너 회사명과 각 파트너 운행 도시 (원문 미확인)",
     "Uber One 회원 수 최신치 (2025말 4,600만 명 이상만 확인)",

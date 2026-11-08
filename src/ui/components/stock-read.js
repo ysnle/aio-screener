@@ -22,6 +22,9 @@ import { buildOutOfUniverseRead } from '../../domain/entity/out-of-universe-read
 import { fiscalYearLabel } from '../../domain/fundamental/period.js';
 import { signedText as sharedSignedText, usdKoreanText } from '../../domain/shared/number.js';
 import { krFundamentalPoints } from '../../domain/entity/kr-fundamentals.js';
+import { parseQuarterHistory } from '../../domain/fundamental/quarter-read.js';
+import { buildTrailingYearRead } from '../../domain/fundamental/analysis-read.js';
+import { requestFiscalHistory } from './fiscal-read.js';
 // QA 2026-11-07: every ROE above 60% read '자기자본이 작아 크게 나옴' — NVIDIA's 101.5% comes from a 55.6% net margin, not a
 // thin equity base. A very high margin names the margin; otherwise the note says what usually lifts ROE that far.
 const roeNote = (margin) => (margin != null && margin >= 30 ? '(이익률이 매우 높아 크게 나옴)' : '(자사주 매입·적은 자기자본이 키운 값일 수 있음)');
@@ -147,7 +150,7 @@ function checkTile(doc, { name, tone = 'neutral', chip = null, stale = false, va
   if (detail) tile.append(el(doc, 'span', detail, 'v2-stock-check__detail'));
   return tile;
 }
-function stockChecks(doc, read, sym, fundamentals, fundamentalsState = null, krCompany = null) {
+function stockChecks(doc, read, sym, fundamentals, fundamentalsState = null, krCompany = null, quarters = '') {
   const facts = read.facts || {};
   const tone = (id) => read.points.find((point) => point.id === id)?.tone || 'neutral';
   const tiles = [];
@@ -171,7 +174,17 @@ function stockChecks(doc, read, sym, fundamentals, fundamentalsState = null, krC
     const growth = num(own?.revGrowth), margin = num(own?.margin), roe = num(own?.roe);
     const fy = String(own?.fiscalPeriodEnd || '').slice(0, 10);
     const stale = !!own?.quality?.stale;
-    if (growth != null || margin != null) {
+    // The last four reported quarters lead once they end after the fiscal year: a year that closed months ago is not the
+    // company's current growth (a January year end read +65% while the four quarters since read +83%). The fiscal year's
+    // growth and ROE (an annual-balance figure) stay in the short detail; the derivation is in 재무 공시.
+    const ttm = buildTrailingYearRead(parseQuarterHistory(quarters));
+    if (ttm && fy && ttm.through > fy && ttm.revenueYoy != null) {
+      const through = `${Number(ttm.through.slice(5, 7))}/${Number(ttm.through.slice(8, 10))}`;
+      tiles.push(checkTile(doc, { name: '재무', chip: `${through}까지 4개 분기`, stale,
+        value: `매출 ${signedText(ttm.revenueYoy)}`,
+        detail: [ttm.margin != null ? `순이익률 ${ttm.margin.toFixed(1)}%` : null, growth != null ? `${fiscalYearLabel(fy) || 'FY'} 매출 ${signedText(growth)}` : null,
+          roe != null ? `${fiscalYearLabel(fy) || 'FY'} ROE ${roe.toFixed(1)}%${roe > 60 ? roeNote(margin) : ''}` : null].filter(Boolean).join(', ') }));
+    } else if (growth != null || margin != null) {
       tiles.push(checkTile(doc, { name: '재무', chip: fy ? (fiscalYearLabel(fy) || 'SEC') : 'SEC', stale,
         value: growth != null ? `매출 ${signedText(growth)}` : `순이익률 ${margin.toFixed(1)}%`,
         detail: [growth != null && margin != null ? `순이익률 ${margin.toFixed(1)}%` : null, roe != null ? `ROE ${roe.toFixed(1)}%${roe > 60 ? roeNote(margin) : ''}` : null, fy ? `${fy} 마감` : null, ttmTurn(own, margin, fy)].filter(Boolean).join(', ') }));
@@ -322,7 +335,9 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   const basisLine = el(doc, 'p', `${basisShort ? `${basisShort} ` : '완료 '}종가 기준${onDemand?.status === 'ready' ? ', 스크리너 랭킹 밖이라 같은 공식으로 따로 계산' : ''}`, 'briefing-footnote sx-meta');
   basisLine.title = '위치·수익률은 완료된 거래일 종가로 계산합니다. 맨 위 현재가와 시점이 다를 수 있습니다.';
   hero.append(basisLine);
-  const checks = stockChecks(doc, read, sym, fundamentals, fundamentalsState, root?._aioKrFundamentals?.companies?.[sym] || null);
+  // requestFiscalHistory owns the TTL: a refreshed record after the cache ages out must repaint this tile too.
+  if (market === 'US') requestFiscalHistory(root, () => { if (host.isConnected !== false && host.dataset.aioStockReadSymbol === sym) renderStockRead({ documentRef: doc, root, symbol: sym, ...host._aioReadArgs }); }, 'read');
+  const checks = stockChecks(doc, read, sym, fundamentals, fundamentalsState, root?._aioKrFundamentals?.companies?.[sym] || null, String(root?._aioSecQuarterHistory?.[sym] || ''));
   if (checks) hero.append(checks);
   // v59.51 (content audit): the 52-week position is the '위치' tile (the separate bar repeated it); the market line and the
   // memo/watch actions (entity.js renderStockLens) close this card.

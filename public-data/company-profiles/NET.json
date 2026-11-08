@@ -242,13 +242,13 @@
     "layer": "cloud-infrastructure",
     "position": "전 세계 도시 단위 네트워크에서 GPU로 AI 모델 추론을 돌리는 엣지 클라우드(Workers AI·AI Gateway·Vectorize)이자, AI 크롤러와 에이전트가 웹에 접근하는 길목에서 이를 식별·통제하는 보안 계층. AI 학습용 대형 클러스터가 아니라 사용자 가까운 곳의 추론과 트래픽을 맡는다.",
     "dependsOn": [
-      "chips-compute (추론용 GPU, 업체명 미기재)",
-      "data-center-real-estate (코로케이션 시설)",
-      "networking (ISP 파트너·회선)"
+      "연산 칩 (추론용 GPU, 업체명 미기재)",
+      "데이터센터 부동산 (코로케이션 시설)",
+      "네트워크 (ISP 파트너·회선)"
     ],
     "sellsTo": [
-      "models-platforms·AI 스타트업 (개발자 플랫폼 사용)",
-      "ai-adopter (AI 앱을 만드는 기업)",
+      "모델·플랫폼·AI 스타트업 (개발자 플랫폼 사용)",
+      "AI를 쓰는 기업 (AI 앱을 만드는 기업)",
       "콘텐츠 소유자·웹사이트 (AI 크롤러 통제)"
     ],
     "aiRevenue": null,
@@ -359,7 +359,7 @@
     "latest": [
       {
         "period": "Q4 2026",
-        "metric": "revenue",
+        "metric": "매출",
         "value": "8.45억~8.46억 달러",
         "givenOn": "2026-11-05",
         "src": [
@@ -368,7 +368,7 @@
       },
       {
         "period": "Q4 2026",
-        "metric": "non-GAAP operating income / EPS",
+        "metric": "non-GAAP 영업이익 / EPS",
         "value": "1.56억~1.57억 달러, EPS 0.43달러 (가중주식 약 3.79억 주)",
         "givenOn": "2026-11-05",
         "src": [
@@ -377,7 +377,7 @@
       },
       {
         "period": "FY2026",
-        "metric": "revenue",
+        "metric": "매출",
         "value": "29.63억~29.64억 달러 (8월 28.64억~28.70억)",
         "givenOn": "2026-11-05",
         "src": [
@@ -387,7 +387,7 @@
       },
       {
         "period": "FY2026",
-        "metric": "non-GAAP operating income / EPS",
+        "metric": "non-GAAP 영업이익 / EPS",
         "value": "4.62억~4.63억 달러, EPS 1.35달러 (8월 4.43억~4.45억, 1.25~1.26달러)",
         "givenOn": "2026-11-05",
         "src": [

@@ -301,12 +301,12 @@
     "layer": "software-applications",
     "position": "외부 LLM을 쓰는 AI 에이전트와 문서 AI를 정부·금융기관의 기존 업무 절차와 데이터 안에 넣고 실행을 통제하는 응용 소프트웨어 층. 모델·칩·클라우드는 사서 쓴다.",
     "dependsOn": [
-      "cloud-infrastructure (AWS)",
-      "models-platforms (외부 LLM 제공사, 업체명 미공시)",
+      "클라우드 (AWS)",
+      "모델·플랫폼 (외부 LLM 제공사, 업체명 미공시)",
       "고객의 기존 시스템과 데이터 (데이터 패브릭으로 연결)"
     ],
     "sellsTo": [
-      "ai-adopter (정부기관, 금융·보험·생명과학·제조 대기업)",
+      "AI를 쓰는 기업 (정부기관, 금융·보험·생명과학·제조 대기업)",
       "Accenture·Deloitte·KPMG·PwC 등 구축 파트너의 고객"
     ],
     "aiRevenue": null,
@@ -421,7 +421,7 @@
     "latest": [
       {
         "period": "4Q 2026",
-        "metric": "cloud subscriptions / total revenue",
+        "metric": "클라우드 구독 / 총매출",
         "value": "클라우드 구독 1.43~1.45억 달러(+22~24%), 매출 2.33~2.37억 달러(+15~17%)",
         "givenOn": "2026-11-05",
         "src": [
@@ -430,7 +430,7 @@
       },
       {
         "period": "4Q 2026",
-        "metric": "adjusted EBITDA / non-GAAP EPS",
+        "metric": "조정 EBITDA / non-GAAP EPS",
         "value": "0.30~0.33억 달러, 0.30~0.34달러",
         "givenOn": "2026-11-05",
         "src": [
@@ -439,7 +439,7 @@
       },
       {
         "period": "FY2026",
-        "metric": "cloud subscriptions / total revenue",
+        "metric": "클라우드 구독 / 총매출",
         "value": "클라우드 구독 5.36~5.38억 달러(+23%; 8월 5.25~5.29억), 매출 8.73~8.77억 달러(+20~21%; 8월 8.45~8.53억)",
         "givenOn": "2026-11-05",
         "src": [
@@ -449,7 +449,7 @@
       },
       {
         "period": "FY2026",
-        "metric": "adjusted EBITDA / non-GAAP EPS",
+        "metric": "조정 EBITDA / non-GAAP EPS",
         "value": "1.16~1.19억 달러(8월 1.04~1.10억), 1.20~1.24달러(8월 1.04~1.12)",
         "givenOn": "2026-11-05",
         "src": [

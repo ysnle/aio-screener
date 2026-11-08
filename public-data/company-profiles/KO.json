@@ -361,8 +361,8 @@
     "layer": "ai-adopter",
     "position": "AI를 만들거나 파는 회사가 아니라 마케팅·데이터 분석·제품 개발과 보틀러 시스템 운영에 쓰는 회사. 10-K는 '코카콜라 시스템의 디지털화'를 전략 과제로 들며 AI·자동화·로봇을 효율 개선 수단으로 적었다.",
     "dependsOn": [
-      "models-platforms (외부 AI 모델 - 업체명 미공시)",
-      "cloud-infrastructure (업체명 미공시)"
+      "모델·플랫폼 (외부 AI 모델 - 업체명 미공시)",
+      "클라우드 (업체명 미공시)"
     ],
     "sellsTo": [
       "AI 자체를 팔지 않음 - 효과는 마케팅 효율, 보틀러 공급망 비용, 신제품 개발 속도로 나타남"
@@ -517,7 +517,7 @@
     "latest": [
       {
         "period": "FY2026",
-        "metric": "organic revenue growth",
+        "metric": "유기적 매출 성장률",
         "value": "5% 이상 (2월 최초 4~5%, 직전 약 5%)",
         "givenOn": "2026-10-27",
         "src": [
@@ -527,7 +527,7 @@
       },
       {
         "period": "FY2026",
-        "metric": "comparable EPS growth",
+        "metric": "비교 가능 EPS 성장률",
         "value": "11% 이상, 환율 순풍 약 3%·인수매각 역풍 약 1% 포함 (최초 7~8%, 직전 9~10%)",
         "givenOn": "2026-10-27",
         "src": [
@@ -537,7 +537,7 @@
       },
       {
         "period": "FY2026",
-        "metric": "comparable currency neutral EPS ex-M&A growth",
+        "metric": "비교 가능 환율 중립 EPS 성장률 (인수 제외)",
         "value": "9% 이상 (최초 5~6%, 직전 7~8%)",
         "givenOn": "2026-10-27",
         "src": [
@@ -547,7 +547,7 @@
       },
       {
         "period": "FY2026",
-        "metric": "free cash flow",
+        "metric": "잉여현금흐름",
         "value": "130억 달러 이상 = 영업현금 152억 이상 - 설비투자 약 22억 (최초 약 122억, 직전 약 124억)",
         "givenOn": "2026-10-27",
         "src": [
@@ -557,7 +557,7 @@
       },
       {
         "period": "FY2027 (considerations)",
-        "metric": "comparable net revenues / comparable EPS",
+        "metric": "비교 가능 순매출 / 비교 가능 EPS",
         "value": "인수·매각 역풍 약 8% / 약 2%, 약간의 환율 역풍",
         "givenOn": "2026-10-27",
         "src": [
@@ -566,7 +566,7 @@
       },
       {
         "period": "Q4 2026",
-        "metric": "comparable net revenues / comparable EPS considerations",
+        "metric": "비교 가능 순매출 / 비교 가능 EPS 고려 요인",
         "value": "환율 순풍 약 1%·인수매각 역풍 약 4% / 환율 순풍 약 4%·인수매각 역풍 약 3%; Q4는 전년보다 6일 적음",
         "givenOn": "2026-10-27",
         "src": [

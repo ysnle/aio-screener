@@ -1,0 +1,637 @@
+{
+  "symbol": "STX",
+  "name": "Seagate Technology Holdings plc",
+  "researchedAt": "2026-11-08",
+  "fiscalYearEnd": "Friday nearest June 30 (FY2026 ended 2026-07-03)",
+  "oneLine": "Seagate는 클라우드 데이터센터에 대용량 하드디스크(HDD)를 직접 만들어 파는 회사로, AI가 쌓는 데이터 덕에 2026-10-27 발표한 Q1 FY2027 매출이 전년 대비 61% 늘었고 HAMR 기술로 같은 공장에서 더 많은 용량을 찍어 내는 것이 핵심이다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Seagate Technology Reports Fiscal First Quarter 2027 Financial Results",
+      "url": "https://investors.seagate.com/news/news-details/2026/Seagate-Technology-Reports-Fiscal-First-Quarter-2027-Financial-Results/default.aspx",
+      "publisher": "Seagate",
+      "date": "2026-10-27"
+    },
+    {
+      "id": "s2",
+      "kind": "earnings-release",
+      "title": "Seagate Technology Reports Fiscal Fourth Quarter and Fiscal Year 2026 Financial Results",
+      "url": "https://investors.seagate.com/news/news-details/2026/Seagate-Technology-Reports-Fiscal-Fourth-Quarter-and-Fiscal-Year-2026-Financial-Results/default.aspx",
+      "publisher": "Seagate",
+      "date": "2026-07-28"
+    },
+    {
+      "id": "s3",
+      "kind": "earnings-release",
+      "title": "Seagate Technology Reports Fiscal Fourth Quarter and Fiscal Year 2026 Financial Results (repost with CEO quotes and Q1 FY27 guidance)",
+      "url": "https://www.hartware.de/?p=367649",
+      "publisher": "Hartware (Seagate release text)",
+      "date": "2026-07-29"
+    },
+    {
+      "id": "s4",
+      "kind": "call-transcript",
+      "title": "Seagate Technology Q4 Earnings Call Highlights AI Storage Demand (read from search summary; page timed out)",
+      "url": "https://www.nasdaq.com/articles/seagate-technology-q4-earnings-call-highlights-ai-storage-demand",
+      "publisher": "Nasdaq",
+      "date": "2026-07-28"
+    },
+    {
+      "id": "s5",
+      "kind": "news",
+      "title": "Seagate's HAMR bet is paying off: can Mozaic sustain the momentum? (read from search summary; date = accessed)",
+      "url": "https://www.zacks.com/stock/news/2986842/seagates-hamr-bet-is-paying-off-can-mozaic-sustain-the-momentum",
+      "publisher": "Zacks",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s6",
+      "kind": "news",
+      "title": "WD fiscal 4Q26 results repost with editorial HDD market-share comment (WD ~42%, Seagate 41%, Toshiba 17%)",
+      "url": "https://www.storagenewsletter.com/?p=304557",
+      "publisher": "StorageNewsletter",
+      "date": "2026-08-07"
+    },
+    {
+      "id": "s7",
+      "kind": "10-K",
+      "title": "Seagate 10-K FY2026 (accession 0001137789-26-000159) via SEC companyfacts in AIO public-data/sec-fundamentals.json: revenue 12,195M, net income 3,184M, equity 2,167M",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001137789.json",
+      "publisher": "SEC EDGAR companyfacts via AIO",
+      "date": "2026-08-04"
+    },
+    {
+      "id": "s9",
+      "kind": "news",
+      "title": "Sandisk Showcases UltraQLC Technology Platform with 256TB Enterprise SSD at FMS 2025 (read from search summary)",
+      "url": "https://www.businesswire.com/news/home/20250805490958/en/Sandisk-Showcases-UltraQLC-Technology-Platform-with-Milestone-Enterprise-SSD-Capacity-at-FMS-2025",
+      "publisher": "Sandisk via Business Wire",
+      "date": "2025-08-05"
+    },
+    {
+      "id": "s10",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json (reflects the 2026-10-27 report)",
+      "url": "https://www.nasdaq.com/market-activity/stocks/stx/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-11-08"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "HAMR(열보조 자기기록) 기반 Mozaic 플랫폼 - 같은 드라이브 수로 더 많은 용량(엑사바이트)을 출하, FY2026 말 니어라인 엑사바이트 출하의 약 40%",
+      "헤드·디스크·드라이브를 직접 만드는 수직계열 생산과 HDD 3사 과점(Seagate·Western Digital·Toshiba)",
+      "니어라인 엑사바이트 대부분을 2028년까지 배정한 장기 공급 계약",
+      "용량당 원가($/TB)에서 SSD보다 싼 대용량 저장 계층"
+    ],
+    "text": "하드디스크는 세 회사만 만드는 과점 시장이라, Seagate의 힘은 '같은 디스크 한 장에 얼마나 더 많이 기록하느냐'는 기록 밀도 기술에서 나온다. 회사는 경쟁사보다 먼저 HAMR 방식의 Mozaic 드라이브를 대형 클라우드에 출하해, FY2026 말 니어라인 엑사바이트 출하의 약 40%를 HAMR로 채웠다. 드라이브 수를 늘리지 않고 용량을 늘리면 공장 증설 없이 매출과 마진이 같이 오르는 구조가 된다.",
+    "src": [
+      "s4",
+      "s5",
+      "s6",
+      "s2"
+    ]
+  },
+  "design": {
+    "text": "이 기술로 회사가 설계하는 것은 주로 데이터센터용 대용량 니어라인 HDD(Exos, Mozaic 3·4 플랫폼)이고, 그 밖에 엣지·소비자용 드라이브와 시스템 제품이 있다. 회사는 단일 보고 부문을 쓰며, 시장별 매출 금액은 이번에 읽은 보도자료에 나오지 않았다. 최근 분기 실적 설명에서는 데이터센터가 엑사바이트 출하의 약 90%를 차지한다고 밝혔다.",
+    "src": [
+      "s4",
+      "s5",
+      "s2"
+    ]
+  },
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "자체 생산 - 헤드·디스크(미디어)·드라이브 조립 (공장 위치는 이번 조사에서 1차 문서로 확인하지 못함)",
+      "부품 공급사 - 업체명 이번 조사에서 미확인"
+    ],
+    "text": "Seagate는 팹리스가 아니라 기록 헤드와 디스크부터 드라이브 조립까지 직접 만드는 제조사다. 그래서 FY2026 설비투자는 5.7억 달러로 매출의 약 5% 수준이었고, 최근 분기에는 2.1억 달러로 늘었다. HAMR은 용량을 공장 증설이 아닌 기술 전환으로 늘리는 방법이라, 증설 경쟁 없이 공급을 조이는 데 쓰인다.",
+    "src": [
+      "s2",
+      "s1",
+      "s4"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "클라우드 데이터센터·하이퍼스케일러 - 엑사바이트 출하의 약 90% (고객명 미공시)",
+      "기업·OEM 스토리지 고객",
+      "엣지·소비자 시장"
+    ],
+    "channel": "클라우드 고객에는 장기 공급 계약으로 직접 공급하고, 기업·소비자 시장은 OEM·유통을 거친다(채널별 비중은 미공시).",
+    "concentration": "고객별 매출 비중은 이번에 읽은 자료에서 확인하지 못함. 니어라인 엑사바이트 대부분이 2028년까지 장기 계약으로 배정됨.",
+    "text": "만든 드라이브의 대부분은 AI와 클라우드 데이터를 쌓는 대형 클라우드 데이터센터로 간다. 회사는 니어라인 물량 대부분을 2028년까지 장기 계약으로 배정했다고 밝혀, 고객이 몇 년 앞을 내다보고 용량을 예약하는 시장이 됐다. 대신 소수 대형 고객의 구매 계획이 바뀌면 바로 실적에 반영되는 구조다.",
+    "src": [
+      "s4",
+      "s2"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "AI 서비스 이용자·기업",
+        "to": "클라우드 데이터센터 (하이퍼스케일러)",
+        "what": "클라우드·AI 이용료, 데이터 저장료"
+      },
+      {
+        "from": "클라우드 데이터센터",
+        "to": "Seagate",
+        "what": "니어라인 HDD 대금 - 엑사바이트(용량)당 가격, 2028년까지 배정한 장기 계약"
+      },
+      {
+        "from": "기업·OEM·소비자 시장",
+        "to": "Seagate",
+        "what": "엣지·소비자용 드라이브와 시스템 대금 (개당)"
+      },
+      {
+        "from": "Seagate",
+        "to": "채권자·주주",
+        "what": "Q1 FY2027 부채 상환 12.6억, 배당 1.7억, 자사주 4.0억 달러"
+      }
+    ],
+    "pricing": "드라이브 개당 판매지만 데이터센터에서는 사실상 엑사바이트(용량)당 가격이 기준이다. HAMR로 드라이브당 용량이 커지면 같은 출하 대수로 더 많은 매출이 나온다.",
+    "text": "돈은 클라우드가 데이터 저장 수요를 맞추려고 드라이브 용량을 사들이면서 Seagate에 들어온다. 고객이 2028년까지 물량을 미리 배정받은 상태라 가격 협상력은 공급자 쪽에 있고, 그 결과가 최근 분기 총마진 57.3%다. 들어온 현금은 다시 빚을 줄이고 배당·자사주로 주주에게 나간다.",
+    "src": [
+      "s1",
+      "s4"
+    ]
+  },
+  "earnings": {
+    "period": "Q1 FY2027 (ended 2026-10-02)",
+    "revenue": {
+      "value": 4.233,
+      "unit": "USD bn",
+      "yoy": 61.0
+    },
+    "grossMargin": 57.3,
+    "operatingMargin": 48.8,
+    "netMargin": 41.6,
+    "operatingCashFlow": {
+      "value": 1.69,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": 1.479,
+      "unit": "USD bn"
+    },
+    "segments": [
+      {
+        "name": "단일 보고 부문 (HDD 중심 전체 매출; 시장별 금액 미공시)",
+        "revenue": 4.233,
+        "unit": "USD bn",
+        "share": 100,
+        "yoy": 61.0,
+        "operatingMargin": 48.8,
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "non-GAAP 총마진 / 영업이익률 / EPS (Q1 FY2027)",
+        "value": "57.8% / 50.7% / 7.68달러 (1년 전 40.1% / 29.0% / 2.61달러)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "분기 순이익 추이",
+        "value": "Q1 FY2026 5.49억 → Q4 FY2026 12.94억 → Q1 FY2027 17.61억 달러",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "HAMR 비중",
+        "value": "FY2026 말 니어라인 엑사바이트 출하 run-rate의 약 40%",
+        "src": [
+          "s4",
+          "s5"
+        ]
+      },
+      {
+        "name": "데이터센터 비중",
+        "value": "엑사바이트 출하의 약 90% (Q4 FY2026 콜)",
+        "src": [
+          "s4"
+        ]
+      },
+      {
+        "name": "총부채",
+        "value": "FY2026 말 35.7억 → Q1 FY2027 말 23.5억(장부가) → 분기 후 7.5억 추가 상환으로 원금 약 16억 달러",
+        "src": [
+          "s2",
+          "s1"
+        ]
+      },
+      {
+        "name": "잉여현금흐름",
+        "value": "Q1 FY2027 14.8억 달러 (1년 전 4.3억, 회사 사상 최대)",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "text": "Q1 FY2027(2026-10-02 마감) 매출은 42.3억 달러로 1년 전보다 61% 늘었고, GAAP 총마진 57.3%, 영업이익률 48.8%로 1년 전(39.4%, 26.4%)보다 크게 올랐다. 순이익은 17.6억 달러(순이익률 약 42%)였고 영업현금흐름 16.9억 달러에서 설비투자 2.1억을 뺀 잉여현금흐름 14.8억 달러로 이익이 현금으로 잘 들어왔다. 직전 회계연도 FY2026 매출은 122억 달러(+34%), 영업이익률 33.6%였다.",
+    "src": [
+      "s1",
+      "s2",
+      "s7"
+    ],
+    "periodEnd": "2026-10-02",
+    "basis": "quarter"
+  },
+  "useOfCash": {
+    "period": "Q1 FY2027 (ended 2026-10-02)",
+    "items": [
+      {
+        "use": "debt repayment",
+        "value": 1.262,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "buybacks",
+        "value": 0.4,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "capex",
+        "value": 0.211,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "dividends",
+        "value": 0.168,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "R&D",
+        "value": null,
+        "unit": "USD bn",
+        "src": []
+      }
+    ],
+    "text": "Q1 FY2027 잉여현금흐름 14.8억 달러의 가장 큰 쓰임은 부채 상환 12.6억 달러였고, 자사주 4.0억·배당 1.7억 달러가 뒤를 이었다. 분기 후 7.5억 달러를 더 갚아 총부채 원금이 약 16억 달러로 내려왔고, 분기 배당은 0.76달러로 약 3% 올렸다. FY2026(잉여현금흐름 31억 달러, 부채 상환 14.4억)과 같이 재무구조를 먼저 고치고 그 다음 주주환원을 키우는 순서다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "aiChain": {
+    "layer": "memory",
+    "position": "AI 학습 데이터, 체크포인트, 생성 결과물처럼 오래 보관해야 하는 대용량 데이터를 가장 싼 용량당 비용으로 담는 저장 계층에 HDD를 공급.",
+    "dependsOn": [
+      "자체 헤드·미디어 생산",
+      "부품 공급사 (업체명 미확인)"
+    ],
+    "sellsTo": [
+      "클라우드 (하이퍼스케일러·클라우드 데이터센터)",
+      "기업 스토리지 OEM"
+    ],
+    "aiRevenue": null,
+    "upside": "AI가 데이터를 만들고 오래 남길수록 저장 용량 수요가 늘고, HAMR로 드라이브당 용량이 커지면 증설 없이 매출과 마진이 오른다.",
+    "risk": "대용량 QLC SSD(예: Sandisk 256TB 시연)가 용량당 원가를 좁히면 일부 수요를 빼앗길 수 있다. 클라우드 설비투자 축소, Mozaic 4·5 전환 지연도 위험이다.",
+    "text": "그래서 AI 가치사슬에서 Seagate는 연산 칩이 아니라 그 결과로 생기는 데이터를 담는 맨 아래 저장 계층에 있다. CEO는 데이터의 생성·보관·재사용이 저장 수요를 복리로 키운다며 여러 해 성장 국면이라고 말했다. AI 매출을 따로 공시하지는 않아, 데이터센터 엑사바이트 비중(약 90%)이 가장 가까운 지표다.",
+    "src": [
+      "s1",
+      "s3",
+      "s4",
+      "s9"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "HDD 전체 (니어라인 중심)",
+        "rivals": [
+          "Western Digital",
+          "Toshiba"
+        ],
+        "position": "leader",
+        "share": "Western Digital 약 42%, Seagate 41%, Toshiba 17% - StorageNewsletter 편집자 코멘트, 2026-08-07 (기준 기간 미표기)",
+        "src": [
+          "s6"
+        ]
+      },
+      {
+        "arena": "고용량 HDD 기록 기술 (HAMR)",
+        "rivals": [
+          "Western Digital (ePMR 40TB급 후 44TB HAMR 2027 상반기 예정)",
+          "Toshiba"
+        ],
+        "position": "leader",
+        "share": "Seagate HAMR이 니어라인 엑사바이트의 약 40% (FY2026 말)",
+        "src": [
+          "s4",
+          "s5",
+          "s6"
+        ]
+      },
+      {
+        "arena": "대용량 저장 계층 대체재 (QLC SSD)",
+        "rivals": [
+          "Sandisk",
+          "Samsung",
+          "SK hynix·Solidigm",
+          "Micron"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s9"
+        ]
+      }
+    ],
+    "edge": "HAMR 대량 출하를 경쟁사보다 먼저 시작했고, 2028년까지 배정된 장기 계약과 부채 축소로 재무 여력이 커지고 있다.",
+    "threats": "Western Digital이 2027 상반기 44TB HAMR로 추격하고, 대용량 QLC SSD가 용량당 원가 격차를 좁히고 있다.",
+    "text": "HDD 시장은 Seagate와 Western Digital이 40%대 초반씩 나눠 갖고 Toshiba가 뒤따르는 구조라, 점유율보다 기록 밀도 경쟁이 승부처다. Seagate는 HAMR을 먼저 대량 출하해 기술에서 앞서 있지만, Western Digital은 기존 ePMR을 40TB급까지 밀어붙인 뒤 2027 상반기 HAMR로 넘어오겠다고 했다. 더 멀리 보면 경쟁자는 같은 HDD 업체가 아니라 용량당 원가를 낮추는 QLC SSD다.",
+    "src": [
+      "s6",
+      "s4",
+      "s5",
+      "s9"
+    ]
+  },
+  "strategy": {
+    "goal": "HAMR 전환으로 드라이브당 용량과 마진을 키우고, 설비투자는 절제하며 부채를 줄인 뒤 주주환원을 늘린다. CFO는 FY2027 내내 마진과 현금 창출이 분기마다 나아질 것으로 봤다.",
+    "roadmap": [
+      {
+        "when": "Q2 FY2027 (2026-12 분기)",
+        "what": "매출 48억 달러 ±1억, 조정 EPS 9.20달러 ±0.20 가이던스",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2026 말",
+        "what": "HAMR 엑사바이트의 50%를 Mozaic 4로 전환 목표",
+        "src": [
+          "s4"
+        ]
+      },
+      {
+        "when": "2027-06 (일부 보도)",
+        "what": "HAMR 비중 약 70% 목표 - 2차 자료 한 곳만 언급",
+        "src": [
+          "s5"
+        ]
+      },
+      {
+        "when": "2027 말",
+        "what": "Mozaic 5 고객 인증용 출하",
+        "src": [
+          "s4"
+        ]
+      },
+      {
+        "when": "2026-10 이후",
+        "what": "분기 후 7.5억 달러 부채 추가 상환, 총부채 약 16억 달러",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "vision": "AI가 데이터 생성·보관·재사용을 늘리는 여러 해 성장 국면에서, 용량당 가장 싼 대용량 저장 계층의 공급자로 남겠다는 그림.",
+    "text": "경쟁에서 이기는 방법으로 회사는 공장 증설이 아니라 기록 밀도를 택했다. Mozaic 4로 2026 말까지 HAMR 물량의 절반을 옮기고 2027 말 Mozaic 5 인증 출하로 이어가, 경쟁사가 HAMR에 들어오기 전에 용량 격차를 더 벌리려 한다. 동시에 부채를 16억 달러 수준까지 줄여, 다음 하강기에 대비하면서 환원 여력을 키우는 중이다.",
+    "src": [
+      "s4",
+      "s5",
+      "s1"
+    ]
+  },
+  "governance": {
+    "line": "Dave Mosley 회장 겸 CEO가 이끄는 plc 구조의 회사로, 분기 배당을 0.76달러로 약 3% 올리고 자사주 매입을 늘리는 등 부채 축소와 주주환원을 함께 진행한다.",
+    "src": [
+      "s1",
+      "s3"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "Q2 FY2027",
+        "metric": "매출",
+        "value": "48억 달러 ±1억",
+        "givenOn": "2026-10-27",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "Q2 FY2027",
+        "metric": "non-GAAP 희석 EPS",
+        "value": "9.20달러 ±0.20 (주식보상비용 주당 약 0.30달러 제외)",
+        "givenOn": "2026-10-27",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "style": "quarterly",
+    "track": "최근 분기는 가이던스 상단을 넘었다: Q1 FY2027 가이던스 매출 41억 ±1억 → 실제 42.3억 달러, 조정 EPS 7.30 ±0.20 → 실제 7.68달러.",
+    "src": [
+      "s3",
+      "s1"
+    ]
+  },
+  "estimates": {
+    "text": "AIO 스냅샷(2026-11-08, Zacks via Nasdaq, 10-27 발표 반영) 향후 4개 분기(2026-12~2027-09) EPS 합계 43.61달러(범위 37.69~47.27), 직전 4개 분기 19.64달러, 최근 4주 상향 11건·하향 2건. Zacks 기준 Q1 실제 EPS는 7.34달러(추정 7.17)로 회사 non-GAAP 7.68달러와 기준이 다르다.",
+    "src": [
+      "s10",
+      "s1"
+    ]
+  },
+  "watch": {
+    "confirms": [
+      "Q2 FY2027 매출이 가이던스(48억 달러) 안이나 위에서 나옴",
+      "총마진이 분기마다 계속 오름 (Q1 FY2027 57.3%)",
+      "HAMR 비중과 Mozaic 4 전환이 2026 말 목표대로 진행",
+      "총부채가 약 16억 달러 이하로 유지되고 자사주 매입이 늘어남",
+      "클라우드 고객이 장기 계약 물량을 2028년 이후까지 연장"
+    ],
+    "breaks": [
+      "가이던스가 하향되거나 엑사바이트당 가격이 꺾임",
+      "Mozaic 4·5 수율·인증 지연",
+      "Western Digital HAMR 조기 양산으로 기술 격차 축소",
+      "대형 클라우드의 설비투자 축소나 재고 조정",
+      "QLC SSD로의 대체가 니어라인 수요를 잠식"
+    ],
+    "keyNumbers": [
+      {
+        "name": "다음 분기 매출·EPS 가이던스 vs 컨센서스",
+        "why": "주가가 가장 크게 반응하는 숫자"
+      },
+      {
+        "name": "총마진",
+        "why": "가격 결정력과 HAMR 원가 개선의 결과"
+      },
+      {
+        "name": "HAMR 비중·Mozaic 세대 전환",
+        "why": "증설 없는 성장의 핵심 동력"
+      },
+      {
+        "name": "총부채·잉여현금흐름",
+        "why": "하강기 버팀목과 환원 여력"
+      },
+      {
+        "name": "데이터센터 엑사바이트 비중",
+        "why": "AI·클라우드 수요 노출도"
+      }
+    ]
+  },
+  "debate": {
+    "question": "HAMR 전환이 공급을 조이는 구조를 경쟁사 추격 전까지 지켜 내는지",
+    "bull": {
+      "text": "낙관하는 쪽은 Q1 FY2027 매출이 42.3억 달러(+61%)에 총마진 57.3%, 영업이익률 48.8%로 1년 전(39.4%, 26.4%)보다 크게 올랐고, 니어라인 엑사바이트 대부분이 2028년까지 장기 계약으로 배정됐다는 점을 근거로 든다. 증설 없이 기록 밀도로 용량을 늘리는 HAMR 전환이 마진을 끌어올리는 구조라고 본다.",
+      "src": [
+        "s1",
+        "s4",
+        "s5"
+      ]
+    },
+    "bear": {
+      "text": "비관하는 쪽은 Western Digital이 2027 상반기 44TB HAMR로 넘어오겠다고 했고, 대용량 QLC SSD(Sandisk 256TB 시연)가 용량당 원가 격차를 좁힌다는 점을 든다. 매출의 약 90%가 소수 대형 클라우드로 가는 구조라 설비투자 축소나 재고 조정이 바로 실적에 반영되고, 마진이 이미 정점에 가까워졌다는 읽기도 가능하다.",
+      "src": [
+        "s4",
+        "s6",
+        "s9"
+      ]
+    },
+    "decides": [
+      {
+        "when": "2027-01 하순 (추정, 회사 미공지)",
+        "what": "Q2 FY2027 실적에서 매출 48억 달러 ±1억, 조정 EPS 9.20달러 ±0.20 가이던스 안팎인지와 총마진이 57.3%에서 더 오르는지",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2026 말",
+        "what": "HAMR 엑사바이트의 50%를 Mozaic 4로 옮긴다는 목표가 지켜지는지",
+        "src": [
+          "s4"
+        ]
+      },
+      {
+        "when": "매 분기 (경쟁사 실적)",
+        "what": "Western Digital의 실적과 HAMR 일정이 앞당겨지는지",
+        "src": [
+          "s6"
+        ]
+      }
+    ]
+  },
+  "underTheHood": [
+    {
+      "title": "증설 없는 성장의 구조",
+      "text": "Q1 FY2027 설비투자는 2.1억 달러로 매출의 약 5%였고 FY2026(5.7억 달러)도 비슷한 비율이었다. 드라이브 수가 아니라 드라이브당 용량으로 매출이 늘어 매출 61% 증가가 영업이익 약 3배(6.9억→20.6억 달러)로 이어졌지만, 그만큼 성장이 Mozaic 세대 전환 일정과 수율에 달려 있다.",
+      "src": [
+        "s1",
+        "s2",
+        "s4"
+      ]
+    },
+    {
+      "title": "사실상 용량 예약 시장",
+      "text": "니어라인 물량 대부분이 2028년까지 배정됐고 가격은 엑사바이트당 기준이다. 가격 협상력이 공급자 쪽에 있다는 뜻이지만, 고객이 소수 대형 클라우드(엑사바이트의 약 90%)라서 그들의 구매 계획이 바뀌면 곧바로 실적에 나타난다. 고객별 비중은 공시되지 않았다.",
+      "src": [
+        "s4",
+        "s2"
+      ]
+    },
+    {
+      "title": "현금이 먼저 간 곳",
+      "text": "Q1 FY2027 잉여현금흐름 14.8억 달러 중 12.6억 달러가 부채 상환에 쓰였고 분기 후 7.5억 달러를 더 갚아 총부채 원금이 약 16억 달러가 됐다. 같은 분기 자사주 매입은 4.0억 달러로 1년 전(0.3억)보다 크게 늘어, 부채 축소가 끝나 갈수록 환원 쪽 비중이 커지는 흐름이다.",
+      "src": [
+        "s1",
+        "s2"
+      ]
+    },
+    {
+      "title": "근거 자료의 층",
+      "text": "HAMR 40%, 데이터센터 90%, 2028년 배정은 Nasdaq·Zacks 기사의 검색 요약에서 읽은 것이고 콜 녹취 원문은 열지 못했다. 점유율(WD 약 42%, Seagate 41%, Toshiba 17%)도 기준 기간 없는 언론 코멘트라서, 기술 우위의 크기는 이 수치로 단정하기 어렵다.",
+      "src": [
+        "s4",
+        "s5",
+        "s6"
+      ]
+    }
+  ],
+  "trading": {
+    "calendar": [
+      {
+        "date": "2027-01 하순 (추정, 회사 미공지)",
+        "event": "Q2 FY2027 실적 발표",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      },
+      {
+        "date": "2027-01-07",
+        "event": "분기 배당 0.76달러 지급 (기준일 2026-12-23)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "date": "2026 말",
+        "event": "Mozaic 4 전환 목표 시점 (HAMR 엑사바이트 50%)",
+        "src": [
+          "s4"
+        ]
+      },
+      {
+        "date": "매 분기 (하이퍼스케일러 실적 시즌)",
+        "event": "클라우드 설비투자 전망 - 저장 용량 수요 신호",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "date": "매 분기 (경쟁사 실적)",
+        "event": "Western Digital 실적과 HAMR 일정 - 기술 격차 확인",
+        "src": [
+          "s6"
+        ]
+      }
+    ],
+    "reaction": "주가는 분기 결과 자체보다 다음 분기 가이던스와 총마진 개선 폭에 반응하는 경향이 있다. 10-27 발표 뒤 향후 4개 분기 EPS 컨센서스는 43.61달러로 올라왔고 최근 4주 상향이 11건이라, Q2 실적이 높아진 기대를 넘는지가 확인 대상이다.",
+    "conditions": [
+      "실적 발표 때 다음 분기 가이던스와 컨센서스의 차이",
+      "총마진·영업이익률의 분기별 변화",
+      "HAMR 비중, Mozaic 4·5 진행 발언",
+      "장기 계약 배정 기간과 엑사바이트당 가격 언급",
+      "부채 잔액과 자사주 매입 규모 변화",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+  "unverified": [
+    "Q1 FY2027 연구개발비 (읽은 보도자료 요약에 없음)",
+    "순이익률 41.6%는 순이익 17.61억 / 매출 42.33억 달러 계산값",
+    "시장별(매스 캐퍼시티·레거시·기타) 매출 금액 - 읽은 보도자료에 없음",
+    "고객별 매출 비중과 대형 고객 이름",
+    "공장 위치와 주요 부품 공급사 이름",
+    "HAMR 40%·데이터센터 90%·2028년 배정·Mozaic 4/5 일정은 Nasdaq·Zacks 기사의 검색 요약에서 읽었고 콜 녹취 원문은 열지 못함",
+    "2027-06 HAMR 70% 목표는 2차 자료 한 곳에서만 확인",
+    "HDD 점유율(WD 42%, Seagate 41%, Toshiba 17%)은 언론 편집자 코멘트이며 기준 기간 미표기",
+    "다음 실적 발표일 (회사 미공지)",
+    "AI 관련 매출 금액 (회사 미공시)"
+  ],
+  "confidence": "high - 실적·현금흐름·가이던스는 회사 투자자 사이트 보도자료에서 직접 읽었고, HAMR 비중·점유율·로드맵 연도는 2차 자료라 medium 수준이다."
+}

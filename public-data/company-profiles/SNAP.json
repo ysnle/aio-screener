@@ -5,9 +5,30 @@
   "fiscalYearEnd": "December 31",
   "oneLine": "Snap은 하루 4억 9,500만 명이 쓰는 메신저·카메라 앱 Snapchat을 운영하는 회사로, 2026년 3분기 유료 구독(Snapchat+ 등) 매출이 84% 늘고 비용을 묶어 흑자로 돌아섰지만 광고 매출은 4% 성장에 그쳤고 북미 이용자는 6% 줄었다.",
   "sources": [
-    { "id": "s1", "kind": "8-K", "title": "Snap Inc. Announces Third Quarter 2026 Financial Results (8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0001564408/000156440826000063/snap-20261104xexx991pressr.htm", "publisher": "Snap / SEC EDGAR", "date": "2026-11-04" },
-    { "id": "s2", "kind": "news", "title": "Snap turns profitable in Q3 2026 as cost cuts overwhelm ad shortfall", "url": "https://247wallst.com/cards/snap-q3-2026-earnings-snap-01m6m6nf9fc08yfzbh0we9hh8z", "publisher": "24/7 Wall St.", "date": "2026-11-04" },
-    { "id": "s3", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/snap/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-11-07" }
+    {
+      "id": "s1",
+      "kind": "8-K",
+      "title": "Snap Inc. Announces Third Quarter 2026 Financial Results (8-K Exhibit 99.1)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0001564408/000156440826000063/snap-20261104xexx991pressr.htm",
+      "publisher": "Snap / SEC EDGAR",
+      "date": "2026-11-04"
+    },
+    {
+      "id": "s2",
+      "kind": "news",
+      "title": "Snap turns profitable in Q3 2026 as cost cuts overwhelm ad shortfall",
+      "url": "https://247wallst.com/cards/snap-q3-2026-earnings-snap-01m6m6nf9fc08yfzbh0we9hh8z",
+      "publisher": "24/7 Wall St.",
+      "date": "2026-11-04"
+    },
+    {
+      "id": "s3",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/snap/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-11-07"
+    }
   ],
   "moat": {
     "sources": [
@@ -16,11 +37,17 @@
       "AR 렌즈 기술과 자회사 Specs Inc.를 통한 AR 안경 SPECS"
     ],
     "text": "Snap의 힘은 친구끼리 사진과 영상을 주고받는 카메라 앱 습관에 있다. 이 습관 위에 광고를 붙이고, 이제는 유료 구독이 3,000만 명을 넘어 두 번째 매출원이 됐다. 회사는 AR 렌즈 기술을 안경 SPECS로 넓히고 있다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
   "design": {
     "text": "회사가 운영하는 것은 Snapchat 앱(채팅·카메라·스토리·Spotlight 영상)과 그 위의 광고 상품, 그리고 유료 구독 Snapchat+·Memories Storage·Lens+다. 장기 AR 사업으로 자회사 Specs Inc.를 통해 AR 안경 SPECS를 출시했다. 매출은 광고와 '기타'(구독 등)로 나뉜다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
   "make": {
     "model": "service",
@@ -28,7 +55,9 @@
       "제3자 인프라 파트너 - 클라우드 호스팅 (발표문은 이름을 밝히지 않음)"
     ],
     "text": "앱은 자체 개발하고, 서버 인프라는 이름을 밝히지 않은 외부 인프라 파트너에 기댄다. 3분기 설비투자는 4,600만 달러로 매출의 약 3%였다. 하드웨어 SPECS는 별도 자회사가 맡는다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "sell": {
     "customers": [
@@ -39,148 +68,394 @@
     "channel": "광고는 자체 광고 플랫폼(직접·셀프서브), 구독은 앱 내 결제",
     "concentration": "매출의 59%가 북미(10.14억 달러)인데 북미 DAU는 6% 감소",
     "text": "돈을 내는 쪽은 광고주와 유료 구독자다. 문제는 지역 구성으로, 매출의 59%를 내는 북미 이용자가 9,200만 명으로 6% 줄었고 늘어난 이용자는 대부분 광고 단가가 낮은 그 밖의 지역에서 왔다. 그래도 북미 매출은 13% 늘었는데, 이용자당 매출이 올라서다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
   "moneyFlow": {
     "steps": [
-      { "from": "광고주", "to": "Snap", "what": "Snapchat 내 광고 노출·성과 기반 광고비" },
-      { "from": "유료 구독자", "to": "Snap", "what": "Snapchat+·Memories Storage·Lens+ 월 구독료" },
-      { "from": "Snap", "to": "제3자 인프라 파트너", "what": "서버·클라우드 비용" },
-      { "from": "Snap", "to": "직원", "what": "주식보상 - Q3 2026 2.55억 달러" }
+      {
+        "from": "광고주",
+        "to": "Snap",
+        "what": "Snapchat 내 광고 노출·성과 기반 광고비"
+      },
+      {
+        "from": "유료 구독자",
+        "to": "Snap",
+        "what": "Snapchat+·Memories Storage·Lens+ 월 구독료"
+      },
+      {
+        "from": "Snap",
+        "to": "제3자 인프라 파트너",
+        "what": "서버·클라우드 비용"
+      },
+      {
+        "from": "Snap",
+        "to": "직원",
+        "what": "주식보상 - Q3 2026 2.55억 달러"
+      }
     ],
     "pricing": "광고는 경매 방식의 노출·성과 과금, 구독은 정액 월 요금.",
     "text": "매출 17.23억 달러 대부분은 여전히 광고에서 나오지만, 이번 분기 성장은 84% 늘어난 구독 매출이 끌었다. 비용 쪽에서는 총비용이 1%만 늘어 이익이 크게 개선됐다. 다만 주식보상 2.55억 달러는 현금이 아니라 희석으로 치러진다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
   "earnings": {
     "period": "Q3 2026 (ended 2026-09-30)",
-    "revenue": { "value": 1.7225, "unit": "USD bn", "yoy": 14 },
+    "revenue": {
+      "value": 1.7225,
+      "unit": "USD bn",
+      "yoy": 14
+    },
     "grossMargin": null,
     "operatingMargin": null,
     "netMargin": 3.3,
-    "operatingCashFlow": { "value": 0.2105, "unit": "USD bn" },
-    "freeCashFlow": { "value": 0.1645, "unit": "USD bn" },
+    "operatingCashFlow": {
+      "value": 0.2105,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": 0.1645,
+      "unit": "USD bn"
+    },
     "segments": [
-      { "name": "North America", "revenue": 1.0143, "unit": "USD bn", "share": 58.9, "yoy": 13, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Europe", "revenue": 0.3629, "unit": "USD bn", "share": 21.1, "yoy": 22, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Rest of World", "revenue": 0.3453, "unit": "USD bn", "share": 20.0, "yoy": 11, "operatingMargin": null, "src": ["s1"] }
+      {
+        "name": "North America",
+        "revenue": 1.0143,
+        "unit": "USD bn",
+        "share": 58.9,
+        "yoy": 13,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Europe",
+        "revenue": 0.3629,
+        "unit": "USD bn",
+        "share": 21.1,
+        "yoy": 22,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Rest of World",
+        "revenue": 0.3453,
+        "unit": "USD bn",
+        "share": 20.0,
+        "yoy": 11,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "industryMetric": [
-      { "name": "DAU / MAU", "value": "4억 9,500만 (+4%) / 9억 7,700만 (+4%)", "src": ["s1"] },
-      { "name": "ARPU", "value": "3.48달러 (+10%)", "src": ["s1"] },
-      { "name": "Adjusted EBITDA", "value": "3.826억 달러 (마진 22%, 전년 1.82억)", "src": ["s1"] },
-      { "name": "매출 구성 성장률", "value": "광고 +4%, 기타(구독 등) +84%, 유료 구독자 3,000만 명 이상", "src": ["s2"] },
-      { "name": "주식보상", "value": "2.548억 달러 (매출의 약 15%)", "src": ["s1"] }
+      {
+        "name": "DAU / MAU",
+        "value": "4억 9,500만 (+4%) / 9억 7,700만 (+4%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "ARPU",
+        "value": "3.48달러 (+10%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Adjusted EBITDA",
+        "value": "3.826억 달러 (마진 22%, 전년 1.82억)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "매출 구성 성장률",
+        "value": "광고 +4%, 기타(구독 등) +84%, 유료 구독자 3,000만 명 이상",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "주식보상",
+        "value": "2.548억 달러 (매출의 약 15%)",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "text": "Q3 2026 매출은 17.23억 달러로 14% 늘었고 순이익 5,650만 달러로 1년 전 1.04억 달러 순손실에서 흑자가 됐다. 조정 EBITDA는 3.83억 달러로 두 배가 됐고 잉여현금흐름은 1.65억 달러였다. 매출은 시장 추정 17.3억 달러를 0.4% 밑돌았다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
   "useOfCash": {
     "period": "2026년 1~9월 누계 (자사주) / Q3 2026 (설비·부채)",
     "items": [
-      { "use": "buybacks", "value": 0.601, "unit": "USD bn", "src": ["s1"] },
-      { "use": "capex", "value": 0.046, "unit": "USD bn", "src": ["s1"] },
-      { "use": "debt repayment", "value": 0.047, "unit": "USD bn", "src": ["s1"] }
+      {
+        "use": "buybacks",
+        "value": 0.601,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "capex",
+        "value": 0.046,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "debt repayment",
+        "value": 0.047,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "text": "올해 들어 자사주 6.01억 달러를 샀지만 3분기에는 사지 않았고, 3분기에 전환사채 4,700만 달러를 갚았다. 9월 말 현금·유가증권은 27.7억 달러, 장기 부채는 약 33.8억 달러다. 주식보상까지 포함한 주식 수는 약 19.3억 주다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "aiChain": {
     "layer": "ai-adopter",
     "position": "AI를 광고 타기팅과 카메라·렌즈 기능에 쓰는 소비자 앱 회사. AI 인프라를 파는 쪽이 아니라 AI를 써서 광고 성과와 구독 상품을 키우는 쪽이다.",
-    "dependsOn": ["제3자 클라우드 인프라", "광고 시장"],
-    "sellsTo": ["광고주", "유료 구독자"],
+    "dependsOn": [
+      "제3자 클라우드 인프라",
+      "광고 시장"
+    ],
+    "sellsTo": [
+      "광고주",
+      "유료 구독자"
+    ],
     "aiRevenue": null,
     "upside": "AI로 광고 성과가 좋아지면 이용자당 매출(ARPU)이 오르고, AI 렌즈 같은 기능이 유료 구독을 늘린다.",
     "risk": "더 큰 광고 플랫폼이 AI 광고 성과에서 앞서면 광고 예산을 잃고, AI 계산 비용이 인프라 비용을 키울 수 있다.",
     "text": "AI 가치사슬에서 Snap은 AI를 써서 매출을 올리려는 채택자다. 3분기 ARPU가 10% 오른 것은 이용자가 늘지 않은 북미에서 이용자당 매출이 올랐기 때문이다. 다만 이번 자료는 AI 관련 매출을 따로 밝히지 않는다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
   "competition": {
     "arenas": [
-      { "arena": "모바일 소셜 광고", "rivals": ["대형 소셜·검색 광고 플랫폼 (출처에 이름 없음)"], "position": "challenger", "share": null, "src": ["s2"] },
-      { "arena": "AR 안경", "rivals": ["Meta"], "position": "challenger", "share": null, "src": ["s2"] }
+      {
+        "arena": "모바일 소셜 광고",
+        "rivals": [
+          "대형 소셜·검색 광고 플랫폼 (출처에 이름 없음)"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "arena": "AR 안경",
+        "rivals": [
+          "Meta"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s2"
+        ]
+      }
     ],
     "edge": "젊은 이용자층의 카메라·메신저 습관과 3,000만 명을 넘은 유료 구독.",
     "threats": "북미 이용자 감소, 광고 성장 정체, AR 안경 시장에서 더 큰 회사의 저가 제품.",
     "text": "광고 시장에서 Snap은 더 큰 플랫폼들과 경쟁하는 도전자이고, 3분기 광고 매출 성장은 4%에 머물렀다. AR 안경에서는 Meta의 299달러 제품과 비교되는 위치다. Snap은 광고 대신 구독으로 성장을 바꾸는 중이다.",
-    "src": ["s2"]
+    "src": [
+      "s2"
+    ]
   },
   "strategy": {
     "goal": "구독 매출을 키우고 비용을 묶어 흑자를 유지하며, AR 안경 SPECS로 장기 플랫폼을 만드는 것. Q4 2026 매출 19.5억~19.9억 달러, 조정 EBITDA 4.9억~5.25억 달러를 제시했다.",
     "roadmap": [
-      { "when": "Q4 2026", "what": "매출 19.5억~19.9억 달러, 조정 EBITDA 4.9억~5.25억 달러", "src": ["s2"] },
-      { "when": "2026", "what": "자회사 Specs Inc.를 통한 AR 안경 SPECS 출시", "src": ["s1", "s2"] },
-      { "when": "예정", "what": "Apple Watch 관련 MAU 집계 방식 변경", "src": ["s1"] }
+      {
+        "when": "Q4 2026",
+        "what": "매출 19.5억~19.9억 달러, 조정 EBITDA 4.9억~5.25억 달러",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "when": "2026",
+        "what": "자회사 Specs Inc.를 통한 AR 안경 SPECS 출시",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      },
+      {
+        "when": "예정",
+        "what": "Apple Watch 관련 MAU 집계 방식 변경",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "vision": "카메라를 통해 사람과 세상을 잇는 AR 컴퓨팅 플랫폼.",
     "text": "다음 단계는 광고 의존을 줄이고 구독과 AR로 무게를 옮기는 것이다. 4분기 조정 EBITDA 전망 4.9억~5.25억 달러는 3분기 3.83억 달러보다 높아, 연말 광고 성수기에 비용 통제가 이어진다는 가정이다. SPECS의 출시 일정과 가격은 이번 자료에 없다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
   "governance": {
     "line": "경영진 구성과 의결권 구조는 이번에 읽은 자료에서 확인하지 못했고, 올해 자사주 6.01억 달러를 샀지만 분기 주식보상 2.55억 달러가 계속 주식 수를 늘린다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "guidance": {
     "latest": [
-      { "period": "Q4 2026", "metric": "revenue", "value": "19.5억~19.9억 달러", "givenOn": "2026-11-04", "src": ["s2"] },
-      { "period": "Q4 2026", "metric": "adjusted EBITDA", "value": "4.9억~5.25억 달러", "givenOn": "2026-11-04", "src": ["s2"] }
+      {
+        "period": "Q4 2026",
+        "metric": "매출",
+        "value": "19.5억~19.9억 달러",
+        "givenOn": "2026-11-04",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "period": "Q4 2026",
+        "metric": "조정 EBITDA",
+        "value": "4.9억~5.25억 달러",
+        "givenOn": "2026-11-04",
+        "src": [
+          "s2"
+        ]
+      }
     ],
     "style": "quarterly",
     "track": "Q3 매출은 시장 추정을 0.4% 밑돌았지만 EPS는 0.03달러로 추정 0.00달러를 넘었다. 회사 자체 3분기 전망과의 비교는 이번 자료로 확인하지 못했다.",
-    "src": ["s2"]
+    "src": [
+      "s2"
+    ]
   },
   "estimates": {
     "text": "AIO 로컬 스냅샷(2026-11-07, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) EPS 합계 0.14달러(범위 -0.02~0.36), 직전 4개 분기 -0.09달러. Q3 2026 EPS 0.03달러로 추정 -0.01달러를 넘었다.",
-    "src": ["s3"]
+    "src": [
+      "s3"
+    ]
   },
   "watch": {
-    "confirms": ["북미 DAU 감소가 멈춤", "광고 매출 성장률이 한 자릿수 초반에서 회복", "유료 구독자 증가와 기타 매출 고성장 지속", "4분기 조정 EBITDA가 전망 범위 안"],
-    "breaks": ["북미 DAU 감소 확대", "광고 매출 역성장", "비용 증가 재개로 흑자 유지 실패", "SPECS 관련 비용 급증"],
+    "confirms": [
+      "북미 DAU 감소가 멈춤",
+      "광고 매출 성장률이 한 자릿수 초반에서 회복",
+      "유료 구독자 증가와 기타 매출 고성장 지속",
+      "4분기 조정 EBITDA가 전망 범위 안"
+    ],
+    "breaks": [
+      "북미 DAU 감소 확대",
+      "광고 매출 역성장",
+      "비용 증가 재개로 흑자 유지 실패",
+      "SPECS 관련 비용 급증"
+    ],
     "keyNumbers": [
-      { "name": "북미 DAU", "why": "매출 59%를 내는 지역의 이용자" },
-      { "name": "광고 vs 기타 매출 성장률", "why": "성장 엔진의 교체 정도" },
-      { "name": "Adjusted EBITDA 마진", "why": "비용 통제의 지속성" },
-      { "name": "주식보상", "why": "흑자 뒤의 희석 비용" }
+      {
+        "name": "북미 DAU",
+        "why": "매출 59%를 내는 지역의 이용자"
+      },
+      {
+        "name": "광고 vs 기타 매출 성장률",
+        "why": "성장 엔진의 교체 정도"
+      },
+      {
+        "name": "Adjusted EBITDA 마진",
+        "why": "비용 통제의 지속성"
+      },
+      {
+        "name": "주식보상",
+        "why": "흑자 뒤의 희석 비용"
+      }
     ]
   },
   "debate": {
     "question": "구독 성장과 비용 통제가 북미 이용자 감소와 광고 정체를 메울 수 있는지",
     "bull": {
       "text": "유지된다고 보는 쪽은 기타(구독) 매출이 84% 늘고 유료 구독자가 3,000만 명을 넘었으며, 총비용이 1%만 늘어 순이익이 흑자로 돌아섰다는 점을 든다. 조정 EBITDA가 1.82억 달러에서 3.83억 달러로 늘었고 4분기 전망도 4.9억~5.25억 달러로 더 높다는 것이 근거다.",
-      "src": ["s1", "s2"]
+      "src": [
+        "s1",
+        "s2"
+      ]
     },
     "bear": {
       "text": "깨진다고 보는 쪽은 광고 매출이 4% 성장에 그쳤고, 매출의 59%를 내는 북미 DAU가 6% 줄었다는 점을 본다. 순이익 5,650만 달러는 분기 주식보상 2.55억 달러보다 훨씬 작아, 이익이 희석 비용을 덜어 낸 결과라는 읽기다.",
-      "src": ["s1", "s2"]
+      "src": [
+        "s1",
+        "s2"
+      ]
     },
     "decides": [
-      { "when": "2027-02 (추정, 회사 미공지) Q4 2026 실적", "what": "4분기 매출이 19.5억~19.9억 달러 범위에 들고 북미 DAU 감소율이 줄어드는지", "src": ["s1", "s2"] }
+      {
+        "when": "2027-02 (추정, 회사 미공지) Q4 2026 실적",
+        "what": "4분기 매출이 19.5억~19.9억 달러 범위에 들고 북미 DAU 감소율이 줄어드는지",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      }
     ]
   },
   "underTheHood": [
     {
       "title": "이용자는 늘고 핵심은 준다",
       "text": "전체 DAU는 4% 늘었지만 증가분은 그 밖의 지역(+9%)에서 나왔고, 북미는 6%, 유럽은 1% 줄었다. 북미 이용자당 매출이 그 밖의 지역보다 훨씬 높아, 전체 이용자 수 증가만 보면 매출 기반이 넓어지는 것처럼 착각하기 쉽다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     {
       "title": "흑자와 주식보상",
       "text": "3분기 순이익은 5,650만 달러였지만 주식보상은 2.55억 달러로 매출의 약 15%였다. 주식보상까지 포함한 주식 수는 약 19.3억 주로, 자사주 매입 6.01억 달러가 이 희석을 얼마나 상쇄하는지가 주당 가치의 실제 변화다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     {
       "title": "성장 엔진의 교체",
       "text": "광고 매출은 4%, 구독 등 기타 매출은 84% 늘었다. 구독은 광고 경기와 덜 엮이는 정액 매출이지만, 아직 전체 매출에서 광고가 훨씬 커서 광고 둔화를 완전히 메우지는 못한다.",
-      "src": ["s2"]
+      "src": [
+        "s2"
+      ]
     }
   ],
   "trading": {
     "calendar": [
-      { "date": "2027-02 (추정, 회사 미공지)", "event": "Q4 2026 실적과 2027 1분기 전망", "src": ["s1"] }
+      {
+        "date": "2027-02 (추정, 회사 미공지)",
+        "event": "Q4 2026 실적과 2027 1분기 전망",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "reaction": "매출보다 다음 분기 매출·조정 EBITDA 전망과 북미 DAU 변화에 크게 반응하는 경향이 있다.",
-    "conditions": ["다음 분기 매출 전망 범위와 시장 추정 비교", "북미 DAU 증감", "광고 매출 성장률", "유료 구독자 수", "주식보상과 자사주 매입 규모"]
+    "conditions": [
+      "다음 분기 매출 전망 범위와 시장 추정 비교",
+      "북미 DAU 증감",
+      "광고 매출 성장률",
+      "유료 구독자 수",
+      "주식보상과 자사주 매입 규모"
+    ]
   },
   "unverified": [
     "광고·기타 매출 절대값 - 성장률만 확인 (보도 기준)",

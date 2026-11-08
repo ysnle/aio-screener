@@ -5,10 +5,38 @@
   "fiscalYearEnd": "December 31",
   "oneLine": "Morgan Stanley는 투자은행·트레이딩으로 번 돈을 고객자산 10.5조 달러 규모의 자산관리 사업으로 옮겨 심어, 시장 경기에 덜 흔들리는 수수료 회사로 바꿔 가는 미국 대형 투자은행이다.",
   "sources": [
-    { "id": "s1", "kind": "earnings-release", "title": "Morgan Stanley Third Quarter 2026 Earnings Results (press release)", "url": "https://www.morganstanley.com/content/dam/msdotcom/en/about-us-ir/shareholder/3q2026.pdf", "publisher": "Morgan Stanley IR", "date": "2026-10-14" },
-    { "id": "s2", "kind": "call-transcript", "title": "Morgan Stanley Q3 2026 earnings call (AI-generated episode summary of the call)", "url": "https://betafinch.com/episodes/MS_2026_Q3_en", "publisher": "Beta Finch", "date": "2026-10-14" },
-    { "id": "s3", "kind": "news", "title": "Morgan Stanley Wealth Unit Posts Record Revenues, $232 Billion Net New Assets", "url": "https://www.familywealthreport.com/article.php/Morgan-Stanley-Wealth-Unit-Posts-Record-Revenues%2C-%24232-Billion-Net-New-Assets", "publisher": "Family Wealth Report", "date": "2026-10-15" },
-    { "id": "s4", "kind": "news", "title": "Morgan Stanley hits long-held profitability goal, marches toward $10T in assets (Q3 2025)", "url": "https://www.financial-planning.com/news/morgan-stanley-hits-long-held-profitability-goal", "publisher": "Financial Planning", "date": "2025-10-15" }
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Morgan Stanley Third Quarter 2026 Earnings Results (press release)",
+      "url": "https://www.morganstanley.com/content/dam/msdotcom/en/about-us-ir/shareholder/3q2026.pdf",
+      "publisher": "Morgan Stanley IR",
+      "date": "2026-10-14"
+    },
+    {
+      "id": "s2",
+      "kind": "call-transcript",
+      "title": "Morgan Stanley Q3 2026 earnings call (AI-generated episode summary of the call)",
+      "url": "https://betafinch.com/episodes/MS_2026_Q3_en",
+      "publisher": "Beta Finch",
+      "date": "2026-10-14"
+    },
+    {
+      "id": "s3",
+      "kind": "news",
+      "title": "Morgan Stanley Wealth Unit Posts Record Revenues, $232 Billion Net New Assets",
+      "url": "https://www.familywealthreport.com/article.php/Morgan-Stanley-Wealth-Unit-Posts-Record-Revenues%2C-%24232-Billion-Net-New-Assets",
+      "publisher": "Family Wealth Report",
+      "date": "2026-10-15"
+    },
+    {
+      "id": "s4",
+      "kind": "news",
+      "title": "Morgan Stanley hits long-held profitability goal, marches toward $10T in assets (Q3 2025)",
+      "url": "https://www.financial-planning.com/news/morgan-stanley-hits-long-held-profitability-goal",
+      "publisher": "Financial Planning",
+      "date": "2025-10-15"
+    }
   ],
   "moat": {
     "sources": [
@@ -18,11 +46,18 @@
       "CET1 14.9%(표준법)로 요건보다 약 300bp 높은 자본"
     ],
     "text": "Morgan Stanley의 힘은 2020년 E*TRADE 인수 뒤 만든 자산관리 '깔때기'에서 나온다. 온라인 증권 계좌와 기업 직원 주식보상 계좌로 들어온 고객을 어드바이저 자문 계좌로 옮기며 보수를 키우는 구조로, 인수 후 순신규자산이 2조 달러를 넘었다고 회사는 말한다. 여기에 기관 고객에게 강한 주식 트레이딩·투자은행과 요건보다 약 300bp 두꺼운 자본이 더해진다.",
-    "src": ["s1", "s2", "s4"]
+    "src": [
+      "s1",
+      "s2",
+      "s4"
+    ]
   },
   "design": {
     "text": "회사는 세 사업부로 보고한다. Institutional Securities는 M&A 자문·주식과 채권 인수(투자은행), 주식·채권 트레이딩과 기관 금융을 맡고, Wealth Management는 어드바이저 자문 계좌·E*TRADE 직접 투자·Morgan Stanley at Work(기업 주식보상 관리)와 자산가 대출을 맡는다. Investment Management는 펀드와 대체투자를 운용하며 Q3 2026말 운용자산(AUM)은 2.05조 달러였다.",
-    "src": ["s1", "s4"]
+    "src": [
+      "s1",
+      "s4"
+    ]
   },
   "make": {
     "model": "financial",
@@ -33,7 +68,11 @@
       "기업 고객의 주식보상 계좌 - Morgan Stanley at Work 참여자 660만 명 (Q3 2025 기준)"
     ],
     "text": "금융회사에서 '만든다'는 것은 사람의 자문과 자본·예금으로 서비스와 대출을 만드는 일이다. Morgan Stanley는 직원 83,728명과 어드바이저로 자문을 공급하고, 은행 자회사 예금(약 4,650억 달러)을 자산가 대출 2,011억 달러의 재원으로 쓴다. 경영진은 예금을 늘려 은행을 조달원으로 쓰는 효과가 2027년에 더 뚜렷해질 것이라고 했다.",
-    "src": ["s1", "s2", "s4"]
+    "src": [
+      "s1",
+      "s2",
+      "s4"
+    ]
   },
   "sell": {
     "customers": [
@@ -46,102 +85,337 @@
     "channel": "어드바이저 자문 계좌, E*TRADE 온라인 플랫폼, 기업 주식보상 플랫폼(직장 채널), 투자은행가 커버리지, 트레이딩 데스크, 펀드 판매.",
     "concentration": "단일 고객 의존 공시 없음. 다만 Q3 2026 순신규자산 2,324억 달러의 절반 남짓이 IPO 관련 유입이었다.",
     "text": "이 서비스들은 고객 단계에 따라 다른 창구로 팔린다. 기업 직원은 직장 주식보상 계좌로, 개인은 E*TRADE로 들어와 자산이 커지면 어드바이저 계좌로 옮겨 가고, 기업과 기관은 은행가와 트레이딩 데스크를 쓴다. Q3 2026에는 상장 기업 직원·초기 투자자 자산이 몰려 순신규자산 2,324억 달러 가운데 절반 남짓이 IPO 관련이었다.",
-    "src": ["s1", "s2", "s3"]
+    "src": [
+      "s1",
+      "s2",
+      "s3"
+    ]
   },
   "moneyFlow": {
     "steps": [
-      { "from": "개인·자산가 고객", "to": "Morgan Stanley Wealth Management", "what": "자문 계좌 자산 비례 보수 (보수 기반 자산 3.16조 달러), 거래 수수료, 예금·대출 이자 (Q3 2026 순매출 91억 달러)" },
-      { "from": "대기업·사모펀드·정부", "to": "Morgan Stanley Institutional Securities", "what": "M&A 자문·주식·채권 인수 수수료 (Q3 2026 투자은행 22억 달러)" },
-      { "from": "헤지펀드·기관 투자자", "to": "Morgan Stanley Institutional Securities", "what": "주식 매매·프라임 브로커리지 금융 (Q3 2026 58억 달러), 채권 트레이딩 (20억 달러)" },
-      { "from": "연기금·펀드 투자자", "to": "Morgan Stanley Investment Management", "what": "AUM 비례 운용 보수와 성과 보수 (Q3 2026 순매출 15억 달러)" },
-      { "from": "예금자", "to": "Morgan Stanley", "what": "은행 예금 약 4,650억 달러 - 자산가 대출 2,011억 달러의 재원, 이자 차익" }
+      {
+        "from": "개인·자산가 고객",
+        "to": "Morgan Stanley Wealth Management",
+        "what": "자문 계좌 자산 비례 보수 (보수 기반 자산 3.16조 달러), 거래 수수료, 예금·대출 이자 (Q3 2026 순매출 91억 달러)"
+      },
+      {
+        "from": "대기업·사모펀드·정부",
+        "to": "Morgan Stanley Institutional Securities",
+        "what": "M&A 자문·주식·채권 인수 수수료 (Q3 2026 투자은행 22억 달러)"
+      },
+      {
+        "from": "헤지펀드·기관 투자자",
+        "to": "Morgan Stanley Institutional Securities",
+        "what": "주식 매매·프라임 브로커리지 금융 (Q3 2026 58억 달러), 채권 트레이딩 (20억 달러)"
+      },
+      {
+        "from": "연기금·펀드 투자자",
+        "to": "Morgan Stanley Investment Management",
+        "what": "AUM 비례 운용 보수와 성과 보수 (Q3 2026 순매출 15억 달러)"
+      },
+      {
+        "from": "예금자",
+        "to": "Morgan Stanley",
+        "what": "은행 예금 약 4,650억 달러 - 자산가 대출 2,011억 달러의 재원, 이자 차익"
+      }
     ],
     "pricing": "자산 규모 비례 보수(자산관리·운용), 거래당 수수료(자문·인수·중개), 매매 스프레드와 금융 이자(트레이딩), 예금·대출 이자 차익.",
     "text": "돈은 두 성격으로 들어온다. 자산관리·운용 보수는 고객자산에 비례해 꾸준히 들어오고, 투자은행·트레이딩 수익은 거래가 일어날 때 몰려 들어온다. Q3 2026에는 Institutional Securities 100억 달러와 Wealth Management 91억 달러가 매출을 거의 반씩 나눴다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "earnings": {
     "period": "Q3 2026 (quarter ended 2026-09-30)",
-    "revenue": { "value": 20.3, "unit": "USD bn", "yoy": 12 },
+    "revenue": {
+      "value": 20.3,
+      "unit": "USD bn",
+      "yoy": 12
+    },
     "grossMargin": null,
     "operatingMargin": null,
     "netMargin": 24.1,
     "operatingCashFlow": null,
     "freeCashFlow": null,
     "segments": [
-      { "name": "Institutional Securities", "revenue": 10.0, "unit": "USD bn", "share": 49.3, "yoy": 18, "operatingMargin": 35.0, "src": ["s1"] },
-      { "name": "Wealth Management", "revenue": 9.1, "unit": "USD bn", "share": 44.8, "yoy": 10, "operatingMargin": 30.4, "src": ["s1"] },
-      { "name": "Investment Management", "revenue": 1.5, "unit": "USD bn", "share": 7.4, "yoy": -12, "operatingMargin": 17.3, "src": ["s1"] }
+      {
+        "name": "Institutional Securities",
+        "revenue": 10.0,
+        "unit": "USD bn",
+        "share": 49.3,
+        "yoy": 18,
+        "operatingMargin": 35.0,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Wealth Management",
+        "revenue": 9.1,
+        "unit": "USD bn",
+        "share": 44.8,
+        "yoy": 10,
+        "operatingMargin": 30.4,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Investment Management",
+        "revenue": 1.5,
+        "unit": "USD bn",
+        "share": 7.4,
+        "yoy": -12,
+        "operatingMargin": 17.3,
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "industryMetric": [
-      { "name": "ROTCE / ROE", "value": "Q3 2026 22.6% / 17.8%; 2026년 1~9월 25.4% / 19.8%", "src": ["s1"] },
-      { "name": "효율성 비율 (비용/순매출)", "value": "Q3 2026 67%, 2026년 1~9월 66% (전년 동기 69%)", "src": ["s1"] },
-      { "name": "Wealth Management 세전이익률", "value": "Q3 2026 30.4% (사상 최대 세전이익 28억 달러)", "src": ["s1"] },
-      { "name": "순신규자산 / 보수 기반 유입", "value": "Q3 2026 2,324억 달러(절반 남짓 IPO 관련) / 805억 달러; 전년 동기 810억 / 419억 달러", "src": ["s1"] },
-      { "name": "총 고객자산", "value": "10.5조 달러 (Q3 2026말, 자산관리+운용)", "src": ["s1"] },
-      { "name": "CET1 비율 (표준법)", "value": "14.9% (전년 동기 15.1%), 요건보다 약 300bp 높음", "src": ["s1", "s2"] },
-      { "name": "Institutional Securities 내역", "value": "Q3 2026 투자은행 22억(+2%), 주식 58억(+41%), 채권 20억 달러(-7%)", "src": ["s1"] }
+      {
+        "name": "ROTCE / ROE",
+        "value": "Q3 2026 22.6% / 17.8%; 2026년 1~9월 25.4% / 19.8%",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "효율성 비율 (비용/순매출)",
+        "value": "Q3 2026 67%, 2026년 1~9월 66% (전년 동기 69%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Wealth Management 세전이익률",
+        "value": "Q3 2026 30.4% (사상 최대 세전이익 28억 달러)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "순신규자산 / 보수 기반 유입",
+        "value": "Q3 2026 2,324억 달러(절반 남짓 IPO 관련) / 805억 달러; 전년 동기 810억 / 419억 달러",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "총 고객자산",
+        "value": "10.5조 달러 (Q3 2026말, 자산관리+운용)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "CET1 비율 (표준법)",
+        "value": "14.9% (전년 동기 15.1%), 요건보다 약 300bp 높음",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      },
+      {
+        "name": "Institutional Securities 내역",
+        "value": "Q3 2026 투자은행 22억(+2%), 주식 58억(+41%), 채권 20억 달러(-7%)",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "text": "Q3 2026 순매출은 203억 달러(+12%), 순이익 49억 달러, EPS 3.03달러, ROTCE 22.6%였다. 매출 증가는 주식 트레이딩(+41%)이 이끌었고 채권은 7% 줄었으며, Wealth Management는 91억 달러로 사상 최대에 세전이익률 30.4%를 냈다. 2026년 1~9월로 보면 순매출 623억 달러(+18%), 순이익 161억 달러(+29%)로 연중 이익 증가 폭이 더 크다. 순이익률은 순이익을 순매출로 나눈 계산값이고, 사업부 매출 합계는 사업부 간 제거 때문에 전사 매출과 다르다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "useOfCash": {
     "period": "Q3 2026 (quarter ended 2026-09-30)",
     "items": [
-      { "use": "buybacks", "value": 1.54, "unit": "USD bn", "src": ["s1"] },
-      { "use": "dividends", "value": null, "unit": "USD bn", "src": [] }
+      {
+        "use": "buybacks",
+        "value": 1.54,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "dividends",
+        "value": null,
+        "unit": "USD bn",
+        "src": []
+      }
     ],
     "text": "번 이익은 먼저 규제 자본으로 남고 나머지가 주주에게 돌아간다. Q3 2026에는 자사주 15.4억 달러(약 700만 주, 평균 212.74달러)를 사들였고, 분기 배당은 주당 1.15달러로 2026-11-13에 지급한다. CET1이 요건보다 약 300bp 높아 환원 여력은 남아 있지만, 경영진은 동시에 예금을 늘려 대출을 키우는 데도 자본을 쓰고 있다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
   "aiChain": {
     "layer": "ai-exposed",
     "position": "AI 제품을 팔지 않지만 AI 인프라 투자의 자금 조달·자문·주식 거래에서 수수료를 버는 금융 중개자. CEO는 하이퍼스케일러·반도체·데이터센터·전력 회사의 '신뢰받는 자문사'가 되겠다고 했고, 사내에서는 대사(reconciliation)와 스프레드시트 업무 자동화에 AI를 쓴다.",
-    "dependsOn": ["models-platforms (사내 AI 도구 - 모델 공급자 미확인)"],
-    "sellsTo": ["하이퍼스케일러·반도체·데이터센터·전력 회사 - 자문·자금 조달 (금액 미공시)", "AI 테마에 투자하는 기관·개인 투자자 - 트레이딩·자산관리"],
+    "dependsOn": [
+      "모델·플랫폼 (사내 AI 도구 - 모델 공급자 미확인)"
+    ],
+    "sellsTo": [
+      "하이퍼스케일러·반도체·데이터센터·전력 회사 - 자문·자금 조달 (금액 미공시)",
+      "AI 테마에 투자하는 기관·개인 투자자 - 트레이딩·자산관리"
+    ],
     "aiRevenue": null,
     "upside": "AI 설비투자가 커질수록 관련 기업의 채권·주식 발행과 M&A, 기관의 주식 거래가 늘어 Institutional Securities 수수료로 들어온다. Pick은 7~8월에 하이퍼스케일러 AI 지출이 거래 활동을 밀어 올렸다고 설명했고, AI 관련 IPO가 직장 채널로 자산을 끌어오는 효과도 있다.",
     "risk": "AI 투자 열기가 식으면 주식 거래량과 대형 발행이 함께 줄 수 있다. Pick도 노동절 뒤 중동 긴장·금리 상승·거래량 둔화로 시장이 식었다고 말했다.",
     "text": "그래서 AI 가치사슬에서 Morgan Stanley는 AI 붐의 바깥에서 돈이 오가는 길목에 서 있다. AI 매출은 공시하지 않지만, Q3 2026 주식 부문 순매출 41% 증가와 IPO 관련 자산 유입에 AI 투자 흐름이 섞여 있다. Pick은 회사가 AI에 이미 '비중 확대'였고 이제 '두 배 비중 확대'라고 표현했다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
   "competition": {
     "arenas": [
-      { "arena": "자산관리 (어드바이저·자산가)", "rivals": ["Bank of America", "Goldman Sachs", "JPMorgan", "UBS"], "position": "leader", "share": null, "src": ["s3", "s1"] },
-      { "arena": "온라인 증권·직장 주식보상", "rivals": ["Charles Schwab", "Fidelity", "Robinhood"], "position": "challenger", "share": null, "src": ["s4"] },
-      { "arena": "주식 트레이딩·프라임 브로커리지", "rivals": ["Goldman Sachs", "JPMorgan", "Bank of America", "Citigroup"], "position": "leader", "share": null, "src": ["s1"] },
-      { "arena": "투자은행 (자문·인수)", "rivals": ["Goldman Sachs", "JPMorgan", "Bank of America", "Citigroup"], "position": "challenger", "share": null, "src": ["s1"] }
+      {
+        "arena": "자산관리 (어드바이저·자산가)",
+        "rivals": [
+          "Bank of America",
+          "Goldman Sachs",
+          "JPMorgan",
+          "UBS"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s3",
+          "s1"
+        ]
+      },
+      {
+        "arena": "온라인 증권·직장 주식보상",
+        "rivals": [
+          "Charles Schwab",
+          "Fidelity",
+          "Robinhood"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s4"
+        ]
+      },
+      {
+        "arena": "주식 트레이딩·프라임 브로커리지",
+        "rivals": [
+          "Goldman Sachs",
+          "JPMorgan",
+          "Bank of America",
+          "Citigroup"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "투자은행 (자문·인수)",
+        "rivals": [
+          "Goldman Sachs",
+          "JPMorgan",
+          "Bank of America",
+          "Citigroup"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "edge": "자산관리 비중이 큰 매출 구성, 직장·온라인·어드바이저로 이어지는 고객 유입 깔때기, 강한 주식 트레이딩.",
     "threats": "다른 대형 은행의 자산관리 확장(Bank of America 고객잔고 5.1조 달러, Goldman Sachs 웰스 고객자산 2.1조 달러), 자본시장 거래 위축, 채권 트레이딩 약세.",
     "text": "자산관리에서 Morgan Stanley는 같은 분기 Bank of America(고객잔고 5.1조 달러, 세전이익률 29%)나 Goldman Sachs(웰스 고객자산 2.1조 달러)보다 큰 고객자산과 높은 이익률을 보였다. 주식 트레이딩에서도 강자지만 채권 트레이딩은 Q3 2026에 줄어 상대적으로 약하다. 회사는 직장 채널과 E*TRADE로 고객을 먼저 데려와 자문 계좌로 옮기는 방식으로 경쟁한다.",
-    "src": ["s3", "s1", "s4"]
+    "src": [
+      "s3",
+      "s1",
+      "s4"
+    ]
   },
   "strategy": {
     "goal": "고객자산 10조 달러를 '넘어서는' 것(2025-10 Pick 발언, Q3 2026에 10.5조 달러 도달)과 Wealth Management 세전이익률 30% 이상(분기 목표가 아닌 기준선)을 내세운다. 이번 조사에서 새 고객자산 목표는 확인하지 못했다.",
     "roadmap": [
-      { "when": "2025-10 제시", "what": "총 고객자산 10조 달러 돌파 - Q3 2026 10.5조 달러로 도달", "src": ["s4", "s1"] },
-      { "when": "2027", "what": "예금을 조달원으로 쓰는 효과가 더 뚜렷해질 것 (CFO, Q3 2026 콜)", "src": ["s2"] },
-      { "when": "SEC 규정 변화 이후", "what": "고객에게 토큰화 자문 제공 추진 (CEO, Q3 2026 콜)", "src": ["s2"] }
+      {
+        "when": "2025-10 제시",
+        "what": "총 고객자산 10조 달러 돌파 - Q3 2026 10.5조 달러로 도달",
+        "src": [
+          "s4",
+          "s1"
+        ]
+      },
+      {
+        "when": "2027",
+        "what": "예금을 조달원으로 쓰는 효과가 더 뚜렷해질 것 (CFO, Q3 2026 콜)",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "when": "SEC 규정 변화 이후",
+        "what": "고객에게 토큰화 자문 제공 추진 (CEO, Q3 2026 콜)",
+        "src": [
+          "s2"
+        ]
+      }
     ],
     "vision": "Pick은 투자은행·트레이딩과 자산관리·운용을 한 회사로 묶은 '통합 회사'로, 기관 사업이 고객을 데려오고 자산관리가 안정적 보수를 쌓는 그림을 그린다.",
     "text": "2025년에 내건 고객자산 10조 달러는 Q3 2026에 10.5조 달러로 넘어섰다. 다음 단계로 경영진은 은행 예금을 키워 자산가 대출 재원을 늘리고, AI 인프라 관련 기업의 자문사 자리를 굳히며, 토큰화 같은 새 시장도 준비한다. 세전이익률 30%는 분기 목표가 아니라 기준선으로 말한다.",
-    "src": ["s4", "s1", "s2", "s3"]
+    "src": [
+      "s4",
+      "s1",
+      "s2",
+      "s3"
+    ]
   },
   "governance": {
     "line": "Ted Pick 의장 겸 CEO가 이끄는 지분 분산 회사로, Q3 2026에 자사주 15.4억 달러를 사들이고 분기 배당 주당 1.15달러를 유지했다.",
-    "src": ["s1", "s3"]
+    "src": [
+      "s1",
+      "s3"
+    ]
   },
   "guidance": {
     "latest": [
-      { "period": "중장기", "metric": "Wealth Management 세전이익률", "value": "30% 이상 (분기 목표가 아닌 기준선)", "givenOn": "2026-10-15", "src": ["s3"] },
-      { "period": "중장기", "metric": "총 고객자산", "value": "10조 달러 돌파 (Q3 2026 10.5조 달러로 도달)", "givenOn": "2025-10-15", "src": ["s4", "s1"] }
+      {
+        "period": "중장기",
+        "metric": "Wealth Management 세전이익률",
+        "value": "30% 이상 (분기 목표가 아닌 기준선)",
+        "givenOn": "2026-10-15",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "period": "중장기",
+        "metric": "총 고객자산",
+        "value": "10조 달러 돌파 (Q3 2026 10.5조 달러로 도달)",
+        "givenOn": "2025-10-15",
+        "src": [
+          "s4",
+          "s1"
+        ]
+      }
     ],
     "style": "none",
     "track": "분기·연간 숫자 가이던스를 내지 않고, 고객자산과 자산관리 이익률 같은 장기 기준선을 제시한다. 10조 달러 고객자산과 30% 세전이익률은 Q3 2026 현재 둘 다 넘어 있다.",
-    "src": ["s2", "s1", "s3"]
+    "src": [
+      "s2",
+      "s1",
+      "s3"
+    ]
   },
-  "estimates": { "text": null, "src": [] },
+  "estimates": {
+    "text": null,
+    "src": []
+  },
   "watch": {
     "confirms": [
       "순신규자산이 IPO 관련 유입을 빼고도 분기 1,000억 달러 안팎 이상으로 이어짐",
@@ -158,50 +432,107 @@
       "CET1 하락으로 자사주 매입 축소"
     ],
     "keyNumbers": [
-      { "name": "순신규자산과 보수 기반 유입", "why": "깔때기가 돌아가는지 보여 주는 첫 숫자" },
-      { "name": "Wealth Management 세전이익률", "why": "안정 수수료 사업의 수익성" },
-      { "name": "주식·채권 트레이딩 순매출", "why": "변동이 가장 큰 수익원" },
-      { "name": "ROTCE와 효율성 비율", "why": "은행 가치평가의 근거" },
-      { "name": "CET1 비율과 분기 자사주 매입", "why": "성장과 환원이 나눠 쓰는 자본" }
+      {
+        "name": "순신규자산과 보수 기반 유입",
+        "why": "깔때기가 돌아가는지 보여 주는 첫 숫자"
+      },
+      {
+        "name": "Wealth Management 세전이익률",
+        "why": "안정 수수료 사업의 수익성"
+      },
+      {
+        "name": "주식·채권 트레이딩 순매출",
+        "why": "변동이 가장 큰 수익원"
+      },
+      {
+        "name": "ROTCE와 효율성 비율",
+        "why": "은행 가치평가의 근거"
+      },
+      {
+        "name": "CET1 비율과 분기 자사주 매입",
+        "why": "성장과 환원이 나눠 쓰는 자본"
+      }
     ]
   },
   "debate": {
     "question": "IPO와 AI 거래 붐이 끌어올린 순신규자산과 주식 트레이딩이 붐이 식은 뒤에도 보수 기반 성장으로 남는지",
     "bull": {
       "text": "Q3 2026 보수 기반 유입은 805억 달러로 전년 동기 419억 달러의 두 배였고, 보수 기반 자산은 3.16조 달러로 늘었다. CFO는 IPO 뒤에도 초기 투자자·직원 자산이 몇 달에서 몇 년에 걸쳐 들어오는 '꼬리 효과'를 설명했고, E*TRADE 인수 이후 순신규자산이 2조 달러를 넘었다는 점을 유지된다고 보는 쪽은 근거로 든다.",
-      "src": ["s1", "s2"]
+      "src": [
+        "s1",
+        "s2"
+      ]
     },
     "bear": {
       "text": "순신규자산 2,324억 달러의 절반 남짓이 IPO 관련이었고 순매출 증가는 주식 부문(+41%)에 기대 채권은 7% 줄었다. Pick 스스로 노동절 뒤 중동 긴장·금리 상승·9월 거래량 둔화로 시장이 식었다고 말했고 분기 매출은 직전 분기보다 5% 줄었다는 점을 약세 쪽은 짚는다.",
-      "src": ["s1", "s2"]
+      "src": [
+        "s1",
+        "s2"
+      ]
     },
     "decides": [
-      { "when": "2027-01 중순 (추정, 회사 미확정)", "what": "4Q26 실적에서 IPO 관련을 뺀 순신규자산과 보수 기반 유입이 어느 수준에 머무는지", "src": ["s1"] },
-      { "when": "2027년 중", "what": "예금 증가(분기 약 300억 달러)가 경영진 말대로 2027년 이자이익 개선으로 나타나는지", "src": ["s2"] }
+      {
+        "when": "2027-01 중순 (추정, 회사 미확정)",
+        "what": "4Q26 실적에서 IPO 관련을 뺀 순신규자산과 보수 기반 유입이 어느 수준에 머무는지",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2027년 중",
+        "what": "예금 증가(분기 약 300억 달러)가 경영진 말대로 2027년 이자이익 개선으로 나타나는지",
+        "src": [
+          "s2"
+        ]
+      }
     ]
   },
   "underTheHood": [
     {
       "title": "깔때기는 직장에서 시작된다",
       "text": "기업 직원의 주식보상 계좌(Morgan Stanley at Work)와 E*TRADE 계좌가 자산관리의 입구이고, 자산이 커진 고객을 어드바이저 자문 계좌로 옮겨 보수를 키운다. 그래서 고객사가 상장하면 직원 자산이 한꺼번에 들어와 순신규자산이 튄다. Q3 2026의 2,324억 달러는 이 구조의 결과이므로 반복되는 몫과 일회성 몫을 나눠 읽어야 한다.",
-      "src": ["s1", "s2", "s4"]
+      "src": [
+        "s1",
+        "s2",
+        "s4"
+      ]
     },
     {
       "title": "트레이딩이 자산관리를 키운다",
       "text": "Q3 2026 매출은 Institutional Securities 100억 달러와 Wealth Management 91억 달러로 거의 반반이지만 성격은 다르다. 트레이딩 이익은 해마다 크게 흔들리고 자산관리 보수는 고객자산에 비례해 쌓인다. 회사가 트레이딩 호황기에 번 자본으로 자산관리 기반을 넓혀 왔다는 점이 시장 하락기의 이익 바닥을 정한다.",
-      "src": ["s1", "s4"]
+      "src": [
+        "s1",
+        "s4"
+      ]
     },
     {
       "title": "예금이 대출 성장의 연료",
       "text": "은행 자회사 예금은 Q3 2026에 약 300억 달러 늘어 약 4,650억 달러가 됐고, 자산가 대출은 2,011억 달러로 전년 1,739억 달러보다 늘었다. 증권사 고객의 현금을 은행 예금으로 붙잡아 대출 재원으로 쓰는 구조라 금리 경로가 Wealth Management 이자이익을 좌우한다. 경영진이 효과를 2027년에 기대한다고 한 만큼 숫자로 확인되기까지 시차가 있다.",
-      "src": ["s1", "s2"]
+      "src": [
+        "s1",
+        "s2"
+      ]
     }
   ],
   "trading": {
     "calendar": [
-      { "date": "2026-11-13", "event": "분기 배당 주당 1.15달러 지급 (기준일 2026-10-30)", "src": ["s1"] },
-      { "date": "2027-01 중순 (추정, 회사 미확정)", "event": "4Q26·FY2026 실적", "src": [] },
-      { "date": "수시", "event": "IPO·M&A 시장 동향, 연준 금리 결정, 대형 AI 기업 자금 조달", "src": [] }
+      {
+        "date": "2026-11-13",
+        "event": "분기 배당 주당 1.15달러 지급 (기준일 2026-10-30)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "date": "2027-01 중순 (추정, 회사 미확정)",
+        "event": "4Q26·FY2026 실적",
+        "src": []
+      },
+      {
+        "date": "수시",
+        "event": "IPO·M&A 시장 동향, 연준 금리 결정, 대형 AI 기업 자금 조달",
+        "src": []
+      }
     ],
     "reaction": "주가는 주식 트레이딩과 투자은행 수수료의 컨센서스 대비 결과, 그리고 Wealth Management 순신규자산과 세전이익률에 반응하는 경향이 있다. Q3 2026은 주식 부문이 41% 늘고 순신규자산이 사상 최대였지만, 직전 분기보다 매출이 줄고 9월 이후 시장이 식었다는 언급이 함께 나왔다.",
     "conditions": [

@@ -30,11 +30,15 @@
       "에너지(Energy) 가격·정보 - 조정 영업이익률 48%"
     ],
     "text": "S&P Global의 힘은 시장이 기준으로 쓰는 숫자를 쥐고 있다는 데서 나온다. 채권을 발행하려면 등급이 필요하고, 펀드는 지수를 따라가며, 분석가는 데이터 단말을 쓴다. 그래서 3분기 등급 사업의 조정 영업이익률은 66%, 지수 사업은 72%에 이르며, CEO는 '우리 벤치마크와 고유 지식재산에 대한 수요 증가'를 성장 이유로 꼽았다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "design": {
     "text": "회사는 네 부문으로 보고한다. Market Intelligence는 금융 데이터·분석 플랫폼(Capital IQ와 Kensho Data & Platforms, RatingsDirect, RatingsXpress, Enterprise Solutions), Ratings는 신용등급, Indices는 지수, Energy는 에너지·원자재 정보다. 자동차 데이터 사업 Mobility는 2026-07-01 분리돼 중단 사업으로 옮겨졌다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "make": {
     "model": "service",
@@ -42,7 +46,9 @@
       "자체 애널리스트·데이터 인력과 플랫폼 - 등급·지수·데이터 생산"
     ],
     "text": "제품이 데이터와 판단이라 공장이 없고, 생산은 사람과 소프트웨어가 한다. 그래서 9개월 설비투자가 0.93억 달러로 매출에 비해 아주 작고, 매출 대부분이 이익과 현금으로 바로 넘어간다. 보도자료의 위험 문구는 회사가 제품에 AI를 직접 넣어야 하는 과제를 함께 적는다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "sell": {
     "customers": [
@@ -54,107 +60,350 @@
     "channel": "기관 고객과 직접 계약하는 구독·라이선스·건별 수수료.",
     "concentration": "개별 고객 비중 공시 확인 못 함.",
     "text": "고객은 채권 발행자, 운용사, 금융기관, 에너지 시장 참가자로 나뉜다. 3분기 등급 매출 12.7억 달러 가운데 발행 건수에 연동되는 거래성 매출이 6.77억 달러(+1%), 비거래성 매출이 5.94억 달러(+4%)였다. 성장은 지수(+20%)와 Market Intelligence(+7%)가 이끌었다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "moneyFlow": {
     "steps": [
-      { "from": "채권 발행 기업·금융기관", "to": "S&P Global Ratings", "what": "신규 발행 등급 수수료(거래성)와 비거래성 등급 수수료" },
-      { "from": "자산운용사·금융기관", "to": "S&P Global Indices", "what": "지수 사용료" },
-      { "from": "금융기관·기업", "to": "S&P Global Market Intelligence", "what": "데이터·분석 플랫폼 구독료" },
-      { "from": "에너지·원자재 시장 참가자", "to": "S&P Global Energy", "what": "가격·정보 구독료" }
+      {
+        "from": "채권 발행 기업·금융기관",
+        "to": "S&P Global Ratings",
+        "what": "신규 발행 등급 수수료(거래성)와 비거래성 등급 수수료"
+      },
+      {
+        "from": "자산운용사·금융기관",
+        "to": "S&P Global Indices",
+        "what": "지수 사용료"
+      },
+      {
+        "from": "금융기관·기업",
+        "to": "S&P Global Market Intelligence",
+        "what": "데이터·분석 플랫폼 구독료"
+      },
+      {
+        "from": "에너지·원자재 시장 참가자",
+        "to": "S&P Global Energy",
+        "what": "가격·정보 구독료"
+      }
     ],
     "pricing": "구독(Market Intelligence·Energy), 지수 라이선스, 등급은 발행 건당 거래성 수수료와 비거래성 수수료로 나뉜다.",
     "text": "돈은 네 갈래로 들어오는데 성격이 다르다. 데이터·에너지 구독은 꾸준하고, 등급 거래성 매출은 채권 발행이 많을 때 늘며, 지수 매출은 시장과 지수 사용이 커질 때 는다. 3분기에는 등급 거래성 매출이 1%만 늘어 발행 시장 영향이 작았고, 지수가 성장의 중심이었다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "earnings": {
     "period": "Q3 2026 (ended 2026-09-30; cash flow is 9M 2026)",
-    "revenue": { "value": 3.678, "unit": "USD bn", "yoy": 6.8 },
+    "revenue": {
+      "value": 3.678,
+      "unit": "USD bn",
+      "yoy": 6.8
+    },
     "grossMargin": null,
     "operatingMargin": 53.2,
     "netMargin": 35.3,
-    "operatingCashFlow": { "value": 3.661, "unit": "USD bn" },
-    "freeCashFlow": { "value": 3.299, "unit": "USD bn" },
+    "operatingCashFlow": {
+      "value": 3.661,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": 3.299,
+      "unit": "USD bn"
+    },
     "segments": [
-      { "name": "Ratings", "revenue": 1.271, "unit": "USD bn", "share": 34.6, "yoy": 2.5, "operatingMargin": 66, "src": ["s1"] },
-      { "name": "Market Intelligence", "revenue": 1.263, "unit": "USD bn", "share": 34.3, "yoy": 6.8, "operatingMargin": 36, "src": ["s1"] },
-      { "name": "Energy", "revenue": 0.645, "unit": "USD bn", "share": 17.5, "yoy": 5.9, "operatingMargin": 48, "src": ["s1"] },
-      { "name": "Indices", "revenue": 0.554, "unit": "USD bn", "share": 15.1, "yoy": 19.9, "operatingMargin": 72, "src": ["s1"] },
-      { "name": "Intersegment elimination", "revenue": -0.055, "unit": "USD bn", "share": -1.5, "yoy": null, "operatingMargin": null, "src": ["s1"] }
+      {
+        "name": "Ratings",
+        "revenue": 1.271,
+        "unit": "USD bn",
+        "share": 34.6,
+        "yoy": 2.5,
+        "operatingMargin": 66,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Market Intelligence",
+        "revenue": 1.263,
+        "unit": "USD bn",
+        "share": 34.3,
+        "yoy": 6.8,
+        "operatingMargin": 36,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Energy",
+        "revenue": 0.645,
+        "unit": "USD bn",
+        "share": 17.5,
+        "yoy": 5.9,
+        "operatingMargin": 48,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Indices",
+        "revenue": 0.554,
+        "unit": "USD bn",
+        "share": 15.1,
+        "yoy": 19.9,
+        "operatingMargin": 72,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Intersegment elimination",
+        "revenue": -0.055,
+        "unit": "USD bn",
+        "share": -1.5,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "industryMetric": [
-      { "name": "조정 영업이익률", "value": "Q3 2026 53.5% (전년 53%), 조정 영업이익 19.69억 달러 +8%", "src": ["s1"] },
-      { "name": "조정 EPS", "value": "Q3 2026 4.58달러 (+9%); GAAP 계속사업 EPS 4.45달러 (+26%)", "src": ["s1"] },
-      { "name": "등급 매출 구성", "value": "Q3 2026 거래성 6.77억 달러(+1%), 비거래성 5.94억 달러(+4%)", "src": ["s1"] },
-      { "name": "조정 잉여현금흐름 (특정 항목 제외)", "value": "9M 2026 35.1억 달러 (전년 31.89억)", "src": ["s1"] },
-      { "name": "부채", "value": "2026-09-30 총차입 130.6억 달러(단기 24.48억 + 장기 106.14억, 계산값), 현금 24.41억 달러", "src": ["s1"] }
+      {
+        "name": "조정 영업이익률",
+        "value": "Q3 2026 53.5% (전년 53%), 조정 영업이익 19.69억 달러 +8%",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "조정 EPS",
+        "value": "Q3 2026 4.58달러 (+9%); GAAP 계속사업 EPS 4.45달러 (+26%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "등급 매출 구성",
+        "value": "Q3 2026 거래성 6.77억 달러(+1%), 비거래성 5.94억 달러(+4%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "조정 잉여현금흐름 (특정 항목 제외)",
+        "value": "9M 2026 35.1억 달러 (전년 31.89억)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "부채",
+        "value": "2026-09-30 총차입 130.6억 달러(단기 24.48억 + 장기 106.14억, 계산값), 현금 24.41억 달러",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "text": "3분기 매출은 36.8억 달러로 7% 늘었고, GAAP 영업이익률이 45%에서 53.2%로 크게 오른 것은 전년 GAAP 이익에서 빠진 조정 항목(조정 영업이익 18.19억 대 GAAP 15.56억 달러)이 컸던 영향이며 조정 마진은 53%에서 53.5%로 소폭 올랐다. 이익이 가장 두꺼운 곳은 지수(마진 72%)와 등급(66%)이고, Market Intelligence(36%)는 매출은 크지만 마진이 낮다. 영업현금흐름과 잉여현금흐름은 9개월 기준 36.6억·33.0억 달러다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "useOfCash": {
     "period": "9M 2026",
     "items": [
-      { "use": "buybacks", "value": 4.1, "unit": "USD bn", "src": ["s1"] },
-      { "use": "dividends", "value": 0.856, "unit": "USD bn", "src": ["s1"] },
-      { "use": "capex", "value": 0.093, "unit": "USD bn", "src": ["s1"] }
+      {
+        "use": "buybacks",
+        "value": 4.1,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "dividends",
+        "value": 0.856,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "capex",
+        "value": 0.093,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "text": "9개월 잉여현금흐름 33.0억 달러보다 많은 41.0억 달러를 자사주 매입에, 8.56억 달러를 배당에 썼다. 3분기 매입만 26억 달러였고, 회사는 2026년 매입이 70억 달러를 넘을 것이라 했다. 설비투자는 0.93억 달러로 작아, 현금 대부분이 주주에게 돌아가는 구조다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "aiChain": {
     "layer": "ai-exposed",
     "position": "AI 인프라를 팔지 않는 금융 데이터·벤치마크 회사. 고유 데이터가 AI에 쓰이는 원재료가 될 수도, AI가 데이터 접근 방식을 바꿔 위협이 될 수도 있는 자리다.",
-    "dependsOn": ["자체 데이터·애널리스트", "Kensho Data & Platforms"],
-    "sellsTo": ["금융기관·운용사·채권 발행자"],
+    "dependsOn": [
+      "자체 데이터·애널리스트",
+      "Kensho Data & Platforms"
+    ],
+    "sellsTo": [
+      "금융기관·운용사·채권 발행자"
+    ],
     "aiRevenue": null,
     "upside": "CEO는 기술이 '고객이 정보에 접근하고 분석하고 쓰는 방식을 바꾼다'고 했고, 회사는 '인공지능의 가속' 속에서 고유 데이터와 벤치마크 수요가 늘고 있다고 설명한다. AI 관련 매출은 따로 공시하지 않는다.",
     "risk": "보도자료의 위험 문구는 AI를 경쟁의 원천, 지식재산 보호의 과제, 제품에 통합해야 할 기술로 거듭 적는다. 회사는 Capital IQ 등 데이터 사업의 분리를 검토 중이다.",
     "text": "그래서 AI 가치사슬에서 S&P Global은 'AI 노출' 자리다. 등급과 지수처럼 시장이 정한 기준은 AI가 대신하기 어렵지만, 데이터를 단말로 파는 Market Intelligence는 AI가 정보 접근 방식을 바꿀 때 가장 먼저 영향을 받는다. 회사가 하필 그 Capital IQ 사업의 분리를 검토한다는 점이 이 구분을 보여준다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "competition": {
     "arenas": [
-      { "arena": "신용등급", "rivals": [], "position": "leader", "share": null, "src": ["s1"] },
-      { "arena": "지수", "rivals": [], "position": "leader", "share": null, "src": ["s1"] },
-      { "arena": "금융 데이터·플랫폼", "rivals": [], "position": "challenger", "share": null, "src": ["s1"] },
-      { "arena": "에너지·원자재 정보", "rivals": [], "position": "leader", "share": null, "src": ["s1"] }
+      {
+        "arena": "신용등급",
+        "rivals": [],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "지수",
+        "rivals": [],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "금융 데이터·플랫폼",
+        "rivals": [],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "에너지·원자재 정보",
+        "rivals": [],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "edge": "시장이 기준으로 쓰는 등급과 지수 벤치마크, 66~72%의 부문 마진, 매우 낮은 설비투자로 현금이 대부분 남는 구조.",
     "threats": "AI가 데이터 접근 방식을 바꾸는 것, 채권 발행 둔화로 등급 거래성 매출이 줄어드는 것. 보도자료의 위험 문구는 AI를 경쟁의 원천으로 적는다.",
     "text": "읽은 자료는 경쟁사를 이름으로 적지 않아 여기서도 이름을 붙이지 않는다. 부문 마진이 경쟁 위치를 대신 보여주는데, 지수와 등급은 70% 안팎이고 Market Intelligence는 36%다. 회사가 데이터 사업 일부의 분리를 검토하는 것도 경쟁이 치열하고 AI 변화가 빠른 영역을 따로 떼어 보려는 움직임으로 읽힌다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "strategy": {
     "goal": "2026년 매출 7.4~8.4% 성장, 조정 영업이익률 75~100bp 확대, 조정 EPS 17.70~17.95달러, 자사주 매입 70억 달러 초과.",
     "roadmap": [
-      { "when": "2026-07-01 (완료)", "what": "Mobility 분리 - 중단 사업으로 재분류", "src": ["s1"] },
-      { "when": "Q4 2026", "what": "2026 가이던스: 조정 EPS 17.70~17.95달러, GAAP EPS 16.25~16.50달러, 설비투자 1.55억~1.65억 달러", "src": ["s1"] },
-      { "when": "기한 없음", "what": "Capital IQ와 관련 데이터 사업(Kensho Data & Platforms의 대부분) 분리 가능성을 포함한 전략 검토. RatingsDirect·RatingsXpress·Enterprise Solutions는 유지 예정", "src": ["s1"] }
+      {
+        "when": "2026-07-01 (완료)",
+        "what": "Mobility 분리 - 중단 사업으로 재분류",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "Q4 2026",
+        "what": "2026 가이던스: 조정 EPS 17.70~17.95달러, GAAP EPS 16.25~16.50달러, 설비투자 1.55억~1.65억 달러",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "기한 없음",
+        "what": "Capital IQ와 관련 데이터 사업(Kensho Data & Platforms의 대부분) 분리 가능성을 포함한 전략 검토. RatingsDirect·RatingsXpress·Enterprise Solutions는 유지 예정",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "vision": "시장이 쓰는 벤치마크와 고유 지식재산을 중심으로 사업을 좁히고, 그 데이터를 AI 시대의 정보 접근 방식에 맞춰 공급하는 것.",
     "text": "다음 수는 포트폴리오를 좁히는 것이다. Mobility를 떼어낸 데 이어 Capital IQ 데이터 사업의 분리 검토를 시작했는데, 회사는 일정이 없고 거래로 이어진다는 보장이 없다고 적었다. 남는 그림은 등급·지수·에너지와 등급 관련 데이터라는 벤치마크 중심 회사다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "governance": {
     "line": "분기 배당 주당 0.97달러를 유지하며 2026년 70억 달러 넘는 자사주를 사는 주주환원형 회사로, Mobility 분리와 Capital IQ 분리 검토로 사업 구성을 바꾸는 중이다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "guidance": {
     "latest": [
-      { "period": "FY2026", "metric": "revenue growth", "value": "7.4~8.4% (유기·고정환율 7.5~8.5%)", "givenOn": "2026-10-27", "src": ["s1"] },
-      { "period": "FY2026", "metric": "adjusted operating margin expansion", "value": "75~100bp (OSTTRA 제외 125~150bp); GAAP 310~335bp", "givenOn": "2026-10-27", "src": ["s1"] },
-      { "period": "FY2026", "metric": "adjusted diluted EPS", "value": "17.70~17.95달러 (GAAP 16.25~16.50달러)", "givenOn": "2026-10-27", "src": ["s1"] },
-      { "period": "FY2026", "metric": "share repurchases", "value": "70억 달러 초과", "givenOn": "2026-10-27", "src": ["s1"] },
-      { "period": "FY2026", "metric": "capex", "value": "1.55억~1.65억 달러", "givenOn": "2026-10-27", "src": ["s1"] }
+      {
+        "period": "FY2026",
+        "metric": "매출 성장률",
+        "value": "7.4~8.4% (유기·고정환율 7.5~8.5%)",
+        "givenOn": "2026-10-27",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "조정 영업이익률 확대",
+        "value": "75~100bp (OSTTRA 제외 125~150bp); GAAP 310~335bp",
+        "givenOn": "2026-10-27",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "조정 희석 EPS",
+        "value": "17.70~17.95달러 (GAAP 16.25~16.50달러)",
+        "givenOn": "2026-10-27",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "자사주 매입",
+        "value": "70억 달러 초과",
+        "givenOn": "2026-10-27",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "설비투자",
+        "value": "1.55억~1.65억 달러",
+        "givenOn": "2026-10-27",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "style": "annual",
     "track": "Q3 2026 조정 EPS 4.58달러는 컨센서스 4.43달러를 웃돌았고, 직전 세 분기 중 두 분기(Q2 4.83 vs 4.49, Q1 4.97 vs 4.82)도 웃돌았다. 직전 가이던스와의 비교는 확인하지 못했다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
   "estimates": {
     "text": "2026-11-07 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) 합계 19.54달러(범위 18.97~20.44, 추정치 수 최소 7), 직전 4개 분기 실적 합 18.68달러. 최근 4주 상향 11건·하향 7건.",
-    "src": ["s2"]
+    "src": [
+      "s2"
+    ]
   },
   "watch": {
     "confirms": [
@@ -171,49 +420,98 @@
       "분리 검토가 지연되거나 불리한 조건으로 끝남"
     ],
     "keyNumbers": [
-      { "name": "등급 거래성·비거래성 매출 증가율", "why": "채권 발행 경기와 안정 매출의 구분" },
-      { "name": "지수 매출과 마진", "why": "가장 빠르고 두꺼운 이익원" },
-      { "name": "Market Intelligence 매출 증가율·마진", "why": "AI 노출이 가장 큰 부문" },
-      { "name": "조정 영업이익률", "why": "회사 가이던스의 핵심" },
-      { "name": "자사주 매입액", "why": "EPS 성장의 한 축" }
+      {
+        "name": "등급 거래성·비거래성 매출 증가율",
+        "why": "채권 발행 경기와 안정 매출의 구분"
+      },
+      {
+        "name": "지수 매출과 마진",
+        "why": "가장 빠르고 두꺼운 이익원"
+      },
+      {
+        "name": "Market Intelligence 매출 증가율·마진",
+        "why": "AI 노출이 가장 큰 부문"
+      },
+      {
+        "name": "조정 영업이익률",
+        "why": "회사 가이던스의 핵심"
+      },
+      {
+        "name": "자사주 매입액",
+        "why": "EPS 성장의 한 축"
+      }
     ]
   },
   "debate": {
     "question": "벤치마크 사업의 높은 마진이 AI가 바꾸는 데이터 시장과 사업 분리 속에서도 이익 성장을 이끄는지",
     "bull": {
       "text": "이끈다고 보는 쪽은 3분기 지수 매출이 20% 늘고 마진 72%, 등급 마진이 66%였으며 회사 전체 조정 마진이 53.5%로 올랐다는 점을 든다. 9개월 잉여현금흐름 33.0억 달러에 설비투자는 0.93억 달러뿐이고, 연간 70억 달러 넘는 자사주 매입이 EPS를 받친다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     "bear": {
       "text": "의심하는 쪽은 등급 매출이 2%만 늘고 거래성 매출은 1%에 그쳐 채권 발행에 기대는 이익원이 정체했다는 점을 든다. 보도자료의 위험 문구는 AI를 경쟁 원천이자 지식재산 보호 과제로 적고, 회사는 데이터 사업 Capital IQ의 분리를 기한 없이 검토하며 거래 보장이 없다고 밝혔다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     "decides": [
-      { "when": "Q4·FY2026 실적 발표 (2027-02 예상, 회사 미확정)", "what": "조정 EPS가 17.70~17.95달러 범위에 들고 2027 가이던스에서 등급·지수 성장 전망이 어떻게 나오는지", "src": ["s1"] },
-      { "when": "기한 없음", "what": "Capital IQ 전략 검토가 분리 거래로 이어지는지와 그 조건", "src": ["s1"] }
+      {
+        "when": "Q4·FY2026 실적 발표 (2027-02 예상, 회사 미확정)",
+        "what": "조정 EPS가 17.70~17.95달러 범위에 들고 2027 가이던스에서 등급·지수 성장 전망이 어떻게 나오는지",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "기한 없음",
+        "what": "Capital IQ 전략 검토가 분리 거래로 이어지는지와 그 조건",
+        "src": [
+          "s1"
+        ]
+      }
     ]
   },
   "underTheHood": [
     {
       "title": "GAAP 마진 급등의 착시",
       "text": "3분기 GAAP 영업이익률은 45%에서 53.2%로 8%p 올랐지만 조정 마진은 53%에서 53.5%로 0.5%p 올랐을 뿐이다. 연간 가이던스도 GAAP 마진 310~335bp, 조정 75~100bp 확대로 차이가 크다. 기초 체력 변화는 조정 기준으로 읽어야 한다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     {
       "title": "번 것보다 많이 돌려주는 매입",
       "text": "9개월 잉여현금흐름 33.0억 달러에 대해 자사주 매입 41.0억과 배당 8.56억 달러가 나갔다. 차입은 9월 말 약 130.6억 달러이고 현금은 24.4억 달러다. 70억 달러 넘는 연간 매입은 현금흐름만으로 채우기 어려워, 매입 속도가 이익보다 EPS를 더 움직이는 구간이다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     {
       "title": "발행 경기와 안정 매출",
       "text": "등급 매출 12.7억 달러 중 6.77억 달러는 발행 건당 받는 거래성 매출이라 채권 시장 상황에 따라 크게 흔들린다. 나머지 5.94억 달러의 비거래성 매출이 바닥을 받친다. 등급 실적은 이 두 부분을 나눠 봐야 경기 영향인지 구조 변화인지 구분된다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     }
   ],
   "trading": {
     "calendar": [
-      { "date": "2027-02 (추정, 회사 미확정)", "event": "Q4·FY2026 실적과 2027 가이던스 (Q3는 2026-10-27 발표)", "src": ["s1"] },
-      { "date": "기한 없음", "event": "Capital IQ 등 데이터 사업 전략 검토 결과", "src": ["s1"] }
+      {
+        "date": "2027-02 (추정, 회사 미확정)",
+        "event": "Q4·FY2026 실적과 2027 가이던스 (Q3는 2026-10-27 발표)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "date": "기한 없음",
+        "event": "Capital IQ 등 데이터 사업 전략 검토 결과",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "reaction": "주가는 등급 거래성 매출과 다음 해 가이던스, 그리고 분리·매각 같은 포트폴리오 결정에 반응하는 경향이 있다.",
     "conditions": [

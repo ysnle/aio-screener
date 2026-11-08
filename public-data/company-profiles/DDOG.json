@@ -301,13 +301,13 @@
     "layer": "software-applications",
     "position": "클라우드와 AI 서비스를 운영하는 기업에 서버·앱·LLM 사용 상태를 감시하는 도구를 파는 관측 소프트웨어 공급자. AI 기업의 클라우드 사용량이 늘수록 감시할 데이터가 늘어 매출이 따라온다.",
     "dependsOn": [
-      "cloud-infrastructure (제3자 클라우드 호스팅, AWS 협력)",
-      "models-platforms (Bits AI 에이전트가 쓰는 AI 모델; Adaptive ML 인수)"
+      "클라우드 (제3자 클라우드 호스팅, AWS 협력)",
+      "모델·플랫폼 (Bits AI 에이전트가 쓰는 AI 모델; Adaptive ML 인수)"
     ],
     "sellsTo": [
-      "models-platforms (AI 네이티브 기업 - 최대 고객 포함)",
-      "cloud-infrastructure 사용 기업 전반",
-      "ai-adopter (LLM 앱을 운영하는 기업)"
+      "모델·플랫폼 (AI 네이티브 기업 - 최대 고객 포함)",
+      "클라우드 사용 기업 전반",
+      "AI를 쓰는 기업 (LLM 앱을 운영하는 기업)"
     ],
     "aiRevenue": "AI 네이티브 고객 그룹이 Q4 2025 전년 대비 매출 성장률의 약 7%포인트 기여 (10-K). Q3 2026 AI 네이티브 고객 850곳 이상(100만 달러 초과 39곳), 매출 비중은 미공시 (콜).",
     "upside": "AI 기업이 모델 서비스·에이전트를 클라우드에서 크게 돌릴수록 감시할 서버·로그·LLM 호출이 늘어 사용량 과금 매출이 바로 커진다. 일반 기업이 LLM 앱을 운영하기 시작하면 LLM Observability와 AI Guard가 새 판매 품목이 된다.",
@@ -452,7 +452,7 @@
     "latest": [
       {
         "period": "Q4 2026",
-        "metric": "revenue",
+        "metric": "매출",
         "value": "11.9~12.0억 달러 (전년 대비 25~26%; 최대 고객 제외 시 30% 초중반)",
         "givenOn": "2026-11-04",
         "src": [
@@ -462,7 +462,7 @@
       },
       {
         "period": "Q4 2026",
-        "metric": "non-GAAP operating income",
+        "metric": "non-GAAP 영업이익",
         "value": "2.8~2.9억 달러 (약 24%)",
         "givenOn": "2026-11-04",
         "src": [
@@ -472,7 +472,7 @@
       },
       {
         "period": "FY2026",
-        "metric": "revenue",
+        "metric": "매출",
         "value": "45.15~45.25억 달러 (8월 44.5~44.7억, 2월 40.6~41.0억)",
         "givenOn": "2026-11-04",
         "src": [
@@ -483,7 +483,7 @@
       },
       {
         "period": "FY2026",
-        "metric": "non-GAAP operating income",
+        "metric": "non-GAAP 영업이익",
         "value": "10.95~11.05억 달러 (8월 10.1~10.3억)",
         "givenOn": "2026-11-04",
         "src": [

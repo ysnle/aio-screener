@@ -295,12 +295,12 @@
     "layer": "software-applications",
     "position": "기업이 AI 모델·에이전트를 자기 데이터와 기존 시스템 위에서 돌리게 해 주는 소프트웨어(watsonx, Red Hat AI, Confluent 실시간 데이터)와 도입 컨설팅, AI 추론을 지원하는 메인프레임(Spyre)을 공급한다.",
     "dependsOn": [
-      "semicap-foundry (Samsung 5nm - Telum II·Spyre)",
-      "models-platforms (자체 Granite 및 외부 모델)",
-      "cloud-infrastructure (하이퍼스케일러 위에서 도는 Red Hat)"
+      "장비·파운드리 (Samsung 5nm - Telum II·Spyre)",
+      "모델·플랫폼 (자체 Granite 및 외부 모델)",
+      "클라우드 (하이퍼스케일러 위에서 도는 Red Hat)"
     ],
     "sellsTo": [
-      "ai-adopter (은행·보험·정부·대기업)"
+      "AI를 쓰는 기업 (은행·보험·정부·대기업)"
     ],
     "aiRevenue": "생성형 AI 누적 수주 125억 달러 이상 (2026-01-28 발표, 소프트웨어+컨설팅 합산 누적치). Q3 2026 금액은 확인 못함",
     "upside": "기업 AI 도입이 늘수록 데이터 정리(Confluent·watsonx.data), 자동화, 하이브리드 클라우드 소프트웨어와 도입 컨설팅 수요가 함께 늘어, 마진 높은 소프트웨어 매출로 이어진다.",
@@ -426,7 +426,7 @@
     "latest": [
       {
         "period": "FY2026",
-        "metric": "constant-currency revenue growth",
+        "metric": "고정 환율 매출 성장률",
         "value": "4~5% (환율 영향은 중립 전망)",
         "givenOn": "2026-10-21",
         "src": [
@@ -436,7 +436,7 @@
       },
       {
         "period": "FY2026",
-        "metric": "free cash flow",
+        "metric": "잉여현금흐름",
         "value": "전년(147억 달러) 대비 10억 달러 이상 증가 (상향)",
         "givenOn": "2026-10-21",
         "src": [
