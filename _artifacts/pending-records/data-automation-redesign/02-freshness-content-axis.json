@@ -1,9 +1,17 @@
 {
   "p": {
     "title": "The freshness grade measured pipeline liveness only; history.json's registry paths resolved nothing",
+    "files": [
+      "src/data/contracts/artifact-freshness.js",
+      "scripts/write-freshness-ledger.mjs",
+      "scripts/ci-external-pipeline-check.mjs",
+      "scripts/ci-artifact-refresh-path-check.mjs",
+      "scripts/fetch-kr-index-weights.mjs",
+      "scripts/ci-event-briefs-check.mjs"
+    ],
     "symptom": "Every refresh-data ledger row for history.json carried producedAt null and basisSession null, so neither the watchdog nor the badge could date its content. A screener file rewritten each cycle from a two-sessions-old upstream still graded 'current', because the grade read checkedAt (when the pipeline last confirmed the file), not what the content was about. backtest-history declared its run date (weekend rows included) as a US session basis.",
     "root_cause": "freshnessState() graded checkedAt (falling back to producedAt) against the cadence and the stale bound. basisSession was recorded but never graded. history.json became { schemaVersion, fieldDictionary, rows }, but its registry entry still read '-1.date'. Nothing checked that a declared path resolved on the artifact.",
-    "fix": "freshnessState() is now the worse of livenessState() (the previous rule) and sessionLagState(). sessionLagState() grades basisSession against the exchange calendars with observationSessionState: the latest session is current; one session behind is current inside 12 hours of that close and late after; two or more behind is stale. history.json reads rows.-1.cycleEnd and per-market basis from rows.-1.fieldMeta.{spx,kospi}.sessionDate. backtest-history declares no session basis. write-freshness-ledger.mjs records contractDrift (['clock'], ['basis:US']) when a present artifact no longer resolves a declared path; this is a warning, not a refusal, so a registry path cannot freeze data. The watchdog names it as freshness-<workflow>-contract.",
+    "fix": "freshnessState() is now the worse of livenessState() (the previous rule) and sessionLagState(). sessionLagState() grades basisSession against the exchange calendars with observationSessionState: the latest session is current; one session behind is current inside 12 hours of that close and late after; two or more behind is stale. history.json reads rows.-1.cycleEnd and per-market basis from rows.-1.fieldMeta.{spx,kospi}.sessionDate. backtest-history declares no session basis. write-freshness-ledger.mjs records contractDrift (['clock'], ['basis:US']) when a present artifact no longer resolves a declared path; this is a warning, not a refusal, so a registry path cannot freeze data. The watchdog names it as freshness-<workflow>-contract. Drift is judged on the object that should hold the basis, not on the market's own entry: history.json drops fieldMeta.<field> on a null observation, so its basis tuples name rows.-1.fieldMeta as their holder, and a market without an observation that cycle is not reported as drift (Codex review on PR #164; all 420 stored rows are drift-free).",
     "violated_rule": "The v59.70 freshness contract (\"every card refreshes itself, or says it does not\"): a card built on stale content was shown as current.",
     "prevention": "{R}: a freshness grade is the worse of liveness and session lag, and a declared clock or basis path that resolves nothing is named on the ledger row and by the watchdog. ci-artifact-refresh-path-check.mjs pins session lag 0, lag 1 inside and past the grace, lag 2, the worse market, the weekend case, the undatable row, and drift detection.",
     "verification": "node scripts/ci-artifact-refresh-path-check.mjs; node scripts/qa-runner.mjs --group data --no-cache"
@@ -14,10 +22,15 @@
     "validation": "scripts/ci-artifact-refresh-path-check.mjs section 5; scripts/ci-external-pipeline-check.mjs freshness-<workflow>-contract"
   },
   "qa": [
-    { "id": "QA-DATA-FRESH-01", "text": "On a weekday after the US close, the live freshness ledger shows history.json and screener.json with a basisSession, and no row carries contractDrift.", "verify_by": "node scripts/ci-external-pipeline-check.mjs (watchdog)" }
+    {
+      "id": "QA-DATA-FRESH-01",
+      "text": "On a weekday after the US close, the live freshness ledger shows history.json and screener.json with a basisSession, and no row carries contractDrift.",
+      "verify_by": "node scripts/ci-external-pipeline-check.mjs (watchdog)"
+    }
   ],
   "qa_section": "Freshness session lag ({VERSION})",
   "changelog": [
     "**Freshness grades the content, not only the pipeline ({P}/{R}):** The grade is now the worse of liveness (checkedAt) and session lag (basisSession against the KRX/NYSE calendars). A file the pipeline rewrites every cycle with a two-sessions-old basis is no longer 'current'. history.json's registry paths had not resolved since it became `{rows}`; they now read the market cut and the per-market close session. backtest-history no longer claims its run date as a session. A path that stops resolving is recorded as `contractDrift` and named by the watchdog without blocking the refresh."
-  ]
+  ],
+  "note": "{VERSION}: one tested data publisher, session-lag freshness, cron fallback guard"
 }
