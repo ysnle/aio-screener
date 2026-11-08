@@ -127,6 +127,7 @@ check('v59.70 readArtifactFreshness reads the workflow ledger the watchdog reads
   check('v59.85 an undatable row stays unknown', freshnessState({ basisSession: { US: '2026-11-09' } }, tue) === 'unknown');
   check('v59.85 contract drift names an unresolved clock and basis', JSON.stringify(artifactContractDrift('history.json', { rows: [{ date: '2026-11-08' }] })) === JSON.stringify(['basis:US', 'basis:KR'])
     && JSON.stringify(artifactContractDrift('history.json', [{ date: '2026-11-08' }])) === JSON.stringify(['clock', 'basis:US', 'basis:KR']));
+  check('v59.85 a market without an observation in the last history row is not contract drift', JSON.stringify(artifactContractDrift('history.json', { rows: [{ date: '2026-08-17', spx: 6400, kospi: null, fieldMeta: { spx: { sessionDate: '2026-08-14' } } }] })) === '[]');
 }
 
 if (errors.length) {

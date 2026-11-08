@@ -44,12 +44,12 @@ export const SCREENER_DISPATCH_POLICY = Object.freeze({ workflow: 'refresh-scree
 // keeps no KV receipt (kvKey null): its three slots an hour would push the normal KV write bound past the 500 target.
 export const EVENT_BRIEFS_DISPATCH_POLICY = Object.freeze({ workflow: 'event-briefs.yml', ref: 'main', slotMinutes: Object.freeze([5, 25, 45]), kvKey: null, recentSuccessMs: 15 * 60000 });
 const EVENT_BRIEFS_DISPATCH = Object.freeze({
-  workflow: EVENT_BRIEFS_DISPATCH_POLICY.workflow, ref: EVENT_BRIEFS_DISPATCH_POLICY.ref, kvKey: null, recentSuccessMs: EVENT_BRIEFS_DISPATCH_POLICY.recentSuccessMs,
+  workflow: EVENT_BRIEFS_DISPATCH_POLICY.workflow, ref: EVENT_BRIEFS_DISPATCH_POLICY.ref, kvKey: null, recentSuccessMs: EVENT_BRIEFS_DISPATCH_POLICY.recentSuccessMs, cronIsFallback: true,
   isSlot: at => EVENT_BRIEFS_DISPATCH_POLICY.slotMinutes.includes(at.getUTCMinutes()),
   body: () => ({ ref: EVENT_BRIEFS_DISPATCH_POLICY.ref })
 });
 const REFRESH_DATA_DISPATCH = Object.freeze({
-  workflow: REFRESH_DISPATCH_POLICY.workflow, ref: REFRESH_DISPATCH_POLICY.ref, kvKey: 'scheduler:dispatch', recentSuccessMs: 25 * 60000,
+  workflow: REFRESH_DISPATCH_POLICY.workflow, ref: REFRESH_DISPATCH_POLICY.ref, kvKey: 'scheduler:dispatch', recentSuccessMs: 25 * 60000, cronIsFallback: true,
   isSlot: at => REFRESH_DISPATCH_POLICY.slotMinutes.includes(at.getUTCMinutes()),
   body: () => ({ ref: REFRESH_DISPATCH_POLICY.ref, inputs: { trigger: REFRESH_DISPATCH_POLICY.trigger } })
 });
@@ -103,7 +103,10 @@ async function dispatchWorkflow(policy, { env, scheduledTime = Date.now(), fetch
     const runs = recent.data.workflow_runs.filter(run => run.head_branch === policy.ref);
     const active = runs.find(run => ['queued', 'in_progress', 'waiting', 'requested', 'pending'].includes(run.status));
     if (active) return finish({ dispatched: false, reason: 'workflow-active', runId: active.id });
-    const latest = runs[0];
+    // Where the GitHub cron is only this dispatcher's fallback (scripts/cron-fallback-guard.mjs), a cron run that stood down
+    // still ends 'success' without producing anything, so it must not count as the recent success that skips this slot.
+    // A fallback cron that did produce is ignored too; the cost is at most one extra cycle after a missed slot.
+    const latest = policy.cronIsFallback ? runs.find(run => run.event !== 'schedule') : runs[0];
     const completedAge = at.getTime() - Date.parse(latest?.updated_at || '');
     if (latest?.conclusion === 'success' && completedAge >= 0 && completedAge < policy.recentSuccessMs) {
       return finish({ dispatched: false, reason: 'recent-success', runId: latest.id });

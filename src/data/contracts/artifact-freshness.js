@@ -41,7 +41,7 @@ export const ARTIFACT_FRESHNESS = Object.freeze({
   'data.json': auto('refresh-data.yml', 'scripts/fetch-data.mjs', 30, 12 * 60, { timestamp: ['meta.generatedAt'] }),
   // history.json is { schemaVersion, fieldDictionary, rows }. A row's date is the market cut (a Sunday row exists), so
   // the basis is the session each index close belongs to.
-  'history.json': auto('refresh-data.yml', 'scripts/producer/history.mjs', 30, 3 * 24 * 60, { timestamp: ['rows.-1.cycleEnd', 'rows.-1.date'], basis: [['US', 'rows.-1.fieldMeta.spx.sessionDate'], ['KR', 'rows.-1.fieldMeta.kospi.sessionDate']] }),
+  'history.json': auto('refresh-data.yml', 'scripts/producer/history.mjs', 30, 3 * 24 * 60, { timestamp: ['rows.-1.cycleEnd', 'rows.-1.date'], basis: [['US', 'rows.-1.fieldMeta.spx.sessionDate', 'rows.-1.fieldMeta'], ['KR', 'rows.-1.fieldMeta.kospi.sessionDate', 'rows.-1.fieldMeta']] }),
   'market-snapshot.json': auto('refresh-data.yml', 'scripts/fetch-data.mjs', 30, 24 * 60, { timestamp: ['lastSuccessfulAt', 'generatedAt'] }),
   'macro-history.json': auto('refresh-data.yml', 'scripts/producer/macro-history.mjs', 30, 4 * 24 * 60, { ...DERIVED, volatileKeys: ['generatedAt', 'long.generatedAt'] }),
   // v59.70 (R11, theme-sector): the rotationHistory series beside data.json; the browser joins it by session, not clock.
@@ -146,15 +146,17 @@ export function sameExceptVolatile(left, right, keys = []) {
 /**
  * ['clock'] and/or ['basis:<market>'] when the artifact's shape no longer holds a declared path; [] when it does. A basis
  * counts as drift only when the object that should hold it is gone: a market the producer left empty this cycle is
- * missing data, which the freshness grade handles, not a registry problem.
+ * missing data, which the freshness grade handles, not a registry problem. A basis tuple may name that holder as a third
+ * element where the path's own parent is optional: history.json drops fieldMeta.<field> on a null observation, so its
+ * holder is rows.-1.fieldMeta.
  */
 export function artifactContractDrift(file, payload) {
   const entry = ARTIFACT_FRESHNESS[file];
   if (!entry || payload == null) return [];
   const drift = [];
   if (entry.timestamp.length && !artifactProducedAt(file, payload)) drift.push('clock');
-  for (const [market, path] of entry.basis) {
-    const parent = String(path).split('.').slice(0, -1).join('.');
+  for (const [market, path, holderPath] of entry.basis) {
+    const parent = holderPath ?? String(path).split('.').slice(0, -1).join('.');
     const holder = parent ? readPath(payload, parent) : payload;
     if (!holder || typeof holder !== 'object') drift.push(`basis:${market}`);
   }
