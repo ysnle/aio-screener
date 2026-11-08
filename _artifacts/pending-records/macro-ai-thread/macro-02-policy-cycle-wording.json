@@ -1,0 +1,33 @@
+{
+  "version": "v59.85",
+  "date": "2026-11-08",
+  "p": {
+    "title": "연준이 9/17에 금리를 올린 뒤에도 물가·고용·소매 해석이 '인하 기대'로 쓰였고, 명목 소매판매를 수요 과열로 읽었다",
+    "symptom": "11/6 기준 CPI·PCE 발표 밴드가 '끈적함 · 인하 기대가 줄어듭니다', 물가 축이 '연준이 금리를 내리기 어려운 조건'이라고 썼다. 인상 국면에서 뜨거운 물가가 답하는 질문은 '얼마나 높게, 얼마나 오래'다. 실질 기준금리 0.8%가 중립 추정 1.2%보다 낮다는 사실도 정책 축에 없었다. 소매판매 +0.8%(명목)는 같은 달 CPI +0.65%를 빼면 실질 약 +0.1%인데 '과열'로만 읽혔다.",
+    "root_cause": "해석 문장이 인하 국면을 전제로 고정돼 있었고 정책 국면(fedTargetUpper의 마지막 변경)을 읽는 소유자가 없었다. 소매판매 밴드는 명목값만 받았다.",
+    "fix": "policyCycle(macro-signals.js)이 180일 안의 마지막 목표금리 변경으로 인상/인하/동결을 정하고, 발표 밴드(release-zones.js)·물가 축·물가 장이 읽는다. 밴드 경계와 색은 그대로이고 문장만 국면을 따른다. 정책 축은 실질 기준금리가 중립보다 낮고 물가가 목표를 웃돌 때 '아직 긴축 구간이 아니다'를 말한다. 소매판매 측정명에 '(명목)'을 붙이고, 과열 구간이 같은 달 CPI로 대부분 설명되면 실질 값을 함께 말한다. 한국·성장 장의 소매판매 문장도 같은 실질 계산을 쓴다.",
+    "violated_rule": "해석은 지금의 정책 국면과 실질 기준에서 읽는다 — 명목값과 지난 국면의 문장을 현재 판단으로 쓰지 않는다.",
+    "prevention": "금리 경로를 말하는 새 해석 문장은 policyCycle을 읽어 인상·인하 국면 문장을 함께 둔다.",
+    "verification": "node scripts/ci-esm-core-unit-check.mjs (v59.85 policy cycle)",
+    "files": [
+      "src/domain/macro/macro-signals.js",
+      "src/domain/macro/release-zones.js",
+      "src/domain/macro/macro-read.js",
+      "src/domain/macro/macro-chapters.js"
+    ]
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-MACRO-POLICY-CYCLE-WORDING",
+      "text": "v59.85: 인상 국면(마지막 목표금리 변경이 180일 안의 인상)에서 CPI·PCE·고용·소매 발표 밴드와 물가 축은 '인하 기대' 대신 '높은 금리가 더 오래 / 추가 인상 압력'으로 읽고, 소매판매 과열은 같은 달 CPI를 뺀 실질 값과 함께 말한다.",
+      "verify_by": "node scripts/ci-esm-core-unit-check.mjs",
+      "done": true
+    }
+  ],
+  "qa_section": "거시 정책 국면 문장",
+  "changelog": [
+    "**정책 국면을 읽는 해석 ({P}):** 9/17 인상 뒤에도 '인하 기대가 줄어듭니다'로 쓰던 CPI·PCE·고용·소매 밴드와 물가 축이 policyCycle을 읽어 '높은 금리가 더 오래 갑니다 / 추가 인상 압력'으로 말하고, 정책 축은 실질 기준금리(0.8%)가 중립 추정(약 1.2%)보다 낮다는 점을 더한다. 소매판매는 명목으로 표시하고 같은 달 CPI를 뺀 실질 값을 함께 쓴다."
+  ],
+  "note": "policy-cycle-aware release bands and axis reads; real retail"
+}

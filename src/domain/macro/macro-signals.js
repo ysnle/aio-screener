@@ -106,6 +106,21 @@ export function inflationDirection({ pce = null, cpi = null } = {}) {
     reaccelerating: parts.filter((row) => row.dir === 'up'), text };
 }
 
+/** the one read of where the policy cycle stands — the last move of the target upper bound in the
+ *  past `days` (180) calendar days. The 물가 chapter alone knew the Fed had hiked (9/17, 3.75→4.00%); the 물가 axis
+ *  ('연준이 금리를 내리기 어려운 조건') and the release bands ('인하 기대가 줄어듭니다') still asked whether cuts were near.
+ *  Accepts [{ date, value }] ascending (fedTargetUpper). */
+export function policyCycle(upperSeries = [], { days = 180 } = {}) {
+  const rows = (Array.isArray(upperSeries) ? upperSeries : []).filter((row) => row?.date && finite(row.value) != null);
+  if (rows.length < 2) return { state: 'unknown', hiking: false, cutting: false, move: 0, date: null };
+  const cutoff = new Date(Date.parse(`${rows.at(-1).date}T00:00:00Z`) - days * 86400000).toISOString().slice(0, 10);
+  for (let i = rows.length - 1; i > 0 && rows[i].date >= cutoff; i -= 1) {
+    const move = rows[i].value - rows[i - 1].value;
+    if (Math.abs(move) > 1e-9) return { state: move > 0 ? 'hiking' : 'cutting', hiking: move > 0, cutting: move < 0, move, date: rows[i].date };
+  }
+  return { state: 'hold', hiking: false, cutting: false, move: 0, date: null };
+}
+
 /** Consumer sentiment rebased on its own record: the latest release's percentile within the last three years, with its
  *  month. A survey below a fixed 60 all year said nothing about this month. */
 export function sentimentRank(series) {
@@ -159,6 +174,12 @@ export function oilDivergence(check = null, { wti20 = check?.wti20 ?? null } = {
   const word = w20 < 0 ? '하락' : '상승';
   if (brent20 !== 0 && w20 !== 0 && Math.sign(brent20) !== Math.sign(w20)) {
     return { held: true, kind: 'opposite', text: `${pair}${spreadMove} — 두 유가의 20일 방향이 달라 WTI 20일 ${word}을 유가 전체의 움직임으로 읽지 않습니다.` };
+  }
+  // the mirror of 'unconfirmed' — Brent (the seaborne benchmark) moved past the direction line while
+  // WTI covered less than half of it. Brent -6.1% beside WTI -1.1% read '유가·달러가 중립 범위' and '유가 때문은 아닙니다'.
+  if (Math.abs(brent20) >= MACRO_SIGNAL_RULES.oilDirectionPct && Math.abs(w20) < Math.abs(brent20) * MACRO_SIGNAL_RULES.oilConfirmShare) {
+    const bWord = brent20 < 0 ? '하락' : '상승';
+    return { held: true, kind: 'brent-led', text: `${pair}${spreadMove} — 국제 유가(브렌트)의 20일 ${bWord}을 WTI가 절반도 따라가지 않아 WTI로 유가 방향을 읽지 않습니다.` };
   }
   if (Math.abs(w20) >= MACRO_SIGNAL_RULES.oilDirectionPct && Math.abs(brent20) < Math.abs(w20) * MACRO_SIGNAL_RULES.oilConfirmShare) {
     return { held: true, kind: 'unconfirmed', text: `${pair}${spreadMove} — 브렌트가 WTI 20일 ${word}의 절반도 따라가지 않아 WTI 20일 ${word}을 유가 전체의 움직임으로 읽지 않습니다.` };

@@ -46,6 +46,7 @@ import { readMarketRegime } from '../ui/components/market-regime.js';
 import { collectMarketInputs } from '../data/selectors/market-inputs.js';
 import { alignInput, buildCloseSeries, closeBasis, isUsable } from '../domain/briefing/market-read.js';
 import { createCloseBasisEvidenceReader, closeBasisSubstituteFor, renderCloseBasisEvidenceContext } from '../ai/context/close-basis-evidence.js';
+import { createMacroReleaseEvidenceReader, renderMacroReleaseEvidenceContext } from '../ai/context/macro-release-evidence.js';
 import { earningsContextForHeadline } from '../domain/news/earnings-context.js';
 import { normalizeSignalScoreMode, describeSignalScoreMode, SIGNAL_SCORE_MODE_STORAGE_KEY } from '../domain/signal/mode.js';
 import { computeRelativeRotation } from '../domain/themes/rrg.js';
@@ -225,19 +226,30 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   // v57.48 review #7: the same closes are also registered as typed reference evidence (fixed metric ids, the real
   // close date as asOf, source 'close-basis'), so an answer's VIX/10Y claim binds instead of being dropped as unverified.
   // The chat claim collector adds these rows on both surfaces; a stale live row points at its close substitute.
-  root._aioScreenBasisEvidence = createCloseBasisEvidenceReader(() => collectMarketInputs(root), { now: () => clock.now() });
-  root._aioCloseBasisSubstitute = (symbol) => closeBasisSubstituteFor(symbol, root._aioScreenBasisEvidence())?.evidenceId || null;
+  // the official macro releases and daily rates the 매크로 screens print (CPI/PCE/payrolls/Fed range/
+  // 2-year/real yield/breakeven/same-date 2s10s) join the close rows, so a macro number in an answer binds instead of being
+  // stripped by the publication gate or answered "확인 필요".
+  const readCloseBasisEvidence = createCloseBasisEvidenceReader(() => collectMarketInputs(root), { now: () => clock.now() });
+  const readMacroReleaseEvidence = createMacroReleaseEvidenceReader(() => ({ macro: root._aioServerMacro || null, macroHistory: root._aioMacroHistory || null }), { now: () => clock.now() });
+  root._aioMacroReleaseEvidence = readMacroReleaseEvidence;
+  root._aioScreenBasisEvidence = () => {
+    const close = readCloseBasisEvidence();
+    const macro = readMacroReleaseEvidence();
+    return macro.length ? Object.freeze([...close, ...macro]) : close;
+  };
+  root._aioCloseBasisSubstitute = (symbol) => closeBasisSubstituteFor(symbol, readCloseBasisEvidence())?.evidenceId || null;
   root._aioScreenBasisContext = () => {
     try {
       const regime = readMarketRegime(root);
-      if (!regime?.available) return '';
+      if (!regime?.available) return renderMacroReleaseEvidenceContext(readMacroReleaseEvidence()); // releases do not wait on the close basis
       const axes = (regime.axes || []).map((axis) => `- ${axis.title}: ${axis.stateLabel}${axis.basis ? ` (${axis.basis})` : ''} — ${(axis.evidence || []).map(([label, value]) => `${label} ${value}`).join(', ')}`);
       // Screen audit 2026-10-19: the 오늘/국면 판정 screens lead with the leadership break and the bottom-watch line, but
       // the chat on those pages received only the six axes, so "오늘 엇갈리는 신호" was answered without either.
       const lead = regime.leadership?.available ? `- 주도 영역(나스닥 100 · 반도체): ${({ break: '이탈 확인', weak: '약세 · 시장 전반 확산 미확인', holding: '유지', unknown: '판단 보류' })[regime.leadership.state] || '판단 보류'}${regime.leadership.summary ? ` — ${regime.leadership.summary}` : ''}` : null;
       const bottom = regime.bottomWatch?.text ? `- ${regime.bottomWatch.text}` : null;
-      const typed = renderCloseBasisEvidenceContext(root._aioScreenBasisEvidence());
-      return [`Screen basis (identical to what the user sees; use these numbers for current-market facts): US close ${regime.asOf}, overall ${regime.overall}.`, ...axes, lead, bottom, typed].filter(Boolean).join('\n');
+      const typed = renderCloseBasisEvidenceContext(readCloseBasisEvidence());
+      const releases = renderMacroReleaseEvidenceContext(readMacroReleaseEvidence());
+      return [`Screen basis (identical to what the user sees; use these numbers for current-market facts): US close ${regime.asOf}, overall ${regime.overall}.`, ...axes, lead, bottom, typed, releases].filter(Boolean).join('\n');
     } catch (_) { return ''; }
   };
   // v57.50 C06: one Fear & Greed reader for the legacy surfaces (AI header, _liveSnap, AIO.marketState).

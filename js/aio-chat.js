@@ -314,27 +314,27 @@ function _aioAIInfraCycleContext(ctxId, q) {
     lines.push('Memory LTA frame: ' + f.memoryLtaFrame);
     lines.push('Event/earnings calendar frame: ' + f.eventCalendarFrame);
     lines.push('Telegram reference frame: ' + f.telegramFrame.channelRoles + ' Extraction=' + f.telegramFrame.extraction + ' Quality=' + f.telegramFrame.quality + ' Promotion gate=' + f.telegramFrame.promotionGate + ' Invalidation=' + f.telegramFrame.invalidation);
-    lines.push('Required cross-check: compare the 2026-08-22 supplied reference packet with the latest available time series, then state what changed, what did not change, and which evidence is still missing.');
-    lines.push('Required answer split: (1) memory P/ASP/multiple, (2) neocloud Q/spread/capital, (3) capex/backlog/depreciation, (4) breadth/rates/credit/oil, (5) confirmation and invalidation conditions.');
+    lines.push('Cross-check when the question is about the current cycle: the 2026-08-22 supplied packet is dated reference — compare it with the typed current evidence (close-basis / macro-release rows), then state what changed, what did not change, and which evidence is still missing.');
+    // a coverage list, not a fixed five-part answer — the AnswerPlan contract forbids repeating a fixed template.
+    lines.push('Coverage checklist (use only the parts the question needs, in the order that answers it; not a fixed section template): memory P/ASP/multiple, neocloud Q/spread/capital, capex/backlog/depreciation, breadth/rates/credit/oil, confirmation and invalidation conditions.');
     lines.push('Do not infer a bottom from one-day rebound, a low P/E, a backlog headline, or a chart pattern alone.');
 
     var root = typeof window !== 'undefined' ? window : {};
     var snap = root.DATA_SNAPSHOT || {};
-    var live = {};
-    try { live = typeof _liveSnap === 'function' ? (_liveSnap() || {}) : {}; } catch(_) { live = {}; }
     var finite = function(v) { return typeof v === 'number' && isFinite(v); };
-    var pick = function(a, b) { return finite(a) ? a : (finite(b) ? b : null); };
     var obs = [];
-    var vix = pick(live.vix, snap.vix);
-    var tnx = pick(live.tnx, snap.tnx);
-    var hy = pick(snap.hyOAS, root._hySpreadBp != null ? Number(root._hySpreadBp) / 100 : null);
-    var wti = pick(snap.wti, root._liveData && root._liveData['CL=F'] ? Number(root._liveData['CL=F'].price) : null);
+    // the runtime line reads the same typed close-basis rows the screen and the claim registry use,
+    // each with its close date and evidenceId. It used to pick _liveSnap() strings (never numbers, so the live branch never
+    // ran), print the snapshot US10Y with no date and HY OAS in % while every screen shows bp.
+    var ev = [];
+    try { ev = typeof root._aioScreenBasisEvidence === 'function' ? (root._aioScreenBasisEvidence() || []) : []; } catch (_) { ev = []; }
+    var closeRow = function(metric) { for (var i = 0; i < ev.length; i++) { if (ev[i] && ev[i].metric === metric) return ev[i]; } return null; };
+    [['close.vix', 'VIX', ''], ['close.us10y', 'US10Y', '%'], ['close.hy_oas', 'HY OAS', 'bp'], ['close.wti', 'WTI', ' USD']].forEach(function(spec) {
+      var r = closeRow(spec[0]);
+      if (r && finite(r.value)) obs.push(spec[1] + '=' + r.value + spec[2] + ' @' + r.asOf + ' close (evidenceId=' + r.evidenceId + ')');
+    });
     var breadth = (typeof root._aioScreenerBreadth === 'function' && root._aioScreenerBreadth().us) || null;
-    var asOf = snap._updated || snap._marketDataUpdated || null;
-    if (finite(vix)) obs.push('VIX=' + vix + (snap._fieldTs && snap._fieldTs.vix ? ' @' + snap._fieldTs.vix : ''));
-    if (finite(tnx)) obs.push('US10Y=' + tnx + '%');
-    if (finite(hy)) obs.push('HY OAS=' + hy + '%');
-    if (finite(wti)) obs.push('WTI=' + wti);
+    var asOf = obs.length ? null : (snap._updated || snap._marketDataUpdated || null);
     if (breadth && finite(breadth.advanceRatio)) obs.push('AIO US advance ratio=' + Math.round(breadth.advanceRatio * 1000) / 10 + '% @' + (breadth.observedAt || 'unknown'));
     if (breadth && finite(breadth.sma20) && finite(breadth.sma50) && finite(breadth.above200)) obs.push('breadth above 20/50/200=' + breadth.sma20 + '/' + breadth.sma50 + '/' + breadth.above200 + '%');
     lines.push(obs.length ? 'Runtime comparison (source-aware only): ' + obs.join(', ') + (asOf ? ', artifact=' + asOf : '') : 'Runtime comparison: current macro/breadth evidence is not injected; do not fill the gap with the reference figures.');
@@ -1817,55 +1817,18 @@ window._aioTechnicalSymbolsForChat = _aioTechnicalSymbolsForChat;
 // v50.38 트랙2: 매크로/외환/채권/테마 채팅에 페이지 도메인 라이브 데이터 주입 (시세 너머 정성+정량).
 //   기존 compute/스냅샷 재사용 — 네트워크 비의존(라이브 캐시 + DATA_SNAPSHOT FRED값 + 내부 compute 함수).
 //   _fetchTechnicalDataForChat 패턴 미러. 도메인 무관 ctx면 '' 반환(자기 게이팅).
+
 function _fetchDomainContextForChat(ctxId) {
   try {
-    var snap = window.DATA_SNAPSHOT || {};
     var live = window._liveData || {};
-    var num = function(v) { return (v != null && isFinite(Number(v))) ? Number(v) : null; };
-    var pick = function() { for (var i = 0; i < arguments.length; i++) { var v = snap[arguments[i]]; if (v != null && v !== '') return v; } return null; };
     var liveNum = function(sym, field) { var d = live[sym]; return (d && d[field] != null && isFinite(Number(d[field]))) ? Number(d[field]) : null; };
-    var ts = ''; try { var n = new Date(); var p = function(x) { return String(x).padStart(2, '0'); }; ts = n.getFullYear() + '-' + p(n.getMonth()+1) + '-' + p(n.getDate()) + ' ' + p(n.getHours()) + ':' + p(n.getMinutes()) + ' KST'; } catch(_) {}
-    var snapshotObservedAt = String(snap._updated || snap.updatedAt || snap.asOf || snap.date || '개별 항목의 기준일 확인 필요');
-    var timeLabel = '조립시각 ' + ts + ', 스냅샷 관측 ' + snapshotObservedAt;
-    var reg = (typeof window._aioRegimeNow === 'function') ? (function(){ try { return window._aioRegimeNow(); } catch(_){ return null; } })() : null;
-    var tnx = liveNum('^TNX', 'price');                                  // 10Y (%)
-    var twoY = num(pick('tnx2y', 'us2y', 'twoYear'));                    // 2Y 무료 라이브 없음 → 스냅샷
-    // P1142: 공식 same-date 스프레드(FRED T10Y2Y 스냅샷)를 우선한다 — 라이브 ^TNX와 스냅샷 2Y의
-    // 혼합 재계산은 계층 12.4(3) 계약상 조용한 instrument 혼합이고, 실측에서 0.238 vs 공식 0.25 불일치를 냈다.
-    var officialSpread = num(pick('t10y2y'));
-    var spread = (officialSpread != null) ? officialSpread : ((tnx != null && twoY != null) ? (tnx - twoY) : null);
-    var spreadBasis = (spread != null) ? ((officialSpread != null) ? '공식 FRED 관측' : '혼합 기준 참고: 라이브 10Y−스냅샷 2Y') : null;
-    var spreadBp = (spread != null) ? ((spread >= 0 ? '+' : '') + (spread * 100).toFixed(0) + 'bp') : null;
-    var br50 = num(pick('breadth50sma', 'breadth50'));
+    var ts = typeof window._aioKstStamp === 'function' ? window._aioKstStamp(new Date()) : '';
+    var timeLabel = '조립시각 ' + ts + ' (각 값의 기준일은 값 옆에 표시)';
     var lines = [];
 
-    if (ctxId === 'macro' || ctxId === 'kr-macro') { // 'kr-macro' = the question-selected Korean domain block (P1740, market-content.js), not a chat context
-      if (reg && (reg.vix != null || reg.fg != null)) lines.push('• 시장 국면: VIX ' + (reg.vix != null ? Number(reg.vix).toFixed(1) : '—') + ', F&G ' + (reg.fg != null ? Math.round(reg.fg) : '—'));
-      var cpi = num(pick('cpi','cpiYoy')), core = num(pick('coreCpi','coreCpiYoy')), pce = num(pick('pce','pceYoy')), cpce = num(pick('corePce','corePceYoy'));
-      var obsM = function(k) { var ev = window._serverMacroEvidence && window._serverMacroEvidence[k]; var d = String((ev && ev.observedAt) || (snap._fieldTs && snap._fieldTs['macro_' + k]) || ''); return /^\d{4}-\d{2}/.test(d) ? '(' + d.slice(0, 7) + ' 관측분)' : '(관측월 미확인)'; }, infl = []; /* P1681 (X16): monthly prints carry their observed month, as on screen */ if (cpi != null) infl.push('CPI ' + cpi + '%' + obsM('cpi')); if (core != null) infl.push('Core CPI ' + core + '%' + obsM('coreCpi')); if (pce != null) infl.push('PCE ' + pce + '%' + obsM('pce')); if (cpce != null) infl.push('Core PCE ' + cpce + '%' + obsM('corePce'));
-      if (infl.length) lines.push('• 인플레(FRED/스냅샷): ' + infl.join(', '));
-      var nfp = pick('nfp'), unemp = num(pick('usUnemploy','unemployment'));
-      // P1142: NFP 단위(천 명)를 문맥에 명시한다 — P735 10배 오류 클래스의 마지막 미방어 경로가
-      // 단위 없는 raw 숫자 주입이었다(게이트는 게시 분석과 typed claim만 방어).
-      // P1740: the policy rate is the target range the screen shows (AIO.getFedPolicyRange: producer → FRED bounds →
-      // manual within its window), not "연방기금금리 월평균" read from a field P1737 now overwrites with that range,
-      // and the next FOMC comes from the official calendar instead of a snapshot field that no longer exists.
-      var pol = []; if (nfp != null) pol.push('NFP ' + nfp + 'K(천 명, 전월 대비 순증감)'); if (unemp != null) pol.push('실업률 ' + unemp + '%');
-      if (pol.length) lines.push('• 고용: ' + pol.join(', '));
-      (window.AIO && typeof window.AIO.buildChatPolicyLines === 'function' ? window.AIO.buildChatPolicyLines({ root: window, includeKorea: ctxId === 'kr-macro' }) : []).forEach(function(line) { lines.push(line); });
-      if (tnx != null || twoY != null) lines.push('• 금리: ' + (tnx != null ? '10Y ' + tnx.toFixed(2) + '%' : '') + (twoY != null ? ', 2Y ' + twoY.toFixed(2) + '%' : '') + (spreadBp != null ? ', 2s10s ' + spreadBp + ' (' + spreadBasis + (spread < 0 ? ', 역전·침체 선행' : '') + ')' : ''));
-      if (lines.length) { lines.unshift('【거시 도메인 혼합 데이터 (FRED 스냅샷 + 라이브 금리/국면), ' + timeLabel + '】'); }
-    } else if (ctxId === 'fxbond') {
-      var dxy = liveNum('DX-Y.NYB', 'price'); if (dxy == null) dxy = num(pick('dxy'));
-      var hyg = liveNum('HYG', 'price');
-      // P576/P713 계열 표면(2026-07-18): AI 컨텍스트는 HYG 달러 가격 대신 FRED HY OAS(bp) 실측을 우선 인용 —
-      // HYG 가격은 듀레이션(금리) 노출이 섞여 있어 AI가 신용 레벨로 오인용할 위험이 있음.
-      var hyOasBpChat = Number(window._hySpreadBp);
-      if (dxy != null) lines.push('• 달러(DXY): ' + dxy.toFixed(2) + ' (수준 — 달러 강약은 시장 상태의 20거래일 변화 기준으로 판단)'); /* owner 2026-10-18: no fixed 100 강세권 line */
-      if (tnx != null || twoY != null) lines.push('• 미 국채: ' + (tnx != null ? '10Y ' + tnx.toFixed(2) + '%' : '') + (twoY != null ? ', 2Y ' + twoY.toFixed(2) + '%' : '') + (spreadBp != null ? ', 2s10s ' + spreadBp + ' (' + spreadBasis + (spread < 0 ? ', 역전' : '') + ')' : ''));
-      if (isFinite(hyOasBpChat)) lines.push('• 크레딧(HY OAS): ' + Math.round(hyOasBpChat) + 'bp' + (hyg != null ? ', HYG $' + hyg.toFixed(2) + '(참고 가격)' : ''));
-      else if (hyg != null) lines.push('• 크레딧(HYG 가격, OAS 미수신): ' + hyg.toFixed(2) + ' — 절대 스프레드 수준 아님, 방향 참고만');
-      if (lines.length) { lines.unshift('【외환·채권 도메인 혼합 데이터 (DXY/금리/크레딧 라이브), ' + timeLabel + '】'); }
+    if (ctxId === 'macro' || ctxId === 'kr-macro' || ctxId === 'fxbond') {
+      // The macro and fxbond blocks read the typed close-basis and macro-release rows the screens print (src/ai/context/chat-macro-lines.js).
+      if (window.AIO && typeof window.AIO.buildChatMacroLines === 'function') lines = window.AIO.buildChatMacroLines({ ctxId: ctxId, root: window, timeLabel: timeLabel });
     } else if (ctxId === 'themes' || ctxId === 'theme-detail') {
       var secNames = { XLK:'기술', XLF:'금융', XLE:'에너지', XLV:'헬스케어', XLI:'산업재', XLY:'임의소비', XLP:'필수소비', XLRE:'부동산', XLB:'소재', XLU:'유틸', XLC:'커뮤니케이션' };
       var rows = Object.keys(secNames).map(function(s) { return { s: s, pct: liveNum(s, 'pct') }; }).filter(function(x) { return x.pct != null; }).sort(function(a, b) { return b.pct - a.pct; });

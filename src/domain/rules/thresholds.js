@@ -156,7 +156,8 @@ export const RULES = Object.freeze({
   briefing: Object.freeze({ rateMove5dBp: 8, stocksDown5dPct: 1, yearExtremeAt: 0.95, curveMove5dBp: 8, dollarSoft5dPct: 0.3,
     broadWeakBelow: 30, newLowsMin: 10, newHighsMin: 20, highsOverLows: 3, techGap20dPp: 2, smallcapGap20dPp: 3,
     derisk1dPct: 0.8, deriskAdvanceBelow: 30, defendedAdvanceBelow: 45, goldDollar5dPct: 0.5, havenDollar5dPct: 1, havenGold20dPct: 3,
-    goldFall20dPct: 3, goldRates20dBp: 10, krGap5dPp: 2, krGap1dPp: 1.5, krTailPct: 10 }),
+    goldFall20dPct: 3, goldRates20dBp: 10, krGap5dPp: 2, krGap1dPp: 1.5, krTailPct: 10,
+    verdictDayAgainstPct: 0.5 }), // an S&P 500 session this size against the verdict's side gets the verdict's horizon named beside it
   // Audit D8 (owner 2026-10-17): every "large move" the briefing pipeline tests, gathered in one table with the values
   // unchanged. attribution* — the validator asks for a cause headline (S&P 500/Nasdaq vs KOSPI, 1-session % change);
   // priorSession* — the packet names the last completed close; dailyDiff* — 어제와 달라진 점 lists a move; watchDayPct

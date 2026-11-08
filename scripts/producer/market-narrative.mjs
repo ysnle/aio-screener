@@ -24,10 +24,11 @@ import { NEWS_INTRADAY_MAX } from '../lib/news-selection.mjs';
 import { buildMarketAnalysisPrompt, buildMarketAnalysisRetryPrompt, inflationDirectionLine } from '../lib/market-analysis-prompt.mjs';
 import { afterHoursContextLines, afterHoursSignature } from './after-hours.mjs';
 import { earningsContextLines, earningsContextSignature, readEventBriefs, cashflowContextLines, readBigtechCashflow } from './earnings-context.mjs';
-import { softenReaderDuty, EVIDENCE_TIER_METRIC_IDS, KOREA_MOVE_MENTION_PCT, MARKET_ANALYSIS_CLOSED_SESSIONS, snapshotEvidenceRows, buildCompletedCloseBasis, marketAnalysisReversal, marketAnalysisLargeMove, marketAnalysisLargeMoveDirection, marketSentenceDay, marketSentenceRejectReason, dailyMarketSentence, MARKET_SENTENCE_LABEL, splitMarketSentence, buildMarketAnalysisEvidence, buildMarketAnalysisHeadlineContext, buildMarketAnalysisNewsEvidence, buildStructuredMarketAnalysis, describeMarketAnalysisIssues, retainVerifiedMarketAnalysis, reusableMarketAnalysis, validateMarketAnalysisText, lastVerifiedMarketAnalysis, plainMarketFallbackSummary } from '../lib/market-analysis-validate.mjs';
+import { softenReaderDuty, inflationEasingContradicts, EVIDENCE_TIER_METRIC_IDS, KOREA_MOVE_MENTION_PCT, MARKET_ANALYSIS_CLOSED_SESSIONS, snapshotEvidenceRows, buildCompletedCloseBasis, marketAnalysisReversal, marketAnalysisLargeMove, marketAnalysisLargeMoveDirection, marketSentenceDay, marketSentenceRejectReason, dailyMarketSentence, MARKET_SENTENCE_LABEL, splitMarketSentence, buildMarketAnalysisEvidence, buildMarketAnalysisHeadlineContext, buildMarketAnalysisNewsEvidence, buildStructuredMarketAnalysis, describeMarketAnalysisIssues, retainVerifiedMarketAnalysis, reusableMarketAnalysis, validateMarketAnalysisText, lastVerifiedMarketAnalysis, plainMarketFallbackSummary } from '../lib/market-analysis-validate.mjs';
 import { HIST, SCENARIO_STATE_OUT, SCENARIO_OUTCOMES_OUT, EARNINGS_CALENDAR_OUT, REPO_ROOT } from './paths.mjs';
 const SCREENER_OUT = `${REPO_ROOT}/public-data/screener.json`;
 import { MACRO_HISTORY_OUT, MACRO_CALENDAR_OUT } from './macro-history.mjs';
+import { coreInflationRead } from '../../src/domain/macro/macro-read.js';
 import { readNumber } from '../../src/domain/shared/number.js';
 import { readHistoryRows as expandHistoryRows } from '../../src/domain/market/history-rows.js';
 
@@ -48,6 +49,14 @@ function buildMarketAnalysisFallback(data, reason, metricEvidence = buildMarketA
 // the same series or it calls credit 'favorable' while the screen says 'neutral'.
 function readPublishedMacroHistory() {
   try { return JSON.parse(readFileSync(MACRO_HISTORY_OUT, 'utf8')); } catch (_) { return null; }
+}
+
+// v59.85 (macro/AI review): the INFLATION_DIRECTION line states the screen's core-inflation direction (macro-read coreInflationRead:
+// core PCE and core CPI 3-month pace against year-over-year — the quadrant, 물가 axis and chapter read the same flag), not a cpiDelta guess.
+export function marketAnalysisInflationDirection(data, macroHistory = readPublishedMacroHistory()) {
+  try {
+    return coreInflationRead({ macro: data?.macro || {}, mh: macroHistory }).direction || null; // the one shared core-inflation direction
+  } catch (_) { return null; }
 }
 
 export function marketAnalysisRegimeInput(data, history = [], macroHistory = readPublishedMacroHistory()) {
@@ -438,7 +447,8 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     const earningsLines = earningsContextLines(briefsInput, earningsCloseDate);
     // v59.56: SEC quarterly cash flow (hyperscaler total + the night's big-tech reporters); `bigtechCashflow` is a fixture seam.
     const cashflowLines = cashflowContextLines(bigtechCashflow === undefined ? readBigtechCashflow() : bigtechCashflow, briefsInput, earningsCloseDate, { nowMs });
-    const validate = (body) => validateMarketAnalysisText(body, data, snapshot, { context: [regimeContext, afterHoursLines, earningsLines, cashflowLines].filter(Boolean).join('\n'), history: historyRows });
+    const inflationDirection = marketAnalysisInflationDirection(data); // v59.85: the screen's core-inflation direction, one read for prompt and gates
+    const validate = (body) => validateMarketAnalysisText(body, data, snapshot, { context: [regimeContext, afterHoursLines, earningsLines, cashflowLines].filter(Boolean).join('\n'), history: historyRows, inflationDirection });
     // v57.75: a large equity move (KOSPI 3% / S&P 500 1%) lets the day's sentence be replaced once (dailyMarketSentence).
     // v57.81: computed before the prompt so the first attempt is told a cause must be attributed (the validator blocks
     // an unattributed reading on such a day; before, only the retry was told and both 10/15 05:55Z/07:52Z attempts failed).
@@ -460,7 +470,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     const usCloseDate = buildCloseSeries(historyRows, 'spx').at(-1)?.date || null;
     const usCloseAt = usCloseDate ? `${mdOf(usCloseDate)} 16:00 ET` : null;
     const driversContext = marketDriversContext({ history: historyRows, reversal, intradayRows, earningsLine: nextEarningsLine(earnings === undefined ? readEarningsCalendar() : earnings, usCloseDate), eventsLine: upcomingPoliticalLine(), levelsLine: chartLevelsLine(historyRows) });
-    const inflationLine = inflationDirectionLine(data?.macro || {}); // v57.75: INFLATION_DIRECTION
+    const inflationLine = inflationDirectionLine(data?.macro || {}, { direction: inflationDirection }); // v57.75 / v59.85: INFLATION_DIRECTION on the screen's direction
     const model = SHARED_AI_MODEL;
     const prompt = buildMarketAnalysisPrompt({ inflationLine, regimeContext, evidenceLines, koreaIntradayLines, intradayLines, usCloseAt, afterHoursLines, earningsLines,
       cashflowLines, crossMarketIntradayLines, newsLines, headlineLines, driversContext, narrativeText: narrativeContext.text, largeMove, largeMoveDirection });
@@ -471,7 +481,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     // Live 2026-10-21: every run after 08:00 KST was blocked on the body, so the reading was retained without a sentence
     // candidate (marketSentenceReject: no-new-candidate) and the 10/20 sentence stayed all morning. The sentence has its own
     // gate (marketSentenceRejectReason); a candidate from a blocked attempt that passes it still opens the new day.
-    const inflationRising = Number(data?.macro?.cpiDelta) > 0 || Number(data?.macro?.coreCpiDelta) > 0;
+    const inflationRising = inflationEasingContradicts(data?.macro || {}, inflationDirection);
     let passingSentence = null;
     const noteSentence = (candidate) => {
       if (candidate && !marketSentenceRejectReason(candidate, { inflationRising, largeMoveDirection: largeMove ? largeMoveDirection : null })) passingSentence = candidate;
@@ -524,7 +534,7 @@ export function applyMarketAnalysis(data, marketAnalysis, { previous = null, now
   if (marketAnalysis) {
     // v57.71: one sentence a day — kept from the earlier run of the same 08:00 KST day, else this run's validated line.
     const { sentenceCandidate = null, largeMove = false, largeMoveDirection = null, ...analysis } = marketAnalysis;
-    const inflationRising = Number(data.macro?.cpiDelta) > 0 || Number(data.macro?.coreCpiDelta) > 0;
+    const inflationRising = inflationEasingContradicts(data.macro || {}, marketAnalysisInflationDirection(data));
     data.marketAnalysis = { ...analysis, sentence: dailyMarketSentence({ candidate: sentenceCandidate, previous: previous?.sentence || null, nowMs, largeMove, largeMoveDirection, inflationRising }) };
     // 2026-10-19 data audit: a day's sentence that never replaced yesterday's left no trace; the run now records why.
     data.meta.marketSentenceReject = data.marketAnalysis.sentence?.day === marketSentenceDay(nowMs) ? null

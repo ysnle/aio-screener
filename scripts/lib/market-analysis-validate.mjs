@@ -574,7 +574,16 @@ export function themeLeadClaimIssues(body, { context = '', data = null } = {}) {
   return [...new Set(issues)];
 }
 
-export function validateMarketAnalysisText(text, data, snapshot = null, { context = '', history = [] } = {}) {
+// v59.85 (macro/AI review): one rule for "an easing claim contradicts the evidence", shared by the body validator and the
+// daily sentence gate. With the screen's core-inflation direction (macro-read coreInflationRead) an easing assertion
+// stands only when that direction is 둔화; without it, the v57.69 rule (headline or core CPI year-over-year rose) holds.
+export function inflationEasingContradicts(macroNow = {}, direction = null) {
+  const state = direction?.state;
+  if (state && state !== 'unknown') return state !== 'down';
+  return Number(macroNow?.cpiDelta) > 0 || Number(macroNow?.coreCpiDelta) > 0;
+}
+
+export function validateMarketAnalysisText(text, data, snapshot = null, { context = '', history = [], inflationDirection = null } = {}) {
   const issues = [];
   // P1122: `warnings` never withholds the analysis; it names what the reader must treat
   // carefully. Blocking is reserved for claims that can be wrong (values, units, scale).
@@ -684,7 +693,7 @@ export function validateMarketAnalysisText(text, data, snapshot = null, { contex
   // v57.69: the reading said 장기금리 하락은 "물가 둔화 경로와 일치" the day CPI rose 3.4% → 3.7%. With headline or core
   // CPI rising, an assertion that inflation is easing is blocked; scenario titles in 「」 and conditionals are not assertions.
   const macroNow = data?.macro || {};
-  const inflationRising = Number(macroNow.cpiDelta) > 0 || Number(macroNow.coreCpiDelta) > 0;
+  const inflationRising = inflationEasingContradicts(macroNow, inflationDirection);
   const asserted = body.replace(/「[^」]*」|'[^']*'|"[^"]*"/g, '');
   if (inflationRising && /물가\s?둔화\s?(?:경로|흐름|추세|신호)|물가(?:가|는)?\s?(?:둔화|안정|완화)(?:되고|하고)\s?있|인플레이션(?:이|은)?\s?(?:둔화|완화)(?:되고|하고)\s?있|디스인플레이션\s?(?:경로|흐름|진행)/.test(asserted)) {
     issues.push('inflation-direction-contradicts-evidence');

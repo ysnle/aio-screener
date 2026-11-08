@@ -462,12 +462,18 @@ export function fxSideWord(id, change, digits = 1) {
 }
 
 // P2288: one reading of a 20-session USD/KRW move for every 매크로 chapter, on the 환율 axis edges.
-export function wonMoveSentence(pct) {
+export function wonMoveSentence(pct, { dxy20 = null } = {}) {
   const value = finite(pct);
   if (value == null) return '';
   const { krwFlatPct: flat, krwMove20dPct: edge } = RULES.fx;
   const weak = value > 0, size = Math.abs(value);
   if (size < flat) return ' 원화는 보합권입니다.';
+  // a won move with the dollar index standing still is the won's own (the decomposition on 금리와
+  // 환율 attributes all of it to Korea-specific factors) — '조금 약해졌습니다' undersold it beside KOSPI -23.6%.
+  const dollar = finite(dxy20);
+  if (size < edge && dollar != null && Math.abs(dollar) < RULES.crossAsset.dollar20dPct && Math.abs(value - dollar) >= flat) {
+    return ` 달러 지수는 제자리(${signedText(dollar, 1)}%)인데 원화만 ${weak ? '약해졌습니다' : '강해졌습니다'}(원/달러 ${signedText(value, 1)}%) — 폭은 판정 기준(${edge}%) 아래지만 원화 고유 요인${weak ? '(외국인 매도·수출 둔화)이라 외국인 수급과 함께 봅니다' : '이라 외국인 수급에 우호적인 쪽입니다'}.`;
+  }
   if (size < edge) return ` 원화가 조금 ${weak ? '약해' : '강해'}졌습니다(원/달러 ${signedText(value, 1)}%, 환율 기준 ${edge}% 미만)${weak ? ' — 외국인 매도가 이어지는지 봅니다' : ''}.`;
   return ` 원/달러 ${signedText(value, 1)}%로 원화가 ${weak ? '약해졌습니다. 외국인에게는 환차손이라 한국 주식 매도 압력이 됩니다.' : '강해졌습니다. 외국인 수급에 우호적인 쪽입니다.'}`;
 }

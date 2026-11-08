@@ -630,6 +630,47 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   // numbers were all withheld as "종가 기준 근거".
   const withheld = ctx._aioBuildAIResponseDisclosure({ evidence: staleOnly.evidence, closeBasisDates: staleOnly.closeBasisDates, actionGate: staleOnly.actionGate });
   detail('#19 an answer with no published close-basis claim is not labelled close-basis', withheld.status === '확인 필요' && (staleOnly.closeBasisDates || []).length === 0, JSON.stringify(withheld));
+  // v59.85 (macro/AI review): the official releases the 매크로 screen prints bind as typed reference rows. Before, the DOMAIN
+  // block gave "CPI 3.7%" as prose with no row, so the answer was cut or said 확인 필요.
+  {
+    const { buildMacroReleaseEvidence, renderMacroReleaseEvidenceContext } = await import('../src/ai/context/macro-release-evidence.js');
+    const months = Array.from({ length: 16 }, (_, i) => new Date(Date.UTC(2025, 5 + i, 1)).toISOString().slice(0, 10));
+    const macroHistory = { generatedAt: 'fixture', series: { corePceIndex: { id: 'PCEPILFE', observations: months.map((date, i) => [date, 120 * (1.0025 ** i)]) } } };
+    const macroFixture = { cpi: 3.7, _asOf_cpi: '2026-09-01', coreCpi: 2.6, _asOf_coreCpi: '2026-09-01', corePce: 3.1, _asOf_corePce: '2026-09-01', nfp: 165, _asOf_nfp: '2026-10-01',
+      fedTargetUpper: 4, _asOf_fedTargetUpper: '2026-10-12', dgs2: 4.51, _asOf_dgs2: '2026-10-09', dgs10: 4.86, _asOf_dgs10: '2026-10-09', t10y2y: 0.35, _asOf_t10y2y: '2026-10-09',
+      realYield10: 2.6, _asOf_realYield10: '2026-10-08', breakeven10: 2.23, _asOf_breakeven10: '2026-10-09', pce: 3.6, _asOf_pce: '2026-09-01', _freshness_pce: 'stale' };
+    const macroRows = buildMacroReleaseEvidence({ macro: macroFixture, macroHistory, now: Date.parse('2026-10-13T04:00:00Z') });
+    const m = (metric) => macroRows.find((item) => item.metric === metric);
+    detail('v59.85 macro releases are typed reference rows with the reference month as asOf (stale fields and future dates left out)',
+      m('macro.cpi_yoy')?.value === 3.7 && m('macro.cpi_yoy').asOf === '2026-09-01' && m('macro.cpi_yoy').period === 'month' && m('macro.cpi_yoy').source === 'macro-release'
+        && m('macro.nfp_change')?.unit === 'thousands' && m('macro.us2y')?.asOf === '2026-10-09' && !m('macro.pce_yoy')
+        && m('macro.core_pce_3m_ann')?.value === Number((((1.0025 ** 3) ** 4 - 1) * 100).toFixed(1)) && m('macro.core_pce_mom')?.value === 0.25
+        && answerPublication.evidenceCanPublish(m('macro.cpi_yoy'), Date.parse('2026-10-13T04:00:00Z')), JSON.stringify(macroRows));
+    detail('v59.85 the 2s10s row exists only on one date with both legs (bp); an older spread is withheld',
+      m('macro.curve_2s10s')?.value === 35 && m('macro.curve_2s10s').unit === 'bp'
+        && !buildMacroReleaseEvidence({ macro: { ...macroFixture, _asOf_t10y2y: '2026-10-08' }, now: Date.parse('2026-10-13T04:00:00Z') }).some((item) => item.metric === 'macro.curve_2s10s'), JSON.stringify(m('macro.curve_2s10s')));
+    detail('v59.85 the release block names each value with its month/date and evidence id', /CPI 전년 대비 \(2026-09 기준월\) 3\.7% · evidenceId=ev-macro-cpi-yoy-2026-09-01/.test(renderMacroReleaseEvidenceContext(macroRows)), renderMacroReleaseEvidenceContext(macroRows));
+    ctx.window._aioScreenBasisEvidence = () => [...closeRows, ...macroRows];
+    const macroRegistry = ctx._aioBuildAIClaimEvidenceRegistry(ctx._aioCollectAIClaimEvidence({ evidence: [] }));
+    const cpiMatch = macroRegistry.match(/evidenceId=(\S+) metric=macro\.cpi_yoy entity=(\S*) value=(\S+) unit=(\S+) scale=(\S+) asOf=(\S+) source=(\S+)/);
+    const cpiClaim = cpiMatch ? { type: 'metric', metric: 'macro.cpi_yoy', entity: cpiMatch[2], value: Number(cpiMatch[3]), unit: cpiMatch[4], scale: cpiMatch[5], asOf: cpiMatch[6], source: cpiMatch[7], evidenceIds: [cpiMatch[1]], status: 'verified', text: 'CPI' } : null;
+    const cpiBound = cpiClaim ? run([cpiClaim, vixClaim, tnxClaim]) : null;
+    detail('v59.85 a CPI claim copied from the registry binds and publishes as an official release beside the closes (no withheld line)',
+      !!cpiBound && cpiBound.answerPlanBindingAudit.droppedClaims.length === 0 && cpiBound.text.includes('CPI 전년 대비 (2026-09 기준월): 3.7% [공식 발표]') && !cpiBound.text.includes('※'),
+      JSON.stringify({ registry: macroRegistry.slice(0, 600), text: cpiBound?.text, audit: cpiBound?.answerPlanBindingAudit }));
+    ctx.window._aioScreenBasisEvidence = () => closeRows;
+    // v59.85: MACRO_ANALYSIS read no macro rows (close.* ids and 'reference' status were refused), so the analysis block said
+    // "매크로/FX 근거가 없어" beside a Screen basis full of macro numbers. Reference rows count only from the two typed sources.
+    const { buildEvidenceAnalysisInputs } = await import('../src/ai/analysis/evidence-inputs.js');
+    const { buildMacroFxTransmission } = await import('../src/ai/analysis/macro-fx.js');
+    const macroInputs = buildEvidenceAnalysisInputs({ intent: { primary: 'MACRO_ANALYSIS' } }, { evidence: [...closeRows, ...macroRows], now: Date.parse('2026-10-13T04:00:00Z') });
+    const spoofed = buildEvidenceAnalysisInputs({ intent: { primary: 'MACRO_ANALYSIS' } }, { evidence: [{ ...m('macro.cpi_yoy'), evidenceId: 'ev-spoof', source: 'web-forum' }], now: Date.parse('2026-10-13T04:00:00Z') });
+    const transmission = buildMacroFxTransmission(macroInputs.inputs);
+    detail('v59.85 macro analysis reads the close-basis and macro-release rows (fx split out), and only those reference sources',
+      macroInputs.audit.usedCount >= 5 && macroInputs.audit.evidenceIds.includes('ev-close-vix-2026-10-12') && macroInputs.audit.evidenceIds.includes(m('macro.cpi_yoy').evidenceId)
+        && Object.keys(macroInputs.inputs.fx || {}).some((key) => /close\.dxy/.test(key)) && spoofed.audit.usedCount === 0
+        && transmission.status === 'partial' && !/근거가 없어/.test(transmission.conclusion), JSON.stringify({ audit: macroInputs.audit, spoofed: spoofed.audit, conclusion: transmission.conclusion }));
+  }
   delete ctx.window._aioScreenBasisEvidence;
   const withoutClose = run([vixClaim, tnxClaim]);
   detail('#7 control: without the close-basis rows the same claims are dropped', withoutClose.answerPlanBindingAudit.droppedClaims.length === 2 && !withoutClose.text.includes('15.21'), withoutClose.text);
@@ -713,6 +754,43 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   // is optional (absent or malformed -> nothing); injected tables replace the generic criteria list.
   const { setupCoachContext, stockLensBlock, themeCriteriaBlock } = choosing;
   check('v58.75 boot budget: without the lazy blocks the domain context goes on without them', !/가격 레벨|셋업 점검표/.test(domainCtxRaw({ ctxId: 'technical', query: 'NVDA 손절 어디? 셋업은?', root: {} })));
+  // v59.85 (macro/AI review): the 거시/외환·채권 DOMAIN lines read the typed rows (close-basis + macro-release) with dates and
+  // evidence ids — no live ^TNX, no undated snapshot 2s10s, no intraday VIX beside a close F&G, no "역전·침체 선행" — and
+  // a question that selects both blocks gets the shared rates line once.
+  {
+    const chatSrc = read('js/aio-chat.js');
+    const fnSrc = chatSrc.slice(chatSrc.indexOf('function _fetchDomainContextForChat('), chatSrc.indexOf('window._fetchDomainContextForChat = _fetchDomainContextForChat;'));
+    const evRows = [
+      { metric: 'close.vix', value: 25.64, unit: 'index', asOf: '2026-11-06', source: 'close-basis', evidenceId: 'ev-close-vix-2026-11-06' },
+      { metric: 'close.us10y', value: 4.86, unit: 'percent', asOf: '2026-11-06', source: 'close-basis', evidenceId: 'ev-close-us10y-2026-11-06' },
+      { metric: 'close.dxy', value: 102.28, unit: 'index', asOf: '2026-11-06', source: 'close-basis', evidenceId: 'ev-close-dxy-2026-11-06' },
+      { metric: 'close.dxy.chg20d', value: 0.05, unit: 'percent', asOf: '2026-11-06', source: 'close-basis', evidenceId: 'ev-close-dxy-chg20d-2026-11-06' },
+      { metric: 'macro.cpi_yoy', value: 3.7, unit: 'percent', asOf: '2026-09-01', period: 'month', source: 'macro-release', evidenceId: 'ev-macro-cpi-yoy-2026-09-01' },
+      { metric: 'macro.us2y', value: 4.51, unit: 'percent', asOf: '2026-11-06', period: 'day', source: 'macro-release', evidenceId: 'ev-macro-us2y-2026-11-06' },
+      { metric: 'macro.curve_2s10s', value: -12, unit: 'bp', asOf: '2026-11-06', period: 'day', source: 'macro-release', evidenceId: 'ev-macro-curve-2s10s-2026-11-06' }
+    ];
+    const win = { DATA_SNAPSHOT: { t10y2y: 1.25 }, _liveData: { '^TNX': { price: 5.02 } }, _aioRegimeNow: () => ({ vix: 31.2, fg: 40 }), _aioScreenBasisEvidence: () => evRows, AIO: {} };
+    const chatMacro = await import('../src/ai/context/chat-macro-lines.js');
+    win.AIO.buildChatMacroLines = chatMacro.buildChatMacroLines; win._aioKstStamp = chatMacro.kstStamp;
+    const dctx = vm.createContext({ window: win, Intl, Date, console });
+    vm.runInContext(fnSrc, dctx);
+    const macroText = dctx._fetchDomainContextForChat('macro');
+    const fxText = dctx._fetchDomainContextForChat('fxbond');
+    const both = domainCtxRaw({ ctxId: 'macro', query: '금리와 CPI', root: {}, readDomain: dctx._fetchDomainContextForChat });
+    check('v59.85 macro/fx DOMAIN lines cite the typed rows with dates and ids, not live ^TNX / snapshot 2s10s / intraday VIX',
+      /CPI 3\.7% \(2026-09 기준월, evidenceId=ev-macro-cpi-yoy-2026-09-01\)/.test(macroText) && /10Y 4\.86% \(2026-11-06 종가/.test(macroText) && /10Y−2Y -12bp/.test(macroText)
+        && !/5\.02|125bp|31\.2|역전·침체/.test(macroText + fxText) && /DXY 20거래일 \+0\.05%/.test(fxText) && /KST/.test(macroText));
+    check('v59.85 a question selecting both blocks gets the shared rates line once', (both.match(/• 미 국채:/g) || []).length === 1 && /거시 도메인/.test(both) && /외환·채권 도메인/.test(both));
+    const prompt = await import('./lib/market-analysis-prompt.mjs');
+    const cpiUp = { cpi: 3.7, cpiDelta: 0.3, coreCpi: 2.6, coreCpiDelta: 0.2, _asOf_cpi: '2026-09-01' };
+    const heldLine = prompt.inflationDirectionLine(cpiUp, { direction: { state: 'flat', text: '근원 PCE(9월) 뚜렷한 방향 없음' } });
+    check('v59.85 INFLATION_DIRECTION follows the screen direction, not cpiDelta', !/오르는 중/.test(heldLine) && /방향 보류/.test(heldLine)
+      && !/오르는 중/.test(prompt.inflationDirectionLine(cpiUp)) && /재가속/.test(prompt.inflationDirectionLine(cpiUp, { direction: { state: 'up' } })) && prompt.inflationDirectionLine({}) === '');
+    const validate = await import('./lib/market-analysis-validate.mjs');
+    check('v59.85 the "물가 둔화" contradiction check uses the screen direction (cpiDelta only when no direction)',
+      validate.inflationEasingContradicts(cpiUp, { state: 'flat' }) === true && validate.inflationEasingContradicts(cpiUp, { state: 'down' }) === false
+      && validate.inflationEasingContradicts(cpiUp, null) === true && validate.inflationEasingContradicts({ cpiDelta: -0.1 }, { state: 'unknown' }) === false);
+  }
   const coach = { symbol: 'NVDA', asOf: '2026-10-23', lifecycle: { stage: 'pivot', headline: '피벗 접근', check: '거래 감소' }, checklist: { headline: '6개 중 4개 충족 — 충족 개수이며 성공 확률이 아닙니다.', items: [{ label: '거래 마름', met: true, value: '72%', principle: '매물 소화' }], failedRule: '' }, alignment: { headline: '주봉 상승 / 일봉 베이스' }, pastBreakouts: '과거 돌파 4건', market: '시장 다소 부담' };
   const lensRoot = { _aioStockLensFor: (sym) => ({ symbol: sym, marketLink: '선두 시나리오에서 부담', lens: { name: '반도체', basis: '공시', metrics: [{ metric: '매출총이익률', value: '75%', trend: '상승', why: '가격 결정력' }] }, strengths: ['순이익률 1위'], weaknesses: [], peers: null, situation: null, thesis: { conditions: ['성장 유지'], breaks: ['이익률 하락'], checks: [], paths: [] }, watch: [], note: '사실' }), _aioSetupCoachFor: () => coach };
   const lensCtx = domainCtx({ ctxId: 'home', query: 'NVDA 논지 점검해줘', root: lensRoot, tickers: ['NVDA'] });
@@ -793,7 +871,7 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   check('P1740 macro context reads the policy range, Korean references and the release calendar (expired export flash held)',
     /연준 목표금리 범위: 3\.75-4\.00%/.test(usLines) && /10-15 CPI/.test(usLines) && !/한국/.test(usLines) && !/FOMC/.test(usLines)
     && /한국은행 기준금리: 3%/.test(krLines) && /다음 금통위 2026-10-22/.test(krLines) && /확인 기한을 넘겨/.test(krLines) && !/전년 대비 5%/.test(krLines)
-    && /buildChatPolicyLines\(\{ root: window, includeKorea: ctxId === 'kr-macro' \}\)/.test(chat));
+    && /buildChatPolicyLines\?\.\(\{ root, includeKorea: ctxId === 'kr-macro' \}\)/.test(read('src/ai/context/chat-macro-lines.js')));
   const { chooseAnswerVisuals } = await import('../src/ui/components/ai-answer-visuals.js');
   const kinds = (input) => chooseAnswerVisuals(input).map((pick) => pick.kind).join(',');
   check('P1741 visuals follow the question and need a company',

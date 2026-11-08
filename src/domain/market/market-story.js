@@ -6,6 +6,9 @@
 import { MOVER_BY_SYMBOL } from '../briefing/market-movers.js';
 import { readNumber } from '../shared/number.js';
 import { RULES } from '../rules/thresholds.js';
+import { releaseAtMs, usWallClockMs } from '../briefing/schedule.js';
+import { policyCycle } from '../macro/macro-signals.js';
+import { seriesOf } from '../macro/macro-read.js';
 import { SCHEDULED_EVENTS as REGISTRY } from '../briefing/scheduled-events.js';
 import { indexLevels, levelValue, levelsRead } from './index-levels.js';
 import { historyFieldMeta } from './history-meta.js';
@@ -286,9 +289,12 @@ function confirmations({ moves, rates, credit, macroHistory, history, asOf, star
 }
 
 // What in the coming week would change the read: the collected next release, the heaviest reports and fixed events.
-const releaseWhy = (event, story) => (event.id === 'us-nfp'
-  ? (story.rates?.kind === 'growth-fear' ? '실업률이 오르면 금리 하락이 성장 걱정으로 굳고, 버티면 이번 하락은 업종 조정에 그칩니다.' : '고용이 식으면 금리 인하 기대가 커지고, 강하면 금리 부담이 다시 커집니다.')
-  : /\b(?:cpi|pce)\b/.test(String(event.id)) ? '근원 물가가 다시 오르면 금리 인하 기대가 줄어듭니다.'
+// The rate-path words follow the policy cycle (macro-signals policyCycle), as the release bands do: in a hiking cycle a hot
+// print answers how high and how long, not how soon a cut comes.
+const releaseWhy = (event, story, hiking = false) => (event.id === 'us-nfp'
+  ? (story.rates?.kind === 'growth-fear' ? '실업률이 오르면 금리 하락이 성장 걱정으로 굳고, 버티면 이번 하락은 업종 조정에 그칩니다.'
+    : hiking ? '고용이 식으면 추가 인상 압력이 줄고, 강하면 높은 금리가 더 오래 갑니다.' : '고용이 식으면 금리 인하 기대가 커지고, 강하면 금리 부담이 다시 커집니다.')
+  : /\b(?:cpi|pce)\b/.test(String(event.id)) ? (hiking ? '근원 물가가 다시 오르면 추가 인상 압력이 커지고, 식으면 인상이 멈출 근거가 됩니다.' : '근원 물가가 다시 오르면 금리 인하 기대가 줄어듭니다.')
     : event.id === 'us-fed-rate' ? '금리 결정과 함께 앞으로의 경로 발언을 봅니다.'
       : event.id === 'us-retail' ? '소비가 버티는지, 성장 걱정이 소비로 번지는지 봅니다.' : '결과에 따라 지금 시나리오가 바뀔 수 있습니다.');
 
@@ -296,29 +302,35 @@ const releaseWhy = (event, story) => (event.id === 'us-nfp'
 // one that decides the tied branches — that rule skipped the 11/10 CPI for the 11/17 retail sales, which fell outside the
 // eight days, and the list had no release at all. `storySymbols` (symbol → story label, from the market-day narratives)
 // lets a report the stories are about onto the list whatever its index weight (CoreWeave, outside the S&P 500).
-function weekAhead({ calendar, nextEvent, decidingEvent = null, events = [], storySymbols = null, story, nowMs, days = 8 }) {
+function weekAhead({ calendar, nextEvent, decidingEvent = null, events = [], storySymbols = null, story, nowMs, macroHistory = null, days = 8 }) {
   const out = [];
+  const hiking = policyCycle(seriesOf(macroHistory, 'fedTargetUpper')).hiking;
   const horizon = nowMs + days * 86400000;
   // v59.70 (screen review 9): an item belongs to the week ahead from the reader's own day — the KST date. A US event dated
   // 11/3 (the midterm vote) is over by 11/4 KST; the old 12-hour grace on a UTC day kept it at the top of '다음 주'.
   const kstToday = new Date(nowMs + 9 * 3600000).toISOString().slice(0, 10);
   const inside = (date) => { const ms = Date.parse(`${date}T23:59:00Z`); return Number.isFinite(ms) && String(date) >= kstToday && ms <= horizon; };
+  // A US release or report carries an ET date; with a known clock it is 'next' until that moment, not until KST midnight
+  // (an FOMC at 14:00 ET is 04:00 KST the next day; a CPI at 22:30 KST is over before the KST day ends).
+  const ahead = (atMs, date) => (Number.isFinite(atMs) ? atMs > nowMs && atMs <= horizon : inside(date));
+  const REPORT_CLOCK = { bmo: [9, 30], dmh: [16, 0], amc: [16, 30] }; // by the open / the close / shortly after the close (ET)
+  const reportAt = (row) => (row?.date ? usWallClockMs(row.date, REPORT_CLOCK[row.hour] || [23, 59]) : null);
   for (const event of SCHEDULED_EVENTS) if (inside(event.date)) out.push({ kind: 'event', date: event.date, when: dayLabel(event.date), title: event.title, why: event.why });
   const releases = [...(Array.isArray(events) ? events : []), ...[nextEvent, decidingEvent].filter(Boolean)];
   const seenRelease = new Set();
   for (const event of releases) {
-    if (!event?.date || !event.id || !inside(event.date) || seenRelease.has(`${event.id}|${event.date}`)) continue;
+    if (!event?.date || !event.id || !ahead(Number.isFinite(event.atMs) ? event.atMs : releaseAtMs(event.id, event.date), event.date) || seenRelease.has(`${event.id}|${event.date}`)) continue;
     seenRelease.add(`${event.id}|${event.date}`);
     const decides = decidingEvent && decidingEvent.id === event.id && decidingEvent.date === event.date;
     out.push({ kind: 'macro', date: event.date, when: event.when || dayLabel(event.date), title: event.name,
-      why: `${releaseWhy(event, story)}${decides ? ' 지금 맞서는 시나리오를 가르는 발표입니다.' : ''}` });
+      why: `${releaseWhy(event, story, hiking)}${decides ? ' 지금 맞서는 시나리오를 가르는 발표입니다.' : ''}` });
   }
   const aiStory = story.concentration.kind === 'narrow-down' || story.concentration.kind === 'narrow-up';
   // v59.70 (step 3 screen audit): a quiet week listed Moderna 0.1% as "대형 기술주 쏠림이 이어질지 가르는 실적" — the line's
   // sentence followed the market's story, not the company, and any weight qualified. A report is on the list when its
   // index weight is at least REPORT_WEIGHT_MIN or it is on the market-mover list; the AI sentence needs a mover on the line.
   const pending = (Array.isArray(calendar?.earnings) ? calendar.earnings : [])
-    .filter((row) => row?.symbol && row.date && readNumber(row.epsActual) === null && inside(row.date));
+    .filter((row) => row?.symbol && row.date && readNumber(row.epsActual) === null && ahead(reportAt(row), row.date));
   const byWeight = (a, b) => (Number(b.indexWeight) || 0) - (Number(a.indexWeight) || 0);
   let reports = pending.filter((row) => Number(row.indexWeight) >= REPORT_WEIGHT_MIN || (MOVER_BY_SYMBOL[row.symbol] && Number(row.indexWeight) > 0)).sort(byWeight).slice(0, 3);
   if (!reports.length) reports = pending.filter((row) => Number(row.indexWeight) >= REPORT_WEIGHT_FALLBACK).sort(byWeight).slice(0, 2);
@@ -396,7 +408,7 @@ export function buildMarketStory({ history = [], macroHistory = null, briefs = n
   // The table: every index-moving core name, then the four largest other moves of 8% or more.
   story.earnings = [...reported.filter((row) => row.core).slice(0, 8),
     ...reported.filter((row) => !row.core && Math.abs(row.pct) >= 8).sort((a, b) => Math.abs(b.pct) - Math.abs(a.pct)).slice(0, 4)];
-  story.week = weekAhead({ calendar, nextEvent, decidingEvent, events, storySymbols, story, nowMs });
+  story.week = weekAhead({ calendar, nextEvent, decidingEvent, events, storySymbols, story, nowMs, macroHistory });
   // v59.62: where the indexes sit on their charts (index-levels.js) — distance from the high, the 50/200-day lines, the
   // support below and a double top at or through its neck. Not a cross-asset check, so it is its own block.
   const levels = indexLevels(history);

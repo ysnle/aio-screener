@@ -1757,6 +1757,13 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       const lines = week.filter((row) => row.kind === 'earnings');
       if (lines.some((row) => /MRNA/.test(row.title)) || !/쏠림/.test(lines.find((row) => /엔비디아/.test(row.title))?.why || '')
         || !/지수 비중이 커서/.test(lines.find((row) => /XYZ/.test(row.title))?.why || '')) fail(`v59.70: week-ahead earnings lines must follow the company, got ${JSON.stringify(lines)}`);
+      // v59.85 (macro calendar): a US release with a known clock is 'next' until that moment, not until KST midnight — an
+      // FOMC at 14:00 ET (04:00 KST the next day) stays listed after KST midnight; a CPI at 08:30 ET drops once it is out.
+      const fomcDay = '2026-12-09', cpiDay = '2026-12-10';
+      const releases = [{ id: 'us-fed-rate', name: 'FOMC', date: fomcDay }, { id: 'us-cpi', name: 'CPI', date: cpiDay }];
+      const titlesAt = (iso) => (buildMarketStory({ history: weekRows, events: releases, nowMs: Date.parse(iso) }).week || []).filter((row) => row.kind === 'macro').map((row) => row.title).join(',');
+      const afterKstMidnight = titlesAt('2026-12-09T16:30:00Z'), afterCpi = titlesAt('2026-12-10T14:00:00Z');
+      if (afterKstMidnight !== 'FOMC,CPI' || afterCpi !== '') fail(`v59.85 week-ahead releases follow their release clock: ${afterKstMidnight} / ${afterCpi}`);
     }
     if (both?.symbols?.join(',') !== 'MU,BAC' || both.symbol !== 'MU' || !/Micron[\s\S]*Bank of America/.test(both.text)) fail('v59.62: a multi-company earnings headline must carry every named reporter in headline order');
   }
@@ -7220,4 +7227,24 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const { wonMoveSentence } = await load('src/domain/macro/rates-fx.js');
   if (!/조금 약해졌습니다/.test(wonMoveSentence(1.5)) || /안정/.test(wonMoveSentence(1.5))) fail(`v59.76 a +1.5% 20-session won move is a mild weakening, never '안정적': ${wonMoveSentence(1.5)}`);
   if (!/보합권/.test(wonMoveSentence(0.3)) || !/환차손/.test(wonMoveSentence(2.4)) || !/강해졌습니다/.test(wonMoveSentence(-2.1))) fail('v59.76 the won sentence follows the 환율 axis edges (0.5% flat, 2% move)');
+  // v59.85 (macro/AI review 11/8): one owner per macro read, shared by the chapters, the chain, the tiles, the release
+  // bands and the AI blocks.
+  if (!/원화만 약해졌습니다/.test(wonMoveSentence(1.5, { dxy20: 0 })) || /원화만/.test(wonMoveSentence(1.5, { dxy20: 1.4 }))) fail(`v59.85 a won move with the dollar index flat is named as won-specific: ${wonMoveSentence(1.5, { dxy20: 0 })}`);
+  {
+    const ms85 = await load('src/domain/macro/macro-signals.js');
+    const fed = (rows) => rows.map(([date, value]) => ({ date, value }));
+    if (ms85.policyCycle(fed([['2026-06-01', 3.75], ['2026-09-17', 4.0], ['2026-11-06', 4.0]])).state !== 'hiking' || ms85.policyCycle(fed([['2025-01-01', 4.5], ['2025-03-01', 4.25], ['2026-11-06', 4.25]])).state !== 'hold' || ms85.policyCycle([]).state !== 'unknown') fail('v59.85 the policy cycle is the last target move within 180 days (hiking / hold / unknown)');
+    const brentLed = ms85.oilDivergence({ basis: 'futures', abnormal: false, diverges: false, brent20: -6.1, wti20: -1.1 });
+    if (!brentLed.held || brentLed.kind !== 'brent-led') fail(`v59.85 a Brent fall WTI does not follow by half holds the WTI read as brent-led: ${JSON.stringify(brentLed)}`);
+    const { creditReleaseText, verdictHorizonLine } = await load('src/domain/briefing/market-read.js');
+    const release = creditReleaseText({ hyBp: 348, hy5: 22, hy20: 33 });
+    if (/450bp/.test(release) || !/\+15bp/.test(release) || !/\+25bp/.test(release) || !/중립$/.test(release)) fail(`v59.85 the HY release names only the unmet legs (5d < +15bp, 20d < +25bp): ${release}`);
+    const stat = (value, d1) => ({ value, d1, date: '2026-11-06' });
+    const upDay = verdictHorizonLine({ overall: '다소 부담', indexes: [['S&P 500', stat(100.3, 100)], ['나스닥 100', stat(101.4, 100)]] });
+    if (!/^11\/6 지수는 올랐지만/.test(upDay?.text || '') || !/20거래일/.test(upDay.text) || !/나스닥 100 \+1\.4%/.test(upDay.detail)) fail(`v59.85 a burden verdict beside an up session names its horizon: ${JSON.stringify(upDay)}`);
+    if (verdictHorizonLine({ overall: '혼조', indexes: [['S&P 500', stat(102, 100)]] }) || verdictHorizonLine({ overall: '다소 부담', indexes: [['S&P 500', stat(101, 100)], ['러셀 2000', stat(99, 100)]] }) || verdictHorizonLine({ overall: '다소 부담', indexes: [['S&P 500', stat(100.2, 100)]] })) fail('v59.85 the horizon line stays silent on 혼조, a split day, or a small move');
+    const { buildChatMacroLines } = await load('src/ai/context/chat-macro-lines.js');
+    const chat = buildChatMacroLines({ ctxId: 'macro', root: { _aioScreenBasisEvidence: () => [{ metric: 'macro.core_pce_yoy', value: 3.12, unit: 'percent', asOf: '2026-09-01', period: 'month', source: 'macro-release', evidenceId: 'mr:core_pce' }] }, timeLabel: 't' });
+    if (!chat.some((line) => /근원 PCE 3\.12% \(2026-09 기준월, evidenceId=mr:core_pce\)/.test(line))) fail(`v59.85 the chat macro block cites the typed release row with its month and evidenceId: ${JSON.stringify(chat)}`);
+  }
 }

@@ -1,0 +1,36 @@
+{
+  "version": "v59.85",
+  "date": "2026-11-08",
+  "p": {
+    "title": "거시 화면의 같은 개념(물가 방향·고용 경고·신용 해제·유가 기준·달러 부담·변동성 구간)을 화면마다 다른 규칙으로 판정했다",
+    "symptom": "11/6 종가 기준으로 물가 장(章)은 근원 CPI 3개월 연율 3.4%만 보고 '재가속'이라 했지만, 물가 축과 시나리오는 근원 PCE가 따라오지 않아 '방향 보류'였다. 고용 장의 경고선은 Sahm 규칙과 다른 임의 기준이었고, 신용 장은 HY가 진입선(+35bp) 아래로 내려온 뒤에도 해제 조건을 말하지 않았다. 유가 장은 WTI -1.1%만 읽어 브렌트 -6.1%를 놓쳤고, 원/달러 +1.5%를 DXY 0.0% 옆에서 '달러 강세'처럼 설명했다. VIX 구간 이름은 타일·장·축이 서로 달랐고, 금리 하락이 주가 -3% 이하와 함께 온 성장 걱정 구간에서도 금리 타일은 '할인율 부담 감소'로 읽혔다.",
+    "root_cause": "장(macro-chapters.js)·체인·타일·발표 밴드가 각자 지표를 다시 계산했다. 물가 방향(inflationDirection), Sahm 간격, 실업수당 추세, 신용 래치·해제, 브렌트/WTI 판정, 달러 부담, 성장 걱정 판정의 소유자가 있었지만 장과 타일이 그 소유자를 읽지 않았다.",
+    "fix": "coreInflationRead(macro-read.js)가 PCE·CPI 한 쌍의 방향을 한 번 정하고 장·축·AI 프롬프트가 읽는다. 고용 장은 sahmGap·claimsTrend로 Sahm 0.5%p와 청구 +15% 선을 숫자로 말한다. creditReleaseText가 아직 못 채운 해제 조건만 '지금 값'과 함께 말하고, 래치가 이어지는 동안은 진입선 아래라도 '확대 부담 판정이 이어진다'고 쓴다. oilDivergence에 브렌트 주도(brent-led) 보류를 더해 국제 유가가 움직이고 WTI가 따라가지 않으면 WTI로 방향을 읽지 않는다. 달러 장은 dollarRiseBurden과 1년 위치를, 원화 문장은 DXY가 제자리일 때 '원화만 약해졌다'를 말한다. VIX 구간 이름은 RULES.volatility 한 표에서 나온다. 금리 축의 growthScare를 타일 제목과 뒤집힘 조건이 읽는다.",
+    "violated_rule": "한 사실, 한 소유자 — 같은 지표의 판정은 한 함수가 내리고 화면들은 그 결과를 읽는다.",
+    "prevention": "거시 장이나 타일에 판정 문장을 더할 때는 macro-read/macro-signals/market-read의 소유 함수를 먼저 찾아 읽는다. 장 안에서 같은 지표의 문턱을 다시 쓰지 않는다.",
+    "verification": "node scripts/ci-esm-core-unit-check.mjs (v59.85 won-specific / policy cycle / brent-led / HY release legs)",
+    "files": [
+      "src/domain/macro/macro-read.js",
+      "src/domain/macro/macro-chapters.js",
+      "src/domain/macro/macro-signals.js",
+      "src/domain/macro/rates-fx.js",
+      "src/domain/macro/volatility.js",
+      "src/domain/briefing/market-read.js",
+      "src/domain/briefing/credit-reading.js"
+    ]
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-MACRO-ONE-OWNER-READS",
+      "text": "v59.85: 거시 장·체인·타일이 물가 방향(coreInflationRead), Sahm·청구, HY 해제 조건(creditReleaseText), 브렌트 주도 보류, 달러 부담, VIX 구간 이름, 성장 걱정을 각 소유 함수에서 읽어 같은 날 서로 다른 판정을 내지 않는다.",
+      "verify_by": "node scripts/ci-esm-core-unit-check.mjs",
+      "done": true
+    }
+  ],
+  "qa_section": "거시 판정 단일 소유",
+  "changelog": [
+    "**거시 판정 한 소유자 ({P}):** 물가 장·축·시나리오가 한 쌍의 근원 PCE·CPI 방향을 읽고(11/6: CPI만 빨라져 '방향 보류'), 고용 장은 Sahm 0.5%p·청구 +15% 선을 숫자로, 신용은 못 채운 해제 조건만 지금 값과 함께, 유가는 브렌트가 움직이고 WTI가 따라가지 않을 때 WTI 방향을 보류한다. 원/달러는 DXY 제자리일 때 원화 고유 움직임으로, VIX 구간 이름과 성장 걱정 금리 타일은 축과 같은 이름·조건으로 쓴다."
+  ],
+  "note": "macro one-owner reads (inflation, labor, credit, oil, dollar, VIX, growth scare)"
+}

@@ -1649,35 +1649,9 @@ function _liveSnap() {
   // v36.8: 지수는 항상 현물(종가) 표시, 선물은 별도 참고
   var indexBasis = usSession === 'open' ? '정규장 live 우선/source 확인' : '종가 기준';
 
-  // v48.60: FRED/BOK/KOSIS 매크로 지표 AI 채팅 주입 (R37 준수 — 수집-AI 주입 페어링)
-  var fredD = window._fredData || {};
-  var bokD = window._bokData || {};
-  var kosisD = window._kosisData || {};
-  var macroBlock = {
-    fedRate: (fredD.FEDFUNDS && fredD.FEDFUNDS.value != null) ? _fmt(fredD.FEDFUNDS.value, 2) + '%' : '—',
-    unemployment: (fredD.UNRATE && fredD.UNRATE.value != null) ? _fmt(fredD.UNRATE.value, 1) + '%' : '—',
-    housing: (fredD.HOUST && fredD.HOUST.value != null) ? Math.round(fredD.HOUST.value) + 'K' : '—',
-    // v51.97/P593: consConf = Conference Board(index.html data-snap="cons-conf" 라벨·임계값 기준).
-    // FRED엔 Conference Board 무료 시리즈가 없어 라이브 소스 없음 — UMCSENT(미시간대, 별개 지표)를
-    // 대신 넣던 기존 로직 제거하고 DATA_SNAPSHOT 폴백만 사용 (cpiYoY 등 형제 필드와 동일 패턴).
-    consConf: (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.consConf != null) ? _fmt(window.DATA_SNAPSHOT.consConf, 1) + ' [스냅샷]' : '—',
-    retailSalesMoM: (fredD.RSAFS && fredD.RSAFS.value != null && fredD.RSAFS.prevValue) ? _fmt((fredD.RSAFS.value - fredD.RSAFS.prevValue) / fredD.RSAFS.prevValue * 100, 2) + '% MoM' : '—',
-    wageGrowth: (fredD.CES0500000003 && fredD.CES0500000003.value != null) ? '$' + _fmt(fredD.CES0500000003.value, 2) : '—',
-    t10y2y: (fredD.T10Y2Y && fredD.T10Y2Y.value != null) ? _fmt(fredD.T10Y2Y.value, 2) + '%' : '—',
-    hyOAS: (fredD.BAMLH0A0HYM2 && fredD.BAMLH0A0HYM2.value != null) ? '+' + Math.round(fredD.BAMLH0A0HYM2.value * 100) + 'bp' : '—',
-    // v50.8: US 인플레·고용 YoY — live FRED(v50.5 CPI/Core/PCE 시리즈) 우선 + DATA_SNAPSHOT 폴백.
-    // 기존 macroBlock은 Fed/실업률만 노출하고 CPI/PCE는 누락 → 채팅이 인플레 수치를 못 받던 갭 해소.
-    cpiYoY:     (fredD.CPIAUCNS && typeof fredD.CPIAUCNS.yoy === 'number') ? _fmt(fredD.CPIAUCNS.yoy, 1) + '% [BLS/FRED NSA]' : ((window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.cpi != null) ? window.DATA_SNAPSHOT.cpi + '% [BLS NSA 스냅샷]' : '—'),
-    coreCpiYoY: (fredD.CPILFENS && typeof fredD.CPILFENS.yoy === 'number') ? _fmt(fredD.CPILFENS.yoy, 1) + '% [BLS/FRED NSA]' : ((window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.coreCpi != null) ? window.DATA_SNAPSHOT.coreCpi + '% [BLS NSA 스냅샷]' : '—'),
-    pceYoY:     (fredD.PCEPI && typeof fredD.PCEPI.yoy === 'number') ? _fmt(fredD.PCEPI.yoy, 1) + '% [FRED]' : ((window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.pce != null) ? window.DATA_SNAPSHOT.pce + '% [스냅샷]' : '—'),
-    corePceYoY: (fredD.PCEPILFE && typeof fredD.PCEPILFE.yoy === 'number') ? _fmt(fredD.PCEPILFE.yoy, 1) + '% [FRED]' : ((window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.corePce != null) ? window.DATA_SNAPSHOT.corePce + '% [스냅샷]' : '—'),
-    nfp: (fredD.PAYEMS && fredD.PAYEMS.value != null && fredD.PAYEMS.prevValue != null) ? ((fredD.PAYEMS.value - fredD.PAYEMS.prevValue >= 0 ? '+' : '') + Math.round(fredD.PAYEMS.value - fredD.PAYEMS.prevValue) + 'K [FRED]') : ((window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.nfp != null) ? ('+' + window.DATA_SNAPSHOT.nfp + 'K [스냅샷]') : '—'),
-    // BOK 한국은행
-    bokRate: (bokD.bokRate && bokD.bokRate.value != null) ? _fmt(bokD.bokRate.value, 2) + '%' : '—',
-    bokStatus: (bokD.bokRate && bokD.bokRate.prev != null) ? (Math.abs(bokD.bokRate.value - bokD.bokRate.prev) < 0.01 ? '동결' : (bokD.bokRate.value > bokD.bokRate.prev ? '인상' : '인하')) : '—',
-    // KOSIS 통계청
-    krCpi: (kosisD.krCpi && kosisD.krCpi.value != null) ? _fmt(kosisD.krCpi.value, 1) : '—'
-  };
+  // the FRED/BOK/KOSIS macroBlock that lived here had no reader (the chat reads the typed
+  // macro-release rows, src/ai/context/macro-release-evidence.js) and still built fedRate from the FEDFUNDS monthly average
+  // removed from the chat; it is deleted so it cannot be wired back in.
 
   return {
     spx: _fmt(_ld('^GSPC','price')), spxPct: _fmt(_ld('^GSPC','pct'),2),
@@ -1710,8 +1684,6 @@ function _liveSnap() {
     spx200ma: (window._spxMA && window._spxMA[200]) || '데이터 없음',
     // 세션 상태
     usSession: usSession, krSession: krSession, futuresOpen: futOpen,
-    // v48.60: 매크로 지표 AI 주입 (FRED + BOK + KOSIS 전 소스)
-    macro: macroBlock,
     _stale: stale,
     _liveCoreCount: liveCoreCount,
     _freshness: liveCoreCount >= 4 && stale.length <= 1 ? 'live 우선/source 확인' : (stale.length <= 2 ? 'live+snapshot 혼합' : '대부분 snapshot/fallback')
@@ -1771,7 +1743,8 @@ function _getChatRules() {
   var snap = window.DATA_SNAPSHOT || {};
   var freshness = snap._updated || snap._marketDataUpdated || null;
   return '\n\n【데이터 사용 규칙】\n' +
-    '• 현재 시각: ' + now.toLocaleString('ko-KR', { hour12:false }) + '\n' +
+    // Korean time on any device (the bare toLocaleString used the browser's zone, unlabelled).
+    '• 현재 시각: ' + (typeof window._aioKstStamp === 'function' ? window._aioKstStamp(now) : now.toLocaleString('ko-KR', { hour12:false, timeZone: 'Asia/Seoul' }) + ' KST') + '\n' +
     '• 서버 산출물 시각: ' + (freshness || '미수신') + '\n' +
     '• 라이브/공식 산출물/출처·시점이 명시된 공식 참고값만 현재값으로 인용합니다.\n' +
     '• —, null, 미수신 값은 0·중립·이전 수치로 보정하지 않고 판단을 보류합니다.\n' +
@@ -1791,6 +1764,8 @@ function _getInstitutionalFrameworkContext(pageFocus) {
 function _getV48IntegratedContext(pageFocus) {
   var profile = typeof _buildUserProfileContext === 'function' ? _buildUserProfileContext() : '';
   return '\n【현재 증거 우선 계약】\n' +
-    '내장된 과거 리서치·날짜별 시장 서사는 사용하지 않습니다. 현재 런타임 데이터와 공식 원천만 사용하고, 부족하면 웹 확인 또는 판단 보류를 선택합니다.\n' +
+    // this said "no built-in research" while the same prompt appended dated supplied packets and
+    // frameworks. The rule now says what those are for: dated reference for frames and mechanisms, never current facts.
+    '현재 수치·사실은 현재 런타임 데이터(근거 행 evidenceId가 있는 확정 종가·공식 발표·실시간 시세)와 공식 원천만 사용합니다. 함께 주어진 날짜 표기 참고 자료(사용자 제공 프레임워크·리서치 패킷)는 해석 틀과 메커니즘 설명에만 쓰고, 그 안의 수치·날짜별 서사는 현재 사실로 옮기지 않습니다. 부족하면 웹 확인 또는 판단 보류를 선택합니다.\n' +
     _getInstitutionalFrameworkContext(pageFocus) + profile;
 }

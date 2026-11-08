@@ -10,10 +10,12 @@ import { buildScreenerAiContext, detectSectorQuery, formatScreenerResultPrompt, 
 import { chooseAnswerMode, answerModeGuide } from '../ai/response/answer-modes.js';
 import { buildAnswerPrinciples, describeAnswerVisuals, promptWithoutWebSearch } from '../ai/response/answer-principles.js';
 import { CHAT_REFERENCE_BUDGET, capReferenceLines } from '../ai/context/reference-budget.js'; // 2026-11-02 chat context budget
+import { buildChatMacroLines, kstStamp } from '../ai/context/chat-macro-lines.js';
 
 export function installChatGlobals(root = globalThis) {
   root.AIO = root.AIO || {};
-  Object.assign(root.AIO, { buildMarketContentContext, buildQuestionDomainContext, chooseAnswerMode, answerModeGuide, buildAnswerPrinciples, describeAnswerVisuals, promptWithoutWebSearch, chatReferenceBudget: CHAT_REFERENCE_BUDGET, capReferenceLines });
+  Object.assign(root.AIO, { buildMarketContentContext, buildQuestionDomainContext, chooseAnswerMode, answerModeGuide, buildAnswerPrinciples, describeAnswerVisuals, promptWithoutWebSearch, chatReferenceBudget: CHAT_REFERENCE_BUDGET, capReferenceLines, buildChatMacroLines });
+  root._aioKstStamp = kstStamp; // the chat's and the workspace prompt's assembly time, in KST on any device
   const input = () => (typeof root.AIO.screenerQueryInput === 'function' ? root.AIO.screenerQueryInput() : null) || { rows: [] };
   const rankAsOf = () => (typeof root.AIO.screenerFactorAsOf === 'function' ? root.AIO.screenerFactorAsOf() : null);
   root._aioRunScreenerQuery = (query, opts) => runScreenerQuery(query, { ...input(), recentTickers: opts?.recentTickers || [] });

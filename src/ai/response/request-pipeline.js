@@ -390,7 +390,8 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     var publishedClaims = publishablePlan.plan ? publishablePlan.plan.claims.claims : [];
     var sessionReady = !!(sessionEvidence && sessionEvidence.verified === true && sessionEvidence.observedAt && /^(open|closed|pre|post)$/.test(sessionEvidence.status));
     // v57.48 #7: completed closes do not depend on the live session, so an answer whose values all bind to close-basis rows needs no session notice.
-    if (!isPartialStream && currentSensitive && !sessionReady && !(publishedClaims.length && publishedClaims.every(function(claim) { return claim.source === 'close-basis'; }))) {
+    // nor do the official macro releases (source 'macro-release': a month's CPI does not change with the session).
+    if (!isPartialStream && currentSensitive && !sessionReady && !(publishedClaims.length && publishedClaims.every(function(claim) { return claim.source === 'close-basis' || claim.source === 'macro-release'; }))) {
       applyLimitation('market-session-evidence-unavailable', '시장 세션 근거 미수신: 장중·장외 상태와 최신 수치는 확인 보류하며, 아래 내용은 확인된 기존 근거와 조건부 분석 범위입니다.');
     }
     if (!isPartialStream && publishablePlan.droppedClaims.length) applyLimitation('answer-plan-claim-degraded', '출처나 관측 시각을 확인할 수 없는 주장은 제외했습니다. 확인 가능한 설명을 아래에 제공합니다.');

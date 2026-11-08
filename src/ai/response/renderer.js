@@ -3,8 +3,13 @@ function line(value) { return String(value == null ? '' : value).trim(); }
 
 // v57.48 #7: a bound value reads as the user sees it on screen — "VIX 종가: 15.21 [종가 기준 · 2026-10-12 종가]",
 // not "15.21index [close-basis · 2026-10-12]". Unknown units and sources pass through unchanged.
-const UNIT_TEXT = Object.freeze({ index: '', percent: '%', bp: 'bp', usd_per_barrel: '달러', usd_per_ounce: '달러', krw_per_usd: '원' });
-const SOURCE_TEXT = Object.freeze({ 'close-basis': '종가 기준' });
+// official macro releases (source 'macro-release') read "공식 발표 · 2026-09 기준월" — a monthly release's asOf is its
+// reference month, not a close date.
+const UNIT_TEXT = Object.freeze({ index: '', percent: '%', bp: 'bp', thousands: '천 명', usd_per_barrel: '달러', usd_per_ounce: '달러', krw_per_usd: '원' });
+const SOURCE_TEXT = Object.freeze({ 'close-basis': '종가 기준', 'macro-release': '공식 발표' });
+// The monthly row's label already names its reference month ("CPI 전년 대비 (2026-09 기준월)"), so the trace does not repeat a date.
+const whenText = (claim) => claim.source === 'close-basis' ? ` · ${claim.asOf} 종가`
+  : claim.source === 'macro-release' && /기준월\)?$/.test(String(claim.text || '').trim()) ? '' : ` · ${claim.asOf}`;
 const unitText = (unit) => Object.prototype.hasOwnProperty.call(UNIT_TEXT, unit) ? UNIT_TEXT[unit] : (unit || '');
 
 function safeUrl(value) {
@@ -25,7 +30,7 @@ export function renderAnswerPlan(plan, { format = 'text' } = {}) {
   // "확인된 수치" as if its meaning had been verified like a number tuple.
   const claimLine = (claim) => {
     const value = claim.value == null ? '' : `: ${claim.value}${unitText(claim.unit)}`;
-    const trace = claim.asOf && claim.source ? ` [${SOURCE_TEXT[claim.source] || claim.source} · ${claim.asOf}${claim.source === 'close-basis' ? ' 종가' : ''}]` : '';
+    const trace = claim.asOf && claim.source ? ` [${SOURCE_TEXT[claim.source] || claim.source}${whenText(claim)}]` : '';
     return `- ${line(claim.text)}${value}${trace}`;
   };
   const shown = claims.filter((claim) => claim.status !== 'blocked');
