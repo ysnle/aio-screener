@@ -535,8 +535,9 @@ export function applyMarketAnalysis(data, marketAnalysis, { previous = null, now
   if (marketAnalysis) {
     // v57.71: one sentence a day — kept from the earlier run of the same 08:00 KST day, else this run's validated line.
     const { sentenceCandidate = null, largeMove = false, largeMoveDirection = null, ...analysis } = marketAnalysis;
-    const inflationRising = inflationEasingContradicts(data.macro || {}, marketAnalysisInflationDirection(data));
-    const inflationNotReaccelerating = inflationReaccelContradicts(marketAnalysisInflationDirection(data));
+    const sentenceDirection = marketAnalysisInflationDirection(data);
+    const inflationRising = inflationEasingContradicts(data.macro || {}, sentenceDirection);
+    const inflationNotReaccelerating = inflationReaccelContradicts(sentenceDirection);
     data.marketAnalysis = { ...analysis, sentence: dailyMarketSentence({ candidate: sentenceCandidate, previous: previous?.sentence || null, nowMs, largeMove, largeMoveDirection, inflationRising, inflationNotReaccelerating }) };
     // 2026-10-19 data audit: a day's sentence that never replaced yesterday's left no trace; the run now records why.
     data.meta.marketSentenceReject = data.marketAnalysis.sentence?.day === marketSentenceDay(nowMs) ? null
