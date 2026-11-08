@@ -46,7 +46,6 @@ import { readMarketRegime } from '../ui/components/market-regime.js';
 import { collectMarketInputs } from '../data/selectors/market-inputs.js';
 import { alignInput, buildCloseSeries, closeBasis, isUsable } from '../domain/briefing/market-read.js';
 import { createCloseBasisEvidenceReader, closeBasisSubstituteFor, renderCloseBasisEvidenceContext } from '../ai/context/close-basis-evidence.js';
-import { createMacroReleaseEvidenceReader, renderMacroReleaseEvidenceContext } from '../ai/context/macro-release-evidence.js';
 import { earningsContextForHeadline } from '../domain/news/earnings-context.js';
 import { normalizeSignalScoreMode, describeSignalScoreMode, SIGNAL_SCORE_MODE_STORAGE_KEY } from '../domain/signal/mode.js';
 import { computeRelativeRotation } from '../domain/themes/rrg.js';
@@ -230,7 +229,13 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   // 2-year/real yield/breakeven/same-date 2s10s) join the close rows, so a macro number in an answer binds instead of being
   // stripped by the publication gate or answered "확인 필요".
   const readCloseBasisEvidence = createCloseBasisEvidenceReader(() => collectMarketInputs(root), { now: () => clock.now() });
-  const readMacroReleaseEvidence = createMacroReleaseEvidenceReader(() => ({ macro: root._aioServerMacro || null, macroHistory: root._aioMacroHistory || null }), { now: () => clock.now() });
+  // The release rows load after boot (boot budget); until then the readers return nothing and the close rows stand alone.
+  let macroRelease = null;
+  import('../ai/context/macro-release-evidence.js').then((mod) => {
+    macroRelease = { read: mod.createMacroReleaseEvidenceReader(() => ({ macro: root._aioServerMacro || null, macroHistory: root._aioMacroHistory || null }), { now: () => clock.now() }), render: mod.renderMacroReleaseEvidenceContext };
+  }).catch(() => {});
+  const readMacroReleaseEvidence = () => (macroRelease ? macroRelease.read() : []);
+  const renderMacroReleaseEvidenceContext = (rows) => (macroRelease && rows.length ? macroRelease.render(rows) : '');
   root._aioMacroReleaseEvidence = readMacroReleaseEvidence;
   root._aioScreenBasisEvidence = () => {
     const close = readCloseBasisEvidence();
