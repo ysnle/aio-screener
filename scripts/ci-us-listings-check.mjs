@@ -174,7 +174,7 @@ check('v57.81 producer keeps the previous artifact on any failure and refreshes 
 });
 check('v57.81 refresh-screener runs the producer with the SEC User-Agent and stages the artifact', () => {
   assert.match(workflow, /node scripts\/build-us-listings\.mjs/);
-  assert.ok(workflowPublishes('refresh-screener.yml', 'public-data/us-listings.json'), 'refresh-screener commits us-listings.json');
+  assert.ok(workflowPublishes('refresh-screener.yml', 'public-data/us-listings.json'), 'v59.85 refresh-screener commits us-listings.json through its publish set');
   assert.match(workflow, /node scripts\/ci-us-listings-check\.mjs/);
   const step = workflow.slice(workflow.indexOf('Refresh US exchange listing'), workflow.indexOf('node scripts/build-us-listings.mjs'));
   assert.match(step, /SEC_USER_AGENT: \$\{\{ vars\.SEC_USER_AGENT \}\}/);
