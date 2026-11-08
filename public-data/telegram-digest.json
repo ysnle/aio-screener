@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-08T11:51:42.230Z",
-  "attemptedAt": "2026-11-08T11:51:42.230Z",
-  "lastSuccessfulAt": "2026-11-08T11:51:42.230Z",
+  "generatedAt": "2026-11-08T12:51:24.064Z",
+  "attemptedAt": "2026-11-08T12:51:24.064Z",
+  "lastSuccessfulAt": "2026-11-08T12:51:24.064Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-25T11:51:36.299Z",
-  "until": "2026-11-08T11:51:36.299Z",
+  "since": "2026-10-25T12:51:19.177Z",
+  "until": "2026-11-08T12:51:19.177Z",
   "current24hWindow": {
     "start": "2026-11-06T23:00:00.000Z",
     "end": "2026-11-07T23:00:00.000Z",
@@ -80,10 +80,10 @@
       "pages": 0,
       "reachedOlder": false,
       "reachedKnown": false,
-      "count": 28,
+      "count": 26,
       "freshCount": 0,
-      "eligibleTextCount": 25,
-      "selectedCount": 17,
+      "eligibleTextCount": 23,
+      "selectedCount": 15,
       "error": "first page parsed no posts",
       "lastPostId": 26057
     },
@@ -92,12 +92,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1343,
-      "freshCount": 37,
-      "eligibleTextCount": 1284,
-      "selectedCount": 127,
+      "count": 1344,
+      "freshCount": 36,
+      "eligibleTextCount": 1285,
+      "selectedCount": 128,
       "error": null,
-      "lastPostId": 68688
+      "lastPostId": 68694
     },
     {
       "channel": "bornlupin",
@@ -116,55 +116,57 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 693,
+      "count": 692,
       "freshCount": 18,
-      "eligibleTextCount": 692,
+      "eligibleTextCount": 691,
       "selectedCount": 121,
       "error": null,
       "lastPostId": 71759
     }
   ],
-  "count": 2297,
-  "retainedItemCount": 433,
+  "count": 2295,
+  "retainedItemCount": 430,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2297,
-    "eligibleTextCount": 2234,
+    "observedCount": 2295,
+    "eligibleTextCount": 2232,
     "mediaOnlyCount": 63,
-    "mediaAttachedCount": 538,
-    "photoPostCount": 460,
+    "mediaAttachedCount": 539,
+    "photoPostCount": 461,
     "documentPostCount": 4,
     "imageOnlyCount": 2,
-    "highSignalCount": 389,
+    "highSignalCount": 388,
     "broadSignalCount": 850,
-    "selectedRawCount": 388,
-    "selectedEligibleCount": 388,
-    "selectedRawCoveragePct": 17.4,
+    "selectedRawCount": 387,
+    "selectedEligibleCount": 387,
+    "selectedRawCoveragePct": 17.3,
     "selectedOfObservedPct": 16.9,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 831,
-    "credit": 95,
-    "macro": 341,
-    "geo": 433,
+    "ai-policy": 102,
+    "market-note": 829,
     "power": 279,
     "semi": 478,
+    "credit": 95,
+    "macro": 341,
+    "geo": 432,
     "flows": 64,
     "japan": 75,
     "media-only": 62,
-    "earnings": 403,
-    "ai-policy": 101,
-    "equity": 116,
+    "earnings": 401,
+    "equity": 115,
     "healthcare": 72,
     "kr-market": 112,
     "optical": 39,
     "crypto": 4
   },
   "tickerCounts": {
+    "MSFT": 57,
+    "AMZN": 75,
     "NVDA": 118,
     "TSM": 45,
     "MU": 36,
@@ -172,9 +174,7 @@
     "000660.KS": 67,
     "AMAT": 3,
     "CRWV": 8,
-    "MSFT": 56,
-    "GOOG": 113,
-    "AMZN": 75,
+    "GOOG": 112,
     "TSLA": 33,
     "BIDU": 1,
     "GOOGL": 9,
@@ -251,20 +251,20 @@
     "005940.KS": 1,
     "RDDT": 1,
     "FDX": 1,
-    "APO": 2,
+    "APO": 1,
     "CRM": 1,
     "APH": 1,
     "CEG": 1,
     "218410.KQ": 1
   },
   "themes": [
-    "Market Notes (831 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
+    "Market Notes (829 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
     "Semiconductors/Memory (478 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
-    "Geopolitics (433 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
-    "Earnings/Corporate (403 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
+    "Geopolitics (432 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
+    "Earnings/Corporate (401 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
     "Macro/Rates (341 posts in 14-day research window): 2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000...",
     "AI Power/Grid (279 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로 선거 결과를 분석했다. 패배 원인에 대해서는 의견이 갈렸다. • 데이비드 색스: 가장 큰 원인은 이란...",
-    "Equity/Analyst (116 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
+    "Equity/Analyst (115 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "Korea Market (112 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
   ],
   "catalysts": [
@@ -275,7 +275,7 @@
     },
     {
       "key": "GOOG",
-      "count": 113,
+      "count": 112,
       "text": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로 선거 결과를 분석했다. 패배 원인에 대해서는 의견이 갈렸다. • 데이비드 색스: 가장 큰 원인은 이란..."
     },
     {
@@ -290,7 +290,7 @@
     },
     {
       "key": "MSFT",
-      "count": 56,
+      "count": 57,
       "text": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로 선거 결과를 분석했다. 패배 원인에 대해서는 의견이 갈렸다. • 데이비드 색스: 가장 큰 원인은 이란..."
     },
     {
@@ -345,7 +345,7 @@
       "topics": [
         "geo"
       ],
-      "count": 433,
+      "count": 432,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격..."
     },
     {
@@ -390,7 +390,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 101,
+      "count": 102,
       "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
@@ -408,7 +408,7 @@
       "topics": [
         "equity"
       ],
-      "count": 116,
+      "count": 115,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
@@ -426,7 +426,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 403,
+      "count": 401,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -471,7 +471,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 831,
+      "count": 829,
       "focus": "2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며..."
     }
   ],
@@ -1769,6 +1769,60 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/68694",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68694",
+      "datetime": "2026-11-08T12:43:58.000Z",
+      "localDateKst": "2026-11-08",
+      "tags": [
+        "ai-policy"
+      ],
+      "score": 50,
+      "hasText": true,
+      "tickers": [],
+      "summary": "빌 게이츠는 최근 미국 캘리포니아주의 억만장자세 추진 방식을 참고해 초고액 자산가에게 세금을 부과하는 것이 AI 시대의 부의 분배 문제를 해결하는 데 가장 적합한 방안일 수 있다고 주장. 현재 AI 및 관련..."
+    },
+    {
+      "id": "insidertracking/68692",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68692",
+      "datetime": "2026-11-08T12:39:42.000Z",
+      "localDateKst": "2026-11-08",
+      "tags": [
+        "power"
+      ],
+      "lead": 1,
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "MSFT",
+        "AMZN"
+      ],
+      "summary": "• 지나 히노호사, 텍사스 대형 데이터센터 신규 전력망 연결 승인 중단·세금 감면 폐지 추진 • 코어위브, 건설 지연과 금융비용 부담 우려·마이크로소프트·아마존 등 빅테크와 전력 공급 기업들의 경쟁력 부각"
+    },
+    {
+      "id": "insidertracking/68689",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68689",
+      "datetime": "2026-11-08T12:32:31.000Z",
+      "localDateKst": "2026-11-08",
+      "tags": [
+        "semi"
+      ],
+      "score": 51,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 2,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "미국 레딧 관심도 > 엔비디아 집중."
+    },
+    {
       "id": "insidertracking/68686",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/68686",
@@ -2199,17 +2253,15 @@
       "datetime": "2026-11-07T20:25:28.000Z",
       "localDateKst": "2026-11-08",
       "tags": [
-        "geo",
-        "semi",
-        "power",
-        "ai-policy"
+        "semi"
       ],
       "score": 84,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 8일 🇺🇸 아메리카 • 미국 정부가 사무실이 비어 있거나 의심스러운 연계 관계를 가진 중국 기업들에 엔비디아 반도체 판매를 승인한 것으로 알려져. 첨단 반도체...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 8일 🇺🇸 아메리카 • 미국 정부가 사무실이 비어 있거나 의심스러운 연계 관계를 가진 중국 기업들에 엔비디아 반도체 판매를 승인한 것으로 알려져. 첨단 반도체..."
+      ]
     },
     {
       "id": "insidertracking/68639",
@@ -6648,41 +6700,6 @@
       ]
     },
     {
-      "id": "insidertracking/68233",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68233",
-      "datetime": "2026-11-03T21:32:05.000Z",
-      "localDateKst": "2026-11-04",
-      "tags": [
-        "geo"
-      ],
-      "score": 50,
-      "hasText": true,
-      "media": {
-        "kind": "video",
-        "photoCount": 0,
-        "videoCount": 1,
-        "documents": []
-      },
-      "summary": "트럼프: 만약 미국 사람들이 저에게 질린다면, 저는 이스라엘로 이주해서 총리가 될 것입니다. 거기에서는 제 지지율이 99%에 달합니다.",
-      "lead": 1,
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/68227",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68227",
-      "datetime": "2026-11-03T21:26:32.000Z",
-      "localDateKst": "2026-11-04",
-      "tags": [
-        "market-note"
-      ],
-      "score": 50,
-      "hasText": true,
-      "summary": "김여정 조선로동당 중앙위원회 부장 담화 발표 > (평양 11월 4일발 조선중앙통신) 김여정 조선로동당 중앙위원회 부장은 4일 다음과 같은 담화를 발표하였다. 이미 언급한바와 같이 지금 미국이 지속적으로...",
-      "tickers": []
-    },
-    {
       "id": "bornlupin/20984",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20984",
@@ -6697,49 +6714,6 @@
       "summary": "슈퍼마이크로 $SMCI 2027 회계연도 1분기 실적 (시간외 +5%) 매출: 199억 달러; 전년 동기 대비 +298% 조정 주당순이익(EPS): 1.81달러 (예상치 1.62달러 상회); 전년 동기 대비...",
       "tickers": [
         "SMCI"
-      ]
-    },
-    {
-      "id": "insidertracking/68225",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68225",
-      "datetime": "2026-11-03T21:25:41.000Z",
-      "localDateKst": "2026-11-04",
-      "tags": [
-        "semi",
-        "flows"
-      ],
-      "score": 100,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "2026년 11월 3일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (56.15%) 2위: ALPHABET INC CL A...",
-      "tickers": [],
-      "listTickers": [
-        "NVDA",
-        "GOOG",
-        "SNDK",
-        "GOOGL",
-        "LLY",
-        "V",
-        "MA",
-        "ABBV",
-        "GS",
-        "INTC",
-        "CRWD",
-        "COIN",
-        "GILD",
-        "IONQ",
-        "JOBY",
-        "RDDT",
-        "RBLX",
-        "MSTR",
-        "QQQ",
-        "SMH"
       ]
     },
     {
@@ -8769,40 +8743,6 @@
       "hasText": true,
       "summary": "JP모건) 유니트리 로보틱스 - A: 피지컬 AI S커브가 앞당겨질 가능성, 아스트라/LLM 촉매와 규제로 연장된 희소성 프리미엄이 비중확대(OW)로의 두 단계 상향을 견인. TP 995위안(기존 300위안)...",
       "tickers": []
-    },
-    {
-      "id": "aetherjapanresearch/26031",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/26031",
-      "datetime": "2026-10-25T11:59:48.000Z",
-      "localDateKst": "2026-10-25",
-      "tags": [
-        "market-note"
-      ],
-      "score": 53,
-      "hasText": true,
-      "summary": "번스타인) AI Musing; 온라인 애그리게이터가 AI에이전트를 차단해야 하나요? 번스타인의 니킬 데브나니와 마크 슈물릭은 소비자 AI 미니시리즈 'AI Musings' 첫 편에서, 온라인 애그리게이터가...",
-      "tickers": [
-        "GOOG",
-        "AMZN"
-      ]
-    },
-    {
-      "id": "aetherjapanresearch/26030",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/26030",
-      "datetime": "2026-10-25T11:56:46.000Z",
-      "localDateKst": "2026-10-25",
-      "tags": [
-        "market-note"
-      ],
-      "score": 68,
-      "hasText": true,
-      "summary": "아폴로의 슬록 \"AI, 테크 외 분야에서는 성과 제로\" 아폴로 글로벌 매니지먼트(Apollo Global Management)의 토르스텐 슬록(Torsten Slok) 수석 이코노미스트는 토요일 발표한...",
-      "tickers": [
-        "NVDA",
-        "APO"
-      ]
     }
   ],
   "current24hItems": [
@@ -8813,17 +8753,15 @@
       "datetime": "2026-11-07T20:25:28.000Z",
       "localDateKst": "2026-11-08",
       "tags": [
-        "geo",
-        "semi",
-        "power",
-        "ai-policy"
+        "semi"
       ],
       "score": 84,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 8일 🇺🇸 아메리카 • 미국 정부가 사무실이 비어 있거나 의심스러운 연계 관계를 가진 중국 기업들에 엔비디아 반도체 판매를 승인한 것으로 알려져. 첨단 반도체...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 8일 🇺🇸 아메리카 • 미국 정부가 사무실이 비어 있거나 의심스러운 연계 관계를 가진 중국 기업들에 엔비디아 반도체 판매를 승인한 것으로 알려져. 첨단 반도체..."
+      ]
     },
     {
       "id": "insidertracking/68639",
