@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-08T02:51:43.506Z",
-  "attemptedAt": "2026-11-08T02:51:43.506Z",
-  "lastSuccessfulAt": "2026-11-08T02:51:43.506Z",
+  "generatedAt": "2026-11-08T03:51:49.953Z",
+  "attemptedAt": "2026-11-08T03:51:49.953Z",
+  "lastSuccessfulAt": "2026-11-08T03:51:49.953Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-25T02:51:37.350Z",
-  "until": "2026-11-08T02:51:37.350Z",
+  "since": "2026-10-25T03:51:43.269Z",
+  "until": "2026-11-08T03:51:43.269Z",
   "current24hWindow": {
     "start": "2026-11-06T23:00:00.000Z",
     "end": "2026-11-07T23:00:00.000Z",
@@ -92,54 +92,54 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1355,
+      "count": 1354,
       "freshCount": 38,
-      "eligibleTextCount": 1296,
+      "eligibleTextCount": 1295,
       "selectedCount": 126,
       "error": null,
-      "lastPostId": 68670
+      "lastPostId": 68672
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 237,
-      "freshCount": 40,
-      "eligibleTextCount": 237,
+      "count": 239,
+      "freshCount": 39,
+      "eligibleTextCount": 239,
       "selectedCount": 125,
       "error": null,
-      "lastPostId": 21050
+      "lastPostId": 21052
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 698,
-      "freshCount": 36,
-      "eligibleTextCount": 697,
+      "count": 696,
+      "freshCount": 34,
+      "eligibleTextCount": 695,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 71745
+      "lastPostId": 71747
     }
   ],
-  "count": 2321,
-  "retainedItemCount": 452,
+  "count": 2320,
+  "retainedItemCount": 453,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2321,
-    "eligibleTextCount": 2258,
+    "observedCount": 2320,
+    "eligibleTextCount": 2257,
     "mediaOnlyCount": 63,
-    "mediaAttachedCount": 525,
-    "photoPostCount": 451,
+    "mediaAttachedCount": 526,
+    "photoPostCount": 452,
     "documentPostCount": 4,
     "imageOnlyCount": 2,
-    "highSignalCount": 389,
-    "broadSignalCount": 851,
+    "highSignalCount": 390,
+    "broadSignalCount": 852,
     "selectedRawCount": 389,
     "selectedEligibleCount": 389,
     "selectedRawCoveragePct": 17.2,
@@ -147,37 +147,38 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "power": 275,
     "semi": 480,
-    "equity": 116,
+    "macro": 347,
+    "geo": 437,
+    "credit": 97,
+    "market-note": 840,
+    "power": 277,
+    "equity": 115,
     "healthcare": 75,
-    "geo": 436,
-    "market-note": 843,
     "media-only": 62,
     "earnings": 407,
-    "macro": 346,
-    "kr-market": 114,
-    "flows": 67,
+    "kr-market": 113,
+    "flows": 66,
     "ai-policy": 99,
-    "credit": 97,
     "japan": 75,
     "optical": 39,
     "crypto": 4
   },
   "tickerCounts": {
-    "NVDA": 118,
+    "NVDA": 119,
+    "TSLA": 34,
+    "BIDU": 1,
+    "CRWV": 8,
     "MSFT": 57,
     "GOOG": 114,
     "AMZN": 76,
     "GOOGL": 9,
-    "CRWV": 7,
-    "TSLA": 33,
     "MU": 36,
     "WDC": 2,
     "STX": 7,
     "TSM": 44,
-    "005930.KS": 49,
-    "AAPL": 24,
+    "005930.KS": 48,
+    "AAPL": 23,
     "ORCL": 12,
     "AMD": 46,
     "DB": 3,
@@ -186,7 +187,7 @@
     "MRNA": 4,
     "MTD": 1,
     "IBN": 1,
-    "000660.KS": 68,
+    "000660.KS": 67,
     "LLY": 3,
     "HIMS": 1,
     "NVO": 2,
@@ -258,19 +259,19 @@
     "SHOP": 1
   },
   "themes": [
-    "Market Notes (843 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
+    "Market Notes (840 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
     "Semiconductors/Memory (480 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
-    "Geopolitics (436 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
+    "Geopolitics (437 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
     "Earnings/Corporate (407 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
-    "Macro/Rates (346 posts in 14-day research window): 2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000...",
-    "AI Power/Grid (275 posts in 14-day research window): 데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가...",
-    "Equity/Analyst (116 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
-    "Korea Market (114 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
+    "Macro/Rates (347 posts in 14-day research window): 2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000...",
+    "AI Power/Grid (277 posts in 14-day research window): 데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가...",
+    "Equity/Analyst (115 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
+    "Korea Market (113 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 118,
+      "count": 119,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 7일 🇺🇸 아메리카 • 연준 무살렘은 현재 인플레이션이 에너지 충격과 AI·데이터센터 투자에 따른 강한 수요의 영향을 받고 있다며, 물가를 적시에 2%로 복귀시켜야..."
     },
     {
@@ -285,7 +286,7 @@
     },
     {
       "key": "000660.KS",
-      "count": 68,
+      "count": 67,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Falcon Guardian에 AI 에이전트의 실행을 중단하고 재시작 및 기업 네트워크 접근을..."
     },
     {
@@ -295,7 +296,7 @@
     },
     {
       "key": "005930.KS",
-      "count": 49,
+      "count": 48,
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
@@ -315,7 +316,7 @@
     },
     {
       "key": "TSLA",
-      "count": 33,
+      "count": 34,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) 반도체 · 데이터센터 · 광통신 • 마이크론 (MU) — 장기화된 노동 분쟁으로 대만의 45억 달러 규모 메모리 반도체 공장 건설을 중단한 것으로 보도됨. 해당..."
     },
     {
@@ -325,7 +326,7 @@
     },
     {
       "key": "AAPL",
-      "count": 24,
+      "count": 23,
       "text": "알파벳(GOOGL) 2026년 3분기 어닝콜 — CapEx·AI 인프라 관련 1. CapEx 규모 및 2027년 전망 — CFO 아나트 아슈케나지 • 3분기 CapEx는 514억 달러. 대부분 AI 투자를..."
     }
   ],
@@ -336,7 +337,7 @@
       "topics": [
         "macro"
       ],
-      "count": 346,
+      "count": 347,
       "focus": "2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000..."
     },
     {
@@ -345,7 +346,7 @@
       "topics": [
         "geo"
       ],
-      "count": 436,
+      "count": 437,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격..."
     },
     {
@@ -381,7 +382,7 @@
       "topics": [
         "power"
       ],
-      "count": 275,
+      "count": 277,
       "focus": "데이터센터 건설 반대 확산, 아마존·마이크로소프트에 유리한 AI 인프라 시장 재편 가능성 미국 전역에서 인공지능(AI) 데이터센터 건설에 대한 지역사회 반발이 확산되면서 AI 인프라 산업의 경쟁 구도에 변화가..."
     },
     {
@@ -399,7 +400,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 114,
+      "count": 113,
       "focus": "SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
     },
     {
@@ -408,7 +409,7 @@
       "topics": [
         "equity"
       ],
-      "count": 116,
+      "count": 115,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
@@ -453,7 +454,7 @@
       "topics": [
         "flows"
       ],
-      "count": 67,
+      "count": 66,
       "focus": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -471,7 +472,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 843,
+      "count": 840,
       "focus": "2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며..."
     }
   ],
@@ -1776,6 +1777,63 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71747",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71747",
+      "datetime": "2026-11-08T03:09:54.000Z",
+      "localDateKst": "2026-11-08",
+      "tags": [
+        "semi",
+        "macro",
+        "geo"
+      ],
+      "lead": 1,
+      "score": 86,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "TSLA",
+        "BIDU"
+      ],
+      "summary": ">>(상세) 젠슨 황 논란 연이어 확산…엔비디아 중국향 칩 판매 의혹, 뉴욕타임스 취재서 유령회사 발견 (대만경제일보) •젠슨 황이 중국 여성 간첩으로 지목된 황러와 교제했다는 의혹이 제기된 데 이어,..."
+    },
+    {
+      "id": "insidertracking/68672",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68672",
+      "datetime": "2026-11-08T03:05:38.000Z",
+      "localDateKst": "2026-11-08",
+      "tags": [
+        "credit"
+      ],
+      "score": 57,
+      "hasText": true,
+      "tickers": [],
+      "summary": "<금융감독원 보도자료> 증시 변동성 완화를 위한 신용공여 담보비율 유지의무 면제조치 시행"
+    },
+    {
+      "id": "bornlupin/21052",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21052",
+      "datetime": "2026-11-08T03:00:57.000Z",
+      "localDateKst": "2026-11-08",
+      "tags": [
+        "power"
+      ],
+      "score": 57,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 2,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "CRWV"
+      ],
+      "summary": "코어위브(CoreWeave)의 마이클 인트레이터(Michael Intrator) CEO가 지나 히노호사(Gina Hinojosa) 텍사스 주지사 당선인에게 보낸 축하 및 협력 약속 서한 당선인 정책 지지 :..."
+    },
+    {
       "id": "bornlupin/21050",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21050",
@@ -2121,14 +2179,14 @@
       "datetime": "2026-11-07T13:11:27.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 61,
       "hasText": true,
+      "summary": "미국 S&P 500 지수, 11월 2~6일 주간 2.68% 하락. 앱러빈(+71.21%)과 파이서브(+25.71%)가 주간 상승률 상위를 기록한 반면, 씨게이트 테크놀로지(-28.48%)와...",
       "tickers": [
         "MU"
-      ],
-      "summary": "미국 S&P 500 지수, 11월 2~6일 주간 2.68% 하락. 앱러빈(+71.21%)과 파이서브(+25.71%)가 주간 상승률 상위를 기록한 반면, 씨게이트 테크놀로지(-28.48%)와..."
+      ]
     },
     {
       "id": "bornlupin/21046",
@@ -2354,12 +2412,12 @@
       "datetime": "2026-11-07T05:10:37.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "semi",
-        "kr-market"
+        "semi"
       ],
-      "lead": 1,
       "score": 80,
       "hasText": true,
+      "summary": ">>(상세) Nvidia ‘추가 주문’에 TSMC도 메모리 칩 생산 검토 •TSMC가 Nvidia의 요청에 따라 첨단 메모리 칩 생산 진출을 검토하고 있음. 구체적으로는 3D DRAM이 잠재적인 진입 분야로...",
+      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -2368,8 +2426,7 @@
         "TSM",
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": ">>(상세) Nvidia ‘추가 주문’에 TSMC도 메모리 칩 생산 검토 •TSMC가 Nvidia의 요청에 따라 첨단 메모리 칩 생산 진출을 검토하고 있음. 구체적으로는 3D DRAM이 잠재적인 진입 분야로..."
+      ]
     },
     {
       "id": "insidertracking/68617",
@@ -2440,17 +2497,16 @@
       "tags": [
         "semi",
         "kr-market",
-        "flows",
-        "power"
+        "flows"
       ],
-      "lead": 3,
       "score": 76,
       "hasText": true,
+      "summary": ">>TSMC 목표주가 최대 700대만달러 하향…대만 투자자문사 2곳 보수적 전망, 외국인은 21거래일 연속 순매도 (대만공상시보) •외국인은 6일 TSMC를 478억4,800만 TWD 순매도하며 21거래일...",
+      "lead": 3,
       "tickers": [
         "NVDA",
         "TSM"
-      ],
-      "summary": ">>TSMC 목표주가 최대 700대만달러 하향…대만 투자자문사 2곳 보수적 전망, 외국인은 21거래일 연속 순매도 (대만공상시보) •외국인은 6일 TSMC를 478억4,800만 TWD 순매도하며 21거래일..."
+      ]
     },
     {
       "id": "HANAchina/71693",
@@ -4592,19 +4648,18 @@
       "datetime": "2026-11-05T05:11:35.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "semi",
-        "kr-market",
         "earnings",
-        "flows"
+        "semi",
+        "kr-market"
       ],
-      "lead": 1,
       "score": 81,
       "hasText": true,
+      "summary": "J.P. Morgan ,메모리 시장 업데이트 전반적인 시장 평가 긍정적인 3분기 실적: 환율 역풍에도 불구하고 주당순이익(EPS) 및 마진율이 예상치를 상회했으며, 가격 상승 여력, 성공적인 HBM 가격 협상...",
+      "lead": 3,
       "tickers": [
         "285A.T",
         "005930.KS"
-      ],
-      "summary": "J.P. Morgan ,메모리 시장 업데이트 전반적인 시장 평가 긍정적인 3분기 실적: 환율 역풍에도 불구하고 주당순이익(EPS) 및 마진율이 예상치를 상회했으며, 가격 상승 여력, 성공적인 HBM 가격 협상..."
+      ]
     },
     {
       "id": "bornlupin/21012",
@@ -4613,14 +4668,13 @@
       "datetime": "2026-11-05T05:04:44.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "power",
-        "semi"
+        "power"
       ],
-      "lead": 1,
       "score": 65,
       "hasText": true,
-      "tickers": [],
-      "summary": "[SemiAnalysis] 미국 데이터센터 규제 전망 1. 민주당이 상하원을 장악해도 트럼프의 거부권과 상원 의석 구조 때문에 강력한 연방 규제 도입은 제한적. 2. 양당 모두 데이터센터 개발사가 전력망 확충..."
+      "summary": "[SemiAnalysis] 미국 데이터센터 규제 전망 1. 민주당이 상하원을 장악해도 트럼프의 거부권과 상원 의석 구조 때문에 강력한 연방 규제 도입은 제한적. 2. 양당 모두 데이터센터 개발사가 전력망 확충...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68423",
@@ -4651,15 +4705,13 @@
       "datetime": "2026-11-05T04:58:40.000Z",
       "localDateKst": "2026-11-05",
       "tags": [
-        "power",
-        "semi",
-        "earnings"
+        "power"
       ],
-      "lead": 1,
       "score": 65,
       "hasText": true,
-      "tickers": [],
-      "summary": "SemiAnalysis) 미국 데이터센터 규제 전망: 수요 훼손보다 비용 증가와 공급 지연의 문제 1. 민주당이 상하원을 장악해도 연방 차원의 급격한 규제 변화는 제한적 • 민주당이 의회를 장악하더라도 트럼프..."
+      "summary": "SemiAnalysis) 미국 데이터센터 규제 전망: 수요 훼손보다 비용 증가와 공급 지연의 문제 1. 민주당이 상하원을 장악해도 연방 차원의 급격한 규제 변화는 제한적 • 민주당이 의회를 장악하더라도 트럼프...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68422",
@@ -6648,28 +6700,6 @@
       ]
     },
     {
-      "id": "insidertracking/68219",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68219",
-      "datetime": "2026-11-03T21:17:01.000Z",
-      "localDateKst": "2026-11-04",
-      "tags": [
-        "earnings"
-      ],
-      "score": 69,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "Amgen 2026년 3분기 실적 요약 실적 • 매출 $103.7억, YoY +8%, 예상 $100.7억 상회 • 조정 EPS $6.45, YoY +14%, 예상 $5.79 상회 • 조정 영업이익...",
-      "tickers": [
-        "AMGN"
-      ]
-    },
-    {
       "id": "HANAchina/71495",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71495",
@@ -7497,24 +7527,6 @@
       "lead": 1,
       "tickers": [
         "TSM"
-      ]
-    },
-    {
-      "id": "HANAchina/71417",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71417",
-      "datetime": "2026-11-02T12:45:18.000Z",
-      "localDateKst": "2026-11-02",
-      "tags": [
-        "earnings",
-        "optical"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": ">>Lumentum, 1분기 매출 전년비 136% 급증…50억 달러 이상 구매 약정 확보, 2분기 실적 전망 시장 예상 대폭 상회 •Lumentum의 2027회계연도 1분기 매출은 전년비 136.5% 증가한...",
-      "lead": 2,
-      "tickers": [
-        "LITE"
       ]
     },
     {
@@ -8555,23 +8567,6 @@
       ]
     },
     {
-      "id": "bornlupin/20851",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20851",
-      "datetime": "2026-10-27T09:27:07.000Z",
-      "localDateKst": "2026-10-27",
-      "tags": [
-        "semi"
-      ],
-      "score": 60,
-      "hasText": true,
-      "summary": "삼성전자·SK하이닉스, 주주환원 210조 원+α 기사 정리 ① SK하이닉스: 총 100조 원 - 기존 자사주 매입·소각 40조 원 - 추가 자사주 매입 30조 원 - 현금배당 30조 원 - 별도로 임직원...",
-      "tickers": [
-        "005930.KS",
-        "000660.KS"
-      ]
-    },
-    {
       "id": "aetherjapanresearch/26057",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/26057",
@@ -9029,14 +9024,14 @@
       "datetime": "2026-11-07T13:11:27.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 61,
       "hasText": true,
+      "summary": "미국 S&P 500 지수, 11월 2~6일 주간 2.68% 하락. 앱러빈(+71.21%)과 파이서브(+25.71%)가 주간 상승률 상위를 기록한 반면, 씨게이트 테크놀로지(-28.48%)와...",
       "tickers": [
         "MU"
-      ],
-      "summary": "미국 S&P 500 지수, 11월 2~6일 주간 2.68% 하락. 앱러빈(+71.21%)과 파이서브(+25.71%)가 주간 상승률 상위를 기록한 반면, 씨게이트 테크놀로지(-28.48%)와..."
+      ]
     },
     {
       "id": "bornlupin/21046",
@@ -9262,12 +9257,12 @@
       "datetime": "2026-11-07T05:10:37.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "semi",
-        "kr-market"
+        "semi"
       ],
-      "lead": 1,
       "score": 80,
       "hasText": true,
+      "summary": ">>(상세) Nvidia ‘추가 주문’에 TSMC도 메모리 칩 생산 검토 •TSMC가 Nvidia의 요청에 따라 첨단 메모리 칩 생산 진출을 검토하고 있음. 구체적으로는 3D DRAM이 잠재적인 진입 분야로...",
+      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -9276,8 +9271,7 @@
         "TSM",
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": ">>(상세) Nvidia ‘추가 주문’에 TSMC도 메모리 칩 생산 검토 •TSMC가 Nvidia의 요청에 따라 첨단 메모리 칩 생산 진출을 검토하고 있음. 구체적으로는 3D DRAM이 잠재적인 진입 분야로..."
+      ]
     },
     {
       "id": "insidertracking/68617",
@@ -9348,17 +9342,16 @@
       "tags": [
         "semi",
         "kr-market",
-        "flows",
-        "power"
+        "flows"
       ],
-      "lead": 3,
       "score": 76,
       "hasText": true,
+      "summary": ">>TSMC 목표주가 최대 700대만달러 하향…대만 투자자문사 2곳 보수적 전망, 외국인은 21거래일 연속 순매도 (대만공상시보) •외국인은 6일 TSMC를 478억4,800만 TWD 순매도하며 21거래일...",
+      "lead": 3,
       "tickers": [
         "NVDA",
         "TSM"
-      ],
-      "summary": ">>TSMC 목표주가 최대 700대만달러 하향…대만 투자자문사 2곳 보수적 전망, 외국인은 21거래일 연속 순매도 (대만공상시보) •외국인은 6일 TSMC를 478억4,800만 TWD 순매도하며 21거래일..."
+      ]
     },
     {
       "id": "HANAchina/71693",
