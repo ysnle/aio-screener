@@ -826,6 +826,7 @@ function paintKoreaLine(doc, root) {
 
 let correctionBaseRate = null; // v59.70: the correction base rate loads with the opened trend row, outside the boot set
 let sessionLean = null;
+let homeAhead = null;
 
 // v59.51 (first-users run-6 #10): one way from 오늘 to an axis on 시장 상태. The axis is asked for before the route renders
 // (root.__aioOpenAxis, which renderRegimePage keeps open), then the view lands on what was asked — the axis chart for the
@@ -882,6 +883,8 @@ export function renderHomeRegime({ documentRef: doc, root, store = null }) {
   paintKoreaLine(doc, root);
   // v58.81 (owner 2026-10-26): the market clock with the Korea↔US link check, then the probabilistic lean, under the verdict.
   // Loaded after first paint (boot budget); the module also hands the AI context its two readers.
+  // 다음 일정 beside the verdict: the dated items of 시장 상태's week list (a lazy chunk).
+  (homeAhead ||= import('./home-ahead.js')).then((mod) => mod.renderHomeAhead({ documentRef: doc, root, interpretation })).catch(() => { homeAhead = null; });
   (sessionLean ||= import('./session-lean.js')).then((mod) => mod.paintHome(doc, root, store, regime, () => renderHomeRegime({ documentRef: doc, root, store }), () => marketInterpretation(root, { store }).regime)).catch(() => { sessionLean = null; });
   // v59.51: the futures cells' cash-close fallback (P1429/H01, a MutationObserver per cell) is gone — the index strip above
   // carries the closes, and a futures chip shows only a live quote on an open CME week (home-kpi-trend.js syncHomeQuoteRow).
