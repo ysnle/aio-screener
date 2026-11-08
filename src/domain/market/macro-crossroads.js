@@ -162,10 +162,13 @@ export function buildScenarioSignals({ read = null, macroHistory = null, history
   };
   // v57.81 (audit X1): the shared PCE·CPI direction from the 거시 inflation axis (same flag as the quadrant).
   const inflationDir = inflation.direction || null;
+  // The core CPI pace pairs with the year-over-year rate of its own month; a missing year-ago row leaves the pair empty.
+  const coreCpiPaceRow = annualised3m(mh('coreCpiIndex'));
+  const coreCpiYoyRow = coreCpiPaceRow ? yoySeries(mh('coreCpiIndex')).find((row) => row.date === coreCpiPaceRow.date) : null;
   return {
     sahm: finite(growth.sahm?.value), payroll3: finite(growth.payroll?.avg3), payrollPrior3: finite(growth.payroll?.prior3), claimsUp: finite(growth.claims?.aboveLow),
     coreYoy: finite(inflation.yoy), corePace: finite(inflation.pace?.value), accelerating: inflation.accelerating ?? null, inflationDir,
-    coreCpiPace: finite(annualised3m(mh('coreCpiIndex'))?.value), coreCpiYoy: finite(last(yoySeries(mh('coreCpiIndex')))?.value),
+    coreCpiPace: finite(coreCpiPaceRow?.value), coreCpiYoy: coreCpiYoyRow ? finite(coreCpiYoyRow.value) : null,
     wageYoy: finite(last(yoySeries(mh('hourlyEarnings')))?.value), retailYoy: finite(last(yoySeries(mh('retailSales')))?.value),
     sentiment: finite(last(mh('consumerSentiment'))?.value), sentimentRank: sentimentRank(mh('consumerSentiment')),
     breakeven20: changeOver(mh('breakeven10'), 20), termPremium: mh('termPremium10'), termPremium20: changeOver(mh('termPremium10'), 20),

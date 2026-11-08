@@ -9,11 +9,11 @@
 // Rates, credit and oil/dollar reuse the 시장 상태 axes, so the two screens never disagree.
 // What a regime has tended to mean for stocks is labelled 해석 (a historical tendency, not a forecast).
 
-import { creditCause, creditState, hyDelta20Bp, hyWidening20Record } from '../briefing/market-read.js';
+import { creditCause, creditReleaseText, creditState, hyDelta20Bp, hyWidening20Record } from '../briefing/market-read.js';
 import { buildCloseSeries, closeBasis, sessionPointBack as closeSessionPointBack } from '../market/close-series.js';
 import { RULES } from '../rules/thresholds.js';
 import { brentWtiCheck } from './liquidity-growth.js';
-import { inflationDirection, oilDivergence, MACRO_SIGNAL_RULES } from './macro-signals.js';
+import { inflationDirection, oilDivergence, policyCycle, MACRO_SIGNAL_RULES } from './macro-signals.js';
 import { peopleText, signedText, readNumber as finite } from '../shared/number.js';
 import { withTopicParticle } from '../content/korean-particle.js';
 // v59.59: the neutral real rate on the 정책 axis is the Taylor rule's own SEP-derived r* (an import cycle used only at call time).
@@ -53,6 +53,18 @@ function monthsBack(series, date, months) {
 }
 
 /** Year-over-year % for each month that has its exact 12-month comparator. */
+/** Month-over-month % changes, only between calendar-adjacent months (a skipped release is not a one-month change). */
+export const monthIndex = (date) => { const [y, m] = String(date).split('-').map(Number); return y * 12 + m; };
+export function monthOverMonth(rows = []) {
+  return rows.slice(1).map((row, index) => (monthIndex(row.date) - monthIndex(rows[index].date) === 1 ? { date: row.date, value: (row.value / rows[index].value - 1) * 100 } : null)).filter(Boolean);
+}
+/** The month-over-month change for one month ('YYYY-MM…'), or null when that month or the one before it is missing. */
+export function monthChangeAt(rows = [], month) {
+  const key = String(month || '').slice(0, 7);
+  const at = rows.findIndex((row) => String(row.date).slice(0, 7) === key);
+  return at > 0 ? monthOverMonth(rows.slice(at - 1, at + 1))[0]?.value ?? null : null;
+}
+
 export function yoySeries(series) {
   return series.map((row) => {
     const base = monthsBack(series, row.date, 12);
@@ -109,7 +121,7 @@ function payrollTrend(payrolls) {
   return { date: recent[recent.length - 1].date, avg3: avg(recent), prior3: avg(prior), changes };
 }
 
-function claimsTrend(claims) {
+export function claimsTrend(claims) {
   if (claims.length < 30) return null;
   const avg4 = claims.map((row, index) => index < 3 ? null : { date: row.date, value: (row.value + claims[index - 1].value + claims[index - 2].value + claims[index - 3].value) / 4 }).filter(Boolean);
   const last = avg4[avg4.length - 1];
@@ -194,19 +206,42 @@ function growthAxis({ macro, mh }) {
   });
 }
 
-function inflationAxis({ macro, mh }) {
+/** the one core-inflation reading — year-over-year, 3-month pace and the PCE·CPI direction — that
+ *  the 물가 axis, the quadrant and the 물가 chapter all read. The chapter used its own "last two months vs the two before"
+ *  rule and said '다시 빨라졌습니다' while this direction was 방향 보류. */
+export function coreInflationRead({ macro = {}, mh = null } = {}) {
   const corePceIndex = seriesOf(mh, 'corePceIndex');
   const corePceYoySeries = yoySeries(corePceIndex);
-  // v59.59 (logic refactor): macro.corePce stays the number of record, but the producer rounds it to one decimal; when
-  // the unrounded series value is that same figure (within the rounding), the series value is read, as the Taylor rule
-  // does — 3.05 published as 3.1 crossed the 0.1pp buffer above the 3% line only through the rounding.
-  const recorded = finite(macro.corePce);
+  const recorded = finite(macro?.corePce);
   const unrounded = lastOf(corePceYoySeries)?.value ?? null;
   const yoy = recorded == null ? unrounded : unrounded != null && Math.abs(unrounded - recorded) <= 0.05 + 1e-9 ? unrounded : recorded;
   const pace = annualised3m(corePceIndex);
   const coreCpiIndex = seriesOf(mh, 'coreCpiIndex');
   const coreCpiPace = annualised3m(coreCpiIndex);
-  const coreCpiYoy = lastOf(yoySeries(coreCpiIndex));
+  // The pace's own month: when a year-ago row is missing, the newest yoy is an older month and must not stand beside it.
+  const coreCpiYoy = coreCpiPace ? yoySeries(coreCpiIndex).find((row) => row.date === coreCpiPace.date) || null : null;
+  // v57.81 (audit X1): the direction of core inflation needs core PCE and core CPI to agree, each on its newest release —
+  // the quadrant, the 물가 axis, the 물가 chapter and the '물가 재가속' / '물가 둔화' scenarios all read this one flag.
+  // Macro audit 2026-10-17: the PCE pair compares the 3-month pace with the year-over-year rate of the same month, as the
+  // CPI pair already did — the released yoy (macro.corePce) can be a month newer than the history the pace is read from.
+  const paceYoy = pace ? corePceYoySeries.find((row) => row.date === pace.date)?.value ?? null : null;
+  const releasedSameMonth = pace && String(macro?._asOf_corePce || '').slice(0, 7) === pace.date.slice(0, 7);
+  const pceYoyForPace = paceYoy ?? (releasedSameMonth ? yoy : null);
+  const direction = inflationDirection({
+    pce: pace && pceYoyForPace != null ? { pace: pace.value, yoy: pceYoyForPace, date: pace.date } : null,
+    cpi: coreCpiPace && coreCpiYoy ? { pace: coreCpiPace.value, yoy: coreCpiYoy.value, date: coreCpiPace.date } : null
+  });
+  // The direction row's label names the measures it actually read (one measure alone is not 'PCE·CPI').
+  const directionLabel = direction.single ? `물가 방향 (${direction.pce ? '근원 PCE' : '근원 CPI'}만)` : '물가 방향 (PCE·CPI)';
+  return { corePceIndex, corePceYoySeries, yoy, pace, pceYoyForPace, coreCpiIndex, coreCpiPace, coreCpiYoy, direction, directionLabel };
+}
+
+function inflationAxis({ macro, mh }) {
+  // v59.59 (logic refactor): macro.corePce stays the number of record, but the producer rounds it to one decimal; when
+  // the unrounded series value is that same figure (within the rounding), the series value is read, as the Taylor rule
+  // does — 3.05 published as 3.1 crossed the 0.1pp buffer above the 3% line only through the rounding (coreInflationRead).
+  const shared = coreInflationRead({ macro, mh });
+  const { corePceYoySeries, yoy, pace, coreCpiPace, coreCpiYoy, pceYoyForPace, direction, directionLabel } = shared;
   // 2026-10-19 (expertise review): the composition of sticky core CPI — shelter (lags market rents by about a year) and
   // services ex-shelter ("supercore", wage-driven). A 3-month pace within 0.3pp of the year reads as steady. Evidence only: neither part
   // changes the axis state.
@@ -222,17 +257,6 @@ function inflationAxis({ macro, mh }) {
   const delta = finite(macro.corePceDelta);
   const sixMonthsAgo = corePceYoySeries.length > 6 ? corePceYoySeries[corePceYoySeries.length - 7].value : null;
   const breakeven = finite(macro.breakeven10);
-  // v57.81 (audit X1): the direction of core inflation needs core PCE and core CPI to agree, each on its newest release —
-  // the quadrant, this axis and the '물가 재가속' / '물가 둔화' scenarios all read this one flag.
-  // Macro audit 2026-10-17: the PCE pair compares the 3-month pace with the year-over-year rate of the same month, as the
-  // CPI pair already did — the released yoy (macro.corePce) can be a month newer than the history the pace is read from.
-  const paceYoy = pace ? corePceYoySeries.find((row) => row.date === pace.date)?.value ?? null : null;
-  const releasedSameMonth = pace && String(macro._asOf_corePce || '').slice(0, 7) === pace.date.slice(0, 7);
-  const pceYoyForPace = paceYoy ?? (releasedSameMonth ? yoy : null);
-  const direction = inflationDirection({
-    pce: pace && pceYoyForPace != null ? { pace: pace.value, yoy: pceYoyForPace, date: pace.date } : null,
-    cpi: coreCpiPace && coreCpiYoy && coreCpiYoy.date === coreCpiPace.date ? { pace: coreCpiPace.value, yoy: coreCpiYoy.value, date: coreCpiPace.date } : null
-  });
   const accelerating = direction.state === 'unknown' ? null : direction.dir === 'up';
   // v57.81 (audit X5): core PCE 3.0076% against the 3.0% line was 부담 by 0.008pp. The level alone needs a 0.1pp margin; at
   // the line (or anywhere from 2.5%) a re-accelerating core measure — PCE or the newer CPI — is what fires, and the read says which.
@@ -251,11 +275,15 @@ function inflationAxis({ macro, mh }) {
   const fired = reaccel[0] || null;
   const slowing = direction.state === 'mixed' ? [direction.pce, direction.cpi].find((row) => row?.dir === 'down') : null;
   const mixedNote = slowing ? ` ${slowing.month ? `${slowing.month} ` : ''}${withTopicParticle(slowing.name)} 둔화 쪽이라 두 지표의 방향은 엇갈립니다.` : '';
+  // the constraint follows the policy cycle (policyCycle) — after the 9/17 hike the question is how
+  // long and how high, not whether cuts are near.
+  const cycle = policyCycle(seriesOf(mh, 'fedTargetUpper'));
+  const constraint = cycle.hiking ? '연준이 높은 금리를 더 오래 유지하거나 더 올릴 수 있는 조건입니다.' : '연준이 금리를 내리기 어려운 조건입니다.';
   const read = state === 'burden'
     ? (firedBy === 'level'
-      ? `근원 PCE 물가가 ${yoy.toFixed(1)}%로 연준 목표(${I.targetPct}%)보다 ${gap.toFixed(1)}%p 높아 수준 기준(${levelAt.toFixed(1)}%)을 넘었습니다${reaccel.length ? ` — ${reaccel.map((row) => row.name).join('·')}의 최근 3개월 속도도 더 빨라 다시 오르는 중입니다` : ''}. 연준이 금리를 내리기 어려운 조건입니다.${mixedNote}`
-      : `근원 PCE 물가가 ${yoy.toFixed(1)}%로 목표보다 ${gap.toFixed(1)}%p 높고, ${fired.name}${fired.month ? `(${fired.month})` : ''}의 최근 3개월 속도(연율 ${fired.pace.toFixed(1)}%)가 1년치(${fired.yoy.toFixed(1)}%)보다 ${fired.margin.toFixed(1)}%p 빨라 다시 오르고 있습니다 — 부담 판정은 이 재가속 때문입니다. 연준이 금리를 내리기 어려운 조건입니다.${mixedNote}`)
-    : state === 'favorable' ? `근원 PCE 물가가 ${yoy.toFixed(1)}%로 목표에 가깝고 오르는 속도가 줄고 있습니다 — 금리 인하 여지가 생기는 조건입니다.`
+      ? `근원 PCE 물가가 ${yoy.toFixed(1)}%로 연준 목표(${I.targetPct}%)보다 ${gap.toFixed(1)}%p 높아 수준 기준(${levelAt.toFixed(1)}%)을 넘었습니다${direction.dir === 'up' && !direction.single ? ' — 근원 PCE·CPI의 최근 3개월 속도도 함께 빨라 다시 오르는 중입니다' : direction.dir === 'up' ? ` — ${reaccel[0]?.name || '근원 물가'}의 최근 3개월 속도도 빨라 다시 오르는 쪽입니다(다른 지표는 아직 확인되지 않음)` : reaccel.length ? ` — ${reaccel.map((row) => row.name).join('·')}의 최근 3개월 속도는 1년치보다 빠르지만 두 지표가 함께 가리키는 재가속은 아닙니다` : ''}. ${constraint}${mixedNote}`
+      : `근원 PCE 물가가 ${yoy.toFixed(1)}%로 목표보다 ${gap.toFixed(1)}%p 높고, ${fired.name}${fired.month ? `(${fired.month})` : ''}의 최근 3개월 속도(연율 ${fired.pace.toFixed(1)}%)가 1년치(${fired.yoy.toFixed(1)}%)보다 ${fired.margin.toFixed(1)}%p 빨라 다시 오르고 있습니다 — 부담 판정은 이 재가속 때문입니다. ${constraint}${mixedNote}`)
+    : state === 'favorable' ? `근원 PCE 물가가 ${yoy.toFixed(1)}%로 목표에 가깝고 오르는 속도가 줄고 있습니다 — ${cycle.hiking ? '추가 인상 압력이 줄어드는 조건입니다' : '금리 인하 여지가 생기는 조건입니다'}.`
       : state === 'unknown' ? '물가 자료를 기다리는 중입니다.'
         : `근원 PCE 물가 ${yoy.toFixed(1)}% — ${yoy > I.targetPct ? '목표보다 높지만' : yoy < I.targetPct ? '목표보다 낮고' : '목표 수준이고'} ${direction.state === 'mixed' && reaccel.length ? `${reaccel[0].name}${reaccel[0].month ? `(${reaccel[0].month})` : ''}만 빨라지고${mixedNote} 두 지표가 함께 가리키는 재가속은 아닙니다.` : '다시 빨라지는 신호는 뚜렷하지 않습니다.'}${yoy >= I.missPct ? ` 수준 기준(${levelAt.toFixed(1)}%)에는 못 미쳐 수준만으로 부담으로 보지 않습니다.` : ''}${pace ? '' : ' 3개월 속도는 월별 기록이 쌓이면 반영됩니다.'}`;
   const gaugeOf = state === 'burden' && firedBy === 'reaccel' && fired
@@ -267,9 +295,9 @@ function inflationAxis({ macro, mh }) {
     evidence: [
       ['근원 PCE (전년 대비)', yoy == null ? null : `${yoy.toFixed(1)}% (목표 ${I.targetPct}% 대비 ${signed(gap, 1, '%p')})`],
       ['근원 PCE 3개월 속도 (연율)', pace ? `${pace.value.toFixed(1)}% ${pace.value > (pceYoyForPace ?? yoy) ? '— 1년치(전년 대비)보다 빠름' : '— 1년치(전년 대비)보다 느림'}` : null],
-      ['근원 CPI 3개월 속도 (연율)', coreCpiPace ? `${coreCpiPace.value.toFixed(1)}%${coreCpiYoy ? ` (${monthLabel(coreCpiPace.date)}, 전년 대비 ${coreCpiYoy.value.toFixed(1)}%)` : ''}` : null],
+      ['근원 CPI 3개월 속도 (연율)', coreCpiPace ? `${coreCpiPace.value.toFixed(1)}% (${monthLabel(coreCpiPace.date)}${coreCpiYoy ? `, 전년 대비 ${coreCpiYoy.value.toFixed(1)}%` : ', 같은 달 전년 대비 없음'})` : null],
       ['근원 CPI 구성 (주거비, 주거비 제외 서비스)', composition],
-      ['물가 방향 (PCE·CPI)', direction.state === 'unknown' ? null : `${direction.label} — ${direction.text}`],
+      [directionLabel, direction.state === 'unknown' ? null : `${direction.label} — ${direction.text}`],
       ['6개월 전 근원 PCE', sixMonthsAgo == null ? null : `${sixMonthsAgo.toFixed(1)}%`],
       ['헤드라인 CPI, PCE', finite(macro.cpi) == null ? null : `${finite(macro.cpi).toFixed(1)}%, ${finite(macro.pce)?.toFixed(1) ?? '—'}%`],
       ['10년 기대인플레이션', breakeven == null ? null : `${breakeven.toFixed(2)}%`]
@@ -309,9 +337,15 @@ function policyAxis({ macro, inflationState, growthState = null, neutralReal = P
   // v58.74 (text audit #15): the proxy caveat is its own sentence, not a nested parenthesis.
   const PRICING_BASIS = '2년물에는 기간·위험 프리미엄이 섞여 있어 정책 예상 그 자체로 보지 않습니다.';
   const pricingText = pricing == null ? null : pricing >= P.pricedMovePp ? '기준금리보다 뚜렷이 높은' : pricing <= -P.pricedMovePp ? '기준금리보다 뚜렷이 낮은' : '기준금리 부근(동결에 가까운)';
+  // where policy sits against neutral is the fact a rates desk leads with. A 2-year above the
+  // midpoint with a real policy rate (0.8%) still under the neutral estimate (1.2%) means policy is not yet tight — the room
+  // for higher rates comes from there, not from a premium alone.
+  const stance = realPolicy != null && realPolicy < neutralReal && corePce != null && corePce > I.targetPct
+    ? ` 실질 기준금리(중간값 − 근원 PCE)는 ${realPolicy.toFixed(1)}%로 중립 추정(약 ${fmtNeutral(neutralReal)}%)보다 낮아 정책은 아직 긴축 구간이 아닙니다 — 물가가 목표를 웃도는 동안 금리가 더 오를 여지가 남는 배경입니다.`
+    : '';
   const read = state === 'burden'
     ? (pricing != null && pricing >= P.pricedMovePp
-      ? `2년물(${twoYear.toFixed(2)}%)이 기준금리 중간값(${mid.toFixed(2)}%)보다 ${pricing.toFixed(2)}%p 높습니다. 앞으로 1~2년 기준금리가 지금보다 높을 가능성이 일부 반영됐을 수 있지만, 이 차이에는 기간·위험 프리미엄도 섞여 있어 ‘인상 예상’으로 단정할 수는 없습니다.`
+      ? `2년물(${twoYear.toFixed(2)}%)이 기준금리 중간값(${mid.toFixed(2)}%)보다 ${pricing.toFixed(2)}%p 높습니다. 앞으로 1~2년 기준금리가 지금보다 높을 가능성이 일부 반영됐을 수 있지만, 이 차이에는 기간·위험 프리미엄도 섞여 있어 ‘인상 예상’으로 단정할 수는 없습니다.${stance}`
       : `물가를 뺀 실질 기준금리가 ${realPolicy.toFixed(1)}%로 중립 수준(약 ${fmtNeutral(neutralReal)}%)보다 훨씬 높은 긴축 상태입니다.`)
     : state === 'favorable' ? `2년물이 기준금리 중간값보다 ${Math.abs(pricing).toFixed(2)}%p 낮습니다. 인하 가능성이 일부 반영됐을 수 있지만, 프리미엄을 분리한 자료가 없어 ‘인하 예상’으로 단정할 수는 없습니다.`
       : state === 'unknown' ? '정책금리나 2년물 자료를 기다리는 중입니다.'
@@ -532,7 +566,11 @@ function buildChain({ macro, regime, rateFx, oil = null, mh = null }) {
   const record20 = mh ? hyWidening20Record(mh) : null;
   const cause = creditCause({ hyBp: hyBpNow, hy5: hy5 == null ? null : hy5 * 100, hy20Record: record20 });
   const burdenText = cause.level ? `스프레드 수준(${Math.round(hyBpNow)}bp)이 부담 구간(${RULES.credit.stressAtBp}bp 이상)입니다`
-    : cause.wide20 ? `수준(${Math.round(hyBpNow)}bp)은 부담 구간이 아니지만 20거래일 ${signed(record20.value, 0, 'bp')} 확대가 ${record20.pct >= 100 ? '지난 1년 중 가장 큰 폭이' : `지난 1년 변화의 ${record20.pct}백분위`}라 부담입니다 — 수준보다 확대 속도가 먼저 경고합니다`
+    // '88백분위라 부담입니다' gave a reason under the 90th-percentile entry line — the state was held by
+    // the latch. A held reading says it is held, since when, and what releases it (creditReleaseText, the axis's own words).
+    : cause.wide20 ? (record20.value >= record20.enterBp
+      ? `수준(${Math.round(hyBpNow)}bp)은 부담 구간이 아니지만 20거래일 ${signed(record20.value, 0, 'bp')} 확대가 ${record20.highest ? '지난 1년 중 가장 큰 폭' : `지난 1년 변화의 상위 ${Math.max(1, 100 - record20.pct)}%`}이라 부담입니다 — 수준보다 확대 속도가 먼저 경고합니다`
+      : `수준(${Math.round(hyBpNow)}bp)은 부담 구간이 아니지만 ${record20.since ? `${monthDay(record20.since)}에 시작된 ` : ''}확대 부담 판정이 이어지는 중입니다(20거래일 ${signed(record20.value, 0, 'bp')}) — ${creditReleaseText({ hyBp: hyBpNow, hy5: hy5 == null ? null : hy5 * 100, hy20: record20.value, latched: true })}으로 바뀝니다`)
       : '신용 지표가 부담입니다 — 수준과 5·20거래일 변화를 함께 확인합니다';
   const creditCalm = creditVerdict === 'favorable' ? '신용 시장은 안정적입니다'
     : creditVerdict === 'burden' ? burdenText
@@ -646,9 +684,11 @@ export function buildMacroRead({ macro = null, macroHistory = null, regime = nul
   // rule uses (1.0% fixed here vs 1.2% there on the same screen); the fixed 1% only when no current SEP value is collected.
   const sep = mh ? sepNeutral(mh) : null;
   const policy = policyAxis({ macro: m, inflationState: inflation.state, growthState: growth.state, neutralReal: sep && !sep.old && !sep.stale ? sep.rStar : P.neutralRealPct });
+  const ratesScare = regime?.axes?.find((row) => row.id === 'rates')?.growthScare || null;
   const axes = [
     growth, inflation, policy,
-    reuse(regime, 'rates', '금리, 할인율', '10년물 금리는 주식 가치를 계산하는 할인율의 기준입니다. 빠르게 오르면 PER이 높은 성장주부터 부담을 받습니다.', gauges.rates),
+    // a growth-scare hold names itself on the tile ('10년물 20거래일 -38bp' alone read as relief marked 중립).
+    reuse(regime, 'rates', '금리, 할인율', '10년물 금리는 주식 가치를 계산하는 할인율의 기준입니다. 빠르게 오르면 PER이 높은 성장주부터 부담을 받습니다.', { ...gauges.rates, headline: ratesScare ? `10년물 20거래일 ${signed(ratesScare.tnx20, 0, 'bp')} · 주가 하락 동반(성장 걱정)` : gauges.rates?.headline || null }),
     { ...reuse(regime, 'commodities', '유가, 달러', '유가는 물가(에너지는 CPI의 약 7%)와 소비 여력에, 달러는 해외 매출 환산과 신흥국 자금 흐름에 영향을 줍니다.', gauges.commodities), caveat: oilDivergence(oil).held ? '두 유가(브렌트·WTI)의 같은 날 비교는 WTI 원유 차트 설명에 있습니다.' : null },
     reuse(regime, 'credit', '신용', '하이일드 스프레드가 넓어지면 기업 자금 조달이 어려워지고, 주식 하락이 신용 위험으로 번지고 있다는 신호가 됩니다.', gauges.credit)
   ];

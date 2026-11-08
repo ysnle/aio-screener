@@ -67,9 +67,19 @@ export function fomcPrompt(date, current, previous) {
     '', '--- 이번 성명 ---', capSourceText(current), '--- 직전 성명 ---', capSourceText(previous || '(없음)'), '--- 끝 ---'].join('\n');
 }
 
+// v59.85 (macro/AI review): TRANSCRIPT_SCHEMA has only speaker and points[].text, but the prompt carried QUOTED_ITEM_RULES
+// (quote / value / headline / watch fields it cannot return). The transcript rules name the fields the schema has.
+const TRANSCRIPT_RULES = ruleBlock('규칙:', [
+  `한국어로 짧게 쓴다. ${PROMPT_RULES.noTradeInstruction}`,
+  `points의 text는 한 줄에 한 발언, 모두 ${FORMAL_ENDING}.`,
+  PROMPT_RULES.koreanNames,
+  'text에 숫자를 쓸 때는 녹취록에 그대로 있는 숫자만 쓴다. 원문에 없는 숫자(계산한 변화폭, 환산 값)는 쓰지 않는다.',
+  '의장이 조건을 붙여 말한 것(예: 자료가 그렇게 나오면)은 조건과 함께 쓰고, 확정된 결정처럼 쓰지 않는다.'
+]);
+
 export function transcriptPrompt(date, text) {
   return [`아래는 ${date} FOMC 기자회견 녹취록(연준 공개 PDF에서 추출한 텍스트)이다.`,
-    '의장이 한 핵심 발언(금리 경로, 물가·고용 판단, 대차대조표, 질의응답 쟁점)을 한국어 한 줄씩 3~6개로 정리하라. speaker에는 의장 이름을 쓴다.', QUOTED_ITEM_RULES,
+    '의장이 한 핵심 발언(금리 경로, 물가·고용 판단, 대차대조표, 질의응답 쟁점)을 한국어 한 줄씩 3~6개로 정리하라. speaker에는 의장 이름을 쓴다.', TRANSCRIPT_RULES,
     '', '--- 녹취록 ---', capSourceText(text), '--- 끝 ---'].join('\n');
 }
 

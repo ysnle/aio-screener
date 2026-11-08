@@ -1,0 +1,41 @@
+{
+  "version": "v59.85",
+  "date": "2026-11-08",
+  "p": {
+    "title": "AI 답변이 화면의 거시 숫자를 근거 행 없이 받아 지우거나 화면과 다른 금리·VIX를 썼다",
+    "symptom": "거시·금리 화면에서 'CPI 지금 몇이야?'를 물으면 모델은 DOMAIN 블록의 CPI 3.7%를 받았지만 근거 행(evidenceId)이 없어 '확인 필요'라고 하거나, 게시 게이트가 그 문장을 지웠다. 같은 프롬프트에 장중 ^TNX(관측 시각 없음), 날짜 확인 없는 스냅샷 2s10s, 장중 VIX가 확정 종가 Screen basis와 나란히 들어가 한 답에 10년물·VIX 값이 두 개씩 나올 수 있었다. MACRO_ANALYSIS 질문에는 '매크로/FX 근거가 없어 전달 경로를 만들지 않습니다'가 Screen basis 옆에 함께 들어갔다.",
+    "root_cause": "화면이 읽는 공식 발표(BLS·BEA·연준·재무부/FRED)가 타입 근거 행으로 발행되지 않았다. 확정 종가 행(close-basis, v57.48)만 있었고, 레거시 _fetchDomainContextForChat이 거시 숫자를 산문으로 따로 조립했다. analysis/evidence-inputs.js의 거시 정규식은 close.* 지표 ID와 status 'reference'를 받지 않아 거시 분석 입력이 늘 비었다.",
+    "fix": "src/ai/context/macro-release-evidence.js가 data.json macro 블록과 macro-history(근원 PCE 3개월 연율·전월비, 달력 월 기준)를 source 'macro-release' 타입 참고 행으로 발행한다. 월간 행은 기준월, 일간 행은 관측일을 asOf로 갖고, 2s10s는 두 다리와 같은 날일 때만 bp로 낸다. bootstrap의 _aioScreenBasisEvidence가 종가 행과 함께 돌려주고 Screen basis 프롬프트에 블록을 붙인다. close-basis에 DXY·원/달러·WTI·금 20거래일 % 행을 더했다. 거시·외환채권 DOMAIN 줄(src/ai/context/chat-macro-lines.js, js/aio-chat.js에서 옮김)은 이 행만 날짜·evidenceId와 함께 인용하고, 공통 금리 줄은 질문 빌더가 한 번만 남긴다. 거시 분석 입력은 close-basis·macro-release 두 출처의 reference 행만 받는다. 세션 근거 고지는 공식 발표 행에도 붙지 않고, 렌더러는 '[공식 발표]'로 표시한다. 원본 시계열이 갱신 실패(series.stale)이거나 근원 PCE가 지연으로 표시되면 파생 3개월 연율·전월비 행도 내지 않는다. 행 모듈은 AI 패널과 함께(chat-globals) 불러 부팅·사후 지연 예산 밖에 둔다. 10년−2년 금리차 행도 금리차와 두 만기가 모두 현재 값일 때만 낸다. 답변 하단 근거 칸도 공식 발표 주장을 완료된 기록으로 본다: 종가·공식 발표만 인용한 답변은 기준(종가일·기준월)과 원천(완료된 종가 기록/공식 발표)을 적고 '확인 필요·미확인'으로 표시하지 않는다.",
+    "violated_rule": "화면과 AI가 같은 사실을 같은 값·같은 기준일로 말해야 한다(one fact, one owner).",
+    "prevention": "새 거시 지표를 AI에 넘길 때는 DOMAIN 산문이 아니라 macro-release-evidence.js 행으로 추가한다. 산문 블록은 행을 인용만 한다.",
+    "verification": "node scripts/ci-ai-intelligence-contract-check.mjs (v59.85 macro releases / CPI claim binds / macro analysis reads / DOMAIN lines / shared rates line)",
+    "files": [
+      "src/ai/context/macro-release-evidence.js",
+      "src/ai/context/chat-macro-lines.js",
+      "src/ai/context/close-basis-evidence.js",
+      "src/ai/analysis/evidence-inputs.js",
+      "src/ai/analysis/macro-fx.js",
+      "src/ai/context/market-content.js",
+      "src/ai/response/renderer.js",
+      "src/ai/response/request-pipeline.js",
+      "src/app/bootstrap.js",
+      "src/app/chat-globals.js",
+      "js/aio-chat.js",
+      "scripts/ci-ai-intelligence-contract-check.mjs"
+    ]
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-AI-MACRO-RELEASE-ROWS",
+      "text": "v59.85: 거시 질문의 CPI·PCE·고용·기준금리·2년물·실질금리·기대인플레·같은 날 2s10s가 source macro-release 근거 행으로 묶여 '[공식 발표]'와 기준월로 게시되고, DOMAIN 줄에 장중 ^TNX·날짜 없는 스냅샷 2s10s·장중 VIX가 없다.",
+      "verify_by": "node scripts/ci-ai-intelligence-contract-check.mjs",
+      "done": true
+    }
+  ],
+  "qa_section": "AI 거시 근거 행",
+  "changelog": [
+    "**AI 거시 근거 행 ({P}):** 화면이 보여 주는 공식 발표·금리를 source 'macro-release' 타입 근거 행으로 발행해 답변의 거시 숫자가 게이트에서 지워지지 않고, 거시·외환채권 DOMAIN 줄은 장중 10년물·날짜 없는 2s10s·장중 VIX 대신 같은 행을 날짜·evidenceId와 함께 인용한다. 거시 분석 엔진이 '근거가 없다'고 하던 정규식·상태 거부도 고쳤다."
+  ],
+  "note": "AI macro grounding: typed macro-release evidence rows"
+}

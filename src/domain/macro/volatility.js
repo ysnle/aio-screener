@@ -47,7 +47,9 @@ export function volatilityChapter(history = [], events = []) {
   const byId = Object.fromEntries(ranges.map((range) => [range.id, range]));
   const span = (field) => historySpan(history, field);
   const vix20 = span('vix'); const vvix20 = span('vvix'); const move20 = span('move');
-  const band = vix.value >= V.highAt ? `${V.highAt} 이상 고변동 구간` : vix.value >= V.stressAt ? `${V.stressAt} 이상 경계 구간` : vix.value >= V.calmBelow ? `${V.calmBelow}~${V.stressAt} 주의 구간` : `${V.calmBelow} 아래 안정 구간`;
+  // the shared VIX band names — '18~25 주의 구간' here read 통상 범위
+  // [안정] in the AI header for the same VIX 21.
+  const band = vix.value >= V.highAt ? `${V.highAt} 이상 고변동 구간` : vix.value >= V.stressAt ? `${V.stressAt}~${V.highAt} 변동성 경계 구간` : vix.value >= V.calmBelow ? `${V.calmBelow}~${V.stressAt} 통상 범위` : `${V.calmBelow} 아래 저변동 구간`;
   const parts = [];
   // 1. Equity volatility and its term structure (the 시장 상태 lines).
   const term = ratio == null ? '' : ratio >= V.invertedRatioAt ? `이고, 3개월 VIX보다 높아 기간 구조가 역전됐습니다(${ratio.toFixed(2)})`

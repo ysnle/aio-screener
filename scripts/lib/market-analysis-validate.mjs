@@ -574,7 +574,30 @@ export function themeLeadClaimIssues(body, { context = '', data = null } = {}) {
   return [...new Set(issues)];
 }
 
-export function validateMarketAnalysisText(text, data, snapshot = null, { context = '', history = [] } = {}) {
+// v59.85 (macro/AI review): one rule for "an easing claim contradicts the evidence", shared by the body validator and the
+// daily sentence gate. With the screen's core-inflation direction (macro-read coreInflationRead) an easing assertion
+// stands only when that direction is 둔화; without it, the v57.69 rule (headline or core CPI year-over-year rose) holds.
+export function inflationEasingContradicts(macroNow = {}, direction = null) {
+  const state = direction?.state;
+  if (state && state !== 'unknown') return state !== 'down';
+  return Number(macroNow?.cpiDelta) > 0 || Number(macroNow?.coreCpiDelta) > 0;
+}
+
+/** The other side of the same rule: with the direction slowing, split or held, an unqualified "물가 재가속" is not the screen's
+ *  reading. Only a known direction blocks it (no year-over-year fallback: a one-month rise is not a re-acceleration). */
+export function inflationReaccelContradicts(direction = null) {
+  const state = direction?.state;
+  return !!state && state !== 'unknown' && state !== 'up';
+}
+// An unqualified assertion: 물가/인플레이션 as the subject. A named measure ("근원 CPI는 재가속") says which one and is allowed.
+// A conditional or scenario sentence ("물가 재가속 경로라면 …", "재가속될 경우") describes a branch, not the present.
+const CONDITIONAL_SENTENCE = /(?:라면|다면|이면|으면|면\s|경우|시나리오|가능성|는지|ㄹ지|을지|할지|될지|위험이\s?있|수\s?있)/;
+/** True when a sentence asserts, unconditionally, that inflation is re-accelerating. */
+export const assertsInflationReaccel = (text) => String(text || '').split(/(?<=[.!?。])\s+|\n+/)
+  .some((sentence) => INFLATION_REACCEL_ASSERTION.test(sentence) && !CONDITIONAL_SENTENCE.test(sentence));
+export const INFLATION_REACCEL_ASSERTION = /(?:물가|인플레이션)(?:가|는|이|은)?\s?(?:다시\s?)?(?:재가속|가속|빨라지)(?:되고|하고|고)\s?있|(?:물가|인플레이션)\s?재가속\s?(?:경로|흐름|추세|국면|신호)|(?:물가|인플레이션)(?:가|는|이|은)?\s?(?:다시\s?)?재가속(?:됐|했|되었|하였)/;
+
+export function validateMarketAnalysisText(text, data, snapshot = null, { context = '', history = [], inflationDirection = null } = {}) {
   const issues = [];
   // P1122: `warnings` never withholds the analysis; it names what the reader must treat
   // carefully. Blocking is reserved for claims that can be wrong (values, units, scale).
@@ -684,11 +707,12 @@ export function validateMarketAnalysisText(text, data, snapshot = null, { contex
   // v57.69: the reading said 장기금리 하락은 "물가 둔화 경로와 일치" the day CPI rose 3.4% → 3.7%. With headline or core
   // CPI rising, an assertion that inflation is easing is blocked; scenario titles in 「」 and conditionals are not assertions.
   const macroNow = data?.macro || {};
-  const inflationRising = Number(macroNow.cpiDelta) > 0 || Number(macroNow.coreCpiDelta) > 0;
+  const inflationRising = inflationEasingContradicts(macroNow, inflationDirection);
   const asserted = body.replace(/「[^」]*」|'[^']*'|"[^"]*"/g, '');
   if (inflationRising && /물가\s?둔화\s?(?:경로|흐름|추세|신호)|물가(?:가|는)?\s?(?:둔화|안정|완화)(?:되고|하고)\s?있|인플레이션(?:이|은)?\s?(?:둔화|완화)(?:되고|하고)\s?있|디스인플레이션\s?(?:경로|흐름|진행)/.test(asserted)) {
     issues.push('inflation-direction-contradicts-evidence');
   }
+  if (inflationReaccelContradicts(inflationDirection) && assertsInflationReaccel(asserted)) issues.push('inflation-direction-contradicts-evidence');
   // Live 2026-10-21: core CPI is no longer read as headline CPI (analysisLevelsAfterLabels); it is checked against its own value.
   if (readNumber(macroNow.coreCpi) != null) {
     // v58.71 (pipeline audit; live 10/23 block): REGIME_CONTEXT also carries the 3-month annualised pace ("근원 CPI 3개월
@@ -1168,7 +1192,7 @@ const SENTENCE_CERTAINTY = /가능성|확률|틀림없|분명히|바닥은\s?이
 const SENTENCE_DOWN_MOVE = /하락|급락|낙폭|무너|밀려|밀리|꺾|되돌|반납|반등\s?(?:실패|좌절)|재하락|다시\s?(?:내려|흔들|떨어)|흔들|약세|투매|매도세|공포|충격|붕괴|이탈|깨/;
 const SENTENCE_UP_MOVE = /상승|급등|반등|오름|올라|되찾|회복|안도|랠리|강세|치솟|돌파|만회/;
 export const MARKET_SENTENCE_QUESTION = /[?？]|(?:까요?|는가|인가|나요)[\s.。]*$/;
-export function marketSentenceRejectReason(sentence, { inflationRising = false, largeMoveDirection = null } = {}) {
+export function marketSentenceRejectReason(sentence, { inflationRising = false, inflationNotReaccelerating = false, largeMoveDirection = null } = {}) {
   const text = String(sentence || '').replace(/\s+/g, ' ').trim();
   if (!text) return 'missing';
   if (text.length < 12 || text.length > 90) return 'length';
@@ -1183,6 +1207,7 @@ export function marketSentenceRejectReason(sentence, { inflationRising = false, 
   if (SENTENCE_NAMES.test(text)) return 'names-company-or-index';
   if (SENTENCE_CERTAINTY.test(text)) return 'certainty';
   if (inflationRising && /물가(?:가|는)?\s?(?:둔화|안정|잡히|꺾|내려)/.test(text) && !/(?:면|라면|다면|는지|ㄹ지|을지|까)[\s?？]*$|인가|일까/.test(text)) return 'inflation-direction';
+  if (inflationNotReaccelerating && /(?:물가|인플레이션)(?:가|는|이|은)?\s?(?:다시\s?)?(?:재가속|빨라지|들썩)/.test(text) && !/(?:면|라면|다면|는지|ㄹ지|을지|까)[\s?？]*$|인가|일까/.test(text)) return 'inflation-direction';
   if ((text.match(/[.?!。？！]/g) || []).length > 2) return 'too-many-sentences';
   if (largeMoveDirection === 'down' && !SENTENCE_DOWN_MOVE.test(text)) return 'large-move-missed';
   if (largeMoveDirection === 'up' && !SENTENCE_UP_MOVE.test(text)) return 'large-move-missed';
@@ -1196,11 +1221,11 @@ export function validateMarketSentence(sentence, options = {}) {
 export const marketSentenceDay = (nowMs) => new Date(nowMs + 3600000).toISOString().slice(0, 10); // KST date of (now - 08:00)
 // v57.75: the sentence was fixed at the first run after 08:00 KST, before the Korean session — a KOSPI crash at 10:00
 // could never change it. A large move (KOSPI 3% or S&P 500 1%, see largeMove) allows one same-day replacement.
-export function dailyMarketSentence({ candidate = null, previous = null, nowMs = Date.now(), largeMove = false, largeMoveDirection = null, inflationRising = false } = {}) {
+export function dailyMarketSentence({ candidate = null, previous = null, nowMs = Date.now(), largeMove = false, largeMoveDirection = null, inflationRising = false, inflationNotReaccelerating = false } = {}) {
   const day = marketSentenceDay(nowMs);
   const sameDay = previous?.day === day && previous?.text;
   if (sameDay && !(largeMove && !previous.replaced)) return previous;
-  const text = validateMarketSentence(candidate, { inflationRising, largeMoveDirection: largeMove ? largeMoveDirection : null });
+  const text = validateMarketSentence(candidate, { inflationRising, inflationNotReaccelerating, largeMoveDirection: largeMove ? largeMoveDirection : null });
   if (text) return { text, day, generatedAt: new Date(nowMs).toISOString(), source: 'shared-model', ...(sameDay ? { replaced: true } : {}) };
   return previous?.text ? previous : null;
 }

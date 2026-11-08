@@ -5,7 +5,14 @@ export const AI_EVIDENCE_INPUTS_VERSION = 'analysis-evidence-inputs.v1';
 const text = (v) => typeof v === 'string' ? v.trim() : '';
 const entityId = (v) => text(typeof v === 'object' ? v?.symbol || v?.ticker : v).toUpperCase();
 const technical = new Set(['price', 'sma20', 'sma50', 'rsi14', 'macd', 'signal']);
-const macro = /^(?:market\.(?:rates|fx|commodity|volatility)\.|vix$|vix9d$|vix3m$|vix6m$|hySpread$|tnx$|us10y$|usdkrw$|dxy$)/i;
+// The screen's typed macro rows are close-basis closes (close.vix, close.us10y, close.dxy, …) and the official releases
+// (macro.*, src/ai/context/macro-release-evidence.js); both carry status 'reference' and are accepted as reference
+// observations. Nothing else is loosened.
+const macro = /^(?:market\.(?:rates|fx|commodity|volatility)\.|vix$|vix9d$|vix3m$|vix6m$|hySpread$|tnx$|us10y$|usdkrw$|dxy$|macro\.[a-z0-9_]+$)/i;
+const CLOSE_MACRO = new Set(['vix', 'us10y', 'dxy', 'usdkrw', 'hy_oas', 'wti', 'gold']);
+const closeMetric = /^close\.([a-z0-9_]+)(?:\.chg(?:1|20)d)?$/i;
+const isMacroMetric = (metric) => macro.test(metric) || CLOSE_MACRO.has((closeMetric.exec(metric)?.[1] || '').toLowerCase());
+const REFERENCE_SOURCES = new Set(['close-basis', 'macro-release']);
 const badSource = /^(?:unknown|missing|reference|untrusted|unavailable|seed|fallback|manual)$/i;
 
 export function buildEvidenceAnalysisInputs(plan = {}, { evidence = [], now = Date.now() } = {}) {
@@ -29,7 +36,8 @@ export function buildEvidenceAnalysisInputs(plan = {}, { evidence = [], now = Da
     const unit = text(row?.unit);
     const at = Date.parse(asOf);
     if (!row?.evidenceId || !entity || !metric || !source || badSource.test(source) || !isReferenceEligibleSourceKind(row.sourceKind) || !unit || !Number.isFinite(at) || at > Number(now) || typeof row.value !== 'number' || !Number.isFinite(row.value)) { reject(row, 'typed-observation-invalid'); continue; }
-    if (!['verified', 'live', 'fresh', 'snapshot', 'ok', 'current'].includes(text(row.status || row.truthStatus).toLowerCase()) || row.stale === true || row.future === true || row.allowedUse === 'none' || row.allowedUseCeiling === 'none' || row.operationalUse === 'none') { reject(row, 'observation-not-usable'); continue; }
+    const statusText = text(row.status || row.truthStatus).toLowerCase();
+    if (!(['verified', 'live', 'fresh', 'snapshot', 'ok', 'current'].includes(statusText) || (statusText === 'reference' && REFERENCE_SOURCES.has(source))) || row.stale === true || row.future === true || row.allowedUse === 'none' || row.allowedUseCeiling === 'none' || row.operationalUse === 'none') { reject(row, 'observation-not-usable'); continue; }
     if (row.scale && row.scale !== 'raw') { reject(row, 'non-raw-scale'); continue; }
     rows.push(Object.freeze({ evidenceId: String(row.evidenceId), entity, metric, value: row.value, unit, asOf, source, sourceKind: row.sourceKind, sourceTier: canonicalSourceTier(row.sourceKind) }));
   }
@@ -62,7 +70,7 @@ export function buildEvidenceAnalysisInputs(plan = {}, { evidence = [], now = Da
     inputs = { symbol: target, indicators: Object.fromEntries(used.map((row) => [row.metric, row.value])), observedAt: used[0]?.asOf || null, source: [...new Set(used.map((row) => row.source))].join('; ') || null };
     reason = 'same-entity-time-unit-technical-observations-only';
   } else if (intent === 'MACRO_ANALYSIS' || intent === 'FX_ANALYSIS') {
-    used = safe.filter((row) => macro.test(row.metric));
+    used = safe.filter((row) => isMacroMetric(row.metric));
     const fx = used.filter((row) => /(?:\.fx\.|usdkrw|dxy)/i.test(row.metric));
     inputs = { target: { symbol: target }, macro: Object.fromEntries(used.filter((row) => !fx.includes(row)).map((row) => [`${row.entity}:${row.metric}`, row])), fx: Object.fromEntries(fx.map((row) => [`${row.entity}:${row.metric}`, row])), edges: [] };
     reason = 'observations-only-no-verified-transmission-edges';

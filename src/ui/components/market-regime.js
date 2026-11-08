@@ -873,8 +873,11 @@ export function renderHomeRegime({ documentRef: doc, root, store = null }) {
   }
   if (!held) set('home-hero-total', regime.available ? regime.overall : '판정 대기');
   // v58.79 (owner 2026-10-25, layout over captions): the close date is in the page subtitle and the six counts are the
-  // axis chips below, so this line speaks only when the verdict is held (why) and stays empty (hidden) otherwise.
-  if (!held) set('home-hero-headline', regime.available ? (regime.holdReason || (regime.overall === '판정 보류' ? `미국 6개 지표 ${summaryLine(regime)}` : '')) : historyWaitText(root));
+  // axis chips below, so this line speaks only when the verdict is held (why), or when the latest session moved against the
+  // verdict (horizonLine: which horizon the verdict is on, beside index cards that show the day); empty (hidden) otherwise.
+  if (!held) set('home-hero-headline', regime.available ? (regime.holdReason || (regime.overall === '판정 보류' ? `미국 6개 지표 ${summaryLine(regime)}` : '') || regime.horizonLine?.text || '') : historyWaitText(root));
+  const basisLine = held ? null : doc.getElementById('home-hero-headline');
+  if (basisLine) basisLine.title = regime.available && !regime.holdReason && regime.horizonLine ? regime.horizonLine.detail : '';
   // v58.56 (re-audit #2): the hero sentence is the regime's one plain line (heroLine); the full conflict sentences with
   // their numbers and rules move into the 6개 축 근거 fold under the axis chips.
   if (!held) set('home-hero-desc', regime.heroLine || '');

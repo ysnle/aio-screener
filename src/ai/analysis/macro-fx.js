@@ -23,6 +23,6 @@ export function buildMacroFxTransmission({ macro = {}, fx = {}, target = {}, edg
     fx: Object.freeze({ ...fxValues }),
     transmissionEdges: Object.freeze(verifiedEdges),
     evidenceIds: Object.freeze(verifiedEdges.map((edge) => edge.evidenceId)),
-    conclusion: status === 'supported' ? '출처·시점·근거 ID가 있는 매크로/FX 전달 경로만 조건부로 제시합니다.' : status === 'partial' ? '매크로/FX 관측값은 있으나 검증된 전달 경로가 부족합니다.' : '매크로/FX 근거가 없어 전달 경로를 만들지 않습니다.'
+    conclusion: status === 'supported' ? '출처·시점·근거 ID가 있는 매크로/FX 전달 경로만 조건부로 제시합니다.' : status === 'partial' ? '매크로/FX 관측값은 근거 행(evidenceId)으로 인용할 수 있습니다. 관측값 사이의 전달 경로(원인과 결과)는 검증된 연결이 없어 조건부 해석으로만 씁니다.' : '매크로/FX 근거가 없어 전달 경로를 만들지 않습니다.'
   });
 }

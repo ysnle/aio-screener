@@ -1757,6 +1757,16 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       const lines = week.filter((row) => row.kind === 'earnings');
       if (lines.some((row) => /MRNA/.test(row.title)) || !/쏠림/.test(lines.find((row) => /엔비디아/.test(row.title))?.why || '')
         || !/지수 비중이 커서/.test(lines.find((row) => /XYZ/.test(row.title))?.why || '')) fail(`v59.70: week-ahead earnings lines must follow the company, got ${JSON.stringify(lines)}`);
+      // v59.85 (macro calendar): a US release with a known clock is 'next' until that moment, not until KST midnight — an
+      // FOMC at 14:00 ET (04:00 KST the next day) stays listed after KST midnight; a CPI at 08:30 ET drops once it is out.
+      const fomcDay = '2026-12-09', cpiDay = '2026-12-10';
+      const releases = [{ id: 'us-fed-rate', name: 'FOMC', date: fomcDay }, { id: 'us-cpi', name: 'CPI', date: cpiDay }];
+      const titlesAt = (iso) => (buildMarketStory({ history: weekRows, events: releases, nowMs: Date.parse(iso) }).week || []).filter((row) => row.kind === 'macro').map((row) => row.title).join(',');
+      const afterKstMidnight = titlesAt('2026-12-09T16:30:00Z'), afterCpi = titlesAt('2026-12-10T14:00:00Z');
+      if (afterKstMidnight !== 'FOMC,CPI' || afterCpi !== '') fail(`v59.85 week-ahead releases follow their release clock: ${afterKstMidnight} / ${afterCpi}`);
+      // A report with no announced hour leaves at the briefing schedule's clock (16:05 ET), not 23:59 ET into the next KST morning.
+      const unknownHour = (iso) => (buildMarketStory({ history: weekRows, calendar: { earnings: [{ symbol: 'XYZ', date: '2026-11-09', indexWeight: 1.2 }] }, nowMs: Date.parse(iso) }).week || []).some((row) => row.kind === 'earnings' && /XYZ/.test(row.title));
+      if (!unknownHour('2026-11-09T20:00:00Z') || unknownHour('2026-11-10T02:00:00Z')) fail('v59.85 an unknown-hour report follows the shared earnings clock in the week ahead');
     }
     if (both?.symbols?.join(',') !== 'MU,BAC' || both.symbol !== 'MU' || !/Micron[\s\S]*Bank of America/.test(both.text)) fail('v59.62: a multi-company earnings headline must carry every named reporter in headline order');
   }
@@ -7220,4 +7230,69 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const { wonMoveSentence } = await load('src/domain/macro/rates-fx.js');
   if (!/조금 약해졌습니다/.test(wonMoveSentence(1.5)) || /안정/.test(wonMoveSentence(1.5))) fail(`v59.76 a +1.5% 20-session won move is a mild weakening, never '안정적': ${wonMoveSentence(1.5)}`);
   if (!/보합권/.test(wonMoveSentence(0.3)) || !/환차손/.test(wonMoveSentence(2.4)) || !/강해졌습니다/.test(wonMoveSentence(-2.1))) fail('v59.76 the won sentence follows the 환율 axis edges (0.5% flat, 2% move)');
+  // v59.85 (macro/AI review 11/8): one owner per macro read, shared by the chapters, the chain, the tiles, the release
+  // bands and the AI blocks.
+  if (!/원화만 약해졌습니다/.test(wonMoveSentence(1.5, { dxy20: 0 })) || /원화만/.test(wonMoveSentence(1.5, { dxy20: 1.4 }))) fail(`v59.85 a won move with the dollar index flat is named as won-specific: ${wonMoveSentence(1.5, { dxy20: 0 })}`);
+  {
+    const ms85 = await load('src/domain/macro/macro-signals.js');
+    const fed = (rows) => rows.map(([date, value]) => ({ date, value }));
+    if (ms85.policyCycle(fed([['2026-06-01', 3.75], ['2026-09-17', 4.0], ['2026-11-06', 4.0]])).state !== 'hiking' || ms85.policyCycle(fed([['2025-01-01', 4.5], ['2025-03-01', 4.25], ['2026-11-06', 4.25]])).state !== 'hold' || ms85.policyCycle([]).state !== 'unknown') fail('v59.85 the policy cycle is the last target move within 180 days (hiking / hold / unknown)');
+    const brentLed = ms85.oilDivergence({ basis: 'futures', abnormal: false, diverges: false, brent20: -6.1, wti20: -1.1 });
+    if (!brentLed.held || brentLed.kind !== 'brent-led') fail(`v59.85 a Brent fall WTI does not follow by half holds the WTI read as brent-led: ${JSON.stringify(brentLed)}`);
+    const { creditReleaseText, verdictHorizonLine } = await load('src/domain/briefing/market-read.js');
+    const release = creditReleaseText({ hyBp: 348, hy5: 22, hy20: 33, latched: true });
+    if (/450bp/.test(release) || !/\+15bp/.test(release) || !/\+25bp/.test(release) || !/중립$/.test(release)) fail(`v59.85 the HY release names only the unmet legs (5d < +15bp, 20d < +25bp): ${release}`);
+    const fast5 = creditReleaseText({ hyBp: 400, hy5: 40, hy20: 10 });
+    if (!/\+25bp 아래/.test(fast5) || /\+15bp|20거래일/.test(fast5)) fail(`v59.85 without the 20-session latch the five-session leg is creditState's +25bp: ${fast5}`);
+    const stat = (value, d1) => ({ value, d1, date: '2026-11-06' });
+    const upDay = verdictHorizonLine({ overall: '다소 부담', indexes: [['S&P 500', stat(100.3, 100)], ['나스닥 100', stat(101.4, 100)]] });
+    if (!/^11\/6 지수는 올랐지만/.test(upDay?.text || '') || !/20거래일/.test(upDay.text) || !/나스닥 100 \+1\.4%/.test(upDay.detail)) fail(`v59.85 a burden verdict beside an up session names its horizon: ${JSON.stringify(upDay)}`);
+    if (verdictHorizonLine({ overall: '혼조', indexes: [['S&P 500', stat(102, 100)]] }) || verdictHorizonLine({ overall: '다소 부담', indexes: [['S&P 500', stat(101, 100)], ['러셀 2000', stat(99, 100)]] }) || verdictHorizonLine({ overall: '다소 부담', indexes: [['S&P 500', stat(100.2, 100)]] })) fail('v59.85 the horizon line stays silent on 혼조, a split day, or a small move');
+    // Missing and stale inputs (Codex review #167): a month-over-month change needs the calendar month before; a direction
+    // from one published measure names that measure only; a stale core PCE series publishes no derived rows.
+    const { monthChangeAt } = await load('src/domain/macro/macro-read.js');
+    if (monthChangeAt([{ date: '2025-09-01', value: 100 }, { date: '2025-11-01', value: 101 }], '2025-11') !== null || Math.abs(monthChangeAt([{ date: '2025-10-01', value: 100 }, { date: '2025-11-01', value: 101 }], '2025-11-15') - 1) > 1e-9) fail('v59.85 a month-over-month change spans exactly one calendar month');
+    const pceMonths = Array.from({ length: 16 }, (_, i) => new Date(Date.UTC(2025, 6 + i, 1)).toISOString().slice(0, 10));
+    let pceLevel = 100; const pceObs = pceMonths.map((date, i) => { pceLevel *= 1 + (i >= 13 ? 0.006 : 0.0022); return [date, Number(pceLevel.toFixed(3))]; });
+    const { buildMacroChapters: chapters85 } = await load('src/domain/macro/macro-chapters.js');
+    const pceOnly = chapters85({ macroHistory: { series: { corePceIndex: { observations: pceObs } } } }).chapters.find((row) => row.id === 'inflation');
+    if (!pceOnly || /PCE·CPI/.test(pceOnly.mean || '') || !/다른 지표는 아직 확인되지 않았습니다/.test(pceOnly.mean || '')) fail(`v59.85 a PCE-only direction names core PCE alone: ${pceOnly?.mean}`);
+    const { buildMacroReleaseEvidence } = await load('src/ai/context/macro-release-evidence.js');
+    const staleRows = buildMacroReleaseEvidence({ macro: { corePce: 3.1, _asOf_corePce: pceObs.at(-1)[0] }, macroHistory: { series: { corePceIndex: { observations: pceObs, stale: true } } }, now: Date.parse('2026-12-01') }).map((row) => row.metric);
+    if (staleRows.some((metric) => /core_pce_(?:3m_ann|mom)/.test(metric))) fail(`v59.85 a stale core PCE series publishes no derived pace rows: ${staleRows}`);
+    const curveMacro = { t10y2y: 0.4, dgs2: 4.1, dgs10: 4.5, _asOf_t10y2y: '2026-11-06', _asOf_dgs2: '2026-11-06', _asOf_dgs10: '2026-11-06' };
+    const curveNow = Date.parse('2026-11-08');
+    const curveOf = (macro) => buildMacroReleaseEvidence({ macro, now: curveNow }).some((row) => row.metric === 'macro.curve_2s10s');
+    if (!curveOf(curveMacro) || curveOf({ ...curveMacro, _freshness_t10y2y: 'stale-reference' }) || curveOf({ ...curveMacro, _freshness_dgs10: 'stale-reference' })) fail('v59.85 the 2s10s row needs the spread and both legs current');
+    if (!/revalidate: \(summary\) => validateMarketAnalysisText\([^)]*inflationDirection/.test(readFileSync(path.join(root, 'scripts/producer/market-narrative.mjs'), 'utf8'))) fail('v59.85 the retained reading is re-checked with the same inflation direction as a new one');
+    const { buildChatMacroLines } = await load('src/ai/context/chat-macro-lines.js');
+    const chat = buildChatMacroLines({ ctxId: 'macro', root: { _aioScreenBasisEvidence: () => [{ metric: 'macro.core_pce_yoy', value: 3.12, unit: 'percent', asOf: '2026-09-01', period: 'month', source: 'macro-release', evidenceId: 'mr:core_pce' }] }, timeLabel: 't' });
+    if (!chat.some((line) => /근원 PCE 3\.12% \(2026-09 기준월, evidenceId=mr:core_pce\)/.test(line))) fail(`v59.85 the chat macro block cites the typed release row with its month and evidenceId: ${JSON.stringify(chat)}`);
+    // Round 3: a core CPI pace whose year-ago month is missing has no same-month yoy beside it, and the direction row says
+    // it read core PCE only; a +2.2% dollar near its 1-year low says where it sits, not '범위 중간'.
+    const cpiGap = pceObs.filter(([date]) => date !== '2025-10-01');
+    const { coreInflationRead } = await load('src/domain/macro/macro-read.js');
+    const gapRead = coreInflationRead({ mh: { series: { corePceIndex: { observations: pceObs }, coreCpiIndex: { observations: cpiGap } } } });
+    const gapChapter = chapters85({ macroHistory: { series: { corePceIndex: { observations: pceObs }, coreCpiIndex: { observations: cpiGap } } } }).chapters.find((row) => row.id === 'inflation');
+    const gapRow = (gapChapter?.detail || []).find(([label]) => label === '근원 CPI 3개월 연율')?.[1] || '';
+    if (gapRead.coreCpiYoy !== null || !gapRead.direction.single || gapRead.directionLabel !== '물가 방향 (근원 PCE만)' || !/같은 달 1년치 없음/.test(gapRow) || !/10월/.test(gapRow)
+      || !(gapChapter.detail || []).some(([label]) => label === '물가 방향 (근원 PCE만)')) fail(`v59.85 the core CPI pace pairs only with its own month: ${JSON.stringify({ yoy: gapRead.coreCpiYoy, label: gapRead.directionLabel, gapRow })}`);
+    const dxyRows = []; for (let t = Date.UTC(2025, 9, 1); dxyRows.length < 260; t += 864e5) { const d = new Date(t); if (d.getUTCDay() % 6) dxyRows.push({ date: d.toISOString().slice(0, 10), dxy: dxyRows.length < 30 ? 110 : 100 }); }
+    dxyRows.at(-1).dxy = 102.2;
+    const dollar85 = chapters85({ history: dxyRows }).chapters.find((row) => row.id === 'dollar');
+    if (!dollar85 || /범위 중간/.test(dollar85.mean) || !/1년 범위의 22% 위치로 상위 20%가 아니라/.test(dollar85.mean)) fail(`v59.85 the dollar sentence states only the computed range position: ${dollar85?.mean}`);
+    // Brent and WTI are compared on their last common close: a missing Brent print does not pair 11/6 WTI with 11/5 Brent.
+    const oilRows = dxyRows.slice(-50).map((row) => ({ date: row.date, wti: 90, brent: 95 }));
+    oilRows[oilRows.length - 1] = { date: oilRows.at(-1).date, wti: 75 };
+    const oil85 = chapters85({ history: oilRows }).chapters.find((row) => row.id === 'oil');
+    const oilGap = (oil85?.detail || []).find(([label]) => label === '브렌트 − WTI (같은 날)')?.[1] || '';
+    if (!/^\$5\.0 \(/.test(oilGap) || /엇갈려/.test(oil85.mean)) fail(`v59.85 the oil chapter compares Brent and WTI on one common close: ${oilGap} / ${oil85?.mean}`);
+    // The validator blocks an unqualified 재가속 when the direction is slowing, split or held; a named measure is allowed.
+    const v85 = await import(pathToFileURL(path.join(root, 'scripts/lib/market-analysis-validate.mjs')).href);
+    const held = { state: 'flat' };
+    if (!v85.inflationReaccelContradicts(held) || v85.inflationReaccelContradicts({ state: 'up' }) || v85.inflationReaccelContradicts(null)
+      || !v85.assertsInflationReaccel('물가가 재가속되고 있습니다.') || v85.assertsInflationReaccel('근원 CPI는 재가속 신호를 보였습니다.') || v85.assertsInflationReaccel('물가 재가속 경로라면 금리 부담이 커질 수 있습니다.')
+      || v85.marketSentenceRejectReason('물가가 다시 빨라지며 금리 부담이 커진 하루였다.', { inflationNotReaccelerating: true }) !== 'inflation-direction'
+      || v85.marketSentenceRejectReason('물가가 다시 빨라지며 금리 부담이 커진 하루였다.', {}) === 'inflation-direction') fail('v59.85 the 재가속 assertion is blocked symmetrically with 둔화');
+  }
 }
