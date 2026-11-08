@@ -80,10 +80,15 @@ assert.equal(typeof broken.errors, 'object', `${label}: stage errors are collect
 const root = { _aioHistory: history, _aioMacroHistory: artifact('macro-history.json'), DATA_SNAPSHOT: {}, THEME_MAP: [] };
 const rows = [{ sym: 'AAA', ret3m: 10 }];
 const stop = registerInterpretationStore(root, { getState: () => ({ screener: { rows } }) });
-const first = marketInterpretation(root);
-assert.ok(marketInterpretation(root) === first, `${label}: the browser adapter reuses the build while inputs are unchanged`);
+// One pinned clock: the cache key buckets time to the minute, so two calls on either side of a minute boundary rebuild
+// by design (CI 2026-11-08 14:32:59→14:33:00 failed this assertion on a slow first build).
+const nowMs = Date.UTC(2026, 10, 6, 15, 0, 0);
+const first = marketInterpretation(root, { nowMs });
+assert.ok(marketInterpretation(root, { nowMs: nowMs + 30 * 1000 }) === first, `${label}: the browser adapter reuses the build while inputs are unchanged`);
+assert.ok(marketInterpretation(root, { nowMs: nowMs + 60 * 1000 }) !== first, `${label}: the next minute bucket rebuilds`);
+const second = marketInterpretation(root, { nowMs: nowMs + 60 * 1000 });
 root._aioHistory = [...history];
-assert.ok(marketInterpretation(root) !== first, `${label}: a replaced artifact rebuilds`);
+assert.ok(marketInterpretation(root, { nowMs: nowMs + 60 * 1000 }) !== second, `${label}: a replaced artifact rebuilds`);
 stop();
 
 if (failures.length) {
