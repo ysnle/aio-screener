@@ -48,7 +48,7 @@ assert.equal(decision.mode, 'refuse', 'v59.78 a commit that changes code is neve
 // Codex review on PR #161: the chain reaches the code commit however many refresh commits sit above it.
 {
   const repo = mkdtempSync(join(tmpdir(), 'aio-release-source-'));
-  const run = (...args) => { const result = spawnSync('git', args, { cwd: repo, encoding: 'utf8' }); assert.equal(result.status, 0, result.stderr); return result.stdout.trim(); };
+  const run = (...args) => { const result = spawnSync('git', args, { cwd: repo, encoding: 'utf8' }); assert.equal(result.status, 0, `v59.78 release-source fixture git ${args[0]}: ${result.stderr}`); return result.stdout.trim(); };
   run('init', '-q'); run('config', 'user.email', 'qa@example.invalid'); run('config', 'user.name', 'qa');
   writeFileSync(join(repo, 'app.js'), '1\n'); run('add', '.'); run('commit', '-qm', 'code');
   const code = run('rev-parse', 'HEAD');
