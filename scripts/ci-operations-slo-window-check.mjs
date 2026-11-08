@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises';
+import { workflowPublishes } from './lib/data-publish-sets.mjs';
 import { buildSloWindow, deriveExpectedRunsPerDay, parseCronRunsPerDay, dailyCronSlots, MAX_PAGES } from './build-operations-slo-window.mjs';
 
 const artifact = JSON.parse(await readFile(new URL('../public-data/operations-slo-window.json', import.meta.url), 'utf8'));
@@ -188,7 +189,7 @@ check('P1166 manual runs do not substitute for scheduled arrivals', manualOnly.s
   const step = refresh.indexOf('Refresh rolling operations evidence');
   check('v59.27 refresh-data refreshes the rolling window before operations-status reads it and stages it', step > 0 && step < refresh.indexOf('node scripts/fetch-data.mjs')
     && refresh.includes('node scripts/build-operations-slo-window.mjs --out "$RUNNER_TEMP/operations-slo-window.json"')
-    && /stage_if_exists public-data\/operations-slo-window\.json/.test(refresh) && /-lt 21600/.test(refresh));
+    && workflowPublishes('refresh-data.yml', 'public-data/operations-slo-window.json') && /-lt 21600/.test(refresh));
 }
 
 if (errors.length) { errors.forEach(error => console.error(' - ' + error)); process.exit(1); }

@@ -1,4 +1,5 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { DATA_PUBLISH_SETS } from './lib/data-publish-sets.mjs';
 import { basename } from 'node:path';
 import { load } from 'js-yaml';
 
@@ -291,6 +292,15 @@ const reachableScriptsForProfile = (profileName, candidateManifest = manifest) =
   )
 );
 
+// v59.85: a workflow's commit step runs `scripts/publish-data-commit.mjs --set <id>`, which stages the set's paths and
+// runs its hook commands (scripts/lib/data-publish-sets.mjs). Those paths and commands are part of what the workflow
+// executes, so reachability and required tokens are checked against the workflow text plus the sets it invokes.
+function effectiveWorkflowSource(workflowPath) {
+  const source = read(workflowPath);
+  const sets = Object.entries(DATA_PUBLISH_SETS).filter(([id]) => source.includes(`scripts/publish-data-commit.mjs --set ${id}`));
+  return [source, ...sets.map(([id, set]) => [`# publish set ${id}`, ...set.required, ...set.optional, ...set.afterStage, ...set.beforeCommit, ...set.verifyCommit].join('\n'))].join('\n');
+}
+
 function validateWorkflowContract(contract, source, candidateManifest = manifest) {
   const contractErrors = [];
   const requiredScripts = Array.isArray(contract?.requiredScripts) ? contract.requiredScripts : [];
@@ -331,7 +341,7 @@ check('workflow contracts are declared', Array.isArray(manifest.workflowContract
 for (const contract of manifest.workflowContracts || []) {
   check(`${contract.workflow || 'unknown workflow'} exists`, !!contract.workflow && existsSync(contract.workflow));
   if (!contract.workflow || !existsSync(contract.workflow)) continue;
-  const contractErrors = validateWorkflowContract(contract, read(contract.workflow));
+  const contractErrors = validateWorkflowContract(contract, effectiveWorkflowSource(contract.workflow));
   check(`${contract.workflow} gate reachability`, contractErrors.length === 0, contractErrors.join('; '));
 }
 const directNegativeControl = validateWorkflowContract({
@@ -647,7 +657,11 @@ check('P1308/R653/QA-DATA-50 Worker deployments reconcile cancelled or replaced 
     && /getWorkerChangesBetween\(liveSha, process\.env\.EXPECTED_SHA\)/.test(source)
     && /shouldDeployWorker/.test(source)
     && /steps\.convergence\.outputs\.should_deploy/.test(source)));
-check('refresh workflows dispatch exact produced SHA', ['refresh-data.yml', 'refresh-screener.yml'].every((file) => { const source = read(`.github/workflows/${file}`); return /git rev-parse HEAD/.test(source) && /gh workflow run ci\.yml/.test(source) && /release_sha=/.test(source); }));
+// v59.85: the exact-SHA dispatch is the publisher's (after a push, `gh workflow run ci.yml -f release_sha=<pushed HEAD>`).
+const publisherSource = read('scripts/publish-data-commit.mjs');
+check('refresh workflows dispatch exact produced SHA', ['refresh-data', 'refresh-screener', 'refresh-screener-extended', 'event-briefs'].every((id) => DATA_PUBLISH_SETS[id].ciOrigin
+  && read(`.github/workflows/${DATA_PUBLISH_SETS[id].workflow}`).includes(`scripts/publish-data-commit.mjs --set ${id}`))
+  && /gitOut\(\['rev-parse', 'HEAD'\]\)/.test(publisherSource) && /'workflow', 'run', 'ci\.yml'[^\n]*`release_sha=\$\{sha\}`/.test(publisherSource));
 const refreshSources = [['refresh-data.yml', refreshDataSource], ['refresh-screener.yml', refreshScreenerSource]];
 check('refresh workflows converge the live revision through the attested hand-over',
   refreshSources.every(([, source]) => /ensure-live-convergence\.mjs/.test(source) && /--await-sha/.test(source)));
@@ -666,12 +680,11 @@ check('refresh-data isolates producer lanes without loosening the publish bounda
 const mastersRecordAt = refreshDataSource.indexOf('Refresh weekly SEC 13F and daily 13D-G discovery');
 const candidateRecordAt = refreshDataSource.indexOf('verify-refresh-candidate.mjs --record');
 const dataCommitAt = refreshDataSource.indexOf('Commit refreshed public data if changed');
-const exactDispatchAt = refreshDataSource.indexOf('Dispatch exact produced commit to CI');
+const exactDispatchAt = refreshDataSource.indexOf('scripts/publish-data-commit.mjs --set refresh-data');
 check('P1309/R654/QA-DATA-51 the split SEC lane remains before candidate hashing, fail-closed commit and exact-SHA CI dispatch',
   mastersRecordAt >= 0 && candidateRecordAt > mastersRecordAt && dataCommitAt > candidateRecordAt && exactDispatchAt > dataCommitAt
     && refreshDataSource.includes('node scripts/verify-refresh-candidate.mjs --expect "$RUNNER_TEMP/aio-refresh-data-candidate.json"')
-    && refreshDataSource.includes('final_sha="$(git rev-parse HEAD)"')
-    && refreshDataSource.includes('release_sha="$final_sha"'));
+    && DATA_PUBLISH_SETS['refresh-data'].ciOrigin === 'refresh-data');
 check('refresh-screener owns only screener/SEC validation', !/ci-web-research-contract-check\.mjs/.test(refreshScreenerSource)
   && !/ci-data-refresh-audit\.mjs/.test(refreshScreenerSource)
   && /ci-screener-workbench-contract\.mjs/.test(refreshScreenerSource));
@@ -686,15 +699,18 @@ check('refresh-screener runs SEC producer, projection, screener producer, then v
   return position >= 0 && (index === 0 || position > refreshScreenerSource.indexOf(`name: ${steps[index - 1]}`));
 }));
 for (const [name, source] of refreshSources) {
-  const dispatchAt = source.indexOf('gh workflow run ci.yml');
-  const commitAt = source.indexOf('git commit -m');
-  const pushAt = source.indexOf('until git push');
+  // v59.85: the commit, push, rebase and post-rebase checks run inside the publisher, in the order its source fixes
+  // (stage → afterStage → commit → verifyCommit → push; rebase → verifyCommit), driven by ci-publish-data-commit-check.mjs.
+  const setId = name.replace(/\.yml$/, '');
+  const set = DATA_PUBLISH_SETS[setId];
+  const publishAt = source.indexOf(`scripts/publish-data-commit.mjs --set ${setId} --candidate "$RUNNER_TEMP/aio-${setId}-candidate.json"`);
+  const dispatchAt = publishAt;
   const prePushAt = source.indexOf('Fail-closed promotion candidate gate before push');
   const recordAt = source.indexOf('verify-refresh-candidate.mjs --record');
   const expectAt = source.indexOf('verify-refresh-candidate.mjs --expect');
-  const stagedAt = source.indexOf('verify-refresh-candidate.mjs --expect-staged');
-  const committedAt = source.indexOf('verify-refresh-candidate.mjs --expect-commit');
-  const rebaseAt = source.indexOf('git rebase origin/main');
+  const publisherOrder = ['set.afterStage', "'commit', '-q', '-m'", 'if (!verified())', "'push', 'origin'", "'rebase', '-q', '--autostash'", "if (!verified()) return onRebaseFail"]
+    .map((token) => publisherSource.indexOf(token));
+  const publisherOrdered = publisherOrder.every((at, index) => at > 0 && (index === 0 || at > publisherOrder[index - 1]));
   const lastProducerAt = source.indexOf(name === 'refresh-data.yml' ? 'name: Promote one data release revision' : 'name: Refresh screener independently');
   // P1270/P1289: strict producer checks run before recording the exact candidate; the extra
   // data-audit invocation only captures bounded diagnostics and cannot replace that producer gate.
@@ -724,12 +740,11 @@ for (const [name, source] of refreshSources) {
     && producerGateOk
     && lastProducerAt >= 0 && recordAt > lastProducerAt
     && expectAt > recordAt && expectAt > prePushAt
-    && stagedAt > expectAt && stagedAt < commitAt
-    && committedAt > commitAt && committedAt < pushAt
-    && rebaseAt > pushAt && source.indexOf('verify-refresh-candidate.mjs --expect-commit', rebaseAt) > rebaseAt
-    && commitAt > expectAt && pushAt > expectAt
+    && publishAt > expectAt && publisherOrdered
+    && set?.afterStage.some((command) => command.includes('verify-refresh-candidate.mjs --expect-staged "$CANDIDATE"'))
+    && set?.verifyCommit.some((command) => command.includes('verify-refresh-candidate.mjs --expect-commit "$CANDIDATE"'))
     && /git diff --check/.test(source.slice(prePushAt, expectAt))
-    && !/continue-on-error:\s*true/.test(source.slice(prePushAt, commitAt)));
+    && !/continue-on-error:\s*true/.test(source.slice(prePushAt, publishAt)));
   // Workspace state is produced by its own producer and must not be coupled
   // to a 30-minute data revision. The exact pushed SHA remains the CI input;
   // Pages still waits for that CI attestation before deployment.

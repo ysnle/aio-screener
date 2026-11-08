@@ -3,6 +3,7 @@
 // Runs the producer's pure parser/floors/SEC join on a tiny canned sample (scripts/fixtures/us-listings), the client
 // lookup with a stubbed fetch, the wiring (workflow, lineage, headroom, not on the boot path), and — when the artifact
 // exists — its published shape. No network.
+import { workflowPublishes } from './lib/data-publish-sets.mjs';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -173,7 +174,7 @@ check('v57.81 producer keeps the previous artifact on any failure and refreshes 
 });
 check('v57.81 refresh-screener runs the producer with the SEC User-Agent and stages the artifact', () => {
   assert.match(workflow, /node scripts\/build-us-listings\.mjs/);
-  assert.match(workflow, /stage_if_exists public-data\/us-listings\.json/);
+  assert.ok(workflowPublishes('refresh-screener.yml', 'public-data/us-listings.json'), 'refresh-screener commits us-listings.json');
   assert.match(workflow, /node scripts\/ci-us-listings-check\.mjs/);
   const step = workflow.slice(workflow.indexOf('Refresh US exchange listing'), workflow.indexOf('node scripts/build-us-listings.mjs'));
   assert.match(step, /SEC_USER_AGENT: \$\{\{ vars\.SEC_USER_AGENT \}\}/);

@@ -104,6 +104,9 @@ async function observeOnce() {
       const describe = (rows) => rows.map(([file, state, row]) => `${file}=${state} checkedAt=${row?.checkedAt || 'none'} producer=${row?.producer || ARTIFACT_FRESHNESS[file].producer}`).join('; ');
       check(`freshness-${workflow} (v59.70)`, stale.length === 0, stale.length ? describe(stale) : `${graded.length} artifacts inside staleAfterMinutes`, mode === 'release' ? 'warning' : 'error');
       if (late.length) check(`freshness-${workflow}-late (v59.70)`, false, describe(late), 'warning');
+      // v59.85: a row whose declared clock or basis path no longer resolves cannot be graded on its content.
+      const drifted = graded.filter(([, , row]) => Array.isArray(row?.contractDrift) && row.contractDrift.length);
+      if (drifted.length) check(`freshness-${workflow}-contract (v59.85)`, false, drifted.map(([file, , row]) => `${file}: ${row.contractDrift.join(', ')} unresolved (src/data/contracts/artifact-freshness.js)`).join('; '), mode === 'release' ? 'warning' : 'error');
     });
   }
 

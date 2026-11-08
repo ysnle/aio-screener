@@ -98,9 +98,12 @@ export function marketQuietWindow(nowMs = Date.now()) {
   return { quiet: true, reason: 'both-markets-closed-weekend', seoul: `${seoul.date} ${seoul.hhmm} ${seoul.weekday}`, markets };
 }
 
-export function decideRefreshCadence({ nowMs = Date.now(), eventName = '', schedule = '', trigger = '', lastNewsAt = null } = {}) {
+export function decideRefreshCadence({ nowMs = Date.now(), eventName = '', schedule = '', trigger = '', lastNewsAt = null, cronCovered = false } = {}) {
   if (eventName === 'workflow_dispatch' && trigger !== 'scheduler') return { mode: 'full', reason: 'operator-dispatch' };
   if (eventName === 'schedule' && schedule === DAILY_LANE_CRON) return { mode: 'full', reason: 'daily-cron' };
+  // v59.85: the :17/:47 cron is the fallback for the Worker's :20/:50 dispatch; it stands down when that run is live or
+  // succeeded inside the window (scripts/cron-fallback-guard.mjs), so one slot is never two full cycles.
+  if (eventName === 'schedule' && cronCovered) return { mode: 'skip', reason: 'cron-fallback-covered-by-scheduler-run' };
   const window = marketQuietWindow(nowMs);
   if (!window.quiet) return { mode: 'full', reason: window.reason, window };
   const lastMs = Date.parse(lastNewsAt || '');
@@ -123,7 +126,8 @@ if (entry && (import.meta.url === `file://${entry}` || import.meta.url === `file
       eventName: process.env.EVENT_NAME || '',
       schedule: process.env.EVENT_SCHEDULE || '',
       trigger: process.env.DISPATCH_TRIGGER || '',
-      lastNewsAt
+      lastNewsAt,
+      cronCovered: process.env.CRON_COVERED === 'true',
     });
   } catch (error) {
     decision = { mode: 'full', reason: `decider-error-fail-open: ${String(error?.message || error).slice(0, 200)}` };

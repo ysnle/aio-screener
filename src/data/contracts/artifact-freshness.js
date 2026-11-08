@@ -10,9 +10,17 @@
 //       checkedAt,             // the last successful run that rewrote or confirmed it (content may be the same)
 //       basisSession,          // { US?, KR?, ... } trading session the content reflects, when the artifact says
 //       expectedEveryMinutes, staleAfterMinutes, workflow, producer,
-//       lastAttempt: { at, status: 'updated' | 'unchanged' | 'not-written' | 'missing' } } } }
+//       lastAttempt: { at, status: 'updated' | 'unchanged' | 'not-written' | 'missing' },
+//       contractDrift?         // ['clock'] / ['basis:US', ...] when the present artifact no longer resolves a
+//     } } }                    // declared path (its producer changed shape); the watchdog names it
+//
+// Two clocks, graded together. checkedAt says the pipeline is alive (a run confirmed
+// the file); basisSession says what the content is about. A producer whose upstream keeps returning the last session
+// rewrites the file every cycle, so checkedAt alone graded a two-sessions-old screener 'current' while every screen built
+// on it said "today". freshnessState is now the worse of the liveness grade and the session-lag grade.
 
 import { stampDay } from '../../domain/shared/session-date.js';
+import { observationSessionState } from '../../domain/market/market-calendar.js';
 
 export const FRESHNESS_SCHEMA = 'aio-freshness.v1';
 
@@ -31,7 +39,9 @@ const DERIVED = { skipUnchanged: true, volatileKeys: ['generatedAt'] };
 export const ARTIFACT_FRESHNESS = Object.freeze({
   // refresh-data.yml (30-minute cycle; the weekend news cycle is hourly)
   'data.json': auto('refresh-data.yml', 'scripts/fetch-data.mjs', 30, 12 * 60, { timestamp: ['meta.generatedAt'] }),
-  'history.json': auto('refresh-data.yml', 'scripts/producer/history.mjs', 30, 3 * 24 * 60, { timestamp: ['-1.date'], basis: [['US', '-1.date']] }),
+  // history.json is { schemaVersion, fieldDictionary, rows }. A row's date is the market cut (a Sunday row exists), so
+  // the basis is the session each index close belongs to.
+  'history.json': auto('refresh-data.yml', 'scripts/producer/history.mjs', 30, 3 * 24 * 60, { timestamp: ['rows.-1.cycleEnd', 'rows.-1.date'], basis: [['US', 'rows.-1.fieldMeta.spx.sessionDate'], ['KR', 'rows.-1.fieldMeta.kospi.sessionDate']] }),
   'market-snapshot.json': auto('refresh-data.yml', 'scripts/fetch-data.mjs', 30, 24 * 60, { timestamp: ['lastSuccessfulAt', 'generatedAt'] }),
   'macro-history.json': auto('refresh-data.yml', 'scripts/producer/macro-history.mjs', 30, 4 * 24 * 60, { ...DERIVED, volatileKeys: ['generatedAt', 'long.generatedAt'] }),
   // v59.70 (R11, theme-sector): the rotationHistory series beside data.json; the browser joins it by session, not clock.
@@ -65,7 +75,8 @@ export const ARTIFACT_FRESHNESS = Object.freeze({
   'kr-fundamentals.json': auto('refresh-screener.yml', 'scripts/fetch-dart-fundamentals.mjs', 7 * 24 * 60, 14 * 24 * 60, { blockedBy: 'secret DART_API_KEY (owner decision 2026-10-14: not registered)' }),
   'breadth-contributors.json': auto('refresh-screener.yml', 'scripts/producer/screener-breadth.mjs', 6 * 60, 8 * 24 * 60),
   'theme-stage-history.json': auto('refresh-screener.yml', 'scripts/build-scenario-state.mjs', 6 * 60, 8 * 24 * 60),
-  'backtest-history.json': auto('refresh-screener.yml', 'scripts/producer/screener.mjs', 6 * 60, 14 * 24 * 60, { timestamp: ['-1.asOf'], basis: [['US', '-1.date']] }),
+  // A row's date is the run day (weekend rows exist), not a US session, so it declares no session basis.
+  'backtest-history.json': auto('refresh-screener.yml', 'scripts/producer/screener.mjs', 6 * 60, 14 * 24 * 60, { timestamp: ['-1.asOf'] }),
   'screener-candidate-archive.json': auto('refresh-screener.yml', 'scripts/producer/screener.mjs', 6 * 60, 8 * 24 * 60),
   'screener-extended.json': auto('refresh-screener.yml', 'scripts/producer/screener-extended.mjs', 24 * 60, 72 * 60, { timestamp: ['asOf'], ledger: false }),
 
@@ -132,15 +143,59 @@ export function sameExceptVolatile(left, right, keys = []) {
   return JSON.stringify(strip(left)) === JSON.stringify(strip(right));
 }
 
-/**
- * 'current' | 'late' | 'stale' | 'unknown' for one ledger row at `now`. Late = a scheduled refresh was missed twice
- * (2 × expected cadence without a confirmation); stale = past staleAfterMinutes. Uses checkedAt, else producedAt.
- */
-export function freshnessState(row, now = Date.now()) {
+/** ['clock'] and/or ['basis:<market>'] for a declared path that resolves nothing on a present artifact; [] when all resolve. */
+export function artifactContractDrift(file, payload) {
+  const entry = ARTIFACT_FRESHNESS[file];
+  if (!entry || payload == null) return [];
+  const drift = [];
+  if (entry.timestamp.length && !artifactProducedAt(file, payload)) drift.push('clock');
+  const basis = artifactBasisSession(file, payload) || {};
+  for (const [market] of entry.basis) if (!basis[market]) drift.push(`basis:${market}`);
+  return drift;
+}
+
+const RANK = { current: 0, late: 1, stale: 2 };
+// Session-lag policy (the screener's factorSession rule, FRESHNESS_POLICY): the latest completed session is current;
+// one behind is current while that close is under 12 hours old (its producer has not landed yet), late after; two or
+// more behind is stale.
+const SESSION_GRACE_MS = 12 * 60 * 60 * 1000;
+
+/** Liveness grade from checkedAt (else producedAt): late after two missed cadences, stale past staleAfterMinutes. */
+export function livenessState(row, now = Date.now()) {
   const at = Date.parse(row?.checkedAt || row?.producedAt || '');
   if (!Number.isFinite(at)) return 'unknown';
   const ageMinutes = (now - at) / 60000;
   if (Number.isFinite(row.staleAfterMinutes) && ageMinutes > row.staleAfterMinutes) return 'stale';
   if (Number.isFinite(row.expectedEveryMinutes) && ageMinutes > row.expectedEveryMinutes * 2 + 15) return 'late';
   return 'current';
+}
+
+/** { state, lagByMarket } from basisSession against the exchange calendars; null when the row declares no basis or the year is unknown. */
+export function sessionLagState(row, now = Date.now()) {
+  const basis = row?.basisSession;
+  if (!basis || typeof basis !== 'object') return null;
+  let worst = null;
+  const lagByMarket = {};
+  for (const [market, day] of Object.entries(basis)) {
+    const observed = observationSessionState({ market, sessionDate: day, now });
+    if (!observed || observed.status === 'invalid') continue;
+    lagByMarket[market] = observed.lag;
+    const state = observed.lag === 0 ? 'current'
+      : observed.lag === 1 ? (observed.sinceLatestCloseMs != null && observed.sinceLatestCloseMs <= SESSION_GRACE_MS ? 'current' : 'late')
+        : 'stale';
+    if (worst == null || RANK[state] > RANK[worst]) worst = state;
+  }
+  return worst == null ? null : { state: worst, lagByMarket };
+}
+
+/**
+ * 'current' | 'late' | 'stale' | 'unknown' for one ledger row at `now`: the worse of the liveness grade (the pipeline
+ * confirmed the file recently) and the session-lag grade (the content is about the latest completed session). A row the
+ * pipeline cannot date is 'unknown' whatever its basis says.
+ */
+export function freshnessState(row, now = Date.now()) {
+  const liveness = livenessState(row, now);
+  if (liveness === 'unknown') return 'unknown';
+  const content = sessionLagState(row, now)?.state || 'current';
+  return RANK[content] > RANK[liveness] ? content : liveness;
 }

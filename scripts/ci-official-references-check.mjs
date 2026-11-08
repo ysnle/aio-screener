@@ -4,6 +4,7 @@
 // page bodies, so nothing here calls AI or an official site. Proves: the search request stays inside the
 // Worker budget contract, only page-confirmed values are published, failures keep the last verified value
 // as stale, scheduling/caps stop calls, and the workflow stages the artifact the lane writes.
+import { workflowPublishes } from './lib/data-publish-sets.mjs';
 import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import {
@@ -334,7 +335,7 @@ async function single(id, candidate, options = {}) {
   check('P1734 the producer keeps its ledger in the gitignored cache, not in a committed artifact', read('scripts/refresh-web-research.mjs').includes("'../.cache/official-references/ledger.json'"));
   check('P1734 the lane step is non-blocking and authenticated by the automation token only', /continue-on-error: true/.test(step) && /AIO_AUTOMATION_TOKEN: \$\{\{ secrets\.AIO_AUTOMATION_TOKEN \}\}/.test(step)
     && /run: node scripts\/refresh-web-research\.mjs/.test(step) && !/OPENAI_API_KEY/.test(step));
-  check('P1734 the commit step stages the lane artifact (candidate set == staged set)', workflow.includes('stage_if_exists public-data/official-references.json'));
+  check('P1734 the commit step stages the lane artifact (candidate set == staged set)', workflowPublishes('refresh-data.yml', 'public-data/official-references.json'));
   check('P1734 lineage audit registers the lane artifact', /'official-references\.json':\s*\{[^}]*timestamp: \['checkedAt'\]/.test(read('scripts/ci-data-lineage-audit.mjs')));
   const producer = read('scripts/refresh-web-research.mjs');
   check('P1734 the producer writes only official-references.json (no frozen data.json snapshot)', producer.includes("'../public-data/official-references.json'")

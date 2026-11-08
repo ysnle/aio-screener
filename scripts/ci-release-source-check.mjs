@@ -72,6 +72,15 @@ assert.deepEqual(restamped, { appRevision: 'v59.75', workerRevision: 'sw:v59.75'
 const ops = restampOverlayRevision('public-data/operations-status.json', { appRevision: 'v59.78', planes: { browser: { revision: 'v59.78' } } }, 'v59.75');
 assert.equal(ops.planes.browser.revision, 'v59.75', 'v59.78 operations-status browser revision is restamped to the overlay code');
 assert.throws(() => restampOverlayRevision('public-config.json', {}, 'latest'), 'v59.78 release-source contract');
+// v59.85: the watchdog's automatic re-pin commit (GITHUB_TOKEN push, no push CI) must not count as code, or every later
+// refresh release would ride the overlay until a human push; and every file a data publish set commits is a generated path.
+assert.ok(OVERLAY_GENERATED_PATHS.includes('architecture/browser-data-fixture.json'), 'v59.85 the browser data pin is a generated path');
+{
+  const { DATA_PUBLISH_SETS, publishSetPaths } = await import('./lib/data-publish-sets.mjs');
+  for (const id of Object.keys(DATA_PUBLISH_SETS)) {
+    for (const path of publishSetPaths(id)) assert.ok(OVERLAY_GENERATED_PATHS.some((root) => path === root || path.startsWith(`${root}/`)), `v59.85 ${id} commits ${path}, which must be an overlay-generated path`);
+  }
+}
 for (const file of RESTAMP_FILES) assert.ok(OVERLAY_GENERATED_PATHS.some((path) => file === path || file.startsWith(`${path}/`)), `v59.78 ${file} is an overlay path`);
 
 // The attest guard used to hold its own copy of the generated-path list; the workflows must call the shared resolver/builder.

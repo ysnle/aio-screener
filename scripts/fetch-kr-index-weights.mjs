@@ -9,6 +9,7 @@ import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
+import { latestCompletedKrSession } from '../src/domain/market/market-calendar.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = resolve(ROOT, 'public-data/kr-index-weights.json');
@@ -79,6 +80,22 @@ export function buildKrIndexWeights(byMarket, nowIso, previous = null) {
   };
 }
 
+const PUBLISH_AFTER_CLOSE_MS = 40 * 60000;
+
+/** { due, reason } for a scheduled run. An unknown calendar year falls back to today's KST date after 16:10. */
+export function krWeightsDue({ nowMs, previousAsOf, hasPrevious }) {
+  if (!hasPrevious) return { due: true, reason: 'no published copy' };
+  const session = latestCompletedKrSession(nowMs);
+  if (!session) {
+    const kst = new Date(nowMs + 9 * 3600000);
+    if (kst.getUTCHours() * 60 + kst.getUTCMinutes() < 16 * 60 + 10) return { due: false, reason: 'before 16:10 KST' };
+    return previousAsOf === kst.toISOString().slice(0, 10) ? { due: false, reason: 'current session already published' } : { due: true, reason: 'calendar unknown; after 16:10 KST' };
+  }
+  if (previousAsOf && previousAsOf >= session.date) return { due: false, reason: `session ${session.date} already published` };
+  if (nowMs < session.closeMs + PUBLISH_AFTER_CLOSE_MS) return { due: false, reason: `session ${session.date} is published after 16:10 KST` };
+  return { due: true, reason: `session ${session.date} not yet published` };
+}
+
 async function main() {
   const args = process.argv.slice(2);
   const arg = (name) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : null; };
@@ -90,11 +107,14 @@ async function main() {
   }
   const nowIso = new Date().toISOString();
   const previous = JSON.parse(await readFile(OUT, 'utf8').catch(() => 'null'));
-  // Due once per KRX session: after 16:10 KST, and only when the published copy is from an earlier session.
+  // Due once per KRX session: 40 minutes after that session's 15:30 close (16:10 KST), and only when the published copy
+  // is from an earlier session. v59.85: the session comes from the KRX calendar, not today's KST date — on a weekend or
+  // holiday the published copy already holds the latest session, so the run stops here instead of refetching every 20
+  // minutes (12 of the 15 event-brief commits on Sunday 11/08 rewrote only this file's generatedAt).
   if (!fixture) {
-    const kst = new Date(Date.now() + 9 * 3600000);
-    if (kst.getUTCHours() * 60 + kst.getUTCMinutes() < 16 * 60 + 10 && previous) { console.log('[kr-index-weights] before 16:10 KST; kept'); return; }
-    if (previous?.markets?.KOSPI?.asOf === kst.toISOString().slice(0, 10)) { console.log('[kr-index-weights] current session already published'); return; }
+    const nowMs = Date.now();
+    const due = krWeightsDue({ nowMs, previousAsOf: previous?.markets?.KOSPI?.asOf || null, hasPrevious: Boolean(previous) });
+    if (!due.due) { console.log(`[kr-index-weights] ${due.reason}; kept`); return; }
   }
   const readMarket = async (market) => { try { return await fetchMarket(market, fetch); } catch (error) { console.warn(`[kr-index-weights] ${error?.message || error}; last weights kept`); return null; } };
   const byMarket = fixture ? JSON.parse(await readFile(resolve(fixture), 'utf8'))

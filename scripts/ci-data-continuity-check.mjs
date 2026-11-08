@@ -6,6 +6,7 @@
 // executable producers and the evidence shape already present in the
 // workspace; it does not turn a static artifact into live-source evidence.
 
+import { DATA_PUBLISH_SETS, publishSetPaths } from './lib/data-publish-sets.mjs';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -154,30 +155,26 @@ function runProducerChecks() {
     const source = fs.readFileSync(path.join(ROOT, 'scripts', script), 'utf8');
     check('producer:masters-atomic:' + script, source.includes("./lib/atomic-write.mjs") && !/\bfs\.writeFile\(/.test(source), 'Masters producer can truncate published JSON on write failure');
   }
-  const refreshCommitBlock = workflow.match(/name: Commit refreshed public data if changed[\s\S]*?git commit -m/)?.[0] || '';
-  const screenerCommitBlock = screenerWorkflow.match(/name: Commit only validated screener artifacts[\s\S]*?git commit -m/)?.[0] || '';
+  // v59.85: the staging, the fail-closed order and the collision retry live in scripts/publish-data-commit.mjs (its
+  // behaviour is driven against a bare remote by ci-publish-data-commit-check.mjs); the sets are the contract here.
+  const refreshSet = DATA_PUBLISH_SETS['refresh-data'];
+  const screenerSet = DATA_PUBLISH_SETS['refresh-screener'];
   check('P1204 refresh-data stages canonical Masters index and validates Git index',
-    refreshCommitBlock.includes('set -euo pipefail')
-    && refreshCommitBlock.includes('stage_if_exists public-data/masters/index.json')
-    && refreshCommitBlock.includes('node scripts/ci-masters-contract-check.mjs --staged')
-    && !refreshCommitBlock.includes('|| true'),
-    refreshCommitBlock);
+    publishSetPaths('refresh-data').includes('public-data/masters/index.json')
+    && refreshSet.afterStage.includes('node scripts/ci-masters-contract-check.mjs --staged')
+    && workflow.includes('scripts/publish-data-commit.mjs --set refresh-data --candidate "$RUNNER_TEMP/aio-refresh-data-candidate.json"'),
+    JSON.stringify(refreshSet.afterStage));
   // P564/R255 (pipeline redesign 2026-10-19): a push collision re-runs the cycle from the new main once instead of dropping it.
-  const refreshPushBlock = workflow.match(/name: Commit refreshed public data if changed[\s\S]*?Pushed refreshed public-data files/)?.[0] || '';
   check('P564 a refresh push collision dispatches one retry from the new main instead of dropping the cycle',
-    /git rebase origin\/main \|\| collision_retry/.test(refreshPushBlock)
-    && /--expect-commit "\$RUNNER_TEMP\/aio-refresh-data-candidate\.json" \|\| collision_retry/.test(refreshPushBlock)
-    && /DISPATCH_RETRY:-\}" == "collision" \]\]; then[\s\S]*?exit 1/.test(refreshPushBlock)
-    && refreshPushBlock.includes('gh workflow run refresh-data.yml --ref main -f trigger=scheduler -f retry=collision')
-    && /retry:\n\s+description:/.test(workflow),
-    'collision retry missing from the refresh commit step');
+    refreshSet.onRebaseFail === 'collision' && refreshSet.collision?.workflow === 'refresh-data.yml' && refreshSet.collision?.inputs?.trigger === 'scheduler'
+    && refreshSet.verifyCommit.some((command) => command.includes('verify-refresh-candidate.mjs --expect-commit'))
+    && /retry:\n\s+description:/.test(workflow) && workflow.includes('--retry "${DISPATCH_RETRY:-}"'),
+    'collision retry missing from the refresh publish set');
   check('P1204 refresh workflows fail closed while staging published artifacts',
-    screenerCommitBlock.includes('set -euo pipefail')
-    && screenerCommitBlock.includes('stage_if_exists()')
-    // v58.71: the collision retry's cleanup of a half-applied rebase is the one allowed `|| true` (as in refresh-data).
-    && !screenerCommitBlock.replace('git rebase --abort >/dev/null 2>&1 || true', '').includes('|| true')
-    && /git rebase origin\/main \|\| collision_retry/.test(screenerWorkflow),
-    screenerCommitBlock);
+    screenerSet.required.includes('public-data/screener.json') && screenerSet.onRebaseFail === 'collision'
+    && screenerSet.afterStage.some((command) => command.includes('--expect-staged'))
+    && screenerWorkflow.includes('scripts/publish-data-commit.mjs --set refresh-screener --candidate "$RUNNER_TEMP/aio-refresh-screener-candidate.json"'),
+    JSON.stringify(screenerSet.afterStage));
   check('producer:market-snapshot-uses-atomic-writes', snapshot.includes("import { atomicWriteFile } from './lib/atomic-write.mjs';")
     && snapshot.includes('atomicWriteFile(MARKET_SNAPSHOT_STATUS_OUT')
     && snapshot.includes('atomicWriteFile(MARKET_SNAPSHOT_OUT'), 'market snapshot can be torn during replacement');

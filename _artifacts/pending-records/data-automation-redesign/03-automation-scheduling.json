@@ -1,0 +1,19 @@
+{
+  "p": {
+    "title": "GitHub crons kept running beside the Worker dispatch, and a watchdog re-pin would have pushed every release onto the overlay",
+    "symptom": "On 11/08, refresh-data ran from its :17/:47 cron at 06:02, 13:26 and 14:27 UTC on top of the Worker's :20/:50 dispatches. The 14:20 dispatch and the 14:27 cron were two full cycles 7 minutes apart: two data commits, two CI runs, two Pages deploys for the same data. The second cycle's CI hit an unrelated clock flake and turned the producer red. Event-briefs' :07/:27/:47 cron also stayed beside the Worker's :05/:25/:45. Separately, the automatic browser-data re-pin (watchdog-browser.yml, GITHUB_TOKEN push) creates a commit that never gets push CI. Because the fixture was a code path, every later refresh release would have shipped as an overlay on the commit before it.",
+    "root_cause": "v59.81 moved the primary schedule to the data-plane Worker, but the GitHub crons remained unconditional. The Worker skips when a run is live or recent; the crons had no equivalent check. The release-source resolver counts only push CI. architecture/browser-data-fixture.json was outside OVERLAY_GENERATED_PATHS, so a re-pin commit was 'the newest code' without push CI.",
+    "fix": "scripts/cron-fallback-guard.mjs (pure decision plus --self-test) makes a schedule-event run stand down when another run of the same workflow started inside the window (refresh-data 20 minutes, event-briefs 15) and is live or succeeded. It still runs when the Worker missed its slot or its run failed, and a failed lookup fails open. refresh-cadence.mjs turns a covered cron into mode=skip; the daily-lane cron and every dispatch always proceed. The event-briefs retry input now exists for the collision re-run. architecture/browser-data-fixture.json is an overlay-generated path.",
+    "violated_rule": "v59.81 single-scheduler intent: one slot, one cycle.",
+    "prevention": "The guard's self-test pins dispatch, live, success, failure, out-of-window, self and unavailable cases. ci-release-source-check.mjs asserts that the fixture is a generated path and that every publish-set path is one.",
+    "verification": "node scripts/cron-fallback-guard.mjs --self-test; node scripts/ci-release-source-check.mjs; node scripts/ci-data-pipeline-contract-check.mjs"
+  },
+  "r": null,
+  "qa": [
+    { "id": "QA-OPS-CRON-01", "text": "In a week of refresh-data runs, no schedule-event run starts a full cycle within 20 minutes of a successful Worker dispatch (its cadence reason reads cron-fallback-covered-by-scheduler-run).", "verify_by": "Actions run list for refresh-data.yml, cadence job summary" }
+  ],
+  "qa_section": "Cron fallback ({VERSION})",
+  "changelog": [
+    "**One slot, one cycle ({P}):** The GitHub crons of refresh-data and event-briefs are now only a fallback for the Worker dispatch. They stand down when a run started within 20 (15) minutes is live or succeeded, and still run when the Worker missed its slot (`scripts/cron-fallback-guard.mjs`). On 11/08 they had added full cycles minutes after the Worker's. The watchdog's automatic browser-data re-pin is a generated path, so its push-CI-less commit no longer moves later releases onto the overlay."
+  ]
+}

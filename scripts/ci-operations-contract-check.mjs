@@ -6,6 +6,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { workflowPublishes } from './lib/data-publish-sets.mjs';
 import { VERTICAL_SLICE_CONTRACTS } from '../src/app/vertical-slices.js';
 import { FEATURE_AVAILABILITY, validateOperationsStatus } from '../src/data/contracts/operations.js';
 
@@ -154,8 +155,8 @@ check('AI provider outbound is executed by the guaranteed US Durable Object auth
 check('P1421 AI proxy deploy requires secrets and blocks on executed US readiness/upstream', ['CLOUDFLARE_API_TOKEN', 'CLOUDFLARE_ACCOUNT_ID', 'OPENAI_API_KEY', 'AIO_AUTOMATION_TOKEN', 'aio-worker-health.v1', 'quotaConfigured', 'authorityReady', 'authorityJurisdiction', 'durable-object-us', 'ai_proxy_origin_gate_failed', 'ai_proxy_upstream_failed'].every((token) => aiProxyWorkflow.includes(token)));
 check('operations producer observes both Worker planes while provider smoke remains deployment-owned', ['AIO_OBSERVE_PROXY_HEALTH', 'observeWorkerHealth', 'fastHealthStatus', 'proxyAuthorityReady', 'proxyAuthorityJurisdiction', 'blocking-deployment-workflow-only'].every((token) => read('scripts/build-operations-status.mjs').includes(token)) && read('.github/workflows/refresh-data.yml').includes("AIO_OBSERVE_PROXY_HEALTH: '1'") && /ai_proxy_upstream_failed/.test(aiProxyWorkflow));
 check('public AI route state is generated from the same Worker observation and committed with operations status', ['derivePublicAiConfig', 'syncPublicAiConfig', 'routeStatus', 'WORKER_HEALTH_STALE'].every((token) => read('scripts/build-operations-status.mjs').includes(token))
-  && read('.github/workflows/refresh-data.yml').includes('public-config.json')
-  && read('.github/workflows/refresh-screener.yml').includes('public-config.json'));
+  && workflowPublishes('refresh-data.yml', 'public-config.json')
+  && workflowPublishes('refresh-screener.yml', 'public-config.json'));
 const normalizeWorkerUrl = (value) => String(value || '').trim().replace(/\/+$/, '');
 const publicWorkerUrl = normalizeWorkerUrl(publicConfig.ai?.workerUrl);
 const operationsWorkerUrl = normalizeWorkerUrl(operations.ai?.publicChat?.workerEndpoint);

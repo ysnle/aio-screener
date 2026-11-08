@@ -565,6 +565,18 @@ check('v59.56 cash-flow lane in the reading: the group line always, an issuer li
   });
 }
 
+// v59.85: the KR weight refresh is due once per KRX session (calendar), not once per KST date — a weekend or holiday
+// run keeps the published copy instead of refetching every 20 minutes and rewriting generatedAt.
+{
+  const { krWeightsDue } = await import('./fetch-kr-index-weights.mjs');
+  const due = (iso, asOf) => krWeightsDue({ nowMs: Date.parse(iso), previousAsOf: asOf, hasPrevious: true }).due;
+  check('v59.85 KR weights: Sunday after a Friday session is not due', () => eq(due('2026-11-08T14:00:00Z', '2026-11-06'), false));
+  check('v59.85 KR weights: Monday 15:50 KST waits for the 16:10 publication', () => eq(due('2026-11-09T06:50:00Z', '2026-11-06'), false));
+  check('v59.85 KR weights: Monday 16:15 KST is due', () => eq(due('2026-11-09T07:15:00Z', '2026-11-06'), true));
+  check('v59.85 KR weights: a missed session is caught up the next morning', () => eq(due('2026-11-09T02:00:00Z', '2026-11-05'), true));
+  check('v59.85 KR weights: the same session is not refetched', () => eq(due('2026-11-09T09:00:00Z', '2026-11-09'), false));
+}
+
 if (failures.length) {
   console.error(`[event-briefs] ${failures.length} failure(s):\n- ${failures.join('\n- ')}`);
   process.exit(1);
