@@ -3,7 +3,11 @@
 // restamp (build-data-overlay.mjs). Offline: synthetic first-parent chains and push CI tables only.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { decideReleaseSource } from './resolve-release-source.mjs';
+import { decideReleaseSource, firstParentChain, sourceCommitOf } from './resolve-release-source.mjs';
+import { mkdtempSync, writeFileSync, mkdirSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { OVERLAY_GENERATED_PATHS, RESTAMP_FILES, restampOverlayRevision } from './build-data-overlay.mjs';
 import { failureBlocks, WATCHDOG_PROFILE } from './lib/qa-live-data.mjs';
 
@@ -40,6 +44,26 @@ assert.equal(decision.mode, 'refuse', 'v59.78 no green code anywhere: refuse');
 
 decision = decideReleaseSource({ chain, sourceSha: sha(1), pushRuns: table({ [sha(8)]: green }) });
 assert.equal(decision.mode, 'refuse', 'v59.78 a commit that changes code is never a reduced-scope release');
+
+// Codex review on PR #161: the chain reaches the code commit however many refresh commits sit above it.
+{
+  const repo = mkdtempSync(join(tmpdir(), 'aio-release-source-'));
+  const run = (...args) => { const result = spawnSync('git', args, { cwd: repo, encoding: 'utf8' }); assert.equal(result.status, 0, result.stderr); return result.stdout.trim(); };
+  run('init', '-q'); run('config', 'user.email', 'qa@example.invalid'); run('config', 'user.name', 'qa');
+  writeFileSync(join(repo, 'app.js'), '1\n'); run('add', '.'); run('commit', '-qm', 'code');
+  const code = run('rev-parse', 'HEAD');
+  mkdirSync(join(repo, 'public-data'));
+  for (let index = 0; index < 5; index += 1) { writeFileSync(join(repo, 'public-data', 'x.json'), `${index}\n`); run('add', '.'); run('commit', '-qm', `data ${index}`); }
+  const head = run('rev-parse', 'HEAD');
+  const cwd = process.cwd();
+  process.chdir(repo);
+  try {
+    assert.equal(sourceCommitOf(head), code, 'v59.78 release-source contract');
+    const longChain = firstParentChain(head, code, 2);
+    assert.ok(longChain.includes(code), 'v59.78 the first-parent chain always reaches the code commit under the refresh commits');
+    assert.equal(decideReleaseSource({ chain: longChain, sourceSha: code, pushRuns: table({ [code]: green }) }).mode, 'direct', 'v59.78 release-source contract');
+  } finally { process.chdir(cwd); }
+}
 
 const restamped = restampOverlayRevision('architecture/asset-manifest.json', { appRevision: 'v59.78', workerRevision: 'sw:v59.78', dataRevision: 'market-snapshot:x' }, 'v59.75');
 assert.deepEqual(restamped, { appRevision: 'v59.75', workerRevision: 'sw:v59.75', dataRevision: 'market-snapshot:x' }, 'v59.78 release-source contract');

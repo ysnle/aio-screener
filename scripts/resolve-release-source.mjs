@@ -30,8 +30,14 @@ export function sourceCommitOf(sha) {
   return git(['log', '-1', '--first-parent', '--format=%H', sha, '--', '.', ...OVERLAY_GENERATED_PATHS.map((path) => `:(exclude)${path}`)]);
 }
 
-export function firstParentChain(sha, limit = HISTORY_LIMIT) {
-  return git(['rev-list', '--first-parent', `--max-count=${limit}`, sha]).split('\n').filter(Boolean);
+/**
+ * First-parent history from `sha` down to `sourceSha`, however many refresh commits sit above it, plus `limit` older
+ * commits to find the last green code in. Codex review on PR #161: a fixed 400-commit window dropped the code commit
+ * after ~8 quiet days of 30-minute refreshes and refused every later release.
+ */
+export function firstParentChain(sha, sourceSha = null, limit = HISTORY_LIMIT) {
+  const above = sourceSha ? Number(git(['rev-list', '--first-parent', '--count', `${sourceSha}..${sha}`])) : 0;
+  return git(['rev-list', '--first-parent', `--max-count=${above + limit}`, sha]).split('\n').filter(Boolean);
 }
 
 /**
@@ -96,8 +102,8 @@ async function main() {
   const verify = value('--verify-code-sha');
   const deadline = Date.now() + (verify ? 0 : Number(value('--wait-min') ?? 15)) * 60000;
   const pollMs = Number(value('--poll-ms') || 30000);
-  const chain = firstParentChain(sha);
   const sourceSha = sourceCommitOf(sha);
+  const chain = firstParentChain(sha, sourceSha);
   let decision;
   for (;;) {
     decision = decideReleaseSource({ chain, sourceSha, pushRuns: await listMainPushRuns(repository, token) });
