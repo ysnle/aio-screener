@@ -199,7 +199,8 @@ export function relativeVolume(bars, { dailyLookback = 50, intradaySessions = 10
       seen.add(day(bar.time));
       if (isNum(bar.volume) && bar.volume > 0) pool.push(bar.volume);
     }
-    if (pool.length < 5) return null;
+    // The 5-minute chart asks for five sessions (four before today), so three same-slot bars are enough.
+    if (pool.length < 3) return null;
   } else {
     pool = bars.slice(-1 - dailyLookback, -1).map((bar) => bar.volume).filter((v) => isNum(v) && v > 0);
     if (pool.length < Math.min(20, dailyLookback)) return null;

@@ -100,6 +100,10 @@ assert.equal(trendRegimes(longBars.slice(0, 150)).trend, null, 'v59.85 under 200
   const r = relativeVolume(intraday);
   assert.equal(r.basis, 'time-of-day', 'v59.85 intraday RVOL compares the same clock slot');
   assert.equal(r.ratio, 1, 'v59.85 a heavy opening bar against heavy opening bars is 1×, not 10×');
+  const fiveMin = [];
+  for (let d = 0; d < 4; d++) for (let k = 0; k < 78; k++) fiveMin.push({ time: day0 + d * 86400 + k * 300, open: 10, high: 11, low: 9, close: 10, volume: 1000 });
+  fiveMin.push({ time: day0 + 4 * 86400, open: 10, high: 11, low: 9, close: 10, volume: 2000 });
+  assert.equal(relativeVolume(fiveMin)?.ratio, 2, 'v59.85 the 5-minute chart (five sessions, four before today) still has an RVOL');
   assert.equal(relativeVolume(daily.map((b, i) => (i === 59 ? { ...b, volume: null } : b))), null, 'v59.85 no RVOL without the last bar\'s volume');
   assert.equal(volumeAverageSeries(daily).values.at(-2), 1000, 'v59.85 the volume average line is the 50-bar mean');
 }
