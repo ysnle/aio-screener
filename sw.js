@@ -13,6 +13,13 @@ const SW_BUILD = '2026-11-08T16:48:00+09:00';
 const SW_CODE_HASH = 'local';
 const SHELL_CACHE = 'aio-shell-' + SW_VERSION + '-' + SW_CODE_HASH;
 const DATA_CACHE  = 'aio-data-'  + SW_VERSION;
+// v59.80 (hosting review 2026-11-08): esbuild names each split chunk by its content hash (src/chunks/<name>-<HASH>.js,
+// pages-bundle-config chunkNames), so a chunk URL never changes content. GitHub Pages sets every file's ETag from the
+// deploy time, so the network-first path below re-downloaded every unchanged chunk after each of the day's ~30 data
+// deploys. Chunks are served cache-first from one cache that outlives versions; it is cleared past CHUNK_CACHE_MAX.
+const CHUNK_CACHE = 'aio-chunks';
+const CHUNK_CACHE_MAX = 600;
+const HASHED_CHUNK_RE = /\/src\/chunks\/[^/?#]+-[A-Z0-9]{8}\.js$/;
 
 // Only the bounded critical shell is installed atomically. The larger registry
 // below is a publication/dependency audit aid; route/ESM modules are cached only
@@ -228,6 +235,10 @@ self.addEventListener('activate', function(event) {
           return caches.delete(k);
         }
       }));
+    }).then(function() {
+      return caches.open(CHUNK_CACHE).then(function(c) {
+        return c.keys().then(function(entries) { if (entries.length > CHUNK_CACHE_MAX) return caches.delete(CHUNK_CACHE); });
+      }).catch(function() {});
     }).then(function() { self.clients.claim(); })
   );
 });
@@ -268,6 +279,23 @@ self.addEventListener('fetch', function(event) {
   // served cache-first. Everything else in the shell (index.html, version.json, unversioned src/
   // modules) stays network-first but revalidates with the HTTP cache (ETag/304) instead of
   // re-downloading every byte ('no-store'); the offline cache fallback is unchanged.
+  if (reqUrl.origin === scopeUrl.origin && !reqUrl.search && HASHED_CHUNK_RE.test(reqUrl.pathname)) {
+    event.respondWith(
+      caches.open(CHUNK_CACHE).then(function(c) {
+        return c.match(request).then(function(hit) {
+          if (hit) return hit;
+          return fetch(request).then(function(resp) {
+            if (resp && resp.ok && resp.status === 200) {
+              var copy = resp.clone();
+              event.waitUntil(c.put(request, copy).catch(function() {}));
+            }
+            return resp;
+          });
+        });
+      }).catch(function() { return fetch(request); })
+    );
+    return;
+  }
   const isVersionedShell = isShell && isVersionedShellUrl(reqUrl) && !isSensitiveUrl(url);
   if (isVersionedShell) {
     event.respondWith(

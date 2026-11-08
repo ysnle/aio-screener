@@ -51,6 +51,8 @@ jobs:
           case "$ORIGIN" in
             refresh-data) reduced=true; groups='["core","data","knowledge"]' ;;
             refresh-screener|event-briefs) reduced=true; groups='["core","data"]' ;;
+            # v59.80: watchdog-browser re-pinned the browser data; a source change, so the full scope tests the new pin.
+            browser-repin) reduced=false; groups='["core","data","knowledge","workspace","cloudflare"]' ;;
             *) reduced=false; groups='["core","data","knowledge","workspace","cloudflare"]'
                # Any other value validates the full scope, as before; name it so a typo in a dispatcher is visible.
                [ -n "$ORIGIN" ] && echo "::warning::unknown validation origin '$ORIGIN'; running the full scope" ;;

@@ -42,6 +42,26 @@ Ticker,Name,Type,Sector,Asset Class,Market Value,${weightHeader}
 check('v59.72 AI reading reader-duty endings become state endings', softenReaderDuty('조정 여부를 확인해야 합니다. CPI를 지켜봐야 합니다. 금리를 점검할 필요가 있습니다.') === '조정 여부를 확인할 대목입니다. CPI를 지켜볼 대목입니다. 금리를 점검할 대목입니다.');
 check('v59.72 the producer publishes the rewritten reading', /text: softenReaderDuty\(semantic\.text \|\| text\)/.test(read('scripts/producer/market-narrative.mjs')));
 
+// v59.80 (hosting review 2026-11-08): the browser data re-pins itself after the live-data browser watchdog passes;
+// CodeQL skips data-only commits; hashed chunks are served cache-first by the service worker.
+{
+  const watchdog = read('.github/workflows/watchdog-browser.yml');
+  const repin = watchdog.slice(watchdog.indexOf('\n  repin:'));
+  check('v59.80 the live-data browser watchdog re-pins after every shard passed', /needs: browser\n\s+if: success\(\)/.test(repin)
+    && /browser-data-fixture\.mjs pin --sha "\$TESTED_SHA"/.test(repin) && /origin="browser-repin"/.test(repin)
+    && /contents: write/.test(repin), repin.slice(0, 200));
+  check('v59.80 a main re-pinned during the run is left alone', /main was re-pinned since/.test(repin));
+  check('v59.80 CI runs the full scope for a re-pin', /browser-repin\) reduced=false;/.test(read('.github/workflows/ci.yml')));
+  const codeql = read('.github/workflows/codeql.yml');
+  check('v59.80 CodeQL ignores data-only pushes', /push:\n\s+branches: \[main\]\n\s+paths-ignore:\n\s+- 'public-data\/\*\*'/.test(codeql));
+  const sw = read('sw.js');
+  check('v59.80 the service worker serves content-hashed chunks cache-first', /HASHED_CHUNK_RE = \/\\\/src\\\/chunks\\\/\[\^\/\?#\]\+-\[A-Z0-9\]\{8\}\\\.js\$\//.test(sw)
+    && /HASHED_CHUNK_RE\.test\(reqUrl\.pathname\)\) \{\n\s+event\.respondWith\(\n\s+caches\.open\(CHUNK_CACHE\)/.test(sw)
+    && sw.indexOf('HASHED_CHUNK_RE.test(reqUrl.pathname)') < sw.indexOf('const isVersionedShell'));
+  check('v59.80 the chunk cache is bounded', /entries\.length > CHUNK_CACHE_MAX\) return caches\.delete\(CHUNK_CACHE\)/.test(sw));
+  check('v59.80 bundled chunks are named by content hash', /chunkNames: 'chunks\/\[name\]-\[hash\]'/.test(read('scripts/lib/pages-bundle-config.mjs')));
+}
+
 // v59.72 (P2266): a failed CI browser shard reruns only its failed gates once before failing the push.
 {
   const ci = read('.github/workflows/ci.yml');

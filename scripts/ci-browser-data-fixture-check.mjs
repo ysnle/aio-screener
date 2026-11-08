@@ -106,7 +106,8 @@ check('v59.70 the pin is installed before the gates run', /install --from "\$SNA
 const watchdog = loadYaml(readFileSync(join(root, '.github/workflows/watchdog-browser.yml'), 'utf8'));
 const crons = (watchdog.on?.schedule || []).map((entry) => entry.cron);
 const hours = crons.flatMap((cron) => String(cron.split(' ')[1]).split(','));
-const watchdogRuns = JSON.stringify(watchdog.jobs);
+// v59.80: only the live-data shards; the repin job that follows them pins the data they passed on purpose.
+const watchdogRuns = JSON.stringify(watchdog.jobs.browser);
 check(`v59.70 watchdog-browser runs twice a day: ${crons.join(' ')}`, hours.length === 2);
 check('v59.70 watchdog-browser runs every CI browser group on live data', JSON.stringify(watchdog.jobs.browser.strategy.matrix.group) === JSON.stringify(ci.jobs.browser.strategy.matrix.group) && !/browser-data-fixture|AIO_BROWSER_CLOCK_AT|AIO_BROWSER_DATA_ROOT/.test(watchdogRuns));
 check('v59.70 CI and the watchdog install Chromium the same way', steps.some((step) => step.uses === './.github/actions/setup-browser-gates') && watchdog.jobs.browser.steps.some((step) => step.uses === './.github/actions/setup-browser-gates'));

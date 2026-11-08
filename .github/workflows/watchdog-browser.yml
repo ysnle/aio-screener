@@ -49,3 +49,59 @@ jobs:
           path: ${{ runner.temp }}/aio-qa/runs/*/failure-output/*.txt
           if-no-files-found: ignore
           retention-days: 7
+
+  repin:
+    # v59.80 (hosting review 2026-11-08): a producer that adds a field left the pinned browser data behind (drift), and
+    # every local run and CI contract shard failed until someone re-pinned by hand (9 manual re-pin commits 11/06-11/08).
+    # When every shard above passed on the live data of this commit, that data is pinned and committed to main, and a
+    # full-scope CI run tests the new pin. A failed shard leaves the pin alone and its alert stands.
+    name: Re-pin the browser data to the live data that passed
+    needs: browser
+    if: success()
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+      - name: Pin, commit and dispatch CI
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TESTED_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if node scripts/ci-browser-data-pin-drift-check.mjs; then
+            echo "The pinned browser data already matches the tested live data; nothing to re-pin."
+            exit 0
+          fi
+          node scripts/browser-data-fixture.mjs pin --sha "$TESTED_SHA"
+          cp architecture/browser-data-fixture.json "$RUNNER_TEMP/browser-data-fixture.json"
+          git show "$TESTED_SHA:architecture/browser-data-fixture.json" > "$RUNNER_TEMP/tested-pin.json"
+          git config user.name "aio-data-bot"
+          git config user.email "actions@github.com"
+          attempt=1
+          while :; do
+            git fetch --depth=1 origin main
+            git checkout -q -B repin FETCH_HEAD
+            # Someone re-pinned main after this run started: their pin is newer than this run's data; keep it.
+            if ! git show FETCH_HEAD:architecture/browser-data-fixture.json | cmp -s - "$RUNNER_TEMP/tested-pin.json"; then
+              echo "main was re-pinned since $TESTED_SHA; leaving it."
+              exit 0
+            fi
+            cp "$RUNNER_TEMP/browser-data-fixture.json" architecture/browser-data-fixture.json
+            git add architecture/browser-data-fixture.json
+            git commit -q -m "Re-pin browser data to ${TESTED_SHA:0:12} (live-data browser watchdog passed)"
+            if git push origin HEAD:main; then break; fi
+            if [ "$attempt" -ge 5 ]; then echo "::error::re-pin push failed after 5 attempts"; exit 1; fi
+            attempt=$((attempt + 1))
+            sleep $((attempt * 3 + RANDOM % 5))
+          done
+          final_sha="$(git rev-parse HEAD)"
+          gh workflow run ci.yml --ref main -f release_sha="$final_sha" -f origin="browser-repin"
+          echo "Re-pinned to $TESTED_SHA as $final_sha; dispatched full-scope CI"
