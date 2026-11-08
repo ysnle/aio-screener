@@ -460,3 +460,14 @@ export function fxSideWord(id, change, digits = 1) {
   if (id === 'usdjpy') return shown > 0 ? '(엔 약세)' : '(엔 강세)';
   return '';
 }
+
+// P2288: one reading of a 20-session USD/KRW move for every 매크로 chapter, on the 환율 axis edges.
+export function wonMoveSentence(pct) {
+  const value = finite(pct);
+  if (value == null) return '';
+  const { krwFlatPct: flat, krwMove20dPct: edge } = RULES.fx;
+  const weak = value > 0, size = Math.abs(value);
+  if (size < flat) return ' 원화는 보합권입니다.';
+  if (size < edge) return ` 원화가 조금 ${weak ? '약해' : '강해'}졌습니다(원/달러 ${signedText(value, 1)}%, 환율 기준 ${edge}% 미만)${weak ? ' — 외국인 매도가 이어지는지 봅니다' : ''}.`;
+  return ` 원/달러 ${signedText(value, 1)}%로 원화가 ${weak ? '약해졌습니다. 외국인에게는 환차손이라 한국 주식 매도 압력이 됩니다.' : '강해졌습니다. 외국인 수급에 우호적인 쪽입니다.'}`;
+}

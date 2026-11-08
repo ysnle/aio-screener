@@ -7,7 +7,7 @@ import { readNumber, signedText } from '../shared/number.js';
 import { dayLabel } from '../market/market-story.js';
 import { buildCloseSeries, closeBasis } from '../market/close-series.js';
 import { MARKET_WINDOWS, closeChange } from '../market/market-windows.js';
-import { rateDifferential, sessionPointBack } from './rates-fx.js';
+import { rateDifferential, sessionPointBack, wonMoveSentence } from './rates-fx.js';
 import { RULES } from '../rules/thresholds.js';
 import { withTopicParticle } from '../content/korean-particle.js';
 import { creditState, hyWidening20Record, oasDelta20Bp } from '../briefing/market-read.js';
@@ -245,7 +245,7 @@ function dollarChapter(history, macroHistory = null) {
   const read = dxy.pct >= 2 ? '달러가 강해져 미국 밖의 돈줄이 조여지고, 원자재와 신흥국(한국 포함) 주식에 부담입니다'
     : dxy.pct <= -2 ? '달러가 약해져 미국 밖 자산과 원자재에 우호적인 쪽입니다' : '달러는 크게 움직이지 않았습니다';
   const carry = jpy && jpy.pct <= -3 ? ' 엔화가 빠르게 강해져(엔/달러 하락) 낮은 엔화 금리로 빌린 돈이 되돌아가는지(캐리 청산) 봐야 합니다.' : '';
-  const won = krw ? (krw.pct >= 2 ? ` 원/달러가 ${signed(krw.pct, 1)} 올라 원화가 약해졌습니다. 외국인에게는 환차손이라 한국 주식 매도 압력이 됩니다.` : krw.pct <= -2 ? ' 원화가 강해져 외국인 수급에 우호적입니다.' : ' 원화는 안정적입니다.') : '';
+  const won = krw ? wonMoveSentence(krw.pct) : ''; // v59.76: one reading with the 성장·한국 chapter
   return {
     id: 'dollar', title: '달러 · 환율 — 세계 돈줄의 방향', question: '달러가 세계 유동성을 조이는지 푸는지',
     viz: { caption: '20거래일 등락 (%)', unit: '%', points: [{ x: '달러지수', value: dxy.pct, hot: true }, jpy ? { x: '엔/달러', value: jpy.pct } : null, krw ? { x: '원/달러', value: krw.pct } : null].filter(Boolean) },
@@ -367,7 +367,7 @@ function growthKorea(macroHistory, history, events) {
   if (!kospi && !sentiment) return null;
   const korea = kospi && semis && Math.abs(kospi.pct - semis.pct) < 4 && Math.abs(semis.pct) >= 5 ? `코스피(${signed(kospi.pct, 1)})가 미국 반도체(SOXX ${signed(semis.pct, 1)})와 같은 폭으로 움직여, 한국은 AI 반도체 업황에 묶여 있습니다`
     : kospi ? `코스피는 20거래일 ${signed(kospi.pct, 1)}입니다` : '';
-  const won = krw ? (Math.abs(krw.pct) < 1.5 ? ' 원화는 안정적입니다.' : krw.pct > 0 ? ' 원화가 약해져 외국인 이탈을 봐야 합니다.' : ' 원화가 강해졌습니다.') : '';
+  const won = krw ? wonMoveSentence(krw.pct) : '';
   const next = nextOf(events, ['us-retail']);
   return {
     id: 'growth', title: '성장 · 소비 · 한국', question: '경기의 지속력과 한국 시장이 묶인 고리',

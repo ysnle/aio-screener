@@ -7149,3 +7149,21 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (!/is-flat/.test(zero.className) || zero.style.width !== '0.60%') fail(`v59.55 a move printed 0.0 is grey and keeps a sliver: ${JSON.stringify(zero)}`);
   if (!/is-burden/.test(signedBar(doc, -0.3, 1, { tone: 'verdict', trackClass: 'x' }).children[0].className)) fail('v59.55 the verdict tone marks a negative spread 부담');
 }
+
+// v59.76 (screen review 11/8): the HY 20-session latch let go on a one-day base spike while HY widened +16bp in five
+// sessions (the axis read 부담 → 중립 beside '5일 +22bp'); the 20-session USD/KRW move gets one reading in every chapter.
+{
+  const { hyWidening20Record, isCloseSessionDate } = await load('src/domain/briefing/market-read.js');
+  const days = [];
+  for (let d = new Date(Date.UTC(2025, 5, 2)); days.length < 331; d = new Date(d.getTime() + 864e5)) { const s = d.toISOString().slice(0, 10); if (isCloseSessionDate(s, 'US')) days.push(s); }
+  const v = days.map((_, i) => i < 300 ? 3 + (i % 2) * 0.01 : i <= 320 ? 3 + (i - 300) * 0.0165 : i <= 325 ? 3.33 - (i - 320) * 0.01 : 3.28 + (i - 325) * 0.032);
+  v[310] = 3.40;
+  const h = { series: { hyOas: { observations: days.map((d, i) => [d, +v[i].toFixed(2)]) } } };
+  const easing = hyWidening20Record(h, days[325]);
+  const spikeBase = hyWidening20Record(h, days[330]);
+  if (easing?.stress !== false) fail(`v59.76 the HY latch lets go when the 20-session change is under 25bp and five sessions narrowed: ${JSON.stringify(easing)}`);
+  if (!(spikeBase?.value < 25) || spikeBase.stress !== true) fail(`v59.76 the HY latch holds while HY widened 16bp in five sessions, even when a spiked base pulls the 20-session change under 25bp: ${JSON.stringify(spikeBase)}`);
+  const { wonMoveSentence } = await load('src/domain/macro/rates-fx.js');
+  if (!/조금 약해졌습니다/.test(wonMoveSentence(1.5)) || /안정/.test(wonMoveSentence(1.5))) fail(`v59.76 a +1.5% 20-session won move is a mild weakening, never '안정적': ${wonMoveSentence(1.5)}`);
+  if (!/보합권/.test(wonMoveSentence(0.3)) || !/환차손/.test(wonMoveSentence(2.4)) || !/강해졌습니다/.test(wonMoveSentence(-2.1))) fail('v59.76 the won sentence follows the 환율 axis edges (0.5% flat, 2% move)');
+}
