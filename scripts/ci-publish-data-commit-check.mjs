@@ -76,6 +76,13 @@ try {
     const code = inRepo(runner, { set: 'data' });
     check('v59.85 an unchanged set makes no commit and reports changed=false', code === 0 && outputs().changed === 'false' && remoteLog().split('\n').length === 1 && ghCalls().length === 0);
   }
+  { // a run checked out on another branch must not push that branch's code into main with its data
+    const { runner } = fresh();
+    git(runner, 'checkout', '-q', '-b', 'feature');
+    writeFileSync(join(runner, 'out/a.json'), '{"v":7}\n');
+    const code = inRepo(runner, { set: 'data' });
+    check('v59.85 a run checked out on a feature branch is refused before staging', code === 1 && remoteLog().split('\n').length === 1 && ghCalls().length === 0);
+  }
   { // timestamp-only rewrite goes back to HEAD in index and worktree
     const { runner } = fresh();
     writeFileSync(join(runner, 'out/b.json'), '{"generatedAt":"2026-11-08T14:00:00Z","v":1}\n');

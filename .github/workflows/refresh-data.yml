@@ -61,13 +61,14 @@ jobs:
 
       - name: Stand down a cron slot the Worker dispatch already covers (v59.85)
         id: guard
-        # Only the :17/:47 fallback cron; the daily-lane cron and every dispatch always proceed. Fails open.
+        # Only the :17/:47 fallback cron; the daily-lane cron and every dispatch always proceed. Fails open. The window is the
+        # Worker's 30-minute cycle, so an on-time :17 cron (27 minutes after the :50 dispatch) stands down too.
         if: ${{ github.event_name == 'schedule' && github.event.schedule != '33 7 * * *' }}
         continue-on-error: true
         env:
           EVENT_NAME: ${{ github.event_name }}
           GH_TOKEN: ${{ github.token }}
-        run: node scripts/cron-fallback-guard.mjs --workflow refresh-data.yml --window-min 20 --github-output
+        run: node scripts/cron-fallback-guard.mjs --workflow refresh-data.yml --window-min 30 --github-output
 
       - name: Decide refresh mode (full, news or skip)
         id: decide

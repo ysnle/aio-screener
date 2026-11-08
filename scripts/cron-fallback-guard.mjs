@@ -11,7 +11,7 @@
 // counting it would let one no-op cover the next cron after a missed Worker slot. The crons fire a few minutes before
 // the Worker's minute, so an on-time cron still runs; GitHub mostly delivers them late, which is the case this covers.
 //
-//   node scripts/cron-fallback-guard.mjs --workflow refresh-data.yml --window-min 20 [--github-output]
+//   node scripts/cron-fallback-guard.mjs --workflow refresh-data.yml --window-min 30 [--github-output]
 //   node scripts/cron-fallback-guard.mjs --self-test
 //
 // Reads EVENT_NAME (github.event_name), GITHUB_REPOSITORY, GITHUB_RUN_ID. Anything other than a schedule event never
