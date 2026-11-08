@@ -1,7 +1,7 @@
 {
   "symbol": "MRVL",
   "name": "Marvell Technology, Inc.",
-  "researchedAt": "2026-10-28",
+  "researchedAt": "2026-11-08",
   "fiscalYearEnd": "Saturday nearest January 31 (FY2026 ended 2026-01-31)",
   "oneLine": "Marvell은 AI 데이터센터 안에서 칩과 칩, 서버와 서버를 잇는 광통신 DSP·스위치와 클라우드 고객 맞춤형 AI 칩을 설계하는 회사로, 매출의 79%가 데이터센터에서 나오고 NVIDIA가 20억 달러를 투자했다.",
   "sources": [
@@ -17,7 +17,9 @@
     { "id": "s10", "kind": "10-K", "title": "Marvell 10-K FY2026 (accession 0001835632-26-000011) via SEC companyfacts in AIO public-data/sec-fundamentals.json: revenue 8,194.6M, net income 2,670.1M", "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001835632.json", "publisher": "SEC EDGAR companyfacts via AIO", "date": "2026-03-11" },
     { "id": "s11", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/mrvl/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" },
     { "id": "s12", "kind": "ir-site", "title": "Marvell Ushers In the 1.6T Era with Expanded Optical DSP Platform Portfolio (title read from IR listing)", "url": "https://investor.marvell.com/news-events/press-releases/detail/1013/marvell-ushers-in-the-1-6t-era-with-expanded-optical-dsp-platform-portfolio-redefining-ai-data-center-end-to-end-connectivity", "publisher": "Marvell", "date": "2026-03-12" },
-    { "id": "s13", "kind": "ir-site", "title": "Marvell to Showcase Industry-First 2nm Optical Technology Demos for AI Data Center Infrastructure at ECOC 2026 (title read from IR listing)", "url": "https://investor.marvell.com/news-events/press-releases/detail/1034/marvell-to-showcase-industry-first-2nm-optical-technology-demos-for-ai-data-center-infrastructure-at-ecoc-2026", "publisher": "Marvell", "date": "2026-09-21" }
+    { "id": "s13", "kind": "ir-site", "title": "Marvell to Showcase Industry-First 2nm Optical Technology Demos for AI Data Center Infrastructure at ECOC 2026 (title read from IR listing)", "url": "https://investor.marvell.com/news-events/press-releases/detail/1034/marvell-to-showcase-industry-first-2nm-optical-technology-demos-for-ai-data-center-infrastructure-at-ecoc-2026", "publisher": "Marvell", "date": "2026-09-21" },
+    { "id": "s14", "kind": "news", "title": "Marvell and Lumentum to Combine, Creating a Category Leader in AI Connectivity (all-stock, 4.500 MRVL shares per Lumentum share, close expected 1H CY2028)", "url": "https://investor.marvell.com/news-events/press-releases/detail/1040/marvell-and-lumentum-to-combine-creating-a-category-leader-in-ai-connectivity", "publisher": "Marvell", "date": "2026-11-02" },
+    { "id": "s15", "kind": "8-K", "title": "Marvell 8-K (date of report 2026-08-18): warrant to Google for up to 58,970,907 shares at $206.58, vesting on Custom Products revenue through FY2033", "url": "https://www.sec.gov/Archives/edgar/data/1835632/000119312526356217/d412696d8k.htm", "publisher": "SEC", "date": "2026-08-19" }
   ],
 
   "moat": {
@@ -139,8 +141,8 @@
     "src": ["s3", "s8", "s6", "s7", "s1"]
   },
   "governance": {
-    "line": "Matt Murphy 회장 겸 CEO가 이끌며 2026-06 CFO 교체를 발표했고, NVIDIA의 20억 달러 투자를 받은 뒤에도 분기 배당과 자사주 매입(Q2 FY2027 2억 달러)을 이어 간다.",
-    "src": ["s1", "s9", "s4"]
+    "line": "Matt Murphy 회장 겸 CEO가 이끌며 2026-06 CFO 교체를 발표했고, NVIDIA의 20억 달러 투자를 받은 뒤에도 분기 배당과 자사주 매입(Q2 FY2027 2억 달러)을 이어 간다. 2026-08에는 Google에 최대 58,970,907주를 주당 206.58달러에 살 수 있는 워런트를 발행했다. 1,360,867주만 첫해 분기마다 기간 기준으로 확정되고, 나머지는 Google의 맞춤형 칩 구매 매출 5억 달러마다 240분의 1씩 FY2033까지 확정된다. 전량이 확정되려면 그 매출이 누적 1,200억 달러(5억 달러 × 240)에 이르러야 하므로, 이 숫자는 계약상 상한이지 매출 전망이 아니다. 2026-11-02에는 Lumentum과의 전량 주식 합병(Lumentum 1주당 Marvell 4.5주)을 발표했고, 양사 주주·규제 승인을 거쳐 2028년 상반기 완료 예정이다.",
+    "src": ["s1", "s9", "s4", "s15", "s14"]
   },
   "guidance": {
     "latest": [
@@ -170,7 +172,8 @@
       "주요 맞춤형 칩 고객의 경쟁사 이전이나 프로그램 지연",
       "조정 총마진이 커스텀 칩 저마진 영향으로 크게 하락",
       "클라우드 설비투자 축소",
-      "인수 관련 조건부 대가·무형자산 상각 부담 확대"
+      "인수 관련 조건부 대가·무형자산 상각 부담 확대",
+      "Lumentum 합병의 주주·규제 승인 지연이나 무산 (완료 전까지는 예정 거래)"
     ],
     "keyNumbers": [
       { "name": "Data center 매출과 성장률", "why": "매출의 79%이자 AI 노출도" },
@@ -194,11 +197,13 @@
       ]
     },
     "bear": {
-      "text": "비관적으로 보는 쪽은 맞춤형 칩이 고객 한 곳의 설계 결정에 좌우되고 고객 이름과 비중이 공개되지 않으며, 맞춤형 칩과 스위치 양쪽에서 더 큰 Broadcom과 정면으로 붙는다는 점을 든다. Q2 FY2027 GAAP 순이익은 3.1억 달러로 조정 8.7억 달러보다 훨씬 작고, 2026년 상반기 인수에 12.7억 달러를 쓰며 NVIDIA 투자와 같은 날 발행된 우선주 20억 달러, 차입 10억 달러로 자금을 댔다.",
+      "text": "비관적으로 보는 쪽은 맞춤형 칩이 고객 한 곳의 설계 결정에 좌우되고 고객 이름과 비중이 공개되지 않으며, 맞춤형 칩과 스위치 양쪽에서 더 큰 Broadcom과 정면으로 붙는다는 점을 든다. Q2 FY2027 GAAP 순이익은 3.1억 달러로 조정 8.7억 달러보다 훨씬 작고, 2026년 상반기 인수에 12.7억 달러를 쓰며 NVIDIA 투자와 같은 날 발행된 우선주 20억 달러, 차입 10억 달러로 자금을 댔다. 주식 수도 늘 수 있다. Lumentum 합병이 완료되면 회사 예상으로 완전희석 기준 기존 주주 몫이 약 67%가 되고, Google 워런트는 맞춤형 칩 매출이 쌓이는 만큼 확정되는 구조라 매출 성장과 희석이 함께 온다.",
       "src": [
         "s1",
         "s3",
-        "s4"
+        "s4",
+        "s14",
+        "s15"
       ]
     },
     "decides": [
@@ -207,6 +212,13 @@
         "what": "매출 31.5억 달러 ±5% 달성과 Data center 성장률이 다시 빨라지는지, 조정 총마진 57.5~58.5% 유지 여부",
         "src": [
           "s1"
+        ]
+      },
+      {
+        "when": "Lumentum 합병 주주총회·규제 승인 (2028년 상반기 완료 예정)",
+        "what": "승인 여부와 완료 시점. 완료 전까지 합병 후 매출·주식 수·EPS를 현재 회사 숫자와 섞지 않는다",
+        "src": [
+          "s14"
         ]
       },
       {
@@ -278,7 +290,9 @@
     "각 경쟁 영역의 점유율과 경쟁사 목록 (1차 문서 미대조)",
     "s6·s7·s8·s9·s12·s13은 IR 목록의 제목만 읽었고 본문 미확인",
     "잉여현금흐름 13.96억은 영업현금흐름에서 설비투자를 뺀 계산값",
-    "Q3 FY2027 실적 발표일 (회사 미공지)"
+    "Q3 FY2027 실적 발표일 (회사 미공지)",
+    "Lumentum 합병 완료 시 실제 발행 주식 수 (약 33%는 회사의 완전희석 기준 예상)",
+    "Google 워런트의 현재까지 확정 주식 수 (8-K는 조건만 공시)"
   ],
   "confidence": "medium - 실적·현금흐름·가이던스는 회사 보도자료에서 직접 읽었지만, Investor Day 목표·고객·경쟁 점유율을 확인하지 못했다."
 }

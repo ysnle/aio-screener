@@ -4,6 +4,10 @@ last_verified: 2026-11-08
 confidence: medium
 ---
 
+## v59.79 관측과 해석의 구분 (X 북마크 11/08) (2026-11-08)
+
+- [x] QA-KNOW-OBS-NOT-ACTOR: v59.79: 리서치 FTD 레슨과 시장 상태·매크로 신용 문장이 가격·거래량·스프레드 관측을 매수 주체나 검증되지 않은 선행 신호로 단정하지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+
 ## v59.74 사이트 품질 점검 (2026-11-08)
 
 - [x] QA-UI-OUTER-SCROLL: v59.74: 19개 라우트를 아이폰·아이패드·데스크톱에서 열면 문서 높이가 창 높이와 같고, 시장 상태를 끝까지 내려도 하단 탭바가 화면 아래에 붙어 있다. verify_by: node scripts/ci-viewport-matrix-check.mjs

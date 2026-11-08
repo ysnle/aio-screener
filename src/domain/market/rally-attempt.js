@@ -2,7 +2,7 @@
 // index follow-through day. AIO counted O'Neil's distribution days (selling under volume) but not the other half of the
 // same method: after a correction, the lowest close is day 1 of a rally attempt; the count runs while no later close
 // undercuts it; from day 4 a session up 1.25% or more on volume above the prior session is the follow-through day
-// (institutions buying again); a later close below the day-1 close fails it. The bookmarked read added the part that
+// (the method reads it as institutions buying again; price and total volume cannot show who bought); a later close below the day-1 close fails it. The bookmarked read added the part that
 // decides whether it matters — leaders breaking out to new highs within days to three weeks after it — which the screen
 // pairs with the S&P 500 new-high count AIO already records. Thresholds: RULES.rallyAttempt. Pure.
 
@@ -90,7 +90,7 @@ export function rallyAttemptRead(history = [], { through = null, rules = RULES.r
       ? `1일째는 ${lowText}입니다. ${rules.minDay}일째부터 나스닥이 하루 ${rules.gainPct}% 이상 오르면서 거래량이 전날보다 많으면 바닥 확인일(FTD)입니다 — 빠르면 ${toGo}거래일 뒤.`
       : `1일째는 ${lowText}입니다. 아직 하루 ${rules.gainPct}% 이상 오르면서 거래량이 늘어난 날(바닥 확인일)이 없습니다.`;
     const highsNow = readNumber(last.breadthNewHighs);
-    const ready = highsNow != null ? ` 바닥 확인일이 나와도 주도주가 신고가로 따라 나와야 힘이 있습니다 — 지금 S&P 500 52주 신고가 종목은 ${highsNow}개입니다.` : '';
+    const ready = highsNow != null ? ` 바닥 확인일 다음 확인점은 주도주 신고가가 늘어나는지입니다 — 지금 S&P 500 52주 신고가 종목은 ${highsNow}개입니다.` : '';
     return { phase: 'attempt', day, lowDate, lowClose, state, plain: `${plain} 그 종가 아래로 마감하면 처음부터 다시 셉니다.${failedEarlier ? ' 직전 바닥 확인일은 저점을 다시 깨며 실패했습니다.' : ''}${ready}` };
   }
   const ftd = ftdIndex >= 0 ? episode[ftdIndex] : null;
@@ -102,7 +102,7 @@ export function rallyAttemptRead(history = [], { through = null, rules = RULES.r
   const atFtd = highs(ftd), now = highs(last);
   const leaders = atFtd != null && now != null ? ` S&P 500 52주 신고가 종목은 그날 ${atFtd}개, 지금 ${now}개입니다.` : '';
   const window = since != null && since <= rules.leaderWindowSessions
-    ? ` 바닥 확인일 뒤 며칠에서 3주 안에 주도주가 신고가로 따라 나오는지가 이 신호의 힘을 가릅니다(${since}거래일 지남).`
+    ? ` 바닥 확인일 뒤 며칠에서 3주 안에 주도주가 신고가로 따라 나오는지가 다음 확인점입니다(${since}거래일 지남).`
     : '';
   return { phase: 'confirmed', day, lowDate, lowClose, ftdDate: ftd?.date || null, since,
     state: ftd ? `바닥 확인일 ${md(ftd.date)}${gain != null ? ` (+${gain.toFixed(2)}%)` : ''}` : '바닥 확인 후',
