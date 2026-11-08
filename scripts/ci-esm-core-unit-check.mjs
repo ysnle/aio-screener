@@ -1764,6 +1764,9 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       const titlesAt = (iso) => (buildMarketStory({ history: weekRows, events: releases, nowMs: Date.parse(iso) }).week || []).filter((row) => row.kind === 'macro').map((row) => row.title).join(',');
       const afterKstMidnight = titlesAt('2026-12-09T16:30:00Z'), afterCpi = titlesAt('2026-12-10T14:00:00Z');
       if (afterKstMidnight !== 'FOMC,CPI' || afterCpi !== '') fail(`v59.85 week-ahead releases follow their release clock: ${afterKstMidnight} / ${afterCpi}`);
+      // A report with no announced hour leaves at the briefing schedule's clock (16:05 ET), not 23:59 ET into the next KST morning.
+      const unknownHour = (iso) => (buildMarketStory({ history: weekRows, calendar: { earnings: [{ symbol: 'XYZ', date: '2026-11-09', indexWeight: 1.2 }] }, nowMs: Date.parse(iso) }).week || []).some((row) => row.kind === 'earnings' && /XYZ/.test(row.title));
+      if (!unknownHour('2026-11-09T20:00:00Z') || unknownHour('2026-11-10T02:00:00Z')) fail('v59.85 an unknown-hour report follows the shared earnings clock in the week ahead');
     }
     if (both?.symbols?.join(',') !== 'MU,BAC' || both.symbol !== 'MU' || !/Micron[\s\S]*Bank of America/.test(both.text)) fail('v59.62: a multi-company earnings headline must carry every named reporter in headline order');
   }
@@ -7265,5 +7268,25 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     const { buildChatMacroLines } = await load('src/ai/context/chat-macro-lines.js');
     const chat = buildChatMacroLines({ ctxId: 'macro', root: { _aioScreenBasisEvidence: () => [{ metric: 'macro.core_pce_yoy', value: 3.12, unit: 'percent', asOf: '2026-09-01', period: 'month', source: 'macro-release', evidenceId: 'mr:core_pce' }] }, timeLabel: 't' });
     if (!chat.some((line) => /근원 PCE 3\.12% \(2026-09 기준월, evidenceId=mr:core_pce\)/.test(line))) fail(`v59.85 the chat macro block cites the typed release row with its month and evidenceId: ${JSON.stringify(chat)}`);
+    // Round 3: a core CPI pace whose year-ago month is missing has no same-month yoy beside it, and the direction row says
+    // it read core PCE only; a +2.2% dollar near its 1-year low says where it sits, not '범위 중간'.
+    const cpiGap = pceObs.filter(([date]) => date !== '2025-10-01');
+    const { coreInflationRead } = await load('src/domain/macro/macro-read.js');
+    const gapRead = coreInflationRead({ mh: { series: { corePceIndex: { observations: pceObs }, coreCpiIndex: { observations: cpiGap } } } });
+    const gapChapter = chapters85({ macroHistory: { series: { corePceIndex: { observations: pceObs }, coreCpiIndex: { observations: cpiGap } } } }).chapters.find((row) => row.id === 'inflation');
+    const gapRow = (gapChapter?.detail || []).find(([label]) => label === '근원 CPI 3개월 연율')?.[1] || '';
+    if (gapRead.coreCpiYoy !== null || !gapRead.direction.single || gapRead.directionLabel !== '물가 방향 (근원 PCE만)' || !/같은 달 1년치 없음/.test(gapRow) || !/10월/.test(gapRow)
+      || !(gapChapter.detail || []).some(([label]) => label === '물가 방향 (근원 PCE만)')) fail(`v59.85 the core CPI pace pairs only with its own month: ${JSON.stringify({ yoy: gapRead.coreCpiYoy, label: gapRead.directionLabel, gapRow })}`);
+    const dxyRows = []; for (let t = Date.UTC(2025, 9, 1); dxyRows.length < 260; t += 864e5) { const d = new Date(t); if (d.getUTCDay() % 6) dxyRows.push({ date: d.toISOString().slice(0, 10), dxy: dxyRows.length < 30 ? 110 : 100 }); }
+    dxyRows.at(-1).dxy = 102.2;
+    const dollar85 = chapters85({ history: dxyRows }).chapters.find((row) => row.id === 'dollar');
+    if (!dollar85 || /범위 중간/.test(dollar85.mean) || !/1년 범위의 22% 위치로 상위 20%가 아니라/.test(dollar85.mean)) fail(`v59.85 the dollar sentence states only the computed range position: ${dollar85?.mean}`);
+    // The validator blocks an unqualified 재가속 when the direction is slowing, split or held; a named measure is allowed.
+    const v85 = await import(pathToFileURL(path.join(root, 'scripts/lib/market-analysis-validate.mjs')).href);
+    const held = { state: 'flat' };
+    if (!v85.inflationReaccelContradicts(held) || v85.inflationReaccelContradicts({ state: 'up' }) || v85.inflationReaccelContradicts(null)
+      || !v85.INFLATION_REACCEL_ASSERTION.test('물가가 재가속되고 있습니다') || v85.INFLATION_REACCEL_ASSERTION.test('근원 CPI는 재가속 신호를 보였습니다')
+      || v85.marketSentenceRejectReason('물가가 다시 빨라지며 금리 부담이 커진 하루였다.', { inflationNotReaccelerating: true }) !== 'inflation-direction'
+      || v85.marketSentenceRejectReason('물가가 다시 빨라지며 금리 부담이 커진 하루였다.', {}) === 'inflation-direction') fail('v59.85 the 재가속 assertion is blocked symmetrically with 둔화');
   }
 }

@@ -24,7 +24,7 @@ import { NEWS_INTRADAY_MAX } from '../lib/news-selection.mjs';
 import { buildMarketAnalysisPrompt, buildMarketAnalysisRetryPrompt, inflationDirectionLine } from '../lib/market-analysis-prompt.mjs';
 import { afterHoursContextLines, afterHoursSignature } from './after-hours.mjs';
 import { earningsContextLines, earningsContextSignature, readEventBriefs, cashflowContextLines, readBigtechCashflow } from './earnings-context.mjs';
-import { softenReaderDuty, inflationEasingContradicts, EVIDENCE_TIER_METRIC_IDS, KOREA_MOVE_MENTION_PCT, MARKET_ANALYSIS_CLOSED_SESSIONS, snapshotEvidenceRows, buildCompletedCloseBasis, marketAnalysisReversal, marketAnalysisLargeMove, marketAnalysisLargeMoveDirection, marketSentenceDay, marketSentenceRejectReason, dailyMarketSentence, MARKET_SENTENCE_LABEL, splitMarketSentence, buildMarketAnalysisEvidence, buildMarketAnalysisHeadlineContext, buildMarketAnalysisNewsEvidence, buildStructuredMarketAnalysis, describeMarketAnalysisIssues, retainVerifiedMarketAnalysis, reusableMarketAnalysis, validateMarketAnalysisText, lastVerifiedMarketAnalysis, plainMarketFallbackSummary } from '../lib/market-analysis-validate.mjs';
+import { softenReaderDuty, inflationEasingContradicts, inflationReaccelContradicts, EVIDENCE_TIER_METRIC_IDS, KOREA_MOVE_MENTION_PCT, MARKET_ANALYSIS_CLOSED_SESSIONS, snapshotEvidenceRows, buildCompletedCloseBasis, marketAnalysisReversal, marketAnalysisLargeMove, marketAnalysisLargeMoveDirection, marketSentenceDay, marketSentenceRejectReason, dailyMarketSentence, MARKET_SENTENCE_LABEL, splitMarketSentence, buildMarketAnalysisEvidence, buildMarketAnalysisHeadlineContext, buildMarketAnalysisNewsEvidence, buildStructuredMarketAnalysis, describeMarketAnalysisIssues, retainVerifiedMarketAnalysis, reusableMarketAnalysis, validateMarketAnalysisText, lastVerifiedMarketAnalysis, plainMarketFallbackSummary } from '../lib/market-analysis-validate.mjs';
 import { HIST, SCENARIO_STATE_OUT, SCENARIO_OUTCOMES_OUT, EARNINGS_CALENDAR_OUT, REPO_ROOT } from './paths.mjs';
 const SCREENER_OUT = `${REPO_ROOT}/public-data/screener.json`;
 import { MACRO_HISTORY_OUT, MACRO_CALENDAR_OUT } from './macro-history.mjs';
@@ -482,9 +482,10 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     // candidate (marketSentenceReject: no-new-candidate) and the 10/20 sentence stayed all morning. The sentence has its own
     // gate (marketSentenceRejectReason); a candidate from a blocked attempt that passes it still opens the new day.
     const inflationRising = inflationEasingContradicts(data?.macro || {}, inflationDirection);
+    const inflationNotReaccelerating = inflationReaccelContradicts(inflationDirection);
     let passingSentence = null;
     const noteSentence = (candidate) => {
-      if (candidate && !marketSentenceRejectReason(candidate, { inflationRising, largeMoveDirection: largeMove ? largeMoveDirection : null })) passingSentence = candidate;
+      if (candidate && !marketSentenceRejectReason(candidate, { inflationRising, inflationNotReaccelerating, largeMoveDirection: largeMove ? largeMoveDirection : null })) passingSentence = candidate;
     };
     const retainOrFallback = (reason) => {
       const carry = passingSentence ? { sentenceCandidate: passingSentence, largeMove, largeMoveDirection } : {};
@@ -535,10 +536,11 @@ export function applyMarketAnalysis(data, marketAnalysis, { previous = null, now
     // v57.71: one sentence a day — kept from the earlier run of the same 08:00 KST day, else this run's validated line.
     const { sentenceCandidate = null, largeMove = false, largeMoveDirection = null, ...analysis } = marketAnalysis;
     const inflationRising = inflationEasingContradicts(data.macro || {}, marketAnalysisInflationDirection(data));
-    data.marketAnalysis = { ...analysis, sentence: dailyMarketSentence({ candidate: sentenceCandidate, previous: previous?.sentence || null, nowMs, largeMove, largeMoveDirection, inflationRising }) };
+    const inflationNotReaccelerating = inflationReaccelContradicts(marketAnalysisInflationDirection(data));
+    data.marketAnalysis = { ...analysis, sentence: dailyMarketSentence({ candidate: sentenceCandidate, previous: previous?.sentence || null, nowMs, largeMove, largeMoveDirection, inflationRising, inflationNotReaccelerating }) };
     // 2026-10-19 data audit: a day's sentence that never replaced yesterday's left no trace; the run now records why.
     data.meta.marketSentenceReject = data.marketAnalysis.sentence?.day === marketSentenceDay(nowMs) ? null
-      : (!('sentenceCandidate' in marketAnalysis) ? 'no-new-candidate' : marketSentenceRejectReason(sentenceCandidate, { inflationRising, largeMoveDirection: largeMove ? largeMoveDirection : null }));
+      : (!('sentenceCandidate' in marketAnalysis) ? 'no-new-candidate' : marketSentenceRejectReason(sentenceCandidate, { inflationRising, inflationNotReaccelerating, largeMoveDirection: largeMove ? largeMoveDirection : null }));
     if (data.meta.marketSentenceReject) console.warn(`[fetch-data] daily sentence not replaced: ${data.meta.marketSentenceReject}${sentenceCandidate ? ` :: ${String(sentenceCandidate).slice(0, 120)}` : ''}`);
     data.meta.marketAnalysisOk = marketAnalysis.status === 'verified';
     // P1719: a retained previous verification is still verified prose, but this run's attempt was blocked.

@@ -433,7 +433,11 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
       blocked: gate.blocked === true,
       reasons: gate.reasons || [],
       limitations: gate.limitations || [], limitationNotes: gate.limitationNotes || [], closeBasisDates: publishedClaims.filter(function(claim) { return claim && claim.source === 'close-basis' && claim.asOf; }).map(function(claim) { return String(claim.asOf).slice(0, 10); }).sort(), // review: only published close-basis claims label the answer
-      otherPublishedClaims: publishedClaims.filter(function(claim) { return claim && claim.source !== 'close-basis' && typeof claim.value === 'number'; }).length, // QA-VERIFY-16: numbers that are not closes
+      // Official releases are completed records too: a monthly row names its reference month, a daily row its observation day.
+      releaseBasis: Array.from(new Set(publishedClaims.filter(function(claim) { return claim && claim.source === 'macro-release' && claim.asOf; }).map(function(claim) {
+        return claim.period === 'month' || /기준월/.test(String(claim.text || '')) ? String(claim.asOf).slice(0, 7) + ' 기준월' : String(claim.asOf).slice(0, 10) + ' 관측';
+      }))).sort(),
+      otherPublishedClaims: publishedClaims.filter(function(claim) { return claim && claim.source !== 'close-basis' && claim.source !== 'macro-release' && typeof claim.value === 'number'; }).length, // QA-VERIFY-16: numbers that are neither closes nor official releases
       actionGate: gate,
       claimAudit: claimAudit,
       conductAudit: conductAudit,
@@ -526,10 +530,15 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     var closeDates = Array.isArray(meta.closeBasisDates) ? meta.closeBasisDates : []; // published close-basis claims only, not every collected row
     // QA-VERIFY-16 live check (2026-10-13): an answer whose only published numbers are completed closes is labelled by
     // those closes, even when page quote rows were collected (live rows it never cited cannot make it "확인 필요").
-    var closeOnly = closeDates.length > 0 && !(meta.otherPublishedClaims > 0);
-    var evidenceStatus = closeOnly ? '종가 기준 근거' : rows.length ? (blocked ? '확인 필요' : '주입 근거 확인됨') : '확인 필요';
-    if (closeOnly) asOf = closeDates[closeDates.length - 1] + ' 종가';
-    var sourceLabel = closeOnly ? '완료된 종가 기록' : sources.length ? Array.from(new Set(sources)).slice(0, 2).join(' / ') : '원천 확인 필요';
+    // The same holds for official macro releases (a month's CPI does not change with the live quotes): the label names the
+    // reference month and the source 공식 발표, alongside the close date when both kinds were cited.
+    var releaseBasis = Array.isArray(meta.releaseBasis) ? meta.releaseBasis : [];
+    var recordOnly = (closeDates.length > 0 || releaseBasis.length > 0) && !(meta.otherPublishedClaims > 0);
+    var evidenceStatus = recordOnly ? (closeDates.length && releaseBasis.length ? '종가·공식 발표 근거' : closeDates.length ? '종가 기준 근거' : '공식 발표 근거')
+      : rows.length ? (blocked ? '확인 필요' : '주입 근거 확인됨') : '확인 필요';
+    if (recordOnly) asOf = (closeDates.length ? [closeDates[closeDates.length - 1] + ' 종가'] : []).concat(releaseBasis.slice(-2)).join(' · ');
+    var sourceLabel = recordOnly ? (closeDates.length ? ['완료된 종가 기록'] : []).concat(releaseBasis.length ? ['공식 발표'] : []).join(' / ')
+      : sources.length ? Array.from(new Set(sources)).slice(0, 2).join(' / ') : '원천 확인 필요';
     var notes = meta.actionGate && Array.isArray(meta.actionGate.limitationNotes) ? meta.actionGate.limitationNotes : [];
     return {
       label: _AIO_PUBLIC_AI_POLICY.label,

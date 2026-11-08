@@ -218,7 +218,8 @@ export function coreInflationRead({ macro = {}, mh = null } = {}) {
   const pace = annualised3m(corePceIndex);
   const coreCpiIndex = seriesOf(mh, 'coreCpiIndex');
   const coreCpiPace = annualised3m(coreCpiIndex);
-  const coreCpiYoy = lastOf(yoySeries(coreCpiIndex));
+  // The pace's own month: when a year-ago row is missing, the newest yoy is an older month and must not stand beside it.
+  const coreCpiYoy = coreCpiPace ? yoySeries(coreCpiIndex).find((row) => row.date === coreCpiPace.date) || null : null;
   // v57.81 (audit X1): the direction of core inflation needs core PCE and core CPI to agree, each on its newest release —
   // the quadrant, the 물가 axis, the 물가 chapter and the '물가 재가속' / '물가 둔화' scenarios all read this one flag.
   // Macro audit 2026-10-17: the PCE pair compares the 3-month pace with the year-over-year rate of the same month, as the
@@ -228,9 +229,11 @@ export function coreInflationRead({ macro = {}, mh = null } = {}) {
   const pceYoyForPace = paceYoy ?? (releasedSameMonth ? yoy : null);
   const direction = inflationDirection({
     pce: pace && pceYoyForPace != null ? { pace: pace.value, yoy: pceYoyForPace, date: pace.date } : null,
-    cpi: coreCpiPace && coreCpiYoy && coreCpiYoy.date === coreCpiPace.date ? { pace: coreCpiPace.value, yoy: coreCpiYoy.value, date: coreCpiPace.date } : null
+    cpi: coreCpiPace && coreCpiYoy ? { pace: coreCpiPace.value, yoy: coreCpiYoy.value, date: coreCpiPace.date } : null
   });
-  return { corePceIndex, corePceYoySeries, yoy, pace, pceYoyForPace, coreCpiIndex, coreCpiPace, coreCpiYoy, direction };
+  // The direction row's label names the measures it actually read (one measure alone is not 'PCE·CPI').
+  const directionLabel = direction.single ? `물가 방향 (${direction.pce ? '근원 PCE' : '근원 CPI'}만)` : '물가 방향 (PCE·CPI)';
+  return { corePceIndex, corePceYoySeries, yoy, pace, pceYoyForPace, coreCpiIndex, coreCpiPace, coreCpiYoy, direction, directionLabel };
 }
 
 function inflationAxis({ macro, mh }) {
@@ -238,7 +241,7 @@ function inflationAxis({ macro, mh }) {
   // the unrounded series value is that same figure (within the rounding), the series value is read, as the Taylor rule
   // does — 3.05 published as 3.1 crossed the 0.1pp buffer above the 3% line only through the rounding (coreInflationRead).
   const shared = coreInflationRead({ macro, mh });
-  const { corePceYoySeries, yoy, pace, coreCpiPace, coreCpiYoy, pceYoyForPace, direction } = shared;
+  const { corePceYoySeries, yoy, pace, coreCpiPace, coreCpiYoy, pceYoyForPace, direction, directionLabel } = shared;
   // 2026-10-19 (expertise review): the composition of sticky core CPI — shelter (lags market rents by about a year) and
   // services ex-shelter ("supercore", wage-driven). A 3-month pace within 0.3pp of the year reads as steady. Evidence only: neither part
   // changes the axis state.
@@ -292,9 +295,9 @@ function inflationAxis({ macro, mh }) {
     evidence: [
       ['근원 PCE (전년 대비)', yoy == null ? null : `${yoy.toFixed(1)}% (목표 ${I.targetPct}% 대비 ${signed(gap, 1, '%p')})`],
       ['근원 PCE 3개월 속도 (연율)', pace ? `${pace.value.toFixed(1)}% ${pace.value > (pceYoyForPace ?? yoy) ? '— 1년치(전년 대비)보다 빠름' : '— 1년치(전년 대비)보다 느림'}` : null],
-      ['근원 CPI 3개월 속도 (연율)', coreCpiPace ? `${coreCpiPace.value.toFixed(1)}%${coreCpiYoy ? ` (${monthLabel(coreCpiPace.date)}, 전년 대비 ${coreCpiYoy.value.toFixed(1)}%)` : ''}` : null],
+      ['근원 CPI 3개월 속도 (연율)', coreCpiPace ? `${coreCpiPace.value.toFixed(1)}% (${monthLabel(coreCpiPace.date)}${coreCpiYoy ? `, 전년 대비 ${coreCpiYoy.value.toFixed(1)}%` : ', 같은 달 전년 대비 없음'})` : null],
       ['근원 CPI 구성 (주거비, 주거비 제외 서비스)', composition],
-      ['물가 방향 (PCE·CPI)', direction.state === 'unknown' ? null : `${direction.label} — ${direction.text}`],
+      [directionLabel, direction.state === 'unknown' ? null : `${direction.label} — ${direction.text}`],
       ['6개월 전 근원 PCE', sixMonthsAgo == null ? null : `${sixMonthsAgo.toFixed(1)}%`],
       ['헤드라인 CPI, PCE', finite(macro.cpi) == null ? null : `${finite(macro.cpi).toFixed(1)}%, ${finite(macro.pce)?.toFixed(1) ?? '—'}%`],
       ['10년 기대인플레이션', breakeven == null ? null : `${breakeven.toFixed(2)}%`]

@@ -658,6 +658,14 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
     detail('v59.85 a CPI claim copied from the registry binds and publishes as an official release beside the closes (no withheld line)',
       !!cpiBound && cpiBound.answerPlanBindingAudit.droppedClaims.length === 0 && cpiBound.text.includes('CPI 전년 대비 (2026-09 기준월): 3.7% [공식 발표]') && !cpiBound.text.includes('※'),
       JSON.stringify({ registry: macroRegistry.slice(0, 600), text: cpiBound?.text, audit: cpiBound?.answerPlanBindingAudit }));
+    // The folded evidence panel: closes + an official release read as completed records (not 확인 필요 / 원천 확인 필요).
+    const cpiDisclosure = cpiBound ? ctx._aioBuildAIResponseDisclosure({ closeBasisDates: cpiBound.closeBasisDates, releaseBasis: cpiBound.releaseBasis, otherPublishedClaims: cpiBound.otherPublishedClaims }) : null;
+    const cpiOnly = cpiClaim ? run([cpiClaim]) : null;
+    const cpiOnlyDisclosure = cpiOnly ? ctx._aioBuildAIResponseDisclosure({ closeBasisDates: cpiOnly.closeBasisDates, releaseBasis: cpiOnly.releaseBasis, otherPublishedClaims: cpiOnly.otherPublishedClaims }) : null;
+    detail('v59.85 an answer citing closes and an official release is labelled by both records (close date, reference month, 공식 발표)',
+      cpiDisclosure?.status === '종가·공식 발표 근거' && cpiDisclosure.asOf === '2026-10-12 종가 · 2026-09 기준월' && cpiDisclosure.source === '완료된 종가 기록 / 공식 발표'
+        && cpiOnlyDisclosure?.status === '공식 발표 근거' && cpiOnlyDisclosure.asOf === '2026-09 기준월' && cpiOnlyDisclosure.source === '공식 발표' && !/미확인|원천 확인 필요/.test(cpiDisclosure.text + cpiOnlyDisclosure.text),
+      JSON.stringify({ cpiDisclosure, cpiOnlyDisclosure }));
     ctx.window._aioScreenBasisEvidence = () => closeRows;
     // v59.85: MACRO_ANALYSIS read no macro rows (close.* ids and 'reference' status were refused), so the analysis block said
     // "매크로/FX 근거가 없어" beside a Screen basis full of macro numbers. Reference rows count only from the two typed sources.
@@ -780,7 +788,7 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
     check('v59.85 macro/fx DOMAIN lines cite the typed rows with dates and ids, not live ^TNX / snapshot 2s10s / intraday VIX',
       /CPI 3\.7% \(2026-09 기준월, evidenceId=ev-macro-cpi-yoy-2026-09-01\)/.test(macroText) && /10Y 4\.86% \(2026-11-06 종가/.test(macroText) && /10Y−2Y -12bp/.test(macroText)
         && !/5\.02|125bp|31\.2|역전·침체/.test(macroText + fxText) && /DXY 20거래일 \+0\.05%/.test(fxText) && /KST/.test(macroText));
-    check('v59.85 a question selecting both blocks gets the shared rates line once', (both.match(/• 미 국채:/g) || []).length === 1 && /거시 도메인/.test(both) && /외환·채권 도메인/.test(both));
+    check('v59.85 a question selecting both blocks gets one 10Y line (any rates label)', both.split('\n').filter((line) => /\b10Y\s?[\d.]+%/.test(line)).length === 1 && (both.match(/• 미 국채:/g) || []).length === 1 && /거시 도메인/.test(both) && /외환·채권 도메인/.test(both));
     const prompt = await import('./lib/market-analysis-prompt.mjs');
     const cpiUp = { cpi: 3.7, cpiDelta: 0.3, coreCpi: 2.6, coreCpiDelta: 0.2, _asOf_cpi: '2026-09-01' };
     const heldLine = prompt.inflationDirectionLine(cpiUp, { direction: { state: 'flat', text: '근원 PCE(9월) 뚜렷한 방향 없음' } });

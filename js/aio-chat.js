@@ -4546,7 +4546,7 @@ async function chatSendUnified(_aioDispatchOptions) {
       badgeEl.textContent = selectedModelCfg.label || selectedModelKey;
       _bubbleParent.appendChild(badgeEl);
       if (typeof _aioAppendAIPublicDisclosure === 'function') {
-        _aioAppendAIPublicDisclosure(_bubbleParent, { ctxId: ctxId, tickers: detectedTickers, freshness: _uniFreshPreflight, actionGate: _publicGate, evidence: _uniDoneResult.evidence, closeBasisDates: _uniDoneResult.closeBasisDates, otherPublishedClaims: _uniDoneResult.otherPublishedClaims }); // v58.63 (architecture audit A18): the published close dates the pipeline returned label the answer
+        _aioAppendAIPublicDisclosure(_bubbleParent, { ctxId: ctxId, tickers: detectedTickers, freshness: _uniFreshPreflight, actionGate: _publicGate, evidence: _uniDoneResult.evidence, closeBasisDates: _uniDoneResult.closeBasisDates, releaseBasis: _uniDoneResult.releaseBasis, otherPublishedClaims: _uniDoneResult.otherPublishedClaims }); // v58.63 (architecture audit A18): the published close dates the pipeline returned label the answer
       }
 
       // AIQ-P0-04: blocked model text cannot be followed by an actionable card or

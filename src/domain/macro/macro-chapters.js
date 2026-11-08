@@ -106,7 +106,7 @@ function inflation(macroHistory, events) {
     mean: `${turn}. ${hot}.${service}`,
     next: whenOf(next) || '발표 일정을 확인하지 못했습니다',
     flip: `근원 PCE·CPI의 3개월 연율이 함께 1년치보다 ${I.reaccelPp}%p 이상 빨라지면 재가속, 함께 그만큼 느려지면 둔화로 정해집니다 — 월 +0.2% 이하가 이어지면 3개월 연율은 약 2.4% 아래로 내려옵니다.`,
-    detail: [['근원 CPI 전월비', cpiMom ? `${signed(cpiMom.value)} (${monthName(cpiMom.date)})` : '—'], ['주거비 CPI', shelter ? signed(shelter.value) : '—'], ['주거 뺀 서비스(슈퍼코어)', supercore ? signed(supercore.value) : '—'], ['근원 CPI 3개월 연율', core.coreCpiPace ? `${core.coreCpiPace.value.toFixed(1)}% (1년치 ${core.coreCpiYoy ? core.coreCpiYoy.value.toFixed(1) : '—'}%)` : '—'], ['물가 방향 (PCE·CPI)', d.label || '—']]
+    detail: [['근원 CPI 전월비', cpiMom ? `${signed(cpiMom.value)} (${monthName(cpiMom.date)})` : '—'], ['주거비 CPI', shelter ? signed(shelter.value) : '—'], ['주거 뺀 서비스(슈퍼코어)', supercore ? signed(supercore.value) : '—'], ['근원 CPI 3개월 연율', core.coreCpiPace ? `${core.coreCpiPace.value.toFixed(1)}% (${monthName(core.coreCpiPace.date)}${core.coreCpiYoy ? `, 1년치 ${core.coreCpiYoy.value.toFixed(1)}%` : ', 같은 달 1년치 없음'})` : '—'], [core.directionLabel || '물가 방향 (PCE·CPI)', d.label || '—']]
   };
 }
 
@@ -305,7 +305,8 @@ function dollarChapter(history, macroHistory = null) {
   const position = year.length > 20 && Math.max(...year) > Math.min(...year) ? (dxy.to - Math.min(...year)) / (Math.max(...year) - Math.min(...year)) : null;
   const strong = dollarRiseBurden(dxy.pct, position) === true;
   const read = strong ? '달러가 강해져 미국 밖의 돈줄이 조여지고, 원자재와 신흥국(한국 포함) 주식에 부담입니다'
-    : dxy.pct >= D.rise20dPct ? `달러가 ${signed(dxy.pct, 1)} 올랐지만 1년 범위 중간이라 부담 기준(+${D.rise20dPct + D.bufferPct}%)에는 못 미칩니다`
+    // Only what was computed: the 1-year position when it exists, otherwise that the range could not be read.
+    : dxy.pct >= D.rise20dPct ? `달러가 ${signed(dxy.pct, 1)} 올랐지만 ${position == null ? '1년 범위를 확인하지 못해 범위 조건은 보지 않았고' : `1년 범위의 ${Math.round(position * 100)}% 위치로 상위 ${Math.round((1 - D.rangeHighAt) * 100)}%가 아니라`} 부담 기준(+${D.rise20dPct + D.bufferPct}%)에는 못 미칩니다`
       : dxy.pct <= D.fall20dPct ? '달러가 약해져 미국 밖 자산과 원자재에 우호적인 쪽입니다' : '달러는 크게 움직이지 않았습니다';
   const carry = jpy && jpy.pct <= -3 ? ' 엔화가 빠르게 강해져(엔/달러 하락) 낮은 엔화 금리로 빌린 돈이 되돌아가는지(캐리 청산) 봐야 합니다.' : '';
   const won = krw ? wonMoveSentence(krw.pct, { dxy20: dxy.pct }) : ''; // v59.76: one reading with the 성장·한국 chapter

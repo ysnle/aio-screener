@@ -6,7 +6,7 @@
 import { MOVER_BY_SYMBOL } from '../briefing/market-movers.js';
 import { readNumber } from '../shared/number.js';
 import { RULES } from '../rules/thresholds.js';
-import { releaseAtMs, usWallClockMs } from '../briefing/schedule.js';
+import { earningsFilterMs, releaseAtMs } from '../briefing/schedule.js';
 import { policyCycle } from '../macro/macro-signals.js';
 import { seriesOf } from '../macro/macro-read.js';
 import { SCHEDULED_EVENTS as REGISTRY } from '../briefing/scheduled-events.js';
@@ -313,8 +313,8 @@ function weekAhead({ calendar, nextEvent, decidingEvent = null, events = [], sto
   // A US release or report carries an ET date; with a known clock it is 'next' until that moment, not until KST midnight
   // (an FOMC at 14:00 ET is 04:00 KST the next day; a CPI at 22:30 KST is over before the KST day ends).
   const ahead = (atMs, date) => (Number.isFinite(atMs) ? atMs > nowMs && atMs <= horizon : inside(date));
-  const REPORT_CLOCK = { bmo: [9, 30], dmh: [16, 0], amc: [16, 30] }; // by the open / the close / shortly after the close (ET)
-  const reportAt = (row) => (row?.date ? usWallClockMs(row.date, REPORT_CLOCK[row.hour] || [23, 59]) : null);
+  // A report leaves the list at the same moment the briefing schedule drops it (one clock table, an unknown hour included).
+  const reportAt = (row) => earningsFilterMs(row);
   for (const event of SCHEDULED_EVENTS) if (inside(event.date)) out.push({ kind: 'event', date: event.date, when: dayLabel(event.date), title: event.title, why: event.why });
   const releases = [...(Array.isArray(events) ? events : []), ...[nextEvent, decidingEvent].filter(Boolean)];
   const seenRelease = new Set();
