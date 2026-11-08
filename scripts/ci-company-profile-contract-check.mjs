@@ -125,6 +125,8 @@ assert.equal(storyFreshness({ ...annual, earnings: { period: 'Q2 FY2027', period
   const out = withConfirmedReport(items, 'MU', { date: '2026-12-15', hour: '장 마감 후' });
   assert.deepEqual(out.map((x) => x.date), ['2026-12-15', '매 분기', '수시', '2027-03 (추정)'], 'v59.85 only the own next report takes the confirmed day');
   assert.equal(out[0].event, 'Q1 FY2027 실적과 Q2 가이던스 (장 마감 후, 실적 달력 기준)', 'v59.85 the re-dated line keeps its description');
+  const notice = [{ date: '2026-11-24 (오전 7시 발표, 회사 공지)', event: 'Q4·FY2026 실적 발표' }];
+  assert.deepEqual(withConfirmedReport(notice, 'ADI', { date: '2026-11-24', hour: '장 마감 후' }), notice, 'v59.85 a line already naming the confirmed day keeps the company notice hour');
   const peerOnly = withConfirmedReport([{ date: '2026-11-20', event: 'NVIDIA 실적' }], 'MU', { date: '2026-12-15', hour: null });
   assert.deepEqual(peerOnly.map((x) => x.event), ['실적 발표 (실적 달력 기준)', 'NVIDIA 실적'], 'v59.85 a peer report is not the company report');
 }

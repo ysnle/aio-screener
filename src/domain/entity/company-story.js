@@ -150,7 +150,8 @@ function leadingDayMs(text) {
 }
 /** The calendar list with the company's next report dated by the earnings calendar: the earliest own-report item
  *  (mentions 실적, names no other company, not a recurring line, dated within 45 days of the confirmed day when it is
- *  dated) takes the confirmed date and keeps its description; without such an item a new line leads the list. */
+ *  dated) takes the confirmed date and keeps its description, unless it already names that day; without such an item
+ *  a new line leads the list. */
 export function withConfirmedReport(items, symbol, schedule) {
   const own = String(symbol || '').toUpperCase();
   const confirmed = leadingDayMs(schedule.date);
@@ -161,6 +162,8 @@ export function withConfirmedReport(items, symbol, schedule) {
       && (at == null || Math.abs(at - confirmed) <= 45 * DAY_MS))
     .sort((a, b) => (a.at ?? Infinity) - (b.at ?? Infinity))[0];
   if (!pick) return [{ date: schedule.date, event: `실적 발표 (${note})` }, ...items];
+  // A line that already names the confirmed day keeps its own words: a company notice's hour outranks the calendar's.
+  if (pick.at === confirmed && String(pick.item.date).slice(0, 10) === schedule.date) return items;
   const out = items.slice();
   out[pick.index] = { ...pick.item, date: schedule.date, event: `${pick.item.event} (${note})` };
   return out;
