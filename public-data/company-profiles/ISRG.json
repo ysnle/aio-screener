@@ -5,11 +5,31 @@
   "fiscalYearEnd": "December 31",
   "oneLine": "Intuitive는 수술 로봇 da Vinci를 병원에 깔아 두고 수술 한 건마다 쓰이는 기구·소모품으로 돈을 버는 회사로, 2026년 3분기 da Vinci 5 교체 수요와 함께 매출이 22% 늘었다.",
   "sources": [
-    { "id": "s1", "kind": "earnings-release", "title": "Intuitive Announces Third Quarter Earnings (8-K Exhibit 99.1: revenue mix, placements, installed base, margins, litigation charge, buybacks, 2026 guidance)", "url": "https://www.sec.gov/Archives/edgar/data/0001035267/000103526726000067/q326ex-991earningsrelease.htm", "publisher": "Intuitive Surgical / SEC EDGAR", "date": "2026-10-20" },
-    { "id": "s2", "kind": "10-Q", "title": "Intuitive Surgical Form 10-Q for the quarter ended 2026-09-30 (nine-month cash flow, R&D, SG&A, US/OUS revenue, lease revenue, tariff risk)", "url": "https://www.sec.gov/Archives/edgar/data/0001035267/000103526726000071/isrg-20260930.htm", "publisher": "Intuitive Surgical / SEC EDGAR", "date": "2026-10" },
-    { "id": "s3", "kind": "call-transcript", "title": "Intuitive Surgical Q3 2026 earnings call transcript (US/OUS procedure growth, utilization, da Vinci 5 regions, China pricing, settlement context, guidance changes)", "url": "https://www.earningswhispers.com/transcript/ISRG/Q32026", "publisher": "Earnings Whispers", "date": "2026-10-20" }
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Intuitive Announces Third Quarter Earnings (8-K Exhibit 99.1: revenue mix, placements, installed base, margins, litigation charge, buybacks, 2026 guidance)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0001035267/000103526726000067/q326ex-991earningsrelease.htm",
+      "publisher": "Intuitive Surgical / SEC EDGAR",
+      "date": "2026-10-20"
+    },
+    {
+      "id": "s2",
+      "kind": "10-Q",
+      "title": "Intuitive Surgical Form 10-Q for the quarter ended 2026-09-30 (nine-month cash flow, R&D, SG&A, US/OUS revenue, lease revenue, tariff risk)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0001035267/000103526726000071/isrg-20260930.htm",
+      "publisher": "Intuitive Surgical / SEC EDGAR",
+      "date": "2026-10"
+    },
+    {
+      "id": "s3",
+      "kind": "call-transcript",
+      "title": "Intuitive Surgical Q3 2026 earnings call transcript (US/OUS procedure growth, utilization, da Vinci 5 regions, China pricing, settlement context, guidance changes)",
+      "url": "https://www.earningswhispers.com/transcript/ISRG/Q32026",
+      "publisher": "Earnings Whispers",
+      "date": "2026-10-20"
+    }
   ],
-
   "moat": {
     "sources": [
       "전 세계 da Vinci 설치 대수 12,094대(2026-09-30, +12%) - 병원과 외과의가 이미 익숙한 플랫폼",
@@ -18,14 +38,16 @@
       "자체 서비스망 - 설치된 장비마다 유지보수 계약 (Q3 서비스 매출 4.82억 달러)"
     ],
     "text": "Intuitive의 힘은 이미 병원에 깔린 1만 2천 대가 넘는 da Vinci에서 나온다. 로봇을 한 번 들인 병원은 외과의 교육과 수술 일정이 그 장비에 맞춰지고, 수술할 때마다 회사의 전용 기구를 다시 산다. 그래서 장비 판매는 시작일 뿐이고, 설치 대수가 늘수록 반복 매출이 함께 커지는 구조다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "design": {
     "text": "이 구조 위에서 회사는 세 가지를 판다. 복강경 수술 로봇 da Vinci(최신 세대 da Vinci 5)와 폐 생검용 내시경 로봇 Ion이 장비이고, 수술마다 쓰는 기구·소모품(Instruments and accessories)과 장비 유지보수(Services)가 그 뒤를 따른다. 회사는 매출을 기구·소모품, 시스템, 서비스 세 줄로 보고한다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "make": {
     "model": "in-house manufacturing",
     "partners": [
@@ -33,9 +55,11 @@
       "외부 부품 공급사 - 관세 비용을 회사에 전가할 수 있다고 10-Q가 밝힘"
     ],
     "text": "Intuitive는 로봇과 전용 기구를 직접 설계하고 만든다. 다만 원자재와 일부 완제품을 미국 밖에서 들여와, 10-Q는 관세가 원가를 올릴 수 있고 공급사가 관세 비용을 넘길 수 있다고 적었다. 2026년 가이던스에는 매출의 약 0.9%에 해당하는 관세 비용이 들어 있다.",
-    "src": ["s2", "s1"]
+    "src": [
+      "s2",
+      "s1"
+    ]
   },
-
   "sell": {
     "customers": [
       "미국 병원·의료 시스템 - Q3 2026 매출 20.63억 달러(약 68%)",
@@ -45,112 +69,331 @@
     "channel": "병원에 직접 판매·리스(사용량 연동 리스 포함), 일부 지역은 대리점. 기구·서비스는 설치 병원에 반복 공급.",
     "concentration": null,
     "text": "고객은 병원이고, 실제 수요는 외과의가 로봇으로 하는 수술 건수에서 나온다. Q3 2026 매출의 약 68%가 미국에서 나왔지만, 미국 밖 매출이 약 25% 늘어 미국(약 20%)보다 빨랐다. 장비는 팔기도 하고 리스로도 깔며, Q3 운용리스 매출 2.75억 달러 중 1.78억 달러는 사용량에 따라 받는 리스였다.",
-    "src": ["s2", "s3"]
+    "src": [
+      "s2",
+      "s3"
+    ]
   },
-
   "moneyFlow": {
     "steps": [
-      { "from": "환자·보험자 (Medicare 등)", "to": "병원", "what": "로봇 수술 진료비" },
-      { "from": "병원", "to": "Intuitive 시스템 매출", "what": "da Vinci·Ion 구매 대금 또는 리스료 (Q3 2026 7.69억 달러)" },
-      { "from": "병원", "to": "Intuitive 기구·소모품 매출", "what": "수술 한 건마다 쓰는 전용 기구 대금 (Q3 2026 17.97억 달러)" },
-      { "from": "병원", "to": "Intuitive 서비스 매출", "what": "설치 장비 유지보수 계약 (Q3 2026 4.82억 달러)" }
+      {
+        "from": "환자·보험자 (Medicare 등)",
+        "to": "병원",
+        "what": "로봇 수술 진료비"
+      },
+      {
+        "from": "병원",
+        "to": "Intuitive 시스템 매출",
+        "what": "da Vinci·Ion 구매 대금 또는 리스료 (Q3 2026 7.69억 달러)"
+      },
+      {
+        "from": "병원",
+        "to": "Intuitive 기구·소모품 매출",
+        "what": "수술 한 건마다 쓰는 전용 기구 대금 (Q3 2026 17.97억 달러)"
+      },
+      {
+        "from": "병원",
+        "to": "Intuitive 서비스 매출",
+        "what": "설치 장비 유지보수 계약 (Q3 2026 4.82억 달러)"
+      }
     ],
     "pricing": "장비는 일시 판매, 고정 리스, 사용량 연동 리스로 놓이고, 기구·소모품은 수술 건당, 서비스는 설치 대수당 연간 계약으로 받는다.",
     "text": "돈은 환자의 수술비가 병원을 거쳐 회사의 세 매출 줄로 들어온다. 이 중 가장 큰 기구·소모품은 수술 건수에 정비례해, 2026년 3분기 da Vinci 수술 약 14% 증가가 기구 매출 18% 증가로 이어졌다. 사용량 연동 리스가 늘면 장비 대금도 일시금이 아니라 수술 건수에 따라 나눠 들어온다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
-
   "earnings": {
     "period": "Q3 2026 (ended 2026-09-30)",
-    "revenue": { "value": 3.0487, "unit": "USD bn", "yoy": 21.7 },
+    "revenue": {
+      "value": 3.0487,
+      "unit": "USD bn",
+      "yoy": 21.7
+    },
     "grossMargin": 68.4,
     "operatingMargin": 19.4,
     "netMargin": 17.1,
     "operatingCashFlow": null,
     "freeCashFlow": null,
     "segments": [
-      { "name": "Instruments and accessories (기구·소모품)", "revenue": 1.7974, "unit": "USD bn", "share": 59.0, "yoy": 18.3, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Systems (시스템)", "revenue": 0.7691, "unit": "USD bn", "share": 25.2, "yoy": 30.3, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Services (서비스)", "revenue": 0.4822, "unit": "USD bn", "share": 15.8, "yoy": 21.8, "operatingMargin": null, "src": ["s1"] }
+      {
+        "name": "Instruments and accessories (기구·소모품)",
+        "revenue": 1.7974,
+        "unit": "USD bn",
+        "share": 59.0,
+        "yoy": 18.3,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Systems (시스템)",
+        "revenue": 0.7691,
+        "unit": "USD bn",
+        "share": 25.2,
+        "yoy": 30.3,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Services (서비스)",
+        "revenue": 0.4822,
+        "unit": "USD bn",
+        "share": 15.8,
+        "yoy": 21.8,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "industryMetric": [
-      { "name": "수술 건수 증가율", "value": "Q3 2026 전체(da Vinci+Ion) 약 15%, da Vinci 약 14% (미국 10%, 미국 밖 20%), Ion 약 31%", "src": ["s1", "s3"] },
-      { "name": "시스템 설치", "value": "Q3 2026 da Vinci 546대(전년 427대, 이 중 da Vinci 5 315대), Ion 56대", "src": ["s1"] },
-      { "name": "설치 기반", "value": "2026-09-30 da Vinci 12,094대(+12%), Ion 1,152대(+21%); 평균 장비 가동률 +2%", "src": ["s1", "s3"] },
-      { "name": "비GAAP 매출총이익률", "value": "Q3 2026 69.9% (관세 환급 일회성 제외 68.9%), 전년 68.0%", "src": ["s1", "s3"] },
-      { "name": "EPS", "value": "Q3 2026 GAAP 1.49달러(전년 1.95), 비GAAP 3.00달러(전년 2.40); 소송 합의 비용 4.5억 달러(세후 3.47억, 주당 0.99달러) 반영", "src": ["s1"] },
-      { "name": "2026년 1~9월 현금흐름", "value": "영업현금흐름 31.97억 달러, 설비투자 3.29억 달러 (차감 약 28.7억 달러)", "src": ["s2"] }
+      {
+        "name": "수술 건수 증가율",
+        "value": "Q3 2026 전체(da Vinci+Ion) 약 15%, da Vinci 약 14% (미국 10%, 미국 밖 20%), Ion 약 31%",
+        "src": [
+          "s1",
+          "s3"
+        ]
+      },
+      {
+        "name": "시스템 설치",
+        "value": "Q3 2026 da Vinci 546대(전년 427대, 이 중 da Vinci 5 315대), Ion 56대",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "설치 기반",
+        "value": "2026-09-30 da Vinci 12,094대(+12%), Ion 1,152대(+21%); 평균 장비 가동률 +2%",
+        "src": [
+          "s1",
+          "s3"
+        ]
+      },
+      {
+        "name": "비GAAP 매출총이익률",
+        "value": "Q3 2026 69.9% (관세 환급 일회성 제외 68.9%), 전년 68.0%",
+        "src": [
+          "s1",
+          "s3"
+        ]
+      },
+      {
+        "name": "EPS",
+        "value": "Q3 2026 GAAP 1.49달러(전년 1.95), 비GAAP 3.00달러(전년 2.40); 소송 합의 비용 4.5억 달러(세후 3.47억, 주당 0.99달러) 반영",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "2026년 1~9월 현금흐름",
+        "value": "영업현금흐름 31.97억 달러, 설비투자 3.29억 달러 (차감 약 28.7억 달러)",
+        "src": [
+          "s2"
+        ]
+      }
     ],
     "text": "그 결과 2026년 3분기 매출은 30.5억 달러로 22% 늘었고 매출총이익률은 68.4%였다. 다만 제3자 기구 재가공 관련 집단소송 합의 비용 4.5억 달러가 들어가 GAAP 영업이익은 5.93억 달러로 줄었고, 이 비용을 뺀 비GAAP 영업이익은 12.7억 달러로 30% 늘었다. 이익의 바탕은 수술 건수에 연동된 기구 매출이며, 시스템 매출은 da Vinci 5 교체로 30% 뛰었다.",
-    "src": ["s1", "s3"]
+    "src": [
+      "s1",
+      "s3"
+    ]
   },
-
   "useOfCash": {
     "period": "2026년 1~9월",
     "items": [
-      { "use": "buybacks", "value": 4.4192, "unit": "USD bn", "src": ["s2"] },
-      { "use": "R&D", "value": 1.1408, "unit": "USD bn", "src": ["s2"] },
-      { "use": "capex", "value": 0.329, "unit": "USD bn", "src": ["s2"] },
-      { "use": "other", "label": "제3자 기구 재가공 집단소송 합의 충당 (법원 승인 전)", "value": 0.45, "unit": "USD bn", "src": ["s1", "s3"] }
+      {
+        "use": "buybacks",
+        "value": 4.4192,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "use": "R&D",
+        "value": 1.1408,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "use": "capex",
+        "value": 0.329,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "use": "other",
+        "label": "제3자 기구 재가공 집단소송 합의 충당 (법원 승인 전)",
+        "value": 0.45,
+        "unit": "USD bn",
+        "src": [
+          "s1",
+          "s3"
+        ]
+      }
     ],
     "text": "회사는 배당을 하지 않고 남는 현금을 자사주에 쓴다. 2026년 1~9월 자사주 매입은 44.2억 달러로, 같은 기간 영업현금흐름 32억 달러를 넘었고 3분기에만 29.4억 달러(780만 주)를 샀다. 그 결과 현금·투자자산은 3분기에 18.3억 달러 줄어 68억 달러가 됐다.",
-    "src": ["s2", "s1"]
+    "src": [
+      "s2",
+      "s1"
+    ]
   },
-
   "aiChain": {
     "layer": "ai-adopter",
     "position": "AI 인프라를 파는 회사가 아니라, 수술 로봇과 그 데이터로 의료 현장에 디지털·AI 기능을 넣는 의료기기 회사다. AI 관련 매출은 따로 공시되지 않는다.",
-    "dependsOn": ["자체 제조와 외부 부품·원자재 공급사"],
-    "sellsTo": ["병원·의료 시스템", "외과의"],
+    "dependsOn": [
+      "자체 제조와 외부 부품·원자재 공급사"
+    ],
+    "sellsTo": [
+      "병원·의료 시스템",
+      "외과의"
+    ],
     "aiRevenue": null,
     "upside": "AI가 직접 매출을 만드는 구조는 아니다. 회사의 수요는 AI 지출이 아니라 고령화와 로봇 수술 전환 속도, 병원의 설비 예산에서 나온다.",
     "risk": "AI 사이클과 직접 연결되지 않아 AI 투자 축소의 영향은 작다. 실제 위험은 병원 예산, 보험 수가, 중국의 정책성 가격 인하, 관세다.",
     "text": "AI 가치사슬에서 Intuitive는 AI 수요로 돈을 버는 회사가 아니라 의료 현장의 수요로 버는 회사다. 이 글이 읽은 실적 자료에는 AI 매출이나 AI 관련 목표가 없다. 그래서 이 회사의 숫자는 AI 투자 흐름보다 수술 건수와 장비 설치 대수로 읽어야 한다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
-
   "competition": {
     "arenas": [
-      { "arena": "복강경 수술 로봇", "rivals": ["Medtronic (Hugo)", "Johnson & Johnson (Ottava)"], "position": "leader", "share": null, "src": ["s3"] },
-      { "arena": "외래수술센터(ASC)용 모듈형 로봇", "rivals": ["모듈형 구조의 경쟁 로봇 (콜에서 회사명 미언급)"], "position": "leader", "share": null, "src": ["s3"] },
-      { "arena": "중국 수술 로봇", "rivals": ["중국 현지 로봇 업체 (콜에서 회사명 미언급)"], "position": "challenger", "share": null, "src": ["s3"] }
+      {
+        "arena": "복강경 수술 로봇",
+        "rivals": [
+          "Medtronic (Hugo)",
+          "Johnson & Johnson (Ottava)"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "arena": "외래수술센터(ASC)용 모듈형 로봇",
+        "rivals": [
+          "모듈형 구조의 경쟁 로봇 (콜에서 회사명 미언급)"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "arena": "중국 수술 로봇",
+        "rivals": [
+          "중국 현지 로봇 업체 (콜에서 회사명 미언급)"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s3"
+        ]
+      }
     ],
     "edge": "1만 2천 대가 넘는 설치 기반, 외과의 교육 체계, 수술 건당 기구 반복 매출, da Vinci 5로 이어지는 세대 교체.",
     "threats": "대형 의료기기사의 경쟁 로봇, 외래수술센터용 모듈형 로봇, 중국의 정책성 가격 인하와 현지 업체, 제3자 기구 재가공 시장.",
     "text": "회사는 복강경 로봇에서 사실상 표준이지만, 경쟁사들이 외래수술센터용 모듈형 로봇을 내놓고 있다. 콜에서 경영진은 모듈형 구조가 꼭 필요하지 않다고 답하며 기존 일체형 로봇으로 맞서겠다는 입장을 보였다. 중국은 '여전히 어려운 환경'이라며 11월부터 기구 가격을 크게 내린다고 밝혔다.",
-    "src": ["s3"]
+    "src": [
+      "s3"
+    ]
   },
-
   "strategy": {
     "goal": "2026년 da Vinci 수술 건수 14~15% 증가(중간값 근처), 비GAAP 매출총이익률 68.7~69.3%, 비GAAP 영업비용 증가 11~13%를 제시했다.",
     "roadmap": [
-      { "when": "2026 Q3", "what": "da Vinci 5 315대 설치, 미국 밖 41대(전년 12대); 일본 심장 수술 승인, 유럽 심장 수술 CE 인증", "src": ["s1", "s3"] },
-      { "when": "2026-11", "what": "중국에서 정책에 따른 기구·소모품 가격 대폭 인하 시작", "src": ["s3"] },
-      { "when": "2027", "what": "제3자 기구 재가공 집단소송 합의(4.5억 달러) 법원 승인 결정 예상", "src": ["s3"] }
+      {
+        "when": "2026 Q3",
+        "what": "da Vinci 5 315대 설치, 미국 밖 41대(전년 12대); 일본 심장 수술 승인, 유럽 심장 수술 CE 인증",
+        "src": [
+          "s1",
+          "s3"
+        ]
+      },
+      {
+        "when": "2026-11",
+        "what": "중국에서 정책에 따른 기구·소모품 가격 대폭 인하 시작",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "when": "2027",
+        "what": "제3자 기구 재가공 집단소송 합의(4.5억 달러) 법원 승인 결정 예상",
+        "src": [
+          "s3"
+        ]
+      }
     ],
     "vision": "da Vinci 5를 미국 밖과 새 수술 분야(심장 등)로 넓히고, Ion으로 폐 생검 같은 내시경 시장을 키워 설치 기반과 수술 건수를 함께 늘리는 그림이다.",
     "text": "앞으로의 계획은 da Vinci 5를 미국 밖으로 넓히고 심장 수술 같은 새 적응증을 여는 것이다. 3분기 미국 밖 da Vinci 5 설치는 41대로 1년 전 12대에서 크게 늘었고, 일본과 유럽에서 심장 수술 승인을 받았다. 회사는 연간 수술 증가율 전망을 14~15%로 좁히고 매출총이익률 전망을 올렸다.",
-    "src": ["s3", "s1"]
+    "src": [
+      "s3",
+      "s1"
+    ]
   },
-
   "governance": {
     "line": "지배주주 없는 분산 지분 회사로 배당 없이 자사주 매입으로 주주에게 돌려주며, 2026년 1~9월 자사주에 44.2억 달러를 썼다.",
-    "src": ["s2"]
+    "src": [
+      "s2"
+    ]
   },
-
   "guidance": {
     "latest": [
-      { "period": "FY2026", "metric": "worldwide da Vinci procedure growth", "value": "14~15% (직전 13.5~15.5%), 중간값 근처 예상", "givenOn": "2026-10-20", "src": ["s1", "s3"] },
-      { "period": "FY2026", "metric": "non-GAAP gross margin", "value": "68.7~69.3% (직전 68~69%), 관세 영향 매출의 약 0.9% 포함", "givenOn": "2026-10-20", "src": ["s1", "s3"] },
-      { "period": "FY2026", "metric": "non-GAAP operating expense growth", "value": "11~13% (유지)", "givenOn": "2026-10-20", "src": ["s1", "s3"] }
+      {
+        "period": "FY2026",
+        "metric": "전 세계 da Vinci 시술 성장률",
+        "value": "14~15% (직전 13.5~15.5%), 중간값 근처 예상",
+        "givenOn": "2026-10-20",
+        "src": [
+          "s1",
+          "s3"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "non-GAAP 매출총이익률",
+        "value": "68.7~69.3% (직전 68~69%), 관세 영향 매출의 약 0.9% 포함",
+        "givenOn": "2026-10-20",
+        "src": [
+          "s1",
+          "s3"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "non-GAAP 영업비용 성장률",
+        "value": "11~13% (유지)",
+        "givenOn": "2026-10-20",
+        "src": [
+          "s1",
+          "s3"
+        ]
+      }
     ],
     "style": "annual",
     "track": "3분기에 수술 증가율 범위를 좁히고 매출총이익률 전망을 올렸다. 매출·EPS 숫자 가이던스는 내지 않고 수술 건수와 이익률 범위만 준다.",
-    "src": ["s1", "s3"]
+    "src": [
+      "s1",
+      "s3"
+    ]
   },
-
-  "estimates": { "text": null, "src": [] },
-
+  "estimates": {
+    "text": null,
+    "src": []
+  },
   "watch": {
     "confirms": [
       "da Vinci 수술 증가율이 14% 안팎을 유지",
@@ -165,55 +408,110 @@
       "소송 합의가 법원에서 거부되거나 제3자 재가공 시장이 커짐"
     ],
     "keyNumbers": [
-      { "name": "da Vinci 수술 증가율 (미국/미국 밖)", "why": "기구 매출의 직접 동인" },
-      { "name": "시스템 설치 대수와 da Vinci 5 비중", "why": "미래 수술 건수의 바탕" },
-      { "name": "비GAAP 매출총이익률", "why": "관세·가격 인하의 영향" },
-      { "name": "자사주 매입액", "why": "현금 사용의 거의 전부" }
+      {
+        "name": "da Vinci 수술 증가율 (미국/미국 밖)",
+        "why": "기구 매출의 직접 동인"
+      },
+      {
+        "name": "시스템 설치 대수와 da Vinci 5 비중",
+        "why": "미래 수술 건수의 바탕"
+      },
+      {
+        "name": "비GAAP 매출총이익률",
+        "why": "관세·가격 인하의 영향"
+      },
+      {
+        "name": "자사주 매입액",
+        "why": "현금 사용의 거의 전부"
+      }
     ]
   },
-
   "debate": {
     "question": "미국 수술 증가율 10%와 중국 가격 인하 속에서 da Vinci 5 교체가 매출 20%대 성장을 이어 가는지",
     "bull": {
       "text": "2026년 3분기 시스템 설치는 546대로 전년 427대보다 많았고 이 중 315대가 da Vinci 5였으며, 미국 밖 da Vinci 5는 41대로 1년 전 12대에서 늘었다. 이 쪽은 설치 기반 12% 증가와 가동률 2% 상승이 몇 년에 걸쳐 기구 매출로 돌아온다는 점을 근거로 든다. 회사가 매출총이익률 전망을 68.7~69.3%로 올린 것도 이 읽기를 받친다.",
-      "src": ["s1", "s3"]
+      "src": [
+        "s1",
+        "s3"
+      ]
     },
     "bear": {
       "text": "미국 da Vinci 수술 증가율은 10%로 미국 밖 20%의 절반이고, 시스템 매출 30% 증가는 한 번의 교체 주기일 수 있다. 중국은 11월부터 기구 가격을 크게 내리고, 비GAAP 매출총이익률 69.9%에는 관세 환급 일회성 2,800만 달러가 들어 있다. 이 쪽은 장비 교체가 끝나면 성장률이 수술 증가율 수준으로 돌아온다고 읽는다.",
-      "src": ["s3", "s1"]
+      "src": [
+        "s3",
+        "s1"
+      ]
     },
     "decides": [
-      { "when": "2027-01 하순 (추정, 회사 미확정)", "what": "Q4·FY2026 실적과 2027년 수술 증가율 전망이 14% 안팎을 지키는지", "src": ["s1"] },
-      { "when": "2026-11 이후 분기", "what": "중국 기구 가격 인하가 기구·소모품 매출 증가율을 얼마나 낮추는지", "src": ["s3"] },
-      { "when": "2027", "what": "집단소송 합의 4.5억 달러의 법원 승인 여부", "src": ["s3"] }
+      {
+        "when": "2027-01 하순 (추정, 회사 미확정)",
+        "what": "Q4·FY2026 실적과 2027년 수술 증가율 전망이 14% 안팎을 지키는지",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2026-11 이후 분기",
+        "what": "중국 기구 가격 인하가 기구·소모품 매출 증가율을 얼마나 낮추는지",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "when": "2027",
+        "what": "집단소송 합의 4.5억 달러의 법원 승인 여부",
+        "src": [
+          "s3"
+        ]
+      }
     ]
   },
   "underTheHood": [
     {
       "title": "설치 대수가 쌓는 반복 매출",
       "text": "Q3 2026 매출의 약 59%가 수술 건당 기구·소모품, 16%가 서비스로, 장비 판매 뒤에 따라오는 매출이 4분의 3이다. 그래서 한 분기의 시스템 설치 대수는 그 분기보다 다음 몇 년의 기구 매출을 정한다. 시스템 매출 30% 증가를 성장률 그 자체보다 미래 수술 건수의 바탕으로 읽어야 하는 이유다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     {
       "title": "사용량 연동 리스",
       "text": "Q3 운용리스 매출 2.75억 달러 중 1.78억 달러가 사용량에 따라 받는 리스였다. 이 방식은 병원의 초기 부담을 낮춰 설치를 늘리지만, 장비 대금이 일시금 대신 수술 건수에 따라 나눠 들어온다. 설치 대수 증가가 시스템 매출로 곧바로 다 잡히지 않는다는 뜻이다.",
-      "src": ["s2"]
+      "src": [
+        "s2"
+      ]
     },
     {
       "title": "GAAP와 비GAAP의 큰 차이",
       "text": "Q3 GAAP 주당순이익 1.49달러와 비GAAP 3.00달러의 차이 대부분은 4.5억 달러 집단소송 합의 비용과 주식보상비다. 반대로 비GAAP 매출총이익률 69.9%에는 관세 환급 일회성이 들어 있어 이를 빼면 68.9%다. 두 방향의 일회성을 같이 걸러야 실제 수익성을 읽을 수 있다.",
-      "src": ["s1", "s3"]
+      "src": [
+        "s1",
+        "s3"
+      ]
     },
     {
       "title": "현금흐름을 넘는 자사주",
       "text": "2026년 1~9월 자사주 매입 44.2억 달러는 영업현금흐름 32억 달러보다 많아 현금·투자자산이 3분기에만 18.3억 달러 줄었다. 주당 이익 증가 일부는 주식 수 감소에서 나오므로, 순이익 증가율과 EPS 증가율을 나눠 봐야 한다.",
-      "src": ["s2", "s1"]
+      "src": [
+        "s2",
+        "s1"
+      ]
     }
   ],
   "trading": {
     "calendar": [
-      { "date": "2027-01 하순 (추정, 회사 미확정)", "event": "Q4·FY2026 실적과 2027년 수술 증가율 전망", "src": [] },
-      { "date": "2027 (법원 일정 미확정)", "event": "제3자 기구 재가공 집단소송 합의 법원 승인 결정", "src": ["s3"] }
+      {
+        "date": "2027-01 하순 (추정, 회사 미확정)",
+        "event": "Q4·FY2026 실적과 2027년 수술 증가율 전망",
+        "src": []
+      },
+      {
+        "date": "2027 (법원 일정 미확정)",
+        "event": "제3자 기구 재가공 집단소송 합의 법원 승인 결정",
+        "src": [
+          "s3"
+        ]
+      }
     ],
     "reaction": "주가는 분기 EPS보다 수술 증가율, 특히 미국 수술 증가율과 연간 수술 전망에 크게 반응하는 경향이 있다. Q3 2026처럼 시스템 설치와 이익률이 함께 좋으면 수술 증가율이 둔화돼도 반응이 엇갈릴 수 있다.",
     "conditions": [
@@ -224,7 +522,6 @@
       "연간 수술 증가율 가이던스 변경 폭"
     ]
   },
-
   "unverified": [
     "Q3 2026 단독 분기 영업현금흐름·잉여현금흐름 (9개월 누계만 확인)",
     "경쟁 로봇 제품명(Medtronic Hugo, Johnson & Johnson Ottava)은 이 글의 원문에서 직접 확인하지 않음; 콜에서는 경쟁사 이름 없이 '모듈형 구조'만 언급",

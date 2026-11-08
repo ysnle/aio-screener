@@ -5,10 +5,23 @@
   "fiscalYearEnd": "December 31",
   "oneLine": "Gilead는 HIV 치료·예방 약(Biktarvy, Descovy, Yeztugo)으로 제품 매출의 75%를 버는 바이오 회사로, 2026년 대형 신약 인수 비용으로 연간 적자를 내면서도 본업 현금은 크게 늘리고 있다.",
   "sources": [
-    { "id": "s1", "kind": "earnings-release", "title": "Gilead Sciences Announces Third Quarter 2026 Financial Results (press release PDF)", "url": "https://s29.q4cdn.com/585078350/files/doc_financials/2026/q3/GILD-Q326-Earnings-Press-Release-29-October-2026.pdf", "publisher": "Gilead Sciences", "date": "2026-10-29" },
-    { "id": "s2", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/gild/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-11-07" }
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Gilead Sciences Announces Third Quarter 2026 Financial Results (press release PDF)",
+      "url": "https://s29.q4cdn.com/585078350/files/doc_financials/2026/q3/GILD-Q326-Earnings-Press-Release-29-October-2026.pdf",
+      "publisher": "Gilead Sciences",
+      "date": "2026-10-29"
+    },
+    {
+      "id": "s2",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/gild/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-11-07"
+    }
   ],
-
   "moat": {
     "sources": [
       "HIV 치료제 점유 - Biktarvy Q3 2026 40.6억 달러 (+10%)",
@@ -16,14 +29,16 @@
       "lenacapavir 플랫폼 - 연 2회·연 1회 주사, 복합제 Bixlenvo 승인"
     ],
     "text": "Gilead의 힘은 HIV 치료와 예방을 모두 장악한 약 묶음이다. Q3 2026 HIV 매출은 62.5억 달러로 18% 늘었고, Biktarvy 하나가 40.6억 달러였다. 여기에 lenacapavir 기반 장기 지속형 예방 주사 Yeztugo가 붙으면서 예방 시장이 새 성장축이 됐다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "design": {
     "text": "제품은 HIV(Biktarvy, Descovy, Yeztugo 등), 간 질환(Livdelzi 등), 항암(세포 치료 Yescarta·Tecartus, 항체약물접합체 Trodelvy), 코로나 치료제 Veklury, 기타로 보고된다. 2026년에는 HIV 복합제 Bixlenvo(bictegravir/lenacapavir)가 FDA 승인을 받았고, 궤양성 대장염 후보 emvistegrast는 2027년 3상을 시작할 계획이다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "make": {
     "model": "mixed",
     "partners": [
@@ -34,9 +49,10 @@
       "Pan American Health Organization - 중남미·카리브 lenacapavir 공급 협약"
     ],
     "text": "회사는 2030년까지 미국 연구·생산에 320억 달러를 투자하겠다고 밝혔고, 첫 사업은 새 연구센터다. 신약 후보는 인수로 들여오는데, 2026년 Arcellx·Tubulis·Ouro Medicines·PepStar 관련 인수 IPR&D 비용이 124억 달러로 잡혔다. 위탁 생산사 이름은 보도자료에 없다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "sell": {
     "customers": [
       "미국·해외 HIV 환자와 예방 수요자 - HIV 매출 62.5억 달러 (+18%)",
@@ -47,120 +63,373 @@
     "channel": "도매상·전문 약국을 통한 처방약 유통, 세포 치료는 인증 병원 (유통사 이름 미공시)",
     "concentration": "제품 기준 HIV가 제품 매출의 약 75%; 고객별 비중 미공시",
     "text": "매출 대부분은 HIV 환자와 예방 수요에서 나온다. 항암은 엇갈려 Trodelvy가 42% 늘어난 반면 세포 치료(Yescarta·Tecartus)는 18% 줄었다. 코로나 치료제 Veklury는 69% 줄어 이제 매출의 1%에 불과하다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "moneyFlow": {
     "steps": [
-      { "from": "환자·고용주 보험·Medicare·Medicaid", "to": "보험사·정부 프로그램", "what": "보험료와 공적 재원" },
-      { "from": "보험사·정부 프로그램", "to": "약국·병원", "what": "HIV·간·항암 약 급여" },
-      { "from": "약국·병원", "to": "Gilead Sciences", "what": "제품 순매출 (Q3 82.9억 달러)" },
-      { "from": "Gilead Sciences", "to": "Arcellx·Tubulis·Ouro Medicines 주주", "what": "2026년 인수 대금 (9개월 인수 현금 113억 달러)" }
+      {
+        "from": "환자·고용주 보험·Medicare·Medicaid",
+        "to": "보험사·정부 프로그램",
+        "what": "보험료와 공적 재원"
+      },
+      {
+        "from": "보험사·정부 프로그램",
+        "to": "약국·병원",
+        "what": "HIV·간·항암 약 급여"
+      },
+      {
+        "from": "약국·병원",
+        "to": "Gilead Sciences",
+        "what": "제품 순매출 (Q3 82.9억 달러)"
+      },
+      {
+        "from": "Gilead Sciences",
+        "to": "Arcellx·Tubulis·Ouro Medicines 주주",
+        "what": "2026년 인수 대금 (9개월 인수 현금 113억 달러)"
+      }
     ],
     "pricing": "제품 단위 처방약 판매. Biktarvy는 2028-01-01부터 Medicare 최대 공정가격(정부 협상 가격)이 적용된다.",
     "text": "돈은 보험과 정부 프로그램을 거쳐 약값으로 들어오고, 그 현금 일부는 신약 회사를 사는 데 다시 나간다. Q3 영업현금흐름은 50.4억 달러였고, 9개월 동안 인수에 113억 달러를 썼다. 가장 큰 약인 Biktarvy에 2028년부터 Medicare 협상 가격이 적용된다는 점이 장기 가격 변수다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "earnings": {
     "period": "Q3 2026 (quarter ended 2026-09-30)",
-    "revenue": { "value": 8.3, "unit": "USD bn", "yoy": 7 },
+    "revenue": {
+      "value": 8.3,
+      "unit": "USD bn",
+      "yoy": 7
+    },
     "grossMargin": 81.0,
     "operatingMargin": 41.7,
     "netMargin": null,
-    "operatingCashFlow": { "value": 5.035, "unit": "USD bn" },
-    "freeCashFlow": { "value": 4.798, "unit": "USD bn" },
+    "operatingCashFlow": {
+      "value": 5.035,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": 4.798,
+      "unit": "USD bn"
+    },
     "segments": [
-      { "name": "HIV", "revenue": 6.249, "unit": "USD bn", "share": 75.3, "yoy": 18, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Liver Disease", "revenue": 0.927, "unit": "USD bn", "share": 11.2, "yoy": 13, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Oncology", "revenue": 0.86, "unit": "USD bn", "share": 10.4, "yoy": 9, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Other", "revenue": 0.167, "unit": "USD bn", "share": 2.0, "yoy": -9, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Veklury", "revenue": 0.086, "unit": "USD bn", "share": 1.0, "yoy": -69, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Royalty, contract and other revenue", "revenue": 0.011, "unit": "USD bn", "share": 0.1, "yoy": -97, "operatingMargin": null, "src": ["s1"] }
+      {
+        "name": "HIV",
+        "revenue": 6.249,
+        "unit": "USD bn",
+        "share": 75.3,
+        "yoy": 18,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Liver Disease",
+        "revenue": 0.927,
+        "unit": "USD bn",
+        "share": 11.2,
+        "yoy": 13,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Oncology",
+        "revenue": 0.86,
+        "unit": "USD bn",
+        "share": 10.4,
+        "yoy": 9,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Other",
+        "revenue": 0.167,
+        "unit": "USD bn",
+        "share": 2.0,
+        "yoy": -9,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Veklury",
+        "revenue": 0.086,
+        "unit": "USD bn",
+        "share": 1.0,
+        "yoy": -69,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Royalty, contract and other revenue",
+        "revenue": 0.011,
+        "unit": "USD bn",
+        "share": 0.1,
+        "yoy": -97,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "industryMetric": [
-      { "name": "Biktarvy / Descovy / Yeztugo 매출", "value": "Q3 2026 40.6억(+10%) / 10.5억(+49%) / 3.05억 달러 (전년 0.39억)", "src": ["s1"] },
-      { "name": "제품 총마진 (GAAP / Non-GAAP)", "value": "Q3 2026 81.0% / 88.1% (전년 78.6% / 86.5%)", "src": ["s1"] },
-      { "name": "EPS (GAAP / Non-GAAP)", "value": "Q3 2026 1.94달러 / 2.55달러; 9개월 -4.87달러 / -2.14달러", "src": ["s1"] },
-      { "name": "인수 IPR&D 비용", "value": "Q3 2026 0.18억 달러; 9개월 113.1억 달러, IPR&D 손상 17.5억 달러", "src": ["s1"] }
+      {
+        "name": "Biktarvy / Descovy / Yeztugo 매출",
+        "value": "Q3 2026 40.6억(+10%) / 10.5억(+49%) / 3.05억 달러 (전년 0.39억)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "제품 총마진 (GAAP / Non-GAAP)",
+        "value": "Q3 2026 81.0% / 88.1% (전년 78.6% / 86.5%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "EPS (GAAP / Non-GAAP)",
+        "value": "Q3 2026 1.94달러 / 2.55달러; 9개월 -4.87달러 / -2.14달러",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "인수 IPR&D 비용",
+        "value": "Q3 2026 0.18억 달러; 9개월 113.1억 달러, IPR&D 손상 17.5억 달러",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "text": "Q3 2026 매출은 83.0억 달러로 7% 늘었는데, 제품 매출은 13% 늘었고 Veklury를 빼면 16% 늘었다. 전년에 있던 로열티·계약 수익 4.2억 달러가 사라져 총매출 증가율이 낮아 보인다. GAAP 영업이익률은 41.7%였지만, 상반기 인수 IPR&D 비용 때문에 9개월 GAAP 순손실은 60.5억 달러다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "useOfCash": {
     "period": "9M 2026 (nine months ended 2026-09-30)",
     "items": [
-      { "use": "acquisitions", "value": 11.3, "unit": "USD bn", "src": ["s1"] },
-      { "use": "dividends", "value": 3.1, "unit": "USD bn", "src": ["s1"] },
-      { "use": "debt repayment", "value": 2.8, "unit": "USD bn", "src": ["s1"] },
-      { "use": "buybacks", "value": 1.1, "unit": "USD bn", "src": ["s1"] },
-      { "use": "other", "label": "인수 IPR&D 비용 (손익 기준)", "value": 11.307, "unit": "USD bn", "src": ["s1"] }
+      {
+        "use": "acquisitions",
+        "value": 11.3,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "dividends",
+        "value": 3.1,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "debt repayment",
+        "value": 2.8,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "buybacks",
+        "value": 1.1,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "other",
+        "label": "인수 IPR&D 비용 (손익 기준)",
+        "value": 11.307,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "text": "9개월 영업현금흐름 111.5억 달러는 인수(113억), 배당(31억), 부채 상환(28억), 자사주(11억)로 나갔고, 41억 달러를 새로 빌렸다. 그 결과 현금·유가증권은 연초 106억에서 9월말 64억 달러로 줄었다. 분기 배당은 주당 0.82달러로 유지된다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "aiChain": {
     "layer": "limited",
     "position": "HIV·간·항암 치료제 회사로, 이번에 읽은 보도자료에는 AI 관련 언급이나 수치가 없다.",
-    "dependsOn": ["공개된 AI 의존 업체 없음"],
-    "sellsTo": ["AI를 팔지 않음 - 환자·보험·정부 프로그램"],
+    "dependsOn": [
+      "공개된 AI 의존 업체 없음"
+    ],
+    "sellsTo": [
+      "AI를 팔지 않음 - 환자·보험·정부 프로그램"
+    ],
     "aiRevenue": null,
     "upside": "원문에 AI가 매출이나 비용으로 이어지는 경로가 공시되지 않았다.",
     "risk": "원문에 AI 관련 위험 언급 없음.",
     "text": "AI 가치사슬과의 연결은 공시로 확인되지 않는다. 실적은 HIV 예방 시장 확대, 인수한 신약의 임상, 2028년 Medicare 가격 적용이 움직인다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "competition": {
     "arenas": [
-      { "arena": "HIV 치료", "rivals": ["다른 HIV 치료제 회사 (원문 미명시)"], "position": "leader", "share": null, "src": ["s1"] },
-      { "arena": "HIV 예방 (PrEP)", "rivals": ["원문 미명시"], "position": "leader", "share": null, "src": ["s1"] },
-      { "arena": "항암 세포 치료", "rivals": ["다른 세포 치료 회사 (원문 미명시)"], "position": "challenger", "share": null, "src": ["s1"] }
+      {
+        "arena": "HIV 치료",
+        "rivals": [
+          "다른 HIV 치료제 회사 (원문 미명시)"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "HIV 예방 (PrEP)",
+        "rivals": [
+          "원문 미명시"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "항암 세포 치료",
+        "rivals": [
+          "다른 세포 치료 회사 (원문 미명시)"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "edge": "HIV 치료·예방을 모두 가진 제품 묶음과 장기 지속형 lenacapavir.",
     "threats": "2028년 Biktarvy Medicare 가격 적용, 세포 치료 매출 감소, 인수 신약의 임상 실패.",
     "text": "이번에 읽은 원문은 경쟁사 이름을 밝히지 않아 점유율은 판단하지 않는다. 숫자로 보이는 것은 HIV에서 회사 제품끼리 예방 시장을 넓히고(Descovy +49%, Yeztugo 등장), 세포 치료에서는 매출이 18% 줄었다는 점이다. Trodelvy는 EU에서 Keytruda 병용 1차 치료 승인을 받아 유방암 쪽 위치를 넓혔다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "strategy": {
     "goal": "2026년 제품 매출 310~313억 달러, 2030년까지 미국 연구·생산 투자 320억 달러.",
     "roadmap": [
-      { "when": "2026", "what": "Bixlenvo(bictegravir/lenacapavir) FDA 승인", "src": ["s1"] },
-      { "when": "2026-12-30", "what": "4분기 배당 주당 0.82달러 지급", "src": ["s1"] },
-      { "when": "2027", "what": "emvistegrast(궤양성 대장염) 3상 시작 계획", "src": ["s1"] },
-      { "when": "2028-01-01", "what": "Biktarvy Medicare 최대 공정가격 적용", "src": ["s1"] },
-      { "when": "2030", "what": "미국 연구·생산 투자 320억 달러 완료 목표", "src": ["s1"] }
+      {
+        "when": "2026",
+        "what": "Bixlenvo(bictegravir/lenacapavir) FDA 승인",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2026-12-30",
+        "what": "4분기 배당 주당 0.82달러 지급",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2027",
+        "what": "emvistegrast(궤양성 대장염) 3상 시작 계획",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2028-01-01",
+        "what": "Biktarvy Medicare 최대 공정가격 적용",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2030",
+        "what": "미국 연구·생산 투자 320억 달러 완료 목표",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "vision": "CEO Daniel O'Day는 Q3를 '10여 년 만에 가장 강한 기본 사업 성장'이라고 표현했다.",
     "text": "회사는 HIV 예방을 연 1회 주사까지 넓히고(PURPOSE-365 3상 진행), 염증·항암 신약은 인수로 채운다. 2026년 인수 비용 때문에 올해 EPS는 적자 전망이지만, 제품 매출 전망은 301~304억에서 310~313억 달러로 올렸다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "governance": {
     "line": "CEO Daniel O'Day가 이끌며, 대형 인수 중에도 분기 배당 주당 0.82달러와 자사주 매입을 이어 가는 주주 환원 기조다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "guidance": {
     "latest": [
-      { "period": "FY2026", "metric": "product sales", "value": "310~313억 달러 (직전 301~304억)", "givenOn": "2026-10-29", "src": ["s1"] },
-      { "period": "FY2026", "metric": "non-GAAP diluted EPS", "value": "-1.20~-0.85달러 (직전 -0.65~-0.30, 인수 IPR&D 124억 달러로 주당 약 9.88달러 영향)", "givenOn": "2026-10-29", "src": ["s1"] },
-      { "period": "FY2026", "metric": "GAAP diluted EPS", "value": "-4.40~-4.05달러 (직전 -3.75~-3.40)", "givenOn": "2026-10-29", "src": ["s1"] },
-      { "period": "FY2026", "metric": "Veklury", "value": "약 3억 달러 (변경 없음)", "givenOn": "2026-10-29", "src": ["s1"] }
+      {
+        "period": "FY2026",
+        "metric": "제품 매출",
+        "value": "310~313억 달러 (직전 301~304억)",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "non-GAAP 희석 EPS",
+        "value": "-1.20~-0.85달러 (직전 -0.65~-0.30, 인수 IPR&D 124억 달러로 주당 약 9.88달러 영향)",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "GAAP 희석 EPS",
+        "value": "-4.40~-4.05달러 (직전 -3.75~-3.40)",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "Veklury",
+        "value": "약 3억 달러 (변경 없음)",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "style": "annual",
     "track": "매출 전망은 올렸지만 EPS 전망은 인수 IPR&D 비용이 늘면서 낮아졌다. Q3 Non-GAAP EPS 2.55달러는 컨센서스 2.17달러를 넘었다(AIO 스냅샷).",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
-
   "estimates": {
     "text": "AIO 로컬 스냅샷(2026-11-07, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) EPS 합계 8.46달러(범위 7.73~9.47), 직전 4개 분기 -0.31달러(인수 비용 반영). 최근 4주 상향 0건·하향 3건.",
-    "src": ["s2"]
+    "src": [
+      "s2"
+    ]
   },
-
   "watch": {
     "confirms": [
       "Yeztugo·Descovy 예방 매출이 계속 빠르게 늘어남",
@@ -175,51 +444,92 @@
       "2028 Medicare 가격 적용 뒤 Biktarvy 순가격 하락"
     ],
     "keyNumbers": [
-      { "name": "HIV 매출과 성장률", "why": "제품 매출의 75%" },
-      { "name": "Yeztugo 매출", "why": "예방 시장 확장의 직접 지표" },
-      { "name": "인수 IPR&D 비용", "why": "GAAP·Non-GAAP EPS를 모두 흔드는 항목" },
-      { "name": "현금·유가증권 잔액", "why": "추가 인수와 환원 여력" }
+      {
+        "name": "HIV 매출과 성장률",
+        "why": "제품 매출의 75%"
+      },
+      {
+        "name": "Yeztugo 매출",
+        "why": "예방 시장 확장의 직접 지표"
+      },
+      {
+        "name": "인수 IPR&D 비용",
+        "why": "GAAP·Non-GAAP EPS를 모두 흔드는 항목"
+      },
+      {
+        "name": "현금·유가증권 잔액",
+        "why": "추가 인수와 환원 여력"
+      }
     ]
   },
-
   "debate": {
     "question": "HIV 예방이 이끄는 본업 성장이 반복되는 인수 비용과 2028년 가격 협상을 넘어 이익으로 남는지",
     "bull": {
       "text": "강세로 보는 쪽은 Q3 Veklury 제외 제품 매출이 16% 늘었고 Descovy(+49%)와 Yeztugo(3.05억 달러)가 예방 시장을 넓힌다는 점을 든다. Q3 영업현금흐름 50.4억 달러, Non-GAAP 영업이익률 50.2%로 현금 창출력도 크고, 회사는 제품 매출 전망을 9억 달러 올렸다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     "bear": {
       "text": "약세로 보는 쪽은 2026년 인수 IPR&D 124억 달러 때문에 연간 Non-GAAP EPS가 적자(-1.20~-0.85달러)로 전망되고, 그 범위마저 직전보다 낮아졌다는 점을 짚는다. 현금·유가증권은 106억에서 64억 달러로 줄었고, 최대 제품 Biktarvy에는 2028년부터 Medicare 협상 가격이 적용된다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     "decides": [
-      { "when": "Q4·FY2026 실적 (2027-02 예상, 회사 미확정)", "what": "2027 전망에서 인수 IPR&D 비용이 줄어 EPS가 정상화되는지", "src": ["s1"] },
-      { "when": "2028-01-01", "what": "Biktarvy Medicare 최대 공정가격 적용 뒤 HIV 매출 성장률", "src": ["s1"] }
+      {
+        "when": "Q4·FY2026 실적 (2027-02 예상, 회사 미확정)",
+        "what": "2027 전망에서 인수 IPR&D 비용이 줄어 EPS가 정상화되는지",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2028-01-01",
+        "what": "Biktarvy Medicare 최대 공정가격 적용 뒤 HIV 매출 성장률",
+        "src": [
+          "s1"
+        ]
+      }
     ]
   },
-
   "underTheHood": [
     {
       "title": "인수 비용이 연간 적자를 만든다",
       "text": "9개월 GAAP 순손실은 60.5억 달러지만 같은 기간 영업현금흐름은 111.5억 달러였다. 미국 회계에서 인수한 개발 단계 신약의 가치는 바로 비용(인수 IPR&D 113억 달러)이 되기 때문이다. 손익만 보면 본업이 무너진 것처럼 보이지만 현금은 그렇지 않다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     {
       "title": "총매출과 제품 매출의 차이",
       "text": "Q3 총매출은 7%, 제품 매출은 13% 늘었다. 전년 로열티·계약 수익 4.24억 달러가 이번에 0.11억 달러로 줄었기 때문이다. 본업 수요는 제품 매출, 특히 Veklury 제외 +16%로 읽는 편이 정확하다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     {
       "title": "한 약에 걸린 가격 시계",
       "text": "Biktarvy는 Q3에 40.6억 달러로 전체 매출의 절반에 가깝고, 2028년 1월부터 Medicare 최대 공정가격이 적용된다. 그 전까지 예방 제품(Descovy·Yeztugo)과 새 복합제 Bixlenvo가 얼마나 커지는지가 가격 하락을 흡수하는 완충이 된다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     }
   ],
-
   "trading": {
     "calendar": [
-      { "date": "2026-12-30", "event": "4분기 배당 주당 0.82달러 지급 (기준일 2026-12-15)", "src": ["s1"] },
-      { "date": "2027-02 (추정, 회사 미확정)", "event": "Q4·FY2026 실적과 2027 전망", "src": [] }
+      {
+        "date": "2026-12-30",
+        "event": "4분기 배당 주당 0.82달러 지급 (기준일 2026-12-15)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "date": "2027-02 (추정, 회사 미확정)",
+        "event": "Q4·FY2026 실적과 2027 전망",
+        "src": []
+      }
     ],
     "reaction": "주가는 GAAP EPS보다 HIV 매출 성장, 제품 매출 전망 변경, 새 인수 발표에 크게 반응하는 경향이 있다.",
     "conditions": [
@@ -230,7 +540,6 @@
       "컨센서스 EPS 상향·하향 건수"
     ]
   },
-
   "unverified": [
     "Q3 2026 순이익 금액과 순이익률 (EPS만 확인)",
     "총부채 잔액 (보도자료 미공시)",

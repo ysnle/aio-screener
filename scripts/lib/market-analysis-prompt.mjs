@@ -13,14 +13,26 @@ import { readNumber } from '../../src/domain/shared/number.js';
 
 const signed = (value) => `${readNumber(value) >= 0 ? '+' : ''}${value}`;
 
-/** INFLATION_DIRECTION: the CPI direction stated so "물가 둔화" is not inferred from falling yields ('' without CPI data). */
-export function inflationDirectionLine(macroNow = {}) {
+/** INFLATION_DIRECTION: the CPI level and the screen's core-inflation direction, so neither "물가 둔화" nor "물가 재가속" is
+ *  inferred from falling yields or from one headline month ('' without CPI data).
+ *  v59.85 (macro/AI review): the direction came from cpiDelta (a one-month change in the year-over-year rate): any rise
+ *  printed "물가는 오르는 중이다 — 물가 둔화라고 쓰지 마라" while the 매크로 screen, the quadrant and the REGIME_CONTEXT in the
+ *  same prompt judge direction on core PCE and core CPI 3-month pace against their year-over-year rate (11/8: CPI delta
+ *  +0.3%p beside a screen reading of 방향 보류). `direction` is that screen reading (macro-signals inflationDirection, via
+ *  buildMacroRead's inflation axis); without it the line states the level only and forbids a direction claim. */
+export function inflationDirectionLine(macroNow = {}, { direction = null } = {}) {
   // A missing CPI field (null, '') is missing, not 0 (Number(null) === 0 printed "근원 null%" before v59.59).
   const has = (value) => readNumber(value) != null;
   if (!has(macroNow.cpi) || !has(macroNow.cpiDelta)) return '';
   const core = has(macroNow.coreCpi) ? `, 근원 ${macroNow.coreCpi}%${has(macroNow.coreCpiDelta) ? ` (${signed(macroNow.coreCpiDelta)}%p)` : ''}` : '';
-  return `INFLATION_DIRECTION: 미국 CPI 전년비 ${macroNow.cpi}% (직전 달 대비 ${signed(macroNow.cpiDelta)}%p)${core}, 기준월 ${String(macroNow._asOf_cpi || '').slice(0, 7) || '미확인'}. `
-    + (readNumber(macroNow.cpiDelta) > 0 || readNumber(macroNow.coreCpiDelta) > 0 ? '물가는 오르는 중이다 — "물가 둔화"라고 쓰지 마라.' : '물가 방향을 이 값 밖에서 추정하지 마라.');
+  const level = `INFLATION_DIRECTION: 미국 CPI 전년비 ${macroNow.cpi}% (직전 달 대비 ${signed(macroNow.cpiDelta)}%p)${core}, 기준월 ${String(macroNow._asOf_cpi || '').slice(0, 7) || '미확인'}. `;
+  const basis = direction?.text ? ` 화면 기준: ${direction.text}.` : '';
+  const state = direction?.state || 'unknown';
+  const rule = state === 'up' ? `물가 방향은 화면과 같이 '재가속'이다(근원 물가의 3개월 속도가 전년 대비보다 빠름) — "물가 둔화"라고 쓰지 마라.${basis}`
+    : state === 'down' ? `물가 방향은 화면과 같이 '둔화'이다(근원 물가의 3개월 속도가 전년 대비보다 느림) — "물가 재가속"이라고 쓰지 마라.${basis}`
+      : state === 'mixed' || state === 'flat' ? `물가 방향은 화면과 같이 '${state === 'mixed' ? '엇갈림' : '방향 보류'}'이다 — "물가 둔화"나 "물가 재가속"을 단정하지 말고, 쓰려면 어느 지표가 어느 쪽인지 함께 쓴다. 전년비 수치의 한 달 변화는 방향 판정이 아니다.${basis}`
+        : '물가 방향(둔화·재가속)은 이 값 밖에서 추정하지 마라. 전년비 수치의 한 달 변화는 방향 판정이 아니다.';
+  return level + rule;
 }
 
 /**
@@ -70,7 +82,7 @@ export function marketAnalysisPromptSections({ inflationLine = '', regimeContext
   // (1/4 conditions) as a fact, and repeated "Treasury haven" on a day the 10-year rose 4bp.
   ['datesAndScenarios', 'DATES_AND_SCENARIOS: 헤드라인을 인용할 때 날짜는 그 줄의 date= 값만 쓴다. 시나리오 이름(물가 재가속·AI 투자 꺾임 등)은 사실로 쓰지 말고 "…시나리오 조건 n/m"처럼 충족 수와 함께만 쓴다. 헤드라인이 말하는 방향(예: 국채 선호)이 같은 날 종가(예: 10년물 금리 상승)와 반대이면 그 차이를 함께 쓴다.'],
   ['directional', 'DIRECTIONAL/CAUSAL PROSE: you may offer a directional or causal reading, but attribute it to the named headline ("헤드라인에 따르면", "According to <source>") and present it as one reading among alternatives, never as a confirmed fact. End with what would invalidate the reading and what the reader should check. The final decision belongs to the reader, not to this text.'],
-  ['largeMove', largeMove ? 'LARGE_MOVE (S&P 500 1% 이상 또는 코스피 3% 이상): 보도된 배경을 반드시 한 문장으로 쓴다 — "헤드라인에 따르면 …이 배경으로 거론됐다"처럼 HEADLINE_CONTEXT(장중 움직임이면 08:00 이후 장중 속보) 헤드라인 하나를 이름과 함께 든다. 그 문장 안에서 "단정할 수 없다·확인되지 않았다"로 귀속을 지우지 말고, 다른 해석이 있다는 점은 다음 문장에 쓴다.' : null],
+  ['largeMove', largeMove ? 'LARGE_MOVE (S&P 500 1% 이상 또는 코스피 3% 이상): 보도된 배경을 반드시 한 문장으로 쓴다 — "헤드라인에 따르면 …이 배경으로 거론됐습니다"처럼 HEADLINE_CONTEXT(장중 움직임이면 08:00 이후 장중 속보) 헤드라인 하나를 이름과 함께 든다. 그 문장 안에서 "단정할 수 없다·확인되지 않았다"로 귀속을 지우지 말고, 다른 해석이 있다는 점은 다음 문장에 쓴다.' : null],
   // v57.71 (owner 2026-10-15): the home's one-sentence line, written by the same call (no extra request).
   ['sentence', `마지막에 7~9줄과 별도로 한 줄을 더 쓴다: "${MARKET_SENTENCE_LABEL} " 뒤에 지금 시장을 관통하는 긴장을 대비로 담은 서술문 한 문장(40자 안팎). 질문으로 쓰지 않는다(물음표, '~인가'·'~일까'·'~까' 같은 의문 어미 없이). 숫자·%·종목명·지수명·티커·매매 지시 없이(영문 약어는 AI만 쓴다, 예: HBM·D램 대신 메모리), 오늘의 근거(METRIC_EVIDENCE·HEADLINE_CONTEXT·REGIME_CONTEXT)에서 나온 갈림을 담는다. 갈림의 주제는 REGIME_CONTEXT에서 가장 크게 움직였거나 판정이 바뀐 영역(예: 반도체·AI 주도주 급락, 신용 확대, 유가)에서 고르고, 헤드라인이 많다는 이유만으로 고르지 않는다. ${largeMoveDirection === 'down' ? '오늘은 큰 하락이 마감됐다: 긴장은 그 하락(반등 실패·재하락·낙폭 확대 중 사실에 맞는 것)에서 출발하고, 하락이라는 사실을 문장 안에 쓴다. 소진·바닥·회복만으로 짜인 문장은 쓰지 않는다.' : largeMoveDirection === 'up' ? '오늘은 큰 상승이 마감됐다: 긴장은 그 반등·상승에서 출발하고, 상승이라는 사실을 문장 안에 쓴다.' : largeMoveDirection === 'mixed' ? '오늘은 미국과 한국 장이 엇갈렸다(한쪽의 큰 움직임 뒤 다른 쪽이 반대로 마감): 긴장은 그 엇갈림에서 출발한다. 하락만 또는 상승만 쓰지 말고, 두 방향을 함께 담거나 방향 대신 그 사이의 갈림(무엇이 이어질지)을 서술문으로 쓴다.' : '큰 움직임이 없는 날에만, 바닥 확인 조건이 있으면 그 갈림(소진 대 확인)을 담아도 된다.'} 문체 예시(그대로 쓰지 말 것): "오늘의 하락은 기회와 서사의 끝 사이에 놓여 있다." / "누군가는 이날을 기다렸고, 누군가는 이날을 기점으로 떠날 것이다."`],
   ];

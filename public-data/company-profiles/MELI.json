@@ -5,8 +5,22 @@
   "fiscalYearEnd": "December 31",
   "oneLine": "MercadoLibre는 중남미 최대 온라인 장터(Mercado Libre)와 핀테크(Mercado Pago)를 함께 운영하는 회사로, 분기 매출이 처음 100억 달러를 넘었지만 배송·대출 투자로 마진이 얇아졌다.",
   "sources": [
-    { "id": "s1", "kind": "8-K", "title": "MercadoLibre Q3 2026 results release (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0001099590/000109959026000027/meli-20260930xex991.htm", "publisher": "MercadoLibre / SEC EDGAR", "date": "2026-11-04" },
-    { "id": "s2", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/meli/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-11-07" }
+    {
+      "id": "s1",
+      "kind": "8-K",
+      "title": "MercadoLibre Q3 2026 results release (8-K Ex.99.1)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0001099590/000109959026000027/meli-20260930xex991.htm",
+      "publisher": "MercadoLibre / SEC EDGAR",
+      "date": "2026-11-04"
+    },
+    {
+      "id": "s2",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/meli/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-11-07"
+    }
   ],
   "moat": {
     "sources": [
@@ -16,11 +30,15 @@
       "광고 사업 - 광고 매출 +51% (FX 중립)"
     ],
     "text": "MercadoLibre의 힘은 장터, 결제, 대출, 물류를 한 회사가 한꺼번에 돌리는 데서 나온다. 3분기 활성 구매자 9,400만 명과 핀테크 월간 이용자 9,300만 명이 같은 생태계 안에 있고, 장터 거래 데이터가 대출 심사와 광고에 다시 쓰인다. 자체 배송망은 건당 배송비를 계속 낮추고 있다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "design": {
     "text": "회사는 커머스(장터 수수료·배송·광고)와 핀테크(결제 처리·대출·신용카드)로 사업을 나눈다. 3분기 커머스 매출은 FX 중립 41%, 핀테크는 40% 늘었다. 신용카드가 신용 포트폴리오의 47%로 커졌고, 커넥티드 TV 광고 상품에는 2027년 초부터 Netflix가 Disney·Roku·HBO Max에 이어 합류한다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "make": {
     "model": "service",
@@ -29,7 +47,9 @@
       "Disney, Roku, HBO Max - 기존 커넥티드 TV 광고 파트너"
     ],
     "text": "MercadoLibre는 물건을 만들지 않고 판매자와 구매자를 잇는 플랫폼과 물류·금융을 운영한다. 3분기 설비투자는 5.03억 달러로 주로 이 인프라에 쓰였다. 브라질에서는 R$19~79 구간의 무료·저속 배송이 9월부터 변동 공헌이익 흑자로 돌아섰다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "sell": {
     "customers": [
@@ -41,110 +61,324 @@
     "channel": "자체 앱·웹 장터, Mercado Pago 앱과 결제 단말(오프라인 가맹점), 커넥티드 TV 광고",
     "concentration": "고객 집중 없음. 국가 집중: 브라질 매출 60.0억 달러(약 56%), 멕시코 24.3억, 아르헨티나 18.2억 달러.",
     "text": "고객은 중남미 소비자와 판매자이며, 매출의 절반 이상이 브라질에서 나온다. 3분기 브라질 매출은 60억 달러로 50% 늘었고 품목 판매가 45% 늘었다. 멕시코 핀테크 이용자는 40% 넘게 늘며 두 번째 축으로 자라고 있다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "moneyFlow": {
     "steps": [
-      { "from": "구매자", "to": "장터 판매자", "what": "상품 대금 - GMV 228억 달러 (Q3)" },
-      { "from": "장터 판매자", "to": "MercadoLibre", "what": "판매 수수료·배송비·광고비" },
-      { "from": "가맹점·이용자", "to": "Mercado Pago", "what": "결제 처리 수수료 - TPV 1,088억 달러 (Q3)" },
-      { "from": "대출·신용카드 이용자", "to": "Mercado Pago", "what": "이자 - 신용 포트폴리오 약 180억 달러, NIMAL 20.1%" },
-      { "from": "광고주 (Netflix 등 커넥티드 TV 파트너 포함)", "to": "MercadoLibre", "what": "광고비" }
+      {
+        "from": "구매자",
+        "to": "장터 판매자",
+        "what": "상품 대금 - GMV 228억 달러 (Q3)"
+      },
+      {
+        "from": "장터 판매자",
+        "to": "MercadoLibre",
+        "what": "판매 수수료·배송비·광고비"
+      },
+      {
+        "from": "가맹점·이용자",
+        "to": "Mercado Pago",
+        "what": "결제 처리 수수료 - TPV 1,088억 달러 (Q3)"
+      },
+      {
+        "from": "대출·신용카드 이용자",
+        "to": "Mercado Pago",
+        "what": "이자 - 신용 포트폴리오 약 180억 달러, NIMAL 20.1%"
+      },
+      {
+        "from": "광고주 (Netflix 등 커넥티드 TV 파트너 포함)",
+        "to": "MercadoLibre",
+        "what": "광고비"
+      }
     ],
     "pricing": "장터는 거래액 대비 수수료(take rate)와 배송·광고비, 결제는 처리액 대비 수수료, 대출은 이자 스프레드.",
     "text": "돈은 장터 거래 228억 달러와 결제 1,088억 달러에서 수수료로 들어오고, 대출 약 180억 달러에서 이자로 들어온다. 대출은 3분기에만 21억 달러를 새로 넣어야 했고 이 가운데 15억 달러를 외부 핀테크 자금 조달로 메웠다. 그래서 핀테크 성장은 회사 대차대조표를 키우는 성장이다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "earnings": {
     "period": "Q3 2026 (ended 2026-09-30)",
-    "revenue": { "value": 10.75, "unit": "USD bn", "yoy": 45 },
+    "revenue": {
+      "value": 10.75,
+      "unit": "USD bn",
+      "yoy": 45
+    },
     "grossMargin": 40.8,
     "operatingMargin": 6.3,
     "netMargin": 4.2,
     "operatingCashFlow": null,
-    "freeCashFlow": { "value": 0.285, "unit": "USD bn" },
+    "freeCashFlow": {
+      "value": 0.285,
+      "unit": "USD bn"
+    },
     "segments": [
-      { "name": "Brazil", "revenue": 6.001, "unit": "USD bn", "share": 55.8, "yoy": 50, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Mexico", "revenue": 2.429, "unit": "USD bn", "share": 22.6, "yoy": 47, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Argentina", "revenue": 1.818, "unit": "USD bn", "share": 16.9, "yoy": 26, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Other countries", "revenue": 0.502, "unit": "USD bn", "share": 4.7, "yoy": null, "operatingMargin": null, "src": ["s1"] }
+      {
+        "name": "Brazil",
+        "revenue": 6.001,
+        "unit": "USD bn",
+        "share": 55.8,
+        "yoy": 50,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Mexico",
+        "revenue": 2.429,
+        "unit": "USD bn",
+        "share": 22.6,
+        "yoy": 47,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Argentina",
+        "revenue": 1.818,
+        "unit": "USD bn",
+        "share": 16.9,
+        "yoy": 26,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Other countries",
+        "revenue": 0.502,
+        "unit": "USD bn",
+        "share": 4.7,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "industryMetric": [
-      { "name": "GMV·TPV (Q3 2026)", "value": "GMV 228.2억 달러(USD +38%, FX 중립 +33%), TPV 1,088억 달러(+53%)", "src": ["s1"] },
-      { "name": "신용 포트폴리오", "value": "약 180억 달러(+62%), NIMAL 20.1%(-1%p), 15~90일 연체율 7.0%", "src": ["s1"] },
-      { "name": "이용자", "value": "활성 구매자 9,400만, 핀테크 MAU 9,300만", "src": ["s1"] },
-      { "name": "순부채", "value": "80.3억 달러 (2025년 말 46.8억), 9월 투자등급 회사채 10억 달러 발행", "src": ["s1"] }
+      {
+        "name": "GMV·TPV (Q3 2026)",
+        "value": "GMV 228.2억 달러(USD +38%, FX 중립 +33%), TPV 1,088억 달러(+53%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "신용 포트폴리오",
+        "value": "약 180억 달러(+62%), NIMAL 20.1%(-1%p), 15~90일 연체율 7.0%",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "이용자",
+        "value": "활성 구매자 9,400만, 핀테크 MAU 9,300만",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "순부채",
+        "value": "80.3억 달러 (2025년 말 46.8억), 9월 투자등급 회사채 10억 달러 발행",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "text": "3분기 매출은 107.5억 달러로 45% 늘었지만 영업이익은 6.76억 달러로 6.5% 줄어 영업이익률이 6.3%로 얇아졌다. 순이익은 4.48억 달러로 약 6% 늘었다. 배송비 인하와 신용 확대가 매출을 키우면서 동시에 마진을 깎고 있다(총마진은 매출과 총이익으로 계산).",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "useOfCash": {
     "period": "Q3 2026",
     "items": [
-      { "use": "customer financing", "label": "소비자·판매자 대출 포트폴리오 투자", "value": 2.1, "unit": "USD bn", "src": ["s1"] },
-      { "use": "capex", "value": 0.503, "unit": "USD bn", "src": ["s1"] }
+      {
+        "use": "customer financing",
+        "label": "소비자·판매자 대출 포트폴리오 투자",
+        "value": 2.1,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "capex",
+        "value": 0.503,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "text": "가장 큰 돈은 대출 포트폴리오로 가서, 3분기에만 21억 달러를 새로 넣었다(외부 조달 15억 달러로 일부 상쇄). 설비투자는 5.03억 달러, 9개월 12.2억 달러다. 자사주 매입은 9개월에 100만 달러 수준으로 사실상 멈췄고, 순부채는 80억 달러로 늘었다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "aiChain": {
     "layer": "limited",
     "position": "AI 인프라 공급자가 아니라 장터·결제·대출을 운영하는 플랫폼이다. 읽은 릴리스에 AI 관련 매출이나 계획 수치는 없다.",
     "dependsOn": [],
-    "sellsTo": ["중남미 소비자·판매자"],
+    "sellsTo": [
+      "중남미 소비자·판매자"
+    ],
     "aiRevenue": null,
     "upside": "읽은 자료에 AI 관련 매출 경로가 제시되지 않았다.",
     "risk": "읽은 자료에 AI 관련 위험 언급 없음.",
     "text": "MercadoLibre의 실적은 중남미 소비와 신용 수요가 결정한다. 릴리스는 AI를 숫자로 다루지 않아, AI 사이클과의 연결은 확인되지 않는다. 핵심 변수는 브라질 배송 투자와 대출 연체율이다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "competition": {
     "arenas": [
-      { "arena": "중남미 온라인 장터", "rivals": ["온라인 장터·오프라인 유통 (출처에 이름 없음)"], "position": "leader", "share": null, "src": ["s1"] },
-      { "arena": "브라질 금융 서비스", "rivals": ["브라질 기존 은행 (출처에 이름 없음)"], "position": "challenger", "share": null, "src": ["s1"] }
+      {
+        "arena": "중남미 온라인 장터",
+        "rivals": [
+          "온라인 장터·오프라인 유통 (출처에 이름 없음)"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "브라질 금융 서비스",
+        "rivals": [
+          "브라질 기존 은행 (출처에 이름 없음)"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "edge": "장터·결제·대출·물류 통합, 이용자 9,000만 명대 규모, 낮아지는 배송 원가.",
     "threats": "배송 투자로 인한 마진 축소(순배송 마진이 GMV 대비 약 200bp 하락), 신용 확대에 따른 연체 위험, 순부채 증가.",
     "text": "릴리스는 경쟁사를 이름으로 들지 않고 '브라질 기존 은행'과 오프라인 유통을 상대로 언급한다. 회사는 배송비를 낮춰 장터 점유율을 넓히고, 신용카드로 은행과 겨루는 전략을 쓴다. 그 대가가 영업이익 감소로 나타나고 있다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "strategy": {
     "goal": "배송 투자와 신용카드 확대로 장터와 핀테크 점유율을 넓혀, 규모가 커진 뒤 마진을 회복하는 것.",
     "roadmap": [
-      { "when": "2026-09", "what": "브라질 R$19~79 무료·저속 배송 구간이 변동 공헌이익 흑자 전환", "src": ["s1"] },
-      { "when": "2027 초", "what": "Netflix가 커넥티드 TV 광고 상품에 합류", "src": ["s1"] }
+      {
+        "when": "2026-09",
+        "what": "브라질 R$19~79 무료·저속 배송 구간이 변동 공헌이익 흑자 전환",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2027 초",
+        "what": "Netflix가 커넥티드 TV 광고 상품에 합류",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "vision": "중남미의 장터이자 디지털 은행.",
     "text": "회사는 배송비를 낮추는 투자가 9월부터 공헌이익 흑자로 돌아섰다고 밝혔고, 광고와 신용카드를 다음 성장 축으로 키운다. 다만 배송이 3분기 총마진을 0.4%p 깎았고, 수치 가이던스는 내지 않았다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-  "governance": { "line": "읽은 릴리스에 경영진 세부는 없으며, 자사주 매입을 사실상 멈추고 회사채와 외부 조달로 대출 성장을 뒷받침하고 있다.", "src": ["s1"] },
+  "governance": {
+    "line": "읽은 릴리스에 경영진 세부는 없으며, 자사주 매입을 사실상 멈추고 회사채와 외부 조달로 대출 성장을 뒷받침하고 있다.",
+    "src": [
+      "s1"
+    ]
+  },
   "guidance": {
     "latest": [
-      { "period": "-", "metric": "financial guidance", "value": "릴리스에 수치 가이던스 없음", "givenOn": "2026-11-04", "src": ["s1"] }
+      {
+        "period": "-",
+        "metric": "재무 가이던스",
+        "value": "릴리스에 수치 가이던스 없음",
+        "givenOn": "2026-11-04",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "style": "none",
     "track": "수치 가이던스를 내지 않는다. 3분기 EPS 8.83달러는 컨센서스 9.41달러보다 낮았다(AIO 스냅샷).",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
-  "estimates": { "text": "2026-11-07 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기 합계 48.65달러(범위 43.11~54.39, 추정치 수 최소 3), 직전 4개 분기 실적 합 37.28달러. 최근 4주 상향 3건·하향 2건.", "src": ["s2"] },
+  "estimates": {
+    "text": "2026-11-07 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기 합계 48.65달러(범위 43.11~54.39, 추정치 수 최소 3), 직전 4개 분기 실적 합 37.28달러. 최근 4주 상향 3건·하향 2건.",
+    "src": [
+      "s2"
+    ]
+  },
   "watch": {
-    "confirms": ["영업이익률이 6%대에서 반등", "15~90일 연체율이 7% 안팎에서 안정", "브라질 품목 판매와 구매자 수 증가 지속", "광고 매출 고성장 유지"],
-    "breaks": ["연체율 상승과 NIMAL 추가 하락", "배송 투자로 영업이익 감소가 이어짐", "순부채가 계속 빠르게 늘어남", "아르헨티나 페소 변동으로 달러 매출 둔화"],
+    "confirms": [
+      "영업이익률이 6%대에서 반등",
+      "15~90일 연체율이 7% 안팎에서 안정",
+      "브라질 품목 판매와 구매자 수 증가 지속",
+      "광고 매출 고성장 유지"
+    ],
+    "breaks": [
+      "연체율 상승과 NIMAL 추가 하락",
+      "배송 투자로 영업이익 감소가 이어짐",
+      "순부채가 계속 빠르게 늘어남",
+      "아르헨티나 페소 변동으로 달러 매출 둔화"
+    ],
     "keyNumbers": [
-      { "name": "영업이익률", "why": "투자와 수익성의 균형" },
-      { "name": "NIMAL과 15~90일 연체율", "why": "대출 장부의 질" },
-      { "name": "GMV·TPV FX 중립 성장률", "why": "환율을 뺀 실제 성장" },
-      { "name": "순부채", "why": "대출 성장의 자금 부담" }
+      {
+        "name": "영업이익률",
+        "why": "투자와 수익성의 균형"
+      },
+      {
+        "name": "NIMAL과 15~90일 연체율",
+        "why": "대출 장부의 질"
+      },
+      {
+        "name": "GMV·TPV FX 중립 성장률",
+        "why": "환율을 뺀 실제 성장"
+      },
+      {
+        "name": "순부채",
+        "why": "대출 성장의 자금 부담"
+      }
     ]
   },
   "trading": {
     "calendar": [
-      { "date": "2027-02 (추정, 회사 미공지)", "event": "Q4·FY2026 실적", "src": ["s1"] },
-      { "date": "2027 초", "event": "Netflix 커넥티드 TV 광고 합류", "src": ["s1"] }
+      {
+        "date": "2027-02 (추정, 회사 미공지)",
+        "event": "Q4·FY2026 실적",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "date": "2027 초",
+        "event": "Netflix 커넥티드 TV 광고 합류",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "reaction": "주가는 매출 성장률보다 영업이익률과 연체율 같은 수익성 지표에 크게 반응하는 경향이 있다.",
-    "conditions": ["영업이익률이 전년보다 높아졌는지", "연체율·NIMAL 방향", "FX 중립 성장률과 달러 성장률의 차이", "컨센서스 EPS 수정 방향"]
+    "conditions": [
+      "영업이익률이 전년보다 높아졌는지",
+      "연체율·NIMAL 방향",
+      "FX 중립 성장률과 달러 성장률의 차이",
+      "컨센서스 EPS 수정 방향"
+    ]
   },
   "unverified": [
     "커머스·핀테크 부문별 매출 금액 (릴리스는 성장률만 제시)",
@@ -157,15 +391,50 @@
   "confidence": "high - 모든 수치는 회사 8-K 릴리스 원문에서 왔다. 경쟁과 부문 매출 금액은 공시되지 않았다.",
   "debate": {
     "question": "배송·신용 투자로 키운 45% 매출 성장이 얇아진 마진을 다시 넓힐 만큼 규모를 만드는지",
-    "bull": { "text": "매출은 45% 늘어 처음 분기 100억 달러를 넘었고 활성 구매자는 7,700만에서 9,400만 명으로 늘었다. 브라질 저가 무료 배송 구간은 9월 공헌이익 흑자로 돌아섰고 건당 배송비는 내려가며, 광고 매출은 51% 늘었다.", "src": ["s1"] },
-    "bear": { "text": "영업이익은 6.5% 줄어 마진이 6.3%였고 3분기 EPS는 컨센서스를 밑돌았다. 신용 포트폴리오는 62% 늘어 약 180억 달러가 됐지만 NIMAL은 1%p 내려갔고, 순부채는 2025년 말 46.8억에서 80.3억 달러로 늘었다.", "src": ["s1", "s2"] },
+    "bull": {
+      "text": "매출은 45% 늘어 처음 분기 100억 달러를 넘었고 활성 구매자는 7,700만에서 9,400만 명으로 늘었다. 브라질 저가 무료 배송 구간은 9월 공헌이익 흑자로 돌아섰고 건당 배송비는 내려가며, 광고 매출은 51% 늘었다.",
+      "src": [
+        "s1"
+      ]
+    },
+    "bear": {
+      "text": "영업이익은 6.5% 줄어 마진이 6.3%였고 3분기 EPS는 컨센서스를 밑돌았다. 신용 포트폴리오는 62% 늘어 약 180억 달러가 됐지만 NIMAL은 1%p 내려갔고, 순부채는 2025년 말 46.8억에서 80.3억 달러로 늘었다.",
+      "src": [
+        "s1",
+        "s2"
+      ]
+    },
     "decides": [
-      { "when": "Q4 2026 실적 (회사 미공지)", "what": "영업이익률이 전년보다 높아지고 15~90일 연체율이 7.0% 안팎을 유지하는지", "src": ["s1"] }
+      {
+        "when": "Q4 2026 실적 (회사 미공지)",
+        "what": "영업이익률이 전년보다 높아지고 15~90일 연체율이 7.0% 안팎을 유지하는지",
+        "src": [
+          "s1"
+        ]
+      }
     ]
   },
   "underTheHood": [
-    { "title": "대출이 대차대조표를 키움", "text": "핀테크 성장은 수수료만이 아니라 회사가 직접 빌려주는 대출에서 나온다. 3분기에 포트폴리오에 21억 달러를 넣고 15억 달러를 외부에서 조달해, 매출 성장이 순부채 증가와 함께 움직인다.", "src": ["s1"] },
-    { "title": "FX 중립과 달러 성장률", "text": "아르헨티나 매출은 FX 중립으로 42% 늘었지만 달러 기준으로는 26%였다. 반대로 브라질은 달러 성장률(50%)이 FX 중립(41%)보다 높아, 환율이 달러 실적을 크게 흔든다.", "src": ["s1"] },
-    { "title": "배송 투자의 회계 위치", "text": "배송 투자는 3분기 총마진을 0.4%p 깎고 판관비에 0.2%p를 더했다. 순배송 마진은 2025년 1분기 이후 GMV 대비 약 200bp 낮아져, 마진 하락의 상당 부분이 의도된 투자다.", "src": ["s1"] }
+    {
+      "title": "대출이 대차대조표를 키움",
+      "text": "핀테크 성장은 수수료만이 아니라 회사가 직접 빌려주는 대출에서 나온다. 3분기에 포트폴리오에 21억 달러를 넣고 15억 달러를 외부에서 조달해, 매출 성장이 순부채 증가와 함께 움직인다.",
+      "src": [
+        "s1"
+      ]
+    },
+    {
+      "title": "FX 중립과 달러 성장률",
+      "text": "아르헨티나 매출은 FX 중립으로 42% 늘었지만 달러 기준으로는 26%였다. 반대로 브라질은 달러 성장률(50%)이 FX 중립(41%)보다 높아, 환율이 달러 실적을 크게 흔든다.",
+      "src": [
+        "s1"
+      ]
+    },
+    {
+      "title": "배송 투자의 회계 위치",
+      "text": "배송 투자는 3분기 총마진을 0.4%p 깎고 판관비에 0.2%p를 더했다. 순배송 마진은 2025년 1분기 이후 GMV 대비 약 200bp 낮아져, 마진 하락의 상당 부분이 의도된 투자다.",
+      "src": [
+        "s1"
+      ]
+    }
   ]
 }

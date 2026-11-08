@@ -304,15 +304,15 @@
     "layer": "cooling-electrical",
     "position": "AI 데이터센터에 전력망 연결부터 랙 직전까지의 배전·UPS·차단기·모듈형 전력실과, 칩에 붙는 액체냉각(콜드플레이트·CDU)을 공급한다.",
     "dependsOn": [
-      "power-energy (유틸리티의 전력 공급과 계통 연결 속도)",
-      "data-center-real-estate (운영사의 건설 계획)",
+      "전력·에너지 (유틸리티의 전력 공급과 계통 연결 속도)",
+      "데이터센터 부동산 (운영사의 건설 계획)",
       "구리·강판·전력 반도체 등 부품",
       "자체 공장 증설"
     ],
     "sellsTo": [
-      "cloud-infrastructure (하이퍼스케일러)",
-      "data-center-real-estate (코로케이션 운영사)",
-      "chips-compute (칩 제조사, Boyd 냉각)"
+      "클라우드 (하이퍼스케일러)",
+      "데이터센터 부동산 (코로케이션 운영사)",
+      "연산 칩 (칩 제조사, Boyd 냉각)"
     ],
     "aiRevenue": "데이터센터 매출 금액은 미공시. 2026년 2분기 북미 데이터센터 매출 약 +65% (2026-07-31 콜); Q3 2026 보도자료는 데이터센터 수치 없이 Electrical Americas 수주 +39%, 잔고 +33%만 제시.",
     "upside": "데이터센터 1MW가 지어질 때마다 약 340만 달러어치 장비를 공급할 수 있고, 회사는 미국 데이터센터 잔고를 307GW(2025년 건설 속도로 15년치)로 본다. 800V 직류 배전으로 바뀌면 반도체 변압기·직류 차단기 같은 새 제품이 추가된다.",
@@ -434,7 +434,7 @@
     "latest": [
       {
         "period": "Q4 2026",
-        "metric": "organic growth / segment margin",
+        "metric": "유기적 성장률 / 부문 이익률",
         "value": "13~15% / 25.4~25.8%",
         "givenOn": "2026-11-03",
         "src": [
@@ -443,7 +443,7 @@
       },
       {
         "period": "Q4 2026",
-        "metric": "adjusted EPS",
+        "metric": "조정 EPS",
         "value": "4.05~4.15달러 (GAAP 3.28~3.38달러)",
         "givenOn": "2026-11-03",
         "src": [
@@ -452,7 +452,7 @@
       },
       {
         "period": "FY2026",
-        "metric": "organic growth / segment margin",
+        "metric": "유기적 성장률 / 부문 이익률",
         "value": "13~15% (2분기 11~13%) / 24.1~24.5% (유지)",
         "givenOn": "2026-11-03",
         "src": [
@@ -462,7 +462,7 @@
       },
       {
         "period": "FY2026",
-        "metric": "adjusted EPS",
+        "metric": "조정 EPS",
         "value": "13.70~13.80달러 (2분기 13.40~13.60달러; GAAP 10.39~10.49달러)",
         "givenOn": "2026-11-03",
         "src": [

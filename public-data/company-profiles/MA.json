@@ -362,9 +362,9 @@
     "layer": "ai-exposed",
     "position": "AI 칩이나 모델을 만들지 않지만, AI 에이전트가 사람 대신 물건을 사는 '에이전트 커머스'에서 결제와 신뢰를 제공하는 망으로 자리를 잡으려 한다. 10-K는 Agent Pay를 에이전트 커머스의 안전한 결제 틀로 소개하고, 2026-09-30에는 거래가 AI 에이전트에서 시작됐을 확률 점수 등 Agent Pay 신뢰·정보 서비스를 내놨다(미국 시험 운영).",
     "dependsOn": [
-      "models-platforms (AI 에이전트·쇼핑 플랫폼 - 결제 제휴사명 미확인)",
+      "모델·플랫폼 (AI 에이전트·쇼핑 플랫폼 - 결제 제휴사명 미확인)",
       "Cloudflare (웹 쪽 AI 에이전트 활동 신호), Skyfire (Know Your Agent 에이전트 신원 확인)",
-      "software-applications (가맹점·핀테크 결제 소프트웨어)"
+      "소프트웨어·앱 (가맹점·핀테크 결제 소프트웨어)"
     ],
     "sellsTo": [
       "AI 에이전트를 통해 결제하는 소비자·가맹점 (발급·매입 은행 경유)",
@@ -513,7 +513,7 @@
     "latest": [
       {
         "period": "FY2026",
-        "metric": "net revenue growth (non-GAAP, currency-neutral, ex acquisitions)",
+        "metric": "순매출 성장률 (non-GAAP, 환율 중립, 인수 제외)",
         "value": "두 자릿수 초반의 상단 (7월과 같음); GAAP 기준 10% 초반(low teens)",
         "givenOn": "2026-10-29",
         "src": [
@@ -522,7 +522,7 @@
       },
       {
         "period": "FY2026",
-        "metric": "operating expense growth",
+        "metric": "영업비용 성장률",
         "value": "non-GAAP 두 자릿수 초반의 상단, 환율 제외·인수 제외 두 자릿수 초반; GAAP 기준은 7월 \"한 자릿수 후반 상단\"에서 \"두 자릿수 초반 하단\"으로 바뀜",
         "givenOn": "2026-10-29",
         "src": [
@@ -531,7 +531,7 @@
       },
       {
         "period": "Q4 2026",
-        "metric": "net revenue growth (non-GAAP, currency-neutral, ex acquisitions)",
+        "metric": "순매출 성장률 (non-GAAP, 환율 중립, 인수 제외)",
         "value": "두 자릿수 초반의 상단, 환율 영향 약 1%p",
         "givenOn": "2026-10-29",
         "src": [
@@ -540,7 +540,7 @@
       },
       {
         "period": "Q4 2026",
-        "metric": "operating expense growth",
+        "metric": "영업비용 성장률",
         "value": "non-GAAP 10% 초반(low teens), 환율 제외·인수 제외 두 자릿수 초반의 상단",
         "givenOn": "2026-10-29",
         "src": [

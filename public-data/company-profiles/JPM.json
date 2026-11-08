@@ -1,28 +1,99 @@
 {
   "symbol": "JPM",
-
   "name": "JPMorgan Chase & Co.",
-
   "researchedAt": "2026-11-08",
-
   "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
-
   "oneLine": "JPMorgan Chase는 미국 최대 예금 기반으로 값싸게 모은 돈을 대출·카드·투자은행·트레이딩·자산관리로 굴리는 미국 최대 은행으로, 금리·신용·자본시장 경기를 한 번에 보여 주는 금융 업종의 기준점이다.",
-
   "sources": [
-    { "id": "s1", "kind": "8-K", "title": "JPMorgan Chase 3Q26 earnings release narrative (8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0000019617/000162828026065582/a3q26erfexhibit991narrative.htm", "publisher": "JPMorgan Chase / SEC EDGAR", "date": "2026-10-13" },
-    { "id": "s2", "kind": "8-K", "title": "JPMorgan Chase 3Q26 earnings presentation (incl. 2026 outlook slide)", "url": "https://www.sec.gov/Archives/edgar/data/0000019617/000162828026065616/a3q26_earningsxpresentat.htm", "publisher": "JPMorgan Chase / SEC EDGAR", "date": "2026-10-13" },
-    { "id": "s3", "kind": "10-K", "title": "JPMorgan Chase 2025 Form 10-K (segment results p.64, repurchases Item 5, executive officers Item 10, workforce)", "url": "https://www.jpmorganchase.com/content/dam/jpmc/jpmorgan-chase-and-co/investor-relations/documents/quarterly-earnings/2025/4th-quarter/corp-10k-2025.pdf", "publisher": "JPMorgan Chase IR", "date": "2026-02-13" },
-    { "id": "s4", "kind": "earnings-release", "title": "JPMorganChase Reports Fourth-Quarter 2025 Net Income of $13.0 Billion; Full-Year 2025 Net Income of $57.0 Billion", "url": "https://www.jpmorganchase.com/content/dam/jpmc/jpmorgan-chase-and-co/investor-relations/documents/quarterly-earnings/2025/4th-quarter/d868c7ef-1670-465d-ba75-c2b36ddbcc6b.pdf", "publisher": "JPMorgan Chase IR", "date": "2026-01-13" },
-    { "id": "s5", "kind": "8-K", "title": "JPMorgan Chase 4Q25 earnings presentation (FY2025 summary and original 2026 outlook)", "url": "https://www.sec.gov/Archives/edgar/data/19617/000162828026001915/a4q25_earningsxpresentat.htm", "publisher": "JPMorgan Chase / SEC EDGAR", "date": "2026-01-13" },
-    { "id": "s6", "kind": "news", "title": "JPMorgan expects about $19.8B technology spend in 2026 (Zacks; URL as indexed)", "url": "https://www.zacks.com/stock/news/2874939/{https:/www.zackstrade.com/2019-1-dollar}", "publisher": "Zacks", "date": "2026-10-28" },
-    { "id": "s7", "kind": "news", "title": "JP Morgan Chase reclassifies AI spending as core infrastructure (roughly $2B allocated to AI)", "url": "https://m.bankingexchange.com/news-feed/item/10520-jp-morgan-chase-reclassifies-ai-spending-as-core-infrastructure?Itemid=257", "publisher": "Banking Exchange", "date": "2026-10-28" },
-    { "id": "s8", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/jpm/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-27" },
-    { "id": "s9", "kind": "news", "title": "Jamie Dimon Predicts JPMorgan Will Be A Winner In AI Race, Boosts 2026 Tech Spend To Nearly $20 Billion (investor day coverage)", "url": "https://finviz.com/news/319857/jamie-dimon-predicts-jpmorgan-will-be-a-winner-in-ai-race-boosts-2026-tech-spend-to-nearly-20-billion", "publisher": "Benzinga via Finviz", "date": "2026-02-24" },
-    { "id": "s10", "kind": "news", "title": "JPMorgan investor day: resist headcount growth, AI efficiencies (ops headcount ~10% lower over ~5 years; ~30% call-center servicing cost reduction) - May 2025, exact day not checked; read via search summary", "url": "https://www.businessinsider.com/jpmorgan-investor-day-resist-hiring-headcount-ai-efficiencies-jamie-dimon-2025-5", "publisher": "Business Insider", "date": "2025-05" },
-    { "id": "s11", "kind": "call-transcript", "title": "JPMorgan Chase 3Q25 earnings call transcript (#1 retail deposit share per FDIC, fifth straight year; read via search summary; call date not checked)", "url": "https://www.roic.ai/quote/JPM/transcripts/2025-year/3-quarter", "publisher": "roic.ai", "date": "2025-10" }
+    {
+      "id": "s1",
+      "kind": "8-K",
+      "title": "JPMorgan Chase 3Q26 earnings release narrative (8-K Exhibit 99.1)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0000019617/000162828026065582/a3q26erfexhibit991narrative.htm",
+      "publisher": "JPMorgan Chase / SEC EDGAR",
+      "date": "2026-10-13"
+    },
+    {
+      "id": "s2",
+      "kind": "8-K",
+      "title": "JPMorgan Chase 3Q26 earnings presentation (incl. 2026 outlook slide)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0000019617/000162828026065616/a3q26_earningsxpresentat.htm",
+      "publisher": "JPMorgan Chase / SEC EDGAR",
+      "date": "2026-10-13"
+    },
+    {
+      "id": "s3",
+      "kind": "10-K",
+      "title": "JPMorgan Chase 2025 Form 10-K (segment results p.64, repurchases Item 5, executive officers Item 10, workforce)",
+      "url": "https://www.jpmorganchase.com/content/dam/jpmc/jpmorgan-chase-and-co/investor-relations/documents/quarterly-earnings/2025/4th-quarter/corp-10k-2025.pdf",
+      "publisher": "JPMorgan Chase IR",
+      "date": "2026-02-13"
+    },
+    {
+      "id": "s4",
+      "kind": "earnings-release",
+      "title": "JPMorganChase Reports Fourth-Quarter 2025 Net Income of $13.0 Billion; Full-Year 2025 Net Income of $57.0 Billion",
+      "url": "https://www.jpmorganchase.com/content/dam/jpmc/jpmorgan-chase-and-co/investor-relations/documents/quarterly-earnings/2025/4th-quarter/d868c7ef-1670-465d-ba75-c2b36ddbcc6b.pdf",
+      "publisher": "JPMorgan Chase IR",
+      "date": "2026-01-13"
+    },
+    {
+      "id": "s5",
+      "kind": "8-K",
+      "title": "JPMorgan Chase 4Q25 earnings presentation (FY2025 summary and original 2026 outlook)",
+      "url": "https://www.sec.gov/Archives/edgar/data/19617/000162828026001915/a4q25_earningsxpresentat.htm",
+      "publisher": "JPMorgan Chase / SEC EDGAR",
+      "date": "2026-01-13"
+    },
+    {
+      "id": "s6",
+      "kind": "news",
+      "title": "JPMorgan expects about $19.8B technology spend in 2026 (Zacks; URL as indexed)",
+      "url": "https://www.zacks.com/stock/news/2874939/{https:/www.zackstrade.com/2019-1-dollar}",
+      "publisher": "Zacks",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s7",
+      "kind": "news",
+      "title": "JP Morgan Chase reclassifies AI spending as core infrastructure (roughly $2B allocated to AI)",
+      "url": "https://m.bankingexchange.com/news-feed/item/10520-jp-morgan-chase-reclassifies-ai-spending-as-core-infrastructure?Itemid=257",
+      "publisher": "Banking Exchange",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s8",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/jpm/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-10-27"
+    },
+    {
+      "id": "s9",
+      "kind": "news",
+      "title": "Jamie Dimon Predicts JPMorgan Will Be A Winner In AI Race, Boosts 2026 Tech Spend To Nearly $20 Billion (investor day coverage)",
+      "url": "https://finviz.com/news/319857/jamie-dimon-predicts-jpmorgan-will-be-a-winner-in-ai-race-boosts-2026-tech-spend-to-nearly-20-billion",
+      "publisher": "Benzinga via Finviz",
+      "date": "2026-02-24"
+    },
+    {
+      "id": "s10",
+      "kind": "news",
+      "title": "JPMorgan investor day: resist headcount growth, AI efficiencies (ops headcount ~10% lower over ~5 years; ~30% call-center servicing cost reduction) - May 2025, exact day not checked; read via search summary",
+      "url": "https://www.businessinsider.com/jpmorgan-investor-day-resist-hiring-headcount-ai-efficiencies-jamie-dimon-2025-5",
+      "publisher": "Business Insider",
+      "date": "2025-05"
+    },
+    {
+      "id": "s11",
+      "kind": "call-transcript",
+      "title": "JPMorgan Chase 3Q25 earnings call transcript (#1 retail deposit share per FDIC, fifth straight year; read via search summary; call date not checked)",
+      "url": "https://www.roic.ai/quote/JPM/transcripts/2025-year/3-quarter",
+      "publisher": "roic.ai",
+      "date": "2025-10"
+    }
   ],
-
   "moat": {
     "sources": [
       "미국 최대 예금 기반 - Q3 2026 평균 예금 2.73조 달러, FDIC 기준 소매 예금 점유율 1위(회사 언급)",
@@ -31,14 +102,21 @@
       "연 200억 달러 가까운 기술 투자 규모 (2026 예산 198억 달러)"
     ],
     "text": "JPMorgan의 힘은 미국에서 가장 많은 예금을 가장 싸게 모으는 능력에서 시작한다. 이 값싼 돈을 카드·기업 대출과 증권에 굴리고, 같은 고객에게 결제·투자은행·자산관리까지 함께 팔아 2025년 ROTCE 20%를 냈다. 여기에 경쟁 은행이 따라오기 어려운 연 198억 달러 수준의 기술 투자와 두꺼운 자본이 세 번째·네 번째 뿌리다.",
-    "src": ["s2", "s11", "s4", "s5", "s9"]
+    "src": [
+      "s2",
+      "s11",
+      "s4",
+      "s5",
+      "s9"
+    ]
   },
-
   "design": {
     "text": "이 기반 위에서 회사가 내놓는 상품은 세 개 사업부로 보고된다. CCB(소비자·지역 금융)는 Chase 예금·지점·카드·자동차·주택 대출을, CIB(기업·투자은행)는 투자은행 자문·인수, 기업 대출, 결제, 채권·주식 트레이딩과 수탁을, AWM(자산·자산가 관리)은 펀드 운용과 프라이빗 뱅킹을 맡는다. 2025-12-30에는 Apple 카드 포트폴리오를 약 24개월 뒤 넘겨받는 선도 매입 약정도 맺었다.",
-    "src": ["s3", "s4"]
+    "src": [
+      "s3",
+      "s4"
+    ]
   },
-
   "make": {
     "model": "financial",
     "partners": [
@@ -49,9 +127,12 @@
       "Apple - 카드 포트폴리오 인수 약정 상대방 (2025-12-30)"
     ],
     "text": "은행에서 '만든다'는 것은 예금과 자본으로 대출·증권 포지션을 만들어 내는 일이다. JPMorgan은 5,083개 지점과 앱으로 개인·기업 예금을 모아 Q3 2026 평균 예금 2.73조 달러를 확보하고, 이를 평균 1.6조 달러 대출과 증권으로 돌린다. 이 생산의 상한은 자본이어서, 대출과 트레이딩을 늘리면 CET1 비율이 2025말 14.5%에서 Q3 2026 13.9%로 내려가듯 자본을 소모한다.",
-    "src": ["s3", "s2", "s5"]
+    "src": [
+      "s3",
+      "s2",
+      "s5"
+    ]
   },
-
   "sell": {
     "customers": [
       "미국 개인·소상공인 (CCB) - Q3 2026 카드 매출액 3,760억 달러",
@@ -61,23 +142,51 @@
     "channel": "Chase 지점·모바일 앱(개인), 기업 커버리지 은행가와 결제 플랫폼(기업), 트레이딩 데스크(기관), 자산관리 어드바이저(자산가).",
     "concentration": "단일 고객 의존 없음 (분산된 예금·대출 기반)",
     "text": "이렇게 만든 금융 상품은 세 무리의 고객에게 각자 다른 창구로 팔린다. 개인은 지점과 앱으로 예금·카드를 쓰고(Q3 2026 카드 매출액 3,760억 달러), 기업은 은행가를 통해 대출·자문·결제를, 기관과 자산가는 트레이딩 데스크와 어드바이저를 통해 거래한다. 고객이 매우 분산돼 있어 한 고객의 이탈보다 금리와 경기 전체가 더 중요하다.",
-    "src": ["s2", "s3"]
+    "src": [
+      "s2",
+      "s3"
+    ]
   },
-
   "moneyFlow": {
     "steps": [
-      { "from": "개인·기업 예금자", "to": "JPMorgan Chase", "what": "예금 (Q3 2026 평균 2.73조 달러) - 은행은 예금 이자를 지급" },
-      { "from": "카드·주택·자동차·기업 대출 고객", "to": "JPMorgan Chase", "what": "대출 이자 (평균 대출 1.6조 달러) - 예금 이자와의 차이가 순이자이익(NII)" },
-      { "from": "카드 사용자·가맹점", "to": "CCB Card Services", "what": "카드 이자·연회비·결제 수수료" },
-      { "from": "기업·정부", "to": "CIB Banking & Payments", "what": "투자은행 자문·인수 수수료(Q3 2026 30억 달러)와 결제 수수료(56.2억 달러)" },
-      { "from": "기관 투자자", "to": "CIB Markets", "what": "채권·주식 트레이딩 스프레드와 수수료 (Q3 2026 103억 달러)" },
-      { "from": "자산가·기관", "to": "AWM", "what": "자산 규모에 비례한 운용·자문 수수료 (AUM 5.2조 달러)" }
+      {
+        "from": "개인·기업 예금자",
+        "to": "JPMorgan Chase",
+        "what": "예금 (Q3 2026 평균 2.73조 달러) - 은행은 예금 이자를 지급"
+      },
+      {
+        "from": "카드·주택·자동차·기업 대출 고객",
+        "to": "JPMorgan Chase",
+        "what": "대출 이자 (평균 대출 1.6조 달러) - 예금 이자와의 차이가 순이자이익(NII)"
+      },
+      {
+        "from": "카드 사용자·가맹점",
+        "to": "CCB Card Services",
+        "what": "카드 이자·연회비·결제 수수료"
+      },
+      {
+        "from": "기업·정부",
+        "to": "CIB Banking & Payments",
+        "what": "투자은행 자문·인수 수수료(Q3 2026 30억 달러)와 결제 수수료(56.2억 달러)"
+      },
+      {
+        "from": "기관 투자자",
+        "to": "CIB Markets",
+        "what": "채권·주식 트레이딩 스프레드와 수수료 (Q3 2026 103억 달러)"
+      },
+      {
+        "from": "자산가·기관",
+        "to": "AWM",
+        "what": "자산 규모에 비례한 운용·자문 수수료 (AUM 5.2조 달러)"
+      }
     ],
     "pricing": "이자 스프레드(대출·증권 수익률 - 예금·조달 비용)가 절반 이상이고, 나머지는 거래당 수수료(IB·결제·카드), 트레이딩 스프레드, 자산 비례 운용 보수다.",
     "text": "돈은 크게 두 길로 들어온다. 하나는 예금으로 모은 돈을 대출·증권에 굴려 남기는 이자 차익으로 2025년 NII 959억 달러였고, 다른 하나는 IB·결제·트레이딩·자산관리에서 받는 수수료로 비이자수익 897억 달러였다. 금리가 오르면 이자 차익이, 자본시장이 뜨거우면 수수료가 커지므로 두 수익원이 서로 경기를 일부 상쇄한다.",
-    "src": ["s2", "s5"]
+    "src": [
+      "s2",
+      "s5"
+    ]
   },
-
   "earnings": {
     "period": "Q3 2026 (ended 2026-09-30)",
     "revenue": {
@@ -91,43 +200,173 @@
     "operatingCashFlow": null,
     "freeCashFlow": null,
     "segments": [
-      { "name": "Consumer & Community Banking (CCB)", "revenue": 21.171, "unit": "USD bn", "share": 41.6, "yoy": 9, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Commercial & Investment Bank (CIB)", "revenue": 22.734, "unit": "USD bn", "share": 44.7, "yoy": 14, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Asset & Wealth Management (AWM)", "revenue": 6.909, "unit": "USD bn", "share": 13.6, "yoy": 14, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Corporate", "revenue": 0.093, "unit": "USD bn", "share": 0.2, "yoy": -95, "operatingMargin": null, "src": ["s1"] }
+      {
+        "name": "Consumer & Community Banking (CCB)",
+        "revenue": 21.171,
+        "unit": "USD bn",
+        "share": 41.6,
+        "yoy": 9,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Commercial & Investment Bank (CIB)",
+        "revenue": 22.734,
+        "unit": "USD bn",
+        "share": 44.7,
+        "yoy": 14,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Asset & Wealth Management (AWM)",
+        "revenue": 6.909,
+        "unit": "USD bn",
+        "share": 13.6,
+        "yoy": 14,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Corporate",
+        "revenue": 0.093,
+        "unit": "USD bn",
+        "share": 0.2,
+        "yoy": -95,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "industryMetric": [
-      { "name": "순이자이익(NII) / 비이자수익", "value": "Q3 2026 NII 271억(+13%) / 비이자수익 238억(+3%) 달러; FY2025 959억 / 897억 달러", "src": ["s5", "s2"] },
-      { "name": "Q3 2026 순이익·EPS", "value": "순이익 153.1억 달러(+6%, 증권 매각손 6.58억 제외 158억), 희석 EPS 5.57달러(+10%, 제외 5.75달러), 보고 매출 501.7억(+8%), 비이자비용 273.0억(+12%), 충당금 27.4억(-19%)", "src": ["s1"] },
-      { "name": "ROTCE / ROE", "value": "Q3 2026 보고 ROTCE 20%(증권 매각손 제외 21%) / ROE 17%, 전년과 같음; FY2025 20% / 17%", "src": ["s5", "s2"] },
-      { "name": "CET1 비율 (표준법)", "value": "14.5% (2025말) → 13.9% (Q3 2026), CET1 자본 3,040억 달러", "src": ["s5", "s2"] },
-      { "name": "관리기준 비용효율(overhead ratio)", "value": "FY2025 52%, Q3 2026 54%", "src": ["s5", "s2"] },
-      { "name": "신용 비용", "value": "FY2025 142억 달러; Q3 2026 27억(순상각 22억, 충당금 적립 5.39억), 카드 순상각률 2.91%", "src": ["s5", "s2"] },
-      { "name": "사업부 순이익 (Q3 2026)", "value": "CCB 56.7억(ROE 36%), CIB 82.5억(ROE 18%), AWM 18.4억 달러(ROE 45%), Corporate -4.6억 달러", "src": ["s1"] },
-      { "name": "주당 장부가 / 유형순자산", "value": "Q3 2026 132.30달러(+6%) / 112.64달러(+7%)", "src": ["s1"] }
+      {
+        "name": "순이자이익(NII) / 비이자수익",
+        "value": "Q3 2026 NII 271억(+13%) / 비이자수익 238억(+3%) 달러; FY2025 959억 / 897억 달러",
+        "src": [
+          "s5",
+          "s2"
+        ]
+      },
+      {
+        "name": "Q3 2026 순이익·EPS",
+        "value": "순이익 153.1억 달러(+6%, 증권 매각손 6.58억 제외 158억), 희석 EPS 5.57달러(+10%, 제외 5.75달러), 보고 매출 501.7억(+8%), 비이자비용 273.0억(+12%), 충당금 27.4억(-19%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "ROTCE / ROE",
+        "value": "Q3 2026 보고 ROTCE 20%(증권 매각손 제외 21%) / ROE 17%, 전년과 같음; FY2025 20% / 17%",
+        "src": [
+          "s5",
+          "s2"
+        ]
+      },
+      {
+        "name": "CET1 비율 (표준법)",
+        "value": "14.5% (2025말) → 13.9% (Q3 2026), CET1 자본 3,040억 달러",
+        "src": [
+          "s5",
+          "s2"
+        ]
+      },
+      {
+        "name": "관리기준 비용효율(overhead ratio)",
+        "value": "FY2025 52%, Q3 2026 54%",
+        "src": [
+          "s5",
+          "s2"
+        ]
+      },
+      {
+        "name": "신용 비용",
+        "value": "FY2025 142억 달러; Q3 2026 27억(순상각 22억, 충당금 적립 5.39억), 카드 순상각률 2.91%",
+        "src": [
+          "s5",
+          "s2"
+        ]
+      },
+      {
+        "name": "사업부 순이익 (Q3 2026)",
+        "value": "CCB 56.7억(ROE 36%), CIB 82.5억(ROE 18%), AWM 18.4억 달러(ROE 45%), Corporate -4.6억 달러",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "주당 장부가 / 유형순자산",
+        "value": "Q3 2026 132.30달러(+6%) / 112.64달러(+7%)",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "text": "2026년 3분기 관리기준 순매출은 509.1억 달러(+8%), 순이익은 153.1억 달러(+6%)로 보고기준 순이익률은 약 31%다. 사업부 순이익은 CIB 82.5억, CCB 56.7억, AWM 18.4억 달러로 투자은행·트레이딩 쪽이 가장 크지만, 자본 대비 수익률(ROE)은 AWM 45%, CCB 36%가 CIB 18%보다 높다. ROTCE 20%로 전년과 같은 속도를 유지했지만 비이자비용이 12% 늘어 순이익 증가율(6%)이 매출(8%)보다 낮았다. 비교 기준인 FY2025는 관리기준 순매출 1,856억 달러, 순이익 570억 달러였다.",
-    "src": ["s1", "s5", "s3"]
+    "src": [
+      "s1",
+      "s5",
+      "s3"
+    ]
   },
-
   "useOfCash": {
     "period": "Q3 2026 (ended 2026-09-30)",
     "items": [
-      { "use": "buybacks", "value": 0.664, "unit": "USD bn", "src": ["s1"] },
-      { "use": "dividends", "value": 4.4, "unit": "USD bn", "src": ["s1"] },
-      { "use": "other", "label": "2026 기술 투자 예산 (계획)", "value": 19.8, "unit": "USD bn", "src": ["s9", "s6"] },
-      { "use": "other", "label": "2026 AI 배정액 (보도 기준)", "value": 2.0, "unit": "USD bn", "src": ["s7"] }
+      {
+        "use": "buybacks",
+        "value": 0.664,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "dividends",
+        "value": 4.4,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "other",
+        "label": "2026 기술 투자 예산 (계획)",
+        "value": 19.8,
+        "unit": "USD bn",
+        "src": [
+          "s9",
+          "s6"
+        ]
+      },
+      {
+        "use": "other",
+        "label": "2026 AI 배정액 (보도 기준)",
+        "value": 2.0,
+        "unit": "USD bn",
+        "src": [
+          "s7"
+        ]
+      }
     ],
     "text": "Q3 2026에 순 자사주 매입은 6.64억 달러로 FY2025 연간 316억 달러에 비해 크게 줄었고, 배당은 주당 1.65달러(선언액 44억 달러)였다. 대출 성장과 Apple 카드 인수 준비에 자본을 남겨 두는 쪽으로 무게가 옮겨 간 것으로 읽힌다. 동시에 2026년 기술 예산을 198억 달러(계획)로 늘려 투자도 멈추지 않고 있다.",
-    "src": ["s1", "s3", "s9"]
+    "src": [
+      "s1",
+      "s3",
+      "s9"
+    ]
   },
-
   "aiChain": {
     "layer": "ai-adopter",
     "position": "AI를 파는 회사가 아니라 대규모로 사서 쓰는 회사. 연 198억 달러 기술 예산 안에서 AI를 핵심 인프라로 분류해 사기 탐지·고객 응대·운영 자동화·개발 생산성에 쓴다.",
     "dependsOn": [
-      "models-platforms (외부 AI 모델 - 업체명 미공시)",
-      "cloud-infrastructure (클라우드·데이터센터 공급자)"
+      "모델·플랫폼 (외부 AI 모델 - 업체명 미공시)",
+      "클라우드 (클라우드·데이터센터 공급자)"
     ],
     "sellsTo": [
       "AI 자체를 팔지 않음 - 효과는 예금·대출·결제 고객 서비스 비용과 직원 생산성으로 나타남"
@@ -136,9 +375,15 @@
     "upside": "AI는 이 회사에 주로 '비용 레버'다. 2025년 5월 투자자의 날에 경영진은 AI로 운영 인력을 5년 정도에 걸쳐 약 10% 줄일 수 있고, 콜센터 서비스 비용은 이미 약 30% 내렸다고 말했다(일부는 기존 자동화 효과). 이 효과가 비용효율(overhead ratio 52~54%)을 낮추면 같은 매출에서 이익이 커진다.",
     "risk": "AI 투자비 자체가 비용 가이던스를 올리는 요인이고(2026 조정 비용 전망 1,050억 → 1,086억 달러), 10-K는 AI 과잉 의존과 미흡한 도입을 모두 위험으로 든다. 핀테크가 AI로 결제·대출을 더 싸게 제공하면 수수료가 잠식될 수 있다.",
     "text": "그래서 AI 가치사슬에서 JPMorgan은 맨 끝의 '도입자'에 있다. AI 매출은 없고, 대신 운영 인력 약 10% 감축 같은 비용 절감과 직원 생산성으로 효과를 노린다. 관건은 연 198억 달러 기술 투자가 비용효율 개선으로 돌아오는 속도이며, 경영진도 기술 투자의 수익은 측정이 어렵다고 인정한다.",
-    "src": ["s9", "s7", "s10", "s5", "s2", "s3"]
+    "src": [
+      "s9",
+      "s7",
+      "s10",
+      "s5",
+      "s2",
+      "s3"
+    ]
   },
-
   "competition": {
     "arenas": [
       {
@@ -151,7 +396,10 @@
         ],
         "position": "leader",
         "share": "FDIC 기준 소매 예금 점유율 1위, 5년 연속 (회사 언급, 3Q25 콜; 비율 미확인)",
-        "src": ["s11", "s3"]
+        "src": [
+          "s11",
+          "s3"
+        ]
       },
       {
         "arena": "투자은행 수수료 (자문·인수)",
@@ -163,7 +411,9 @@
         ],
         "position": "leader",
         "share": "2025 글로벌 IB 수수료 점유율 8.4%, 1위 (회사 발표)",
-        "src": ["s4"]
+        "src": [
+          "s4"
+        ]
       },
       {
         "arena": "채권·주식 트레이딩 (Markets)",
@@ -175,7 +425,10 @@
         ],
         "position": "leader",
         "share": null,
-        "src": ["s5", "s2"]
+        "src": [
+          "s5",
+          "s2"
+        ]
       },
       {
         "arena": "자산·자산가 관리",
@@ -186,52 +439,148 @@
         ],
         "position": "challenger",
         "share": null,
-        "src": ["s2"]
+        "src": [
+          "s2"
+        ]
       },
-      { "arena": "비은행 대출·결제 (핀테크·사모 신용)", "rivals": ["핀테크 결제·대출 업체", "비은행 대출 기관"], "position": "leader", "share": null, "src": ["s3"] }
+      {
+        "arena": "비은행 대출·결제 (핀테크·사모 신용)",
+        "rivals": [
+          "핀테크 결제·대출 업체",
+          "비은행 대출 기관"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s3"
+        ]
+      }
     ],
     "edge": "가장 낮은 조달 비용, 교차판매 규모, 업계 최대 기술 예산, 위기 때 점유율을 넓혀 온 자본력.",
     "threats": "핀테크·비은행 대출자의 결제·대출 잠식, 규제 자본 요건 변화, 경기 둔화 시 카드·기업 신용 손실, 트레이딩 호황의 반락.",
     "text": "이 규모로 JPMorgan은 대부분의 경기장에서 1위다. 소매 예금은 FDIC 기준 5년 연속 1위라고 회사가 밝혔고, 투자은행 수수료도 2025년 점유율 8.4%로 1위였으며, Markets 매출은 2025년 358억 달러(+19%)였다. 경쟁의 축은 같은 대형 은행보다 비은행·핀테크 쪽으로 옮겨 가고 있어, 회사는 기술 투자를 늘려 디지털 결제·대출에서 이들을 따라잡는 방식으로 맞선다.",
-    "src": ["s11", "s4", "s5", "s3", "s9"]
+    "src": [
+      "s11",
+      "s4",
+      "s5",
+      "s3",
+      "s9"
+    ]
   },
-
   "strategy": {
     "goal": "2026 NII 약 1,062억 달러, 조정 비용 약 1,086억 달러, 카드 순상각률 약 3.2%를 제시했고, 2027 기본 시나리오로 Markets 제외 NII 약 1,070억 달러(잠정)를 내놓았다. 별도의 ROTCE 장기 목표는 이번 조사에서 확인하지 못했다.",
     "roadmap": [
-      { "when": "2026", "what": "기술 예산 198억 달러(약 20억 달러 증가)로 AI·현대화 투자 확대", "src": ["s9"] },
-      { "when": "2025-05 발표, 약 5년", "what": "AI로 운영 인력 약 10% 감축 (사기·명세서·결제 처리·계좌 서비스)", "src": ["s10"] },
-      { "when": "약 2027-12 (2025-12-30 약정 후 약 24개월)", "what": "Apple 카드 포트폴리오 인수 완료 예정", "src": ["s3"] },
-      { "when": "2027", "what": "Markets 제외 NII 약 1,070억 달러 (잠정 기본 시나리오)", "src": ["s2"] }
+      {
+        "when": "2026",
+        "what": "기술 예산 198억 달러(약 20억 달러 증가)로 AI·현대화 투자 확대",
+        "src": [
+          "s9"
+        ]
+      },
+      {
+        "when": "2025-05 발표, 약 5년",
+        "what": "AI로 운영 인력 약 10% 감축 (사기·명세서·결제 처리·계좌 서비스)",
+        "src": [
+          "s10"
+        ]
+      },
+      {
+        "when": "약 2027-12 (2025-12-30 약정 후 약 24개월)",
+        "what": "Apple 카드 포트폴리오 인수 완료 예정",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "when": "2027",
+        "what": "Markets 제외 NII 약 1,070억 달러 (잠정 기본 시나리오)",
+        "src": [
+          "s2"
+        ]
+      }
     ],
     "vision": "Dimon은 JPMorgan이 AI 경쟁에서 '승자가 될 것'이라고 말하며, 규모·기술 투자·자본으로 모든 고객층에서 1위를 지키는 종합 금융 플랫폼을 그린다.",
     "text": "앞으로의 계획은 1위 자리를 기술 투자와 인수로 더 굳히는 것이다. 2026년 기술 예산을 198억 달러로 늘리고 AI로 운영 인력을 5년쯤에 걸쳐 약 10% 줄이겠다고 했으며, 2027년 말쯤에는 Apple 카드를 넘겨받아 카드 대출을 키운다. 경영진은 2027년에도 Markets 제외 NII 약 1,070억 달러를 기본 시나리오로 보지만, 이는 금리 경로에 따라 달라지는 숫자다.",
-    "src": ["s9", "s10", "s3", "s2"]
+    "src": [
+      "s9",
+      "s10",
+      "s3",
+      "s2"
+    ]
   },
-
   "governance": {
     "line": "2005년부터 CEO(2006년부터 의장)인 Jamie Dimon이 이끄는 지분 분산 회사로, 승계 계획은 확인하지 못했고 2025년 자사주 316억 달러 매입 후 2026년에는 자본을 남기며 배당을 주당 1.65달러로 올렸다.",
-    "src": ["s3", "s2"]
+    "src": [
+      "s3",
+      "s2"
+    ]
   },
-
   "guidance": {
     "latest": [
-      { "period": "FY2026", "metric": "net interest income", "value": "약 1,062억 달러 (1월 최초 약 1,030억에서 상향)", "givenOn": "2026-10-13", "src": ["s2", "s5"] },
-      { "period": "FY2026", "metric": "NII ex-Markets", "value": "약 972억 달러 (1월 최초 약 950억)", "givenOn": "2026-10-13", "src": ["s2", "s5"] },
-      { "period": "FY2026", "metric": "adjusted expense", "value": "약 1,086억 달러 (1월 최초 약 1,050억)", "givenOn": "2026-10-13", "src": ["s2", "s5"] },
-      { "period": "FY2026", "metric": "Card Services NCO rate", "value": "약 3.2% (1월 최초 약 3.4%)", "givenOn": "2026-10-13", "src": ["s2", "s5"] },
-      { "period": "FY2027", "metric": "NII ex-Markets (preliminary central case)", "value": "약 1,070억 달러", "givenOn": "2026-10-13", "src": ["s2"] }
+      {
+        "period": "FY2026",
+        "metric": "순이자이익",
+        "value": "약 1,062억 달러 (1월 최초 약 1,030억에서 상향)",
+        "givenOn": "2026-10-13",
+        "src": [
+          "s2",
+          "s5"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "NII 시장 부문 제외",
+        "value": "약 972억 달러 (1월 최초 약 950억)",
+        "givenOn": "2026-10-13",
+        "src": [
+          "s2",
+          "s5"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "조정 비용",
+        "value": "약 1,086억 달러 (1월 최초 약 1,050억)",
+        "givenOn": "2026-10-13",
+        "src": [
+          "s2",
+          "s5"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "카드 부문 순상각률",
+        "value": "약 3.2% (1월 최초 약 3.4%)",
+        "givenOn": "2026-10-13",
+        "src": [
+          "s2",
+          "s5"
+        ]
+      },
+      {
+        "period": "FY2027",
+        "metric": "NII 시장 부문 제외 (잠정 기본 시나리오)",
+        "value": "약 1,070억 달러",
+        "givenOn": "2026-10-13",
+        "src": [
+          "s2"
+        ]
+      }
     ],
     "style": "annual",
     "track": "2026년에는 NII와 비용 전망이 함께 올라갔고 카드 손실 전망은 내려갔다. 보도자료 본문이 아니라 실적 슬라이드에서 '시장 상황에 따라'라는 단서와 함께 분기마다 갱신한다.",
-    "src": ["s2", "s5", "s1"]
+    "src": [
+      "s2",
+      "s5",
+      "s1"
+    ]
   },
-
   "estimates": {
     "text": "AIO 로컬 스냅샷(2026-10-27, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) EPS 합계 25.19달러(범위 24.56~26.10), 직전 4개 분기 23.06달러. 최근 4주 상향 11건·하향 6건으로 상향 우세.",
-    "src": ["s8"]
+    "src": [
+      "s8"
+    ]
   },
-
   "watch": {
     "confirms": [
       "연간 NII 전망이 유지·상향되고 2027 기본 시나리오(Markets 제외 약 1,070억 달러)가 유지됨",
@@ -249,43 +598,121 @@
       "비용 전망이 매출보다 빠르게 계속 오름"
     ],
     "keyNumbers": [
-      { "name": "NII (Markets 제외)", "why": "매출의 절반 이상이며 금리·예금 마진의 결과" },
-      { "name": "카드 순상각률과 충당금 적립", "why": "가계 신용과 경기의 신호" },
-      { "name": "CET1 비율과 분기 순 자사주 매입", "why": "성장과 주주환원이 같은 자본을 나눠 쓴다" },
-      { "name": "ROTCE", "why": "은행 가치평가(P/TBV)의 근거" },
-      { "name": "조정 비용과 overhead ratio", "why": "기술·AI 투자가 효율로 돌아오는지 확인" },
-      { "name": "Markets·IB 수수료", "why": "변동이 큰 수익원의 지속성" }
+      {
+        "name": "NII (Markets 제외)",
+        "why": "매출의 절반 이상이며 금리·예금 마진의 결과"
+      },
+      {
+        "name": "카드 순상각률과 충당금 적립",
+        "why": "가계 신용과 경기의 신호"
+      },
+      {
+        "name": "CET1 비율과 분기 순 자사주 매입",
+        "why": "성장과 주주환원이 같은 자본을 나눠 쓴다"
+      },
+      {
+        "name": "ROTCE",
+        "why": "은행 가치평가(P/TBV)의 근거"
+      },
+      {
+        "name": "조정 비용과 overhead ratio",
+        "why": "기술·AI 투자가 효율로 돌아오는지 확인"
+      },
+      {
+        "name": "Markets·IB 수수료",
+        "why": "변동이 큰 수익원의 지속성"
+      }
     ]
   },
-
   "debate": {
     "question": "기술 투자로 오른 비용과 낮아진 자본 여력을 순이자이익이 계속 감당하는지",
     "bull": {
       "text": "2026년 3분기 순이익은 153억 달러, ROTCE는 20%였고 회사는 연간 NII 전망을 1월 최초 약 1,030억 달러에서 약 1,062억 달러로 올리고 카드 순상각률 전망은 약 3.4%에서 약 3.2%로 낮췄다. 2027년 Markets 제외 NII 기본 시나리오(잠정)도 약 1,070억 달러여서, 평균 예금 2.73조 달러의 값싼 조달 기반이 수익을 받친다고 보는 쪽의 근거다.",
-      "src": ["s1", "s2", "s5"]
+      "src": [
+        "s1",
+        "s2",
+        "s5"
+      ]
     },
     "bear": {
       "text": "같은 전망에서 조정 비용은 약 1,050억 달러에서 약 1,086억 달러로 올랐고 overhead ratio는 FY2025 52%에서 Q3 2026 54%가 됐다. CET1 비율은 14.5%에서 13.9%로 내려왔고 Q3 순 자사주 매입은 6.64억 달러로 크게 줄었으며 증권 매각손도 6.58억 달러가 났다. 이익이 금리 경로에 달려 있다는 단서가 슬라이드마다 붙는다는 점이 약세 쪽이 짚는 부분이다.",
-      "src": ["s2", "s5"]
+      "src": [
+        "s2",
+        "s5"
+      ]
     },
     "decides": [
-      { "when": "2027-01 중순 (추정, 회사 미확정)", "what": "4Q26·FY2026 실적과 함께 나올 2027 NII·비용 전망이 기본 시나리오 약 1,070억 달러 근처에서 유지되는지", "src": ["s2"] },
-      { "when": "약 2027-12 (2025-12-30 약정 후 약 24개월)", "what": "Apple 카드 포트폴리오 인수가 완료되며 카드 대출과 자본 소모가 어떻게 달라지는지", "src": ["s3"] }
+      {
+        "when": "2027-01 중순 (추정, 회사 미확정)",
+        "what": "4Q26·FY2026 실적과 함께 나올 2027 NII·비용 전망이 기본 시나리오 약 1,070억 달러 근처에서 유지되는지",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "when": "약 2027-12 (2025-12-30 약정 후 약 24개월)",
+        "what": "Apple 카드 포트폴리오 인수가 완료되며 카드 대출과 자본 소모가 어떻게 달라지는지",
+        "src": [
+          "s3"
+        ]
+      }
     ]
   },
-
   "underTheHood": [
-    { "title": "두 수익원이 서로 받쳐 준다", "text": "2025년 수익은 NII 959억 달러와 비이자수익 897억 달러로 나뉘고, Q3 2026에는 NII 271억 달러와 비이자수익 238억 달러였다. 금리가 오르면 이자 차익이, 자본시장이 뜨거우면 IB·트레이딩 수수료가 커져 서로 경기를 일부 상쇄한다. 반대로 두 축이 동시에 약해지는 국면은 이 구조가 가장 약한 지점이다.", "src": ["s5", "s2"] },
-    { "title": "자본이 생산의 상한이다", "text": "대출과 트레이딩을 늘리면 CET1이 소모돼 14.5%에서 13.9%로 내려왔고, 2025년 316억 달러였던 자사주 매입은 Q3 2026 순매입 6.64억 달러로 줄었다. 대출 성장과 Apple 카드 인수 준비에 자본을 남겨 두는 쪽으로 무게가 옮겨 간 것으로 읽힌다. 환원이 줄었다는 사실이 성장에 쓰는 자본이 늘었다는 신호이기도 하다.", "src": ["s5", "s2", "s3"] },
-    { "title": "기술 투자의 회수는 측정이 어렵다", "text": "2026년 기술 예산은 약 198억 달러(약 20억 달러 증가)이고 이 중 AI 배정액은 보도 기준 약 20억 달러다. 경영진은 AI로 운영 인력을 약 5년에 걸쳐 약 10% 줄이고 콜센터 서비스 비용을 약 30% 내렸다고 하지만 일부는 기존 자동화 효과이고, 기술 투자의 수익은 측정이 어렵다고 스스로 인정한다. 비용 가이던스가 먼저 오르고 효율은 나중에 따라오는 구조다.", "src": ["s9", "s7", "s10", "s2"] },
-    { "title": "사업부마다 다른 자본 효율", "text": "Q3 2026 순이익은 CIB 82.5억 달러가 가장 크지만 ROE는 CIB 18%, CCB 36%, AWM 45%로 순이익이 작은 사업부일수록 자본 효율이 높다. 관리기준 매출 비중은 CIB 44.7%, CCB 41.6%, AWM 13.6%다. 전사 ROTCE 20%는 이 세 사업부의 가중 결과이므로 트레이딩·IB가 줄어도 CCB와 AWM이 완충하는 정도를 가늠해 볼 수 있다.", "src": ["s1"] }
+    {
+      "title": "두 수익원이 서로 받쳐 준다",
+      "text": "2025년 수익은 NII 959억 달러와 비이자수익 897억 달러로 나뉘고, Q3 2026에는 NII 271억 달러와 비이자수익 238억 달러였다. 금리가 오르면 이자 차익이, 자본시장이 뜨거우면 IB·트레이딩 수수료가 커져 서로 경기를 일부 상쇄한다. 반대로 두 축이 동시에 약해지는 국면은 이 구조가 가장 약한 지점이다.",
+      "src": [
+        "s5",
+        "s2"
+      ]
+    },
+    {
+      "title": "자본이 생산의 상한이다",
+      "text": "대출과 트레이딩을 늘리면 CET1이 소모돼 14.5%에서 13.9%로 내려왔고, 2025년 316억 달러였던 자사주 매입은 Q3 2026 순매입 6.64억 달러로 줄었다. 대출 성장과 Apple 카드 인수 준비에 자본을 남겨 두는 쪽으로 무게가 옮겨 간 것으로 읽힌다. 환원이 줄었다는 사실이 성장에 쓰는 자본이 늘었다는 신호이기도 하다.",
+      "src": [
+        "s5",
+        "s2",
+        "s3"
+      ]
+    },
+    {
+      "title": "기술 투자의 회수는 측정이 어렵다",
+      "text": "2026년 기술 예산은 약 198억 달러(약 20억 달러 증가)이고 이 중 AI 배정액은 보도 기준 약 20억 달러다. 경영진은 AI로 운영 인력을 약 5년에 걸쳐 약 10% 줄이고 콜센터 서비스 비용을 약 30% 내렸다고 하지만 일부는 기존 자동화 효과이고, 기술 투자의 수익은 측정이 어렵다고 스스로 인정한다. 비용 가이던스가 먼저 오르고 효율은 나중에 따라오는 구조다.",
+      "src": [
+        "s9",
+        "s7",
+        "s10",
+        "s2"
+      ]
+    },
+    {
+      "title": "사업부마다 다른 자본 효율",
+      "text": "Q3 2026 순이익은 CIB 82.5억 달러가 가장 크지만 ROE는 CIB 18%, CCB 36%, AWM 45%로 순이익이 작은 사업부일수록 자본 효율이 높다. 관리기준 매출 비중은 CIB 44.7%, CCB 41.6%, AWM 13.6%다. 전사 ROTCE 20%는 이 세 사업부의 가중 결과이므로 트레이딩·IB가 줄어도 CCB와 AWM이 완충하는 정도를 가늠해 볼 수 있다.",
+      "src": [
+        "s1"
+      ]
+    }
   ],
-
   "trading": {
     "calendar": [
-      { "date": "2027-01 중순 (추정, 회사 미확정)", "event": "4Q26·FY2026 실적과 2027 NII·비용 전망", "src": [] },
-      { "date": "매년 6월 (추정)", "event": "연준 스트레스 테스트 결과와 자본 계획(배당·자사주)", "src": [] },
-      { "date": "수시", "event": "연준 금리 결정과 장기금리 변화 (NII·증권 평가손)", "src": ["s1"] }
+      {
+        "date": "2027-01 중순 (추정, 회사 미확정)",
+        "event": "4Q26·FY2026 실적과 2027 NII·비용 전망",
+        "src": []
+      },
+      {
+        "date": "매년 6월 (추정)",
+        "event": "연준 스트레스 테스트 결과와 자본 계획(배당·자사주)",
+        "src": []
+      },
+      {
+        "date": "수시",
+        "event": "연준 금리 결정과 장기금리 변화 (NII·증권 평가손)",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "reaction": "주가는 분기 EPS보다 연간 NII·비용 전망 변경, 충당금·카드 손실 추이, 자사주 매입 속도에 반응하는 경향이 있다. Q3 2026은 증권 매각손 6.58억 달러로 보고 EPS 5.57달러(제외 시 5.75달러)였고 CET1 하락과 자사주 매입 축소가 함께 나와 자본 여력이 관전 포인트가 됐다.",
     "conditions": [
@@ -297,7 +724,6 @@
       "컨센서스 EPS 상향·하향 건수 추이"
     ]
   },
-
   "unverified": [
     "은행 특성상 총마진·영업이익률·영업현금흐름·잉여현금흐름은 의미가 약해 null (순이익률은 보고기준 매출 1,824.5억 대비 계산값)",
     "NII: 10-K 보고기준 954억(v1)과 4Q25 슬라이드 관리기준 959억 차이 - 본문은 959억 사용",
@@ -314,6 +740,5 @@
     "Q3 2026 CET1의 전년 비교와 1~3분기 누적 손익 (8-K 본문에 없음)",
     "Q3 2026 보고기준 순이익률 계산에는 순이익 153.1억/관리기준이 아닌 보고 매출 501.7억을 쓰면 30.5%이며, earnings.revenue는 관리기준 509.1억 달러"
   ],
-
   "confidence": "high - 매출·이익·자본·가이던스는 10-K와 회사 8-K 실적 자료에서 왔다. AI 지출·효과와 시장 점유율 일부는 2차 출처이거나 미확인이라 medium 수준이다."
 }

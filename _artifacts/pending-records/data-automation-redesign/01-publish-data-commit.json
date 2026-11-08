@@ -1,0 +1,47 @@
+{
+  "p": {
+    "title": "Four hand-written data commit loops drifted apart; event-briefs lost a cycle to a dirty-worktree rebase",
+    "files": [
+      "scripts/lib/data-publish-sets.mjs",
+      "scripts/publish-data-commit.mjs",
+      "scripts/ci-publish-data-commit-check.mjs",
+      ".github/workflows/refresh-data.yml",
+      ".github/workflows/refresh-screener.yml",
+      ".github/workflows/event-briefs.yml",
+      "architecture/qa-pipeline.json",
+      "scripts/ci-data-continuity-check.mjs",
+      "scripts/ci-data-pipeline-contract-check.mjs",
+      "scripts/ci-official-references-check.mjs",
+      "scripts/ci-operations-slo-window-check.mjs",
+      "scripts/ci-qa-pipeline-contract-check.mjs",
+      "scripts/ci-scenario-guidance-fixture.mjs",
+      "scripts/ci-us-listings-check.mjs",
+      "scripts/ci-operations-contract-check.mjs",
+      "scripts/ci-market-snapshot-contract-check.mjs",
+      "scripts/ci-screener-extended-contract-check.mjs"
+    ],
+    "symptom": "Run 42480198913 (event-briefs) lost that cycle's briefs: its push was rejected, and the retry's `git rebase` refused with \"cannot rebase: You have unstaged changes\". The refresh-screener extended shard had no collision retry, so a rebase conflict ended the run red. Event-briefs did not re-validate after a rebase. On Sunday 11/08, 12 of the 15 event-brief commits rewrote only generatedAt in kr-index-weights.json; each one meant a CI run and a Pages deploy.",
+    "root_cause": "The commit/push logic was inline bash, copied into refresh-data, refresh-screener (core and extended) and event-briefs, each with its own staged-path list, 50 MB check, rebase loop and post-rebase validation. The copies diverged. `git restore --staged` unstaged a timestamp-only file but left it modified in the worktree. Only event-briefs.json had a timestamp-only filter. fetch-kr-index-weights.mjs compared asOf with today's KST date, not the latest KRX session, so every non-trading day refetched every 20 minutes. Gates checked the loops by grepping the workflow for `stage_if_exists public-data/<file>`, so they confirmed the text, not the behaviour.",
+    "fix": "One tested publisher, scripts/publish-data-commit.mjs, now reads its sets from scripts/lib/data-publish-sets.mjs. Each set lists required paths, optional paths, timestamp-only rules, afterStage/beforeCommit/verifyCommit hooks, a collision policy and the CI origin. The publisher stages the set and puts timestamp-only files back to HEAD in both the index and the worktree. It refuses unparsable JSON and files over 50 MB, commits, verifies, and pushes. On rejection it runs `rebase --autostash`, verifies again, then retries (5 attempts); a conflict dispatches one collision re-run, and a second collision fails. It finishes by dispatching exact-SHA CI. All four workflow commit steps call it. kr-index-weights is due once per KRX session, 40 minutes after the close (latestCompletedKrSession). Eleven gates (artifact-refresh-path, data-continuity, data-pipeline, official-references, operations-slo-window, qa-pipeline, scenario-guidance, us-listings, operations-contract, market-snapshot, screener-extended) now assert against the publish sets instead of the workflow text. ci-release-source-check fails when a set commits a path that is not an overlay-generated path.",
+    "violated_rule": "R255 (a lost push race must not drop the cycle) held in only two of the four loops.",
+    "prevention": "{R}: every producing workflow commits through scripts/publish-data-commit.mjs. ci-publish-data-commit-check.mjs drives the publisher against a throwaway bare remote (race with autostash, conflict, second collision, verify after rebase, timestamp-only, missing or unparsable output). It also fails when a publishing workflow keeps `until git push` or `stage_if_exists`.",
+    "verification": "node scripts/ci-publish-data-commit-check.mjs; node scripts/ci-event-briefs-check.mjs; node scripts/qa-runner.mjs contracts --no-cache"
+  },
+  "r": {
+    "title": "Data commits go through one tested publisher",
+    "rule": "A workflow that commits public data runs `node scripts/publish-data-commit.mjs --set <id>`. The set's paths, timestamp-only rules, hooks and collision policy live in scripts/lib/data-publish-sets.mjs, and gates read the set rather than the workflow text. A file whose only change is a timestamp goes back to HEAD in both the index and the worktree.",
+    "validation": "scripts/ci-publish-data-commit-check.mjs (workspace group); scripts/ci-artifact-refresh-path-check.mjs checks that each workflow named in the freshness registry publishes its file and ledger."
+  },
+  "qa": [
+    {
+      "id": "QA-DATA-PUBLISH-01",
+      "text": "After a producing workflow's lost push race, the next data commit sits on top of the other commit and the runner's worktree edits survive (autostash). A conflict dispatches exactly one collision re-run.",
+      "verify_by": "node scripts/ci-publish-data-commit-check.mjs"
+    }
+  ],
+  "qa_section": "Data publisher ({VERSION})",
+  "changelog": [
+    "**One data publisher ({P}/{R}):** The commit/push loops in refresh-data, refresh-screener (core and extended) and event-briefs had drifted apart, and one event-briefs cycle was lost when its retry's rebase was refused over a leftover modified file. They are now one tested script, `scripts/publish-data-commit.mjs`, with the sets in `scripts/lib/data-publish-sets.mjs`. Timestamp-only files go back to HEAD; the retry uses `rebase --autostash`, re-verifies, and runs one collision re-run. The KR index weights are due once per KRX session, which stops the weekend generatedAt commits (12 of 15 on 11/08). Eleven gates read the sets instead of grepping the workflow text."
+  ],
+  "note": "{VERSION}: one tested data publisher, session-lag freshness, cron fallback guard"
+}

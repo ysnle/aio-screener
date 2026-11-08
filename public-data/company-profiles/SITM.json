@@ -279,13 +279,13 @@
     "position": "AI 데이터센터의 광모듈·스위치·서버·NIC가 신호를 맞추는 데 쓰는 정밀 타이밍 부품(발진기·클록 칩) 공급자. 연산 칩이 아니라 연결 장비 안의 '시계'다.",
     "dependsOn": [
       "MEMS 웨이퍼 (Bosch·Teledyne)",
-      "semicap-foundry (TSMC·UMC 아날로그 웨이퍼, 동남아 조립·테스트)",
+      "장비·파운드리 (TSMC·UMC 아날로그 웨이퍼, 동남아 조립·테스트)",
       "Arrow·Pernas 등 유통사"
     ],
     "sellsTo": [
-      "networking (광모듈·스위치 업체)",
-      "chips-compute·서버 업체",
-      "devices (Apple 등 모바일)",
+      "네트워크 (광모듈·스위치 업체)",
+      "연산 칩·서버 업체",
+      "기기 (Apple 등 모바일)",
       "자동차·산업 장비"
     ],
     "aiRevenue": "AI 매출은 따로 공시하지 않음. AI 데이터센터가 이끄는 CED 매출 Q2 2026 1.012억 달러(+181%, 전체의 64%)가 가장 가까운 지표 (분석 기사, 2026-08-10).",
@@ -391,7 +391,7 @@
     "latest": [
       {
         "period": "Q4 2026",
-        "metric": "revenue / margins / EPS",
+        "metric": "매출 / 이익률 / EPS",
         "value": "보도자료에 없음 (11-04 콜에서 제시, 이번 조사에서 미확인)",
         "givenOn": "2026-11-04",
         "src": [
@@ -400,7 +400,7 @@
       },
       {
         "period": "Q3 2026 (결과 대비)",
-        "metric": "revenue",
+        "metric": "매출",
         "value": "가이던스 2.85억~2.95억 달러 → 실제 2.987억 달러",
         "givenOn": "2026-08-05",
         "src": [
@@ -410,7 +410,7 @@
       },
       {
         "period": "Q3 2026 (결과 대비)",
-        "metric": "non-GAAP gross margin / EPS",
+        "metric": "non-GAAP 매출총이익률 / EPS",
         "value": "가이던스 약 68% ±1%p, EPS 3.50~3.65달러 → 실제 70.7%, 4.01달러",
         "givenOn": "2026-08-05",
         "src": [

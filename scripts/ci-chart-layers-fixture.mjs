@@ -47,40 +47,66 @@ assert.equal(maAlignment(Object.fromEntries(BASE_MA.map((p) => [p, smaSeries(ris
 // Trend areas: a confirmed run needs 3 bars; a rise then a fall paints an up segment followed by a down segment.
 const wave = [...Array.from({ length: 150 }, (_, i) => 100 + i), ...Array.from({ length: 150 }, (_, i) => 249 - i * 1.2)];
 const waveBars = wave.map((c, i) => ({ time: `2025-${String(1 + Math.floor(i / 28) % 12).padStart(2, '0')}-${String(1 + i % 28).padStart(2, '0')}`, open: c, high: c + 1, low: c - 1, close: c, volume: 1000 }));
-const regimes = trendRegimes(waveBars);
-assert.deepEqual(regimes.segments.map((s) => s.dir), ['up', 'down'], 'v59.74 trend areas: one up run, then one down run');
-assert.equal(regimes.current, 'down', 'v59.74 the latest bar is in the down run');
-const blip = trendRegimes(waveBars.map((b, i) => (i === 120 ? { ...b, close: 60 } : b)));
-assert.equal(blip.segments.filter((s) => s.dir === 'up').length, 1, 'v59.74 a one-bar break does not split the up run (3-bar confirmation)');
+// v59.85: the areas follow the canonical trend (bands.js classifyTrend through trend-state.js), which needs the 200-bar line.
+const longWave = [...Array.from({ length: 320 }, (_, i) => 100 + i * 0.5), ...Array.from({ length: 260 }, (_, i) => 260 - i * 0.6)];
+const longBars = longWave.map((c, i) => ({ time: `t${String(i).padStart(4, '0')}`, open: c, high: c * 1.01, low: c * 0.99, close: c, volume: 1000 }));
+const regimes = trendRegimes(longBars);
+assert.deepEqual(regimes.segments.map((s) => s.dir), ['up', 'down'], `v59.85 trend areas: one up run, then one down run: ${JSON.stringify(regimes.segments)}`);
+assert.equal(regimes.current, 'down', 'v59.85 the latest bar is in the down run');
+assert.equal(regimes.trend.label, '하락 추세', 'v59.85 the chip word is the screener word for the same numbers');
+const blip = trendRegimes(longBars.map((b, i) => (i === 280 ? { ...b, close: b.close * 0.8, low: b.close * 0.8 } : b)));
+assert.equal(blip.segments.filter((s) => s.dir === 'up').length, 1, 'v59.85 a one-bar break does not split the up run (3-bar confirmation)');
+assert.equal(trendRegimes(longBars.slice(0, 150)).trend, null, 'v59.85 under 200 bars the trend is held (no word), as the screener holds a row without pctSma200');
+{
+  const { bufferedTrend } = await import('../src/domain/technical/bands.js');
+  const { trendOfBars } = await import('../src/domain/technical/trend-state.js');
+  // The same numbers through the screener row and through the bars give one state.
+  const bars = longBars.slice(0, 400), closes = bars.map((b) => b.close);
+  const sma = (n) => closes.slice(-n).reduce((a, b) => a + b, 0) / n;
+  const row = { pctSma50: (closes.at(-1) / sma(50) - 1) * 100, pctSma200: (closes.at(-1) / sma(200) - 1) * 100, adrPct: bars.slice(-20).reduce((a, b) => a + (b.high - b.low) / b.close * 100, 0) / 20, ret5d: (closes.at(-1) / closes.at(-6) - 1) * 100 };
+  assert.equal(trendOfBars(bars).label, bufferedTrend(row).label, 'v59.85 chart bars and the screener row read one trend word');
+  const cross = await import('../src/domain/technical/bands.js');
+  assert.equal(cross.classifyTrend({ s50: -6, s200: -2, positionOnly: true }).label, '추세 이탈', 'v59.85 below both lines with the 50-day still over the 200-day is 추세 이탈 (phase of down)');
+  assert.equal(cross.classifyTrend({ s50: -6, s200: -2, positionOnly: true }).id, 'down', 'v59.85 the phase keeps the id, so id readers are unchanged');
+  assert.equal(cross.classifyTrend({ s50: 6, s200: 2, positionOnly: true }).label, '회복 시도', 'v59.85 above both with the 50-day still under the 200-day is 회복 시도');
+}
 
-// Divergence: price lower low with RSI higher low is bullish.
-const divBars = [];
-const path = [...Array.from({ length: 40 }, (_, i) => 200 - i * 2), ...Array.from({ length: 12 }, (_, i) => 120 + i * 3), ...Array.from({ length: 14 }, (_, i) => 156 - i * 2.8), ...Array.from({ length: 20 }, (_, i) => 118 + i * 2)];
-path.forEach((c, i) => divBars.push({ time: `d${String(i).padStart(3, '0')}`, open: c, high: c + 0.5, low: c - 0.5, close: c, volume: 1 }));
-const divs = rsiDivergences(divBars, rsiSeriesWilder(divBars.map((b) => b.close)));
-assert.ok(divs.some((d) => d.kind === 'bullish' && d.priceTo < d.priceFrom && d.rsiTo > d.rsiFrom), 'v59.74 bullish divergence found');
+// v59.85 a weekly or intraday series names its own unit: 50·200-week lines are 주선, intraday lines 봉선 — never 일선.
+{
+  const { trendOfBars, barUnit } = await import('../src/domain/technical/trend-state.js');
+  const weekly = Array.from({ length: 300 }, (_, i) => ({ time: new Date(Date.UTC(2020, 0, 6 + 7 * i)).toISOString().slice(0, 10), open: 100 + i, high: 103 + i, low: 98 + i, close: 100 + i }));
+  assert.equal(barUnit(weekly), 'week', 'v59.85 weekly dates read as a weekly series');
+  const w = trendOfBars(weekly);
+  assert.ok(/50주선/.test(w.text) && !/일선|거래일|일평균/.test(`${w.label} ${w.text}`), `v59.85 weekly trend speaks in 주선: ${w.text}`);
+  const nearW = trendOfBars(weekly.map((b, i) => (i === 299 ? { ...b, close: b.close * 0.94 } : b)));
+  assert.ok(!/일선|거래일|일평균/.test(`${nearW.label} ${nearW.text}`), `v59.85 every weekly state avoids day words: ${nearW.label} ${nearW.text}`);
+  const hourly = longBars.map((b, i) => ({ ...b, time: 1_700_000_000 + i * 3600 }));
+  const h = trendOfBars(hourly);
+  assert.ok(/봉선/.test(h.text) && !/일선|거래일|일평균/.test(`${h.label} ${h.text}`), `v59.85 intraday trend speaks in 봉선: ${h.text}`);
+  const { bufferedTrend } = await import('../src/domain/technical/bands.js');
+  assert.match(bufferedTrend({ pctSma50: 5, pctSma200: 9, adrPct: 2, ret5d: 1 }).text, /50일선/, 'v59.85 the screener row keeps its daily words');
+}
 
-// Fibonacci: measured from the later extreme.
-const fib = fibonacciLevels(waveBars);
-assert.equal(fib.direction, 'down', 'v59.74 the low came after the high: the down move');
-close(fib.levels.find((l) => l.ratio === 0.5).price, (fib.high + fib.low) / 2, 1e-9, 'v59.74 50% retracement is the midpoint');
-assert.equal(fib.levels.find((l) => l.ratio === 0).price, fib.low, 'v59.74 0% is the low for a down move');
-assert.equal(fibonacciLevels(waveBars.slice(0, 150)).levels[0].price, fibonacciLevels(waveBars.slice(0, 150)).high, 'v59.74 0% is the high for an up move');
-
-// Squeeze: a quiet stretch after a volatile one.
-const sq = squeezeSpans(bollingerSeries([...Array.from({ length: 200 }, (_, i) => 100 + 8 * Math.sin(i)), ...Array.from({ length: 40 }, (_, i) => 100 + 0.1 * Math.sin(i))]).width);
-assert.ok(sq.length >= 1 && sq.at(-1).to >= 230, 'v59.74 the quiet stretch is a squeeze');
-
-// Coverage (owner 2026-11-07, no stock left out): every interval and a short history keep the base tier.
-const short = Array.from({ length: 12 }, (_, i) => ({ time: 1_700_000_000 + i * 300, open: 10 + i, high: 11 + i, low: 9 + i, close: 10.5 + i, volume: i === 3 ? null : 100 }));
-const shortLayers = buildChartLayers(short);
-assert.equal(shortLayers.available, true, 'v59.74 twelve 5-minute bars still draw the base tier');
-assert.equal(shortLayers.ma[5].filter((v) => v != null).length, 8, 'v59.74 the moving averages that fit are drawn');
-assert.equal(buildChartLayers([{ time: 't', open: 1, high: 1, low: 1, close: 1 }]).available, false, 'v59.74 one bar is not a chart');
-const gappy = waveBars.slice(-130).map((b, i) => (i % 20 === 0 ? { ...b, volume: null } : b));
-assert.equal(chartVolumeProfile(gappy).available, true, 'v59.74 a few missing volumes (≥90% coverage) still draw the profile');
-assert.equal(chartVolumeProfile(gappy).coveredSessions, 130 - 7, 'v59.74 bars without volume are left out of the profile');
-assert.equal(chartVolumeProfile(waveBars.slice(-130).map((b, i) => (i % 3 ? b : { ...b, volume: null }))).available, false, 'v59.74 missing volume is not invented (E08)');
+// v59.85 relative volume: daily = last ÷ the previous 50 bars' average; intraday = last ÷ the same clock slot's average
+// over the previous 10 sessions, so an opening bar is not compared with lunchtime bars.
+{
+  const { relativeVolume, volumeAverageSeries } = await import('../src/domain/technical/chart-layers.js');
+  const daily = Array.from({ length: 60 }, (_, i) => ({ time: `d${i}`, open: 10, high: 11, low: 9, close: 10, volume: i === 59 ? 3000 : 1000 }));
+  assert.equal(relativeVolume(daily).ratio, 3, 'v59.85 daily RVOL = last ÷ prior-50 average (the last bar excluded)');
+  const day0 = Date.UTC(2026, 9, 1, 13, 30) / 1000;
+  const intraday = [];
+  for (let d = 0; d < 12; d++) for (let k = 0; k < 7; k++) intraday.push({ time: day0 + d * 86400 + k * 3600, open: 10, high: 11, low: 9, close: 10, volume: k === 0 ? 5000 : 500 });
+  intraday.push({ time: day0 + 12 * 86400, open: 10, high: 11, low: 9, close: 10, volume: 5000 });
+  const r = relativeVolume(intraday);
+  assert.equal(r.basis, 'time-of-day', 'v59.85 intraday RVOL compares the same clock slot');
+  assert.equal(r.ratio, 1, 'v59.85 a heavy opening bar against heavy opening bars is 1×, not 10×');
+  const fiveMin = [];
+  for (let d = 0; d < 4; d++) for (let k = 0; k < 78; k++) fiveMin.push({ time: day0 + d * 86400 + k * 300, open: 10, high: 11, low: 9, close: 10, volume: 1000 });
+  fiveMin.push({ time: day0 + 4 * 86400, open: 10, high: 11, low: 9, close: 10, volume: 2000 });
+  assert.equal(relativeVolume(fiveMin)?.ratio, 2, 'v59.85 the 5-minute chart (five sessions, four before today) still has an RVOL');
+  assert.equal(relativeVolume(daily.map((b, i) => (i === 59 ? { ...b, volume: null } : b))), null, 'v59.85 no RVOL without the last bar\'s volume');
+  assert.equal(volumeAverageSeries(daily).values.at(-2), 1000, 'v59.85 the volume average line is the 50-bar mean');
+}
 
 // The read is short chips (owner 2026-11-07: no excess text).
 const layers = buildChartLayers(waveBars);

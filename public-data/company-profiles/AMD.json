@@ -338,16 +338,16 @@
     "layer": "chips-compute",
     "position": "AI 데이터센터의 가속기(Instinct GPU)와 서버 CPU(EPYC)를 함께 공급하는 두 번째 상용 GPU 공급자. 2026년부터는 GPU·CPU·네트워킹을 묶은 Helios 랙으로 NVIDIA의 랙 시스템과 같은 자리를 노린다.",
     "dependsOn": [
-      "semicap-foundry (TSMC 첨단 공정·패키징, GlobalFoundries)",
-      "memory (HBM 공급사 - 업체명 미공시)",
+      "장비·파운드리 (TSMC 첨단 공정·패키징, GlobalFoundries)",
+      "메모리 (HBM 공급사 - 업체명 미공시)",
       "조립·테스트 (Tongfu 합작사, SPIL, KYEC)",
       "랙 제조 (Sanmina 등)"
     ],
     "sellsTo": [
-      "models-platforms (OpenAI, Anthropic)",
-      "cloud-infrastructure (Microsoft Azure, Oracle, Meta, Vultr, Tensorwave)",
-      "ai-adopter (기업·국가 AI: HUMAIN 등)",
-      "devices (PC OEM, 게임기)"
+      "모델·플랫폼 (OpenAI, Anthropic)",
+      "클라우드 (Microsoft Azure, Oracle, Meta, Vultr, Tensorwave)",
+      "AI를 쓰는 기업 (기업·국가 AI: HUMAIN 등)",
+      "기기 (PC OEM, 게임기)"
     ],
     "aiRevenue": "Instinct GPU 매출 금액은 별도 공시 없음. Data Center 사업부 Q3 2026 매출 85.5억 달러(총매출의 64%, 전년 대비 +97%, 2026-11-03 발표)",
     "upside": "Helios 랙과 MI450이 Anthropic·Meta·Microsoft·OpenAI·Oracle에서 첫 워크로드를 돌리기 시작했고, 회사는 Q4 매출 약 170억 달러(전 분기 대비 +27%)로 성장 가속을 제시했다. AI 에이전트 확산이 서버 CPU 수요도 끌어올려, 2027년 서버 매출이 대략 두 배가 될 것으로 본다고 보도됐다.",
@@ -500,7 +500,7 @@
     "latest": [
       {
         "period": "Q4 2026",
-        "metric": "revenue",
+        "metric": "매출",
         "value": "약 170억 달러 ±3% (중간값 전년 대비 약 +66%, 전 분기 대비 약 +27%)",
         "givenOn": "2026-11-03",
         "src": [
@@ -509,7 +509,7 @@
       },
       {
         "period": "Q4 2026",
-        "metric": "non-GAAP gross margin",
+        "metric": "non-GAAP 매출총이익률",
         "value": "약 55% (Q3 56%)",
         "givenOn": "2026-11-03",
         "src": [
@@ -518,7 +518,7 @@
       },
       {
         "period": "FY2027",
-        "metric": "server revenue",
+        "metric": "서버 매출",
         "value": "전년 대비 대략 2배 (보도 기준)",
         "givenOn": "2026-11-03",
         "src": [

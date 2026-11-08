@@ -404,6 +404,21 @@ export function creditCause({ hyBp = null, hy5 = null, hy20Record = null } = {})
   return { level, fast5, wide20, primary };
 }
 
+// The one release condition of a credit 부담, naming only the legs still to clear. While the 20-session widening latch
+// holds (hy20Stress) it lets go only with the 20-session change under +25bp and five sessions under +15bp; without the
+// latch the 부담 comes from the level or a five-session widening of +25bp, so those are the legs (creditState).
+export function creditReleaseText({ hyBp = null, hy5 = null, hy20 = null, latched = false } = {}) {
+  const C = RULES.credit;
+  const legs = [];
+  const fiveLimit = latched ? C.widenWatch5dBp : C.widen5dBp;
+  if (finite(hyBp) == null || hyBp >= C.stressAtBp) legs.push(`하이일드 스프레드가 ${C.stressAtBp}bp 아래로 내려오고`);
+  if (finite(hy5) == null || hy5 >= fiveLimit) legs.push(`5거래일 확대가 +${fiveLimit}bp 아래로 줄고${finite(hy5) != null ? `(지금 ${signed(hy5, 0, 'bp')})` : ''}`);
+  if (latched && (finite(hy20) == null || hy20 >= C.widen20dBp)) legs.push(`20거래일 확대가 +${C.widen20dBp}bp 아래로 줄면${finite(hy20) != null ? `(지금 ${signed(hy20, 0, 'bp')})` : ''}`);
+  if (!legs.length) return '해제 조건은 모두 충족 — 다음 종가에서 중립으로 바뀜';
+  const text = legs.join(' ').replace(/고(\([^)]*\))?$/, '면$1');
+  return `${text} 중립`;
+}
+
 // P1723 (2026-10-13: KOSPI -5.46%, five sessions -13.8%): the six US axes are judged on US closes, so a Korean shock
 // never reached the briefing lead or the axis reads. Where the KOSPI 1- and 5-session changes sit in AIO's own record
 // of those changes (last 252 KRX sessions, exact session spans only) decides how prominently the Korean sentence is
@@ -1397,6 +1412,8 @@ export function buildMarketRegime(input = {}) {
           : (Math.abs(tnx20) >= RULES.rates.move20dBp / 2 ? `장기금리가 20거래일 ${signed(tnx20, 0, 'bp')} ${tnx20 > 0 ? '올랐지만' : '내렸지만'} 판정 기준(±${RULES.rates.move20dBp}bp)에는 못 미칩니다${atHigh ? ', 1년 범위 상단' : ''}.`
             : '금리가 뚜렷한 방향 없이 움직이고 있습니다.') + neutralLevel;
     const flip = state === 'unknown' ? null
+      // a growth-scare hold names what lifts it — the S&P 500 fall back inside the line.
+      : growthScare ? `S&P 500의 20거래일 하락이 ${R.growthScareSpx20dPct}% 안으로 줄면(지금 ${signed(spxFall20)}) 금리 하락을 할인율 부담 감소(양호)로 읽고, 10년물 20일 +${RULES.rates.move20dBp}bp 이상이면 부담`
       : state === 'burden' ? `10년물 20일 변화 +${RULES.rates.move20dBp}bp 미만(현재 ${signed(tnx20, 0, 'bp')})이고, 1년 범위 위치가 ${R.rangeExitAt * 100}% 아래로 내려오거나 20일 상승이 +${R.exit20dBp}bp 아래로 줄면 중립으로 바뀜`
         : state === 'favorable' ? `10년물 20일 변화가 -${RULES.rates.move20dBp}bp 위로 올라오면 중립, +${RULES.rates.move20dBp}bp 이상이면 부담`
           : `10년물 20일 +${RULES.rates.move20dBp}bp 이상 또는 1년 범위 ${RULES.rates.rangeHighAt * 100}% 이상에서 5일 상승 시 부담, 20일 -${RULES.rates.move20dBp}bp 이하면 양호`;
@@ -1406,6 +1423,9 @@ export function buildMarketRegime(input = {}) {
       ['실질금리 / 기대인플레 (5거래일)', real5 == null || bei5 == null ? null : `${signed(real5, 0, 'bp')} / ${signed(bei5, 0, 'bp')}`],
       ['실질금리 (10년 TIPS)', r.realYield10 == null ? null : `${fmt(r.realYield10)}%`]
     ], read, flip, alignments.tnx, [alignments.tnx, alignments.tnx, alignments.rates, alignments.rates]));
+    // the growth-scare hold travels with the axis, so the 거시 chain and the six-factor tile read
+    // the same verdict instead of re-deriving '할인율 부담이 줄고 있습니다' from the 10-year alone.
+    axes[axes.length - 1].growthScare = growthScare ? { spx20: spxFall20, tnx20 } : null;
     attachDistance(axes[axes.length - 1], ratesDistance);
   }
   // 5. Credit & risk appetite — the funding market and hedging demand. Calm needs the direction too.
@@ -1456,7 +1476,11 @@ export function buildMarketRegime(input = {}) {
       : state === 'burden' ? (hyBp >= RULES.credit.stressAtBp
         ? `스프레드 수준이 ${fmt(hyBp, 0)}bp로 ${RULES.credit.stressAtBp}bp 이상 — 자금 조달 여건이 나쁜 구간입니다.`
         // v57.81: say which condition fired — the 20-session widening against its own record, not the level.
-        : stress20 ? `수준(${fmt(hyBp, 0)}bp)은 ${RULES.credit.stressAtBp}bp 아래지만 20거래일 동안 ${signed(hy20, 0, 'bp')} 넓어졌습니다(${recordWord}${hy5 != null ? `, 최근 5일 ${signed(hy5, 0, 'bp')}` : ''}) — 확대 폭이 드문 수준이라 부담으로 봅니다.`
+        // under the entry line the 부담 is the latch holding — '상위 12% … 드문 수준이라 부담' gave a reason
+        // the 90th-percentile rule does not accept. It says it is held, since when, and the release legs still open.
+        : stress20 ? (rec && hy20 != null && hy20 < rec.enterBp
+          ? `수준(${fmt(hyBp, 0)}bp)은 ${RULES.credit.stressAtBp}bp 아래이고 20거래일 ${signed(hy20, 0, 'bp')}(${recordWord})은 진입선(+${fmt(rec.enterBp, 0)}bp) 아래지만, ${rec.since ? `${shortDate(rec.since)}에 시작된 ` : ''}확대 부담 판정이 이어지고 있습니다 — ${creditReleaseText({ hyBp, hy5, hy20, latched: true })}으로 바뀝니다.`
+          : `수준(${fmt(hyBp, 0)}bp)은 ${RULES.credit.stressAtBp}bp 아래지만 20거래일 동안 ${signed(hy20, 0, 'bp')} 넓어졌습니다(${recordWord}${hy5 != null ? `, 최근 5일 ${signed(hy5, 0, 'bp')}` : ''}) — 확대 폭이 드문 수준이라 부담으로 봅니다.`)
         : `수준(${fmt(hyBp, 0)}bp)은 ${RULES.credit.stressAtBp}bp 아래지만 5일 동안 ${signed(hy5, 0, 'bp')} 빠르게 넓어졌습니다 — 수준보다 확대 속도가 부담입니다.`)
         : state === 'unknown' ? staleRead('신용 스프레드', alignments.hy)
           : widening20 ? `수준(${fmt(hyBp, 0)}bp)은 ${RULES.credit.stressAtBp}bp 아래지만 20거래일 동안 ${signed(hy20, 0, 'bp')} 넓어졌습니다${hy5 != null ? `(최근 5일 ${signed(hy5, 0, 'bp')})` : ''} — 한 달째 확대라 안정으로 보지 않습니다.`
@@ -1467,7 +1491,7 @@ export function buildMarketRegime(input = {}) {
     const dispersion = creditDispersion(input.macroHistory, basis);
     const dispersionText = dispersion && state !== 'burden' && state !== 'unknown' ? ` 다만 ${dispersion.text}` : '';
     const flip = state === 'unknown' ? null
-      : state === 'burden' ? `하이일드 스프레드가 ${RULES.credit.stressAtBp}bp 아래이고 5일 확대가 +${RULES.credit.widen5dBp}bp 미만이며 20거래일 확대가 +${RULES.credit.widen20dBp}bp 아래로 줄면 중립, 그때 5일 확대도 멈추고 수준이 ${RULES.credit.tightBelowBp}bp 미만이면 바로 양호로 바뀜`
+      : state === 'burden' ? `${creditReleaseText({ hyBp, hy5, hy20, latched: !!c.hy20Stress })}, 그때 5일 확대도 멈추고 수준이 ${RULES.credit.tightBelowBp}bp 미만이면 바로 양호로 바뀜`
         : state === 'favorable' ? `하이일드 스프레드 ${RULES.credit.tightBelowBp}bp 이상, 5일 확대, 20거래일 +${RULES.credit.widen20dBp}bp 이상 확대 중 하나면 중립, ${RULES.credit.stressAtBp}bp 이상, 5일 +${RULES.credit.widen5dBp}bp 확대, 20거래일 확대가 자체 기록 상위 ${100 - RULES.credit.stress20dPct}% 중 하나면 부담`
           : `하이일드 스프레드 ${RULES.credit.tightBelowBp}bp 미만에 5일 축소·보합, 20거래일 확대 +${RULES.credit.widen20dBp}bp 미만이면 양호, ${RULES.credit.stressAtBp}bp 이상, 5일 +${RULES.credit.widen5dBp}bp 확대, 20거래일 확대가 자체 기록 상위 ${100 - RULES.credit.stress20dPct}% 중 하나면 부담`;
     axes.push(axis('credit', '신용과 위험선호', state, [
@@ -1673,6 +1697,9 @@ export function buildMarketRegime(input = {}) {
     // v58.56 review: '혼조' is the fall-through label, so a mostly-neutral split names that instead of "서로 다른 방향".
     axesOverall,
     leadershipCap,
+    // The verdict is read on the 50-day lines and 20-session moves; the index cards beside it show the latest session. When
+    // that session moved against the verdict's side, the hero says which horizon the verdict is on.
+    horizonLine: verdictHorizonLine({ overall: enough ? overall : null, indexes: [['S&P 500', spx], ['나스닥 100', s.ndx], ['러셀 2000', s.rut]] }),
     heroLine: !enough ? null : (leadershipCap ? '지수 쪽 지표는 우호적이지만 AI·반도체 주도주가 약해 시장이 갈려 있습니다.' : null) || conflictLines[0]
       || (overall === '혼조' && count('neutral') * 2 > known.length ? '대부분 지표가 중립입니다.' : OVERALL_LINE[overall]) || null,
     // v57.81: the leadership-break test and the trend cap travel with the regime (scenario rules, outlook, AI context).
@@ -1686,6 +1713,25 @@ export function buildMarketRegime(input = {}) {
     // v59.70 (owner 11/4): two rows beside the six axes, in the same table columns. Neither enters `counts`: 심리 is
     // descriptive (D02 keeps a mean rank out of any grade) and AI·반도체 reaches `overall` only through leadershipCap.
     watchAxes
+  };
+}
+
+/**
+ * { text, detail } naming the verdict's horizon when the latest session moved the index cards against its side (오늘 shows the
+ * S&P 500, Nasdaq 100 and Russell 2000 sessions beside the verdict), else null. A day that split the indexes is left alone.
+ */
+export function verdictHorizonLine({ overall = null, indexes = [] } = {}) {
+  const sign = overall === '부담 우세' || overall === '다소 부담' ? 1 : overall === '양호 우세' || overall === '다소 양호' ? -1 : 0;
+  if (!sign) return null;
+  const moves = indexes.map(([name, stat]) => ({ name, date: stat?.date, day: stat ? pct(stat.value, stat.d1) : null })).filter((row) => row.day != null);
+  const limit = RULES.briefing.verdictDayAgainstPct;
+  const against = moves.filter((row) => row.day * sign > 0).sort((x, y) => Math.abs(y.day) - Math.abs(x.day));
+  if (!against.length || Math.abs(against[0].day) < limit || moves.some((row) => row.day * sign <= -limit)) return null;
+  const up = sign > 0;
+  // The face is one short line (the index cards below carry the numbers); the detail names the axes and what to watch.
+  return {
+    text: `${shortDate(against[0].date)} 지수는 ${up ? '올랐지만' : '내렸지만'}, 판정은 하루 등락이 아닌 50일선·20거래일 흐름 기준입니다.`,
+    detail: `${against.map((row) => `${row.name} ${signed(row.day)}`).join(', ')}. 판정('${overall}')은 추세·시장 폭(50일선), 변동성 수준, 금리·신용·유가의 20거래일 흐름으로 매깁니다 — ${up ? '반등' : '하락'}이 이어지는지는 시장 상태의 추세·시장 폭 축에서 확인합니다.`
   };
 }
 

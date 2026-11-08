@@ -1,4 +1,5 @@
 import { readScreenerPageSource } from './lib/screener-page-source.mjs'; // v59.70 (S12): the page is split under src/ui/pages/screener/
+import { DATA_PUBLISH_SETS, publishSetPaths, workflowPublishes } from './lib/data-publish-sets.mjs';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -67,14 +68,16 @@ check('v59.72 the producer publishes the rewritten reading', /text: softenReader
   // v59.82 (hosting review option A): the 13F manager row store left main for the masters-store branch.
   const refresh = read('.github/workflows/refresh-data.yml');
   const fullChain = refresh.slice(refresh.indexOf('run_full_13f() {'), refresh.indexOf('\n          }\n', refresh.indexOf('run_full_13f() {')));
-  const commitStep = refresh.slice(refresh.indexOf('stage_if_exists public-data/masters/filing-discovery.json'), refresh.indexOf('git commit -m "data: refresh market and news data'));
   const tracked = spawnSync('git', ['ls-files', '--cached', '--', 'public-data/masters/managers'], { cwd: root, encoding: 'utf8' }).stdout.trim();
   check('v59.82 the 13F manager row store is not tracked on main', !tracked && /^public-data\/masters\/managers\/$/m.test(read('.gitignore')), tracked.split('\n')[0]);
   check('v59.82 the full 13F chain restores the row store first and writes its manifest last', fullChain.indexOf('masters-managers-store.mjs restore --require') > -1
     && fullChain.indexOf('masters-managers-store.mjs restore --require') < fullChain.indexOf('collect-13f-reference.mjs')
     && fullChain.lastIndexOf('masters-managers-store.mjs manifest') > fullChain.lastIndexOf('build-masters-runtime-artifacts.mjs'));
-  check('v59.82 the commit stages the manifest, not the rows, and publishes the store before main is pushed', !/stage_if_exists public-data\/masters\/managers\n/.test(commitStep)
-    && /stage_if_exists public-data\/masters\/managers-store\.json/.test(commitStep) && /git diff --staged --quiet -- public-data\/masters\/managers-store\.json; then\n\s+node scripts\/masters-managers-store\.mjs publish/.test(commitStep));
+  // v59.85: the staged set and the before-commit store publish are the refresh-data publish set (scripts/lib/data-publish-sets.mjs).
+  const refreshSet = DATA_PUBLISH_SETS['refresh-data'];
+  check('v59.82 the commit stages the manifest, not the rows, and publishes the store before main is pushed', !publishSetPaths('refresh-data').includes('public-data/masters/managers')
+    && publishSetPaths('refresh-data').includes('public-data/masters/managers-store.json')
+    && refreshSet.beforeCommit.includes('git diff --staged --quiet -- public-data/masters/managers-store.json || node scripts/masters-managers-store.mjs publish'));
   check('v59.82 a failed 13F lane drops its half-rewritten row store', /git checkout -- public-data\/masters public-data\/objects\/masters\n[\s\S]{0,400}rm -rf public-data\/masters\/managers\n/.test(refresh));
 }
 
@@ -410,9 +413,9 @@ check('P1309/R654/QA-DATA-51 daily 13D/G poll runs ownership-only while filing-s
 check('P1309/R654/QA-DATA-51 candidate and exact-SHA CI handoff remain after the weekly/daily SEC lanes',
   refresh.indexOf('Refresh weekly SEC 13F and daily 13D-G discovery') < refresh.indexOf('verify-refresh-candidate.mjs --record')
     && refresh.indexOf('verify-refresh-candidate.mjs --record') < refresh.indexOf('Commit refreshed public data if changed')
-    && /node scripts\/verify-refresh-candidate\.mjs --expect-commit/.test(refresh)
-    && /final_sha="\$\(git rev-parse HEAD\)"/.test(refresh)
-    && /release_sha="\$final_sha"/.test(refresh));
+    && DATA_PUBLISH_SETS['refresh-data'].verifyCommit.some((command) => command.startsWith('node scripts/verify-refresh-candidate.mjs --expect-commit'))
+    && DATA_PUBLISH_SETS['refresh-data'].ciOrigin === 'refresh-data'
+    && /'release_sha=\$\{sha\}'|`release_sha=\$\{sha\}`/.test(read('scripts/publish-data-commit.mjs')));
 check('refresh workflow has write permission and no cancel-in-progress', /contents:\s*write/.test(refresh) && /cancel-in-progress:\s*false/.test(refresh));
 check('P1421 refresh workflow fetches market data with official optional secrets and shared AI budget', /node scripts\/fetch-data\.mjs/.test(refresh) && /FRED_API_KEY/.test(refresh) && !/FMP_API_KEY/.test(refresh) && /AIO_AUTOMATION_TOKEN/.test(refresh) && /AI_PROXY_URL/.test(refresh) && !/OPENAI_API_KEY|ANTHROPIC_API_KEY/.test(refresh));
 {
@@ -483,8 +486,10 @@ check('P1421 refresh workflow fetches market data with official optional secrets
       && Object.keys(mp.marketAnalysisPromptSizes(packet)).length === ids.length && mp.inflationDirectionLine({}) === '', JSON.stringify(ids));
 }
 check('refresh workflow fetches Telegram digest artifact', /node scripts\/fetch-telegram-digest\.mjs --days=(?:7|14) --out=public-data\/telegram-digest\.json/.test(refresh));
-check('P1204 core refresh workflow stages core public-data artifacts and validates the Git index', /(?:git add -- )?public-data\/data\.json public-data\/history\.json/.test(refresh) && /stage_if_exists public-data\/telegram-digest\.json/.test(refresh) && /stage_if_exists public-data\/score-backtest-history\.json/.test(refresh) && /stage_if_exists public-data\/masters\/index\.json/.test(refresh) && /node scripts\/ci-masters-contract-check\.mjs --staged/.test(refresh));
-check('Telegram producer atomically synchronizes and stages Atlas lineage', /atlasIndex\.telegramObservedLineage\s*=\s*lineageCount/.test(fetchTelegram) && /public-data\/atlas\/index\.json/.test(refresh));
+check('P1204 core refresh workflow stages core public-data artifacts and validates the Git index', ['public-data/data.json', 'public-data/history.json'].every((path) => DATA_PUBLISH_SETS['refresh-data'].required.includes(path))
+  && ['public-data/telegram-digest.json', 'public-data/score-backtest-history.json', 'public-data/masters/index.json'].every((path) => workflowPublishes('refresh-data.yml', path))
+  && DATA_PUBLISH_SETS['refresh-data'].afterStage.includes('node scripts/ci-masters-contract-check.mjs --staged'));
+check('Telegram producer atomically synchronizes and stages Atlas lineage', /atlasIndex\.telegramObservedLineage\s*=\s*lineageCount/.test(fetchTelegram) && workflowPublishes('refresh-data.yml', 'public-data/atlas/index.json'));
 // The property is "an independent six-hourly validated publish job", not "fires at :23".
 // Hardcoding the minute made a deliberate schedule offset (v56 moved it off data-watchdog's
 // crowded :23) look like a contract violation.
@@ -500,11 +505,12 @@ const reconciliationGateAt = refresh.indexOf('qa-runner.mjs --group data');
 check('P1751 core refresh validates evidence-derived reconciliation before commit', reconciliationGateAt >= 0
   && dataGroupGates.some((gate) => gate.script === 'scripts/ci-reconciliation-contract-check.mjs')
   && reconciliationGateAt < refresh.indexOf('Commit refreshed public data if changed'));
-check('screener refresh atomically rebuilds and commits reconciliation and operations status', /build-reconciliation-status\.mjs/.test(screenerRefresh) && /build-operations-status\.mjs/.test(screenerRefresh) && /public-data\/reconciliation-status\.json/.test(screenerRefresh) && /public-data\/operations-status\.json/.test(screenerRefresh));
+check('screener refresh atomically rebuilds and commits reconciliation and operations status', /build-reconciliation-status\.mjs/.test(screenerRefresh) && /build-operations-status\.mjs/.test(screenerRefresh) && workflowPublishes('refresh-screener.yml', 'public-data/reconciliation-status.json') && workflowPublishes('refresh-screener.yml', 'public-data/operations-status.json'));
 check('both refresh workflows keep generated workspace state outside data promotion while committing readiness artifacts', [refresh, screenerRefresh].every((workflow) => !/generate-workspace-state\.mjs --write/.test(workflow)
   && !/git add[^\n]*_context\/(?:CURRENT-STATE|CONTEXT-CATALOG)/.test(workflow)
-  && /Fail-closed promotion candidate gate before push/.test(workflow)
-  && /architecture\/public-readiness\.json/.test(workflow)));
+  && /Fail-closed promotion candidate gate before push/.test(workflow))
+  && ['refresh-data', 'refresh-screener'].every((id) => DATA_PUBLISH_SETS[id].required.includes('architecture/public-readiness.json')
+    && !publishSetPaths(id).some((path) => path.startsWith('_context/'))));
 check('refresh workflow module summary uses ESM fs import', /node --input-type=module - <<'NODE'[\s\S]*import fs from 'node:fs';/.test(refresh) && !/node --input-type=module - <<'NODE'[\s\S]*const fs = require\(/.test(refresh));
 checkNodeHeredocSyntax('refresh-data workflow', refresh);
 
@@ -2171,8 +2177,8 @@ check('browser tests cover Telegram memo injection', /T831[\s\S]{0,2400}SCREENER
 // with the other screener artifacts and validated in the same run; its producer contract is ci-us-listings-check.mjs.
 check('v57.81 us-listings producer runs, validates and is staged in refresh-screener',
   /node scripts\/build-us-listings\.mjs\n\s+node scripts\/ci-us-listings-check\.mjs/.test(screenerRefresh)
-  && /stage_if_exists public-data\/us-listings\.json/.test(screenerRefresh)
-  && !/us-listings/.test(read('.github/workflows/refresh-data.yml')));
+  && workflowPublishes('refresh-screener.yml', 'public-data/us-listings.json')
+  && !workflowPublishes('refresh-data.yml', 'public-data/us-listings.json') && !/us-listings/.test(read('.github/workflows/refresh-data.yml')));
 check('getScreenerSymbols reads screener-universe.json, not source-text regex', /screener-universe\.json/.test(fetchData) && !/src\.indexOf\('\\n\];'/.test(fetchData));
 // Drift check: public-data/screener-universe.json must be exactly what
 // scripts/sync-screener-universe.mjs would regenerate from js/aio-data.js's current SCREENER_DB
@@ -2469,27 +2475,28 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       && /needs: cadence/.test(refreshJobHead) && /if: \$\{\{ !cancelled\(\) && needs\.cadence\.outputs\.mode != 'skip' \}\}/.test(refreshJobHead)
       && /needs: \[cadence, refresh\]/.test(convergeJobHead) && /needs\.cadence\.outputs\.mode != 'skip'/.test(convergeJobHead)
       && /EVENT_SCHEDULE: \$\{\{ github\.event\.schedule \}\}/.test(cadenceJob) && /DISPATCH_TRIGGER: \$\{\{ inputs\.trigger \}\}/.test(cadenceJob));
-  const commitStep = screenerRefresh.match(/- name: Commit only validated screener artifacts[\s\S]*?(?=\n      - name: )/)?.[0] || '';
   check('P1757 the SEC ledger is restored before the producer and published to the data-store branch before main is pushed',
     screenerRefresh.indexOf('sec-fundamentals-store.mjs restore') > 0
       && screenerRefresh.indexOf('sec-fundamentals-store.mjs restore') < screenerRefresh.indexOf('node scripts/fetch-sec-fundamentals.mjs')
       && /SEC_FULL_REBUILD/.test(screenerRefresh)
       && screenerRefresh.indexOf('sec-fundamentals-store.mjs guard') > screenerRefresh.indexOf('node scripts/fetch-sec-fundamentals.mjs')
       && screenerRefresh.indexOf('sec-fundamentals-store.mjs guard') < screenerRefresh.indexOf('node scripts/build-sec-runtime-projection.mjs')
-      && commitStep.indexOf('sec-fundamentals-store.mjs publish') > 0 && commitStep.indexOf('sec-fundamentals-store.mjs publish') < commitStep.indexOf('git commit -m')
-      && commitStep.indexOf('sec-fundamentals-store.mjs publish') < commitStep.indexOf('until git push'));
+      // v59.85: beforeCommit hooks run after staging and before the commit, so before any push (publish-data-commit.mjs).
+      && DATA_PUBLISH_SETS['refresh-screener'].beforeCommit.includes('node scripts/sec-fundamentals-store.mjs publish')
+      && !publishSetPaths('refresh-screener').includes('public-data/sec-fundamentals.json'));
   // v59.62: the one-line event-briefs.json put every change on the generatedAt line, and the diff-line grep that skipped
   // "timestamp only" runs dropped every real brief from 10-31 to 11-03.
   {
     const { sameExcept } = await import('./lib/json-same-except.mjs');
     const briefsWorkflow = read('.github/workflows/event-briefs.yml');
     check('v59.62 event-briefs skips a timestamp-only run by comparing parsed JSON without generatedAt, never by diff lines',
-      /node scripts\/lib\/json-same-except\.mjs generatedAt /.test(briefsWorkflow) && !/grep -v '"generatedAt"'/.test(briefsWorkflow)
+      // v59.85: the rule is the event-briefs publish set's timestampOnly entry (the publisher compares parsed JSON).
+      JSON.stringify(DATA_PUBLISH_SETS['event-briefs'].timestampOnly['public-data/event-briefs.json']) === '["generatedAt"]' && !/grep -v '"generatedAt"'/.test(briefsWorkflow)
         && sameExcept({ generatedAt: 'a', briefs: [1] }, { generatedAt: 'b', briefs: [1] }, ['generatedAt'])
         && !sameExcept({ generatedAt: 'a', briefs: [1] }, { generatedAt: 'b', briefs: [1, 2] }, ['generatedAt']));
   }
   check('P1757 neither producer stages the SEC ledger on main, it is gitignored, and Pages still excludes it',
-    [refresh, screenerRefresh].every((workflow) => !/git add[^\n]*public-data\/sec-fundamentals\.json/.test(workflow) && !/stage_if_exists public-data\/sec-fundamentals\.json/.test(workflow) && !/"\$staged" = "public-data\/sec-fundamentals\.json"/.test(workflow))
+    [refresh, screenerRefresh].every((workflow) => !/git add[^\n]*public-data\/sec-fundamentals\.json/.test(workflow) && !/stage_if_exists public-data\/sec-fundamentals\.json/.test(workflow) && !/"\$staged" = "public-data\/sec-fundamentals\.json"/.test(workflow)) && !workflowPublishes('refresh-screener.yml', 'public-data/sec-fundamentals.json') && !workflowPublishes('refresh-data.yml', 'public-data/sec-fundamentals.json')
       && /^\/?public-data\/sec-fundamentals\.json$/m.test(read('.gitignore'))
       && /--exclude 'sec-fundamentals\.json'/.test(read('.github/workflows/pages-deploy.yml')));
   check('P1757 CI restores the ledger only when its digest matches the checkout manifest, and gates degrade with a labelled skip otherwise',
@@ -2527,7 +2534,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   // direct fetch.
   check('v59.63 refresh-data builds market-day.json after scenario-state and stages it',
     /id: market-day[\s\S]{0,700}AIO_AUTOMATION_TOKEN[\s\S]{0,120}run: node scripts\/build-market-day\.mjs/.test(refresh) && refresh.indexOf('build-scenario-state.mjs') < refresh.indexOf('build-market-day.mjs')
-      && refresh.includes('stage_if_exists public-data/market-day.json') && !/fetch\(|https?:\/\//.test(readFileSync(new URL('./build-market-day.mjs', import.meta.url), 'utf8')));
+      && workflowPublishes('refresh-data.yml', 'public-data/market-day.json') && !/fetch\(|https?:\/\//.test(readFileSync(new URL('./build-market-day.mjs', import.meta.url), 'utf8')));
   check('v59.62 the deal and election-sector feeds exist with a seat, and a deal headline scores as a corporate action',
     ['Google News - Deals/M&A', 'Google News - Election sectors'].every((name) => ns.NEWS_FEEDS.some((feed) => feed.source === name) && ns.NEWS_FEED_FLOORS.some(([key, floor]) => key === name && floor >= 1))
       && /corporate-action/.test(score('Marvell to acquire Lumentum in $115 billion all-stock deal').selectionReason));
@@ -2564,7 +2571,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   // v59.56: the SEC quarterly cash-flow lane (hyperscaler capex ÷ operating cash flow) reaches the prompt and the validator context.
   check('v59.56 the market-analysis prompt carries BIGTECH_CASHFLOW from public-data/bigtech-cashflow.json with the SEC basis named',
     /BIGTECH_CASHFLOW \(/.test(fetchData) && /cashflowContextLines\(bigtechCashflow === undefined \? readBigtechCashflow\(\) : bigtechCashflow/.test(fetchData) && /"SEC 공시 기준 최근 4분기"/.test(fetchData)
-      && /node scripts\/fetch-bigtech-cashflow\.mjs/.test(readFileSync(join(root, '.github/workflows/refresh-screener.yml'), 'utf8')) && /stage_if_exists public-data\/bigtech-cashflow\.json/.test(readFileSync(join(root, '.github/workflows/refresh-screener.yml'), 'utf8')));
+      && /node scripts\/fetch-bigtech-cashflow\.mjs/.test(readFileSync(join(root, '.github/workflows/refresh-screener.yml'), 'utf8')) && workflowPublishes('refresh-screener.yml', 'public-data/bigtech-cashflow.json'));
   check('v59.56 the market-analysis prompt carries US_EARNINGS from event-briefs with attribution, and the validator context includes it',
     /US_EARNINGS \(/.test(fetchData) && /earningsContextLines\(briefsInput, earningsCloseDate\)/.test(fetchData) && /"…보도에 따르면"으로 귀속/.test(fetchData));
 }
@@ -2953,10 +2960,12 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   }
   // v58.77 DATA-05: the extended shard is validated again against the rebased core before it is pushed.
   {
-    const screenerWorkflow = readFileSync(new URL('../.github/workflows/refresh-screener.yml', import.meta.url), 'utf8');
-    const extendedCommit = screenerWorkflow.slice(screenerWorkflow.indexOf('Commit only extended screener artifacts'), screenerWorkflow.indexOf('Dispatch exact produced commit to CI', screenerWorkflow.indexOf('Commit only extended screener artifacts')));
+    // v59.85: verifyCommit runs on the commit and again after every rebase (publish-data-commit.mjs).
+    const extended = DATA_PUBLISH_SETS['refresh-screener-extended'];
     check('v58.77 DATA-05 extended push retry revalidates the rebased shard against the new core',
-      /git rebase origin\/main\n\s+# v58\.77[\s\S]*?node scripts\/validate-screener-extended\.mjs public-data\/screener-extended\.json \|\| ! node scripts\/ci-screener-extended-contract-check\.mjs/.test(extendedCommit));
+      extended.verifyCommit.includes('node scripts/validate-screener-extended.mjs public-data/screener-extended.json')
+      && extended.verifyCommit.includes('node scripts/ci-screener-extended-contract-check.mjs')
+      && readFileSync(new URL('../.github/workflows/refresh-screener.yml', import.meta.url), 'utf8').includes('scripts/publish-data-commit.mjs --set refresh-screener-extended'));
   }
 
   const { previousCloseBarIndex } = await import('./fetch-data.mjs');

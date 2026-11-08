@@ -390,7 +390,8 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     var publishedClaims = publishablePlan.plan ? publishablePlan.plan.claims.claims : [];
     var sessionReady = !!(sessionEvidence && sessionEvidence.verified === true && sessionEvidence.observedAt && /^(open|closed|pre|post)$/.test(sessionEvidence.status));
     // v57.48 #7: completed closes do not depend on the live session, so an answer whose values all bind to close-basis rows needs no session notice.
-    if (!isPartialStream && currentSensitive && !sessionReady && !(publishedClaims.length && publishedClaims.every(function(claim) { return claim.source === 'close-basis'; }))) {
+    // nor do the official macro releases (source 'macro-release': a month's CPI does not change with the session).
+    if (!isPartialStream && currentSensitive && !sessionReady && !(publishedClaims.length && publishedClaims.every(function(claim) { return claim.source === 'close-basis' || claim.source === 'macro-release'; }))) {
       applyLimitation('market-session-evidence-unavailable', '시장 세션 근거 미수신: 장중·장외 상태와 최신 수치는 확인 보류하며, 아래 내용은 확인된 기존 근거와 조건부 분석 범위입니다.');
     }
     if (!isPartialStream && publishablePlan.droppedClaims.length) applyLimitation('answer-plan-claim-degraded', '출처나 관측 시각을 확인할 수 없는 주장은 제외했습니다. 확인 가능한 설명을 아래에 제공합니다.');
@@ -432,7 +433,11 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
       blocked: gate.blocked === true,
       reasons: gate.reasons || [],
       limitations: gate.limitations || [], limitationNotes: gate.limitationNotes || [], closeBasisDates: publishedClaims.filter(function(claim) { return claim && claim.source === 'close-basis' && claim.asOf; }).map(function(claim) { return String(claim.asOf).slice(0, 10); }).sort(), // review: only published close-basis claims label the answer
-      otherPublishedClaims: publishedClaims.filter(function(claim) { return claim && claim.source !== 'close-basis' && typeof claim.value === 'number'; }).length, // QA-VERIFY-16: numbers that are not closes
+      // Official releases are completed records too: a monthly row names its reference month, a daily row its observation day.
+      releaseBasis: Array.from(new Set(publishedClaims.filter(function(claim) { return claim && claim.source === 'macro-release' && claim.asOf; }).map(function(claim) {
+        return claim.period === 'month' || /기준월/.test(String(claim.text || '')) ? String(claim.asOf).slice(0, 7) + ' 기준월' : String(claim.asOf).slice(0, 10) + ' 관측';
+      }))).sort(),
+      otherPublishedClaims: publishedClaims.filter(function(claim) { return claim && claim.source !== 'close-basis' && claim.source !== 'macro-release' && typeof claim.value === 'number'; }).length, // QA-VERIFY-16: numbers that are neither closes nor official releases
       actionGate: gate,
       claimAudit: claimAudit,
       conductAudit: conductAudit,
@@ -525,10 +530,15 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     var closeDates = Array.isArray(meta.closeBasisDates) ? meta.closeBasisDates : []; // published close-basis claims only, not every collected row
     // QA-VERIFY-16 live check (2026-10-13): an answer whose only published numbers are completed closes is labelled by
     // those closes, even when page quote rows were collected (live rows it never cited cannot make it "확인 필요").
-    var closeOnly = closeDates.length > 0 && !(meta.otherPublishedClaims > 0);
-    var evidenceStatus = closeOnly ? '종가 기준 근거' : rows.length ? (blocked ? '확인 필요' : '주입 근거 확인됨') : '확인 필요';
-    if (closeOnly) asOf = closeDates[closeDates.length - 1] + ' 종가';
-    var sourceLabel = closeOnly ? '완료된 종가 기록' : sources.length ? Array.from(new Set(sources)).slice(0, 2).join(' / ') : '원천 확인 필요';
+    // The same holds for official macro releases (a month's CPI does not change with the live quotes): the label names the
+    // reference month and the source 공식 발표, alongside the close date when both kinds were cited.
+    var releaseBasis = Array.isArray(meta.releaseBasis) ? meta.releaseBasis : [];
+    var recordOnly = (closeDates.length > 0 || releaseBasis.length > 0) && !(meta.otherPublishedClaims > 0);
+    var evidenceStatus = recordOnly ? (closeDates.length && releaseBasis.length ? '종가·공식 발표 근거' : closeDates.length ? '종가 기준 근거' : '공식 발표 근거')
+      : rows.length ? (blocked ? '확인 필요' : '주입 근거 확인됨') : '확인 필요';
+    if (recordOnly) asOf = (closeDates.length ? [closeDates[closeDates.length - 1] + ' 종가'] : []).concat(releaseBasis.slice(-2)).join(' · ');
+    var sourceLabel = recordOnly ? (closeDates.length ? ['완료된 종가 기록'] : []).concat(releaseBasis.length ? ['공식 발표'] : []).join(' / ')
+      : sources.length ? Array.from(new Set(sources)).slice(0, 2).join(' / ') : '원천 확인 필요';
     var notes = meta.actionGate && Array.isArray(meta.actionGate.limitationNotes) ? meta.actionGate.limitationNotes : [];
     return {
       label: _AIO_PUBLIC_AI_POLICY.label,

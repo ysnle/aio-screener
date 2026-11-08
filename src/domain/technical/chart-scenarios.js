@@ -2,29 +2,71 @@
 import { formatScreenerPrice } from '../screener/market-scope.js';
 import { finiteNumber as finite } from '../shared/number.js';
 
-export function buildVolumeByPrice(bars = [], { lookback = 130, binCount = 24 } = {}) {
+// One volume profile for the chart overlay, the 거래 집중 가격대 table, the price-level map
+// and the AI context. They used to be two estimates (32 rows on the chart, 24 in the table, a different missing-volume
+// rule), so the chart's 최대 매물대 and the table's first zone could name different prices on one screen.
+// Method (TradingView VRVP / Market Profile conventions): each bar's volume spread evenly over its low~high range across
+// `binCount` equal price rows; the point of control (POC) is the heaviest row; the value area is grown from the POC by
+// adding, each step, whichever side's next two rows hold more volume until it holds VALUE_AREA_SHARE of the total (the
+// CBOT rule). Bars without volume are left out — never counted as zero — and the profile needs MIN_VOLUME_COVERAGE
+// of the window to carry volume. An estimate from daily ranges, not traded-at-price volume.
+export const VOLUME_PROFILE_ROWS = 24;
+export const VALUE_AREA_SHARE = 0.7;
+export const MIN_VOLUME_COVERAGE = 0.9;
+
+/** The value area (CBOT rule): rows grown from the POC by the heavier pair of neighbours until `share` of the volume. */
+export function valueArea(bins, poc, share = VALUE_AREA_SHARE) {
+  const total = bins.reduce((sum, bin) => sum + bin.volume, 0);
+  if (!(total > 0) || poc < 0) return null;
+  let lo = poc, hi = poc, held = bins[poc].volume;
+  const pair = (from, step) => [from + step, from + 2 * step].filter((i) => i >= 0 && i < bins.length);
+  while (held / total < share && (lo > 0 || hi < bins.length - 1)) {
+    const up = pair(hi, 1), down = pair(lo, -1);
+    const upVol = up.reduce((sum, i) => sum + bins[i].volume, 0), downVol = down.reduce((sum, i) => sum + bins[i].volume, 0);
+    if (up.length && (!down.length || upVol >= downVol)) { hi = up.at(-1); held += upVol; } else { lo = down.at(-1); held += downVol; }
+  }
+  return { lowIndex: lo, highIndex: hi, low: bins[lo].low, high: bins[hi].high, share: held / total * 100 };
+}
+
+export function buildVolumeByPrice(bars = [], { lookback = 130, binCount = VOLUME_PROFILE_ROWS } = {}) {
   const recent = bars.slice(-lookback);
-  if (recent.length < 40 || recent.some(bar => finite(bar.volume) == null || bar.volume < 0 || !(bar.high >= bar.low) || !(bar.low > 0))) return { available: false, reason: 'volume-history-incomplete' };
+  if (recent.some(bar => !(bar?.high >= bar?.low) || !(bar.low > 0))) return { available: false, reason: 'price-range-invalid' };
+  const covered = recent.filter(bar => finite(bar.volume) != null && bar.volume >= 0);
+  if (recent.length < 40 || covered.length < Math.max(40, Math.ceil(recent.length * MIN_VOLUME_COVERAGE))) return { available: false, reason: 'volume-history-incomplete' };
   const low = Math.min(...recent.map(bar => bar.low)), high = Math.max(...recent.map(bar => bar.high));
   if (!(high > low)) return { available: false, reason: 'price-range-flat' };
   const count = Math.min(48, Math.max(8, Math.round(binCount)));
   const width = (high - low) / count;
   const bins = Array.from({ length: count }, (_, index) => ({ low: low + index * width, high: low + (index + 1) * width, volume: 0 }));
-  for (const bar of recent) {
+  for (const bar of covered) {
     if (bar.high === bar.low) { bins[Math.min(count - 1, Math.floor((bar.low - low) / width))].volume += bar.volume; continue; }
-    for (const bin of bins) {
+    const first = Math.max(0, Math.floor((bar.low - low) / width)), last = Math.min(count - 1, Math.floor((bar.high - low) / width));
+    for (let index = first; index <= last; index++) {
+      const bin = bins[index];
       const overlap = Math.max(0, Math.min(bin.high, bar.high) - Math.max(bin.low, bar.low));
       bin.volume += bar.volume * overlap / (bar.high - bar.low);
     }
   }
-  const totalVolume = recent.reduce((total, bar) => total + bar.volume, 0);
+  const totalVolume = covered.reduce((total, bar) => total + bar.volume, 0);
   if (!(totalVolume > 0)) return { available: false, reason: 'volume-empty' };
   const zones = [];
   for (const index of bins.map((bin, index) => ({ index, volume: bin.volume })).sort((a, b) => b.volume - a.volume).map(item => item.index)) {
     if (!zones.some(zone => Math.abs(zone.index - index) <= 1)) zones.push({ ...bins[index], index, share: bins[index].volume / totalVolume * 100 });
     if (zones.length === 3) break;
   }
-  return { available: true, bins, zones, totalVolume, sessions: recent.length, start: recent[0].time, end: recent.at(-1).time, method: 'daily-range-uniform-volume' };
+  const pocIndex = zones[0].index;
+  const poc = { index: pocIndex, low: bins[pocIndex].low, high: bins[pocIndex].high, price: (bins[pocIndex].low + bins[pocIndex].high) / 2, share: zones[0].share };
+  return { available: true, bins, zones, poc, valueArea: valueArea(bins, pocIndex), totalVolume, sessions: recent.length, coveredSessions: covered.length,
+    start: recent[0].time, end: recent.at(-1).time, method: 'daily-range-uniform-volume' };
+}
+
+/** Where a price sits against the profile: above or below the value area, inside it, or on the POC row. */
+export function profilePosition(profile, price) {
+  if (!profile?.available || !(price > 0)) return null;
+  if (price >= profile.poc.low && price <= profile.poc.high) return 'poc';
+  const va = profile.valueArea;
+  if (!va) return null;
+  return price > va.high ? 'above' : price < va.low ? 'below' : 'inside';
 }
 
 export function buildChartScenarios(analysis, { currency = null } = {}) {

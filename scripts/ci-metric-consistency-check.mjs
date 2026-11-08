@@ -233,6 +233,37 @@ check('v59.74 the backfill bar replaces a carried placeholder stamped on its own
   void buildMarketInterpretation;
 }
 
+// ── 9. v59.85 (chart review 2026-11-08): one trend vocabulary. The 기술적 분석 index cards, the stock table under them, the
+// 종목 page, the screener and the stock chart's chip/areas all read bands.js classifyTrend; on today's files a word is
+// never another screen's word for a different state, and an index card says the word the classifier gives its position.
+{
+  const { classifyTrend, trendKey, bufferedTrend } = await load('src/domain/technical/bands.js');
+  const { TREND_WORDS, indexChartReadings, coreStockRows } = await load('src/domain/technical/market-charts.js');
+  const { trendOfBars } = await load('src/domain/technical/trend-state.js');
+  for (const reading of indexChartReadings(history)) {
+    if (!Number.isFinite(reading.ma50) || !Number.isFinite(reading.ma200)) continue;
+    const own = classifyTrend({ s50: (reading.close / reading.ma50 - 1) * 100, s200: (reading.close / reading.ma200 - 1) * 100, positionOnly: true });
+    check(`v59.85 index card ${reading.field} trend is the shared classifier's`, reading.trend === trendKey(own) && reading.trendWord === own.label, `${reading.trend}/${reading.trendWord} vs ${trendKey(own)}/${own.label}`);
+  }
+  for (const [s50, s200] of [[10, 22], [-5, 5.5], [-15, -5.6], [5.6, -5], [16.7, 5], [-5.6, -15]]) {
+    const t = classifyTrend({ s50, s200, positionOnly: true });
+    check(`v59.85 TREND_WORDS.${trendKey(t)} is the classifier's word`, TREND_WORDS[trendKey(t)] === t.label, `${TREND_WORDS[trendKey(t)]} vs ${t.label}`);
+  }
+  const screenerRows = (() => { try { const file = json('public-data/screener.json'); return Object.entries(file.data || {}).map(([sym, row]) => (row && !Array.isArray(row) ? { ...(file.rowDefaults || {}), ...row, sym } : null)); } catch (_) { return []; } })()
+    .map((row) => (Array.isArray(row) ? null : row)).filter((row) => row?.sym);
+  const rows = coreStockRows({ screener: { data: Object.fromEntries(screenerRows.map((row) => [row.sym, row])) }, indexWeights: screenerRows.slice(0, 10).map((row, i) => ({ sym: row.sym, weight: 10 - i })) });
+  check('v59.85 the stock-table check read screener rows', rows.length >= 5, String(rows.length));
+  for (const row of rows) {
+    const own = bufferedTrend(screenerRows.find((item) => item.sym === row.sym));
+    if (own) check(`v59.85 stock table ${row.sym} says the 종목 page's word`, row.trendWord === own.label, `${row.trendWord} vs ${own.label}`);
+  }
+  // The chart's bars and a screener row built from the same numbers name one state.
+  const bars = Array.from({ length: 260 }, (_, i) => { const c = 100 + Math.sin(i / 9) * 6 + i * 0.05; return { time: `t${i}`, open: c, high: c * 1.012, low: c * 0.988, close: c }; });
+  const closes = bars.map((bar) => bar.close), mean = (n) => closes.slice(-n).reduce((a, b) => a + b, 0) / n;
+  const row = { pctSma50: (closes.at(-1) / mean(50) - 1) * 100, pctSma200: (closes.at(-1) / mean(200) - 1) * 100, adrPct: bars.slice(-20).reduce((a, b) => a + (b.high - b.low) / b.close * 100, 0) / 20, ret5d: (closes.at(-1) / closes.at(-6) - 1) * 100 };
+  check('v59.85 chart bars and the screener row read one trend word', trendOfBars(bars)?.label === bufferedTrend(row)?.label, `${trendOfBars(bars)?.label} vs ${bufferedTrend(row)?.label}`);
+}
+
 if (failures.length) {
   console.error(`[metric-consistency] ${failures.length} failure(s):\n- ${failures.join('\n- ')}`);
   process.exit(1);

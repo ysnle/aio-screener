@@ -3,6 +3,7 @@
 // stock beyond the core). Runs without the network: canned IWM/nasdaqlisted/otherlisted samples, the membership floor
 // and retain-on-failure rule, the lossless row encoding, schema parity with core rows, the provider's lazy shard read
 // (the default view never requests it), the ranking contract label, the workflow job shape and every registration.
+import { publishSetPaths } from './lib/data-publish-sets.mjs';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -310,12 +311,13 @@ const convergeJob = jobBlock('converge');
 const convergeExtended = jobBlock('converge-extended');
 check('v57.81 workflow: the extended job runs after the core job in its own concurrency group with a 40-minute cap',
   /needs: refresh-screener\n/.test(extendedJob) && /group: refresh-screener-extended/.test(extendedJob) && /timeout-minutes: 40/.test(extendedJob) && /if: \$\{\{ !cancelled\(\) \}\}/.test(extendedJob));
-const order = ['screener-extended-due.mjs', 'fetch-extended-universe.mjs', 'SEC_LEDGER_SCOPE: extended', "SCREENER_EXTENDED: '1'", 'validate-screener-extended.mjs', 'ci-screener-extended-contract-check.mjs', 'git commit -m "data: refresh extended screener universe'];
+const order = ['screener-extended-due.mjs', 'fetch-extended-universe.mjs', 'SEC_LEDGER_SCOPE: extended', "SCREENER_EXTENDED: '1'", 'validate-screener-extended.mjs', 'ci-screener-extended-contract-check.mjs', 'scripts/publish-data-commit.mjs --set refresh-screener-extended'];
 check('v57.81 workflow: due check -> membership -> SEC batch -> shard -> validation -> commit, in that order',
   order.every((token, index) => extendedJob.indexOf(token) >= 0 && (index === 0 || extendedJob.indexOf(token) > extendedJob.indexOf(order[index - 1]))), order.filter((token) => extendedJob.indexOf(token) < 0).join(','));
 check('v57.81 workflow: the core job never stages extended files and the core converge does not wait for the extended job',
   !/screener-extended|sec-fundamentals-extended/.test(coreJob) && /needs: refresh-screener\n/.test(convergeJob) && /needs: refresh-screener-extended/.test(convergeExtended) && /group: live-convergence/.test(convergeExtended));
-check('v57.81 workflow: the extended commit stages only its three files', /public-data\/screener-extended\.json public-data\/screener-extended-universe\.json public-data\/sec-fundamentals-extended\.json/.test(extendedJob) && !/git add -- public-data\/screener\.json/.test(extendedJob));
+// v59.85: the staged set is the refresh-screener-extended publish set (scripts/lib/data-publish-sets.mjs).
+check('v57.81 workflow: the extended commit stages only its three files', JSON.stringify(publishSetPaths('refresh-screener-extended')) === JSON.stringify(['public-data/screener-extended.json', 'public-data/screener-extended-universe.json', 'public-data/sec-fundamentals-extended.json']) && !/git add -- public-data\/screener\.json/.test(extendedJob));
 const lineage = read('scripts/ci-data-lineage-audit.mjs');
 check('v57.81 freshness registry lists the shard, the membership file and the extended SEC ledger', ['screener-extended.json', 'screener-extended-universe.json', 'sec-fundamentals-extended.json'].every((name) => lineage.includes(`'${name}'`)));
 check('v57.81 artifact size watchdog budgets the shard (15 MB) and keeps the core artifact bounded', /screener-extended-shard[^\n]*15_000_000/.test(read('scripts/ci-artifact-size-headroom-check.mjs')) && /screener-core/.test(read('scripts/ci-artifact-size-headroom-check.mjs')));

@@ -17,14 +17,14 @@ const METRICS = Object.freeze([
   { field: 'nasdaq', metric: 'close.nasdaq', entity: 'NASDAQ', label: '나스닥 종합 종가', unit: 'index', digits: 2, change: 'pct', symbols: ['^IXIC'] },
   { field: 'vix', metric: 'close.vix', entity: 'VIX', label: 'VIX 종가', unit: 'index', digits: 2, change: 'pct', symbols: ['^VIX', 'VIX'] },
   { field: 'tnx', metric: 'close.us10y', entity: 'US10Y', label: '미 10년물 금리 종가', unit: 'percent', digits: 3, change: 'bp', symbols: ['^TNX', 'US10Y'] },
-  { field: 'dxy', metric: 'close.dxy', entity: 'DXY', label: '달러 지수 종가', unit: 'index', digits: 2, change: null, symbols: ['DX-Y.NYB', 'DXY'] },
-  { field: 'wti', metric: 'close.wti', entity: 'WTI', label: 'WTI 종가', unit: 'usd_per_barrel', digits: 2, change: null, symbols: ['CL=F', 'WTI'] },
-  { field: 'gold', metric: 'close.gold', entity: 'GOLD', label: '금 종가', unit: 'usd_per_ounce', digits: 1, change: null, symbols: ['GC=F'] },
+  { field: 'dxy', metric: 'close.dxy', entity: 'DXY', label: '달러 지수 종가', unit: 'index', digits: 2, change: null, chg20: 'pct', symbols: ['DX-Y.NYB', 'DXY'] },
+  { field: 'wti', metric: 'close.wti', entity: 'WTI', label: 'WTI 종가', unit: 'usd_per_barrel', digits: 2, change: null, chg20: 'pct', symbols: ['CL=F', 'WTI'] },
+  { field: 'gold', metric: 'close.gold', entity: 'GOLD', label: '금 종가', unit: 'usd_per_ounce', digits: 1, change: null, chg20: 'pct', symbols: ['GC=F'] },
   { field: 'kospi', metric: 'close.kospi', entity: 'KOSPI', label: '코스피 종가', unit: 'index', digits: 2, change: 'pct', symbols: ['^KS11', 'KOSPI'] },
   // v57.81 (analysis audit 2026-10-15): KOSDAQ fell 7.65% on 10/15 and the AI had no typed row for it. It is read from its
   // own KRX close series on the same rule as the KOSPI (completed KRX session, at most two sessions behind).
   { field: 'kosdaq', metric: 'close.kosdaq', entity: 'KOSDAQ', label: '코스닥 종가', unit: 'index', digits: 2, change: 'pct', symbols: ['^KQ11', 'KOSDAQ'], kr: true },
-  { field: 'usdkrw', metric: 'close.usdkrw', entity: 'USDKRW', label: '원/달러 종가', unit: 'krw_per_usd', digits: 2, change: null, symbols: ['KRW=X', 'USDKRW'] }
+  { field: 'usdkrw', metric: 'close.usdkrw', entity: 'USDKRW', label: '원/달러 종가', unit: 'krw_per_usd', digits: 2, change: null, chg20: 'pct', symbols: ['KRW=X', 'USDKRW'] }
 ]);
 
 const round = (value, digits) => Number(Number(value).toFixed(digits));
@@ -78,6 +78,11 @@ export function buildCloseBasisEvidence(input = {}) {
     }
     // v57.55 review (6b): rate questions were answered with "최신 수치 확인 안 됨" although the screen shows the 20-session
     // move ("20거래일 +22bp"). The same value is published as typed evidence so the answer can cite it.
+    // the 매크로 dollar/oil/gold chapters judge on the 20-session % move, and the chat was told to
+    // judge the dollar "on the 20-session change" without being given one. The same move is published as evidence.
+    if (def.chg20 === 'pct' && finite(stat.d20) && stat.d20 !== 0) {
+      out.push(row({ ...shared, metric: `${def.metric}.chg20d`, label: `${def.label.replace(/ 종가$/, '')} 20거래일 변화${stat.d20Date ? `(${stat.d20Date} 종가 대비)` : ''}`, value: round((stat.value / stat.d20 - 1) * 100, 2), unit: 'percent' }));
+    }
     if (def.change === 'bp' && finite(stat.d20)) {
       out.push(row({ ...shared, metric: `${def.metric}.chg20d`, label: `${def.label.replace(/ 종가$/, '')} 20거래일 변화${stat.d20Date ? `(${stat.d20Date} 종가 대비)` : ''}`, value: round((stat.value - stat.d20) * 100, 1), unit: 'bp' }));
     }

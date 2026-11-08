@@ -1353,6 +1353,7 @@
             "src/data/contracts/artifact-freshness.js",
             "scripts/write-freshness-ledger.mjs",
             "scripts/ci-data-lineage-audit.mjs",
+            "scripts/lib/data-publish-sets.mjs",
             ".github/workflows/refresh-data.yml",
             ".github/workflows/refresh-screener.yml",
             ".github/workflows/event-briefs.yml"
@@ -1731,6 +1732,20 @@
         {
           "id": "knowledge-lint",
           "script": "scripts/ci-knowledge-lint-check.mjs"
+        },
+        {
+          "id": "publish-data-commit",
+          "script": "scripts/ci-publish-data-commit-check.mjs",
+          "remedy": "each case drives scripts/publish-data-commit.mjs against a throwaway bare remote; fix the publisher or the set in scripts/lib/data-publish-sets.mjs",
+          "inputs": [
+            "scripts/publish-data-commit.mjs",
+            "scripts/lib/data-publish-sets.mjs",
+            "scripts/lib/json-same-except.mjs",
+            "scripts/ci-publish-data-commit-check.mjs",
+            ".github/workflows/refresh-data.yml",
+            ".github/workflows/refresh-screener.yml",
+            ".github/workflows/event-briefs.yml"
+          ]
         },
         {
           "id": "workflow-compaction",
@@ -2627,6 +2642,11 @@
     }
   },
   "impactRules": [
+    {
+      "patterns": ["scripts/publish-data-commit.mjs", "scripts/lib/data-publish-sets.mjs", "scripts/lib/json-same-except.mjs", "scripts/ci-publish-data-commit-check.mjs"],
+      "groups": [],
+      "gates": ["publish-data-commit", "artifact-refresh-path"]
+    },
     {
       "patterns": [
         "_artifacts/**",

@@ -5,12 +5,39 @@
   "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
   "oneLine": "American Express는 카드를 직접 발급하고 가맹점 결제망까지 함께 운영하는 '닫힌 고리' 카드사로, 고소득 회원의 소비와 연회비가 이익을 만들기 때문에 미국 상위 소비자의 지갑 사정을 보여 주는 지표다.",
   "sources": [
-    { "id": "s1", "kind": "8-K", "title": "American Express Q3 2026 earnings release (8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0000004962/000000496226000405/q326exhibit991.htm", "publisher": "American Express / SEC EDGAR", "date": "2026-10-23" },
-    { "id": "s2", "kind": "10-Q", "title": "American Express Form 10-Q for the quarter ended 2026-09-30 (revenue lines, segments, CET1, repurchases, regulatory orders)", "url": "https://www.sec.gov/Archives/edgar/data/0000004962/000000496226000409/axp-20260930.htm", "publisher": "American Express / SEC EDGAR", "date": "2026-10-23" },
-    { "id": "s3", "kind": "10-K", "title": "American Express FY2025 Form 10-K XBRL facts (revenue, net income, equity) via AIO public-data/sec-fundamentals-summary.json", "url": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces", "publisher": "SEC EDGAR via AIO", "date": "2026-02-06" },
-    { "id": "s4", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/axp/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-11-07" }
+    {
+      "id": "s1",
+      "kind": "8-K",
+      "title": "American Express Q3 2026 earnings release (8-K Exhibit 99.1)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0000004962/000000496226000405/q326exhibit991.htm",
+      "publisher": "American Express / SEC EDGAR",
+      "date": "2026-10-23"
+    },
+    {
+      "id": "s2",
+      "kind": "10-Q",
+      "title": "American Express Form 10-Q for the quarter ended 2026-09-30 (revenue lines, segments, CET1, repurchases, regulatory orders)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0000004962/000000496226000409/axp-20260930.htm",
+      "publisher": "American Express / SEC EDGAR",
+      "date": "2026-10-23"
+    },
+    {
+      "id": "s3",
+      "kind": "10-K",
+      "title": "American Express FY2025 Form 10-K XBRL facts (revenue, net income, equity) via AIO public-data/sec-fundamentals-summary.json",
+      "url": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
+      "publisher": "SEC EDGAR via AIO",
+      "date": "2026-02-06"
+    },
+    {
+      "id": "s4",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/axp/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-11-07"
+    }
   ],
-
   "moat": {
     "sources": [
       "발급사·결제망·가맹점 계약을 한 회사가 쥐는 닫힌 고리 - 가맹점 수수료(discount revenue)가 매출의 절반 (Q3 2026 101.7억 달러)",
@@ -19,14 +46,18 @@
       "Marriott·Airbnb 같은 제휴 파트너와 여행·라운지 혜택 생태계"
     ],
     "text": "American Express의 힘은 카드를 내주는 회사와 결제망을 운영하는 회사가 같다는 데서 나온다. 그래서 회원이 쓴 돈에서 가맹점 수수료를 직접 받고(Q3 2026 101.7억 달러), 혜택이 좋은 프리미엄 카드에 높은 연회비를 받을 수 있다(순 연회비 29.7억 달러, +16%). 회원 만족도 1위(J.D. Power 7년 연속)와 Marriott 같은 제휴사가 고객이 떠나지 않게 붙잡는다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
-
   "design": {
     "text": "회사는 네 사업부로 보고한다. U.S. Consumer Services는 미국 개인 카드(Platinum·Gold 등), Commercial Services는 미국 중소기업·대기업 법인카드, International Card Services는 해외 개인·법인 카드, Global Merchant and Network Services는 가맹점 계약과 결제망 운영을 맡는다. 2026년에는 미국 Platinum 카드를 개편했고 차세대 법인카드 소프트웨어와 Corporate Cashback 카드를 내놓았다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
-
   "make": {
     "model": "financial",
     "partners": [
@@ -36,9 +67,11 @@
       "예금자·채권 투자자 - 카드 잔액 2,211억 달러를 받치는 조달원 (American Express National Bank)"
     ],
     "text": "카드사가 '만드는' 것은 결제망과 카드 잔액이다. 회사는 자회사 American Express National Bank의 예금과 채권으로 돈을 모아 회원의 결제 대금과 할부 잔액(2026-09말 카드 잔액 2,211억 달러, +7%)을 대고, 1.9억 곳이 넘는 가맹점이 이 카드를 받도록 계약한다. 이 구조의 한도는 자본이어서 CET1 비율을 목표 범위 10~11% 안(Q3 2026 10.9%)에 묶어 두고 운영한다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
-
   "sell": {
     "customers": [
       "미국 고소득 개인 회원 (USCS) - Q3 2026 매출 98.4억 달러, +11%",
@@ -49,118 +82,346 @@
     "channel": "자사 직접 발급(온라인·제휴사 채널), 법인 영업 조직, 가맹점 영업과 결제망 직접 운영.",
     "concentration": "분산된 회원 기반. 개별 제휴사 비중은 이번 조사에서 확인하지 못함.",
     "text": "이 결제망은 회원과 가맹점 양쪽에 팔린다. 매출의 절반가량은 미국 개인 회원 사업(Q3 2026 98.4억 달러)에서 나오고, 법인카드와 해외 카드가 나머지를 나눈다. 가맹점 쪽 GMNS는 매출은 20.8억 달러로 가장 작지만 세전이익률이 50%를 넘는 결제망 사업이다.",
-    "src": ["s2"]
+    "src": [
+      "s2"
+    ]
   },
-
   "moneyFlow": {
     "steps": [
-      { "from": "카드 회원", "to": "가맹점", "what": "결제 (Q3 2026 결제액 4,540억 달러, +8%)" },
-      { "from": "가맹점", "to": "American Express", "what": "결제액의 일정 비율을 가맹점 수수료로 지급 (Q3 2026 101.7억 달러)" },
-      { "from": "카드 회원", "to": "American Express", "what": "연회비 (Q3 2026 순 29.7억 달러)와 할부 잔액 이자 (순이자이익 49.4억 달러)" },
-      { "from": "American Express", "to": "카드 회원", "what": "포인트·여행 혜택으로 되돌려 줌 (회원 보상 50.9억 달러, 회원 서비스 20.1억 달러)" },
-      { "from": "American Express", "to": "Marriott", "what": "공동 브랜드 제휴 비용 (사업 개발비 17.95억 달러에 포함, 개별 금액 미공시)" }
+      {
+        "from": "카드 회원",
+        "to": "가맹점",
+        "what": "결제 (Q3 2026 결제액 4,540억 달러, +8%)"
+      },
+      {
+        "from": "가맹점",
+        "to": "American Express",
+        "what": "결제액의 일정 비율을 가맹점 수수료로 지급 (Q3 2026 101.7억 달러)"
+      },
+      {
+        "from": "카드 회원",
+        "to": "American Express",
+        "what": "연회비 (Q3 2026 순 29.7억 달러)와 할부 잔액 이자 (순이자이익 49.4억 달러)"
+      },
+      {
+        "from": "American Express",
+        "to": "카드 회원",
+        "what": "포인트·여행 혜택으로 되돌려 줌 (회원 보상 50.9억 달러, 회원 서비스 20.1억 달러)"
+      },
+      {
+        "from": "American Express",
+        "to": "Marriott",
+        "what": "공동 브랜드 제휴 비용 (사업 개발비 17.95억 달러에 포함, 개별 금액 미공시)"
+      }
     ],
     "pricing": "결제액 대비 가맹점 수수료가 가장 크고, 프리미엄 카드 연회비와 할부 잔액 이자가 뒤따른다. 비용 쪽에서는 포인트·라운지 같은 회원 혜택을 사는 데 매출의 3분의 1 이상을 되돌려 준다.",
     "text": "돈은 회원의 소비에서 시작해 가맹점 수수료, 연회비, 할부 이자의 세 갈래로 들어온다. Q3 2026에는 가맹점 수수료 101.7억, 순이자이익 49.4억, 순 연회비 29.7억 달러였다. 그 대신 회원 보상 50.9억 달러와 회원 서비스 20.1억 달러(+36%)를 혜택으로 되돌려 주기 때문에, 이 회사는 혜택으로 소비를 끌어내고 그 소비에서 수수료를 받는 순환으로 돈을 번다.",
-    "src": ["s2", "s1"]
+    "src": [
+      "s2",
+      "s1"
+    ]
   },
-
   "earnings": {
     "period": "Q3 2026 (quarter ended 2026-09-30)",
-    "revenue": { "value": 20.062, "unit": "USD bn", "yoy": 9 },
+    "revenue": {
+      "value": 20.062,
+      "unit": "USD bn",
+      "yoy": 9
+    },
     "grossMargin": null,
     "operatingMargin": null,
     "netMargin": 18.5,
     "operatingCashFlow": null,
     "freeCashFlow": null,
     "segments": [
-      { "name": "U.S. Consumer Services (USCS)", "revenue": 9.84, "unit": "USD bn", "share": 49.0, "yoy": 11, "operatingMargin": 23.3, "src": ["s2"] },
-      { "name": "Commercial Services (CS)", "revenue": 4.553, "unit": "USD bn", "share": 22.7, "yoy": 6, "operatingMargin": 22.6, "src": ["s2"] },
-      { "name": "International Card Services (ICS)", "revenue": 3.682, "unit": "USD bn", "share": 18.4, "yoy": 10, "operatingMargin": 11.7, "src": ["s2"] },
-      { "name": "Global Merchant and Network Services (GMNS)", "revenue": 2.082, "unit": "USD bn", "share": 10.4, "yoy": 6, "operatingMargin": 52.0, "src": ["s2"] }
+      {
+        "name": "U.S. Consumer Services (USCS)",
+        "revenue": 9.84,
+        "unit": "USD bn",
+        "share": 49.0,
+        "yoy": 11,
+        "operatingMargin": 23.3,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "Commercial Services (CS)",
+        "revenue": 4.553,
+        "unit": "USD bn",
+        "share": 22.7,
+        "yoy": 6,
+        "operatingMargin": 22.6,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "International Card Services (ICS)",
+        "revenue": 3.682,
+        "unit": "USD bn",
+        "share": 18.4,
+        "yoy": 10,
+        "operatingMargin": 11.7,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "Global Merchant and Network Services (GMNS)",
+        "revenue": 2.082,
+        "unit": "USD bn",
+        "share": 10.4,
+        "yoy": 6,
+        "operatingMargin": 52.0,
+        "src": [
+          "s2"
+        ]
+      }
     ],
     "industryMetric": [
-      { "name": "결제액(billed business)", "value": "Q3 2026 4,540억 달러 +8%, 9개월 1조 3,377억 달러 +9%", "src": ["s1"] },
-      { "name": "순 상각률(net write-off rate)", "value": "Q3 2026 1.8% (전년 1.9%), 충당금 10억 달러(전년 13억)", "src": ["s1"] },
-      { "name": "카드 잔액", "value": "2,211억 달러 (2026-09말, +7%)", "src": ["s2"] },
-      { "name": "CET1 비율", "value": "10.9% (전년 10.5%, 목표 범위 10~11%)", "src": ["s2"] },
-      { "name": "ROE", "value": "42.4% (전년 35.9%)", "src": ["s2"] },
-      { "name": "세전이익", "value": "Q3 2026 45.3억 달러, +18%", "src": ["s1"] }
+      {
+        "name": "결제액(billed business)",
+        "value": "Q3 2026 4,540억 달러 +8%, 9개월 1조 3,377억 달러 +9%",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "순 상각률(net write-off rate)",
+        "value": "Q3 2026 1.8% (전년 1.9%), 충당금 10억 달러(전년 13억)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "카드 잔액",
+        "value": "2,211억 달러 (2026-09말, +7%)",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "CET1 비율",
+        "value": "10.9% (전년 10.5%, 목표 범위 10~11%)",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "ROE",
+        "value": "42.4% (전년 35.9%)",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "세전이익",
+        "value": "Q3 2026 45.3억 달러, +18%",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "text": "그 결과 Q3 2026 매출은 200.6억 달러(+9%), 순이익은 37.1억 달러(+28%)였다. 다만 순이익에는 Global Business Travel Group 지분 매각 이익 9.82억 달러(세전)와 구조조정 비용 3.36억 달러가 함께 들어 있어, 이를 뺀 조정 순이익은 32.1억 달러(+11%)다. 이익은 미국 개인 카드(세전 23.0억 달러, +24%)에 몰렸고, 법인카드와 해외 카드의 세전이익은 오히려 조금 줄었다. 2025년 연간 매출은 722억 달러, 순이익은 108억 달러였다.",
-    "src": ["s1", "s2", "s3"]
+    "src": [
+      "s1",
+      "s2",
+      "s3"
+    ]
   },
-
   "useOfCash": {
     "period": "Q3 2026 (quarter ended 2026-09-30)",
     "items": [
-      { "use": "buybacks", "value": 1.6, "unit": "USD bn", "src": ["s2"] },
-      { "use": "dividends", "value": null, "unit": "USD bn", "src": [] },
-      { "use": "other", "label": "회원 보상(포인트·혜택) 비용", "value": 5.09, "unit": "USD bn", "src": ["s2"] },
-      { "use": "other", "label": "마케팅 비용", "value": 1.77, "unit": "USD bn", "src": ["s2"] }
+      {
+        "use": "buybacks",
+        "value": 1.6,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "use": "dividends",
+        "value": null,
+        "unit": "USD bn",
+        "src": []
+      },
+      {
+        "use": "other",
+        "label": "회원 보상(포인트·혜택) 비용",
+        "value": 5.09,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "use": "other",
+        "label": "마케팅 비용",
+        "value": 1.77,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      }
     ],
     "text": "번 돈의 큰 몫은 회원에게 혜택으로 되돌아가고, 남는 이익은 주주에게 간다. Q3 2026 자사주 매입은 16억 달러(9개월 55억 달러)였고 분기 배당은 주당 0.95달러로 전년 0.82달러보다 16% 올렸다. 동시에 회원 보상 50.9억, 마케팅 17.7억 달러를 써서 신규 회원과 소비를 계속 사들이는데, 이 비용이 이 회사의 사실상의 성장 투자다.",
-    "src": ["s2"]
+    "src": [
+      "s2"
+    ]
   },
-
   "aiChain": {
     "layer": "limited",
     "position": "AI 공급망에 끼어 있지 않은 카드·결제 회사. 10-Q에서 AI에 대한 별도 언급은 확인하지 못했고, 기술 비용 증가와 결제 기술 변화만 경쟁 요인으로 든다.",
-    "dependsOn": ["cloud-infrastructure (기술 공급자 - 업체명 미공시)"],
-    "sellsTo": ["AI를 팔지 않음 - 카드 회원·법인·가맹점"],
+    "dependsOn": [
+      "클라우드 (기술 공급자 - 업체명 미공시)"
+    ],
+    "sellsTo": [
+      "AI를 팔지 않음 - 카드 회원·법인·가맹점"
+    ],
     "aiRevenue": null,
     "upside": "AI가 이익에 닿는 길은 간접적이다. 사기 탐지·신용 심사·고객 응대 효율이 좋아지면 상각률과 운영비가 낮아질 수 있지만, 회사가 그 효과를 숫자로 공시하지는 않는다.",
     "risk": "결제 기술 변화(디지털 지갑·새 결제 경로)가 가맹점 수수료 구조를 압박할 수 있다는 점이 10-Q가 드는 경쟁 위험이다.",
     "text": "이 회사의 이익을 움직이는 것은 AI가 아니라 상위 소비자의 소비와 신용이다. AI는 기술 비용 안에서 효율 수단으로 쓰일 수 있지만 공시된 효과가 없어 'limited'로 본다. 그래서 읽어야 할 숫자는 결제액 성장률, 상각률, 회원 혜택 비용이다.",
-    "src": ["s2", "s1"]
+    "src": [
+      "s2",
+      "s1"
+    ]
   },
-
   "competition": {
     "arenas": [
-      { "arena": "프리미엄 개인 신용카드 (발급)", "rivals": ["대형 은행 카드 발급사"], "position": "leader", "share": null, "src": ["s1"] },
-      { "arena": "카드 결제망", "rivals": ["Visa", "Mastercard"], "position": "challenger", "share": null, "src": ["s2"] },
-      { "arena": "법인·중소기업 카드", "rivals": ["대형 은행 카드 발급사", "핀테크 법인카드 업체"], "position": "leader", "share": null, "src": ["s2"] }
+      {
+        "arena": "프리미엄 개인 신용카드 (발급)",
+        "rivals": [
+          "대형 은행 카드 발급사"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "카드 결제망",
+        "rivals": [
+          "Visa",
+          "Mastercard"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "arena": "법인·중소기업 카드",
+        "rivals": [
+          "대형 은행 카드 발급사",
+          "핀테크 법인카드 업체"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s2"
+        ]
+      }
     ],
     "edge": "닫힌 고리 구조로 회원·가맹점 데이터를 함께 쥐고, 고소득 회원의 높은 소비액과 연회비로 혜택 비용을 감당하는 능력.",
     "threats": "다른 발급사의 프리미엄 카드 혜택 경쟁, 가맹점 수수료 규제, 새 결제 기술, 규제 당국의 준법 요구.",
     "text": "결제망 규모로는 Visa·Mastercard보다 작은 도전자지만, 프리미엄 카드 시장에서는 혜택과 브랜드로 앞선다. 경쟁은 혜택을 얼마나 주느냐로 벌어지고, 그 결과 Q3 2026 회원 서비스 비용이 36% 늘었다. 이번 조사에서 공시된 시장 점유율 수치는 확인하지 못했다.",
-    "src": ["s2", "s1"]
+    "src": [
+      "s2",
+      "s1"
+    ]
   },
-
   "strategy": {
     "goal": "FY2026 매출 약 10% 성장, GAAP EPS 18.30~18.60달러, 조정 EPS 17.60~17.90달러를 제시했고 CET1은 10~11% 범위에서 운영한다.",
     "roadmap": [
-      { "when": "2026", "what": "미국 Platinum 카드 개편으로 연회비·소비 확대", "src": ["s1"] },
-      { "when": "2026 Q3", "what": "Marriott 공동 브랜드 카드 제휴 연장, Airbnb 제휴 시작", "src": ["s1"] },
-      { "when": "2026 Q3", "what": "차세대 Amex Corporate 소프트웨어와 Corporate Cashback 카드 출시", "src": ["s1"] },
-      { "when": "2026 Q3", "what": "GBTG 지분 매각 이익 일부로 효율화 구조조정 (3.36억 달러)", "src": ["s1"] }
+      {
+        "when": "2026",
+        "what": "미국 Platinum 카드 개편으로 연회비·소비 확대",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2026 Q3",
+        "what": "Marriott 공동 브랜드 카드 제휴 연장, Airbnb 제휴 시작",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2026 Q3",
+        "what": "차세대 Amex Corporate 소프트웨어와 Corporate Cashback 카드 출시",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2026 Q3",
+        "what": "GBTG 지분 매각 이익 일부로 효율화 구조조정 (3.36억 달러)",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "vision": "Squeri CEO는 결제액, 신규 회원 확보, 회원 유지의 '사업 모멘텀'을 강조하며 프리미엄 회원 기반을 넓혀 연회비와 수수료가 함께 크는 구조를 그린다.",
     "text": "앞으로의 계획은 혜택이 큰 프리미엄 카드를 더 많이 팔고, 그 회원이 더 많이 쓰게 하는 것이다. Platinum 개편과 Marriott·Airbnb 제휴가 그 수단이고, GBTG 지분 매각 이익으로 구조조정 비용을 충당해 운영비를 줄인다. 회사는 이 흐름으로 2026년 GAAP EPS 가이던스를 올렸다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "governance": {
     "line": "Stephen J. Squeri 회장 겸 CEO가 이끄는 지분 분산 회사로, 2026-10-08 연준·OCC의 금융범죄 준법 명령에 동의하고 OCC에 3.5억 달러 민사 제재금을 내기로 했으며, 자사주 매입과 배당 인상을 함께 이어 간다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
-
   "guidance": {
     "latest": [
-      { "period": "FY2026", "metric": "GAAP EPS", "value": "18.30~18.60달러 (FY2025 15.38달러 대비 +19~21%), Q3에 상향", "givenOn": "2026-10-23", "src": ["s1"] },
-      { "period": "FY2026", "metric": "adjusted EPS", "value": "17.60~17.90달러 (+14~16%)", "givenOn": "2026-10-23", "src": ["s1"] },
-      { "period": "FY2026", "metric": "revenue growth", "value": "약 10%", "givenOn": "2026-10-23", "src": ["s1"] }
+      {
+        "period": "FY2026",
+        "metric": "GAAP EPS",
+        "value": "18.30~18.60달러 (FY2025 15.38달러 대비 +19~21%), Q3에 상향",
+        "givenOn": "2026-10-23",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "조정 EPS",
+        "value": "17.60~17.90달러 (+14~16%)",
+        "givenOn": "2026-10-23",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "매출 성장률",
+        "value": "약 10%",
+        "givenOn": "2026-10-23",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "style": "annual",
     "track": "연초에 연간 매출 성장률과 EPS 범위를 내고 분기마다 갱신한다. Q3 2026에는 EPS 범위를 올렸다. 연초 최초 범위는 이번 조사에서 확인하지 못했다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "estimates": {
     "text": "AIO 로컬 스냅샷(2026-11-07, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) EPS 합계 19.17달러(범위 18.57~19.76), 직전 4개 분기 17.02달러. 최근 4주 상향 5건·하향 6건. Q3 2026 조정 EPS 4.68달러는 컨센서스 4.47달러를 웃돌았다.",
-    "src": ["s4"]
+    "src": [
+      "s4"
+    ]
   },
-
   "watch": {
     "confirms": [
       "결제액 성장률이 8~9%를 유지",
@@ -177,52 +438,96 @@
       "가맹점 수수료 규제"
     ],
     "keyNumbers": [
-      { "name": "결제액(billed business) 성장률", "why": "가맹점 수수료의 원천" },
-      { "name": "순 연회비 성장률", "why": "프리미엄 회원 확대의 결과" },
-      { "name": "순 상각률과 충당금", "why": "회원 신용의 건강" },
-      { "name": "회원 보상·서비스 비용 / 매출", "why": "혜택 경쟁의 비용" },
-      { "name": "CET1 비율과 자사주 매입", "why": "주주환원 여력" },
-      { "name": "조정 EPS (일회성 제외)", "why": "GBTG 매각익 같은 소음을 걷어낸 이익" }
+      {
+        "name": "결제액(billed business) 성장률",
+        "why": "가맹점 수수료의 원천"
+      },
+      {
+        "name": "순 연회비 성장률",
+        "why": "프리미엄 회원 확대의 결과"
+      },
+      {
+        "name": "순 상각률과 충당금",
+        "why": "회원 신용의 건강"
+      },
+      {
+        "name": "회원 보상·서비스 비용 / 매출",
+        "why": "혜택 경쟁의 비용"
+      },
+      {
+        "name": "CET1 비율과 자사주 매입",
+        "why": "주주환원 여력"
+      },
+      {
+        "name": "조정 EPS (일회성 제외)",
+        "why": "GBTG 매각익 같은 소음을 걷어낸 이익"
+      }
     ]
   },
-
   "debate": {
     "question": "늘어나는 회원 혜택 비용을 연회비와 결제액 성장이 계속 앞지르는지",
     "bull": {
       "text": "Q3 2026 순 연회비는 16%, 미국 개인 카드 세전이익은 24% 늘었고 순 상각률은 1.8%로 전년보다 낮았다. 회사는 연간 EPS 가이던스를 올렸고 ROE는 42.4%였으며 배당을 16% 늘리면서 자사주 16억 달러를 샀다는 점을 강세 쪽은 프리미엄 회원 모델이 작동한다는 근거로 든다.",
-      "src": ["s2", "s1"]
+      "src": [
+        "s2",
+        "s1"
+      ]
     },
     "bear": {
       "text": "같은 분기 회원 서비스 비용은 36%, 회원 보상은 10% 늘어 결제액 성장(8%)보다 빨랐고, 법인카드와 해외 카드의 세전이익은 각각 6%, 2% 줄었다. 순이익 28% 증가에는 GBTG 지분 매각 이익이 들어 있어 조정 기준은 11%이고, 10월에는 금융범죄 준법 명령과 3.5억 달러 제재금도 나왔다는 점을 약세 쪽은 짚는다.",
-      "src": ["s2", "s1"]
+      "src": [
+        "s2",
+        "s1"
+      ]
     },
     "decides": [
-      { "when": "2027-01 (Q4·FY2026 실적, 날짜 미확정)", "what": "연간 조정 EPS가 17.60~17.90달러 범위에 들고 2027 가이던스가 매출 성장 약 10%를 이어 가는지", "src": ["s1"] },
-      { "when": "다음 분기들", "what": "회원 서비스·보상 비용 증가율이 결제액·연회비 증가율 아래로 내려오는지", "src": ["s2"] }
+      {
+        "when": "2027-01 (Q4·FY2026 실적, 날짜 미확정)",
+        "what": "연간 조정 EPS가 17.60~17.90달러 범위에 들고 2027 가이던스가 매출 성장 약 10%를 이어 가는지",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "다음 분기들",
+        "what": "회원 서비스·보상 비용 증가율이 결제액·연회비 증가율 아래로 내려오는지",
+        "src": [
+          "s2"
+        ]
+      }
     ]
   },
-
   "underTheHood": [
     {
       "title": "혜택이 곧 매출 원가다",
       "text": "Q3 2026 매출 200.6억 달러 가운데 회원 보상 50.9억, 회원 서비스 20.1억, 사업 개발비 17.95억 달러가 회원과 제휴사에 되돌아갔다. 이 비용은 결제액과 연회비를 끌어내는 대가라서, 매출 성장과 혜택 비용 증가의 차이가 이익률을 정한다. 이번 분기는 Platinum 개편으로 회원 서비스 비용이 36% 늘어 그 차이가 좁아졌다.",
-      "src": ["s2", "s1"]
+      "src": [
+        "s2",
+        "s1"
+      ]
     },
     {
       "title": "일회성 이익이 섞인 분기",
       "text": "GAAP EPS 5.42달러에는 GBTG 지분 매각 이익 주당 1.11달러와 구조조정 비용 주당 0.37달러가 함께 들어 있고, 세율도 이전 기간 세무 해결로 18.1%까지 낮았다. 회사가 GAAP와 조정 EPS 가이던스를 따로 내는 이유이며, 전년 대비 성장률은 조정 기준(+13%)으로 보는 편이 실제 영업에 가깝다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     {
       "title": "가맹점망이 가장 남는 사업",
       "text": "결제망 사업 GMNS는 매출 20.8억 달러로 가장 작지만 세전이익 10.8억 달러로 이익률이 50%를 넘는다. 반면 해외 카드는 매출 36.8억 달러에 세전이익 4.3억 달러다. 닫힌 고리 구조에서 가맹점 수수료가 발급 사업의 혜택 비용을 받쳐 주는 셈이다.",
-      "src": ["s2"]
+      "src": [
+        "s2"
+      ]
     }
   ],
-
   "trading": {
     "calendar": [
-      { "date": "2027-01 하순 (추정, 회사 미확정)", "event": "Q4·FY2026 실적과 2027 가이던스", "src": [] }
+      {
+        "date": "2027-01 하순 (추정, 회사 미확정)",
+        "event": "Q4·FY2026 실적과 2027 가이던스",
+        "src": []
+      }
     ],
     "reaction": "주가는 결제액 성장률, 상각률, 연간 EPS 가이던스 변경에 반응하는 경향이 있다. Q3 2026은 조정 EPS가 컨센서스를 웃돌고 GAAP EPS 가이던스가 올라갔다.",
     "conditions": [
@@ -234,7 +539,6 @@
       "규제·준법 명령 이행 소식"
     ]
   },
-
   "unverified": [
     "분기 배당 지급 총액 (주당 배당만 확인)",
     "신규 카드 발급 수와 회원 수",

@@ -5,11 +5,31 @@
   "fiscalYearEnd": "December 31",
   "oneLine": "Comcast는 미국 케이블 인터넷·무선(Connectivity & Platforms)과 NBCUniversal의 방송·Peacock·영화·테마파크(Content & Experiences)를 함께 가진 회사로, 인터넷 가입자가 줄어드는 가운데 미디어 사업을 따로 떼어 내는 분할을 준비하고 있다.",
   "sources": [
-    { "id": "s1", "kind": "earnings-release", "title": "Comcast Reports 3rd Quarter 2026 Results (Business Wire release reposted)", "url": "https://finviz.com/news/406269/comcast-reports-3rd-quarter-2026-results", "publisher": "Comcast via Business Wire / Finviz", "date": "2026-10-22" },
-    { "id": "s2", "kind": "news", "title": "Comcast to spin out NBCU and Sky", "url": "https://www.lightreading.com/cable-technology/comcast-to-spin-out-nbcu-and-sky", "publisher": "Light Reading", "date": "2026-06-29" },
-    { "id": "s3", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/cmcsa/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-11-07" }
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Comcast Reports 3rd Quarter 2026 Results (Business Wire release reposted)",
+      "url": "https://finviz.com/news/406269/comcast-reports-3rd-quarter-2026-results",
+      "publisher": "Comcast via Business Wire / Finviz",
+      "date": "2026-10-22"
+    },
+    {
+      "id": "s2",
+      "kind": "news",
+      "title": "Comcast to spin out NBCU and Sky",
+      "url": "https://www.lightreading.com/cable-technology/comcast-to-spin-out-nbcu-and-sky",
+      "publisher": "Light Reading",
+      "date": "2026-06-29"
+    },
+    {
+      "id": "s3",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/cmcsa/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-11-07"
+    }
   ],
-
   "moat": {
     "sources": [
       "미국 유선망 - 국내 인터넷 가입자 2,834만 명 (2026-09말)",
@@ -18,23 +38,26 @@
       "Peacock 스트리밍 - 유료 가입자 4,800만 명 (+17%)"
     ],
     "text": "Comcast의 힘은 미국 가정에 깔린 유선망과, 그 위에 무선·영상·콘텐츠를 묶어 파는 능력이다. 다만 Q3 2026에 국내 인터넷 가입자가 14.4만 명 줄어 망의 힘이 약해지는 신호가 나왔다. 반대로 무선 회선은 36.8만 늘었고, 콘텐츠 쪽에서는 Universal이 2026년 세계 흥행 50억 달러를 처음 넘은 스튜디오가 됐다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "design": {
     "text": "회사는 두 사업으로 보고한다. Connectivity & Platforms는 가정용 인터넷·무선·영상(Residential)과 기업용 통신(Business Services), Content & Experiences는 Media(NBC 방송과 Peacock), Studios(영화·TV 제작), Theme Parks(Universal 테마파크)다. 2026년 1월 Versant 분리, 5월 Sky Germany 매각을 마쳤다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "make": {
     "model": "asset-owner",
     "partners": [
       "FIFA World Cup - 2026 중계, Q3 Media 매출 2.24억 달러 추가"
     ],
     "text": "Comcast는 자기 망과 테마파크, 스튜디오를 소유하고 운영한다. Q3 설비투자는 31억 달러로, Connectivity & Platforms에 24억 달러(+3.6%), Content & Experiences에 6.39억 달러(-10.6%)를 썼다. 중계권 같은 외부 콘텐츠도 사들이는데, Q3에는 FIFA World Cup이 Media 매출을 2.24억 달러 늘렸다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "sell": {
     "customers": [
       "미국 가정 인터넷 가입자 - 2,834만 명, 분기 순감 14.4만",
@@ -47,115 +70,333 @@
     "channel": "가정·기업 직접 가입, 방송 광고 판매, 극장·스트리밍 배급, 테마파크 입장",
     "concentration": "고객별 비중 미공시; 매출의 약 58%가 Residential Connectivity (부문 합계 기준)",
     "text": "가장 큰 고객은 미국 가정이다. Residential 매출은 170.2억 달러로 3.5% 줄었는데, 인터넷 매출(-4.7%)과 영상 매출(-8.7%)이 줄고 무선 서비스 매출(+14.7%)만 늘었다. Peacock은 유료 가입자 4,800만 명으로 늘며 처음으로 2.61억 달러의 분기 EBITDA를 냈다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "moneyFlow": {
     "steps": [
-      { "from": "미국 가정", "to": "Comcast (Residential Connectivity)", "what": "월 인터넷·무선·영상 요금 (Q3 170.2억 달러)" },
-      { "from": "광고주·스트리밍 가입자", "to": "Comcast (Media)", "what": "광고비와 Peacock 구독료 (Media 53.6억 달러)" },
-      { "from": "Comcast (Media)", "to": "FIFA World Cup", "what": "중계권료 (금액 미공시)" },
-      { "from": "관객·방문객", "to": "Comcast (Studios·Theme Parks)", "what": "흥행·라이선스 수입과 입장료 (29.7억 + 26.0억 달러)" },
-      { "from": "Comcast", "to": "주주", "what": "Q3 배당 12억 달러 (자사주 매입은 분할까지 중단)" }
+      {
+        "from": "미국 가정",
+        "to": "Comcast (Residential Connectivity)",
+        "what": "월 인터넷·무선·영상 요금 (Q3 170.2억 달러)"
+      },
+      {
+        "from": "광고주·스트리밍 가입자",
+        "to": "Comcast (Media)",
+        "what": "광고비와 Peacock 구독료 (Media 53.6억 달러)"
+      },
+      {
+        "from": "Comcast (Media)",
+        "to": "FIFA World Cup",
+        "what": "중계권료 (금액 미공시)"
+      },
+      {
+        "from": "관객·방문객",
+        "to": "Comcast (Studios·Theme Parks)",
+        "what": "흥행·라이선스 수입과 입장료 (29.7억 + 26.0억 달러)"
+      },
+      {
+        "from": "Comcast",
+        "to": "주주",
+        "what": "Q3 배당 12억 달러 (자사주 매입은 분할까지 중단)"
+      }
     ],
     "pricing": "월 정액 가입 요금(인터넷·무선·영상), 광고, 구독, 흥행·라이선스, 테마파크 입장료.",
     "text": "현금의 중심은 가정이 매달 내는 통신 요금이다. 이 돈이 망 투자와 배당을 대고, 미디어·콘텐츠는 광고·구독·흥행으로 따로 번다. 회사는 분할이 끝날 때까지 자사주 매입을 멈춰, Q3 주주 환원은 배당 12억 달러뿐이었다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "earnings": {
     "period": "Q3 2026 (quarter ended 2026-09-30)",
-    "revenue": { "value": 29.298, "unit": "USD bn", "yoy": -6.1 },
+    "revenue": {
+      "value": 29.298,
+      "unit": "USD bn",
+      "yoy": -6.1
+    },
     "grossMargin": null,
     "operatingMargin": null,
     "netMargin": 11.8,
-    "operatingCashFlow": { "value": 7.902, "unit": "USD bn" },
-    "freeCashFlow": { "value": 4.211, "unit": "USD bn" },
+    "operatingCashFlow": {
+      "value": 7.902,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": 4.211,
+      "unit": "USD bn"
+    },
     "segments": [
-      { "name": "Residential Connectivity & Platforms", "revenue": 17.018, "unit": "USD bn", "share": null, "yoy": -3.5, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Business Services Connectivity", "revenue": 2.645, "unit": "USD bn", "share": null, "yoy": 2.7, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Media", "revenue": 5.359, "unit": "USD bn", "share": null, "yoy": 13.0, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Studios", "revenue": 2.967, "unit": "USD bn", "share": null, "yoy": -1.1, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Theme Parks", "revenue": 2.597, "unit": "USD bn", "share": null, "yoy": -4.4, "operatingMargin": null, "src": ["s1"] }
+      {
+        "name": "Residential Connectivity & Platforms",
+        "revenue": 17.018,
+        "unit": "USD bn",
+        "share": null,
+        "yoy": -3.5,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Business Services Connectivity",
+        "revenue": 2.645,
+        "unit": "USD bn",
+        "share": null,
+        "yoy": 2.7,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Media",
+        "revenue": 5.359,
+        "unit": "USD bn",
+        "share": null,
+        "yoy": 13.0,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Studios",
+        "revenue": 2.967,
+        "unit": "USD bn",
+        "share": null,
+        "yoy": -1.1,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Theme Parks",
+        "revenue": 2.597,
+        "unit": "USD bn",
+        "share": null,
+        "yoy": -4.4,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "industryMetric": [
-      { "name": "조정 EBITDA (전체 / 프로포마 증가율)", "value": "Q3 2026 91.1억 달러 (-5.8%, 프로포마 +0.8%)", "src": ["s1"] },
-      { "name": "부문 조정 EBITDA 마진", "value": "Residential 35.9%, Business Services 55.9%, Connectivity & Platforms 합계 38.6% (-0.7%p)", "src": ["s1"] },
-      { "name": "국내 인터넷 가입자 순증감", "value": "Q3 2026 -14.4만 (전년 -9.1만), 총 2,834만", "src": ["s1"] },
-      { "name": "무선 회선 순증", "value": "Q3 2026 +36.8만 (전년 +41.4만), 총 1,056만", "src": ["s1"] },
-      { "name": "Peacock", "value": "Q3 2026 매출 18억 달러, 조정 EBITDA 2.61억 달러 (전년 -2.17억), 유료 가입자 4,800만", "src": ["s1"] },
-      { "name": "EPS (GAAP / 조정)", "value": "Q3 2026 0.97달러 / 1.07달러 (전년 0.90 / 1.12)", "src": ["s1"] }
+      {
+        "name": "조정 EBITDA (전체 / 프로포마 증가율)",
+        "value": "Q3 2026 91.1억 달러 (-5.8%, 프로포마 +0.8%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "부문 조정 EBITDA 마진",
+        "value": "Residential 35.9%, Business Services 55.9%, Connectivity & Platforms 합계 38.6% (-0.7%p)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "국내 인터넷 가입자 순증감",
+        "value": "Q3 2026 -14.4만 (전년 -9.1만), 총 2,834만",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "무선 회선 순증",
+        "value": "Q3 2026 +36.8만 (전년 +41.4만), 총 1,056만",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Peacock",
+        "value": "Q3 2026 매출 18억 달러, 조정 EBITDA 2.61억 달러 (전년 -2.17억), 유료 가입자 4,800만",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "EPS (GAAP / 조정)",
+        "value": "Q3 2026 0.97달러 / 1.07달러 (전년 0.90 / 1.12)",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "text": "Q3 2026 매출은 293.0억 달러로 6.1% 줄었지만, Versant 분리와 Sky Germany 매각을 반영한 프로포마 기준으로는 0.5% 늘었다. 이익은 미디어로 옮겨 가서 Content & Experiences 조정 EBITDA는 29.3% 늘고 Connectivity & Platforms는 4.4% 줄었다. 순이익은 34.5억 달러, 잉여현금흐름은 42.1억 달러(-14.8%)였다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "useOfCash": {
     "period": "Q3 2026 (quarter ended 2026-09-30)",
     "items": [
-      { "use": "capex", "value": 3.1, "unit": "USD bn", "src": ["s1"] },
-      { "use": "dividends", "value": 1.2, "unit": "USD bn", "src": ["s1"] },
-      { "use": "buybacks", "value": 0, "unit": "USD bn", "src": ["s1"] }
+      {
+        "use": "capex",
+        "value": 3.1,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "dividends",
+        "value": 1.2,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "buybacks",
+        "value": 0,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "text": "영업현금흐름 79.0억 달러 가운데 31억 달러가 설비투자로, 12억 달러가 배당으로 나갔다. 회사는 Q3부터 자사주 매입을 멈췄고, 사업 분할이 끝날 때까지 중단을 이어 갈 계획이다. 망 투자는 늘리고(+3.6%) 콘텐츠 쪽 설비투자는 줄였다(-10.6%).",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "aiChain": {
     "layer": "limited",
     "position": "통신·미디어 회사로, 이번에 읽은 보도자료에는 AI 관련 언급이나 수치가 없다.",
-    "dependsOn": ["공개된 AI 의존 업체 없음"],
-    "sellsTo": ["AI를 팔지 않음 - 가정·기업 통신 고객, 광고주, 관객"],
+    "dependsOn": [
+      "공개된 AI 의존 업체 없음"
+    ],
+    "sellsTo": [
+      "AI를 팔지 않음 - 가정·기업 통신 고객, 광고주, 관객"
+    ],
     "aiRevenue": null,
     "upside": "원문에 AI가 매출로 이어지는 경로가 공시되지 않았다.",
     "risk": "원문에 AI 관련 위험 언급 없음.",
     "text": "AI 가치사슬과의 연결은 공시로 확인되지 않는다. 실적은 인터넷 가입자 추세, 무선 성장, Peacock 수익성, 분할 진행이 움직인다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "competition": {
     "arenas": [
-      { "arena": "미국 가정용 인터넷", "rivals": ["다른 인터넷 사업자 (원문 미명시)"], "position": "leader", "share": null, "src": ["s1"] },
-      { "arena": "무선 통신", "rivals": ["원문 미명시"], "position": "challenger", "share": null, "src": ["s1"] },
-      { "arena": "스트리밍 (Peacock)", "rivals": ["원문 미명시"], "position": "challenger", "share": null, "src": ["s1"] },
-      { "arena": "영화·테마파크", "rivals": ["원문 미명시"], "position": "leader", "share": null, "src": ["s1"] }
+      {
+        "arena": "미국 가정용 인터넷",
+        "rivals": [
+          "다른 인터넷 사업자 (원문 미명시)"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "무선 통신",
+        "rivals": [
+          "원문 미명시"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "스트리밍 (Peacock)",
+        "rivals": [
+          "원문 미명시"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "영화·테마파크",
+        "rivals": [
+          "원문 미명시"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "edge": "가정에 깔린 유선망과 무선 묶음 판매, 흥행 IP와 테마파크.",
     "threats": "인터넷 가입자 순감 확대, 영상 가입자 감소, 테마파크 수요 둔화.",
     "text": "이번에 읽은 원문은 경쟁사 이름을 밝히지 않았다. 경쟁 압력은 인터넷 가입자 순감이 14.4만 명으로 전년 9.1만 명보다 커진 데서 숫자로 드러난다. 회사는 무선을 묶어 이탈을 막으려 하고, 무선 회선은 1년 동안 160만 늘었다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "strategy": {
     "goal": "NBCUniversal(Sky 포함)을 세금 없는 분할로 떼어 내 두 개의 상장 회사로 나누는 것.",
     "roadmap": [
-      { "when": "2026-01-02", "what": "Versant 분리 완료", "src": ["s1"] },
-      { "when": "2026-05-31", "what": "Sky Germany 매각 완료", "src": ["s1"] },
-      { "when": "2026-06-29", "what": "NBCUniversal·Sky 분할 계획 발표 - 약 1년 안 완료 목표", "src": ["s2"] },
-      { "when": "2027 중반 (발표 기준 약 1년, 조건부)", "what": "분할 완료 - NBCUniversal CEO Mike Cavanagh, Comcast CEO Michael Angelakis; Comcast가 NBCUniversal 지분 최대 19.9%를 최대 1년 보유", "src": ["s2"] }
+      {
+        "when": "2026-01-02",
+        "what": "Versant 분리 완료",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2026-05-31",
+        "what": "Sky Germany 매각 완료",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2026-06-29",
+        "what": "NBCUniversal·Sky 분할 계획 발표 - 약 1년 안 완료 목표",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "when": "2027 중반 (발표 기준 약 1년, 조건부)",
+        "what": "분할 완료 - NBCUniversal CEO Mike Cavanagh, Comcast CEO Michael Angelakis; Comcast가 NBCUniversal 지분 최대 19.9%를 최대 1년 보유",
+        "src": [
+          "s2"
+        ]
+      }
     ],
     "vision": "공동 CEO Brian L. Roberts와 Mike Cavanagh는 '사업을 강화하고 구조적 강점의 잠재력을 풀어내는 결정적 조치'라고 밝혔다.",
     "text": "회사는 통신(인터넷·무선·기업 서비스)과 미디어(NBCUniversal·Sky)를 두 회사로 나누는 길을 택했다. 분할에는 이사회 최종 승인, 세무 의견, 규제 승인, 자금 조달이 조건으로 걸려 있다. 분할 전까지 자사주 매입은 멈추고 배당만 유지한다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
-
   "governance": {
     "line": "Brian L. Roberts와 Mike Cavanagh가 공동 CEO이며 분할 뒤에도 Roberts가 두 회사 경영에 관여하고, NBCUniversal도 Comcast와 같은 차등 의결권 구조를 갖는다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
-
   "guidance": {
     "latest": [],
     "style": "none",
     "track": "Q3 보도자료에는 수치 전망이 없었다. Q3 조정 EPS 1.07달러는 컨센서스 0.98달러를 넘었다(AIO 스냅샷).",
-    "src": ["s1", "s3"]
+    "src": [
+      "s1",
+      "s3"
+    ]
   },
-
   "estimates": {
     "text": "AIO 로컬 스냅샷(2026-11-07, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) EPS 합계 3.44달러(범위 3.08~3.77), 직전 4개 분기 3.74달러로 감소를 본다. 최근 4주 상향 3건·하향 9건으로 하향이 많다.",
-    "src": ["s3"]
+    "src": [
+      "s3"
+    ]
   },
-
   "watch": {
     "confirms": [
       "인터넷 가입자 순감 축소",
@@ -170,52 +411,97 @@
       "분할 일정 지연"
     ],
     "keyNumbers": [
-      { "name": "국내 인터넷 가입자 순증감", "why": "현금 기반의 건강도" },
-      { "name": "무선 회선 순증", "why": "인터넷 이탈 방어 수단" },
-      { "name": "Connectivity & Platforms EBITDA 마진", "why": "통신 회사 가치의 핵심" },
-      { "name": "Peacock EBITDA", "why": "미디어 회사의 수익성" },
-      { "name": "잉여현금흐름", "why": "배당과 분할 뒤 재무 여력" }
+      {
+        "name": "국내 인터넷 가입자 순증감",
+        "why": "현금 기반의 건강도"
+      },
+      {
+        "name": "무선 회선 순증",
+        "why": "인터넷 이탈 방어 수단"
+      },
+      {
+        "name": "Connectivity & Platforms EBITDA 마진",
+        "why": "통신 회사 가치의 핵심"
+      },
+      {
+        "name": "Peacock EBITDA",
+        "why": "미디어 회사의 수익성"
+      },
+      {
+        "name": "잉여현금흐름",
+        "why": "배당과 분할 뒤 재무 여력"
+      }
     ]
   },
-
   "debate": {
     "question": "인터넷 가입자 감소 속에서 무선 묶음과 미디어 분할이 두 회사 각각의 이익 기반을 지키는지",
     "bull": {
       "text": "강세로 보는 쪽은 Peacock이 조정 EBITDA 2.61억 달러로 흑자로 돌아섰고 Content & Experiences EBITDA가 29.3% 늘었다는 점을 든다. 무선 회선은 1년 동안 160만 늘었고, 프로포마 매출과 EBITDA는 각각 0.5%, 0.8% 늘어 분할 전 사업 구조를 정리하는 중이라고 읽는다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     "bear": {
       "text": "약세로 보는 쪽은 국내 인터넷 가입자 순감이 14.4만 명으로 전년보다 커지고 인터넷 매출이 4.7% 줄었다는 점을 짚는다. Connectivity & Platforms EBITDA는 4.4% 줄었고 잉여현금흐름은 14.8% 감소했으며, 자사주 매입은 분할까지 멈췄다. 컨센서스도 최근 4주 하향 9건이 상향 3건보다 많다.",
-      "src": ["s1", "s3"]
+      "src": [
+        "s1",
+        "s3"
+      ]
     },
     "decides": [
-      { "when": "Q4 2026 실적 (2027-01 예상, 회사 미확정)", "what": "인터넷 가입자 순감 규모와 무선 순증", "src": ["s1"] },
-      { "when": "2027 중반 (발표 기준 약 1년)", "what": "NBCUniversal 분할이 세무·규제·자금 조건을 채워 완료되는지", "src": ["s2"] }
+      {
+        "when": "Q4 2026 실적 (2027-01 예상, 회사 미확정)",
+        "what": "인터넷 가입자 순감 규모와 무선 순증",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2027 중반 (발표 기준 약 1년)",
+        "what": "NBCUniversal 분할이 세무·규제·자금 조건을 채워 완료되는지",
+        "src": [
+          "s2"
+        ]
+      }
     ]
   },
-
   "underTheHood": [
     {
       "title": "보고 매출과 프로포마의 차이",
       "text": "Q3 매출은 6.1% 줄었지만 프로포마로는 0.5% 늘었다. Versant 분리와 Sky Germany 매각으로 사라진 매출이 빠졌기 때문이다. 분할을 앞둔 회사라 보고 숫자와 프로포마 숫자를 나눠 읽어야 실제 추세가 보인다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     {
       "title": "인터넷이 줄고 무선이 메운다",
       "text": "인터넷 매출은 62.4억 달러로 4.7% 줄었고 무선 서비스 매출은 10.5억 달러로 14.7% 늘었다. 금액으로는 무선 증가분(1.35억 달러)이 인터넷 감소분(3.09억 달러)의 절반에 못 미친다. 무선 묶음이 이탈을 늦출 수는 있어도 아직 매출을 대신하지는 못한다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     {
       "title": "분할 뒤 남는 지분",
       "text": "분할 계획에서 Comcast는 NBCUniversal 지분을 최대 19.9%까지 최대 1년 보유한 뒤 세금 효율적으로 처분할 계획이다. 분할 직후 두 회사 사이에 지분 관계가 남는다는 뜻이라, 분할 뒤 Comcast의 재무에는 이 지분 매각 수입이 섞일 수 있다.",
-      "src": ["s2"]
+      "src": [
+        "s2"
+      ]
     }
   ],
-
   "trading": {
     "calendar": [
-      { "date": "2027-01 하순 (추정, 회사 미확정)", "event": "Q4·FY2026 실적", "src": [] },
-      { "date": "2027 중반 (발표 기준 약 1년, 조건부)", "event": "NBCUniversal·Sky 분할 완료 목표", "src": ["s2"] }
+      {
+        "date": "2027-01 하순 (추정, 회사 미확정)",
+        "event": "Q4·FY2026 실적",
+        "src": []
+      },
+      {
+        "date": "2027 중반 (발표 기준 약 1년, 조건부)",
+        "event": "NBCUniversal·Sky 분할 완료 목표",
+        "src": [
+          "s2"
+        ]
+      }
     ],
     "reaction": "주가는 분기 EPS보다 인터넷 가입자 순증감과 분할 관련 소식에 크게 반응하는 경향이 있다.",
     "conditions": [
@@ -226,7 +512,6 @@
       "컨센서스 EPS 상향·하향 건수"
     ]
   },
-
   "unverified": [
     "인터넷 ARPU (보도자료 미공시)",
     "순부채와 레버리지 비율",

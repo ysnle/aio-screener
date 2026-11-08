@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Scenario guidance and the shared market guide. v58.86 gate consolidation: the sections below were separate gates until v58.86. They check one subject, so one gate
 // runs them in order; every section runs even when an earlier one fails, and the failure names the section.
+import { workflowPublishes } from './lib/data-publish-sets.mjs';
 import { readThemesPageSource } from './lib/themes-page-source.mjs';
 import { runSections } from './lib/gate-sections.mjs';
 import { readHistoryRows } from '../src/domain/market/history-rows.js';
@@ -477,8 +478,8 @@ console.log('scenario guidance fixture (basis card): PASS');
   const workflow = readFileSync(new URL('../.github/workflows/refresh-data.yml', import.meta.url), 'utf8');
   assert.match(workflow, /node scripts\/build-scenario-state\.mjs/, 'P1743: the state recomputes every refresh');
   assert.match(workflow, /node scripts\/build-scenario-outcomes\.mjs/, 'P1743: long history refreshes weekly');
-  assert.match(workflow, /stage_if_exists public-data\/scenario-state\.json/);
-  assert.match(workflow, /stage_if_exists public-data\/scenario-outcomes\.json/);
+  assert.ok(workflowPublishes('refresh-data.yml', 'public-data/scenario-state.json'), 'P1743: refresh-data commits scenario-state.json');
+  assert.ok(workflowPublishes('refresh-data.yml', 'public-data/scenario-outcomes.json'), 'P1743: refresh-data commits scenario-outcomes.json');
   assert.ok(workflow.indexOf('build-scenario-state.mjs') < workflow.indexOf('sync-data-release-manifests.mjs'), 'P1743: state is built before the release is promoted');
   const { chooseAnswerVisuals } = await import('../src/ui/components/ai-answer-visuals.js');
   assert.deepEqual(chooseAnswerVisuals({ query: '앞으로 시장 어떻게 대응해야 돼?', mode: 'outlook' }).map((p) => p.kind), ['crossroads'], 'P1743: a market outlook answer carries the branch table');

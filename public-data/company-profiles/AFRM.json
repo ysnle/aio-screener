@@ -185,8 +185,8 @@
     "layer": "ai-adopter",
     "position": "AI를 신용 심사와 사내 운영에 깊게 쓰는 금융 도입자. 트랜스포머 기반 심사 모델이 결제 완료율을 3.4% 높였고, 사내 AI 추론 트래픽의 두 자릿수 비율이 자체 LLM 게이트웨이를 거친다. 에이전트 커머스(AI가 대신 사는 결제)에 Affirm을 붙이는 작업도 진행 중이다.",
     "dependsOn": [
-      "models-platforms (외부 AI 모델 - 업체명 이번 문서에 없음)",
-      "cloud-infrastructure"
+      "모델·플랫폼 (외부 AI 모델 - 업체명 이번 문서에 없음)",
+      "클라우드"
     ],
     "sellsTo": [
       "가맹점 (AI 에이전트 결제에서의 할부 옵션)",
@@ -292,7 +292,7 @@
     "latest": [
       {
         "period": "FQ2 FY2027",
-        "metric": "GMV / revenue / RLTC",
+        "metric": "GMV / 매출 / RLTC",
         "value": "179억~182억 달러 / 14.35억~14.65억 달러 / 7.05억~7.20억 달러",
         "givenOn": "2026-11-05",
         "src": [
@@ -301,7 +301,7 @@
       },
       {
         "period": "FQ2 FY2027",
-        "metric": "GAAP / adjusted operating margin",
+        "metric": "GAAP / 조정 영업이익률",
         "value": "11.5~13.5% / 29.5~31.5%",
         "givenOn": "2026-11-05",
         "src": [
@@ -319,7 +319,7 @@
       },
       {
         "period": "FY2027",
-        "metric": "GAAP / adjusted operating margin",
+        "metric": "GAAP / 조정 영업이익률",
         "value": "14.75% 초과 / 30.75% 초과",
         "givenOn": "2026-11-05",
         "src": [

@@ -5,8 +5,22 @@
   "fiscalYearEnd": "December 31",
   "oneLine": "Upstart는 AI 신용평가 모델로 개인 대출을 심사해 100곳 넘는 은행·신용조합과 투자자에게 연결하고 수수료를 받는 대출 플랫폼으로, 2026년 3분기 대출 실행액이 44% 늘었지만 대출 일부를 자기 장부에 들고 있어 영업현금흐름은 마이너스다.",
   "sources": [
-    { "id": "s1", "kind": "8-K", "title": "Upstart Announces Third Quarter 2026 Results (8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0001647639/000164763926000083/upst991prq32026.htm", "publisher": "Upstart / SEC EDGAR", "date": "2026-11-03" },
-    { "id": "s2", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/upst/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-11-07" }
+    {
+      "id": "s1",
+      "kind": "8-K",
+      "title": "Upstart Announces Third Quarter 2026 Results (8-K Exhibit 99.1)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0001647639/000164763926000083/upst991prq32026.htm",
+      "publisher": "Upstart / SEC EDGAR",
+      "date": "2026-11-03"
+    },
+    {
+      "id": "s2",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/upst/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-11-07"
+    }
   ],
   "moat": {
     "sources": [
@@ -15,11 +29,15 @@
       "개인 대출에서 자동차·HELOC·소액 대출·Cash Line으로 넓힌 상품군"
     ],
     "text": "Upstart의 경쟁력은 대출 신청자를 AI 모델로 심사해 빠르게 승인하고, 그 대출을 사 줄 금융기관과 투자자를 연결하는 데 있다. 쌓인 대출 데이터가 모델을 다듬고, 모델 성능이 승인율과 대출 손실을 정한다. 2026년 3분기에 57만 4,089건, 41억 달러의 대출이 이 플랫폼에서 실행됐다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "design": {
     "text": "회사가 운영하는 상품은 개인 신용대출, 자동차 대출, 주택담보 신용한도(HELOC), 소액 대출, 그리고 회전식 신용한도 Cash Line이다. 핵심 제품은 상품 자체보다 심사 모델로, 금융기관은 이 모델을 써서 대출 고객을 받는다. 회사는 2027년 1분기부터 전환율 지표 보고를 멈추겠다고 밝혔다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "make": {
     "model": "service",
@@ -28,7 +46,9 @@
       "기관 투자자 - 대출 매입·자금 공급 (이름 미공시)"
     ],
     "text": "대출 자금은 대부분 파트너 금융기관과 투자자가 댄다. 다만 Upstart도 일부 대출을 직접 사서 장부에 들고 있어, 2026년 9월 말 공정가치 대출이 9.41억 달러였고 1~9월에만 보유 목적 대출 8.70억 달러를 샀다. 파트너 이름은 발표문에 나오지 않는다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "sell": {
     "customers": [
@@ -38,147 +58,377 @@
     "channel": "자체 웹사이트를 통한 소비자 직접 모집과 파트너 금융기관 채널",
     "concentration": "자금 공급 파트너별 비중은 발표문에 없음. 자금 시장이 막히면 대출 실행이 줄어드는 구조.",
     "text": "고객은 두 쪽이다. 대출을 받는 개인과, 그 대출을 실행하거나 사 가는 금융기관·투자자다. 개인 쪽은 수십만 명으로 흩어져 있지만, 자금을 대는 쪽이 줄어들면 대출 실행액이 바로 줄어 수수료 매출도 함께 줄어든다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "moneyFlow": {
     "steps": [
-      { "from": "개인 대출자", "to": "은행·신용조합·투자자", "what": "원리금 상환" },
-      { "from": "은행·신용조합", "to": "Upstart", "what": "대출 소개·심사 수수료와 플랫폼 수수료" },
-      { "from": "대출 매입 투자자", "to": "Upstart", "what": "대출 매각 대금과 서비싱 수수료" },
-      { "from": "Upstart", "to": "자기 장부 대출", "what": "대출 직접 매입·보유 (1~9월 8.70억 달러)" }
+      {
+        "from": "개인 대출자",
+        "to": "은행·신용조합·투자자",
+        "what": "원리금 상환"
+      },
+      {
+        "from": "은행·신용조합",
+        "to": "Upstart",
+        "what": "대출 소개·심사 수수료와 플랫폼 수수료"
+      },
+      {
+        "from": "대출 매입 투자자",
+        "to": "Upstart",
+        "what": "대출 매각 대금과 서비싱 수수료"
+      },
+      {
+        "from": "Upstart",
+        "to": "자기 장부 대출",
+        "what": "대출 직접 매입·보유 (1~9월 8.70억 달러)"
+      }
     ],
     "pricing": "대출 실행 건마다 받는 소개·심사 수수료, 대출 관리(서비싱) 수수료, 그리고 장부에 든 대출의 이자·공정가치 변동.",
     "text": "돈은 대출이 실행될 때 금융기관에서 받는 수수료로 들어온다. 3분기 매출 3.71억 달러 가운데 3.64억 달러가 수수료였고, 장부에 든 대출에서 나온 이자와 평가 손익은 순 650만 달러였다. 수수료 매출은 결국 대출 실행액, 곧 자금을 대는 쪽의 수요에 묶여 있다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "earnings": {
     "period": "Q3 2026 (ended 2026-09-30)",
-    "revenue": { "value": 0.3705, "unit": "USD bn", "yoy": 34 },
+    "revenue": {
+      "value": 0.3705,
+      "unit": "USD bn",
+      "yoy": 34
+    },
     "grossMargin": null,
     "operatingMargin": null,
     "netMargin": 9.9,
-    "operatingCashFlow": { "value": null, "unit": "USD bn" },
-    "freeCashFlow": { "value": null, "unit": "USD bn" },
+    "operatingCashFlow": {
+      "value": null,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": null,
+      "unit": "USD bn"
+    },
     "segments": [
-      { "name": "Revenue from fees, net", "revenue": 0.364, "unit": "USD bn", "share": 98.2, "yoy": 41, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Interest income, interest expense and fair value adjustments, net", "revenue": 0.0065, "unit": "USD bn", "share": 1.8, "yoy": null, "operatingMargin": null, "src": ["s1"] }
+      {
+        "name": "Revenue from fees, net",
+        "revenue": 0.364,
+        "unit": "USD bn",
+        "share": 98.2,
+        "yoy": 41,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Interest income, interest expense and fair value adjustments, net",
+        "revenue": 0.0065,
+        "unit": "USD bn",
+        "share": 1.8,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "industryMetric": [
-      { "name": "대출 실행액 (Originations)", "value": "41억 달러 (+44%), 57만 4,089건 (+34%)", "src": ["s1"] },
-      { "name": "전환율", "value": "18.6% (전년 19.4%) - 2027년 1분기부터 보고 중단", "src": ["s1"] },
-      { "name": "공헌이익률", "value": "60% (전년 57%), 공헌이익 2.18억 달러", "src": ["s1"] },
-      { "name": "Adjusted EBITDA", "value": "8,930만 달러 (+26%), 마진 24%", "src": ["s1"] },
-      { "name": "장부 대출", "value": "공정가치 대출 9.41억 달러 (2026-09-30)", "src": ["s1"] }
+      {
+        "name": "대출 실행액 (Originations)",
+        "value": "41억 달러 (+44%), 57만 4,089건 (+34%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "전환율",
+        "value": "18.6% (전년 19.4%) - 2027년 1분기부터 보고 중단",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "공헌이익률",
+        "value": "60% (전년 57%), 공헌이익 2.18억 달러",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Adjusted EBITDA",
+        "value": "8,930만 달러 (+26%), 마진 24%",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "장부 대출",
+        "value": "공정가치 대출 9.41억 달러 (2026-09-30)",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "text": "Q3 2026 매출은 3.71억 달러로 34% 늘었고 GAAP 순이익 3,660만 달러(희석 EPS 0.33달러), 조정 EBITDA 8,930만 달러를 냈다. 대출 실행액은 41억 달러로 44% 늘었지만 전환율은 18.6%로 1년 전보다 낮아졌다. 1~9월 영업활동 현금은 2.90억 달러 순유출이었다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "useOfCash": {
     "period": "2026년 1~9월 누계 (ended 2026-09-30)",
     "items": [
-      { "use": "other", "label": "보유 목적 대출 직접 매입", "value": 0.8702, "unit": "USD bn", "src": ["s1"] },
-      { "use": "buybacks", "value": 0.1001, "unit": "USD bn", "src": ["s1"] },
-      { "use": "debt repayment", "value": 0.0665, "unit": "USD bn", "src": ["s1"] }
+      {
+        "use": "other",
+        "label": "보유 목적 대출 직접 매입",
+        "value": 0.8702,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "buybacks",
+        "value": 0.1001,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "debt repayment",
+        "value": 0.0665,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "text": "현금의 가장 큰 쓰임은 대출을 직접 사서 장부에 담는 것이었다. 1~9월 보유 목적 대출 8.70억 달러를 샀고, 자사주 1.00억 달러를 매입했으며 전환사채 6,650만 달러를 사들이거나 갚았다. 9월 말 현금은 4.62억 달러, 제한 현금은 6.67억 달러였다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "aiChain": {
     "layer": "software-applications",
     "position": "AI 신용평가 모델을 금융기관에 서비스로 제공하는 소비자 대출 플랫폼. AI를 인프라로 사지 않고, AI 모델을 상품으로 판다.",
-    "dependsOn": ["은행·신용조합·기관 투자자의 대출 자금", "소비자 신용 환경", "대출 데이터"],
-    "sellsTo": ["은행·신용조합 100곳 이상", "개인 대출자"],
+    "dependsOn": [
+      "은행·신용조합·기관 투자자의 대출 자금",
+      "소비자 신용 환경",
+      "대출 데이터"
+    ],
+    "sellsTo": [
+      "은행·신용조합 100곳 이상",
+      "개인 대출자"
+    ],
     "aiRevenue": "매출 전체가 AI 심사 모델을 통한 대출 실행에서 나옴 - Q3 2026 수수료 매출 3.64억 달러",
     "upside": "모델이 더 많은 신청자를 정확하게 승인하면 대출 실행액과 수수료가 함께 늘고, 자동차·HELOC 같은 새 상품으로 같은 모델을 넓힐 수 있다.",
     "risk": "모델이 경기 변화를 잘못 읽어 손실이 커지면 자금 공급자가 빠지고, 장부에 든 대출의 평가 손실이 이익을 깎는다.",
     "text": "AI 가치사슬에서 Upstart는 AI 모델을 직접 상품으로 파는 응용 소프트웨어 층에 있다. 모델 성능이 좋으면 승인과 수수료가 늘고, 나쁘면 대출 손실과 자금 이탈로 바로 돌아온다. AI 수요가 아니라 신용 사이클이 이 모델의 성과를 시험한다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "competition": {
     "arenas": [
-      { "arena": "온라인 개인 신용대출", "rivals": ["다른 핀테크 대출 플랫폼과 은행 (출처에 이름 없음)"], "position": "challenger", "share": null, "src": ["s1"] },
-      { "arena": "자동차·HELOC 대출", "rivals": ["기존 대출 기관 (출처에 이름 없음)"], "position": "niche", "share": null, "src": ["s1"] }
+      {
+        "arena": "온라인 개인 신용대출",
+        "rivals": [
+          "다른 핀테크 대출 플랫폼과 은행 (출처에 이름 없음)"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "자동차·HELOC 대출",
+        "rivals": [
+          "기존 대출 기관 (출처에 이름 없음)"
+        ],
+        "position": "niche",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "edge": "AI 심사 모델의 자동화와 100곳 넘는 금융기관 네트워크.",
     "threats": "자금 공급자 이탈, 신용 손실 확대, 금리 상승으로 대출 수요 감소.",
     "text": "이번에 읽은 발표문은 경쟁사를 이름으로 들지 않는다. Upstart의 승부처는 같은 신청자를 더 정확하게 심사해 금융기관에 더 나은 대출을 넘기는 데 있다. 경쟁의 결과는 결국 자금 공급자가 Upstart 대출을 계속 사 주느냐로 나타난다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "strategy": {
     "goal": "2026년 수수료 매출 약 13.2억 달러, 총매출 약 13.5억 달러, 조정 EBITDA 약 2.6억 달러(마진 19%)를 제시했다.",
     "roadmap": [
-      { "when": "FY2026", "what": "수수료 매출 약 13.2억 달러, 총매출 약 13.5억 달러, 조정 EBITDA 약 2.6억 달러", "src": ["s1"] },
-      { "when": "2027 Q1", "what": "전환율 지표 보고 중단", "src": ["s1"] }
+      {
+        "when": "FY2026",
+        "what": "수수료 매출 약 13.2억 달러, 총매출 약 13.5억 달러, 조정 EBITDA 약 2.6억 달러",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2027 Q1",
+        "what": "전환율 지표 보고 중단",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "vision": "개인 대출에서 자동차·주택담보·소액 대출까지 AI 심사를 넓혀 소비자 신용의 기본 플랫폼이 되겠다는 그림이다.",
     "text": "회사는 개인 대출 밖으로 상품을 넓히고 있다. 3분기 대출 실행 증가율(44%)이 매출 증가율(34%)보다 높아, 새 상품과 자금 구조가 매출로 넘어가는 비율을 계속 지켜볼 필요가 있다. 분기 가이던스는 이번 발표에 없었다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "governance": {
     "line": "경영진 구성은 이번에 읽은 발표문에서 확인하지 못했고, 1~9월 자사주 1.00억 달러를 사들이며 전환사채 일부를 미리 갚았다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "guidance": {
     "latest": [
-      { "period": "FY2026", "metric": "revenue from fees", "value": "약 13.2억 달러", "givenOn": "2026-11-03", "src": ["s1"] },
-      { "period": "FY2026", "metric": "total revenue", "value": "약 13.5억 달러", "givenOn": "2026-11-03", "src": ["s1"] },
-      { "period": "FY2026", "metric": "adjusted EBITDA", "value": "약 2.6억 달러 (마진 19%)", "givenOn": "2026-11-03", "src": ["s1"] }
+      {
+        "period": "FY2026",
+        "metric": "매출 기반 수수료",
+        "value": "약 13.2억 달러",
+        "givenOn": "2026-11-03",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "총매출",
+        "value": "약 13.5억 달러",
+        "givenOn": "2026-11-03",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "조정 EBITDA",
+        "value": "약 2.6억 달러 (마진 19%)",
+        "givenOn": "2026-11-03",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "style": "annual",
     "track": "이번 발표는 연간 전망만 내놓았고 분기 가이던스는 없었다. 이전 전망과의 비교는 이번 자료로 확인하지 못했다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "estimates": {
     "text": "AIO 로컬 스냅샷(2026-11-07, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) EPS 합계 1.56달러(범위 1.38~1.72), 직전 4개 분기 0.68달러. Q3 2026 EPS 0.40달러로 추정 0.23달러를 넘었다.",
-    "src": ["s2"]
+    "src": [
+      "s2"
+    ]
   },
   "watch": {
-    "confirms": ["대출 실행액이 매출보다 빠르게 늘면서 공헌이익률 60% 안팎 유지", "장부 대출이 늘지 않거나 줄어듦", "4분기 실적이 연간 전망 13.5억 달러를 채움"],
-    "breaks": ["전환율이 계속 떨어짐", "장부 대출 증가와 공정가치 평가 손실", "자금 공급 축소로 대출 실행 둔화", "영업현금 순유출 확대"],
+    "confirms": [
+      "대출 실행액이 매출보다 빠르게 늘면서 공헌이익률 60% 안팎 유지",
+      "장부 대출이 늘지 않거나 줄어듦",
+      "4분기 실적이 연간 전망 13.5억 달러를 채움"
+    ],
+    "breaks": [
+      "전환율이 계속 떨어짐",
+      "장부 대출 증가와 공정가치 평가 손실",
+      "자금 공급 축소로 대출 실행 둔화",
+      "영업현금 순유출 확대"
+    ],
     "keyNumbers": [
-      { "name": "대출 실행액", "why": "수수료 매출의 원천" },
-      { "name": "공헌이익률", "why": "대출 한 건에서 남는 몫" },
-      { "name": "장부 대출 잔액", "why": "플랫폼이 직접 지는 신용 위험" },
-      { "name": "영업활동 현금흐름", "why": "대출 매입이 현금을 얼마나 묶는지" }
+      {
+        "name": "대출 실행액",
+        "why": "수수료 매출의 원천"
+      },
+      {
+        "name": "공헌이익률",
+        "why": "대출 한 건에서 남는 몫"
+      },
+      {
+        "name": "장부 대출 잔액",
+        "why": "플랫폼이 직접 지는 신용 위험"
+      },
+      {
+        "name": "영업활동 현금흐름",
+        "why": "대출 매입이 현금을 얼마나 묶는지"
+      }
     ]
   },
   "debate": {
     "question": "대출 실행 증가가 장부에 쌓이는 대출 위험 없이 수수료 이익으로 이어지는지",
     "bull": {
       "text": "유지된다고 보는 쪽은 대출 실행액이 44% 늘고 수수료 매출이 41% 늘었으며, 공헌이익률이 57%에서 60%로 올랐다는 점을 든다. GAAP 순이익 3,660만 달러와 조정 EBITDA 마진 24%는 플랫폼이 흑자로 돌아섰다는 근거로 읽힌다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     "bear": {
       "text": "깨진다고 보는 쪽은 1~9월 영업활동 현금이 2.90억 달러 순유출이었고, 같은 기간 보유 목적 대출 8.70억 달러를 직접 샀다는 점을 본다. 전환율은 19.4%에서 18.6%로 내려왔고 회사는 이 지표 보고를 멈추기로 해, 이익의 질을 따지기가 더 어려워진다는 읽기다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     "decides": [
-      { "when": "2027-02 (추정, 회사 미공지) Q4·FY2026 실적", "what": "연간 매출 약 13.5억 달러·조정 EBITDA 약 2.6억 달러를 채우면서 장부 대출 잔액이 9.41억 달러보다 늘지 않는지", "src": ["s1"] }
+      {
+        "when": "2027-02 (추정, 회사 미공지) Q4·FY2026 실적",
+        "what": "연간 매출 약 13.5억 달러·조정 EBITDA 약 2.6억 달러를 채우면서 장부 대출 잔액이 9.41억 달러보다 늘지 않는지",
+        "src": [
+          "s1"
+        ]
+      }
     ]
   },
   "underTheHood": [
     {
       "title": "플랫폼이 대출을 들고 있다",
       "text": "Upstart는 중개 플랫폼이지만 9월 말 공정가치 대출 9.41억 달러를 장부에 들고 있고 1~9월 8.70억 달러를 더 샀다. 자금 공급자가 사 주지 않는 몫을 회사가 떠안으면 대출 실행은 늘어도 신용 위험과 현금 부담이 회사로 돌아온다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     {
       "title": "이익과 현금의 간격",
       "text": "3분기 GAAP 순이익은 흑자였지만 1~9월 영업활동 현금은 2.90억 달러 순유출이었다. 대출 매입이 현금흐름에 잡히는 구조라, 이 회사의 현금 창출력은 손익계산서만으로 읽기 어렵다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     {
       "title": "지표가 사라지는 효과",
       "text": "전환율은 18.6%로 1년 전보다 낮아졌는데, 회사는 2027년 1분기부터 이 지표를 보고하지 않기로 했다. 대출 신청 대비 승인 흐름을 밖에서 따라가기 어려워지므로 대출 건수와 실행액, 공헌이익률을 함께 봐야 한다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     }
   ],
   "trading": {
     "calendar": [
-      { "date": "2027-02 (추정, 회사 미공지)", "event": "Q4·FY2026 실적과 2027 전망", "src": ["s1"] }
+      {
+        "date": "2027-02 (추정, 회사 미공지)",
+        "event": "Q4·FY2026 실적과 2027 전망",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "reaction": "대출 실행액 성장률, 다음 기간 전망, 그리고 자금 조달과 장부 대출 관련 언급에 크게 반응하는 경향이 있다.",
-    "conditions": ["대출 실행액과 건수 성장률", "공헌이익률 변화", "장부 대출 잔액 증감", "연간 전망 상·하향 여부", "소비자 신용 지표와 금리 변화"]
+    "conditions": [
+      "대출 실행액과 건수 성장률",
+      "공헌이익률 변화",
+      "장부 대출 잔액 증감",
+      "연간 전망 상·하향 여부",
+      "소비자 신용 지표와 금리 변화"
+    ]
   },
   "unverified": [
     "Q3 2026 단독 영업현금흐름·잉여현금흐름 - 1~9월 누계만 확인",

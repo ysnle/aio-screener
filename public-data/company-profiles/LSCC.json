@@ -298,13 +298,13 @@
     "layer": "chips-compute",
     "position": "AI 서버·스위치·스토리지 보드 위에서 전원 순서·부팅·보안·신호 연결을 맡는 보조 칩(FPGA) 공급자이자, AMI로 서버 펌웨어·원격 관리 소프트웨어까지 공급하는 자리. GPU·CPU 같은 주 연산 칩은 아니다.",
     "dependsOn": [
-      "semicap-foundry (UMC·USJC, Samsung, TSMC, Seiko Epson 웨이퍼; ASE·Amkor 조립)",
+      "장비·파운드리 (UMC·USJC, Samsung, TSMC, Seiko Epson 웨이퍼; ASE·Amkor 조립)",
       "유통사 네트워크",
-      "chips-compute (GPU·CPU 플랫폼 세대 전환 일정)"
+      "연산 칩 (GPU·CPU 플랫폼 세대 전환 일정)"
     ],
     "sellsTo": [
       "서버·네트워크 장비 OEM·ODM",
-      "cloud-infrastructure (하이퍼스케일러·네오클라우드, AMI 직접 고객)",
+      "클라우드 (하이퍼스케일러·네오클라우드, AMI 직접 고객)",
       "산업·자동차 장비 업체"
     ],
     "aiRevenue": null,
@@ -408,7 +408,7 @@
     "latest": [
       {
         "period": "Q4 2026",
-        "metric": "total revenue",
+        "metric": "총매출",
         "value": "3.25억~3.45억 달러 (중간값 약 3.35억, 전년 대비 약 130%)",
         "givenOn": "2026-11-02",
         "src": [
@@ -417,7 +417,7 @@
       },
       {
         "period": "Q4 2026",
-        "metric": "non-GAAP gross margin / opex",
+        "metric": "non-GAAP 매출총이익률 / 영업비용",
         "value": "총마진 72.0% ±1%p, 영업비용 9,500만~1.01억 달러",
         "givenOn": "2026-11-02",
         "src": [
@@ -435,7 +435,7 @@
       },
       {
         "period": "Q4 2026",
-        "metric": "Industrial and Embedded growth",
+        "metric": "산업·임베디드 성장률",
         "value": "전년 대비 약 70%로 가속",
         "givenOn": "2026-11-02",
         "src": [

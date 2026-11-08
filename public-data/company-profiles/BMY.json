@@ -5,12 +5,39 @@
   "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
   "oneLine": "Bristol Myers Squibb는 혈전 치료제 Eliquis와 면역항암제 Opdivo로 버는 미국 대형 제약사로, 줄어드는 기존 약(Legacy Portfolio)의 자리를 Growth Portfolio 신약이 얼마나 빨리 채우느냐가 이야기의 중심이다.",
   "sources": [
-    { "id": "s2", "kind": "ir-site", "title": "Bristol Myers Squibb Reports Third Quarter Financial Results for 2026 (release landing page, call time)", "url": "https://news.bms.com/news/details/2026/Bristol-Myers-Squibb-Reports-Third-Quarter-Financial-Results-for-2026/default.aspx", "publisher": "Bristol Myers Squibb", "date": "2026-10-29" },
-    { "id": "s3", "kind": "10-K", "title": "Bristol Myers Squibb FY2025 Form 10-K XBRL facts (revenue, net income, equity) via AIO public-data/sec-fundamentals-summary.json", "url": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces", "publisher": "SEC EDGAR via AIO", "date": "2026-02-11" },
-    { "id": "s4", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/bmy/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-11-07" },
-    { "id": "s6", "kind": "earnings-release", "title": "Bristol Myers Squibb Reports Third Quarter Financial Results for 2026 (press release PDF)", "url": "https://www.bms.com/assets/bms/us/en-us/pdf/investor-info/doc_financials/quarterly_reports/2026/BMY-Q3-2026-Earnings-Press-Release-0039.pdf", "publisher": "Bristol Myers Squibb", "date": "2026-10-29" }
+    {
+      "id": "s2",
+      "kind": "ir-site",
+      "title": "Bristol Myers Squibb Reports Third Quarter Financial Results for 2026 (release landing page, call time)",
+      "url": "https://news.bms.com/news/details/2026/Bristol-Myers-Squibb-Reports-Third-Quarter-Financial-Results-for-2026/default.aspx",
+      "publisher": "Bristol Myers Squibb",
+      "date": "2026-10-29"
+    },
+    {
+      "id": "s3",
+      "kind": "10-K",
+      "title": "Bristol Myers Squibb FY2025 Form 10-K XBRL facts (revenue, net income, equity) via AIO public-data/sec-fundamentals-summary.json",
+      "url": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
+      "publisher": "SEC EDGAR via AIO",
+      "date": "2026-02-11"
+    },
+    {
+      "id": "s4",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/bmy/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-11-07"
+    },
+    {
+      "id": "s6",
+      "kind": "earnings-release",
+      "title": "Bristol Myers Squibb Reports Third Quarter Financial Results for 2026 (press release PDF)",
+      "url": "https://www.bms.com/assets/bms/us/en-us/pdf/investor-info/doc_financials/quarterly_reports/2026/BMY-Q3-2026-Earnings-Press-Release-0039.pdf",
+      "publisher": "Bristol Myers Squibb",
+      "date": "2026-10-29"
+    }
   ],
-
   "moat": {
     "sources": [
       "대형 처방 기반 - Eliquis Q3 2026 46.9억 달러 (+25%)",
@@ -19,14 +46,16 @@
       "외부 협력 파이프라인 - SystImmune·Sichuan Biokin(iza-bren), BioNTech(pumitamig)"
     ],
     "text": "BMS의 힘은 이미 처방 기반이 큰 약 묶음과, 그 현금으로 들이는 후기 임상 신약이다. Q3 2026 Eliquis가 46.9억 달러로 25% 늘어 전체 매출의 36%를 냈다. 면역항암에서는 Opdivo 정맥주사가 6% 줄어드는 대신 피하주사 Opdivo Qvantig가 3.3억 달러로 커지며 같은 성분의 제품을 옮겨 가고 있다.",
-    "src": ["s6"]
+    "src": [
+      "s6"
+    ]
   },
-
   "design": {
     "text": "회사는 제품을 Growth Portfolio(Opdivo Qvantig, Opdualag, Breyanzi, Camzyos, Reblozyl, Cobenfy, Sotyktu, Krazati 등)와 Legacy Portfolio(Eliquis, Opdivo, Revlimid, Pomalyst, Sprycel, Abraxane 등)로 나눠 보고한다. 2026년 8월 다발골수종 신약 Zenbexus가 FDA 승인을 받았고, 9월에는 Camzyos가 소아(30kg 이상) 폐쇄성 비대 심근병증으로 승인을 넓혔다.",
-    "src": ["s6"]
+    "src": [
+      "s6"
+    ]
   },
-
   "make": {
     "model": "mixed",
     "partners": [
@@ -35,9 +64,10 @@
       "BioNTech - pumitamig 공동 개발, 2026-10 폐암 2상 데이터"
     ],
     "text": "약은 자체 개발과 외부 협력으로 들어온다. Q3 인수 IPR&D 비용이 15.6억 달러로 전년 6.3억 달러의 두 배를 넘어, 외부 후보 도입에 쓰는 돈이 커졌다. 생산 시설과 위탁 생산사 정보는 이번 보도자료에 없다.",
-    "src": ["s6"]
+    "src": [
+      "s6"
+    ]
   },
-
   "sell": {
     "customers": [
       "미국 환자와 지불자 - 미국 매출 90.7억 달러 (+9%)",
@@ -48,115 +78,312 @@
     "channel": "도매상·전문 약국·병원 유통 (유통사 이름 미공시)",
     "concentration": "미국 매출 비중 약 69% (Q3 2026); 고객별 비중 미공시",
     "text": "매출의 약 69%가 미국에서 나오고, 미국이 9% 늘어 해외(+3%)보다 빨랐다. 한 약에 대한 의존이 커서 Eliquis 하나가 매출의 3분의 1을 넘는다. 회사는 2026년 Eliquis 세계 매출 성장률을 20~25%로 유지했다.",
-    "src": ["s6"]
+    "src": [
+      "s6"
+    ]
   },
-
   "moneyFlow": {
     "steps": [
-      { "from": "환자·고용주 보험·Medicare", "to": "보험사·PBM·정부", "what": "보험료와 공적 재원" },
-      { "from": "보험사·PBM·정부", "to": "약국·병원", "what": "처방약 급여" },
-      { "from": "약국·병원", "to": "Bristol Myers Squibb", "what": "제품 순매출 (Q3 130.7억 달러)" },
-      { "from": "Bristol Myers Squibb", "to": "SystImmune·BioNTech 등 협력사", "what": "라이선스·공동 개발 비용 (Q3 인수 IPR&D 15.6억 달러, 협력사별 금액 미공시)" }
+      {
+        "from": "환자·고용주 보험·Medicare",
+        "to": "보험사·PBM·정부",
+        "what": "보험료와 공적 재원"
+      },
+      {
+        "from": "보험사·PBM·정부",
+        "to": "약국·병원",
+        "what": "처방약 급여"
+      },
+      {
+        "from": "약국·병원",
+        "to": "Bristol Myers Squibb",
+        "what": "제품 순매출 (Q3 130.7억 달러)"
+      },
+      {
+        "from": "Bristol Myers Squibb",
+        "to": "SystImmune·BioNTech 등 협력사",
+        "what": "라이선스·공동 개발 비용 (Q3 인수 IPR&D 15.6억 달러, 협력사별 금액 미공시)"
+      }
     ],
     "pricing": "제품 단위 처방약 판매. 보험·정부 급여 조건이 순매출을 정한다 (가격 세부 미공시).",
     "text": "돈은 보험과 정부를 거쳐 약값으로 들어오고, 그 일부가 외부 신약 후보를 들이는 데 다시 나간다. Q3에는 그 비용(인수 IPR&D 15.6억 달러)이 커서 Non-GAAP EPS를 주당 0.58달러 깎았다. 매출은 늘어도 이익이 줄어든 이유가 여기에 있다.",
-    "src": ["s6"]
+    "src": [
+      "s6"
+    ]
   },
-
   "earnings": {
     "period": "Q3 2026 (quarter ended 2026-09-30)",
-    "revenue": { "value": 13.069, "unit": "USD bn", "yoy": 7 },
+    "revenue": {
+      "value": 13.069,
+      "unit": "USD bn",
+      "yoy": 7
+    },
     "grossMargin": 68.3,
     "operatingMargin": null,
     "netMargin": 16.5,
     "operatingCashFlow": null,
     "freeCashFlow": null,
     "segments": [
-      { "name": "Growth Portfolio", "revenue": 7.662, "unit": "USD bn", "share": 58.6, "yoy": 12, "operatingMargin": null, "src": ["s6"] },
-      { "name": "Legacy Portfolio", "revenue": 5.415, "unit": "USD bn", "share": 41.4, "yoy": 1, "operatingMargin": null, "src": ["s6"] }
+      {
+        "name": "Growth Portfolio",
+        "revenue": 7.662,
+        "unit": "USD bn",
+        "share": 58.6,
+        "yoy": 12,
+        "operatingMargin": null,
+        "src": [
+          "s6"
+        ]
+      },
+      {
+        "name": "Legacy Portfolio",
+        "revenue": 5.415,
+        "unit": "USD bn",
+        "share": 41.4,
+        "yoy": 1,
+        "operatingMargin": null,
+        "src": [
+          "s6"
+        ]
+      }
     ],
     "industryMetric": [
-      { "name": "주요 제품 매출 (Q3 2026)", "value": "Eliquis 46.9억(+25%), Opdivo 23.7억(-6%), Orencia 9.8억(+2%), Yervoy 7.9억(+7%), Reblozyl 7.5억(+22%), Breyanzi 5.3억(+46%), Camzyos 4.2억(+42%), Opdualag 3.7억(+23%), Opdivo Qvantig 3.3억 달러(200% 이상)", "src": ["s6"] },
-      { "name": "감소 제품 (Q3 2026)", "value": "Revlimid 3.0억(-47%), Pomalyst 1.3억(-81%), Sprycel 0.7억(-38%), Abraxane 0.65억 달러(-13%)", "src": ["s6"] },
-      { "name": "총마진 (GAAP / Non-GAAP)", "value": "Q3 2026 68.3% / 68.4% (전년 71.9% / 72.9%)", "src": ["s6"] },
-      { "name": "EPS (GAAP / Non-GAAP)", "value": "Q3 2026 1.05달러 (-3%) / 1.35달러 (-17%), 인수 IPR&D 영향 -0.58달러", "src": ["s6"] },
-      { "name": "순부채", "value": "2026-09말 299.2억 달러 (현금·유가증권 129.6억, 부채 428.8억)", "src": ["s6"] }
+      {
+        "name": "주요 제품 매출 (Q3 2026)",
+        "value": "Eliquis 46.9억(+25%), Opdivo 23.7억(-6%), Orencia 9.8억(+2%), Yervoy 7.9억(+7%), Reblozyl 7.5억(+22%), Breyanzi 5.3억(+46%), Camzyos 4.2억(+42%), Opdualag 3.7억(+23%), Opdivo Qvantig 3.3억 달러(200% 이상)",
+        "src": [
+          "s6"
+        ]
+      },
+      {
+        "name": "감소 제품 (Q3 2026)",
+        "value": "Revlimid 3.0억(-47%), Pomalyst 1.3억(-81%), Sprycel 0.7억(-38%), Abraxane 0.65억 달러(-13%)",
+        "src": [
+          "s6"
+        ]
+      },
+      {
+        "name": "총마진 (GAAP / Non-GAAP)",
+        "value": "Q3 2026 68.3% / 68.4% (전년 71.9% / 72.9%)",
+        "src": [
+          "s6"
+        ]
+      },
+      {
+        "name": "EPS (GAAP / Non-GAAP)",
+        "value": "Q3 2026 1.05달러 (-3%) / 1.35달러 (-17%), 인수 IPR&D 영향 -0.58달러",
+        "src": [
+          "s6"
+        ]
+      },
+      {
+        "name": "순부채",
+        "value": "2026-09말 299.2억 달러 (현금·유가증권 129.6억, 부채 428.8억)",
+        "src": [
+          "s6"
+        ]
+      }
     ],
     "text": "Q3 2026 매출은 130.7억 달러로 7% 늘었고 Growth Portfolio가 12%, Legacy가 1% 늘었다. 그러나 총마진이 68.3%로 3.6%p 내려가고 인수 IPR&D가 15.6억 달러로 늘어, Non-GAAP EPS는 1.35달러로 17% 줄었다. R&D(-6%)와 판관비(-5%)는 오히려 줄었다. 2025년 연간 매출은 482억 달러, 순이익은 70.5억 달러였다.",
-    "src": ["s6", "s3"]
+    "src": [
+      "s6",
+      "s3"
+    ]
   },
-
   "useOfCash": {
     "period": "Q3 2026 (quarter ended 2026-09-30)",
     "items": [
-      { "use": "R&D", "value": 2.365, "unit": "USD bn", "src": ["s6"] },
-      { "use": "other", "label": "인수 IPR&D 비용 (손익 기준)", "value": 1.558, "unit": "USD bn", "src": ["s6"] },
-      { "use": "dividends", "value": null, "unit": "USD bn", "src": [] },
-      { "use": "buybacks", "value": null, "unit": "USD bn", "src": [] }
+      {
+        "use": "R&D",
+        "value": 2.365,
+        "unit": "USD bn",
+        "src": [
+          "s6"
+        ]
+      },
+      {
+        "use": "other",
+        "label": "인수 IPR&D 비용 (손익 기준)",
+        "value": 1.558,
+        "unit": "USD bn",
+        "src": [
+          "s6"
+        ]
+      },
+      {
+        "use": "dividends",
+        "value": null,
+        "unit": "USD bn",
+        "src": []
+      },
+      {
+        "use": "buybacks",
+        "value": null,
+        "unit": "USD bn",
+        "src": []
+      }
     ],
     "text": "Q3 R&D는 23.7억 달러로 6% 줄였지만, 외부 후보 도입 비용(인수 IPR&D)은 15.6억 달러로 늘었다. 회사는 연간 영업비용(판관비+R&D)을 약 165억 달러로 유지했다. 배당·자사주 금액은 이번 보도자료에 없고, 9월말 순부채는 약 299억 달러다.",
-    "src": ["s6"]
+    "src": [
+      "s6"
+    ]
   },
-
   "aiChain": {
     "layer": "limited",
     "position": "대형 제약사로, 이번에 읽은 보도자료에는 AI 관련 언급이나 수치가 없다.",
-    "dependsOn": ["공개된 AI 의존 업체 없음"],
-    "sellsTo": ["AI를 팔지 않음 - 환자·보험·정부"],
+    "dependsOn": [
+      "공개된 AI 의존 업체 없음"
+    ],
+    "sellsTo": [
+      "AI를 팔지 않음 - 환자·보험·정부"
+    ],
     "aiRevenue": null,
     "upside": "원문에 AI가 매출이나 비용으로 이어지는 경로가 공시되지 않았다.",
     "risk": "원문에 AI 관련 위험 언급 없음.",
     "text": "AI 가치사슬과의 연결은 공시로 확인되지 않는다. 실적은 Eliquis와 Growth Portfolio의 성장, Legacy 약의 감소 속도, 외부 신약 도입 비용이 움직인다.",
-    "src": ["s6"]
+    "src": [
+      "s6"
+    ]
   },
-
   "competition": {
     "arenas": [
-      { "arena": "경구 항응고제 (Eliquis)", "rivals": ["원문 미명시"], "position": "leader", "share": null, "src": ["s6"] },
-      { "arena": "면역항암제 (Opdivo 계열)", "rivals": ["원문 미명시"], "position": "challenger", "share": null, "src": ["s6"] },
-      { "arena": "혈액암·다발골수종", "rivals": ["Revlimid·Pomalyst 복제약 (회사명 미명시)"], "position": "challenger", "share": null, "src": ["s6"] }
+      {
+        "arena": "경구 항응고제 (Eliquis)",
+        "rivals": [
+          "원문 미명시"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s6"
+        ]
+      },
+      {
+        "arena": "면역항암제 (Opdivo 계열)",
+        "rivals": [
+          "원문 미명시"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s6"
+        ]
+      },
+      {
+        "arena": "혈액암·다발골수종",
+        "rivals": [
+          "Revlimid·Pomalyst 복제약 (회사명 미명시)"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s6"
+        ]
+      }
     ],
     "edge": "Eliquis 처방 기반, 면역항암 묶음과 피하주사 전환, 혈액암 신약(Zenbexus·Breyanzi).",
     "threats": "기존 혈액암 약의 급감(Pomalyst -81%, Revlimid -47%), Opdivo 정맥주사 감소, 총마진 하락.",
     "text": "이번에 읽은 원문은 경쟁사 이름을 밝히지 않았다. 경쟁 압력이 숫자로 가장 크게 드러나는 곳은 Pomalyst(-81%)와 Revlimid(-47%) 같은 기존 다발골수종 약이다. 회사는 그 자리를 Zenbexus와 Breyanzi로 채우려 하고, 면역항암에서는 Opdivo를 피하주사 Qvantig로 옮기며 방어한다.",
-    "src": ["s6"]
+    "src": [
+      "s6"
+    ]
   },
-
   "strategy": {
     "goal": "Growth Portfolio로 Legacy 약의 감소를 메우는 것. 2026년 매출 497.5~502.5억 달러, Non-GAAP EPS 6.35~6.55달러.",
     "roadmap": [
-      { "when": "2026-08-13", "what": "Zenbexus 재발성 다발골수종 병용 요법 FDA 승인", "src": ["s6"] },
-      { "when": "2026-09-30", "what": "Camzyos 소아(30kg 이상) 폐쇄성 비대 심근병증 FDA 승인", "src": ["s6"] },
-      { "when": "2026-10-08~12", "what": "Zenbexus EXCALIBER-RRMM 3상, admilparant ALOFT-IPF 3상, RYZ101 ACTION-1 3상 긍정 결과", "src": ["s6"] },
-      { "when": "2026-10-23~26", "what": "iza-bren 유방암(PANKU-Breast01)·폐암(PANKU-Lung01) 3상 결과, pumitamig 폐암 2상 데이터", "src": ["s6"] }
+      {
+        "when": "2026-08-13",
+        "what": "Zenbexus 재발성 다발골수종 병용 요법 FDA 승인",
+        "src": [
+          "s6"
+        ]
+      },
+      {
+        "when": "2026-09-30",
+        "what": "Camzyos 소아(30kg 이상) 폐쇄성 비대 심근병증 FDA 승인",
+        "src": [
+          "s6"
+        ]
+      },
+      {
+        "when": "2026-10-08~12",
+        "what": "Zenbexus EXCALIBER-RRMM 3상, admilparant ALOFT-IPF 3상, RYZ101 ACTION-1 3상 긍정 결과",
+        "src": [
+          "s6"
+        ]
+      },
+      {
+        "when": "2026-10-23~26",
+        "what": "iza-bren 유방암(PANKU-Breast01)·폐암(PANKU-Lung01) 3상 결과, pumitamig 폐암 2상 데이터",
+        "src": [
+          "s6"
+        ]
+      }
     ],
     "vision": "의장 겸 CEO Christopher Boerner는 'Growth Portfolio가 또 한 분기 두 자릿수 성장(12%)을 냈다'고 말했다.",
     "text": "회사는 후기 임상 결과를 잇달아 내며 Growth Portfolio를 넓히고 있다. 10월에만 폐섬유증(admilparant), 신경내분비 종양(RYZ101), 다발골수종(Zenbexus), 폐암·유방암(iza-bren) 결과가 나왔다. 연간 매출 전망은 490~500억에서 497.5~502.5억 달러로 올렸지만, EPS 전망은 외부 도입 비용 때문에 6.75~7.00에서 6.35~6.55달러로 낮췄다.",
-    "src": ["s6"]
+    "src": [
+      "s6"
+    ]
   },
-
   "governance": {
     "line": "의장 겸 CEO Christopher Boerner가 이끌며, 9월말 순부채 약 299억 달러를 안고 외부 신약 도입을 늘리는 쪽으로 자본을 쓴다 (배당·자사주 금액은 원문 미확인).",
-    "src": ["s6"]
+    "src": [
+      "s6"
+    ]
   },
-
   "guidance": {
     "latest": [
-      { "period": "FY2026", "metric": "total revenues", "value": "약 497.5~502.5억 달러 (직전 490~500억)", "givenOn": "2026-10-29", "src": ["s6"] },
-      { "period": "FY2026", "metric": "non-GAAP diluted EPS", "value": "6.35~6.55달러 (직전 6.75~7.00, 인수 IPR&D·라이선스 영향 -0.60달러 반영)", "givenOn": "2026-10-29", "src": ["s6"] },
-      { "period": "FY2026", "metric": "gross margin / operating expenses / tax rate", "value": "약 69~70% / 약 165억 달러 / 약 18% (변경 없음)", "givenOn": "2026-10-29", "src": ["s6"] },
-      { "period": "FY2026", "metric": "Eliquis worldwide revenue growth", "value": "20~25% (변경 없음)", "givenOn": "2026-10-29", "src": ["s6"] }
+      {
+        "period": "FY2026",
+        "metric": "총매출",
+        "value": "약 497.5~502.5억 달러 (직전 490~500억)",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s6"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "non-GAAP 희석 EPS",
+        "value": "6.35~6.55달러 (직전 6.75~7.00, 인수 IPR&D·라이선스 영향 -0.60달러 반영)",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s6"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "매출총이익률 / 영업비용 / 세율",
+        "value": "약 69~70% / 약 165억 달러 / 약 18% (변경 없음)",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s6"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "Eliquis 전 세계 매출 성장률",
+        "value": "20~25% (변경 없음)",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s6"
+        ]
+      }
     ],
     "style": "annual",
     "track": "매출 전망은 올렸고 EPS 전망은 인수 IPR&D 영향(직전 -0.02달러 → -0.60달러)으로 낮췄다. Q3 Non-GAAP EPS 1.35달러는 컨센서스 1.21달러를 넘었다(AIO 스냅샷).",
-    "src": ["s6", "s4"]
+    "src": [
+      "s6",
+      "s4"
+    ]
   },
-
   "estimates": {
     "text": "AIO 로컬 스냅샷(2026-11-07, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) EPS 합계 6.42달러(범위 5.86~7.20), 직전 4개 분기 6.23달러. 최근 4주 상향 6건·하향 6건.",
-    "src": ["s4"]
+    "src": [
+      "s4"
+    ]
   },
-
   "watch": {
     "confirms": [
       "Growth Portfolio 두 자릿수 성장 지속",
@@ -172,51 +399,90 @@
       "총마진 추가 하락"
     ],
     "keyNumbers": [
-      { "name": "Growth Portfolio 매출·성장률", "why": "특허 만료를 메우는 속도" },
-      { "name": "Eliquis 매출", "why": "매출의 3분의 1 이상" },
-      { "name": "인수 IPR&D 비용", "why": "EPS 전망을 흔드는 항목" },
-      { "name": "총마진", "why": "제품 구성 변화의 영향" },
-      { "name": "순부채", "why": "추가 도입·환원 여력" }
+      {
+        "name": "Growth Portfolio 매출·성장률",
+        "why": "특허 만료를 메우는 속도"
+      },
+      {
+        "name": "Eliquis 매출",
+        "why": "매출의 3분의 1 이상"
+      },
+      {
+        "name": "인수 IPR&D 비용",
+        "why": "EPS 전망을 흔드는 항목"
+      },
+      {
+        "name": "총마진",
+        "why": "제품 구성 변화의 영향"
+      },
+      {
+        "name": "순부채",
+        "why": "추가 도입·환원 여력"
+      }
     ]
   },
-
   "debate": {
     "question": "Growth Portfolio 성장이 Legacy 감소와 외부 도입 비용을 넘어 EPS 증가로 이어지는지",
     "bull": {
       "text": "강세로 보는 쪽은 Growth Portfolio가 76.6억 달러로 12% 늘어 매출의 59%가 됐고, Breyanzi(+46%)와 Camzyos(+42%)가 빠르게 큰다는 점을 든다. 10월에만 3상 긍정 결과가 여럿 나왔고 회사는 연간 매출 전망을 올렸으며, Q3 Non-GAAP EPS 1.35달러는 컨센서스 1.21달러를 넘었다.",
-      "src": ["s6", "s4"]
+      "src": [
+        "s6",
+        "s4"
+      ]
     },
     "bear": {
       "text": "약세로 보는 쪽은 매출이 7% 늘었는데 Non-GAAP EPS는 17% 줄었고, 연간 EPS 전망이 6.75~7.00에서 6.35~6.55달러로 낮아졌다는 점을 짚는다. 총마진은 3.6%p 내려갔고, Eliquis 한 약이 매출의 36%를 차지하며, 순부채는 약 299억 달러다.",
-      "src": ["s6"]
+      "src": [
+        "s6"
+      ]
     },
     "decides": [
-      { "when": "Q4·FY2026 실적과 2027 전망 (2027-02 예상, 회사 미확정)", "what": "2027 EPS 전망에서 인수 IPR&D 비용과 총마진 회복 여부", "src": ["s6"] },
-      { "when": "2026~2027", "what": "iza-bren·admilparant·RYZ101 허가 신청과 승인", "src": ["s6"] }
+      {
+        "when": "Q4·FY2026 실적과 2027 전망 (2027-02 예상, 회사 미확정)",
+        "what": "2027 EPS 전망에서 인수 IPR&D 비용과 총마진 회복 여부",
+        "src": [
+          "s6"
+        ]
+      },
+      {
+        "when": "2026~2027",
+        "what": "iza-bren·admilparant·RYZ101 허가 신청과 승인",
+        "src": [
+          "s6"
+        ]
+      }
     ]
   },
-
   "underTheHood": [
     {
       "title": "도입 비용이 이익을 깎는다",
       "text": "Q3 인수 IPR&D 비용 15.6억 달러가 Non-GAAP EPS를 주당 0.58달러 깎았다. 이 회사는 외부 후보 도입 비용을 Non-GAAP에서도 빼지 않기 때문에, 계약이 몰리는 분기마다 EPS가 크게 흔들린다. 연간 전망의 영향도 -0.02달러에서 -0.60달러로 커졌다.",
-      "src": ["s6"]
+      "src": [
+        "s6"
+      ]
     },
     {
       "title": "Legacy 안의 Eliquis",
       "text": "Legacy Portfolio는 1% 늘었지만, 그 안에서 Eliquis가 9.4억 달러 늘고 Revlimid·Pomalyst·Sprycel이 합쳐 9억 달러 가까이 줄었다. 'Legacy'라는 이름과 달리 이 묶음의 방향은 Eliquis 하나가 정한다. Eliquis 성장이 꺾이면 Legacy 감소가 바로 드러난다.",
-      "src": ["s6"]
+      "src": [
+        "s6"
+      ]
     },
     {
       "title": "같은 약의 제형 전환",
       "text": "Opdivo 정맥주사는 23.7억 달러로 6% 줄었고 피하주사 Opdivo Qvantig는 3.3억 달러로 크게 늘었다. 두 제품을 합치면 감소 폭이 줄어든다. 면역항암 매출은 한 제품이 아니라 Opdivo 계열 합계로 읽어야 실제 추세가 보인다.",
-      "src": ["s6"]
+      "src": [
+        "s6"
+      ]
     }
   ],
-
   "trading": {
     "calendar": [
-      { "date": "2027-02 초 (추정, 회사 미확정)", "event": "Q4·FY2026 실적과 2027 가이던스", "src": [] }
+      {
+        "date": "2027-02 초 (추정, 회사 미확정)",
+        "event": "Q4·FY2026 실적과 2027 가이던스",
+        "src": []
+      }
     ],
     "reaction": "주가는 분기 EPS보다 Growth Portfolio 성장률, 연간 전망, 주요 임상 결과에 반응하는 경향이 있다.",
     "conditions": [
@@ -227,7 +493,6 @@
       "컨센서스 EPS 상향·하향 건수"
     ]
   },
-
   "unverified": [
     "영업현금흐름·배당·자사주 금액 (보도자료 미공시)",
     "영업이익률",

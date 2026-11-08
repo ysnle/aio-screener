@@ -23,7 +23,12 @@ export const OVERLAY_GENERATED_PATHS = Object.freeze([
   'architecture/asset-manifest.json',
   'architecture/release-manifest.json',
   'architecture/public-readiness.json',
-  'public-config.json'
+  'public-config.json',
+  // v59.85: the live-data browser watchdog re-pins this file and pushes it with GITHUB_TOKEN, which starts no push CI
+  // (it dispatches a full-scope CI instead). As a code path, that commit became "the newest code" with no successful push
+  // CI, so every later refresh release would have ridden the overlay on the commit before it until a human pushed. It
+  // only names the data snapshot the browser gates read, so it is generated like the data itself.
+  'architecture/browser-data-fixture.json'
 ]);
 
 const VERSION = /^v\d+\.\d+$/;

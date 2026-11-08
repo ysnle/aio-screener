@@ -10,12 +10,16 @@ import { readNumber } from '../shared/number.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { sessionCloses, indexLevel } from '../market/index-levels.js';
 import { withTopicParticle } from '../content/korean-particle.js';
-import { bufferedTrend } from './bands.js';
+import { TREND_PHASE_LABELS, bufferedTrend, classifyTrend, trendKey } from './bands.js';
 import { rallyAttemptRead } from '../market/rally-attempt.js';
 import { RULES } from '../rules/thresholds.js';
+import { rsiWilder } from './definitions.js';
 
 export const CHART_INDEXES = Object.freeze([['ndx', '나스닥100'], ['spx', 'S&P 500'], ['soxx', '반도체(SOXX)'], ['rut', '러셀2000'], ['kospi', '코스피'], ['kosdaq', '코스닥']]);
-export const TREND_WORDS = Object.freeze({ up: '상승 추세', pullback: '단기 조정', breakdown: '추세 이탈', rebound: '하락 속 반등', recovery: '회복 시도', down: '하락 추세', unknown: '판단 보류' });
+// The index cards say the words the stock table under them, the 종목 page and the stock
+// chart say for the same position (bands.js classifyTrend). '단기 조정' and '하락 속 반등' were this screen's own words for
+// what every other screen calls 장기 추세 속 조정 and 장기 추세 아래 반등.
+export const TREND_WORDS = Object.freeze({ up: '상승 추세', pullback: '장기 추세 속 조정', breakdown: TREND_PHASE_LABELS.breakdown, rebound: '장기 추세 아래 반등', recovery: TREND_PHASE_LABELS.recovery, down: '하락 추세', unknown: '판단 보류' });
 const SWING_SPAN = 5;
 
 const md = (date) => { const [, m, d] = String(date || '').split('-').map(Number); return m && d ? `${m}/${d}` : ''; };
@@ -33,20 +37,9 @@ export function movingAverage(closes, n) {
   return out;
 }
 
-/** Wilder's 14-day RSI on closes. */
+/** Wilder's 14-day RSI on closes.the shared definition (definitions.rsiWilder) — one RSI on every screen. */
 export function rsiOf(closes, period = 14) {
-  if (closes.length <= period) return null;
-  let gain = 0; let loss = 0;
-  for (let i = 1; i <= period; i += 1) { const d = closes[i].value - closes[i - 1].value; if (d > 0) gain += d; else loss -= d; }
-  gain /= period; loss /= period;
-  for (let i = period + 1; i < closes.length; i += 1) {
-    const d = closes[i].value - closes[i - 1].value;
-    gain = (gain * (period - 1) + Math.max(d, 0)) / period;
-    loss = (loss * (period - 1) + Math.max(-d, 0)) / period;
-  }
-  // v59.71: a flat window has no gains either — 50, as definitions.rsiWilder reads it, not 100 (overbought).
-  if (loss === 0) return gain === 0 ? 50 : 100;
-  return 100 - 100 / (1 + gain / loss);
+  return rsiWilder((closes || []).map((row) => row.value), period);
 }
 
 /** Swing highs and lows of the last year: a close higher (lower) than the five sessions on each side. */
@@ -61,24 +54,23 @@ export function swingPointsOf(closes, span = SWING_SPAN) {
   return { highs, lows };
 }
 
-export function trendOf({ close, ma50, ma200, ma50Before }) {
-  if (![close, ma50, ma200].every(Number.isFinite)) return 'unknown';
-  const rising = Number.isFinite(ma50Before) ? ma50 > ma50Before : null;
-  if (close > ma50 && ma50 > ma200 && rising !== false) return 'up';
-  if (close < ma50 && ma50 < ma200 && rising !== true) return 'down';
-  if (close < ma50 && close >= ma200) return 'pullback'; // under the 50-day, still above the 200-day
-  if (close < ma50 && close < ma200) return 'breakdown'; // under both while the 50-day is still above the 200-day
-  if (close >= ma50 && close < ma200) return 'rebound'; // back above the 50-day inside a long downtrend
-  return 'recovery'; // above both lines while the 50-day is still under the 200-day
+/**
+ * The index card's trend key.the shared classifier (bands.js classifyTrend) on the close's distance to the 50- and
+ * 200-day lines, position only — the published index levels have no high/low for the ADR buffers. The 50-day slope is a
+ * number in the card's fold, not a condition: the old rule turned a close above both rising-then-flat lines into 회복 시도.
+ */
+export function trendOf({ close, ma50, ma200 }) {
+  if (![close, ma50, ma200].every(Number.isFinite) || !(ma50 > 0) || !(ma200 > 0)) return 'unknown';
+  return trendKey(classifyTrend({ s50: (close / ma50 - 1) * 100, s200: (close / ma200 - 1) * 100, positionOnly: true })) || 'unknown';
 }
 
 const TREND_READ = Object.freeze({
-  up: '종가가 50일선과 200일선 위에 있고 50일선도 오르고 있어, 추세가 위를 향합니다.',
-  pullback: '200일선 위에서 50일선 아래로 내려온 단기 조정입니다. 장기 추세는 아직 살아 있고, 200일선을 지키는지가 다음 확인점입니다.',
+  up: '종가가 50일선과 200일선 위에 있고 50일선이 200일선 위라, 추세가 위를 향합니다.',
+  pullback: '200일선 위에서 50일선 아래로 내려온, 장기 추세 속 조정입니다. 장기 추세는 아직 살아 있고, 200일선을 지키는지가 다음 확인점입니다.',
   breakdown: '50일선과 200일선을 모두 내줘 추세가 꺾이는 중입니다. 50일선이 200일선 아래로 내려가면(데드크로스) 하락 추세로 굳습니다. 200일선을 다시 되찾는지가 확인점입니다.',
   rebound: '200일선 아래의 하락 추세 안에서 50일선을 되찾은 반등입니다. 200일선까지 회복하는지가 추세 전환의 확인점입니다.',
   recovery: '종가가 두 이동평균 위로 올라왔지만 50일선이 아직 200일선 아래라, 추세 전환은 50일선이 200일선 위로 올라설 때(골든크로스) 확인됩니다.',
-  down: '종가가 50일선과 200일선 아래에 있고 50일선도 내려가, 추세가 아래를 향합니다.',
+  down: '종가가 50일선과 200일선 아래에 있고 50일선도 200일선 아래라, 추세가 아래를 향합니다.',
   unknown: '이동평균을 계산할 종가가 부족합니다.'
 });
 
@@ -144,7 +136,7 @@ export function indexChartReading(history, field, label, { breadth = null } = {}
     series: closes.slice(-252), ma50Series: ma50Series.slice(-252), conclusion, volume: indexVolumeRead(history, field),
     read: `${TREND_READ[trend]}${breadthRead}${momentum}${levels.length ? ` ${levels.join(', ')}입니다.` : ''}${pattern}`,
     numbers: [['종가', num(close)], ['50일선', Number.isFinite(ma50) ? num(ma50) : '—'], ['200일선', Number.isFinite(ma200) ? num(ma200) : '—'],
-      ['1년 최고 종가', level ? `${num(level.high.value)} (${md(level.high.date)})` : '—'], ['RSI(14)', rsi === null ? '—' : rsi.toFixed(0)], ['6개월 최저 종가', level?.support ? `${num(level.support.value)} (${md(level.support.date)})` : '—']]
+      ['1년 최고 종가', level ? `${num(level.high.value)} (${md(level.high.date)})` : '—'], ['RSI(14)', rsi === null ? '—' : rsi.toFixed(0)], ['50일선 20일 기울기', Number.isFinite(ma50Before) && ma50Before > 0 ? signed((ma50 / ma50Before - 1) * 100) : '—'], ['6개월 최저 종가', level?.support ? `${num(level.support.value)} (${md(level.support.date)})` : '—']]
   };
 }
 
@@ -181,7 +173,7 @@ export function coreStockRows({ screener = null, indexWeights = [], day = null, 
     // has the real averages and the 50-day slope. NV −8.8% / −1.0% read '추세 이탈' here and '하락 추세' on 종목.
     const buffered = vs200 === null ? null : bufferedTrend(row);
     // v59.71: '고점 대비' is the 종목·스크리너·테마 field (pctFrom52wHigh, the 52-week intraday high), not the close high.
-    const trend = buffered?.id || 'unknown';
+    const trend = trendKey(buffered) || 'unknown';
     rows.push({ sym, name: names.get(sym) || sym, group: top.includes(sym) ? 'weight' : 'mover', ret1d: readRowNumber(row, 'ret1d'), vs50, vs200,
       fromHigh: readRowNumber(row, 'pctFrom52wHigh'), rsi: readRowNumber(row, 'rsi'), rvol: readRowNumber(row, 'rvol20'), trend, trendWord: buffered?.label || TREND_WORDS.unknown });
   }

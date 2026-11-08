@@ -406,13 +406,13 @@
     "layer": "cloud-infrastructure",
     "position": "GPU·자체 칩을 사서 데이터센터를 짓고 그 연산 능력을 AI 연구소(OpenAI·Anthropic)와 기업에 빌려주는 클라우드 층에 있으면서, 그 위의 모델 플랫폼(Foundry)과 AI 앱(Copilot)까지 직접 판다. 가치사슬의 중간과 끝을 함께 가진 셈이다.",
     "dependsOn": [
-      "chips-compute (NVIDIA, AMD, 자체 Maia - TSMC 생산)",
-      "power-energy·data-center-real-estate (부지·전력·리스)",
-      "models-platforms (OpenAI 모델·지식재산, Anthropic·Mistral·xAI 모델)"
+      "연산 칩 (NVIDIA, AMD, 자체 Maia - TSMC 생산)",
+      "전력·에너지·데이터센터 부동산 (부지·전력·리스)",
+      "모델·플랫폼 (OpenAI 모델·지식재산, Anthropic·Mistral·xAI 모델)"
     ],
     "sellsTo": [
-      "models-platforms (OpenAI, Anthropic의 연산 구매)",
-      "software-applications·ai-adopter (기업의 Azure·Copilot·GitHub Copilot 사용)",
+      "모델·플랫폼 (OpenAI, Anthropic의 연산 구매)",
+      "소프트웨어·앱·AI를 쓰는 기업 (기업의 Azure·Copilot·GitHub Copilot 사용)",
       "개인 소비자 (Copilot, Windows)"
     ],
     "aiRevenue": "AI 매출 총액은 공시하지 않음. 대리 지표: Q1 FY27 Azure 331.65억 달러(+48%), Foundry 매출 전년 대비 3배 이상·고객 12만 곳 이상, 상업 RPO 6,770억 달러(+73%) (2026-10-28 발표).",
@@ -565,7 +565,7 @@
     "latest": [
       {
         "period": "Q2 FY2027",
-        "metric": "revenue",
+        "metric": "매출",
         "value": "960억~971억 달러 (+18~19%)",
         "givenOn": "2026-10-28",
         "src": [
@@ -574,7 +574,7 @@
       },
       {
         "period": "Q2 FY2027",
-        "metric": "segment revenue",
+        "metric": "부문 매출",
         "value": "Agents and Infra 801억~807억 달러(+24~25%), Devices and Consumer 159억~164억 달러",
         "givenOn": "2026-10-28",
         "src": [
@@ -583,7 +583,7 @@
       },
       {
         "period": "Q2 FY2027",
-        "metric": "Azure growth (constant currency)",
+        "metric": "Azure 성장률 (고정 환율)",
         "value": "49~50%",
         "givenOn": "2026-10-28",
         "src": [
@@ -592,7 +592,7 @@
       },
       {
         "period": "Q2 FY2027",
-        "metric": "COGS / opex / capex",
+        "metric": "COGS / 영업비용 / 설비투자",
         "value": "매출원가 327억~329억(+26~27%), 영업비용 185억~186억(+9%), 설비투자 500억 달러 초과, 세율 약 20%",
         "givenOn": "2026-10-28",
         "src": [
@@ -601,7 +601,7 @@
       },
       {
         "period": "Q2 FY2027",
-        "metric": "Microsoft Cloud gross margin",
+        "metric": "Microsoft 클라우드 매출총이익률",
         "value": "약 65%",
         "givenOn": "2026-10-28",
         "src": [
@@ -610,7 +610,7 @@
       },
       {
         "period": "FY2027",
-        "metric": "free cash flow / capex",
+        "metric": "잉여현금흐름 / 설비투자",
         "value": "잉여현금흐름 플러스 유지; 연간 설비투자 약 1,700억 달러(외부 용량 지연 반영, 하반기 가속)",
         "givenOn": "2026-10-28",
         "src": [

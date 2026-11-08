@@ -412,13 +412,13 @@
     "layer": "cloud-infrastructure",
     "position": "데이터센터를 짓고 NVIDIA GPU와 자체 Trainium 칩으로 연산 능력을 만들어 AI 연구소와 기업에 빌려주는 클라우드 층에 있다. 동시에 칩 설계(chips-compute)와 모델 플랫폼(Bedrock·Nova)까지 내려가고 올라가, 가치사슬 세 칸을 함께 가진다.",
     "dependsOn": [
-      "chips-compute (NVIDIA GPU, 자체 Trainium·Graviton - 생산 파운드리 미확인)",
-      "memory (HBM·DRAM, 가격 상승이 설비투자 증가 요인)",
-      "power-energy·data-center-real-estate (전력 용량 2027년 말까지 2배 계획)"
+      "연산 칩 (NVIDIA GPU, 자체 Trainium·Graviton - 생산 파운드리 미확인)",
+      "메모리 (HBM·DRAM, 가격 상승이 설비투자 증가 요인)",
+      "전력·에너지·데이터센터 부동산 (전력 용량 2027년 말까지 2배 계획)"
     ],
     "sellsTo": [
-      "models-platforms (Anthropic, OpenAI의 학습·추론 연산)",
-      "software-applications·ai-adopter (Bedrock을 쓰는 기업, Uber·Pinterest 등 Trainium 사용)",
+      "모델·플랫폼 (Anthropic, OpenAI의 학습·추론 연산)",
+      "소프트웨어·앱·AI를 쓰는 기업 (Bedrock을 쓰는 기업, Uber·Pinterest 등 Trainium 사용)",
       "자체 소매·광고 (AI 쇼핑 비서·광고 에이전트)"
     ],
     "aiRevenue": "AI 매출 총액은 이번 분기 공시 없음. 대리 지표: AWS Q3 2026 매출 459.8억 달러(+39.3%), 백로그 5,780억 달러(콜 요약), Graviton·Trainium 매출 약정 각각 20배 이상 증가. Q2 2026 콜에서는 AWS AI·자체 칩 연환산 매출 각각 250억 달러 초과.",
@@ -578,7 +578,7 @@
     "latest": [
       {
         "period": "Q4 2026",
-        "metric": "net sales",
+        "metric": "순매출",
         "value": "2,400억~2,470억 달러 (+12~16%, 환율 약 -0.6%p)",
         "givenOn": "2026-10-29",
         "src": [
@@ -588,7 +588,7 @@
       },
       {
         "period": "Q4 2026",
-        "metric": "operating income",
+        "metric": "영업이익",
         "value": "285억~335억 달러 (전년 250억 달러)",
         "givenOn": "2026-10-29",
         "src": [
@@ -597,7 +597,7 @@
       },
       {
         "period": "2026",
-        "metric": "cash capex",
+        "metric": "현금 설비투자",
         "value": "약 2,200억 달러 (유지)",
         "givenOn": "2026-10-29",
         "src": [
@@ -607,7 +607,7 @@
       },
       {
         "period": "2027",
-        "metric": "capex / AWS growth",
+        "metric": "설비투자 / AWS 성장률",
         "value": "설비투자 의미 있게 증가(금액 미제시), AWS 성장률 2027·2028년 각각 40% 초과 전망",
         "givenOn": "2026-10-29",
         "src": [

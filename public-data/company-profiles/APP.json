@@ -249,8 +249,8 @@
     "layer": "software-applications",
     "position": "AI 추천 모델을 핵심 엔진으로 쓰는 광고 플랫폼. AI 인프라를 팔지 않고, AI로 광고 성과를 높여 광고비의 더 큰 몫을 가져가는 'AI를 돈으로 바꾸는' 응용 층이다.",
     "dependsOn": [
-      "cloud-infrastructure·chips-compute (모델 학습·추론 연산 - 공급 업체 미확인)",
-      "devices (iOS·Android 모바일 생태계와 앱 마켓)"
+      "클라우드·연산 칩 (모델 학습·추론 연산 - 공급 업체 미확인)",
+      "기기 (iOS·Android 모바일 생태계와 앱 마켓)"
     ],
     "sellsTo": [
       "앱·게임 광고주",
@@ -372,7 +372,7 @@
     "latest": [
       {
         "period": "Q4 2026",
-        "metric": "revenue",
+        "metric": "매출",
         "value": "23.65억~23.95억 달러",
         "givenOn": "2026-11-04",
         "src": [
@@ -381,7 +381,7 @@
       },
       {
         "period": "Q4 2026",
-        "metric": "adjusted EBITDA",
+        "metric": "조정 EBITDA",
         "value": "19.95억~20.25억 달러 (마진 84~85%)",
         "givenOn": "2026-11-04",
         "src": [

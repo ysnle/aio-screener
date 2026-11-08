@@ -274,12 +274,12 @@
     "layer": "software-applications",
     "position": "AI 모델을 만들지 않고, 개발·IT 팀의 업무 기록(Jira·Confluence)과 그 연결 데이터(Teamwork Graph)를 AI 에이전트의 맥락으로 제공하는 응용 소프트웨어 층. 자체 에이전트 Rovo와, 외부 AI가 이 데이터에 접속하는 MCP 서버를 함께 판다.",
     "dependsOn": [
-      "cloud-infrastructure (제3자 클라우드 호스팅)",
-      "models-platforms (Rovo가 쓰는 외부 AI 모델)"
+      "클라우드 (제3자 클라우드 호스팅)",
+      "모델·플랫폼 (Rovo가 쓰는 외부 AI 모델)"
     ],
     "sellsTo": [
-      "ai-adopter (개발·IT·업무 팀을 가진 기업)",
-      "models-platforms (MCP로 Atlassian 데이터를 쓰는 외부 AI 에이전트)"
+      "AI를 쓰는 기업 (개발·IT·업무 팀을 가진 기업)",
+      "모델·플랫폼 (MCP로 Atlassian 데이터를 쓰는 외부 AI 에이전트)"
     ],
     "aiRevenue": null,
     "upside": "Rovo를 쓰는 고객이 그렇지 않은 고객보다 ARR을 두 배 이상 빠르게 키운다고 회사는 밝혔다. AI가 상위 등급·Collection 업셀을 이끌고, AI 크레딧 사용이 늘면 사용량 매출의 길이 열린다. Q1 FY2027에는 MCP 서버 월 사용자가 200만 명 이상, 하루 도구 호출이 1,500만 건 이상으로 늘었고, 같은 Jira·Confluence 작업에 쓰는 토큰은 이전 버전보다 25% 적다고 밝혔다.",
@@ -391,7 +391,7 @@
     "latest": [
       {
         "period": "Q2 FY2027",
-        "metric": "revenue",
+        "metric": "매출",
         "value": "18.25억~18.35억 달러; 클라우드 약 +27%, Data Center 약 -14%, Marketplace 약 +20%",
         "givenOn": "2026-11-05",
         "src": [
@@ -400,7 +400,7 @@
       },
       {
         "period": "Q2 FY2027",
-        "metric": "margins",
+        "metric": "이익률",
         "value": "총마진 GAAP 약 84.5%·non-GAAP 약 86.5%; 영업이익률 GAAP 약 4.5%·non-GAAP 약 26%",
         "givenOn": "2026-11-05",
         "src": [
@@ -409,7 +409,7 @@
       },
       {
         "period": "FY2027",
-        "metric": "revenue / cloud / Data Center / Marketplace",
+        "metric": "매출 / 클라우드 / 데이터센터 / 마켓플레이스",
         "value": "매출 약 +13.75%(8월 +13%), 클라우드 약 +26%(+25.5%), Data Center 약 -16%(-17%), Marketplace 약 +15%(+12%)",
         "givenOn": "2026-11-05",
         "src": [
@@ -419,7 +419,7 @@
       },
       {
         "period": "FY2027",
-        "metric": "margins / ARR",
+        "metric": "이익률 / ARR",
         "value": "non-GAAP 영업이익률 약 25.5%(8월 약 25%), GAAP 약 5%; 구독 ARR 약 +18.5%(8월 약 +18%)",
         "givenOn": "2026-11-05",
         "src": [

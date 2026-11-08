@@ -289,11 +289,11 @@
     "position": "AI 데이터센터의 광 트랜시버·스위치를 만드는 회사들에 개발·양산 시험 장비를 파는 '네트워크 층의 계측 공급자'. AI 클러스터 장비를 직접 공급하지 않고, 그 장비가 만들어지는 과정에 들어간다.",
     "dependsOn": [
       "자체·위탁 생산 (중국·태국 파트너)",
-      "networking 고객사의 신제품 개발·증설 주기"
+      "네트워크 고객사의 신제품 개발·증설 주기"
     ],
     "sellsTo": [
-      "networking (광 트랜시버·스위치 업체, Cisco·Ciena·Nokia 등)",
-      "chips-compute (AMD 등 반도체 회사)",
+      "네트워크 (광 트랜시버·스위치 업체, Cisco·Ciena·Nokia 등)",
+      "연산 칩 (AMD 등 반도체 회사)",
       "통신사 (AT&T·Verizon 등)",
       "항공우주·국방 (Lockheed Martin 등)"
     ],
@@ -424,7 +424,7 @@
     "latest": [
       {
         "period": "Q2 FY2027",
-        "metric": "revenue",
+        "metric": "매출",
         "value": "5.05억~5.15억 달러",
         "givenOn": "2026-11-04",
         "src": [
@@ -442,7 +442,7 @@
       },
       {
         "period": "Q1 FY2027 (결과 대비)",
-        "metric": "revenue / EPS",
+        "metric": "매출 / EPS",
         "value": "가이드 4.5억~4.6억 달러·0.40~0.42달러 → 실제 4.693억 달러·0.47달러",
         "givenOn": "2026-08-05",
         "src": [

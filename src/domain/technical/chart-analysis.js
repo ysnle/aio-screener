@@ -56,7 +56,7 @@ const EXTENSION_NOTE = Object.freeze({ extended: `, 50일선에서 확장된 구
 
 const STATE_LABELS = Object.freeze({
   breakout: '돌파 — 기준 고점(피벗) 위, 거래량 동반', failed: '돌파 실패 — 기준 고점 아래로 복귀', setup: '패턴 형성 중 — 변동폭 축소',
-  extended: '기준 고점에서 많이 오른 상태', downtrend: '하락 추세 — 패턴 해당 없음', none: '뚜렷한 패턴 없음'
+  extended: '기준 고점에서 많이 오른 상태', downtrend: '200일선 아래 — 셋업 해당 없음', none: '뚜렷한 패턴 없음'
 });
 
 /**
@@ -328,7 +328,7 @@ export function chartReading(analysis, regime = null) {
     breakout: '피벗을 거래량과 함께 넘었습니다 — 돌파 직후는 피벗 위에서 버티는지가 관건입니다',
     extended: `피벗에서 이미 ${analysis.pivot ? pct((analysis.last.close / analysis.pivot - 1) * 100) : '—'} 올라 기준점에서 멀어진 구간입니다 — 새 수축(쉬어 가기)이 생기는지 관찰할 자리입니다`,
     failed: '돌파 뒤 피벗 아래로 되돌아왔습니다 — 돌파한 가격 위에서 유지되지 못한 상태입니다',
-    downtrend: '하락 추세(200일선 아래) 구간이라 VCP 셋업 조건이 성립하지 않습니다',
+    downtrend: '종가가 200일선 아래라 VCP 셋업 조건이 성립하지 않습니다',
     // Codex browser audit H33: "상승 추세 · 템플릿 8/8 · 셋업 없음" read as a contradiction. Trend and setup answer
     // different questions; the sentence says which condition is missing and that no setup is not a negative.
     // v57.84: a valid contraction run with price more than 8% under the pivot is not 'no contraction'.

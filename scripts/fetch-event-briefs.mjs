@@ -6,7 +6,8 @@
 // Events and sources (primary first):
 // - FOMC decision: the statement on federalreserve.gov (and the previous statement, for the wording changes). The chair's
 //   press conference is summarised from reports first (basis 'news-report'); the Fed's transcript link is attached
-//   once it appears. The transcript is a PDF and is not parsed, so the summary keeps its report basis.
+//   once it appears. v59.85: the transcript PDF is parsed (lib/pdf-text.mjs) and, once readable, the summary is rewritten
+//   from it (basis 'transcript', 'preliminary' until the final copy).
 // - Earnings of the fixed mover list (src/domain/briefing/event-briefs.js MARKET_MOVERS): US issuers from the 8-K
 //   Item 2.02 Ex.99.1 (6-K exhibit for TSMC) on EDGAR; Korean issuers from the DART 연결재무제표기준영업(잠정)실적 공정공시,
 //   whose table is parsed directly. The call is summarised from the issuer's pages and wires (basis 'news-report').

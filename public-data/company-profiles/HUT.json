@@ -328,13 +328,13 @@
     "layer": "data-center-real-estate",
     "position": "AI 연구소·하이퍼스케일러에 전력이 붙은 데이터센터 건물을 15년 임대하는 집주인. GPU는 임차인이 넣고 Hut 8은 전력·건물·냉각을 공급한다.",
     "dependsOn": [
-      "power-energy (Entergy 등 지역 전력회사, 송전망 연결)",
-      "cooling-electrical (Vertiv 전력·냉각 설비)",
+      "전력·에너지 (Entergy 등 지역 전력회사, 송전망 연결)",
+      "냉각·전기 설비 (Vertiv 전력·냉각 설비)",
       "채권 시장 (프로젝트 금융)"
     ],
     "sellsTo": [
-      "models-platforms (Anthropic·Fluidstack과 파트너십)",
-      "cloud-infrastructure (Google 보증, Beacon Point 투자등급 임차인)"
+      "모델·플랫폼 (Anthropic·Fluidstack과 파트너십)",
+      "클라우드 (Google 보증, Beacon Point 투자등급 임차인)"
     ],
     "aiRevenue": "AI 임대 매출은 아직 없음. 계약 IT 949MW, 기본 계약가치 약 266억 달러, 첫 데이터 홀 인도 2027년 (2026-08-04 발표).",
     "upside": "2027년부터 River Bend와 Beacon Point가 차례로 인도되면 연 17.5억 달러 넘는 NOI가 계단식으로 들어오고, 실사·협상 중인 7GW 이상 파이프라인 일부가 새 임대로 바뀌면 다시 커진다. Fluidstack의 1,000MW 우선협상권도 확장 후보다.",
@@ -457,7 +457,7 @@
     "latest": [
       {
         "period": "Q1-Q3 2027",
-        "metric": "data center delivery",
+        "metric": "데이터센터 인도",
         "value": "Beacon Point 첫 전력 Q1 2027, River Bend 첫 데이터 홀 Q2 2027, Beacon Point 첫 데이터 홀 Q3 2027",
         "givenOn": "2026-08-04",
         "src": [
@@ -466,7 +466,7 @@
       },
       {
         "period": "15-year base terms",
-        "metric": "contracted leases",
+        "metric": "계약된 리스",
         "value": "기본 계약가치 약 266억 달러, 연평균 NOI 17.5억 달러 초과 예상",
         "givenOn": "2026-08-04",
         "src": [

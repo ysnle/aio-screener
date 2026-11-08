@@ -1,7 +1,7 @@
 {
   "symbol": "BTDR",
   "name": "Bitdeer Technologies Group",
-  "researchedAt": "2026-10-30",
+  "researchedAt": "2026-11-08",
   "fiscalYearEnd": "December 31 (Singapore-based foreign private issuer, 20-F/6-K filer; latest reported quarter Q2 2026, ended 2026-06-30)",
   "oneLine": "Bitdeer는 자체 설계 채굴기(SEALMINER)로 비트코인을 캐는 싱가포르 회사로, 노르웨이·말레이시아 등에서 채굴 전력을 AI 데이터센터와 GPU 클라우드로 돌리기 시작해 2026년 10월 AI 클라우드 수주잔고가 약 29억 달러로 늘었다.",
   "sources": [
@@ -28,6 +28,22 @@
       "url": "https://data.sec.gov/submissions/CIK0001899123.json",
       "publisher": "SEC EDGAR",
       "date": "2026-10-30"
+    },
+    {
+      "id": "s4",
+      "kind": "other",
+      "title": "Bitdeer Announces Third Quarter 2026 Earnings Conference Call for November 10th, 2026 (8:00 AM ET; results released before the call)",
+      "url": "https://ir.bitdeer.com/news-releases/news-release-details/bitdeer-announces-third-quarter-2026-earnings-conference-call",
+      "publisher": "Bitdeer",
+      "date": "2026-10-27"
+    },
+    {
+      "id": "s5",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/btdr/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-11-08"
     }
   ],
   "moat": {
@@ -120,6 +136,8 @@
   },
   "earnings": {
     "period": "Q2 2026 (ended 2026-06-30)",
+    "periodEnd": "2026-06-30",
+    "basis": "quarter",
     "revenue": {
       "value": 228.8,
       "unit": "USD mn",
@@ -289,13 +307,13 @@
     "layer": "data-center-real-estate",
     "position": "비트코인 채굴용으로 확보한 전력·부지를 AI 데이터센터로 바꿔 임차인에게 장기 임대하고, 일부는 직접 NVIDIA GPU를 사서 클라우드로 빌려주는 자리. 임대(Tydal)와 GPU 클라우드(말레이시아·AI Cloud)를 함께 한다.",
     "dependsOn": [
-      "power-energy (자체 전력 계약, 노르웨이 재생에너지)",
-      "chips-compute (NVIDIA GPU)",
+      "전력·에너지 (자체 전력 계약, 노르웨이 재생에너지)",
+      "연산 칩 (NVIDIA GPU)",
       "채권·주식 시장 (건설·GPU 자금)"
     ],
     "sellsTo": [
-      "models-platforms (Volta를 통한 선도 AI 연구소)",
-      "cloud-infrastructure·ai-adopter (AI 클라우드 구독·오프테이크 고객, 이름 미공개)"
+      "모델·플랫폼 (Volta를 통한 선도 AI 연구소)",
+      "클라우드·AI를 쓰는 기업 (AI 클라우드 구독·오프테이크 고객, 이름 미공개)"
     ],
     "aiRevenue": "Q2 2026 AI Cloud 매출 1,400만 달러(매출의 6.1%); 2026-09 AI 클라우드 연환산 매출 약 8,600만 달러, 수주잔고 약 29억 달러; Tydal 임대 기본 기간 약 47억 달러 (2026-08-10, 2026-10-19 발표)",
     "upside": "Tydal 1단계(2026년 4분기)·2단계(2027년 1분기), 말레이시아 A201(2027년 4월)·A901(2027년 2분기)·A103(2028년 1분기)이 차례로 열리면 고정 임대료와 GPU 구독료가 채굴 매출 옆에 쌓인다. 텍사스 Rockdale 563MW도 AI 전환을 검토 중이다.",
@@ -425,7 +443,7 @@
     "latest": [
       {
         "period": "Q4 2026 - Q1 2028",
-        "metric": "AI/HPC capacity delivery",
+        "metric": "AI/HPC 용량 인도 일정",
         "value": "Tydal 1단계 Q4 2026, A201 2027-04, A901 Q2 2027, A103 Q1 2028 등 단계별 일정",
         "givenOn": "2026-10-19",
         "src": [
@@ -441,8 +459,10 @@
     ]
   },
   "estimates": {
-    "text": null,
-    "src": []
+    "text": "2026-11-08 기준 컨센서스(EPS, Zacks via Nasdaq) 향후 4개 분기(2026-09~2027-06) 합계 0.34달러(범위 0.13~0.45)지만 추정치가 최소 1개뿐이라 대표성이 낮다. 직전 4개 분기 실적 합은 -3.06달러, 최근 4주 상향·하향 0건.",
+    "src": [
+      "s5"
+    ]
   },
   "watch": {
     "confirms": [
@@ -507,9 +527,10 @@
         ]
       },
       {
-        "when": "2026-11 (추정, 회사 미공지)",
+        "when": "2026-11-10 (회사 확정, 콜 8:00 ET)",
         "what": "Q3 실적에서 매출총이익 흑자 전환 여부와 AI 클라우드 매출·수주잔고, 분기 인프라 업데이트",
         "src": [
+          "s4",
           "s2",
           "s1"
         ]
@@ -559,9 +580,10 @@
   "trading": {
     "calendar": [
       {
-        "date": "2026-11 (추정, 회사 미공지)",
+        "date": "2026-11-10 콜 8:00 ET, 실적은 콜 전 발표 (회사 확정, 2026-10-27 공지)",
         "event": "Q3 2026 실적과 분기 인프라 업데이트 (인프라 업데이트를 실적 발표와 함께 하기로 함)",
         "src": [
+          "s4",
           "s2"
         ]
       },
@@ -604,9 +626,7 @@
     "AI 클라우드·오프테이크 고객과 Tydal 최종 AI 연구소 이름",
     "창업자 지분·의결권 구조와 CEO (20-F 미확인)",
     "고객 집중도",
-    "Q3 2026 실적 발표일",
     "경쟁사 목록은 회사 자료가 아닌 일반 분류 기준",
-    "컨센서스 추정치 (AIO 스냅샷에 없음)",
     "총차입 약 18억 달러의 전환사채 구성"
   ],
   "confidence": "medium - 실적·채굴 지표·AI 수주잔고·부지 일정은 회사 6-K에서 확인했지만, 지배구조와 칩 생산 구조는 20-F를 읽지 못해 비어 있고 AI 사업은 아직 대부분 계약 단계다."

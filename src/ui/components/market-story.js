@@ -113,6 +113,26 @@ function detailFold(doc, story) {
   return fold;
 }
 
+// The story with the artifacts it reads, and the key that changes when any of them does. 오늘's next-event line reads the
+// same story (home-ahead.js), so the two screens name the same week ahead.
+export function readMarketStory(root, interpretation, rerender) {
+  const briefs = ensure(root, EVENT_BRIEFS, rerender);
+  const calendar = ensure(root, EARNINGS_CALENDAR, rerender);
+  // v59.74: the market-day stories' movers — a report one of them is about joins the week list whatever its weight.
+  const day = ensure(root, MARKET_DAY, rerender);
+  const storySymbols = new Map();
+  for (const item of Array.isArray(day?.narratives?.stories) ? day.narratives.stories : []) {
+    for (const mover of Array.isArray(item?.movers) ? item.movers : []) if (mover?.sym && !storySymbols.has(mover.sym)) storySymbols.set(mover.sym, item.label);
+  }
+  const events = Array.isArray(interpretation?.crossroads?.events) ? interpretation.crossroads.events : [];
+  const macroHistory = root?._aioMacroHistory || null;
+  const history = interpretation?.inputs?.history || root?._aioHistory || [];
+  const key = [history.at?.(-1)?.date, briefs?.generatedAt, calendar?.generatedAt, macroHistory?.generatedAt || (macroHistory ? 'loaded' : ''), interpretation?.crossroads?.nextEvent?.id, events.map((e) => `${e.id}:${e.date}`).join(','), day?.generatedAt || ''].join('|');
+  // Built on demand: a render whose key has not changed keeps its card and skips the build.
+  const build = () => buildMarketStory({ history, macroHistory, briefs, calendar, nextEvent: interpretation?.crossroads?.nextEvent || null, decidingEvent: interpretation?.crossroads?.decidingEvent || null, events, storySymbols });
+  return { key, build };
+}
+
 export function renderMarketStory({ documentRef: doc, root, interpretation }) {
   // The card is built here (not in the shell) and placed before the six-axis table: the story first, the scoring after it.
   let section = doc?.getElementById('regime-story');
@@ -125,21 +145,9 @@ export function renderMarketStory({ documentRef: doc, root, interpretation }) {
     section.hidden = true;
     axes.before(section);
   }
-  const again = () => renderMarketStory({ documentRef: doc, root, interpretation });
-  const briefs = ensure(root, EVENT_BRIEFS, again);
-  const calendar = ensure(root, EARNINGS_CALENDAR, again);
-  // v59.74: the market-day stories' movers — a report one of them is about joins the week list whatever its weight.
-  const day = ensure(root, MARKET_DAY, again);
-  const storySymbols = new Map();
-  for (const item of Array.isArray(day?.narratives?.stories) ? day.narratives.stories : []) {
-    for (const mover of Array.isArray(item?.movers) ? item.movers : []) if (mover?.sym && !storySymbols.has(mover.sym)) storySymbols.set(mover.sym, item.label);
-  }
-  const events = Array.isArray(interpretation?.crossroads?.events) ? interpretation.crossroads.events : [];
-  const macroHistory = root?._aioMacroHistory || null;
-  const history = interpretation?.inputs?.history || root?._aioHistory || [];
-  const key = [history.at?.(-1)?.date, briefs?.generatedAt, calendar?.generatedAt, macroHistory?.generatedAt || (macroHistory ? 'loaded' : ''), interpretation?.crossroads?.nextEvent?.id, events.map((e) => `${e.id}:${e.date}`).join(','), day?.generatedAt || ''].join('|');
+  const { key, build } = readMarketStory(root, interpretation, () => renderMarketStory({ documentRef: doc, root, interpretation }));
   if (section.dataset.signature === key && section.childElementCount) return section;
-  const story = buildMarketStory({ history, macroHistory, briefs, calendar, nextEvent: interpretation?.crossroads?.nextEvent || null, decidingEvent: interpretation?.crossroads?.decidingEvent || null, events, storySymbols });
+  const story = build();
   section.hidden = !story.available;
   if (!story.available) { section.replaceChildren(); return section; }
   const wasOpen = section.querySelector('.mk-story__more')?.open;

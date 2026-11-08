@@ -28,7 +28,16 @@ export function buildQuestionDomainContext({ ctxId, query = '', root = {}, readD
   // it already carries the US block, so the plain macro one is dropped to avoid sending it twice.
   if (/한국은행|한은|기준금리|금통위|한국\s*(?:물가|소비자물가|cpi|경제|수출)|국내\s*물가|수출\s*(?:잠정|동향|증가|감소)/i.test(text)) contexts.add('kr-macro');
   if (contexts.has('kr-macro')) contexts.delete('macro');
-  const parts = [...contexts].map(readDomain).filter(Boolean);
+  // the macro and fxbond blocks share one rates line and one closing note; when a question selects
+  // both, the second copy of an identical line is dropped (the model saw the 10Y/2Y/2s10s twice, once labelled differently).
+  const seenLines = new Set();
+  const parts = [...contexts].map(readDomain).filter(Boolean).map((part) => String(part).split('\n').filter((line) => {
+    const key = line.trim();
+    if (!key || key.startsWith('【')) return true;
+    if (seenLines.has(key)) return false;
+    seenLines.add(key);
+    return true;
+  }).join('\n')).filter((part) => part.trim());
   // v57.61: the screener's 맞춤 조건 decide which rows the table shows; without them the AI judged a different list.
   const custom = ctxId === 'screener' ? parseConditionValue(root.document?.getElementById?.('scr-custom-conditions')?.value).map(conditionLabel).filter(Boolean) : [];
   if (custom.length) parts.push(`스크리너 화면에 적용된 맞춤 조건(모두 만족하는 종목만 표에 남음, 매매 신호 아님): ${custom.join(' · ')}`);
