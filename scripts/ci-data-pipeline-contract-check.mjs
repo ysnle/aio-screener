@@ -64,6 +64,18 @@ check('v59.72 the producer publishes the rewritten reading', /text: softenReader
   check('v59.81 qa-runner keeps only the newest runs and the failed batch it can rerun', /const KEEP_RUNS = 150;/.test(runner)
     && /pruneRuns\(runsDir, \{ keep: KEEP_RUNS, protect: \[runId, /.test(runner) && /failedBatchPath, 'utf8'\)\)\.runId/.test(runner));
   check('v59.80 bundled chunks are named by content hash', /chunkNames: 'chunks\/\[name\]-\[hash\]'/.test(read('scripts/lib/pages-bundle-config.mjs')));
+  // v59.82 (hosting review option A): the 13F manager row store left main for the masters-store branch.
+  const refresh = read('.github/workflows/refresh-data.yml');
+  const fullChain = refresh.slice(refresh.indexOf('run_full_13f() {'), refresh.indexOf('\n          }\n', refresh.indexOf('run_full_13f() {')));
+  const commitStep = refresh.slice(refresh.indexOf('stage_if_exists public-data/masters/filing-discovery.json'), refresh.indexOf('git commit -m "data: refresh market and news data'));
+  const tracked = spawnSync('git', ['ls-files', '--cached', '--', 'public-data/masters/managers'], { cwd: root, encoding: 'utf8' }).stdout.trim();
+  check('v59.82 the 13F manager row store is not tracked on main', !tracked && /^public-data\/masters\/managers\/$/m.test(read('.gitignore')), tracked.split('\n')[0]);
+  check('v59.82 the full 13F chain restores the row store first and writes its manifest last', fullChain.indexOf('masters-managers-store.mjs restore --require') > -1
+    && fullChain.indexOf('masters-managers-store.mjs restore --require') < fullChain.indexOf('collect-13f-reference.mjs')
+    && fullChain.lastIndexOf('masters-managers-store.mjs manifest') > fullChain.lastIndexOf('build-masters-runtime-artifacts.mjs'));
+  check('v59.82 the commit stages the manifest, not the rows, and publishes the store before main is pushed', !/stage_if_exists public-data\/masters\/managers\n/.test(commitStep)
+    && /stage_if_exists public-data\/masters\/managers-store\.json/.test(commitStep) && /git diff --staged --quiet -- public-data\/masters\/managers-store\.json; then\n\s+node scripts\/masters-managers-store\.mjs publish/.test(commitStep));
+  check('v59.82 a failed 13F lane drops its half-rewritten row store', /git checkout -- public-data\/masters public-data\/objects\/masters\n[\s\S]{0,400}rm -rf public-data\/masters\/managers\n/.test(refresh));
 }
 
 // v59.72 (P2266): a failed CI browser shard reruns only its failed gates once before failing the push.

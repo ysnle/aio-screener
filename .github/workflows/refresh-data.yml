@@ -230,6 +230,10 @@ jobs:
         run: |
           set -euo pipefail
           run_full_13f() {
+            # v59.82 (hosting review option A): the manager row store is on the masters-store branch, not main. Bring it
+            # to the tree main's manifest names before rewriting it (no partial store: --require), and write the manifest
+            # after; the commit step publishes the store before main is pushed.
+            node scripts/masters-managers-store.mjs restore --require
             node scripts/collect-13f-discovery.mjs
             node scripts/collect-13f-reference.mjs
             node scripts/collect-13f-history-index.mjs
@@ -239,6 +243,7 @@ jobs:
             node scripts/collect-13f-figi-tickers.mjs || echo "::warning::OpenFIGI CUSIP mapping skipped"
             node scripts/build-masters-runtime-artifacts.mjs
             node scripts/build-13f-reference-ticker-index.mjs
+            node scripts/masters-managers-store.mjs manifest
           }
           if [[ "$MASTERS_MODE" != "operator" ]]; then
             # Daily lane (cron or age-due): poll 13D/G. Import quarter rows weekly only within the SEC
@@ -270,6 +275,9 @@ jobs:
           # Tracked files go back to HEAD; files the failed run created are removed so nothing half-written is staged.
           git checkout -- public-data/masters public-data/objects/masters
           git ls-files --others --exclude-standard -z -- public-data/masters public-data/objects/masters | xargs -0 -r rm -f --
+          # v59.82: the row store is gitignored (masters-store branch). Drop the half-rewritten copy, so the commit step's
+          # masters contract checks the restored manifest alone and the store is never published from this cycle.
+          rm -rf public-data/masters/managers
           echo "::warning::13F lane failed this cycle; its files stay at the last publish and the lane is retried after its backoff."
 
       - name: Prepare official-reference ledger key (P1734)
@@ -510,7 +518,7 @@ jobs:
           stage_if_exists public-data/masters/issuer-aggregates.json
           stage_if_exists public-data/masters/ticker-index-reference.json
           stage_if_exists public-data/masters/cusip-ticker-map.json
-          stage_if_exists public-data/masters/managers
+          stage_if_exists public-data/masters/managers-store.json # v59.82: rows on the masters-store branch
           stage_if_exists public-data/objects/masters
           stage_if_exists public-data/masters/history/managers
           git add -- architecture/asset-manifest.json architecture/release-manifest.json architecture/public-readiness.json
@@ -537,6 +545,11 @@ jobs:
             echo "No public-data changes to commit"
             echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
+          fi
+          # v59.82 (hosting review option A): main's manifest must never name a tree the masters-store branch never held,
+          # so a changed manifest publishes the store first (lease-protected; its parent keeps the tree main named before).
+          if ! git diff --staged --quiet -- public-data/masters/managers-store.json; then
+            node scripts/masters-managers-store.mjs publish
           fi
           ts=$(date -u +"%Y-%m-%dT%H:%MZ")
           # P572/R263: this commit message used to carry "[skip ci]". After P557/R248 moved

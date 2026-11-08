@@ -117,3 +117,49 @@ export async function readManagerRows(directory, managerId) {
   for (const descriptor of index.parts || []) texts.set(descriptor.path, await fsp.readFile(path.join(directory, descriptor.path), 'utf8'));
   return assembleManagerRows(index, (name) => texts.get(name));
 }
+
+// v59.82 (hosting review option A): the row store left main. The files live on the orphan `masters-store` branch as one
+// force-pushed commit (scripts/masters-managers-store.mjs); main keeps only this manifest, which names the store tree
+// (git tree id), every file's bytes and sha256, and each manager's accession and row counts. No timestamps, so an
+// unchanged quarter keeps the same manifest and the same store commit.
+export const MANAGER_STORE_MANIFEST_SCHEMA = 'masters-13f-manager-store-manifest.v1';
+export const MANAGER_STORE_BRANCH = 'masters-store';
+export const MANAGER_STORE_DIR = 'public-data/masters/managers';
+export const MANAGER_STORE_MANIFEST_PATH = 'public-data/masters/managers-store.json';
+const STORE_FILE_NAME = /^[a-z0-9-]+(?:\.part-\d+)?\.json$/;
+export const isManagerStoreFile = (name) => STORE_FILE_NAME.test(name);
+
+// `files` is [{ name, buffer }]; `shards` is { managerId: v1 rows object }; `treeId` is the git tree of exactly these files.
+export function buildManagerStoreManifest({ files, shards, treeId }) {
+  const listed = [...files].sort((left, right) => (left.name < right.name ? -1 : left.name > right.name ? 1 : 0));
+  const managers = {};
+  for (const id of Object.keys(shards).sort()) {
+    const shard = shards[id];
+    managers[id] = { accession: shard.latestFiling?.accession || null, fullRows: shard.holdings?.length || 0, comparisonRows: shard.comparisons?.length || 0 };
+  }
+  return {
+    schema: MANAGER_STORE_MANIFEST_SCHEMA,
+    branch: MANAGER_STORE_BRANCH,
+    directory: MANAGER_STORE_DIR,
+    treeId,
+    bytes: listed.reduce((sum, file) => sum + file.buffer.length, 0),
+    files: listed.map((file) => ({ name: file.name, bytes: file.buffer.length, sha256: createHash('sha256').update(file.buffer).digest('hex') })),
+    managers
+  };
+}
+
+// Compares a directory listing ([{ name, buffer }]) with a manifest. Returns { status: 'match' | 'absent' | 'mismatch', drift }.
+export function compareManagerStoreFiles(manifest, files) {
+  if (manifest?.schema !== MANAGER_STORE_MANIFEST_SCHEMA || !Array.isArray(manifest.files)) return { status: 'mismatch', drift: ['manifest schema'] };
+  if (!files.length) return { status: 'absent', drift: [] };
+  const byName = new Map(files.map((file) => [file.name, file.buffer]));
+  const drift = [];
+  for (const entry of manifest.files) {
+    const buffer = byName.get(entry.name);
+    if (!buffer) drift.push(`${entry.name}:missing`);
+    else if (buffer.length !== entry.bytes || createHash('sha256').update(buffer).digest('hex') !== entry.sha256) drift.push(`${entry.name}:content`);
+    byName.delete(entry.name);
+  }
+  for (const name of byName.keys()) drift.push(`${name}:unlisted`);
+  return { status: drift.length ? 'mismatch' : 'match', drift };
+}

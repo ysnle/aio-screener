@@ -170,6 +170,7 @@ jobs:
             --exclude 'masters/history-holdings.json' \
             --exclude 'masters/issuer-aggregates.json' \
             --exclude 'masters/managers/' \
+            --exclude 'masters/managers-store.json' \
             public-data/ "$RUNNER_TEMP/pages-dist/public-data/"
           # Deploy-time bundle: minify the classic js/ scripts one by one and bundle the src/ module graph into hashed
           # chunks, in the staged copy only (source layout, CI and local serving are unchanged). It runs before the

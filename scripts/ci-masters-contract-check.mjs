@@ -12,7 +12,7 @@ const { fileURLToPath } = await import('node:url');
 const { createHash } = await import('node:crypto');
 const { execFileSync } = await import('node:child_process');
 const { rawHoldingRow } = await import('./lib/masters-raw-rows.mjs');
-const { assembleManagerRows } = await import('./lib/masters-manager-store.mjs');
+const { assembleManagerRows, MANAGER_STORE_DIR, MANAGER_STORE_MANIFEST_PATH, compareManagerStoreFiles, isManagerStoreFile } = await import('./lib/masters-manager-store.mjs');
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const staged = process.argv.includes('--staged');
@@ -158,15 +158,29 @@ if (scion?.cik !== '0001649339' || scion.status !== 'VERIFIED_ROWS') fail('Scion
 if (!/^REFERENCE_ROWS_(?:CONNECTED|PARTIAL)$/.test(holdings.status) || holdings.managers.length < 7 || holdings.reconciledManagers < 7 || holdings.holdingRowsPublished !== holdings.holdings.length || holdings.fullRowsAvailable < 1290 || holdings.allHoldings?.length < 1290 || holdings.comparisonRowsPublished > holdings.holdingRowsPublished || holdings.fullComparisonRowsAvailable < 1387 || holdings.comparisons?.length < 1387 || holdings.reconciledComparisons < 7) fail('SEC holdings or prior-period comparison counts drifted');
 if (runtimeHoldings.schema !== 'masters-13f-runtime-summary.v1' || runtimeHoldings.artifactRole !== 'PAGE_BOOTSTRAP' || runtimeHoldings.allHoldings || runtimeHoldings.fullRowsAvailable !== holdings.fullRowsAvailable || Object.keys(runtimeHoldings.managerShards || {}).length !== holdings.managers.length || runtimeHoldings.shardIntegrityStatus !== 'VERIFIED' || runtimeHoldings.shardsVerified !== holdings.managers.length || runtimeHoldings.comparisonRowsPublished !== runtimeHoldings.topRowsWithComparison || runtimeHoldings.comparisonRowsScope !== 'COMPACT_TOP_HOLDINGS_ONLY' || runtimeHoldings.fullComparisonRowsAvailable !== holdings.fullComparisonRowsAvailable || runtimeHoldings.managerProjectionPolicy?.artifactRole !== 'BOUNDED_WEB_PROJECTION' || runtimeHoldings.managerProjectionPolicy?.rowLimitPerCollection !== 200 || runtimeHoldings.managerProjectionPolicy?.maxBytes !== 512 * 1024 || runtimeHoldings.managerProjectionPolicy?.fullRowStore !== 'BULK_OBJECT_STORAGE_REQUIRED' || Buffer.byteLength(JSON.stringify(runtimeHoldings)) > 280 * 1024 || !page.includes("holdings-summary.json") || !page.includes('integrity: descriptor.sha256') || !page.includes('전체 보유 내역은 필요할 때만 불러옵니다') /* P1488: bounded projection loads on request; copy in reader language */) fail('Masters runtime summary does not enforce the verified-shard, bounded projection, integrity, and initial payload budget');
 if (page.includes("history-holdings.json") || page.includes("issuer-aggregates.json")) fail('Masters browser consumer must not request monolithic history or issuer artifacts');
+// v59.82 (hosting review option A): the row store lives on the masters-store branch; main carries its manifest. Every
+// descriptor is checked against the manifest always; the rows themselves are read only when the local directory is
+// exactly the manifest's tree. --staged (the producer's commit) requires that, so a producer never commits a manifest
+// for rows it did not verify; a plain checkout without the rows (CI, fresh worktree) prints a labelled SKIP.
+const storeManifest = JSON.parse(read(MANAGER_STORE_MANIFEST_PATH));
+const storeDir = path.join(root, MANAGER_STORE_DIR);
+const storeFiles = fs.existsSync(storeDir) ? fs.readdirSync(storeDir).filter(isManagerStoreFile).map((name) => ({ name, buffer: fs.readFileSync(path.join(storeDir, name)) })) : [];
+const storeLocal = compareManagerStoreFiles(storeManifest, storeFiles);
+if (storeLocal.status === 'mismatch' && (staged || storeManifest?.schema !== 'masters-13f-manager-store-manifest.v1')) fail(`manager row store does not match ${MANAGER_STORE_MANIFEST_PATH}: ${storeLocal.drift.slice(0, 5).join(' ')}`);
+if (execFileSync('git', ['ls-files', '--cached', '--', MANAGER_STORE_DIR], { cwd: root, encoding: 'utf8' }).trim()) fail('manager row files are tracked on main; they belong on the masters-store branch');
+if (storeLocal.status !== 'match') console.log(`[masters-contract] SKIP row-content checks: local ${MANAGER_STORE_DIR} is ${storeLocal.status} against the manifest (node scripts/masters-managers-store.mjs restore)`);
 if (holdings.managerShards) {
   if ((holdings.allHoldings || []).some(rawRowComparable)) fail('embedded raw rows carry unverified aggregate comparisons');
   for (const [managerId, descriptor] of Object.entries(holdings.managerShards)) {
     if (!descriptor.url || descriptor.fullRows <= 0 || descriptor.comparisonRows < 0 || !descriptor.accession) fail(`manager row shard descriptor incomplete for ${managerId}`);
+    const stored = storeManifest.managers?.[managerId];
+    if (!stored || stored.accession !== descriptor.accession || stored.fullRows !== descriptor.fullRows || stored.comparisonRows !== descriptor.comparisonRows) fail(`manager row store manifest drift for ${managerId}: declared ${descriptor.accession} ${descriptor.fullRows}/${descriptor.comparisonRows}, manifest ${stored ? `${stored.accession} ${stored.fullRows}/${stored.comparisonRows}` : 'missing'}`);
+    if (storeLocal.status !== 'match') continue;
     const shardFile = descriptor.url.replace(/^\.\//, '');
-    if (!artifactExists(shardFile)) fail(`manager row shard missing for ${managerId}`);
+    if (!fs.existsSync(path.join(root, shardFile))) fail(`manager row shard missing for ${managerId}`);
     const shardDir = shardFile.slice(0, shardFile.lastIndexOf('/') + 1);
     let shard;
-    try { shard = assembleManagerRows(JSON.parse(read(shardFile)), (name) => read(`${shardDir}${name}`)); }
+    try { const readStore = (file) => fs.readFileSync(path.join(root, file), 'utf8'); shard = assembleManagerRows(JSON.parse(readStore(shardFile)), (name) => readStore(`${shardDir}${name}`)); }
     catch (error) { fail(`manager row shard store invalid for ${managerId}: ${error.message}`); }
     if ((shard.holdings || []).some(rawRowComparable)) fail(`raw manager rows carry unverified aggregate comparisons for ${managerId}`);
     if (shard.managerId !== managerId || shard.latestFiling?.accession !== descriptor.accession || shard.holdings?.length !== descriptor.fullRows || shard.comparisons?.length !== descriptor.comparisonRows) fail(`manager row shard content drift for ${managerId}: declared ${descriptor.fullRows}/${descriptor.comparisonRows}, actual ${shard.holdings?.length || 0}/${shard.comparisons?.length || 0}`);
@@ -436,6 +450,15 @@ for (const name of names) {
   if (size > MANAGER_ROWS_FILE_MAX_BYTES) oversized.push(`${name} ${size}`);
 }
 if (oversized.length) fail(`manager row files over ${MANAGER_ROWS_FILE_MAX_BYTES} bytes (run node scripts/split-masters-manager-rows.mjs --write): ${oversized.join(', ')}`);
-console.log(`Masters manager row store OK: fixture split/reassemble/rewrite/shrink/tamper verified; ${names.length} committed file(s) within ${MANAGER_ROWS_FILE_MAX_BYTES} bytes.`);
+// v59.82: the masters-store manifest names exactly its files; a changed, missing or extra file is a mismatch.
+const { buildManagerStoreManifest, compareManagerStoreFiles } = await import('./lib/masters-manager-store.mjs');
+const fixtureFiles = [{ name: 'b-manager.json', buffer: Buffer.from('{"b":1}') }, { name: 'a-manager.json', buffer: Buffer.from('{"a":1}') }];
+const fixtureManifest = buildManagerStoreManifest({ files: fixtureFiles, shards: { 'a-manager': { latestFiling: { accession: 'x' }, holdings: [1], comparisons: [] } }, treeId: 'fixture' });
+const verdict = (files) => compareManagerStoreFiles(fixtureManifest, files).status;
+if (fixtureManifest.files[0].name !== 'a-manager.json' || fixtureManifest.managers['a-manager'].fullRows !== 1 || 'generatedAt' in fixtureManifest) fail('store manifest is not sorted, counted and clock-free');
+if (verdict(fixtureFiles) !== 'match' || verdict([]) !== 'absent' || verdict(fixtureFiles.slice(1)) !== 'mismatch'
+  || verdict([...fixtureFiles, { name: 'c-manager.json', buffer: Buffer.from('{}') }]) !== 'mismatch'
+  || verdict([fixtureFiles[0], { name: 'a-manager.json', buffer: Buffer.from('{"a":2}') }]) !== 'mismatch') fail('store manifest comparison accepted a missing, extra or changed file');
+console.log(`Masters manager row store OK: fixture split/reassemble/rewrite/shrink/tamper and store-manifest drift verified; ${names.length} local store file(s) within ${MANAGER_ROWS_FILE_MAX_BYTES} bytes.`);
 }],
 ]);

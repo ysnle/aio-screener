@@ -10,7 +10,7 @@ export const CLASSIC_BOOT_SCRIPTS = GLOBAL_SCRIPTS.filter((file) => file !== 'js
 // allowlist" step) and the public-data paths it leaves out. ci-boot-bundle-budget-check.mjs fails when the workflow and
 // these lists differ, so a measurement staged from them is the deploy's layout.
 export const PAGES_ROOT_FILES = ['index.html', 'sw.js', 'version.json', 'og-image.svg', 'robots.txt', 'sitemap.xml', 'public-artifact-manifest.json', 'public-config.json', '_headers'];
-export const PAGES_DATA_EXCLUDES = ['sec-fundamentals.json', 'sec-fundamentals-extended.json', 'telegram-observed.json', 'screener-extended-universe.json', 'score-backtest-history.json', 'score-backtest-longrun.json', 'operations-slo-window.json', 'telegram-reference-window.json', 'masters/holdings.json', 'masters/history-holdings.json', 'masters/issuer-aggregates.json', 'masters/managers/'];
+export const PAGES_DATA_EXCLUDES = ['sec-fundamentals.json', 'sec-fundamentals-extended.json', 'telegram-observed.json', 'screener-extended-universe.json', 'score-backtest-history.json', 'score-backtest-longrun.json', 'operations-slo-window.json', 'telegram-reference-window.json', 'masters/holdings.json', 'masters/history-holdings.json', 'masters/issuer-aggregates.json', 'masters/managers/', 'masters/managers-store.json'];
 
 // Copies the deploy's code layout (root files, the classic scripts, src/) into `dest`, ready for build-pages-bundle.mjs.
 // public-data is left out on purpose: a measurement serves it from the repository (or a fixture overlay) instead of

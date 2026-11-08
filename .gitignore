@@ -94,3 +94,8 @@ _artifacts/verify-aio/
 # force-pushed commit (scripts/sec-fundamentals-store.mjs); main carries only the bounded projection.
 public-data/sec-fundamentals.json
 _artifacts/ui-states-*/**/*.png
+
+# v59.82 (hosting review option A): the 13F manager row store (~285 MB) is producer-only. It lives on the orphan
+# `masters-store` branch as one force-pushed commit (scripts/masters-managers-store.mjs); main carries its manifest
+# public-data/masters/managers-store.json.
+public-data/masters/managers/
