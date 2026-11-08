@@ -39,7 +39,7 @@ jobs:
           node-version: '24'
 
       # v59.85: the :07/:27/:47 cron is the fallback for the Worker's :05/:25/:45 dispatch (v59.81); it stands down when
-      # a run started inside 15 minutes is live or succeeded, so one slot is never two AI-eligible cycles. Fails open.
+      # a dispatched run started inside 15 minutes is live or succeeded (GitHub mostly delivers the cron late). Fails open.
       - name: Stand down a cron slot the Worker dispatch already covers
         id: guard
         if: ${{ github.event_name == 'schedule' }}

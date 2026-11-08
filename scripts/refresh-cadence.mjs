@@ -101,8 +101,8 @@ export function marketQuietWindow(nowMs = Date.now()) {
 export function decideRefreshCadence({ nowMs = Date.now(), eventName = '', schedule = '', trigger = '', lastNewsAt = null, cronCovered = false } = {}) {
   if (eventName === 'workflow_dispatch' && trigger !== 'scheduler') return { mode: 'full', reason: 'operator-dispatch' };
   if (eventName === 'schedule' && schedule === DAILY_LANE_CRON) return { mode: 'full', reason: 'daily-cron' };
-  // v59.85: the :17/:47 cron is the fallback for the Worker's :20/:50 dispatch; it stands down when that run is live or
-  // succeeded inside the window (scripts/cron-fallback-guard.mjs), so one slot is never two full cycles.
+  // v59.85: the :17/:47 cron is the fallback for the Worker's :20/:50 dispatch; a (usually late) cron stands down when
+  // that dispatch is live or succeeded inside the window (scripts/cron-fallback-guard.mjs).
   if (eventName === 'schedule' && cronCovered) return { mode: 'skip', reason: 'cron-fallback-covered-by-scheduler-run' };
   const window = marketQuietWindow(nowMs);
   if (!window.quiet) return { mode: 'full', reason: window.reason, window };

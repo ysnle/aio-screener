@@ -5,8 +5,11 @@
 // crons stayed active. When GitHub did run them, they added a second full cycle minutes after the Worker's: on 11/08
 // refresh-data ran from the cron at 06:02, 13:26 and 14:27 on top of the dispatches, the 14:20 dispatch and the 14:27 cron
 // being two full cycles 7 minutes apart (two commits, two CI runs, two Pages deploys for the same data). A cron run now
-// stands down when another run of the same workflow started inside the window and is still running or succeeded; it
-// still runs when the Worker missed its slot or its run failed, which is what a fallback is for.
+// stands down when a dispatched run of the same workflow (the Worker's, a collision re-run or an operator's) started
+// inside the window and is still running or succeeded; it still runs when the Worker missed its slot or its run failed,
+// which is what a fallback is for. Other schedule runs never count: a cron that stood down also ends 'success', and
+// counting it would let one no-op cover the next cron after a missed Worker slot. The crons fire a few minutes before
+// the Worker's minute, so an on-time cron still runs; GitHub mostly delivers them late, which is the case this covers.
 //
 //   node scripts/cron-fallback-guard.mjs --workflow refresh-data.yml --window-min 20 [--github-output]
 //   node scripts/cron-fallback-guard.mjs --self-test
@@ -23,6 +26,7 @@ export function cronCovered({ eventName, runs, nowMs, windowMin, currentRunId = 
   const windowMs = windowMin * 60000;
   for (const run of runs) {
     if (currentRunId != null && String(run.id) === String(currentRunId)) continue;
+    if (run.event !== 'workflow_dispatch') continue;
     const startedMs = Date.parse(run.run_started_at || run.created_at || '');
     if (!Number.isFinite(startedMs) || nowMs - startedMs > windowMs || startedMs > nowMs) continue;
     const live = run.status !== 'completed';
@@ -43,6 +47,7 @@ function selfTest() {
     [{ eventName: 'schedule', runs: [run(1, 7, 'completed', 'failure')] }, false],
     [{ eventName: 'schedule', runs: [run(1, 25, 'completed', 'success')] }, false],
     [{ eventName: 'schedule', runs: [run(9, 0, 'in_progress', null, 'schedule')], currentRunId: 9 }, false],
+    [{ eventName: 'schedule', runs: [run(8, 15, 'completed', 'success', 'schedule')] }, false],
     [{ eventName: 'schedule', runs: null }, false],
   ];
   const bad = cases.filter(([input, expected]) => cronCovered({ nowMs: now, windowMin: 20, ...input }).covered !== expected);

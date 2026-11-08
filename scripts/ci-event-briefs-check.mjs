@@ -573,8 +573,9 @@ check('v59.56 cash-flow lane in the reading: the group line always, an issuer li
   check('v59.85 KR weights: Sunday after a Friday session is not due', () => eq(due('2026-11-08T14:00:00Z', '2026-11-06'), false));
   check('v59.85 KR weights: Monday 15:50 KST waits for the 16:10 publication', () => eq(due('2026-11-09T06:50:00Z', '2026-11-06'), false));
   check('v59.85 KR weights: Monday 16:15 KST is due', () => eq(due('2026-11-09T07:15:00Z', '2026-11-06'), true));
-  check('v59.85 KR weights: a missed session is caught up the next morning', () => eq(due('2026-11-09T02:00:00Z', '2026-11-05'), true));
+  check('v59.85 KR weights: a missed session is caught up before the next open', () => eq(due('2026-11-08T23:30:00Z', '2026-11-05'), true));
   check('v59.85 KR weights: the same session is not refetched', () => eq(due('2026-11-09T09:00:00Z', '2026-11-09'), false));
+  check('v59.85 KR weights: a missed session is not caught up while the next one trades', () => eq(due('2026-11-10T01:00:00Z', '2026-11-06'), false));
 }
 
 if (failures.length) {

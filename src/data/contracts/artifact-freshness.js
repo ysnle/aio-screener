@@ -143,14 +143,21 @@ export function sameExceptVolatile(left, right, keys = []) {
   return JSON.stringify(strip(left)) === JSON.stringify(strip(right));
 }
 
-/** ['clock'] and/or ['basis:<market>'] for a declared path that resolves nothing on a present artifact; [] when all resolve. */
+/**
+ * ['clock'] and/or ['basis:<market>'] when the artifact's shape no longer holds a declared path; [] when it does. A basis
+ * counts as drift only when the object that should hold it is gone: a market the producer left empty this cycle is
+ * missing data, which the freshness grade handles, not a registry problem.
+ */
 export function artifactContractDrift(file, payload) {
   const entry = ARTIFACT_FRESHNESS[file];
   if (!entry || payload == null) return [];
   const drift = [];
   if (entry.timestamp.length && !artifactProducedAt(file, payload)) drift.push('clock');
-  const basis = artifactBasisSession(file, payload) || {};
-  for (const [market] of entry.basis) if (!basis[market]) drift.push(`basis:${market}`);
+  for (const [market, path] of entry.basis) {
+    const parent = String(path).split('.').slice(0, -1).join('.');
+    const holder = parent ? readPath(payload, parent) : payload;
+    if (!holder || typeof holder !== 'object') drift.push(`basis:${market}`);
+  }
   return drift;
 }
 

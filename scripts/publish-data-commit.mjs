@@ -151,12 +151,17 @@ export function publish({ set: id, candidate = null, retry = '', branch = 'main'
 
   const sha = gitOut(['rev-parse', 'HEAD']).trim();
   output('changed', 'true');
-  output('sha', sha);
   console.log(`${id}: pushed ${sha}`);
+  // `sha` is the hand-over to converge, which waits for that SHA's CI. It is written only once the CI run exists; a
+  // failed dispatch is a warning (the data is already on main), and converge then finds the newest attested release.
   if (dispatch && set.ciOrigin) {
-    if (!gh(['workflow', 'run', 'ci.yml', '--ref', branch, '-f', `release_sha=${sha}`, '-f', `origin=${set.ciOrigin}`])) return fail(`${id}: pushed ${sha} but the exact-SHA CI dispatch failed`);
+    if (!gh(['workflow', 'run', 'ci.yml', '--ref', branch, '-f', `release_sha=${sha}`, '-f', `origin=${set.ciOrigin}`])) {
+      console.log(`::warning::${id}: pushed ${sha} but the exact-SHA CI dispatch failed; the next cycle's release carries it`);
+      return 0;
+    }
     console.log(`Dispatched CI for exact ${id} commit ${sha}`);
   }
+  output('sha', sha);
   return 0;
 }
 

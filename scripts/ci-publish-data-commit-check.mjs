@@ -93,6 +93,17 @@ try {
     check('v59.85 the push dispatches CI for the exact SHA', ghCalls().join('|') === `workflow run ci.yml --ref main -f release_sha=${sha} -f origin=fixture`, ghCalls().join('|'));
     check('v59.85 the timestamp-only neighbour stayed out of the commit', !git(runner, 'show', '--name-only', '--format=', 'HEAD').includes('out/b.json'));
   }
+  { // a failed CI dispatch after the push is a warning and hands converge no sha to wait on
+    const { runner } = fresh();
+    writeFileSync(join(runner, 'out/a.json'), '{"v":9}\n');
+    const failing = join(tmp, 'gh-fail');
+    writeFileSync(failing, '#!/usr/bin/env bash\nexit 1\n');
+    chmodSync(failing, 0o755);
+    process.env.AIO_PUBLISH_GH = failing;
+    const code = inRepo(runner, { set: 'data' });
+    process.env.AIO_PUBLISH_GH = ghBin;
+    check('v59.85 a failed CI dispatch after the push ends green without a sha hand-over', code === 0 && outputs().changed === 'true' && !('sha' in outputs()) && remoteLog().split('\n')[0].startsWith('data: fixture'));
+  }
   { // lost race: rebase onto the other push, with an unrelated dirty tracked file in the runner's worktree
     const { runner, other } = fresh();
     writeFileSync(join(runner, 'out/a.json'), '{"v":3}\n');
