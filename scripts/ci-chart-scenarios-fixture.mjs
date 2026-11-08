@@ -7,8 +7,27 @@ const bars = Array.from({ length: 130 }, (_, index) => ({ time: new Date(Date.UT
 const profile = buildVolumeByPrice(bars);
 assert.equal(profile.available, true, 'P1626 observed daily volume has a declared approximate distribution');
 assert.ok(Math.abs(profile.bins.reduce((sum, bin) => sum + bin.volume, 0) - profile.totalVolume) < 1e-7, 'P1626 price bins conserve daily total volume');
-assert.equal(buildVolumeByPrice(bars.map((bar, index) => index === 50 ? { ...bar, volume: null } : bar)).available, false, 'P1626 missing volume cannot become an invented profile');
+// v59.85: one profile for the chart and the table — a bar without volume is left out (never counted as zero, P1626), and
+// the profile needs 90% of the window to carry volume.
+{
+  const oneMissing = buildVolumeByPrice(bars.map((bar, index) => index === 50 ? { ...bar, volume: null } : bar));
+  assert.equal(oneMissing.coveredSessions, 129, 'v59.85 P1626 a bar without volume is left out of the profile, not counted as zero');
+  assert.ok(Math.abs(oneMissing.totalVolume - bars.reduce((sum, bar, index) => sum + (index === 50 ? 0 : bar.volume), 0)) < 1e-7, 'v59.85 P1626 the profile total is the observed volume only');
+  assert.equal(buildVolumeByPrice(bars.map((bar, index) => index % 5 ? bar : { ...bar, volume: null })).available, false, 'v59.85 P1626 under 90% volume coverage there is no profile (nothing invented)');
+}
 assert.equal(buildVolumeByPrice(bars.slice(0, 10)).available, false, 'P1626 short coverage holds the volume profile');
+// v59.85: the point of control and the 70% value area (CBOT rule: grow from the POC by the heavier pair of neighbours).
+{
+  const { valueArea, profilePosition, VALUE_AREA_SHARE } = await import('../src/domain/technical/chart-scenarios.js');
+  const rows = [1, 2, 3, 10, 30, 12, 4, 20, 2, 1].map((volume, index) => ({ low: index, high: index + 1, volume }));
+  const va = valueArea(rows, 4);
+  assert.deepEqual([va.lowIndex, va.highIndex], [4, 8], 'v59.85 value area: from POC row 4 the pair above (12+4) beats the pair below (10+3), then (20+2) again — 68 of 85 (80%) stops it');
+  assert.ok(va.share >= VALUE_AREA_SHARE * 100, 'v59.85 the value area holds at least 70% of the volume');
+  assert.ok(profile.valueArea.low <= profile.poc.low && profile.valueArea.high >= profile.poc.high, 'v59.85 the value area contains the POC row');
+  assert.equal(profile.poc.index, profile.zones[0].index, 'v59.85 the POC is the first (heaviest) zone — the chart and the table name one price');
+  assert.equal(profilePosition(profile, profile.poc.price), 'poc', 'v59.85 a close on the POC row reads as the POC');
+  assert.equal(profilePosition(profile, profile.valueArea.high * 1.05), 'above', 'v59.85 above the value area');
+}
 const analysis = analyzeChart(bars, { benchmarkLabel: 'KOSPI' });
 const scenarios = buildChartScenarios(analysis);
 assert.equal(scenarios.scenarios.length, 3, 'P1626 exposes recovery, range and weakness conditions');

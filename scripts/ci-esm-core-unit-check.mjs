@@ -1480,7 +1480,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       const { trendOf, coreStockRows } = await load('src/domain/technical/market-charts.js');
       const words = [[110, 100, 90], [95, 100, 90], [85, 100, 90], [95, 90, 100], [105, 90, 100], [85, 90, 100]].map(([close, ma50, ma200]) => trendOf({ close, ma50, ma200, ma50Before: null })).join(',');
       const stock = coreStockRows({ screener: { data: { NV: { pctSma50: -8.75, pctSma200: -1.03 } } }, indexWeights: [{ sym: 'NV', weight: 7 }] })[0];
-      if (oilToday?.rank !== 'lead' || !/에너지/.test(oilToday.text) || words !== 'up,pullback,breakdown,rebound,recovery,down' || stock?.trend !== 'down' || stock.trendWord !== '하락 추세') { // v59.70: a stock row reads the 종목 page's buffered trend
+      if (oilToday?.rank !== 'lead' || !/에너지/.test(oilToday.text) || words !== 'up,pullback,breakdown,rebound,recovery,down' || stock?.trend !== 'breakdown' || stock.trendWord !== '추세 이탈') { // v59.70: a stock row reads the 종목 page's buffered trend; v59.85: NV −8.8%/−1.0% (50-day still over the 200-day) is 추세 이탈 on every screen
         fail(`v59.64: macro today line / chart trend words broke ${JSON.stringify({ oilToday, words, stock: stock?.trend })}`);
       }
       // v59.70 (owner D6): the reports carry the producer's Korean titles; the account cites only those.

@@ -6,8 +6,9 @@
 // Nothing here is an entry, stop or target (R724): each layer is a published, named calculation shown as a fact.
 import { emaSeries, smaSeries } from './definitions.js';
 import { swingPoints } from './price-levels.js';
-import { buildVolumeByPrice } from './chart-scenarios.js';
+import { buildVolumeByPrice, profilePosition } from './chart-scenarios.js';
 import { RULES } from '../rules/thresholds.js';
+import { trendStateSeries } from './trend-state.js';
 
 export const CHART_LAYERS_VERSION = 'chart-layers.v1';
 
@@ -17,8 +18,8 @@ export const CHART_LAYERS_VERSION = 'chart-layers.v1';
  */
 export const CHART_LAYERS = Object.freeze([
   { id: 'ma', tier: 'base', label: '이동평균', title: '5·10·20·50·100·200 단순 이동평균. 단기는 5·10·20(굵게), 중장기는 20·50·200(굵게)을 봅니다. 5 > 10 > 20, 20 > 50 > 200 순서면 정배열, 반대면 역배열입니다' },
-  { id: 'profile', tier: 'base', label: '매물대', title: '최근 130봉 거래량을 가격대별로 나눈 막대(오른쪽)와 거래가 가장 많이 몰린 세 구간의 띠. 각 봉 거래량을 그 봉의 저가~고가에 고르게 나눈 추정이며 실제 체결 분포가 아닙니다' },
-  { id: 'trend', tier: 'base', label: '추세 구간', title: '상승 추세(종가 > 50선, 20선 > 50선, 50선이 20봉 전보다 높음)와 하락 추세(반대 조건)가 3봉 이상 이어진 구간을 배경 면으로 칠합니다. 어느 쪽도 아니면 칠하지 않습니다(횡보·전환)' },
+  { id: 'profile', tier: 'base', label: '매물대', title: '최근 130봉 거래량을 가격대 24칸으로 나눈 막대(오른쪽), 가장 많이 거래된 칸(POC, 실선)과 거래의 70%가 몰린 가치 영역(띠). 각 봉 거래량을 그 봉의 저가~고가에 고르게 나눈 추정이며 실제 체결 분포가 아닙니다' },
+  { id: 'trend', tier: 'base', label: '추세 구간', title: '종목 화면·스크리너와 같은 추세 판정(종가와 50·200선의 위치, 50선과 200선의 순서, 일평균 변동폭 기준 50선 부근·단기 급락)이 3봉 이상 이어진 구간을 칠합니다. 상승 추세·회복 시도는 상승색, 하락 추세·추세 이탈은 하락색이고 조정·반등·부근은 칠하지 않습니다' },
   { id: 'ema821', tier: 'ma', label: 'EMA 8·21', title: '8·21 지수 이동평균(추가 이평선). 스윙·모멘텀 매매에서 가장 널리 쓰는 짧은 추세선 쌍으로, 최근 가격에 더 큰 가중치를 둬 기본 5·10·20 단순 이평보다 전환을 빨리 반영합니다' },
   { id: 'rsi', tier: 'extra', pane: true, label: 'RSI', title: 'Wilder RSI 14. 70 이상은 과열, 30 이하는 과매도 기준이지만 강한 추세에서는 그 영역에 오래 머물기도 합니다' },
   { id: 'macd', tier: 'extra', pane: true, label: 'MACD', title: 'MACD(12, 26, 9): 12 EMA − 26 EMA(선), 그 9 EMA(시그널), 둘의 차이(막대). 막대가 0 위로 커지면 단기 추세가 장기보다 빠르게 오르는 중입니다' },
@@ -114,42 +115,14 @@ export function squeezeSpans(width, lookback = 125) {
 }
 
 /**
- * Trend regime per bar with a 3-bar hysteresis: up = close > SMA50, SMA20 > SMA50 and SMA50 above its value 20 bars
- * ago; down = the mirror; otherwise none. Returns per-bar states and the contiguous segments (from/to indices).
+ * Trend areas and the trend chip: the canonical trend (trend-state.js over bands.js classifyTrend — the words the
+ * 종목 page and the screener use: 상승 추세 · 회복 시도 · 50일선 부근 · 장기 추세 속 조정 · 장기 추세 아래 반등 · 추세 이탈 ·
+ * 하락 추세), held with a 3-bar hysteresis. Up-side states shade up, down-side states shade down, the turning states stay
+ * unshaded. `current` stays the up/down/none direction the areas use; `trend` is the full reading for the chip.
  */
-export function trendRegimes(bars, { sma20 = null, sma50 = null, confirm = 3 } = {}) {
-  const closes = bars.map((bar) => bar.close);
-  const e21 = sma20 || smaSeries(closes, 20);
-  const s50 = sma50 || smaSeries(closes, 50);
-  const raw = closes.map((close, i) => {
-    const prior = s50[i - 20];
-    if (!isNum(e21[i]) || !isNum(s50[i]) || !isNum(prior)) return null;
-    if (close > s50[i] && e21[i] > s50[i] && s50[i] > prior) return 'up';
-    if (close < s50[i] && e21[i] < s50[i] && s50[i] < prior) return 'down';
-    return 'none';
-  });
-  const states = raw.map(() => null);
-  let current = null, run = 0, candidate = null;
-  for (let i = 0; i < raw.length; i++) {
-    const r = raw[i];
-    if (r == null) { states[i] = null; continue; }
-    if (current == null) { current = r; states[i] = r; continue; }
-    if (r === current) { candidate = null; run = 0; states[i] = current; continue; }
-    if (r !== candidate) { candidate = r; run = 1; } else run++;
-    if (run >= confirm) {
-      current = candidate;
-      for (let k = i - run + 1; k <= i; k++) states[k] = current; // the confirmed run is painted from its first bar
-      candidate = null; run = 0;
-    } else states[i] = current;
-  }
-  const segments = [];
-  for (let i = 0; i < states.length; i++) {
-    const s = states[i];
-    if (s !== 'up' && s !== 'down') continue;
-    const prev = segments.at(-1);
-    if (prev && prev.dir === s && prev.to === i - 1) prev.to = i; else segments.push({ dir: s, from: i, to: i });
-  }
-  return { states, segments, current: states.at(-1) ?? null };
+export function trendRegimes(bars, { sma50 = null, confirm = 3 } = {}) {
+  const series = trendStateSeries(bars, { confirm, sma50 });
+  return { states: series.states, segments: series.segments, current: series.direction || (series.key ? 'none' : null), trend: series.current, key: series.key, held: series.held };
 }
 
 /**
@@ -193,15 +166,61 @@ export function fibonacciLevels(bars, { lookback = 252 } = {}) {
   return { available: true, direction, high, low, highIndex: hi, lowIndex: lo, levels };
 }
 
-/** The volume profile the base tier draws (32 bins over the last 130 bars) — the same estimate as the folded table. */
+/**
+ * The volume profile the base tier draws: the one profile chart-scenarios.js owns (24 rows, POC and 70% value area over the
+ * last 130 bars — the window the chart opens on), so the chart, the 거래 집중 가격대 table and the price-level map agree.
+ * v59.74 (no stock left out): an intraday feed often leaves a bar's volume empty; those bars are left out (E08) and the
+ * profile is drawn when at least 90% of the window has volume.
+ */
 export function chartVolumeProfile(bars, lookback = 130) {
-  // v59.74 (no stock left out): an intraday feed often leaves a bar's volume empty. Missing volume stays missing (E08) —
-  // those bars are left out of the distribution, and the profile is drawn only when at least 90% of the span has volume.
-  const recent = bars.slice(-lookback);
-  const covered = recent.filter((bar) => isNum(bar.volume) && bar.volume >= 0);
-  if (covered.length < Math.max(40, Math.ceil(recent.length * 0.9))) return { available: false, reason: 'volume-history-incomplete' };
-  const profile = buildVolumeByPrice(covered, { lookback, binCount: 32 });
-  return profile.available ? { ...profile, sessions: recent.length, coveredSessions: covered.length } : profile;
+  return buildVolumeByPrice(bars, { lookback });
+}
+
+/**
+ * Relative volume (RVOL) for the last bar. Daily and longer bars: volume ÷ the average of the previous 50 bars
+ * (IBD/MarketSmith's 50-day average volume line). Intraday bars: volume ÷ the average volume of the same clock slot over
+ * the previous 10 sessions (TradingView "RVOL at time") — a 09:30 bar is never compared with a lunchtime bar. Null when
+ * the last bar or too few comparison bars carry volume.
+ */
+export function relativeVolume(bars, { dailyLookback = 50, intradaySessions = 10 } = {}) {
+  const last = bars?.at?.(-1);
+  if (!last || !isNum(last.volume) || !(last.volume > 0)) return null;
+  const intraday = typeof last.time === 'number';
+  let pool;
+  if (intraday) {
+    const slot = (time) => { const d = new Date(time * 1000); return d.getUTCHours() * 60 + d.getUTCMinutes(); };
+    const day = (time) => Math.floor(time / 86400);
+    const want = slot(last.time), today = day(last.time);
+    const seen = new Set();
+    pool = [];
+    for (let i = bars.length - 2; i >= 0 && seen.size < intradaySessions; i--) {
+      const bar = bars[i];
+      if (day(bar.time) === today || slot(bar.time) !== want || seen.has(day(bar.time))) continue;
+      seen.add(day(bar.time));
+      if (isNum(bar.volume) && bar.volume > 0) pool.push(bar.volume);
+    }
+    // The 5-minute chart asks for five sessions (four before today), so three same-slot bars are enough.
+    if (pool.length < 3) return null;
+  } else {
+    pool = bars.slice(-1 - dailyLookback, -1).map((bar) => bar.volume).filter((v) => isNum(v) && v > 0);
+    if (pool.length < Math.min(20, dailyLookback)) return null;
+  }
+  const average = pool.reduce((sum, v) => sum + v, 0) / pool.length;
+  return { ratio: last.volume / average, average, basis: intraday ? 'time-of-day' : 'average', sample: pool.length };
+}
+
+/** The volume average line drawn on the volume histogram (50 bars; intraday 20), null where the window is short. */
+export function volumeAverageSeries(bars, period = typeof bars?.[0]?.time === 'number' ? 20 : 50) {
+  const out = bars.map(() => null);
+  let sum = 0, count = 0;
+  const vols = bars.map((bar) => (isNum(bar.volume) && bar.volume >= 0 ? bar.volume : null));
+  for (let i = 0; i < vols.length; i++) {
+    if (vols[i] != null) { sum += vols[i]; count++; }
+    const drop = i - period;
+    if (drop >= 0 && vols[drop] != null) { sum -= vols[drop]; count--; }
+    if (i >= period - 1 && count >= period * 0.9) out[i] = sum / count;
+  }
+  return { values: out, period };
 }
 
 const ORDER_WORD = Object.freeze({ up: '정배열', down: '역배열', mixed: '혼조' });
@@ -249,8 +268,10 @@ export function buildChartLayers(input) {
     ema8: emaSeries(closes, 8),
     ema21: emaSeries(closes, 21),
     alignment: maAlignment(ma, closes.at(-1)),
-    trend: trendRegimes(bars, { sma20: ma[20], sma50: ma[50] }),
+    trend: trendRegimes(bars, { sma50: ma[50] }),
     profile: chartVolumeProfile(bars),
+    rvol: relativeVolume(bars),
+    volumeAverage: volumeAverageSeries(bars),
     rsi,
     rsiBands: RULES.technical.rsi,
     macd: macdSeries(closes),
@@ -280,14 +301,22 @@ export function layerFacts(layers, active, bars, price = (v) => v.toFixed(2)) {
     push('ma-long', `중장기 ${a.longLabel || '—'}`, tone(a.long), `20·50·200 이동평균 순서${a.full && a.full === a.long && a.long !== 'mixed' ? ', 100선까지 같은 순서' : ''}`);
   }
   if (active.trend) {
-    const now = layers.trend.current, seg = layers.trend.segments.at(-1);
-    if (now === 'up' || now === 'down') push('trend', `${now === 'up' ? '상승' : '하락'} 추세${seg && seg.to === n ? ` ${seg.to - seg.from + 1}봉` : ''}`, now, '종가·20선·50선 위치와 50선 기울기가 같은 방향으로 3봉 이상');
-    else push('trend', '추세 횡보', 'neutral', '상승·하락 추세 조건을 모두 충족하지 않음');
+    const t = layers.trend.trend;
+    const tone = { favorable: 'up', burden: 'down' }[t?.tone] || 'neutral';
+    if (t) push('trend', `${t.label}${layers.trend.held >= 2 ? ` ${layers.trend.held}봉` : ''}`, tone, t.text);
+    else push('trend', '추세 판단 보류', 'neutral', '50·200봉 이동평균을 계산할 기록이 부족합니다');
   }
   if (active.profile && layers.profile.available) {
-    const top = layers.profile.zones[0];
-    const where = close > top.high ? '위' : close < top.low ? '아래' : '안';
-    push('profile', `최대 매물대 ${where}`, where === '위' ? 'up' : where === '아래' ? 'down' : 'neutral', `${price(top.low)}~${price(top.high)}, 최근 ${layers.profile.sessions}봉 거래의 ${top.share.toFixed(0)}%`);
+    // Where the close sits against the value area (70% of the window's volume) and its POC, the standard read.
+    const p = layers.profile, where = profilePosition(p, close);
+    const word = { poc: '최대 매물대(POC)', above: '매물대 위', below: '매물대 아래', inside: '매물대 안' }[where];
+    if (word) push('profile', word, where === 'above' ? 'up' : where === 'below' ? 'down' : 'neutral',
+      `POC ${price(p.poc.low)}~${price(p.poc.high)}(거래의 ${p.poc.share.toFixed(0)}%), 가치 영역 ${price(p.valueArea.low)}~${price(p.valueArea.high)}(${p.valueArea.share.toFixed(0)}%), 최근 ${p.sessions}봉`);
+  }
+  if (layers.rvol && layers.rvol.ratio >= 1.5) {
+    // Volume only speaks when it is unusual — 1.5× its own average or more (the breakout rule's multiple).
+    push('rvol', `거래량 ${layers.rvol.ratio.toFixed(1)}배`, bars[n].close >= bars[n].open ? 'up' : 'down',
+      layers.rvol.basis === 'time-of-day' ? `같은 시각 봉의 최근 ${layers.rvol.sample}거래일 평균 대비` : `직전 ${layers.rvol.sample}봉 평균 거래량 대비`);
   }
   if (active.rsi && isNum(layers.rsi[n])) {
     const r = layers.rsi[n], { overbought, oversold } = layers.rsiBands;

@@ -14,11 +14,14 @@ import { CHART_NOTES } from '../../domain/knowledge/theme-research-links.js';
 import { attachChartDrawings } from './stock-chart-drawings.js';
 import { attachChartCompare } from './stock-chart-compare.js';
 import { attachChartLayers } from './stock-chart-layers.js';
+import { renderTrendStrip } from './stock-chart-mtf.js';
 import { buildChartLayers } from '../../domain/technical/chart-layers.js';
 import { strategySection } from './stock-chart-strategies.js';
 import { trendRead } from '../../domain/technical/chart-strategies.js';
+import { trendOfBars } from '../../domain/technical/trend-state.js';
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { RULES } from '../../domain/rules/thresholds.js';
+import { rsiWilder } from '../../domain/technical/definitions.js';
 import { signedText } from '../../domain/shared/number.js';
 // v58.75: the bar helpers live in chart-bars.js so boot-time readers (AI visuals, compatibility globals) can import
 // them without pulling the chart module into the boot set; re-exported here for existing importers.
@@ -31,18 +34,8 @@ const fullRow = (node) => { if (node?.style) node.style.gridColumn = '1 / -1'; r
 // v58.53 개편 v2 (5f): three reading cards under the chart — distance from the 50-day line, RSI 14 and the 60-session
 // volume-weighted average price — each computed from the same completed daily bars the chart draws (no other source).
 const signedPct = (value) => signedText(value, 1, '%');
-export function wilderRsi(closes, period = 14) {
-  if (!Array.isArray(closes) || closes.length <= period) return null;
-  let gain = 0, loss = 0;
-  for (let i = 1; i <= period; i++) { const d = closes[i] - closes[i - 1]; if (d >= 0) gain += d; else loss -= d; }
-  gain /= period; loss /= period;
-  for (let i = period + 1; i < closes.length; i++) {
-    const d = closes[i] - closes[i - 1];
-    gain = (gain * (period - 1) + Math.max(d, 0)) / period;
-    loss = (loss * (period - 1) + Math.max(-d, 0)) / period;
-  }
-  return loss === 0 ? (gain === 0 ? 50 : 100) : 100 - 100 / (1 + gain / loss);
-}
+// One RSI definition (definitions.rsiWilder); the name stays for existing importers.
+export const wilderRsi = rsiWilder;
 export function sessionVwap(bars, sessions = 60) {
   const window = (bars || []).slice(-sessions);
   let weighted = 0, volume = 0;
@@ -60,10 +53,13 @@ function chartReadCards(doc, analysis, currency) {
     return box;
   };
   // v58.79 (chart review): direction first — swing structure, moving-average order and the 50-day slope, with any turn.
+  // The word is the canonical trend the chip, the 종목 page and the screener say
+  // (trend-state.js); the swing structure and the 50-day slope (trendRead) are its evidence, not a second verdict.
   const trend = trendRead(analysis);
-  if (trend?.direction) {
-    const box = card('추세', trend.label, trend.turn || trend.facts.slice(0, 2).join(', '), '고점·저점 구조(Dow), 이동평균 배열');
-    box.title = [...trend.facts, trend.turn].filter(Boolean).join(' · ');
+  const canonical = trendOfBars(analysis.bars);
+  if (canonical || trend?.direction) {
+    const box = card('추세', canonical?.label || '판단 보류', trend?.turn || (trend?.facts || []).filter((fact) => !fact.startsWith('이동평균')).join(', '), '50·200일선 위치(종목·스크리너와 같은 판정), 고점·저점 구조(Dow)');
+    box.title = [canonical?.text, ...(trend?.facts || []), trend?.turn].filter(Boolean).join(' · ');
   }
   if (close > 0 && sma50 > 0) {
     const pct = (close / sma50 - 1) * 100;
@@ -235,6 +231,28 @@ function setChartEmpty(doc, empty) {
   section?.toggleAttribute?.('data-chart-empty', empty);
 }
 
+// The bars of one interval for the multi-timeframe strip (the same transforms the chart applies).
+async function loadIntervalBars(root, sym, id) {
+  const spec = intervalSpec(id);
+  const payload = await Promise.resolve().then(() => root._aioFetchYahooChartData?.(sym, spec.range, spec.interval)).catch(() => null);
+  if (!payload) return [];
+  return spec.id === '1d' ? completedBars(barsFromYahoo(payload), payload).bars : intervalBars(payload, spec);
+}
+// The weekly · daily · hourly trend chips under the interval buttons (stock-chart-mtf.js).
+function mountTrendStrip(doc, root, sym, active, bars) {
+  let host = doc.getElementById('stock-chart-mtf');
+  if (!host) {
+    host = el(doc, 'div', null, 'stock-chart-mtf');
+    host.id = 'stock-chart-mtf';
+    host.setAttribute('role', 'group');
+    host.setAttribute('aria-label', '주기별 추세');
+  }
+  doc.getElementById('stock-chart-intervals')?.insertAdjacentElement('afterend', host);
+  const ticket = root.__aioStockChartTicket;
+  return renderTrendStrip({ doc, host, sym, active, bars, load: (id) => loadIntervalBars(root, sym, id),
+    onOpen: (id) => renderStockChart({ documentRef: doc, root, symbol: sym, interval: id }), isCurrent: () => ticket === root.__aioStockChartTicket });
+}
+
 export async function renderStockChart({ documentRef: doc, root, symbol, interval = null }) {
   const host = doc.getElementById('stock-chart-canvas');
   const panel = doc.getElementById('stock-chart-evidence');
@@ -246,6 +264,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   root.__aioStockChartInterval = spec.id;
   set('stock-chart-title', `${sym} ${spec.label}봉`);
   renderIntervalButtons(doc, root, sym, spec.id);
+  doc.getElementById('stock-chart-mtf')?.setAttribute('hidden', ''); // Shown again with the new chart's chips
   // v58.79: the drawing row belongs to the daily chart; it is rebuilt once the daily bars are drawn.
   doc.getElementById('stock-chart-draw')?.remove();
   doc.querySelector('.stock-chart-draw-read')?.remove();
@@ -334,6 +353,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
       root.__aioStockChartInstance = drawChart(root, host, { bars }, root.__aioStockChartInstance, kr);
       root.__aioStockChartDrawnSymbol = sym;
       attachChartLayers({ doc, root, instance: root.__aioStockChartInstance, layers: buildChartLayers(bars), price: (value) => formatScreenerPrice(value, kr ? 'KRW' : payload?.meta?.currency || null) });
+      mountTrendStrip(doc, root, sym, '1d', bars);
       set('stock-chart-status', `${bars.at(-1).time} 종가 ${formatScreenerPrice(bars.at(-1).close, kr ? 'KRW' : payload?.meta?.currency || null)}`);
       panel.replaceChildren(state);
       doc.getElementById('stock-chart-section')?.setAttribute('data-symbol', sym);
@@ -377,6 +397,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   // v59.74: the base tier and the opt-in studies, drawn on the same completed daily bars as the analysis.
   const chartLayers = buildChartLayers(analysis.bars);
   attachChartLayers({ doc, root, instance: root.__aioStockChartInstance, layers: chartLayers, analysis, rs: rsLineSeries(analysis), price: (value) => formatScreenerPrice(value, kr ? 'KRW' : payload?.meta?.currency || null) });
+  mountTrendStrip(doc, root, sym, '1d', analysis.bars);
   const regime = readMarketRegime(root); // v57.55 review (E1-02): the same regime reader (and credit history) as 시장 상태
   // P1435: reading first (state → why → market → flip), two pictures (Weinstein stage, trend template),
   // and the full evidence list folded underneath.
@@ -476,7 +497,9 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   if (profile.available) {
     const section = el(doc, 'section', null, 'chart-volume-profile');
     section.append(el(doc, 'h3', '거래 집중 가격대, 일봉 추정', 'briefing-h2'));
-    section.append(el(doc, 'p', `${profile.start}~${profile.end}, ${profile.sessions}거래일`, 'theme-strength-basis'));
+    // The same profile the chart draws (24 rows, 130 sessions), with its POC and 70% value area.
+    const money = (value) => formatScreenerPrice(value, kr ? 'KRW' : payload?.meta?.currency || null);
+    section.append(el(doc, 'p', `${profile.start}~${profile.end}, ${profile.sessions}거래일 · 최대 거래 가격대(POC) ${money(profile.poc.low)}~${money(profile.poc.high)}${profile.valueArea ? ` · 가치 영역(거래의 ${profile.valueArea.share.toFixed(0)}%) ${money(profile.valueArea.low)}~${money(profile.valueArea.high)}` : ''}`, 'theme-strength-basis'));
     const max = Math.max(...profile.zones.map(zone => zone.volume));
     for (const zone of profile.zones) {
       const row = el(doc, 'div', null, 'chart-volume-zone');
@@ -623,6 +646,7 @@ async function renderIntervalChart({ doc, root, sym, spec, ticket }) {
   root.__aioStockChartInstance = instance;
   const chartLayers = buildChartLayers(bars);
   attachChartLayers({ doc, root, instance, layers: chartLayers, price: (value) => formatScreenerPrice(value, kr ? 'KRW' : payload?.meta?.currency || null) });
+  mountTrendStrip(doc, root, sym, spec.id, bars);
   const lastBar = bars.at(-1), prevBar = bars.at(-2);
   const change = (lastBar.close / prevBar.close - 1) * 100;
   const stamp = spec.intraday ? new Date(lastBar.time * 1000).toISOString().slice(0, 16).replace('T', ' ') : lastBar.time;
