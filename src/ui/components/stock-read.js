@@ -335,7 +335,8 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   const basisLine = el(doc, 'p', `${basisShort ? `${basisShort} ` : '완료 '}종가 기준${onDemand?.status === 'ready' ? ', 스크리너 랭킹 밖이라 같은 공식으로 따로 계산' : ''}`, 'briefing-footnote sx-meta');
   basisLine.title = '위치·수익률은 완료된 거래일 종가로 계산합니다. 맨 위 현재가와 시점이 다를 수 있습니다.';
   hero.append(basisLine);
-  if (market === 'US' && !root?._aioSecQuarterHistory) requestFiscalHistory(root, () => { if (host.isConnected !== false && host.dataset.aioStockReadSymbol === sym) renderStockRead({ documentRef: doc, root, symbol: sym, ...host._aioReadArgs }); }, 'read');
+  // requestFiscalHistory owns the TTL: a refreshed record after the cache ages out must repaint this tile too.
+  if (market === 'US') requestFiscalHistory(root, () => { if (host.isConnected !== false && host.dataset.aioStockReadSymbol === sym) renderStockRead({ documentRef: doc, root, symbol: sym, ...host._aioReadArgs }); }, 'read');
   const checks = stockChecks(doc, read, sym, fundamentals, fundamentalsState, root?._aioKrFundamentals?.companies?.[sym] || null, String(root?._aioSecQuarterHistory?.[sym] || ''));
   if (checks) hero.append(checks);
   // v59.51 (content audit): the 52-week position is the '위치' tile (the separate bar repeated it); the market line and the
