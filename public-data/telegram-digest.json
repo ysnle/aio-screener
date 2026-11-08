@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-08T20:21:34.187Z",
-  "attemptedAt": "2026-11-08T20:21:34.187Z",
-  "lastSuccessfulAt": "2026-11-08T20:21:34.187Z",
+  "generatedAt": "2026-11-08T21:21:39.949Z",
+  "attemptedAt": "2026-11-08T21:21:39.949Z",
+  "lastSuccessfulAt": "2026-11-08T21:21:39.949Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-25T20:21:28.193Z",
-  "until": "2026-11-08T20:21:28.193Z",
+  "since": "2026-10-25T21:21:34.306Z",
+  "until": "2026-11-08T21:21:34.306Z",
   "current24hWindow": {
     "start": "2026-11-06T23:00:00.000Z",
     "end": "2026-11-07T23:00:00.000Z",
@@ -89,15 +89,15 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1344,
-      "freshCount": 18,
-      "eligibleTextCount": 1285,
-      "selectedCount": 128,
+      "count": 1359,
+      "freshCount": 36,
+      "eligibleTextCount": 1299,
+      "selectedCount": 129,
       "error": null,
-      "lastPostId": 68699
+      "lastPostId": 68717
     },
     {
       "channel": "bornlupin",
@@ -124,58 +124,58 @@
       "lastPostId": 71760
     }
   ],
-  "count": 2290,
-  "retainedItemCount": 411,
+  "count": 2305,
+  "retainedItemCount": 429,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2290,
-    "eligibleTextCount": 2228,
-    "mediaOnlyCount": 62,
-    "mediaAttachedCount": 543,
-    "photoPostCount": 463,
+    "observedCount": 2305,
+    "eligibleTextCount": 2242,
+    "mediaOnlyCount": 63,
+    "mediaAttachedCount": 554,
+    "photoPostCount": 473,
     "documentPostCount": 4,
-    "imageOnlyCount": 2,
-    "highSignalCount": 388,
-    "broadSignalCount": 848,
-    "selectedRawCount": 385,
-    "selectedEligibleCount": 385,
-    "selectedRawCoveragePct": 17.3,
-    "selectedOfObservedPct": 16.8,
+    "imageOnlyCount": 3,
+    "highSignalCount": 390,
+    "broadSignalCount": 855,
+    "selectedRawCount": 386,
+    "selectedEligibleCount": 386,
+    "selectedRawCoveragePct": 17.2,
+    "selectedOfObservedPct": 16.7,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 830,
-    "power": 279,
+    "geo": 432,
+    "power": 283,
+    "market-note": 832,
+    "earnings": 402,
+    "macro": 342,
+    "semi": 482,
+    "equity": 116,
+    "media-only": 62,
     "ai-policy": 102,
-    "semi": 477,
     "credit": 95,
-    "macro": 341,
-    "geo": 428,
     "flows": 64,
     "japan": 75,
-    "media-only": 61,
-    "earnings": 400,
-    "equity": 114,
     "healthcare": 72,
     "kr-market": 112,
     "optical": 39,
     "crypto": 4
   },
   "tickerCounts": {
+    "NVDA": 122,
+    "GOOG": 112,
     "CAT": 4,
     "MSFT": 57,
     "AMZN": 74,
-    "NVDA": 118,
     "TSM": 45,
     "MU": 36,
     "005930.KS": 47,
     "000660.KS": 67,
     "AMAT": 3,
     "CRWV": 8,
-    "GOOG": 111,
     "TSLA": 33,
     "BIDU": 1,
     "GOOGL": 9,
@@ -258,24 +258,24 @@
     "218410.KQ": 1
   },
   "themes": [
-    "Market Notes (830 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
-    "Semiconductors/Memory (477 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
-    "Geopolitics (428 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
-    "Earnings/Corporate (400 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
-    "Macro/Rates (341 posts in 14-day research window): 2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000...",
-    "AI Power/Grid (279 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로 선거 결과를 분석했다. 패배 원인에 대해서는 의견이 갈렸다. • 데이비드 색스: 가장 큰 원인은 이란...",
-    "Equity/Analyst (114 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
+    "Market Notes (832 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
+    "Semiconductors/Memory (482 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
+    "Geopolitics (432 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
+    "Earnings/Corporate (402 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
+    "Macro/Rates (342 posts in 14-day research window): 2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000...",
+    "AI Power/Grid (283 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로 선거 결과를 분석했다. 패배 원인에 대해서는 의견이 갈렸다. • 데이비드 색스: 가장 큰 원인은 이란...",
+    "Equity/Analyst (116 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "Korea Market (112 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 118,
+      "count": 122,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 7일 🇺🇸 아메리카 • 연준 무살렘은 현재 인플레이션이 에너지 충격과 AI·데이터센터 투자에 따른 강한 수요의 영향을 받고 있다며, 물가를 적시에 2%로 복귀시켜야..."
     },
     {
       "key": "GOOG",
-      "count": 111,
+      "count": 112,
       "text": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로 선거 결과를 분석했다. 패배 원인에 대해서는 의견이 갈렸다. • 데이비드 색스: 가장 큰 원인은 이란..."
     },
     {
@@ -336,7 +336,7 @@
       "topics": [
         "macro"
       ],
-      "count": 341,
+      "count": 342,
       "focus": "2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000..."
     },
     {
@@ -345,7 +345,7 @@
       "topics": [
         "geo"
       ],
-      "count": 428,
+      "count": 432,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격..."
     },
     {
@@ -363,7 +363,7 @@
       "topics": [
         "semi"
       ],
-      "count": 477,
+      "count": 482,
       "focus": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
     },
     {
@@ -381,7 +381,7 @@
       "topics": [
         "power"
       ],
-      "count": 279,
+      "count": 283,
       "focus": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로 선거 결과를 분석했다. 패배 원인에 대해서는 의견이 갈렸다. • 데이비드 색스: 가장 큰 원인은 이란..."
     },
     {
@@ -408,7 +408,7 @@
       "topics": [
         "equity"
       ],
-      "count": 114,
+      "count": 116,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
@@ -426,7 +426,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 400,
+      "count": 402,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -471,7 +471,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 830,
+      "count": 832,
       "focus": "2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며..."
     }
   ],
@@ -1768,6 +1768,166 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "insidertracking/68711",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68711",
+      "datetime": "2026-11-08T21:04:00.000Z",
+      "localDateKst": "2026-11-09",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "equity"
+      ],
+      "score": 97,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 2,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "listTickers": [
+        "NVDA",
+        "AMD",
+        "TSLA",
+        "AVGO",
+        "MU",
+        "TSM"
+      ],
+      "summary": "2026년 11월 9일 미국 증시 주간 브리핑 이번 주 미국 증시는 10월 소비자물가지수(CPI)와 생산자물가지수(PPI), 중간선거 이후 정책 변화, AI 인프라 핵심 기업들의 실적 발표가 시장 방향성을..."
+    },
+    {
+      "id": "insidertracking/68710",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68710",
+      "datetime": "2026-11-08T20:58:22.000Z",
+      "localDateKst": "2026-11-09",
+      "tags": [
+        "semi"
+      ],
+      "score": 56,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "제목: 회사 임직원 여러분께 드리는 말씀 > 저는 제 가족과 여러분 모두에게 사과드려야 할 책임이 있습니다. 저는 아내를 배신하고 외도를 저질렀습니다. 저의 행동은 아내와 자녀들에게 깊은 상처를 주었습니다...."
+    },
+    {
+      "id": "insidertracking/68709",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68709",
+      "datetime": "2026-11-08T20:56:25.000Z",
+      "localDateKst": "2026-11-09",
+      "tags": [
+        "power"
+      ],
+      "lead": 1,
+      "score": 52,
+      "hasText": true,
+      "tickers": [
+        "GOOG"
+      ],
+      "summary": "앤트로픽이 총 34억 달러 규모의 가스 발전기를 확보했으며, 발전 용량은 1.7기가와트(GW)에 달함. 이는 현재까지 알려진 AI 연구소의 단일 전력 설비 구매 중 최대 규모로, AI 기업들이 데이터센터 전력..."
+    },
+    {
+      "id": "insidertracking/68707",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68707",
+      "datetime": "2026-11-08T20:51:03.000Z",
+      "localDateKst": "2026-11-09",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 56,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "젠슨 황·엔비디아 관련 정리 - 2026년 11월 9일 젠슨 황·외국 정보기관 관련 조사 · 엔비디아 이사회, 젠슨 황 CEO가 외국 정보기관의 표적이 됐다는 보도와 관련해 독립 조사 착수 · 엔비디아 독립..."
+    },
+    {
+      "id": "insidertracking/68706",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68706",
+      "datetime": "2026-11-08T20:49:43.000Z",
+      "localDateKst": "2026-11-09",
+      "tags": [
+        "geo"
+      ],
+      "score": 55,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 9일 트럼프·미국 증시 · 트럼프, 중간선거 이후 미국 증시가 하루 만에 $3 trillion 손실을 기록했다고 발언 트럼프·이란 협상 · 트럼프,..."
+    },
+    {
+      "id": "insidertracking/68705",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68705",
+      "datetime": "2026-11-08T20:47:00.000Z",
+      "localDateKst": "2026-11-09",
+      "tags": [
+        "geo",
+        "semi",
+        "power",
+        "equity"
+      ],
+      "score": 79,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 9일 🇺🇸 아메리카 • 트럼프 대통령은 중간선거 이후 미국 증시에서 하루 만에 약 3조 달러의 시가총액이 증발했다고 주장. • 미국 민주당은 트럼프 대통령이..."
+    },
+    {
+      "id": "insidertracking/68700",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68700",
+      "datetime": "2026-11-08T20:38:01.000Z",
+      "localDateKst": "2026-11-09",
+      "tags": [
+        "semi"
+      ],
+      "score": 51,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 2,
+        "videoCount": 1,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "블룸버그에 따르면 엔비디아 최고경영자(CEO)가 불륜 관계를 인정한 이후 이사회가 간첩 사건에 대한 조사에 착수할 예정. > 엔비디아 이사회는 2026년 11월 8일 발표한 공식 성명에서 창업자 겸 CEO..."
+    },
     {
       "id": "HANAchina/71760",
       "channel": "HANAchina",
@@ -6320,109 +6480,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/68268",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68268",
-      "datetime": "2026-11-04T02:26:36.000Z",
-      "localDateKst": "2026-11-04",
-      "tags": [
-        "market-note"
-      ],
-      "score": 53,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "美 중간선거 | 왜 텍사스 개표가 중요한가? 미국 중간선거 개표가 진행되는 가운데, 전통적인 공화당 텃밭인 텍사스 상원 선거에 관심 집중. 민주당 지나 히노호사 56.8% vs 공화당 그레그 애벗 41.9%....",
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/68267",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68267",
-      "datetime": "2026-11-04T02:18:35.000Z",
-      "localDateKst": "2026-11-04",
-      "tags": [
-        "market-note"
-      ],
-      "score": 65,
-      "hasText": true,
-      "summary": "미국 중간선거에서 민주당 우세 흐름이 나타나면서 아시아 기술주 전반 약세. 11월 4일 수요일 오전 아시아 기술주가 전반적으로 하락. 미국 중간선거 초기 개표 결과 민주당이 우세한 흐름을 보이면서 민주당의...",
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/68264",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68264",
-      "datetime": "2026-11-04T01:48:03.000Z",
-      "localDateKst": "2026-11-04",
-      "tags": [
-        "macro",
-        "power"
-      ],
-      "score": 55,
-      "hasText": true,
-      "summary": "텍사스가 민주당에 넘어가면 심각한 이유가 뭐냐면 신규 데이터센터 상당 부분이 텍사스에 건설중인데 민주당 후보가 반대하고 있음 데이터센터 지연되면 네오클라우드 힘들어짐 민주당 승리 선반영 아니냐고 하는데...",
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/68252",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68252",
-      "datetime": "2026-11-04T01:13:05.000Z",
-      "localDateKst": "2026-11-04",
-      "tags": [
-        "kr-market",
-        "earnings"
-      ],
-      "score": 63,
-      "hasText": true,
-      "summary": "부킹홀딩스(BKNG) Q3 2026 어닝콜 요약 > 긍정 요인: • 견조한 실적 성장. 3분기 조정 매출은 전년 대비 9%, 고정환율 기준 약 10% 증가. 조정 EBITDA는 약 46억달러로 9% 성장했으며...",
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/68251",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68251",
-      "datetime": "2026-11-04T01:12:03.000Z",
-      "localDateKst": "2026-11-04",
-      "tags": [
-        "semi",
-        "earnings"
-      ],
-      "score": 69,
-      "hasText": true,
-      "summary": "AMD Q3 2026 어닝콜 요약 > 긍정 요인: • 사상 최대 매출 및 수익성 개선. 3분기 매출은 134억달러로 전년 대비 45% 증가. 비GAAP 매출총이익률은 56%로 190bp 개선됐으며 영업이익은...",
-      "lead": 1,
-      "tickers": [
-        "AMD"
-      ]
-    },
-    {
-      "id": "insidertracking/68250",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68250",
-      "datetime": "2026-11-04T01:09:59.000Z",
-      "localDateKst": "2026-11-04",
-      "tags": [
-        "geo"
-      ],
-      "score": 50,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "월스트리트저널(WSJ)에 따르면 이란이 수중 드론과 선체 부착식 기뢰를 활용해 호르무즈 해협을 통과하는 선박에 대한 공격을 확대 중. 케플러(Kpler)의 잠정 데이터에 따르면 지난주 원유 수송량은 하루 평균...",
-      "lead": 1,
-      "tickers": []
-    },
-    {
       "id": "HANAchina/71512",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71512",
@@ -6692,27 +6749,6 @@
       "hasText": true,
       "summary": "아리스타 네트웍스 (ANET) 2026년 3분기 실적 (시간외 +13%) * 매출: 36억 6,000만 달러 (예상치 33억 3,000만 달러 상회), 전년 동기 대비 58.5% 증가 * 조정...",
       "tickers": []
-    },
-    {
-      "id": "insidertracking/68237",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68237",
-      "datetime": "2026-11-03T21:47:44.000Z",
-      "localDateKst": "2026-11-04",
-      "tags": [
-        "credit",
-        "semi",
-        "power",
-        "earnings"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "11월 04일 미주인 브리핑 • 나스닥 0.83% 상승 · 엔비디아 시총 5조 달러 회복 • AMD 데이터센터 매출 97% 급증 · 시간 외 6% 상승 • 메타 대규모 회사채 발행 추진 · AI 투자 확대 •...",
-      "tickers": [
-        "NVDA",
-        "AMD",
-        "PLTR"
-      ]
     },
     {
       "id": "bornlupin/20984",
