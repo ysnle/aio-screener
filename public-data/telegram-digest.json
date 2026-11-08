@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-08T14:21:48.770Z",
-  "attemptedAt": "2026-11-08T14:21:48.770Z",
-  "lastSuccessfulAt": "2026-11-08T14:21:48.770Z",
+  "generatedAt": "2026-11-08T14:28:34.143Z",
+  "attemptedAt": "2026-11-08T14:28:34.143Z",
+  "lastSuccessfulAt": "2026-11-08T14:28:34.143Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-25T14:21:41.862Z",
-  "until": "2026-11-08T14:21:41.862Z",
+  "since": "2026-10-25T14:28:30.282Z",
+  "until": "2026-11-08T14:28:30.282Z",
   "current24hWindow": {
     "start": "2026-11-06T23:00:00.000Z",
     "end": "2026-11-07T23:00:00.000Z",
@@ -89,11 +89,11 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 1344,
-      "freshCount": 35,
+      "freshCount": 18,
       "eligibleTextCount": 1285,
       "selectedCount": 128,
       "error": null,
@@ -113,11 +113,11 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 692,
-      "freshCount": 32,
+      "freshCount": 18,
       "eligibleTextCount": 691,
       "selectedCount": 121,
       "error": null,
@@ -125,7 +125,7 @@
     }
   ],
   "count": 2291,
-  "retainedItemCount": 434,
+  "retainedItemCount": 412,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -2070,8 +2070,8 @@
       ],
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": "<금융감독원 보도자료> 증시 변동성 완화를 위한 신용공여 담보비율 유지의무 면제조치 시행"
+      "summary": "<금융감독원 보도자료> 증시 변동성 완화를 위한 신용공여 담보비율 유지의무 면제조치 시행",
+      "tickers": []
     },
     {
       "id": "bornlupin/21052",
@@ -2147,7 +2147,7 @@
       "datetime": "2026-11-08T01:16:19.000Z",
       "localDateKst": "2026-11-08",
       "tags": [
-        "power"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
@@ -2157,10 +2157,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "코어위브, 텍사스 주지사 당선인 Gina Hinojosa에게 협력의사를 표명 코어위브의 CEO는 지나 이노히사 당선인에게 차기 행정부와 함께 \"인허가 받은 프로젝트를 책임 있게 완공하는 일과, 향후 개발을...",
       "tickers": [
         "CRWV"
-      ],
-      "summary": "코어위브, 텍사스 주지사 당선인 Gina Hinojosa에게 협력의사를 표명 코어위브의 CEO는 지나 이노히사 당선인에게 차기 행정부와 함께 \"인허가 받은 프로젝트를 책임 있게 완공하는 일과, 향후 개발을..."
+      ]
     },
     {
       "id": "insidertracking/68660",
@@ -2172,7 +2172,6 @@
         "geo",
         "semi"
       ],
-      "lead": 2,
       "score": 61,
       "hasText": true,
       "media": {
@@ -2181,10 +2180,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "뉴욕타임스에 따르면 트럼프 행정부가 미국의 제재 대상 기업 및 중국 군수업체와의 연관성에 대한 우려에도 불구하고, 약 24개 중국 기업에 엔비디아의 첨단 H200 AI 칩 구매 또는 취급을 승인한 것으로...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "뉴욕타임스에 따르면 트럼프 행정부가 미국의 제재 대상 기업 및 중국 군수업체와의 연관성에 대한 우려에도 불구하고, 약 24개 중국 기업에 엔비디아의 첨단 H200 AI 칩 구매 또는 취급을 승인한 것으로..."
+      ]
     },
     {
       "id": "HANAchina/71742",
@@ -2220,14 +2219,12 @@
       "datetime": "2026-11-07T23:57:15.000Z",
       "localDateKst": "2026-11-08",
       "tags": [
-        "kr-market",
-        "earnings",
-        "flows"
+        "market-note"
       ],
       "score": 53,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>화창베이, RTX 50 시리즈 그래픽카드 11거래일 연속 상승 후 급락 •그래픽카드가 해외 생산 중단설의 영향으로 11거래일 연속 상승했으나 10월 28일부터 급락세로 전환됨. RTX 5080은 최고 약..."
+      "summary": ">>화창베이, RTX 50 시리즈 그래픽카드 11거래일 연속 상승 후 급락 •그래픽카드가 해외 생산 중단설의 영향으로 11거래일 연속 상승했으나 10월 28일부터 급락세로 전환됨. RTX 5080은 최고 약...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71736",
@@ -2238,13 +2235,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
+      "summary": ">>Nvidia H200 60만개 홍콩에 묶여 있어…홍콩 언론, 중국의 계산 분석 (**당장 연산보다 기술자립) •약 60만개의 Nvidia H200 칩이 중국 정부의 대규모 수입 승인이 나지 않아 홍콩에...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>Nvidia H200 60만개 홍콩에 묶여 있어…홍콩 언론, 중국의 계산 분석 (**당장 연산보다 기술자립) •약 60만개의 Nvidia H200 칩이 중국 정부의 대규모 수입 승인이 나지 않아 홍콩에..."
+      ]
     },
     {
       "id": "HANAchina/71735",
@@ -2254,16 +2251,15 @@
       "localDateKst": "2026-11-08",
       "tags": [
         "earnings",
-        "equity",
-        "semi"
+        "equity"
       ],
-      "lead": 2,
       "score": 51,
       "hasText": true,
+      "summary": ">>머스크, 또다시 놀라운 목표 제시…내년 SpaceX 연환산 매출 5,000억달러, Starlink 컴퓨터도 동시 발사…Terafab 칩 생산능력 1테라와트 목표 •머스크는 SpaceX의 연환산 매출이 내년...",
+      "lead": 2,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>머스크, 또다시 놀라운 목표 제시…내년 SpaceX 연환산 매출 5,000억달러, Starlink 컴퓨터도 동시 발사…Terafab 칩 생산능력 1테라와트 목표 •머스크는 SpaceX의 연환산 매출이 내년..."
+      ]
     },
     {
       "id": "insidertracking/68651",
@@ -2320,12 +2316,12 @@
       "datetime": "2026-11-07T14:09:46.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>Berkshire Hathaway 3분기 순이익 28% 급감, 투자수익 반토막…자사주 매입은 연중 분기 최대, 현금 3,774억달러로 증가 •“Berkshire Hathaway의 3분기 순이익은..."
+      "summary": ">>Berkshire Hathaway 3분기 순이익 28% 급감, 투자수익 반토막…자사주 매입은 연중 분기 최대, 현금 3,774억달러로 증가 •“Berkshire Hathaway의 3분기 순이익은...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68637",
@@ -2491,12 +2487,11 @@
       "datetime": "2026-11-07T11:09:51.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "semi",
-        "ai-policy",
-        "equity"
+        "market-note"
       ],
       "score": 77,
       "hasText": true,
+      "summary": ">>Apollo, AI 칩 구매에 750억달러 투입 계획…어느 Neocloud보다도 큰 규모 (중국언론) •사모펀드 대형사 Apollo가 750억달러에 달하는 대규모 투자를 통해 AI 칩 금융 시장을 재편하고...",
       "tickers": [
         "NVDA",
         "MSFT",
@@ -2505,8 +2500,7 @@
       ],
       "relatedTickers": [
         "AVGO"
-      ],
-      "summary": ">>Apollo, AI 칩 구매에 750억달러 투입 계획…어느 Neocloud보다도 큰 규모 (중국언론) •사모펀드 대형사 Apollo가 750억달러에 달하는 대규모 투자를 통해 AI 칩 금융 시장을 재편하고..."
+      ]
     },
     {
       "id": "insidertracking/68626",
@@ -2549,11 +2543,11 @@
       ],
       "score": 53,
       "hasText": true,
+      "summary": ">>AI에 베팅하자마자 시장의 급락 직면! 버크셔 해서웨이 오늘 밤 실적 발표, 그렉 에이블의 경영 전환 능력 시험대 (중국언론) •그렉 에이블이 버크셔 해서웨이를 이끈 지 1년도 채 되지 않아 109억달러...",
       "tickers": [
         "GOOG",
         "GOOGL"
-      ],
-      "summary": ">>AI에 베팅하자마자 시장의 급락 직면! 버크셔 해서웨이 오늘 밤 실적 발표, 그렉 에이블의 경영 전환 능력 시험대 (중국언론) •그렉 에이블이 버크셔 해서웨이를 이끈 지 1년도 채 되지 않아 109억달러..."
+      ]
     },
     {
       "id": "HANAchina/71716",
@@ -2562,15 +2556,13 @@
       "datetime": "2026-11-07T08:55:56.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "semi",
-        "power",
-        "earnings"
+        "semi"
       ],
-      "lead": 1,
       "score": 65,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>DRAM 가격은 정점에 도달했나? Winbond 차오유쥔 회장 “더 이상 오르지 않기를 바란다…AI가 모든 몫을 독식해서는 안 돼” (대만경제일보) •메모리 공급 부족으로 DRAM 가격이 계속 상승하면서..."
+      "summary": ">>DRAM 가격은 정점에 도달했나? Winbond 차오유쥔 회장 “더 이상 오르지 않기를 바란다…AI가 모든 몫을 독식해서는 안 돼” (대만경제일보) •메모리 공급 부족으로 DRAM 가격이 계속 상승하면서...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71711",
@@ -8794,12 +8786,12 @@
       "datetime": "2026-11-07T14:09:46.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>Berkshire Hathaway 3분기 순이익 28% 급감, 투자수익 반토막…자사주 매입은 연중 분기 최대, 현금 3,774억달러로 증가 •“Berkshire Hathaway의 3분기 순이익은..."
+      "summary": ">>Berkshire Hathaway 3분기 순이익 28% 급감, 투자수익 반토막…자사주 매입은 연중 분기 최대, 현금 3,774억달러로 증가 •“Berkshire Hathaway의 3분기 순이익은...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68637",
@@ -8965,12 +8957,11 @@
       "datetime": "2026-11-07T11:09:51.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "semi",
-        "ai-policy",
-        "equity"
+        "market-note"
       ],
       "score": 77,
       "hasText": true,
+      "summary": ">>Apollo, AI 칩 구매에 750억달러 투입 계획…어느 Neocloud보다도 큰 규모 (중국언론) •사모펀드 대형사 Apollo가 750억달러에 달하는 대규모 투자를 통해 AI 칩 금융 시장을 재편하고...",
       "tickers": [
         "NVDA",
         "MSFT",
@@ -8979,8 +8970,7 @@
       ],
       "relatedTickers": [
         "AVGO"
-      ],
-      "summary": ">>Apollo, AI 칩 구매에 750억달러 투입 계획…어느 Neocloud보다도 큰 규모 (중국언론) •사모펀드 대형사 Apollo가 750억달러에 달하는 대규모 투자를 통해 AI 칩 금융 시장을 재편하고..."
+      ]
     },
     {
       "id": "insidertracking/68626",
@@ -9023,11 +9013,11 @@
       ],
       "score": 53,
       "hasText": true,
+      "summary": ">>AI에 베팅하자마자 시장의 급락 직면! 버크셔 해서웨이 오늘 밤 실적 발표, 그렉 에이블의 경영 전환 능력 시험대 (중국언론) •그렉 에이블이 버크셔 해서웨이를 이끈 지 1년도 채 되지 않아 109억달러...",
       "tickers": [
         "GOOG",
         "GOOGL"
-      ],
-      "summary": ">>AI에 베팅하자마자 시장의 급락 직면! 버크셔 해서웨이 오늘 밤 실적 발표, 그렉 에이블의 경영 전환 능력 시험대 (중국언론) •그렉 에이블이 버크셔 해서웨이를 이끈 지 1년도 채 되지 않아 109억달러..."
+      ]
     },
     {
       "id": "HANAchina/71716",
@@ -9036,15 +9026,13 @@
       "datetime": "2026-11-07T08:55:56.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "semi",
-        "power",
-        "earnings"
+        "semi"
       ],
-      "lead": 1,
       "score": 65,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>DRAM 가격은 정점에 도달했나? Winbond 차오유쥔 회장 “더 이상 오르지 않기를 바란다…AI가 모든 몫을 독식해서는 안 돼” (대만경제일보) •메모리 공급 부족으로 DRAM 가격이 계속 상승하면서..."
+      "summary": ">>DRAM 가격은 정점에 도달했나? Winbond 차오유쥔 회장 “더 이상 오르지 않기를 바란다…AI가 모든 몫을 독식해서는 안 돼” (대만경제일보) •메모리 공급 부족으로 DRAM 가격이 계속 상승하면서...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71711",
