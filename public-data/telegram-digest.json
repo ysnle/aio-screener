@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-08T06:55:18.647Z",
-  "attemptedAt": "2026-11-08T06:55:18.647Z",
-  "lastSuccessfulAt": "2026-11-08T06:55:18.647Z",
+  "generatedAt": "2026-11-08T07:51:29.309Z",
+  "attemptedAt": "2026-11-08T07:51:29.309Z",
+  "lastSuccessfulAt": "2026-11-08T07:51:29.309Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-25T06:55:12.089Z",
-  "until": "2026-11-08T06:55:12.089Z",
+  "since": "2026-10-25T07:51:25.790Z",
+  "until": "2026-11-08T07:51:25.790Z",
   "current24hWindow": {
     "start": "2026-11-06T23:00:00.000Z",
     "end": "2026-11-07T23:00:00.000Z",
@@ -80,9 +80,9 @@
       "pages": 0,
       "reachedOlder": false,
       "reachedKnown": false,
-      "count": 31,
+      "count": 30,
       "freshCount": 0,
-      "eligibleTextCount": 28,
+      "eligibleTextCount": 27,
       "selectedCount": 17,
       "error": "first page parsed no posts",
       "lastPostId": 26057
@@ -92,75 +92,75 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1352,
+      "count": 1348,
       "freshCount": 37,
-      "eligibleTextCount": 1292,
-      "selectedCount": 126,
+      "eligibleTextCount": 1288,
+      "selectedCount": 127,
       "error": null,
-      "lastPostId": 68678
+      "lastPostId": 68680
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 237,
+      "count": 236,
       "freshCount": 19,
-      "eligibleTextCount": 237,
+      "eligibleTextCount": 236,
       "selectedCount": 124,
       "error": null,
       "lastPostId": 21054
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 695,
-      "freshCount": 32,
-      "eligibleTextCount": 694,
+      "count": 694,
+      "freshCount": 18,
+      "eligibleTextCount": 693,
       "selectedCount": 121,
       "error": null,
       "lastPostId": 71753
     }
   ],
-  "count": 2315,
-  "retainedItemCount": 444,
+  "count": 2308,
+  "retainedItemCount": 436,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2315,
-    "eligibleTextCount": 2251,
+    "observedCount": 2308,
+    "eligibleTextCount": 2244,
     "mediaOnlyCount": 64,
-    "mediaAttachedCount": 533,
-    "photoPostCount": 456,
+    "mediaAttachedCount": 535,
+    "photoPostCount": 457,
     "documentPostCount": 4,
     "imageOnlyCount": 2,
     "highSignalCount": 388,
     "broadSignalCount": 850,
-    "selectedRawCount": 388,
-    "selectedEligibleCount": 388,
-    "selectedRawCoveragePct": 17.2,
-    "selectedOfObservedPct": 16.8,
+    "selectedRawCount": 389,
+    "selectedEligibleCount": 389,
+    "selectedRawCoveragePct": 17.3,
+    "selectedOfObservedPct": 16.9,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 841,
-    "media-only": 63,
+    "macro": 344,
+    "geo": 434,
     "semi": 478,
     "power": 278,
+    "japan": 76,
+    "market-note": 835,
+    "media-only": 63,
     "earnings": 406,
     "ai-policy": 101,
     "equity": 116,
-    "macro": 343,
-    "geo": 435,
     "credit": 95,
     "healthcare": 75,
     "kr-market": 113,
     "flows": 66,
-    "japan": 75,
     "optical": 39,
     "crypto": 4
   },
@@ -174,11 +174,11 @@
     "TSLA": 34,
     "BIDU": 1,
     "GOOGL": 9,
-    "MU": 36,
+    "MU": 35,
     "WDC": 2,
     "STX": 7,
     "TSM": 43,
-    "005930.KS": 48,
+    "005930.KS": 47,
     "AAPL": 23,
     "ORCL": 12,
     "AMD": 46,
@@ -187,7 +187,7 @@
     "MRNA": 4,
     "MTD": 1,
     "IBN": 1,
-    "000660.KS": 67,
+    "000660.KS": 66,
     "LLY": 3,
     "HIMS": 1,
     "NVO": 2,
@@ -259,11 +259,11 @@
     "SHOP": 1
   },
   "themes": [
-    "Market Notes (841 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
+    "Market Notes (835 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
     "Semiconductors/Memory (478 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
-    "Geopolitics (435 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
+    "Geopolitics (434 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
     "Earnings/Corporate (406 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
-    "Macro/Rates (343 posts in 14-day research window): 2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000...",
+    "Macro/Rates (344 posts in 14-day research window): 2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000...",
     "AI Power/Grid (278 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로 선거 결과를 분석했다. 패배 원인에 대해서는 의견이 갈렸다. • 데이비드 색스: 가장 큰 원인은 이란...",
     "Equity/Analyst (116 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "Korea Market (113 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
@@ -286,7 +286,7 @@
     },
     {
       "key": "000660.KS",
-      "count": 67,
+      "count": 66,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Falcon Guardian에 AI 에이전트의 실행을 중단하고 재시작 및 기업 네트워크 접근을..."
     },
     {
@@ -296,7 +296,7 @@
     },
     {
       "key": "005930.KS",
-      "count": 48,
+      "count": 47,
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
@@ -311,7 +311,7 @@
     },
     {
       "key": "MU",
-      "count": 36,
+      "count": 35,
       "text": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
     },
     {
@@ -337,7 +337,7 @@
       "topics": [
         "macro"
       ],
-      "count": 343,
+      "count": 344,
       "focus": "2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000..."
     },
     {
@@ -346,7 +346,7 @@
       "topics": [
         "geo"
       ],
-      "count": 435,
+      "count": 434,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격..."
     },
     {
@@ -445,7 +445,7 @@
       "topics": [
         "japan"
       ],
-      "count": 75,
+      "count": 76,
       "focus": "앤트로픽, 대규모 미국 IPO 위해 일본에서 최대 35억 달러 조달 추진 1. 앤트로픽, 일본 투자자로부터 최대 35억 달러 조달 추진 - AI 스타트업 앤트로픽(Anthropic PBC)이 미국 증시..."
     },
     {
@@ -472,7 +472,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 841,
+      "count": 835,
       "focus": "2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며..."
     }
   ],
@@ -1774,6 +1774,29 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/68680",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68680",
+      "datetime": "2026-11-08T07:30:11.000Z",
+      "localDateKst": "2026-11-08",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power"
+      ],
+      "score": 97,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": "1. 트럼프 대통령 탄핵 가능성: 사실상 0% > • 수학적으로 불가능한 탄핵 미국 하원은 단순 과반수 찬성으로 탄핵소추안을 통과시킬 수 있지만, 실제 대통령 파면을 위해서는 상원에서 3분의 2에 해당하는..."
+    },
+    {
       "id": "HANAchina/71753",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71753",
@@ -2111,8 +2134,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "트럼프 대통령은 11월 8일 소셜미디어를 통해 민주당이 미국 법무장관을 비롯한 정부 고위 관계자들에게 탄핵과 기타 처벌을 위협하고 있다고 비판. 트럼프 대통령은 민주당 스스로도 탄핵 사유가 부족하다는 사실을..."
+      "summary": "트럼프 대통령은 11월 8일 소셜미디어를 통해 민주당이 미국 법무장관을 비롯한 정부 고위 관계자들에게 탄핵과 기타 처벌을 위협하고 있다고 비판. 트럼프 대통령은 민주당 스스로도 탄핵 사유가 부족하다는 사실을...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68638",
@@ -2123,13 +2146,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
+      "summary": "미국 정보당국이 엔비디아 CEO 젠슨 황과 중국 스파이 활동 의혹을 받는 여성 사이에 연인 관계가 있었던 것으로 판단하고 있다는 보도. 첨단 반도체의 중국 수출 통제가 강화되는 가운데 국가안보 우려가 제기되고...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "미국 정보당국이 엔비디아 CEO 젠슨 황과 중국 스파이 활동 의혹을 받는 여성 사이에 연인 관계가 있었던 것으로 판단하고 있다는 보도. 첨단 반도체의 중국 수출 통제가 강화되는 가운데 국가안보 우려가 제기되고..."
+      ]
     },
     {
       "id": "HANAchina/71733",
@@ -2138,12 +2161,12 @@
       "datetime": "2026-11-07T14:09:46.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>Berkshire Hathaway 3분기 순이익 28% 급감, 투자수익 반토막…자사주 매입은 연중 분기 최대, 현금 3,774억달러로 증가 •“Berkshire Hathaway의 3분기 순이익은..."
+      "summary": ">>Berkshire Hathaway 3분기 순이익 28% 급감, 투자수익 반토막…자사주 매입은 연중 분기 최대, 현금 3,774억달러로 증가 •“Berkshire Hathaway의 3분기 순이익은...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68637",
@@ -2309,12 +2332,11 @@
       "datetime": "2026-11-07T11:09:51.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "semi",
-        "ai-policy",
-        "equity"
+        "market-note"
       ],
       "score": 77,
       "hasText": true,
+      "summary": ">>Apollo, AI 칩 구매에 750억달러 투입 계획…어느 Neocloud보다도 큰 규모 (중국언론) •사모펀드 대형사 Apollo가 750억달러에 달하는 대규모 투자를 통해 AI 칩 금융 시장을 재편하고...",
       "tickers": [
         "NVDA",
         "MSFT",
@@ -2323,8 +2345,7 @@
       ],
       "relatedTickers": [
         "AVGO"
-      ],
-      "summary": ">>Apollo, AI 칩 구매에 750억달러 투입 계획…어느 Neocloud보다도 큰 규모 (중국언론) •사모펀드 대형사 Apollo가 750억달러에 달하는 대규모 투자를 통해 AI 칩 금융 시장을 재편하고..."
+      ]
     },
     {
       "id": "insidertracking/68626",
@@ -2367,11 +2388,11 @@
       ],
       "score": 53,
       "hasText": true,
+      "summary": ">>AI에 베팅하자마자 시장의 급락 직면! 버크셔 해서웨이 오늘 밤 실적 발표, 그렉 에이블의 경영 전환 능력 시험대 (중국언론) •그렉 에이블이 버크셔 해서웨이를 이끈 지 1년도 채 되지 않아 109억달러...",
       "tickers": [
         "GOOG",
         "GOOGL"
-      ],
-      "summary": ">>AI에 베팅하자마자 시장의 급락 직면! 버크셔 해서웨이 오늘 밤 실적 발표, 그렉 에이블의 경영 전환 능력 시험대 (중국언론) •그렉 에이블이 버크셔 해서웨이를 이끈 지 1년도 채 되지 않아 109억달러..."
+      ]
     },
     {
       "id": "HANAchina/71716",
@@ -2380,15 +2401,13 @@
       "datetime": "2026-11-07T08:55:56.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "semi",
-        "power",
-        "earnings"
+        "semi"
       ],
-      "lead": 1,
       "score": 65,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>DRAM 가격은 정점에 도달했나? Winbond 차오유쥔 회장 “더 이상 오르지 않기를 바란다…AI가 모든 몫을 독식해서는 안 돼” (대만경제일보) •메모리 공급 부족으로 DRAM 가격이 계속 상승하면서..."
+      "summary": ">>DRAM 가격은 정점에 도달했나? Winbond 차오유쥔 회장 “더 이상 오르지 않기를 바란다…AI가 모든 몫을 독식해서는 안 돼” (대만경제일보) •메모리 공급 부족으로 DRAM 가격이 계속 상승하면서...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71711",
@@ -2397,14 +2416,13 @@
       "datetime": "2026-11-07T06:43:00.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "semi",
-        "flows"
+        "semi"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>‘블루웨이브’에 반도체주 매도…한국 개인투자자, 3배 레버리지 ETF에 큰 손실 (중국언론) •미국 중간선거에서 ‘블루웨이브’가 나타나면서 반도체주가 급격히 매도되자 미국 주식에 투자하는 한국..."
+      "summary": ">>‘블루웨이브’에 반도체주 매도…한국 개인투자자, 3배 레버리지 ETF에 큰 손실 (중국언론) •미국 중간선거에서 ‘블루웨이브’가 나타나면서 반도체주가 급격히 매도되자 미국 주식에 투자하는 한국...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68621",
@@ -6729,30 +6747,6 @@
       ]
     },
     {
-      "id": "insidertracking/68220",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68220",
-      "datetime": "2026-11-03T21:19:43.000Z",
-      "localDateKst": "2026-11-04",
-      "tags": [
-        "semi",
-        "earnings"
-      ],
-      "score": 100,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "AMD 2026년 3분기 실적 요약 실적 • 매출 $133.77억, YoY +45%, QoQ +16%, 분기 사상 최고 • GAAP 매출총이익 $72.10억, YoY +51%, QoQ +16% • GAAP...",
-      "tickers": [
-        "AMD",
-        "MSFT"
-      ]
-    },
-    {
       "id": "HANAchina/71495",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71495",
@@ -8861,8 +8855,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "트럼프 대통령은 11월 8일 소셜미디어를 통해 민주당이 미국 법무장관을 비롯한 정부 고위 관계자들에게 탄핵과 기타 처벌을 위협하고 있다고 비판. 트럼프 대통령은 민주당 스스로도 탄핵 사유가 부족하다는 사실을..."
+      "summary": "트럼프 대통령은 11월 8일 소셜미디어를 통해 민주당이 미국 법무장관을 비롯한 정부 고위 관계자들에게 탄핵과 기타 처벌을 위협하고 있다고 비판. 트럼프 대통령은 민주당 스스로도 탄핵 사유가 부족하다는 사실을...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68638",
@@ -8873,13 +8867,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
+      "summary": "미국 정보당국이 엔비디아 CEO 젠슨 황과 중국 스파이 활동 의혹을 받는 여성 사이에 연인 관계가 있었던 것으로 판단하고 있다는 보도. 첨단 반도체의 중국 수출 통제가 강화되는 가운데 국가안보 우려가 제기되고...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "미국 정보당국이 엔비디아 CEO 젠슨 황과 중국 스파이 활동 의혹을 받는 여성 사이에 연인 관계가 있었던 것으로 판단하고 있다는 보도. 첨단 반도체의 중국 수출 통제가 강화되는 가운데 국가안보 우려가 제기되고..."
+      ]
     },
     {
       "id": "HANAchina/71733",
@@ -8888,12 +8882,12 @@
       "datetime": "2026-11-07T14:09:46.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>Berkshire Hathaway 3분기 순이익 28% 급감, 투자수익 반토막…자사주 매입은 연중 분기 최대, 현금 3,774억달러로 증가 •“Berkshire Hathaway의 3분기 순이익은..."
+      "summary": ">>Berkshire Hathaway 3분기 순이익 28% 급감, 투자수익 반토막…자사주 매입은 연중 분기 최대, 현금 3,774억달러로 증가 •“Berkshire Hathaway의 3분기 순이익은...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68637",
@@ -9059,12 +9053,11 @@
       "datetime": "2026-11-07T11:09:51.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "semi",
-        "ai-policy",
-        "equity"
+        "market-note"
       ],
       "score": 77,
       "hasText": true,
+      "summary": ">>Apollo, AI 칩 구매에 750억달러 투입 계획…어느 Neocloud보다도 큰 규모 (중국언론) •사모펀드 대형사 Apollo가 750억달러에 달하는 대규모 투자를 통해 AI 칩 금융 시장을 재편하고...",
       "tickers": [
         "NVDA",
         "MSFT",
@@ -9073,8 +9066,7 @@
       ],
       "relatedTickers": [
         "AVGO"
-      ],
-      "summary": ">>Apollo, AI 칩 구매에 750억달러 투입 계획…어느 Neocloud보다도 큰 규모 (중국언론) •사모펀드 대형사 Apollo가 750억달러에 달하는 대규모 투자를 통해 AI 칩 금융 시장을 재편하고..."
+      ]
     },
     {
       "id": "insidertracking/68626",
@@ -9117,11 +9109,11 @@
       ],
       "score": 53,
       "hasText": true,
+      "summary": ">>AI에 베팅하자마자 시장의 급락 직면! 버크셔 해서웨이 오늘 밤 실적 발표, 그렉 에이블의 경영 전환 능력 시험대 (중국언론) •그렉 에이블이 버크셔 해서웨이를 이끈 지 1년도 채 되지 않아 109억달러...",
       "tickers": [
         "GOOG",
         "GOOGL"
-      ],
-      "summary": ">>AI에 베팅하자마자 시장의 급락 직면! 버크셔 해서웨이 오늘 밤 실적 발표, 그렉 에이블의 경영 전환 능력 시험대 (중국언론) •그렉 에이블이 버크셔 해서웨이를 이끈 지 1년도 채 되지 않아 109억달러..."
+      ]
     },
     {
       "id": "HANAchina/71716",
@@ -9130,15 +9122,13 @@
       "datetime": "2026-11-07T08:55:56.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "semi",
-        "power",
-        "earnings"
+        "semi"
       ],
-      "lead": 1,
       "score": 65,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>DRAM 가격은 정점에 도달했나? Winbond 차오유쥔 회장 “더 이상 오르지 않기를 바란다…AI가 모든 몫을 독식해서는 안 돼” (대만경제일보) •메모리 공급 부족으로 DRAM 가격이 계속 상승하면서..."
+      "summary": ">>DRAM 가격은 정점에 도달했나? Winbond 차오유쥔 회장 “더 이상 오르지 않기를 바란다…AI가 모든 몫을 독식해서는 안 돼” (대만경제일보) •메모리 공급 부족으로 DRAM 가격이 계속 상승하면서...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71711",
@@ -9147,14 +9137,13 @@
       "datetime": "2026-11-07T06:43:00.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "semi",
-        "flows"
+        "semi"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>‘블루웨이브’에 반도체주 매도…한국 개인투자자, 3배 레버리지 ETF에 큰 손실 (중국언론) •미국 중간선거에서 ‘블루웨이브’가 나타나면서 반도체주가 급격히 매도되자 미국 주식에 투자하는 한국..."
+      "summary": ">>‘블루웨이브’에 반도체주 매도…한국 개인투자자, 3배 레버리지 ETF에 큰 손실 (중국언론) •미국 중간선거에서 ‘블루웨이브’가 나타나면서 반도체주가 급격히 매도되자 미국 주식에 투자하는 한국...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68621",
