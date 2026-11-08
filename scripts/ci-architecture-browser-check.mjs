@@ -79,6 +79,10 @@ try {
   await waitForTopbar('서버 ', 'initial snapshot', 15000);
   // v57.64: the native runtime skips the legacy home repaint after the snapshot, so the home VIX cell has its own
   // sink; with a published VIX close it must not stay '—'.
+  // v59.85: that sink (window._aioRenderHomeVix) is installed by src/app/legacy-screen-bridges.js, a lazy chunk outside
+  // the boot set, so the topbar can be ready before it. Asserting before it lands failed on slow runners (three threads
+  // on 11/08, each passing on rerun); the check now waits for the sink it tests.
+  await page.waitForFunction(() => typeof window._aioRenderHomeVix === 'function', null, { timeout: 15000 });
   const homeVix = await page.evaluate(() => {
     const cell = document.getElementById('home-vix-value');
     if (!cell) return { cell: null, snap: null };
