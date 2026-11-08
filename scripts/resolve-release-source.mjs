@@ -17,7 +17,6 @@ import { appendFileSync } from 'node:fs';
 import { OVERLAY_GENERATED_PATHS } from './build-data-overlay.mjs';
 
 const ACTIVE = new Set(['queued', 'in_progress', 'waiting', 'pending', 'requested']);
-const HISTORY_LIMIT = 400;
 
 const git = (args) => {
   const result = spawnSync('git', args, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
@@ -31,13 +30,12 @@ export function sourceCommitOf(sha) {
 }
 
 /**
- * First-parent history from `sha` down to `sourceSha`, however many refresh commits sit above it, plus `limit` older
- * commits to find the last green code in. Codex review on PR #161: a fixed 400-commit window dropped the code commit
- * after ~8 quiet days of 30-minute refreshes and refused every later release.
+ * The whole first-parent history under `sha`. Codex review on PR #161: any fixed window (400 commits) could drop the
+ * code commit, or the last green code below a red one, after enough 30-minute data commits and refuse every release.
+ * CI checks out the full history (commits and trees only) and each candidate is a map lookup, so no cap is needed.
  */
-export function firstParentChain(sha, sourceSha = null, limit = HISTORY_LIMIT) {
-  const above = sourceSha ? Number(git(['rev-list', '--first-parent', '--count', `${sourceSha}..${sha}`])) : 0;
-  return git(['rev-list', '--first-parent', `--max-count=${above + limit}`, sha]).split('\n').filter(Boolean);
+export function firstParentChain(sha) {
+  return git(['rev-list', '--first-parent', sha]).split('\n').filter(Boolean);
 }
 
 /**
@@ -66,7 +64,7 @@ export function decideReleaseSource({ chain, sourceSha, pushRuns }) {
       return { mode: 'overlay', codeSha: candidate, testedOn: candidate, reason: `code ${sourceSha.slice(0, 12)} has no successful full push CI; data rides on ${candidate.slice(0, 12)}, the newest code that passed` };
     }
   }
-  return { mode: 'refuse', codeSha: null, testedOn: null, reason: `no successful full push CI in the last ${chain.length} first-parent commits` };
+  return { mode: 'refuse', codeSha: null, testedOn: null, reason: `no successful full push CI in ${chain.length} first-parent commits` };
 }
 
 async function listMainPushRuns(repository, token) {
@@ -103,7 +101,7 @@ async function main() {
   const deadline = Date.now() + (verify ? 0 : Number(value('--wait-min') ?? 15)) * 60000;
   const pollMs = Number(value('--poll-ms') || 30000);
   const sourceSha = sourceCommitOf(sha);
-  const chain = firstParentChain(sha, sourceSha);
+  const chain = firstParentChain(sha);
   let decision;
   for (;;) {
     decision = decideReleaseSource({ chain, sourceSha, pushRuns: await listMainPushRuns(repository, token) });

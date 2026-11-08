@@ -50,18 +50,20 @@ assert.equal(decision.mode, 'refuse', 'v59.78 a commit that changes code is neve
   const repo = mkdtempSync(join(tmpdir(), 'aio-release-source-'));
   const run = (...args) => { const result = spawnSync('git', args, { cwd: repo, encoding: 'utf8' }); assert.equal(result.status, 0, `v59.78 release-source fixture git ${args[0]}: ${result.stderr}`); return result.stdout.trim(); };
   run('init', '-q'); run('config', 'user.email', 'qa@example.invalid'); run('config', 'user.name', 'qa');
-  writeFileSync(join(repo, 'app.js'), '1\n'); run('add', '.'); run('commit', '-qm', 'code');
-  const code = run('rev-parse', 'HEAD');
-  mkdirSync(join(repo, 'public-data'));
-  for (let index = 0; index < 5; index += 1) { writeFileSync(join(repo, 'public-data', 'x.json'), `${index}\n`); run('add', '.'); run('commit', '-qm', `data ${index}`); }
+  const commit = (file, body) => { mkdirSync(join(repo, file, '..'), { recursive: true }); writeFileSync(join(repo, file), body); run('add', '.'); run('commit', '-qm', file); return run('rev-parse', 'HEAD'); };
+  const greenCode = commit('app.js', '1\n');
+  for (let index = 0; index < 5; index += 1) commit('public-data/x.json', `a${index}\n`);
+  const redCode = commit('app.js', '2\n');
+  for (let index = 0; index < 5; index += 1) commit('public-data/x.json', `b${index}\n`);
   const head = run('rev-parse', 'HEAD');
   const cwd = process.cwd();
   process.chdir(repo);
   try {
-    assert.equal(sourceCommitOf(head), code, 'v59.78 release-source contract');
-    const longChain = firstParentChain(head, code, 2);
-    assert.ok(longChain.includes(code), 'v59.78 the first-parent chain always reaches the code commit under the refresh commits');
-    assert.equal(decideReleaseSource({ chain: longChain, sourceSha: code, pushRuns: table({ [code]: green }) }).mode, 'direct', 'v59.78 release-source contract');
+    assert.equal(sourceCommitOf(head), redCode, 'v59.78 release-source contract');
+    const fullChain = firstParentChain(head);
+    assert.ok(fullChain.includes(redCode) && fullChain.includes(greenCode), 'v59.78 the first-parent chain reaches the code commit and the green code below it, however many data commits sit between');
+    const overlay = decideReleaseSource({ chain: fullChain, sourceSha: redCode, pushRuns: table({ [redCode]: red, [greenCode]: green }) });
+    assert.equal(overlay.codeSha, greenCode, 'v59.78 release-source contract');
   } finally { process.chdir(cwd); }
 }
 
