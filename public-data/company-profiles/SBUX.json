@@ -5,10 +5,23 @@
   "fiscalYearEnd": "Fiscal year ending late September/early October (FY2026 ended 2026-09-27; FY2027 is a 53-week year)",
   "oneLine": "Starbucks는 세계 41,607개 매장을 가진 커피 체인으로, 'Back to Starbucks' 회복 계획으로 미국 동일점 매출이 다시 늘기 시작했고 중국 매장은 Boyu Capital과의 합작 라이선스 구조로 넘겼다.",
   "sources": [
-    { "id": "s1", "kind": "earnings-release", "title": "Starbucks Reports Q4 and Full Fiscal Year 2026 Results (Form 8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0000829224/000082922426000154/sbux-09272026xearningsrele.htm", "publisher": "Starbucks Corporation via SEC EDGAR", "date": "2026-10-29" },
-    { "id": "s2", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/sbux/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-11-07" }
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Starbucks Reports Q4 and Full Fiscal Year 2026 Results (Form 8-K Exhibit 99.1)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0000829224/000082922426000154/sbux-09272026xearningsrele.htm",
+      "publisher": "Starbucks Corporation via SEC EDGAR",
+      "date": "2026-10-29"
+    },
+    {
+      "id": "s2",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/sbux/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-11-07"
+    }
   ],
-
   "moat": {
     "sources": [
       "세계 매장망 - 41,607개 (직영 32%, 라이선스 68%), 미국 16,781개",
@@ -16,14 +29,16 @@
       "포장 커피·음료 판매(Channel Development) - Q4 영업이익률 53.5%"
     ],
     "text": "Starbucks의 힘은 미국 전역에 깔린 직영 매장망과, 같은 브랜드로 비싼 음료를 반복해 파는 능력이다. FY2026 미국 동일점 매출은 6.5% 늘었고 거래 수(+3.4%)와 객단가(+3.0%)가 함께 올랐다. 매장 밖에서는 포장 커피·음료 판매가 영업이익률 50%대의 별도 이익원이다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "design": {
     "text": "회사는 세 부문으로 보고한다. North America는 미국·캐나다 매장, International은 해외 매장과 라이선스, Channel Development는 매장 밖 포장 커피·음료 판매다. FY2026 3분기에 중국 매장 약 7,991개를 Boyu Capital과의 합작 라이선스 구조로 바꿔, International은 직영에서 라이선스 중심으로 옮겨 갔다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "make": {
     "model": "mixed",
     "partners": [
@@ -31,9 +46,10 @@
       "라이선스 운영자 - 전체 매장의 68% 운영 (업체명 미공시)"
     ],
     "text": "매장의 32%는 회사가 직접, 68%는 라이선스 운영자가 운영한다. 중국 매장을 Boyu Capital과의 합작으로 넘기면서 회사는 세전 5.36억 달러의 처분 이익과 25.4억 달러의 순수입을 얻었다. 그 대신 International 매출은 Q4에 37% 줄었다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "sell": {
     "customers": [
       "미국 매장 고객 - Q4 동일점 +7.7% (거래 +2.4%, 객단가 +5.2%)",
@@ -44,116 +60,326 @@
     "channel": "직영 매장, 라이선스 매장, 포장 제품 유통",
     "concentration": "고객별 비중 미공시; Q4 매출의 약 80%가 North America",
     "text": "매출의 대부분은 미국 매장에서 나온다. Q4 미국 동일점 매출은 7.7% 늘었는데 객단가(+5.2%)가 거래 수(+2.4%)보다 크게 기여했다. 해외는 거래 수가 2.8% 줄어 동일점 성장이 0.9%에 그쳤다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "moneyFlow": {
     "steps": [
-      { "from": "매장 고객", "to": "Starbucks (직영 매장)", "what": "음료·식품 대금 (North America Q4 73.3억 달러)" },
-      { "from": "라이선스 운영자", "to": "Starbucks (International)", "what": "라이선스 매장 관련 매출 (세부 구성 미공시)" },
-      { "from": "Boyu Capital", "to": "Starbucks", "what": "중국 매장 합작 전환 대금 (순수입 25.4억 달러)" },
-      { "from": "Starbucks", "to": "주주", "what": "FY2026 배당 28.2억 달러" }
+      {
+        "from": "매장 고객",
+        "to": "Starbucks (직영 매장)",
+        "what": "음료·식품 대금 (North America Q4 73.3억 달러)"
+      },
+      {
+        "from": "라이선스 운영자",
+        "to": "Starbucks (International)",
+        "what": "라이선스 매장 관련 매출 (세부 구성 미공시)"
+      },
+      {
+        "from": "Boyu Capital",
+        "to": "Starbucks",
+        "what": "중국 매장 합작 전환 대금 (순수입 25.4억 달러)"
+      },
+      {
+        "from": "Starbucks",
+        "to": "주주",
+        "what": "FY2026 배당 28.2억 달러"
+      }
     ],
     "pricing": "음료·식품 개당 판매, 라이선스 매장 관련 매출, 포장 제품 판매.",
     "text": "현금은 주로 직영 매장 판매에서 들어오고, 라이선스 매장에서는 라이선스 관련 매출로 들어온다. 중국을 라이선스로 바꾸면서 매출은 줄었지만 International 영업이익률은 Q4 19.7%로 8.9%p 올랐다. FY2026 영업현금흐름 49.9억 달러는 배당 28.2억, 설비투자 12.6억 달러로 나갔다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "earnings": {
     "period": "Q4 FY2026 (quarter ended 2026-09-27)",
-    "revenue": { "value": 9.1412, "unit": "USD bn", "yoy": -4 },
+    "revenue": {
+      "value": 9.1412,
+      "unit": "USD bn",
+      "yoy": -4
+    },
     "grossMargin": null,
     "operatingMargin": 10.8,
     "netMargin": null,
     "operatingCashFlow": null,
     "freeCashFlow": null,
     "segments": [
-      { "name": "North America", "revenue": 7.3284, "unit": "USD bn", "share": 80.2, "yoy": 6, "operatingMargin": 12.3, "src": ["s1"] },
-      { "name": "International", "revenue": 1.3058, "unit": "USD bn", "share": 14.3, "yoy": -37, "operatingMargin": 19.7, "src": ["s1"] },
-      { "name": "Channel Development", "revenue": 0.4944, "unit": "USD bn", "share": 5.4, "yoy": -9, "operatingMargin": 53.5, "src": ["s1"] }
+      {
+        "name": "North America",
+        "revenue": 7.3284,
+        "unit": "USD bn",
+        "share": 80.2,
+        "yoy": 6,
+        "operatingMargin": 12.3,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "International",
+        "revenue": 1.3058,
+        "unit": "USD bn",
+        "share": 14.3,
+        "yoy": -37,
+        "operatingMargin": 19.7,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Channel Development",
+        "revenue": 0.4944,
+        "unit": "USD bn",
+        "share": 5.4,
+        "yoy": -9,
+        "operatingMargin": 53.5,
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "industryMetric": [
-      { "name": "동일점 매출 (Q4 / FY2026)", "value": "세계 +7.2% / +6.2%, 북미 +7.9% / +6.6%, 미국 +7.7% / +6.5%, 해외 +0.9% / +3.7%", "src": ["s1"] },
-      { "name": "영업이익률 (GAAP / Non-GAAP)", "value": "Q4 10.8% / 14.0%; FY2026 9.7% / 11.9%", "src": ["s1"] },
-      { "name": "EPS (GAAP / Non-GAAP)", "value": "Q4 0.59달러 / 0.80달러 (+54%); FY2026 2.21달러 / 2.72달러 (+28%)", "src": ["s1"] },
-      { "name": "매장 수", "value": "41,607개 (FY2026 순증 617, Q4 순증 303), 북미 약 250개 직영점 폐점", "src": ["s1"] },
-      { "name": "FY2026 연간 매출", "value": "379억 달러 (+2%)", "src": ["s1"] }
+      {
+        "name": "동일점 매출 (Q4 / FY2026)",
+        "value": "세계 +7.2% / +6.2%, 북미 +7.9% / +6.6%, 미국 +7.7% / +6.5%, 해외 +0.9% / +3.7%",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "영업이익률 (GAAP / Non-GAAP)",
+        "value": "Q4 10.8% / 14.0%; FY2026 9.7% / 11.9%",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "EPS (GAAP / Non-GAAP)",
+        "value": "Q4 0.59달러 / 0.80달러 (+54%); FY2026 2.21달러 / 2.72달러 (+28%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "매장 수",
+        "value": "41,607개 (FY2026 순증 617, Q4 순증 303), 북미 약 250개 직영점 폐점",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "FY2026 연간 매출",
+        "value": "379억 달러 (+2%)",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "text": "Q4 FY2026 매출은 91.4억 달러로 4% 줄었는데, 중국 라이선스 전환으로 International 매출이 37% 빠졌기 때문이다. 같은 기간 North America 매출은 6% 늘고 영업이익률이 12.3%로 7.8%p 올라 회복이 숫자로 나왔다. 연간으로는 매출 379억 달러(+2%), Non-GAAP EPS 2.72달러(+28%)였다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "useOfCash": {
     "period": "FY2026 (ended 2026-09-27)",
     "items": [
-      { "use": "dividends", "value": 2.8247, "unit": "USD bn", "src": ["s1"] },
-      { "use": "capex", "value": 1.2636, "unit": "USD bn", "src": ["s1"] },
-      { "use": "other", "label": "구조조정·손상 비용 (손익 기준)", "value": 0.6886, "unit": "USD bn", "src": ["s1"] },
-      { "use": "buybacks", "value": 0, "unit": "USD bn", "src": ["s1"] }
+      {
+        "use": "dividends",
+        "value": 2.8247,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "capex",
+        "value": 1.2636,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "other",
+        "label": "구조조정·손상 비용 (손익 기준)",
+        "value": 0.6886,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "buybacks",
+        "value": 0,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "text": "FY2026 영업현금흐름 49.9억 달러 가운데 배당이 28.2억, 설비투자가 12.6억 달러였다. 자사주 매입은 없었고 FY2027에 다시 시작할 계획이다(금액 미정). 구조조정·손상 비용 6.89억 달러에는 북미 약 250개 매장 폐점이 포함된다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "aiChain": {
     "layer": "limited",
     "position": "커피 체인으로, 이번에 읽은 보도자료에는 AI 관련 언급이나 수치가 없다.",
-    "dependsOn": ["공개된 AI 의존 업체 없음"],
-    "sellsTo": ["AI를 팔지 않음 - 매장 고객과 라이선스 운영자"],
+    "dependsOn": [
+      "공개된 AI 의존 업체 없음"
+    ],
+    "sellsTo": [
+      "AI를 팔지 않음 - 매장 고객과 라이선스 운영자"
+    ],
     "aiRevenue": null,
     "upside": "원문에 AI가 매출이나 비용으로 이어지는 경로가 공시되지 않았다.",
     "risk": "원문에 AI 관련 위험 언급 없음.",
     "text": "AI 가치사슬과의 연결은 공시로 확인되지 않는다. 실적은 미국 동일점 매출, 노동 투자, 해외 라이선스 구조가 움직인다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "competition": {
     "arenas": [
-      { "arena": "미국 커피 매장", "rivals": ["원문 미명시"], "position": "leader", "share": null, "src": ["s1"] },
-      { "arena": "해외 커피 매장", "rivals": ["원문 미명시"], "position": "challenger", "share": null, "src": ["s1"] },
-      { "arena": "포장 커피·음료", "rivals": ["원문 미명시"], "position": "leader", "share": null, "src": ["s1"] }
+      {
+        "arena": "미국 커피 매장",
+        "rivals": [
+          "원문 미명시"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "해외 커피 매장",
+        "rivals": [
+          "원문 미명시"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "포장 커피·음료",
+        "rivals": [
+          "원문 미명시"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "edge": "미국 매장망 밀도와 브랜드, 객단가 인상력.",
     "threats": "해외 거래 수 감소, 노동 투자 비용, 미국 동일점 성장 둔화.",
     "text": "이번에 읽은 원문은 경쟁사 이름을 밝히지 않았다. 경쟁 압력은 해외에서 숫자로 보여, Q4 해외 거래 수가 2.8% 줄었다. 미국에서는 거래 수가 2.4% 늘어 고객을 되찾는 중이다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "strategy": {
     "goal": "FY2027 Non-GAAP EPS 3.15~3.25달러, Non-GAAP 영업이익률 13.5~14.0%, 북미 동일점 약 +4%, 순증 매장 약 1,200개.",
     "roadmap": [
-      { "when": "FY2026 3분기", "what": "중국 매장 Boyu Capital 합작 라이선스 전환 (약 7,991개)", "src": ["s1"] },
-      { "when": "2026-09", "what": "북미 직영점 약 250개 폐점", "src": ["s1"] },
-      { "when": "2026-11-27", "what": "분기 배당 주당 0.63달러 지급 (기준일 2026-11-13)", "src": ["s1"] },
-      { "when": "FY2027", "what": "자사주 매입 재개, 해외 중심 순증 약 1,200개, 53주차 매출 약 7억 달러", "src": ["s1"] }
+      {
+        "when": "FY2026 3분기",
+        "what": "중국 매장 Boyu Capital 합작 라이선스 전환 (약 7,991개)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2026-09",
+        "what": "북미 직영점 약 250개 폐점",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2026-11-27",
+        "what": "분기 배당 주당 0.63달러 지급 (기준일 2026-11-13)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "FY2027",
+        "what": "자사주 매입 재개, 해외 중심 순증 약 1,200개, 53주차 매출 약 7억 달러",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "vision": "CEO Brian Niccol은 'Back to Starbucks는 회복 계획으로 시작했지만 이제는 성장 계획'이라고 말했다.",
     "text": "회사는 미국 매장 경험을 되살려 거래 수를 늘리고, 해외는 라이선스로 자본 부담을 줄이며 매장을 넓힌다. FY2027 매출은 중국 전환 영향으로 약 1% 줄지만(53주차 약 7억 달러 포함), 영업이익률은 13.5~14.0%로 오를 것으로 회사가 본다. 노동 투자가 마진 상승을 일부 상쇄한다고 회사는 밝혔다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "governance": {
     "line": "CEO Brian Niccol과 CFO Cathy Smith가 이끌며, FY2026에는 자사주 매입 없이 배당(주당 연 2.49달러)만 지급했고 FY2027에 매입 재개를 예고했다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "guidance": {
     "latest": [
-      { "period": "FY2027", "metric": "non-GAAP EPS", "value": "3.15~3.25달러 (53주차 0.10달러 남짓 포함), GAAP 3.07~3.17달러", "givenOn": "2026-10-29", "src": ["s1"] },
-      { "period": "FY2027", "metric": "consolidated net revenues", "value": "약 -1% (53주차 약 7억 달러 포함)", "givenOn": "2026-10-29", "src": ["s1"] },
-      { "period": "FY2027", "metric": "North America comparable sales", "value": "약 +4.0%", "givenOn": "2026-10-29", "src": ["s1"] },
-      { "period": "FY2027", "metric": "non-GAAP operating margin", "value": "13.5~14.0%", "givenOn": "2026-10-29", "src": ["s1"] }
+      {
+        "period": "FY2027",
+        "metric": "non-GAAP EPS",
+        "value": "3.15~3.25달러 (53주차 0.10달러 남짓 포함), GAAP 3.07~3.17달러",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2027",
+        "metric": "연결 순매출",
+        "value": "약 -1% (53주차 약 7억 달러 포함)",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2027",
+        "metric": "북미 동일점 매출",
+        "value": "약 +4.0%",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2027",
+        "metric": "non-GAAP 영업이익률",
+        "value": "13.5~14.0%",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "style": "annual",
     "track": "Q4 Non-GAAP EPS 0.80달러는 컨센서스 0.73달러를 넘었다(AIO 스냅샷). FY2027 전망 범위는 향후 4개 분기 컨센서스 3.18달러를 포함한다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
-
   "estimates": {
     "text": "AIO 로컬 스냅샷(2026-11-07, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) EPS 합계 3.18달러(범위 2.86~3.39), 직전 4개 분기 2.71달러. 최근 4주 상향 13건·하향 10건.",
-    "src": ["s2"]
+    "src": [
+      "s2"
+    ]
   },
-
   "watch": {
     "confirms": [
       "미국 동일점 거래 수 증가 지속",
@@ -168,51 +394,92 @@
       "추가 매장 폐점·구조조정 비용"
     ],
     "keyNumbers": [
-      { "name": "미국 동일점 거래 수", "why": "회복의 질 (가격이 아닌 방문)" },
-      { "name": "북미 영업이익률", "why": "노동 투자 뒤의 수익성" },
-      { "name": "Non-GAAP 영업이익률", "why": "FY2027 목표 13.5~14.0%" },
-      { "name": "해외 동일점·순증 매장", "why": "라이선스 성장 엔진" }
+      {
+        "name": "미국 동일점 거래 수",
+        "why": "회복의 질 (가격이 아닌 방문)"
+      },
+      {
+        "name": "북미 영업이익률",
+        "why": "노동 투자 뒤의 수익성"
+      },
+      {
+        "name": "Non-GAAP 영업이익률",
+        "why": "FY2027 목표 13.5~14.0%"
+      },
+      {
+        "name": "해외 동일점·순증 매장",
+        "why": "라이선스 성장 엔진"
+      }
     ]
   },
-
   "debate": {
     "question": "미국 동일점 회복이 객단가가 아닌 방문 증가로 이어져 FY2027 마진 목표를 받치는지",
     "bull": {
       "text": "강세로 보는 쪽은 FY2026 미국 동일점 매출이 6.5% 늘고 거래 수가 3.4% 늘었다는 점을 든다. Q4 북미 영업이익률은 12.3%로 7.8%p 올랐고, 회사는 FY2027 Non-GAAP 영업이익률 13.5~14.0%와 EPS 3.15~3.25달러를 제시하며 자사주 매입 재개를 예고했다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     "bear": {
       "text": "약세로 보는 쪽은 Q4 미국 동일점 성장 7.7% 가운데 객단가가 5.2%p를 차지하고 거래 수는 2.4%에 그쳤다는 점을 짚는다. 해외 거래 수는 2.8% 줄었고, FY2027 매출은 약 1% 감소가 예상되며, 북미 동일점 전망은 약 4%로 FY2026의 6.6%보다 낮다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     "decides": [
-      { "when": "Q1 FY2027 실적 (2027-01 예상, 회사 미확정)", "what": "미국 동일점 거래 수가 계속 늘고 Non-GAAP 영업이익률이 13.5% 방향으로 오르는지", "src": ["s1"] },
-      { "when": "FY2027", "what": "자사주 매입 재개 규모와 해외 순증 매장 약 1,200개 달성", "src": ["s1"] }
+      {
+        "when": "Q1 FY2027 실적 (2027-01 예상, 회사 미확정)",
+        "what": "미국 동일점 거래 수가 계속 늘고 Non-GAAP 영업이익률이 13.5% 방향으로 오르는지",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "FY2027",
+        "what": "자사주 매입 재개 규모와 해외 순증 매장 약 1,200개 달성",
+        "src": [
+          "s1"
+        ]
+      }
     ]
   },
-
   "underTheHood": [
     {
       "title": "중국 전환이 매출을 줄인다",
       "text": "중국 매장 약 7,991개를 라이선스로 바꾸면서 Q4 International 매출은 37% 줄었지만 영업이익률은 19.7%로 올랐다. 직영 매장 매출이 라이선스 관련 매출로 바뀌었기 때문으로 읽힌다. FY2027 매출 감소(-1%) 전망은 수요 약화보다 이 회계 구조 변화에서 온다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     {
       "title": "53주와 비GAAP 조정",
       "text": "FY2027은 53주 회계연도라 매출 약 7억 달러와 EPS 0.10달러 남짓이 추가된다. FY2026에는 구조조정·손상 등 비GAAP 조정이 세전 8.22억 달러였다. 성장률 비교 때 주 수와 조정 항목을 걸러야 본업의 변화가 보인다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     {
       "title": "환원이 현금을 다 쓴다",
       "text": "FY2026 영업현금흐름 49.9억 달러에서 설비투자 12.6억을 빼면 약 37.2억 달러가 남는데, 배당만 28.2억 달러였다. 중국 전환 순수입 25.4억 달러가 FY2027 자사주 매입 재개의 여력이 될 수 있지만, 회사는 금액을 밝히지 않았다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     }
   ],
-
   "trading": {
     "calendar": [
-      { "date": "2026-11-27", "event": "분기 배당 주당 0.63달러 지급 (기준일 2026-11-13)", "src": ["s1"] },
-      { "date": "2027-01 하순 (추정, 회사 미확정)", "event": "Q1 FY2027 실적", "src": [] }
+      {
+        "date": "2026-11-27",
+        "event": "분기 배당 주당 0.63달러 지급 (기준일 2026-11-13)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "date": "2027-01 하순 (추정, 회사 미확정)",
+        "event": "Q1 FY2027 실적",
+        "src": []
+      }
     ],
     "reaction": "주가는 EPS보다 미국 동일점 매출과 거래 수, 마진 전망에 크게 반응하는 경향이 있다.",
     "conditions": [
@@ -223,7 +490,6 @@
       "컨센서스 EPS 상향·하향 건수"
     ]
   },
-
   "unverified": [
     "Q4 영업현금흐름·잉여현금흐름 (연간만 공시)",
     "Q4·FY2026 순이익과 순이익률",

@@ -1,0 +1,26 @@
+{
+ "version": "v59.85",
+ "date": "2026-11-08",
+ "r": null,
+ "status": null,
+ "qa": [],
+ "note": "v59.85 기업·재무 분석 품질 개편: 실적 기준 시점·신선도 판정·한국어 라벨.",
+ "p": {
+  "title": "기업 이야기 첫 화면 실적이 4~12개월 전 회계연도 숫자",
+  "symptom": "274건 중 57건의 4개 숫자·사업부 막대가 조사일보다 120일 넘게 지난 기간(NVDA FY2026 1월 마감, AVGO FY2025 11월 마감)이었고, 같은 화면의 쟁점 문단은 최근 분기를 인용해 두 기간이 섞였다. '이 종목의 지금' 재무 칸도 287일 지난 연간 공시를 앞세웠다.",
+  "root_cause": "이야기 스키마가 earnings 기간을 정하지 않아 조사자마다 연간·분기·누적을 골랐고, 재무 칸은 SEC 연간 요약만 읽었다.",
+  "fix": "57건을 최근 발표 분기로 다시 조사(earnings.periodEnd·basis 추가, 미국 상장 51건 SEC 분기 매출과 일치 확인). 재무 칸은 회계연도 뒤로 끝난 최근 4개 분기가 있으면 4분기 매출 성장·순이익률을 앞세우고 회계연도 성장·ROE를 덧붙인다. 분기 기준 숫자는 '1년 전 같은 분기 대비'로 적는다.",
+  "violated_rule": "원천의 최신 보고서 우선, 한 화면 한 기준 시점",
+  "prevention": "ci-company-profile-contract-check: 실적 기간 종료일이 조사일보다 150일(반기 240일) 넘게 앞서면 실패; periodEnd·basis 형식",
+  "verification": "계약 검사 274건 통과, NVDA 재무 칸 '7/26까지 4분기 매출 +83.4%'(SEC 분기 합 3,030억 vs 1,652억 달러) 확인.",
+  "files": [
+   "src/ui/components/stock-read.js",
+   "src/ui/components/company-story.js",
+   "scripts/ci-company-profile-contract-check.mjs",
+   "public-data/company-profiles/"
+  ]
+ },
+ "changelog": [
+  "**실적 기준 시점 ({P}):** 기업 이야기 57건을 최근 발표 분기로 다시 조사해 첫 화면 숫자와 쟁점 문단이 같은 분기를 본다. '이 종목의 지금' 재무 칸은 회계연도보다 최근인 4개 분기를 앞세운다. 실적 기간이 150일 넘게 지난 이야기는 검사에서 실패한다."
+ ]
+}

@@ -314,8 +314,8 @@
     "layer": "software-applications",
     "position": "AI 에이전트가 물건을 찾고 결제하는 '상거래 실행 층'. 10억 개 이상 상품 데이터와 Shop Pay 결제를 ChatGPT·Copilot 등 에이전트와 앱에 연결한다.",
     "dependsOn": [
-      "models-platforms (ChatGPT·Copilot·Meta Muse 등 AI 쇼핑 창구)",
-      "cloud-infrastructure (서비스 운영 클라우드 - 업체명 미확인)",
+      "모델·플랫폼 (ChatGPT·Copilot·Meta Muse 등 AI 쇼핑 창구)",
+      "클라우드 (서비스 운영 클라우드 - 업체명 미확인)",
       "결제 처리·금융 파트너 (Affirm 등)"
     ],
     "sellsTo": [
@@ -452,7 +452,7 @@
     "latest": [
       {
         "period": "Q4 2026",
-        "metric": "revenue growth",
+        "metric": "매출 성장률",
         "value": "전년 대비 30% 초반",
         "givenOn": "2026-11-03",
         "src": [
@@ -461,7 +461,7 @@
       },
       {
         "period": "Q4 2026",
-        "metric": "gross profit growth",
+        "metric": "매출총이익 성장률",
         "value": "전년 대비 20% 후반 (Q3 가이드 20% 중후반)",
         "givenOn": "2026-11-03",
         "src": [
@@ -471,7 +471,7 @@
       },
       {
         "period": "Q4 2026",
-        "metric": "operating expenses",
+        "metric": "영업비용",
         "value": "매출의 29~30% (Q3 가이드 33~34%)",
         "givenOn": "2026-11-03",
         "src": [
@@ -481,7 +481,7 @@
       },
       {
         "period": "Q4 2026",
-        "metric": "free cash flow margin",
+        "metric": "잉여현금흐름 이익률",
         "value": "Q4 2025와 비슷한 수준",
         "givenOn": "2026-11-03",
         "src": [
@@ -490,7 +490,7 @@
       },
       {
         "period": "Q4 2026",
-        "metric": "stock-based compensation",
+        "metric": "주식보상비용",
         "value": "1.55억 달러",
         "givenOn": "2026-11-03",
         "src": [

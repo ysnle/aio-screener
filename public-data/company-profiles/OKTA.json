@@ -5,9 +5,30 @@
   "fiscalYearEnd": "January 31 (FY2027 ends 2027-01-31)",
   "oneLine": "Okta는 기업 직원과 고객이 여러 앱에 안전하게 로그인하도록 신원을 관리하는 구독형 보안 소프트웨어 회사로, 2027 회계연도 2분기 매출이 11% 늘고 GAAP 흑자를 키웠으며 이제 AI 에이전트의 신원 관리를 새 성장 축으로 내세운다.",
   "sources": [
-    { "id": "s1", "kind": "earnings-release", "title": "Okta Announces Second Quarter Fiscal Year 2027 Financial Results", "url": "https://investor.okta.com/news-and-events/news-releases/news-details/2026/Okta-Announces-Second-Quarter-Fiscal-Year-2027-Financial-Results/default.aspx", "publisher": "Okta IR", "date": "2026-08-26" },
-    { "id": "s2", "kind": "call-transcript", "title": "Okta Q2 FY27 Earnings Call Transcript", "url": "https://s205.q4cdn.com/566291348/files/doc_financials/2027/q2/Okta-Q2-FY27-Earnings-Call_Transcript.pdf", "publisher": "Okta IR", "date": "2026-08-26" },
-    { "id": "s3", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/okta/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-11-07" }
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Okta Announces Second Quarter Fiscal Year 2027 Financial Results",
+      "url": "https://investor.okta.com/news-and-events/news-releases/news-details/2026/Okta-Announces-Second-Quarter-Fiscal-Year-2027-Financial-Results/default.aspx",
+      "publisher": "Okta IR",
+      "date": "2026-08-26"
+    },
+    {
+      "id": "s2",
+      "kind": "call-transcript",
+      "title": "Okta Q2 FY27 Earnings Call Transcript",
+      "url": "https://s205.q4cdn.com/566291348/files/doc_financials/2027/q2/Okta-Q2-FY27-Earnings-Call_Transcript.pdf",
+      "publisher": "Okta IR",
+      "date": "2026-08-26"
+    },
+    {
+      "id": "s3",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/okta/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-11-07"
+    }
   ],
   "moat": {
     "sources": [
@@ -17,11 +38,16 @@
       "보안 인증 - IL5 승인, Okta for AI Agents-Core는 FedRAMP·HIPAA 호환"
     ],
     "text": "Okta의 힘은 특정 클라우드나 앱에 묶이지 않은 독립 신원 플랫폼이라는 데 있다. 8,000개 넘는 연동으로 기업이 쓰는 대부분의 앱을 한 로그인으로 묶고, 그 위에 접근 권한 관리 같은 새 제품을 얹는다. 이제는 사람뿐 아니라 AI 에이전트의 신원도 같은 방식으로 관리하겠다고 나섰다.",
-    "src": ["s2"]
+    "src": [
+      "s2"
+    ]
   },
   "design": {
     "text": "회사가 파는 것은 직원용 신원 관리(로그인·다중인증·접근 관리), 고객용 신원 관리(Auth0), 신원 거버넌스(Okta Identity Governance), 특권 접근 관리, 그리고 AI 에이전트용 제품 Okta for AI Agents와 에이전트 게이트웨이다. 새 제품이 2분기 신규 계약의 약 30%를 차지했고, 그중 Okta Identity Governance가 가장 컸다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
   "make": {
     "model": "service",
@@ -37,7 +63,10 @@
       "글로벌 시스템 통합업체(GSI) - 구축 서비스 이관"
     ],
     "text": "제품은 클라우드 소프트웨어로 직접 만들고, 구축 서비스는 시스템 통합업체 파트너에 넘기고 있어 전문 서비스 매출이 전체의 약 1%로 줄었다. AI 에이전트 쪽에서는 Anthropic, OpenAI, AWS, Databricks, Snowflake 같은 회사와 연동을 넓혔다. 회사는 이 이관으로 올해 매출 성장률이 약 1%p 낮아진다고 밝혔다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
   "sell": {
     "customers": [
@@ -49,151 +78,417 @@
     "channel": "직접 영업과 파트너·시스템 통합업체",
     "concentration": "고객 분산. 공공 부문은 매출의 10% 미만.",
     "text": "고객은 2만 곳이 넘는 기업과 기관이고, 그중 연 100만 달러 넘게 내는 고객이 600곳을 넘었다. 2분기 가장 큰 계약은 공공 부문이었지만 공공 비중은 10% 미만이다. AI 에이전트 제품은 Fortune 50 헬스케어 기업 같은 수백만 달러 계약이 나왔지만, 회사는 아직 숫자에 드러날 만큼 크지 않다고 말했다.",
-    "src": ["s2"]
+    "src": [
+      "s2"
+    ]
   },
   "moneyFlow": {
     "steps": [
-      { "from": "기업 고객", "to": "Okta", "what": "사용자 수 기준 연간·다년 구독료 (선불 청구)" },
-      { "from": "기업 고객", "to": "Okta", "what": "AI 에이전트 기능 - 사용자당 가격에 얹는 추가 요금" },
-      { "from": "기업 고객", "to": "시스템 통합업체 파트너", "what": "구축·도입 서비스 비용" },
-      { "from": "Okta", "to": "주주", "what": "자사주 매입 - 상반기 3.72억 달러" }
+      {
+        "from": "기업 고객",
+        "to": "Okta",
+        "what": "사용자 수 기준 연간·다년 구독료 (선불 청구)"
+      },
+      {
+        "from": "기업 고객",
+        "to": "Okta",
+        "what": "AI 에이전트 기능 - 사용자당 가격에 얹는 추가 요금"
+      },
+      {
+        "from": "기업 고객",
+        "to": "시스템 통합업체 파트너",
+        "what": "구축·도입 서비스 비용"
+      },
+      {
+        "from": "Okta",
+        "to": "주주",
+        "what": "자사주 매입 - 상반기 3.72억 달러"
+      }
     ],
     "pricing": "사용자(좌석) 수 기준 구독. AI 기능은 사용자당 추가 요금이며, 에이전트 SSO의 사용량 과금은 계획 단계로 아직 적용하지 않았다.",
     "text": "돈은 고객이 관리하는 사용자 수만큼 내는 구독료로 들어온다. 그래서 회사는 AI 기능도 사용자당 추가 요금으로 받는데, 일부에서는 AI로 기업 직원 수가 줄면 좌석이 줄 것이라고 본다는 점을 경영진도 인정했다. 에이전트 수에 따른 사용량 과금은 아직 계획 단계다.",
-    "src": ["s2"]
+    "src": [
+      "s2"
+    ]
   },
   "earnings": {
     "period": "Q2 FY2027 (ended 2026-07-31)",
-    "revenue": { "value": 0.805, "unit": "USD bn", "yoy": 11 },
+    "revenue": {
+      "value": 0.805,
+      "unit": "USD bn",
+      "yoy": 11
+    },
     "grossMargin": null,
     "operatingMargin": 13.3,
     "netMargin": 14.4,
-    "operatingCashFlow": { "value": 0.234, "unit": "USD bn" },
-    "freeCashFlow": { "value": 0.227, "unit": "USD bn" },
+    "operatingCashFlow": {
+      "value": 0.234,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": 0.227,
+      "unit": "USD bn"
+    },
     "segments": [
-      { "name": "Subscription", "revenue": 0.793, "unit": "USD bn", "share": 98.5, "yoy": 12, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Professional services and other", "revenue": 0.012, "unit": "USD bn", "share": 1.5, "yoy": null, "operatingMargin": null, "src": ["s1", "s2"] }
+      {
+        "name": "Subscription",
+        "revenue": 0.793,
+        "unit": "USD bn",
+        "share": 98.5,
+        "yoy": 12,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Professional services and other",
+        "revenue": 0.012,
+        "unit": "USD bn",
+        "share": 1.5,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s1",
+          "s2"
+        ]
+      }
     ],
     "industryMetric": [
-      { "name": "잔여이행의무 (RPO)", "value": "48.58억 달러 (+17%)", "src": ["s1"] },
-      { "name": "현재 RPO (cRPO)", "value": "25.85억 달러 (+14%)", "src": ["s1"] },
-      { "name": "Non-GAAP 영업이익률", "value": "28% (GAAP 13%, 전년 GAAP 6%)", "src": ["s1"] },
-      { "name": "대형 고객", "value": "ACV 100만 달러 이상 600곳 이상 (+20% 이상)", "src": ["s2"] },
-      { "name": "새 제품 비중", "value": "2분기 신규 계약의 약 30%, 새 제품 포함 시 ACV 약 40% 상승", "src": ["s2"] }
+      {
+        "name": "잔여이행의무 (RPO)",
+        "value": "48.58억 달러 (+17%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "현재 RPO (cRPO)",
+        "value": "25.85억 달러 (+14%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Non-GAAP 영업이익률",
+        "value": "28% (GAAP 13%, 전년 GAAP 6%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "대형 고객",
+        "value": "ACV 100만 달러 이상 600곳 이상 (+20% 이상)",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "새 제품 비중",
+        "value": "2분기 신규 계약의 약 30%, 새 제품 포함 시 ACV 약 40% 상승",
+        "src": [
+          "s2"
+        ]
+      }
     ],
     "text": "Q2 FY2027 매출은 8.05억 달러로 11% 늘었고 GAAP 영업이익률이 13%로 1년 전 6%의 두 배가 넘었다. 잉여현금흐름은 2.27억 달러(마진 28%)였다. 앞으로 1년 안에 매출이 될 계약인 cRPO는 14% 늘어 매출 성장보다 빨랐다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "useOfCash": {
     "period": "FY2027 상반기 (ended 2026-07-31)",
     "items": [
-      { "use": "buybacks", "value": 0.372, "unit": "USD bn", "src": ["s1"] },
-      { "use": "debt repayment", "value": 0.35, "unit": "USD bn", "src": ["s1"] }
+      {
+        "use": "buybacks",
+        "value": 0.372,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "debt repayment",
+        "value": 0.35,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "text": "상반기 자사주 3.72억 달러를 사들였고, 2026년 만기 전환사채 남은 3.5억 달러를 현금으로 갚았다. 그 결과 이자 수입이 줄어 올해 잉여현금흐름 마진이 약 1%p 낮아진다고 회사는 밝혔다. 7월 말 현금·단기투자는 22.99억 달러다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "aiChain": {
     "layer": "software-applications",
     "position": "기업이 쓰는 AI 에이전트에 신원과 접근 권한을 부여·감시하는 보안 소프트웨어 공급자. AI 모델 회사·SaaS 업체와 연동해 에이전트가 어떤 앱에 접근할지 통제한다.",
-    "dependsOn": ["models-platforms (Anthropic, OpenAI)", "cloud-infrastructure (AWS)", "SaaS 연동 (ServiceNow, Salesforce, Snowflake, Databricks)"],
-    "sellsTo": ["ai-adopter (AI 에이전트를 도입하는 기업 - Fortune 50 헬스케어 기업 포함)", "기업·공공 기관 전반"],
+    "dependsOn": [
+      "모델·플랫폼 (Anthropic, OpenAI)",
+      "클라우드 (AWS)",
+      "SaaS 연동 (ServiceNow, Salesforce, Snowflake, Databricks)"
+    ],
+    "sellsTo": [
+      "AI를 쓰는 기업 (AI 에이전트를 도입하는 기업 - Fortune 50 헬스케어 기업 포함)",
+      "기업·공공 기관 전반"
+    ],
     "aiRevenue": "Okta for AI Agents는 수백만 달러 계약이 나왔지만 FY2027에는 의미 있는 규모가 아니고 FY2028 이후 의미가 커질 수 있다는 것이 회사 설명 (Q2 FY2027 콜)",
     "upside": "기업이 AI 에이전트를 많이 쓸수록 에이전트마다 신원과 권한 관리가 필요해져, 사용자당 추가 요금과 향후 사용량 과금으로 매출이 늘 수 있다.",
     "risk": "AI로 기업 직원 수가 줄면 사용자 수 기준 구독이 줄 수 있고, Microsoft 같은 플랫폼이 에이전트 신원 기능을 기본으로 묶어 팔 수 있다.",
     "text": "AI 가치사슬에서 Okta는 AI 에이전트를 도입하는 기업에 보안 통제를 파는 응용 소프트웨어 층에 있다. Anthropic이 Okta의 Cross-App Access를 첫 신원 공급자로 지원하는 등 연동은 빠르게 늘지만, 회사는 AI가 올해 실적에 의미 있지 않다고 말했다. 반대로 사용자당 과금 구조에서는 AI가 좌석 수를 줄이는 위험도 함께 안고 있다.",
-    "src": ["s2"]
+    "src": [
+      "s2"
+    ]
   },
   "competition": {
     "arenas": [
-      { "arena": "직원·고객 신원 관리", "rivals": ["Microsoft"], "position": "leader", "share": null, "src": ["s2"] },
-      { "arena": "AI 에이전트 신원·접근 관리", "rivals": ["Microsoft"], "position": "challenger", "share": null, "src": ["s2"] }
+      {
+        "arena": "직원·고객 신원 관리",
+        "rivals": [
+          "Microsoft"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "arena": "AI 에이전트 신원·접근 관리",
+        "rivals": [
+          "Microsoft"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s2"
+        ]
+      }
     ],
     "edge": "특정 플랫폼에 묶이지 않은 중립성, 8,000개 넘는 연동, AI 모델·SaaS 업체와의 표준(CAA) 연동.",
     "threats": "Microsoft가 기업용 소프트웨어 묶음 안에서 같은 기능을 제공하는 경우, 좌석 수 감소.",
     "text": "콜에서 경영진은 Microsoft가 Okta의 에이전트 등록 방식을 '따라 하고 있다'고 말했다. ServiceNow와 Salesforce는 직접 경쟁자가 아니라 인접 플랫폼 파트너로, Palo Alto Networks와 CrowdStrike는 위험 신호를 주고받는 상대로 언급됐다. 회사는 점유율 수치를 내지 않았다.",
-    "src": ["s2"]
+    "src": [
+      "s2"
+    ]
   },
   "strategy": {
     "goal": "FY2027 매출 32.16억~32.26억 달러(+10~11%), non-GAAP 영업이익률 26%, 잉여현금흐름 마진 28~29%를 제시하고, AI 에이전트 신원 관리를 FY2028 이후 성장 축으로 키우려 한다.",
     "roadmap": [
-      { "when": "Q3 FY2027", "what": "매출 8.13억~8.17억 달러(+10%), cRPO 25.9억~26.0억 달러(+11~12%), non-GAAP 영업이익률 24~25%", "src": ["s1"] },
-      { "when": "FY2027", "what": "매출 32.16억~32.26억 달러, non-GAAP EPS 3.90~3.94달러, 잉여현금흐름 9.1억~9.3억 달러", "src": ["s1"] },
-      { "when": "FY2028 이후", "what": "AI 에이전트 제품이 의미 있는 매출이 될 수 있는 시점 (회사 설명)", "src": ["s2"] },
-      { "when": "2027", "what": "국방부 제로 트러스트 의무화 - IL5 승인으로 대비", "src": ["s2"] }
+      {
+        "when": "Q3 FY2027",
+        "what": "매출 8.13억~8.17억 달러(+10%), cRPO 25.9억~26.0억 달러(+11~12%), non-GAAP 영업이익률 24~25%",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "FY2027",
+        "what": "매출 32.16억~32.26억 달러, non-GAAP EPS 3.90~3.94달러, 잉여현금흐름 9.1억~9.3억 달러",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "FY2028 이후",
+        "what": "AI 에이전트 제품이 의미 있는 매출이 될 수 있는 시점 (회사 설명)",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "when": "2027",
+        "what": "국방부 제로 트러스트 의무화 - IL5 승인으로 대비",
+        "src": [
+          "s2"
+        ]
+      }
     ],
     "vision": "사람과 AI 에이전트를 포함한 모든 신원을 하나로 관리하는 독립 신원 보안 플랫폼.",
     "text": "회사는 매출 성장률 10% 안팎을 유지하면서 이익률과 현금흐름을 지키고, 그 사이 AI 에이전트 제품을 키운다는 계획이다. 3분기 cRPO 성장 전망 11~12%는 2분기 14%보다 낮아, 단기 성장 가속은 전망에 들어 있지 않다. AI 쪽 성과는 FY2028 이후로 잡혀 있다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
   "governance": {
     "line": "공동창업자 Todd McKinnon이 회장 겸 CEO, Brett Tighe가 CFO를 맡고 있으며, 상반기 자사주 3.72억 달러 매입과 전환사채 상환으로 현금을 주주와 부채 정리에 썼다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
   "guidance": {
     "latest": [
-      { "period": "Q3 FY2027", "metric": "revenue", "value": "8.13억~8.17억 달러 (+10%)", "givenOn": "2026-08-26", "src": ["s1"] },
-      { "period": "Q3 FY2027", "metric": "cRPO", "value": "25.9억~26.0억 달러 (+11~12%)", "givenOn": "2026-08-26", "src": ["s1"] },
-      { "period": "Q3 FY2027", "metric": "non-GAAP EPS", "value": "0.92~0.94달러", "givenOn": "2026-08-26", "src": ["s1"] },
-      { "period": "FY2027", "metric": "revenue", "value": "32.16억~32.26억 달러 (+10~11%, 서비스 이관 약 1%p 부담 포함)", "givenOn": "2026-08-26", "src": ["s1"] },
-      { "period": "FY2027", "metric": "non-GAAP operating margin / FCF margin", "value": "26% / 28~29%", "givenOn": "2026-08-26", "src": ["s1"] }
+      {
+        "period": "Q3 FY2027",
+        "metric": "매출",
+        "value": "8.13억~8.17억 달러 (+10%)",
+        "givenOn": "2026-08-26",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "Q3 FY2027",
+        "metric": "cRPO",
+        "value": "25.9억~26.0억 달러 (+11~12%)",
+        "givenOn": "2026-08-26",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "Q3 FY2027",
+        "metric": "non-GAAP EPS",
+        "value": "0.92~0.94달러",
+        "givenOn": "2026-08-26",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2027",
+        "metric": "매출",
+        "value": "32.16억~32.26억 달러 (+10~11%, 서비스 이관 약 1%p 부담 포함)",
+        "givenOn": "2026-08-26",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2027",
+        "metric": "non-GAAP 영업이익률 / FCF 이익률",
+        "value": "26% / 28~29%",
+        "givenOn": "2026-08-26",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "style": "quarterly",
     "track": "이번에 읽은 자료는 이전 연간 전망을 함께 싣지 않아 변경 폭은 확인하지 못했다. Q2 non-GAAP EPS는 1.05달러였다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
   "estimates": {
     "text": "AIO 로컬 스냅샷(2026-11-07, Zacks via Nasdaq) 향후 4개 분기(2026-10~2027-07) EPS 합계 2.05달러(범위 1.86~2.27, 10개 추정), 직전 4개 분기 1.73달러. Q2 FY2027은 0.58달러로 추정 0.44달러를 넘었는데, 회사 non-GAAP EPS 1.05달러와 기준이 달라 보인다.",
-    "src": ["s3", "s1"]
+    "src": [
+      "s3",
+      "s1"
+    ]
   },
   "watch": {
-    "confirms": ["cRPO 성장률이 전망 11~12%를 넘음", "AI 에이전트 제품의 계약 수와 금액 공개", "ACV 100만 달러 이상 고객 20%대 성장 유지", "새 제품 비중 30% 이상 유지"],
-    "breaks": ["cRPO 성장률이 10% 아래로", "좌석 수 감소 언급 증가", "Microsoft 묶음 판매로 인한 이탈", "보안 사고"],
+    "confirms": [
+      "cRPO 성장률이 전망 11~12%를 넘음",
+      "AI 에이전트 제품의 계약 수와 금액 공개",
+      "ACV 100만 달러 이상 고객 20%대 성장 유지",
+      "새 제품 비중 30% 이상 유지"
+    ],
+    "breaks": [
+      "cRPO 성장률이 10% 아래로",
+      "좌석 수 감소 언급 증가",
+      "Microsoft 묶음 판매로 인한 이탈",
+      "보안 사고"
+    ],
     "keyNumbers": [
-      { "name": "cRPO 성장률", "why": "1년 안 매출의 선행 지표" },
-      { "name": "새 제품 계약 비중", "why": "기존 로그인 제품 밖의 성장" },
-      { "name": "잉여현금흐름 마진", "why": "자사주 매입 여력" },
-      { "name": "AI 에이전트 계약", "why": "FY2028 이후 성장 축의 증거" }
+      {
+        "name": "cRPO 성장률",
+        "why": "1년 안 매출의 선행 지표"
+      },
+      {
+        "name": "새 제품 계약 비중",
+        "why": "기존 로그인 제품 밖의 성장"
+      },
+      {
+        "name": "잉여현금흐름 마진",
+        "why": "자사주 매입 여력"
+      },
+      {
+        "name": "AI 에이전트 계약",
+        "why": "FY2028 이후 성장 축의 증거"
+      }
     ]
   },
   "debate": {
     "question": "AI 에이전트 신원 관리가 사용자 수 기준 구독의 성장 둔화를 넘어설 새 매출원이 되는지",
     "bull": {
       "text": "될 수 있다고 보는 쪽은 Anthropic이 Okta의 Cross-App Access를 첫 신원 공급자로 지원하고, Fortune 50 헬스케어 기업과 수백만 달러 AI 에이전트 계약이 나왔다는 점을 든다. 새 제품이 신규 계약의 약 30%였고 RPO가 17% 늘어 매출(11%)보다 빨랐다는 것도 근거다.",
-      "src": ["s1", "s2"]
+      "src": [
+        "s1",
+        "s2"
+      ]
     },
     "bear": {
       "text": "아직 멀다고 보는 쪽은 회사가 AI가 FY2027에 의미 있지 않다고 말했고, 3분기 매출 성장 전망이 10%, cRPO 전망이 11~12%로 2분기보다 낮다는 점을 본다. 가격이 사용자 수에 묶여 있어 AI가 기업 직원 수를 줄이면 좌석이 줄 수 있고, Microsoft가 같은 기능을 따라 하고 있다는 경영진 발언도 근거다.",
-      "src": ["s1", "s2"]
+      "src": [
+        "s1",
+        "s2"
+      ]
     },
     "decides": [
-      { "when": "2026-12 (추정, 회사 미공지) Q3 FY2027 실적", "what": "cRPO가 25.9억~26.0억 달러 범위를 넘고 AI 에이전트 계약 지표가 처음 숫자로 나오는지", "src": ["s1", "s2"] }
+      {
+        "when": "2026-12 (추정, 회사 미공지) Q3 FY2027 실적",
+        "what": "cRPO가 25.9억~26.0억 달러 범위를 넘고 AI 에이전트 계약 지표가 처음 숫자로 나오는지",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      }
     ]
   },
   "underTheHood": [
     {
       "title": "좌석 과금의 양날",
       "text": "Okta는 사용자 수 기준으로 구독료를 받고 AI 기능도 사용자당 추가 요금으로 판다. AI 에이전트가 늘어도 사람 사용자가 줄면 기본 매출이 줄 수 있어, 회사가 계획한 에이전트 사용량 과금이 언제 적용되느냐가 이 구조를 바꾼다.",
-      "src": ["s2"]
+      "src": [
+        "s2"
+      ]
     },
     {
       "title": "서비스 이관이 성장률을 깎는다",
       "text": "구축 서비스를 시스템 통합업체로 넘기면서 전문 서비스 매출이 전체의 약 1%로 줄었고, 회사는 이것이 올해 매출 성장률을 약 1%p 낮춘다고 밝혔다. 구독 매출 성장률(12%)이 총매출 성장률(11%)보다 높은 이유다.",
-      "src": ["s1", "s2"]
+      "src": [
+        "s1",
+        "s2"
+      ]
     },
     {
       "title": "RPO와 매출의 간격",
       "text": "RPO는 17%, cRPO는 14% 늘어 매출 11%보다 빨랐다. 다년 계약이 길어지거나 커지고 있다는 뜻이지만, 3분기 cRPO 전망이 11~12%로 내려가 있어 이 간격이 이어질지는 확인이 필요하다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     }
   ],
   "trading": {
     "calendar": [
-      { "date": "2026-12 (추정, 회사 미공지)", "event": "Q3 FY2027 실적", "src": ["s1"] },
-      { "date": "2027", "event": "미 국방부 제로 트러스트 의무화 시점", "src": ["s2"] }
+      {
+        "date": "2026-12 (추정, 회사 미공지)",
+        "event": "Q3 FY2027 실적",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "date": "2027",
+        "event": "미 국방부 제로 트러스트 의무화 시점",
+        "src": [
+          "s2"
+        ]
+      }
     ],
     "reaction": "매출보다 cRPO 성장률과 다음 분기·연간 전망에 크게 반응하는 경향이 있다.",
-    "conditions": ["cRPO 성장률과 전망 비교", "연간 매출 전망 변화", "AI 에이전트 계약 언급", "좌석 수·고객 이탈 관련 언급", "잉여현금흐름 마진"]
+    "conditions": [
+      "cRPO 성장률과 전망 비교",
+      "연간 매출 전망 변화",
+      "AI 에이전트 계약 언급",
+      "좌석 수·고객 이탈 관련 언급",
+      "잉여현금흐름 마진"
+    ]
   },
   "unverified": [
     "이전 FY2027 전망과 이번 변경 폭",

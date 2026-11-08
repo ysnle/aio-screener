@@ -364,12 +364,12 @@
     "position": "AI 데이터센터의 저장 계층에 대용량 엔터프라이즈 SSD를 공급하고, GPU 옆 메모리 계층을 겨냥한 HBF를 개발 중인 NAND 공급자.",
     "dependsOn": [
       "Kioxia / Flash Ventures (웨이퍼 생산)",
-      "semicap-foundry (합작사 공장 장비)",
+      "장비·파운드리 (합작사 공장 장비)",
       "SK hynix (HBF 표준 파트너)"
     ],
     "sellsTo": [
-      "cloud-infrastructure (하이퍼스케일러·AI 클라우드)",
-      "devices (PC·스마트폰·자동차 OEM)",
+      "클라우드 (하이퍼스케일러·AI 클라우드)",
+      "기기 (PC·스마트폰·자동차 OEM)",
       "소매 소비자"
     ],
     "aiRevenue": "Datacenter 매출 Q1 FY2027 48.0억 달러(총매출의 약 44%, 전분기 대비 +61%), FY2026 51.5억 달러 - AI 비중 자체는 미공시",
@@ -503,7 +503,7 @@
     "latest": [
       {
         "period": "Q2 FY2027",
-        "metric": "revenue",
+        "metric": "매출",
         "value": "122억~126억 달러",
         "givenOn": "2026-10-29",
         "src": [
@@ -512,7 +512,7 @@
       },
       {
         "period": "Q2 FY2027",
-        "metric": "gross margin",
+        "metric": "매출총이익률",
         "value": "GAAP 84.4~85.4%, non-GAAP 84.5~85.5% (동일 제품 기준 소폭 가격 인상 포함)",
         "givenOn": "2026-10-29",
         "src": [
@@ -522,7 +522,7 @@
       },
       {
         "period": "Q2 FY2027",
-        "metric": "operating expenses",
+        "metric": "영업비용",
         "value": "GAAP 6.77억~7.45억, non-GAAP 5.40억~5.60억 달러",
         "givenOn": "2026-10-29",
         "src": [
@@ -531,7 +531,7 @@
       },
       {
         "period": "Q2 FY2027",
-        "metric": "non-GAAP diluted EPS",
+        "metric": "non-GAAP 희석 EPS",
         "value": "55.00~57.00달러 (분할 전 기준; 분할 후 약 6.88~7.13달러)",
         "givenOn": "2026-10-29",
         "src": [
@@ -541,7 +541,7 @@
       },
       {
         "period": "FY2027",
-        "metric": "capex",
+        "metric": "설비투자",
         "value": "매출의 한 자릿수 중반% (Q1 3.4%)",
         "givenOn": "2026-10-29",
         "src": [

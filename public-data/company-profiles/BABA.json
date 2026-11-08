@@ -1,13 +1,34 @@
 {
   "symbol": "BABA",
   "name": "Alibaba Group Holding Limited",
-  "researchedAt": "2026-11-07",
+  "researchedAt": "2026-11-08",
   "fiscalYearEnd": "March 31",
   "oneLine": "Alibaba는 중국 최대 전자상거래 회사이자 중국 AI 클라우드 1위로, 쇼핑에서 번 돈을 AI 클라우드·자체 칩·Qwen 모델과 즉시배송 경쟁에 대거 쏟아붓고 있다.",
   "sources": [
-    { "id": "s1", "kind": "earnings-release", "title": "Alibaba Group Announces June Quarter 2026 Results (6-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0001577552/000110465926099220/tm2623667d1_ex99-1.htm", "publisher": "Alibaba Group / SEC EDGAR", "date": "2026-08-20" },
-    { "id": "s2", "kind": "call-transcript", "title": "Alibaba Group Q1 (June quarter 2026) earnings call highlights (automated summary, not a transcript)", "url": "https://www.marketbeat.com/instant-alerts/alibaba-group-q1-earnings-call-highlights-2026-08-20/", "publisher": "MarketBeat", "date": "2026-08-20" },
-    { "id": "s3", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/baba/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-11-07" }
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Alibaba Group Announces June Quarter 2026 Results (6-K Ex.99.1)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0001577552/000110465926099220/tm2623667d1_ex99-1.htm",
+      "publisher": "Alibaba Group / SEC EDGAR",
+      "date": "2026-08-20"
+    },
+    {
+      "id": "s2",
+      "kind": "call-transcript",
+      "title": "Alibaba Group Q1 (June quarter 2026) earnings call highlights (automated summary, not a transcript)",
+      "url": "https://www.marketbeat.com/instant-alerts/alibaba-group-q1-earnings-call-highlights-2026-08-20/",
+      "publisher": "MarketBeat",
+      "date": "2026-08-20"
+    },
+    {
+      "id": "s3",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/baba/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-11-07"
+    }
   ],
   "moat": {
     "sources": [
@@ -17,11 +38,17 @@
       "Taobao·Tmall 쇼핑 생태계 - 88VIP 회원 약 6,400만 명"
     ],
     "text": "Alibaba의 뿌리는 중국 최대 쇼핑 플랫폼과, 그 위에서 자란 중국 1위 AI 클라우드다. Omdia 기준 중국 AI 클라우드 점유율 38.1%에, 오픈 모델 Qwen과 자체 칩 Zhenwu까지 한 회사가 갖고 있어 모델·칩·클라우드를 함께 판다. 쇼핑 사업은 88VIP 회원 약 6,400만 명을 묶어 두는 현금원이다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
   "design": {
     "text": "이번 분기부터 사업을 Alibaba E-commerce Group(중국 전자상거래, 즉시배송, 해외 전자상거래, 도매), AI Cloud and Compute Services(옛 클라우드와 T-Head 칩), AI Labs and Applications(Qwen 앱 등), 기타로 다시 나눴다. 8월에 2.4조 파라미터 오픈 모델 Qwen3.8-Max와 AI 업무 에이전트 QwenWork를 내놓았다. Zhenwu M890 AI 프로세서는 2조 파라미터 이상 모델의 추론을 지원한다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
   "make": {
     "model": "mixed",
@@ -30,7 +57,10 @@
       "DingTalk (자회사) - QwenWork 에이전트 연동"
     ],
     "text": "쇼핑과 클라우드는 자체 운영하고, AI 칩은 자회사 T-Head가 설계한다. 6월 분기 설비투자는 677억 위안으로 75% 늘었는데, 경영진은 장비 인도 시점, AI 에이전트용 CPU 추가 구매, 반도체 부품 가격 상승을 이유로 들었다. 칩 제조 협력사는 공시되지 않았다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
   "sell": {
     "customers": [
@@ -42,114 +72,375 @@
     "channel": "자체 쇼핑 앱(Taobao·Tmall)과 즉시배송, Alibaba Cloud 직접 판매, Qwen 앱·DingTalk",
     "concentration": "고객 집중 공시 없음. 매출의 약 77%가 Alibaba E-commerce Group (부문 합계는 내부 거래 제거 전).",
     "text": "돈을 내는 쪽은 둘로 나뉜다. 쇼핑 쪽은 판매자가 광고와 수수료를 내고 소비자는 즉시배송에 돈을 쓰며, 클라우드 쪽은 기업 고객이 연산과 모델 사용료를 낸다. 6월 분기 외부 클라우드 매출은 45% 늘어 22분기 만에 가장 빨랐다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
   "moneyFlow": {
     "steps": [
-      { "from": "중국 소비자", "to": "Taobao·Tmall 판매자", "what": "상품 대금" },
-      { "from": "Taobao·Tmall 판매자", "to": "Alibaba Group", "what": "광고·수수료 (고객관리매출 825억 위안)" },
-      { "from": "즉시배송 이용자", "to": "Alibaba Group", "what": "즉시배송 주문 대금 (533억 위안)" },
-      { "from": "기업 고객", "to": "Alibaba Cloud", "what": "연산·저장·AI 모델 사용료 (AI 관련 제품 매출 124억 위안)" },
-      { "from": "Alibaba Group", "to": "장비·반도체 공급사 (미공시)", "what": "데이터센터 설비투자 677억 위안 (분기)" }
+      {
+        "from": "중국 소비자",
+        "to": "Taobao·Tmall 판매자",
+        "what": "상품 대금"
+      },
+      {
+        "from": "Taobao·Tmall 판매자",
+        "to": "Alibaba Group",
+        "what": "광고·수수료 (고객관리매출 825억 위안)"
+      },
+      {
+        "from": "즉시배송 이용자",
+        "to": "Alibaba Group",
+        "what": "즉시배송 주문 대금 (533억 위안)"
+      },
+      {
+        "from": "기업 고객",
+        "to": "Alibaba Cloud",
+        "what": "연산·저장·AI 모델 사용료 (AI 관련 제품 매출 124억 위안)"
+      },
+      {
+        "from": "Alibaba Group",
+        "to": "장비·반도체 공급사 (미공시)",
+        "what": "데이터센터 설비투자 677억 위안 (분기)"
+      }
     ],
     "pricing": "쇼핑은 판매자 광고·거래 수수료, 즉시배송은 주문 단위, 클라우드는 사용량·구독·모델 API 요금.",
     "text": "쇼핑에서 들어온 돈이 데이터센터로 나가는 흐름이 뚜렷하다. 분기 영업현금흐름은 229억 위안인데 설비투자가 677억 위안이어서 잉여현금흐름은 447억 위안 유출이었다. 클라우드 쪽 AI 관련 매출은 124억 위안으로 12분기 연속 세 자릿수 성장이다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "earnings": {
     "period": "June quarter 2026 (Q1 FY2027, ended 2026-06-30)",
-    "revenue": { "value": 268.953, "unit": "CNY bn", "yoy": 9 },
+    "periodEnd": "2026-06-30",
+    "basis": "quarter",
+    "revenue": {
+      "value": 268.953,
+      "unit": "CNY bn",
+      "yoy": 9
+    },
     "grossMargin": null,
     "operatingMargin": 5.6,
     "netMargin": 3.9,
-    "operatingCashFlow": { "value": 22.945, "unit": "CNY bn" },
-    "freeCashFlow": { "value": -44.67, "unit": "CNY bn" },
+    "operatingCashFlow": {
+      "value": 22.945,
+      "unit": "CNY bn"
+    },
+    "freeCashFlow": {
+      "value": -44.67,
+      "unit": "CNY bn"
+    },
     "segments": [
-      { "name": "Alibaba E-commerce Group (조정 EBITA 마진)", "revenue": 205.862, "unit": "CNY bn", "share": 76.5, "yoy": 4, "operatingMargin": 19.3, "src": ["s1"] },
-      { "name": "AI Cloud and Compute Services (조정 EBITA 마진)", "revenue": 48.437, "unit": "CNY bn", "share": 18.0, "yoy": 45, "operatingMargin": 11.6, "src": ["s1"] },
-      { "name": "AI Labs and Applications", "revenue": 3.338, "unit": "CNY bn", "share": 1.2, "yoy": 16, "operatingMargin": null, "src": ["s1"] },
-      { "name": "All others", "revenue": 28.803, "unit": "CNY bn", "share": 10.7, "yoy": 1, "operatingMargin": -11.6, "src": ["s1"] }
+      {
+        "name": "Alibaba E-commerce Group (조정 EBITA 마진)",
+        "revenue": 205.862,
+        "unit": "CNY bn",
+        "share": 76.5,
+        "yoy": 4,
+        "operatingMargin": 19.3,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "AI Cloud and Compute Services (조정 EBITA 마진)",
+        "revenue": 48.437,
+        "unit": "CNY bn",
+        "share": 18.0,
+        "yoy": 45,
+        "operatingMargin": 11.6,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "AI Labs and Applications",
+        "revenue": 3.338,
+        "unit": "CNY bn",
+        "share": 1.2,
+        "yoy": 16,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "All others",
+        "revenue": 28.803,
+        "unit": "CNY bn",
+        "share": 10.7,
+        "yoy": 1,
+        "operatingMargin": -11.6,
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "industryMetric": [
-      { "name": "AI 관련 제품 매출", "value": "124억 위안, 12분기 연속 세 자릿수 성장; 다음 분기 연환산 약 100억 달러 근접 예상 (CEO 콜 발언)", "src": ["s1", "s2"] },
-      { "name": "부문 조정 EBITA", "value": "전자상거래 397억 위안(-1%), 클라우드 56억(+133%), AI Labs -139억(전년 -32억), 기타 -33억 위안", "src": ["s1"] },
-      { "name": "중국 전자상거래 세부", "value": "중국 전자상거래 매출 1,109억 위안(-8%), 고객관리매출 825억(-7%, 신규 프로그램 차감 제외 시 +1%), 즉시배송 533억(+45%)", "src": ["s1"] },
-      { "name": "현금·유동 투자자산", "value": "4,745억 위안 (2026-06-30)", "src": ["s1"] }
+      {
+        "name": "AI 관련 제품 매출",
+        "value": "124억 위안, 12분기 연속 세 자릿수 성장; 다음 분기 연환산 약 100억 달러 근접 예상 (CEO 콜 발언)",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      },
+      {
+        "name": "부문 조정 EBITA",
+        "value": "전자상거래 397억 위안(-1%), 클라우드 56억(+133%), AI Labs -139억(전년 -32억), 기타 -33억 위안",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "중국 전자상거래 세부",
+        "value": "중국 전자상거래 매출 1,109억 위안(-8%), 고객관리매출 825억(-7%, 신규 프로그램 차감 제외 시 +1%), 즉시배송 533억(+45%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "현금·유동 투자자산",
+        "value": "4,745억 위안 (2026-06-30)",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "text": "6월 분기 매출은 2,690억 위안으로 9% 늘었지만 영업이익은 152억 위안으로 57%, 순이익은 75% 줄었다. 클라우드는 매출 45%, 조정 EBITA 133% 성장했지만 AI 앱 부문이 139억 위안 손실을 내고 쇼핑 본업(중국 전자상거래)은 8% 줄었다. 이익률 하락의 원인은 AI 앱 투자와 즉시배송 경쟁, 그리고 굿윌 손상 45억 위안과 EU DSA 벌금 충당금 5.5억 유로다(부문 매출 합계는 내부거래 제거 전이라 100%를 넘음).",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
   "useOfCash": {
     "period": "June quarter 2026",
     "items": [
-      { "use": "capex", "value": 67.678, "unit": "CNY bn", "src": ["s1"] },
-      { "use": "buybacks", "value": 0.162, "unit": "USD bn", "src": ["s1"] }
+      {
+        "use": "capex",
+        "value": 67.678,
+        "unit": "CNY bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "buybacks",
+        "value": 0.162,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "text": "현금은 거의 전부 AI 인프라로 간다. 분기 설비투자 677억 위안으로 3개년 3,800억 위안 계획 가운데 약 1,900억 위안을 6월 말까지 썼고(콜 요약), 자사주 매입은 1.62억 달러에 그쳤다. 현금·유동 투자자산 4,745억 위안이 이 투자를 받친다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
   "aiChain": {
     "layer": "cloud-infrastructure",
     "position": "중국 1위 AI 클라우드로, 자체 칩(Zhenwu)·자체 모델(Qwen)·데이터센터를 묶어 중국 기업에 연산과 모델을 판다.",
-    "dependsOn": ["반도체·서버 장비 공급사 (이름 미공시, 부품 가격 상승 언급)", "T-Head 자체 칩"],
-    "sellsTo": ["중국 기업 클라우드 고객 (650곳 이상이 Zhenwu 사용)", "Qwen 앱·DingTalk 이용자", "Taobao·Tmall 판매자"],
+    "dependsOn": [
+      "반도체·서버 장비 공급사 (이름 미공시, 부품 가격 상승 언급)",
+      "T-Head 자체 칩"
+    ],
+    "sellsTo": [
+      "중국 기업 클라우드 고객 (650곳 이상이 Zhenwu 사용)",
+      "Qwen 앱·DingTalk 이용자",
+      "Taobao·Tmall 판매자"
+    ],
     "aiRevenue": "AI 관련 제품 매출 124억 위안 (6월 분기, 12분기 연속 세 자릿수 성장, 2026-08-20 발표)",
     "upside": "외부 클라우드 매출이 45% 늘고 조정 EBITA가 133% 늘어 AI 수요가 곧 클라우드 이익이 된다. 회사는 2030년 외부 클라우드 매출 1,000억 위안과 20% 총마진 경로를 제시했다(콜 요약).",
     "risk": "설비투자가 영업현금흐름의 세 배에 이르러 수요가 꺾이면 감가상각 부담이 남는다. AI 앱 부문 손실(분기 139억 위안)이 커지고 있다.",
     "text": "AI 가치사슬에서 Alibaba는 칩부터 모델까지 갖춘 클라우드 층에 있다. CEO는 연산 수요가 공급을 계속 넘을 것이라고 말했고, 클라우드 이익이 실제로 두 배 넘게 늘었다. 반면 소비자용 AI 앱은 아직 큰 적자여서, AI 투자 전체가 이익이 되는지는 클라우드와 앱을 나눠 봐야 한다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
   "competition": {
     "arenas": [
-      { "arena": "중국 AI 클라우드", "rivals": ["중국 클라우드 사업자 (출처에 이름 없음)"], "position": "leader", "share": "38.1% (Omdia 2025, 회사 릴리스 인용)", "src": ["s1"] },
-      { "arena": "중국 전자상거래", "rivals": ["중국 전자상거래 플랫폼 (출처에 이름 없음)"], "position": "leader", "share": null, "src": ["s1"] },
-      { "arena": "중국 즉시배송", "rivals": ["즉시배송 플랫폼 (출처에 이름 없음)"], "position": "challenger", "share": null, "src": ["s1", "s2"] }
+      {
+        "arena": "중국 AI 클라우드",
+        "rivals": [
+          "중국 클라우드 사업자 (출처에 이름 없음)"
+        ],
+        "position": "leader",
+        "share": "38.1% (Omdia 2025, 회사 릴리스 인용)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "중국 전자상거래",
+        "rivals": [
+          "중국 전자상거래 플랫폼 (출처에 이름 없음)"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "중국 즉시배송",
+        "rivals": [
+          "즉시배송 플랫폼 (출처에 이름 없음)"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s1",
+          "s2"
+        ]
+      }
     ],
     "edge": "칩·모델·클라우드 통합, 오픈 모델 생태계, 쇼핑 플랫폼의 현금과 이용자.",
     "threats": "즉시배송 경쟁에 따른 비용, 중국 전자상거래 매출 감소(-8%), AI 앱 투자 손실.",
     "text": "읽은 자료는 경쟁사를 이름으로 들지 않는다. 클라우드에서는 점유율 1위로 앞서 있고, 즉시배송에서는 매출을 45% 늘리며 점유율을 지키고 있다고 회사가 밝혔다. 즉시배송 전체 흑자는 FY2029(2029년 3월 결산)로 잡혀 있다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
   "strategy": {
     "goal": "2030년 외부 클라우드 매출 1,000억 위안·총마진 20% 경로, 즉시배송 FY2029 흑자, 3개년 3,800억 위안 AI 인프라 투자 (콜 요약).",
     "roadmap": [
-      { "when": "2026-08", "what": "Qwen3.8-Max(2.4조 파라미터 오픈 모델)와 QwenWork 출시", "src": ["s1"] },
-      { "when": "다음 분기 (9월 분기)", "what": "AI 관련 매출 연환산 약 100억 달러 근접 예상", "src": ["s2"] },
-      { "when": "FY2028 (다음 회계연도)", "what": "즉시배송에서 비식품 물량이 식품을 넘을 것으로 예상", "src": ["s2"] },
-      { "when": "FY2029", "what": "즉시배송 전체 흑자 목표", "src": ["s2"] },
-      { "when": "2030", "what": "외부 클라우드 매출 1,000억 위안 목표", "src": ["s2"] }
+      {
+        "when": "2026-08",
+        "what": "Qwen3.8-Max(2.4조 파라미터 오픈 모델)와 QwenWork 출시",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "다음 분기 (9월 분기)",
+        "what": "AI 관련 매출 연환산 약 100억 달러 근접 예상",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "when": "FY2028 (다음 회계연도)",
+        "what": "즉시배송에서 비식품 물량이 식품을 넘을 것으로 예상",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "when": "FY2029",
+        "what": "즉시배송 전체 흑자 목표",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "when": "2030",
+        "what": "외부 클라우드 매출 1,000억 위안 목표",
+        "src": [
+          "s2"
+        ]
+      }
     ],
     "vision": "CEO 표현으로 'AI가 Alibaba의 가장 확실한 성장 엔진'인 회사, 칩·모델·클라우드·앱을 모두 가진 AI 회사.",
     "text": "회사는 쇼핑 회사에서 AI 회사로의 전환을 분명히 했다. 3개년 3,800억 위안 투자의 절반을 이미 썼고, 클라우드 목표는 2030년, 즉시배송 흑자는 FY2029로 잡았다. 이 목표들은 대부분 콜 발언을 요약한 2차 자료에서 왔다.",
-    "src": ["s2", "s1"]
+    "src": [
+      "s2",
+      "s1"
+    ]
   },
-  "governance": { "line": "CEO Eddie Wu가 이끌며, 이번 분기 자사주 매입을 1.62억 달러로 줄이고 현금을 AI 인프라 투자에 우선 쓰고 있다.", "src": ["s1", "s2"] },
+  "governance": {
+    "line": "CEO Eddie Wu가 이끌며, 이번 분기 자사주 매입을 1.62억 달러로 줄이고 현금을 AI 인프라 투자에 우선 쓰고 있다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
   "guidance": {
     "latest": [
-      { "period": "다음 분기", "metric": "AI-related revenue run-rate", "value": "연환산 약 100억 달러 근접 (CEO 콜 발언)", "givenOn": "2026-08-20", "src": ["s2"] },
-      { "period": "2030", "metric": "external cloud revenue", "value": "1,000억 위안, 총마진 20% 경로 (콜 발언)", "givenOn": "2026-08-20", "src": ["s2"] }
+      {
+        "period": "다음 분기",
+        "metric": "AI 관련 매출 연환산",
+        "value": "연환산 약 100억 달러 근접 (CEO 콜 발언)",
+        "givenOn": "2026-08-20",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "period": "2030",
+        "metric": "외부 클라우드 매출",
+        "value": "1,000억 위안, 총마진 20% 경로 (콜 발언)",
+        "givenOn": "2026-08-20",
+        "src": [
+          "s2"
+        ]
+      }
     ],
     "style": "none",
     "track": "분기 수치 가이던스는 내지 않는다. 6월 분기 조정 EPS(ADS) 1.01달러는 컨센서스 1.78달러를 크게 밑돌았다(AIO 스냅샷).",
-    "src": ["s2", "s3"]
+    "src": [
+      "s2",
+      "s3"
+    ]
   },
-  "estimates": { "text": "2026-11-07 기준 컨센서스(조정 EPS per ADS, Zacks via Nasdaq) 향후 4개 분기 합계 6.94달러(범위 4.97~8.67, 추정치 수 최소 2), 직전 4개 분기 실적 합 2.28달러. 최근 4주 상향 3건·하향 2건.", "src": ["s3"] },
+  "estimates": {
+    "text": "2026-11-07 기준 컨센서스(조정 EPS per ADS, Zacks via Nasdaq) 향후 4개 분기 합계 6.94달러(범위 4.97~8.67, 추정치 수 최소 2), 직전 4개 분기 실적 합 2.28달러. 최근 4주 상향 3건·하향 2건.",
+    "src": [
+      "s3"
+    ]
+  },
   "watch": {
-    "confirms": ["외부 클라우드 매출 성장이 45% 이상 유지·가속", "클라우드 조정 EBITA 마진 상승", "AI Labs and Applications 손실 축소", "즉시배송 단위 경제성 개선 발표"],
-    "breaks": ["설비투자 증가에도 클라우드 성장 둔화", "중국 전자상거래 매출 감소 확대", "AI 앱 손실이 계속 커짐", "잉여현금흐름 유출 확대"],
+    "confirms": [
+      "외부 클라우드 매출 성장이 45% 이상 유지·가속",
+      "클라우드 조정 EBITA 마진 상승",
+      "AI Labs and Applications 손실 축소",
+      "즉시배송 단위 경제성 개선 발표"
+    ],
+    "breaks": [
+      "설비투자 증가에도 클라우드 성장 둔화",
+      "중국 전자상거래 매출 감소 확대",
+      "AI 앱 손실이 계속 커짐",
+      "잉여현금흐름 유출 확대"
+    ],
     "keyNumbers": [
-      { "name": "AI Cloud and Compute 매출 성장률", "why": "AI 투자의 회수 속도" },
-      { "name": "AI 관련 제품 매출", "why": "AI가 실제 매출이 되는 크기" },
-      { "name": "고객관리매출(CMR)", "why": "쇼핑 본업의 수익력" },
-      { "name": "설비투자와 잉여현금흐름", "why": "투자 강도와 현금 부담" }
+      {
+        "name": "AI Cloud and Compute 매출 성장률",
+        "why": "AI 투자의 회수 속도"
+      },
+      {
+        "name": "AI 관련 제품 매출",
+        "why": "AI가 실제 매출이 되는 크기"
+      },
+      {
+        "name": "고객관리매출(CMR)",
+        "why": "쇼핑 본업의 수익력"
+      },
+      {
+        "name": "설비투자와 잉여현금흐름",
+        "why": "투자 강도와 현금 부담"
+      }
     ]
   },
   "trading": {
     "calendar": [
-      { "date": "2026-11 (회사 미공지)", "event": "9월 분기(Q2 FY2027) 실적", "src": ["s1"] }
+      {
+        "date": "2026-11 (2026-11-08 기준 회사 미공지)",
+        "event": "9월 분기(Q2 FY2027) 실적",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "reaction": "주가는 클라우드 성장률과 AI 관련 발표, 설비투자 계획에 크게 반응하는 경향이 있으며, 쇼핑 이익 감소는 클라우드 성장으로 어느 정도 상쇄되어 읽힌다.",
-    "conditions": ["외부 클라우드 성장률이 직전 분기 45%보다 높은지", "AI 앱 부문 손실의 방향", "설비투자 규모와 3개년 계획 변경", "컨센서스 EPS 수정 방향"]
+    "conditions": [
+      "외부 클라우드 성장률이 직전 분기 45%보다 높은지",
+      "AI 앱 부문 손실의 방향",
+      "설비투자 규모와 3개년 계획 변경",
+      "컨센서스 EPS 수정 방향"
+    ]
   },
   "unverified": [
     "총마진 (읽은 릴리스 요약에 없음)",
@@ -164,17 +455,65 @@
   "confidence": "medium - 재무·부문 수치는 6-K 원문에서 왔지만, 목표와 투자 계획은 자동 생성된 콜 요약에서 왔다. 최신 분기는 6월 분기다.",
   "debate": {
     "question": "AI 클라우드의 고성장이 쇼핑 본업 감소와 AI 앱·즉시배송 손실을 넘어서는 이익으로 이어지는지",
-    "bull": { "text": "AI Cloud and Compute 매출은 45%, 조정 EBITA는 133% 늘었고 AI 관련 제품 매출은 12분기 연속 세 자릿수 성장이다. Omdia 기준 중국 AI 클라우드 점유율 38.1%로 1위이고, 즉시배송 매출은 45% 늘었으며 현금·유동 투자자산은 4,745억 위안이다.", "src": ["s1"] },
-    "bear": { "text": "분기 영업이익은 57%, 순이익은 75% 줄었고 잉여현금흐름은 447억 위안 유출이었다. 중국 전자상거래 매출은 8% 줄었고 AI 앱 부문은 139억 위안을 잃었으며, 조정 EPS는 컨센서스를 크게 밑돌았다.", "src": ["s1", "s3"] },
+    "bull": {
+      "text": "AI Cloud and Compute 매출은 45%, 조정 EBITA는 133% 늘었고 AI 관련 제품 매출은 12분기 연속 세 자릿수 성장이다. Omdia 기준 중국 AI 클라우드 점유율 38.1%로 1위이고, 즉시배송 매출은 45% 늘었으며 현금·유동 투자자산은 4,745억 위안이다.",
+      "src": [
+        "s1"
+      ]
+    },
+    "bear": {
+      "text": "분기 영업이익은 57%, 순이익은 75% 줄었고 잉여현금흐름은 447억 위안 유출이었다. 중국 전자상거래 매출은 8% 줄었고 AI 앱 부문은 139억 위안을 잃었으며, 조정 EPS는 컨센서스를 크게 밑돌았다.",
+      "src": [
+        "s1",
+        "s3"
+      ]
+    },
     "decides": [
-      { "when": "2026-11 (회사 미공지) 9월 분기 실적", "what": "AI 관련 매출이 연환산 약 100억 달러에 근접하고 외부 클라우드 성장이 45% 이상인지", "src": ["s2", "s1"] },
-      { "when": "FY2029", "what": "즉시배송이 회사가 말한 대로 전체 흑자에 이르는지", "src": ["s2"] }
+      {
+        "when": "2026-11 (회사 미공지) 9월 분기 실적",
+        "what": "AI 관련 매출이 연환산 약 100억 달러에 근접하고 외부 클라우드 성장이 45% 이상인지",
+        "src": [
+          "s2",
+          "s1"
+        ]
+      },
+      {
+        "when": "FY2029",
+        "what": "즉시배송이 회사가 말한 대로 전체 흑자에 이르는지",
+        "src": [
+          "s2"
+        ]
+      }
     ]
   },
   "underTheHood": [
-    { "title": "쇼핑이 데이터센터를 산다", "text": "분기 영업현금흐름 229억 위안에 비해 설비투자는 677억 위안이었다. AI 인프라 투자는 쇼핑 본업의 현금과 쌓아 둔 4,745억 위안으로 메워지고 있어, 본업 이익 감소가 길어지면 투자 여력도 줄어든다.", "src": ["s1"] },
-    { "title": "같은 AI, 다른 손익", "text": "클라우드는 조정 EBITA 56억 위안으로 이익이 늘었지만 AI Labs and Applications는 매출 33억 위안에 139억 위안 손실이다. 'AI 투자'를 한 숫자로 읽으면 기업용 AI의 흑자와 소비자 AI의 적자가 서로 가려진다.", "src": ["s1"] },
-    { "title": "고객관리매출의 회계 착시", "text": "고객관리매출은 7% 줄었지만 새 사업 개발 프로그램의 매출 차감 효과를 빼면 1% 늘었다. 판매자 지원을 매출에서 빼는 회계 처리가 본업 감소를 실제보다 커 보이게 할 수 있다.", "src": ["s1"] },
-    { "title": "일회성 비용과 순이익", "text": "이번 분기 순이익에는 굿윌 손상 45억 위안과 EU 디지털서비스법 벌금 충당금 5.5억 유로가 들어 있다. 비GAAP 순이익(207억 위안)과 GAAP 순이익(104억 위안)의 차이가 큰 이유다.", "src": ["s1"] }
+    {
+      "title": "쇼핑이 데이터센터를 산다",
+      "text": "분기 영업현금흐름 229억 위안에 비해 설비투자는 677억 위안이었다. AI 인프라 투자는 쇼핑 본업의 현금과 쌓아 둔 4,745억 위안으로 메워지고 있어, 본업 이익 감소가 길어지면 투자 여력도 줄어든다.",
+      "src": [
+        "s1"
+      ]
+    },
+    {
+      "title": "같은 AI, 다른 손익",
+      "text": "클라우드는 조정 EBITA 56억 위안으로 이익이 늘었지만 AI Labs and Applications는 매출 33억 위안에 139억 위안 손실이다. 'AI 투자'를 한 숫자로 읽으면 기업용 AI의 흑자와 소비자 AI의 적자가 서로 가려진다.",
+      "src": [
+        "s1"
+      ]
+    },
+    {
+      "title": "고객관리매출의 회계 착시",
+      "text": "고객관리매출은 7% 줄었지만 새 사업 개발 프로그램의 매출 차감 효과를 빼면 1% 늘었다. 판매자 지원을 매출에서 빼는 회계 처리가 본업 감소를 실제보다 커 보이게 할 수 있다.",
+      "src": [
+        "s1"
+      ]
+    },
+    {
+      "title": "일회성 비용과 순이익",
+      "text": "이번 분기 순이익에는 굿윌 손상 45억 위안과 EU 디지털서비스법 벌금 충당금 5.5억 유로가 들어 있다. 비GAAP 순이익(207억 위안)과 GAAP 순이익(104억 위안)의 차이가 큰 이유다.",
+      "src": [
+        "s1"
+      ]
+    }
   ]
 }

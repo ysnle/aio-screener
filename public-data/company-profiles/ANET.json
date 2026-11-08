@@ -366,15 +366,15 @@
     "layer": "networking",
     "position": "GPU·XPU 수천~수십만 개를 하나의 학습·추론 클러스터로 잇는 백엔드(스케일아웃) 이더넷 패브릭과, 데이터센터의 프런트엔드·코어 네트워크를 공급한다. 랙 안에서 GPU끼리 묶는 스케일업은 아직 NVIDIA NVLink가 주도하고, Arista는 ESUN 이더넷으로 이 영역 진입을 추진한다.",
     "dependsOn": [
-      "chips-compute (Broadcom 스위칭 칩)",
+      "연산 칩 (Broadcom 스위칭 칩)",
       "위탁 생산 (Jabil, Sanmina, Foxconn)",
-      "memory·광모듈 부품",
+      "메모리·광모듈 부품",
       "고객의 GPU·XPU 배치 일정 (NVIDIA, Broadcom XPU, AMD)"
     ],
     "sellsTo": [
-      "cloud-infrastructure (Microsoft, Meta 등 AI 타이탄)",
+      "클라우드 (Microsoft, Meta 등 AI 타이탄)",
       "AI 클라우드(네오클라우드)",
-      "ai-adopter (기업·금융 데이터센터)"
+      "AI를 쓰는 기업 (기업·금융 데이터센터)"
     ],
     "aiRevenue": "2026년 AI 패브릭 매출 목표 35억 달러 이상, 2026 매출 전망 약 126억 달러의 약 28% (콜 요약, 비율은 계산값). 2025 애널리스트데이 당시 AI 네트워킹 약 15억 달러였다고 보도됨.",
     "upside": "GPU 클러스터가 커질수록 GPU당 필요한 스위치·포트가 늘고, 1.6T 세대 전환(2027년 양산)이 단가를 올린다. 3분기에는 랙당 가속기 최대 144개의 액체냉각 스케일업 구조 Etherlink SU-144와, 7800 AI Spine으로 최대 100만 XPU를 잇는 스케일어크로스 전략을 내놨다.",
@@ -524,7 +524,7 @@
     "latest": [
       {
         "period": "Q4 2026",
-        "metric": "revenue",
+        "metric": "매출",
         "value": "39억~40억 달러",
         "givenOn": "2026-11-03",
         "src": [
@@ -533,7 +533,7 @@
       },
       {
         "period": "Q4 2026",
-        "metric": "non-GAAP operating margin",
+        "metric": "non-GAAP 영업이익률",
         "value": "48~49%",
         "givenOn": "2026-11-03",
         "src": [
@@ -542,7 +542,7 @@
       },
       {
         "period": "Q4 2026",
-        "metric": "non-GAAP diluted EPS",
+        "metric": "non-GAAP 희석 EPS",
         "value": "1.26~1.30달러",
         "givenOn": "2026-11-03",
         "src": [

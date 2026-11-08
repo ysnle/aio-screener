@@ -88,6 +88,15 @@ export function buildCompanyGraph(stories) {
   return { schemaVersion: COMPANY_GRAPH_SCHEMA, nodes, edges: [...edges.values()].sort((a, b) => order[a.kind] - order[b.kind] || a.from.localeCompare(b.from) || a.to.localeCompare(b.to)) };
 }
 
+/** How many of a period make a year: a quarter 4, a half 2, nine months 4/3, anything else (a fiscal year, TTM) 1. */
+export function periodYearFactor(period) {
+  const p = String(period || '');
+  if (/\b(9M|nine months|1~3Q|1~3분기|9개월)/i.test(p)) return 4 / 3;
+  if (/\b(H[12]|[12]H|six months|half|6개월|반기)/i.test(p)) return 2;
+  if (/(\bQ[1-4]\b|\b[1-4]Q\d{2}\b|quarter|3개월|분기)/i.test(p) && !/누적|\byear-to-date\b|\bYTD\b/i.test(p)) return 4;
+  return 1;
+}
+
 /**
  * One company's neighbourhood: who pays it (buyers), whom it pays (suppliers), whom it works with (partners, money
  * either way) and who it competes with. A link stated in both
@@ -97,7 +106,9 @@ export function companyNeighbourhood(graph, symbol) {
   const id = String(symbol || '').toUpperCase();
   const nodes = graph?.nodes || {};
   if (!nodes[id]) return null;
-  const scale = (amount) => { if (!amount) return 0; const v = Number(amount.value); const u = String(amount.unit || ''); return /KRW/.test(u) ? v / 1400 * (/tn/.test(u) ? 1000 : 1) : /tn/.test(u) ? v * 1000 : /mn/.test(u) ? v / 1000 : v; };
+  // The order compares a yearly size, so one quarter's capex does not rank below a smaller buyer's nine-month or
+  // fiscal-year total. The amount shown keeps its own period.
+  const scale = (amount) => { if (!amount) return 0; const v = Number(amount.value); const u = String(amount.unit || ''); return periodYearFactor(amount.period) * (/KRW/.test(u) ? v / 1400 * (/tn/.test(u) ? 1000 : 1) : /tn/.test(u) ? v * 1000 : /mn/.test(u) ? v / 1000 : v); };
   const row = (other, edge) => ({ symbol: other, ...nodes[other], said: edge.said, both: edge.said.some((s) => s.by === other) && edge.said.some((s) => s.by === id) });
   const buyers = [], suppliers = [], rivals = [], partners = [];
   for (const edge of graph.edges || []) {
@@ -107,6 +118,10 @@ export function companyNeighbourhood(graph, symbol) {
     else if (edge.kind === 'rival' && (edge.from === id || edge.to === id)) rivals.push(row(edge.from === id ? edge.to : edge.from, edge));
   }
   const rank = (key) => (a, b) => (b.both - a.both) || (b.said.length - a.said.length) || (scale(b[key]) - scale(a[key])) || a.symbol.localeCompare(b.symbol);
-  buyers.sort(rank('capex')); suppliers.sort(rank('revenue')); rivals.sort(rank('revenue')); partners.sort(rank('revenue'));
+  // A partner this company's own story names comes before one only the other story names (a customer that calls the
+  // company an AI partner does not lead its supplier list).
+  const own = (r) => (r.said.some((s) => s.by === id) ? 1 : 0);
+  buyers.sort(rank('capex')); suppliers.sort(rank('revenue')); rivals.sort(rank('revenue'));
+  partners.sort((a, b) => (own(b) - own(a)) || rank('revenue')(a, b));
   return { symbol: id, node: nodes[id], buyers, suppliers, partners, rivals };
 }

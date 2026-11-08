@@ -5,10 +5,23 @@
   "fiscalYearEnd": "December 31",
   "oneLine": "Vertex는 낭포성 섬유증(CF) 치료제로 매출의 95%를 버는 바이오 회사로, 그 현금으로 유전자 치료(Casgevy), 비마약성 진통제(Journavx), 내분비(Palsonify)와 신장 질환까지 다음 사업을 세우는 중이다.",
   "sources": [
-    { "id": "s1", "kind": "earnings-release", "title": "Vertex Reports Third Quarter 2026 Financial Results", "url": "https://investors.vrtx.com/news-releases/news-release-details/vertex-reports-third-quarter-2026-financial-results", "publisher": "Vertex Pharmaceuticals", "date": "2026-11-02" },
-    { "id": "s2", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/vrtx/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-11-07" }
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Vertex Reports Third Quarter 2026 Financial Results",
+      "url": "https://investors.vrtx.com/news-releases/news-release-details/vertex-reports-third-quarter-2026-financial-results",
+      "publisher": "Vertex Pharmaceuticals",
+      "date": "2026-11-02"
+    },
+    {
+      "id": "s2",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/vrtx/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-11-07"
+    }
   ],
-
   "moat": {
     "sources": [
       "CF 치료제 독점적 지위 - Q3 2026 CF 매출 32.7억 달러, 전체의 95%",
@@ -16,14 +29,16 @@
       "새 질환으로 넓히는 연구 역량 - 신장(povetacicept, inaxaplin), 통증(suzetrigine), 내분비(Palsonify)"
     ],
     "text": "Vertex의 뿌리는 CF 치료제 묶음이다. Q3 2026 CF 매출은 32.7억 달러로 전체 34.4억 달러의 95%였고, 회사는 기존 Trikafta/Kaftrio에서 차세대 Alyftrek으로 환자를 옮기고 있다. 이 안정적인 현금이 다른 질환 연구와 인수의 재원이다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "design": {
     "text": "제품은 CF 약(Trikafta/Kaftrio, Alyftrek, 기타 CF), 유전자 편집 치료제 Casgevy, 급성 통증용 비마약성 진통제 Journavx, 2026년 9월 Crinetics 인수로 들어온 내분비 약 Palsonify로 나뉜다. 개발 단계에는 IgA 신증 치료제 povetacicept(2026-11-30 FDA 결정 예정), 당뇨병성 신경병증 통증 suzetrigine, 신장 질환 inaxaplin, 1형 당뇨 VX-017 등이 있다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "make": {
     "model": "mixed",
     "partners": [
@@ -31,9 +46,10 @@
       "AbCellera - 2026-07 연구 협력, 선급금 2,800만 달러"
     ],
     "text": "약의 생산 방식과 위탁 생산사는 이번에 읽은 보도자료에 나오지 않는다. 확인되는 것은 새 사업을 외부에서 사 오는 방식으로, 9월에 Crinetics를 지분가치 약 100억 달러(취득 현금 차감 90억 달러)에 인수했고 7월에는 AbCellera와 협력을 맺었다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "sell": {
     "customers": [
       "미국 CF 환자와 지불자 - 미국 매출 21.7억 달러 (+10%)",
@@ -45,120 +61,363 @@
     "channel": "전문 약국·도매상을 통한 처방약 유통과 해외 국가별 판매 (유통사 이름 미공시)",
     "concentration": "제품 기준 CF 95% 집중; 고객별 비중 미공시",
     "text": "매출의 63%는 미국, 37%는 해외에서 왔고 해외가 16%로 더 빨리 늘었다. 새 제품은 작지만 빠르게 크고 있다: Journavx 처방은 Q3에 75만 건을 넘어 전 분기보다 40% 이상 늘었고, Palsonify는 목표 내분비 전문의 약 3,200명 중 약 500명이 처방하고 있다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "moneyFlow": {
     "steps": [
-      { "from": "환자·고용주 보험·정부", "to": "보험사·국가 의료 제도", "what": "보험료와 공적 재원" },
-      { "from": "보험사·국가 의료 제도", "to": "전문 약국·병원", "what": "처방약·치료비 급여" },
-      { "from": "전문 약국·병원", "to": "Vertex", "what": "CF 약·Casgevy·Journavx·Palsonify 순매출 (Q3 34.4억 달러)" },
-      { "from": "Vertex", "to": "Crinetics Pharmaceuticals 주주", "what": "인수 대금 (지분가치 약 100억 달러)" }
+      {
+        "from": "환자·고용주 보험·정부",
+        "to": "보험사·국가 의료 제도",
+        "what": "보험료와 공적 재원"
+      },
+      {
+        "from": "보험사·국가 의료 제도",
+        "to": "전문 약국·병원",
+        "what": "처방약·치료비 급여"
+      },
+      {
+        "from": "전문 약국·병원",
+        "to": "Vertex",
+        "what": "CF 약·Casgevy·Journavx·Palsonify 순매출 (Q3 34.4억 달러)"
+      },
+      {
+        "from": "Vertex",
+        "to": "Crinetics Pharmaceuticals 주주",
+        "what": "인수 대금 (지분가치 약 100억 달러)"
+      }
     ],
     "pricing": "제품 단위 처방약 판매. 국가별 약가와 보험 급여 조건이 순매출을 정한다 (가격 세부 미공시).",
     "text": "돈은 보험과 국가 의료 제도를 거쳐 약값으로 들어온다. CF는 평생 복용하는 약이라 반복 매출이 크고, 그 현금이 새 사업을 사는 데 쓰였다. Q3에는 Crinetics 인수와 자사주 매입에 순현금 90억 달러가 나가 현금·유가증권이 연초 123억에서 98억 달러로 줄었다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "earnings": {
     "period": "Q3 2026 (quarter ended 2026-09-30)",
-    "revenue": { "value": 3.4408, "unit": "USD bn", "yoy": 12 },
+    "revenue": {
+      "value": 3.4408,
+      "unit": "USD bn",
+      "yoy": 12
+    },
     "grossMargin": 84.7,
     "operatingMargin": 20.7,
     "netMargin": 19.0,
     "operatingCashFlow": null,
     "freeCashFlow": null,
     "segments": [
-      { "name": "TRIKAFTA/KAFTRIO", "revenue": 2.4369, "unit": "USD bn", "share": 70.8, "yoy": -8.2, "operatingMargin": null, "src": ["s1"] },
-      { "name": "ALYFTREK", "revenue": 0.7058, "unit": "USD bn", "share": 20.5, "yoy": 185.7, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Other CF", "revenue": 0.1305, "unit": "USD bn", "share": 3.8, "yoy": -6.3, "operatingMargin": null, "src": ["s1"] },
-      { "name": "CASGEVY", "revenue": 0.0992, "unit": "USD bn", "share": 2.9, "yoy": 487.0, "operatingMargin": null, "src": ["s1"] },
-      { "name": "JOURNAVX", "revenue": 0.0583, "unit": "USD bn", "share": 1.7, "yoy": 197.4, "operatingMargin": null, "src": ["s1"] },
-      { "name": "PALSONIFY", "revenue": 0.0101, "unit": "USD bn", "share": 0.3, "yoy": null, "operatingMargin": null, "src": ["s1"] }
+      {
+        "name": "TRIKAFTA/KAFTRIO",
+        "revenue": 2.4369,
+        "unit": "USD bn",
+        "share": 70.8,
+        "yoy": -8.2,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "ALYFTREK",
+        "revenue": 0.7058,
+        "unit": "USD bn",
+        "share": 20.5,
+        "yoy": 185.7,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Other CF",
+        "revenue": 0.1305,
+        "unit": "USD bn",
+        "share": 3.8,
+        "yoy": -6.3,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "CASGEVY",
+        "revenue": 0.0992,
+        "unit": "USD bn",
+        "share": 2.9,
+        "yoy": 487.0,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "JOURNAVX",
+        "revenue": 0.0583,
+        "unit": "USD bn",
+        "share": 1.7,
+        "yoy": 197.4,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "PALSONIFY",
+        "revenue": 0.0101,
+        "unit": "USD bn",
+        "share": 0.3,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "industryMetric": [
-      { "name": "Non-GAAP 영업이익 / EPS", "value": "Q3 2026 14.1억 달러 / 4.76달러 (전년 4.80달러)", "src": ["s1"] },
-      { "name": "GAAP EPS", "value": "Q3 2026 2.56달러 (전년 4.20달러) - Crinetics 관련 보상·거래 비용 약 5억 달러 포함", "src": ["s1"] },
-      { "name": "Journavx 처방", "value": "Q3 2026 75만 건 이상 (전 분기 대비 +40% 이상, 전년 17만 건)", "src": ["s1"] },
-      { "name": "현금·유가증권", "value": "2026-09말 98억 달러 (2025말 123억), 단기·장기 부채 합계 약 45억 달러", "src": ["s1"] }
+      {
+        "name": "Non-GAAP 영업이익 / EPS",
+        "value": "Q3 2026 14.1억 달러 / 4.76달러 (전년 4.80달러)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "GAAP EPS",
+        "value": "Q3 2026 2.56달러 (전년 4.20달러) - Crinetics 관련 보상·거래 비용 약 5억 달러 포함",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Journavx 처방",
+        "value": "Q3 2026 75만 건 이상 (전 분기 대비 +40% 이상, 전년 17만 건)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "현금·유가증권",
+        "value": "2026-09말 98억 달러 (2025말 123억), 단기·장기 부채 합계 약 45억 달러",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "text": "Q3 2026 매출은 34.4억 달러로 12% 늘었고, Alyftrek 전환으로 Trikafta/Kaftrio가 8% 줄어도 CF 합계는 7.7% 늘었다. 총마진은 약 85%로 높지만, Crinetics 인수 비용 약 5억 달러가 판관비에 들어가 GAAP 영업이익(7.1억 달러)은 전년 11.9억 달러보다 줄었다. 이 비용을 뺀 Non-GAAP 영업이익은 14.1억 달러로 전년과 비슷했다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "useOfCash": {
     "period": "Q3 2026 (quarter ended 2026-09-30)",
     "items": [
-      { "use": "acquisitions", "value": 9.0, "unit": "USD bn", "src": ["s1"] },
-      { "use": "R&D", "value": 1.3206, "unit": "USD bn", "src": ["s1"] },
-      { "use": "other", "label": "AbCellera 협력 선급금", "value": 0.028, "unit": "USD bn", "src": ["s1"] },
-      { "use": "buybacks", "value": null, "unit": "USD bn", "src": [] }
+      {
+        "use": "acquisitions",
+        "value": 9.0,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "R&D",
+        "value": 1.3206,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "other",
+        "label": "AbCellera 협력 선급금",
+        "value": 0.028,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "buybacks",
+        "value": null,
+        "unit": "USD bn",
+        "src": []
+      }
     ],
     "text": "Q3 현금의 가장 큰 쓰임은 Crinetics 인수였다(취득 현금 차감 90억 달러). 회사는 이를 위해 45억 달러 기간 대출을 일으켰고, 보도자료는 인수와 자사주 매입에 합쳐 순현금 90억 달러를 썼다고 밝혔다. GAAP R&D는 13.2억 달러로 전년 9.8억 달러보다 크게 늘었다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "aiChain": {
     "layer": "limited",
     "position": "희귀·만성 질환 치료제 회사로, 이번에 읽은 보도자료에는 AI 관련 언급이나 수치가 없다.",
-    "dependsOn": ["공개된 AI 의존 업체 없음"],
-    "sellsTo": ["AI를 팔지 않음 - 환자·보험·국가 의료 제도"],
+    "dependsOn": [
+      "공개된 AI 의존 업체 없음"
+    ],
+    "sellsTo": [
+      "AI를 팔지 않음 - 환자·보험·국가 의료 제도"
+    ],
     "aiRevenue": null,
     "upside": "원문에 AI가 매출이나 비용으로 이어지는 경로가 공시되지 않았다.",
     "risk": "원문에 AI 관련 위험 언급 없음.",
     "text": "AI 가치사슬과의 연결은 공시로 확인되지 않는다. 이 회사의 실적은 CF 약의 전환 속도, 새 제품 출시, 2026-11-30 povetacicept 결정 같은 임상·규제 사건이 움직인다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "competition": {
     "arenas": [
-      { "arena": "낭포성 섬유증 치료제", "rivals": ["원문 미명시"], "position": "leader", "share": null, "src": ["s1"] },
-      { "arena": "비마약성 급성 통증 치료제 (Journavx)", "rivals": ["기존 진통제 (원문 미명시)"], "position": "challenger", "share": null, "src": ["s1"] },
-      { "arena": "내분비 치료제 (Palsonify)", "rivals": ["기존 치료제 (원문 미명시)"], "position": "challenger", "share": "치료 시작·전환 환자 중 선두 브랜드 점유율 40% 이상 (회사 발표)", "src": ["s1"] }
+      {
+        "arena": "낭포성 섬유증 치료제",
+        "rivals": [
+          "원문 미명시"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "비마약성 급성 통증 치료제 (Journavx)",
+        "rivals": [
+          "기존 진통제 (원문 미명시)"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "내분비 치료제 (Palsonify)",
+        "rivals": [
+          "기존 치료제 (원문 미명시)"
+        ],
+        "position": "challenger",
+        "share": "치료 시작·전환 환자 중 선두 브랜드 점유율 40% 이상 (회사 발표)",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "edge": "CF에서 나오는 현금과 새 질환으로 확장하는 연구·인수 역량.",
     "threats": "새 제품 출시 속도 둔화, 임상 실패, CF 외 사업의 비용 증가.",
     "text": "이번에 읽은 원문은 경쟁사 이름을 밝히지 않았다. CF에서는 자사 제품 간 전환이 가장 큰 변화이고, 새 시장에서는 Palsonify가 신규·전환 환자의 40% 이상을 가져가고 있다고 회사가 밝혔다. 신장 질환은 회사가 '다섯 번째 상업 사업'으로 세우려는 영역이다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "strategy": {
     "goal": "2026년 매출 131.5~132.5억 달러, CF 외 기존 제품(Casgevy·Journavx) 5억 달러 이상, Palsonify 4,000만~5,000만 달러.",
     "roadmap": [
-      { "when": "2026-11-30", "what": "povetacicept(IgA 신증) FDA 결정 예정 (우선 심사, 가속 승인)", "src": ["s1"] },
-      { "when": "2026 H2", "what": "VX-670(근긴장성 이영양증 1형) GALILEO 중간 결과", "src": ["s1"] },
-      { "when": "2027 초", "what": "inaxaplin AMPLITUDE 중간 분석", "src": ["s1"] },
-      { "when": "2027 Q1", "what": "atumelnant(선천성 부신 과형성) 3상 등록 완료", "src": ["s1"] },
-      { "when": "2027 중반", "what": "suzetrigine·VX-993 당뇨병성 신경병증 통증 결과", "src": ["s1"] },
-      { "when": "2027", "what": "VX-017(1형 당뇨) 허가용 개발 진입, 유럽 Palsonify 출시(2027 H2)", "src": ["s1"] }
+      {
+        "when": "2026-11-30",
+        "what": "povetacicept(IgA 신증) FDA 결정 예정 (우선 심사, 가속 승인)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2026 H2",
+        "what": "VX-670(근긴장성 이영양증 1형) GALILEO 중간 결과",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2027 초",
+        "what": "inaxaplin AMPLITUDE 중간 분석",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2027 Q1",
+        "what": "atumelnant(선천성 부신 과형성) 3상 등록 완료",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2027 중반",
+        "what": "suzetrigine·VX-993 당뇨병성 신경병증 통증 결과",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2027",
+        "what": "VX-017(1형 당뇨) 허가용 개발 진입, 유럽 Palsonify 출시(2027 H2)",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "vision": "CEO Reshma Kewalramani는 '신장 질환을 다섯 번째 상업 사업으로 세울 위치에 있다'고 말했다.",
     "text": "회사는 CF에서 번 돈으로 통증·유전자 치료·내분비·신장 질환을 차례로 세우는 계획을 밝힌다. 가장 가까운 시험대는 11월 30일 povetacicept 결정이고, 2027년에는 통증과 신장 질환 임상 결과가 이어진다. 1형 당뇨에서는 zimislecel 대신 VX-017에 집중하기로 했다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "governance": {
     "line": "CEO Reshma Kewalramani가 이끌며, 2026년에는 차입까지 써서 Crinetics를 인수해 현금 배분이 사업 확장 쪽으로 기울었다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "guidance": {
     "latest": [
-      { "period": "FY2026", "metric": "total revenue", "value": "131.5~132.5억 달러 (직전 131~132억)", "givenOn": "2026-11-02", "src": ["s1"] },
-      { "period": "FY2026", "metric": "combined non-GAAP R&D, AIPR&D, SG&A", "value": "약 60억 달러 (직전 56.5~57.5억)", "givenOn": "2026-11-02", "src": ["s1"] },
-      { "period": "FY2026", "metric": "combined GAAP R&D, AIPR&D, SG&A", "value": "71.5~72억 달러 (직전 63~64.5억)", "givenOn": "2026-11-02", "src": ["s1"] },
-      { "period": "FY2026", "metric": "PALSONIFY revenue", "value": "4,000만~5,000만 달러 (신규)", "givenOn": "2026-11-02", "src": ["s1"] }
+      {
+        "period": "FY2026",
+        "metric": "총매출",
+        "value": "131.5~132.5억 달러 (직전 131~132억)",
+        "givenOn": "2026-11-02",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "합산 non-GAAP R&D, AIPR&D, SG&A",
+        "value": "약 60억 달러 (직전 56.5~57.5억)",
+        "givenOn": "2026-11-02",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "합산 GAAP R&D, AIPR&D, SG&A",
+        "value": "71.5~72억 달러 (직전 63~64.5억)",
+        "givenOn": "2026-11-02",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "PALSONIFY 매출",
+        "value": "4,000만~5,000만 달러 (신규)",
+        "givenOn": "2026-11-02",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "style": "annual",
     "track": "매출 전망을 소폭 올렸고 비용 전망은 Crinetics 편입으로 크게 올렸다. 전망에는 헤지 후 환율 효과 약 1.5%p가 포함된다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "estimates": {
     "text": "AIO 로컬 스냅샷(2026-11-07, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) EPS 합계 17.77달러(범위 14.78~20.07), 직전 4개 분기 17.01달러. 최근 4주 상향 2건·하향 6건으로 하향이 많다.",
-    "src": ["s2"]
+    "src": [
+      "s2"
+    ]
   },
-
   "watch": {
     "confirms": [
       "povetacicept FDA 승인(2026-11-30 예정)",
@@ -173,51 +432,93 @@
       "2027 통증·신장 임상 실패"
     ],
     "keyNumbers": [
-      { "name": "CF 합계 매출", "why": "현금의 95%를 만드는 기반" },
-      { "name": "Alyftrek 매출", "why": "CF 전환의 진척" },
-      { "name": "Journavx 처방 건수", "why": "첫 비CF 대형 제품의 성패" },
-      { "name": "Non-GAAP 비용 합계", "why": "확장 비용이 이익을 얼마나 깎는지" }
+      {
+        "name": "CF 합계 매출",
+        "why": "현금의 95%를 만드는 기반"
+      },
+      {
+        "name": "Alyftrek 매출",
+        "why": "CF 전환의 진척"
+      },
+      {
+        "name": "Journavx 처방 건수",
+        "why": "첫 비CF 대형 제품의 성패"
+      },
+      {
+        "name": "Non-GAAP 비용 합계",
+        "why": "확장 비용이 이익을 얼마나 깎는지"
+      }
     ]
   },
-
   "debate": {
     "question": "CF 현금으로 산 새 사업들이 늘어난 비용을 넘는 매출로 자라는지",
     "bull": {
       "text": "강세로 보는 쪽은 CF 매출이 32.7억 달러로 7.7% 늘어 기반이 단단하고, Casgevy 9,900만 달러와 Journavx 처방 75만 건 이상이 빠르게 큰다는 점을 든다. Palsonify는 신규·전환 환자 점유율 40% 이상이고, 11월 30일 povetacicept 결정으로 신장 질환이 다섯 번째 사업이 될 수 있다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     "bear": {
       "text": "약세로 보는 쪽은 Non-GAAP 비용 전망이 56.5~57.5억에서 약 60억 달러로 오르고 Non-GAAP EPS가 4.76달러로 전년 4.80달러보다 낮았다는 점을 짚는다. 매출의 95%가 아직 CF이고, 인수를 위해 45억 달러를 빌려 현금은 98억 달러로 줄었다. 컨센서스 수정도 최근 4주 하향 6건이 상향 2건보다 많다.",
-      "src": ["s1", "s2"]
+      "src": [
+        "s1",
+        "s2"
+      ]
     },
     "decides": [
-      { "when": "2026-11-30", "what": "povetacicept(IgA 신증) FDA 가속 승인 여부", "src": ["s1"] },
-      { "when": "2027 중반", "what": "suzetrigine 당뇨병성 신경병증 통증 3상 결과", "src": ["s1"] }
+      {
+        "when": "2026-11-30",
+        "what": "povetacicept(IgA 신증) FDA 가속 승인 여부",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2027 중반",
+        "what": "suzetrigine 당뇨병성 신경병증 통증 3상 결과",
+        "src": [
+          "s1"
+        ]
+      }
     ]
   },
-
   "underTheHood": [
     {
       "title": "CF 안에서의 자기 대체",
       "text": "Trikafta/Kaftrio는 Q3에 8.2% 줄었지만 Alyftrek이 7.06억 달러로 세 배 가까이 늘어 CF 합계는 7.7% 증가했다. 성장의 상당 부분이 자사 제품 간 이동이라, CF 합계 숫자를 봐야 실제 수요를 읽을 수 있다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     {
       "title": "인수 비용이 GAAP을 가린다",
       "text": "Q3 GAAP EPS는 2.56달러, Non-GAAP는 4.76달러였다. Crinetics 관련 보상·거래 비용 약 5억 달러가 GAAP 판관비(8.4억 달러)를 전년의 두 배로 키웠다. 일회성 비용과 새 사업의 반복 비용을 구분해 읽어야 한다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     {
       "title": "순현금에서 차입으로",
       "text": "현금·유가증권은 연초 123억에서 9월말 98억 달러로 줄었고, 45억 달러 기간 대출로 단기·장기 부채가 약 45억 달러 생겼다. 여전히 순현금이지만 이전보다 확장 여력이 줄어, 다음 인수나 자사주 매입의 규모가 달라질 수 있다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     }
   ],
-
   "trading": {
     "calendar": [
-      { "date": "2026-11-30", "event": "povetacicept(IgA 신증) FDA 결정 예정일", "src": ["s1"] },
-      { "date": "2027-02 (추정, 회사 미확정)", "event": "Q4·FY2026 실적과 2027 전망", "src": [] }
+      {
+        "date": "2026-11-30",
+        "event": "povetacicept(IgA 신증) FDA 결정 예정일",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "date": "2027-02 (추정, 회사 미확정)",
+        "event": "Q4·FY2026 실적과 2027 전망",
+        "src": []
+      }
     ],
     "reaction": "주가는 분기 CF 매출보다 임상 결과와 FDA 결정, 새 제품 출시 지표에 크게 반응하는 경향이 있다.",
     "conditions": [
@@ -228,7 +529,6 @@
       "컨센서스 EPS 상향·하향 건수"
     ]
   },
-
   "unverified": [
     "영업현금흐름·잉여현금흐름 (보도자료 미공시)",
     "자사주 매입 금액 (인수와 합쳐 순현금 90억 달러로만 공시)",

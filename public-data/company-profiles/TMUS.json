@@ -5,9 +5,15 @@
   "fiscalYearEnd": "December 31",
   "oneLine": "T-Mobile US는 5G 망을 앞세워 미국 무선 시장에서 가장 빠르게 커 온 통신사로, 이제 '가입 회선 수'보다 '계정당 매출(ARPA)'을 키워 이익과 현금흐름을 늘리는 단계에 들어섰다.",
   "sources": [
-    { "id": "s1", "kind": "earnings-release", "title": "T-Mobile US Q3 2026 earnings release (Form 8-K Exhibit 99.1): results, account metrics, shareholder returns, updated 2026 guidance", "url": "https://www.sec.gov/Archives/edgar/data/0001283699/000128369926000128/tmus09302026ex991.htm", "publisher": "T-Mobile US / SEC EDGAR", "date": "2026-10-28" }
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "T-Mobile US Q3 2026 earnings release (Form 8-K Exhibit 99.1): results, account metrics, shareholder returns, updated 2026 guidance",
+      "url": "https://www.sec.gov/Archives/edgar/data/0001283699/000128369926000128/tmus09302026ex991.htm",
+      "publisher": "T-Mobile US / SEC EDGAR",
+      "date": "2026-10-28"
+    }
   ],
-
   "moat": {
     "sources": [
       "전국 5G 무선망 - 무선 서비스 매출이 전체의 대부분을 차지하는 단일 무선 중심 구조",
@@ -16,14 +22,16 @@
       "높은 현금 창출력 - 2026년 조정 잉여현금흐름 187억~188억 달러 전망"
     ],
     "text": "T-Mobile US의 힘은 전국 5G 무선망과 그 위의 대규모 계정 기반에서 나온다. Q3 2026 후불 계정은 3,497만 개였고, 계정 하나가 매달 평균 155.73달러를 낸다. UScellular 인수와 광 사업자 Lumos·Metronet 계정 인수로 규모를 더 키웠다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "design": {
     "text": "상품은 휴대폰·태블릿·웨어러블 회선을 묶은 후불 요금제, 선불 요금제, 5G 집 인터넷과 광 인터넷, 그리고 단말기 판매다. 2026년부터 회사는 휴대폰 회선 순증 대신 '후불 계정 순증'과 'ARPA'를 핵심 지표로 제시해, 한 가구·기업 계정에 여러 회선과 인터넷을 얹는 방향을 강조한다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "make": {
     "model": "asset-owner",
     "partners": [
@@ -32,9 +40,10 @@
       "네트워크 장비·단말 공급업체 - 이번 자료에서 업체명 미확인"
     ],
     "text": "통신사의 생산은 망 구축과 운영이다. T-Mobile US는 Q3 2026 설비투자로 22.7억 달러(전년 대비 14.0% 감소)를 썼고, 2026년 연간 설비투자는 약 100억 달러로 유지했다. 망 확장의 상당 부분을 직접 구축보다 UScellular 같은 인수와 통합으로 해 왔고, 그 통합 비용이 아직 손익에 남아 있다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "sell": {
     "customers": [
       "미국 후불 개인·가족 계정 - 후불 서비스 매출 162.7억 달러(Q3 2026)",
@@ -45,113 +54,336 @@
     "channel": "직영 매장·온라인·앱, 대리점, 기업 영업 조직",
     "concentration": "단일 대형 고객 의존 공시 없음 (보도자료 기준)",
     "text": "이 망은 주로 미국 후불 계정에 팔린다. Q3 2026 서비스 매출 193.8억 달러 가운데 후불 서비스가 162.7억 달러로 9.3% 늘어 성장을 이끌었다. 고객은 직영 매장과 온라인·앱, 대리점, 기업 영업을 통해 가입한다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "moneyFlow": {
     "steps": [
-      { "from": "후불 개인·가족·기업 계정", "to": "T-Mobile US", "what": "매달 계정 단위 요금 (ARPA 155.73달러, Q3 2026 후불 서비스 매출 162.7억 달러)" },
-      { "from": "선불 가입자·도매 고객", "to": "T-Mobile US", "what": "선불 요금·도매 요금 (나머지 서비스 매출 약 31억 달러, 계산값)" },
-      { "from": "개인·기업 고객", "to": "T-Mobile US", "what": "단말기 대금과 기타 매출 (약 42억 달러, 계산값)" },
-      { "from": "T-Mobile US", "to": "주주", "what": "Q3 2026 자사주 24억 달러 + 배당 11억 달러" }
+      {
+        "from": "후불 개인·가족·기업 계정",
+        "to": "T-Mobile US",
+        "what": "매달 계정 단위 요금 (ARPA 155.73달러, Q3 2026 후불 서비스 매출 162.7억 달러)"
+      },
+      {
+        "from": "선불 가입자·도매 고객",
+        "to": "T-Mobile US",
+        "what": "선불 요금·도매 요금 (나머지 서비스 매출 약 31억 달러, 계산값)"
+      },
+      {
+        "from": "개인·기업 고객",
+        "to": "T-Mobile US",
+        "what": "단말기 대금과 기타 매출 (약 42억 달러, 계산값)"
+      },
+      {
+        "from": "T-Mobile US",
+        "to": "주주",
+        "what": "Q3 2026 자사주 24억 달러 + 배당 11억 달러"
+      }
     ],
     "pricing": "계정 단위 월정액 구독(회선 여러 개와 집 인터넷을 한 계정에 묶음)이 중심이고, 단말기는 별도 판매한다.",
     "text": "돈은 대부분 매달 계정에서 들어온다. ARPA가 1년 새 149.44달러에서 155.73달러로 4% 오르면서, 계정 순증이 전년 39.6만에서 27.4만으로 줄었는데도 후불 서비스 매출은 9.3% 늘었다. 즉 지금 성장의 엔진은 새 고객 수보다 기존 계정에서 더 많이 받는 가격과 회선 추가다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "earnings": {
     "period": "Q3 2026 (ended 2026-09-30)",
-    "revenue": { "value": 23.584, "unit": "USD bn", "yoy": 7.4 },
+    "revenue": {
+      "value": 23.584,
+      "unit": "USD bn",
+      "yoy": 7.4
+    },
     "grossMargin": null,
     "operatingMargin": 24.0,
     "netMargin": 14.6,
-    "operatingCashFlow": { "value": 7.341, "unit": "USD bn" },
-    "freeCashFlow": { "value": 5.071, "unit": "USD bn" },
+    "operatingCashFlow": {
+      "value": 7.341,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": 5.071,
+      "unit": "USD bn"
+    },
     "segments": [
-      { "name": "Postpaid service revenues", "revenue": 16.269, "unit": "USD bn", "share": 69.0, "yoy": 9.3, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Prepaid, wholesale and other service revenues (계산값)", "revenue": 3.106, "unit": "USD bn", "share": 13.2, "yoy": null, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Equipment and other revenues (계산값)", "revenue": 4.209, "unit": "USD bn", "share": 17.8, "yoy": null, "operatingMargin": null, "src": ["s1"] }
+      {
+        "name": "Postpaid service revenues",
+        "revenue": 16.269,
+        "unit": "USD bn",
+        "share": 69.0,
+        "yoy": 9.3,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Prepaid, wholesale and other service revenues (계산값)",
+        "revenue": 3.106,
+        "unit": "USD bn",
+        "share": 13.2,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Equipment and other revenues (계산값)",
+        "revenue": 4.209,
+        "unit": "USD bn",
+        "share": 17.8,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "industryMetric": [
-      { "name": "후불 계정 순증", "value": "Q3 2026 27.4만 (전년 39.6만); 2026 전망 약 100만", "src": ["s1"] },
-      { "name": "후불 계정 이탈률 (월)", "value": "Q3 2026 1.09% (전년 0.97%)", "src": ["s1"] },
-      { "name": "후불 ARPA", "value": "Q3 2026 155.73달러, 4% 증가 (전년 149.44달러)", "src": ["s1"] },
-      { "name": "후불 계정 수", "value": "3,497.4만 개, 약 3% 증가", "src": ["s1"] },
-      { "name": "Core Adjusted EBITDA", "value": "Q3 2026 96.2억 달러, 10.8% 증가; 2026 전망 373.5억~374.5억 달러", "src": ["s1"] }
+      {
+        "name": "후불 계정 순증",
+        "value": "Q3 2026 27.4만 (전년 39.6만); 2026 전망 약 100만",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "후불 계정 이탈률 (월)",
+        "value": "Q3 2026 1.09% (전년 0.97%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "후불 ARPA",
+        "value": "Q3 2026 155.73달러, 4% 증가 (전년 149.44달러)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "후불 계정 수",
+        "value": "3,497.4만 개, 약 3% 증가",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Core Adjusted EBITDA",
+        "value": "Q3 2026 96.2억 달러, 10.8% 증가; 2026 전망 373.5억~374.5억 달러",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "text": "Q3 2026 매출은 235.8억 달러로 7.4% 늘었고, 영업이익은 56.6억 달러(영업이익률 약 24%), 순이익은 34.6억 달러로 27.3% 늘었다. 희석 EPS는 3.22달러로 33.6% 올랐다. 이익이 매출보다 빨리 크는 것은 비싼 요금제로의 이동(ARPA 상승)과 설비투자 감소가 함께 작용한 결과다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "useOfCash": {
     "period": "Q3 2026 (ended 2026-09-30)",
     "items": [
-      { "use": "capex", "value": 2.27, "unit": "USD bn", "src": ["s1"] },
-      { "use": "buybacks", "value": 2.4, "unit": "USD bn", "src": ["s1"] },
-      { "use": "dividends", "value": 1.1, "unit": "USD bn", "src": ["s1"] },
-      { "use": "other", "label": "UScellular 통합 관련 비용", "value": 0.129, "unit": "USD bn", "src": ["s1"] }
+      {
+        "use": "capex",
+        "value": 2.27,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "buybacks",
+        "value": 2.4,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "dividends",
+        "value": 1.1,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "other",
+        "label": "UScellular 통합 관련 비용",
+        "value": 0.129,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "text": "번 현금의 상당 부분이 주주에게 돌아간다. Q3 2026 조정 잉여현금흐름 50.7억 달러 가운데 35억 달러를 자사주(24억 달러)와 배당(11억 달러)으로 썼고, 2026년 말까지 최대 182억 달러 환원 승인이 남아 있다. 2022년 3분기 이후 누적 환원은 581억 달러(자사주 467억 달러)에 이른다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "aiChain": {
     "layer": "networking",
     "position": "AI 칩·모델을 만들지 않고, AI 서비스를 쓰는 개인·기업 단말기에 5G 무선 연결을 파는 연결 계층이다.",
-    "dependsOn": ["networking (무선 장비 공급업체 - 업체명 미확인)", "power-energy (기지국 전력)"],
-    "sellsTo": ["devices (스마트폰 사용자)", "ai-adopter (기업 고객)"],
+    "dependsOn": [
+      "네트워크 (무선 장비 공급업체 - 업체명 미확인)",
+      "전력·에너지 (기지국 전력)"
+    ],
+    "sellsTo": [
+      "기기 (스마트폰 사용자)",
+      "AI를 쓰는 기업 (기업 고객)"
+    ],
     "aiRevenue": null,
     "upside": "AI 기능이 늘어 단말기 데이터 사용량이 커지면 고가 요금제 수요와 ARPA가 올라갈 수 있다.",
     "risk": "Q3 2026 보도자료에는 AI 관련 매출이나 계약이 언급되지 않아, AI가 실적에 미치는 효과는 아직 확인할 수 없다.",
     "text": "AI 가치사슬에서 T-Mobile US는 단말기 쪽 '연결' 자리에 있다. 다만 최근 보도자료에는 AI 관련 숫자가 없고, 실적은 계정 순증과 ARPA가 결정한다. 그래서 이 회사의 AI 노출은 간접적이고 제한적으로 읽는 것이 맞다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "competition": {
     "arenas": [
-      { "arena": "미국 무선(휴대폰)", "rivals": ["Verizon", "AT&T", "케이블 MVNO (Comcast, Charter)"], "position": "leader", "share": null, "src": ["s1"] },
-      { "arena": "가정용 브로드밴드 (5G 집 인터넷·광)", "rivals": ["Comcast", "Charter", "AT&T", "Verizon"], "position": "challenger", "share": null, "src": ["s1"] }
+      {
+        "arena": "미국 무선(휴대폰)",
+        "rivals": [
+          "Verizon",
+          "AT&T",
+          "케이블 MVNO (Comcast, Charter)"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "가정용 브로드밴드 (5G 집 인터넷·광)",
+        "rivals": [
+          "Comcast",
+          "Charter",
+          "AT&T",
+          "Verizon"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "edge": "5G 망과 계정 단위 결합으로 ARPA를 올리는 능력, 낮아진 설비투자 부담과 큰 잉여현금흐름.",
     "threats": "Verizon·AT&T가 순증 회복을 위해 경쟁을 강화하고 케이블 MVNO가 저가로 공세하면서 이탈률이 오르는 것(Q3 2026 1.09%, 전년 0.97%).",
     "text": "T-Mobile US는 무선에서 Verizon·AT&T, 그리고 망을 빌려 쓰는 케이블 MVNO와 싸운다. Q3 2026에는 계정 순증이 전년보다 줄고 계정 이탈률이 0.97%에서 1.09%로 올라, 경쟁이 거세지는 신호가 숫자에 나타났다. 회사는 같은 분기 ARPA 4% 상승과 EBITDA 10.8% 증가로 '양보다 질'을 택했음을 보여 줬다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "strategy": {
     "goal": "2026년 후불 계정 순증 약 100만, Core Adjusted EBITDA 373.5억~374.5억 달러, 조정 잉여현금흐름 187억~188억 달러, 설비투자 약 100억 달러.",
     "roadmap": [
-      { "when": "2025 Q3", "what": "UScellular 인수 (후불 계정 144.8만 개 편입)", "src": ["s1"] },
-      { "when": "2026", "what": "UScellular 통합 진행 (연초 이후 통합 비용 7.17억 달러)", "src": ["s1"] },
-      { "when": "2026-12-31까지", "what": "최대 182억 달러 주주 환원 승인 집행", "src": ["s1"] }
+      {
+        "when": "2025 Q3",
+        "what": "UScellular 인수 (후불 계정 144.8만 개 편입)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2026",
+        "what": "UScellular 통합 진행 (연초 이후 통합 비용 7.17억 달러)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2026-12-31까지",
+        "what": "최대 182억 달러 주주 환원 승인 집행",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "vision": "회선 수 경쟁에서 계정당 가치 경쟁으로 옮겨, 한 계정에 무선 회선·집 인터넷을 더 얹어 ARPA와 현금흐름을 키운다.",
     "text": "앞으로의 계획은 계정을 깊게 파는 것이다. 회사는 2026년 연간 EBITDA·현금흐름 전망 중간값을 각각 1억·1.5억 달러씩 올리면서 계정 순증 전망 중간값은 약 100만으로 유지했다. 이는 순증 속도보다 계정당 매출과 비용 효율로 이익을 키우겠다는 뜻으로 읽힌다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "governance": {
     "line": "지배구조 세부(최대주주·경영진)는 이번 자료에서 확인하지 못했으며, 회사는 2026-12-31까지 최대 182억 달러 주주 환원 승인을 두고 분기마다 자사주와 배당을 집행하고 있다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "guidance": {
     "latest": [
-      { "period": "FY2026", "metric": "postpaid net account additions", "value": "약 100만 (직전 95만~105만, 중간값 유지)", "givenOn": "2026-10-28", "src": ["s1"] },
-      { "period": "FY2026", "metric": "Core Adjusted EBITDA", "value": "373.5억~374.5억 달러 (직전 371억~375억 달러, 중간값 1억 달러 상향)", "givenOn": "2026-10-28", "src": ["s1"] },
-      { "period": "FY2026", "metric": "net cash from operating activities", "value": "287억~288억 달러 (직전 284억~288억 달러)", "givenOn": "2026-10-28", "src": ["s1"] },
-      { "period": "FY2026", "metric": "adjusted free cash flow", "value": "187억~188억 달러 (직전 184억~188억 달러)", "givenOn": "2026-10-28", "src": ["s1"] },
-      { "period": "FY2026", "metric": "capital expenditures", "value": "약 100억 달러 (유지)", "givenOn": "2026-10-28", "src": ["s1"] },
-      { "period": "FY2026", "metric": "effective tax rate", "value": "24~25% (직전 25~26%)", "givenOn": "2026-10-28", "src": ["s1"] }
+      {
+        "period": "FY2026",
+        "metric": "후불 순증 계정",
+        "value": "약 100만 (직전 95만~105만, 중간값 유지)",
+        "givenOn": "2026-10-28",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "핵심 조정 EBITDA",
+        "value": "373.5억~374.5억 달러 (직전 371억~375억 달러, 중간값 1억 달러 상향)",
+        "givenOn": "2026-10-28",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "영업활동 순현금",
+        "value": "287억~288억 달러 (직전 284억~288억 달러)",
+        "givenOn": "2026-10-28",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "조정 잉여현금흐름",
+        "value": "187억~188억 달러 (직전 184억~188억 달러)",
+        "givenOn": "2026-10-28",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "설비투자",
+        "value": "약 100억 달러 (유지)",
+        "givenOn": "2026-10-28",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "실효세율",
+        "value": "24~25% (직전 25~26%)",
+        "givenOn": "2026-10-28",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "style": "annual",
     "track": "Q3 2026에는 범위를 좁히며 EBITDA·현금흐름 중간값을 올렸고, 계정 순증과 설비투자는 유지했다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
-  "estimates": { "text": null, "src": [] },
-
+  "estimates": {
+    "text": null,
+    "src": []
+  },
   "watch": {
     "confirms": [
       "ARPA가 계속 전년 대비 3~4% 오름",
@@ -167,50 +399,94 @@
       "설비투자가 100억 달러를 넘어 현금흐름 전망 하향"
     ],
     "keyNumbers": [
-      { "name": "후불 계정 순증", "why": "고객 기반 성장의 직접 지표" },
-      { "name": "후불 계정 이탈률", "why": "경쟁 강도를 가장 먼저 보여 줌" },
-      { "name": "후불 ARPA", "why": "가격·결합 전략의 성과" },
-      { "name": "Core Adjusted EBITDA", "why": "회사가 내세우는 이익 지표" },
-      { "name": "조정 잉여현금흐름", "why": "자사주·배당의 재원" }
+      {
+        "name": "후불 계정 순증",
+        "why": "고객 기반 성장의 직접 지표"
+      },
+      {
+        "name": "후불 계정 이탈률",
+        "why": "경쟁 강도를 가장 먼저 보여 줌"
+      },
+      {
+        "name": "후불 ARPA",
+        "why": "가격·결합 전략의 성과"
+      },
+      {
+        "name": "Core Adjusted EBITDA",
+        "why": "회사가 내세우는 이익 지표"
+      },
+      {
+        "name": "조정 잉여현금흐름",
+        "why": "자사주·배당의 재원"
+      }
     ]
   },
-
   "debate": {
     "question": "계정 순증 둔화와 이탈률 상승 속에서도 ARPA 상승으로 이익 성장을 이어 갈 수 있는지",
     "bull": {
       "text": "낙관하는 쪽은 Q3 2026 ARPA가 155.73달러로 4% 오르며 후불 서비스 매출이 9.3%, Core Adjusted EBITDA가 10.8%, EPS가 33.6% 늘었다는 점을 근거로 든다. 회사는 같은 분기 연간 EBITDA와 잉여현금흐름 전망 중간값을 올렸고 설비투자는 14.0% 줄었다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     "bear": {
       "text": "비관하는 쪽은 후불 계정 순증이 전년 39.6만에서 27.4만으로 줄고 계정 이탈률이 0.97%에서 1.09%로 오른 점을 든다. 가격을 올려 버는 성장은 경쟁사가 공세를 높이면 이탈로 되돌아올 수 있고, 영업현금흐름은 이미 전년보다 1.6% 줄었다고 본다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     "decides": [
-      { "when": "2027-01 하순~02 (추정, 회사 미확정)", "what": "4Q26 실적에서 연간 계정 순증 약 100만 달성 여부와 이탈률 방향, 2027 가이던스", "src": ["s1"] },
-      { "when": "다음 분기들", "what": "ARPA 증가율이 3~4%를 유지하는지", "src": ["s1"] }
+      {
+        "when": "2027-01 하순~02 (추정, 회사 미확정)",
+        "what": "4Q26 실적에서 연간 계정 순증 약 100만 달성 여부와 이탈률 방향, 2027 가이던스",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "다음 분기들",
+        "what": "ARPA 증가율이 3~4%를 유지하는지",
+        "src": [
+          "s1"
+        ]
+      }
     ]
   },
   "underTheHood": [
     {
       "title": "지표를 계정으로 바꾼 뜻",
       "text": "회사는 휴대폰 회선 순증 대신 후불 계정 순증과 ARPA를 핵심 지표로 내세운다. 한 계정에 회선과 인터넷을 더 얹는 전략에는 맞는 지표지만, 경쟁사가 보고하는 휴대폰 순증과 바로 비교하기는 어려워진다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     {
       "title": "인수로 산 성장",
       "text": "UScellular 인수로 2025 Q3에 후불 계정 144.8만 개가 한꺼번에 들어왔고, 2026년에도 연초 이후 7.17억 달러의 통합 비용이 나갔다. 계정 수의 전년 대비 증가율 약 3%에는 이런 인수 효과가 섞여 있어 자체 순증과 나눠 읽어야 한다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     {
       "title": "투자가 줄어 남는 현금",
       "text": "Q3 설비투자는 22.7억 달러로 14.0% 줄었고 조정 잉여현금흐름은 5.3% 늘었다. 영업현금흐름 자체는 1.6% 줄었으므로, 지금의 현금 증가는 영업 확대보다 투자 감소에서 나온 몫이 크다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     }
   ],
   "trading": {
     "calendar": [
-      { "date": "2027-01 하순~02 (추정, 회사 미확정)", "event": "4Q26·FY2026 실적과 2027 가이던스", "src": [] },
-      { "date": "분기 중 수시", "event": "Verizon·AT&T 실적의 순증·이탈률 비교", "src": [] }
+      {
+        "date": "2027-01 하순~02 (추정, 회사 미확정)",
+        "event": "4Q26·FY2026 실적과 2027 가이던스",
+        "src": []
+      },
+      {
+        "date": "분기 중 수시",
+        "event": "Verizon·AT&T 실적의 순증·이탈률 비교",
+        "src": []
+      }
     ],
     "reaction": "통신주는 가입자 순증과 이탈률, 잉여현금흐름 가이던스에 크게 반응하는 경향이 있다. Q3 2026은 이익이 크게 늘었지만 계정 순증 둔화와 이탈률 상승이 함께 나왔다.",
     "conditions": [

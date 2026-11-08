@@ -1,7 +1,7 @@
 {
   "symbol": "NVDA",
   "name": "NVIDIA Corporation",
-  "researchedAt": "2026-10-28",
+  "researchedAt": "2026-11-08",
   "fiscalYearEnd": "late January (FY2026 ended 2026-01-25)",
   "oneLine": "NVIDIA는 AI를 학습시키고 돌리는 데이터센터용 GPU·네트워킹·랙 시스템을 설계해 파는 회사로, 매출의 90% 이상이 AI 데이터센터에서 나와 AI 투자 사이클의 온도계 역할을 한다.",
   "sources": [
@@ -148,6 +148,22 @@
       "url": "https://thenextweb.com/news/google-tpu-compute-internal-researchers-anthropic",
       "publisher": "The Next Web (based on Bloomberg)",
       "date": "2026-05-18"
+    },
+    {
+      "id": "s19",
+      "kind": "ir-site",
+      "title": "NVIDIA Sets Conference Call for Third-Quarter Financial Results (call 2026-11-17, 2 p.m. PT)",
+      "url": "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Sets-Conference-Call-for-Third-Quarter-Financial-Results/default.aspx",
+      "publisher": "NVIDIA",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s20",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/nvda/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-11-08"
     }
   ],
   "moat": {
@@ -249,89 +265,67 @@
     ]
   },
   "earnings": {
-    "period": "FY2026 (ended 2026-01-25)",
+    "period": "Q2 FY2027 (ended 2026-07-26)",
+    "periodEnd": "2026-07-26",
+    "basis": "quarter",
     "revenue": {
-      "value": 215.9,
+      "value": 96.221,
       "unit": "USD bn",
-      "yoy": 65
+      "yoy": 105.9
     },
-    "grossMargin": 71.1,
-    "operatingMargin": 60.4,
-    "netMargin": 55.6,
+    "grossMargin": 75.0,
+    "operatingMargin": 66.2,
+    "netMargin": 62.0,
     "operatingCashFlow": {
-      "value": 102.7,
+      "value": 24.077,
       "unit": "USD bn"
     },
     "freeCashFlow": {
-      "value": 96.6,
+      "value": 21.341,
       "unit": "USD bn"
     },
     "segments": [
       {
         "name": "Data Center",
-        "revenue": 193.7,
+        "revenue": 89.0,
         "unit": "USD bn",
-        "share": 89.7,
-        "yoy": 68,
+        "share": 92.5,
+        "yoy": 117,
         "operatingMargin": null,
-        "src": [
-          "s2"
-        ]
-      },
-      {
-        "name": "Gaming",
-        "revenue": 16,
-        "unit": "USD bn",
-        "share": 7.4,
-        "yoy": 41,
-        "operatingMargin": null,
-        "src": [
-          "s2"
-        ]
-      },
-      {
-        "name": "Professional Visualization",
-        "revenue": 3.2,
-        "unit": "USD bn",
-        "share": 1.5,
-        "yoy": 70,
-        "operatingMargin": null,
-        "src": [
-          "s2"
-        ]
-      },
-      {
-        "name": "Automotive",
-        "revenue": 2.3,
-        "unit": "USD bn",
-        "share": 1.1,
-        "yoy": 39,
-        "operatingMargin": null,
-        "src": [
-          "s2"
-        ]
-      },
-      {
-        "name": "OEM & Other",
-        "revenue": null,
-        "unit": "USD bn",
-        "share": null,
-        "yoy": null,
-        "operatingMargin": null,
-        "src": []
-      }
-    ],
-    "industryMetric": [
-      {
-        "name": "최근 분기 (Q2 FY2027) 매출·마진",
-        "value": "매출 962억 달러(전년 대비 +106%), GAAP 총마진 75.0%, 영업이익률 약 66.2% (영업이익 637억 달러 기준 계산)",
         "src": [
           "s1"
         ]
       },
       {
-        "name": "Q2 FY2027 플랫폼별 매출",
-        "value": "Data Center 890억(+117%; Hyperscale 약 490억·ACIE 약 400억), Edge 72억 달러(+27%)",
+        "name": "Edge Computing",
+        "revenue": 7.2,
+        "unit": "USD bn",
+        "share": 7.5,
+        "yoy": 27,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "Data Center 고객군별 매출 (Q2 FY2027)",
+        "value": "Hyperscale 약 490억 달러, ACIE(AI 클라우드·기업·국가) 약 400억 달러(+138%)",
+        "src": [
+          "s7"
+        ]
+      },
+      {
+        "name": "순이익에 섞인 투자이익",
+        "value": "지분증권 이익 77.7억 달러, 영업외 기타이익 77.7억 달러 - 순이익률 62.0%가 영업이익률 66.2%에 가까운 이유",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "운전자본이 묶은 현금 (Q2 FY2027)",
+        "value": "매출채권 증가 223.5억, 재고 증가 57.8억 달러; 분기말 재고 약 320억 달러, DSO 60일 (콜)",
         "src": [
           "s1",
           "s7"
@@ -345,13 +339,6 @@
         ]
       },
       {
-        "name": "재고·매출채권 회수기간",
-        "value": "재고 약 320억 달러, DSO 60일 (Q2 FY2027)",
-        "src": [
-          "s7"
-        ]
-      },
-      {
         "name": "기가와트당 매출 기회",
         "value": "Vera Rubin 약 400억 달러 (Blackwell 약 250억)",
         "src": [
@@ -359,96 +346,95 @@
         ]
       }
     ],
-    "text": "이 흐름이 FY2026에 매출 2,159억 달러, 영업이익률 약 60%, 순이익률 약 56%라는 결과로 나타났고, 이익의 거의 전부가 데이터센터에서 나온다. 최근 분기(Q2 FY2027)는 매출 962억 달러, 총마진 75.0%로 더 높아졌다. 다만 같은 분기 영업현금흐름은 241억 달러로 순이익 597억 달러보다 크게 적었는데, 재고 증가와 연장 결제 조건(DSO 60일)이 현금을 묶은 영향으로 보인다(순이익에는 지분증권 평가이익 78억 달러도 포함).",
+    "text": "Q2 FY2027(2026-07-26 마감) 매출은 962억 달러로 전년 같은 분기보다 106% 늘었고, GAAP 총마진 75.0%, 영업이익률 66.2%, 순이익률 62.0%였다. 매출의 92.5%인 890억 달러(+117%)가 Data Center에서 나왔고 Edge Computing은 72억 달러(+27%)였다. 다만 영업현금흐름은 241억 달러로 순이익 597억 달러에 크게 못 미쳤는데, 매출채권이 223억 달러, 재고가 58억 달러 늘었고 순이익에는 지분증권 이익 78억 달러가 들어 있다. 직전 회계연도 FY2026 매출은 2,159억 달러(+65%), 영업이익률 약 60%였다.",
     "src": [
-      "s2",
       "s1",
-      "s7"
+      "s7",
+      "s2"
     ]
   },
   "useOfCash": {
-    "period": "FY2026 (ended 2026-01-25)",
+    "period": "Q2 FY2027 (3개월, ended 2026-07-26)",
     "items": [
       {
         "use": "R&D",
-        "value": 18.5,
+        "value": 7.054,
         "unit": "USD bn",
         "src": [
-          "s2"
+          "s1"
         ]
       },
       {
         "use": "capex",
-        "value": 6,
+        "value": 2.677,
         "unit": "USD bn",
         "src": [
-          "s2"
+          "s1"
         ]
       },
       {
         "use": "acquisitions",
-        "value": 1.5,
+        "value": 0.211,
         "unit": "USD bn",
         "src": [
-          "s2"
+          "s1"
         ]
       },
       {
         "use": "other",
-        "value": 17.5,
+        "value": 15.822,
         "unit": "USD bn",
         "src": [
-          "s2"
+          "s1"
         ],
-        "label": "비상장 기업 지분 매입"
+        "label": "지분증권 매입"
       },
       {
         "use": "other",
-        "value": 13,
+        "value": 2.944,
         "unit": "USD bn",
         "src": [
-          "s2"
+          "s1"
         ],
-        "label": "Groq 관련 지출"
+        "label": "Groq 관련 지급 (재무활동 항목)"
       },
       {
         "use": "buybacks",
-        "value": 40.1,
+        "value": 19.732,
         "unit": "USD bn",
         "src": [
-          "s2"
+          "s1"
         ]
       },
       {
         "use": "dividends",
-        "value": 0.97,
+        "value": 6.047,
         "unit": "USD bn",
         "src": [
-          "s2"
+          "s1"
         ]
       }
     ],
-    "text": "벌어들인 현금(FY2026 잉여현금흐름 966억 달러)의 가장 큰 쓰임은 자사주 매입 401억 달러였고, 비상장 지분 매입 175억 달러와 Groq 관련 130억 달러가 그 뒤를 잇는다(두 항목은 'other'). 공장이 없어 설비투자는 60억 달러에 그친 반면 R&D 비용은 185억 달러다. FY2027 들어서는 배당을 분기 0.25달러로 올리고 Q2에만 주주환원 약 260억 달러, 지분투자 158억 달러를 써서, 주주환원과 고객 생태계 투자를 동시에 키우는 방향이 분명하다.",
+    "text": "Q2 FY2027 한 분기 잉여현금흐름 213억 달러보다 많은 258억 달러(자사주 197억, 배당 60억)를 주주에게 돌려줬고, 같은 분기에 249억 달러 차입이 새로 들어왔다. 지분증권 매입 158억 달러와 Groq 관련 29억 달러는 고객·생태계 투자 쪽 지출이다. 공장이 없어 설비투자는 27억 달러에 그친 반면 R&D 비용은 71억 달러다. 직전 회계연도 FY2026에는 자사주 401억, 비상장 지분 175억, Groq 관련 130억 달러를 썼다.",
     "src": [
-      "s2",
       "s1",
-      "s7"
+      "s2"
     ]
   },
   "aiChain": {
     "layer": "chips-compute",
     "position": "AI 데이터센터의 연산 핵심인 가속기(GPU)를 중심으로 CPU·네트워킹·랙 시스템까지 공급하는 시스템 공급자. 클라우드와 AI 연구소가 짓는 'AI 팩토리'의 설계도를 사실상 제공한다.",
     "dependsOn": [
-      "semicap-foundry (TSMC, Samsung 웨이퍼·CoWoS 패키징)",
-      "memory (SK hynix, Micron, Samsung HBM)",
+      "장비·파운드리 (TSMC, Samsung 웨이퍼·CoWoS 패키징)",
+      "메모리 (SK hynix, Micron, Samsung HBM)",
       "조립·테스트 (Hon Hai, Wistron, Fabrinet)",
-      "power-energy·data-center-real-estate (고객 측 부지·전력 확보 2~3년)"
+      "전력·에너지·데이터센터 부동산 (고객 측 부지·전력 확보 2~3년)"
     ],
     "sellsTo": [
-      "cloud-infrastructure (Azure, Google Cloud, OCI, AWS, CoreWeave, Nebius)",
-      "models-platforms (OpenAI 등 프런티어 연구소)",
-      "ai-adopter (기업·국가 AI)",
-      "devices (PC·자동차·로봇 OEM)"
+      "클라우드 (Azure, Google Cloud, OCI, AWS, CoreWeave, Nebius)",
+      "모델·플랫폼 (OpenAI 등 프런티어 연구소)",
+      "AI를 쓰는 기업 (기업·국가 AI)",
+      "기기 (PC·자동차·로봇 OEM)"
     ],
     "aiRevenue": "Q2 FY2027 Data Center 매출 890억 달러, 총매출 962억 달러의 약 92.5% (2026-08-26 발표)",
     "upside": "상위 5개 하이퍼스케일러 설비투자(회사 언급: 2026년 약 8,000억, 2027년 1.3조 달러)가 늘고, 세대마다 기가와트당 NVIDIA 몫이 커지면 매출이 직접 늘어난다. 회사는 FY2028 매출 약 70% 성장을 공급 제약 하의 전망으로 제시했다.",
@@ -627,7 +613,7 @@
     "latest": [
       {
         "period": "Q3 FY2027",
-        "metric": "revenue",
+        "metric": "매출",
         "value": "1,080억 달러 ±2% (중국 데이터센터 컴퓨트 매출 미포함)",
         "givenOn": "2026-08-26",
         "src": [
@@ -636,7 +622,7 @@
       },
       {
         "period": "Q3 FY2027",
-        "metric": "gross margin (GAAP·non-GAAP)",
+        "metric": "매출총이익률 (GAAP·non-GAAP)",
         "value": "74.0% ±50bp",
         "givenOn": "2026-08-26",
         "src": [
@@ -645,7 +631,7 @@
       },
       {
         "period": "Q3 FY2027",
-        "metric": "operating expenses",
+        "metric": "영업비용",
         "value": "GAAP 약 92억, non-GAAP 약 90억 달러",
         "givenOn": "2026-08-26",
         "src": [
@@ -653,8 +639,17 @@
         ]
       },
       {
+        "period": "FY2027",
+        "metric": "세율 (GAAP·non-GAAP)",
+        "value": "16.0~18.0% (일회성 항목 제외)",
+        "givenOn": "2026-08-26",
+        "src": [
+          "s1"
+        ]
+      },
+      {
         "period": "Q4 FY2027",
-        "metric": "gross margin",
+        "metric": "매출총이익률",
         "value": "71~72%에서 바닥 (메모리 가격 영향, 콜 발언)",
         "givenOn": "2026-08-26",
         "src": [
@@ -663,7 +658,7 @@
       },
       {
         "period": "FY2028",
-        "metric": "revenue growth / gross margin",
+        "metric": "매출 성장률·매출총이익률",
         "value": "매출 약 +70% (공급 제약 전제), 총마진 72~73% (콜 발언)",
         "givenOn": "2026-08-26",
         "src": [
@@ -672,16 +667,18 @@
       }
     ],
     "style": "quarterly",
-    "track": "최근 두 분기 모두 가이던스를 넘었다: Q1 FY2027 가이던스 780억 → 실제 816억, Q2 가이던스 910억 → 실제 962억 달러.",
+    "track": "최근 두 분기 모두 가이던스를 넘었다: Q1 FY2027 가이던스 780억 → 실제 816억, Q2 가이던스 910억 → 실제 962억 달러. Q3 FY2027 가이던스 1,080억 달러의 결과는 2026-11-17에 나온다.",
     "src": [
       "s4",
-      "s1"
+      "s1",
+      "s19"
     ]
   },
   "estimates": {
-    "text": "2026-10-27 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기 합계 12.06달러(범위 11.02~13.12), 직전 4개 분기 실적 합 6.90달러. 최근 4주 상향 4건·하향 0건으로 상향 방향.",
+    "text": "2026-11-08 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-10~2027-07) 합계 12.06달러(범위 11.02~13.12), 직전 4개 분기 실적 합 6.90달러. 최근 4주 상향 4건·하향 0건. 직전 분기 실적 2.22달러는 컨센서스 2.09달러를 넘었다(회사 non-GAAP 희석 EPS도 2.22달러).",
     "src": [
-      "s12"
+      "s20",
+      "s1"
     ]
   },
   "watch": {
@@ -691,7 +688,7 @@
       "총마진이 Q4 FY2027 71~72% 바닥 예고 범위 안에서 멈춤",
       "하이퍼스케일러가 2027년 설비투자 전망을 유지·상향",
       "데이터센터 이더넷 점유율 1위 유지",
-      "영업현금흐름이 순이익을 다시 따라잡음 (재고·DSO 정상화)"
+      "영업현금흐름이 순이익을 다시 따라잡음 (Q2 FY2027 241억 vs 597억 달러, 매출채권·재고 증가 축소)"
     ],
     "breaks": [
       "다음 분기 매출 가이던스가 컨센서스를 밑돌거나 성장률이 급감",
@@ -729,9 +726,9 @@
     ]
   },
   "debate": {
-    "question": "공급 제약 안에서 늘던 AI 매출이 고객 자체 칩과 고객 금융 지원을 넘어 FY2028에도 이어지는지",
+    "question": "공급 제약 안에서 두 배로 늘어난 AI 매출이 고객 자체 칩과 고객 금융 지원을 넘어 FY2028까지 이어지는지",
     "bull": {
-      "text": "이어진다고 보는 쪽은 Q2 FY2027 매출이 962억 달러(+106%)이고 Q3 가이던스가 1,080억 달러 ±2%이며, Q1·Q2 모두 가이던스를 넘었다는 점을 든다. 회사는 FY2028 매출 약 70% 성장과 총마진 72~73%를 제시하고 공급 병목이 최소 FY2028 말까지 간다고 보며, 공급·생산능력 약정 2,790억 달러가 이미 부품을 선점한 상태이고 Vera Rubin은 기가와트당 약 400억 달러(Blackwell 약 250억)를 말한다.",
+      "text": "이어진다고 보는 쪽은 Q2 FY2027 매출이 962억 달러(+106%), 영업이익률 66.2%이고 Q3 가이던스가 1,080억 달러 ±2%이며, Q1·Q2 모두 가이던스를 넘었다는 점을 든다. 회사는 FY2028 매출 약 70% 성장과 총마진 72~73%를 제시하고 공급 병목이 최소 FY2028 말까지 간다고 보며, 공급·생산능력 약정 2,790억 달러로 부품을 선점했고 Vera Rubin은 기가와트당 약 400억 달러(Blackwell 약 250억)를 말한다.",
       "src": [
         "s1",
         "s4",
@@ -740,23 +737,22 @@
       ]
     },
     "bear": {
-      "text": "위험을 보는 쪽은 외부 추정 점유율이 2025E 약 80%에서 2026E 약 75%로 내려오고 Google이 TPU를 Anthropic·Meta에 외부 판매하며 AMD가 OpenAI 6GW 계약으로 2026년 하반기 MI450 배치를 시작한다는 점을 든다. Q2 영업현금흐름 241억 달러가 순이익 597억 달러(지분증권 평가이익 78억 포함)보다 크게 적고, 재고 약 320억 달러에 공급 약정 2,790억 달러, 고객 직접 2곳이 매출의 36%인 집중이 겹쳐 수요가 꺾이면 손실 위험이 커진다.",
+      "text": "위험을 보는 쪽은 Q2 영업현금흐름 241억 달러가 순이익 597억 달러의 절반에도 못 미치고, 그 분기에만 매출채권이 223억 달러 늘었으며 순이익에 지분증권 이익 78억 달러가 섞였다는 점을 든다. 같은 분기 지분증권 매입 158억 달러, 공급 약정 2,790억 달러, FY2026 직접 고객 2곳 36% 집중이 겹쳐 수요가 꺾이면 손실이 커진다고 본다. 외부 추정 점유율이 2025E 약 80%에서 2026E 약 75%로 내려오고 Google TPU 외부 판매와 AMD의 OpenAI 6GW 계약이 대체 수요를 만든다는 점도 든다.",
       "src": [
+        "s1",
+        "s6",
+        "s3",
         "s15",
         "s18",
-        "s17",
-        "s1",
-        "s7",
-        "s6",
-        "s3"
+        "s17"
       ]
     },
     "decides": [
       {
-        "when": "2026-11 중순 (추정, 회사 미확정)",
-        "what": "Q3 FY2027 매출이 가이던스 1,080억 달러 ±2%를 넘는지와 Q4 가이던스, 총마진이 예고한 71~72% 바닥 안에 드는지",
+        "when": "2026-11-17 (Q3 FY2027 실적, 회사 공지)",
+        "what": "매출이 가이던스 1,080억 달러 ±2%를 넘는지, Q4 가이던스와 총마진이 예고한 71~72% 바닥 안에 드는지, 영업현금흐름이 순이익에 가까워지는지",
         "src": [
-          "s11",
+          "s19",
           "s1",
           "s7"
         ]
@@ -773,7 +769,7 @@
   "underTheHood": [
     {
       "title": "기가와트당 몫과 고객 금융",
-      "text": "회사는 같은 1기가와트 데이터센터에서 NVIDIA가 가져가는 몫을 세대마다 키운다고 설명한다. 동시에 AI 연구소·인프라 파트너에 지분투자(약 500억 달러 규모로 설명)와 신용보강, 수익공유를 제공해 고객의 구매 자금을 돕고 있어, 일부 매출은 NVIDIA 자신의 자금 지원이 받쳐 주는 순환 구조다.",
+      "text": "회사는 같은 1기가와트 데이터센터에서 NVIDIA가 가져가는 몫을 세대마다 키운다고 설명한다. 동시에 AI 연구소·인프라 파트너에 지분투자(약 500억 달러 규모로 설명)와 신용보강, 수익공유를 제공하며, Q2 FY2027 한 분기에만 지분증권 158억 달러를 사들였다. 일부 매출은 NVIDIA 자신의 자금 지원이 받쳐 주는 순환 구조다.",
       "src": [
         "s7",
         "s6",
@@ -782,11 +778,10 @@
     },
     {
       "title": "이익이 현금으로 가지 않는 이유",
-      "text": "Q2 FY2027 영업현금흐름 241억 달러는 순이익 597억 달러보다 크게 적었고 재고 약 320억 달러, 매출채권 DSO 60일, 일부 대형 고객에게 준 연장 결제 조건이 현금을 묶었다. 순이익에는 지분증권 평가이익 78억 달러도 들어 있어 이익의 질은 영업현금흐름과 함께 읽어야 한다.",
+      "text": "Q2 FY2027 영업현금흐름 241억 달러는 순이익 597억 달러의 40% 수준이었다. 현금흐름표에서 매출채권 증가가 223억 달러, 재고 증가가 58억 달러로 현금을 묶었고, 일부 대형 고객에게 준 연장 결제 조건(DSO 60일)이 그 배경으로 설명된다. 순이익에는 현금이 아닌 지분증권 이익 78억 달러도 들어 있어 이익의 질은 영업현금흐름과 함께 읽어야 한다.",
       "src": [
-        "s7",
         "s1",
-        "s6"
+        "s7"
       ]
     },
     {
@@ -812,10 +807,10 @@
   "trading": {
     "calendar": [
       {
-        "date": "2026-11 중순 (추정, 회사 미확정)",
+        "date": "2026-11-17 (장 마감 후, 콜 오후 5시 미 동부시간, 회사 공지)",
         "event": "Q3 FY2027 실적 발표와 Q4 가이던스",
         "src": [
-          "s11"
+          "s19"
         ]
       },
       {
@@ -862,11 +857,10 @@
     "서버 CPU·PC GPU·자동차 SoC 시장 점유율",
     "s16 IDC 수치는 검색 요약에서 읽었고 원문 페이지는 직접 열지 않음",
     "Kyber 랙의 GPU 수 (출처 간 144 vs 576 불일치로 미기재)",
-    "Q2 FY2027 영업현금흐름이 순이익보다 낮은 이유는 콜 녹취록(재고·DSO) 기반 해석이며 10-Q 현금흐름표로 대조하지 않음",
-    "Groq 관련 130억 달러 지출의 성격 (보도자료 현금흐름표 항목명만 확인)",
     "Huang 지분율 3.58% (2차 출처, v1에서 이월)",
-    "Q3 FY2027 실적 발표일 (회사 미공지)",
-    "10-Q 제출일 (s6 날짜는 분기말)"
+    "10-Q 제출일 (s6 날짜는 분기말)",
+    "Groq 관련 지출의 성격 (FY2026 130억, Q2 FY2027 29.4억 달러 - 현금흐름표 항목명만 확인)",
+    "Q2 FY2027 Data Center 내 Hyperscale·ACIE 금액은 콜 녹취(s7) 기준이며 보도자료에는 없음"
   ],
-  "confidence": "high - 실적·현금흐름·공급망은 회사 보도자료·10-K에서 왔고, 점유율(Silicon Analysts·IDC)과 로드맵 연도(Jon Peddie)는 제3자 자료라 medium 수준이다."
+  "confidence": "high - 분기 실적·현금흐름은 회사 보도자료(손익·현금흐름표)와 10-Q에서 왔고, 고객군별 금액·FY2028 전망은 콜 녹취, 점유율(Silicon Analysts·IDC)과 로드맵 연도(Jon Peddie)는 제3자 자료라 medium 수준이다."
 }

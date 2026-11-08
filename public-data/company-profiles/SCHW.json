@@ -5,11 +5,31 @@
   "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
   "oneLine": "Charles Schwab은 고객 자산 13조 달러가 넘는 미국 최대급 증권·자산관리 회사로, 고객이 맡긴 현금의 이자 차익과 자산 규모에 비례한 수수료로 벌기 때문에 개인 투자자의 돈이 어디로 움직이는지 보여 주는 지표다.",
   "sources": [
-    { "id": "s1", "kind": "earnings-release", "title": "Schwab Delivers Record Net New Assets, Earnings (Q3 2026 earnings release)", "url": "https://pressroom.aboutschwab.com/press-releases/press-release/2026/Schwab-Delivers-Record-Net-New-Assets--Earnings/default.aspx", "publisher": "Charles Schwab Pressroom", "date": "2026-10-15" },
-    { "id": "s2", "kind": "10-K", "title": "Charles Schwab FY2025 Form 10-K XBRL facts (net revenues, net income, equity) via AIO public-data/sec-fundamentals-summary.json", "url": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces", "publisher": "SEC EDGAR via AIO", "date": "2026-02-25" },
-    { "id": "s3", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/schw/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-11-07" }
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Schwab Delivers Record Net New Assets, Earnings (Q3 2026 earnings release)",
+      "url": "https://pressroom.aboutschwab.com/press-releases/press-release/2026/Schwab-Delivers-Record-Net-New-Assets--Earnings/default.aspx",
+      "publisher": "Charles Schwab Pressroom",
+      "date": "2026-10-15"
+    },
+    {
+      "id": "s2",
+      "kind": "10-K",
+      "title": "Charles Schwab FY2025 Form 10-K XBRL facts (net revenues, net income, equity) via AIO public-data/sec-fundamentals-summary.json",
+      "url": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
+      "publisher": "SEC EDGAR via AIO",
+      "date": "2026-02-25"
+    },
+    {
+      "id": "s3",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/schw/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-11-07"
+    }
   ],
-
   "moat": {
     "sources": [
       "고객 자산 규모 - 2026-09말 13.33조 달러, +15%",
@@ -18,14 +38,16 @@
       "고객 현금을 자체 은행에 쌓아 굴리는 구조 - 거래용 스윕 현금 4,928억 달러"
     ],
     "text": "Schwab의 힘은 규모와 비용이다. 고객 자산 13.33조 달러, 활동 계좌 4,026만 개를 낮은 비용으로 운영해 매출의 절반 이상을 세전이익으로 남긴다(Q3 2026 52.7%). 개인 투자자뿐 아니라 독립 투자자문사(RIA)의 자산을 맡아 주는 수탁 사업이 있어, 자산이 한쪽에서 빠져도 다른 쪽에서 들어오는 구조다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "design": {
     "text": "회사가 파는 것은 증권 계좌, 자산관리, 은행 상품이다. 개인 고객에게는 주식·ETF·옵션 거래 플랫폼(thinkorswim 포함), 자문형 자산관리(Schwab Wealth Advisory 등), 예금·대출을 내놓고, 독립 투자자문사에게는 고객 자산 수탁과 거래 인프라를 제공한다. 2026년에는 AI 비서 Charley와 개별 주식 선물, 디지털 자산 확대를 내놓았다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "make": {
     "model": "financial",
     "partners": [
@@ -35,9 +57,10 @@
       "연방주택대출은행(FHLB) - 보조 조달 20억 달러 (2026-09말)"
     ],
     "text": "증권사가 '만드는' 것은 거래 플랫폼과 고객 현금의 운용이다. 고객이 계좌에 둔 현금은 자체 은행으로 쓸려 들어가(거래용 스윕 현금 4,928억 달러) 증권과 대출(은행 대출 723억 달러, +35%)로 운용된다. 2023년 금리 급등 때 늘렸던 FHLB 차입 같은 보조 조달은 지금 20억 달러 수준이다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "sell": {
     "customers": [
       "미국 개인 투자자 - 활동 계좌 4,026만 개, Q3 2026 신규 계좌 124만 개",
@@ -48,111 +71,291 @@
     "channel": "온라인·앱 직접 판매, 지점, 독립 투자자문사 채널.",
     "concentration": "분산된 개인·자문사 기반. 개인과 자문사 채널별 자산 비중은 이번 조사에서 확인하지 못함.",
     "text": "이 플랫폼은 개인과 독립 투자자문사라는 두 채널로 팔린다. Q3 2026 핵심 순신규자산은 1,904억 달러(+38%, 연율 5.8%)로 사상 최대였고, 하루 평균 거래가 1,070만 건(+44%)으로 늘었다. 신용 대출이 분기 중 14% 늘 만큼 고객의 위험 선호도 커졌다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "moneyFlow": {
     "steps": [
-      { "from": "개인·자문사 고객", "to": "Charles Schwab", "what": "자산 예치 (고객 자산 13.33조 달러, Q3 핵심 순신규자산 1,904억 달러)" },
-      { "from": "고객 스윕 현금", "to": "Charles Schwab Bank", "what": "현금을 증권·대출로 운용해 이자 차익 (순이자수익 34.8억 달러, NIM 3.04%)" },
-      { "from": "펀드·자문형 고객", "to": "Charles Schwab", "what": "자산 규모 비례 운용·관리 수수료 (19.1억 달러)" },
-      { "from": "거래 고객·마켓메이커", "to": "Charles Schwab", "what": "거래 수익 (11.6억 달러, 주문 흐름 대가 포함)" },
-      { "from": "제휴 은행", "to": "Charles Schwab", "what": "고객 현금을 맡기는 대가인 은행 예금 계좌 수수료 (3.45억 달러)" }
+      {
+        "from": "개인·자문사 고객",
+        "to": "Charles Schwab",
+        "what": "자산 예치 (고객 자산 13.33조 달러, Q3 핵심 순신규자산 1,904억 달러)"
+      },
+      {
+        "from": "고객 스윕 현금",
+        "to": "Charles Schwab Bank",
+        "what": "현금을 증권·대출로 운용해 이자 차익 (순이자수익 34.8억 달러, NIM 3.04%)"
+      },
+      {
+        "from": "펀드·자문형 고객",
+        "to": "Charles Schwab",
+        "what": "자산 규모 비례 운용·관리 수수료 (19.1억 달러)"
+      },
+      {
+        "from": "거래 고객·마켓메이커",
+        "to": "Charles Schwab",
+        "what": "거래 수익 (11.6억 달러, 주문 흐름 대가 포함)"
+      },
+      {
+        "from": "제휴 은행",
+        "to": "Charles Schwab",
+        "what": "고객 현금을 맡기는 대가인 은행 예금 계좌 수수료 (3.45억 달러)"
+      }
     ],
     "pricing": "고객 현금의 이자 차익이 매출의 절반가량이고, 나머지는 자산 비례 보수, 거래 수익, 제휴 은행 예금 수수료다.",
     "text": "돈은 고객이 맡긴 자산에서 나온다. Q3 2026 순매출 71.7억 달러 가운데 순이자수익이 34.8억 달러로 절반 가까이였고, 운용·관리 수수료 19.1억, 거래 수익 11.6억 달러가 뒤따랐다. 그래서 금리와 고객 현금 비중이 이익을 크게 좌우하고, 자산 시장이 오르면 수수료가 함께 커진다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "earnings": {
     "period": "Q3 2026 (quarter ended 2026-09-30)",
-    "revenue": { "value": 7.171, "unit": "USD bn", "yoy": 17 },
+    "revenue": {
+      "value": 7.171,
+      "unit": "USD bn",
+      "yoy": 17
+    },
     "grossMargin": null,
     "operatingMargin": 52.7,
     "netMargin": 40.5,
     "operatingCashFlow": null,
     "freeCashFlow": null,
     "segments": [
-      { "name": "Net interest revenue", "revenue": 3.476, "unit": "USD bn", "share": 48.5, "yoy": 14, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Asset management and administration fees", "revenue": 1.913, "unit": "USD bn", "share": 26.7, "yoy": 14, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Trading revenue", "revenue": 1.158, "unit": "USD bn", "share": 16.1, "yoy": 16, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Bank deposit account fees", "revenue": 0.345, "unit": "USD bn", "share": 4.8, "yoy": 40, "operatingMargin": null, "src": ["s1"] }
+      {
+        "name": "Net interest revenue",
+        "revenue": 3.476,
+        "unit": "USD bn",
+        "share": 48.5,
+        "yoy": 14,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Asset management and administration fees",
+        "revenue": 1.913,
+        "unit": "USD bn",
+        "share": 26.7,
+        "yoy": 14,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Trading revenue",
+        "revenue": 1.158,
+        "unit": "USD bn",
+        "share": 16.1,
+        "yoy": 16,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Bank deposit account fees",
+        "revenue": 0.345,
+        "unit": "USD bn",
+        "share": 4.8,
+        "yoy": 40,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "industryMetric": [
-      { "name": "핵심 순신규자산", "value": "Q3 2026 1,904억 달러 (+38%, 연율 5.8%), 사상 최대", "src": ["s1"] },
-      { "name": "고객 자산", "value": "13.33조 달러 (+15%)", "src": ["s1"] },
-      { "name": "순이자마진(NIM)", "value": "3.04% (전년 2.88%)", "src": ["s1"] },
-      { "name": "세전이익률", "value": "GAAP 52.7%, 조정 54.8%", "src": ["s1"] },
-      { "name": "하루 평균 거래", "value": "1,070만 건 (+44%)", "src": ["s1"] },
-      { "name": "Tier 1 레버리지 비율", "value": "8.9% (조정 7.0%, 잠정)", "src": ["s1"] }
+      {
+        "name": "핵심 순신규자산",
+        "value": "Q3 2026 1,904억 달러 (+38%, 연율 5.8%), 사상 최대",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "고객 자산",
+        "value": "13.33조 달러 (+15%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "순이자마진(NIM)",
+        "value": "3.04% (전년 2.88%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "세전이익률",
+        "value": "GAAP 52.7%, 조정 54.8%",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "하루 평균 거래",
+        "value": "1,070만 건 (+44%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Tier 1 레버리지 비율",
+        "value": "8.9% (조정 7.0%, 잠정)",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "text": "그 결과 Q3 2026 순매출은 71.7억 달러(+17%)로 사상 최대였고, 순이익 29.1억 달러, 희석 EPS 1.62달러(+29%)였다. 인수 관련 통합·상각 비용 1.51억 달러를 뺀 조정 EPS는 1.69달러다. 2025년 연간 순매출은 239억 달러, 순이익은 88.5억 달러였다.",
-    "src": ["s1", "s2"]
+    "src": [
+      "s1",
+      "s2"
+    ]
   },
-
   "useOfCash": {
     "period": "Q3 2026 (quarter ended 2026-09-30)",
     "items": [
-      { "use": "buybacks", "value": 0.5, "unit": "USD bn", "src": ["s1"] },
-      { "use": "dividends", "value": null, "unit": "USD bn", "src": [] }
+      {
+        "use": "buybacks",
+        "value": 0.5,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "dividends",
+        "value": null,
+        "unit": "USD bn",
+        "src": []
+      }
     ],
     "text": "Q3 2026에는 자사주 470만 주를 5억 달러에 사들였고 분기 배당을 주당 0.32달러로 19% 올렸다. 은행 대출이 35% 늘 만큼 고객 대출에 쓰는 자본도 커지고 있어, 환원과 대출 성장이 같은 자본을 나눠 쓴다. 배당 총액과 연간 자사주 매입 합계는 이번 조사에서 확인하지 못했다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "aiChain": {
     "layer": "ai-adopter",
     "position": "AI를 팔지 않고 고객 응대와 자문사 업무에 도입하는 쪽. 2026년 개인 고객용 AI 비서 Charley를 내놓았고, 독립 투자자문사용으로 Anthropic의 Claude for Financial Advisors와 제휴했다.",
-    "dependsOn": ["Anthropic - 자문사용 AI 도구 제휴", "cloud-infrastructure (업체명 미공시)"],
-    "sellsTo": ["AI를 팔지 않음 - 개인 투자자·독립 투자자문사"],
+    "dependsOn": [
+      "Anthropic - 자문사용 AI 도구 제휴",
+      "클라우드 (업체명 미공시)"
+    ],
+    "sellsTo": [
+      "AI를 팔지 않음 - 개인 투자자·독립 투자자문사"
+    ],
     "aiRevenue": null,
     "upside": "AI 비서와 자문사 도구가 상담 비용을 줄이고 자문형 상품 판매를 늘리면 이미 높은 세전이익률을 더 끌어올릴 수 있다. 회사가 효과를 숫자로 공시하지는 않았다.",
     "risk": "AI 기반 자문·투자 앱이 자산관리 보수를 낮추면 운용·관리 수수료가 압박받을 수 있다.",
     "text": "AI 가치사슬에서 Schwab은 도입자다. AI가 매출로 직접 이어지지는 않고, 고객 응대 효율과 자문 상품 판매로 나타날 수 있다. 지금 이익을 움직이는 것은 AI보다 금리, 고객 현금 비중, 자산 시장이다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "competition": {
     "arenas": [
-      { "arena": "미국 개인 온라인 증권", "rivals": ["Fidelity", "Robinhood", "Interactive Brokers", "Vanguard"], "position": "leader", "share": null, "src": ["s1"] },
-      { "arena": "독립 투자자문사(RIA) 수탁", "rivals": ["Fidelity", "BNY Pershing"], "position": "leader", "share": null, "src": ["s1"] },
-      { "arena": "자산관리·자문형 상품", "rivals": ["Morgan Stanley", "Vanguard", "Fidelity"], "position": "challenger", "share": null, "src": ["s1"] }
+      {
+        "arena": "미국 개인 온라인 증권",
+        "rivals": [
+          "Fidelity",
+          "Robinhood",
+          "Interactive Brokers",
+          "Vanguard"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "독립 투자자문사(RIA) 수탁",
+        "rivals": [
+          "Fidelity",
+          "BNY Pershing"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "자산관리·자문형 상품",
+        "rivals": [
+          "Morgan Stanley",
+          "Vanguard",
+          "Fidelity"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "edge": "가장 큰 규모의 낮은 비용 구조와 개인·자문사 두 채널, 고객 현금을 자체 은행에서 굴리는 수익원.",
     "threats": "젊은 투자자를 잡는 거래 앱의 상품 확대, 금리 하락 시 이자 차익 축소, 고객 현금이 고금리 상품으로 빠져나가는 흐름.",
     "text": "Schwab은 개인 증권과 자문사 수탁 양쪽에서 선두권이지만, 거래 앱이 상품을 빠르게 붙이며 젊은 고객을 데려간다. 회사는 개별 주식 선물, 디지털 자산 확대, AI 비서로 상품을 넓혀 대응한다. 이번 조사에서 공시된 점유율 수치는 확인하지 못했다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "strategy": {
     "goal": "자산 유입과 고객 참여를 키워 순매출과 이익률을 함께 올리는 것. 이번 조사에서 회사의 2026 연간 수치 전망은 확인하지 못했다.",
     "roadmap": [
-      { "when": "2026", "what": "개인 고객용 AI 비서 Charley 출시", "src": ["s1"] },
-      { "when": "2026", "what": "Anthropic과 독립 투자자문사용 Claude for Financial Advisors 제휴", "src": ["s1"] },
-      { "when": "2026", "what": "thinkorswim 개별 주식 선물 발표, Schwab Crypto 디지털 자산 확대 계획", "src": ["s1"] }
+      {
+        "when": "2026",
+        "what": "개인 고객용 AI 비서 Charley 출시",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2026",
+        "what": "Anthropic과 독립 투자자문사용 Claude for Financial Advisors 제휴",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2026",
+        "what": "thinkorswim 개별 주식 선물 발표, Schwab Crypto 디지털 자산 확대 계획",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "vision": "Wurster CEO는 투자자와 독립 투자자문사 모두에게 통하는 가치 제안에 새 기능을 계속 더하겠다고 말한다.",
     "text": "앞으로의 계획은 한 계좌에서 할 수 있는 일을 늘리는 것이다. 선물·디지털 자산·AI 비서를 더해 거래 앱으로 가던 고객을 붙잡고, 자문형 상품과 담보 대출로 고객당 수익을 키운다. 신용·담보 대출이 빠르게 늘고 있어 이 성장이 위험 관리와 함께 가는지가 관건이다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "governance": {
     "line": "2025년부터 CEO인 Rick Wurster가 이끌고 창업자 Charles Schwab이 공동 의장으로 남아 있으며, 배당을 19% 올리고 자사주 매입을 이어 간다 (창업자 지분율은 확인하지 못함).",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "guidance": {
     "latest": [],
     "style": "annual",
     "track": "회사는 연초 실적 발표 때 연간 전망을 내고 분기 콜에서 갱신하는 것으로 알려져 있지만, 이번 조사에서 2026 전망 원문은 확인하지 못했다.",
     "src": []
   },
-
   "estimates": {
     "text": "AIO 로컬 스냅샷(2026-11-07, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) EPS 합계 7.47달러(범위 7.14~7.79), 직전 4개 분기 6.13달러. 최근 4주 상향 4건·하향 14건으로 하향 우세. Q3 2026 조정 EPS 1.69달러는 컨센서스 1.66달러를 웃돌았다.",
-    "src": ["s3"]
+    "src": [
+      "s3"
+    ]
   },
-
   "watch": {
     "confirms": [
       "핵심 순신규자산이 연율 5% 이상을 유지",
@@ -169,51 +372,88 @@
       "거래 앱으로 신규 계좌가 이동"
     ],
     "keyNumbers": [
-      { "name": "핵심 순신규자산", "why": "고객 신뢰와 성장의 직접 지표" },
-      { "name": "순이자마진과 스윕 현금", "why": "매출 절반을 결정" },
-      { "name": "세전이익률", "why": "규모 효율의 결과" },
-      { "name": "하루 평균 거래", "why": "거래 수익과 시장 열기" },
-      { "name": "신용 대출·담보 대출 잔액", "why": "레버리지와 위험의 크기" }
+      {
+        "name": "핵심 순신규자산",
+        "why": "고객 신뢰와 성장의 직접 지표"
+      },
+      {
+        "name": "순이자마진과 스윕 현금",
+        "why": "매출 절반을 결정"
+      },
+      {
+        "name": "세전이익률",
+        "why": "규모 효율의 결과"
+      },
+      {
+        "name": "하루 평균 거래",
+        "why": "거래 수익과 시장 열기"
+      },
+      {
+        "name": "신용 대출·담보 대출 잔액",
+        "why": "레버리지와 위험의 크기"
+      }
     ]
   },
-
   "debate": {
     "question": "고객 현금의 이자 차익에 기대는 이익 구조가 금리와 시장 열기가 식어도 유지되는지",
     "bull": {
       "text": "Q3 2026 순매출은 71.7억 달러로 사상 최대였고 핵심 순신규자산도 1,904억 달러(+38%)로 최대였다. 순이자마진은 3.04%로 전년 2.88%에서 올랐고 세전이익률은 52.7%였으며, 운용·관리 수수료(+14%)와 거래 수익(+16%)도 함께 늘어 강세 쪽은 이익원이 넓어지고 있다고 읽는다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     "bear": {
       "text": "순매출의 48% 정도가 순이자수익이고, 하루 평균 거래 +44%와 신용 대출 분기 +14%는 시장 열기에 기댄 숫자다. 담보 대출은 59%, 은행 대출은 35% 늘어 시장이 꺾일 때 위험이 커질 수 있고, 최근 4주 컨센서스는 하향 14건으로 상향 4건보다 많았다는 점을 약세 쪽은 짚는다.",
-      "src": ["s1", "s3"]
+      "src": [
+        "s1",
+        "s3"
+      ]
     },
     "decides": [
-      { "when": "2027-01 중순 (Q4·FY2026 실적, 날짜 미확정)", "what": "순이자마진이 3% 위를 지키고 핵심 순신규자산이 연율 5% 이상을 유지하는지", "src": ["s1"] }
+      {
+        "when": "2027-01 중순 (Q4·FY2026 실적, 날짜 미확정)",
+        "what": "순이자마진이 3% 위를 지키고 핵심 순신규자산이 연율 5% 이상을 유지하는지",
+        "src": [
+          "s1"
+        ]
+      }
     ]
   },
-
   "underTheHood": [
     {
       "title": "고객 현금이 매출의 절반",
       "text": "Q3 2026 순매출 71.7억 달러 중 순이자수익이 34.8억 달러로 약 48%다. 고객이 계좌에 둔 스윕 현금 4,928억 달러를 자체 은행이 증권·대출로 굴린 결과라서, 고객이 현금을 고금리 상품으로 옮기거나 금리가 내려가면 이 몫이 가장 먼저 흔들린다. 증권사 실적을 은행처럼 금리 민감도로 읽어야 하는 이유다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     {
       "title": "빠르게 커지는 대출 장부",
       "text": "신용 대출은 1,879억 달러로 분기 중 14% 늘었고 담보 대출(PAL) 373억 달러는 +59%, 은행 대출 723억 달러는 +35%다. 이 대출이 순이자수익을 키우지만 담보가 주식이라 시장 급락 때 손실과 자본 소모가 함께 커진다. Tier 1 레버리지는 GAAP 8.9%, 조정 7.0%다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     },
     {
       "title": "조정 EPS와 인수 상각",
       "text": "GAAP EPS 1.62달러와 조정 EPS 1.69달러의 차이는 인수 관련 통합·상각 비용 1.51억 달러(세전)다. 회사가 조정 기준으로 이익률(54.8%)을 제시하므로, 다른 증권사와 비교할 때 기준을 맞춰 봐야 한다.",
-      "src": ["s1"]
+      "src": [
+        "s1"
+      ]
     }
   ],
-
   "trading": {
     "calendar": [
-      { "date": "2027-01 중순 (추정, 회사 미확정)", "event": "Q4·FY2026 실적과 2027 전망", "src": [] },
-      { "date": "매월 중순 (추정)", "event": "월간 활동 보고서 (순신규자산·계좌·거래)", "src": [] }
+      {
+        "date": "2027-01 중순 (추정, 회사 미확정)",
+        "event": "Q4·FY2026 실적과 2027 전망",
+        "src": []
+      },
+      {
+        "date": "매월 중순 (추정)",
+        "event": "월간 활동 보고서 (순신규자산·계좌·거래)",
+        "src": []
+      }
     ],
     "reaction": "주가는 EPS보다 순신규자산, 순이자마진, 고객 현금 흐름에 반응하는 경향이 있다. Q3 2026은 매출·순신규자산 모두 사상 최대였지만 이후 4주 컨센서스는 하향 수정이 많았다.",
     "conditions": [
@@ -224,7 +464,6 @@
       "컨센서스 EPS 상향·하향 건수"
     ]
   },
-
   "unverified": [
     "2026 연간 전망 원문 (매출 성장률·세전이익률 목표)",
     "CET1 비율 (보도자료 잘린 부분)",

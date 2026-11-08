@@ -390,14 +390,14 @@
     "layer": "networking",
     "position": "AI 서버 안과 랙 사이에서 GPU·CPU·메모리·NIC를 잇는 scale-up 연결을 맡는다. PCIe 리타이머·패브릭 스위치로 가속기 간 연결을, Taurus로 랙 간 구리 케이블을, Leo로 CXL 메모리 확장을 공급한다.",
     "dependsOn": [
-      "semicap-foundry (TSMC 단일 생산)",
-      "chips-compute (NVIDIA·AMD·Intel 플랫폼 일정과 PCIe·UALink·NVLink Fusion 같은 규격)",
+      "장비·파운드리 (TSMC 단일 생산)",
+      "연산 칩 (NVIDIA·AMD·Intel 플랫폼 일정과 PCIe·UALink·NVLink Fusion 같은 규격)",
       "하이퍼스케일러의 AI 서버 증설 계획"
     ],
     "sellsTo": [
-      "cloud-infrastructure (하이퍼스케일러·네오클라우드)",
+      "클라우드 (하이퍼스케일러·네오클라우드)",
       "서버 ODM·OEM과 케이블 제조사",
-      "ai-adopter (엔터프라이즈 AI 서버)"
+      "AI를 쓰는 기업 (엔터프라이즈 AI 서버)"
     ],
     "aiRevenue": "AI 매출을 따로 공시하지 않음. Amazon 워런트는 최대 65억 달러 구매에 연동 (2026-02-05 계약)",
     "upside": "가속기 수가 늘고 랙 규모 시스템이 커질수록 칩 사이를 잇는 리타이머·스위치 수가 함께 늘어난다. 3분기에 Scorpio가 최대 제품군이 됐고, 4분기 매출 가이던스는 7.3억~7.5억 달러로 3분기보다 약 26% 많다. 2027년 1분기에는 가속기 종류를 가리지 않는 랙 규모 참조 설계 Orion을 OEM·ODM을 통해 낸다.",
@@ -545,7 +545,7 @@
     "latest": [
       {
         "period": "Q4 2026",
-        "metric": "revenue",
+        "metric": "매출",
         "value": "7.30억~7.50억 달러",
         "givenOn": "2026-11-03",
         "src": [
@@ -554,7 +554,7 @@
       },
       {
         "period": "Q4 2026",
-        "metric": "gross margin",
+        "metric": "매출총이익률",
         "value": "GAAP·non-GAAP 약 72%",
         "givenOn": "2026-11-03",
         "src": [
@@ -563,7 +563,7 @@
       },
       {
         "period": "Q4 2026",
-        "metric": "operating expenses",
+        "metric": "영업비용",
         "value": "GAAP 2.73억~2.79억, non-GAAP 1.94억~2.00억 달러",
         "givenOn": "2026-11-03",
         "src": [
@@ -572,7 +572,7 @@
       },
       {
         "period": "Q4 2026",
-        "metric": "diluted EPS",
+        "metric": "희석 EPS",
         "value": "GAAP 1.13~1.17달러, non-GAAP 1.62~1.66달러",
         "givenOn": "2026-11-03",
         "src": [

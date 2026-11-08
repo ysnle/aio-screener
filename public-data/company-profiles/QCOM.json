@@ -337,14 +337,14 @@
     "layer": "devices",
     "position": "휴대폰·PC·자동차·산업기기에서 AI를 직접 돌리는 온디바이스 AI 칩 공급자. 2026년부터 AI 추론 가속기(AI200·AI250)와 하이퍼스케일러 맞춤 칩으로 데이터센터 '칩·연산' 층에 새로 들어가는 중이다.",
     "dependsOn": [
-      "semicap-foundry (TSMC, Samsung, GlobalFoundries)",
-      "memory (휴대폰·AI200용 LPDDR - 2026년 메모리 부족이 휴대폰 생산을 제약)",
+      "장비·파운드리 (TSMC, Samsung, GlobalFoundries)",
+      "메모리 (휴대폰·AI200용 LPDDR - 2026년 메모리 부족이 휴대폰 생산을 제약)",
       "조립·테스트 (ASE, Amkor, SPIL, STATS ChipPAC)"
     ],
     "sellsTo": [
-      "devices (Apple·Samsung·Xiaomi 등 휴대폰, PC OEM)",
-      "ai-adopter (BMW 등 자동차, 산업·로봇)",
-      "cloud-infrastructure (하이퍼스케일러 2곳 맞춤 칩, HUMAIN 200MW 추론 랙)"
+      "기기 (Apple·Samsung·Xiaomi 등 휴대폰, PC OEM)",
+      "AI를 쓰는 기업 (BMW 등 자동차, 산업·로봇)",
+      "클라우드 (하이퍼스케일러 2곳 맞춤 칩, HUMAIN 200MW 추론 랙)"
     ],
     "aiRevenue": "데이터센터 매출은 아직 별도 공시 없음 (Q1 FY2027 가이던스부터 QCT에 포함). 회사 목표 FY2027 약 50억 달러, FY2029 150억 달러 이상 (2026-06 Investor Day, 2026-11-04 실적 발표에서 FY2027 목표 재확인)",
     "upside": "온디바이스 AI가 휴대폰·PC 교체 주기를 앞당기면 고가 칩 비중이 늘고, 하이퍼스케일러 맞춤 칩 2건이 2026년 12월 분기부터 매출에 들어오면 비휴대폰 매출 성장률이 FY2026 24%에서 FY2027 60% 이상으로 뛴다는 것이 회사 설명이다.",
@@ -509,7 +509,7 @@
     "latest": [
       {
         "period": "Q1 FY2027",
-        "metric": "revenue",
+        "metric": "매출",
         "value": "104억~112억 달러 (QCT 90억~96억, 데이터센터 포함; QTL 13억~15억)",
         "givenOn": "2026-11-04",
         "src": [
@@ -518,7 +518,7 @@
       },
       {
         "period": "Q1 FY2027",
-        "metric": "diluted EPS",
+        "metric": "희석 EPS",
         "value": "non-GAAP 2.15~2.35달러 (GAAP 1.03~1.23달러)",
         "givenOn": "2026-11-04",
         "src": [
@@ -527,7 +527,7 @@
       },
       {
         "period": "FY2027",
-        "metric": "non-handset revenue growth / data center",
+        "metric": "휴대폰 외 매출 성장률 / 데이터센터",
         "value": "비휴대폰 매출 60% 이상 성장, 데이터센터 약 50억 달러 (재확인)",
         "givenOn": "2026-11-04",
         "src": [
@@ -536,7 +536,7 @@
       },
       {
         "period": "FY2027 하반기",
-        "metric": "QCT gross margin",
+        "metric": "QCT 매출총이익률",
         "value": "제품 가격 인상 효과가 QCT 총마진에 온전히 반영 (정성)",
         "givenOn": "2026-11-04",
         "src": [

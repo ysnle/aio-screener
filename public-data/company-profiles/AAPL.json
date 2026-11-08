@@ -338,9 +338,9 @@
     "layer": "devices",
     "position": "AI가 실제로 사람 손에 닿는 기기 층. 전 세계에 깔린 기기(설치 대수는 이번 조사에서 미확인)에 Apple Intelligence를 넣고, 모델은 자체 개발과 Google 모델 기반 Apple Foundation Models를 함께 쓴다.",
     "dependsOn": [
-      "models-platforms (Google 모델 - 2026-01 다년 계약 발표, 보도 기준)",
-      "semicap-foundry (첨단 공정 SoC 생산)",
-      "memory (DRAM·NAND - 2026 원가 급등)"
+      "모델·플랫폼 (Google 모델 - 2026-01 다년 계약 발표, 보도 기준)",
+      "장비·파운드리 (첨단 공정 SoC 생산)",
+      "메모리 (DRAM·NAND - 2026 원가 급등)"
     ],
     "sellsTo": [
       "소비자 (기기와 구독)",
@@ -495,7 +495,7 @@
     "latest": [
       {
         "period": "Q1 FY2027 (12월 분기)",
-        "metric": "revenue growth",
+        "metric": "매출 성장률",
         "value": "+7~10% (보도된 시장 예상 약 6.1%)",
         "givenOn": "2026-11-02",
         "src": [
@@ -504,7 +504,7 @@
       },
       {
         "period": "Q1 FY2027",
-        "metric": "gross margin",
+        "metric": "매출총이익률",
         "value": "45~46% (Q4 47.9%에서 하락, CFO는 메모리 원가를 주된 이유로 설명)",
         "givenOn": "2026-11-02",
         "src": [
@@ -513,7 +513,7 @@
       },
       {
         "period": "Q1 FY2027",
-        "metric": "Services growth",
+        "metric": "서비스 성장률",
         "value": "+8~9% (보도된 시장 예상 약 10.7%)",
         "givenOn": "2026-11-02",
         "src": [
@@ -522,7 +522,7 @@
       },
       {
         "period": "Q4 FY2026 (참고: 직전 가이던스)",
-        "metric": "revenue growth / gross margin",
+        "metric": "매출 성장률 / 매출총이익률",
         "value": "+9~11% / 47~48% → 실제 +11.7% / 47.9%",
         "givenOn": "2026-07-30",
         "src": [

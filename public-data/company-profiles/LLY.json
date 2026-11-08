@@ -432,8 +432,8 @@
     "layer": "ai-adopter",
     "position": "AI를 파는 회사가 아니라 신약 개발에 대규모로 쓰는 사용자다. NVIDIA Blackwell Ultra GPU 1,016개로 만든 제약업계 최대급 슈퍼컴퓨터를 갖고, NVIDIA와 5년간 최대 10억 달러 규모의 공동 AI 연구소를 운영하며, 바이오텍에 TuneLab 플랫폼을 연다.",
     "dependsOn": [
-      "chips-compute (NVIDIA DGX B300 시스템, Blackwell Ultra GPU)",
-      "models-platforms (자체·공동 개발 신약 탐색 모델)"
+      "연산 칩 (NVIDIA DGX B300 시스템, Blackwell Ultra GPU)",
+      "모델·플랫폼 (자체·공동 개발 신약 탐색 모델)"
     ],
     "sellsTo": [
       "TuneLab에 참여하는 바이오텍 (무상 이용 후 데이터 공유 구조, 보도)"
@@ -574,7 +574,7 @@
     "latest": [
       {
         "period": "FY2026",
-        "metric": "revenue",
+        "metric": "매출",
         "value": "910억~920억 달러 (8월 850억~870억, 최초 2026-02 800억~830억) - 중간값 55억 달러 상향",
         "givenOn": "2026-10-29",
         "src": [
@@ -585,7 +585,7 @@
       },
       {
         "period": "FY2026",
-        "metric": "non-GAAP performance margin",
+        "metric": "non-GAAP 성과 이익률",
         "value": "52.0%~52.5% (8월 49.0%~50.5%)",
         "givenOn": "2026-10-29",
         "src": [
@@ -603,7 +603,7 @@
       },
       {
         "period": "FY2026",
-        "metric": "non-GAAP tax rate",
+        "metric": "non-GAAP 세율",
         "value": "19%~20% (8월 18%~19%)",
         "givenOn": "2026-10-29",
         "src": [

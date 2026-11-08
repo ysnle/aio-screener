@@ -297,13 +297,13 @@
     "layer": "software-applications",
     "position": "LLM과 클라우드 위에 앉아, 고객 데이터와 실제 업무 흐름을 AI에 연결하는 응용·운영 소프트웨어 계층. 모델을 만들지 않고, 모델이 현장에서 쓰이게 만드는 자리다.",
     "dependsOn": [
-      "cloud-infrastructure (AWS, Microsoft Azure 호스팅)",
-      "models-platforms (AIP가 연결하는 외부 LLM)",
+      "클라우드 (AWS, Microsoft Azure 호스팅)",
+      "모델·플랫폼 (AIP가 연결하는 외부 LLM)",
       "고객 내부 데이터와 시스템 접근"
     ],
     "sellsTo": [
       "미국·동맹국 정부 (국방·정보·보건)",
-      "ai-adopter (제조·에너지·제약·금융 등 대기업)"
+      "AI를 쓰는 기업 (제조·에너지·제약·금융 등 대기업)"
     ],
     "aiRevenue": "AIP 단독 매출은 공시되지 않음. AIP가 주도한다고 회사가 설명하는 미국 상업 매출은 Q3 2026 9.84억 달러(+148%), FY2026 가이던스 35.59억 달러 이상.",
     "upside": "기업이 AI를 시험 단계에서 실제 운영으로 옮길수록 Ontology 위에 올라가는 업무가 늘고, 미국 상업 매출과 계약 가치가 직접 커진다. 회사는 FY2026 미국 상업 매출을 35.59억 달러 이상(+143% 이상)으로 올려 제시했다.",
@@ -421,7 +421,7 @@
     "latest": [
       {
         "period": "Q4 2026",
-        "metric": "revenue",
+        "metric": "매출",
         "value": "26.49억~26.53억 달러",
         "givenOn": "2026-11-02",
         "src": [
@@ -430,7 +430,7 @@
       },
       {
         "period": "Q4 2026",
-        "metric": "adjusted operating income",
+        "metric": "조정 영업이익",
         "value": "16.40억~16.44억 달러",
         "givenOn": "2026-11-02",
         "src": [
@@ -439,7 +439,7 @@
       },
       {
         "period": "FY2026",
-        "metric": "revenue",
+        "metric": "매출",
         "value": "85.30억~85.34억 달러 (+91%; 8월 81.50억~81.58억)",
         "givenOn": "2026-11-02",
         "src": [
@@ -449,7 +449,7 @@
       },
       {
         "period": "FY2026",
-        "metric": "U.S. commercial revenue",
+        "metric": "미국 상업 매출",
         "value": "35.59억 달러 초과 (+143% 이상; 8월 34.24억 초과)",
         "givenOn": "2026-11-02",
         "src": [
@@ -459,7 +459,7 @@
       },
       {
         "period": "FY2026",
-        "metric": "adjusted operating income / adjusted FCF",
+        "metric": "조정 영업이익 / 조정 FCF",
         "value": "52.45억~52.49억 / 48억~50억 달러 (8월 48.89억~48.97억 / 45억~47억)",
         "givenOn": "2026-11-02",
         "src": [

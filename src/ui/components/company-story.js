@@ -8,6 +8,7 @@ import {
 } from '../../domain/entity/company-story.js';
 import { renderDebate, renderCompanyFlow, renderUnderTheHood, renderIndustryFold } from './company-flow.js';
 
+const REPORT_HOUR = Object.freeze({ bmo: '장 시작 전', amc: '장 마감 후', dmh: '장중' });
 const has = (value) => value != null && value !== '' && !(Array.isArray(value) && !value.length);
 const mdOf = (date) => { const m = String(date || '').match(/^\d{4}-(\d{2})-(\d{2})/); return m ? `${Number(m[1])}/${Number(m[2])}` : String(date || ''); };
 
@@ -73,7 +74,8 @@ function kpis(doc, earnings) {
   const row = el(doc, 'div', null, 'company-story-kpis');
   for (const [label, value, yoy] of cells) {
     const cell = el(doc, 'div', null, 'company-story-kpi');
-    cell.append(el(doc, 'strong', value), el(doc, 'span', yoy != null ? `${label}, 전년 대비 ${signed(yoy)}` : label));
+    // A quarter is compared with the same quarter a year earlier, and the label says so.
+    cell.append(el(doc, 'strong', value), el(doc, 'span', yoy != null ? `${label}, ${e.basis === 'quarter' ? '1년 전 같은 분기' : '전년'} 대비 ${signed(yoy)}` : label));
     row.append(cell);
   }
   return row;
@@ -136,17 +138,18 @@ function cashStack(doc, useOfCash) {
  * @param {{ profile: object, earnings?: Array, peers?: Array<{symbol:string,name?:string,layer?:string}>, openTicker?: Function,
  *   graph?: object|null, industry?: object|null, openLibrary?: Function }} ctx
  */
-export function renderCompanyStory(doc, host, { profile, earnings = [], peers = [], openTicker = null, graph = null, industry = null, openLibrary = null }) {
+export function renderCompanyStory(doc, host, { profile, earnings = [], briefs = [], quarters = '', nextReport = '', peers = [], openTicker = null, graph = null, industry = null, openLibrary = null }) {
   if (!doc || !host || !profile) return null;
   const nodes = [];
   const ai = profile.aiChain || {};
   const e = profile.earnings || {};
-  const freshness = storyFreshness(profile, earnings);
+  const freshness = storyFreshness(profile, earnings, undefined, { briefs, quarters });
   // v59.51 (content audit + owner two layers 2026-10-31): the face is the one-line summary and the money-flow visual; the
   // four numbers (the same fiscal figures 이 종목의 지금 and 재무 공시 carry), the pricing note and every later step of the
   // story move into one closed '자세히' fold, unchanged.
   nodes.push(el(doc, 'p', profile.oneLine, 'company-story-one'));
-  if (freshness.state === 'stale') nodes.push(el(doc, 'p', `${mdOf(freshness.newReport)} 새 실적이 나왔습니다. 사업 구조·경쟁 설명은 그대로 쓰되, 실적·가이던스 숫자는 그 전 보고서 기준이니 새 숫자는 '최근 실적 발표 요약'에서 보세요.`, 'company-story-stale'));
+  // A newer report found through an SEC quarter names the quarter's end (the filing day is not in that record).
+  if (freshness.state === 'stale') nodes.push(el(doc, 'p', `${freshness.newReport ? `${mdOf(freshness.newReport)} 새 실적이 나왔습니다` : `${Number(freshness.newQuarterEnd.slice(5, 7))}월 ${Number(freshness.newQuarterEnd.slice(8, 10))}일에 끝난 분기 실적이 SEC에 공시됐습니다`}. 사업 구조·경쟁 설명은 그대로 쓰되, 실적·가이던스 숫자는 그 전 보고서 기준이니 새 숫자는 '최근 실적 발표 요약'과 '재무 공시'에서 보세요.`, 'company-story-stale'));
 
   // v59.70 (PLAN S13 ③): 회사 이야기 is the overview's third section and a fold — the one line stays on the face, the
   // money-flow visual opens first inside it.
@@ -248,7 +251,13 @@ export function renderCompanyStory(doc, host, { profile, earnings = [], peers = 
   if (has(w.keyNumbers)) watch.append(pair(doc, '분기마다 볼 숫자', list(doc, w.keyNumbers.map((m) => `${m.name}: ${m.why}`))));
   // v59.45 (pipeline review P25-STORY-03): a dated event already past is not "다가오는"; undated ("2027 상반기") stays.
   const today = new Date().toISOString().slice(0, 10);
-  const upcoming = (t.calendar || []).filter((x) => !hasLeadingIsoDay(x?.date || '') || String(x.date).slice(0, 10) >= today);
+  let upcoming = (t.calendar || []).filter((x) => !hasLeadingIsoDay(x?.date || '') || String(x.date).slice(0, 10) >= today);
+  // The report day the earnings calendar confirms replaces the story's own estimate ('2026-11 중순 (추정)').
+  const [reportDay, hour] = String(nextReport || '').split('|');
+  if (hasLeadingIsoDay(reportDay || '') && reportDay >= today) {
+    upcoming = upcoming.filter((x) => hasLeadingIsoDay(x?.date || '') || !/실적/.test(x?.event || ''));
+    upcoming.unshift({ date: reportDay, event: `실적 발표${REPORT_HOUR[hour] ? ` (${REPORT_HOUR[hour]})` : ''}, 실적 달력 기준` });
+  }
   if (has(upcoming)) watch.append(pair(doc, '다가오는 일정', list(doc, upcoming.map((x) => `${hasLeadingIsoDay(x.date || '') ? mdOf(x.date) : x.date} ${x.event}`))));
   if (has(t.reaction)) watch.append(pair(doc, '실적 발표 때 주가가 반응하는 것', el(doc, 'p', t.reaction)));
   if (has(t.conditions)) watch.append(pair(doc, '매매할 때 함께 확인하는 조건', list(doc, t.conditions)));

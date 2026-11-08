@@ -1,8 +1,8 @@
 {
   "symbol": "HPE",
   "name": "Hewlett Packard Enterprise Company",
-  "researchedAt": "2026-10-28",
-  "fiscalYearEnd": "October 31 (FY2025 ended 2025-10-31)",
+  "researchedAt": "2026-11-08",
+  "fiscalYearEnd": "October 31 (FY2025 ended 2025-10-31; FY2026 Q3 ended 2026-07-31)",
   "oneLine": "HPE는 기업·클라우드용 서버와 스토리지, 그리고 Juniper 인수로 커진 네트워킹 장비를 파는 회사로, AI 서버와 네트워킹 수요가 겹치면서 2026 회계연도 매출 성장 전망을 34~37%로 끌어올렸다.",
   "sources": [
     {
@@ -43,7 +43,15 @@
       "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
       "url": "https://www.nasdaq.com/market-activity/stocks/hpe/earnings",
       "publisher": "Nasdaq / Zacks via AIO",
-      "date": "2026-10-28"
+      "date": "2026-11-08"
+    },
+    {
+      "id": "s6",
+      "kind": "other",
+      "title": "AIO local earnings calendar snapshot (Finnhub calendar/earnings), public-data/earnings-calendar.json",
+      "url": "https://finnhub.io/docs/api",
+      "publisher": "Finnhub via AIO",
+      "date": "2026-11-08"
     }
   ],
   "moat": {
@@ -125,190 +133,146 @@
     ]
   },
   "earnings": {
-    "period": "FY2025 (ended 2025-10-31)",
+    "period": "Q3 FY2026 (ended 2026-07-31)",
+    "periodEnd": "2026-07-31",
+    "basis": "quarter",
     "revenue": {
-      "value": 34.296,
+      "value": 12.213,
       "unit": "USD bn",
-      "yoy": 14
+      "yoy": 33.7
     },
-    "grossMargin": 30.3,
-    "operatingMargin": -1.3,
-    "netMargin": 0.2,
+    "grossMargin": 40.1,
+    "operatingMargin": 11.4,
+    "netMargin": 12.6,
     "operatingCashFlow": {
-      "value": 2.919,
+      "value": 1.6,
       "unit": "USD bn"
     },
     "freeCashFlow": {
-      "value": 0.986,
+      "value": 1.0,
       "unit": "USD bn"
     },
     "segments": [
       {
-        "name": "Server",
-        "revenue": 17.745,
+        "name": "Cloud & AI (Server·Storage·Financial Services)",
+        "revenue": 9.0,
         "unit": "USD bn",
-        "share": 51.7,
-        "yoy": null,
-        "operatingMargin": 7.6,
-        "src": [
-          "s2"
-        ]
-      },
-      {
-        "name": "Networking",
-        "revenue": 6.85,
-        "unit": "USD bn",
-        "share": 20.0,
-        "yoy": null,
-        "operatingMargin": 23.3,
-        "src": [
-          "s2"
-        ]
-      },
-      {
-        "name": "Hybrid Cloud",
-        "revenue": 5.754,
-        "unit": "USD bn",
-        "share": 16.8,
-        "yoy": null,
-        "operatingMargin": 5.8,
-        "src": [
-          "s2"
-        ]
-      },
-      {
-        "name": "Financial Services",
-        "revenue": 3.504,
-        "unit": "USD bn",
-        "share": 10.2,
-        "yoy": null,
-        "operatingMargin": 10.3,
-        "src": [
-          "s2"
-        ]
-      },
-      {
-        "name": "Corporate investments and other",
-        "revenue": 0.776,
-        "unit": "USD bn",
-        "share": 2.3,
-        "yoy": null,
-        "operatingMargin": -4.1,
-        "src": [
-          "s2"
-        ]
-      },
-      {
-        "name": "Intersegment elimination",
-        "revenue": -0.333,
-        "unit": "USD bn",
-        "share": -1.0,
-        "yoy": null,
-        "operatingMargin": null,
-        "src": [
-          "s2"
-        ]
-      }
-    ],
-    "industryMetric": [
-      {
-        "name": "최근 분기 (Q3 FY2026) 매출·마진",
-        "value": "매출 122억 달러(+34%), GAAP 총마진 40.1%(+10.9%p), GAAP 영업이익률 11.4%, non-GAAP 16.2%, GAAP EPS 1.06달러",
+        "share": 73.7,
+        "yoy": 25.4,
+        "operatingMargin": 17.0,
         "src": [
           "s1"
         ]
       },
       {
-        "name": "Q3 FY2026 부문",
-        "value": "Networking 29억(+74.9%, 이익률 22.0%: 캠퍼스·지사 14억 +31%, 데이터센터 3.8억 +112%, 보안 2.8억 +76%, 라우팅 7.9억 +270%), Cloud & AI 90억(+25.4%, 이익률 17.0%: 서버 68억 +35%, 스토리지 13억 +10%)",
+        "name": "Networking",
+        "revenue": 2.9,
+        "unit": "USD bn",
+        "share": 23.7,
+        "yoy": 74.9,
+        "operatingMargin": 22.0,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Corporate investments and other",
+        "revenue": 0.278,
+        "unit": "USD bn",
+        "share": 2.3,
+        "yoy": 3.0,
+        "operatingMargin": -24.1,
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "Networking 세부 (Q3 FY2026)",
+        "value": "캠퍼스·지사 14억 달러(+31.0%), 데이터센터 네트워킹 3.82억(+112.2%), 보안 2.81억(+75.6%), 라우팅 7.88억(+270.0%); 부문 이익률 22.0%(전년 22.1%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Cloud & AI 세부 (Q3 FY2026)",
+        "value": "서버 68억 달러(+35.3%), 스토리지 13억(+10.2%), Financial Services 9억(-0.3%); 부문 이익률 17.0%(전년 7.0%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "non-GAAP 마진 (Q3 FY2026)",
+        "value": "총마진 40.4%(전년 29.9%), 영업이익률 16.2%(전년 8.5%), 희석 EPS 1.11달러(전년 0.44달러)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "9개월 누계 (FY2026 1~3분기)",
+        "value": "매출 321.9억 달러(전년 246.2억), GAAP 영업이익 26.1억 달러(전년 -4.3억), non-GAAP 영업이익률 14.2%",
         "src": [
           "s1"
         ]
       },
       {
         "name": "ARR",
-        "value": "32억 달러, 전년 대비 +63% (FY2025 4분기)",
+        "value": "32억 달러, 전년 대비 +63% (FY2025 4분기, 이후 갱신치 미확인)",
         "src": [
           "s3"
         ]
-      },
-      {
-        "name": "Q3 FY2026 현금흐름",
-        "value": "영업현금흐름 16억 달러, 잉여현금흐름 10억 달러",
-        "src": [
-          "s1"
-        ]
       }
     ],
-    "text": "FY2025에는 매출 343억 달러(+14%)를 냈지만 GAAP 기준으로는 영업손실(-4.4억 달러)을 냈고 순이익은 5,700만 달러에 그쳤다(손실 원인 항목은 이번 자료에서 확인 못함). 부문 이익은 Networking(이익률 23%)과 Server(8%)에서 주로 나왔다. 2026년 들어 판이 바뀌어 3분기 총마진이 40%대로 뛰고 GAAP 영업이익률이 11.4%가 됐는데, Juniper가 온전히 반영되고 서버 이익률이 오른 결과다.",
+    "text": "FY2026 3분기(2026-05~07) 매출은 122.1억 달러로 1년 전보다 34% 늘었고, GAAP 총마진은 40.1%(전년 29.2%), GAAP 영업이익률은 11.4%(전년 2.7%)로 크게 올랐다. Juniper가 온전히 들어온 Networking이 29억 달러(+75%)로 매출의 약 4분의 1이 됐고, 서버가 중심인 Cloud & AI도 이익률이 7.0%에서 17.0%로 뛰었다. 직전 회계연도 FY2025 매출은 343억 달러였고 GAAP로는 영업손실(-4.4억 달러)이었으니, 1년 사이 수익 구조가 달라졌다.",
     "src": [
-      "s2",
-      "s1"
+      "s1",
+      "s2"
     ]
   },
   "useOfCash": {
-    "period": "FY2025 (ended 2025-10-31)",
+    "period": "Q3 FY2026 (3개월, ended 2026-07-31)",
     "items": [
       {
-        "use": "R&D",
-        "value": 2.518,
+        "use": "other",
+        "label": "배당·자사주 매입 합계 (분할 미공시)",
+        "value": 0.324,
         "unit": "USD bn",
         "src": [
-          "s2"
+          "s1"
         ]
       },
       {
         "use": "capex",
-        "value": 2.292,
+        "value": null,
         "unit": "USD bn",
-        "src": [
-          "s2"
-        ]
+        "src": []
       },
       {
-        "use": "buybacks",
-        "value": 0.202,
+        "use": "R&D",
+        "value": null,
         "unit": "USD bn",
-        "src": [
-          "s2"
-        ]
-      },
-      {
-        "use": "dividends",
-        "value": 0.684,
-        "unit": "USD bn",
-        "src": [
-          "s2"
-        ]
-      },
-      {
-        "use": "other",
-        "label": "우선주 배당",
-        "value": 0.112,
-        "unit": "USD bn",
-        "src": [
-          "s2"
-        ]
+        "src": []
       }
     ],
-    "text": "FY2025에는 잉여현금흐름이 9.9억 달러로 작아, 보통주 배당 6.8억과 자사주 매입 2억 달러로 주주환원이 제한적이었다. 대신 R&D 25억, 설비투자(소프트웨어 포함) 23억 달러를 쓰며 Juniper 인수로 몸집을 키우는 데 집중했다. 2026년 4분기에는 잉여현금흐름의 75% 이상을 돌려주겠다고 밝혀, 인수 소화 뒤 주주환원으로 무게가 옮겨 가는 중이다.",
+    "text": "3분기에는 영업현금흐름 16억 달러, 잉여현금흐름 10억 달러 가운데 3.24억 달러를 배당과 자사주 매입으로 돌려줬다. 분기 배당은 주당 0.1425달러(전년 0.13달러)로 올랐고, 회사는 4분기에 잉여현금흐름의 75% 이상을 환원하겠다고 밝혔다. FY2025에는 잉여현금흐름 9.9억 달러로 배당 6.8억·자사주 2억 달러만 감당했으니, 인수 소화 뒤 환원으로 무게가 옮겨 가는 중이다.",
     "src": [
-      "s2",
-      "s1"
+      "s1",
+      "s2"
     ]
   },
   "aiChain": {
     "layer": "chips-compute",
     "position": "NVIDIA 등 칩을 받아 AI 서버·시스템으로 조립해 공급하고, Juniper를 더한 데이터센터·라우팅 네트워킹으로 AI 클러스터와 데이터센터 사이를 잇는 장비도 판다.",
     "dependsOn": [
-      "chips-compute (GPU·CPU 공급사)",
-      "memory (DRAM·NAND·HBM)",
-      "semicap-foundry (네트워크 칩 생산)"
+      "연산 칩 (GPU·CPU 공급사)",
+      "메모리 (DRAM·NAND·HBM)",
+      "장비·파운드리 (네트워크 칩 생산)"
     ],
     "sellsTo": [
-      "cloud-infrastructure (서비스 사업자·AI 클라우드)",
-      "ai-adopter (기업·공공·국가 AI)",
-      "networking 수요처 (통신사 라우팅)"
+      "클라우드 (서비스 사업자·AI 클라우드)",
+      "AI를 쓰는 기업 (기업·공공·국가 AI)",
+      "네트워크 수요처 (통신사 라우팅)"
     ],
     "aiRevenue": "AI 시스템 매출 별도 금액은 이번 자료에서 확인 못함. Q3 FY2026 서버 매출 68억 달러(+35%)에 포함",
     "upside": "AI 서버 출하와 함께 데이터센터 네트워킹(+112%)·라우팅 수요가 늘어, 마진 높은 네트워킹이 서버 물량에 붙어 성장한다. FY2026 네트워킹 매출 성장 전망은 73~74%다.",
@@ -422,7 +386,7 @@
     "latest": [
       {
         "period": "Q4 FY2026",
-        "metric": "revenue",
+        "metric": "매출",
         "value": "139~148억 달러",
         "givenOn": "2026-09-02",
         "src": [
@@ -431,8 +395,8 @@
       },
       {
         "period": "Q4 FY2026",
-        "metric": "EPS",
-        "value": "GAAP 1.12~1.22달러, non-GAAP 1.20~1.30달러",
+        "metric": "GAAP 희석 EPS / 조정 EPS",
+        "value": "1.12~1.22달러 / 1.20~1.30달러",
         "givenOn": "2026-09-02",
         "src": [
           "s1"
@@ -440,8 +404,8 @@
       },
       {
         "period": "FY2026",
-        "metric": "revenue growth / EPS / FCF",
-        "value": "매출 +34~37%, non-GAAP EPS 3.75~3.85달러, GAAP EPS 2.93~3.03달러, 잉여현금흐름 37.5억 달러 이상",
+        "metric": "매출 성장률·EPS·잉여현금흐름",
+        "value": "매출 +34~37%, 네트워킹 매출 +73~74%, 조정 EPS 3.75~3.85달러, GAAP 희석 EPS 2.93~3.03달러, 잉여현금흐름 37.5억 달러 이상",
         "givenOn": "2026-09-02",
         "src": [
           "s1"
@@ -449,8 +413,8 @@
       },
       {
         "period": "FY2027",
-        "metric": "framework",
-        "value": "매출 +13~17%, non-GAAP EPS +16~20%, non-GAAP 영업이익률 14~15%, 잉여현금흐름 50억 달러 이상",
+        "metric": "매출 성장률·영업이익률·잉여현금흐름",
+        "value": "매출 +13~17%, 조정 EPS +16~20%, non-GAAP 영업이익률 14~15%, 잉여현금흐름 50억 달러 이상",
         "givenOn": "2026-09-02",
         "src": [
           "s1"
@@ -465,7 +429,7 @@
     ]
   },
   "estimates": {
-    "text": "2026-10-28 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-10~2027-07) 합계 4.27달러(범위 3.94~4.65, 추정치 최소 7건), 직전 4개 분기 합 2.77달러. 최근 4주 상향 7건·하향 0건으로 상향 방향.",
+    "text": "2026-11-08 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-10~2027-07) 합계 4.31달러(범위 3.94~4.68, 추정치 최소 7건), 직전 4개 분기 실적 합 2.77달러. 최근 4주 상향 4건·하향 0건. 직전 분기(2026-07) 조정 EPS 실적 1.02달러는 컨센서스 0.82달러를 웃돌았다(Zacks 기준으로 회사 non-GAAP 1.11달러와 기준이 다름).",
     "src": [
       "s5"
     ]
@@ -511,14 +475,14 @@
   "debate": {
     "question": "Juniper 편입 이후 네트워킹의 이익 기여가 AI 서버의 낮은 마진을 상쇄하는지",
     "bull": {
-      "text": "긍정적으로 보는 쪽은 Q3 FY2026 매출 122억 달러(+34%)에서 GAAP 총마진이 40.1%(+10.9%p), GAAP 영업이익률이 11.4%로 오르고 Networking 이익률이 22.0%, Cloud & AI도 17.0%라는 점을 든다. 회사가 FY2026 매출 성장 전망을 17~22%에서 34~37%로, 잉여현금흐름을 17~20억 달러에서 37.5억 달러 이상으로 올렸고 FY2027에는 non-GAAP 영업이익률 14~15%, 잉여현금흐름 50억 달러 이상을 제시했다.",
+      "text": "긍정적으로 보는 쪽은 Q3 FY2026 매출 122.1억 달러(+34%)에서 GAAP 총마진이 40.1%(+10.9%p), GAAP 영업이익률이 11.4%(전년 2.7%)로 오르고, Networking 이익률 22.0%에 더해 서버 중심의 Cloud & AI 이익률도 7.0%에서 17.0%로 뛰었다는 점을 든다. 회사는 FY2026 매출 성장 전망을 17~22%에서 34~37%로, 잉여현금흐름을 17~20억에서 37.5억 달러 이상으로 올렸고 FY2027 non-GAAP 영업이익률 14~15%를 제시했다.",
       "src": [
         "s1",
         "s3"
       ]
     },
     "bear": {
-      "text": "비관적으로 보는 쪽은 FY2026 네트워킹 +73~74%가 Juniper 편입 첫 온전한 해의 효과이고 FY2027 매출 전망은 +13~17%로 낮아진다는 점을 든다. IDC 2Q26 이더넷 스위치 시장이 +43.4% 커질 때 HPE는 +1.6%에 그쳐 점유율이 6.1%이고, 서버는 Dell·Supermicro와의 가격 경쟁에서 GPU·메모리 원가 상승에 취약하다. FY2025 GAAP 영업이익률은 -1.3%였다.",
+      "text": "비관적으로 보는 쪽은 Networking +75%와 라우팅 +270%가 2025-07 인수한 Juniper의 편입 효과이고, FY2027 매출 전망은 +13~17%로 낮아진다는 점을 든다. IDC 2Q26 이더넷 스위치 시장이 +43.4% 커질 때 HPE는 +1.6%에 그쳐 점유율이 6.1%이고, 서버는 GPU·메모리 원가 상승에 취약하다. 직전 회계연도 FY2025 GAAP 영업이익률은 -1.3%였다.",
       "src": [
         "s1",
         "s4",
@@ -527,11 +491,11 @@
     },
     "decides": [
       {
-        "when": "Q4·FY2026 실적 (2026-12 초 추정, 회사 미확정)",
-        "what": "FY2027 매출 +13~17%, non-GAAP 영업이익률 14~15% 전망이 유지되는지, Q4 매출 139억~148억 달러 달성",
+        "when": "2026-11-23 (예정, Finnhub, 회사 미확정) Q4·FY2026 실적",
+        "what": "Q4 매출이 139억~148억 달러 안에 들어오고 Cloud & AI 이익률이 두 자릿수를 지키는지, FY2027 매출 +13~17%·non-GAAP 영업이익률 14~15% 프레임워크가 유지되는지",
         "src": [
-          "s1",
-          "s2"
+          "s6",
+          "s1"
         ]
       },
       {
@@ -553,23 +517,23 @@
       ]
     },
     {
-      "title": "서버는 크고 얇다",
-      "text": "FY2025 Server는 매출의 51.7%(177.5억 달러)였지만 이익률은 7.6%였고 Networking은 매출의 20.0%에 이익률 23.3%였다. 서버 대금의 상당 부분이 칩·메모리 공급사로 다시 나가므로, AI 서버 매출이 늘어도 이익은 네트워킹 비중과 서버 원가 전가에 더 달려 있다.",
+      "title": "서버 이익률의 급반등",
+      "text": "FY2025 Server는 매출의 52%를 차지하면서 이익률이 7.6%였는데, Q3 FY2026 Cloud & AI는 매출의 74%에 이익률 17.0%로 Networking(22.0%)과의 격차가 크게 좁혀졌다. 서버 대금의 상당 부분이 칩·메모리 공급사로 나가는 구조는 그대로이므로, 이 반등이 원가 전가와 믹스 덕인지 일회성인지가 다음 분기들에서 갈린다.",
       "src": [
         "s2",
         "s1"
       ]
     },
     {
-      "title": "스위치에서는 시장 밖",
-      "text": "라우터에서는 Juniper 덕에 3위(10.7%, +25.3%)지만 이더넷 스위치에서는 시장 성장률 +43.4%에 HPE 성장률 +1.6%다. AI 데이터센터 투자가 스위치로 몰리는 시기에 이 점유율 격차는 네트워킹 성장의 한계를 보여 준다.",
+      "title": "영업이익보다 큰 순이익",
+      "text": "Q3 GAAP 순이익(HPE 귀속)은 15.4억 달러로 GAAP 영업이익 13.9억 달러보다 컸다. 그래서 이 분기 순이익률 12.6%는 영업이익률 11.4%보다 높게 나오는데, 영업 밖 항목이 순이익을 키웠다는 뜻이고 그 항목은 이번에 읽은 자료에서 확인하지 못했다. 본업의 이익 체력은 영업이익률과 non-GAAP 16.2%로 읽는 편이 안전하다.",
       "src": [
-        "s4"
+        "s1"
       ]
     },
     {
       "title": "환원 여력은 인수 소화 뒤",
-      "text": "FY2025에는 잉여현금흐름이 9.9억 달러로 배당 6.8억 달러와 자사주 2억 달러만 감당했다. 4분기에 잉여현금흐름의 75% 이상을 환원하겠다는 약속은 Q3 잉여현금흐름 10억 달러와 FY2026 37.5억 달러 이상 전망 위에서만 성립한다.",
+      "text": "FY2025에는 잉여현금흐름이 9.9억 달러로 배당 6.8억 달러와 자사주 2억 달러만 감당했다. Q3 FY2026에도 환원은 3.24억 달러로 잉여현금흐름 10억 달러의 3분의 1 수준이어서, 4분기에 75% 이상을 환원하겠다는 약속은 FY2026 잉여현금흐름 37.5억 달러 이상 전망이 실현돼야 성립한다.",
       "src": [
         "s2",
         "s1"
@@ -579,10 +543,10 @@
   "trading": {
     "calendar": [
       {
-        "date": "2026-12 초 (추정, 회사 미확정; 2025-12-04 발표 패턴)",
+        "date": "2026-11-23 (예정, Finnhub, 회사 미확정)",
         "event": "Q4·FY2026 실적과 FY2027 전망",
         "src": [
-          "s2"
+          "s6"
         ]
       },
       {
@@ -590,13 +554,6 @@
         "event": "IDC 이더넷 스위치·라우터 점유율 발표",
         "src": [
           "s4"
-        ]
-      },
-      {
-        "date": "2026-10-16 지급 (완료)",
-        "event": "분기 배당 0.1425달러",
-        "src": [
-          "s1"
         ]
       }
     ],
@@ -621,8 +578,11 @@
     "서버·스토리지 경쟁사 목록과 점유율 (업계 일반 구도로 적음)",
     "Q3 FY2026 자사주 매입·배당 분할 (합계 3.24억 달러만 공시)",
     "3분기 GAAP EPS가 회사 전망을 넘었다는 비교는 2차 요약",
-    "Q4 FY2026 실적 발표일 (회사 미공지)",
-    "3분기 콜 녹취 원문 (페이지 접속 시간 초과로 읽지 못함)"
+    "3분기 콜 녹취 원문 (페이지 접속 시간 초과로 읽지 못함)",
+    "Q3 FY2026 영업현금흐름 16억·잉여현금흐름 10억 달러는 보도자료 본문의 반올림 값이며 설비투자 금액은 읽은 자료에 없음",
+    "Q3 FY2026 부문 매출(Cloud & AI 90억, Networking 29억)은 보도자료의 반올림 값이어서 비중 합이 100%에 조금 못 미침 (부문 간 제거 금액 미기재)",
+    "Q3 순이익이 영업이익보다 큰 원인(영업외 이익·세금 항목)",
+    "Q4 FY2026 실적 발표일은 Finnhub 일정 기준이며 회사 공지 미확인"
   ],
   "confidence": "medium - 실적·부문·전망은 회사 보도자료 전재본이고 점유율은 IDC 원문이지만, 공급망·고객·AI 매출은 확인하지 못했고 콜 원문을 읽지 못했다."
 }

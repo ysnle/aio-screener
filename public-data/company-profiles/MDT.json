@@ -1,20 +1,75 @@
 {
   "symbol": "MDT",
   "name": "Medtronic plc",
-  "researchedAt": "2026-10-29",
+  "researchedAt": "2026-11-08",
   "fiscalYearEnd": "last Friday of April (FY2026 ended 2026-04-24; FY2027 is a 53-week year)",
   "oneLine": "Medtronic은 심장박동기·심장 절제 카테터·척추 기기·수술 장비를 만드는 세계 최대급 의료기기 회사로, 펄스장 절제(PFA) 카테터 급성장으로 10년 만에 가장 빠른 매출 성장을 내며 당뇨 사업(MiniMed) 분리를 진행하고 있다.",
   "sources": [
-    { "id": "s1", "kind": "earnings-release", "title": "Medtronic reports fourth quarter and full year fiscal 2026 results; delivers highest annual revenue growth in 10 years (segment/division tables, income statement, cash flow, FY27 guidance)", "url": "https://news.medtronic.com/2026-06-03-Medtronic-reports-fourth-quarter-and-full-year-fiscal-2026-results-delivers-highest-annual-revenue-growth-in-10-years", "publisher": "Medtronic", "date": "2026-06-03" },
-    { "id": "s2", "kind": "earnings-release", "title": "Medtronic reports first quarter fiscal 2027 results, delivers broad-based portfolio performance and raises fiscal 2027 guidance", "url": "https://news.medtronic.com/2026-09-01-Medtronic-reports-first-quarter-fiscal-2027-results-delivers-broad-based-portfolio-performance-and-raises-fiscal-2027-guidance", "publisher": "Medtronic", "date": "2026-09-01" },
-    { "id": "s3", "kind": "news", "title": "MiniMed announces closing of Initial Public Offering (28 million shares at $20, Nasdaq MMED, Medtronic about 90%; read via search summary)", "url": "https://news.minimed.com/2026-03-09-MiniMed-announces-closing-of-Initial-Public-Offering", "publisher": "MiniMed", "date": "2026-03-09" },
-    { "id": "s4", "kind": "other", "title": "Inside the pulsed field ablation market 2026 (US PFA spend share early 2026: Medtronic 48%, Boston Scientific 41%, J&J 11%; read via search summary; publication day not checked, accessed date)", "url": "https://qsight.guidepoint.com/blog/inside-the-pulsed-field-ablation-market-2026/", "publisher": "Guidepoint Qsight", "date": "2026-10-29" },
-    { "id": "s5", "kind": "news", "title": "Medtronic adds Nvidia's AI to colorectal polyp-spotting software (GI Genius, NVIDIA Holoscan; announced 2023-03, read via search summary)", "url": "https://www.fiercebiotech.com/medtech/medtronic-adds-nvidias-ai-colorectal-polyp-spotting-software", "publisher": "Fierce Biotech", "date": "2023-03" },
-    { "id": "s6", "kind": "news", "title": "Medtronic beats Q1 estimates, raises FY27 outlook and commits about $700M to robotics (Cornerstone Robotics Sentire distribution partnership; read via search summary)", "url": "https://app.sentisense.ai/stories/medtronic-beats-q1-estimates-raises-fy27-outlook-and-commits-700m-to-robotics-sh-09012026", "publisher": "SentiSense", "date": "2026-09-01" },
-    { "id": "s7", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/mdt/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" },
-    { "id": "s8", "kind": "other", "title": "AIO local earnings calendar (Finnhub calendar/earnings), public-data/earnings-calendar.json - MDT 2026-11-24", "url": "https://finnhub.io/docs/api", "publisher": "Finnhub via AIO", "date": "2026-10-28" }
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Medtronic reports fourth quarter and full year fiscal 2026 results; delivers highest annual revenue growth in 10 years (segment/division tables, income statement, cash flow, FY27 guidance)",
+      "url": "https://news.medtronic.com/2026-06-03-Medtronic-reports-fourth-quarter-and-full-year-fiscal-2026-results-delivers-highest-annual-revenue-growth-in-10-years",
+      "publisher": "Medtronic",
+      "date": "2026-06-03"
+    },
+    {
+      "id": "s2",
+      "kind": "earnings-release",
+      "title": "Medtronic reports first quarter fiscal 2027 results, delivers broad-based portfolio performance and raises fiscal 2027 guidance (segment/division and geographic tables, income statement, cash flow statement, 53rd-week note)",
+      "url": "https://news.medtronic.com/2026-09-01-Medtronic-reports-first-quarter-fiscal-2027-results-delivers-broad-based-portfolio-performance-and-raises-fiscal-2027-guidance",
+      "publisher": "Medtronic",
+      "date": "2026-09-01"
+    },
+    {
+      "id": "s3",
+      "kind": "news",
+      "title": "MiniMed announces closing of Initial Public Offering (28 million shares at $20, Nasdaq MMED, Medtronic about 90%; read via search summary)",
+      "url": "https://news.minimed.com/2026-03-09-MiniMed-announces-closing-of-Initial-Public-Offering",
+      "publisher": "MiniMed",
+      "date": "2026-03-09"
+    },
+    {
+      "id": "s4",
+      "kind": "other",
+      "title": "Inside the pulsed field ablation market 2026 (US PFA spend share early 2026: Medtronic 48%, Boston Scientific 41%, J&J 11%; read via search summary; publication day not checked, accessed date)",
+      "url": "https://qsight.guidepoint.com/blog/inside-the-pulsed-field-ablation-market-2026/",
+      "publisher": "Guidepoint Qsight",
+      "date": "2026-10-29"
+    },
+    {
+      "id": "s5",
+      "kind": "news",
+      "title": "Medtronic adds Nvidia's AI to colorectal polyp-spotting software (GI Genius, NVIDIA Holoscan; announced 2023-03, read via search summary)",
+      "url": "https://www.fiercebiotech.com/medtech/medtronic-adds-nvidias-ai-colorectal-polyp-spotting-software",
+      "publisher": "Fierce Biotech",
+      "date": "2023-03"
+    },
+    {
+      "id": "s6",
+      "kind": "news",
+      "title": "Medtronic beats Q1 estimates, raises FY27 outlook and commits about $700M to robotics (Cornerstone Robotics Sentire distribution partnership; read via search summary)",
+      "url": "https://app.sentisense.ai/stories/medtronic-beats-q1-estimates-raises-fy27-outlook-and-commits-700m-to-robotics-sh-09012026",
+      "publisher": "SentiSense",
+      "date": "2026-09-01"
+    },
+    {
+      "id": "s7",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json (snapshot 2026-11-08)",
+      "url": "https://www.nasdaq.com/market-activity/stocks/mdt/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-11-08"
+    },
+    {
+      "id": "s8",
+      "kind": "other",
+      "title": "AIO local earnings calendar (Finnhub calendar/earnings), public-data/earnings-calendar.json - MDT 2026-11-24",
+      "url": "https://finnhub.io/docs/api",
+      "publisher": "Finnhub via AIO",
+      "date": "2026-11-08"
+    }
   ],
-
   "moat": {
     "sources": [
       "심장·척추·신경조절 기기 대부분에서 쌓인 임상 데이터와 FDA 허가, 의사 교육망",
@@ -23,14 +78,16 @@
       "연 28.7억 달러(FY2026) R&D와 전 세계 판매망 (미국 외 매출 50%)"
     ],
     "text": "Medtronic의 힘은 의사가 손에 익힌 기기와 그 기기를 뒷받침하는 임상 데이터·허가에서 나온다. 한 번 병원에 들어간 장비는 수년간 소모품과 서비스를 함께 팔게 해 주고, 그래서 총마진이 65%에 이른다. 최근에는 심방세동 절제가 열 에너지에서 펄스장 방식으로 바뀌는 시기에 Affera 카테터로 빠르게 올라타, 오래 정체됐던 성장률을 끌어올렸다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "design": {
     "text": "이 기반 위에서 회사는 네 사업부로 보고한다. 심혈관(심장박동기·제세동기·심장 절제·구조적 심장 판막·관상동맥 스텐트), 신경과학(척추·뇌 수술 기기, 신경조절, 이비인후·골반 치료), 의료수술(수술 기구·내시경·환자 모니터링, 로봇 Hugo), 당뇨(인슐린 펌프·CGM, MiniMed)다. 신장 신경차단술(Symplicity)도 성장 기회로 꼽고, Hugo 수술 로봇은 미국 FDA에 허가를 신청했다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "make": {
     "model": "in-house manufacturing",
     "partners": [
@@ -41,9 +98,13 @@
       "MiniMed - 2026-03 상장한 당뇨 자회사 (Medtronic 약 90% 보유)"
     ],
     "text": "Medtronic은 기기 대부분을 직접 만들지만, 새 기술은 인수(Affera·CathWorks)와 제휴로 들여온다. AI 대장내시경 GI Genius는 Cosmo가 만들고 NVIDIA 플랫폼을 쓰며, 2026년 9월에는 Cornerstone Robotics와 약 7억 달러 규모 로봇 유통 제휴를 맺어 Hugo를 보완했다. 당뇨 사업은 MiniMed라는 별도 상장사로 떼어 내는 중이다.",
-    "src": ["s1", "s5", "s6", "s3"]
+    "src": [
+      "s1",
+      "s5",
+      "s6",
+      "s3"
+    ]
   },
-
   "sell": {
     "customers": [
       "병원·통합 의료 네트워크와 구매조직 (심장 시술실, 수술실, 척추 수술)",
@@ -55,121 +116,409 @@
     "channel": "대부분 병원 직접 영업과 계약, 일부 지역은 유통상. 당뇨는 환자·보험사·약국 채널.",
     "concentration": null,
     "text": "이렇게 만든 기기는 주로 병원과 시술센터에 직접 영업으로 팔린다. 매출이 미국과 해외에 반씩(2026회계연도 181억·183억 달러) 나뉘어 있어, 미국 시술 건수와 메디케어 수가가 중요하면서도 해외 약가·환율 영향도 크다. 병원이 기기를 쓰면 보험사·메디케어가 시술비로 그 값을 치르는 구조라, 새 시술에 보험 적용이 붙는 시점이 판매 속도를 좌우한다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "moneyFlow": {
     "steps": [
-      { "from": "환자·고용주", "to": "메디케어·상업보험", "what": "보험료·세금" },
-      { "from": "메디케어·상업보험", "to": "병원·시술센터", "what": "시술·수술 1건당 수가" },
-      { "from": "병원·시술센터", "to": "Medtronic", "what": "심장 절제 카테터·박동기·척추 임플란트·수술 기구 등 기기와 소모품 대금" },
-      { "from": "당뇨 환자·보험사", "to": "Medtronic Diabetes (MiniMed)", "what": "인슐린 펌프와 반복 구매 소모품·센서 대금" }
+      {
+        "from": "환자·고용주",
+        "to": "메디케어·상업보험",
+        "what": "보험료·세금"
+      },
+      {
+        "from": "메디케어·상업보험",
+        "to": "병원·시술센터",
+        "what": "시술·수술 1건당 수가"
+      },
+      {
+        "from": "병원·시술센터",
+        "to": "Medtronic",
+        "what": "심장 절제 카테터·박동기·척추 임플란트·수술 기구 등 기기와 소모품 대금"
+      },
+      {
+        "from": "당뇨 환자·보험사",
+        "to": "Medtronic Diabetes (MiniMed)",
+        "what": "인슐린 펌프와 반복 구매 소모품·센서 대금"
+      }
     ],
     "pricing": "기기 1개당 판매 가격이며, 장비(로봇·내비게이션·발전기)는 한 번 팔고 카테터·임플란트·센서 같은 소모품을 시술 건마다 반복해서 판다. 가격은 병원 구매계약과 메디케어 수가에 묶여 있어, 일부 지역의 관상동맥 스텐트처럼 가격 인하 압력이 있다.",
     "text": "돈의 흐름은 시술 1건에서 시작한다. 보험사·메디케어가 병원에 시술비를 내고, 병원은 그 안에서 Medtronic의 기기와 소모품 값을 치른다. 그래서 회사 매출은 시술 건수 × 기기 단가로 움직이며, 펄스장 절제처럼 새 시술이 빠르게 퍼지면 소모품 매출이 한꺼번에 늘어난다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "earnings": {
-    "period": "FY2026 (ended 2026-04-24)",
-    "revenue": { "value": 36.364, "unit": "USD bn", "yoy": 8.4 },
+    "period": "Q1 FY2027 (ended 2026-07-31)",
+    "periodEnd": "2026-07-31",
+    "basis": "quarter",
+    "revenue": {
+      "value": 9.756,
+      "unit": "USD bn",
+      "yoy": 13.7
+    },
     "grossMargin": 65.0,
-    "operatingMargin": 17.8,
-    "netMargin": 13.2,
-    "operatingCashFlow": { "value": 7.33, "unit": "USD bn" },
-    "freeCashFlow": { "value": 5.426, "unit": "USD bn" },
+    "operatingMargin": 18.1,
+    "netMargin": 15.1,
+    "operatingCashFlow": {
+      "value": 1.793,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": 1.29,
+      "unit": "USD bn"
+    },
     "segments": [
-      { "name": "Cardiovascular (심혈관)", "revenue": 13.976, "unit": "USD bn", "share": 38.4, "yoy": 12.0, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Neuroscience (신경과학)", "revenue": 10.287, "unit": "USD bn", "share": 28.3, "yoy": 4.5, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Medical Surgical (의료수술)", "revenue": 8.815, "unit": "USD bn", "share": 24.2, "yoy": 4.9, "operatingMargin": null, "src": ["s1"] },
-      { "name": "Diabetes (당뇨, MiniMed)", "revenue": 3.112, "unit": "USD bn", "share": 8.6, "yoy": 12.9, "operatingMargin": null, "src": ["s1"] },
-      { "name": "기타 (총매출에서 4개 사업부를 뺀 계산값)", "revenue": 0.174, "unit": "USD bn", "share": 0.5, "yoy": null, "operatingMargin": null, "src": ["s1"] }
+      {
+        "name": "Cardiovascular (심혈관)",
+        "revenue": 3.927,
+        "unit": "USD bn",
+        "share": 40.3,
+        "yoy": 19.5,
+        "operatingMargin": null,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "Neuroscience (신경과학)",
+        "revenue": 2.678,
+        "unit": "USD bn",
+        "share": 27.4,
+        "yoy": 10.3,
+        "operatingMargin": null,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "Medical Surgical (의료수술)",
+        "revenue": 2.279,
+        "unit": "USD bn",
+        "share": 23.4,
+        "yoy": 10.0,
+        "operatingMargin": null,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "Diabetes (당뇨, MiniMed)",
+        "revenue": 0.843,
+        "unit": "USD bn",
+        "share": 8.6,
+        "yoy": 16.9,
+        "operatingMargin": null,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "기타 (Other)",
+        "revenue": 0.029,
+        "unit": "USD bn",
+        "share": 0.3,
+        "yoy": -59.7,
+        "operatingMargin": null,
+        "src": [
+          "s2"
+        ]
+      }
     ],
     "industryMetric": [
-      { "name": "유기적(organic) 매출 성장률", "value": "FY2026 +5.8% (보고 +8.4%); Q1 FY27 +13.7% (53주차 효과 약 5.7억 달러 포함)", "src": ["s1", "s2"] },
-      { "name": "심장 절제(Cardiac Ablation Solutions) 성장률", "value": "FY26 Q4 +78% (미국 +124%, 미국 점유율 약 8%p 상승), Q1 FY27 +88%", "src": ["s1", "s2"] },
-      { "name": "FY2026 주요 부문 매출", "value": "심장리듬·심부전 75.0억(+17.4%), 척추·뇌 52.2억(+5.0%), 수술·내시경 67.6억(+4.1%), 구조적 심장 38.2억 달러(+7.4%)", "src": ["s1"] },
-      { "name": "Q1 FY27 사업부 유기적 성장", "value": "심혈관 +18.9%(전기생리 치료 22.2억 달러, +29.1%), 신경과학 +9.3%, 의료수술 +10.2%, 당뇨 +14.9%", "src": ["s2"] },
-      { "name": "조정(non-GAAP) EPS", "value": "FY2026 5.53달러(+0.7%), Q1 FY27 1.45달러(+15.1%)", "src": ["s1", "s2"] }
+      {
+        "name": "유기적(organic) 매출 성장률",
+        "value": "Q1 FY27 +13.7% (보고 +13.7%), 53주차 효과 약 5.7억 달러 포함; FY2026 +5.8%",
+        "src": [
+          "s2",
+          "s1"
+        ]
+      },
+      {
+        "name": "Q1 FY27 심혈관 사업부 (보고/유기적)",
+        "value": "전기생리 치료 22.2억 달러(+29.5%/+29.1%), 중재 심장 8.9억(+7.2%/+6.5%), 심혈관 수술 4.8억(+9.3%/+8.1%), 말초혈관 3.4억 달러(+11.6%/+11.0%)",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "심장 절제(Cardiac Ablation Solutions) 성장률",
+        "value": "Q1 FY27 +88%, 심장리듬관리 +15% (새 보고 구조라 금액은 표에 따로 없음); FY26 Q4 +78%",
+        "src": [
+          "s2",
+          "s1"
+        ]
+      },
+      {
+        "name": "Q1 FY27 지역별 매출",
+        "value": "미국 49.1억 달러(+16.1%, 유기적 +15.8%), 미국 외 48.5억 달러(+11.4%, 유기적 +11.6%)",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "Q1 FY27 이익률 (GAAP / non-GAAP)",
+        "value": "매출총이익률 65.0% / 65.2% (전년 65.0% / 65.1%), 영업이익률 18.1% / 23.7% (전년 16.8% / 23.6%)",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "EPS",
+        "value": "Q1 FY27 GAAP 희석 1.14달러(전년 0.81), non-GAAP 1.45달러(전년 1.26, +15.1%); FY2026 non-GAAP 5.53달러",
+        "src": [
+          "s2",
+          "s1"
+        ]
+      }
     ],
-    "text": "이 구조로 2026회계연도에 매출 363.6억 달러(+8.4%, 유기적 +5.8%)와 영업이익 64.7억 달러(이익률 17.8%), 순이익 48억 달러를 냈다. 성장은 펄스장 절제가 끄는 심혈관(+12%)과 당뇨(+12.9%)에서 나왔고, 매출의 절반을 넘는 신경과학·의료수술은 4~5% 성장에 머물렀다. 다만 조정 EPS는 5.53달러로 0.7% 늘어나는 데 그쳐, 매출 성장이 아직 이익 성장으로 충분히 옮겨 가지 않았다.",
-    "src": ["s1"]
+    "text": "2027회계연도 1분기(2026-07-31 종료) 매출은 97.6억 달러로 13.7% 늘었고, 심혈관이 19.5%(전기생리 치료 +29.5%) 성장하며 매출의 40%를 차지했다. GAAP 영업이익률은 18.1%(전년 16.8%), 순이익은 14.7억 달러(순이익률 15.1%)였고 잉여현금흐름은 12.9억 달러로 전년 5.8억 달러의 두 배를 넘었다. 다만 이 분기에는 53주차 효과 약 5.7억 달러가 들어 있다. 직전 회계연도 FY2026 매출은 363.6억 달러(+8.4%, 유기적 +5.8%)였다.",
+    "src": [
+      "s2",
+      "s1"
+    ]
   },
-
   "useOfCash": {
-    "period": "FY2026 (ended 2026-04-24)",
+    "period": "Q1 FY2027 (ended 2026-07-31)",
     "items": [
-      { "use": "dividends", "value": 3.639, "unit": "USD bn", "src": ["s1"] },
-      { "use": "R&D", "value": 2.873, "unit": "USD bn", "src": ["s1"] },
-      { "use": "capex", "value": 1.904, "unit": "USD bn", "src": ["s1"] },
-      { "use": "buybacks", "value": 1.035, "unit": "USD bn", "src": ["s1"] },
-      { "use": "acquisitions", "value": 0.406, "unit": "USD bn", "src": ["s1"] },
-      { "use": "debt repayment", "value": 2.93, "unit": "USD bn", "src": ["s1"] }
+      {
+        "use": "acquisitions",
+        "value": 1.162,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "use": "dividends",
+        "value": 0.921,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "use": "R&D",
+        "value": 0.771,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "use": "capex",
+        "value": 0.503,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "use": "buybacks",
+        "value": 0.267,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      }
     ],
-    "text": "잉여현금흐름 54.3억 달러 중 가장 큰 몫은 배당 36.4억 달러로, 회사는 49년 연속 배당을 올려 2027회계연도 분기 배당을 주당 0.72달러로 정했다. 자사주 매입은 전년 32.4억 달러에서 10.4억 달러로 크게 줄였고, R&D 28.7억 달러와 설비 19억 달러는 유지했다. 환원보다 성장 투자와 당뇨 분리 준비에 무게를 옮긴 한 해였다.",
-    "src": ["s1"]
+    "text": "1분기 잉여현금흐름 12.9억 달러보다 인수 11.6억, 배당 9.2억, 자사주 2.7억 달러의 합(23.5억 달러)이 컸다. 차이는 단기 차입 순증 8.1억 달러 등으로 메워졌다. FY2026에는 자사주를 10.4억 달러로 줄였지만 이번 분기 매입액은 전년 1.2억에서 2.7억 달러로 늘었고, 인수에 1년 만에 다시 큰 현금을 썼다.",
+    "src": [
+      "s2",
+      "s1"
+    ]
   },
-
   "aiChain": {
     "layer": "ai-adopter",
     "position": "AI를 파는 회사가 아니라 의료기기 안에 AI를 넣어 쓰는 회사다. AI 대장내시경 보조 GI Genius에 NVIDIA 플랫폼을 쓰고, Hugo 로봇과 Touch Surgery 영상 분석에 AI 기능을 붙인다.",
-    "dependsOn": ["chips-compute (NVIDIA Holoscan·Clara)", "Cosmo Pharmaceuticals (GI Genius 알고리즘·제조)"],
-    "sellsTo": ["AI 기능을 탑재한 기기를 병원에 판매 - AI 매출은 따로 공시하지 않음"],
+    "dependsOn": [
+      "연산 칩 (NVIDIA Holoscan·Clara)",
+      "소프트웨어·앱 (Cosmo Pharmaceuticals, GI Genius 알고리즘·제조)"
+    ],
+    "sellsTo": [
+      "AI 기능을 탑재한 기기를 병원에 판매 - AI 매출은 따로 공시하지 않음"
+    ],
     "aiRevenue": null,
     "upside": "AI가 시술 중 판독·기록을 돕는 기능이 되면 장비 교체 수요와 소모품 판매가 늘고, 수술 로봇의 경쟁력도 올라간다.",
     "risk": "AI 기능은 경쟁사도 같은 칩과 플랫폼으로 따라 할 수 있어 장기 차별화가 어렵다. 회사 실적 자료에는 AI 언급이 없어, 아직 매출 요인으로 보기 어렵다.",
     "text": "그래서 AI 가치사슬에서 Medtronic은 '도입자'다. 2026회계연도 실적 발표에는 AI 언급이 없었고, 지금의 성장은 펄스장 절제 같은 시술 전환에서 나온다. AI는 GI Genius와 로봇 수술에서 기기의 부가 기능으로 쌓이는 단계다.",
-    "src": ["s5", "s1", "s2"]
+    "src": [
+      "s5",
+      "s1",
+      "s2"
+    ]
   },
-
   "competition": {
     "arenas": [
-      { "arena": "심방세동 펄스장 절제(PFA)", "rivals": ["Boston Scientific (Farapulse)", "Johnson & Johnson (Varipulse)", "Abbott (Volt)"], "position": "leader", "share": "2026년 초 미국 PFA 구매액 기준 Medtronic 48%, Boston Scientific 41%, J&J 11% (Qsight, 검색 요약; 시술 건수 기준 아님)", "src": ["s4", "s1"] },
-      { "arena": "수술 로봇", "rivals": ["Intuitive Surgical (da Vinci)", "Johnson & Johnson (OTTAVA)"], "position": "follower", "share": null, "src": ["s1", "s6"] },
-      { "arena": "당뇨 기기 (인슐린 펌프·CGM)", "rivals": ["Insulet", "Tandem Diabetes", "Dexcom", "Abbott"], "position": "challenger", "share": null, "src": ["s1"] },
-      { "arena": "척추·뇌 수술 기기", "rivals": ["Stryker", "Globus Medical", "Johnson & Johnson (DePuy Synthes)"], "position": "challenger", "share": null, "src": ["s1"] },
-      { "arena": "심장박동기·리드리스 박동기", "rivals": ["Abbott", "Boston Scientific"], "position": "challenger", "share": null, "src": ["s1"] }
+      {
+        "arena": "심방세동 펄스장 절제(PFA)",
+        "rivals": [
+          "Boston Scientific (Farapulse)",
+          "Johnson & Johnson (Varipulse)",
+          "Abbott (Volt)"
+        ],
+        "position": "leader",
+        "share": "2026년 초 미국 PFA 구매액 기준 Medtronic 48%, Boston Scientific 41%, J&J 11% (Qsight, 검색 요약; 시술 건수 기준 아님)",
+        "src": [
+          "s4",
+          "s1"
+        ]
+      },
+      {
+        "arena": "수술 로봇",
+        "rivals": [
+          "Intuitive Surgical (da Vinci)",
+          "Johnson & Johnson (OTTAVA)"
+        ],
+        "position": "follower",
+        "share": null,
+        "src": [
+          "s1",
+          "s6"
+        ]
+      },
+      {
+        "arena": "당뇨 기기 (인슐린 펌프·CGM)",
+        "rivals": [
+          "Insulet",
+          "Tandem Diabetes",
+          "Dexcom",
+          "Abbott"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "척추·뇌 수술 기기",
+        "rivals": [
+          "Stryker",
+          "Globus Medical",
+          "Johnson & Johnson (DePuy Synthes)"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "심장박동기·리드리스 박동기",
+        "rivals": [
+          "Abbott",
+          "Boston Scientific"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "edge": "펄스장 절제에서 매핑(Affera)과 카테터를 함께 파는 조기 진입, 심장박동기 Micra 같은 고성장 제품, 전 세계 병원 영업망.",
     "threats": "Boston Scientific·J&J·Abbott의 PFA 반격, 구조적 심장과 관상동맥 스텐트의 가격 인하, 수술 로봇의 늦은 진입, 당뇨 분리 과정의 불확실성.",
     "text": "가장 치열한 경기장은 심방세동 절제다. Boston Scientific이 먼저 열었지만, Medtronic은 2026년 초 미국 PFA 구매액 기준 48%로 앞섰다는 데이터가 있고 회사도 미국 점유율이 약 8%p 올랐다고 밝혔다. 반대로 수술 로봇은 Intuitive가 압도해 Medtronic은 Hugo와 Cornerstone 제휴로 따라가는 입장이고, 회사는 성장이 빠른 심혈관에 자원을 몰아 다른 부문의 느린 성장을 메운다.",
-    "src": ["s4", "s1", "s6"]
+    "src": [
+      "s4",
+      "s1",
+      "s6"
+    ]
   },
-
   "strategy": {
     "goal": "2027회계연도 유기적 매출 성장 7.25~7.75%, 조정 EPS 5.94~6.00달러를 제시했다(두 차례 범위 조정). 펄스장 절제·신장 신경차단술·로봇 같은 고성장 시장 비중을 늘리고 당뇨 사업을 분리해 포트폴리오를 단순하게 만드는 것이 목표다.",
     "roadmap": [
-      { "when": "2026-03 (완료)", "what": "MiniMed 나스닥 상장 (2,800만 주, 주당 20달러), Medtronic 약 90% 보유", "src": ["s3", "s1"] },
-      { "when": "다음 단계 (시점 미정)", "what": "MiniMed 분리 완료 - split-off(지분 교환) 방식 선호, 최종 결정 전", "src": ["s1", "s2"] },
-      { "when": "FDA 심사 중", "what": "Hugo 로봇 일반외과·부인과 적응증과 LigaSure RAS 허가", "src": ["s1"] },
-      { "when": "2026-09 발표", "what": "Cornerstone Robotics Sentire 로봇 유통 제휴 (약 7억 달러, 보도)", "src": ["s6"] },
-      { "when": "2026-11-24 (Finnhub 일정, 회사 미확정)", "what": "Q2 FY27 실적 발표", "src": ["s8"] }
+      {
+        "when": "2026-03 (완료)",
+        "what": "MiniMed 나스닥 상장 (2,800만 주, 주당 20달러), Medtronic 약 90% 보유",
+        "src": [
+          "s3",
+          "s1"
+        ]
+      },
+      {
+        "when": "다음 단계 (시점 미정)",
+        "what": "MiniMed 분리 완료 - split-off(지분 교환) 방식 선호, 최종 결정 전",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      },
+      {
+        "when": "FDA 심사 중",
+        "what": "Hugo 로봇 일반외과·부인과 적응증과 LigaSure RAS 허가",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2026-09 발표",
+        "what": "Cornerstone Robotics Sentire 로봇 유통 제휴 (약 7억 달러, 보도)",
+        "src": [
+          "s6"
+        ]
+      },
+      {
+        "when": "2026-11-24 (Finnhub 일정, 회사 미확정)",
+        "what": "Q2 FY27 실적 발표",
+        "src": [
+          "s8"
+        ]
+      }
     ],
     "vision": "Martha 회장 겸 CEO는 '10년 만에 가장 강한 연간 매출 성장'을 강조하며, 고성장 시술 시장으로 무게를 옮겨 성장률이 한 단계 높은 의료기기 회사로 바뀌는 그림을 그린다.",
     "text": "다음 계획은 두 갈래다. 하나는 당뇨 사업 MiniMed를 상장(2026년 3월)에 이어 완전히 떼어 내는 것이고, 다른 하나는 Hugo 허가와 Cornerstone 제휴로 수술 로봇 경쟁에 제대로 들어가는 것이다. 그 사이 펄스장 절제와 심장박동기가 성장을 받쳐, 회사는 2027회계연도 유기적 성장 가이던스를 7.25~7.75%로 올렸다.",
-    "src": ["s3", "s1", "s6", "s2"]
+    "src": [
+      "s3",
+      "s1",
+      "s6",
+      "s2"
+    ]
   },
-
   "governance": {
     "line": "Geoff Martha가 회장 겸 CEO로 이끄는 아일랜드 법인(Medtronic plc)이며, 49년 연속 배당을 올리는 대신 FY2026 자사주 매입은 10.4억 달러로 줄였다.",
-    "src": ["s1"]
+    "src": [
+      "s1"
+    ]
   },
-
   "guidance": {
     "latest": [
-      { "period": "FY2027", "metric": "organic revenue growth", "value": "7.25%~7.75% (6월 최초 6.75%~7.25%)", "givenOn": "2026-09-01", "src": ["s2", "s1"] },
-      { "period": "FY2027", "metric": "non-GAAP diluted EPS", "value": "5.94~6.00달러 (6월 최초 5.90~6.00달러), 환율 영향 중립~1% 증가, 당뇨 연간 연결 가정", "givenOn": "2026-09-01", "src": ["s2", "s1"] }
+      {
+        "period": "FY2027",
+        "metric": "유기적 매출 성장률",
+        "value": "7.25%~7.75% (6월 최초 6.75%~7.25%)",
+        "givenOn": "2026-09-01",
+        "src": [
+          "s2",
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2027",
+        "metric": "조정(non-GAAP) 희석 EPS",
+        "value": "5.94~6.00달러 (6월 최초 5.90~6.00달러), 환율 영향 중립~1% 증가, 당뇨 연간 연결 가정",
+        "givenOn": "2026-09-01",
+        "src": [
+          "s2",
+          "s1"
+        ]
+      }
     ],
     "style": "annual",
-    "track": "Q1 FY27 매출은 가이던스 중간값보다 약 2%p 높았고 연간 가이던스를 올렸다. 다만 이 분기에는 53주차 효과(약 5.7억 달러)가 들어 있어 기초 성장률은 그보다 낮다.",
-    "src": ["s2"]
+    "track": "Q1 FY27 매출은 가이던스 중간값보다 약 2%p 높았고 연간 가이던스를 올렸으며, non-GAAP EPS 1.45달러는 컨센서스 1.39달러를 넘었다. 다만 이 분기에는 53주차 효과(약 5.7억 달러)가 들어 있어 기초 성장률은 그보다 낮다.",
+    "src": [
+      "s2",
+      "s7"
+    ]
   },
-
   "estimates": {
-    "text": "AIO 로컬 스냅샷(2026-10-28, Zacks via Nasdaq) 향후 4개 분기(2026-10~2027-07 회계월) 조정 EPS 합계 6.00달러(범위 5.80~6.20), 직전 4개 분기 실적 합 5.72달러. 최근 4주 상향 0건·하향 2건.",
-    "src": ["s7"]
+    "text": "AIO 로컬 스냅샷(2026-11-08, Zacks via Nasdaq) 향후 4개 분기(2026-10~2027-07 회계월) 조정 EPS 합계 6.00달러(범위 5.80~6.20), 직전 4개 분기 실적 합 5.72달러. 최근 4주 상향 0건·하향 1건.",
+    "src": [
+      "s7"
+    ]
   },
-
   "watch": {
     "confirms": [
       "심장 절제(Cardiac Ablation Solutions) 성장률이 높은 수준을 유지",
@@ -186,28 +535,39 @@
       "당뇨 분리 지연 또는 불리한 조건"
     ],
     "keyNumbers": [
-      { "name": "Cardiac Ablation Solutions 성장률", "why": "현재 성장의 엔진" },
-      { "name": "유기적 성장률 (53주차 효과 제외)", "why": "Q1 FY27 숫자가 부풀려져 있다" },
-      { "name": "조정 EPS와 영업이익률", "why": "매출 성장이 이익으로 옮겨 가는지" },
-      { "name": "잉여현금흐름 대비 배당", "why": "배당 증액 여력" },
-      { "name": "MiniMed 지분 처리", "why": "당뇨 매출 31억 달러가 빠질 시점" }
+      {
+        "name": "Cardiac Ablation Solutions 성장률",
+        "why": "현재 성장의 엔진"
+      },
+      {
+        "name": "유기적 성장률 (53주차 효과 제외)",
+        "why": "Q1 FY27 숫자가 부풀려져 있다"
+      },
+      {
+        "name": "조정 EPS와 영업이익률",
+        "why": "매출 성장이 이익으로 옮겨 가는지"
+      },
+      {
+        "name": "잉여현금흐름 대비 배당",
+        "why": "배당 증액 여력"
+      },
+      {
+        "name": "MiniMed 지분 처리",
+        "why": "당뇨 매출 31억 달러가 빠질 시점"
+      }
     ]
   },
-
   "debate": {
     "question": "펄스장 절제가 올린 매출 성장이 이익과 나머지 사업의 둔화를 메우는지",
     "bull": {
-      "text": "FY2026 매출은 363.6억 달러로 8.4% 늘어 10년 만에 가장 빠른 성장이었고, 심장 절제 매출은 FY26 4분기 +78%(미국 +124%), 2027회계연도 1분기 +88%였다. 회사는 FY2027 유기적 성장 가이던스를 7.25~7.75%, 조정 EPS를 5.94~6.00달러로 올렸고 1분기 조정 EPS는 1.45달러(+15.1%)였다. 미국 PFA 구매액 기준 Medtronic 48%라는 외부 자료도 있다.",
+      "text": "강세로 보는 쪽은 성장이 한 제품을 넘어 넓어졌다고 본다. Q1 FY27 매출은 97.6억 달러(+13.7%)로 심혈관 +19.5%(전기생리 치료 +29.5%, 심장 절제 +88%)뿐 아니라 신경과학 +10.3%, 의료수술 +10.0%, 당뇨 +16.9%가 함께 늘었다. GAAP 영업이익률은 16.8%에서 18.1%로, non-GAAP EPS는 1.45달러(+15.1%)로 올랐고 잉여현금흐름은 12.9억 달러로 두 배를 넘었으며, 회사는 연간 유기적 성장 가이던스를 7.25~7.75%로 올렸다.",
       "src": [
-        "s1",
-        "s2",
-        "s4"
+        "s2"
       ]
     },
     "bear": {
-      "text": "FY2026 조정 EPS는 5.53달러로 0.7% 늘어 매출 성장(유기적 5.8%)이 이익으로 충분히 옮겨 가지 못했다. 매출의 절반을 넘는 신경과학(+4.5%)·의료수술(+4.9%)은 4~5% 성장에 머물렀고, 1분기 유기적 성장 13.7%에는 53주차 효과 약 5.7억 달러가 들어 있다. PFA는 Boston Scientific이 41%로 바짝 따르고 수술 로봇에서는 후발이라는 점을 약세 쪽이 짚는다.",
+      "text": "약세로 보는 쪽은 숫자가 부풀려져 있다고 본다. 1분기에는 53주차 효과 약 5.7억 달러가 들어 있고 이는 전년 분기 매출 85.8억 달러의 약 6.6%에 해당한다(계산값). non-GAAP 영업이익률은 23.7%로 전년 23.6%와 거의 같아 매출 성장이 조정 이익률을 넓히지 못했고, 판매관리비는 14% 늘었다. 펄스장 절제에서는 Boston Scientific이 미국 구매액 41%로 바짝 따른다는 외부 자료가 있다.",
       "src": [
-        "s1",
         "s2",
         "s4"
       ]
@@ -215,7 +575,7 @@
     "decides": [
       {
         "when": "2026-11-24 (Finnhub 일정, 회사 미확정)",
-        "what": "Q2 FY27 실적에서 53주차 효과를 뺀 기초 성장률과 심장 절제 성장률, 연간 가이던스 수정 여부",
+        "what": "Q2 FY27 실적에서 53주차 효과가 빠진 분기 성장률과 심장 절제 성장률, 연간 가이던스 수정 여부",
         "src": [
           "s8",
           "s2"
@@ -223,7 +583,7 @@
       },
       {
         "when": "시점 미정",
-        "what": "MiniMed split-off 방식과 일정이 확정되어 당뇨 매출 31.1억 달러가 빠지는 시점",
+        "what": "MiniMed split-off 방식과 일정이 확정되어 당뇨 매출(Q1 FY27 8.4억 달러, 8.6%)이 빠지는 시점",
         "src": [
           "s1",
           "s2"
@@ -241,43 +601,59 @@
   "underTheHood": [
     {
       "title": "53주 연도의 착시",
-      "text": "FY2027은 53주 연도라 2027회계연도 1분기 유기적 성장 13.7%에 약 5.7억 달러의 53주차 효과가 포함돼 있다. 회사도 이 숫자가 부풀려져 있다고 보고 있고, 구체적인 기초 성장률은 공시되지 않았다. 분기 성장률을 연간 가이던스 7.25~7.75%와 비교하기 전에 이 효과를 먼저 걷어 내야 한다.",
+      "text": "FY2027은 53주 연도라 추가 1주가 1분기 첫 달에 들어갔고, 회사는 이 효과를 약 5.7억 달러로 추정한다. 유기적 성장 13.7%를 연간 가이던스 7.25~7.75%와 바로 비교하면 안 되는 이유다. 2분기부터는 이 효과가 없어 성장률이 낮아 보이는 것이 정상이다.",
+      "src": [
+        "s2"
+      ]
+    },
+    {
+      "title": "조정 이익률은 제자리",
+      "text": "GAAP 영업이익률은 16.8%에서 18.1%로 올랐지만 non-GAAP 영업이익률은 23.6%에서 23.7%로 거의 그대로다. 두 이익의 차이(조정 항목)는 5.7억에서 5.5억 달러로 비슷했고 매출이 늘며 그 비중이 줄어 GAAP 이익률이 올라간 것이다(계산값). 판매관리비는 32.0억 달러로 14% 늘어 매출 증가분의 상당 부분을 썼다. EPS 개선이 구조인지는 53주차 효과가 빠진 분기에서 확인된다.",
+      "src": [
+        "s2"
+      ]
+    },
+    {
+      "title": "현금보다 큰 지출",
+      "text": "1분기 잉여현금흐름은 12.9억 달러였는데 인수 11.6억, 배당 9.2억, 자사주 2.7억 달러로 23.5억 달러를 썼고, 단기 차입이 8.1억 달러 늘었다. 49년 연속 늘려 온 배당이 잉여현금흐름의 상당 부분을 고정적으로 가져가기 때문에, 인수가 있는 분기에는 차입이 그 차이를 메우는 구조다.",
       "src": [
         "s2",
         "s1"
       ]
     },
     {
-      "title": "매출 성장이 이익으로 오는 데 걸리는 시간",
-      "text": "FY2026 매출은 유기적으로 5.8% 늘었지만 조정 EPS는 0.7% 늘었고, 1분기에야 EPS +15.1%가 나타났다. 총마진 65.0%의 제품 믹스, R&D 28.7억 달러, 자사주 매입 축소(32.4억 달러에서 10.4억 달러) 같은 요인이 섞여 있어 EPS 개선이 일회성인지 구조인지는 앞으로의 분기에서 확인된다.",
-      "src": [
-        "s1",
-        "s2"
-      ]
-    },
-    {
       "title": "당뇨 분리와 연결 가정",
-      "text": "당뇨 사업 MiniMed는 2026년 3월 나스닥에 상장(2,800만 주, 주당 20달러)했고 Medtronic이 약 90%를 보유한다. 회사는 지분 교환(split-off) 방식을 선호하지만 최종 결정 전이며, FY2027 EPS 가이던스는 당뇨를 연간 연결로 가정한다. 분리되는 순간 매출 약 8.6%와 가이던스 기준이 함께 바뀐다.",
+      "text": "당뇨 사업 MiniMed는 2026년 3월 나스닥에 상장(2,800만 주, 주당 20달러)했고 Medtronic이 약 90%를 보유한다. Q1 FY27 당뇨 매출은 8.4억 달러(+16.9%)로 회사에서 빠르게 크는 축이지만, FY2027 EPS 가이던스는 당뇨를 연간 연결로 가정한다. 분리되는 순간 매출 약 8.6%와 가이던스 기준이 함께 바뀐다.",
       "src": [
         "s3",
-        "s1",
         "s2"
-      ]
-    },
-    {
-      "title": "점유율 숫자의 기준",
-      "text": "미국 PFA 점유율 48%(Medtronic)·41%(Boston Scientific)·11%(J&J)는 시술 건수가 아니라 구매액 기준이고 검색 요약으로만 확인된 외부 자료다. 병원이 기기 값을 치르는 재원은 시술 1건당 보험·메디케어 수가여서, 새 시술의 보험 적용과 병원 구매계약이 판매 속도를 정한다.",
-      "src": [
-        "s4",
-        "s1"
       ]
     }
   ],
   "trading": {
     "calendar": [
-      { "date": "2026-11-24 (Finnhub 일정, 회사 미확정)", "event": "Q2 FY27 실적 발표와 가이던스 수정 여부", "src": ["s8"] },
-      { "date": "시점 미정", "event": "MiniMed split-off 결정과 실행", "src": ["s1", "s2"] },
-      { "date": "시점 미정", "event": "Hugo 로봇 FDA 허가 결정", "src": ["s1"] }
+      {
+        "date": "2026-11-24 (Finnhub 일정, 회사 미확정)",
+        "event": "Q2 FY27 실적 발표와 가이던스 수정 여부",
+        "src": [
+          "s8"
+        ]
+      },
+      {
+        "date": "시점 미정",
+        "event": "MiniMed split-off 결정과 실행",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      },
+      {
+        "date": "시점 미정",
+        "event": "Hugo 로봇 FDA 허가 결정",
+        "src": [
+          "s1"
+        ]
+      }
     ],
     "reaction": "주가는 분기 EPS보다 심장 절제 성장률과 연간 유기적 성장 가이던스 변화에 반응하는 경향이 있다. Q1 FY27 발표 날에는 가이던스 상향과 로봇 제휴가 함께 나오며 장중 최대 약 9% 올랐다는 보도가 있다.",
     "conditions": [
@@ -288,13 +664,14 @@
       "컨센서스 EPS 상향·하향 건수 추이"
     ]
   },
-
   "unverified": [
-    "총마진·영업이익률은 회사 손익계산서 값으로 계산 (StockAnalysis는 영업이익 72.7억 달러로 표시해 정의가 다름)",
-    "'기타' 1.74억 달러는 총매출과 4개 사업부 합의 차이로 계산한 값 (회사 표의 정확한 항목명 미확인)",
-    "Cardiac Ablation Solutions 달러 매출 (회사가 금액을 별도 표기하지 않음)",
+    "기타(Other) 2,900만 달러의 구성 (회사 표 항목만 확인)",
+    "Cardiac Ablation Solutions 달러 매출 (FY27 새 보고 구조에서 금액을 별도 표기하지 않음)",
+    "53주차 효과를 뺀 기초 성장률 (회사 미공시; 6.6%는 5.7억 ÷ 전년 분기 매출 계산값)",
+    "잉여현금흐름은 회사 정의(영업현금흐름 - 설비투자)로 계산된 표 값",
     "PFA 점유율 48%는 구매액 기반 2차 자료(검색 요약)이며 시술 건수 점유율과 다를 수 있다",
     "Cornerstone Robotics 제휴 약 7억 달러와 Q1 FY27 발표일 주가 반응은 2차 보도",
+    "Q1 FY27 인수 11.6억 달러의 대상 (현금흐름표 금액만 확인)",
     "MiniMed split-off 일정과 교환 조건",
     "Hugo FDA 허가 일정, 신장 신경차단술(Symplicity) 매출",
     "AI 관련 매출·지출 (회사 실적 자료에 AI 언급 없음, GI Genius 협업은 2023 보도)",

@@ -271,13 +271,13 @@
     "layer": "chips-compute",
     "position": "AI 데이터센터 CPU의 설계도 공급자이자, 2026년부터는 자체 AI CPU(Arm AGI CPU)를 파는 칩 공급자. NVIDIA Vera, Google Axion, Microsoft Cobalt, AWS Graviton 같은 AI 서버 CPU가 Arm 설계 위에 서 있어, AI 연산 칩 옆의 '두뇌 CPU' 자리를 쥐고 있다.",
     "dependsOn": [
-      "semicap-foundry (자체 칩 생산용 외부 파운드리 - 업체명 미공시)",
+      "장비·파운드리 (자체 칩 생산용 외부 파운드리 - 업체명 미공시)",
       "라이선시의 칩 출하 (NVIDIA, AWS, Google, Microsoft, Qualcomm 등)"
     ],
     "sellsTo": [
-      "chips-compute (NVIDIA·Qualcomm 등 칩 설계사에 IP)",
-      "cloud-infrastructure (AWS·Google·Microsoft 자체 CPU, AGI CPU 구매 고객)",
-      "devices (스마트폰·PC·자동차 칩)"
+      "연산 칩 (NVIDIA·Qualcomm 등 칩 설계사에 IP)",
+      "클라우드 (AWS·Google·Microsoft 자체 CPU, AGI CPU 구매 고객)",
+      "기기 (스마트폰·PC·자동차 칩)"
     ],
     "aiRevenue": "데이터센터 로열티가 Q2 FY2027 전년 대비 2배 (금액 미공시). Arm AGI CPU는 첫 상업 출하가 Q4 FY2027 예정이며 FY2027~FY2028 최대 20억 달러 매출을 제시 (2026-11-04)",
     "upside": "에이전트 AI가 늘수록 GPU 옆에서 작업을 나누는 CPU 수요가 커지고, 그 CPU가 Arm 기반이면 칩당 높은 로열티가 들어온다. 회사는 에이전트 AI CPU 기회를 2030년 1,000억 달러 이상으로 본다. 자체 칩은 칩 1개당 로열티보다 훨씬 큰 금액을 직접 매출로 잡는다.",
@@ -419,7 +419,7 @@
     "latest": [
       {
         "period": "Q3 FY2027",
-        "metric": "revenue",
+        "metric": "매출",
         "value": "15.4억 달러 ±0.5억",
         "givenOn": "2026-11-04",
         "src": [
@@ -428,7 +428,7 @@
       },
       {
         "period": "Q3 FY2027",
-        "metric": "non-GAAP diluted EPS",
+        "metric": "non-GAAP 희석 EPS",
         "value": "0.56달러 ±0.04",
         "givenOn": "2026-11-04",
         "src": [
@@ -437,7 +437,7 @@
       },
       {
         "period": "Q3 FY2027",
-        "metric": "non-GAAP operating expenses",
+        "metric": "non-GAAP 영업비용",
         "value": "약 8.25억 달러 (Q2 7.74억)",
         "givenOn": "2026-11-04",
         "src": [
@@ -446,7 +446,7 @@
       },
       {
         "period": "FY2027~FY2028",
-        "metric": "Arm AGI CPU revenue",
+        "metric": "Arm AGI CPU 매출",
         "value": "최대 20억 달러 (확신이 커졌다고 표현)",
         "givenOn": "2026-11-04",
         "src": [
