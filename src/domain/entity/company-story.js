@@ -6,6 +6,7 @@
 import { readNumber as finite } from '../shared/number.js';
 import { isIsoDay, hasLeadingIsoDay } from '../shared/session-date.js';
 import { debateContextLines } from './company-debate.js';
+import { companiesNamedIn } from './company-aliases.js';
 
 export const AI_LAYERS = Object.freeze([
   ['power-energy', '전력·에너지'], ['cooling-electrical', '냉각·전기 설비'], ['data-center-real-estate', '데이터센터 부동산'],
@@ -140,4 +141,27 @@ export function companyStoryContext(story) {
     '이 조사 이후 새 실적이 나왔으면 그 내용이 우선한다. 매매 지시 없이 조건으로 답할 것.'
   ];
   return lines.filter(Boolean).join('\n');
+}
+
+const RECURRING = /^(매\s*분기|분기마다|수시)/;
+function leadingDayMs(text) {
+  const match = /^(\d{4})-(\d{2})(?:-(\d{2}))?/.exec(String(text || ''));
+  return match ? Date.UTC(+match[1], +match[2] - 1, match[3] ? +match[3] : 15) : null;
+}
+/** The calendar list with the company's next report dated by the earnings calendar: the earliest own-report item
+ *  (mentions 실적, names no other company, not a recurring line, dated within 45 days of the confirmed day when it is
+ *  dated) takes the confirmed date and keeps its description; without such an item a new line leads the list. */
+export function withConfirmedReport(items, symbol, schedule) {
+  const own = String(symbol || '').toUpperCase();
+  const confirmed = leadingDayMs(schedule.date);
+  const note = `${schedule.hour ? `${schedule.hour}, ` : ''}실적 달력 기준`;
+  const pick = items.map((item, index) => ({ item, index, at: leadingDayMs(item?.date) }))
+    .filter(({ item, at }) => /실적/.test(item?.event || '') && !RECURRING.test(String(item?.date || '').trim())
+      && !companiesNamedIn(item.event).some((id) => id !== own)
+      && (at == null || Math.abs(at - confirmed) <= 45 * DAY_MS))
+    .sort((a, b) => (a.at ?? Infinity) - (b.at ?? Infinity))[0];
+  if (!pick) return [{ date: schedule.date, event: `실적 발표 (${note})` }, ...items];
+  const out = items.slice();
+  out[pick.index] = { ...pick.item, date: schedule.date, event: `${pick.item.event} (${note})` };
+  return out;
 }

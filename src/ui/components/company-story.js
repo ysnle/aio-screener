@@ -4,11 +4,10 @@
 // are listed with their dates in the last fold.
 import { hasLeadingIsoDay } from '../../domain/shared/session-date.js';
 import {
-  layerLabel, POSITION_LABEL, CASH_USE_LABEL, moneyText, amountScale, pctText, storyFreshness
+  layerLabel, POSITION_LABEL, CASH_USE_LABEL, moneyText, amountScale, pctText, storyFreshness, withConfirmedReport
 } from '../../domain/entity/company-story.js';
 import { renderDebate, renderCompanyFlow, renderUnderTheHood, renderIndustryFold } from './company-flow.js';
 
-const REPORT_HOUR = Object.freeze({ bmo: '장 시작 전', amc: '장 마감 후', dmh: '장중' });
 const has = (value) => value != null && value !== '' && !(Array.isArray(value) && !value.length);
 const mdOf = (date) => { const m = String(date || '').match(/^\d{4}-(\d{2})-(\d{2})/); return m ? `${Number(m[1])}/${Number(m[2])}` : String(date || ''); };
 
@@ -138,7 +137,7 @@ function cashStack(doc, useOfCash) {
  * @param {{ profile: object, earnings?: Array, peers?: Array<{symbol:string,name?:string,layer?:string}>, openTicker?: Function,
  *   graph?: object|null, industry?: object|null, openLibrary?: Function }} ctx
  */
-export function renderCompanyStory(doc, host, { profile, earnings = [], briefs = [], quarters = '', nextReport = '', peers = [], openTicker = null, graph = null, industry = null, openLibrary = null }) {
+export function renderCompanyStory(doc, host, { profile, earnings = [], briefs = [], quarters = '', schedule = null, peers = [], openTicker = null, graph = null, industry = null, openLibrary = null }) {
   if (!doc || !host || !profile) return null;
   const nodes = [];
   const ai = profile.aiChain || {};
@@ -253,11 +252,9 @@ export function renderCompanyStory(doc, host, { profile, earnings = [], briefs =
   const today = new Date().toISOString().slice(0, 10);
   let upcoming = (t.calendar || []).filter((x) => !hasLeadingIsoDay(x?.date || '') || String(x.date).slice(0, 10) >= today);
   // The report day the earnings calendar confirms replaces the story's own estimate ('2026-11 중순 (추정)').
-  const [reportDay, hour] = String(nextReport || '').split('|');
-  if (hasLeadingIsoDay(reportDay || '') && reportDay >= today) {
-    upcoming = upcoming.filter((x) => hasLeadingIsoDay(x?.date || '') || !/실적/.test(x?.event || ''));
-    upcoming.unshift({ date: reportDay, event: `실적 발표${REPORT_HOUR[hour] ? ` (${REPORT_HOUR[hour]})` : ''}, 실적 달력 기준` });
-  }
+  // The earnings calendar's confirmed date replaces the story's own (estimated) date for the next report; every other
+  // item, including peers' reports and later quarters, stays as the story wrote it.
+  if (schedule?.state === 'scheduled' && hasLeadingIsoDay(schedule.date || '')) upcoming = withConfirmedReport(upcoming, profile.symbol, schedule);
   if (has(upcoming)) watch.append(pair(doc, '다가오는 일정', list(doc, upcoming.map((x) => `${hasLeadingIsoDay(x.date || '') ? mdOf(x.date) : x.date} ${x.event}`))));
   if (has(t.reaction)) watch.append(pair(doc, '실적 발표 때 주가가 반응하는 것', el(doc, 'p', t.reaction)));
   if (has(t.conditions)) watch.append(pair(doc, '매매할 때 함께 확인하는 조건', list(doc, t.conditions)));

@@ -8,7 +8,7 @@ import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { AI_LAYERS, STORY_UNITS, moneyText, storyFreshness, storyPeriodEnd, isCompanyStory } from '../src/domain/entity/company-story.js';
+import { AI_LAYERS, STORY_UNITS, moneyText, storyFreshness, storyPeriodEnd, withConfirmedReport, isCompanyStory } from '../src/domain/entity/company-story.js';
 import { debateIssues } from '../src/domain/entity/company-debate.js';
 import { buildCompanyGraph, companyNeighbourhood, COMPANY_GRAPH_SCHEMA } from '../src/domain/entity/company-graph.js';
 import { companiesNamedIn } from '../src/domain/entity/company-aliases.js';
@@ -113,6 +113,21 @@ assert.equal(storyPeriodEnd({ earnings: { period: 'FY2026 (ended 2026-06-30, pre
 assert.equal(storyPeriodEnd({ earnings: { period: 'H1 2026 (2026-01-01 ~ 2026-06-30)' } }), '2026-06-30', 'v59.85 a range ends after its tilde');
 assert.deepEqual(storyFreshness(annual, [], '2026-11-08', { quarters: '2026-01-25:68127:42960:d;2026-04-26:81615:58321:r;2026-07-26:96221:59688:r' }), { state: 'stale', researchedAt: '2026-10-28', newReport: null, newQuarterEnd: '2026-07-26' }, 'v59.85 an SEC quarter after the story period means newer numbers exist');
 assert.equal(storyFreshness({ ...annual, earnings: { period: 'Q2 FY2027', periodEnd: '2026-07-26' } }, [], '2026-11-08', { quarters: '2026-07-26:96221:59688:r;2026-07-28:1:1:r' }).state, 'current', 'v59.85 a quarter ending within two weeks of the story period is the same quarter');
+// v59.85: the earnings calendar's confirmed day re-dates the company's own next-report line and leaves peers' reports,
+// recurring lines and later quarters as written.
+{
+  const items = [
+    { date: '2026-12 중순 (추정)', event: 'Q1 FY2027 실적과 Q2 가이던스' },
+    { date: '매 분기', event: '삼성전자·SK hynix 실적과 메모리 가격' },
+    { date: '수시', event: 'Q1 FY2027 실적 관련 발언' },
+    { date: '2027-03 (추정)', event: 'Q2 FY2027 실적' },
+  ];
+  const out = withConfirmedReport(items, 'MU', { date: '2026-12-15', hour: '장 마감 후' });
+  assert.deepEqual(out.map((x) => x.date), ['2026-12-15', '매 분기', '수시', '2027-03 (추정)'], 'v59.85 only the own next report takes the confirmed day');
+  assert.equal(out[0].event, 'Q1 FY2027 실적과 Q2 가이던스 (장 마감 후, 실적 달력 기준)', 'v59.85 the re-dated line keeps its description');
+  const peerOnly = withConfirmedReport([{ date: '2026-11-20', event: 'NVIDIA 실적' }], 'MU', { date: '2026-12-15', hour: null });
+  assert.deepEqual(peerOnly.map((x) => x.event), ['실적 발표 (실적 달력 기준)', 'NVIDIA 실적'], 'v59.85 a peer report is not the company report');
+}
 
 // v59.74: every 산업 지도 domain and node a story links to exists in the library text.
 {

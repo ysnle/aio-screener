@@ -180,10 +180,10 @@ function stockChecks(doc, read, sym, fundamentals, fundamentalsState = null, krC
     const ttm = buildTrailingYearRead(parseQuarterHistory(quarters));
     if (ttm && fy && ttm.through > fy && ttm.revenueYoy != null) {
       const through = `${Number(ttm.through.slice(5, 7))}/${Number(ttm.through.slice(8, 10))}`;
-      tiles.push(checkTile(doc, { name: '재무', chip: `${through}까지 4분기`, stale,
+      tiles.push(checkTile(doc, { name: '재무', chip: `${through}까지 4개 분기`, stale,
         value: `매출 ${signedText(ttm.revenueYoy)}`,
         detail: [ttm.margin != null ? `순이익률 ${ttm.margin.toFixed(1)}%` : null, growth != null ? `${fiscalYearLabel(fy) || 'FY'} 매출 ${signedText(growth)}` : null,
-          roe != null ? `ROE ${roe.toFixed(1)}%` : null].filter(Boolean).join(', ') }));
+          roe != null ? `${fiscalYearLabel(fy) || 'FY'} ROE ${roe.toFixed(1)}%${roe > 60 ? roeNote(margin) : ''}` : null].filter(Boolean).join(', ') }));
     } else if (growth != null || margin != null) {
       tiles.push(checkTile(doc, { name: '재무', chip: fy ? (fiscalYearLabel(fy) || 'SEC') : 'SEC', stale,
         value: growth != null ? `매출 ${signedText(growth)}` : `순이익률 ${margin.toFixed(1)}%`,

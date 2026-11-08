@@ -91,9 +91,10 @@ export function buildCompanyGraph(stories) {
 /** How many of a period make a year: a quarter 4, a half 2, nine months 4/3, anything else (a fiscal year, TTM) 1. */
 export function periodYearFactor(period) {
   const p = String(period || '');
-  if (/\b(9M|nine months|1~3Q|1~3분기|9개월)/i.test(p)) return 4 / 3;
-  if (/\b(H[12]|[12]H|six months|half|6개월|반기)/i.test(p)) return 2;
-  if (/(\bQ[1-4]\b|\b[1-4]Q\d{2}\b|quarter|3개월|분기)/i.test(p) && !/누적|\byear-to-date\b|\bYTD\b/i.test(p)) return 4;
+  // Hangul terms take no \b: a word boundary never falls between two Hangul syllables (상반기).
+  if (/\b(9M|nine months|1~3Q)\b|1~3분기|9개월|1~9월/i.test(p)) return 4 / 3;
+  if (/\b(H[12]|[12]H|6M|six months|half)\b|6개월|반기|1~6월/i.test(p)) return 2;
+  if (/\bQ[1-4]\b|\b[1-4]Q\d{2}\b|\bquarter\b|3개월|분기/i.test(p) && !/누적|누계|\byear-to-date\b|\bYTD\b/i.test(p)) return 4;
   return 1;
 }
 
