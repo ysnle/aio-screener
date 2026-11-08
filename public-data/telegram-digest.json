@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-08T05:51:37.595Z",
-  "attemptedAt": "2026-11-08T05:51:37.595Z",
-  "lastSuccessfulAt": "2026-11-08T05:51:37.595Z",
+  "generatedAt": "2026-11-08T06:55:18.647Z",
+  "attemptedAt": "2026-11-08T06:55:18.647Z",
+  "lastSuccessfulAt": "2026-11-08T06:55:18.647Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-25T05:51:31.501Z",
-  "until": "2026-11-08T05:51:31.501Z",
+  "since": "2026-10-25T06:55:12.089Z",
+  "until": "2026-11-08T06:55:12.089Z",
   "current24hWindow": {
     "start": "2026-11-06T23:00:00.000Z",
     "end": "2026-11-07T23:00:00.000Z",
@@ -89,15 +89,15 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1349,
-      "freshCount": 18,
-      "eligibleTextCount": 1290,
+      "count": 1352,
+      "freshCount": 37,
+      "eligibleTextCount": 1292,
       "selectedCount": 126,
       "error": null,
-      "lastPostId": 68674
+      "lastPostId": 68678
     },
     {
       "channel": "bornlupin",
@@ -117,47 +117,47 @@
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 695,
-      "freshCount": 34,
+      "freshCount": 32,
       "eligibleTextCount": 694,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 71752
+      "lastPostId": 71753
     }
   ],
-  "count": 2312,
-  "retainedItemCount": 431,
+  "count": 2315,
+  "retainedItemCount": 444,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2312,
-    "eligibleTextCount": 2249,
-    "mediaOnlyCount": 63,
-    "mediaAttachedCount": 530,
-    "photoPostCount": 455,
+    "observedCount": 2315,
+    "eligibleTextCount": 2251,
+    "mediaOnlyCount": 64,
+    "mediaAttachedCount": 533,
+    "photoPostCount": 456,
     "documentPostCount": 4,
     "imageOnlyCount": 2,
     "highSignalCount": 388,
-    "broadSignalCount": 849,
+    "broadSignalCount": 850,
     "selectedRawCount": 388,
     "selectedEligibleCount": 388,
-    "selectedRawCoveragePct": 17.3,
+    "selectedRawCoveragePct": 17.2,
     "selectedOfObservedPct": 16.8,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 840,
-    "power": 277,
+    "market-note": 841,
+    "media-only": 63,
+    "semi": 478,
+    "power": 278,
+    "earnings": 406,
     "ai-policy": 101,
     "equity": 116,
     "macro": 343,
-    "earnings": 405,
     "geo": 435,
-    "semi": 477,
     "credit": 95,
     "healthcare": 75,
-    "media-only": 62,
     "kr-market": 113,
     "flows": 66,
     "japan": 75,
@@ -259,12 +259,12 @@
     "SHOP": 1
   },
   "themes": [
-    "Market Notes (840 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
-    "Semiconductors/Memory (477 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
+    "Market Notes (841 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
+    "Semiconductors/Memory (478 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
     "Geopolitics (435 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
-    "Earnings/Corporate (405 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
+    "Earnings/Corporate (406 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
     "Macro/Rates (343 posts in 14-day research window): 2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000...",
-    "AI Power/Grid (277 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로 선거 결과를 분석했다. 패배 원인에 대해서는 의견이 갈렸다. • 데이비드 색스: 가장 큰 원인은 이란...",
+    "AI Power/Grid (278 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로 선거 결과를 분석했다. 패배 원인에 대해서는 의견이 갈렸다. • 데이비드 색스: 가장 큰 원인은 이란...",
     "Equity/Analyst (116 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "Korea Market (113 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
   ],
@@ -364,7 +364,7 @@
       "topics": [
         "semi"
       ],
-      "count": 477,
+      "count": 478,
       "focus": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
     },
     {
@@ -382,7 +382,7 @@
       "topics": [
         "power"
       ],
-      "count": 277,
+      "count": 278,
       "focus": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로 선거 결과를 분석했다. 패배 원인에 대해서는 의견이 갈렸다. • 데이비드 색스: 가장 큰 원인은 이란..."
     },
     {
@@ -427,7 +427,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 405,
+      "count": 406,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -472,7 +472,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 840,
+      "count": 841,
       "focus": "2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며..."
     }
   ],
@@ -1774,6 +1774,28 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71753",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71753",
+      "datetime": "2026-11-08T06:35:31.000Z",
+      "localDateKst": "2026-11-08",
+      "tags": [
+        "semi",
+        "power",
+        "earnings"
+      ],
+      "score": 55,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 3,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": ">>‘블루 웨이브’에 흔들린 기술주 신뢰, AI 거래 언제 안정될까 •민주당이 상·하원을 장악하고 미국 각지에서 데이터센터에 대한 반발이 확산되면서 AI 자본지출이 현실적인 검증에 직면했음. 바클레이스 등..."
+    },
+    {
       "id": "HANAchina/71750",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71750",
@@ -2066,15 +2088,17 @@
       "datetime": "2026-11-07T20:25:28.000Z",
       "localDateKst": "2026-11-08",
       "tags": [
-        "semi"
+        "geo",
+        "semi",
+        "power",
+        "ai-policy"
       ],
       "score": 84,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 8일 🇺🇸 아메리카 • 미국 정부가 사무실이 비어 있거나 의심스러운 연계 관계를 가진 중국 기업들에 엔비디아 반도체 판매를 승인한 것으로 알려져. 첨단 반도체...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 8일 🇺🇸 아메리카 • 미국 정부가 사무실이 비어 있거나 의심스러운 연계 관계를 가진 중국 기업들에 엔비디아 반도체 판매를 승인한 것으로 알려져. 첨단 반도체..."
     },
     {
       "id": "insidertracking/68639",
@@ -2087,8 +2111,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "summary": "트럼프 대통령은 11월 8일 소셜미디어를 통해 민주당이 미국 법무장관을 비롯한 정부 고위 관계자들에게 탄핵과 기타 처벌을 위협하고 있다고 비판. 트럼프 대통령은 민주당 스스로도 탄핵 사유가 부족하다는 사실을...",
-      "tickers": []
+      "tickers": [],
+      "summary": "트럼프 대통령은 11월 8일 소셜미디어를 통해 민주당이 미국 법무장관을 비롯한 정부 고위 관계자들에게 탄핵과 기타 처벌을 위협하고 있다고 비판. 트럼프 대통령은 민주당 스스로도 탄핵 사유가 부족하다는 사실을..."
     },
     {
       "id": "insidertracking/68638",
@@ -2099,13 +2123,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 56,
       "hasText": true,
-      "summary": "미국 정보당국이 엔비디아 CEO 젠슨 황과 중국 스파이 활동 의혹을 받는 여성 사이에 연인 관계가 있었던 것으로 판단하고 있다는 보도. 첨단 반도체의 중국 수출 통제가 강화되는 가운데 국가안보 우려가 제기되고...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "미국 정보당국이 엔비디아 CEO 젠슨 황과 중국 스파이 활동 의혹을 받는 여성 사이에 연인 관계가 있었던 것으로 판단하고 있다는 보도. 첨단 반도체의 중국 수출 통제가 강화되는 가운데 국가안보 우려가 제기되고..."
     },
     {
       "id": "HANAchina/71733",
@@ -7508,21 +7532,6 @@
       ]
     },
     {
-      "id": "HANAchina/71424",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71424",
-      "datetime": "2026-11-02T13:28:02.000Z",
-      "localDateKst": "2026-11-02",
-      "tags": [
-        "macro"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": ">>중국 인민은행 등 3개 부처, 자본시장 지원 수단 개선…자사주 매입·주식 추가 매입 재대출 금리 1%로 인하 •주식 자사주 매입 및 주식 추가 매입 재대출 정책을 한시적 조치에서 장기적인 제도적 정책으로...",
-      "lead": 1,
-      "tickers": []
-    },
-    {
       "id": "bornlupin/20952",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20952",
@@ -8829,15 +8838,17 @@
       "datetime": "2026-11-07T20:25:28.000Z",
       "localDateKst": "2026-11-08",
       "tags": [
-        "semi"
+        "geo",
+        "semi",
+        "power",
+        "ai-policy"
       ],
       "score": 84,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 8일 🇺🇸 아메리카 • 미국 정부가 사무실이 비어 있거나 의심스러운 연계 관계를 가진 중국 기업들에 엔비디아 반도체 판매를 승인한 것으로 알려져. 첨단 반도체...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 8일 🇺🇸 아메리카 • 미국 정부가 사무실이 비어 있거나 의심스러운 연계 관계를 가진 중국 기업들에 엔비디아 반도체 판매를 승인한 것으로 알려져. 첨단 반도체..."
     },
     {
       "id": "insidertracking/68639",
@@ -8850,8 +8861,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "summary": "트럼프 대통령은 11월 8일 소셜미디어를 통해 민주당이 미국 법무장관을 비롯한 정부 고위 관계자들에게 탄핵과 기타 처벌을 위협하고 있다고 비판. 트럼프 대통령은 민주당 스스로도 탄핵 사유가 부족하다는 사실을...",
-      "tickers": []
+      "tickers": [],
+      "summary": "트럼프 대통령은 11월 8일 소셜미디어를 통해 민주당이 미국 법무장관을 비롯한 정부 고위 관계자들에게 탄핵과 기타 처벌을 위협하고 있다고 비판. 트럼프 대통령은 민주당 스스로도 탄핵 사유가 부족하다는 사실을..."
     },
     {
       "id": "insidertracking/68638",
@@ -8862,13 +8873,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 56,
       "hasText": true,
-      "summary": "미국 정보당국이 엔비디아 CEO 젠슨 황과 중국 스파이 활동 의혹을 받는 여성 사이에 연인 관계가 있었던 것으로 판단하고 있다는 보도. 첨단 반도체의 중국 수출 통제가 강화되는 가운데 국가안보 우려가 제기되고...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "미국 정보당국이 엔비디아 CEO 젠슨 황과 중국 스파이 활동 의혹을 받는 여성 사이에 연인 관계가 있었던 것으로 판단하고 있다는 보도. 첨단 반도체의 중국 수출 통제가 강화되는 가운데 국가안보 우려가 제기되고..."
     },
     {
       "id": "HANAchina/71733",
