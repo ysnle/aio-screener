@@ -1,3 +1,8 @@
+## v59.83 (2026-11-08)
+- 호스팅 점검 B안(자주 바뀌는 배포 데이터를 이력 없는 브랜치로) 설계를 끝내고 보류했다. 최근 14일 실측(압축 상한)에서 배포 데이터는 주당 23~24MB였고 이력 증가의 주원인은 `_artifacts` 스크린샷(주당 182MB, 55MB)이었다. B는 배포 증명·라이브 수렴·브라우저 고정 데이터·생산 4개의 동시성을 한꺼번에 바꾸고 데이터 이력 검토와 revert를 잃는다. 소유자가 보류를 승인했다(설계: `_artifacts/hosting-review-20261108/DATA-OUT-OF-GIT-DESIGN.md`).
+- `_artifacts` 아래 이미지(png·jpg·jpeg·gif·webp)를 모두 .gitignore로 막았다. 이미 추적 중인 1,119개는 `architecture/artifact-image-baseline.json`에 blob id로 고정했다. 새 게이트 `ci-artifact-image-check`(workspace 그룹)는 새 이미지, 바이트가 바뀐 이미지, 무시 규칙 누락에서 실패한다. 꼭 필요한 참조 이미지는 `git add -f` 뒤 `--allow <path>`로 넣는다.
+- R1 7곳 v59.83
+
 ## v59.82 (2026-11-08)
 - **13F 운용사 원본을 main 밖으로 (v59.82, 소유자 11/08 'A안 진행'):** 배포하지 않는 13F 운용사별 보유 원본 `public-data/masters/managers/`(파일 41개, 285MB)를 고아 브랜치 `masters-store`로 옮겼다. 최근 60일 동안 이 폴더의 새 blob만 압축 약 250MB였고, 모든 Actions 체크아웃이 Pages에 실리지도 않는 이 파일을 받았다. main에는 매니페스트 `public-data/masters/managers-store.json`(git 트리 ID, 파일별 바이트·sha256, 운용사별 접수번호·행 수)만 남는다. `scripts/masters-managers-store.mjs`가 manifest·check·restore·publish를 맡는다. 13F 전체 체인은 시작할 때 main이 가리키는 트리를 받고(없으면 실패), 끝에 매니페스트를 다시 쓴다. 커밋 단계는 main push 전에 저장소를 먼저 발행한다. 저장소 커밋의 부모는 main이 직전에 가리킨 트리라, main push가 실패해도 다음 실행이 그 트리를 받는다(임시 원격 저장소로 재현 확인). 13F 단계가 실패하면 반쯤 다시 쓴 폴더를 지운다. 계약 검사는 운용사별 설명을 항상 매니페스트와 대조하고, 행 내용은 로컬 폴더가 매니페스트 트리와 같을 때만 읽는다. 생산 커밋에서는 일치해야 통과하고, 원본이 없는 CI에서는 SKIP을 표시한다. 다시 main에 추적되거나 워크플로 순서가 바뀌면 data-pipeline 검사가 실패한다. holdings·history-holdings·issuer-aggregates(22MB)와 30분 주기 생산 원본은 CI 검사와 생산 스크립트가 직접 읽어 main에 남긴다.
 - R1 7곳 v59.82

@@ -4,6 +4,10 @@ last_verified: 2026-11-08
 confidence: medium
 ---
 
+## v59.83 저장소 이력 증가: 데이터 브랜치 보류, 스크린샷 차단 (2026-11-08)
+
+- [x] QA-REPO-ARTIFACT-IMAGE: v59.83: _artifacts 아래 새 이미지나 바이트가 바뀐 추적 이미지는 기준 목록과 달라 게이트가 실패하고, 로컬 실행이 만든 스크린샷은 .gitignore에 막혀 커밋되지 않는다. 옛 트리 8c4383cb(증거 PNG를 매 실행 다시 쓰던 상태)에서 실패한다. verify_by: node scripts/ci-artifact-image-check.mjs
+
 ## v59.79 관측과 해석의 구분 (X 북마크 11/08) (2026-11-08)
 
 - [x] QA-KNOW-OBS-NOT-ACTOR: v59.79: 리서치 FTD 레슨과 시장 상태·매크로 신용 문장이 가격·거래량·스프레드 관측을 매수 주체나 검증되지 않은 선행 신호로 단정하지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs

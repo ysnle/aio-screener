@@ -31,6 +31,14 @@ _artifacts/entity-quality-20261012/*.png
 _artifacts/out-of-universe-20261015/*.png
 _artifacts/ui-render-hygiene/*.png
 _artifacts/user-journey/
+# v59.83 (hosting review option B held): every image under _artifacts is ignored. Screenshots were the largest source of
+# history growth (182 MB then 55 MB packed a week). Already-tracked images are frozen in architecture/artifact-image-baseline.json
+# (scripts/ci-artifact-image-check.mjs). A deliberate small reference image takes `git add -f` plus `--allow <path>`.
+_artifacts/**/*.png
+_artifacts/**/*.jpg
+_artifacts/**/*.jpeg
+_artifacts/**/*.gif
+_artifacts/**/*.webp
 
 # /prototype variants are throwaway, and /first-users persona runs are screenshot-heavy local evidence; the
 # first-users report.md stays tracked (v58.80).

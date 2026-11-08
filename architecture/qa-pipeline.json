@@ -1871,6 +1871,17 @@
           ]
         },
         {
+          "id": "artifact-image",
+          "script": "scripts/ci-artifact-image-check.mjs",
+          "remedy": "Keep screenshots out of git: _artifacts images are ignored. A deliberate small reference image takes git add -f and --allow <path>; an untracked baseline entry takes --prune.",
+          "inputs": [
+            "_artifacts/**",
+            ".gitignore",
+            "architecture/artifact-image-baseline.json",
+            "scripts/ci-artifact-image-check.mjs"
+          ]
+        },
+        {
           "id": "refresh-origin-live-data",
           "script": "scripts/ci-refresh-origin-live-data-check.mjs",
           "remedy": "A gate that asserts live public-data content declares liveData: \"content\" and gets a watchdog-local twin; a clock-bound code contract moves to a fixed clock.",
@@ -2606,6 +2617,17 @@
     }
   },
   "impactRules": [
+    {
+      "patterns": [
+        "_artifacts/**",
+        ".gitignore",
+        "architecture/artifact-image-baseline.json"
+      ],
+      "groups": [],
+      "gates": [
+        "artifact-image"
+      ]
+    },
     {
       "patterns": [
         "public-data/**",
