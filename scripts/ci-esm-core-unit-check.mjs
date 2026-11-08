@@ -2632,6 +2632,24 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       || packet04.PACKET_20261104_CLAIMS.some((claim) => !claim.blockedConsumers.includes('rank') || !claim.blockedConsumers.includes('score'))) fail('v59.70 x-bookmarks 2026-11-04 frames must be lessons on a path, cite unique graded sources with a timeline, reach the claim ledger, add up and stay out of rank/score');
     if (top('조정 기저율 몇 번 중 몇 번 약세장 닮은 사례') !== 'supplied-material:claim-20261104-correction-base-rates' || top('사이클 고점 가속도 시계 부호 시계 선행 PER') !== 'supplied-material:claim-20261104-cycle-top-two-clocks'
       || top('신용 스트레스 CCC 하이일드 투자등급 층') !== 'supplied-material:claim-20261104-credit-stress-tiers' || top('팔고 뭐 할 건데 매도 뒤 현금 숏 재진입') !== 'supplied-material:claim-20261104-sell-decision-alternatives') fail('v59.70 x-bookmarks 2026-11-04 chat retrieval must reach the new frames');
+    // v59.79 x-bookmarks 2026-11-08: the same contract; sources unique across every earlier packet.
+    const packet08 = await load('src/domain/research/packet-20261108-x-bookmarks.js');
+    const ids08 = new Set(packet08.PACKET_20261108_SOURCES.map((row) => row.id));
+    const audit08 = packet08.PACKET_20261108_AUDIT;
+    if (packet08.PACKET_20261108_FRAMES.length !== audit08.framesAdded
+      || packet08.PACKET_20261108_FRAMES.some((frame) => !learning.lessonById(frame.id) || !onPath.has(frame.id) || frame.sourceRefs.some((id) => !ids08.has(id)) || !claimIds.has(`claim-20261108-${frame.id}`))
+      || ids08.size !== packet08.PACKET_20261108_SOURCES.length || [...ids08].some((id) => ids16.has(id) || ids18.has(id) || ids28set.has(id) || ids30set.has(id) || ids01.has(id) || ids02.has(id) || ids04.has(id))
+      || audit08.inScope + audit08.agentPractice + audit08.unrelated !== audit08.newSinceLedger || Object.values(audit08.repoState).reduce((a, b) => a + b, 0) !== audit08.newSinceLedger
+      || packet08.PACKET_20261108_SOURCES.some((row) => !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(row.timeline?.postedAtUtc || '') || !row.timeline.laterOutcome || !grades(row.quality))
+      || packet08.PACKET_20261108_SOURCES.flatMap((row) => row.checks).some((row) => !['VERIFIED', 'CONSISTENT', 'UNVERIFIED'].includes(row.state) || !row.basis)
+      || packet08.PACKET_20261108_CLAIMS.some((claim) => !claim.blockedConsumers.includes('rank') || !claim.blockedConsumers.includes('score'))) fail('v59.79 x-bookmarks 2026-11-08 frames must be lessons on a path, cite unique graded sources with a timeline, reach the claim ledger, add up and stay out of rank/score');
+    if (top('일정 지연 수요 감소 가동 연도 주문 취소') !== 'supplied-material:claim-20261108-delay-or-demand-loss' || top('보증 한도 정책 목표 LTV 기준일') !== 'supplied-material:claim-20261108-exposure-cap-policy-line'
+      || top('사례 차트 사건일 실적 발표 시각 미래 정보') !== 'supplied-material:claim-20261108-case-chart-timing' || top('사업부 합 연결 매출 내부거래 FCF 정의') !== 'supplied-material:claim-20261108-segment-sum-consolidated') fail('v59.79 x-bookmarks 2026-11-08 chat retrieval must reach the new frames');
+    // v59.79: the FTD lesson states an observation, not who bought; the credit packet names the proxy as a yield gap, not OAS.
+    const ftdFrame = packet02.PACKET_20261102_FRAMES.find((frame) => frame.id === 'follow-through-day-leaders');
+    if (/큰 자금이 (다시 사기 시작했다는|들어온) 흔적/.test(`${ftdFrame.answer} ${ftdFrame.mechanism.join(' ')}`)) fail('v59.79 the FTD lesson must not read price and total volume as proof of who bought');
+    const creditSource = packet04.PACKET_20261104_SOURCES.find((row) => row.id === 'JunDo1050-2117559780537422297');
+    if (!creditSource.checks.some((row) => row.state === 'VERIFIED' && /85\.5bp/.test(row.basis) && /OAS/.test(row.basis))) fail('v59.79 the 3–5 year IG proxy check must carry the FRED recomputation and its difference from OAS');
   }
 
   // S12: the Korean filing button opens a receipt only when one is published; otherwise the DART search.

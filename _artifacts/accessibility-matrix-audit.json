@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-11-08T07:39:50.705Z",
-  "appRevision": "v59.77",
-  "gitHead": "5c30795d5809b23fef13d2a0e13d467d20079ced",
+  "observedAt": "2026-11-08T09:06:31.472Z",
+  "appRevision": "v59.79",
+  "gitHead": "c6ddb8b63c9cd1c773ab52c273907d916a1c34f3",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -50,7 +50,7 @@
       "routeId": "breadth",
       "active": true,
       "nameless": [],
-      "selectCount": 0,
+      "selectCount": 2,
       "selectsWithoutName": [],
       "positiveTabindex": [],
       "canvasCount": 0,
@@ -172,22 +172,22 @@
         {
           "id": "",
           "text": "SEC",
-          "width": 24,
-          "height": 27,
+          "width": 20,
+          "height": 28,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "PER",
-          "width": 23,
-          "height": 27,
+          "width": 20,
+          "height": 28,
           "exception": "wcag-inline-text"
         },
         {
           "id": "",
           "text": "EPS",
-          "width": 23,
-          "height": 27,
+          "width": 19,
+          "height": 28,
           "exception": "wcag-inline-text"
         }
       ],
@@ -243,16 +243,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 1,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "ETF",
-          "width": 22,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -323,23 +315,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 2,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "13F",
-          "width": 23,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "SEC",
-          "width": 24,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -379,8 +356,8 @@
         {
           "id": "",
           "text": "GitHub Issues",
-          "width": 79,
-          "height": 15,
+          "width": 72,
+          "height": 16,
           "exception": "wcag-inline-text"
         }
       ],

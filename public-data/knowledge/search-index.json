@@ -12,7 +12,7 @@
   ],
   "boundary": "Search index of learning surfaces; titles and short texts only. Glossary entries are searched in the page itself.",
   "counts": {
-    "frame": 94,
+    "frame": 98,
     "column": 12,
     "principles-lesson": 112,
     "principles-node": 60,
@@ -1936,7 +1936,7 @@
       "surface": "frame",
       "surfaceLabel": "분석 노트",
       "title": "하락 뒤 지수가 바닥을 확인하는 날(follow-through day)을 세는 방법과, 그 신호의 힘을 가르는 주도주의 신고가 확인",
-      "text": "조정 뒤 가장 낮은 종가를 1일째로 세고, 그 종가를 깨지 않는 동안 날짜를 셉니다. 4일째부터 나스닥이 하루 크게(AIO 기준 1.25% 이상) 오르면서 거래량이 전날보다 많으면 큰 자금이 다시 사기 시작했다는 흔적인 바닥 확인일입니다. 하지만 바닥 확인일은 자주 …",
+      "text": "조정 뒤 가장 낮은 종가를 1일째로 세고, 그 종가를 깨지 않는 동안 날짜를 셉니다. 4일째부터 나스닥이 하루 1.25% 이상(작성자의 관찰목록 도해와 AIO 규칙이 같은 문턱) 오르면서 거래량이 전날보다 많으면 바닥 확인일입니다. 가격과 총거래량만으로는 누가 샀는지…",
       "group": "차트·셋업 읽기",
       "keys": [
         "바닥 확인일(FTD)과 따라 나오는 주도주",
@@ -2068,6 +2068,89 @@
         "params": {
           "mode": "frames",
           "node": "sell-decision-alternatives"
+        }
+      }
+    },
+    {
+      "id": "frame:delay-or-demand-loss",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "AI 데이터센터 공포가 커질 때 수요가 줄어든 것인지 가동이 밀린 것인지를 바뀐 숫자의 종류로 가르기",
+      "text": "데이터센터를 부지·건물·전력·가동의 단계로 나누는 틀(데이터센터는 네 단계 노트)은 이미 있습니다. 공포가 커질 때 필요한 것은 그다음 질문, 무엇이 바뀌었는가입니다. 건설 중 용량은 그대로인데 가동 예정 연도만 뒤로 가면 일정 지연이고, 주문 취소·설비투자 계획 축…",
+      "group": "산업별 수익 모델",
+      "keys": [
+        "일정 지연인가 수요 감소인가: 어느 숫자가 바뀌었나",
+        "capex",
+        "rpo",
+        "utilization-contract"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "delay-or-demand-loss"
+        }
+      }
+    },
+    {
+      "id": "frame:exposure-cap-policy-line",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "보증 한도·구매 보장 같은 최대 노출, 회사가 정한 재무 목표, 공시 기준일이 지난 비율을 실제 손실·계약 조건·현재 값과 구분하기",
+      "text": "AI 인프라 자금 이야기에 나오는 큰 숫자는 세 종류가 섞여 있습니다. 첫째, 보증 한도나 구매 보장은 조건이 맞을 때 낼 수 있는 최대액이지 이미 난 손실이 아닙니다(NVIDIA Ohio 보증 최대 1,050억 달러, Meta의 Nebius 구매 보장 최대 150억…",
+      "group": "통화·신용·물가",
+      "keys": [
+        "최대 한도, 정책 목표, 기준일: 금융 숫자 세 가지 구분",
+        "private-credit",
+        "refinancing",
+        "information-asymmetry"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "exposure-cap-policy-line"
+        }
+      }
+    },
+    {
+      "id": "frame:case-chart-timing",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "과거 사례 차트에 사건일 뒤의 실적·가격이 함께 그려질 때 생기는 미래 정보 섞임과, 다른 시각·다른 원천의 가격을 같은 값으로 읽는 문제",
+      "text": "과거 주도주 사례 차트는 결과를 알고 고른 그림입니다. 2003년 NFLX 사례는 바닥 확인일이 3월 17일인데 4월 17일 발표 실적을 함께 보여 주고, 2016년 NVDA와 2020년 ZM 사례도 같습니다. 복기로는 문제없지만, 그날 판단의 근거로 읽으면 아직 나…",
+      "group": "차트·셋업 읽기",
+      "keys": [
+        "사례 차트의 시점: 그날 알 수 있었던 것만",
+        "base-rate",
+        "information-asymmetry"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "case-chart-timing"
+        }
+      }
+    },
+    {
+      "id": "frame:segment-sum-consolidated",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "사업부 매출 합과 연결 매출, 매출 증가율과 이익 증가율, 회사마다 다른 FCF 정의를 같은 숫자로 읽는 문제",
+      "text": "같은 회사의 숫자라도 더하거나 바꿔 부르면 틀리는 경우가 셋 있습니다. 사업부 매출을 더하면 연결 매출보다 커질 수 있습니다. 인텔 3분기는 세 주요 사업부 매출만 더해도 221억 달러로 연결 매출 165억 달러보다 큽니다. 파운드리 매출 67억 달러 중 외부 고객 …",
+      "group": "재무제표·회계",
+      "keys": [
+        "합계·정의가 다른 숫자: 사업부 합, 매출과 이익, FCF",
+        "fcf-vs-funding",
+        "level-vs-change",
+        "dilution"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "segment-sum-consolidated"
         }
       }
     },

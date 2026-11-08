@@ -12,6 +12,7 @@ import { PACKET_20261030_SOURCES, PACKET_20261030_CLAIMS, PACKET_20261030_AUDIT 
 import { PACKET_20261101_SOURCES, PACKET_20261101_CLAIMS, PACKET_20261101_AUDIT } from './packet-20261101-x-bookmarks.js';
 import { PACKET_20261102_SOURCES, PACKET_20261102_CLAIMS, PACKET_20261102_AUDIT } from './packet-20261102-x-bookmarks.js';
 import { PACKET_20261104_SOURCES, PACKET_20261104_CLAIMS, PACKET_20261104_AUDIT } from './packet-20261104-x-bookmarks.js';
+import { PACKET_20261108_SOURCES, PACKET_20261108_CLAIMS, PACKET_20261108_AUDIT } from './packet-20261108-x-bookmarks.js';
 
 export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
   id: 'supplied-materials-2026-08-29',
@@ -135,6 +136,8 @@ export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
   packet20261102Audit: PACKET_20261102_AUDIT,
   packet20261104Observations: PACKET_20261104_SOURCES,
   packet20261104Audit: PACKET_20261104_AUDIT,
+  packet20261108Observations: PACKET_20261108_SOURCES,
+  packet20261108Audit: PACKET_20261108_AUDIT,
   packet20261013Observations: Object.freeze([
     Object.freeze({ id: 'nutlope-2109322388420841789', author: 'Hassan El Mghari', sourceUrl: 'https://x.com/nutlope/status/2109322388420841789', publishedAtKst: '2026-10-12T01:37:01+09:00', sourceKind: 'REFERENCE', status: 'DIRECT_READ', disposition: 'ADOPTED', summary: '읽을거리를 책등 서가로 보여 주는 라이브러리(영상 2개, 프레임 확인): 주제 색 책등·주제 칩과 개수·정렬·책 펼침 카드·읽음 표시·문장 선택 후 질문. 리서치 라이브러리 서가로 반영(P1674). 북마크 자동 수집 에이전트와 생성 표지 그림은 로그인·로컬 프로듀서 금지·자산 부재로 제외.' }),
     Object.freeze({ id: 'RealSimpleAriel-2109785574366224632', author: 'RealSimpleAriel', sourceUrl: 'https://x.com/RealSimpleAriel/status/2109785574366224632', publishedAtKst: '2026-10-13T08:17:33+09:00', sourceKind: 'REFERENCE', status: 'DIRECT_READ', disposition: 'ALREADY_COVERED', summary: '일일 리캡(영상 18분): 메모리·광통신·반도체 약세와 에너지·필수소비재 주도, 그룹 ETF 기간별 성과, 이동평균 대비 ATR 배수. 테마 화면의 1·3·6개월 순위·50일선 참여·방향과 섹터 1일·1주 성과, 차트 ATR 확장(P1507)이 이미 같은 질문을 다룸.' }),
@@ -163,6 +166,7 @@ export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
     ...PACKET_20261101_SOURCES.filter((row) => PACKET_20261101_CLAIMS.some((claim) => claim.sourceRefs.includes(row.id))),
     ...PACKET_20261102_SOURCES.filter((row) => PACKET_20261102_CLAIMS.some((claim) => claim.sourceRefs.includes(row.id))),
     ...PACKET_20261104_SOURCES.filter((row) => PACKET_20261104_CLAIMS.some((claim) => claim.sourceRefs.includes(row.id))),
+    ...PACKET_20261108_SOURCES.filter((row) => PACKET_20261108_CLAIMS.some((claim) => claim.sourceRefs.includes(row.id))),
     ...PACKET_20261018_SOURCES,
     ...PACKET_20261016_SOURCES,
     ...PACKET_20261015_SOURCES,
@@ -228,6 +232,7 @@ export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
       ...PACKET_20261101_CLAIMS,
       ...PACKET_20261102_CLAIMS,
       ...PACKET_20261104_CLAIMS,
+      ...PACKET_20261108_CLAIMS,
       ...PACKET_20261018_CLAIMS,
       ...PACKET_20261016_CLAIMS,
       ...PACKET_20261015_CLAIMS,

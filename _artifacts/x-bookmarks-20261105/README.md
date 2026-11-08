@@ -4,6 +4,12 @@
 
 ## 먼저 볼 문서
 
+**2026-11-08 추가:** [신규 북마크: Marvell·데이터센터·주간 추세](FOLLOWUP-20261108-NEW.md), [메모리 사이클의 표지·댓글·인용](FOLLOWUP-20261108-MEMORY.md), [AI 자금조달 2부와 SoftBank](FOLLOWUP-20261108-FUNDING.md), [FTD 이미지·댓글과 원문 정정](FOLLOWUP-20261108-BREADTH.md). 신규 근거를 시장·테마·종목·리서치 화면 및 데이터 계약으로 연결하고, 이미지 재렌더링·출처 간 정의 충돌·미확인 자료를 분리했다.
+
+**추가 후속 확인:** [주도주 이미지 23장](FOLLOWUP-LEADERS-23-CHARTS.md), [반도체 이미지 12장과 답글](FOLLOWUP-SEMICONDUCTOR-CHARTS.md), [아리스타·모듈 설계](FOLLOWUP-ANET-MODULES.md), [신용시장과 인용 자료](FOLLOWUP-CREDIT-BOOKMARK.md), [4막 54~63](FOLLOWUP-ARCHIVE-54-63.md), [64~70](FOLLOWUP-ARCHIVE-64-70.md), [71~79](FOLLOWUP-ARCHIVE-71-79.md). 각 자료의 읽은 범위와 아직 못 읽은 대화를 따로 기록했다.
+
+**이어 읽은 자료:** [AI 자금조달 1부·공시 대조](FOLLOWUP-AI-FUNDING.md), [Intel·Sandisk 이미지와 공시](FOLLOWUP-HARDWARE-VISUALS.md), [기술적 경계와 투자·부채 시간축](FOLLOWUP-BOOKMARKS-MORE.md). 읽지 못한 영상·대화·유료 자료와 당시 미검증 숫자는 각 문서에 남겼다.
+
 **2026-11-07 추가:** [신규 목록 직접 독해·남은 자료](NEW-20261107-READING-AND-HANDOFF.md), [급락 백테스트](NEW-20261107-BACKTEST.md), [상태 전이 검증](NEW-20261107-STATE-MACHINES.md). 북마크 상단 5개와 그중 연결된 26개 장문의 본문을 읽었고, 첨부·댓글·인용과 나머지 북마크 전수는 미완료다.
 
 **재검토 후 인계 시작점:** [요구사항·충돌·실행 순서](HANDOFF-REVIEW-20261106.md)와 [자료별 열람 상태·재개 원장](SOURCE-REVIEW-LEDGER.md). 기존 상세 문서를 대체하지 않으며, 이 두 문서도 북마크 전수 완료를 뜻하지 않는다.

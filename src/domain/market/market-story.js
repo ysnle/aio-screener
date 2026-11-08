@@ -239,8 +239,8 @@ function confirmations({ moves, rates, credit, macroHistory, history, asOf, star
   if (credit) {
     const tail = credit.ccc ? ` · CCC ${bpText(credit.ccc.bp)}` : '';
     const read = credit.kind === 'stress' ? '스프레드가 크게 벌어졌습니다. 주가 조정이 신용 문제로 번질 수 있는 폭입니다.'
-      : credit.kind === 'widening' ? '스프레드가 경계 쪽으로 벌어지고 있습니다. 아직 위기 수준은 아니지만, 더 벌어지면 주가 조정이 신용 문제로 번집니다.'
-      : credit.kind === 'weak-tail' ? '전체 하이일드는 조용하지만 가장 약한 CCC 등급이 먼저 벌어지고 있습니다. 위기 신호가 오면 여기서 시작됩니다.'
+      : credit.kind === 'widening' ? '스프레드가 경계 쪽으로 벌어지고 있습니다. 아직 위기 수준은 아니지만, 더 벌어지면 주가 조정이 신용 문제로 번질 수 있습니다.'
+      : credit.kind === 'weak-tail' ? '전체 하이일드는 조용하지만 가장 약한 CCC 등급이 먼저 벌어지고 있습니다. 가장 약한 기업의 조달 비용부터 오르는 모습이고, 이 확대가 하이일드 전체로 번지는지가 다음 관찰점입니다.'
         : '주가가 움직여도 스프레드가 넓어지지 않아 신용 문제는 아닙니다.';
     rows.push({ id: 'credit', label: '신용', value: `하이일드 ${credit.hy.from.toFixed(2)} → ${credit.hy.to.toFixed(2)}% (${bpText(credit.hy.bp)})${tail}`, read });
   }
