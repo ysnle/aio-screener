@@ -148,7 +148,7 @@ function renderEarningsWeek(doc, root, store, snapshot) {
   }
   const wasOpen = !!box.querySelector('details')?.open;
   const range = week.weekStart && week.weekEnd ? `${kstMd(week.weekStart)}~${kstMd(week.weekEnd)} ` : '';
-  const lead = el(doc, 'p', `이번 주 ${range}실적 발표 ${week.total.toLocaleString('en-US')}건, 그중 S&P 500 ${week.sp500}건${watched.size || held.size ? `, 관심·보유 ${week.mine.length}건` : ''}`, 'briefing-earnings-lead');
+  const lead = el(doc, 'p', `${range ? range : '이번 주 '}실적 발표 ${week.total.toLocaleString('en-US')}건, 그중 S&P 500 ${week.sp500}건${watched.size || held.size ? `, 관심·보유 ${week.mine.length}건` : ''}`, 'briefing-earnings-lead');
   const fold = el(doc, 'details', null, 'sx-disclosure briefing-earnings-fold');
   fold.open = wasOpen;
   fold.append(el(doc, 'summary', '날짜별 실적 발표, 큰 기업 순'));

@@ -116,7 +116,7 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
     synthesis = [`${fearSource}로 비관 쪽입니다.`,
       creditStress ? `하이일드 스프레드도 ${Math.round(hyBp)}bp로${hy20Stress && hy20 != null ? ` 20거래일 ${signedText(hy20, 0, 'bp')},` : ''}${hy5 != null ? ` 5일 ${signedText(hy5, 0, 'bp')}` : ''} ${hyBp < RULES.credit.tightBelowBp ? `넓어졌습니다(수준은 ${RULES.credit.tightBelowBp}bp 아래).` : '스트레스 구간입니다.'}` : null,
       volKnown && !volCalm ? (ratio >= RULES.volatility.invertedRatioAt ? `VIX가 3개월 VIX보다 높아 변동성 구조가 역전됐습니다(${ratio.toFixed(2)}).` : `VIX와 3개월 VIX의 차이가 역전 기준(${RULES.volatility.invertedRatioAt}) 가까이 좁혀졌습니다(${ratio.toFixed(2)}).`) : null,
-      '비관이 심리 지표를 넘어 자금 시장으로 퍼지는 모습입니다.'].filter(Boolean).join(' ');
+      `비관이 설문·심리 지표를 넘어 ${[creditStress ? '회사채 스프레드' : null, volKnown && !volCalm ? '옵션 가격(변동성)' : null].filter(Boolean).join('와 ')}에도 반영된 모습입니다.`].filter(Boolean).join(' ');
   else if (fearful && creditKnown && volKnown) synthesis = `${fearSource}는 비관 쪽이고 신용 스프레드(${Math.round(hyBp)}bp${hy20 != null ? `, 20거래일 ${hy20 >= 0 ? '+' : ''}${Math.round(hy20)}bp` : ''})는 중립(양호 조건 미충족)입니다 — 비관이 신용으로 번지는지 확인할 단계입니다.`;
   else if (fearful) synthesis =`${fearSource}는 비관 쪽이지만 ${[!creditKnown ? '신용 스프레드' : null, !volKnown ? '변동성 구조' : null].filter(Boolean).join('·')} 자료가 기준일에 없어 비관이 번졌는지 확인하지 못했습니다.`;
   else if (greedy) synthesis = `낙관이 강합니다(F&G ${Math.round(fg)}).`;

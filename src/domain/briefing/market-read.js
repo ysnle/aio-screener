@@ -274,7 +274,7 @@ const quantile = (values, q) => {
 // v57.81 (audit 2026-10-15): HY +40bp in 20 sessions was the 96th percentile of its own 20-session changes, yet the credit
 // axis could not go past 중립. The 20-session changes are measured against the series' own record (last 252); a change at
 // or above its 90th percentile (or 2 x widen20dBp while the record is short) enters 부담, and the state holds until the
-// 20-session change is back under widen20dBp.
+// 20-session change is back under widen20dBp (v59.76: and the five-session change is under widenWatch5dBp).
 export function hyWidening20Record(macroHistory, through = null) {
   const byDate = new Map();
   for (const row of macroHistory?.series?.hyOas?.observations || []) {
@@ -288,7 +288,8 @@ export function hyWidening20Record(macroHistory, through = null) {
   const changes = [];
   for (let index = Math.max(20, series.length - keep); index < series.length; index += 1) {
     const base = sessionPointBack(series.slice(Math.max(0, index - 40), index + 1), 20);
-    if (base) changes.push({ date: series[index].date, value: series[index].value - base.value });
+    const base5 = sessionPointBack(series.slice(Math.max(0, index - 12), index + 1), 5);
+    if (base) changes.push({ date: series[index].date, value: series[index].value - base.value, d5: base5 ? series[index].value - base5.value : null });
   }
   const last = changes.at(-1);
   if (!last) return null;
@@ -296,7 +297,9 @@ export function hyWidening20Record(macroHistory, through = null) {
   const p = record.length >= rule.recordMin ? quantile(record, rule.stress20dPct / 100) : null;
   const multiple = rule.stress20dMultiple * rule.widen20dBp;
   const enterBp = Math.max(rule.widen20dBp, p == null ? multiple : Math.min(p, multiple));
-  const latch = latchedState(changes.slice(-rule.latchSessions), (point) => point.value >= enterBp, (point) => point.value < rule.widen20dBp);
+  // P2287: released only when the five-session change is also under widenWatch5dBp (a spiked base is not an easing).
+  const latch = latchedState(changes.slice(-rule.latchSessions), (point) => point.value >= enterBp,
+    (point) => point.value < rule.widen20dBp && !(point.d5 != null && point.d5 >= rule.widenWatch5dBp));
   const rank = recordPercentile(changes.slice(-RECORD_FULL_YEAR), last.value);
   return { value: last.value, date: last.date, enterBp, pct: rank.pct, n: rank.n, highest: rank.highest, stress: latch.on, since: latch.since };
 }
@@ -755,7 +758,7 @@ export function buildMarketRead(input = {}) {
     add('korea-relative', weight, `코스피 ${shortDate(kospi.date)} ${signed(kospi1)}${kospi5 != null ? `(5거래일 ${signed(kospi5)})` : ''}${usText}${krwText}.${where ? ` 코스피 변화는 ${where}입니다.` : ''}`, 'korea', {
       reading: rare ? '미국 6개 지표 판정은 미국 종가로만 내려 이 움직임을 반영하지 않습니다 — 한국 고유 요인인지, 대형주에 몰린 움직임인지 표본 종목 전반으로 번졌는지는 시장 상태의 한국 시장에서 따로 확인합니다.' : null,
       // v57.86 (live review): the check asked what 시장 상태 already answers (sample median, share falling) — it now names what to watch next.
-      check: rare ? `다음 한국 거래일에 코스피가 ${kospi1 < 0 ? '하락' : '상승'}을 이어가는지와 원/달러가 함께 움직이는지 — 표본 종목 전반의 하락 폭은 시장 상태의 한국 시장에 있습니다` : null });
+      check: rare ? `다음 한국 거래일에 코스피가 ${kospi1 < 0 ? '하락' : '상승'}을 이어가는지, 원/달러가 함께 움직이는지` : null });
   }
 
   statements.sort((a, b) => b.weight - a.weight);

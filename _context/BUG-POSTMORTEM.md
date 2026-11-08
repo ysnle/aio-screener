@@ -39,6 +39,24 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2288 - v59.76 - 매크로 달러 장은 원/달러 20거래일 +1.5%를 '원화는 안정적', 성장·한국 장은 '원화가 약해져'로 씀 (2026-11-08)
+
+- symptom/reproduction: 11/6 기준 매크로 화면에서 같은 20거래일 원/달러 +1.5%를 달러·환율 장은 '원화는 안정적입니다', 성장·소비·한국 장은 '원화가 약해져 외국인 이탈을 봐야 합니다'로 반대로 읽었다. 금리와 환율 화면의 원화 분해는 '원화 고유 약세'로 읽었다.
+- root_cause: 두 장이 각자 다른 선(2%와 1.5%)으로 원화 문장을 만들었고, 시장 상태 환율 축의 기준(보합 0.5%, 판정 2%)과도 따로 놀았다.
+- fix: rates-fx.js의 wonMoveSentence() 하나가 RULES.fx(krwFlatPct 0.5%, krwMove20dPct 2%)로 보합권·조금 약해짐/강해짐·약세/강세를 정하고, 두 장이 같은 문장을 쓴다.
+- violated_rule: 같은 화면에서 같은 기간의 같은 숫자는 한 가지로 읽는다
+- prevention: P2288: scripts/ci-esm-core-unit-check.mjs 'v59.76 a +1.5% 20-session won move is a mild weakening'
+- verification/residual: 로컬 정적 서버 + Playwright: 매크로의 달러·환율 장과 성장·한국 장이 모두 '원화가 조금 약해졌습니다(원/달러 +1.5%, 환율 기준 2% 미만)'로 읽는다.
+
+## P2287 - v59.76 - 시장 상태 신용 축이 하이일드 5일 +22bp 확대 중에 '5거래일 전 부담 → 중립'으로 표시됨 (2026-11-08)
+
+- symptom/reproduction: 11/6 기준 시장 상태 표의 신용과 위험선호 행이 하이일드 348bp, 5일 +22bp, 20거래일 +33bp인데 '부담 → 중립'(좋아짐)으로 표시됐다. 같은 화면 문장과 매크로 신용 장은 '경계 쪽으로 벌어지는 중'이라고 썼다. 20거래일 기록 판정은 10/22 부담, 10/29 해제, 10/30 부담, 11/4 해제로 8거래일 사이 두 번 풀렸다.
+- root_cause: hyWidening20Record()의 해제 조건이 '20거래일 변화 < 25bp' 하나였다. 20거래일 전 기준점이 하루짜리 급등일(10/1 324bp)이면 확대가 계속되는 중에도 변화폭이 잠깐 25bp 밑으로 떨어져 래치가 풀렸고, 다음 날 진입 기준(자체 기록 90백분위 34.9bp)에 못 미친 +33bp는 다시 들어가지 못했다.
+- fix: 20거래일 변화마다 5거래일 변화를 함께 계산해, 20거래일 변화가 25bp 밑이고 5거래일 확대가 감시선(15bp) 밑일 때만 해제한다. 도움말 판정 기준표 문구도 같은 조건으로 고쳤다.
+- violated_rule: 히스테리시스 해제는 진입 원인이 실제로 가라앉았을 때만 한다(기준점 잡음으로 풀지 않는다)
+- prevention: P2287: scripts/ci-esm-core-unit-check.mjs 'v59.76 the HY latch holds while HY widened 16bp in five sessions'
+- verification/residual: 로컬 정적 서버 + Playwright: 시장 상태가 '부담 3(추세·변동성·신용과 위험선호)', 신용 행 '부담, 같음', 투자 심리 종합 문장이 하이일드 확대를 함께 적는다. 종합 판정은 '다소 부담' 그대로.
+
 ## P2286 - v59.75 - 오늘·시장 신호 첫 6.5초에 차트 화면 전용 종목 차트 묶음(~124 KB)이 함께 내려옴 (2026-11-08)
 
 - symptom/reproduction: 로컬 ci-boot-interaction-check에서 부트 후 지연 JS가 360,954 B로 예산 350,000을 넘었다. CI(고정 시계)는 343,079로 통과해 초과가 가려졌다.
