@@ -1606,6 +1606,17 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
         const { homeNarrativeLine } = await load('src/ui/components/home-day.js');
         const homeLine = homeNarrativeLine({ windowHours: 72, stories: [{ label: '메모리 사이클', telegramCount: 12, trend: 'rising' }, { label: 'AI 투자 회수', telegramCount: 8, trend: 'steady' }, { label: '셋째', telegramCount: 3 }] });
         if (homeLine !== '많이 오가는 이야기 · 메모리 사이클 72시간 12건(24시간 늘어남), AI 투자 회수 8건(24시간 비슷함)' || homeNarrativeLine({ stories: [] }) !== null) fail(`v59.71: home narrative line broke ${homeLine}`);
+        // v59.85 (IA review 11/8): 오늘's 다음 일정 is the dated part of 시장 상태's week list, in its order — daily watch rows
+        // stay there, an earnings line names its companies, at most three.
+        const { homeAheadItems } = await load('src/ui/components/home-ahead.js');
+        const ahead = homeAheadItems([
+          { kind: 'macro', date: '2026-11-10', when: '11/10(화) 22:30 KST', title: 'CPI (소비자물가)', why: '근원 물가가 다시 오르면 금리 인하 기대가 줄어듭니다.' },
+          { kind: 'daily', date: '', when: '매일', title: '하이일드 스프레드', why: 'x' },
+          { kind: 'earnings', date: '2026-11-12', when: '11/12(목) 장 마감 후', names: 'CSCO · AMAT', title: 'CSCO 0.6% · AMAT 0.4% 실적 (S&P 500 비중)', why: 'y' },
+          { kind: 'event', date: '2026-11-13', when: '11/13(금)', title: '옵션 만기' },
+          { kind: 'event', date: '2026-11-14', when: '11/14(토)', title: '넷째' }
+        ]);
+        if (ahead.length !== 3 || ahead.some((row) => row.kind === 'daily') || ahead[1].title !== 'CSCO · AMAT 실적' || ahead[0].when !== '11/10(화) 22:30 KST' || ahead[2].why !== '' || homeAheadItems(null).length) fail(`v59.85: home next-event items broke ${JSON.stringify(ahead)}`);
         // v59.71 (quant review): the reverse DCF prices the close on the same row's split-adjusted count; the Sahm windows are
         // calendar months that tolerate one skipped release; sentiment ranks with the shared percentile convention.
         const { reverseDcfInputs } = await load('src/domain/fundamental/analysis-read.js');

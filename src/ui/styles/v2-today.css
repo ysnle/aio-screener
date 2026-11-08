@@ -51,8 +51,10 @@
   border-radius: 999px; background: var(--sx-ink-a05); font-size: 12px; 
 }
 #page-home #home-cross-assets > span.is-interactive:hover { background: var(--sx-ink-a08); }
-#page-home #home-cross-assets .sh-ink-figure { font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
-#page-home #home-cross-assets .sh-semi-figure, #page-home #home-cross-assets .sh-soft-text, #page-home #home-cross-assets .sh-muted-text { font-size: 12px; }
+/* The value leads its name (13px bold over a 12px name); shell-static.css `.page .sh-muted-text` set the name to
+   14px !important, so the name outweighed the number it labels. */
+#page-home #home-cross-assets .sh-ink-figure { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+#page-home #home-cross-assets .sh-semi-figure, #page-home #home-cross-assets .sh-soft-text, #page-home #home-cross-assets .sh-muted-text { font-size: 12px !important; }
 #page-home #home-fg-delta.aio-metric-delta { display: inline !important; font-size: 12px !important; } /* the static markup hides it inline until filled */
 #page-home #home-fg-delta:empty { display: none !important; }
 
@@ -381,3 +383,25 @@
 #page-home .home-index-week b { font-weight: 700; }
 #page-home .home-index-week b.is-up { color: var(--dir-up); }
 #page-home .home-index-week b.is-down { color: var(--dir-down); }
+
+/* ═══ 다음 일정 — the hero's second column (home-ahead.js). Now on the left, next on the right;
+   one column below 1024px, where it follows the verdict. ═══════════════════════════════════════════════════════ */
+#page-home #home-ahead.home-ahead { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding-left: 28px; border-left: 1px solid var(--sx-ink-a08); }
+#page-home #home-ahead.home-ahead[hidden] { display: none; }
+#page-home .home-ahead__label { margin: 0; font-size: 12px; font-weight: 700; color: var(--text-secondary); letter-spacing: 0; }
+#page-home .home-ahead__list { display: flex; flex-direction: column; gap: 12px; margin: 0; padding: 0; list-style: none; }
+#page-home .home-ahead__item { display: grid; gap: 2px; }
+#page-home .home-ahead__when { font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+#page-home .home-ahead__title { font-size: 14px; font-weight: 600; line-height: 1.45; color: var(--text-primary); }
+#page-home .home-ahead__why { font-size: 12px; line-height: 1.55; color: var(--text-secondary); }
+@media (max-width: 1023px) {
+  #page-home #home-ahead.home-ahead { padding: 18px 0 0; border-left: 0; border-top: 1px solid var(--sx-ink-a08); }
+}
+@media (max-width: 767px) {
+  /* The quote row on a phone: two columns of small tiles (name over value) instead of one pill per line. */
+  #page-home #home-cross-assets.home-cross-assets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  #page-home #home-cross-assets > span:not([hidden]) { flex-wrap: wrap; align-content: center; gap: 2px 6px; padding: 8px 12px; border-radius: 10px; min-width: 0; }
+  #page-home #home-cross-assets > span:not([hidden]) > .sh-muted-text:first-child { flex-basis: 100%; }
+  #page-home #home-cross-assets > span:not([hidden]) .sh-ink-figure { font-size: 15px; }
+  #page-home #home-cross-assets > span:not([hidden]) :is(.sh-semi-figure, .sh-soft-text, .aio-metric-delta) { font-size: 12px !important; } /* #home-fg-delta sets 12px !important above */
+}
