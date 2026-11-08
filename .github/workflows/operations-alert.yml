@@ -19,7 +19,9 @@ permissions:
 # failure of another workflow in B was never reconciled. Each workflow owns its own marker issue, so the group is per
 # workflow: runs racing on the same issue still serialize, and other workflows no longer evict each other.
 concurrency:
-  group: aio-operations-alert-${{ github.event.workflow_run.name }}
+  # v59.78: the workflow's name, not the run name — refresh-data.yml's run-name ('Refresh market data · scheduler') split
+  # one workflow into several alert keys, so dispatched runs never closed the scheduled run's issue (#5 stayed open).
+  group: aio-operations-alert-${{ github.event.workflow.name || github.event.workflow_run.name }}
   cancel-in-progress: false
 
 jobs:
@@ -35,7 +37,9 @@ jobs:
         with:
           script: |
             const run = context.payload.workflow_run;
-            const workflow = run.name;
+            // v59.78: run.name is the run-name (refresh-data.yml: 'Refresh market data · scheduler'); the alert key, the
+            // gated-workflow list and the issue marker all mean the workflow itself.
+            const workflow = context.payload.workflow?.name || run.name;
             const marker = `<!-- aio-operations-alert:${workflow} -->`;
             const label = 'aio-operations-alert';
             const owner = context.repo.owner;

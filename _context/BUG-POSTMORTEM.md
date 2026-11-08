@@ -39,6 +39,33 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2292 - v59.78 - Refresh market data 장애 알림(#5)이 갱신이 모두 성공한 뒤에도 닫히지 않음 (2026-11-08)
+
+- symptom/reproduction: 11/07 16:28Z 이후 Refresh market data는 전부 성공했지만 이슈 #5는 11/08까지 열린 채 남았다.
+- root_cause: operations-alert.yml이 workflow_run.name(run-name)을 알림 키로 썼다. refresh-data.yml의 run-name은 디스패치 때 'Refresh market data · scheduler'라 30분 주기 실행이 다른 키로 처리됐고, #5를 닫을 수 있는 예약 실행은 직전 스케줄러 실행 덕에 cadence 게이트에서 할 일을 건너뛰어 '관측된 작업 없음'으로 끝났다.
+- fix: 알림 키·동시성 그룹을 워크플로 이름(context.payload.workflow.name)으로 바꿨다. 디스패치 실행도 같은 이슈를 갱신·복구하고 cadence 게이트 판정도 같은 워크플로로 적용된다.
+- violated_rule: 한 워크플로의 장애 알림은 그 워크플로의 모든 실행이 같은 키로 판정한다.
+- prevention: P2292: ci-workspace-contract-check가 workflow 이름 키와 동시성 그룹을 검사한다.
+- verification/residual: ci-workspace-contract-check, ci-operations-alert-source-check PASS.
+
+## P2291 - v59.78 - 데이터 워치독이 저장소 정리 항목(문서 카탈로그·브라우저 고정본 데이터 모양) 때문에 빨간불을 이어가 실제 데이터 장애 신호를 묻음 (2026-11-08)
+
+- symptom/reproduction: 11/08 00:46~06:55Z 워치독 13회 연속 실패가 모두 watchdog-browser-data-pin-drift(생산자가 news[].titleKoFailed 등 필드 추가)였고, 07:13Z에는 watchdog-knowledge-lint(카탈로그 바이트 불일치)였다. 그동안 데이터·라이브 평면 검사는 통과했다.
+- root_cause: 워치독 프로필이 사용자 데이터 신선도 검사와 저장소 유지보수 검사를 같은 빨간불로 합쳤다. 유지보수 항목은 CI·로컬에서 이미 막히거나 따로 다뤄지는데 워치독이 같은 실패를 반복 보고했다.
+- fix: qa-pipeline.json 게이트에 watchdogRole: maintenance를 두고(watchdog-knowledge-lint, watchdog-browser-data-pin-drift) qa-live-data.mjs failureBlocks가 watchdog 프로필에서만 이를 ADVISORY로 보고한다. CI·로컬 실행과 데이터·라이브 게이트는 그대로 실패한다.
+- violated_rule: 워치독 빨간불은 사용자가 보는 데이터나 라이브 사이트가 틀렸을 때만 켜진다.
+- prevention: P2291: ci-release-source-check가 maintenance 역할이 이 두 쌍둥이 게이트에만 있고 watchdog 프로필 밖에서는 계속 막힘을 검사한다.
+- verification/residual: failureBlocks 단위 검사 4건, qa-pipeline 역할 목록 검사 PASS.
+
+## P2290 - v59.78 - 코드 병합 하나의 push CI가 빨간불이면 그 뒤 데이터 갱신 전부가 배포 거부되어 라이브 데이터가 몇 시간씩 멈춤 (2026-11-08)
+
+- symptom/reproduction: 11/07 09:26~12:03Z(v59.71), 13:25~16:45Z(#150 browser-boot 예산), 11/08 07:12Z~(#158 CONTEXT-CATALOG 17바이트 불일치) 동안 Refresh market data는 데이터를 커밋했지만 CI attest 단계가 'source commit has no successful full push CI'로 거부해 Pages가 갱신되지 않았다. 11/07 03:01Z에는 v59.70 push CI가 끝나기 2분 전에 refresh CI가 attest에 도달해 거부됐다.
+- root_cause: 축소 범위(refresh) 릴리스는 커밋 아래 최신 코드 커밋의 full push CI 성공만 신뢰 기준으로 삼았다. 코드가 빨간불이면 대안 없이 거부했고, 코드 CI가 아직 도는 중이어도 기다리지 않고 거부했다. 데이터 신선도가 코드 건강에 묶여 있었다.
+- fix: scripts/resolve-release-source.mjs가 preflight에서 direct(코드 green)·wait(코드 CI 진행 중, 최대 15분 폴링)·overlay(코드 red → full push CI를 통과한 최신 코드 커밋)를 정한다. overlay면 scripts/build-data-overlay.mjs가 그 코드 트리 위에 refresh 커밋의 생성 경로(public-data, 매니페스트 3개, public-config)를 올리고 앱 리비전 표기를 코드 버전으로 맞춘다. CI 계약 샤드와 Pages 배포가 같은 트리를 쓰고, attest는 --verify-code-sha로 다시 확인한다. attestation·deployment.json에 releaseMode/codeSha를 남기고, 워치독 pages-repository-revision은 오버레이일 때 그 이유를 적은 채 계속 error로 남는다.
+- violated_rule: 데이터 평면은 코드 릴리스 실패와 독립적으로 흘러야 한다: 사용자가 보는 데이터가 멈추는 것이 가장 큰 결함이다(소유자 2026-11-08).
+- prevention: P2290: scripts/ci-release-source-check.mjs(core 그룹 release-source 게이트)가 direct·treesame·wait·overlay·refuse 판정과 리비전 재표기, ci.yml·pages-deploy.yml 배선을 검사한다.
+- verification/residual: 실제 트리로 재현: 6d9c75a(v59.75, 마지막 green push CI) 코드 + 0ec251d(07:32Z refresh) 데이터 오버레이에서 AIO_QA_ORIGIN=ci core 66·data 41·knowledge 8 전부 PASS, 리비전 파일 5개 v59.75로 재표기.
+
 ## P2289 - v59.77 - 신용 20거래일 판정의 '부담 시작일'이 날마다 뒤로 밀림(10/30 → 11/3) (2026-11-08)
 
 - symptom/reproduction: 같은 하이일드 기록에서 11/2에는 부담 시작일이 10/30, 11/5에는 11/3으로 바뀌었다. 판정은 이어지는데 시작일만 움직였다.

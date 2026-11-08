@@ -799,7 +799,7 @@ function runGate(gate) {
           }
         }
 
-        const advisory = status === 'FAIL' && !failureBlocks(gate, origin);
+        const advisory = status === 'FAIL' && !failureBlocks(gate, origin, profile);
         const result = {
           id: gate.id,
           group: gate.group,
@@ -830,7 +830,7 @@ function runGate(gate) {
           writeJsonAtomic(cachePath, successCache);
           console.log(`[qa] PASS ${gate.id} (${durationMs}ms)`);
         } else {
-          console.error(`[qa] ${advisory ? 'ADVISORY' : 'FAIL'} ${gate.id} (${durationMs}ms${timedOut ? ', timeout' : ''})${advisory ? ' — live content in a CI contract shard; its watchdog twin keeps watching it' : ''}`);
+          console.error(`[qa] ${advisory ? 'ADVISORY' : 'FAIL'} ${gate.id} (${durationMs}ms${timedOut ? ', timeout' : ''})${advisory ? (profile === 'watchdog' ? ' — repository upkeep, reported by the data watchdog; CI and local runs still fail on it' : ' — live content in a CI contract shard; its watchdog twin keeps watching it') : ''}`);
           // v58.86: job logs expire and their download host is not reachable from every agent session, but check-run
           // annotations stay readable through the API, so the quarterly gate cleanup can count failures per gate.
           const level = advisory ? 'warning' : 'error';

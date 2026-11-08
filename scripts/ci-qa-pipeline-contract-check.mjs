@@ -591,11 +591,14 @@ check('v57.92 W06 default convergence branch propagates a settled CI failure',
   // v58.20 review B2: a refresh-dispatched run tests fewer groups, but its commit contains every human commit underneath.
   const attestJob = ciSource.slice(ciSource.indexOf('\n  attest:'));
   const guardAt = attestJob.indexOf('Reduced-scope release sits on a fully tested source commit');
+  // v59.78: the first-parent lookup and the push-CI query moved into resolve-release-source.mjs (ci-release-source-check.mjs).
+  const resolver = read('scripts/resolve-release-source.mjs');
   check('v58.20 reduced-scope refresh CI attests only on top of a source commit with a successful full push CI',
     guardAt > 0 && guardAt < attestJob.indexOf('Build immutable release attestation')
       && /if: needs\.preflight\.outputs\.reduced_scope == 'true'/.test(attestJob)
-      && /git log -1 --first-parent --format=%H "\$EXPECTED_SHA" -- \. ':\(exclude\)public-data'/.test(attestJob)
-      && /event=push&status=success/.test(attestJob) && /permissions:\s*\n\s*contents: read\s*\n\s*actions: read/.test(attestJob));
+      && /resolve-release-source\.mjs --sha "\$EXPECTED_SHA" --verify-code-sha "\$CODE_SHA"/.test(attestJob)
+      && /'log', '-1', '--first-parent', '--format=%H'/.test(resolver) && /event=push/.test(resolver)
+      && /permissions:\s*\n\s*contents: read\s*\n\s*actions: read/.test(attestJob));
 }
 {
   // v58.70 (owner 2026-10-23): refresh commits are attested by the data/core/knowledge contracts; the browser shards
