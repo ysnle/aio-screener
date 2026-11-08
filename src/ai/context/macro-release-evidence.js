@@ -80,7 +80,9 @@ export function buildMacroReleaseEvidence({ macro = null, macroHistory = null, n
   // 10년 − 2년 on one date only: a spread older or newer than either leg is not the curve the screen draws.
   const spread = finite(macro.t10y2y) ? Number(macro.t10y2y) : null;
   const spreadDay = day(macro._asOf_t10y2y);
-  if (spread != null && isDay(spreadDay) && spreadDay === day(macro._asOf_dgs2) && spreadDay === day(macro._asOf_dgs10) && Date.parse(spreadDay) <= nowMs) {
+  // A spread or a leg the producer kept from an earlier run (stale/carried freshness) is not current evidence either.
+  const curveFresh = ['t10y2y', 'dgs2', 'dgs10'].every(usable);
+  if (spread != null && curveFresh && isDay(spreadDay) && spreadDay === day(macro._asOf_dgs2) && spreadDay === day(macro._asOf_dgs10) && Date.parse(spreadDay) <= nowMs) {
     out.push(row({ metric: 'macro.curve_2s10s', entity: 'UST_2S10S', label: '미 국채 10년−2년 금리차(공식 곡선, 같은 날)', value: round(spread * 100, 0), unit: 'bp', asOf: spreadDay, period: 'day', origin: macro._source_t10y2y }));
   }
   return Object.freeze(out);
