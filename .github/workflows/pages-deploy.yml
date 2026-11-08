@@ -112,11 +112,23 @@ jobs:
           sha="$(node -e "const a=require(process.argv[1]); if(a.schemaVersion!=='aio-release-attestation.v1'||!/^([0-9a-f]{40})$/.test(a.testedSha)||String(a.runId)!==process.env.EXPECTED_RUN_ID||a.repository!==process.env.GITHUB_REPOSITORY) process.exit(1); process.stdout.write(a.testedSha)" "$file")"
           test "$sha" = "$WORKFLOW_SHA"
           echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          # v59.78: a data-overlay release ships the refresh commit's data on the last code that passed full push CI.
+          code_sha="$(node -e "const a=require(process.argv[1]); if(a.releaseMode==='data-overlay'){ if(!/^([0-9a-f]{40})$/.test(a.codeSha||'')) process.exit(1); process.stdout.write(a.codeSha); }" "$file")"
+          echo "code_sha=$code_sha" >> "$GITHUB_OUTPUT"
+          if [ -n "$code_sha" ]; then echo "::warning::data overlay release: data $sha on code $code_sha (the newest code under it is not attested)"; fi
 
       - name: Checkout exact attested SHA
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ steps.release.outputs.sha }}
+
+      # The same builder CI ran its contracts on, copied out first because the code commit may predate it.
+      - name: Build the attested data overlay tree
+        if: steps.release.outputs.code_sha != ''
+        run: |
+          set -euo pipefail
+          cp scripts/build-data-overlay.mjs "$RUNNER_TEMP/build-data-overlay.mjs"
+          node "$RUNNER_TEMP/build-data-overlay.mjs" --code-sha "${{ steps.release.outputs.code_sha }}" --data-sha "${{ steps.release.outputs.sha }}"
 
       - name: Setup Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -135,6 +147,7 @@ jobs:
           AIO_SOURCE_SHA: ${{ steps.release.outputs.sha }}
           AIO_ATTESTATION_RUN_ID: ${{ steps.source.outputs.run_id }}
           AIO_DEPLOYMENT_RUN_ID: ${{ github.run_id }}
+          AIO_CODE_SHA: ${{ steps.release.outputs.code_sha }}
         run: |
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/pages-dist/js" "$RUNNER_TEMP/pages-dist/src" "$RUNNER_TEMP/pages-dist/public-data"
@@ -168,7 +181,7 @@ jobs:
           grep -q "^const SW_CODE_HASH = 'local';$" "$RUNNER_TEMP/pages-dist/sw.js" || { echo "::error::sw.js SW_CODE_HASH placeholder missing"; exit 1; }
           sed -i "s/^const SW_CODE_HASH = 'local';$/const SW_CODE_HASH = '${code_hash}';/" "$RUNNER_TEMP/pages-dist/sw.js"
           echo "service worker code hash: ${code_hash}"
-          node --input-type=module -e "import fs from 'node:fs'; const version=JSON.parse(fs.readFileSync('version.json','utf8')).version; const artifact={schemaVersion:'aio-deployment.v1',sourceSha:process.env.AIO_SOURCE_SHA,appRevision:version,attestationRunId:Number(process.env.AIO_ATTESTATION_RUN_ID),deploymentRunId:Number(process.env.AIO_DEPLOYMENT_RUN_ID),deployedAt:new Date().toISOString(),bundle:JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP+'/aio-bundle-manifest.json','utf8'))}; if(!/^[0-9a-f]{40}$/.test(artifact.sourceSha)) process.exit(1); fs.writeFileSync(process.env.RUNNER_TEMP+'/pages-dist/deployment.json',JSON.stringify(artifact,null,2)+'\n');"
+          node --input-type=module -e "import fs from 'node:fs'; const version=JSON.parse(fs.readFileSync('version.json','utf8')).version; const artifact={schemaVersion:'aio-deployment.v1',sourceSha:process.env.AIO_SOURCE_SHA,appRevision:version,attestationRunId:Number(process.env.AIO_ATTESTATION_RUN_ID),deploymentRunId:Number(process.env.AIO_DEPLOYMENT_RUN_ID),deployedAt:new Date().toISOString(),releaseMode:process.env.AIO_CODE_SHA?'data-overlay':'direct',...(process.env.AIO_CODE_SHA?{codeSha:process.env.AIO_CODE_SHA}:{}),bundle:JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP+'/aio-bundle-manifest.json','utf8'))}; if(!/^[0-9a-f]{40}$/.test(artifact.sourceSha)) process.exit(1); fs.writeFileSync(process.env.RUNNER_TEMP+'/pages-dist/deployment.json',JSON.stringify(artifact,null,2)+'\n');"
 
       - name: Setup Pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0

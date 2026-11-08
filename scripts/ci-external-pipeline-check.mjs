@@ -116,11 +116,14 @@ async function observeOnce() {
     const dataAge = ageMinutes(data?.meta?.generatedAt);
     const screenerAge = ageMinutes(screener?.asOf);
     const telegramAge = ageMinutes(telegram?.generatedAt);
-    result.pages = { version: version?.version || null, sourceSha: deployment?.sourceSha || null, attestationRunId: deployment?.attestationRunId || null, deploymentRunId: deployment?.deploymentRunId || null, configRevision: config?.appRevision || null, dataAgeMinutes: dataAge, screenerAgeMinutes: screenerAge, telegramAgeMinutes: telegramAge, snapshotRevision: snapshot?.revision || null };
+    result.pages = { version: version?.version || null, sourceSha: deployment?.sourceSha || null, attestationRunId: deployment?.attestationRunId || null, deploymentRunId: deployment?.deploymentRunId || null, configRevision: config?.appRevision || null, dataAgeMinutes: dataAge, screenerAgeMinutes: screenerAge, telegramAgeMinutes: telegramAge, snapshotRevision: snapshot?.revision || null, releaseMode: deployment?.releaseMode || 'direct', codeSha: deployment?.codeSha || null };
     check('pages-deployment-identity', deployment?.schemaVersion === 'aio-deployment.v1' && /^[0-9a-f]{40}$/.test(deployment?.sourceSha || '') && deployment?.appRevision === version?.version && Number.isInteger(deployment?.attestationRunId) && Number.isInteger(deployment?.deploymentRunId), JSON.stringify(result.pages));
     if (mode === 'release') check('pages-exact-expected-sha', !!process.env.AIO_EXPECTED_SHA && deployment?.sourceSha === process.env.AIO_EXPECTED_SHA, `live=${deployment?.sourceSha || 'missing'} expected=${process.env.AIO_EXPECTED_SHA || 'missing'}`);
     check('pages-version-config', version?.version && config?.appRevision === version.version, `version=${version?.version || 'missing'} config=${config?.appRevision || 'missing'}`);
-    check('pages-repository-revision', version?.version === localVersion, `live=${version?.version || 'missing'} local=${localVersion}`);
+    // v59.78: a data-overlay release keeps the data current on the last code that passed full push CI; the newer code is
+    // still unreleased, so this stays an error and names why.
+    const overlayNote = deployment?.releaseMode === 'data-overlay' ? ` (data overlay on code ${String(deployment.codeSha || '').slice(0, 12)}: the newest code commit has no successful full push CI)` : '';
+    check('pages-repository-revision', version?.version === localVersion, `live=${version?.version || 'missing'} local=${localVersion}${overlayNote}`);
     if (mode !== 'refresh-deploy') {
       // v59.70: a source release ships the data of its attested SHA; whether the producers have kept that data current is
       // the watchdog's verdict. As release errors, a stalled producer also failed every code deploy (11/01~11/03: 13 of 14

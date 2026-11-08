@@ -236,6 +236,19 @@
           "script": "scripts/ci-control-char-check.mjs"
         },
         {
+          "id": "release-source",
+          "script": "scripts/ci-release-source-check.mjs",
+          "inputs": [
+            "scripts/ci-release-source-check.mjs",
+            "scripts/resolve-release-source.mjs",
+            "scripts/build-data-overlay.mjs",
+            "scripts/lib/qa-live-data.mjs",
+            "architecture/qa-pipeline.json",
+            ".github/workflows/ci.yml",
+            ".github/workflows/pages-deploy.yml"
+          ]
+        },
+        {
           "id": "version",
           "script": "scripts/ci-version-check.mjs",
           "remedy": "node scripts/bump-version.mjs <version>",
@@ -2531,6 +2544,7 @@
         },
         {
           "id": "watchdog-knowledge-lint",
+          "watchdogRole": "maintenance",
           "script": "scripts/ci-knowledge-lint-check.mjs",
           "cache": false,
           "inputs": [
@@ -2550,6 +2564,7 @@
         },
         {
           "id": "watchdog-browser-data-pin-drift",
+          "watchdogRole": "maintenance",
           "script": "scripts/ci-browser-data-pin-drift-check.mjs",
           "cache": false
         }

@@ -13,6 +13,7 @@ auto_refresh: false
 | 증상 | 먼저 볼 곳 | 할 일 |
 |---|---|---|
 | 화면 숫자가 오래됨(지연 표시) | 열린 `[Operations] Refresh market data` 이슈의 "Failed jobs/gates" | 실패한 단계 이름을 Claude에게 그대로 전달한다. 화면은 마지막 값과 날짜를 계속 보여 주므로 급하지 않다. |
+| 워치독 `pages-repository-revision`가 "data overlay on code …"를 적음 (v59.78) | `deployment.json`의 `releaseMode`·`codeSha`, main 최신 코드 커밋의 CI | 데이터는 정상 갱신 중이다(마지막 green 코드 위에 데이터만 올려 배포). 새 코드의 push CI 실패 원인을 고쳐 push하면 다음 갱신부터 직접 릴리스로 돌아온다. |
 | 사이트가 안 열리거나 깨짐 | Actions → Deploy GitHub Pages 최근 실행 | 직전 변경이 원인이면 §5a대로 `git revert` 후 push. 과거 SHA 재배포는 쓰지 않는다. |
 | AI가 답하지 않음 | `https://aio-proxy.zmfhd007.workers.dev/health` | `ai.ready`가 false면 `ai.configured`(OpenAI 키)와 `ai.killSwitch`를 본다. 월 예산이 소진됐다면 다음 달(UTC) 1일까지 거절하는 것이 정상이다. |
 | 주간 점검에 토큰 만료 | 이슈 표의 안내 | 토큰을 재발급해 같은 이름의 저장소 Secret을 교체한다. 디스패치 토큰은 교체 후 `deploy-data-plane.yml`을 수동 실행해야 Worker에 반영된다. |

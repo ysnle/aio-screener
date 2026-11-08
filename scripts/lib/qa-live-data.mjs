@@ -17,8 +17,17 @@ export function qaOrigin(env = process.env) {
   return env.AIO_QA_ORIGIN === CI_ORIGIN ? CI_ORIGIN : 'source';
 }
 
+// v59.78 (automation audit 2026-11-08): the data freshness watchdog is red only for what a reader sees — stale or
+// missing live data, a live site or Worker that diverged from the repository. Repository upkeep that it also runs
+// (context catalog/document age, the browser fixture's pinned data shape) declares `watchdogRole: "maintenance"`: in the
+// watchdog profile its failure is reported (ADVISORY) and still blocks CI and every local run. On 11/08 00:46-07:15Z every
+// watchdog run was red for a producer adding a field (fixture pin drift) and then a 17-byte catalog mismatch, so the
+// alert said "13 consecutive failures" while the data itself was current.
+export const WATCHDOG_PROFILE = 'watchdog';
+
 /** true when a failure of this gate fails the run (false = reported as ADVISORY). */
-export function failureBlocks(gate, origin) {
+export function failureBlocks(gate, origin, profile = null) {
+  if (profile === WATCHDOG_PROFILE && gate?.watchdogRole === 'maintenance') return false;
   return !(origin === CI_ORIGIN && gate?.liveData === 'content');
 }
 
